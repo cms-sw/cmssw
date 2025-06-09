@@ -39,6 +39,8 @@
 #include <set>
 #include <map>
 #include <memory>
+#include <string_view>
+
 //
 #include <boost/date_time/posix_time/posix_time.hpp>
 
@@ -59,7 +61,7 @@
     static constexpr char const* name = #NAME;                                                       \
     typedef TYPE type;                                                                               \
     static constexpr size_t size = SIZE;                                                             \
-    static std::string tableName() { return std::string(tname); }                                    \
+    static constexpr std::string_view tableName() { return std::string_view(tname); }                \
     static std::string fullyQualifiedName() { return std::string(tname) + "." + std::string(name); } \
   };
 
@@ -331,7 +333,8 @@ namespace cond {
       template <typename Column, typename ReferencedColumn>
       void setForeignKey(const std::string& name) {
         checkColumns<0, Column>();
-        m_description.createForeignKey(name, Column::name, ReferencedColumn::tableName(), ReferencedColumn::name);
+        m_description.createForeignKey(
+            name, Column::name, std::string(ReferencedColumn::tableName()), ReferencedColumn::name);
       }
 
       const coral::TableDescription& get() { return m_description; }
@@ -388,7 +391,7 @@ namespace cond {
       }
     };
     template <std::size_t n>
-    struct GetFromRow<std::array<char, n> > {
+    struct GetFromRow<std::array<char, n>> {
       std::string operator()(const coral::AttributeList& row, const std::string& fullyQualifiedName) {
         std::string val = row[fullyQualifiedName].data<std::string>();
         if (val.size() != n)
@@ -492,7 +495,7 @@ namespace cond {
       }
     };
     template <std::size_t n>
-    struct DefineQueryOutput<std::array<char, n> > {
+    struct DefineQueryOutput<std::array<char, n>> {
       static void make(coral::IQuery& query, const std::string& fullyQualifiedName) {
         query.addToOutputList(fullyQualifiedName);
         query.defineOutputType(fullyQualifiedName, coral::AttributeSpecification::typeNameForType<std::string>());
@@ -514,8 +517,9 @@ namespace cond {
       template <typename Col>
       Query& addTable() {
         if (m_tables.find(Col::tableName()) == m_tables.end()) {
-          m_coralQuery->addToTableList(Col::tableName());
-          m_tables.insert(Col::tableName());
+          std::string const tb{Col::tableName()};
+          m_coralQuery->addToTableList(std::string(tb));
+          m_tables.insert(std::move(tb));
         }
         return *this;
       }
@@ -602,7 +606,7 @@ namespace cond {
       size_t m_retrievedRows = 0;
       coral::AttributeList m_whereData;
       std::string m_whereClause;
-      std::set<std::string> m_tables;
+      std::set<std::string, std::less<>> m_tables;
     };
 
     class UpdateBuffer {

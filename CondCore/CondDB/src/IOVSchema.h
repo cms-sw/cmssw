@@ -116,7 +116,7 @@ namespace cond {
       struct SINCE_GROUP {
         typedef cond::Time_t type;
         static constexpr size_t size = 0;
-        static std::string tableName() { return SINCE::tableName(); }
+        static constexpr std::string_view tableName() { return SINCE::tableName(); }
         static std::string fullyQualifiedName() { return "MIN(" + SINCE::fullyQualifiedName() + ")"; }
         static std::string group(unsigned long long groupSize) {
           std::string sgroupSize = std::to_string(groupSize);
@@ -127,21 +127,21 @@ namespace cond {
       struct SEQUENCE_SIZE {
         typedef unsigned int type;
         static constexpr size_t size = 0;
-        static std::string tableName() { return SINCE::tableName(); }
+        static constexpr std::string_view tableName() { return SINCE::tableName(); }
         static std::string fullyQualifiedName() { return "COUNT(*)"; }
       };
 
       struct MIN_SINCE {
         typedef cond::Time_t type;
         static constexpr size_t size = 0;
-        static std::string tableName() { return SINCE::tableName(); }
+        static constexpr std::string_view tableName() { return SINCE::tableName(); }
         static std::string fullyQualifiedName() { return "MIN(" + SINCE::fullyQualifiedName() + ")"; }
       };
 
       struct MAX_SINCE {
         typedef cond::Time_t type;
         static constexpr size_t size = 0;
-        static std::string tableName() { return SINCE::tableName(); }
+        static constexpr std::string_view tableName() { return SINCE::tableName(); }
         static std::string fullyQualifiedName() { return "MAX(" + SINCE::fullyQualifiedName() + ")"; }
       };
 
