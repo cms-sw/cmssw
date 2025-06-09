@@ -66,6 +66,7 @@ namespace tt {
     iConfig_.tbWidthsR_ = pSetHybrid.getParameter<std::vector<int>>("WidthsRTB");
     const edm::ParameterSet& pSetFW = iConfig.getParameter<edm::ParameterSet>("Firmware");
     iConfig_.enableTruncation_ = pSetFW.getParameter<bool>("EnableTruncation");
+    iConfig_.useHybrid_ = pSetFW.getParameter<bool>("UseHybrid");
     iConfig_.widthDSPa_ = pSetFW.getParameter<int>("WidthDSPa");
     iConfig_.widthDSPb_ = pSetFW.getParameter<int>("WidthDSPb");
     iConfig_.widthDSPc_ = pSetFW.getParameter<int>("WidthDSPc");
