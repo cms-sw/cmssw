@@ -25,7 +25,7 @@ namespace phase2tkutil {
     float A = 1. / (2. * K);
     float x0p = delx - A * std::sin(phi);
     float y0p = dely + A * std::cos(phi);
-    constexpr float pi = 4.0 * std::atan(1.0);
+    const float pi = 4.0 * std::atan(1.0);
     float delphi = phi - std::atan2(-K * x0p, K * y0p);
 
     if (delphi < -pi) delphi += 2.0 * pi;
