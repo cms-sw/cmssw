@@ -158,6 +158,7 @@ public:
   std::pair<double, double> rangeRLayer(int lay, bool reco) const;
   std::pair<double, double> rangeZ(bool reco) const;
   std::pair<int, int> rowColumnWafer(const int wafer) const;
+  bool scintFine(int layer) const { return (hgpar_->scintFine(layer - hgpar_->firstLayer_)); }
   inline int sectors() const { return hgpar_->nSectors_; }
   double sensorSizeOffset(bool reco) const;
   std::pair<int, int> simToReco(int cell, int layer, int mod, bool half) const;
