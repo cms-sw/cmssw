@@ -68,8 +68,8 @@ namespace ecaldqm {
     if (ByLumiResetSwitch) {
       MEs_.at("EtSummaryByLumi").reset(GetElectronicsMap());
       MEs_.at("TTFlags4ByLumi").reset(GetElectronicsMap());
-      MEs_.at("LHCStatusByLumi").reset(GetElectronicsMap(), -1);      
-   }
+      MEs_.at("LHCStatusByLumi").reset(GetElectronicsMap(), -1);
+    }
 
     if (!lhcStatusSet) {
       // Update LHC status once each LS
@@ -231,12 +231,14 @@ namespace ecaldqm {
       meEtSummary.fill(getEcalDQMSetupObjects(), ttid, et);
       meEtSummaryByLumi.fill(getEcalDQMSetupObjects(), ttid, et);
 
-      if (et > 30) etSum_ += et;
-      
+      if (et > 30)
+        etSum_ += et;
+
       if (ttid.subDet() == EcalBarrel) {
-	if (mapTowerOfflineSpikes_[ttid] == 1) {
+        if (mapTowerOfflineSpikes_[ttid] == 1) {
           meEtRealSpikeMatched.fill(getEcalDQMSetupObjects(), ttid, et);
-          if (et > 30) etSpikeMatchSum_ += et;
+          if (et > 30)
+            etSpikeMatchSum_ += et;
         }
       }
 
@@ -300,18 +302,19 @@ namespace ecaldqm {
 
     // Integrate Et with Et > thres with threshold scan : FIXME -> more efficienct way?
     int nThresEtBin = 128;
-    
-    for (int thres=1; thres<=nThresEtBin; thres++) {
+
+    for (int thres = 1; thres <= nThresEtBin; thres++) {
       int nFiltered = 0;
       int nFilteredSpikeMatched = 0;
-      for (int iBin=thres; iBin<=nThresEtBin; iBin++) {
-	nFiltered += meEtReal.getBinContent(getEcalDQMSetupObjects(), EcalBarrel, iBin);
+      for (int iBin = thres; iBin <= nThresEtBin; iBin++) {
+        nFiltered += meEtReal.getBinContent(getEcalDQMSetupObjects(), EcalBarrel, iBin);
         nFilteredSpikeMatched += meEtRealSpikeMatched.getBinContent(getEcalDQMSetupObjects(), EcalBarrel, iBin);
       }
       meEtRealIntVsThres.setBinContent(getEcalDQMSetupObjects(), EcalBarrel, thres, nFiltered);
       meEtRealSpikeMatchedIntVsThres.setBinContent(getEcalDQMSetupObjects(), EcalBarrel, thres, nFilteredSpikeMatched);
       if (nFiltered != 0)
-        meEffSpikeMatch.setBinContent(getEcalDQMSetupObjects(), EcalBarrel, thres, double(nFilteredSpikeMatched)/nFiltered);
+        meEffSpikeMatch.setBinContent(
+            getEcalDQMSetupObjects(), EcalBarrel, thres, double(nFilteredSpikeMatched) / nFiltered);
     }
   }  // TrigPrimTask::runOnRealTPs()
 
@@ -422,10 +425,10 @@ namespace ecaldqm {
         EcalTrigTowerDetId ttid = EBDetId(id).tower();
         if (hit.energy() >= mapTowerMaxRecHitEnergy_[ttid]) {
           mapTowerMaxRecHitEnergy_[ttid] = hit.energy();
-	  int bitSeverity = sevLevel->severityLevel(EBDetId(id), _hits);
+          int bitSeverity = sevLevel->severityLevel(EBDetId(id), _hits);
           mapTowerOfflineSpikes_[ttid] = ((bitSeverity == 3) || (bitSeverity == 4));
         }
-      } // For spike-killer related plots
+      }  // For spike-killer related plots
     });
   }
 
@@ -435,7 +438,7 @@ namespace ecaldqm {
 
     meTrendEtSum.fill(getEcalDQMSetupObjects(), EcalBarrel, double(timestamp_.iLumi), etSum_);
     meTrendEtSpikeMatchSum.fill(getEcalDQMSetupObjects(), EcalBarrel, double(timestamp_.iLumi), etSpikeMatchSum_);
-    
+
     etSum_ = 0.;
     etSpikeMatchSum_ = 0.;
   }

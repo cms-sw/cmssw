@@ -37,8 +37,8 @@ namespace ecaldqm {
     void runOnEmulTPs(EcalTrigPrimDigiCollection const&);
     template <typename DigiCollection>
     void runOnDigis(DigiCollection const&);
-    void runOnRecHits(EcalRecHitCollection const&, Collections); 
-    
+    void runOnRecHits(EcalRecHitCollection const&, Collections);
+
     void setTokens(edm::ConsumesCollector&) override;
 
     enum Constants { nBXBins = 15 };
@@ -74,7 +74,7 @@ namespace ecaldqm {
 
     edm::InputTag lhcStatusInfoCollectionTag_;
     edm::EDGetTokenT<TCDSRecord> lhcStatusInfoRecordToken_;
-  
+
     std::map<EcalTrigTowerDetId, float> mapTowerMaxRecHitEnergy_;
     std::map<EcalTrigTowerDetId, int> mapTowerOfflineSpikes_;
     edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> severityToken_;
@@ -109,7 +109,7 @@ namespace ecaldqm {
           runOnDigis(*static_cast<EEDigiCollection const*>(_p));
         return true;
         break;
-     default:
+      default:
         break;
     }
     return false;
