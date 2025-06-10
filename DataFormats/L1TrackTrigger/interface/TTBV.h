@@ -389,8 +389,8 @@ private:
 
   // check if value fits into binary BV
   void checkU(unsigned long long int value) {
-    if (size_ == 0)
-      return;
+    if (size_ <= 0 || size_ > S_)
+      throwSize();
     if (value < iMax())
       return;
     cms::Exception exception("RunTimeError.");
@@ -401,8 +401,6 @@ private:
 
   // check if value fits into twos's complement BV
   void checkT(int value) {
-    if (size_ == 0)
-      return;
     static const std::array<double, S_ + 1> lut = powersOfTwo();
     auto abs = [](int val) { return val < 0 ? std::abs(val) - 1 : val; };
     if (abs(value) < std::round(lut[size_ - 1]))
@@ -415,8 +413,8 @@ private:
 
   // check if value fits into twos complement / binary BV
   void checkI(int value) {
-    if (size_ == 0)
-      return;
+    if (size_ <= 0 || size_ > S_)
+      throwSize();
     if (twos_)
       checkT(value);
     else if (value < 0) {
@@ -426,6 +424,13 @@ private:
       throw exception;
     } else
       checkU(value);
+  }
+
+  // nonsensical bitwith of smaller equal 0 or unsupported size, bigger 64, deteced
+  void throwSize() const {
+    cms::Exception exception("RunTimeError.");
+    exception << "TTBV constructor called with bad bit width (" << size_ << ").";
+    throw exception;
   }
 };
 
