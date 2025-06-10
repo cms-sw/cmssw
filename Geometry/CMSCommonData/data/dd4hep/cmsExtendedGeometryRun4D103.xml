@@ -63,7 +63,7 @@
     <Include ref='Geometry/HGCalCommonData/data/hgcalEE/v17/hgcalEE.xml'/>
     <Include ref='Geometry/HGCalCommonData/data/hgcalHEsil/v17/hgcalHEsil.xml'/>
     <Include ref='Geometry/HGCalCommonData/data/hgcalHEmix/v17/hgcalHEmix.xml'/>
-    <Include ref='Geometry/HGCalCommonData/data/hgcalCons/v17n/hgcalCons.xml'/>
+    <Include ref='Geometry/HGCalCommonData/data/hgcalCons/v17ng/hgcalCons.xml'/>
     <Include ref='Geometry/HGCalCommonData/data/hgcalConsData/v17/hgcalConsData.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mbCommon/2021/v1/mbCommon.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mb1/2015/v2/mb1.xml'/>
