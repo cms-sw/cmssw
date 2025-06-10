@@ -6,8 +6,8 @@ from SimCalorimetry.HGCalSimAlgos.hgcSensorOpParams_cfi import hgcSiSensorIleak,
 # Base configurations for HGCal digitizers
 eV_per_eh_pair = 3.62
 fC_per_ele     = 1.6020506e-4
-nonAgedCCEs    = [1.0, 1.0, 1.0, 1.0]            # HD120, LD200, LD300, HD120 um (in electrons) - the last entry will be ignored for v<v19
-nonAgedNoises  = [2100.0,2100.0,1600.0,2100.0]   # " " notice the noise is further scaled by the size of the cell
+nonAgedCCEs    = [1.0, 1.0, 1.0, 1.0]            # HD120, LD200, LD300, HD200 um ([0-1]) - the last entry will be ignored for v<v19
+nonAgedNoises  = [2100.0,2100.0,1600.0,2100.0]   # " "  [e-] notice the noise is further scaled by the size of the cell
 nonAgedNoises_v9 = [2000.0,2400.0,2000.0,2400.0] # " "
 thresholdTracksMIP = True
 
@@ -26,7 +26,7 @@ HGCAL_noise_fC = cms.PSet(
     scaleByDoseAlgo = cms.uint32(0),
     scaleByDoseFactor = cms.double(1),
     doseMap = cms.string(""),
-    values = cms.vdouble( [x*fC_per_ele for x in nonAgedNoises] ), #100,200,300 um
+    values = cms.vdouble( [x*fC_per_ele for x in nonAgedNoises] ), #HD 120, LD 200, LD 300, HD 200
     )
 
 HFNose_noise_fC = HGCAL_noise_fC.clone()
@@ -362,7 +362,7 @@ def HGCal_disableNoise(process):
         scaleByDoseAlgo = cms.uint32(0),
         scaleByDoseFactor = cms.double(1),
         doseMap = cms.string(""),
-        values = cms.vdouble(0,0,0,0), #100,200,300 um
+        values = cms.vdouble(0,0,0,0), #HD 120, LD 200, LD 300, HD 200
     )
     process.HGCAL_noise_heback = cms.PSet(
         scaleByDose = cms.bool(False),
@@ -374,7 +374,7 @@ def HGCal_disableNoise(process):
         noise_MIP = cms.double(0.), #zero noise (this is to be deprecated)
         )
     process.HGCAL_noises = cms.PSet(
-        values = cms.vdouble(0,0,0,0)
+        values = cms.vdouble(0,0,0,0) #HD 120, LD 200, LD 300, HD 200
     )
     return process
 
