@@ -39,7 +39,7 @@ public:
   TChain* events_tchain;
 
   // Custom Looper object to facilitate looping over many files
-  RooUtil::Looper<LSTEff> looper;
+  RooUtil::Looper looper;
 
   // Custom Cutflow framework
   RooUtil::Cutflow cutflow;
