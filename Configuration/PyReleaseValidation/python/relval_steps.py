@@ -655,7 +655,7 @@ steps['RunHLTMonitor2024I']={'INPUT':InputInfo(dataSet='/HLTMonitor/Run2024I-Exp
 # the files used as input
 
 ###2025 
-pds_2025  = ['BTagMu', 'DisplacedJet', 'EGamma0', 'HcalNZS', 'JetMET0', 'Muon0', 'MuonEG', 'NoBPTX', 'ParkingDoubleMuonLowMass0', 'ParkingHH', 'ParkingLLP', 'ParkingSingleMuon0', 'ParkingVBF0', 'Tau', 'ZeroBias','JetMET1']
+pds_2025  = ['BTagMu', 'DisplacedJet', 'EGamma0', 'HcalNZS', 'JetMET0', 'Muon0', 'MuonEG', 'NoBPTX', 'ParkingDoubleMuonLowMass0', 'ParkingHH', 'ParkingLLP', 'ParkingSingleMuon0', 'ParkingVBF0', 'Tau', 'ZeroBias','JetMET1','ScoutingPFMonitor']
 eras_2025 = ['Run2025B', 'Run2025C','Run2025D','Run2025E', 'Run2025F','Run2025G','Run2025H','Run2025I']
 for era in eras_2025:
     for pd in pds_2025:
@@ -2329,6 +2329,11 @@ steps['HLTDR3_ScoutingPFMonitor_2024']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hl
                                                 {'--filein' : '/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/Scouting/Run3/ScoutingPFMonitor/300684ed-1a51-474f-8c4f-b3bf1e1f5044_skimmed.root'},
                                                 steps['HLTD'] ] )
 
+steps['HLTDR3_ScoutingPFMonitor_2025']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2025,},
+                                                 {'--conditions':'auto:run3_hlt_relval'},
+                                                 {'--era' : 'Run3_2025'},
+                                                 steps['HLTD'] ] )
+
 steps['HLTDR3_HI2023ARawprime']=merge([{'-s':'L1REPACK:Full,HLT:HIon'},
                                        {'--conditions':'auto:run3_hlt_HIon'},
                                        {'--era' : 'Run3_pp_on_PbPb_approxSiStripClusters_2023'},
@@ -3302,6 +3307,7 @@ steps['RECONANORUN3_reHLT_2025']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,NANO,DQM
 steps['RECONANORUN3_ZB_reHLT_2025']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,NANO,DQM:@rerecoZeroBias+@miniAODDQM+@nanoAODDQM'},steps['RECONANORUN3_reHLT_2025']])
 
 steps['RECONANORUN3_ScoutingPFMonitor_reHLT_2024']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,NANO,DQM:@standardDQM+@miniAODDQM+@nanoAODDQM+@hltScouting'},steps['RECONANORUN3_reHLT_2024']])
+steps['RECONANORUN3_ScoutingPFMonitor_reHLT_2025']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,NANO,DQM:@standardDQM+@miniAODDQM+@nanoAODDQM+@hltScouting'},steps['RECONANORUN3_reHLT_2025']])
 
 steps['AODNANORUN3_reHLT_2024']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,NANO,DQM:@standardDQM+@miniAODDQM+@nanoAODDQM','--datatier':'AOD,MINIAOD,NANOAOD,DQMIO','--eventcontent':'AOD,MINIAOD,NANOEDMAOD,DQM'},steps['RECODR3_reHLT_2024']])
 
@@ -4116,6 +4122,7 @@ steps['HARVESTRUN3_ScoutingPFMonitor_2024']=merge([{'--era':'Run3_2024', '-s':'H
 # 2025
 steps['HARVESTRUN3_ZB_2025']=merge([{'--era':'Run3_2025', '-s':'HARVESTING:@rerecoZeroBias+@miniAODDQM+@nanoAODDQM'},steps['HARVESTDRUN3']])
 steps['HARVESTRUN3_2025']=merge([{'--era':'Run3_2025', '-s':'HARVESTING:@standardDQM+@miniAODDQM+@nanoAODDQM'},steps['HARVESTDRUN3']])
+steps['HARVESTRUN3_ScoutingPFMonitor_2025']=merge([{'--era':'Run3_2025', '-s':'HARVESTING:@standardDQM+@miniAODDQM+@nanoAODDQM+@hltScouting'},steps['HARVESTDRUN3']])
 # HI
 steps['HARVESTRUN3_HI2023A']=merge([{'--era':'Run3_pp_on_PbPb_approxSiStripClusters_2023', '-s':'HARVESTING:@standardDQM+@miniAODDQM'},steps['HARVESTRUN3_2022']])
 
