@@ -4,7 +4,7 @@ import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
 import RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi as recoparam
 import RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi as recocalibparam 
 from . import hgcalLayersCalibrationCoefficients_cfi as layercalibparam
-
+from HLTrigger.Configuration.HLT_75e33.psets.hgcal_reco_constants_cfi import HGCAL_reco_constants as HGCAL_reco_constants
 
 feCfg_si = digiparam.hgceeDigitizer.digiCfg.feCfg
 feCfg_sc = digiparam.hgchebackDigitizer.digiCfg.feCfg
@@ -71,7 +71,13 @@ thicknessCorrectionSi = recocalibparam.HGCalRecHit.thicknessCorrection
 thicknessCorrectionSc = recocalibparam.HGCalRecHit.sciThicknessCorrection
 thicknessCorrectionNose = recocalibparam.HGCalRecHit.thicknessNoseCorrection
 
-NTHICKNESS = 3
+NTHICKNESS = HGCAL_reco_constants.numberOfThicknesses.value() 
+# Silicon thickness correction in HGCalRecHit_cfi.py is in the form:
+# [CE_E_120um, CE_E_200um, CE_E_300um, CE_H_120um, CE_H_200um, CE_H_300um]
+# While here there are two different sets for CE-E and CE-H
+# Additionally there are four values for each set, in order to follow the four detid silicon types [HD120um, LD200um, LD300um, HD200um]
+# The thickness correction value for HD200um is copied from LD200um
+>>>>>>> 3135ca68949 (initial fixes with procModifier v19)
 calibration_params_ee = cms.PSet(
         lsb = cms.double(triggerCellLsbBeforeCompression_si),
         fCperMIP = fCperMIPee,

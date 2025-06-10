@@ -383,6 +383,11 @@ from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10
 phase2_hgcalV10.toModify(HGCAL_noise_fC, values = [x*fC_per_ele for x in nonAgedNoises_v9])
 phase2_hgcalV10.toModify(HGCAL_noises, values = [x for x in nonAgedNoises_v9])
 
+from Configuration.Eras.Modifier_phase2_hgcalV19_cff import phase2_hgcalV19
+
+phase2_hgcalV19.toModify(HGCAL_noise_fC, values = [x*fC_per_ele for x in nonAgedNoises_v9])
+phase2_hgcalV19.toModify(HGCAL_noises, values = [x for x in nonAgedNoises_v9])
+
 def HFNose_setEndOfLifeNoise(process,byDose=True,byDoseAlgo=0,byDoseFactor=1):
     """includes all effects from radiation and gain choice"""
     # byDoseAlgo is used as a collection of bits to toggle: FLUENCE, CCE, NOISE, PULSEPERGAIN, CACHEDOP (from lsb to Msb)
