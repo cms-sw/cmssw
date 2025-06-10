@@ -1,18 +1,3 @@
-// -*- C++ -*-
-//
-// Package:     Core
-// Class  :     FWOverlapTableManager
-//
-// Implementation:
-//     [Notes on implementation]
-//
-// Original Author:
-//         Created:  Wed Jan  4 20:31:32 CET 2012
-//
-
-// system include files
-
-// user include files
 #include "Fireworks/Core/src/FWOverlapTableManager.h"
 #include "Fireworks/Core/src/FWOverlapTableView.h"
 #include "Fireworks/Core/src/FWEveDigitSetScalableMarker.h"
@@ -34,12 +19,12 @@
 
 #include "TStopwatch.h"
 #include "TTimer.h"
-#include "TPRegexp.h"
 #if ROOT_VERSION_CODE < ROOT_VERSION(6, 37, 0)
 #include "TGeoPainter.h"
 #else
 #include "TGeoChecker.h"
 #endif
+#include "TPRegexp.h"
 
 FWOverlapTableManager::FWOverlapTableManager(FWOverlapTableView* v) : FWGeometryTableManagerBase(), m_browser(v) {}
 
@@ -94,11 +79,11 @@ void FWOverlapTableManager::importOverlaps(std::string iPath, double iPrecision)
 
   int oldS = 0;
   timer->Start();
-  #if ROOT_VERSION_CODE < ROOT_VERSION(6, 37, 0)
+#if ROOT_VERSION_CODE < ROOT_VERSION(6, 37, 0)
   geom->GetGeomPainter()->OpProgress(topVol->GetName(), icheck, ncheck, timer, kFALSE);
-  #else
+#else
   geom->GetGeomChecker()->OpProgress(topVol->GetName(), icheck, ncheck, timer, kFALSE);
-  #endif
+#endif
   //   topVol->CheckOverlaps(iPrecision);
   icheck++;
   TGeoIterator git(topVol);
@@ -144,11 +129,11 @@ void FWOverlapTableManager::importOverlaps(std::string iPath, double iPrecision)
     // overlap bits
     if (checkingOverlaps) {
       if (!node->GetVolume()->IsSelected()) {
-        #if ROOT_VERSION_CODE < ROOT_VERSION(6, 37, 0)
+#if ROOT_VERSION_CODE < ROOT_VERSION(6, 37, 0)
         geom->GetGeomPainter()->OpProgress(node->GetVolume()->GetName(), icheck + 1, ncheck, timer, kFALSE);
-	    #else
+#else
         geom->GetGeomChecker()->OpProgress(node->GetVolume()->GetName(), icheck + 1, ncheck, timer, kFALSE);
-        #endif
+#endif
         node->GetVolume()->SelectVolume(kFALSE);
 
         node->GetVolume()->CheckOverlaps(iPrecision);
@@ -196,11 +181,11 @@ void FWOverlapTableManager::importOverlaps(std::string iPath, double iPrecision)
     obj = (TNamed*)overlaps->At(i);
     obj->SetName(Form("ov%05d", i));
   }
-  #if ROOT_VERSION_CODE < ROOT_VERSION(6, 37, 0)
+#if ROOT_VERSION_CODE < ROOT_VERSION(6, 37, 0)
   geom->GetGeomPainter()->OpProgress("Check overlaps:", icheck, ncheck, timer, kTRUE);
-  #else
+#else
   geom->GetGeomChecker()->OpProgress("Check overlaps:", icheck, ncheck, timer, kTRUE);
-  #endif
+#endif
   Info("CheckOverlaps", "Number of illegal overlaps/extrusions : %d\n", novlps);
   delete timer;
 }
