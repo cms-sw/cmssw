@@ -105,6 +105,8 @@ process.dynamicVetoProd = cms.EDProducer("DynamicVetoProducer",
     )
 )
 
+
+
 with open("minimal_veto-2024.txt") as f: 
     process.dynamicVetoProd.DynamicVetoProducerParameters.BaseVeto.extend([ int(v) for v in f.readlines()])
 
@@ -136,6 +138,20 @@ process.dynamicVetoProd.DynamicVetoProducerParameters.ModuleListRing1.extend([
   353170436, 353171460, 353174532, 353175556, 353178628, 353179652, 353182724, 353183748, 344265732, 344912900, 344269828, 344270852, 344273924, 344921092, 344278020, 344929284, 
   353186820, 353187844, 353190916, 353191940, 353195012, 353196036, 353199108, 353200132 
 ])
+
+#####################################
+
+# process.dynamicVetoProd_old = cms.EDProducer("DynamicVetoProducer_old",
+#     DynamicVetoProducer_oldParameters = cms.PSet(
+#         inputPccLabel = cms.string("alcaPCCIntegrator"),
+#         BaseVeto=cms.vint32(),
+#         MinimumLSCount=cms.untracked.int32(50),
+#         StdMultiplyier1=cms.double(3.0),
+#         StdMultiplyier2=cms.double(3.0),
+#         SaveCSVFile=cms.untracked.bool(True),
+#         CsvFileName=cms.untracked.string("dynamicVetoProducer.csv"),
+#     )
+# )
 
 # process.load("CondCore.CondDB.CondDB_cfi")
 # process.CondDB.connect = "sqlite_file:PCC_Veto.db" # Output SQLite file
@@ -171,7 +187,8 @@ process.ALCARECOStreamPromptCalibProdPCC = cms.OutputModule("PoolOutputModule",
                                            'keep *_alcaPCCEventProducer_*_*',
                                            'keep *_alcaPCCIntegrator_*_*',
                                            'keep *_rawPCCProd_*_*',
-                                           'keep *_dynamicVetoProd_*_*',
+                                        #    'keep *_dynamicVetoProd_*_*',
+                                        #    'keep *_dynamicVetoProd_old_*_*',
                                        )
 )
 
@@ -184,6 +201,7 @@ process.seqALCARECOPromptCalibProdPCC = cms.Sequence(
     +process.alcaPCCIntegrator
     +process.rawPCCProd
     +process.dynamicVetoProd
+    # +process.dynamicVetoProd_old
     )
 #process.seqALCARECOPromptCalibProdPCC = cms.Sequence(process.siPixelDigisForLumi+process.siPixelClustersForLumi+process.alcaPCCEventProducer+process.alcaPCCIntegrator)
 #process.seqALCARECOPromptCalibProdPCC = cms.Sequence(process.siPixelDigisForLumi+process.siPixelClustersForLumi+process.alcaPCCEventProducer)

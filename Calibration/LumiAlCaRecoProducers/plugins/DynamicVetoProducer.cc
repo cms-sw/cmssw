@@ -80,6 +80,8 @@ ________________________________________________________________**/
 
 #include "DataFormats/Luminosity/interface/PccVetoListTransient.h"
 
+#include "Calibration/LumiAlCaRecoProducers/plugins/DQMOneEDProducer.h"
+
 
 enum class TrackerRegion {
   Any,
@@ -88,7 +90,10 @@ enum class TrackerRegion {
   Epix_1_ring2, Epix_2_ring2, Epix_3_ring2,
 };
 
-class DynamicVetoProducer : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+
+
+// class DynamicVetoProducer : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class DynamicVetoProducer : public DQMOneEDProducer<edm::one::WatchLuminosityBlocks> {
 public:
   explicit DynamicVetoProducer(const edm::ParameterSet&);
   ~DynamicVetoProducer() override;
@@ -97,7 +102,7 @@ private:
 
   // values to set up in the config
   edm::EDGetTokenT<reco::PixelClusterCounts> pccToken_;
-  edm::EDPutTokenT<PccVetoListTransient> putToken_;
+  edm::EDPutTokenT<PccVetoListTransient> putToken_;  
 
 
   std::vector<int> baseVeto_;
@@ -160,6 +165,7 @@ private:
   // actions
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) final;
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) final;
+  // void dqmEndRun(const edm::Run & runSeg, const edm::EventSetup& iSetup);
   void dqmEndRun(edm::Run & runSeg, const edm::EventSetup& iSetup);
   void endJob() final;
 
@@ -409,7 +415,8 @@ void DynamicVetoProducer::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg
 }
 
 //--------------------------------------------------------------------------------------------------
-void DynamicVetoProducer::dqmEndRun(edm::Run & runSeg, const edm::EventSetup& iSetup) {
+// void DynamicVetoProducer::dqmEndRun(const edm::Run & runSeg, const edm::EventSetup& iSetup) {
+  void DynamicVetoProducer::dqmEndRun(edm::Run & runSeg, const edm::EventSetup& iSetup) {
 
   if ( (lumisectionCountMin_ > 0) && (lumisectionCount_ < lumisectionCountMin_) ) {
     edm::LogInfo("INFO") << "Number of Lumisections " << lumisectionCount_ << " in run " << runSeg.run() << " which is too few. Skipping update to veto list.";
