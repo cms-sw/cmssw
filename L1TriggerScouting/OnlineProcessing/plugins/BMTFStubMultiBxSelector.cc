@@ -10,7 +10,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-#include "FWCore/Utilities/interface/Span.h"
 
 // L1 scouting
 #include "DataFormats/L1Scouting/interface/L1ScoutingBMTFStub.h"
@@ -129,8 +128,8 @@ void BMTFStubMultiBxSelector::produce(edm::Event& iEvent, const edm::EventSetup&
 }
 
 bool BMTFStubMultiBxSelector::windowHasCloseWheels(const std::vector<std::set<int>>& sets, int threshold) {
-  for (size_t i = 0; i < sets.size(); ++i) {
-    for (size_t j = i + 1; j < sets.size(); ++j) {
+  for (size_t i = 0; i < std::size(sets); ++i) {
+    for (size_t j = i + 1; j < std::size(sets); ++j) {
       for (int iWh : sets[i]) {
         for (int jWh : sets[j]) {
           if (std::abs(iWh - jWh) <= threshold) {
