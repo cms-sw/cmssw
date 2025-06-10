@@ -84,6 +84,7 @@ def OptionsFromItems(items):
                  "DIGI":"SIM",
                  "reDIGI":"DIGI",
                  "L1REPACK":"RAW",
+                 "L1P2GT":"RAW",
                  "HLT":"RAW",
                  "RECO":"DIGI",
                  "ALCA":"RECO",
