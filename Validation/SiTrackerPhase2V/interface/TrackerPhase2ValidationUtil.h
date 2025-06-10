@@ -28,8 +28,10 @@ namespace phase2tkutil {
     const float pi = 4.0 * std::atan(1.0);
     float delphi = phi - std::atan2(-K * x0p, K * y0p);
 
-    if (delphi < -pi) delphi += 2.0 * pi;
-    if (delphi > pi) delphi -= 2.0 * pi;
+    if (delphi < -pi)
+      delphi += 2.0 * pi;
+    if (delphi > pi)
+      delphi -= 2.0 * pi;
 
     float z0 = vz + t * delphi / (2.0 * K);
     float Lxy = std::sqrt(vx * vx + vy * vy);
