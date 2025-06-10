@@ -4,7 +4,8 @@
   <close_geometry/>
 
   <IncludeSection>
-    <Include ref='Geometry/CMSCommonData/data/materials/2021/v1/materials.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/materials/2030/v1/materials.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/trackermaterial/2021/v2/trackermaterial.xml'/>
     <Include ref='Geometry/CMSCommonData/data/rotations.xml'/>
     <Include ref='Geometry/CMSCommonData/data/extend/v2/cmsextent.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cavernData/2021/v1/cavernData.xml'/>
@@ -55,23 +56,23 @@
     <Include ref='Geometry/HcalCommonData/data/hcalouteralgo/v1/hcalouteralgo.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalforwardalgo.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalSimNumbering/NoHE/v1/hcalSimNumbering.xml'/>
-    <Include ref='Geometry/HcalCommonData/data/hcalRecNumbering/NoHE/v2/hcalRecNumbering.xml'/>
-    <Include ref='Geometry/HGCalCommonData/data/hgcalMaterial/v2/hgcalMaterial.xml'/>
-    <Include ref='Geometry/HGCalCommonData/data/hgcal/v18ng/hgcal.xml'/>
-    <Include ref='Geometry/HGCalCommonData/data/hgcalwafer/v18ng/hgcalwafer.xml'/>
-    <Include ref='Geometry/HGCalCommonData/data/hgcalPassive/v18/hgcalPassive.xml'/>
-    <Include ref='Geometry/HGCalCommonData/data/hgcalEE/v18/hgcalEE.xml'/>
-    <Include ref='Geometry/HGCalCommonData/data/hgcalHEsil/v18/hgcalHEsil.xml'/>
-    <Include ref='Geometry/HGCalCommonData/data/hgcalHEmix/v18/hgcalHEmix.xml'/>
-    <Include ref='Geometry/HGCalCommonData/data/hgcalCons/v18ngx/hgcalCons.xml'/>
-    <Include ref='Geometry/HGCalCommonData/data/hgcalConsData/v17/hgcalConsData.xml'/>
+    <Include ref='Geometry/HcalCommonData/data/hcalRecNumbering/NoHE/hcalRecNumbering.xml'/>
+    <Include ref='Geometry/HGCalCommonData/data/hgcalMaterial/v3/hgcalMaterial.xml'/>
+    <Include ref='Geometry/HGCalCommonData/data/hgcal/v19ng/hgcal.xml'/>
+    <Include ref='Geometry/HGCalCommonData/data/hgcalwafer/v19ng/hgcalwafer.xml'/>
+    <Include ref='Geometry/HGCalCommonData/data/hgcalPassive/v19/hgcalPassive.xml'/>
+    <Include ref='Geometry/HGCalCommonData/data/hgcalEE/v19/hgcalEE.xml'/>
+    <Include ref='Geometry/HGCalCommonData/data/hgcalHEsil/v19/hgcalHEsil.xml'/>
+    <Include ref='Geometry/HGCalCommonData/data/hgcalHEmix/v19/hgcalHEmix.xml'/>
+    <Include ref='Geometry/HGCalCommonData/data/hgcalCons/v19ng/hgcalCons.xml'/>
+    <Include ref='Geometry/HGCalCommonData/data/hgcalConsData/v19/hgcalConsData.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mbCommon/2021/v1/mbCommon.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mb1/2015/v2/mb1.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mb2/2015/v2/mb2.xml'/>
-    <Include ref='Geometry/MuonCommonData/data/mb3/2015/v2/mb3.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/mb3/2015/v3/mb3.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mb4/2015/v2/mb4.xml'/>
-    <Include ref='Geometry/MuonCommonData/data/mb4Shield/2021/v1/mb4Shield.xml'/>
-    <Include ref='Geometry/MuonCommonData/data/muonYoke/2030/v3/muonYoke.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/mb4Shield/2030/v1/mb4Shield.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/muonYoke/2030/v4/muonYoke.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mf/2030/v8/mf.xml'/>
     <Include ref='Geometry/MuonCommonData/data/csc/2021/v2/csc.xml'/>
     <Include ref='Geometry/MuonCommonData/data/rpcf/2030/v4/rpcf.xml'/>
@@ -79,9 +80,9 @@
     <Include ref='Geometry/MuonCommonData/data/gem11/TDR_BaseLine/gem11.xml'/>
     <Include ref='Geometry/MuonCommonData/data/gem21/2030/v1/gem21.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mfshield/2030/v6/mfshield.xml'/>
-    <Include ref='Geometry/MuonCommonData/data/ge0/TDR_Dev/v4/ge0.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/ge0/TDR_Dev/v5/ge0.xml'/>
     <Include ref='Geometry/MuonCommonData/data/ge0shield/2030/v1/ge0shield.xml'/>
-    <Include ref='Geometry/ForwardCommonData/data/forwardshield/2030/v4/forwardshield.xml'/>
+    <Include ref='Geometry/ForwardCommonData/data/forwardshield/2030/v5/forwardshield.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/zdcmaterials/2021/v1/zdcmaterials.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/lumimaterials.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/zdcrotations.xml'/>
@@ -90,10 +91,10 @@
     <Include ref='Geometry/ForwardCommonData/data/zdclumi/2021/v2/zdclumi.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/cmszdc.xml'/>
     <Include ref='Geometry/MTDCommonData/data/mtdMaterial/v3/mtdMaterial.xml'/>
-    <Include ref='Geometry/MTDCommonData/data/btl/v3/btl.xml'/>
-    <Include ref='Geometry/MTDCommonData/data/etl/v8/etl.xml'/>
-    <Include ref='Geometry/MTDCommonData/data/mtdParameters/v5/mtdStructureTopology.xml'/>
-    <Include ref='Geometry/MTDCommonData/data/mtdParameters/v5/mtdParameters.xml'/>
+    <Include ref='Geometry/MTDCommonData/data/btl/v4/btl.xml'/>
+    <Include ref='Geometry/MTDCommonData/data/etl/v10/etl.xml'/>
+    <Include ref='Geometry/MTDCommonData/data/mtdParameters/v8/mtdStructureTopology.xml'/>
+    <Include ref='Geometry/MTDCommonData/data/mtdParameters/v8/mtdParameters.xml'/>
     <Include ref='Geometry/MuonCommonData/data/muonNumbering/TDR_DeV/v5/muonNumbering.xml'/>
     <Include ref='Geometry/EcalSimData/data/PhaseII/ecalsens.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalsens/NoHE/v1/hcalsenspmf.xml'/>
@@ -101,7 +102,7 @@
     <Include ref='Geometry/HcalSimData/data/hfpmt.xml'/>
     <Include ref='Geometry/HcalSimData/data/hffibrebundle.xml'/>
     <Include ref='Geometry/HcalSimData/data/CaloUtil/2030/v2c/CaloUtil.xml'/>
-    <Include ref='Geometry/HGCalSimData/data/hgcsensv17n.xml'/>
+    <Include ref='Geometry/HGCalSimData/data/hgcsensv15.xml'/>
     <Include ref='Geometry/MuonSimData/data/PhaseII/v2/muonSens.xml'/>
     <Include ref='Geometry/DTGeometryBuilder/data/dtSpecsFilter/2021/v1/dtSpecsFilter.xml'/>
     <Include ref='Geometry/CSCGeometryBuilder/data/cscSpecsFilter.xml'/>
