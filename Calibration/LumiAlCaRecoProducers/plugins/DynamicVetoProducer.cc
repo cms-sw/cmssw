@@ -387,7 +387,7 @@ void DynamicVetoProducer::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg
   //cluster counts per module per bx
   auto clustersPerBXInput = inputPcc.readCounts();
 
-  std::map<TrackerRegion, double > region2meanClusterCount; // orbit integrated average cluster count in this LS
+  std::map<TrackerRegion, double > region2meanClusterCount; // orbit integrated average (over modules) cluster count in this LS
   std::map<TrackerRegion, unsigned int > region2moduleCount;
   for (size_t i = 0; i < modID.size(); i++) {
     if (std::find(baseVeto_.begin(), baseVeto_.end(), modID.at(i)) != baseVeto_.end()) continue;
@@ -429,7 +429,7 @@ void DynamicVetoProducer::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg
   if (coutOn_) std::cout << "DynamicVetoProducer::dqmEndRun: Number of Lumisections processed in run " << runSeg.run() << " : " << lumisectionCount_ << std::endl;
 
 
-  // round1: remove outliers in terms of occupancy
+  // round1: remove outliers in terms of occupancy in a given layer/region
   if (filterLevel_>=1)
   for (const auto& [region, moduleID2value] : region2moduleID2countRatio) {
     
@@ -455,11 +455,11 @@ void DynamicVetoProducer::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg
 
 
 
-  // round2:  
+  // round2: filter based on the stability of the per-LS cluster count of the module over the run
   if (filterLevel_>=2)
   for (const auto& [region, moduleID2LS2counts] : region2moduleID2LS2counts) {
 
-    // average number of clusters over not excluded moules in layer
+    // recomputed average (over modules) number of clusters over not excluded moules in layer
     std::vector<double> LS2meanCounts = std::vector<double>(lumisectionCount_, 0);
     unsigned int moduleCount = 0;
     for (const auto& [mId, LS2counts] : moduleID2LS2counts) {
@@ -500,7 +500,7 @@ void DynamicVetoProducer::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg
   // edm::LogInfo("INFO") << "DynamicVetoProducer::dqmEndRun: Modules removed in round 2: " << additionalVeto2_.size();
   if (coutOn_) std::cout << "DynamicVetoProducer::dqmEndRun: Modules removed in round 2: " << additionalVeto2_.size() << std::endl;
 
-  // round3:
+  // round3: filter based on the fractional response of the module 
   if (filterLevel_>=3){
     double totalFraction = 0;
     double totalNumberOfClusters = 0;
