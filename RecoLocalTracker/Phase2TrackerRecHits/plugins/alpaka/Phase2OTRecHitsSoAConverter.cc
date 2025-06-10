@@ -103,6 +103,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PXF3D);
     };
 
+    // TODO(rovere) move this logic out of produce, since it's partially bound only to the geometry...??
     auto const& detUnits = trackerGeometry->detUnits();
     std::map<uint32_t, uint16_t> detIdToIndex;
     std::set<int> p_modulesInPSInOTBarrel;
@@ -202,10 +203,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             stripHitsHost.view()[idx].yLocal() = recHit.localPosition().y();
             stripHitsHost.view()[idx].xerrLocal() = recHit.localPositionError().xx();
             stripHitsHost.view()[idx].yerrLocal() = recHit.localPositionError().yy();
+            std::cout << "Local (x, y) with (xx, yy) --> (" << recHit.localPosition().x() << ", " << recHit.localPosition().y() << ") with (" << recHit.localPositionError().xx() << ", " << recHit.localPositionError().yy() << ")" << std::endl;
             auto globalPosition = det->toGlobal(recHit.localPosition());
             double gx = globalPosition.x() - bs.x0();
             double gy = globalPosition.y() - bs.y0();
             double gz = globalPosition.z() - bs.z0();
+            std::cout << "Global           (x, y, z) --> (" << globalPosition.x() << ", " << globalPosition.y() << ", " << globalPosition.z() << ")" << std::endl;
+            std::cout << "Corrected Global (x, y, z) --> (" << gx << ", " << gy << ", " << gz << ")" << std::endl;
             //        std::cout << gx << std::endl;
             stripHitsHost.view()[idx].xGlobal() = gx;
             stripHitsHost.view()[idx].yGlobal() = gy;

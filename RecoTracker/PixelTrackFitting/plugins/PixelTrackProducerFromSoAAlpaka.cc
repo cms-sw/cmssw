@@ -196,6 +196,7 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
       hitmap.resize(idx + 256, nullptr);  // only in case of hit overflow in one module
 
     assert(nullptr == hitmap[idx]);
+    std::cout << "Filling hitmap at position " << idx << " with a pixel hit." << std::endl;
     hitmap[idx] = &pixelHit;
   }
 
@@ -241,7 +242,8 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
       if (it != p_modulesInPSInOTBarrel.end()) {
         return std::distance(p_modulesInPSInOTBarrel.begin(), it);
       } else {
-        return -1L;
+        assert(0);
+//        return -1L;
       }
     };
 
@@ -273,6 +275,7 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
       if (isPinPSinOTBarrel(DetId(detId))) {
         for (int idx = moduleStartOT[getModuleIdOT(detId)]; auto const &recHit : detSet) {
           hitmap[idx] = &recHit;
+          std::cout << "Filling hitmap at position " << idx << " with an OT hit with index " << getModuleIdOT(detId) << std::endl;
           idx++;
         }
       }
@@ -332,7 +335,8 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
     for (auto iHit = start; iHit < end; ++iHit)
       hits[iHit - start] = hitmap[hitIdxs[iHit]];
 
-#ifdef CA_DEBUG
+//#ifdef CA_DEBUG
+#if 1
     std::cout << "track soa : " << it << " with hits: ";
     for (auto iHit = start; iHit < end; ++iHit)
       std::cout << hitIdxs[iHit] << " - ";

@@ -22,9 +22,9 @@
 #include "CAStructures.h"
 #include "CAHitNtupletGeneratorKernels.h"
 
-// #define GPU_DEBUG
-// #define DOUBLETS_DEBUG
-// #define CA_WARNINGS
+// MRMR #define GPU_DEBUG        // MRMR 
+// MRMR #define DOUBLETS_DEBUG   // MRMR 
+#define CA_WARNINGS
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
   using namespace cms::alpakatools;
@@ -220,8 +220,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
              offsets[inner + 1]);
 #endif
       // found hit corresponding to our worker thread, now do the job
-      if (hh[i].detectorIndex() > ll.layerStarts()[ll.metadata().size() - 1])  //TODO use cc
+      if (hh[i].detectorIndex() > ll.layerStarts()[ll.metadata().size() - 1]) {  //TODO use cc
+#ifdef DOUBLETS_DEBUG
+        printf("Killed here 1\n");
+#endif
         continue;                                                              // invalid
+      }
 
       /* maybe clever, not effective when zoCut is on
       auto bpos = (mi%8)/4;  // if barrel is 1 for z>0
@@ -231,15 +235,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
 
       auto mez = hh[i].zGlobal();
 
-      if (mez < cc.minz()[pairLayerId] || mez > cc.maxz()[pairLayerId])
+      if (mez < cc.minz()[pairLayerId] || mez > cc.maxz()[pairLayerId]) {
+#ifdef DOUBLETS_DEBUG
+        printf("Killed here 2 --> mez: %f [index: %d], miz: %f, maxz: %f\n", mez, hh[i].detectorIndex(), cc.minz()[pairLayerId], cc.maxz()[pairLayerId]);
+#endif
         continue;
+      }
 #ifdef DOUBLETS_DEBUG
       if (doClusterCut && outer > pixelTopology::last_barrel_layer)
         printf("clustCut: %d %d \n", i, clusterCut<TAcc>(acc, hh, ll, params, i));
 #endif
 
-      if (doClusterCut && outer > pixelTopology::last_barrel_layer && clusterCut<TAcc>(acc, hh, ll, params, i))
+      if (doClusterCut && outer > pixelTopology::last_barrel_layer && clusterCut<TAcc>(acc, hh, ll, params, i)) {
+#ifdef DOUBLETS_DEBUG
+        printf("Killed here 3\n");
+#endif
         continue;
+      }
 
       auto mep = hh[i].iphi();
       auto mer = hh[i].rGlobal();
@@ -256,7 +268,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
         auto zo = hh[j].zGlobal();
         auto ro = hh[j].rGlobal();
         auto dr = ro - mer;
-        return dr > cc.maxr()[pairLayerId] || dr < 0 || std::abs((mez * ro - mer * zo)) > params.cellZ0Cut_ * dr;
+#ifdef DOUBLETS_DEBUG
+        printf("dr: %4.3f, %4.3f, %4.3f --> %d\n", mer, ro, dr, (dr > cc.maxr()[pairLayerId]));
+        printf("mez: %4.3f, zo: %4.3f, std::abs((mez * ro - mer * zo)): %4.3f --> %d\n", 
+               mez, zo, std::abs((mez * ro - mer * zo)), (std::abs((mez * ro - mer * zo)) > params.cellZ0Cut_*dr));
+#endif
+      return dr > cc.maxr()[pairLayerId] || dr < 0 || std::abs((mez * ro - mer * zo)) > params.cellZ0Cut_ * dr;
       };
 
       auto iphicut = cc.phiCuts()[pairLayerId];
@@ -265,7 +282,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
       auto kh = PhiHisto::bin(int16_t(mep + iphicut));
       auto incr = [](auto& k) { return k = (k + 1) % PhiHisto::nbins(); };
 
-#ifdef GPU_DEGBU
+#ifdef GPU_DEBUG
       printf("pairLayerId %d %d %.2f %.2f %.2f \n",
              pairLayerId,
              cc.phiCuts()[pairLayerId],
@@ -292,33 +309,57 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
           auto oi = p[pIndex];
           ALPAKA_ASSERT_ACC(oi >= offsets[outer]);
           ALPAKA_ASSERT_ACC(oi < offsets[outer + 1]);
+#ifdef DOUBLETS_DEBUG
+          printf("Exploring couple i: %d o: %d\n", i, oi);
+#endif
           auto mo = hh[oi].detectorIndex();
 
           // invalid
-          if (mo > pixelClustering::maxNumModules)  //FIXME use cc?
+          if (mo > pixelClustering::maxNumModules) {  //FIXME use cc?
+#ifdef DOUBLETS_DEBUG
+            printf("Killed here 4\n");
+#endif
             continue;
+          }
 
-          if (params.cellZ0Cut_ > 0. && z0cutoff(oi))
+          if (params.cellZ0Cut_ > 0. && z0cutoff(oi)) {
+#ifdef DOUBLETS_DEBUG
+            printf("Killed here 5\n");
+#endif
             continue;
+          }
 
           auto mop = hh[oi].iphi();
           uint16_t idphi = std::min(std::abs(int16_t(mop - mep)), std::abs(int16_t(mep - mop)));
 
-          if (idphi > iphicut)
+          if (idphi > iphicut) {
+#ifdef DOUBLETS_DEBUG
+            printf("Killed here 6\n");
+#endif
             continue;
+          }
 #ifdef DOUBLETS_DEBUG
           printf("zSizeCut: %d %d %d \n", i, oi, zSizeCut<TAcc>(acc, hh, ll, params, i, oi));
 #endif
-          if (doZSizeCut && zSizeCut<TAcc>(acc, hh, ll, params, i, oi))
+          if (doZSizeCut && zSizeCut<TAcc>(acc, hh, ll, params, i, oi)) {
+#ifdef DOUBLETS_DEBUG
+            printf("Killed here 7\n");
+#endif
             continue;
+          }
 
-          if (params.cellPtCut_ > 0. && ptcut(oi, idphi))
+          if (params.cellPtCut_ > 0. && ptcut(oi, idphi)) {
+#ifdef DOUBLETS_DEBUG
+            printf("Killed here 8\n");
+#endif
             continue;
+          }
 
           auto ind = alpaka::atomicAdd(acc, nCells, 1u, alpaka::hierarchy::Blocks{});
           if (ind >= maxNumOfDoublets) {
 #ifdef CA_WARNINGS
             printf("Warning!!!! Too many cells (limit = %d)!\n", maxNumOfDoublets);
+            assert(0);
 #endif
             alpaka::atomicSub(acc, nCells, 1u, alpaka::hierarchy::Blocks{});
             break;
