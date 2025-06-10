@@ -317,7 +317,7 @@ namespace trackerTFP {
     // converts ntuple of variables to bits
     template <typename... Ts>
     void convertStub(Process p, const std::tuple<Ts...>& data, tt::Frame& bv) const {
-      TTBV ttBV(1, numUnusedBitsStubs_[+p]);
+      TTBV ttBV(1, 1 + numUnusedBitsStubs_[+p]);
       attachStub(p, data, ttBV);
       bv = ttBV.bs();
     }
@@ -330,7 +330,7 @@ namespace trackerTFP {
     // converts ntuple of variables to bits
     template <typename... Ts>
     void convertTrack(Process p, const std::tuple<Ts...>& data, tt::Frame& bv) const {
-      TTBV ttBV(1, numUnusedBitsTracks_[+p]);
+      TTBV ttBV(1, 1 + numUnusedBitsTracks_[+p]);
       attachTrack(p, data, ttBV);
       bv = ttBV.bs();
     }

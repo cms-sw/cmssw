@@ -104,7 +104,7 @@ autoCond = {
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2025
     'phase1_2025_design'           :    '150X_mcRun3_2025_design_v2',
     # GlobalTag for MC production with realistic conditions for Phase1 2025
-    'phase1_2025_realistic'        :    '150X_mcRun3_2025_realistic_v3',
+    'phase1_2025_realistic'        :    '150X_mcRun3_2025_realistic_v7',
     # GlobalTag for MC production (cosmics) with realistic conditions for Phase1 2025, Strip tracker in DECO mode
     'phase1_2025_cosmics'          :    '150X_mcRun3_2025cosmics_realistic_deco_v2',
     # GlobalTag for MC production with realistic conditions for Phase2
