@@ -12,7 +12,7 @@
 
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
-#include "RecoParticleFlow/PFClusterProducer/interface/alpaka/PFMultiDepthClusterWarpIntrinsics.h"
+#include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthClusterWarpIntrinsics.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 

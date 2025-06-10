@@ -101,7 +101,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                              reco::PFRecHitFractionDeviceCollection& outPFRecHitFracs,
                                              const reco::PFClusterDeviceCollection& pfCluster,
                                              const reco::PFRecHitFractionDeviceCollection& pfRecHitFracs,
-                                             const reco::PFRecHitDeviceCollection& pfRecHit) {
+                                             const reco::PFRecHitDeviceCollection& pfRecHit,
+					     const PFMultiDepthClusterParams* params,
+					     const int nClusters) {
     const unsigned int threadsPerBlock = 256;
     const unsigned int blocks = ::cms::alpakatools::divide_up_by(nClusters, threadsPerBlock);
     //
@@ -120,7 +122,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
                         ConstructLinksKernel{},
                         mdpfClusteringVars.view(),
-                        nSigma_.data());
+                        params);
 
     // ECL-CC prologue:
     if (nClusters < 256) {

@@ -12,6 +12,8 @@
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthClusterWarpIntrinsics.h"
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthClusterizerHelper.h"
 
+#include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthClusterParams.h"
+
 /**
  * @brief Warp-based link construction kernel for Particle Flow (PF) multi-depth clustering.
  *
@@ -262,7 +264,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const& acc,
                                   reco::PFMultiDepthClusteringVarsDeviceCollection::View mdpfClusteringVars,
-                                  const double* __restrict__ nSigma) const {
+                                  const PFMultiDepthClusterParams* nSigma) const {
       const unsigned int nClusters = mdpfClusteringVars.size();
       //
       const unsigned int nBlocks = alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u];
@@ -276,8 +278,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto is_active_lane = [](const unsigned int mask, const unsigned int lid) -> bool { return ((mask >> lid) & 1); };
       //
       //
-      const double nSigmaEta_ = nSigma[0];
-      const double nSigmaPhi_ = nSigma[1];
+      const double nSigmaEta_ = nSigma->nSigmaEta;
+      const double nSigmaPhi_ = nSigma->nSigmaPhi;
 
       constexpr PFMDLinkParamKind param_kinds[3] = {PFMDLinkParamKind::DZ, PFMDLinkParamKind::DR, PFMDLinkParamKind::ENERGY};
 
