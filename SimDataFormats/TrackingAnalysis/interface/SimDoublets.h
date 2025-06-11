@@ -143,12 +143,13 @@ public:
     // The order is chosen in such a way that a smaller status value means that the Ntuplet get farther
     // in the reconstruction chain. Hence, a value of 0 corresponds to the Ntuplet surviving reconstruction.
     enum class StatusBit : uint8_t {
-      hasMissingLayerPair = 1,
-      hasUndefDoubletCuts = 1 << 1,
-      hasKilledDoublets = 1 << 2,
-      hasUndefDoubletConnectionCuts = 1 << 3,
-      hasKilledConnections = 1 << 4,
-      isTooShort = 1 << 5
+      isTooShort = 1,
+      hasMissingLayerPair = 1 << 1,
+      hasUndefDoubletCuts = 1 << 2,
+      hasKilledDoublets = 1 << 3,
+      hasUndefDoubletConnectionCuts = 1 << 4,
+      hasKilledConnections = 1 << 5,
+      firstDoubletNotInStartingLayerPairs = 1 << 6
     };
 
     // default constructor
@@ -158,11 +159,13 @@ public:
     Ntuplet(uint8_t const numDoublets,
             uint8_t const status,
             uint8_t const firstLayerId,
+            uint8_t const secondLayerId,
             uint8_t const lastLayerId,
             uint8_t const numSkippedLayers)
         : numDoublets_(numDoublets),
           status_(status),
           firstLayerId_(firstLayerId),
+          secondLayerId_(secondLayerId),
           lastLayerId_(lastLayerId),
           numSkippedLayers_(numSkippedLayers){};
 
@@ -180,13 +183,16 @@ public:
                                 bool const hasKilledDoublets,
                                 bool const hasUndefDoubletConnectionCuts,
                                 bool const hasKilledConnections,
-                                bool const isTooShort = false) {
-      return status | (uint8_t(hasUndefDoubletCuts) * uint8_t(StatusBit::hasUndefDoubletCuts) +
-                       uint8_t(hasMissingLayerPair) * uint8_t(StatusBit::hasMissingLayerPair) +
-                       uint8_t(hasKilledDoublets) * uint8_t(StatusBit::hasKilledDoublets) +
-                       uint8_t(hasUndefDoubletConnectionCuts) * uint8_t(StatusBit::hasUndefDoubletConnectionCuts) +
-                       uint8_t(hasKilledConnections) * uint8_t(StatusBit::hasKilledConnections) +
-                       uint8_t(isTooShort) * uint8_t(StatusBit::isTooShort));
+                                bool const isTooShort = false,
+                                bool const firstDoubletNotInStartingLayerPairs = false) {
+      return status |
+             (uint8_t(hasUndefDoubletCuts) * uint8_t(StatusBit::hasUndefDoubletCuts) +
+              uint8_t(hasMissingLayerPair) * uint8_t(StatusBit::hasMissingLayerPair) +
+              uint8_t(hasKilledDoublets) * uint8_t(StatusBit::hasKilledDoublets) +
+              uint8_t(hasUndefDoubletConnectionCuts) * uint8_t(StatusBit::hasUndefDoubletConnectionCuts) +
+              uint8_t(hasKilledConnections) * uint8_t(StatusBit::hasKilledConnections) +
+              uint8_t(isTooShort) * uint8_t(StatusBit::isTooShort) +
+              uint8_t(firstDoubletNotInStartingLayerPairs) * uint8_t(StatusBit::firstDoubletNotInStartingLayerPairs));
     }
 
     // methods to set status to alive, undef or killed
@@ -196,6 +202,9 @@ public:
     void setKilledDoublets() { status_ |= uint8_t(StatusBit::hasKilledDoublets); }
     void setKilledConnections() { status_ |= uint8_t(StatusBit::hasKilledConnections); }
     void setTooShort() { status_ |= uint8_t(StatusBit::isTooShort); }
+    void setFirstDoubletNotInStartingLayerPairs() {
+      status_ |= uint8_t(StatusBit::firstDoubletNotInStartingLayerPairs);
+    }
 
     // methods to check if status is undef, alive or killed
     bool hasUndefDoubletCuts() const { return status_ & uint8_t(StatusBit::hasUndefDoubletCuts); }
@@ -206,6 +215,9 @@ public:
     bool hasKilledConnections() const { return status_ & uint8_t(StatusBit::hasKilledConnections); }
     bool isKilled() const { return hasMissingLayerPair() || hasKilledDoublets() || hasKilledConnections(); }
     bool isTooShort() const { return status_ & uint8_t(StatusBit::isTooShort); }
+    bool firstDoubletNotInStartingLayerPairs() const {
+      return status_ & uint8_t(StatusBit::firstDoubletNotInStartingLayerPairs);
+    }
     bool isAlive() const { return !(status_); }  // if nothing is set (no undef and no kills) the tuplet is alive
 
     // method to compare the own status to a given one and check which one gets farther in the reconstruction chain
@@ -217,10 +229,11 @@ public:
     }
 
   private:
-    uint8_t numDoublets_;   // number of doublets in the Ntuplet
-    uint8_t status_;        // status flags of the Ntuplet (missing layer pairs, undefined cuts, killed doublets, etc.)
-    uint8_t firstLayerId_;  // index of the first layer of the Ntuplet
-    uint8_t lastLayerId_;   // index of the last layer of the Ntuplet
+    uint8_t numDoublets_;    // number of doublets in the Ntuplet
+    uint8_t status_;         // status flags of the Ntuplet (missing layer pairs, undefined cuts, killed doublets, etc.)
+    uint8_t firstLayerId_;   // index of the first layer of the Ntuplet
+    uint8_t secondLayerId_;  // index of the second layer of the Ntuplet
+    uint8_t lastLayerId_;    // index of the last layer of the Ntuplet
     uint8_t numSkippedLayers_;  // number of skipped layers over the full Ntuplet (sum of skips by doublets)
   };
 
@@ -293,13 +306,15 @@ public:
 
   // method to build the SimNtuplets
   // minNumDoubletsToPass = the number of doublets required for the Ntuplet to not be considered too short
-  void buildSimNtuplets(size_t const minNumDoubletsToPass = 0) const;
+  void buildSimNtuplets(std::set<int> const& startingPairs,
+                        size_t const minNumDoubletsToPass = 0) const;
   // method to access the SimNtuplets
   std::vector<Ntuplet>& getSimNtuplets() const { return ntuplets_; };
   // method to build and access the SimNtuplets in one go
   // minNumDoubletsToPass = the number of doublets required for the Ntuplet to not be considered too short
-  std::vector<Ntuplet>& buildAndGetSimNtuplets(size_t const minNumDoubletsToPass = 0) const {
-    buildSimNtuplets(minNumDoubletsToPass);
+  std::vector<Ntuplet>& buildAndGetSimNtuplets(std::set<int> const& startingPairs,
+                                               size_t const minNumDoubletsToPass = 0) const {
+    buildSimNtuplets(startingPairs, minNumDoubletsToPass);
     return ntuplets_;
   };
 
@@ -326,6 +341,7 @@ private:
                         size_t const lastLayerId,
                         uint8_t const status,
                         uint8_t const numSkippedLayers,
+                        std::set<int> const& startingPairs,
                         size_t const minNumDoubletsToPass) const;
 
   // class members
