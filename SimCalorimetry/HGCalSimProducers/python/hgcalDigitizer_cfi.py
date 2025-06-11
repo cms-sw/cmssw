@@ -53,6 +53,8 @@ HGCAL_chargeCollectionEfficiencies = cms.PSet(
 HGCAL_noises = cms.PSet(
     values = cms.vdouble([x for x in nonAgedNoises])
     )
+phase2_hgcalV19.toModify(HGCAL_noises, values = [x for x in nonAgedNoises_v9_v19])
+phase2_hgcalV19.toModify(HGCAL_chargeCollectionEfficiencies, values = nonAgedCCEs_v19)
 
 # ECAL
 hgceeDigitizer = cms.PSet(
@@ -401,8 +403,6 @@ phase2_hgcalV10.toModify(HGCAL_noises, values = [x for x in nonAgedNoises_v9])
 
 phase2_hgcalV19.toModify(HGCAL_noise_fC, values = [x*fC_per_ele for x in nonAgedNoises_v9_v19])
 phase2_hgcalV19.toModify(HFNose_noise_fC, values = [x*fC_per_ele for x in nonAgedNoises_v9_v19])
-phase2_hgcalV19.toModify(HGCAL_noises, values = [x for x in nonAgedNoises_v9_v19])
-phase2_hgcalV19.toModify(HGCAL_chargeCollectionEfficiencies, values = nonAgedCCEs_v19)
 
 def HFNose_setEndOfLifeNoise(process,byDose=True,byDoseAlgo=0,byDoseFactor=1):
     """includes all effects from radiation and gain choice"""
