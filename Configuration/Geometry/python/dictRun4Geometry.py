@@ -1084,12 +1084,12 @@ caloDict = {
             'Geometry/HcalCommonData/data/hcalRecNumbering/NoHE/v2/hcalRecNumbering.xml',
             'Geometry/HGCalCommonData/data/hgcalMaterial/v2/hgcalMaterial.xml',
             'Geometry/HGCalCommonData/data/hgcal/v18ng/hgcal.xml',
-            'Geometry/HGCalCommonData/data/hgcalwafer/v18ng/hgcalwafer.xml',
-            'Geometry/HGCalCommonData/data/hgcalPassive/v18/hgcalPassive.xml',
+            'Geometry/HGCalCommonData/data/hgcalwafer/v18ngr/hgcalwafer.xml',
+            'Geometry/HGCalCommonData/data/hgcalPassive/v18ng/hgcalPassive.xml',
             'Geometry/HGCalCommonData/data/hgcalEE/v18/hgcalEE.xml',
             'Geometry/HGCalCommonData/data/hgcalHEsil/v18/hgcalHEsil.xml',
             'Geometry/HGCalCommonData/data/hgcalHEmix/v18/hgcalHEmix.xml',
-            'Geometry/HGCalCommonData/data/hgcalCons/v18ngx/hgcalCons.xml',
+            'Geometry/HGCalCommonData/data/hgcalCons/v18ng/hgcalCons.xml',
             'Geometry/HGCalCommonData/data/hgcalConsData/v17/hgcalConsData.xml',
         ],
         3 : [
@@ -1381,7 +1381,7 @@ caloDict = {
         'Geometry/HcalCommonData/data/hcalRecNumbering/NoHE/hcalRecNumbering.xml',
         'Geometry/HGCalCommonData/data/hgcalMaterial/v3/hgcalMaterial.xml',
         'Geometry/HGCalCommonData/data/hgcal/v19ng/hgcal.xml',
-        'Geometry/HGCalCommonData/data/hgcalwafer/v19ng/hgcalwafer.xml',
+        'Geometry/HGCalCommonData/data/hgcalwafer/v19ngr/hgcalwafer.xml',
         'Geometry/HGCalCommonData/data/hgcalPassive/v19/hgcalPassive.xml',
         'Geometry/HGCalCommonData/data/hgcalEE/v19/hgcalEE.xml',
         'Geometry/HGCalCommonData/data/hgcalHEsil/v19/hgcalHEsil.xml',
@@ -1396,7 +1396,7 @@ caloDict = {
             'Geometry/HcalSimData/data/hfpmt.xml',
             'Geometry/HcalSimData/data/hffibrebundle.xml',
             'Geometry/HcalSimData/data/CaloUtil/2030/v2c/CaloUtil.xml',
-            'Geometry/HGCalSimData/data/hgcsensv15.xml',
+            'Geometry/HGCalSimData/data/hgcsensv19n.xml',
         ],
         4 : [
             'Geometry/HcalSimData/data/HcalProdCuts/2030/v1/HcalProdCuts.xml',
@@ -1989,10 +1989,10 @@ detectorVersionDict = {
     ("O10","T35","C25","M15","F9","I18") : "D117",
     ("O10","T35","C25","M15","F9","I19") : "D118",
     ("O10","T35","C25","M15","F9","I20") : "D119",
-    ("O10","T35","C26","M15","F9","I20") : "D120",
-    ("O10","T35","C25","M16","F9","I17") : "D121",
-    ("O10","T35","C27","M15","F9","I20") : "D122",
-    ("O10","T35","C28","M15","F9","I20") : "D123",
+    ("O10","T35","C26","M16","F9","I20") : "D120",
+    ("O10","T35","C25","M16","F9","I18") : "D121",
+    ("O10","T35","C27","M16","F9","I18") : "D122",
+    ("O10","T35","C28","M16","F9","I18") : "D123",
 }
 
 deprecatedDets = set([ "D1", "D2", "D3", "D5", "D6" , "D7", "D4", "D8" , "D9", "D12", "D13", "D15", "D10", "D11", "D14", "D16", "D17", "D18", "D19", "D20", "D21", "D22", "D23", "D24", "D25", "D26", "D27", "D28", "D29", "D30", "D31", "D32", "D33", "D34", "D36", "D37", "D38", "D39", "D40", "D42", "D35", "D41", "D43", "D44", "D45", "D46", "D48", "D47", "D50", "D51", "D52", "D53", "D54", "D55", "D56", "D57", "D58", "D59", "D61", "D62", "D63", "D64", "D65", "D66", "D67", "D69", "D71", "D72", "D73", "D74", "D75", "D78", "D79", "D87", "D89", "D90", "D49", "D60", "D68", "D70", "D76", "D77", "D80", "D81", "D82", "D83", "D84", "D85","D86","D88","D91","D92","D93","D94","D97"])
