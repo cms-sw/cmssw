@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 import sys
 from enum import Enum
-from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultMC_MinBiasPUPhase2RECO
+from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultMC_TTbarPhase2RECO
 
 class RefitType(Enum):
      STANDARD = 1
@@ -27,7 +27,7 @@ process.options.numberOfThreads = 8
 # Event source and run selection
 ###################################################################
 process.source = cms.Source("PoolSource",
-                            fileNames = filesDefaultMC_MinBiasPUPhase2RECO,
+                            fileNames = filesDefaultMC_TTbarPhase2RECO,
                             duplicateCheckMode = cms.untracked.string('checkAllFilesOpened')
                             )
 
