@@ -14,7 +14,7 @@
 <bin name="testDataFormatsCommon" file="testRunner.cpp,testOwnVector.cc,testOneToOneAssociation.cc,testValueMap.cc,testOneToManyAssociation.cc,testAssociationVector.cc,testAssociationNew.cc,testValueMapNew.cc,testSortedCollection.cc,testRangeMap.cc,ref_t.cppunit.cc,DetSetRefVector_t.cppunit.cc,reftobasevector_t.cppunit.cc,cloningptr_t.cppunit.cc,ptr_t.cppunit.cc,ptrvector_t.cppunit.cc,containermask_t.cppunit.cc,reftobaseprod_t.cppunit.cc,handle_t.cppunit.cc">
 </bin>
 
-<bin name="testDataFormatsCommonCatch2" file="DetSetVector_t.cpp,DetSetVectorWithKey_t.cpp,exDSTV.cpp,exTrie.cpp,OwnVector_t.cpp,Wrapper_t.cpp,testBoostRange.cpp,reftobase_t.cpp,Ref_t.cpp,RefCore_t.cpp,StdArray_t.cpp,ThinnedRefSet_t.cpp,traits_t.cpp,RefVector_t.cpp,DataFrame_t.cpp,DictionaryTools_t.cpp,MapOfVectors_t.cpp,Trie_t.cpp,DetSetNew_t.cpp,DetSetNewTS_t.cpp">
+<bin name="testDataFormatsCommonCatch2" file="test_catch2_*.cpp">
 <use name="catch2"/>
 </bin>
 

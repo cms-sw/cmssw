@@ -27,10 +27,6 @@ public:
 };
 
 namespace {
-  namespace global {
-    Mutex coutLock;
-  }
-
   template <typename T>
   inline void spinlock(std::atomic<T> const& lock, T val) {
     while (lock.load(std::memory_order_acquire) != val) {
@@ -204,7 +200,7 @@ TEST_CASE("DetSetNewTS", "[DetSetNewTS]") {
     REQUIRE(maxDet == int(detsets.size()));
     std::atomic<int> lock(0);
     std::atomic<int> idet(0);
-    std::atomic<int> count(0);
+    //std::atomic<int> count(0);
     DST df31 = detsets[31];
     //std::cout << "start parallel section" << std::endl;
     parallel_run([&lock, &detsets, &idet, maxDet, &g](unsigned int threadNumber, unsigned int numberOfThreads) {
