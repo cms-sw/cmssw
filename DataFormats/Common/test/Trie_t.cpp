@@ -19,209 +19,177 @@
 **   modified by Vincenzo Innocente on 15/08/2007
 */
 
-#include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
-#include "cppunit/extensions/HelperMacros.h"
-
-/**
-   *
-   * @brief Trie test suite
-   *
-   * <h2>Try to add/get string from trie</h2>
-   *
-   * @author Julien Lemoine <speedblue@happycoders.org>
-   *
-   */
-
-class TestedmTrie : public CppUnit::TestFixture {
-  CPPUNIT_TEST_SUITE(TestedmTrie);
-  CPPUNIT_TEST(testString);
-  CPPUNIT_TEST(testUnsigned);
-  CPPUNIT_TEST(testSort);
-  CPPUNIT_TEST_SUITE_END();
-
-public:
-  /// run all test tokenizer
-  void testString();
-  void testUnsigned();
-  void testSort();
-};
-
-CPPUNIT_TEST_SUITE_REGISTRATION(TestedmTrie);
-
+#include "catch.hpp"
 #include <iostream>
 #include <sstream>
 #include <list>
-
+#include <string>
 #include "DataFormats/Common/interface/Trie.h"
 
-void TestedmTrie::testString() {
-  try {
-    edm::Trie<std::string> strTrie(std::string(""));
-    strTrie.insert("Premiere Chaine", 15, std::string("1er"));
-    strTrie.insert("Deuxieme Chaine", std::string("2eme"));
-    {
-      const std::string &s = strTrie.find("unknown", 7);
-      CPPUNIT_ASSERT_EQUAL(std::string(""), s);
+TEST_CASE("edm::Trie", "[Trie]") {
+  SECTION("string") {
+    try {
+      edm::Trie<std::string> strTrie(std::string(""));
+      strTrie.insert("Premiere Chaine", 15, std::string("1er"));
+      strTrie.insert("Deuxieme Chaine", std::string("2eme"));
+      {
+        const std::string &s = strTrie.find("unknown", 7);
+        REQUIRE(s == "");
+      }
+      {
+        const std::string &s = strTrie.find("test");
+        REQUIRE(s == "");
+      }
+      {
+        const std::string &s = strTrie.find("Premiere Chaine", 15);
+        REQUIRE(s == "1er");
+      }
+      {
+        const std::string &s = strTrie.find("Premiere Chaine", 14);
+        REQUIRE(s == "");
+      }
+      {
+        const std::string &s = strTrie.find("premiere Chaine", 15);
+        REQUIRE(s == "");
+      }
+      {
+        const std::string &s = strTrie.find("Premiere Chaine ", 16);
+        REQUIRE(s == "");
+      }
+      {
+        const std::string &s = strTrie.find("Deuxieme Chaine");
+        REQUIRE(s == "2eme");
+      }
+    } catch (const edm::Exception &e) {
+      std::cerr << e.what() << std::endl;
+      REQUIRE(false);
     }
-    {
-      const std::string &s = strTrie.find("test");
-      CPPUNIT_ASSERT_EQUAL(std::string(""), s);
-    }
-    {
-      const std::string &s = strTrie.find("Premiere Chaine", 15);
-      CPPUNIT_ASSERT_EQUAL(std::string("1er"), s);
-    }
-    {
-      const std::string &s = strTrie.find("Premiere Chaine", 14);
-      CPPUNIT_ASSERT_EQUAL(std::string(""), s);
-    }
-    {
-      const std::string &s = strTrie.find("premiere Chaine", 15);
-      CPPUNIT_ASSERT_EQUAL(std::string(""), s);
-    }
-    {
-      const std::string &s = strTrie.find("Premiere Chaine ", 16);
-      CPPUNIT_ASSERT_EQUAL(std::string(""), s);
-    }
-    {
-      const std::string &s = strTrie.find("Deuxieme Chaine");
-      CPPUNIT_ASSERT_EQUAL(std::string("2eme"), s);
-    }
-  } catch (const edm::Exception &e) {
-    std::cerr << e.what() << std::endl;
-    CPPUNIT_ASSERT(false);
   }
-}
 
-void TestedmTrie::testUnsigned() {
-  try {
-    edm::Trie<unsigned> nbTrie(0);
-    nbTrie.insert("un", 2, 1);
-    nbTrie.insert("deux", 4, 2);
-    nbTrie.insert("test", 4, 3);
-    nbTrie.insert("tat", 4);
-    nbTrie.insert("taa", 4);
-    nbTrie.insert("tbp", 5);
-    nbTrie.insert("tlp", 3, 6);
+  SECTION("unsigned") {
+    try {
+      edm::Trie<unsigned> nbTrie(0);
+      nbTrie.insert("un", 2, 1);
+      nbTrie.insert("deux", 4, 2);
+      nbTrie.insert("test", 4, 3);
+      nbTrie.insert("tat", 4);
+      nbTrie.insert("taa", 4);
+      nbTrie.insert("tbp", 5);
+      nbTrie.insert("tlp", 3, 6);
 
-    unsigned res = 0;
+      unsigned res = 0;
 
-    res = nbTrie.find("un", 2);
-    CPPUNIT_ASSERT_EQUAL((unsigned)1, res);
+      res = nbTrie.find("un", 2);
+      REQUIRE(res == 1u);
 
-    res = nbTrie.find("Un", 2);
-    CPPUNIT_ASSERT_EQUAL((unsigned)0, res);
+      res = nbTrie.find("Un", 2);
+      REQUIRE(res == 0u);
 
-    res = nbTrie.find("UN", 2);
-    CPPUNIT_ASSERT_EQUAL((unsigned)0, res);
+      res = nbTrie.find("UN", 2);
+      REQUIRE(res == 0u);
 
-    res = nbTrie.find("", 0);
-    CPPUNIT_ASSERT_EQUAL((unsigned)0, res);
+      res = nbTrie.find("", 0);
+      REQUIRE(res == 0u);
 
-    res = nbTrie.find("deux");
-    CPPUNIT_ASSERT_EQUAL((unsigned)2, res);
+      res = nbTrie.find("deux");
+      REQUIRE(res == 2u);
 
-    res = nbTrie.find(" deux ", 6);
-    CPPUNIT_ASSERT_EQUAL((unsigned)0, res);
-  } catch (const edm::Exception &e) {
-    std::cerr << e.what() << std::endl;
-    CPPUNIT_ASSERT(false);
+      res = nbTrie.find(" deux ", 6);
+      REQUIRE(res == 0u);
+    } catch (const edm::Exception &e) {
+      std::cerr << e.what() << std::endl;
+      REQUIRE(false);
+    }
   }
-}
 
-void TestedmTrie::testSort() {
-  try {
-    //Test if trie is well sorted
-    edm::Trie<unsigned> test(0);
-    test.insert("acd", 3, 1);
-    test.insert("ade", 3, 2);
-    test.insert("abc", 3, 3);
-    test.insert("ace", 3, 4);
-    test.insert("adc", 3, 5);
-    test.insert("abe", 3, 6);
-    test.insert("acc", 3, 7);
-    test.insert("add", 3, 8);
-    test.insert("abd", 3, 9);
-    const edm::TrieNode<unsigned> *first = test.initialNode(), *last = 0x0;
-    CPPUNIT_ASSERT_EQUAL((unsigned)0, first->value());
-    CPPUNIT_ASSERT_EQUAL((void *)0x0, (void *)first->brother());
-    CPPUNIT_ASSERT_EQUAL((unsigned char)'a', first->subNodeLabel());
-    // Get one first sub node
-    first = first->subNode();  //a*
-    CPPUNIT_ASSERT_EQUAL((unsigned)0, first->value());
-    CPPUNIT_ASSERT(first != 0x0);
-
-    // There is no other letter than a
-    CPPUNIT_ASSERT_EQUAL((void *)0x0, (void *)first->brother());
-
-    // Get first sub node of 'a'
-    CPPUNIT_ASSERT(first->subNode() != 0x0);
-    CPPUNIT_ASSERT_EQUAL((unsigned char)'b', first->subNodeLabel());
-    first = first->subNode();  //ab*
-    CPPUNIT_ASSERT_EQUAL((unsigned)0, first->value());
-    CPPUNIT_ASSERT(first->subNode() != 0x0);
-    CPPUNIT_ASSERT_EQUAL((unsigned char)'c', first->subNodeLabel());
-    last = first->subNode();  //abc
-    CPPUNIT_ASSERT_EQUAL((unsigned)3, last->value());
-    CPPUNIT_ASSERT_EQUAL((void *)0x0, (void *)last->subNode());
-    CPPUNIT_ASSERT(last->brother() != 0x0);
-    CPPUNIT_ASSERT_EQUAL((unsigned char)'d', last->brotherLabel());
-    last = last->brother();  // abd
-    CPPUNIT_ASSERT_EQUAL((unsigned)9, last->value());
-    CPPUNIT_ASSERT_EQUAL((void *)0x0, (void *)last->subNode());
-    CPPUNIT_ASSERT(last->brother() != 0x0);
-    CPPUNIT_ASSERT_EQUAL((unsigned char)'e', last->brotherLabel());
-    last = last->brother();  // abe
-    CPPUNIT_ASSERT_EQUAL((unsigned)6, last->value());
-    CPPUNIT_ASSERT_EQUAL((void *)0x0, (void *)last->subNode());
-    CPPUNIT_ASSERT_EQUAL((void *)0x0, (void *)last->brother());
-
-    CPPUNIT_ASSERT(first->brother() != 0x0);
-    CPPUNIT_ASSERT_EQUAL((unsigned char)'c', first->brotherLabel());
-    first = first->brother();  //ac*
-    CPPUNIT_ASSERT_EQUAL((unsigned)0, first->value());
-
-    CPPUNIT_ASSERT(first->subNode() != 0x0);
-    CPPUNIT_ASSERT_EQUAL((unsigned char)'c', first->subNodeLabel());
-    last = first->subNode();  //acc
-    CPPUNIT_ASSERT_EQUAL((unsigned)7, last->value());
-    CPPUNIT_ASSERT_EQUAL((void *)0x0, (void *)last->subNode());
-    CPPUNIT_ASSERT(last->brother() != 0x0);
-    CPPUNIT_ASSERT_EQUAL((unsigned char)'d', last->brotherLabel());
-    last = last->brother();  // acd
-    CPPUNIT_ASSERT_EQUAL((unsigned)1, last->value());
-    CPPUNIT_ASSERT_EQUAL((void *)0x0, (void *)last->subNode());
-    CPPUNIT_ASSERT(last->brother() != 0x0);
-    CPPUNIT_ASSERT_EQUAL((unsigned char)'e', last->brotherLabel());
-    last = last->brother();  // ace
-    CPPUNIT_ASSERT_EQUAL((unsigned)4, last->value());
-    CPPUNIT_ASSERT_EQUAL((void *)0x0, (void *)last->subNode());
-    CPPUNIT_ASSERT_EQUAL((void *)0x0, (void *)last->brother());
-
-    CPPUNIT_ASSERT(first->brother() != 0x0);
-    CPPUNIT_ASSERT_EQUAL((unsigned char)'d', first->brotherLabel());
-    first = first->brother();  //ad*
-    CPPUNIT_ASSERT_EQUAL((unsigned)0, first->value());
-
-    CPPUNIT_ASSERT(first->subNode() != 0x0);
-    CPPUNIT_ASSERT_EQUAL((unsigned char)'c', first->subNodeLabel());
-    last = first->subNode();  //adc
-    CPPUNIT_ASSERT_EQUAL((unsigned)5, last->value());
-    CPPUNIT_ASSERT_EQUAL((void *)0x0, (void *)last->subNode());
-    CPPUNIT_ASSERT(last->brother() != 0x0);
-    CPPUNIT_ASSERT_EQUAL((unsigned char)'d', last->brotherLabel());
-    last = last->brother();  // add
-    CPPUNIT_ASSERT_EQUAL((unsigned)8, last->value());
-    CPPUNIT_ASSERT_EQUAL((void *)0x0, (void *)last->subNode());
-    CPPUNIT_ASSERT(last->brother() != 0x0);
-    CPPUNIT_ASSERT_EQUAL((unsigned char)'e', last->brotherLabel());
-    last = last->brother();  // ade
-    CPPUNIT_ASSERT_EQUAL((unsigned)2, last->value());
-    CPPUNIT_ASSERT_EQUAL((void *)0x0, (void *)last->subNode());
-    CPPUNIT_ASSERT_EQUAL((void *)0x0, (void *)last->brother());
-    CPPUNIT_ASSERT_EQUAL((void *)0x0, (void *)first->brother());
-  } catch (const edm::Exception &e) {
-    std::cerr << e.what() << std::endl;
-    CPPUNIT_ASSERT(false);
+  SECTION("sort") {
+    try {
+      //Test if trie is well sorted
+      edm::Trie<unsigned> test(0);
+      test.insert("acd", 3, 1);
+      test.insert("ade", 3, 2);
+      test.insert("abc", 3, 3);
+      test.insert("ace", 3, 4);
+      test.insert("adc", 3, 5);
+      test.insert("abe", 3, 6);
+      test.insert("acc", 3, 7);
+      test.insert("add", 3, 8);
+      test.insert("abd", 3, 9);
+      const edm::TrieNode<unsigned> *first = test.initialNode(), *last = 0x0;
+      REQUIRE(first->value() == 0u);
+      REQUIRE(first->brother() == nullptr);
+      REQUIRE(first->subNodeLabel() == (unsigned char)'a');
+      // Get one first sub node
+      first = first->subNode();  //a*
+      REQUIRE(first->value() == 0u);
+      REQUIRE(first != nullptr);
+      // There is no other letter than a
+      REQUIRE(first->brother() == nullptr);
+      // Get first sub node of 'a'
+      REQUIRE(first->subNode() != nullptr);
+      REQUIRE(first->subNodeLabel() == (unsigned char)'b');
+      first = first->subNode();  //ab*
+      REQUIRE(first->value() == 0u);
+      REQUIRE(first->subNode() != nullptr);
+      REQUIRE(first->subNodeLabel() == (unsigned char)'c');
+      last = first->subNode();  //abc
+      REQUIRE(last->value() == 3u);
+      REQUIRE(last->subNode() == nullptr);
+      REQUIRE(last->brother() != nullptr);
+      REQUIRE(last->brotherLabel() == (unsigned char)'d');
+      last = last->brother();  // abd
+      REQUIRE(last->value() == 9u);
+      REQUIRE(last->subNode() == nullptr);
+      REQUIRE(last->brother() != nullptr);
+      REQUIRE(last->brotherLabel() == (unsigned char)'e');
+      last = last->brother();  // abe
+      REQUIRE(last->value() == 6u);
+      REQUIRE(last->subNode() == nullptr);
+      REQUIRE(last->brother() == nullptr);
+      REQUIRE(first->brother() != nullptr);
+      REQUIRE(first->brotherLabel() == (unsigned char)'c');
+      first = first->brother();  //ac*
+      REQUIRE(first->value() == 0u);
+      REQUIRE(first->subNode() != nullptr);
+      REQUIRE(first->subNodeLabel() == (unsigned char)'c');
+      last = first->subNode();  //acc
+      REQUIRE(last->value() == 7u);
+      REQUIRE(last->subNode() == nullptr);
+      REQUIRE(last->brother() != nullptr);
+      REQUIRE(last->brotherLabel() == (unsigned char)'d');
+      last = last->brother();  // acd
+      REQUIRE(last->value() == 1u);
+      REQUIRE(last->subNode() == nullptr);
+      REQUIRE(last->brother() != nullptr);
+      REQUIRE(last->brotherLabel() == (unsigned char)'e');
+      last = last->brother();  // ace
+      REQUIRE(last->value() == 4u);
+      REQUIRE(last->subNode() == nullptr);
+      REQUIRE(last->brother() == nullptr);
+      REQUIRE(first->brother() != nullptr);
+      REQUIRE(first->brotherLabel() == (unsigned char)'d');
+      first = first->brother();  //ad*
+      REQUIRE(first->value() == 0u);
+      REQUIRE(first->subNode() != nullptr);
+      REQUIRE(first->subNodeLabel() == (unsigned char)'c');
+      last = first->subNode();  //adc
+      REQUIRE(last->value() == 5u);
+      REQUIRE(last->subNode() == nullptr);
+      REQUIRE(last->brother() != nullptr);
+      REQUIRE(last->brotherLabel() == (unsigned char)'d');
+      last = last->brother();  // add
+      REQUIRE(last->value() == 8u);
+      REQUIRE(last->subNode() == nullptr);
+      REQUIRE(last->brother() != nullptr);
+      REQUIRE(last->brotherLabel() == (unsigned char)'e');
+      last = last->brother();  // ade
+      REQUIRE(last->value() == 2u);
+      REQUIRE(last->subNode() == nullptr);
+      REQUIRE(last->brother() == nullptr);
+      REQUIRE(first->brother() == nullptr);
+    } catch (const edm::Exception &e) {
+      std::cerr << e.what() << std::endl;
+      REQUIRE(false);
+    }
   }
 }

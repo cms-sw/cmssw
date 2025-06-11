@@ -4,76 +4,30 @@
 #include "FWCore/Utilities/interface/TypeDemangler.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Reflection/interface/TypeWithDict.h"
-#include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
-
-#include "cppunit/extensions/HelperMacros.h"
-
+#include "catch.hpp"
 #include <typeinfo>
 #include <map>
 #include <vector>
+#include <string>
 
-class TestDictionaries : public CppUnit::TestFixture {
-  CPPUNIT_TEST_SUITE(TestDictionaries);
-  CPPUNIT_TEST(default_is_invalid);
-  CPPUNIT_TEST(no_dictionary_is_invalid);
-  CPPUNIT_TEST(not_a_template_instance);
-  CPPUNIT_TEST(demangling);
-  CPPUNIT_TEST_SUITE_END();
-
-public:
-  TestDictionaries() {}
-  ~TestDictionaries() {}
-  void setUp() {}
-  void tearDown() {}
-
-  void default_is_invalid();
-  void no_dictionary_is_invalid();
-  void not_a_template_instance();
-  void demangling();
-
-private:
-};
-
-CPPUNIT_TEST_SUITE_REGISTRATION(TestDictionaries);
-
-void TestDictionaries::default_is_invalid() {
-  edm::TypeWithDict t;
-  CPPUNIT_ASSERT(!t);
-}
-
-void TestDictionaries::no_dictionary_is_invalid() {
-  edm::TypeWithDict t(edm::TypeWithDict::byName("ThereIsNoTypeWithThisName"));
-  CPPUNIT_ASSERT(!t);
-}
-
-void TestDictionaries::not_a_template_instance() {
-  edm::TypeWithDict not_a_template(edm::TypeWithDict::byName("double"));
-  CPPUNIT_ASSERT(not_a_template);
-  std::string nonesuch(not_a_template.templateName());
-  CPPUNIT_ASSERT(nonesuch.empty());
-}
-
+// Helper templates for demangling checks
 namespace {
   template <typename T>
   void checkIt() {
     edm::TypeWithDict type(typeid(T));
-    // Test only if class has dictionary
     if (bool(type)) {
       std::string demangledName(edm::typeDemangle(typeid(T).name()));
-      CPPUNIT_ASSERT(type.name() == demangledName);
-
+      REQUIRE(type.name() == demangledName);
       edm::TypeID tid(typeid(T));
-      CPPUNIT_ASSERT(tid.className() == demangledName);
-
+      REQUIRE(tid.className() == demangledName);
       edm::TypeWithDict typeFromName = edm::TypeWithDict::byName(demangledName);
-      CPPUNIT_ASSERT(typeFromName.name() == demangledName);
+      REQUIRE(typeFromName.name() == demangledName);
       if (type.isClass()) {
         edm::TypeID tidFromName(typeFromName.typeInfo());
-        CPPUNIT_ASSERT(tidFromName.className() == demangledName);
+        REQUIRE(tidFromName.className() == demangledName);
       }
     }
   }
-
   template <typename T>
   void checkDemangling() {
     checkIt<std::vector<T> >();
@@ -84,20 +38,39 @@ namespace {
   }
 }  // namespace
 
-void TestDictionaries::demangling() {
-  checkDemangling<int>();
-  checkDemangling<unsigned int>();
-  checkDemangling<unsigned long>();
-  checkDemangling<long>();
-  checkDemangling<unsigned long>();
-  checkDemangling<long long>();
-  checkDemangling<unsigned long long>();
-  checkDemangling<short>();
-  checkDemangling<unsigned short>();
-  checkDemangling<char>();
-  checkDemangling<unsigned char>();
-  checkDemangling<float>();
-  checkDemangling<double>();
-  checkDemangling<bool>();
-  checkDemangling<std::string>();
+TEST_CASE("DictionaryTools functions", "[DictionaryTools]") {
+  SECTION("default_is_invalid") {
+    edm::TypeWithDict t;
+    REQUIRE(!t);
+  }
+
+  SECTION("no_dictionary_is_invalid") {
+    edm::TypeWithDict t(edm::TypeWithDict::byName("ThereIsNoTypeWithThisName"));
+    REQUIRE(!t);
+  }
+
+  SECTION("not_a_template_instance") {
+    edm::TypeWithDict not_a_template(edm::TypeWithDict::byName("double"));
+    REQUIRE(not_a_template);
+    std::string nonesuch(not_a_template.templateName());
+    REQUIRE(nonesuch.empty());
+  }
+
+  SECTION("demangling") {
+    checkDemangling<int>();
+    checkDemangling<unsigned int>();
+    checkDemangling<unsigned long>();
+    checkDemangling<long>();
+    checkDemangling<unsigned long>();
+    checkDemangling<long long>();
+    checkDemangling<unsigned long long>();
+    checkDemangling<short>();
+    checkDemangling<unsigned short>();
+    checkDemangling<char>();
+    checkDemangling<unsigned char>();
+    checkDemangling<float>();
+    checkDemangling<double>();
+    checkDemangling<bool>();
+    checkDemangling<std::string>();
+  }
 }

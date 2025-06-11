@@ -1,94 +1,69 @@
-#include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
-#include "cppunit/extensions/HelperMacros.h"
-
-#include "DataFormats/Common/interface/MapOfVectors.h"
-
 #include <vector>
 #include <algorithm>
+#include "catch.hpp"
+#include "DataFormats/Common/interface/MapOfVectors.h"
 
 typedef edm::MapOfVectors<int, int> MII;
 typedef MII::TheMap TheMap;
 
-class TestMapOfVectors : public CppUnit::TestFixture {
-  CPPUNIT_TEST_SUITE(TestMapOfVectors);
-  CPPUNIT_TEST(default_ctor);
-  CPPUNIT_TEST(filling);
-  CPPUNIT_TEST(find);
-  CPPUNIT_TEST(iterator);
-
-  CPPUNIT_TEST_SUITE_END();
-
+class TestMapOfVectors {
 public:
-  TestMapOfVectors();
-  ~TestMapOfVectors();
-  void setUp() {}
-  void tearDown() {}
-
-  void default_ctor();
-  void filling();
-  void find();
-  void iterator();
-
-  TheMap om;
-  unsigned int tot;
-
-public:
+  static auto& keys(MII& m) { return m.m_keys; }
+  static auto& offsets(const MII& m) { return m.m_offsets; }
+  static auto& data(const MII& m) { return m.m_data; }
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION(TestMapOfVectors);
-
-TestMapOfVectors::TestMapOfVectors() {
+TEST_CASE("MapOfVectors", "[MapOfVectors]") {
+  TheMap om;
+  unsigned int tot = 0;
   int v[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-  tot = 0;
   for (int i = 0; i < 10; ++i) {
     tot += i;
     om[i].resize(i);
     std::copy(v, v + i, om[i].begin());
   }
-}
 
-TestMapOfVectors::~TestMapOfVectors() {}
-
-void TestMapOfVectors::default_ctor() {
-  MII m;
-  CPPUNIT_ASSERT(m.size() == 0);
-  CPPUNIT_ASSERT(m.empty());
-  CPPUNIT_ASSERT(m.m_keys.size() == 0);
-  CPPUNIT_ASSERT(m.m_offsets.size() == 1);
-  CPPUNIT_ASSERT(m.m_offsets[0] == 0);
-  CPPUNIT_ASSERT(m.m_data.size() == 0);
-}
-
-void TestMapOfVectors::filling() {
-  MII m(om);
-  CPPUNIT_ASSERT(m.size() == om.size());
-  CPPUNIT_ASSERT(!m.empty());
-  CPPUNIT_ASSERT(m.m_keys.size() == om.size());
-  CPPUNIT_ASSERT(m.m_offsets.size() == om.size() + 1);
-  CPPUNIT_ASSERT(m.m_offsets[0] == 0);
-  CPPUNIT_ASSERT(m.m_offsets[m.size()] == tot);
-  CPPUNIT_ASSERT(m.m_data.size() == tot);
-}
-
-void TestMapOfVectors::find() {
-  MII m(om);
-  CPPUNIT_ASSERT(m.find(-1) == m.emptyRange());
-  for (TheMap::const_iterator p = om.begin(); p != om.end(); ++p) {
-    MII::range r = m.find((*p).first);
-    CPPUNIT_ASSERT(int(r.size()) == (*p).first);
-    CPPUNIT_ASSERT(std::equal((*p).second.begin(), (*p).second.end(), r.begin()));
+  SECTION("default ctor") {
+    MII m;
+    REQUIRE(m.size() == 0);
+    REQUIRE(m.empty());
+    REQUIRE(TestMapOfVectors::keys(m).size() == 0);
+    REQUIRE(TestMapOfVectors::offsets(m).size() == 1);
+    REQUIRE(TestMapOfVectors::offsets(m)[0] == 0);
+    REQUIRE(TestMapOfVectors::data(m).size() == 0);
   }
-}
 
-void TestMapOfVectors::iterator() {
-  MII m(om);
-  TheMap::const_iterator op = om.begin();
-  unsigned int lt = 0;
-  for (MII::const_iterator p = m.begin(); p != m.end(); ++p) {
-    CPPUNIT_ASSERT((*p).first == (*op).first);
-    CPPUNIT_ASSERT(std::equal((*p).second.begin(), (*p).second.end(), (*op).second.begin()));
-    lt += (*p).second.size();
-    ++op;
+  SECTION("filling") {
+    MII m(om);
+    REQUIRE(m.size() == om.size());
+    REQUIRE(!m.empty());
+    REQUIRE(TestMapOfVectors::keys(m).size() == om.size());
+    REQUIRE(TestMapOfVectors::offsets(m).size() == om.size() + 1);
+    REQUIRE(TestMapOfVectors::offsets(m)[0] == 0);
+    REQUIRE(TestMapOfVectors::offsets(m)[m.size()] == tot);
+    REQUIRE(TestMapOfVectors::data(m).size() == tot);
   }
-  CPPUNIT_ASSERT(lt == tot);
+
+  SECTION("find") {
+    MII m(om);
+    REQUIRE(m.find(-1) == m.emptyRange());
+    for (TheMap::const_iterator p = om.begin(); p != om.end(); ++p) {
+      MII::range r = m.find((*p).first);
+      REQUIRE(int(r.size()) == (*p).first);
+      REQUIRE(std::equal((*p).second.begin(), (*p).second.end(), r.begin()));
+    }
+  }
+
+  SECTION("iterator") {
+    MII m(om);
+    TheMap::const_iterator op = om.begin();
+    unsigned int lt = 0;
+    for (MII::const_iterator p = m.begin(); p != m.end(); ++p) {
+      REQUIRE((*p).first == (*op).first);
+      REQUIRE(std::equal((*p).second.begin(), (*p).second.end(), (*op).second.begin()));
+      lt += (*p).second.size();
+      ++op;
+    }
+    REQUIRE(lt == tot);
+  }
 }

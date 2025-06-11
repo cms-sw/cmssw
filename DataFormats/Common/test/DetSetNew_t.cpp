@@ -1,5 +1,4 @@
-#include "Utilities/Testing/interface/CppUnit_testdriver.icpp"  //gives main
-#include "cppunit/extensions/HelperMacros.h"
+#include "catch.hpp"
 
 #include "DataFormats/Common/interface/DetSetNew.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
@@ -11,474 +10,66 @@
 #include <algorithm>
 #include <vector>
 
-struct B {
-  virtual ~B() {}
-  virtual B *clone() const = 0;
-};
+namespace {
+  struct B {
+    virtual ~B() {}
+    virtual B *clone() const = 0;
+  };
 
-struct T : public B {
-  T(float iv = 0) : v(iv) {}
-  float v;
-  bool operator==(T t) const { return v == t.v; }
+  struct T : public B {
+    T(float iv = 0) : v(iv) {}
+    float v;
+    bool operator==(T t) const { return v == t.v; }
 
-  T *clone() const final { return new T(*this); }
-};
+    T *clone() const final { return new T(*this); }
+  };
 
-bool operator==(T const &t, B const &b) {
-  T const *p = dynamic_cast<T const *>(&b);
-  return p && p->v == t.v;
-}
+  bool operator==(T const &t, B const &b) {
+    T const *p = dynamic_cast<T const *>(&b);
+    return p && p->v == t.v;
+  }
 
-bool operator==(B const &b, T const &t) { return t == b; }
-
+  bool operator==(B const &b, T const &t) { return t == b; }
+}  // namespace
 typedef edmNew::DetSetVector<T> DSTV;
 typedef edmNew::DetSet<T> DST;
 typedef edmNew::det_id_type det_id_type;
 typedef DSTV::FastFiller FF;
 typedef DSTV::TSFastFiller TSFF;
 
-class TestDetSet : public CppUnit::TestFixture {
-  CPPUNIT_TEST_SUITE(TestDetSet);
-  CPPUNIT_TEST(default_ctor);
-  CPPUNIT_TEST(inserting);
-  CPPUNIT_TEST(filling);
-  CPPUNIT_TEST(fillingTS);
-  CPPUNIT_TEST(iterator);
-  CPPUNIT_TEST(algorithm);
-  CPPUNIT_TEST(onDemand);
-  CPPUNIT_TEST(toRangeMap);
-
-  CPPUNIT_TEST_SUITE_END();
-
+class TestDetSet {
 public:
-  TestDetSet();
-  ~TestDetSet() {}
-  void setUp() {}
-  void tearDown() {}
-
-  void default_ctor();
-  void inserting();
-  void filling();
-  void fillingTS();
-  void iterator();
-  void algorithm();
-  void onDemand();
-  void toRangeMap();
-
-public:
-  std::vector<DSTV::data_type> sv;
+  static auto &data(DSTV &detsets) { return detsets.m_data; }
+  static auto &item(FF &ff) { return ff.m_item; }
+  static auto &item(TSFF &ff) { return ff.m_item; }
 };
-
-CPPUNIT_TEST_SUITE_REGISTRATION(TestDetSet);
-
-TestDetSet::TestDetSet() : sv(10) {
-  DSTV::data_type v[10] = {0., 1., 2., 3., 4., 5., 6., 7., 8., 9.};
-  std::copy(v, v + 10, sv.begin());
-}
-
-void TestDetSet::default_ctor() {
-#ifdef CMS_NOCXX11
-  CPPUNIT_ASSERT(false && "CMS_NOCXX11");
-#endif
-
-  DSTV detsets(2);
-  CPPUNIT_ASSERT(!detsets.onDemand());
-  CPPUNIT_ASSERT(detsets.subdetId() == 2);
-  CPPUNIT_ASSERT(detsets.size() == 0);
-  CPPUNIT_ASSERT(detsets.empty());
-  CPPUNIT_ASSERT(detsets.dataSize() == 0);
-  detsets.resize(3, 10);
-  CPPUNIT_ASSERT(detsets.size() == 3);
-  CPPUNIT_ASSERT(detsets.dataSize() == 10);
-  CPPUNIT_ASSERT(!detsets.empty());
-  // follow is nonsense still valid construct... (maybe it shall throw...)
-  // now assert!
-  /*
-  DST df(detsets,detsets.item(1));
-  CPPUNIT_ASSERT(df.id()==0);
-  CPPUNIT_ASSERT(df.size()==0);
-  CPPUNIT_ASSERT(df.data()+1==&detsets.m_data.front());
-  df.set(detsets,detsets.item(2));
-  CPPUNIT_ASSERT(df.size()==0);
-  CPPUNIT_ASSERT(df.data()+1==&detsets.m_data.front());
-  */
-
-  // test swap
-  DSTV detsets2(3);
-  detsets.swap(detsets2);
-  CPPUNIT_ASSERT(detsets.subdetId() == 3);
-  CPPUNIT_ASSERT(detsets.size() == 0);
-  CPPUNIT_ASSERT(detsets.dataSize() == 0);
-  CPPUNIT_ASSERT(detsets2.subdetId() == 2);
-  CPPUNIT_ASSERT(detsets2.size() == 3);
-  CPPUNIT_ASSERT(detsets2.dataSize() == 10);
-  CPPUNIT_ASSERT(!detsets2.onDemand());
-
-  // test move
-  DSTV detsets3(4);
-  detsets = std::move(detsets3);
-  CPPUNIT_ASSERT(detsets.subdetId() == 4);
-  CPPUNIT_ASSERT(detsets.size() == 0);
-  CPPUNIT_ASSERT(detsets.dataSize() == 0);
-  DSTV detsets5(std::move(detsets));
-  CPPUNIT_ASSERT(detsets5.subdetId() == 4);
-  CPPUNIT_ASSERT(detsets5.size() == 0);
-  CPPUNIT_ASSERT(detsets5.dataSize() == 0);
-
-  // test copy
-  DSTV detsets4(detsets5);
-  CPPUNIT_ASSERT(detsets4.subdetId() == 4);
-  CPPUNIT_ASSERT(detsets4.size() == 0);
-  CPPUNIT_ASSERT(detsets4.dataSize() == 0);
-}
-
-void TestDetSet::inserting() {
-  DSTV detsets(2);
-  unsigned int ntot = 0;
-  for (unsigned int n = 1; n < 5; ++n) {
-    ntot += n;
-    unsigned int id = 20 + n;
-    DST df = detsets.insert(id, n);
-    CPPUNIT_ASSERT(detsets.size() == n);
-    CPPUNIT_ASSERT(detsets.dataSize() == ntot);
-    CPPUNIT_ASSERT(detsets.detsetSize(n - 1) == n);
-    CPPUNIT_ASSERT(df.size() == n);
-    CPPUNIT_ASSERT(df.id() == id);
-
-    std::copy(sv.begin(), sv.begin() + n, df.begin());
-
-    DSTV detsets2(detsets);
-    CPPUNIT_ASSERT(detsets2.size() == n);
-    CPPUNIT_ASSERT(detsets2.dataSize() == ntot);
-    CPPUNIT_ASSERT(detsets2.detsetSize(n - 1) == n);
-
-    std::vector<DST::data_type> v1(n);
-    std::vector<DST::data_type> v2(n);
-    std::vector<DST::data_type> v3(n);
-    std::copy(detsets.m_data.begin() + ntot - n, detsets.m_data.begin() + ntot, v2.begin());
-    std::copy(detsets2.m_data.begin() + ntot - n, detsets2.m_data.begin() + ntot, v3.begin());
-    std::copy(sv.begin(), sv.begin() + n, v1.begin());
-    CPPUNIT_ASSERT(v1 == v2);
-    CPPUNIT_ASSERT(v1 == v3);
-  }
-
-  // test error conditions
-  try {
-    detsets.insert(22, 6);
-    CPPUNIT_ASSERT("insert did not throw" == 0);
-  } catch (edm::Exception const &err) {
-    CPPUNIT_ASSERT(err.categoryCode() == edm::errors::InvalidReference);
-  }
-}
-
-void TestDetSet::filling() {
-  DSTV detsets(2);
-  unsigned int ntot = 0;
-  for (unsigned int n = 1; n < 5; ++n) {
-    unsigned int id = 20 + n;
-    FF ff(detsets, id);
-    CPPUNIT_ASSERT(detsets.size() == n);
-    CPPUNIT_ASSERT(detsets.dataSize() == ntot);
-    CPPUNIT_ASSERT(detsets.detsetSize(n - 1) == 0);
-    CPPUNIT_ASSERT(ff.m_item.offset == int(detsets.dataSize()));
-    CPPUNIT_ASSERT(ff.m_item.size == 0);
-    CPPUNIT_ASSERT(ff.m_item.id == id);
-    ntot += 1;
-    ff.push_back(3.14);
-    CPPUNIT_ASSERT(detsets.dataSize() == ntot);
-    CPPUNIT_ASSERT(detsets.detsetSize(n - 1) == 1);
-    CPPUNIT_ASSERT(detsets.m_data.back().v == 3.14f);
-    CPPUNIT_ASSERT(ff.m_item.offset == int(detsets.dataSize()) - 1);
-    CPPUNIT_ASSERT(ff.m_item.size == 1);
-    ntot += n - 1;
-    ff.resize(n);
-    CPPUNIT_ASSERT(detsets.dataSize() == ntot);
-    CPPUNIT_ASSERT(detsets.detsetSize(n - 1) == n);
-    CPPUNIT_ASSERT(ff.m_item.offset == int(detsets.dataSize() - n));
-    CPPUNIT_ASSERT(ff.m_item.size == n);
-
-    std::copy(sv.begin(), sv.begin() + n, ff.begin());
-
-    std::vector<DST::data_type> v1(n);
-    std::vector<DST::data_type> v2(n);
-    std::copy(detsets.m_data.begin() + ntot - n, detsets.m_data.begin() + ntot, v2.begin());
-    std::copy(sv.begin(), sv.begin() + n, v1.begin());
-    CPPUNIT_ASSERT(v1 == v2);
-  }
-
-  // test abort and empty
-  {
-    FF ff1(detsets, 30);
-    CPPUNIT_ASSERT(detsets.size() == 5);
-    CPPUNIT_ASSERT(detsets.exists(30));
-    CPPUNIT_ASSERT(detsets.isValid(30));
-  }
-  CPPUNIT_ASSERT(detsets.size() == 4);
-  CPPUNIT_ASSERT(!detsets.exists(30));
-  {
-    FF ff1(detsets, 30, true);
-    CPPUNIT_ASSERT(detsets.size() == 5);
-    CPPUNIT_ASSERT(detsets.exists(30));
-    CPPUNIT_ASSERT(detsets.isValid(30));
-  }
-  CPPUNIT_ASSERT(detsets.size() == 5);
-  CPPUNIT_ASSERT(detsets.exists(30));
-
-  {
-    DSTV detsets2(detsets);
-    CPPUNIT_ASSERT(detsets2.size() == 5);
-    CPPUNIT_ASSERT(detsets2.exists(30));
-  }
-
-  {
-    unsigned int cs = detsets.dataSize();
-    FF ff1(detsets, 31);
-    ff1.resize(4);
-    CPPUNIT_ASSERT(detsets.size() == 6);
-    CPPUNIT_ASSERT(detsets.dataSize() == cs + 4);
-    CPPUNIT_ASSERT(detsets.exists(31));
-    CPPUNIT_ASSERT(detsets.isValid(31));
-    ff1.abort();
-    CPPUNIT_ASSERT(detsets.size() == 5);
-    CPPUNIT_ASSERT(detsets.dataSize() == cs);
-    CPPUNIT_ASSERT(!detsets.exists(31));
-  }
-  CPPUNIT_ASSERT(detsets.size() == 5);
-  CPPUNIT_ASSERT(!detsets.exists(31));
-  { FF ff1(detsets, 32, true); }
-  CPPUNIT_ASSERT(detsets.size() == 6);
-
-  DSTV detsets2(detsets);
-  CPPUNIT_ASSERT(detsets2.size() == 6);
-
-  detsets.clean();
-  CPPUNIT_ASSERT(detsets.size() == 4);
-  CPPUNIT_ASSERT(!detsets.exists(30));
-  CPPUNIT_ASSERT(!detsets.exists(32));
-
-  CPPUNIT_ASSERT(detsets2.size() == 6);
-  CPPUNIT_ASSERT(detsets2.exists(30));
-  CPPUNIT_ASSERT(detsets2.exists(32));
-  detsets2.clean();
-  CPPUNIT_ASSERT(detsets2.size() == 4);
-  CPPUNIT_ASSERT(!detsets2.exists(30));
-  CPPUNIT_ASSERT(!detsets2.exists(32));
-
-  // test error conditions
-  try {
-    FF ff1(detsets, 22);
-    CPPUNIT_ASSERT(" fast filler did not throw" == 0);
-  } catch (edm::Exception const &err) {
-    CPPUNIT_ASSERT(err.categoryCode() == edm::errors::InvalidReference);
-  }
-
-  try {
-    FF ff1(detsets, 44);
-    FF ff2(detsets, 45);
-    CPPUNIT_ASSERT(" fast filler did not throw" == 0);
-  } catch (edm::Exception const &err) {
-    CPPUNIT_ASSERT(err.categoryCode() == edm::errors::LogicError);
-  }
-}
-
-void TestDetSet::fillingTS() {
-  DSTV detsets(2);
-  detsets.reserve(5, 100);
-  unsigned int ntot = 0;
-  for (unsigned int n = 1; n < 5; ++n) {
-    unsigned int id = 20 + n;
-    {
-      TSFF ff(detsets, id);
-      CPPUNIT_ASSERT(detsets.size() == n);
-      CPPUNIT_ASSERT(detsets.dataSize() == ntot);
-      CPPUNIT_ASSERT(ff.m_item.size == 0);
-      CPPUNIT_ASSERT(ff.id() == id);
-      ntot += 1;
-      ff.push_back(3.14);
-      CPPUNIT_ASSERT(detsets.dataSize() == ntot - 1);
-      CPPUNIT_ASSERT(ff.m_item.size == 0);
-      CPPUNIT_ASSERT(ff.size() == 1);
-      ntot += n - 1;
-      ff.resize(n);
-      CPPUNIT_ASSERT(ff.size() == n);
-      std::copy(sv.begin(), sv.begin() + n, ff.begin());
-    }
-    CPPUNIT_ASSERT(detsets.size() == n);
-    CPPUNIT_ASSERT(detsets.dataSize() == ntot);
-
-    std::vector<DST::data_type> v1(n);
-    std::vector<DST::data_type> v2(n);
-    std::copy(detsets.m_data.begin() + ntot - n, detsets.m_data.begin() + ntot, v2.begin());
-    std::copy(sv.begin(), sv.begin() + n, v1.begin());
-    CPPUNIT_ASSERT(v1 == v2);
-  }
-
-  // test abort and empty
-  {
-    TSFF ff1(detsets, 30);
-    CPPUNIT_ASSERT(detsets.exists(30));
-  }
-  CPPUNIT_ASSERT(detsets.size() == 5);
-  CPPUNIT_ASSERT(detsets.exists(30));
-  detsets.clean();
-  CPPUNIT_ASSERT(detsets.size() == 4);
-  CPPUNIT_ASSERT(!detsets.exists(30));
-
-  unsigned int cs = detsets.dataSize();
-  {
-    TSFF ff1(detsets, 31);
-    ff1.resize(4);
-    ff1.abort();
-  }
-  CPPUNIT_ASSERT(detsets.size() == 5);
-  CPPUNIT_ASSERT(detsets.dataSize() == cs);
-  CPPUNIT_ASSERT(detsets.exists(31));
-  detsets.clean();
-  CPPUNIT_ASSERT(detsets.size() == 4);
-  CPPUNIT_ASSERT(!detsets.exists(31));
-
-  // test error conditions
-  try {
-    TSFF ff1(detsets, 22);
-    CPPUNIT_ASSERT(" fast filler did not throw" == 0);
-  } catch (edm::Exception const &err) {
-    CPPUNIT_ASSERT(err.categoryCode() == edm::errors::InvalidReference);
-  }
-
-  try {
-    TSFF ff1(detsets, 44);
-    TSFF ff2(detsets, 45);
-    CPPUNIT_ASSERT(" fast filler did not throw" == 0);
-  } catch (edm::Exception const &err) {
-    CPPUNIT_ASSERT(err.categoryCode() == edm::errors::LogicError);
-  }
-}
-
 namespace {
   struct VerifyIter {
-    VerifyIter(TestDetSet *itest, unsigned int in = 1, int iincr = 1) : n(in), incr(iincr), test(*itest) {}
+    VerifyIter(std::vector<DSTV::data_type> *sv, unsigned int in = 1, int iincr = 1) : n(in), incr(iincr), sv_(sv) {}
 
     void operator()(DST const &df) {
       if (df.id() > 1000) {
-        CPPUNIT_ASSERT(df.size() == 0);
+        REQUIRE(df.size() == 0);
         return;
       }
-      CPPUNIT_ASSERT(df.id() == 20 + n);
-      CPPUNIT_ASSERT(df.size() == n);
+      REQUIRE(df.id() == 20 + n);
+      REQUIRE(df.size() == n);
       std::vector<DST::data_type> v1(n);
       std::vector<DST::data_type> v2(n);
       std::copy(df.begin(), df.end(), v2.begin());
-      std::copy(test.sv.begin(), test.sv.begin() + n, v1.begin());
-      CPPUNIT_ASSERT(v1 == v2);
+      std::copy(sv_->begin(), sv_->begin() + n, v1.begin());
+      REQUIRE(v1 == v2);
       n += incr;
     }
 
     unsigned int n;
     int incr;
-    TestDetSet &test;
-  };
-
-  struct Getter final : public DSTV::Getter {
-    Getter(TestDetSet *itest) : ntot(0), test(*itest) {}
-
-    void fill(TSFF &ff) const override {
-      aborted = false;
-      try {
-        const int n = ff.id() - 20;
-        CPPUNIT_ASSERT(n > 0);
-        ff.resize(n);
-        int nCopied = n;
-        if (static_cast<size_t>(n) > test.sv.size()) {
-          nCopied = test.sv.size();
-        }
-        std::copy(test.sv.begin(), test.sv.begin() + nCopied, ff.begin());
-        if (ff.full()) {
-          ff.abort();
-          aborted = true;
-        } else {
-          ntot += n;
-        }
-      } catch (edmNew::CapacityExaustedException const &) {
-        CPPUNIT_ASSERT("cannot be here" == 0);
-      }
-    }
-
-    mutable unsigned int ntot;
-    mutable bool aborted = false;
-    TestDetSet &test;
+    std::vector<DSTV::data_type> *sv_;
   };
 
   struct cmp10 {
     bool operator()(DSTV::id_type i1, DSTV::id_type i2) const { return i1 / 10 < i2 / 10; }
   };
-}  // namespace
-
-void TestDetSet::iterator() {
-  DSTV detsets(2);
-  for (unsigned int n = 1; n < 5; ++n) {
-    unsigned int id = 20 + n;
-    FF ff(detsets, id);
-    ff.resize(n);
-    std::copy(sv.begin(), sv.begin() + n, ff.begin());
-  }
-  //  CPPUNIT_ASSERT(std::for_each(detsets.begin(),detsets.end(),VerifyIter(this)).n==5);
-  CPPUNIT_ASSERT(std::for_each(detsets.begin(true), detsets.end(true), VerifyIter(this)).n == 5);
-  {
-    FF ff(detsets, 31);
-    ff.resize(2);
-    std::copy(sv.begin(), sv.begin() + 2, ff.begin());
-  }
-  {
-    FF ff(detsets, 11);
-    ff.resize(2);
-    std::copy(sv.begin(), sv.begin() + 2, ff.begin());
-  }
-  {
-    FF ff(detsets, 34);
-    ff.resize(4);
-    std::copy(sv.begin(), sv.begin() + 4, ff.begin());
-  }
-
-  DSTV::Range r = detsets.equal_range(30, cmp10());
-  CPPUNIT_ASSERT(r.second - r.first == 2);
-  r = detsets.equal_range(40, cmp10());
-  CPPUNIT_ASSERT(r.second - r.first == 0);
-
-  try {
-    {
-      CPPUNIT_ASSERT(detsets.exists(22));
-      CPPUNIT_ASSERT(!detsets.exists(44));
-      DST df = *detsets.find(22);
-      //      DST df = *detsets.find(22,true);
-      CPPUNIT_ASSERT(df.id() == 22);
-      CPPUNIT_ASSERT(df.size() == 2);
-    }
-    {
-      DST df = detsets[22];
-      CPPUNIT_ASSERT(df.id() == 22);
-      CPPUNIT_ASSERT(df.size() == 2);
-    }
-  } catch (edm::Exception const &) {
-    CPPUNIT_ASSERT("DetSetVector threw when not expected" == 0);
-  }
-
-  try {
-    DSTV::const_iterator p = detsets.find(44);
-    //    DSTV::const_iterator p = detsets.find(44,true);
-    CPPUNIT_ASSERT(p == detsets.end());
-    //    CPPUNIT_ASSERT(p==detsets.end(true));
-  } catch (edm::Exception const &) {
-    CPPUNIT_ASSERT("find thrown edm exception when not expected" == 0);
-  }
-  try {
-    detsets[44];
-    CPPUNIT_ASSERT("[] did not throw" == 0);
-  } catch (edm::Exception const &err) {
-    CPPUNIT_ASSERT(err.categoryCode() == edm::errors::InvalidReference);
-  }
-}
-
-namespace {
 
   std::pair<unsigned int, cmp10> acc(unsigned int i) { return std::make_pair(i * 10, cmp10()); }
 
@@ -486,8 +77,8 @@ namespace {
     VerifyAlgos(std::vector<DSTV::data_type const *> &iv) : n(0), v(iv) {}
 
     void operator()(DSTV::data_type const &d) {
-      CPPUNIT_ASSERT(d == *v[n]);
-      CPPUNIT_ASSERT(&d == v[n]);
+      REQUIRE(d == *v[n]);
+      REQUIRE(&d == v[n]);
       ++n;
     }
 
@@ -495,176 +86,510 @@ namespace {
     std::vector<DSTV::data_type const *> const &v;
   };
 
+  struct Getter final : public DSTV::Getter {
+    Getter(std::vector<DSTV::data_type> *sv) : ntot(0), sv_(*sv) {}
+
+    void fill(TSFF &ff) const override {
+      aborted = false;
+      try {
+        const int n = ff.id() - 20;
+        REQUIRE(n > 0);
+        ff.resize(n);
+        int nCopied = n;
+        if (static_cast<size_t>(n) > sv_.size()) {
+          nCopied = sv_.size();
+        }
+        std::copy(sv_.begin(), sv_.begin() + nCopied, ff.begin());
+        if (ff.full()) {
+          ff.abort();
+          aborted = true;
+        } else {
+          ntot += n;
+        }
+      } catch (edmNew::CapacityExaustedException const &) {
+        REQUIRE(false);
+      }
+    }
+
+    mutable unsigned int ntot;
+    mutable bool aborted = false;
+    std::vector<DSTV::data_type> &sv_;
+  };
 }  // namespace
 
-void TestDetSet::algorithm() {
-  DSTV detsets(2);
-  for (unsigned int n = 1; n < 5; ++n) {
-    unsigned int id = 20 + n;
-    FF ff(detsets, id);
-    ff.resize(n);
-    std::copy(sv.begin(), sv.begin() + n, ff.begin());
-  }
-  {
-    FF ff(detsets, 31);
-    ff.resize(2);
-    std::copy(sv.begin(), sv.begin() + 2, ff.begin());
-  }
-  {
-    FF ff(detsets, 11);
-    ff.resize(2);
-    std::copy(sv.begin(), sv.begin() + 2, ff.begin());
-  }
-  {
-    FF ff(detsets, 34);
-    ff.resize(4);
-    std::copy(sv.begin(), sv.begin() + 4, ff.begin());
+TEST_CASE("DetSetNew", "[DetSetNew]") {
+  std::vector<DSTV::data_type> sv(10);
+  DSTV::data_type v[10] = {0., 1., 2., 3., 4., 5., 6., 7., 8., 9.};
+  std::copy(v, v + 10, sv.begin());
+
+  SECTION("constructor") {
+    DSTV detsets(2);
+    REQUIRE(!detsets.onDemand());
+    REQUIRE(detsets.subdetId() == 2);
+    REQUIRE(detsets.size() == 0);
+    REQUIRE(detsets.empty());
+    REQUIRE(detsets.dataSize() == 0);
+    detsets.resize(3, 10);
+    REQUIRE(detsets.size() == 3);
+    REQUIRE(detsets.dataSize() == 10);
+    REQUIRE(!detsets.empty());
+    // follow is nonsense still valid construct... (maybe it shall throw...)
+    // now assert!
+    /*
+    DST df(detsets,detsets.item(1));
+    CPPUNIT_ASSERT(df.id()==0);
+    CPPUNIT_ASSERT(df.size()==0);
+    CPPUNIT_ASSERT(df.data()+1==&TestDetSet::data(detsets).front());
+    df.set(detsets,detsets.item(2));
+    CPPUNIT_ASSERT(df.size()==0);
+    CPPUNIT_ASSERT(df.data()+1==&TestDetSet::data(detsets).front());
+    */
+
+    SECTION("swap") {
+      DSTV detsets2(3);
+      detsets.swap(detsets2);
+      REQUIRE(detsets.subdetId() == 3);
+      REQUIRE(detsets.size() == 0);
+      REQUIRE(detsets.dataSize() == 0);
+      REQUIRE(detsets2.subdetId() == 2);
+      REQUIRE(detsets2.size() == 3);
+      REQUIRE(detsets2.dataSize() == 10);
+      REQUIRE(!detsets2.onDemand());
+    }
+    SECTION("move") {
+      DSTV detsets3(4);
+      detsets = std::move(detsets3);
+      REQUIRE(detsets.subdetId() == 4);
+      REQUIRE(detsets.size() == 0);
+      REQUIRE(detsets.dataSize() == 0);
+      DSTV detsets5(std::move(detsets));
+      REQUIRE(detsets5.subdetId() == 4);
+      REQUIRE(detsets5.size() == 0);
+      REQUIRE(detsets5.dataSize() == 0);
+      SECTION("copy") {
+        DSTV detsets4(detsets5);
+        REQUIRE(detsets4.subdetId() == 4);
+        REQUIRE(detsets4.size() == 0);
+        REQUIRE(detsets4.dataSize() == 0);
+      }
+    }
   }
 
-  DSTV::Range r = detsetRangeFromPair(detsets, acc(3));
-  CPPUNIT_ASSERT(r.second - r.first == 2);
-  r = edmNew::detsetRangeFromPair(detsets, acc(4));
-  CPPUNIT_ASSERT(r.second - r.first == 0);
+  SECTION("inserting") {
+    DSTV detsets(2);
+    unsigned int ntot = 0;
+    for (unsigned int n = 1; n < 5; ++n) {
+      ntot += n;
+      unsigned int id = 20 + n;
+      DST df = detsets.insert(id, n);
+      REQUIRE(detsets.size() == n);
+      REQUIRE(detsets.dataSize() == ntot);
+      REQUIRE(detsets.detsetSize(n - 1) == n);
+      REQUIRE(df.size() == n);
+      REQUIRE(df.id() == id);
 
-  std::vector<DSTV::data_type const *> v;
-  edmNew::copyDetSetRange(detsets, v, acc(3));
-  VerifyAlgos va(v);
-  edmNew::foreachDetSetObject(detsets, acc(3), va);
-}
+      std::copy(sv.begin(), sv.begin() + n, df.begin());
 
-void TestDetSet::onDemand() {
-  auto pg = std::make_shared<Getter>(this);
-  Getter &g = *pg;
-  assert(!g.aborted);
-  std::vector<unsigned int> v = {21, 23, 25, 27, 1020};
-  DSTV detsets(pg, v, 2);
-  CPPUNIT_ASSERT(g.ntot == 0);
-  CPPUNIT_ASSERT(detsets.onDemand());
-  try {
+      DSTV detsets2(detsets);
+      REQUIRE(detsets2.size() == n);
+      REQUIRE(detsets2.dataSize() == ntot);
+      REQUIRE(detsets2.detsetSize(n - 1) == n);
+
+      std::vector<DST::data_type> v1(n);
+      std::vector<DST::data_type> v2(n);
+      std::vector<DST::data_type> v3(n);
+      std::copy(TestDetSet::data(detsets).begin() + ntot - n, TestDetSet::data(detsets).begin() + ntot, v2.begin());
+      std::copy(TestDetSet::data(detsets2).begin() + ntot - n, TestDetSet::data(detsets2).begin() + ntot, v3.begin());
+      std::copy(sv.begin(), sv.begin() + n, v1.begin());
+      REQUIRE(v1 == v2);
+      REQUIRE(v1 == v3);
+    }
+
+    // test error conditions
+    REQUIRE_THROWS_MATCHES(
+        detsets.insert(22, 6), edm::Exception, Catch::Predicate<edm::Exception>([](edm::Exception const &e) {
+          return e.categoryCode() == edm::errors::InvalidReference;
+        }));
+  }
+
+  SECTION("filling") {
+    DSTV detsets(2);
+    unsigned int ntot = 0;
+    for (unsigned int n = 1; n < 5; ++n) {
+      unsigned int id = 20 + n;
+      FF ff(detsets, id);
+      REQUIRE(detsets.size() == n);
+      REQUIRE(detsets.dataSize() == ntot);
+      REQUIRE(detsets.detsetSize(n - 1) == 0);
+      REQUIRE(TestDetSet::item(ff).offset == int(detsets.dataSize()));
+      REQUIRE(TestDetSet::item(ff).size == 0);
+      REQUIRE(TestDetSet::item(ff).id == id);
+      ntot += 1;
+      ff.push_back(3.14);
+      REQUIRE(detsets.dataSize() == ntot);
+      REQUIRE(detsets.detsetSize(n - 1) == 1);
+      REQUIRE(TestDetSet::data(detsets).back().v == 3.14f);
+      REQUIRE(TestDetSet::item(ff).offset == int(detsets.dataSize()) - 1);
+      REQUIRE(TestDetSet::item(ff).size == 1);
+      ntot += n - 1;
+      ff.resize(n);
+      REQUIRE(detsets.dataSize() == ntot);
+      REQUIRE(detsets.detsetSize(n - 1) == n);
+      REQUIRE(TestDetSet::item(ff).offset == int(detsets.dataSize() - n));
+      REQUIRE(TestDetSet::item(ff).size == n);
+
+      std::copy(sv.begin(), sv.begin() + n, ff.begin());
+
+      std::vector<DST::data_type> v1(n);
+      std::vector<DST::data_type> v2(n);
+      std::copy(TestDetSet::data(detsets).begin() + ntot - n, TestDetSet::data(detsets).begin() + ntot, v2.begin());
+      std::copy(sv.begin(), sv.begin() + n, v1.begin());
+      REQUIRE(v1 == v2);
+    }
+
+    // test abort and empty
     {
-      CPPUNIT_ASSERT(detsets.exists(21));
-      CPPUNIT_ASSERT(!detsets.exists(22));
-      CPPUNIT_ASSERT(!detsets.isValid(21));
-      CPPUNIT_ASSERT(!detsets.isValid(22));
-      //      DST df = *detsets.find(21);
-      detsets.reserve(5, 100);
-      DST df = *detsets.find(21, true);
-      CPPUNIT_ASSERT(df.id() == 21);
-      CPPUNIT_ASSERT(df.size() == 1);
-      CPPUNIT_ASSERT(detsets.isValid(21));
-      CPPUNIT_ASSERT(!detsets.isValid(23));
-      CPPUNIT_ASSERT(g.ntot == 1);
-      assert(!g.aborted);
+      FF ff1(detsets, 30);
+      REQUIRE(detsets.size() == 5);
+      REQUIRE(detsets.exists(30));
+      REQUIRE(detsets.isValid(30));
+    }
+    REQUIRE(detsets.size() == 4);
+    REQUIRE(!detsets.exists(30));
+    {
+      FF ff1(detsets, 30, true);
+      REQUIRE(detsets.size() == 5);
+      REQUIRE(detsets.exists(30));
+      REQUIRE(detsets.isValid(30));
+    }
+    REQUIRE(detsets.size() == 5);
+    REQUIRE(detsets.exists(30));
+
+    {
+      DSTV detsets2(detsets);
+      REQUIRE(detsets2.size() == 5);
+      REQUIRE(detsets2.exists(30));
+    }
+
+    {
+      unsigned int cs = detsets.dataSize();
+      FF ff1(detsets, 31);
+      ff1.resize(4);
+      REQUIRE(detsets.size() == 6);
+      REQUIRE(detsets.dataSize() == cs + 4);
+      REQUIRE(detsets.exists(31));
+      REQUIRE(detsets.isValid(31));
+      ff1.abort();
+      REQUIRE(detsets.size() == 5);
+      REQUIRE(detsets.dataSize() == cs);
+      REQUIRE(!detsets.exists(31));
+    }
+    REQUIRE(detsets.size() == 5);
+    REQUIRE(!detsets.exists(31));
+    {
+      FF ff1(detsets, 32, true);
+    }
+    REQUIRE(detsets.size() == 6);
+
+    DSTV detsets2(detsets);
+    REQUIRE(detsets2.size() == 6);
+
+    detsets.clean();
+    REQUIRE(detsets.size() == 4);
+    REQUIRE(!detsets.exists(30));
+    REQUIRE(!detsets.exists(32));
+
+    REQUIRE(detsets2.size() == 6);
+    REQUIRE(detsets2.exists(30));
+    REQUIRE(detsets2.exists(32));
+    detsets2.clean();
+    REQUIRE(detsets2.size() == 4);
+    REQUIRE(!detsets2.exists(30));
+    REQUIRE(!detsets2.exists(32));
+
+    // test error conditions
+    REQUIRE_THROWS_MATCHES(
+        FF(detsets, 22), edm::Exception, Catch::Predicate<edm::Exception>([](edm::Exception const &e) {
+          return e.categoryCode() == edm::errors::InvalidReference;
+        }));
+    REQUIRE_THROWS_MATCHES(
+        [](DSTV &d) {
+          FF ff1(d, 44);
+          FF ff2(d, 45);
+        }(detsets),
+        edm::Exception,
+        Catch::Predicate<edm::Exception>(
+            [](edm::Exception const &e) { return e.categoryCode() == edm::errors::LogicError; }));
+  }
+
+  SECTION("filling using TSFastFiller") {
+    DSTV detsets(2);
+    detsets.reserve(5, 100);
+    unsigned int ntot = 0;
+    for (unsigned int n = 1; n < 5; ++n) {
+      unsigned int id = 20 + n;
+      {
+        TSFF ff(detsets, id);
+        REQUIRE(detsets.size() == n);
+        REQUIRE(detsets.dataSize() == ntot);
+        REQUIRE(TestDetSet::item(ff).size == 0);
+        REQUIRE(ff.id() == id);
+        ntot += 1;
+        ff.push_back(3.14);
+        REQUIRE(detsets.dataSize() == ntot - 1);
+        REQUIRE(TestDetSet::item(ff).size == 0);
+        REQUIRE(ff.size() == 1);
+        ntot += n - 1;
+        ff.resize(n);
+        REQUIRE(ff.size() == n);
+        std::copy(sv.begin(), sv.begin() + n, ff.begin());
+      }
+      REQUIRE(detsets.size() == n);
+      REQUIRE(detsets.dataSize() == ntot);
+
+      std::vector<DST::data_type> v1(n);
+      std::vector<DST::data_type> v2(n);
+      std::copy(TestDetSet::data(detsets).begin() + ntot - n, TestDetSet::data(detsets).begin() + ntot, v2.begin());
+      std::copy(sv.begin(), sv.begin() + n, v1.begin());
+      REQUIRE(v1 == v2);
+    }
+
+    // test abort and empty
+    {
+      TSFF ff1(detsets, 30);
+      REQUIRE(detsets.exists(30));
+    }
+    REQUIRE(detsets.size() == 5);
+    REQUIRE(detsets.exists(30));
+    detsets.clean();
+    REQUIRE(detsets.size() == 4);
+    REQUIRE(!detsets.exists(30));
+    unsigned int cs = detsets.dataSize();
+    SECTION("abort") {
+      TSFF ff1(detsets, 31);
+      ff1.resize(4);
+      ff1.abort();
+      REQUIRE(detsets.size() == 5);
+      REQUIRE(detsets.dataSize() == cs);
+      SECTION("clean") {
+        REQUIRE(detsets.exists(31));
+        detsets.clean();
+        REQUIRE(detsets.size() == 4);
+        REQUIRE(!detsets.exists(31));
+      }
+    }
+    SECTION("error conditions") {
+      REQUIRE_THROWS_MATCHES(
+          TSFF(detsets, 22), edm::Exception, Catch::Predicate<edm::Exception>([](edm::Exception const &e) {
+            return e.categoryCode() == edm::errors::InvalidReference;
+          }));
+      REQUIRE_THROWS_MATCHES(
+          [](DSTV &d) {
+            TSFF ff1(d, 44);
+            TSFF ff2(d, 45);
+          }(detsets),
+          edm::Exception,
+          Catch::Predicate<edm::Exception>(
+              [](edm::Exception const &e) { return e.categoryCode() == edm::errors::LogicError; }));
+    }
+  }
+
+  SECTION("iterator") {
+    DSTV detsets(2);
+    for (unsigned int n = 1; n < 5; ++n) {
+      unsigned int id = 20 + n;
+      FF ff(detsets, id);
+      ff.resize(n);
+      std::copy(sv.begin(), sv.begin() + n, ff.begin());
+    }
+    REQUIRE(std::for_each(detsets.begin(true), detsets.end(true), VerifyIter(&sv)).n == 5);
+    {
+      FF ff(detsets, 31);
+      ff.resize(2);
+      std::copy(sv.begin(), sv.begin() + 2, ff.begin());
     }
     {
+      FF ff(detsets, 11);
+      ff.resize(2);
+      std::copy(sv.begin(), sv.begin() + 2, ff.begin());
+    }
+    {
+      FF ff(detsets, 34);
+      ff.resize(4);
+      std::copy(sv.begin(), sv.begin() + 4, ff.begin());
+    }
+    DSTV::Range r = detsets.equal_range(30, cmp10());
+    REQUIRE(r.second - r.first == 2);
+    r = detsets.equal_range(40, cmp10());
+    REQUIRE(r.second - r.first == 0);
+
+    SECTION("find") {
+      REQUIRE(detsets.exists(22));
+      REQUIRE(!detsets.exists(44));
+      DST df = *detsets.find(22);
+      REQUIRE(df.id() == 22);
+      REQUIRE(df.size() == 2);
+    }
+    SECTION("indexing") {
+      DST df = detsets[22];
+      REQUIRE(df.id() == 22);
+      REQUIRE(df.size() == 2);
+    }
+
+    SECTION("find not found") {
+      DSTV::const_iterator p = detsets.find(44);
+      REQUIRE(p == detsets.end());
+    }
+    SECTION("invalid index") {
+      REQUIRE_THROWS_MATCHES(detsets[44], edm::Exception, Catch::Predicate<edm::Exception>([](edm::Exception const &e) {
+                               return e.categoryCode() == edm::errors::InvalidReference;
+                             }));
+    }
+  }
+
+  SECTION("algorithm") {
+    DSTV detsets(2);
+    for (unsigned int n = 1; n < 5; ++n) {
+      unsigned int id = 20 + n;
+      FF ff(detsets, id);
+      ff.resize(n);
+      std::copy(sv.begin(), sv.begin() + n, ff.begin());
+    }
+    {
+      FF ff(detsets, 31);
+      ff.resize(2);
+      std::copy(sv.begin(), sv.begin() + 2, ff.begin());
+    }
+    {
+      FF ff(detsets, 11);
+      ff.resize(2);
+      std::copy(sv.begin(), sv.begin() + 2, ff.begin());
+    }
+    {
+      FF ff(detsets, 34);
+      ff.resize(4);
+      std::copy(sv.begin(), sv.begin() + 4, ff.begin());
+    }
+    DSTV::Range r = detsetRangeFromPair(detsets, acc(3));
+    REQUIRE(r.second - r.first == 2);
+    r = edmNew::detsetRangeFromPair(detsets, acc(4));
+    REQUIRE(r.second - r.first == 0);
+    std::vector<DSTV::data_type const *> v;
+    edmNew::copyDetSetRange(detsets, v, acc(3));
+    VerifyAlgos va(v);
+    edmNew::foreachDetSetObject(detsets, acc(3), va);
+  }
+
+  SECTION("onDemand") {
+    auto pg = std::make_shared<Getter>(&sv);
+    Getter &g = *pg;
+    REQUIRE(!g.aborted);
+    std::vector<unsigned int> v = {21, 23, 25, 27, 1020};
+    DSTV detsets(pg, v, 2);
+    REQUIRE(g.ntot == 0);
+    REQUIRE(detsets.onDemand());
+    REQUIRE(detsets.exists(21));
+    REQUIRE(!detsets.exists(22));
+    REQUIRE(!detsets.isValid(21));
+    REQUIRE(!detsets.isValid(22));
+    detsets.reserve(5, 100);
+    DST df = *detsets.find(21, true);
+    REQUIRE(df.id() == 21);
+    REQUIRE(df.size() == 1);
+    REQUIRE(detsets.isValid(21));
+    REQUIRE(!detsets.isValid(23));
+    REQUIRE(g.ntot == 1);
+    REQUIRE(!g.aborted);
+    {
       DST df = detsets[25];
-      CPPUNIT_ASSERT(df.id() == 25);
-      CPPUNIT_ASSERT(df.size() == 5);
-      CPPUNIT_ASSERT(g.ntot == 1 + 5);
-      assert(!g.aborted);
+      REQUIRE(df.id() == 25);
+      REQUIRE(df.size() == 5);
+      REQUIRE(g.ntot == 1 + 5);
+      REQUIRE(!g.aborted);
     }
     {
       DST df = detsets[1020];
-      CPPUNIT_ASSERT(df.id() == 1020);
-      CPPUNIT_ASSERT(df.size() == 0);
-      CPPUNIT_ASSERT(g.ntot == 1 + 5);
-      assert(g.aborted);
+      REQUIRE(df.id() == 1020);
+      REQUIRE(df.size() == 0);
+      REQUIRE(g.ntot == 1 + 5);
+      REQUIRE(g.aborted);
+    }
+    // no onDemand!
+    int i = 0;
+    for (auto di = detsets.begin(); di != detsets.end(); ++di) {
+      ++i;
+      auto ds = *di;
+      auto id = ds.id();
+      REQUIRE((id == 1020 || (id > 20 && id < 28 && id % 2 == 1)));
+      if (1020 == id || 21 == id || 25 == id)
+        REQUIRE(ds.isValid());
+      else
+        REQUIRE(!ds.isValid());
+    }
+    REQUIRE(5 == i);
+    REQUIRE(g.ntot == 1 + 5);
+    REQUIRE(std::for_each(detsets.begin(true), detsets.end(true), VerifyIter(&sv, 1, 2)).n == 9);
+    REQUIRE(std::for_each(detsets.begin(true), detsets.end(true), VerifyIter(&sv, 1, 2)).n == 9);
+    REQUIRE(g.ntot == 1 + 3 + 5 + 7);
+    SECTION("find not found") {
+      DSTV::const_iterator p = detsets.find(22);
+      REQUIRE(p == detsets.end());
     }
 
-  } catch (edm::Exception const &) {
-    CPPUNIT_ASSERT("DetSetVector threw when not expected" == 0);
-  }
-  // no onDemand!
-  int i = 0;
-  //  for (auto di = detsets.begin(false); di!=detsets.end(false); ++di) {
-  for (auto di = detsets.begin(); di != detsets.end(); ++di) {
-    ++i;
-    auto ds = *di;
-    auto id = ds.id();
-    CPPUNIT_ASSERT(id == 1020 || (id > 20 && id < 28 && id % 2 == 1));
-    if (1020 == id || 21 == id || 25 == id)
-      CPPUNIT_ASSERT(ds.isValid());
-    else
-      CPPUNIT_ASSERT(!ds.isValid());
-  }
-  CPPUNIT_ASSERT(5 == i);
-  CPPUNIT_ASSERT(g.ntot == 1 + 5);
-
-  //  CPPUNIT_ASSERT(std::for_each(detsets.begin(),detsets.end(),VerifyIter(this,1,2)).n==9);
-  CPPUNIT_ASSERT(std::for_each(detsets.begin(true), detsets.end(true), VerifyIter(this, 1, 2)).n == 9);
-
-  //  CPPUNIT_ASSERT(std::for_each(detsets.begin(),detsets.end(),VerifyIter(this,1,2)).n==9);
-  CPPUNIT_ASSERT(std::for_each(detsets.begin(true), detsets.end(true), VerifyIter(this, 1, 2)).n == 9);
-  CPPUNIT_ASSERT(g.ntot == 1 + 3 + 5 + 7);
-
-  try {
-    DSTV::const_iterator p = detsets.find(22);
-    CPPUNIT_ASSERT(p == detsets.end());
-  } catch (edm::Exception const &) {
-    CPPUNIT_ASSERT("find thrown edm exception when not expected" == 0);
-  }
-  try {
-    detsets[22];
-    CPPUNIT_ASSERT("[] did not throw" == 0);
-  } catch (edm::Exception const &err) {
-    CPPUNIT_ASSERT(err.categoryCode() == edm::errors::InvalidReference);
-  }
-
-  DSTV detsets2;
-  detsets2.swap(detsets);
-  CPPUNIT_ASSERT(detsets2.onDemand());
-
-  DSTV detsets3;
-  detsets3 = std::move(detsets2);
-  CPPUNIT_ASSERT(detsets3.onDemand());
-  DSTV detsets5(std::move(detsets3));
-  CPPUNIT_ASSERT(detsets5.onDemand());
-
-  DSTV detsets4(detsets5);
-  CPPUNIT_ASSERT(detsets4.onDemand());
-}
-
-void TestDetSet::toRangeMap() {
-  DSTV detsets(2);
-  for (unsigned int n = 1; n < 5; ++n) {
-    unsigned int id = 20 + n;
-    FF ff(detsets, id);
-    ff.resize(n);
-    std::copy(sv.begin(), sv.begin() + n, ff.begin());
-  }
-  {
-    FF ff(detsets, 31);
-    ff.resize(2);
-    std::copy(sv.begin(), sv.begin() + 2, ff.begin());
-  }
-  {
-    FF ff(detsets, 11);
-    ff.resize(2);
-    std::copy(sv.begin(), sv.begin() + 2, ff.begin());
-  }
-  {
-    FF ff(detsets, 34);
-    ff.resize(4);
-    std::copy(sv.begin(), sv.begin() + 4, ff.begin());
-  }
-
-  typedef edm::RangeMap<det_id_type, edm::OwnVector<B> > RM;
-  edm::RangeMap<det_id_type, edm::OwnVector<B> > rm;
-  try {
-    edmNew::copy(detsets, rm);
-    rm.post_insert();
-    std::vector<det_id_type> ids = rm.ids();
-    CPPUNIT_ASSERT(ids.size() == detsets.size());
-    CPPUNIT_ASSERT(rm.size() == detsets.dataSize());
-    for (int i = 0; i < int(ids.size()); i++) {
-      RM::range r = rm.get(ids[i]);
-      DST df = *detsets.find(ids[i]);
-      //      DST df = *detsets.find(ids[i],true);
-      CPPUNIT_ASSERT(static_cast<unsigned long>(r.second - r.first) == df.size());
-      CPPUNIT_ASSERT(std::equal(r.first, r.second, df.begin()));
+    SECTION("invalid index") {
+      REQUIRE_THROWS_MATCHES(detsets[22], edm::Exception, Catch::Predicate<edm::Exception>([](edm::Exception const &e) {
+                               return e.categoryCode() == edm::errors::InvalidReference;
+                             }));
     }
-  } catch (edm::Exception const &err) {
-    std::cout << err.what() << std::endl;
-    CPPUNIT_ASSERT(err.what() == 0);
+    DSTV detsets2;
+    detsets2.swap(detsets);
+    REQUIRE(detsets2.onDemand());
+    DSTV detsets3;
+    detsets3 = std::move(detsets2);
+    REQUIRE(detsets3.onDemand());
+    DSTV detsets5(std::move(detsets3));
+    REQUIRE(detsets5.onDemand());
+    DSTV detsets4(detsets5);
+    REQUIRE(detsets4.onDemand());
+  }
+
+  SECTION("toRangeMap") {
+    DSTV detsets(2);
+    for (unsigned int n = 1; n < 5; ++n) {
+      unsigned int id = 20 + n;
+      FF ff(detsets, id);
+      ff.resize(n);
+      std::copy(sv.begin(), sv.begin() + n, ff.begin());
+    }
+    {
+      FF ff(detsets, 31);
+      ff.resize(2);
+      std::copy(sv.begin(), sv.begin() + 2, ff.begin());
+    }
+    {
+      FF ff(detsets, 11);
+      ff.resize(2);
+      std::copy(sv.begin(), sv.begin() + 2, ff.begin());
+    }
+    {
+      FF ff(detsets, 34);
+      ff.resize(4);
+      std::copy(sv.begin(), sv.begin() + 4, ff.begin());
+    }
+    SECTION("edmNew::copy") {
+      typedef edm::RangeMap<det_id_type, edm::OwnVector<B> > RM;
+      edm::RangeMap<det_id_type, edm::OwnVector<B> > rm;
+      edmNew::copy(detsets, rm);
+      rm.post_insert();
+      std::vector<det_id_type> ids = rm.ids();
+      REQUIRE(ids.size() == detsets.size());
+      REQUIRE(rm.size() == detsets.dataSize());
+      for (int i = 0; i < int(ids.size()); i++) {
+        RM::range r = rm.get(ids[i]);
+        DST df = *detsets.find(ids[i]);
+        REQUIRE(static_cast<unsigned long>(r.second - r.first) == df.size());
+        REQUIRE(std::equal(r.first, r.second, df.begin()));
+      }
+    }
   }
 }

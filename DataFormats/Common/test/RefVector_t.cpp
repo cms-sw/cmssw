@@ -1,63 +1,50 @@
 #include <vector>
-
-#include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
-#include "cppunit/extensions/HelperMacros.h"
+#include "catch.hpp"
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
 
-class TestRefVector : public CppUnit::TestFixture {
-  CPPUNIT_TEST_SUITE(TestRefVector);
-  CPPUNIT_TEST(testIteration);
-  CPPUNIT_TEST_SUITE_END();
+TEST_CASE("RefVector", "[RefVector]") {
+  SECTION("iteration") {
+    using product_t = std::vector<double>;
+    using ref_t = edm::Ref<product_t>;
+    using refvec_t = edm::RefVector<product_t>;
 
-public:
-  TestRefVector() {}
-  ~TestRefVector() {}
-  void setUp() {}
-  void tearDown() {}
+    product_t product;
+    product.push_back(1.0);
+    product.push_back(100.0);
+    product.push_back(0.5);
+    product.push_back(2.0);
 
-  void testIteration();
+    refvec_t refvec;
+    REQUIRE(refvec.size() == 0);
+    REQUIRE(refvec.empty());
 
-private:
-};
+    ref_t ref0(edm::ProductID(1, 1), &product[0], 0);
+    refvec.push_back(ref0);
 
-CPPUNIT_TEST_SUITE_REGISTRATION(TestRefVector);
+    ref_t ref1(edm::ProductID(1, 1), &product[2], 2);
+    refvec.push_back(ref1);
 
-void TestRefVector::testIteration() {
-  typedef std::vector<double> product_t;
-  typedef edm::Ref<product_t> ref_t;
-  typedef edm::RefVector<product_t> refvec_t;
+    ref_t ref2(edm::ProductID(1, 1), &product[3], 3);
+    refvec.push_back(ref2);
 
-  product_t product;
-  product.push_back(1.0);
-  product.push_back(100.0);
-  product.push_back(0.5);
-  product.push_back(2.0);
+    auto iter = refvec.begin();
+    REQUIRE(iter->id() == edm::ProductID(1, 1));
+    REQUIRE(iter->key() == 0);
+    REQUIRE(*(iter->get()) == 1.0);
+    ++iter;
 
-  refvec_t refvec;
-  CPPUNIT_ASSERT(refvec.size() == 0);
-  CPPUNIT_ASSERT(refvec.empty());
+    REQUIRE(iter->id() == edm::ProductID(1, 1));
+    REQUIRE(iter->key() == 2);
+    REQUIRE(*(iter->get()) == 0.5);
+    ++iter;
 
-  ref_t ref0(edm::ProductID(1, 1), &product[0], 0);
-  refvec.push_back(ref0);
+    REQUIRE(iter->id() == edm::ProductID(1, 1));
+    REQUIRE(iter->key() == 3);
+    REQUIRE(*(iter->get()) == 2.0);
+    ++iter;
 
-  ref_t ref1(edm::ProductID(1, 1), &product[2], 2);
-  refvec.push_back(ref1);
-
-  ref_t ref2(edm::ProductID(1, 1), &product[3], 3);
-  refvec.push_back(ref2);
-
-  auto iter = refvec.begin();
-
-  CPPUNIT_ASSERT(iter->id() == edm::ProductID(1, 1) && iter->key() == 0 && *(iter->get()) == 1.0);
-  ++iter;
-
-  CPPUNIT_ASSERT(iter->id() == edm::ProductID(1, 1) && iter->key() == 2 && *(iter->get()) == 0.5);
-  ++iter;
-
-  CPPUNIT_ASSERT(iter->id() == edm::ProductID(1, 1) && iter->key() == 3 && *(iter->get()) == 2.0);
-  ++iter;
-
-  CPPUNIT_ASSERT(iter == refvec.end());
+    REQUIRE(iter == refvec.end());
+  }
 }
