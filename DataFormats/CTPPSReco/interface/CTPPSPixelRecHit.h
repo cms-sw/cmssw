@@ -1,3 +1,6 @@
+#ifndef DataFormats_CTPPSReco_interface_CTPPSPixelRecHit_h
+#define DataFormats_CTPPSReco_interface_CTPPSPixelRecHit_h
+
 /*
  *
  * This is a part of CTPPS offline software.
@@ -6,11 +9,11 @@
  *
  */
 
-#ifndef DataFormats_CTPPSReco_CTPPSPixelRecHit_H
-#define DataFormats_CTPPSReco_CTPPSPixelRecHit_H
+#include <cassert>
 
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 // Reconstructed hits in CTPPS Pixel detector
 
@@ -37,19 +40,21 @@ public:
         clusterSizeRow_(rowsize),
         clusterSizeCol_(colsize) {}
 
-  inline LocalPoint point() const { return thePoint_; }
-  inline LocalError error() const { return theError_; }
+  LocalPoint point() const { return thePoint_; }
+  LocalError error() const { return theError_; }
 
-  inline bool isOnEdge() const { return isOnEdge_; }
-  inline bool hasBadPixels() const { return hasBadPixels_; }
-  inline bool spanTwoRocs() const { return spanTwoRocs_; }
+  bool isOnEdge() const { return isOnEdge_; }
+  bool hasBadPixels() const { return hasBadPixels_; }
+  bool spanTwoRocs() const { return spanTwoRocs_; }
 
-  inline unsigned int minPixelRow() const { return minPixelRow_; }
-  inline unsigned int minPixelCol() const { return minPixelCol_; }
+  unsigned int minPixelRow() const { return minPixelRow_; }
+  unsigned int minPixelCol() const { return minPixelCol_; }
 
-  inline unsigned int clusterSize() const { return clusterSize_; }
-  inline unsigned int clusterSizeRow() const { return clusterSizeRow_; }
-  inline unsigned int clusterSizeCol() const { return clusterSizeCol_; }
+  unsigned int clusterSize() const { return clusterSize_; }
+  unsigned int clusterSizeRow() const { return clusterSizeRow_; }
+  unsigned int clusterSizeCol() const { return clusterSizeCol_; }
+
+  float sort_key() const { return thePoint_.mag2(); }
 
 private:
   LocalPoint thePoint_;
@@ -67,6 +72,12 @@ private:
   unsigned int clusterSizeCol_;
 };
 
-inline bool operator<(CTPPSPixelRecHit& a, CTPPSPixelRecHit& b) { return (a.point().mag() < b.point().mag()); };
+inline bool operator<(CTPPSPixelRecHit const& a, CTPPSPixelRecHit const& b) {
+  float a_key = a.sort_key();
+  float b_key = b.sort_key();
+  assert(edm::isFinite(a_key));
+  assert(edm::isFinite(b_key));
+  return a_key < b_key;
+}
 
-#endif
+#endif  // DataFormats_CTPPSReco_interface_CTPPSPixelRecHit_h
