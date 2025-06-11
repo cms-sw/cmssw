@@ -59,7 +59,7 @@
     <Include ref='Geometry/HcalCommonData/data/hcalRecNumbering/NoHE/hcalRecNumbering.xml'/>
     <Include ref='Geometry/HGCalCommonData/data/hgcalMaterial/v3/hgcalMaterial.xml'/>
     <Include ref='Geometry/HGCalCommonData/data/hgcal/v19ng/hgcal.xml'/>
-    <Include ref='Geometry/HGCalCommonData/data/hgcalwafer/v19ng/hgcalwafer.xml'/>
+    <Include ref='Geometry/HGCalCommonData/data/hgcalwafer/v19ngr/hgcalwafer.xml'/>
     <Include ref='Geometry/HGCalCommonData/data/hgcalPassive/v19/hgcalPassive.xml'/>
     <Include ref='Geometry/HGCalCommonData/data/hgcalEE/v19/hgcalEE.xml'/>
     <Include ref='Geometry/HGCalCommonData/data/hgcalHEsil/v19/hgcalHEsil.xml'/>
@@ -75,7 +75,7 @@
     <Include ref='Geometry/MuonCommonData/data/muonYoke/2030/v4/muonYoke.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mf/2030/v8/mf.xml'/>
     <Include ref='Geometry/MuonCommonData/data/csc/2021/v2/csc.xml'/>
-    <Include ref='Geometry/MuonCommonData/data/rpcf/2030/v4/rpcf.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/rpcf/2030/v6/rpcf.xml'/>
     <Include ref='Geometry/MuonCommonData/data/gemf/TDR_BaseLine/gemf.xml'/>
     <Include ref='Geometry/MuonCommonData/data/gem11/TDR_BaseLine/gem11.xml'/>
     <Include ref='Geometry/MuonCommonData/data/gem21/2030/v1/gem21.xml'/>
@@ -92,9 +92,9 @@
     <Include ref='Geometry/ForwardCommonData/data/cmszdc.xml'/>
     <Include ref='Geometry/MTDCommonData/data/mtdMaterial/v3/mtdMaterial.xml'/>
     <Include ref='Geometry/MTDCommonData/data/btl/v4/btl.xml'/>
-    <Include ref='Geometry/MTDCommonData/data/etl/v10/etl.xml'/>
-    <Include ref='Geometry/MTDCommonData/data/mtdParameters/v8/mtdStructureTopology.xml'/>
-    <Include ref='Geometry/MTDCommonData/data/mtdParameters/v8/mtdParameters.xml'/>
+    <Include ref='Geometry/MTDCommonData/data/etl/v8/etl.xml'/>
+    <Include ref='Geometry/MTDCommonData/data/mtdParameters/v6/mtdStructureTopology.xml'/>
+    <Include ref='Geometry/MTDCommonData/data/mtdParameters/v6/mtdParameters.xml'/>
     <Include ref='Geometry/MuonCommonData/data/muonNumbering/TDR_DeV/v5/muonNumbering.xml'/>
     <Include ref='Geometry/EcalSimData/data/PhaseII/ecalsens.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalsens/NoHE/v1/hcalsenspmf.xml'/>
@@ -102,7 +102,7 @@
     <Include ref='Geometry/HcalSimData/data/hfpmt.xml'/>
     <Include ref='Geometry/HcalSimData/data/hffibrebundle.xml'/>
     <Include ref='Geometry/HcalSimData/data/CaloUtil/2030/v2c/CaloUtil.xml'/>
-    <Include ref='Geometry/HGCalSimData/data/hgcsensv15.xml'/>
+    <Include ref='Geometry/HGCalSimData/data/hgcsensv19n.xml'/>
     <Include ref='Geometry/MuonSimData/data/PhaseII/v2/muonSens.xml'/>
     <Include ref='Geometry/DTGeometryBuilder/data/dtSpecsFilter/2021/v1/dtSpecsFilter.xml'/>
     <Include ref='Geometry/CSCGeometryBuilder/data/cscSpecsFilter.xml'/>
