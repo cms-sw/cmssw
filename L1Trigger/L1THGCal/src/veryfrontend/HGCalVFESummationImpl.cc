@@ -1,14 +1,16 @@
 #include "L1Trigger/L1THGCal/interface/veryfrontend/HGCalVFESummationImpl.h"
+#include <cstdint>
 
 HGCalVFESummationImpl::HGCalVFESummationImpl(const edm::ParameterSet& conf)
     : lsb_silicon_fC_(conf.getParameter<double>("siliconCellLSB_fC")),
-      lsb_scintillator_MIP_(conf.getParameter<double>("scintillatorCellLSB_MIP")) {
-  constexpr unsigned nThickness = 3;
+      lsb_scintillator_MIP_(conf.getParameter<double>("scintillatorCellLSB_MIP")),
+      nThickness_(conf.getParameter<uint32_t>("numberOfThicknesses"))
+      {
   thresholds_silicon_ =
       conf.getParameter<edm::ParameterSet>("noiseSilicon").getParameter<std::vector<double>>("values");
-  if (thresholds_silicon_.size() != nThickness) {
+  if (thresholds_silicon_.size() != nThickness_) {
     throw cms::Exception("Configuration") << thresholds_silicon_.size() << " silicon thresholds are given instead of "
-                                          << nThickness << " (the number of sensor thicknesses)";
+                                          << nThickness_ << " (the number of sensor thicknesses)";
   }
   threshold_scintillator_ = conf.getParameter<edm::ParameterSet>("noiseScintillator").getParameter<double>("noise_MIP");
   const auto threshold = conf.getParameter<double>("noiseThreshold");

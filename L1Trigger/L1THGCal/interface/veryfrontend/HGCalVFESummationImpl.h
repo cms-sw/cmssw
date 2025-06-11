@@ -5,6 +5,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
 
+#include <cstdint>
 #include <vector>
 #include <utility>
 #include <unordered_map>
@@ -19,6 +20,7 @@ public:
 private:
   double lsb_silicon_fC_;
   double lsb_scintillator_MIP_;
+  uint32_t nThickness_;
   std::vector<double> thresholds_silicon_;
   double threshold_scintillator_;
 

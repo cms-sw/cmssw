@@ -139,15 +139,17 @@ phase2_hgcal.toModify(calibration_params_nose,
     chargeCollectionEfficiency = cms.PSet(refToPSet_ = cms.string("HGCAL_chargeCollectionEfficiencies")),
 )
 
-
-
 l1tHGCalVFEProducer = cms.EDProducer(
-        "HGCalVFEProducer",
-        eeDigis = cms.InputTag('simHGCalUnsuppressedDigis:EE'),
-        fhDigis = cms.InputTag('simHGCalUnsuppressedDigis:HEfront'),
-        bhDigis = cms.InputTag('simHGCalUnsuppressedDigis:HEback'),
-        ProcessorParameters = vfe_proc.clone()
-       )
+    "HGCalVFEProducer",
+    eeDigis = cms.InputTag('simHGCalUnsuppressedDigis:EE'),
+    fhDigis = cms.InputTag('simHGCalUnsuppressedDigis:HEfront'),
+    bhDigis = cms.InputTag('simHGCalUnsuppressedDigis:HEback'),
+    ProcessorParameters = vfe_proc.clone(
+        summationCfg = vfe_proc.summationCfg.clone(
+            numberOfThicknesses = HGCAL_reco_constants.numberOfThicknesses
+        )
+    )
+)
 
 l1tHFnoseVFEProducer = cms.EDProducer(
         "HFNoseVFEProducer",
