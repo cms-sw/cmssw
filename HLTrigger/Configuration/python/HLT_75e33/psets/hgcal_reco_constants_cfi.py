@@ -56,6 +56,7 @@ phase2_hgcalV19.toModify(HGCAL_reco_constants,
                                  2000.0, 2400.
                              ),
                          numberOfThicknesses = cms.uint32(4),
-                         maxNumberOfThickIndices = cms.uint32(8)
+                         maxNumberOfThickIndices = cms.uint32(8),
+                         thresholdW0 = cms.vdouble(2.9, 2.9, 2.9, 2.9),
                          )
 
