@@ -48,6 +48,6 @@ hltTauTable = cms.EDProducer("SimplePFTauCandidateFlatTableProducer",
       externalVariables = cms.PSet(
         ## FIXME does not work despite DiMediumTau path using this! 
         ## https://github.com/cms-sw/cmssw/blob/48e0354ea37072eeacc8237a4a79e7ad34b9b0ae/HLTrigger/Configuration/python/HLT_75e33/modules/hltHpsSelectedPFTausMediumDitauWPDeepTau_cfi.py#L6
-        deepTauVSjet = ExtVar(cms.InputTag("hltHpsPFTauDeepTauProducer","VSjet"), float, doc="deeptau VSjet", precision=10),
+        # deepTauVSjet = ExtVar(cms.InputTag("hltHpsPFTauDeepTauProducer","VSjet"), float, doc="deeptau VSjet", precision=10),
       ),
 )
