@@ -204,6 +204,10 @@ private:
   // and gives the position of the histogram in the histogram vector
   std::map<int, int> layerPairId2Index_;
 
+  // set that contains all the layerPairId as defined in the SimDoublets
+  // that are considered as a starting points for Ntuplets
+  std::set<int> startingPairs_;
+
   // cutting parameters
   std::vector<double> cellMinz_;
   std::vector<double> cellMaxz_;
