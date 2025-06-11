@@ -285,24 +285,29 @@ namespace simdoublets {
     desc.add<std::string>("folder", "Tracking/TrackingMCTruth/SimDoublets");
 
     // cut for minimum number of RecHits required for an Ntuplet
-    desc.add<int>("minHitsPerNtuplet", 4)->setComment("Cut on minimum number of RecHits required for an Ntuplet");
+    desc.add<uint>("minHitsPerNtuplet", 4)->setComment("Cut on minimum number of RecHits required for an Ntuplet");
 
     // Extension settings
     desc.add<int>("numLayersOT", 0)->setComment("Number of additional layers from the OT extension.");
 
+    // starting layer pairs for Ntuplets in reconstruction
+    desc.add<std::vector<int>>("startingPairs", std::vector<int>({}))
+        ->setComment("Array of variable length with the indices of the starting pairs for Ntuplet building");
+
     // cut parameters for connecting doublets
     desc.add<std::vector<double>>("CAThetaCuts",
-                     {0.002, 0.002, 0.002, 0.002,  // BPix
-                      0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003,
-                      0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003})
+                                  {0.002, 0.002, 0.002, 0.002,  // BPix
+                                   0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003,
+                                   0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003})
         ->setComment("Cut on RZ alignement in GeV depending on centered RecHit of triplet");
     desc.add<double>("ptmin", 0.9)
         ->setComment(
             "Minimum tranverse momentum considered for the multiple scattering expectation when checking alignement in "
             "R-z plane of two doublets in GeV");
-    desc.add<std::vector<double>>("dcaCuts", {0.15,  //BPix1
-                                 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,
-                                 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25})
+    desc.add<std::vector<double>>("dcaCuts",
+                                  {0.15,  //BPix1
+                                   0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,
+                                   0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25})
         ->setComment("Cut on origin radius depending on most inner RecHit of triplet");
     desc.add<double>("hardCurvCut", 1. / (0.35 * 87.))
         ->setComment("Cut on minimum curvature, used in DCA ntuplet selection");
@@ -338,10 +343,13 @@ SimDoubletsAnalyzer<TrackerTraits>::SimDoubletsAnalyzer(const edm::ParameterSet&
       cellPtCut_(iConfig.getParameter<double>("cellPtCut")),
       dcaCuts_(iConfig.getParameter<std::vector<double>>("dcaCuts")),
       hardCurvCut_(iConfig.getParameter<double>("hardCurvCut")),
-      minNumDoubletsPerNtuplet_(iConfig.getParameter<int>("minHitsPerNtuplet") - 1),
+      minNumDoubletsPerNtuplet_(iConfig.getParameter<uint>("minHitsPerNtuplet") - 1),
       folder_(iConfig.getParameter<std::string>("folder")) {
   // get layer pairs from configuration
   std::vector<int> layerPairs{iConfig.getParameter<std::vector<int>>("layerPairs")};
+
+  // get staring layer pairs from configuration
+  std::vector<int> startingPairs{iConfig.getParameter<std::vector<int>>("startingPairs")};
 
   // number of configured layer pairs
   size_t numLayerPairs = layerPairs.size() / 2;
@@ -350,6 +358,12 @@ SimDoubletsAnalyzer<TrackerTraits>::SimDoubletsAnalyzer(const edm::ParameterSet&
   for (size_t i{0}; i < numLayerPairs; i++) {
     int layerPairId = 100 * layerPairs[2 * i] + layerPairs[2 * i + 1];
     layerPairId2Index_.insert({layerPairId, i});
+
+    // check if the layer pair is considered as starting point for Ntuplets
+    bool isStartingPair = (std::find(startingPairs.begin(), startingPairs.end(), i) != startingPairs.end());
+    if (isStartingPair) {
+      startingPairs_.insert(layerPairId);
+    }
   }
 
   // resize all histogram vectors, so that we can fill them according to the
@@ -623,7 +637,7 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
     }  // end loop over those doublets
 
     // build the SimNtuplets based on the SimDoublets
-    simDoublets.buildSimNtuplets(minNumDoubletsPerNtuplet_);
+    simDoublets.buildSimNtuplets(startingPairs_, minNumDoubletsPerNtuplet_);
 
     // -----------------------------------------------------------------------------
     //  plots related to SimNtuplets (simNtuplet folder)
