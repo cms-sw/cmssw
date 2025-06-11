@@ -63,7 +63,9 @@ The offsets currently in use are:
 * 0.7561 HLT phase-2 timing menu Alpaka, trimmed tracking
 * 0.7562 HLT phase-2 timing menu Alpaka, trimmed tracking, single tracking iteration variant
 * 0.757: HLT phase-2 timing menu Alpaka, single tracking iteration, LST seeding + CKF building variant
+* 0.759: HLT phase-2 timing menu, with NANO:@Phase2HLT
 * 0.77: HLT phase-2 NGT Scouting menu
+* 0.771: HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting
 * 0.777 New Phase 2 Standalone Muon seeding, streamlined L3 Tracker Muons reconstruction (Inside-Out first), HLT Muon NanoAOD
 * 0.778 New Phase 2 Standalone Muon seeding, streamlined L3 Tracker Muons reconstruction (Outside-In first), HLT Muon NanoAOD
 * 0.78: Complete L1 workflow
