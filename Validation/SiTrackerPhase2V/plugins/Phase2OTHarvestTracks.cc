@@ -349,7 +349,7 @@ void Phase2OTHarvestTracks::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGet
     me_effic_pt->getTH1F()->Divide(numerator, denominator, 1., 1., "B");
     me_effic_pt->setAxisTitle("Tracking particle p_{T} [GeV]");
     me_effic_pt->getTH1F()->GetYaxis()->SetTitle("Efficiency");
-    me_effic_pt->getTH1F()->SetMaximum(2.0);
+    me_effic_pt->getTH1F()->SetMaximum(1.0);
     me_effic_pt->getTH1F()->SetMinimum(0.0);
     me_effic_pt->getTH1F()->SetStats(false);
   }  // if ME found
