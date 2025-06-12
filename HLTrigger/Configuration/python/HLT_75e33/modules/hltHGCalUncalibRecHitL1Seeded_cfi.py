@@ -78,4 +78,3 @@ phase2_hgcalV19.toModify(
     HGCHEFConfig = _modifiedHGCHEFConfig_v19,
     HGCHFNoseConfig = _modifiedHGCHFNoseConfig_v19
 )
-
