@@ -15,9 +15,11 @@ hltPixelTrackTable = cms.EDProducer(
         dXY = Var("dxy()", "float", doc = "dXY (cm)"),
         dZ = Var("dz()", "float", doc = "dZ (cm)"),
         t0 = Var("t0()", "float", doc = "t0 (ns)"),
+        vx = Var("vx()", "float", doc = "vx (cm)"),
+        vy = Var("vy()", "float", doc = "vy (cm)"),
+        vz = Var("vz()", "float", doc = "vz (cm)"),
         nPixelHits = Var("hitPattern().numberOfValidPixelHits()", "int16", doc = ""),
-        nTrkLays = Var("hitPattern().trackerLayersWithMeasurement()", "int16", doc = ""),
-        nMuHits = Var("hitPattern().numberOfValidMuonHits()", "int16", doc = "")
+        nTrkLays = Var("hitPattern().trackerLayersWithMeasurement()", "int16", doc = "")
     )
 )
 
@@ -35,8 +37,10 @@ hltGeneralTrackTable = cms.EDProducer(
         dXY = Var("dxy()", "float", doc = "dXY (cm)"),
         dZ = Var("dz()", "float", doc = "dZ (cm)"),
         t0 = Var("t0()", "float", doc = "t0 (ns)"),
+        vx = Var("vx()", "float", doc = "vx (cm)"),
+        vy = Var("vy()", "float", doc = "vy (cm)"),
+        vz = Var("vz()", "float", doc = "vz (cm)"),
         nPixelHits = Var("hitPattern().numberOfValidPixelHits()", "int16", doc = ""),
-        nTrkLays = Var("hitPattern().trackerLayersWithMeasurement()", "int16", doc = ""),
-        nMuHits = Var("hitPattern().numberOfValidMuonHits()", "int16", doc = "")
+        nTrkLays = Var("hitPattern().trackerLayersWithMeasurement()", "int16", doc = "")
     )
 )
