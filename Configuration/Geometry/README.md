@@ -194,7 +194,7 @@ Several detector combinations have been generated:
 * D107 = T32+C17+M14+I17+O9+F8
 * D108 = T35+C19+M14+I17+O9+F8
 * D109 = T35+C24+M14+I17+O9+F8
-* D110 = T35+C18+M14+I17+O9+F8 (Current Phase-2 baseline from CMSSW_14_1_0_pre2)
+* D110 = T35+C18+M14+I17+O9+F8
 * D111 = T36+C24+M14+I17+O9+F8
 * D112 = T37+C24+M14+I17+O9+F8
 * D113 = T38+C24+M14+I17+O9+F8
@@ -205,6 +205,6 @@ Several detector combinations have been generated:
 * D118 = T35+C25+M15+I19+O10+F9
 * D119 = T35+C25+M15+I20+O10+F9
 * D120 = T35+C26+M16+I20+O10+F9
-* D121 = T35+C25+M16+I18+O10+F9
+* D121 = T35+C25+M16+I18+O10+F9  (Current Phase-2 baseline from CMSSW_15_1_0_pre4)
 * D122 = T35+C27+M16+I18+O10+F9 
 * D123 = T35+C28+M16+I18+O10+F9 
