@@ -109,8 +109,6 @@ l1ct::HadCaloObjEmu l1ct::HgcalClusterDecoderEmulator::decode(const l1ct::PFRegi
 
   // Conversion to local (input sector) coordinates
   ap_int<9> w_eta = l1ct::glbeta_t(w_abseta.to_int() * (sector.floatEtaCenter() > 0 ? +1 : -1)) - sector.hwEtaCenter;
-  // if (sector.floatEtaCenter() > 0)
-  //   w_phi = -w_phi;
 
   l1ct::HadCaloObjEmu out;
   out.clear();
@@ -202,7 +200,7 @@ l1ct::HgcalClusterDecoderEmulator::MultiClassID::MultiClassID(const std::string 
 #else
   auto resolvedFileName = model;
 #endif
-  multiclass_bdt_ = new conifer::BDT<bdt_feature_t, bdt_score_t, false>(resolvedFileName);
+  multiclass_bdt_ = std::make_unique<conifer::BDT<bdt_feature_t, bdt_score_t, false>>(resolvedFileName);
 }
 
 bool l1ct::HgcalClusterDecoderEmulator::MultiClassID::evaluate(l1ct::HadCaloObjEmu &cl,

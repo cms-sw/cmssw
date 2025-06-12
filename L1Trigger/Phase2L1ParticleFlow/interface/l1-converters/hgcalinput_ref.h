@@ -3,9 +3,7 @@
 
 #include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/corrector.h"
-// FIXME: move to the include from external package
-#include "L1Trigger/Phase2L1ParticleFlow/interface/conifer.h"
-// #include "conifer.h"
+#include "conifer.h"
 
 namespace edm {
   class ParameterSet;
@@ -67,7 +65,7 @@ namespace l1ct {
         typedef activation_inv_table_t inv_table_t;
       };
 
-      conifer::BDT<bdt_feature_t, bdt_score_t, false> *multiclass_bdt_;
+      std::unique_ptr<conifer::BDT<bdt_feature_t, bdt_score_t, false>> multiclass_bdt_;
     };
 
     enum class UseEmInterp { No, EmOnly, AllKeepHad, AllKeepTot };

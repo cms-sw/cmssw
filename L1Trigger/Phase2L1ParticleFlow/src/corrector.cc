@@ -271,8 +271,9 @@ float l1tpf::corrector::correctedPt(float pt, float emPt, float eta) const {
     return total;  // no correction
   ieta = std::min(std::max<unsigned>(1, index_->GetXaxis()->FindBin(abseta)), neta_) - 1;
   // FIXME: why eta 3.1 is hardcoded here?
+  static const float maxeta = 3.1;
   unsigned int iemf =
-      is2d_ && abseta < 3.1 ? std::min(std::max<unsigned>(1, index_->GetYaxis()->FindBin(emf)), nemf_) - 1 : 0;
+      is2d_ && abseta < maxeta ? std::min(std::max<unsigned>(1, index_->GetYaxis()->FindBin(emf)), nemf_) - 1 : 0;
   float ptcorr = 0;
   if (!emulate_) {  // not emulation - read from the TGraph as normal
     TGraph *graph = corrections_[ieta * nemf_ + iemf];

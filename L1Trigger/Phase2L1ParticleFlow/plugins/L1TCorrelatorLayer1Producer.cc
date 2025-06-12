@@ -746,10 +746,10 @@ void L1TCorrelatorLayer1Producer::rawHgcalClusterEncode(ap_uint<256> &cwrd,
   // FIXME: we keep subtracting an arbitrary number different from the HLGCal FW one
   ap_ufixed<12, 11, AP_RND_CONV, AP_SAT> w_meanz = fabs(c.zBarycenter()) - 320;  // LSB = 0.5cm
 
-  ap_uint<6> w_showerlenght = c.showerLength();
+  ap_uint<6> w_showerlength = c.showerLength();
   ap_uint<7> w_sigmazz = round(c.sigmaZZ() / SIGMAZZ_LSB);
   ap_uint<7> w_sigmaphiphi = round(c.sigmaPhiPhiTot() / SIGMAPHIPHI_LSB);
-  ap_uint<6> w_coreshowerlenght = c.coreShowerLength();
+  ap_uint<6> w_coreshowerlength = c.coreShowerLength();
   ap_uint<5> w_sigmaetaeta = round(c.sigmaEtaEtaTot() / SIGMAETAETA_LSB);
   // NOTE: this is an arbitrary choice to keep the rounding consistent with the "addDecodedHadCalo" one
   // FIXME: the scaling here is added to the encoded word...
@@ -766,10 +766,10 @@ void L1TCorrelatorLayer1Producer::rawHgcalClusterEncode(ap_uint<256> &cwrd,
   cwrd(64 + 18, 64 + 10) = w_phi;            //  9 bits: 18-10
   cwrd(64 + 30, 64 + 19) = w_meanz.range();  // 12 bits: 30-19
   // Word 2
-  cwrd(128 + 18, 128 + 13) = w_showerlenght;      //  6 bits: 18-13
+  cwrd(128 + 18, 128 + 13) = w_showerlength;      //  6 bits: 18-13
   cwrd(128 + 38, 128 + 32) = w_sigmazz;           //  7 bits: 38-32
   cwrd(128 + 45, 128 + 39) = w_sigmaphiphi;       //  7 bits: 45-39
-  cwrd(128 + 51, 128 + 46) = w_coreshowerlenght;  //  6 bits: 51-46
+  cwrd(128 + 51, 128 + 46) = w_coreshowerlength;  //  6 bits: 51-46
   cwrd(128 + 56, 128 + 52) = w_sigmaetaeta;       //  5 bits: 56-52
 
   // cwrd(128+63, 128+57) = w_sigmarrtot;       //  7 bits: 63-57 // FIXME: use word3 spare bits

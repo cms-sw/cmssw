@@ -40,12 +40,12 @@ namespace l1t {
       setPdgId(isEM ? 22 : 130);  // photon : non-photon(K0)
     }
 
-    enum class HWEncoding { None = 0, Had = 1, Em = 2, Gct = 3 };
+    enum class HWEncoding { None = 0, Had = 1, Em = 2 };
 
     float hOverE() const { return hOverE_; }
     void setHOverE(float hOverE) { hOverE_ = hOverE; }
 
-    // FIXME: this might nor be consistent with the value stored in the HW digi
+    // NOTE: this might not be consistent with the value stored in the HW digi
     float emEt() const {
       if (hOverE_ == -1)
         return 0;
