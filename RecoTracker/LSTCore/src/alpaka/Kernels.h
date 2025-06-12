@@ -344,11 +344,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         if (secondpass && (!pixelSeeds.isQuad()[ix] || (pixelSegments.isDup()[ix] & 1)))
           continue;
 
-        unsigned int phits1[Params_pLS::kHits];
-        phits1[0] = pixelSegments.pLSHitsIdxs()[ix].x;
-        phits1[1] = pixelSegments.pLSHitsIdxs()[ix].y;
-        phits1[2] = pixelSegments.pLSHitsIdxs()[ix].z;
-        phits1[3] = pixelSegments.pLSHitsIdxs()[ix].w;
+        auto const& phits1 = pixelSegments.pLSHitsIdxs()[ix];
         float eta_pix1 = pixelSeeds.eta()[ix];
         float phi_pix1 = pixelSeeds.phi()[ix];
 
@@ -377,11 +373,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           else
             idxToRemove = ix;
 
-          unsigned int phits2[Params_pLS::kHits];
-          phits2[0] = pixelSegments.pLSHitsIdxs()[jx].x;
-          phits2[1] = pixelSegments.pLSHitsIdxs()[jx].y;
-          phits2[2] = pixelSegments.pLSHitsIdxs()[jx].z;
-          phits2[3] = pixelSegments.pLSHitsIdxs()[jx].w;
+          auto const& phits2 = pixelSegments.pLSHitsIdxs()[jx];
 
           int npMatched = 0;
           for (int i = 0; i < Params_pLS::kHits; i++) {

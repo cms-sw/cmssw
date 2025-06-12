@@ -217,7 +217,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                               unsigned int innerMDIndex,
                                                               unsigned int outerMDIndex,
                                                               uint16_t pixelModuleIndex,
-                                                              unsigned int hitIdxs[4],
+                                                              const Params_pLS::ArrayUxHits& hitIdxs,
                                                               unsigned int innerAnchorHitIndex,
                                                               unsigned int outerAnchorHitIndex,
                                                               float dPhiChange,
@@ -235,10 +235,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     pixelSegments.isDup()[pixelSegmentArrayIndex] = false;
     pixelSegments.partOfPT5()[pixelSegmentArrayIndex] = false;
     pixelSegments.score()[pixelSegmentArrayIndex] = score;
-    pixelSegments.pLSHitsIdxs()[pixelSegmentArrayIndex].x = hitIdxs[0];
-    pixelSegments.pLSHitsIdxs()[pixelSegmentArrayIndex].y = hitIdxs[1];
-    pixelSegments.pLSHitsIdxs()[pixelSegmentArrayIndex].z = hitIdxs[2];
-    pixelSegments.pLSHitsIdxs()[pixelSegmentArrayIndex].w = hitIdxs[3];
+    pixelSegments.pLSHitsIdxs()[pixelSegmentArrayIndex] = hitIdxs;
 
     //computing circle parameters
     /*
@@ -807,11 +804,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                           (hitsBase.zs()[mds.anchorHitIndices()[outerMDIndex]]);
         score_lsq = score_lsq * score_lsq;
 
-        unsigned int hits1[Params_pLS::kHits];
-        hits1[0] = hitsBase.idxs()[mds.anchorHitIndices()[innerMDIndex]];
-        hits1[1] = hitsBase.idxs()[mds.anchorHitIndices()[outerMDIndex]];
-        hits1[2] = hitsBase.idxs()[mds.outerHitIndices()[innerMDIndex]];
-        hits1[3] = hitsBase.idxs()[mds.outerHitIndices()[outerMDIndex]];
+        const Params_pLS::ArrayUxHits hits1{{hitsBase.idxs()[mds.anchorHitIndices()[innerMDIndex]],
+                                             hitsBase.idxs()[mds.anchorHitIndices()[outerMDIndex]],
+                                             hitsBase.idxs()[mds.outerHitIndices()[innerMDIndex]],
+                                             hitsBase.idxs()[mds.outerHitIndices()[outerMDIndex]]}};
         addPixelSegmentToMemory(acc,
                                 segments,
                                 pixelSegments,
