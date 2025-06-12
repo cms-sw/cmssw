@@ -182,12 +182,17 @@ private:
                  simdoublets::CellCutVariables const&,
                  simdoublets::ClusterSizeCutManager const&) const;
 
-  //  function that fills all histograms for cut variables (in folder cutParameters)
+  //  function that fills all histograms for cut variables (in folder CAParameters)
   void fillCutHistograms(SimDoublets::Doublet const&,
                          bool const,
                          int const,
                          simdoublets::CellCutVariables const&,
                          simdoublets::ClusterSizeCutManager const&);
+
+  //  function that fills all histograms of SimDoublets (in folder SimDoublets)
+  void fillSimDoubletHistograms(SimDoublets::Doublet const&,
+                         double const,
+                         double const);
 
   // ------------ member data ------------
 
@@ -232,6 +237,8 @@ private:
   MonitorElement* h_effSimDoubletsPerTPVsPt_;
   MonitorElement* h_effSimDoubletsPerTPVsEta_;
   MonitorElement* h_numLayersVsEtaPt_;
+  MonitorElement* h_effConfigLimitVsEta_;
+  MonitorElement* h_effConfigLimitVsPt_;
   // histograms of TrackingParticles
   CoupledMonitorElement h_numTPVsPt_;
   CoupledMonitorElement h_numTPVsEta_;
@@ -243,15 +250,17 @@ private:
   CoupledMonitorElement h_numSkippedLayersPerTrackingParticle_;
   CoupledMonitorElement h_numLayersPerTrackingParticle_;
   CoupledMonitorElement h_numSkippedLayersVsEta_;
+  CoupledMonitorElement h_numRecHitsVsEta_;
   CoupledMonitorElement h_numLayersVsEta_;
   CoupledMonitorElement h_numSkippedLayersVsPt_;
+  CoupledMonitorElement h_numRecHitsVsPt_;
   CoupledMonitorElement h_numLayersVsPt_;
   CoupledMonitorElement h_numTPVsPdgId_;
   // histograms of SimDoublets
   CoupledMonitorElement h_layerPairs_;
   CoupledMonitorElement h_numSkippedLayers_;
-  CoupledMonitorElement h_numVsPt_;
-  CoupledMonitorElement h_numVsEta_;
+  CoupledMonitorElement h_num_vs_pt_;
+  CoupledMonitorElement h_num_vs_eta_;
   CoupledMonitorElement h_z0_;
   CoupledMonitorElement h_curvatureR_;
   CoupledMonitorElement h_pTFromR_;
@@ -273,24 +282,41 @@ private:
   // vectors of historgrams (one per layer)
   std::vector<CoupledMonitorElement> hVector_CAThetaCut_;
   std::vector<CoupledMonitorElement> hVector_dcaCut_;
-  // histograms of Ntuplets
-  MonitorElement* h_aliveNtuplet_numRecHits_;
-  MonitorElement* h_aliveNtuplet_firstLayerId_;
-  MonitorElement* h_aliveNtuplet_lastLayerId_;
-  MonitorElement* h_aliveNtuplet_layerSpan_;
+  // histograms of the most alive Ntuplet per TP
+  CoupledMonitorElement h_bestNtuplet_numRecHits_;
+  CoupledMonitorElement h_bestNtuplet_firstLayerId_;
+  CoupledMonitorElement h_bestNtuplet_lastLayerId_;
+  CoupledMonitorElement h_bestNtuplet_layerSpan_;
+  CoupledMonitorElement h_bestNtuplet_firstLayerVsEta_;
+  CoupledMonitorElement h_bestNtuplet_lastLayerVsEta_;
   MonitorElement* h_aliveNtuplet_fracNumRecHits_eta_;
   MonitorElement* h_aliveNtuplet_fracNumRecHits_pt_;
-  MonitorElement* h_aliveNtuplet_firstLayerVsEta_;
-  MonitorElement* h_aliveNtuplet_lastLayerVsEta_;
+  // histograms of the longest Ntuplet per TP
   CoupledMonitorElement h_longNtuplet_numRecHits_;
   CoupledMonitorElement h_longNtuplet_firstLayerId_;
   CoupledMonitorElement h_longNtuplet_lastLayerId_;
   CoupledMonitorElement h_longNtuplet_layerSpan_;
-  CoupledMonitorElement h_longNtuplet_eta_;
-  CoupledMonitorElement h_longNtuplet_pt_;
+  CoupledMonitorElement h_longNtuplet_firstVsSecondLayer_;
   CoupledMonitorElement h_longNtuplet_firstLayerVsEta_;
   CoupledMonitorElement h_longNtuplet_lastLayerVsEta_;
-  // longest SimNtuplets of the TP status
+  // status of the most alive SimNtuplet per TP
+  MonitorElement* h_bestNtuplet_alive_eta_;
+  MonitorElement* h_bestNtuplet_undefDoubletCuts_eta_;
+  MonitorElement* h_bestNtuplet_undefConnectionCuts_eta_;
+  MonitorElement* h_bestNtuplet_missingLayerPair_eta_;
+  MonitorElement* h_bestNtuplet_killedDoublets_eta_;
+  MonitorElement* h_bestNtuplet_killedConnections_eta_;
+  MonitorElement* h_bestNtuplet_tooShort_eta_;
+  MonitorElement* h_bestNtuplet_notStartingPair_eta_;
+  MonitorElement* h_bestNtuplet_alive_pt_;
+  MonitorElement* h_bestNtuplet_undefDoubletCuts_pt_;
+  MonitorElement* h_bestNtuplet_undefConnectionCuts_pt_;
+  MonitorElement* h_bestNtuplet_missingLayerPair_pt_;
+  MonitorElement* h_bestNtuplet_killedDoublets_pt_;
+  MonitorElement* h_bestNtuplet_killedConnections_pt_;
+  MonitorElement* h_bestNtuplet_tooShort_pt_;
+  MonitorElement* h_bestNtuplet_notStartingPair_pt_;
+  // status of the longest SimNtuplet per TP
   MonitorElement* h_longNtuplet_alive_eta_;
   MonitorElement* h_longNtuplet_undefDoubletCuts_eta_;
   MonitorElement* h_longNtuplet_undefConnectionCuts_eta_;
@@ -298,6 +324,7 @@ private:
   MonitorElement* h_longNtuplet_killedDoublets_eta_;
   MonitorElement* h_longNtuplet_killedConnections_eta_;
   MonitorElement* h_longNtuplet_tooShort_eta_;
+  MonitorElement* h_longNtuplet_notStartingPair_eta_;
   MonitorElement* h_longNtuplet_alive_pt_;
   MonitorElement* h_longNtuplet_undefDoubletCuts_pt_;
   MonitorElement* h_longNtuplet_undefConnectionCuts_pt_;
@@ -305,6 +332,7 @@ private:
   MonitorElement* h_longNtuplet_killedDoublets_pt_;
   MonitorElement* h_longNtuplet_killedConnections_pt_;
   MonitorElement* h_longNtuplet_tooShort_pt_;
+  MonitorElement* h_longNtuplet_notStartingPair_pt_;
 };
 
 #endif
