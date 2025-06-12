@@ -28,7 +28,9 @@ def PixBary(config, validationDir, verbose=False):
         for runRange in IOV_list:
             IOV = '-'.join(str(i) for i in runRange)
 
-            for alignment, alignmentConfig in config["alignments"].items():
+            for alignment in jobConfig["alignments"]:
+                alignmentConfig = config["alignments"][alignment]
+
                 ##Work directory for each IOV
                 workDir = os.path.join(validationDir, _validationName, jobType, jobName, alignment, IOV)
 
