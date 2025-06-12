@@ -48,6 +48,7 @@
     <field name="ntuplets_" transient="true" />
     <field name="longestNtupletIndex_" transient="true" />
     <field name="longestAliveNtupletIndex_" transient="true" />
+    <field name="bestNtupletIndex_" transient="true" />
   </class>
   <class name="std::vector<SimDoublets>"/>
   <class name="edm::Wrapper< std::vector<SimDoublets> >"/>
@@ -66,6 +67,10 @@
   </ioread>
   <ioread sourceClass = "SimDoublets" version="[1-]" targetClass="SimDoublets" source="" target="longestAliveNtupletIndex_">
   <![CDATA[ longestAliveNtupletIndex_=-1;
+  ]]>
+  </ioread>
+  <ioread sourceClass = "SimDoublets" version="[1-]" targetClass="SimDoublets" source="" target="bestNtupletIndex_">
+  <![CDATA[ bestNtupletIndex_=-1;
   ]]>
   </ioread>
 </lcgdict>
