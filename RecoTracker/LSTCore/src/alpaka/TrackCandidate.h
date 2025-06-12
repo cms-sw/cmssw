@@ -22,7 +22,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void addpLSTrackCandidateToMemory(TrackCandidates& cands,
                                                                    unsigned int trackletIndex,
                                                                    unsigned int trackCandidateIndex,
-                                                                   uint4 hitIndices,
+                                                                   const Params_pLS::ArrayUxHits& hitIndices,
                                                                    int pixelSeedIndex) {
     cands.trackCandidateType()[trackCandidateIndex] = LSTObjType::pLS;
     cands.directObjectIndices()[trackCandidateIndex] = trackletIndex;
@@ -31,11 +31,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     cands.objectIndices()[trackCandidateIndex][0] = trackletIndex;
     cands.objectIndices()[trackCandidateIndex][1] = trackletIndex;
 
-    cands.hitIndices()[trackCandidateIndex][0] =
-        hitIndices.x;  // Order explanation in https://github.com/SegmentLinking/TrackLooper/issues/267
-    cands.hitIndices()[trackCandidateIndex][1] = hitIndices.z;
-    cands.hitIndices()[trackCandidateIndex][2] = hitIndices.y;
-    cands.hitIndices()[trackCandidateIndex][3] = hitIndices.w;
+    // Order explanation in https://github.com/SegmentLinking/TrackLooper/issues/267
+    cands.hitIndices()[trackCandidateIndex][0] = hitIndices[0];
+    cands.hitIndices()[trackCandidateIndex][1] = hitIndices[2];
+    cands.hitIndices()[trackCandidateIndex][2] = hitIndices[1];
+    cands.hitIndices()[trackCandidateIndex][3] = hitIndices[3];
   }
 
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void addTrackCandidateToMemory(TrackCandidates& cands,

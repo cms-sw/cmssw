@@ -46,17 +46,6 @@ namespace lst {
   typedef float FPX;
 #endif
 
-// Needed for files that are compiled by g++ to not throw an error.
-// uint4 is defined only for CUDA, so we will have to revisit this soon when running on other backends.
-#if !defined(ALPAKA_ACC_GPU_CUDA_ENABLED) && !defined(ALPAKA_ACC_GPU_HIP_ENABLED)
-  struct uint4 {
-    unsigned int x;
-    unsigned int y;
-    unsigned int z;
-    unsigned int w;
-  };
-#endif
-
   // Defining the constant host device variables right up here
   // Currently pixel tracks treated as LSs with 2 double layers (IT layers 1+2 and 3+4) and 4 hits. To be potentially handled better in the future.
   struct Params_Modules {
