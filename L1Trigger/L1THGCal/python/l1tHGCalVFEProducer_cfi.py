@@ -77,7 +77,6 @@ NTHICKNESS = HGCAL_reco_constants.numberOfThicknesses.value()
 # While here there are two different sets for CE-E and CE-H
 # Additionally there are four values for each set, in order to follow the four detid silicon types [HD120um, LD200um, LD300um, HD200um]
 # The thickness correction value for HD200um is copied from LD200um
->>>>>>> 3135ca68949 (initial fixes with procModifier v19)
 calibration_params_ee = cms.PSet(
         lsb = cms.double(triggerCellLsbBeforeCompression_si),
         fCperMIP = fCperMIPee,
