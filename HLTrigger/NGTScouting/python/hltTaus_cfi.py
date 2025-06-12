@@ -30,24 +30,5 @@ hltTauTable = cms.EDProducer("SimplePFTauCandidateFlatTableProducer",
         signalConeSize = Var("signalConeSize", float, doc = "Size of signal cone"),
         # variables available in PF jets
         jetIsValid = Var("jetRef.isNonnull && jetRef.isAvailable", bool, doc = "jet is valid"),
-        # source: DataFormats/JetReco/interface/PFJet.h
-        ## FIXME below does not work - members not found 
-        # chargedHadronEnergy = Var("? jetRef.isNonnull && jetRef.isAvailable ? jetRef.chargedHadronEnergy : -999.", float, doc = "chargedHadronEnergy"),
-        # neutralHadronEnergy = Var("? jetRef.isNonnull && jetRef.isAvailable ? jetRef.neutralHadronEnergy : -999.", float, doc = "neutralHadronEnergy"),
-        # photonEnergy = Var("? jetRef.isNonnull && jetRef.isAvailable ? jetRef.photonEnergy : -999.", float, doc = "photonEnergy"),
-        # muonEnergy = Var("? jetRef.isNonnull && jetRef.isAvailable ? jetRef.muonEnergy : -999.", float, doc = "muonEnergy"),
-        # chargedHadronMultiplicity = Var("? jetRef.isNonnull && jetRef.isAvailable ? jetRef.chargedHadronMultiplicity : -999.", float, doc = "chargedHadronMultiplicity"),
-        # neutralHadronMultiplicity = Var("? jetRef.isNonnull && jetRef.isAvailable ? jetRef.neutralHadronMultiplicity : -999.", float, doc = "neutralHadronMultiplicity"),
-        # photonMultiplicity = Var("? jetRef.isNonnull && jetRef.isAvailable ? jetRef.photonMultiplicity : -999.", float, doc = "photonMultiplicity"),
-        # muonMultiplicity = Var("? jetRef.isNonnull && jetRef.isAvailable ? jetRef.muonMultiplicity : -999.", float, doc = "muonMultiplicity"),
-        # chargedMuEnergy = Var("? jetRef.isNonnull && jetRef.isAvailable ? jetRef.chargedMuEnergy : -999.", float, doc = "chargedMuEnergy"),
-        # neutralEmEnergy = Var("? jetRef.isNonnull && jetRef.isAvailable ? jetRef.neutralEmEnergy : -999.", float, doc = "neutralEmEnergy"),
-        # chargedMultiplicity = Var("? jetRef.isNonnull && jetRef.isAvailable ? jetRef.chargedMultiplicity : -999.", float, doc = "chargedMultiplicity"),
-        # neutralMultiplicity = Var("? jetRef.isNonnull && jetRef.isAvailable ? jetRef.neutralMultiplicity : -999.", float, doc = "neutralMultiplicity"),
-      ),
-      externalVariables = cms.PSet(
-        ## FIXME does not work despite DiMediumTau path using this! 
-        ## https://github.com/cms-sw/cmssw/blob/48e0354ea37072eeacc8237a4a79e7ad34b9b0ae/HLTrigger/Configuration/python/HLT_75e33/modules/hltHpsSelectedPFTausMediumDitauWPDeepTau_cfi.py#L6
-        # deepTauVSjet = ExtVar(cms.InputTag("hltHpsPFTauDeepTauProducer","VSjet"), float, doc="deeptau VSjet", precision=10),
       ),
 )
