@@ -74,6 +74,7 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet& ps)
     tdcOnset_fC_ = ps.getParameter<double>("tdcOnset_fC");
   if (ps.exists("tdcForToAOnset_fC")) {
     auto temp = ps.getParameter<std::vector<double> >("tdcForToAOnset_fC");
+    std::cout << "temp " << temp.size() << " tdcForToaOnset " << tdcForToAOnset_fC_.size() << std::endl;
     if (temp.size() == tdcForToAOnset_fC_.size()) {
       std::copy_n(temp.begin(), temp.size(), tdcForToAOnset_fC_.begin());
     } else {

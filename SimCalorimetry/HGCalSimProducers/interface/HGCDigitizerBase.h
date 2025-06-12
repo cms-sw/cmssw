@@ -80,7 +80,7 @@ public:
   float keV2fC() const { return keV2fC_; }
   bool toaModeByEnergy() const { return (myFEelectronics_->toaMode() == HGCFEElectronics<DFr>::WEIGHTEDBYE); }
   float tdcOnset() const { return myFEelectronics_->getTDCOnset(); }
-  std::array<float, 3> tdcForToAOnset() const { return myFEelectronics_->getTDCForToAOnset(); }
+  std::array<float, 4> tdcForToAOnset() const { return myFEelectronics_->getTDCForToAOnset(); }
   DetId::Detector det() const { return det_; }
   ForwardSubdetector subdet() const { return subdet_; }
 
