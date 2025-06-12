@@ -107,6 +107,8 @@ namespace cond {
     ValidityInterval setIntervalFor(Time_t target);
     TimeType timeType() const { return m_iovProxy.tagInfo().timeType; }
 
+    void setPrintDebug(bool printDebug) { m_printDebug = printDebug; }
+
   private:
     std::string m_label;
     std::string m_connString;
@@ -115,6 +117,9 @@ namespace cond {
     Iov_t m_currentIov;
     persistency::Session m_session;
     std::shared_ptr<std::vector<Iov_t>> m_requests;
+
+    // whether additional debug info should be printed in loadTag and setIntervalFor
+    bool m_printDebug = false;
   };
 }  // namespace cond
 

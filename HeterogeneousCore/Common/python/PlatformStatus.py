@@ -7,3 +7,7 @@ class PlatformStatus(enum.IntEnum):
     PlatformNotAvailable = 1    # the platform is not available for this architecture, OS or compiler
     RuntimeNotAvailable = 2     # the runtime could not be initialised
     DevicesNotAvailable = 3     # there are no visible, usable devices
+
+    @classmethod
+    def _missing_(cls, value):
+        return cls.PlatformNotAvailable

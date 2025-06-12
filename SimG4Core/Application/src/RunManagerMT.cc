@@ -299,7 +299,7 @@ void RunManagerMT::terminateRun() {
 
 void RunManagerMT::checkVoxels() {
   const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
-  int numLV = lvs->size();
+  int numLV = (int)lvs->size();
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: nLV=" << numLV;
   int nvox = 0;
   int nslice = 0;
@@ -309,7 +309,7 @@ void RunManagerMT::checkVoxels() {
     auto vox = lv->GetVoxelHeader();
     auto sma = lv->GetSmartless();
     auto reg = lv->GetRegion();
-    size_t nsl = (nullptr == vox) ? 0 : vox->GetNoSlices();
+    std::size_t nsl = (nullptr == vox) ? 0 : vox->GetNoSlices();
     if (0 < nsl) {
       nslice += nsl;
       std::string rname = (nullptr != reg) ? reg->GetName() : "";

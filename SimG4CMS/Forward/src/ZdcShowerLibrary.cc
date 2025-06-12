@@ -6,9 +6,9 @@
 
 #include "SimG4CMS/Forward/interface/ZdcSD.h"
 #include "SimG4CMS/Forward/interface/ZdcShowerLibrary.h"
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "G4VPhysicalVolume.hh"
 #include "G4Step.hh"

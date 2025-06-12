@@ -204,8 +204,8 @@ private:
   uint32_t tdcNbits_;
   bool thresholdFollowsMIP_;
   //caches
-  std::array<bool, hgc::nSamples> busyFlags, totFlags, toaFlags;
-  hgc::HGCSimHitData newCharge, toaFromToT;
+  std::array<bool, hgc::nSamples> busyFlags_, totFlags_, toaFlags_;
+  hgc::HGCSimHitData newCharge_, toaFromToT_;
 };
 
 #endif

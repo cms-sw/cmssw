@@ -20,6 +20,9 @@ namespace XrdAdaptor {
   class XrdSiteStatistics;
   class XrdStatisticsService;
 
+  /**
+   * A Source represents a connection to one storage server
+   */
   class Source : public std::enable_shared_from_this<Source> {
   public:
     Source(const Source &) = delete;

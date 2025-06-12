@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun hgcGeomAnalyzer_cfg.py geom=v17
 #
-#   Options for geometry v16, v17, v18
+#   Options for geom v16, v17, v18, V19
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -14,7 +14,7 @@ options = VarParsing()
 options.register ("geom",
                   "v17",
                   VarParsing.multiplicity.singleton, VarParsing.varType.string,
-                  "geom of operations: v16, v17, v18")
+                  "geom of operations: v16, v17, v18, V19")
 
 options.parseArguments()
 
@@ -27,6 +27,8 @@ elif options.geom == 'v17':
     geomFile = 'Configuration.Geometry.GeometryExtendedRun4D110Reco_cff'
 elif options.geom == 'v18':
     geomFile = 'Configuration.Geometry.GeometryExtendedRun4D104Reco_cff'
+elif options.geom == 'v19':
+    geomFile = 'Configuration.Geometry.GeometryExtendedRun4D120Reco_cff'
 else:
     geomFile = 'UNKNOWN GEOMETRY!'
     raise Exception(geomFile)

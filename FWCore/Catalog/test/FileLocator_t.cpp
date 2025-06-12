@@ -34,8 +34,8 @@ TEST_CASE("FileLocator with Rucio data catalog", "[FWCore/Catalog]") {
                                              "file:bha",
                                              "file:/bha/bho",
                                              "/castor/cern.ch/cms/bha/bho",
-                                             "rfio:/castor/cern.ch/cms/bha/bho",
-                                             "rfio:/bha/bho"}};
+                                             "someprotocol:/castor/cern.ch/cms/bha/bho",
+                                             "someprotocol:/bha/bho"}};
     CHECK("root://cmsdcadisk.fnal.gov//dcache/uscmsdisk/store/group/bha/bho" ==
           fl.pfn("/store/group/bha/bho", edm::CatalogType::RucioCatalog));
     for (auto file : lfn) {
@@ -53,8 +53,8 @@ TEST_CASE("FileLocator with Rucio data catalog", "[FWCore/Catalog]") {
                                              "file:bha",
                                              "file:/bha/bho",
                                              "/castor/cern.ch/cms/bha/bho",
-                                             "rfio:/castor/cern.ch/cms/bha/bho",
-                                             "rfio:/bha/bho"}};
+                                             "someprotocol:/castor/cern.ch/cms/bha/bho",
+                                             "someprotocol:/bha/bho"}};
     //one level chain between "root" and "second" protocols (see storage.json)
     CHECK("root://host.domain//pnfs/cms/store/group/bha/bho" ==
           fl.pfn("/store/group/bha/bho", edm::CatalogType::RucioCatalog));
@@ -90,8 +90,8 @@ TEST_CASE("FileLocator with TrivialFileCatalog", "[FWCore/Catalog]") {
                                              "file:bha",
                                              "file:/bha/bho",
                                              "/castor/cern.ch/cms/bha/bho",
-                                             "rfio:/castor/cern.ch/cms/bha/bho",
-                                             "rfio:/bha/bho"}};
+                                             "someprotocol:/castor/cern.ch/cms/bha/bho",
+                                             "someprotocol:/bha/bho"}};
 
     CHECK("/storage/path/store/group/bha/bho" == fl.pfn("/store/group/bha/bho", edm::CatalogType::TrivialCatalog));
     for (auto file : lfn) {
@@ -115,8 +115,8 @@ TEST_CASE("FileLocator with TrivialFileCatalog", "[FWCore/Catalog]") {
                                        "file:bha",
                                        "file:/bha/bho",
                                        "/castor/cern.ch/cms/bha/bho",
-                                       "rfio:/castor/cern.ch/cms/bha/bho",
-                                       "rfio:/bha/bho"}};
+                                       "someprotocol:/castor/cern.ch/cms/bha/bho",
+                                       "someprotocol:/bha/bho"}};
 
     auto const overriden_file =
         "/store/unmerged/relval/CMSSW_3_8_0_pre3/RelValZTT/GEN-SIM-DIGI-RAW-HLTDEBUG/START38_V2-v1/0666/"

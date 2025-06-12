@@ -64,30 +64,30 @@ The script also handles the common and forward elements of the geometry:
 * F3: same as F2 with added simulti geometry for RPD
 
 Several detector combinations have been generated:
-* 2021 = T3+C3+M9+P7+O6+F1
+* 2021 = T3+C3+M13+P7+O7+F1
 * 2021ZeroMaterial = T4+C1+M9+P7+O4+F1
 * 2021FlatMinus05Percent = T5+C1+M9+P7+O5+F1
 * 2021FlatMinus10Percent = T6+C1+M9+P7+O5+F1
 * 2021FlatPlus05Percent = T7+C1+M9+P7+O5+F1
 * 2021FlatPlus10Percent = T8+C1+M9+P7+O5+F1
-* 2023 = T3+C2+M10+P7+O6+F3
+* 2023 = T3+C2+M14+P7+O7+F3
 * 2023ZeroMaterial = T4+C1+M10+P7+O4+F2
 * 2023FlatMinus05Percent = T5+C1+M10+P7+O5+F2
 * 2023FlatMinus10Percent = T6+C1+M10+P7+O5+F2
 * 2023FlatPlus05Percent = T7+C1+M10+P7+O5+F2
 * 2023FlatPlus10Percent = T8+C1+M10+P7+O5+F2
-* 2024 = T3+C2+M11+P7+O6+F3
+* 2024 = T3+C2+M15+P7+O7+F3
 * 2024ZeroMaterial = T4+C2+M11+P7+O4+F2
 * 2024FlatMinus05Percent = T5+C2+M11+P7+O5+F2
 * 2024FlatMinus10Percent = T6+C2+M11+P7+O5+F2
 * 2024FlatPlus05Percent = T7+C2+M11+P7+O5+F2
 * 2024FlatPlus10Percent = T8+C2+M11+P7+O5+F2
-* 2025 = T3+C2+M12+P7+O7+F3
-* 2025ZeroMaterial = T4+C2+M12+P7+O8+F3
-* 2025FlatMinus05Percent = T5+C2+M12+P7+O9+F3
-* 2025FlatMinus10Percent = T6+C2+M12+P7+O9+F3
-* 2025FlatPlus05Percent = T7+C2+M12+P7+O9+F3
-* 2025FlatPlus10Percent = T8+C2+M12+P7+O9+F3
+* 2025 = T3+C2+M16+P8+O7+F3
+* 2025ZeroMaterial = T4+C2+M12+P8+O8+F3
+* 2025FlatMinus05Percent = T5+C2+M12+P8+O9+F3
+* 2025FlatMinus10Percent = T6+C2+M12+P8+O9+F3
+* 2025FlatPlus05Percent = T7+C2+M12+P8+O9+F3
+* 2025FlatPlus10Percent = T8+C2+M12+P8+O9+F3
 
 # Phase 2 Geometries
 
@@ -128,8 +128,11 @@ Calorimeters:
 * C21: HGCal (v17 version of HGCal geometry as in C19 but turning off all dead areas and gaps) + Phase2 HCAL and EB (used in Run4D101)
 * C22: HGCal (v18 version of HGCal geometry as in C18 with calibration cells, nonzero cssette retraction, correct mousebite, guard ring, proper cell size) + Phase2 HCAL and EB (used in Run4D104)
 * C23: HGCal (same as the v18 version which is in C22 but without internal cells in the Geant4 geometry defintiion) + Phase2 HCAL and EB (used in Run4D106)
-* C24: HGCal (v18 version of HGCal geometry as in C122 but turning off all dead areas and gaps) + Phase2 HCAL and EB (used in Run4D109)
+* C24: HGCal (v18 version of HGCal geometry as in C22 but turning off all dead areas and gaps) + Phase2 HCAL and EB (used in Run4D109)
 * C25: sane as C18 but changing ebalgo.xml to make it more conformant with standard
+* C26: HGCal (v19 version of HGCal geometry with calibration cells, nonzero cssette retraction, correct mousebite, guard ring, proper cell size) + Phase2 HCAL and EB (used in Run4D120)
+* C27: HGCal (same as the v19 version which is in C26 but without internal cells in the Geant4 geometry defintiion) + Phase2 HCAL and EB (used in Run4D106)
+* C28: HGCal (v19 version of HGCal geometry as in C22 but turning off all dead areas and gaps) + Phase2 HCAL and EB (used in Run4D109)
 
 Muon system:
 * M4: Phase2 muon system for TDR w/ GE2/1, ME0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1), 96 iRPC strips, no overlaps, MB4Shields
@@ -143,6 +146,7 @@ Muon system:
 * M13: same as M10 with right front-back relation between alternate phi segments
 * M14: same as M11 with right front-back relation between alternate phi segments
 * M15: same as M12 with right front-back relation between alternate phi segments
+* M16: same as M15 with reverting RPC endcap disk4 rotation
 
 Fast Timing system:
 * I10: Fast Timing detector (LYSO barrel (bars along phi flat), silicon endcap), w/ passive materials, ETL in position defined in O4, material adjustments
@@ -200,3 +204,7 @@ Several detector combinations have been generated:
 * D117 = T35+C25+M15+I18+O10+F9
 * D118 = T35+C25+M15+I19+O10+F9
 * D119 = T35+C25+M15+I20+O10+F9
+* D120 = T35+C26+M16+I20+O10+F9
+* D121 = T35+C25+M16+I18+O10+F9
+* D122 = T35+C27+M16+I18+O10+F9 
+* D123 = T35+C28+M16+I18+O10+F9 

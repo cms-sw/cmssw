@@ -19,8 +19,6 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
   process.CondDBSetup,
 
   connect = cms.string('sqlite_file:pixelPVSSCond.db'),
-  timetype = cms.untracked.string('runnumber'),
-  logconnect = cms.untracked.string('sqlite_file:log.db'),
 
   toGet = cms.VPSet
   (

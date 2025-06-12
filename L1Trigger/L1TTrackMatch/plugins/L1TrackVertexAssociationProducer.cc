@@ -204,7 +204,7 @@ private:
       inputAssoc.tensor<float, 2>()(0, 3) = dZEmulation_rescale.to_double();
 
       // Run Association Network:
-      tensorflow::run(AssociationSesh_, {{"assoc:0", inputAssoc}}, {"Identity:0"}, &outputAssoc);
+      tensorflow::run(AssociationSesh_, {{"NNvtx_track_association:0", inputAssoc}}, {"Identity:0"}, &outputAssoc);
 
       double NNOutput = (double)outputAssoc[0].tensor<float, 2>()(0, 0);
 

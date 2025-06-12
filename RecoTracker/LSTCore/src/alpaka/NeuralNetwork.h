@@ -9,6 +9,9 @@
 
 #include "T5NeuralNetworkWeights.h"
 #include "T3NeuralNetworkWeights.h"
+#include "pT3NeuralNetworkWeights.h"
+#include "T5EmbedNetworkWeights.h"
+#include "pLSEmbedNetworkWeights.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
@@ -65,11 +68,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                      const unsigned int mdIndex2,
                                                      const unsigned int mdIndex3,
                                                      const float radius,
-                                                     const float betaIn) {
+                                                     const float betaIn,
+                                                     float (&output)[dnn::t3dnn::kOutputFeatures]) {
       // Constants for T3 DNN
-      constexpr unsigned int kinputFeatures = 14;
-      constexpr unsigned int khiddenFeatures = 32;
-      constexpr unsigned int koutputFeatures = 3;
+      constexpr unsigned int kInputFeatures = 14;
+      constexpr unsigned int kHiddenFeatures = 32;
 
       // Extract hit information
       float eta1 = alpaka::math::abs(acc, mds.anchorEta()[mdIndex1]);  // inner T3 anchor hit 1 eta
@@ -89,8 +92,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       float r3 = mds.anchorRt()[mdIndex3];  // inner T3 anchor hit 3 r
 
       // Build input feature vector matching training order
-      float x[kinputFeatures] = {
-          eta1 / dnn::kEta_norm,                          // First hit eta normalized
+      float x[kInputFeatures] = {
+          eta1 / dnn::t3dnn::kEta_norm,                   // First hit eta normalized
           alpaka::math::abs(acc, phi1) / dnn::kPhi_norm,  // First hit phi normalized
           z1 / dnn::t3dnn::kZ_max,                        // First hit z normalized
           r1 / dnn::t3dnn::kR_max,                        // First hit r normalized
@@ -109,32 +112,79 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           betaIn                             // Beta angle of inner segment
       };
 
-      float x_1[khiddenFeatures];  // Layer 1 output
-      float x_2[khiddenFeatures];  // Layer 2 output
-      float x_3[koutputFeatures];  // Layer 3 output (3 classes)
+      float x_1[kHiddenFeatures];  // Layer 1 output
+      float x_2[kHiddenFeatures];  // Layer 2 output
 
       // Layer 1: Linear + Relu
-      linear_layer<kinputFeatures, khiddenFeatures>(x, x_1, dnn::t3dnn::wgtT_layer1, dnn::t3dnn::bias_layer1);
-      relu_activation<khiddenFeatures>(x_1);
+      linear_layer<kInputFeatures, kHiddenFeatures>(x, x_1, dnn::t3dnn::wgtT_layer1, dnn::t3dnn::bias_layer1);
+      relu_activation<kHiddenFeatures>(x_1);
 
       // Layer 2: Linear + Relu
-      linear_layer<khiddenFeatures, khiddenFeatures>(x_1, x_2, dnn::t3dnn::wgtT_layer2, dnn::t3dnn::bias_layer2);
-      relu_activation<khiddenFeatures>(x_2);
+      linear_layer<kHiddenFeatures, kHiddenFeatures>(x_1, x_2, dnn::t3dnn::wgtT_layer2, dnn::t3dnn::bias_layer2);
+      relu_activation<kHiddenFeatures>(x_2);
 
       // Layer 3: Linear + Softmax
-      linear_layer<khiddenFeatures, koutputFeatures>(
-          x_2, x_3, dnn::t3dnn::wgtT_output_layer, dnn::t3dnn::bias_output_layer);
-      softmax_activation<koutputFeatures>(acc, x_3);
+      linear_layer<kHiddenFeatures, dnn::t3dnn::kOutputFeatures>(
+          x_2, output, dnn::t3dnn::wgtT_output_layer, dnn::t3dnn::bias_output_layer);
+      softmax_activation<dnn::t3dnn::kOutputFeatures>(acc, output);
 
       // Get pt and eta bin indices
       float t3_pt = radius * lst::k2Rinv1GeVf * 2;
       uint8_t pt_index = (t3_pt > 5);
-      uint8_t bin_index = (eta1 > 2.5f) ? (dnn::kEtaBins - 1) : static_cast<unsigned int>(eta1 / 0.25f);
+      uint8_t bin_index = (eta1 > 2.5f) ? (dnn::kEtaBins - 1) : static_cast<unsigned int>(eta1 / dnn::kEtaSize);
 
-      return x_3[1] > dnn::t3dnn::kWp_prompt[pt_index][bin_index] ||
-             x_3[2] > dnn::t3dnn::kWp_displaced[pt_index][bin_index];
+      return output[1] > dnn::t3dnn::kWp_prompt[pt_index][bin_index] ||
+             output[2] > dnn::t3dnn::kWp_displaced[pt_index][bin_index];
     }
   }  // namespace t3dnn
+
+  namespace pt3dnn {
+
+    template <typename TAcc>
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runInference(TAcc const& acc,
+                                                     const float rPhiChiSquared,
+                                                     const float tripletRadius,
+                                                     const float pixelRadius,
+                                                     const float pixRadiusError,
+                                                     const float rzChiSquared,
+                                                     const float pixelEta,
+                                                     const float pixelPt) {
+      constexpr unsigned int kInputFeatures = 6;
+      constexpr unsigned int kHiddenFeatures = 32;
+      constexpr unsigned int kOutputFeatures = 1;
+
+      float x[kInputFeatures] = {alpaka::math::log10(acc, rPhiChiSquared),
+                                 alpaka::math::log10(acc, tripletRadius),
+                                 alpaka::math::log10(acc, pixelRadius),
+                                 alpaka::math::log10(acc, pixRadiusError),
+                                 alpaka::math::log10(acc, rzChiSquared),
+                                 alpaka::math::abs(acc, pixelEta) / dnn::pt3dnn::kEta_norm};
+
+      float x1[kHiddenFeatures];
+      float x2[kHiddenFeatures];
+      float x3[kOutputFeatures];
+
+      linear_layer<kInputFeatures, kHiddenFeatures>(x, x1, dnn::pt3dnn::wgtT_layer1, dnn::pt3dnn::bias_layer1);
+      relu_activation<kHiddenFeatures>(x1);
+
+      linear_layer<kHiddenFeatures, kHiddenFeatures>(x1, x2, dnn::pt3dnn::wgtT_layer2, dnn::pt3dnn::bias_layer2);
+      relu_activation<kHiddenFeatures>(x2);
+
+      linear_layer<kHiddenFeatures, kOutputFeatures>(
+          x2, x3, dnn::pt3dnn::wgtT_output_layer, dnn::pt3dnn::bias_output_layer);
+      float output = sigmoid_activation(acc, x3[0]);
+
+      uint8_t bin_index = (alpaka::math::abs(acc, pixelEta) > 2.5f)
+                              ? (dnn::kEtaBins - 1)
+                              : static_cast<unsigned int>(alpaka::math::abs(acc, pixelEta) / dnn::kEtaSize);
+
+      if (pixelPt > 5.0f)
+        return output > dnn::pt3dnn::kWpHigh;
+
+      return output > dnn::pt3dnn::kWp[bin_index];
+    }
+
+  }  // namespace pt3dnn
 
   namespace t5dnn {
     template <typename TAcc>
@@ -149,8 +199,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                      const float outerRadius,
                                                      const float bridgeRadius) {
       // Constants
-      constexpr unsigned int kinputFeatures = 23;
-      constexpr unsigned int khiddenFeatures = 32;
+      constexpr unsigned int kInputFeatures = 23;
+      constexpr unsigned int kHiddenFeatures = 32;
 
       float eta1 = alpaka::math::abs(acc, mds.anchorEta()[mdIndex1]);  // inner T3 anchor hit 1 eta
       float eta2 = alpaka::math::abs(acc, mds.anchorEta()[mdIndex2]);  // inner T3 anchor hit 2 eta
@@ -177,8 +227,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       float r5 = mds.anchorRt()[mdIndex5];  // outer T3 anchor hit 5 r
 
       // Build the input feature vector using pairwise differences after the first hit
-      float x[kinputFeatures] = {
-          eta1 / dnn::kEta_norm,                          // inner T3: First hit eta normalized
+      float x[kInputFeatures] = {
+          eta1 / dnn::t5dnn::kEta_norm,                   // inner T3: First hit eta normalized
           alpaka::math::abs(acc, phi1) / dnn::kPhi_norm,  // inner T3: First hit phi normalized
           z1 / dnn::t5dnn::kZ_max,                        // inner T3: First hit z normalized
           r1 / dnn::t5dnn::kR_max,                        // inner T3: First hit r normalized
@@ -212,32 +262,171 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           alpaka::math::log10(acc, outerRadius)    // T5 outer radius
       };
 
-      float x_1[khiddenFeatures];  // Layer 1 output
-      float x_2[khiddenFeatures];  // Layer 2 output
+      float x_1[kHiddenFeatures];  // Layer 1 output
+      float x_2[kHiddenFeatures];  // Layer 2 output
       float x_3[1];                // Layer 3 linear output
 
       // Layer 1: Linear + Relu
-      linear_layer<kinputFeatures, khiddenFeatures>(x, x_1, dnn::t5dnn::wgtT_layer1, dnn::t5dnn::bias_layer1);
-      relu_activation<khiddenFeatures>(x_1);
+      linear_layer<kInputFeatures, kHiddenFeatures>(x, x_1, dnn::t5dnn::wgtT_layer1, dnn::t5dnn::bias_layer1);
+      relu_activation<kHiddenFeatures>(x_1);
 
       // Layer 2: Linear + Relu
-      linear_layer<khiddenFeatures, khiddenFeatures>(x_1, x_2, dnn::t5dnn::wgtT_layer2, dnn::t5dnn::bias_layer2);
-      relu_activation<khiddenFeatures>(x_2);
+      linear_layer<kHiddenFeatures, kHiddenFeatures>(x_1, x_2, dnn::t5dnn::wgtT_layer2, dnn::t5dnn::bias_layer2);
+      relu_activation<kHiddenFeatures>(x_2);
 
       // Layer 3: Linear + Sigmoid
-      linear_layer<khiddenFeatures, 1>(x_2, x_3, dnn::t5dnn::wgtT_output_layer, dnn::t5dnn::bias_output_layer);
+      linear_layer<kHiddenFeatures, 1>(x_2, x_3, dnn::t5dnn::wgtT_output_layer, dnn::t5dnn::bias_output_layer);
       float x_5 = sigmoid_activation(acc, x_3[0]);
 
       // Get the bin index based on abs(eta) of first hit and t5_pt
       float t5_pt = innerRadius * lst::k2Rinv1GeVf * 2;
 
-      uint8_t pt_index = (t5_pt > 5);
-      uint8_t bin_index = (eta1 > 2.5f) ? (dnn::kEtaBins - 1) : static_cast<unsigned int>(eta1 / 0.25f);
+      uint8_t pt_index = (t5_pt > 5.0f);
+      uint8_t bin_index = (eta1 > 2.5f) ? (dnn::kEtaBins - 1) : static_cast<unsigned int>(eta1 / dnn::kEtaSize);
 
       // Compare x_5 to the cut value for the relevant bin
       return x_5 > dnn::t5dnn::kWp[pt_index][bin_index];
     }
   }  // namespace t5dnn
+
+  namespace t5embdnn {
+    template <typename TAcc>
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE void runEmbed(TAcc const& acc,
+                                                 MiniDoubletsConst mds,
+                                                 unsigned int mdIndex1,
+                                                 unsigned int mdIndex2,
+                                                 unsigned int mdIndex3,
+                                                 unsigned int mdIndex4,
+                                                 unsigned int mdIndex5,
+                                                 float innerRadius,
+                                                 float outerRadius,
+                                                 float bridgeRadius,
+                                                 float fakeScore1,
+                                                 float promptScore1,
+                                                 float dispScore1,
+                                                 float fakeScore2,
+                                                 float promptScore2,
+                                                 float dispScore2,
+                                                 float (&embedding)[Params_T5::kEmbed]) {
+      constexpr unsigned int kInputFeatures = 30;
+      constexpr unsigned int kHiddenFeatures = 32;
+
+      float eta1 = mds.anchorEta()[mdIndex1];
+      float eta2 = alpaka::math::abs(acc, mds.anchorEta()[mdIndex2]);
+      float eta3 = alpaka::math::abs(acc, mds.anchorEta()[mdIndex3]);
+      float eta4 = alpaka::math::abs(acc, mds.anchorEta()[mdIndex4]);
+      float eta5 = alpaka::math::abs(acc, mds.anchorEta()[mdIndex5]);
+
+      float phi1 = mds.anchorPhi()[mdIndex1];
+      float phi2 = mds.anchorPhi()[mdIndex2];
+      float phi3 = mds.anchorPhi()[mdIndex3];
+      float phi4 = mds.anchorPhi()[mdIndex4];
+      float phi5 = mds.anchorPhi()[mdIndex5];
+
+      float z1 = alpaka::math::abs(acc, mds.anchorZ()[mdIndex1]);
+      float z2 = alpaka::math::abs(acc, mds.anchorZ()[mdIndex2]);
+      float z3 = alpaka::math::abs(acc, mds.anchorZ()[mdIndex3]);
+      float z4 = alpaka::math::abs(acc, mds.anchorZ()[mdIndex4]);
+      float z5 = alpaka::math::abs(acc, mds.anchorZ()[mdIndex5]);
+
+      float r1 = mds.anchorRt()[mdIndex1];
+      float r2 = mds.anchorRt()[mdIndex2];
+      float r3 = mds.anchorRt()[mdIndex3];
+      float r4 = mds.anchorRt()[mdIndex4];
+      float r5 = mds.anchorRt()[mdIndex5];
+
+      float x[kInputFeatures] = {eta1 / dnn::t5dnn::kEta_norm,
+                                 alpaka::math::cos(acc, phi1),
+                                 alpaka::math::sin(acc, phi1),
+                                 z1 / dnn::t5dnn::kZ_max,
+                                 r1 / dnn::t5dnn::kR_max,
+
+                                 eta2 - alpaka::math::abs(acc, eta1),
+                                 cms::alpakatools::deltaPhi(acc, phi2, phi1),
+                                 (z2 - z1) / dnn::t5dnn::kZ_max,
+                                 (r2 - r1) / dnn::t5dnn::kR_max,
+
+                                 eta3 - eta2,
+                                 cms::alpakatools::deltaPhi(acc, phi3, phi2),
+                                 (z3 - z2) / dnn::t5dnn::kZ_max,
+                                 (r3 - r2) / dnn::t5dnn::kR_max,
+
+                                 eta4 - eta3,
+                                 cms::alpakatools::deltaPhi(acc, phi4, phi3),
+                                 (z4 - z3) / dnn::t5dnn::kZ_max,
+                                 (r4 - r3) / dnn::t5dnn::kR_max,
+
+                                 eta5 - eta4,
+                                 cms::alpakatools::deltaPhi(acc, phi5, phi4),
+                                 (z5 - z4) / dnn::t5dnn::kZ_max,
+                                 (r5 - r4) / dnn::t5dnn::kR_max,
+
+                                 1.0f / innerRadius,
+                                 1.0f / bridgeRadius,
+                                 1.0f / outerRadius,
+
+                                 fakeScore1,
+                                 promptScore1,
+                                 dispScore1,
+                                 (fakeScore2 - fakeScore1),
+                                 (promptScore2 - promptScore1),
+                                 (dispScore2 - dispScore1)};
+
+      float h1[kHiddenFeatures];
+      float h2[kHiddenFeatures];
+
+      linear_layer<kInputFeatures, kHiddenFeatures>(x, h1, dnn::t5embdnn::wgtT_fc1, dnn::t5embdnn::bias_fc1);
+      relu_activation<kHiddenFeatures>(h1);
+
+      linear_layer<kHiddenFeatures, kHiddenFeatures>(h1, h2, dnn::t5embdnn::wgtT_fc2, dnn::t5embdnn::bias_fc2);
+      relu_activation<kHiddenFeatures>(h2);
+
+      linear_layer<kHiddenFeatures, Params_T5::kEmbed>(h2, embedding, dnn::t5embdnn::wgtT_fc3, dnn::t5embdnn::bias_fc3);
+    }
+
+  }  // namespace t5embdnn
+
+  namespace plsembdnn {
+    template <typename TAcc>
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE void runEmbed(TAcc const& acc,
+                                                 const float eta,
+                                                 const float etaErr,
+                                                 const float phi,
+                                                 const float circleCenterX,
+                                                 const float circleCenterY,
+                                                 const float circleRadius,
+                                                 const float ptIn,
+                                                 const float ptErr,
+                                                 const bool isQuad,
+                                                 float (&embedding)[Params_pLS::kEmbed]) {
+      constexpr unsigned int kInputFeatures = 10;
+      constexpr unsigned int kHiddenFeatures = 32;
+
+      float x[kInputFeatures] = {eta / dnn::plsembdnn::kEta_norm,
+                                 etaErr / dnn::plsembdnn::kEtaErr_norm,
+                                 alpaka::math::cos(acc, phi),
+                                 alpaka::math::sin(acc, phi),
+                                 1.0f / ptIn,
+                                 alpaka::math::log10(acc, ptErr),
+                                 isQuad ? 1.0f : 0.0f,
+                                 alpaka::math::log10(acc, alpaka::math::abs(acc, circleCenterX)),
+                                 alpaka::math::log10(acc, alpaka::math::abs(acc, circleCenterY)),
+                                 alpaka::math::log10(acc, circleRadius)};
+
+      float h1[kHiddenFeatures];
+      float h2[kHiddenFeatures];
+
+      linear_layer<kInputFeatures, kHiddenFeatures>(x, h1, dnn::plsembdnn::wgtT_fc1, dnn::plsembdnn::bias_fc1);
+      relu_activation<kHiddenFeatures>(h1);
+
+      linear_layer<kHiddenFeatures, kHiddenFeatures>(h1, h2, dnn::plsembdnn::wgtT_fc2, dnn::plsembdnn::bias_fc2);
+      relu_activation<kHiddenFeatures>(h2);
+
+      linear_layer<kHiddenFeatures, Params_pLS::kEmbed>(
+          h2, embedding, dnn::plsembdnn::wgtT_fc3, dnn::plsembdnn::bias_fc3);
+    }
+
+  }  // namespace plsembdnn
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::lst
 

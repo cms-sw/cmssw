@@ -2,6 +2,7 @@
 #define RecoTracker_LSTCore_src_alpaka_Kernels_h
 
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
+#include "FWCore/Utilities/interface/CMSUnrollLoop.h"
 
 #include "RecoTracker/LSTCore/interface/alpaka/Common.h"
 #include "RecoTracker/LSTCore/interface/ModulesSoA.h"
@@ -249,7 +250,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
               float dR2 = dEta * dEta + dPhi * dPhi;
               int nMatched = checkHitsT5(ix, jx, quintuplets);
               const int minNHitsForDup_T5 = 5;
-              if (dR2 < 0.001f || nMatched >= minNHitsForDup_T5) {
+
+              float d2 = 0.f;
+              CMS_UNROLL_LOOP
+              for (unsigned int k = 0; k < Params_T5::kEmbed; ++k) {
+                float diff = quintuplets.t5Embed()[ix][k] - quintuplets.t5Embed()[jx][k];
+                d2 += diff * diff;
+              }
+
+              if (((dR2 < 0.001f || nMatched >= minNHitsForDup_T5) && d2 < 1.0f) || (dR2 < 0.02f && d2 < 0.1f)) {
                 if (isPT5_jx || score_rphisum1 > score_rphisum2) {
                   rmQuintupletFromMemory(quintuplets, ix, true);
                 } else if (isPT5_ix || score_rphisum1 < score_rphisum2) {
@@ -322,6 +331,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     ALPAKA_FN_ACC void operator()(Acc2D const& acc,
                                   ModulesConst modules,
                                   SegmentsOccupancyConst segmentsOccupancy,
+                                  PixelSeedsConst pixelSeeds,
                                   PixelSegments pixelSegments,
                                   bool secondpass) const {
       int pixelModuleIndex = modules.nLowerModules();
@@ -331,28 +341,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         nPixelSegments = n_max_pixel_segments_per_module;
 
       for (unsigned int ix : cms::alpakatools::uniform_elements_y(acc, nPixelSegments)) {
-        if (secondpass && (!pixelSegments.isQuad()[ix] || (pixelSegments.isDup()[ix] & 1)))
+        if (secondpass && (!pixelSeeds.isQuad()[ix] || (pixelSegments.isDup()[ix] & 1)))
           continue;
 
-        unsigned int phits1[Params_pLS::kHits];
-        phits1[0] = pixelSegments.pLSHitsIdxs()[ix].x;
-        phits1[1] = pixelSegments.pLSHitsIdxs()[ix].y;
-        phits1[2] = pixelSegments.pLSHitsIdxs()[ix].z;
-        phits1[3] = pixelSegments.pLSHitsIdxs()[ix].w;
-        float eta_pix1 = pixelSegments.eta()[ix];
-        float phi_pix1 = pixelSegments.phi()[ix];
+        auto const& phits1 = pixelSegments.pLSHitsIdxs()[ix];
+        float eta_pix1 = pixelSeeds.eta()[ix];
+        float phi_pix1 = pixelSeeds.phi()[ix];
 
         for (unsigned int jx : cms::alpakatools::uniform_elements_x(acc, ix + 1, nPixelSegments)) {
-          float eta_pix2 = pixelSegments.eta()[jx];
-          float phi_pix2 = pixelSegments.phi()[jx];
+          float eta_pix2 = pixelSeeds.eta()[jx];
+          float phi_pix2 = pixelSeeds.phi()[jx];
 
           if (alpaka::math::abs(acc, eta_pix2 - eta_pix1) > 0.1f)
             continue;
 
-          if (secondpass && (!pixelSegments.isQuad()[jx] || (pixelSegments.isDup()[jx] & 1)))
+          if (secondpass && (!pixelSeeds.isQuad()[jx] || (pixelSegments.isDup()[jx] & 1)))
             continue;
 
-          int8_t quad_diff = pixelSegments.isQuad()[ix] - pixelSegments.isQuad()[jx];
+          int8_t quad_diff = pixelSeeds.isQuad()[ix] - pixelSeeds.isQuad()[jx];
           float score_diff = pixelSegments.score()[ix] - pixelSegments.score()[jx];
           // Always keep quads over trips. If they are the same, we want the object with better score
           int idxToRemove;
@@ -367,11 +373,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           else
             idxToRemove = ix;
 
-          unsigned int phits2[Params_pLS::kHits];
-          phits2[0] = pixelSegments.pLSHitsIdxs()[jx].x;
-          phits2[1] = pixelSegments.pLSHitsIdxs()[jx].y;
-          phits2[2] = pixelSegments.pLSHitsIdxs()[jx].z;
-          phits2[3] = pixelSegments.pLSHitsIdxs()[jx].w;
+          auto const& phits2 = pixelSegments.pLSHitsIdxs()[jx];
 
           int npMatched = 0;
           for (int i = 0; i < Params_pLS::kHits; i++) {

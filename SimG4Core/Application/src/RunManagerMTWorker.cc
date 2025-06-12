@@ -3,8 +3,10 @@
 #include "SimG4Core/Application/interface/SimRunInterface.h"
 #include "SimG4Core/Application/interface/RunAction.h"
 #include "SimG4Core/Application/interface/EventAction.h"
+#include "SimG4Core/Application/interface/Phase2EventAction.h"
 #include "SimG4Core/Application/interface/StackingAction.h"
 #include "SimG4Core/Application/interface/TrackingAction.h"
+#include "SimG4Core/Application/interface/Phase2TrackingAction.h"
 #include "SimG4Core/Application/interface/SteppingAction.h"
 #include "SimG4Core/Application/interface/Phase2SteppingAction.h"
 #include "SimG4Core/Application/interface/CMSSimEventManager.h"
@@ -12,8 +14,8 @@
 #include "SimG4Core/Application/interface/CustomUIsessionToFile.h"
 #include "SimG4Core/Application/interface/ExceptionHandler.h"
 #include "SimG4Core/Application/interface/CMSGDMLWriteStructure.h"
-#include "SimG4Core/Physics/interface/CMSG4TrackInterface.h"
 
+#include "SimG4Core/Physics/interface/CMSG4TrackInterface.h"
 #include "SimG4Core/Geometry/interface/CustomUIsession.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -310,13 +312,16 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   G4TransportationManager* tM = G4TransportationManager::GetTransportationManager();
   tM->SetWorldForTracking(worldPV);
 
+  // flag of Phase2
+  m_isPhase2 = runManagerMaster->isPhase2();
+
   // we need the track manager now
   int verbose = m_p.getParameter<int>("EventVerbose");
   m_tls->trackManager = std::make_unique<SimTrackManager>(&m_simEvent, verbose);
 
   // setup the magnetic field
   if (m_pUseMagneticField) {
-    const GlobalPoint g(0.f, 0.f, 0.f);
+    const GlobalPoint gg(0.f, 0.f, 0.f);
 
     sim::FieldBuilder fieldBuilder(m_pMagField, m_pField);
 
@@ -373,7 +378,6 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
 
   // Set the physics list for the worker, share from master
   PhysicsList* physicsList = runManagerMaster->physicsListForWorker();
-  m_isPhase2 = runManagerMaster->isPhase2();
 
   edm::LogVerbatim("SimG4CoreApplication")
       << "RunManagerMTWorker::InitializeG4: start initialisation of PhysicsList for the thread " << thisID;
@@ -432,21 +436,29 @@ void RunManagerMTWorker::initializeUserActions() {
   G4EventManager* eventManager = m_tls->kernel->GetEventManager();
   eventManager->SetVerboseLevel(ver);
 
-  auto userEventAction =
-      new EventAction(m_pEventAction, m_tls->runInterface.get(), m_tls->trackManager.get(), m_sVerbose.get());
-  Connect(userEventAction);
-  if (m_UseG4EventManager) {
-    eventManager->SetUserAction(userEventAction);
+  // different event actions for Run2,3 and Phase2
+  G4UserEventAction* userEventAction;
+  if (m_isPhase2) {
+    auto ptr =
+        new Phase2EventAction(m_pEventAction, m_tls->runInterface.get(), m_tls->trackManager.get(), m_sVerbose.get());
+    Connect(ptr);
+    userEventAction = (G4UserEventAction*)ptr;
   } else {
-    m_evtManager->SetUserAction(userEventAction);
+    auto ptr = new EventAction(m_pEventAction, m_tls->runInterface.get(), m_tls->trackManager.get(), m_sVerbose.get());
+    Connect(ptr);
+    userEventAction = (G4UserEventAction*)ptr;
   }
 
-  auto userTrackingAction = new TrackingAction(m_tls->trackManager.get(), m_sVerbose.get(), m_pTrackingAction);
-  Connect(userTrackingAction);
-  if (m_UseG4EventManager) {
-    eventManager->SetUserAction(userTrackingAction);
+  // different tracking actions for Run2,3 and Phase2
+  G4UserTrackingAction* userTrackingAction;
+  if (m_isPhase2) {
+    auto ptr = new Phase2TrackingAction(m_tls->trackManager.get(), m_sVerbose.get(), m_pTrackingAction);
+    Connect(ptr);
+    userTrackingAction = (G4UserTrackingAction*)ptr;
   } else {
-    m_evtManager->SetUserAction(userTrackingAction);
+    auto ptr = new TrackingAction(m_tls->trackManager.get(), m_sVerbose.get(), m_pTrackingAction);
+    Connect(ptr);
+    userTrackingAction = (G4UserTrackingAction*)ptr;
   }
 
   // different stepping actions for Run2,3 and Phase2
@@ -461,16 +473,18 @@ void RunManagerMTWorker::initializeUserActions() {
     Connect(ptr);
     userSteppingAction = (G4UserSteppingAction*)ptr;
   }
-  if (m_UseG4EventManager) {
-    eventManager->SetUserAction(userSteppingAction);
-  } else {
-    m_evtManager->SetUserAction(userSteppingAction);
-  }
 
-  auto userStackingAction = new StackingAction(userTrackingAction, m_pStackingAction, m_sVerbose.get());
+  // staking actions and event manager
+  auto userStackingAction = new StackingAction(m_pStackingAction, m_sVerbose.get());
   if (m_UseG4EventManager) {
+    eventManager->SetUserAction(userEventAction);
+    eventManager->SetUserAction(userTrackingAction);
+    eventManager->SetUserAction(userSteppingAction);
     eventManager->SetUserAction(userStackingAction);
   } else {
+    m_evtManager->SetUserAction(userEventAction);
+    m_evtManager->SetUserAction(userTrackingAction);
+    m_evtManager->SetUserAction(userSteppingAction);
     m_evtManager->SetUserAction(userStackingAction);
   }
 }
@@ -485,7 +499,17 @@ void RunManagerMTWorker::Connect(EventAction* eventAction) {
   eventAction->m_endOfEventSignal.connect(m_tls->registry->endOfEventSignal_);
 }
 
+void RunManagerMTWorker::Connect(Phase2EventAction* eventAction) {
+  eventAction->m_beginOfEventSignal.connect(m_tls->registry->beginOfEventSignal_);
+  eventAction->m_endOfEventSignal.connect(m_tls->registry->endOfEventSignal_);
+}
+
 void RunManagerMTWorker::Connect(TrackingAction* trackingAction) {
+  trackingAction->m_beginOfTrackSignal.connect(m_tls->registry->beginOfTrackSignal_);
+  trackingAction->m_endOfTrackSignal.connect(m_tls->registry->endOfTrackSignal_);
+}
+
+void RunManagerMTWorker::Connect(Phase2TrackingAction* trackingAction) {
   trackingAction->m_beginOfTrackSignal.connect(m_tls->registry->beginOfTrackSignal_);
   trackingAction->m_endOfTrackSignal.connect(m_tls->registry->endOfTrackSignal_);
 }

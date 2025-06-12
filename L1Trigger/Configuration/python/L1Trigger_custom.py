@@ -123,7 +123,6 @@ def customiseL1Menu(process):
                                     toGet = cms.VPSet(cms.PSet(
                                                 record = cms.string('L1GtTriggerMenuRcd'),
                                                 tag = cms.string(menuDbTag))),
-                                                BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService')
                                             )
             process.es_prefer_l1conddb = cms.ESPrefer("PoolDBESSource", "l1conddb")
 

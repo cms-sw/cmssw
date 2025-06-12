@@ -25,6 +25,7 @@
 
 #include "FWCore/Framework/interface/ESProductResolverTemplate.h"
 #include "FWCore/Framework/interface/ESProductResolverProvider.h"
+#include "FWCore/Framework/interface/ESModuleProducesInfo.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESValidHandle.h"
@@ -156,6 +157,12 @@ public:
     usingRecord<DummyRecord>();
   }
 
+  std::vector<edm::eventsetup::ESModuleProducesInfo> producesInfo() const override {
+    return std::vector<edm::eventsetup::ESModuleProducesInfo>(
+        1,
+        edm::eventsetup::ESModuleProducesInfo(edm::eventsetup::EventSetupRecordKey::makeKey<DummyRecord>(), m_key, 0));
+  }
+
 protected:
   KeyedResolversVector registerResolvers(const EventSetupRecordKey&, unsigned int /* iovIndex */) override {
     KeyedResolversVector keyedResolversVector;
@@ -247,8 +254,7 @@ namespace {
       }
 
       ESRecordsToProductResolverIndices resolverIndices({iKey});
-      std::vector<DataKey> dataKeys;
-      dummyRecordImpl.fillRegisteredDataKeys(dataKeys);
+      std::vector<DataKey> const& dataKeys = dummyRecordImpl.registeredDataKeys();
 
       (void)resolverIndices.dataKeysInRecord(0,
                                              iKey,
@@ -555,8 +561,7 @@ void testEventsetupRecord::introspectionTest() {
 
   const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyResolver::value_type>(), "");
 
-  std::vector<edm::eventsetup::DataKey> keys;
-  dummyRecordImpl.fillRegisteredDataKeys(keys);
+  std::vector<edm::eventsetup::DataKey> keys = dummyRecordImpl.registeredDataKeys();
   CPPUNIT_ASSERT(keys.empty());
 
   DummyRecord dummyRecord;
@@ -567,8 +572,7 @@ void testEventsetupRecord::introspectionTest() {
   dummyRecordImpl.getESProducers(esproducers);
   CPPUNIT_ASSERT(esproducers.empty());
 
-  std::vector<DataKey> referencedDataKeys;
-  dummyRecordImpl.fillRegisteredDataKeys(referencedDataKeys);
+  std::vector<DataKey> referencedDataKeys = dummyRecordImpl.registeredDataKeys();
   auto referencedComponents = dummyRecordImpl.componentsForRegisteredDataKeys();
   CPPUNIT_ASSERT(referencedDataKeys.empty());
   CPPUNIT_ASSERT(referencedComponents.empty());
@@ -582,7 +586,7 @@ void testEventsetupRecord::introspectionTest() {
   CPPUNIT_ASSERT(esproducers.size() == 1);
   CPPUNIT_ASSERT(esproducers[0] == &cd1);
 
-  dummyRecordImpl.fillRegisteredDataKeys(referencedDataKeys);
+  referencedDataKeys = dummyRecordImpl.registeredDataKeys();
   referencedComponents = dummyRecordImpl.componentsForRegisteredDataKeys();
   CPPUNIT_ASSERT(referencedDataKeys.size() == 1);
   CPPUNIT_ASSERT(referencedComponents.size() == 1);
@@ -609,7 +613,7 @@ void testEventsetupRecord::introspectionTest() {
   dummyRecordImpl.getESProducers(esproducers);
   CPPUNIT_ASSERT(esproducers.size() == 1);
 
-  dummyRecordImpl.fillRegisteredDataKeys(referencedDataKeys);
+  referencedDataKeys = dummyRecordImpl.registeredDataKeys();
   referencedComponents = dummyRecordImpl.componentsForRegisteredDataKeys();
   CPPUNIT_ASSERT(referencedDataKeys.size() == 2);
   CPPUNIT_ASSERT(referencedComponents.size() == 2);
@@ -632,7 +636,7 @@ void testEventsetupRecord::introspectionTest() {
   dummyRecordImpl.getESProducers(esproducers);
   CPPUNIT_ASSERT(esproducers.size() == 1);
 
-  dummyRecordImpl.fillRegisteredDataKeys(referencedDataKeys);
+  referencedDataKeys = dummyRecordImpl.registeredDataKeys();
   referencedComponents = dummyRecordImpl.componentsForRegisteredDataKeys();
   CPPUNIT_ASSERT(referencedDataKeys.size() == 3);
   CPPUNIT_ASSERT(referencedComponents.size() == 3);
@@ -656,7 +660,7 @@ void testEventsetupRecord::introspectionTest() {
   CPPUNIT_ASSERT(esproducers.size() == 2);
   CPPUNIT_ASSERT(esproducers[1] == &cd4);
 
-  dummyRecordImpl.fillRegisteredDataKeys(referencedDataKeys);
+  referencedDataKeys = dummyRecordImpl.registeredDataKeys();
   referencedComponents = dummyRecordImpl.componentsForRegisteredDataKeys();
   CPPUNIT_ASSERT(referencedDataKeys.size() == 4);
   CPPUNIT_ASSERT(referencedComponents.size() == 4);

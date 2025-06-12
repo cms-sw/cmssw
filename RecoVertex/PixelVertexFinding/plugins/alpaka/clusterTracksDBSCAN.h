@@ -10,6 +10,7 @@
 #include "DataFormats/VertexSoA/interface/ZVertexSoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/debug.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "RecoVertex/PixelVertexFinding/interface/PixelVertexWorkSpaceLayout.h"
 
@@ -30,6 +31,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
                                   float errmax,  // max error to be "seed"
                                   float chi2max  // max normalized distance to cluster
     ) const {
+      // workaround for #47808
+      debug::do_not_optimise(ws);
+
       constexpr bool verbose = false;
 
       if constexpr (verbose) {

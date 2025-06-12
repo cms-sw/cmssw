@@ -92,8 +92,14 @@ void MTDTopologyEP::fillETLtopology(const PMTDParameters& ptp, int& mtdTopologyM
   // Check on the internal consistency of thr ETL layout information provided by parameters
 
   for (size_t it = 3; it <= 9; it++) {
+    bool exception = ((MTDTopologyMode::etlLayoutFromTopoMode(mtdTopologyMode) == MTDTopologyMode::EtlLayout::v10) &&
+                      (it == 5 || it == 9));
     if (ptp.vitems_[it].vpars_.size() != ptp.vitems_[2].vpars_.size()) {
-      throw cms::Exception("MTDTopologyEP") << "Inconsistent size of ETL structure arrays";
+      if (!exception) {
+        throw cms::Exception("MTDTopologyEP") << "Inconsistent size of ETL structure arrays";
+      } else {
+        LogDebug("MTDTopologyEP") << "Building ETL topology for scenario 1.7";
+      }
     }
   }
 

@@ -14,10 +14,11 @@
 class TrackingAction;
 class CMSSteppingVerbose;
 class G4VProcess;
+class CMSG4TrackInterface;
 
 class StackingAction : public G4UserStackingAction {
 public:
-  explicit StackingAction(const TrackingAction*, const edm::ParameterSet& ps, const CMSSteppingVerbose*);
+  explicit StackingAction(const edm::ParameterSet& ps, const CMSSteppingVerbose*);
 
   ~StackingAction() override = default;
 
@@ -69,7 +70,7 @@ private:
   std::vector<const G4Region*> deadRegions;
 
   G4VSolid* worldSolid;
-  const TrackingAction* trackAction;
+  CMSG4TrackInterface* m_trackInterface;
   const CMSSteppingVerbose* steppingVerbose;
   const G4VProcess* m_Compton{nullptr};
 

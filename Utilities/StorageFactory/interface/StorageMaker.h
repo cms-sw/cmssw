@@ -24,6 +24,8 @@ namespace edm::storage {
       }
     };
 
+    enum class UseLocalFile { kYes, kCheckFromPath, kNo };
+
     StorageMaker() = default;
     virtual ~StorageMaker() = default;
     // implicit copy constructor
@@ -38,6 +40,9 @@ namespace edm::storage {
                        const std::string &path,
                        const AuxSettings &aux,
                        IOOffset *size = nullptr) const;
+
+    // If the file being read in the end is a local file or not
+    virtual UseLocalFile usesLocalFile() const = 0;
   };
 }  // namespace edm::storage
 #endif  // STORAGE_FACTORY_STORAGE_MAKER_H

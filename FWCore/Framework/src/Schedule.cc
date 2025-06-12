@@ -7,11 +7,11 @@
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Common/interface/ProcessBlockHelper.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
-#include "FWCore/Framework/interface/ModuleProcessName.h"
 #include "FWCore/Framework/src/OutputModuleDescription.h"
-#include "FWCore/Framework/interface/SubProcess.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/TriggerReport.h"
 #include "FWCore/Framework/src/TriggerTimingReport.h"
@@ -24,6 +24,8 @@
 #include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/Framework/src/PathStatusInserter.h"
 #include "FWCore/Framework/src/EndPathStatusInserter.h"
+#include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
+#include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Concurrency/interface/chain_first.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -34,7 +36,6 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
@@ -178,7 +179,7 @@ namespace edm {
           for (auto const& productIter : preg.registry().productList()) {
             BranchKey const& branchKey = productIter.first;
             // The alias-for product must be in the same process as
-            // the SwitchProducer (earlier processes or SubProcesses
+            // the SwitchProducer (earlier processes
             // may contain products with same type, module label, and
             // instance name)
             if (branchKey.processName() != processName) {
@@ -584,10 +585,8 @@ namespace edm {
                              BranchIDListHelper& branchIDListHelper,
                              ProcessBlockHelperBase& processBlockHelper,
                              ThinnedAssociationsHelper& thinnedAssociationsHelper,
-                             SubProcessParentageHelper const* subProcessParentageHelper,
                              std::shared_ptr<ActivityRegistry> areg,
                              std::shared_ptr<ProcessConfiguration> processConfiguration,
-                             bool hasSubprocesses,
                              PreallocationConfiguration const& prealloc,
                              ProcessContext const* processContext) {
     //TriggerResults is not in the top level ParameterSet so the call to
@@ -638,7 +637,7 @@ namespace edm {
       }
     });
     // Now that the output workers are filled in, set any output limits or information.
-    limitOutput(proc_pset, branchIDListHelper.branchIDLists(), subProcessParentageHelper);
+    limitOutput(proc_pset, branchIDListHelper.branchIDLists());
 
     // Sanity check: make sure nobody has added a worker after we've
     // already relied on the WorkerManager being full.
@@ -675,10 +674,6 @@ namespace edm {
             elementTypesConsumed.emplace(consumesInfo.type());
           }
         }
-      }
-      // The SubProcess class is not a module, yet it may consume.
-      if (hasSubprocesses) {
-        productTypesConsumed.emplace(typeid(TriggerResults));
       }
       // The RandomNumberGeneratorService is not a module, yet it consumes.
       { RngEDConsumer rngConsumer = RngEDConsumer(productTypesConsumed); }
@@ -727,9 +722,7 @@ namespace edm {
 
   }  // Schedule::Schedule
 
-  void Schedule::limitOutput(ParameterSet const& proc_pset,
-                             BranchIDLists const& branchIDLists,
-                             SubProcessParentageHelper const* subProcessParentageHelper) {
+  void Schedule::limitOutput(ParameterSet const& proc_pset, BranchIDLists const& branchIDLists) {
     std::string const output("output");
 
     ParameterSet const& maxEventsPSet = proc_pset.getUntrackedParameterSet("maxEvents");
@@ -754,7 +747,7 @@ namespace edm {
     }
 
     for (auto& c : all_output_communicators_) {
-      OutputModuleDescription desc(branchIDLists, maxEventsOut, subProcessParentageHelper);
+      OutputModuleDescription desc(branchIDLists, maxEventsOut);
       if (vMaxEventsOut != nullptr && !vMaxEventsOut->empty()) {
         std::string const& moduleLabel = c->description().moduleLabel();
         try {
@@ -822,10 +815,6 @@ namespace edm {
       // The trigger report (pass/fail etc.):
 
       LogFwkVerbatim("FwkSummary") << "";
-      if (streamSchedules_[0]->context().processContext()->isSubProcess()) {
-        LogFwkVerbatim("FwkSummary") << "TrigReport Process: "
-                                     << streamSchedules_[0]->context().processContext()->processName();
-      }
       LogFwkVerbatim("FwkSummary") << "TrigReport "
                                    << "---------- Event  Summary ------------";
       if (!tr.trigPathSummaries.empty()) {
@@ -1191,9 +1180,8 @@ namespace edm {
   void Schedule::beginJob(ProductRegistry const& iRegistry,
                           eventsetup::ESRecordsToProductResolverIndices const& iESIndices,
                           ProcessBlockHelperBase const& processBlockHelperBase,
-                          PathsAndConsumesOfModulesBase const& pathsAndConsumesOfModules,
                           ProcessContext const& processContext) {
-    globalSchedule_->beginJob(iRegistry, iESIndices, processBlockHelperBase, pathsAndConsumesOfModules, processContext);
+    globalSchedule_->beginJob(iRegistry, iESIndices, processBlockHelperBase, processContext);
   }
 
   void Schedule::beginStream(unsigned int streamID) {
@@ -1324,82 +1312,6 @@ namespace edm {
                                              std::vector<ModuleDescription const*>& descriptions,
                                              unsigned int hint) const {
     streamSchedules_[0]->moduleDescriptionsInEndPath(iEndPathLabel, descriptions, hint);
-  }
-
-  void Schedule::fillModuleAndConsumesInfo(
-      std::vector<ModuleDescription const*>& allModuleDescriptions,
-      std::vector<std::pair<unsigned int, unsigned int>>& moduleIDToIndex,
-      std::array<std::vector<std::vector<ModuleDescription const*>>, NumBranchTypes>& modulesWhoseProductsAreConsumedBy,
-      std::vector<std::vector<ModuleProcessName>>& modulesInPreviousProcessesWhoseProductsAreConsumedBy,
-      ProductRegistry const& preg) const {
-    allModuleDescriptions.clear();
-    moduleIDToIndex.clear();
-    for (auto iBranchType = 0U; iBranchType < NumBranchTypes; ++iBranchType) {
-      modulesWhoseProductsAreConsumedBy[iBranchType].clear();
-    }
-    modulesInPreviousProcessesWhoseProductsAreConsumedBy.clear();
-
-    allModuleDescriptions.reserve(allWorkers().size());
-    moduleIDToIndex.reserve(allWorkers().size());
-    for (auto iBranchType = 0U; iBranchType < NumBranchTypes; ++iBranchType) {
-      modulesWhoseProductsAreConsumedBy[iBranchType].resize(allWorkers().size());
-    }
-    modulesInPreviousProcessesWhoseProductsAreConsumedBy.resize(allWorkers().size());
-
-    std::map<std::string, ModuleDescription const*> labelToDesc;
-    unsigned int i = 0;
-    for (auto const& worker : allWorkers()) {
-      ModuleDescription const* p = worker->description();
-      allModuleDescriptions.push_back(p);
-      moduleIDToIndex.push_back(std::pair<unsigned int, unsigned int>(p->id(), i));
-      labelToDesc[p->moduleLabel()] = p;
-      ++i;
-    }
-    sort_all(moduleIDToIndex);
-
-    i = 0;
-    for (auto const& worker : allWorkers()) {
-      std::array<std::vector<ModuleDescription const*>*, NumBranchTypes> modules;
-      for (auto iBranchType = 0U; iBranchType < NumBranchTypes; ++iBranchType) {
-        modules[iBranchType] = &modulesWhoseProductsAreConsumedBy[iBranchType].at(i);
-      }
-
-      std::vector<ModuleProcessName>& modulesInPreviousProcesses =
-          modulesInPreviousProcessesWhoseProductsAreConsumedBy.at(i);
-      try {
-        worker->modulesWhoseProductsAreConsumed(modules, modulesInPreviousProcesses, preg, labelToDesc);
-      } catch (cms::Exception& ex) {
-        ex.addContext("Calling Worker::modulesWhoseProductsAreConsumed() for module " +
-                      worker->description()->moduleLabel());
-        throw;
-      }
-      ++i;
-    }
-  }
-
-  void Schedule::fillESModuleAndConsumesInfo(
-      std::array<std::vector<std::vector<eventsetup::ComponentDescription const*>>, kNumberOfEventSetupTransitions>&
-          esModulesWhoseProductsAreConsumedBy,
-      eventsetup::ESRecordsToProductResolverIndices const& iPI) const {
-    for (auto& item : esModulesWhoseProductsAreConsumedBy) {
-      item.clear();
-      item.resize(allWorkers().size());
-    }
-    unsigned int i = 0;
-    for (auto const& worker : allWorkers()) {
-      std::array<std::vector<eventsetup::ComponentDescription const*>*, kNumberOfEventSetupTransitions> esModules;
-      for (auto transition = 0U; transition < kNumberOfEventSetupTransitions; ++transition) {
-        esModules[transition] = &esModulesWhoseProductsAreConsumedBy[transition].at(i);
-      }
-      try {
-        worker->esModulesWhoseProductsAreConsumed(esModules, iPI);
-      } catch (cms::Exception& ex) {
-        ex.addContext("Calling Worker::esModulesWhoseProductsAreConsumed() for module " +
-                      worker->description()->moduleLabel());
-        throw;
-      }
-      ++i;
-    }
   }
 
   void Schedule::getTriggerReport(TriggerReport& rep) const {

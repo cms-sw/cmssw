@@ -21,12 +21,12 @@ class OfflineConverter:
     #   CMSRAC11-V.cms, CMSRAC12-V.cms, CMSRAC21-V.cms
 
     # the possible machines and interfaces for the *offline* database are
-    #   cmsr1-s.cms, cmsr2-s.cms, cmsr3-s.cms
-    #   cmsr1-v.cms, cmsr2-v.cms, cmsr3-v.cms
+    #   cmsr1-s.cern.ch, cmsr2-s.cern.ch, cmsr3-s.cern.ch
+    #   cmsr1-v.cern.ch, cmsr2-v.cern.ch, cmsr3-v.cern.ch
     # but the -s and -v interfaces resolve to the same hosts
     # The actual machines and interfaces are
-    #   itrac50011-s.cern.ch, itrac50063-s.cern.ch, itrac50078-s.cern.ch
-    #   itrac50011-v.cern.ch, itrac50063-v.cern.ch, itrac50078-v.cern.ch
+    #   itrac5404-s.cern.ch, itrac5413-s.cern.ch, itrac5433-s.cern.ch
+    #   itrac5404-v.cern.ch, itrac5413-v.cern.ch, itrac5433-v.cern.ch
 
     databases = {}
     databases['v1'] = {}
@@ -36,21 +36,12 @@ class OfflineConverter:
     databases['v1']['adg']     = ( '-t', 'oracle', '-h', 'cmsr1-s.cern.ch',        '-d', 'cms_cond.cern.ch',      '-u', 'cms_hlt_gui_r',     '-s', 'convertMe!' )
     databases['v1']['orcoff']  = databases['v1']['adg']         # for backwards compatibility
     databases['v3'] = {}
-    databases['v3']['run2'] = ( '-t', 'oracle', '-h', 'cmsr1-s.cern.ch,cmsr2-s.cern.ch,cmsr3-s.cern.ch',        '-d', 'cms_hlt.cern.ch',      '-u', 'cms_hlt_gdr_r',     '-s', 'convertMe!' )
-    databases['v3']['run3'] = ( '-t', 'oracle', '-h', 'cmsr1-s.cern.ch,cmsr2-s.cern.ch,cmsr3-s.cern.ch',        '-d', 'cms_hlt.cern.ch',      '-u', 'cms_hlt_v3_r',     '-s', 'convertMe!' )
-    databases['v3']['dev'] = ( '-t', 'oracle', '-h', 'cmsr1-s.cern.ch,cmsr2-s.cern.ch,cmsr3-s.cern.ch',        '-d', 'cms_hlt.cern.ch',      '-u', 'cms_hlt_gdrdev_r',     '-s', 'convertMe1!' )
-    databases['v3']['online']  = ( '-t', 'oracle', '-h', 'cmsonr1-s.cms',          '-d', 'cms_rcms.cern.ch',      '-u', 'cms_hlt_gdr_r',     '-s', 'convertMe!' )
-    databases['v3']['adg']     = ( '-t', 'oracle', '-h', 'cmsonr1-adg1-s.cern.ch', '-d', 'cms_orcon_adg.cern.ch', '-u', 'cms_hlt_gdr_r',     '-s', 'convertMe!' )
+    databases['v3']['run2'] = ( '-t', 'oracle', '-h', 'cmsr1-v.cern.ch,cmsr2-v.cern.ch,cmsr3-v.cern.ch',        '-d', 'cms_hlt.cern.ch',      '-u', 'cms_hlt_gdr_r',     '-s', 'convertMe!' )
+    databases['v3']['run3'] = ( '-t', 'oracle', '-h', 'cmsr1-v.cern.ch,cmsr2-v.cern.ch,cmsr3-v.cern.ch',        '-d', 'cms_hlt.cern.ch',      '-u', 'cms_hlt_v3_r',     '-s', 'convertMe!' )
+    databases['v3']['dev'] = ( '-t', 'oracle', '-h', 'cmsr1-v.cern.ch,cmsr2-v.cern.ch,cmsr3-v.cern.ch',        '-d', 'cms_hlt.cern.ch',      '-u', 'cms_hlt_gdrdev_r',     '-s', 'convertMe1!' )
+    databases['v3']['online']  = ( '-t', 'oracle', '-h', 'cmsonr1-v.cms',          '-d', 'cms_rcms.cern.ch',      '-u', 'cms_hlt_gdr_r',     '-s', 'convertMe!' )
+    databases['v3']['adg']     = ( '-t', 'oracle', '-h', 'cmsonr1-adg-v.cern.ch,cmsonr2-adg-v.cern.ch', '-d', 'cms_orcon_adg.cern.ch', '-u', 'cms_hlt_gdr_r',     '-s', 'convertMe!' )
     
-    #ip addresses, there is a bug where we cant do dns over the socks server, sigh
-    ips_for_proxy = {
-        'cmsr1-s.cern.ch' : '10.116.96.89',
-        'cmsr2-s.cern.ch' : '10.116.96.139',
-        'cmsr3-s.cern.ch' : '10.116.96.105',
-        'cmsonr1-adg1-s.cern.ch' : '10.116.96.109',
-        'cmsonr1-s.cms' : '10.176.84.78'
-    }
-
     databases['v3-beta'] = dict(databases['v3'])
     databases['v3-test'] = dict(databases['v3'])
     databases['v2'] = dict(databases['v3'])
@@ -111,8 +102,6 @@ class OfflineConverter:
             self.proxy_connect_args = ('--dbproxy', '--dbproxyport', self.proxyPort, '--dbproxyhost', self.proxyHost)
             temp_connect = []
             for entry in self.connect:
-                for key,item in self.ips_for_proxy.items():
-                    entry = entry.replace(key,item)
                 temp_connect.append(entry.replace(key,item))
             self.connect  = tuple(temp_connect)
         else:

@@ -40,6 +40,7 @@
 #include "L1Trigger/DTTriggerPhase2/interface/MPSLFilter.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MPCorFilter.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MPCoincidenceFilter.h"
+#include "L1Trigger/DTTriggerPhase2/interface/MPThetaMatching.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MPQualityEnhancerFilter.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MPRedundantFilter.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MPCleanHitsFilter.h"
@@ -138,6 +139,9 @@ private:
   int df_extended_;
   int co_option_;  //coincidence
   int co_quality_;
+  int co_wh2option_;
+  int th_option_;  //theta matching
+  int th_quality_;
   int max_index_;
 
   bool output_mixer_;
@@ -166,6 +170,7 @@ private:
   std::unique_ptr<MuonPathConfirmator> mpathconfirmator_;
   std::unique_ptr<MPFilter> mpathcorfilter_;
   std::unique_ptr<MPFilter> mpathcoifilter_;
+  std::unique_ptr<MPFilter> mpaththetamatching_;
   std::shared_ptr<GlobalCoordsObtainer> globalcoordsobtainer_;
 
   // Buffering
@@ -210,6 +215,9 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
   df_extended_ = pset.getParameter<int>("df_extended");
   co_option_ = pset.getParameter<int>("co_option");
   co_quality_ = pset.getParameter<int>("co_quality");
+  co_wh2option_ = pset.getParameter<int>("co_wh2option");
+  th_option_ = pset.getParameter<int>("th_option");
+  th_quality_ = pset.getParameter<int>("th_quality");
   max_index_ = pset.getParameter<int>("max_primitives") - 1;
 
   dtDigisToken_ = consumes<DTDigiCollection>(pset.getParameter<edm::InputTag>("digiTag"));
@@ -268,6 +276,7 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
   mpathassociator_ = std::make_unique<MuonPathCorFitter>(pset, consumesColl, globalcoordsobtainer_);
   mpathcorfilter_ = std::make_unique<MPCorFilter>(pset);
   mpathcoifilter_ = std::make_unique<MPCoincidenceFilter>(pset);
+  mpaththetamatching_ = std::make_unique<MPThetaMatching>(pset);
   rpc_integrator_ = std::make_unique<RPCIntegrator>(pset, consumesColl);
 
   dtGeomH = esConsumes<DTGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
@@ -293,6 +302,7 @@ void DTTrigPhase2Prod::beginRun(edm::Run const& iRun, const edm::EventSetup& iEv
   mpathassociator_->initialise(iEventSetup);  // Associator object initialisation
   mpathcorfilter_->initialise(iEventSetup);
   mpathcoifilter_->initialise(iEventSetup);
+  mpaththetamatching_->initialise(iEventSetup);
 
   if (auto geom = iEventSetup.getHandle(dtGeomH)) {
     dtGeo_ = &(*geom);
@@ -854,6 +864,23 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
 
   allMetaPrimitives.clear();
 
+  // Theta (th) matching filter
+  std::map<int, std::vector<metaPrimitive>> thMatchedMetaPrimitives;
+  if (algo_ == Standard) {
+    for (auto& ch_filtcoMetaPrimitives : coMetaPrimitives) {
+      if (!skip_processing_)
+        mpaththetamatching_->run(iEvent,
+                                 iEventSetup,
+                                 coMetaPrimitives[ch_filtcoMetaPrimitives.first],
+                                 thMatchedMetaPrimitives[ch_filtcoMetaPrimitives.first]);
+      else {
+        for (auto& mp : ch_filtcoMetaPrimitives.second) {
+          thMatchedMetaPrimitives[ch_filtcoMetaPrimitives.first].push_back(mp);
+        }
+      }
+    }
+  }
+
   /////////////
 
   double shift_back = 0;
@@ -868,8 +895,8 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
   if (useRPC_) {
     rpc_integrator_->initialise(iEventSetup, shift_back);
     rpc_integrator_->prepareMetaPrimitives(rpcRecHits);
-    for (auto& ch_correlatedMetaPrimitives : coMetaPrimitives) {
-      rpc_integrator_->matchWithDTAndUseRPCTime(ch_correlatedMetaPrimitives.second);  // Probably this is a FIXME
+    for (auto& ch_thMatchedMetaPrimitives : thMatchedMetaPrimitives) {
+      rpc_integrator_->matchWithDTAndUseRPCTime(ch_thMatchedMetaPrimitives.second);  // Probably this is a FIXME
     }
     rpc_integrator_->makeRPCOnlySegments();
     rpc_integrator_->storeRPCSingleHits();
@@ -884,12 +911,12 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
 
   // Assigning index value
   if (!skip_processing_)
-    for (auto& ch_correlatedMetaPrimitives : coMetaPrimitives) {
-      assignIndex(ch_correlatedMetaPrimitives.second);
+    for (auto& ch_thMatchedMetaPrimitives : thMatchedMetaPrimitives) {
+      assignIndex(ch_thMatchedMetaPrimitives.second);
     }
 
-  for (auto& ch_correlatedMetaPrimitives : coMetaPrimitives) {
-    for (const auto& metaPrimitiveIt : ch_correlatedMetaPrimitives.second) {
+  for (auto& ch_thMatchedMetaPrimitives : thMatchedMetaPrimitives) {
+    for (const auto& metaPrimitiveIt : ch_thMatchedMetaPrimitives.second) {
       DTChamberId chId(metaPrimitiveIt.rawId);
       DTSuperLayerId slId(metaPrimitiveIt.rawId);
       if (debug_)
@@ -1293,6 +1320,9 @@ void DTTrigPhase2Prod::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<int>("df_extended", 0);
   desc.add<int>("co_option", 0);
   desc.add<int>("co_quality", 0);
+  desc.add<int>("co_wh2option", 0);
+  desc.add<int>("th_option", 0);
+  desc.add<int>("th_quality", 0);
   desc.add<int>("max_primitives", 999);
   desc.add<bool>("output_mixer", false);
   desc.add<bool>("output_latpredictor", false);

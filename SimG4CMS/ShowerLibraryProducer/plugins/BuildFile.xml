@@ -11,3 +11,4 @@
 <flags EDM_PLUGIN="1"/>
 <library name="SimG4CMSHcalForwardLibWriter" file="HcalForwardLibWriter.cc"></library>
 <library name="SimG4CMSShowerLibraryProducerPlugins" file="HFWedgeSensitiveDetectorBuilder.cc,FiberSensitiveDetectorBuilder.cc,HFChamberSensitiveDetectorBuilder.cc"></library>
+<library name="SimG4CMSZdcLibraryProducerPlugins" file="ZdcTestTreeAnalysis.cc"></library>

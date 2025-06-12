@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQMOffline.Trigger.topMonitoring_cfi import topMonitoring
+from DQMOffline.Trigger.BTVMonitoring_cfi import BTVMonitoring
 
-hltBTVmonitoring = topMonitoring.clone(
+
+hltBTVmonitoring = BTVMonitoring.clone(
     FolderName = 'HLT/BTV/default/',
     
     histoPSet = dict(
@@ -71,14 +72,11 @@ hltBTVmonitoring = topMonitoring.clone(
         HTBinning2D  =[0,20,40,70,100,150,200,400,700],
         phiBinning2D = [-3.1416,-1.8849,-0.6283,0.6283,1.8849,3.1416],
     ),
-    met       = "pfMet", # pfMet  
-    jets      = "ak4PFJetsPuppi", #ak4PFJetsCHS,  ak4PFJets, ak4PFJetsCHS, ak4PFJets
-    electrons = "gedGsfElectrons", # while pfIsolatedElectronsEI are reco::PFCandidate !
-    muons     = "muons", # while pfIsolatedMuonsEI are reco::PFCandidate !     
-    
-    btagAlgos = ["pfParticleNetAK4DiscriminatorsJetTagsForRECO:BvsAll"],
-    workingpoint = -1., #no cut applied
-    
+    met       = "slimmedMETs", # using all pat objects 
+    jets      = "slimmedJetsPuppi", 
+    electrons = "slimmedElectrons", 
+    muons     = "slimmedMuons",     
+
     HTdefinition = 'pt>30 & abs(eta)<2.5',
     leptJetDeltaRmin = 0.0,
     bJetMuDeltaRmax  = 9999.,

@@ -1,24 +1,24 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun Sim2026_cfg.py geometry=D98 type=DDD data=Muon
+#   cmsRun SimRun4_cfg.py geometry=D110 type=DDD data=Muon
 #
-#   Options for geometry: D98, D99
+#   Options for geometry: D110, D120
 #               type: DDD, DD4hep
 #               data: Muon, MinBias
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
-import os, sys, imp, re, random
+import os, sys, importlib, re, random
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 ####################################################################
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D98",
+                 "D110",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D98, D99")
+                  "geometry of operations: D110, D120")
 options.register('type',
                  "DDD",
                   VarParsing.VarParsing.multiplicity.singleton,
@@ -38,25 +38,28 @@ print(options)
 ####################################################################
 # Use the options
 
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+geomName = "Run4" + options.geometry
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
+
 if (options.type == "DD4hep"):
     from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
-    process = cms.Process('Sim2026',Phase2C17I13M9,dd4hep)
-    geomFile = "Configuration.Geometry.Geometry" + options.type +"Extended2026" + options.geometry + "Reco_cff"
+    process = cms.Process('SimRun4',ERA,dd4hep)
+    geomFile = "Configuration.Geometry.Geometry" + options.type +"Extended" + geomName + "Reco_cff"
 else:
-    process = cms.Process('Sim2026',Phase2C17I13M9)
-    geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+    process = cms.Process('SimRun4',ERA)
+    geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
 
-globalTag = "auto:phase2_realistic_T25"
 inFile = "file:step0" + options.data + ".root"
 outFile = "file:step1" + options.type + options.geometry + options.data + ".root"
 tFile = "file:" + options.type + options.geometry + options.data + ".root"
 
-print("Geometry file: ", geomFile)
-print("Global Tag:    ", globalTag)
-print("Input file:    ", inFile)
-print("Output file:   ", outFile)
-print("Histogram file:", tFile)
+print("Geometry file:   ", geomFile)
+print("Global Tag Name: ", GLOBAL_TAG)
+print("Era Name:        ", ERA)
+print("Input file:      ", inFile)
+print("Output file:     ", outFile)
+print("Histogram file:  ", tFile)
 
 process.load(geomFile)
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
@@ -67,7 +70,7 @@ process.load("Configuration.EventContent.EventContent_cff")
 process.load("Configuration.StandardSequences.SimIdeal_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, globalTag, '')
+process.GlobalTag = GlobalTag(process.GlobalTag, GLOBAL_TAG, '')
 
 process.source = cms.Source("PoolSource",
     dropDescendantsOfDroppedBranches = cms.untracked.bool(False),

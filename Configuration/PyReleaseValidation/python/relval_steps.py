@@ -655,14 +655,22 @@ steps['RunHLTMonitor2024I']={'INPUT':InputInfo(dataSet='/HLTMonitor/Run2024I-Exp
 # the files used as input
 
 ###2024 
-
-pds_2024  = ['BTagMu', 'DisplacedJet', 'EGamma0', 'HcalNZS', 'JetMET0', 'Muon0', 'MuonEG', 'NoBPTX', 'ParkingDoubleMuonLowMass0', 'ParkingHH', 'ParkingLLP', 'ParkingSingleMuon0', 'ParkingVBF0', 'Tau', 'ZeroBias']
+## N.B. here we use JetMet0 as "starndard" PD and JetMET1 for the TeVJet skims 
+pds_2024  = ['BTagMu', 'DisplacedJet', 'EGamma0', 'HcalNZS', 'JetMET0', 'Muon0', 'MuonEG', 'NoBPTX', 'ParkingDoubleMuonLowMass0', 'ParkingHH', 'ParkingLLP', 'ParkingSingleMuon0', 'ParkingVBF0', 'Tau', 'ZeroBias','JetMET1']
 eras_2024 = ['Run2024B', 'Run2024C', 'Run2024D', 'Run2024E', 'Run2024F','Run2024G','Run2024H','Run2024I']
 for era in eras_2024:
     for pd in pds_2024:
-        dataset = "/" + pd + "/" + era + "-v1/RAW"
+        dataset = "/" + pd + "/" + era
+        skim = ''
+        
+        if pd == 'JetMET1':
+            dataset = dataset + '-TeVJet-PromptReco-v1/RAW-RECO'
+            skim = 'TeVJet'
+        else:
+            dataset = dataset + '-v1/RAW' 
+        
         for e_key,evs in event_steps_dict.items():
-            step_name = "Run" + pd.replace("ParkingDouble","Park2") + era.split("Run")[1] + "_" + e_key
+            step_name = "Run" + pd.replace("ParkingDouble","Park2") + era.split("Run")[1] + skim + "_" + e_key 
             steps[step_name] = {'INPUT':InputInfo(dataSet=dataset,label=era.split("Run")[1],events=int(evs*1e6), skimEvents=True, location='STD')}
 
 ###2023 
@@ -710,10 +718,16 @@ era_mask_2024  = dict(zip(eras_2024,lumi_mask_2024))
 
 for era in era_mask_2024:
     for pd in pds_2024:
-        dataset = "/" + pd + "/" + era + "-v1/RAW"
+        dataset = '/' + pd + '/' + era
         lm = era_mask_2024[era]
-        step_name = "Run" + pd.replace("ParkingDouble","Park2") + era.split("Run")[1]
-        steps[step_name]={'INPUT':InputInfo(dataSet=dataset,label=era.split("Run")[1],events=100000,location='STD', ls=lm)}
+
+        ## Here we use JetMET1 PD to run the TeVJet skims
+        dataset = dataset + '-TeVJet-PromptReco-v1/RAW-RECO' if pd == 'JetMET1' else dataset + '-v1/RAW' 
+        skim = 'TeVJet' if pd == 'JetMET1' else ''
+
+        step_name = 'Run' + pd.replace('ParkingDouble','Park2') + era.split('Run')[1] + skim
+
+        steps[step_name]={'INPUT':InputInfo(dataSet=dataset,label=era.split('Run')[1],events=100000,location='STD', ls=lm)}
 
 
 ##################################################################
@@ -1305,6 +1319,7 @@ hiDefaults2024_approxClusters = {'--conditions':'auto:phase1_2024_realistic_hi',
 upcDefaults2024 = {'--conditions':'auto:phase1_2024_realistic_hi', '--era':'Run3_2024_UPC'}
 upcDefaults2025 = {'--conditions':'auto:phase1_2024_realistic_hi', '--era':'Run3_2025_UPC'}
 oxyDefaults2025 = {'--conditions':'auto:phase1_2024_realistic_hi', '--era':'Run3_2025_OXY'}
+upcOxyDefaults2025 = {'--conditions':'auto:phase1_2024_realistic_hi', '--era':'Run3_2025_UPC_OXY'}
 
 steps['Hydjet2Q_MinBias_5020GeV_2018_ppReco']=merge([{'-n':1},hiDefaults2018_ppReco,gen2018hiprod('Hydjet2_Quenched_MinBias_5020GeV_cfi',U2000by1)])
 steps['HydjetQ_MinBias_XeXe_5442GeV_2017']=merge([{'-n':1},hiDefaults2017,gen2017('Hydjet_Quenched_MinBias_XeXe_5442GeV_cfi',U2000by1)])
@@ -1716,10 +1731,10 @@ steps['BsToMuMu_forSTEAM_13TeV_ExtGen']=genvalid('BsToMuMu_forSTEAM_13TeV_ExtGen
 steps['BuToKstarJPsiToMuMu_forSTEAM_13TeV_ExtGen']=genvalid('BuToKstarJPsiToMuMu_forSTEAM_13TeV_ExtGen_cfi',step1GenDefaults)
 steps['ZTTFS_ExtGen']=genvalid('ZTT_Tauola_OneLepton_OtherHadrons_8TeV_TuneCUETP8M1_ExtGen_cfi',step1GenDefaults)
 steps['sherpa_ttbar_2j_MENLOPS_13TeV_MASTER_ExtGen']=genvalid('sherpa_ttbar_2j_MENLOPS_13TeV_MASTER_ExtGen_cff',merge([{'-n':'50'},step1GenDefaults]))
-steps['HydjetQ_B12_5020GeV_2018_ExtGen']=genvalid('Hydjet_Quenched_B12_5020GeV_ExtGen_cfi',step1GenDefaults)
-steps['AMPT_PPb_5020GeV_MinimumBias_ExtGen']=genvalid('AMPT_PPb_5020GeV_MinimumBias_ExtGen_cfi',step1GenDefaults)
-steps['EPOS_PPb_8160GeV_MinimumBias_ExtGen']=genvalid('ReggeGribovPartonMC_EposLHC_4080_4080GeV_pPb_ExtGen_cfi',step1GenDefaults)
-steps['Pyquen_ZeemumuJets_pt10_2760GeV_ExtGen']=genvalid('Pyquen_ZeemumuJets_pt10_2760GeV_ExtGen_cfi',step1GenDefaults)
+steps['HydjetQ_B12_5020GeV_2018_ExtGen']=genvalid('Hydjet_Quenched_B12_5020GeV_cfi',step1GenDefaults)
+steps['AMPT_PPb_5020GeV_MinimumBias_ExtGen']=genvalid('AMPT_PPb_5020GeV_MinimumBias_cfi',step1GenDefaults)
+steps['EPOS_PPb_8160GeV_MinimumBias_ExtGen']=genvalid('ReggeGribovPartonMC_EposLHC_4080_4080GeV_pPb_cfi',step1GenDefaults)
+steps['Pyquen_ZeemumuJets_pt10_2760GeV_ExtGen']=genvalid('Pyquen_ZeemumuJets_pt10_2760GeV_cfi',step1GenDefaults)
 
 # Generator Hadronization (Hadronization of LHE)
 steps['WJetsLNu_13TeV_madgraph-pythia8']=genvalid('Hadronizer_MgmMatchTuneCUETP8M1_13TeV_madgraph_pythia8_cff',step1GenDefaults,dataSet='/WJetsToLNu_13TeV-madgraph/Fall13wmLHE-START62_V1-v1/GEN')
@@ -2851,16 +2866,20 @@ steps['RECODR3_2025']=merge([{'--era':'Run3_2025'},steps['RECODR3']])
 steps['RECODR3_reHLT_2022']=merge([{'--conditions':'auto:run3_data_relval', '--hltProcess':'reHLT'},steps['RECODR3']])
 steps['RECODR3_reHLT_2023']=merge([{'--conditions':'auto:run3_data_relval', '--hltProcess':'reHLT'},steps['RECODR3_2023']])
 steps['RECODR3_reHLT_2023B']=merge([{'--conditions':'auto:run3_data_relval', '--hltProcess':'reHLT'},steps['RECODR3']])
-steps['RECODR3_reHLT_2024']=merge([{'--conditions':'auto:run3_data_prompt_relval', '--hltProcess':'reHLT'},steps['RECODR3']])
+steps['RECODR3_reHLT_2024']=merge([{'--conditions':'auto:run3_data_prompt_relval', '--hltProcess':'reHLT'},steps['RECODR3_2024']])
+# Added to run with the offline GT on few 2024 Eras.
+# Could be removed once 2025 wfs are in and we'll test the online GT with them
+steps['RECODR3_reHLT_2024_Offline']=merge([{'--conditions':'auto:run3_data_relval', '--hltProcess':'reHLT'},steps['RECODR3_2024']])
 
-steps['RECODR2_2016_UPC']=merge([{'--conditions':'auto:run2_data', '--era':'Run2_2016_UPC', '-s':'RAW2DIGI,L1Reco,RECO,DQM:@commonFakeHLT+@standardDQMFakeHLT', '--repacked':''},steps['RECODR2_2016']])
-steps['RECODR3_2023_HIN']=merge([{'--conditions':'auto:run3_data_prompt', '-s':'RAW2DIGI,L1Reco,RECO,DQM:@commonFakeHLT+@standardDQMFakeHLT', '--repacked':'', '-n':1000},steps['RECODR3_2023']])
+steps['RECODR2_2016_UPC']=merge([{'--conditions':'auto:run2_data', '--era':'Run2_2016_UPC', '-s':'RAW2DIGI,L1Reco,RECO,PAT,DQM:@commonFakeHLT+@standardDQMFakeHLT', '--repacked':''},steps['RECODR2_2016']])
+steps['RECODR3_2023_HIN']=merge([{'--conditions':'auto:run3_data_prompt', '-s':'RAW2DIGI,L1Reco,RECO,PAT,DQM:@commonFakeHLT+@standardDQMFakeHLT', '--repacked':'', '-n':1000},steps['RECODR3_2023']])
 steps['RECODR3_2023_UPC']=merge([{'--conditions':'auto:run3_data', '--era':'Run3_2023_UPC'},steps['RECODR3_2023_HIN']])
-steps['RECODR3_2024_HIN']=merge([{'--conditions':'auto:run3_data_prompt', '-s':'RAW2DIGI,L1Reco,RECO,DQM:@commonFakeHLT+@standardDQMFakeHLT', '--repacked':'', '-n':1000},steps['RECODR3_2024']])
+steps['RECODR3_2024_HIN']=merge([{'--conditions':'auto:run3_data_prompt', '-s':'RAW2DIGI,L1Reco,RECO,PAT,DQM:@commonFakeHLT+@standardDQMFakeHLT', '--repacked':'', '-n':1000},steps['RECODR3_2024']])
 steps['RECODR3_2024_UPC']=merge([{'--era':'Run3_2024_UPC'},steps['RECODR3_2024_HIN']])
-steps['RECODR3_2025_HIN']=merge([{'--conditions':'auto:run3_data_prompt', '-s':'RAW2DIGI,L1Reco,RECO,DQM:@commonFakeHLT+@standardDQMFakeHLT', '--repacked':'', '-n':1000},steps['RECODR3_2025']])
+steps['RECODR3_2025_HIN']=merge([{'--conditions':'auto:run3_data_prompt', '-s':'RAW2DIGI,L1Reco,RECO,PAT,DQM:@commonFakeHLT+@standardDQMFakeHLT', '--repacked':'', '-n':1000},steps['RECODR3_2025']])
 steps['RECODR3_2025_UPC']=merge([{'--era':'Run3_2025_UPC'},steps['RECODR3_2025_HIN']])
 steps['RECODR3_2025_OXY']=merge([{'--era':'Run3_2025_OXY'},steps['RECODR3_2025_HIN']])
+steps['RECODR3_2025_UPC_OXY']=merge([{'--era':'Run3_2025_UPC_OXY'},steps['RECODR3_2025_HIN']])
 
 steps['RECODR3Splash']=merge([{'-n': 2,
                                '-s': 'RAW2DIGI,L1Reco,RECO,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM'
@@ -3257,6 +3276,10 @@ steps['RECOHIRUN3_reHLT_2023']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,DQM:@stand
 
 steps['RECONANORUN3_reHLT_2024']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,NANO,DQM:@standardDQM+@miniAODDQM+@nanoAODDQM','--datatier':'RECO,MINIAOD,NANOAOD,DQMIO','--eventcontent':'RECO,MINIAOD,NANOEDMAOD,DQM'},steps['RECODR3_reHLT_2024']])
 steps['RECONANORUN3_ZB_reHLT_2024']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,NANO,DQM:@rerecoZeroBias+@miniAODDQM+@nanoAODDQM'},steps['RECONANORUN3_reHLT_2024']])
+
+steps['RECONANORUN3_reHLT_2024_Offline']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,NANO,DQM:@standardDQM+@miniAODDQM+@nanoAODDQM','--datatier':'RECO,MINIAOD,NANOAOD,DQMIO','--eventcontent':'RECO,MINIAOD,NANOEDMAOD,DQM'},steps['RECODR3_reHLT_2024_Offline']])
+steps['RECONANORUN3_ZB_reHLT_2024_Offline']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,NANO,DQM:@rerecoZeroBias+@miniAODDQM+@nanoAODDQM'},steps['RECONANORUN3_reHLT_2024_Offline']])
+
 steps['RECONANORUN3_ScoutingPFMonitor_reHLT_2024']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,NANO,DQM:@standardDQM+@miniAODDQM+@nanoAODDQM+@hltScouting'},steps['RECONANORUN3_reHLT_2024']])
 
 steps['AODNANORUN3_reHLT_2024']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,NANO,DQM:@standardDQM+@miniAODDQM+@nanoAODDQM','--datatier':'AOD,MINIAOD,NANOAOD,DQMIO','--eventcontent':'AOD,MINIAOD,NANOEDMAOD,DQM'},steps['RECODR3_reHLT_2024']])
@@ -3286,11 +3309,21 @@ for s in autoSkim.keys():
 for s in autoSkim.keys():
 
     if 'ZeroBias' in s:
-        steps['SKIM'+s.upper()+'RUN3_reHLT_2023'] = merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:%s,PAT,NANO,DQM:@rerecoZeroBias+@miniAODDQM+@nanoAODDQM'%(autoSkim[s])},steps['RECONANORUN3_reHLT_2023']])
+        steps['SKIM'+s.upper()+'RUN3_reHLT_2023'] = merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:%s,PAT,NANO,DQM:@rerecoZeroBiasFakeHLT+@miniAODDQM+@nanoAODDQM'%(autoSkim[s])},steps['RECONANORUN3_reHLT_2023']])
     elif 'Cosmics' in s:
         steps['SKIM'+s.upper()+'RUN3_reHLT_2023'] = merge([{'--scenario':'cosmics', '-s':'RAW2DIGI,L1Reco,RECO,SKIM:%s,DQM'%(autoSkim[s]), '--datatier':'RECO,DQMIO', '--eventcontent':'RECO,DQM'},steps['RECONANORUN3_reHLT_2023']])
     else:
-        steps['SKIM'+s.upper()+'RUN3_reHLT_2023'] = merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:%s,PAT,NANO,DQM:@standardDQM+@miniAODDQM+@nanoAODDQM'%(autoSkim[s])},steps['RECONANORUN3_reHLT_2023']])
+        steps['SKIM'+s.upper()+'RUN3_reHLT_2023'] = merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:%s,PAT,NANO,DQM:@standardDQMFakeHLT+@miniAODDQM+@nanoAODDQM'%(autoSkim[s])},steps['RECONANORUN3_reHLT_2023']])
+
+# Run-3 2024 skim
+for s in autoSkim.keys():
+
+    if 'ZeroBias' in s:
+        steps['SKIM'+s.upper()+'RUN3_reHLT_2024'] = merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:%s,PAT,NANO,DQM:@rerecoZeroBias+@miniAODDQM+@nanoAODDQM'%(autoSkim[s])},steps['RECONANORUN3_reHLT_2024']])
+    elif 'Cosmics' in s:
+        steps['SKIM'+s.upper()+'RUN3_reHLT_2024'] = merge([{'--scenario':'cosmics', '-s':'RAW2DIGI,L1Reco,RECO,SKIM:%s,DQM'%(autoSkim[s]), '--datatier':'RECO,DQMIO', '--eventcontent':'RECO,DQM'},steps['RECONANORUN3_reHLT_2024']])
+    else:
+        steps['SKIM'+s.upper()+'RUN3_reHLT_2024'] = merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:%s,PAT,NANO,DQM:@standardDQM+@miniAODDQM+@nanoAODDQM'%(autoSkim[s])},steps['RECONANORUN3_reHLT_2024']])
 
 # mask away - to be removed once we'll migrate the matrix to be fully unscheduled for RECO step
 #steps['RECOmAOD']=merge([step3DefaultsUnsch])
@@ -3652,8 +3685,9 @@ steps['ALCAReAlCaHLTHGComb'] = {'-s': 'ALCA:PromptCalibProdSiPixelAliHLTHGC',
                                 '--customise_commands': '\"process.ALCARECOTkAlZMuMuFilterForSiPixelAliHLT.throw = False; '
                                 'process.ALCARECOTkAlMinBiasFilterForSiPixelAliHLTHG.TriggerResultsTag = '
                                 '\\"TriggerResults::ReAlCa\\"; '
+                                'extend_file_name = lambda n,e: \\".\\".join(n.split(\\".\\")[:-1])+e+\\".\\"+n.split(\\".\\")[-1]; '
                                 'process.ALCARECOStreamPromptCalibProdSiPixelAliHLTHGC.fileName = '
-                                '\\"PromptCalibProdSiPixelAliHLTHGC_0.root\\"\"',
+                                'extend_file_name(process.ALCARECOStreamPromptCalibProdSiPixelAliHLTHGC.fileName.value(), \\"_0\\"\"\)',
                                 '--triggerResultsProcess': 'ReAlCa'
                                 }
 
@@ -3672,8 +3706,9 @@ steps['ALCAReAlCaHLTHGCombZMUMU'] = {'-s': 'ALCA:PromptCalibProdSiPixelAliHLTHGC
                                      '--customise_commands': '\"process.ALCARECOTkAlZMuMuFilterForSiPixelAliHLT.throw = False; '
                                     'process.ALCARECOTkAlMinBiasFilterForSiPixelAliHLTHG.TriggerResultsTag = '
                                      '\\"TriggerResults::ReAlCa\\"; '
+                                     'extend_file_name = lambda n,e: \\".\\".join(n.split(\\".\\")[:-1])+e+\\".\\"+n.split(\\".\\")[-1]; '
                                      'process.ALCARECOStreamPromptCalibProdSiPixelAliHLTHGC.fileName = '
-                                     '\\"PromptCalibProdSiPixelAliHLTHGC_1.root\\"\"',
+                                     'extend_file_name(process.ALCARECOStreamPromptCalibProdSiPixelAliHLTHGC.fileName.value(), \\"_1\\"\"\)',
                                      '--triggerResultsProcess': 'ReAlCa'
                                      }
 
@@ -4573,6 +4608,7 @@ defaultDataSets['2025']='CMSSW_15_0_0_pre1-142X_mcRun3_2025_realistic_v1_STD_Reg
 defaultDataSets['2024HLTOnDigi'] = defaultDataSets["2024SimOnGen"] = defaultDataSets['2024']
 defaultDataSets["2025HLTOnDigi"] = defaultDataSets["2025SimOnGen"] = defaultDataSets['2025']
 defaultDataSets['2024FS']='CMSSW_13_0_11-130X_mcRun3_2023_realistic_withEarly2023BS_v1_FastSim-v' #To replace with new dataset
+defaultDataSets['2025FS']='CMSSW_13_0_11-130X_mcRun3_2023_realistic_withEarly2023BS_v1_FastSim-v' #To replace with new dataset
 defaultDataSets['Run4D49']='CMSSW_12_0_0_pre4-113X_mcRun4_realistic_v7_2026D49noPU-v'
 defaultDataSets['Run4D76']='CMSSW_12_0_0_pre4-113X_mcRun4_realistic_v7_2026D76noPU-v'
 defaultDataSets['Run4D77']='CMSSW_12_1_0_pre2-113X_mcRun4_realistic_v7_2026D77noPU-v'

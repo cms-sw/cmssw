@@ -30,8 +30,8 @@
 
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"

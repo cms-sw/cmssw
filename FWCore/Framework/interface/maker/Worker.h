@@ -30,6 +30,7 @@ the worker is reset().
 #include "FWCore/Framework/interface/ModuleContextSentry.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/ProductResolverIndexAndSkipBit.h"
+#include "FWCore/Framework/interface/ModuleConsumesMinimalESInfo.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
@@ -73,7 +74,6 @@ namespace edm {
   class EventPrincipal;
   class EventSetupImpl;
   class EarlyDeleteHelper;
-  class ModuleProcessName;
   class ProductResolverIndexHelper;
   class ProductResolverIndexAndSkipBit;
   class ProductRegistry;
@@ -219,21 +219,10 @@ namespace edm {
         std::unordered_multimap<std::string, std::tuple<TypeID const*, const char*, edm::ProductResolverIndex>> const&
             iIndicies) = 0;
 
-    virtual void modulesWhoseProductsAreConsumed(
-        std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modules,
-        std::vector<ModuleProcessName>& modulesInPreviousProcesses,
-        ProductRegistry const& preg,
-        std::map<std::string, ModuleDescription const*> const& labelsToDesc) const = 0;
-
-    virtual void esModulesWhoseProductsAreConsumed(
-        std::array<std::vector<eventsetup::ComponentDescription const*>*, kNumberOfEventSetupTransitions>& esModules,
-        eventsetup::ESRecordsToProductResolverIndices const&) const = 0;
-
     virtual void convertCurrentProcessAlias(std::string const& processName) = 0;
 
     virtual std::vector<ModuleConsumesInfo> moduleConsumesInfos() const = 0;
-    virtual std::vector<ModuleConsumesESInfo> moduleConsumesESInfos(
-        eventsetup::ESRecordsToProductResolverIndices const&) const = 0;
+    virtual std::vector<ModuleConsumesMinimalESInfo> moduleConsumesMinimalESInfos() const = 0;
 
     virtual Types moduleType() const = 0;
     virtual ConcurrencyTypes moduleConcurrencyType() const = 0;

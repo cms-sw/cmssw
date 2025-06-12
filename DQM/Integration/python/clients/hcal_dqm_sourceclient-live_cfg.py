@@ -97,22 +97,24 @@ if isHeavyIon:
 	process.castorDigis.InputLabel = rawTag
 
 process.emulTPDigis = process.simHcalTriggerPrimitiveDigis.clone(
-   inputLabel = cms.VInputTag("hcalDigis", "hcalDigis:ZDC"),
+   inputLabel = cms.VInputTag("hcalDigis", "hcalDigis"),
    FrontEndFormatError = True,
    FG_threshold = 2,
    InputTagFEDRaw = rawTag,
    upgradeHF = True,
    upgradeHE = True,
    upgradeHB = True,
-   inputUpgradeLabel = cms.VInputTag("hcalDigis", "hcalDigis:ZDC"),
+   inputUpgradeLabel = cms.VInputTag("hcalDigis", "hcalDigis"),
    # Enable ZS on emulated TPs, to match what is done in data
    RunZS = True,
    ZS_threshold = 0
 )
 
+process.emulTPDigisForZDC = process.emulTPDigis.clone(inputUpgradeLabel = cms.VInputTag("hcalDigis", "hcalDigis:ZDC"))
+
 #inserting zdc emulator after tp digis
 process.etSumZdcProducer = cms.EDProducer('L1TZDCProducer',
-                                          hcalTPDigis = cms.InputTag("emulTPDigis"),
+                                          hcalTPDigis = cms.InputTag("emulTPDigisForZDC"),
                                           bxFirst = cms.int32(-2),
                                           bxLast = cms.int32(3)
 )
@@ -222,6 +224,7 @@ process.preRecoPath = cms.Path(
 		#*process.castorDigis # not in Run3
 		*process.emulTPDigis
 		*process.emulTPDigisNoTDCCut
+                *process.emulTPDigisForZDC
 		*process.L1TRawToDigi
 )
 

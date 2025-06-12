@@ -10,7 +10,9 @@
  Description: Used with mayConsume option of ESConsumesCollector
 
  Usage:
-    <usage>
+    This contains a cache of data about all Resolvers which are
+    associated with data produces which are in the Record and which
+    are of the proper type.
 
 */
 //

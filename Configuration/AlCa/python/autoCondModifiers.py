@@ -115,7 +115,7 @@ def autoCondRelValForRun3(autoCond):
 
     GlobalTagRelValForRun3 = {}
     L1GtTriggerMenuForRelValForRun3 =    ','.join( ['L1Menu_Collisions2015_25nsStage1_v5' , "L1GtTriggerMenuRcd",             connectionString, "", "2023-01-28 12:00:00.000"] )
-    L1TUtmTriggerMenuForRelValForRun3 =  ','.join( ['L1Menu_Collisions2024_v1_3_0_xml'    , "L1TUtmTriggerMenuRcd",           connectionString, "", "2024-07-03 12:00:00.000"] )
+    L1TUtmTriggerMenuForRelValForRun3 =  ','.join( ['L1Menu_Collisions2025_v1_1_1_xml'    , "L1TUtmTriggerMenuRcd",           connectionString, "", "2025-05-05 12:00:00.000"] )
 
     for key,val in autoCond.items():
         if 'run3_data' in key or 'run3_hlt' in key :

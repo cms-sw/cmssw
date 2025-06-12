@@ -13,8 +13,6 @@
 
 #include <filesystem>
 
-#include "EventFilter/Utilities/interface/FastMonitoringService.h"
-
 #include <string>
 #include <vector>
 #include <map>
@@ -181,7 +179,7 @@ namespace evf {
 
     void preallocate(edm::service::SystemBounds const&);
     void jobFailure();
-    void preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::ProcessContext const& pc);
+    void preBeginJob(edm::ProcessContext const& pc);
 
     void preModuleBeginJob(edm::ModuleDescription const&);
     void postBeginJob();

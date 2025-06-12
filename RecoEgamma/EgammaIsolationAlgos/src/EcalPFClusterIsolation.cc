@@ -37,7 +37,7 @@ EcalPFClusterIsolation<T1>::~EcalPFClusterIsolation() {}
 template <typename T1>
 bool EcalPFClusterIsolation<T1>::computedRVeto(T1Ref candRef, reco::PFClusterRef pfclu) {
   float dR2 = deltaR2(candRef->eta(), candRef->phi(), pfclu->eta(), pfclu->phi());
-  if (dR2 > (drMax_ * drMax_))
+  if (dR2 > (drMax_ * drMax_) || dR2 < drVeto2_)
     return false;
 
   if (candRef->superCluster().isNonnull()) {
@@ -108,7 +108,7 @@ double EcalPFClusterIsolation<T1>::getSum(T1Ref ref, edm::Handle<std::vector<rec
 template <typename T1>
 bool EcalPFClusterIsolation<T1>::computedRVeto(T1 cand, reco::PFClusterRef pfclu) {
   float dR2 = deltaR2(cand.eta(), cand.phi(), pfclu->eta(), pfclu->phi());
-  if (dR2 > (drMax_ * drMax_))
+  if (dR2 > (drMax_ * drMax_) || dR2 < drVeto2_)
     return false;
 
   if (cand.superCluster().isNonnull()) {

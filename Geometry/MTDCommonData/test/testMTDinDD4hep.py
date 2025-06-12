@@ -1,7 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
-_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
+import Geometry.MTDCommonData.defaultMTDConditionsEra_cff as _mtdgeo
+_mtdgeo.check_mtdgeo()
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_mtdgeo.MTD_DEFAULT_VERSION)
 from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 
 process = cms.Process("CompareGeometryTest",_PH2_ERA,dd4hep)
@@ -58,7 +60,7 @@ process.MessageLogger.files.mtdCommonDataDD4hep = cms.untracked.PSet(
 
 process.load("Geometry.MTDNumberingBuilder.mtdTopology_cfi")
 
-process.load('Configuration.Geometry.GeometryDD4hepExtendedRun4DefaultReco_cff')
+process.load('Geometry.MTDCommonData.GeometryDD4hepExtendedRun4MTDDefaultReco_cff')
 
 process.testBTL = cms.EDAnalyzer("DD4hep_TestMTDIdealGeometry",
                                  DDDetector = cms.ESInputTag('',''),

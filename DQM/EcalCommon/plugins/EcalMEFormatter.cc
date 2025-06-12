@@ -43,6 +43,10 @@ void EcalMEFormatter::format_(DQMStore::IGetter &_igetter, bool _checkLumi) {
     if (_checkLumi && !mItr.second->getLumiFlag())
       continue;
     mItr.second->clear();
+
+    if (!checkElectronicsMap(false))
+      return;
+
     if (!mItr.second->retrieve(GetElectronicsMap(), _igetter, &failedPath)) {
       if (verbosity_ > 0)
         edm::LogWarning("EcalDQM") << "Could not find ME " << mItr.first << "@" << failedPath;

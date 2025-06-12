@@ -64,13 +64,11 @@ process.dtFineDelayCorr.minEntries = cms.untracked.int32(100)
 from CondCore.DBCommon.CondDBSetup_cfi import *
 process.ttrigsource = cms.ESSource("PoolDBESSource",
     CondDBSetup,
-    timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(record = cms.string('DTTPGParametersRcd'),
                                tag = cms.string('worstPhase')
                                )
                       ),
     connect = cms.string('sqlite_file:/afs/cern.ch/user/m/marinag/w0/finesync/cmssw/CMSSW_3_2_7/src/DQM/DTMonitorClient/test/worst_phase_map_112227.db'),
-    authenticationMethod = cms.untracked.uint32(0)
     )
 
 # message logger

@@ -1114,7 +1114,8 @@ namespace l1tVertexFinder {
 
       // CNN output: track weight
       std::vector<tensorflow::Tensor> outputTrkWeight;
-      tensorflow::run(TrackWeightSesh, {{"weight:0", inputTrkWeight}}, {"Identity:0"}, &outputTrkWeight);
+      tensorflow::run(
+          TrackWeightSesh, {{"NNvtx_input_track_weight:0", inputTrkWeight}}, {"Identity:0"}, &outputTrkWeight);
       // Set track weight pack into tracks:
 
       ap_ufixed<16, 5> NNOutput;
@@ -1165,7 +1166,7 @@ namespace l1tVertexFinder {
     }
 
     // Run PV Network:
-    tensorflow::run(PatternRecSesh, {{"hist:0", inputPV}}, {"Identity:0"}, &outputPV);
+    tensorflow::run(PatternRecSesh, {{"NNvtx_histogram:0", inputPV}}, {"Identity:0"}, &outputPV);
     // Threshold needed due to rounding differences in internal CNN layer emulation versus firmware
     const float histogrammingThreshold_ = 0.0;
     for (int i(0); i < settings_->vx_histogram_numbins(); ++i) {

@@ -44,9 +44,9 @@ private:
   std::string readHint_;
   std::string tempDir_;
   double minFree_;
+  std::vector<std::string> native_;
   unsigned int timeout_;
   unsigned int debugLevel_;
-  std::vector<std::string> native_;
 };
 
 namespace edm {

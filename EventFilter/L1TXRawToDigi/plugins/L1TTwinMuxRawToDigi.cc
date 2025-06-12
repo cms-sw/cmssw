@@ -297,7 +297,7 @@ void L1TTwinMuxRawToDigi::processFed(int twinMuxFed,
 
   ///--> Trailer - line 2 [must start with 0xA]
 
-  lineFED = readline(lineFED, nline, dataWord);
+  readline(lineFED, nline, dataWord);
   dt_crc::calcCRC(dataWord & 0xFFFFFFFF0000FFFF, newCRC);
 
   ///--> AMC trailer - line 2

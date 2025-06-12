@@ -22,12 +22,11 @@ from ..sequences.HLTEGammaDoLocalHcalSequence_cfi import *
 from ..sequences.HLTEle115NonIsoL1SeededGsfElectronL1SeededSequence_cfi import *
 from ..sequences.HLTElePixelMatchL1SeededSequence_cfi import *
 from ..sequences.HLTHgcalTiclPFClusteringForEgammaL1SeededSequence_cfi import *
-from ..sequences.HLTL1Sequence_cfi import *
 from ..sequences.HLTPFClusteringForEgammaL1SeededSequence_cfi import *
 from ..sequences.HLTFastJetForEgammaSequence_cfi import *
 
-HLTEle115NonIsoL1SeededSequence = cms.Sequence(HLTL1Sequence
-        +hltEGL1SeedsForSingleEleNonIsolatedFilter
+HLTEle115NonIsoL1SeededSequence = cms.Sequence(
+        hltEGL1SeedsForSingleEleNonIsolatedFilter
         +HLTDoFullUnpackingEgammaEcalL1SeededSequence
         +HLTPFClusteringForEgammaL1SeededSequence
         +HLTHgcalTiclPFClusteringForEgammaL1SeededSequence

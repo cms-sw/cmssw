@@ -400,10 +400,15 @@ void PrimaryVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
   //
   // check for absent products and simply "return" in that case
   //
-  if (recVtxs.isValid() == false || beamSpotHandle.isValid() == false) {
-    edm::LogWarning("PrimaryVertexMonitor")
-        << " Some products not available in the event: VertexCollection " << vertexInputTag_ << " " << recVtxs.isValid()
-        << " BeamSpot " << beamSpotInputTag_ << " " << beamSpotHandle.isValid() << ". Skipping plots for this event";
+  if (!beamSpotHandle.isValid()) {
+    edm::LogWarning("PrimaryVertexMonitor") << " Some products not available in the event: BeamSpot ("
+                                            << beamSpotInputTag_ << "). Skipping plots for this event.";
+    return;
+  }
+
+  if (!recVtxs.isValid()) {
+    edm::LogWarning("PrimaryVertexMonitor") << " Some products not available in the event: VertexCollection ("
+                                            << vertexInputTag_ << "). Skipping plots for this event.";
     return;
   }
 
@@ -544,7 +549,7 @@ void PrimaryVertexMonitor::pvTracksPlots(const Vertex& v) {
     dz_pt1.IPPull_->Fill(Dz / DzErr);
     dz_pt1.IPErrVsPhi_->Fill(phi, DzErr);
     dz_pt1.IPErrVsEta_->Fill(eta, DzErr);
-    dz_pt1.IPErrVsPt_->Fill(pt, DxyErr);
+    dz_pt1.IPErrVsPt_->Fill(pt, DzErr);
     dz_pt1.IPErrVsEtaVsPhi_->Fill(eta, phi, DzErr);
 
     if (pt < 10.)
@@ -580,7 +585,7 @@ void PrimaryVertexMonitor::pvTracksPlots(const Vertex& v) {
     dz_pt10.IPPull_->Fill(Dz / DzErr);
     dz_pt10.IPErrVsPhi_->Fill(phi, DzErr);
     dz_pt10.IPErrVsEta_->Fill(eta, DzErr);
-    dz_pt10.IPErrVsPt_->Fill(pt, DxyErr);
+    dz_pt10.IPErrVsPt_->Fill(pt, DzErr);
     dz_pt10.IPErrVsEtaVsPhi_->Fill(eta, phi, DzErr);
   }
   ntracks->Fill(float(nTracks));

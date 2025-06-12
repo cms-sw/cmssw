@@ -50,7 +50,6 @@ namespace edm {
     private:
       double pg_size_;
       int fd_;
-      mutable char buf_[500];
     };
   }  // namespace service
 }  // namespace edm

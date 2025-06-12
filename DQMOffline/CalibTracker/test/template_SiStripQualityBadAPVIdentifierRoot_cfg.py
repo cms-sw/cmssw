@@ -30,11 +30,9 @@ process.GlobalTag.globaltag = "GR09_R_34X_V2::All"
 #to read information of o2o and cabling
 process.BadComponentsOnline = cms.ESSource("PoolDBESSource",
     appendToDataLabel = cms.string('online'),
-    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
     DBParameters = cms.PSet(
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
-    timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('SiStripFedCablingRcd'),
         tag = cms.string('SiStripFedCabling_GR10_v1_hlt')
@@ -51,12 +49,10 @@ process.sistripconn = cms.ESProducer("SiStripConnectivity")
 #to read information of RunInfo
 process.poolDBESSourceRunInfo = cms.ESSource("PoolDBESSource",
    appendToDataLabel = cms.string('online2'),
-   BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
    DBParameters = cms.PSet(
         messageLevel = cms.untracked.int32(2),
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
-    timetype = cms.untracked.string('runnumber'),
     connect = cms.string('frontier://PromptProd/CMS_COND_31X_RUN_INFO'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('RunInfoRcd'),

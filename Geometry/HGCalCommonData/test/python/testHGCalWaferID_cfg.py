@@ -2,11 +2,11 @@
 # Way to use this:
 #   cmsRun testHGCalWaferID_cfg.py type=V17
 #
-#   Options for type V16, V17, V17Shift, V18
+#   Options for type V16, V17, V17Shift, V18, V19
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
-import os, sys, imp, re
+import os, sys, importlib, re
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 ####################################################################
@@ -16,13 +16,16 @@ options.register('type',
                  "V17",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "type of operations: V16, V17, V17Shift, V18")
+                  "type of operations: V16, V17, V17Shift, V18, V19")
 
 ### get and parse the command line arguments
 options.parseArguments()
 print(options)
 
 if (options.type == "V18"):
+        from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+        process = cms.Process("HGCalWaferIDTest",Phase2C22I13M9)
+elif (options.type == "V19"):
         from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
         process = cms.Process("HGCalWaferIDTest",Phase2C22I13M9)
 else:
@@ -37,6 +40,8 @@ elif (options.type == "V17Shift"):
     geomFile = "Geometry.HGCalCommonData.testHGCalV17ShiftReco_cff"
 elif (options.type == "V16"):
     geomFile = "Configuration.Geometry.GeometryExtendedRun4D98_cff"
+elif (options.type == "V19"):
+    geomFile = "Configuration.Geometry.GeometryExtendedRun4D120_cff"
 else:
     geomFile = "Configuration.Geometry.GeometryExtendedRun4D110_cff"
 

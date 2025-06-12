@@ -32,7 +32,8 @@ VertexTimeAlgorithmFromTracksPID::VertexTimeAlgorithmFromTracksPID(edm::Paramete
       probKaon_(iConfig.getParameter<double>("probKaon")),
       probProton_(iConfig.getParameter<double>("probProton")),
       Tstart_(iConfig.getParameter<double>("Tstart")),
-      coolingFactor_(iConfig.getParameter<double>("coolingFactor")) {}
+      coolingFactor_(iConfig.getParameter<double>("coolingFactor")),
+      useMVAVtxTime_(iConfig.getParameter<bool>("useMVAVtxTime")) {}
 
 void VertexTimeAlgorithmFromTracksPID::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   VertexTimeAlgorithmBase::fillPSetDescription(iDesc);
@@ -65,6 +66,7 @@ void VertexTimeAlgorithmFromTracksPID::fillPSetDescription(edm::ParameterSetDesc
 
   iDesc.add<double>("Tstart", 256.)->setComment("DA initial temperature T");
   iDesc.add<double>("coolingFactor", 0.5)->setComment("DA cooling factor");
+  iDesc.add<bool>("useMVAVtxTime", true)->setComment("Use MVA quality selection for vertex time calculation");
 }
 
 void VertexTimeAlgorithmFromTracksPID::setEvent(edm::Event& iEvent, edm::EventSetup const&) {
@@ -105,8 +107,7 @@ bool VertexTimeAlgorithmFromTracksPID::vertexTime(float& vtxTime,
     auto const trkWeight = vtx.trackWeight(trk);
     if (trkWeight > minTrackVtxWeight_) {
       auto const trkTimeQuality = trackMTDTimeQualities_[trk.trackBaseRef()];
-
-      if (trkTimeQuality >= minTrackTimeQuality_) {
+      if (!useMVAVtxTime_ || (useMVAVtxTime_ && trkTimeQuality >= minTrackTimeQuality_)) {
         auto const trkTime = trackMTDTimes_[trk.trackBaseRef()];
         auto const trkTimeError = trackMTDTimeErrors_[trk.trackBaseRef()];
 

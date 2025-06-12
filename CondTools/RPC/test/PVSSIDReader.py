@@ -22,7 +22,6 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.rn = cms.ESSource("PoolDBESSource",
     process.CondDBCommon,
-    timetype = cms.string('timestamp'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('RPCObPVSSmapRcd'),
         tag = cms.string('Imon_v3')

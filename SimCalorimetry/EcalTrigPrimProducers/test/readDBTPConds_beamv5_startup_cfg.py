@@ -22,7 +22,6 @@ process.CondDBCommon.DBParameters.authenticationPath = cms.untracked.string('/nf
 
 process.ecalTPConditions = cms.ESSource("PoolDBESSource",
     process.CondDBSetup,
-    loadAll = cms.bool(True),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('EcalTPGPedestalsRcd'),
         tag = cms.string('EcalTPGPedestals_beamv5_startup_mc')
@@ -85,14 +84,10 @@ process.ecalTPConditions = cms.ESSource("PoolDBESSource",
         #    tag = cms.string('EcalTPGTowerStatus_beamv5_startup_mc')
         #)
 	),
-    messagelevel = cms.untracked.uint32(3),
-    timetype = cms.string('runnumber'),
 #    connect = cms.string('oracle://ecalh4db/TEST02'),
 #    connect = cms.string('sqlite_file:../../../CalibCalorimetry/EcalTPGTools/test/DB_beamv5_test_mc.db'),
     #connect = cms.string('oracle://cms_orcoff_prep/CMS_COND_ECAL'),
     connect = cms.string('frontier://FrontierPrep/CMS_COND_ECAL'),
-    authenticationMethod = cms.untracked.uint32(1),
-    loadBlobStreamer = cms.untracked.bool(True)
 )
 
 process.tpDBAnalyzer = cms.EDAnalyzer("EcalTPCondAnalyzer")

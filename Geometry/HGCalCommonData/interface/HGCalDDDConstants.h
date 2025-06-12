@@ -158,6 +158,7 @@ public:
   std::pair<double, double> rangeRLayer(int lay, bool reco) const;
   std::pair<double, double> rangeZ(bool reco) const;
   std::pair<int, int> rowColumnWafer(const int wafer) const;
+  bool scintFine(int layer) const { return (hgpar_->scintFine(layer - hgpar_->firstLayer_)); }
   inline int sectors() const { return hgpar_->nSectors_; }
   double sensorSizeOffset(bool reco) const;
   std::pair<int, int> simToReco(int cell, int layer, int mod, bool half) const;
@@ -178,7 +179,9 @@ public:
     return ((mode_ == HGCalGeometryMode::TrapezoidFile) || (mode_ == HGCalGeometryMode::TrapezoidModule) ||
             (mode_ == HGCalGeometryMode::TrapezoidCassette) || (mode_ == HGCalGeometryMode::TrapezoidFineCell));
   }
+  inline bool v16OrLess() const { return (mode_ < HGCalGeometryMode::Hexagon8Cassette); }
   inline bool v17OrLess() const { return (mode_ < HGCalGeometryMode::Hexagon8CalibCell); }
+  inline bool v18OrLess() const { return (mode_ < HGCalGeometryMode::Hexagon8FineCell); }
   inline unsigned int volumes() const { return hgpar_->moduleLayR_.size(); }
   int waferFromCopy(int copy) const;
   void waferFromPosition(const double x, const double y, int& wafer, int& icell, int& celltyp) const;
@@ -203,6 +206,13 @@ public:
             (mode_ == HGCalGeometryMode::Hexagon8Cassette) || (mode_ == HGCalGeometryMode::Hexagon8CalibCell) ||
             (mode_ == HGCalGeometryMode::Hexagon8FineCell));
   }
+  inline bool waferHexagon8Calib() const {
+    return ((mode_ == HGCalGeometryMode::Hexagon8CalibCell) || (mode_ == HGCalGeometryMode::Hexagon8FineCell));
+  }
+  inline bool waferHexagon8Cassette() const {
+    return ((mode_ == HGCalGeometryMode::Hexagon8Cassette) || (mode_ == HGCalGeometryMode::Hexagon8CalibCell) ||
+            (mode_ == HGCalGeometryMode::Hexagon8FineCell));
+  }
   inline bool waferHexagon8File() const {
     return ((mode_ == HGCalGeometryMode::Hexagon8File) || (mode_ == HGCalGeometryMode::Hexagon8Module) ||
             (mode_ == HGCalGeometryMode::Hexagon8Cassette) || (mode_ == HGCalGeometryMode::Hexagon8CalibCell) ||
@@ -222,6 +232,8 @@ public:
   std::pair<double, double> waferParameters(bool reco) const;
   std::pair<double, double> waferPosition(int wafer, bool reco) const;
   std::pair<double, double> waferPosition(int lay, int waferU, int waferV, bool reco, bool debug) const;
+  std::pair<double, double> waferPositionWithCshift(
+      int lay, int waferU, int waferV, bool norot, bool reco, bool debug) const;
   inline unsigned int waferFileSize() const { return hgpar_->waferInfoMap_.size(); }
   int waferFileIndex(unsigned int kk) const;
   std::tuple<int, int, int, int> waferFileInfo(unsigned int kk) const;

@@ -14,6 +14,12 @@
 //
 //      makeDDDvsDD4hepPlots(dirnm, inType, geometry, layer, ratio, save)
 //
+//   To make plots of digitization variables from digitiasation campaigns
+//   with FullSim_Signal+FullSim_PU vs FasrSim_Signal+FastSim_PU vs
+//   FullSim_Signal+FastSim_PU
+//
+//      makeDigiStudyPlots(tag, todomin, todomax, save)
+//
 //   where (for makeHitStudyPlots)
 //     file1    std::string   Name of the first ROOT file [old/analRun3.root]
 //     file2    std::string   Name of the second ROOT file [new/analRun3.root]
@@ -29,10 +35,15 @@
 //     inType   std::string   Name of the input data (Muon/MinBias)
 //     geometry std::string   Tag for the geometry (D98/D99)
 //     layer    int           Layer number (if 0; all layers combined)
-//
-//   where (common to both macros)
 //     ratio    bool          if the ratio to be plotted [true]
 //                            (works when both files are active)
+//
+//   where (for makeHitStudyPlots)
+//     tag      std::string   Detectr type (EC/HC)
+//     todomin  int           Minimum type # of histograms to be plotted [0]
+//     todomax  int           Maximum type # of histograms to be plotted [0]
+//
+//   where (common to all macros)
 //     save     bool          If the canvas is to be saved as jpg file [false]
 //
 //////////////////////////////////////////////////////////////////////////////
@@ -434,6 +445,168 @@ void makeDDDvsDD4hepPlots(std::string dirnm = "EE",
       if (save) {
         sprintf(name, "%s.pdf", pad->GetName());
         pad->Print(name);
+      }
+    }
+  }
+}
+
+void makeDigiStudyPlots(std::string tag = "HC", int todomin = 0, int todomax = 11, bool save = false) {
+  const int nFiles = 3, ndetEC = 2, ndetHC = 3;
+  std::string files[nFiles] = {
+      "FullSimSignalwithFullSimPU", "FullSimSignalwithFastSimPU", "FastSimSignalwithFastSimPU"};
+  std::string tags[nFiles] = {"Full+Full", "Ful+Fast", "Fast+Fast"};
+  int color[nFiles] = {1, 2, 4};
+  int lstyl[nFiles] = {1, 2, 4};
+  std::string detsHC[ndetHC] = {"HB", "HE", "HF"};
+  std::string detsEC[ndetEC] = {"Barrel", "Endcap"};
+  std::string pretagEC = "EcalDigiTask";
+  std::string pretagHC = "HcalDigiTask";
+  const int plots = 16;
+  std::string nameEC[plots] = {"ADC pulse 01 Gain 12",
+                               "ADC pulse 02 Gain 12",
+                               "ADC pulse 07 Gain 12",
+                               "ADC pulse 04 Gain 12",
+                               "ADC pulse 05 Gain 12",
+                               "ADC pulse 06 Gain 12",
+                               "ADC pulse 07 Gain 12",
+                               "ADC pulse 08 Gain 12",
+                               "analog pulse 01",
+                               "analog pulse 02",
+                               "analog pulse 03",
+                               "analog pulse 04",
+                               "analog pulse 05",
+                               "analog pulse 06",
+                               "analog pulse 07",
+                               "analog pulse 08"};
+  std::string nameHC[plots] = {"Ndigis",
+                               "depths",
+                               "post_SOI_frac",
+                               "signal_amplitude",
+                               "ADCO_adc_depth1",
+                               "ADCO_adc_depth2",
+                               "ADCO_adc_depth3",
+                               "ADCO_adc_depth4",
+                               "signal_amplitude_depth1",
+                               "signal_amplitude_depth2",
+                               "signal_amplitude_depth3",
+                               "signal_amplitude_depth4",
+                               "all_amplitudes_vs_bin_1D_depth1",
+                               "all_amplitudes_vs_bin_1D_depth2",
+                               "all_amplitudes_vs_bin_1D_depth3",
+                               "all_amplitudes_vs_bin_1D_depth4"};
+  int rebinEC[plots] = {10, 10, 10, 10, 10, 10, 10, 10, 2, 2, 2, 2, 2, 2, 2, 2};
+  int rebinHC[plots] = {10, 1, 10, 10, 1, 1, 1, 1, 10, 10, 10, 10, 1, 1, 1, 1};
+  double xlowEC[plots] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  double xlowHC[plots] = {3000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  double xhighEC[plots] = {1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 50, 50, 50, 50, 50, 50, 50, 50};
+  double xhighHC[plots] = {5000, 10, 2, 8000, 20, 20, 20, 20, 8000, 8000, 8000, 8000, 10, 10, 10, 10};
+  bool debug(true);
+
+  std::string dirnm = (tag == "EC") ? "ecalDigiStudy" : "hcalDigiStudy";
+  gStyle->SetCanvasBorderMode(0);
+  gStyle->SetCanvasColor(kWhite);
+  gStyle->SetPadColor(kWhite);
+  gStyle->SetFillColor(kWhite);
+  gStyle->SetOptStat(1110);
+  if ((todomin < 0) || (todomin >= plots))
+    todomin = 0;
+  if (todomax < todomin) {
+    todomax = todomin;
+  } else if (todomax >= plots) {
+    todomax = plots - 1;
+  }
+  TFile* file[nFiles];
+  char fname[100];
+  int ok(0);
+  for (int i = 0; i < nFiles; ++i) {
+    sprintf(fname, "%s%s.root", tag.c_str(), files[i].c_str());
+    file[i] = new TFile(fname);
+    if (file[i]) {
+      ++ok;
+      std::cout << fname << " opened successfully" << std::endl;
+    } else {
+      std::cout << fname << " cannot be found" << std::endl;
+    }
+  }
+  if (ok == nFiles) {
+    int ndet = (tag == "EC") ? ndetEC : ndetHC;
+    char name[100], namec[100];
+    for (int i1 = todomin; i1 <= todomax; ++i1) {
+      for (int i2 = 0; i2 < ndet; ++i2) {
+        if (tag == "EC") {
+          sprintf(name, "%s %s %s", pretagEC.c_str(), detsEC[i2].c_str(), nameEC[i1].c_str());
+          sprintf(namec, "c_%s_%s_%s", pretagEC.c_str(), detsEC[i2].c_str(), nameEC[i1].c_str());
+        } else {
+          sprintf(name, "%s_%s_%s", pretagHC.c_str(), nameHC[i1].c_str(), detsHC[i2].c_str());
+          sprintf(namec, "c_%s_%s_%s", pretagHC.c_str(), nameHC[i1].c_str(), detsHC[i2].c_str());
+        }
+        TH1D* hist0[nFiles];
+        for (int i3 = 0; i3 < nFiles; ++i3) {
+          TDirectory* dir = (TDirectory*)file[i3]->FindObjectAny(dirnm.c_str());
+          hist0[i3] = static_cast<TH1D*>(dir->FindObjectAny(name));
+          if (debug)
+            std::cout << name << " read out at " << hist0[i3] << " for " << tags[i3] << std::endl;
+        }
+        TCanvas* pad = new TCanvas(namec, namec, 500, 500);
+        int first(0);
+        double y1(0.90), dy(0.12);
+        double y2 = y1 - dy * nFiles - 0.01;
+        TLegend* leg = new TLegend(0.65, y2 - nFiles * 0.04, 0.90, y2);
+        for (int i3 = 0; i3 < nFiles; ++i3) {
+          TH1D* hist(hist0[i3]);
+          if (debug)
+            std::cout << i3 << " Tag " << tags[i3] << " hiist " << hist << std::endl;
+          if (hist != nullptr) {
+            hist->SetLineColor(color[i3]);
+            hist->SetLineStyle(lstyl[i3]);
+            hist->GetYaxis()->SetTitleOffset(1.4);
+            std::string title = hist->GetTitle();
+            hist->GetXaxis()->SetTitle(title.c_str());
+            hist->SetTitle("");
+            if (tag == "EC") {
+              if (rebinEC[i1] > 1)
+                hist->Rebin(rebinEC[i1]);
+              hist->GetXaxis()->SetRangeUser(xlowEC[i1], xhighEC[i1]);
+            } else {
+              if (rebinHC[i1] > 1)
+                hist->Rebin(rebinHC[i1]);
+              hist->GetXaxis()->SetRangeUser(xlowHC[i1], xhighHC[i1]);
+            }
+            if (first == 0) {
+              pad = new TCanvas(namec, namec, 500, 500);
+              pad->SetRightMargin(0.10);
+              pad->SetTopMargin(0.10);
+              /*
+	      if (tag == "EC") 
+		pad->SetLogy();
+	      */
+              hist->Draw();
+            } else {
+              hist->Draw("sames");
+            }
+            leg->AddEntry(hist, tags[i3].c_str(), "lp");
+            pad->Update();
+            ++first;
+            TPaveStats* st = ((TPaveStats*)hist->GetListOfFunctions()->FindObject("stats"));
+            if (st != NULL) {
+              st->SetLineColor(color[i3]);
+              st->SetTextColor(color[i3]);
+              st->SetY1NDC(y1 - dy);
+              st->SetY2NDC(y1);
+              st->SetX1NDC(0.65);
+              st->SetX2NDC(0.90);
+              y1 -= dy;
+            }
+            pad->Modified();
+            pad->Update();
+            leg->Draw("same");
+            pad->Update();
+          }
+        }
+        if (save) {
+          sprintf(name, "%s.pdf", pad->GetName());
+          pad->Print(name);
+        }
       }
     }
   }

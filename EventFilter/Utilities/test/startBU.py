@@ -64,6 +64,12 @@ options.register ('dataType',
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "Choice between FRD or raw DTH data generation")
 
+options.register ('subsystems',
+                  "",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,          # string, int, or float
+                  "List of generated subsystem FEDs. Empty means all.")
+
 
 
 
@@ -135,6 +141,9 @@ if  options.dataType == "FRD":
                                tcdsFEDID = cms.untracked.uint32(1024),
                                injectErrPpm = cms.untracked.uint32(0)
                                )
+    if options.subsystems:
+        #set FED filering
+        process.s.subsystems = cms.untracked.vstring(tuple(options.subsystems.split(',')))
 
     process.out = cms.OutputModule("RawStreamFileWriterForBU",
         source = cms.InputTag("s"),

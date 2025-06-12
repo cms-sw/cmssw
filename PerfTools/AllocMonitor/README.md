@@ -132,3 +132,36 @@ service in the configuration. The parameters are
 The beginning of the file contains a description of the structure and contents of the file. The file can be analyzed with the helper script `edmModuleEventAllocMonitorAnalyze.py`. The script can be used to find modules where the memory is being retained between Events as well as modules where the memory appears to be growing Event to Event. Use `--help` with the script for a full description.
 
 This service is multi-thread safe.
+
+
+### IntrusiveAllocMonitor
+
+This service registers a monitor when the service is created (after python parsing is finished, but before any modules have been loaded into cmsRun). The user can then start the monitoring in their code as shown in the example below. The monitoring stops, in an RAII fashion, at the end of the scope and the results of the memory operations are printed with the [MessageLogger](../../FWCore/MessageService/Readme.md) with an `IntrusiveAllocMonitor` message category.
+
+```cpp
+#include "FWCore/AbstractServices/interface/IntrusiveMonitorBase.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+
+void someFunction() {
+  {
+    edm::Service<IntrusiveMonitorBase> monitor;
+    auto guard = monitor.startMeasurement("Measurement description");
+
+    // more code doing memory allocations
+  }
+}
+
+```
+
+The message will print
+| Field | Description |
+|-------|-------------|
+| `requested` | Total number of requested bytes |
+| `added ` | Total number of bytes added (can be more than `requested`) |
+| `max alloc` | Largest single memory allocation |
+| `peak` | Maximum amount of allocated memory at any given moment |
+| `nAlloc` | Number of memory allocations |
+| `nDealloc` | Number of memory deallocations |
+
+This service is multi-thread safe, and concurrent measurements can be done in different threads. Nested measurements are not supported (i.e. one thread can be doing only one measurement at a time), and neither are measurements started in one thread and ended in different thread.

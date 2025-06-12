@@ -12,12 +12,10 @@ from ..modules.hltEgammaHoverEUnseeded_cfi import *
 from ..sequences.HLTDoFullUnpackingEgammaEcalSequence_cfi import *
 from ..sequences.HLTEGammaDoLocalHcalSequence_cfi import *
 from ..sequences.HLTHgcalTiclPFClusteringForEgammaUnseededSequence_cfi import *
-from ..sequences.HLTL1Sequence_cfi import *
 from ..sequences.HLTPFClusteringForEgammaUnseededSequence_cfi import *
 from ..sequences.HLTFastJetForEgammaSequence_cfi import *
 
-HLTPhoton187UnseededSequence = cms.Sequence(HLTL1Sequence
-                                            +l1tTkEmSingle51Filter
+HLTPhoton187UnseededSequence = cms.Sequence(l1tTkEmSingle51Filter
                                             +HLTDoFullUnpackingEgammaEcalSequence
                                             +HLTPFClusteringForEgammaUnseededSequence
                                             +HLTHgcalTiclPFClusteringForEgammaUnseededSequence

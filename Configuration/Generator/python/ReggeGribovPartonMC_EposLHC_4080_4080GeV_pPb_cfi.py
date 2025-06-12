@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
+from GeneratorInterface.Core.ExternalGeneratorFilter import ExternalGeneratorFilter
 
-generator = cms.EDFilter("ReggeGribovPartonMCGeneratorFilter",
+
+generator = ExternalGeneratorFilter(cms.EDFilter("ReggeGribovPartonMCGeneratorFilter",
 
                           bmin = cms.double(0), #impact parameter min in fm
                           bmax = cms.double(10000),#impact parameter max in fm
@@ -11,4 +13,4 @@ generator = cms.EDFilter("ReggeGribovPartonMCGeneratorFilter",
                           beamid = cms.int32(208),
                           targetid = cms.int32(1),
                           model = cms.int32(0),
-                          )
+                          ))

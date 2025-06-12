@@ -24,8 +24,7 @@ namespace edm::storage {
       else
         mode |= IOFlags::OpenUnbuffered;
 
-      auto file = std::make_unique<File>(path, mode);
-      return f->wrapNonLocalFile(std::move(file), proto, path, mode);
+      return std::make_unique<File>(path, mode);
     }
 
     bool check(const std::string & /*proto*/,
@@ -41,6 +40,8 @@ namespace edm::storage {
 
       return true;
     }
+
+    UseLocalFile usesLocalFile() const override { return UseLocalFile::kCheckFromPath; }
   };
 }  // namespace edm::storage
 

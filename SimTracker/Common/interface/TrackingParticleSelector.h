@@ -154,6 +154,12 @@ public:
     return false;
   }
 
+  bool isSignalOnly() const { return signalOnly_; }
+  bool isIntimeOnly() const { return intimeOnly_; }
+  bool isChargedOnly() const { return chargedOnly_; }
+  bool isStableOnly() const { return stableOnly_; }
+  bool invertRapidityCut() const { return invertRapidityCut_; }
+
 private:
   double ptMin2_;
   double ptMax2_;

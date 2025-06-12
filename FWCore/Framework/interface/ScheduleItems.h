@@ -17,7 +17,6 @@ namespace edm {
   class BranchIDListHelper;
   class ThinnedAssociationsHelper;
   struct CommonParams;
-  class SubProcess;
   class ParameterSet;
   class ProcessConfiguration;
   class ProcessContext;
@@ -25,7 +24,6 @@ namespace edm {
   class SignallingProductRegistryFiller;
   class StreamID;
   class PreallocationConfiguration;
-  class SubProcessParentageHelper;
   class ModuleTypeResolverMaker;
   namespace service {
     class TriggerNamesService;
@@ -33,11 +31,6 @@ namespace edm {
 
   struct ScheduleItems {
     ScheduleItems();
-
-    ScheduleItems(ProductRegistry const& preg,
-                  SubProcess const& om,
-                  SubProcessBlockHelper& subProcessBlockHelper,
-                  ProcessBlockHelperBase const& parentProcessBlockHelper);
 
     ScheduleItems(ScheduleItems const&) = delete;             // Disallow copying and moving
     ScheduleItems& operator=(ScheduleItems const&) = delete;  // Disallow copying and moving
@@ -53,7 +46,6 @@ namespace edm {
     std::shared_ptr<CommonParams> initMisc(ParameterSet& parameterSet);
 
     std::unique_ptr<Schedule> initSchedule(ParameterSet& parameterSet,
-                                           bool hasSubprocesses,
                                            PreallocationConfiguration const& iAllocConfig,
                                            ProcessContext const*,
                                            ModuleTypeResolverMaker const*,
@@ -77,7 +69,6 @@ namespace edm {
     std::unique_ptr<Schedule> finishSchedule(MadeModules,
                                              ParameterSet& parameterSet,
                                              service::TriggerNamesService const& tns,
-                                             bool hasSubprocesses,
                                              PreallocationConfiguration const& iAllocConfig,
                                              ProcessContext const*,
                                              ProcessBlockHelperBase& processBlockHelper);
@@ -94,9 +85,6 @@ namespace edm {
     std::shared_ptr<ThinnedAssociationsHelper>& thinnedAssociationsHelper() {
       return get_underlying_safe(thinnedAssociationsHelper_);
     }
-    std::shared_ptr<SubProcessParentageHelper>& subProcessParentageHelper() {
-      return get_underlying_safe(subProcessParentageHelper_);
-    }
     std::shared_ptr<ProcessConfiguration const> processConfiguration() const {
       return get_underlying_safe(processConfiguration_);
     }
@@ -106,7 +94,6 @@ namespace edm {
     edm::propagate_const<std::shared_ptr<SignallingProductRegistryFiller>> preg_;
     edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
     edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
-    edm::propagate_const<std::shared_ptr<SubProcessParentageHelper>> subProcessParentageHelper_;
     std::unique_ptr<ExceptionToActionTable const> act_table_;
     edm::propagate_const<std::shared_ptr<ProcessConfiguration>> processConfiguration_;
   };

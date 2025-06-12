@@ -6,8 +6,6 @@
  * with compile-time size and alignment, and accessors to the "rows" and "columns".
  */
 
-#include <cassert>
-
 #include "FWCore/Reflection/interface/reflex.h"
 
 #include "SoACommon.h"
@@ -59,7 +57,27 @@
  */
 
 // clang-format off
-#define _DECLARE_SOA_STREAM_INFO_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                                      \
+#define _COUNT_SOA_METHODS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS, DATA)                                                \
+        BOOST_PP_IF(BOOST_PP_EQUAL(VALUE_TYPE, _VALUE_TYPE_METHOD),                                                    \
+                    DATA++;,                                                                                           \
+                    BOOST_PP_EMPTY())  
+// clang-format on                         
+                   
+#define _COUNT_SOA_METHODS(R, DATA, TYPE_NAME)                                                                         \
+        BOOST_PP_EXPAND(_COUNT_SOA_METHODS_IMPL BOOST_PP_TUPLE_PUSH_BACK(TYPE_NAME, DATA))     
+
+// clang-format off
+#define _COUNT_SOA_CONST_METHODS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS, DATA)                                          \
+        BOOST_PP_IF(BOOST_PP_EQUAL(VALUE_TYPE, _VALUE_TYPE_CONST_METHOD),                                              \
+                    DATA++;,                                                                                           \
+                    BOOST_PP_EMPTY())  
+// clang-format on                         
+                   
+#define _COUNT_SOA_CONST_METHODS(R, DATA, TYPE_NAME)                                                                   \
+        BOOST_PP_EXPAND(_COUNT_SOA_CONST_METHODS_IMPL BOOST_PP_TUPLE_PUSH_BACK(TYPE_NAME, DATA))  
+
+// clang-format off
+#define _DECLARE_SOA_STREAM_INFO_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                                \
   _SWITCH_ON_TYPE(                                                                                                     \
       VALUE_TYPE,                                                                                                      \
       /* Dump scalar */                                                                                                \
@@ -90,13 +108,18 @@
   )
 // clang-format on
 
-#define _DECLARE_SOA_STREAM_INFO(R, DATA, TYPE_NAME) BOOST_PP_EXPAND(_DECLARE_SOA_STREAM_INFO_IMPL TYPE_NAME)
+// clang-format off
+#define _DECLARE_SOA_STREAM_INFO(R, DATA, TYPE_NAME)                                                                   \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE),                            \
+              BOOST_PP_EMPTY(),                                                                                        \
+              BOOST_PP_EXPAND(_DECLARE_SOA_STREAM_INFO_IMPL TYPE_NAME))
+// clang-format on
 
 /**
  * Metadata member computing column pitch
  */
 // clang-format off
-#define _DEFINE_METADATA_MEMBERS_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                                      \
+#define _DEFINE_METADATA_MEMBERS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                                \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar */                                                                                                     \
       byte_size_type BOOST_PP_CAT(NAME, Pitch()) const {                                                               \
@@ -112,7 +135,7 @@
         cms::soa::SoAParameters_ColumnType<cms::soa::SoAColumnType::scalar>::DataType<CPP_TYPE>;                       \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
       BOOST_PP_CAT(ParametersTypeOf_, NAME) BOOST_PP_CAT(parametersOf_, NAME)() const {                                \
-        return  BOOST_PP_CAT(ParametersTypeOf_, NAME) (parent_.BOOST_PP_CAT(NAME, _));                                 \
+        return  BOOST_PP_CAT(ParametersTypeOf_, NAME) (parent_.BOOST_PP_CAT(NAME, _), parent_.metadata().size());      \
       }                                                                                                                \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
       CPP_TYPE* BOOST_PP_CAT(addressOf_, NAME)() {                                                                     \
@@ -123,7 +146,7 @@
          cms::soa::SoAParameters_ColumnType<cms::soa::SoAColumnType::column>::DataType<CPP_TYPE>;                      \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
       BOOST_PP_CAT(ParametersTypeOf_, NAME) BOOST_PP_CAT(parametersOf_, NAME)() const {                                \
-        return  BOOST_PP_CAT(ParametersTypeOf_, NAME) (parent_.BOOST_PP_CAT(NAME, _));                                 \
+        return  BOOST_PP_CAT(ParametersTypeOf_, NAME) (parent_.BOOST_PP_CAT(NAME, _), parent_.metadata().size());      \
       }                                                                                                                \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
       CPP_TYPE const* BOOST_PP_CAT(addressOf_, NAME)() const {                                                         \
@@ -146,7 +169,8 @@
       BOOST_PP_CAT(ParametersTypeOf_, NAME) BOOST_PP_CAT(parametersOf_, NAME)() const {                                \
         return BOOST_PP_CAT(ParametersTypeOf_, NAME) (                                                                 \
           parent_.BOOST_PP_CAT(NAME, _),                                                                               \
-          parent_.BOOST_PP_CAT(NAME, Stride_));                                                                        \
+          parent_.BOOST_PP_CAT(NAME, Stride_),                                                                         \
+          parent_.metadata().size());                                                                                  \
       }                                                                                                                \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
       byte_size_type BOOST_PP_CAT(NAME, Pitch()) const {                                                               \
@@ -165,10 +189,16 @@
       }                                                                                                                \
 )
 // clang-format on
-#define _DEFINE_METADATA_MEMBERS(R, DATA, TYPE_NAME) _DEFINE_METADATA_MEMBERS_IMPL TYPE_NAME
 
 // clang-format off
-#define _DECLARE_MEMBER_TRIVIAL_CONSTRUCTION_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                          \
+#define _DEFINE_METADATA_MEMBERS(R, DATA, TYPE_NAME)                                                                   \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE),                            \
+              BOOST_PP_EMPTY(),                                                                                        \
+              BOOST_PP_EXPAND(_DEFINE_METADATA_MEMBERS_IMPL TYPE_NAME))
+// clang-format on
+
+// clang-format off
+#define _DECLARE_MEMBER_TRIVIAL_CONSTRUCTION_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                    \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar */                                                                                                     \
       (BOOST_PP_CAT(NAME, _)(nullptr)),                                                                                \
@@ -181,11 +211,15 @@
   )
 // clang-format on
 
-#define _DECLARE_MEMBER_TRIVIAL_CONSTRUCTION(R, DATA, TYPE_NAME) \
-  BOOST_PP_EXPAND(_DECLARE_MEMBER_TRIVIAL_CONSTRUCTION_IMPL TYPE_NAME)
-
 // clang-format off
-#define _DECLARE_MEMBER_COPY_CONSTRUCTION_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                             \
+#define _DECLARE_MEMBER_TRIVIAL_CONSTRUCTION(R, DATA, TYPE_NAME)                                                       \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE),                            \
+              BOOST_PP_EMPTY(),                                                                                        \
+              BOOST_PP_EXPAND(_DECLARE_MEMBER_TRIVIAL_CONSTRUCTION_IMPL TYPE_NAME))
+// clang-format on            
+              
+// clang-format off
+#define _DECLARE_MEMBER_COPY_CONSTRUCTION_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                       \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar */                                                                                                     \
       (BOOST_PP_CAT(NAME, _){_soa_impl_other.BOOST_PP_CAT(NAME, _)}),                                                  \
@@ -198,11 +232,15 @@
   )
 // clang-format on
 
-#define _DECLARE_MEMBER_COPY_CONSTRUCTION(R, DATA, TYPE_NAME) \
-  BOOST_PP_EXPAND(_DECLARE_MEMBER_COPY_CONSTRUCTION_IMPL TYPE_NAME)
+// clang-format off
+#define _DECLARE_MEMBER_COPY_CONSTRUCTION(R, DATA, TYPE_NAME)                                                          \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE),                            \
+              BOOST_PP_EMPTY(),                                                                                        \
+              BOOST_PP_EXPAND(_DECLARE_MEMBER_COPY_CONSTRUCTION_IMPL TYPE_NAME))
+// clang-format on
 
 // clang-format off
-#define _DECLARE_MEMBER_ASSIGNMENT_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                                    \
+#define _DECLARE_MEMBER_ASSIGNMENT_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                              \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar */                                                                                                     \
       BOOST_PP_CAT(NAME, _) = _soa_impl_other.BOOST_PP_CAT(NAME, _);,                                                  \
@@ -215,13 +253,18 @@
   )
 // clang-format on
 
-#define _DECLARE_MEMBER_ASSIGNMENT(R, DATA, TYPE_NAME) BOOST_PP_EXPAND(_DECLARE_MEMBER_ASSIGNMENT_IMPL TYPE_NAME)
+// clang-format off
+#define _DECLARE_MEMBER_ASSIGNMENT(R, DATA, TYPE_NAME)                                                                 \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE),                            \
+              BOOST_PP_EMPTY(),                                                                                        \
+              BOOST_PP_EXPAND(_DECLARE_MEMBER_ASSIGNMENT_IMPL TYPE_NAME))
+// clang-format on
 
 /**
  * Declare the value_element data members
  */
 // clang-format off
-#define _DEFINE_VALUE_ELEMENT_MEMBERS_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                                 \
+#define _DEFINE_VALUE_ELEMENT_MEMBERS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                           \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar (empty) */                                                                                             \
       ,                                                                                                                \
@@ -233,13 +276,18 @@
   )
 // clang-format on
 
-#define _DEFINE_VALUE_ELEMENT_MEMBERS(R, DATA, TYPE_NAME) _DEFINE_VALUE_ELEMENT_MEMBERS_IMPL TYPE_NAME
+// clang-format off
+#define _DEFINE_VALUE_ELEMENT_MEMBERS(R, DATA, TYPE_NAME)                                                              \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE),                            \
+              BOOST_PP_EMPTY(),                                                                                        \
+              BOOST_PP_EXPAND(_DEFINE_VALUE_ELEMENT_MEMBERS_IMPL TYPE_NAME))
+// clang-format on
 
 /**
  * List of data members in the value_element constructor arguments
  */
 // clang-format off
-#define _VALUE_ELEMENT_CTOR_ARGS_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                                      \
+#define _VALUE_ELEMENT_CTOR_ARGS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                                \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar (empty) */                                                                                             \
       ,                                                                                                                \
@@ -250,13 +298,18 @@
   )
 // clang-format on
 
-#define _VALUE_ELEMENT_CTOR_ARGS(R, DATA, TYPE_NAME) BOOST_PP_EXPAND(_VALUE_ELEMENT_CTOR_ARGS_IMPL TYPE_NAME)
+// clang-format off
+#define _VALUE_ELEMENT_CTOR_ARGS(R, DATA, TYPE_NAME)                                                                   \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE),                            \
+              BOOST_PP_EMPTY(),                                                                                        \
+              BOOST_PP_EXPAND(_VALUE_ELEMENT_CTOR_ARGS_IMPL TYPE_NAME))
+// clang-format on
 
 /**
  * List-initalise the value_element data members
  */
 // clang-format off
-#define _VALUE_ELEMENT_INITIALIZERS_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                                   \
+#define _VALUE_ELEMENT_INITIALIZERS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                             \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar (empty) */                                                                                             \
       ,                                                                                                                \
@@ -267,24 +320,34 @@
   )
 // clang-format on
 
-#define _VALUE_ELEMENT_INITIALIZERS(R, DATA, TYPE_NAME) BOOST_PP_EXPAND(_VALUE_ELEMENT_INITIALIZERS_IMPL TYPE_NAME)
+// clang-format off
+#define _VALUE_ELEMENT_INITIALIZERS(R, DATA, TYPE_NAME)                                                                \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE),                            \
+              BOOST_PP_EMPTY(),                                                                                        \
+              BOOST_PP_EXPAND(_VALUE_ELEMENT_INITIALIZERS_IMPL TYPE_NAME))
+// clang-format on
 
 /**
  * Freeing of the ROOT-allocated column or scalar buffer
  */
 // clang-format off
-#define _ROOT_FREE_SOA_COLUMN_OR_SCALAR_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                                  \
-  delete[] BOOST_PP_CAT(NAME, _); \
-  BOOST_PP_CAT(NAME, _) = nullptr; \
-  // clang-format on
+#define _ROOT_FREE_SOA_COLUMN_OR_SCALAR_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                         \
+  delete[] BOOST_PP_CAT(NAME, _);                                                                                      \
+  BOOST_PP_CAT(NAME, _) = nullptr;
+// clang-format on
 
-#define _ROOT_FREE_SOA_COLUMN_OR_SCALAR(R, DATA, TYPE_NAME) _ROOT_FREE_SOA_COLUMN_OR_SCALAR_IMPL TYPE_NAME
+// clang-format off
+#define _ROOT_FREE_SOA_COLUMN_OR_SCALAR(R, DATA, TYPE_NAME)                                                            \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE),                            \
+              BOOST_PP_EMPTY(),                                                                                        \
+              BOOST_PP_EXPAND(_ROOT_FREE_SOA_COLUMN_OR_SCALAR_IMPL TYPE_NAME))
+// clang-format on
 
 /**
  * Computation of the column or scalar pointer location in the memory layout (at SoA construction time)
  */
 // clang-format off
-#define _ASSIGN_SOA_COLUMN_OR_SCALAR_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                                  \
+#define _ASSIGN_SOA_COLUMN_OR_SCALAR_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                            \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar */                                                                                                     \
       BOOST_PP_CAT(NAME, _) = reinterpret_cast<CPP_TYPE*>(_soa_impl_curMem);                                           \
@@ -308,13 +371,18 @@
       throw std::runtime_error("In layout constructor: misaligned column: " #NAME);
 // clang-format on
 
-#define _ASSIGN_SOA_COLUMN_OR_SCALAR(R, DATA, TYPE_NAME) _ASSIGN_SOA_COLUMN_OR_SCALAR_IMPL TYPE_NAME
+// clang-format off
+#define _ASSIGN_SOA_COLUMN_OR_SCALAR(R, DATA, TYPE_NAME)                                                               \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE),                            \
+              BOOST_PP_EMPTY(),                                                                                        \
+              BOOST_PP_EXPAND(_ASSIGN_SOA_COLUMN_OR_SCALAR_IMPL TYPE_NAME))
+// clang-format on
 
 /**
  * Computation of the column or scalar size for SoA size computation
  */
 // clang-format off
-#define _ACCUMULATE_SOA_ELEMENT_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                                       \
+#define _ACCUMULATE_SOA_ELEMENT_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                                 \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar */                                                                                                     \
       _soa_impl_ret += cms::soa::alignSize(sizeof(CPP_TYPE), alignment);                                               \
@@ -328,13 +396,18 @@
   )
 // clang-format on
 
-#define _ACCUMULATE_SOA_ELEMENT(R, DATA, TYPE_NAME) _ACCUMULATE_SOA_ELEMENT_IMPL TYPE_NAME
+// clang-format off
+#define _ACCUMULATE_SOA_ELEMENT(R, DATA, TYPE_NAME)                                                                    \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE),                            \
+              BOOST_PP_EMPTY(),                                                                                        \
+              BOOST_PP_EXPAND(_ACCUMULATE_SOA_ELEMENT_IMPL TYPE_NAME))
+// clang-format on
 
 /**
  * Direct access to column pointer and indexed access
  */
 // clang-format off
-#define _DECLARE_SOA_ACCESSOR_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                                         \
+#define _DECLARE_SOA_ACCESSOR_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                                   \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar */                                                                                                     \
       SOA_HOST_DEVICE SOA_INLINE CPP_TYPE& NAME() { return *BOOST_PP_CAT(NAME, _); }                                   \
@@ -351,13 +424,18 @@
   )
 // clang-format on
 
-#define _DECLARE_SOA_ACCESSOR(R, DATA, TYPE_NAME) BOOST_PP_EXPAND(_DECLARE_SOA_ACCESSOR_IMPL TYPE_NAME)
+// clang-format off
+#define _DECLARE_SOA_ACCESSOR(R, DATA, TYPE_NAME)                                                                      \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE),                            \
+              BOOST_PP_EMPTY(),                                                                                        \
+              BOOST_PP_EXPAND(_DECLARE_SOA_ACCESSOR_IMPL TYPE_NAME))
+// clang-format on
 
 /**
  * Direct access to column pointer (const) and indexed access.
  */
 // clang-format off
-#define _DECLARE_SOA_CONST_ACCESSOR_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                                   \
+#define _DECLARE_SOA_CONST_ACCESSOR_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                             \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar */                                                                                                     \
       SOA_HOST_DEVICE SOA_INLINE CPP_TYPE NAME() const { return *(BOOST_PP_CAT(NAME, _)); }                            \
@@ -374,13 +452,18 @@
   )
 // clang-format on
 
-#define _DECLARE_SOA_CONST_ACCESSOR(R, DATA, TYPE_NAME) BOOST_PP_EXPAND(_DECLARE_SOA_CONST_ACCESSOR_IMPL TYPE_NAME)
+// clang-format off
+#define _DECLARE_SOA_CONST_ACCESSOR(R, DATA, TYPE_NAME)                                                                \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE),                            \
+              BOOST_PP_EMPTY(),                                                                                        \
+              BOOST_PP_EXPAND(_DECLARE_SOA_CONST_ACCESSOR_IMPL TYPE_NAME))
+// clang-format on
 
 /**
  * SoA member ROOT streamer read (column pointers).
  */
 // clang-format off
-#define _STREAMER_READ_SOA_DATA_MEMBER_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                                \
+#define _STREAMER_READ_SOA_DATA_MEMBER_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                          \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar */                                                                                                     \
       memcpy(BOOST_PP_CAT(NAME, _), onfile.BOOST_PP_CAT(NAME, _), sizeof(CPP_TYPE));                                   \
@@ -394,14 +477,18 @@
   )
 // clang-format on
 
-#define _STREAMER_READ_SOA_DATA_MEMBER(R, DATA, TYPE_NAME) \
-  BOOST_PP_EXPAND(_STREAMER_READ_SOA_DATA_MEMBER_IMPL TYPE_NAME)
+// clang-format off
+#define _STREAMER_READ_SOA_DATA_MEMBER(R, DATA, TYPE_NAME)                                                             \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE),                            \
+              BOOST_PP_EMPTY(),                                                                                        \
+              BOOST_PP_EXPAND(_STREAMER_READ_SOA_DATA_MEMBER_IMPL TYPE_NAME))
+// clang-format on
 
 /**
  * SoA class member declaration (column pointers).
  */
 // clang-format off
-#define _DECLARE_SOA_DATA_MEMBER_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                                      \
+#define _DECLARE_SOA_DATA_MEMBER_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                                \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar */                                                                                                     \
       CPP_TYPE* BOOST_PP_CAT(NAME, _) EDM_REFLEX_SIZE(scalar_) = nullptr;                                              \
@@ -416,7 +503,34 @@
   )
 // clang-format on
 
-#define _DECLARE_SOA_DATA_MEMBER(R, DATA, TYPE_NAME) BOOST_PP_EXPAND(_DECLARE_SOA_DATA_MEMBER_IMPL TYPE_NAME)
+// clang-format off
+#define _DECLARE_SOA_DATA_MEMBER(R, DATA, TYPE_NAME)                                                                   \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE),                            \
+              BOOST_PP_EMPTY(),                                                                                        \
+              BOOST_PP_EXPAND(_DECLARE_SOA_DATA_MEMBER_IMPL TYPE_NAME))
+// clang-format on
+
+#define _COPY_VIEW_COLUMNS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                    \
+  _SWITCH_ON_TYPE(                                                                                   \
+      VALUE_TYPE, /* Scalar */                                                                       \
+      memcpy(BOOST_PP_CAT(this->metadata().addressOf_, NAME)(),                                      \
+             BOOST_PP_CAT(view.metadata().addressOf_, NAME)(),                                       \
+             sizeof(CPP_TYPE));                                                                      \
+      , /* Column */                                                                                 \
+      memcpy(BOOST_PP_CAT(this->metadata().addressOf_, NAME)(),                                      \
+             BOOST_PP_CAT(view.metadata().addressOf_, NAME)(),                                       \
+             view.metadata().size() * sizeof(CPP_TYPE));                                             \
+      , /* Eigen column */                                                                           \
+      for (unsigned int i = 0; i < CPP_TYPE::RowsAtCompileTime * CPP_TYPE::ColsAtCompileTime; i++) { \
+        memcpy(BOOST_PP_CAT(this->metadata().addressOf_, NAME)() + i * BOOST_PP_CAT(NAME, Stride_),  \
+               &view[0].NAME().coeff(i),                                                             \
+               view.metadata().size() * sizeof(CPP_TYPE::Scalar));                                   \
+      })
+
+#define _COPY_VIEW_COLUMNS(R, DATA, TYPE_NAME)                                              \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_COPY_VIEW_COLUMNS_IMPL TYPE_NAME))
 
 #ifdef DEBUG
 #define _DO_RANGECHECK true
@@ -533,7 +647,7 @@
                     SOA_VIEW_LAYOUT_LIST(                                                                              \
                         SOA_VIEW_LAYOUT(BOOST_PP_CAT(CLASS, _parametrized) , BOOST_PP_CAT(instance_, CLASS))),         \
                     SOA_VIEW_VALUE_LIST(_ITERATE_ON_ALL_COMMA(                                                         \
-                    _VIEW_FIELD_FROM_LAYOUT, BOOST_PP_CAT(instance_, CLASS), __VA_ARGS__)))                            \
+                    _VIEW_FIELD_FROM_LAYOUT, BOOST_PP_CAT(instance_, CLASS), __VA_ARGS__)), __VA_ARGS__)               \
                                                                                                                        \
     template <bool RESTRICT_QUALIFY, bool RANGE_CHECKING>                                                              \
     using ConstViewTemplate = ConstViewTemplateFreeParams<ALIGNMENT, ALIGNMENT_ENFORCEMENT, RESTRICT_QUALIFY,          \
@@ -581,6 +695,13 @@
         return *this;                                                                                                  \
     }                                                                                                                  \
                                                                                                                        \
+    SOA_HOST_ONLY void deepCopy(ConstView const& view) {                                                               \
+      if (elements_ < view.metadata().size())                                                                          \
+        throw std::runtime_error(                                                                                      \
+            "In "#CLASS "::deepCopy method: number of elements mismatch ");                                            \
+      _ITERATE_ON_ALL(_COPY_VIEW_COLUMNS, ~, __VA_ARGS__)                                                              \
+    }                                                                                                                  \
+                                                                                                                       \
     /* ROOT read streamer */                                                                                           \
     template <typename T>                                                                                              \
     void ROOTReadStreamer(T & onfile) {                                                                                \
@@ -610,6 +731,24 @@
       if (mem_ + byteSize_ != _soa_impl_curMem)                                                                        \
         throw std::runtime_error("In " #CLASS "::" #CLASS ": unexpected end pointer.");                                \
     }                                                                                                                  \
+                                                                                                                       \
+    /* Helper function to compute the total number of methods */                                                       \
+    static constexpr std::pair<size_type, size_type> computeMethodsNumber() {                                          \
+      size_type _soa_methods_count = 0;                                                                                \
+      size_type _soa_const_methods_count = 0;                                                                          \
+                                                                                                                       \
+      _ITERATE_ON_ALL(_COUNT_SOA_METHODS, _soa_methods_count, __VA_ARGS__)                                             \
+      _ITERATE_ON_ALL(_COUNT_SOA_CONST_METHODS, _soa_const_methods_count, __VA_ARGS__)                                 \
+                                                                                                                       \
+      return {_soa_methods_count, _soa_const_methods_count};                                                           \
+    }                                                                                                                  \
+                                                                                                                       \
+    /* compile-time error launched if more than one macro for methods is declared */                                   \
+    static_assert(computeMethodsNumber().first <= 1,                                                                   \
+          "There can be at most one SOA_METHODS macro. Please declare all your methods inside the same macro.");       \
+                                                                                                                       \
+    static_assert(computeMethodsNumber().second <= 1,                                                                  \
+          "There can be at most one SOA_CONST_METHODS macro. Please declare all your methods inside the same macro."); \
                                                                                                                        \
     /* Data members */                                                                                                 \
     std::byte* mem_ EDM_REFLEX_TRANSIENT;                                                                              \

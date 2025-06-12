@@ -91,6 +91,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 process.generator = cms.EDFilter("Herwig7GeneratorFilter",
     configFiles = cms.vstring(),
+    eventsToPrint = cms.untracked.uint32(1),
     crossSection = cms.untracked.double(-1),
     dataLocation = cms.string('${HERWIGPATH:-6}'),
     eventHandlers = cms.string('/Herwig/EventHandlers'),

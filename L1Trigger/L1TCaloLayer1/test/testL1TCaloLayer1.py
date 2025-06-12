@@ -60,7 +60,6 @@ process.load("Configuration.Geometry.GeometryExtended2016Reco_cff")
 
 process.es_pool = cms.ESSource("PoolDBESSource",
      process.CondDBSetup,
-     timetype = cms.string('runnumber'),
      toGet = cms.VPSet(
          cms.PSet(record = cms.string("HcalLutMetadataRcd"),
              tag = cms.string("HcalLutMetadata_HFTP_1x1")
@@ -70,7 +69,6 @@ process.es_pool = cms.ESSource("PoolDBESSource",
              )
          ),
      connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
-     authenticationMethod = cms.untracked.uint32(0)
      )
 process.es_prefer_es_pool = cms.ESPrefer( "PoolDBESSource", "es_pool" )
 

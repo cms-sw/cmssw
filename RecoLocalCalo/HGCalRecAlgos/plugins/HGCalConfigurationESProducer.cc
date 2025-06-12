@@ -6,19 +6,21 @@
 #include "FWCore/Framework/interface/ESProducts.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "CondFormats/HGCalObjects/interface/HGCalConfiguration.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
 #include "CondFormats/DataRecord/interface/HGCalModuleConfigurationRcd.h"  // depends on HGCalElectronicsMappingRcd
-#include <string>                                                          // for std::to_string
+#include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalESProducerTools.h"    // for json, search_modkey, search_fedkey
+
+#include <string>   // for std::to_string
 #include <fstream>  // needed to read json file with std::ifstream
-#include <nlohmann/json.hpp>
-using json = nlohmann::json;
 
 /**
-   @short plugin parses HGCAL electronics configuration from JSON file
+ * @short ESProducer to parse HGCAL electronics configuration from JSON file
  */
 class HGCalConfigurationESProducer : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
@@ -28,8 +30,6 @@ public:
         modjson_(iConfig.getParameter<std::string>("modjson")) {
     if (iConfig.exists("bePassthroughMode"))
       bePassthroughMode_ = iConfig.getParameter<int32_t>("bePassthroughMode");
-    if (iConfig.exists("econPassthroughMode"))
-      econPassthroughMode_ = iConfig.getParameter<int32_t>("econPassthroughMode");
     if (iConfig.exists("cbHeaderMarker"))
       cbHeaderMarker_ = iConfig.getParameter<int32_t>("cbHeaderMarker");
     if (iConfig.exists("slinkHeaderMarker"))
@@ -38,10 +38,7 @@ public:
       econdHeaderMarker_ = iConfig.getParameter<int32_t>("econdHeaderMarker");
     if (iConfig.exists("charMode"))
       charMode_ = iConfig.getParameter<int32_t>("charMode");
-    if (iConfig.exists("gain"))
-      gain_ = iConfig.getParameter<int32_t>("gain");
     auto cc = setWhatProduced(this);
-    //findingRecord<HGCalModuleConfigurationRcd>();
     indexToken_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("indexSource"));
   }
 
@@ -49,12 +46,10 @@ public:
     edm::ParameterSetDescription desc;
     desc.add<edm::ESInputTag>("indexSource", edm::ESInputTag(""))
         ->setComment("Label for module indexer to set SoA size");
-    //desc.add<edm::FileInPath>("filename")->setComment("JSON file with FED configuration parameters");
     desc.add<std::string>("fedjson", "")->setComment("JSON file with FED configuration parameters");
     desc.add<std::string>("modjson", "")->setComment("JSON file with ECOND configuration parameters");
     desc.addOptional<int32_t>("bePassthroughMode", -1)
         ->setComment("Manual override for mismatch passthrough mode in the BE");
-    desc.addOptional<int32_t>("econPassthroughMode", -1)->setComment("Manual override passthrough mode in the ECON-D");
     desc.addOptional<int32_t>("cbHeaderMarker", -1)
         ->setComment("Manual override for capture block header marker (BEO, e.g 0x7f)");
     desc.addOptional<int32_t>("slinkHeaderMarker", -1)
@@ -62,54 +57,37 @@ public:
     desc.addOptional<int32_t>("econdHeaderMarker", -1)
         ->setComment("Manual override for ECON-D header marker (BEO, e.g 0x154)");
     desc.addOptional<int32_t>("charMode", -1)->setComment("Manual override for ROC characterization mode");
-    desc.addOptional<int32_t>("gain", -1)->setComment("Manual override for ROC gain");
     descriptions.addWithDefaultLabel(desc);
   }
 
-  static bool checkkeys(const json& data,
-                        const std::string& firstkey,
-                        const std::vector<std::string>& keys,
-                        const std::string& fname) {
-    // check if json contains key
-    bool iscomplete = true;
-    for (auto const& key : keys) {
-      if (not data[firstkey].contains(key)) {
-        edm::LogWarning("HGCalConfigurationESProducer::checkkeys")
-            << " JSON is missing key '" << key << "' for " << firstkey << "!"
-            << " Please check file " << fname;
-        iscomplete = false;
-      }
-    }
-    return iscomplete;
-  }
-
+  // @short get hexadecimal value, and override if value_override>=0
   static int32_t gethex(const std::string& value, const int32_t value_override) {
-    // get value, and override if value_override>=0
     return (value_override >= 0 ? value_override : std::stoi(value, nullptr, 16));
   }
 
+  // @short get integer value, and override if value_override>=0
   static int32_t getint(const int32_t value, const int32_t value_override) {
-    // get value, and override if value_override>=0
     return (value_override >= 0 ? value_override : value);
   }
 
   std::unique_ptr<HGCalConfiguration> produce(const HGCalModuleConfigurationRcd& iRecord) {
     auto const& moduleMap = iRecord.get(indexToken_);
+    edm::LogInfo("HGCalConfigurationESProducer")
+        << "produce: fedjson_=" << fedjson_ << ",\n         modjson_=" << modjson_;
 
     // retrieve values from custom JSON format (see HGCalCalibrationESProducer)
     edm::FileInPath fedfip(fedjson_);  // e.g. HGCalCommissioning/LocalCalibration/data/config_feds.json
     edm::FileInPath modfip(modjson_);  // e.g. HGCalCommissioning/LocalCalibration/data/config_econds.json
-    std::ifstream fedfile(fedfip.fullPath());
-    std::ifstream modfile(modfip.fullPath());
-    const json fed_config_data = json::parse(fedfile);
-    const json mod_config_data = json::parse(modfile);
+    std::ifstream fedfile(fedjson_);
+    std::ifstream modfile(modjson_);
+    const json fed_config_data = json::parse(fedfile, nullptr, true, /*ignore_comments*/ true);
+    const json mod_config_data = json::parse(modfile, nullptr, true, /*ignore_comments*/ true);
 
     // consistency check
-    uint32_t nfeds = moduleMap.getNFED();
+    uint32_t nfeds = moduleMap.getNumFEDs();
     uint32_t ntot_mods = 0, ntot_rocs = 0;
-    const std::vector<std::string> fedkeys = {
-        "mismatchPassthroughMode", "cbHeaderMarker", "slinkHeaderMarker", "econds"};
-    const std::vector<std::string> modkeys = {"headerMarker", "passthrough", "Gain", "CalibrationSC"};
+    const std::vector<std::string> fedkeys = {"mismatchPassthroughMode", "cbHeaderMarker", "slinkHeaderMarker"};
+    const std::vector<std::string> modkeys = {"headerMarker", "CalibrationSC"};
     if (nfeds != fed_config_data.size())
       edm::LogWarning("HGCalConfigurationESProducer")
           << "Total number of FEDs found in JSON file " << fedjson_ << " (" << fed_config_data.size()
@@ -121,48 +99,43 @@ public:
     std::unique_ptr<HGCalConfiguration> config_ = std::make_unique<HGCalConfiguration>();
     for (std::size_t fedid = 0; fedid < moduleMap.getMaxFEDSize(); ++fedid) {
       // sanity checks
-      if (moduleMap.getFEDReadoutSequences()[fedid].readoutTypes_.empty())  // check if FED exists (non-empty)
-        continue;                                                           // skip non-existent FED
-      std::string sfedid = std::to_string(fedid);                           // key in JSON dictionary must be string
-      if (!fed_config_data.contains(sfedid))
-        edm::LogWarning("HGCalConfigurationESProducer")
-            << " Did not find FED index " << sfedid << " in JSON file " << fedjson_ << "...";
-      checkkeys(fed_config_data, sfedid, fedkeys, fedjson_);  // check required keys are in the JSON, warn otherwise
+      if (moduleMap.getFEDReadoutSequences()[fedid].readoutTypes_.empty())         // check if FED exists (non-empty)
+        continue;                                                                  // skip non-existent FED
+      const auto fedkey = hgcal::search_fedkey(fedid, fed_config_data, fedjson_);  // search matching key
+      hgcal::check_keys(
+          fed_config_data, fedkey, fedkeys, fedjson_);  // check required keys are in the JSON, warn otherwise
 
       // fill FED configurations
       HGCalFedConfig fed;
-      fed.mismatchPassthroughMode = getint(fed_config_data[sfedid]["mismatchPassthroughMode"],
+      fed.mismatchPassthroughMode = getint(fed_config_data[fedkey]["mismatchPassthroughMode"],
                                            bePassthroughMode_);  // ignore ECON-D packet mismatches
-      fed.cbHeaderMarker = gethex(fed_config_data[sfedid]["cbHeaderMarker"],
+      fed.cbHeaderMarker = gethex(fed_config_data[fedkey]["cbHeaderMarker"],
                                   cbHeaderMarker_);  // begin of event marker/identifier for capture block
-      fed.slinkHeaderMarker = gethex(fed_config_data[sfedid]["slinkHeaderMarker"],
+      fed.slinkHeaderMarker = gethex(fed_config_data[fedkey]["slinkHeaderMarker"],
                                      slinkHeaderMarker_);  // begin of event marker/identifier for S-link
 
-      // loop over ECON-D modules in JSON
-      for (const std::string typecode :
-           fed_config_data[sfedid]["econds"]) {  // loop over module typecodes in JSON file (e.g. "ML-F3PT-TX-0003")
+      // loop over module typecodes (e.g. "ML-F3PT-TX-0003")
+      for (const auto& [typecode, ids] : moduleMap.getTypecodeMap()) {
+        auto [fedid_, imod] = ids;
+        if (fedid_ != fedid)
+          continue;
 
         // sanity checks for ECON-Ds
         ntot_mods++;
-        const auto& [fedid2, imod] = moduleMap.getIndexForFedAndModule(typecode);
-        if (fedid != fedid2)
-          edm::LogWarning("HGCalConfigurationESProducer")
-              << " FED index from HGCalMappingModuleIndexer (" << fedid << ") does not match that of the JSON file ("
-              << fedid2 << ", " << fedjson_ << ") for ECON-D module with typecode " << typecode << " and id=" << imod
-              << "!";
-        checkkeys(mod_config_data, typecode, modkeys, modjson_);  // check required keys are in the JSON, warn otherwise
+        const auto modkey = hgcal::search_modkey(typecode, mod_config_data, modjson_);  // search matching key
+        hgcal::check_keys(
+            mod_config_data, modkey, modkeys, modjson_);  // check required keys are in the JSON, warn otherwise
         if (imod >= fed.econds.size())
           fed.econds.resize(imod + 1);
 
         // fill ECON-D configuration
+        // headerMarker: begin of event marker/identifier for capture block
         HGCalECONDConfig mod;
-        mod.headerMarker = gethex(mod_config_data[typecode]["headerMarker"],
-                                  econdHeaderMarker_);  // begin of event marker/identifier for capture block
-        mod.passThrough = getint(mod_config_data[typecode]["passthrough"], econPassthroughMode_);
+        mod.headerMarker = gethex(mod_config_data[modkey]["headerMarker"], econdHeaderMarker_);
 
         // sanity checks for eRx half-ROCs
-        uint32_t nrocs = moduleMap.getMaxERxSize(fedid, imod);
-        uint32_t nrocs2 = mod_config_data[typecode]["Gain"].size();
+        uint32_t nrocs = moduleMap.getNumERxs(fedid, imod);
+        uint32_t nrocs2 = mod_config_data[modkey]["CalibrationSC"].size();
         if (nrocs != nrocs2)
           edm::LogWarning("HGCalConfigurationESProducer")
               << " Number of eRx ROCs for ECON-D " << typecode << " in " << fedjson_ << " (" << nrocs2
@@ -174,9 +147,7 @@ public:
         for (uint32_t iroc = 0; iroc < nrocs; iroc++) {
           ntot_rocs++;
           HGCalROCConfig roc;
-          roc.gain = (uint8_t)mod_config_data[typecode]["Gain"][iroc];
-          //roc.charMode = getint(mod_config_data[typecode]["characMode"],charMode_);
-          roc.charMode = getint(mod_config_data[typecode]["CalibrationSC"][iroc], charMode_);
+          roc.charMode = getint(mod_config_data[modkey]["CalibrationSC"][iroc], charMode_);
           mod.rocs[iroc] = roc;  // add to ECON-D's vector<HGCalROCConfig> of eRx half-ROCs
         }
         fed.econds[imod] = mod;  // add to FED's vector<HGCalECONDConfig> of ECON-D modules
@@ -206,15 +177,13 @@ private:
   }
 
   edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> indexToken_;
-  const std::string fedjson_;         // JSON file
-  const std::string modjson_;         // JSON file
-  int32_t bePassthroughMode_ = -1;    // for manual override
-  int32_t cbHeaderMarker_ = -1;       // for manual override
-  int32_t slinkHeaderMarker_ = -1;    // for manual override
-  int32_t econdHeaderMarker_ = -1;    // for manual override
-  int32_t econPassthroughMode_ = -1;  // for manual override
-  int32_t charMode_ = -1;             // for manual override
-  int32_t gain_ = -1;                 // for manual override
+  const std::string fedjson_;       // JSON file
+  const std::string modjson_;       // JSON file
+  int32_t bePassthroughMode_ = -1;  // for manual override
+  int32_t cbHeaderMarker_ = -1;     // for manual override
+  int32_t slinkHeaderMarker_ = -1;  // for manual override
+  int32_t econdHeaderMarker_ = -1;  // for manual override
+  int32_t charMode_ = -1;           // for manual override
 };
 
 DEFINE_FWK_EVENTSETUP_SOURCE(HGCalConfigurationESProducer);

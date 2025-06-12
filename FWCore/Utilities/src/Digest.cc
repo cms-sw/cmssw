@@ -170,17 +170,17 @@ namespace cms {
 
   void Digest::append(std::string const& s) {
     const md5_byte_t* data = reinterpret_cast<const md5_byte_t*>(s.data());
-    md5_append(&state_, const_cast<md5_byte_t*>(data), s.size());
+    md5_append(&state_, data, s.size());
   }
 
   void Digest::append(std::string_view v) {
     const md5_byte_t* data = reinterpret_cast<const md5_byte_t*>(v.data());
-    md5_append(&state_, const_cast<md5_byte_t*>(data), v.size());
+    md5_append(&state_, data, v.size());
   }
 
   void Digest::append(const char* s, size_t size) {
     const md5_byte_t* data = reinterpret_cast<const md5_byte_t*>(s);
-    md5_append(&state_, const_cast<md5_byte_t*>(data), size);
+    md5_append(&state_, data, size);
   }
 
   MD5Result Digest::digest() {

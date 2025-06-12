@@ -63,7 +63,7 @@
 
 #include "RecoJets/JetAlgorithms/interface/HEPTopTaggerWrapperV2.h"
 
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CLHEP/Random/RandomEngine.h"
 

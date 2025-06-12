@@ -63,14 +63,23 @@ void RecHitMapProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
 
 void RecHitMapProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& es) const {
   auto hitMapHGCal = std::make_unique<DetIdRecHitMap>();
-  const auto& ee_hits = evt.get(hits_ee_token_);
-  const auto& fh_hits = evt.get(hits_fh_token_);
-  const auto& bh_hits = evt.get(hits_bh_token_);
+
+  // Retrieve collections
+  const auto& ee_hits = evt.getHandle(hits_ee_token_);
+  const auto& fh_hits = evt.getHandle(hits_fh_token_);
+  const auto& bh_hits = evt.getHandle(hits_bh_token_);
+
+  // Check validity of all handles
+  if (!ee_hits.isValid() || !fh_hits.isValid() || !bh_hits.isValid()) {
+    edm::LogWarning("HGCalRecHitMapProducer") << "One or more hit collections are unavailable. Returning an empty map.";
+    evt.put(std::move(hitMapHGCal), "hgcalRecHitMap");
+    return;
+  }
 
   MultiVectorManager<HGCRecHit> rechitManager;
-  rechitManager.addVector(ee_hits);
-  rechitManager.addVector(fh_hits);
-  rechitManager.addVector(bh_hits);
+  rechitManager.addVector(*ee_hits);
+  rechitManager.addVector(*fh_hits);
+  rechitManager.addVector(*bh_hits);
 
   for (unsigned int i = 0; i < rechitManager.size(); ++i) {
     const auto recHitDetId = rechitManager[i].detid();

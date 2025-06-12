@@ -8,12 +8,13 @@ and manipulate Unix-style signal handling.
 
 ----------------------------------------------------------------------*/
 
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include <csignal>
 #include <atomic>
 
 namespace edm {
 
-  extern volatile std::atomic<bool> shutdown_flag;
+  CMS_THREAD_SAFE extern volatile std::atomic<bool> shutdown_flag;
 
   extern "C" {
   void ep_sigusr2(int, siginfo_t*, void*);
