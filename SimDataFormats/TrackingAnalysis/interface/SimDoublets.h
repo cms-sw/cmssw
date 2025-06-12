@@ -173,6 +173,7 @@ public:
     uint8_t numDoublets() const { return numDoublets_; }
     uint8_t numRecHits() const { return (numDoublets_ + 1); }
     uint8_t firstLayerId() const { return firstLayerId_; }
+    uint8_t secondLayerId() const { return secondLayerId_; }
     uint8_t lastLayerId() const { return lastLayerId_; }
     uint8_t numSkippedLayers() const { return numSkippedLayers_; }
 
@@ -220,12 +221,24 @@ public:
     }
     bool isAlive() const { return !(status_); }  // if nothing is set (no undef and no kills) the tuplet is alive
 
-    // method to compare the own status to a given one and check which one gets farther in the reconstruction chain
-    bool getsFartherInRecoChainThanReference(uint8_t const referenceStatusBit) const {
-      return status_ < referenceStatusBit;
+    // method to get the leading digit of the status (first non-zero one),
+    // e.g. status=00110100 -> failingRecoStep()=00000100
+    // This represents the first step of the reco chain the given Ntuplet fails.
+    // For an alive Ntuplet, return the max value 11111111.
+    uint8_t failingRecoStep() const {
+      if (isAlive())
+        return 0b11111111;
+      else
+        return (status_ & ((~status_) + 1));
     }
+
+    // method to compare the own status to a given reference and check which one gets farther in the reconstruction chain
     bool getsFartherInRecoChainThanReference(Ntuplet const& referenceNtuplet) const {
-      return status_ < referenceNtuplet.status_;
+      return failingRecoStep() > referenceNtuplet.failingRecoStep();
+    }
+    // method to check if the own Ntuplet gets exactly as far in the reco chain as a given reference
+    bool getsAsFarInRecoChainAsReference(Ntuplet const& referenceNtuplet) const {
+      return failingRecoStep() == referenceNtuplet.failingRecoStep();
     }
 
   private:
@@ -306,8 +319,7 @@ public:
 
   // method to build the SimNtuplets
   // minNumDoubletsToPass = the number of doublets required for the Ntuplet to not be considered too short
-  void buildSimNtuplets(std::set<int> const& startingPairs,
-                        size_t const minNumDoubletsToPass = 0) const;
+  void buildSimNtuplets(std::set<int> const& startingPairs, size_t const minNumDoubletsToPass = 0) const;
   // method to access the SimNtuplets
   std::vector<Ntuplet>& getSimNtuplets() const { return ntuplets_; };
   // method to build and access the SimNtuplets in one go
@@ -327,11 +339,16 @@ public:
   Ntuplet const& longestSimNtuplet() const { return ntuplets_.at(longestNtupletIndex_); }
   // method to access the longest alive SimNtuplet
   Ntuplet const& longestAliveSimNtuplet() const { return ntuplets_.at(longestAliveNtupletIndex_); }
+  // method to access the best SimNtuplet
+  Ntuplet const& bestSimNtuplet() const { return ntuplets_.at(bestNtupletIndex_); }
 
   // method to clear the mutable vectors once you finished using them
   void clearMutables() const {
     doublets_.clear();
     ntuplets_.clear();
+    longestNtupletIndex_ = -1;
+    longestAliveNtupletIndex_ = -1;
+    bestNtupletIndex_ = -1;
   }
 
 private:
@@ -366,6 +383,8 @@ private:
   mutable int longestNtupletIndex_{-1};
   // index of the longest SimNtuplet that survives
   mutable int longestAliveNtupletIndex_{-1};
+  // index of the SimNtuplet that gets the farthest in the reco chain
+  mutable int bestNtupletIndex_{-1};
 };
 
 // collection of SimDoublets

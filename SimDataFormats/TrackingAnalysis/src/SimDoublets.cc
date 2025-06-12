@@ -281,16 +281,17 @@ void SimDoublets::buildSimNtuplets(SimDoublets::Doublet const& doublet,
       ntuplets_.back().setFirstDoubletNotInStartingLayerPairs();
     }
 
-    // check if the new SimNtuplet qualifies as longest SimNtuplet>
+    // check if the new SimNtuplet qualifies as longest SimNtuplet
     // A) if it's the first Ntuplet or longer than the current longest,
     //    it becomes automatically the longest
     // B) otherwise:
     //     - it needs to be at least as long as the current longest
-    //     - and it needs to get at least as far in the reconstruction chain:
-    //        1. no missing layer pairs
-    //        2. all doublets survive
-    //        3. all connections survive
-    //        4. Ntuplet is long enough
+    //     - and it needs to get farther in the reconstruction chain:
+    //        1. Ntuplet is long enough
+    //        2. no missing layer pairs
+    //        3. all doublets survive
+    //        4. all connections survive
+    //        5. first doublet from starting layer pair
     if ((longestNtupletIndex_ == -1) || (numSimDoublets > ntuplets_.at(longestNtupletIndex_).numDoublets())) {
       // case A)
       longestNtupletIndex_ = ntuplets_.size() - 1;
@@ -310,6 +311,28 @@ void SimDoublets::buildSimNtuplets(SimDoublets::Doublet const& doublet,
       ) {
         longestAliveNtupletIndex_ = ntuplets_.size() - 1;
       }
+    }
+
+    // check if the new SimNtuplet qualifies as best SimNtuplet yet
+    // A) if it's the first Ntuplet or farther in the reco chain than the current best,
+    //    it becomes automatically the best
+    // B) otherwise:
+    //     - it needs to be at least as long as the current longest
+    //     - and it needs to get at least as far in the reconstruction chain:
+    //        1. Ntuplet is long enough
+    //        2. no missing layer pairs
+    //        3. all doublets survive
+    //        4. all connections survive
+    //        5. first doublet from starting layer pair
+    if ((bestNtupletIndex_ == -1) || ntuplets_.back().getsFartherInRecoChainThanReference(
+                   ntuplets_.at(bestNtupletIndex_))) {
+      // case A)
+      bestNtupletIndex_ = ntuplets_.size() - 1;
+    } else if ((numSimDoublets >= ntuplets_.at(bestNtupletIndex_).numDoublets()) &&  // is at least as long
+               ntuplets_.back().getsAsFarInRecoChainAsReference(
+                   ntuplets_.at(bestNtupletIndex_))) {  // get as far in reconstruction
+      // case B)
+      bestNtupletIndex_ = ntuplets_.size() - 1;
     }
 
     // call this function recursively
@@ -332,6 +355,7 @@ void SimDoublets::buildSimNtuplets(std::set<int> const& startingPairs,
   ntuplets_.clear();
   longestNtupletIndex_ = -1;
   longestAliveNtupletIndex_ = -1;
+  bestNtupletIndex_=-1;
 
   // check if there are at least two doublets
   if (numDoublets() < 2) {
