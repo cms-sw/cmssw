@@ -203,6 +203,10 @@ namespace l1ct {
       unsigned int clkindex360_;
       unsigned int clkindex240_;
 
+      // These values represent at what clock count the first data arrives, counting in 1.39ns increments (2 increments
+      // for one 360MHz clock period, 3 increments for a 240MHz clock period). The 360 version refers to the data as it
+      // is transferred over the fibers, while the 240 is for data going to the regionizer. Some data is thrown out in between.
+      // Both counts are used to determine when the data reaches the regionizer.
       static unsigned int constexpr INIT360 = 2;
       static unsigned int constexpr INIT240 = 4;
 
