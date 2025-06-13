@@ -15,9 +15,6 @@
 
 namespace edm {
 
-  WorkerRegistry::WorkerRegistry(std::shared_ptr<ActivityRegistry> areg, ModuleTypeResolverMaker const* resolverMaker)
-      : modRegistry_(std::make_shared<ModuleRegistry>(resolverMaker)), m_workerMap(), actReg_(areg) {}
-
   WorkerRegistry::WorkerRegistry(std::shared_ptr<ActivityRegistry> areg, std::shared_ptr<ModuleRegistry> modReg)
       : modRegistry_(modReg), m_workerMap(), actReg_(areg) {}
 

@@ -31,14 +31,13 @@ namespace edm {
   /**
      \class WorkerRegistry WorkerRegistry.h "edm/WorkerRegistry.h"
 
-     \brief The Registry of all workers that where requested
+     \brief The Registry of all workers that were requested
      Holds all instances of workers. In this implementation, Workers 
      are owned.
   */
 
   class WorkerRegistry {
   public:
-    explicit WorkerRegistry(std::shared_ptr<ActivityRegistry> areg, ModuleTypeResolverMaker const* resolverMaker);
     WorkerRegistry(std::shared_ptr<ActivityRegistry> areg, std::shared_ptr<ModuleRegistry> iModReg);
     ~WorkerRegistry();
 
