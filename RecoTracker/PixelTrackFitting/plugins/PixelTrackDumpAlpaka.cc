@@ -49,23 +49,23 @@ void PixelTrackDumpAlpakaT<TrackerTraits>::analyze(edm::StreamID streamID,
                                                    edm::Event const& iEvent,
                                                    const edm::EventSetup& iSetup) const {
   auto const& tracks = iEvent.get(tokenSoATrack_);
-  assert(tracks.view().quality());
-  assert(tracks.view().chi2());
-  assert(tracks.view().nLayers());
-  assert(tracks.view().eta());
-  assert(tracks.view().pt());
-  assert(tracks.view().state());
-  assert(tracks.view().covariance());
+  assert(tracks.view().quality().data());
+  assert(tracks.view().chi2().data());
+  assert(tracks.view().nLayers().data());
+  assert(tracks.view().eta().data());
+  assert(tracks.view().pt().data());
+  assert(tracks.view().state().data());
+  assert(tracks.view().covariance().data());
   assert(tracks.view().nTracks());
 
   auto const& vertices = iEvent.get(tokenSoAVertex_);
-  assert(vertices.view<reco::ZVertexTracksSoA>().idv());
-  assert(vertices.view().zv());
-  assert(vertices.view().wv());
-  assert(vertices.view().chi2());
-  assert(vertices.view().ptv2());
-  assert(vertices.view<reco::ZVertexTracksSoA>().ndof());
-  assert(vertices.view().sortInd());
+  assert(vertices.view<reco::ZVertexTracksSoA>().idv().data());
+  assert(vertices.view().zv().data());
+  assert(vertices.view().wv().data());
+  assert(vertices.view().chi2().data());
+  assert(vertices.view().ptv2().data());
+  assert(vertices.view<reco::ZVertexTracksSoA>().ndof().data());
+  assert(vertices.view().sortInd().data());
   assert(vertices.view().nvFinal());
 }
 
