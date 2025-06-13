@@ -38,17 +38,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::memset(queue, isSeed, 0x0);
 
     algoStandalone.makeClustersCMSSW(size,
-                                     inputs.dim1(),
-                                     inputs.dim2(),
-                                     inputs.layer(),
-                                     inputs.energy(),
-                                     inputs.sigmaNoise(),
-                                     inputs.detid(),
-                                     outputs.rho(),
-                                     outputs.delta(),
-                                     outputs.nearestHigher(),
-                                     outputs.clusterIndex(),
-                                     outputs.isSeed(),
+                                     inputs.dim1().data(),
+                                     inputs.dim2().data(),
+                                     inputs.layer().data(),
+                                     inputs.energy().data(),
+                                     inputs.sigmaNoise().data(),
+                                     inputs.detid().data(),
+                                     outputs.rho().data(),
+                                     outputs.delta().data(),
+                                     outputs.nearestHigher().data(),
+                                     outputs.clusterIndex().data(),
+                                     outputs.isSeed().data(),
                                      &outputs.numberOfClustersScalar());
   }
 
