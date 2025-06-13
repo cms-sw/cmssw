@@ -140,7 +140,7 @@ process.bxSelectors = cms.Sequence(
     process.HMJetMult4Et20 +
     process.SingleMuPt0BMTF +
     process.DoubleMuPt0Qual8 +
-    process.MuTagJetEt30Dr0p4
+    process.MuTagJetEt30Dr0p4 +
     process.Stubs3BxWindowSimpleCond +
     process.Stubs3BxWindowWheelCond
 )
@@ -186,7 +186,7 @@ process.MaskedCollections = cms.Sequence(
     process.FinalBxSelectorMuon +
     process.FinalBxSelectorJet +
     process.FinalBxSelectorEGamma +
-    process.FinalBxSelectorTau +
+    # process.FinalBxSelectorTau +
     process.FinalBxSelectorBxSums +
     process.FinalBxSelectorBMTFStub
 )
