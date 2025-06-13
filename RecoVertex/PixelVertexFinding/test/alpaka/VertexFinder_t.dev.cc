@@ -204,8 +204,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             if (vertices_h.view<reco::ZVertexTracksSoA>().ndof()[j] > 0)
               vertices_h.view().chi2()[j] /= float(vertices_h.view<reco::ZVertexTracksSoA>().ndof()[j]);
           {
-            auto mx =
-                std::minmax_element(vertices_h.view().chi2(), vertices_h.view().chi2() + vertices_h.view().nvFinal());
+            auto mx = std::minmax_element(vertices_h.view().chi2().data(),
+                                          vertices_h.view().chi2().data() + vertices_h.view().nvFinal());
             std::cout << "after fit nv, min max chi2 " << vertices_h.view().nvFinal() << " " << *mx.first << ' '
                       << *mx.second << std::endl;
           }
@@ -224,8 +224,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             if (vertices_h.view<reco::ZVertexTracksSoA>().ndof()[j] > 0)
               vertices_h.view().chi2()[j] /= float(vertices_h.view<reco::ZVertexTracksSoA>().ndof()[j]);
           {
-            auto mx =
-                std::minmax_element(vertices_h.view().chi2(), vertices_h.view().chi2() + vertices_h.view().nvFinal());
+            auto mx = std::minmax_element(vertices_h.view().chi2().data(),
+                                          vertices_h.view().chi2().data() + vertices_h.view().nvFinal());
             std::cout << "before splitting nv, min max chi2 " << vertices_h.view().nvFinal() << " " << *mx.first << ' '
                       << *mx.second << std::endl;
           }
@@ -271,21 +271,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             if (vertices_h.view<reco::ZVertexTracksSoA>().ndof()[j] > 0)
               vertices_h.view().chi2()[j] /= float(vertices_h.view<reco::ZVertexTracksSoA>().ndof()[j]);
           {
-            auto mx =
-                std::minmax_element(vertices_h.view().chi2(), vertices_h.view().chi2() + vertices_h.view().nvFinal());
+            auto mx = std::minmax_element(vertices_h.view().chi2().data(),
+                                          vertices_h.view().chi2().data() + vertices_h.view().nvFinal());
             std::cout << "nv, min max chi2 " << vertices_h.view().nvFinal() << " " << *mx.first << ' ' << *mx.second
                       << std::endl;
           }
 
           {
-            auto mx = std::minmax_element(vertices_h.view().wv(), vertices_h.view().wv() + vertices_h.view().nvFinal());
+            auto mx = std::minmax_element(vertices_h.view().wv().data(),
+                                          vertices_h.view().wv().data() + vertices_h.view().nvFinal());
             std::cout << "min max error " << 1. / std::sqrt(*mx.first) << ' ' << 1. / std::sqrt(*mx.second)
                       << std::endl;
           }
 
           {
-            auto mx =
-                std::minmax_element(vertices_h.view().ptv2(), vertices_h.view().ptv2() + vertices_h.view().nvFinal());
+            auto mx = std::minmax_element(vertices_h.view().ptv2().data(),
+                                          vertices_h.view().ptv2().data() + vertices_h.view().nvFinal());
             std::cout << "min max ptv2 " << *mx.first << ' ' << *mx.second << std::endl;
             std::cout << "min max ptv2 " << vertices_h.view().ptv2()[vertices_h.view().sortInd()[0]] << ' '
                       << vertices_h.view().ptv2()[vertices_h.view().sortInd()[vertices_h.view().nvFinal() - 1]]
