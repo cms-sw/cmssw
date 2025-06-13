@@ -45,7 +45,7 @@
  * objects from the output of SoA CA.
  */
 
-#define GPU_DEBUG
+// #define GPU_DEBUG
 
 class PixelTrackProducerFromSoAAlpaka : public edm::global::EDProducer<> {
   using TrackSoAHost = reco::TracksHost;

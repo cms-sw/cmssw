@@ -12,7 +12,7 @@ hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
     fillStatistics = cms.bool(True),
     minHitsPerNtuplet = cms.uint32(5),
     maxNumberOfDoublets = cms.string(str(15*512*1024)),
-    maxNumberOfTuples = cms.string(str(2*60*1024)), 
+    maxNumberOfTuples = cms.string(str(2*60*1024)),
     cellPtCut = cms.double(0.85), # Corresponds to 1 GeV * this cut, i.e., 850 MeV, as minimum p_t
     cellZ0Cut = cms.double(12.5), # it's half the BS width! It has nothing to do with the sample!!
     minYsizeB1 = cms.int32(25),
@@ -33,7 +33,7 @@ hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
     trackQualityCuts = cms.PSet(
         maxChi2 = cms.double(5.0),
         minPt   = cms.double(0.9),
-        maxTip  = cms.double(0.3),
+        maxTip  = cms.double(2.5),
         maxZip  = cms.double(12),
     ),
     geometry = cms.PSet(
@@ -46,13 +46,13 @@ hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
         # investigation. Therefore the cut represent the compatibility of the
         # circle in the transverse plane and the units are meant to be cm.
         caDCACuts = cms.vdouble(
-            0.15,                       #  0 
+            0.15,                       #  0
             0.25,                       #  1
             0.20,                       #  2
             0.20, # End PXB             #  3
-            0.25,                       #  4 
-            0.25,                       #  5 
-            0.25,                       #  6 
+            0.25,                       #  4
+            0.25,                       #  5
+            0.25,                       #  6
             0.25,                       #  7
             0.25,                       #  8
             0.25,                       #  9
@@ -144,12 +144,14 @@ hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
                 26,
                 27,
                 28),
+#                30,
+#                31),
 #                29,
 #                30,
 #                31,
 #                32),
         pairGraph = cms.vint32(
-                0, 1,                         # 0  
+                0, 1,                         # 0
                 0, 4,                         # 1
                 0, 16,                        # 2
                 1, 2,                         # 3
@@ -179,8 +181,8 @@ hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
                 0, 18,                        # 27
                 1, 3,                         # 28
 #                2, 5,                        # 29
-                1, 5,                         # 31
-                1, 17,                        # 30
+                1, 5,                         # 30
+                1, 17,                        # 31
 #                1, 18, # last starting pair  # 32
                 11, 12,                       # 33
                 12, 13,                       # 34
@@ -212,14 +214,14 @@ hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
                 29, 30,                       # 60
                  4, 28,                       # 61
                  5, 28,                       # 62
-##                6, 28,                      # 63
+                 6, 28,                       # 63
 #                7, 28,   # 64 from top 0     # 64
 #                8, 28,                       # 65
 #                9, 28,                       # 66
                 16, 28,                       # 67
                 17, 28,                       # 68
-##                18, 28,                     # 69
-#                19, 28,                      # 70 
+                18, 28,                       # 69
+#               19, 28,                       # 70
 #                20, 28,                      # 71
 #                21, 28,                      # 72
 #                4, 29,                       # 73
@@ -234,7 +236,7 @@ hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
 #                20, 29                       # 82
                  ),
         phiCuts = cms.vint32(
-                522,   # 0 
+                522,   # 0
                 522,   # 1
                 522,   # 2
                 626,   # 3
@@ -297,13 +299,13 @@ hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
                1000,   # 60
                1000,   # 61
                1000,   # 62
-##               1000, # 63
+               1000, # 63
 #               1000,  # 64 # 64 from top 0
 #               1000,  # 65
 #               1000,  # 66
                1000,   # 67
                1000,   # 68
-##               1000, # 69
+               1000, # 69
 #               1000,  # 70
 #               1000,  # 71
 #               1000,  # 72
@@ -318,10 +320,10 @@ hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
 #               1000,  # 81
 #               1000   # 82
                 ),
-        # minZ and maxZ are the limit in Z for the inner cell of a doublets in
+        # minZ and maxZ are the limits in Z for the inner cell of a doublets in
         # order to be able to make a doublet with the other layer.
         minZ = cms.vdouble(
-                -17,     # 0 
+                -19,     # 0
                 4,       # 1
                 -22,     # 2
                 -18,     # 3
@@ -344,15 +346,15 @@ hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
                 -70,     # 20
                 -87,     # 21
                 -113,    # 22
-                -17,     # 23
+                -19,     # 23
                 7,       # 24
                 -22,     # 25
                 11,      # 26
                 -22,     # 27
                 -19,     # 28
 #                9,      # 29
-                -22,     # 30
-                9,       # 31
+                7,       # 30
+                -22,     # 31
 #                -22,    # 32
                 137,     # 33
                 173,     # 34
@@ -384,14 +386,14 @@ hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
                 -1200,   # 60
                  23,     # 61
                  30,     # 62
-##                -20,   # 63
-#                -1000,  # 64 #  64 from top 0
+                39,      # 63
+#                50,      # 64 #  64 from top 0
 #                -1000,  # 65
 #                -1000,  # 66
                 -28,     # 67
                 -35,     # 68
-##                -20,   # 69
-#                -1000,  # 70
+                -44,     # 69
+#                -55,     # 70
 #                -1000,  # 71
 #                -1000,  # 72
 #                -1000,  # 73
@@ -406,7 +408,7 @@ hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
 #                -1000   # 82
                  ),
         maxZ = cms.vdouble(
-                17,      # 0 
+                19,      # 0
                 22,      # 1
                 -4,      # 2
                 18,      # 3
@@ -429,15 +431,15 @@ hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
                 -65,     # 20
                 -82,     # 21
                 -109,    # 22
-                17,      # 23
+                19,      # 23
                 22,      # 24
                 -7,      # 25
                 22,      # 26
                 -11,     # 27
                 19,      # 28
 #                22,     # 29
-                -9,      # 30
-                22,      # 31
+                22,      # 30
+                -7,      # 31
 #                -13,    # 32
                 142,     # 33
                 177,     # 34
@@ -469,14 +471,14 @@ hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
                 1200,    # 60
                   28,    # 61
                 35,      # 62
-##                20,    # 63
-#                1000,   # 64 64 gtom top 0
+                44,      # 63
+#                55,     # 64 64 gtom top 0
 #                1000,   # 65
 #                1000,   # 66
                 -23,     # 67
                 -30,     # 68
-##                20,    # 69
-#                1000,   # 70
+                -39,    # 69
+#                -50,   # 70
 #                1000,   # 71
 #                1000,   # 72
 #                1000,   # 73
@@ -491,7 +493,7 @@ hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
 #                1000    # 82
                  ),
         maxR = cms.vdouble(
-                5,   # 0 
+                5,   # 0
                 5,   # 1
                 5,   # 2
                 7,   # 3
@@ -554,13 +556,13 @@ hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
                 60,  # 60
                 60,  # 61
                 60,  # 62
-##                60,# 63
-#                60, # 64 64 from top 0
+                60,  # 63
+#                60,  # 64 64 from top 0
 #                60, # 65
 #                60, # 66
                 60,  # 67
                 60,  # 68
-##                60,# 69
+                60,# 69
 #                60, # 70
 #                60, # 71
 #                60, # 72
