@@ -2,6 +2,7 @@
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/FEDRawData/interface/SLinkRocketHeaders.h"
 #include "DataFormats/TCDS/interface/TCDSRaw.h"
 
 //#include "EventFilter/Utilities/interface/GlobalEventNumber.h"
