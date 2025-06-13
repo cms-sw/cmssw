@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 import RecoTracker.MkFit.mkFitGeometryESProducer_cfi as mkFitGeometryESProducer_cfi
 import RecoTracker.MkFit.mkFitSiPixelHitConverter_cfi as mkFitSiPixelHitConverter_cfi
 import RecoTracker.MkFit.mkFitSiStripHitConverter_cfi as mkFitSiStripHitConverter_cfi
+import RecoTracker.MkFit.mkFitSiStripHitConverterFromClusters_cfi as mkFitSiStripHitConverterFromClusters_cfi
 import RecoTracker.MkFit.mkFitEventOfHitsProducer_cfi as mkFitEventOfHitsProducer_cfi
 import RecoTracker.MkFit.mkFitSeedConverter_cfi as mkFitSeedConverter_cfi
 import RecoTracker.MkFit.mkFitIterationConfigESProducer_cfi as mkFitIterationConfigESProducer_cfi
@@ -202,6 +203,31 @@ def customizeHLTIter0ToMkFit(process):
             if not path.contains(process.HLTIterativeTrackingIteration0SerialSync) and path.contains(process.hltIter0PFlowCkfTrackCandidatesSerialSync):
                 path.replace(process.hltIter0PFlowCkfTrackCandidatesSerialSync, replaceWithSerialSync)
 
+
+    return process
+
+def customizeHLTStripHitsFromMkFit(process):
+
+    # if any of the following objects does not exist, do not apply any customisation
+    for objLabel in [
+        'hltSiStripRawToClustersFacility',
+        'HLTDoLocalStripSequence',
+        'HLTIterativeTrackingIteration0',
+        'hltIter0PFlowCkfTrackCandidates',
+    ]:
+        if not hasattr(process, objLabel):
+            print(f'# WARNING: customizeHLTIter0ToMkFit failed (object with label "{objLabel}" not found) - no customisation applied !')
+            return process
+
+    process.hltIter0PFlowCkfTrackCandidatesMkFitSiStripHits = mkFitSiStripHitConverterFromClusters_cfi.mkFitSiStripHitConverterFromClusters.clone(
+        clusters = "hltSiStripRawToClustersFacility",
+        ttrhBuilder = ":hltESPTTRHBWithTrackAngle",
+        StripCPE = process.hltSiStripRecHits.StripCPE,
+        minGoodStripCharge = dict(refToPSet_ = 'HLTSiStripClusterChargeCutLoose'),
+        doMatching = False,
+    )
+
+    delattr(process, "hltSiStripRecHits")
 
     return process
 
