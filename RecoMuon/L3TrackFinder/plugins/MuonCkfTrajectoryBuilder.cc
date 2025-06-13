@@ -36,9 +36,8 @@ protected:
 
   bool muonToBeContinued(TempTrajectory& traj) const;
 
-  std::unique_ptr<TrajectoryFilter> createTrajectoryFilter(const edm::ParameterSet& pset,
-							   edm::ConsumesCollector& iC);
-  
+  std::unique_ptr<TrajectoryFilter> createTrajectoryFilter(const edm::ParameterSet& pset, edm::ConsumesCollector& iC);
+
   void collectMeasurement(const DetLayer* layer,
                           const std::vector<const DetLayer*>& nl,
                           const TrajectoryStateOnSurface& currentState,
@@ -49,7 +48,7 @@ protected:
   unsigned int limitedCandidates(const std::shared_ptr<const TrajectorySeed>& sharedSeed,
                                  TempTrajectoryContainer& candidates,
                                  TrajectoryContainer& result) const override;
-  
+
   void findCompatibleMeasurements(const TrajectorySeed& seed,
                                   const TempTrajectory& traj,
                                   std::vector<TrajectoryMeasurement>& result) const override;
@@ -68,14 +67,15 @@ protected:
 };
 
 MuonCkfTrajectoryBuilder::MuonCkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector& iC)
-  : CkfTrajectoryBuilder(conf, iC),
-    theFilter(std::move(MuonCkfTrajectoryBuilder::createTrajectoryFilter(conf.getParameter<edm::ParameterSet>("trajectoryFilter"), iC))),
-    theDeltaEta(conf.getParameter<double>("deltaEta")),
-    theDeltaPhi(conf.getParameter<double>("deltaPhi")),
-    theProximityPropagatorName(conf.getParameter<std::string>("propagatorProximity")),
-    theProximityPropagator(nullptr),
-    thePropagatorToken(iC.esConsumes(edm::ESInputTag("", theProximityPropagatorName))),
-    theEtaPhiEstimator(nullptr) {
+    : CkfTrajectoryBuilder(conf, iC),
+      theFilter(std::move(MuonCkfTrajectoryBuilder::createTrajectoryFilter(
+          conf.getParameter<edm::ParameterSet>("trajectoryFilter"), iC))),
+      theDeltaEta(conf.getParameter<double>("deltaEta")),
+      theDeltaPhi(conf.getParameter<double>("deltaPhi")),
+      theProximityPropagatorName(conf.getParameter<std::string>("propagatorProximity")),
+      theProximityPropagator(nullptr),
+      thePropagatorToken(iC.esConsumes(edm::ESInputTag("", theProximityPropagatorName))),
+      theEtaPhiEstimator(nullptr) {
   //and something specific to me ?
   theUseSeedLayer = conf.getParameter<bool>("useSeedLayer");
   theRescaleErrorIfFail = conf.getParameter<double>("rescaleErrorIfFail");
@@ -139,14 +139,14 @@ std::unique_ptr<TrajectoryFilter> MuonCkfTrajectoryBuilder::createTrajectoryFilt
 
 bool MuonCkfTrajectoryBuilder::muonToBeContinued(TempTrajectory& traj) const {
   if UNLIKELY (traj.measurements().size() > 400) {
-      edm::LogError("BaseCkfTrajectoryBuilder_InfiniteLoop");
-      LogTrace("BaseCkfTrajectoryBuilder_InfiniteLoop")
+    edm::LogError("BaseCkfTrajectoryBuilder_InfiniteLoop");
+    LogTrace("BaseCkfTrajectoryBuilder_InfiniteLoop")
         << "Cropping Track After 400 Measurements:\n"
         << "   Last predicted state: " << traj.lastMeasurement().predictedState() << "\n"
         << "   Last layer subdetector: " << (traj.lastLayer() ? traj.lastLayer()->subDetector() : -1) << "\n"
         << "   Found hits: " << traj.foundHits() << ", lost hits: " << traj.lostHits() << "\n\n";
-      return false;
-    }
+    return false;
+  }
   // Called after each new hit is added to the trajectory, to see if it is
   // worth continuing to build this track candidate.
 
@@ -154,12 +154,12 @@ bool MuonCkfTrajectoryBuilder::muonToBeContinued(TempTrajectory& traj) const {
   // ensure that an infinite loop is not created (CMSHLT-3557).
   // Avoid hit-pair structures as last = last-2, and last-1 = last-3,
   // where last refers to measurements.
-  
+
   const TempTrajectory::DataContainer tms = traj.measurements();
   TempTrajectory::DataContainer::const_iterator tm = tms.begin();
 
   // Ensure at sufficient amount of measurements before checking for loops
-  if (traj.measurements().size()>15){
+  if (traj.measurements().size() > 15) {
     TrackingRecHit::RecHitPointer lastHit = tm->recHit();
     ++tm;
     TrackingRecHit::RecHitPointer last2Hit = tm->recHit();
@@ -167,19 +167,19 @@ bool MuonCkfTrajectoryBuilder::muonToBeContinued(TempTrajectory& traj) const {
     TrackingRecHit::RecHitPointer last3Hit = tm->recHit();
     ++tm;
     TrackingRecHit::RecHitPointer last4Hit = tm->recHit();
-    if (lastHit->geographicalId() == last3Hit->geographicalId() && last2Hit->geographicalId() == last4Hit->geographicalId()){
-      LogDebug("CkfPattern") << "Loop pattern found in last recHits\n"
-			     << PrintoutHelper::dumpMeasurements(tms);
+    if (lastHit->geographicalId() == last3Hit->geographicalId() &&
+        last2Hit->geographicalId() == last4Hit->geographicalId()) {
+      LogDebug("CkfPattern") << "Loop pattern found in last recHits\n" << PrintoutHelper::dumpMeasurements(tms);
 
       return false;
     }
-  }  
-  return theFilter->toBeContinued(traj);  
+  }
+  return theFilter->toBeContinued(traj);
 }
 
 unsigned int MuonCkfTrajectoryBuilder::limitedCandidates(const std::shared_ptr<const TrajectorySeed>& sharedSeed,
-							 TempTrajectoryContainer& candidates,
-							 TrajectoryContainer& result) const {
+                                                         TempTrajectoryContainer& candidates,
+                                                         TrajectoryContainer& result) const {
   unsigned int nIter = 1;
   unsigned int nCands = 0;  // ignore startingTraj
   unsigned int prevNewCandSize = 0;
@@ -245,7 +245,7 @@ unsigned int MuonCkfTrajectoryBuilder::limitedCandidates(const std::shared_ptr<c
           }
         }
       }
-      
+
       // account only new candidates, i.e.
       // - 1 candidate -> 1 candidate, don't increase count
       // - 1 candidate -> 2 candidates, increase count by 1
@@ -326,7 +326,6 @@ void MuonCkfTrajectoryBuilder::collectMeasurement(const DetLayer* layer,
   //<< "x: " << currentState.globalPosition() << "\n"
   //<< "p: " << currentState.globalMomentum() << "\n"
   //<< PrintoutHelper::dumpMeasurements(result) << std::endl;
-  
 }
 
 void MuonCkfTrajectoryBuilder::findCompatibleMeasurements(const TrajectorySeed& seed,

@@ -80,9 +80,9 @@ protected:
                                  TempTrajectory& startingTraj,
                                  TrajectoryContainer& result) const;
   virtual unsigned int limitedCandidates(const std::shared_ptr<const TrajectorySeed>& sharedSeed,
-					 TempTrajectoryContainer& candidates,
-					 TrajectoryContainer& result) const;
-  
+                                         TempTrajectoryContainer& candidates,
+                                         TrajectoryContainer& result) const;
+
   void updateTrajectory(TempTrajectory& traj, TM&& tm) const;
 
   /*  
