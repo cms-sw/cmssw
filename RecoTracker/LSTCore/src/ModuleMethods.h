@@ -25,13 +25,13 @@ namespace lst {
     // https://github.com/cms-sw/cmssw/blob/5e809e8e0a625578aa265dc4b128a93830cb5429/Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h#L29
   };
 
-  bool parseIsLower(bool isInvertedx, unsigned int detId) { return (isInvertedx) ? !(detId & 1) : (detId & 1); }
+  inline bool parseIsLower(bool isInvertedx, unsigned int detId) { return (isInvertedx) ? !(detId & 1) : (detId & 1); }
 
-  unsigned int parsePartnerModuleId(unsigned int detId, bool isLowerx, bool isInvertedx) {
+  inline unsigned int parsePartnerModuleId(unsigned int detId, bool isLowerx, bool isInvertedx) {
     return isLowerx ? (isInvertedx ? detId - 1 : detId + 1) : (isInvertedx ? detId + 1 : detId - 1);
   }
 
-  bool parseIsInverted(short subdet, short side, short module, short layer) {
+  inline bool parseIsInverted(short subdet, short side, short module, short layer) {
     if (subdet == Endcap) {
       if (side == NegZ) {
         return module % 2 == 1;
@@ -130,8 +130,8 @@ namespace lst {
   inline void fillConnectedModuleArrayExplicit(Modules modules,
                                                ModuleMetaData const& mmd,
                                                ModuleConnectionMap const& moduleConnectionMap) {
-    Params_Modules::ArrayU16xMaxConnected* moduleMap = modules.moduleMap();
-    uint16_t* nConnectedModules = modules.nConnectedModules();
+    auto moduleMap = modules.moduleMap();
+    auto nConnectedModules = modules.nConnectedModules();
 
     for (auto it = mmd.detIdToIndex.begin(); it != mmd.detIdToIndex.end(); ++it) {
       unsigned int detId = it->first;
@@ -145,8 +145,8 @@ namespace lst {
   }
 
   inline void fillMapArraysExplicit(Modules modules, ModuleMetaData const& mmd) {
-    uint16_t* mapIdx = modules.mapIdx();
-    unsigned int* mapdetId = modules.mapdetId();
+    auto mapIdx = modules.mapIdx();
+    auto mapdetId = modules.mapdetId();
 
     unsigned int counter = 0;
     for (auto it = mmd.detIdToIndex.begin(); it != mmd.detIdToIndex.end(); ++it) {
@@ -246,26 +246,26 @@ namespace lst {
     auto modules_view = modulesHC->view<ModulesSoA>();
 
     // Getting the underlying data pointers
-    unsigned int* host_detIds = modules_view.detIds();
-    short* host_layers = modules_view.layers();
-    short* host_rings = modules_view.rings();
-    short* host_rods = modules_view.rods();
-    short* host_modules = modules_view.modules();
-    short* host_subdets = modules_view.subdets();
-    short* host_sides = modules_view.sides();
-    float* host_eta = modules_view.eta();
-    float* host_r = modules_view.r();
-    bool* host_isInverted = modules_view.isInverted();
-    bool* host_isLower = modules_view.isLower();
-    bool* host_isAnchor = modules_view.isAnchor();
-    ModuleType* host_moduleType = modules_view.moduleType();
-    ModuleLayerType* host_moduleLayerType = modules_view.moduleLayerType();
-    float* host_dxdys = modules_view.dxdys();
-    float* host_drdzs = modules_view.drdzs();
+    auto host_detIds = modules_view.detIds();
+    auto host_layers = modules_view.layers();
+    auto host_rings = modules_view.rings();
+    auto host_rods = modules_view.rods();
+    auto host_modules = modules_view.modules();
+    auto host_subdets = modules_view.subdets();
+    auto host_sides = modules_view.sides();
+    auto host_eta = modules_view.eta();
+    auto host_r = modules_view.r();
+    auto host_isInverted = modules_view.isInverted();
+    auto host_isLower = modules_view.isLower();
+    auto host_isAnchor = modules_view.isAnchor();
+    auto host_moduleType = modules_view.moduleType();
+    auto host_moduleLayerType = modules_view.moduleLayerType();
+    auto host_dxdys = modules_view.dxdys();
+    auto host_drdzs = modules_view.drdzs();
     uint16_t* host_nModules = &modules_view.nModules();
     uint16_t* host_nLowerModules = &modules_view.nLowerModules();
-    uint16_t* host_partnerModuleIndices = modules_view.partnerModuleIndices();
-    int* host_lstLayers = modules_view.lstLayers();
+    auto host_partnerModuleIndices = modules_view.partnerModuleIndices();
+    auto host_lstLayers = modules_view.lstLayers();
 
     //reassign detIdToIndex indices here
     nLowerModules = (nModules - 1) / 2;

@@ -202,15 +202,14 @@ void LSTEvent::createMiniDoublets() {
     miniDoubletsDC_.emplace(mds_sizes, queue_);
 
     auto mdsOccupancy = miniDoubletsDC_->view<MiniDoubletsOccupancySoA>();
-    auto nMDs_view = cms::alpakatools::make_device_view(queue_, mdsOccupancy.nMDs(), mdsOccupancy.metadata().size());
-    auto totOccupancyMDs_view =
-        cms::alpakatools::make_device_view(queue_, mdsOccupancy.totOccupancyMDs(), mdsOccupancy.metadata().size());
+    auto nMDs_view = cms::alpakatools::make_device_view(queue_, mdsOccupancy.nMDs());
+    auto totOccupancyMDs_view = cms::alpakatools::make_device_view(queue_, mdsOccupancy.totOccupancyMDs());
     alpaka::memset(queue_, nMDs_view, 0u);
     alpaka::memset(queue_, totOccupancyMDs_view, 0u);
   }
 
   auto mdView = miniDoubletsDC_->view<MiniDoubletsSoA>();
-  auto connView = cms::alpakatools::make_device_view(queue_, mdView.connectedMax(), mdView.metadata().size());
+  auto connView = cms::alpakatools::make_device_view(queue_, mdView.connectedMax());
   alpaka::memset(queue_, connView, 0u);
 
   unsigned int mdSize = pixelSize_ * 2;
@@ -293,13 +292,12 @@ void LSTEvent::createSegmentsWithModuleMap() {
 
     auto segmentsOccupancy = segmentsDC_->view<SegmentsOccupancySoA>();
     auto segments = segmentsDC_->view<SegmentsSoA>();
-    auto nSegments_view =
-        cms::alpakatools::make_device_view(queue_, segmentsOccupancy.nSegments(), segmentsOccupancy.metadata().size());
-    auto totOccupancySegments_view = cms::alpakatools::make_device_view(
-        queue_, segmentsOccupancy.totOccupancySegments(), segmentsOccupancy.metadata().size());
+    auto nSegments_view = cms::alpakatools::make_device_view(queue_, segmentsOccupancy.nSegments());
+    auto totOccupancySegments_view =
+        cms::alpakatools::make_device_view(queue_, segmentsOccupancy.totOccupancySegments());
     alpaka::memset(queue_, nSegments_view, 0u);
     alpaka::memset(queue_, totOccupancySegments_view, 0u);
-    auto conn_view = cms::alpakatools::make_device_view(queue_, segments.connectedMax(), segments.metadata().size());
+    auto conn_view = cms::alpakatools::make_device_view(queue_, segments.connectedMax());
     alpaka::memset(queue_, conn_view, 0u);
 
     auto src_view_size = cms::alpakatools::make_host_view(pixelSize_);
@@ -375,21 +373,19 @@ void LSTEvent::createTriplets() {
     tripletsDC_.emplace(triplets_sizes, queue_);
 
     auto tripletsOccupancy = tripletsDC_->view<TripletsOccupancySoA>();
-    auto nTriplets_view =
-        cms::alpakatools::make_device_view(queue_, tripletsOccupancy.nTriplets(), tripletsOccupancy.metadata().size());
+    auto nTriplets_view = cms::alpakatools::make_device_view(queue_, tripletsOccupancy.nTriplets());
     alpaka::memset(queue_, nTriplets_view, 0u);
-    auto totOccupancyTriplets_view = cms::alpakatools::make_device_view(
-        queue_, tripletsOccupancy.totOccupancyTriplets(), tripletsOccupancy.metadata().size());
+    auto totOccupancyTriplets_view =
+        cms::alpakatools::make_device_view(queue_, tripletsOccupancy.totOccupancyTriplets());
     alpaka::memset(queue_, totOccupancyTriplets_view, 0u);
     auto triplets = tripletsDC_->view<TripletsSoA>();
-    auto partOfPT5_view = cms::alpakatools::make_device_view(queue_, triplets.partOfPT5(), triplets.metadata().size());
+    auto partOfPT5_view = cms::alpakatools::make_device_view(queue_, triplets.partOfPT5());
     alpaka::memset(queue_, partOfPT5_view, 0u);
-    auto partOfT5_view = cms::alpakatools::make_device_view(queue_, triplets.partOfT5(), triplets.metadata().size());
+    auto partOfT5_view = cms::alpakatools::make_device_view(queue_, triplets.partOfT5());
     alpaka::memset(queue_, partOfT5_view, 0u);
-    auto partOfPT3_view = cms::alpakatools::make_device_view(queue_, triplets.partOfPT3(), triplets.metadata().size());
+    auto partOfPT3_view = cms::alpakatools::make_device_view(queue_, triplets.partOfPT3());
     alpaka::memset(queue_, partOfPT3_view, 0u);
-    auto connectedMax_view =
-        cms::alpakatools::make_device_view(queue_, triplets.connectedMax(), triplets.metadata().size());
+    auto connectedMax_view = cms::alpakatools::make_device_view(queue_, triplets.connectedMax());
     alpaka::memset(queue_, connectedMax_view, 0u);
   }
 
@@ -781,20 +777,17 @@ void LSTEvent::createQuintuplets() {
     std::array<int, 2> const quintuplets_sizes{{static_cast<int>(nTotalQuintuplets), static_cast<int>(nLowerModules_)}};
     quintupletsDC_.emplace(quintuplets_sizes, queue_);
     auto quintupletsOccupancy = quintupletsDC_->view<QuintupletsOccupancySoA>();
-    auto nQuintuplets_view = cms::alpakatools::make_device_view(
-        queue_, quintupletsOccupancy.nQuintuplets(), quintupletsOccupancy.metadata().size());
+    auto nQuintuplets_view = cms::alpakatools::make_device_view(queue_, quintupletsOccupancy.nQuintuplets());
     alpaka::memset(queue_, nQuintuplets_view, 0u);
-    auto totOccupancyQuintuplets_view = cms::alpakatools::make_device_view(
-        queue_, quintupletsOccupancy.totOccupancyQuintuplets(), quintupletsOccupancy.metadata().size());
+    auto totOccupancyQuintuplets_view =
+        cms::alpakatools::make_device_view(queue_, quintupletsOccupancy.totOccupancyQuintuplets());
     alpaka::memset(queue_, totOccupancyQuintuplets_view, 0u);
     auto quintuplets = quintupletsDC_->view<QuintupletsSoA>();
-    auto isDup_view = cms::alpakatools::make_device_view(queue_, quintuplets.isDup(), quintuplets.metadata().size());
+    auto isDup_view = cms::alpakatools::make_device_view(queue_, quintuplets.isDup());
     alpaka::memset(queue_, isDup_view, 0u);
-    auto tightCutFlag_view =
-        cms::alpakatools::make_device_view(queue_, quintuplets.tightCutFlag(), quintuplets.metadata().size());
+    auto tightCutFlag_view = cms::alpakatools::make_device_view(queue_, quintuplets.tightCutFlag());
     alpaka::memset(queue_, tightCutFlag_view, 0u);
-    auto partOfPT5_view =
-        cms::alpakatools::make_device_view(queue_, quintuplets.partOfPT5(), quintuplets.metadata().size());
+    auto partOfPT5_view = cms::alpakatools::make_device_view(queue_, quintuplets.partOfPT5());
     alpaka::memset(queue_, partOfPT5_view, 0u);
   }
 
