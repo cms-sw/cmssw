@@ -13,6 +13,10 @@ def PixBary(config, validationDir, verbose=False):
     ##Start with single jobs
     jobType = "single"
 
+    ##Common paths
+    dir_base = os.path.join(validationDir, _validationName) # Base path for work directories (one for for each job, alignment and IOV)
+    out_base = os.path.join(config["LFS"], config["name"], _validationName)
+
     ##Check that a job is defined
     if not jobType in config["validations"][_validationName]:
         raise LookupError("No '%s' key word in config for %s" %(jobType, _validationName))
@@ -31,12 +35,9 @@ def PixBary(config, validationDir, verbose=False):
             for alignment in jobConfig["alignments"]:
                 alignmentConfig = config["alignments"][alignment]
 
-                ##Work directory for each IOV
-                workDir = os.path.join(validationDir, _validationName, jobType, jobName, alignment, IOV)
-
                 ##Write local config
                 local = {}
-                local["output"] = os.path.join(config["LFS"], config["name"], _validationName, jobType, alignment, jobName, IOV)
+                local["output"] = os.path.join(out_base, jobType, alignment, jobName, IOV)
                 local["alignment"] = copy.deepcopy(alignmentConfig)
                 local["alignment"]["label"] = alignment
                 local["validation"] = copy.deepcopy(jobConfig)
@@ -49,8 +50,9 @@ def PixBary(config, validationDir, verbose=False):
 
                 ##Write job info
                 job = {
+                    "label": jobName, # the name used in the config, so that it can be referenced lated
                     "name": "{}_{}_{}_{}_{}".format(_validationName, alignment, jobType, jobName, IOV),
-                    "dir": workDir,
+                    "dir": os.path.join(dir_base, jobType, jobName, alignment, IOV),
                     "exe": "cmsRun",
                     "cms-config": "{}/src/Alignment/OfflineValidation/python/TkAlAllInOneTool/PixelBaryCentreAnalyzer_cfg.py".format(os.environ["CMSSW_BASE"]),
                     "run-mode": "Condor",
@@ -58,6 +60,32 @@ def PixBary(config, validationDir, verbose=False):
                     "config": local,
                 }
 
+                jobs.append(job)
+
+    # Extract text from the ROOT files
+    jobType = "extract"
+
+    for jobName, jobConfig in config["validations"][_validationName][jobType].items():
+        for singleName in jobConfig.get("singles"):
+            # Search for the "single" job referenced by name
+            matchingSingleConfigs = [j for j in jobs if j.get("label", "") == singleName]
+
+            for singleConfig in matchingSingleConfigs:
+                IOV = singleConfig["config"]["validation"]["IOV"]  # <str>
+                alignment = singleConfig["config"]["alignment"]["label"] # <str>
+
+                job = {
+                    "name": "_".join([_validationName, jobType, jobName, singleName, alignment, IOV]),
+                    "dir": os.path.join(dir_base, jobType, jobName, singleName, alignment, IOV),
+                    "dependencies": [singleConfig["name"]],
+                    "exe": "extractBaryCentre.py",
+                    "config": {
+                        "input": os.path.join(singleConfig["config"]["output"], "PixelBaryCentre.root"),
+                        "output": os.path.join(out_base, jobType, jobName),
+                        "styles": jobConfig.get("styles", ["csv", "twiki"])
+                        },
+                    "flavour": "espresso" # So fast that anything else would not make sense
+                }
                 jobs.append(job)
 
     return jobs
