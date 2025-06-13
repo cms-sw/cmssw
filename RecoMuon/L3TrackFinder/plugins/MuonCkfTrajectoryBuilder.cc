@@ -321,11 +321,6 @@ void MuonCkfTrajectoryBuilder::collectMeasurement(const DetLayer* layer,
                          << "x: " << currentState.globalPosition() << "\n"
                          << "p: " << currentState.globalMomentum() << "\n"
                          << PrintoutHelper::dumpMeasurements(result);
-
-  //std::cout << "starting from:\n"
-  //<< "x: " << currentState.globalPosition() << "\n"
-  //<< "p: " << currentState.globalMomentum() << "\n"
-  //<< PrintoutHelper::dumpMeasurements(result) << std::endl;
 }
 
 void MuonCkfTrajectoryBuilder::findCompatibleMeasurements(const TrajectorySeed& seed,
