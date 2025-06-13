@@ -33,7 +33,7 @@ namespace p2eg {
   static constexpr int n_towers_Phi = 72;
   static constexpr int n_towers_halfPhi = 36;
   static constexpr int n_towers_cardEta = 17;  // new: equivalent to n_towers_per_link
-  static constexpr int n_towers_cardPhi = 4;
+  static constexpr int n_towers_cardPhi = 5;
   static constexpr int n_crystals_cardEta = (n_towers_Eta * n_towers_cardEta);
   static constexpr int n_crystals_cardPhi = (n_towers_Phi * n_towers_cardPhi);
 
@@ -53,7 +53,6 @@ namespace p2eg {
   static constexpr int CRYSTAL_IN_PHI = 20;  // number of crystals in phi, in one 3x4 region (barrel)
 
   static constexpr float ECAL_eta_range = 1.4841;
-  static constexpr float half_crystal_size = 0.00873;
 
   static constexpr float slideIsoPtThreshold = 80;
   static constexpr float a0_80 = 0.85, a1_80 = 0.0080, a0 = 0.21;                        // passes_iso
@@ -86,8 +85,10 @@ namespace p2eg {
   static constexpr int N_GCTINTERNAL_FIBERS = 64;
   static constexpr int N_GCTPOSITIVE_FIBERS = 32;
   static constexpr int N_GCTETA = 34;
-  static constexpr int N_GCTPHI = 32;
+  static constexpr int N_GCTPHI = 36;
 
+  // Note: this follows old GCT geometry, where each GCT has 8 RCT cards (6 unique) with each RCT having 4 towers in phi
+  // leading to the offset of 6*4 = 24 towers between two GCT card boundaries
   // for emulator: "top" of the GCT card in phi is tower idx 20, for GCT card #0:
   static constexpr int GCTCARD_0_TOWER_IPHI_OFFSET = 20;
   // same but for GCT cards #1 and 2 (cards wrap around phi = 180 degrees):
@@ -98,10 +99,24 @@ namespace p2eg {
 
   // Outputs to correlator
   // Fixed number of EG and PF clusters per RCT card in each output SLR
-  static const int N_EG_CLUSTERS_PER_RCT_CARD = 9;
-  static const int N_PF_CLUSTERS_PER_RCT_CARD = 12;
+  static const int N_EG_CLUSTERS_PER_RCT_CARD = 4;  // each eta side
+  static const int N_PF_CLUSTERS_PER_RCT_CARD = 6;  // each eta side
   // Height of one SLR region in phi in degrees
-  static constexpr float PHI_RANGE_PER_SLR_DEGREES = 120;
+  static constexpr float PHI_RANGE_PER_SLR_DEGREES = 120;  // including overlap
+
+  // Returns the difference in the azimuth coordinates of phi1 and phi2 (all in degrees not radians), taking the wrap-around at 180 degrees into account
+  inline float deltaPhiInDegrees(float phi1, float phi2, const float c = 180) {
+    float r = std::fmod(phi1 - phi2, 2.0 * c);
+    if (r <= -c) {
+      r += 2.0 * c;
+    } else if (r > c) {
+      r -= 2.0 * c;
+    }
+    return r;
+  }
+
+  // For a given phi in degrees (e.g. computed from some difference), return the phi (in degrees) which takes the wrap-around at 180 degrees into account
+  inline float wrappedPhiInDegrees(float phi) { return p2eg::deltaPhiInDegrees(phi, 0); }
 
   //////////////////////////////////////////////////////////////////////////
   // RCT: indexing helper functions
@@ -671,33 +686,34 @@ namespace p2eg {
     void addHoverEToTower(ap_uint<12> ECAL, ap_uint<12> HCAL) {
       ap_uint<4> hoeOut;
       ap_uint<1> hoeLSB = 0;
-      ap_uint<4> hoe = 0;
+      ap_uint<3> hoe = 0;
       ap_uint<12> A;
       ap_uint<12> B;
 
       A = (ECAL > HCAL) ? ECAL : HCAL;
       B = (ECAL > HCAL) ? HCAL : ECAL;
 
-      if (ECAL == 0 || HCAL == 0 || HCAL >= ECAL)
+      if (HCAL >= ECAL)
         hoeLSB = 0;
       else
         hoeLSB = 1;
-      if (A > B) {
-        if (A > 2 * B)
-          hoe = 0x1;
-        if (A > 4 * B)
-          hoe = 0x2;
-        if (A > 8 * B)
-          hoe = 0x3;
-        if (A > 16 * B)
-          hoe = 0x4;
-        if (A > 32 * B)
-          hoe = 0x5;
-        if (A > 64 * B)
-          hoe = 0x6;
-        if (A > 128 * B)
-          hoe = 0x7;
-      }
+      if (A > (B << 7))
+        hoe = 0b111;
+      else if (A > (B << 6))
+        hoe = 0b110;
+      else if (A > (B << 5))
+        hoe = 0b101;
+      else if (A > (B << 4))
+        hoe = 0b100;
+      else if (A > (B << 3))
+        hoe = 0b011;
+      else if (A > (B << 2))
+        hoe = 0b010;
+      else if (A > (B << 1))
+        hoe = 0b001;
+      else
+        hoe = 0b000;
+
       hoeOut = hoeLSB | (hoe << 1);
       ap_uint<16> hoeOutLong =
           ((((ap_uint<16>)hoeOut) << 12) | 0x0000);  // e.g. 0b ____ 0000 0000 0000 where ___ are the hoe digits
@@ -857,13 +873,13 @@ namespace p2eg {
     // Get real eta
     const float realEta(int cc) {
       float size_cell = 2 * ECAL_eta_range / (CRYSTALS_IN_TOWER_ETA * n_towers_Eta);
-      return crystaliEtaFromCardRegionInfo(cc) * size_cell - ECAL_eta_range + half_crystal_size;
+      return crystaliEtaFromCardRegionInfo(cc) * size_cell - ECAL_eta_range + (size_cell / 2);
     }
 
     // Get real phi
     const float realPhi(int cc) {
       float size_cell = 2 * M_PI / (CRYSTALS_IN_TOWER_PHI * n_towers_Phi);
-      return crystaliPhiFromCardRegionInfo(cc) * size_cell - M_PI + half_crystal_size;
+      return crystaliPhiFromCardRegionInfo(cc) * size_cell - M_PI + (size_cell / 2);
     }
 
     // Print info
@@ -1045,7 +1061,7 @@ namespace p2eg {
 
     inline int standaloneWP() const { return (is_iso && is_ss); }
     inline int looseL1TkMatchWP() const { return (is_looseTkiso && is_looseTkss); }
-    inline int photonWP() const { return 1; }  // NOTE: NO PHOTON WP
+    inline int photonWP() const { return (is_looseTkiso && is_looseTkss); }  // NOTE: NO PHOTON WP
 
     inline int passesShowerShape() const { return is_ss; }
 
@@ -1163,15 +1179,15 @@ namespace p2eg {
        */
     float realEta(void) const {
       float size_cell = 2 * ECAL_eta_range / (CRYSTALS_IN_TOWER_ETA * n_towers_Eta);
-      return globalClusteriEta() * size_cell - ECAL_eta_range + half_crystal_size;
+      return globalClusteriEta() * size_cell - ECAL_eta_range + (size_cell / 2);
     }
 
     /* 
-       * Get GCT cluster's real eta from global iPhi (0-71*5).
+       * Get GCT cluster's real phi from global iPhi (0-71*5).
        */
     float realPhi(void) const {
       float size_cell = 2 * M_PI / (CRYSTALS_IN_TOWER_PHI * n_towers_Phi);
-      return globalClusteriPhi() * size_cell - M_PI + half_crystal_size;
+      return globalClusteriPhi() * size_cell - M_PI + (size_cell / 2);
     }
 
     /* 
@@ -1256,20 +1272,70 @@ namespace p2eg {
      * unique to each GCT card.
      */
     l1tp2::DigitizedClusterCorrelator createDigitizedClusterCorrelator(const int corrTowPhiOffset) const {
+      ap_uint<7> abseta = 0;
+      ap_uint<10> spare = 0;
+      if (globalClusteriEta() >= n_towers_cardEta * CRYSTALS_IN_TOWER_ETA) {
+        abseta = globalClusteriEta() - n_towers_cardEta * CRYSTALS_IN_TOWER_ETA;  // 0 to 84
+        spare = 4;
+      } else {
+        abseta = n_towers_cardEta * CRYSTALS_IN_TOWER_ETA - globalClusteriEta() - 1;  // 84 to 0
+        spare = 0;
+      }
+
+      //// Use towPhi to determine relative phi when clusters are assigned to corect GCT card
+      //ap_int<8> tmpphi = (((towPhi - corrTowPhiOffset) * CRYSTALS_IN_TOWER_PHI) + crPhi) ; // range between 0 to 120
+      //if (tmpphi < PHI_RANGE_PER_SLR_DEGREES/2) {spare = spare | 3;}
+      //else { tmpphi = tmpphi - PHI_RANGE_PER_SLR_DEGREES/2 ; spare = spare | 1 ;} // set to range between 0 to 60
+      //ap_int<7> phivscenter = ap_int<7>(tmpphi - PHI_RANGE_PER_SLR_DEGREES/4) ; // set to range between -30 to 30
+
+      // Use realPhi() to determine relative phi as current GCT card assignment uses old geometry
+      // This is emulator specific to bypass geometry issue
+      int cardnumber = 0;
+      float regionCentersInDegrees[6] = {10.0, 70.0, 130.0, -170.0, -110.0, -50.0};
+      float clusterRealPhiAsDegree = realPhi() * 180 / M_PI;
+      ap_int<7> phivscenter = 0;
+      for (int i = 0; i < 6; i++) {
+        float tempDifference = p2eg::deltaPhiInDegrees(clusterRealPhiAsDegree, regionCentersInDegrees[i]);
+        if (abs(tempDifference) < PHI_RANGE_PER_SLR_DEGREES / 4) {
+          phivscenter = 0x7F & int(std::floor(tempDifference));  // greatest integer <= x
+          cardnumber = int(i / 2);
+        }
+      }
+
+      float cardCentersInDegrees[3] = {40., 160., -80.};
+      if (p2eg::deltaPhiInDegrees(clusterRealPhiAsDegree, cardCentersInDegrees[cardnumber]) > 0) {
+        spare = spare | 3;
+      } else {
+        spare = spare | 1;
+      }
+
+      ap_uint<6> shape = (64 * et2x5 / et5x5) + 0.5f;  // normalize to 0x3F
+      ap_uint<3> quality =
+          (standaloneWP() * std::pow(2, 0)) + (looseL1TkMatchWP() * std::pow(2, 1)) + (photonWP() * std::pow(2, 2));
+
+      // normalize relIso to 0x3F
+      float reliso_f = isoFloat() * 4.0f / etFloat();  // LSB = 16/64 to compress the useful range (0-16) in 6 bits
+      // implement saturation
+      if (reliso_f < 0.0f)
+        reliso_f = 0.0f;
+      if (reliso_f > 63.0f)
+        reliso_f = 63.0f;
+
+      // normalize hoe to 0x3F
+      int hoe_int = (int)(hoe * 63 / 15);
+
       return l1tp2::DigitizedClusterCorrelator(
-          etFloat(),  // technically we are just multiplying and then dividing again by the LSB
-          globalClusteriEta(),
-          ((towPhi - corrTowPhiOffset) * CRYSTALS_IN_TOWER_PHI) +
-              crPhi,  // cannot use globalClusteriPhi() helper function because correlator offset is different than GCT offset
-          hoe,
-          hoe_flag,
-          iso,
-          (is_iso) | (is_looseTkiso << 1),  // 2 bits: e.g. 0b10 means is_looseTkiso was true, and is_iso was false
-          fb,
-          timing,
-          (is_ss) | (is_looseTkss << 1),  // 2 bits (same as iso flags) is_ss in lowest bit, is_looseTkss in higher bit
-          brems,
-          nGCTCard);
+          et,  // technically we are just multiplying and then dividing again by the LSB
+          abseta,
+          phivscenter,
+          ap_uint<6>(hoe_int & 0x3F),
+          ap_uint<6>(reliso_f + 0.5f),  // rounding
+          ap_uint<6>(shape),
+          ap_uint<3>(quality),
+          ap_uint<5>(timing),
+          ap_uint<2>(brems),
+          ap_uint<10>(spare),
+          cardnumber);
     }
 
     /*
@@ -1317,7 +1383,9 @@ namespace p2eg {
     inline float totalEtFloat() const {
       return ((float)et * ECAL_LSB);
     }  // Return total energy as a float (assuming the energy uses the ECAL LSB convention)
+
     inline float ecalEtFloat() const { return ((float)ecalEt * ECAL_LSB); }  // Return ECAL energy as a float
+
     inline float hcalEtFloat() const {
       return ((float)hcalEt * HCAL_LSB);
     }  // Return HCAL energy as a float, use HCAL LSB
@@ -1328,8 +1396,44 @@ namespace p2eg {
     void initFromRCTTower(const RCTtower_t& rctTower) {
       et = rctTower.et;
       hoe = rctTower.hoe;
-      ecalEt = rctTower.ecalEt;
-      hcalEt = rctTower.hcalEt;
+      // get E and H from et and hoe
+      ap_uint<12> A = et >> (hoe >> 1);
+      ap_uint<12> B = et - A;
+      ecalEt = ((hoe & 0x1) == 1) ? B : A;
+      hcalEt = ((hoe & 0x1) == 1) ? A : B;
+    }
+
+    void addHoverEToTower(ap_uint<12> ECAL, ap_uint<12> HCAL) {
+      ap_uint<3> hoeOut;
+      ap_uint<1> hoeLSB = 0;
+      ap_uint<12> A;
+      ap_uint<12> B;
+
+      A = (ECAL > HCAL) ? ECAL : HCAL;
+      B = (ECAL > HCAL) ? HCAL : ECAL;
+
+      if (HCAL >= ECAL)
+        hoeLSB = 0;
+      else
+        hoeLSB = 1;
+      if (A > (B << 7))
+        hoeOut = 0b111;
+      else if (A > (B << 6))
+        hoeOut = 0b110;
+      else if (A > (B << 5))
+        hoeOut = 0b101;
+      else if (A > (B << 4))
+        hoeOut = 0b100;
+      else if (A > (B << 3))
+        hoeOut = 0b011;
+      else if (A > (B << 2))
+        hoeOut = 0b010;
+      else if (A > (B << 1))
+        hoeOut = 0b001;
+      else
+        hoeOut = 0b000;
+
+      hoe = hoeLSB | (hoeOut << 1);
     }
 
     /*
@@ -1409,8 +1513,8 @@ namespace p2eg {
        */
     l1tp2::CaloTower createCaloTowerFromFiberIdx(int nGCTCard, int iFiber, int iTowerInFiber) {
       l1tp2::CaloTower l1CaloTower;
-      l1CaloTower.setEcalTowerEt(ecalEtFloat());  // float: ECAL divide by 8.0
-      l1CaloTower.setHcalTowerEt(hcalEtFloat());  // float: HCAL multiply by LSB
+      l1CaloTower.setEcalTowerEt(ecalEtFloat());
+      l1CaloTower.setHcalTowerEt(hcalEtFloat());
       int global_tower_iEta = globalToweriEta(nGCTCard, iFiber, iTowerInFiber);
       int global_tower_iPhi = globalToweriPhi(nGCTCard, iFiber, iTowerInFiber);
       l1CaloTower.setTowerIEta(global_tower_iEta);
@@ -1425,9 +1529,8 @@ namespace p2eg {
      */
     l1tp2::CaloTower createFullTowerFromCardIdx(int nGCTCard, int gctCard_tower_iEta, int gctCard_tower_iPhi) {
       l1tp2::CaloTower l1CaloTower;
-      // Store total Et (HCAL+ECAL) in the ECAL Et member
-      l1CaloTower.setEcalTowerEt(totalEtFloat());
-      l1CaloTower.setHcalTowerEt(ecalEtFloat());
+      l1CaloTower.setEcalTowerEt(ecalEtFloat());
+      l1CaloTower.setHcalTowerEt(hcalEtFloat());
       int global_tower_iEta = globalToweriEtaFromGCTcardiEta(gctCard_tower_iEta);
       int global_tower_iPhi = globalToweriPhiFromGCTcardiPhi(nGCTCard, gctCard_tower_iPhi);
       l1CaloTower.setTowerIEta(global_tower_iEta);
@@ -1669,12 +1772,6 @@ namespace p2eg {
       int fiberEnd,
       int corrFiberIndexOffset,
       int corrTowPhiOffset);
-
-  /*******************************************************************************************/
-  /* Interface to correlator helper functions (defined in Phase2L1CaloBarrelToCorrelator.h)  */
-  /*******************************************************************************************/
-  float deltaPhiInDegrees(float phi1, float phi2, const float c);
-  float wrappedPhiInDegrees(float phi);
 
   /*
    * Generic function to compare hadronic (had) or EM digi clusters.
