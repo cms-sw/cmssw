@@ -173,9 +173,9 @@ __global__ void kernel_BLFit(TupleMultiplicity<TrackerTraits> const *__restrict_
                              double *__restrict__ phits,
                              float *__restrict__ phits_ge,
                              double *__restrict__ pfast_fit) {
-  assert(results_view.pt());
-  assert(results_view.eta());
-  assert(results_view.chi2());
+  assert(results_view.pt().data());
+  assert(results_view.eta().data());
+  assert(results_view.chi2().data());
   assert(pfast_fit);
   constexpr auto invalidTkId = std::numeric_limits<typename TrackerTraits::tindex_type>::max();
 

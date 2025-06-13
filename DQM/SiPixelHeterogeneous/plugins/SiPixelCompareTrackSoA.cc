@@ -157,8 +157,8 @@ void SiPixelCompareTrackSoA<T>::analyze(const edm::Event& iEvent, const edm::Eve
   auto const& tsoaGPU = *tsoaHandleGPU;
   auto maxTracksCPU = tsoaCPU.view().metadata().size();  //this should be same for both?
   auto maxTracksGPU = tsoaGPU.view().metadata().size();  //this should be same for both?
-  auto const* qualityCPU = tsoaCPU.view().quality();
-  auto const* qualityGPU = tsoaGPU.view().quality();
+  auto const qualityCPU = tsoaCPU.view().quality();
+  auto const qualityGPU = tsoaGPU.view().quality();
   int32_t nTracksCPU = 0;
   int32_t nTracksGPU = 0;
   int32_t nLooseAndAboveTracksCPU = 0;
