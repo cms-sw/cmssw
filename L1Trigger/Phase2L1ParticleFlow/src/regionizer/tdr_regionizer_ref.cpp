@@ -14,6 +14,8 @@ l1ct::TDRRegionizerEmulator::TDRRegionizerEmulator(const edm::ParameterSet& iCon
                             iConfig.getParameter<uint32_t>("nMu"),
                             iConfig.getParameter<uint32_t>("nClocks"),
                             iConfig.getParameter<std::vector<int32_t>>("bigRegionEdges"),
+                            iConfig.getParameter<uint32_t>("netaInBR"),
+                            iConfig.getParameter<uint32_t>("nphiInBR"),
                             iConfig.getParameter<bool>("doSort")) {
   debug_ = iConfig.getUntrackedParameter<bool>("debug");
 }
@@ -26,7 +28,9 @@ edm::ParameterSetDescription l1ct::TDRRegionizerEmulator::getParameterSetDescrip
   description.add<uint32_t>("nEmCalo", 12);
   description.add<uint32_t>("nMu", 2);
   description.add<bool>("doSort", false);
-  description.add<std::vector<int32_t>>("bigRegionEdges", {-560, -80, 400, -560});
+  description.add<std::vector<int32_t>>("bigRegionEdges", {-560, -560});
+  description.add<uint32_t>("netaInBR", 6);
+  description.add<uint32_t>("nphiInBR", 9);
   description.addUntracked<bool>("debug", false);
   return description;
 }
@@ -38,6 +42,8 @@ l1ct::TDRRegionizerEmulator::TDRRegionizerEmulator(uint32_t ntk,
                                                    uint32_t nmu,
                                                    uint32_t nclocks,
                                                    std::vector<int32_t> bigRegionEdges,
+                                                   uint32_t netaInBR,
+                                                   uint32_t nphiInBR,
                                                    bool dosort)
     : RegionizerEmulator(),
       ntk_(ntk),
@@ -47,8 +53,8 @@ l1ct::TDRRegionizerEmulator::TDRRegionizerEmulator(uint32_t ntk,
       nclocks_(nclocks),
       bigRegionEdges_(bigRegionEdges),
       dosort_(dosort),
-      netaInBR_(6),
-      nphiInBR_(3),
+      netaInBR_(netaInBR),
+      nphiInBR_(nphiInBR),
       init_(false) {
   nBigRegions_ = bigRegionEdges_.size() - 1;
 }

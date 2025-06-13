@@ -18,6 +18,8 @@ namespace l1ct {
                           uint32_t nmu,
                           uint32_t nclocks,
                           std::vector<int32_t> bigRegionEdges,
+                          uint32_t netaInBR,
+                          uint32_t nphiInBR,
                           bool dosort);
 
     // note: this one will work only in CMSSW
