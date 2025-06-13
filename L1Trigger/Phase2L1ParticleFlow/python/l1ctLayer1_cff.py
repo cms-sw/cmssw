@@ -10,12 +10,15 @@ from L1Trigger.Phase2L1ParticleFlow.l1TkEgAlgoEmulator_cfi import tkEgAlgoParame
 from L1Trigger.Phase2L1ParticleFlow.mlAssociation_cfi import NNVtxAssociationPSet
 switchOnNNAssoc = cms.bool(False)
 
+virtBoard0 = (5, 14, 23, 32, 41, 50, 6, 15, 24, 33, 42, 51, 7, 16, 25, 34, 43, 52)
+virtBoard1 = (8, 17, 26, 35, 44, 53, 0,  9, 18, 27, 36, 45, 1, 10, 19, 28, 37, 46)
+virtBoard2 = (2, 11, 20, 29, 38, 47, 3, 12, 21, 30, 39, 48, 4, 13, 22, 31, 40, 49)
+
 l1tLayer1Barrel = cms.EDProducer("L1TCorrelatorLayer1Producer",
     tracks = cms.InputTag('l1tPFTracksFromL1Tracks'),
     muons = cms.InputTag('l1tSAMuonsGmt','prompt'),
-    emClusters = cms.InputTag('l1tPhase2GCTBarrelToCorrelatorLayer1Emulator', 'GCTEmDigiClusters'),
-    hadClusters = cms.InputTag('l1tPFClustersFromCombinedCaloHCal:calibrated'),
-    # hadClusters = cms.InputTag('l1tPhase2GCTBarrelToCorrelatorLayer1Emulator', 'GCTHadDigiClusters'),
+    gctClusters = cms.InputTag("l1tPhase2CaloToCorrelatorTM18", "DigitizedCaloToCorrelatorTM18"),
+    # hadClusters = cms.InputTag('l1tPFClustersFromCombinedCaloHCal:calibrated'),  -- if you use Ideal gctHadInputConversionAlg
     vtxCollection = cms.InputTag("l1tVertexFinderEmulator","L1VerticesEmulation"),
     nVtx = cms.int32(1),
     emPtCut = cms.double(0.5),
@@ -40,8 +43,7 @@ l1tLayer1Barrel = cms.EDProducer("L1TCorrelatorLayer1Producer",
     muonInputConversionAlgo = cms.string("Emulator"),
     gctEmInputConversionAlgo = cms.string("Emulator"),
     gctEmInputConversionParameters = cms.PSet(
-        # gctEmCorrector = cms.string("L1Trigger/Phase2L1ParticleFlow/data/emcorr_barrel.root"),
-        gctEmCorrector = cms.string(""),
+        gctEmCorrector = cms.string("L1Trigger/Phase2L1ParticleFlow/data/emcorr_barrel.root"),
         gctEmResol = cms.PSet(
             etaBins = cms.vdouble( 0.700,  1.200,  1.600),
             offset  = cms.vdouble( 0.873,  1.081,  1.563),
@@ -49,7 +51,16 @@ l1tLayer1Barrel = cms.EDProducer("L1TCorrelatorLayer1Producer",
             kind    = cms.string('calo'),
         ),
     ),
-    gctHadInputConversionAlgo = cms.string("Ideal"),
+    gctHadInputConversionAlgo = cms.string("Emulator"),
+    gctHadInputConversionParameters = cms.PSet(
+        gctHadCorrector = cms.string("L1Trigger/Phase2L1ParticleFlow/data/hadcorr_barrel.root"),
+        gctHadResol = cms.PSet(
+			etaBins = cms.vdouble( 0.700,  1.200,  1.600),
+			offset  = cms.vdouble( 3.675,  2.694,  1.640),
+			scale   = cms.vdouble( 0.121,  0.156,  0.292),
+			kind    = cms.string('calo'),
+        ),
+    ),
     regionizerAlgo = cms.string("Ideal"),
     pfAlgo = cms.string("PFAlgo3"),
     pfAlgoParameters = cms.PSet(
@@ -108,14 +119,24 @@ l1tLayer1Barrel = cms.EDProducer("L1TCorrelatorLayer1Producer",
     ),
     tkEgSorterAlgo = cms.string("Barrel"),
     tkEgSorterParameters = tkEgSorterParameters.clone(
-        nObjToSort = 10
+        nObjToSort = 16
     ),
-    caloSectors = cms.VPSet(   # for Ideal regionizer only--don't include the duplicates
+    # these are the sectors for the logical "decoded" clusters; 
+    caloSectors = cms.VPSet(
         cms.PSet(
             etaBoundaries = cms.vdouble(-1.5, 0, 1.5),
-            phiSlices     = cms.uint32(3),
+            phiSlices     = cms.uint32(6),
             phiZero       = cms.double(math.pi/18)
-        )
+        ),
+    ),
+
+    # these are the sectors for the raw GCT clusters; logical sectors can be combined
+    rawGCTSectors = cms.VPSet(
+        cms.PSet(
+            etaBoundaries = cms.vdouble(-1.5, 1.5),
+            phiSlices     = cms.uint32(3),
+            phiZero       = cms.double(2 * math.pi/9)
+        ),
     ),
     regions = cms.VPSet(
         cms.PSet(
@@ -123,13 +144,10 @@ l1tLayer1Barrel = cms.EDProducer("L1TCorrelatorLayer1Producer",
             phiSlices     = cms.uint32(9),
         ),
     ),
-    boards = cms.VPSet(
-        cms.PSet(
-              regions = cms.vuint32(*[0+9*ie+i for ie in range(6) for i in range(3)])), # phi splitting
-        cms.PSet(
-              regions = cms.vuint32(*[3+9*ie+i for ie in range(6) for i in range(3)])), # phi splitting
-        cms.PSet(
-              regions = cms.vuint32(*[6+9*ie+i for ie in range(6) for i in range(3)])), # phi splitting
+    boards = cms.VPSet(  # In TM18, this is "virtual" boards for egamma
+        cms.PSet(regions = cms.vuint32(*virtBoard0)), # phi splitting
+        cms.PSet(regions = cms.vuint32(*virtBoard1)), # phi splitting
+        cms.PSet(regions = cms.vuint32(*virtBoard2)), # phi splitting
     ),
 )
 
@@ -152,7 +170,6 @@ _hgcalSectors = cms.VPSet(
 l1tLayer1HGCal = cms.EDProducer("L1TCorrelatorLayer1Producer",
     tracks = cms.InputTag('l1tPFTracksFromL1Tracks'),
     muons = cms.InputTag('l1tSAMuonsGmt','prompt'),
-    emClusters = cms.InputTag(""), # the em clusters are "intercepted" from the had ones in the regionizer
     hadClusters = cms.InputTag("l1tHGCalBackEndLayer2Producer","HGCalBackendLayer2Processor3DClustering"),
     vtxCollection = cms.InputTag("l1tVertexFinderEmulator","L1VerticesEmulation"),
     nVtx = cms.int32(1),
@@ -330,7 +347,6 @@ l1tLayer1HGCalElliptic = l1tLayer1HGCal.clone(
 
 l1tLayer1HGCalNoTK = cms.EDProducer("L1TCorrelatorLayer1Producer",
     muons = cms.InputTag('l1tSAMuonsGmt','prompt'),
-    emClusters = cms.InputTag(""),
     hadClusters = cms.InputTag("l1tHGCalBackEndLayer2Producer","HGCalBackendLayer2Processor3DClustering"),
     vtxCollection = cms.InputTag("l1tVertexFinderEmulator","L1VerticesEmulation"),
     nVtx = cms.int32(1),
@@ -446,7 +462,6 @@ l1tLayer1HGCalNoTK = cms.EDProducer("L1TCorrelatorLayer1Producer",
 
 l1tLayer1HF = cms.EDProducer("L1TCorrelatorLayer1Producer",
     muons = cms.InputTag('l1tSAMuonsGmt','prompt'),
-    emClusters = cms.InputTag(''),
     hadClusters = cms.InputTag('l1tPFClustersFromCombinedCaloHF:calibrated'),
     gctHadInputConversionAlgo = cms.string("Ideal"),
     vtxCollection = cms.InputTag("l1tVertexFinderEmulator","L1VerticesEmulation"),
