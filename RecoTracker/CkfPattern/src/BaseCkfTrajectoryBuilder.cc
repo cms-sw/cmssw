@@ -119,6 +119,7 @@ TempTrajectory BaseCkfTrajectoryBuilder::createStartingTrajectory(const Trajecto
 }
 
 bool BaseCkfTrajectoryBuilder::toBeContinued(TempTrajectory& traj, bool inOut) const {
+  
   if UNLIKELY (traj.measurements().size() > 400) {
     edm::LogError("BaseCkfTrajectoryBuilder_InfiniteLoop");
     LogTrace("BaseCkfTrajectoryBuilder_InfiniteLoop")
