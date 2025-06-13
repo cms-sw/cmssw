@@ -677,36 +677,38 @@ namespace cms::soa {
   // Column
   template <typename T, byte_size_type alignment, bool restrictQualify>
   struct SoAColumnAccessorsImpl<T, SoAColumnType::column, SoAAccessType::mutableAccess, alignment, restrictQualify> {
-    SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(const SoAParametersImpl<SoAColumnType::column, T>& params)
-        : params_(params) {}
-    SOA_HOST_DEVICE SOA_INLINE T* operator()() { return params_.addr_; }
+    SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(const SoAParametersImpl<SoAColumnType::column, T>& params, size_type size)
+        : params_(params), size_(size) {}
+    SOA_HOST_DEVICE SOA_INLINE std::span<T> operator()() { return std::span<T>(params_.addr_, size_); }
 
-    using NoParamReturnType = T*;
+    using NoParamReturnType = std::span<T>;
     using ParamReturnType = T&;
     SOA_HOST_DEVICE SOA_INLINE T& operator()(size_type index) { return params_.addr_[index]; }
 
   private:
     SoAParametersImpl<SoAColumnType::column, T> params_;
+    size_type size_;
   };
 
   // Const column
   template <typename T, byte_size_type alignment, bool restrictQualify>
   struct SoAColumnAccessorsImpl<T, SoAColumnType::column, SoAAccessType::constAccess, alignment, restrictQualify> {
-    SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(const SoAConstParametersImpl<SoAColumnType::column, T>& params)
-        : params_(params) {}
-    SOA_HOST_DEVICE SOA_INLINE const T* operator()() const { return params_.addr_; }
-    using NoParamReturnType = const T*;
+    SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(const SoAConstParametersImpl<SoAColumnType::column, T>& params, size_type size)
+        : params_(params), size_(size) {}
+    SOA_HOST_DEVICE SOA_INLINE std::span<const T> operator()() const { return std::span<const T>(params_.addr_, size_); }
+    using NoParamReturnType = std::span<const T>;
     using ParamReturnType = const T&;
     SOA_HOST_DEVICE SOA_INLINE T const& operator()(size_type index) const { return params_.addr_[index]; }
 
   private:
     SoAConstParametersImpl<SoAColumnType::column, T> params_;
+    const size_type size_;
   };
 
   // Scalar
   template <typename T, byte_size_type alignment, bool restrictQualify>
   struct SoAColumnAccessorsImpl<T, SoAColumnType::scalar, SoAAccessType::mutableAccess, alignment, restrictQualify> {
-    SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(const SoAParametersImpl<SoAColumnType::scalar, T>& params)
+    SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(const SoAParametersImpl<SoAColumnType::scalar, T>& params, size_type size)
         : params_(params) {}
     SOA_HOST_DEVICE SOA_INLINE T& operator()() { return *params_.addr_; }
     using NoParamReturnType = T&;
@@ -722,7 +724,7 @@ namespace cms::soa {
   // Const scalar
   template <typename T, byte_size_type alignment, bool restrictQualify>
   struct SoAColumnAccessorsImpl<T, SoAColumnType::scalar, SoAAccessType::constAccess, alignment, restrictQualify> {
-    SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(const SoAConstParametersImpl<SoAColumnType::scalar, T>& params)
+    SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(const SoAConstParametersImpl<SoAColumnType::scalar, T>& params, size_type size)
         : params_(params) {}
     SOA_HOST_DEVICE SOA_INLINE T const& operator()() const { return *params_.addr_; }
     using NoParamReturnType = T const&;
@@ -738,10 +740,10 @@ namespace cms::soa {
   // Eigen-type
   template <typename T, byte_size_type alignment, bool restrictQualify>
   struct SoAColumnAccessorsImpl<T, SoAColumnType::eigen, SoAAccessType::mutableAccess, alignment, restrictQualify> {
-    SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(const SoAParametersImpl<SoAColumnType::eigen, T>& params)
-        : params_(params) {}
-    SOA_HOST_DEVICE SOA_INLINE typename T::Scalar* operator()() { return params_.addr_; }
-    using NoParamReturnType = typename T::Scalar*;
+    SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(const SoAParametersImpl<SoAColumnType::eigen, T>& params, size_type size)
+        : params_(params), size_(size * T::RowsAtCompileTime * T::ColsAtCompileTime) {}
+    SOA_HOST_DEVICE SOA_INLINE std::span<typename T::Scalar> operator()() { return std::span<typename T::Scalar>(params_.addr_, size_); }
+    using NoParamReturnType = std::span<typename T::Scalar>;
     using ParamReturnType = typename SoAValue<SoAColumnType::eigen, T, alignment, restrictQualify>::MapType;
     SOA_HOST_DEVICE SOA_INLINE ParamReturnType operator()(size_type index) {
       return SoAValue<SoAColumnType::eigen, T, alignment, restrictQualify>(index, params_)();
@@ -749,15 +751,16 @@ namespace cms::soa {
 
   private:
     SoAParametersImpl<SoAColumnType::eigen, T> params_;
+    size_type size_;
   };
 
   // Const Eigen-type
   template <typename T, byte_size_type alignment, bool restrictQualify>
   struct SoAColumnAccessorsImpl<T, SoAColumnType::eigen, SoAAccessType::constAccess, alignment, restrictQualify> {
-    SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(const SoAConstParametersImpl<SoAColumnType::eigen, T>& params)
-        : params_(params) {}
-    SOA_HOST_DEVICE SOA_INLINE typename T::Scalar const* operator()() const { return params_.addr_; }
-    using NoParamReturnType = typename T::Scalar const*;
+    SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(const SoAConstParametersImpl<SoAColumnType::eigen, T>& params, size_type size) 
+        : params_(params), size_(size * T::RowsAtCompileTime * T::ColsAtCompileTime) {}
+    SOA_HOST_DEVICE SOA_INLINE std::span<const typename T::Scalar> operator()() const { return std::span<const typename T::Scalar>(params_.addr_, size_); }
+    using NoParamReturnType = std::span<const typename T::Scalar>;
     using ParamReturnType = typename SoAValue<SoAColumnType::eigen, T, alignment, restrictQualify>::CMapType;
     SOA_HOST_DEVICE SOA_INLINE ParamReturnType operator()(size_type index) const {
       return SoAConstValue<SoAColumnType::eigen, T, alignment, restrictQualify>(index, params_)();
@@ -765,6 +768,7 @@ namespace cms::soa {
 
   private:
     SoAConstParametersImpl<SoAColumnType::eigen, T> params_;
+    const size_type size_;
   };
 
   /* A helper template stager to avoid commas inside macros */

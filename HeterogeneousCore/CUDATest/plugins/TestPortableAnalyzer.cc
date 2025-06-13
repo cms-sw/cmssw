@@ -66,12 +66,12 @@ public:
     edm::LogInfo msg("TestPortableAnalyzer");
     msg << source_.encode() << ".size() = " << view.metadata().size() << '\n';
     msg << "  data  @ " << product.buffer().get() << ",\n"
-        << "  x     @ " << view.metadata().addressOf_x() << " = " << Column(view.x(), view.metadata().size()) << ",\n"
-        << "  y     @ " << view.metadata().addressOf_y() << " = " << Column(view.y(), view.metadata().size()) << ",\n"
-        << "  z     @ " << view.metadata().addressOf_z() << " = " << Column(view.z(), view.metadata().size()) << ",\n"
-        << "  id    @ " << view.metadata().addressOf_id() << " = " << Column(view.id(), view.metadata().size()) << ",\n"
+        << "  x     @ " << view.metadata().addressOf_x() << " = " << Column(view.x().data(), view.metadata().size()) << ",\n"
+        << "  y     @ " << view.metadata().addressOf_y() << " = " << Column(view.y().data(), view.metadata().size()) << ",\n"
+        << "  z     @ " << view.metadata().addressOf_z() << " = " << Column(view.z().data(), view.metadata().size()) << ",\n"
+        << "  id    @ " << view.metadata().addressOf_id() << " = " << Column(view.id().data(), view.metadata().size()) << ",\n"
         << "  r     @ " << view.metadata().addressOf_r() << " = " << view.r() << '\n'
-        << "  flags @ " << view.metadata().addressOf_flags() << " = " << Column(view.flags(), view.metadata().size())
+        << "  flags @ " << view.metadata().addressOf_flags() << " = " << Column(view.flags().data(), view.metadata().size())
         << ",\n"
         << "  m     @ " << view.metadata().addressOf_m() << " = { ... {" << view[1].m()(1, Eigen::indexing::all)
         << " } ... } \n";

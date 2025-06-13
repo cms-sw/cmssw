@@ -886,17 +886,15 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
 // clang-format off
 #define _DECLARE_VIEW_SOA_CONST_ACCESSOR_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                       \
   /* Column or scalar */                                                                                              \
-  SOA_HOST_DEVICE SOA_INLINE                                                                                          \
-  typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::                                   \
+    SOA_HOST_DEVICE SOA_INLINE                                                                                          \
+    typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::                                   \
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                        \
             cms::soa::SoAAccessType::constAccess>::template Alignment<conditionalAlignment>::                         \
-                template RestrictQualifier<restrictQualify>::NoParamReturnType                                        \
-  NAME() const {                                                                                                      \
+                template RestrictQualifier<restrictQualify>::NoParamReturnType NAME() const {           \
     return typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::                          \
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                        \
             cms::soa::SoAAccessType::constAccess>::template Alignment<conditionalAlignment>::                         \
-                template RestrictQualifier<restrictQualify>(BOOST_PP_CAT(NAME, Parameters_))();                       \
-  }                                                                                                                   \
+                template RestrictQualifier<restrictQualify>(BOOST_PP_CAT(NAME, Parameters_), elements_)(); }\
   SOA_HOST_DEVICE SOA_INLINE                                                                                          \
   typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::                                   \
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                        \
@@ -911,8 +909,8 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
     return typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::                          \
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                        \
             cms::soa::SoAAccessType::constAccess>::template Alignment<conditionalAlignment>::                         \
-                template RestrictQualifier<restrictQualify>(BOOST_PP_CAT(NAME, Parameters_))(_soa_impl_index);        \
-  } \
+                template RestrictQualifier<restrictQualify>(BOOST_PP_CAT(NAME, Parameters_), elements_)(_soa_impl_index);        \
+  }           
   // clang-format on
 
 #define _DECLARE_VIEW_SOA_CONST_ACCESSOR(R, DATA, TYPE_NAME)                                \
@@ -1158,7 +1156,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
             cms::soa::SoAAccessType::mutableAccess>::template Alignment<conditionalAlignment>::                      \
                 template RestrictQualifier<restrictQualify>(cms::soa::const_cast_SoAParametersImpl(                  \
-                    base_type:: BOOST_PP_CAT(NAME, Parameters_)))();                                                 \
+                    base_type:: BOOST_PP_CAT(NAME, Parameters_)), base_type::elements_)();                                                 \
   }                                                                                                                  \
   SOA_HOST_DEVICE SOA_INLINE                                                                                         \
   typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::                                  \
@@ -1175,7 +1173,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
             cms::soa::SoAAccessType::mutableAccess>::template Alignment<conditionalAlignment>::                      \
                 template RestrictQualifier<restrictQualify>(cms::soa::const_cast_SoAParametersImpl(                  \
-                    base_type:: BOOST_PP_CAT(NAME, Parameters_)))(_soa_impl_index);                                  \
+                    base_type:: BOOST_PP_CAT(NAME, Parameters_)), base_type::elements_)(_soa_impl_index);                                  \
   }
 // clang-format on
 
