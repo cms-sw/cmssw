@@ -319,6 +319,12 @@ namespace simdoublets {
     desc.add<int>("cellMaxDYPred", TrackerTraits::maxDYPred)
         ->setComment("Maximum difference between actual and expected cluster size of inner RecHit");
   }
+
+  // Function that, for a pair of two layers, gives a unique pair Id (innerLayerId * 100 + outerLayerId).
+  int getLayerPairId(uint8_t const innerLayerId, uint8_t const outerLayerId) {
+    // calculate the unique layer pair Id as (innerLayerId * 100 + outerLayerId)
+    return (innerLayerId * 100 + outerLayerId);
+  }
 }  // namespace simdoublets
 
 // -------------------------------------------------------------------------------------------------------------
@@ -356,7 +362,7 @@ SimDoubletsAnalyzer<TrackerTraits>::SimDoubletsAnalyzer(const edm::ParameterSet&
 
   // fill the map of layer pairs
   for (size_t i{0}; i < numLayerPairs; i++) {
-    int layerPairId = 100 * layerPairs[2 * i] + layerPairs[2 * i + 1];
+    int layerPairId = simdoublets::getLayerPairId(layerPairs[2 * i], layerPairs[2 * i + 1]);
     layerPairId2Index_.insert({layerPairId, i});
 
     // check if the layer pair is considered as starting point for Ntuplets
@@ -564,6 +570,51 @@ void SimDoubletsAnalyzer<TrackerTraits>::fillSimDoubletHistograms(SimDoublets::D
   h_numSkippedLayers_.fill(passed, doublet.numSkippedLayers());
 }
 
+// function that trys to find a valid Ntuplet for the given SimDoublets object using the given geometry configuration
+// (layer pairs, starting pairs, minimum number of hits) ignoring all cuts on doublets/connections and returns if it was able to find one
+template <typename TrackerTraits>
+bool SimDoubletsAnalyzer<TrackerTraits>::configAllowsForValidNtuplet(SimDoublets const& simDoublets) const {
+  // if the number of layers is less than the minimum requirement, don't even bother building anything...
+  if (simDoublets.numLayers() < minNumDoubletsPerNtuplet_ + 1)
+    return false;
+
+  // initialize counter for the number of layers in the built Ntuplet
+  int numLayers{0};
+  // initialize bool to know if the building has started
+  // (need to start at a valid starting pair)
+  bool building{false};
+
+  // get the layerId of the first RecHit of the TrackingParticle
+  auto currentLayer = simDoublets.layerIds(0);
+
+  // loop over the RecHits in order and try building an Ntuplet starting from the first valid starting pair
+  for (int layerPairId{0}; auto nextLayer : simDoublets.layerIds()) {
+    // get the layerPairId for the (currentLayer, nextLayer) pair
+    layerPairId = simdoublets::getLayerPairId(currentLayer, nextLayer);
+
+    // if the building has already started
+    if (building) {
+      // check if the combination (currentLayer, nextLayer) is a valid pair
+      if (layerPairId2Index_.find(layerPairId) != layerPairId2Index_.end()) {
+        // if yes, make the nextLayer the current and increment the numLayers
+        currentLayer = nextLayer;
+        numLayers++;
+      }
+    } else {
+      // if the building did not start, check if the current pair is a valid starting point
+      if (startingPairs_.contains(layerPairId)) {
+        // enable building, make the nextLayer the current and set numLayers to 2
+        building = true;
+        currentLayer = nextLayer;
+        numLayers = 2;
+      }
+    }
+  }  // end loop over RecHits
+
+  // check if the built Ntuplet is long enough to be used in reconstruction
+  return numLayers > minNumDoubletsPerNtuplet_;
+}
+
 // main function that fills the histograms
 template <typename TrackerTraits>
 void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -591,6 +642,11 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
     true_eta = simDoublets.trackingParticle()->eta();
     true_phi = simDoublets.trackingParticle()->phi();
     true_pdgId = simDoublets.trackingParticle()->pdgId();
+
+    // check if a valid Ntuplet is possible for the given TP and geometry ignoring any cuts and fill hists
+    bool reconstructable = configAllowsForValidNtuplet(simDoublets);
+    h_effConfigLimitVsEta_->Fill(true_eta, reconstructable);
+    h_effConfigLimitVsPt_->Fill(true_pT, reconstructable);
 
     // create the true RecHit doublets of the TrackingParticle
     auto& doublets = simDoublets.buildAndGetSimDoublets(trackerTopology_);

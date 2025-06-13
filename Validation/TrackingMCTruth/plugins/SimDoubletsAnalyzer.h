@@ -128,7 +128,7 @@ public:
       h_pass_ = ibooker.book1D("pass_" + name, hp.release());
       h_total_ = ibooker.book1D(name, ht.release());
     }
-    
+
     template <typename... Args>
     void book2DLogX(DQMStore::IBooker& ibooker,
                     const std::string& name,
@@ -182,17 +182,19 @@ private:
                  simdoublets::CellCutVariables const&,
                  simdoublets::ClusterSizeCutManager const&) const;
 
-  //  function that fills all histograms for cut variables (in folder CAParameters)
+  // function that fills all histograms for cut variables (in folder CAParameters)
   void fillCutHistograms(SimDoublets::Doublet const&,
                          bool const,
                          int const,
                          simdoublets::CellCutVariables const&,
                          simdoublets::ClusterSizeCutManager const&);
 
-  //  function that fills all histograms of SimDoublets (in folder SimDoublets)
-  void fillSimDoubletHistograms(SimDoublets::Doublet const&,
-                         double const,
-                         double const);
+  // function that fills all histograms of SimDoublets (in folder SimDoublets)
+  void fillSimDoubletHistograms(SimDoublets::Doublet const&, double const, double const);
+
+  // function that trys to find a valid Ntuplet for the given SimDoublets object using the given geometry configuration
+  // (layer pairs, starting pairs, minimum number of hits) ignoring all cuts on doublets/connections and returns if it was able to find one
+  bool configAllowsForValidNtuplet(SimDoublets const&) const;
 
   // ------------ member data ------------
 
