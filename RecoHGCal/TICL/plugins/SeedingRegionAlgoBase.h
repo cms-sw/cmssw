@@ -7,10 +7,10 @@
 
 #include <memory>
 #include <vector>
-#include "DataFormats/HGCalReco/interface/Common.h"
+#include "DataFormats/TICLReco/interface/Common.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "DataFormats/HGCalReco/interface/TICLSeedingRegion.h"
+#include "DataFormats/TICLReco/interface/TICLSeedingRegion.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 namespace edm {
