@@ -26,12 +26,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
 
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void sortByPt2(Acc1D const& acc, VtxSoAView& data, TrkSoAView& trkdata, WsSoAView& ws) {
     auto nt = ws.ntrks();
-    float const* __restrict__ ptt2 = ws.ptt2();
+    float const* __restrict__ ptt2 = ws.ptt2().data();
     uint32_t const& nvFinal = data.nvFinal();
 
-    int32_t const* __restrict__ iv = ws.iv();
-    float* __restrict__ ptv2 = data.ptv2();
-    uint16_t* __restrict__ sortInd = data.sortInd();
+    int32_t const* __restrict__ iv = ws.iv().data();
+    float* __restrict__ ptv2 = data.ptv2().data();
+    uint16_t* __restrict__ sortInd = data.sortInd().data();
 
     if (nvFinal < 1)
       return;

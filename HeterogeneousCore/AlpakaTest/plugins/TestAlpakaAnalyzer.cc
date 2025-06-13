@@ -19,6 +19,8 @@ namespace {
   public:
     Column(T const* data, size_t size) : data_(data), size_(size) {}
 
+    Column(std::span<T const> span) : data_(span.data()), size_(span.size()) {}
+
     void print(std::ostream& out) const {
       std::stringstream buffer;
       buffer << "{ ";
@@ -52,16 +54,16 @@ namespace {
   template <typename T>
   void checkViewAddresses(T const& view) {
     // columns
-    assert(view.metadata().addressOf_x() == view.x());
+    assert(view.metadata().addressOf_x() == view.x().data());
     assert(view.metadata().addressOf_x() == &view.x(0));
     assert(view.metadata().addressOf_x() == &view[0].x());
-    assert(view.metadata().addressOf_y() == view.y());
+    assert(view.metadata().addressOf_y() == view.y().data());
     assert(view.metadata().addressOf_y() == &view.y(0));
     assert(view.metadata().addressOf_y() == &view[0].y());
-    assert(view.metadata().addressOf_z() == view.z());
+    assert(view.metadata().addressOf_z() == view.z().data());
     assert(view.metadata().addressOf_z() == &view.z(0));
     assert(view.metadata().addressOf_z() == &view[0].z());
-    assert(view.metadata().addressOf_id() == view.id());
+    assert(view.metadata().addressOf_id() == view.id().data());
     assert(view.metadata().addressOf_id() == &view.id(0));
     assert(view.metadata().addressOf_id() == &view[0].id());
     // scalars
@@ -69,30 +71,30 @@ namespace {
     //assert(view.metadata().addressOf_r() == &view.r(0));                  // cannot access a scalar with an index
     //assert(view.metadata().addressOf_r() == &view[0].r());                // cannot access a scalar via a SoA row-like accessor
     // columns of arrays
-    assert(view.metadata().addressOf_flags() == view.flags());
+    assert(view.metadata().addressOf_flags() == view.flags().data());
     assert(view.metadata().addressOf_flags() == &view.flags(0));
     assert(view.metadata().addressOf_flags() == &view[0].flags());
     // columns of Eigen matrices
-    assert(view.metadata().addressOf_m() == view.m());
+    assert(view.metadata().addressOf_m() == view.m().data());
     assert(view.metadata().addressOf_m() == &view.m(0).coeffRef(0, 0));
     assert(view.metadata().addressOf_m() == &view[0].m().coeffRef(0, 0));
   }
 
   template <typename T>
   void checkViewAddresses2(T const& view) {
-    assert(view.metadata().addressOf_x2() == view.x2());
+    assert(view.metadata().addressOf_x2() == view.x2().data());
     assert(view.metadata().addressOf_x2() == &view.x2(0));
     assert(view.metadata().addressOf_x2() == &view[0].x2());
-    assert(view.metadata().addressOf_y2() == view.y2());
+    assert(view.metadata().addressOf_y2() == view.y2().data());
     assert(view.metadata().addressOf_y2() == &view.y2(0));
     assert(view.metadata().addressOf_y2() == &view[0].y2());
-    assert(view.metadata().addressOf_z2() == view.z2());
+    assert(view.metadata().addressOf_z2() == view.z2().data());
     assert(view.metadata().addressOf_z2() == &view.z2(0));
     assert(view.metadata().addressOf_z2() == &view[0].z2());
-    assert(view.metadata().addressOf_id2() == view.id2());
+    assert(view.metadata().addressOf_id2() == view.id2().data());
     assert(view.metadata().addressOf_id2() == &view.id2(0));
     assert(view.metadata().addressOf_id2() == &view[0].id2());
-    assert(view.metadata().addressOf_m2() == view.m2());
+    assert(view.metadata().addressOf_m2() == view.m2().data());
     assert(view.metadata().addressOf_m2() == &view.m2(0).coeffRef(0, 0));
     assert(view.metadata().addressOf_m2() == &view[0].m2().coeffRef(0, 0));
     assert(view.metadata().addressOf_r2() == &view.r2());
@@ -102,19 +104,19 @@ namespace {
 
   template <typename T>
   void checkViewAddresses3(T const& view) {
-    assert(view.metadata().addressOf_x3() == view.x3());
+    assert(view.metadata().addressOf_x3() == view.x3().data());
     assert(view.metadata().addressOf_x3() == &view.x3(0));
     assert(view.metadata().addressOf_x3() == &view[0].x3());
-    assert(view.metadata().addressOf_y3() == view.y3());
+    assert(view.metadata().addressOf_y3() == view.y3().data());
     assert(view.metadata().addressOf_y3() == &view.y3(0));
     assert(view.metadata().addressOf_y3() == &view[0].y3());
-    assert(view.metadata().addressOf_z3() == view.z3());
+    assert(view.metadata().addressOf_z3() == view.z3().data());
     assert(view.metadata().addressOf_z3() == &view.z3(0));
     assert(view.metadata().addressOf_z3() == &view[0].z3());
-    assert(view.metadata().addressOf_id3() == view.id3());
+    assert(view.metadata().addressOf_id3() == view.id3().data());
     assert(view.metadata().addressOf_id3() == &view.id3(0));
     assert(view.metadata().addressOf_id3() == &view[0].id3());
-    assert(view.metadata().addressOf_m3() == view.m3());
+    assert(view.metadata().addressOf_m3() == view.m3().data());
     assert(view.metadata().addressOf_m3() == &view.m3(0).coeffRef(0, 0));
     assert(view.metadata().addressOf_m3() == &view[0].m3().coeffRef(0, 0));
     assert(view.metadata().addressOf_r3() == &view.r3());
@@ -155,14 +157,12 @@ public:
       edm::LogInfo msg("TestAlpakaAnalyzer");
       msg << source_.encode() << ".size() = " << view.metadata().size() << '\n';
       msg << "  data  @ " << product.buffer().data() << ",\n"
-          << "  x     @ " << view.metadata().addressOf_x() << " = " << Column(view.x(), view.metadata().size()) << ",\n"
-          << "  y     @ " << view.metadata().addressOf_y() << " = " << Column(view.y(), view.metadata().size()) << ",\n"
-          << "  z     @ " << view.metadata().addressOf_z() << " = " << Column(view.z(), view.metadata().size()) << ",\n"
-          << "  id    @ " << view.metadata().addressOf_id() << " = " << Column(view.id(), view.metadata().size())
-          << ",\n"
+          << "  x     @ " << view.metadata().addressOf_x() << " = " << Column(view.x()) << ",\n"
+          << "  y     @ " << view.metadata().addressOf_y() << " = " << Column(view.y()) << ",\n"
+          << "  z     @ " << view.metadata().addressOf_z() << " = " << Column(view.z()) << ",\n"
+          << "  id    @ " << view.metadata().addressOf_id() << " = " << Column(view.id()) << ",\n"
           << "  r     @ " << view.metadata().addressOf_r() << " = " << view.r() << '\n'
-          << "  flags @ " << view.metadata().addressOf_flags() << " = " << Column(view.flags(), view.metadata().size())
-          << ",\n"
+          << "  flags @ " << view.metadata().addressOf_flags() << " = " << Column(view.flags()) << ",\n"
           << "  m     @ " << view.metadata().addressOf_m() << " = { ... {" << view[1].m()(1, Eigen::indexing::all)
           << " } ... } \n";
       msg << std::hex << "  [y - x] = 0x"

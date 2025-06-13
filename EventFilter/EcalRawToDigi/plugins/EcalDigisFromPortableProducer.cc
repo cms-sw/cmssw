@@ -151,12 +151,15 @@ void EcalDigisFromPortableProducer::produce(edm::Event& event, edm::EventSetup c
   auto const digisEEDataSize = digisEESize * ecalPh1::sampleSize;
 
   // Intermediate containers because the DigiCollection containers are accessible only as const
-  EBDigiCollection::IdContainer digisIdsEB(digisEBSoAView.id(), digisEBSoAView.id() + digisEBSize);
-  EEDigiCollection::IdContainer digisIdsEE(digisEESoAView.id(), digisEESoAView.id() + digisEESize);
-  EBDigiCollection::DataContainer digisDataEB(digisEBSoAView.data()->data(),
-                                              digisEBSoAView.data()->data() + digisEBDataSize);
-  EEDigiCollection::DataContainer digisDataEE(digisEESoAView.data()->data(),
-                                              digisEESoAView.data()->data() + digisEEDataSize);
+  EBDigiCollection::IdContainer digisIdsEB(digisEBSoAView.id().data(), digisEBSoAView.id().data() + digisEBSize);
+  EEDigiCollection::IdContainer digisIdsEE(digisEESoAView.id().data(), digisEESoAView.id().data() + digisEESize);
+  // digisEBSoAView.data() returns a span<EcalDataArray>, where EcalDataArray is an array of uint16_t
+  // digisEBSoAView.data().data() returns a pointer to the first EcalDataArray of the data column
+  // digisEBSoAView.data().data()->data() returns a pointer to the first uint16_t of the first EcalDataArray of the data column
+  EBDigiCollection::DataContainer digisDataEB(digisEBSoAView.data().data()->data(),
+                                              digisEBSoAView.data().data()->data() + digisEBDataSize);
+  EEDigiCollection::DataContainer digisDataEE(digisEESoAView.data().data()->data(),
+                                              digisEESoAView.data().data()->data() + digisEEDataSize);
 
   digisEB->swap(digisIdsEB, digisDataEB);
   digisEE->swap(digisIdsEE, digisDataEE);

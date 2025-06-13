@@ -210,40 +210,40 @@ namespace lst {
     LSTInputHostCollection lstInputHC(soa_sizes, queue);
 
     auto hits = lstInputHC.view<HitsBaseSoA>();
-    std::memcpy(hits.xs(), ph2_x.data(), nHitsOT * sizeof(float));
-    std::memcpy(hits.ys(), ph2_y.data(), nHitsOT * sizeof(float));
-    std::memcpy(hits.zs(), ph2_z.data(), nHitsOT * sizeof(float));
-    std::memcpy(hits.detid(), ph2_detId.data(), nHitsOT * sizeof(unsigned int));
+    std::memcpy(hits.xs().data(), ph2_x.data(), nHitsOT * sizeof(float));
+    std::memcpy(hits.ys().data(), ph2_y.data(), nHitsOT * sizeof(float));
+    std::memcpy(hits.zs().data(), ph2_z.data(), nHitsOT * sizeof(float));
+    std::memcpy(hits.detid().data(), ph2_detId.data(), nHitsOT * sizeof(unsigned int));
 #ifndef LST_STANDALONE
-    std::memcpy(hits.hits(), ph2_hits.data(), nHitsOT * sizeof(TrackingRecHit const*));
+    std::memcpy(hits.hits().data(), ph2_hits.data(), nHitsOT * sizeof(TrackingRecHit const*));
 #endif
 
-    std::memcpy(hits.xs() + nHitsOT, trkX.data(), nHitsIT * sizeof(float));
-    std::memcpy(hits.ys() + nHitsOT, trkY.data(), nHitsIT * sizeof(float));
-    std::memcpy(hits.zs() + nHitsOT, trkZ.data(), nHitsIT * sizeof(float));
-    std::memcpy(hits.detid() + nHitsOT, hitId.data(), nHitsIT * sizeof(unsigned int));
+    std::memcpy(hits.xs().data() + nHitsOT, trkX.data(), nHitsIT * sizeof(float));
+    std::memcpy(hits.ys().data() + nHitsOT, trkY.data(), nHitsIT * sizeof(float));
+    std::memcpy(hits.zs().data() + nHitsOT, trkZ.data(), nHitsIT * sizeof(float));
+    std::memcpy(hits.detid().data() + nHitsOT, hitId.data(), nHitsIT * sizeof(unsigned int));
 #ifndef LST_STANDALONE
-    std::memset(hits.hits() + nHitsOT, 0, nHitsIT * sizeof(TrackingRecHit const*));
+    std::memset(hits.hits().data() + nHitsOT, 0, nHitsIT * sizeof(TrackingRecHit const*));
 #endif
 
-    std::memcpy(hits.idxs(), hitIdxs.data(), (nHitsIT + nHitsOT) * sizeof(unsigned int));
+    std::memcpy(hits.idxs().data(), hitIdxs.data(), (nHitsIT + nHitsOT) * sizeof(unsigned int));
 
     auto pixelSeeds = lstInputHC.view<PixelSeedsSoA>();
-    std::memcpy(pixelSeeds.hitIndices(), hitIndices_vec.data(), nPixelSeeds * sizeof(Params_pLS::ArrayUxHits));
-    std::memcpy(pixelSeeds.deltaPhi(), deltaPhi_vec.data(), nPixelSeeds * sizeof(float));
-    std::memcpy(pixelSeeds.ptIn(), ptIn_vec.data(), nPixelSeeds * sizeof(float));
-    std::memcpy(pixelSeeds.ptErr(), ptErr_vec.data(), nPixelSeeds * sizeof(float));
-    std::memcpy(pixelSeeds.px(), px_vec.data(), nPixelSeeds * sizeof(float));
-    std::memcpy(pixelSeeds.py(), py_vec.data(), nPixelSeeds * sizeof(float));
-    std::memcpy(pixelSeeds.pz(), pz_vec.data(), nPixelSeeds * sizeof(float));
-    std::memcpy(pixelSeeds.etaErr(), etaErr_vec.data(), nPixelSeeds * sizeof(float));
-    std::memcpy(pixelSeeds.isQuad(), isQuad_vec.data(), nPixelSeeds * sizeof(char));
-    std::memcpy(pixelSeeds.eta(), eta_vec.data(), nPixelSeeds * sizeof(float));
-    std::memcpy(pixelSeeds.phi(), phi_vec.data(), nPixelSeeds * sizeof(float));
-    std::memcpy(pixelSeeds.charge(), charge_vec.data(), nPixelSeeds * sizeof(int));
-    std::memcpy(pixelSeeds.seedIdx(), seedIdx_vec.data(), nPixelSeeds * sizeof(unsigned int));
-    std::memcpy(pixelSeeds.superbin(), superbin_vec.data(), nPixelSeeds * sizeof(int));
-    std::memcpy(pixelSeeds.pixelType(), pixelType_vec.data(), nPixelSeeds * sizeof(PixelType));
+    std::memcpy(pixelSeeds.hitIndices().data(), hitIndices_vec.data(), nPixelSeeds * sizeof(Params_pLS::ArrayUxHits));
+    std::memcpy(pixelSeeds.deltaPhi().data(), deltaPhi_vec.data(), nPixelSeeds * sizeof(float));
+    std::memcpy(pixelSeeds.ptIn().data(), ptIn_vec.data(), nPixelSeeds * sizeof(float));
+    std::memcpy(pixelSeeds.ptErr().data(), ptErr_vec.data(), nPixelSeeds * sizeof(float));
+    std::memcpy(pixelSeeds.px().data(), px_vec.data(), nPixelSeeds * sizeof(float));
+    std::memcpy(pixelSeeds.py().data(), py_vec.data(), nPixelSeeds * sizeof(float));
+    std::memcpy(pixelSeeds.pz().data(), pz_vec.data(), nPixelSeeds * sizeof(float));
+    std::memcpy(pixelSeeds.etaErr().data(), etaErr_vec.data(), nPixelSeeds * sizeof(float));
+    std::memcpy(pixelSeeds.isQuad().data(), isQuad_vec.data(), nPixelSeeds * sizeof(char));
+    std::memcpy(pixelSeeds.eta().data(), eta_vec.data(), nPixelSeeds * sizeof(float));
+    std::memcpy(pixelSeeds.phi().data(), phi_vec.data(), nPixelSeeds * sizeof(float));
+    std::memcpy(pixelSeeds.charge().data(), charge_vec.data(), nPixelSeeds * sizeof(int));
+    std::memcpy(pixelSeeds.seedIdx().data(), seedIdx_vec.data(), nPixelSeeds * sizeof(unsigned int));
+    std::memcpy(pixelSeeds.superbin().data(), superbin_vec.data(), nPixelSeeds * sizeof(int));
+    std::memcpy(pixelSeeds.pixelType().data(), pixelType_vec.data(), nPixelSeeds * sizeof(PixelType));
 
     return lstInputHC;
   }

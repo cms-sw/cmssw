@@ -10,8 +10,8 @@ void HelixFitOnGPU<TrackerTraits>::allocateOnGPU(TupleMultiplicity const *tupleM
 
   assert(tuples_);
   assert(tupleMultiplicity_);
-  assert(outputSoa_.chi2());
-  assert(outputSoa_.pt());
+  assert(outputSoa_.chi2().data());
+  assert(outputSoa_.pt().data());
 }
 
 template <typename TrackerTraits>

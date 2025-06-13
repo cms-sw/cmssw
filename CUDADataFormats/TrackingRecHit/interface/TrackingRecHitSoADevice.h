@@ -49,9 +49,9 @@ public:
     auto ret = cms::cuda::make_host_unique<float[]>(4 * nHits(), stream);
     size_t rowSize = sizeof(float) * nHits();
 
-    size_t srcPitch = ptrdiff_t(view().yLocal()) - ptrdiff_t(view().xLocal());
-    cudaCheck(
-        cudaMemcpy2DAsync(ret.get(), rowSize, view().xLocal(), srcPitch, rowSize, 4, cudaMemcpyDeviceToHost, stream));
+    size_t srcPitch = ptrdiff_t(view().yLocal().data()) - ptrdiff_t(view().xLocal().data());
+    cudaCheck(cudaMemcpy2DAsync(
+        ret.get(), rowSize, view().xLocal().data(), srcPitch, rowSize, 4, cudaMemcpyDeviceToHost, stream));
 
     return ret;
   }  //move to utilities
