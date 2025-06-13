@@ -28,7 +28,7 @@
 using namespace l1t;
 
 class L1JUMPProducer : public edm::global::EDProducer<> {
-    /*
+  /*
     Producer for the JUMP Algorithm
     JUMP: Jet Uncertainty-aware MET Prediction
     - Approximate L1 Jet energy resolution by pT, eta value

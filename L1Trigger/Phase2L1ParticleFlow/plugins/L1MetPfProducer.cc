@@ -39,8 +39,8 @@ private:
 
   // quantization controllers
   typedef l1ct::pt_t pt_t;
-  typedef l1ct::glbphi_t phi_t;                        
-  static constexpr float phiLSB_ = M_PI / 720;      // rad
+  typedef l1ct::glbphi_t phi_t;
+  static constexpr float phiLSB_ = M_PI / 720;  // rad
 
   // hls4ml emulator objects
   bool useMlModel_;
@@ -53,13 +53,11 @@ private:
   static constexpr int numCatInputs_ = 2;
   static constexpr int numInputs_ = numContInputs_ + numPxPyInputs_ + numCatInputs_;
 
-  void CalcMetHLS(const std::vector<l1t::PFCandidate>& pfcands,
-                  reco::Candidate::PolarLorentzVector& metVector) const;
+  void CalcMetHLS(const std::vector<l1t::PFCandidate>& pfcands, reco::Candidate::PolarLorentzVector& metVector) const;
 
   int EncodePdgId(int pdgId) const;
 
-  void CalcMlMet(const std::vector<l1t::PFCandidate>& pfcands,
-                 reco::Candidate::PolarLorentzVector& metVector) const;
+  void CalcMlMet(const std::vector<l1t::PFCandidate>& pfcands, reco::Candidate::PolarLorentzVector& metVector) const;
 };
 
 L1MetPfProducer::L1MetPfProducer(const edm::ParameterSet& cfg)
@@ -67,7 +65,7 @@ L1MetPfProducer::L1MetPfProducer(const edm::ParameterSet& cfg)
       maxCands_(cfg.getParameter<int>("maxCands")),
       modelVersion_(cfg.getParameter<std::string>("modelVersion")) {
   produces<std::vector<l1t::EtSum>>();
-  useMlModel_ = (modelVersion_.length() > 0);
+  useMlModel_ = (!modelVersion_.empty());
   if (useMlModel_) {
     hls4mlEmulator::ModelLoader loader(modelVersion_);
     model = loader.load_model();
@@ -102,12 +100,12 @@ void L1MetPfProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Even
   iEvent.put(std::move(metCollection));
 }
 
-  void L1MetPfProducer::CalcMetHLS(const std::vector<l1t::PFCandidate>& pfcands,
-                                   reco::Candidate::PolarLorentzVector& metVector) const {
+void L1MetPfProducer::CalcMetHLS(const std::vector<l1t::PFCandidate>& pfcands,
+                                 reco::Candidate::PolarLorentzVector& metVector) const {
   std::vector<l1ct::PuppiObjEmu> particles;
   l1ct::Sum hw_met;
 
-  for (int i=0; i < int(pfcands.size()) && (i < maxCands_ || maxCands_ < 0); i++){
+  for (int i = 0; i < int(pfcands.size()) && (i < maxCands_ || maxCands_ < 0); i++) {
     const auto& cand = pfcands[i];
     l1ct::PuppiObjEmu each_particle;
     each_particle.initFromBits(cand.encodedPuppi64());
@@ -119,8 +117,7 @@ void L1MetPfProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Even
   metVector.SetPt(hw_met.hwPt.to_double());
   metVector.SetPhi(hw_met.hwPhi.to_double() * phiLSB_);
   metVector.SetEta(0);
-  }
-
+}
 
 int L1MetPfProducer::EncodePdgId(int pdgId) const {
   switch (abs(pdgId)) {
@@ -141,7 +138,6 @@ int L1MetPfProducer::EncodePdgId(int pdgId) const {
 
 void L1MetPfProducer::CalcMlMet(const std::vector<l1t::PFCandidate>& pfcands,
                                 reco::Candidate::PolarLorentzVector& metVector) const {
-
   std::vector<float> pt;
   std::vector<float> eta;
   std::vector<float> phi;

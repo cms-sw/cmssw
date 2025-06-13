@@ -36,7 +36,7 @@ namespace L1JUMPEmu {
 
     L1METEmu::eta_t eta_edges[4];
     float eta_boundaries[4] = {1.3, 1.7, 2.5, 3.0};
-    for (uint i=0; i < 4; i++){
+    for (uint i = 0; i < 4; i++) {
       eta_edges[i] = l1ct::Scales::makeGlbEta(eta_boundaries[i]);
     }
 
@@ -64,7 +64,6 @@ namespace L1JUMPEmu {
 
     dPx_2 = dpt_xy.hwPx * dpt_xy.hwPx;
     dPy_2 = dpt_xy.hwPy * dpt_xy.hwPy;
-    
   }
 
   inline void Met_dPt(std::vector<l1ct::Jet> jets, L1METEmu::proj2_t& dPx_2, L1METEmu::proj2_t& dPy_2) {
@@ -74,7 +73,7 @@ namespace L1JUMPEmu {
     L1METEmu::proj2_t sum_dPx2 = 0;
     L1METEmu::proj2_t sum_dPy2 = 0;
 
-    for (uint i = 0; i < jets.size(); i++) { 
+    for (uint i = 0; i < jets.size(); i++) {
       Get_dPt(jets[i], each_dPx2, each_dPy2);
       sum_dPx2 += each_dPx2;
       sum_dPy2 += each_dPy2;
@@ -86,7 +85,6 @@ namespace L1JUMPEmu {
 }  // namespace L1JUMPEmu
 
 inline void JUMP_emu(l1ct::Sum inMet, std::vector<l1ct::Jet> jets, l1ct::Sum& outMet) {
-
   L1METEmu::Particle_xy inMet_xy = L1METEmu::Get_xy(inMet.hwPt, inMet.hwPhi);
 
   L1METEmu::proj2_t dPx_2;
