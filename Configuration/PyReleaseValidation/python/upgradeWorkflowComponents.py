@@ -464,7 +464,7 @@ upgradeWFs['trackingMkFit'] = UpgradeWorkflow_trackingMkFit(
     offset = 0.7,
 )
 upgradeWFs['trackingMkFit'].step2 = {
-    '--customise': 'RecoTracker/MkFit/customizeHLTIter0ToMkFit.customizeHLTIter0ToMkFit'
+    '--customise': 'RecoTracker/MkFit/customizeHLTTrackingToMkFit.customizeHLTIter0ToMkFit,RecoTracker/MkFit/customizeHLTTrackingToMkFit.customizeHLTDoubletRecoveryToMkFit'
 }
 upgradeWFs['trackingMkFit'].step3 = {
     '--procModifiers': 'trackingMkFitDevel'
