@@ -236,14 +236,15 @@ namespace edm {
   }
 
   void PoolSource::readEvent_(EventPrincipal& eventPrincipal) {
-    bool readEventSucceeded = primaryFileSequence_->readEvent(eventPrincipal);
+    bool readAllProducts = not delayReadingEventProducts_;
+    bool readEventSucceeded = primaryFileSequence_->readEvent(eventPrincipal, readAllProducts);
     assert(readEventSucceeded);
     if (secondaryFileSequence_ && !branchIDsToReplace_[InEvent].empty()) {
       bool found = secondaryFileSequence_->skipToItem(
           eventPrincipal.run(), eventPrincipal.luminosityBlock(), eventPrincipal.id().event());
       if (found) {
         EventPrincipal& secondaryEventPrincipal = *secondaryEventPrincipals_[eventPrincipal.streamID().value()];
-        bool readEventSucceeded = secondaryFileSequence_->readEvent(secondaryEventPrincipal);
+        bool readEventSucceeded = secondaryFileSequence_->readEvent(secondaryEventPrincipal, readAllProducts);
         checkConsistency(eventPrincipal, secondaryEventPrincipal);
         checkHistoryConsistency(eventPrincipal, secondaryEventPrincipal);
         assert(readEventSucceeded);
@@ -255,7 +256,7 @@ namespace edm {
             << eventPrincipal.id() << " is not found in the secondary input files\n";
       }
     }
-    if (not delayReadingEventProducts_) {
+    if (readAllProducts) {
       eventPrincipal.readAllFromSourceAndMergeImmediately();
     }
   }

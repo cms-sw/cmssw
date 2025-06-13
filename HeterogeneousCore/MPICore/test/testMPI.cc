@@ -151,9 +151,9 @@ int main(int argc, char* argv[]) {
 
   MPIData mpiInputs;  //greate object from structur to pass into MPI functios.
 
-  MPI_Init(&argc, &argv);                            //initialize communicator environment.
-  mpiInputs.num_procs = MPI::COMM_WORLD.Get_size();  //get total size of processes.
-  mpiInputs.rank = MPI::COMM_WORLD.Get_rank();       //get each process number.
+  MPI_Init(&argc, &argv);                               //initialize communicator environment.
+  MPI_Comm_rank(MPI_COMM_WORLD, &mpiInputs.rank);       //get each process number.
+  MPI_Comm_size(MPI_COMM_WORLD, &mpiInputs.num_procs);  //get total size of processes.
 
   mpiInputs.input1.resize(size);  //initialize size.
   mpiInputs.input2.resize(size);
@@ -212,7 +212,7 @@ int main(int argc, char* argv[]) {
     compare(timing, choices, userChoices, runNumber);
   }
 
-  MPI::Finalize();
+  MPI_Finalize();
 
   return 0;
 }

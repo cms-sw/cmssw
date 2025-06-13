@@ -40,6 +40,7 @@ numWFIB.extend([32834.0]) #Run4D117
 numWFIB.extend([33234.0]) #Run4D118
 numWFIB.extend([33634.0]) #Run4D119
 numWFIB.extend([34034.0]) #Run4D120
+numWFIB.extend([34434.0]) #Run4D121
 
 #Additional sample for short matrix and IB
 #Default Phase-2 Det NoPU
@@ -65,5 +66,20 @@ numWFIB.extend([prefixDet+234.114])  #PU, with 10% OT inefficiency
 numWFIB.extend([prefixDet+234.703])  #LST tracking on CPU (initialStep+HighPtTripletStep only)
 #
 numWFIB.extend([24834.911]) #D98 XML, to monitor instability of DD4hep
+
+# Phase-2 HLT tests
+numWFIB.extend([prefixDet+34.751]) # HLTTiming75e33, alpaka
+numWFIB.extend([prefixDet+34.752]) # HLTTiming75e33, ticl_v5
+numWFIB.extend([prefixDet+34.753]) # HLTTiming75e33, alpaka,singleIterPatatrack
+numWFIB.extend([prefixDet+34.754]) # HLTTiming75e33, alpaka,singleIterPatatrack,trackingLST
+numWFIB.extend([prefixDet+34.755]) # HLTTiming75e33, alpaka,trackingLST
+numWFIB.extend([prefixDet+34.756]) # HLTTiming75e33, phase2_hlt_vertexTrimming
+numWFIB.extend([prefixDet+34.7561])# HLTTiming75e33, alpaka,phase2_hlt_vertexTrimming
+numWFIB.extend([prefixDet+34.7562])# HLTTiming75e33, alpaka,phase2_hlt_vertexTrimming,singleIterPatatrack
+numWFIB.extend([prefixDet+34.757]) # HLTTiming75e33, alpaka,singleIterPatatrack,trackingLST,seedingLST
+numWFIB.extend([prefixDet+34.759]) # HLTTiming75e33 + NANO
+numWFIB.extend([prefixDet+34.77])  # NGTScouting
+numWFIB.extend([prefixDet+34.771]) # NGTScouting + NANO
+
 for numWF in numWFIB:
     workflows[numWF] = _upgrade_workflows[numWF]

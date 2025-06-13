@@ -43,10 +43,6 @@
 
   <class name="HGCalROCConfig" class_version="0">
     <field name="charMode" mapping="blob"/>
-    <field name="clockPhase" mapping="blob"/>
-    <field name="L1AcceptOffset" mapping="blob"/>
-    <field name="injChannels" mapping="blob"/>
-    <field name="injCharge" mapping="blob"/>
   </class>
 
   <class name="HGCalDenseIndexerBase" class_version="0">

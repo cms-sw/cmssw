@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-import os, sys, imp, re
+import os, sys, importlib, re
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 ####################################################################
@@ -9,25 +9,34 @@ options.register('type',
                  "V18",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "type of operations: V16, V17, V17Shift, V18")
+                  "type of operations: V16, V17, V17Shift, V18, V19")
 
 ### get and parse the command line arguments
 options.parseArguments()
 print(options)
 
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-
-process = cms.Process("HGCalMouseBiteTest",Phase2C17I13M9)
 
 ####################################################################
 # Use the options
 if (options.type == "V18"):
+    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+    process = cms.Process("HGCalMouseBiteTest",Phase2C22I13M9)
     geomFile = "Configuration.Geometry.GeometryExtendedRun4D104_cff"
+elif (options.type == "V19"):
+    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+    process = cms.Process("HGCalMouseBiteTest",Phase2C22I13M9)
+    geomFile = "Configuration.Geometry.GeometryExtendedRun4D120_cff"
 elif (options.type == "V17Shift"):
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process("HGCalMouseBiteTest",Phase2C17I13M9)
     geomFile = "Geometry.HGCalCommonData.testHGCal" + options.type + "Reco_cff"
 elif (options.type == "V16"):
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process("HGCalMouseBiteTest",Phase2C17I13M9)
     geomFile = "Configuration.Geometry.GeometryExtendedRun4D100_cff"
 else:
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process("HGCalMouseBiteTest",Phase2C17I13M9)
     geomFile = "Configuration.Geometry.GeometryExtendedRun4D110_cff"
 
 print("Geometry file: ", geomFile)

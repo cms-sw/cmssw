@@ -761,15 +761,19 @@ def createPDFImage(pdfFile, shownStacks, showStreams, processingSteps, numStream
     streamLowestRow = consolidateContiguousBlocks(numStreams, streamLowestRow)
 
     nr = 1
+    height_ratios = [1]
     if shownStacks and showStreams:
         nr += 1
-    fig, ax = plt.subplots(nrows=nr, squeeze=True)
+        height_ratios = [0.75, 0.25]
+
+    fig, ax = plt.subplots(nrows=nr, squeeze=True, height_ratios=height_ratios)
     axStack = None
     if shownStacks and showStreams:
         [xH,yH] = fig.get_size_inches()
         fig.set_size_inches(xH,yH*4/3)
-        ax = plt.subplot2grid((4,1),(0,0), rowspan=3)
-        axStack = plt.subplot2grid((4,1),(3,0))
+        axs = ax
+        ax = axs[0]
+        axStack = axs[1]
     if shownStacks and not showStreams:
         axStack = ax
 
