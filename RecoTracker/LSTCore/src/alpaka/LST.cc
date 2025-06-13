@@ -12,7 +12,7 @@ namespace {
   using namespace ALPAKA_ACCELERATOR_NAMESPACE::lst;
   std::vector<unsigned int> getHitIdxs(short trackCandidateType,
                                        Params_pT5::ArrayUxHits const& tcHitIndices,
-                                       unsigned int const* hitIndices) {
+                                       std::span<unsigned int const> hitIndices) {
     std::vector<unsigned int> hits;
 
     unsigned int maxNHits = 0;

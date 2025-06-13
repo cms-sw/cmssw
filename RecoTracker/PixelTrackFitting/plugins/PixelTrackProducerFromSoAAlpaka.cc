@@ -167,7 +167,7 @@ void PixelTrackProducerFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID strea
   hits.reserve(5);
 
   auto const &tsoa = iEvent.get(tokenTrack_);
-  auto const *quality = tsoa.view().quality();
+  auto const quality = tsoa.view().quality();
   auto const &hitIndices = tsoa.view().hitIndices();
   auto nTracks = tsoa.view().nTracks();
 

@@ -35,7 +35,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                     WsSoAView ws,
                                     float ptMin,
                                     float ptMax) const {
-        auto const* quality = tracks_view.quality();
+        auto const quality = tracks_view.quality();
         using helper = TracksUtilities<TrackerTraits>;
 
         for (auto idx : cms::alpakatools::uniform_elements(acc, tracks_view.nTracks())) {
