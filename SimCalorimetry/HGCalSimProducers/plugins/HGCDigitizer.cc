@@ -119,7 +119,7 @@ namespace {
                                        const float minCharge,
                                        const float maxCharge,
                                        bool setIfZero,
-                                       const std::array<float, 4>& tdcForToAOnset,
+                                       const std::vector<float>& tdcForToAOnset,
                                        const bool minbiasFlag,
                                        std::unordered_map<uint32_t, bool>& hitOrder_monitor,
                                        const unsigned int thisBx) {
