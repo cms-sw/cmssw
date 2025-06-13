@@ -16,7 +16,7 @@ namespace l1ct {
     GctHadClusterDecoderEmulator() {};
     GctHadClusterDecoderEmulator(const edm::ParameterSet &pset);
 
-    ~GctHadClusterDecoderEmulator();
+    ~GctHadClusterDecoderEmulator() = default;
 
     static edm::ParameterSetDescription getParameterSetDescription();
 

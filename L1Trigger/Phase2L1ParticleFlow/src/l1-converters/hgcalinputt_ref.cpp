@@ -67,8 +67,6 @@ l1ct::HgcalClusterDecoderEmulator::HgcalClusterDecoderEmulator(const std::string
       corrector_(corrector, correctorEmfMax, false, emulateCorrections, l1tpf::corrector::EmulationMode::Correction),
       emInterpScenario_(setEmInterpScenario(emInterpScenario)) {}
 
-l1ct::HgcalClusterDecoderEmulator::~HgcalClusterDecoderEmulator() {}
-
 l1ct::HgcalClusterDecoderEmulator::UseEmInterp l1ct::HgcalClusterDecoderEmulator::setEmInterpScenario(
     const std::string &emInterpScenario) {
   if (emInterpScenario == "no")

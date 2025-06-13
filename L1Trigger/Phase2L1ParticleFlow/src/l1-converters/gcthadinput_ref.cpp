@@ -12,8 +12,6 @@ edm::ParameterSetDescription l1ct::GctHadClusterDecoderEmulator::getParameterSet
 }
 #endif
 
-l1ct::GctHadClusterDecoderEmulator::~GctHadClusterDecoderEmulator() {}
-
 double l1ct::GctHadClusterDecoderEmulator::fracPart(const double total, const unsigned int hoe) const {
   return total * std::pow(2.0, hoe) / (std::pow(2.0, hoe) + 1);
 }

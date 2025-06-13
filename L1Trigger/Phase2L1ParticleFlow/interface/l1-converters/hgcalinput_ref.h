@@ -70,7 +70,7 @@ namespace l1ct {
 
     enum class UseEmInterp { No, EmOnly, AllKeepHad, AllKeepTot };
 
-    ~HgcalClusterDecoderEmulator();
+    ~HgcalClusterDecoderEmulator() = default;
 
     static edm::ParameterSetDescription getParameterSetDescription();
 

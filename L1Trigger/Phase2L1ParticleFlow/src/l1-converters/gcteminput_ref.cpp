@@ -22,8 +22,6 @@ edm::ParameterSetDescription l1ct::GctEmClusterDecoderEmulator::getParameterSetD
 }
 #endif
 
-l1ct::GctEmClusterDecoderEmulator::~GctEmClusterDecoderEmulator() {}
-
 l1ct::EmCaloObjEmu l1ct::GctEmClusterDecoderEmulator::decode(const l1ct::PFRegionEmu &sector,
                                                              const ap_uint<64> &in) const {
   constexpr float ETA_RANGE_ONE_SIDE = 1.4841;  // barrel goes from (-1.4841, +1.4841)

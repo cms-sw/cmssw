@@ -28,7 +28,7 @@ namespace l1ct {
                                 std::vector<float> ptMaxs)
         : corrector_(corrFile), resol_(kind, etas, offsets, scales, ptMins, ptMaxs) {}
 
-    ~GctEmClusterDecoderEmulator();
+    ~GctEmClusterDecoderEmulator() = default;
 
     static edm::ParameterSetDescription getParameterSetDescription();
 
