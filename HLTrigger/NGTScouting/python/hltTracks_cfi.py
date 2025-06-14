@@ -18,8 +18,14 @@ hltPixelTrackTable = cms.EDProducer(
         vx = Var("vx()", "float", doc = "vx (cm)"),
         vy = Var("vy()", "float", doc = "vy (cm)"),
         vz = Var("vz()", "float", doc = "vz (cm)"),
+        charge = Var("charge()", "float", doc = "charge"),
         nPixelHits = Var("hitPattern().numberOfValidPixelHits()", "int16", doc = ""),
-        nTrkLays = Var("hitPattern().trackerLayersWithMeasurement()", "int16", doc = "")
+        nTrkLays = Var("hitPattern().trackerLayersWithMeasurement()", "int16", doc = ""),
+        chi2 = Var("chi2()", "float", doc = "Track chi2"),
+        ndof = Var("ndof()", "float", doc = "Number of degrees of freedom"),
+        #isLoose = Var("quality('loose')", "bool", doc = "Loose track flag"),
+        isTight = Var("quality('tight')", "bool", doc = "Tight track flag"),
+        isHighPurity = Var("quality('highPurity')", "bool", doc = "High-purity track flag"),
     )
 )
 
@@ -40,7 +46,10 @@ hltGeneralTrackTable = cms.EDProducer(
         vx = Var("vx()", "float", doc = "vx (cm)"),
         vy = Var("vy()", "float", doc = "vy (cm)"),
         vz = Var("vz()", "float", doc = "vz (cm)"),
+        charge = Var("charge()", "float", doc = "charge"),
         nPixelHits = Var("hitPattern().numberOfValidPixelHits()", "int16", doc = ""),
-        nTrkLays = Var("hitPattern().trackerLayersWithMeasurement()", "int16", doc = "")
+        nTrkLays = Var("hitPattern().trackerLayersWithMeasurement()", "int16", doc = ""),
+        chi2 = Var("chi2()", "float", doc = "Track chi2"),
+        ndof = Var("ndof()", "float", doc = "Number of degrees of freedom"),
     )
 )
