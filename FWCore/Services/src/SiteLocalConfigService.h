@@ -105,7 +105,6 @@ namespace edm {
       std::string m_localConnectSuffix;
     };
 
-    inline bool isProcessWideService(SiteLocalConfigService const*) { return true; }
   }  // namespace service
 }  // namespace edm
 

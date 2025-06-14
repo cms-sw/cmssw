@@ -49,12 +49,6 @@ private:
   unsigned int debugLevel_;
 };
 
-namespace edm {
-  namespace service {
-    inline bool isProcessWideService(TFileAdaptor const*) { return true; }
-  }  // namespace service
-}  // namespace edm
-
 /*
  * wrapper to bind TFileAdaptor to root, python etc
  * loading IOPoolTFileAdaptor library and instantiating

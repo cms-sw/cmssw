@@ -38,8 +38,7 @@ namespace edm {
     ServiceToken initServices(std::vector<ParameterSet>& servicePSets,
                               ParameterSet& processPSet,
                               ServiceToken const& iToken,
-                              serviceregistry::ServiceLegacy iLegacy,
-                              bool associate);
+                              serviceregistry::ServiceLegacy iLegacy);
 
     ServiceToken addTNS(ParameterSet const& parameterSet, ServiceToken const& token);
 

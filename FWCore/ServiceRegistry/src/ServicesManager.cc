@@ -71,10 +71,8 @@ namespace edm {
 
     ServicesManager::ServicesManager(ServiceToken iToken,
                                      ServiceLegacy iLegacy,
-                                     std::vector<ParameterSet>& iConfiguration,
-                                     bool associate)
-        : associatedManager_(associate ? iToken.manager_ : std::shared_ptr<ServicesManager>()),
-          type2Maker_(new Type2Maker) {
+                                     std::vector<ParameterSet>& iConfiguration)
+        : associatedManager_(iToken.manager_), type2Maker_(new Type2Maker) {
       fillListOfMakers(iConfiguration);
 
       //find overlaps between services in iToken and iConfiguration
@@ -132,38 +130,9 @@ namespace edm {
               type2Maker_->erase(itFound);
             }
             break;
-          case kConfigurationOverrides:
-            //get all the services from the Configuration, except process wide services
-            type2Service_ = iToken.manager_->type2Service_;
-
-            //now remove the ones we do not want
-            for (IntersectionType::iterator itType = intersection.begin(), itTypeEnd = intersection.end();
-                 itType != itTypeEnd;
-                 ++itType) {
-              Type2Maker::iterator itFound = type2Maker_->find(*itType);
-              if (itFound->second.maker_->processWideService()) {
-                // This is a process wide service, so the token overrides the configuration.
-                //HLT needs it such that even if a service isn't created we store its PSet if needed
-                if (itFound->second.maker_->saveConfiguration()) {
-                  itFound->second.pset_->addUntrackedParameter("@save_config", true);
-                }
-                std::string type(typeDemangle(itType->name()));
-                LogInfo("Configuration") << "Warning: You have reconfigured service\n"
-                                         << "'" << type << "' in a subprocess.\n"
-                                         << "This service has already been configured.\n"
-                                         << "This particular service may not be reconfigured in a subprocess.\n"
-                                         << "The reconfiguration will be ignored.\n";
-                type2Maker_->erase(itFound);
-              } else {
-                // This is not a process wide service, so the configuration overrides the token.
-                type2Service_.erase(type2Service_.find(*itType));
-              }
-            }
-            break;
         }
         //make sure our signals are propagated to our 'inherited' Services
-        if (associate)
-          registry_.copySlotsFrom(associatedManager_->registry_);
+        registry_.copySlotsFrom(associatedManager_->registry_);
       }
       createServices();
     }
