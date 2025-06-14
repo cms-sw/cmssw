@@ -43,26 +43,37 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
+    void beginRun(edm::Run const& run, edm::EventSetup const& setup) override;
+
   private:
     void produce(device::Event& iEvent, const device::EventSetup& es) override;
 
     const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+    const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomTokenRun_;
     const edm::EDGetTokenT<Phase2TrackerRecHit1DCollectionNew> recHitToken_;
     const edm::EDGetTokenT<::reco::BeamSpot> beamSpotToken_;
     const edm::EDGetTokenT<HitsHost> pixelHitsSoA_;
 
     const device::EDPutToken<Hits> stripSoADevice_;
     const edm::EDPutTokenT<HMSstorage> hitModuleStart_;
+
+    int modulesInPixel_;
+    std::unordered_map<uint32_t, bool> detIdIsP_;
+    std::vector<int> orderedModules_;
+    std::unordered_map<int, int> moduleIndexToOffset_;
+    std::map<uint32_t, uint16_t> detIdToIndex_;
   };
 
   Phase2OTRecHitsSoAConverter::Phase2OTRecHitsSoAConverter(const edm::ParameterSet& iConfig)
       : stream::EDProducer<>(iConfig),
         geomToken_(esConsumes()),
+        geomTokenRun_(esConsumes<edm::Transition::BeginRun>()),
         recHitToken_{consumes(iConfig.getParameter<edm::InputTag>("otRecHitSource"))},
         beamSpotToken_(consumes<::reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
         pixelHitsSoA_{consumes(iConfig.getParameter<edm::InputTag>("pixelRecHitSoASource"))},
         stripSoADevice_{produces()},
-        hitModuleStart_{produces()} {}
+        hitModuleStart_{produces()},
+        modulesInPixel_(0) {}
 
   void Phase2OTRecHitsSoAConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -72,6 +83,38 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     desc.add<edm::InputTag>("beamSpot", edm::InputTag("hltOnlineBeamSpot"));
 
     descriptions.addWithDefaultLabel(desc);
+  }
+
+  void Phase2OTRecHitsSoAConverter::beginRun(edm::Run const &iRun, edm::EventSetup const& iSetup) {
+    const auto& trackerGeometry = &iSetup.getData(geomTokenRun_);
+    auto isPinPSinOTBarrel = [&](DetId detId) {
+      //    std::cout << (int)trackerGeometry->getDetectorType(detId) << " " << (trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP) << "\n";
+      //    std::cout << (int)detId.subdetId() << " " << (detId.subdetId() == StripSubdetector::TOB) << std::endl;
+      // Select only P-hits from the OT barrel
+      return (trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP &&
+              detId.subdetId() == StripSubdetector::TOB);
+    };
+    auto isPh2Pixel = [&](DetId detId) {
+      return (trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PXB ||
+              trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PXB3D ||
+              trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PXF ||
+              trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PXF3D);
+    };
+
+    auto const& detUnits = trackerGeometry->detUnits();
+
+    for (auto& detUnit : detUnits) {
+      DetId detId(detUnit->geographicalId());
+      detIdIsP_[detId.rawId()] = isPinPSinOTBarrel(detId);
+      if (isPh2Pixel(detId))
+        modulesInPixel_++;
+      if (detIdIsP_[detId.rawId()]) {
+        detIdToIndex_[detUnit->geographicalId()] = detUnit->index();
+        moduleIndexToOffset_[detUnit->index()] = orderedModules_.size();
+        orderedModules_.push_back(detUnit->index());
+        //      std::cout << "Inserted " << detUnit->index() << " " << p_modulesInPSInOTBarrel.size() << " on layer " << int((detId.rawId() >> 20) & 0xF) <<  std::endl;
+      }
+    }
   }
 
   //https://github.com/cms-sw/cmssw/blob/3f06ef32d66bd2a7fa04e411fa4db4845193bd3c/RecoTracker/MkFit/plugins/convertHits.h
@@ -89,71 +132,33 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const int nStripHits = stripHits.data().size();
     const int activeStripModules = stripHits.size();
 
-    auto isPinPSinOTBarrel = [&](DetId detId) {
-      //    std::cout << (int)trackerGeometry->getDetectorType(detId) << " " << (trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP) << "\n";
-      //    std::cout << (int)detId.subdetId() << " " << (detId.subdetId() == StripSubdetector::TOB) << std::endl;
-      // Select only P-hits from the OT barrel
-      return (trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP &&
-              detId.subdetId() == StripSubdetector::TOB);
-    };
-    auto isPh2Pixel = [&](DetId detId) {
-      return (trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PXB ||
-              trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PXB3D ||
-              trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PXF ||
-              trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PXF3D);
-    };
-
-
-    // TODO(rovere) move this logic out of produce, since it's partially bound only to the geometry...??
-    std::unordered_map<uint32_t, bool> detIdIsP;
-    std::vector<int> orderedModules;
-    std::unordered_map<int, int> moduleIndexToOffset;
-    auto const& detUnits = trackerGeometry->detUnits();
-    std::map<uint32_t, uint16_t> detIdToIndex;
-    int modulesInPixel = 0;
-    //  auto subSystem = GeomDetEnumerators::P2OTEC;
-    //  auto subSystemName = GeomDetEnumerators::tkDetEnum[subSystem];
-    //  modulesInPixel += trackerGeometry->offsetDU(subSystemName);
-
-    for (auto& detUnit : detUnits) {
-      DetId detId(detUnit->geographicalId());
-      detIdIsP[detId.rawId()] = isPinPSinOTBarrel(detId);
-      if (isPh2Pixel(detId))
-        modulesInPixel++;
-      if (detIdIsP[detId.rawId()]) {
-        detIdToIndex[detUnit->geographicalId()] = detUnit->index();
-        moduleIndexToOffset[detUnit->index()] = orderedModules.size();
-        orderedModules.push_back(detUnit->index());
-        //      std::cout << "Inserted " << detUnit->index() << " " << p_modulesInPSInOTBarrel.size() << " on layer " << int((detId.rawId() >> 20) & 0xF) <<  std::endl;
-      }
-    }
     // Count the number of P hits in the OT to dimension the SoA
     int PHitsInOTBarrel = 0;
     for (const auto& detSet : stripHits) {
       for (const auto& recHit : detSet) {
         DetId detId(recHit.geographicalId());
-        if (detIdIsP[detId.rawId()])
+        if (detIdIsP_[detId.rawId()])
           PHitsInOTBarrel++;
       }
     }
-    std::cout << "Tot number of modules in Pixels " << modulesInPixel << std::endl;
-    std::cout << "Tot number of p_modulesInPSInOTBarrel: " << orderedModules.size() << std::endl;
+    std::cout << "Tot number of modules in Pixels " << modulesInPixel_ << std::endl;
+    std::cout << "Tot number of p_modulesInPSInOTBarrel: " << orderedModules_.size() << std::endl;
     std::cout << "Number of strip (active) modules:      " << activeStripModules << std::endl;
     std::cout << "Number of strip hits: " << nStripHits << std::endl;
     std::cout << "Total hits of PinOTBarrel:   " << PHitsInOTBarrel << std::endl;
 
-    HitsHost stripHitsHost(queue, PHitsInOTBarrel, orderedModules.size());
+    HitsHost stripHitsHost(queue, PHitsInOTBarrel, orderedModules_.size());
     auto& stripHitsModuleView = stripHitsHost.view<::reco::HitModuleSoA>();
 
-    std::vector<int> counterOfHitsPerModule(orderedModules.size(), 0);
-    assert(orderedModules.size());
+    std::vector<int> counterOfHitsPerModule(orderedModules_.size(), 0);
+    assert(orderedModules_.size());
     for (const auto& detSet : stripHits) {
       auto firstHit = detSet.begin();
       auto detId = firstHit->rawId();
-      auto index = detIdToIndex[detId];
+      auto index = detIdToIndex_[detId];
       int offset = 0;
-      if (detIdIsP[detId]) {
-        offset = moduleIndexToOffset[index];
+      if (detIdIsP_[detId]) {
+        offset = moduleIndexToOffset_[index];
         for (const auto& recHit : detSet) {
           counterOfHitsPerModule[offset]++;
         }
@@ -183,13 +188,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto firstHit = detSet.begin();
       auto detId = firstHit->rawId();
       auto det = trackerGeometry->idToDet(detId);
-      auto index = detIdToIndex[detId];
+      auto index = detIdToIndex_[detId];
       int offset = 0;
-      if (detIdIsP[detId]) {
-        offset = moduleIndexToOffset[index];
+      if (detIdIsP_[detId]) {
+        offset = moduleIndexToOffset_[index];
         for (const auto& recHit : detSet) {
           // Select only P-hits from the OT barrel
-          if (detIdIsP[detId]) {
+          if (detIdIsP_[detId]) {
             int idx = shifted[offset]++;
             assert(idx < PHitsInOTBarrel);
             stripHitsHost.view()[idx].xLocal() = recHit.localPosition().x();
@@ -213,13 +218,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             stripHitsHost.view()[idx].chargeAndStatus().status = {0, 0, 0, 0, 0};
             stripHitsHost.view()[idx].clusterSizeX() = -1;
             stripHitsHost.view()[idx].clusterSizeY() = -1;
-            stripHitsHost.view()[idx].detectorIndex() = modulesInPixel + offset;
+            stripHitsHost.view()[idx].detectorIndex() = modulesInPixel_ + offset;
           }
         }
       }
     }
-    stripHitsModuleView[orderedModules.size()].moduleStart() =
-        cumulativeHitPerModule[orderedModules.size() - 1] + nPixelHits;
+    stripHitsModuleView[orderedModules_.size()].moduleStart() =
+        cumulativeHitPerModule[orderedModules_.size() - 1] + nPixelHits;
 
     std::cout << "DONE" << std::endl;
 #if 0
