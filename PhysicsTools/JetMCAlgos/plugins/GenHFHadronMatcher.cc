@@ -53,7 +53,8 @@
 class GenHFHadronMatcher : public edm::global::EDProducer<> {
 public:
   explicit GenHFHadronMatcher(const edm::ParameterSet &);
-  ~GenHFHadronMatcher() override;
+
+  ~GenHFHadronMatcher() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
@@ -65,18 +66,20 @@ private:
                                   std::vector<int> &hadIndex,
                                   std::vector<reco::GenParticle> &hadMothersGenPart,
                                   std::vector<std::vector<int>> &hadMothersIndices,
+                                  std::set<const reco::Candidate *> &analyzedParticles,
                                   std::vector<int> &hadLeptonIndex,
                                   std::vector<int> &hadLeptonHadIndex,
                                   std::vector<int> &hadLeptonViaTau,
                                   std::vector<int> &hadFlavour,
                                   std::vector<int> &hadFromTopWeakDecay,
                                   std::vector<int> &hadBHadronId) const;
+
   int analyzeMothers(const reco::Candidate *thisParticle,
                      int &topDaughterQId,
                      int &topBarDaughterQId,
                      std::vector<const reco::Candidate *> &hadMothers,
                      std::vector<std::vector<int>> &hadMothersIndices,
-                     std::set<const reco::Candidate *> *analyzedParticles,
+                     std::set<const reco::Candidate *> &analyzedParticles,
                      const int prevPartIndex) const;
   bool putMotherIndex(std::vector<std::vector<int>> &hadMothersIndices, int partIndex, int mothIndex) const;
   bool isHadron(const int flavour, const reco::Candidate *thisParticle) const;
@@ -202,8 +205,6 @@ GenHFHadronMatcher::GenHFHadronMatcher(const edm::ParameterSet &cfg)
   // Hadron matching products
 }
 
-GenHFHadronMatcher::~GenHFHadronMatcher() {}
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 /**
 * @brief description of the run-time parameters
@@ -237,9 +238,10 @@ void GenHFHadronMatcher::produce(edm::StreamID, edm::Event &evt, const edm::Even
   edm::Handle<reco::JetFlavourInfoMatchingCollection> jetFlavourInfos;
   evt.getByToken(jetFlavourInfosToken_, jetFlavourInfos);
 
-  // Defining adron matching variables
+  // Defining hadron matching variables
   std::vector<reco::GenParticle> hadMothers;
   std::vector<std::vector<int>> hadMothersIndices;
+  std::set<const reco::Candidate *> analyzedParticles;
   std::vector<int> hadIndex;
   std::vector<int> hadFlavour;
   std::vector<int> hadJetIndex;
@@ -254,6 +256,7 @@ void GenHFHadronMatcher::produce(edm::StreamID, edm::Event &evt, const edm::Even
                                hadIndex,
                                hadMothers,
                                hadMothersIndices,
+                               analyzedParticles,
                                hadLeptonIndex,
                                hadLeptonHadIndex,
                                hadLeptonViaTau,
@@ -301,6 +304,7 @@ std::vector<int> GenHFHadronMatcher::findHadronJets(const reco::GenParticleColle
                                                     std::vector<int> &hadIndex,
                                                     std::vector<reco::GenParticle> &hadMothers,
                                                     std::vector<std::vector<int>> &hadMothersIndices,
+                                                    std::set<const reco::Candidate *> &analyzedParticles,
                                                     std::vector<int> &hadLeptonIndex,
                                                     std::vector<int> &hadLeptonHadIndex,
                                                     std::vector<int> &hadLeptonViaTau,
@@ -336,7 +340,7 @@ std::vector<int> GenHFHadronMatcher::findHadronJets(const reco::GenParticleColle
                                        topBarDaughterQId,
                                        hadMothersCand,
                                        hadMothersIndices,
-                                       nullptr,
+                                       analyzedParticles,
                                        -1);
       // Storing the index of the hadron to the list
       hadIndex.push_back(hadronIndex);
@@ -358,7 +362,7 @@ std::vector<int> GenHFHadronMatcher::findHadronJets(const reco::GenParticleColle
 
       // Scanning the chain starting from the hadron
       int hadronIndex = analyzeMothers(
-          thisParticle, topDaughterQId, topBarDaughterQId, hadMothersCand, hadMothersIndices, nullptr, -1);
+          thisParticle, topDaughterQId, topBarDaughterQId, hadMothersCand, hadMothersIndices, analyzedParticles, -1);
       // Storing the index of the hadron to the list
       hadIndex.push_back(hadronIndex);
       hadJetIndex.push_back(-1);  // Jet index undefined
@@ -728,7 +732,7 @@ int GenHFHadronMatcher::analyzeMothers(const reco::Candidate *thisParticle,
                                        int &topBarDaughterQId,
                                        std::vector<const reco::Candidate *> &hadMothers,
                                        std::vector<std::vector<int>> &hadMothersIndices,
-                                       std::set<const reco::Candidate *> *analyzedParticles,
+                                       std::set<const reco::Candidate *> &analyzedParticles,
                                        const int prevPartIndex) const {
   // Getting the index of the particle which is a hadron in the first call
   int hadronIndex = -1;  // Index of the hadron that is returned by this function
@@ -745,11 +749,8 @@ int GenHFHadronMatcher::analyzeMothers(const reco::Candidate *thisParticle,
 
   // Checking whether this particle is already in the chain of analyzed particles in order to identify a loop
   bool isLoop = false;
-  if (!analyzedParticles) {
-    analyzedParticles = new std::set<const reco::Candidate *>;
-  }
-  for (unsigned int i = 0; i < analyzedParticles->size(); i++) {
-    if (analyzedParticles->count(thisParticle) <= 0) {
+  for (unsigned int i = 0; i < analyzedParticles.size(); i++) {
+    if (analyzedParticles.count(thisParticle) <= 0) {
       continue;
     }
     isLoop = true;
@@ -763,7 +764,7 @@ int GenHFHadronMatcher::analyzeMothers(const reco::Candidate *thisParticle,
     }
     return hadronIndex;  // Stopping further processing of the current chain
   }
-  analyzedParticles->insert(thisParticle);
+  analyzedParticles.insert(thisParticle);
 
   // Putting the mothers to the list of mothers
   for (size_t iMother = 0; iMother < thisParticle->numberOfMothers(); ++iMother) {
@@ -801,7 +802,7 @@ int GenHFHadronMatcher::analyzeMothers(const reco::Candidate *thisParticle,
     }  // If the mother is a top quark and hadron has been found
   }  // End of loop over mothers
 
-  analyzedParticles->erase(thisParticle);  // Removing current particle from the current chain that is being analyzed
+  analyzedParticles.erase(thisParticle);  // Removing current particle from the current chain that is being analyzed
 
   if (partIndex < 0) {
     return hadronIndex;  // Safety check
