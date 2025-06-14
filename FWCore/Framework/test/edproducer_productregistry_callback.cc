@@ -17,7 +17,7 @@
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
-#include "FWCore/Framework/interface/maker/WorkerMaker.h"
+#include "FWCore/Framework/interface/maker/ModuleMaker.h"
 #include "FWCore/Framework/interface/maker/MakeModuleParams.h"
 #include "FWCore/Framework/interface/maker/WorkerT.h"
 
@@ -113,7 +113,7 @@ void testEDProducerProductRegistryCallback::testCircularRef() {
 
   SignallingProductRegistryFiller preg;
 
-  std::unique_ptr<Maker> f = std::make_unique<WorkerMaker<TestMod>>();
+  std::unique_ptr<ModuleMakerBase> f = std::make_unique<ModuleMaker<TestMod>>();
 
   ParameterSet p1;
   p1.addParameter("@module_type", std::string("TestMod"));
@@ -137,7 +137,7 @@ void testEDProducerProductRegistryCallback::testCircularRef() {
   edm::MakeModuleParams params1(&p1, preg, &prealloc, pc);
   edm::MakeModuleParams params2(&p2, preg, &prealloc, pc);
 
-  std::unique_ptr<Maker> lM = std::make_unique<WorkerMaker<ListenMod>>();
+  std::unique_ptr<ModuleMakerBase> lM = std::make_unique<ModuleMaker<ListenMod>>();
   ParameterSet l1;
   l1.addParameter("@module_type", std::string("ListenMod"));
   l1.addParameter("@module_label", std::string("l1"));
@@ -184,7 +184,7 @@ void testEDProducerProductRegistryCallback::testCircularRef2() {
 
   SignallingProductRegistryFiller preg;
 
-  std::unique_ptr<Maker> f = std::make_unique<WorkerMaker<TestMod>>();
+  std::unique_ptr<ModuleMakerBase> f = std::make_unique<ModuleMaker<TestMod>>();
 
   ParameterSet p1;
   p1.addParameter("@module_type", std::string("TestMod"));
@@ -208,7 +208,7 @@ void testEDProducerProductRegistryCallback::testCircularRef2() {
   edm::MakeModuleParams params1(&p1, preg, &prealloc, pc);
   edm::MakeModuleParams params2(&p2, preg, &prealloc, pc);
 
-  std::unique_ptr<Maker> lM = std::make_unique<WorkerMaker<ListenMod>>();
+  std::unique_ptr<ModuleMakerBase> lM = std::make_unique<ModuleMaker<ListenMod>>();
   ParameterSet l1;
   l1.addParameter("@module_type", std::string("ListenMod"));
   l1.addParameter("@module_label", std::string("l1"));
@@ -254,7 +254,7 @@ void testEDProducerProductRegistryCallback::testTwoListeners() {
 
   SignallingProductRegistryFiller preg;
 
-  std::unique_ptr<Maker> f = std::make_unique<WorkerMaker<TestMod>>();
+  std::unique_ptr<ModuleMakerBase> f = std::make_unique<ModuleMaker<TestMod>>();
 
   ParameterSet p1;
   p1.addParameter("@module_type", std::string("TestMod"));
@@ -278,14 +278,14 @@ void testEDProducerProductRegistryCallback::testTwoListeners() {
   edm::MakeModuleParams params1(&p1, preg, &prealloc, pc);
   edm::MakeModuleParams params2(&p2, preg, &prealloc, pc);
 
-  std::unique_ptr<Maker> lM = std::make_unique<WorkerMaker<ListenMod>>();
+  std::unique_ptr<ModuleMakerBase> lM = std::make_unique<ModuleMaker<ListenMod>>();
   ParameterSet l1;
   l1.addParameter("@module_type", std::string("ListenMod"));
   l1.addParameter("@module_label", std::string("l1"));
   l1.addParameter("@module_edm_type", std::string("EDProducer"));
   l1.registerIt();
 
-  std::unique_ptr<Maker> lFM = std::make_unique<WorkerMaker<ListenFloatMod>>();
+  std::unique_ptr<ModuleMakerBase> lFM = std::make_unique<ModuleMaker<ListenFloatMod>>();
   ParameterSet l2;
   l2.addParameter("@module_type", std::string("ListenMod"));
   l2.addParameter("@module_label", std::string("l2"));

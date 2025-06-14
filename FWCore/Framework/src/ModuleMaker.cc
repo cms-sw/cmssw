@@ -1,5 +1,5 @@
 
-#include "FWCore/Framework/interface/maker/WorkerMaker.h"
+#include "FWCore/Framework/interface/maker/ModuleMaker.h"
 #include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
@@ -14,9 +14,9 @@
 #include <exception>
 namespace edm {
 
-  Maker::~Maker() {}
+  ModuleMakerBase::~ModuleMakerBase() {}
 
-  ModuleDescription Maker::createModuleDescription(MakeModuleParams const& p) const {
+  ModuleDescription ModuleMakerBase::createModuleDescription(MakeModuleParams const& p) const {
     ParameterSet const& conf = *p.pset_;
     ModuleDescription md(conf.id(),
                          conf.getParameter<std::string>("@module_type"),
@@ -26,7 +26,7 @@ namespace edm {
     return md;
   }
 
-  void Maker::throwValidationException(MakeModuleParams const& p, cms::Exception& iException) const {
+  void ModuleMakerBase::throwValidationException(MakeModuleParams const& p, cms::Exception& iException) const {
     ParameterSet const& conf = *p.pset_;
     std::string moduleName = conf.getParameter<std::string>("@module_type");
     std::string moduleLabel = conf.getParameter<std::string>("@module_label");
@@ -37,14 +37,14 @@ namespace edm {
     throw;
   }
 
-  void Maker::throwConfigurationException(ModuleDescription const& md, cms::Exception& iException) const {
+  void ModuleMakerBase::throwConfigurationException(ModuleDescription const& md, cms::Exception& iException) const {
     std::ostringstream ost;
     ost << "Constructing module: class=" << md.moduleName() << " label='" << md.moduleLabel() << "'";
     iException.addContext(ost.str());
     throw;
   }
 
-  void Maker::validateEDMType(std::string const& edmType, MakeModuleParams const& p) const {
+  void ModuleMakerBase::validateEDMType(std::string const& edmType, MakeModuleParams const& p) const {
     std::string expected = p.pset_->getParameter<std::string>("@module_edm_type");
     if (edmType != expected) {
       throw Exception(errors::Configuration)
@@ -55,7 +55,7 @@ namespace edm {
     }
   }
 
-  std::shared_ptr<maker::ModuleHolder> Maker::makeModule(
+  std::shared_ptr<maker::ModuleHolder> ModuleMakerBase::makeModule(
       MakeModuleParams const& p,
       signalslot::Signal<void(ModuleDescription const&)>& pre,
       signalslot::Signal<void(ModuleDescription const&)>& post) const {
@@ -90,9 +90,7 @@ namespace edm {
       convertException::wrap([&]() {
         pre(md);
         module = makeModule(*(p.pset_));
-        module->setModuleDescription(md);
-        module->preallocate(*(p.preallocate_));
-        module->registerProductsAndCallbacks(p.reg_);
+        module->finishModuleInitialization(md, *p.preallocate_, p.reg_);
         // if exception then post will be called in the catch block
         postCalled = true;
         post(md);
@@ -107,10 +105,4 @@ namespace edm {
     }
     return module;
   }
-
-  std::unique_ptr<Worker> Maker::makeWorker(ExceptionToActionTable const* actions,
-                                            maker::ModuleHolder const* mod) const {
-    return makeWorker(actions, mod->moduleDescription(), mod);
-  }
-
 }  // namespace edm
