@@ -24,6 +24,29 @@ vtxTable = cms.EDProducer(
      )
  )
 
+#### GTT Displaced Vertex
+dispVtxTable = cms.EDProducer(
+    "SimpleL1VtxWordCandidateFlatTableProducer",
+    src = cms.InputTag('DisplacedVertexProducer','dispVerticesEmulation'),
+    cut = cms.string(""),
+    name = cms.string("L1DisplacedVertex"),
+    doc = cms.string("GTT Displaced Vertices"),
+    singleton = cms.bool(False), # the number of entries is variable
+    variables = cms.PSet(
+        d_T = Var("d_T()",float, doc = "impact parameter of parent particle"),
+        R_T = Var("R_T()",float, doc = "transverse distance of vertex from origin"),
+        cos_T = Var("cos_T()", float, doc = "cosine of angle between parent particle momentum and position vector of vertex"),
+        x = Var("x()", float, doc = "x position of vertex"),
+        y = Var("y()", float, doc = "y position of vertex"),
+        z = Var("z()", float, doc = "z position of vertex"),
+        openingAngle = Var("openingAngle()", float, doc = "hardware track multiplicity in the vertex"),
+        parentPt = Var("parentPt()", float, doc = "transverse momentum of parent particle"),
+        del_Z = Var("del_Z()", float, doc = "delta z of vertex from origin"),
+        isReal = Var("isReal()", bool, doc = "is real"),
+        score = Var("score()", float, doc = "BDT score"),
+     )
+ )
+ 
 gttTrackJetsTable = cms.EDProducer(
     "SimpleL1TkJetWordCandidateFlatTableProducer",
     src = cms.InputTag("l1tTrackJetsEmulation","L1TrackJets"),
