@@ -26,8 +26,8 @@ vtxTable = cms.EDProducer(
 
 #### GTT Displaced Vertex
 dispVtxTable = cms.EDProducer(
-    "SimpleL1VtxWordCandidateFlatTableProducer",
-    src = cms.InputTag('DisplacedVertexProducer','dispVerticesEmulation'),
+    "SimpleL1DisplacedVtxCandidateFlatTableProducer",
+    src = cms.InputTag('DisplacedVertexProducer','dispVertices'),
     cut = cms.string(""),
     name = cms.string("L1DisplacedVertex"),
     doc = cms.string("GTT Displaced Vertices"),
@@ -592,6 +592,7 @@ p2L1TablesTask = cms.Task(
     hpsTauTable,
     # GTT
     vtxTable,
+    dispVtxTable,
     pvtxTable,
     gttTrackJetsTable,
     gttExtTrackJetsTable,

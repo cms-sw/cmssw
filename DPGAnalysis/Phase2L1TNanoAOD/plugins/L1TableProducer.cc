@@ -47,6 +47,7 @@ typedef SimpleFlatTableProducer<l1t::PFJet> SimpleTriggerL1PFJetFlatTableProduce
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SimpleL1VtxWordCandidateFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleL1DisplacedVtxCandidateFlatTableProducer);
 DEFINE_FWK_MODULE(P2GTAlgoBlockFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleP2GTCandidateFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleL1TkJetWordCandidateFlatTableProducer);
