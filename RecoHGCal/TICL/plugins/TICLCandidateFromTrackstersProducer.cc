@@ -14,8 +14,8 @@
 
 #include "FWCore/Utilities/interface/transform.h"
 
-#include "DataFormats/HGCalReco/interface/TICLCandidate.h"
-#include "DataFormats/HGCalReco/interface/Trackster.h"
+#include "DataFormats/TICLReco/interface/TICLCandidate.h"
+#include "DataFormats/TICLReco/interface/Trackster.h"
 #include "RecoHGCal/TICL/interface/TracksterMomentumPluginBase.h"
 #include "RecoHGCal/TICL/interface/TracksterTrackPluginBase.h"
 

@@ -3,7 +3,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
-#include "DataFormats/HGCalReco/interface/Trackster.h"
+#include "DataFormats/TICLReco/interface/Trackster.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
