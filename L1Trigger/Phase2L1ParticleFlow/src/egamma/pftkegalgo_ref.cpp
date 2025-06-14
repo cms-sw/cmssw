@@ -1,6 +1,10 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/egamma/pftkegalgo_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
-
+#ifdef CMSSW_GIT_HASH
+#include "DataFormats/L1TParticleFlow/interface/PFTrack.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/CaloCrystalCluster.h"
+#include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
+#endif
 #include <cmath>
 #include <cstdio>
 #include <algorithm>
@@ -16,38 +20,40 @@ using namespace l1ct;
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 l1ct::PFTkEGAlgoEmuConfig::PFTkEGAlgoEmuConfig(const edm::ParameterSet &pset)
-    : nTRACK(pset.getParameter<uint32_t>("nTRACK")),
-      nTRACK_EGIN(pset.getParameter<uint32_t>("nTRACK_EGIN")),
-      nEMCALO_EGIN(pset.getParameter<uint32_t>("nEMCALO_EGIN")),
-      nEM_EGOUT(pset.getParameter<uint32_t>("nEM_EGOUT")),
-      filterHwQuality(pset.getParameter<bool>("filterHwQuality")),
-      doBremRecovery(pset.getParameter<bool>("doBremRecovery")),
-      writeBeforeBremRecovery(pset.getParameter<bool>("writeBeforeBremRecovery")),
-      caloHwQual(pset.getParameter<int>("caloHwQual")),
-      doEndcapHwQual(pset.getParameter<bool>("doEndcapHwQual")),
-      emClusterPtMin(pset.getParameter<double>("caloEtMin")),
-      dEtaMaxBrem(pset.getParameter<double>("dEtaMaxBrem")),
-      dPhiMaxBrem(pset.getParameter<double>("dPhiMaxBrem")),
-      absEtaBoundaries(pset.getParameter<std::vector<double>>("absEtaBoundaries")),
-      dEtaValues(pset.getParameter<std::vector<double>>("dEtaValues")),
-      dPhiValues(pset.getParameter<std::vector<double>>("dPhiValues")),
-      trkQualityPtMin(pset.getParameter<double>("trkQualityPtMin")),
-      doCompositeTkEle(pset.getParameter<bool>("doCompositeTkEle")),
-      nCompCandPerCluster(pset.getParameter<uint32_t>("nCompCandPerCluster")),
-      writeEgSta(pset.getParameter<bool>("writeEGSta")),
-      tkIsoParams_tkEle(pset.getParameter<edm::ParameterSet>("tkIsoParametersTkEle")),
-      tkIsoParams_tkEm(pset.getParameter<edm::ParameterSet>("tkIsoParametersTkEm")),
-      pfIsoParams_tkEle(pset.getParameter<edm::ParameterSet>("pfIsoParametersTkEle")),
-      pfIsoParams_tkEm(pset.getParameter<edm::ParameterSet>("pfIsoParametersTkEm")),
-      doTkIso(pset.getParameter<bool>("doTkIso")),
-      doPfIso(pset.getParameter<bool>("doPfIso")),
-      hwIsoTypeTkEle(static_cast<EGIsoEleObjEmu::IsoType>(pset.getParameter<uint32_t>("hwIsoTypeTkEle"))),
-      hwIsoTypeTkEm(static_cast<EGIsoObjEmu::IsoType>(pset.getParameter<uint32_t>("hwIsoTypeTkEm"))),
-      compIDparams(pset.getParameter<edm::ParameterSet>("compositeParametersTkEle")),
-      debug(pset.getUntrackedParameter<uint32_t>("debug", 0)) {}
+    : PFTkEGAlgoEmuConfig(pset.getParameter<uint32_t>("nTRACK"),
+                          pset.getParameter<uint32_t>("nTRACK_EGIN"),
+                          pset.getParameter<uint32_t>("nEMCALO_EGIN"),
+                          pset.getParameter<uint32_t>("nEM_EGOUT"),
+                          pset.getParameter<bool>("filterHwQuality"),
+                          pset.getParameter<bool>("doBremRecovery"),
+                          pset.getParameter<bool>("writeBeforeBremRecovery"),
+                          pset.getParameter<int>("caloHwQual"),
+                          pset.getParameter<bool>("doEndcapHwQual"),
+                          pset.getParameter<double>("caloEtMin"),
+                          pset.getParameter<double>("dEtaMaxBrem"),
+                          pset.getParameter<double>("dPhiMaxBrem"),
+                          pset.getParameter<std::vector<double>>("absEtaBoundaries"),
+                          pset.getParameter<std::vector<double>>("dEtaValues"),
+                          pset.getParameter<std::vector<double>>("dPhiValues"),
+                          pset.getParameter<double>("trkQualityPtMin"),
+                          pset.getParameter<uint32_t>("algorithm"),
+                          pset.getParameter<uint32_t>("nCompCandPerCluster"),
+                          pset.getParameter<bool>("writeEGSta"),
+                          IsoParameters(pset.getParameter<edm::ParameterSet>("tkIsoParametersTkEle")),
+                          IsoParameters(pset.getParameter<edm::ParameterSet>("tkIsoParametersTkEm")),
+                          IsoParameters(pset.getParameter<edm::ParameterSet>("pfIsoParametersTkEle")),
+                          IsoParameters(pset.getParameter<edm::ParameterSet>("pfIsoParametersTkEm")),
+                          pset.getParameter<bool>("doTkIso"),
+                          pset.getParameter<bool>("doPfIso"),
+                          static_cast<EGIsoEleObjEmu::IsoType>(pset.getParameter<uint32_t>("hwIsoTypeTkEle")),
+                          static_cast<EGIsoObjEmu::IsoType>(pset.getParameter<uint32_t>("hwIsoTypeTkEm")),
+                          pset.getParameter<std::vector<edm::ParameterSet>>("compositeParametersTkEle")
+                              .at(pset.getParameter<uint32_t>("algorithm")),
+                          pset.getUntrackedParameter<uint32_t>("debug", 0)) {}
 
 edm::ParameterSetDescription l1ct::PFTkEGAlgoEmuConfig::getParameterSetDescription() {
   edm::ParameterSetDescription description;
+  description.addUntracked<unsigned int>("debug", 0);
   description.add<unsigned int>("nTRACK");
   description.add<unsigned int>("nTRACK_EGIN");
   description.add<unsigned int>("nEMCALO_EGIN");
@@ -88,10 +94,11 @@ edm::ParameterSetDescription l1ct::PFTkEGAlgoEmuConfig::getParameterSetDescripti
   description.add<bool>("doPfIso", true);
   description.add<unsigned int>("hwIsoTypeTkEle", 0);
   description.add<unsigned int>("hwIsoTypeTkEm", 2);
-  description.add<bool>("doCompositeTkEle", false);
+  description.add<unsigned int>("algorithm", 0);
   description.add<unsigned int>("nCompCandPerCluster", 3);
-  description.add<edm::ParameterSetDescription>("compositeParametersTkEle",
-                                                CompIDParameters::getParameterSetDescription());
+
+  description.addVPSet("compositeParametersTkEle", CompIDParameters::getParameterSetDescription());
+
   return description;
 }
 
@@ -111,28 +118,322 @@ edm::ParameterSetDescription l1ct::PFTkEGAlgoEmuConfig::IsoParameters::getParame
 }
 
 l1ct::PFTkEGAlgoEmuConfig::CompIDParameters::CompIDParameters(const edm::ParameterSet &pset)
-    : CompIDParameters(pset.getParameter<double>("loose_wp"),
-                       pset.getParameter<double>("tight_wp"),
-                       pset.getParameter<std::string>("model")) {}
+    : CompIDParameters(pset.getParameter<edm::ParameterSet>("loose_wp").getParameter<std::vector<double>>("bins"),
+                       pset.getParameter<edm::ParameterSet>("loose_wp").getParameter<std::vector<double>>("values"),
+                       pset.getParameter<edm::ParameterSet>("tight_wp").getParameter<std::vector<double>>("bins"),
+                       pset.getParameter<edm::ParameterSet>("tight_wp").getParameter<std::vector<double>>("values"),
+                       pset.getParameter<std::string>("model"),
+                       pset.getParameter<double>("dPhi_max"),
+                       pset.getParameter<double>("dEta_max")) {}
 
 edm::ParameterSetDescription l1ct::PFTkEGAlgoEmuConfig::CompIDParameters::getParameterSetDescription() {
+  edm::ParameterSetDescription wp_description;
+  wp_description.addOptional<std::vector<double>>("bins");
+  wp_description.addOptional<std::vector<double>>("values");
+
   edm::ParameterSetDescription description;
-  description.add<double>("loose_wp", -0.732422);
-  description.add<double>("tight_wp", 0.214844);
-  description.add<std::string>("model", "L1Trigger/Phase2L1ParticleFlow/data/compositeID.json");
+  description.addOptional<edm::ParameterSetDescription>("loose_wp", wp_description);
+  description.addOptional<edm::ParameterSetDescription>("tight_wp", wp_description);
+  description.addOptional<std::string>("model");
+  description.add<double>("dPhi_max", 0.2);
+  description.add<double>("dEta_max", 0.2);
   return description;
 }
 #endif
 
-PFTkEGAlgoEmulator::PFTkEGAlgoEmulator(const PFTkEGAlgoEmuConfig &config)
-    : cfg(config), composite_bdt_(nullptr), debug_(cfg.debug) {
-  if (cfg.doCompositeTkEle) {
+//Constructor to be used with createWP factory methods
+l1ct::PFTkEGAlgoEmuConfig::CompIDParameters::CompIDParameters(const std::vector<double> &loose_wp_bins,
+                                                              const std::vector<double> &loose_wp,
+                                                              const std::vector<double> &tight_wp_bins,
+                                                              const std::vector<double> &tight_wp,
+                                                              const std::string &model,
+                                                              double dphi_max,
+                                                              double deta_max)
+    : loose_wp_bins_(loose_wp_bins),
+      loose_wp_(loose_wp),
+      tight_wp_bins_(tight_wp_bins),
+      tight_wp_(tight_wp),
+      conifer_model_(model),
+      dPhi_max_(dphi_max),
+      dEta_max_(deta_max) {}
+
+l1ct::TkEGEleAssociationModel::TkEGEleAssociationModel(const l1ct::PFTkEGAlgoEmuConfig::CompIDParameters &params,
+                                                       int debug)
+    : loose_wp_(createWP(params.loose_wp_bins_, params.loose_wp_)),
+      tight_wp_(createWP(params.tight_wp_bins_, params.tight_wp_)),
+      dphi2_max_(params.dPhi_max_ * params.dPhi_max_),
+      deta2_max_(params.dEta_max_ * params.dEta_max_),
+      debug_(debug) {}
+
+bool l1ct::TkEGEleAssociationModel::geometric_match(const EmCaloObjEmu &calo, const TkObjEmu &tk) const {
+  float d_phi = PFTkEGAlgoEmulator::deltaPhi(tk.floatPhi(), calo.floatPhi());
+  float d_eta = tk.floatEta() - calo.floatEta();  // We only use it squared
+  return ((d_phi * d_phi / dphi2_max_) + (d_eta * d_eta / deta2_max_) < 1.);
+}
+
+l1ct::TkEgCID_EE_v0::TkEgCID_EE_v0(const l1ct::PFTkEGAlgoEmuConfig::CompIDParameters &params, int debug)
+    : TkEGEleAssociationModel(params, debug) {
 #ifdef CMSSW_GIT_HASH
-    auto resolvedFileName = edm::FileInPath(cfg.compIDparams.conifer_model).fullPath();
+  auto resolvedFileName = edm::FileInPath(params.conifer_model_).fullPath();
 #else
-    auto resolvedFileName = cfg.compIDparams.conifer_model;
+  auto resolvedFileName = params.conifer_model_;
 #endif
-    composite_bdt_ = new conifer::BDT<bdt_feature_t, bdt_score_t, false>(resolvedFileName);
+  model_ = std::make_unique<conifer::BDT<bdt_feature_t, bdt_score_t, false>>(resolvedFileName);
+}
+
+id_score_t l1ct::TkEgCID_EE_v0::compute_score(const CompositeCandidate &cand,
+                                              const std::vector<EmCaloObjEmu> &emcalo,
+                                              const std::vector<TkObjEmu> &track,
+                                              const std::vector<float> additional_vars) const {
+  // Get the cluster/track objects that form the composite candidate
+  const auto &calo = emcalo[cand.cluster_idx];
+  const auto &tk = track[cand.track_idx];
+
+  // Prepare the input features
+  bdt_feature_t hoe = calo.hwHoe;
+  bdt_feature_t tkpt = tk.hwPt;
+  bdt_feature_t srrtot = calo.hwSrrTot;
+  bdt_feature_t deta = tk.hwEta - calo.hwEta;
+  ap_ufixed<18, 0> calo_invPt = l1ct::invert_with_shift<pt_t, ap_ufixed<18, 0>, 1024>(calo.hwPt);
+  bdt_feature_t dpt = tk.hwPt * calo_invPt;
+  bdt_feature_t meanz = calo.hwMeanZ;
+  bdt_feature_t dphi = tk.hwPhi - calo.hwPhi;
+  bdt_feature_t nstubs = tk.hwStubs;
+  bdt_feature_t chi2rphi = tk.hwRedChi2RPhi;
+  bdt_feature_t chi2rz = tk.hwRedChi2RZ;
+  bdt_feature_t chi2bend = tk.hwRedChi2Bend;
+
+  // Run BDT inference
+  std::vector<bdt_feature_t> inputs = {tkpt, hoe, srrtot, deta, dphi, dpt, meanz, nstubs, chi2rphi, chi2rz, chi2bend};
+  std::vector<bdt_score_t> bdt_score = model_->decision_function(inputs);
+  constexpr unsigned int MAX_SCORE = (1 << (bdt_score_t::iwidth - 1));
+  return bdt_score[0] / MAX_SCORE;
+}
+
+l1ct::TkEgCID_EE_v1::TkEgCID_EE_v1(const l1ct::PFTkEGAlgoEmuConfig::CompIDParameters &params, int debug)
+    : TkEGEleAssociationModel(params, debug) {
+#ifdef CMSSW_GIT_HASH
+  auto resolvedFileName = edm::FileInPath(params.conifer_model_).fullPath();
+#else
+  auto resolvedFileName = params.conifer_model_;
+#endif
+  model_ = std::make_unique<conifer::BDT<bdt_feature_t, bdt_score_t, false>>(resolvedFileName);
+}
+
+id_score_t l1ct::TkEgCID_EE_v1::compute_score(const CompositeCandidate &cand,
+                                              const std::vector<EmCaloObjEmu> &emcalo,
+                                              const std::vector<TkObjEmu> &track,
+                                              const std::vector<float> additional_vars) const {
+  float sumTkPt = additional_vars[1];
+#ifdef CMSSW_GIT_HASH
+  // NOTE: this is not yet ready for emulation!
+  // Get the cluster/track objects that form the composite candidate
+  const auto &calo = emcalo[cand.cluster_idx];
+  const auto &tk = track[cand.track_idx];
+  const l1t::PFTrack *pftk = tk.src;
+  const l1t::HGCalMulticluster *cl3d = dynamic_cast<const l1t::HGCalMulticluster *>(calo.src);
+
+  // Prepare the input features
+  bdt_feature_t cl_coreshowerlength = cl3d->coreShowerLength();
+  bdt_feature_t cl_meanz = std::fabs(cl3d->zBarycenter());
+  bdt_feature_t cl_spptot = cl3d->sigmaPhiPhiTot();
+  bdt_feature_t cl_seetot = cl3d->sigmaEtaEtaTot();
+  bdt_feature_t cl_szz = cl3d->sigmaZZ();
+  bdt_feature_t cl_multiClassPionIdScore = calo.floatPiProb();
+  bdt_feature_t cl_multiClassEmIdScore = calo.floatEmProb();
+  bdt_feature_t tk_ptFrac = pftk->pt() / sumTkPt;
+  bdt_feature_t cltk_ptRatio = calo.floatPt() / pftk->pt();
+  bdt_feature_t cltk_absDeta = fabs(cl3d->eta() - pftk->caloEta());
+  bdt_feature_t cltk_absDphi = fabs(cl3d->phi() - pftk->caloPhi());
+
+  // Run BDT inference
+  std::vector<bdt_feature_t> inputs = {cl_coreshowerlength,
+                                       cl_meanz,
+                                       cl_spptot,
+                                       cl_seetot,
+                                       cl_szz,
+                                       cl_multiClassPionIdScore,
+                                       cl_multiClassEmIdScore,
+                                       tk_ptFrac,
+                                       cltk_ptRatio,
+                                       cltk_absDeta,
+                                       cltk_absDphi};
+  std::vector<bdt_score_t> bdt_score = model_->decision_function(inputs);
+  // std::cout << "  out BDT score: " << bdt_score[0] << std::endl;
+  constexpr unsigned int MAX_SCORE = 1 << (bdt_score_t::iwidth - 1);
+  return bdt_score[0] / MAX_SCORE;
+#else
+  return 0;
+#endif
+}
+
+l1ct::TkEgCID_EB_v0::TkEgCID_EB_v0(const l1ct::PFTkEGAlgoEmuConfig::CompIDParameters &params, int debug)
+    : TkEGEleAssociationModel(params, debug) {
+#ifdef CMSSW_GIT_HASH
+  auto resolvedFileName = edm::FileInPath(params.conifer_model_).fullPath();
+#else
+  auto resolvedFileName = params.conifer_model_;
+#endif
+  model_ = std::make_unique<conifer::BDT<bdt_feature_t, bdt_score_t, false>>(resolvedFileName);
+}
+
+id_score_t l1ct::TkEgCID_EB_v0::compute_score(const CompositeCandidate &cand,
+                                              const std::vector<EmCaloObjEmu> &emcalo,
+                                              const std::vector<TkObjEmu> &track,
+                                              const std::vector<float> additional_vars) const {
+  unsigned int nTkMatch = (unsigned int)(additional_vars[0]);
+  float sumTkPt = additional_vars[1];
+
+#ifdef CMSSW_GIT_HASH
+  // NOTE: not yet ready for HLS testbench
+  // Get the cluster/track objects that form the composite candidate
+  const auto &calo = emcalo[cand.cluster_idx];
+  const auto &tk = track[cand.track_idx];
+  const l1tp2::CaloCrystalCluster *crycl = dynamic_cast<const l1tp2::CaloCrystalCluster *>(calo.src);
+
+  // Prepare the input features
+  // NOTE: 16 bit estimate for the inversion is approximate
+  ap_ufixed<16, 0> calo_invPt = l1ct::invert_with_shift<pt_t, ap_ufixed<16, 0>, 1024>(calo.hwPt);
+  // NOTE: this could be computed once per cluster and passed directly to the function
+  ap_ufixed<16, 0> sumTk_invPt = l1ct::invert_with_shift<pt_t, ap_ufixed<16, 0>, 1024>(pt_t(sumTkPt));
+  ap_ufixed<16, 0> tk_invPt = l1ct::invert_with_shift<pt_t, ap_ufixed<16, 0>, 1024>(tk.hwPt);
+
+  constexpr std::array<float, 1 << l1ct::redChi2Bin_t::width> chi2RPhiBins = {
+      {0.0, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 6.0, 10.0, 15.0, 20.0, 35.0, 60.0, 200.0}};
+
+  bdt_feature_t cl_pt = calo.floatPt();
+  bdt_feature_t cl_ss = crycl->e2x5() / crycl->e5x5();
+  bdt_feature_t cl_relIso = iso_t(crycl->isolation()) * calo_invPt;
+  bdt_feature_t cl_staWP = calo.hwEmID & 0x1;
+  bdt_feature_t cl_looseTkWP = calo.hwEmID & 0x2;
+  bdt_feature_t tk_chi2RPhi = chi2RPhiBins[tk.hwRedChi2RPhi.to_int()];
+  bdt_feature_t tk_ptFrac = tk.hwPt * sumTk_invPt;
+  bdt_feature_t cltk_ptRatio = calo.hwPt * tk_invPt;
+  bdt_feature_t cltk_nTkMatch = nTkMatch;
+  bdt_feature_t cltk_absDeta = fabs(tk.floatEta() - calo.floatEta());
+  bdt_feature_t cltk_absDphi = fabs(tk.floatPhi() - calo.floatPhi());
+
+  // Run BDT inference
+  std::vector<bdt_feature_t> inputs = {cl_pt,
+                                       cl_ss,
+                                       cl_relIso,
+                                       cl_staWP,
+                                       cl_looseTkWP,
+                                       tk_chi2RPhi,
+                                       tk_ptFrac,
+                                       cltk_ptRatio,
+                                       cltk_nTkMatch,
+                                       cltk_absDeta,
+                                       cltk_absDphi};
+  std::vector<bdt_score_t> bdt_score = model_->decision_function(inputs);
+  // std::cout << "  out BDT score: " << bdt_score[0] << std::endl;
+  constexpr unsigned int MAX_SCORE = 1 << (bdt_score_t::iwidth - 1);
+  return bdt_score[0] / MAX_SCORE;  // normalize to [-1,1]
+#else
+  return 0;
+#endif
+}
+
+l1ct::TkEgCID_EB_v1::TkEgCID_EB_v1(const l1ct::PFTkEGAlgoEmuConfig::CompIDParameters &params, int debug)
+    : TkEGEleAssociationModel(params, debug) {
+#ifdef CMSSW_GIT_HASH
+  auto resolvedFileName = edm::FileInPath(params.conifer_model_).fullPath();
+#else
+  auto resolvedFileName = params.conifer_model_;
+#endif
+  model_ = std::make_unique<conifer::BDT<bdt_feature_t, bdt_score_t, false>>(resolvedFileName);
+}
+
+id_score_t l1ct::TkEgCID_EB_v1::compute_score(const CompositeCandidate &cand,
+                                              const std::vector<EmCaloObjEmu> &emcalo,
+                                              const std::vector<TkObjEmu> &track,
+                                              const std::vector<float> additional_vars) const {
+  unsigned int nTkMatch = (unsigned int)(additional_vars[0]);
+  float sumTkPt = additional_vars[1];
+
+  // NOTE: not yet ready for HLS testbench
+  // Get the cluster/track objects that form the composite candidate
+  const auto &calo = emcalo[cand.cluster_idx];
+  const auto &tk = track[cand.track_idx];
+
+  // Prepare the input features
+  // NOTE: this could be computed once per cluster and passed directly to the function
+  ap_ufixed<16, 0> tk_invPt = l1ct::invert_with_shift<pt_t, ap_ufixed<16, 0>, 1024>(tk.hwPt);
+
+  constexpr std::array<float, 1 << l1ct::redChi2Bin_t::width> chi2RPhiBins = {
+      {0.0, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 6.0, 10.0, 15.0, 20.0, 35.0, 60.0, 200.0}};
+
+  float cl_pt = calo.floatPt();
+  //This two ratios will be computed in the calotrigger and passed to the CTL1 in 6 bits
+  float cl_ss = emcalo[cand.cluster_idx].hwShowerShape.to_float();
+  float cl_relIso = emcalo[cand.cluster_idx].hwRelIso.to_float();
+  float cl_staWP = calo.hwEmID & 0x1;
+  float cl_looseTkWP = (calo.hwEmID & 0x2) == 0x2;
+  float tk_chi2RPhi = chi2RPhiBins[tk.hwRedChi2RPhi.to_int()];
+  float tk_ptFrac = sumTkPt * tk_invPt.to_float();
+  float cltk_ptRatio = calo.hwPt * tk_invPt;
+  float cltk_nTkMatch = nTkMatch;
+  float cltk_absDeta = fabs(tk.hwEta.to_int() - calo.hwEta.to_int());
+  float cltk_absDphi = fabs(tk.hwPhi.to_int() - calo.hwPhi.to_int());
+
+  // Scaling
+  bdt_feature_t scaled_cl_pt = scale(cl_pt, 1.5, 5);
+  bdt_feature_t scaled_cl_ss = scale(cl_ss, 0.1875, -1);
+  bdt_feature_t scaled_cl_relIso = scale(cl_relIso, 0.0, -1);
+  bdt_feature_t scaled_cl_staWP = scale(cl_staWP, 0.0, 0);
+  bdt_feature_t scaled_cl_looseTkWP = scale(cl_looseTkWP, 0.0, 0);
+  bdt_feature_t scaled_tk_chi2RPhi = scale(tk_chi2RPhi, 0.0, 3);
+  bdt_feature_t scaled_tk_ptFrac = scale(tk_ptFrac, 1.0, 5);
+  bdt_feature_t scaled_cltk_ptRatio = scale(cltk_ptRatio, 0.0003669276, 4);
+  bdt_feature_t scaled_cltk_nTkMatch = scale(cltk_nTkMatch, 1.0, 3);
+  bdt_feature_t scaled_cltk_absDeta = scale(cltk_absDeta, 0.0, 2);
+  bdt_feature_t scaled_cltk_absDphi = scale(cltk_absDphi, 0.0, 5);
+
+  // Run BDT inference
+  std::vector<bdt_feature_t> inputs = {scaled_cl_pt,
+                                       scaled_cl_ss,
+                                       scaled_cl_relIso,
+                                       scaled_cl_staWP,
+                                       scaled_cl_looseTkWP,
+                                       scaled_tk_chi2RPhi,
+                                       scaled_tk_ptFrac,
+                                       scaled_cltk_ptRatio,
+                                       scaled_cltk_nTkMatch,
+                                       scaled_cltk_absDeta,
+                                       scaled_cltk_absDphi};
+  std::vector<bdt_score_t> bdt_score = model_->decision_function(inputs);
+  if (debug_ > 3) {
+    dbgCout() << "[REF] EM calo pt: " << calo.hwPt << " tk pt " << tk.hwPt << std::endl;
+    if (debug_ > 5) {
+      dbgCout() << " .  [0] cl_pt: " << cl_pt << std::endl;
+      dbgCout() << " .  [0] scaled cl_pt: " << scaled_cl_pt << std::endl;
+      dbgCout() << " .  [1] scaled cl_ss: " << scaled_cl_ss << std::endl;
+      dbgCout() << " .  [2] scaled cl_relIso: " << scaled_cl_relIso << std::endl;
+      dbgCout() << " .  [3] scaled cl_staWP: " << scaled_cl_staWP << std::endl;
+      dbgCout() << " .  [4] scaled cl_looseTkWP: " << scaled_cl_looseTkWP << std::endl;
+      dbgCout() << " .  [5] scaled tk_chi2RPhi: " << scaled_tk_chi2RPhi << std::endl;
+      dbgCout() << " .  [6] scaled tk_ptFrac: " << scaled_tk_ptFrac << std::endl;
+      dbgCout() << " .  [7] scaled cltk_ptRatio: " << scaled_cltk_ptRatio << std::endl;
+      dbgCout() << " .  [8] scaled cltk_nTkMatch: " << scaled_cltk_nTkMatch << std::endl;
+      dbgCout() << " .  [9] scaled cltk_absDeta: " << scaled_cltk_absDeta << std::endl;
+      dbgCout() << " .  [10] scaled cltk_absDphi: " << scaled_cltk_absDphi << std::endl;
+    }
+    dbgCout() << "  out BDT score: " << bdt_score[0] / 8 << std::endl;
+  }
+
+  return bdt_score[0] / 8;  // normalize to [-1,1]
+}
+
+PFTkEGAlgoEmulator::PFTkEGAlgoEmulator(const PFTkEGAlgoEmuConfig &config)
+    : cfg(config), tkEleModel_(nullptr), debug_(cfg.debug) {
+  if (cfg.algorithm == PFTkEGAlgoEmuConfig::Algo::compositeEE_v0) {
+    tkEleModel_ = std::make_unique<TkEgCID_EE_v0>(cfg.compIDparams, cfg.debug);
+  } else if (cfg.algorithm == PFTkEGAlgoEmuConfig::Algo::compositeEB_v0) {
+    tkEleModel_ = std::make_unique<TkEgCID_EB_v0>(cfg.compIDparams, cfg.debug);
+  } else if (cfg.algorithm == PFTkEGAlgoEmuConfig::Algo::compositeEE_v1) {
+    tkEleModel_ = std::make_unique<TkEgCID_EE_v1>(cfg.compIDparams, cfg.debug);
+  } else if (cfg.algorithm == PFTkEGAlgoEmuConfig::Algo::compositeEB_v1) {
+    tkEleModel_ = std::make_unique<TkEgCID_EB_v1>(cfg.compIDparams, cfg.debug);
   }
 }
 
@@ -164,7 +465,7 @@ void PFTkEGAlgoEmulator::toFirmware(
     dbgCout() << "# of inpput tracks: " << in.track.size() << " (max: " << cfg.nTRACK << ")" << std::endl;
 }
 
-float PFTkEGAlgoEmulator::deltaPhi(float phi1, float phi2) const {
+float PFTkEGAlgoEmulator::deltaPhi(float phi1, float phi2) {
   // reduce to [-pi,pi]
   float x = phi1 - phi2;
   float o2pi = 1. / (2. * M_PI);
@@ -243,36 +544,40 @@ void PFTkEGAlgoEmulator::link_emCalo2tk_elliptic(const PFRegionEmu &r,
   }
 }
 
-void PFTkEGAlgoEmulator::link_emCalo2tk_composite(const PFRegionEmu &r,
-                                                  const std::vector<EmCaloObjEmu> &emcalo,
-                                                  const std::vector<TkObjEmu> &track,
-                                                  std::vector<int> &emCalo2tk,
-                                                  std::vector<id_score_t> &emCaloTkBdtScore) const {
+void PFTkEGAlgoEmulator::link_emCalo2tk_composite_eb_ee(const PFRegionEmu &r,
+                                                        const std::vector<EmCaloObjEmu> &emcalo,
+                                                        const std::vector<TkObjEmu> &track,
+                                                        std::vector<int> &emCalo2tk,
+                                                        std::vector<id_score_t> &emCaloTkBdtScore) const {
   unsigned int nTrackMax = std::min<unsigned>(track.size(), cfg.nTRACK_EGIN);
   for (int ic = 0, nc = emcalo.size(); ic < nc; ++ic) {
     auto &calo = emcalo[ic];
 
     std::vector<CompositeCandidate> candidates;
-
+    float sumTkPt = 0.;
+    unsigned int nTkMatch = 0;
     for (unsigned int itk = 0; itk < nTrackMax; ++itk) {
       const auto &tk = track[itk];
       if (tk.floatPt() <= cfg.trkQualityPtMin)
         continue;
-
-      float d_phi = deltaPhi(tk.floatPhi(), calo.floatPhi());
-      float d_eta = tk.floatEta() - calo.floatEta();  // We only use it squared
-      float dR2 = (d_phi * d_phi) + (d_eta * d_eta);
-
-      if (dR2 < 0.04) {
+      bool keep = tkEleModel_->geometric_match(calo, tk);
+      if (keep) {
         // Only store indices, dR and dpT for now. The other quantities are computed only for the best nCandPerCluster.
         CompositeCandidate cand;
         cand.cluster_idx = ic;
         cand.track_idx = itk;
         cand.dpt = std::abs(tk.floatPt() - calo.floatPt());
         candidates.push_back(cand);
+        sumTkPt += tk.floatPt();
+        nTkMatch++;
       }
+      if (debug_ > 3)
+        dbgCout() << "[REF] tried to link calo " << ic << " (pt " << calo.floatPt() << ", eta " << calo.intEta()
+                  << ", phi " << calo.intPhi() << ") "
+                  << " to tk " << itk << " (pt " << tk.floatPt() << ", eta " << tk.intEta() << ", phi " << tk.intPhi()
+                  << ") keep: " << keep << std::endl;
     }
-    // FIXME: find best sort criteria, for now we use dpt
+    // we use dpt as sort criteria
     std::sort(candidates.begin(),
               candidates.end(),
               [](const CompositeCandidate &a, const CompositeCandidate &b) -> bool { return a.dpt < b.dpt; });
@@ -280,13 +585,13 @@ void PFTkEGAlgoEmulator::link_emCalo2tk_composite(const PFRegionEmu &r,
     if (nCandPerCluster == 0)
       continue;
 
-    id_score_t maxScore = -pow(2, l1ct::id_score_t::iwidth - 1);
+    id_score_t maxScore = -(1 << (l1ct::id_score_t::iwidth - 1));
     int ibest = -1;
     for (unsigned int icand = 0; icand < nCandPerCluster; icand++) {
       auto &cand = candidates[icand];
       const std::vector<EmCaloObjEmu> &emcalo_sel = emcalo;
-      id_score_t score = compute_composite_score(cand, emcalo_sel, track, cfg.compIDparams);
-      if ((score > cfg.compIDparams.bdtScore_loose_wp) && (score > maxScore)) {
+      id_score_t score = tkEleModel_->compute_score(cand, emcalo_sel, track, {float(nTkMatch), sumTkPt});
+      if ((tkEleModel_->apply_wp_loose(score, emcalo_sel[cand.cluster_idx].floatPt())) && (score > maxScore)) {
         maxScore = score;
         ibest = icand;
       }
@@ -296,35 +601,6 @@ void PFTkEGAlgoEmulator::link_emCalo2tk_composite(const PFRegionEmu &r,
       emCaloTkBdtScore[ic] = maxScore;
     }
   }
-}
-
-id_score_t PFTkEGAlgoEmulator::compute_composite_score(CompositeCandidate &cand,
-                                                       const std::vector<EmCaloObjEmu> &emcalo,
-                                                       const std::vector<TkObjEmu> &track,
-                                                       const PFTkEGAlgoEmuConfig::CompIDParameters &params) const {
-  // Get the cluster/track objects that form the composite candidate
-  const auto &calo = emcalo[cand.cluster_idx];
-  const auto &tk = track[cand.track_idx];
-
-  // Prepare the input features
-  bdt_feature_t hoe = calo.hwHoe;
-  bdt_feature_t tkpt = tk.hwPt;
-  bdt_feature_t srrtot = calo.hwSrrTot;
-  bdt_feature_t deta = tk.hwEta - calo.hwEta;
-  ap_ufixed<18, 0> calo_invPt = l1ct::invert_with_shift<pt_t, ap_ufixed<18, 0>, 1024>(calo.hwPt);
-  bdt_feature_t dpt = tk.hwPt * calo_invPt;
-  bdt_feature_t meanz = calo.hwMeanZ;
-  bdt_feature_t dphi = tk.hwPhi - calo.hwPhi;
-  bdt_feature_t nstubs = tk.hwStubs;
-  bdt_feature_t chi2rphi = tk.hwRedChi2RPhi;
-  bdt_feature_t chi2rz = tk.hwRedChi2RZ;
-  bdt_feature_t chi2bend = tk.hwRedChi2Bend;
-
-  // Run BDT inference
-  std::vector<bdt_feature_t> inputs = {tkpt, hoe, srrtot, deta, dphi, dpt, meanz, nstubs, chi2rphi, chi2rz, chi2bend};
-  std::vector<bdt_score_t> bdt_score = composite_bdt_->decision_function(inputs);
-
-  return bdt_score[0] / 4;
 }
 
 void PFTkEGAlgoEmulator::sel_emCalo(unsigned int nmax_sel,
@@ -365,10 +641,10 @@ void PFTkEGAlgoEmulator::run(const PFInputRegion &in, OutputRegion &out) const {
   std::vector<int> emCalo2tk(emcalo_sel.size(), -1);
   std::vector<id_score_t> emCaloTkBdtScore(emcalo_sel.size(), 0);
 
-  if (cfg.doCompositeTkEle) {
-    link_emCalo2tk_composite(in.region, emcalo_sel, in.track, emCalo2tk, emCaloTkBdtScore);
-  } else {
+  if (cfg.algorithm == PFTkEGAlgoEmuConfig::Algo::elliptic) {
     link_emCalo2tk_elliptic(in.region, emcalo_sel, in.track, emCalo2tk);
+  } else {
+    link_emCalo2tk_composite_eb_ee(in.region, emcalo_sel, in.track, emCalo2tk, emCaloTkBdtScore);
   }
 
   out.egsta.clear();
@@ -504,16 +780,20 @@ EGIsoEleObjEmu &PFTkEGAlgoEmulator::addEGIsoEleToPF(std::vector<EGIsoEleObjEmu> 
   egiso.hwEta = calo.hwEta;
   egiso.hwPhi = calo.hwPhi;
   unsigned int egHwQual = hwQual;
-  if (cfg.doEndcapHwQual) {
-    if (cfg.doCompositeTkEle) {
-      // tight ele WP is set for tight BDT score
-      egHwQual = (hwQual & 0x9) | ((bdtScore >= cfg.compIDparams.bdtScore_tight_wp) << 1);
-    } else {
-      // 1. zero-suppress the loose EG-ID (bit 1)
-      // 2. for now use the standalone tight definition (bit 0) to set the tight point for eles (bit 1)
-      egHwQual = (hwQual & 0x9) | ((hwQual & 0x1) << 1);
-    }
+  if (cfg.algorithm == PFTkEGAlgoEmuConfig::Algo::compositeEE_v0 ||
+      cfg.algorithm == PFTkEGAlgoEmuConfig::Algo::compositeEB_v0 ||
+      cfg.algorithm == PFTkEGAlgoEmuConfig::Algo::compositeEE_v1 ||
+      cfg.algorithm == PFTkEGAlgoEmuConfig::Algo::compositeEB_v1) {
+    //Set tight WP
+    bool is_tight = tkEleModel_->apply_wp_tight(bdtScore, egiso.floatPt());
+    egHwQual = ((hwQual & 0x9) | (is_tight << 1));
+
+  } else if (cfg.doEndcapHwQual) {
+    // 1. zero-suppress the loose EG-ID (bit 1)
+    // 2. for now use the standalone tight definition (bit 0) to set the tight point for eles (bit 1)
+    egHwQual = (hwQual & 0x9) | ((hwQual & 0x1) << 1);
   }
+
   egiso.hwQual = egHwQual;
   egiso.hwDEta = track.hwVtxEta() - egiso.hwEta;
   egiso.hwDPhi = abs(track.hwVtxPhi() - egiso.hwPhi);

@@ -1,7 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 l1tPFClustersFromL1EGClusters = cms.EDProducer("PFClusterProducerFromL1EGClusters",
-    src = cms.InputTag("l1tEGammaClusterEmuProducer",),
+    src = cms.InputTag("l1tPhase2L1CaloEGammaEmulator","GCTClusters"),
+    digi_src = cms.InputTag("l1tPhase2L1CaloEGammaEmulator","GCTDigitizedClusterToCorrelator"),
+
     etMin = cms.double(0.5),
     etaBounds = cms.vdouble(-1.5,0.,1.5),
     phiBounds = cms.vdouble([3.14159265359*(float(x)/9.) for x in range(-9,10)]),
