@@ -273,7 +273,7 @@ ecalTrigPrimTask = cms.untracked.PSet(
             description = cms.untracked.string('Distribution of the trigger primitive Et.')
         ),
         EtRealSpikeMatched = cms.untracked.PSet(
-            path = cms.untracked.string('%(subdet)s/%(prefix)sTriggerTowerTask/%(prefix)sTTT Et spectrum Real Digis matched to spikes %(suffix)s'),
+            path = cms.untracked.string('%(subdet)s/%(prefix)sTriggerTowerTask/%(prefix)sTTT Et spectrum Real Digis matched to spikes%(suffix)s'),
             kind = cms.untracked.string('TH1F'),
             otype = cms.untracked.string('Ecal3P'),
             xaxis = cms.untracked.PSet(
