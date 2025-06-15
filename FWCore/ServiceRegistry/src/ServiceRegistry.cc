@@ -80,10 +80,9 @@ namespace edm {
 
   ServiceToken ServiceRegistry::createSet(std::vector<ParameterSet>& iPS,
                                           ServiceToken iToken,
-                                          serviceregistry::ServiceLegacy iLegacy,
-                                          bool associate) {
+                                          serviceregistry::ServiceLegacy iLegacy) {
     using namespace serviceregistry;
-    auto returnValue = std::make_shared<ServicesManager>(iToken, iLegacy, iPS, associate);
+    auto returnValue = std::make_shared<ServicesManager>(iToken, iLegacy, iPS);
     return ServiceToken(returnValue);
   }
 

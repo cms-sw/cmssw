@@ -86,7 +86,7 @@ namespace edm {
 
       //initialize the services
       auto& serviceSets = procDesc->getServicesPSets();
-      ServiceToken token = items.initServices(serviceSets, *psetPtr, iToken, serviceregistry::kOverlapIsError, true);
+      ServiceToken token = items.initServices(serviceSets, *psetPtr, iToken, serviceregistry::kOverlapIsError);
       serviceToken_ = items.addTNS(*psetPtr, token);
 
       //make the services available

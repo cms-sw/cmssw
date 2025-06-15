@@ -428,7 +428,7 @@ namespace edm {
 
     //initialize the services
     auto& serviceSets = processDesc->getServicesPSets();
-    ServiceToken token = items.initServices(serviceSets, *parameterSet, iToken, iLegacy, true);
+    ServiceToken token = items.initServices(serviceSets, *parameterSet, iToken, iLegacy);
     serviceToken_ = items.addTNS(*parameterSet, token);
 
     //make the services available
