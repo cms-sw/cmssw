@@ -13,9 +13,17 @@
 
 #include <boost/preprocessor.hpp>
 
+#ifdef __CUDACC__
+#include <cuda_runtime.h>
+#endif
+
+#ifdef __HIPCC__
+#include <hip/hip_runtime_api.h>
+#endif
+
 #include "FWCore/Utilities/interface/typedefs.h"
 
-// CUDA attributes
+// CUDA/ROCm attributes
 #if defined(__CUDACC__) || defined(__HIPCC__)
 #define SOA_HOST_ONLY __host__
 #define SOA_DEVICE_ONLY __device__
