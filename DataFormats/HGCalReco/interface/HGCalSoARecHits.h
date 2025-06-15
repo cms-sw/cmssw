@@ -6,7 +6,6 @@
 
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
-#include "DataFormats/SoATemplate/interface/SoAView.h"
 
 // SoA layout with dim1, dim2, weight, sigmaNoise, recHitsIndex layer and cellsCount fields
 GENERATE_SOA_LAYOUT(HGCalSoARecHitsLayout,
