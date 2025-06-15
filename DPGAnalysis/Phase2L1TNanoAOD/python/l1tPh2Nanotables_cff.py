@@ -29,7 +29,7 @@ dispVtxTable = cms.EDProducer(
     "SimpleL1DisplacedVtxCandidateFlatTableProducer",
     src = cms.InputTag('DisplacedVertexProducer','dispVertices'),
     cut = cms.string(""),
-    name = cms.string("L1DisplacedVertex"),
+    name = cms.string("L1DispVertex"),
     doc = cms.string("GTT Displaced Vertices"),
     singleton = cms.bool(False), # the number of entries is variable
     variables = cms.PSet(
