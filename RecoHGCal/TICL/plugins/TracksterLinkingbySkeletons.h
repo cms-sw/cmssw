@@ -7,7 +7,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "DataFormats/HGCalReco/interface/Trackster.h"
+#include "DataFormats/TICLReco/interface/Trackster.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "RecoHGCal/TICL/interface/TracksterLinkingAlgoBase.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
