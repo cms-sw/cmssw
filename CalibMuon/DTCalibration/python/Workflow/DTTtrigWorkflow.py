@@ -84,7 +84,7 @@ class DTttrigWorkflow( DTWorkflow ):
         if isinstance(self.output_db_dict[self.options.workflow_mode], dict):
             self.output_db_file = self.output_db_file[self.options.command]
         self.prepare_common_write()
-        merged_file = os.path.join(self.result_path, self.output_file)
+        merged_file = os.path.join(self.result_path, "Run"+str(self.options.run)+"_"+self.output_file)
         ttrig_uncorrected_db = os.path.join(self.result_path,
                                             self.get_output_db("timeboxes", "write"))
         self.pset_name = 'dtTTrigWriter_cfg.py'
@@ -135,8 +135,7 @@ class DTttrigWorkflow( DTWorkflow ):
         self.write_pset_file()
 
     def prepare_timeboxes_all(self):
-        # individual prepare functions for all tasks will be called in
-        # main implementation of all
+        # prepare functions for all tasks that will be called in the main implementation of 'all'
         self.all_commands=["submit", "check", "write", "correction", "dump"]
 
     ####################################################################
@@ -148,7 +147,6 @@ class DTttrigWorkflow( DTWorkflow ):
         if self.options.datasettype == "Cosmics":
             self.pset_template = 'CalibMuon.DTCalibration.dtResidualCalibration_cosmics_cfg'
         self.process = tools.loadCmsProcess(self.pset_template)
-        #~ self.process.GlobalTag.globaltag = cms.string(self.options.globaltag)
         self.process.GlobalTag.globaltag = cms.string(str(self.options.globaltag))
         self.process.dtResidualCalibration.rootFileName = self.output_file
         self.prepare_common_submit()
@@ -171,7 +169,7 @@ class DTttrigWorkflow( DTWorkflow ):
         self.process.source.firstRun = cms.untracked.uint32(self.options.run)
         self.process.GlobalTag.globaltag = cms.string(str(self.options.globaltag))
 
-        tag = self.prepare_common_write()
+        self.prepare_common_write()
         if self.options.inputT0DB:
             log.warning("Option inputT0DB not supported for residual corrections")
 
@@ -188,8 +186,7 @@ class DTttrigWorkflow( DTWorkflow ):
         ttrig_ResidCorr_db = os.path.abspath( os.path.join(self.result_path,
                                               self.get_output_db("residuals", "write")))
         self.process.PoolDBOutputService.connect = 'sqlite_file:%s' % ttrig_ResidCorr_db
-        rootfile_path = os.path.abspath( os.path.join(self.result_path, self.output_file))
-        merged_file = os.path.join(self.result_path, self.output_file)
+        merged_file = os.path.join(self.result_path, "Run"+str(self.options.run)+"_"+self.output_file)
         self.process.dtTTrigResidualCorrection.correctionAlgoConfig.residualsRootFile = merged_file
         self.write_pset_file()
 
@@ -240,16 +237,19 @@ class DTttrigWorkflow( DTWorkflow ):
         self.pset_name = 'dtDQMClient_cfg.py'
         self.pset_template = 'CalibMuon.DTCalibration.dtDQMClient_cfg'
         self.process = tools.loadCmsProcess(self.pset_template)
-        self.prepare_common_write(do_hadd = False)
-        dqm_files = glob.glob(os.path.join( self.local_path,
-                                            "unmerged_results",
-                                            "DQM_*.root"))
+        (crab_tag, crab_folder) = self.prepare_common_write(do_hadd = False)
+        print("Crab Folder:",  crab_folder)
+        print("Crab Tag:", crab_tag, "\t Run number =", self.options.run)
+        #print("local path:", self.local_path)
+        dqm_files = glob.glob(os.path.join( crab_folder, 'results', "DQM_*.root"))
         dqm_files[:] = ["file://"+txt for txt in dqm_files]
+
         self.process.source.fileNames =  dqm_files
         self.process.dqmSaver.dirName = os.path.abspath(self.result_path)
-        self.process.dqmSaver.workflow = str(self.options.datasetpath)
-        if self.process.DQMStore.collateHistograms == True:
-            self.process.dqmSaver.forceRunNumber = self.options.run
+        # This parameter does not matter, but it has to be in the format /A/B/C:
+        self.process.dqmSaver.workflow = "/DT/Calib/Validation"
+        #if self.process.DQMStore.collateHistograms == True:
+        self.process.dqmSaver.forceRunNumber = self.options.run
         self.write_pset_file()
 
     def summary(self):
