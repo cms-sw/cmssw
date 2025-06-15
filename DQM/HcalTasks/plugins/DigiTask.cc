@@ -391,24 +391,12 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                                           new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
                                           new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),
                                           0);
-    _cTimingCutvsieta_Subdet.initialize(_name,
-                                        "TimingCutvsieta",
-                                        hcaldqm::hashfunctions::fSubdet,
-                                        new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
-                                        new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),
-                                        0);
     _cOccupancyCutvsiphi_SubdetPM.initialize(_name,
                                              "OccupancyCutvsiphi",
                                              hcaldqm::hashfunctions::fSubdetPM,
                                              new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
                                              new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                                              0);
-    _cOccupancyCutvsieta_Subdet.initialize(_name,
-                                           "OccupancyCutvsieta",
-                                           hcaldqm::hashfunctions::fSubdet,
-                                           new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
-                                           new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
-                                           0);
     _cOccupancyCutvsiphivsLS_SubdetPM.initialize(_name,
                                                  "OccupancyCutvsiphivsLS",
                                                  hcaldqm::hashfunctions::fSubdetPM,
@@ -469,7 +457,18 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                                           new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
                                           new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                                           0);
-
+    _cTimingCutvsieta_Subdet.initialize(_name,                                                                                     
+                                        "TimingCutvsieta",                                                                         
+                                        hcaldqm::hashfunctions::fSubdet,                                                           
+                                        new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),                         
+                                        new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),                    
+                                        0);
+    _cOccupancyCutvsieta_Subdet.initialize(_name,                                                                                  
+                                          "OccupancyCutvsieta",                                                                    
+                                           hcaldqm::hashfunctions::fSubdet,                                                        
+                                           new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),                      
+                                           new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),                            
+                                           0);   
     //		_cOccupancyCutvsSlotvsLS_HFPM.initialize(_name,
     //			"OccupancyCutvsSlotvsLS", hcaldqm::hashfunctions::fSubdetPM,
     //			new hcaldqm::quantity::LumiSection(_maxLS),
@@ -750,12 +749,10 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
 
   if (_ptype == fOnline || _ptype == fOffline) {
     _cOccupancyCutvsiphi_SubdetPM.book(ib, _emap, _subsystem);
-    _cOccupancyCutvsieta_Subdet.book(ib, _emap, _subsystem);
     _cOccupancyCutvsLS_Subdet.book(ib, _emap, _subsystem);
     _cOccupancyCutvsiphivsLS_SubdetPM.book(ib, _emap, _subsystem);
     _cOccupancyCutvsBX_Subdet.book(ib, _emap, _subsystem);
     _cTimingCutvsiphi_SubdetPM.book(ib, _emap, _subsystem);
-    _cTimingCutvsieta_Subdet.book(ib, _emap, _subsystem);
     _cOccupancyBadCapidvsLS_Subdet.book(ib, _emap, _subsystem);
     _cOccupancyBadCapidvsLS_depth.book(ib, _emap, _subsystem);
     _xBadCapid.book(_emap);
@@ -771,7 +768,8 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
     _cOccupancyvsieta_Subdet.book(ib, _emap, _subsystem);
     _cSummaryvsLS_FED.book(ib, _emap, _subsystem);
     _cSummaryvsLS.book(ib, _subsystem);
-
+    _cOccupancyCutvsieta_Subdet.book(ib, _emap, _subsystem);
+    _cTimingCutvsieta_Subdet.book(ib, _emap, _subsystem);   
     _xUniHF.book(_emap, _filter_FEDHF);
     _xNChs.book(_emap);
     _xNChsNominal.book(_emap);
@@ -1087,13 +1085,13 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
       _cSumQ_depth.fill(did, sumQ);
       _cSumQvsLS_SubdetPM_QIE1011.fill(did, _currentLS, sumQ);
       if (_ptype == fOnline) {
+        _cOccupancyCutvsieta_Subdet.fill(did);   
+	_cTimingCutvsieta_Subdet.fill(did, timing); 
         _cSumQvsBX_SubdetPM_QIE1011.fill(did, bx, sumQ);
       }
       if (_ptype == fOnline || _ptype == fOffline) {
         _cTimingCutvsiphi_SubdetPM.fill(did, timing);
-        _cTimingCutvsieta_Subdet.fill(did, timing);
-        _cOccupancyCutvsiphi_SubdetPM.fill(did);
-        _cOccupancyCutvsieta_Subdet.fill(did);
+	_cOccupancyCutvsiphi_SubdetPM.fill(did);
         _cOccupancyCutvsiphivsLS_SubdetPM.fill(did, _currentLS);
       }
       if (_ptype != fOffline) {  // hidefed2crate
@@ -1268,13 +1266,13 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
       }
       if (_ptype == fOnline) {
         _cSumQvsBX_SubdetPM.fill(did, bx, sumQ);
+	_cTimingCutvsieta_Subdet.fill(did, timing);
+	_cOccupancyCutvsieta_Subdet.fill(did); 
       }
       if (_ptype == fOnline || _ptype == fOffline) {
         _cTimingCutvsiphi_SubdetPM.fill(did, timing);
-        _cTimingCutvsieta_Subdet.fill(did, timing);
-        _cOccupancyCutvsiphi_SubdetPM.fill(did);
-        _cOccupancyCutvsieta_Subdet.fill(did);
-        _cOccupancyCutvsiphivsLS_SubdetPM.fill(did, _currentLS);
+	_cOccupancyCutvsiphi_SubdetPM.fill(did);
+	_cOccupancyCutvsiphivsLS_SubdetPM.fill(did, _currentLS);
       }
       if (_ptype != fOffline) {  // hidefed2crate
         if (!eid.isVMEid()) {
@@ -1469,21 +1467,15 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
         _cTimingCutvsLS_depth.fill(did, _currentLS, timing);
         if (_ptype == fOnline) {
           //if (!_filter_QIE1011.filter(did)) {
+	  _cTimingCutvsieta_Subdet.fill(did, timing);
+	  _cOccupancyCutvsieta_Subdet.fill(did);
           _cSumQvsBX_SubdetPM_QIE1011.fill(did, bx, sumQ);
           //}
-          _cTimingCutvsiphi_SubdetPM.fill(did, timing);
-          _cTimingCutvsieta_Subdet.fill(did, timing);
-          _cOccupancyCutvsiphi_SubdetPM.fill(did);
-          _cOccupancyCutvsieta_Subdet.fill(did);
-          _cOccupancyCutvsiphivsLS_SubdetPM.fill(did, _currentLS);
-          //				_cOccupancyCutvsSlotvsLS_HFPM.fill(did, _currentLS);
-          _xUniHF.get(eid)++;
+	  _xUniHF.get(eid)++;
         }
         if (_ptype == fOnline || _ptype == fOffline) {
           _cTimingCutvsiphi_SubdetPM.fill(did, timing);
-          _cTimingCutvsieta_Subdet.fill(did, timing);
           _cOccupancyCutvsiphi_SubdetPM.fill(did);
-          _cOccupancyCutvsieta_Subdet.fill(did);
           _cOccupancyCutvsiphivsLS_SubdetPM.fill(did, _currentLS);
         }
         if (_ptype != fOffline) {  // hidefed2crate
@@ -1552,7 +1544,7 @@ std::shared_ptr<hcaldqm::Cache> DigiTask::globalBeginLuminosityBlock(edm::Lumino
   if (_ptype == fOffline || _ptype == fOnline) {
     HcalDetId did_HB(hcaldqm::hashfunctions::hash_Subdet(HcalDetId(HcalBarrel, 1, 1, 1)));
     HcalDetId did_HE(hcaldqm::hashfunctions::hash_Subdet(HcalDetId(HcalEndcap, 16, 1, 1)));
-    HcalDetId did_HF(hcaldqm::hashfunctions::hash_Subdet(HcalDetId(HcalForward, 29, 1, 1)));
+    HcalDetId did_HF(hcaldqm::hashfunctions::hash_Subdet(HcalDetId(HcalForward, 30, 1, 1)));
     HcalDetId did_HO(hcaldqm::hashfunctions::hash_Subdet(HcalDetId(HcalOuter, 1, 1, 1)));
     _cAveragedSumQvsLS_Subdet_QIE1011.fill(did_HB, _currentLS, (_HBSumMeanofSumQForEachEvent / _evsPerLS));
     _cAveragedSumQvsLS_Subdet_QIE1011.fill(did_HE, _currentLS, (_HESumMeanofSumQForEachEvent / _evsPerLS));
