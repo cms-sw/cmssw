@@ -59,11 +59,10 @@ void HGCalVFEProcessorSums::run(const HGCalDigiCollection& digiColl,
   if (dataframes.empty())
     return;
 
-  constexpr int kHighDensityThickness = 0;
   bool isSilicon = triggerTools_.isSilicon(dataframes[0].id());
   bool isEM = triggerTools_.isEm(dataframes[0].id());
   bool isNose = triggerTools_.isNose(dataframes[0].id());
-  int thickness = triggerTools_.thicknessIndex(dataframes[0].id());
+  bool isHighDensity = triggerTools_.isSiliconHighDensity(dataframes[0].id());
   // Linearization of ADC and TOT values to the same LSB
   if (isSilicon) {
     vfeLinearizationSiImpl_->linearize(dataframes, linearized_dataframes);
@@ -73,7 +72,7 @@ void HGCalVFEProcessorSums::run(const HGCalDigiCollection& digiColl,
   // Sum of sensor cells into trigger cells
   vfeSummationImpl_->triggerCellSums(linearized_dataframes, tc_payload);
   // Compression of trigger cell charges to a floating point format
-  if (thickness == kHighDensityThickness) {
+  if (isHighDensity) {
     vfeCompressionHDMImpl_->compress(tc_payload, tc_compressed_payload);
   } else {
     vfeCompressionLDMImpl_->compress(tc_payload, tc_compressed_payload);

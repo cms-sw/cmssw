@@ -43,3 +43,7 @@ hgcROCSettings = cms.PSet(
         -0.28,   27.14,  43.95,
         3.89048 )
 )
+
+from Configuration.Eras.Modifier_phase2_hgcalV19_cff import phase2_hgcalV19
+phase2_hgcalV19.toModify(hgcROCSettings, tdcForToAOnset_fC = [12., 12., 12., 12.])
+
