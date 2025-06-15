@@ -27,7 +27,6 @@
 #include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 // forward declarations
 namespace edm {
-  class Maker;
   class ModuleDescription;
   class SignallingProductRegistryFiller;
   class ExceptionToActionTable;
@@ -36,26 +35,23 @@ namespace edm {
   namespace maker {
     class ModuleHolder {
     public:
-      ModuleHolder(Maker const* iMaker) : m_maker(iMaker) {}
+      ModuleHolder() = default;
       virtual ~ModuleHolder() {}
-      std::unique_ptr<Worker> makeWorker(ExceptionToActionTable const* actions) const;
+      virtual std::unique_ptr<Worker> makeWorker(ExceptionToActionTable const* actions) const = 0;
 
       virtual ModuleDescription const& moduleDescription() const = 0;
-      virtual void setModuleDescription(ModuleDescription const& iDesc) = 0;
-      virtual void preallocate(PreallocationConfiguration const&) = 0;
-      virtual void registerProductsAndCallbacks(SignallingProductRegistryFiller*) = 0;
+      virtual void finishModuleInitialization(ModuleDescription const& iDesc,
+                                              PreallocationConfiguration const& iPrealloc,
+                                              SignallingProductRegistryFiller* iReg) = 0;
       virtual void replaceModuleFor(Worker*) const = 0;
 
       virtual std::unique_ptr<OutputModuleCommunicator> createOutputModuleCommunicator() = 0;
-
-    protected:
-      Maker const* m_maker;
     };
 
     template <typename T>
     class ModuleHolderT : public ModuleHolder {
     public:
-      ModuleHolderT(std::shared_ptr<T> iModule, Maker const* iMaker) : ModuleHolder(iMaker), m_mod(iModule) {}
+      ModuleHolderT(std::shared_ptr<T> iModule) : m_mod(iModule) {}
       ~ModuleHolderT() override {}
       std::shared_ptr<T> module() const { return m_mod; }
       void replaceModuleFor(Worker* iWorker) const override {
@@ -63,14 +59,27 @@ namespace edm {
         assert(nullptr != w);
         w->setModule(m_mod);
       }
-      ModuleDescription const& moduleDescription() const override { return m_mod->moduleDescription(); }
-      void setModuleDescription(ModuleDescription const& iDesc) override { m_mod->setModuleDescription(iDesc); }
-      void preallocate(PreallocationConfiguration const& iPrealloc) override { m_mod->doPreallocate(iPrealloc); }
-
-      void registerProductsAndCallbacks(SignallingProductRegistryFiller* iReg) override {
-        m_mod->registerProductsAndCallbacks(module().get(), iReg);
+      std::unique_ptr<Worker> makeWorker(ExceptionToActionTable const* actions) const override {
+        return std::make_unique<edm::WorkerT<T>>(module(), moduleDescription(), actions);
       }
 
+      static void finishModuleInitialization(T& iModule,
+                                             ModuleDescription const& iDesc,
+                                             PreallocationConfiguration const& iPrealloc,
+                                             SignallingProductRegistryFiller* iReg) {
+        iModule.setModuleDescription(iDesc);
+        iModule.doPreallocate(iPrealloc);
+        if (iReg) {
+          iModule.registerProductsAndCallbacks(&iModule, iReg);
+        }
+      };
+      ModuleDescription const& moduleDescription() const override { return m_mod->moduleDescription(); }
+
+      void finishModuleInitialization(ModuleDescription const& iDesc,
+                                      PreallocationConfiguration const& iPrealloc,
+                                      SignallingProductRegistryFiller* iReg) override {
+        finishModuleInitialization(*m_mod, iDesc, iPrealloc, iReg);
+      }
       std::unique_ptr<OutputModuleCommunicator> createOutputModuleCommunicator() override {
         return OutputModuleCommunicatorT<T>::createIfNeeded(m_mod.get());
       }

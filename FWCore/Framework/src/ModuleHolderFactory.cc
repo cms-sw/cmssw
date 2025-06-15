@@ -1,36 +1,35 @@
 
-#include "FWCore/Framework/src/Factory.h"
-#include "FWCore/Framework/interface/maker/MakerPluginFactory.h"
+#include "FWCore/Framework/src/ModuleHolderFactory.h"
+#include "FWCore/Framework/interface/maker/ModuleMakerPluginFactory.h"
 #include "FWCore/Framework/interface/ModuleTypeResolverMaker.h"
 #include "FWCore/Framework/interface/resolveMaker.h"
-#include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 
 #include <iostream>
 
-EDM_REGISTER_PLUGINFACTORY(edm::MakerPluginFactory, "CMS EDM Framework Module");
+EDM_REGISTER_PLUGINFACTORY(edm::ModuleMakerPluginFactory, "CMS EDM Framework Module");
 namespace edm {
 
-  Factory const Factory::singleInstance_;
+  ModuleHolderFactory const ModuleHolderFactory::singleInstance_;
 
-  Factory::~Factory() = default;
+  ModuleHolderFactory::~ModuleHolderFactory() = default;
 
-  Factory::Factory() = default;
+  ModuleHolderFactory::ModuleHolderFactory() = default;
 
-  Factory const* Factory::get() { return &singleInstance_; }
+  ModuleHolderFactory const* ModuleHolderFactory::get() { return &singleInstance_; }
 
-  Maker const* Factory::findMaker(const MakeModuleParams& p, ModuleTypeResolverMaker const* resolverMaker) const {
+  ModuleMakerBase const* ModuleHolderFactory::findMaker(const MakeModuleParams& p,
+                                                        ModuleTypeResolverMaker const* resolverMaker) const {
     std::string modtype = p.pset_->getParameter<std::string>("@module_type");
-    FDEBUG(1) << "Factory: module_type = " << modtype << std::endl;
     MakerMap::iterator it = makers_.find(modtype);
     if (it != makers_.end()) {
       return it->second.get();
     }
-    return detail::resolveMaker<MakerPluginFactory>(modtype, resolverMaker, *p.pset_, makers_);
+    return detail::resolveMaker<ModuleMakerPluginFactory>(modtype, resolverMaker, *p.pset_, makers_);
   }
 
-  std::shared_ptr<maker::ModuleHolder> Factory::makeModule(
+  std::shared_ptr<maker::ModuleHolder> ModuleHolderFactory::makeModule(
       const MakeModuleParams& p,
       const ModuleTypeResolverMaker* resolverMaker,
       signalslot::Signal<void(const ModuleDescription&)>& pre,
@@ -40,7 +39,7 @@ namespace edm {
     return mod;
   }
 
-  std::shared_ptr<maker::ModuleHolder> Factory::makeReplacementModule(const edm::ParameterSet& p) const {
+  std::shared_ptr<maker::ModuleHolder> ModuleHolderFactory::makeReplacementModule(const edm::ParameterSet& p) const {
     std::string modtype = p.getParameter<std::string>("@module_type");
     MakerMap::iterator it = makers_.find(modtype);
     if (it != makers_.end()) {

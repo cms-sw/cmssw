@@ -1,6 +1,6 @@
 #include "catch.hpp"
 
-#include "FWCore/Framework/src/Factory.h"
+#include "FWCore/Framework/src/ModuleHolderFactory.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
@@ -67,7 +67,7 @@ TEST_CASE("test edm::Factory", "[Factory]") {
   }
 
   SECTION("test missing plugin") {
-    auto factory = Factory::get();
+    auto factory = ModuleHolderFactory::get();
     ParameterSet pset;
     pset.addParameter<std::string>("@module_type", "DoesNotExistModule");
     pset.addParameter<std::string>("@module_edm_type", "EDProducer");
@@ -81,7 +81,7 @@ TEST_CASE("test edm::Factory", "[Factory]") {
     }
   }
   SECTION("test missing plugin with simple resolver") {
-    auto factory = Factory::get();
+    auto factory = ModuleHolderFactory::get();
     ParameterSet pset;
     pset.addParameter<std::string>("@module_type", "DoesNotExistModule");
     pset.addParameter<std::string>("@module_edm_type", "EDProducer");
@@ -92,7 +92,7 @@ TEST_CASE("test edm::Factory", "[Factory]") {
         Contains("DoesNotExistModule"));
   }
   SECTION("test missing plugin with complex resolver") {
-    auto factory = Factory::get();
+    auto factory = ModuleHolderFactory::get();
     ParameterSet pset;
     pset.addParameter<std::string>("@module_type", "generic::DoesNotExistModule");
     pset.addParameter<std::string>("@module_edm_type", "EDProducer");
@@ -104,7 +104,7 @@ TEST_CASE("test edm::Factory", "[Factory]") {
             Contains("edm::test::cpu::DoesNotExistModule"));
   }
   SECTION("test missing plugin with configurable resolver") {
-    auto factory = Factory::get();
+    auto factory = ModuleHolderFactory::get();
     ParameterSet pset;
     pset.addParameter<std::string>("@module_type", "generic::DoesNotExistModule");
     pset.addParameter<std::string>("@module_edm_type", "EDProducer");
@@ -137,7 +137,7 @@ TEST_CASE("test edm::Factory", "[Factory]") {
   }
 
   SECTION("test found plugin") {
-    auto factory = Factory::get();
+    auto factory = ModuleHolderFactory::get();
     ParameterSet pset;
     pset.addParameter<std::string>("@module_type", "edm::test::FactoryTestAProd");
     pset.addParameter<std::string>("@module_label", "a");
@@ -149,7 +149,7 @@ TEST_CASE("test edm::Factory", "[Factory]") {
     edm::test::FactoryTestAProd::count_ = 0;
   }
   SECTION("test found plugin with simple resolver") {
-    auto factory = Factory::get();
+    auto factory = ModuleHolderFactory::get();
     ParameterSet pset;
     pset.addParameter<std::string>("@module_type", "edm::test::FactoryTestBProd");
     pset.addParameter<std::string>("@module_label", "b");
@@ -162,7 +162,7 @@ TEST_CASE("test edm::Factory", "[Factory]") {
   }
   SECTION("test found plugin with complex resolver") {
     SECTION("find other") {
-      auto factory = Factory::get();
+      auto factory = ModuleHolderFactory::get();
       ParameterSet pset;
       pset.addParameter<std::string>("@module_type", "generic::FactoryTestAProd");
       pset.addParameter<std::string>("@module_label", "gen");
@@ -176,7 +176,7 @@ TEST_CASE("test edm::Factory", "[Factory]") {
       edm::test::other::FactoryTestAProd::count_ = 0;
     }
     SECTION("find cpu") {
-      auto factory = Factory::get();
+      auto factory = ModuleHolderFactory::get();
       ParameterSet pset;
       pset.addParameter<std::string>("@module_type", "generic::FactoryTestCProd");
       pset.addParameter<std::string>("@module_label", "cgen");
@@ -189,7 +189,7 @@ TEST_CASE("test edm::Factory", "[Factory]") {
     }
   }
   SECTION("test found plugin with configurable resolver") {
-    auto factory = Factory::get();
+    auto factory = ModuleHolderFactory::get();
     ParameterSet pset;
     pset.addParameter<std::string>("@module_type", "generic::FactoryTestAProd");
     pset.addParameter<std::string>("@module_label", "gen");

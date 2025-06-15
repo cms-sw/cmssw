@@ -549,8 +549,8 @@ template <typename T>
 void testLimitedFilter::testTransitions(std::shared_ptr<T> iMod, Expectations const& iExpect) {
   oneapi::tbb::global_control control(oneapi::tbb::global_control::max_allowed_parallelism, 1);
 
-  edm::maker::ModuleHolderT<edm::limited::EDFilterBase> h(iMod, nullptr);
-  h.preallocate(edm::PreallocationConfiguration{});
+  edm::maker::ModuleHolderT<edm::limited::EDFilterBase> h(iMod);
+  h.finishModuleInitialization(iMod->moduleDescription(), edm::PreallocationConfiguration{}, nullptr);
   edm::WorkerT<edm::limited::EDFilterBase> wOther{iMod, m_desc, nullptr};
   edm::WorkerT<edm::limited::EDFilterBase> wGlobalLumi{iMod, m_desc, nullptr};
   edm::WorkerT<edm::limited::EDFilterBase> wStreamLumi{iMod, m_desc, nullptr};
