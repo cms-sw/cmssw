@@ -102,10 +102,6 @@ _hltMuonMultiTrackValidator = MTVhlt.clone(
     )
 )
 
-# Customization for Inside-Out / Outside-In first approaches
-from Configuration.ProcessModifiers.phase2L2AndL3Muons_cff import phase2L2AndL3Muons
-from Configuration.ProcessModifiers.phase2L3MuonsOIFirst_cff import phase2L3MuonsOIFirst
-
 def _modify_for_IO_first(validator):
     validator.associatormap += ['Phase2tpToL2MuonToReuseAssociation', 'Phase2tpToL3IOTkFilteredAssociation']
     validator.label += ['hltPhase2L3MuonFilter:L2MuToReuse', 'hltPhase2L3MuonFilter:L3IOTracksFiltered']
@@ -115,9 +111,11 @@ def _modify_for_OI_first(validator):
     validator.associatormap += ['Phase2tpToL3OITkFilteredAssociation']
     validator.label += ['hltPhase2L3MuonFilter:L3OITracksFiltered']
     validator.muonHistoParameters.extend([trkMuonHistoParameters])
-    
-(phase2L2AndL3Muons & ~phase2L3MuonsOIFirst).toModify(_hltMuonMultiTrackValidator, _modify_for_IO_first)
-(phase2L2AndL3Muons & phase2L3MuonsOIFirst).toModify(_hltMuonMultiTrackValidator, _modify_for_OI_first)
+
+# Customization for Inside-Out / Outside-In first approaches
+from Configuration.ProcessModifiers.phase2L3MuonsOIFirst_cff import phase2L3MuonsOIFirst
+(~phase2L3MuonsOIFirst).toModify(_hltMuonMultiTrackValidator, _modify_for_IO_first)
+phase2L3MuonsOIFirst.toModify(_hltMuonMultiTrackValidator, _modify_for_OI_first)
 
 # Check that the associators and labels are consistent
 # All MTV clones are DQMEDAnalyzers
