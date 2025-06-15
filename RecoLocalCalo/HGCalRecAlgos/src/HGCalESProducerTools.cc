@@ -98,4 +98,16 @@ namespace hgcal {
     return iscomplete;
   }
 
+  // @short check if JSON data contains key
+  bool check_keys(const json& data, const std::vector<std::string>& keys, const std::string& fname) {
+    bool iscomplete = true;
+    for (auto const& key : keys) {
+      if (not data.contains(key)) {
+        edm::LogWarning("checkkeys") << " JSON is missing key '" << key << "'! Please check file " << fname;
+        iscomplete = false;
+      }
+    }
+    return iscomplete;
+  }
+
 }  // namespace hgcal
