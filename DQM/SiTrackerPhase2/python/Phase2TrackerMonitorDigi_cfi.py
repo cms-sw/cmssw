@@ -36,10 +36,19 @@ digiMon = DQMEDAnalyzer('Phase2TrackerMonitorDigi',
                             ymax   = cms.double(1350.5),
                             switch = cms.bool(True)
                         ),
-                        PositionOfDigisSH = cms.PSet(
+                        PositionOfDigisSH2S = cms.PSet(
                             Nxbins = cms.int32(1016),
                             xmin   = cms.double(0.5),
                             xmax   = cms.double(1016.5),
+                            Nybins = cms.int32(2),
+                            ymin   = cms.double(0.5),
+                            ymax   = cms.double(2.5),
+                            switch = cms.bool(True)
+                        ),
+                        PositionOfDigisSHPS = cms.PSet(
+                            Nxbins = cms.int32(960),
+                            xmin   = cms.double(0.5),
+                            xmax   = cms.double(960.5),
                             Nybins = cms.int32(2),
                             ymin   = cms.double(0.5),
                             ymax   = cms.double(2.5),
