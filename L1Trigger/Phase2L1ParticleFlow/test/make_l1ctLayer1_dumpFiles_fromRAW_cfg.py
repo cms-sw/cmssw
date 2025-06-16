@@ -18,8 +18,8 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring( '/store/cmst3/group/l1tr/cerminar/14_0_X/fpinputs_131X/v3/TTbar_PU200/inputs131X_1.root',)
 )
 
-process.load('Configuration.Geometry.GeometryExtended2026D95Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D95_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D95Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D95_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
