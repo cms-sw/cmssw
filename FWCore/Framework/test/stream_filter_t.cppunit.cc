@@ -577,8 +577,8 @@ namespace {
     edm::ParameterSet pset;
     std::shared_ptr<edm::stream::EDFilterAdaptorBase> retValue =
         std::make_shared<edm::stream::EDFilterAdaptor<T>>(pset);
-    edm::maker::ModuleHolderT<edm::stream::EDFilterAdaptorBase> h(retValue, nullptr);
-    h.preallocate(edm::PreallocationConfiguration{});
+    edm::maker::ModuleHolderT<edm::stream::EDFilterAdaptorBase> h(retValue);
+    h.finishModuleInitialization(retValue->moduleDescription(), edm::PreallocationConfiguration{}, nullptr);
     return retValue;
   }
   template <typename T>
