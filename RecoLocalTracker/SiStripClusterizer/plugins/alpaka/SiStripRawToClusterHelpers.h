@@ -98,5 +98,4 @@ private:
   std::map<std::string, std::size_t> m_warnings;
 };
 
-
 #endif

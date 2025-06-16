@@ -45,7 +45,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     uint16_t ipair_;
   };
 
-
   class SiStripClusterizerConditionsESProducerAlpaka : public ESProducer {
   public:
     SiStripClusterizerConditionsESProducerAlpaka(edm::ParameterSet const& iConfig) : ESProducer(iConfig) {
@@ -71,7 +70,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         SiStripClusterizerConditionsDetToFedsRecord const& iRecord) {
       const auto& quality = iRecord.get(qualityTokenA_);
 
-      std::vector<bool> detToFeds_qualityFlags(NUMBER_OF_FEDS*FEDCH_PER_FED, false);
+      std::vector<bool> detToFeds_qualityFlags(NUMBER_OF_FEDS * FEDCH_PER_FED, false);
 
       // connected: map<DetID, std::vector<int>>
       // map of KEY=detid DATA=vector of apvs, maximum 6 APVs per detector module :
@@ -111,7 +110,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       //// Typical sizes for these collections (from MC run)
       //// constexpr const unsigned int DetToFeds_size= 34813;
       auto DetToFeds_size = detToFeds_qualityFlags.size();
-      auto DetToFedsCollection = std::make_unique<SiStripClusterizerConditionsDetToFedsHost>(DetToFeds_size, cms::alpakatools::host());
+      auto DetToFedsCollection =
+          std::make_unique<SiStripClusterizerConditionsDetToFedsHost>(DetToFeds_size, cms::alpakatools::host());
 
       for (uint32_t j = 0; j < DetToFeds_size; ++j) {
         (*DetToFedsCollection)->qualityOk_(j) = detToFeds_qualityFlags[j];

@@ -14,7 +14,7 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripClusterizerConditions.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "DataFormats/SiStripClusterSoA/interface/alpaka/SiStripClustersDevice.h"
+#include "DataFormats/SiStripClusterSoA/interface/alpaka/SiStripClusterDevice.h"
 #include "DataFormats/SiStripDigiSoA/interface/alpaka/SiStripDigiDevice.h"
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
@@ -47,16 +47,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     void acquire(device::Event const& iEvent, device::EventSetup const& iSetup) override;
     void produce(device::Event& iEvent, device::EventSetup const& iSetup) override;
 
-
-
     // Containers for the condition-passing raw data
     std::vector<const FEDRawData*> raw_;
     std::vector<std::unique_ptr<FEDBuffer>> buffers_;
-    
+
     std::vector<std::pair<int, int>> fedIdCh_connPairs;
     size_t fedIdCh_totalLength = 0;
     auto fillFedIdFedChBuffer(Queue& queue, const FEDRawDataCollection& rawColl);
-    
+
     // Size in bytes of the condition-passing mem. buffer for FED raw
     size_t buffersValidSize_bytes_ = 0;
     // RAW unpacking mode (legacy or not)
@@ -72,7 +70,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         stripCablCondGetToken_;
     device::ESGetToken<SiStripClusterizerConditionsDataDevice, SiStripClusterizerConditionsDataRecord>
         stripDataCondGetToken_;
-    device::EDPutToken<SiStripClustersDevice> stripClustPutToken_;
+    device::EDPutToken<SiStripClusterDevice> stripClustPutToken_;
     device::EDPutToken<SiStripDigiDevice> stripDigiPutToken_;
 
     // The unpacker and clusterizer conditions
@@ -91,8 +89,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
   SiStripRawToCluster::SiStripRawToCluster(const edm::ParameterSet& iConfig)
       : SynchronizingEDProducer(iConfig),
-        raw_(sistrip::FED_ID_MAX+1),
-        buffers_(sistrip::FED_ID_MAX+1),
+        raw_(sistrip::FED_ID_MAX + 1),
+        buffers_(sistrip::FED_ID_MAX + 1),
         legacyUnpacker_(iConfig.getParameter<edm::ParameterSet>("Unpacker").getParameter<bool>("LegacyUnpacker")),
         unpackBadChannels_(iConfig.getParameter<edm::ParameterSet>("Unpacker").getParameter<bool>("UnpackBadChannels")),
         doFullCorruptBufferChecks_(
@@ -137,7 +135,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // 1:Algorithm, ConditionsLabel, ChannelThreshold, SeedThreshold, ClusterThreshold,
     // MaxSequentialHoles, MaxSequentialBad, MaxAdjacentBad, MaxClusterSize, RemoveApvShots,
     // setDetId, 12:clusterChargeCut
-    // 
+    //
     // The parameter MaxSeedStrips determines the size for pre-allocation of the clusters collection SoA
     edm::ParameterSetDescription clusterizer;
     StripClusterizerAlgorithmFactory::fillDescriptions(clusterizer);
@@ -147,8 +145,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     descriptions.addWithDefaultLabel(desc);
   }
 
-
-  auto SiStripRawToCluster::fillFedIdFedChBuffer(Queue& queue, const FEDRawDataCollection& rawColl){
+  auto SiStripRawToCluster::fillFedIdFedChBuffer(Queue& queue, const FEDRawDataCollection& rawColl) {
     // Containers for the condition-passing raw data
     std::fill(raw_.begin(), raw_.end(), nullptr);
     std::fill(buffers_.begin(), buffers_.end(), nullptr);
@@ -161,7 +158,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       // it populates raw_, buffers_ with only connected fed
       auto const& det = stripCond_->findDetId(idet);
       if (!det.valid()) {
-        continue; // idet loop
+        continue;  // idet loop
       }
 
       // Loop over apv-pairs of det
@@ -169,29 +166,29 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       for (auto const conn : stripCond_->currentConnection(det)) {
         // connIdx++;
         if (!conn) {
-          continue; // conn loop
+          continue;  // conn loop
         }
 
         const uint16_t fedId = conn->fedId();
-        
+
         // If fed id is null or connection is invalid continue
         if (!fedId || !conn->isConnected()) {
-          continue; // conn loop
+          continue;  // conn loop
         }
 
-        if (!raw_[fedId]){
+        if (!raw_[fedId]) {
           // pointer to the raw data in the collection
           raw_[fedId] = &rawColl.FEDData(fedId);
           rawBuffFlattenSize += raw_[fedId]->size();
         }
-        
+
         // If Fed hasnt already been initialised, extract data and initialise
         sistrip::FEDBuffer* buffer = buffers_[fedId].get();
         if (!buffer) {
           buffers_[fedId] = fillBuffer(fedId, *raw_[fedId]);
           if (!buffers_[fedId]) {
             continue;
-          }else{
+          } else {
             buffer = buffers_[fedId].get();
           }
         }
@@ -203,13 +200,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         // Check the readout mode of the buffer
         const FEDReadoutMode buffROMode = buffer->readoutMode();
         // Make sure EACH buffer has a readout mode supported by the module
-        if (!(buffROMode >= READOUT_MODE_ZERO_SUPPRESSED_LITE10 && buffROMode <= READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE && buffROMode != READOUT_MODE_PROC_RAW)) {
+        if (!(buffROMode >= READOUT_MODE_ZERO_SUPPRESSED_LITE10 &&
+              buffROMode <= READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE &&
+              buffROMode != READOUT_MODE_PROC_RAW)) {
           if (edm::isDebugEnabled()) {
             std::ostringstream ss;
             ss << "Unsupported buffer ROmode=" << buffROMode << " fedID= " << fedId;
             edm::LogWarning("fillFedIdFedChBuffer") << ss.str();
           }
-          continue; // conn loop
+          continue;  // conn loop
         }
 
         // check channel
@@ -220,17 +219,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
             ss << "Problem unpacking channel " << (int)fedCh << " on FED " << fedId;
             edm::LogWarning("fillFedIdFedChBuffer") << ss.str();
           }
-          continue; // conn loop
+          continue;  // conn loop
         }
 
         // Good fedId and fedCh in the raw data
         const FEDChannel& channel = buffer->channel(fedCh);
         const uint32_t fedChOfs = channel.offset();
-        
+
         auto diff = channel.data() - raw_[fedId]->data();
         if (diff < 0 || diff > std::numeric_limits<uint32_t>::max()) {
           // std::cout << "#diff," << diff << std::endl;
-          if (edm::isDebugEnabled()){
+          if (edm::isDebugEnabled()) {
             std::ostringstream ss;
             ss << "Large diff " << diff << " for fedId " << fedId << " fedCh " << fedCh;
             edm::LogWarning("fillFedIdFedChBuffer") << ss.str();
@@ -239,12 +238,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         }
         const uint32_t fedChOfs_wrt_rawFedId = static_cast<const uint32_t>(diff);
 
-        fedChOfs_wrt_rawFedId_.push_back(FEDChMetadata(idet, fedId, fedCh, fedChOfs, fedChOfs_wrt_rawFedId, buffROMode));
+        fedChOfs_wrt_rawFedId_.push_back(
+            FEDChMetadata(idet, fedId, fedCh, fedChOfs, fedChOfs_wrt_rawFedId, buffROMode));
 
         // Count the total number of bytes I need for the pinned memory which is going to hold this
         // std::cout << "#bufferSize," << connIdx << "," << idet << "," << fedId << "," << buffer->bufferSize() << std::endl;
         // std::cout << "#fedChOfs," << connIdx << "," << idet << "," << fedId << "," << (int)fedCh << "," << channel.length() << "," << fedChOfs << "," << fedChOfs_wrt_rawFedId << std::endl;
-        
+
         // assert(channel.length() == (channel.data()[(channel.offset()) ^ 7] + (channel.data()[(channel.offset() + 1) ^ 7] << 8)));
 
         // // Check that a FEDChannel built using the method effectively return the same value
@@ -255,7 +255,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
     // Create container for the buffer and mapping
     auto fedMover = std::make_unique<PortableFEDMover>(&queue, rawBuffFlattenSize, fedChOfs_wrt_rawFedId_.size());
-    
+
     // Fill buffer
     fedMover->fillBuffer(raw_);
 
@@ -264,8 +264,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
     return fedMover;
   }
-
-
 
   void SiStripRawToCluster::acquire(device::Event const& iEvent, device::EventSetup const& iSetup) {
     // If this is the first time the module is called or the record signalled a change in conditions,
@@ -294,16 +292,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
     // Fill the raw_, buffers_ class members (i.e. from the connected FED, the FEDBuffers and raw pointers are set)
     std::unique_ptr<PortableFEDMover> FEDChMover = fillFedIdFedChBuffer(iEvent.queue(), rawCollection);
-    
-    // Move the DataFedAppender class to algo
-    algo_.prepareUnpackCluster(
-      iEvent.queue(),
-      stripCablCond_,
-      stripDataCond_,
-      std::move(FEDChMover)
-    );
-  }
 
+    // Move the DataFedAppender class to algo
+    algo_.prepareUnpackCluster(iEvent.queue(), stripCablCond_, stripDataCond_, std::move(FEDChMover));
+  }
 
   void SiStripRawToCluster::produce(device::Event& iEvent, device::EventSetup const& iSetup) {
     // Unpack the raw FED data into strip digi

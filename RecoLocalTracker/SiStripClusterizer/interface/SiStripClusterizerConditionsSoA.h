@@ -5,8 +5,7 @@
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 
 namespace sistrip {
-  GENERATE_SOA_LAYOUT(SiStripClusterizerConditionsDetToFedsSoALayout,
-                      SOA_COLUMN(bool, qualityOk_))
+  GENERATE_SOA_LAYOUT(SiStripClusterizerConditionsDetToFedsSoALayout, SOA_COLUMN(bool, qualityOk_))
 
   GENERATE_SOA_LAYOUT(SiStripClusterizerConditionsData_fedch_SoALayout,
                       SOA_COLUMN(uint32_t, detID_),
