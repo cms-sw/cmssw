@@ -79,8 +79,6 @@ namespace edm {
       bool verbose_;
     };
 
-    inline bool isProcessWideService(ResourceInformationService const*) { return true; }
-
     ResourceInformationService::ResourceInformationService(ParameterSet const& pset, ActivityRegistry& iRegistry)
         : verbose_(pset.getUntrackedParameter<bool>("verbose")) {
       iRegistry.watchPostBeginJob(this, &ResourceInformationService::postBeginJob);

@@ -63,10 +63,7 @@ namespace edm {
              Conflicts over Services provided by both the iToken and iConfiguration
              are resolved based on the value of iLegacy
          */
-      ServicesManager(ServiceToken iToken,
-                      ServiceLegacy iLegacy,
-                      std::vector<ParameterSet>& iConfiguration,
-                      bool associate = true);
+      ServicesManager(ServiceToken iToken, ServiceLegacy iLegacy, std::vector<ParameterSet>& iConfiguration);
 
       ServicesManager(ServicesManager const&) = delete;                   // stop default
       ServicesManager const& operator=(ServicesManager const&) = delete;  // stop default
