@@ -39,6 +39,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::weights {
 #pragma GCC diagnostic ignored "-Wdangling-reference"
         const auto& digi = digisDev[tx].data();
 #pragma GCC diagnostic pop
+// rebuild
         auto recHit = uncalibratedRecHitsDev[tx];
         recHit.amplitude() = 0;
         recHit.jitter() = 0;
