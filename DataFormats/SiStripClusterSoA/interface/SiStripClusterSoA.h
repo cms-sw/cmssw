@@ -2,12 +2,9 @@
 #ifndef DataFormats_SiStripClusterSoA_interface_SiStripClusterSoA_h
 #define DataFormats_SiStripClusterSoA_interface_SiStripClusterSoA_h
 
-// #include "DataFormats/Common/interface/StdArray.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 
 namespace sistrip {
-  // const static auto maxStripsPerCluster = 32;
-  // using ClusterADCsColumn = edm::StdArray<uint8_t, maxStripsPerCluster>; /*768*/
 
   GENERATE_SOA_LAYOUT(SiStripClusterSoALayout,
                       SOA_COLUMN(uint32_t, clusterIndex),
