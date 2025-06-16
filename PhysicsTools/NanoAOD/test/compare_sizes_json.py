@@ -65,7 +65,7 @@ for job in options.job:
             if options.fmt == "md": prow("---" for x in headers)
             first = False
 
-        prow([ wf_name, wf_id, '%.3f' % size_new, '%.3f' % size_ref, '%.3f ( %+.1f%% )' % (size_new - size_ref,  (size_new-size_ref)/size_ref * 100 ),
+        prow([ wf_name, wf_id, '%.3f' % size_new, '%.3f' % size_ref, '%.3f ( %+.1f%% )' % (size_new - size_ref,  rel_diff ),
                '%.2f'%rate_new, '%.2f'%rate_ref, '%+.1f%%'%((rate_new-rate_ref)/rate_ref*100), '%.3f'%(rmem_new/1000), '%.3f'%(rmem_ref/1000)  ])
 
     except IOError: # some file not existing
