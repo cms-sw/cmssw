@@ -15,9 +15,7 @@
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
-#include "RecoTracker/CkfPattern/interface/IntermediateTrajectoryCleaner.h"
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
-#include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilterFactory.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
 #include "EtaPhiEstimator.h"
@@ -34,20 +32,12 @@ public:
 protected:
   void setEvent_(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-  bool muonToBeContinued(TempTrajectory& traj) const;
-
-  std::unique_ptr<TrajectoryFilter> createTrajectoryFilter(const edm::ParameterSet& pset, edm::ConsumesCollector& iC);
-
   void collectMeasurement(const DetLayer* layer,
                           const std::vector<const DetLayer*>& nl,
                           const TrajectoryStateOnSurface& currentState,
                           std::vector<TM>& result,
                           int& invalidHits,
                           const Propagator*) const;
-
-  unsigned int limitedCandidates(const std::shared_ptr<const TrajectorySeed>& sharedSeed,
-                                 TempTrajectoryContainer& candidates,
-                                 TrajectoryContainer& result) const override;
 
   void findCompatibleMeasurements(const TrajectorySeed& seed,
                                   const TempTrajectory& traj,
@@ -56,7 +46,6 @@ protected:
   //and other fields
   bool theUseSeedLayer;
   double theRescaleErrorIfFail;
-  std::unique_ptr<TrajectoryFilter> theFilter;
   const double theDeltaEta;
   const double theDeltaPhi;
   const std::string theProximityPropagatorName;
@@ -68,8 +57,6 @@ protected:
 
 MuonCkfTrajectoryBuilder::MuonCkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector& iC)
     : CkfTrajectoryBuilder(conf, iC),
-      theFilter(std::move(MuonCkfTrajectoryBuilder::createTrajectoryFilter(
-          conf.getParameter<edm::ParameterSet>("trajectoryFilter"), iC))),
       theDeltaEta(conf.getParameter<double>("deltaEta")),
       theDeltaPhi(conf.getParameter<double>("deltaPhi")),
       theProximityPropagatorName(conf.getParameter<std::string>("propagatorProximity")),
@@ -131,145 +118,6 @@ std::string dumpMeasurements(const std::vector<TrajectoryMeasurement> & v)
   return buffer.str();
 }
 */
-
-std::unique_ptr<TrajectoryFilter> MuonCkfTrajectoryBuilder::createTrajectoryFilter(const edm::ParameterSet& pset,
-                                                                                   edm::ConsumesCollector& iC) {
-  return TrajectoryFilterFactory::get()->create(pset.getParameter<std::string>("ComponentType"), pset, iC);
-}
-
-bool MuonCkfTrajectoryBuilder::muonToBeContinued(TempTrajectory& traj) const {
-  if UNLIKELY (traj.measurements().size() > 400) {
-    edm::LogError("BaseCkfTrajectoryBuilder_InfiniteLoop");
-    LogTrace("BaseCkfTrajectoryBuilder_InfiniteLoop")
-        << "Cropping Track After 400 Measurements:\n"
-        << "   Last predicted state: " << traj.lastMeasurement().predictedState() << "\n"
-        << "   Last layer subdetector: " << (traj.lastLayer() ? traj.lastLayer()->subDetector() : -1) << "\n"
-        << "   Found hits: " << traj.foundHits() << ", lost hits: " << traj.lostHits() << "\n\n";
-    return false;
-  }
-  // Called after each new hit is added to the trajectory, to see if it is
-  // worth continuing to build this track candidate.
-
-  // When a sufficient amount of measurements are made,
-  // ensure that an infinite loop is not created (CMSHLT-3557).
-  // Avoid hit-pair structures as last = last-2, and last-1 = last-3,
-  // where last refers to measurements.
-
-  const TempTrajectory::DataContainer tms = traj.measurements();
-  TempTrajectory::DataContainer::const_iterator tm = tms.begin();
-
-  // Ensure at sufficient amount of measurements before checking for loops
-  if (traj.measurements().size() > 15) {
-    TrackingRecHit::RecHitPointer lastHit = tm->recHit();
-    ++tm;
-    TrackingRecHit::RecHitPointer last2Hit = tm->recHit();
-    ++tm;
-    TrackingRecHit::RecHitPointer last3Hit = tm->recHit();
-    ++tm;
-    TrackingRecHit::RecHitPointer last4Hit = tm->recHit();
-    if (lastHit->geographicalId() == last3Hit->geographicalId() &&
-        last2Hit->geographicalId() == last4Hit->geographicalId()) {
-      LogDebug("CkfPattern") << "Loop pattern found in last recHits\n" << PrintoutHelper::dumpMeasurements(tms);
-
-      return false;
-    }
-  }
-  return theFilter->toBeContinued(traj);
-}
-
-unsigned int MuonCkfTrajectoryBuilder::limitedCandidates(const std::shared_ptr<const TrajectorySeed>& sharedSeed,
-                                                         TempTrajectoryContainer& candidates,
-                                                         TrajectoryContainer& result) const {
-  unsigned int nIter = 1;
-  unsigned int nCands = 0;  // ignore startingTraj
-  unsigned int prevNewCandSize = 0;
-  TempTrajectoryContainer newCand;  // = TrajectoryContainer();
-  newCand.reserve(theMaxCand);
-
-  auto score = [&](TempTrajectory const& a) {
-    auto bonus = theFoundHitBonus;
-    bonus += a.foundHits() > theMinHitForDoubleBonus ? bonus : 0;
-    return a.chiSquared() + a.lostHits() * theLostHitPenalty - bonus * a.foundHits();
-  };
-
-  auto trajCandLess = [&](TempTrajectory const& a, TempTrajectory const& b) { return score(a) < score(b); };
-
-  while (!candidates.empty()) {
-    newCand.clear();
-    bool full = false;
-    for (auto traj = candidates.begin(); traj != candidates.end(); traj++) {
-      std::vector<TM> meas;
-      findCompatibleMeasurements(*sharedSeed, *traj, meas);
-
-      // --- method for debugging
-      if (!analyzeMeasurementsDebugger(
-              *traj, meas, theMeasurementTracker, forwardPropagator(*sharedSeed), theEstimator, theTTRHBuilder))
-        return nCands;
-      // ---
-
-      if (meas.empty()) {
-        addToResult(sharedSeed, *traj, result);
-      } else {
-        std::vector<TM>::const_iterator last;
-        if (theAlwaysUseInvalidHits)
-          last = meas.end();
-        else {
-          if (meas.front().recHit()->isValid()) {
-            last = find_if(meas.begin(), meas.end(), [](auto const& meas) { return !meas.recHit()->isValid(); });
-          } else
-            last = meas.end();
-        }
-
-        for (auto itm = meas.begin(); itm != last; itm++) {
-          TempTrajectory newTraj = *traj;
-          updateTrajectory(newTraj, std::move(*itm));
-
-          if (muonToBeContinued(newTraj)) {
-            if (full) {
-              bool better = trajCandLess(newTraj, newCand.front());
-              if (better) {
-                // replace worst
-                std::pop_heap(newCand.begin(), newCand.end(), trajCandLess);
-                newCand.back().swap(newTraj);
-                std::push_heap(newCand.begin(), newCand.end(), trajCandLess);
-              }  // else? no need to add it just to remove it later!
-            } else {
-              newCand.push_back(std::move(newTraj));
-              full = (int)newCand.size() == theMaxCand;
-              if (full)
-                std::make_heap(newCand.begin(), newCand.end(), trajCandLess);
-            }
-          } else {
-            addToResult(sharedSeed, newTraj, result);
-            //// don't know yet
-          }
-        }
-      }
-
-      // account only new candidates, i.e.
-      // - 1 candidate -> 1 candidate, don't increase count
-      // - 1 candidate -> 2 candidates, increase count by 1
-      nCands += newCand.size() - prevNewCandSize;
-      prevNewCandSize = newCand.size();
-
-      assert((int)newCand.size() <= theMaxCand);
-      if (full)
-        assert((int)newCand.size() == theMaxCand);
-    }  // end loop on candidates
-
-    // no reason to sort  (no sorting in Grouped version!)
-    if (theIntermediateCleaning)
-      IntermediateTrajectoryCleaner::clean(newCand);
-
-    candidates.swap(newCand);
-
-    LogDebug("CkfPattern") << result.size() << " candidates after " << nIter++ << " CKF iteration: \n"
-                           << PrintoutHelper::dumpCandidates(result) << "\n " << candidates.size()
-                           << " running candidates are: \n"
-                           << PrintoutHelper::dumpCandidates(candidates);
-  }
-  return nCands;
-}
 
 void MuonCkfTrajectoryBuilder::collectMeasurement(const DetLayer* layer,
                                                   const std::vector<const DetLayer*>& nl,
