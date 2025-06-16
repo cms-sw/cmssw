@@ -112,37 +112,43 @@ namespace cond {
       conddb_column(SINCE, cond::Time_t);
       conddb_column(PAYLOAD_HASH, std::string, PAYLOAD::PAYLOAD_HASH_SIZE);
       conddb_column(INSERTION_TIME, boost::posix_time::ptime);
+      static constexpr auto minSINCE_ =
+          condcore_detail::addMin<SINCE::fullyQualifiedName().size()>(SINCE::fullyQualifiedName());
+      static constexpr std::string_view minSINCE() { return std::string_view(minSINCE_.data()); }
+      static constexpr auto maxSINCE_ =
+          condcore_detail::addMax<SINCE::fullyQualifiedName().size()>(SINCE::fullyQualifiedName());
+      static constexpr std::string_view maxSINCE() { return std::string_view(maxSINCE_.data()); }
 
       struct SINCE_GROUP {
         typedef cond::Time_t type;
         static constexpr size_t size = 0;
-        static std::string tableName() { return SINCE::tableName(); }
-        static std::string fullyQualifiedName() { return "MIN(" + SINCE::fullyQualifiedName() + ")"; }
+        static constexpr std::string_view tableName() { return SINCE::tableName(); }
+        static constexpr std::string_view fullyQualifiedName() { return minSINCE(); }
         static std::string group(unsigned long long groupSize) {
           std::string sgroupSize = std::to_string(groupSize);
-          return "CAST(" + SINCE::fullyQualifiedName() + "/" + sgroupSize + " AS INT )*" + sgroupSize;
+          return "CAST(" + std::string(SINCE::fullyQualifiedName()) + "/" + sgroupSize + " AS INT )*" + sgroupSize;
         }
       };
 
       struct SEQUENCE_SIZE {
         typedef unsigned int type;
         static constexpr size_t size = 0;
-        static std::string tableName() { return SINCE::tableName(); }
-        static std::string fullyQualifiedName() { return "COUNT(*)"; }
+        static constexpr std::string_view tableName() { return SINCE::tableName(); }
+        static constexpr std::string_view fullyQualifiedName() { return "COUNT(*)"; }
       };
 
       struct MIN_SINCE {
         typedef cond::Time_t type;
         static constexpr size_t size = 0;
-        static std::string tableName() { return SINCE::tableName(); }
-        static std::string fullyQualifiedName() { return "MIN(" + SINCE::fullyQualifiedName() + ")"; }
+        static constexpr std::string_view tableName() { return SINCE::tableName(); }
+        static constexpr std::string_view fullyQualifiedName() { return minSINCE(); }
       };
 
       struct MAX_SINCE {
         typedef cond::Time_t type;
         static constexpr size_t size = 0;
-        static std::string tableName() { return SINCE::tableName(); }
-        static std::string fullyQualifiedName() { return "MAX(" + SINCE::fullyQualifiedName() + ")"; }
+        static constexpr std::string_view tableName() { return SINCE::tableName(); }
+        static constexpr std::string_view fullyQualifiedName() { return maxSINCE(); }
       };
 
       class Table : public IIOVTable {
