@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <iostream>
 #include <memory>
 #include <numeric>
@@ -23,6 +24,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
+// #include "FWCore/Framework/interface/RunCache.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -46,8 +48,18 @@
  */
 
 // #define GPU_DEBUG
+// struct that holds two maps for detIds of the OT modules
+struct DetIdMaps {
+  DetIdMaps() : detIdToOTModuleId_(), detIdIsUsedOTModule_() {}
 
-class PixelTrackProducerFromSoAAlpaka : public edm::global::EDProducer<> {
+  // map from the detId of OT modules to the moduleId among the used OT modules
+  // (starting from 0 for first module of first OT layer)
+  std::map<uint32_t, uint32_t> detIdToOTModuleId_;
+  // map from detId to bool if used as OT extension
+  std::map<uint32_t, bool> detIdIsUsedOTModule_;
+};
+
+class PixelTrackProducerFromSoAAlpaka : public edm::global::EDProducer<edm::RunCache<DetIdMaps>> {
   using TrackSoAHost = reco::TracksHost;
   using HMSstorage = std::vector<uint32_t>;
   using IndToEdm = std::vector<uint32_t>;
@@ -58,6 +70,8 @@ public:
   ~PixelTrackProducerFromSoAAlpaka() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  std::shared_ptr<DetIdMaps> globalBeginRun(edm::Run const &, edm::EventSetup const &) const override;
+  void globalEndRun(edm::Run const &, edm::EventSetup const &) const override {};
 
 private:
   void produce(edm::StreamID streamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const override;
@@ -67,11 +81,13 @@ private:
   const edm::EDGetTokenT<TrackSoAHost> trackSoAToken_;
   const edm::EDGetTokenT<SiPixelRecHitCollectionNew> pixelRecHitsToken_;
   edm::EDGetTokenT<Phase2TrackerRecHit1DCollectionNew> otRecHitsToken_;
-  const edm::EDGetTokenT<HMSstorage> hmsToken_;
+  const edm::EDGetTokenT<HMSstorage> pixelHMSToken_;
+  edm::EDGetTokenT<HMSstorage> otHMSToken_;
   // Event Setup tokens
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> idealMagneticFieldToken_;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
-  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
+  // const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryTokenRun_;
 
   int32_t const minNumberOfHits_;
   pixelTrack::Quality const minQuality_;
@@ -83,10 +99,11 @@ PixelTrackProducerFromSoAAlpaka::PixelTrackProducerFromSoAAlpaka(const edm::Para
       trackSoAToken_(consumes(iConfig.getParameter<edm::InputTag>("trackSrc"))),
       pixelRecHitsToken_(
           consumes<SiPixelRecHitCollectionNew>(iConfig.getParameter<edm::InputTag>("pixelRecHitLegacySrc"))),
-      hmsToken_(consumes<HMSstorage>(iConfig.getParameter<edm::InputTag>("pixelRecHitLegacySrc"))),
+      pixelHMSToken_(consumes<HMSstorage>(iConfig.getParameter<edm::InputTag>("pixelRecHitLegacySrc"))),
       idealMagneticFieldToken_(esConsumes()),
       trackerTopologyToken_(esConsumes()),
-      trackerGeometryToken_(esConsumes()),
+      // trackerGeometryToken_(esConsumes()),
+      trackerGeometryTokenRun_(esConsumes<edm::Transition::BeginRun>()),
       minNumberOfHits_(iConfig.getParameter<int>("minNumberOfHits")),
       minQuality_(pixelTrack::qualityByName(iConfig.getParameter<std::string>("minQuality"))),
       useOTExtension_(iConfig.getParameter<bool>("useOTExtension")) {
@@ -110,7 +127,43 @@ PixelTrackProducerFromSoAAlpaka::PixelTrackProducerFromSoAAlpaka(const edm::Para
   if (useOTExtension_) {
     otRecHitsToken_ =
         consumes<Phase2TrackerRecHit1DCollectionNew>(iConfig.getParameter<edm::InputTag>("outerTrackerRecHitSrc"));
+    otHMSToken_ = consumes<HMSstorage>(iConfig.getParameter<edm::InputTag>("outerTrackerRecHitSoAConverterSrc"));
   }
+}
+
+std::shared_ptr<DetIdMaps> PixelTrackProducerFromSoAAlpaka::globalBeginRun(const edm::Run &iRun,
+                                                                           const edm::EventSetup &iSetup) const {
+  // make the maps object
+  auto detIdMaps = std::make_shared<DetIdMaps>();
+
+  // if OT RecHits are used in PixelTracks, fill the detIdToOTModuleId_ map
+  if (useOTExtension_) {
+    // get track geometry
+    const auto &trackerGeometry = &iSetup.getData(trackerGeometryTokenRun_);
+
+    // function to check if given module is used as OT for CA
+    auto isPinPSinOTBarrel = [&](DetId detId) {
+      // Select only P-hits from the OT barrel
+      return (trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP &&
+              detId.subdetId() == StripSubdetector::TOB);
+    };
+
+    // loop over all modules and fill the map detIdToOTModuleId_
+    auto const &detUnits = trackerGeometry->detUnits();
+    for (uint32_t otModuleId{0}; auto &detUnit : detUnits) {
+      DetId detId(detUnit->geographicalId());
+      // check if the module is used for OT extension
+      bool isUsedOTModule = isPinPSinOTBarrel(detId);
+      detIdMaps->detIdIsUsedOTModule_[detUnit->geographicalId()] = isUsedOTModule;
+      if (isUsedOTModule) {
+        // save the module index among the extension modules
+        detIdMaps->detIdToOTModuleId_[detUnit->geographicalId()] = otModuleId;
+        otModuleId++;
+      }
+    }
+  }
+
+  return detIdMaps;
 }
 
 void PixelTrackProducerFromSoAAlpaka::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
@@ -119,6 +172,7 @@ void PixelTrackProducerFromSoAAlpaka::fillDescriptions(edm::ConfigurationDescrip
   desc.add<edm::InputTag>("trackSrc", edm::InputTag("pixelTracksAlpaka"));
   desc.add<edm::InputTag>("pixelRecHitLegacySrc", edm::InputTag("siPixelRecHitsPreSplittingLegacy"));
   desc.add<edm::InputTag>("outerTrackerRecHitSrc", edm::InputTag("hltSiPhase2RecHits"));
+  desc.add<edm::InputTag>("outerTrackerRecHitSoAConverterSrc", edm::InputTag("phase2OTRecHitsSoAConverter"));
   desc.add<int>("minNumberOfHits", 0);
   desc.add<std::string>("minQuality", "loose");
   desc.add<bool>("useOTExtension", false);
@@ -151,16 +205,19 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
   // prepare container for legacy tracks
   pixeltrackfitting::TracksWithRecHits tracks;
 
-  // get trackerTopology and trackerGeometry
+  // get trackerTopology
   auto const &trackerTopology = iSetup.getData(trackerTopologyToken_);
-  const auto &trackerGeometry = &iSetup.getData(trackerGeometryToken_);
+
+  // get the maps for the detId of the OT modules
+  auto const &detIdIsUsedOTModule = runCache(iEvent.getRun().index())->detIdIsUsedOTModule_;
+  auto const &detIdToOTModuleId = runCache(iEvent.getRun().index())->detIdToOTModuleId_;
 
   // get beamspot
   const auto &bsh = iEvent.get(beamSpotToken_);
   GlobalPoint bs(bsh.x0(), bsh.y0(), bsh.z0());
 
   // get the module's starting indices in the hit collection
-  auto const &hitsModuleStart = iEvent.get(hmsToken_);
+  auto const &pixelHitsModuleStart = iEvent.get(pixelHMSToken_);
 
   // get Pixel RecHits
   auto const &pixelRecHitsDSV = iEvent.get(pixelRecHitsToken_);
@@ -190,92 +247,38 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
     assert(clus.isPixel());
 
     // get hit identifier as (hit offset of the module) + (hit index in this module)
-    auto const idx = hitsModuleStart[detI] + clus.pixelCluster().originalId();
-
-    if (idx >= hitmap.size())
-      hitmap.resize(idx + 256, nullptr);  // only in case of hit overflow in one module
+    auto const idx = pixelHitsModuleStart[detI] + clus.pixelCluster().originalId();
 
     assert(nullptr == hitmap[idx]);
-    std::cout << "Filling hitmap at position " << idx << " with a pixel hit." << std::endl;
+    // std::cout << "Filling hitmap at position " << idx << " with a pixel hit." << std::endl;
     hitmap[idx] = &pixelHit;
   }
-
-  // function to select only P-hits from the OT barrel
-  auto isPinPSinOTBarrel = [&](DetId detId) {
-    return (trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP &&
-            detId.subdetId() == StripSubdetector::TOB);
-  };
 
   // if OT RecHits are used in PixelTracks, fill the hitmap also with those
   if (useOTExtension_) {
     // The RecHits in the SoA are ordered according to the detUnit->index()
-    // of the respective OT module. For this reason, in order to infer the
-    // hit position in the SoA, we need to know which  modules are there and
-    // how many hits each module has.
-    // We use:
-    //   - detIdToIndex: map the detId to detUnit->index()
-    //     (NOTE: technically, we wouldn't need the detUnit at all if the order
-    //     of detIds and detUnit->index is identical, to be checked)
-    //   - p_modulesInPSInOTBarrel: set of detUnit->index() of considered modules
-    //     (used for finding the "moduleIdOT", position of the module in the SoA)
-    //   - moduleStartOT: map from moduleIdOT to position of first RecHit of that
-    //     layer in the RecHit SoA
+    // of the respective OT module. For this reason, we need the map from the
+    // detId to the moduleId among all used OT modules. This otModuleId corresponds
+    // to the module's position in the otHitsModuleStart that we get from the event.
 
-    auto const &detUnits = trackerGeometry->detUnits();
-    std::map<uint32_t, uint16_t> detIdToIndex;
-    std::set<int> p_modulesInPSInOTBarrel;
-
-    // fill detIdToIndex map and p_modulesInPSInOTBarrel set of modules
-    for (auto &detUnit : detUnits) {
-      DetId detId(detUnit->geographicalId());
-      if (isPinPSinOTBarrel(detId)) {
-        detIdToIndex[detUnit->geographicalId()] = detUnit->index();
-        p_modulesInPSInOTBarrel.insert(detUnit->index());
-      }
-    }
-
-    // function to get the "moduleId" of the OT modules
-    // (NOT a general CMSSW Id but just the index of the OT module in moduleStartOT)
-    auto getModuleIdOT = [&](DetId detId) {
-      int index = detIdToIndex[detId];
-      auto it = p_modulesInPSInOTBarrel.find(index);
-      if (it != p_modulesInPSInOTBarrel.end()) {
-        return std::distance(p_modulesInPSInOTBarrel.begin(), it);
-      } else {
-        assert(0);
-//        return -1L;
-      }
-    };
-
-    // count hits in all considered OT modules and fill them in moduleStartOT
-    // at the position of the subsequent module
-    std::vector<int> moduleStartOT;
-    moduleStartOT.resize(p_modulesInPSInOTBarrel.size() + 1, 0);
-    for (auto const &detSet : *otRecHitsDSV) {
-      auto detId = detSet.detId();
-      if (isPinPSinOTBarrel(DetId(detId))) {
-        int moduleId = getModuleIdOT(detId);
-        if (moduleId != -1) {
-          moduleStartOT[moduleId + 1] = detSet.size();
-        } else {
-          assert(0);
-        }
-      }
-    }
-
-    // accumulate the number of hits starting from the number of pixel hits
-    // to finalize the actual positions of the layers in the RecHit SoA
-    moduleStartOT[0] = nPixelHits;
-    std::partial_sum(moduleStartOT.cbegin(), moduleStartOT.cend(), moduleStartOT.begin());
+    // get the module's starting indices in the hit collection
+    auto const &otHitsModuleStart = iEvent.get(otHMSToken_);
 
     // perform the exact same loop of how the SoA is initially filled with OT hits
-    // and get the index by counting the hits (starting from nPixelHits)
+    // and get the index by counting the hits (starting from the correpondign HitStartModule)
     for (auto const &detSet : *otRecHitsDSV) {
       auto detId = detSet.detId();
-      if (isPinPSinOTBarrel(DetId(detId))) {
-        for (int idx = moduleStartOT[getModuleIdOT(detId)]; auto const &recHit : detSet) {
+
+      // check if module is used in extension
+      if (detIdIsUsedOTModule.find(detId)->second) {
+        // get the corresponding otModuleId
+        auto otModuleId = detIdToOTModuleId.find(detId)->second;
+
+        // loop over the RecHits of the module and fill the hitmap
+        for (int idx = otHitsModuleStart[otModuleId]; auto const &recHit : detSet) {
+          assert(nullptr == hitmap[idx]);
+          // std::cout << "Filling hitmap at position " << idx << " with an OT hit." << std::endl;
           hitmap[idx] = &recHit;
-          std::cout << "Filling hitmap at position " << idx << " with an OT hit with index " << getModuleIdOT(detId) << std::endl;
           idx++;
         }
       }
@@ -336,7 +339,7 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
       hits[iHit - start] = hitmap[hitIdxs[iHit]];
 
 //#ifdef CA_DEBUG
-#if 1
+#if 0
     std::cout << "track soa : " << it << " with hits: ";
     for (auto iHit = start; iHit < end; ++iHit)
       std::cout << hitIdxs[iHit] << " - ";
