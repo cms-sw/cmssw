@@ -45,13 +45,7 @@ to this file that go beyond the obvious cut and paste type of edits.
   reason to do otherwise, the recommended choice is following the pattern of
   Pre transitions forward and Post transitions in reverse. If you make another
   choice, please document your reasoning with comments in the code.
-  3. The signal needs to be added to either connectGlobals or connectLocals
-  in the ActivityRegistry.cc file, depending on whether a signal is seen
-  by children or parents when there are SubProcesses. For example, source
-  signals are only generated in the top level process and should be seen
-  by all child SubProcesses so they are in connectGlobals. Most signals
-  however belong in connectLocals. It does not really matter in jobs
-  without at least one SubProcess.
+  3. Each signal needs to be added to the connect function.
   4. Each signal also needs to be added in copySlotsFrom in
   ActivityRegistry.cc. Whether it uses copySlotsToFrom or
   copySlotsToFromReverse depends on the same ordering issue as the connect
@@ -1135,23 +1129,12 @@ namespace edm {
     ///forwards our signals to slots connected to iOther
     void connect(ActivityRegistry& iOther);
 
-    ///forwards our subprocess independent signals to slots connected to iOther
-    ///forwards iOther's subprocess dependent signals to slots connected to this
-    void connectToSubProcess(ActivityRegistry& iOther);
-
     ///copy the slots from iOther and connect them directly to our own
     /// this allows us to 'forward' signals more efficiently,
     /// BUT if iOther gains new slots after this call, we will not see them
     /// This is also careful to keep the order of the slots proper
     /// for services.
     void copySlotsFrom(ActivityRegistry& iOther);
-
-  private:
-    // forwards subprocess independent signals to slots connected to iOther
-    void connectGlobals(ActivityRegistry& iOther);
-
-    // forwards subprocess dependent signals to slots connected to iOther
-    void connectLocals(ActivityRegistry& iOther);
   };
 }  // namespace edm
 #undef AR_WATCH_USING_METHOD
