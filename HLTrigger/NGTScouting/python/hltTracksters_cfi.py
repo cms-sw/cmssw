@@ -6,7 +6,7 @@ hltUpgradeNanoTask = cms.Task(nanoMetadata)
 
 
 ### Tracksters
-trackstersTable = cms.EDProducer(
+hltTrackstersTable = cms.EDProducer(
     "TracksterCollectionTableProducer",
     src=cms.InputTag("hltTiclTrackstersMerge"),
     cut=cms.string(""),
@@ -35,10 +35,10 @@ trackstersTable = cms.EDProducer(
 )
 
 ### Tracksters Associators
-trackstersAssociationOneToManyTable = cms.EDProducer(
+hltTrackstersAssociationOneToManyTable = cms.EDProducer(
     "TracksterTracksterEnergyScoreFlatTableProducer",
     src=cms.InputTag(
-        "allTrackstersToSimTrackstersAssociationsByHits:ticlSimTrackstersToticlTrackstersMerge"
+        "hltAllTrackstersToSimTrackstersAssociationsByHits:hltTiclSimTrackstersTohltTiclTrackstersMerge"
     ),
     name=cms.string("SimTS2TSMergeByHits"),
     doc=cms.string("Association between SimTracksters and tracksterMerge, by hits."),
@@ -62,7 +62,7 @@ trackstersAssociationOneToManyTable = cms.EDProducer(
 )
 
 ### Tracksters Associators
-simCl2CPOneToOneFlatTable = cms.EDProducer(
+hltSimCl2CPOneToOneFlatTable = cms.EDProducer(
     "SimClusterCaloParticleFractionFlatTableProducer",
     src=cms.InputTag("SimClusterToCaloParticleAssociation:simClusterToCaloParticleMap"),
     name=cms.string("SimCl2CPWithFraction"),
@@ -72,12 +72,3 @@ simCl2CPOneToOneFlatTable = cms.EDProducer(
         fraction=Var("fraction", "float", doc="Fraction of linked CaloParticle."),
     ),
 )
-hltUpgradeNanoTask.add(
-    trackstersTable, trackstersAssociationOneToManyTable, simCl2CPOneToOneFlatTable
-)
-
-hltUpgradeNanoSequence = cms.Sequence(hltUpgradeNanoTask)
-
-
-def addAssociators(process):
-    return process
