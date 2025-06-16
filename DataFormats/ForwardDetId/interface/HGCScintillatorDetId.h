@@ -163,7 +163,7 @@ public:
   static constexpr int kHGCalTypeOffset = 26;
   static constexpr int kHGCalTypeMask = 0x3;
   static constexpr int kHGCalTypeMask0 = 0xF3FFFFFF;
-  static constexpr int kHGCalPositionMask = 0xF2FFFFFF;
+  static constexpr uint32_t kHGCalPositionMask = 0xF13FFFFF;
 
   constexpr int iradiusTriggerAbs() const {
     if (trigger())

@@ -102,7 +102,7 @@ if __name__ == '__main__':
             17034.0,    # RelValTTbar_14TeV		2025 PU = Run3_Flat55To75_PoissonOOTPU
             14034.0,    # RelValTTbar_14TeV             Run3_2023_FastSim
             14234.0,    # RelValTTbar_14TeV             Run3_2023_FastSim   PU = Run3_Flat55To75_PoissonOOTPU
-            2500.201,   # RelValTTbar_14TeV             NanoAOD from existing MINI
+            2500.301,   # RelValTTbar_14TeV             NanoAOD from existing MINI
 
             ###### pp Data
             ## Run3
@@ -151,6 +151,20 @@ if __name__ == '__main__':
         'jetmc': [5.1, 13, 15, 25, 38, 39], #MC
         'metmc' : [5.1, 15, 25, 37, 38, 39], #MC
         'muonmc' : [5.1, 124.4, 124.5, 20, 21, 22, 23, 25, 30], #MC
+
+        'ph2_hlt' : [29634.75,    # HLT phase-2 timing menu
+                     29634.751,   # HLT phase-2 timing menu Alpaka variant
+                     29634.752,   # HLT phase-2 timing menu ticl_v5 variant
+                     29634.753,   # HLT phase-2 timing menu Alpaka, single tracking iteration variant
+                     29634.754,   # HLT phase-2 timing menu Alpaka, single tracking iteration, LST building variant
+                     29634.755,   # HLT phase-2 timing menu Alpaka, LST building variant
+                     29634.756,   # HLT phase-2 timing menu trimmed tracking
+                     29634.7561,  # HLT phase-2 timing menu Alpaka, trimmed tracking
+                     29634.7562,  # HLT phase-2 timing menu Alpaka, trimmed tracking, single tracking iteration variant
+                     29634.759,   # HLT phase-2 timing menu Alpaka, single tracking iteration, LST seeding + CKF building variant
+                     29634.757,   # HLT phase-2 timing menu, with NANO:@Phase2HLT
+                     29634.77,    # HLT phase-2 NGT Scouting menu
+                     29634.771]   # HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting
     }
 
     predefinedSet['limited'] = (

@@ -5,6 +5,7 @@
 #include "L1Trigger/TrackTrigger/interface/Setup.h"
 #include "L1Trigger/TrackerDTC/interface/LayerEncoding.h"
 #include "L1Trigger/TrackerDTC/interface/Stub.h"
+#include "L1Trigger/TrackerTFP/interface/DataFormats.h"
 
 #include <vector>
 #include <deque>
@@ -23,12 +24,12 @@ namespace trackerDTC {
     typedef std::vector<Stubss> Stubsss;
 
   public:
-    DTC(const edm::ParameterSet& iConfig,
-        const tt::Setup* setup,
+    DTC(const tt::Setup* setup,
+        const trackerTFP::DataFormats* dataFormats,
         const LayerEncoding* layerEncoding,
         int dtcId,
         const std::vector<std::vector<TTStubRef>>& stubsDTC);
-    ~DTC() {}
+    ~DTC() = default;
     // board level routing in two steps and products filling
     void produce(TTDTC& accepted, TTDTC& lost);
 
@@ -43,8 +44,8 @@ namespace trackerDTC {
     Stub* pop_front(Stubs& stubs);
     // helper class to store configurations
     const tt::Setup* setup_;
-    // enables emulation of truncation
-    bool enableTruncation_;
+    // provides dataformats
+    const trackerTFP::DataFormats* dataFormats_;
     // outer tracker detector region [0-8]
     int region_;
     // outer tracker dtc id in region [0-23]

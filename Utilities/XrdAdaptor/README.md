@@ -6,6 +6,31 @@ The `XrdAdaptor` package is the CMSSW implementation of CMS' AAA infrastructure.
 * Recovery from some errors via re-tries
 * Use of multiple XRootD sources (described further [here](doc/multisource_algorithm_design.md))
 
+The `XrdAdaptor` behavior can be simulated to some extent with local files with
+```py
+# application-only cache hint implies similar edm::storage::Storage::prefetch()
+# behavior as in XrdFile::prefetch()
+process.add_(cms.Service("SiteLocalConfigService",
+    overrideSourceCacheHintDir = cms.untracked.string("application-only")
+))
+
+# Add e.g. 10-millisecond latency to singular and vector reads
+# If the job reads local files via TFile::Open() in addition to PoolSource,
+# you want to exclude those from the latency addition
+process.add_(cms.Service("AdaptorConfig",
+    storageProxies = cms.untracked.VPSet(
+        cms.PSet(
+            type = cms.untracked.string("StorageAddLatencyProxy"),
+            read = cms.untracked.uint32(10000),  # microseconds
+            readv = cms.untracked.uint32(10000), # microseconds
+            exclude = cms.untracked.vstring(...),
+        )
+    )
+))
+```
+The `StorageAddLatencyProxy` is described in [`Utilities/StorageFactory/README.md`](../../Utilities/StorageFactory/README.md). Another useful component in this context is `StorageTracerProxy` (e.g. to find out the other-than-`PoolSource`-accessed files mentioned above)
+
+
 ## Short description of components
 
 ### `ClientRequest`

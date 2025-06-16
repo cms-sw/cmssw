@@ -1,11 +1,11 @@
 ###############################################################################
 # Way to use this:
 #   cmsRun runHGC1_cfg.py geometry=V18
-#   Options for geometry V17Shift, V18, V19
+#   Options for geometry V17, V17Shift, V18, V19
 # 
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
-import os, sys, imp, re
+import os, sys, importlib, re
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 ####################################################################
@@ -15,7 +15,7 @@ options.register('geometry',
                  "V18",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: V17Shift, V18, V19")
+                  "geometry of operations: V17, V17Shift, V18, V19")
 
 ### get and parse the command line arguments
  
@@ -24,7 +24,10 @@ print(options)
 
 ####################################################################
 
-if (options.geometry == "V17Shift"):
+if (options.geometry == "V17"):
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process("PROD",Phase2C17I13M9)
+elif (options.geometry == "V17Shift"):
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     process = cms.Process("PROD",Phase2C17I13M9)
 else:
@@ -80,7 +83,7 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
         MaxE   = cms.double(100.00)
     ),
     Verbosity       = cms.untracked.int32(0),
-    AddAntiParticle = cms.bool(False)
+    AddAntiParticle = cms.bool(True)
 )
 
 process.output = cms.OutputModule("PoolOutputModule",

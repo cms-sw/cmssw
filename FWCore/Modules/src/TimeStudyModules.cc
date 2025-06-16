@@ -215,7 +215,7 @@ namespace timestudy {
     void asyncWork(
         edm::StreamID id, edm::WaitingTaskWithArenaHolder iTask, long initTime, long workTime, long finishTime) {
       waitTimesPerStream_[id.value()] = {{initTime, workTime, finishTime}};
-      waitingTaskPerStream_[id.value()] = std::move(iTask);
+      waitingTaskPerStream_.at(id.value()) = std::move(iTask);
       {
         std::lock_guard<std::mutex> lk{mutex_};
         waitingStreams_.push_back(id.value());
@@ -231,13 +231,15 @@ namespace timestudy {
       if (waitingStreams_.size() >= nWaitingEvents_) {
         return true;
       }
-      //every running stream is now waiting
-      return waitingStreams_.size() == activeStreams_;
+      //every running stream is now waiting but guard against spurious wakeups
+      return !waitingStreams_.empty() and waitingStreams_.size() == activeStreams_;
     }
 
     void threadWork() {
       while (not stopProcessing_.load()) {
         std::vector<int> streamsToProcess;
+        // preallocate to fixed size so there are no resizes
+        streamsToProcess.reserve(waitTimesPerStream_.size());
         {
           std::unique_lock<std::mutex> lk(mutex_);
           condition_.wait(lk, [this]() { return readyToDoSomething(); });
@@ -266,6 +268,7 @@ namespace timestudy {
         }
       }
       waitingTaskPerStream_.clear();
+      waitingTaskPerStream_.resize(waitingTaskPerStream_.capacity());
     }
     const unsigned int nWaitingEvents_;
     std::unique_ptr<std::thread> serverThread_;

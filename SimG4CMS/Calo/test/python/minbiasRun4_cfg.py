@@ -2,11 +2,11 @@
 # Way to use this:
 #   cmsRun testHGCalParametersDDD_cfg.py type=V18
 #
-#   Options for type V16, V17, V17Shift, V18
+#   Options for type V16, V17, V17Shift, V18, V19
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
-import os, sys, imp, re
+import os, sys, importlib, re
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 ####################################################################
@@ -16,23 +16,32 @@ options.register('type',
                  "V18",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "type of operations: V16, V17, V17Shift, V18")
+                  "type of operations: V16, V17, V17Shift, V18, V19")
 
 ### get and parse the command line arguments
 options.parseArguments()
 print(options)
 
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-
-process = cms.Process("HGCalParametersTest",Phase2C17I13M9)
 
 if (options.type == "V18"):
+    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+    process = cms.Process("HGCalParametersTest",Phase2C22I13M9)
+    geomFile = "Geometry.HGCalCommonData.testHGCal" + options.type + "Reco_cff"
+elif (options.type == "V19"):
+    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+    process = cms.Process("HGCalParametersTest",Phase2C22I13M9)
     geomFile = "Geometry.HGCalCommonData.testHGCal" + options.type + "Reco_cff"
 elif (options.type == "V17Shift"):
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process("HGCalParametersTest",Phase2C17I13M9)
     geomFile = "Geometry.HGCalCommonData.testHGCal" + options.type + "Reco_cff"
 elif (options.type == "V17"):
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process("HGCalParametersTest",Phase2C17I13M9)
     geomFile = "Configuration.Geometry.GeometryExtendedRun4D110Reco_cff"
 else:
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process("HGCalParametersTest",Phase2C17I13M9)
     geomFile = "Configuration.Geometry.GeometryExtendedRun4D100Reco_cff"
 
 outFile = "minbias" + options.type + ".root"

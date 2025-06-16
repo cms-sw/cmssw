@@ -88,7 +88,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       // First the mother
       std::string mother = parentName + placementIndexTags[m] + waferTag + tags[k];
       std::vector<std::pair<double, double>> wxy =
-          HGCalWaferMask::waferXY(partialTypes[k], placementIndex[m], waferSize, 0.0, 0.0, 0.0, (waferMode > 0));
+          HGCalWaferMask::waferXY(partialTypes[k], placementIndex[m], waferSize, 0.0, 0.0, 0.0, (waferMode > 0), true);
       std::vector<double> xM, yM;
       for (unsigned int i = 0; i < (wxy.size() - 1); ++i) {
         xM.emplace_back(wxy[i].first);

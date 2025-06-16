@@ -62,7 +62,6 @@ from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 _phase2_hltassociation = hltassociation.copyAndExclude([
     egammaSelectors,
     ExoticaValidationProdSeq,
-    hltMultiTrackValidationGsfTracks
 ])
 
 # Add hltTrackerphase2ValidationSource to the sequence

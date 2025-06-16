@@ -70,7 +70,6 @@ namespace edm {
       void postEndJob();
     };
 
-    inline bool isProcessWideService(CPU const *) { return true; }
   }  // namespace service
 }  // namespace edm
 

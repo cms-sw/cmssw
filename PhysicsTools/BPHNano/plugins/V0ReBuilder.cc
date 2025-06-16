@@ -143,6 +143,9 @@ void V0ReBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup const 
     cand.addUserFloat("sv_chi2", fitter.chi2());
     cand.addUserFloat("sv_prob", fitter.prob());
     cand.addUserFloat("fitted_mass", fitter.fitted_candidate().mass());
+    cand.addUserFloat("fitted_pt", fitter.fitted_p4().pt());
+    cand.addUserFloat("fitted_eta", fitter.fitted_p4().eta());
+    cand.addUserFloat("fitted_phi", fitter.fitted_p4().phi());
     cand.addUserFloat("massErr", sqrt(fitter.fitted_candidate().kinematicParametersError().matrix()(6, 6)));
     cand.addUserFloat("cos_theta_2D", bph::cos_theta_2D(fitter, *beamspot, cand.p4()));
     cand.addUserFloat("fitted_cos_theta_2D", bph::cos_theta_2D(fitter, *beamspot, fit_p4));
@@ -152,6 +155,19 @@ void V0ReBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup const 
 
     if (!post_vtx_selection_(cand))
       continue;
+
+    const reco::BeamSpot &beamSpot = *beamspot;
+    TrajectoryStateClosestToPoint theDCAXBS = fitter.fitted_candidate_ttrk().trajectoryStateClosestToPoint(
+        GlobalPoint(beamSpot.position().x(), beamSpot.position().y(), beamSpot.position().z()));
+    double DCAB0BS = -99.;
+    double DCAB0BSErr = -99.;
+
+    if (theDCAXBS.isValid() == true) {
+      DCAB0BS = theDCAXBS.perigeeParameters().transverseImpactParameter();
+      DCAB0BSErr = theDCAXBS.perigeeError().transverseImpactParameterError();
+    }
+    cand.addUserFloat("dca", DCAB0BS);
+    cand.addUserFloat("dcaErr", DCAB0BSErr);
 
     cand.addUserFloat("vtx_x", cand.vx());
     cand.addUserFloat("vtx_y", cand.vy());
@@ -187,7 +203,8 @@ void V0ReBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup const 
 
     cand.addUserInt("trk1_idx", trk1_matched_ref.key());
     cand.addUserInt("trk2_idx", trk2_matched_ref.key());
-
+    cand.addUserInt("fit_trk1_charge", (int)v0daughter1_ttrack.charge());
+    cand.addUserInt("fit_trk2_charge", (int)v0daughter2_ttrack.charge());
     // save
     ret_val->push_back(cand);
     auto V0TT = fitter.fitted_candidate_ttrk();

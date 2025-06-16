@@ -541,8 +541,8 @@ void testGlobalFilter::testTransitions(std::shared_ptr<T> iMod, Expectations con
   oneapi::tbb::global_control control(oneapi::tbb::global_control::max_allowed_parallelism, 1);
   oneapi::tbb::task_arena arena(1);
   arena.execute([&]() {
-    edm::maker::ModuleHolderT<edm::global::EDFilterBase> h(iMod, nullptr);
-    h.preallocate(edm::PreallocationConfiguration{});
+    edm::maker::ModuleHolderT<edm::global::EDFilterBase> h(iMod);
+    h.finishModuleInitialization(iMod->moduleDescription(), edm::PreallocationConfiguration{}, nullptr);
 
     edm::WorkerT<edm::global::EDFilterBase> wOther{iMod, m_desc, nullptr};
     edm::WorkerT<edm::global::EDFilterBase> wGlobalLumi{iMod, m_desc, nullptr};

@@ -89,8 +89,7 @@ namespace edm::storage {
         mode |= IOFlags::OpenUnbuffered;
 
       std::string fullpath(proto + ":" + path);
-      auto file = std::make_unique<XrdFile>(fullpath, mode);
-      return f->wrapNonLocalFile(std::move(file), proto, std::string(), mode);
+      return std::make_unique<XrdFile>(fullpath, mode);
     }
 
     void stagein(const std::string &proto, const std::string &path, const AuxSettings &aux) const override {
@@ -124,6 +123,8 @@ namespace edm::storage {
         *size = stat->GetSize();
       return true;
     }
+
+    UseLocalFile usesLocalFile() const override { return UseLocalFile::kNo; }
 
     void setDebugLevel(unsigned int level) const {
       auto oldLevel = m_lastDebugLevel.load();

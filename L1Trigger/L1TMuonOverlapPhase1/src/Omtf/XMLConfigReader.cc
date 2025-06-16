@@ -7,6 +7,8 @@
 #include "CondFormats/L1TObjects/interface/L1TMuonOverlapParams.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "Utilities/Xerces/interface/Xerces.h"
+
 #include <iostream>
 #include <cmath>
 #include <algorithm>
@@ -42,9 +44,9 @@ inline XMLCh *_toDOMS(std::string temp) {
 }
 ////////////////////////////////////
 ////////////////////////////////////
-XMLConfigReader::XMLConfigReader() {}
+XMLConfigReader::XMLConfigReader() { cms::concurrency::xercesInitialize(); }
 
-XMLConfigReader::~XMLConfigReader() {}
+XMLConfigReader::~XMLConfigReader() { cms::concurrency::xercesTerminate(); }
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
 void XMLConfigReader::readLUTs(std::vector<l1t::LUT *> luts,
@@ -207,7 +209,6 @@ unsigned int XMLConfigReader::getPatternsVersion() const {
     return 0;
 
   unsigned int version = 0;
-  XMLPlatformUtils::Initialize();
   {
     XercesDOMParser parser;
     parser.setValidationScheme(XercesDOMParser::Val_Auto);
@@ -227,7 +228,6 @@ unsigned int XMLConfigReader::getPatternsVersion() const {
     XMLString::release(&xmlVersion);
     parser.resetDocumentPool();
   }
-  XMLPlatformUtils::Terminate();
 
   return version;
 }
@@ -240,8 +240,6 @@ GoldenPatternVec<GoldenPatternType> XMLConfigReader::readPatterns(const L1TMuonO
                                                                   bool resetNumbering) {
   GoldenPatternVec<GoldenPatternType> aGPs;
   aGPs.clear();
-
-  XMLPlatformUtils::Initialize();
 
   if (resetNumbering) {
     iGPNumber = 0;
@@ -304,8 +302,6 @@ GoldenPatternVec<GoldenPatternType> XMLConfigReader::readPatterns(const L1TMuonO
   XMLString::release(&xmliPt[1]);
   XMLString::release(&xmliPt[2]);
   XMLString::release(&xmliPt[3]);
-
-  XMLPlatformUtils::Terminate();
 
   return aGPs;
 }
@@ -469,7 +465,6 @@ std::vector<std::vector<int> > XMLConfigReader::readEvent(unsigned int iEvent, u
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
 void XMLConfigReader::readConfig(L1TMuonOverlapParams *aConfig) const {
-  XMLPlatformUtils::Initialize();
   {
     XercesDOMParser parser;
     parser.setValidationScheme(XercesDOMParser::Val_Auto);
@@ -763,7 +758,6 @@ void XMLConfigReader::readConfig(L1TMuonOverlapParams *aConfig) const {
     XMLString::release(&xmlnGoldenPatterns);
     XMLString::release(&xmlConnectionMap);
   }
-  XMLPlatformUtils::Terminate();
 }
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////

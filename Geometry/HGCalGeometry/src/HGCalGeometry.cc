@@ -204,7 +204,8 @@ bool HGCalGeometry::present(const DetId& detId) const {
 }
 
 GlobalPoint HGCalGeometry::getPosition(const DetId& detid, bool debug) const {
-  return getPosition(detid, false, debug);
+  bool cog = m_topology.dddConstants().waferHexagon8Fine() ? true : false;
+  return getPosition(detid, cog, debug);
 }
 
 GlobalPoint HGCalGeometry::getPosition(const DetId& detid, bool cog, bool debug) const {

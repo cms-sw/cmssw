@@ -99,8 +99,8 @@ namespace {
       std::shared_ptr<SiStripPedestals> last_payload = this->fetchPayload(std::get<1>(lastiov));
       std::shared_ptr<SiStripPedestals> first_payload = this->fetchPayload(std::get<1>(firstiov));
 
-      SiStripPedestalContainer* l_objContainer = new SiStripPedestalContainer(last_payload, lastiov, tagname1);
-      SiStripPedestalContainer* f_objContainer = new SiStripPedestalContainer(first_payload, firstiov, tagname2);
+      SiStripPedestalContainer* l_objContainer = new SiStripPedestalContainer(last_payload, lastiov, tagname2);
+      SiStripPedestalContainer* f_objContainer = new SiStripPedestalContainer(first_payload, firstiov, tagname1);
 
       l_objContainer->compare(f_objContainer);
 

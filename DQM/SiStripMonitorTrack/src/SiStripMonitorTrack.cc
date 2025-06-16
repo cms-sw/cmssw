@@ -731,19 +731,19 @@ void SiStripMonitorTrack::bookSubDetMEs(DQMStore::IBooker& ibooker, std::string_
   theSubDetMEs.nClustersOffTrack->setAxisTitle(axisName);
 
   double xmaximum = 0;
-  if (sname.find("TIB") != std::string::npos) {
+  if (sname.find("TIB") != std::string_view::npos) {
     xmaximum = 40000.0;
     theSubDetMEs.nClustersOffTrack->setAxisRange(0.0, xmaximum, 1);
   }
-  if (sname.find("TOB") != std::string::npos) {
+  if (sname.find("TOB") != std::string_view::npos) {
     xmaximum = 40000.0;
     theSubDetMEs.nClustersOffTrack->setAxisRange(0.0, xmaximum, 1);
   }
-  if (sname.find("TID") != std::string::npos) {
+  if (sname.find("TID") != std::string_view::npos) {
     xmaximum = 10000.0;
     theSubDetMEs.nClustersOffTrack->setAxisRange(0.0, xmaximum, 1);
   }
-  if (sname.find("TEC") != std::string::npos) {
+  if (sname.find("TEC") != std::string_view::npos) {
     xmaximum = 40000.0;
     theSubDetMEs.nClustersOffTrack->setAxisRange(0.0, xmaximum, 1);
   }
@@ -1334,7 +1334,7 @@ SiStripMonitorTrack::Det2MEs SiStripMonitorTrack::findMEs(const TrackerTopology*
 
   std::string layer_id = hidmanager1.getSubdetid(detid, tTopo, false);
   std::string ring_id = hidmanager1.getSubdetid(detid, tTopo, true);
-  std::string_view sdet_tag = folderOrganizer_.getSubDetFolderAndTag(detid, tTopo).second;
+  const std::string_view sdet_tag = folderOrganizer_.getSubDetTag(detid, tTopo);
 
   Det2MEs me;
   me.iLayer = nullptr;

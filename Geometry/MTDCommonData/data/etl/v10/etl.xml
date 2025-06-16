@@ -28,7 +28,7 @@
     <Constant name="FrontModerator_thickness" value="20*mm"/>
     <Constant name="BackSupportPlate_thickness" value="5*mm"/>
     <!-- <Constant name="Disc_Rmin" value="315*mm"/> --> <!-- correct value, but not compatible with current modules placement -->
-    <Constant name="Disc_Rmin" value="300*mm"/>
+    <Constant name="Disc_Rmin" value="285*mm"/>
     <Constant name="Disc_Rmax" value="1190*mm"/>
     <Constant name="PatchPanel_Rmin" value="1125*mm"/>
     <Constant name="PatchPanel_Rmax" value="1195*mm"/>
@@ -113,7 +113,7 @@
     <Constant name="ThermalPad_translation_z" value="3.69*mm"/>
     <Constant name="AlN_Base_translation_z" value="2.815*mm"/>
     <Constant name="LairdFilm_translation_z" value="2.025*mm"/>
-    <Constant name="glueLGAD_translation_z" value="1.91*mm"/>
+    <Constant name="glueLGAD_translation_z" value="1.935*mm"/> <!-- changed from 1.91*mm -->
     <Constant name="LGAD_translation_z" value="1.735*mm"/>
     <Constant name="bumpBonds_translation_z" value="1.535*mm"/>
     <Constant name="ETROC_translation_z" value="1.36*mm"/>

@@ -432,6 +432,8 @@ bool HGCalWaferMask::goodCell(int u, int v, int waferType) {
     case (HGCalTypes::WaferLDThree): {
       good = (u * HGCalTypes::edgeWaferLDThree[0] + v * HGCalTypes::edgeWaferLDThree[1] <=
               HGCalTypes::edgeWaferLDThree[2]);
+      if (((u == 1) && (v == 8)) || ((u == 15) && (v == 15)))
+        good = false;
       break;
     }
     case (HGCalTypes::WaferHDTop): {
@@ -1449,7 +1451,8 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(const int& part,
                                                                 const double& offset,
                                                                 const double& xpos,
                                                                 const double& ypos,
-                                                                const bool& v17OrLess) {
+                                                                const bool& v17OrLess,
+                                                                const bool& air) {
   std::vector<std::pair<double, double> > xy;
   // Good for V17 version and uses partial wafer type & placement index
 #ifdef EDM_ML_DEBUG
@@ -1459,6 +1462,11 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(const int& part,
   double c77(HGCalTypes::c77), c88(HGCalTypes::c88);
   double c221(HGCalTypes::c221), c271(HGCalTypes::c271), c611(HGCalTypes::c611);
   double c771(HGCalTypes::c771), c881(HGCalTypes::c881);
+  double offsetAir = 0.0;
+  if ((part == HGCalTypes::WaferHDTop) && air)
+    offsetAir = -1 * offsetAir_;
+  else if ((part == HGCalTypes::WaferHDBottom) && air)
+    offsetAir = offsetAir_;
   if (v17OrLess) {
     c22 = HGCalTypes::c22O;
     c27 = HGCalTypes::c27O;
@@ -1644,17 +1652,17 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(const int& part,
                         offset * cos_60_,
                         -offset * cos_60_,
                         -offset,
-                        0.0,
+                        0.0 + (offsetAir * sin_60_),
                         -offset,
-                        -offset,
-                        0.0,
+                        -offset - (offsetAir * sin_60_),
+                        0.0 - (offsetAir * sin_60_),
                         offset,
+                        offset + (offsetAir * sin_60_),
+                        0.0 + (offsetAir * sin_60_),
+                        offset + (offsetAir * sin_60_),
                         offset,
-                        0.0,
-                        offset,
-                        offset,
-                        0.0,
-                        -offset,
+                        0.0 - (offsetAir * sin_60_),
+                        -offset - (offsetAir * sin_60_),
                         -offset,
                         -offset,
                         -offset / cos_60_,
@@ -1704,18 +1712,18 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(const int& part,
                         offset * sin_60_,
                         offset * sin_60_,
                         0.0,
-                        offset / sin_60_,
-                        offset / tan_60_,
-                        -offset / tan_60_,
-                        -offset / sin_60_,
-                        -offset / tan_60_,
-                        offset / tan_60_,
-                        -offset / sin_60_,
-                        -offset / tan_60_,
-                        offset / tan_60_,
-                        offset / sin_60_,
-                        offset / tan_60_,
-                        -offset / tan_60_,
+                        (offset / sin_60_) + (offsetAir * cos_60_),
+                        (offset / tan_60_) + offsetAir,
+                        (-offset / tan_60_) + (offsetAir * cos_60_),
+                        (-offset / sin_60_) - (offsetAir * cos_60_),
+                        (-offset / tan_60_) - offsetAir,
+                        (offset / tan_60_) - (offsetAir * cos_60_),
+                        (-offset / sin_60_) - (offsetAir * cos_60_),
+                        (-offset / tan_60_) + (offsetAir * cos_60_),
+                        (offset / tan_60_) + offsetAir,
+                        (offset / sin_60_) + (offsetAir * cos_60_),
+                        (offset / tan_60_) - (offsetAir * cos_60_),
+                        (-offset / tan_60_) - offsetAir,
                         offset * tan_60_,
                         0,
                         -offset * tan_60_,

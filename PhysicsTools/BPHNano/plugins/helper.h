@@ -26,6 +26,8 @@
 
 typedef std::vector<reco::TransientTrack> TransientTrackCollection;
 
+using namespace std;
+
 namespace bph {
 
   constexpr float PROT_MASS = 0.938272;
@@ -209,7 +211,13 @@ bm.dxdz()), -1*( (bm.y0()-Bvtx.y()) + (Bvtx.z()-bm.z0()) * bm.dydz()), 0);
                           B.userFloat("fitted_" + dnames[iname] + "_phi"),
                           trk_ptr->eta(),
                           trk_ptr->phi());
-        if (dr > 0 && dr < 0.4)
+        //        if (dr<0.03) {std::cout << dnames[iname] << "_pt="<<  B.userFloat("fitted_" + dnames[iname] + "_pt") <<  " track_pt=" << trk_ptr->pt()  << std::endl;
+        //                      std::cout << "B index = " << B.userInt(dnames[iname] + "_idx") << " track index=" << k_idx << std::endl;
+        //	              std::cout << "track is matched to muon=" << trk_ptr->userInt("isMatchedToMuon") << std::endl;
+        //		      std::cout << "is matched to muon index=" << trk_ptr->userInt("MatchedMuonIdx") << std::endl;
+        //
+        //	}
+        if (dr > 0.03 && dr < 0.4)
           iso[iname] += trk_ptr->pt();
       }
     }

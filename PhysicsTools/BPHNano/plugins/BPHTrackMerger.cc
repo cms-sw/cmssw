@@ -150,13 +150,17 @@ void BPHTrackMerger::produce(edm::StreamID, edm::Event &evt, edm::EventSetup con
 
     // clean tracks wrt to all muons
     int matchedToMuon = 0;
+    int indexToMuon = -1;
+    int mu_idx = -1;
     for (const pat::Muon &imutmp : *muons) {
+      mu_idx++;
       for (unsigned int i = 0; i < imutmp.numberOfSourceCandidatePtrs(); ++i) {
         if (!((imutmp.sourceCandidatePtr(i)).isNonnull() && (imutmp.sourceCandidatePtr(i)).isAvailable()))
           continue;
 
         const edm::Ptr<reco::Candidate> &source = imutmp.sourceCandidatePtr(i);
         if (source.id() == tracks.id() && source.key() == iTrk) {
+          indexToMuon = mu_idx;
           matchedToMuon = 1;
           break;
         }
@@ -195,6 +199,7 @@ void BPHTrackMerger::produce(edm::StreamID, edm::Event &evt, edm::EventSetup con
     pcand.addUserFloat("DCASig", DCASig);
     pcand.addUserFloat("dzTrg", dzTrg);
     pcand.addUserInt("isMatchedToMuon", matchedToMuon);
+    pcand.addUserInt("MatchedMuonIdx", indexToMuon);
     pcand.addUserInt("isMatchedToEle", matchedToEle);
     pcand.addUserInt("nValidHits", trk.bestTrack()->found());
     pcand.addUserInt("keyPacked", iTrk);

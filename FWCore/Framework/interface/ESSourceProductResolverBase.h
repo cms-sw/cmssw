@@ -30,6 +30,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordDetails.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // forward declarations
 
@@ -58,7 +59,7 @@ namespace edm::eventsetup {
       auto group = iTask.group();
       if (needToPrefetch(std::move(iTask))) {
         iAsync(*group, [this, iGuardFactory, &iRecord, iKey, iContext]() {
-          try {
+          CMS_SA_ALLOW try {
             guardPrefetch(iGuardFactory, iRecord, iKey, iContext);
             m_waitingList.doneWaiting(std::exception_ptr{});
           } catch (...) {

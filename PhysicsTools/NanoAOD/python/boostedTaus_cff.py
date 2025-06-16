@@ -12,10 +12,6 @@ finalBoostedTaus = cms.EDFilter("PATTauRefSelector",
     src = cms.InputTag("slimmedTausBoosted"),
     cut = cms.string("pt > 25 && tauID('decayModeFindingNewDMs') && (tauID('byVVLooseIsolationMVArun2DBoldDMwLT') || tauID('byVVLooseIsolationMVArun2DBnewDMwLT') || tauID('byBoostedDeepTau20161718v2p0VSjetraw') > {})".format(0.82))
 )
-run2_nanoAOD_106Xv2.toModify(
-    finalBoostedTaus,
-    cut = "pt > 25 && tauID('decayModeFindingNewDMs') && (tauID('byVVLooseIsolationMVArun2DBoldDMwLT') || tauID('byVVLooseIsolationMVArun2DBoldDMdR0p3wLT') || tauID('byVVLooseIsolationMVArun2DBnewDMwLT') || tauID('byBoostedDeepTau20161718v2p0VSjetraw') > {})".format(0.82)
-)
 
 boostedTauTable = simplePATTauFlatTableProducer.clone(
     src = cms.InputTag("linkedObjects", "boostedTaus"),
@@ -70,17 +66,6 @@ boostedTauTable.variables = cms.PSet(
     _boostedTauVarsMVAIso,
     _boostedTauVarsAntiEleMVA,
     _boostedDeepTauRunIIv2p0Vars
-)
-_boostedTauVarsWithDr03 = cms.PSet(
-    _boostedTauVarsBase,
-    _boostedTauVarsMVAIso,
-    _boostedTauVarsMVAIsoDr03,
-    _boostedTauVarsAntiEleMVA,
-    _boostedDeepTauRunIIv2p0Vars
-)
-run2_nanoAOD_106Xv2.toModify(
-    boostedTauTable,
-    variables = _boostedTauVarsWithDr03
 )
 
 boostedTausMCMatchLepTauForTable = tausMCMatchLepTauForTable.clone(

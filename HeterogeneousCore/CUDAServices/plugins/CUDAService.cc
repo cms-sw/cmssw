@@ -467,12 +467,6 @@ void CUDAService::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   descriptions.add("CUDAService", desc);
 }
 
-namespace edm {
-  namespace service {
-    inline bool isProcessWideService(CUDAService const*) { return true; }
-  }  // namespace service
-}  // namespace edm
-
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 using CUDAServiceMaker = edm::serviceregistry::ParameterSetMaker<CUDAInterface, CUDAService>;
 DEFINE_FWK_SERVICE_MAKER(CUDAService, CUDAServiceMaker);

@@ -43,10 +43,6 @@ alpaka.toReplaceWith(_HgcalLocalRecoUnseededSequence,
                                   + hltHgcalMergeLayerClusters
                      ) 
 )
-alpaka.toModify(hltHgcalMergeLayerClusters,
-                layerClustersEE = cms.InputTag("hltHgCalLayerClustersFromSoAProducer"),
-                time_layerclustersEE = cms.InputTag("hltHgCalLayerClustersFromSoAProducer", "timeLayerCluster")
-)
 
 # Use EGammaSuperClusterProducer at HLT in ticl v5
 hltTiclTracksterLinksSuperclusteringDNNUnseeded = hltTiclTracksterLinks.clone(

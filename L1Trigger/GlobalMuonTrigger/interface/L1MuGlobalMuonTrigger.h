@@ -100,7 +100,7 @@ public:
   L1MuGMTReadoutRecord* currentReadoutRecord() const { return m_ReadoutRingbuffer.back(); };
 
   /// for debug: return the debug block (in order to fill it)
-  L1MuGMTDebugBlock* DebugBlockForFill() const { return m_db.get(); };
+  L1MuGMTDebugBlock* DebugBlockForFill() const { return m_db.load().get(); };
 
 private:
   L1MuGMTPSB* m_PSB;
@@ -116,9 +116,9 @@ private:
   bool m_writeLUTsAndRegs;
   bool m_sendMipIso;
 
-  static std::shared_ptr<L1MuGMTConfig> m_config;
+  static std::atomic<std::shared_ptr<L1MuGMTConfig>> m_config;
 
-  static std::shared_ptr<L1MuGMTDebugBlock> m_db;
+  static std::atomic<std::shared_ptr<L1MuGMTDebugBlock>> m_db;
 
   unsigned long long m_L1MuGMTScalesCacheID;
   unsigned long long m_L1MuTriggerScalesCacheID;

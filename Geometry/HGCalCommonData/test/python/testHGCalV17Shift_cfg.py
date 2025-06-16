@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-import os, sys, imp, re, random
+import os, sys, importlib, re, random
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9

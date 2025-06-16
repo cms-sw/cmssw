@@ -507,8 +507,8 @@ void testGlobalProducer::testTransitions(std::shared_ptr<T> iMod, Expectations c
   oneapi::tbb::global_control control(oneapi::tbb::global_control::max_allowed_parallelism, 1);
   oneapi::tbb::task_arena arena(1);
   arena.execute([&]() {
-    edm::maker::ModuleHolderT<edm::global::EDProducerBase> h(iMod, nullptr);
-    h.preallocate(edm::PreallocationConfiguration{});
+    edm::maker::ModuleHolderT<edm::global::EDProducerBase> h(iMod);
+    h.finishModuleInitialization(iMod->moduleDescription(), edm::PreallocationConfiguration{}, nullptr);
 
     edm::WorkerT<edm::global::EDProducerBase> wOther{iMod, m_desc, nullptr};
     edm::WorkerT<edm::global::EDProducerBase> wGlobalLumi{iMod, m_desc, nullptr};

@@ -81,7 +81,7 @@ public:
   int job_index;
 
   // Custom Looper object to facilitate looping over many files
-  RooUtil::Looper<Trktree> looper;
+  RooUtil::Looper looper;
 
   // Custom Cutflow framework
   RooUtil::Cutflow cutflow;

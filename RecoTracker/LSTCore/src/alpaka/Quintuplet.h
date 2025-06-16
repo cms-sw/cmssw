@@ -3,6 +3,7 @@
 
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "FWCore/Utilities/interface/isFinite.h"
+#include "FWCore/Utilities/interface/CMSUnrollLoop.h"
 
 #include "RecoTracker/LSTCore/interface/ObjectRangesSoA.h"
 #include "RecoTracker/LSTCore/interface/MiniDoubletsSoA.h"
@@ -44,6 +45,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                             float scores,
                                                             uint8_t layer,
                                                             unsigned int quintupletIndex,
+                                                            const float (&t5Embed)[Params_T5::kEmbed],
                                                             bool tightCutFlag) {
     quintuplets.tripletIndices()[quintupletIndex][0] = innerTripletIndex;
     quintuplets.tripletIndices()[quintupletIndex][1] = outerTripletIndex;
@@ -86,6 +88,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     quintuplets.nonAnchorChiSquared()[quintupletIndex] = nonAnchorChiSquared;
     quintuplets.dBeta1()[quintupletIndex] = dBeta1;
     quintuplets.dBeta2()[quintupletIndex] = dBeta2;
+
+    CMS_UNROLL_LOOP
+    for (unsigned int i = 0; i < Params_T5::kEmbed; ++i) {
+      quintuplets.t5Embed()[quintupletIndex][i] = t5Embed[i];
+    }
   }
 
   //bounds can be found at http://uaf-10.t2.ucsd.edu/~bsathian/SDL/T5_RZFix/t5_rz_thresholds.txt
@@ -1485,6 +1492,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                float& dBeta1,
                                                                float& dBeta2,
                                                                bool& tightCutFlag,
+                                                               float (&t5Embed)[Params_T5::kEmbed],
                                                                const float ptCut) {
     unsigned int firstSegmentIndex = triplets.segmentIndices()[innerTripletIndex][0];
     unsigned int secondSegmentIndex = triplets.segmentIndices()[innerTripletIndex][1];
@@ -1599,6 +1607,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                tightCutFlag))
       return false;
 
+    lst::t5embdnn::runEmbed(acc,
+                            mds,
+                            firstMDIndex,
+                            secondMDIndex,
+                            thirdMDIndex,
+                            fourthMDIndex,
+                            fifthMDIndex,
+                            innerRadius,
+                            outerRadius,
+                            bridgeRadius,
+                            triplets.fakeScore()[innerTripletIndex],
+                            triplets.promptScore()[innerTripletIndex],
+                            triplets.displacedScore()[innerTripletIndex],
+                            triplets.fakeScore()[outerTripletIndex],
+                            triplets.promptScore()[outerTripletIndex],
+                            triplets.displacedScore()[outerTripletIndex],
+                            t5Embed);
+
     // 5 categories for sigmas
     float sigmas2[5], delta1[5], delta2[5], slopes[5];
     bool isFlat[5];
@@ -1698,6 +1724,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
             float innerRadius, outerRadius, bridgeRadius, regressionCenterX, regressionCenterY, regressionRadius,
                 rzChiSquared, chiSquared, nonAnchorChiSquared, dBeta1, dBeta2;  //required for making distributions
 
+            float t5Embed[Params_T5::kEmbed] = {0.f};
+
             bool tightCutFlag = false;
             bool success = runQuintupletDefaultAlgo(acc,
                                                     modules,
@@ -1723,6 +1751,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                     dBeta1,
                                                     dBeta2,
                                                     tightCutFlag,
+                                                    t5Embed,
                                                     ptCut);
 
             if (success) {
@@ -1776,6 +1805,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                         scores,
                                         layer,
                                         quintupletIndex,
+                                        t5Embed,
                                         tightCutFlag);
 
                   triplets.partOfT5()[quintuplets.tripletIndices()[quintupletIndex][0]] = true;

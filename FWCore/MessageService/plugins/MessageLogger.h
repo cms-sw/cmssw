@@ -192,8 +192,6 @@ namespace edm {
 
     };  // MessageLogger
 
-    inline bool isProcessWideService(MessageLogger const*) { return true; }
-
   }  // namespace service
 
 }  // namespace edm

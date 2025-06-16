@@ -17,7 +17,9 @@ hltPfDeepFlavourJetTagsModEta2p4 = cms.EDProducer("DeepFlavourONNXJetTagsProduce
         'input_5'
     ),
     mightGet = cms.optional.untracked.vstring,
-    model_path = cms.FileInPath('RecoBTag/Combined/data/DeepFlavourV02_PhaseII/DeepJet_retraining_phase2_new_inputs.onnx'),
+    model_path = cms.FileInPath('RecoBTag/Combined/data/DeepFlavourV03_PhaseII/Deepjet_FixedSoftmaxLayer.onnx'),
     output_names = cms.vstring(),
-    src = cms.InputTag("hltPfDeepFlavourTagInfosModEta2p4")
+    src = cms.InputTag("hltPfDeepFlavourTagInfosModEta2p4"),
+    produceValueMap = cms.untracked.bool(True),
+    jets = cms.InputTag("hltPFPuppiJetForBtagEta2p4")
 )

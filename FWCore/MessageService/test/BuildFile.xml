@@ -61,6 +61,20 @@
     <use name="FWCore/Framework"/>
   </library>
 
+  <library file="UnitTestService_H.cc" name="UnitTestService_H">
+    <flags EDM_PLUGIN="1"/>
+    <use name="FWCore/MessageLogger"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/ServiceRegistry"/>
+  </library>
+
+  <library file="UnitTestService_Hd.cc" name="UnitTestService_Hd">
+    <flags EDM_PLUGIN="1"/>
+    <use name="FWCore/MessageLogger"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/ServiceRegistry"/>
+  </library>
+
   <library file="UnitTestClient_I.cc" name="UnitTestClient_I">
     <flags EDM_PLUGIN="1"/>
     <use name="FWCore/MessageLogger"/>

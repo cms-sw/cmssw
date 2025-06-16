@@ -1,3 +1,18 @@
+<!--
+  Starting with GLIBC version 2.34, the dn_expand function, previously found in libresolv.so,
+  was moved to libc.so. This function is used internally by the getaddrinfo() system call.
+  In our setup, we are using EL8 image. However, due to compatibility issues between
+  newer libasan.so in GCC 13.1 and the older images, the linker does not link with libresolv.so.
+  This results in crashes in getaddrinfo().
+  To address this, we explicitly link libresolv.so to all variants of cmsRun for
+  xASAN integration builds targeting el8_amd64_gcc13/14
+-->
+<ifrelease name="ASAN|UBSAN">
+  <ifarchitecture name="el8_amd64_gcc1[34]">
+    <use name="resolv"/>
+  </ifarchitecture>
+</ifrelease>
+
 <bin name="cmsRunGlibC" file="cmsRun.cpp">
   <use name="roothistmatrix"/>
   <use name="tbb"/>

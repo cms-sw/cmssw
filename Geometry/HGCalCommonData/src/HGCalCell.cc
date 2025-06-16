@@ -237,15 +237,15 @@ std::pair<int, int> HGCalCell::cellUV2Cell(int32_t u, int32_t v, int32_t placeme
 }
 
 int HGCalCell::cellPlacementIndex(int32_t iz, int32_t frontBack, int32_t orient) {
-  int32_t indx = ((iz * frontBack) > 0) ? orient : (orient + HGCalCell::cellPlacementExtra);
+  int32_t indx = (frontBack > 0) ? orient : (orient + HGCalCell::cellPlacementExtra);
   return indx;
 }
 
 std::pair<int32_t, int32_t> HGCalCell::cellOrient(int32_t placementIndex) {
   int32_t orient = (placementIndex >= HGCalCell::cellPlacementExtra) ? (placementIndex - HGCalCell::cellPlacementExtra)
                                                                      : placementIndex;
-  int32_t frontBackZside = (placementIndex >= HGCalCell::cellPlacementExtra) ? 1 : -1;
-  return std::make_pair(orient, frontBackZside);
+  int32_t frontBack = (placementIndex >= HGCalCell::cellPlacementExtra) ? 1 : -1;
+  return std::make_pair(orient, frontBack);
 }
 
 std::pair<int32_t, int32_t> HGCalCell::cellType(int32_t u, int32_t v, int32_t ncell, int32_t placementIndex) {

@@ -16,7 +16,7 @@
 #include "FWCore/Framework/src/TriggerReport.h"
 #include "FWCore/Framework/src/TriggerTimingReport.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
-#include "FWCore/Framework/src/Factory.h"
+#include "FWCore/Framework/src/ModuleHolderFactory.h"
 #include "FWCore/Framework/interface/OutputModuleCommunicator.h"
 #include "FWCore/Framework/interface/maker/ModuleHolder.h"
 #include "FWCore/Framework/interface/ModuleRegistry.h"
@@ -56,7 +56,7 @@
 
 namespace edm {
 
-  class Maker;
+  class ModuleMakerBase;
 
   namespace {
     using std::placeholders::_1;
@@ -90,12 +90,10 @@ namespace edm {
       std::shared_ptr<TriggerResultInserter> returnValue;
       // Caught exception is rethrown
       CMS_SA_ALLOW try {
-        maker::ModuleHolderT<TriggerResultInserter> holder(
-            make_shared_noexcept_false<TriggerResultInserter>(*trig_pset, iPrealloc.numberOfStreams()),
-            static_cast<Maker const*>(nullptr));
-        holder.setModuleDescription(md);
-        holder.registerProductsAndCallbacks(&preg);
-        returnValue = holder.module();
+        auto module = make_shared_noexcept_false<TriggerResultInserter>(*trig_pset, iPrealloc.numberOfStreams());
+        maker::ModuleHolderT<TriggerResultInserter::ModuleType>::finishModuleInitialization(
+            *module, md, iPrealloc, &preg);
+        returnValue = module;
         postCalled = true;
         // if exception then post will be called in the catch block
         areg->postModuleConstructionSignal_(md);
@@ -133,11 +131,9 @@ namespace edm {
         bool postCalled = false;
         // Caught exception is rethrown
         CMS_SA_ALLOW try {
-          maker::ModuleHolderT<T> holder(make_shared_noexcept_false<T>(iPrealloc.numberOfStreams()),
-                                         static_cast<Maker const*>(nullptr));
-          holder.setModuleDescription(md);
-          holder.registerProductsAndCallbacks(&preg);
-          pathStatusInserters.emplace_back(holder.module());
+          auto module = make_shared_noexcept_false<T>(iPrealloc.numberOfStreams());
+          maker::ModuleHolderT<typename T::ModuleType>::finishModuleInitialization(*module, md, iPrealloc, &preg);
+          pathStatusInserters.emplace_back(module);
           postCalled = true;
           // if exception then post will be called in the catch block
           areg->postModuleConstructionSignal_(md);

@@ -154,14 +154,14 @@ GENERATE_SOA_LAYOUT(SoATemplate,
   SOA_COLUMN(double, z),
   
   // methods operating on const_element
-  SOA_CONST_METHODS(
+  SOA_CONST_ELEMENT_METHODS(
     auto norm() const {
       return sqrt(x()*x() + y()+y() + z()*z());
     }
   ),
 
   // methods operating on element
-  SOA_METHODS(
+  SOA_ELEMENT_METHODS(
     void scale(float arg) {
       x() *= arg;
       y() *= arg;
