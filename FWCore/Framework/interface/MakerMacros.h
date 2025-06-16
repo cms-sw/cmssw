@@ -1,8 +1,8 @@
 #ifndef Framework_MakerMacros_h
 #define Framework_MakerMacros_h
 
-#include "FWCore/Framework/interface/maker/MakerPluginFactory.h"
-#include "FWCore/Framework/interface/maker/WorkerMaker.h"
+#include "FWCore/Framework/interface/maker/ModuleMakerPluginFactory.h"
+#include "FWCore/Framework/interface/maker/ModuleMaker.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerPluginFactory.h"
 // The following includes are temporary until a better
 // solution can be found.  Placing these includes here
@@ -13,7 +13,7 @@
 // implementation file only.
 #include "FWCore/Framework/interface/maker/WorkerT.h"
 
-#define DEFINE_FWK_MODULE(type)                                              \
-  DEFINE_EDM_PLUGIN(edm::MakerPluginFactory, edm::WorkerMaker<type>, #type); \
+#define DEFINE_FWK_MODULE(type)                                                    \
+  DEFINE_EDM_PLUGIN(edm::ModuleMakerPluginFactory, edm::ModuleMaker<type>, #type); \
   DEFINE_FWK_PSET_DESC_FILLER(type)
 #endif
