@@ -132,7 +132,7 @@ bool BaseCkfTrajectoryBuilder::toBeContinued(TempTrajectory& traj, bool inOut) c
   // worth continuing to build this track candidate.
   //
   // When a sufficient amount of measurements are made,
-  // ensure that an infinite loop is not created (CMSHLT-3557). 
+  // ensure that an infinite loop is not created (CMSHLT-3557).
   // Avoid hit-pair structures as last = last-2, and last-1 = last-3,
   // where last refers to measurements.
   //
