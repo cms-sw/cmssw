@@ -149,7 +149,8 @@ bool BaseCkfTrajectoryBuilder::toBeContinued(TempTrajectory& traj, bool inOut) c
     ++tm;
     TrackingRecHit::RecHitPointer last4Hit = tm->recHit();
     if (lastHit->geographicalId() == last3Hit->geographicalId() &&
-        last2Hit->geographicalId() == last4Hit->geographicalId()) {
+        last2Hit->geographicalId() == last4Hit->geographicalId() &&
+        (lastHit->geographicalId().rawId() == 0 || last2Hit->geographicalId().rawId() == 0)) {
       LogDebug("CkfPattern") << "Loop pattern found in last recHits\n" << PrintoutHelper::dumpMeasurements(tms);
 
       return false;
