@@ -83,7 +83,6 @@ namespace edm {
 
       std::uint_least64_t m_lastEventCount = 0;
     };
-    inline bool isProcessWideService(CondorStatusService const *) { return true; }
 
   }  // namespace service
 
