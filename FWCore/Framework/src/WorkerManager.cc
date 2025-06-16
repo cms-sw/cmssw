@@ -42,9 +42,13 @@ namespace edm {
                                    SignallingProductRegistryFiller& preg,
                                    PreallocationConfiguration const* prealloc,
                                    std::shared_ptr<ProcessConfiguration const> processConfiguration,
-                                   std::string const& label) {
+                                   std::string const& label, bool addToAll) {
     WorkerParams params(&pset, preg, prealloc, processConfiguration, *actionTable_);
-    return workerReg_.getWorker(params, label);
+    auto worker = workerReg_.getWorker(params, label);
+    if( nullptr != worker and addToAll) {
+      addToAllWorkers(worker);
+    }
+    return worker;
   }
 
   void WorkerManager::addToUnscheduledWorkers(ParameterSet& pset,

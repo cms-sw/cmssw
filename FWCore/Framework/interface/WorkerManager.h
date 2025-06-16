@@ -87,7 +87,8 @@ namespace edm {
                       SignallingProductRegistryFiller& preg,
                       PreallocationConfiguration const* prealloc,
                       std::shared_ptr<ProcessConfiguration const> processConfiguration,
-                      std::string const& label);
+                      std::string const& label,
+                      bool addToAllWorkers = true);
 
     void resetAll();
 

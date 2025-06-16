@@ -53,7 +53,7 @@ namespace edm {
 
         //side effect keeps this module around
         for (auto& wm : workerManagers_) {
-          wm.addToAllWorkers(wm.getWorker(*modpset, pregistry, &prealloc, processConfiguration, moduleLabel));
+          (void)wm.getWorker(*modpset, pregistry, &prealloc, processConfiguration, moduleLabel);
         }
       }
     }
