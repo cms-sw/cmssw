@@ -39,7 +39,7 @@ dispVtxTable = cms.EDProducer(
         x = Var("x()", float, doc = "x position of vertex"),
         y = Var("y()", float, doc = "y position of vertex"),
         z = Var("z()", float, doc = "z position of vertex"),
-        openingAngle = Var("openingAngle()", float, doc = "hardware track multiplicity in the vertex"),
+        openingAngle = Var("openingAngle()", float, doc = "angle between the two tracks forming the vertex"),
         parentPt = Var("parentPt()", float, doc = "transverse momentum of parent particle"),
         del_Z = Var("del_Z()", float, doc = "delta z of vertex from origin"),
         isReal = Var("isReal()", bool, doc = "is real"),
