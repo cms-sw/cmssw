@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../../../DetectorDescription/Schema/DDLSchema.xsd">
+<DDDefinition>
 
 <ConstantsSection label="hfnose.xml" eval="true">
   <Constant name="FixShldZ1"             value="10.910*m"/>
@@ -10,6 +10,7 @@
   <Constant name="FixShldR7"             value="2.1000*m"/>
   <Constant name="FixShldR8"             value="2.1500*m"/>
   <Constant name="WaferSize"             value="166.4408*mm"/>
+  <Constant name="WaferSizeNominal"      value="166.4408*mm"/>
   <Constant name="WaferThickness"        value="0.30*mm"/>
   <Constant name="SensorSeparation"      value="1.00*mm"/>
   <Constant name="SensorSizeOffset"      value="0.87*mm"/>
@@ -49,6 +50,7 @@
   <Constant name="ChoiceType"            value="0"/>
   <Constant name="NCornerCut"            value="2"/>
   <Constant name="FracAreaMin"           value="0.2"/>
+  <Constant name="LayerRotation"         value="-30*deg"/>
 </ConstantsSection>
 
 <SolidSection label="hfnose.xml">
