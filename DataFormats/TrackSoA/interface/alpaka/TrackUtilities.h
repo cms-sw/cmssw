@@ -1,7 +1,7 @@
 #ifndef DataFormats_TrackSoA_interface_alpaka_TrackUtilities_h
 #define DataFormats_TrackSoA_interface_alpaka_TrackUtilities_h
 
-// MRMR #define NTUPLE_FIT_DEBUG // MRMR
+//#define NTUPLE_FIT_DEBUG
 
 #include <algorithm>
 #include <cmath>

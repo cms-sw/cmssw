@@ -8,6 +8,8 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "RecoTracker/PixelTrackFitting/interface/alpaka/FitUtils.h"
 
+//#define BL_DEEPDEBUG
+
 namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
 
   using namespace cms::alpakatools;
@@ -186,6 +188,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
           alpaka::math::atan2(acc, riemannFit::cross2D(acc, dVec, eVec), dVec.dot(eVec));  // calculates the arc length
     }
     riemannFit::VectorNd<n> zVec = hits.block(2, 0, 1, n).transpose();
+#ifdef BL_DEEPDEBUG
+    for (u_int i = 0; i < n; i++) {
+      printf("Point %d, x, %f, y: %f, z: %f, s: %f\n",
+             i,
+             hits.block(0, 0, 2, n)(0, i),
+             hits.block(0, 0, 2, n)(1, i),
+             zVec(i),
+             results.sTransverse(i));
+    }
+#endif
 
     //calculate sTotal and zVec
     riemannFit::Matrix2xNd<n> pointsSZ = riemannFit::Matrix2xNd<n>::Zero();
@@ -196,7 +208,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
     }
     results.sTotal = pointsSZ.block(0, 0, 1, n).transpose();
     results.zInSZplane = pointsSZ.block(1, 0, 1, n).transpose();
-
+#ifdef BL_DEEPDEBUG
+    for (u_int i = 0; i < n; i++) {
+      printf("Point %d, rot_s: %f, rot_z: %f\n", i, results.sTotal(i), results.zInSZplane(i));
+    }
+#endif
     //calculate varBeta
     results.varBeta(0) = results.varBeta(n - 1) = 0;
     for (u_int i = 1; i < n - 1; i++) {
@@ -293,6 +309,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
 
     result(3) = result(2) * atan2(riemannFit::cross2D(acc, d, e), d.dot(e)) / (hits(2, n - 1) - hits(2, 0));
     // ds/dz slope between last and first point
+#ifdef BL_DEEPDEBUG
+    printf("FastFit results(x,y,R,tan(theta): %e, %e, %e, %e\n", result(0), result(1), result(2), result(3));
+#endif
   }
 
   /*!
@@ -481,6 +500,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
     const auto& varBeta = data.varBeta;
 
     const double slope = -data.qCharge / fast_fit(3);
+#ifdef BL_DEEPDEBUG
+    printf("Slope: %e, charge: %d, curvature: %e\n", slope, data.qCharge, fast_fit(3));
+#endif
     riemannFit::Matrix2d rotMat = rotationMatrix(acc, slope);
 
     riemannFit::Matrix3d vMat = riemannFit::Matrix3d::Zero();  // covariance matrix XYZ

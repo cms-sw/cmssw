@@ -22,9 +22,9 @@
 #include "CAStructures.h"
 #include "CAHitNtupletGeneratorKernels.h"
 
-// MRMR #define GPU_DEBUG        // MRMR 
-// MRMR #define DOUBLETS_DEBUG   // MRMR 
-#define CA_WARNINGS
+// #define GPU_DEBUG
+// #define DOUBLETS_DEBUG
+// #define CA_WARNINGS
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
   using namespace cms::alpakatools;
@@ -129,19 +129,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
   }
 
   template <typename TrackerTraits, typename TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE void __attribute__((always_inline)) doubletsFromHisto(
-      const TAcc& acc,
-      uint32_t maxNumOfDoublets,
-      CASimpleCell<TrackerTraits>* cells,
-      uint32_t* nCells,
-      HitsConstView hh,
-      ::reco::CAGraphSoAConstView cc,
-      ::reco::CALayersSoAConstView ll,
-      uint32_t const* __restrict__ offsets,
-      PhiBinner<TrackerTraits> const* phiBinner,
-      HitToCell* outerHitHisto,
-      AlgoParams const& params) {
-
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void doubletsFromHisto(const TAcc& acc,
+                                                        uint32_t maxNumOfDoublets,
+                                                        CACell<TrackerTraits>* cells,
+                                                        uint32_t* nCells,
+                                                        HitsConstView hh,
+                                                        ::reco::CAGraphSoAConstView cc,
+                                                        ::reco::CALayersSoAConstView ll,
+                                                        uint32_t const* __restrict__ offsets,
+                                                        PhiBinner<TrackerTraits> const* phiBinner,
+                                                        HitToCell* outerHitHisto,
+                                                        AlgoParams const& params) {
     const bool doClusterCut = params.minYsizeB1_ > 0 or params.minYsizeB2_ > 0;
     const bool doZSizeCut = params.maxDYsize12_ > 0 or params.maxDYsize_ > 0 or params.maxDYPred_ > 0;
 
@@ -224,7 +222,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
 #ifdef DOUBLETS_DEBUG
         printf("Killed here 1\n");
 #endif
-        continue;                                                              // invalid
+        continue;  // invalid
       }
 
       /* maybe clever, not effective when zoCut is on
@@ -237,7 +235,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
 
       if (mez < cc.minz()[pairLayerId] || mez > cc.maxz()[pairLayerId]) {
 #ifdef DOUBLETS_DEBUG
-        printf("Killed here 2 --> mez: %f [index: %d], miz: %f, maxz: %f\n", mez, hh[i].detectorIndex(), cc.minz()[pairLayerId], cc.maxz()[pairLayerId]);
+        printf("Killed here 2 --> mez: %f [index: %d], miz: %f, maxz: %f\n",
+               mez,
+               hh[i].detectorIndex(),
+               cc.minz()[pairLayerId],
+               cc.maxz()[pairLayerId]);
 #endif
         continue;
       }
@@ -270,10 +272,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
         auto dr = ro - mer;
 #ifdef DOUBLETS_DEBUG
         printf("dr: %4.3f, %4.3f, %4.3f --> %d\n", mer, ro, dr, (dr > cc.maxr()[pairLayerId]));
-        printf("mez: %4.3f, zo: %4.3f, std::abs((mez * ro - mer * zo)): %4.3f --> %d\n", 
-               mez, zo, std::abs((mez * ro - mer * zo)), (std::abs((mez * ro - mer * zo)) > params.cellZ0Cut_*dr));
+        printf("mez: %4.3f, zo: %4.3f, std::abs((mez * ro - mer * zo)): %4.3f --> %d\n",
+               mez,
+               zo,
+               std::abs((mez * ro - mer * zo)),
+               (std::abs((mez * ro - mer * zo)) > params.cellZ0Cut_ * dr));
 #endif
-      return dr > cc.maxr()[pairLayerId] || dr < 0 || std::abs((mez * ro - mer * zo)) > params.cellZ0Cut_ * dr;
+        return dr > cc.maxr()[pairLayerId] || dr < 0 || std::abs((mez * ro - mer * zo)) > params.cellZ0Cut_ * dr;
       };
 
       auto iphicut = cc.phiCuts()[pairLayerId];
@@ -359,7 +364,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
           if (ind >= maxNumOfDoublets) {
 #ifdef CA_WARNINGS
             printf("Warning!!!! Too many cells (limit = %d)!\n", maxNumOfDoublets);
-            assert(0);
 #endif
             alpaka::atomicSub(acc, nCells, 1u, alpaka::hierarchy::Blocks{});
             break;
