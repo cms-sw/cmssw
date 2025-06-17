@@ -6,7 +6,7 @@ process = cms.Process("ANALYSIS",Run3_2025)
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load('Configuration.StandardSequences.Services_cff')
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
-process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 from Configuration.AlCa.autoCond import autoCond
@@ -20,7 +20,7 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 process.load('Calibration.HcalCalibAlgos.hcalIsoTrackAnalyzer_cfi')
 process.source = cms.Source("PoolSource", 
                             fileNames = cms.untracked.vstring(
-       'file:newPoolOutput.root',
+       'file:/eos/cms/store/group/dpg_hcal/comm_hcal/suman/13p6TeV/2025EraC/AlcaRaw_Commissioning/23144728-40d9-4349-af8c-f6224bacb99d.root',
     )
 )
 
@@ -33,7 +33,9 @@ process.TFileService = cms.Service("TFileService",
 process.hcalIsoTrackAnalyzer.fillInRange = True  # fils only 40-60 GeV
 process.hcalIsoTrackAnalyzer.useRaw = 0   # 1 for Raw
 process.hcalIsoTrackAnalyzer.unCorrect = 1   # 1 for RespCorr; 2 for Gain
-process.hcalIsoTrackAnalyzer.dataType = 0   # 1 for from Jet; 0 for others
+process.hcalIsoTrackAnalyzer.dataType = 1   # 1 for from Jet; 0 for others
+process.hcalIsoTrackAnalyzer.isoTrackVarLabel = ["alcaHcalIsotrkFromAlCaRawProducer", "HcalIsoTrack"]
+process.hcalIsoTrackAnalyzer.isoTrackEvtLabel = ["alcaHcalIsotrkFromAlCaRawProducer", "HcalIsoTrackEvent"]
 
 process.p = cms.Path(process.hcalIsoTrackAnalyzer)
 
