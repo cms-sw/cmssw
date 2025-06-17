@@ -57,7 +57,7 @@ def customizeHLTIter0ToMkFit(process):
         )
     )
     process.hltSiStripRawToClustersFacility.onDemand = False
-    process.hltSiStripRawToClustersFacility.Clusterizer.MaxClusterSize = 8
+    process.hltSiStripRawToClustersFacility.Clusterizer.MaxClusterSize = 16
 
     process.hltSiStripRecHits = SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone(
         ClusterProducer = "hltSiStripRawToClustersFacility",
@@ -93,7 +93,7 @@ def customizeHLTIter0ToMkFit(process):
     )
     process.hltIter0PFlowTrackCandidatesMkFitConfig = mkFitIterationConfigESProducer_cfi.mkFitIterationConfigESProducer.clone(
         ComponentName = 'hltIter0PFlowTrackCandidatesMkFitConfig',
-        config = 'RecoTracker/MkFit/data/mkfit-phase1-initialStep.json',
+        config = 'RecoTracker/MkFit/data/mkfit-phase1-hltiter0.json',
     )
     process.hltIter0PFlowCkfTrackCandidatesMkFit = mkFitProducer_cfi.mkFitProducer.clone(
         pixelHits = "hltIter0PFlowCkfTrackCandidatesMkFitSiPixelHits",
@@ -115,9 +115,8 @@ def customizeHLTIter0ToMkFit(process):
         propagatorOpposite = ":PropagatorWithMaterialParabolicMfOpposite",
     )
 
-    process.HLTDoLocalStripSequence += process.hltSiStripRecHits
-
     replaceWith = (process.hltIter0PFlowCkfTrackCandidatesMkFitSiPixelHits +
+                   process.hltSiStripRecHits +
                    process.hltIter0PFlowCkfTrackCandidatesMkFitSiStripHits +
                    process.hltIter0PFlowCkfTrackCandidatesMkFitEventOfHits +
                    process.hltIter0PFlowCkfTrackCandidatesMkFitSeeds +
@@ -130,12 +129,8 @@ def customizeHLTIter0ToMkFit(process):
       if not path.contains(process.HLTIterativeTrackingIteration0) and path.contains(process.hltIter0PFlowCkfTrackCandidates):
         path.replace(process.hltIter0PFlowCkfTrackCandidates, replaceWith)
 
-    process.hltIter0PFlowTrackCandidatesMkFitConfig.config = 'RecoTracker/MkFit/data/mkfit-phase1-hltiter0.json'
-
-    process.hltIter0PFlowTrackCutClassifier.mva.maxChi2 = cms.vdouble( 999.0, 25.0, 99.0 )
-
-    process.hltIter0PFlowTrackCutClassifier.mva.maxChi2n = cms.vdouble( 1.2, 1.0, 999.0 )
-
+    process.hltIter0PFlowTrackCutClassifier.mva.maxChi2 = cms.vdouble( 999.0, 999.0, 99.0 )
+    process.hltIter0PFlowTrackCutClassifier.mva.maxChi2n = cms.vdouble( 999.0, 999.0, 999.0 )
     process.hltIter0PFlowTrackCutClassifier.mva.dr_par = cms.PSet( 
         d0err = cms.vdouble( 0.003, 0.003, 0.003 ),
         dr_par1 = cms.vdouble( 3.40282346639E38, 0.6, 0.6 ),
@@ -173,8 +168,8 @@ def customizeHLTIter0ToMkFit(process):
             tracks = "hltIter0PFlowCkfTrackCandidatesMkFitSerialSync",
         )
 
-        process.hltIter0PFlowTrackCutClassifierSerialSync.mva.maxChi2 = cms.vdouble( 999.0, 25.0, 99.0 )
-        process.hltIter0PFlowTrackCutClassifierSerialSync.mva.maxChi2n = cms.vdouble( 1.2, 1.0, 999.0 )
+        process.hltIter0PFlowTrackCutClassifierSerialSync.mva.maxChi2 = cms.vdouble( 999.0, 999.0, 99.0 )
+        process.hltIter0PFlowTrackCutClassifierSerialSync.mva.maxChi2n = cms.vdouble( 999.0, 999.0, 999.0 )
         process.hltIter0PFlowTrackCutClassifierSerialSync.mva.dr_par = cms.PSet( 
             d0err = cms.vdouble( 0.003, 0.003, 0.003 ),
             dr_par1 = cms.vdouble( 3.40282346639E38, 0.6, 0.6 ),
@@ -190,11 +185,12 @@ def customizeHLTIter0ToMkFit(process):
         process.HLTDoLocalStripSequenceSerialSync += process.hltSiStripRecHits
 
         replaceWithSerialSync = (process.hltIter0PFlowCkfTrackCandidatesMkFitSiPixelHitsSerialSync +
-                   process.hltIter0PFlowCkfTrackCandidatesMkFitSiStripHits +
-                   process.hltIter0PFlowCkfTrackCandidatesMkFitEventOfHitsSerialSync +
-                   process.hltIter0PFlowCkfTrackCandidatesMkFitSeedsSerialSync +
-                   process.hltIter0PFlowCkfTrackCandidatesMkFitSerialSync +
-                   process.hltIter0PFlowCkfTrackCandidatesSerialSync)
+                                 process.hltSiStripRecHits +
+                                 process.hltIter0PFlowCkfTrackCandidatesMkFitSiStripHits +
+                                 process.hltIter0PFlowCkfTrackCandidatesMkFitEventOfHitsSerialSync +
+                                 process.hltIter0PFlowCkfTrackCandidatesMkFitSeedsSerialSync +
+                                 process.hltIter0PFlowCkfTrackCandidatesMkFitSerialSync +
+                                 process.hltIter0PFlowCkfTrackCandidatesSerialSync)
 
         process.HLTIterativeTrackingIteration0SerialSync.replace(process.hltIter0PFlowCkfTrackCandidatesSerialSync, replaceWithSerialSync)
 
@@ -202,66 +198,122 @@ def customizeHLTIter0ToMkFit(process):
             if not path.contains(process.HLTIterativeTrackingIteration0SerialSync) and path.contains(process.hltIter0PFlowCkfTrackCandidatesSerialSync):
                 path.replace(process.hltIter0PFlowCkfTrackCandidatesSerialSync, replaceWithSerialSync)
 
-
     return process
 
-def customizeHLTSiStripClusterizerOnDemandFalse(process):
+def customizeHLTDoubletRecoveryToMkFit(process):
 
     # if any of the following objects does not exist, do not apply any customisation
     for objLabel in [
-        'hltSiStripRawToClustersFacility',
+        'HLTIterativeTrackingDoubletRecovery',
+        'hltDoubletRecoveryPFlowCkfTrackCandidates',
     ]:
         if not hasattr(process, objLabel):
-            print(f'# WARNING: customize command failed (object with label "{objLabel}" not found) - no customisation applied !')
+            print(f'# WARNING: customizeHLTDoubletRecoveryToMkFit failed (object with label "{objLabel}" not found) - no customisation applied !')
             return process
 
-    # mkFit needs all clusters, so switch off the on-demand mode
-    process.hltSiStripRawToClustersFacility.onDemand = False
-    return process
-
-def customizeHLTSiStripClusterizerOnDemandFalseMaxClusterSize8(process):
-
-    for objLabel in [
-        'hltSiStripRawToClustersFacility',
-    ]:
-        if not hasattr(process, objLabel):
-            print(f'# WARNING: customize command failed (object with label "{objLabel}" not found) - no customisation applied !')
-            return process
-
-    process.hltSiStripRawToClustersFacility = cms.EDProducer(
-        "SiStripClusterizerFromRaw",
-        ProductLabel = cms.InputTag( "rawDataCollector" ),
-        ConditionsLabel = cms.string( "" ),
-        onDemand = cms.bool( True ),
-        DoAPVEmulatorCheck = cms.bool( False ),
-        LegacyUnpacker = cms.bool( False ),
-        HybridZeroSuppressed = cms.bool( False ),
-        Clusterizer = cms.PSet( 
-            ConditionsLabel = cms.string( "" ),
-            MaxClusterSize = cms.uint32( 32 ), 
-            ClusterThreshold = cms.double( 5.0 ),
-            SeedThreshold = cms.double( 3.0 ),
-            Algorithm = cms.string( "ThreeThresholdAlgorithm" ),
-            ChannelThreshold = cms.double( 2.0 ),
-            MaxAdjacentBad = cms.uint32( 0 ),
-            setDetId = cms.bool( True ),
-            MaxSequentialHoles = cms.uint32( 0 ),
-            RemoveApvShots = cms.bool( True ),
-            clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
-            MaxSequentialBad = cms.uint32( 1 )
-        ),
-        Algorithms = cms.PSet( 
-            Use10bitsTruncation = cms.bool( False ),
-            CommonModeNoiseSubtractionMode = cms.string( "Median" ),
-            useCMMeanMap = cms.bool( False ),
-            TruncateInSuppressor = cms.bool( True ),
-            doAPVRestore = cms.bool( False ),
-            SiStripFedZeroSuppressionMode = cms.uint32( 4 ),
-            PedestalSubtractionFedMode = cms.bool( True )
-        )
+    process.hltDoubletRecoveryPFlowCkfTrackCandidatesMkFitSeeds = mkFitSeedConverter_cfi.mkFitSeedConverter.clone(
+        seeds = "hltDoubletRecoveryPFlowPixelSeeds",
+        ttrhBuilder = ":hltESPTTRHBWithTrackAngle",
     )
-    process.hltSiStripRawToClustersFacility.onDemand = False
-    process.hltSiStripRawToClustersFacility.Clusterizer.MaxClusterSize = 8
+    process.hltDoubletRecoveryPFlowTrackCandidatesMkFitConfig = mkFitIterationConfigESProducer_cfi.mkFitIterationConfigESProducer.clone(
+        ComponentName = 'hltDoubletRecoveryPFlowTrackCandidatesMkFitConfig',
+        config = 'RecoTracker/MkFit/data/mkfit-phase1-hltdr.json',
+        minPt = 0.7,
+    )
+    process.hltDoubletRecoveryPFlowCkfTrackCandidatesMkFit = mkFitProducer_cfi.mkFitProducer.clone(
+        pixelHits = "hltIter0PFlowCkfTrackCandidatesMkFitSiPixelHits",
+        stripHits = "hltIter0PFlowCkfTrackCandidatesMkFitSiStripHits",
+        eventOfHits = "hltIter0PFlowCkfTrackCandidatesMkFitEventOfHits",
+        seeds = "hltDoubletRecoveryPFlowCkfTrackCandidatesMkFitSeeds",
+        config = cms.ESInputTag('', 'hltDoubletRecoveryPFlowTrackCandidatesMkFitConfig'),
+        minGoodStripCharge = dict(refToPSet_ = 'HLTSiStripClusterChargeCutNone'),
+    )
+    process.hltDoubletRecoveryPFlowCkfTrackCandidatesMkFit.clustersToSkip = "hltDoubletRecoveryClustersRefRemoval"
+    process.hltDoubletRecoveryPFlowCkfTrackCandidates = mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
+        seeds = "hltDoubletRecoveryPFlowPixelSeeds",
+        mkFitEventOfHits = "hltIter0PFlowCkfTrackCandidatesMkFitEventOfHits",
+        mkFitPixelHits = "hltIter0PFlowCkfTrackCandidatesMkFitSiPixelHits",
+        mkFitStripHits = "hltIter0PFlowCkfTrackCandidatesMkFitSiStripHits",
+        mkFitSeeds = "hltDoubletRecoveryPFlowCkfTrackCandidatesMkFitSeeds",
+        tracks = "hltDoubletRecoveryPFlowCkfTrackCandidatesMkFit",
+        ttrhBuilder = ":hltESPTTRHBWithTrackAngle",
+        propagatorAlong = ":PropagatorWithMaterialParabolicMf",
+        propagatorOpposite = ":PropagatorWithMaterialParabolicMfOpposite",
+    )
+    replaceWith = (process.hltDoubletRecoveryPFlowCkfTrackCandidatesMkFitSeeds +
+                   process.hltDoubletRecoveryPFlowCkfTrackCandidatesMkFit +
+                   process.hltDoubletRecoveryPFlowCkfTrackCandidates)
+    process.HLTIterativeTrackingDoubletRecovery.replace(process.hltDoubletRecoveryPFlowCkfTrackCandidates, replaceWith)
+    for path in process.paths_().values():
+      if not path.contains(process.HLTIterativeTrackingDoubletRecovery) and path.contains(process.hltDoubletRecoveryPFlowCkfTrackCandidates):
+        path.replace(process.hltDoubletRecoveryPFlowCkfTrackCandidates, replaceWith)
+
+    if hasattr(process, 'HLTIterativeTrackingDoubletRecoverySerialSync'):
+        process.hltDoubletRecoveryPFlowCkfTrackCandidatesMkFitSeedsSerialSync = process.hltDoubletRecoveryPFlowCkfTrackCandidatesMkFitSeeds.clone(
+            seeds = "hltDoubletRecoveryPFlowPixelSeedsSerialSync"
+        )
+        process.hltDoubletRecoveryPFlowCkfTrackCandidatesMkFitSerialSync = process.hltDoubletRecoveryPFlowCkfTrackCandidatesMkFit.clone(
+            pixelHits = "hltIter0PFlowCkfTrackCandidatesMkFitSiPixelHitsSerialSync",
+            stripHits = "hltIter0PFlowCkfTrackCandidatesMkFitSiStripHits",
+            eventOfHits = "hltIter0PFlowCkfTrackCandidatesMkFitEventOfHitsSerialSync",
+            seeds = "hltDoubletRecoveryPFlowCkfTrackCandidatesMkFitSeedsSerialSync",
+            config = cms.ESInputTag('', 'hltDoubletRecoveryPFlowTrackCandidatesMkFitConfig'),
+            minGoodStripCharge = dict(refToPSet_ = 'HLTSiStripClusterChargeCutNone'),        
+        )
+        process.hltDoubletRecoveryPFlowCkfTrackCandidatesMkFitSerialSync.clustersToSkip = "hltDoubletRecoveryClustersRefRemovalSerialSync"
+        process.hltDoubletRecoveryPFlowCkfTrackCandidatesSerialSync = process.hltDoubletRecoveryPFlowCkfTrackCandidates.clone(
+            seeds = "hltDoubletRecoveryPFlowPixelSeedsSerialSync",
+            mkFitEventOfHits = "hltIter0PFlowCkfTrackCandidatesMkFitEventOfHitsSerialSync",
+            mkFitPixelHits = "hltIter0PFlowCkfTrackCandidatesMkFitSiPixelHitsSerialSync",
+            mkFitSeeds = "hltDoubletRecoveryPFlowCkfTrackCandidatesMkFitSeedsSerialSync",
+            tracks = "hltDoubletRecoveryPFlowCkfTrackCandidatesMkFitSerialSync",
+        )
+        replaceWithSerialSync = (process.hltDoubletRecoveryPFlowCkfTrackCandidatesMkFitSeedsSerialSync +
+                                 process.hltDoubletRecoveryPFlowCkfTrackCandidatesMkFitSerialSync +
+                                 process.hltDoubletRecoveryPFlowCkfTrackCandidatesSerialSync)
+        process.HLTIterativeTrackingDoubletRecoverySerialSync.replace(process.hltDoubletRecoveryPFlowCkfTrackCandidatesSerialSync, replaceWithSerialSync)
+        for path in process.paths_().values():
+            if not path.contains(process.HLTIterativeTrackingDoubletRecoverySerialSync) and path.contains(process.hltDoubletRecoveryPFlowCkfTrackCandidatesSerialSync):
+                path.replace(process.hltDoubletRecoveryPFlowCkfTrackCandidatesSerialSync, replaceWithSerialSync)
+
+    process.hltDoubletRecoveryPFlowTrackCutClassifier.mva.maxChi2 = cms.vdouble( 999.0, 999.0, 4.9 )
+    process.hltDoubletRecoveryPFlowTrackCutClassifier.mva.maxChi2n = cms.vdouble( 999.0, 999.0, 0.7 )
+    process.hltDoubletRecoveryPFlowTrackCutClassifier.mva.dr_par = cms.PSet( 
+        d0err = cms.vdouble( 0.003, 0.003, 0.003 ),
+        dr_par1 = cms.vdouble( 3.40282346639E38, 0.45, 0.45 ),
+        dr_par2 = cms.vdouble( 3.40282346639E38, 0.34, 0.34 ),
+        dr_exp = cms.vint32( 4, 4, 4 ),
+        d0err_par = cms.vdouble( 0.001, 0.001, 0.001 )
+    )
+    process.hltDoubletRecoveryPFlowTrackCutClassifier.mva.dz_par = cms.PSet( 
+        dz_par1 = cms.vdouble( 3.40282346639E38, 0.45, 0.45 ),
+        dz_par2 = cms.vdouble( 3.40282346639E38, 0.39, 0.39 ),
+        dz_exp = cms.vint32( 4, 4, 4 )
+    )
+    process.hltDoubletRecoveryPFlowTrackCutClassifier.mva.min3DLayers = cms.vint32( 0, 0, 3 )
+    process.hltDoubletRecoveryPFlowTrackCutClassifier.mva.minLayers = cms.vint32( 0, 0, 4 )
+    process.hltDoubletRecoveryPFlowTrackCutClassifier.mva.minHits = cms.vint32( 0, 0, 5 )
+    process.hltDoubletRecoveryPFlowTrackCutClassifier.mva.maxLostLayers = cms.vint32( 0, 0, 0 )
+
+    if hasattr(process, 'hltDoubletRecoveryPFlowTrackCutClassifierSerialSync'):
+        process.hltDoubletRecoveryPFlowTrackCutClassifierSerialSync.mva.maxChi2 = cms.vdouble( 999.0, 99.0, 4.9 )
+        process.hltDoubletRecoveryPFlowTrackCutClassifierSerialSync.mva.maxChi2n = cms.vdouble( 999.0, 999.0, 0.7 )
+        process.hltDoubletRecoveryPFlowTrackCutClassifierSerialSync.mva.dr_par = cms.PSet( 
+            d0err = cms.vdouble( 0.003, 0.003, 0.003 ),
+            d0err_par = cms.vdouble( 0.001, 0.001, 0.001 ),
+            dr_par1 = cms.vdouble( 3.40282346639E38, 0.45, 0.45 ),
+            dr_par2 = cms.vdouble( 3.40282346639E38, 0.34, 0.34 ),
+            dr_exp = cms.vint32( 4, 4, 4 ),
+        )
+        process.hltDoubletRecoveryPFlowTrackCutClassifierSerialSync.mva.dz_par = cms.PSet( 
+            dz_par1 = cms.vdouble( 3.40282346639E38, 0.45, 0.45 ),
+            dz_par2 = cms.vdouble( 3.40282346639E38, 0.39, 0.39 ),
+            dz_exp = cms.vint32( 4, 4, 4 )
+        )
+        process.hltDoubletRecoveryPFlowTrackCutClassifierSerialSync.mva.min3DLayers = cms.vint32( 0, 0, 3 )
+        process.hltDoubletRecoveryPFlowTrackCutClassifierSerialSync.mva.minLayers = cms.vint32( 0, 0, 4 )
+        process.hltDoubletRecoveryPFlowTrackCutClassifierSerialSync.mva.minHits = cms.vint32( 0, 0, 5 )
+        process.hltDoubletRecoveryPFlowTrackCutClassifierSerialSync.mva.maxLostLayers = cms.vint32( 0, 0, 0 )
 
     return process
 
@@ -274,30 +326,8 @@ def modifyMinOutputModuleForTrackingValidation(process, filename="output.root"):
             print(f'# WARNING: customize command failed (object with label "{objLabel}" not found) - no customisation applied !')
             return process
 
-    process.hltOutputMinimal.outputCommands = cms.untracked.vstring(
-        'drop *',
-        'keep edmTriggerResults_*_*_*',
-        'keep triggerTriggerEvent_*_*_*',
-        'keep GlobalAlgBlkBXVector_*_*_*',
-        'keep GlobalExtBlkBXVector_*_*_*',
-        'keep l1tEGammaBXVector_*_EGamma_*',
-        'keep l1tEtSumBXVector_*_EtSum_*',
-        'keep l1tJetBXVector_*_Jet_*',
-        'keep l1tMuonBXVector_*_Muon_*',
-        'keep l1tTauBXVector_*_Tau_*',
-        'keep *_*_*_HLTX',
-        'drop *_hltHbherecoLegacy_*_*',
-        'drop *_hlt*Pixel*SoA*_*_*',
-        'keep recoGenParticles_genParticles_*_*',
-        'keep TrackingParticles_*_*_*',
-        'keep *_*_MergedTrackTruth_*',
-        'keep *_simSiPixelDigis_*_*',
-        'keep *_simSiStripDigis_*_*',
-        'keep PSimHits_g4SimHits_*_*',
-        'keep SimTracks_g4SimHits_*_*',
-        'keep SimVertexs_g4SimHits_*_*',
-        'keep PileupSummaryInfos_addPileupInfo_*_*',
-    )
+    process.load('Configuration.EventContent.EventContent_cff')
+    process.hltOutputMinimal.outputCommands = process.FEVTDEBUGHLTEventContent.outputCommands
     process.hltOutputMinimal.fileName = filename
     process.schedule.remove( process.DQMOutput )
     return process
