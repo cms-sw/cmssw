@@ -33,6 +33,14 @@ namespace edm {
     return get_underlying_safe(modItr->second);
   }
 
+  std::shared_ptr<maker::ModuleHolder> ModuleRegistry::getExistingModule(std::string const& moduleLabel) {
+    auto modItr = labelToModule_.find(moduleLabel);
+    if (modItr == labelToModule_.end()) {
+      return {};
+    }
+    return get_underlying_safe(modItr->second); 
+  }
+
   maker::ModuleHolder* ModuleRegistry::replaceModule(std::string const& iModuleLabel,
                                                      edm::ParameterSet const& iPSet,
                                                      edm::PreallocationConfiguration const& iPrealloc) {

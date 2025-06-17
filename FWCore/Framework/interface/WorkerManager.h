@@ -90,11 +90,20 @@ namespace edm {
                       std::string const& label,
                       bool addToAllWorkers = true);
 
+    template <typename T>
+    Worker* getWorkerForModule(T const& module) {
+      auto* worker = getWorkerForExistingModule(module.moduleDescription().moduleLabel());
+      assert(worker != nullptr);
+      assert(worker->matchesBaseClassPointer(static_cast<typename T::ModuleType const*>(&module)));
+      return worker;
+    }
     void resetAll();
 
     void releaseMemoryPostLookupSignal();
 
   private:
+    Worker* getWorkerForExistingModule(std::string const& label);
+
     WorkerRegistry workerReg_;
     ExceptionToActionTable const* actionTable_;
     AllWorkers allWorkers_;

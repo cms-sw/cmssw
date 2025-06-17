@@ -51,6 +51,14 @@ namespace edm {
     return worker;
   }
 
+    Worker* WorkerManager::getWorkerForExistingModule(std::string const& label) {
+    auto worker = workerReg_.getWorkerFromExistingModule(label, actionTable_);
+    if( nullptr != worker) {
+      addToAllWorkers(worker);
+    }
+    return worker;
+  }
+
   void WorkerManager::addToUnscheduledWorkers(ParameterSet& pset,
                                               SignallingProductRegistryFiller& preg,
                                               PreallocationConfiguration const* prealloc,

@@ -58,38 +58,23 @@ namespace edm {
       }
     }
     if (inserter) {
-      inserter->doPreallocate(prealloc);
       for (auto& wm : workerManagers_) {
-        auto results_inserter = WorkerPtr(new edm::WorkerT<TriggerResultInserter::ModuleType>(
-            inserter, inserter->moduleDescription(), &actions));  // propagate_const<T> has no reset() function
-        results_inserter->setActivityRegistry(actReg_);
-        wm.addToAllWorkers(results_inserter.get());
-        extraWorkers_.emplace_back(std::move(results_inserter));
+        (void)wm.getWorkerForModule(*inserter);
       }
     }
 
     for (auto& pathStatusInserter : pathStatusInserters) {
       std::shared_ptr<PathStatusInserter> inserterPtr = get_underlying(pathStatusInserter);
-      inserterPtr->doPreallocate(prealloc);
 
       for (auto& wm : workerManagers_) {
-        WorkerPtr workerPtr(
-            new edm::WorkerT<PathStatusInserter::ModuleType>(inserterPtr, inserterPtr->moduleDescription(), &actions));
-        workerPtr->setActivityRegistry(actReg_);
-        wm.addToAllWorkers(workerPtr.get());
-        extraWorkers_.emplace_back(std::move(workerPtr));
+        (void)wm.getWorkerForModule(*inserterPtr);
       }
     }
 
     for (auto& endPathStatusInserter : endPathStatusInserters) {
       std::shared_ptr<EndPathStatusInserter> inserterPtr = get_underlying(endPathStatusInserter);
-      inserterPtr->doPreallocate(prealloc);
       for (auto& wm : workerManagers_) {
-        WorkerPtr workerPtr(new edm::WorkerT<EndPathStatusInserter::ModuleType>(
-            inserterPtr, inserterPtr->moduleDescription(), &actions));
-        workerPtr->setActivityRegistry(actReg_);
-        wm.addToAllWorkers(workerPtr.get());
-        extraWorkers_.emplace_back(std::move(workerPtr));
+        (void)wm.getWorkerForModule(*inserterPtr);
       }
     }
 

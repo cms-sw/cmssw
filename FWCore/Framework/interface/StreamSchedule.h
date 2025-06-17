@@ -128,7 +128,6 @@ namespace edm {
     typedef std::vector<Path> TrigPaths;
     typedef std::shared_ptr<HLTGlobalStatus> TrigResPtr;
     typedef std::shared_ptr<HLTGlobalStatus const> TrigResConstPtr;
-    typedef std::shared_ptr<Worker> WorkerPtr;
     typedef std::vector<Worker*> AllWorkers;
 
     typedef std::vector<Worker*> Workers;
@@ -318,9 +317,9 @@ namespace edm {
 
     edm::propagate_const<TrigResPtr> results_;
 
-    edm::propagate_const<WorkerPtr> results_inserter_;
-    std::vector<edm::propagate_const<WorkerPtr>> pathStatusInserterWorkers_;
-    std::vector<edm::propagate_const<WorkerPtr>> endPathStatusInserterWorkers_;
+    edm::propagate_const<Worker*> results_inserter_;
+    std::vector<edm::propagate_const<Worker*>> pathStatusInserterWorkers_;
+    std::vector<edm::propagate_const<Worker*>> endPathStatusInserterWorkers_;
 
     TrigPaths trig_paths_;
     TrigPaths end_paths_;

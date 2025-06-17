@@ -248,6 +248,7 @@ namespace edm {
 
     virtual bool hasAccumulator() const noexcept = 0;
 
+    virtual bool matchesBaseClassPointer(void const* iPtr) const noexcept = 0;
     // Used in PuttableProductResolver
     edm::WaitingTaskList& waitingTaskList() noexcept { return waitingTasks_; }
 

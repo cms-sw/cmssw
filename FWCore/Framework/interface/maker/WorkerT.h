@@ -82,6 +82,8 @@ namespace edm {
     template <typename D>
     void callWorkerStreamEnd(D, StreamID, LumiTransitionInfo const&, ModuleCallingContext const*);
 
+    bool matchesBaseClassPointer(void const* iPtr) const noexcept final { return &(*module_) == iPtr; }
+
   protected:
     T& module() { return *module_; }
     T const& module() const { return *module_; }

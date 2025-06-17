@@ -50,6 +50,26 @@ namespace edm {
     return nullptr;
   }
 
+  Worker* WorkerRegistry::getWorkerFromExistingModule(std::string const& moduleLabel,
+                                                      ExceptionToActionTable const* actions) {
+    WorkerMap::iterator workerIt = m_workerMap.find(moduleLabel);
+    if (workerIt == m_workerMap.end()) {
+      auto modulePtr = modRegistry_->getExistingModule(moduleLabel);
+      if (!modulePtr) {
+        return nullptr;
+      }
+      auto workerPtr = modulePtr->makeWorker(actions);
+
+      workerPtr->setActivityRegistry(actReg_);
+
+      // Transfer ownership of worker to the registry
+      m_workerMap[moduleLabel] =
+          std::shared_ptr<Worker>(workerPtr.release());  // propagate_const<T> has no reset() function
+      return m_workerMap[moduleLabel].get();
+    }
+    return (workerIt->second.get());
+  }
+
   void WorkerRegistry::deleteModule(std::string const& moduleLabel) {
     WorkerMap::iterator workerIt = m_workerMap.find(moduleLabel);
     if (workerIt == m_workerMap.end()) {

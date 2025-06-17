@@ -68,13 +68,13 @@ namespace edm {
     // Here we make the trigger results inserter directly.  This should
     // probably be a utility in the WorkerRegistry or elsewhere.
 
-    std::shared_ptr<TriggerResultInserter> makeInserter(
-        ParameterSet& proc_pset,
-        PreallocationConfiguration const& iPrealloc,
-        SignallingProductRegistryFiller& preg,
-        ExceptionToActionTable const& actions,
-        std::shared_ptr<ActivityRegistry> areg,
-        std::shared_ptr<ProcessConfiguration const> processConfiguration) {
+    std::shared_ptr<TriggerResultInserter> makeInserter(ParameterSet& proc_pset,
+                                                        PreallocationConfiguration const& iPrealloc,
+                                                        SignallingProductRegistryFiller& preg,
+                                                        ExceptionToActionTable const& actions,
+                                                        std::shared_ptr<ActivityRegistry> areg,
+                                                        std::shared_ptr<ProcessConfiguration const> processConfiguration,
+                                                        ModuleRegistry& moduleRegistry) {
       ParameterSet* trig_pset = proc_pset.getPSetForUpdate("@trigger_paths");
       trig_pset->registerIt();
 
@@ -85,27 +85,13 @@ namespace edm {
                            processConfiguration.get(),
                            ModuleDescription::getUniqueID());
 
-      areg->preModuleConstructionSignal_(md);
-      bool postCalled = false;
-      std::shared_ptr<TriggerResultInserter> returnValue;
-      // Caught exception is rethrown
-      CMS_SA_ALLOW try {
-        auto module = make_shared_noexcept_false<TriggerResultInserter>(*trig_pset, iPrealloc.numberOfStreams());
-        maker::ModuleHolderT<TriggerResultInserter::ModuleType>::finishModuleInitialization(
-            *module, md, iPrealloc, &preg);
-        returnValue = module;
-        postCalled = true;
-        // if exception then post will be called in the catch block
-        areg->postModuleConstructionSignal_(md);
-      } catch (...) {
-        if (!postCalled) {
-          CMS_SA_ALLOW try { areg->postModuleConstructionSignal_(md); } catch (...) {
-            // If post throws an exception ignore it because we are already handling another exception
-          }
-        }
-        throw;
-      }
-      return returnValue;
+      return moduleRegistry.makeExplicitModule<TriggerResultInserter>(md,
+                                                                      iPrealloc,
+                                                                      &preg,
+                                                                      areg->preModuleConstructionSignal_,
+                                                                      areg->postModuleConstructionSignal_,
+                                                                      *trig_pset,
+                                                                      iPrealloc.numberOfStreams());
     }
 
     template <typename T>
@@ -115,6 +101,7 @@ namespace edm {
                                  SignallingProductRegistryFiller& preg,
                                  std::shared_ptr<ActivityRegistry> areg,
                                  std::shared_ptr<ProcessConfiguration const> processConfiguration,
+                                 ModuleRegistry& moduleRegistry,
                                  std::string const& moduleTypeName) {
       ParameterSet pset;
       pset.addParameter<std::string>("@module_type", moduleTypeName);
@@ -126,25 +113,13 @@ namespace edm {
       for (auto const& pathName : pathNames) {
         ModuleDescription md(
             pset.id(), moduleTypeName, pathName, processConfiguration.get(), ModuleDescription::getUniqueID());
-
-        areg->preModuleConstructionSignal_(md);
-        bool postCalled = false;
-        // Caught exception is rethrown
-        CMS_SA_ALLOW try {
-          auto module = make_shared_noexcept_false<T>(iPrealloc.numberOfStreams());
-          maker::ModuleHolderT<typename T::ModuleType>::finishModuleInitialization(*module, md, iPrealloc, &preg);
-          pathStatusInserters.emplace_back(module);
-          postCalled = true;
-          // if exception then post will be called in the catch block
-          areg->postModuleConstructionSignal_(md);
-        } catch (...) {
-          if (!postCalled) {
-            CMS_SA_ALLOW try { areg->postModuleConstructionSignal_(md); } catch (...) {
-              // If post throws an exception ignore it because we are already handling another exception
-            }
-          }
-          throw;
-        }
+        auto module = moduleRegistry.makeExplicitModule<T>(md,
+                                                           iPrealloc,
+                                                           &preg,
+                                                           areg->preModuleConstructionSignal_,
+                                                           areg->postModuleConstructionSignal_,
+                                                           iPrealloc.numberOfStreams());
+        pathStatusInserters.emplace_back(std::move(module));
       }
     }
 
@@ -494,10 +469,11 @@ namespace edm {
                      ProcessContext const* processContext,
                      ModuleTypeResolverMaker const* resolverMaker)
       :  //Only create a resultsInserter if there is a trigger path
-        resultsInserter_{tns.getTrigPaths().empty()
-                             ? std::shared_ptr<TriggerResultInserter>{}
-                             : makeInserter(proc_pset, prealloc, preg, actions, areg, processConfiguration)},
         moduleRegistry_(std::make_shared<ModuleRegistry>(resolverMaker)),
+        resultsInserter_{
+            tns.getTrigPaths().empty()
+                ? std::shared_ptr<TriggerResultInserter>{}
+                : makeInserter(proc_pset, prealloc, preg, actions, areg, processConfiguration, *moduleRegistry_)},
         all_output_communicators_(),
         preallocConfig_(prealloc),
         pathNames_(&tns.getTrigPaths()),
@@ -509,6 +485,7 @@ namespace edm {
                             preg,
                             areg,
                             processConfiguration,
+                            *moduleRegistry_,
                             std::string("PathStatusInserter"));
 
     if (endPathNames_->size() > 1) {
@@ -518,6 +495,7 @@ namespace edm {
                               preg,
                               areg,
                               processConfiguration,
+                              *moduleRegistry_,
                               std::string("EndPathStatusInserter"));
     }
 
@@ -539,8 +517,6 @@ namespace edm {
                                                                                processContext));
     }
 
-    //TriggerResults are injected automatically by StreamSchedules and are
-    // unknown to the ModuleRegistry
     const std::string kTriggerResults("TriggerResults");
     std::vector<std::string> modulesToUse;
     modulesToUse.reserve(streamSchedules_[0]->allWorkersLumisAndEvents().size());

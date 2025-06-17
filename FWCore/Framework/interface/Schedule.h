@@ -304,10 +304,10 @@ namespace edm {
     std::shared_ptr<ModuleRegistry const> moduleRegistry() const { return get_underlying_safe(moduleRegistry_); }
     std::shared_ptr<ModuleRegistry>& moduleRegistry() { return get_underlying_safe(moduleRegistry_); }
 
+    edm::propagate_const<std::shared_ptr<ModuleRegistry>> moduleRegistry_;
     edm::propagate_const<std::shared_ptr<TriggerResultInserter>> resultsInserter_;
     std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>> pathStatusInserters_;
     std::vector<edm::propagate_const<std::shared_ptr<EndPathStatusInserter>>> endPathStatusInserters_;
-    edm::propagate_const<std::shared_ptr<ModuleRegistry>> moduleRegistry_;
     std::vector<edm::propagate_const<std::shared_ptr<StreamSchedule>>> streamSchedules_;
     //In the future, we will have one GlobalSchedule per simultaneous transition
     edm::propagate_const<std::unique_ptr<GlobalSchedule>> globalSchedule_;

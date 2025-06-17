@@ -427,10 +427,7 @@ namespace edm {
     if (hasPath) {
       // the results inserter stands alone
       inserter->setTrigResultForStream(streamID.value(), results());
-      results_inserter_ = modReg->getExistingModule(inserter->moduleDescription().moduleLabel())->makeWorker(&actions);
-      results_inserter_->setActivityRegistry(areg);
-      //results_inserter_ = makeInserter(actions, actReg_, inserter);
-      addToAllWorkers(results_inserter_.get());
+      results_inserter_ = workerManagerLumisAndEvents_.getWorkerForModule(*inserter);
     }
 
     // fill normal endpaths
@@ -1464,19 +1461,15 @@ namespace edm {
     unsigned int indexOfPath = 0;
     for (auto& pathStatusInserter : pathStatusInserters) {
       std::shared_ptr<PathStatusInserter> inserterPtr = get_underlying(pathStatusInserter);
-      WorkerPtr workerPtr(
-          new edm::WorkerT<PathStatusInserter::ModuleType>(inserterPtr, inserterPtr->moduleDescription(), &actions));
+      auto workerPtr = workerManagerLumisAndEvents_.getWorkerForModule(*inserterPtr);
       pathStatusInserterWorkers_.emplace_back(workerPtr);
-      workerPtr->setActivityRegistry(actReg_);
-      addToAllWorkers(workerPtr.get());
-
       // A little complexity here because a C++ Path object is not
       // instantiated and put into end_paths if there are no modules
       // on the configured path.
       if (indexEmpty < empty_trig_paths_.size() && bitpos == empty_trig_paths_.at(indexEmpty)) {
         ++indexEmpty;
       } else {
-        trig_paths_.at(indexOfPath).setPathStatusInserter(inserterPtr.get(), workerPtr.get());
+        trig_paths_.at(indexOfPath).setPathStatusInserter(inserterPtr.get(), workerPtr);
         ++indexOfPath;
       }
       ++bitpos;
@@ -1487,19 +1480,15 @@ namespace edm {
     indexOfPath = 0;
     for (auto& endPathStatusInserter : endPathStatusInserters) {
       std::shared_ptr<EndPathStatusInserter> inserterPtr = get_underlying(endPathStatusInserter);
-      WorkerPtr workerPtr(
-          new edm::WorkerT<EndPathStatusInserter::ModuleType>(inserterPtr, inserterPtr->moduleDescription(), &actions));
+      auto workerPtr = workerManagerLumisAndEvents_.getWorkerForModule(*inserterPtr);
       endPathStatusInserterWorkers_.emplace_back(workerPtr);
-      workerPtr->setActivityRegistry(actReg_);
-      addToAllWorkers(workerPtr.get());
-
       // A little complexity here because a C++ Path object is not
       // instantiated and put into end_paths if there are no modules
       // on the configured path.
       if (indexEmpty < empty_end_paths_.size() && bitpos == empty_end_paths_.at(indexEmpty)) {
         ++indexEmpty;
       } else {
-        end_paths_.at(indexOfPath).setPathStatusInserter(nullptr, workerPtr.get());
+        end_paths_.at(indexOfPath).setPathStatusInserter(nullptr, workerPtr);
         ++indexOfPath;
       }
       ++bitpos;
