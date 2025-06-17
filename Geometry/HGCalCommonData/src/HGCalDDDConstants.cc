@@ -1533,8 +1533,8 @@ bool HGCalDDDConstants::tileExist(int zside, int layer, int ring, int phi) const
         edm::LogWarning("HGCalGeomT") << "TileExist:input " << zside << ":" << layer << ":" << ring << ":" << phi
                                       << " Index flag " << indx << ":" << (itr != hgpar_->tileInfoMap_.end()) << " ok "
                                       << ok;
-      if (HGCalTileIndex::tileFineExist(itr->second.hex, zside, phi) !=
-          HGCalTileIndex::tileExist(itr->second.hex, zside, phi))
+      else if (HGCalTileIndex::tileFineExist(itr->second.hex, zside, phi) !=
+               HGCalTileIndex::tileExist(itr->second.hex, zside, phi))
         edm::LogVerbatim("HGCalGeom") << "Zside:Layer:Ring:Phi " << zside << ":" << layer << ":" << ring << ":" << phi
                                       << " hex " << std::hex << itr->second.hex[0] << ":" << itr->second.hex[1] << ":"
                                       << itr->second.hex[2] << ":" << itr->second.hex[3] << ":" << itr->second.hex[4]
