@@ -156,9 +156,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       template <typename ImageType>
       void makePhase1ClustersAsync(Queue& queue,
                                    const SiPixelClusterThresholds clusterThresholds,
-				   ImageType::View images_,
-				   bool doDigiMorphing,
-				   const SiPixelMorphingConfig* digiMorphingConfig,
+                                   ImageType::View images_,
+                                   bool doDigiMorphing,
+                                   const SiPixelMorphingConfig* digiMorphingConfig,
                                    const SiPixelMappingSoAConstView& cablingMap,
                                    const unsigned char* modToUnp,
                                    const SiPixelGainCalibrationForHLTSoAConstView& gains,

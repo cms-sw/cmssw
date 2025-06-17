@@ -504,9 +504,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void SiPixelRawToClusterKernel<TrackerTraits>::makePhase1ClustersAsync(
         Queue &queue,
         const SiPixelClusterThresholds clusterThresholds,
-	ImageType::View images_,
-	bool doDigiMorphing,
-	const SiPixelMorphingConfig *digiMorphingConfig,
+        ImageType::View images_,
+        bool doDigiMorphing,
+        const SiPixelMorphingConfig *digiMorphingConfig,
         const SiPixelMappingSoAConstView &cablingMap,
         const unsigned char *modToUnp,
         const SiPixelGainCalibrationForHLTSoAConstView &gains,
@@ -627,33 +627,37 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         auto moduleStartFirstElement = cms::alpakatools::make_device_view(queue, clusters_d->view().moduleStart(), 1u);
         alpaka::memcpy(queue, nModules_Clusters_h, moduleStartFirstElement);
 
-        const auto elementsPerBlockFindClus = FindClus<TrackerTraits,ImageType>::maxElementsPerBlock;
+        const auto elementsPerBlockFindClus = FindClus<TrackerTraits, ImageType>::maxElementsPerBlock;
         const auto workDivMaxNumModules =
             cms::alpakatools::make_workdiv<Acc1D>(numberOfModules, elementsPerBlockFindClus);
 #ifdef GPU_DEBUG
         std::cout << " FindClus kernel launch with " << numberOfModules << " blocks of " << elementsPerBlockFindClus
                   << " threadsPerBlockOrElementsPerThread\n";
 #endif
-	int offset = int(doDigiMorphing) + 1;
+        int offset = int(doDigiMorphing) + 1;
 
-	auto kernel1_d = cms::alpakatools::make_device_buffer<int32_t[]>(queue,digiMorphingConfig->kernel1_.size());
-	auto kernel2_d = cms::alpakatools::make_device_buffer<int32_t[]>(queue,digiMorphingConfig->kernel2_.size());
-	auto kernel1_h = cms::alpakatools::make_host_view(
-			digiMorphingConfig->kernel1_.data(), 
-			digiMorphingConfig->kernel1_.size()
-			);
-	auto kernel2_h = cms::alpakatools::make_host_view(
-			digiMorphingConfig->kernel2_.data(), 
-			digiMorphingConfig->kernel2_.size()
-			);
+        auto kernel1_d = cms::alpakatools::make_device_buffer<int32_t[]>(queue, digiMorphingConfig->kernel1_.size());
+        auto kernel2_d = cms::alpakatools::make_device_buffer<int32_t[]>(queue, digiMorphingConfig->kernel2_.size());
+        auto kernel1_h =
+            cms::alpakatools::make_host_view(digiMorphingConfig->kernel1_.data(), digiMorphingConfig->kernel1_.size());
+        auto kernel2_h =
+            cms::alpakatools::make_host_view(digiMorphingConfig->kernel2_.data(), digiMorphingConfig->kernel2_.size());
 
-	alpaka::memcpy(queue, kernel1_d, kernel1_h);
-	alpaka::memcpy(queue, kernel2_d, kernel2_h);
+        alpaka::memcpy(queue, kernel1_d, kernel1_h);
+        alpaka::memcpy(queue, kernel2_d, kernel2_h);
 
-        alpaka::exec<Acc1D>(
-            queue, workDivMaxNumModules, FindClus<TrackerTraits,ImageType>{}, digis_d->view(),images_,offset,kernel1_d.data(),kernel2_d.data(), clusters_d->view(), wordCounter);
+        alpaka::exec<Acc1D>(queue,
+                            workDivMaxNumModules,
+                            FindClus<TrackerTraits, ImageType>{},
+                            digis_d->view(),
+                            images_,
+                            offset,
+                            kernel1_d.data(),
+                            kernel2_d.data(),
+                            clusters_d->view(),
+                            wordCounter);
         //alpaka::exec<Acc1D>(
-         //   queue, workDivMaxNumModules, FindClus<TrackerTraits>{}, digis_d->view(), clusters_d->view(), wordCounter);
+        //   queue, workDivMaxNumModules, FindClus<TrackerTraits>{}, digis_d->view(), clusters_d->view(), wordCounter);
 #ifdef GPU_DEBUG
         alpaka::wait(queue);
 #endif
@@ -708,66 +712,65 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using HIonPhase1Kernel = SiPixelRawToClusterKernel<pixelTopology::HIonPhase1>;
 
     template void Phase1Kernel::makePhase1ClustersAsync<SiPixelImageDevice>(
-		    Queue&,
-		    const SiPixelClusterThresholds,
-		    SiPixelImageDevice::View,
-		    bool,
-		    const SiPixelMorphingConfig *,
-		    const SiPixelMappingSoAConstView &,
-		    const unsigned char *,
-		    const SiPixelGainCalibrationForHLTSoAConstView&,
-		    const WordFedAppender&,
-		    const uint32_t,
-		    const uint32_t,
-		    bool,
-		    bool,
-		    bool);
+        Queue &,
+        const SiPixelClusterThresholds,
+        SiPixelImageDevice::View,
+        bool,
+        const SiPixelMorphingConfig *,
+        const SiPixelMappingSoAConstView &,
+        const unsigned char *,
+        const SiPixelGainCalibrationForHLTSoAConstView &,
+        const WordFedAppender &,
+        const uint32_t,
+        const uint32_t,
+        bool,
+        bool,
+        bool);
     template void Phase1Kernel::makePhase1ClustersAsync<SiPixelImageMorphDevice>(
-		    Queue&,
-		    const SiPixelClusterThresholds,
-		    SiPixelImageMorphDevice::View,
-		    bool,
-		    const SiPixelMorphingConfig *,
-		    const SiPixelMappingSoAConstView &,
-		    const unsigned char *,
-		    const SiPixelGainCalibrationForHLTSoAConstView&,
-		    const WordFedAppender&,
-		    const uint32_t,
-		    const uint32_t,
-		    bool,
-		    bool,
-		    bool);
+        Queue &,
+        const SiPixelClusterThresholds,
+        SiPixelImageMorphDevice::View,
+        bool,
+        const SiPixelMorphingConfig *,
+        const SiPixelMappingSoAConstView &,
+        const unsigned char *,
+        const SiPixelGainCalibrationForHLTSoAConstView &,
+        const WordFedAppender &,
+        const uint32_t,
+        const uint32_t,
+        bool,
+        bool,
+        bool);
     template void HIonPhase1Kernel::makePhase1ClustersAsync<SiPixelImageDevice>(
-		    Queue&,
-		    const SiPixelClusterThresholds,
-		    SiPixelImageDevice::View,
-		    bool,
-		    const SiPixelMorphingConfig *,
-		    const SiPixelMappingSoAConstView &,
-		    const unsigned char *,
-		    const SiPixelGainCalibrationForHLTSoAConstView&,
-		    const WordFedAppender&,
-		    const uint32_t,
-		    const uint32_t,
-		    bool,
-		    bool,
-		    bool);
+        Queue &,
+        const SiPixelClusterThresholds,
+        SiPixelImageDevice::View,
+        bool,
+        const SiPixelMorphingConfig *,
+        const SiPixelMappingSoAConstView &,
+        const unsigned char *,
+        const SiPixelGainCalibrationForHLTSoAConstView &,
+        const WordFedAppender &,
+        const uint32_t,
+        const uint32_t,
+        bool,
+        bool,
+        bool);
     template void HIonPhase1Kernel::makePhase1ClustersAsync<SiPixelImageMorphDevice>(
-		    Queue&,
-		    const SiPixelClusterThresholds,
-		    SiPixelImageMorphDevice::View,
-		    bool,
-		    const SiPixelMorphingConfig *,
-		    const SiPixelMappingSoAConstView &,
-		    const unsigned char *,
-		    const SiPixelGainCalibrationForHLTSoAConstView&,
-		    const WordFedAppender&,
-		    const uint32_t,
-		    const uint32_t,
-		    bool,
-		    bool,
-		    bool);
-
+        Queue &,
+        const SiPixelClusterThresholds,
+        SiPixelImageMorphDevice::View,
+        bool,
+        const SiPixelMorphingConfig *,
+        const SiPixelMappingSoAConstView &,
+        const unsigned char *,
+        const SiPixelGainCalibrationForHLTSoAConstView &,
+        const WordFedAppender &,
+        const uint32_t,
+        const uint32_t,
+        bool,
+        bool,
+        bool);
 
     template <typename TrackerTraits>
     void SiPixelRawToClusterKernel<TrackerTraits>::makePhase2ClustersAsync(
