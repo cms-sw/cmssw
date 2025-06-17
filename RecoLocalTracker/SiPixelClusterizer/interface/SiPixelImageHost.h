@@ -5,5 +5,6 @@
 #include "DataFormats/Portable/interface/PortableHostCollection.h"
 
 using SiPixelImageHost = PortableHostCollection<SiPixelImageSoA>;
+using SiPixelImageMorphHost = PortableHostCollection<SiPixelImageMorphSoA>;
 
 #endif

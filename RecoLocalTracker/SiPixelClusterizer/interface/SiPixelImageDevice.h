@@ -8,8 +8,10 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   using SiPixelImageDevice = PortableCollection<SiPixelImageSoA>;
+  using SiPixelImageMorphDevice = PortableCollection<SiPixelImageMorphSoA>;
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
 ASSERT_DEVICE_MATCHES_HOST_COLLECTION(SiPixelImageDevice, SiPixelImageHost)
+ASSERT_DEVICE_MATCHES_HOST_COLLECTION(SiPixelImageMorphDevice, SiPixelImageMorphHost)
 
 #endif  // RecoLocalTracker_SiPixelClusterizer_interface_SiPixelImageDevice_h
