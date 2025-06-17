@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <cassert>
+#include <algorithm>
 
 namespace {
   std::string const space{"  "};
