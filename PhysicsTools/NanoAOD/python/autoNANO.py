@@ -76,6 +76,8 @@ autoNANO = {
     # NGT scouting Nano
     'NGTScouting' : {'sequence': 'HLTrigger/NGTScouting/HLTNanoProducer_cff.dstNanoProducer',
                      'customize': 'HLTrigger/NGTScouting/HLTNanoProducer_cff.hltNanoCustomize'},
+    'NGTScoutingVal' : {'sequence': '@NGTScouting',
+                        'customize': ','.join(['HLTrigger/NGTScouting/HLTNanoProducer_cff.hltNanoCustomize', 'HLTrigger/NGTScouting/HLTNanoProducer_cff.hltNanoValCustomize'])},
     # Muon High Level Trigger
     'MUHLT' : {'sequence': 'DPGAnalysis/MuonTools/muNtupleProducerHlt_cff.hltMuNanoProducer',
                'customize': 'DPGAnalysis/MuonTools/muNtupleProducerHlt_cff.hltMuNanoCustomize'},
@@ -103,7 +105,4 @@ autoNANO = {
     # NANOGEN (from MiniAOD)
     'GENFromMini': {'sequence': 'PhysicsTools/NanoAOD/nanogen_cff.nanogenSequence',
                     'customize': 'PhysicsTools/NanoAOD/nanogen_cff.customizeNanoGENFromMini'},
-    'NGTScout' : {'sequence': 'HLTrigger/HLTUpgradeNano/hltUpgradeNano_cff.hltUpgradeNanoSequence'},
-    'NGTScoutWithGen' : {'sequence': '@NGTScout',
-                         'customize': 'HLTrigger/HLTUpgradeNano/hltUpgradeNano_cff.addAssociators'},
 }
