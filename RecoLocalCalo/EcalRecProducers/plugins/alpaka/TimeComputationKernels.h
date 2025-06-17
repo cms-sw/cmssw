@@ -168,13 +168,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
 
           auto const ch_start = ch * nsamples;
           auto const inputCh = ch >= offsetForInputs ? ch - offsetForInputs : ch;
-          auto const* dids = ch >= offsetForInputs ? digisDevEE.id() : digisDevEB.id();
+          auto const dids = ch >= offsetForInputs ? digisDevEE.id() : digisDevEB.id();
 
           auto const did = DetId{dids[inputCh]};
           auto const isBarrel = did.subdetId() == EcalBarrel;
-          auto* const amplitudeFitParameters =
+          auto const amplitudeFitParameters =
               isBarrel ? paramsDev->amplitudeFitParamsEB.data() : paramsDev->amplitudeFitParamsEE.data();
-          auto* const timeFitParameters =
+          auto const timeFitParameters =
               isBarrel ? paramsDev->timeFitParamsEB.data() : paramsDev->timeFitParamsEE.data();
           auto const timeFitParameters_size =
               isBarrel ? paramsDev->timeFitParamsEB.size() : paramsDev->timeFitParamsEE.size();
@@ -565,12 +565,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
         auto const elemIdx = gtx % elemsPerBlock;
         auto const sample = elemIdx % nsamples;
 
-        auto const* dids = ch >= offsetForInputs ? digisDevEE.id() : digisDevEB.id();
+        auto const dids = ch >= offsetForInputs ? digisDevEE.id() : digisDevEB.id();
         auto const inputCh = ch >= offsetForInputs ? ch - offsetForInputs : ch;
 
         auto state = g_state[ch];
         auto const did = DetId{dids[inputCh]};
-        auto* const amplitudeFitParameters = did.subdetId() == EcalBarrel ? paramsDev->amplitudeFitParamsEB.data()
+        auto const amplitudeFitParameters = did.subdetId() == EcalBarrel ? paramsDev->amplitudeFitParamsEB.data()
                                                                           : paramsDev->amplitudeFitParamsEE.data();
 
         // TODO is that better than storing into global and launching another kernel
@@ -755,10 +755,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
           continue;
 
         int const inputGtx = ch >= offsetForInputs ? gtx - offsetForInputs * nsamples : gtx;
-        auto const* digis = ch >= offsetForInputs ? digisDevEE.data()->data() : digisDevEB.data()->data();
+        auto const& digis = ch >= offsetForInputs ? digisDevEE.data() : digisDevEB.data();
 
-        auto const gainIdPrev = ecalMGPA::gainId(digis[inputGtx - 1]);
-        auto const gainIdNext = ecalMGPA::gainId(digis[inputGtx]);
+        auto const gainIdPrev = ecalMGPA::gainId(digis[inputGtx - 1][0]);
+        auto const gainIdNext = ecalMGPA::gainId(digis[inputGtx][0]);
         if (gainIdPrev >= 1 && gainIdPrev <= 3 && gainIdNext >= 1 && gainIdNext <= 3 && gainIdPrev < gainIdNext) {
           sample_values[gtx - 1] = 0;
           sample_value_errors[gtx - 1] = 1e+9;
@@ -805,8 +805,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
 
         int const inputTx = ch >= offsetForInputs ? tx - offsetForInputs * nsamples : tx;
         int const inputCh = ch >= offsetForInputs ? ch - offsetForInputs : ch;
-        auto const* digis = ch >= offsetForInputs ? digisDevEE.data()->data() : digisDevEB.data()->data();
-        auto const* dids = ch >= offsetForInputs ? digisDevEE.id() : digisDevEB.id();
+        auto const& digis = ch >= offsetForInputs ? digisDevEE.data() : digisDevEB.data();
+        auto const& dids = ch >= offsetForInputs ? digisDevEE.id() : digisDevEB.id();
 
         // indices/inits
         auto const sample = tx % nsamples;
@@ -815,10 +815,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
         int num = 0;
 
         // 0 and 1 sample values
-        auto const adc0 = ecalMGPA::adc(digis[input_ch_start]);
-        auto const gainId0 = ecalMGPA::gainId(digis[input_ch_start]);
-        auto const adc1 = ecalMGPA::adc(digis[input_ch_start + 1]);
-        auto const gainId1 = ecalMGPA::gainId(digis[input_ch_start + 1]);
+        auto const adc0 = ecalMGPA::adc(digis[input_ch_start][0]);
+        auto const gainId0 = ecalMGPA::gainId(digis[input_ch_start][0]);
+        auto const adc1 = ecalMGPA::adc(digis[input_ch_start + 1][0]);
+        auto const gainId1 = ecalMGPA::gainId(digis[input_ch_start + 1][0]);
         auto const did = DetId{dids[inputCh]};
         auto const isBarrel = did.subdetId() == EcalBarrel;
         auto const sample_mask = isBarrel ? conditionsDev.sampleMask_EB() : conditionsDev.sampleMask_EE();
@@ -842,8 +842,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
         }
 
         // ped subtracted and gain-renormalized samples.
-        auto const gainId = ecalMGPA::gainId(digis[inputTx]);
-        auto const adc = ecalMGPA::adc(digis[inputTx]);
+        auto const gainId = ecalMGPA::gainId(digis[inputTx][0]);
+        auto const adc = ecalMGPA::adc(digis[inputTx][0]);
 
         bool bad = false;
         ScalarType sample_value, sample_value_error;
@@ -986,22 +986,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
 
       for (auto gtx : cms::alpakatools::uniform_elements(acc, nchannels)) {
         const int inputGtx = gtx >= offsetForInputs ? gtx - offsetForInputs : gtx;
-        auto const* dids = gtx >= offsetForInputs ? digisDevEE.id() : digisDevEB.id();
-        auto const* digis = gtx >= offsetForInputs ? digisDevEE.data()->data() : digisDevEB.data()->data();
+        auto const& dids = gtx >= offsetForInputs ? digisDevEE.id() : digisDevEB.id();
+        auto const& digis = gtx >= offsetForInputs ? digisDevEE.data() : digisDevEB.data();
 
-        auto* g_amplitude = gtx >= nchannelsEB ? uncalibRecHitsEE.amplitude() : uncalibRecHitsEB.amplitude();
-        auto* g_jitter = gtx >= nchannelsEB ? uncalibRecHitsEE.jitter() : uncalibRecHitsEB.jitter();
-        auto* g_jitterError = gtx >= nchannelsEB ? uncalibRecHitsEE.jitterError() : uncalibRecHitsEB.jitterError();
-        auto* flags = gtx >= nchannelsEB ? uncalibRecHitsEE.flags() : uncalibRecHitsEB.flags();
+        auto g_amplitude = gtx >= nchannelsEB ? uncalibRecHitsEE.amplitude() : uncalibRecHitsEB.amplitude();
+        auto g_jitter = gtx >= nchannelsEB ? uncalibRecHitsEE.jitter() : uncalibRecHitsEB.jitter();
+        auto g_jitterError = gtx >= nchannelsEB ? uncalibRecHitsEE.jitterError() : uncalibRecHitsEB.jitterError();
+        auto flags = gtx >= nchannelsEB ? uncalibRecHitsEE.flags() : uncalibRecHitsEB.flags();
 
         auto const did = DetId{dids[inputGtx]};
         auto const isBarrel = did.subdetId() == EcalBarrel;
         auto const hashedId = isBarrel ? ecal::reconstruction::hashedIndexEB(did.rawId())
                                        : offsetForHashes + ecal::reconstruction::hashedIndexEE(did.rawId());
         // need to access the underlying data directly here because the std::arrays have different size for EB and EE, which is not compatible with the ? operator
-        auto* const amplitudeBins = isBarrel ? conditionsDev.timeBiasCorrections_amplitude_EB().data()
+        auto const amplitudeBins = isBarrel ? conditionsDev.timeBiasCorrections_amplitude_EB().data()
                                              : conditionsDev.timeBiasCorrections_amplitude_EE().data();
-        auto* const shiftBins = isBarrel ? conditionsDev.timeBiasCorrections_shift_EB().data()
+        auto const shiftBins = isBarrel ? conditionsDev.timeBiasCorrections_shift_EB().data()
                                          : conditionsDev.timeBiasCorrections_shift_EE().data();
         auto const amplitudeBinsSize =
             isBarrel ? conditionsDev.timeBiasCorrectionSizeEB() : conditionsDev.timeBiasCorrectionSizeEE();
@@ -1067,7 +1067,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
           auto threshM = outOfTimeThreshG12m;
           if (amplitude > 3000.) {
             for (int isample = 0; isample < nsamples; isample++) {
-              auto const gainid = ecalMGPA::gainId(digis[nsamples * inputGtx + isample]);
+              auto const gainid = ecalMGPA::gainId(digis[nsamples * inputGtx + isample][0]);
               if (gainid != 1) {
                 threshP = outOfTimeThreshG61p;
                 threshM = outOfTimeThreshG61m;

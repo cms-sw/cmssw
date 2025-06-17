@@ -63,7 +63,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto nHits = clusters_d.nClusters();
       auto offsetBPIX2 = clusters_d.offsetBPIX2();
 
-      TrackingRecHitsSoACollection<TrackerTraits> hits_d(queue, nHits, offsetBPIX2, clusters_d->clusModuleStart());
+      TrackingRecHitsSoACollection<TrackerTraits> hits_d(queue, nHits, offsetBPIX2, clusters_d->clusModuleStart().data());
 
       int activeModulesWithDigis = digis_d.nModules();
 
@@ -98,7 +98,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           alpaka::exec<Acc1D>(queue,
                               workDiv1D,
                               setHitsLayerStart<TrackerTraits>{},
-                              clusters_d->clusModuleStart(),
+                              clusters_d->clusModuleStart().data(),
                               cpeParams,
                               hits_d.view().hitsLayerStart().data());
           constexpr auto nLayers = TrackerTraits::numberOfLayers;
@@ -110,12 +110,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           hrv_d.offSize = -1;
           hrv_d.offStorage = nullptr;
           hrv_d.contentSize = nHits;
-          hrv_d.contentStorage = hits_d.view().phiBinnerStorage();
+          hrv_d.contentStorage = hits_d.view().phiBinnerStorage().data();
 
           cms::alpakatools::fillManyFromVector<Acc1D>(&(hits_d.view().phiBinner()),
                                                       hrv_d,
                                                       nLayers,
-                                                      hits_d.view().iphi(),
+                                                      hits_d.view().iphi().data(),
                                                       hits_d.view().hitsLayerStart().data(),
                                                       nHits,
                                                       (uint32_t)256,

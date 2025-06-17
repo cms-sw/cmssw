@@ -101,15 +101,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
         DataType* shrAtAStorage =
             shrmem + calo::multifit::MapSymM<DataType, NPULSES>::total * (elemIdx + elemsPerBlock);
 
-        auto* amplitudes =
-            reinterpret_cast<SampleVector*>(idx >= nchannelsEB ? uncalibRecHitsEE.outOfTimeAmplitudes()->data().data()
-                                                               : uncalibRecHitsEB.outOfTimeAmplitudes()->data().data());
-        auto* energies = idx >= nchannelsEB ? uncalibRecHitsEE.amplitude().data() : uncalibRecHitsEB.amplitude().data();
-        auto* chi2s = idx >= nchannelsEB ? uncalibRecHitsEE.chi2().data() : uncalibRecHitsEB.chi2().data();
+        auto amplitudes =
+            idx >= nchannelsEB ? uncalibRecHitsEE.outOfTimeAmplitudes()
+                                                               : uncalibRecHitsEB.outOfTimeAmplitudes();
+        auto energies = idx >= nchannelsEB ? uncalibRecHitsEE.amplitude() : uncalibRecHitsEB.amplitude();
+        auto chi2s = idx >= nchannelsEB ? uncalibRecHitsEE.chi2() : uncalibRecHitsEB.chi2();
 
         // get the hash
         int const inputCh = idx >= nchannelsEB ? idx - nchannelsEB : idx;
-        auto const* dids = idx >= nchannelsEB ? digisDevEE.id().data() : digisDevEB.id().data();
+        auto const dids = idx >= nchannelsEB ? digisDevEE.id() : digisDevEB.id();
         auto const did = DetId{dids[inputCh]};
         auto const isBarrel = did.subdetId() == EcalBarrel;
         auto const hashedId = isBarrel ? ecal::reconstruction::hashedIndexEB(did.rawId())
@@ -250,7 +250,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
 
         CMS_UNROLL_LOOP
         for (int counter = 0; counter < NPULSES; ++counter)
-          amplitudes[inputCh](counter) = resultAmplitudes(counter);
+          amplitudes[inputCh][counter] = resultAmplitudes(counter);
       }
     }
   };

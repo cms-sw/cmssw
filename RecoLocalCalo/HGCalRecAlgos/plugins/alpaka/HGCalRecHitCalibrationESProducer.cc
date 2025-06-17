@@ -45,7 +45,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // @short fill SoA column with data from vector for any type with some offset
       template <typename T>
       static void fill_SoA_column(
-          T* column_SoA, const std::vector<T>& values, const int offset, const int nrows, int arr_offset = 0) {
+          std::span<T> column_SoA, const std::vector<T>& values, const int offset, const int nrows, int arr_offset = 0) {
         const int nrows_vals = values.size();
         if (arr_offset < 0) {
           arr_offset = 0;

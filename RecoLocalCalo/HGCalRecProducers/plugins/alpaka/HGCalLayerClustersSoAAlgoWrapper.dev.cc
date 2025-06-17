@@ -151,25 +151,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                              const HGCalSoARecHitsExtraDeviceCollection::ConstView input_clusters_soa,
                                              HGCalSoAClustersDeviceCollection::View outputs,
                                              HGCalSoAClustersExtraDeviceCollection::View outputs_service) const {
-    auto x = cms::alpakatools::make_device_view<float>(queue, outputs.x().data(), size);
+    auto x = cms::alpakatools::make_device_view<float>(queue, outputs.x());
     alpaka::memset(queue, x, 0x0);
-    auto y = cms::alpakatools::make_device_view<float>(queue, outputs.y().data(), size);
+    auto y = cms::alpakatools::make_device_view<float>(queue, outputs.y());
     alpaka::memset(queue, y, 0x0);
-    auto z = cms::alpakatools::make_device_view<float>(queue, outputs.z().data(), size);
+    auto z = cms::alpakatools::make_device_view<float>(queue, outputs.z());
     alpaka::memset(queue, z, 0x0);
-    auto seed = cms::alpakatools::make_device_view<int>(queue, outputs.seed().data(), size);
+    auto seed = cms::alpakatools::make_device_view<int>(queue, outputs.seed());
     alpaka::memset(queue, seed, 0x0);
-    auto energy = cms::alpakatools::make_device_view<float>(queue, outputs.energy().data(), size);
+    auto energy = cms::alpakatools::make_device_view<float>(queue, outputs.energy());
     alpaka::memset(queue, energy, 0x0);
-    auto cells = cms::alpakatools::make_device_view<int>(queue, outputs.cells().data(), size);
+    auto cells = cms::alpakatools::make_device_view<int>(queue, outputs.cells());
     alpaka::memset(queue, cells, 0x0);
-    auto total_weight = cms::alpakatools::make_device_view<float>(queue, outputs_service.total_weight().data(), size);
+    auto total_weight = cms::alpakatools::make_device_view<float>(queue, outputs_service.total_weight());
     alpaka::memset(queue, total_weight, 0x0);
-    auto total_weight_log = cms::alpakatools::make_device_view<float>(queue, outputs_service.total_weight_log().data(), size);
+    auto total_weight_log = cms::alpakatools::make_device_view<float>(queue, outputs_service.total_weight_log());
     alpaka::memset(queue, total_weight_log, 0x0);
-    auto maxEnergyValue = cms::alpakatools::make_device_view<float>(queue, outputs_service.maxEnergyValue().data(), size);
+    auto maxEnergyValue = cms::alpakatools::make_device_view<float>(queue, outputs_service.maxEnergyValue());
     alpaka::memset(queue, maxEnergyValue, 0x0);
-    auto maxEnergyIndex = cms::alpakatools::make_device_view<int>(queue, outputs_service.maxEnergyIndex().data(), size);
+    auto maxEnergyIndex = cms::alpakatools::make_device_view<int>(queue, outputs_service.maxEnergyIndex());
     alpaka::memset(queue, maxEnergyIndex, kInvalidIndexByte);
 
     // use 64 items per group (this value is arbitrary, but it's a reasonable starting point)

@@ -76,8 +76,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
           // for accessing input arrays
           int const inputTx = ch >= nchannelsEB ? idx.global - nchannelsEB * nsamples : idx.global;
           // eb is first and then ee
-          auto const* digis_in = ch >= nchannelsEB ? digisDevEE.data()->data() : digisDevEB.data()->data();
-          auto const gainId = ecalMGPA::gainId(digis_in[inputTx]);
+          auto const& digis_in = ch >= nchannelsEB ? digisDevEE.data() : digisDevEB.data();
+          auto const gainId = ecalMGPA::gainId(digis_in[inputTx][0]);
 
           // store into shared mem for initialization
           shr_hasSwitchToGain6[idx.local] = gainId == EcalMgpaBitwiseGain6;
@@ -170,7 +170,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
           int const inputCh = ch >= nchannelsEB ? ch - nchannelsEB : ch;
           int const inputTx = ch >= nchannelsEB ? idx.global - nchannelsEB * nsamples : idx.global;
 
-          auto const* dids = ch >= nchannelsEB ? digisDevEE.id() : digisDevEB.id();
+          auto const dids = ch >= nchannelsEB ? digisDevEE.id() : digisDevEB.id();
           auto const did = DetId{dids[inputCh]};
           auto const isBarrel = did.subdetId() == EcalBarrel;
           // TODO offset for ee, 0 for eb
@@ -178,19 +178,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
                                          : offsetForHashes + reconstruction::hashedIndexEE(did.rawId());
 
           // eb is first and then ee
-          auto const* digis_in = ch >= nchannelsEB ? digisDevEE.data()->data() : digisDevEB.data()->data();
+          auto const& digis_in = ch >= nchannelsEB ? digisDevEE.data() : digisDevEB.data();
 
-          auto* amplitudesForMinimization = reinterpret_cast<::ecal::multifit::SampleVector*>(
-              ch >= nchannelsEB ? uncalibRecHitsEE.outOfTimeAmplitudes()->data()
-                                : uncalibRecHitsEB.outOfTimeAmplitudes()->data());
-          auto* energies = ch >= nchannelsEB ? uncalibRecHitsEE.amplitude() : uncalibRecHitsEB.amplitude();
-          auto* chi2 = ch >= nchannelsEB ? uncalibRecHitsEE.chi2() : uncalibRecHitsEB.chi2();
-          auto* g_pedestal = ch >= nchannelsEB ? uncalibRecHitsEE.pedestal() : uncalibRecHitsEB.pedestal();
-          auto* dids_out = ch >= nchannelsEB ? uncalibRecHitsEE.id() : uncalibRecHitsEB.id();
-          auto* flags = ch >= nchannelsEB ? uncalibRecHitsEE.flags() : uncalibRecHitsEB.flags();
+          auto amplitudesForMinimization = 
+              ch >= nchannelsEB ? uncalibRecHitsEE.outOfTimeAmplitudes()
+                                : uncalibRecHitsEB.outOfTimeAmplitudes();
+          auto energies = ch >= nchannelsEB ? uncalibRecHitsEE.amplitude() : uncalibRecHitsEB.amplitude();
+          auto chi2 = ch >= nchannelsEB ? uncalibRecHitsEE.chi2() : uncalibRecHitsEB.chi2();
+          auto g_pedestal = ch >= nchannelsEB ? uncalibRecHitsEE.pedestal() : uncalibRecHitsEB.pedestal();
+          auto dids_out = ch >= nchannelsEB ? uncalibRecHitsEE.id() : uncalibRecHitsEB.id();
+          auto flags = ch >= nchannelsEB ? uncalibRecHitsEE.flags() : uncalibRecHitsEB.flags();
 
-          auto const adc = ecalMGPA::adc(digis_in[inputTx]);
-          auto const gainId = ecalMGPA::gainId(digis_in[inputTx]);
+          auto const adc = ecalMGPA::adc(digis_in[inputTx][0]);
+          auto const gainId = ecalMGPA::gainId(digis_in[inputTx][0]);
           ::ecal::multifit::SampleVector::Scalar amplitude = 0.;
           ::ecal::multifit::SampleVector::Scalar pedestal = 0.;
           ::ecal::multifit::SampleVector::Scalar gainratio = 0.;
@@ -226,7 +226,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
           //
           // initialization
           //
-          amplitudesForMinimization[inputCh](sample) = 0;
+          amplitudesForMinimization[inputCh][sample] = 0;
           bxs[ch](sample) = sample - 5;
 
           // select the thread for the max sample
@@ -345,7 +345,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
       constexpr bool simplifiedNoiseModelForGainSwitch = true;  //---- default is true
 
       // pulse matrix
-      auto const* pulse_shapes = reinterpret_cast<const EcalPulseShape*>(conditionsDev.pulseShapes()->data());
+      auto const pulse_shapes = reinterpret_cast<const EcalPulseShape*>(conditionsDev.pulseShapes().data());
 
       auto const blockDimX = alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[1u];
       auto const elemsPerBlockX = alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[1u];
@@ -359,17 +359,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
 
         // to access input arrays (ids and digis only)
         int const inputCh = ch >= nchannelsEB ? ch - nchannelsEB : ch;
-        auto const* dids = ch >= nchannelsEB ? digisDevEE.id() : digisDevEB.id();
+        auto const dids = ch >= nchannelsEB ? digisDevEE.id() : digisDevEB.id();
 
         auto const did = DetId{dids[inputCh]};
         auto const isBarrel = did.subdetId() == EcalBarrel;
         auto const hashedId = isBarrel ? ecal::reconstruction::hashedIndexEB(did.rawId())
                                        : offsetForHashes + ecal::reconstruction::hashedIndexEE(did.rawId());
-        auto const* G12SamplesCorrelation = isBarrel ? conditionsDev.sampleCorrelation_EB_G12().data()
+        auto const G12SamplesCorrelation = isBarrel ? conditionsDev.sampleCorrelation_EB_G12().data()
                                                      : conditionsDev.sampleCorrelation_EE_G12().data();
-        auto const* G6SamplesCorrelation =
+        auto const G6SamplesCorrelation =
             isBarrel ? conditionsDev.sampleCorrelation_EB_G6().data() : conditionsDev.sampleCorrelation_EE_G6().data();
-        auto const* G1SamplesCorrelation =
+        auto const G1SamplesCorrelation =
             isBarrel ? conditionsDev.sampleCorrelation_EB_G1().data() : conditionsDev.sampleCorrelation_EE_G1().data();
         auto const hasGainSwitch = hasSwitchToGain6[ch] || hasSwitchToGain1[ch] || isSaturated[ch];
 

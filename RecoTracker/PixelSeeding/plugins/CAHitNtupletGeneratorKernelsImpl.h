@@ -405,7 +405,7 @@ namespace caHitNtupletGeneratorKernels {
                                                   *cellTracks,
                                                   tracks_view.hitIndices(),
                                                   *apc,
-                                                  tracks_view.quality(),
+                                                  tracks_view.quality().data(),
                                                   stack,
                                                   params.minHitsPerNtuplet_,
                                                   bpix1Start);

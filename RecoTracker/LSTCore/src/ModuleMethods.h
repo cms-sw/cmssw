@@ -130,8 +130,8 @@ namespace lst {
   inline void fillConnectedModuleArrayExplicit(Modules modules,
                                                ModuleMetaData const& mmd,
                                                ModuleConnectionMap const& moduleConnectionMap) {
-    Params_Modules::ArrayU16xMaxConnected* moduleMap = modules.moduleMap();
-    uint16_t* nConnectedModules = modules.nConnectedModules();
+    auto moduleMap = modules.moduleMap();
+    auto nConnectedModules = modules.nConnectedModules();
 
     for (auto it = mmd.detIdToIndex.begin(); it != mmd.detIdToIndex.end(); ++it) {
       unsigned int detId = it->first;
@@ -145,8 +145,8 @@ namespace lst {
   }
 
   inline void fillMapArraysExplicit(Modules modules, ModuleMetaData const& mmd) {
-    uint16_t* mapIdx = modules.mapIdx();
-    unsigned int* mapdetId = modules.mapdetId();
+    auto mapIdx = modules.mapIdx();
+    auto mapdetId = modules.mapdetId();
 
     unsigned int counter = 0;
     for (auto it = mmd.detIdToIndex.begin(); it != mmd.detIdToIndex.end(); ++it) {
@@ -246,26 +246,26 @@ namespace lst {
     auto modules_view = modulesHC->view<ModulesSoA>();
 
     // Getting the underlying data pointers
-    unsigned int* host_detIds = modules_view.detIds();
-    short* host_layers = modules_view.layers();
-    short* host_rings = modules_view.rings();
-    short* host_rods = modules_view.rods();
-    short* host_modules = modules_view.modules();
-    short* host_subdets = modules_view.subdets();
-    short* host_sides = modules_view.sides();
-    float* host_eta = modules_view.eta();
-    float* host_r = modules_view.r();
-    bool* host_isInverted = modules_view.isInverted();
-    bool* host_isLower = modules_view.isLower();
-    bool* host_isAnchor = modules_view.isAnchor();
-    ModuleType* host_moduleType = modules_view.moduleType();
-    ModuleLayerType* host_moduleLayerType = modules_view.moduleLayerType();
-    float* host_dxdys = modules_view.dxdys();
-    float* host_drdzs = modules_view.drdzs();
+    auto host_detIds = modules_view.detIds();
+    auto host_layers = modules_view.layers();
+    auto host_rings = modules_view.rings();
+    auto host_rods = modules_view.rods();
+    auto host_modules = modules_view.modules();
+    auto host_subdets = modules_view.subdets();
+    auto host_sides = modules_view.sides();
+    auto host_eta = modules_view.eta();
+    auto host_r = modules_view.r();
+    auto host_isInverted = modules_view.isInverted();
+    auto host_isLower = modules_view.isLower();
+    auto host_isAnchor = modules_view.isAnchor();
+    auto host_moduleType = modules_view.moduleType();
+    auto host_moduleLayerType = modules_view.moduleLayerType();
+    auto host_dxdys = modules_view.dxdys();
+    auto host_drdzs = modules_view.drdzs();
     uint16_t* host_nModules = &modules_view.nModules();
     uint16_t* host_nLowerModules = &modules_view.nLowerModules();
-    uint16_t* host_partnerModuleIndices = modules_view.partnerModuleIndices();
-    int* host_lstLayers = modules_view.lstLayers();
+    auto host_partnerModuleIndices = modules_view.partnerModuleIndices();
+    auto host_lstLayers = modules_view.lstLayers();
 
     //reassign detIdToIndex indices here
     nLowerModules = (nModules - 1) / 2;
@@ -374,7 +374,7 @@ namespace lst {
 
     auto modulesPixel_view = modulesHC->view<ModulesPixelSoA>();
     auto connectedPixels =
-        cms::alpakatools::make_host_view(modulesPixel_view.connectedPixels(), modulesPixel_view.metadata().size());
+        cms::alpakatools::make_host_view(modulesPixel_view.connectedPixels());
     for (unsigned int icondet = 0; icondet < totalSizes; icondet++) {
       connectedPixels[icondet] = mmd.detIdToIndex.at(connectedModuleDetIds[icondet]);
     }

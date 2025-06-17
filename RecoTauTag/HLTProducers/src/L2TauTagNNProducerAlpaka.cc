@@ -582,7 +582,7 @@ void L2TauNNProducerAlpaka::selectGoodTracksAndVertices(const ZVertexHost& patav
   trkGood.reserve(maxTracks);
   vtxGood.clear();
   vtxGood.reserve(nv);
-  auto const* quality = patatracks_tsoa.view().quality();
+  auto const quality = patatracks_tsoa.view().quality();
 
   // No need to sort either as the algorithms is just using the max (not even the location, just the max value of pt2sum).
   std::vector<float> pTSquaredSum(nv, 0);

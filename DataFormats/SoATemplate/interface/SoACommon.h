@@ -741,7 +741,7 @@ namespace cms::soa {
   template <typename T, byte_size_type alignment, bool restrictQualify>
   struct SoAColumnAccessorsImpl<T, SoAColumnType::eigen, SoAAccessType::mutableAccess, alignment, restrictQualify> {
     SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(const SoAParametersImpl<SoAColumnType::eigen, T>& params, size_type size)
-        : params_(params), size_(size * T::RowsAtCompileTime * T::ColsAtCompileTime) {}
+        : params_(params), size_(size) {}
     SOA_HOST_DEVICE SOA_INLINE std::span<typename T::Scalar> operator()() { return std::span<typename T::Scalar>(params_.addr_, size_); }
     using NoParamReturnType = std::span<typename T::Scalar>;
     using ParamReturnType = typename SoAValue<SoAColumnType::eigen, T, alignment, restrictQualify>::MapType;
@@ -758,9 +758,9 @@ namespace cms::soa {
   template <typename T, byte_size_type alignment, bool restrictQualify>
   struct SoAColumnAccessorsImpl<T, SoAColumnType::eigen, SoAAccessType::constAccess, alignment, restrictQualify> {
     SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(const SoAConstParametersImpl<SoAColumnType::eigen, T>& params, size_type size) 
-        : params_(params), size_(size * T::RowsAtCompileTime * T::ColsAtCompileTime) {}
-    SOA_HOST_DEVICE SOA_INLINE std::span<const typename T::Scalar> operator()() const { return std::span<const typename T::Scalar>(params_.addr_, size_); }
-    using NoParamReturnType = std::span<const typename T::Scalar>;
+        : params_(params), size_(size) {}
+    SOA_HOST_DEVICE SOA_INLINE std::span<typename T::Scalar const> operator()() const { return std::span<typename T::Scalar const>(params_.addr_, size_); }
+    using NoParamReturnType = std::span<typename T::Scalar const>;
     using ParamReturnType = typename SoAValue<SoAColumnType::eigen, T, alignment, restrictQualify>::CMapType;
     SOA_HOST_DEVICE SOA_INLINE ParamReturnType operator()(size_type index) const {
       return SoAConstValue<SoAColumnType::eigen, T, alignment, restrictQualify>(index, params_)();

@@ -170,8 +170,8 @@ void SiPixelCompareTracks<T>::analyzeSeparate(U tokenRef, V tokenTar, const edm:
   auto maxTracksRef = tsoaRef.view().metadata().size();  //this should be same for both?
   auto maxTracksTar = tsoaTar.view().metadata().size();  //this should be same for both?
 
-  auto const* qualityRef = tsoaRef.view().quality();
-  auto const* qualityTar = tsoaTar.view().quality();
+  auto const qualityRef = tsoaRef.view().quality();
+  auto const qualityTar = tsoaTar.view().quality();
 
   int32_t nTracksRef = 0;
   int32_t nTracksTar = 0;
