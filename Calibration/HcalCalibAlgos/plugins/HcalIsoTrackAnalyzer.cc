@@ -115,7 +115,9 @@ HcalIsoTrackAnalyzer::HcalIsoTrackAnalyzer(const edm::ParameterSet& iConfig)
   edm::LogVerbatim("HcalIsoTrack") << "Parameters read from config file \n\t momentumLow_ " << pTrackLow_
                                    << "\t momentumHigh_ " << pTrackHigh_ << "\t useRaw_ " << useRaw_
                                    << "\t dataType_      " << dataType_ << "\t unCorrect " << unCorrect_
-                                   << "\t fillInRange " << fillInRange_ << "\t fillRunRange " << fillRunRange_ << " for " << runLow_ << ":" << runHigh_ << "\t and " << debEvents_.size() << " events to be debugged";
+                                   << "\t fillInRange " << fillInRange_ << "\t fillRunRange " << fillRunRange_
+                                   << " for " << runLow_ << ":" << runHigh_ << "\t and " << debEvents_.size()
+                                   << " events to be debugged";
 }
 
 HcalIsoTrackAnalyzer::~HcalIsoTrackAnalyzer() {
@@ -267,8 +269,8 @@ void HcalIsoTrackAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup con
           select = false;
       }
       if (select && fillRunRange_) {
-	if ((t_Run < runLow_) || (t_Run > runHigh_))
-	  select = false;
+        if ((t_Run < runLow_) || (t_Run > runHigh_))
+          select = false;
       }
       if (select) {
         tree->Fill();
@@ -314,11 +316,11 @@ void HcalIsoTrackAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup con
       t_hltbits = itr->hltbits_;
       bool select(true);
       if (fillRunRange_) {
-	if ((t_RunNo < static_cast<unsigned int>(runLow_)) || (t_RunNo > static_cast<unsigned int>(runHigh_)))
-	  select = false;
+        if ((t_RunNo < static_cast<unsigned int>(runLow_)) || (t_RunNo > static_cast<unsigned int>(runHigh_)))
+          select = false;
       }
       if (select)
-	tree2->Fill();
+        tree2->Fill();
     }
   } else {
     edm::LogVerbatim("HcalIsoTrack") << "Cannot find HcalIsoTrkEventVariablesCollections";
