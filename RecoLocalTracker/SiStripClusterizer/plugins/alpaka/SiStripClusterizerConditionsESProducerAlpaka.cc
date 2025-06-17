@@ -1,4 +1,3 @@
-// Implemented starting from TestAlpakaESProducerA.cc
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
@@ -18,10 +17,11 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ModuleFactory.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/host.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 
 #include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterizerConditionsSoA.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterizerConditionsRecord.h"
+
+// To allow the framework automatic host-device move
 #include "RecoLocalTracker/SiStripClusterizer/interface/alpaka/SiStripClusterizerConditionsDevice.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {

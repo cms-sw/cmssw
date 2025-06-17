@@ -5,6 +5,7 @@
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 
 namespace sistrip {
+  // The members with underscore, such as `qualityOk_`, are used to indicate that the indexing is done over the chan (and not the trivial index ith).
   GENERATE_SOA_LAYOUT(SiStripClusterizerConditionsDetToFedsSoALayout, SOA_COLUMN(bool, qualityOk_))
 
   GENERATE_SOA_LAYOUT(SiStripClusterizerConditionsData_fedch_SoALayout,
