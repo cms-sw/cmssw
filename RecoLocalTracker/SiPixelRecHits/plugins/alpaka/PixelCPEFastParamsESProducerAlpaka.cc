@@ -1,7 +1,6 @@
 #include <memory>
 #include <string>
 #include <alpaka/alpaka.hpp>
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESProducer.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EventSetup.h"
