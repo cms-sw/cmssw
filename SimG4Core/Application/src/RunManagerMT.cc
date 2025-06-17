@@ -220,7 +220,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
     throw cms::Exception("LogicError") << "G4RunManagerKernel initialization failed!";
   }
 
-  if (m_check) {    
+  if (m_check) {
     checkVoxels();
   }
 
@@ -367,15 +367,20 @@ void RunManagerMT::runForPhase2() {
 // This method should be extended in order to add new regions via names of logical volume
 // and to add a new production cuts for these regions
 void RunManagerMT::addRegions() {
-
   CMSG4RegionReporter rep;
   rep.ReportRegions("g4region.txt");
 }
 
 // This is a utility method to add a G4Region
-void RunManagerMT::addG4Region(const std::vector<G4LogicalVolume*>& v, const std::string& rName,
-			       double cutg, double cute, double cutp, double cuti) {
-  if (v.empty()) { return; }
+void RunManagerMT::addG4Region(const std::vector<G4LogicalVolume*>& v,
+                               const std::string& rName,
+                               double cutg,
+                               double cute,
+                               double cutp,
+                               double cuti) {
+  if (v.empty()) {
+    return;
+  }
   auto reg = new G4Region((G4String)rName);
   for (auto const& lv : v) {
     reg->AddRootLogicalVolume(lv, true);

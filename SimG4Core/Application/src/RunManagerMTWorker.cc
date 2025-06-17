@@ -748,42 +748,40 @@ void RunManagerMTWorker::DumpMagneticField(const G4Field* field, const std::stri
 
     double dr = 2 * CLHEP::cm;
     double dz = 10 * CLHEP::cm;
-    double dphi = phimax/32.;
+    double dphi = phimax / 32.;
 
     int nr = G4lrint(rmax / dr);
     int nz = G4lrint(2 * zmax / dz);
     int nphi = G4lrint(phimax / dphi);
-    
 
     double point[4] = {0.0, 0.0, 0.0, 0.0};
     double bfield[3] = {0.0, 0.0, 0.0};
 
     double z;
-    double d1 = 1./CLHEP::rad;
-    double d2 = 1./CLHEP::mm;
-    double d3 = 1./CLHEP::tesla;
+    double d1 = 1. / CLHEP::rad;
+    double d2 = 1. / CLHEP::mm;
+    double d3 = 1. / CLHEP::tesla;
 
     fout << std::setprecision(6);
     fout << "### " << file << " CMS magnetic field: phi(rad) R(mm) Z(mm) Bx(tesla) By(tesla) Bz(tesla)  ###" << G4endl;
     for (int k = 0; k <= nphi; ++k) {
-      double phi = k*dphi;
+      double phi = k * dphi;
       double cosf = cos(phi);
       double sinf = sin(phi);
       double r = 0.0;
       double z0 = -zmax;
       for (int i = 0; i <= nr; ++i) {
-	z = z0;
-	for (int j = 0; j <= nz; ++j) {
-	  point[0] = r * cosf;
-	  point[1] = r * sinf;
-	  point[2] = z;
-	  field->GetFieldValue(point, bfield);
-	  fout << phi*d1 << " " << r*d2 << " " << z*d2
-	       << " " << bfield[0]*d3 << " " << bfield[1]*d3
-	       << " " << bfield[2]*d3 << G4endl;
-	  z += dz;
-	}
-	r += dr;
+        z = z0;
+        for (int j = 0; j <= nz; ++j) {
+          point[0] = r * cosf;
+          point[1] = r * sinf;
+          point[2] = z;
+          field->GetFieldValue(point, bfield);
+          fout << phi * d1 << " " << r * d2 << " " << z * d2 << " " << bfield[0] * d3 << " " << bfield[1] * d3 << " "
+               << bfield[2] * d3 << G4endl;
+          z += dz;
+        }
+        r += dr;
       }
     }
     fout.close();

@@ -19,7 +19,7 @@
 #include "G4LossTableManager.hh"
 
 Phase2StackingAction::Phase2StackingAction(const edm::ParameterSet& p, const CMSSteppingVerbose* sv)
-  : steppingVerbose(sv) {
+    : steppingVerbose(sv) {
   trackNeutrino = p.getParameter<bool>("TrackNeutrino");
   killHeavy = p.getParameter<bool>("KillHeavy");
   killGamma = p.getParameter<bool>("KillGamma");
@@ -377,7 +377,7 @@ void Phase2StackingAction::initPointer() {
   // Russian roulette
   const std::vector<G4Region*>* rs = G4RegionStore::GetInstance();
 
-  for (auto const & reg : *rs) {
+  for (auto const& reg : *rs) {
     const G4String& rname = reg->GetName();
     if ((gRusRoEcal < 1.0 || nRusRoEcal < 1.0) && rname == "EcalRegion") {
       regionEcal = reg;

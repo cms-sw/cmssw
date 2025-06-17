@@ -90,8 +90,12 @@ private:
 
   void addRegions();
 
-  void addG4Region(const std::vector<G4LogicalVolume*>&, const std::string& regName,
-		   double cutg, double cute, double cutp, double cuti);
+  void addG4Region(const std::vector<G4LogicalVolume*>&,
+                   const std::string& regName,
+                   double cutg,
+                   double cute,
+                   double cutp,
+                   double cuti);
 
   G4MTRunManagerKernel* m_kernel;
 
