@@ -649,9 +649,7 @@ namespace edm {
         }
       }
       // The RandomNumberGeneratorService is not a module, yet it consumes.
-      {
-        RngEDConsumer rngConsumer = RngEDConsumer(productTypesConsumed);
-      }
+      { RngEDConsumer rngConsumer = RngEDConsumer(productTypesConsumed); }
       preg.setFrozen(productTypesConsumed, elementTypesConsumed, processConfiguration->processName());
     }
 
@@ -1156,29 +1154,29 @@ namespace edm {
                           eventsetup::ESRecordsToProductResolverIndices const& iESIndices,
                           ProcessBlockHelperBase const& processBlockHelperBase,
                           ProcessContext const& processContext) {
-      auto const processBlockLookup = iRegistry.productLookup(InProcess);
-      auto const runLookup = iRegistry.productLookup(InRun);
-      auto const lumiLookup = iRegistry.productLookup(InLumi);
-      auto const eventLookup = iRegistry.productLookup(InEvent);
-      auto const& processName = processContext.processConfiguration()->processName();
+    auto const processBlockLookup = iRegistry.productLookup(InProcess);
+    auto const runLookup = iRegistry.productLookup(InRun);
+    auto const lumiLookup = iRegistry.productLookup(InLumi);
+    auto const eventLookup = iRegistry.productLookup(InEvent);
+    auto const& processName = processContext.processConfiguration()->processName();
 
-              auto processBlockModuleToIndicies = processBlockLookup->indiciesForModulesInProcess(processName);
-        auto runModuleToIndicies = runLookup->indiciesForModulesInProcess(processName);
-        auto lumiModuleToIndicies = lumiLookup->indiciesForModulesInProcess(processName);
-        auto eventModuleToIndicies = eventLookup->indiciesForModulesInProcess(processName);
+    auto processBlockModuleToIndicies = processBlockLookup->indiciesForModulesInProcess(processName);
+    auto runModuleToIndicies = runLookup->indiciesForModulesInProcess(processName);
+    auto lumiModuleToIndicies = lumiLookup->indiciesForModulesInProcess(processName);
+    auto eventModuleToIndicies = eventLookup->indiciesForModulesInProcess(processName);
 
-      moduleRegistry_->forAllModuleHolders([&](auto& iHolder) {
-          iHolder->updateLookup(InProcess, *processBlockLookup);
-          iHolder->updateLookup(InRun, *runLookup);
-          iHolder->updateLookup(InLumi, *lumiLookup);
-          iHolder->updateLookup(InEvent, *eventLookup);
-          iHolder->updateLookup(iESIndices);
-          iHolder->resolvePutIndicies(InProcess, processBlockModuleToIndicies);
-          iHolder->resolvePutIndicies(InRun, runModuleToIndicies);
-          iHolder->resolvePutIndicies(InLumi, lumiModuleToIndicies);
-          iHolder->resolvePutIndicies(InEvent, eventModuleToIndicies);
-          iHolder->selectInputProcessBlocks(iRegistry, processBlockHelperBase);
-      });
+    moduleRegistry_->forAllModuleHolders([&](auto& iHolder) {
+      iHolder->updateLookup(InProcess, *processBlockLookup);
+      iHolder->updateLookup(InRun, *runLookup);
+      iHolder->updateLookup(InLumi, *lumiLookup);
+      iHolder->updateLookup(InEvent, *eventLookup);
+      iHolder->updateLookup(iESIndices);
+      iHolder->resolvePutIndicies(InProcess, processBlockModuleToIndicies);
+      iHolder->resolvePutIndicies(InRun, runModuleToIndicies);
+      iHolder->resolvePutIndicies(InLumi, lumiModuleToIndicies);
+      iHolder->resolvePutIndicies(InEvent, eventModuleToIndicies);
+      iHolder->selectInputProcessBlocks(iRegistry, processBlockHelperBase);
+    });
 
     globalSchedule_->beginJob(iRegistry, iESIndices, processBlockHelperBase, processContext);
   }
@@ -1285,16 +1283,12 @@ namespace edm {
     //for (auto const& worker : allWorkers()) {
     //  worker->convertCurrentProcessAlias(processName);
     //}
-    moduleRegistry_->forAllModuleHolders([&](auto& iHolder) {
-      iHolder->convertCurrentProcessAlias(processName);
-    });
+    moduleRegistry_->forAllModuleHolders([&](auto& iHolder) { iHolder->convertCurrentProcessAlias(processName); });
   }
 
-  void Schedule::releaseMemoryPostLookupSignal() { 
-    moduleRegistry_->forAllModuleHolders([&](auto& iHolder) {
-      iHolder->releaseMemoryPostLookupSignal();
-    });
-   }
+  void Schedule::releaseMemoryPostLookupSignal() {
+    moduleRegistry_->forAllModuleHolders([&](auto& iHolder) { iHolder->releaseMemoryPostLookupSignal(); });
+  }
 
   void Schedule::availablePaths(std::vector<std::string>& oLabelsToFill) const {
     streamSchedules_[0]->availablePaths(oLabelsToFill);

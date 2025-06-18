@@ -31,7 +31,7 @@ namespace edm::maker {
     return OutputModuleCommunicatorT<T>::createIfNeeded(m_mod.get());
   }
 
-    namespace {
+  namespace {
     template <typename T>
     bool mustPrefetchMayGet();
 
@@ -101,7 +101,7 @@ namespace edm::maker {
 
   }  // namespace
 
-    template <typename T>
+  template <typename T>
   void ModuleHolderT<T>::updateLookup(BranchType iBranchType, ProductResolverIndexHelper const& iHelper) {
     m_mod->updateLookup(iBranchType, iHelper, mustPrefetchMayGet<T>());
   }
@@ -118,7 +118,7 @@ namespace edm::maker {
 
   template <typename T>
   void ModuleHolderT<T>::selectInputProcessBlocks(ProductRegistry const& productRegistry,
-                                            ProcessBlockHelperBase const& processBlockHelperBase) {
+                                                  ProcessBlockHelperBase const& processBlockHelperBase) {
     m_mod->selectInputProcessBlocks(productRegistry, processBlockHelperBase);
   }
 
@@ -161,7 +161,6 @@ namespace edm::maker {
           iIndicies) {
     resolvePutIndiciesImpl(m_mod.get(), iBranchType, iIndicies, moduleDescription().moduleLabel());
   }
-
 
   //Explicitly instantiate our needed templates to avoid having the compiler
   // instantiate them in all of our libraries

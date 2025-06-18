@@ -38,7 +38,7 @@ namespace edm {
     if (modItr == labelToModule_.end()) {
       return {};
     }
-    return get_underlying_safe(modItr->second); 
+    return get_underlying_safe(modItr->second);
   }
 
   maker::ModuleHolder* ModuleRegistry::replaceModule(std::string const& iModuleLabel,
