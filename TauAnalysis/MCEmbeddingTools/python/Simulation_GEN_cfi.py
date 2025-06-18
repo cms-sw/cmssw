@@ -1,3 +1,24 @@
+"""
+This config fragment is needed by the GEN step to modify pythia, which is used to simulate the hadronization of the tau leptons (or electrons/muons). The LHE and cleaning step must be carried out beforehand.
+With `--procModifiers` one can specify the final states of the tau decays or if muons (`tau_embedding_mu_to_mu`) or electrons (`tau_embedding_mu_to_e`) are simulated/embedded instead of taus.
+To use this config fragment, a cmsDriver command like the following can be used:
+```
+cmsDriver.py TauAnalysis/MCEmbeddingTools/python/Simulation_GEN_cfi.py \
+	--step GEN,SIM,DIGI,L1,DIGI2RAW \
+	--processName SIMembeddingpreHLT \
+	--mc \
+	--beamspot DBrealistic \
+	--geometry DB:Extended \
+	--eventcontent RAWSIM \
+	--datatier RAWSIM \
+	--outputCommands 'keep *_*_*_LHEembeddingCLEAN','keep *_*_*_SELECT','drop *_muonReducedTrackExtras_*_*','drop *_*_uncleanedConversions_*','drop *_diamondSampicLocalTracks_*_*','keep *_*_unsmeared_*', \
+	--procModifiers tau_embedding_mu_to_mu \
+    --era ... \
+    --conditions ... \
+    --filein ... \
+    --fileout ...
+```
+"""
 import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Modifier_run2_common_cff import run2_common
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
@@ -26,12 +47,13 @@ from SimGeneral.MixingModule.mixNoPU_cfi import (  # if no PileUp is specified t
 # maybe this can also be replaced by a specific embedding process modifier
 generalModifier = run2_common | run3_common
 
+# Set the measured vertex for the simulation.
 VtxCorrectedToInput = cms.EDProducer(
     "EmbeddingVertexCorrector", src=cms.InputTag("generator", "unsmeared")
 )
 generalModifier.toReplaceWith(VtxSmeared, VtxCorrectedToInput)
 
-
+# as we only want to simulate the the taus, we have to disable the noise simulation
 generalModifier.toModify(
     mix,
     digitizers={
@@ -97,7 +119,7 @@ generator = cms.EDFilter(
     ),
 )
 
-# This modifier sets the correct cuts for mu->mu embedding
+## This modifier sets the correct cuts for mu->mu embedding
 tau_embedding_mu_to_mu.toModify(
     generator,
     HepMCFilter={
@@ -109,6 +131,7 @@ tau_embedding_mu_to_mu.toModify(
         }
     },
 )
+# only one simulation needed, as the muons don't decay like taus and no wights need to be calculated.
 tau_embedding_mu_to_mu.toModify(generator, nAttempts=cms.uint32(1))
 
 # This modifier sets the correct cuts for mu->e embedding
@@ -123,6 +146,7 @@ tau_embedding_mu_to_e.toModify(
         }
     },
 )
+# only one simulation needed, as the electrons don't decay like taus and no wights need to be calculated.
 tau_embedding_mu_to_e.toModify(generator, nAttempts=cms.uint32(1))
 
 # This modifier sets the correct cuts for the taus decaying into one jet and one muon
