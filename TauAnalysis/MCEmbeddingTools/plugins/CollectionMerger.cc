@@ -1,4 +1,4 @@
-#include "TauAnalysis/MCEmbeddingTools/plugins/CollectionMerger.h"
+#include "TauAnalysis/MCEmbeddingTools/interface/CollectionMerger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
