@@ -708,7 +708,7 @@ namespace cms::soa {
   // Scalar
   template <typename T, byte_size_type alignment, bool restrictQualify>
   struct SoAColumnAccessorsImpl<T, SoAColumnType::scalar, SoAAccessType::mutableAccess, alignment, restrictQualify> {
-    SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(const SoAParametersImpl<SoAColumnType::scalar, T>& params, size_type size)
+    SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(const SoAParametersImpl<SoAColumnType::scalar, T>& params)
         : params_(params) {}
     SOA_HOST_DEVICE SOA_INLINE T& operator()() { return *params_.addr_; }
     using NoParamReturnType = T&;
@@ -724,7 +724,7 @@ namespace cms::soa {
   // Const scalar
   template <typename T, byte_size_type alignment, bool restrictQualify>
   struct SoAColumnAccessorsImpl<T, SoAColumnType::scalar, SoAAccessType::constAccess, alignment, restrictQualify> {
-    SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(const SoAConstParametersImpl<SoAColumnType::scalar, T>& params, size_type size)
+    SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(const SoAConstParametersImpl<SoAColumnType::scalar, T>& params)
         : params_(params) {}
     SOA_HOST_DEVICE SOA_INLINE T const& operator()() const { return *params_.addr_; }
     using NoParamReturnType = T const&;

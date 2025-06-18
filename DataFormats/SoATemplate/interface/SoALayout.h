@@ -884,34 +884,103 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
  * Direct access to column pointer (const) and indexed access.
  */
 // clang-format off
-#define _DECLARE_VIEW_SOA_CONST_ACCESSOR_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                       \
-  /* Column or scalar */                                                                                              \
-    SOA_HOST_DEVICE SOA_INLINE                                                                                          \
-    typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::                                   \
-        template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                        \
-            cms::soa::SoAAccessType::constAccess>::template Alignment<conditionalAlignment>::                         \
-                template RestrictQualifier<restrictQualify>::NoParamReturnType NAME() const {           \
-    return typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::                          \
-        template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                        \
-            cms::soa::SoAAccessType::constAccess>::template Alignment<conditionalAlignment>::                         \
-                template RestrictQualifier<restrictQualify>(BOOST_PP_CAT(NAME, Parameters_), elements_)(); }\
-  SOA_HOST_DEVICE SOA_INLINE                                                                                          \
-  typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::                                   \
-        template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                        \
-            cms::soa::SoAAccessType::constAccess>::template Alignment<conditionalAlignment>::                         \
-                template RestrictQualifier<restrictQualify>::ParamReturnType                                          \
-  NAME(size_type _soa_impl_index) const {                                                                             \
-    if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                                \
-      if (_soa_impl_index >= elements_ or _soa_impl_index < 0)                                                        \
-        SOA_THROW_OUT_OF_RANGE("Out of range index in const " #NAME "(size_type index)",                              \
-          _soa_impl_index, elements_)                                                                                 \
-    }                                                                                                                 \
-    return typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::                          \
-        template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                        \
-            cms::soa::SoAAccessType::constAccess>::template Alignment<conditionalAlignment>::                         \
-                template RestrictQualifier<restrictQualify>(BOOST_PP_CAT(NAME, Parameters_), elements_)(_soa_impl_index);        \
-  }           
-  // clang-format on
+#define _DECLARE_VIEW_SOA_CONST_ACCESSOR_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                      \
+_SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
+  /* Scalar */                                                                                                       \
+  SOA_HOST_DEVICE SOA_INLINE                                                                                         \
+  typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::                                  \
+        template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
+            cms::soa::SoAAccessType::constAccess>::template Alignment<conditionalAlignment>::                        \
+                 template RestrictQualifier<restrictQualify>::NoParamReturnType                                      \
+  NAME() const {                                                                                                     \
+    return typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::                         \
+        template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
+            cms::soa::SoAAccessType::constAccess>::template Alignment<conditionalAlignment>::                        \
+                template RestrictQualifier<restrictQualify>(BOOST_PP_CAT(NAME, Parameters_))();                      \
+  }                                                                                                                  \
+  SOA_HOST_DEVICE SOA_INLINE                                                                                         \
+  typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::                                  \
+        template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
+            cms::soa::SoAAccessType::constAccess>::template Alignment<conditionalAlignment>::                        \
+                 template RestrictQualifier<restrictQualify>::ParamReturnType                                        \
+  NAME(size_type _soa_impl_index) const {                                                                            \
+    if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                               \
+      if (_soa_impl_index >= elements_ or _soa_impl_index < 0)                                                       \
+        SOA_THROW_OUT_OF_RANGE("Out of range index in mutable " #NAME "(size_type index)",                           \
+          _soa_impl_index, elements_)                                                                                \
+    }                                                                                                                \
+    return typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::                         \
+        template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
+            cms::soa::SoAAccessType::constAccess>::template Alignment<conditionalAlignment>::                        \
+                template RestrictQualifier<restrictQualify>(BOOST_PP_CAT(NAME, Parameters_))(_soa_impl_index);       \
+  }                                                                                                                  \
+  ,                                                                                                                  \
+  /* Column */                                                                                                       \
+  SOA_HOST_DEVICE SOA_INLINE                                                                                         \
+  typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::                                  \
+        template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
+            cms::soa::SoAAccessType::constAccess>::template Alignment<conditionalAlignment>::                        \
+                 template RestrictQualifier<restrictQualify>::NoParamReturnType                                      \
+  NAME() const {                                                                                                     \
+    return typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::                         \
+        template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
+            cms::soa::SoAAccessType::constAccess>::template Alignment<conditionalAlignment>::                        \
+                template RestrictQualifier<restrictQualify>(BOOST_PP_CAT(NAME, Parameters_), elements_)();           \
+  }                                                                                                                  \
+  SOA_HOST_DEVICE SOA_INLINE                                                                                         \
+  typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::                                  \
+        template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
+            cms::soa::SoAAccessType::constAccess>::template Alignment<conditionalAlignment>::                        \
+                 template RestrictQualifier<restrictQualify>::ParamReturnType                                        \
+  NAME(size_type _soa_impl_index) const {                                                                            \
+    if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                               \
+      if (_soa_impl_index >= elements_ or _soa_impl_index < 0)                                                       \
+        SOA_THROW_OUT_OF_RANGE("Out of range index in mutable " #NAME "(size_type index)",                           \
+          _soa_impl_index, elements_)                                                                                \
+    }                                                                                                                \
+    return typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::                         \
+        template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
+            cms::soa::SoAAccessType::constAccess>::template Alignment<conditionalAlignment>::                        \
+                template RestrictQualifier<restrictQualify>(BOOST_PP_CAT(NAME, Parameters_),                         \
+                    elements_)(_soa_impl_index);                                                                     \
+  }                                                                                                                  \
+  ,                                                                                                                  \
+  /* Eigen column */                                                                                                 \
+  SOA_HOST_DEVICE SOA_INLINE                                                                                         \
+  typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::                                  \
+        template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
+            cms::soa::SoAAccessType::constAccess>::template Alignment<conditionalAlignment>::                        \
+                 template RestrictQualifier<restrictQualify>::NoParamReturnType                                      \
+  NAME() const {                                                                                                     \
+    return typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::                         \
+        template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
+            cms::soa::SoAAccessType::constAccess>::template Alignment<conditionalAlignment>::                        \
+                template RestrictQualifier<restrictQualify>(BOOST_PP_CAT(NAME, Parameters_),                         \
+                        cms::soa::alignSize(elements_ * sizeof(CPP_TYPE::Scalar), alignment) /                       \
+                            sizeof(CPP_TYPE::Scalar) * CPP_TYPE::RowsAtCompileTime *                                 \
+                                CPP_TYPE::ColsAtCompileTime)();                                                      \
+  }                                                                                                                  \
+  SOA_HOST_DEVICE SOA_INLINE                                                                                         \
+  typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::                                  \
+        template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
+            cms::soa::SoAAccessType::constAccess>::template Alignment<conditionalAlignment>::                        \
+                 template RestrictQualifier<restrictQualify>::ParamReturnType                                        \
+  NAME(size_type _soa_impl_index) const {                                                                            \
+    if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                               \
+      if (_soa_impl_index >= elements_ or _soa_impl_index < 0)                                                       \
+        SOA_THROW_OUT_OF_RANGE("Out of range index in mutable " #NAME "(size_type index)",                           \
+          _soa_impl_index, elements_)                                                                                \
+    }                                                                                                                \
+    return typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::                         \
+        template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
+            cms::soa::SoAAccessType::constAccess>::template Alignment<conditionalAlignment>::                        \
+                template RestrictQualifier<restrictQualify>(BOOST_PP_CAT(NAME, Parameters_),                         \
+                        cms::soa::alignSize(elements_ * sizeof(CPP_TYPE::Scalar), alignment) /                       \
+                            sizeof(CPP_TYPE::Scalar) * CPP_TYPE::RowsAtCompileTime *                                 \
+                                CPP_TYPE::ColsAtCompileTime)(_soa_impl_index);                                       \
+  }                                                                                                                  \
+)
+// clang-format on
 
 #define _DECLARE_VIEW_SOA_CONST_ACCESSOR(R, DATA, TYPE_NAME)                                \
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
@@ -1145,7 +1214,8 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
  */
 // clang-format off
 #define _DECLARE_VIEW_SOA_ACCESSOR_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                            \
-  /* Column or scalar */                                                                                             \
+  _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                        \
+  /* Scalar */                                                                                                       \
   SOA_HOST_DEVICE SOA_INLINE                                                                                         \
   typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::                                  \
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
@@ -1156,7 +1226,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
             cms::soa::SoAAccessType::mutableAccess>::template Alignment<conditionalAlignment>::                      \
                 template RestrictQualifier<restrictQualify>(cms::soa::const_cast_SoAParametersImpl(                  \
-                    base_type:: BOOST_PP_CAT(NAME, Parameters_)), base_type::elements_)();                                                 \
+                    base_type:: BOOST_PP_CAT(NAME, Parameters_)))();                                                 \
   }                                                                                                                  \
   SOA_HOST_DEVICE SOA_INLINE                                                                                         \
   typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::                                  \
@@ -1173,8 +1243,77 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
             cms::soa::SoAAccessType::mutableAccess>::template Alignment<conditionalAlignment>::                      \
                 template RestrictQualifier<restrictQualify>(cms::soa::const_cast_SoAParametersImpl(                  \
-                    base_type:: BOOST_PP_CAT(NAME, Parameters_)), base_type::elements_)(_soa_impl_index);                                  \
-  }
+                    base_type:: BOOST_PP_CAT(NAME, Parameters_)))(_soa_impl_index);                                  \
+  }                                                                                                                  \
+  ,                                                                                                                  \
+  /* Column */                                                                                                       \
+  SOA_HOST_DEVICE SOA_INLINE                                                                                         \
+  typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::                                  \
+        template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
+            cms::soa::SoAAccessType::mutableAccess>::template Alignment<conditionalAlignment>::                      \
+                 template RestrictQualifier<restrictQualify>::NoParamReturnType                                      \
+  NAME() {                                                                                                           \
+    return typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::                         \
+        template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
+            cms::soa::SoAAccessType::mutableAccess>::template Alignment<conditionalAlignment>::                      \
+                template RestrictQualifier<restrictQualify>(cms::soa::const_cast_SoAParametersImpl(                  \
+                    base_type:: BOOST_PP_CAT(NAME, Parameters_)), base_type::elements_)();                           \
+  }                                                                                                                  \
+  SOA_HOST_DEVICE SOA_INLINE                                                                                         \
+  typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::                                  \
+        template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
+            cms::soa::SoAAccessType::mutableAccess>::template Alignment<conditionalAlignment>::                      \
+                 template RestrictQualifier<restrictQualify>::ParamReturnType                                        \
+  NAME(size_type _soa_impl_index) {                                                                                  \
+    if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                               \
+      if (_soa_impl_index >= base_type::elements_ or _soa_impl_index < 0)                                            \
+        SOA_THROW_OUT_OF_RANGE("Out of range index in mutable " #NAME "(size_type index)",                           \
+          _soa_impl_index, base_type::elements_)                                                                     \
+    }                                                                                                                \
+    return typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::                         \
+        template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
+            cms::soa::SoAAccessType::mutableAccess>::template Alignment<conditionalAlignment>::                      \
+                template RestrictQualifier<restrictQualify>(cms::soa::const_cast_SoAParametersImpl(                  \
+                    base_type:: BOOST_PP_CAT(NAME, Parameters_)), base_type::elements_)(_soa_impl_index);            \
+  }                                                                                                                  \
+  ,                                                                                                                  \
+  /* Eigen column */                                                                                                 \
+  SOA_HOST_DEVICE SOA_INLINE                                                                                         \
+  typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::                                  \
+        template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
+            cms::soa::SoAAccessType::mutableAccess>::template Alignment<conditionalAlignment>::                      \
+                 template RestrictQualifier<restrictQualify>::NoParamReturnType                                      \
+  NAME() {                                                                                                           \
+    return typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::                         \
+        template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
+            cms::soa::SoAAccessType::mutableAccess>::template Alignment<conditionalAlignment>::                      \
+                template RestrictQualifier<restrictQualify>(cms::soa::const_cast_SoAParametersImpl(                  \
+                    base_type:: BOOST_PP_CAT(NAME, Parameters_)),                                                    \
+                        cms::soa::alignSize(base_type::elements_ * sizeof(CPP_TYPE::Scalar), alignment) /            \
+                            sizeof(CPP_TYPE::Scalar) * CPP_TYPE::RowsAtCompileTime *                                 \
+                                CPP_TYPE::ColsAtCompileTime)();                                                      \
+  }                                                                                                                  \
+  SOA_HOST_DEVICE SOA_INLINE                                                                                         \
+  typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::                                  \
+        template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
+            cms::soa::SoAAccessType::mutableAccess>::template Alignment<conditionalAlignment>::                      \
+                 template RestrictQualifier<restrictQualify>::ParamReturnType                                        \
+  NAME(size_type _soa_impl_index) {                                                                                  \
+    if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                               \
+      if (_soa_impl_index >= base_type::elements_ or _soa_impl_index < 0)                                            \
+        SOA_THROW_OUT_OF_RANGE("Out of range index in mutable " #NAME "(size_type index)",                           \
+          _soa_impl_index, base_type::elements_)                                                                     \
+    }                                                                                                                \
+    return typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::                         \
+        template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
+            cms::soa::SoAAccessType::mutableAccess>::template Alignment<conditionalAlignment>::                      \
+                template RestrictQualifier<restrictQualify>(cms::soa::const_cast_SoAParametersImpl(                  \
+                    base_type:: BOOST_PP_CAT(NAME, Parameters_)),                                                    \
+                        cms::soa::alignSize(base_type::elements_ * sizeof(CPP_TYPE::Scalar), alignment) /            \
+                            sizeof(CPP_TYPE::Scalar) * CPP_TYPE::RowsAtCompileTime *                                 \
+                                CPP_TYPE::ColsAtCompileTime)(_soa_impl_index);                                       \
+  }                                                                                                                  \
+)
 // clang-format on
 
 #define _DECLARE_VIEW_SOA_ACCESSOR(R, DATA, TYPE_NAME)                                      \
