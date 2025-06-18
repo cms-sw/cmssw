@@ -80,10 +80,7 @@ namespace edm {
 
   }  // GlobalSchedule::GlobalSchedule
 
-  void GlobalSchedule::beginJob(ProductRegistry const& iRegistry,
-                                eventsetup::ESRecordsToProductResolverIndices const& iESIndices,
-                                ProcessBlockHelperBase const& processBlockHelperBase,
-                                ProcessContext const& processContext) {
+  void GlobalSchedule::beginJob(ProcessContext const& processContext) {
     GlobalContext globalContext(GlobalContext::Transition::kBeginJob, processContext_);
     unsigned int const managerIndex =
         numberOfConcurrentLumis_ + numberOfConcurrentRuns_ + numberOfConcurrentProcessBlocks_;

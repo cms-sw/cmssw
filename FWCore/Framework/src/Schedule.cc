@@ -1178,7 +1178,7 @@ namespace edm {
       iHolder->selectInputProcessBlocks(iRegistry, processBlockHelperBase);
     });
 
-    globalSchedule_->beginJob(iRegistry, iESIndices, processBlockHelperBase, processContext);
+    globalSchedule_->beginJob(processContext);
   }
 
   void Schedule::beginStream(unsigned int streamID) {
