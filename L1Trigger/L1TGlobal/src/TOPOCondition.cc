@@ -126,19 +126,24 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
   const BXVector<const l1t::L1Candidate*>* candEGVec = m_gtGTB->getCandL1EG();
   const BXVector<const l1t::EtSum*>* candEtSumVec = m_gtGTB->getCandL1EtSum();
 
-  const int NMuons = 4;
-  const int NJets = 10;
-  const int NEgammas = 4;
-  //const int NEtSums = 1;
+  // const int NMuons = 4;
+  // const int NJets = 10;
+  // const int NEgammas = 4;
+  // const int NEtSums = 1;  
+  
+  const int NMuons = 2;
+  const int NJets = 4;
+  const int NEgammas = 0;
+  const int NEtSums = 1;
 
   //number of indices in vector is #objects * 3 for et, eta, phi
-  const int MuVecSize = 12;    //NMuons * 3;      //so 12
-  const int JVecSize = 30;     //NJets * 3;        //so 30
-  const int EGVecSize = 12;    //NEgammas * 3;    //so 12
-  const int EtSumVecSize = 3;  //NEtSums * 3;    //so 3
+  const int MuVecSize = NMuons * 3;      //so 6
+  const int JVecSize = NJets * 3;        //so 12
+  const int EGVecSize = NEgammas * 3;    //so 0
+  const int EtSumVecSize = NEtSums * 3;    //so 3
 
   //total # inputs in vector is (4+10+4+1)*3 = 57
-  const int NInputs = 57;
+  const int NInputs = MuVecSize + JVecSize + EGVecSize + EtSumVecSize;  //so 21
 
   //types of inputs and outputs
   typedef ap_fixed<18, 13> inputtype;
@@ -193,8 +198,7 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
   if (NCandEG > 0) {  //check if not empty
     for (int iEG = 0; iEG < NCandEG; iEG++) {
       if (iEG < NEgammas) {  //stop if fill the Nobjects we need
-        EgammaInput[0 + (3 * iEG)] = ((candEGVec->at(useBx, iEG))->hwPt()) /
-                                     2;  //index 0,3,6,9 //have to do hwPt/2 in order to match original et inputs
+        EgammaInput[0 + (3 * iEG)] = (candEGVec->at(useBx, iEG))->hwPt();   //index 0,3,6,9
         EgammaInput[1 + (3 * iEG)] = (candEGVec->at(useBx, iEG))->hwEta();  //index 1,4,7,10
         EgammaInput[2 + (3 * iEG)] = (candEGVec->at(useBx, iEG))->hwPhi();  //index 2,5,8,11
       }
@@ -205,8 +209,7 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
   if (NCandMu > 0) {  //check if not empty
     for (int iMu = 0; iMu < NCandMu; iMu++) {
       if (iMu < NMuons) {  //stop if fill the Nobjects we need
-        MuInput[0 + (3 * iMu)] = ((candMuVec->at(useBx, iMu))->hwPt()) /
-                                 2;  //index 0,3,6,9 //have to do hwPt/2 in order to match original et inputs
+        MuInput[0 + (3 * iMu)] = (candMuVec->at(useBx, iMu))->hwPt();        //index 0,3,6,9
         MuInput[1 + (3 * iMu)] = (candMuVec->at(useBx, iMu))->hwEtaAtVtx();  //index 1,4,7,10
         MuInput[2 + (3 * iMu)] = (candMuVec->at(useBx, iMu))->hwPhiAtVtx();  //index 2,5,8,11
       }
@@ -217,10 +220,9 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
   if (NCandJet > 0) {  //check if not empty
     for (int iJet = 0; iJet < NCandJet; iJet++) {
       if (iJet < NJets) {  //stop if fill the Nobjects we need
-        JetInput[0 + (3 * iJet)] = ((candJetVec->at(useBx, iJet))->hwPt()) /
-                                   2;  //index 0,3,6,9...27 //have to do hwPt/2 in order to match original et inputs
-        JetInput[1 + (3 * iJet)] = (candJetVec->at(useBx, iJet))->hwEta();  //index 1,4,7,10...28
-        JetInput[2 + (3 * iJet)] = (candJetVec->at(useBx, iJet))->hwPhi();  //index 2,5,8,11...29
+        JetInput[0 + (3 * iJet)] = (candJetVec->at(useBx, iJet))->hwPt(); //index 0,3,6,9
+        JetInput[1 + (3 * iJet)] = (candJetVec->at(useBx, iJet))->hwEta();  //index 1,4,7,10
+        JetInput[2 + (3 * iJet)] = (candJetVec->at(useBx, iJet))->hwPhi();  //index 2,5,8,11
       }
     }
   }
