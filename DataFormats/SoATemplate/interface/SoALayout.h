@@ -1869,10 +1869,12 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                                                                                                                        \
     /* compile-time error launched if more than one macro for methods is declared */                                   \
     static_assert(computeMethodsNumber().first <= 1,                                                                   \
-          "There can be at most one SOA_ELEMENT_METHODS macro. Please declare all your methods inside the same macro."); \
+          "There can be at most one SOA_ELEMENT_METHODS macro."                                                        \
+                                "Please declare all your methods inside the same macro.");                             \
                                                                                                                        \
     static_assert(computeMethodsNumber().second <= 1,                                                                  \
-          "There can be at most one SOA_CONST_ELEMENT_METHODS macro. Please declare all your methods inside the same macro."); \
+          "There can be at most one SOA_CONST_ELEMENT_METHODS macro."                                                  \
+                                "Please declare all your methods inside the same macro.");                             \
                                                                                                                        \
     /* Data members */                                                                                                 \
     std::byte* mem_ EDM_REFLEX_TRANSIENT;                                                                              \
