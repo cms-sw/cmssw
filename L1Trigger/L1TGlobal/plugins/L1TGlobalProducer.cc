@@ -338,6 +338,7 @@ void L1TGlobalProducer::beginRun(edm::Run const& iRun, const edm::EventSetup& ev
                                              gtParser.vecEnergySumTemplate(),
                                              gtParser.vecEnergySumZdcTemplate(),
                                              gtParser.vecAXOL1TLTemplate(),
+                                             gtParser.vecTOPOTemplate(),
                                              gtParser.vecCICADATemplate(),
                                              gtParser.vecExternalTemplate(),
                                              gtParser.vecCorrelationTemplate(),

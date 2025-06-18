@@ -122,6 +122,7 @@ const int GlobalCondition::nrObjects() const {
     case l1t::TypeZDCP:
     case l1t::TypeZDCM:
     case l1t::TypeAXOL1TL:
+    case l1t::TypeTOPO:
     case l1t::TypeAsymEt:
     case l1t::TypeAsymHt:
     case l1t::TypeAsymEtHF:
@@ -211,6 +212,12 @@ void GlobalCondition::print(std::ostream& myCout) const {
     case l1t::CondAXOL1TL: {
       myCout << "  Condition category: "
              << "CondAXOL1TL" << std::endl;
+    }
+
+    break;
+    case l1t::CondTOPO: {
+      myCout << "  Condition category: "
+             << "CondTOPO" << std::endl;
     }
 
     break;

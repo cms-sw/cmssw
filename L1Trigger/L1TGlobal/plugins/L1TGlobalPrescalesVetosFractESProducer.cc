@@ -86,7 +86,8 @@ L1TGlobalPrescalesVetosFractESProducer::L1TGlobalPrescalesVetosFractESProducer(c
   setWhatProduced(this);
   //setWhatProduced(this, conf.getParameter<std::string>("label"));
 
-  m_numberPhysTriggers = 512;
+  //m_numberPhysTriggers = 512;
+  m_numberPhysTriggers = 513;
 
   // directory in /data/Luminosity for the trigger menu
   std::string menuDir = conf.getParameter<std::string>("TriggerMenuLuminosity");

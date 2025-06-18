@@ -11,5 +11,6 @@ namespace L1Trigger_L1TGlobal {
     std::vector<MuonShowerTemplate> dummy6;
     std::vector<AXOL1TLTemplate> dummy7;
     std::vector<CICADATemplate> dummy8;
+    std::vector<TOPOTemplate> dummy9;
   };
 }  // namespace L1Trigger_L1TGlobal
