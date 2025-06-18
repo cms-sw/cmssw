@@ -1,13 +1,36 @@
+"""
+This config fragment is used to generate NanoAOD samples from tau embedding MiniAOD samples.
+It adds an additional table with information about the initially selected muons and the initial event.
+The merging step must be carried out beforehand.
+To use this config fragment, a cmsDriver command like the following can be used:
+```
+cmsDriver.py \
+	--step NANO:TauAnalysis/MCEmbeddingTools/Nano_cff.embedding_nanoAOD_seq \
+	--data \
+	--scenario pp \
+	--eventcontent NANOAODSIM \
+	--datatier NANOAODSIM \
+	--outputCommands 'keep edmTriggerResults_*_*_SIMembeddingpreHLT','keep edmTriggerResults_*_*_SIMembeddingHLT','keep edmTriggerResults_*_*_SIMembedding','keep edmTriggerResults_*_*_MERGE','keep edmTriggerResults_*_*_NANO' \
+	--era ... \
+    --conditions ... \
+    --filein ... \
+    --fileout ...
+```
+"""
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import ExtVar
 from PhysicsTools.NanoAOD.l1trig_cff import *  # l1TablesTask, and all producers saved in the task need to be imported
-from PhysicsTools.NanoAOD.nano_cff import *  # nanoSequence, nanoTableTaskFS, also all tasks and producerst saved in the sequence need to be imported
+from PhysicsTools.NanoAOD.nano_cff import *  # nanoSequence, nanoTableTaskFS, also all tasks and producers saved in the sequence need to be imported
 
+# As the tau embedding event is a hybrid event and we want to have information about the measured event and the generated tau decay,
+# we need to run both, the normal NanoAOD sequence for measured events and the NanoAOD sequence for simulated events.
+# Therefore the NanoAOD Tasks which run for simulated events are put into sequences and later added to embedding NanoAOD sequence.
 full_sim_nanoAOD_seq = cms.Sequence(nanoTableTaskFS)
 l1_nanoAOD_seq = cms.Sequence(l1TablesTask)
 
 
-""" Write some information about the, for the tau embedding method, selected muons to the NanoAOD."""
+# This table producer adds information about the initially selected muons and the initial event to the NanoAOD.
+# The information comes from the `selectedMuonsForEmbedding` producer, which is created in the selection step.
 embeddingTable = cms.EDProducer(
         "GlobalVariablesTableProducer",
         name=cms.string("TauEmbedding"),
@@ -145,6 +168,7 @@ embeddingTable = cms.EDProducer(
             ),
         ),
     )
+# put all sequences and tasks together to create the embedding NanoAOD sequence
 embeddingTableTask = cms.Task(embeddingTable)
 embeddingTable_seq = cms.Sequence(embeddingTableTask)
 embedding_nanoAOD_seq = cms.Sequence(
