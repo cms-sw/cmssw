@@ -231,12 +231,12 @@ namespace ecaldqm {
       meEtSummary.fill(getEcalDQMSetupObjects(), ttid, et);
       meEtSummaryByLumi.fill(getEcalDQMSetupObjects(), ttid, et);
 
-      if (et > 30) etSum_ += et;
+      if (et > 60) etSum_ += et;
       
       if (ttid.subDet() == EcalBarrel) {
 	if (mapTowerOfflineSpikes_[ttid] == 1) {
           meEtRealSpikeMatched.fill(getEcalDQMSetupObjects(), ttid, et);
-          if (et > 30) etSpikeMatchSum_ += et;
+          if (et > 60) etSpikeMatchSum_ += et;
         }
       }
 
