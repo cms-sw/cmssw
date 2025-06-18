@@ -1,4 +1,4 @@
-#include "TauAnalysis/MCEmbeddingTools/plugins/DoubleCollectionMerger.h"
+#include "TauAnalysis/MCEmbeddingTools/interface/DoubleCollectionMerger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/Common/interface/SortedCollection.h"
