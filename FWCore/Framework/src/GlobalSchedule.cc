@@ -96,7 +96,7 @@ namespace edm {
         exceptionContext(ex, globalContext, "Handling pre signal, likely in a service function");
         throw;
       }
-      workerManagers_[managerIndex].beginJob(iRegistry, iESIndices, processBlockHelperBase, globalContext);
+      workerManagers_[managerIndex].beginJob(globalContext);
     } catch (...) {
       exceptionPtr = std::current_exception();
     }
@@ -174,12 +174,6 @@ namespace edm {
     for (auto& wm : workerManagers_) {
       wm.deleteModuleIfExists(iLabel);
     }
-  }
-
-  void GlobalSchedule::releaseMemoryPostLookupSignal() {
-    unsigned int const managerIndex =
-        numberOfConcurrentLumis_ + numberOfConcurrentRuns_ + numberOfConcurrentProcessBlocks_;
-    workerManagers_[managerIndex].releaseMemoryPostLookupSignal();
   }
 
   std::vector<ModuleDescription const*> GlobalSchedule::getAllModuleDescriptions() const {

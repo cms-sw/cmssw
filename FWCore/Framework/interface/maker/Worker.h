@@ -131,9 +131,12 @@ namespace edm {
     virtual bool wantsStreamRuns() const noexcept = 0;
     virtual bool wantsStreamLuminosityBlocks() const noexcept = 0;
 
+    //returns non-nullptr if the module can only process one Run at a time
     virtual SerialTaskQueue* globalRunsQueue() = 0;
+    //returns non-nullptr if the module can only process one LuminosityBlock at a time
     virtual SerialTaskQueue* globalLuminosityBlocksQueue() = 0;
 
+    //Run only for OutputModules. Causes TriggerResults information to be used to decide if module should run.
     void prePrefetchSelectionAsync(oneapi::tbb::task_group&,
                                    WaitingTask* task,
                                    ServiceToken const&,
@@ -177,6 +180,7 @@ namespace edm {
                           StreamContext const*) noexcept;
 
     void callWhenDoneAsync(WaitingTaskHolder task) { waitingTasks_.add(std::move(task)); }
+    // Called if filter earlier in the path has failed.
     void skipOnPath(EventPrincipal const& iEvent);
     void beginJob(GlobalContext const&);
     void endJob(GlobalContext const&);
@@ -185,7 +189,6 @@ namespace edm {
     void respondToOpenInputFile(FileBlock const& fb) { implRespondToOpenInputFile(fb); }
     void respondToCloseInputFile(FileBlock const& fb) { implRespondToCloseInputFile(fb); }
     void respondToCloseOutputFile() { implRespondToCloseOutputFile(); }
-    void registerThinnedAssociations(ProductRegistry const& registry, ThinnedAssociationsHelper& helper);
 
     void reset() {
       cached_exception_ = std::exception_ptr();
@@ -208,18 +211,6 @@ namespace edm {
     void setActivityRegistry(std::shared_ptr<ActivityRegistry> areg);
 
     void setEarlyDeleteHelper(EarlyDeleteHelper* iHelper);
-
-    //Used to make EDGetToken work
-    virtual void updateLookup(BranchType iBranchType, ProductResolverIndexHelper const&) = 0;
-    virtual void updateLookup(eventsetup::ESRecordsToProductResolverIndices const&) = 0;
-    virtual void releaseMemoryPostLookupSignal() = 0;
-    virtual void selectInputProcessBlocks(ProductRegistry const&, ProcessBlockHelperBase const&) = 0;
-    virtual void resolvePutIndicies(
-        BranchType iBranchType,
-        std::unordered_multimap<std::string, std::tuple<TypeID const*, const char*, edm::ProductResolverIndex>> const&
-            iIndicies) = 0;
-
-    virtual void convertCurrentProcessAlias(std::string const& processName) = 0;
 
     virtual std::vector<ModuleConsumesInfo> moduleConsumesInfos() const = 0;
     virtual std::vector<ModuleConsumesMinimalESInfo> moduleConsumesMinimalESInfos() const = 0;
@@ -313,8 +304,6 @@ namespace edm {
     virtual void implRespondToOpenInputFile(FileBlock const& fb) = 0;
     virtual void implRespondToCloseInputFile(FileBlock const& fb) = 0;
     virtual void implRespondToCloseOutputFile() = 0;
-
-    virtual void implRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) = 0;
 
     virtual TaskQueueAdaptor serializeRunModule() = 0;
 

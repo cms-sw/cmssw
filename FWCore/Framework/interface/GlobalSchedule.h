@@ -99,8 +99,6 @@ namespace edm {
     /// returns the collection of pointers to workers
     AllWorkers const& allWorkers() const { return workerManagers_[0].allWorkers(); }
 
-    void releaseMemoryPostLookupSignal();
-
   private:
     /// returns the action table
     ExceptionToActionTable const& actionTable() const { return workerManagers_[0].actionTable(); }

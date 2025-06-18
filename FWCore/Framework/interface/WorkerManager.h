@@ -67,10 +67,7 @@ namespace edm {
     void setupResolvers(Principal& principal);
     void setupOnDemandSystem(EventTransitionInfo const&);
 
-    void beginJob(ProductRegistry const& iRegistry,
-                  eventsetup::ESRecordsToProductResolverIndices const&,
-                  ProcessBlockHelperBase const&,
-                  GlobalContext const&);
+    void beginJob(GlobalContext const&);
     void endJob(ExceptionCollector&, GlobalContext const&);
 
     void beginStream(StreamID, StreamContext const&);
@@ -98,8 +95,6 @@ namespace edm {
       return worker;
     }
     void resetAll();
-
-    void releaseMemoryPostLookupSignal();
 
   private:
     Worker* getWorkerForExistingModule(std::string const& label);

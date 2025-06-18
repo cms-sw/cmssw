@@ -33,6 +33,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ModuleConsumesInfo.h"
+#include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
@@ -617,9 +618,9 @@ namespace edm {
 
     branchIDListHelper.updateFromRegistry(preg.registry());
 
-    for (auto const& worker : streamSchedules_[0]->allWorkersLumisAndEvents()) {
-      worker->registerThinnedAssociations(preg.registry(), thinnedAssociationsHelper);
-    }
+    moduleRegistry_->forAllModuleHolders([&preg, &thinnedAssociationsHelper](auto& iHolder) {
+      iHolder->registerThinnedAssociations(preg.registry(), thinnedAssociationsHelper);
+    });
 
     processBlockHelper.updateForNewProcess(preg.registry(), processConfiguration->processName());
 
@@ -648,7 +649,9 @@ namespace edm {
         }
       }
       // The RandomNumberGeneratorService is not a module, yet it consumes.
-      { RngEDConsumer rngConsumer = RngEDConsumer(productTypesConsumed); }
+      {
+        RngEDConsumer rngConsumer = RngEDConsumer(productTypesConsumed);
+      }
       preg.setFrozen(productTypesConsumed, elementTypesConsumed, processConfiguration->processName());
     }
 
@@ -1153,6 +1156,30 @@ namespace edm {
                           eventsetup::ESRecordsToProductResolverIndices const& iESIndices,
                           ProcessBlockHelperBase const& processBlockHelperBase,
                           ProcessContext const& processContext) {
+      auto const processBlockLookup = iRegistry.productLookup(InProcess);
+      auto const runLookup = iRegistry.productLookup(InRun);
+      auto const lumiLookup = iRegistry.productLookup(InLumi);
+      auto const eventLookup = iRegistry.productLookup(InEvent);
+      auto const& processName = processContext.processConfiguration()->processName();
+
+              auto processBlockModuleToIndicies = processBlockLookup->indiciesForModulesInProcess(processName);
+        auto runModuleToIndicies = runLookup->indiciesForModulesInProcess(processName);
+        auto lumiModuleToIndicies = lumiLookup->indiciesForModulesInProcess(processName);
+        auto eventModuleToIndicies = eventLookup->indiciesForModulesInProcess(processName);
+
+      moduleRegistry_->forAllModuleHolders([&](auto& iHolder) {
+          iHolder->updateLookup(InProcess, *processBlockLookup);
+          iHolder->updateLookup(InRun, *runLookup);
+          iHolder->updateLookup(InLumi, *lumiLookup);
+          iHolder->updateLookup(InEvent, *eventLookup);
+          iHolder->updateLookup(iESIndices);
+          iHolder->resolvePutIndicies(InProcess, processBlockModuleToIndicies);
+          iHolder->resolvePutIndicies(InRun, runModuleToIndicies);
+          iHolder->resolvePutIndicies(InLumi, lumiModuleToIndicies);
+          iHolder->resolvePutIndicies(InEvent, eventModuleToIndicies);
+          iHolder->selectInputProcessBlocks(iRegistry, processBlockHelperBase);
+      });
+
     globalSchedule_->beginJob(iRegistry, iESIndices, processBlockHelperBase, processContext);
   }
 
@@ -1203,21 +1230,21 @@ namespace edm {
       auto const runLookup = iRegistry.registry().productLookup(InRun);
       auto const lumiLookup = iRegistry.registry().productLookup(InLumi);
       auto const eventLookup = iRegistry.registry().productLookup(InEvent);
-      found->updateLookup(InProcess, *runLookup);
-      found->updateLookup(InRun, *runLookup);
-      found->updateLookup(InLumi, *lumiLookup);
-      found->updateLookup(InEvent, *eventLookup);
-      found->updateLookup(iIndices);
+      newMod->updateLookup(InProcess, *runLookup);
+      newMod->updateLookup(InRun, *runLookup);
+      newMod->updateLookup(InLumi, *lumiLookup);
+      newMod->updateLookup(InEvent, *eventLookup);
+      newMod->updateLookup(iIndices);
 
       auto const& processName = newMod->moduleDescription().processName();
       auto const& processBlockModuleToIndicies = processBlockLookup->indiciesForModulesInProcess(processName);
       auto const& runModuleToIndicies = runLookup->indiciesForModulesInProcess(processName);
       auto const& lumiModuleToIndicies = lumiLookup->indiciesForModulesInProcess(processName);
       auto const& eventModuleToIndicies = eventLookup->indiciesForModulesInProcess(processName);
-      found->resolvePutIndicies(InProcess, processBlockModuleToIndicies);
-      found->resolvePutIndicies(InRun, runModuleToIndicies);
-      found->resolvePutIndicies(InLumi, lumiModuleToIndicies);
-      found->resolvePutIndicies(InEvent, eventModuleToIndicies);
+      newMod->resolvePutIndicies(InProcess, processBlockModuleToIndicies);
+      newMod->resolvePutIndicies(InRun, runModuleToIndicies);
+      newMod->resolvePutIndicies(InLumi, lumiModuleToIndicies);
+      newMod->resolvePutIndicies(InEvent, eventModuleToIndicies);
     }
 
     return true;
@@ -1255,12 +1282,19 @@ namespace edm {
   Schedule::AllWorkers const& Schedule::allWorkers() const { return globalSchedule_->allWorkers(); }
 
   void Schedule::convertCurrentProcessAlias(std::string const& processName) {
-    for (auto const& worker : allWorkers()) {
-      worker->convertCurrentProcessAlias(processName);
-    }
+    //for (auto const& worker : allWorkers()) {
+    //  worker->convertCurrentProcessAlias(processName);
+    //}
+    moduleRegistry_->forAllModuleHolders([&](auto& iHolder) {
+      iHolder->convertCurrentProcessAlias(processName);
+    });
   }
 
-  void Schedule::releaseMemoryPostLookupSignal() { globalSchedule_->releaseMemoryPostLookupSignal(); }
+  void Schedule::releaseMemoryPostLookupSignal() { 
+    moduleRegistry_->forAllModuleHolders([&](auto& iHolder) {
+      iHolder->releaseMemoryPostLookupSignal();
+    });
+   }
 
   void Schedule::availablePaths(std::vector<std::string>& oLabelsToFill) const {
     streamSchedules_[0]->availablePaths(oLabelsToFill);
