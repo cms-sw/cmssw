@@ -5,8 +5,6 @@
 //
 
 #include "DataFormats/L1TCorrelator/interface/TkEm.h"
-// FIXME: can remove
-#include "DataFormats/Common/interface/RefToPtr.h"
 
 using namespace l1t;
 

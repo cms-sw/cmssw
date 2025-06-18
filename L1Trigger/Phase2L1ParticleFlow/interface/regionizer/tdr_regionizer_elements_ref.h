@@ -127,7 +127,7 @@ namespace l1ct {
     class BufferEntry {
     public:
       BufferEntry() {}
-      BufferEntry(const T& obj, std::vector<size_t> srIndices, int glbeta, int glbphi, unsigned int clk);
+      BufferEntry(const T& obj, std::vector<size_t> srIndices, int glbeta, int glbphi, bool duplicate, unsigned int clk);
 
       unsigned int clock() const { return linkobjclk_; }
       int nextSR() const { return (objcount_ < srIndices_.size()) ? srIndices_[objcount_] : -1; }
@@ -135,6 +135,7 @@ namespace l1ct {
       int pt() const { return obj_.intPt(); }
       int glbPhi() const { return glbphi_; }
       int glbEta() const { return glbeta_; }
+      int duplicate() const { return duplicate_; }
 
       //T obj() { return obj_; }
       const T& obj() const { return obj_; }
@@ -145,6 +146,8 @@ namespace l1ct {
       std::vector<size_t> srIndices_;
       /// The global eta and phi of the object (hard to get with duplicates)
       int glbeta_, glbphi_;
+      /// Is this a duplciate that should be ignored? used for GCT duplicate removal
+      bool duplicate_;
       unsigned int linkobjclk_, objcount_;
     };
 
@@ -154,14 +157,19 @@ namespace l1ct {
     public:
       Buffer() : clkindex360_(INIT360), clkindex240_(INIT240), timeOfNextObject_(-1) {}
 
-      void addEntry(
-          const T& obj, std::vector<size_t> srs, int glbeta, int glbphi, unsigned int dupNum, unsigned int ndup);
+      void addEntry(const T& obj,
+                    std::vector<size_t> srs,
+                    int glbeta,
+                    int glbphi,
+                    bool duplicate,       // this is mainly for GCT, is it one of the duplicates
+                    unsigned int dupNum,  // this is for the (currently unused) feature of multiple buffers per sector
+                    unsigned int ndup);
 
       BufferEntry<T>& front() { return data_.front(); }
       const BufferEntry<T>& front() const { return data_.front(); }
 
       /// sets the next time something is taken from this buffer
-      void updateNextObjectTime(int currentTime);
+      void updateNextObjectTime(int currentTime, bool incrementTime = true);
 
       /// delete the front element
       void pop() { data_.pop_front(); }
@@ -171,6 +179,7 @@ namespace l1ct {
       int pt(unsigned int index = 0) const { return data_[index].pt(); }
       int glbPhi(unsigned int index = 0) const { return data_[index].glbPhi(); }
       int glbEta(unsigned int index = 0) const { return data_[index].glbEta(); }
+      int duplicate(unsigned int index = 0) const { return data_[index].duplicate(); }
 
       unsigned int numEntries() const { return data_.size(); }
 
@@ -188,15 +197,18 @@ namespace l1ct {
 
     private:
       // used when building up the linkobjclk_ entries for the BufferEntries
-      unsigned int nextObjClk(unsigned int ndup);
-
+      unsigned int nextObjClk(unsigned int ndup, bool skip);  // may need to treat pt == 0 and overlap differently
       // transient--used only during event construction, not used after
       // Counts in 1.39ns increments (i.e. 360 increments by 2, 240 by 3)
       unsigned int clkindex360_;
       unsigned int clkindex240_;
 
-      static unsigned int constexpr INIT360 = 1;
-      static unsigned int constexpr INIT240 = 0;
+      // These values represent at what clock count the first data arrives, counting in 1.39ns increments (2 increments
+      // for one 360MHz clock period, 3 increments for a 240MHz clock period). The 360 version refers to the data as it
+      // is transferred over the fibers, while the 240 is for data going to the regionizer. Some data is thrown out in between.
+      // Both counts are used to determine when the data reaches the regionizer.
+      static unsigned int constexpr INIT360 = 2;
+      static unsigned int constexpr INIT240 = 4;
 
       /// The actual data
       std::deque<BufferEntry<T>> data_;
@@ -274,13 +286,17 @@ namespace l1ct {
       /// get the logical buffer index (i.e. the index in the order in the firmware)
       size_t logicBuffIndex(size_t bufIdx) const;
 
+      /// GCT sends duplicates. This indicates if an entry is a duplicate
+      /// For other objects, it always returns false
+      bool isDuplicate(int locphi, size_t logicBufIdx) const;
+
       /// The numbers of eta and phi in a big region (board)
       unsigned int neta_, nphi_;
       /// The maximum number of objects to output per small region
       unsigned int maxobjects_;
       /// The number of input sectors for this type of device
       unsigned int nsectors_;
-      /// the minimumum phi of this board
+      /// the minimum phi of this board
       int bigRegionMin_;
       /// the maximum phi of this board
       int bigRegionMax_;
@@ -289,7 +305,7 @@ namespace l1ct {
       /// How many buffers per link (default 1)
       unsigned int ndup_;
 
-      /// the region information assopciated with each input sector
+      /// the region information associated with each input sector
       std::vector<l1ct::PFRegionEmu> sectors_;
 
       /// the region information associated with each SR
@@ -298,11 +314,11 @@ namespace l1ct {
       /// indices of regions that are in the big region (board)
       std::vector<size_t> regionmap_;
 
-      /// indices maps the sectors from the way they appear in the software to the order they are done in the regionizer
-      std::vector<size_t> sectormap_;
+      /// indices maps the sectors from the way they appear in the software to the (logical) order they are done in the regionizer firmware
+      std::vector<size_t> sectorMapPhysToLog_;
 
       /// the inverse mapping of sectormap_ (only used for debug printing)
-      std::vector<size_t> invsectormap_;
+      std::vector<size_t> sectorMapLogToPhys_;
 
       /// The buffers. There are ndup_ buffers per link/sector
       std::vector<Buffer<T>> buffers_;
