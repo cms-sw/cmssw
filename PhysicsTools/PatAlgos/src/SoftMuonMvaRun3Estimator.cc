@@ -1,6 +1,7 @@
 #include "PhysicsTools/PatAlgos/interface/SoftMuonMvaRun3Estimator.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "PhysicsTools/XGBoost/interface/XGBooster.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 typedef std::pair<const reco::MuonChamberMatch*, const reco::MuonSegmentMatch*> MatchPair;
 
@@ -20,6 +21,17 @@ const MatchPair& getBetterMatch(const MatchPair& match1, const MatchPair& match2
   return match1;
 }
 
+const bool isValidMatchPair(const MatchPair& match) {
+  if (!match.first || !match.second)
+    return false;
+
+  // Check that all required error components are finite
+  return edm::isFinite(match.first->xErr) && edm::isFinite(match.first->yErr) && edm::isFinite(match.first->dXdZErr) &&
+         edm::isFinite(match.first->dYdZErr) && edm::isFinite(match.second->xErr) &&
+         edm::isFinite(match.second->yErr) && edm::isFinite(match.second->dXdZErr) &&
+         edm::isFinite(match.second->dYdZErr);
+}
+
 float dX(const MatchPair& match) {
   if (match.first and match.second->hasPhi())
     return (match.first->x - match.second->x);
@@ -28,14 +40,14 @@ float dX(const MatchPair& match) {
 }
 
 float pullX(const MatchPair& match) {
-  if (match.first and match.second->hasPhi())
+  if (match.first and match.second->hasPhi() and isValidMatchPair(match))
     return dX(match) / sqrt(pow(match.first->xErr, 2) + pow(match.second->xErr, 2));
   else
     return 9999.;
 }
 
 float pullDxDz(const MatchPair& match) {
-  if (match.first and match.second->hasPhi())
+  if (match.first and match.second->hasPhi() and isValidMatchPair(match))
     return (match.first->dXdZ - match.second->dXdZ) /
            sqrt(pow(match.first->dXdZErr, 2) + pow(match.second->dXdZErr, 2));
   else
@@ -50,14 +62,14 @@ float dY(const MatchPair& match) {
 }
 
 float pullY(const MatchPair& match) {
-  if (match.first and match.second->hasZed())
+  if (match.first and match.second->hasZed() and isValidMatchPair(match))
     return dY(match) / sqrt(pow(match.first->yErr, 2) + pow(match.second->yErr, 2));
   else
     return 9999.;
 }
 
 float pullDyDz(const MatchPair& match) {
-  if (match.first and match.second->hasZed())
+  if (match.first and match.second->hasZed() and isValidMatchPair(match))
     return (match.first->dYdZ - match.second->dYdZ) /
            sqrt(pow(match.first->dYdZErr, 2) + pow(match.second->dYdZErr, 2));
   else
