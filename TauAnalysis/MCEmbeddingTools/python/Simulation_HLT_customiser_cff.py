@@ -1,3 +1,24 @@
+"""
+This config fragment contains a customiser function which modifies the process.
+In this modification the beamspot and the vertex is adjusted to the measured one.
+The simulation GEN step must be carried out beforehand.
+To use this config fragment, a cmsDriver command like the following can be used:
+```
+cmsDriver.py \
+	--step HLT:TauAnalysis/MCEmbeddingTools/Simulation_HLT_customiser_cff.embeddingHLTCustomiser.Fake2 \
+	--processName SIMembeddingHLT \
+	--mc \
+	--beamspot DBrealistic \
+	--geometry DB:Extended \
+	--eventcontent RAWSIM \
+	--datatier RAWSIM \
+	--outputCommands 'keep *_*_*_SELECT','keep *_*_*_LHEembeddingCLEAN','keep *_*_unsmeared_SIMembeddingpreHLT','keep DcsStatuss_hltScalersRawToDigi_*_*' \
+    --era ... \
+    --conditions ... \
+    --filein ... \
+    --fileout ...
+```
+"""
 import FWCore.ParameterSet.Config as cms
 
 

@@ -5,7 +5,7 @@ It then produces a collection of muons suitable for embedding (selectedMuonsForE
 This is then later used in the LHE step to simulate two taus with slightly adjusted kinematics.
 To use this config fragment, a cmsDriver command like the following can be used:
 ```
-cmsDriver.py SELECT \
+cmsDriver.py \
     --step RAW2DIGI,L1Reco,RECO,PAT,FILTER:TauAnalysis/MCEmbeddingTools/Selection_FILTER_cff.makePatMuonsZmumuSelection \
     --processName SELECT \
     --data \
