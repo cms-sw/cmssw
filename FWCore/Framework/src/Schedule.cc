@@ -1154,30 +1154,9 @@ namespace edm {
                           eventsetup::ESRecordsToProductResolverIndices const& iESIndices,
                           ProcessBlockHelperBase const& processBlockHelperBase,
                           ProcessContext const& processContext) {
-    auto const processBlockLookup = iRegistry.productLookup(InProcess);
-    auto const runLookup = iRegistry.productLookup(InRun);
-    auto const lumiLookup = iRegistry.productLookup(InLumi);
-    auto const eventLookup = iRegistry.productLookup(InEvent);
     auto const& processName = processContext.processConfiguration()->processName();
 
-    auto processBlockModuleToIndicies = processBlockLookup->indiciesForModulesInProcess(processName);
-    auto runModuleToIndicies = runLookup->indiciesForModulesInProcess(processName);
-    auto lumiModuleToIndicies = lumiLookup->indiciesForModulesInProcess(processName);
-    auto eventModuleToIndicies = eventLookup->indiciesForModulesInProcess(processName);
-
-    moduleRegistry_->forAllModuleHolders([&](auto& iHolder) {
-      iHolder->updateLookup(InProcess, *processBlockLookup);
-      iHolder->updateLookup(InRun, *runLookup);
-      iHolder->updateLookup(InLumi, *lumiLookup);
-      iHolder->updateLookup(InEvent, *eventLookup);
-      iHolder->updateLookup(iESIndices);
-      iHolder->resolvePutIndicies(InProcess, processBlockModuleToIndicies);
-      iHolder->resolvePutIndicies(InRun, runModuleToIndicies);
-      iHolder->resolvePutIndicies(InLumi, lumiModuleToIndicies);
-      iHolder->resolvePutIndicies(InEvent, eventModuleToIndicies);
-      iHolder->selectInputProcessBlocks(iRegistry, processBlockHelperBase);
-    });
-
+    moduleRegistry_->finishModulesInitialization(iRegistry, iESIndices, processBlockHelperBase, processName);
     globalSchedule_->beginJob(processContext);
   }
 

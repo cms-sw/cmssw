@@ -104,6 +104,11 @@ namespace edm {
       }
     }
 
+    void finishModulesInitialization(ProductRegistry const& iRegistry,
+                                     eventsetup::ESRecordsToProductResolverIndices const& iESIndices,
+                                     ProcessBlockHelperBase const& processBlockHelperBase,
+                                     std::string const& processName);
+
   private:
     std::map<std::string, edm::propagate_const<std::shared_ptr<maker::ModuleHolder>>> labelToModule_;
     ModuleTypeResolverMaker const* typeResolverMaker_;
