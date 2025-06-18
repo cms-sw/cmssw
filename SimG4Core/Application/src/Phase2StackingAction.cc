@@ -1,4 +1,4 @@
-#include "SimG4Core/Application/interface/StackingAction.h"
+#include "SimG4Core/Application/interface/Phase2StackingAction.h"
 #include "SimG4Core/Notification/interface/MCTruthUtil.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
@@ -18,7 +18,8 @@
 #include "G4GammaGeneralProcess.hh"
 #include "G4LossTableManager.hh"
 
-StackingAction::StackingAction(const edm::ParameterSet& p, const CMSSteppingVerbose* sv) : steppingVerbose(sv) {
+Phase2StackingAction::Phase2StackingAction(const edm::ParameterSet& p, const CMSSteppingVerbose* sv)
+    : steppingVerbose(sv) {
   trackNeutrino = p.getParameter<bool>("TrackNeutrino");
   killHeavy = p.getParameter<bool>("KillHeavy");
   killGamma = p.getParameter<bool>("KillGamma");
@@ -84,7 +85,7 @@ StackingAction::StackingAction(const edm::ParameterSet& p, const CMSSteppingVerb
   initPointer();
 
   edm::LogVerbatim("SimG4CoreApplication")
-      << "StackingAction initiated with"
+      << "Phase2StackingAction initiated with"
       << " flag for saving decay products in "
       << " Tracker: " << savePDandCinTracker << " in Calo: " << savePDandCinCalo << " in Muon: " << savePDandCinMuon
       << " everywhere: " << savePDandCinAll << "\n  saveFirstSecondary"
@@ -94,13 +95,13 @@ StackingAction::StackingAction(const edm::ParameterSet& p, const CMSSteppingVerb
       << " MaxTrackTimeForward = " << maxTrackTimeForward / CLHEP::ns << " ns";
 
   if (killHeavy) {
-    edm::LogVerbatim("SimG4CoreApplication") << "StackingAction kill protons below " << kmaxProton / CLHEP::MeV
+    edm::LogVerbatim("SimG4CoreApplication") << "Phase2StackingAction kill protons below " << kmaxProton / CLHEP::MeV
                                              << " MeV, neutrons below " << kmaxNeutron / CLHEP::MeV << " MeV and ions"
                                              << " below " << kmaxIon / CLHEP::MeV << " MeV";
   }
   killExtra = killDeltaRay || killHeavy || killInCalo || killInCaloEfH;
 
-  edm::LogVerbatim("SimG4CoreApplication") << "StackingAction kill tracks with "
+  edm::LogVerbatim("SimG4CoreApplication") << "Phase2StackingAction kill tracks with "
                                            << "time larger than " << maxTrackTime / CLHEP::ns << " ns ";
   numberTimes = maxTimeNames.size();
   if (0 < numberTimes) {
@@ -112,16 +113,16 @@ StackingAction::StackingAction(const edm::ParameterSet& p, const CMSSteppingVerb
   }
   if (limitEnergyForVacuum > 0.0) {
     edm::LogVerbatim("SimG4CoreApplication")
-        << "StackingAction LowDensity regions - kill if E < " << limitEnergyForVacuum / CLHEP::MeV << " MeV";
+        << "Phase2StackingAction LowDensity regions - kill if E < " << limitEnergyForVacuum / CLHEP::MeV << " MeV";
     printRegions(lowdensRegions, "LowDensity");
   }
   if (deadRegions.size() > 0.0) {
-    edm::LogVerbatim("SimG4CoreApplication") << "StackingAction Dead regions - kill all secondaries ";
+    edm::LogVerbatim("SimG4CoreApplication") << "Phase2StackingAction Dead regions - kill all secondaries ";
     printRegions(deadRegions, "Dead");
   }
   if (gRRactive) {
     edm::LogVerbatim("SimG4CoreApplication")
-        << "StackingAction: "
+        << "Phase2StackingAction: "
         << "Russian Roulette for gamma Elimit(MeV)= " << gRusRoEnerLim / CLHEP::MeV << "\n"
         << "                 ECAL Prob= " << gRusRoEcal << "\n"
         << "                 HCAL Prob= " << gRusRoHcal << "\n"
@@ -134,7 +135,7 @@ StackingAction::StackingAction(const edm::ParameterSet& p, const CMSSteppingVerb
   }
   if (nRRactive) {
     edm::LogVerbatim("SimG4CoreApplication")
-        << "StackingAction: "
+        << "Phase2StackingAction: "
         << "Russian Roulette for neutron Elimit(MeV)= " << nRusRoEnerLim / CLHEP::MeV << "\n"
         << "                 ECAL Prob= " << nRusRoEcal << "\n"
         << "                 HCAL Prob= " << nRusRoHcal << "\n"
@@ -147,15 +148,15 @@ StackingAction::StackingAction(const edm::ParameterSet& p, const CMSSteppingVerb
   }
 
   if (savePDandCinTracker) {
-    edm::LogVerbatim("SimG4CoreApplication") << "StackingAction Tracker regions: ";
+    edm::LogVerbatim("SimG4CoreApplication") << "Phase2StackingAction Tracker regions: ";
     printRegions(trackerRegions, "Tracker");
   }
   if (savePDandCinCalo) {
-    edm::LogVerbatim("SimG4CoreApplication") << "StackingAction Calo regions: ";
+    edm::LogVerbatim("SimG4CoreApplication") << "Phase2StackingAction Calo regions: ";
     printRegions(caloRegions, "Calo");
   }
   if (savePDandCinMuon) {
-    edm::LogVerbatim("SimG4CoreApplication") << "StackingAction Muon regions: ";
+    edm::LogVerbatim("SimG4CoreApplication") << "Phase2StackingAction Muon regions: ";
     printRegions(muonRegions, "Muon");
   }
   worldSolid = G4TransportationManager::GetTransportationManager()
@@ -165,7 +166,7 @@ StackingAction::StackingAction(const edm::ParameterSet& p, const CMSSteppingVerb
                    ->GetSolid();
 }
 
-G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrack) {
+G4ClassificationOfNewTrack Phase2StackingAction::ClassifyNewTrack(const G4Track* aTrack) {
   // G4 interface part
   G4ClassificationOfNewTrack classification = fUrgent;
   const int pdg = aTrack->GetDefinition()->GetPDGEncoding();
@@ -174,12 +175,12 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
   const G4VProcess* creatorProc = aTrack->GetCreatorProcess();
 
   if (creatorProc == nullptr && aTrack->GetParentID() != 0) {
-    edm::LogWarning("StackingAction::ClassifyNewTrack")
+    edm::LogWarning("Phase2StackingAction::ClassifyNewTrack")
         << " TrackID=" << aTrack->GetTrackID() << " ParentID=" << aTrack->GetParentID() << " "
         << aTrack->GetDefinition()->GetParticleName() << " Ekin(MeV)=" << aTrack->GetKineticEnergy();
   }
   if (aTrack->GetKineticEnergy() < 0.0) {
-    edm::LogWarning("StackingAction::ClassifyNewTrack")
+    edm::LogWarning("Phase2StackingAction::ClassifyNewTrack")
         << " TrackID=" << aTrack->GetTrackID() << " ParentID=" << aTrack->GetParentID() << " "
         << aTrack->GetDefinition()->GetParticleName() << " Ekin(MeV)=" << aTrack->GetKineticEnergy() << " creator "
         << creatorProc->GetProcessName();
@@ -222,7 +223,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
       const double ke = aTrack->GetKineticEnergy();
       G4int subType = (nullptr != creatorProc) ? creatorProc->GetProcessSubType() : 0;
 
-      LogDebug("SimG4CoreApplication") << "##StackingAction:Classify Track " << aTrack->GetTrackID() << " Parent "
+      LogDebug("SimG4CoreApplication") << "##Phase2StackingAction:Classify Track " << aTrack->GetTrackID() << " Parent "
                                        << aTrack->GetParentID() << " " << aTrack->GetDefinition()->GetParticleName()
                                        << " Ekin(MeV)=" << ke / CLHEP::MeV << " subType=" << subType << " ";
 
@@ -351,7 +352,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
             MCTruthUtil::secondary(track, *mother, flag);
           }
           LogDebug("SimG4CoreApplication")
-              << "StackingAction:Classify Track " << aTrack->GetTrackID() << " Parent " << aTrack->GetParentID()
+              << "Phase2StackingAction:Classify Track " << aTrack->GetTrackID() << " Parent " << aTrack->GetParentID()
               << " Type " << aTrack->GetDefinition()->GetParticleName() << " Ekin=" << ke / CLHEP::MeV
               << " MeV from process subType=" << subType << " as " << classification << " Flag: " << flag;
         }
@@ -364,11 +365,11 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
   return classification;
 }
 
-void StackingAction::NewStage() {}
+void Phase2StackingAction::NewStage() {}
 
-void StackingAction::PrepareNewEvent() {}
+void Phase2StackingAction::PrepareNewEvent() {}
 
-void StackingAction::initPointer() {
+void Phase2StackingAction::initPointer() {
   // prepare region vector
   const unsigned int num = maxTimeNames.size();
   maxTimeRegions.resize(num, nullptr);
@@ -376,7 +377,7 @@ void StackingAction::initPointer() {
   // Russian roulette
   const std::vector<G4Region*>* rs = G4RegionStore::GetInstance();
 
-  for (auto& reg : *rs) {
+  for (auto const& reg : *rs) {
     const G4String& rname = reg->GetName();
     if ((gRusRoEcal < 1.0 || nRusRoEcal < 1.0) && rname == "EcalRegion") {
       regionEcal = reg;
@@ -437,7 +438,7 @@ void StackingAction::initPointer() {
   }
 }
 
-bool StackingAction::isThisRegion(const G4Region* reg, std::vector<const G4Region*>& regions) const {
+bool Phase2StackingAction::isThisRegion(const G4Region* reg, std::vector<const G4Region*>& regions) const {
   bool flag = false;
   for (auto& region : regions) {
     if (reg == region) {
@@ -448,7 +449,7 @@ bool StackingAction::isThisRegion(const G4Region* reg, std::vector<const G4Regio
   return flag;
 }
 
-int StackingAction::isItPrimaryDecayProductOrConversion(const int stype, const G4Track& mother) const {
+int Phase2StackingAction::isItPrimaryDecayProductOrConversion(const int stype, const G4Track& mother) const {
   int flag = 0;
   auto motherInfo = static_cast<const TrackInformation*>(mother.GetUserInformation());
   // Check whether mother is a primary
@@ -462,7 +463,7 @@ int StackingAction::isItPrimaryDecayProductOrConversion(const int stype, const G
   return flag;
 }
 
-bool StackingAction::rrApplicable(const G4Track* aTrack, const G4Track& mother) const {
+bool Phase2StackingAction::rrApplicable(const G4Track* aTrack, const G4Track& mother) const {
   auto motherInfo = static_cast<const TrackInformation*>(mother.GetUserInformation());
 
   // Check whether mother is gamma, e+, e-
@@ -470,7 +471,7 @@ bool StackingAction::rrApplicable(const G4Track* aTrack, const G4Track& mother) 
   return (22 != genID && 11 != std::abs(genID));
 }
 
-int StackingAction::isItFromPrimary(const G4Track& mother, int flagIn) const {
+int Phase2StackingAction::isItFromPrimary(const G4Track& mother, int flagIn) const {
   int flag = flagIn;
   if (flag != 1) {
     auto ptr = static_cast<const TrackInformation*>(mother.GetUserInformation());
@@ -481,7 +482,7 @@ int StackingAction::isItFromPrimary(const G4Track& mother, int flagIn) const {
   return flag;
 }
 
-bool StackingAction::isItOutOfTimeWindow(const G4Region* reg, const double& t) const {
+bool Phase2StackingAction::isItOutOfTimeWindow(const G4Region* reg, const double& t) const {
   double tofM = maxTrackTime;
   for (unsigned int i = 0; i < numberTimes; ++i) {
     if (reg == maxTimeRegions[i]) {
@@ -492,9 +493,9 @@ bool StackingAction::isItOutOfTimeWindow(const G4Region* reg, const double& t) c
   return (t > tofM);
 }
 
-void StackingAction::printRegions(const std::vector<const G4Region*>& reg, const std::string& word) const {
+void Phase2StackingAction::printRegions(const std::vector<const G4Region*>& reg, const std::string& word) const {
   for (unsigned int i = 0; i < reg.size(); ++i) {
     edm::LogVerbatim("SimG4CoreApplication")
-        << " StackingAction: " << word << "Region " << i << ". " << reg[i]->GetName();
+        << " Phase2StackingAction: " << word << "Region " << i << ". " << reg[i]->GetName();
   }
 }
