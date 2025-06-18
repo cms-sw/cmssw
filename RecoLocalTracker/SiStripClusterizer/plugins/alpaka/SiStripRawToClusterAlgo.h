@@ -1,14 +1,14 @@
 #ifndef RecoLocalTracker_SiStripClusterizer_plugins_alpaka_SiStripRawToClusterAlgo_h
 #define RecoLocalTracker_SiStripClusterizer_plugins_alpaka_SiStripRawToClusterAlgo_h
 
-#include "DataFormats/SiStripClusterSoA/interface/alpaka/SiStripClustersDevice.h"
+#include "DataFormats/Portable/interface/PortableHostCollection.h"
+#include "DataFormats/Portable/interface/alpaka/PortableCollection.h"
+
+#include "DataFormats/SiStripClusterSoA/interface/alpaka/SiStripClusterDevice.h"
 #include "DataFormats/SiStripDigiSoA/interface/alpaka/SiStripDigiDevice.h"
 
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
-
-#include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBufferComponents.h"
-#include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
 
 #include "RecoLocalTracker/SiStripClusterizer/interface/alpaka/SiStripClusterizerConditionsDevice.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/alpaka/SiStripMappingDevice.h"
@@ -17,7 +17,10 @@ namespace edm {
   class ParameterSet;
 }
 
-namespace sistripclusterizer {
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// The StripClustersAuxSoALayout is an auxiliary SoA, with the same size of the SiStripDigiSoA, which helps
+// in the clusterization process.
+namespace sistrip {
   GENERATE_SOA_LAYOUT(StripClustersAuxSoALayout,
                       SOA_COLUMN(uint32_t, seedStripsMask),
                       SOA_COLUMN(uint32_t, seedStripsNCMask),
@@ -37,35 +40,17 @@ namespace sistripclusterizer {
   using StripClustersAuxView = StripClustersAuxSoA::View;
   using StripClustersAuxConstView = StripClustersAuxSoA::ConstView;
   using StripClustersAuxHost = PortableHostCollection<StripClustersAuxSoA>;
-}  // namespace sistripclusterizer
+}  // namespace sistrip
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
-  using namespace sistripclusterizer;
-
-  using StripClustersAuxHost = ::sistripclusterizer::StripClustersAuxHost;
+  using namespace ::sistrip;
   using StripClustersAuxDevice = PortableCollection<StripClustersAuxSoA>;
-
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip
 
-ASSERT_DEVICE_MATCHES_HOST_COLLECTION(sistrip::StripClustersAuxDevice, sistripclusterizer::StripClustersAuxHost);
+ASSERT_DEVICE_MATCHES_HOST_COLLECTION(sistrip::StripClustersAuxDevice, sistrip::StripClustersAuxHost);
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
-  /**
-  * @brief Calculates the next integer.
-  *
-  * Helper class to store the FEW raw data which will be copyed to the device for unpacking. It contains 
-  *
-  * @param queue The Queue object to book the host buffers (typically the iEvent.queue())
-  * @param bufferSize_bytes The extent of the buffer size in bytes
-  */
-  struct Det {
-    uint32_t detId = 0;
-    uint16_t fedId = 0;
-    uint8_t fedCh = 0;
-    uint8_t apvPair = 0;
-  };
-
   struct FEDChMetadata {
     uint32_t detId;
     uint16_t fedId;
@@ -77,6 +62,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   };
 
   namespace fedChannelDetails {
+    // It corresponds to the one in EventFilter/SiStripRawToDigi/interface/SiStripFEDBufferComponents.h,
+    // but for Alpaka, with the addition of stripsInCh function
     class FEDChannel {
     public:
       ALPAKA_FN_HOST_ACC inline FEDChannel(const uint8_t* data, uint32_t offset, bool isNonLite)
@@ -86,21 +73,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
       ALPAKA_FN_HOST_ACC inline uint16_t length() const { return length_; }
 
-      template <uint_fast8_t num_bits>
-      ALPAKA_FN_HOST_ACC inline uint16_t stripsInCh() {
+      ALPAKA_FN_HOST_ACC inline uint16_t stripsInCh(uint8_t num_bits = 8) const {
         const bool emptyCh = (headerLen_ + 2) >= (length_);
-        const uint16_t ofsWordUnit = num_bits / 8;
         const uint16_t start = offset_ + headerLen_;
         const uint16_t end = offset_ + length_;
+        uint16_t stripN = 0;
         if (!emptyCh) {
-          for (uint16_t nStrip_Ofs = start + 1; nStrip_Ofs < end;) {
-            const uint8_t clustStripN = data_[(nStrip_Ofs) ^ 7];
-            nStrip_Ofs += clustStripN * ofsWordUnit + 2;
-            stripN_ += clustStripN;
+          for (uint16_t nStrip_wOfs = start + 1; nStrip_wOfs < end;) {
+            const uint8_t clustStripN = data_[(nStrip_wOfs) ^ 7];
+            nStrip_wOfs += ((uint32_t)clustStripN) * num_bits / 8 + 2;
+            stripN += clustStripN;
             // std::cout << (int)nStrip_Ofs << "," << (int)clustStripN << std::endl;
           }
         }
-        return stripN_;
+        return stripN;
       }
 
       ALPAKA_FN_HOST_ACC inline uint8_t packetCode() const { return data_[(offset_ + 2) ^ 7]; }
@@ -121,9 +107,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       uint32_t offset_;
       uint16_t length_;
       uint8_t headerLen_;
-
-      //
-      uint16_t stripN_ = 0;
     };
   }  // namespace fedChannelDetails
 
@@ -195,31 +178,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                               const SiStripClusterizerConditionsDetToFedsDevice* rDetToFeds,
                               const SiStripClusterizerConditionsDataDevice* rData,
                               std::unique_ptr<PortableFEDMover> FEDChMover);
-    void unpackStrips2(Queue& queue);
-    void prefixScan_new(Queue& queue);
-    std::unique_ptr<SiStripClustersDevice> makeClusters2(Queue& queue);
+    void unpackStrips(Queue& queue);
+
+    std::unique_ptr<SiStripClusterDevice> makeClusters(Queue& queue);
     std::unique_ptr<SiStripDigiDevice> getDigiAmplitudes(Queue& queue);
 
-    //
   private:
-    // Unpacker parameters
-    const bool isLegacyUnpacker_;
-    const FEDLegacyReadoutMode legacyUnpackerROmode_ = READOUT_MODE_LEGACY_INVALID;
-
-    std::unique_ptr<PortableFEDMover> FEDChMover;
-    using DeviceBufferU8 = decltype(cms::alpakatools::make_device_buffer<uint8_t[]>(std::declval<Queue>(), 0));
-    std::optional<DeviceBufferU8> fedBuffer_d;
-
-    std::optional<SiStripMappingDevice> stripMapping_d;
-
-    const SiStripClusterizerConditionsDetToFedsDevice* conditions_DetToFeds;
-    const SiStripClusterizerConditionsDataDevice* conditions_Data;
-
-    using HostBufferU32 = decltype(cms::alpakatools::make_host_buffer<uint32_t>(std::declval<Queue>()));
-    std::optional<HostBufferU32> nStrips_h;
-
-    std::optional<HostBufferU32> nSeeds_h;
-
     // Clusterizer parameters
     const float channelThreshold_, seedThreshold_, clusterThresholdSquared_;
     const uint8_t maxSequentialHoles_, maxSequentialBad_, maxAdjacentBad_;
@@ -227,13 +191,30 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     const float minGoodCharge_;
     const uint32_t kMaxSeedStrips_;
 
+    // Handles to conditions
+    const SiStripClusterizerConditionsDetToFedsDevice* conditions_DetToFeds;
+    const SiStripClusterizerConditionsDataDevice* conditions_Data;
+
+    std::unique_ptr<PortableFEDMover> FEDChMover;
+
+    using DeviceBufferU8 = decltype(cms::alpakatools::make_device_buffer<uint8_t[]>(std::declval<Queue>(), 0));
+    std::optional<DeviceBufferU8> fedBuffer_d;
+
+    std::optional<SiStripMappingDevice> stripMapping_d;
+
+    using HostBufferU32 = decltype(cms::alpakatools::make_host_buffer<uint32_t>(std::declval<Queue>()));
+    std::optional<HostBufferU32> nStrips_h;
+
+    std::optional<HostBufferU32> nSeeds_h;
+
     int nStripsBytes_ = 0;
     std::unique_ptr<SiStripDigiDevice> digis_d_;
     std::unique_ptr<StripClustersAuxDevice> sClustersAux_d_;
 
+    // Debug functions
     void dumpUnpackedStrips(Queue& queue, SiStripDigiDevice* digis_d);
     void dumpSeeds(Queue& queue, SiStripDigiDevice* digis_d, StripClustersAuxDevice* sClustersAux_d);
-    void dumpClusters(Queue& queue, SiStripClustersDevice* clusters_d, SiStripDigiDevice* digis_d);
+    void dumpClusters(Queue& queue, SiStripClusterDevice* clusters_d, SiStripDigiDevice* digis_d);
   };
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip
 

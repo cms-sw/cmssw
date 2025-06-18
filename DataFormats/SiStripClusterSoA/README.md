@@ -1,10 +1,21 @@
 # SiStripClusterSoA
-The `SiStripClustersHost`/`SiStripClustersDevice` is a portable collection storing the SiStrip clusters. This structure is within the `sistrip` namespace to avoid confusion with the corresponding former structure  SiStripCluster CUDA-version (i.e., with same name but in CUDAFormats and stripgpu namespace).
+The `SiStripClusterHost`/`SiStripClusterDevice` is a portable collection based on the `SiStripClusterSoALayout` (`DataFormats/SiStripClusterSoA/interface/SiStripClusterSoA.h`). It is used to store the collection of SiStrip cluster candidates from the heterogeneous SiStripClusterizer module (`RecoLocalTracker/SiStripClusterizer`).
 
-## Run tests
-The unit-test consists in populating the structure on host, copying on device and checking back on the host for mismatches. The number of entries is set to the max number of seeds (`kMaxSeedStrips = 200000`), supposedly higher that the number of strips.
+## Data members
+The fields in the structure have the following meaning:
 
-To run the tests:
-```bash
-scram b runtests_SiStripClustersSoA runtests_SiStripClustersSoASerialSync runtests_SiStripClustersSoACudaAsync runtests_SiStripClustersSoAROCmAsync
-```
+| SoA type | C-type | Name | Description |
+| --- | --- | --- | --- |
+| column | uint32_t | clusterIndex | Index for the first strip amplitude in this cluster candidate, to be fetched by the Digi collection |
+| column | uint16_t | clusterSize | Numbers of strips in the cluster candidate |
+| column | uint32_t | clusterDetId | Cluster candidate corresponding detID |
+| column | uint16_t | firstStrip | Value of the first strip ID |
+| column | bool | candidateAccepted | Is this a good candidate? |
+| column | float | barycenter | Barycenter, as in [1] |
+| column | float | charge | Charge, as in [1] |
+| column | uint32_t | candidateAcceptedPrefix | Prefix sum of the candidateAccepted colum, used to index the good clusters |
+| scalar | uint32_t | nClusterCandidates | Number of cluster candidates in the collection |
+| scalar | uint32_t | maxClusterSize | Max number of contiguous strips for clustering (setup) |
+
+## References
+[1] DataFormats/SiStripCluster/interface/SiStripCluster.h

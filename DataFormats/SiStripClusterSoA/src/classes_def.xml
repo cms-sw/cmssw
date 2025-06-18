@@ -1,5 +1,5 @@
 <lcgdict>
-  <class name="sistrip::SiStripClustersHost"/>
-  <class name="edm::Wrapper<sistrip::SiStripClustersHost>" splitLevel="0"/>
-  <class name="sistrip::SiStripClustersSoALayout<128,false>"/>
+  <class name="sistrip::SiStripClusterSoALayout<128,false>"/>
+  <class name="sistrip::SiStripClusterHost"/>
+  <class name="edm::Wrapper<sistrip::SiStripClusterHost>" splitLevel="0"/>
 </lcgdict>

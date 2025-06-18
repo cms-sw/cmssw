@@ -17,13 +17,29 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_HOST_ACC void operator()(TAcc const& acc,
-                                       SiStripClustersConstView fullCollection,
+                                       const uint32_t nbClusterCandidates,
+                                       SiStripClusterConstView fullCollection,
                                        SiStripClustersSlimView slimCollection) const {
       //
-      for (auto i : uniform_elements(acc, fullCollection.metadata().size())) {
+      // for (uint32_t i=0; i<nbClusterCandidates; ++i) {
+      for (auto i : uniform_elements(acc, nbClusterCandidates)) {
         const bool write = fullCollection.candidateAccepted(i);
+        // if (i<100 || i> (nbClusterCandidates - 100)) {
+        //   printf(
+        //     "#fccs,%i,%i,%i,%i,%i,%i,%f,%f,%i\n",
+        //     i,
+        //     fullCollection.clusterIndex(i),
+        //     fullCollection.clusterSize(i),
+        //     fullCollection.clusterDetId(i),
+        //     fullCollection.firstStrip(i),
+        //     fullCollection.candidateAccepted(i),
+        //     fullCollection.barycenter(i),
+        //     fullCollection.charge(i),
+        //     fullCollection.candidateAcceptedPrefix(i)
+        //   );
+        // }
         if (write) {
-          const uint32_t idx = fullCollection.candidateAcceptedPrefix(i);
+          const uint32_t idx = fullCollection.candidateAcceptedPrefix(i) - 1;
           slimCollection.clusterIndex(idx) = fullCollection.clusterIndex(i);
           slimCollection.clusterSize(idx) = fullCollection.clusterSize(i);
           slimCollection.clusterDetId(idx) = fullCollection.clusterDetId(i);
@@ -42,27 +58,34 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   };
 
   void SiStripClustersToLegacyAlgo::consumeSoA(Queue& queue,
-                                               const SiStripClustersDevice& clusters_d,
-                                               uint32_t goodCandidates) {
+                                               const SiStripClusterDevice& clusters_d,
+                                               uint32_t nbClusters,
+                                               uint32_t nbClusterCandidates) {
     // // Store pointers to the clusters and amplitudes
     // clusters_d_ = &clusters_d;
 
     // Number of candidates and actual clusters
-    const uint32_t clustersCandidatesNb = clusters_d.view().metadata().size();
-    goodCandidates_ = goodCandidates;
+    goodCandidates_ = nbClusters;
+    const uint32_t clusterCandidates = nbClusterCandidates;
+    // const uint32_t clusterCollectionSize = clusters_d.view().metadata().size();
+    // std::cout << "#csSoA," << clusterCollectionSize << ","  << clusterCandidates << "," << goodCandidates_ << std::endl;
 
     // Prepare a new cluster collection with the size of goodCandidates
     auto clusters_d_slim = SiStripClustersSlimDevice(goodCandidates_, queue);
 
     // Fill the collection
-    uint32_t divider = 128u;
-    uint32_t groups = cms::alpakatools::divide_up_by(clustersCandidatesNb, divider);
+    uint32_t divider = 64u;
+    uint32_t groups = cms::alpakatools::divide_up_by(clusterCandidates, divider);
     auto workDiv = cms::alpakatools::make_workdiv<Acc1D>(groups, divider);
-    alpaka::exec<Acc1D>(
-        queue, workDiv, siStripConvKer_fillClCollSlim{}, clusters_d.const_view(), clusters_d_slim.view());
+    alpaka::exec<Acc1D>(queue,
+                        workDiv,
+                        siStripConvKer_fillClCollSlim{},
+                        clusterCandidates,
+                        clusters_d.const_view(),
+                        clusters_d_slim.view());
 
     // Move the clusters and digi to device
-    clusters_h_ = SiStripClustersSlimHost(goodCandidates, queue);
+    clusters_h_ = std::make_unique<SiStripClustersSlimHost>(nbClusters, queue);
     alpaka::memcpy(queue, clusters_h_->buffer(), clusters_d_slim.buffer());
   }
 
@@ -76,6 +99,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     const auto chargeArr = (*clusters_h_)->charge();
 
     const uint8_t* amplitudesADC = amplitudes_h->adc();
+
+    // alpaka::wait(queue);
+    // std::cout << "#cvrt,1" << std::endl;
 
     // Educated guess for the total number of detector IDs,
     // based on Run: 386593 Event: 536278171 with 13883 detectors.
@@ -112,6 +138,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     if (edm::isDebugEnabled()) {
       dumpClusters(output.get());
     }
+
     return output;
   }
 

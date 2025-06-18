@@ -10,7 +10,7 @@
 
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-#include "DataFormats/SiStripClusterSoA/interface/alpaka/SiStripClustersDevice.h"
+#include "DataFormats/SiStripClusterSoA/interface/alpaka/SiStripClusterDevice.h"
 
 #include "SiStripClustersToLegacyAlgo.h"
 
@@ -31,7 +31,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     void dumpClusters(edmNew::DetSetVector<SiStripCluster>* detSetClusters, int clustersPrealloc) const;
 
   private:
-    const edm::EDGetTokenT<SiStripClustersDevice> siStripClustersToken_;
+    // https://indico.cern.ch/event/1524384/contributions/6412906/attachments/3032664/5358117/recording.mp4 25:02 regular ones tokens
+    const device::EDGetToken<SiStripClusterDevice> siStripClustersToken_;
     const edm::EDGetTokenT<SiStripDigiHost> siStripDigiToken_;
     const edm::EDPutTokenT<edmNew::DetSetVector<SiStripCluster>> siStripClustersSetVecPutToken_;
 
@@ -56,8 +57,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     const auto& clusters_d = iEvent.get(siStripClustersToken_);
     const auto& amplitudes_h = iEvent.get(siStripDigiToken_);
 
-    const uint32_t goodCandidates = amplitudes_h->nbGoodCandidates();
-    algo_.consumeSoA(iEvent.queue(), clusters_d, goodCandidates);
+    const uint32_t nbClusters = amplitudes_h->nbGoodCandidates();
+    const uint32_t nbClusterCandidates = amplitudes_h->nbCandidates();
+    algo_.consumeSoA(iEvent.queue(), clusters_d, nbClusters, nbClusterCandidates);
   }
 
   void SiStripClustersToLegacy2::produce(device::Event& iEvent, device::EventSetup const&) {
@@ -66,6 +68,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     iEvent.put(siStripClustersSetVecPutToken_, std::move(result));
   }
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip
+
+// Not used explicitly but needde to let the framework implement automatic copy
+// (https://indico.cern.ch/event/1524384/contributions/6412906/attachments/3032664/5358117/recording.mp4 28:03)
+#include "DataFormats/SiStripClusterSoA/interface/SiStripClusterHost.h"
 
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"
 DEFINE_FWK_ALPAKA_MODULE(sistrip::SiStripClustersToLegacy2);

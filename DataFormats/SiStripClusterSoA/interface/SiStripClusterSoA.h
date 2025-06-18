@@ -1,15 +1,12 @@
 
-#ifndef DataFormats_SiStripClusterSoA_interface_SiStripClustersSoA_h
-#define DataFormats_SiStripClusterSoA_interface_SiStripClustersSoA_h
+#ifndef DataFormats_SiStripClusterSoA_interface_SiStripClusterSoA_h
+#define DataFormats_SiStripClusterSoA_interface_SiStripClusterSoA_h
 
-#include "DataFormats/Common/interface/StdArray.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 
 namespace sistrip {
-  const static auto maxStripsPerCluster = 32;
-  using ClusterADCsColumn = edm::StdArray<uint8_t, maxStripsPerCluster>; /*768*/
 
-  GENERATE_SOA_LAYOUT(SiStripClustersSoALayout,
+  GENERATE_SOA_LAYOUT(SiStripClusterSoALayout,
                       SOA_COLUMN(uint32_t, clusterIndex),
                       SOA_COLUMN(uint16_t, clusterSize),
                       SOA_COLUMN(uint32_t, clusterDetId),
@@ -19,12 +16,12 @@ namespace sistrip {
                       SOA_COLUMN(float, charge),
                       //
                       SOA_COLUMN(uint32_t, candidateAcceptedPrefix),
-                      SOA_SCALAR(uint32_t, nClusters),
+                      SOA_SCALAR(uint32_t, nClusterCandidates),
                       SOA_SCALAR(uint32_t, maxClusterSize))
 
-  using SiStripClustersSoA = SiStripClustersSoALayout<>;
-  using SiStripClustersView = SiStripClustersSoA::View;
-  using SiStripClustersConstView = SiStripClustersSoA::ConstView;
+  using SiStripClusterSoA = SiStripClusterSoALayout<>;
+  using SiStripClusterView = SiStripClusterSoA::View;
+  using SiStripClusterConstView = SiStripClusterSoA::ConstView;
 }  // namespace sistrip
 
 #endif  // DataFormats_SiStripClusterSoA_interface_SiStripClustersSoA_h

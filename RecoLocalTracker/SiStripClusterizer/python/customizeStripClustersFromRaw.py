@@ -45,7 +45,7 @@ def customizeHLTStripClustersFromRaw_alpaka(process: cms.Process, MaxClusterSize
             hltSiStripRawToClustersFacilityAlpaka.Clusterizer.MaxClusterSize = cms.uint32(MaxClusterSize)
         ## Add the MaxSeedStrips to the clusterizer PSet if not present
         if not hasattr(hltSiStripRawToClustersFacilityAlpaka.Clusterizer, "MaxSeedStrips"):
-            hltSiStripRawToClustersFacilityAlpaka.Clusterizer.MaxSeedStrips = cms.uint32(150000)
+            hltSiStripRawToClustersFacilityAlpaka.Clusterizer.MaxSeedStrips = cms.uint32(200000)
         
         if not hasattr(hltSiStripRawToClustersFacilityAlpaka, "Unpacker"):
             hltSiStripRawToClustersFacilityAlpaka.Unpacker = cms.PSet(
@@ -72,7 +72,7 @@ def customizeHLTStripClustersFromRaw_alpaka(process: cms.Process, MaxClusterSize
             if hasattr(hltSiStripRawToClustersFacilityAlpaka, par): delattr(hltSiStripRawToClustersFacilityAlpaka, par)
         
         # Create the converter bringing the alpaka-made cluster into legacy objects
-        # hltSiStripClustersToLegacy = cms.EDProducer("SiStripClustersToLegacy@alpaka",
+        ## development - The heterogeneous converter can be enabled by using "sistrip::SiStripClustersToLegacy2@alpaka"
         hltSiStripClustersToLegacy = cms.EDProducer("sistrip::SiStripClustersToLegacy",
             source = cms.InputTag("hltSiStripRawToClustersFacilityAlpaka")
         )
