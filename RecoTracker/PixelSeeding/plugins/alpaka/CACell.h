@@ -213,7 +213,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       CircleEq<float> eq(x1, y1, x2, y2, x3, y3);
 
-      if (eq.curvature() > maxCurv)
+      if (std::abs(eq.curvature()) > maxCurv)
         return false;
 
       return std::abs(eq.dca0()) < region_origin_radius_plus_tolerance * std::abs(eq.curvature());
@@ -230,7 +230,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         const float maxCurv) {
       CircleEq<float> eq(x1, y1, x2, y2, x3, y3);
 
-      if (eq.curvature() > maxCurv)
+      if (std::abs(eq.curvature()) > maxCurv)
         return false;
 
       return std::abs(eq.dca0()) < region_origin_radius_plus_tolerance * std::abs(eq.curvature());
