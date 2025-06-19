@@ -26,7 +26,9 @@
 // user include files
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ModuleTypeResolverMaker.h"
+#include "FWCore/Framework/interface/maker/ModuleHolder.h"
 
 // forward declarations
 namespace edm {
@@ -46,6 +48,8 @@ namespace edm {
                                                    std::string const& moduleLabel,
                                                    signalslot::Signal<void(ModuleDescription const&)>& iPre,
                                                    signalslot::Signal<void(ModuleDescription const&)>& iPost);
+    //returns a null if module not found
+    std::shared_ptr<maker::ModuleHolder> getExistingModule(std::string const& moduleLabel);
 
     maker::ModuleHolder* replaceModule(std::string const& iModuleLabel,
                                        edm::ParameterSet const& iPSet,
@@ -55,6 +59,43 @@ namespace edm {
                       signalslot::Signal<void(ModuleDescription const&)>& iPre,
                       signalslot::Signal<void(ModuleDescription const&)>& iPost);
 
+    template <typename T, typename... Args>
+    std::shared_ptr<T> makeExplicitModule(ModuleDescription const& md,
+                                          PreallocationConfiguration const& iPrealloc,
+                                          SignallingProductRegistryFiller* iReg,
+                                          signalslot::Signal<void(ModuleDescription const&)>& iPre,
+                                          signalslot::Signal<void(ModuleDescription const&)>& iPost,
+                                          Args&&... args) {
+      bool postCalled = false;
+      if (labelToModule_.find(md.moduleLabel()) != labelToModule_.end()) {
+        throw cms::Exception("InsertError") << "Module with label '" << md.moduleLabel() << "' already exists.";
+      }
+
+      try {
+        std::shared_ptr<T> module;
+        convertException::wrap([&]() {
+          iPre(md);
+          module = std::make_shared<T>(std::forward<Args>(args)...);
+
+          auto holder = std::make_shared<maker::ModuleHolderT<typename T::ModuleType>>(module);
+          holder->finishModuleInitialization(md, iPrealloc, iReg);
+          labelToModule_.emplace(md.moduleLabel(), std::move(holder));
+
+          // if exception then post will be called in the catch block
+          postCalled = true;
+          iPost(md);
+        });
+        return module;
+      } catch (cms::Exception& iException) {
+        if (!postCalled) {
+          CMS_SA_ALLOW try { iPost(md); } catch (...) {
+            // If post throws an exception ignore it because we are already handling another exception
+          }
+        }
+        throw;
+      }
+    }
+
     template <typename F>
     void forAllModuleHolders(F iFunc) {
       for (auto& labelMod : labelToModule_) {
@@ -62,6 +103,11 @@ namespace edm {
         iFunc(t);
       }
     }
+
+    void finishModulesInitialization(ProductRegistry const& iRegistry,
+                                     eventsetup::ESRecordsToProductResolverIndices const& iESIndices,
+                                     ProcessBlockHelperBase const& processBlockHelperBase,
+                                     std::string const& processName);
 
   private:
     std::map<std::string, edm::propagate_const<std::shared_ptr<maker::ModuleHolder>>> labelToModule_;
