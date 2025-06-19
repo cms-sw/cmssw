@@ -8,7 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
-
+#include "FastSimulation/CalorimeterProperties/interface/CalorimetryConsumer.h"
 #include "FastSimulation/Utilities/interface/FamosDebug.h"
 
 #include "DataFormats/Math/interface/Vector3D.h"
@@ -48,7 +48,7 @@ private:
 class FastHFShowerLibrary {
 public:
   // Constructor and Destructor
-  FastHFShowerLibrary(edm::ParameterSet const&, edm::ConsumesCollector&&);
+  FastHFShowerLibrary(edm::ParameterSet const&, const edm::EventSetup&, const CalorimetryConsumer&);
   ~FastHFShowerLibrary() {}
 
 public:
@@ -56,7 +56,7 @@ public:
   void recoHFShowerLibrary(const FSimTrack& myTrack, HFHitMaker* hitMaker) const;
   void modifyDepth(HcalNumberingFromDDD::HcalID& id) const;
 
-  void SetRandom(const RandomEngineAndDistribution*);
+  static void setRandom(const RandomEngineAndDistribution*);
 
 private:
   const edm::ParameterSet fast;
@@ -67,8 +67,5 @@ private:
 
   bool applyFidCut;
   std::string name;
-
-  const edm::ESGetToken<HcalDDDSimConstants, HcalSimNumberingRecord> hcalDDDSimConstantsESToken_;
-  const edm::ESGetToken<HcalSimulationConstants, HcalSimNumberingRecord> hcalSimulationConstantsESToken_;
 };
 #endif

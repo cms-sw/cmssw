@@ -12,7 +12,7 @@
 #include "FastSimulation/CaloHitMakers/interface/EcalHitMaker.h"
 #include "FastSimulation/CaloHitMakers/interface/HcalHitMaker.h"
 #include "FastSimulation/CaloHitMakers/interface/PreshowerHitMaker.h"
-
+#include "FastSimulation/CalorimeterProperties/interface/CalorimetryConsumer.h"
 #include "FastSimulation/Calorimetry/interface/KKCorrectionFactors.h"
 
 #include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
@@ -63,11 +63,12 @@ public:
                      const edm::ParameterSet& MuonECALPars,
                      const edm::ParameterSet& MuonHCALPars,
                      const edm::ParameterSet& fastGflash,
-                     edm::ConsumesCollector&&);
+                     double magneticFieldOrigin,
+                     const edm::EventSetup& iSetup,
+                     const CalorimetryConsumer& iConsumer);
   ~CalorimetryManager();
 
   // Does the real job
-  void initialize(RandomEngineAndDistribution const* random, const HepPDT::ParticleDataTable* pdt);
   void reconstructTrack(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container);
 
   // Return the address of the Calorimeter
@@ -152,9 +153,6 @@ private:
   std::vector<double> p_knots_;
   std::vector<double> k_e_;
   std::vector<double> k_h_;
-
-  // Used to check if the calorimeters was initialized
-  bool initialized_;
 
   std::unique_ptr<MaterialEffects> theMuonEcalEffects_;  // material effects for muons in ECAL
   std::unique_ptr<MaterialEffects> theMuonHcalEffects_;  // material effects for muons in HCAL

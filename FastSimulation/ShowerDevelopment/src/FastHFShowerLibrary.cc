@@ -38,16 +38,14 @@
 
 static std::once_flag initializeOnce;
 
-FastHFShowerLibrary::FastHFShowerLibrary(edm::ParameterSet const& p, edm::ConsumesCollector&& iC)
-    : fast(p), hcalDDDSimConstantsESToken_(iC.esConsumes()), hcalSimulationConstantsESToken_(iC.esConsumes()) {
+FastHFShowerLibrary::FastHFShowerLibrary(edm::ParameterSet const& p, const edm::EventSetup& iSetup, const CalorimetryConsumer& iConsumer)
+    : fast(p) {
   applyFidCut = p.getParameter<edm::ParameterSet>("HFShowerLibrary").getParameter<bool>("ApplyFiducialCut");
-}
 
-void FastHFShowerLibrary::initHFShowerLibrary(const edm::EventSetup& iSetup) {
   edm::LogInfo("FastCalorimetry") << "initHFShowerLibrary::initialization";
 
-  hcalConstants = &iSetup.getData(hcalDDDSimConstantsESToken_);
-  const HcalSimulationConstants* hsps = &iSetup.getData(hcalSimulationConstantsESToken_);
+  hcalConstants = &iSetup.getData(iConsumer.hcalDDDSimConstantsESToken);
+  const HcalSimulationConstants* hsps = &iSetup.getData(iConsumer.hcalSimulationConstantsESToken);
 
   std::string name = "HcalHits";
   numberingFromDDD = std::make_unique<HcalNumberingFromDDD>(hcalConstants);
@@ -63,7 +61,7 @@ void FastHFShowerLibrary::initHFShowerLibrary(const edm::EventSetup& iSetup) {
   });
 }
 
-void FastHFShowerLibrary::SetRandom(const RandomEngineAndDistribution* rnd) {
+void FastHFShowerLibrary::setRandom(const RandomEngineAndDistribution* rnd) {
   // define Geant4 engine per thread
   G4Random::setTheEngine(&(rnd->theEngine()));
   LogDebug("FastHFShowerLibrary::recoHFShowerLibrary")

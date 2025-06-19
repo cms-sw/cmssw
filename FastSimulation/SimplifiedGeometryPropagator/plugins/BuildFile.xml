@@ -6,6 +6,7 @@
 <use name="RecoTracker/DeDx"/>
 <use name="FastSimulation/TrajectoryManager"/>
 <use name="FastSimulation/SimplifiedGeometryPropagator"/>
+<use name="FastSimulation/CalorimeterProperties"/>
 <use name="FastSimulation/Calorimetry"/>
 <use name="FastSimulation/CaloGeometryTools"/>
 <use name="FastSimulation/ShowerDevelopment"/>

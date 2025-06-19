@@ -38,6 +38,7 @@
 
 // Hack for calorimetry
 #include "FastSimulation/Event/interface/FSimTrack.h"
+#include "FastSimulation/CalorimeterProperties/interface/CalorimetryConsumer.h"
 #include "FastSimulation/Calorimetry/interface/CalorimetryManager.h"
 #include "FastSimulation/CaloGeometryTools/interface/CaloGeometryHelper.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -76,6 +77,7 @@ private:
                                HepPDT::ParticleDataTable const& particleTable,
                                std::vector<FSimTrack>& myFSimTracks);
 
+  edm::ParameterSet iConfig_;
   edm::EDGetTokenT<edm::HepMCProduct> genParticlesToken_;  //!< Token to get the genParticles
   fastsim::Geometry geometry_;                             //!< The definition of the tracker according to python config
   fastsim::Geometry caloGeometry_;                         //!< Hack to interface "old" calo to "new" tracking
@@ -87,6 +89,7 @@ private:
   bool simulateCalorimetry_;
   edm::ESWatcher<CaloGeometryRecord> watchCaloGeometry_;
   edm::ESWatcher<CaloTopologyRecord> watchCaloTopology_;
+  CalorimetryConsumer myCaloConsumer_;
   std::unique_ptr<CalorimetryManager> myCalorimetry_;  // unfortunately, default constructor cannot be called
   bool simulateMuons_;
   bool useFastSimDecayer_;
@@ -96,8 +99,6 @@ private:
   std::map<std::string, fastsim::InteractionModel*> interactionModelMap_;  //!< Each interaction model has a unique name
   static const std::string MESSAGECATEGORY;  //!< Category of debugging messages ("FastSimulation")
   const edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> particleDataTableESToken_;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryESToken_;
-  edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopologyESToken_;
   static constexpr double caloBoundaryPerp2_ = 128. * 128.;
   static constexpr double caloBoundaryZ_ = 302.;
   static constexpr double minParticleLifetime_ = 1E-10;
@@ -109,7 +110,8 @@ private:
 const std::string FastSimProducer::MESSAGECATEGORY = "FastSimulation";
 
 FastSimProducer::FastSimProducer(const edm::ParameterSet& iConfig)
-    : genParticlesToken_(consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("src"))),
+    : iConfig_(iConfig),
+      genParticlesToken_(consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("src"))),
       geometry_(iConfig.getParameter<edm::ParameterSet>("trackerDefinition"), consumesCollector()),
       caloGeometry_(iConfig.getParameter<edm::ParameterSet>("caloDefinition"), consumesCollector()),
       beamPipeRadius_(iConfig.getParameter<double>("beamPipeRadius")),
@@ -117,13 +119,10 @@ FastSimProducer::FastSimProducer(const edm::ParameterSet& iConfig)
       particleFilter_(iConfig.getParameter<edm::ParameterSet>("particleFilter")),
       randomEngine_(nullptr),
       simulateCalorimetry_(iConfig.getParameter<bool>("simulateCalorimetry")),
+      myCaloConsumer_(consumesCollector()),
       simulateMuons_(iConfig.getParameter<bool>("simulateMuons")),
       useFastSimDecayer_(iConfig.getParameter<bool>("useFastSimDecayer")),
       particleDataTableESToken_(esConsumes()) {
-  if (simulateCalorimetry_) {
-    caloGeometryESToken_ = esConsumes();
-    caloTopologyESToken_ = esConsumes();
-  }
 
   //----------------
   // define interaction models
@@ -143,19 +142,6 @@ FastSimProducer::FastSimProducer(const edm::ParameterSet& iConfig)
     interactionModels_.push_back(std::move(interactionModel));
     // and create the map
     interactionModelMap_[modelName] = interactionModels_.back().get();
-  }
-
-  //----------------
-  // calorimetry
-  //---------------
-
-  if (simulateCalorimetry_) {
-    myCalorimetry_ =
-        std::make_unique<CalorimetryManager>(iConfig.getParameter<edm::ParameterSet>("Calorimetry"),
-                                             iConfig.getParameter<edm::ParameterSet>("MaterialEffectsForMuonsInECAL"),
-                                             iConfig.getParameter<edm::ParameterSet>("MaterialEffectsForMuonsInHCAL"),
-                                             iConfig.getParameter<edm::ParameterSet>("GFlash"),
-                                             consumesCollector());
   }
 
   //----------------
@@ -214,18 +200,18 @@ void FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     auto newGeom = watchCaloGeometry_.check(iSetup);
     auto newTopo = watchCaloTopology_.check(iSetup);
     if (newGeom || newTopo) {
-      auto const& pG = iSetup.getData(caloGeometryESToken_);
-      myCalorimetry_->getCalorimeter()->setupGeometry(pG);
-
-      auto const& theCaloTopology = iSetup.getData(caloTopologyESToken_);
-      myCalorimetry_->getCalorimeter()->setupTopology(theCaloTopology);
-      myCalorimetry_->getCalorimeter()->initialize(geometry_.getMagneticFieldZ(math::XYZTLorentzVector(0., 0., 0., 0.)));
-
-      myCalorimetry_->getHFShowerLibrary()->initHFShowerLibrary(iSetup);
+      myCalorimetry_ =
+        std::make_unique<CalorimetryManager>(iConfig_.getParameter<edm::ParameterSet>("Calorimetry"),
+                                             iConfig_.getParameter<edm::ParameterSet>("MaterialEffectsForMuonsInECAL"),
+                                             iConfig_.getParameter<edm::ParameterSet>("MaterialEffectsForMuonsInHCAL"),
+                                             iConfig_.getParameter<edm::ParameterSet>("GFlash"),
+                                             geometry_.getMagneticFieldZ(math::XYZTLorentzVector(0., 0., 0., 0.)),
+                                             iSetup,
+                                             myCaloConsumer_);
     }
 
-    // Important: this also cleans the calorimetry information from the last event
-    myCalorimetry_->initialize(randomEngine_.get(), &pdt);
+    // define Geant4 engine per thread
+    FastHFShowerLibrary::setRandom(randomEngine_.get());
   }
 
   // The vector of SimTracks needed for the CalorimetryManager

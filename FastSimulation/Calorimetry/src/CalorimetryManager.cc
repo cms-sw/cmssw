@@ -69,15 +69,16 @@ typedef math::XYZVector XYZPoint;
 std::vector<std::pair<int, float> > CalorimetryManager::myZero_ =
     std::vector<std::pair<int, float> >(1, std::pair<int, float>(0, 0.));
 
-CalorimetryManager::CalorimetryManager() : myCalorimeter_(nullptr), initialized_(false) { ; }
+CalorimetryManager::CalorimetryManager() : myCalorimeter_(nullptr) { ; }
 
 CalorimetryManager::CalorimetryManager(const edm::ParameterSet& fastCalo,
                                        const edm::ParameterSet& fastMuECAL,
                                        const edm::ParameterSet& fastMuHCAL,
                                        const edm::ParameterSet& parGflash,
-                                       edm::ConsumesCollector&& iC)
-    : initialized_(false),
-      theMuonEcalEffects_(nullptr),
+                                       double magneticFieldOrigin,
+                                       const edm::EventSetup& iSetup,
+                                       const CalorimetryConsumer& iConsumer)
+    : theMuonEcalEffects_(nullptr),
       theMuonHcalEffects_(nullptr),
       bFixedLength_(false) {
   aLandauGenerator_ = std::make_unique<LandauFluctuationGenerator>();
@@ -89,7 +90,7 @@ CalorimetryManager::CalorimetryManager(const edm::ParameterSet& fastCalo,
   theAntiProtonProfile_ = std::make_unique<GflashAntiProtonShowerProfile>(parGflash);
 
   // FastHFShowerLibrary
-  theHFShowerLibrary_ = std::make_unique<FastHFShowerLibrary>(fastCalo, std::move(iC));
+  theHFShowerLibrary_ = std::make_unique<FastHFShowerLibrary>(fastCalo, iSetup, iConsumer);
 
   readParameters(fastCalo);
 
@@ -113,27 +114,28 @@ CalorimetryManager::CalorimetryManager(const edm::ParameterSet& fastCalo,
     ecalCorrection_ =
         std::make_unique<KKCorrectionFactors>(fastCalo.getParameter<edm::ParameterSet>("ECALResponseScaling"));
   }
+
+  pdt_ = &iSetup.getData(iConsumer.particleDataTableESToken);
+
+  auto const& pG = iSetup.getData(iConsumer.caloGeometryESToken);
+  myCalorimeter_->setupGeometry(pG);
+
+  auto const& theCaloTopology = iSetup.getData(iConsumer.caloTopologyESToken);
+  myCalorimeter_->setupTopology(theCaloTopology);
+  myCalorimeter_->initialize(magneticFieldOrigin);
+
+  // Check if the preshower is really available
+  if (simulatePreshower_ && !myCalorimeter_->preshowerPresent()) {
+    edm::LogWarning("CalorimetryManager")
+        << " WARNING: The preshower simulation has been turned on; but no preshower geometry is available "
+        << std::endl;
+    edm::LogWarning("CalorimetryManager") << " Disabling the preshower simulation " << std::endl;
+    simulatePreshower_ = false;
+  }
+
 }
 
 CalorimetryManager::~CalorimetryManager() = default;
-
-void CalorimetryManager::initialize(RandomEngineAndDistribution const* random, const HepPDT::ParticleDataTable* pdt) {
-  if (!initialized_) {
-    theHFShowerLibrary_->SetRandom(random);
-
-    // Check if the preshower is really available
-    if (simulatePreshower_ && !myCalorimeter_->preshowerPresent()) {
-      edm::LogWarning("CalorimetryManager")
-          << " WARNING: The preshower simulation has been turned on; but no preshower geometry is available "
-          << std::endl;
-      edm::LogWarning("CalorimetryManager") << " Disabling the preshower simulation " << std::endl;
-      simulatePreshower_ = false;
-    }
-
-    initialized_ = true;
-  }
-  pdt_ = pdt;
-}
 
 void CalorimetryManager::reconstructTrack(const FSimTrack& myTrack, RandomEngineAndDistribution const* random, CaloProductContainer& container) {
   int pid = abs(myTrack.type());
@@ -437,7 +439,7 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack, RandomEngineA
 void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const* random, CaloProductContainer& container) {  //,
   // const edm::ParameterSet& fastCalo){
 
-  theHFShowerLibrary_->SetRandom(random);
+  FastHFShowerLibrary::setRandom(random);
 
   //  TimeMe t(" FASTEnergyReconstructor::HDShower");
   const XYZTLorentzVector& moment = myTrack.momentum();
