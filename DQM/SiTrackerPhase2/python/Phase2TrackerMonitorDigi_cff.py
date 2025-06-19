@@ -86,13 +86,22 @@ otDigiMon = digiMon.clone(
         ymax = 1250.,
         switch = True
     ),
-    PositionOfDigisSH = digiMon.PositionOfDigisSH.clone(
-        Nxbins = 508,
+    PositionOfDigisSH2S = digiMon.PositionOfDigisSH2S.clone(
+        Nxbins = 1016,
         xmin = 0.5,
         xmax = 1016.5,
         Nybins = 2,
         ymin = 0.5,
         ymax = 2.5,
+        switch = True
+    ),
+    PositionOfDigisSHPS = digiMon.PositionOfDigisSHPS.clone(
+        Nxbins = 960,
+        xmin   = 0.5,
+        xmax   = 960.5,
+        Nybins = 2,
+        ymin   = 0.5,
+        ymax   = 2.5,
         switch = True
     )
 )
