@@ -53,52 +53,34 @@ namespace edm {
 
         //side effect keeps this module around
         for (auto& wm : workerManagers_) {
-          wm.addToAllWorkers(wm.getWorker(*modpset, pregistry, &prealloc, processConfiguration, moduleLabel));
+          (void)wm.getWorker(*modpset, pregistry, &prealloc, processConfiguration, moduleLabel);
         }
       }
     }
     if (inserter) {
-      inserter->doPreallocate(prealloc);
       for (auto& wm : workerManagers_) {
-        auto results_inserter = WorkerPtr(new edm::WorkerT<TriggerResultInserter::ModuleType>(
-            inserter, inserter->moduleDescription(), &actions));  // propagate_const<T> has no reset() function
-        results_inserter->setActivityRegistry(actReg_);
-        wm.addToAllWorkers(results_inserter.get());
-        extraWorkers_.emplace_back(std::move(results_inserter));
+        (void)wm.getWorkerForModule(*inserter);
       }
     }
 
     for (auto& pathStatusInserter : pathStatusInserters) {
       std::shared_ptr<PathStatusInserter> inserterPtr = get_underlying(pathStatusInserter);
-      inserterPtr->doPreallocate(prealloc);
 
       for (auto& wm : workerManagers_) {
-        WorkerPtr workerPtr(
-            new edm::WorkerT<PathStatusInserter::ModuleType>(inserterPtr, inserterPtr->moduleDescription(), &actions));
-        workerPtr->setActivityRegistry(actReg_);
-        wm.addToAllWorkers(workerPtr.get());
-        extraWorkers_.emplace_back(std::move(workerPtr));
+        (void)wm.getWorkerForModule(*inserterPtr);
       }
     }
 
     for (auto& endPathStatusInserter : endPathStatusInserters) {
       std::shared_ptr<EndPathStatusInserter> inserterPtr = get_underlying(endPathStatusInserter);
-      inserterPtr->doPreallocate(prealloc);
       for (auto& wm : workerManagers_) {
-        WorkerPtr workerPtr(new edm::WorkerT<EndPathStatusInserter::ModuleType>(
-            inserterPtr, inserterPtr->moduleDescription(), &actions));
-        workerPtr->setActivityRegistry(actReg_);
-        wm.addToAllWorkers(workerPtr.get());
-        extraWorkers_.emplace_back(std::move(workerPtr));
+        (void)wm.getWorkerForModule(*inserterPtr);
       }
     }
 
   }  // GlobalSchedule::GlobalSchedule
 
-  void GlobalSchedule::beginJob(ProductRegistry const& iRegistry,
-                                eventsetup::ESRecordsToProductResolverIndices const& iESIndices,
-                                ProcessBlockHelperBase const& processBlockHelperBase,
-                                ProcessContext const& processContext) {
+  void GlobalSchedule::beginJob(ProcessContext const& processContext) {
     GlobalContext globalContext(GlobalContext::Transition::kBeginJob, processContext_);
     unsigned int const managerIndex =
         numberOfConcurrentLumis_ + numberOfConcurrentRuns_ + numberOfConcurrentProcessBlocks_;
@@ -111,7 +93,7 @@ namespace edm {
         exceptionContext(ex, globalContext, "Handling pre signal, likely in a service function");
         throw;
       }
-      workerManagers_[managerIndex].beginJob(iRegistry, iESIndices, processBlockHelperBase, globalContext);
+      workerManagers_[managerIndex].beginJob(globalContext);
     } catch (...) {
       exceptionPtr = std::current_exception();
     }
@@ -189,12 +171,6 @@ namespace edm {
     for (auto& wm : workerManagers_) {
       wm.deleteModuleIfExists(iLabel);
     }
-  }
-
-  void GlobalSchedule::releaseMemoryPostLookupSignal() {
-    unsigned int const managerIndex =
-        numberOfConcurrentLumis_ + numberOfConcurrentRuns_ + numberOfConcurrentProcessBlocks_;
-    workerManagers_[managerIndex].releaseMemoryPostLookupSignal();
   }
 
   std::vector<ModuleDescription const*> GlobalSchedule::getAllModuleDescriptions() const {
