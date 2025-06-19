@@ -149,17 +149,17 @@ if __name__ == '__main__':
         if os.path.isdir(cert_path):
             json_list = os.listdir(cert_path)
             if len(json_list) == 0:
-                web_fallback == True
-            json_list = [c for c in json_list if "Golden" in c and "era" not in c]
-            json_list = [c for c in json_list if c.startswith("Cert_C") and c.endswith("json")]
+                web_fallback == True 
+            json_list = [c for c in json_list if "golden" in c.lower() and "era" not in c.lower()]
+            json_list = [c for c in json_list if c.lower().startswith("cert_c") and c.endswith("json")]
         else:
             web_fallback = True
         ## ... if not we go to the website
         if web_fallback:
             cert_url = base_cert_url + cert_type + "/"
             json_list = get_url_clean(cert_url).split("\n")
-            json_list = [c for c in json_list if "Golden" in c and "era" not in c and "Cert_C" in c]
-            json_list = [[cc for cc in c.split(" ") if cc.startswith("Cert_C") and cc.endswith("json")][0] for c in json_list]
+            json_list = [c for c in json_list if "golden" in c.lower() and "era" not in c.lower() and "cert_c" in c.lower()]
+            json_list = [[cc for cc in c.split(" ") if cc.lower().startswith("cert_c") and cc.endswith("json")][0] for c in json_list]
 
         # the larger the better, assuming file naming schema 
         # Cert_X_RunStart_RunFinish_Type.json
