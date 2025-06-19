@@ -8,5 +8,5 @@
 <use name="DataFormats/TICLReco"/>
 <use name="RecoEcal/EgammaCoreTools"/>
 <export>
-  <lib name="RecoEgammaEgammaElectronProducers"/>
+  <lib name="RecoTICLEgammaElectronProducers"/>
 </export>
