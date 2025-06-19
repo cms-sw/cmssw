@@ -67,7 +67,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         for (auto row : mapEntries) {
           std::string typecode = omap.getAttr("Typecode", row);
-          const auto& allTypecodes = moduleIndexer.getTypecodeMap();
+          const auto& allTypecodes = moduleIndexer.typecodeMap();
           // Skip if typecode is not in the module indexer
           bool typecodeFound = false;
           for (const auto& key : allTypecodes) {
@@ -108,9 +108,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           auto& entities = pmap.getEntries();
           for (auto row : entities) {
             //identify special cases (Si vs SiPM, calib vs normal)
-            std::string typecode = pmap.getAttr("Typecode", row);
+            const std::string& typecode = pmap.getAttr("Typecode", row);
             auto typeidx = cellIndexer.getEnumFromTypecode(typecode);
-            bool isSiPM = typecode.find("TM") != std::string::npos;
+            bool isSiPM = (typecode[0] == 'T');
             int rocpin = pmap.getIntAttr("ROCpin", row);
             int celltype = pmap.getIntAttr("t", row);
             int i1(0), i2(0), sensorcell(0);

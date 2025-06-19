@@ -95,8 +95,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     std::string line = "HGCalRecHitESProducersTest::produce " + std::string(90, '-');
     if (configWatcher_.check(iSetup)) {
       std::cout << line << std::endl;
-      std::cout << "HGCalRecHitESProducersTest::produce: moduleMap.getMaxDataSize()=" << moduleMap.getMaxDataSize()
-                << ", moduleMap.getMaxERxSize()=" << moduleMap.getMaxERxSize() << std::endl;
+      std::cout << "HGCalRecHitESProducersTest::produce: moduleMap.maxDataSize()=" << moduleMap.maxDataSize()
+                << ", moduleMap.maxERxSize()=" << moduleMap.maxERxSize() << std::endl;
 
       // ESProducer for global HGCal configuration (structs) with header markers, etc.
       auto nfeds = config.feds.size();  // number of FEDs

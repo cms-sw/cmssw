@@ -7,6 +7,9 @@ int main() {
   testSerialization<HGCalMappingCellIndexer>();
   testSerialization<HGCalFEDReadoutSequence>();
   testSerialization<HGCalMappingModuleIndexer>();
+  testSerialization<HGCalMappingCellIndexerTrigger>();
+  testSerialization<HGCalTriggerFEDReadoutSequence>();
+  testSerialization<HGCalMappingModuleIndexerTrigger>();
 
   return 0;
 }

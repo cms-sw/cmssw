@@ -4,7 +4,7 @@ process = cms.Process("TEST")
 import argparse as ap
 parser = ap.ArgumentParser()
 parser.add_argument('-modules','--modules',type=str,
-                    default='Geometry/HGCalMapping/data/ModuleMaps/modulelocator_test.txt',
+                    default='Geometry/HGCalMapping/data/ModuleMaps/modulelocator_trigger_test.txt',
                     help='Path to module mapper. Absolute, or relative to CMSSW src directory.'
                     )
 
@@ -17,11 +17,6 @@ parser.add_argument('-sipmcells','--sipmcells',type=str,
                     default='Geometry/HGCalMapping/data/CellMaps/channels_sipmontile.hgcal.txt',
                     help='Path to SiPM-on-tile cell mapper. Absolute, or relative to CMSSW src directory.'
                     )
-
-parser.add_argument('-offsetfile','--offsetfile',type=str,
-                    default='Geometry/HGCalMapping/data/CellMaps/calibration_to_surrounding_offsetMap.txt',
-                    help='Path to calibration-to-surrounding cell offset file. Absolute, or relative to CMSSW src directory.'
-                    )
 options = parser.parse_args()
 
 process.source = cms.Source('EmptySource')
@@ -30,18 +25,17 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-#electronics mapping
+# electronics mapping
 from Geometry.HGCalMapping.hgcalmapping_cff import customise_hgcalmapper
 process = customise_hgcalmapper(process,
                                 modules=options.modules,
                                 sicells=options.sicells,
-                                sipmcells=options.sipmcells,
-                                offsetfile=options.offsetfile)
+                                sipmcells=options.sipmcells)
 
-#Geometry
-process.load('Configuration.Geometry.GeometryExtended2026D99Reco_cff')
+# Geometry
+process.load('Configuration.Geometry.GeometryExtended2025Reco_cff')
 
-#tester
-process.tester = cms.EDAnalyzer('HGCalMappingESSourceTester')
+# tester
+process.tester = cms.EDAnalyzer('HGCalMappingTriggerESSourceTester')
 
 process.p = cms.Path(process.tester)

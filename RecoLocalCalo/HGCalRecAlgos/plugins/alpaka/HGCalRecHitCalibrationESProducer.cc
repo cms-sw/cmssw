@@ -82,13 +82,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         edm::LogInfo("HGCalCalibrationESProducer") << "produce: filename=" << filename_.fullPath().c_str();
 
         // load dense indexing
-        const uint32_t nchans = moduleMap.getMaxDataSize();  // channel-level size
+        const uint32_t nchans = moduleMap.maxDataSize();  // channel-level size
         hgcalrechit::HGCalCalibParamHost product(nchans, cms::alpakatools::host());
 
         // load calib parameters from JSON
         std::ifstream infile(filename_.fullPath().c_str());
         json calib_data = json::parse(infile, nullptr, true, /*ignore_comments*/ true);
-        for (const auto& it : moduleMap.getTypecodeMap()) {  // loop over all module typecodes
+        for (const auto& it : moduleMap.typecodeMap()) {  // loop over all module typecodes
           std::string const& module = it.first;              // module typecode, e.g. "ML-F3PT-TX-0003"
 
           // retrieve matching key (glob patterns allowed)
