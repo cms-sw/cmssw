@@ -9,7 +9,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
 #include "CondFormats/DataRecord/interface/HGCalDenseIndexInfoRcd.h"
-#include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
+#include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexerTrigger.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingParameterHost.h"
 #include "CondFormats/HGCalObjects/interface/alpaka/HGCalMappingParameterDevice.h"
 #include "DataFormats/HGCalDigi/interface/HGCalElectronicsId.h"
@@ -21,6 +21,8 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 
+#include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexerTrigger.h"
+
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -30,10 +32,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   namespace hgcal {
 
-    class HGCalDenseIndexInfoESProducer : public ESProducer {
+    class HGCalDenseIndexTriggerInfoESProducer : public ESProducer {
     public:
       //
-      HGCalDenseIndexInfoESProducer(const edm::ParameterSet& iConfig) : ESProducer(iConfig) {
+      HGCalDenseIndexTriggerInfoESProducer(const edm::ParameterSet& iConfig) : ESProducer(iConfig) {
         auto cc = setWhatProduced(this);
         moduleIndexTkn_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("moduleindexer"));
         cellIndexTkn_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("cellindexer"));
@@ -53,7 +55,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
 
       //
-      std::optional<HGCalDenseIndexInfoHost> produce(const HGCalDenseIndexInfoRcd& iRecord) {
+      std::optional<HGCalDenseIndexTriggerInfoHost> produce(const HGCalDenseIndexInfoRcd& iRecord) {
         //geometry
         auto const& geo = iRecord.get(caloGeomToken_);
 
@@ -68,18 +70,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         //declare the dense index info collection to be produced
         //the size is determined by the module indexer
         const uint32_t nIndices = modIndexer.maxDataSize();
-        HGCalDenseIndexInfoHost denseIdxInfo(nIndices, cms::alpakatools::host());
-        for (auto fedRS : modIndexer.fedReadoutSequences()) {
+        HGCalDenseIndexTriggerInfoHost denseIdxInfo(nIndices, cms::alpakatools::host());
+        for (const auto& fedRS : modIndexer.fedReadoutSequences()) {
           uint32_t fedId = fedRS.id;
           for (size_t imod = 0; imod < fedRS.readoutTypes_.size(); imod++) {
             //the number of words expected, the first channel dense index
             int modTypeIdx = fedRS.readoutTypes_[imod];
-            uint32_t nch = modIndexer.globalTypesNWords()[modTypeIdx];
-            int off = fedRS.chDataOffsets_[imod];
+            uint32_t nch = modIndexer.globalTypesNTCs()[modTypeIdx];
+            int off = fedRS.TCOffsets_[imod];
 
             //get additional necessary module info
-            int modIdx = modIndexer.getIndexForModule(fedId, imod);
-            auto module_row = moduleInfo.view()[modIdx];
+            int modIdx = modIndexer.getIndexForModule(fedId, static_cast<uint32_t>(imod));
+            const auto& module_row = moduleInfo.view()[modIdx];
             bool isSiPM = module_row.isSiPM();
             uint16_t typeidx = module_row.typeidx();
             uint32_t eleid = module_row.eleid();
@@ -104,17 +106,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               //fill the fields
               row.fedId() = fedId;
               row.fedReadoutSeq() = imod;
-              row.chNumber() = ich;
+              row.TCNumber() = ich;
               row.modInfoIdx() = modIdx;
               uint32_t cellIdx = cellInfoOffset + ich;
               row.cellInfoIdx() = cellIdx;
 
-              auto cell_row = cellInfo.view()[cellIdx];
+              const auto& cell_row = cellInfo.view()[cellIdx];
               row.eleid() = eleid + cell_row.eleid();
 
               //assign det id only for full and calibration cells
               row.detid() = 0;
-              row.layer() = 0;
               if (cell_row.t() == 1 || cell_row.t() == 0) {
                 if (isSiPM) {
                   row.detid() = ::hgcal::mappingtools::getSiPMDetId(module_row.zside(),
@@ -123,25 +124,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                                     module_row.celltype(),
                                                                     cell_row.i1(),
                                                                     cell_row.i2());
-                  row.layer() = HGCScintillatorDetId(row.detid()).layer();
                 } else {
                   row.detid() = module_row.detid() + cell_row.detid();
-                  row.layer() = HGCSiliconDetId(row.detid()).layer();
                 }
 
                 //assign position from geometry
                 row.x() = 0;
                 row.y() = 0;
                 row.z() = 0;
-                row.eta() = 0;
-                row.phi() = 0;
                 if (hgcal_geom != nullptr) {
                   GlobalPoint position = hgcal_geom->getPosition(row.detid());
                   row.x() = position.x();
                   row.y() = position.y();
                   row.z() = position.z();
-                  row.eta() = position.eta();
-                  row.phi() = position.phi();
                 }
               }
             }  // end cell loop
@@ -154,9 +149,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }  // end of produce()
 
     private:
-      edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> moduleIndexTkn_;
-      edm::ESGetToken<HGCalMappingCellIndexer, HGCalElectronicsMappingRcd> cellIndexTkn_;
-      edm::ESGetToken<hgcal::HGCalMappingModuleParamHost, HGCalElectronicsMappingRcd> moduleInfoTkn_;
+      edm::ESGetToken<HGCalMappingModuleIndexerTrigger, HGCalElectronicsMappingRcd> moduleIndexTkn_;
+      edm::ESGetToken<HGCalMappingCellIndexerTrigger, HGCalElectronicsMappingRcd> cellIndexTkn_;
+      edm::ESGetToken<hgcal::HGCalMappingModuleTriggerParamHost, HGCalElectronicsMappingRcd> moduleInfoTkn_;
       edm::ESGetToken<hgcal::HGCalMappingCellParamHost, HGCalElectronicsMappingRcd> cellInfoTkn_;
       edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
     };
@@ -165,4 +160,4 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
-DEFINE_FWK_EVENTSETUP_ALPAKA_MODULE(hgcal::HGCalDenseIndexInfoESProducer);
+DEFINE_FWK_EVENTSETUP_ALPAKA_MODULE(hgcal::HGCalDenseIndexTriggerInfoESProducer);
