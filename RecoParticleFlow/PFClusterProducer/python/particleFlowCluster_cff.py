@@ -97,3 +97,14 @@ def _addProcessPFClusterAlpaka(process):
     process.load("RecoParticleFlow.PFClusterProducer.pfClusterHBHEAlpaka_cff")
 
 modifyConfigurationPFClusterAlpaka_ = alpaka.makeProcessModifier(_addProcessPFClusterAlpaka)
+
+from RecoParticleFlow.PFClusterProducer.barrelLayerClusters_cff import barrelLayerClustersEB, barrelLayerClustersHB 
+_pfClusteringECALTask = pfClusteringECALTask.copy()
+_pfClusteringECALTask.add(barrelLayerClustersEB)
+
+_pfClusteringHBHEHFTask = pfClusteringHBHEHFTask.copy()
+_pfClusteringHBHEHFTask.add(barrelLayerClustersHB)
+
+from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
+ticl_barrel.toReplaceWith(pfClusteringECALTask, _pfClusteringECALTask)
+ticl_barrel.toReplaceWith(pfClusteringHBHEHFTask, _pfClusteringHBHEHFTask)
