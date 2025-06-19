@@ -24,6 +24,7 @@ namespace edm {
   class ModuleRegistry;
   class ModuleTypeResolverMaker;
   class ParameterSet;
+  class ExceptionToActionTable;
   namespace maker {
     class ModuleHolder;
   }
@@ -31,14 +32,13 @@ namespace edm {
   /**
      \class WorkerRegistry WorkerRegistry.h "edm/WorkerRegistry.h"
 
-     \brief The Registry of all workers that where requested
+     \brief The Registry of all workers that were requested
      Holds all instances of workers. In this implementation, Workers 
      are owned.
   */
 
   class WorkerRegistry {
   public:
-    explicit WorkerRegistry(std::shared_ptr<ActivityRegistry> areg, ModuleTypeResolverMaker const* resolverMaker);
     WorkerRegistry(std::shared_ptr<ActivityRegistry> areg, std::shared_ptr<ModuleRegistry> iModReg);
     ~WorkerRegistry();
 
@@ -55,6 +55,9 @@ namespace edm {
     /// Retrieve particular instance of the worker without creating it
     /// If one doesn't exist, returns nullptr
     Worker const* get(std::string const& moduleLabel) const;
+
+    //Creates worker if needed
+    Worker* getWorkerFromExistingModule(std::string const& moduleLabel, ExceptionToActionTable const* actions);
 
     /// Deletes the module of the Worker, but the Worker continues to exist.
     void deleteModule(std::string const& moduleLabel);
