@@ -430,19 +430,7 @@ muonAssociationReduced_seq = cms.Sequence(
     +tpToDisplacedGlbMuonAssociation
 )
 
-_muonAssociationHLT_seq = cms.Sequence(
-    hltPhase2L2MuonSeedTracks+Phase2tpToL2SeedAssociation
-    +Phase2tpToL2MuonAssociation+Phase2tpToL2MuonUpdAssociation
-    +Phase2tpToL3IOTkAssociation+Phase2tpToL3OITkAssociation
-    +Phase2tpToL3TkMergedAssociation+Phase2tpToL3GlbMuonMergedAssociation
-    +hltPhase2L3MuonNoIdTracks+Phase2tpToL3MuonNoIdAssociation
-    +hltPhase2L3MuonIdTracks+Phase2tpToL3MuonIdAssociation
-)
-
-from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
-phase2_muon.toReplaceWith(muonAssociationHLT_seq, _muonAssociationHLT_seq)
-
-# Inside-Out first
+# Phase 2 HLT association sequence, L3 Inside-Out first
 _muonAssociationHLT_seq_IO_first = cms.Sequence(
     hltPhase2L2MuonSeedTracks+Phase2tpToL2SeedAssociation
     +Phase2tpToL2MuonAssociation+Phase2tpToL2MuonUpdAssociation
@@ -452,7 +440,10 @@ _muonAssociationHLT_seq_IO_first = cms.Sequence(
     +hltPhase2L3MuonNoIdTracks+Phase2tpToL3MuonNoIdAssociation
     +hltPhase2L3MuonIdTracks+Phase2tpToL3MuonIdAssociation
 )
-# Outside-In first
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+phase2_muon.toReplaceWith(muonAssociationHLT_seq, _muonAssociationHLT_seq_IO_first)
+
+# Phase 2 L3 Outside-In first
 _muonAssociationHLT_seq_OI_first = cms.Sequence(
     hltPhase2L2MuonSeedTracks+Phase2tpToL2SeedAssociation
     +Phase2tpToL2MuonAssociation+Phase2tpToL2MuonUpdAssociation
@@ -462,12 +453,8 @@ _muonAssociationHLT_seq_OI_first = cms.Sequence(
     +hltPhase2L3MuonNoIdTracks+Phase2tpToL3MuonNoIdAssociation
     +hltPhase2L3MuonIdTracks+Phase2tpToL3MuonIdAssociation
 )
-
-from Configuration.ProcessModifiers.phase2L2AndL3Muons_cff import phase2L2AndL3Muons
-phase2L2AndL3Muons.toReplaceWith(muonAssociationHLT_seq, _muonAssociationHLT_seq_IO_first)
-
 from Configuration.ProcessModifiers.phase2L3MuonsOIFirst_cff import phase2L3MuonsOIFirst
-(phase2L2AndL3Muons & phase2L3MuonsOIFirst).toReplaceWith(muonAssociationHLT_seq, _muonAssociationHLT_seq_OI_first)
+phase2L3MuonsOIFirst.toReplaceWith(muonAssociationHLT_seq, _muonAssociationHLT_seq_OI_first)
 
 # fastsim has no hlt specific dt hit collection
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
