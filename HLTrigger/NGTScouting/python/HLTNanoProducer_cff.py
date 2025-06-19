@@ -29,7 +29,6 @@ hltNanoProducer = cms.Sequence(
     + hltMuonTable
     + hltPFCandidateTable
     + hltJetTable
-    + hltTauTable
 )
 
 dstNanoProducer = cms.Sequence(
