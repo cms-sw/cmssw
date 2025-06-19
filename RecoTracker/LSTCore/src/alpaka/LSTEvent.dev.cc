@@ -839,7 +839,6 @@ void LSTEvent::createPixelQuintuplets() {
   auto nInnerSegments_src_view = cms::alpakatools::make_host_view(nInnerSegments);
 
   // Create a sub-view for the device buffer
-  unsigned int totalModules = nLowerModules_ + 1;
   auto dev_view_nSegments_buf = cms::alpakatools::make_device_view(queue_, segmentsOccupancy.nSegments());
   auto dev_view_nSegments = cms::alpakatools::make_device_view(queue_, segmentsOccupancy.nSegments()[nLowerModules_]);
 
