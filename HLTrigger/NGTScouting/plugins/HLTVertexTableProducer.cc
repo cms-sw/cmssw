@@ -1,28 +1,22 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/NanoAOD/interface/FlatTable.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
-
-#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
-
-#include "DataFormats/NanoAOD/interface/FlatTable.h"
-#include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
-#include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
 #include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
-#include "DataFormats/Common/interface/ValueMap.h"
-
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
+#include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
 
 //
 // class declaration
@@ -73,23 +67,6 @@ HLTVertexTableProducer::HLTVertexTableProducer(const edm::ParameterSet& params)
 void HLTVertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  //vertex collection
-  auto pvsIn = iEvent.getHandle(pvs_);
-  if (!pvsIn.isValid()) {
-    edm::LogWarning("HLTVertexTableProducer")
-        << "Invalid handle for " << pvName_ << " in primary vertex input collection";
-    return;
-  }
-  const auto& pvsScoreProd = iEvent.get(pvsScore_);
-
-  //pf candidates collection
-  auto pfcIn = iEvent.getHandle(pfc_);
-  if (!pfcIn.isValid()) {
-    edm::LogWarning("HLTVertexTableProducer")
-        << "Invalid handle for " << pvName_ << " in PF candidate input collection";
-    return;
-  }
-
   std::vector<float> v_ndof;
   std::vector<float> v_chi2;
   std::vector<float> v_x;
@@ -104,6 +81,45 @@ void HLTVertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   std::vector<float> v_pv_sumpt2;
   std::vector<float> v_pv_sumpx;
   std::vector<float> v_pv_sumpy;
+
+  //vertex collection
+  auto pvsIn = iEvent.getHandle(pvs_);
+  if (!pvsIn.isValid()) {
+    edm::LogWarning("HLTVertexTableProducer")
+        << "Invalid handle for " << pvName_ << " in primary vertex input collection";
+    auto pvTable = std::make_unique<nanoaod::FlatTable>(0, pvName_, true);
+
+    pvTable->addColumn<float>("ndof", v_ndof, "primary vertex number of degrees of freedom", 8);
+    pvTable->addColumn<float>("chi2", v_chi2, "primary vertex reduced chi2", 8);
+    pvTable->addColumn<float>("x", v_x, "primary vertex x coordinate", 10);
+    pvTable->addColumn<float>("y", v_y, "primary vertex y coordinate", 10);
+    pvTable->addColumn<float>("z", v_z, "primary vertex z coordinate", 16);
+    pvTable->addColumn<float>("xError", v_xError, "primary vertex error in x coordinate", 10);
+    pvTable->addColumn<float>("yError", v_yError, "primary vertex error in y coordinate", 10);
+    pvTable->addColumn<float>("zError", v_zError, "primary vertex error in z coordinate", 16);
+    pvTable->addColumn<uint8_t>(
+        "isGood", v_is_good, "wheter the primary vertex passes selection: " + goodPvCutString_ + ")");
+    pvTable->addColumn<uint8_t>("nTracks", v_nTracks, "primary vertex number of associated tracks");
+    pvTable->addColumn<float>("score", v_pv_score, "primary vertex score, i.e. sum pt2 of clustered objects", 8);
+    pvTable->addColumn<float>(
+        "sumpt2", v_pv_sumpt2, "sum pt2 of pf charged candidates within dz=0.2 for the main primary vertex", 10);
+    pvTable->addColumn<float>(
+        "sumpx", v_pv_sumpx, "sum px of pf charged candidates within dz=0.2 for the main primary vertex", 10);
+    pvTable->addColumn<float>(
+        "sumpy", v_pv_sumpy, "sum py of pf charged candidates within dz=0.2 for the main primary vertex", 10);
+
+    iEvent.put(std::move(pvTable), "PV");
+    return;
+  }
+  const auto& pvsScoreProd = iEvent.get(pvsScore_);
+
+  //pf candidates collection
+  auto pfcIn = iEvent.getHandle(pfc_);
+  if (!pfcIn.isValid()) {
+    edm::LogWarning("HLTVertexTableProducer")
+        << "Invalid handle for " << pvName_ << " in PF candidate input collection";
+    return;
+  }
 
   for (size_t i = 0; i < (*pvsIn).size(); i++) {
     v_ndof.push_back((*pvsIn)[i].ndof());
