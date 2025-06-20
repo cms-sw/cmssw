@@ -155,7 +155,7 @@ namespace cms::alpakatools {
       // first each block does a scan
       [[maybe_unused]] int off = elementsPerBlock * blockIdx;
       if (size - off > 0) {
-        blockPrefixScan(acc, ci + off, co + off, std::min(elementsPerBlock, size - off), ws);
+        blockPrefixScan(acc, ci + off, co + off, alpaka::math::min(acc, elementsPerBlock, size - off), ws);
       }
 
       // count blocks that finished
