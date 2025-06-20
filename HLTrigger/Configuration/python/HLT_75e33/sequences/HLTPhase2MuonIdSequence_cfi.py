@@ -6,7 +6,7 @@ from ..modules.hltPhase2L3Muons_cfi import *
 from ..modules.hltPhase2L3MuonsNoID_cfi import *
 from ..modules.hltPhase2L3MuonCandidates_cfi import *
 
-HLTPhase2L3MuonsSequence = cms.Sequence(
+HLTPhase2MuonIdSequence = cms.Sequence(
     hltPhase2L3MuonMerged
     + hltPhase2L3GlbMuon
     + hltPhase2L3MuonsNoID
