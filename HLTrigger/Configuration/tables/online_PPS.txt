@@ -53,7 +53,7 @@ ALCAP0Output
 ALCAPHISYMOutput
 ALCAPPSExpressOutput
 ALCAPPSPromptOutput
-ALCAHcalIsoTrk	# CMSHLT-3519
+ALCAHcalIsoTrkOutput	# CMSHLT-3519
 CalibrationOutput
 DQMOutput
 DQMCalibrationOutput
