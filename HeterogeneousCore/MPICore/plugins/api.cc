@@ -18,6 +18,8 @@
 #include "conversion.h"
 #include "messages.h"
 
+#include <iostream>
+
 namespace {
   // copy the content of an std::string-like object to an N-sized char buffer:
   // if the string is larger than the buffer, copy only the first N bytes;
@@ -156,7 +158,6 @@ MPI_Status MPIChannel::receiveEventAuxiliary_(edm::EventAuxiliary& aux, MPI_Mess
   return status;
 }
 
-// serialize an object of generic type using its ROOT dictionary, and send the binary blob
 void MPIChannel::sendSerializedProduct_(int instance, TClass const* type, void const* product) {
   TBufferFile buffer{TBuffer::kWrite};
   type->Streamer(const_cast<void*>(product), buffer);
@@ -194,7 +195,6 @@ void MPIChannel::receiveTrivialProduct_(int instance, edm::ObjectWithDict& produ
   MPI_Mrecv(product.address(), size, MPI_BYTE, &message, MPI_STATUS_IGNORE);
 }
 
-// transfer a wrapped object using its TrivialCopyTraits
 void MPIChannel::sendTrivialCopyProduct_(int instance, edm::WrapperBase const* wrapper) {
   int tag = EDM_MPI_SendTrivialCopyProduct | instance * EDM_MPI_MessageTagWidth_;
 

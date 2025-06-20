@@ -29,12 +29,10 @@
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFiller.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Sources/interface/ProducerSourceBase.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 #include "HeterogeneousCore/MPICore/interface/MPIToken.h"
 #include "HeterogeneousCore/MPIServices/interface/MPIService.h"
 
@@ -56,22 +54,11 @@ private:
   bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time, edm::EventAuxiliary::ExperimentType&) override;
   void produce(edm::Event&) override;
 
-  enum Mode { kInvalid = 0, kCommWorld, kIntercommunicator };
-  static constexpr const char* ModeDescription[] = {"Invalid", "CommWorld", "Intercommunicator"};
-  Mode parseMode(std::string const& label) {
-    if (label == ModeDescription[kCommWorld])
-      return kCommWorld;
-    else if (label == ModeDescription[kIntercommunicator])
-      return kIntercommunicator;
-    else
-      return kInvalid;
-  }
-
   char port_[MPI_MAX_PORT_NAME];
   MPI_Comm comm_ = MPI_COMM_NULL;
   MPIChannel channel_;
   edm::EDPutTokenT<MPIToken> token_;
-  Mode mode_;
+  bool run_local_;
 
   edm::ProcessHistory history_;
 };
@@ -81,72 +68,46 @@ MPISource::MPISource(edm::ParameterSet const& config, edm::InputSourceDescriptio
        // effectively be ignored, because this ConfigurableSource will explicitly set the run, lumi, and event
        // numbers, the timestamp, and the event type
       edm::ProducerSourceBase(config, desc, false),
-      token_(produces<MPIToken>()),
-      mode_(parseMode(config.getUntrackedParameter<std::string>("mode")))  //
+      token_(produces<MPIToken>())  //
 {
   // make sure that MPI is initialised
   MPIService::required();
 
-  // Make sure the EDM MPI types are available.
+  // FIXME move into the MPIService ?
+  // make sure the EDM MPI types are available
   EDM_MPI_build_types();
 
-  if (mode_ == kCommWorld) {
-    // All processes are in MPI_COMM_WORLD.
-    // The current implementation supports only two processes: one controller and one source.
-    edm::LogAbsolute("MPI") << "MPISource in " << ModeDescription[mode_] << " mode.";
+  // get from parameter set whether remote mpi is used
+  run_local_ = config.getUntrackedParameter<bool>("run_local", false);
 
-    // Check how many processes are there in MPI_COMM_WORLD
-    int size;
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
-    if (size != 2) {
-      throw edm::Exception(edm::errors::Configuration)
-          << "The current implementation supports only two processes: one controller and one source.";
-    }
+  edm::LogAbsolute("MPI") << "Running source in " << (run_local_ ? "local" : "remote") << " mode.";
 
-    // Check the rank of this process, and determine the rank of the other process.
-    int rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    edm::LogAbsolute("MPI") << "MPISource has rank " << rank << " in MPI_COMM_WORLD.";
-    int other_rank = 1 - rank;
+  if (run_local_) {
+    int world_rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+    std::cout << "MPI Source Rank: " << world_rank << " in MPI_COMM_WORLD" << std::endl;
     comm_ = MPI_COMM_WORLD;
-    channel_ = MPIChannel(comm_, other_rank);
-  } else if (mode_ == kIntercommunicator) {
-    // Use an intercommunicator to let two groups of processes communicate with each other.
-    // The current implementation supports only two processes: one controller and one source.
-    edm::LogAbsolute("MPI") << "MPISource in " << ModeDescription[mode_] << " mode.";
-
-    // Check how many processes are there in MPI_COMM_WORLD
-    int size;
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
-    if (size != 1) {
-      throw edm::Exception(edm::errors::Configuration)
-          << "The current implementation supports only two processes: one controller and one source.";
-    }
-
-    // Open a server-side port.
+    channel_ = MPIChannel(comm_, 1);
+  } else {
+    // open a server-side port
     MPI_Open_port(MPI_INFO_NULL, port_);
 
-    // Publish the port under the name indicated by the parameter "server".
-    std::string name = config.getUntrackedParameter<std::string>("name", "server");
+    // publish the port under the name "server"
     MPI_Info port_info;
     MPI_Info_create(&port_info);
     MPI_Info_set(port_info, "ompi_global_scope", "true");
     MPI_Info_set(port_info, "ompi_unique", "true");
-    MPI_Publish_name(name.c_str(), port_info, port_);
+    MPI_Publish_name("server", port_info, port_);
 
-    // Create an intercommunicator and accept a client connection.
-    edm::LogAbsolute("MPI") << "Waiting for a connection to the MPI server at port " << port_;
+    // create an intercommunicator and accept a client connection
+    edm::LogAbsolute("MPI") << "waiting for a connection to the MPI server at port " << port_;
 
-    MPI_Comm_accept(port_, MPI_INFO_NULL, 0, MPI_COMM_SELF, &comm_);
-    edm::LogAbsolute("MPI") << "Connection accepted.";
+    MPI_Comm_accept(port_, MPI_INFO_NULL, 0, MPI_COMM_WORLD, &comm_);
+    edm::LogAbsolute("MPI") << "connection accept ";
     channel_ = MPIChannel(comm_, 0);
-  } else {
-    // Invalid mode.
-    throw edm::Exception(edm::errors::Configuration)
-        << "Invalid mode \"" << config.getUntrackedParameter<std::string>("mode") << "\"";
   }
 
-  // Wait for a client to connect.
+  // // wait for a client to connect
   MPI_Status status;
   EDM_MPI_Empty_t buffer;
   MPI_Recv(&buffer, 1, EDM_MPI_Empty, MPI_ANY_SOURCE, EDM_MPI_Connect, comm_, &status);
@@ -154,11 +115,11 @@ MPISource::MPISource(edm::ParameterSet const& config, edm::InputSourceDescriptio
 }
 
 MPISource::~MPISource() {
-  if (mode_ == kIntercommunicator) {
-    // Close the intercommunicator.
+  // close the intercommunicator
+  if (!run_local_) {
     MPI_Comm_disconnect(&comm_);
 
-    // Unpublish and close the port.
+    // unpublish and close the port
     MPI_Info port_info;
     MPI_Info_create(&port_info);
     MPI_Info_set(port_info, "ompi_global_scope", "true");
@@ -312,19 +273,11 @@ void MPISource::produce(edm::Event& event) {
 }
 
 void MPISource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  descriptions.setComment(
-      "This module connects to an \"MPIController\" in a separate CMSSW job, receives all Runs, LuminosityBlocks and "
-      "Events from the remote process and reproduces them in the local one.");
-
   edm::ParameterSetDescription desc;
+  desc.setComment("Comunicate with another cmsRun process over MPI.");
   edm::ProducerSourceBase::fillDescription(desc);
-  desc.ifValue(
-          edm::ParameterDescription<std::string>("mode", "CommWorld", false),
-          ModeDescription[kCommWorld] >> edm::EmptyGroupDescription() or
-              ModeDescription[kIntercommunicator] >> edm::ParameterDescription<std::string>("name", "server", false))
-      ->setComment(
-          "Valid modes are CommWorld (use MPI_COMM_WORLD) and Intercommunicator (use an MPI name server to setup an "
-          "intercommunicator).");
+
+  desc.addOptionalUntracked<bool>("run_local");
 
   descriptions.add("source", desc);
 }

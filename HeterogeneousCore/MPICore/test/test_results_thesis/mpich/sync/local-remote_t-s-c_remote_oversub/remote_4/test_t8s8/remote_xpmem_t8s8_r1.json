@@ -1,0 +1,216 @@
+{
+  "modules": [
+    {
+      "events": 1000,
+      "label": "source",
+      "mem_alloc": 6311,
+      "mem_free": 1219,
+      "time_real": 60.711293,
+      "time_thread": 58.929622,
+      "type": "MPISource"
+    },
+    {
+      "events": 1000,
+      "label": "TriggerResults",
+      "mem_alloc": 187,
+      "mem_free": 23,
+      "time_real": 3.246346,
+      "time_thread": 3.236893,
+      "type": "TriggerResultInserter"
+    },
+    {
+      "events": 1000,
+      "label": "HLTLocalHBHE",
+      "mem_alloc": 70,
+      "mem_free": 23,
+      "time_real": 2.640366,
+      "time_thread": 2.647457,
+      "type": "PathStatusInserter"
+    },
+    {
+      "events": 1000,
+      "label": "HLTLocalECAL",
+      "mem_alloc": 70,
+      "mem_free": 23,
+      "time_real": 2.62536,
+      "time_thread": 2.616103,
+      "type": "PathStatusInserter"
+    },
+    {
+      "events": 1000,
+      "label": "rawDataCollector",
+      "mem_alloc": 3428343,
+      "mem_free": 1677397,
+      "time_real": 1981.729443,
+      "time_thread": 1764.431661,
+      "type": "MPIReceiver"
+    },
+    {
+      "events": 1000,
+      "label": "hltGetRaw",
+      "mem_alloc": 15,
+      "mem_free": 15,
+      "time_real": 3.051311,
+      "time_thread": 3.092813,
+      "type": "HLTGetRaw"
+    },
+    {
+      "events": 1000,
+      "label": "hltHcalDigis",
+      "mem_alloc": 1580055,
+      "mem_free": 1304235,
+      "time_real": 1631.330019,
+      "time_thread": 1604.149436,
+      "type": "HcalRawToDigi"
+    },
+    {
+      "events": 1000,
+      "label": "hltHcalDigisSoA",
+      "mem_alloc": 2867,
+      "mem_free": 1818,
+      "time_real": 207.27787,
+      "time_thread": 127.995076,
+      "type": "HcalDigisSoAProducer@alpaka"
+    },
+    {
+      "events": 1000,
+      "label": "hltHbheRecoSoA",
+      "mem_alloc": 5139,
+      "mem_free": 3278,
+      "time_real": 122.704969,
+      "time_thread": 88.657726,
+      "type": "HBHERecHitProducerPortable@alpaka"
+    },
+    {
+      "events": 1000,
+      "label": "mpiSenderHbheRecoSoA",
+      "mem_alloc": 148,
+      "mem_free": 83,
+      "time_real": 6750.736705,
+      "time_thread": 5843.972865,
+      "type": "MPISender"
+    },
+    {
+      "events": 1000,
+      "label": "hltParticleFlowRecHitHBHESoA",
+      "mem_alloc": 2740,
+      "mem_free": 1218,
+      "time_real": 130.047535,
+      "time_thread": 86.587663,
+      "type": "PFRecHitSoAProducerHCAL@alpaka"
+    },
+    {
+      "events": 1000,
+      "label": "mpiSenderParticleFlowRecHitHBHESoA",
+      "mem_alloc": 160,
+      "mem_free": 96,
+      "time_real": 180.125187,
+      "time_thread": 116.329587,
+      "type": "MPISender"
+    },
+    {
+      "events": 1000,
+      "label": "hltParticleFlowClusterHBHESoA",
+      "mem_alloc": 10031,
+      "mem_free": 7213,
+      "time_real": 316.396083,
+      "time_thread": 206.606524,
+      "type": "PFClusterSoAProducer@alpaka"
+    },
+    {
+      "events": 1000,
+      "label": "mpiSenderParticleFlowClusterHBHESoA",
+      "mem_alloc": 184,
+      "mem_free": 117,
+      "time_real": 363.982557,
+      "time_thread": 220.659235,
+      "type": "MPISender"
+    },
+    {
+      "events": 1000,
+      "label": "hltEcalDigisSoA",
+      "mem_alloc": 3914,
+      "mem_free": 2881,
+      "time_real": 351.521241,
+      "time_thread": 160.662298,
+      "type": "EcalRawToDigiPortable@alpaka"
+    },
+    {
+      "events": 1000,
+      "label": "mpiSenderEcalDigisSoA",
+      "mem_alloc": 177,
+      "mem_free": 111,
+      "time_real": 515.933376,
+      "time_thread": 248.019742,
+      "type": "MPISender"
+    },
+    {
+      "events": 1000,
+      "label": "hltEcalUncalibRecHitSoA",
+      "mem_alloc": 14688,
+      "mem_free": 10908,
+      "time_real": 830.040487,
+      "time_thread": 730.534165,
+      "type": "EcalUncalibRecHitProducerPortable@alpaka"
+    },
+    {
+      "events": 1000,
+      "label": "mpiSenderEcalUncalibRecHitSoA",
+      "mem_alloc": 201,
+      "mem_free": 133,
+      "time_real": 401.711533,
+      "time_thread": 118.034201,
+      "type": "MPISender"
+    },
+    {
+      "events": 1000,
+      "label": "other",
+      "mem_alloc": 298810,
+      "mem_free": 267176,
+      "time_real": 61036.148755,
+      "time_thread": 54196.130818,
+      "type": "other"
+    },
+    {
+      "events": 1000,
+      "label": "eventsetup",
+      "mem_alloc": 7582344,
+      "mem_free": 7283657,
+      "time_real": 2998.275347,
+      "time_thread": 2921.556333,
+      "type": "eventsetup"
+    },
+    {
+      "events": 1000,
+      "label": "idle",
+      "mem_alloc": 18014398504857171,
+      "mem_free": 18014398505727696,
+      "time_real": 15300.103098,
+      "time_thread": 381963.049127,
+      "type": "idle"
+    }
+  ],
+  "resources": [
+    {
+      "time_real": "real time"
+    },
+    {
+      "time_thread": "cpu time"
+    },
+    {
+      "mem_alloc": "allocated memory"
+    },
+    {
+      "mem_free": "deallocated memory"
+    }
+  ],
+  "total": {
+    "events": 1000,
+    "label": "REMOTE",
+    "mem_alloc": 8311651,
+    "mem_free": 6807346,
+    "time_real": 93190.338881,
+    "time_thread": 450467.899345,
+    "type": "Job"
+  }
+}

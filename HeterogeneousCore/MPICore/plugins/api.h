@@ -16,6 +16,9 @@
 // local headers
 #include "messages.h"
 
+#include <iostream>
+#include <utility>
+
 class MPIChannel {
 public:
   MPIChannel() = default;
@@ -59,9 +62,9 @@ public:
   void sendEvent(edm::EventAuxiliary const& aux) { sendEventAuxiliary_(aux); }
 
   // start processing a new event, and receive the EventAuxiliary
-  MPI_Status receiveEvent(edm::EventAuxiliary& aux, int source) {
-    return receiveEventAuxiliary_(aux, source, EDM_MPI_ProcessEvent);
-  }
+  // MPI_Status receiveEvent(edm::EventAuxiliary& aux, int source) {
+  //   return receiveEventAuxiliary_(aux, source, EDM_MPI_ProcessEvent);
+  // }
 
   MPI_Status receiveEvent(edm::EventAuxiliary& aux, MPI_Message& message) {
     return receiveEventAuxiliary_(aux, message);
@@ -93,7 +96,6 @@ public:
     }
   }
 
-  // transfer a wrapped object using the TrivialCopyTraits or its ROOT dictionary
   void sendProduct(int instance, edm::TypeWithDict const& type, edm::WrapperBase const& wrapper) {
     if (wrapper.hasTrivialCopyTraits()) {
       sendTrivialCopyProduct_(instance, &wrapper);
@@ -174,7 +176,7 @@ private:
   template <typename T>
   void sendTrivialProduct_(int instance, T const& product) {
     int tag = EDM_MPI_SendTrivialProduct | instance * EDM_MPI_MessageTagWidth_;
-    MPI_Send(&product, sizeof(T), MPI_BYTE, dest_, tag, comm_);
+    MPI_Ssend(&product, sizeof(T), MPI_BYTE, dest_, tag, comm_);
   }
 
   // send and receive generic primitive datatype
