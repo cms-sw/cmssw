@@ -15,9 +15,6 @@
 
 namespace edm {
 
-  WorkerRegistry::WorkerRegistry(std::shared_ptr<ActivityRegistry> areg, ModuleTypeResolverMaker const* resolverMaker)
-      : modRegistry_(std::make_shared<ModuleRegistry>(resolverMaker)), m_workerMap(), actReg_(areg) {}
-
   WorkerRegistry::WorkerRegistry(std::shared_ptr<ActivityRegistry> areg, std::shared_ptr<ModuleRegistry> modReg)
       : modRegistry_(modReg), m_workerMap(), actReg_(areg) {}
 
@@ -51,6 +48,26 @@ namespace edm {
       return workerIt->second;
     }
     return nullptr;
+  }
+
+  Worker* WorkerRegistry::getWorkerFromExistingModule(std::string const& moduleLabel,
+                                                      ExceptionToActionTable const* actions) {
+    WorkerMap::iterator workerIt = m_workerMap.find(moduleLabel);
+    if (workerIt == m_workerMap.end()) {
+      auto modulePtr = modRegistry_->getExistingModule(moduleLabel);
+      if (!modulePtr) {
+        return nullptr;
+      }
+      auto workerPtr = modulePtr->makeWorker(actions);
+
+      workerPtr->setActivityRegistry(actReg_);
+
+      // Transfer ownership of worker to the registry
+      m_workerMap[moduleLabel] =
+          std::shared_ptr<Worker>(workerPtr.release());  // propagate_const<T> has no reset() function
+      return m_workerMap[moduleLabel].get();
+    }
+    return (workerIt->second.get());
   }
 
   void WorkerRegistry::deleteModule(std::string const& moduleLabel) {

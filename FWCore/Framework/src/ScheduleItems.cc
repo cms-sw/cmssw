@@ -36,10 +36,9 @@ namespace edm {
   ServiceToken ScheduleItems::initServices(std::vector<ParameterSet>& pServiceSets,
                                            ParameterSet& parameterSet,
                                            ServiceToken const& iToken,
-                                           serviceregistry::ServiceLegacy iLegacy,
-                                           bool associate) {
+                                           serviceregistry::ServiceLegacy iLegacy) {
     //create the services
-    ServiceToken token(ServiceRegistry::createSet(pServiceSets, iToken, iLegacy, associate));
+    ServiceToken token(ServiceRegistry::createSet(pServiceSets, iToken, iLegacy));
 
     //see if any of the Services have to have their PSets stored
     for (auto const& item : pServiceSets) {

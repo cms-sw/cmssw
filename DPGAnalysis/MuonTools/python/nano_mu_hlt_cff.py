@@ -156,7 +156,11 @@ l2SeedFromL1TkMuonTable = cms.EDProducer(
     extension = cms.bool(False),
     variables = cms.PSet(
         pt = Var("startingState().pt()", "float", doc = "p_T (GeV)"),
-        nHits = Var("nHits()", "int16", doc = ""),
+        nHits = Var(
+            "nHits()", "int16", doc = "number of DT/CSC segments propagated to the seed"
+        ),
+        eta = Var("l1TkMu().phEta()", "float", doc = "associated L1TkMu #eta"),
+        phi = Var("l1TkMu().phPhi()", "float", doc = "associated L1TkMu #phi"),
         localX = Var(
             "startingState().parameters().position().x()",
             "float",
@@ -268,25 +272,8 @@ l3TkOIFilteredTable = l2MuTable.clone(
     doc = cms.string("L3 Tracker Muons Outside-In filtered (quality cuts and match with L1TkMu)")
 )
 
-# The muon trigger producers sequence
+# Default Phase 2 HLT muon ntuples producers sequence (Inside-Out first)
 hltMuonTriggerProducers = cms.Sequence(
-    recoMuonValidationHLT_seq
-    + hltLocalRecoMuon_seq
-    + l1TkMuTable
-    + l2SeedTable
-    + l2SeedFromL1TkMuonTable
-    + l2MuTable
-    + l2MuTableVtx
-    + l3TkIOTable
-    + l3TkOITable
-    + l3TkMergedTable
-    + l3GlbMuTable
-    + l3MuTkNoIdTable
-    + l3MuTkIdTable
-)
-
-# The Phase-2 IO first muon trigger producers sequence
-hltMuonTriggerProducersIOFirst = cms.Sequence(
     recoMuonValidationHLT_seq
     + hltLocalRecoMuon_seq
     + l1TkMuTable
@@ -303,8 +290,8 @@ hltMuonTriggerProducersIOFirst = cms.Sequence(
     + l3MuTkIdTable
 )
 
-# The Phase-2 OI first muon trigger producers sequence
-hltMuonTriggerProducersOIFirst = cms.Sequence(
+# Phase 2 HLT muon ntuples producers sequence (Outside-In first)
+_hltMuonTriggerProducersOIFirst = cms.Sequence(
     recoMuonValidationHLT_seq
     + hltLocalRecoMuon_seq
     + l1TkMuTable
@@ -321,56 +308,6 @@ hltMuonTriggerProducersOIFirst = cms.Sequence(
     + l3MuTkIdTable
 )
 
-from Configuration.ProcessModifiers.phase2L2AndL3Muons_cff import phase2L2AndL3Muons
-
-phase2L2AndL3Muons.toModify(
-    l2SeedFromL1TkMuonTable,
-    variables = cms.PSet(
-        pt = Var("startingState().pt()", "float", doc = "p_T (GeV)"),
-        nHits = Var(
-            "nHits()", "int16", doc = "number of DT/CSC segments propagated to the seed"
-        ),
-        eta = Var("l1TkMu().phEta()", "float", doc = "associated L1TkMu #eta"),
-        phi = Var("l1TkMu().phPhi()", "float", doc = "associated L1TkMu #phi"),
-        localX = Var(
-            "startingState().parameters().position().x()",
-            "float",
-            doc = "local x of the seed",
-        ),
-        localY = Var(
-            "startingState().parameters().position().y()",
-            "float",
-            doc = "local y of the seed",
-        )
-    )
-)
-phase2L2AndL3Muons.toReplaceWith(
-    hltMuonTriggerProducers, hltMuonTriggerProducersIOFirst
-)
-
 from Configuration.ProcessModifiers.phase2L3MuonsOIFirst_cff import phase2L3MuonsOIFirst
+phase2L3MuonsOIFirst.toReplaceWith(hltMuonTriggerProducers, _hltMuonTriggerProducersOIFirst)
 
-(phase2L2AndL3Muons & phase2L3MuonsOIFirst).toModify(
-    l2SeedFromL1TkMuonTable,
-    variables = cms.PSet(
-        pt = Var("startingState().pt()", "float", doc = "p_T (GeV)"),
-        nHits = Var(
-            "nHits()", "int16", doc = "number of DT/CSC segments propagated to the seed"
-        ),
-        eta = Var("l1TkMu().phEta()", "float", doc = "associated L1TkMu #eta"),
-        phi = Var("l1TkMu().phPhi()", "float", doc = "associated L1TkMu #phi"),
-        localX = Var(
-            "startingState().parameters().position().x()",
-            "float",
-            doc = "local x of the seed",
-        ),
-        localY = Var(
-            "startingState().parameters().position().y()",
-            "float",
-            doc = "local y of the seed",
-        )
-    )
-)
-(phase2L2AndL3Muons & phase2L3MuonsOIFirst).toReplaceWith(
-    hltMuonTriggerProducers, hltMuonTriggerProducersOIFirst
-)

@@ -369,15 +369,6 @@ namespace edm {
     }
   }
 
-  void Worker::registerThinnedAssociations(ProductRegistry const& registry, ThinnedAssociationsHelper& helper) {
-    try {
-      implRegisterThinnedAssociations(registry, helper);
-    } catch (cms::Exception& ex) {
-      ex.addContext("Calling registerThinnedAssociations() for module " + description()->moduleLabel());
-      throw ex;
-    }
-  }
-
   void Worker::skipOnPath(EventPrincipal const& iEvent) {
     if (earlyDeleteHelper_) {
       earlyDeleteHelper_->pathFinished(iEvent);

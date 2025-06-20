@@ -230,35 +230,9 @@ namespace phase2PixelTopology {
       4,  6,  5,  7,  6,  8,  7,  9,  8,  10, 9,  11, 10, 12,  // POS Jump (48)
       16, 18, 17, 19, 18, 20, 19, 21, 20, 22, 21, 23, 22, 24,  // NEG Jump (55)
   };
-  HOST_DEVICE_CONSTANT uint32_t layerStart[numberOfLayers + 1] = {0,
-                                                                  108,
-                                                                  324,
-                                                                  504,  // Barrel
-                                                                  756,
-                                                                  864,
-                                                                  972,
-                                                                  1080,
-                                                                  1188,
-                                                                  1296,
-                                                                  1404,
-                                                                  1512,
-                                                                  1620,
-                                                                  1796,
-                                                                  1972,
-                                                                  2148,  // Fp
-                                                                  2324,
-                                                                  2432,
-                                                                  2540,
-                                                                  2648,
-                                                                  2756,
-                                                                  2864,
-                                                                  2972,
-                                                                  3080,
-                                                                  3188,
-                                                                  3364,
-                                                                  3540,
-                                                                  3716,  // Np
-                                                                  numberOfModules};
+  HOST_DEVICE_CONSTANT uint32_t layerStart[numberOfLayers + 1] = {
+      0,    216,  432,  612,  864,  972,  1080, 1188, 1296, 1404, 1512, 1620, 1728, 1904,           2080,
+      2256, 2432, 2540, 2648, 2756, 2864, 2972, 3080, 3188, 3296, 3472, 3648, 3824, numberOfModules};
 
   HOST_DEVICE_CONSTANT int16_t phicuts[nPairs]{
       phi0p05, phi0p05, phi0p05, phi0p06, phi0p07, phi0p07, phi0p06, phi0p07, phi0p07, phi0p05, phi0p05,
@@ -344,9 +318,9 @@ namespace pixelTopology {
     static constexpr uint32_t getDoubletsFromHistoMaxBlockSize = 64;  // for both x and y
     static constexpr uint32_t getDoubletsFromHistoMinBlocksPerMP = 16;
 
-    static constexpr uint16_t last_bpix1_detIndex = 108;
-    static constexpr uint16_t last_bpix2_detIndex = 324;
-    static constexpr uint16_t last_barrel_detIndex = 504;
+    static constexpr uint16_t last_bpix1_detIndex = 216;
+    static constexpr uint16_t last_bpix2_detIndex = 432;
+    static constexpr uint16_t last_barrel_detIndex = 864;
 
     static constexpr uint32_t maxPixInModule = 6000;
     static constexpr uint32_t maxNumClustersPerModules = phase2PixelTopology::maxNumClustersPerModules;

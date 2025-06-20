@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
-#include "FWCore/Framework/interface/maker/WorkerMaker.h"
+#include "FWCore/Framework/interface/maker/ModuleMaker.h"
 #include "FWCore/Framework/interface/maker/MakeModuleParams.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -49,7 +49,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testmaker2);
 void testmaker2::maker2Test()
 //int main()
 {
-  std::unique_ptr<Maker> f = std::make_unique<WorkerMaker<TestMod>>();
+  std::unique_ptr<ModuleMakerBase> f = std::make_unique<ModuleMaker<TestMod>>();
 
   ParameterSet p1;
   p1.addParameter("@module_type", std::string("TestMod"));

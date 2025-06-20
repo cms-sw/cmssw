@@ -5,9 +5,11 @@
 #include "FWCore/Framework/interface/ExceptionHelpers.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
+#include "FWCore/Framework/interface/ModuleRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
+#include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "oneapi/tbb/task_arena.h"
 
 #include <mutex>
@@ -55,8 +57,9 @@ namespace edm {
                                                  SignallingProductRegistryFiller& preg,
                                                  std::shared_ptr<ProcessConfiguration> processConfiguration)
       : exceptionToActionTable_(new ExceptionToActionTable),
+        moduleRegistry_(std::make_shared<ModuleRegistry>(nullptr)),
         // no type resolver for modules in SecondaryEventProvider for now
-        workerManager_(std::make_shared<ActivityRegistry>(), *exceptionToActionTable_, nullptr) {
+        workerManager_(moduleRegistry_, std::make_shared<ActivityRegistry>(), *exceptionToActionTable_) {
     std::vector<std::string> shouldBeUsedLabels;
     std::set<std::string> unscheduledLabels;
     const PreallocationConfiguration preallocConfig;
@@ -74,7 +77,11 @@ namespace edm {
                                         eventsetup::ESRecordsToProductResolverIndices const& iIndices,
                                         GlobalContext const& globalContext) {
     ProcessBlockHelper dummyProcessBlockHelper;
-    workerManager_.beginJob(iRegistry, iIndices, dummyProcessBlockHelper, globalContext);
+    moduleRegistry_->finishModulesInitialization(iRegistry,
+                                                 iIndices,
+                                                 dummyProcessBlockHelper,
+                                                 globalContext.processContext()->processConfiguration()->processName());
+    workerManager_.beginJob(globalContext);
   }
 
   //NOTE: When the Stream interfaces are propagated to the modules, this code must be updated
