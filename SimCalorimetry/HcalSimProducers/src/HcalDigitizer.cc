@@ -384,7 +384,7 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit>> const 
       HcalDetId hid(id);
       if (!htopoP->validHcal(hid)) {
         edm::LogError("HcalDigitizer") << "bad hcal id found in digitizer. Skipping " << id.rawId() << " " << hid
-	         		       << "  hit#" << i << " Nhits=" << hcalHitsOrig.size();
+                                       << "  hit#" << i << " Nhits=" << hcalHitsOrig.size();
         continue;
       } else if (hid.subdet() == HcalForward && !doHFWindow_ && hcalHitsOrig[i].depth() != 0) {
         // skip HF window hits unless desired
@@ -441,8 +441,7 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit>> const 
         HcalZDCDetId hid(id);
         if (!ztopoP->valid(hid)) {
           edm::LogError("HcalDigitizer") << "bad zdc id found in digitizer. Skipping " << std::hex << id.rawId()
-                                         << std::dec << " " << hid
-					 << "  hit#" << i << " Nhits=" << zdcHitsOrig.size();
+                                         << std::dec << " " << hid << "  hit#" << i << " Nhits=" << zdcHitsOrig.size();
           continue;
         }
         zdcHits.push_back(zdcHitsOrig[i]);
@@ -530,13 +529,12 @@ void HcalDigitizer::finalizeEvent(edm::Event &e, const edm::EventSetup &eventSet
     theZDCDigitizer->run(*zdcResult, engine);
   }
 
-  edm::LogVerbatim("HcalDigitizer")
-      << "HCAL HBHE digis : " << hbheResult->size() << "\n"
-      << "HCAL HO digis   : " << hoResult->size() << "\n"
-      << "HCAL HF digis   : " << hfResult->size()  << "\n"
-      << "HCAL ZDC digis  : " << zdcResult->size() << "\n"
-      << "HCAL HF QIE10 digis : " << hfQIE10Result->size() << "\n"
-      << "HCAL HBHE QIE11 digis : " << hbheQIE11Result->size();
+  edm::LogVerbatim("HcalDigitizer") << "HCAL HBHE digis : " << hbheResult->size() << "\n"
+                                    << "HCAL HO digis   : " << hoResult->size() << "\n"
+                                    << "HCAL HF digis   : " << hfResult->size() << "\n"
+                                    << "HCAL ZDC digis  : " << zdcResult->size() << "\n"
+                                    << "HCAL HF QIE10 digis : " << hfQIE10Result->size() << "\n"
+                                    << "HCAL HBHE QIE11 digis : " << hbheQIE11Result->size();
 
   // Step D: Put outputs into event
   e.put(std::move(hbheResult));
