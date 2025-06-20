@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
 
 hltTauTable = cms.EDProducer("SimplePFTauCandidateFlatTableProducer",
+      skipNonExistingSrc = cms.bool(True),
       src = cms.InputTag("hltHpsPFTauProducer"),
       name = cms.string("hltHpsPFTau"),
       cut = cms.string(""),
