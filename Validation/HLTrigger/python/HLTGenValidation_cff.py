@@ -569,11 +569,39 @@ HLTGenValSourceTAU = cms.EDProducer("HLTGenValSource",
     trigEvent = cms.InputTag("hltTriggerSummaryAOD","","HLT")
 )
 
-hltGENValidation = cms.Sequence(HLTGenResSource+
+from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting
+
+# List of module names (as strings)
+hltGenValSourceLabels = [
+    'HLTGenValSourceMU',
+    'HLTGenValSourceELE',
+    'HLTGenValSourceTAU',
+    'HLTGenValSourceHT',
+    'HLTGenValSourceAK4',
+    'HLTGenValSourceAK8',
+    'HLTGenValSourceMET'
+]
+
+# change the path to monitor in the case of NGT scouting
+for label in hltGenValSourceLabels:
+    if label in globals():
+        ngtScouting.toModify(globals()[label],
+                             hltPathsToCheck = ['DST_PFScouting'])
+
+from RecoMET.Configuration.RecoGenMET_cff import genMetCalo,genMetTrue
+from RecoMET.Configuration.GenMETParticles_cff import genCandidatesForMET, genParticlesForMETAllVisible
+from PhysicsTools.JetMCAlgos.TauGenJets_cfi import tauGenJets
+
+hltGENValidation = cms.Sequence(genCandidatesForMET+
+                                genParticlesForMETAllVisible+
+                                genMetCalo+
+                                genMetTrue+
+                                tauGenJets+
+                                HLTGenResSource+
                                 HLTGenValSourceMU+
                                 HLTGenValSourceELE+
-                                #HLTGenValSourceTAU+
+                                HLTGenValSourceTAU+
                                 HLTGenValSourceHT+
                                 HLTGenValSourceAK4+
-                                HLTGenValSourceAK8)
-                                #HLTGenValSourceMET)
+                                #HLTGenValSourceAK8  # uncomment if needed
+                                HLTGenValSourceMET)
