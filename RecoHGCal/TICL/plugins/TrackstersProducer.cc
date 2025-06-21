@@ -17,9 +17,9 @@
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 
-#include "DataFormats/HGCalReco/interface/Trackster.h"
-#include "DataFormats/HGCalReco/interface/TICLLayerTile.h"
-#include "DataFormats/HGCalReco/interface/TICLSeedingRegion.h"
+#include "DataFormats/TICLReco/interface/Trackster.h"
+#include "DataFormats/TICLReco/interface/TICLLayerTile.h"
+#include "DataFormats/TICLReco/interface/TICLSeedingRegion.h"
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 
 #include "RecoHGCal/TICL/plugins/PatternRecognitionPluginFactory.h"

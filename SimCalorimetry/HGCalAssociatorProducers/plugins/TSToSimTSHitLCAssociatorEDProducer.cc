@@ -21,7 +21,7 @@
 #include "SimDataFormats/Associations/interface/TracksterToSimTracksterHitLCAssociator.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/HGCalReco/interface/Trackster.h"
+#include "DataFormats/TICLReco/interface/Trackster.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticleFwd.h"
 
 #include "FWCore/Utilities/interface/EDGetToken.h"

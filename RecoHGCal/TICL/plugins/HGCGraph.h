@@ -6,8 +6,8 @@
 
 #include <vector>
 
-#include "DataFormats/HGCalReco/interface/TICLLayerTile.h"
-#include "DataFormats/HGCalReco/interface/TICLSeedingRegion.h"
+#include "DataFormats/TICLReco/interface/TICLLayerTile.h"
+#include "DataFormats/TICLReco/interface/TICLSeedingRegion.h"
 #include "HGCDoublet.h"
 
 template <typename TILES>

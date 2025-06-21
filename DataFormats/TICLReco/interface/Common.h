@@ -1,11 +1,11 @@
-#ifndef DataFormats_HGCalReco_Common_h
-#define DataFormats_HGCalReco_Common_h
+#ifndef DataFormats_TICLReco_Common_h
+#define DataFormats_TICLReco_Common_h
 
 #include <vector>
 #include <array>
 #include <cstdint>
 
-#include "DataFormats/HGCalReco/interface/Trackster.h"
+#include "DataFormats/TICLReco/interface/Trackster.h"
 
 namespace ticl {
   struct TileConstants {
