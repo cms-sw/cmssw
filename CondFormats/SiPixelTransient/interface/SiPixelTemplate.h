@@ -285,8 +285,9 @@ public:
   // initialize the rest;
   static void postInit(std::vector<SiPixelTemplateStore>& thePixelTemp_);
 
+  // Interpolate with y Gaussian Parameter interpolation to be used with goodEdge reconstruction algorithm
   // Interpolate input alpha and beta angles to produce a working template for each individual hit.
-  bool interpolate(int id, float cotalpha, float cotbeta, float locBz, float locBx);
+  bool interpolate(int id, float cotalpha, float cotbeta, float locBz, float locBx, bool goodEdgeAlgo = false);
 
   // Interpolate input alpha and beta angles to produce a working template for each individual hit.
   bool interpolate(int id, float cotalpha, float cotbeta, float locBz);
