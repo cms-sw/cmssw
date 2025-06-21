@@ -118,6 +118,15 @@ streamPhysicsCommissioning_datasetZeroBias_selector.triggerConditions = cms.vstr
 )
 
 
+# stream PhysicsScoutingPFMonitor
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsScoutingPFMonitor_datasetScoutingPFMonitor_selector
+streamPhysicsScoutingPFMonitor_datasetScoutingPFMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsScoutingPFMonitor_datasetScoutingPFMonitor_selector.l1tResults = cms.InputTag('')
+streamPhysicsScoutingPFMonitor_datasetScoutingPFMonitor_selector.throw      = cms.bool(False)
+streamPhysicsScoutingPFMonitor_datasetScoutingPFMonitor_selector.triggerConditions = cms.vstring('HLT_TriggersForScoutingPFMonitor_SingleMuon_v1')
+
+
 # stream PhysicsSpecialHLTPhysics0
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsSpecialHLTPhysics0_datasetSpecialHLTPhysics0_selector
