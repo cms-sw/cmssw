@@ -194,7 +194,10 @@ int main() {
 
     // PORTABLE MULTI-BLOCK PREFIXSCAN
     uint32_t num_items = 200;
-    for (int ksize = 1; ksize < 4; ++ksize) {
+    // with ksize=4 num_items = 2e6 so above warpSize² (elements per block) * warpSize² (blocks)
+    // for CUDA (32²*32²) allowing to fully test also the "unlimited" multiBlockPrefixScan
+    // with 256 threads and 7813 blocks
+    for (int ksize = 1; ksize < 5; ++ksize) {
       std::cout << "multiblock" << std::endl;
       num_items *= 10;
 
