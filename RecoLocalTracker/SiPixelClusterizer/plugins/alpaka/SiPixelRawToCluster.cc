@@ -35,8 +35,11 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/SynchronizingEDProducer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelClusterThresholds.h"
+#include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelImageSoA.h"
+#include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelImageDevice.h"
 
 #include "SiPixelRawToClusterKernel.h"
+#include "SiPixelMorphingConfig.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
@@ -74,8 +77,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     const bool includeErrors_;
     const bool useQuality_;
+    const bool doDigiMorphing_;
     uint32_t nDigis_;
     const SiPixelClusterThresholds clusterThresholds_;
+    std::optional<SiPixelImageDevice> imagesNoMorph_;
+    std::optional<SiPixelImageMorphDevice> imagesMorph_;
+    SiPixelMorphingConfig digiMorphingConfig_;
   };
 
   template <typename TrackerTraits>
@@ -90,6 +97,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             edm::ESInputTag("", iConfig.getParameter<std::string>("CablingMapLabel")))),
         includeErrors_(iConfig.getParameter<bool>("IncludeErrors")),
         useQuality_(iConfig.getParameter<bool>("UseQualityInfo")),
+        doDigiMorphing_(iConfig.getParameter<bool>("DoDigiMorphing")),
         clusterThresholds_{iConfig.getParameter<int32_t>("clusterThreshold_layer1"),
                            iConfig.getParameter<int32_t>("clusterThreshold_otherLayers"),
                            static_cast<float>(iConfig.getParameter<double>("VCaltoElectronGain")),
@@ -104,6 +112,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // regions
     if (!iConfig.getParameter<edm::ParameterSet>("Regions").getParameterNames().empty()) {
       regions_ = std::make_unique<PixelUnpackingRegions>(iConfig, consumesCollector());
+    }
+    if (doDigiMorphing_) {
+      edm::ParameterSet digiPSet = iConfig.getParameter<edm::ParameterSet>("DigiMorphing");
+      auto k1 = digiPSet.getParameter<std::vector<int32_t>>("kernel1");
+      auto k2 = digiPSet.getParameter<std::vector<int32_t>>("kernel2");
+
+      if (k1.size() != 9 || k2.size() != 9) {
+        std::cerr << "Incorrect kernel size! Falling back to default." << std::endl;
+        k1 = {1, 1, 1, 1, 1, 1, 1, 1, 1};
+        k2 = {0, 1, 0, 1, 1, 1, 0, 1, 0};
+      }
+
+      SiPixelMorphingConfig config;
+      std::copy_n(k1.begin(), 9, config.kernel1_.begin());
+      std::copy_n(k2.begin(), 9, config.kernel2_.begin());
+
+      digiMorphingConfig_ = config;
     }
   }
 
@@ -122,6 +147,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     desc.add<double>("VCaltoElectronGain_L1", 50.f);
     desc.add<double>("VCaltoElectronOffset", -60.f);
     desc.add<double>("VCaltoElectronOffset_L1", -670.f);
+    desc.add<bool>("DoDigiMorphing", false);
 
     desc.add<edm::InputTag>("InputLabel", edm::InputTag("rawDataCollector"));
     {
@@ -132,6 +158,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       psd0.addOptional<edm::InputTag>("beamSpot");
       desc.add<edm::ParameterSetDescription>("Regions", psd0)
           ->setComment("## Empty Regions PSet means complete unpacking");
+    }
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.addOptional<std::vector<int32_t>>("kernel1");
+      psd1.addOptional<std::vector<int32_t>>("kernel2");
+      desc.add<edm::ParameterSetDescription>("DigiMorphing", psd1)
+          ->setComment("## Parameter settings for digi morphing to heal split clusters");
     }
     desc.add<std::string>("CablingMapLabel", "")->setComment("CablingMap label");  //Tav
     descriptions.addWithDefaultLabel(desc);
@@ -242,17 +275,41 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     for (uint32_t i = 0; i < fedIds_.size(); ++i) {
       wordFedAppender.initializeWordFed(fedIds_[i], index[i], start[i], words[i]);
     }
-    Algo_.makePhase1ClustersAsync(iEvent.queue(),
-                                  clusterThresholds_,
-                                  hMap.const_view(),
-                                  modulesToUnpack,
-                                  dGains.const_view(),
-                                  wordFedAppender,
-                                  wordCounter,
-                                  fedCounter,
-                                  useQuality_,
-                                  includeErrors_,
-                                  edm::MessageDrop::instance()->debugEnabled);
+    if (doDigiMorphing_) {
+      imagesMorph_ = SiPixelImageMorphDevice(pixelTopology::Phase1::numberOfModules, iEvent.queue());
+
+      Algo_.template makePhase1ClustersAsync<SiPixelImageMorphDevice>(iEvent.queue(),
+                                                                      clusterThresholds_,
+                                                                      imagesMorph_->view(),
+                                                                      doDigiMorphing_,
+                                                                      &digiMorphingConfig_,
+                                                                      hMap.const_view(),
+                                                                      modulesToUnpack,
+                                                                      dGains.const_view(),
+                                                                      wordFedAppender,
+                                                                      wordCounter,
+                                                                      fedCounter,
+                                                                      useQuality_,
+                                                                      includeErrors_,
+                                                                      edm::MessageDrop::instance()->debugEnabled);
+    } else {
+      imagesNoMorph_ = SiPixelImageDevice(pixelTopology::Phase1::numberOfModules, iEvent.queue());
+
+      Algo_.template makePhase1ClustersAsync<SiPixelImageDevice>(iEvent.queue(),
+                                                                 clusterThresholds_,
+                                                                 imagesNoMorph_->view(),
+                                                                 doDigiMorphing_,
+                                                                 &digiMorphingConfig_,
+                                                                 hMap.const_view(),
+                                                                 modulesToUnpack,
+                                                                 dGains.const_view(),
+                                                                 wordFedAppender,
+                                                                 wordCounter,
+                                                                 fedCounter,
+                                                                 useQuality_,
+                                                                 includeErrors_,
+                                                                 edm::MessageDrop::instance()->debugEnabled);
+    }
   }
 
   template <typename TrackerTraits>
