@@ -232,6 +232,7 @@ HLT_Dimuon0_Upsilon_L1_4p5_v*	#	CMSHLT-1298
 HLT_Dimuon0_Upsilon_L1_4p5er2p0_v*	#	CMSHLT-1298
 HLT_Dimuon0_Upsilon_L1_4p5er2p0M_v*	#	CMSHLT-1298
 HLT_Dimuon0_Upsilon_NoVertexing_v*	#	CMSHLT-1298
+HLT_Dimuon0_Upsilon_v*                  # CMSHLT-3568
 HLT_DoubleMu2_Jpsi_LowPt_v*             # CMSHLT-3065
 HLT_DoubleMu4_3_LowMass_SS_v*           # CMSHLT-3069
 HLT_DoubleMu4_Jpsi_Displaced_v*	#	CMSHLT-1298
