@@ -16,6 +16,7 @@ from HLTriggerOffline.Common.HLTValidationQT_cff import *
 from HLTriggerOffline.Btag.HltBtagPostValidation_cff import *
 from HLTriggerOffline.Egamma.HLTpostProcessorGsfTracker_cfi import *
 from Validation.HGCalValidation.HLTHGCalPostProcessor_cff import *
+from Validation.HLTrigger.HLTGenValidationHarvesting_cff import *
 
 hltpostvalidation = cms.Sequence( 
     postProcessorHLTtrackingSequence
@@ -55,6 +56,9 @@ _phase2_hltpostvalidation =  hltpostvalidation.copyAndExclude([HLTTauPostVal,
                                                                HltBTagPostVal])
 # Add HGCal validation
 _phase2_hltpostvalidation += hltHcalValidatorPostProcessor
+
+# Add HLT gen validation
+_phase2_hltpostvalidation += hltGenValidationClient
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toReplaceWith(hltpostvalidation, _phase2_hltpostvalidation)
