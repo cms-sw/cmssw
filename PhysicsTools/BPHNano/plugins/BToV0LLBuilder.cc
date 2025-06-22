@@ -35,6 +35,7 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "helper.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class BToV0LLBuilder : public edm::global::EDProducer<> {
   // perhaps we need better structure here (begin run etc)
@@ -130,9 +131,15 @@ void BToV0LLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup con
       if (!pre_vtx_selection_(cand))
         continue;
 
-      KinVtxFitter fitter({leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx), v0_ttracks->at(v0_idx)},
+      KinVtxFitter fitter;
+      try {
+        fitter = KinVtxFitter({leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx), v0_ttracks->at(v0_idx)},
                           {l1_ptr->mass(), l2_ptr->mass(), v0_ptr->mass()},
                           {bph::LEP_SIGMA, bph::LEP_SIGMA, v0_ptr->userFloat("massErr")});
+      } catch (const VertexException& e) {
+        edm::LogWarning("KinematicFit") << "BToV0LL: Skipping candidate due to fit failure: " << e.what();
+        continue;
+      }
 
       if (!fitter.success())
         continue;
@@ -246,11 +253,15 @@ void BToV0LLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup con
         // Mass constraint is applied to the first two particles in the
         // "particles" vector Make sure that the first two particles are the
         // ones you want to constrain
-        KinVtxFitter constraint_fitter(
-            {leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx), v0_ttracks->at(v0_idx)},
-            {l1_ptr->mass(), l2_ptr->mass(), v0_ptr->mass()},
-            {bph::LEP_SIGMA, bph::LEP_SIGMA, v0_ptr->userFloat("massErr")},
-            mass_constraint);
+        KinVtxFitter constraint_fitter;
+        try {
+          constraint_fitter = KinVtxFitter({leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx), v0_ttracks->at(v0_idx)},
+                            {l1_ptr->mass(), l2_ptr->mass(), v0_ptr->mass()},
+                            {bph::LEP_SIGMA, bph::LEP_SIGMA, v0_ptr->userFloat("massErr")},mass_constraint);
+        } catch (const VertexException& e) {
+          edm::LogWarning("KinematicFit") << "BToV0LL: Skipping candidate due to fit failure: " << e.what();
+          continue;
+        }
         if (constraint_fitter.success()) {
           auto constraint_p4 = constraint_fitter.fitted_p4();
           cstr_vtx_x = constraint_fitter.fitted_vtx().x();
