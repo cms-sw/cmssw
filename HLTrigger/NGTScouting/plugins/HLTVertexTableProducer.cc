@@ -52,9 +52,7 @@ HLTVertexTableProducer::HLTVertexTableProducer(const edm::ParameterSet& params)
       goodPvCutString_(params.getParameter<std::string>("goodPvCut")),
       pvName_(params.getParameter<std::string>("pvName")),
       dlenMin_(params.getParameter<double>("dlenMin")),
-      dlenSigMin_(params.getParameter<double>("dlenSigMin"))
-
-{
+      dlenSigMin_(params.getParameter<double>("dlenSigMin")) {
   produces<nanoaod::FlatTable>("PV");
   produces<edm::PtrVector<reco::VertexCompositePtrCandidate>>();
 }
@@ -67,103 +65,90 @@ HLTVertexTableProducer::HLTVertexTableProducer(const edm::ParameterSet& params)
 void HLTVertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  std::vector<float> v_ndof;
-  std::vector<float> v_chi2;
-  std::vector<float> v_x;
-  std::vector<float> v_y;
-  std::vector<float> v_z;
-  std::vector<float> v_xError;
-  std::vector<float> v_yError;
-  std::vector<float> v_zError;
-  std::vector<uint8_t> v_is_good;
-  std::vector<uint8_t> v_nTracks;
-  std::vector<float> v_pv_score;
-  std::vector<float> v_pv_sumpt2;
-  std::vector<float> v_pv_sumpx;
-  std::vector<float> v_pv_sumpy;
-
   //vertex collection
   auto pvsIn = iEvent.getHandle(pvs_);
-  if (!pvsIn.isValid()) {
+
+  static constexpr float default_value = std::numeric_limits<float>::quiet_NaN();
+
+  std::vector<float> v_ndof((*pvsIn).size(), default_value);
+  std::vector<float> v_chi2((*pvsIn).size(), default_value);
+  std::vector<float> v_x((*pvsIn).size(), default_value);
+  std::vector<float> v_y((*pvsIn).size(), default_value);
+  std::vector<float> v_z((*pvsIn).size(), default_value);
+  std::vector<float> v_xError((*pvsIn).size(), default_value);
+  std::vector<float> v_yError((*pvsIn).size(), default_value);
+  std::vector<float> v_zError((*pvsIn).size(), default_value);
+  std::vector<uint8_t> v_is_good((*pvsIn).size(), 0);
+  std::vector<uint8_t> v_nTracks((*pvsIn).size(), 0);
+  std::vector<float> v_pv_score((*pvsIn).size(), default_value);
+  std::vector<float> v_pv_sumpt2((*pvsIn).size(), default_value);
+  std::vector<float> v_pv_sumpx((*pvsIn).size(), default_value);
+  std::vector<float> v_pv_sumpy((*pvsIn).size(), default_value);
+
+  if (pvsIn.isValid()) {
+    const auto& pvs = *pvsIn;
+    const auto& pvsScoreProd = iEvent.get(pvsScore_);
+
+    auto pfcIn = iEvent.getHandle(pfc_);
+    const bool isPfcValid = pfcIn.isValid();
+    const size_t nPVs = pvs.size();
+
+    for (size_t i = 0; i < nPVs; ++i) {
+      const auto& pv = pvs[i];
+      const auto& pos = pv.position();
+
+      v_ndof[i] = pv.ndof();
+      v_chi2[i] = pv.normalizedChi2();
+      v_x[i] = pv.x();
+      v_y[i] = pv.y();
+      v_z[i] = pv.z();
+      v_xError[i] = pv.xError();
+      v_yError[i] = pv.yError();
+      v_zError[i] = pv.zError();
+      v_nTracks[i] = pv.nTracks();
+      v_is_good[i] = goodPvCut_(pv);
+      v_pv_score[i] = pvsScoreProd.get(pvsIn.id(), i);
+
+      float sumpt2 = 0.f, sumpx = 0.f, sumpy = 0.f;
+
+      if (isPfcValid) {
+        for (const auto& obj : *pfcIn) {
+          if (obj.charge() == 0 || !obj.trackRef().isNonnull())
+            continue;
+
+          const auto dz = std::abs(obj.trackRef()->dz(pos));
+          if (dz >= 0.2)
+            continue;
+
+          bool isClosest = true;
+          for (size_t j = 0; j < nPVs; ++j) {
+            if (j == i)
+              continue;
+            const auto dz_j = std::abs(obj.trackRef()->dz(pvs[j].position()));
+            if (dz_j < dz) {
+              isClosest = false;
+              break;
+            }
+          }
+
+          if (isClosest) {
+            const float pt = obj.pt();
+            sumpt2 += pt * pt;
+            sumpx += obj.px();
+            sumpy += obj.py();
+          }
+        }
+      } else {
+        edm::LogWarning("HLTVertexTableProducer")
+            << "Invalid handle for " << pvName_ << " in PF candidate input collection";
+      }
+      v_pv_sumpt2[i] = sumpt2;
+      v_pv_sumpx[i] = sumpx;
+      v_pv_sumpy[i] = sumpy;
+    }
+  } else {
     edm::LogWarning("HLTVertexTableProducer")
         << "Invalid handle for " << pvName_ << " in primary vertex input collection";
-    auto pvTable = std::make_unique<nanoaod::FlatTable>(0, pvName_, true);
-
-    pvTable->addColumn<float>("ndof", v_ndof, "primary vertex number of degrees of freedom", 8);
-    pvTable->addColumn<float>("chi2", v_chi2, "primary vertex reduced chi2", 8);
-    pvTable->addColumn<float>("x", v_x, "primary vertex x coordinate", 10);
-    pvTable->addColumn<float>("y", v_y, "primary vertex y coordinate", 10);
-    pvTable->addColumn<float>("z", v_z, "primary vertex z coordinate", 16);
-    pvTable->addColumn<float>("xError", v_xError, "primary vertex error in x coordinate", 10);
-    pvTable->addColumn<float>("yError", v_yError, "primary vertex error in y coordinate", 10);
-    pvTable->addColumn<float>("zError", v_zError, "primary vertex error in z coordinate", 16);
-    pvTable->addColumn<uint8_t>(
-        "isGood", v_is_good, "wheter the primary vertex passes selection: " + goodPvCutString_ + ")");
-    pvTable->addColumn<uint8_t>("nTracks", v_nTracks, "primary vertex number of associated tracks");
-    pvTable->addColumn<float>("score", v_pv_score, "primary vertex score, i.e. sum pt2 of clustered objects", 8);
-    pvTable->addColumn<float>(
-        "sumpt2", v_pv_sumpt2, "sum pt2 of pf charged candidates within dz=0.2 for the main primary vertex", 10);
-    pvTable->addColumn<float>(
-        "sumpx", v_pv_sumpx, "sum px of pf charged candidates within dz=0.2 for the main primary vertex", 10);
-    pvTable->addColumn<float>(
-        "sumpy", v_pv_sumpy, "sum py of pf charged candidates within dz=0.2 for the main primary vertex", 10);
-
-    iEvent.put(std::move(pvTable), "PV");
-    return;
-  }
-  const auto& pvsScoreProd = iEvent.get(pvsScore_);
-
-  //pf candidates collection
-  auto pfcIn = iEvent.getHandle(pfc_);
-  if (!pfcIn.isValid()) {
-    edm::LogWarning("HLTVertexTableProducer")
-        << "Invalid handle for " << pvName_ << " in PF candidate input collection";
-    return;
-  }
-
-  for (size_t i = 0; i < (*pvsIn).size(); i++) {
-    v_ndof.push_back((*pvsIn)[i].ndof());
-    v_chi2.push_back((*pvsIn)[i].normalizedChi2());
-    v_x.push_back((*pvsIn)[i].x());
-    v_y.push_back((*pvsIn)[i].y());
-    v_z.push_back((*pvsIn)[i].z());
-    v_xError.push_back((*pvsIn)[i].xError());
-    v_yError.push_back((*pvsIn)[i].yError());
-    v_zError.push_back((*pvsIn)[i].zError());
-    v_nTracks.push_back((*pvsIn)[i].nTracks());
-    v_is_good.push_back(goodPvCut_((*pvsIn)[i]));
-    v_pv_score.push_back(pvsScoreProd.get(pvsIn.id(), i));
-
-    float pv_sumpt2 = 0;
-    float pv_sumpx = 0;
-    float pv_sumpy = 0;
-    for (const auto& obj : *pfcIn) {
-      // skip neutrals
-      if (obj.charge() == 0)
-        continue;
-      double dz = fabs(obj.trackRef()->dz((*pvsIn)[i].position()));
-      bool include_pfc = false;
-      if (dz < 0.2) {
-        include_pfc = true;
-        for (size_t j = 0; j < (*pvsIn).size() && j != i; j++) {
-          double newdz = fabs(obj.trackRef()->dz((*pvsIn)[j].position()));
-          if (newdz < dz) {
-            include_pfc = false;
-            break;
-          }
-        }  // this pf candidate belongs to other PV
-      }
-      if (include_pfc) {
-        float pfc_pt = obj.pt();
-        pv_sumpt2 += pfc_pt * pfc_pt;
-        pv_sumpx += obj.px();
-        pv_sumpy += obj.py();
-      }
-    }
-
-    v_pv_sumpt2.push_back(pv_sumpt2);
-    v_pv_sumpx.push_back(pv_sumpx);
-    v_pv_sumpy.push_back(pv_sumpy);
   }
 
   //table for all primary vertices
@@ -199,10 +184,8 @@ void HLTVertexTableProducer::fillDescriptions(edm::ConfigurationDescriptions& de
       "std::vector<reco::Vertex> and ValueMap<float> primary vertex input collections");
   desc.add<edm::InputTag>("pfSrc")->setComment("reco::PFCandidateCollection PF candidates input collections");
   desc.add<std::string>("goodPvCut")->setComment("selection on the primary vertex");
-
   desc.add<double>("dlenMin")->setComment("minimum value of dl to select secondary vertex");
   desc.add<double>("dlenSigMin")->setComment("minimum value of dl significance to select secondary vertex");
-
   descriptions.addWithDefaultLabel(desc);
 }
 
