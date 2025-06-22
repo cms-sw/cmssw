@@ -2074,7 +2074,7 @@ steps['DIGIUP17_PU25']=merge([PU25UP17,step2Upg2017Defaults])
 steps['DIGIUP18_PU25']=merge([PU25UP18,step2Upg2018Defaults])
 
 # for Run2 PPb MC workflows
-steps['DIGIUP15_PPb']=merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:PIon','--conditions':'auto:run2_mc_pa', '--era':'Run2_2016_pA'}, steps['DIGIUP15']])
+steps['DIGIUP15_PPb']=merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@fake2','--conditions':'auto:run2_mc_pa', '--era':'Run2_2016_pA'}, steps['DIGIUP15']])
 
 # PU25 for high stats workflows
 steps['DIGIUP15_PU25HS']=merge([PU25HS,step2Upg2015Defaults])
