@@ -133,7 +133,10 @@ void BToTrkTrkLLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup
       cand.addUserInt("l2_idx", l2_idx);
       cand.addUserInt("trk1_idx", trk1_idx);
       cand.addUserInt("trk2_idx", trk2_idx);
-      cand.addUserInt("ditrack_idx", ditracks_idx);
+//      cand.addUserInt("ditrack_idx", ditracks_idx); this index corresponds to the ditrack collection. 
+//      However, in order to refuce the event size, we do not store all the ditrack candidates but only those used to build a B candidate. 
+//      So, now, index of B candidate is the same number for index of ditrack candidate
+//      This variable is not removed from the code in case we decide to store in the future all the ditrack candidates.       
       cand.addUserInt("ll_idx", ll_idx);
 
       auto lep1_p4 = l1_ptr->polarP4();
