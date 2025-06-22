@@ -69,23 +69,24 @@ void HLTVertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 
   //vertex collection
   auto pvsIn = iEvent.getHandle(pvs_);
+  const size_t nPVs = pvsIn.isValid() ? (*pvsIn).size() : 0;
 
   static constexpr float default_value = std::numeric_limits<float>::quiet_NaN();
 
-  std::vector<float> v_ndof((*pvsIn).size(), default_value);
-  std::vector<float> v_chi2((*pvsIn).size(), default_value);
-  std::vector<float> v_x((*pvsIn).size(), default_value);
-  std::vector<float> v_y((*pvsIn).size(), default_value);
-  std::vector<float> v_z((*pvsIn).size(), default_value);
-  std::vector<float> v_xError((*pvsIn).size(), default_value);
-  std::vector<float> v_yError((*pvsIn).size(), default_value);
-  std::vector<float> v_zError((*pvsIn).size(), default_value);
-  std::vector<uint8_t> v_is_good((*pvsIn).size(), 0);
-  std::vector<uint8_t> v_nTracks((*pvsIn).size(), 0);
-  std::vector<float> v_pv_score((*pvsIn).size(), default_value);
-  std::vector<float> v_pv_sumpt2((*pvsIn).size(), default_value);
-  std::vector<float> v_pv_sumpx((*pvsIn).size(), default_value);
-  std::vector<float> v_pv_sumpy((*pvsIn).size(), default_value);
+  std::vector<float> v_ndof(nPVs, default_value);
+  std::vector<float> v_chi2(nPVs, default_value);
+  std::vector<float> v_x(nPVs, default_value);
+  std::vector<float> v_y(nPVs, default_value);
+  std::vector<float> v_z(nPVs, default_value);
+  std::vector<float> v_xError(nPVs, default_value);
+  std::vector<float> v_yError(nPVs, default_value);
+  std::vector<float> v_zError(nPVs, default_value);
+  std::vector<uint8_t> v_is_good(nPVs, 0);
+  std::vector<uint8_t> v_nTracks(nPVs, 0);
+  std::vector<float> v_pv_score(nPVs, default_value);
+  std::vector<float> v_pv_sumpt2(nPVs, default_value);
+  std::vector<float> v_pv_sumpx(nPVs, default_value);
+  std::vector<float> v_pv_sumpy(nPVs, default_value);
 
   if (pvsIn.isValid() || !(this->skipNonExistingSrc_)) {
     const auto& pvs = *pvsIn;
@@ -93,7 +94,6 @@ void HLTVertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 
     auto pfcIn = iEvent.getHandle(pfc_);
     const bool isPfcValid = pfcIn.isValid();
-    const size_t nPVs = pvs.size();
 
     for (size_t i = 0; i < nPVs; ++i) {
       const auto& pv = pvs[i];
@@ -142,7 +142,7 @@ void HLTVertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
         }
       } else {
         edm::LogWarning("HLTVertexTableProducer")
-            << "Invalid handle for " << pvName_ << " in PF candidate input collection";
+            << " Invalid handle for " << pvName_ << " in PF candidate input collection";
       }
       v_pv_sumpt2[i] = sumpt2;
       v_pv_sumpx[i] = sumpx;
@@ -150,11 +150,11 @@ void HLTVertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
     }
   } else {
     edm::LogWarning("HLTVertexTableProducer")
-        << "Invalid handle for " << pvName_ << " in primary vertex input collection";
+        << " Invalid handle for " << pvName_ << " in primary vertex input collection";
   }
 
   //table for all primary vertices
-  auto pvTable = std::make_unique<nanoaod::FlatTable>((*pvsIn).size(), pvName_, true);
+  auto pvTable = std::make_unique<nanoaod::FlatTable>(nPVs, pvName_, true);
   pvTable->addColumn<float>("ndof", v_ndof, "primary vertex number of degrees of freedom", 8);
   pvTable->addColumn<float>("chi2", v_chi2, "primary vertex reduced chi2", 8);
   pvTable->addColumn<float>("x", v_x, "primary vertex x coordinate", 10);

@@ -104,7 +104,7 @@ private:
         }
       }
     } else {
-      edm::LogWarning("HLTTauTableProducer") << "Invalid handle for PFTau candidate input collection";
+      edm::LogWarning("HLTTauTableProducer") << " Invalid handle for PFTau candidate input collection";
     }
 
     auto tauTable = std::make_unique<nanoaod::FlatTable>(nTaus, tableName_, /*singleton*/ false, /*extension*/ true);
