@@ -8,3 +8,5 @@ pVertexTable = cms.EDProducer("PVertexBPHTable",
     goodPvCut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2"), 
     pvName = cms.string("PVtx")
 )
+
+BPHPrimaryVerticesSequence = cms.Sequence(pVertexTable)
