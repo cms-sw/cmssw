@@ -16,18 +16,21 @@ public:
   // TauCollection = deeptau.TauCollection;
   // using TauDeepTauVector = edm::AssociationVector<reco::PFTauRefProd, std::vector<reco::TauDiscriminatorContainer>>;
   HLTTauTableProducer(const edm::ParameterSet& cfg)
-      : skipNonExistingSrc_(cfg.getParameter<bool>("skipNonExistingSrc")),
+      : tableName_(cfg.getParameter<std::string>("tableName")),
+        skipNonExistingSrc_(cfg.getParameter<bool>("skipNonExistingSrc")),
         tauToken_(mayConsume<TauCollection>(cfg.getParameter<edm::InputTag>("taus"))),
         tauIPToken_(mayConsume<TauIPVector>(cfg.getParameter<edm::InputTag>("tauTransverseImpactParameters"))),
         deepTauVSeToken_(mayConsume<TauDiscrMap>(cfg.getParameter<edm::InputTag>("deepTauVSe"))),
         deepTauVSmuToken_(mayConsume<TauDiscrMap>(cfg.getParameter<edm::InputTag>("deepTauVSmu"))),
         deepTauVSjetToken_(mayConsume<TauDiscrMap>(cfg.getParameter<edm::InputTag>("deepTauVSjet"))),
         precision_(cfg.getParameter<int>("precision")) {
-    produces<nanoaod::FlatTable>("hltHpsPFTau");
+    produces<nanoaod::FlatTable>(tableName_);
   }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
+    desc.add<std::string>("tableName", "hltHpsPFTau")
+        ->setComment("Table name, needs to be the same as the main Tau table");
     desc.add<bool>("skipNonExistingSrc", false)
         ->setComment("whether or not to skip producing the table on absent input product");
     desc.add<edm::InputTag>("taus", edm::InputTag(""));
@@ -104,7 +107,7 @@ private:
       edm::LogWarning("HLTTauTableProducer") << "Invalid handle for PFTau candidate input collection";
     }
 
-    auto tauTable = std::make_unique<nanoaod::FlatTable>(nTaus, "hltHpsPFTau", /*singleton*/ false, /*extension*/ true);
+    auto tauTable = std::make_unique<nanoaod::FlatTable>(nTaus, tableName_, /*singleton*/ false, /*extension*/ true);
     tauTable->addColumn<float>("dxy", dxy, "tau transverse impact parameter", precision_);
     tauTable->addColumn<float>("dxy_error", dxy_error, " dxy_error ", precision_);
     tauTable->addColumn<float>("ip3d", ip3d, " ip3d ", precision_);
@@ -121,10 +124,11 @@ private:
     tauTable->addColumn<float>("deepTauVSmu", deepTauVSmu, "tau vs muon discriminator", precision_);
     tauTable->addColumn<float>("deepTauVSjet", deepTauVSjet, "tau vs jet discriminator", precision_);
 
-    event.put(std::move(tauTable), "hltHpsPFTau");
+    event.put(std::move(tauTable), tableName_);
   }
 
 private:
+  const std::string tableName_;
   const bool skipNonExistingSrc_;
   const edm::EDGetTokenT<TauCollection> tauToken_;
   const edm::EDGetTokenT<TauIPVector> tauIPToken_;

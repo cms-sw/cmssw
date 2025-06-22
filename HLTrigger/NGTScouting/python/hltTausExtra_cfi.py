@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 hltTauExtTable = cms.EDProducer("HLTTauTableProducer",
+                                tableName = cms.string("hltHpsPFTau"),
                                 skipNonExistingSrc = cms.bool(True),
                                 taus = cms.InputTag( "hltHpsPFTauProducer" ),
                                 deepTauVSe = cms.InputTag("hltHpsPFTauProducer", "VSe"),
