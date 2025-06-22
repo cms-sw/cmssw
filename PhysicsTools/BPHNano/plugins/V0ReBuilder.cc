@@ -35,6 +35,8 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "helper.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 class V0ReBuilder : public edm::global::EDProducer<> {
   // perhaps we need better structure here (begin run etc)
@@ -84,37 +86,30 @@ void V0ReBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup const 
   // output
   std::unique_ptr<pat::CompositeCandidateCollection> ret_val(new pat::CompositeCandidateCollection());
   std::unique_ptr<TransientTrackCollection> trans_out(new TransientTrackCollection);
-
   for (reco::VertexCompositePtrCandidateCollection::const_iterator v0 = V0s->begin(); v0 != V0s->end(); v0++) {
     // selection on V0s
     if (v0->numberOfDaughters() != 2)
       continue;
     if (!pre_vtx_selection_(*v0))
       continue;
-
     pat::PackedCandidate v0daughter1 = *(dynamic_cast<const pat::PackedCandidate *>(v0->daughter(0)));
     pat::PackedCandidate v0daughter2 = *(dynamic_cast<const pat::PackedCandidate *>(v0->daughter(1)));
-
     if (!v0daughter1.hasTrackDetails())
       continue;
     if (!v0daughter2.hasTrackDetails())
       continue;
-
     if (abs(v0daughter1.pdgId()) != 211)
       continue;  // This cut do not affect the Lambda->proton pion candidates
     if (abs(v0daughter2.pdgId()) != 211)
       continue;  // This cut do not affect the Lambda->proton pion candidates
-
     if (!trk_selection_(v0daughter1) || !trk_selection_(v0daughter2))
       continue;
-
     reco::TransientTrack v0daughter1_ttrack;  // 1st daughter, leading daughter to be assigned.
                                               // Proton mass will be assigned for the
                                               // Lambda->Proton Pion mode, Pion mass will be
                                               // assigned for the Kshort->PionPion mode.
     reco::TransientTrack v0daughter2_ttrack;  // 2nd daughter, subleading daughter to be
                                               // assigned. It hass always the pion mass
-
     if (v0daughter1.p() > v0daughter2.p()) {
       v0daughter1_ttrack = theB->build(v0daughter1.bestTrack());
       v0daughter2_ttrack = theB->build(v0daughter2.bestTrack());
@@ -122,23 +117,27 @@ void V0ReBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup const 
       v0daughter1_ttrack = theB->build(v0daughter2.bestTrack());
       v0daughter2_ttrack = theB->build(v0daughter1.bestTrack());
     }
-
     float Track1_mass = (isLambda_) ? bph::PROT_MASS : bph::PI_MASS;
     float Track1_sigma = bph::PI_SIGMA;
     float Track2_mass = bph::PI_MASS;
     float Track2_sigma = bph::PI_SIGMA;
     // create V0 vertex
-    KinVtxFitter fitter(
-        {v0daughter1_ttrack, v0daughter2_ttrack}, {Track1_mass, Track2_mass}, {Track1_sigma, Track2_sigma});
+    KinVtxFitter fitter; 
+
+    try {
+        fitter = KinVtxFitter(
+	{v0daughter1_ttrack, v0daughter2_ttrack}, {Track1_mass, Track2_mass}, {Track1_sigma, Track2_sigma});
+    } catch (const VertexException& e) {
+        edm::LogWarning("KinematicFit") << "Skipping candidate due to fit failure: " << e.what();
+        continue;  // Just skip this candidate and continue with the loop
+    }
 
     if (!fitter.success())
       continue;
-
     pat::CompositeCandidate cand;
     cand.setVertex(reco::Candidate::Point(fitter.fitted_vtx().x(), fitter.fitted_vtx().y(), fitter.fitted_vtx().z()));
     auto fit_p4 = fitter.fitted_p4();
     cand.setP4(fit_p4);
-
     cand.setCharge(v0daughter1.charge() + v0daughter2.charge());
     cand.addUserFloat("sv_chi2", fitter.chi2());
     cand.addUserFloat("sv_prob", fitter.prob());
@@ -152,10 +151,8 @@ void V0ReBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup const 
     auto lxy = bph::l_xy(fitter, *beamspot);
     cand.addUserFloat("l_xy", lxy.value());
     cand.addUserFloat("l_xy_unc", lxy.error());
-
     if (!post_vtx_selection_(cand))
       continue;
-
     const reco::BeamSpot &beamSpot = *beamspot;
     TrajectoryStateClosestToPoint theDCAXBS = fitter.fitted_candidate_ttrk().trajectoryStateClosestToPoint(
         GlobalPoint(beamSpot.position().x(), beamSpot.position().y(), beamSpot.position().z()));
@@ -180,7 +177,6 @@ void V0ReBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup const 
     cand.addUserFloat("vtx_cyx", covMatrix.cyx());
     cand.addUserFloat("vtx_czx", covMatrix.czx());
     cand.addUserFloat("vtx_czy", covMatrix.czy());
-
     cand.addUserFloat("prefit_mass", v0->mass());
     int trk1 = 0;
     int trk2 = 1;
@@ -194,7 +190,6 @@ void V0ReBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup const 
     cand.addUserFloat("trk2_pt", fitter.daughter_p4(trk2).pt());
     cand.addUserFloat("trk2_eta", fitter.daughter_p4(trk2).eta());
     cand.addUserFloat("trk2_phi", fitter.daughter_p4(trk2).phi());
-
     // track match
     auto trk1_ptr = v0->daughterPtr(trk1);
     auto trk1_matched_ref = track_match.get(trk1_ptr.id(), trk1_ptr.key());
