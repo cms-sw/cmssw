@@ -456,7 +456,7 @@ testStreamProducer::testStreamProducer()
   m_lbp->setRunPrincipal(m_rp);
   edm::EventAuxiliary eventAux(eventID, uuid, now, true);
 
-  //Only an EventProcessor or SubProcess is allowed to create a StreamID but I need one
+  //Only an EventProcessor is allowed to create a StreamID but I need one
   ShadowStreamID shadowID;
   shadowID.value = 0;
   edm::StreamID* pID = reinterpret_cast<edm::StreamID*>(&shadowID);
@@ -576,8 +576,8 @@ namespace {
     edm::ParameterSet pset;
     std::shared_ptr<edm::stream::EDProducerAdaptorBase> retValue =
         std::make_shared<edm::stream::EDProducerAdaptor<T>>(pset);
-    edm::maker::ModuleHolderT<edm::stream::EDProducerAdaptorBase> h(retValue, nullptr);
-    h.preallocate(edm::PreallocationConfiguration{});
+    edm::maker::ModuleHolderT<edm::stream::EDProducerAdaptorBase> h(retValue);
+    h.finishModuleInitialization(retValue->moduleDescription(), edm::PreallocationConfiguration{}, nullptr);
     return retValue;
   }
   template <typename T>

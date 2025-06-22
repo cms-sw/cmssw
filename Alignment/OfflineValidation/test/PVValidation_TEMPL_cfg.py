@@ -171,16 +171,17 @@ process.filterOutLowPt.runControlNumber = [runboundary]
 ###################################################################
 from RecoVertex.BeamSpotProducer.beamSpotCompatibilityChecker_cfi import beamSpotCompatibilityChecker
 process.BeamSpotChecker = beamSpotCompatibilityChecker.clone(
-    bsFromEvent = "offlineBeamSpot::RECO",  # source of the event beamspot (in the ALCARECO files)
-    bsFromDB = "offlineBeamSpot",           # source of the DB beamspot (from Global Tag) NOTE: only if dbFromEvent is True!
+    bsFromFile = "offlineBeamSpot::RECO",  # source of the event beamspot (in the ALCARECO files)
+    bsFromDB = "offlineBeamSpot::@currentProcess", # source of the DB beamspot (from Global Tag) NOTE: only if dbFromEvent is True!
+    dbFromEvent = True,
     warningThr = 3, # significance threshold to emit a warning message
     errorThr = 5,    # significance threshold to abort the job
 )
 
 if isMC:
-     process.goodvertexSkim = cms.Sequence(process.BeamSpotChecker + process.noscraping + process.filterOutLowPt)
+     process.goodvertexSkim = cms.Sequence(process.noscraping + process.filterOutLowPt)
 else:
-     process.goodvertexSkim = cms.Sequence(process.BeamSpotChecker + process.primaryVertexFilter + process.noscraping + process.filterOutLowPt)
+     process.goodvertexSkim = cms.Sequence(process.primaryVertexFilter + process.noscraping + process.filterOutLowPt)
 
 ####################################################################
 # Load and Configure Measurement Tracker Event
@@ -276,4 +277,5 @@ process.seqTrackselRefit = cms.Sequence(process.offlineBeamSpot*
 ####################################################################
 process.p = cms.Path(process.goodvertexSkim*
                      process.seqTrackselRefit*
+                     process.BeamSpotChecker*
                      process.PVValidation)

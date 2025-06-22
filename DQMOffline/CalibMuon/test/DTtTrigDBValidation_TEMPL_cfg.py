@@ -25,7 +25,6 @@ process.ttrigRef = cms.ESSource("PoolDBESSource",
         messageLevel = cms.untracked.int32(0),
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
-    timetype = cms.string('runnumber'),
     toGet = cms.VPSet(
         cms.PSet(
             record = cms.string('DTTtrigRcd'),
@@ -42,7 +41,6 @@ process.ttrigRef = cms.ESSource("PoolDBESSource",
 #         )
         ),
     connect = cms.string('sqlite_file:REFTTRIGTEMPLATE'),
-    siteLocalConfig = cms.untracked.bool(False)
 )
 
 
@@ -51,7 +49,6 @@ process.ttrigToValidate = cms.ESSource("PoolDBESSource",
         messageLevel = cms.untracked.int32(0),
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
-    timetype = cms.string('runnumber'),
     toGet = cms.VPSet(
 #         cms.PSet(
 #             record = cms.string('DTTtrigRcd'),
@@ -67,7 +64,6 @@ process.ttrigToValidate = cms.ESSource("PoolDBESSource",
     )
         ),
     connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONCALIB/DTCALIB/RUNPERIODTEMPLATE/ttrig/ttrig_ResidCorr_RUNNUMBERTEMPLATE.db'),
-    siteLocalConfig = cms.untracked.bool(False)
 )
 
 

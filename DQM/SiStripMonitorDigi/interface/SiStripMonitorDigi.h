@@ -120,7 +120,7 @@ private:
 
   void createModuleMEs(DQMStore::IBooker& ibooker, ModMEs& mod_single, uint32_t detid);
   void createLayerMEs(DQMStore::IBooker& ibooker, std::string label, int ndet);
-  void createSubDetMEs(DQMStore::IBooker& ibooker, std::string label);
+  void createSubDetMEs(DQMStore::IBooker& ibooker, std::string_view label);
   void createSubDetTH2(DQMStore::IBooker& ibooker, std::string label);
   int getDigiSourceIndex(uint32_t id);
   void AddApvShotsToSubDet(const std::vector<APVShot>&, std::vector<APVShot>&);
@@ -137,7 +137,7 @@ private:
 
   std::map<std::string, std::vector<uint32_t>> LayerDetMap;
   std::map<std::string, LayerMEs> LayerMEsMap;
-  std::map<std::string, SubDetMEs> SubDetMEsMap;
+  std::map<std::string_view, SubDetMEs> SubDetMEsMap;
   std::map<std::string, std::string> SubDetPhasePartMap;
   DigiFailureMEs digiFailureMEs;
 

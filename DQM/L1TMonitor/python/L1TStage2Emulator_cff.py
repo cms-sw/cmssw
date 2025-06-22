@@ -136,6 +136,7 @@ valGtStage2Digis = simGtStage2Digis.clone(
     JetInputTag = "gtStage2Digis:Jet",
     EtSumInputTag = "gtStage2Digis:EtSum",
     EtSumZdcInputTag = "gtStage2Digis:EtSumZDC",
+    CICADAInputTag = 'gtStage2Digis:CICADAScore',
     AlgorithmTriggersUnmasked = False,
     AlgorithmTriggersUnprescaled = False,
     EmulateBxInEvent = cms.int32(5),

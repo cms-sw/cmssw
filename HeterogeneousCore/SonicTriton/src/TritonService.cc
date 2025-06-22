@@ -161,11 +161,13 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
           msg += modelName + ", ";
       }
     } else {
+      const std::string& baseMsg = "unable to get repository index";
+      const std::string& extraMsg = err.Message().empty() ? "" : ": " + err.Message();
       if (verbose_)
-        msg += "unable to get repository index";
+        msg += baseMsg + extraMsg;
       else
-        edm::LogWarning("TritonFailure") << "TritonService(): unable to get repository index for " + serverName + " (" +
-                                                server.url + ")";
+        edm::LogWarning("TritonFailure") << "TritonService(): " << baseMsg << " for " << serverName << " ("
+                                         << server.url << ")" << extraMsg;
     }
     if (verbose_)
       msg += "\n";
@@ -243,7 +245,7 @@ TritonService::Server TritonService::serverInfo(const std::string& model, const 
   return server;
 }
 
-void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::ProcessContext const&) {
+void TritonService::preBeginJob(edm::ProcessContext const&) {
   //only need fallback if there are unserved models
   if (!fallbackOpts_.enable or unservedModels_.empty())
     return;

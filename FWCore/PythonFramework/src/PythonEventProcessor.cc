@@ -112,7 +112,7 @@ PythonEventProcessor::~PythonEventProcessor() {
 
 void PythonEventProcessor::run() {
   auto gil = PyEval_SaveThread();
-  try {
+  CMS_SA_ALLOW try {
     oneapi::tbb::task_arena{nThreads}.execute([this]() { (void)processor_.runToCompletion(); });
   } catch (...) {
   }

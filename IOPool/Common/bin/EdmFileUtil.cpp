@@ -40,9 +40,15 @@ int main(int argc, char* argv[]) {
       "uuid,u", "Print uuid")("adler32,a", "Print adler32 checksum.")("allowRecovery",
                                                                       "Allow root to auto-recover corrupted files")(
       "JSON,j", "JSON output format.  Any arguments listed below are ignored")("ls,l", "list file content")(
-      "print,P", "Print all")("verbose,v", "Verbose printout")("printBranchDetails,b",
-                                                               "Call Print()sc for all branches")(
-      "tree,t", boost::program_options::value<std::string>(), "Select tree used with -P and -b options")(
+      "map,m", "Print TFile::Map(\"extended\"). The output can be HUGE.")("print,P", "Print all")(
+      "verbose,v", "Verbose printout")("printBranchDetails,b", "Call Print()sc for all branches")(
+      "printBaskets",
+      boost::program_options::value<std::string>(),
+      "Print detailed information about baskets and clusters for the given branch")(
+      "printClusters", "Print detailed information about baskets and clusters for all branches")(
+      "tree,t",
+      boost::program_options::value<std::string>(),
+      "Select tree used with -P, -b, --printClusters, and --printBaskets options")(
       "events,e",
       "Print list of all Events, Runs, and LuminosityBlocks in the file sorted by run number, luminosity block number, "
       "and event number.  Also prints the entry numbers and whether it is possible to use fast copy with the file.")(
@@ -106,9 +112,12 @@ int main(int argc, char* argv[]) {
     bool events = more && (vm.count("events") > 0 ? true : false);
     bool eventsInLumis = more && (vm.count("eventsInLumis") > 0 ? true : false);
     bool ls = more && (vm.count("ls") > 0 ? true : false);
+    bool printMap = vm.count("map");
     bool tree = more && (vm.count("tree") > 0 ? true : false);
     bool print = more && (vm.count("print") > 0 ? true : false);
     bool printBranchDetails = more && (vm.count("printBranchDetails") > 0 ? true : false);
+    bool printClusters = more && (vm.count("printClusters") > 0 ? true : false);
+    std::string printBaskets = (vm.count("printBaskets") ? vm["printBaskets"].as<std::string>() : std::string());
     bool onlyDecodeLFN =
         decodeLFN && !(uuid || adler32 || allowRecovery || json || events || tree || ls || print || printBranchDetails);
     std::string selectedTree = tree ? vm["tree"].as<std::string>() : edm::poolNames::eventTreeName();
@@ -244,29 +253,37 @@ int main(int argc, char* argv[]) {
 
       // Look at the collection contents
       if (ls) {
-        if (tfile != nullptr)
-          tfile->ls();
+        tfile->ls();
       }
 
-      // Print out each tree
-      if (print) {
+      // Print Map()
+      if (printMap) {
+        tfile->Map("extended");
+      }
+
+      if (print or printBranchDetails or printClusters or not printBaskets.empty()) {
         TTree* printTree = (TTree*)tfile->Get(selectedTree.c_str());
         if (printTree == nullptr) {
           std::cout << "Tree " << selectedTree << " appears to be missing. Could not find it in the file.\n";
           std::cout << "Exiting\n";
           return 1;
         }
-        edm::printBranchNames(printTree);
-      }
-
-      if (printBranchDetails) {
-        TTree* printTree = (TTree*)tfile->Get(selectedTree.c_str());
-        if (printTree == nullptr) {
-          std::cout << "Tree " << selectedTree << " appears to be missing. Could not find it in the file.\n";
-          std::cout << "Exiting\n";
-          return 1;
+        // Print out each tree
+        if (print) {
+          edm::printBranchNames(printTree);
         }
-        edm::longBranchPrint(printTree);
+
+        if (printBranchDetails) {
+          edm::longBranchPrint(printTree);
+        }
+
+        if (printClusters) {
+          edm::clusterPrint(printTree);
+        }
+
+        if (not printBaskets.empty()) {
+          edm::basketPrint(printTree, printBaskets);
+        }
       }
 
       // Print out event lists

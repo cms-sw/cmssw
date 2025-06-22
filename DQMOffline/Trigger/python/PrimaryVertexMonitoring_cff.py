@@ -50,10 +50,9 @@ hltVerticesL3PFBjetsMonitoring = hltVerticesMonitoring.clone(
     useHPforAlignmentPlots = False
 )
 vertexingMonitorHLT = cms.Sequence(
-    hltPixelVerticesMonitoring
-    + hltTrimmedPixelVerticesMonitoring
-    + hltVerticesPFFilterMonitoring
-#    + hltVerticesL3PFBjets
-)    
+    hltPixelVerticesMonitoring +
+    hltTrimmedPixelVerticesMonitoring +
+    hltVerticesPFFilterMonitoring
+)
 
 phase2_tracker.toReplaceWith(vertexingMonitorHLT, cms.Sequence(hltPixelVerticesMonitoring + hltVerticesMonitoring))

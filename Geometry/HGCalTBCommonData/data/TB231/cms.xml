@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+<ConstantsSection label="cms.xml" eval="true">
+ <Constant name="Rmin"         value="0*mm"/>
+ <Constant name="Zmin"         value="0*mm"/>
+ <Constant name="HallZ"        value="27.0*m"/>
+ <Constant name="HallR"        value="14.3*m"/>
+ <Constant name="TrackCalorR"  value="1.233*m"/>
+ <Constant name="CalorMuonR"   value="2.950*m"/>
+ <Constant name="TrackBeamZ1"  value="1.948*m"/>
+ <Constant name="TrackBeamZ2"  value="2.935*m"/>
+ <Constant name="TrackBeamR1"  value="2.50*cm"/>
+ <Constant name="TrackBeamR2"  value="7.40*cm"/>
+ <Constant name="CalorBeamZ1"  value="3.180*m"/>
+ <Constant name="CalorBeamZ2"  value="5.541*m"/>
+ <Constant name="CalorBeamZ3"  value="5.265*m"/>
+ <Constant name="CalorBeamZ4"  value="5.215*m"/>
+ <Constant name="CalorBeamZ5"  value="5.245*m"/>
+ <Constant name="CalorBeamR1"  value="8.00*cm"/>
+ <Constant name="CalorBeamR2"  value="8.93*cm"/>
+</ConstantsSection>
+
+<SolidSection label="cms.xml">
+ <Box name="OCMS" dx="[HallR]" dy="[HallR]" dz="[HallZ]"/>
+</SolidSection>
+
+<LogicalPartSection label="cms.xml">
+  <LogicalPart name="World" category="unspecified">
+    <rSolid name="OCMS"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="OCMS" category="unspecified">
+    <rSolid name="OCMS"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="CMSE" category="unspecified">
+    <rSolid name="OCMS"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="cms.xml">
+  <PosPart copyNumber="1">
+    <rParent name="cms:World"/>
+    <rChild name="cms:OCMS"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:OCMS"/>
+    <rChild name="cms:CMSE"/>
+  </PosPart>
+</PosPartSection>
+
+</DDDefinition>

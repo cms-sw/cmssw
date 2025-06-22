@@ -193,19 +193,6 @@ void testServicesManager::legacyTest() {
     CPPUNIT_ASSERT(1 == sm.get<TestService>().value());
   }
   {
-    std::vector<edm::ParameterSet> pss;
-
-    edm::ParameterSet ps;
-    ps.addParameter("@service_type", typeName);
-    int value = 2;
-    ps.addParameter("value", value);
-    pss.push_back(ps);
-
-    ServicesManager sm(legacyToken, kConfigurationOverrides, pss);
-
-    CPPUNIT_ASSERT(2 == sm.get<TestService>().value());
-  }
-  {
     try {
       std::vector<edm::ParameterSet> pss;
 

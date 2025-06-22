@@ -40,7 +40,7 @@ namespace edm::storage {
     void close(void) override;
 
   protected:
-    void releaseStorage() { get_underlying_safe(m_baseStorage).release(); }
+    void resetStorage() { get_underlying_safe(m_baseStorage).reset(); }
 
     edm::propagate_const<std::unique_ptr<Storage>> m_baseStorage;
 

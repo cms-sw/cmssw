@@ -24,6 +24,29 @@ vtxTable = cms.EDProducer(
      )
  )
 
+#### GTT Displaced Vertex
+dispVtxTable = cms.EDProducer(
+    "SimpleL1DisplacedVtxCandidateFlatTableProducer",
+    src = cms.InputTag('DisplacedVertexProducer','dispVertices'),
+    cut = cms.string(""),
+    name = cms.string("L1DispVertex"),
+    doc = cms.string("GTT Displaced Vertices"),
+    singleton = cms.bool(False), # the number of entries is variable
+    variables = cms.PSet(
+        d_T = Var("d_T()",float, doc = "impact parameter of parent particle"),
+        R_T = Var("R_T()",float, doc = "transverse distance of vertex from origin"),
+        cos_T = Var("cos_T()", float, doc = "cosine of angle between parent particle momentum and position vector of vertex"),
+        x = Var("x()", float, doc = "x position of vertex"),
+        y = Var("y()", float, doc = "y position of vertex"),
+        z = Var("z()", float, doc = "z position of vertex"),
+        openingAngle = Var("openingAngle()", float, doc = "angle between the two tracks forming the vertex"),
+        parentPt = Var("parentPt()", float, doc = "transverse momentum of parent particle"),
+        del_Z = Var("del_Z()", float, doc = "delta z of vertex from origin"),
+        isReal = Var("isReal()", bool, doc = "is real"),
+        score = Var("score()", float, doc = "BDT score"),
+     )
+ )
+ 
 gttTrackJetsTable = cms.EDProducer(
     "SimpleL1TkJetWordCandidateFlatTableProducer",
     src = cms.InputTag("l1tTrackJetsEmulation","L1TrackJets"),
@@ -336,12 +359,12 @@ EMTFDisplaceMuTable = staMuTable.clone(
 )
 
 ### Jets
-sc4JetTable = cms.EDProducer(
+jetTable = cms.EDProducer(
     "SimpleCandidateFlatTableProducer",
-    src = cms.InputTag('l1tSC4PFL1PuppiCorrectedEmulator'),
+    src = cms.InputTag('__src__'),
     cut = cms.string(""),
-    name = cms.string("L1puppiJetSC4"),
-    doc = cms.string("SeededCone 0.4 Puppi jet,  origin: Correlator"),
+    name = cms.string("__name__"),
+    doc = cms.string("__Template Jet Table__"),
     singleton = cms.bool(False), # the number of entries is variable
     variables = cms.PSet(
         l1P3Vars,
@@ -350,13 +373,37 @@ sc4JetTable = cms.EDProducer(
     )
 )
 
-sc8JetTable = sc4JetTable.clone(
-    src = 'l1tSC8PFL1PuppiCorrectedEmulator',
-    name = "L1puppiJetSC8",
-    doc = "SeededCone 0.8 Puppi jet,  origin: Correlator"
+pfJetTable = cms.EDProducer(
+    "SimpleTriggerL1PFJetFlatTableProducer",
+    src = cms.InputTag('__src__'),
+    cut = cms.string(""),
+    name = cms.string("__name__"),
+    doc = cms.string("__Template PFJet Table__"),
+    singleton = cms.bool(False), # the number of entries is variable
+    variables = cms.PSet(
+        l1P3Vars,
+        et = Var("et",float),
+        # z0 = Var("vz", float, "vertex z0"), ## empty
+    )
 )
 
-sc4ExtJetTable = sc4JetTable.clone(
+sc4JetTable = pfJetTable.clone(
+    src = cms.InputTag('l1tSC4PFL1PuppiCorrectedEmulator'),
+    name = cms.string("L1puppiJetSC4"),
+    doc = cms.string("SeededCone 0.4 Puppi jet,  origin: Correlator"),
+)
+
+sc8JetTable = pfJetTable.clone(
+    src = 'l1tSC8PFL1PuppiCorrectedEmulator',
+    name = "L1puppiJetSC8",
+    doc = "SeededCone 0.8 Puppi jet,  origin: Correlator",
+    variables = cms.PSet(
+        pfJetTable.variables.clone(),
+        mass = Var("mass", float)
+    )
+)
+
+sc4ExtJetTable = pfJetTable.clone(
     src = cms.InputTag('l1tSC4PFL1PuppiExtendedCorrectedEmulator'),
     name = cms.string("L1puppiExtJetSC4"),
     doc = cms.string("SeededCone 0.4 Puppi jet from extended Puppi,  origin: Correlator"),
@@ -366,14 +413,32 @@ sc4ExtJetTable = sc4JetTable.clone(
     ),
 )
 
-histoJetTable = sc4JetTable.clone(
+sc4NGJetTable = pfJetTable.clone(
+    src = cms.InputTag('l1tSC4NGJetProducer', 'l1tSC4NGJets'),
+    name = cms.string("L1puppiJetSC4NG"),
+    doc = cms.string("NextGeneration SeededCone 0.4 Puppi jet with multi-class tagging, origin: Correlator"),
+    variables = cms.PSet(
+        l1P3Vars,
+        et = Var("et",float),
+        udsTagScore = Var('getTagScore("uds")', float),
+        gTagScore = Var('getTagScore("g")', float),
+        bTagScore = Var('getTagScore("b")', float),
+        cTagScore = Var('getTagScore("c")', float),
+        tau_pTagScore = Var('getTagScore("tau_p")', float),
+        tau_nTagScore = Var('getTagScore("tau_n")', float),
+        eTagScore = Var('getTagScore("e")', float),
+        muTagScore = Var('getTagScore("mu")', float),
+    )
+)
+
+histoJetTable = jetTable.clone(
     src = cms.InputTag("l1tPhase1JetCalibrator9x9trimmed" ,   "Phase1L1TJetFromPfCandidates"),
     name = cms.string("L1puppiJetHisto"),
     doc = cms.string("Puppi Jets histogrammed 9x9, trimmed, origin: Correlator"),
 )
 
 
-caloJetTable = sc4JetTable.clone(
+caloJetTable = jetTable.clone(
     src = cms.InputTag("l1tPhase2CaloJetEmulator","GCTJet"),
     name = cms.string("L1caloJet"),
     doc = cms.string("Calo Jets, origin: GCT"),
@@ -423,7 +488,7 @@ histoSumsTable = sc4SumsTable.clone(
     src = cms.InputTag("l1tPhase1JetSumsProducer9x9trimmed","Sums"),
     name = cms.string("L1puppiHistoJetSums"),
     doc = cms.string("HT and MHT from histogrammed 9x9 jets, origin: Correlator"),
-)
+    )
 
 
 ### Taus
@@ -484,7 +549,7 @@ nnPuppiTauTable = cms.EDProducer(
 
 hpsTauTable = cms.EDProducer(
     "SimpleTriggerL1HPSPFTauFlatTableProducer",
-    src = cms.InputTag("l1tHPSPFTauProducerPF",""),
+    src = cms.InputTag("l1tHPSPFTauProducerPuppi",""),
     cut = cms.string(""),
     name = cms.string("L1hpsTau"),
     doc = cms.string("HPS Taus"),
@@ -507,7 +572,6 @@ p2L1TablesTask = cms.Task(
     OMTFDisplaceMuTable,
     EMTFpromptMuTable,
     EMTFDisplaceMuTable,
-    
     ## EG
     tkEleTable,
     tkPhotonTable,
@@ -517,6 +581,7 @@ p2L1TablesTask = cms.Task(
     sc4JetTable,
     sc8JetTable,
     sc4ExtJetTable, 
+    sc4NGJetTable,
     histoJetTable,
     caloJetTable,
     # ## sums
@@ -528,9 +593,10 @@ p2L1TablesTask = cms.Task(
     caloTauTable,
     nnCaloTauTable,
     nnPuppiTauTable,
-    # hpsTauTable,
+    hpsTauTable,
     # GTT
     vtxTable,
+    dispVtxTable,
     pvtxTable,
     gttTrackJetsTable,
     gttExtTrackJetsTable,

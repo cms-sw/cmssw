@@ -29,8 +29,6 @@ namespace edm {
     /** For the time being the only allowed configuration item is a
      *  prefix to be added to the GUID/LFN.
      */
-    static int s_numberOfInstances;
-
     struct Rule {
       std::regex pathMatch;
       std::regex destinationMatch;

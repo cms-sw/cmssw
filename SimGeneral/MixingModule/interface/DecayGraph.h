@@ -103,7 +103,10 @@ namespace {
   std::string graphviz_vertex(const VertexProperty &v) {
     std::ostringstream oss;
     oss << "{id: " << (v.simTrack ? v.simTrack->trackId() : 0) << ",\\ntype: " << (v.simTrack ? v.simTrack->type() : 0)
-        << ",\\nchits: " << v.cumulative_simHits << "}";
+        << ",\\nPVtxIdx?: " << (v.simTrack ? v.simTrack->vertIndex() : -1)
+        << ",\\nPrim?: " << (v.simTrack ? v.simTrack->isPrimary() : -1)
+        << ",\\nXB?: " << (v.simTrack ? v.simTrack->crossedBoundary() : -1) << ",\\nchits: " << v.cumulative_simHits
+        << "}";
     return oss.str();
   }
 

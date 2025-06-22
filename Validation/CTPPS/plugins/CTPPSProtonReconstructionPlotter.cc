@@ -701,6 +701,9 @@ void CTPPSProtonReconstructionPlotter::analyze(const edm::Event &event, const ed
     if (!proton.validFit())
       continue;
 
+    if (proton.contributingLocalTracks().begin() == proton.contributingLocalTracks().end()) {
+      continue;
+    }
     CTPPSDetId rpId((*proton.contributingLocalTracks().begin())->rpId());
     unsigned int armId = rpId.arm();
     const auto &pl = multiRPPlots_[armId];

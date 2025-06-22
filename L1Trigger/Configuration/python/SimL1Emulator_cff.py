@@ -77,6 +77,8 @@ CalibratedDigis.dtDigiTag = "simMuonDTDigis"
 _phase2_siml1emulator.add(CalibratedDigis)
 from L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi import *
 _phase2_siml1emulator.add(dtTriggerPhase2PrimitiveDigis)
+from L1Trigger.DTTriggerPhase2.dtTriggerPhase2Showers_cfi import *
+_phase2_siml1emulator.add(dtTriggerPhase2Shower)
 
 # HGCAL TP 
 # ########################################################################
@@ -94,6 +96,15 @@ _phase2_siml1emulator.add(l1tEGammaClusterEmuProducer)
 
 from L1Trigger.L1CaloTrigger.l1tPhase2L1CaloEGammaEmulator_cfi import *
 _phase2_siml1emulator.add(l1tPhase2L1CaloEGammaEmulator)
+
+from L1Trigger.L1CaloTrigger.l1tPhase2L1CaloEGammaEmulator_cfi import *
+_phase2_siml1emulator.add(l1tPhase2L1CaloEGammaEmulator)
+
+from L1Trigger.L1CaloTrigger.l1tPhase2CaloPFClusterEmulator_cfi import *
+_phase2_siml1emulator.add(l1tPhase2CaloPFClusterEmulator)
+
+from L1Trigger.L1CaloTrigger.l1tPhase2GCTBarrelToCorrelatorLayer1Emulator_cfi import *
+_phase2_siml1emulator.add(l1tPhase2GCTBarrelToCorrelatorLayer1Emulator)
 
 # Barrel and EndCap CaloJet/HT/NNCaloTau
 # ########################################################################
@@ -150,6 +161,7 @@ from L1Trigger.L1TTrackMatch.l1tGTTInputProducer_cfi import *
 from L1Trigger.L1TTrackMatch.l1tTrackSelectionProducer_cfi import *
 from L1Trigger.L1TTrackMatch.l1tTrackVertexAssociationProducer_cfi import *
 from L1Trigger.VertexFinder.l1tVertexProducer_cfi import *
+from L1Trigger.L1TTrackMatch.DisplacedVertexProducer_cfi import *
 
 # Track Conversion, Track Selection, Vertex Finding
 _phase2_siml1emulator.add(l1tGTTInputProducer)
@@ -159,6 +171,7 @@ _phase2_siml1emulator.add(l1tTrackSelectionProducerExtended)
 _phase2_siml1emulator.add(l1tVertexFinder)
 _phase2_siml1emulator.add(l1tVertexProducer)
 _phase2_siml1emulator.add(l1tVertexFinderEmulator)
+_phase2_siml1emulator.add(DisplacedVertexProducer) #Should rename to l1tDisplacedVertexProducer
 
 # Emulated GMT Muons (Tk + Stub, Tk + MuonTFT, StandaloneMuon)
 # ########################################################################
@@ -251,6 +264,7 @@ _phase2_siml1emulator.add(l1tHPSPFTauProducer)
 # PF MET
 # ########################################################################
 from L1Trigger.Phase2L1ParticleFlow.l1pfJetMet_cff import *
+_phase2_siml1emulator.add(L1TPFJetsTask)
 _phase2_siml1emulator.add(L1TPFJetsEmulationTask)
 
 from L1Trigger.Phase2L1ParticleFlow.l1tMETPFProducer_cfi import *
@@ -263,6 +277,10 @@ _phase2_siml1emulator.add(l1tMETMLProducer)
 from L1Trigger.Phase2L1ParticleFlow.L1NNTauProducer_cff import *
 _phase2_siml1emulator.add(l1tNNTauProducerPuppi)
 
+# SC4NGJets
+# ########################################################################
+from L1Trigger.Phase2L1ParticleFlow.l1tSC4NGJetProducer_cfi import *
+_phase2_siml1emulator.add(l1tSC4NGJetProducer)
 
 # BJets
 # ########################################################################

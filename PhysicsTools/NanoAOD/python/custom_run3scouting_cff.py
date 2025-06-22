@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.run3scouting_cff import *
-from L1Trigger.Configuration.L1TRawToDigi_cff import *
 from EventFilter.L1TRawToDigi.gtStage2Digis_cfi import gtStage2Digis
 from PhysicsTools.NanoAOD.triggerObjects_cff import l1bits
 from PhysicsTools.NanoAOD.globals_cff import puTable
@@ -20,10 +19,18 @@ from PhysicsTools.NanoAOD.globals_cff import puTable
 scoutingMuonTableTask = cms.Task(scoutingMuonTable)
 scoutingMuonDisplacedVertexTableTask = cms.Task(scoutingMuonDisplacedVertexTable)
 
-# from 2024, there are two muon collections
-from Configuration.Eras.Modifier_run3_scouting_nanoAOD_post2023_cff import run3_scouting_nanoAOD_post2023
-run3_scouting_nanoAOD_post2023.toReplaceWith(scoutingMuonTableTask, cms.Task(scoutingMuonVtxTable, scoutingMuonNoVtxTable))\
+# from 2024, there are two muon collections (https://its.cern.ch/jira/browse/CMSHLT-3089)
+run3_scouting_nanoAOD_2024.toReplaceWith(scoutingMuonTableTask, cms.Task(scoutingMuonVtxTable, scoutingMuonNoVtxTable))\
     .toReplaceWith(scoutingMuonDisplacedVertexTableTask, cms.Task(scoutingMuonVtxDisplacedVertexTable, scoutingMuonNoVtxDisplacedVertexTable))
+
+# Scouting Electron
+scoutingElectronTableTask = cms.Task(scoutingElectronTable)
+
+# from 2023, scouting electron's tracks are added as std::vector since multiple tracks can be associated to a scouting electron
+# plugin to select the best track to reduce to a single track per scouting electron is added
+(run3_scouting_nanoAOD_2023 | run3_scouting_nanoAOD_2024).toReplaceWith(
+     scoutingElectronTableTask, cms.Task(scoutingElectronBestTrack, scoutingElectronTable)
+)
 
 # other collections are directly from original Run3Scouting objects, so unnessary to define tasks
 
@@ -47,6 +54,7 @@ scoutingFatPFJetReclusterTask = cms.Task(
     scoutingPFCandidate, # translate to reco::PFCandidate, used as input
     scoutingFatPFJetRecluster, # jet clustering
     scoutingFatPFJetReclusterParticleNetJetTagInfos, scoutingFatPFJetReclusterParticleNetJetTags, # jet tagging
+    scoutingFatPFJetReclusterGlobalParticleTransformerJetTagInfos, scoutingFatPFJetReclusterGlobalParticleTransformerJetTags, # jet tagging with Global Particle Transformer
     scoutingFatPFJetReclusterSoftDrop, scoutingFatPFJetReclusterSoftDropMass, # softdrop mass
     scoutingFatPFJetReclusterParticleNetJetTagInfos, scoutingFatPFJetReclusterParticleNetMassRegressionJetTags, # regressed mass
     scoutingFatPFJetReclusterEcfNbeta1, scoutingFatPFJetReclusterNjettiness, # substructure variables
@@ -90,7 +98,7 @@ def prepareScoutingNanoTaskCommon():
     # all scouting objects are saved except PF Candidate and Track
     scoutingNanoTaskCommon = cms.Task()
     scoutingNanoTaskCommon.add(scoutingMuonTableTask, scoutingMuonDisplacedVertexTableTask)
-    scoutingNanoTaskCommon.add(scoutingElectronTable)
+    scoutingNanoTaskCommon.add(scoutingElectronTableTask)
     scoutingNanoTaskCommon.add(scoutingPhotonTable)
     scoutingNanoTaskCommon.add(scoutingPrimaryVertexTable)
     scoutingNanoTaskCommon.add(scoutingPFJetTable)
@@ -123,7 +131,7 @@ scoutingNanoSequence = cms.Sequence(scoutingNanoTaskCommon)
 
 # Specific tasks which will be added to sequence during customization
 scoutingTriggerTask = prepareScoutingTriggerTask()
-scoutingTriggerSequence = cms.Sequence(L1TRawToDigi+cms.Sequence(scoutingTriggerTask))
+scoutingTriggerSequence = cms.Sequence(scoutingTriggerTask)
 scoutingNanoTaskMC = prepareScoutingNanoTaskMC()
 
 def customiseScoutingNano(process):
@@ -147,17 +155,28 @@ def customiseScoutingNano(process):
 # these function are designed to be used with --customise flag in cmsDriver.py
 # e.g. --customise PhysicsTools/NanoAOD/python/custom_run3scouting_cff.addScoutingPFCandidate
 
-# reconfigure for running with ScoutingPFMonitor/MiniAOD inputs alone
+# additional customisation for running with ScoutingPFMonitor/RAW inputs
 # should be used with default customiseScoutingNano
-def customiseScoutingNanoFromMini(process):
-    # remove L1TRawToDigi
-    process.scoutingTriggerSequence.remove(process.L1TRawToDigi)
+# this is suitable when ScoutingPFMonitor/RAW is involved, e.g. RAW, RAW-MiniAOD two-file solution, full chain RAW-MiniAOD-NanoAOD
+# when running full chain RAW-MiniAOD-NanoAOD, this ensures that gtStage2Digis, gmtStage2Digis, and caloStage2Digis are run
+def customiseScoutingNanoForScoutingPFMonitor(process):
+    process = skipEventsWithoutScouting(process)
 
-    # remove gtStage2Digis since they are already run for Mini
+    # replace gtStage2DigisScouting with standard gtStage2Digis
     process.scoutingTriggerTask.remove(process.gtStage2DigisScouting)
+    process.scoutingTriggerTask.add(process.gtStage2Digis)
 
-    # change src for l1 bits
-    process.l1bitsScouting.src = cms.InputTag("gtStage2Digis")
+    # add gmtStage2Digis
+    process.load("EventFilter.L1TRawToDigi.gmtStage2Digis_cfi")
+    process.scoutingTriggerTask.add(process.gmtStage2Digis)
+
+    # add caloStage2Digis
+    process.load("EventFilter.L1TRawToDigi.caloStage2Digis_cfi")
+    process.scoutingTriggerTask.add(process.caloStage2Digis)
+
+    # replace l1bitsScouting with standard l1bits
+    process.scoutingTriggerTask.remove(process.l1bitsScouting)
+    process.scoutingTriggerTask.add(process.l1bits)
 
     # change src for l1 objects
     process.l1MuScoutingTable.src = cms.InputTag("gmtStage2Digis", "Muon")
@@ -165,6 +184,57 @@ def customiseScoutingNanoFromMini(process):
     process.l1TauScoutingTable.src = cms.InputTag("caloStage2Digis", "Tau")
     process.l1JetScoutingTable.src = cms.InputTag("caloStage2Digis", "Jet")
     process.l1EtSumScoutingTable.src = cms.InputTag("caloStage2Digis", "EtSum")
+
+    return process
+
+# additional customisation for running with ScoutingPFMonitor/MiniAOD inputs alone
+# can also be used on MC input
+# should be used with default customiseScoutingNano and NOT with customiseScoutingNanoForScoutingPFMonitor
+def customiseScoutingNanoFromMini(process):
+    # when running on data, assume ScoutingPFMonitor/MiniAOD dataset as inputs
+    runOnData = hasattr(process,"NANOAODSIMoutput") or hasattr(process,"NANOAODoutput")
+    if runOnData:
+        process = skipEventsWithoutScouting(process)
+
+    # remove gtStage2Digis since they are already run for Mini
+    process.scoutingTriggerTask.remove(process.gtStage2DigisScouting)
+
+    # replace l1bitsScouting with standard l1bits
+    process.scoutingTriggerTask.remove(process.l1bitsScouting)
+    process.scoutingTriggerTask.add(process.l1bits)
+
+    # change src for l1 objects
+    process.l1MuScoutingTable.src = cms.InputTag("gmtStage2Digis", "Muon")
+    process.l1EGScoutingTable.src = cms.InputTag("caloStage2Digis", "EGamma")
+    process.l1TauScoutingTable.src = cms.InputTag("caloStage2Digis", "Tau")
+    process.l1JetScoutingTable.src = cms.InputTag("caloStage2Digis", "Jet")
+    process.l1EtSumScoutingTable.src = cms.InputTag("caloStage2Digis", "EtSum")
+
+    return process
+
+# skip events without scouting object products
+# this may be needed since for there are some events which do not contain scouting object products in 2022-24
+# this is fixed for 2025: https://its.cern.ch/jira/browse/CMSHLT-3331
+def skipEventsWithoutScouting(process):
+    # if scouting paths are triggered, scouting objects will be reconstructed
+    # so we select events passing scouting paths
+    import HLTrigger.HLTfilters.hltHighLevel_cfi
+
+    process.scoutingTriggerPathFilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
+            HLTPaths = cms.vstring("Dataset_ScoutingPFRun3")
+            )
+
+    process.nanoSkim_step = cms.Path(process.scoutingTriggerPathFilter)
+    process.schedule.extend([process.nanoSkim_step])
+
+    if hasattr(process, "NANOAODoutput"):
+        process.NANOAODoutput.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("nanoSkim_step"))
+
+    if hasattr(process, "NANOAODEDMoutput"):
+        process.NANOEDMAODoutput.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("nanoSkim_step"))
+
+    if hasattr(process, "write_NANOAOD"): # PromptReco
+        process.write_NANOAOD.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("nanoSkim_step")) 
 
     return process
 
@@ -180,4 +250,38 @@ def addScoutingParticle(process):
 def addScoutingPFCandidate(process):
     # PF candidate after translation to reco::PFCandidate
     process.scoutingNanoSequence.associate(scoutingPFCandidateTask)
+    return process
+
+# this adds all electron tracks in addition to best track selected
+# this should be only used with ScoutingElectron format from 2023
+def addScoutingElectronTrack(process):
+    process.scoutingElectronTable.externalVariables.bestTrack_index\
+            = ExtVar(cms.InputTag("scoutingElectronBestTrack", "Run3ScoutingElectronBestTrackIndex"), int, doc="best track index")
+
+    process.scoutingElectronTable.collectionVariables = cms.PSet(
+        ScoutingElectronTrack = cms.PSet(
+            name = cms.string("ScoutingElectronTrack"),
+            doc = cms.string("Scouting Electron Track"),
+            useCount = cms.bool(True),
+            useOffset = cms.bool(True),
+            variables = cms.PSet(
+                d0 = Var("trkd0", "float", doc="track d0"),
+                dz = Var("trkdz", "float", doc="track dz"),
+                pt = Var("trkpt", "float", doc="track pt"),
+                eta = Var("trketa", "float", doc="track eta"),
+                phi = Var("trkphi", "float", doc="track phi"),
+                chi2overndf = Var("trkchi2overndf", "float", doc="track normalized chi squared"),
+                charge = Var("trkcharge", "int", doc="track charge"),
+            ),
+        ),
+    )
+    
+    # additional electron track variables added in 2024 in https://github.com/cms-sw/cmssw/pull/43744
+    run3_scouting_nanoAOD_2024.toModify(
+        process.scoutingElectronTable.collectionVariables.variables,
+        pMode = Var("trkpMode", "float", doc="track pMode"),
+        etaMode = Var("trketaMode", "float", doc="track etaMode"),
+        phiMode = Var("trkphiMode", "float", doc="track phiMode"),
+        qoverpModeError = Var("trkqoverpModeError", "float", doc="track qoverpModeError"),
+    )
     return process

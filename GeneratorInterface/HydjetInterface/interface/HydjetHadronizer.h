@@ -4,7 +4,7 @@
 /**
    \class HydjetHadronizer
    \brief Interface to the HYDJET generator (since core v. 1.9.1), produces HepMC events
-   \version 2.0
+   \version 2.1
    \authors Camelia Mironov, Yetkin Yilmaz, Andrey Belyaev
 */
 
@@ -137,6 +137,21 @@ namespace gen {
     Return the nuclear radius derived from the
     beam/target atomic mass number.
  */
-  double HydjetHadronizer::nuclear_radius() const { return 1.15 * pow((double)abeamtarget_, 1. / 3.); }
+  double HydjetHadronizer::nuclear_radius() const {
+    if (fabs((double)abeamtarget_ - 208.0) < 0.0001)
+      return 6.624;
+    else if (fabs((double)abeamtarget_ - 197.0) < 0.0001)
+      return 6.38;
+    else if (fabs((double)abeamtarget_ - 129.0) < 0.0001)
+      return 5.36;
+    else if (fabs((double)abeamtarget_ - 63.0) < 0.0001)
+      return 4.20;
+    else if (fabs((double)abeamtarget_ - 20.0) < 0.0001)
+      return 2.992;
+    else if (fabs((double)abeamtarget_ - 16.0) < 0.0001)
+      return 2.608;
+    else
+      return 1.15 * pow((double)abeamtarget_, 1. / 3.);
+  }
 }  // namespace gen
 #endif

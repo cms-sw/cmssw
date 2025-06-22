@@ -50,6 +50,7 @@ namespace l1ct {
 
     static ap_int<15> signedRinv(const ap_uint<96> &tkword) { return ap_int<15>(tkword(94, 80)); }
     static ap_int<12> signedZ0(const ap_uint<96> &tkword) { return ap_int<12>(tkword(47, 36)); }
+    static ap_int<13> signedDxy(const ap_uint<96> &tkword) { return ap_int<13>(tkword(31, 19)); }
     static ap_int<16> signedTanl(const ap_uint<96> &tkword) { return ap_int<16>(tkword(63, 48)); }
     static ap_int<12> signedPhi(const ap_uint<96> &tkword) { return ap_int<12>(tkword(79, 68)); }
 
@@ -69,10 +70,14 @@ namespace l1ct {
     /// convert track-word int z0 into float z0 in cm (exact)
     float floatZ0(ap_int<12> z0) const;
 
+    /// convert track-word int dxy into float dxy in cm (exact)
+    float floatDxy(ap_int<13> dxy) const;
+
     //=== Configuration of floating point conversions
     void setRinvToPtFactor(float rInvToPt) { rInvToPt_ = rInvToPt; }
     void setPhiScale(float phiScale) { phiScale_ = phiScale; }
     void setZ0Scale(float z0Scale) { z0Scale_ = z0Scale; }
+    void setDxyScale(float dxyScale) { dxyScale_ = dxyScale; }
 
     //=== Bitwise accurate conversions ===
     l1ct::pt_t convPt(ap_int<15> Rinv) const;
@@ -85,6 +90,8 @@ namespace l1ct {
 
     l1ct::z0_t convZ0(ap_int<12> z0) const;
 
+    l1ct::dxy_t convDxy(ap_int<13> dxy) const;
+
     //=== Configuration for bitwise accurate conversions ===
     void configPt(int lutBits);
 
@@ -93,6 +100,8 @@ namespace l1ct {
     void configPhi(int bits);
 
     void configZ0(int bits);
+
+    void configDxy(int bits);
 
     //=== Track propagation to calo (float parametrization, no rounding) ===
     //
@@ -201,7 +210,7 @@ namespace l1ct {
     bool slim_;
 
     /// Main constants
-    float rInvToPt_, phiScale_, z0Scale_;
+    float rInvToPt_, phiScale_, z0Scale_, dxyScale_;
 
     /// Parameters for track propagation in floating point
     float dEtaBarrelParamZ0_;
@@ -216,6 +225,9 @@ namespace l1ct {
 
     // z0 conversion parameters
     int z0Mult_, z0OffsPos_, z0OffsNeg_, z0BitShift_;
+
+    // dxy conversion parameters
+    int dxyMult_, dxyOffsPos_, dxyOffsNeg_, dxyBitShift_;
 
     // deta parameters in barrel region
     int dEtaBarrelBits_, dEtaBarrelZ0PreShift_, dEtaBarrelZ0PostShift_, dEtaBarrelOffs_, dEtaBarrelZ0_;

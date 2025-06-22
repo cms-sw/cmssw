@@ -75,6 +75,7 @@ l1t::GlobalBoard::GlobalBoard()
       m_candL1EtSum(new BXVector<const l1t::EtSum*>),
       m_candL1EtSumZdc(new BXVector<const l1t::EtSum*>),
       m_candL1External(new BXVector<const GlobalExtBlk*>),
+      m_candL1CICADAScore(new BXVector<float>),
       m_currentLumi(0),
       m_isDebugEnabled(edm::isDebugEnabled()) {
   m_uGtAlgBlk.reset();
@@ -98,6 +99,7 @@ l1t::GlobalBoard::~GlobalBoard() {
   delete m_candL1EtSum;
   delete m_candL1EtSumZdc;
   delete m_candL1External;
+  delete m_candL1CICADAScore;
 }
 
 // Operations
@@ -124,6 +126,7 @@ void l1t::GlobalBoard::init(const int numberPhysTriggers,
   m_candL1EtSum->setBXRange(m_bxFirst_, m_bxLast_);
   m_candL1EtSumZdc->setBXRange(m_bxFirst_, m_bxLast_);
   m_candL1External->setBXRange(m_bxFirst_, m_bxLast_);
+  m_candL1CICADAScore->setBXRange(m_bxFirst_, m_bxLast_);
 
   m_uGtAlgBlk.reset();
 
@@ -338,26 +341,26 @@ void l1t::GlobalBoard::receiveCaloObjectData(const edm::Event& iEvent,
     }
   }
   if (receiveCICADA) {
-    edm::Handle<BXVector<float>> cicadaScoreHandle;
-    iEvent.getByToken(CICADAInputToken, cicadaScoreHandle);
-    if (not cicadaScoreHandle.isValid()) {
+    edm::Handle<BXVector<float>> cicadaScoreData;
+    iEvent.getByToken(CICADAInputToken, cicadaScoreData);
+
+    if (!cicadaScoreData.isValid()) {
       if (m_verbosity) {
-        edm::LogWarning("L1Tglobal") << "\nWarning: Input tag for the CICADA score"
-                                     << "\nrequested in configuration, but not found in the event.\n"
-                                     << "\nSetting score to 0.0";
+        edm::LogWarning("L1TGlobal") << "\nWarning: Input tag for the CICADA-score collection"
+                                     << "\nrequested in configuration, but not found in the event.\n";
       }
-      setCICADAScore(0.0);
-    } else if (cicadaScoreHandle->isEmpty(0)) {
-      if (m_verbosity) {
-        edm::LogWarning("L1Tglobal")
-            << "\nWarning: CICADA score had a valid input tag, but an empty BX collection"
-            << "\nThe CICADA score will be filled with 0.0 to prevent any failure of uGT emulation";
-      }
-      setCICADAScore(0.0);
     } else {
-      setCICADAScore(cicadaScoreHandle->at(
-          0,
-          0));  //CICADA emulation will only provide a central BX, and one value. Unpacking may have more values, but that can't be guaranteed.
+      for (int i = cicadaScoreData->getFirstBX(); i <= cicadaScoreData->getLastBX(); ++i) {
+        // Prevent from pushing back bx that is outside of allowed range
+        if (i < m_bxFirst_ || i > m_bxLast_)
+          continue;
+
+        for (std::vector<float>::const_iterator cicadaScore = cicadaScoreData->begin(i);
+             cicadaScore != cicadaScoreData->end(i);
+             ++cicadaScore) {
+          m_candL1CICADAScore->push_back(i, *cicadaScore);
+        }
+      }  //end loop over Bx
     }
   }
 }
@@ -1183,13 +1186,14 @@ void l1t::GlobalBoard::resetCalo() {
   m_candL1Jet->clear();
   m_candL1EtSum->clear();
   m_candL1EtSumZdc->clear();
-  m_cicadaScore = 0.0;
+  m_candL1CICADAScore->clear();
 
   m_candL1EG->setBXRange(m_bxFirst_, m_bxLast_);
   m_candL1Tau->setBXRange(m_bxFirst_, m_bxLast_);
   m_candL1Jet->setBXRange(m_bxFirst_, m_bxLast_);
   m_candL1EtSum->setBXRange(m_bxFirst_, m_bxLast_);
   m_candL1EtSumZdc->setBXRange(m_bxFirst_, m_bxLast_);
+  m_candL1CICADAScore->setBXRange(m_bxFirst_, m_bxLast_);
 }
 
 void l1t::GlobalBoard::resetExternal() {

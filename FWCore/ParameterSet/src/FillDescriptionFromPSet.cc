@@ -24,8 +24,6 @@ typedef void (*FillDescriptionFromParameter)(edm::ParameterSet const&,
                                              bool,
                                              edm::ParameterSetDescription&);
 
-static std::map<edm::ParameterTypes, FillDescriptionFromParameter> s_findTheRightFunction;
-
 namespace {
 
   template <typename T>
@@ -40,40 +38,42 @@ namespace {
     }
   }
 
-  void initMap() {
-    s_findTheRightFunction[edm::k_int32] = &fillDescriptionFromParameter<int>;
-    s_findTheRightFunction[edm::k_vint32] = &fillDescriptionFromParameter<std::vector<int>>;
-    s_findTheRightFunction[edm::k_uint32] = &fillDescriptionFromParameter<unsigned>;
-    s_findTheRightFunction[edm::k_vuint32] = &fillDescriptionFromParameter<std::vector<unsigned>>;
-    s_findTheRightFunction[edm::k_int64] = &fillDescriptionFromParameter<long long>;
-    s_findTheRightFunction[edm::k_vint64] = &fillDescriptionFromParameter<std::vector<long long>>;
-    s_findTheRightFunction[edm::k_uint64] = &fillDescriptionFromParameter<unsigned long long>;
-    s_findTheRightFunction[edm::k_vuint64] = &fillDescriptionFromParameter<std::vector<unsigned long long>>;
-    s_findTheRightFunction[edm::k_double] = &fillDescriptionFromParameter<double>;
-    s_findTheRightFunction[edm::k_vdouble] = &fillDescriptionFromParameter<std::vector<double>>;
-    s_findTheRightFunction[edm::k_bool] = &fillDescriptionFromParameter<bool>;
-    s_findTheRightFunction[edm::k_stringRaw] = &fillDescriptionFromParameter<std::string>;
-    s_findTheRightFunction[edm::k_vstringRaw] = &fillDescriptionFromParameter<std::vector<std::string>>;
-    s_findTheRightFunction[edm::k_EventID] = &fillDescriptionFromParameter<edm::EventID>;
-    s_findTheRightFunction[edm::k_VEventID] = &fillDescriptionFromParameter<std::vector<edm::EventID>>;
-    s_findTheRightFunction[edm::k_LuminosityBlockID] = &fillDescriptionFromParameter<edm::LuminosityBlockID>;
-    s_findTheRightFunction[edm::k_VLuminosityBlockID] =
+  std::map<edm::ParameterTypes, FillDescriptionFromParameter> initMap() {
+    std::map<edm::ParameterTypes, FillDescriptionFromParameter> findTheRightFunction;
+    findTheRightFunction[edm::k_int32] = &fillDescriptionFromParameter<int>;
+    findTheRightFunction[edm::k_vint32] = &fillDescriptionFromParameter<std::vector<int>>;
+    findTheRightFunction[edm::k_uint32] = &fillDescriptionFromParameter<unsigned>;
+    findTheRightFunction[edm::k_vuint32] = &fillDescriptionFromParameter<std::vector<unsigned>>;
+    findTheRightFunction[edm::k_int64] = &fillDescriptionFromParameter<long long>;
+    findTheRightFunction[edm::k_vint64] = &fillDescriptionFromParameter<std::vector<long long>>;
+    findTheRightFunction[edm::k_uint64] = &fillDescriptionFromParameter<unsigned long long>;
+    findTheRightFunction[edm::k_vuint64] = &fillDescriptionFromParameter<std::vector<unsigned long long>>;
+    findTheRightFunction[edm::k_double] = &fillDescriptionFromParameter<double>;
+    findTheRightFunction[edm::k_vdouble] = &fillDescriptionFromParameter<std::vector<double>>;
+    findTheRightFunction[edm::k_bool] = &fillDescriptionFromParameter<bool>;
+    findTheRightFunction[edm::k_stringRaw] = &fillDescriptionFromParameter<std::string>;
+    findTheRightFunction[edm::k_vstringRaw] = &fillDescriptionFromParameter<std::vector<std::string>>;
+    findTheRightFunction[edm::k_EventID] = &fillDescriptionFromParameter<edm::EventID>;
+    findTheRightFunction[edm::k_VEventID] = &fillDescriptionFromParameter<std::vector<edm::EventID>>;
+    findTheRightFunction[edm::k_LuminosityBlockID] = &fillDescriptionFromParameter<edm::LuminosityBlockID>;
+    findTheRightFunction[edm::k_VLuminosityBlockID] =
         &fillDescriptionFromParameter<std::vector<edm::LuminosityBlockID>>;
-    s_findTheRightFunction[edm::k_InputTag] = &fillDescriptionFromParameter<edm::InputTag>;
-    s_findTheRightFunction[edm::k_VInputTag] = &fillDescriptionFromParameter<std::vector<edm::InputTag>>;
-    s_findTheRightFunction[edm::k_ESInputTag] = &fillDescriptionFromParameter<edm::ESInputTag>;
-    s_findTheRightFunction[edm::k_VESInputTag] = &fillDescriptionFromParameter<std::vector<edm::ESInputTag>>;
-    s_findTheRightFunction[edm::k_FileInPath] = &fillDescriptionFromParameter<edm::FileInPath>;
-    s_findTheRightFunction[edm::k_LuminosityBlockRange] = &fillDescriptionFromParameter<edm::LuminosityBlockRange>;
-    s_findTheRightFunction[edm::k_VLuminosityBlockRange] =
+    findTheRightFunction[edm::k_InputTag] = &fillDescriptionFromParameter<edm::InputTag>;
+    findTheRightFunction[edm::k_VInputTag] = &fillDescriptionFromParameter<std::vector<edm::InputTag>>;
+    findTheRightFunction[edm::k_ESInputTag] = &fillDescriptionFromParameter<edm::ESInputTag>;
+    findTheRightFunction[edm::k_VESInputTag] = &fillDescriptionFromParameter<std::vector<edm::ESInputTag>>;
+    findTheRightFunction[edm::k_FileInPath] = &fillDescriptionFromParameter<edm::FileInPath>;
+    findTheRightFunction[edm::k_LuminosityBlockRange] = &fillDescriptionFromParameter<edm::LuminosityBlockRange>;
+    findTheRightFunction[edm::k_VLuminosityBlockRange] =
         &fillDescriptionFromParameter<std::vector<edm::LuminosityBlockRange>>;
-    s_findTheRightFunction[edm::k_EventRange] = &fillDescriptionFromParameter<edm::EventRange>;
-    s_findTheRightFunction[edm::k_VEventRange] = &fillDescriptionFromParameter<std::vector<edm::EventRange>>;
+    findTheRightFunction[edm::k_EventRange] = &fillDescriptionFromParameter<edm::EventRange>;
+    findTheRightFunction[edm::k_VEventRange] = &fillDescriptionFromParameter<std::vector<edm::EventRange>>;
+    return findTheRightFunction;
   }
 
-  std::map<edm::ParameterTypes, FillDescriptionFromParameter>& findTheRightFunction() {
-    if (s_findTheRightFunction.empty())
-      initMap();
+  std::map<edm::ParameterTypes, FillDescriptionFromParameter> const s_findTheRightFunction = initMap();
+
+  std::map<edm::ParameterTypes, FillDescriptionFromParameter> const& findTheRightFunction() {
     return s_findTheRightFunction;
   }
 }  // namespace
@@ -97,7 +97,7 @@ namespace edm {
     ParameterSet::table const& entries = pset.tbl();
     for (ParameterSet::table::const_iterator entry = entries.begin(), endEntries = entries.end(); entry != endEntries;
          ++entry) {
-      std::map<edm::ParameterTypes, FillDescriptionFromParameter>::iterator iter =
+      std::map<edm::ParameterTypes, FillDescriptionFromParameter>::const_iterator iter =
           findTheRightFunction().find(static_cast<edm::ParameterTypes>(entry->second.typeCode()));
       if (iter != findTheRightFunction().end()) {
         iter->second(pset, entry->first, entry->second.isTracked(), desc);

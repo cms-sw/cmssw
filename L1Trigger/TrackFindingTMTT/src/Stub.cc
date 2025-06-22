@@ -158,6 +158,53 @@ namespace tmtt {
     }
   }
 
+  // KF emualtor: stub constructor
+  Stub::Stub(const TTStubRef& ttStubRef,
+             double r,
+             double phi,
+             double z,
+             int layerId,
+             int layerIdReduced,
+             double stripPitch,
+             double stripLength,
+             bool psModule,
+             bool barrel,
+             bool tiltedBarrel)
+      : ttStubRef_(ttStubRef),
+        settings_(nullptr),
+        index_in_vStubs_(0),
+        phi_(phi),
+        r_(r),
+        z_(z),
+        bend_(0.),
+        dphiOverBend_(0.),
+        min_qOverPt_bin_(0),
+        max_qOverPt_bin_(0),
+        localU_cluster_({{0., 0.}}),
+        localV_cluster_({{0., 0.}}),
+        iphi_(0),
+        alpha_(0.),
+        frontendPass_(false),
+        stubFailedDegradeWindow_(false),
+        bendInFrontend_(0),
+        numMergedBend_(0),
+        assocTP_(nullptr),
+        assocTPs_(set<const TP*>()),
+        assocTPofCluster_({{nullptr, nullptr}}),
+        digitalStub_(nullptr),
+        lastDigiStep_(DigiStage()),
+        digitizeWarningsOn_(false),
+        trackerModule_(nullptr),
+        degradeBend_(nullptr),
+        layerId_(layerId),
+        layerIdReduced_(layerIdReduced),
+        stripPitch_(stripPitch),
+        stripLength_(stripLength),
+        nStrips_(0),
+        psModule_(psModule),
+        barrel_(barrel),
+        tiltedBarrel_(tiltedBarrel) {}
+
   //=== Calculate bin range along q/Pt axis of r-phi Hough transform array consistent with bend of this stub.
 
   void Stub::calcQoverPtrange() {

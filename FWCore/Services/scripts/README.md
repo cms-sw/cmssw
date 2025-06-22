@@ -7,8 +7,8 @@ The `edmTracerCompactLogViewer.py` is used to create a human understandable repr
 To create a Tracer file, add the following to a cmsRun configuration
 ```python
 process.add_(cms.Service("Tracer",
-                         useMessageLogger=cms.untracked.bool(False)),
-                         fileName=cms.untracked.string("<name of file>"))
+                         useMessageLogger=cms.untracked.bool(False),
+                         fileName=cms.untracked.string("<name of file>")))
 ```
 Where `"<name of file>"` is whatever name you want to use for the file that will hold the Tracer output. The use of `useMessageLogger=cms.untracked.bool(False)` is optional but does
 help avoid creating a large output from cmsRun.
@@ -29,14 +29,11 @@ If you only want to see the framework transitions and not all the information ab
 Issue the shell command
 ```edmTracerCompactLogViewer.py -w <name of file>```
 
-The script will outut a new file named `data.js`.
+The script will output a new file named `data.json`.
 
 If you only want to see the framework transitions and not all the information about ED or ES modules, you can use the option `-f`.
 You can also have all activities related to each module grouped by using the `-m` option.
 
 #### setup web data
-
-You will need to copy all the files in `$CMSSW_RELEASE_BASE/src/FWCore/Services/web` to a directory you can access from a web browser. Copy the `data.js` file
-created by `edmTracerCompactLogViewer.py` into that same web browser accessible directory. Now you can have your web browser access the `index.html` file.
 
 For directions on how to use the web application, see the [`FWCore/Services/web/README.md`](../web/README.md) file.

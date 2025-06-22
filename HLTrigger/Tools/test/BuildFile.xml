@@ -1,2 +1,4 @@
 <!-- tests convertToRaw utility script -->
 <test name="testConvertToRaw" command="testConvertToRaw.sh"/>
+<!-- tests hltInfoutility script -->
+<test name="testHltInfo" command="check_hlt_info.sh"/>

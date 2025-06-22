@@ -69,7 +69,6 @@
 #include "FWCore/Framework/interface/Path.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/maker/Worker.h"
-#include "FWCore/Framework/interface/WorkerRegistry.h"
 #include "FWCore/Framework/interface/EarlyDeleteHelper.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
@@ -129,7 +128,6 @@ namespace edm {
     typedef std::vector<Path> TrigPaths;
     typedef std::shared_ptr<HLTGlobalStatus> TrigResPtr;
     typedef std::shared_ptr<HLTGlobalStatus const> TrigResConstPtr;
-    typedef std::shared_ptr<Worker> WorkerPtr;
     typedef std::vector<Worker*> AllWorkers;
 
     typedef std::vector<Worker*> Workers;
@@ -263,16 +261,15 @@ namespace edm {
         SignallingProductRegistryFiller& preg,
         PreallocationConfiguration const* prealloc,
         std::shared_ptr<ProcessConfiguration const> processConfiguration);
-    void fillWorkers(ParameterSet& proc_pset,
-                     SignallingProductRegistryFiller& preg,
-                     PreallocationConfiguration const* prealloc,
-                     std::shared_ptr<ProcessConfiguration const> processConfiguration,
-                     std::string const& name,
-                     bool ignoreFilters,
-                     PathWorkers& out,
-                     std::vector<std::string> const& endPathNames,
-                     ConditionalTaskHelper const& conditionalTaskHelper,
-                     std::unordered_set<std::string>& allConditionalModules);
+    PathWorkers fillWorkers(ParameterSet& proc_pset,
+                            SignallingProductRegistryFiller& preg,
+                            PreallocationConfiguration const* prealloc,
+                            std::shared_ptr<ProcessConfiguration const> processConfiguration,
+                            std::string const& name,
+                            bool ignoreFilters,
+                            std::vector<std::string> const& endPathNames,
+                            ConditionalTaskHelper const& conditionalTaskHelper,
+                            std::unordered_set<std::string>& allConditionalModules);
     void fillTrigPath(ParameterSet& proc_pset,
                       SignallingProductRegistryFiller& preg,
                       PreallocationConfiguration const* prealloc,
@@ -320,9 +317,9 @@ namespace edm {
 
     edm::propagate_const<TrigResPtr> results_;
 
-    edm::propagate_const<WorkerPtr> results_inserter_;
-    std::vector<edm::propagate_const<WorkerPtr>> pathStatusInserterWorkers_;
-    std::vector<edm::propagate_const<WorkerPtr>> endPathStatusInserterWorkers_;
+    edm::propagate_const<Worker*> results_inserter_;
+    std::vector<edm::propagate_const<Worker*>> pathStatusInserterWorkers_;
+    std::vector<edm::propagate_const<Worker*>> endPathStatusInserterWorkers_;
 
     TrigPaths trig_paths_;
     TrigPaths end_paths_;

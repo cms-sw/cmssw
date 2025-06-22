@@ -27,6 +27,7 @@
 #include "FWCore/Framework/src/SynchronousEventSetupsController.h"
 #include "FWCore/Framework/interface/NoRecordException.h"
 #include "FWCore/Framework/test/print_eventsetup_record_dependencies.h"
+#include "FWCore/Framework/interface/ESModuleProducesInfo.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
@@ -128,6 +129,9 @@ namespace {
     KeyedResolversVector registerResolvers(const EventSetupRecordKey&, unsigned int /* iovIndex */) override {
       return KeyedResolversVector();
     }
+    std::vector<edm::eventsetup::ESModuleProducesInfo> producesInfo() const override {
+      return std::vector<edm::eventsetup::ESModuleProducesInfo>();
+    }
   };
 
   class DepRecordResolverProvider : public edm::eventsetup::ESProductResolverProvider {
@@ -137,6 +141,9 @@ namespace {
   protected:
     KeyedResolversVector registerResolvers(const EventSetupRecordKey&, unsigned int /* iovIndex */) override {
       return KeyedResolversVector();
+    }
+    std::vector<edm::eventsetup::ESModuleProducesInfo> producesInfo() const override {
+      return std::vector<edm::eventsetup::ESModuleProducesInfo>();
     }
   };
 
@@ -168,6 +175,14 @@ namespace {
       keyedResolversVector.emplace_back(dataKey, pResolver);
       return keyedResolversVector;
     }
+    std::vector<edm::eventsetup::ESModuleProducesInfo> producesInfo() const override {
+      return std::vector<edm::eventsetup::ESModuleProducesInfo>(
+          1,
+          edm::eventsetup::ESModuleProducesInfo(
+              edm::eventsetup::EventSetupRecordKey::makeKey<DepRecord>(),
+              edm::eventsetup::DataKey(edm::eventsetup::DataKey::makeTypeTag<edm::eventsetup::test::DummyData>(), ""),
+              0));
+    }
 
   private:
     edm::eventsetup::test::DummyData dummy_;
@@ -180,6 +195,9 @@ namespace {
   protected:
     KeyedResolversVector registerResolvers(const EventSetupRecordKey&, unsigned int /* iovIndex */) override {
       return KeyedResolversVector();
+    }
+    std::vector<edm::eventsetup::ESModuleProducesInfo> producesInfo() const override {
+      return std::vector<edm::eventsetup::ESModuleProducesInfo>();
     }
   };
 

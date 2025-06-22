@@ -58,12 +58,12 @@
     <Include ref='Geometry/HcalCommonData/data/hcalRecNumbering/NoHE/v2/hcalRecNumbering.xml'/>
     <Include ref='Geometry/HGCalCommonData/data/hgcalMaterial/v2/hgcalMaterial.xml'/>
     <Include ref='Geometry/HGCalCommonData/data/hgcal/v18ng/hgcal.xml'/>
-    <Include ref='Geometry/HGCalCommonData/data/hgcalwafer/v18ng/hgcalwafer.xml'/>
-    <Include ref='Geometry/HGCalCommonData/data/hgcalPassive/v18/hgcalPassive.xml'/>
+    <Include ref='Geometry/HGCalCommonData/data/hgcalwafer/v18ngr/hgcalwafer.xml'/>
+    <Include ref='Geometry/HGCalCommonData/data/hgcalPassive/v18ng/hgcalPassive.xml'/>
     <Include ref='Geometry/HGCalCommonData/data/hgcalEE/v18/hgcalEE.xml'/>
     <Include ref='Geometry/HGCalCommonData/data/hgcalHEsil/v18/hgcalHEsil.xml'/>
     <Include ref='Geometry/HGCalCommonData/data/hgcalHEmix/v18/hgcalHEmix.xml'/>
-    <Include ref='Geometry/HGCalCommonData/data/hgcalCons/v18n/hgcalCons.xml'/>
+    <Include ref='Geometry/HGCalCommonData/data/hgcalCons/v18ng/hgcalCons.xml'/>
     <Include ref='Geometry/HGCalCommonData/data/hgcalConsData/v17/hgcalConsData.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mbCommon/2021/v1/mbCommon.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mb1/2015/v2/mb1.xml'/>

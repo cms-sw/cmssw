@@ -1,228 +1,177 @@
 #include "L1Trigger/TrackTrigger/interface/Setup.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/L1TrackTrigger/interface/TTBV.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
 #include <cmath>
 #include <algorithm>
+#include <numeric>
 #include <vector>
 #include <set>
-#include <unordered_map>
-#include <string>
-#include <sstream>
-
-using namespace std;
-using namespace edm;
 
 namespace tt {
 
-  Setup::Setup(const ParameterSet& iConfig,
-               const MagneticField& magneticField,
+  Setup::Setup(const Config& iConfig,
                const TrackerGeometry& trackerGeometry,
                const TrackerTopology& trackerTopology,
                const TrackerDetToDTCELinkCablingMap& cablingMap,
                const StubAlgorithmOfficial& stubAlgorithm,
-               const ParameterSet& pSetStubAlgorithm,
-               const ParameterSet& pSetGeometryConfiguration,
-               const ParameterSetID& pSetIdTTStubAlgorithm,
-               const ParameterSetID& pSetIdGeometryConfiguration)
-      : magneticField_(&magneticField),
-        trackerGeometry_(&trackerGeometry),
+               const edm::ParameterSet& pSetStubAlgorithm)
+      : trackerGeometry_(&trackerGeometry),
         trackerTopology_(&trackerTopology),
         cablingMap_(&cablingMap),
         stubAlgorithm_(&stubAlgorithm),
         pSetSA_(&pSetStubAlgorithm),
-        pSetGC_(&pSetGeometryConfiguration),
-        pSetIdTTStubAlgorithm_(pSetIdTTStubAlgorithm),
-        pSetIdGeometryConfiguration_(pSetIdGeometryConfiguration),
-        // DD4hep
-        fromDD4hep_(iConfig.getParameter<bool>("fromDD4hep")),
-        // Parameter to check if configured Tracker Geometry is supported
-        pSetSG_(iConfig.getParameter<ParameterSet>("UnSupportedGeometry")),
-        sgXMLLabel_(pSetSG_.getParameter<string>("XMLLabel")),
-        sgXMLPath_(pSetSG_.getParameter<string>("XMLPath")),
-        sgXMLFile_(pSetSG_.getParameter<string>("XMLFile")),
-        sgXMLVersions_(pSetSG_.getParameter<vector<string>>("XMLVersions")),
-        // Parameter to check if Process History is consistent with process configuration
-        pSetPH_(iConfig.getParameter<ParameterSet>("ProcessHistory")),
-        phGeometryConfiguration_(pSetPH_.getParameter<string>("GeometryConfiguration")),
-        phTTStubAlgorithm_(pSetPH_.getParameter<string>("TTStubAlgorithm")),
         // Common track finding parameter
-        pSetTF_(iConfig.getParameter<ParameterSet>("TrackFinding")),
-        beamWindowZ_(pSetTF_.getParameter<double>("BeamWindowZ")),
-        matchedLayers_(pSetTF_.getParameter<int>("MatchedLayers")),
-        matchedLayersPS_(pSetTF_.getParameter<int>("MatchedLayersPS")),
-        unMatchedStubs_(pSetTF_.getParameter<int>("UnMatchedStubs")),
-        unMatchedStubsPS_(pSetTF_.getParameter<int>("UnMatchedStubsPS")),
-        scattering_(pSetTF_.getParameter<double>("Scattering")),
+        beamWindowZ_(iConfig.beamWindowZ_),
+        minPt_(iConfig.minPt_),
+        minPtCand_(iConfig.minPtCand_),
+        maxEta_(iConfig.maxEta_),
+        maxD0_(iConfig.maxD0_),
+        chosenRofPhi_(iConfig.chosenRofPhi_),
+        numLayers_(iConfig.numLayers_),
+        minLayers_(iConfig.minLayers_),
         // TMTT specific parameter
-        pSetTMTT_(iConfig.getParameter<ParameterSet>("TMTT")),
-        minPt_(pSetTMTT_.getParameter<double>("MinPt")),
-        maxEta_(pSetTMTT_.getParameter<double>("MaxEta")),
-        chosenRofPhi_(pSetTMTT_.getParameter<double>("ChosenRofPhi")),
-        numLayers_(pSetTMTT_.getParameter<int>("NumLayers")),
-        tmttWidthR_(pSetTMTT_.getParameter<int>("WidthR")),
-        tmttWidthPhi_(pSetTMTT_.getParameter<int>("WidthPhi")),
-        tmttWidthZ_(pSetTMTT_.getParameter<int>("WidthZ")),
+        tmttWidthR_(iConfig.tmttWidthR_),
+        tmttWidthPhi_(iConfig.tmttWidthPhi_),
+        tmttWidthZ_(iConfig.tmttWidthZ_),
         // Hybrid specific parameter
-        pSetHybrid_(iConfig.getParameter<ParameterSet>("Hybrid")),
-        hybridMinPtStub_(pSetHybrid_.getParameter<double>("MinPtStub")),
-        hybridMinPtCand_(pSetHybrid_.getParameter<double>("MinPtCand")),
-        hybridMaxEta_(pSetHybrid_.getParameter<double>("MaxEta")),
-        hybridChosenRofPhi_(pSetHybrid_.getParameter<double>("ChosenRofPhi")),
-        hybridNumLayers_(pSetHybrid_.getParameter<int>("NumLayers")),
-        hybridNumRingsPS_(pSetHybrid_.getParameter<vector<int>>("NumRingsPS")),
-        hybridWidthsR_(pSetHybrid_.getParameter<vector<int>>("WidthsR")),
-        hybridWidthsZ_(pSetHybrid_.getParameter<vector<int>>("WidthsZ")),
-        hybridWidthsPhi_(pSetHybrid_.getParameter<vector<int>>("WidthsPhi")),
-        hybridWidthsAlpha_(pSetHybrid_.getParameter<vector<int>>("WidthsAlpha")),
-        hybridWidthsBend_(pSetHybrid_.getParameter<vector<int>>("WidthsBend")),
-        hybridRangesR_(pSetHybrid_.getParameter<vector<double>>("RangesR")),
-        hybridRangesZ_(pSetHybrid_.getParameter<vector<double>>("RangesZ")),
-        hybridRangesAlpha_(pSetHybrid_.getParameter<vector<double>>("RangesAlpha")),
-        hybridLayerRs_(pSetHybrid_.getParameter<vector<double>>("LayerRs")),
-        hybridDiskZs_(pSetHybrid_.getParameter<vector<double>>("DiskZs")),
-        hybridDisk2SRsSet_(pSetHybrid_.getParameter<vector<ParameterSet>>("Disk2SRsSet")),
-        tbInnerRadius_(pSetHybrid_.getParameter<double>("InnerRadius")),
-        tbWidthsR_(pSetHybrid_.getParameter<vector<int>>("WidthsRTB")),
-        // Parameter specifying TrackingParticle used for Efficiency measurements
-        pSetTP_(iConfig.getParameter<ParameterSet>("TrackingParticle")),
-        tpMinPt_(pSetTP_.getParameter<double>("MinPt")),
-        tpMaxEta_(pSetTP_.getParameter<double>("MaxEta")),
-        tpMaxVertR_(pSetTP_.getParameter<double>("MaxVertR")),
-        tpMaxVertZ_(pSetTP_.getParameter<double>("MaxVertZ")),
-        tpMaxD0_(pSetTP_.getParameter<double>("MaxD0")),
-        tpMinLayers_(pSetTP_.getParameter<int>("MinLayers")),
-        tpMinLayersPS_(pSetTP_.getParameter<int>("MinLayersPS")),
-        tpMaxBadStubs2S_(pSetTP_.getParameter<int>("MaxBadStubs2S")),
-        tpMaxBadStubsPS_(pSetTP_.getParameter<int>("MaxBadStubsPS")),
+        hybridNumLayers_(iConfig.hybridNumLayers_),
+        hybridNumRingsPS_(iConfig.hybridNumRingsPS_),
+        hybridWidthsR_(iConfig.hybridWidthsR_),
+        hybridWidthsZ_(iConfig.hybridWidthsZ_),
+        hybridWidthsPhi_(iConfig.hybridWidthsPhi_),
+        hybridWidthsAlpha_(iConfig.hybridWidthsAlpha_),
+        hybridWidthsBend_(iConfig.hybridWidthsBend_),
+        hybridRangesR_(iConfig.hybridRangesR_),
+        hybridRangesZ_(iConfig.hybridRangesZ_),
+        hybridRangesAlpha_(iConfig.hybridRangesAlpha_),
+        hybridLayerRs_(iConfig.hybridLayerRs_),
+        hybridDiskZs_(iConfig.hybridDiskZs_),
+        hybridDisk2SRsSet_(iConfig.hybridDisk2SRsSet_),
+        tbBarrelHalfLength_(iConfig.tbBarrelHalfLength_),
+        tbInnerRadius_(iConfig.tbInnerRadius_),
+        tbWidthsR_(iConfig.tbWidthsR_),
         // Fimrware specific Parameter
-        pSetFW_(iConfig.getParameter<ParameterSet>("Firmware")),
-        widthDSPa_(pSetFW_.getParameter<int>("WidthDSPa")),
-        widthDSPb_(pSetFW_.getParameter<int>("WidthDSPb")),
-        widthDSPc_(pSetFW_.getParameter<int>("WidthDSPc")),
-        widthAddrBRAM36_(pSetFW_.getParameter<int>("WidthAddrBRAM36")),
-        widthAddrBRAM18_(pSetFW_.getParameter<int>("WidthAddrBRAM18")),
-        numFramesInfra_(pSetFW_.getParameter<int>("NumFramesInfra")),
-        freqLHC_(pSetFW_.getParameter<double>("FreqLHC")),
-        freqBE_(pSetFW_.getParameter<double>("FreqBE")),
-        tmpFE_(pSetFW_.getParameter<int>("TMP_FE")),
-        tmpTFP_(pSetFW_.getParameter<int>("TMP_TFP")),
-        speedOfLight_(pSetFW_.getParameter<double>("SpeedOfLight")),
-        bField_(pSetFW_.getParameter<double>("BField")),
-        bFieldError_(pSetFW_.getParameter<double>("BFieldError")),
-        outerRadius_(pSetFW_.getParameter<double>("OuterRadius")),
-        innerRadius_(pSetFW_.getParameter<double>("InnerRadius")),
-        halfLength_(pSetFW_.getParameter<double>("HalfLength")),
-        tiltApproxSlope_(pSetFW_.getParameter<double>("TiltApproxSlope")),
-        tiltApproxIntercept_(pSetFW_.getParameter<double>("TiltApproxIntercept")),
-        tiltUncertaintyR_(pSetFW_.getParameter<double>("TiltUncertaintyR")),
-        mindPhi_(pSetFW_.getParameter<double>("MindPhi")),
-        maxdPhi_(pSetFW_.getParameter<double>("MaxdPhi")),
-        mindZ_(pSetFW_.getParameter<double>("MindZ")),
-        maxdZ_(pSetFW_.getParameter<double>("MaxdZ")),
-        pitch2S_(pSetFW_.getParameter<double>("Pitch2S")),
-        pitchPS_(pSetFW_.getParameter<double>("PitchPS")),
-        length2S_(pSetFW_.getParameter<double>("Length2S")),
-        lengthPS_(pSetFW_.getParameter<double>("LengthPS")),
-        tiltedLayerLimitsZ_(pSetFW_.getParameter<vector<double>>("TiltedLayerLimitsZ")),
-        psDiskLimitsR_(pSetFW_.getParameter<vector<double>>("PSDiskLimitsR")),
+        enableTruncation_(iConfig.enableTruncation_),
+        useHybrid_(iConfig.useHybrid_),
+        widthDSPa_(iConfig.widthDSPa_),
+        widthDSPb_(iConfig.widthDSPb_),
+        widthDSPc_(iConfig.widthDSPc_),
+        widthAddrBRAM36_(iConfig.widthAddrBRAM36_),
+        widthAddrBRAM18_(iConfig.widthAddrBRAM18_),
+        numFramesInfra_(iConfig.numFramesInfra_),
+        freqLHC_(iConfig.freqLHC_),
+        freqBEHigh_(iConfig.freqBEHigh_),
+        freqBELow_(iConfig.freqBELow_),
+        tmpFE_(iConfig.tmpFE_),
+        tmpTFP_(iConfig.tmpTFP_),
+        speedOfLight_(iConfig.speedOfLight_),
+        // Tracker specific Paramter
+        bField_(iConfig.bField_),
+        bFieldError_(iConfig.bFieldError_),
+        outerRadius_(iConfig.outerRadius_),
+        innerRadius_(iConfig.innerRadius_),
+        halfLength_(iConfig.halfLength_),
+        tiltApproxSlope_(iConfig.tiltApproxSlope_),
+        tiltApproxIntercept_(iConfig.tiltApproxIntercept_),
+        tiltUncertaintyR_(iConfig.tiltUncertaintyR_),
+        scattering_(iConfig.scattering_),
+        pitchRow2S_(iConfig.pitchRow2S_),
+        pitchRowPS_(iConfig.pitchRowPS_),
+        pitchCol2S_(iConfig.pitchCol2S_),
+        pitchColPS_(iConfig.pitchColPS_),
+        limitPSBarrel_(iConfig.limitPSBarrel_),
+        limitsTiltedR_(iConfig.limitsTiltedR_),
+        limitsTiltedZ_(iConfig.limitsTiltedZ_),
+        limitsPSDiksZ_(iConfig.limitsPSDiksZ_),
+        limitsPSDiksR_(iConfig.limitsPSDiksR_),
+        tiltedLayerLimitsZ_(iConfig.tiltedLayerLimitsZ_),
+        psDiskLimitsR_(iConfig.psDiskLimitsR_),
         // Parmeter specifying front-end
-        pSetFE_(iConfig.getParameter<ParameterSet>("FrontEnd")),
-        widthBend_(pSetFE_.getParameter<int>("WidthBend")),
-        widthCol_(pSetFE_.getParameter<int>("WidthCol")),
-        widthRow_(pSetFE_.getParameter<int>("WidthRow")),
-        baseBend_(pSetFE_.getParameter<double>("BaseBend")),
-        baseCol_(pSetFE_.getParameter<double>("BaseCol")),
-        baseRow_(pSetFE_.getParameter<double>("BaseRow")),
-        baseWindowSize_(pSetFE_.getParameter<double>("BaseWindowSize")),
-        bendCut_(pSetFE_.getParameter<double>("BendCut")),
+        widthBend_(iConfig.widthBend_),
+        widthCol_(iConfig.widthCol_),
+        widthRow_(iConfig.widthRow_),
+        baseBend_(iConfig.baseBend_),
+        baseCol_(iConfig.baseCol_),
+        baseRow_(iConfig.baseRow_),
+        baseWindowSize_(iConfig.baseWindowSize_),
+        bendCut_(iConfig.bendCut_),
         // Parmeter specifying DTC
-        pSetDTC_(iConfig.getParameter<ParameterSet>("DTC")),
-        numRegions_(pSetDTC_.getParameter<int>("NumRegions")),
-        numOverlappingRegions_(pSetDTC_.getParameter<int>("NumOverlappingRegions")),
-        numATCASlots_(pSetDTC_.getParameter<int>("NumATCASlots")),
-        numDTCsPerRegion_(pSetDTC_.getParameter<int>("NumDTCsPerRegion")),
-        numModulesPerDTC_(pSetDTC_.getParameter<int>("NumModulesPerDTC")),
-        dtcNumRoutingBlocks_(pSetDTC_.getParameter<int>("NumRoutingBlocks")),
-        dtcDepthMemory_(pSetDTC_.getParameter<int>("DepthMemory")),
-        dtcWidthRowLUT_(pSetDTC_.getParameter<int>("WidthRowLUT")),
-        dtcWidthInv2R_(pSetDTC_.getParameter<int>("WidthInv2R")),
-        offsetDetIdDSV_(pSetDTC_.getParameter<int>("OffsetDetIdDSV")),
-        offsetDetIdTP_(pSetDTC_.getParameter<int>("OffsetDetIdTP")),
-        offsetLayerDisks_(pSetDTC_.getParameter<int>("OffsetLayerDisks")),
-        offsetLayerId_(pSetDTC_.getParameter<int>("OffsetLayerId")),
-        numBarrelLayer_(pSetDTC_.getParameter<int>("NumBarrelLayer")),
-        slotLimitPS_(pSetDTC_.getParameter<int>("SlotLimitPS")),
-        slotLimit10gbps_(pSetDTC_.getParameter<int>("SlotLimit10gbps")),
+        numRegions_(iConfig.numRegions_),
+        numOverlappingRegions_(iConfig.numOverlappingRegions_),
+        numATCASlots_(iConfig.numATCASlots_),
+        numDTCsPerRegion_(iConfig.numDTCsPerRegion_),
+        numModulesPerDTC_(iConfig.numModulesPerDTC_),
+        dtcNumRoutingBlocks_(iConfig.dtcNumRoutingBlocks_),
+        dtcDepthMemory_(iConfig.dtcDepthMemory_),
+        dtcWidthRowLUT_(iConfig.dtcWidthRowLUT_),
+        dtcWidthInv2R_(iConfig.dtcWidthInv2R_),
+        offsetDetIdDSV_(iConfig.offsetDetIdDSV_),
+        offsetDetIdTP_(iConfig.offsetDetIdTP_),
+        offsetLayerDisks_(iConfig.offsetLayerDisks_),
+        offsetLayerId_(iConfig.offsetLayerId_),
+        numBarrelLayer_(iConfig.numBarrelLayer_),
+        numBarrelLayerPS_(iConfig.numBarrelLayerPS_),
+        slotLimitPS_(iConfig.slotLimitPS_),
+        slotLimit10gbps_(iConfig.slotLimit10gbps_),
         // Parmeter specifying TFP
-        pSetTFP_(iConfig.getParameter<ParameterSet>("TFP")),
-        tfpWidthPhi0_(pSetTFP_.getParameter<int>("WidthPhi0")),
-        tfpWidthInv2R_(pSetTFP_.getParameter<int>("WidthInv2R")),
-        tfpWidthCot_(pSetTFP_.getParameter<int>("WidthCot")),
-        tfpWidthZ0_(pSetTFP_.getParameter<int>("WidthZ0")),
-        tfpNumChannel_(pSetTFP_.getParameter<int>("NumChannel")),
+        tfpWidthPhi0_(iConfig.tfpWidthPhi0_),
+        tfpWidthInvR_(iConfig.tfpWidthInvR_),
+        tfpWidthCot_(iConfig.tfpWidthCot_),
+        tfpWidthZ0_(iConfig.tfpWidthZ0_),
+        tfpNumChannel_(iConfig.tfpNumChannel_),
         // Parmeter specifying GeometricProcessor
-        pSetGP_(iConfig.getParameter<ParameterSet>("GeometricProcessor")),
-        numSectorsPhi_(pSetGP_.getParameter<int>("NumSectorsPhi")),
-        chosenRofZ_(pSetGP_.getParameter<double>("ChosenRofZ")),
-        neededRangeChiZ_(pSetGP_.getParameter<double>("RangeChiZ")),
-        gpDepthMemory_(pSetGP_.getParameter<int>("DepthMemory")),
-        boundariesEta_(pSetGP_.getParameter<vector<double>>("BoundariesEta")),
+        gpNumBinsPhiT_(iConfig.gpNumBinsPhiT_),
+        gpNumBinsZT_(iConfig.gpNumBinsZT_),
+        chosenRofZ_(iConfig.chosenRofZ_),
+        gpDepthMemory_(iConfig.gpDepthMemory_),
+        gpWidthModule_(iConfig.gpWidthModule_),
+        gpPosPS_(iConfig.gpPosPS_),
+        gpPosBarrel_(iConfig.gpPosBarrel_),
+        gpPosTilted_(iConfig.gpPosTilted_),
         // Parmeter specifying HoughTransform
-        pSetHT_(iConfig.getParameter<ParameterSet>("HoughTransform")),
-        htNumBinsInv2R_(pSetHT_.getParameter<int>("NumBinsInv2R")),
-        htNumBinsPhiT_(pSetHT_.getParameter<int>("NumBinsPhiT")),
-        htMinLayers_(pSetHT_.getParameter<int>("MinLayers")),
-        htDepthMemory_(pSetHT_.getParameter<int>("DepthMemory")),
-        // Parmeter specifying MiniHoughTransform
-        pSetMHT_(iConfig.getParameter<ParameterSet>("MiniHoughTransform")),
-        mhtNumBinsInv2R_(pSetMHT_.getParameter<int>("NumBinsInv2R")),
-        mhtNumBinsPhiT_(pSetMHT_.getParameter<int>("NumBinsPhiT")),
-        mhtNumDLBs_(pSetMHT_.getParameter<int>("NumDLBs")),
-        mhtNumDLBNodes_(pSetMHT_.getParameter<int>("NumDLBNodes")),
-        mhtNumDLBChannel_(pSetMHT_.getParameter<int>("NumDLBChannel")),
-        mhtMinLayers_(pSetMHT_.getParameter<int>("MinLayers")),
-        // Parmeter specifying ZHoughTransform
-        pSetZHT_(iConfig.getParameter<ParameterSet>("ZHoughTransform")),
-        zhtNumBinsZT_(pSetZHT_.getParameter<int>("NumBinsZT")),
-        zhtNumBinsCot_(pSetZHT_.getParameter<int>("NumBinsCot")),
-        zhtNumStages_(pSetZHT_.getParameter<int>("NumStages")),
-        zhtMinLayers_(pSetZHT_.getParameter<int>("MinLayers")),
-        zhtMaxTracks_(pSetZHT_.getParameter<int>("MaxTracks")),
-        zhtMaxStubsPerLayer_(pSetZHT_.getParameter<int>("MaxStubsPerLayer")),
-        // Parameter specifying KalmanFilter Input Formatter
-        pSetKFin_(iConfig.getParameter<ParameterSet>("KalmanFilterIn")),
-        kfinShiftRangePhi_(pSetKFin_.getParameter<int>("ShiftRangePhi")),
-        kfinShiftRangeZ_(pSetKFin_.getParameter<int>("ShiftRangeZ")),
+        htNumBinsInv2R_(iConfig.htNumBinsInv2R_),
+        htNumBinsPhiT_(iConfig.htNumBinsPhiT_),
+        htMinLayers_(iConfig.htMinLayers_),
+        htDepthMemory_(iConfig.htDepthMemory_),
+        // Parameter specifying Track Builder
+        ctbNumBinsInv2R_(iConfig.ctbNumBinsInv2R_),
+        ctbNumBinsPhiT_(iConfig.ctbNumBinsPhiT_),
+        ctbNumBinsCot_(iConfig.ctbNumBinsCot_),
+        ctbNumBinsZT_(iConfig.ctbNumBinsZT_),
+        ctbMinLayers_(iConfig.ctbMinLayers_),
+        ctbMaxTracks_(iConfig.ctbMaxTracks_),
+        ctbMaxStubs_(iConfig.ctbMaxStubs_),
+        ctbDepthMemory_(iConfig.ctbDepthMemory_),
         // Parmeter specifying KalmanFilter
-        pSetKF_(iConfig.getParameter<ParameterSet>("KalmanFilter")),
-        kfNumWorker_(pSetKF_.getParameter<int>("NumWorker")),
-        kfMinLayers_(pSetKF_.getParameter<int>("MinLayers")),
-        kfMaxLayers_(pSetKF_.getParameter<int>("MaxLayers")),
-        kfRangeFactor_(pSetKF_.getParameter<double>("RangeFactor")),
-        kfShiftInitialC00_(pSetKF_.getParameter<int>("ShiftInitialC00")),
-        kfShiftInitialC11_(pSetKF_.getParameter<int>("ShiftInitialC11")),
-        kfShiftInitialC22_(pSetKF_.getParameter<int>("ShiftInitialC22")),
-        kfShiftInitialC33_(pSetKF_.getParameter<int>("ShiftInitialC33")),
-        // Parmeter specifying KalmanFilter Output Formatter
-        pSetKFOut_(iConfig.getParameter<ParameterSet>("KalmanFilterOut")),
-        kfoutchi2rphiConv_(pSetKFOut_.getParameter<int>("Chi2rphiConv")),
-        kfoutchi2rzConv_(pSetKFOut_.getParameter<int>("Chi2rzConv")),
-        weightBinFraction_(pSetKFOut_.getParameter<int>("WeightBinFraction")),
-        dzTruncation_(pSetKFOut_.getParameter<int>("DzTruncation")),
-        dphiTruncation_(pSetKFOut_.getParameter<int>("DphiTruncation")),
+        kfUse5ParameterFit_(iConfig.kfUse5ParameterFit_),
+        kfUseSimmulation_(iConfig.kfUseSimmulation_),
+        kfUseTTStubResiduals_(iConfig.kfUseTTStubResiduals_),
+        kfUseTTStubParameters_(iConfig.kfUseTTStubParameters_),
+        kfApplyNonLinearCorrection_(iConfig.kfApplyNonLinearCorrection_),
+        kfNumWorker_(iConfig.kfNumWorker_),
+        kfMaxTracks_(iConfig.kfMaxTracks_),
+        kfMinLayers_(iConfig.kfMinLayers_),
+        kfMinLayersPS_(iConfig.kfMinLayersPS_),
+        kfMaxLayers_(iConfig.kfMaxLayers_),
+        kfMaxGaps_(iConfig.kfMaxGaps_),
+        kfMaxSeedingLayer_(iConfig.kfMaxSeedingLayer_),
+        kfNumSeedStubs_(iConfig.kfNumSeedStubs_),
+        kfMinSeedDeltaR_(iConfig.kfMinSeedDeltaR_),
+        kfRangeFactor_(iConfig.kfRangeFactor_),
+        kfShiftInitialC00_(iConfig.kfShiftInitialC00_),
+        kfShiftInitialC11_(iConfig.kfShiftInitialC11_),
+        kfShiftInitialC22_(iConfig.kfShiftInitialC22_),
+        kfShiftInitialC33_(iConfig.kfShiftInitialC33_),
+        kfShiftChi20_(iConfig.kfShiftChi20_),
+        kfShiftChi21_(iConfig.kfShiftChi21_),
+        kfCutChi2_(iConfig.kfCutChi2_),
+        kfWidthChi2_(iConfig.kfWidthChi2_),
         // Parmeter specifying DuplicateRemoval
-        pSetDR_(iConfig.getParameter<ParameterSet>("DuplicateRemoval")),
-        drDepthMemory_(pSetDR_.getParameter<int>("DepthMemory")) {
-    configurationSupported_ = true;
-    // check if bField is supported
-    checkMagneticField();
-    // check if geometry is supported
-    checkGeometry();
-    if (!configurationSupported_)
-      return;
+        drDepthMemory_(iConfig.drDepthMemory_),
+        // Parmeter specifying Track Quality
+        tqNumChannel_(iConfig.tqNumChannel_) {
     // derive constants
     calculateConstants();
     // convert configuration of TTStubAlgorithm
@@ -234,60 +183,6 @@ namespace tt {
     encodeBend(encodingsBend2S_, false);
     // create sensor modules
     produceSensorModules();
-    // configure TPSelector
-    configureTPSelector();
-  }
-
-  // checks current configuration vs input sample configuration
-  void Setup::checkHistory(const ProcessHistory& processHistory) const {
-    const pset::Registry* psetRegistry = pset::Registry::instance();
-    // check used TTStubAlgorithm in input producer
-    checkHistory(processHistory, psetRegistry, phTTStubAlgorithm_, pSetIdTTStubAlgorithm_);
-    // check used GeometryConfiguration in input producer
-    checkHistory(processHistory, psetRegistry, phGeometryConfiguration_, pSetIdGeometryConfiguration_);
-  }
-
-  // checks consitency between history and current configuration for a specific module
-  void Setup::checkHistory(const ProcessHistory& ph,
-                           const pset::Registry* pr,
-                           const string& label,
-                           const ParameterSetID& pSetId) const {
-    vector<pair<string, ParameterSet>> pSets;
-    pSets.reserve(ph.size());
-    for (const ProcessConfiguration& pc : ph) {
-      const ParameterSet* pSet = pr->getMapped(pc.parameterSetID());
-      if (pSet && pSet->exists(label))
-        pSets.emplace_back(pc.processName(), pSet->getParameterSet(label));
-    }
-    if (pSets.empty()) {
-      cms::Exception exception("BadConfiguration");
-      exception << label << " not found in process history.";
-      exception.addContext("tt::Setup::checkHistory");
-      throw exception;
-    }
-    auto consistent = [&pSetId](const pair<string, ParameterSet>& p) { return p.second.id() == pSetId; };
-    if (!all_of(pSets.begin(), pSets.end(), consistent)) {
-      const ParameterSet& pSetProcess = getParameterSet(pSetId);
-      cms::Exception exception("BadConfiguration");
-      exception.addContext("tt::Setup::checkHistory");
-      exception << label << " inconsistent with History." << endl;
-      exception << "Current Configuration:" << endl << pSetProcess.dump() << endl;
-      for (const pair<string, ParameterSet>& p : pSets)
-        if (!consistent(p))
-          exception << "Process " << p.first << " Configuration:" << endl << dumpDiff(p.second, pSetProcess) << endl;
-      throw exception;
-    }
-  }
-
-  // dumps pSetHistory where incosistent lines with pSetProcess are highlighted
-  string Setup::dumpDiff(const ParameterSet& pSetHistory, const ParameterSet& pSetProcess) const {
-    stringstream ssHistory, ssProcess, ss;
-    ssHistory << pSetHistory.dump();
-    ssProcess << pSetProcess.dump();
-    string lineHistory, lineProcess;
-    for (; getline(ssHistory, lineHistory) && getline(ssProcess, lineProcess);)
-      ss << (lineHistory != lineProcess ? "\033[1;31m" : "") << lineHistory << "\033[0m" << endl;
-    return ss.str();
   }
 
   // converts tk layout id into dtc id
@@ -373,72 +268,41 @@ namespace tt {
     return it->second;
   }
 
+  // sensor module for ttStubRef
+  SensorModule* Setup::sensorModule(const TTStubRef& ttStubRef) const {
+    const DetId detId = ttStubRef->getDetId() + offsetDetIdDSV_;
+    return this->sensorModule(detId);
+  }
+
   // index = encoded bend, value = decoded bend for given window size and module type
-  const vector<double>& Setup::encodingBend(int windowSize, bool psModule) const {
-    const vector<vector<double>>& encodingsBend = psModule ? encodingsBendPS_ : encodingsBend2S_;
+  const std::vector<double>& Setup::encodingBend(int windowSize, bool psModule) const {
+    const std::vector<std::vector<double>>& encodingsBend = psModule ? encodingsBendPS_ : encodingsBend2S_;
     return encodingsBend.at(windowSize);
-  }
-
-  // check if bField is supported
-  void Setup::checkMagneticField() {
-    const double bFieldES = magneticField_->inTesla(GlobalPoint(0., 0., 0.)).z();
-    if (abs(bField_ - bFieldES) > bFieldError_) {
-      configurationSupported_ = false;
-      LogWarning("ConfigurationNotSupported")
-          << "Magnetic Field from EventSetup (" << bFieldES << ") differs more then " << bFieldError_
-          << " from supported value (" << bField_ << "). ";
-    }
-  }
-
-  // check if geometry is supported
-  void Setup::checkGeometry() {
-    //FIX ME: Can we assume that geometry used in dd4hep wf supports L1Track?
-    if (!fromDD4hep_) {
-      const vector<string>& geomXMLFiles = pSetGC_->getParameter<vector<string>>(sgXMLLabel_);
-      string version;
-      for (const string& geomXMLFile : geomXMLFiles) {
-        const auto begin = geomXMLFile.find(sgXMLPath_) + sgXMLPath_.size();
-        const auto end = geomXMLFile.find(sgXMLFile_);
-        if (begin != string::npos && end != string::npos)
-          version = geomXMLFile.substr(begin, end - begin - 1);
-      }
-      if (version.empty()) {
-        cms::Exception exception("LogicError");
-        exception << "No " << sgXMLPath_ << "*/" << sgXMLFile_ << " found in GeometryConfiguration";
-        exception.addContext("tt::Setup::checkGeometry");
-        throw exception;
-      }
-      if (find(sgXMLVersions_.begin(), sgXMLVersions_.end(), version) != sgXMLVersions_.end()) {
-        configurationSupported_ = false;
-        LogWarning("ConfigurationNotSupported")
-            << "Geometry Configuration " << sgXMLPath_ << version << "/" << sgXMLFile_ << " is not supported. ";
-      }
-    }
   }
 
   // convert configuration of TTStubAlgorithm
   void Setup::consumeStubAlgorithm() {
-    numTiltedLayerRings_ = pSetSA_->getParameter<vector<double>>("NTiltedRings");
-    windowSizeBarrelLayers_ = pSetSA_->getParameter<vector<double>>("BarrelCut");
-    const auto& pSetsTiltedLayer = pSetSA_->getParameter<vector<ParameterSet>>("TiltedBarrelCutSet");
-    const auto& pSetsEncapDisks = pSetSA_->getParameter<vector<ParameterSet>>("EndcapCutSet");
+    numTiltedLayerRings_ = pSetSA_->getParameter<std::vector<double>>("NTiltedRings");
+    windowSizeBarrelLayers_ = pSetSA_->getParameter<std::vector<double>>("BarrelCut");
+    const auto& pSetsTiltedLayer = pSetSA_->getParameter<std::vector<edm::ParameterSet>>("TiltedBarrelCutSet");
+    const auto& pSetsEncapDisks = pSetSA_->getParameter<std::vector<edm::ParameterSet>>("EndcapCutSet");
     windowSizeTiltedLayerRings_.reserve(pSetsTiltedLayer.size());
     for (const auto& pSet : pSetsTiltedLayer)
-      windowSizeTiltedLayerRings_.emplace_back(pSet.getParameter<vector<double>>("TiltedCut"));
+      windowSizeTiltedLayerRings_.emplace_back(pSet.getParameter<std::vector<double>>("TiltedCut"));
     windowSizeEndcapDisksRings_.reserve(pSetsEncapDisks.size());
     for (const auto& pSet : pSetsEncapDisks)
-      windowSizeEndcapDisksRings_.emplace_back(pSet.getParameter<vector<double>>("EndcapCut"));
+      windowSizeEndcapDisksRings_.emplace_back(pSet.getParameter<std::vector<double>>("EndcapCut"));
     maxWindowSize_ = -1;
     for (const auto& windowss : {windowSizeTiltedLayerRings_, windowSizeEndcapDisksRings_, {windowSizeBarrelLayers_}})
       for (const auto& windows : windowss)
         for (const auto& window : windows)
-          maxWindowSize_ = max(maxWindowSize_, (int)(window / baseWindowSize_));
+          maxWindowSize_ = std::max(maxWindowSize_, static_cast<int>(window / baseWindowSize_));
   }
 
   // create bend encodings
-  void Setup::encodeBend(vector<vector<double>>& encodings, bool ps) const {
+  void Setup::encodeBend(std::vector<std::vector<double>>& encodings, bool ps) const {
     for (int window = 0; window < maxWindowSize_ + 1; window++) {
-      set<double> encoding;
+      std::set<double> encoding;
       for (int bend = 0; bend < window + 1; bend++)
         encoding.insert(stubAlgorithm_->degradeBend(ps, window, bend));
       encodings.emplace_back(encoding.begin(), encoding.end());
@@ -448,8 +312,8 @@ namespace tt {
   // create sensor modules
   void Setup::produceSensorModules() {
     sensorModules_.reserve(numModules_);
-    dtcModules_ = vector<vector<SensorModule*>>(numDTCs_);
-    for (vector<SensorModule*>& dtcModules : dtcModules_)
+    dtcModules_ = std::vector<std::vector<SensorModule*>>(numDTCs_);
+    for (std::vector<SensorModule*>& dtcModules : dtcModules_)
       dtcModules.reserve(numModulesPerDTC_);
     enum SubDetId { pixelBarrel = 1, pixelDisks = 2 };
     // loop over all tracker modules
@@ -467,7 +331,7 @@ namespace tt {
       // track trigger dtc id [0-215]
       const int dtcId = Setup::dtcId(tklId);
       // collection of so far connected modules to this dtc
-      vector<SensorModule*>& dtcModules = dtcModules_[dtcId];
+      std::vector<SensorModule*>& dtcModules = dtcModules_[dtcId];
       // construct sendor module
       sensorModules_.emplace_back(this, detId, dtcId, dtcModules.size());
       SensorModule* sensorModule = &sensorModules_.back();
@@ -476,7 +340,7 @@ namespace tt {
       // store connection between dtcId and sensor module
       dtcModules.push_back(sensorModule);
     }
-    for (vector<SensorModule*>& dtcModules : dtcModules_) {
+    for (std::vector<SensorModule*>& dtcModules : dtcModules_) {
       dtcModules.shrink_to_fit();
       // check configuration
       if ((int)dtcModules.size() > numModulesPerDTC_) {
@@ -488,25 +352,6 @@ namespace tt {
     }
   }
 
-  // configure TPSelector
-  void Setup::configureTPSelector() {
-    // configure TrackingParticleSelector
-    const double ptMin = tpMinPt_;
-    constexpr double ptMax = 9.e9;
-    const double etaMax = tpMaxEta_;
-    const double tip = tpMaxVertR_;
-    const double lip = tpMaxVertZ_;
-    constexpr int minHit = 0;
-    constexpr bool signalOnly = true;
-    constexpr bool intimeOnly = true;
-    constexpr bool chargedOnly = true;
-    constexpr bool stableOnly = false;
-    tpSelector_ = TrackingParticleSelector(
-        ptMin, ptMax, -etaMax, etaMax, tip, lip, minHit, signalOnly, intimeOnly, chargedOnly, stableOnly);
-    tpSelectorLoose_ =
-        TrackingParticleSelector(ptMin, ptMax, -etaMax, etaMax, tip, lip, minHit, false, false, false, stableOnly);
-  }
-
   // stub layer id (barrel: 1 - 6, endcap: 11 - 15)
   int Setup::layerId(const TTStubRef& ttStubRef) const {
     const DetId& detId = ttStubRef->getDetId();
@@ -516,12 +361,16 @@ namespace tt {
 
   // return tracklet layerId (barrel: [0-5], endcap: [6-10]) for given TTStubRef
   int Setup::trackletLayerId(const TTStubRef& ttStubRef) const {
-    return this->layerId(ttStubRef) - (this->barrel(ttStubRef) ? offsetLayerId_ : numBarrelLayer_ - offsetLayerId_);
+    static constexpr int offsetBarrel = 1;
+    static constexpr int offsetDisks = 5;
+    return this->layerId(ttStubRef) - (this->barrel(ttStubRef) ? offsetBarrel : offsetDisks);
   }
 
   // return index layerId (barrel: [0-5], endcap: [0-6]) for given TTStubRef
   int Setup::indexLayerId(const TTStubRef& ttStubRef) const {
-    return this->layerId(ttStubRef) - (this->barrel(ttStubRef) ? offsetLayerId_ : offsetLayerId_ + offsetLayerDisks_);
+    static constexpr int offsetBarrel = 1;
+    static constexpr int offsetDisks = 11;
+    return this->layerId(ttStubRef) - (this->barrel(ttStubRef) ? offsetBarrel : offsetDisks);
   }
 
   // true if stub from barrel module
@@ -533,46 +382,47 @@ namespace tt {
   // true if stub from barrel module
   bool Setup::psModule(const TTStubRef& ttStubRef) const {
     const DetId& detId = ttStubRef->getDetId();
-    return trackerGeometry_->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP;
+    SensorModule* sm = sensorModule(detId + 1);
+    return sm->psModule();
   }
 
   //
-  TTBV Setup::layerMap(const vector<int>& ints) const {
+  TTBV Setup::layerMap(const std::vector<int>& ints) const {
     TTBV ttBV;
     for (int layer = numLayers_ - 1; layer >= 0; layer--) {
       const int i = ints[layer];
-      ttBV += TTBV(i, kfWidthLayerCount_);
+      ttBV += TTBV(i, ctbWidthLayerCount_);
     }
     return ttBV;
   }
 
   //
-  TTBV Setup::layerMap(const TTBV& hitPattern, const vector<int>& ints) const {
+  TTBV Setup::layerMap(const TTBV& hitPattern, const std::vector<int>& ints) const {
     TTBV ttBV;
     for (int layer = numLayers_ - 1; layer >= 0; layer--) {
       const int i = ints[layer];
-      ttBV += TTBV((hitPattern[layer] ? i - 1 : 0), kfWidthLayerCount_);
+      ttBV += TTBV((hitPattern[layer] ? i - 1 : 0), ctbWidthLayerCount_);
     }
     return ttBV;
   }
 
   //
-  vector<int> Setup::layerMap(const TTBV& hitPattern, const TTBV& ttBV) const {
+  std::vector<int> Setup::layerMap(const TTBV& hitPattern, const TTBV& ttBV) const {
     TTBV bv(ttBV);
-    vector<int> ints(numLayers_, 0);
+    std::vector<int> ints(numLayers_, 0);
     for (int layer = 0; layer < numLayers_; layer++) {
-      const int i = bv.extract(kfWidthLayerCount_);
+      const int i = bv.extract(ctbWidthLayerCount_);
       ints[layer] = i + (hitPattern[layer] ? 1 : 0);
     }
     return ints;
   }
 
   //
-  vector<int> Setup::layerMap(const TTBV& ttBV) const {
+  std::vector<int> Setup::layerMap(const TTBV& ttBV) const {
     TTBV bv(ttBV);
-    vector<int> ints(numLayers_, 0);
+    std::vector<int> ints(numLayers_, 0);
     for (int layer = 0; layer < numLayers_; layer++)
-      ints[layer] = bv.extract(kfWidthLayerCount_);
+      ints[layer] = bv.extract(ctbWidthLayerCount_);
     return ints;
   }
 
@@ -580,36 +430,14 @@ namespace tt {
   double Setup::dPhi(const TTStubRef& ttStubRef, double inv2R) const {
     const DetId& detId = ttStubRef->getDetId();
     SensorModule* sm = sensorModule(detId + 1);
-    const double r = stubPos(ttStubRef).perp();
-    const double sigma = sm->pitchRow() / r;
-    const double scat = scattering_ * abs(inv2R);
-    const double extra = sm->barrel() ? 0. : sm->pitchCol() * abs(inv2R);
-    const double digi = tmttBasePhi_;
-    const double dPhi = sigma + scat + extra + digi;
-    if (dPhi >= maxdPhi_ || dPhi < mindPhi_) {
-      cms::Exception exception("out_of_range");
-      exception.addContext("tt::Setup::dPhi");
-      exception << "Stub phi uncertainty " << dPhi << " "
-                << "is out of range " << mindPhi_ << " to " << maxdPhi_ << ".";
-      throw exception;
-    }
-    return dPhi;
+    return sm->dPhi(inv2R);
   }
 
   // stub projected z uncertainty
-  double Setup::dZ(const TTStubRef& ttStubRef, double cot) const {
+  double Setup::dZ(const TTStubRef& ttStubRef) const {
     const DetId& detId = ttStubRef->getDetId();
     SensorModule* sm = sensorModule(detId + 1);
-    const double sigma = sm->pitchCol() * sm->tiltCorrection(cot);
-    const double digi = tmttBaseZ_;
-    const double dZ = sigma + digi;
-    if (dZ >= maxdZ_ || dZ < mindZ_) {
-      cms::Exception exception("out_of_range");
-      exception.addContext("tt::Setup::dZ");
-      exception << "Stub z uncertainty " << dZ << " "
-                << "is out of range " << mindZ_ << " to " << maxdZ_ << ".";
-      throw exception;
-    }
+    const double dZ = sm->dZ();
     return dZ;
   }
 
@@ -618,10 +446,10 @@ namespace tt {
     const DetId& detId = ttStubRef->getDetId();
     SensorModule* sm = sensorModule(detId + 1);
     const double r = stubPos(ttStubRef).perp();
-    const double sigma = pow(sm->pitchRow() / r, 2) / 12.;
-    const double scat = pow(scattering_ * inv2R, 2);
-    const double extra = sm->barrel() ? 0. : pow(sm->pitchCol() * inv2R, 2);
-    const double digi = pow(tmttBasePhi_ / 12., 2);
+    const double sigma = std::pow(sm->pitchRow() / r, 2) / 12.;
+    const double scat = std::pow(scattering_ * inv2R, 2);
+    const double extra = sm->barrel() ? 0. : std::pow(sm->pitchCol() * inv2R, 2);
+    const double digi = std::pow(tmttBasePhi_ / 12., 2);
     return sigma + scat + extra + digi;
   }
 
@@ -629,38 +457,81 @@ namespace tt {
   double Setup::v1(const TTStubRef& ttStubRef, double cot) const {
     const DetId& detId = ttStubRef->getDetId();
     SensorModule* sm = sensorModule(detId + 1);
-    const double sigma = pow(sm->pitchCol() * sm->tiltCorrection(cot), 2) / 12.;
-    const double digi = pow(tmttBaseZ_ / 12., 2);
+    const double sigma = std::pow(sm->pitchCol() * sm->tiltCorrection(cot), 2) / 12.;
+    const double digi = std::pow(tmttBaseZ_ / 12., 2);
     return sigma + digi;
   }
 
   // checks if stub collection is considered forming a reconstructable track
-  bool Setup::reconstructable(const vector<TTStubRef>& ttStubRefs) const {
-    set<int> hitPattern;
+  bool Setup::reconstructable(const std::vector<TTStubRef>& ttStubRefs) const {
+    std::set<int> hitPattern;
     for (const TTStubRef& ttStubRef : ttStubRefs)
       hitPattern.insert(layerId(ttStubRef));
-    return (int)hitPattern.size() >= tpMinLayers_;
+    return (int)hitPattern.size() >= minLayers_;
   }
 
-  // checks if tracking particle is selected for efficiency measurements
-  bool Setup::useForAlgEff(const TrackingParticle& tp) const {
-    const bool selected = tpSelector_(tp);
-    const double cot = sinh(tp.eta());
-    const double s = sin(tp.phi());
-    const double c = cos(tp.phi());
-    const TrackingParticle::Point& v = tp.vertex();
-    const double z0 = v.z() - (v.x() * c + v.y() * s) * cot;
-    const double d0 = v.x() * s - v.y() * c;
-    return selected && (abs(d0) < tpMaxD0_) && (abs(z0) < tpMaxVertZ_);
+  //
+  TTBV Setup::module(double r, double z) const {
+    static constexpr int layer1 = 0;
+    static constexpr int layer2 = 1;
+    static constexpr int layer3 = 2;
+    static constexpr int disk1 = 0;
+    static constexpr int disk2 = 1;
+    static constexpr int disk3 = 2;
+    static constexpr int disk4 = 3;
+    static constexpr int disk5 = 4;
+    bool ps(false);
+    bool barrel(false);
+    bool tilted(false);
+    if (std::abs(z) < limitPSBarrel_) {
+      barrel = true;
+      if (r < limitsTiltedR_[layer3])
+        ps = true;
+      if (r < limitsTiltedR_[layer1])
+        tilted = std::abs(z) > limitsTiltedZ_[layer1];
+      else if (r < limitsTiltedR_[layer2])
+        tilted = std::abs(z) > limitsTiltedZ_[layer2];
+      else if (r < limitsTiltedR_[layer3])
+        tilted = std::abs(z) > limitsTiltedZ_[layer3];
+    } else if (std::abs(z) > limitsPSDiksZ_[disk5])
+      ps = r < limitsPSDiksR_[disk5];
+    else if (std::abs(z) > limitsPSDiksZ_[disk4])
+      ps = r < limitsPSDiksR_[disk4];
+    else if (std::abs(z) > limitsPSDiksZ_[disk3])
+      ps = r < limitsPSDiksR_[disk3];
+    else if (std::abs(z) > limitsPSDiksZ_[disk2])
+      ps = r < limitsPSDiksR_[disk2];
+    else if (std::abs(z) > limitsPSDiksZ_[disk1])
+      ps = r < limitsPSDiksR_[disk1];
+    TTBV module(0, gpWidthModule_);
+    if (ps)
+      module.set(gpPosPS_);
+    if (barrel)
+      module.set(gpPosBarrel_);
+    if (tilted)
+      module.set(gpPosTilted_);
+    return module;
+  }
+
+  // stub projected phi uncertainty for given module type, stub radius and track curvature
+  double Setup::dPhi(const TTBV& module, double r, double inv2R) const {
+    const double sigma = (ps(module) ? pitchRowPS_ : pitchRow2S_) / r;
+    const double dR = scattering_ + (barrel(module) ? (tilted(module) ? tiltUncertaintyR_ : 0.0)
+                                                    : (ps(module) ? pitchColPS_ : pitchCol2S_));
+    const double dPhi = sigma + dR * abs(inv2R) + tmttBasePhi_;
+    return dPhi;
   }
 
   // derive constants
   void Setup::calculateConstants() {
     // emp
-    const int numFramesPerBX = freqBE_ / freqLHC_;
-    numFrames_ = numFramesPerBX * tmpTFP_ - 1;
-    numFramesIO_ = numFramesPerBX * tmpTFP_ - numFramesInfra_;
-    numFramesFE_ = numFramesPerBX * tmpFE_ - numFramesInfra_;
+    const int numFramesPerBXHigh = freqBEHigh_ / freqLHC_;
+    numFramesHigh_ = numFramesPerBXHigh * tmpTFP_ - 1;
+    numFramesIOHigh_ = numFramesPerBXHigh * tmpTFP_ - numFramesInfra_;
+    const int numFramesPerBXLow = freqBELow_ / freqLHC_;
+    numFramesLow_ = numFramesPerBXLow * tmpTFP_ - 1;
+    numFramesIOLow_ = numFramesPerBXLow * tmpTFP_ - numFramesInfra_;
+    numFramesFE_ = numFramesPerBXHigh * tmpFE_ - numFramesInfra_;
     // dsp
     widthDSPab_ = widthDSPa_ - 1;
     widthDSPau_ = widthDSPab_ - 1;
@@ -669,89 +540,87 @@ namespace tt {
     widthDSPcb_ = widthDSPc_ - 1;
     widthDSPcu_ = widthDSPcb_ - 1;
     // firmware
-    maxPitch_ = max(pitchPS_, pitch2S_);
-    maxLength_ = max(lengthPS_, length2S_);
+    maxPitchRow_ = std::max(pitchRowPS_, pitchRow2S_);
+    maxPitchCol_ = std::max(pitchColPS_, pitchCol2S_);
     // common track finding
     invPtToDphi_ = speedOfLight_ * bField_ / 2000.;
     baseRegion_ = 2. * M_PI / numRegions_;
+    maxCot_ = beamWindowZ_ / chosenRofZ_ + std::sinh(maxEta_);
     // gp
-    baseSector_ = baseRegion_ / numSectorsPhi_;
-    maxCot_ = sinh(maxEta_);
-    maxZT_ = maxCot_ * chosenRofZ_;
-    numSectorsEta_ = boundariesEta_.size() - 1;
-    numSectors_ = numSectorsPhi_ * numSectorsEta_;
-    sectorCots_.reserve(numSectorsEta_);
-    for (int eta = 0; eta < numSectorsEta_; eta++)
-      sectorCots_.emplace_back((sinh(boundariesEta_.at(eta)) + sinh(boundariesEta_.at(eta + 1))) / 2.);
+    baseSector_ = baseRegion_ / gpNumBinsPhiT_;
+    maxRphi_ = std::max(std::abs(outerRadius_ - chosenRofPhi_), std::abs(innerRadius_ - chosenRofPhi_));
+    maxRz_ = std::max(std::abs(outerRadius_ - chosenRofZ_), std::abs(innerRadius_ - chosenRofZ_));
+    numSectors_ = gpNumBinsPhiT_ * gpNumBinsZT_;
     // tmtt
     const double rangeInv2R = 2. * invPtToDphi_ / minPt_;
     tmttBaseInv2R_ = rangeInv2R / htNumBinsInv2R_;
     tmttBasePhiT_ = baseSector_ / htNumBinsPhiT_;
     const double baseRgen = tmttBasePhiT_ / tmttBaseInv2R_;
-    const double rangeR = 2. * max(abs(outerRadius_ - chosenRofPhi_), abs(innerRadius_ - chosenRofPhi_));
-    const int baseShiftR = ceil(log2(rangeR / baseRgen / pow(2., tmttWidthR_)));
-    tmttBaseR_ = baseRgen * pow(2., baseShiftR);
+    const double rangeR = 2. * maxRphi_;
+    const int baseShiftR = std::ceil(std::log2(rangeR / baseRgen / std::pow(2., tmttWidthR_)));
+    tmttBaseR_ = baseRgen * std::pow(2., baseShiftR);
     const double rangeZ = 2. * halfLength_;
-    const int baseShiftZ = ceil(log2(rangeZ / tmttBaseR_ / pow(2., tmttWidthZ_)));
-    tmttBaseZ_ = tmttBaseR_ * pow(2., baseShiftZ);
+    const int baseShiftZ = std::ceil(std::log2(rangeZ / tmttBaseR_ / std::pow(2., tmttWidthZ_)));
+    tmttBaseZ_ = tmttBaseR_ * std::pow(2., baseShiftZ);
     const double rangePhi = baseRegion_ + rangeInv2R * rangeR / 2.;
-    const int baseShiftPhi = ceil(log2(rangePhi / tmttBasePhiT_ / pow(2., tmttWidthPhi_)));
-    tmttBasePhi_ = tmttBasePhiT_ * pow(2., baseShiftPhi);
-    tmttWidthLayer_ = ceil(log2(numLayers_));
-    tmttWidthSectorEta_ = ceil(log2(numSectorsEta_));
-    tmttWidthInv2R_ = ceil(log2(htNumBinsInv2R_));
+    const int baseShiftPhi = std::ceil(std::log2(rangePhi / tmttBasePhiT_ / std::pow(2., tmttWidthPhi_)));
+    tmttBasePhi_ = tmttBasePhiT_ * std::pow(2., baseShiftPhi);
+    tmttWidthLayer_ = std::ceil(std::log2(numLayers_));
+    tmttWidthSectorEta_ = std::ceil(std::log2(gpNumBinsZT_));
+    tmttWidthInv2R_ = std::ceil(std::log2(htNumBinsInv2R_));
     tmttNumUnusedBits_ = TTBV::S_ - tmttWidthLayer_ - 2 * tmttWidthSectorEta_ - tmttWidthR_ - tmttWidthPhi_ -
-                         tmttWidthZ_ - 2 * tmttWidthInv2R_ - numSectorsPhi_ - 1;
+                         tmttWidthZ_ - 2 * tmttWidthInv2R_ - gpNumBinsPhiT_ - 1;
     // hybrid
-    const double hybridRangeInv2R = 2. * invPtToDphi_ / hybridMinPtStub_;
+    const double hybridRangeInv2R = 2. * invPtToDphi_ / minPt_;
     const double hybridRangeR =
-        2. * max(abs(outerRadius_ - hybridChosenRofPhi_), abs(innerRadius_ - hybridChosenRofPhi_));
+        2. * std::max(std::abs(outerRadius_ - chosenRofPhi_), std::abs(innerRadius_ - chosenRofPhi_));
     hybridRangePhi_ = baseRegion_ + (hybridRangeR * hybridRangeInv2R) / 2.;
-    hybridWidthLayerId_ = ceil(log2(hybridNumLayers_));
+    hybridWidthLayerId_ = std::ceil(std::log2(hybridNumLayers_));
     hybridBasesZ_.reserve(SensorModule::NumTypes);
     for (int type = 0; type < SensorModule::NumTypes; type++)
-      hybridBasesZ_.emplace_back(hybridRangesZ_.at(type) / pow(2., hybridWidthsZ_.at(type)));
+      hybridBasesZ_.emplace_back(hybridRangesZ_.at(type) / std::pow(2., hybridWidthsZ_.at(type)));
     hybridBasesR_.reserve(SensorModule::NumTypes);
     for (int type = 0; type < SensorModule::NumTypes; type++)
-      hybridBasesR_.emplace_back(hybridRangesR_.at(type) / pow(2., hybridWidthsR_.at(type)));
+      hybridBasesR_.emplace_back(hybridRangesR_.at(type) / std::pow(2., hybridWidthsR_.at(type)));
     hybridBasesR_[SensorModule::Disk2S] = 1.;
     hybridBasesPhi_.reserve(SensorModule::NumTypes);
     for (int type = 0; type < SensorModule::NumTypes; type++)
-      hybridBasesPhi_.emplace_back(hybridRangePhi_ / pow(2., hybridWidthsPhi_.at(type)));
+      hybridBasesPhi_.emplace_back(hybridRangePhi_ / std::pow(2., hybridWidthsPhi_.at(type)));
     hybridBasesAlpha_.reserve(SensorModule::NumTypes);
     for (int type = 0; type < SensorModule::NumTypes; type++)
-      hybridBasesAlpha_.emplace_back(hybridRangesAlpha_.at(type) / pow(2., hybridWidthsAlpha_.at(type)));
+      hybridBasesAlpha_.emplace_back(hybridRangesAlpha_.at(type) / std::pow(2., hybridWidthsAlpha_.at(type)));
     hybridNumsUnusedBits_.reserve(SensorModule::NumTypes);
     for (int type = 0; type < SensorModule::NumTypes; type++)
       hybridNumsUnusedBits_.emplace_back(TTBV::S_ - hybridWidthsR_.at(type) - hybridWidthsZ_.at(type) -
                                          hybridWidthsPhi_.at(type) - hybridWidthsAlpha_.at(type) -
                                          hybridWidthsBend_.at(type) - hybridWidthLayerId_ - 1);
-    hybridMaxCot_ = sinh(hybridMaxEta_);
+    hybridBaseR_ = *std::min_element(hybridBasesR_.begin(), hybridBasesR_.end());
+    hybridBasePhi_ = *std::min_element(hybridBasesPhi_.begin(), hybridBasesPhi_.end());
+    hybridBaseZ_ = *std::min_element(hybridBasesZ_.begin(), hybridBasesZ_.end());
+    hybridMaxCot_ = std::sinh(maxEta_);
     disk2SRs_.reserve(hybridDisk2SRsSet_.size());
     for (const auto& pSet : hybridDisk2SRsSet_)
-      disk2SRs_.emplace_back(pSet.getParameter<vector<double>>("Disk2SRs"));
+      disk2SRs_.emplace_back(pSet.getParameter<std::vector<double>>("Disk2SRs"));
     // dtc
     numDTCs_ = numRegions_ * numDTCsPerRegion_;
     numDTCsPerTFP_ = numDTCsPerRegion_ * numOverlappingRegions_;
     numModules_ = numDTCs_ * numModulesPerDTC_;
     dtcNumModulesPerRoutingBlock_ = numModulesPerDTC_ / dtcNumRoutingBlocks_;
-    dtcNumMergedRows_ = pow(2, widthRow_ - dtcWidthRowLUT_);
-    const double maxRangeInv2R = max(rangeInv2R, hybridRangeInv2R);
-    const int baseShiftInv2R = ceil(log2(htNumBinsInv2R_)) - dtcWidthInv2R_ + ceil(log2(maxRangeInv2R / rangeInv2R));
-    dtcBaseInv2R_ = tmttBaseInv2R_ * pow(2., baseShiftInv2R);
+    dtcNumMergedRows_ = std::pow(2, widthRow_ - dtcWidthRowLUT_);
+    const double maxRangeInv2R = std::max(rangeInv2R, hybridRangeInv2R);
+    const int baseShiftInv2R =
+        std::ceil(std::log2(htNumBinsInv2R_)) - dtcWidthInv2R_ + std::ceil(std::log2(maxRangeInv2R / rangeInv2R));
+    dtcBaseInv2R_ = tmttBaseInv2R_ * std::pow(2., baseShiftInv2R);
     const int baseDiffM = dtcWidthRowLUT_ - widthRow_;
-    dtcBaseM_ = tmttBasePhi_ * pow(2., baseDiffM);
-    const double x1 = pow(2, widthRow_) * baseRow_ * maxPitch_ / 2.;
-    const double x0 = x1 - pow(2, dtcWidthRowLUT_) * baseRow_ * maxPitch_;
-    const double maxM = atan2(x1, innerRadius_) - atan2(x0, innerRadius_);
-    dtcWidthM_ = ceil(log2(maxM / dtcBaseM_));
+    dtcBaseM_ = tmttBasePhi_ * std::pow(2., baseDiffM);
+    const double x1 = std::pow(2, widthRow_) * baseRow_ * maxPitchRow_ / 2.;
+    const double x0 = x1 - std::pow(2, dtcWidthRowLUT_) * baseRow_ * maxPitchRow_;
+    const double maxM = std::atan2(x1, innerRadius_) - std::atan2(x0, innerRadius_);
+    dtcWidthM_ = std::ceil(std::log2(maxM / dtcBaseM_));
     dtcNumStreams_ = numDTCs_ * numOverlappingRegions_;
-    // mht
-    mhtNumCells_ = mhtNumBinsInv2R_ * mhtNumBinsPhiT_;
-    // zht
-    zhtNumCells_ = zhtNumBinsCot_ * zhtNumBinsZT_;
-    //
-    kfWidthLayerCount_ = ceil(log2(zhtMaxStubsPerLayer_));
+    // ctb
+    ctbWidthLayerCount_ = std::ceil(std::log2(ctbMaxStubs_));
+    // kf
   }
 
   // returns bit accurate hybrid stub radius for given TTStubRef and h/w bit word
@@ -769,12 +638,12 @@ namespace tt {
   }
 
   // returns bit accurate position of a stub from a given tfp region [0-8]
-  GlobalPoint Setup::stubPos(bool hybrid, const FrameStub& frame, int region) const {
+  GlobalPoint Setup::stubPos(const FrameStub& frame, int region) const {
     GlobalPoint p;
     if (frame.first.isNull())
       return p;
     TTBV bv(frame.second);
-    if (hybrid) {
+    if (useHybrid_) {
       const bool barrel = this->barrel(frame.first);
       const int layerId = this->indexLayerId(frame.first);
       const GlobalPoint gp = this->stubPos(frame.first);
@@ -806,7 +675,7 @@ namespace tt {
       }
       p = GlobalPoint(GlobalPoint::Cylindrical(r, phi, z));
     } else {
-      bv >>= 2 * tmttWidthInv2R_ + 2 * tmttWidthSectorEta_ + numSectorsPhi_ + tmttWidthLayer_;
+      bv >>= 2 * tmttWidthInv2R_ + 2 * tmttWidthSectorEta_ + gpNumBinsPhiT_ + tmttWidthLayer_;
       double z = (bv.val(tmttWidthZ_, 0, true) + .5) * tmttBaseZ_;
       bv >>= tmttWidthZ_;
       double phi = (bv.val(tmttWidthPhi_, 0, true) + .5) * tmttBasePhi_;

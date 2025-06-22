@@ -29,7 +29,7 @@ HGCalNumberingScheme::HGCalNumberingScheme(const HGCalDDDConstants& hgc,
                              << HGCalGeometryMode::Hexagon8File << ":" << HGCalGeometryMode::Hexagon8Module << ":"
                              << ":" << HGCalGeometryMode::Hexagon8Cassette << ":" << HGCalGeometryMode::Trapezoid << ":"
                              << HGCalGeometryMode::TrapezoidFile << ":" << HGCalGeometryMode::TrapezoidModule << ":"
-                             << HGCalGeometryMode::TrapezoidCassette;
+                             << HGCalGeometryMode::TrapezoidCassette << ":" << HGCalGeometryMode::TrapezoidFineCell;
 #endif
   firstLayer_ = hgcons_.getLayerOffset();
   if (!fileName.empty()) {
@@ -157,6 +157,10 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
     }
   } else if (hgcons_.tileTrapezoid()) {
     std::array<int, 3> id = hgcons_.assignCellTrap(pos.x(), pos.y(), pos.z(), layer, false);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCSim") << "Trapezoid Position Layer " << layer << " Position " << pos.x() << ":" << pos.y()
+                               << ":" << pos.z() << " ID " << id[0] << ":" << id[1] << ":" << id[2];
+#endif
     if (id[2] >= 0) {
       std::pair<int, int> typm = hgcons_.tileType(layer, id[0], 0);
       HGCScintillatorDetId detId(id[2], layer, iz * id[0], id[1], false, 0);
@@ -174,7 +178,7 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
       if (debug)
         edm::LogVerbatim("HGCSim") << "Radius/Phi " << id[0] << ":" << id[1] << " Type " << id[2] << ":" << typm.first
                                    << " SiPM " << typm.second << ":" << hgcons_.tileSiPM(typm.second) << " Layer "
-                                   << layer << " z " << iz << " " << detId << " wt " << wt << " position " << pos
+                                   << layer << " z " << iz << " ID " << detId << " wt " << wt << " position " << pos
                                    << " R " << pos.perp();
 #ifdef EDM_ML_DEBUG
     } else {

@@ -22,6 +22,7 @@
 #include "CondCore/ESSources/interface/ProductResolver.h"
 
 #include "CondCore/CondDB/interface/PayloadProxy.h"
+#include "FWCore/Framework/interface/ESModuleProducesInfo.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -127,6 +128,8 @@ CondDBESSource::CondDBESSource(const edm::ParameterSet& iConfig)
       m_connectionString(iConfig.getParameter<std::string>("connect")),
       m_globalTag(iConfig.getParameter<std::string>("globaltag")),
       m_frontierKey(iConfig.getUntrackedParameter<std::string>("frontierKey", "")),
+      m_recordsToDebug(
+          iConfig.getUntrackedParameter<std::vector<std::string>>("recordsToDebug", std::vector<std::string>())),
       m_lastRun(0),   // for the stat
       m_lastLumi(0),  // for the stat
       m_policy(NOREFRESH),
@@ -254,11 +257,20 @@ CondDBESSource::CondDBESSource(const edm::ParameterSet& iConfig)
    */
   std::vector<std::unique_ptr<cond::ProductResolverWrapperBase>> resolverWrappers(m_tagCollection.size());
   size_t ipb = 0;
+
   for (it = itBeg; it != itEnd; ++it) {
     size_t ind = ipb++;
     resolverWrappers[ind] = std::unique_ptr<cond::ProductResolverWrapperBase>{
         cond::ProductResolverFactory::get()->tryToCreate(buildName(it->second.recordName()))};
-    if (!resolverWrappers[ind].get()) {
+
+    if (resolverWrappers[ind].get()) {
+      // Enable debug if the record name is in m_recordsToDebug or if "*" is present, meaning debug for all records.
+      bool printDebug = std::find(m_recordsToDebug.begin(), m_recordsToDebug.end(), "*") != m_recordsToDebug.end() ||
+                        std::find(m_recordsToDebug.begin(), m_recordsToDebug.end(), it->second.recordName()) !=
+                            m_recordsToDebug.end();
+
+      resolverWrappers[ind]->setPrintDebug(printDebug);
+    } else {
       edm::LogWarning("CondDBESSource") << "Plugin for Record " << it->second.recordName() << " has not been found.";
     }
   }
@@ -637,6 +649,23 @@ edm::eventsetup::ESProductResolverProvider::KeyedResolversVector CondDBESSource:
   return keyedResolversVector;
 }
 
+std::vector<edm::eventsetup::ESModuleProducesInfo> CondDBESSource::producesInfo() const {
+  std::vector<edm::eventsetup::ESModuleProducesInfo> returnValue;
+  returnValue.reserve(m_resolvers.size());
+
+  for (auto const& recToResolver : m_resolvers) {
+    unsigned int index = returnValue.size();
+
+    EventSetupRecordKey rec{edm::eventsetup::TypeTag::findType(recToResolver.first)};
+
+    edm::eventsetup::TypeTag type = recToResolver.second->type();
+    DataKey key(type, edm::eventsetup::IdTags(recToResolver.second->label().c_str()));
+    returnValue.emplace_back(rec, key, index);
+  }
+
+  return returnValue;
+}
+
 void CondDBESSource::initConcurrentIOVs(const EventSetupRecordKey& key, unsigned int nConcurrentIOVs) {
   std::string recordname = key.name();
   ResolverMap::const_iterator b = m_resolvers.lower_bound(recordname);
@@ -774,6 +803,7 @@ void CondDBESSource::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.addUntracked<bool>("RefreshOpenIOVs", false);
   desc.addUntracked<std::string>("pfnPostfix", "");
   desc.addUntracked<std::string>("pfnPrefix", "");
+  desc.addUntracked<std::vector<std::string>>("recordsToDebug", {});
 
   descriptions.add("default_CondDBESource", desc);
 }

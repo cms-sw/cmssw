@@ -185,11 +185,7 @@ RecoTrackSetDefinition::RecoTrackSetDefinition(TString set_name_,
                                                std::function<const std::vector<float>()> eta_,
                                                std::function<const std::vector<float>()> phi_,
                                                std::function<const std::vector<int>()> type_)
-    : pt(pt_), eta(eta_), phi(phi_), type(type_) {
-  set_name = set_name_;
-  pass = pass_;
-  sel = sel_;
-}
+    : set_name(set_name_), pass(pass_), sel(sel_), pt(pt_), eta(eta_), phi(phi_), type(type_) {}
 
 void initializeInputsAndOutputs() {
   // Create the TChain that holds the TTree's of the baby ntuples

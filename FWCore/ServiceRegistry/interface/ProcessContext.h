@@ -31,18 +31,11 @@ namespace edm {
     std::string const& processName() const { return processConfiguration_->processName(); }
     ParameterSetID const& parameterSetID() const { return processConfiguration_->parameterSetID(); }
     ProcessConfiguration const* processConfiguration() const { return processConfiguration_; }
-    bool isSubProcess() const { return parentProcessContext_ != nullptr; }
-    ProcessContext const& parentProcessContext() const;
 
     void setProcessConfiguration(ProcessConfiguration const* processConfiguration);
-    void setParentProcessContext(ProcessContext const* parentProcessContext);
 
   private:
     ProcessConfiguration const* processConfiguration_;
-
-    // If this is a SubProcess this points to the parent process,
-    // otherwise it is null.
-    ProcessContext const* parentProcessContext_;
   };
 
   std::ostream& operator<<(std::ostream&, ProcessContext const&);

@@ -7,7 +7,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
-#include "DataFormats/L1TParticleFlow/interface/PFCluster.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 
@@ -24,7 +23,7 @@ namespace l1tpf {
 
     void prepareTMVA();
 
-    float passID(l1t::HGCalMulticluster c, l1t::PFCluster &cpf);
+    bool passID(const l1t::HGCalMulticluster c, float &mvaOut);
 
     std::string method() { return method_; }
 

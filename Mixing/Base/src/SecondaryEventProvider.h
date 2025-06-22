@@ -50,6 +50,7 @@ namespace edm {
 
   private:
     std::unique_ptr<ExceptionToActionTable> exceptionToActionTable_;
+    std::shared_ptr<ModuleRegistry> moduleRegistry_;
     WorkerManager workerManager_;
   };
 }  // namespace edm

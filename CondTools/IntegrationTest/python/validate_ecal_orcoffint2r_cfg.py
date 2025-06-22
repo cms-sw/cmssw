@@ -33,13 +33,9 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
             record = cms.string('EcalTBWeightsRcd'),
             tag = cms.string('EcalTBWeights_trivial')
         )),
-    messagelevel = cms.untracked.uint32(2),
-    catalog = cms.untracked.string('relationalcatalog_oracle://cms_orcoff_int2r/CMS_COND_GENERAL'), ##cms_orcoff_int2r/CMS_COND_GENERAL"
 
-    timetype = cms.string('runnumber'),
     connect = cms.string('oracle://cms_orcoff_int2r/CMS_COND_ECAL'), ##cms_orcoff_int2r/CMS_COND_ECAL"
 
-    authenticationMethod = cms.untracked.uint32(1)
 )
 
 process.source = cms.Source("EmptySource",

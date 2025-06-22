@@ -1,7 +1,8 @@
-
 import FWCore.ParameterSet.Config as cms
+
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 from Configuration.Eras.Modifier_stage2L1Trigger_2017_cff import stage2L1Trigger_2017
+from Configuration.Eras.Modifier_stage2L1Trigger_2021_cff import stage2L1Trigger_2021
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 
 def L1TCaloStage2ParamsForHW(process):
@@ -36,7 +37,6 @@ def L1TEventSetupForHF1x1TPs(process):
     process.es_pool_hf1x1 = cms.ESSource(
         "PoolDBESSource",
         #process.CondDBSetup,
-        timetype = cms.string('runnumber'),
         toGet = cms.VPSet(
             cms.PSet(record = cms.string("HcalLutMetadataRcd"),
                      tag = cms.string("HcalLutMetadata_HFTP_1x1")
@@ -46,7 +46,6 @@ def L1TEventSetupForHF1x1TPs(process):
                      )
             ),
         connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
-        authenticationMethod = cms.untracked.uint32(0)
         )
     process.es_prefer_es_pool_hf1x1 = cms.ESPrefer("PoolDBESSource", "es_pool_hf1x1")    
     return process
@@ -188,7 +187,6 @@ def L1TReEmulFromRAW2016(process):
 
 def L1TReEmulFromRAW(process):
     L1TReEmulFromRAW2016(process)
-    
 
     stage2L1Trigger_2017.toModify(process.simOmtfDigis,
         srcRPC   = 'omtfStage2Digis',
@@ -224,6 +222,10 @@ def L1TReEmulFromRAW(process):
     run3_GEM.toModify(process.simBmtfDigis,
         DTDigi_Source       = 'bmtfDigis',
         DTDigi_Theta_Source = 'bmtfDigis'
+    )
+
+    stage2L1Trigger_2021.toModify(process.l1tZDCEtSums,
+        hcalTPDigis = 'hcalDigis'
     )
 
     print("# L1TReEmul sequence:  ")

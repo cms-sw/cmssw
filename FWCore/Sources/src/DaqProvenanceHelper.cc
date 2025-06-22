@@ -161,20 +161,17 @@ namespace edm {
     std::replace(branchID.begin(), branchID.end(), oldBranchID_, newBranchID_);
   }
 
-  void DaqProvenanceHelper::fixMetaData(BranchIDLists const& branchIDLists) const {
+  void DaqProvenanceHelper::fixMetaData(BranchIDLists& branchIDLists) const {
     BranchID::value_type oldID = oldBranchID_.id();
     BranchID::value_type newID = newBranchID_.id();
-    // The const_cast is ugly, but it beats the alternatives.
-    BranchIDLists& lists = const_cast<BranchIDLists&>(branchIDLists);
-    for (auto& list : lists) {
+    for (auto& list : branchIDLists) {
       std::replace(list.begin(), list.end(), oldID, newID);
     }
   }
 
   void DaqProvenanceHelper::fixMetaData(ProductDependencies& productDependencies) const {
     typedef std::map<BranchID, std::set<BranchID> > BCMap;
-    // The const_cast is ugly, but it beats the alternatives.
-    BCMap& childLookup = const_cast<BCMap&>(productDependencies.childLookup());
+    BCMap& childLookup = productDependencies.mutableChildLookup();
     // First fix any old branchID's in the key.
     {
       BCMap::iterator i = childLookup.find(oldBranchID_);

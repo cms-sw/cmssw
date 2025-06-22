@@ -94,9 +94,7 @@ process.a = cms.ESSource("PoolDBESSource",
     DBParameters = cms.PSet(
     authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
-    timetype = cms.string('runnumber'),
     connect = cms.string('frontier://cmsfrontier.cern.ch:8000/FrontierProd/insertAccount'),
-    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService')
 )
 
 process.MySSQ = cms.ESProducer("SiStripQualityESProducer",

@@ -108,12 +108,14 @@ def printHLTriggerEventContentCff(process):
       'hltOutputPhysicsCommissioning',
     ],
     'hltOutputALCA_cff': [
-      'hltOutputALCAPHISYM',
-      'hltOutputALCAP0',
-      'hltOutputALCAPPSExpress',
-      'hltOutputALCAPPSPrompt',
+      'hltOutputALCAHcalIsoTrk',
+      'hltOutputALCALowPtJet',
       'hltOutputALCALumiPixelsCountsExpress',
       'hltOutputALCALumiPixelsCountsPrompt',
+      'hltOutputALCAP0',
+      'hltOutputALCAPHISYM',
+      'hltOutputALCAPPSExpress',
+      'hltOutputALCAPPSPrompt',
     ],
     'hltOutputMON_cff': [
       'hltOutputA',
@@ -154,18 +156,23 @@ def printHLTriggerEventContentCff(process):
 
   # hltDebugWithAlCaOutput
 
-  if not hasattr(hltOutputALCA_cff,'block_hltOutputALCAPHISYM'):
-    hltOutputALCA_cff.block_hltOutputALCAPHISYM = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
-  if not hasattr(hltOutputALCA_cff,'block_hltOutputALCAP0'):
-    hltOutputALCA_cff.block_hltOutputALCAP0 = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
-  if not hasattr(hltOutputALCA_cff,'block_hltOutputALCAPPSExpress'):
-    hltOutputALCA_cff.block_hltOutputALCAPPSExpress = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
-  if not hasattr(hltOutputALCA_cff,'block_hltOutputALCAPPSPrompt'):
-    hltOutputALCA_cff.block_hltOutputALCAPPSPrompt = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
+  if not hasattr(hltOutputALCA_cff,'block_hltOutputALCAHcalIsoTrk'):
+    hltOutputALCA_cff.block_hltOutputALCAHcalIsoTrk = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
+  if not hasattr(hltOutputALCA_cff,'block_hltOutputALCALowPtJet'):
+    hltOutputALCA_cff.block_hltOutputALCALowPtJet = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
   if not hasattr(hltOutputALCA_cff,'block_hltOutputALCALumiPixelsCountsExpress'):
     hltOutputALCA_cff.block_hltOutputALCALumiPixelsCountsExpress = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
   if not hasattr(hltOutputALCA_cff,'block_hltOutputALCALumiPixelsCountsPrompt'):
     hltOutputALCA_cff.block_hltOutputALCALumiPixelsCountsPrompt = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
+  if not hasattr(hltOutputALCA_cff,'block_hltOutputALCAP0'):
+    hltOutputALCA_cff.block_hltOutputALCAP0 = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
+  if not hasattr(hltOutputALCA_cff,'block_hltOutputALCAPHISYM'):
+    hltOutputALCA_cff.block_hltOutputALCAPHISYM = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
+  if not hasattr(hltOutputALCA_cff,'block_hltOutputALCAPPSExpress'):
+    hltOutputALCA_cff.block_hltOutputALCAPPSExpress = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
+  if not hasattr(hltOutputALCA_cff,'block_hltOutputALCAPPSPrompt'):
+    hltOutputALCA_cff.block_hltOutputALCAPPSPrompt = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
+
   hltDebugWithAlCaOutputBlocks = (
     # the DQM and HLTMON streams have the HLT debug outputs used online
     hltOutputMON_cff.block_hltOutputA.outputCommands,
@@ -173,12 +180,14 @@ def printHLTriggerEventContentCff(process):
     hltOutputMON_cff.block_hltOutputHLTMonitor.outputCommands,
     hltOutputMON_cff.block_hltOutputReleaseValidation.outputCommands,
     # the ALCA streams have the AlCa outputs
-    hltOutputALCA_cff.block_hltOutputALCAPHISYM.outputCommands,
-    hltOutputALCA_cff.block_hltOutputALCAP0.outputCommands,
-    hltOutputALCA_cff.block_hltOutputALCAPPSExpress.outputCommands,
-    hltOutputALCA_cff.block_hltOutputALCAPPSPrompt.outputCommands,
+    hltOutputALCA_cff.block_hltOutputALCAHcalIsoTrk.outputCommands,
     hltOutputALCA_cff.block_hltOutputALCALumiPixelsCountsExpress.outputCommands,
     hltOutputALCA_cff.block_hltOutputALCALumiPixelsCountsPrompt.outputCommands,
+    hltOutputALCA_cff.block_hltOutputALCAP0.outputCommands,
+    hltOutputALCA_cff.block_hltOutputALCAPHISYM.outputCommands,
+    hltOutputALCA_cff.block_hltOutputALCAPPSExpress.outputCommands,
+    hltOutputALCA_cff.block_hltOutputALCAPPSPrompt.outputCommands,
+    hltOutputALCA_cff.block_hltOutputALCALowPtJet.outputCommands,
   )
   hltDebugWithAlCaOutputContent = buildPSet(hltDebugWithAlCaOutputBlocks)
 

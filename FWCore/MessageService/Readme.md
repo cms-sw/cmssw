@@ -1,9 +1,10 @@
 # Useful MessageLogger Configuration Changes
 
+Note that `MessageLogger` is part of `process` by default, i.e. explicit loading of `FWCore.MessageService.MessageLogger_cfi` is not necessary.
+
 ## Turning off the end of job statistics
 This requires setting the parameter of cerr
 ```python
-process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.enableStatistics = False
 ```
 
@@ -11,7 +12,6 @@ process.MessageLogger.cerr.enableStatistics = False
 One needs to switch off cerr and switch on cout
 
 ```python
-process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.enable = False
 process.MessageLogger.cout.enable = True
 ```
@@ -20,7 +20,6 @@ process.MessageLogger.cout.enable = True
 Assuming the file you want to write is name `my_file.log` then
 
 ```python
-process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.files.my_file = dict()
 ```
 
@@ -34,14 +33,12 @@ process.MessageLogger.cerr.enable = False
 By default the `cerr` will reject all messages below `FWKINFO` (i.e. `threshold = "FWKINFO"`) and the defaut for `INFO` is set to print no output ,i.e. `limit = 0`. So to see all `INFO` messages one would do
 
 ```python
-process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = "INFO"
 process.MessageLogger.cerr.INFO.limit = -1
 ```
 
 All messages above `FWKINFO` by default are set to be displayed, that is they have `limit = -1`. You can explicitly set that by doing
 ```python
-process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.WARNING = dict(limit = -1)
 ```
 
@@ -52,7 +49,6 @@ The `MessageLogger.cerr` PSet knows that all _extra_ parameter labels must be of
 By default the `cerr` will reject all messages below `FWKINFO` (i.e. `threshold = "FWKINFO"`) and the defaut for `INFO` is set to print no output ,i.e. `limit = 0`. In order to see messages for the category 'MyCat' the threshold must be lowered and the category must be explicitly mentioned
 
 ```python
-process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = "INFO"
 process.MessageLogger.cerr.MyCat = dict()
 ```
@@ -64,15 +60,14 @@ The `MessageLogger.cerr` PSet knows that all _extra_ parameter labels must be of
 In order to supporess messages for a given category, e.g. 'MyCat', the limit should be set to 0
 
 ```python
-process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.MyCat = dict(limit = 0)
 ```
 
 The `MessageLogger` PSet knows that all _extra_ parameter labels must be of type `cms.untracked.PSet` so one can use a python `dict` set specific parameters for that PSet and allow all other parameters to use their default default values.
 
 
+## Have all debug messages be shown
 
-## Have debug message show for a given module
 By default, all `LogDebug` code is actually removed at compilation time so any messages you want to see have to be recompiled after setting the `EDM_ML_DEBUG` compilation parameter
 
 ```bash
@@ -80,18 +75,24 @@ By default, all `LogDebug` code is actually removed at compilation time so any m
 > scram b ...
 ```
 
-Then in the `MessageLogger` configuration you need to lower the `threshold` to `"DEBUG"` and then say you want debug messages from the module. So if your module uses the label `myModule` in the configuration, you'd specify
-
+Then in the `MessageLogger` configuration you need to lower the `threshold` to `"DEBUG"`
 ```python
-process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.cerr.threshold = "DEBUG"
+```
+
+The default `MessageLogger` configuration leads to all debug messages to be printed (also outside modules).
+
+
+## Have debug message show for a given module
+
+It is possible to restrict the shown debug messages to specific module(s). For example, if your module uses the label `myModule` in the configuration, you'd specify
+```python
 process.MessageLogger.cerr.threshold = "DEBUG"
 process.MessageLogger.debugModules = ["myModule"]
 ```
 
-If you are not interested in a particular module but instead want to see all debug messages, you can instead set `debugModules` using `*`
-
+For backwards compatibility, setting `debugModules` to `*` has the same effect as setting `debugModules` empty, i.e. showing all debug messages.
 ```python
-process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = "DEBUG"
 process.MessageLogger.debugModules = ["*"]
 ```

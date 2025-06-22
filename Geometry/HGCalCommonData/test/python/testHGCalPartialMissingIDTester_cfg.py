@@ -14,10 +14,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D98",
+                 "D110",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D98, D99")
+                  "geometry of operations: D98, D99, D110")
 options.register('type',
                  "DDD",
                   VarParsing.VarParsing.multiplicity.singleton,

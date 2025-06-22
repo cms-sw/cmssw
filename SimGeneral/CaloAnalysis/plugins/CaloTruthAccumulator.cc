@@ -160,7 +160,8 @@ namespace {
           simHitBarcodeToIndex_(simHitBarcodeToIndex),
           simTrackDetIdEnergyMap_(simTrackDetIdEnergyMap),
           vertex_time_map_(vertex_time_map),
-          selector_(selector) {}
+          selector_(selector),
+          insideCP_(false) {}
     template <typename Vertex, typename Graph>
     void discover_vertex(Vertex u, const Graph &g) {
       // If we reach the vertex 0, it means that we are backtracking with respect
@@ -173,7 +174,7 @@ namespace {
       auto trackIdx = vertex_property.simTrack->trackId();
       IfLogDebug(DEBUG, messageCategoryGraph_)
           << " Found " << simHitBarcodeToIndex_.count(trackIdx) << " associated simHits" << std::endl;
-      if (simHitBarcodeToIndex_.count(trackIdx)) {
+      if (insideCP_ && simHitBarcodeToIndex_.count(trackIdx)) {
         output_.pSimClusters->emplace_back(*vertex_property.simTrack);
         auto &simcluster = output_.pSimClusters->back();
         std::unordered_map<uint32_t, float> acc_energy;
@@ -193,10 +194,13 @@ namespace {
         auto edge_property = get(edge_weight, g, e);
         IfLogDebug(DEBUG, messageCategoryGraph_) << "Considering CaloParticle: " << edge_property.simTrack->trackId();
         if (selector_(edge_property)) {
+          insideCP_ = true;
           IfLogDebug(DEBUG, messageCategoryGraph_) << "Adding CaloParticle: " << edge_property.simTrack->trackId();
           output_.pCaloParticles->emplace_back(*(edge_property.simTrack));
           output_.pCaloParticles->back().setSimTime(vertex_time_map_[(edge_property.simTrack)->vertIndex()]);
           caloParticles_.sc_start_.push_back(output_.pSimClusters->size());
+        } else {
+          insideCP_ = false;
         }
       }
     }
@@ -209,6 +213,7 @@ namespace {
         auto edge_property = get(edge_weight, g, e);
         if (selector_(edge_property)) {
           caloParticles_.sc_stop_.push_back(output_.pSimClusters->size());
+          insideCP_ = false;
         }
       }
     }
@@ -220,6 +225,7 @@ namespace {
     std::unordered_map<int, std::map<int, float>> &simTrackDetIdEnergyMap_;
     std::unordered_map<uint32_t, float> &vertex_time_map_;
     Selector selector_;
+    bool insideCP_;
   };
 }  // namespace
 

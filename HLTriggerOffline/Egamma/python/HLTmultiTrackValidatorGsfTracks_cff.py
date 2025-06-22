@@ -22,6 +22,12 @@ hltGsfTrackValidator = hltMultiTrackValidator.clone(
     minRapidityTP = -3.0,
 )
 
+def _modifyForPhase2(trackvalidator):
+    trackvalidator.label = ["hltEgammaGsfTracksL1Seeded", "hltEgammaGsfTracksUnseeded"]
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(hltGsfTrackValidator, _modifyForPhase2)
+
 from Validation.RecoTrack.TrackValidation_cff import trackingParticlesElectron
 hltMultiTrackValidationGsfTracksTask = cms.Task(
    hltTPClusterProducer

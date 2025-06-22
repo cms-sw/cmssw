@@ -37,17 +37,11 @@ namespace edm {
   namespace productResolversFactory {
     std::vector<std::shared_ptr<ProductResolverBase>> make(BranchType bt,
                                                            std::string_view iProcessName,
-                                                           ProductRegistry const& iReg,
-                                                           bool isForPrimaryProcess);
+                                                           ProductRegistry const& iReg);
     inline std::vector<std::shared_ptr<ProductResolverBase>> makePrimary(BranchType bt,
                                                                          std::string_view iProcessName,
                                                                          ProductRegistry const& iReg) {
-      return make(bt, iProcessName, iReg, true);
-    }
-    inline std::vector<std::shared_ptr<ProductResolverBase>> makeSubProcess(BranchType bt,
-                                                                            std::string_view iProcessName,
-                                                                            ProductRegistry const& iReg) {
-      return make(bt, iProcessName, iReg, false);
+      return make(bt, iProcessName, iReg);
     }
 
   };  // namespace productResolversFactory

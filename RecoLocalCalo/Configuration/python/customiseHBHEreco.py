@@ -5,15 +5,15 @@
 import FWCore.ParameterSet.Config as cms
 def hbheUseM0FullRangePhase1(process):
     if hasattr(process,'hbhereco'):
-       process.hbhereco.cpu.tsFromDB = False
-       process.hbhereco.cpu.recoParamsFromDB = False
-       process.hbhereco.cpu.sipmQTSShift = -99
-       process.hbhereco.cpu.sipmQNTStoSum = 99
-       process.hbhereco.cpu.algorithm.useMahi = False
-       process.hbhereco.cpu.algorithm.useM2 = False
-       process.hbhereco.cpu.algorithm.useM3 = False
-       process.hbhereco.cpu.algorithm.correctForPhaseContainment = False
-       process.hbhereco.cpu.algorithm.firstSampleShift = -999
-       process.hbhereco.cpu.algorithm.samplesToAdd = 10
+       process.hbhereco.tsFromDB = False
+       process.hbhereco.recoParamsFromDB = False
+       process.hbhereco.sipmQTSShift = -99
+       process.hbhereco.sipmQNTStoSum = 99
+       process.hbhereco.algorithm.useMahi = False
+       process.hbhereco.algorithm.useM2 = False
+       process.hbhereco.algorithm.useM3 = False
+       process.hbhereco.algorithm.correctForPhaseContainment = False
+       process.hbhereco.algorithm.firstSampleShift = -999
+       process.hbhereco.algorithm.samplesToAdd = 10
 
     return(process)

@@ -11,7 +11,6 @@ from CondCore.DBCommon.CondDBCommon_cfi import *
 
 PoolDBESSource = cms.ESSource("PoolDBESSource",
                               CondDBCommon,
-                              loadAll = cms.bool(True),
                               toGet = cms.VPSet(
     cms.PSet( record = cms.string('PEcalBarrelRcd'   ),
               tag = cms.string('EBRECO_Geometry_Test01')),
@@ -28,8 +27,6 @@ PoolDBESSource = cms.ESSource("PoolDBESSource",
     cms.PSet( record = cms.string('PCastorRcd'       ),
               tag = cms.string('CASTORRECO_Geometry_Test01'))
     ),
-                              BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
-                              timetype = cms.untracked.string('runnumber')
                               )
 
 PoolDBESSource.connect = cms.string('sqlite_file:calofile.db')

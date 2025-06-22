@@ -13,10 +13,13 @@ namespace lst {
                       SOA_COLUMN(Params_T3::ArrayU16xLayers, lowerModuleIndices),  // lower module index in each layer
                       SOA_COLUMN(Params_T3::ArrayU8xLayers, logicalLayers),        // layer ID
                       SOA_COLUMN(Params_T3::ArrayUxHits, hitIndices),              // hit indices
-                      SOA_COLUMN(FPX, betaIn),     // beta/chord angle of the inner segment
-                      SOA_COLUMN(float, centerX),  // lower/anchor-hit based circle center x
-                      SOA_COLUMN(float, centerY),  // lower/anchor-hit based circle center y
-                      SOA_COLUMN(float, radius),   // lower/anchor-hit based circle radius
+                      SOA_COLUMN(FPX, betaIn),            // beta/chord angle of the inner segment
+                      SOA_COLUMN(float, centerX),         // lower/anchor-hit based circle center x
+                      SOA_COLUMN(float, centerY),         // lower/anchor-hit based circle center y
+                      SOA_COLUMN(float, radius),          // lower/anchor-hit based circle radius
+                      SOA_COLUMN(float, fakeScore),       // DNN confidence score for fake t3
+                      SOA_COLUMN(float, promptScore),     // DNN confidence score for real (prompt) t3
+                      SOA_COLUMN(float, displacedScore),  // DNN confidence score for real (displaced) t3
 #ifdef CUT_VALUE_DEBUG
                       SOA_COLUMN(float, zOut),
                       SOA_COLUMN(float, rtOut),

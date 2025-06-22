@@ -9,20 +9,20 @@
 // Date: May 2021
 //
 // system include files
-#include "Validation/SiTrackerPhase2V/interface/Phase2OTValidateRecHitBase.h"
-#include "Validation/SiTrackerPhase2V/interface/TrackerPhase2ValidationUtil.h"
 #include "DQM/SiTrackerPhase2/interface/TrackerPhase2DQMUtil.h"
-#include "FWCore/Framework/interface/ESWatcher.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "Validation/SiTrackerPhase2V/interface/Phase2OTValidateRecHitBase.h"
+#include "Validation/SiTrackerPhase2V/interface/TrackerPhase2ValidationUtil.h"
 
 //
 // constructors
@@ -73,6 +73,8 @@ void Phase2OTValidateRecHitBase::fillOTRecHitHistos(const PSimHit* simhitClosest
   const LocalError& lperr = rechit->localPositionError();
   double dx = lp.x() - simlp.x();
   double dy = lp.y() - simlp.y();
+  double lperrx = std::sqrt(lperr.xx());
+  double lperry = std::sqrt(lperr.yy());
   double pullx = 999.;
   double pully = 999.;
   if (lperr.xx())
@@ -84,11 +86,16 @@ void Phase2OTValidateRecHitBase::fillOTRecHitHistos(const PSimHit* simhitClosest
 
   //scale for plotting
   dx *= phase2tkutil::cmtomicron;  //this is always the case
+  lperrx *= phase2tkutil::cmtomicron;
   if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
     dy *= phase2tkutil::cmtomicron;  //only for PSP sensors
+    lperry *= phase2tkutil::cmtomicron;
 
     layerMEs_[key].deltaX_P->Fill(dx);
     layerMEs_[key].deltaY_P->Fill(dy);
+
+    layerMEs_[key].errX_P->Fill(lperrx);
+    layerMEs_[key].errY_P->Fill(lperry);
 
     layerMEs_[key].pullX_P->Fill(pullx);
     layerMEs_[key].pullY_P->Fill(pully);
@@ -97,6 +104,15 @@ void Phase2OTValidateRecHitBase::fillOTRecHitHistos(const PSimHit* simhitClosest
     layerMEs_[key].deltaY_eta_P->Fill(std::abs(eta), dy);
     layerMEs_[key].deltaX_phi_P->Fill(phi, dx);
     layerMEs_[key].deltaY_phi_P->Fill(phi, dy);
+
+    /*
+      constant error, not needed for now
+ 
+      layerMEs_[key].errX_eta_P->Fill(std::abs(eta), lperrx);
+      layerMEs_[key].errY_eta_P->Fill(std::abs(eta), lperry);
+      layerMEs_[key].errX_phi_P->Fill(phi, lperrx);
+      layerMEs_[key].errY_phi_P->Fill(phi, lperry);
+    */
 
     layerMEs_[key].pullX_eta_P->Fill(eta, pullx);
     layerMEs_[key].pullY_eta_P->Fill(eta, pully);
@@ -115,10 +131,21 @@ void Phase2OTValidateRecHitBase::fillOTRecHitHistos(const PSimHit* simhitClosest
     layerMEs_[key].pullX_S->Fill(pullx);
     layerMEs_[key].pullY_S->Fill(pully);
 
+    layerMEs_[key].errX_S->Fill(lperrx);
+    layerMEs_[key].errY_S->Fill(lperry);
+
     layerMEs_[key].deltaX_eta_S->Fill(std::abs(eta), dx);
     layerMEs_[key].deltaY_eta_S->Fill(std::abs(eta), dy);
     layerMEs_[key].deltaX_phi_S->Fill(phi, dx);
     layerMEs_[key].deltaY_phi_S->Fill(phi, dy);
+
+    /*
+      contant error for now, not needed
+      layerMEs_[key].errX_eta_S->Fill(std::abs(eta), lperrx);
+      layerMEs_[key].errY_eta_S->Fill(std::abs(eta), lperry);
+      layerMEs_[key].errX_phi_S->Fill(phi, lperrx);
+      layerMEs_[key].errY_phi_S->Fill(phi, lperry);
+    */
 
     layerMEs_[key].pullX_eta_S->Fill(eta, pullx);
     layerMEs_[key].pullY_eta_S->Fill(eta, pully);
@@ -170,10 +197,17 @@ void Phase2OTValidateRecHitBase::bookLayerHistos(DQMStore::IBooker& ibooker, uns
       local_histos.deltaY_P =
           phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Y_Pixel"), ibooker);
 
+      local_histos.errX_P =
+          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("err_X_Pixel"), ibooker);
+      local_histos.errY_P =
+          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("err_Y_Pixel"), ibooker);
+
       local_histos.pullX_P =
           phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Pull_X_Pixel"), ibooker);
       local_histos.pullY_P =
-          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Pull_X_Pixel"), ibooker);
+          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Pull_Y_Pixel"), ibooker);
+
+      /* residuals */
 
       local_histos.deltaX_eta_P =
           phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_X_vs_eta_Pixel"), ibooker);
@@ -188,7 +222,21 @@ void Phase2OTValidateRecHitBase::bookLayerHistos(DQMStore::IBooker& ibooker, uns
       local_histos.pullX_eta_P =
           phase2tkutil::bookProfile1DFromPSet(config_.getParameter<edm::ParameterSet>("Pull_X_vs_eta_Pixel"), ibooker);
       local_histos.pullY_eta_P =
-          phase2tkutil::bookProfile1DFromPSet(config_.getParameter<edm::ParameterSet>("Pull_X_vs_eta_Pixel"), ibooker);
+          phase2tkutil::bookProfile1DFromPSet(config_.getParameter<edm::ParameterSet>("Pull_Y_vs_eta_Pixel"), ibooker);
+
+      /* errors  (not needed for now)
+	 
+      local_histos.errX_eta_P =
+          phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("err_X_vs_eta_Pixel"), ibooker);
+      local_histos.errY_eta_P =
+          phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("err_Y_vs_eta_Pixel"), ibooker);
+
+      local_histos.errX_phi_P =
+          phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("err_X_vs_phi_Pixel"), ibooker);
+      local_histos.errY_phi_P =
+          phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("err_Y_vs_phi_Pixel"), ibooker);
+
+      */
 
       ibooker.setCurrentFolder(subdir + "/" + key + "/PrimarySimHits");
       //all histos for Primary particles
@@ -198,12 +246,12 @@ void Phase2OTValidateRecHitBase::bookLayerHistos(DQMStore::IBooker& ibooker, uns
       local_histos.deltaX_primary_P =
           phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_X_Pixel_Primary"), ibooker);
       local_histos.deltaY_primary_P =
-          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_X_Pixel_Primary"), ibooker);
+          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Y_Pixel_Primary"), ibooker);
 
       local_histos.pullX_primary_P =
           phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Pull_X_Pixel_Primary"), ibooker);
       local_histos.pullY_primary_P =
-          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Pull_X_Pixel_Primary"), ibooker);
+          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Pull_Y_Pixel_Primary"), ibooker);
     }  //if block for P
 
     ibooker.setCurrentFolder(subdir + "/" + key);
@@ -212,10 +260,15 @@ void Phase2OTValidateRecHitBase::bookLayerHistos(DQMStore::IBooker& ibooker, uns
     local_histos.deltaY_S =
         phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Y_Strip"), ibooker);
 
+    local_histos.errX_S = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("err_X_Strip"), ibooker);
+    local_histos.errY_S = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("err_Y_Strip"), ibooker);
+
     local_histos.pullX_S =
         phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Pull_X_Strip"), ibooker);
     local_histos.pullY_S =
         phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Pull_Y_Strip"), ibooker);
+
+    /* delta */
 
     local_histos.deltaX_eta_S =
         phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_X_vs_eta_Strip"), ibooker);
@@ -227,10 +280,24 @@ void Phase2OTValidateRecHitBase::bookLayerHistos(DQMStore::IBooker& ibooker, uns
     local_histos.deltaY_phi_S =
         phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Y_vs_phi_Strip"), ibooker);
 
+    /* errors (not needed for now)
+
+    local_histos.errX_eta_S =
+        phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("err_X_vs_eta_Strip"), ibooker);
+    local_histos.errY_eta_S =
+        phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("err_Y_vs_eta_Strip"), ibooker);
+
+    local_histos.errX_phi_S =
+        phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("err_X_vs_phi_Strip"), ibooker);
+    local_histos.errY_phi_S =
+        phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("err_Y_vs_phi_Strip"), ibooker);
+
+    */
+
     local_histos.pullX_eta_S =
         phase2tkutil::bookProfile1DFromPSet(config_.getParameter<edm::ParameterSet>("Pull_X_vs_eta_Strip"), ibooker);
     local_histos.pullY_eta_S =
-        phase2tkutil::bookProfile1DFromPSet(config_.getParameter<edm::ParameterSet>("Pull_X_vs_eta_Pixel"), ibooker);
+        phase2tkutil::bookProfile1DFromPSet(config_.getParameter<edm::ParameterSet>("Pull_Y_vs_eta_Pixel"), ibooker);
 
     //primary
     ibooker.setCurrentFolder(subdir + "/" + key + "/PrimarySimHits");
@@ -276,6 +343,27 @@ void Phase2OTValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("Delta_Y_Pixel", psd0);
   }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "err_X_Pixel");
+    psd0.add<std::string>("title", "error X " + mptag + ";Cluster error X coordinate [#mum]");
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 0.);
+    psd0.add<double>("xmin", 100.);
+    psd0.add<int>("NxBins", 100);
+    desc.add<edm::ParameterSetDescription>("err_X_Pixel", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "err_Y_Pixel");
+    psd0.add<std::string>("title", "error Y " + mptag + ";Cluster error Y coordinate [#mum]");
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmin", 0.);
+    psd0.add<double>("xmax", 500.);
+    psd0.add<int>("NxBins", 100);
+    desc.add<edm::ParameterSetDescription>("err_Y_Pixel", psd0);
+  }
+
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Delta_X_Pixel_Primary");
@@ -350,11 +438,66 @@ void Phase2OTValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
     psd0.add<double>("xmin", -M_PI);
     desc.add<edm::ParameterSetDescription>("Delta_Y_vs_phi_Pixel", psd0);
   }
+
+  // errors macro-pixels
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "err_X_vs_Eta_Pixel");
+    psd0.add<std::string>("title", ";|#eta|;local error x [#mum]");
+    psd0.add<int>("NyBins", 100);
+    psd0.add<double>("ymin", 0);
+    psd0.add<double>("ymax", 100.0);
+    psd0.add<int>("NxBins", 41);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 4.1);
+    psd0.add<double>("xmin", 0.);
+    desc.add<edm::ParameterSetDescription>("err_X_vs_eta_Pixel", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "err_Y_vs_Eta_Pixel");
+    psd0.add<std::string>("title", ";|#eta|;local error y [#mum]");
+    psd0.add<int>("NyBins", 100);
+    psd0.add<double>("ymin", 0.);
+    psd0.add<double>("ymax", 500.0);
+    psd0.add<int>("NxBins", 41);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 4.1);
+    psd0.add<double>("xmin", 0.);
+    desc.add<edm::ParameterSetDescription>("err_Y_vs_eta_Pixel", psd0);
+  }
+
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "err_X_vs_Phi_Pixel");
+    psd0.add<std::string>("title", ";#phi;local error x [#mum]");
+    psd0.add<int>("NyBins", 100);
+    psd0.add<double>("ymin", 0.);
+    psd0.add<double>("ymax", 100.0);
+    psd0.add<int>("NxBins", 36);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", M_PI);
+    psd0.add<double>("xmin", -M_PI);
+    desc.add<edm::ParameterSetDescription>("err_X_vs_phi_Pixel", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "err_Y_vs_Phi_Pixel");
+    psd0.add<std::string>("title", ";#phi;local error y [#mum]");
+    psd0.add<int>("NyBins", 100);
+    psd0.add<double>("ymin", 0.);
+    psd0.add<double>("ymax", 500.);
+    psd0.add<int>("NxBins", 35);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", M_PI);
+    psd0.add<double>("xmin", -M_PI);
+    desc.add<edm::ParameterSetDescription>("err_Y_vs_phi_Pixel", psd0);
+  }
   //Pulls macro-pixel
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Pull_X_Pixel");
-    psd0.add<std::string>("title", ";pull x;");
+    psd0.add<std::string>("title", "Pull X " + mptag + ";pull x;");
     psd0.add<double>("xmin", -4.0);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 4.0);
@@ -364,7 +507,7 @@ void Phase2OTValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Pull_Y_Pixel");
-    psd0.add<std::string>("title", ";pull y;");
+    psd0.add<std::string>("title", "Pull Y " + mptag + ";pull y;");
     psd0.add<double>("xmin", -4.0);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 4.0);
@@ -375,7 +518,7 @@ void Phase2OTValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Pull_X_Pixel_Primary");
-    psd0.add<std::string>("title", ";pull x;");
+    psd0.add<std::string>("title", "Pull X " + mptag + ";pull x;");
     psd0.add<double>("xmin", -4.0);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 4.0);
@@ -385,7 +528,7 @@ void Phase2OTValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Pull_Y_Pixel_Primary");
-    psd0.add<std::string>("title", ";pull y;");
+    psd0.add<std::string>("title", "Pull Y " + mptag + ";pull y;");
     psd0.add<double>("xmin", -4.0);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 4.0);
@@ -446,6 +589,28 @@ void Phase2OTValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
     psd0.add<double>("xmax", 5.0);
     psd0.add<int>("NxBins", 100);
     desc.add<edm::ParameterSetDescription>("Delta_Y_Strip", psd0);
+  }
+
+  // errors
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "err_X_Strip");
+    psd0.add<std::string>("title", "local error X " + striptag + ";Cluster error X coordinate [#mum]");
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmin", 0.);
+    psd0.add<double>("xmax", 100);
+    psd0.add<int>("NxBins", 100);
+    desc.add<edm::ParameterSetDescription>("err_X_Strip", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "err_Y_Strip");
+    psd0.add<std::string>("title", "local error Y " + striptag + ";Cluster error Y coordinate [cm]");
+    psd0.add<double>("xmin", 0.);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 10.);
+    psd0.add<int>("NxBins", 100);
+    desc.add<edm::ParameterSetDescription>("err_Y_Strip", psd0);
   }
   {
     edm::ParameterSetDescription psd0;
@@ -521,11 +686,65 @@ void Phase2OTValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
     psd0.add<double>("xmin", -M_PI);
     desc.add<edm::ParameterSetDescription>("Delta_Y_vs_phi_Strip", psd0);
   }
+
+  // erorrs strips
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "err_X_vs_Eta_Strip");
+    psd0.add<std::string>("title", ";|#eta|;local error x [#mum]");
+    psd0.add<int>("NyBins", 100);
+    psd0.add<double>("ymin", 0.);
+    psd0.add<double>("ymax", 100.0);
+    psd0.add<int>("NxBins", 41);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 4.1);
+    psd0.add<double>("xmin", 0.);
+    desc.add<edm::ParameterSetDescription>("err_X_vs_eta_Strip", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "err_Y_vs_Eta_Strip");
+    psd0.add<std::string>("title", ";|#eta|;local error y [cm]");
+    psd0.add<int>("NyBins", 100);
+    psd0.add<double>("ymin", 0.);
+    psd0.add<double>("ymax", 10.);
+    psd0.add<int>("NxBins", 41);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", 4.1);
+    psd0.add<double>("xmin", 0.);
+    desc.add<edm::ParameterSetDescription>("err_Y_vs_eta_Strip", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "err_X_vs_Phi_Strip");
+    psd0.add<std::string>("title", ";#phi;local error x [#mum]");
+    psd0.add<int>("NyBins", 100);
+    psd0.add<double>("ymin", 0.);
+    psd0.add<double>("ymax", 100.0);
+    psd0.add<int>("NxBins", 36);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", M_PI);
+    psd0.add<double>("xmin", -M_PI);
+    desc.add<edm::ParameterSetDescription>("err_X_vs_phi_Strip", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::string>("name", "err_Y_vs_Phi_Strip");
+    psd0.add<std::string>("title", ";#phi;local error y [cm]");
+    psd0.add<int>("NyBins", 100);
+    psd0.add<double>("ymin", 0.);
+    psd0.add<double>("ymax", 10.);
+    psd0.add<int>("NxBins", 36);
+    psd0.add<bool>("switch", true);
+    psd0.add<double>("xmax", M_PI);
+    psd0.add<double>("xmin", -M_PI);
+    desc.add<edm::ParameterSetDescription>("err_Y_vs_phi_Strip", psd0);
+  }
   //pulls strips
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Pull_X_Strip");
-    psd0.add<std::string>("title", ";pull x;");
+    psd0.add<std::string>("title", "Pull X " + striptag + ";pull x;");
     psd0.add<double>("xmin", -4.0);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 4.0);
@@ -535,7 +754,7 @@ void Phase2OTValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Pull_Y_Strip");
-    psd0.add<std::string>("title", ";pull y;");
+    psd0.add<std::string>("title", "Pull Y " + striptag + ";pull y;");
     psd0.add<double>("xmin", -4.0);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 4.0);
@@ -546,7 +765,7 @@ void Phase2OTValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Pull_X_Strip_Primary");
-    psd0.add<std::string>("title", ";pull x;");
+    psd0.add<std::string>("title", "Pull X " + striptag + ";pull x;");
     psd0.add<double>("xmin", -4.0);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 4.0);
@@ -556,7 +775,7 @@ void Phase2OTValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Pull_Y_Strip_Primary");
-    psd0.add<std::string>("title", ";pull y;");
+    psd0.add<std::string>("title", "Pull Y " + striptag + ";pull y;");
     psd0.add<double>("xmin", -4.0);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 4.0);

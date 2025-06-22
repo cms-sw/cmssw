@@ -34,10 +34,6 @@ namespace edm {
   public:
     SignallingProductRegistryFiller() : productAddedSignal_(), registry_(), typeAddedStack_() {}
 
-    struct FromEarlierProcess {};
-    explicit SignallingProductRegistryFiller(ProductRegistry::ProductList const& preg, FromEarlierProcess)
-        : productAddedSignal_(), registry_(preg, false), typeAddedStack_() {}
-
     explicit SignallingProductRegistryFiller(ProductRegistry const& preg)
         : productAddedSignal_(), registry_(preg), typeAddedStack_() {};
 

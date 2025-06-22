@@ -1,0 +1,394 @@
+common:
+  data:
+    lumimask : None 
+    splitting: 10
+    globaltag: 124X_dataRun3_v15 #data 2022+2023 reprocessing : cmssw < 14_0_X
+  mc:
+    splitting: 1
+    globaltag: 130X_mcRun3_2022_realistic_postEE_v6 #placeholder for test MC
+
+samples:
+  data_Run2022C_part%d:    
+    dataset: /ParkingDoubleMuonLowMass%d/Run2022C-10Dec2022-v2/MINIAOD
+    goldenjson: /eos/user/c/cmsdqm/www/CAF/certification/Collisions22/Cert_Collisions2022_355100_362760_Golden.json
+    decay: KshortLL
+    globaltag: 124X_dataRun3_v15 
+    isMC: False
+    parts: 
+      - 0
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+
+  data_Run2022D_part%d:
+    dataset: /ParkingDoubleMuonLowMass%d/Run2022D-10Dec2022-v2/MINIAOD 
+    goldenjson: /eos/user/c/cmsdqm/www/CAF/certification/Collisions22/Cert_Collisions2022_355100_362760_Golden.json 
+    decay: KshortLL 
+    globaltag: 124X_dataRun3_v15 
+    isMC: False
+    parts: 
+      - 0
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+
+  data_Run2022D_part%d:
+    dataset: /ParkingDoubleMuonLowMass%d/Run2022D-10Dec2022-v3/MINIAOD 
+    goldenjson: /eos/user/c/cmsdqm/www/CAF/certification/Collisions22/Cert_Collisions2022_355100_362760_Golden.json 
+    decay: KshortLL 
+    globaltag: 124X_dataRun3_v15 
+    isMC: False
+    parts: 
+      - 1
+       
+  data_Run2022E_part%d:
+    dataset: /ParkingDoubleMuonLowMass%d/Run2022E-10Dec2022-v2/MINIAOD 
+    goldenjson: /eos/user/c/cmsdqm/www/CAF/certification/Collisions22/Cert_Collisions2022_355100_362760_Golden.json 
+    decay: KshortLL 
+    isMC: False
+    parts: 
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+
+  data_Run2022F_part%d:
+    dataset: /ParkingDoubleMuonLowMass%d/Run2022F-22Sep2023-v1/MINIAOD 
+    goldenjson: /eos/user/c/cmsdqm/www/CAF/certification/Collisions22/Cert_Collisions2022_355100_362760_Golden.json 
+    decay: KshortLL 
+    isMC: False
+    parts: 
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+ 
+  data_Run2022G_part%d:
+    dataset: /ParkingDoubleMuonLowMass%d/Run2022G-22Sep2023-v1/MINIAOD 
+    goldenjson: /eos/user/c/cmsdqm/www/CAF/certification/Collisions22/Cert_Collisions2022_355100_362760_Golden.json 
+    decay: KshortLL 
+    isMC: False
+    parts: 
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+ 
+  data_Run2023B_part%d:
+    dataset: /ParkingDoubleMuonLowMass%d/Run2023B-22Sep2023-v1/MINIAOD 
+    goldenjson: /eos/user/c/cmsdqm/www/CAF/certification/Collisions23/Cert_Collisions2023_366442_370790_Golden.json 
+    decay: KshortLL 
+    isMC: False
+    parts: 
+      - 0
+      - 1
+      - 2
+      - 3
+      - 5
+      - 6
+      - 7
+  data_Run2023B_part%d:
+    dataset: /ParkingDoubleMuonLowMass%d/Run2023B-22Sep2023-v2/MINIAOD 
+    goldenjson: /eos/user/c/cmsdqm/www/CAF/certification/Collisions23/Cert_Collisions2023_366442_370790_Golden.json 
+    decay: KshortLL 
+    isMC: False
+    parts: 
+      - 4
+ 
+  data_Run2023C_v1_part%d:
+    dataset: /ParkingDoubleMuonLowMass%d/Run2023C-22Sep2023_v1-v1/MINIAOD 
+    goldenjson: /eos/user/c/cmsdqm/www/CAF/certification/Collisions23/Cert_Collisions2023_366442_370790_Golden.json 
+    decay: KshortLL 
+    isMC: False
+    parts: 
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+  data_Run2023C_v2_part%d:
+    dataset: /ParkingDoubleMuonLowMass%d/Run2023C-22Sep2023_v2-v1/MINIAOD 
+    goldenjson: /eos/user/c/cmsdqm/www/CAF/certification/Collisions23/Cert_Collisions2023_366442_370790_Golden.json 
+    decay: KshortLL 
+    isMC: False
+    parts: 
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+
+  data_Run2023C_v3_part%d:
+    dataset: /ParkingDoubleMuonLowMass%d/Run2023C-22Sep2023_v3-v1/MINIAOD 
+    goldenjson: /eos/user/c/cmsdqm/www/CAF/certification/Collisions23/Cert_Collisions2023_366442_370790_Golden.json 
+    decay: KshortLL 
+    isMC: False
+    parts: 
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+
+  data_Run2023C_v4_part%d:
+    dataset: /ParkingDoubleMuonLowMass%d/Run2023C-22Sep2023_v4-v1/MINIAOD 
+    goldenjson: /eos/user/c/cmsdqm/www/CAF/certification/Collisions23/Cert_Collisions2023_366442_370790_Golden.json 
+    decay: KshortLL 
+    isMC: False
+    parts: 
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+ 
+  data_Run2023D_v1_part%d:
+    dataset: /ParkingDoubleMuonLowMass%d/Run2023D-22Sep2023_v1-v1/MINIAOD 
+    goldenjson: /eos/user/c/cmsdqm/www/CAF/certification/Collisions23/Cert_Collisions2023_366442_370790_Golden.json 
+    decay: KshortLL 
+    isMC: False
+    parts: 
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+
+  data_Run2023D_v2_part%d:
+    dataset: /ParkingDoubleMuonLowMass%d/Run2023D-22Sep2023_v2-v1/MINIAOD 
+    goldenjson: /eos/user/c/cmsdqm/www/CAF/certification/Collisions23/Cert_Collisions2023_366442_370790_Golden.json 
+    decay: KshortLL 
+    isMC: False
+    parts: 
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+
+  data_Run2024B_part%d: 
+    dataset: /ParkingDoubleMuonLowMass%/Run2024B-PromptReco-v1/MINIAOD
+    goldenjson: https://cms-service-dqmdc.web.cern.ch/CAF/certification/Collisions24/Cert_Collisions2024_378981_386951_Golden.json
+    globaltag: 140X_dataRun3_Prompt_v2
+    decay: all
+    isMC: False
+    parts:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+
+  data_Run2024C_part%d:
+    dataset: /ParkingDoubleMuonLowMass%d/Run2024C-PromptReco-v1/MINIAOD
+    goldenjson: https://cms-service-dqmdc.web.cern.ch/CAF/certification/Collisions24/Cert_Collisions2024_378981_386951_Golden.json
+    globaltag: 140X_dataRun3_Prompt_v2
+    decay: all
+    isMC: False
+    parts:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+
+  data_Run2024D_part%d:
+    dataset: /ParkingDoubleMuonLowMass%d/Run2024D-PromptReco-v1/MINIAOD
+    goldenjson: https://cms-service-dqmdc.web.cern.ch/CAF/certification/Collisions24/Cert_Collisions2024_378981_386951_Golden.json
+    globaltag: 140X_dataRun3_Prompt_v2
+    decay: all
+    isMC: False
+    parts:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+
+  data_Run2024E_v1_part%d:
+    dataset: /ParkingDoubleMuonLowMass%d/Run2024E-PromptReco-v1/MINIAOD
+    goldenjson: https://cms-service-dqmdc.web.cern.ch/CAF/certification/Collisions24/Cert_Collisions2024_378981_386951_Golden.json
+    globaltag: 140X_dataRun3_Prompt_v2
+    decay: all
+    isMC: False
+    parts:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+        
+  data_Run2024E_v2_part%d:
+    dataset: /ParkingDoubleMuonLowMass%d/Run2024E-PromptReco-v2/MINIAOD
+    goldenjson: https://cms-service-dqmdc.web.cern.ch/CAF/certification/Collisions24/Cert_Collisions2024_378981_386951_Golden.json
+    globaltag: 140X_dataRun3_Prompt_v2
+    decay: all
+    isMC: False
+    parts:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+        
+  data_Run2024F_part%d:
+    dataset: /ParkingDoubleMuonLowMass%d/Run2024F-PromptReco-v1/MINIAOD
+    goldenjson: https://cms-service-dqmdc.web.cern.ch/CAF/certification/Collisions24/Cert_Collisions2024_378981_386951_Golden.json
+    globaltag: 140X_dataRun3_Prompt_v4
+    decay: all
+    isMC: False
+    parts:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+
+  data_Run2024G_part%d:
+    dataset: /ParkingDoubleMuonLowMass%d/Run2024G-PromptReco-v1/MINIAOD
+    goldenjson: https://cms-service-dqmdc.web.cern.ch/CAF/certification/Collisions24/Cert_Collisions2024_378981_386951_Golden.json
+    globaltag: 140X_dataRun3_Prompt_v4
+    decay: all
+    isMC: False
+    parts:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+        
+  data_Run2024H_part%d:
+    dataset: /ParkingDoubleMuonLowMass%d/Run2024H-PromptReco-v1/MINIAOD
+    goldenjson: https://cms-service-dqmdc.web.cern.ch/CAF/certification/Collisions24/Cert_Collisions2024_378981_386951_Golden.json
+    globaltag: 140X_dataRun3_Prompt_v4
+    decay: all
+    isMC: False
+    parts:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+
+  data_Run2024I_v1_part%d:
+    dataset: /ParkingDoubleMuonLowMass%d/Run2024I-PromptReco-v1/MINIAOD
+    goldenjson: https://cms-service-dqmdc.web.cern.ch/CAF/certification/Collisions24/Cert_Collisions2024_378981_386951_Golden.json
+    globaltag: 140X_dataRun3_Prompt_v4
+    decay: all
+    isMC: False
+    parts:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+
+  data_Run2024I_v2_part%d:
+    dataset: /ParkingDoubleMuonLowMass%d/Run2024I-PromptReco-v2/MINIAOD
+    goldenjson: https://cms-service-dqmdc.web.cern.ch/CAF/certification/Collisions24/Cert_Collisions2024_378981_386951_Golden.json
+    globaltag: 140X_dataRun3_Prompt_v4
+    decay: all
+    isMC: False
+    parts:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+
+
+  #
+  #  SOME MC for testing purposes
+  #
+  
+  BdToJpsiKs_SVS:
+    dataset: /B0ToJpsiK0s_JpsiFilter_MuFilter_K0sFilter_TuneCP5_13p6TeV_pythia8-evtgen/Run3Summer22EEMiniAODv4-130X_mcRun3_2022_realistic_postEE_v6-v2/MINIAODSIM
+    decay: KshortLL 
+    isMC: True
+    globaltag: 130X_mcRun3_2022_realistic_postEE_v6
+
+  BsToJpsiPhi:
+    dataset: /BsToJPsiPhi_JPsiToMuMu_PhiToKK_SoftQCDnonD_TuneCP5_13p6TeV_pythia8-evtgen/Run3Summer22EEMiniAODv4-130X_mcRun3_2022_realistic_postEE_v6-v2/MINIAODSIM
+    decay: KstarLL 
+    isMC: True
+    globaltag: 130X_mcRun3_2022_realistic_postEE_v6
+
+  B0ToJpsiKstar:
+    dataset: /BdToJpsiKstar_BMuonFilter_SoftQCDnonD_TuneCP5_13p6TeV_pythia8-evtgen/Run3Summer22EEMiniAODv4-130X_mcRun3_2022_realistic_postEE_v6-v2/MINIAODSIM 
+    decay: KstarLL 
+    isMC: True
+    globaltag: 130X_mcRun3_2022_realistic_postEE_v6
+
+  BuToJpsiK:
+    dataset: /BuToJpsiK_BMuonFilter_SoftQCDnonD_TuneCP5_13p6TeV_pythia8-evtgen/Run3Summer22EEMiniAODv4-130X_mcRun3_2022_realistic_postEE_v6-v2/MINIAODSIM 
+    decay: placeholder 
+    isMC: True
+    globaltag: 130X_mcRun3_2022_realistic_postEE_v6
+
+

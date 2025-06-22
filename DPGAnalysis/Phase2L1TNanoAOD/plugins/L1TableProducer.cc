@@ -3,6 +3,9 @@
 #include "DataFormats/L1Trigger/interface/VertexWord.h"
 typedef SimpleFlatTableProducer<l1t::VertexWord> SimpleL1VtxWordCandidateFlatTableProducer;
 
+#include "DataFormats/L1Trigger/interface/DisplacedVertex.h"
+typedef SimpleFlatTableProducer<l1t::DisplacedTrackVertex> SimpleL1DisplacedVtxCandidateFlatTableProducer;
+
 #include "DataFormats/L1Trigger/interface/P2GTAlgoBlock.h"
 typedef SimpleFlatTableProducer<l1t::P2GTAlgoBlock> P2GTAlgoBlockFlatTableProducer;
 
@@ -39,8 +42,12 @@ typedef SimpleFlatTableProducer<l1t::PFTau> SimpleTriggerL1PFTauFlatTableProduce
 #include "DataFormats/L1TParticleFlow/interface/HPSPFTau.h"
 typedef SimpleFlatTableProducer<l1t::HPSPFTau> SimpleTriggerL1HPSPFTauFlatTableProducer;
 
+#include "DataFormats/L1TParticleFlow/interface/PFJet.h"
+typedef SimpleFlatTableProducer<l1t::PFJet> SimpleTriggerL1PFJetFlatTableProducer;
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SimpleL1VtxWordCandidateFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleL1DisplacedVtxCandidateFlatTableProducer);
 DEFINE_FWK_MODULE(P2GTAlgoBlockFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleP2GTCandidateFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleL1TkJetWordCandidateFlatTableProducer);
@@ -53,3 +60,4 @@ DEFINE_FWK_MODULE(SimpleTriggerL1TrackerMuonFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleTriggerL1CaloJetFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleTriggerL1PFTauFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleTriggerL1HPSPFTauFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleTriggerL1PFJetFlatTableProducer);

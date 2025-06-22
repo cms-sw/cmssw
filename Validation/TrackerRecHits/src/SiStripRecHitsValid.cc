@@ -577,7 +577,7 @@ void SiStripRecHitsValid::createMEs(DQMStore::IBooker& ibooker, const edm::Event
     }
     // book sub-detector plots
     if (SubDetMEsMap.find(det_layer_pair.first) == SubDetMEsMap.end()) {
-      auto sdet_pair = folder_organizer.getSubDetFolderAndTag(detid, tTopo);
+      const auto& sdet_pair = folder_organizer.getSubDetFolderAndTag(detid, tTopo);
       ibooker.setCurrentFolder(sdet_pair.first);
       createSubDetMEs(ibooker, det_layer_pair.first);
     }

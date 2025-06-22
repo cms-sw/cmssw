@@ -1,0 +1,14 @@
+Type                      Module                      Label             Process   
+----------------------------------------------------------------------------------
+edm::ValueMap<float>      "run3ScoutingElectronBestTrack"   "Run3ScoutingElectronTrackchi2overndf"   "Demo"    
+edm::ValueMap<float>      "run3ScoutingElectronBestTrack"   "Run3ScoutingElectronTrackd0"   "Demo"    
+edm::ValueMap<float>      "run3ScoutingElectronBestTrack"   "Run3ScoutingElectronTrackdz"   "Demo"    
+edm::ValueMap<float>      "run3ScoutingElectronBestTrack"   "Run3ScoutingElectronTracketa"   "Demo"    
+edm::ValueMap<float>      "run3ScoutingElectronBestTrack"   "Run3ScoutingElectronTracketaMode"   "Demo"    
+edm::ValueMap<float>      "run3ScoutingElectronBestTrack"   "Run3ScoutingElectronTrackpMode"   "Demo"    
+edm::ValueMap<float>      "run3ScoutingElectronBestTrack"   "Run3ScoutingElectronTrackphi"   "Demo"    
+edm::ValueMap<float>      "run3ScoutingElectronBestTrack"   "Run3ScoutingElectronTrackphiMode"   "Demo"    
+edm::ValueMap<float>      "run3ScoutingElectronBestTrack"   "Run3ScoutingElectronTrackpt"   "Demo"    
+edm::ValueMap<float>      "run3ScoutingElectronBestTrack"   "Run3ScoutingElectronTrackqoverpModeError"   "Demo"    
+edm::ValueMap<int>        "run3ScoutingElectronBestTrack"   "Run3ScoutingElectronBestTrackIndex"   "Demo"    
+edm::ValueMap<int>        "run3ScoutingElectronBestTrack"   "Run3ScoutingElectronTrackcharge"   "Demo"    

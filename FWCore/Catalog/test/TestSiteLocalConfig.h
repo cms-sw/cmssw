@@ -27,7 +27,6 @@ namespace edmtest::catalog {
     }
 
     std::string const lookupCalibConnect(std::string const& input) const final { return std::string(); }
-    std::string const rfioType(void) const final { return std::string(); }
 
     std::string const* sourceCacheTempDir() const final { return nullptr; }
     double const* sourceCacheMinFree() const final { return nullptr; }

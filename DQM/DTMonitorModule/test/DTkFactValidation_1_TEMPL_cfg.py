@@ -42,13 +42,11 @@ process.maxEvents = cms.untracked.PSet(
 
 process.calibDB = cms.ESSource("PoolDBESSource",
     process.CondDBSetup,
-    timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('DTTtrigRcd'),
         tag = cms.string('ttrig')
     )),
     connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONCALIB/DTCALIB/RUNPERIODTEMPLATE/ttrig/ttrig_DUMPDBTEMPL_RUNNUMBERTEMPLATE.db'),
-    authenticationMethod = cms.untracked.uint32(0)
 )
 process.es_prefer_calibDB = cms.ESPrefer('PoolDBESSource','calibDB')
 

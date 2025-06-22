@@ -32,10 +32,8 @@ duplicateCheckMode = cms.untracked.string("checkEachFile"),
 
 process.es_pool = cms.ESSource( "PoolDBESSource",
      process.CondDBSetup,
-     timetype = cms.string('runnumber'),
 #   connect = cms.string('frontier://cmsfrontier.cern.ch:8000/FrontierPrep/CMS_COND_30X_HCAL'),
     connect = cms.string('sqlite_fle:testExample.db'),
-     authenticationMethod = cms.untracked.uint32(0),
      toGet = cms.VPSet(
          cms.PSet(
              record = cms.string('CastorPedestalsRcd'),
