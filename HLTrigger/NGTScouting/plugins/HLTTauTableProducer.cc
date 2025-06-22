@@ -2,6 +2,8 @@
 #include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterAssociation.h"
 #include "DataFormats/TauReco/interface/TauDiscriminatorContainer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -13,88 +15,96 @@ public:
   using TauDiscrMap = reco::TauDiscriminatorContainer;
   // TauCollection = deeptau.TauCollection;
   // using TauDeepTauVector = edm::AssociationVector<reco::PFTauRefProd, std::vector<reco::TauDiscriminatorContainer>>;
-  HLTTauTableProducer(const edm::ParameterSet& cfg) :
-      tauToken_(consumes<TauCollection>(cfg.getParameter<edm::InputTag>("taus"))), // for taus we can keep consumes because it should always be present
-      tauIPToken_(mayConsume<TauIPVector>(cfg.getParameter<edm::InputTag>("tauTransverseImpactParameters"))),
-      deepTauVSeToken_(mayConsume<TauDiscrMap>(cfg.getParameter<edm::InputTag>("deepTauVSe"))),
-      deepTauVSmuToken_(mayConsume<TauDiscrMap>(cfg.getParameter<edm::InputTag>("deepTauVSmu"))),
-      deepTauVSjetToken_(mayConsume<TauDiscrMap>(cfg.getParameter<edm::InputTag>("deepTauVSjet"))),
-      precision_(cfg.getParameter<int>("precision"))
-  {
-    produces<nanoaod::FlatTable>("Tau");
+  HLTTauTableProducer(const edm::ParameterSet& cfg)
+      : skipNonExistingSrc_(cfg.getParameter<bool>("skipNonExistingSrc")),
+        tauToken_(mayConsume<TauCollection>(cfg.getParameter<edm::InputTag>("taus"))),
+        tauIPToken_(mayConsume<TauIPVector>(cfg.getParameter<edm::InputTag>("tauTransverseImpactParameters"))),
+        deepTauVSeToken_(mayConsume<TauDiscrMap>(cfg.getParameter<edm::InputTag>("deepTauVSe"))),
+        deepTauVSmuToken_(mayConsume<TauDiscrMap>(cfg.getParameter<edm::InputTag>("deepTauVSmu"))),
+        deepTauVSjetToken_(mayConsume<TauDiscrMap>(cfg.getParameter<edm::InputTag>("deepTauVSjet"))),
+        precision_(cfg.getParameter<int>("precision")) {
+    produces<nanoaod::FlatTable>("hltHpsPFTau");
   }
 
- static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-   edm::ParameterSetDescription desc;
-   desc.add<edm::InputTag>("taus",edm::InputTag(""));
-   desc.add<edm::InputTag>("tauTransverseImpactParameters",edm::InputTag(""));
-   desc.add<edm::InputTag>("deepTauVSe",edm::InputTag(""));
-   desc.add<edm::InputTag>("deepTauVSmu",edm::InputTag(""));
-   desc.add<edm::InputTag>("deepTauVSjet",edm::InputTag(""));
-   desc.add<int>("precision",7);
-   descriptions.addWithDefaultLabel(desc);
- }
-  
-private:
-  void produce(edm::StreamID id, edm::Event& event, const edm::EventSetup& setup) const override
-  {
-    const auto tausHandle = event.getHandle(tauToken_);
-    const auto& tausProductId = tausHandle.id();
-    const auto& taus = *tausHandle;
-    static  constexpr float default_value = std::numeric_limits<float>::quiet_NaN();
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<bool>("skipNonExistingSrc", false)
+        ->setComment("whether or not to skip producing the table on absent input product");
+    desc.add<edm::InputTag>("taus", edm::InputTag(""));
+    desc.add<edm::InputTag>("tauTransverseImpactParameters", edm::InputTag(""));
+    desc.add<edm::InputTag>("deepTauVSe", edm::InputTag(""));
+    desc.add<edm::InputTag>("deepTauVSmu", edm::InputTag(""));
+    desc.add<edm::InputTag>("deepTauVSjet", edm::InputTag(""));
+    desc.add<int>("precision", 7);
+    descriptions.addWithDefaultLabel(desc);
+  }
 
-    const auto& tausIPHandle = event.getHandle(tauIPToken_);
-    const auto& deepTauVSeMapHandle = event.getHandle(deepTauVSeToken_);
-    const auto& deepTauVSmuMapHandle = event.getHandle(deepTauVSmuToken_);
-    const auto& deepTauVSjetMapHandle = event.getHandle(deepTauVSjetToken_);
-    std::vector<float> deepTauVSe(taus.size(), default_value);
-    std::vector<float> deepTauVSmu(taus.size(), default_value);
-    std::vector<float> deepTauVSjet(taus.size(), default_value);
+private:
+  void produce(edm::StreamID id, edm::Event& event, const edm::EventSetup& setup) const override {
+    const auto tausHandle = event.getHandle(tauToken_);
+    const size_t nTaus = tausHandle.isValid() ? (*tausHandle).size() : 0;
+
+    // resize all output vectors
+    static constexpr float default_value = std::numeric_limits<float>::quiet_NaN();
+
+    std::vector<float> deepTauVSe(nTaus, default_value);
+    std::vector<float> deepTauVSmu(nTaus, default_value);
+    std::vector<float> deepTauVSjet(nTaus, default_value);
 
     // source: RecoTauTag/RecoTau/plugins/PFTauTransverseImpactParameters.cc
-    std::vector<float> dxy(taus.size(), default_value);
-    std::vector<float> dxy_error(taus.size(), default_value);
-    std::vector<float> ip3d(taus.size(), default_value);
-    std::vector<float> ip3d_error(taus.size(), default_value);
-    std::vector<float> hasSecondaryVertex(taus.size(), default_value);
-    std::vector<float> flightLength_x(taus.size(), default_value);
-    std::vector<float> flightLength_y(taus.size(), default_value);
-    std::vector<float> flightLength_z(taus.size(), default_value);
-    std::vector<float> flightLengthSig(taus.size(), default_value);
-    std::vector<float> secondaryVertex_x(taus.size(), default_value);
-    std::vector<float> secondaryVertex_y(taus.size(), default_value);
-    std::vector<float> secondaryVertex_z(taus.size(), default_value);
+    std::vector<float> dxy(nTaus, default_value);
+    std::vector<float> dxy_error(nTaus, default_value);
+    std::vector<float> ip3d(nTaus, default_value);
+    std::vector<float> ip3d_error(nTaus, default_value);
+    std::vector<float> hasSecondaryVertex(nTaus, default_value);
+    std::vector<float> flightLength_x(nTaus, default_value);
+    std::vector<float> flightLength_y(nTaus, default_value);
+    std::vector<float> flightLength_z(nTaus, default_value);
+    std::vector<float> flightLengthSig(nTaus, default_value);
+    std::vector<float> secondaryVertex_x(nTaus, default_value);
+    std::vector<float> secondaryVertex_y(nTaus, default_value);
+    std::vector<float> secondaryVertex_z(nTaus, default_value);
 
-    for(size_t tau_index = 0; tau_index < taus.size(); ++tau_index) {
-      if(deepTauVSeMapHandle.isValid())
-        deepTauVSe[tau_index] = deepTauVSeMapHandle->get(tausProductId, tau_index).rawValues.at(0);
+    if (tausHandle.isValid() || !(this->skipNonExistingSrc_)) {
+      const auto& tausProductId = tausHandle.id();
+      const auto& tausIPHandle = event.getHandle(tauIPToken_);
+      const auto& deepTauVSeMapHandle = event.getHandle(deepTauVSeToken_);
+      const auto& deepTauVSmuMapHandle = event.getHandle(deepTauVSmuToken_);
+      const auto& deepTauVSjetMapHandle = event.getHandle(deepTauVSjetToken_);
 
-      if(deepTauVSmuMapHandle.isValid())
-        deepTauVSmu[tau_index] = deepTauVSmuMapHandle->get(tausProductId, tau_index).rawValues.at(0);
+      for (size_t tau_index = 0; tau_index < nTaus; ++tau_index) {
+        if (deepTauVSeMapHandle.isValid() || !(this->skipNonExistingSrc_))
+          deepTauVSe[tau_index] = deepTauVSeMapHandle->get(tausProductId, tau_index).rawValues.at(0);
 
-      if(deepTauVSjetMapHandle.isValid())
-        deepTauVSjet[tau_index] = deepTauVSjetMapHandle->get(tausProductId, tau_index).rawValues.at(0);
+        if (deepTauVSmuMapHandle.isValid() || !(this->skipNonExistingSrc_))
+          deepTauVSmu[tau_index] = deepTauVSmuMapHandle->get(tausProductId, tau_index).rawValues.at(0);
 
-      if(tausIPHandle.isValid()) {
-        dxy[tau_index] = tausIPHandle->value(tau_index)->dxy();
-        dxy_error[tau_index] =tausIPHandle->value(tau_index)->dxy_error();
-        ip3d[tau_index] =tausIPHandle->value(tau_index)->ip3d();
-        ip3d_error[tau_index] =tausIPHandle->value(tau_index)->ip3d_error();
-        hasSecondaryVertex[tau_index] = tausIPHandle->value(tau_index)->hasSecondaryVertex();
-        flightLength_x[tau_index] = tausIPHandle->value(tau_index)->flightLength().x();
-        flightLength_y[tau_index] = tausIPHandle->value(tau_index)->flightLength().y();
-        flightLength_z[tau_index] = tausIPHandle->value(tau_index)->flightLength().z();
-        flightLengthSig[tau_index] = tausIPHandle->value(tau_index)->flightLengthSig();
+        if (deepTauVSjetMapHandle.isValid() || !(this->skipNonExistingSrc_))
+          deepTauVSjet[tau_index] = deepTauVSjetMapHandle->get(tausProductId, tau_index).rawValues.at(0);
 
-        if (hasSecondaryVertex[tau_index] > 0) {
-          secondaryVertex_x[tau_index] = tausIPHandle->value(tau_index)->secondaryVertex()->x();
-          secondaryVertex_y[tau_index] = tausIPHandle->value(tau_index)->secondaryVertex()->y();
-          secondaryVertex_z[tau_index] = tausIPHandle->value(tau_index)->secondaryVertex()->z();
+        if (tausIPHandle.isValid() || !(this->skipNonExistingSrc_)) {
+          dxy[tau_index] = tausIPHandle->value(tau_index)->dxy();
+          dxy_error[tau_index] = tausIPHandle->value(tau_index)->dxy_error();
+          ip3d[tau_index] = tausIPHandle->value(tau_index)->ip3d();
+          ip3d_error[tau_index] = tausIPHandle->value(tau_index)->ip3d_error();
+          hasSecondaryVertex[tau_index] = tausIPHandle->value(tau_index)->hasSecondaryVertex();
+          flightLength_x[tau_index] = tausIPHandle->value(tau_index)->flightLength().x();
+          flightLength_y[tau_index] = tausIPHandle->value(tau_index)->flightLength().y();
+          flightLength_z[tau_index] = tausIPHandle->value(tau_index)->flightLength().z();
+          flightLengthSig[tau_index] = tausIPHandle->value(tau_index)->flightLengthSig();
+
+          if (hasSecondaryVertex[tau_index] > 0) {
+            secondaryVertex_x[tau_index] = tausIPHandle->value(tau_index)->secondaryVertex()->x();
+            secondaryVertex_y[tau_index] = tausIPHandle->value(tau_index)->secondaryVertex()->y();
+            secondaryVertex_z[tau_index] = tausIPHandle->value(tau_index)->secondaryVertex()->z();
+          }
         }
       }
+    } else {
+      edm::LogWarning("HLTTauTableProducer") << "Invalid handle for PFTau candidate input collection";
     }
 
-    auto tauTable = std::make_unique<nanoaod::FlatTable>(taus.size(), "Tau", false, true);
+    auto tauTable = std::make_unique<nanoaod::FlatTable>(nTaus, "hltHpsPFTau", /*singleton*/ false, /*extension*/ true);
     tauTable->addColumn<float>("dxy", dxy, "tau transverse impact parameter", precision_);
     tauTable->addColumn<float>("dxy_error", dxy_error, " dxy_error ", precision_);
     tauTable->addColumn<float>("ip3d", ip3d, " ip3d ", precision_);
@@ -111,10 +121,11 @@ private:
     tauTable->addColumn<float>("deepTauVSmu", deepTauVSmu, "tau vs muon discriminator", precision_);
     tauTable->addColumn<float>("deepTauVSjet", deepTauVSjet, "tau vs jet discriminator", precision_);
 
-    event.put(std::move(tauTable), "Tau");
+    event.put(std::move(tauTable), "hltHpsPFTau");
   }
 
 private:
+  const bool skipNonExistingSrc_;
   const edm::EDGetTokenT<TauCollection> tauToken_;
   const edm::EDGetTokenT<TauIPVector> tauIPToken_;
   const edm::EDGetTokenT<TauDiscrMap> deepTauVSeToken_, deepTauVSmuToken_, deepTauVSjetToken_;

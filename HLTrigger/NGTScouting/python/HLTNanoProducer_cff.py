@@ -22,6 +22,7 @@ from HLTrigger.NGTScouting.hltTracks_cfi import *
 from HLTrigger.NGTScouting.hltJets_cfi import *
 from HLTrigger.NGTScouting.hltTaus_cfi import *
 from HLTrigger.NGTScouting.hltTracksters_cfi import *
+from HLTrigger.NGTScouting.hltTausExtra_cfi import *
 from HLTrigger.NGTScouting.hltSums_cfi import *
 from HLTrigger.NGTScouting.hltTriggerAcceptFilter_cfi import hltTriggerAcceptFilter,dstTriggerAcceptFilter
 
@@ -56,6 +57,7 @@ hltNanoProducer = cms.Sequence(
     + hltJetTable
     + hltTrackstersTable
     + hltTauTable
+    + hltTauExtTable
     + METTable
     + HTTable
 )
@@ -75,6 +77,7 @@ dstNanoProducer = cms.Sequence(
     + hltJetTable
     + hltTauTable
     + hltTrackstersTable
+    + hltTauExtTable
     + METTable
     + HTTable
 )

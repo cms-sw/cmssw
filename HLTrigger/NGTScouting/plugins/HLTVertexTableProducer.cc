@@ -31,6 +31,7 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
+  const bool skipNonExistingSrc_;
   const edm::EDGetTokenT<std::vector<reco::Vertex>> pvs_;
   const edm::EDGetTokenT<reco::PFCandidateCollection> pfc_;
   const edm::EDGetTokenT<edm::ValueMap<float>> pvsScore_;
@@ -45,7 +46,8 @@ private:
 //
 
 HLTVertexTableProducer::HLTVertexTableProducer(const edm::ParameterSet& params)
-    : pvs_(consumes<std::vector<reco::Vertex>>(params.getParameter<edm::InputTag>("pvSrc"))),
+    : skipNonExistingSrc_(params.getParameter<bool>("skipNonExistingSrc")),
+      pvs_(consumes<std::vector<reco::Vertex>>(params.getParameter<edm::InputTag>("pvSrc"))),
       pfc_(consumes<reco::PFCandidateCollection>(params.getParameter<edm::InputTag>("pfSrc"))),
       pvsScore_(consumes<edm::ValueMap<float>>(params.getParameter<edm::InputTag>("pvSrc"))),
       goodPvCut_(params.getParameter<std::string>("goodPvCut"), true),
@@ -85,7 +87,7 @@ void HLTVertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   std::vector<float> v_pv_sumpx((*pvsIn).size(), default_value);
   std::vector<float> v_pv_sumpy((*pvsIn).size(), default_value);
 
-  if (pvsIn.isValid()) {
+  if (pvsIn.isValid() || !(this->skipNonExistingSrc_)) {
     const auto& pvs = *pvsIn;
     const auto& pvsScoreProd = iEvent.get(pvsScore_);
 
@@ -111,7 +113,7 @@ void HLTVertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 
       float sumpt2 = 0.f, sumpx = 0.f, sumpy = 0.f;
 
-      if (isPfcValid) {
+      if (isPfcValid || !(this->skipNonExistingSrc_)) {
         for (const auto& obj : *pfcIn) {
           if (obj.charge() == 0 || !obj.trackRef().isNonnull())
             continue;
@@ -179,6 +181,8 @@ void HLTVertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 void HLTVertexTableProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
+  desc.add<bool>("skipNonExistingSrc", false)
+      ->setComment("whether or not to skip producing the table on absent input product");
   desc.add<std::string>("pvName")->setComment("name of the flat table ouput");
   desc.add<edm::InputTag>("pvSrc")->setComment(
       "std::vector<reco::Vertex> and ValueMap<float> primary vertex input collections");
