@@ -63,8 +63,8 @@ namespace edm {
 
       void doBeginJob();
 
-      void doBeginStream(StreamID id);
-      void doEndStream(StreamID id);
+      void doBeginStream(StreamID id) { doBeginStream_(id); }
+      void doEndStream(StreamID id) { doEndStream_(id); }
 
       bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
       //For now this is a placeholder
