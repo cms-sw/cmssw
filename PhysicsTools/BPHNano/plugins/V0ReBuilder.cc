@@ -37,7 +37,6 @@
 #include "helper.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
 class V0ReBuilder : public edm::global::EDProducer<> {
   // perhaps we need better structure here (begin run etc)
 public:
@@ -128,14 +127,14 @@ void V0ReBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup const 
     float Track2_mass = bph::PI_MASS;
     float Track2_sigma = bph::PI_SIGMA;
     // create V0 vertex
-    KinVtxFitter fitter; 
+    KinVtxFitter fitter;
 
     try {
-        fitter = KinVtxFitter(
-	{v0daughter1_ttrack, v0daughter2_ttrack}, {Track1_mass, Track2_mass}, {Track1_sigma, Track2_sigma});
-    } catch (const VertexException& e) {
-        edm::LogWarning("KinematicFit") << "Skipping candidate due to fit failure: " << e.what();
-        continue;  // Just skip this candidate and continue with the loop
+      fitter = KinVtxFitter(
+          {v0daughter1_ttrack, v0daughter2_ttrack}, {Track1_mass, Track2_mass}, {Track1_sigma, Track2_sigma});
+    } catch (const VertexException &e) {
+      edm::LogWarning("KinematicFit") << "Skipping candidate due to fit failure: " << e.what();
+      continue;  // Just skip this candidate and continue with the loop
     }
 
     if (!fitter.success())

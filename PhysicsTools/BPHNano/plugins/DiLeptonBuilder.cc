@@ -96,11 +96,12 @@ void DiLeptonBuilder<Lepton>::produce(edm::StreamID, edm::Event &evt, edm::Event
 
       KinVtxFitter fitter;
       try {
-          fitter = KinVtxFitter(
-          {ttracks->at(l1_idx), ttracks->at(l2_idx)}, {l1_ptr->mass(), l2_ptr->mass()}, {bph::LEP_SIGMA, bph::LEP_SIGMA});
-      } catch (const VertexException& e) {
-          edm::LogWarning("KinematicFit") << "MuMu Builder Skipping candidate due to fit failure: " << e.what();
-          continue;
+        fitter = KinVtxFitter({ttracks->at(l1_idx), ttracks->at(l2_idx)},
+                              {l1_ptr->mass(), l2_ptr->mass()},
+                              {bph::LEP_SIGMA, bph::LEP_SIGMA});
+      } catch (const VertexException &e) {
+        edm::LogWarning("KinematicFit") << "MuMu Builder Skipping candidate due to fit failure: " << e.what();
+        continue;
       }
       if (!fitter.success())
         continue;

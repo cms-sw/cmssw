@@ -58,7 +58,6 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
   void endStream() override;
 
-
   // ----------member data ---------------------------
 
   const edm::EDGetTokenT<std::vector<reco::Vertex>> pvs_;
@@ -76,7 +75,7 @@ PVertexBPHTable::PVertexBPHTable(const edm::ParameterSet& params)
     : pvs_(consumes<std::vector<reco::Vertex>>(params.getParameter<edm::InputTag>("pvSrc"))),
       pvsScore_(consumes<edm::ValueMap<float>>(params.getParameter<edm::InputTag>("pvSrc"))),
       dileptonToken_(consumes<pat::CompositeCandidateCollection>(params.getParameter<edm::InputTag>("dileptons"))),
-      maxDzDilep_(params.getParameter<double>("maxDzDilep")),	
+      maxDzDilep_(params.getParameter<double>("maxDzDilep")),
       goodPvCut_(params.getParameter<std::string>("goodPvCut"), true),
       pvName_(params.getParameter<std::string>("pvName"))
 
@@ -105,44 +104,44 @@ void PVertexBPHTable::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken(dileptonToken_, dileptons);
 
   auto selCandPv = std::make_unique<PtrVector<reco::Candidate>>();
-  std::vector<float> pvscore, chi2, covXX, covYY, covZZ, covXY, covXZ, covYZ,
-                     vx, vy, vz, pt, eta, phi, mass, ndof;
+  std::vector<float> pvscore, chi2, covXX, covYY, covZZ, covXY, covXZ, covYZ, vx, vy, vz, pt, eta, phi, mass, ndof;
   std::vector<int> charge, ntracks;
 
-  size_t i=0;
-  for (const auto& pv : *pvsCol){
-    if (!goodPvCut_(pv) and i != 0){
-       i++;
-       continue;
+  size_t i = 0;
+  for (const auto& pv : *pvsCol) {
+    if (!goodPvCut_(pv) and i != 0) {
+      i++;
+      continue;
     }
     bool within_dz = false;
-    for (const pat::CompositeCandidate &dilep : *dileptons) {
-         if (fabs(pv.z() - dilep.vz())< maxDzDilep_ && maxDzDilep_>0) within_dz=true;	    
+    for (const pat::CompositeCandidate& dilep : *dileptons) {
+      if (fabs(pv.z() - dilep.vz()) < maxDzDilep_ && maxDzDilep_ > 0)
+        within_dz = true;
     }
-    if (!within_dz) continue;
+    if (!within_dz)
+      continue;
 
     // int sum_charge = 0;
     pvscore.push_back(pvsScoreProd.get(pvsCol.id(), i));
-    ntracks.push_back(pv.tracksSize() );
-    chi2.push_back(pv.chi2() ); 
-    covXX.push_back(pv.covariance(0,0)); 
-    covYY.push_back(pv.covariance(1,1));
-    covZZ.push_back(pv.covariance(2,2)); 
-    covXY.push_back(pv.covariance(0,1)); 
-    covXZ.push_back(pv.covariance(0,2)); 
-    covYZ.push_back(pv.covariance(1,2));
+    ntracks.push_back(pv.tracksSize());
+    chi2.push_back(pv.chi2());
+    covXX.push_back(pv.covariance(0, 0));
+    covYY.push_back(pv.covariance(1, 1));
+    covZZ.push_back(pv.covariance(2, 2));
+    covXY.push_back(pv.covariance(0, 1));
+    covXZ.push_back(pv.covariance(0, 2));
+    covYZ.push_back(pv.covariance(1, 2));
     vx.push_back(pv.x());
-    vy.push_back(pv.y()); 
-    vz.push_back(pv.z()); 
+    vy.push_back(pv.y());
+    vz.push_back(pv.z());
     pt.push_back(pv.p4().pt());
-    eta.push_back(pv.p4().eta());  
-    phi.push_back(pv.p4().phi()); 
+    eta.push_back(pv.p4().eta());
+    phi.push_back(pv.p4().phi());
     mass.push_back(pv.p4().M());
     ndof.push_back(pv.ndof());
     i++;
-   
   }
-  auto table = std::make_unique<nanoaod::FlatTable>(pvscore.size(), pvName_, false,false);
+  auto table = std::make_unique<nanoaod::FlatTable>(pvscore.size(), pvName_, false, false);
   table->addColumn<float>("score", pvscore, "", 12);
   table->addColumn<float>("vx", vx, "", 16);
   table->addColumn<float>("vy", vy, "", 16);
@@ -161,7 +160,6 @@ void PVertexBPHTable::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   table->addColumn<float>("covYZ", covYZ, "", 12);
   table->addColumn<uint8_t>("ntracks", ntracks, "");
 
-
   iEvent.put(std::move(table), "pv");
 }
 
@@ -179,10 +177,10 @@ void PVertexBPHTable::fillDescriptions(edm::ConfigurationDescriptions& descripti
       "std::vector<reco::Vertex> and ValueMap<float> primary vertex input collections");
 
   desc.add<edm::InputTag>("dileptons")->setComment("input dilepton collection");
-	     
+
   desc.add<double>("maxDzDilep")->setComment("maxDz cut wrt dilepton vertices to keep only useful PVs"),
 
-  desc.add<std::string>("goodPvCut")->setComment("selection on the primary vertex");
+      desc.add<std::string>("goodPvCut")->setComment("selection on the primary vertex");
 
   desc.add<std::string>("pvName")->setComment("name of the flat table ouput");
 
