@@ -1324,8 +1324,9 @@ void SiPixelTemplate::postInit(std::vector<SiPixelTemplateStore>& thePixelTemp_)
 //! \param locBx - (input) the sign of this quantity is used to determine whether to flip cot(alpha/beta)<0 quantities from cot(alpha/beta)>0 (FPix only)
 //!                    for Phase 1 FPix IP-related tracks, locBx/locBz > 0 for cot(alpha) > 0 and locBx/locBz < 0 for cot(alpha) < 0
 //!                    for Phase 1 FPix IP-related tracks, locBx > 0 for cot(beta) > 0 and locBx < 0 for cot(beta) < 0
+//! \param goodEdgeAlgo - (input) Flag to turn on the y Gaussian Parameter interpolation to be used with goodEdge reconstruction algorithm
 // ************************************************************************************************************
-bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float locBz, float locBx) {
+bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float locBz, float locBx, bool goodEdgeAlgo) {
   // Interpolate for a new set of track angles
 
   //check for nan's
@@ -1563,6 +1564,15 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
         yavg_[i] = -yavg_[i];
       }
       yrms_[i] = (1.f - yratio_) * enty0_->yrms[i] + yratio_ * enty1_->yrms[i];
+
+      assert(!goodEdgeAlgo && "goodEdgeAlgo triggered unexpectedly");
+      if (goodEdgeAlgo) {  // restore y Gaussian Parameter interpolation
+        ygx0_[i] = (1.f - yratio_) * enty0_->ygx0[i] + yratio_ * enty1_->ygx0[i];
+        if (flip_y_) {
+          ygx0_[i] = -ygx0_[i];
+        }
+        ygsig_[i] = (1.f - yratio_) * enty0_->ygsig[i] + yratio_ * enty1_->ygsig[i];
+      }  //if(goodEdgeAlgo)
       chi2yavg_[i] = (1.f - yratio_) * enty0_->chi2yavg[i] + yratio_ * enty1_->chi2yavg[i];
       chi2ymin_[i] = (1.f - yratio_) * enty0_->chi2ymin[i] + yratio_ * enty1_->chi2ymin[i];
       chi2xavg[i] = (1.f - yratio_) * enty0_->chi2xavg[i] + yratio_ * enty1_->chi2xavg[i];
