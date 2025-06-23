@@ -54,12 +54,9 @@ private:
 
   void Rotate(G4FastVector<G4ReactionProduct, MYGHADLISTSIZE> &vec, G4int &vecLen);
 
-  const G4DynamicParticle *FindRhadron(G4ParticleChange *);
-
   G4ProcessHelper *theHelper;
   G4bool toyModel;
-  G4double cache;
-  G4ThreeVector what;
+  G4ThreeVector incomingCloud3Momentum;
 };
 
 #endif
