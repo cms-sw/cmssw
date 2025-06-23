@@ -90,13 +90,20 @@ namespace l1ct {
     id_score_t hwIDScore;
     bool hwCharge;
 
+    redChi2Bin_t hwTkRedChi2RPhi;      // 4 bits
+    tkdphi_t hwTkCaloDphi;             // 7 bits
+    shower_shape_t hwCaloShowerShape;  // 6 bits
+    caloTkPtRatio_t hwCaloTkPtRatio;   // 10 bits
+
     glbphi_t hwVtxPhi() const { return hwCharge ? hwPhi + hwDPhi : hwPhi - hwDPhi; }
     glbeta_t hwVtxEta() const { return hwEta + hwDEta; }
 
     inline bool operator==(const EGIsoEleObj &other) const {
       return hwPt == other.hwPt && hwEta == other.hwEta && hwPhi == other.hwPhi && hwQual == other.hwQual &&
              hwIso == other.hwIso && hwDEta == other.hwDEta && hwDPhi == other.hwDPhi && hwZ0 == other.hwZ0 &&
-             hwIDScore == other.hwIDScore && hwCharge == other.hwCharge;
+             hwIDScore == other.hwIDScore && hwCharge == other.hwCharge && hwTkRedChi2RPhi == other.hwTkRedChi2RPhi &&
+             hwTkCaloDphi == other.hwTkCaloDphi && hwCaloShowerShape == other.hwCaloShowerShape &&
+             hwCaloTkPtRatio == other.hwCaloTkPtRatio;
     }
 
     inline bool operator>(const EGIsoEleObj &other) const { return hwPt > other.hwPt; }
@@ -113,6 +120,10 @@ namespace l1ct {
       hwZ0 = 0;
       hwIDScore = 0;
       hwCharge = false;
+      hwTkRedChi2RPhi = 0;
+      hwTkCaloDphi = 0;
+      hwCaloShowerShape = 0;
+      hwCaloTkPtRatio = 0;
     }
 
     int intCharge() const { return hwCharge ? +1 : -1; }
@@ -122,9 +133,11 @@ namespace l1ct {
     float floatVtxPhi() const { return Scales::floatPhi(hwVtxPhi()); }
     float floatZ0() const { return Scales::floatZ0(hwZ0); }
     float floatIDScore() const { return Scales::floatIDScore(hwIDScore); }
+    // FIXME: add accessors
 
-    static const int BITWIDTH =
-        EGIsoObj::BITWIDTH + tkdeta_t::width + tkdphi_t::width + z0_t::width + id_score_t::width + 1;
+    static const int BITWIDTH = EGIsoObj::BITWIDTH + tkdeta_t::width + tkdphi_t::width + z0_t::width +
+                                id_score_t::width + 1 + redChi2Bin_t::width + tkdphi_t::width + shower_shape_t::width +
+                                caloTkPtRatio_t::width;
     inline ap_uint<BITWIDTH> pack() const {
       ap_uint<BITWIDTH> ret;
       unsigned int start = 0;
@@ -138,6 +151,10 @@ namespace l1ct {
       pack_into_bits(ret, start, hwZ0);
       pack_bool_into_bits(ret, start, hwCharge);
       pack_into_bits(ret, start, hwIDScore);
+      pack_into_bits(ret, start, hwTkRedChi2RPhi);
+      pack_into_bits(ret, start, hwTkCaloDphi);
+      pack_into_bits(ret, start, hwCaloShowerShape);
+      pack_into_bits(ret, start, hwCaloTkPtRatio);
       return ret;
     }
     inline static EGIsoEleObj unpack(const ap_uint<BITWIDTH> &src) {
@@ -158,6 +175,10 @@ namespace l1ct {
       unpack_from_bits(src, start, hwZ0);
       unpack_bool_from_bits(src, start, hwCharge);
       unpack_from_bits(src, start, hwIDScore);
+      unpack_from_bits(src, start, hwTkRedChi2RPhi);
+      unpack_from_bits(src, start, hwTkCaloDphi);
+      unpack_from_bits(src, start, hwCaloShowerShape);
+      unpack_from_bits(src, start, hwCaloTkPtRatio);
     }
 
     l1gt::Electron toGT() const {

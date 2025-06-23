@@ -44,6 +44,7 @@ namespace l1ct {
   typedef ap_ufixed<11, 9, AP_TRN, AP_SAT> iso_t;
   typedef ap_ufixed<6, 0, AP_RND, AP_SAT> rel_iso_t;
   typedef ap_ufixed<6, 0, AP_RND, AP_SAT> shower_shape_t;
+  typedef ap_ufixed<10, 1, AP_RND, AP_SAT> caloTkPtRatio_t;
 
   struct ParticleID {
     ap_uint<3> bits;
@@ -160,6 +161,7 @@ namespace l1ct {
     constexpr float HOE_LSB = 0.031250000;      // pow(2, -5)
     // empirical choice: we saturate to 16 while waiting for updates to the GCT-CTL1 interface document
     constexpr unsigned int RELISO_SCALE = 16;
+    constexpr unsigned int CALOTKPTRATIO_SCALE = 8;
 
     inline float floatPt(pt_t pt) { return pt.to_float(); }
     inline float floatPt(dpt_t pt) { return pt.to_float(); }
@@ -190,6 +192,9 @@ namespace l1ct {
     inline float floatIDProb(id_prob_t prob) { return prob.to_float(); };
     inline float floatRelIso(rel_iso_t rel_iso) { return rel_iso.to_float() * RELISO_SCALE; }
     inline float floatShoweShape(shower_shape_t showe_shape) { return showe_shape.to_float(); }
+    inline float floatCaloTkPtRatio(caloTkPtRatio_t caloTkPtRatio) {
+      return caloTkPtRatio.to_float() * CALOTKPTRATIO_SCALE;
+    }
 
     inline pt_t makePt(int pt) { return ap_ufixed<16, 14>(pt) >> 2; }
     inline dpt_t makeDPt(int dpt) { return ap_fixed<18, 16>(dpt) >> 2; }
@@ -225,6 +230,7 @@ namespace l1ct {
     inline meanz_t makeMeanZ(float var) { return round(var - MEANZ_OFFSET); };
     inline hoe_t makeHoe(float var) { return hoe_t(HOE_LSB * round(var / HOE_LSB)); };
     inline rel_iso_t makeRelIso(float var) { return rel_iso_t(var / RELISO_SCALE); };
+    inline caloTkPtRatio_t makeCaloTkPtRatio(float var) { return caloTkPtRatio_t(var / CALOTKPTRATIO_SCALE); };
 
     inline float maxAbsEta() { return ((1 << (eta_t::width - 1)) - 1) * ETAPHI_LSB; }
     inline float maxAbsPhi() { return ((1 << (phi_t::width - 1)) - 1) * ETAPHI_LSB; }
