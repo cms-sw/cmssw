@@ -1259,9 +1259,6 @@ namespace edm {
   Schedule::AllWorkers const& Schedule::allWorkers() const { return globalSchedule_->allWorkers(); }
 
   void Schedule::convertCurrentProcessAlias(std::string const& processName) {
-    //for (auto const& worker : allWorkers()) {
-    //  worker->convertCurrentProcessAlias(processName);
-    //}
     moduleRegistry_->forAllModuleHolders([&](auto& iHolder) { iHolder->convertCurrentProcessAlias(processName); });
   }
 
