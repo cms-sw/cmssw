@@ -6,8 +6,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/RawDataBuffer.h"
 #include "EventFilter/Utilities/interface/EvFDaqDirector.h"
 #include "EventFilter/Utilities/interface/crc32c.h"
 #include "EventFilter/Utilities/plugins/EvFBuildingThrottle.h"
@@ -48,7 +47,7 @@ private:
   void endLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
 
   std::unique_ptr<Consumer> templateConsumer_;
-  const edm::EDGetTokenT<FEDRawDataCollection> token_;
+  const edm::EDGetTokenT<RawDataBuffer> token_;
   const unsigned int numEventsPerFile_;
   const unsigned int frdVersion_;
   std::vector<unsigned int> sourceIdList_;
@@ -61,7 +60,7 @@ RawEventOutputModuleForBU<Consumer>::RawEventOutputModuleForBU(edm::ParameterSet
     : edm::one::OutputModuleBase::OutputModuleBase(ps),
       edm::one::OutputModule<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks>(ps),
       templateConsumer_(new Consumer(ps)),
-      token_(consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("source"))),
+      token_(consumes<RawDataBuffer>(ps.getParameter<edm::InputTag>("source"))),
       numEventsPerFile_(ps.getParameter<unsigned int>("numEventsPerFile")),
       frdVersion_(ps.getParameter<unsigned int>("frdVersion")),
       sourceIdList_(ps.getUntrackedParameter<std::vector<unsigned int>>("sourceIdList", std::vector<unsigned int>())) {
@@ -90,22 +89,22 @@ void RawEventOutputModuleForBU<Consumer>::write(edm::EventForOutput const& e) {
   totevents_++;
   // serialize the FEDRawDataCollection into the format that we expect for
   // FRDEventMsgView objects (may be better ways to do this)
-  edm::Handle<FEDRawDataCollection> fedBuffers;
-  e.getByToken(token_, fedBuffers);
+  edm::Handle<RawDataBuffer> fedBuffer;
+  e.getByToken(token_, fedBuffer);
 
   // determine the expected size of the FRDEvent IN bytes
   int headerSize = edm::streamer::FRDHeaderVersionSize[frdVersion_];
   int expectedSize = headerSize;
-  int nFeds = FEDNumbering::lastFEDId() + 1;
+  int nFeds = FEDNumbering::lastFEDId() + 1; //TODO!
 
   if (sourceIdList_.size()) {
     for (int idx : sourceIdList_) {
-      FEDRawData singleFED = fedBuffers->FEDData(idx);
+      auto singleFED = fedBuffer->fragmentData(idx);
       expectedSize += singleFED.size();
     }
   } else {
     for (int idx = 0; idx < nFeds; ++idx) {
-      FEDRawData singleFED = fedBuffers->FEDData(idx);
+      auto singleFED = fedBuffer->fragmentData(idx);
       expectedSize += singleFED.size();
     }
   }
@@ -135,22 +134,19 @@ void RawEventOutputModuleForBU<Consumer>::write(edm::EventForOutput const& e) {
     *bufPtr++ = 0;
   }
   uint32_t* payloadPtr = bufPtr;
-  if (sourceIdList_.size())
+  if (sourceIdList_.size()) {
     for (int idx : sourceIdList_) {
-      FEDRawData singleFED = fedBuffers->FEDData(idx);
-      if (singleFED.size() > 0) {
-        memcpy(bufPtr, singleFED.data(), singleFED.size());
-        bufPtr += singleFED.size() / 4;
-      }
+      auto singleFED = fedBuffer->fragmentData(idx);
+      memcpy(bufPtr, &singleFED.data()[0], singleFED.size());
+      bufPtr += singleFED.size() / 4;
     }
-  else
-    for (int idx = 0; idx < nFeds; ++idx) {
-      FEDRawData singleFED = fedBuffers->FEDData(idx);
-      if (singleFED.size() > 0) {
-        memcpy(bufPtr, singleFED.data(), singleFED.size());
-        bufPtr += singleFED.size() / 4;
-      }
+  } else {
+    for (auto it = fedBuffer->map().begin();  it != fedBuffer->map().end(); it++) {
+      auto singleFED = fedBuffer->fragmentData(it);
+      memcpy(bufPtr, &singleFED.data()[0], singleFED.size());
+      bufPtr += singleFED.size() / 4;
     }
+  }
   if (frdVersion_) {
     //crc32c checksum
     uint32_t crc = 0;
