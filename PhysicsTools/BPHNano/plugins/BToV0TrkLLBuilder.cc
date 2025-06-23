@@ -26,6 +26,7 @@
 #include <limits>
 #include <algorithm>
 #include "KinVtxFitter.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 
@@ -171,14 +172,19 @@ void BToV0TrkLLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup 
         if (!pre_vtx_selection_(cand))
           continue;
 
-        KinVtxFitter fitter({leptons_ttracks->at(l1_idx),
-                             leptons_ttracks->at(l2_idx),
-                             pions_ttracks->at(pi_idx),
-                             V0s_ttracks->at(V0_idx)},
-                            {l1_ptr->mass(), l2_ptr->mass(), bph::PI_MASS, V0_ptr->mass()},
+        KinVtxFitter fitter;
+        try {
+            fitter = KinVtxFitter({leptons_ttracks->at(l1_idx),leptons_ttracks->at(l2_idx),pions_ttracks->at(pi_idx),V0s_ttracks->at(V0_idx)},
+			    {l1_ptr->mass(), l2_ptr->mass(), bph::PI_MASS, V0_ptr->mass()},
                             {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::PI_SIGMA, V0_ptr->userFloat("massErr")});
+
+        } catch (const VertexException& e) {
+            edm::LogWarning("KinematicFit") << "V0TrkLL Builder: Skipping candidate due to fit failure: " << e.what();
+            continue;
+        }
         if (!fitter.success())
           continue;
+
         cand.setVertex(
             reco::Candidate::Point(fitter.fitted_vtx().x(), fitter.fitted_vtx().y(), fitter.fitted_vtx().z()));
 
@@ -270,8 +276,6 @@ void BToV0TrkLLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup 
         if (!post_vtx_selection_(cand))
           continue;
 
-        //	std::cout << "                                      post" << endl;
-
         // /////////////////////////////////////////////////////////////////
         // ///     Mass constrained fit START                            ///
         // /////////////////////////////////////////////////////////////////
@@ -325,15 +329,16 @@ void BToV0TrkLLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup 
           ParticleMass mass_constraint = (dilepton_mass < jpsi_bin[1]) ? JPsi_mass : Psi2S_mass;
           // Mass constraint is applied to the first two particles in the "particles" vector
           // Make sure that the first two particles are the ones you want to constrain
-          KinVtxFitter constrained_fitter(
-
-              {leptons_ttracks->at(l1_idx),
-               leptons_ttracks->at(l2_idx),
-               pions_ttracks->at(pi_idx),
-               V0s_ttracks->at(V0_idx)},
-              {l1_ptr->mass(), l2_ptr->mass(), bph::PI_MASS, V0_ptr->mass()},
-              {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::PI_SIGMA, V0_ptr->userFloat("massErr")},
-              mass_constraint);  //K_SIGMA==PI_SIGMA
+          KinVtxFitter constrained_fitter;
+          try {
+              constrained_fitter = KinVtxFitter({leptons_ttracks->at(l1_idx),leptons_ttracks->at(l2_idx),
+                             pions_ttracks->at(pi_idx),V0s_ttracks->at(V0_idx)},
+                            {l1_ptr->mass(), l2_ptr->mass(), bph::PI_MASS, V0_ptr->mass()},
+                            {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::PI_SIGMA, V0_ptr->userFloat("massErr")},mass_constraint);
+          } catch (const VertexException& e) {
+              edm::LogWarning("KinematicFit") << "V0TrkLL Builder constraint: Skipping candidate due to fit failure: " << e.what();
+              continue;
+          }
           if (!constrained_fitter.success()) {
             // Save default values and continue
             cand.addUserInt("sv_OK_withMC", sv_OK_withMC);
