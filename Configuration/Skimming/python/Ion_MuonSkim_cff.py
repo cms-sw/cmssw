@@ -40,9 +40,9 @@ looseMuonCountFilterForMuonIon = cms.EDFilter("MuonRefPatCount",
 
 
 dimuonMassCutForMuonIon = cms.EDProducer("CandViewShallowCloneCombiner",
-    checkCharge = cms.bool(True),
-    cut = cms.string(''),
-    decay = cms.string("looseMuonSelectorForMuonIon@+ looseMuonSelectorForMuonIon@-")
+    checkCharge = cms.bool(False),
+    cut = cms.string("mass > 2.4"),
+    decay = cms.string("looseMuonSelectorForMuonIon looseMuonSelectorForMuonIon")
     )
 
 dimuonCountFilterForMuonIon = cms.EDFilter("CandViewCountFilter",
