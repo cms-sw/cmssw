@@ -76,14 +76,23 @@ private:
       const auto& deepTauVSjetMapHandle = event.getHandle(deepTauVSjetToken_);
 
       for (size_t tau_index = 0; tau_index < nTaus; ++tau_index) {
-        if (deepTauVSeMapHandle.isValid() || !(this->skipNonExistingSrc_))
+        if (deepTauVSeMapHandle.isValid() || !(this->skipNonExistingSrc_)) {
           deepTauVSe[tau_index] = deepTauVSeMapHandle->get(tausProductId, tau_index).rawValues.at(0);
+        } else {
+          edm::LogWarning("HLTTauTableProducer") << " Invalid handle for DeeTauVse score input collection";
+        }
 
-        if (deepTauVSmuMapHandle.isValid() || !(this->skipNonExistingSrc_))
+        if (deepTauVSmuMapHandle.isValid() || !(this->skipNonExistingSrc_)) {
           deepTauVSmu[tau_index] = deepTauVSmuMapHandle->get(tausProductId, tau_index).rawValues.at(0);
+        } else {
+          edm::LogWarning("HLTTauTableProducer") << " Invalid handle for DeeTauVsMu score input collection";
+        }
 
-        if (deepTauVSjetMapHandle.isValid() || !(this->skipNonExistingSrc_))
+        if (deepTauVSjetMapHandle.isValid() || !(this->skipNonExistingSrc_)) {
           deepTauVSjet[tau_index] = deepTauVSjetMapHandle->get(tausProductId, tau_index).rawValues.at(0);
+        } else {
+          edm::LogWarning("HLTTauTableProducer") << " Invalid handle for DeeTauVsJet score input collection";
+        }
 
         if (tausIPHandle.isValid() || !(this->skipNonExistingSrc_)) {
           dxy[tau_index] = tausIPHandle->value(tau_index)->dxy();
@@ -101,6 +110,8 @@ private:
             secondaryVertex_y[tau_index] = tausIPHandle->value(tau_index)->secondaryVertex()->y();
             secondaryVertex_z[tau_index] = tausIPHandle->value(tau_index)->secondaryVertex()->z();
           }
+        } else {
+          edm::LogWarning("HLTTauTableProducer") << " Invalid handle for Tau IP input collection";
         }
       }
     } else {
