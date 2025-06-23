@@ -8,6 +8,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/transform.h"
 
@@ -15,6 +17,7 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/egamma/l2egsorter_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/egamma/l2egencoder_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/egamma/L1EGPuppiIsoAlgo.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/egamma/l2tkeleregression_ref.h"
 
 #include "L1Trigger/DemonstratorTools/interface/BoardDataWriter.h"
 #include "L1Trigger/DemonstratorTools/interface/utilities.h"
@@ -28,6 +31,8 @@ class L1TCtL2EgProducer : public edm::global::EDProducer<> {
 public:
   explicit L1TCtL2EgProducer(const edm::ParameterSet &);
   ~L1TCtL2EgProducer() override;
+
+  // edm::ParameterSetDescription getParameterSetDescription();
 
 private:
   ap_uint<64> encodeLayer1(const EGIsoObjEmu &egiso) const;
@@ -231,6 +236,7 @@ private:
   std::string tkEleInstanceLabel_;
   l1ct::L2EgSorterEmulator l2egsorter;
   l1ct::L2EgEncoderEmulator l2encoder;
+  l1ct::L2TkEleRegressionEmulator l2tkeleregression;
   edm::EDGetTokenT<std::vector<l1t::PFCandidate>> pfObjsToken_;
   l1ct::L1EGPuppiIsoAlgo l2EgPuppiIsoAlgo_;
   l1ct::L1EGPuppiIsoAlgo l2ElePuppiIsoAlgo_;
@@ -249,6 +255,7 @@ L1TCtL2EgProducer::L1TCtL2EgProducer(const edm::ParameterSet &conf)
       tkEleInstanceLabel_(conf.getParameter<std::string>("tkEleInstanceLabel")),
       l2egsorter(conf.getParameter<edm::ParameterSet>("sorter")),
       l2encoder(conf.getParameter<edm::ParameterSet>("encoder")),
+      l2tkeleregression(conf.getParameter<edm::ParameterSet>("eleRegression")),
       pfObjsToken_(consumes<std::vector<l1t::PFCandidate>>(conf.getParameter<edm::InputTag>("l1PFObjects"))),
       l2EgPuppiIsoAlgo_(conf.getParameter<edm::ParameterSet>("puppiIsoParametersTkEm")),
       l2ElePuppiIsoAlgo_(conf.getParameter<edm::ParameterSet>("puppiIsoParametersTkEle")),
@@ -269,6 +276,27 @@ L1TCtL2EgProducer::L1TCtL2EgProducer(const edm::ParameterSet &conf)
 }
 
 L1TCtL2EgProducer::~L1TCtL2EgProducer() {}
+
+// edm::ParameterSetDescription L1TCtL2EgProducer::getParameterSetDescription() {
+//   edm::ParameterSetDescription desc;
+//   desc.add<std::vector<edm::ParameterSet>>("tkEgs", std::vector<edm::ParameterSet>());
+//   desc.add<std::vector<edm::ParameterSet>>("tkEms", std::vector<edm::ParameterSet>());
+//   desc.add<std::vector<edm::ParameterSet>>("tkElectrons", std::vector<edm::ParameterSet>());
+//   desc.add<std::string>("egStaInstanceLabel", "L1EGamma");
+//   desc.add<std::string>("tkEmInstanceLabel", "L1TkEm");
+//   desc.add<std::string>("tkEleInstanceLabel", "L1TkElectron");
+//   desc.add<edm::ParameterSetDescription>("sorter", l1ct::L2EgSorterEmulator::getParameterSetDescription());
+//   desc.add<edm::ParameterSetDescription>("encoder", l1ct::L2EgEncoderEmulator::getParameterSetDescription());
+//   desc.add<edm::ParameterSetDescription>("eleRegression", l1ct::L2TkEleRegressionEmulator::getParameterSetDescription());
+//   desc.add<edm::InputTag>("l1PFObjects", edm::InputTag("l1pfProducer"));
+//   desc.add<edm::ParameterSetDescription>("puppiIsoParametersTkEm", l1ct::L1EGPuppiIsoAlgo::getParameterSetDescription());
+//   desc.add<edm::ParameterSetDescription>("puppiIsoParametersTkEle", l1ct::L1EGPuppiIsoAlgo::getParameterSetDescription());
+//   desc.add<bool>("writeInPattern", false);
+//   desc.add<bool>("writeOutPattern", false);
+//   desc.add<edm::ParameterSetDescription>("inPatternFile", PatternWriter(conf).getParameterSetDescription());
+//   desc.add<edm::ParameterSetDescription>("outPatternFile", PatternWriter(conf).getParameterSetDescription());
+//   return desc;
+// }
 
 ap_uint<64> L1TCtL2EgProducer::encodeLayer1(const EGIsoObjEmu &egiso) const {
   ap_uint<64> ret = 0;
@@ -345,8 +373,12 @@ void L1TCtL2EgProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::Ev
   }
 
   std::vector<EGIsoObjEmu> out_photons_emu;
+  std::vector<EGIsoEleObjEmu> sorted_eles_emu;
   std::vector<EGIsoEleObjEmu> out_eles_emu;
-  l2egsorter.run(*regions, out_photons_emu, out_eles_emu);
+  l2egsorter.run(*regions, out_photons_emu, sorted_eles_emu);
+
+  // Apply electron regression
+  l2tkeleregression.run(sorted_eles_emu, out_eles_emu);
 
   // PUPPI isolation
   auto &pfObjs = iEvent.get(pfObjsToken_);
