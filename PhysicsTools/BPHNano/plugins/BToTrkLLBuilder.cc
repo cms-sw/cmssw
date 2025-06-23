@@ -134,12 +134,12 @@ void BToTrkLLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup co
 
       KinVtxFitter fitter;
       try {
-          fitter = KinVtxFitter({leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx), kaons_ttracks->at(k_idx)},
-                    {l1_ptr->mass(), l2_ptr->mass(), bph::K_MASS},
-                    {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA});
-      } catch (const VertexException& e) {
-          edm::LogWarning("KinematicFit") << "BToKLL: Skipping candidate due to fit failure: " << e.what();
-          continue;
+        fitter = KinVtxFitter({leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx), kaons_ttracks->at(k_idx)},
+                              {l1_ptr->mass(), l2_ptr->mass(), bph::K_MASS},
+                              {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA});
+      } catch (const VertexException &e) {
+        edm::LogWarning("KinematicFit") << "BToKLL: Skipping candidate due to fit failure: " << e.what();
+        continue;
       }
 
       if (!fitter.success())
@@ -239,15 +239,17 @@ void BToTrkLLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup co
         // ones you want to constrain
         KinVtxFitter constraint_fitter;
         try {
-            constraint_fitter = KinVtxFitter({leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx), kaons_ttracks->at(k_idx)},
-                      {l1_ptr->mass(), l2_ptr->mass(), bph::K_MASS},
-                      {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA},
- 	      mass_constraint);
-        } catch (const VertexException& e) {
-            edm::LogWarning("KinematicFit") << "BToKLL - Constrained fit: Skipping candidate due to fit failure: " << e.what();
-            continue;
+          constraint_fitter =
+              KinVtxFitter({leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx), kaons_ttracks->at(k_idx)},
+                           {l1_ptr->mass(), l2_ptr->mass(), bph::K_MASS},
+                           {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA},
+                           mass_constraint);
+        } catch (const VertexException &e) {
+          edm::LogWarning("KinematicFit")
+              << "BToKLL - Constrained fit: Skipping candidate due to fit failure: " << e.what();
+          continue;
         }
-	if (constraint_fitter.success()) {
+        if (constraint_fitter.success()) {
           auto constraint_p4 = constraint_fitter.fitted_p4();
           constraint_sv_prob = constraint_fitter.prob();
           constraint_pt = constraint_p4.pt();

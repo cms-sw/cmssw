@@ -134,9 +134,9 @@ void BToV0LLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup con
       KinVtxFitter fitter;
       try {
         fitter = KinVtxFitter({leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx), v0_ttracks->at(v0_idx)},
-                          {l1_ptr->mass(), l2_ptr->mass(), v0_ptr->mass()},
-                          {bph::LEP_SIGMA, bph::LEP_SIGMA, v0_ptr->userFloat("massErr")});
-      } catch (const VertexException& e) {
+                              {l1_ptr->mass(), l2_ptr->mass(), v0_ptr->mass()},
+                              {bph::LEP_SIGMA, bph::LEP_SIGMA, v0_ptr->userFloat("massErr")});
+      } catch (const VertexException &e) {
         edm::LogWarning("KinematicFit") << "BToV0LL: Skipping candidate due to fit failure: " << e.what();
         continue;
       }
@@ -255,10 +255,12 @@ void BToV0LLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup con
         // ones you want to constrain
         KinVtxFitter constraint_fitter;
         try {
-          constraint_fitter = KinVtxFitter({leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx), v0_ttracks->at(v0_idx)},
-                            {l1_ptr->mass(), l2_ptr->mass(), v0_ptr->mass()},
-                            {bph::LEP_SIGMA, bph::LEP_SIGMA, v0_ptr->userFloat("massErr")},mass_constraint);
-        } catch (const VertexException& e) {
+          constraint_fitter =
+              KinVtxFitter({leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx), v0_ttracks->at(v0_idx)},
+                           {l1_ptr->mass(), l2_ptr->mass(), v0_ptr->mass()},
+                           {bph::LEP_SIGMA, bph::LEP_SIGMA, v0_ptr->userFloat("massErr")},
+                           mass_constraint);
+        } catch (const VertexException &e) {
           edm::LogWarning("KinematicFit") << "BToV0LL: Skipping candidate due to fit failure: " << e.what();
           continue;
         }

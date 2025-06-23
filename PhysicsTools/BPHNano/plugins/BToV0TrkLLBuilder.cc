@@ -174,13 +174,16 @@ void BToV0TrkLLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup 
 
         KinVtxFitter fitter;
         try {
-            fitter = KinVtxFitter({leptons_ttracks->at(l1_idx),leptons_ttracks->at(l2_idx),pions_ttracks->at(pi_idx),V0s_ttracks->at(V0_idx)},
-			    {l1_ptr->mass(), l2_ptr->mass(), bph::PI_MASS, V0_ptr->mass()},
-                            {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::PI_SIGMA, V0_ptr->userFloat("massErr")});
+          fitter = KinVtxFitter({leptons_ttracks->at(l1_idx),
+                                 leptons_ttracks->at(l2_idx),
+                                 pions_ttracks->at(pi_idx),
+                                 V0s_ttracks->at(V0_idx)},
+                                {l1_ptr->mass(), l2_ptr->mass(), bph::PI_MASS, V0_ptr->mass()},
+                                {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::PI_SIGMA, V0_ptr->userFloat("massErr")});
 
-        } catch (const VertexException& e) {
-            edm::LogWarning("KinematicFit") << "V0TrkLL Builder: Skipping candidate due to fit failure: " << e.what();
-            continue;
+        } catch (const VertexException &e) {
+          edm::LogWarning("KinematicFit") << "V0TrkLL Builder: Skipping candidate due to fit failure: " << e.what();
+          continue;
         }
         if (!fitter.success())
           continue;
@@ -331,13 +334,18 @@ void BToV0TrkLLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup 
           // Make sure that the first two particles are the ones you want to constrain
           KinVtxFitter constrained_fitter;
           try {
-              constrained_fitter = KinVtxFitter({leptons_ttracks->at(l1_idx),leptons_ttracks->at(l2_idx),
-                             pions_ttracks->at(pi_idx),V0s_ttracks->at(V0_idx)},
-                            {l1_ptr->mass(), l2_ptr->mass(), bph::PI_MASS, V0_ptr->mass()},
-                            {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::PI_SIGMA, V0_ptr->userFloat("massErr")},mass_constraint);
-          } catch (const VertexException& e) {
-              edm::LogWarning("KinematicFit") << "V0TrkLL Builder constraint: Skipping candidate due to fit failure: " << e.what();
-              continue;
+            constrained_fitter =
+                KinVtxFitter({leptons_ttracks->at(l1_idx),
+                              leptons_ttracks->at(l2_idx),
+                              pions_ttracks->at(pi_idx),
+                              V0s_ttracks->at(V0_idx)},
+                             {l1_ptr->mass(), l2_ptr->mass(), bph::PI_MASS, V0_ptr->mass()},
+                             {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::PI_SIGMA, V0_ptr->userFloat("massErr")},
+                             mass_constraint);
+          } catch (const VertexException &e) {
+            edm::LogWarning("KinematicFit")
+                << "V0TrkLL Builder constraint: Skipping candidate due to fit failure: " << e.what();
+            continue;
           }
           if (!constrained_fitter.success()) {
             // Save default values and continue

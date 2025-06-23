@@ -174,12 +174,12 @@ void BToV0TrkDisplacedLLBuilder::produce(edm::StreamID, edm::Event &evt, edm::Ev
 
         KinVtxFitter xifitter;
         try {
-            xifitter = KinVtxFitter({pions_ttracks->at(pi_idx), V0s_ttracks->at(V0_idx)},
-                              {bph::PI_MASS, V0_ptr->mass()},
-                              {bph::PI_SIGMA, V0_ptr->userFloat("massErr")});
-        } catch (const VertexException& e) {
-            edm::LogWarning("KinematicFit") << "Xi Builder: Skipping candidate due to fit failure: " << e.what();
-            continue;
+          xifitter = KinVtxFitter({pions_ttracks->at(pi_idx), V0s_ttracks->at(V0_idx)},
+                                  {bph::PI_MASS, V0_ptr->mass()},
+                                  {bph::PI_SIGMA, V0_ptr->userFloat("massErr")});
+        } catch (const VertexException &e) {
+          edm::LogWarning("KinematicFit") << "Xi Builder: Skipping candidate due to fit failure: " << e.what();
+          continue;
         }
         if (!xifitter.success())
           continue;
@@ -205,12 +205,12 @@ void BToV0TrkDisplacedLLBuilder::produce(edm::StreamID, edm::Event &evt, edm::Ev
 
         KinVtxFitter fitter;
         try {
-            fitter = KinVtxFitter({leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx), XiTT},
-                            {l1_ptr->mass(), l2_ptr->mass(), ximass},
-                            {bph::LEP_SIGMA, bph::LEP_SIGMA, ximassErr});
-        } catch (const VertexException& e) {
-            edm::LogWarning("KinematicFit") << "BToXiLL Builder: Skipping candidate due to fit failure: " << e.what();
-            continue;
+          fitter = KinVtxFitter({leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx), XiTT},
+                                {l1_ptr->mass(), l2_ptr->mass(), ximass},
+                                {bph::LEP_SIGMA, bph::LEP_SIGMA, ximassErr});
+        } catch (const VertexException &e) {
+          edm::LogWarning("KinematicFit") << "BToXiLL Builder: Skipping candidate due to fit failure: " << e.what();
+          continue;
         }
         if (!fitter.success())
           continue;
@@ -333,17 +333,18 @@ void BToV0TrkDisplacedLLBuilder::produce(edm::StreamID, edm::Event &evt, edm::Ev
           // Mass constraint is applied to the first two particles in the "particles" vector
           // Make sure that the first two particles are the ones you want to constrain
 
-	  KinVtxFitter constrained_fitter;
+          KinVtxFitter constrained_fitter;
           try {
-              constrained_fitter = KinVtxFitter({leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx), XiTT},
-                            {l1_ptr->mass(), l2_ptr->mass(), ximass},
-                            {bph::LEP_SIGMA, bph::LEP_SIGMA, ximassErr}, mass_constraint);
-          } catch (const VertexException& e) {
-              edm::LogWarning("KinematicFit") << "BToXiLL Builder: Skipping candidate due to fit failure: " << e.what();
-              continue;
+            constrained_fitter = KinVtxFitter({leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx), XiTT},
+                                              {l1_ptr->mass(), l2_ptr->mass(), ximass},
+                                              {bph::LEP_SIGMA, bph::LEP_SIGMA, ximassErr},
+                                              mass_constraint);
+          } catch (const VertexException &e) {
+            edm::LogWarning("KinematicFit") << "BToXiLL Builder: Skipping candidate due to fit failure: " << e.what();
+            continue;
           }
 
-	  if (!constrained_fitter.success()) {
+          if (!constrained_fitter.success()) {
             // Save default values and continue
             cand.addUserInt("sv_OK_withMC", sv_OK_withMC);
             cand.addUserFloat("sv_chi2_withMC", sv_chi2_withMC);
