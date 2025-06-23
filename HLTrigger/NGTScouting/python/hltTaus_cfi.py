@@ -33,3 +33,14 @@ hltTauTable = cms.EDProducer("SimplePFTauCandidateFlatTableProducer",
         jetIsValid = Var("jetRef.isNonnull && jetRef.isAvailable", bool, doc = "jet is valid"),
       ),
 )
+
+hltTauExtTable = cms.EDProducer("HLTTauTableProducer",
+                                tableName = cms.string("hltHpsPFTau"),
+                                skipNonExistingSrc = cms.bool(True),
+                                taus = cms.InputTag( "hltHpsPFTauProducer" ),
+                                deepTauVSe = cms.InputTag("hltHpsPFTauDeepTauProducer", "VSe"),
+                                deepTauVSmu = cms.InputTag("hltHpsPFTauDeepTauProducer", "VSmu"),
+                                deepTauVSjet = cms.InputTag("hltHpsPFTauDeepTauProducer", "VSjet"),
+                                tauTransverseImpactParameters = cms.InputTag( "hltHpsPFTauTransverseImpactParametersForDeepTau" ),
+                                precision = cms.int32(7),
+                                )
