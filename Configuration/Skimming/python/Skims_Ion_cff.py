@@ -13,7 +13,7 @@ SKIMStreamIonHighPtMuon = cms.FilteredStream(
     responsible = 'HI PAG',
     name = 'IonHighPtMuon',
     paths = (HighPtMuonIonSkimPath),
-    content = skimMINIAODEventContent.outputCommands,
+    content = skimMINIAODEventContent.outputCommands+['drop *_slimmedJetsPuppi_*_*', 'drop *_slimmedOOTPhotons_*_*', 'drop *_slimmedTaus_*_*', 'drop *_slimmedTausBoosted_*_*', 'drop recoDeDxHitInfos_dedxEstimator_*_*'],
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('USER')
     )
@@ -23,7 +23,7 @@ SKIMStreamIonDimuon = cms.FilteredStream(
     responsible = 'HI PAG',
     name = 'IonDimuon',
     paths = (DimuonIonSkimPath),
-    content = skimMINIAODEventContent.outputCommands,
+    content = skimMINIAODEventContent.outputCommands+['drop *_slimmedJetsPuppi_*_*', 'drop *_slimmedJetsAK8_*_*', 'drop *_slimmedOOTPhotons_*_*', 'drop *_slimmedTaus_*_*', 'drop *_slimmedTausBoosted_*_*', 'drop *_dedxEstimator_*_*', 'keep recoDeDxDataedmValueMap_dedxEstimator_dedxAllLikelihood_*'],
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('USER')
     )
