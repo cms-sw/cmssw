@@ -4,7 +4,7 @@
 // Class:      PVertexBPHTable
 //
 /*
- Simple primary vertex table
+ Simple primary vertex table  
  Description: [one line class summary]
 
  Implementation:
@@ -20,21 +20,27 @@
 #include <memory>
 
 // user include files
-#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
-#include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
-#include "DataFormats/Common/interface/ValueMap.h"
-#include "DataFormats/NanoAOD/interface/FlatTable.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-#include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
-#include "RecoVertex/VertexPrimitives/interface/VertexState.h"
+
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
+
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+
+#include "DataFormats/NanoAOD/interface/FlatTable.h"
 #include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
+#include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
+#include "RecoVertex/VertexPrimitives/interface/VertexState.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 
 //
 // class declaration
@@ -45,6 +51,8 @@ public:
   explicit PVertexBPHTable(const edm::ParameterSet&);
   ~PVertexBPHTable() override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   void beginStream(edm::StreamID) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
@@ -54,6 +62,8 @@ private:
 
   const edm::EDGetTokenT<std::vector<reco::Vertex>> pvs_;
   const edm::EDGetTokenT<edm::ValueMap<float>> pvsScore_;
+  const edm::EDGetTokenT<pat::CompositeCandidateCollection> dileptonToken_;
+  const double maxDzDilep_;
   const StringCutObjectSelector<reco::Vertex> goodPvCut_;
   const std::string pvName_;
 };
@@ -64,6 +74,8 @@ private:
 PVertexBPHTable::PVertexBPHTable(const edm::ParameterSet& params)
     : pvs_(consumes<std::vector<reco::Vertex>>(params.getParameter<edm::InputTag>("pvSrc"))),
       pvsScore_(consumes<edm::ValueMap<float>>(params.getParameter<edm::InputTag>("pvSrc"))),
+      dileptonToken_(consumes<pat::CompositeCandidateCollection>(params.getParameter<edm::InputTag>("dileptons"))),
+      maxDzDilep_(params.getParameter<double>("maxDzDilep")),
       goodPvCut_(params.getParameter<std::string>("goodPvCut"), true),
       pvName_(params.getParameter<std::string>("pvName"))
 
@@ -88,16 +100,28 @@ void PVertexBPHTable::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   const auto& pvsScoreProd = iEvent.get(pvsScore_);
   auto pvsCol = iEvent.getHandle(pvs_);
 
+  edm::Handle<pat::CompositeCandidateCollection> dileptons;
+  iEvent.getByToken(dileptonToken_, dileptons);
+
   auto selCandPv = std::make_unique<PtrVector<reco::Candidate>>();
   std::vector<float> pvscore, chi2, covXX, covYY, covZZ, covXY, covXZ, covYZ, vx, vy, vz, pt, eta, phi, mass, ndof;
   std::vector<int> charge, ntracks;
 
   size_t i = 0;
   for (const auto& pv : *pvsCol) {
-    if (!goodPvCut_(pv)) {
+    if (!goodPvCut_(pv) and i != 0) {
       i++;
       continue;
     }
+    bool within_dz = false;
+    for (const pat::CompositeCandidate& dilep : *dileptons) {
+      if (fabs(pv.z() - dilep.vz()) < maxDzDilep_ && maxDzDilep_ > 0)
+        within_dz = true;
+    }
+    if (!within_dz)
+      continue;
+
+    // int sum_charge = 0;
     pvscore.push_back(pvsScoreProd.get(pvsCol.id(), i));
     ntracks.push_back(pv.tracksSize());
     chi2.push_back(pv.chi2());
@@ -118,34 +142,50 @@ void PVertexBPHTable::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     i++;
   }
   auto table = std::make_unique<nanoaod::FlatTable>(pvscore.size(), pvName_, false, false);
-  table->addColumn<float>("score", pvscore, "", 10);
-  table->addColumn<float>("vx", vx, "", 10);
-  table->addColumn<float>("vy", vy, "", 10);
-  table->addColumn<float>("vz", vz, "", 10);
-  table->addColumn<float>("pt", pt, "", 10);
-  table->addColumn<float>("eta", eta, "", 10);
-  table->addColumn<float>("phi", phi, "", 10);
-  table->addColumn<float>("mass", mass, "", 10);
-  table->addColumn<float>("chi2", chi2, "", 10);
-  table->addColumn<float>("ndof", ndof, "", 10);
-  table->addColumn<float>("covXX", covXX, "", 10);
-  table->addColumn<float>("covYY", covYY, "", 10);
-  table->addColumn<float>("covZZ", covZZ, "", 10);
-  table->addColumn<float>("covXY", covXY, "", 10);
-  table->addColumn<float>("covXZ", covXZ, "", 10);
-  table->addColumn<float>("covYZ", covYZ, "", 10);
+  table->addColumn<float>("score", pvscore, "", 12);
+  table->addColumn<float>("vx", vx, "", 16);
+  table->addColumn<float>("vy", vy, "", 16);
+  table->addColumn<float>("vz", vz, "", 16);
+  table->addColumn<float>("pt", pt, "", 12);
+  table->addColumn<float>("eta", eta, "", 12);
+  table->addColumn<float>("phi", phi, "", 12);
+  table->addColumn<float>("mass", mass, "", 12);
+  table->addColumn<float>("chi2", chi2, "", 12);
+  table->addColumn<float>("ndof", ndof, "", 12);
+  table->addColumn<float>("covXX", covXX, "", 12);
+  table->addColumn<float>("covYY", covYY, "", 12);
+  table->addColumn<float>("covZZ", covZZ, "", 12);
+  table->addColumn<float>("covXY", covXY, "", 12);
+  table->addColumn<float>("covXZ", covXZ, "", 12);
+  table->addColumn<float>("covYZ", covYZ, "", 12);
   table->addColumn<uint8_t>("ntracks", ntracks, "");
 
   iEvent.put(std::move(table), "pv");
 }
 
-// ------------ method called once each stream before processing any runs, lumis
-// or events  ------------
+// ------------ method called once each stream before processing any runs, lumis or events  ------------
 void PVertexBPHTable::beginStream(edm::StreamID) {}
 
-// ------------ method called once each stream after processing all runs, lumis
-// and events  ------------
+// ------------ method called once each stream after processing all runs, lumis and events  ------------
 void PVertexBPHTable::endStream() {}
 
-// define this as a plug-in
+// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
+void PVertexBPHTable::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+
+  desc.add<edm::InputTag>("pvSrc")->setComment(
+      "std::vector<reco::Vertex> and ValueMap<float> primary vertex input collections");
+
+  desc.add<edm::InputTag>("dileptons")->setComment("input dilepton collection");
+
+  desc.add<double>("maxDzDilep")->setComment("maxDz cut wrt dilepton vertices to keep only useful PVs"),
+
+      desc.add<std::string>("goodPvCut")->setComment("selection on the primary vertex");
+
+  desc.add<std::string>("pvName")->setComment("name of the flat table ouput");
+
+  descriptions.addWithDefaultLabel(desc);
+}
+
+//define this as a plug-in
 DEFINE_FWK_MODULE(PVertexBPHTable);
