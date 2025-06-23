@@ -31,7 +31,8 @@ phase2_hgcalV10.toModify(l1tPFClustersFromL1EGClusters,
     )
 )
 phase2_hgcalV11.toModify(l1tPFClustersFromL1EGClusters,
-    corrector  = "", # In this setup, TP's are already calibrated correctly :-) 
+    corrector  = "L1Trigger/Phase2L1ParticleFlow/data/emcorr_barrel.root", 
+                     # In this setup, TP's are already calibrated correctly :-) 
                      # L1Trigger/Phase2L1ParticleFlow/data/emcorr_barrel_110X.root",
     resol = cms.PSet(
         etaBins = cms.vdouble( 0.700,  1.200,  1.600),

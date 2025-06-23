@@ -52,6 +52,12 @@ l1tLayer2EG = cms.EDProducer(
         nTKELE_OUT=cms.uint32(12),
         nTKPHO_OUT=cms.uint32(12),
     ),
+    eleRegression=cms.PSet(
+        eta_bins=cms.vdouble(1.5),
+        model_types=cms.vuint32(1),
+        model_paths=cms.vstring(
+            "L1Trigger/Phase2L1ParticleFlow/data/egamma/TkElePtRegr_EB_sigVsBkg_v0_conifer.json")
+    ),
     puppiIsoParametersTkEm = cms.PSet(
         pfIsoType = cms.string("PUPPI"),
         pfPtMin = cms.double(1.),
