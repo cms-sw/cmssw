@@ -85,7 +85,7 @@ namespace simdoublets {
 
         // alignement cut variables in x-y
         CircleEq<double> eq(neighbor_x, neighbor_y, inner_x, inner_y, outer_x, outer_y);
-        hardCurvCut_.push_back(eq.curvature());
+        hardCurvCut_.push_back(std::abs(eq.curvature()));
         dcaCut_.push_back(std::abs(eq.dca0() / std::abs(eq.curvature())));
       }
     }
@@ -834,7 +834,7 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
       if (passed) {
         auto const& aliveNtuplet = simDoublets.longestAliveSimNtuplet();
         // relative length of alive SimNtuplet vs longest SimNtuplet
-        relativeLength = aliveNtuplet.numRecHits() / longNtuplet.numRecHits();
+        relativeLength = (double)aliveNtuplet.numRecHits() / (double)longNtuplet.numRecHits();
         h_aliveNtuplet_fracNumRecHits_eta_->Fill(true_eta, relativeLength);
         h_aliveNtuplet_fracNumRecHits_pt_->Fill(true_pT, relativeLength);
       }
@@ -864,8 +864,8 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
     h_numTPVsPdgId_.fill(passed, true_pdgId);
     // Fill the efficiency profile per Tracking Particle only if the TP has at least one SimDoublet
     if (numSimDoublets > 0) {
-      h_effSimDoubletsPerTPVsEta_->Fill(true_eta, pass_numSimDoublets / numSimDoublets);
-      h_effSimDoubletsPerTPVsPt_->Fill(true_pT, pass_numSimDoublets / numSimDoublets);
+      h_effSimDoubletsPerTPVsEta_->Fill(true_eta, (double)pass_numSimDoublets / (double)numSimDoublets);
+      h_effSimDoubletsPerTPVsPt_->Fill(true_pT, (double)pass_numSimDoublets / (double)numSimDoublets);
     }
 
     // clear SimDoublets and SimNtuplets of the TrackingParticle
