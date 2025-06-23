@@ -249,7 +249,6 @@ namespace edm {
 
     virtual void doClearModule() = 0;
 
-    virtual std::string workerType() const = 0;
     virtual bool implDo(EventTransitionInfo const&, ModuleCallingContext const*) = 0;
 
     virtual void itemsToGetForSelection(std::vector<ProductResolverIndexAndSkipBit>&) const = 0;

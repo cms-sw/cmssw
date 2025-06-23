@@ -561,11 +561,6 @@ namespace edm {
   }
 
   template <typename T>
-  inline std::string WorkerT<T>::workerType() const {
-    return module_->workerType();
-  }
-
-  template <typename T>
   inline void WorkerT<T>::implBeginJob() {
     module_->doBeginJob();
   }

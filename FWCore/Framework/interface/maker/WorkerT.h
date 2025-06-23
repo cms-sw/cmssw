@@ -115,7 +115,6 @@ namespace edm {
     void implRespondToOpenInputFile(FileBlock const& fb) override;
     void implRespondToCloseInputFile(FileBlock const& fb) override;
     void implRespondToCloseOutputFile() override;
-    std::string workerType() const override;
     TaskQueueAdaptor serializeRunModule() override;
 
     std::vector<ModuleConsumesInfo> moduleConsumesInfos() const override;

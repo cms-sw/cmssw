@@ -75,8 +75,6 @@ namespace edm {
     private:
       LimitedTaskQueue queue_;
 
-      std::string workerType() const { return "WorkerT<edm::limited::OutputModuleBase>"; }
-
       virtual void preallocStreams(unsigned int) {}
       virtual void preallocate(PreallocationConfiguration const&) {}
       virtual void doBeginStream_(StreamID) {}
