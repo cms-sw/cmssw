@@ -78,7 +78,6 @@ def nanoAOD_customizeLambdabToLambdaLL(process):
 
 def nanoAOD_customizeBPH(process):
     process.load('PhysicsTools.BPHNano.genparticlesBPH_cff')
-    process.load('PhysicsTools.BPHNano.pverticesBPH_cff')
     process.load('PhysicsTools.BPHNano.muons_cff')
     process.load('PhysicsTools.BPHNano.MuMu_cff')    
     process.load('PhysicsTools.BPHNano.tracks_cff')
@@ -86,9 +85,10 @@ def nanoAOD_customizeBPH(process):
     process.load('PhysicsTools.BPHNano.DiTrack_cff')
     process.load('PhysicsTools.BPHNano.BToTrkTrkLL_cff')
     process.load('PhysicsTools.BPHNano.V0_cff')
-    process.load('PhysicsTools.BPHNano.BToV0LL_cff')      
-    process.nanoSequenceMC = cms.Sequence(process.nanoSequenceMC + BPHPrimaryVerticesSequence + particleLevelBPHSequence + genParticleBPHSequence+ genParticleBPHTables + muonBPHSequenceMC + muonBPHTablesMC + MuMuSequence + MuMuTables + tracksBPHSequenceMC + tracksBPHTablesMC + BToKMuMuSequence + BToKMuMuTables + DiTrackSequence + BToTrkTrkMuMuSequence + BToTrkTrkMuMuTables + KshortToPiPiSequenceMC + KshortToPiPiTablesMC + BToKshortMuMuSequence + BToKshortMuMuTables +  LambdaToProtonPiSequenceMC + LambdaToProtonPiTablesMC + LambdabToLambdaMuMuSequence + LambdabToLambdaMuMuTables)
-    process.nanoSequence = cms.Sequence(process.nanoSequence + BPHPrimaryVerticesSequence + muonBPHSequence + muonBPHTables + MuMuSequence + MuMuTables + tracksBPHSequence + tracksBPHTables + BToKMuMuSequence + BToKMuMuTables + DiTrackSequence + BToTrkTrkMuMuSequence + BToTrkTrkMuMuTables + KshortToPiPiSequence + KshortToPiPiTables + BToKshortMuMuSequence + BToKshortMuMuTables +  LambdaToProtonPiSequence + LambdaToProtonPiTables + LambdabToLambdaMuMuSequence + LambdabToLambdaMuMuTables)
+    process.load('PhysicsTools.BPHNano.BToV0LL_cff') 
+    process.load('PhysicsTools.BPHNano.pverticesBPH_cff')    
+    process.nanoSequenceMC = cms.Sequence(process.nanoSequenceMC + particleLevelBPHSequence + genParticleBPHSequence+ genParticleBPHTables + muonBPHSequenceMC + muonBPHTablesMC + MuMuSequence + MuMuTables + tracksBPHSequenceMC + tracksBPHTablesMC + BToKMuMuSequence + BToKMuMuTables + DiTrackSequence + BToTrkTrkMuMuSequence + BToTrkTrkMuMuTables + KshortToPiPiSequenceMC + KshortToPiPiTablesMC + BToKshortMuMuSequence + BToKshortMuMuTables +  LambdaToProtonPiSequenceMC + LambdaToProtonPiTablesMC + LambdabToLambdaMuMuSequence + LambdabToLambdaMuMuTables + BPHPrimaryVerticesSequence)
+    process.nanoSequence = cms.Sequence(process.nanoSequence + muonBPHSequence + muonBPHTables + MuMuSequence + MuMuTables + tracksBPHSequence + tracksBPHTables + BToKMuMuSequence + BToKMuMuTables + DiTrackSequence + BToTrkTrkMuMuSequence + BToTrkTrkMuMuTables + KshortToPiPiSequence + KshortToPiPiTables + BToKshortMuMuSequence + BToKshortMuMuTables +  LambdaToProtonPiSequence + LambdaToProtonPiTables + LambdabToLambdaMuMuSequence + LambdabToLambdaMuMuTables + BPHPrimaryVerticesSequence)
     return process
 
 

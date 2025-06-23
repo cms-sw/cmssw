@@ -40,6 +40,7 @@
 #include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 
 //
 // class declaration
@@ -62,6 +63,8 @@ private:
 
   const edm::EDGetTokenT<std::vector<reco::Vertex>> pvs_;
   const edm::EDGetTokenT<edm::ValueMap<float>> pvsScore_;
+  const edm::EDGetTokenT<pat::CompositeCandidateCollection> dileptonToken_;
+  const double maxDzDilep_;
   const StringCutObjectSelector<reco::Vertex> goodPvCut_;
   const std::string pvName_;
 };
@@ -72,6 +75,8 @@ private:
 PVertexBPHTable::PVertexBPHTable(const edm::ParameterSet& params)
     : pvs_(consumes<std::vector<reco::Vertex>>(params.getParameter<edm::InputTag>("pvSrc"))),
       pvsScore_(consumes<edm::ValueMap<float>>(params.getParameter<edm::InputTag>("pvSrc"))),
+      dileptonToken_(consumes<pat::CompositeCandidateCollection>(params.getParameter<edm::InputTag>("dileptons"))),
+      maxDzDilep_(params.getParameter<double>("maxDzDilep")),	
       goodPvCut_(params.getParameter<std::string>("goodPvCut"), true),
       pvName_(params.getParameter<std::string>("pvName"))
 
@@ -96,6 +101,9 @@ void PVertexBPHTable::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   const auto& pvsScoreProd = iEvent.get(pvsScore_);
   auto pvsCol = iEvent.getHandle(pvs_);
 
+  edm::Handle<pat::CompositeCandidateCollection> dileptons;
+  iEvent.getByToken(dileptonToken_, dileptons);
+
   auto selCandPv = std::make_unique<PtrVector<reco::Candidate>>();
   std::vector<float> pvscore, chi2, covXX, covYY, covZZ, covXY, covXZ, covYZ,
                      vx, vy, vz, pt, eta, phi, mass, ndof;
@@ -107,6 +115,12 @@ void PVertexBPHTable::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        i++;
        continue;
     }
+    bool within_dz = false;
+    for (const pat::CompositeCandidate &dilep : *dileptons) {
+         if (fabs(pv.z() - dilep.vz())< maxDzDilep_ && maxDzDilep_>0) within_dz=true;	    
+    }
+    if (!within_dz) continue;
+
     // int sum_charge = 0;
     pvscore.push_back(pvsScoreProd.get(pvsCol.id(), i));
     ntracks.push_back(pv.tracksSize() );
@@ -163,6 +177,11 @@ void PVertexBPHTable::fillDescriptions(edm::ConfigurationDescriptions& descripti
 
   desc.add<edm::InputTag>("pvSrc")->setComment(
       "std::vector<reco::Vertex> and ValueMap<float> primary vertex input collections");
+
+  desc.add<edm::InputTag>("dileptons")->setComment("input dilepton collection");
+	     
+  desc.add<double>("maxDzDilep")->setComment("maxDz cut wrt dilepton vertices to keep only useful PVs"),
+
   desc.add<std::string>("goodPvCut")->setComment("selection on the primary vertex");
 
   desc.add<std::string>("pvName")->setComment("name of the flat table ouput");
