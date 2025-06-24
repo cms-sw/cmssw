@@ -81,6 +81,7 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const& conf,
           << " not loaded correctly from text file. Reconstruction will fail.\n\n";
   }
 
+  goodEdgeAlgo_ = conf.getParameter<bool>("GoodEdgeAlgo");
   speed_ = conf.getParameter<int>("speed");
   LogDebug("PixelCPETemplateReco::PixelCPETemplateReco:") << "Template speed = " << speed_ << "\n";
 
@@ -249,7 +250,8 @@ LocalPoint PixelCPETemplateReco::localPosition(DetParam const& theDetParam, Clus
                                          theClusterParam.templProbX_,
                                          theClusterParam.templQbin_,
                                          speed_,
-                                         theClusterParam.templProbQ_);
+                                         theClusterParam.templProbQ_,
+                                         goodEdgeAlgo_);
 
   // ******************************************************************
 
@@ -529,4 +531,5 @@ void PixelCPETemplateReco::fillPSetDescription(edm::ParameterSetDescription& des
   desc.add<int>("directoryWithTemplates", 0);
   desc.add<int>("speed", -2);
   desc.add<bool>("UseClusterSplitter", false);
+  desc.add<bool>("GoodEdgeAlgo", false);
 }
