@@ -102,9 +102,31 @@ _HgcalLocalRecoUnseededSequence_barrel += hltBarrelLayerClustersHB
 
 from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
 ticl_barrel.toReplaceWith(_HgcalLocalRecoUnseededSequence, _HgcalLocalRecoUnseededSequence_barrel)
-layerClusters = cms.VInputTag("hltHgcalLayerClustersEE", "hltHgcalLayerClustersHSci", "hltHgcalLayerClustersHSi", "hltBarrelLayerClustersEB", "hltBarrelLayerClustersHB")
-time_layerClusters = cms.VInputTag("hltHgcalLayerClustersEE:timeLayerCluster", "hltHgcalLayerClustersHSci:timeLayerCluster", "hltHgcalLayerClustersHSi:timeLayerCluster", "hltBarrelLayerClustersEB:timeLayerCluster", "hltBarrelLayerClustersHB:timeLayerCluster")
+
+layerClusters = ["hltHgcalLayerClustersEE", 
+                 "hltHgcalLayerClustersHSci", 
+                 "hltHgcalLayerClustersHSi", 
+                 "hltBarrelLayerClustersEB", 
+                 "hltBarrelLayerClustersHB"]
+
+time_layerClusters = ["hltHgcalLayerClustersEE:timeLayerCluster", 
+                      "hltHgcalLayerClustersHSci:timeLayerCluster", 
+                      "hltHgcalLayerClustersHSi:timeLayerCluster", 
+                      "hltBarrelLayerClustersEB:timeLayerCluster", 
+                      "hltBarrelLayerClustersHB:timeLayerCluster"]
+
 ticl_barrel.toModify(hltMergeLayerClusters, layerClusters=layerClusters, time_layerclusters=time_layerClusters)
-layerClusters = cms.VInputTag("hltHgCalLayerClustersFromSoAProducer", "hltHgcalLayerClustersHSci", "hltHgcalLayerClustersHSi", "hltBarrelLayerClustersEB", "hltBarrelLayerClustersHB")
-time_layerClusters = cms.VInputTag("hltHgCalLayerClustersFromSoAProducer:timeLayerCluster", "hltHgcalLayerClustersHSci:timeLayerCluster", "hltHgcalLayerClustersHSi:timeLayerCluster", "hltBarrelLayerClustersEB:timeLayerCluster", "hltBarrelLayerClustersHB:timeLayerCluster")
+
+layerClusters = ["hltHgCalLayerClustersFromSoAProducer", 
+                 "hltHgcalLayerClustersHSci", 
+                 "hltHgcalLayerClustersHSi", 
+                 "hltBarrelLayerClustersEB", 
+                 "hltBarrelLayerClustersHB"]
+
+time_layerClusters = ["hltHgCalLayerClustersFromSoAProducer:timeLayerCluster", 
+                      "hltHgcalLayerClustersHSci:timeLayerCluster", 
+                      "hltHgcalLayerClustersHSi:timeLayerCluster", 
+                      "hltBarrelLayerClustersEB:timeLayerCluster", 
+                      "hltBarrelLayerClustersHB:timeLayerCluster"]
+
 (ticl_barrel & alpaka).toModify(hltMergeLayerClusters, layerClusters=layerClusters, time_layerclusters=time_layerClusters)
