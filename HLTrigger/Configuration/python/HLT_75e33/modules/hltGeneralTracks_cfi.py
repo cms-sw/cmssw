@@ -85,3 +85,22 @@ _hltGeneralTracksLSTSeeding = hltGeneralTracks.clone(
                                                           TrackProducers = ["hltInitialStepTracks"],
                                                           selectedTrackQuals = ["hltInitialStepTracks"])
 (singleIterPatatrack & trackingLST & seedingLST).toReplaceWith(hltGeneralTracks, _hltGeneralTracksSingleIterPatatrack)
+
+from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting
+
+from ..modules.hltPhase2PixelTracks_cfi import *
+from ..modules.hltPhase2PixelTracksSelectionHighPurity_cfi import *
+_hltGeneralTracksNGTScoutingLST = hltGeneralTracks.clone(
+            TrackProducers = ["hltPhase2PixelTracksSelectionHighPurity", "hltInitialStepTracksT5TCLST"],
+            hasSelector = [0,0],
+            indivShareFrac = [0.1,0.1],
+            selectedTrackQuals = ["hltPhase2PixelTracksSelectionHighPurity", "hltInitialStepTracksT5TCLST"],
+            setsToMerge = [cms.PSet(
+               pQual = cms.bool(True),
+               tLists = cms.vint32(0,1,)
+            )]
+    )
+
+(ngtScouting & ~trackingLST).toReplaceWith(hltGeneralTracks, hltPhase2PixelTracksSelectionHighPurity)
+
+(ngtScouting & trackingLST).toReplaceWith(hltGeneralTracks, _hltGeneralTracksNGTScoutingLST)
