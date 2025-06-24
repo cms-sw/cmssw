@@ -12,7 +12,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "HeterogeneousCore/MPICore/interface/MPIToken.h"
 
-
 #include "FWCore/Concurrency/interface/Async.h"
 #include "FWCore/Concurrency/interface/chain_first.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -64,7 +63,7 @@ public:
 
   void acquire(edm::Event const& event, edm::EventSetup const&, edm::WaitingTaskWithArenaHolder holder) final {
     MPIToken token = event.get(upstream_);
-  
+
     edm::Service<edm::Async> as;
     as->runAsync(
         std::move(holder),
@@ -72,12 +71,11 @@ public:
           int numProducts;
           token.channel()->receiveProduct(instance_, numProducts);
           // edm::LogAbsolute("MPIReceiver") << "Received number of products: " << numProducts;
-          assert((numProducts == static_cast<int>(products_.size())) && "Receiver number of products is different than expected");
+          assert((numProducts == static_cast<int>(products_.size())) &&
+                 "Receiver number of products is different than expected");
         },
-        []() { return "Calling MPIReceiver::acquire()"; }
-    );
+        []() { return "Calling MPIReceiver::acquire()"; });
   }
-  
 
   void produce(edm::Event& event, edm::EventSetup const&) final {
     // read the MPIToken used to establish the communication channel

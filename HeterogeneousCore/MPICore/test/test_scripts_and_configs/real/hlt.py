@@ -10,7 +10,6 @@ process.load('run383631_cff')
 
 # override the GlobalTag
 from Configuration.AlCa.GlobalTag import GlobalTag as customiseGlobalTag
-#process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'auto:run3_hlt_2024v14')
 process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = '141X_dataRun3_HLT_v1')
 
 # update the HLT menu for re-running offline using a recent release
@@ -32,8 +31,20 @@ process.PrescaleService.lvl1DefaultLabel = '2p0E34'
 process.PrescaleService.forceDefault = True
 
 # do not print a final summary
-process.options.wantSummary = True
-# process.MessageLogger.cerr.enableStatistics = cms.untracked.bool(True)
+process.options.wantSummary = False
+process.MessageLogger.cerr.enableStatistics = cms.untracked.bool(False)
 
 # write a JSON file with the timing information
 process.FastTimerService.writeJSONSummary = True
+
+process.ThroughputService = cms.Service('ThroughputService',
+    enableDQM = cms.untracked.bool(False),
+    printEventSummary = cms.untracked.bool(True),
+    eventResolution = cms.untracked.uint32(100),
+    eventRange = cms.untracked.uint32(10300),
+)
+
+process.MessageLogger.cerr.ThroughputService = cms.untracked.PSet(
+    limit = cms.untracked.int32(10000000),
+    reportEvery = cms.untracked.int32(1)
+)

@@ -98,18 +98,14 @@ public:
     MPIToken token = event.get(upstream_);
 
     int numProducts = static_cast<int>(products_.size());
-    
+
     // Submit sending of all products to run in the additional asynchronous threadpool
     edm::Service<edm::Async> as;
     as->runAsync(
         std::move(holder),
-        [this, token, numProducts]() {
-          token.channel()->sendProduct(instance_, numProducts);
-        },
-        []() { return "Calling MPISender::acquire()"; }
-    );
+        [this, token, numProducts]() { token.channel()->sendProduct(instance_, numProducts); },
+        []() { return "Calling MPISender::acquire()"; });
   }
-  
 
   void produce(edm::Event& event, edm::EventSetup const&) final {
     MPIToken token = event.get(upstream_);

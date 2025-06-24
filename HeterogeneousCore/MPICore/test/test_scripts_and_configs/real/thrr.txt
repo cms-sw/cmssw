@@ -1,1 +1,0 @@
-[THROUGHPUT] unknown_experiment | avg: 42.7268 ± 7.61033 ev/s
