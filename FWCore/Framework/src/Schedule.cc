@@ -750,7 +750,7 @@ namespace edm {
   }
 
   void Schedule::endJob(ExceptionCollector& collector) {
-    globalSchedule_->endJob(collector);
+    globalSchedule_->endJob(collector, *moduleRegistry_);
     if (collector.hasThrown()) {
       return;
     }
@@ -1157,7 +1157,7 @@ namespace edm {
     auto const& processName = processContext.processConfiguration()->processName();
 
     moduleRegistry_->finishModulesInitialization(iRegistry, iESIndices, processBlockHelperBase, processName);
-    globalSchedule_->beginJob(processContext);
+    globalSchedule_->beginJob(processContext, *moduleRegistry_);
   }
 
   void Schedule::beginStream(unsigned int streamID) {

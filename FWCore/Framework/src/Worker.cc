@@ -289,46 +289,6 @@ namespace edm {
     checkForShouldTryToContinue(*iDesc);
   }
 
-  void Worker::beginJob(GlobalContext const& globalContext) {
-    ParentContext parentContext(&globalContext);
-    ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
-    ModuleSignalSentry<ModuleBeginJobTraits> sentry(activityRegistry(), &globalContext, &moduleCallingContext_);
-
-    try {
-      convertException::wrap([this, &sentry]() {
-        beginSucceeded_ = false;
-        sentry.preModuleSignal();
-        implBeginJob();
-        sentry.postModuleSignal();
-        beginSucceeded_ = true;
-      });
-    } catch (cms::Exception& ex) {
-      exceptionContext(ex, moduleCallingContext_);
-      throw;
-    }
-  }
-
-  void Worker::endJob(GlobalContext const& globalContext) {
-    if (beginSucceeded_) {
-      beginSucceeded_ = false;
-
-      ParentContext parentContext(&globalContext);
-      ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
-      ModuleSignalSentry<ModuleEndJobTraits> sentry(activityRegistry(), &globalContext, &moduleCallingContext_);
-
-      try {
-        convertException::wrap([this, &sentry]() {
-          sentry.preModuleSignal();
-          implEndJob();
-          sentry.postModuleSignal();
-        });
-      } catch (cms::Exception& ex) {
-        exceptionContext(ex, moduleCallingContext_);
-        throw;
-      }
-    }
-  }
-
   void Worker::beginStream(StreamID streamID, StreamContext const& streamContext) {
     ParentContext parentContext(&streamContext);
     ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);

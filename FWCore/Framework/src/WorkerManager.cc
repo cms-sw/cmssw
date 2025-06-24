@@ -83,31 +83,6 @@ namespace edm {
     }
   }
 
-  void WorkerManager::beginJob(GlobalContext const& globalContext) {
-    std::exception_ptr exceptionPtr;
-
-    for (auto& worker : allWorkers_) {
-      CMS_SA_ALLOW try { worker->beginJob(globalContext); } catch (...) {
-        if (!exceptionPtr) {
-          exceptionPtr = std::current_exception();
-        }
-      }
-    }
-    if (exceptionPtr) {
-      std::rethrow_exception(exceptionPtr);
-    }
-  }
-
-  void WorkerManager::endJob(ExceptionCollector& collector, GlobalContext const& globalContext) {
-    for (auto& worker : allWorkers_) {
-      try {
-        convertException::wrap([&worker, &globalContext]() { worker->endJob(globalContext); });
-      } catch (cms::Exception const& ex) {
-        collector.addException(ex);
-      }
-    }
-  }
-
   void WorkerManager::beginStream(StreamID streamID, StreamContext const& streamContext) {
     std::exception_ptr exceptionPtr;
     for (auto& worker : allWorkers_) {

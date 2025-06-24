@@ -67,9 +67,6 @@ namespace edm {
     void setupResolvers(Principal& principal);
     void setupOnDemandSystem(EventTransitionInfo const&);
 
-    void beginJob(GlobalContext const&);
-    void endJob(ExceptionCollector&, GlobalContext const&);
-
     void beginStream(StreamID, StreamContext const&);
     void endStream(StreamID, StreamContext const&, ExceptionCollector&, std::mutex& collectorMutex) noexcept;
 

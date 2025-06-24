@@ -20,18 +20,18 @@ Module type=IntProducer, Module label=intProducer, Parameter Set ID=b4b90439a301
 ++++ finished: constructing module with label 'intVectorProducer' id = 6
 ++ preallocate: 1 concurrent runs, 1 concurrent luminosity sections, 1 streams
 ++ starting: begin job
-++++ starting: begin job for module with label 'intProducerU' id = 5
-++++ finished: begin job for module with label 'intProducerU' id = 5
-++++ starting: begin job for module with label 'intVectorProducer' id = 6
-++++ finished: begin job for module with label 'intVectorProducer' id = 6
+++++ starting: begin job for module with label 'TriggerResults' id = 1
+++++ finished: begin job for module with label 'TriggerResults' id = 1
 ++++ starting: begin job for module with label 'intProducer' id = 3
 Module type=IntProducer, Module label=intProducer, Parameter Set ID=b4b90439a3015d748c803aa5c60a25d3
 ++++ finished: begin job for module with label 'intProducer' id = 3
 Module type=IntProducer, Module label=intProducer, Parameter Set ID=b4b90439a3015d748c803aa5c60a25d3
+++++ starting: begin job for module with label 'intProducerU' id = 5
+++++ finished: begin job for module with label 'intProducerU' id = 5
+++++ starting: begin job for module with label 'intVectorProducer' id = 6
+++++ finished: begin job for module with label 'intVectorProducer' id = 6
 ++++ starting: begin job for module with label 'out' id = 4
 ++++ finished: begin job for module with label 'out' id = 4
-++++ starting: begin job for module with label 'TriggerResults' id = 1
-++++ finished: begin job for module with label 'TriggerResults' id = 1
 ++++ starting: begin job for module with label 'p' id = 2
 ++++ finished: begin job for module with label 'p' id = 2
 ++ finished: begin job
@@ -847,18 +847,18 @@ ModuleCallingContext state = Running
 ++++ finished: end stream for module: stream = 0 label = 'intVectorProducer' id = 6
 ++ finished: end stream 0
 ++ starting: end job
-++++ starting: end job for module with label 'intProducerU' id = 5
-++++ finished: end job for module with label 'intProducerU' id = 5
-++++ starting: end job for module with label 'intVectorProducer' id = 6
-++++ finished: end job for module with label 'intVectorProducer' id = 6
+++++ starting: end job for module with label 'TriggerResults' id = 1
+++++ finished: end job for module with label 'TriggerResults' id = 1
 ++++ starting: end job for module with label 'intProducer' id = 3
 Module type=IntProducer, Module label=intProducer, Parameter Set ID=b4b90439a3015d748c803aa5c60a25d3
 ++++ finished: end job for module with label 'intProducer' id = 3
 Module type=IntProducer, Module label=intProducer, Parameter Set ID=b4b90439a3015d748c803aa5c60a25d3
+++++ starting: end job for module with label 'intProducerU' id = 5
+++++ finished: end job for module with label 'intProducerU' id = 5
+++++ starting: end job for module with label 'intVectorProducer' id = 6
+++++ finished: end job for module with label 'intVectorProducer' id = 6
 ++++ starting: end job for module with label 'out' id = 4
 ++++ finished: end job for module with label 'out' id = 4
-++++ starting: end job for module with label 'TriggerResults' id = 1
-++++ finished: end job for module with label 'TriggerResults' id = 1
 ++++ starting: end job for module with label 'p' id = 2
 ++++ finished: end job for module with label 'p' id = 2
 ++ finished: end job

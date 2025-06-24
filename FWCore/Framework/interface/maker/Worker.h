@@ -182,8 +182,7 @@ namespace edm {
     void callWhenDoneAsync(WaitingTaskHolder task) { waitingTasks_.add(std::move(task)); }
     // Called if filter earlier in the path has failed.
     void skipOnPath(EventPrincipal const& iEvent);
-    void beginJob(GlobalContext const&);
-    void endJob(GlobalContext const&);
+
     void beginStream(StreamID, StreamContext const&);
     void endStream(StreamID, StreamContext const&);
     void respondToOpenInputFile(FileBlock const& fb) { implRespondToOpenInputFile(fb); }
@@ -275,8 +274,6 @@ namespace edm {
     virtual bool implDoStreamBegin(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
     virtual bool implDoStreamEnd(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
     virtual bool implDoEnd(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
-    virtual void implBeginJob() = 0;
-    virtual void implEndJob() = 0;
     virtual void implBeginStream(StreamID) = 0;
     virtual void implEndStream(StreamID) = 0;
 

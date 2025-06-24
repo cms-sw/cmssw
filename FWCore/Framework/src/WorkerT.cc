@@ -561,16 +561,6 @@ namespace edm {
   }
 
   template <typename T>
-  inline void WorkerT<T>::implBeginJob() {
-    module_->doBeginJob();
-  }
-
-  template <typename T>
-  inline void WorkerT<T>::implEndJob() {
-    module_->doEndJob();
-  }
-
-  template <typename T>
   template <typename D>
   void WorkerT<T>::callWorkerBeginStream(D, StreamID id) {
     module_->doBeginStream(id);

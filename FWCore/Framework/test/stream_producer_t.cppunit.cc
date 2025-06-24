@@ -108,7 +108,7 @@ public:
   typedef std::vector<Trans> Expectations;
 
 private:
-  std::map<Trans, std::function<void(edm::Worker*)>> m_transToFunc;
+  std::map<Trans, std::function<void(edm::Worker*, edm::maker::ModuleHolder*)>> m_transToFunc;
 
   edm::ProcessConfiguration m_procConfig;
   std::shared_ptr<edm::ProductRegistry> m_prodReg;
@@ -474,16 +474,13 @@ testStreamProducer::testStreamProducer()
   m_actReg.reset(new edm::ActivityRegistry);
 
   //For each transition, bind a lambda which will call the proper method of the Worker
-  m_transToFunc[Trans::kBeginJob] = [](edm::Worker* iBase) {
-    edm::GlobalContext globalContext(edm::GlobalContext::Transition::kBeginJob, nullptr);
-    iBase->beginJob(globalContext);
-  };
-  m_transToFunc[Trans::kBeginStream] = [](edm::Worker* iBase) {
+  m_transToFunc[Trans::kBeginJob] = [](edm::Worker* iBase, edm::maker::ModuleHolder* iHolder) { iHolder->beginJob(); };
+  m_transToFunc[Trans::kBeginStream] = [](edm::Worker* iBase, edm::maker::ModuleHolder*) {
     edm::StreamContext streamContext(s_streamID0, nullptr);
     iBase->beginStream(s_streamID0, streamContext);
   };
 
-  m_transToFunc[Trans::kGlobalBeginRun] = [this](edm::Worker* iBase) {
+  m_transToFunc[Trans::kGlobalBeginRun] = [this](edm::Worker* iBase, edm::maker::ModuleHolder*) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalBegin> Traits;
     edm::GlobalContext gc(edm::GlobalContext::Transition::kBeginRun, nullptr);
     edm::ParentContext parentContext(&gc);
@@ -491,7 +488,7 @@ testStreamProducer::testStreamProducer()
     edm::RunTransitionInfo info(*m_rp, *m_es);
     doWork<Traits>(iBase, info, parentContext);
   };
-  m_transToFunc[Trans::kStreamBeginRun] = [this](edm::Worker* iBase) {
+  m_transToFunc[Trans::kStreamBeginRun] = [this](edm::Worker* iBase, edm::maker::ModuleHolder*) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionStreamBegin> Traits;
     edm::StreamContext streamContext(s_streamID0, nullptr);
     edm::ParentContext parentContext(&streamContext);
@@ -500,7 +497,7 @@ testStreamProducer::testStreamProducer()
     doWork<Traits>(iBase, info, parentContext);
   };
 
-  m_transToFunc[Trans::kGlobalBeginLuminosityBlock] = [this](edm::Worker* iBase) {
+  m_transToFunc[Trans::kGlobalBeginLuminosityBlock] = [this](edm::Worker* iBase, edm::maker::ModuleHolder*) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalBegin> Traits;
     edm::GlobalContext gc(edm::GlobalContext::Transition::kBeginLuminosityBlock, nullptr);
     edm::ParentContext parentContext(&gc);
@@ -508,7 +505,7 @@ testStreamProducer::testStreamProducer()
     edm::LumiTransitionInfo info(*m_lbp, *m_es);
     doWork<Traits>(iBase, info, parentContext);
   };
-  m_transToFunc[Trans::kStreamBeginLuminosityBlock] = [this](edm::Worker* iBase) {
+  m_transToFunc[Trans::kStreamBeginLuminosityBlock] = [this](edm::Worker* iBase, edm::maker::ModuleHolder*) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionStreamBegin> Traits;
     edm::StreamContext streamContext(s_streamID0, nullptr);
     edm::ParentContext parentContext(&streamContext);
@@ -517,7 +514,7 @@ testStreamProducer::testStreamProducer()
     doWork<Traits>(iBase, info, parentContext);
   };
 
-  m_transToFunc[Trans::kEvent] = [this](edm::Worker* iBase) {
+  m_transToFunc[Trans::kEvent] = [this](edm::Worker* iBase, edm::maker::ModuleHolder*) {
     typedef edm::OccurrenceTraits<edm::EventPrincipal, edm::BranchActionStreamBegin> Traits;
     edm::StreamContext streamContext(s_streamID0, nullptr);
     edm::ParentContext parentContext(&streamContext);
@@ -526,7 +523,7 @@ testStreamProducer::testStreamProducer()
     doWork<Traits>(iBase, info, parentContext);
   };
 
-  m_transToFunc[Trans::kStreamEndLuminosityBlock] = [this](edm::Worker* iBase) {
+  m_transToFunc[Trans::kStreamEndLuminosityBlock] = [this](edm::Worker* iBase, edm::maker::ModuleHolder*) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionStreamEnd> Traits;
     edm::StreamContext streamContext(s_streamID0, nullptr);
     edm::ParentContext parentContext(&streamContext);
@@ -534,7 +531,7 @@ testStreamProducer::testStreamProducer()
     edm::LumiTransitionInfo info(*m_lbp, *m_es);
     doWork<Traits>(iBase, info, parentContext);
   };
-  m_transToFunc[Trans::kGlobalEndLuminosityBlock] = [this](edm::Worker* iBase) {
+  m_transToFunc[Trans::kGlobalEndLuminosityBlock] = [this](edm::Worker* iBase, edm::maker::ModuleHolder*) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalEnd> Traits;
     edm::GlobalContext gc(edm::GlobalContext::Transition::kEndLuminosityBlock, nullptr);
     edm::ParentContext parentContext(&gc);
@@ -543,7 +540,7 @@ testStreamProducer::testStreamProducer()
     doWork<Traits>(iBase, info, parentContext);
   };
 
-  m_transToFunc[Trans::kStreamEndRun] = [this](edm::Worker* iBase) {
+  m_transToFunc[Trans::kStreamEndRun] = [this](edm::Worker* iBase, edm::maker::ModuleHolder*) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionStreamEnd> Traits;
     edm::StreamContext streamContext(s_streamID0, nullptr);
     edm::ParentContext parentContext(&streamContext);
@@ -551,7 +548,7 @@ testStreamProducer::testStreamProducer()
     edm::RunTransitionInfo info(*m_rp, *m_es);
     doWork<Traits>(iBase, info, parentContext);
   };
-  m_transToFunc[Trans::kGlobalEndRun] = [this](edm::Worker* iBase) {
+  m_transToFunc[Trans::kGlobalEndRun] = [this](edm::Worker* iBase, edm::maker::ModuleHolder*) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalEnd> Traits;
     edm::GlobalContext gc(edm::GlobalContext::Transition::kEndRun, nullptr);
     edm::ParentContext parentContext(&gc);
@@ -560,14 +557,11 @@ testStreamProducer::testStreamProducer()
     doWork<Traits>(iBase, info, parentContext);
   };
 
-  m_transToFunc[Trans::kEndStream] = [](edm::Worker* iBase) {
+  m_transToFunc[Trans::kEndStream] = [](edm::Worker* iBase, edm::maker::ModuleHolder*) {
     edm::StreamContext streamContext(s_streamID0, nullptr);
     iBase->endStream(s_streamID0, streamContext);
   };
-  m_transToFunc[Trans::kEndJob] = [](edm::Worker* iBase) {
-    edm::GlobalContext globalContext(edm::GlobalContext::Transition::kEndJob, nullptr);
-    iBase->endJob(globalContext);
-  };
+  m_transToFunc[Trans::kEndJob] = [](edm::Worker* iBase, edm::maker::ModuleHolder* iHolder) { iHolder->endJob(); };
 }
 
 namespace {
@@ -582,11 +576,12 @@ namespace {
   }
   template <typename T>
   void testTransition(edm::Worker* iWorker,
+                      edm::maker::ModuleHolder* iMod,
                       testStreamProducer::Trans iTrans,
                       testStreamProducer::Expectations const& iExpect,
-                      std::function<void(edm::Worker*)> iFunc) {
+                      std::function<void(edm::Worker*, edm::maker::ModuleHolder*)> iFunc) {
     assert(0 == T::m_count);
-    iFunc(iWorker);
+    iFunc(iWorker, iMod);
     auto count = std::count(iExpect.begin(), iExpect.end(), iTrans);
     if (count != T::m_count) {
       std::cout << "For trans " << static_cast<std::underlying_type<testStreamProducer::Trans>::type>(iTrans)
@@ -601,6 +596,8 @@ namespace {
 template <typename T, typename U>
 void testStreamProducer::testTransitions(std::shared_ptr<U> iMod, Expectations const& iExpect) {
   oneapi::tbb::global_control control(oneapi::tbb::global_control::max_allowed_parallelism, 1);
+
+  edm::maker::ModuleHolderT<edm::stream::EDProducerAdaptorBase> h(iMod);
 
   edm::WorkerT<edm::stream::EDProducerAdaptorBase> wBeginJobEndJob{iMod, m_desc, nullptr};
   edm::WorkerT<edm::stream::EDProducerAdaptorBase> wBeginStreamEndStream{iMod, m_desc, nullptr};
@@ -621,7 +618,7 @@ void testStreamProducer::testTransitions(std::shared_ptr<U> iMod, Expectations c
     } else if (keyVal.first == Trans::kGlobalBeginRun || keyVal.first == Trans::kGlobalEndRun) {
       worker = &wGlobalRun;
     }
-    testTransition<T>(worker, keyVal.first, iExpect, keyVal.second);
+    testTransition<T>(worker, &h, keyVal.first, iExpect, keyVal.second);
   }
 }
 

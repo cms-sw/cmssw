@@ -73,8 +73,8 @@ namespace edm {
                                ServiceToken const& token,
                                bool cleaningUpAfterException = false);
 
-    void beginJob(ProcessContext const&);
-    void endJob(ExceptionCollector& collector);
+    void beginJob(ProcessContext const&, ModuleRegistry&);
+    void endJob(ExceptionCollector& collector, ModuleRegistry&);
 
     /// Return a vector allowing const access to all the
     /// ModuleDescriptions for this GlobalSchedule.
@@ -112,17 +112,17 @@ namespace edm {
                          std::exception_ptr&);
 
     std::vector<WorkerManager> workerManagers_;
+    std::vector<bool> beginJobCalledForModule_;
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
     std::vector<edm::propagate_const<WorkerPtr>> extraWorkers_;
     ProcessContext const* processContext_;
 
     // The next 4 variables use the same naming convention, even though we have no intention
-    // to ever have concurrent ProcessBlocks or Jobs. They are all related to the number of
+    // to ever have concurrent ProcessBlocks. They are all related to the number of
     // WorkerManagers needed for global transitions.
     unsigned int numberOfConcurrentLumis_;
     unsigned int numberOfConcurrentRuns_;
     static constexpr unsigned int numberOfConcurrentProcessBlocks_ = 1;
-    static constexpr unsigned int numberOfConcurrentJobs_ = 1;
   };
 
   template <typename T>

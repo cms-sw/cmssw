@@ -34,6 +34,18 @@ Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb0
 ++++ finished: constructing module with label 'intVectorProducer' id = 13
 ++ preallocate: 1 concurrent runs, 1 concurrent luminosity sections, 1 streams
 ++ starting: begin job
+++++ starting: begin job for module with label 'TriggerResults' id = 1
+++++ finished: begin job for module with label 'TriggerResults' id = 1
+++++ starting: begin job for module with label 'a1' id = 4
+Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
+++++ finished: begin job for module with label 'a1' id = 4
+Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
+++++ starting: begin job for module with label 'a2' id = 5
+++++ finished: begin job for module with label 'a2' id = 5
+++++ starting: begin job for module with label 'a3' id = 6
+++++ finished: begin job for module with label 'a3' id = 6
+++++ starting: begin job for module with label 'intProducer' id = 3
+++++ finished: begin job for module with label 'intProducer' id = 3
 ++++ starting: begin job for module with label 'intProducerA' id = 8
 Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb02df4e1c3b945954838318
 ++++ finished: begin job for module with label 'intProducerA' id = 8
@@ -48,20 +60,8 @@ Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb0
 ++++ finished: begin job for module with label 'intProducerU' id = 12
 ++++ starting: begin job for module with label 'intVectorProducer' id = 13
 ++++ finished: begin job for module with label 'intVectorProducer' id = 13
-++++ starting: begin job for module with label 'intProducer' id = 3
-++++ finished: begin job for module with label 'intProducer' id = 3
-++++ starting: begin job for module with label 'a1' id = 4
-Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
-++++ finished: begin job for module with label 'a1' id = 4
-Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
-++++ starting: begin job for module with label 'a2' id = 5
-++++ finished: begin job for module with label 'a2' id = 5
-++++ starting: begin job for module with label 'a3' id = 6
-++++ finished: begin job for module with label 'a3' id = 6
 ++++ starting: begin job for module with label 'out' id = 7
 ++++ finished: begin job for module with label 'out' id = 7
-++++ starting: begin job for module with label 'TriggerResults' id = 1
-++++ finished: begin job for module with label 'TriggerResults' id = 1
 ++++ starting: begin job for module with label 'p' id = 2
 ++++ finished: begin job for module with label 'p' id = 2
 ++ finished: begin job
@@ -1479,6 +1479,21 @@ ModuleCallingContext state = Running
 ++++ finished: end stream for module: stream = 0 label = 'intVectorProducer' id = 13
 ++ finished: end stream 0
 ++ starting: end job
+++++ starting: end job for module with label 'TriggerResults' id = 1
+++++ finished: end job for module with label 'TriggerResults' id = 1
+++++ starting: end job for module with label 'a1' id = 4
+Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
+TestFindProduct sum = 530021
+++++ finished: end job for module with label 'a1' id = 4
+Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
+++++ starting: end job for module with label 'a2' id = 5
+TestFindProduct sum = 300
+++++ finished: end job for module with label 'a2' id = 5
+++++ starting: end job for module with label 'a3' id = 6
+TestFindProduct sum = 300
+++++ finished: end job for module with label 'a3' id = 6
+++++ starting: end job for module with label 'intProducer' id = 3
+++++ finished: end job for module with label 'intProducer' id = 3
 ++++ starting: end job for module with label 'intProducerA' id = 8
 Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb02df4e1c3b945954838318
 ++++ finished: end job for module with label 'intProducerA' id = 8
@@ -1493,23 +1508,8 @@ Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb0
 ++++ finished: end job for module with label 'intProducerU' id = 12
 ++++ starting: end job for module with label 'intVectorProducer' id = 13
 ++++ finished: end job for module with label 'intVectorProducer' id = 13
-++++ starting: end job for module with label 'intProducer' id = 3
-++++ finished: end job for module with label 'intProducer' id = 3
-++++ starting: end job for module with label 'a1' id = 4
-Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
-TestFindProduct sum = 530021
-++++ finished: end job for module with label 'a1' id = 4
-Module type=TestFindProduct, Module label=a1, Parameter Set ID=a7caa43fcf5ef35dee69e4bd85169d4c
-++++ starting: end job for module with label 'a2' id = 5
-TestFindProduct sum = 300
-++++ finished: end job for module with label 'a2' id = 5
-++++ starting: end job for module with label 'a3' id = 6
-TestFindProduct sum = 300
-++++ finished: end job for module with label 'a3' id = 6
 ++++ starting: end job for module with label 'out' id = 7
 ++++ finished: end job for module with label 'out' id = 7
-++++ starting: end job for module with label 'TriggerResults' id = 1
-++++ finished: end job for module with label 'TriggerResults' id = 1
 ++++ starting: end job for module with label 'p' id = 2
 ++++ finished: end job for module with label 'p' id = 2
 ++ finished: end job
