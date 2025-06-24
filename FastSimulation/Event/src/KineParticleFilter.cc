@@ -2,6 +2,10 @@
 #include "CommonTools/BaseParticlePropagator/interface/RawParticle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include <iostream>
+
+//#define EDM_ML_DEBUG
+
 KineParticleFilter::KineParticleFilter(const edm::ParameterSet& cfg) {
   // Charged particles must have pt greater than chargedPtMin [GeV]
   double chargedPtMin = cfg.getParameter<double>("chargedPtMin");
@@ -29,26 +33,42 @@ bool KineParticleFilter::acceptParticle(const RawParticle& particle) const {
 
   // skipp invisible particles
   if (pId == 12 || pId == 14 || pId == 16 || pId == 1000022) {
+#ifdef EDM_ML_DEBUG
+    std::cout << "KineParticleFilter: reject particle with pId = " << pId << std::endl;
+#endif
     return false;
   }
 
   // keep all high-energy protons
   else if (pId == 2212 && particle.E() >= protonEMin) {
-    return acceptVertex(particle.vertex());
+    bool accepted = acceptVertex(particle.vertex());
+#ifdef EDM_ML_DEBUG
+    if (!accepted) std::cout << "KineParticleFilter: reject proton with E = " << particle.E() << " > " << protonEMin << " because of vertex" << std::endl;
+#endif
+    return accepted;
   }
 
   // cut on the energy
   else if (particle.E() < EMin) {
+#ifdef EDM_ML_DEBUG
+    std::cout << "KineParticleFilter: reject particle with E = " << particle.E() << " < " << EMin << std::endl;
+#endif
     return false;
   }
 
   // cut on pt of charged particles
   else if (particle.charge() != 0 && particle.Perp2() < chargedPtMin2) {
+#ifdef EDM_ML_DEBUG
+    std::cout << "KineParticleFilter: reject particle with charge = " << particle.charge() << " and pT = " << particle.pt() << " < " << chargedPtMin2 << std::endl;
+#endif
     return false;
   }
 
   // cut on eta if the origin vertex is close to the beam
   else if (particle.vertex().Perp2() < 25. && particle.cos2Theta() > cos2ThetaMax) {
+#ifdef EDM_ML_DEBUG
+    std::cout << "KineParticleFilter: reject particle with cos2Theta = " << particle.cos2Theta() << " < " << cos2ThetaMax << std::endl;
+#endif
     return false;
   }
 
@@ -57,5 +77,9 @@ bool KineParticleFilter::acceptParticle(const RawParticle& particle) const {
 }
 
 bool KineParticleFilter::acceptVertex(const XYZTLorentzVector& vertex) const {
-  return vertex.Perp2() < vertexRMax2 && fabs(vertex.Z()) < vertexZMax;
+  bool accepted = vertex.Perp2() < vertexRMax2 && fabs(vertex.Z()) < vertexZMax;
+#ifdef EDM_ML_DEBUG
+  if (!accepted) std::cout << "KineParticleFilter: reject particle because of vertex with R = " << vertex.Rho() << " (max " << std::sqrt(vertexRMax2) << ") and Z = " << fabs(vertex.Z()) << " (max " << vertexZMax << ")" << std::endl;
+#endif
+  return accepted;
 }
