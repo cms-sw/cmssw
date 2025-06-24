@@ -60,14 +60,16 @@ public:
   const CaloSubdetectorTopology* getEcalTopology(int subdetn) const;
 
 protected:
+  Calorimeter(const edm::ParameterSet& fastDet, const edm::ParameterSet& fastDetHF);
+
   //Calorimeter properties
-  PreshowerLayer1Properties* myPreshowerLayer1Properties_;
-  PreshowerLayer2Properties* myPreshowerLayer2Properties_;
-  ECALBarrelProperties* myECALBarrelProperties_;
-  ECALEndcapProperties* myECALEndcapProperties_;
-  HCALBarrelProperties* myHCALBarrelProperties_;
-  HCALEndcapProperties* myHCALEndcapProperties_;
-  HCALForwardProperties* myHCALForwardProperties_;
+  std::unique_ptr<PreshowerLayer1Properties> myPreshowerLayer1Properties_;
+  std::unique_ptr<PreshowerLayer2Properties> myPreshowerLayer2Properties_;
+  std::unique_ptr<ECALBarrelProperties> myECALBarrelProperties_;
+  std::unique_ptr<ECALEndcapProperties> myECALEndcapProperties_;
+  std::unique_ptr<HCALBarrelProperties> myHCALBarrelProperties_;
+  std::unique_ptr<HCALEndcapProperties> myHCALEndcapProperties_;
+  std::unique_ptr<HCALForwardProperties> myHCALForwardProperties_;
 
   // The subdetectors geometry
   const EcalBarrelGeometry* EcalBarrelGeometry_;

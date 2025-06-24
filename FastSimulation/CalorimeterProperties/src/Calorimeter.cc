@@ -20,67 +20,39 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalHardcodeGeometryLoader.h"
 
 Calorimeter::Calorimeter()
-    : myPreshowerLayer1Properties_(nullptr),
-      myPreshowerLayer2Properties_(nullptr),
-      myECALBarrelProperties_(nullptr),
-      myECALEndcapProperties_(nullptr),
-      myHCALBarrelProperties_(nullptr),
-      myHCALEndcapProperties_(nullptr),
-      myHCALForwardProperties_(nullptr),
-      EcalBarrelGeometry_(nullptr),
+    : EcalBarrelGeometry_(nullptr),
       EcalEndcapGeometry_(nullptr),
       HcalGeometry_(nullptr),
       PreshowerGeometry_(nullptr) {
-  ;
 }
 
 Calorimeter::Calorimeter(const edm::ParameterSet& fastCalo)
-    : myPreshowerLayer1Properties_(nullptr),
-      myPreshowerLayer2Properties_(nullptr),
-      myECALBarrelProperties_(nullptr),
-      myECALEndcapProperties_(nullptr),
-      myHCALBarrelProperties_(nullptr),
-      myHCALEndcapProperties_(nullptr),
-      myHCALForwardProperties_(nullptr),
+    : Calorimeter(fastCalo.getParameter<edm::ParameterSet>("CalorimeterProperties"),
+                  fastCalo.getParameter<edm::ParameterSet>("ForwardCalorimeterProperties")) {
+}
+
+Calorimeter::Calorimeter(const edm::ParameterSet& fastDet, const edm::ParameterSet& fastDetHF)
+    : myPreshowerLayer1Properties_(std::make_unique<PreshowerLayer1Properties>(fastDet)),
+      myPreshowerLayer2Properties_(std::make_unique<PreshowerLayer2Properties>(fastDet)),
+      myECALBarrelProperties_(std::make_unique<ECALBarrelProperties>(fastDet)),
+      myECALEndcapProperties_(std::make_unique<ECALEndcapProperties>(fastDet)),
+      myHCALBarrelProperties_(std::make_unique<HCALBarrelProperties>(fastDet)),
+      myHCALEndcapProperties_(std::make_unique<HCALEndcapProperties>(fastDet)),
+      myHCALForwardProperties_(std::make_unique<HCALForwardProperties>(fastDetHF)),
       EcalBarrelGeometry_(nullptr),
       EcalEndcapGeometry_(nullptr),
       HcalGeometry_(nullptr),
       PreshowerGeometry_(nullptr) {
-  edm::ParameterSet fastDet = fastCalo.getParameter<edm::ParameterSet>("CalorimeterProperties");
-  edm::ParameterSet fastDetHF = fastCalo.getParameter<edm::ParameterSet>("ForwardCalorimeterProperties");
-
-  myPreshowerLayer1Properties_ = new PreshowerLayer1Properties(fastDet);
-  myPreshowerLayer2Properties_ = new PreshowerLayer2Properties(fastDet);
-  myECALBarrelProperties_ = new ECALBarrelProperties(fastDet);
-  myECALEndcapProperties_ = new ECALEndcapProperties(fastDet);
-  myHCALBarrelProperties_ = new HCALBarrelProperties(fastDet);
-  myHCALEndcapProperties_ = new HCALEndcapProperties(fastDet);
-  myHCALForwardProperties_ = new HCALForwardProperties(fastDetHF);
 }
 
-Calorimeter::~Calorimeter() {
-  if (myPreshowerLayer1Properties_)
-    delete myPreshowerLayer1Properties_;
-  if (myPreshowerLayer2Properties_)
-    delete myPreshowerLayer2Properties_;
-  if (myECALBarrelProperties_)
-    delete myECALBarrelProperties_;
-  if (myECALEndcapProperties_)
-    delete myECALEndcapProperties_;
-  if (myHCALBarrelProperties_)
-    delete myHCALBarrelProperties_;
-  if (myHCALEndcapProperties_)
-    delete myHCALEndcapProperties_;
-  if (myHCALForwardProperties_)
-    delete myHCALForwardProperties_;
-}
+Calorimeter::~Calorimeter() { }
 
 const ECALProperties* Calorimeter::ecalProperties(int onEcal) const {
   if (onEcal) {
     if (onEcal == 1)
-      return myECALBarrelProperties_;
+      return myECALBarrelProperties_.get();
     else
-      return myECALEndcapProperties_;
+      return myECALEndcapProperties_.get();
   } else
     return nullptr;
 }
@@ -88,11 +60,11 @@ const ECALProperties* Calorimeter::ecalProperties(int onEcal) const {
 const HCALProperties* Calorimeter::hcalProperties(int onHcal) const {
   if (onHcal) {
     if (onHcal == 1)
-      return myHCALBarrelProperties_;
+      return myHCALBarrelProperties_.get();
     else if (onHcal == 2)
-      return myHCALEndcapProperties_;
+      return myHCALEndcapProperties_.get();
     else {
-      return myHCALForwardProperties_;
+      return myHCALForwardProperties_.get();
       edm::LogInfo("CalorimeterProperties")
           << " Calorimeter::hcalProperties : set myHCALForwardProperties" << std::endl;
     }
@@ -102,14 +74,14 @@ const HCALProperties* Calorimeter::hcalProperties(int onHcal) const {
 
 const PreshowerLayer1Properties* Calorimeter::layer1Properties(int onLayer1) const {
   if (onLayer1)
-    return myPreshowerLayer1Properties_;
+    return myPreshowerLayer1Properties_.get();
   else
     return nullptr;
 }
 
 const PreshowerLayer2Properties* Calorimeter::layer2Properties(int onLayer2) const {
   if (onLayer2)
-    return myPreshowerLayer2Properties_;
+    return myPreshowerLayer2Properties_.get();
   else
     return nullptr;
 }
