@@ -158,24 +158,42 @@ void MuMuForEmbeddingSelector::produce(edm::Event &iEvent, const edm::EventSetup
   prod->push_back(chosenZCand->daughter(1)->masterClone().castTo<pat::MuonRef>());
   iEvent.put(std::move(prod));
 
-  iEvent.put(std::make_unique<float>(chosenZCand->daughter(0)->masterClone().castTo<pat::MuonRef>()->pt()), "ptLeadingMuon");
-  iEvent.put(std::make_unique<float>(chosenZCand->daughter(1)->masterClone().castTo<pat::MuonRef>()->pt()), "ptTrailingMuon");
-  iEvent.put(std::make_unique<float>(chosenZCand->daughter(0)->masterClone().castTo<pat::MuonRef>()->eta()), "etaLeadingMuon");
-  iEvent.put(std::make_unique<float>(chosenZCand->daughter(1)->masterClone().castTo<pat::MuonRef>()->eta()), "etaTrailingMuon");
-  iEvent.put(std::make_unique<float>(chosenZCand->daughter(0)->masterClone().castTo<pat::MuonRef>()->phi()), "phiLeadingMuon");
-  iEvent.put(std::make_unique<float>(chosenZCand->daughter(1)->masterClone().castTo<pat::MuonRef>()->phi()), "phiTrailingMuon");
-  iEvent.put(std::make_unique<float>(chosenZCand->daughter(0)->masterClone().castTo<pat::MuonRef>()->charge()), "chargeLeadingMuon");
-  iEvent.put(std::make_unique<float>(chosenZCand->daughter(1)->masterClone().castTo<pat::MuonRef>()->charge()), "chargeTrailingMuon");
-  iEvent.put(std::make_unique<float>(chosenZCand->daughter(0)->masterClone().castTo<pat::MuonRef>()->dB()), "dbLeadingMuon");
-  iEvent.put(std::make_unique<float>(chosenZCand->daughter(1)->masterClone().castTo<pat::MuonRef>()->dB()), "dbTrailingMuon");
-  iEvent.put(std::make_unique<float>(chosenZCand->daughter(0)->masterClone().castTo<pat::MuonRef>()->mass()), "massLeadingMuon");
-  iEvent.put(std::make_unique<float>(chosenZCand->daughter(1)->masterClone().castTo<pat::MuonRef>()->mass()), "massTrailingMuon");
-  iEvent.put(std::make_unique<float>(chosenZCand->daughter(0)->masterClone().castTo<pat::MuonRef>()->vertex().x()), "vtxxLeadingMuon");
-  iEvent.put(std::make_unique<float>(chosenZCand->daughter(0)->masterClone().castTo<pat::MuonRef>()->vertex().y()), "vtxyLeadingMuon");
-  iEvent.put(std::make_unique<float>(chosenZCand->daughter(0)->masterClone().castTo<pat::MuonRef>()->vertex().z()), "vtxzLeadingMuon");
-  iEvent.put(std::make_unique<float>(chosenZCand->daughter(1)->masterClone().castTo<pat::MuonRef>()->vertex().x()), "vtxxTrailingMuon");
-  iEvent.put(std::make_unique<float>(chosenZCand->daughter(1)->masterClone().castTo<pat::MuonRef>()->vertex().y()), "vtxyTrailingMuon");
-  iEvent.put(std::make_unique<float>(chosenZCand->daughter(1)->masterClone().castTo<pat::MuonRef>()->vertex().z()), "vtxzTrailingMuon");
+  iEvent.put(std::make_unique<float>(chosenZCand->daughter(0)->masterClone().castTo<pat::MuonRef>()->pt()),
+             "ptLeadingMuon");
+  iEvent.put(std::make_unique<float>(chosenZCand->daughter(1)->masterClone().castTo<pat::MuonRef>()->pt()),
+             "ptTrailingMuon");
+  iEvent.put(std::make_unique<float>(chosenZCand->daughter(0)->masterClone().castTo<pat::MuonRef>()->eta()),
+             "etaLeadingMuon");
+  iEvent.put(std::make_unique<float>(chosenZCand->daughter(1)->masterClone().castTo<pat::MuonRef>()->eta()),
+             "etaTrailingMuon");
+  iEvent.put(std::make_unique<float>(chosenZCand->daughter(0)->masterClone().castTo<pat::MuonRef>()->phi()),
+             "phiLeadingMuon");
+  iEvent.put(std::make_unique<float>(chosenZCand->daughter(1)->masterClone().castTo<pat::MuonRef>()->phi()),
+             "phiTrailingMuon");
+  iEvent.put(std::make_unique<float>(chosenZCand->daughter(0)->masterClone().castTo<pat::MuonRef>()->charge()),
+             "chargeLeadingMuon");
+  iEvent.put(std::make_unique<float>(chosenZCand->daughter(1)->masterClone().castTo<pat::MuonRef>()->charge()),
+             "chargeTrailingMuon");
+  iEvent.put(std::make_unique<float>(chosenZCand->daughter(0)->masterClone().castTo<pat::MuonRef>()->dB()),
+             "dbLeadingMuon");
+  iEvent.put(std::make_unique<float>(chosenZCand->daughter(1)->masterClone().castTo<pat::MuonRef>()->dB()),
+             "dbTrailingMuon");
+  iEvent.put(std::make_unique<float>(chosenZCand->daughter(0)->masterClone().castTo<pat::MuonRef>()->mass()),
+             "massLeadingMuon");
+  iEvent.put(std::make_unique<float>(chosenZCand->daughter(1)->masterClone().castTo<pat::MuonRef>()->mass()),
+             "massTrailingMuon");
+  iEvent.put(std::make_unique<float>(chosenZCand->daughter(0)->masterClone().castTo<pat::MuonRef>()->vertex().x()),
+             "vtxxLeadingMuon");
+  iEvent.put(std::make_unique<float>(chosenZCand->daughter(0)->masterClone().castTo<pat::MuonRef>()->vertex().y()),
+             "vtxyLeadingMuon");
+  iEvent.put(std::make_unique<float>(chosenZCand->daughter(0)->masterClone().castTo<pat::MuonRef>()->vertex().z()),
+             "vtxzLeadingMuon");
+  iEvent.put(std::make_unique<float>(chosenZCand->daughter(1)->masterClone().castTo<pat::MuonRef>()->vertex().x()),
+             "vtxxTrailingMuon");
+  iEvent.put(std::make_unique<float>(chosenZCand->daughter(1)->masterClone().castTo<pat::MuonRef>()->vertex().y()),
+             "vtxyTrailingMuon");
+  iEvent.put(std::make_unique<float>(chosenZCand->daughter(1)->masterClone().castTo<pat::MuonRef>()->vertex().z()),
+             "vtxzTrailingMuon");
   iEvent.put(std::make_unique<bool>(chosenZCand->daughter(0)->masterClone().castTo<pat::MuonRef>()->isMediumMuon()),
              "isMediumLeadingMuon");
   iEvent.put(std::make_unique<bool>(
