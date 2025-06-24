@@ -67,13 +67,9 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
   G4ParticleDefinition* outgoingCloudDefinition = nullptr;
   G4ParticleDefinition* outgoingTargetDefinition = nullptr;
 
-  // Declare the quark cloud as a G4DynamicParticle. Throw an error if the cloud definition is not available
+  // Declare the quark cloud as a G4DynamicParticle
   G4DynamicParticle* cloudParticle = new G4DynamicParticle();
   cloudParticle->SetDefinition(customIncomingRhadron->GetCloud());
-  if (cloudParticle->GetDefinition() == nullptr) {
-    G4cerr << "FullModelHadronicProcess::PostStepDoIt  Definition of particle cloud not available!" << G4endl;
-    exit(EXIT_FAILURE);
-  }
 
   // Define the gluino and quark cloud G4LorentzVector (momentum, total energy) based on the momentum of the R-hadron and the ratio of the masses
   double scale = cloudParticle->GetDefinition()->GetPDGMass() / incomingRhadron->GetDefinition()->GetPDGMass();
@@ -122,11 +118,6 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
     if (finalStateParticle->GetParticleType() == "rhadron") {
       outgoingRhadronDefinition = finalStateParticle;
       outgoingCloudDefinition = finalStateCustomParticle->GetCloud();
-      if (outgoingCloudDefinition == nullptr) {
-        G4cerr << "FullModelHadronicProcess::PostStepDoIt  Definition of outgoing particle cloud not available!"
-               << G4endl;
-        exit(EXIT_FAILURE);
-      }
     }
 
     if (finalStateParticle == G4Proton::Proton() || finalStateParticle == G4Neutron::Neutron())
@@ -249,10 +240,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
     dynamicOutgoingRhadron->SetDefinition(incomingRhadron->GetDefinition());
     dynamicOutgoingRhadron->SetMomentum(gluinoMomentum.vect() + outgoingCloudp4Prime.vect());
     if (dynamicOutgoingRhadron->GetMomentum().mag() > DBL_MIN)
-      aParticleChange.ProposeMomentumDirection(
-          dynamicOutgoingRhadron->GetMomentum().x() / dynamicOutgoingRhadron->GetMomentum().mag(),
-          dynamicOutgoingRhadron->GetMomentum().y() / dynamicOutgoingRhadron->GetMomentum().mag(),
-          dynamicOutgoingRhadron->GetMomentum().z() / dynamicOutgoingRhadron->GetMomentum().mag());
+      aParticleChange.ProposeMomentumDirection(dynamicOutgoingRhadron->GetMomentumDirection());
     else
       aParticleChange.ProposeMomentumDirection(1.0, 0.0, 0.0);
     aParticleChange.ProposeEnergy(dynamicOutgoingRhadron->GetKineticEnergy());
