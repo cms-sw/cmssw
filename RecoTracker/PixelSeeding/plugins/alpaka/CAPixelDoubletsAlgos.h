@@ -143,10 +143,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
     const bool doClusterCut = params.minYsizeB1_ > 0 or params.minYsizeB2_ > 0;
     const bool doZSizeCut = params.maxDYsize12_ > 0 or params.maxDYsize_ > 0 or params.maxDYPred_ > 0;
 
-    // cm (1 GeV track has 1 GeV/c / (e * 3.8T) ~ 87 cm radius in a 3.8T field)
-    const float minRadius = params.cellPtCut_ * 87.78f;
-    const float minRadius2T4 = 4.f * minRadius * minRadius;
-
     const uint32_t nPairs = cc.metadata().size();
     using PhiHisto = PhiBinner<TrackerTraits>;
     ALPAKA_ASSERT_ACC(offsets);
@@ -263,10 +259,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
 
       // all cuts: true if fails
       auto ptcut = [&](int j, int16_t idphi) {
-        auto r2t4 = minRadius2T4;
+        // ptCut already converted to minRadius2T4 in CAHitNtupletGenerator.cc
         auto ro = hh[j].rGlobal();
         auto dphi = short2phi(idphi);
-        return dphi * dphi * (r2t4 - ri * ro) > (ro - ri) * (ro - ri);
+        return dphi * dphi * (cc.ptCuts()[pairLayerId] - ri * ro) > (ro - ri) * (ro - ri);
       };
       auto z0cutoff = [&](int j) {
         auto zo = hh[j].zGlobal();
@@ -386,7 +382,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
             continue;
           }
 
-          if (params.cellPtCut_ > 0. && ptcut(oi, idphi)) {
+          if (cc.ptCuts()[pairLayerId] > 0. && ptcut(oi, idphi)) {
 #ifdef DOUBLETS_DEBUG
             printf("Killed here 8\n");
 #endif

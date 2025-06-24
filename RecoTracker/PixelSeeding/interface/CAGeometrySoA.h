@@ -45,7 +45,8 @@ namespace reco {
                       SOA_COLUMN(float, maxOuter),
                       SOA_COLUMN(float, maxDZ),
                       SOA_COLUMN(float, minDZ),
-                      SOA_COLUMN(float, maxDR))
+                      SOA_COLUMN(float, maxDR),
+                      SOA_COLUMN(float, ptCuts))
 
   using CALayersSoA = CALayersLayout<>;
   using CALayersSoAView = CALayersSoA::View;

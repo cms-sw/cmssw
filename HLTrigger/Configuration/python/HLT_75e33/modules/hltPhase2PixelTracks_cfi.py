@@ -23,8 +23,12 @@ _hltPhase2PixelTracks = cms.EDProducer("PixelTrackProducerFromSoAAlpakaPhase2",
 alpaka.toReplaceWith(hltPhase2PixelTracks, _hltPhase2PixelTracks)
 
 from Configuration.ProcessModifiers.phase2CAExtension_cff import phase2CAExtension
-phase2CAExtension.toModify(hltPhase2PixelTracks,
-    outerTrackerRecHitSrc = "hltSiPhase2RecHits",
-    useOTExtension = True,
-    requireQuadsFromConsecutiveLayers = True
+_hltPhase2PixelTracksCAExtensionSelectionHighPurity = cms.EDProducer("TrackCollectionFilterCloner",
+    copyExtras = cms.untracked.bool(True),
+    copyTrajectories = cms.untracked.bool(False),
+    minQuality = cms.string('highPurity'),
+    originalMVAVals = cms.InputTag("hltPhase2PixelTracksCutClassifier","MVAValues"),
+    originalQualVals = cms.InputTag("hltPhase2PixelTracksCutClassifier","QualityMasks"),
+    originalSource = cms.InputTag("hltPhase2PixelTracksCAExtension")
 )
+phase2CAExtension.toReplaceWith(hltPhase2PixelTracks, _hltPhase2PixelTracksCAExtensionSelectionHighPurity)

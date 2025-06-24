@@ -19,3 +19,10 @@ _hltInputLSTSingleIterPatatrack = hltInputLST.clone(
 
 from Configuration.ProcessModifiers.singleIterPatatrack_cff import singleIterPatatrack
 singleIterPatatrack.toReplaceWith(hltInputLST, _hltInputLSTSingleIterPatatrack)
+
+_hltInputLSTNGTScouting = hltInputLST.clone(
+    seedTracks = ['hltInitialStepSeedTracksLST']
+)
+
+from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting
+ngtScouting.toReplaceWith(hltInputLST, _hltInputLSTNGTScouting )

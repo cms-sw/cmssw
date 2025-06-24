@@ -184,6 +184,8 @@ namespace phase1PixelTopology {
                                                phi0p05,
                                                phi0p05,
                                                phi0p05};
+  HOST_DEVICE_CONSTANT float ptcuts[nPairs] = {
+      0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
   HOST_DEVICE_CONSTANT float minz[nPairs] = {
       -20., 0., -30., -22., 10., -30., -70., -70., -22., 15., -30, -70., -70., -20., -22., 0, -30., -70., -70.};
   HOST_DEVICE_CONSTANT float maxz[nPairs] = {
@@ -277,6 +279,10 @@ namespace phase2PixelTopology {
       phi0p05, phi0p05, phi0p05, phi0p05, phi0p05, phi0p05, phi0p05, phi0p07, phi0p07, phi0p07, phi0p07,
       phi0p07, phi0p07, phi0p07, phi0p07, phi0p07, phi0p07, phi0p07, phi0p07, phi0p07, phi0p07, phi0p07,
       phi0p07, phi0p07, phi0p07, phi0p05, phi0p05, phi0p05, phi0p05, phi0p05, phi0p05, phi0p05, phi0p05};
+  HOST_DEVICE_CONSTANT float ptcuts[nPairs] = {
+      0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85,
+      0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85,
+      0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85};
 
   HOST_DEVICE_CONSTANT float minz[nPairs] = {
       -16.0, 4.0,   -22.0, -17.0, 6.0,   -22.0, -18.0, 11.0,  -22.0,  23.0,   30.0,   39.0,   50.0,   65.0,
@@ -435,6 +441,7 @@ namespace pixelTopology {
 
     static constexpr uint8_t const *layerPairs = phase2PixelTopology::layerPairs;
     static constexpr int16_t const *phicuts = phase2PixelTopology::phicuts;
+    static constexpr float const *ptcuts = phase2PixelTopology::ptcuts;
 
     static constexpr inline bool isBigPixX(uint16_t px) { return false; }
     static constexpr inline bool isBigPixY(uint16_t py) { return false; }
@@ -541,6 +548,7 @@ namespace pixelTopology {
 
     static constexpr uint8_t const *layerPairs = phase1PixelTopology::layerPairs;
     static constexpr int16_t const *phicuts = phase1PixelTopology::phicuts;
+    static constexpr float const *ptcuts = phase1PixelTopology::ptcuts;
 
     static constexpr inline bool isEdgeX(uint16_t px) { return (px == 0) | (px == lastRowInModule); }
 

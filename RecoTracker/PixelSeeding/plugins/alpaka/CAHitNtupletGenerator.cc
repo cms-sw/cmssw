@@ -272,6 +272,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             std::vector<int>(std::begin(phicuts), std::begin(phicuts) + pixelTopology::Phase1::nPairsForQuadruplets))
         ->setComment("Cuts in phi for cells");
     geometryParams
+        .add<std::vector<double>>("ptCuts", std::vector<double>(std::begin(ptcuts), std::begin(ptcuts) + nPairs))
+        ->setComment("Cuts in pt for cells");
+    geometryParams
         .add<std::vector<double>>(
             "minInner",
             std::vector<double>(std::begin(minz), std::begin(minz) + pixelTopology::Phase1::nPairsForQuadruplets))
@@ -360,6 +363,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                     pixelTopology::Phase1::nPairsForQuadruplets))
         ->setComment("Cuts in phi for cells");
     geometryParams
+        .add<std::vector<double>>("ptCuts", std::vector<double>(std::begin(ptcuts), std::begin(ptcuts) + nPairs))
+        ->setComment("Cuts in pt for cells");
+    geometryParams
         .add<std::vector<double>>(
             "minInner",
             std::vector<double>(std::begin(minz), std::begin(minz) + pixelTopology::Phase1::nPairsForQuadruplets))
@@ -438,6 +444,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         .add<std::vector<int>>("phiCuts", std::vector<int>(std::begin(phicuts), std::begin(phicuts) + nPairs))
         ->setComment("Cuts in phi for cells");
     geometryParams
+        .add<std::vector<double>>("ptCuts", std::vector<double>(std::begin(ptcuts), std::begin(ptcuts) + nPairs))
+        ->setComment("Cuts in pt for cells");
+    geometryParams
         .add<std::vector<double>>("minInner", std::vector<double>(std::begin(minz), std::begin(minz) + nPairs))
         ->setComment("Cuts on inner hit's z (for barrel) or r (for endcap) for cells (min value)");
     geometryParams
@@ -505,6 +514,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     geometryParams
         .add<std::vector<int>>("phiCuts", std::vector<int>(std::begin(phicuts), std::begin(phicuts) + nPairs))
         ->setComment("Cuts in phi for cells");
+    geometryParams
+        .add<std::vector<double>>("ptCuts", std::vector<double>(std::begin(ptcuts), std::begin(ptcuts) + nPairs))
+        ->setComment("Cuts in pt for cells");
     geometryParams
         .add<std::vector<double>>("minInner", std::vector<double>(std::begin(minz), std::begin(minz) + nPairs))
         ->setComment("Cuts on inner hit's z (for barrel) or r (for endcap) for cells (min value)");
