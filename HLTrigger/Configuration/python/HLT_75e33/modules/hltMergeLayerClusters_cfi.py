@@ -12,6 +12,17 @@ alpaka.toModify(hltMergeLayerClusters,
                 time_layerclustersEE = cms.InputTag("hltHgCalLayerClustersFromSoAProducer", "timeLayerCluster"))
 
 from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
-layerClusters = cms.VInputTag("hltHgcalLayerClustersEE", "hltHgcalLayerClustersHSci", "hltHgcalLayerClustersHSi", "hltBarrelLayerClustersEB", "hltBarrelLayerClustersHB")
-time_layerclusters = cms.VInputTag("hltHgcalLayerClustersEE:timeLayerCluster", "hltHgcalLayerClustersHSci:timeLayerCluster", "hltHgcalLayerClustersHSi:timeLayerCluster", "hltBarrelLayerClustersEB:timeLayerCluster", "hltBarrelLayerClustersHB:timeLayerCluster")
+
+layerClusters = ["hltHgcalLayerClustersEE", 
+                 "hltHgcalLayerClustersHSci", 
+                 "hltHgcalLayerClustersHSi", 
+                 "hltBarrelLayerClustersEB", 
+                 "hltBarrelLayerClustersHB"]
+
+time_layerclusters = ["hltHgcalLayerClustersEE:timeLayerCluster", 
+                      "hltHgcalLayerClustersHSci:timeLayerCluster", 
+                      "hltHgcalLayerClustersHSi:timeLayerCluster", 
+                      "hltBarrelLayerClustersEB:timeLayerCluster", 
+                      "hltBarrelLayerClustersHB:timeLayerCluster"]
+
 ticl_barrel.toModify(hltMergeLayerClusters, layerClusters = layerClusters, time_layerclusters = time_layerclusters)
