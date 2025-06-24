@@ -176,7 +176,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           if (isPh2Pixel(detid)) {
 //            std::cout << "Good Pixel" << std::endl;
             if (layer != oldLayer) {
-              std::cout << "Pixel LayerStart: " << layerCount << " at layer " << layer << " has " << n_modules << " modules." << std::endl;
+              //std::cout << "Pixel LayerStart: " << layerCount << " at layer " << layer << " has " << n_modules << " modules." << std::endl;
               layerStarts[layerCount++] = n_modules;
               if (layerCount > n_layers + 1)
                 break;
@@ -191,7 +191,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               if (isPinPSinOTBarrel(unitDetId)) {
 //                std::cout << "Good OT Barrel" << std::endl;
                 if (layer != oldLayer) {
-                  std::cout << "OT LayerStart: " << layerCount << " at layer " << layer << " has " << n_modules << " modules." << std::endl;
+                  //std::cout << "OT LayerStart: " << layerCount << " at layer " << layer << " has " << n_modules << " modules." << std::endl;
                   layerStarts[layerCount++] = n_modules;
                   if (layerCount > n_layers + 1)
                     break;
@@ -208,7 +208,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           counter++;
         }
         layerStarts[n_layers] = n_modules;
-        std::cout << "OT LayerStart: " << n_layers << " has " << n_modules << " modules." << std::endl;
+        //std::cout << "OT LayerStart: " << n_layers << " has " << n_modules << " modules." << std::endl;
       } else {
         for (auto& det : dets) {
           DetId detid = det->geographicalId();

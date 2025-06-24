@@ -75,18 +75,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto queue = iEvent.queue();
     const auto& pixelRecHitsSoA = iEvent.get(pixelRecHitToken_);
     const auto& otRecHitsSoA = iEvent.get(trackerRecHitToken_);
-    std::cout << "----------------- Merging Pixel and Tracker RecHits -----------------" << std::endl;
+    //std::cout << "----------------- Merging Pixel and Tracker RecHits -----------------" << std::endl;
     const int nPixelHits = pixelRecHitsSoA.nHits();
-    std::cout << "Number of Pixel recHits: " << nPixelHits << std::endl;
+    //std::cout << "Number of Pixel recHits: " << nPixelHits << std::endl;
     const int nTrackerHits = otRecHitsSoA.nHits();
-    std::cout << "Number of Tracker recHits: " << nTrackerHits << std::endl;
+    //std::cout << "Number of Tracker recHits: " << nTrackerHits << std::endl;
     const int nTotHits = nPixelHits + nTrackerHits;
-    std::cout << "Number of Pixel modules: " << pixelRecHitsSoA.nModules() << std::endl;
-    std::cout << "Number of Tracker modules: " << otRecHitsSoA.nModules() << std::endl;
+    //std::cout << "Number of Pixel modules: " << pixelRecHitsSoA.nModules() << std::endl;
+    //std::cout << "Number of Tracker modules: " << otRecHitsSoA.nModules() << std::endl;
     const int nTotModules = pixelRecHitsSoA.nModules() + otRecHitsSoA.nModules();
 
     auto outputSoA = reco::TrackingRecHitsSoACollection(queue, nTotHits, nTotModules);
-    std::cout << "Total number of recHits: " << outputSoA.nHits() << std::endl;
+    //std::cout << "Total number of recHits: " << outputSoA.nHits() << std::endl;
 
     // copy all columns from pixelRecHitsSoA and otRecHitsSoA to outputSoA
     // xLocal

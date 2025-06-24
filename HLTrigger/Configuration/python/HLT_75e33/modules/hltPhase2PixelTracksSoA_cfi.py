@@ -9,7 +9,7 @@ hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
     hardCurvCut = cms.double(0.01425), # corresponds to 800 MeV in 3.8T.
     earlyFishbone = cms.bool(True),
     lateFishbone = cms.bool(False),
-    fillStatistics = cms.bool(True),
+    fillStatistics = cms.bool(False),
     minHitsPerNtuplet = cms.uint32(5),
     maxNumberOfDoublets = cms.string(str(15*512*1024)),
     maxNumberOfTuples = cms.string(str(2*60*1024)),
@@ -610,5 +610,5 @@ if removeOT:
     ot_layers_ = [28, 29, 30]
     exclude_layers(hltPhase2PixelTracksSoA, layers_to_exclude=ot_layers_)
 
-print("Using {} pair connections: {}".format(len(hltPhase2PixelTracksSoA.geometry.pairGraph), hltPhase2PixelTracksSoA.geometry.pairGraph))
+#print("Using {} pair connections: {}".format(len(hltPhase2PixelTracksSoA.geometry.pairGraph), hltPhase2PixelTracksSoA.geometry.pairGraph))
 

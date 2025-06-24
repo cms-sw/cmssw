@@ -8,7 +8,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "RecoTracker/PixelTrackFitting/interface/alpaka/FitUtils.h"
 
-#define BL_DEEPDEBUG
+//#define BL_DEEPDEBUG
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
 
