@@ -26,23 +26,31 @@ Calorimeter::Calorimeter()
       PreshowerGeometry_(nullptr) {
 }
 
-Calorimeter::Calorimeter(const edm::ParameterSet& fastCalo)
-    : Calorimeter(fastCalo.getParameter<edm::ParameterSet>("CalorimeterProperties"),
-                  fastCalo.getParameter<edm::ParameterSet>("ForwardCalorimeterProperties")) {
+Calorimeter::Calorimeter(const edm::ParameterSet& fastCalo, const CaloGeometry& pG, const CaloTopology& theTopology) {
+  setupProperties(fastCalo.getParameter<edm::ParameterSet>("CalorimeterProperties"),
+                  fastCalo.getParameter<edm::ParameterSet>("ForwardCalorimeterProperties"));
+  setupGeomTopo(pG, theTopology);
 }
 
-Calorimeter::Calorimeter(const edm::ParameterSet& fastDet, const edm::ParameterSet& fastDetHF)
-    : myPreshowerLayer1Properties_(std::make_unique<PreshowerLayer1Properties>(fastDet)),
-      myPreshowerLayer2Properties_(std::make_unique<PreshowerLayer2Properties>(fastDet)),
-      myECALBarrelProperties_(std::make_unique<ECALBarrelProperties>(fastDet)),
-      myECALEndcapProperties_(std::make_unique<ECALEndcapProperties>(fastDet)),
-      myHCALBarrelProperties_(std::make_unique<HCALBarrelProperties>(fastDet)),
-      myHCALEndcapProperties_(std::make_unique<HCALEndcapProperties>(fastDet)),
-      myHCALForwardProperties_(std::make_unique<HCALForwardProperties>(fastDetHF)),
-      EcalBarrelGeometry_(nullptr),
-      EcalEndcapGeometry_(nullptr),
-      HcalGeometry_(nullptr),
-      PreshowerGeometry_(nullptr) {
+void Calorimeter::setupProperties(const edm::ParameterSet& fastDet, const edm::ParameterSet& fastDetHF) {
+  myPreshowerLayer1Properties_ = std::make_unique<PreshowerLayer1Properties>(fastDet);
+  myPreshowerLayer2Properties_ = std::make_unique<PreshowerLayer2Properties>(fastDet);
+  myECALBarrelProperties_ = std::make_unique<ECALBarrelProperties>(fastDet);
+  myECALEndcapProperties_ = std::make_unique<ECALEndcapProperties>(fastDet);
+  myHCALBarrelProperties_ = std::make_unique<HCALBarrelProperties>(fastDet);
+  myHCALEndcapProperties_ = std::make_unique<HCALEndcapProperties>(fastDet);
+  myHCALForwardProperties_ = std::make_unique<HCALForwardProperties>(fastDetHF);
+}
+
+void Calorimeter::setupGeomTopo(const CaloGeometry& pG, const CaloTopology& theTopology) {
+  EcalBarrelGeometry_ = dynamic_cast<const EcalBarrelGeometry*>(pG.getSubdetectorGeometry(DetId::Ecal, EcalBarrel));
+  EcalEndcapGeometry_ = dynamic_cast<const EcalEndcapGeometry*>(pG.getSubdetectorGeometry(DetId::Ecal, EcalEndcap));
+  HcalGeometry_ = pG.getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
+  // Takes a lot of time
+  PreshowerGeometry_ = dynamic_cast<const EcalPreshowerGeometry*>(pG.getSubdetectorGeometry(DetId::Ecal, EcalPreshower));
+
+  EcalBarrelTopology_ = theTopology.getSubdetectorTopology(DetId::Ecal, EcalBarrel);
+  EcalEndcapTopology_ = theTopology.getSubdetectorTopology(DetId::Ecal, EcalEndcap);
 }
 
 Calorimeter::~Calorimeter() { }
@@ -84,21 +92,6 @@ const PreshowerLayer2Properties* Calorimeter::layer2Properties(int onLayer2) con
     return myPreshowerLayer2Properties_.get();
   else
     return nullptr;
-}
-
-void Calorimeter::setupGeometry(const CaloGeometry& pG) {
-  edm::LogInfo("CalorimeterProperties") << " setupGeometry " << std::endl;
-  EcalBarrelGeometry_ = dynamic_cast<const EcalBarrelGeometry*>(pG.getSubdetectorGeometry(DetId::Ecal, EcalBarrel));
-  EcalEndcapGeometry_ = dynamic_cast<const EcalEndcapGeometry*>(pG.getSubdetectorGeometry(DetId::Ecal, EcalEndcap));
-  HcalGeometry_ = pG.getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
-  // Takes a lot of time
-  PreshowerGeometry_ =
-      dynamic_cast<const EcalPreshowerGeometry*>(pG.getSubdetectorGeometry(DetId::Ecal, EcalPreshower));
-}
-
-void Calorimeter::setupTopology(const CaloTopology& theTopology) {
-  EcalBarrelTopology_ = theTopology.getSubdetectorTopology(DetId::Ecal, EcalBarrel);
-  EcalEndcapTopology_ = theTopology.getSubdetectorTopology(DetId::Ecal, EcalEndcap);
 }
 
 const CaloSubdetectorGeometry* Calorimeter::getEcalGeometry(int subdetn) const {

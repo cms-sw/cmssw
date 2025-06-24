@@ -26,14 +26,10 @@ namespace edm {
 class Calorimeter {
 public:
   Calorimeter();
-  Calorimeter(const edm::ParameterSet& caloParameters);
+  Calorimeter(const edm::ParameterSet& caloParameters, const CaloGeometry& pG, const CaloTopology& theTopology);
+  Calorimeter(const Calorimeter&) = delete;
+  Calorimeter& operator=(const Calorimeter&) = delete;
   ~Calorimeter();
-
-  // Setup the geometry
-  void setupGeometry(const CaloGeometry& pG);
-
-  // Setup the topology
-  void setupTopology(const CaloTopology&);
 
   /// ECAL properties
   const ECALProperties* ecalProperties(int onEcal) const;
@@ -60,7 +56,8 @@ public:
   const CaloSubdetectorTopology* getEcalTopology(int subdetn) const;
 
 protected:
-  Calorimeter(const edm::ParameterSet& fastDet, const edm::ParameterSet& fastDetHF);
+  void setupProperties(const edm::ParameterSet& fastDet, const edm::ParameterSet& fastDetHF);
+  void setupGeomTopo(const CaloGeometry& pG, const CaloTopology& theTopology);
 
   //Calorimeter properties
   std::unique_ptr<PreshowerLayer1Properties> myPreshowerLayer1Properties_;

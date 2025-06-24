@@ -29,13 +29,20 @@ CaloGeometryHelper::CaloGeometryHelper() : Calorimeter() {
   psLayer2Z_ = 307;
 }
 
-CaloGeometryHelper::CaloGeometryHelper(const edm::ParameterSet& fastCalo) : Calorimeter(fastCalo) {
-  //  std::cout << " In the constructor with ParameterSet " << std::endl;
-  psLayer1Z_ = 303;
-  psLayer2Z_ = 307;
+CaloGeometryHelper::CaloGeometryHelper(const edm::ParameterSet& fastCalo, const CaloGeometry& pG, const CaloTopology& theTopology, double bField)
+    : Calorimeter(fastCalo, pG, theTopology) {
+  setupHelper(bField);
 }
 
-void CaloGeometryHelper::initialize(double bField) {
+CaloGeometryHelper::CaloGeometryHelper(const CaloGeometry& pG, const CaloTopology& theTopology, double bField) {
+  setupGeomTopo(pG, theTopology);
+  setupHelper(bField);
+}
+
+void CaloGeometryHelper::setupHelper(double bField) {
+  psLayer1Z_ = 303;
+  psLayer2Z_ = 307;
+
   buildCrystalArray();
   buildNeighbourArray();
   bfield_ = bField;
@@ -49,8 +56,6 @@ void CaloGeometryHelper::initialize(double bField) {
     LogDebug("CaloGeometryTools") << " Preshower layer positions " << psLayer1Z_ << " " << psLayer2Z_ << std::endl;
   } else
     LogDebug("CaloGeometryTools") << " No preshower present" << std::endl;
-
-  //  std::cout << " Preshower layer positions " << psLayer1Z_ << " " << psLayer2Z_ << std::endl;
 }
 
 CaloGeometryHelper::~CaloGeometryHelper() { ; }
@@ -59,7 +64,6 @@ DetId CaloGeometryHelper::getClosestCell(const XYZPoint& point, bool ecal, bool 
   DetId result;
   if (ecal) {
     if (central) {
-      //	  std::cout << "EcalBarrelGeometry_" << " " << EcalBarrelGeometry_ << std::endl;
       result = EcalBarrelGeometry_->getClosestCell(GlobalPoint(point.X(), point.Y(), point.Z()));
 #ifdef DEBUGGCC
       if (result.null())
@@ -98,36 +102,8 @@ DetId CaloGeometryHelper::getClosestCell(const XYZPoint& point, bool ecal, bool 
       }
       HcalDetId myDetId2((HcalSubdetector)myDetId.subdetId(), myDetId.ieta(), myDetId.iphi(), mylayer);
       result = myDetId2;
-      //      return result;
     }
 
-    // Special patch to correct the HCAL geometry (does not work)
-    /*
-      if(result.subdetId()!=HcalEndcap) return result;
-      if(myDetId.depth()==3) return result;
-
-      int ieta=myDetId.ietaAbs();
-      float azmin=400.458;         /// in sync with BaseParticlePropagator 
-
-      if(ieta<=17) 
-        return result;
-      else if(ieta>=18 && ieta<=26) 
-        azmin += 35.0;    // don't consider ieta=18 nose separately
-      else if(ieta>=27)
-        azmin += 21.0;
-
-      HcalDetId first(HcalEndcap,myDetId.ieta(),myDetId.iphi(),1);
-      bool layer2=(fabs(point.Z())>azmin);
-      if(!layer2)
-        {
-          return first;
-        }
-      else
-        {
-          HcalDetId second(HcalEndcap,myDetId.ieta(),myDetId.iphi(),2);
-	  if(second!=HcalDetId()) result=second;
-	}
-      */
 #ifdef DEBUGGCC
     if (result.null()) {
       return result;
@@ -201,12 +177,10 @@ void CaloGeometryHelper::buildNeighbourArray() {
         if (neighbours[in] != vec[ic]) {
           barrelNeighbours_[hashedindex][nn] = (neighbours[in]);
           nn++;
-          //	      std::cout << " Neighbour " << in << " " << EBDetId(neighbours[in]) << std::endl;
         }
       }
     } else {
       DetId central(vec[ic]);
-      //barrelNeighbours_[hashedindex].resize(8,DetId(0));
       for (unsigned idir = 0; idir < 8; ++idir) {
         DetId testid = central;
         bool status = move(testid, orderedDir[idir], false);
@@ -217,9 +191,6 @@ void CaloGeometryHelper::buildNeighbourArray() {
   }
 
   // Moved to the endcap
-
-  //  std::cout << " done " << size << std::endl;
-  //  std::cout << " Building the array of neighbours (endcap) " ;
 
   const std::vector<DetId>& vece(EcalEndcapGeometry_->getValidDetIds(DetId::Ecal, EcalEndcap));
   size = vece.size();
@@ -240,7 +211,6 @@ void CaloGeometryHelper::buildNeighbourArray() {
     }
 
     if (nneighbours == 9) {
-      //endcapNeighbours_[hashedindex].reserve(8);
       unsigned int nn = 0;
       for (unsigned in = 0; in < nneighbours; ++in) {
         // remove the centre
@@ -251,7 +221,6 @@ void CaloGeometryHelper::buildNeighbourArray() {
       }
     } else {
       DetId central(vece[ic]);
-      //endcapNeighbours_[hashedindex].resize(8,DetId(0));
       for (unsigned idir = 0; idir < 8; ++idir) {
         DetId testid = central;
         bool status = move(testid, orderedDir[idir], false);
@@ -260,7 +229,6 @@ void CaloGeometryHelper::buildNeighbourArray() {
       }
     }
   }
-  //  std::cout << " done " << size <<std::endl;
   neighbourmapcalculated_ = true;
 }
 
@@ -392,7 +360,6 @@ void CaloGeometryHelper::buildCrystalArray() {
   // Barrel first. The hashed index runs from 0 to 61199
   barrelCrystals_.resize(nbarrel, BaseCrystal());
 
-  //std::cout << " Building the array of crystals (barrel) " ;
   const std::vector<DetId>& vec(EcalBarrelGeometry_->getValidDetIds(DetId::Ecal, EcalBarrel));
   unsigned size = vec.size();
   for (unsigned ic = 0; ic < size; ++ic) {
@@ -402,9 +369,6 @@ void CaloGeometryHelper::buildCrystalArray() {
     xtal.setCorners(geom->getCorners(), geom->getPosition());
     barrelCrystals_[hashedindex] = xtal;
   }
-
-  //  std::cout << " done " << size << std::endl;
-  //  std::cout << " Building the array of crystals (endcap) " ;
 
   const std::vector<DetId>& vece(EcalEndcapGeometry_->getValidDetIds(DetId::Ecal, EcalEndcap));
   size = vece.size();
@@ -420,5 +384,4 @@ void CaloGeometryHelper::buildCrystalArray() {
     xtal.setCorners(geom->getCorners(), geom->getPosition());
     endcapCrystals_[hashedindex] = xtal;
   }
-  //  std::cout << " done " << size << std::endl;
 }

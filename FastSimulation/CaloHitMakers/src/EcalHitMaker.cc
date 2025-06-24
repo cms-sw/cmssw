@@ -30,7 +30,7 @@ typedef ROOT::Math::Plane3D::Vector Vector;
 typedef ROOT::Math::Plane3D::Point Point;
 typedef ROOT::Math::Transform3DPJ Transform3DR;
 
-EcalHitMaker::EcalHitMaker(CaloGeometryHelper* theCalo,
+EcalHitMaker::EcalHitMaker(const CaloGeometryHelper* theCalo,
                            const XYZPoint& ecalentrance,
                            const DetId& cell,
                            int onEcal,

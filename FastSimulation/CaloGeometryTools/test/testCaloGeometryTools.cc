@@ -57,20 +57,19 @@ public:
   explicit testCaloGeometryTools(const edm::ParameterSet&);
   ~testCaloGeometryTools();
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   // ----------member data ---------------------------
-  void testpoint(const XYZPoint&, std::string name, bool barrel, RandomEngineAndDistribution const*);
-  void checkSM();
-  void checkSC();
-  void testBorderCrossing();
+  void testpoint(const XYZPoint&, std::string name, bool barrel, RandomEngineAndDistribution const*, const CaloGeometryHelper& myGeometry);
+  void checkSM(const CaloGeometryHelper& myGeometry);
+  void checkSC(const CaloGeometryHelper& myGeometry);
+  void testBorderCrossing(const CaloGeometryHelper& myGeometry);
 
   const edm::ESGetToken<CaloTopology, CaloTopologyRecord> tokCaloTopo_;
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tokCaloGeom_;
 
-  Histos* myHistos;
-  CaloGeometryHelper myGeometry;
+  Histos* myHistos_;
 };
 
 //
@@ -86,15 +85,15 @@ private:
 //
 testCaloGeometryTools::testCaloGeometryTools(const edm::ParameterSet& iConfig)
     : tokCaloTopo_(esConsumes()), tokCaloGeom_(esConsumes()) {
-  myHistos = Histos::instance();
-  myHistos->book("h100", 150, 0., 1.5, 100, 0., 35.);
+  myHistos_ = Histos::instance();
+  myHistos_->book("h100", 150, 0., 1.5, 100, 0., 35.);
 }
 
 testCaloGeometryTools::~testCaloGeometryTools() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
   std::cout << " Writing the histo " << std::endl;
-  myHistos->put("Grid.root");
+  myHistos_->put("Grid.root");
   std::cout << " done " << std::endl;
 }
 
@@ -102,29 +101,26 @@ testCaloGeometryTools::~testCaloGeometryTools() {
 void testCaloGeometryTools::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  RandomEngineAndDistribution random(iEvent.streamID());
-
-  const edm::ESHandle<CaloTopology>& theCaloTopology = iSetup.getHandle(tokCaloTopo_);
-  const edm::ESHandle<CaloGeometry>& pG = iSetup.getHandle(tokCaloGeom_);
-
   // Setup the tools
-  double bField000 = 4.;
-  myGeometry.setupGeometry(*(pG.product()));
-  myGeometry.setupTopology(*(theCaloTopology.product()));
-  myGeometry.initialize(bField000);
+  auto const& pG = iSetup.getData(tokCaloGeom_);
+  auto const& theCaloTopology = iSetup.getData(tokCaloTopo_);
+  double bField000 = 3.8;
+  CaloGeometryHelper myGeometry(pG, theCaloTopology, bField000);
+
+  RandomEngineAndDistribution random(iEvent.streamID());
 
   // Take a point in the barrel
   XYZPoint p1(129, 0., -50);
-  testpoint(p1, "barrel", true, &random);
+  testpoint(p1, "barrel", true, &random, myGeometry);
   XYZPoint p2(60, 60, -317);
-  testpoint(p1, "endcap", false, &random);
+  testpoint(p1, "endcap", false, &random, myGeometry);
 
-  checkSM();
-  checkSC();
-  testBorderCrossing();
+  checkSM(myGeometry);
+  checkSC(myGeometry);
+  testBorderCrossing(myGeometry);
 }
 
-void testCaloGeometryTools::checkSM() {
+void testCaloGeometryTools::checkSM(const CaloGeometryHelper& myGeometry) {
   const std::vector<DetId>& vec(myGeometry.getEcalBarrelGeometry()->getValidDetIds(DetId::Ecal, EcalBarrel));
   unsigned size = vec.size();
   for (unsigned ic = 0; ic < size; ++ic) {
@@ -139,12 +135,12 @@ void testCaloGeometryTools::checkSM() {
     myMarker->SetMarkerColor(EBDetId(vec[ic]).im());
     TMarker* myMarker2 = new TMarker(pp.eta(), pp.phi(), 1);
     myMarker2->SetMarkerColor(EBDetId(vec[ic]).ism());
-    myHistos->addObject(oss.str(), myMarker);
-    myHistos->addObject(oss2.str(), myMarker2);
+    myHistos_->addObject(oss.str(), myMarker);
+    myHistos_->addObject(oss2.str(), myMarker2);
   }
 }
 
-void testCaloGeometryTools::checkSC() {
+void testCaloGeometryTools::checkSC(const CaloGeometryHelper& myGeometry) {
   const std::vector<DetId>& vec(myGeometry.getEcalEndcapGeometry()->getValidDetIds(DetId::Ecal, EcalEndcap));
   unsigned size = vec.size();
   for (unsigned ic = 0; ic < size; ++ic) {
@@ -162,14 +158,15 @@ void testCaloGeometryTools::checkSC() {
       std::cout << EEDetId(vec[ic]) << " " << pp.x() << " " << pp.y() << std::endl;
     myMarker->SetMarkerColor(EEDetId(vec[ic]).isc() % 100);
     myMarker->SetMarkerStyle(22);
-    myHistos->addObject(oss.str(), myMarker);
+    myHistos_->addObject(oss.str(), myMarker);
   }
 }
 
 void testCaloGeometryTools::testpoint(const XYZPoint& point,
                                       std::string name,
                                       bool barrel,
-                                      RandomEngineAndDistribution const* random) {
+                                      RandomEngineAndDistribution const* random,
+                                      const CaloGeometryHelper& myGeometry) {
   DetId myCell = myGeometry.getClosestCell(point, true, barrel);
   EcalHitMaker myGrid(&myGeometry, point, myCell, 1, 7, 0, random);
 
@@ -192,7 +189,7 @@ void testCaloGeometryTools::testpoint(const XYZPoint& point,
     std::ostringstream oss;
     oss << name << ic;
 
-    myHistos->addObject(oss.str(), myxtal);
+    myHistos_->addObject(oss.str(), myxtal);
 
     if (xmin > p.x())
       xmin = p.x();
@@ -218,10 +215,10 @@ void testCaloGeometryTools::testpoint(const XYZPoint& point,
                          100,
                          zmin * 0.9,
                          zmax * 1.1);
-  myHistos->addObject("frame" + name, frame);
+  myHistos_->addObject("frame" + name, frame);
 }
 
-void testCaloGeometryTools::testBorderCrossing() {
+void testCaloGeometryTools::testBorderCrossing(const CaloGeometryHelper& myGeometry) {
   // Barrel
   const std::vector<DetId>& vec(myGeometry.getEcalBarrelGeometry()->getValidDetIds(DetId::Ecal, EcalBarrel));
   unsigned size = vec.size();
@@ -241,7 +238,7 @@ void testCaloGeometryTools::testBorderCrossing() {
         TMarker* myMarker = new TMarker((pp1 + pp2).eta() * 0.5, ((pp1 + pp2) * 0.5).phi(), 22);
         std::ostringstream oss;
         oss << "iBCB" << counter;
-        myHistos->addObject(oss.str(), myMarker);
+        myHistos_->addObject(oss.str(), myMarker);
         ++counter;
       }
     }
@@ -270,7 +267,7 @@ void testCaloGeometryTools::testBorderCrossing() {
         else
           oss << "iBCEP" << counter;
 
-        myHistos->addObject(oss.str(), myMarker);
+        myHistos_->addObject(oss.str(), myMarker);
         ++counter;
       }
     }

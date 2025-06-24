@@ -28,7 +28,7 @@ public:
   typedef math::XYZVector XYZNormal;
   typedef ROOT::Math::Plane3D Plane3D;
 
-  EcalHitMaker(CaloGeometryHelper* calo,
+  EcalHitMaker(const CaloGeometryHelper* calo,
                const XYZPoint& ecalentrance,
                const DetId& cell,
                int onEcal,

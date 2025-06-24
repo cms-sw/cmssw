@@ -94,7 +94,9 @@ CalorimetryManager::CalorimetryManager(const edm::ParameterSet& fastCalo,
 
   readParameters(fastCalo);
 
-  myCalorimeter_ = std::make_unique<CaloGeometryHelper>(fastCalo);
+  auto const& pG = iSetup.getData(iConsumer.caloGeometryESToken);
+  auto const& theCaloTopology = iSetup.getData(iConsumer.caloTopologyESToken);
+  myCalorimeter_ = std::make_unique<CaloGeometryHelper>(fastCalo, pG, theCaloTopology, magneticFieldOrigin);
   myHDResponse_ = std::make_unique<HCALResponse>(fastCalo.getParameter<edm::ParameterSet>("HCALResponse"));
   myHSParameters_ = std::make_unique<HSParameters>(fastCalo.getParameter<edm::ParameterSet>("HSParameters"));
 
@@ -116,13 +118,6 @@ CalorimetryManager::CalorimetryManager(const edm::ParameterSet& fastCalo,
   }
 
   pdt_ = &iSetup.getData(iConsumer.particleDataTableESToken);
-
-  auto const& pG = iSetup.getData(iConsumer.caloGeometryESToken);
-  myCalorimeter_->setupGeometry(pG);
-
-  auto const& theCaloTopology = iSetup.getData(iConsumer.caloTopologyESToken);
-  myCalorimeter_->setupTopology(theCaloTopology);
-  myCalorimeter_->initialize(magneticFieldOrigin);
 
   // Check if the preshower is really available
   if (simulatePreshower_ && !myCalorimeter_->preshowerPresent()) {
