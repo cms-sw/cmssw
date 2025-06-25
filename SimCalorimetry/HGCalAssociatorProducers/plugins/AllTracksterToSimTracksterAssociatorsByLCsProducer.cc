@@ -43,7 +43,7 @@ AllTracksterToSimTracksterAssociatorsByLCsProducer::AllTracksterToSimTracksterAs
   const auto& tracksterCollections = pset.getParameter<std::vector<edm::InputTag>>("tracksterCollections");
   for (const auto& tag : tracksterCollections) {
     std::string label = tag.label();
-    if (tag.instance() != "") {
+    if (!tag.instance().empty()) {
       label += tag.instance();
     }
     tracksterCollectionTokens_.emplace_back(label, consumes<std::vector<ticl::Trackster>>(tag));
@@ -57,7 +57,7 @@ AllTracksterToSimTracksterAssociatorsByLCsProducer::AllTracksterToSimTracksterAs
   const auto& simTracksterCollections = pset.getParameter<std::vector<edm::InputTag>>("simTracksterCollections");
   for (const auto& tag : simTracksterCollections) {
     std::string label = tag.label();
-    if (tag.instance() != "") {
+    if (!tag.instance().empty()) {
       label += tag.instance();
     }
     simTracksterCollectionTokens_.emplace_back(label, consumes<std::vector<ticl::Trackster>>(tag));
@@ -244,7 +244,7 @@ void AllTracksterToSimTracksterAssociatorsByLCsProducer::produce(edm::StreamID,
             }
           }
         }
-
+        assert(simToRecoScoresDenominator > 0.f);
         const float invDenominator = 1.f / simToRecoScoresDenominator;
 
         for (unsigned int i = 0; i < layerClustersIds.size(); ++i) {
@@ -269,9 +269,16 @@ void AllTracksterToSimTracksterAssociatorsByLCsProducer::produce(edm::StreamID,
           }
         }
       }
+      auto sortingFunc = [](const auto& a, const auto& b) {
+        if (a.score() != b.score())
+          return a.score() < b.score();
+        else
+          return a.index() < b.index();
+      };
+
       // Sort the maps by score in ascending order
-      tracksterToSimTracksterMap->sort([](const auto& a, const auto& b) { return a.score() < b.score(); });
-      simTracksterToTracksterMap->sort([](const auto& a, const auto& b) { return a.score() < b.score(); });
+      tracksterToSimTracksterMap->sort(sortingFunc);
+      simTracksterToTracksterMap->sort(sortingFunc);
 
       // After populating the maps, store them in the event
       iEvent.put(std::move(tracksterToSimTracksterMap), tracksterToken.first + "To" + simTracksterToken.first);
