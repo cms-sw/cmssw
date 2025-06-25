@@ -66,8 +66,8 @@ Module type=IntProducer, Module label=intProducerA, Parameter Set ID=56ea7c8bbb0
 ++++ finished: begin job for module with label 'p' id = 2
 ++ finished: begin job
 ++ starting: begin stream 0
-++++ starting: begin stream for module: stream = 0 label = 'intProducer' id = 3
-++++ finished: begin stream for module: stream = 0 label = 'intProducer' id = 3
+++++ starting: begin stream for module: stream = 0 label = 'TriggerResults' id = 1
+++++ finished: begin stream for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ starting: begin stream for module: stream = 0 label = 'a1' id = 4
 StreamContext: StreamID = 0 transition = BeginStream
     run: 0 lumi: 0 event: 0
@@ -96,8 +96,8 @@ ModuleCallingContext state = Running
 ++++ finished: begin stream for module: stream = 0 label = 'a2' id = 5
 ++++ starting: begin stream for module: stream = 0 label = 'a3' id = 6
 ++++ finished: begin stream for module: stream = 0 label = 'a3' id = 6
-++++ starting: begin stream for module: stream = 0 label = 'out' id = 7
-++++ finished: begin stream for module: stream = 0 label = 'out' id = 7
+++++ starting: begin stream for module: stream = 0 label = 'intProducer' id = 3
+++++ finished: begin stream for module: stream = 0 label = 'intProducer' id = 3
 ++++ starting: begin stream for module: stream = 0 label = 'intProducerA' id = 8
 StreamContext: StreamID = 0 transition = BeginStream
     run: 0 lumi: 0 event: 0
@@ -132,6 +132,10 @@ ModuleCallingContext state = Running
 ++++ finished: begin stream for module: stream = 0 label = 'intProducerU' id = 12
 ++++ starting: begin stream for module: stream = 0 label = 'intVectorProducer' id = 13
 ++++ finished: begin stream for module: stream = 0 label = 'intVectorProducer' id = 13
+++++ starting: begin stream for module: stream = 0 label = 'out' id = 7
+++++ finished: begin stream for module: stream = 0 label = 'out' id = 7
+++++ starting: begin stream for module: stream = 0 label = 'p' id = 2
+++++ finished: begin stream for module: stream = 0 label = 'p' id = 2
 ++ finished: begin stream 0
 ++++ starting: begin process block
 GlobalContext: transition = BeginProcessBlock
@@ -1411,8 +1415,8 @@ GlobalContext: transition = WriteProcessBlock
     ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
 ++ starting: end stream 0
-++++ starting: end stream for module: stream = 0 label = 'intProducer' id = 3
-++++ finished: end stream for module: stream = 0 label = 'intProducer' id = 3
+++++ starting: end stream for module: stream = 0 label = 'TriggerResults' id = 1
+++++ finished: end stream for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ starting: end stream for module: stream = 0 label = 'a1' id = 4
 StreamContext: StreamID = 0 transition = EndStream
     run: 0 lumi: 0 event: 0
@@ -1441,8 +1445,8 @@ ModuleCallingContext state = Running
 ++++ finished: end stream for module: stream = 0 label = 'a2' id = 5
 ++++ starting: end stream for module: stream = 0 label = 'a3' id = 6
 ++++ finished: end stream for module: stream = 0 label = 'a3' id = 6
-++++ starting: end stream for module: stream = 0 label = 'out' id = 7
-++++ finished: end stream for module: stream = 0 label = 'out' id = 7
+++++ starting: end stream for module: stream = 0 label = 'intProducer' id = 3
+++++ finished: end stream for module: stream = 0 label = 'intProducer' id = 3
 ++++ starting: end stream for module: stream = 0 label = 'intProducerA' id = 8
 StreamContext: StreamID = 0 transition = EndStream
     run: 0 lumi: 0 event: 0
@@ -1477,6 +1481,10 @@ ModuleCallingContext state = Running
 ++++ finished: end stream for module: stream = 0 label = 'intProducerU' id = 12
 ++++ starting: end stream for module: stream = 0 label = 'intVectorProducer' id = 13
 ++++ finished: end stream for module: stream = 0 label = 'intVectorProducer' id = 13
+++++ starting: end stream for module: stream = 0 label = 'out' id = 7
+++++ finished: end stream for module: stream = 0 label = 'out' id = 7
+++++ starting: end stream for module: stream = 0 label = 'p' id = 2
+++++ finished: end stream for module: stream = 0 label = 'p' id = 2
 ++ finished: end stream 0
 ++ starting: end job
 ++++ starting: end job for module with label 'TriggerResults' id = 1

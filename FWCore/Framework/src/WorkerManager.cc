@@ -83,33 +83,6 @@ namespace edm {
     }
   }
 
-  void WorkerManager::beginStream(StreamID streamID, StreamContext const& streamContext) {
-    std::exception_ptr exceptionPtr;
-    for (auto& worker : allWorkers_) {
-      CMS_SA_ALLOW try { worker->beginStream(streamID, streamContext); } catch (...) {
-        if (!exceptionPtr) {
-          exceptionPtr = std::current_exception();
-        }
-      }
-    }
-    if (exceptionPtr) {
-      std::rethrow_exception(exceptionPtr);
-    }
-  }
-
-  void WorkerManager::endStream(StreamID streamID,
-                                StreamContext const& streamContext,
-                                ExceptionCollector& collector,
-                                std::mutex& collectorMutex) noexcept {
-    for (auto& worker : allWorkers_) {
-      CMS_SA_ALLOW try { worker->endStream(streamID, streamContext); } catch (...) {
-        std::exception_ptr exceptionPtr = std::current_exception();
-        std::lock_guard<std::mutex> collectorLock(collectorMutex);
-        collector.call([&exceptionPtr]() { std::rethrow_exception(exceptionPtr); });
-      }
-    }
-  }
-
   void WorkerManager::resetAll() { for_all(allWorkers_, std::bind(&Worker::reset, std::placeholders::_1)); }
 
   void WorkerManager::addToAllWorkers(Worker* w) {

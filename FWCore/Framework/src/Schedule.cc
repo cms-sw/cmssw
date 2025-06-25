@@ -1162,12 +1162,12 @@ namespace edm {
 
   void Schedule::beginStream(unsigned int streamID) {
     assert(streamID < streamSchedules_.size());
-    streamSchedules_[streamID]->beginStream();
+    streamSchedules_[streamID]->beginStream(*moduleRegistry_);
   }
 
   void Schedule::endStream(unsigned int streamID, ExceptionCollector& collector, std::mutex& collectorMutex) noexcept {
     assert(streamID < streamSchedules_.size());
-    streamSchedules_[streamID]->endStream(collector, collectorMutex);
+    streamSchedules_[streamID]->endStream(*moduleRegistry_, collector, collectorMutex);
   }
 
   void Schedule::processOneEventAsync(WaitingTaskHolder iTask,

@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/maker/ModuleHolder.h"
 #include "FWCore/Framework/interface/maker/WorkerT.h"
 #include "FWCore/Framework/interface/ModuleRegistry.h"
+#include "FWCore/Framework/interface/ModuleRegistryUtilities.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -374,8 +375,7 @@ namespace edm {
       std::shared_ptr<ProcessConfiguration const> processConfiguration,
       StreamID streamID,
       ProcessContext const* processContext)
-      : workerManagerBeginEnd_(modReg, areg, actions),
-        workerManagerRuns_(modReg, areg, actions),
+      : workerManagerRuns_(modReg, areg, actions),
         workerManagerLumisAndEvents_(modReg, areg, actions),
         actReg_(areg),
         results_(new HLTGlobalStatus(tns.getTrigPaths().size())),
@@ -510,9 +510,6 @@ namespace edm {
       // EndPathStatusInserter because there are no ParameterSets for those in the configuration.
       // We could add special code to create workers for those, but instead we skip them because they
       // do not have beginStream, endStream, or run/lumi begin/end stream transition functions.
-
-      (void)getWorker(moduleLabel, proc_pset, workerManagerBeginEnd_, preg, &prealloc, processConfiguration);
-
       (void)getWorker(moduleLabel, proc_pset, workerManagerRuns_, preg, &prealloc, processConfiguration);
     }
 
@@ -977,7 +974,7 @@ namespace edm {
     }
   }
 
-  void StreamSchedule::beginStream() {
+  void StreamSchedule::beginStream(ModuleRegistry& iModuleRegistry) {
     streamContext_.setTransition(StreamContext::Transition::kBeginStream);
     streamContext_.setEventID(EventID(0, 0, 0));
     streamContext_.setRunIndex(RunIndex::invalidRunIndex());
@@ -987,7 +984,7 @@ namespace edm {
     std::exception_ptr exceptionInStream;
     CMS_SA_ALLOW try {
       preScheduleSignal<BeginStreamTraits>(&streamContext_);
-      workerManagerBeginEnd_.beginStream(streamID_, streamContext_);
+      runBeginStreamForModules(streamContext_, iModuleRegistry, *actReg_, moduleBeginStreamCalled_);
     } catch (...) {
       exceptionInStream = std::current_exception();
     }
@@ -1005,7 +1002,9 @@ namespace edm {
     }
   }
 
-  void StreamSchedule::endStream(ExceptionCollector& collector, std::mutex& collectorMutex) noexcept {
+  void StreamSchedule::endStream(ModuleRegistry& iModuleRegistry,
+                                 ExceptionCollector& collector,
+                                 std::mutex& collectorMutex) noexcept {
     streamContext_.setTransition(StreamContext::Transition::kEndStream);
     streamContext_.setEventID(EventID(0, 0, 0));
     streamContext_.setRunIndex(RunIndex::invalidRunIndex());
@@ -1015,7 +1014,8 @@ namespace edm {
     std::exception_ptr exceptionInStream;
     CMS_SA_ALLOW try {
       preScheduleSignal<EndStreamTraits>(&streamContext_);
-      workerManagerBeginEnd_.endStream(streamID_, streamContext_, collector, collectorMutex);
+      runEndStreamForModules(
+          streamContext_, iModuleRegistry, *actReg_, collector, collectorMutex, moduleBeginStreamCalled_);
     } catch (...) {
       exceptionInStream = std::current_exception();
     }
@@ -1030,30 +1030,18 @@ namespace edm {
   }
 
   void StreamSchedule::replaceModule(maker::ModuleHolder* iMod, std::string const& iLabel) {
-    for (auto const& worker : allWorkersBeginEnd()) {
-      if (worker->description()->moduleLabel() == iLabel) {
-        iMod->replaceModuleFor(worker);
-
-        streamContext_.setTransition(StreamContext::Transition::kBeginStream);
-        streamContext_.setEventID(EventID(0, 0, 0));
-        streamContext_.setRunIndex(RunIndex::invalidRunIndex());
-        streamContext_.setLuminosityBlockIndex(LuminosityBlockIndex::invalidLuminosityBlockIndex());
-        streamContext_.setTimestamp(Timestamp());
-        try {
-          worker->beginStream(streamID_, streamContext_);
-        } catch (cms::Exception& ex) {
-          streamContext_.setTransition(StreamContext::Transition::kInvalid);
-          ex.addContext("Executing StreamSchedule::replaceModule");
-          throw;
-        }
-        streamContext_.setTransition(StreamContext::Transition::kInvalid);
-        break;
-      }
-    }
-
     for (auto const& worker : allWorkersRuns()) {
       if (worker->description()->moduleLabel() == iLabel) {
         iMod->replaceModuleFor(worker);
+        moduleBeginStreamCalled_.resize(iMod->moduleDescription().id() + 1, true);
+        moduleBeginStreamCalled_[iMod->moduleDescription().id()] = false;
+        try {
+          convertException::wrap([&] { iMod->beginStream(streamID_); });
+          moduleBeginStreamCalled_.clear();
+        } catch (cms::Exception& ex) {
+          ex.addContext("Executing StreamSchedule::replaceModule");
+          throw;
+        }
         break;
       }
     }
@@ -1067,7 +1055,6 @@ namespace edm {
   }
 
   void StreamSchedule::deleteModule(std::string const& iLabel) {
-    workerManagerBeginEnd_.deleteModuleIfExists(iLabel);
     workerManagerRuns_.deleteModuleIfExists(iLabel);
     workerManagerLumisAndEvents_.deleteModuleIfExists(iLabel);
   }

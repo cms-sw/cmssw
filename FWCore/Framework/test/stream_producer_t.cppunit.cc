@@ -475,9 +475,8 @@ testStreamProducer::testStreamProducer()
 
   //For each transition, bind a lambda which will call the proper method of the Worker
   m_transToFunc[Trans::kBeginJob] = [](edm::Worker* iBase, edm::maker::ModuleHolder* iHolder) { iHolder->beginJob(); };
-  m_transToFunc[Trans::kBeginStream] = [](edm::Worker* iBase, edm::maker::ModuleHolder*) {
-    edm::StreamContext streamContext(s_streamID0, nullptr);
-    iBase->beginStream(s_streamID0, streamContext);
+  m_transToFunc[Trans::kBeginStream] = [](edm::Worker* iBase, edm::maker::ModuleHolder* iHolder) {
+    iHolder->beginStream(s_streamID0);
   };
 
   m_transToFunc[Trans::kGlobalBeginRun] = [this](edm::Worker* iBase, edm::maker::ModuleHolder*) {
@@ -557,9 +556,8 @@ testStreamProducer::testStreamProducer()
     doWork<Traits>(iBase, info, parentContext);
   };
 
-  m_transToFunc[Trans::kEndStream] = [](edm::Worker* iBase, edm::maker::ModuleHolder*) {
-    edm::StreamContext streamContext(s_streamID0, nullptr);
-    iBase->endStream(s_streamID0, streamContext);
+  m_transToFunc[Trans::kEndStream] = [](edm::Worker* iBase, edm::maker::ModuleHolder* iHolder) {
+    iHolder->endStream(s_streamID0);
   };
   m_transToFunc[Trans::kEndJob] = [](edm::Worker* iBase, edm::maker::ModuleHolder* iHolder) { iHolder->endJob(); };
 }

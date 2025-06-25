@@ -162,8 +162,8 @@ namespace edm {
                                ServiceToken const& token,
                                bool cleaningUpAfterException = false);
 
-    void beginStream();
-    void endStream(ExceptionCollector& collector, std::mutex& collectorMutex) noexcept;
+    void beginStream(ModuleRegistry& iModuleRegistry);
+    void endStream(ModuleRegistry& iModuleRegistry, ExceptionCollector& collector, std::mutex& collectorMutex) noexcept;
 
     StreamID streamID() const { return streamID_; }
 
@@ -222,7 +222,6 @@ namespace edm {
                                edm::ProductRegistry const& preg);
 
     /// returns the collection of pointers to workers
-    AllWorkers const& allWorkersBeginEnd() const { return workerManagerBeginEnd_.allWorkers(); }
     AllWorkers const& allWorkersRuns() const { return workerManagerRuns_.allWorkers(); }
     AllWorkers const& allWorkersLumisAndEvents() const { return workerManagerLumisAndEvents_.allWorkers(); }
 
@@ -310,7 +309,7 @@ namespace edm {
 
     void handleException(StreamContext const&, bool cleaningUpAfterException, std::exception_ptr&) const noexcept;
 
-    WorkerManager workerManagerBeginEnd_;
+    std::vector<bool> moduleBeginStreamCalled_;
     WorkerManager workerManagerRuns_;
     WorkerManager workerManagerLumisAndEvents_;
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.

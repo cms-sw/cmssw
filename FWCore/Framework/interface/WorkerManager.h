@@ -67,9 +67,6 @@ namespace edm {
     void setupResolvers(Principal& principal);
     void setupOnDemandSystem(EventTransitionInfo const&);
 
-    void beginStream(StreamID, StreamContext const&);
-    void endStream(StreamID, StreamContext const&, ExceptionCollector&, std::mutex& collectorMutex) noexcept;
-
     AllWorkers const& allWorkers() const { return allWorkers_; }
     AllWorkers const& unscheduledWorkers() const { return unscheduled_.workers(); }
 

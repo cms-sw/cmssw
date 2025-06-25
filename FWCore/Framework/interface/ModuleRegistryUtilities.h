@@ -3,10 +3,12 @@
 
 #include <string>
 #include <vector>
+#include <mutex>
 namespace edm {
   class ModuleRegistry;
   class ActivityRegistry;
   class ProductRegistry;
+  class StreamContext;
   namespace eventsetup {
     class ESRecordsToProductResolverIndices;
   }
@@ -34,6 +36,25 @@ namespace edm {
                            ExceptionCollector& collector,
                            std::vector<bool> const& beginJobCalledForModule,
                            const char* context) noexcept;
+
+  /** beginStreamCalledForModule tracks wich modules have had beginStream called on them in 
+     * case there was an exception during the call to this function. The vector should be
+     * passed to `runEndJobForModules`.
+     * If an exception is thrown, it will be of type cms::Exception.
+     */
+  void runBeginStreamForModules(StreamContext const& iStreamContext,
+                                ModuleRegistry& iModuleRegistry,
+                                edm::ActivityRegistry& iActivityRegistry,
+                                std::vector<bool>& beginStreamCalledForModule) noexcept(false);
+
+  /// The vector determines if the endStream of a module should be called. An empty vector means all modules
+  /// should have their endStream called.
+  void runEndStreamForModules(StreamContext const& iStreamContext,
+                              ModuleRegistry& iModuleRegistry,
+                              ActivityRegistry& iRegistry,
+                              ExceptionCollector& collector,
+                              std::mutex& collectorMutex,
+                              std::vector<bool> const& beginJobCalledForModule) noexcept;
 
 }  // namespace edm
 #endif  // FWCore_Framework_ModuleRegistryUtilities_h

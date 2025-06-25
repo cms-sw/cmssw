@@ -289,46 +289,6 @@ namespace edm {
     checkForShouldTryToContinue(*iDesc);
   }
 
-  void Worker::beginStream(StreamID streamID, StreamContext const& streamContext) {
-    ParentContext parentContext(&streamContext);
-    ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
-    ModuleSignalSentry<ModuleBeginStreamTraits> sentry(activityRegistry(), &streamContext, &moduleCallingContext_);
-
-    try {
-      convertException::wrap([this, &sentry, streamID]() {
-        beginSucceeded_ = false;
-        sentry.preModuleSignal();
-        implBeginStream(streamID);
-        sentry.postModuleSignal();
-        beginSucceeded_ = true;
-      });
-    } catch (cms::Exception& ex) {
-      exceptionContext(ex, moduleCallingContext_);
-      throw;
-    }
-  }
-
-  void Worker::endStream(StreamID id, StreamContext const& streamContext) {
-    if (beginSucceeded_) {
-      beginSucceeded_ = false;
-
-      ParentContext parentContext(&streamContext);
-      ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
-      ModuleSignalSentry<ModuleEndStreamTraits> sentry(activityRegistry(), &streamContext, &moduleCallingContext_);
-
-      try {
-        convertException::wrap([this, &sentry, id]() {
-          sentry.preModuleSignal();
-          implEndStream(id);
-          sentry.postModuleSignal();
-        });
-      } catch (cms::Exception& ex) {
-        exceptionContext(ex, moduleCallingContext_);
-        throw;
-      }
-    }
-  }
-
   void Worker::skipOnPath(EventPrincipal const& iEvent) {
     if (earlyDeleteHelper_) {
       earlyDeleteHelper_->pathFinished(iEvent);

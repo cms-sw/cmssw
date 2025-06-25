@@ -28,14 +28,18 @@
 ++++ finished: begin job for module with label 'two' id = 5
 ++ finished: begin job
 ++ starting: begin stream 0
-++++ starting: begin stream for module: stream = 0 label = 'one' id = 3
-++++ finished: begin stream for module: stream = 0 label = 'one' id = 3
+++++ starting: begin stream for module: stream = 0 label = 'TriggerResults' id = 1
+++++ finished: begin stream for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ starting: begin stream for module: stream = 0 label = 'getOne' id = 4
 ++++ finished: begin stream for module: stream = 0 label = 'getOne' id = 4
-++++ starting: begin stream for module: stream = 0 label = 'two' id = 5
-++++ finished: begin stream for module: stream = 0 label = 'two' id = 5
 ++++ starting: begin stream for module: stream = 0 label = 'getTwo' id = 6
 ++++ finished: begin stream for module: stream = 0 label = 'getTwo' id = 6
+++++ starting: begin stream for module: stream = 0 label = 'one' id = 3
+++++ finished: begin stream for module: stream = 0 label = 'one' id = 3
+++++ starting: begin stream for module: stream = 0 label = 'p' id = 2
+++++ finished: begin stream for module: stream = 0 label = 'p' id = 2
+++++ starting: begin stream for module: stream = 0 label = 'two' id = 5
+++++ finished: begin stream for module: stream = 0 label = 'two' id = 5
 ++ finished: begin stream 0
 ++++ starting: begin process block
 ++++ finished: begin process block
@@ -171,14 +175,18 @@
 ++++ starting: write process block
 ++++ finished: write process block
 ++ starting: end stream 0
-++++ starting: end stream for module: stream = 0 label = 'one' id = 3
-++++ finished: end stream for module: stream = 0 label = 'one' id = 3
+++++ starting: end stream for module: stream = 0 label = 'TriggerResults' id = 1
+++++ finished: end stream for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ starting: end stream for module: stream = 0 label = 'getOne' id = 4
 ++++ finished: end stream for module: stream = 0 label = 'getOne' id = 4
-++++ starting: end stream for module: stream = 0 label = 'two' id = 5
-++++ finished: end stream for module: stream = 0 label = 'two' id = 5
 ++++ starting: end stream for module: stream = 0 label = 'getTwo' id = 6
 ++++ finished: end stream for module: stream = 0 label = 'getTwo' id = 6
+++++ starting: end stream for module: stream = 0 label = 'one' id = 3
+++++ finished: end stream for module: stream = 0 label = 'one' id = 3
+++++ starting: end stream for module: stream = 0 label = 'p' id = 2
+++++ finished: end stream for module: stream = 0 label = 'p' id = 2
+++++ starting: end stream for module: stream = 0 label = 'two' id = 5
+++++ finished: end stream for module: stream = 0 label = 'two' id = 5
 ++ finished: end stream 0
 ++ starting: end job
 ++++ starting: end job for module with label 'TriggerResults' id = 1

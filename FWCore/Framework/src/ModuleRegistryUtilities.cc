@@ -41,17 +41,8 @@ namespace edm {
   void runBeginJobForModules(ModuleRegistry& iModuleRegistry,
                              edm::ActivityRegistry& iActivityRegistry,
                              std::vector<bool>& beginJobCalledForModule) noexcept(false) {
-    unsigned int largestIndex = 0;
-
-    iModuleRegistry.forAllModuleHolders([&largestIndex](auto& holder) {
-      auto id = holder->moduleDescription().id();
-      if (id > largestIndex) {
-        largestIndex = id;
-      }
-    });
-
     beginJobCalledForModule.clear();
-    beginJobCalledForModule.resize(largestIndex + 1, false);
+    beginJobCalledForModule.resize(iModuleRegistry.maxModuleID() + 1, false);
 
     std::exception_ptr exceptionPtr;
     iModuleRegistry.forAllModuleHolders([&](auto& holder) {
@@ -85,6 +76,7 @@ namespace edm {
                            ExceptionCollector& collector,
                            std::vector<bool> const& beginJobCalledForModule,
                            const char* context) noexcept {
+    assert(beginJobCalledForModule.empty() or beginJobCalledForModule.size() == iModuleRegistry.maxModuleID() + 1);
     iModuleRegistry.forAllModuleHolders([&](auto& holder) {
       try {
         convertException::wrap([&]() {
@@ -104,6 +96,78 @@ namespace edm {
             << holder->moduleDescription().moduleLabel() << "'";
         ex.addContext(ost.str());
         ex.addContext(context);
+        collector.addException(ex);
+      }
+    });
+  }
+
+  void runBeginStreamForModules(StreamContext const& iStreamContext,
+                                ModuleRegistry& iModuleRegistry,
+                                edm::ActivityRegistry& iActivityRegistry,
+                                std::vector<bool>& beginStreamCalledForModule) noexcept(false) {
+    beginStreamCalledForModule.clear();
+    beginStreamCalledForModule.resize(iModuleRegistry.maxModuleID() + 1, false);
+
+    std::exception_ptr exceptionPtr;
+    ParentContext pc(&iStreamContext);
+    iModuleRegistry.forAllModuleHolders([&](auto& holder) {
+      ModuleCallingContext mcc(&holder->moduleDescription());
+      //Also sets a thread local
+      ModuleContextSentry mccSentry(&mcc, pc);
+      try {
+        convertException::wrap([&]() {
+          auto sentry = make_sentry(&mcc, [&](auto const* context) {
+            iActivityRegistry.postModuleBeginStreamSignal_(iStreamContext, *context);
+          });
+          iActivityRegistry.preModuleBeginStreamSignal_(iStreamContext, mcc);
+          holder->beginStream(iStreamContext.streamID());
+          beginStreamCalledForModule[holder->moduleDescription().id()] = true;
+        });
+      } catch (cms::Exception& ex) {
+        if (!exceptionPtr) {
+          edm::exceptionContext(ex, mcc);
+          //std::ostringstream ost;
+          //ost << "Calling method for module " << holder->moduleDescription().moduleName() << "/'"
+          //    << holder->moduleDescription().moduleLabel() << "'";
+          //ex.addContext(ost.str());
+          exceptionPtr = std::current_exception();
+        }
+      }
+    });
+    if (exceptionPtr) {
+      std::rethrow_exception(exceptionPtr);
+    }
+    beginStreamCalledForModule.clear();
+  }
+
+  void runEndStreamForModules(StreamContext const& iStreamContext,
+                              ModuleRegistry& iModuleRegistry,
+                              ActivityRegistry& iActivityRegistry,
+                              ExceptionCollector& collector,
+                              std::mutex& collectorMutex,
+                              std::vector<bool> const& beginStreamCalledForModule) noexcept {
+    assert(beginStreamCalledForModule.empty() or
+           beginStreamCalledForModule.size() == iModuleRegistry.maxModuleID() + 1);
+    ParentContext pc(&iStreamContext);
+    iModuleRegistry.forAllModuleHolders([&](auto& holder) {
+      ModuleCallingContext mcc(&holder->moduleDescription());
+      //Also sets a thread local
+      ModuleContextSentry mccSentry(&mcc, pc);
+      try {
+        convertException::wrap([&]() {
+          if (not beginStreamCalledForModule.empty() and
+              !beginStreamCalledForModule[holder->moduleDescription().id()]) {
+            // If beginStream was never called, we should not call endStream.
+            return;
+          }
+          auto sentry = make_sentry(
+              &mcc, [&](auto const* mc) { iActivityRegistry.postModuleEndStreamSignal_(iStreamContext, *mc); });
+          iActivityRegistry.preModuleEndStreamSignal_(iStreamContext, mcc);
+          holder->endStream(iStreamContext.streamID());
+        });
+      } catch (cms::Exception& ex) {
+        edm::exceptionContext(ex, mcc);
+        std::lock_guard<std::mutex> collectorLock(collectorMutex);
         collector.addException(ex);
       }
     });

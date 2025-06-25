@@ -183,8 +183,6 @@ namespace edm {
     // Called if filter earlier in the path has failed.
     void skipOnPath(EventPrincipal const& iEvent);
 
-    void beginStream(StreamID, StreamContext const&);
-    void endStream(StreamID, StreamContext const&);
     void respondToOpenInputFile(FileBlock const& fb) { implRespondToOpenInputFile(fb); }
     void respondToCloseInputFile(FileBlock const& fb) { implRespondToCloseInputFile(fb); }
     void respondToCloseOutputFile() { implRespondToCloseOutputFile(); }
@@ -274,8 +272,6 @@ namespace edm {
     virtual bool implDoStreamBegin(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
     virtual bool implDoStreamEnd(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
     virtual bool implDoEnd(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
-    virtual void implBeginStream(StreamID) = 0;
-    virtual void implEndStream(StreamID) = 0;
 
     void resetModuleDescription(ModuleDescription const*);
 
