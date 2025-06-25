@@ -9,6 +9,7 @@ namespace edm {
   class ActivityRegistry;
   class ProductRegistry;
   class StreamContext;
+  class GlobalContext;
   namespace eventsetup {
     class ESRecordsToProductResolverIndices;
   }
@@ -25,17 +26,18 @@ namespace edm {
      * passed to `runEndJobForModules`.
      * If an exception is thrown, it will be of type cms::Exception.
      */
-  void runBeginJobForModules(ModuleRegistry& iModuleRegistry,
+  void runBeginJobForModules(GlobalContext const& iGlobalContext,
+                             ModuleRegistry& iModuleRegistry,
                              edm::ActivityRegistry& iActivityRegistry,
                              std::vector<bool>& beginJobCalledForModule) noexcept(false);
 
   /// The vector determines if the endJob of a module should be called. An empty vector means all modules
   /// should have their endJob called.
-  void runEndJobForModules(ModuleRegistry& iModuleRegistry,
+  void runEndJobForModules(GlobalContext const& iGlobalContext,
+                           ModuleRegistry& iModuleRegistry,
                            ActivityRegistry& iRegistry,
                            ExceptionCollector& collector,
-                           std::vector<bool> const& beginJobCalledForModule,
-                           const char* context) noexcept;
+                           std::vector<bool> const& beginJobCalledForModule) noexcept;
 
   /** beginStreamCalledForModule tracks wich modules have had beginStream called on them in 
      * case there was an exception during the call to this function. The vector should be

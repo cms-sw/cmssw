@@ -16,6 +16,9 @@
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 
+#include "FWCore/ServiceRegistry/interface/GlobalContext.h"
+#include "FWCore/ServiceRegistry/interface/ProcessContext.h"
+
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
@@ -86,6 +89,7 @@ namespace edm {
   void GlobalSchedule::beginJob(ModuleRegistry& modReg) {
     constexpr static char const* const globalContext = "Processing begin Job";
 
+    GlobalContext gc(GlobalContext::Transition::kBeginJob, processContext_);
     std::exception_ptr exceptionPtr;
     try {
       convertException::wrap([this]() { actReg_->preBeginJobSignal_(*processContext_); });
@@ -96,7 +100,7 @@ namespace edm {
     }
     if (not exceptionPtr) {
       try {
-        runBeginJobForModules(modReg, *actReg_, beginJobCalledForModule_);
+        runBeginJobForModules(gc, modReg, *actReg_, beginJobCalledForModule_);
       } catch (cms::Exception& ex) {
         if (!exceptionPtr) {
           ex.addContext(globalContext);
@@ -120,6 +124,7 @@ namespace edm {
 
   void GlobalSchedule::endJob(ExceptionCollector& collector, ModuleRegistry& modReg) {
     constexpr static char const* const context = "Processing end Job";
+    GlobalContext gc(GlobalContext::Transition::kEndJob, processContext_);
     std::exception_ptr exceptionPtr;
     try {
       convertException::wrap([this]() { actReg_->preEndJobSignal_(); });
@@ -129,7 +134,7 @@ namespace edm {
       exceptionPtr = std::current_exception();
     }
     if (not exceptionPtr) {
-      runEndJobForModules(modReg, *actReg_, collector, beginJobCalledForModule_, context);
+      runEndJobForModules(gc, modReg, *actReg_, collector, beginJobCalledForModule_);
     }
 
     try {

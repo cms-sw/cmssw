@@ -38,14 +38,20 @@ namespace edm {
     });
   }
 
-  void runBeginJobForModules(ModuleRegistry& iModuleRegistry,
+  void runBeginJobForModules(GlobalContext const& iGlobalContext,
+                             ModuleRegistry& iModuleRegistry,
                              edm::ActivityRegistry& iActivityRegistry,
                              std::vector<bool>& beginJobCalledForModule) noexcept(false) {
     beginJobCalledForModule.clear();
     beginJobCalledForModule.resize(iModuleRegistry.maxModuleID() + 1, false);
 
+    ParentContext pc(&iGlobalContext);
+
     std::exception_ptr exceptionPtr;
     iModuleRegistry.forAllModuleHolders([&](auto& holder) {
+      ModuleCallingContext mcc(&holder->moduleDescription());
+      //Also sets a thread local
+      ModuleContextSentry mccSentry(&mcc, pc);
       try {
         convertException::wrap([&]() {
           auto sentry = make_sentry(&holder->moduleDescription(), [&](auto const* description) {
@@ -57,10 +63,7 @@ namespace edm {
         });
       } catch (cms::Exception& ex) {
         if (!exceptionPtr) {
-          std::ostringstream ost;
-          ost << "Calling method for module " << holder->moduleDescription().moduleName() << "/'"
-              << holder->moduleDescription().moduleLabel() << "'";
-          ex.addContext(ost.str());
+          edm::exceptionContext(ex, mcc);
           exceptionPtr = std::current_exception();
         }
       }
@@ -71,13 +74,17 @@ namespace edm {
     beginJobCalledForModule.clear();
   }
 
-  void runEndJobForModules(ModuleRegistry& iModuleRegistry,
+  void runEndJobForModules(GlobalContext const& iGlobalContext,
+                           ModuleRegistry& iModuleRegistry,
                            ActivityRegistry& iActivityRegistry,
                            ExceptionCollector& collector,
-                           std::vector<bool> const& beginJobCalledForModule,
-                           const char* context) noexcept {
+                           std::vector<bool> const& beginJobCalledForModule) noexcept {
     assert(beginJobCalledForModule.empty() or beginJobCalledForModule.size() == iModuleRegistry.maxModuleID() + 1);
+    ParentContext pc(&iGlobalContext);
     iModuleRegistry.forAllModuleHolders([&](auto& holder) {
+      ModuleCallingContext mcc(&holder->moduleDescription());
+      //Also sets a thread local
+      ModuleContextSentry mccSentry(&mcc, pc);
       try {
         convertException::wrap([&]() {
           if (not beginJobCalledForModule.empty() and !beginJobCalledForModule[holder->moduleDescription().id()]) {
@@ -91,11 +98,7 @@ namespace edm {
           holder->endJob();
         });
       } catch (cms::Exception& ex) {
-        std::ostringstream ost;
-        ost << "Calling method for module " << holder->moduleDescription().moduleName() << "/'"
-            << holder->moduleDescription().moduleLabel() << "'";
-        ex.addContext(ost.str());
-        ex.addContext(context);
+        edm::exceptionContext(ex, mcc);
         collector.addException(ex);
       }
     });
@@ -126,10 +129,6 @@ namespace edm {
       } catch (cms::Exception& ex) {
         if (!exceptionPtr) {
           edm::exceptionContext(ex, mcc);
-          //std::ostringstream ost;
-          //ost << "Calling method for module " << holder->moduleDescription().moduleName() << "/'"
-          //    << holder->moduleDescription().moduleLabel() << "'";
-          //ex.addContext(ost.str());
           exceptionPtr = std::current_exception();
         }
       }
