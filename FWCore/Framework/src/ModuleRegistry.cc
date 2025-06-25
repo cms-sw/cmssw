@@ -27,6 +27,9 @@ namespace edm {
     if (modItr == labelToModule_.end()) {
       auto modPtr = ModuleHolderFactory::get()->makeModule(p, typeResolverMaker_, iPre, iPost);
 
+      if (maxModuleID_ < modPtr->moduleDescription().id()) {
+        maxModuleID_ = modPtr->moduleDescription().id();
+      }
       // Transfer ownership of worker to the registry
       labelToModule_[moduleLabel] = modPtr;
       return modPtr;
@@ -52,6 +55,10 @@ namespace edm {
 
     auto modPtr = ModuleHolderFactory::get()->makeReplacementModule(iPSet);
     modPtr->finishModuleInitialization(modItr->second->moduleDescription(), iPrealloc, nullptr);
+
+    if (maxModuleID_ < modPtr->moduleDescription().id()) {
+      maxModuleID_ = modPtr->moduleDescription().id();
+    }
 
     // Transfer ownership of worker to the registry
     modItr->second = modPtr;
