@@ -21,6 +21,9 @@
 #include "SimGeneral/GFlash/interface/GflashProtonShowerProfile.h"
 #include "SimGeneral/GFlash/interface/GflashAntiProtonShowerProfile.h"
 
+// New headers for Muon Mip Simulation
+#include "FastSimulation/MaterialEffects/interface/MaterialEffects.h"
+
 #include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 
 #include <map>
@@ -34,7 +37,6 @@ class Histos;
 class HSParameters;
 class LandauFluctuationGenerator;
 class GammaFunctionGenerator;
-class MaterialEffects;
 class RandomEngineAndDistribution;
 // FastHFshowerLibrary
 class FastHFShowerLibrary;
@@ -64,19 +66,25 @@ struct GflashMultiProfile {
   std::unique_ptr<GflashAntiProtonShowerProfile> theAntiProtonProfile;
 };
 
+struct MuonCaloEffects {
+  MuonCaloEffects(const edm::ParameterSet& MuonECALPars,
+                  const edm::ParameterSet& MuonHCALPars);
+
+  std::unique_ptr<MaterialEffects> theMuonEcalEffects;  // material effects for muons in ECAL
+  std::unique_ptr<MaterialEffects> theMuonHcalEffects;  // material effects for muons in HCAL
+};
+
 class CalorimetryManager {
 public:
   CalorimetryManager();
   CalorimetryManager(const edm::ParameterSet& fastCalo,
-                     const edm::ParameterSet& MuonECALPars,
-                     const edm::ParameterSet& MuonHCALPars,
                      double magneticFieldOrigin,
                      const edm::EventSetup& iSetup,
                      const CalorimetryConsumer& iConsumer);
   ~CalorimetryManager();
 
   // Does the real job
-  void reconstructTrack(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container, GflashMultiProfile& profiles);
+  void reconstructTrack(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container, GflashMultiProfile& profiles, MuonCaloEffects& effects);
 
   // Return the address of the Calorimeter
   CaloGeometryHelper* getCalorimeter() const { return myCalorimeter_.get(); }
@@ -90,7 +98,7 @@ private:
 
   void reconstructHCAL(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container);
 
-  void MuonMipSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container);
+  void MuonMipSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container, MuonCaloEffects& effects);
 
   /// Hadronic Shower Simulation
   void HDShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container, GflashMultiProfile& profiles);
@@ -161,9 +169,6 @@ private:
   std::vector<double> p_knots_;
   std::vector<double> k_e_;
   std::vector<double> k_h_;
-
-  std::unique_ptr<MaterialEffects> theMuonEcalEffects_;  // material effects for muons in ECAL
-  std::unique_ptr<MaterialEffects> theMuonHcalEffects_;  // material effects for muons in HCAL
 
   // If set to true the simulation in ECAL would be done 1X0 by 1X0
   // this is slow but more adapted to detailed studies.

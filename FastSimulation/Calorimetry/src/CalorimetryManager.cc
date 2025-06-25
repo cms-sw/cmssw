@@ -28,7 +28,6 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "FastSimulation/Event/interface/FSimTrackEqual.h"
 // New headers for Muon Mip Simulation
-#include "FastSimulation/MaterialEffects/interface/MaterialEffects.h"
 #include "FastSimulation/MaterialEffects/interface/EnergyLossSimulator.h"
 // Muon Brem
 #include "FastSimulation/MaterialEffects/interface/MuonBremsstrahlungSimulator.h"
@@ -80,17 +79,28 @@ GflashHadronShowerProfile* GflashMultiProfile::profile(int particleType) {
     return thePiKProfile.get();
 }
 
+MuonCaloEffects::MuonCaloEffects(const edm::ParameterSet& fastMuECAL,
+                                 const edm::ParameterSet& fastMuHCAL) {
+  // Material Effects for Muons in ECAL (only EnergyLoss implemented so far)
+  if (fastMuECAL.getParameter<bool>("PairProduction") || fastMuECAL.getParameter<bool>("Bremsstrahlung") ||
+      fastMuECAL.getParameter<bool>("MuonBremsstrahlung") || fastMuECAL.getParameter<bool>("EnergyLoss") ||
+      fastMuECAL.getParameter<bool>("MultipleScattering"))
+    theMuonEcalEffects = std::make_unique<MaterialEffects>(fastMuECAL);
+
+  // Material Effects for Muons in HCAL (only EnergyLoss implemented so far)
+  if (fastMuHCAL.getParameter<bool>("PairProduction") || fastMuHCAL.getParameter<bool>("Bremsstrahlung") ||
+      fastMuHCAL.getParameter<bool>("MuonBremsstrahlung") || fastMuHCAL.getParameter<bool>("EnergyLoss") ||
+      fastMuHCAL.getParameter<bool>("MultipleScattering"))
+    theMuonHcalEffects = std::make_unique<MaterialEffects>(fastMuHCAL);
+}
+
 CalorimetryManager::CalorimetryManager() : myCalorimeter_(nullptr) { ; }
 
 CalorimetryManager::CalorimetryManager(const edm::ParameterSet& fastCalo,
-                                       const edm::ParameterSet& fastMuECAL,
-                                       const edm::ParameterSet& fastMuHCAL,
                                        double magneticFieldOrigin,
                                        const edm::EventSetup& iSetup,
                                        const CalorimetryConsumer& iConsumer)
-    : theMuonEcalEffects_(nullptr),
-      theMuonHcalEffects_(nullptr),
-      bFixedLength_(false) {
+    : bFixedLength_(false) {
   aLandauGenerator_ = std::make_unique<LandauFluctuationGenerator>();
   aGammaGenerator_ = std::make_unique<GammaFunctionGenerator>();
 
@@ -104,18 +114,6 @@ CalorimetryManager::CalorimetryManager(const edm::ParameterSet& fastCalo,
   myCalorimeter_ = std::make_unique<CaloGeometryHelper>(fastCalo, pG, theCaloTopology, magneticFieldOrigin);
   myHDResponse_ = std::make_unique<HCALResponse>(fastCalo.getParameter<edm::ParameterSet>("HCALResponse"));
   myHSParameters_ = std::make_unique<HSParameters>(fastCalo.getParameter<edm::ParameterSet>("HSParameters"));
-
-  // Material Effects for Muons in ECAL (only EnergyLoss implemented so far)
-  if (fastMuECAL.getParameter<bool>("PairProduction") || fastMuECAL.getParameter<bool>("Bremsstrahlung") ||
-      fastMuECAL.getParameter<bool>("MuonBremsstrahlung") || fastMuECAL.getParameter<bool>("EnergyLoss") ||
-      fastMuECAL.getParameter<bool>("MultipleScattering"))
-    theMuonEcalEffects_ = std::make_unique<MaterialEffects>(fastMuECAL);
-
-  // Material Effects for Muons in HCAL (only EnergyLoss implemented so far)
-  if (fastMuHCAL.getParameter<bool>("PairProduction") || fastMuHCAL.getParameter<bool>("Bremsstrahlung") ||
-      fastMuHCAL.getParameter<bool>("MuonBremsstrahlung") || fastMuHCAL.getParameter<bool>("EnergyLoss") ||
-      fastMuHCAL.getParameter<bool>("MultipleScattering"))
-    theMuonHcalEffects_ = std::make_unique<MaterialEffects>(fastMuHCAL);
 
   if (fastCalo.exists("ECALResponseScaling")) {
     ecalCorrection_ =
@@ -137,7 +135,7 @@ CalorimetryManager::CalorimetryManager(const edm::ParameterSet& fastCalo,
 
 CalorimetryManager::~CalorimetryManager() = default;
 
-void CalorimetryManager::reconstructTrack(const FSimTrack& myTrack, RandomEngineAndDistribution const* random, CaloProductContainer& container, GflashMultiProfile& profiles) {
+void CalorimetryManager::reconstructTrack(const FSimTrack& myTrack, RandomEngineAndDistribution const* random, CaloProductContainer& container, GflashMultiProfile& profiles, MuonCaloEffects& effects) {
   int pid = abs(myTrack.type());
 
   if (debug_) {
@@ -162,7 +160,7 @@ void CalorimetryManager::reconstructTrack(const FSimTrack& myTrack, RandomEngine
       }
     }  // electron or photon
     else if (pid == 13 || pid == 1000024 || (pid > 1000100 && pid < 1999999 && fabs(charge_) > 0.001)) {
-      MuonMipSimulation(myTrack, random, container);
+      MuonMipSimulation(myTrack, random, container, effects);
     }
     // Simulate energy smearing for hadrons (i.e., everything
     // but muons... and SUSY particles that deserve a special
@@ -642,11 +640,11 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
     LogInfo("FastCalorimetry") << std::endl << " FASTEnergyReconstructor::HDShowerSimulation  finished " << std::endl;
 }
 
-void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const* random, CaloProductContainer& container) {
+void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const* random, CaloProductContainer& container, MuonCaloEffects& effects) {
   XYZTLorentzVector moment = myTrack.momentum();
 
   // Backward compatibility behaviour
-  if (!theMuonHcalEffects_) {
+  if (!effects.theMuonHcalEffects) {
     updateMuon(myTrack, container);
 
     if (myTrack.onHcal() || myTrack.onVFcal())
@@ -712,7 +710,7 @@ void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack, RandomEngin
   int ifirstHcal = -1;
   int ilastEcal = -1;
 
-  EnergyLossSimulator* energyLossECAL = (theMuonEcalEffects_) ? theMuonEcalEffects_->energyLossSimulator() : nullptr;
+  EnergyLossSimulator* energyLossECAL = (effects.theMuonEcalEffects) ? effects.theMuonEcalEffects->energyLossSimulator() : nullptr;
 
   for (unsigned iseg = 0; iseg < nsegments && ifirstHcal < 0; ++iseg) {
     // in the ECAL, there are two types of segments: PbWO4 and GAP
@@ -751,7 +749,7 @@ void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack, RandomEngin
   int ilastHcal = -1;
   float mipenergy = 0.0;
 
-  EnergyLossSimulator* energyLossHCAL = (theMuonHcalEffects_) ? theMuonHcalEffects_->energyLossSimulator() : nullptr;
+  EnergyLossSimulator* energyLossHCAL = (effects.theMuonHcalEffects) ? effects.theMuonHcalEffects->energyLossSimulator() : nullptr;
 
   if (ifirstHcal > 0 && energyLossHCAL) {
     for (unsigned iseg = ifirstHcal; iseg < nsegments; ++iseg) {

@@ -92,6 +92,7 @@ private:
   CalorimetryConsumer myCaloConsumer_;
   std::unique_ptr<CalorimetryManager> myCalorimetry_;  // unfortunately, default constructor cannot be called
   GflashMultiProfile myProfiles_;
+  MuonCaloEffects myEffects_;
   bool simulateMuons_;
   bool useFastSimDecayer_;
 
@@ -122,6 +123,8 @@ FastSimProducer::FastSimProducer(const edm::ParameterSet& iConfig)
       simulateCalorimetry_(iConfig.getParameter<bool>("simulateCalorimetry")),
       myCaloConsumer_(consumesCollector()),
       myProfiles_(iConfig.getParameter<edm::ParameterSet>("GFlash")),
+      myEffects_(iConfig.getParameter<edm::ParameterSet>("MaterialEffectsForMuonsInECAL"),
+                 iConfig.getParameter<edm::ParameterSet>("MaterialEffectsForMuonsInHCAL")),
       simulateMuons_(iConfig.getParameter<bool>("simulateMuons")),
       useFastSimDecayer_(iConfig.getParameter<bool>("useFastSimDecayer")),
       particleDataTableESToken_(esConsumes()) {
@@ -204,8 +207,6 @@ void FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (newGeom || newTopo) {
       myCalorimetry_ =
         std::make_unique<CalorimetryManager>(iConfig_.getParameter<edm::ParameterSet>("Calorimetry"),
-                                             iConfig_.getParameter<edm::ParameterSet>("MaterialEffectsForMuonsInECAL"),
-                                             iConfig_.getParameter<edm::ParameterSet>("MaterialEffectsForMuonsInHCAL"),
                                              geometry_.getMagneticFieldZ(math::XYZTLorentzVector(0., 0., 0., 0.)),
                                              iSetup,
                                              myCaloConsumer_);
@@ -346,7 +347,7 @@ void FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   auto caloProducts = std::make_unique<CaloProductContainer>();
   if (simulateCalorimetry_) {
     for (const auto& myFSimTrack : myFSimTracks) {
-      myCalorimetry_->reconstructTrack(myFSimTrack, randomEngine_.get(), *caloProducts, myProfiles_);
+      myCalorimetry_->reconstructTrack(myFSimTrack, randomEngine_.get(), *caloProducts, myProfiles_, myEffects_);
     }
   }
 
