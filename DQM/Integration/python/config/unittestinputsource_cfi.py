@@ -122,6 +122,8 @@ source = cms.Source ("PoolSource",
                        'drop *',
                        'keep FEDRawDataCollection_rawDataCollector_*_*',
                        'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
+                       'keep Run3Scouting*_*_*_*',
+                       'keep double_hltScoutingPFPacker_*_*',
                        'keep edmTriggerResults_TriggerResults_*_*'
                      ),
                      dropDescendantsOfDroppedBranches = cms.untracked.bool(True)
