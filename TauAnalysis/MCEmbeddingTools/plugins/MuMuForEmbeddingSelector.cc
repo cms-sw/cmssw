@@ -119,7 +119,6 @@ void MuMuForEmbeddingSelector::produce(edm::Event &iEvent, const edm::EventSetup
   iEvent.getByToken(ZmumuCandidates_, ZmumuCandidatesHandle);
   edm::View<reco::CompositeCandidate> ZmumuCandidates = *ZmumuCandidatesHandle;
   const reco::CompositeCandidate *chosenZCand = nullptr;
-  double massDifference = 9999;
   edm::Handle<reco::BeamSpot> beamSpot;
   iEvent.getByToken(theBeamSpotLabel_, beamSpot);
   edm::Handle<reco::VertexCollection> vertex;
