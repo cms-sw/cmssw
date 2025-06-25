@@ -73,7 +73,7 @@ namespace edm {
                                ServiceToken const& token,
                                bool cleaningUpAfterException = false);
 
-    void beginJob(ProcessContext const&, ModuleRegistry&);
+    void beginJob(ModuleRegistry&);
     void endJob(ExceptionCollector& collector, ModuleRegistry&);
 
     /// Return a vector allowing const access to all the

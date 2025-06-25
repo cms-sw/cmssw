@@ -83,12 +83,12 @@ namespace edm {
 
   }  // GlobalSchedule::GlobalSchedule
 
-  void GlobalSchedule::beginJob(ProcessContext const& processContext, ModuleRegistry& modReg) {
+  void GlobalSchedule::beginJob(ModuleRegistry& modReg) {
     constexpr static char const* const globalContext = "Processing begin Job";
 
     std::exception_ptr exceptionPtr;
     try {
-      convertException::wrap([this, &processContext]() { actReg_->preBeginJobSignal_(processContext); });
+      convertException::wrap([this]() { actReg_->preBeginJobSignal_(*processContext_); });
     } catch (cms::Exception& ex) {
       ex.addContext("Handling pre signal, likely in a service function");
       ex.addContext(globalContext);

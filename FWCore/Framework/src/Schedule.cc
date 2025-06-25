@@ -1153,11 +1153,9 @@ namespace edm {
   void Schedule::beginJob(ProductRegistry const& iRegistry,
                           eventsetup::ESRecordsToProductResolverIndices const& iESIndices,
                           ProcessBlockHelperBase const& processBlockHelperBase,
-                          ProcessContext const& processContext) {
-    auto const& processName = processContext.processConfiguration()->processName();
-
-    moduleRegistry_->finishModulesInitialization(iRegistry, iESIndices, processBlockHelperBase, processName);
-    globalSchedule_->beginJob(processContext, *moduleRegistry_);
+                          std::string const& iProcessName) {
+    moduleRegistry_->finishModulesInitialization(iRegistry, iESIndices, processBlockHelperBase, iProcessName);
+    globalSchedule_->beginJob(*moduleRegistry_);
   }
 
   void Schedule::beginStream(unsigned int streamID) {
