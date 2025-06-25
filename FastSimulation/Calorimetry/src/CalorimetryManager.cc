@@ -135,7 +135,7 @@ CalorimetryManager::CalorimetryManager(const edm::ParameterSet& fastCalo,
 
 CalorimetryManager::~CalorimetryManager() = default;
 
-void CalorimetryManager::reconstructTrack(const FSimTrack& myTrack, RandomEngineAndDistribution const* random, CaloProductContainer& container, GflashMultiProfile& profiles, MuonCaloEffects& effects) {
+void CalorimetryManager::reconstructTrack(const FSimTrack& myTrack, RandomEngineAndDistribution const* random, CaloProductContainer& container, GflashMultiProfile& profiles, MuonCaloEffects& effects) const {
   int pid = abs(myTrack.type());
 
   if (debug_) {
@@ -177,7 +177,7 @@ void CalorimetryManager::reconstructTrack(const FSimTrack& myTrack, RandomEngine
 }
 
 // Simulation of electromagnetic showers in PS, ECAL, HCAL
-void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const* random, CaloProductContainer& container) {
+void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const* random, CaloProductContainer& container) const {
   std::vector<const RawParticle*> thePart;
   double X0depth;
 
@@ -363,7 +363,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack, RandomEngi
   }
 }
 
-void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack, RandomEngineAndDistribution const* random, CaloProductContainer& container) {
+void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack, RandomEngineAndDistribution const* random, CaloProductContainer& container) const {
   int hit;
   int pid = abs(myTrack.type());
   if (debug_) {
@@ -414,7 +414,7 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack, RandomEngineA
   }
 }
 
-void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const* random, CaloProductContainer& container, GflashMultiProfile& profiles) {
+void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const* random, CaloProductContainer& container, GflashMultiProfile& profiles) const {
   FastHFShowerLibrary::setRandom(random);
 
   const XYZTLorentzVector& moment = myTrack.momentum();
@@ -640,7 +640,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
     LogInfo("FastCalorimetry") << std::endl << " FASTEnergyReconstructor::HDShowerSimulation  finished " << std::endl;
 }
 
-void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const* random, CaloProductContainer& container, MuonCaloEffects& effects) {
+void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const* random, CaloProductContainer& container, MuonCaloEffects& effects) const {
   XYZTLorentzVector moment = myTrack.momentum();
 
   // Backward compatibility behaviour

@@ -84,7 +84,7 @@ public:
   ~CalorimetryManager();
 
   // Does the real job
-  void reconstructTrack(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container, GflashMultiProfile& profiles, MuonCaloEffects& effects);
+  void reconstructTrack(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container, GflashMultiProfile& profiles, MuonCaloEffects& effects) const;
 
   // Return the address of the Calorimeter
   CaloGeometryHelper* getCalorimeter() const { return myCalorimeter_.get(); }
@@ -94,14 +94,14 @@ public:
 
 private:
   // Simulation of electromagnetic showers in PS, ECAL, HCAL
-  void EMShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container);
+  void EMShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container) const;
 
-  void reconstructHCAL(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container);
+  void reconstructHCAL(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container) const;
 
-  void MuonMipSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container, MuonCaloEffects& effects);
+  void MuonMipSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container, MuonCaloEffects& effects) const;
 
   /// Hadronic Shower Simulation
-  void HDShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container, GflashMultiProfile& profiles);
+  void HDShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container, GflashMultiProfile& profiles) const;
 
   // Read the parameters
   void readParameters(const edm::ParameterSet& fastCalo);
