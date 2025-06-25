@@ -34,10 +34,6 @@
 #include "FastSimulation/MaterialEffects/interface/MuonBremsstrahlungSimulator.h"
 
 //Gflash Hadronic Model
-#include "SimGeneral/GFlash/interface/GflashHadronShowerProfile.h"
-#include "SimGeneral/GFlash/interface/GflashPiKShowerProfile.h"
-#include "SimGeneral/GFlash/interface/GflashProtonShowerProfile.h"
-#include "SimGeneral/GFlash/interface/GflashAntiProtonShowerProfile.h"
 #include "SimGeneral/GFlash/interface/GflashTrajectoryPoint.h"
 #include "SimGeneral/GFlash/interface/GflashHit.h"
 #include "SimGeneral/GFlash/interface/Gflash3Vector.h"
@@ -68,12 +64,27 @@ typedef math::XYZVector XYZPoint;
 std::vector<std::pair<int, float> > CalorimetryManager::myZero_ =
     std::vector<std::pair<int, float> >(1, std::pair<int, float>(0, 0.));
 
+GflashMultiProfile::GflashMultiProfile(const edm::ParameterSet& parGflash)
+  : thePiKProfile(std::make_unique<GflashPiKShowerProfile>(parGflash)),
+    theProtonProfile(std::make_unique<GflashProtonShowerProfile>(parGflash)),
+    theAntiProtonProfile(std::make_unique<GflashAntiProtonShowerProfile>(parGflash)) {
+
+}
+
+GflashHadronShowerProfile* GflashMultiProfile::profile(int particleType) {
+  if (particleType == -2212)
+    return theAntiProtonProfile.get();
+  else if (particleType == 2212)
+    return theProtonProfile.get();
+  else
+    return thePiKProfile.get();
+}
+
 CalorimetryManager::CalorimetryManager() : myCalorimeter_(nullptr) { ; }
 
 CalorimetryManager::CalorimetryManager(const edm::ParameterSet& fastCalo,
                                        const edm::ParameterSet& fastMuECAL,
                                        const edm::ParameterSet& fastMuHCAL,
-                                       const edm::ParameterSet& parGflash,
                                        double magneticFieldOrigin,
                                        const edm::EventSetup& iSetup,
                                        const CalorimetryConsumer& iConsumer)
@@ -82,11 +93,6 @@ CalorimetryManager::CalorimetryManager(const edm::ParameterSet& fastCalo,
       bFixedLength_(false) {
   aLandauGenerator_ = std::make_unique<LandauFluctuationGenerator>();
   aGammaGenerator_ = std::make_unique<GammaFunctionGenerator>();
-
-  //Gflash
-  thePiKProfile_ = std::make_unique<GflashPiKShowerProfile>(parGflash);
-  theProtonProfile_ = std::make_unique<GflashProtonShowerProfile>(parGflash);
-  theAntiProtonProfile_ = std::make_unique<GflashAntiProtonShowerProfile>(parGflash);
 
   // FastHFShowerLibrary
   theHFShowerLibrary_ = std::make_unique<FastHFShowerLibrary>(fastCalo, iSetup, iConsumer);
@@ -131,7 +137,7 @@ CalorimetryManager::CalorimetryManager(const edm::ParameterSet& fastCalo,
 
 CalorimetryManager::~CalorimetryManager() = default;
 
-void CalorimetryManager::reconstructTrack(const FSimTrack& myTrack, RandomEngineAndDistribution const* random, CaloProductContainer& container) {
+void CalorimetryManager::reconstructTrack(const FSimTrack& myTrack, RandomEngineAndDistribution const* random, CaloProductContainer& container, GflashMultiProfile& profiles) {
   int pid = abs(myTrack.type());
 
   if (debug_) {
@@ -166,7 +172,7 @@ void CalorimetryManager::reconstructTrack(const FSimTrack& myTrack, RandomEngine
         if (optionHDSim_ == 0)
           reconstructHCAL(myTrack, random, container);
         else
-          HDShowerSimulation(myTrack, random, container);
+          HDShowerSimulation(myTrack, random, container, profiles);
       }
     }  // pid < 1000000
   }  // myTrack.noEndVertex()
@@ -410,7 +416,7 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack, RandomEngineA
   }
 }
 
-void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const* random, CaloProductContainer& container) {
+void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const* random, CaloProductContainer& container, GflashMultiProfile& profiles) {
   FastHFShowerLibrary::setRandom(random);
 
   const XYZTLorentzVector& moment = myTrack.momentum();
@@ -525,11 +531,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
       } else if (hdSimMethod_ == 2) {
         //dynamically loading a corresponding profile by the particle type
         int particleType = myTrack.type();
-        GflashHadronShowerProfile* theProfile = thePiKProfile_.get();
-        if (particleType == -2212)
-          theProfile = theAntiProtonProfile_.get();
-        else if (particleType == 2212)
-          theProfile = theProtonProfile_.get();
+        GflashHadronShowerProfile* theProfile = profiles.profile(particleType);
 
         //input variables for GflashHadronShowerProfile
         int showerType = 99 + myTrack.onEcal();

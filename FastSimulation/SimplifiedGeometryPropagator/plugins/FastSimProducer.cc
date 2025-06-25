@@ -91,6 +91,7 @@ private:
   edm::ESWatcher<CaloTopologyRecord> watchCaloTopology_;
   CalorimetryConsumer myCaloConsumer_;
   std::unique_ptr<CalorimetryManager> myCalorimetry_;  // unfortunately, default constructor cannot be called
+  GflashMultiProfile myProfiles_;
   bool simulateMuons_;
   bool useFastSimDecayer_;
 
@@ -120,6 +121,7 @@ FastSimProducer::FastSimProducer(const edm::ParameterSet& iConfig)
       randomEngine_(nullptr),
       simulateCalorimetry_(iConfig.getParameter<bool>("simulateCalorimetry")),
       myCaloConsumer_(consumesCollector()),
+      myProfiles_(iConfig.getParameter<edm::ParameterSet>("GFlash")),
       simulateMuons_(iConfig.getParameter<bool>("simulateMuons")),
       useFastSimDecayer_(iConfig.getParameter<bool>("useFastSimDecayer")),
       particleDataTableESToken_(esConsumes()) {
@@ -204,7 +206,6 @@ void FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         std::make_unique<CalorimetryManager>(iConfig_.getParameter<edm::ParameterSet>("Calorimetry"),
                                              iConfig_.getParameter<edm::ParameterSet>("MaterialEffectsForMuonsInECAL"),
                                              iConfig_.getParameter<edm::ParameterSet>("MaterialEffectsForMuonsInHCAL"),
-                                             iConfig_.getParameter<edm::ParameterSet>("GFlash"),
                                              geometry_.getMagneticFieldZ(math::XYZTLorentzVector(0., 0., 0., 0.)),
                                              iSetup,
                                              myCaloConsumer_);
@@ -345,7 +346,7 @@ void FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   auto caloProducts = std::make_unique<CaloProductContainer>();
   if (simulateCalorimetry_) {
     for (const auto& myFSimTrack : myFSimTracks) {
-      myCalorimetry_->reconstructTrack(myFSimTrack, randomEngine_.get(), *caloProducts);
+      myCalorimetry_->reconstructTrack(myFSimTrack, randomEngine_.get(), *caloProducts, myProfiles_);
     }
   }
 

@@ -15,6 +15,12 @@
 #include "FastSimulation/CalorimeterProperties/interface/CalorimetryConsumer.h"
 #include "FastSimulation/Calorimetry/interface/KKCorrectionFactors.h"
 
+//Gflash Hadronic Model
+#include "SimGeneral/GFlash/interface/GflashHadronShowerProfile.h"
+#include "SimGeneral/GFlash/interface/GflashPiKShowerProfile.h"
+#include "SimGeneral/GFlash/interface/GflashProtonShowerProfile.h"
+#include "SimGeneral/GFlash/interface/GflashAntiProtonShowerProfile.h"
+
 #include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 
 #include <map>
@@ -30,11 +36,6 @@ class LandauFluctuationGenerator;
 class GammaFunctionGenerator;
 class MaterialEffects;
 class RandomEngineAndDistribution;
-//Gflash
-class GflashHadronShowerProfile;
-class GflashPiKShowerProfile;
-class GflashProtonShowerProfile;
-class GflashAntiProtonShowerProfile;
 // FastHFshowerLibrary
 class FastHFShowerLibrary;
 
@@ -54,20 +55,28 @@ struct CaloProductContainer {
   std::unique_ptr<edm::SimTrackContainer> tracksMuon;
 };
 
+struct GflashMultiProfile {
+  GflashMultiProfile(const edm::ParameterSet& fastGflash);
+  GflashHadronShowerProfile* profile(int particleType);
+
+  std::unique_ptr<GflashPiKShowerProfile> thePiKProfile;
+  std::unique_ptr<GflashProtonShowerProfile> theProtonProfile;
+  std::unique_ptr<GflashAntiProtonShowerProfile> theAntiProtonProfile;
+};
+
 class CalorimetryManager {
 public:
   CalorimetryManager();
   CalorimetryManager(const edm::ParameterSet& fastCalo,
                      const edm::ParameterSet& MuonECALPars,
                      const edm::ParameterSet& MuonHCALPars,
-                     const edm::ParameterSet& fastGflash,
                      double magneticFieldOrigin,
                      const edm::EventSetup& iSetup,
                      const CalorimetryConsumer& iConsumer);
   ~CalorimetryManager();
 
   // Does the real job
-  void reconstructTrack(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container);
+  void reconstructTrack(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container, GflashMultiProfile& profiles);
 
   // Return the address of the Calorimeter
   CaloGeometryHelper* getCalorimeter() const { return myCalorimeter_.get(); }
@@ -84,7 +93,7 @@ private:
   void MuonMipSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container);
 
   /// Hadronic Shower Simulation
-  void HDShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container);
+  void HDShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container, GflashMultiProfile& profiles);
 
   // Read the parameters
   void readParameters(const edm::ParameterSet& fastCalo);
@@ -161,11 +170,6 @@ private:
   // Otherwise roughly 5 steps are used.
   // This variable is transferred to EMShower
   bool bFixedLength_;
-
-  //Gflash
-  std::unique_ptr<GflashPiKShowerProfile> thePiKProfile_;
-  std::unique_ptr<GflashProtonShowerProfile> theProtonProfile_;
-  std::unique_ptr<GflashAntiProtonShowerProfile> theAntiProtonProfile_;
 
   // HFShowerLibrary
   bool useShowerLibrary_;
