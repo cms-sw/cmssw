@@ -3,6 +3,7 @@ from PhysicsTools.NanoAOD.common_cff import *
 
 hltPixelTrackTable = cms.EDProducer(
     "SimpleTriggerTrackFlatTableProducer",
+    skipNonExistingSrc = cms.bool(True),
     src = cms.InputTag("hltPhase2PixelTracks"),
     cut = cms.string(""),
     name = cms.string("hltPixelTrack"),
@@ -31,6 +32,7 @@ hltPixelTrackTable = cms.EDProducer(
 
 hltGeneralTrackTable = cms.EDProducer(
     "SimpleTriggerTrackFlatTableProducer",
+    skipNonExistingSrc = cms.bool(True),
     src = cms.InputTag("hltGeneralTracks"),
     cut = cms.string(""),
     name = cms.string("hltGeneralTrack"),

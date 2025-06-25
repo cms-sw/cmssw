@@ -42,7 +42,7 @@ NanoGenTable = cms.Sequence(
 
 hltNanoProducer = cms.Sequence(
     NanoGenTable
-    + hltTriggerAcceptFilter
+    #+ hltTriggerAcceptFilter
     + hltVertexTable
     + hltPixelTrackTable
     + hltGeneralTrackTable
