@@ -14,17 +14,13 @@
 // L1 scouting
 #include "DataFormats/L1Scouting/interface/L1ScoutingBMTFStub.h"
 #include "DataFormats/L1Scouting/interface/OrbitCollection.h"
-#include "L1TriggerScouting/Utilities/interface/conversion.h"
 
-#include <iostream>
 #include <memory>
 #include <utility>
 #include <vector>
 #include <string>
 #include <numeric>
 #include <set>
-
-using namespace l1ScoutingRun3;
 
 namespace l1ScoutingRun3 {
   enum BMTFSelectorConditionType { Simple, Wheel };
@@ -36,17 +32,17 @@ public:
   ~BMTFStubMultiBxSelector() override {}
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
-  unsigned makeWheelPattern(const edm::Handle<OrbitCollection<BMTFStub>>& stubs, unsigned bx);
+  unsigned makeWheelPattern(const edm::Handle<OrbitCollection<l1ScoutingRun3::BMTFStub>>& stubs, unsigned bx);
   bool windowHasCloseWheels(const std::vector<unsigned>& bxs);
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-  // tokens for scouting data
+  // Tokens for scouting data
   edm::EDGetTokenT<OrbitCollection<l1ScoutingRun3::BMTFStub>> stubsTokenData_;
 
   // Condition
-  BMTFSelectorConditionType condition_;
+  l1ScoutingRun3::BMTFSelectorConditionType condition_;
 
   // Selection thresholds
   unsigned bxWindowLength_;
@@ -59,9 +55,9 @@ BMTFStubMultiBxSelector::BMTFStubMultiBxSelector(const edm::ParameterSet& iPSet)
       minNBMTFStub_(iPSet.getParameter<unsigned>("minNBMTFStub")) {
   std::string conditionStr = iPSet.getParameter<std::string>("condition");
   if (conditionStr == "simple")
-    condition_ = Simple;
+    condition_ = l1ScoutingRun3::Simple;
   else if (conditionStr == "wheel")
-    condition_ = Wheel;
+    condition_ = l1ScoutingRun3::Wheel;
   else
     throw cms::Exception("BMTFStubMultiBxSelector::BMTFStubMultiBxSelector")
         << "Condition '" << conditionStr << "' not supported or not found";
@@ -71,11 +67,11 @@ BMTFStubMultiBxSelector::BMTFStubMultiBxSelector(const edm::ParameterSet& iPSet)
 
 // ------------ method called for each ORBIT  ------------
 void BMTFStubMultiBxSelector::produce(edm::Event& iEvent, const edm::EventSetup&) {
-  edm::Handle<OrbitCollection<BMTFStub>> stubsCollection;
+  edm::Handle<OrbitCollection<l1ScoutingRun3::BMTFStub>> stubsCollection;
 
   iEvent.getByToken(stubsTokenData_, stubsCollection);
 
-  // This is necessary to have a clean MultiBxStubsSelectedBx collection
+  // This is necessary to have a clean 'MultiBxStubsSelectedBx' collection
   // Indeed, if there is overlap betweem two valid windows, there will be duplicated BXs
   std::unique_ptr<std::set<unsigned>> uniqueStubSelectedBxs(new std::set<unsigned>);
 
@@ -83,7 +79,7 @@ void BMTFStubMultiBxSelector::produce(edm::Event& iEvent, const edm::EventSetup&
   std::vector<unsigned> vNumStubBx(bxWindowLength_, 0);
   std::vector<unsigned> vWheelPatternBx(bxWindowLength_, 0);
   for (const unsigned& bx : stubsCollection->getFilledBxs()) {
-    // Get number of stubs in current window [BX-ws+1, BX]
+    // Get number of stubs in current window of size 'ws': [BX-ws+1, BX]
     for (unsigned i = 0; i < std::min(bxWindowLength_, bx); ++i)
       vNumStubBx[i] = stubsCollection->getBxSize(bx - i);
 
@@ -91,16 +87,16 @@ void BMTFStubMultiBxSelector::produce(edm::Event& iEvent, const edm::EventSetup&
     unsigned numStubsWindow = std::reduce(vNumStubBx.begin(), vNumStubBx.end());
 
     // Simple condition: just number of stubs (already checked)
-    if (condition_ == Simple) {
+    if (condition_ == l1ScoutingRun3::Simple) {
       // If there are enough stubs in window...
       if (numStubsWindow >= minNBMTFStub_) {
-        // ...loop in window to add BXs (std::min to include edge case of first BXs)
+        // ...loop over window to add BXs (std::min to include edge case of first BXs)
         for (unsigned i = 0; i < std::min(bxWindowLength_, bx); ++i)
           uniqueStubSelectedBxs->insert(bx - i);
       }
     }
     // Wheel condition: enough longitudinally "neighbouring" stubs
-    else if (condition_ == Wheel) {
+    else if (condition_ == l1ScoutingRun3::Wheel) {
       for (unsigned i = 0; i < std::min(bxWindowLength_, bx); ++i) {
         // Prepare pattern and add to window vector
         vWheelPatternBx[i] = makeWheelPattern(stubsCollection, bx - i);
@@ -117,7 +113,7 @@ void BMTFStubMultiBxSelector::produce(edm::Event& iEvent, const edm::EventSetup&
 
       // If window is valid....
       if (validWindow) {
-        // ...loop in window to add BXs (std::min to include edge case of first BXs)
+        // ...loop over window to add BXs (std::min to include edge case of first BXs)
         for (unsigned i = 0; i < std::min(bxWindowLength_, bx); ++i)
           uniqueStubSelectedBxs->insert(bx - i);
       }
@@ -130,7 +126,8 @@ void BMTFStubMultiBxSelector::produce(edm::Event& iEvent, const edm::EventSetup&
   iEvent.put(std::move(stubSelectedBx), "SelBx");
 }
 
-unsigned BMTFStubMultiBxSelector::makeWheelPattern(const edm::Handle<OrbitCollection<BMTFStub>>& stubs, unsigned bx) {
+unsigned BMTFStubMultiBxSelector::makeWheelPattern(const edm::Handle<OrbitCollection<l1ScoutingRun3::BMTFStub>>& stubs,
+                                                   unsigned bx) {
   // 5 wheel numbers + 2 to handle boundaries in a more comfortable way:
   // 0b         0   X   X   X   X   X   0
   // wheels   bnd  +2  +1   0  -1  -2 bnd
@@ -148,7 +145,7 @@ bool BMTFStubMultiBxSelector::windowHasCloseWheels(const std::vector<unsigned>& 
       //          bwwwwwb (b = boundary, w = wheel fields)
       // BX-2 : 0b0010000 (stub with wheel=+2)
       // BX-1 : 0b0001000 (stub with wheel=+1)
-      // Bitwise or comparison:
+      // Bitwise AND comparison between:
       // BX-2 : 0b0010000
       // BX-1 : 0b0011100
       //            bsb   (s = stub wheel, b = boundary wheels)
