@@ -1,5 +1,5 @@
-#ifndef CALORIMETRYMANAGER_H
-#define CALORIMETRYMANAGER_H
+#ifndef FastSimulation_Calorimetry_CalorimetryManager_h
+#define FastSimulation_Calorimetry_CalorimetryManager_h
 
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimG4CMS/Calo/interface/CaloHitID.h"
@@ -17,8 +17,6 @@
 
 #include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 
-// For the uint32_t
-//#include <boost/cstdint.hpp>
 #include <map>
 #include <algorithm>
 #include <utility>
@@ -131,7 +129,6 @@ private:
   double pulledPadSurvivalProbability_;
   double crackPadSurvivalProbability_;
   double spotFraction_;
-  //  double radiusFactor_;
   double radiusFactorEB_, radiusFactorEE_;
   std::vector<double> radiusPreshowerCorrections_;
   double aTerm_, bTerm_;
@@ -161,7 +158,7 @@ private:
 
   // If set to true the simulation in ECAL would be done 1X0 by 1X0
   // this is slow but more adapted to detailed studies.
-  // Otherwise roughty 5 steps are used.
+  // Otherwise roughly 5 steps are used.
   // This variable is transferred to EMShower
   bool bFixedLength_;
 

@@ -54,7 +54,6 @@
 //CMSSW headers
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-//#include "DataFormats/EcalDetId/interface/EcalDetId.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 //ROOT headers
@@ -307,25 +306,6 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack, RandomEngi
 
   //maximumdepth dependence of the radiusfactorbehindpreshower
   //First tuning: Shilpi Jain (Mar-Apr 2010); changed after tuning - Feb-July - Shilpi Jain
-  /* **************
-     myGrid.setRadiusFactor(radiusFactor_);
-     if(onLayer1 || onLayer2)
-     {
-     float b               = radiusPreshowerCorrections_[0];
-     float a               = radiusFactor_*( 1.+radiusPreshowerCorrections_[1]*radiusPreshowerCorrections_[0] );
-     float maxdepth        = X0depth+theShower.getMaximumOfShower();
-     float newRadiusFactor = radiusFactor_;
-     if(myPart_.e()<=250.)
-     {
-     newRadiusFactor = a/(1.+b*maxdepth); 
-     }
-     myGrid.setRadiusFactor(newRadiusFactor);
-     }
-     else // otherwise use the normal radius factor
-     {
-     myGrid.setRadiusFactor(radiusFactor_);
-     }
-     ************** */
   if (myTrack.onEcal() == 2)  // if on EE
   {
     if ((onLayer1 || onLayer2) && myPart.e() <= 250.) {
@@ -430,12 +410,9 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack, RandomEngineA
   }
 }
 
-void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const* random, CaloProductContainer& container) {  //,
-  // const edm::ParameterSet& fastCalo){
-
+void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const* random, CaloProductContainer& container) {
   FastHFShowerLibrary::setRandom(random);
 
-  //  TimeMe t(" FASTEnergyReconstructor::HDShower");
   const XYZTLorentzVector& moment = myTrack.momentum();
 
   if (debug_)
@@ -463,7 +440,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
     return;
   }
 
-  // int onHCAL = hit + 1; - specially for myCalorimeter->hcalProperties(onHCAL)
+  // specially for myCalorimeter->hcalProperties(onHCAL)
   // (below) to get VFcal properties ...
   int onHCAL = hit + 1;
   int onECAL = myTrack.onEcal();
@@ -534,9 +511,6 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
         status = true;
       } else {
         HFShower theShower(random, &theHDShowerparam, &myGrid, &myHcalHitMaker, onECAL, eGen);
-        //			 eGen);
-        //			 e); // PV Warning : temporarly set the energy to the generated E
-
         status = theShower.compute();
       }
     } else {
@@ -667,7 +641,6 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
 }
 
 void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const* random, CaloProductContainer& container) {
-  //  TimeMe t(" FASTEnergyReconstructor::HDShower");
   XYZTLorentzVector moment = myTrack.momentum();
 
   // Backward compatibility behaviour
@@ -696,10 +669,6 @@ void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack, RandomEngin
     return;
   }
 
-  // int onHCAL = hit + 1; - specially for myCalorimeter->hcalProperties(onHCAL)
-  // (below) to get VFcal properties ...
-  // not needed ?
-  //  int onHCAL = hit + 1;
   int onECAL = myTrack.onEcal();
 
   //===========================================================================
@@ -742,9 +711,6 @@ void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack, RandomEngin
   int ilastEcal = -1;
 
   EnergyLossSimulator* energyLossECAL = (theMuonEcalEffects_) ? theMuonEcalEffects_->energyLossSimulator() : nullptr;
-  //  // Muon brem in ECAL
-  //  MuonBremsstrahlungSimulator* muonBremECAL = 0;
-  //  if (theMuonEcalEffects_) muonBremECAL = theMuonEcalEffects_->muonBremsstrahlungSimulator();
 
   for (unsigned iseg = 0; iseg < nsegments && ifirstHcal < 0; ++iseg) {
     // in the ECAL, there are two types of segments: PbWO4 and GAP
@@ -779,23 +745,11 @@ void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack, RandomEngin
 
   // Build the FAMOS HCAL
   HcalHitMaker myHcalHitMaker(myGrid, (unsigned)2);
-  // float mipenergy=0.1;
-  // Create the helix with the stepping helix propagator
-  // to add a hit, just do
-  // myHcalHitMaker.setSpotEnergy(mipenergy);
-  // math::XYZVector hcalEntrance;
-  // if(ifirstHcal>=0) hcalEntrance=segments[ifirstHcal].entrance();
-  // myHcalHitMaker.addHit(hcalEntrance);
-  ///
-  /////
   ////// TEMPORARY First attempt to include HCAL (with straight-line extrapolation):
   int ilastHcal = -1;
   float mipenergy = 0.0;
 
   EnergyLossSimulator* energyLossHCAL = (theMuonHcalEffects_) ? theMuonHcalEffects_->energyLossSimulator() : nullptr;
-  //  // Muon Brem effect
-  //  MuonBremsstrahlungSimulator* muonBremHCAL = 0;
-  //  if (theMuonHcalEffects_) muonBremHCAL = theMuonHcalEffects_->muonBremsstrahlungSimulator();
 
   if (ifirstHcal > 0 && energyLossHCAL) {
     for (unsigned iseg = ifirstHcal; iseg < nsegments; ++iseg) {
@@ -862,7 +816,6 @@ void CalorimetryManager::readParameters(const edm::ParameterSet& fastCalo) {
   RCFactor_ = ECALparameters.getParameter<double>("RCFactor");
   RTFactor_ = ECALparameters.getParameter<double>("RTFactor");
   //changed after tuning - Feb-July - Shilpi Jain
-  //  radiusFactor_ = ECALparameters.getParameter<double>("RadiusFactor");
   radiusFactorEE_ = ECALparameters.getParameter<double>("RadiusFactorEE");
   radiusFactorEB_ = ECALparameters.getParameter<double>("RadiusFactorEB");
   //(end of) changed after tuning - Feb-July - Shilpi Jain

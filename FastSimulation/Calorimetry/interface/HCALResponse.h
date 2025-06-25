@@ -1,5 +1,5 @@
-#ifndef HCALResponse_h
-#define HCALResponse_h
+#ifndef FastSimulation_Calorimetry_HCALResponse_h
+#define FastSimulation_Calorimetry_HCALResponse_h
 
 /** \file FastSimulation/Calorimetry/interface/HCALResponse.h. 
  *
