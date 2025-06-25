@@ -186,9 +186,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // workaround for #47808
       debug::do_not_optimise(results_view);
 
-      ALPAKA_ASSERT_ACC(results_view.pt());
-      ALPAKA_ASSERT_ACC(results_view.eta());
-      ALPAKA_ASSERT_ACC(results_view.chi2());
+      ALPAKA_ASSERT_ACC(results_view.pt().data());
+      ALPAKA_ASSERT_ACC(results_view.eta().data());
+      ALPAKA_ASSERT_ACC(results_view.chi2().data());
       ALPAKA_ASSERT_ACC(pfast_fit);
       constexpr auto invalidTkId = std::numeric_limits<typename TrackerTraits::tindex_type>::max();
 

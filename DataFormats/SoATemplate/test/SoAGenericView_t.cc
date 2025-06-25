@@ -39,7 +39,7 @@ using GenericSoAConstView = GenericSoA::ConstView;
 
 TEST_CASE("SoAGenericView") {
   // common number of elements for the SoAs
-  const std::size_t elems = 17;
+  const std::size_t elems = 16;
 
   // buffer sizes
   const std::size_t positionBufferSize = SoAPosition::computeDataSize(elems);
@@ -186,4 +186,72 @@ TEST_CASE("SoAGenericView") {
     genericSoAView[3].xPos() = 0.;
     REQUIRE(genericSoAView[3].xPos() != positionView[3].x());
   }
+}
+
+// Since the alignment of the destination layout differs from the source,
+// the number of elements must be chosen carefully to ensure that the stride
+// between Eigen columns matches in both layouts.
+//
+// Specifically, let:
+//   n   = number of elements
+//   T   = data type
+//   k₁, k₂ = integers such that k₁ * 64 ≥ n * sizeof(T)
+//                           and k₂ * 128 ≥ n * sizeof(T)
+//
+// Then, we must have:
+//   (n * sizeof(T)) - (k₁ * 64) == (n * sizeof(T)) - (k₂ * 128)
+//
+// In other words, the offsets from the nearest alignment boundaries must be equal
+// in both layouts so that Eigen sees consistent internal column strides.
+
+TEST_CASE("SoAGenericView launching runtime exception") {
+  // common number of elements for the SoAs
+  const std::size_t elems = 17;
+
+  // buffer sizes
+  const std::size_t positionBufferSize = SoAPosition::computeDataSize(elems);
+  const std::size_t pcaBufferSize = SoAPCA::computeDataSize(elems);
+
+  // memory buffer for the SoA of positions
+  std::unique_ptr<std::byte, decltype(std::free) *> bufferPos{
+      reinterpret_cast<std::byte *>(aligned_alloc(SoAPosition::alignment, positionBufferSize)), std::free};
+  // memory buffer for the SoA of the PCA
+  std::unique_ptr<std::byte, decltype(std::free) *> bufferPCA{
+      reinterpret_cast<std::byte *>(aligned_alloc(SoAPCA::alignment, pcaBufferSize)), std::free};
+
+  // SoA Layouts
+  SoAPosition position{bufferPos.get(), elems};
+  SoAPCA pca{bufferPCA.get(), elems};
+
+  // SoA Views
+  SoAPositionView positionView{position};
+  SoAPositionConstView positionConstView{position};
+  SoAPCAView pcaView{pca};
+  SoAPCAConstView pcaConstView{pca};
+
+  // fill up
+  for (size_t i = 0; i < elems; i++) {
+    positionView[i] = {i * 1.0f, i * 2.0f, i * 3.0f};
+  }
+  positionView.detectorType() = 1;
+
+  float time = 0.01;
+  for (size_t i = 0; i < elems; i++) {
+    pcaView[i].eigenvector_1() = positionView[i].x() / time;
+    pcaView[i].eigenvector_2() = positionView[i].y() / time;
+    pcaView[i].eigenvector_3() = positionView[i].z() / time;
+    pcaView[i].candidateDirection()(0) = positionView[i].x() / time;
+    pcaView[i].candidateDirection()(1) = positionView[i].y() / time;
+    pcaView[i].candidateDirection()(2) = positionView[i].z() / time;
+  }
+
+  const auto posRecs = positionView.records();
+  const auto pcaRecs = pcaView.records();
+
+  // building the View with runtime check for the size
+  REQUIRE_THROWS_MATCHES(
+      GenericSoAView(posRecs.x(), posRecs.y(), posRecs.z(), pcaRecs.candidateDirection()),
+      std::runtime_error,
+      Catch::Matchers::Message(
+          "In constructor by column pointers: stride not equal between eigen columns: candidateDirection"));
 }

@@ -65,7 +65,7 @@ namespace cms::alpakatools {
       pbv.offSize = -1;
       pbv.offStorage = nullptr;
       pbv.contentSize = hostData.nHits();
-      pbv.contentStorage = hostData.view().phiBinnerStorage();
+      pbv.contentStorage = hostData.view().phiBinnerStorage().data();
       hostData.view().phiBinner().initStorage(pbv);
     }
   };
