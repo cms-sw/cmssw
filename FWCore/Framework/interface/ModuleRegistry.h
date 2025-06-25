@@ -36,9 +36,6 @@ namespace edm {
   struct MakeModuleParams;
   class ModuleDescription;
   class PreallocationConfiguration;
-  namespace maker {
-    class ModuleHolder;
-  }
 
   class ModuleRegistry {
   public:
@@ -106,11 +103,6 @@ namespace edm {
         iFunc(t);
       }
     }
-
-    void finishModulesInitialization(ProductRegistry const& iRegistry,
-                                     eventsetup::ESRecordsToProductResolverIndices const& iESIndices,
-                                     ProcessBlockHelperBase const& processBlockHelperBase,
-                                     std::string const& processName);
 
     unsigned int maxModuleID() const { return maxModuleID_; }
 
