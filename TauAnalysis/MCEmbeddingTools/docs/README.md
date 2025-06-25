@@ -3,12 +3,12 @@
 The Tau Embedding runs in four steps:
 
 1. Selection events with two muons
-2. Cleaning the events from the two muons 
-3. Simulating the Z-> tau tau events 
-4. Merging the Simulated and Cleand event
+2. Cleaning the events from the two muons
+3. Simulating the Z -> tau tau events
+4. Merging the Simulated and Cleaned event
 
-In all of this step the RECO seqeunce hast to be runned. So just take the common CMSDriver.py commands, add the embedding customiser and save RAWRECO (and in merge step only MINIAODSIM). 
-The input of the first step must be RAW, and the inputs of the other samples are step before. 
+The RECO sequence must be run through for all these steps.
+The input of the first step must be RAW, and the inputs of the other samples are the outputs of the step before.
 
 1. **Selection**
 
@@ -31,7 +31,7 @@ The input of the first step must be RAW, and the inputs of the other samples are
 2. **LHE and Cleaning**
 
    In this step two things are done:
-   - The LHEProducer is run to generate the LHE file for the Z-> tau tau events in the USER step.
+   - The LHEProducer is run to generate the LHE file for the Z -> tau tau events in the USER step.
    - The energy deposits of the two muons selected in the previous step are removed from the event record. This is done by modifying the RECO sequence by replacing some producers with special cleaning producers.
 
    This step can be modified using the following `--procModifiers` options:
@@ -89,7 +89,7 @@ The input of the first step must be RAW, and the inputs of the other samples are
 
    2. **HLT**
 
-      The HLT needs to be run with the same menu as used for the data taking. Therefore this steps may needs to be run in an older CMSSW version, where the HLT menu is still available.
+      The HLT needs to be run with the same menu as used for the data taking. Therefore, this steps may need to be run in an older CMSSW version, where the HLT menu is still available.
 
       ```bash
       cmsDriver.py \
