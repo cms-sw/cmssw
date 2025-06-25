@@ -12,6 +12,7 @@ from HLTrigger.NGTScouting.hltMuons_cfi import *
 from HLTrigger.NGTScouting.hltTracks_cfi import *
 from HLTrigger.NGTScouting.hltJets_cfi import *
 from HLTrigger.NGTScouting.hltTaus_cfi import *
+from HLTrigger.NGTScouting.hltTracksters_cfi import *
 from HLTrigger.NGTScouting.hltTriggerAcceptFilter_cfi import hltTriggerAcceptFilter,dstTriggerAcceptFilter
 
 hltNanoProducer = cms.Sequence(
@@ -29,6 +30,7 @@ hltNanoProducer = cms.Sequence(
     + hltMuonTable
     + hltPFCandidateTable
     + hltJetTable
+    + hltTrackstersTable
 )
 
 dstNanoProducer = cms.Sequence(
@@ -47,6 +49,7 @@ dstNanoProducer = cms.Sequence(
     + hltPFCandidateTable
     + hltJetTable
     + hltTauTable
+    + hltTrackstersTable
 )
 
 def hltNanoCustomize(process):
@@ -62,5 +65,11 @@ def hltNanoCustomize(process):
                 [p for p in process.paths if p.startswith('HLT_') or p.startswith('DST_')]
             )
         )
+
+    return process
+
+def hltNanoValCustomize(process):
+    if hasattr(process, "dstNanoProducer"):
+        process.dstNanoProducer += (process.hltTrackstersAssociationOneToManyTable + process.hltSimCl2CPOneToOneFlatTable)
 
     return process
