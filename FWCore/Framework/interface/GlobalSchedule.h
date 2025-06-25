@@ -112,7 +112,7 @@ namespace edm {
                          std::exception_ptr&);
 
     std::vector<WorkerManager> workerManagers_;
-    std::vector<bool> beginJobCalledForModule_;
+    std::vector<unsigned int> beginJobFailedForModule_;
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
     std::vector<edm::propagate_const<WorkerPtr>> extraWorkers_;
     ProcessContext const* processContext_;

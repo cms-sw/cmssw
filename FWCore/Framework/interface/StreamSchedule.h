@@ -309,7 +309,7 @@ namespace edm {
 
     void handleException(StreamContext const&, bool cleaningUpAfterException, std::exception_ptr&) const noexcept;
 
-    std::vector<bool> moduleBeginStreamCalled_;
+    std::vector<unsigned int> moduleBeginStreamFailed_;
     WorkerManager workerManagerRuns_;
     WorkerManager workerManagerLumisAndEvents_;
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.

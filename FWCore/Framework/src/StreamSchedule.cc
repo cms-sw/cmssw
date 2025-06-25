@@ -984,7 +984,7 @@ namespace edm {
     std::exception_ptr exceptionInStream;
     CMS_SA_ALLOW try {
       preScheduleSignal<BeginStreamTraits>(&streamContext_);
-      runBeginStreamForModules(streamContext_, iModuleRegistry, *actReg_, moduleBeginStreamCalled_);
+      runBeginStreamForModules(streamContext_, iModuleRegistry, *actReg_, moduleBeginStreamFailed_);
     } catch (...) {
       exceptionInStream = std::current_exception();
     }
@@ -1015,7 +1015,7 @@ namespace edm {
     CMS_SA_ALLOW try {
       preScheduleSignal<EndStreamTraits>(&streamContext_);
       runEndStreamForModules(
-          streamContext_, iModuleRegistry, *actReg_, collector, collectorMutex, moduleBeginStreamCalled_);
+          streamContext_, iModuleRegistry, *actReg_, collector, collectorMutex, moduleBeginStreamFailed_);
     } catch (...) {
       exceptionInStream = std::current_exception();
     }
@@ -1033,12 +1033,10 @@ namespace edm {
     for (auto const& worker : allWorkersRuns()) {
       if (worker->description()->moduleLabel() == iLabel) {
         iMod->replaceModuleFor(worker);
-        moduleBeginStreamCalled_.resize(iMod->moduleDescription().id() + 1, true);
-        moduleBeginStreamCalled_[iMod->moduleDescription().id()] = false;
         try {
           convertException::wrap([&] { iMod->beginStream(streamID_); });
-          moduleBeginStreamCalled_.clear();
         } catch (cms::Exception& ex) {
+          moduleBeginStreamFailed_.emplace_back(iMod->moduleDescription().id());
           ex.addContext("Executing StreamSchedule::replaceModule");
           throw;
         }

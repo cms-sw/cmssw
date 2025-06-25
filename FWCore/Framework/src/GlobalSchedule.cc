@@ -15,6 +15,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
+#include "FWCore/Utilities/interface/make_sentry.h"
 
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
@@ -100,7 +101,7 @@ namespace edm {
     }
     if (not exceptionPtr) {
       try {
-        runBeginJobForModules(gc, modReg, *actReg_, beginJobCalledForModule_);
+        runBeginJobForModules(gc, modReg, *actReg_, beginJobFailedForModule_);
       } catch (cms::Exception& ex) {
         if (!exceptionPtr) {
           ex.addContext(globalContext);
@@ -134,7 +135,7 @@ namespace edm {
       exceptionPtr = std::current_exception();
     }
     if (not exceptionPtr) {
-      runEndJobForModules(gc, modReg, *actReg_, collector, beginJobCalledForModule_);
+      runEndJobForModules(gc, modReg, *actReg_, collector, beginJobFailedForModule_);
     }
 
     try {
@@ -167,16 +168,10 @@ namespace edm {
       iMod->replaceModuleFor(found);
       ++managerIndex;
     }
-    bool wasEmpty = beginJobCalledForModule_.empty();
-    if (iMod->moduleDescription().id() >= beginJobCalledForModule_.size()) {
-      beginJobCalledForModule_.resize(iMod->moduleDescription().id() + 1, true);
-    }
-    beginJobCalledForModule_[iMod->moduleDescription().id()] = false;
+    auto sentry = make_sentry(
+        iMod, [&](auto const* mod) { beginJobFailedForModule_.emplace_back(mod->moduleDescription().id()); });
     iMod->beginJob();
-    beginJobCalledForModule_[iMod->moduleDescription().id()] = true;
-    if (wasEmpty) {
-      beginJobCalledForModule_.clear();
-    }
+    sentry.release();
   }
 
   void GlobalSchedule::deleteModule(std::string const& iLabel) {
