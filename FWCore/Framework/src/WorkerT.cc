@@ -572,7 +572,6 @@ namespace edm {
     module_->doEndStream(id);
   }
 
-
   template <typename T>
   inline void WorkerT<T>::implRespondToOpenInputFile(FileBlock const& fb) {
     module_->doRespondToOpenInputFile(fb);
