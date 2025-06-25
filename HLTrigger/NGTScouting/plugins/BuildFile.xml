@@ -1,3 +1,4 @@
+<use name="FWCore/Common"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
@@ -7,7 +8,11 @@
 <use name="DataFormats/NanoAOD"/>
 <use name="RecoVertex/VertexTools"/>
 <use name="DataFormats/Common"/>
+<use name="DataFormats/HGCalReco"/>
 <use name="DataFormats/PatCandidates"/>
 <use name="DataFormats/ParticleFlowCandidate"/>
+<use name="DataFormats/StdDictionaries"/>
 <use name="PhysicsTools/NanoAOD"/>
 <use name="DataFormats/Scouting"/>
+<use name="boost"/>
+
