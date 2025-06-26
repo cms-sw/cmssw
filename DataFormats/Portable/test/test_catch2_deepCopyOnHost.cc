@@ -18,7 +18,6 @@ using SoAPositionView = SoAPosition::View;
 using SoAPositionConstView = SoAPosition::ConstView;
 
 GENERATE_SOA_LAYOUT(SoAPCATemplate,
-                    SOA_COLUMN(float, eigenvalues),
                     SOA_COLUMN(float, eigenvector_1),
                     SOA_COLUMN(float, eigenvector_2),
                     SOA_COLUMN(float, eigenvector_3),
@@ -116,10 +115,13 @@ TEST_CASE("Deep copy from SoA Generic View") {
     genericCollection.deepCopy(genericConstView);
 
     // Check for inequality of memory addresses
-    REQUIRE(genericCollection.view().metadata().addressOf_xPos() != positionCollectionView.metadata().addressOf_x());
-    REQUIRE(genericCollection.view().metadata().addressOf_yPos() != positionCollectionView.metadata().addressOf_y());
-    REQUIRE(genericCollection.view().metadata().addressOf_zPos() != positionCollectionView.metadata().addressOf_z());
-    REQUIRE(genericCollection.view().metadata().addressOf_candidateDirection() !=
+    REQUIRE(genericCollection.const_view().metadata().addressOf_xPos() !=
+            positionCollectionView.metadata().addressOf_x());
+    REQUIRE(genericCollection.const_view().metadata().addressOf_yPos() !=
+            positionCollectionView.metadata().addressOf_y());
+    REQUIRE(genericCollection.const_view().metadata().addressOf_zPos() !=
+            positionCollectionView.metadata().addressOf_z());
+    REQUIRE(genericCollection.const_view().metadata().addressOf_candidateDirection() !=
             pcaCollectionView.metadata().addressOf_candidateDirection());
   }
 }

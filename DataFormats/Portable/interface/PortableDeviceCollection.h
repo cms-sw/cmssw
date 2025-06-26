@@ -48,6 +48,28 @@ public:
     assert(reinterpret_cast<uintptr_t>(buffer_->data()) % Layout::alignment == 0);
   }
 
+  template <typename L = Layout>
+    requires requires { L::blocksNumber; }
+  PortableDeviceCollection(std::array<int32_t, L::blocksNumber> const& elements, TDev const& device)
+      // allocate pageable host memory
+      : buffer_{cms::alpakatools::make_device_buffer<std::byte[]>(device, L::computeDataSize(elements))},
+        layout_{buffer_->data(), elements},
+        view_{layout_} {
+    // Alpaka set to a default alignment of 128 bytes defining ALPAKA_DEFAULT_HOST_MEMORY_ALIGNMENT=128
+    assert(reinterpret_cast<uintptr_t>(buffer_->data()) % L::alignment == 0);
+  }
+
+  template <typename TQueue, typename L = Layout, typename = std::enable_if_t<alpaka::isQueue<TQueue>>>
+    requires requires { L::blocksNumber; }
+  PortableDeviceCollection(std::array<int32_t, L::blocksNumber> const& elements, TQueue const& queue)
+      // allocate pinned host memory associated to the given work queue, accessible by the queue's device
+      : buffer_{cms::alpakatools::make_device_buffer<std::byte[]>(queue, L::computeDataSize(elements))},
+        layout_{buffer_->data(), elements},
+        view_{layout_} {
+    // Alpaka set to a default alignment of 128 bytes defining ALPAKA_DEFAULT_HOST_MEMORY_ALIGNMENT=128
+    assert(reinterpret_cast<uintptr_t>(buffer_->data()) % L::alignment == 0);
+  }
+
   // non-copyable
   PortableDeviceCollection(PortableDeviceCollection const&) = delete;
   PortableDeviceCollection& operator=(PortableDeviceCollection const&) = delete;
@@ -82,7 +104,9 @@ public:
   }
 
   // Copy column by column heterogeneously for device to host/device data transfer.
-  template <typename TQueue>
+  // TODO: implement heterogeneous deepCopy for SoA blocks
+  template <typename TQueue, typename L = Layout>
+    requires(!requires { L::blocksNumber; })
   void deepCopy(ConstView const& view, TQueue& queue) {
     ConstDescriptor desc{view};
     Descriptor desc_{view_};
