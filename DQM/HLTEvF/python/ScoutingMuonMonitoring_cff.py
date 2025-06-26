@@ -10,4 +10,4 @@ ScoutingMuonTagProbeAnalysisVtxOnline = ScoutingMuonTagProbeAnalysisVtx.clone(Ou
 ScoutingMuonTriggerAnalysis_DoubleMu = ScoutingMuonTriggerAnalysis_DoubleMu.clone(OutputInternalPath = "/HLT/ScoutingOnline/Muons/L1Efficiency/DoubleMu")
 ScoutingMuonTriggerAnalysis_SingleMu = ScoutingMuonTriggerAnalysis_SingleMu.clone(OutputInternalPath = "/HLT/ScoutingOnline/Muons/L1Efficiency/SingleMu")
 
-ScoutingMuonMonitoring = cms.Sequence( ScoutingMuonTagProbeAnalysisNoVtxOnline + ScoutingMuonTagProbeAnalysisVtxOnline + ScoutingMuonTriggerAnalysis_DoubleMu + ScoutingMuonTriggerAnalysis_SingleMu ) 
+ScoutingMuonMonitoring = cms.Sequence( ScoutingMuonTagProbeAnalysisNoVtxOnline + ScoutingMuonTagProbeAnalysisVtxOnline + ScoutingMuonTriggerAnalysis_DoubleMu + ScoutingMuonTriggerAnalysis_SingleMu )

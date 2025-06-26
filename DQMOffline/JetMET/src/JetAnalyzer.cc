@@ -238,7 +238,8 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   // ==========================================================
   edm::ConsumesCollector iC = consumesCollector();
   DCSFilterForJetMonitoring_ = new JetMETDQMDCSFilter(pSet.getParameter<ParameterSet>("DCSFilterForJetMonitoring"), iC);
-  DCSFilterForDCSMonitoring_ = new JetMETDQMDCSFilter("ecal:hbhe:hf:ho:pixel:sistrip:es:muon", iC);
+  DCSFilterForDCSMonitoring_ = new JetMETDQMDCSFilter(
+      pSet.getParameter<ParameterSet>("DCSFilterForJetMonitoring"), "ecal:hbhe:hf:ho:pixel:sistrip:es:muon", iC);
 
   //Trigger selectoin
   edm::ParameterSet highptjetparms = pSet.getParameter<edm::ParameterSet>("highPtJetTrigger");
