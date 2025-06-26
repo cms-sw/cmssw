@@ -100,7 +100,6 @@ namespace edm {
       void doEndLuminosityBlock(LumiTransitionInfo const&, ModuleCallingContext const*);
 
       void doRespondToCloseOutputFile() { clearInputProcessBlockCaches(); }
-      void doRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) {}
 
       void registerProductsAndCallbacks(EDAnalyzerBase* module, SignallingProductRegistryFiller* reg);
 
