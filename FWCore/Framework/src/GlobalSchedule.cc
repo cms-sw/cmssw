@@ -154,7 +154,6 @@ namespace edm {
 
   void GlobalSchedule::replaceModule(maker::ModuleHolder* iMod, std::string const& iLabel) {
     Worker* found = nullptr;
-    unsigned int managerIndex = 0;
     for (auto& wm : workerManagers_) {
       for (auto const& worker : wm.allWorkers()) {
         if (worker->description()->moduleLabel() == iLabel) {
@@ -166,7 +165,6 @@ namespace edm {
         return;
       }
       iMod->replaceModuleFor(found);
-      ++managerIndex;
     }
     auto sentry = make_sentry(
         iMod, [&](auto const* mod) { beginJobFailedForModule_.emplace_back(mod->moduleDescription().id()); });

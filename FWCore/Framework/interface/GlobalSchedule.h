@@ -117,7 +117,7 @@ namespace edm {
     std::vector<edm::propagate_const<WorkerPtr>> extraWorkers_;
     ProcessContext const* processContext_;
 
-    // The next 4 variables use the same naming convention, even though we have no intention
+    // The next 3 variables use the same naming convention, even though we have no intention
     // to ever have concurrent ProcessBlocks. They are all related to the number of
     // WorkerManagers needed for global transitions.
     unsigned int numberOfConcurrentLumis_;

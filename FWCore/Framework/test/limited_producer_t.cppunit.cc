@@ -403,7 +403,6 @@ testLimitedProducer::testLimitedProducer()
 
   //For each transition, bind a lambda which will call the proper method of the Worker
   m_transToFunc[Trans::kBeginStream] = [](edm::Worker* iBase, edm::maker::ModuleHolder* iHolder) {
-    edm::StreamContext streamContext(s_streamID0, nullptr);
     iHolder->beginStream(s_streamID0);
   };
 
