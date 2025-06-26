@@ -58,6 +58,9 @@
 #define _VALUE_TYPE_EIGEN_COLUMN 2
 #define _VALUE_TYPE_METHOD 3
 #define _VALUE_TYPE_CONST_METHOD 4
+#define _VALUE_TYPE_BLOCK 5
+#define _VALUE_TYPE_VIEW_METHOD 6
+#define _VALUE_TYPE_CONST_VIEW_METHOD 7
 
 /* declare the value of last valid column */
 #define _VALUE_LAST_COLUMN_TYPE _VALUE_TYPE_EIGEN_COLUMN
@@ -616,6 +619,9 @@ namespace cms::soa {
 #define SOA_EIGEN_COLUMN(TYPE, NAME) (_VALUE_TYPE_EIGEN_COLUMN, TYPE, NAME, ~)
 #define SOA_ELEMENT_METHODS(...) (_VALUE_TYPE_METHOD, _, _, (__VA_ARGS__))
 #define SOA_CONST_ELEMENT_METHODS(...) (_VALUE_TYPE_CONST_METHOD, _, _, (__VA_ARGS__))
+#define SOA_BLOCK(NAME, LAYOUT_NAME) (_VALUE_TYPE_BLOCK, NAME, LAYOUT_NAME)
+#define SOA_VIEW_METHODS(...) (_VALUE_TYPE_VIEW_METHOD, _, (__VA_ARGS__))
+#define SOA_CONST_VIEW_METHODS(...) (_VALUE_TYPE_CONST_VIEW_METHOD, _, (__VA_ARGS__))
 
 /* Macro generating customized methods for the element */
 #define GENERATE_METHODS(R, DATA, FIELD)                                         \
@@ -627,6 +633,18 @@ namespace cms::soa {
 #define GENERATE_CONST_METHODS(R, DATA, FIELD)                                         \
   BOOST_PP_IF(BOOST_PP_EQUAL(BOOST_PP_TUPLE_ELEM(0, FIELD), _VALUE_TYPE_CONST_METHOD), \
               BOOST_PP_TUPLE_ELEM(3, FIELD),                                           \
+              BOOST_PP_EMPTY())
+
+/* Macro generating customized methods for the element */
+#define GENERATE_VIEW_METHODS(R, DATA, FIELD)                                         \
+  BOOST_PP_IF(BOOST_PP_EQUAL(BOOST_PP_TUPLE_ELEM(0, FIELD), _VALUE_TYPE_VIEW_METHOD), \
+              BOOST_PP_TUPLE_ELEM(2, FIELD),                                          \
+              BOOST_PP_EMPTY())
+
+/* Macro generating customized methods for the const element*/
+#define GENERATE_CONST_VIEW_METHODS(R, DATA, FIELD)                                         \
+  BOOST_PP_IF(BOOST_PP_EQUAL(BOOST_PP_TUPLE_ELEM(0, FIELD), _VALUE_TYPE_CONST_VIEW_METHOD), \
+              BOOST_PP_TUPLE_ELEM(2, FIELD),                                                \
               BOOST_PP_EMPTY())
 
 /* Preprocessing loop for managing functions generation: only macros containing valid content are expanded */

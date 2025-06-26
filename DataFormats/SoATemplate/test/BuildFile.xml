@@ -37,6 +37,28 @@
   <use name="DataFormats/SoATemplate"/>
 </bin>
 
+<bin file="SoABlocks_t.cc" name="SoABlocks_t">
+  <use name="boost"/>
+  <use name="catch2"/>
+  <use name="eigen"/>
+  <use name="DataFormats/SoATemplate"/>
+</bin>
+
+<bin file="SoAGenericBlocksView_t.cc" name="SoAGenericBlocks_t">
+  <use name="boost"/>
+  <use name="catch2"/>
+  <use name="eigen"/>
+  <use name="DataFormats/SoATemplate"/>
+</bin>
+
+<bin file="AssociationMapSoA_t.cc" name="SoAMap">
+  <use name="boost"/>
+  <use name="catch2"/>
+  <use name="eigen"/>
+  <use name="DataFormats/SoATemplate"/>
+  <use name="DataFormats/Portable"/>
+</bin>
+
 <!-- This test triggers a bug in ROOT, so it's kept disabled
 <bin file="SoAStreamer_t.cpp" name="SoAStreamer_t">
   <use name="root"/>
