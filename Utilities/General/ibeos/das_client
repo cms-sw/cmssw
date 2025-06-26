@@ -66,17 +66,14 @@ if [ "${FORMAT}" = "json" ]  ; then
   fi
 else
   QUERY_RESULTS=$((curl -f -L -s "${QUERY_URL}" || true) | grep /store/ | sed 's| ||g;s|"||g;s|,||g')
-  [ $((get_parent_cmds $$ 0 2>&1 || true) | grep -a '/cmsDriver.py' | wc -l) -gt 0 ] && LIMIT_RESULTS="YES"
+  export CMSSW_LIMIT_RESULTS="-0"
+  [ $((get_parent_cmds $$ 0 2>&1 || true) | grep -a '/cmsDriver.py' | wc -l) -gt 0 ] && export CMSSW_LIMIT_RESULTS="20"
   if [ "${QUERY_RESULTS}" = "" ] ; then
     ${ORIG_DAS_CLIENT} "$@" > ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.out
   else
     echo "${QUERY_RESULTS}" > ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.out
   fi
 fi
-echo $LIMIT_RESULTS >> ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.info
-if [ "$LIMIT_RESULTS" = "YES" ] ; then
-  cat ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.out | ibeos-lfn-sort > ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.selected
-  cat ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.selected
-else
-  cat ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.out
-fi
+echo $CMSSW_LIMIT_RESULTS >> ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.info
+cat ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.out | ibeos-lfn-sort > ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.selected
+cat ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.selected
