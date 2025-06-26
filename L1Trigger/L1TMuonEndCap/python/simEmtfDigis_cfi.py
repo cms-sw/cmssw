@@ -125,7 +125,7 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
         BugGMTPhi       = cms.bool(False), # Some drift in uGMT phi conversion, off by up to a few degrees
         PromoteMode7    = cms.bool(False), # Assign station 2-3-4 tracks with |eta| > 1.6 SingleMu quality
         ModeQualVer     = cms.int32(2),    # Version 2 contains modified mode-quality mapping for 2018
-
+        PromoteMode7Sectors = cms.vint32(-1), # Sectors to promote mode 7 tracks in Run 2 and Run 3, -1 for all sectors
         ProtobufFileName = cms.string('model_graph.displ.16.pb'), # Protobuf file name to be used by NN based pT assignment NNv16 is online since 26.06.2023
     ),
 
@@ -165,3 +165,7 @@ stage2L1Trigger_2018.toModify(simEmtfDigis, RPCEnable = True, Era = 'Run2_2018')
 ## Era: Run3_2021
 from Configuration.Eras.Modifier_stage2L1Trigger_2021_cff import stage2L1Trigger_2021
 stage2L1Trigger_2021.toModify(simEmtfDigis, RPCEnable = True, UseRun3CCLUT_OTMB = True, Era = 'Run3_2021')
+
+## Era: Run3_2025
+from Configuration.Eras.Modifier_stage2L1Trigger_2025_cff import stage2L1Trigger_2025
+stage2L1Trigger_2025.toModify(simEmtfDigis, RPCEnable = True, UseRun3CCLUT_OTMB = True, spPAParams16 = dict(PromoteMode7Sectors = {+3, +4}), Era = 'Run3_2025')

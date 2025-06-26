@@ -3,7 +3,6 @@
 
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
-#include "DataFormats/SoATemplate/interface/SoAView.h"
 
 // SoA layout with delta, rho, weight, nearestHigher, clusterIndex, layer, isSeed, and cellsCount fields
 GENERATE_SOA_LAYOUT(HGCalSoARecHitsExtraLayout,
