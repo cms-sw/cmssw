@@ -13,7 +13,6 @@
 
 class SourceIdNumbering {
 public:
-
   enum {
     //dummy range definition for testing. This is not stable and will possible be reassigned
     MinDummySourceID = 0xfffffff0,

@@ -26,7 +26,6 @@
 using namespace std;
 using namespace edm;
 
-
 DaqFakeReader::DaqFakeReader(const edm::ParameterSet& pset)
     : runNum(1),
       eventNum(1),
@@ -70,7 +69,6 @@ DaqFakeReader::DaqFakeReader(const edm::ParameterSet& pset)
   produces<RawDataBuffer>();
 }
 
-
 int DaqFakeReader::fillRawData(Event& e, RawDataBuffer*& data) {
   // a null pointer is passed, need to allocate the fed collection
   totSize_ = 0;
@@ -78,8 +76,7 @@ int DaqFakeReader::fillRawData(Event& e, RawDataBuffer*& data) {
   logSizeIndex_ = 0;
 
   if (!empty_events) {
-
-      getSizes(FEDNumbering::MINSiPixelFEDID, FEDNumbering::MAXSiPixelFEDID, meansize, width);
+    getSizes(FEDNumbering::MINSiPixelFEDID, FEDNumbering::MAXSiPixelFEDID, meansize, width);
     if (haveSiStrip_)
       getSizes(FEDNumbering::MINSiStripFEDID, FEDNumbering::MAXSiStripFEDID, meansize, width);
     if (haveECAL_)
@@ -128,7 +125,6 @@ int DaqFakeReader::fillRawData(Event& e, RawDataBuffer*& data) {
   return 1;
 }
 
-
 void DaqFakeReader::produce(Event& e, EventSetup const& es) {
   RawDataBuffer* fedbuffer = nullptr;
   fillRawData(e, fedbuffer);
@@ -136,9 +132,7 @@ void DaqFakeReader::produce(Event& e, EventSetup const& es) {
   e.put(std::move(bare_product));
 }
 
-
-void DaqFakeReader::getSizes(
-    const int fedmin, const int fedmax, float meansize, float width) {
+void DaqFakeReader::getSizes(const int fedmin, const int fedmax, float meansize, float width) {
   // FIXME: last ID included?
   for (int fedId = fedmin; fedId <= fedmax; ++fedId) {
     // Generate size...
@@ -150,7 +144,6 @@ void DaqFakeReader::getSizes(
   }
 }
 
- 
 void DaqFakeReader::fillFEDs(
     const int fedmin, const int fedmax, EventID& eID, RawDataBuffer& data, float meansize, float width) {
   // FIXME: last ID included?
@@ -163,8 +156,6 @@ void DaqFakeReader::fillFEDs(
     size -= size % 8;  // all blocks aligned to 64 bit words
 
     unsigned char* feddata = data.addSource(fedId, nullptr, size + 16);
-
-
 
     if (fillRandom_) {
       //fill FED with random values
@@ -185,7 +176,6 @@ void DaqFakeReader::fillFEDs(
                    0,            // BX_id
                    fedId);       // source_id
 
-
     // Generate trailer
     int crc = 0;  // FIXME : get CRC
     FEDTrailer::set(feddata + 8 + size,
@@ -195,7 +185,6 @@ void DaqFakeReader::fillFEDs(
                     0);  // TTS bits
   }
 }
-
 
 void DaqFakeReader::fillTCDSFED(EventID& eID, RawDataBuffer& data, uint32_t ls, timeval* now) {
   uint32_t fedId = tcdsFEDID_;
@@ -235,12 +224,10 @@ void DaqFakeReader::fillTCDSFED(EventID& eID, RawDataBuffer& data, uint32_t ls, 
                   0);  // TTS bits
 }
 
-
 void DaqFakeReader::beginLuminosityBlock(LuminosityBlock const& iL, EventSetup const& iE) {
   std::cout << "DaqFakeReader begin Lumi " << iL.luminosityBlock() << std::endl;
   fakeLs_ = iL.luminosityBlock();
 }
-
 
 void DaqFakeReader::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;

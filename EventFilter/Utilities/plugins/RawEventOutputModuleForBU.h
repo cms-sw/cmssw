@@ -95,7 +95,7 @@ void RawEventOutputModuleForBU<Consumer>::write(edm::EventForOutput const& e) {
   // determine the expected size of the FRDEvent IN bytes
   int headerSize = edm::streamer::FRDHeaderVersionSize[frdVersion_];
   int expectedSize = headerSize;
-  int nFeds = FEDNumbering::lastFEDId() + 1; //TODO!
+  int nFeds = FEDNumbering::lastFEDId() + 1;  //TODO!
 
   if (!sourceIdList_.empty()) {
     for (int idx : sourceIdList_) {
@@ -141,7 +141,7 @@ void RawEventOutputModuleForBU<Consumer>::write(edm::EventForOutput const& e) {
       bufPtr += singleFED.size() / 4;
     }
   } else {
-    for (auto it = fedBuffer->map().begin();  it != fedBuffer->map().end(); it++) {
+    for (auto it = fedBuffer->map().begin(); it != fedBuffer->map().end(); it++) {
       auto singleFED = fedBuffer->fragmentData(it);
       memcpy(bufPtr, &singleFED.data()[0], singleFED.size());
       bufPtr += singleFED.size() / 4;

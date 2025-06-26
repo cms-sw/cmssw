@@ -99,7 +99,6 @@ private:
       eoe_ : 8 = SLR_EOE;
 };
 
-
 /*
  * version-independent header view parent class
  * */
@@ -112,9 +111,8 @@ public:
   virtual uint8_t l1aPhysType() const = 0;
   virtual uint8_t emuStatus() const = 0;
   virtual uint64_t globalEventID() const = 0;
-  virtual uint8_t version()  const = 0;
+  virtual uint8_t version() const = 0;
   virtual bool verifyMarker() const = 0;
-
 };
 
 /*
@@ -123,38 +121,40 @@ public:
 
 class SLinkRocketHeaderView_v3 : public SLinkRocketHeaderView {
 public:
-
-  SLinkRocketHeaderView_v3(const void * header): header_(static_cast<const SLinkRocketHeader_v3*>(header)) {}
+  SLinkRocketHeaderView_v3(const void* header) : header_(static_cast<const SLinkRocketHeader_v3*>(header)) {}
 
   uint32_t sourceID() const override { return header_->sourceID(); }
   uint16_t l1aTypes() const override { return header_->l1aTypes(); }
   uint8_t l1aPhysType() const override { return header_->l1aPhysType(); }
   uint8_t emuStatus() const override { return header_->emuStatus(); }
   uint64_t globalEventID() const override { return header_->globalEventID(); }
-  uint8_t version()  const override { return header_->version(); }
-  bool verifyMarker() const override { return header_->verifyMarker(); } 
+  uint8_t version() const override { return header_->version(); }
+  bool verifyMarker() const override { return header_->verifyMarker(); }
 
 private:
-  const SLinkRocketHeader_v3 * header_;
+  const SLinkRocketHeader_v3* header_;
 };
 
-static inline std::unique_ptr<SLinkRocketHeaderView> makeSLinkRocketHeaderView(const void * buf) {
+static inline std::unique_ptr<SLinkRocketHeaderView> makeSLinkRocketHeaderView(const void* buf) {
   auto version = static_cast<const SLinkRocketHeader_version*>(buf)->version();
   if (version == 3)
-    return std::unique_ptr<SLinkRocketHeaderView>(static_cast<SLinkRocketHeaderView*>(new SLinkRocketHeaderView_v3(buf)));
-  throw cms::Exception("SLinkRocketHeaderView::makeView") << "unknown SLinkRocketHeader version: " << (unsigned int)version;
+    return std::unique_ptr<SLinkRocketHeaderView>(
+        static_cast<SLinkRocketHeaderView*>(new SLinkRocketHeaderView_v3(buf)));
+  throw cms::Exception("SLinkRocketHeaderView::makeView")
+      << "unknown SLinkRocketHeader version: " << (unsigned int)version;
 }
 
 static inline std::unique_ptr<SLinkRocketHeaderView> makeSLinkRocketHeaderView(std::span<const unsigned char> const& s) {
   if (s.size() < sizeof(SLinkRocketHeader_version))
-    throw cms::Exception("SLinkRocketHeaderView::makeView") << "size is smaller than SLink header version fields: " << s.size();
+    throw cms::Exception("SLinkRocketHeaderView::makeView")
+        << "size is smaller than SLink header version fields: " << s.size();
   auto version = static_cast<const SLinkRocketHeader_version*>(static_cast<const void*>(&s[0]))->version();
   if (version == 3 && s.size() != sizeof(SLinkRocketHeader_v3))
-    throw cms::Exception("SLinkRocketHeaderView::makeView") << "SLinkRocketHeader v3 size mismatch: got " << s.size() << " expected:" << sizeof(SLinkRocketHeader_v3) << " bytes";
-    
+    throw cms::Exception("SLinkRocketHeaderView::makeView") << "SLinkRocketHeader v3 size mismatch: got " << s.size()
+                                                            << " expected:" << sizeof(SLinkRocketHeader_v3) << " bytes";
+
   return makeSLinkRocketHeaderView(static_cast<const void*>(&s[0]));
 }
-
 
 /*
  * version-independent trailer view parent class
@@ -178,7 +178,7 @@ public:
 
 class SLinkRocketTrailerView_v3 : public SLinkRocketTrailerView {
 public:
-  SLinkRocketTrailerView_v3(const void * trailer): trailer_(static_cast<const SLinkRocketTrailer_v3*>(trailer)) {}
+  SLinkRocketTrailerView_v3(const void* trailer) : trailer_(static_cast<const SLinkRocketTrailer_v3*>(trailer)) {}
   uint16_t status() const override { return trailer_->status(); }
   uint16_t crc() const override { return trailer_->crc(); }
   uint32_t orbitID() const override { return trailer_->orbitID(); }
@@ -186,19 +186,25 @@ public:
   uint32_t eventLenBytes() const override { return trailer_->eventLenBytes(); }
   uint16_t daqCRC() const override { return trailer_->daqCRC(); }
   bool verifyMarker() const override { return trailer_->verifyMarker(); }
+
 private:
-  const SLinkRocketTrailer_v3 * trailer_;
+  const SLinkRocketTrailer_v3* trailer_;
 };
 
-static inline std::unique_ptr<SLinkRocketTrailerView> makeSLinkRocketTrailerView(const void * buf, uint8_t version) {
+static inline std::unique_ptr<SLinkRocketTrailerView> makeSLinkRocketTrailerView(const void* buf, uint8_t version) {
   if (version == 3)
-    return std::unique_ptr<SLinkRocketTrailerView>(static_cast<SLinkRocketTrailerView*>( new SLinkRocketTrailerView_v3(buf)));
-  throw cms::Exception("SLinkRocketTrailerView::makeView") << "unknown SLinkRocketHeader version: " << (unsigned int)version;
+    return std::unique_ptr<SLinkRocketTrailerView>(
+        static_cast<SLinkRocketTrailerView*>(new SLinkRocketTrailerView_v3(buf)));
+  throw cms::Exception("SLinkRocketTrailerView::makeView")
+      << "unknown SLinkRocketHeader version: " << (unsigned int)version;
 }
 
-static inline std::unique_ptr<SLinkRocketTrailerView> makeSLinkRocketTrailerView(std::span<const unsigned char> const& s, uint8_t version) {
-  if (version == 3 &&  s.size() < sizeof(SLinkRocketTrailer_v3))
-    throw cms::Exception("SLinkRocketTrailerView::makeView") << "SLinkRocketTrailer v3 size mismatch: got " << s.size() << " expected " << sizeof(SLinkRocketTrailer_v3) << " bytes";
+static inline std::unique_ptr<SLinkRocketTrailerView> makeSLinkRocketTrailerView(
+    std::span<const unsigned char> const& s, uint8_t version) {
+  if (version == 3 && s.size() < sizeof(SLinkRocketTrailer_v3))
+    throw cms::Exception("SLinkRocketTrailerView::makeView")
+        << "SLinkRocketTrailer v3 size mismatch: got " << s.size() << " expected " << sizeof(SLinkRocketTrailer_v3)
+        << " bytes";
   return makeSLinkRocketTrailerView(static_cast<const void*>(&s[0]), version);
 }
 #endif

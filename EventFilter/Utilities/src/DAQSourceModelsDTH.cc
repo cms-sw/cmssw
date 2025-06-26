@@ -35,7 +35,6 @@
 using namespace evf;
 
 void DataModeDTH::readEvent(edm::EventPrincipal& eventPrincipal) {
-
   edm::EventID eventID = edm::EventID(daqSource_->eventRunNumber(), daqSource_->currentLumiSection(), nextEventID_);
 
   if (legacyFRDCollection_) {
@@ -50,8 +49,7 @@ void DataModeDTH::readEvent(edm::EventPrincipal& eventPrincipal) {
     std::unique_ptr<edm::WrapperBase> edp(new edm::Wrapper<FEDRawDataCollection>(std::move(rawData)));
     eventPrincipal.put(
         daqProvenanceHelpers_[0]->productDescription(), std::move(edp), daqProvenanceHelpers_[0]->dummyProvenance());
-  }
-  else {
+  } else {
     std::unique_ptr<RawDataBuffer> rawData(new RawDataBuffer(totalEventSize_));
     edm::Timestamp tstamp = fillFEDRawData(*rawData);
 
@@ -119,7 +117,6 @@ edm::Timestamp DataModeDTH::fillFEDRawDataCollection(FEDRawDataCollection& rawDa
   return tstamp;
 }
 
-
 edm::Timestamp DataModeDTH::fillFEDRawData(RawDataBuffer& rawData) {
   //generate timestamp for this event until parsing of TCDS2 data is available
   edm::TimeValue_t time;
@@ -161,15 +158,13 @@ edm::Timestamp DataModeDTH::fillFEDRawData(RawDataBuffer& rawData) {
     //const uint32_t crc16 = fedTrailer->crc();
 
     if (slrFragSize != fragSize)
-      throw cms::Exception("DAQSource::DAQSourceModelsDTH")
-          << "Fragment size mismatch. From DTHTrailer: " << fragSize << " and from SLinkRocket trailer: " << slrFragSize;
+      throw cms::Exception("DAQSource::DAQSourceModelsDTH") << "Fragment size mismatch. From DTHTrailer: " << fragSize
+                                                            << " and from SLinkRocket trailer: " << slrFragSize;
 
-    rawData.addSource(fedHeader->sourceID(), payload , fragSize);
-
+    rawData.addSource(fedHeader->sourceID(), payload, fragSize);
   }
   return tstamp;
 }
-
 
 std::vector<std::shared_ptr<const edm::DaqProvenanceHelper>>& DataModeDTH::makeDaqProvenanceHelpers() {
   //use also FRD data collection
@@ -184,7 +179,6 @@ std::vector<std::shared_ptr<const edm::DaqProvenanceHelper>>& DataModeDTH::makeD
 
   return daqProvenanceHelpers_;
 }
-
 
 void DataModeDTH::makeDataBlockView(unsigned char* addr, RawInputFile* rawFile) {
   //addr points to beginning of the main file orbit block

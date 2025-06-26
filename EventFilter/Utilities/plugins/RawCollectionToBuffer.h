@@ -23,7 +23,6 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 class RawCollectionToBuffer : public edm::one::EDProducer<> {
-
 public:
   explicit RawCollectionToBuffer(edm::ParameterSet const& ps);
   ~RawCollectionToBuffer() override {};
@@ -36,12 +35,11 @@ private:
   //std::vector<unsigned int> sourceIdList_;
 };
 
-inline RawCollectionToBuffer::RawCollectionToBuffer(edm::ParameterSet const& ps) :
-      token_(consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("source"))) {
-      //sourceIdList_(ps.getUntrackedParameter<std::vector<unsigned int>>("sourceIdList", std::vector<unsigned int>())) {
+inline RawCollectionToBuffer::RawCollectionToBuffer(edm::ParameterSet const& ps)
+    : token_(consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("source"))) {
+  //sourceIdList_(ps.getUntrackedParameter<std::vector<unsigned int>>("sourceIdList", std::vector<unsigned int>())) {
   produces<RawDataBuffer>();
 }
-
 
 inline void RawCollectionToBuffer::produce(edm::Event& e, edm::EventSetup const&) {
   edm::Handle<FEDRawDataCollection> collection;
@@ -49,7 +47,7 @@ inline void RawCollectionToBuffer::produce(edm::Event& e, edm::EventSetup const&
   uint32_t totalSize = 0;
   int nFeds = FEDNumbering::lastFEDId() + 1;
   for (int idx = 0; idx < nFeds; ++idx) {
-      totalSize += collection->FEDData(idx).size();
+    totalSize += collection->FEDData(idx).size();
   }
   std::unique_ptr<RawDataBuffer> rawBuffer = std::make_unique<RawDataBuffer>(totalSize);
   rawBuffer->setPhase1Range();
@@ -60,7 +58,6 @@ inline void RawCollectionToBuffer::produce(edm::Event& e, edm::EventSetup const&
   }
   e.put(std::move(rawBuffer));
 }
-
 
 inline void RawCollectionToBuffer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;

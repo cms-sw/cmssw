@@ -56,7 +56,6 @@ private:
   uint32_t totSize_ = 0;
   std::vector<float> logSizes_;
   uint16_t logSizeIndex_;
-
 };
 
 #endif

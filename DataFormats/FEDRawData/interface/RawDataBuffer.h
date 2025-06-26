@@ -28,10 +28,12 @@ private:
   bool valid_;
   uint32_t size_;
   std::span<const unsigned char> span_;
+
 public:
-  RawFragmentWrapper(): sourceId_(0), valid_(false) {}
-  RawFragmentWrapper(uint32_t sourceId, std::span<const unsigned char> && span): sourceId_(sourceId), valid_(true), span_(span) {}
-  std::span<const unsigned char> const& data() const {return span_;}
+  RawFragmentWrapper() : sourceId_(0), valid_(false) {}
+  RawFragmentWrapper(uint32_t sourceId, std::span<const unsigned char>&& span)
+      : sourceId_(sourceId), valid_(true), span_(span) {}
+  std::span<const unsigned char> const& data() const { return span_; }
   std::span<const unsigned char> dataHeader(uint32_t expSize) const {
     if (expSize > span_.size())
       throw cms::Exception("RawFragmentWrapper") << "Expected trailer too large: " << expSize << " > " << span_.size();
@@ -39,16 +41,17 @@ public:
   }
   std::span<const unsigned char> dataTrailer(uint32_t expSize) const {
     if (expSize > span_.size())
-      throw cms::Exception("RawFragmentWrapper") << "Expected trailer too large: "<< expSize << " > " << span_.size();
-    return span_.subspan(span_.size()-expSize, expSize);
+      throw cms::Exception("RawFragmentWrapper") << "Expected trailer too large: " << expSize << " > " << span_.size();
+    return span_.subspan(span_.size() - expSize, expSize);
   }
   std::span<const unsigned char> payload(uint32_t expSizeHeader, uint32_t expSizeTrailer) const {
     if (expSizeHeader + expSizeTrailer > span_.size())
-      throw cms::Exception("RawFragmentWrapper") << "Trailer and header too large: " << expSizeHeader << " + " << expSizeTrailer << " > " << span_.size();
+      throw cms::Exception("RawFragmentWrapper")
+          << "Trailer and header too large: " << expSizeHeader << " + " << expSizeTrailer << " > " << span_.size();
     return span_.subspan(expSizeHeader, span_.size() - expSizeTrailer - expSizeHeader);
   }
 
-  uint32_t size() const { return span_.size(); } 
+  uint32_t size() const { return span_.size(); }
   uint32_t sourceId() const { return sourceId_; }
   bool isValid() const { return valid_; }
 };
@@ -67,18 +70,18 @@ public:
   void setPhase1Range() { phase1Range_ = true; }
 
   const RawFragmentWrapper fragmentData(uint32_t sourceId) const;
-  const RawFragmentWrapper fragmentData(std::map<uint32_t, std::pair<uint32_t, uint32_t>>::const_iterator const& it) const;
+  const RawFragmentWrapper fragmentData(
+      std::map<uint32_t, std::pair<uint32_t, uint32_t>>::const_iterator const& it) const;
 
   unsigned char getByte(unsigned int pos) const { return data_.at(pos); }
   std::vector<unsigned char> data() const { return data_; }
-  std::map<uint32_t, std::pair<uint32_t, uint32_t>> const& map() const {return map_; }
+  std::map<uint32_t, std::pair<uint32_t, uint32_t>> const& map() const { return map_; }
 
 private:
   uint32_t usedSize_ = 0;
-  std::map<uint32_t, std::pair<uint32_t, uint32_t>> map_; //map of source id fragment offset and size pairs
-  std::vector<unsigned char> data_; //raw data byte vector
+  std::map<uint32_t, std::pair<uint32_t, uint32_t>> map_;  //map of source id fragment offset and size pairs
+  std::vector<unsigned char> data_;                        //raw data byte vector
   bool phase1Range_ = false;
 };
-
 
 #endif

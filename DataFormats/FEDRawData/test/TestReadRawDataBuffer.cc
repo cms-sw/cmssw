@@ -16,7 +16,7 @@
 //         Created:  1 May 2023
 
 #include "DataFormats/FEDRawData/interface/RawDataBuffer.h"
-#include  "DataFormats/FEDRawData/interface/SLinkRocketHeaders.h"
+#include "DataFormats/FEDRawData/interface/SLinkRocketHeaders.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
@@ -64,29 +64,29 @@ namespace edmtest {
     auto const& fragData2 = rawDataBuffer.fragmentData(30);
     auto const& fragDataHigh = rawDataBuffer.fragmentData(298457834);
 
-    assert(fragData0.size()); 
-    assert(fragData1.size()); 
-    assert(fragData2.size()); 
-    assert(fragDataHigh.size()); 
+    assert(fragData0.size());
+    assert(fragData1.size());
+    assert(fragData2.size());
+    assert(fragDataHigh.size());
 
     auto hdrsize = sizeof(SLinkRocketHeader_v3);
     auto trsize = sizeof(SLinkRocketTrailer_v3);
 
     auto hdrView0 = makeSLinkRocketHeaderView(fragData0.dataHeader(hdrsize));
-    auto trlView0 = makeSLinkRocketTrailerView(fragData0.dataTrailer(trsize),hdrView0->version());
+    auto trlView0 = makeSLinkRocketTrailerView(fragData0.dataTrailer(trsize), hdrView0->version());
 
     auto hdrView1 = makeSLinkRocketHeaderView(fragData1.dataHeader(hdrsize));
-    auto trlView1 = makeSLinkRocketTrailerView(fragData1.dataTrailer(trsize),hdrView1->version());
- 
+    auto trlView1 = makeSLinkRocketTrailerView(fragData1.dataTrailer(trsize), hdrView1->version());
+
     auto hdrView2 = makeSLinkRocketHeaderView(fragData2.dataHeader(hdrsize));
-    auto trlView2 = makeSLinkRocketTrailerView(fragData2.dataTrailer(trsize),hdrView2->version());
- 
+    auto trlView2 = makeSLinkRocketTrailerView(fragData2.dataTrailer(trsize), hdrView2->version());
+
     auto hdrViewHigh = makeSLinkRocketHeaderView(fragDataHigh.dataHeader(hdrsize));
-    auto trlViewHigh = makeSLinkRocketTrailerView(fragDataHigh.dataTrailer(trsize),hdrViewHigh->version());
+    auto trlViewHigh = makeSLinkRocketTrailerView(fragDataHigh.dataTrailer(trsize), hdrViewHigh->version());
 
     auto src0data = fragData0.payload(hdrsize, trsize);
     for (size_t i = 0; i < src0data.size(); i++) {
-      if (src0data[i] != dataPattern1_[i %  std::size(dataPattern1_)])
+      if (src0data[i] != dataPattern1_[i % std::size(dataPattern1_)])
         throwWithMessage("data id 0 does not have expected contents");
     }
     auto src1data = fragData1.payload(hdrsize, trsize);

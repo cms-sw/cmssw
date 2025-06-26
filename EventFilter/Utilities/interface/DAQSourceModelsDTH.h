@@ -25,7 +25,8 @@
 
 class DataModeDTH : public DataMode {
 public:
-  DataModeDTH(DAQSource* daqSource, bool verifyChecksum, bool legacyFRDCollection) : DataMode(daqSource), verifyChecksum_(verifyChecksum), legacyFRDCollection_(legacyFRDCollection) {}
+  DataModeDTH(DAQSource* daqSource, bool verifyChecksum, bool legacyFRDCollection)
+      : DataMode(daqSource), verifyChecksum_(verifyChecksum), legacyFRDCollection_(legacyFRDCollection) {}
   ~DataModeDTH() override {}
   std::vector<std::shared_ptr<const edm::DaqProvenanceHelper>>& makeDaqProvenanceHelpers() override;
   void readEvent(edm::EventPrincipal& eventPrincipal) override;

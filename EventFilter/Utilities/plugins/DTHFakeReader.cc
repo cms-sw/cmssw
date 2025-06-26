@@ -89,9 +89,8 @@ namespace evf {
       totSize += size;
     }
     data = new RawDataBuffer(totSize);
- 
-    for (auto sourceId : sourceIdList_) {
 
+    for (auto sourceId : sourceIdList_) {
       auto size = sizeof(DTHOrbitHeader_v1);
       for (auto eventId : eventIdList_)
         size += randFedSizes[sourceId][eventId] + h_size_ + t_size_ + sizeof(DTHFragmentTrailer_v1);
@@ -107,12 +106,12 @@ namespace evf {
       }
       //in place construction
       new (static_cast<void*>(feddata)) DTHOrbitHeader_v1(sourceId,
-                                             e.id().run(),
-                                             orbitId,
-                                             eventIdList_.size(),
-                                             fragments_size_bytes >> evf::DTH_WORD_NUM_BYTES_SHIFT,
-                                             0,
-                                             runningChecksum);
+                                                          e.id().run(),
+                                                          orbitId,
+                                                          eventIdList_.size(),
+                                                          fragments_size_bytes >> evf::DTH_WORD_NUM_BYTES_SHIFT,
+                                                          0,
+                                                          runningChecksum);
     }
   }
 
