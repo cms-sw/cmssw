@@ -66,7 +66,7 @@ if [ "${FORMAT}" = "json" ]  ; then
   fi
 else
   QUERY_RESULTS=$((curl -f -L -s "${QUERY_URL}" || true) | grep /store/ | sed 's| ||g;s|"||g;s|,||g')
-  [ $((get_parent_cmds $$ 0 2>&1 || true) | grep '/cmsDriver.py' | wc -l) -gt 0 ] && LIMIT_RESULTS="YES"
+  [ $((get_parent_cmds $$ 0 2>&1 || true) | grep -a '/cmsDriver.py' | wc -l) -gt 0 ] && LIMIT_RESULTS="YES"
   if [ "${QUERY_RESULTS}" = "" ] ; then
     ${ORIG_DAS_CLIENT} "$@" > ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.out
   else
