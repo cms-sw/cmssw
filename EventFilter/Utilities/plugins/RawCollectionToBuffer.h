@@ -36,14 +36,14 @@ private:
   //std::vector<unsigned int> sourceIdList_;
 };
 
-RawCollectionToBuffer::RawCollectionToBuffer(edm::ParameterSet const& ps) :
+inline RawCollectionToBuffer::RawCollectionToBuffer(edm::ParameterSet const& ps) :
       token_(consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("source"))) {
       //sourceIdList_(ps.getUntrackedParameter<std::vector<unsigned int>>("sourceIdList", std::vector<unsigned int>())) {
   produces<RawDataBuffer>();
 }
 
 
-void RawCollectionToBuffer::produce(edm::Event& e, edm::EventSetup const&) {
+inline void RawCollectionToBuffer::produce(edm::Event& e, edm::EventSetup const&) {
   edm::Handle<FEDRawDataCollection> collection;
   e.getByToken(token_, collection);
   uint32_t totalSize = 0;
@@ -62,7 +62,7 @@ void RawCollectionToBuffer::produce(edm::Event& e, edm::EventSetup const&) {
 }
 
 
-void RawCollectionToBuffer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+inline void RawCollectionToBuffer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("source", edm::InputTag("rawDataCollector"));
   //desc.addUntracked<std::vector<unsigned int>>("sourceIdList", std::vector<unsigned int>());

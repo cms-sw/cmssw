@@ -126,13 +126,13 @@ public:
 
   SLinkRocketHeaderView_v3(const void * header): header_(static_cast<const SLinkRocketHeader_v3*>(header)) {}
 
-  virtual uint32_t sourceID() const { return header_->sourceID(); }
-  virtual uint16_t l1aTypes() const { return header_->l1aTypes(); }
-  virtual uint8_t l1aPhysType() const { return header_->l1aPhysType(); }
-  virtual uint8_t emuStatus() const { return header_->emuStatus(); }
-  virtual uint64_t globalEventID() const { return header_->globalEventID(); }
-  virtual uint8_t version()  const { return header_->version(); }
-  virtual bool verifyMarker() const { return header_->verifyMarker(); } 
+  uint32_t sourceID() const override { return header_->sourceID(); }
+  uint16_t l1aTypes() const override { return header_->l1aTypes(); }
+  uint8_t l1aPhysType() const override { return header_->l1aPhysType(); }
+  uint8_t emuStatus() const override { return header_->emuStatus(); }
+  uint64_t globalEventID() const override { return header_->globalEventID(); }
+  uint8_t version()  const override { return header_->version(); }
+  bool verifyMarker() const override { return header_->verifyMarker(); } 
 
 private:
   const SLinkRocketHeader_v3 * header_;
@@ -179,13 +179,13 @@ public:
 class SLinkRocketTrailerView_v3 : public SLinkRocketTrailerView {
 public:
   SLinkRocketTrailerView_v3(const void * trailer): trailer_(static_cast<const SLinkRocketTrailer_v3*>(trailer)) {}
-  virtual uint16_t status() const { return trailer_->status(); }
-  virtual uint16_t crc() const { return trailer_->crc(); }
-  virtual uint32_t orbitID() const { return trailer_->orbitID(); }
-  virtual uint16_t bxID() const { return trailer_->bxID(); }
-  virtual uint32_t eventLenBytes() const { return trailer_->eventLenBytes(); }
-  virtual uint16_t daqCRC() const { return trailer_->daqCRC(); }
-  virtual bool verifyMarker() const { return trailer_->verifyMarker(); }
+  uint16_t status() const override { return trailer_->status(); }
+  uint16_t crc() const override { return trailer_->crc(); }
+  uint32_t orbitID() const override { return trailer_->orbitID(); }
+  uint16_t bxID() const override { return trailer_->bxID(); }
+  uint32_t eventLenBytes() const override { return trailer_->eventLenBytes(); }
+  uint16_t daqCRC() const override { return trailer_->daqCRC(); }
+  bool verifyMarker() const override { return trailer_->verifyMarker(); }
 private:
   const SLinkRocketTrailer_v3 * trailer_;
 };

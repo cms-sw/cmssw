@@ -97,7 +97,7 @@ void RawEventOutputModuleForBU<Consumer>::write(edm::EventForOutput const& e) {
   int expectedSize = headerSize;
   int nFeds = FEDNumbering::lastFEDId() + 1; //TODO!
 
-  if (sourceIdList_.size()) {
+  if (!sourceIdList_.empty()) {
     for (int idx : sourceIdList_) {
       auto singleFED = fedBuffer->fragmentData(idx);
       expectedSize += singleFED.size();
@@ -134,7 +134,7 @@ void RawEventOutputModuleForBU<Consumer>::write(edm::EventForOutput const& e) {
     *bufPtr++ = 0;
   }
   uint32_t* payloadPtr = bufPtr;
-  if (sourceIdList_.size()) {
+  if (!sourceIdList_.empty()) {
     for (int idx : sourceIdList_) {
       auto singleFED = fedBuffer->fragmentData(idx);
       memcpy(bufPtr, &singleFED.data()[0], singleFED.size());

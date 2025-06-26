@@ -28,13 +28,13 @@ private:
   const edm::EDGetTokenT<RawDataBuffer> token_;
 };
 
-RawBufferToCollection::RawBufferToCollection(edm::ParameterSet const& ps) :
+inline RawBufferToCollection::RawBufferToCollection(edm::ParameterSet const& ps) :
       token_(consumes<RawDataBuffer>(ps.getParameter<edm::InputTag>("source"))) {
   produces<FEDRawDataCollection>();
 }
 
 
-void RawBufferToCollection::produce(edm::Event& e, edm::EventSetup const&) {
+inline void RawBufferToCollection::produce(edm::Event& e, edm::EventSetup const&) {
   edm::Handle<RawDataBuffer> fedBuffer;
   e.getByToken(token_, fedBuffer);
 
@@ -52,7 +52,7 @@ void RawBufferToCollection::produce(edm::Event& e, edm::EventSetup const&) {
 }
 
 
-void RawBufferToCollection::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+inline void RawBufferToCollection::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("source", edm::InputTag("rawDataCollector"));
   descriptions.addWithDefaultLabel(desc);
