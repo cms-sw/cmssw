@@ -60,6 +60,10 @@ namespace edm {
       virtual void beginStream(StreamID) = 0;
       virtual void endStream(StreamID) = 0;
 
+      void respondToOpenInputFile(FileBlock const& fb) { implRespondToOpenInputFile(fb); }
+      void respondToCloseInputFile(FileBlock const& fb) { implRespondToCloseInputFile(fb); }
+      void respondToCloseOutputFile() { implRespondToCloseOutputFile(); }
+
       virtual std::unique_ptr<OutputModuleCommunicator> createOutputModuleCommunicator() = 0;
 
       void registerThinnedAssociations(ProductRegistry const& registry, ThinnedAssociationsHelper& helper);
@@ -77,6 +81,9 @@ namespace edm {
     private:
       virtual void implRegisterThinnedAssociations(ProductRegistry const& registry,
                                                    ThinnedAssociationsHelper& helper) = 0;
+      virtual void implRespondToOpenInputFile(FileBlock const& fb) = 0;
+      virtual void implRespondToCloseInputFile(FileBlock const& fb) = 0;
+      virtual void implRespondToCloseOutputFile() = 0;
     };
 
     template <typename T>
@@ -132,6 +139,10 @@ namespace edm {
 
     private:
       void implRegisterThinnedAssociations(ProductRegistry const& registry, ThinnedAssociationsHelper& helper) final;
+
+      void implRespondToOpenInputFile(FileBlock const& fb) final;
+      void implRespondToCloseInputFile(FileBlock const& fb) final;
+      void implRespondToCloseOutputFile() final;
 
       std::shared_ptr<T> m_mod;
     };

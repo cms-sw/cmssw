@@ -573,21 +573,6 @@ namespace edm {
   }
 
   template <typename T>
-  inline void WorkerT<T>::implRespondToOpenInputFile(FileBlock const& fb) {
-    module_->doRespondToOpenInputFile(fb);
-  }
-
-  template <typename T>
-  inline void WorkerT<T>::implRespondToCloseInputFile(FileBlock const& fb) {
-    module_->doRespondToCloseInputFile(fb);
-  }
-
-  template <typename T>
-  void WorkerT<T>::implRespondToCloseOutputFile() {
-    module_->doRespondToCloseOutputFile();
-  }
-
-  template <typename T>
   inline Worker::TaskQueueAdaptor WorkerT<T>::serializeRunModule() {
     return Worker::TaskQueueAdaptor{};
   }

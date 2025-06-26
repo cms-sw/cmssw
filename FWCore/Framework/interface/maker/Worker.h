@@ -184,10 +184,6 @@ namespace edm {
     // Called if filter earlier in the path has failed.
     void skipOnPath(EventPrincipal const& iEvent);
 
-    void respondToOpenInputFile(FileBlock const& fb) { implRespondToOpenInputFile(fb); }
-    void respondToCloseInputFile(FileBlock const& fb) { implRespondToCloseInputFile(fb); }
-    void respondToCloseOutputFile() { implRespondToCloseOutputFile(); }
-
     void reset() {
       cached_exception_ = std::exception_ptr();
       state_ = Ready;
@@ -293,10 +289,6 @@ namespace edm {
     virtual void preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
                                               ModuleCallingContext const& moduleCallingContext,
                                               Principal const& iPrincipal) const noexcept = 0;
-
-    virtual void implRespondToOpenInputFile(FileBlock const& fb) = 0;
-    virtual void implRespondToCloseInputFile(FileBlock const& fb) = 0;
-    virtual void implRespondToCloseOutputFile() = 0;
 
     virtual TaskQueueAdaptor serializeRunModule() = 0;
 

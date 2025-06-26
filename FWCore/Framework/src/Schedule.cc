@@ -1029,9 +1029,7 @@ namespace edm {
   void Schedule::closeOutputFiles() {
     using std::placeholders::_1;
     for_all(all_output_communicators_, std::bind(&OutputModuleCommunicator::closeFile, _1));
-    for (auto& worker : allWorkers()) {
-      worker->respondToCloseOutputFile();
-    }
+    moduleRegistry_->forAllModuleHolders([](maker::ModuleHolder* iHolder) { iHolder->respondToCloseOutputFile(); });
   }
 
   void Schedule::openOutputFiles(FileBlock& fb) {
@@ -1141,13 +1139,11 @@ namespace edm {
   }
 
   void Schedule::respondToOpenInputFile(FileBlock const& fb) {
-    using std::placeholders::_1;
-    for_all(allWorkers(), std::bind(&Worker::respondToOpenInputFile, _1, std::cref(fb)));
+    moduleRegistry_->forAllModuleHolders([&fb](maker::ModuleHolder* iHolder) { iHolder->respondToOpenInputFile(fb); });
   }
 
   void Schedule::respondToCloseInputFile(FileBlock const& fb) {
-    using std::placeholders::_1;
-    for_all(allWorkers(), std::bind(&Worker::respondToCloseInputFile, _1, std::cref(fb)));
+    moduleRegistry_->forAllModuleHolders([&fb](maker::ModuleHolder* iHolder) { iHolder->respondToCloseInputFile(fb); });
   }
 
   void Schedule::beginJob(ProductRegistry const& iRegistry,
