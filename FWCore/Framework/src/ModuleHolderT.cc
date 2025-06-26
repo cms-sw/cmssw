@@ -59,6 +59,41 @@ namespace edm::maker {
       m_mod->doEndStream(iID);
     }
   }
+
+  namespace {
+    template <typename T>
+    concept HasRespondToInputFileFunctions = requires(T mod, FileBlock fb) {
+      { mod.doRespondToOpenInputFile(fb) } -> std::same_as<void>;
+      { mod.doRespondToCloseInputFile(fb) } -> std::same_as<void>;
+    };
+
+    template <typename T>
+    concept HasRespondToCloseOutputFileFunction = requires(T mod) {
+      { mod.doRespondToCloseOutputFile() } -> std::same_as<void>;
+    };
+  }  // namespace
+
+  template <typename T>
+  inline void ModuleHolderT<T>::implRespondToOpenInputFile(FileBlock const& fb) {
+    if constexpr (HasRespondToInputFileFunctions<T>) {
+      m_mod->doRespondToOpenInputFile(fb);
+    }
+  }
+
+  template <typename T>
+  inline void ModuleHolderT<T>::implRespondToCloseInputFile(FileBlock const& fb) {
+    if constexpr (HasRespondToInputFileFunctions<T>) {
+      m_mod->doRespondToCloseInputFile(fb);
+    }
+  }
+
+  template <typename T>
+  void ModuleHolderT<T>::implRespondToCloseOutputFile() {
+    if constexpr (HasRespondToCloseOutputFileFunction<T>) {
+      m_mod->doRespondToCloseOutputFile();
+    }
+  }
+
   namespace {
     template <typename T>
     bool mustPrefetchMayGet();
