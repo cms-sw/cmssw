@@ -1,5 +1,5 @@
-#ifndef EventFilter_Utilities_SLinkRocketHeaders_h
-#define EventFilter_Utilities_SLinkRockerHeaders_h
+#ifndef DataFormats_FEDRawData_SLinkRocketHeaders_h
+#define DataFormats_FEDRawData_SLinkRocketHeaders_h
 
 #include "FWCore/Utilities/interface/Exception.h"
 

@@ -1,5 +1,5 @@
-#ifndef FEDRawData_RawDataBuffer_h
-#define FEDRawData_RawDataBuffer_h
+#ifndef DataFormats_FEDRawData_RawDataBuffer_h
+#define DataFormats_FEDRawData_RawDataBuffer_h
 
 /** \class RawDataBuffer
  *  A product storing raw data for all SourceIDs in a Event, intended

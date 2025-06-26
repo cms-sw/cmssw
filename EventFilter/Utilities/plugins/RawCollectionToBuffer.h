@@ -1,5 +1,5 @@
-#ifndef IOPool_Streamer_interface_RawCollectionToBuffer_h
-#define IOPool_Streamer_interface_RawCollectionToBuffer_h
+#ifndef EventFilter_Utilities_RawCollectionToBuffer_h
+#define EventFilter_Utilities_RawCollectionToBuffer_h
 
 #include <memory>
 #include <vector>

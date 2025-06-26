@@ -1,5 +1,5 @@
-#ifndef FEDRawData_SourceIdNumbering_h
-#define FEDRawData_SourceIdNumbering_h
+#ifndef DataFormats_FEDRawData_SourceIdNumbering_h
+#define DataFormats_FEDRawData_SourceIdNumbering_h
 
 /** \class SourceIDNumbering
  *
