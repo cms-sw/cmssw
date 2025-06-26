@@ -23,11 +23,11 @@ HELP=
 for ((i=1; i<=$#; i++)); do
   next=$((i+1))
   case  ${!i} in
-    --query=*  ) QUERY=$(echo ${!i} | sed 's|.*=||') ;;
-    --query    ) QUERY=${!next} ;;
-    --format=* ) FORMAT=$(echo ${!i} | sed 's|.*=||') ;;
-    --format   ) FORMAT=${!next} ;;
-    -h|--help  ) HELP=YES ;;
+    --query=* | -query=* ) QUERY="${!i#*=}" ;;
+    --query | -query ) QUERY=${!next} ;;
+    --format=* | -format=* ) FORMAT="${!i#*=}" ;;
+    --format | -format ) FORMAT=${!next} ;;
+    -h | --help | -help  ) HELP=YES ;;
   esac
 done
 
