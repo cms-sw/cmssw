@@ -103,10 +103,8 @@ namespace edm {
       try {
         runBeginJobForModules(gc, modReg, *actReg_, beginJobFailedForModule_);
       } catch (cms::Exception& ex) {
-        if (!exceptionPtr) {
-          ex.addContext(globalContext);
-          exceptionPtr = std::current_exception();
-        }
+        ex.addContext(globalContext);
+        exceptionPtr = std::current_exception();
       }
     }
     try {

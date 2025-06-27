@@ -39,7 +39,7 @@ namespace edm {
 
   /** beginStreamFailedForModule holds module id for each module which threw an exception during
      * the call to beginStream function. This vector is used to determine which modules should not
-     * have their endStream called. The vector should be passed to `runEndJobForModules`.
+     * have their endStream called. The vector should be passed to `runEndStreamForModules`.
      * If an exception is thrown, it will be of type cms::Exception.
      */
   void runBeginStreamForModules(StreamContext const& iStreamContext,
@@ -53,7 +53,7 @@ namespace edm {
                               ActivityRegistry& iRegistry,
                               ExceptionCollector& collector,
                               std::mutex& collectorMutex,
-                              std::vector<unsigned int> const& beginJobFailedForModule) noexcept;
+                              std::vector<unsigned int> const& beginStreamFailedForModule) noexcept;
 
 }  // namespace edm
 #endif  // FWCore_Framework_ModuleRegistryUtilities_h
