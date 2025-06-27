@@ -34,7 +34,7 @@ done
 ORIG_DAS_CLIENT=""
 for DAS_CLIENT in $(echo $PATH | tr ':' '\n' | sed "s|\$|/${CMD_NAME}|") ; do
  [ -e ${DAS_CLIENT} ] || continue
- if [ $(head -2 ${DAS_CLIENT} | grep 'CMSSDT_DAS_CLIENT_SIGN' | wc -l) -eq 0 ] ; then ORIG_DAS_CLIENT=${DAS_CLIENT}; break; fi
+ if ! head -2 ${DAS_CLIENT} | grep -q 'CMSSDT_DAS_CLIENT_SIGN'; then ORIG_DAS_CLIENT=${DAS_CLIENT}; break; fi
 done
 
 if [ "X${ORIG_DAS_CLIENT}" = "X" ] ; then
@@ -67,7 +67,9 @@ if [ "${FORMAT}" = "json" ]  ; then
 else
   QUERY_RESULTS=$((curl -f -L -s "${QUERY_URL}" || true) | grep /store/ | sed 's| ||g;s|"||g;s|,||g')
   export CMSSW_LIMIT_RESULTS="-0"
-  [ $((get_parent_cmds $$ 0 2>&1 || true) | grep -a '/cmsDriver.py' | wc -l) -gt 0 ] && export CMSSW_LIMIT_RESULTS="20"
+  if (get_parent_cmds $$ 0 2>&1 || true) | grep -aq '/cmsDriver.py'; then
+    export CMSSW_LIMIT_RESULTS="20"
+  fi
   if [ "${QUERY_RESULTS}" = "" ] ; then
     ${ORIG_DAS_CLIENT} "$@" > ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.out
   else
