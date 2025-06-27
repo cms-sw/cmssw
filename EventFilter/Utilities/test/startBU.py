@@ -71,6 +71,11 @@ options.register ('subsystems',
                   "List of generated subsystem FEDs. Empty means all.")
 
 
+options.register ('conversionTest',
+                  False,
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.bool,
+                  "Test conversion between new and old format")
 
 
 options.parseArguments()
@@ -169,6 +174,13 @@ elif  options.dataType == "DTH":
         sourceIdList = cms.untracked.vuint32(66,1511)
     )
 
-process.p = cms.Path(process.s+process.a)
+if options.conversionTest:
+  print("Running conversion TEST")
+  process.bufToColl = cms.EDProducer("RawBufferToCollection", source = cms.InputTag("s"))
+  process.collToBuf = cms.EDProducer("RawCollectionToBuffer", source = cms.InputTag("bufToColl"))
+  process.p = cms.Path(process.s+process.a+process.bufToColl+process.collToBuf)
+  process.out.source="collToBuf"
+else:
+  process.p = cms.Path(process.s+process.a)
 
 process.ep = cms.EndPath(process.out)
