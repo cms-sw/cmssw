@@ -21,7 +21,6 @@ namespace edm {
 }
 
 namespace fastsim {
-  class InteractionModel;
   class SimplifiedGeometryFactory;
 
   //! Implementation of a generic detector layer (base class for forward/barrel layers).
@@ -139,11 +138,11 @@ namespace fastsim {
         */
     virtual bool isForward() const = 0;
 
-    //! Return the vector of all interaction models that are assigned with a layer.
+    //! Return the vector of all interaction models that are assigned with a layer (index into the central vector of models).
     /*!
             This makes it easy to switch on/off some interactions for some layers.
         */
-    const std::vector<InteractionModel*>& getInteractionModels() const { return interactionModels_; }
+    const std::vector<size_t>& getInteractionModelIndices() const { return interactionModelIndices_; }
 
     //! Some basic output.
     friend std::ostream& operator<<(std::ostream& os, const SimplifiedGeometry& layer);
@@ -157,8 +156,8 @@ namespace fastsim {
     std::unique_ptr<TH1F> magneticFieldHist_;  //!< Histogram that stores the size of the magnetic field along the layer.
     std::unique_ptr<TH1F> thicknessHist_;      //!< Histogram that stores the tickness (radLengths) along the layer.
     double nuclearInteractionThicknessFactor_;  //!< Some layers have a different thickness for nuclear interactions.
-    std::vector<InteractionModel*>
-        interactionModels_;  //!< Vector of all interaction models that are assigned with a layer.
+    std::vector<size_t>
+        interactionModelIndices_;  //!< Vector of all interaction models that are assigned with a layer (index into the central vector of models).
     CaloType caloType_;      //!< Hack to interface "old" Calorimetry with "new" Tracker
   };
 

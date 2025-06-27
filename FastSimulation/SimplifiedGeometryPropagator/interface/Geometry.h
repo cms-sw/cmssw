@@ -20,8 +20,6 @@
 #include <vector>
 
 namespace fastsim {
-  class InteractionModel;
-
   //! Definition the tracker geometry (vectors of forward/barrel layers).
   /*!
         This class models the material budget of the tracker. Those are reflected by 2 vectors of forward (disks, ordered by increasing Z-position) and barrel layers respectively (cylinders, ordered by increasing radius).
@@ -39,10 +37,10 @@ namespace fastsim {
     /*!
             Calls SimplifiedGeometryFactory to initialize the vectors of barrel/forward layers and provides magnetic field and interaction models for those.
             \param iSetup The Event Setup.
-            \param interactionModelMap Map of all interaction models considered (for any layer)
+            \param interactionModelNames Names of all interaction models considered (for any layer)
             \sa SimplifiedGeometryFactory
         */
-    void update(const edm::EventSetup& iSetup, const std::map<std::string, InteractionModel*>& interactionModelMap);
+    void update(const edm::EventSetup& iSetup, const std::vector<std::string>& interactionModelNames);
 
     //! Initializes the tracker geometry.
     /*!

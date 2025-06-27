@@ -96,8 +96,8 @@ private:
   bool useFastSimDecayer_;
 
   fastsim::Decayer decayer_;  //!< Handles decays of non-stable particles using pythia
+  std::vector<std::string> interactionModelNames_;  //!< All defined interaction model names
   std::vector<std::unique_ptr<fastsim::InteractionModel> > interactionModels_;  //!< All defined interaction models
-  std::map<std::string, fastsim::InteractionModel*> interactionModelMap_;  //!< Each interaction model has a unique name
   static const std::string MESSAGECATEGORY;  //!< Category of debugging messages ("FastSimulation")
   const edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> particleDataTableESToken_;
   static constexpr double caloBoundaryPerp2_ = 128. * 128.;
@@ -133,7 +133,10 @@ FastSimProducer::FastSimProducer(const edm::ParameterSet& iConfig)
   //---------------
 
   const edm::ParameterSet& modelCfgs = iConfig.getParameter<edm::ParameterSet>("interactionModels");
-  for (const std::string& modelName : modelCfgs.getParameterNames()) {
+  const auto& modelNames = modelCfgs.getParameterNames();
+  interactionModelNames_.reserve(modelNames.size());
+  interactionModels_.reserve(modelNames.size());
+  for (const std::string& modelName : modelNames) {
     const edm::ParameterSet& modelCfg = modelCfgs.getParameter<edm::ParameterSet>(modelName);
     std::string modelClassName(modelCfg.getParameter<std::string>("className"));
     // Use plugin-factory to create model
@@ -143,9 +146,8 @@ FastSimProducer::FastSimProducer(const edm::ParameterSet& iConfig)
       throw cms::Exception("FastSimProducer") << "InteractionModel " << modelName << " could not be created";
     }
     // Add model to list
+    interactionModelNames_.push_back(modelName);
     interactionModels_.push_back(std::move(interactionModel));
-    // and create the map
-    interactionModelMap_[modelName] = interactionModels_.back().get();
   }
 
   //----------------
@@ -173,8 +175,8 @@ void FastSimProducer::beginStream(const edm::StreamID id) {
 void FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   LogDebug(MESSAGECATEGORY) << "   produce";
 
-  geometry_.update(iSetup, interactionModelMap_);
-  caloGeometry_.update(iSetup, interactionModelMap_);
+  geometry_.update(iSetup, interactionModelNames_);
+  caloGeometry_.update(iSetup, interactionModelNames_);
 
   // Define containers for SimTracks, SimVertices
   auto simTracks = std::make_unique<edm::SimTrackContainer>();
@@ -266,7 +268,8 @@ void FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         if (layer->getThickness(particle->position(), particle->momentum()) > minThickness_) {
           int nSecondaries = 0;
           // loop on interaction models
-          for (fastsim::InteractionModel* interactionModel : layer->getInteractionModels()) {
+          for (size_t interactionModelIndex : layer->getInteractionModelIndices()) {
+            auto& interactionModel = interactionModels_[interactionModelIndex];
             LogDebug(MESSAGECATEGORY) << "   interact with " << *interactionModel;
             std::vector<std::unique_ptr<fastsim::Particle> > secondaries;
             interactionModel->interact(*particle, *layer, secondaries, *randomEngine_);

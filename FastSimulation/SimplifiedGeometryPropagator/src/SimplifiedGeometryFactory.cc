@@ -10,16 +10,18 @@
 #include <TH1F.h>
 #include <cctype>
 #include <memory>
+#include <algorithm>
+#include <iterator>
 
 fastsim::SimplifiedGeometryFactory::SimplifiedGeometryFactory(
     const GeometricSearchTracker *geometricSearchTracker,
     const MagneticField &magneticField,
-    const std::map<std::string, fastsim::InteractionModel *> &interactionModelMap,
+    const std::vector<std::string> &interactionModelNames,
     double magneticFieldHistMaxR,
     double magneticFieldHistMaxZ)
     : geometricSearchTracker_(geometricSearchTracker),
       magneticField_(&magneticField),
-      interactionModelMap_(&interactionModelMap),
+      interactionModelNames_(&interactionModelNames),
       magneticFieldHistMaxR_(magneticFieldHistMaxR),
       magneticFieldHistMaxZ_(magneticFieldHistMaxZ) {
   // naming convention for barrel DetLayer lists
@@ -178,15 +180,17 @@ std::unique_ptr<fastsim::SimplifiedGeometry> fastsim::SimplifiedGeometryFactory:
   // list of interaction models
   // -----------------------------
 
-  std::vector<std::string> interactionModelLabels =
+  const std::vector<std::string>& interactionModelLabels =
       cfg.getUntrackedParameter<std::vector<std::string> >("interactionModels");
+  layer->interactionModelIndices_.reserve(interactionModelLabels.size());
   for (const auto &label : interactionModelLabels) {
-    std::map<std::string, fastsim::InteractionModel *>::const_iterator interactionModel =
-        interactionModelMap_->find(label);
-    if (interactionModel == interactionModelMap_->end()) {
+    //the list of models is short and this function shouldn't be called very often, so linear search is acceptable
+    std::vector<std::string>::const_iterator nameIt =
+        std::find(interactionModelNames_->begin(), interactionModelNames_->end(), label);
+    if (nameIt == interactionModelNames_->end()) {
       throw cms::Exception("fastsim::SimplifiedGeometryFactory") << "unknown interaction model '" << label << "'";
     }
-    layer->interactionModels_.push_back(interactionModel->second);
+    layer->interactionModelIndices_.push_back(std::distance(interactionModelNames_->begin(), nameIt));
   }
 
   // -----------------------------

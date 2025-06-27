@@ -52,8 +52,7 @@ Geometry::Geometry(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC)
   }
 }
 
-void Geometry::update(const edm::EventSetup& iSetup,
-                      const std::map<std::string, fastsim::InteractionModel*>& interactionModelMap) {
+void Geometry::update(const edm::EventSetup& iSetup, const std::vector<std::string>& interactionModelNames) {
   if (iSetup.get<TrackerRecoGeometryRecord>().cacheIdentifier() == cacheIdentifierTrackerRecoGeometry_ &&
       iSetup.get<IdealMagneticFieldRecord>().cacheIdentifier() == cacheIdentifierIdealMagneticField_) {
     return;
@@ -86,7 +85,7 @@ void Geometry::update(const edm::EventSetup& iSetup,
   // layer factory
   //---------------
   SimplifiedGeometryFactory simplifiedGeometryFactory(
-      geometricSearchTracker_, *magneticField_, interactionModelMap, maxRadius_, maxZ_);
+      geometricSearchTracker_, *magneticField_, interactionModelNames, maxRadius_, maxZ_);
 
   //---------------
   // update barrel layers
@@ -162,11 +161,11 @@ std::ostream& fastsim::operator<<(std::ostream& os, const fastsim::Geometry& geo
      << "\n# fastsim::Geometry"
      << "\n## BarrelLayers:";
   for (const auto& layer : geometry.barrelLayers_) {
-    os << "\n   " << *layer << layer->getInteractionModels().size() << " interaction models";
+    os << "\n   " << *layer << layer->getInteractionModelIndices().size() << " interaction models";
   }
   os << "\n## ForwardLayers:";
   for (const auto& layer : geometry.forwardLayers_) {
-    os << "\n   " << *layer << layer->getInteractionModels().size() << " interaction models";
+    os << "\n   " << *layer << layer->getInteractionModelIndices().size() << " interaction models";
   }
   os << "\n-----------";
   return os;
