@@ -64,6 +64,8 @@ if [ "${FORMAT}" = "json" ]  ; then
   else
     echo "${QUERY_RESULTS}" > ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.out
   fi
+  cat ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.out
+  return
 else
   QUERY_RESULTS=$((curl -f -L -s "${QUERY_URL}" || true) | grep /store/ | sed 's| ||g;s|"||g;s|,||g')
   if (get_parent_cmds $$ 0 2>&1 || true) | grep -aq '/cmsDriver.py'; then
