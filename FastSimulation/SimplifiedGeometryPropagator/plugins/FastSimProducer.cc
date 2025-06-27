@@ -91,8 +91,7 @@ private:
   edm::ESWatcher<CaloTopologyRecord> watchCaloTopology_;
   CalorimetryConsumer myCaloConsumer_;
   std::unique_ptr<CalorimetryManager> myCalorimetry_;  // unfortunately, default constructor cannot be called
-  GflashMultiProfile myProfiles_;
-  MuonCaloEffects myEffects_;
+  CalorimetryState myCaloState_;
   bool simulateMuons_;
   bool useFastSimDecayer_;
 
@@ -122,9 +121,9 @@ FastSimProducer::FastSimProducer(const edm::ParameterSet& iConfig)
       randomEngine_(nullptr),
       simulateCalorimetry_(iConfig.getParameter<bool>("simulateCalorimetry")),
       myCaloConsumer_(consumesCollector()),
-      myProfiles_(iConfig.getParameter<edm::ParameterSet>("GFlash")),
-      myEffects_(iConfig.getParameter<edm::ParameterSet>("MaterialEffectsForMuonsInECAL"),
-                 iConfig.getParameter<edm::ParameterSet>("MaterialEffectsForMuonsInHCAL")),
+      myCaloState_(iConfig.getParameter<edm::ParameterSet>("MaterialEffectsForMuonsInECAL"),
+                   iConfig.getParameter<edm::ParameterSet>("MaterialEffectsForMuonsInHCAL"),
+                   iConfig.getParameter<edm::ParameterSet>("GFlash")),
       simulateMuons_(iConfig.getParameter<bool>("simulateMuons")),
       useFastSimDecayer_(iConfig.getParameter<bool>("useFastSimDecayer")),
       particleDataTableESToken_(esConsumes()) {
@@ -347,7 +346,7 @@ void FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   auto caloProducts = std::make_unique<CaloProductContainer>();
   if (simulateCalorimetry_) {
     for (const auto& myFSimTrack : myFSimTracks) {
-      myCalorimetry_->reconstructTrack(myFSimTrack, randomEngine_.get(), *caloProducts, myProfiles_, myEffects_);
+      myCalorimetry_->reconstructTrack(myFSimTrack, randomEngine_.get(), *caloProducts, myCaloState_);
     }
   }
 

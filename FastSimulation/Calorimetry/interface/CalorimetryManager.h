@@ -57,21 +57,18 @@ struct CaloProductContainer {
   std::unique_ptr<edm::SimTrackContainer> tracksMuon;
 };
 
-struct GflashMultiProfile {
-  GflashMultiProfile(const edm::ParameterSet& fastGflash);
+//this holds the stateful classes (one copy per stream)
+struct CalorimetryState {
+  CalorimetryState(const edm::ParameterSet& MuonECALPars,
+                   const edm::ParameterSet& MuonHCALPars,
+                   const edm::ParameterSet& fastGflash);
   GflashHadronShowerProfile* profile(int particleType);
-
-  std::unique_ptr<GflashPiKShowerProfile> thePiKProfile;
-  std::unique_ptr<GflashProtonShowerProfile> theProtonProfile;
-  std::unique_ptr<GflashAntiProtonShowerProfile> theAntiProtonProfile;
-};
-
-struct MuonCaloEffects {
-  MuonCaloEffects(const edm::ParameterSet& MuonECALPars,
-                  const edm::ParameterSet& MuonHCALPars);
 
   std::unique_ptr<MaterialEffects> theMuonEcalEffects;  // material effects for muons in ECAL
   std::unique_ptr<MaterialEffects> theMuonHcalEffects;  // material effects for muons in HCAL
+  std::unique_ptr<GflashPiKShowerProfile> thePiKProfile;
+  std::unique_ptr<GflashProtonShowerProfile> theProtonProfile;
+  std::unique_ptr<GflashAntiProtonShowerProfile> theAntiProtonProfile;
 };
 
 class CalorimetryManager {
@@ -84,7 +81,7 @@ public:
   ~CalorimetryManager();
 
   // Does the real job
-  void reconstructTrack(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container, GflashMultiProfile& profiles, MuonCaloEffects& effects) const;
+  void reconstructTrack(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container, CalorimetryState& state) const;
 
   // Return the address of the Calorimeter
   CaloGeometryHelper* getCalorimeter() const { return myCalorimeter_.get(); }
@@ -98,10 +95,10 @@ private:
 
   void reconstructHCAL(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container) const;
 
-  void MuonMipSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container, MuonCaloEffects& effects) const;
+  void MuonMipSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container, CalorimetryState& state) const;
 
   /// Hadronic Shower Simulation
-  void HDShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container, GflashMultiProfile& profiles) const;
+  void HDShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const*, CaloProductContainer& container, CalorimetryState& state) const;
 
   // Read the parameters
   void readParameters(const edm::ParameterSet& fastCalo);
