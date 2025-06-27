@@ -18,11 +18,39 @@ cmsDriver.py \
     --fileout ...
 ```
 """
+
+# The order of the imports is important, as some modules depend on others.
+# It breaks if you run isort on this file.
+# I haven't found out which module is responsible for the breakage, but it is reproducible.
 import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Modifier_run2_common_cff import run2_common
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
-from Configuration.StandardSequences.Reconstruction_cff import *  # this imports the standard reconstruction sequence, which is needed for the RECO step
 from TrackingTools.TrackAssociator.default_cfi import TrackAssociatorParameterBlock
+from RecoLocalMuon.CSCRecHitD.cscRecHitD_cfi import csc2DRecHits
+from RecoLocalMuon.CSCSegment.cscSegments_cfi import cscSegments
+from RecoLocalMuon.DTRecHit.dt1DRecHits_LinearDriftFromDB_cfi import (
+    dt1DCosmicRecHits,
+    dt1DRecHits,
+)
+from RecoLocalMuon.DTSegment.dt4DSegments_MTPatternReco4D_LinearDriftFromDB_cfi import (
+    dt4DCosmicSegments,
+    dt4DSegments,
+)
+from RecoLocalMuon.RPCRecHit.rpcRecHits_cfi import rpcRecHits
+from RecoLocalCalo.EcalRecProducers.ecalPreshowerRecHit_cfi import ecalPreshowerRecHit
+# maybe replace with /RecoLocalMuon/Configuration/python/RecoLocalMuon_cff.
+from RecoLocalCalo.EcalRecProducers.ecalRecHit_cff import ecalCalibratedRecHitTask
+
+from RecoLocalCalo.Configuration.hcalGlobalReco_cff import (
+    hcalGlobalRecoTask,
+    hcalOnlyGlobalRecoTask,
+)
+from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
+from RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_hf_cfi import hfreco
+from RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_ho_cfi import horeco
+from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi import siPixelClusters
+from RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi import siStripClusters
+from Configuration.StandardSequences.Reconstruction_cff import *  # this imports the standard reconstruction sequence, which is needed for the RECO step
 
 # As we want to exploit the toModify and toReplaceWith features of the FWCore/ParameterSet/python/Config.py Modifier class,
 # we need a general modifier that is always applied.
@@ -54,40 +82,25 @@ common_parameters = {
 # The following modules are replaced by the correspondig ColCleaner versions, which remove the energy deposites of the measured event
 
 ### Muon system modules
-from RecoLocalMuon.CSCRecHitD.cscRecHitD_cfi import csc2DRecHits
-
 generalModifier.toReplaceWith(csc2DRecHits, cms.EDProducer("CSCRecHitColCleaner",
     oldCollection = cms.VInputTag(cms.InputTag("csc2DRecHits","","SELECT")),
     **common_parameters
 ))
-
-from RecoLocalMuon.CSCSegment.cscSegments_cfi import cscSegments
 
 generalModifier.toReplaceWith(cscSegments, cms.EDProducer("CSCSegmentColCleaner",
     oldCollection = cms.VInputTag(cms.InputTag("cscSegments","","SELECT")),
     **common_parameters
 ))
 
-from RecoLocalMuon.DTRecHit.dt1DRecHits_LinearDriftFromDB_cfi import (
-    dt1DCosmicRecHits,
-    dt1DRecHits,
-)
-
 generalModifier.toReplaceWith(dt1DCosmicRecHits, cms.EDProducer("DTRecHitColCleaner",
     oldCollection = cms.VInputTag(cms.InputTag("dt1DCosmicRecHits","","SELECT")),
     **common_parameters
 ))
 
-
 generalModifier.toReplaceWith(dt1DRecHits, cms.EDProducer("DTRecHitColCleaner",
     oldCollection = cms.VInputTag(cms.InputTag("dt1DRecHits","","SELECT")),
     **common_parameters
 ))
-
-from RecoLocalMuon.DTSegment.dt4DSegments_MTPatternReco4D_LinearDriftFromDB_cfi import (
-    dt4DCosmicSegments,
-    dt4DSegments,
-)
 
 generalModifier.toReplaceWith(dt4DCosmicSegments, cms.EDProducer("DTRecSegment4DColCleaner",
     oldCollection = cms.VInputTag(cms.InputTag("dt4DCosmicSegments","","SELECT")),
@@ -99,24 +112,16 @@ generalModifier.toReplaceWith(dt4DSegments, cms.EDProducer("DTRecSegment4DColCle
     **common_parameters
 ))
 
-from RecoLocalMuon.RPCRecHit.rpcRecHits_cfi import rpcRecHits
-
 generalModifier.toReplaceWith(rpcRecHits, cms.EDProducer("RPCRecHitColCleaner",
     oldCollection = cms.VInputTag(cms.InputTag("rpcRecHits","","SELECT")),
     **common_parameters
 ))
 
 ### ECAL modules 
-
-from RecoLocalCalo.EcalRecProducers.ecalPreshowerRecHit_cfi import ecalPreshowerRecHit
-
 generalModifier.toReplaceWith(ecalPreshowerRecHit, cms.EDProducer("EcalRecHitColCleaner",
     oldCollection = cms.VInputTag(cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES","SELECT")),
     **common_parameters
 ))
-
-# maybe replace with /RecoLocalMuon/Configuration/python/RecoLocalMuon_cff.
-from RecoLocalCalo.EcalRecProducers.ecalRecHit_cff import ecalCalibratedRecHitTask
 
 # use walrus operator ":=" to give a label to the Producer
 generalModifier.toReplaceWith(ecalCalibratedRecHitTask, cms.Task(ecalRecHit := cms.EDProducer("EcalRecHitColCleaner",
@@ -125,30 +130,19 @@ generalModifier.toReplaceWith(ecalCalibratedRecHitTask, cms.Task(ecalRecHit := c
 )))
 
 ### HCAL modules
-
-from RecoLocalCalo.Configuration.hcalGlobalReco_cff import (
-    hcalGlobalRecoTask,
-    hcalOnlyGlobalRecoTask,
-)
-
 # This only worked by replacing the Task and not by replacing the Producer as in the other cases
 # because the hbhereco is of the type SwitchProducerCUDA and not of the type EDProducer
 generalModifier.toReplaceWith(hcalGlobalRecoTask, cms.Task(hbhereco := cms.EDProducer("HBHERecHitColCleaner",
     oldCollection = cms.VInputTag(cms.InputTag("hbhereco","","SELECT")),
     **common_parameters
 )))
-from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
 
 run3_HB.toReplaceWith(hcalOnlyGlobalRecoTask, cms.Task(hbhereco))
-
-from RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_hf_cfi import hfreco
 
 generalModifier.toReplaceWith(hfreco, cms.EDProducer("HFRecHitColCleaner",
     oldCollection = cms.VInputTag(cms.InputTag("hfreco","","SELECT")),
     **common_parameters
 ))
-
-from RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_ho_cfi import horeco
 
 generalModifier.toReplaceWith(horeco, cms.EDProducer("HORecHitColCleaner",
     oldCollection = cms.VInputTag(cms.InputTag("horeco","","SELECT")),
@@ -156,15 +150,10 @@ generalModifier.toReplaceWith(horeco, cms.EDProducer("HORecHitColCleaner",
 ))
 
 ### Tracker modules
-
-from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi import siPixelClusters
-
 generalModifier.toReplaceWith(siPixelClusters, cms.EDProducer("PixelColCleaner",
     oldCollection = cms.VInputTag(cms.InputTag("siPixelClusters","","SELECT")),
     **common_parameters
 ))
-
-from RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi import siStripClusters
 
 generalModifier.toReplaceWith(siStripClusters, cms.EDProducer("StripColCleaner",
     oldCollection = cms.VInputTag(cms.InputTag("siStripClusters","","SELECT")),

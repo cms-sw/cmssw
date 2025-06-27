@@ -30,7 +30,7 @@ def embeddingHLTCustomiser(process):
     process.hltOnlineBeamSpot = cms.EDProducer('EmbeddingBeamSpotOnlineProducer', src = cms.InputTag('offlineBeamSpot'))
     process.hltPixelVertices  = cms.EDProducer('EmbeddingHltPixelVerticesProducer')
     # Replace HLT vertexing with vertex taken from LHE step
-    process.load("TauAnalysis.MCEmbeddingTools.EmbeddingHltPixelVerticesProducer_cfi")
+    process.embeddingHltPixelVertices = cms.EDProducer('EmbeddingHltPixelVerticesProducer')
     process.hltPixelVertices = cms.EDProducer('EmbeddingHltPixelVerticesProducer')
     process.offlinePrimaryVertices = cms.EDProducer('EmbeddingHltPixelVerticesProducer')
     process.firstStepPrimaryVerticesUnsorted = cms.EDProducer('EmbeddingHltPixelVerticesProducer')
