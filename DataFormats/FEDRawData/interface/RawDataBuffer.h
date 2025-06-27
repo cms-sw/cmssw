@@ -7,7 +7,8 @@
  *  For Phase-2 source ID is 32-bit, so map is used instead of linear vector
  *  as in the FEDRawDataCollection.  Legacy mode is added to use it for
  *  Phase-1 data.
- *  
+ *  IMPORTANT: this is not a final format version for Phase-2 and only intended
+ *  for detector development. It will not be frozen until the end of LS3.
  *  \author S. Morovic
  */
 
