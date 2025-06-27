@@ -168,7 +168,8 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
   int module = touch->GetReplicaNumber(moduleLev);
   if (verbose_ && (cell == -1))
     edm::LogVerbatim("HGCSim") << "Top " << touch->GetVolume(0)->GetName() << " Module " << moduleLev << ":"
-                               << touch->GetVolume(moduleLev)->GetName() << " " << module << " Layer " << layer << ":" << cell;
+                               << touch->GetVolume(moduleLev)->GetName() << " " << module << " Layer " << layer << ":"
+                               << cell;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCSim") << "DepthsTop: " << touch->GetHistoryDepth() << ":" << levelT1_ << ":" << levelT2_ << ":"
                              << useSimWt_ << " name " << touch->GetVolume(0)->GetName() << " layer:module:cell "
