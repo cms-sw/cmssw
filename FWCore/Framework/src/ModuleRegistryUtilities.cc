@@ -1,7 +1,6 @@
 #include "FWCore/Framework/interface/ModuleRegistryUtilities.h"
 #include "FWCore/Framework/interface/ModuleRegistry.h"
-#include "FWCore/Common/interface/ProcessBlockHelperBase.h"
-#include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
+#include "FWCore/Framework/interface/maker/ModuleSignalSentry.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/make_sentry.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
@@ -38,6 +37,103 @@ namespace edm {
     });
   }
 
+  namespace {
+    template <typename F>
+    void captureExceptionAndContinue(std::exception_ptr& iExcept, ModuleCallingContext const& iContext, F&& iF) {
+      try {
+        convertException::wrap(std::forward<F&&>(iF));
+      } catch (cms::Exception& newException) {
+        if (not iExcept) {
+          edm::exceptionContext(newException, iContext);
+          iExcept = std::current_exception();
+        }
+      }
+    }
+
+    template <typename F>
+    void captureExceptionsAndContinue(ExceptionCollector& iCollector, ModuleCallingContext const& iContext, F&& iF) {
+      try {
+        convertException::wrap(std::forward<F&&>(iF));
+      } catch (cms::Exception& ex) {
+        edm::exceptionContext(ex, iContext);
+        iCollector.addException(ex);
+      }
+    }
+    template <typename F>
+    void captureExceptionsAndContinue(ExceptionCollector& iCollector,
+                                      std::mutex& iMutex,
+                                      ModuleCallingContext const& iContext,
+                                      F&& iF) {
+      try {
+        convertException::wrap(std::forward<F&&>(iF));
+      } catch (cms::Exception& ex) {
+        edm::exceptionContext(ex, iContext);
+        std::lock_guard guard(iMutex);
+        iCollector.addException(ex);
+      }
+    }
+
+    class ModuleBeginJobTraits {
+    public:
+      using Context = GlobalContext;
+      static void preModuleSignal(ActivityRegistry* activityRegistry,
+                                  GlobalContext const*,
+                                  ModuleCallingContext const* moduleCallingContext) {
+        activityRegistry->preModuleBeginJobSignal_(*moduleCallingContext->moduleDescription());
+      }
+      static void postModuleSignal(ActivityRegistry* activityRegistry,
+                                   GlobalContext const*,
+                                   ModuleCallingContext const* moduleCallingContext) {
+        activityRegistry->postModuleBeginJobSignal_(*moduleCallingContext->moduleDescription());
+      }
+    };
+
+    class ModuleEndJobTraits {
+    public:
+      using Context = GlobalContext;
+      static void preModuleSignal(ActivityRegistry* activityRegistry,
+                                  GlobalContext const*,
+                                  ModuleCallingContext const* moduleCallingContext) {
+        activityRegistry->preModuleEndJobSignal_(*moduleCallingContext->moduleDescription());
+      }
+      static void postModuleSignal(ActivityRegistry* activityRegistry,
+                                   GlobalContext const*,
+                                   ModuleCallingContext const* moduleCallingContext) {
+        activityRegistry->postModuleEndJobSignal_(*moduleCallingContext->moduleDescription());
+      }
+    };
+
+    class ModuleBeginStreamTraits {
+    public:
+      using Context = StreamContext;
+      static void preModuleSignal(ActivityRegistry* activityRegistry,
+                                  StreamContext const* streamContext,
+                                  ModuleCallingContext const* moduleCallingContext) {
+        activityRegistry->preModuleBeginStreamSignal_(*streamContext, *moduleCallingContext);
+      }
+      static void postModuleSignal(ActivityRegistry* activityRegistry,
+                                   StreamContext const* streamContext,
+                                   ModuleCallingContext const* moduleCallingContext) {
+        activityRegistry->postModuleBeginStreamSignal_(*streamContext, *moduleCallingContext);
+      }
+    };
+
+    class ModuleEndStreamTraits {
+    public:
+      using Context = StreamContext;
+      static void preModuleSignal(ActivityRegistry* activityRegistry,
+                                  StreamContext const* streamContext,
+                                  ModuleCallingContext const* moduleCallingContext) {
+        activityRegistry->preModuleEndStreamSignal_(*streamContext, *moduleCallingContext);
+      }
+      static void postModuleSignal(ActivityRegistry* activityRegistry,
+                                   StreamContext const* streamContext,
+                                   ModuleCallingContext const* moduleCallingContext) {
+        activityRegistry->postModuleEndStreamSignal_(*streamContext, *moduleCallingContext);
+      }
+    };
+
+  }  // namespace
   void runBeginJobForModules(GlobalContext const& iGlobalContext,
                              ModuleRegistry& iModuleRegistry,
                              edm::ActivityRegistry& iActivityRegistry,
@@ -51,24 +147,15 @@ namespace edm {
       ModuleCallingContext mcc(&holder->moduleDescription());
       //Also sets a thread local
       ModuleContextSentry mccSentry(&mcc, pc);
-      try {
-        convertException::wrap([&]() {
-          // if exception happens, before or during beginJob, add to beginJobFailedForModule
-          auto failedSentry = make_sentry(&beginJobFailedForModule,
-                                          [&](auto* failed) { failed->push_back(holder->moduleDescription().id()); });
-          auto sentry = make_sentry(&holder->moduleDescription(), [&](auto const* description) {
-            iActivityRegistry.postModuleBeginJobSignal_(*description);
-          });
-          iActivityRegistry.preModuleBeginJobSignal_(holder->moduleDescription());
-          holder->beginJob();
-          failedSentry.release();
-        });
-      } catch (cms::Exception& ex) {
-        if (!exceptionPtr) {
-          edm::exceptionContext(ex, mcc);
-          exceptionPtr = std::current_exception();
-        }
-      }
+      captureExceptionAndContinue(exceptionPtr, mcc, [&]() {
+        ModuleSignalSentry<ModuleBeginJobTraits> signalSentry(&iActivityRegistry, &iGlobalContext, &mcc);
+        auto failedSentry = make_sentry(&beginJobFailedForModule,
+                                        [&](auto* failed) { failed->push_back(holder->moduleDescription().id()); });
+        signalSentry.preModuleSignal();
+        holder->beginJob();
+        signalSentry.postModuleSignal();
+        failedSentry.release();
+      });
     });
     if (exceptionPtr) {
       std::rethrow_exception(exceptionPtr);
@@ -92,18 +179,12 @@ namespace edm {
       ModuleCallingContext mcc(&holder->moduleDescription());
       //Also sets a thread local
       ModuleContextSentry mccSentry(&mcc, pc);
-      try {
-        convertException::wrap([&]() {
-          auto sentry = make_sentry(&holder->moduleDescription(), [&](auto const* description) {
-            iActivityRegistry.postModuleEndJobSignal_(*description);
-          });
-          iActivityRegistry.preModuleEndJobSignal_(holder->moduleDescription());
-          holder->endJob();
-        });
-      } catch (cms::Exception& ex) {
-        edm::exceptionContext(ex, mcc);
-        collector.addException(ex);
-      }
+      captureExceptionsAndContinue(collector, mcc, [&]() {
+        ModuleSignalSentry<ModuleEndJobTraits> signalSentry(&iActivityRegistry, &iGlobalContext, &mcc);
+        signalSentry.preModuleSignal();
+        holder->endJob();
+        signalSentry.postModuleSignal();
+      });
     });
   }
 
@@ -119,24 +200,15 @@ namespace edm {
       ModuleCallingContext mcc(&holder->moduleDescription());
       //Also sets a thread local
       ModuleContextSentry mccSentry(&mcc, pc);
-      try {
-        convertException::wrap([&]() {
-          auto sentry = make_sentry(&mcc, [&](auto const* context) {
-            iActivityRegistry.postModuleBeginStreamSignal_(iStreamContext, *context);
-          });
-          // if exception happens, before or during beginStream, add to beginStreamFailedForModule
-          auto failedSentry = make_sentry(&beginStreamFailedForModule,
-                                          [&](auto* failed) { failed->push_back(holder->moduleDescription().id()); });
-          iActivityRegistry.preModuleBeginStreamSignal_(iStreamContext, mcc);
-          holder->beginStream(iStreamContext.streamID());
-          failedSentry.release();
-        });
-      } catch (cms::Exception& ex) {
-        if (!exceptionPtr) {
-          edm::exceptionContext(ex, mcc);
-          exceptionPtr = std::current_exception();
-        }
-      }
+      captureExceptionAndContinue(exceptionPtr, mcc, [&]() {
+        auto failedSentry = make_sentry(&beginStreamFailedForModule,
+                                        [&](auto* failed) { failed->push_back(holder->moduleDescription().id()); });
+        ModuleSignalSentry<ModuleBeginStreamTraits> signalSentry(&iActivityRegistry, &iStreamContext, &mcc);
+        signalSentry.preModuleSignal();
+        holder->beginStream(iStreamContext.streamID());
+        signalSentry.postModuleSignal();
+        failedSentry.release();
+      });
     });
     if (exceptionPtr) {
       std::rethrow_exception(exceptionPtr);
@@ -161,18 +233,12 @@ namespace edm {
       ModuleCallingContext mcc(&holder->moduleDescription());
       //Also sets a thread local
       ModuleContextSentry mccSentry(&mcc, pc);
-      try {
-        convertException::wrap([&]() {
-          auto sentry = make_sentry(
-              &mcc, [&](auto const* mc) { iActivityRegistry.postModuleEndStreamSignal_(iStreamContext, *mc); });
-          iActivityRegistry.preModuleEndStreamSignal_(iStreamContext, mcc);
-          holder->endStream(iStreamContext.streamID());
-        });
-      } catch (cms::Exception& ex) {
-        edm::exceptionContext(ex, mcc);
-        std::lock_guard<std::mutex> collectorLock(collectorMutex);
-        collector.addException(ex);
-      }
+      captureExceptionsAndContinue(collector, collectorMutex, mcc, [&]() {
+        ModuleSignalSentry<ModuleEndStreamTraits> signalSentry(&iActivityRegistry, &iStreamContext, &mcc);
+        signalSentry.preModuleSignal();
+        holder->endStream(iStreamContext.streamID());
+        signalSentry.postModuleSignal();
+      });
     });
   }
 

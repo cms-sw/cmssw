@@ -16,68 +16,6 @@
 #include "FWCore/ParameterSet/interface/Registry.h"
 
 namespace edm {
-  namespace {
-    class ModuleBeginJobTraits {
-    public:
-      using Context = GlobalContext;
-      static void preModuleSignal(ActivityRegistry* activityRegistry,
-                                  GlobalContext const*,
-                                  ModuleCallingContext const* moduleCallingContext) {
-        activityRegistry->preModuleBeginJobSignal_(*moduleCallingContext->moduleDescription());
-      }
-      static void postModuleSignal(ActivityRegistry* activityRegistry,
-                                   GlobalContext const*,
-                                   ModuleCallingContext const* moduleCallingContext) {
-        activityRegistry->postModuleBeginJobSignal_(*moduleCallingContext->moduleDescription());
-      }
-    };
-
-    class ModuleEndJobTraits {
-    public:
-      using Context = GlobalContext;
-      static void preModuleSignal(ActivityRegistry* activityRegistry,
-                                  GlobalContext const*,
-                                  ModuleCallingContext const* moduleCallingContext) {
-        activityRegistry->preModuleEndJobSignal_(*moduleCallingContext->moduleDescription());
-      }
-      static void postModuleSignal(ActivityRegistry* activityRegistry,
-                                   GlobalContext const*,
-                                   ModuleCallingContext const* moduleCallingContext) {
-        activityRegistry->postModuleEndJobSignal_(*moduleCallingContext->moduleDescription());
-      }
-    };
-
-    class ModuleBeginStreamTraits {
-    public:
-      using Context = StreamContext;
-      static void preModuleSignal(ActivityRegistry* activityRegistry,
-                                  StreamContext const* streamContext,
-                                  ModuleCallingContext const* moduleCallingContext) {
-        activityRegistry->preModuleBeginStreamSignal_(*streamContext, *moduleCallingContext);
-      }
-      static void postModuleSignal(ActivityRegistry* activityRegistry,
-                                   StreamContext const* streamContext,
-                                   ModuleCallingContext const* moduleCallingContext) {
-        activityRegistry->postModuleBeginStreamSignal_(*streamContext, *moduleCallingContext);
-      }
-    };
-
-    class ModuleEndStreamTraits {
-    public:
-      using Context = StreamContext;
-      static void preModuleSignal(ActivityRegistry* activityRegistry,
-                                  StreamContext const* streamContext,
-                                  ModuleCallingContext const* moduleCallingContext) {
-        activityRegistry->preModuleEndStreamSignal_(*streamContext, *moduleCallingContext);
-      }
-      static void postModuleSignal(ActivityRegistry* activityRegistry,
-                                   StreamContext const* streamContext,
-                                   ModuleCallingContext const* moduleCallingContext) {
-        activityRegistry->postModuleEndStreamSignal_(*streamContext, *moduleCallingContext);
-      }
-    };
-
-  }  // namespace
 
   Worker::Worker(ModuleDescription const& iMD, ExceptionToActionTable const* iActions)
       : timesRun_(0),
