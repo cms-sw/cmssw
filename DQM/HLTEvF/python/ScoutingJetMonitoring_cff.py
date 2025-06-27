@@ -5,23 +5,23 @@ import FWCore.ParameterSet.Config as cms
 from DQMOffline.JetMET.jetMETDQMOfflineSource_cff import *
 
 jetDQMOnlineAnalyzerAk4ScoutingCleaned = jetDQMAnalyzerAk4ScoutingCleaned.clone(
-    DCSFilterForJetMonitoring = cms.PSet(
-        DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
-        onlineMetaDataDigisSrc =  cms.untracked.InputTag("hltOnlineMetaDataDigis"),
-        DebugOn = cms.untracked.bool(False),
-        alwaysPass = cms.untracked.bool(False)
-    )
-)
-jetDQMOnlineAnalyzerAk4ScoutingUncleaned = jetDQMAnalyzerAk4ScoutingUncleaned.clone(
-    DCSFilterForJetMonitoring = cms.PSet(
-      DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
-        onlineMetaDataDigisSrc =  cms.untracked.InputTag("hltOnlineMetaDataDigis"),
-        DebugOn = cms.untracked.bool(False),
-        alwaysPass = cms.untracked.bool(False)
-    )
+    JetType='scoutingOnline',
+    DCSFilterForJetMonitoring=dict(DetectorTypes = "ecal:hbhe:hf:pixel:sistrip:es:muon",
+                                   onlineMetaDataDigisSrc = cms.untracked.InputTag("hltOnlineMetaDataDigis"),
+                                   DebugOn = cms.untracked.bool(False),
+                                   alwaysPass = False)
 )
 
-jetDQMOnlineAnalyzerSequenceScouting = cms.Sequence(jetDQMOnlineAnalyzerAk4ScoutingUncleaned*jetDQMOnlineAnalyzerAk4ScoutingCleaned)
+jetDQMOnlineAnalyzerAk4ScoutingUncleaned = jetDQMAnalyzerAk4ScoutingUncleaned.clone(
+    JetType='scoutingOnline',
+    DCSFilterForJetMonitoring=dict(DetectorTypes = "ecal:hbhe:hf:pixel:sistrip:es:muon",
+                                   onlineMetaDataDigisSrc = cms.untracked.InputTag("hltOnlineMetaDataDigis"),
+                                   DebugOn =  cms.untracked.bool(False),
+                                   alwaysPass = False)
+)
+
+jetDQMOnlineAnalyzerSequenceScouting = cms.Sequence(jetDQMOnlineAnalyzerAk4ScoutingUncleaned*
+                                                    jetDQMOnlineAnalyzerAk4ScoutingCleaned)
 
 ScoutingJetMonitoring = cms.Sequence(jetPreDQMSeqScouting*
                                      dqmAk4PFScoutingL1FastL2L3ResidualCorrectorChain*

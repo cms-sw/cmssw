@@ -82,9 +82,11 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   //isJPTJet_  = (std::string("jpt") ==jetType_);
   isPFJet_ = (std::string("pf") == jetType_);
   isPUPPIJet_ = (std::string("puppi") == jetType_);
-  isScoutingJet_ = (std::string("scouting") == jetType_);
+  isScoutingJet_ = (jetType_.find("scouting") != std::string::npos);
   isMiniAODJet_ = (std::string("miniaod") == jetType_);
   jetCorrectorTag_ = pSet.getParameter<edm::InputTag>("JetCorrections");
+
+  isOnlineDQM_ = (jetType_.find("Online") != std::string::npos);
 
   if (!isMiniAODJet_) {  //in MiniAOD jet is already corrected
     jetCorrectorToken_ = consumes<reco::JetCorrector>(jetCorrectorTag_);
@@ -313,12 +315,14 @@ JetAnalyzer::~JetAnalyzer() {
 // ***********************************************************
 void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const&) {
   if (isScoutingJet_) {
+    std::string baseDir = isOnlineDQM_ ? "HLT/ScoutingOnline/Jet/" : "HLT/ScoutingOffline/Jet/";
+
     if (jetCleaningFlag_) {
-      ibooker.setCurrentFolder("HLT/ScoutingOffline/Jet/Cleaned" + mInputCollection_.label());
-      DirName = "HLT/ScoutingOffline/Jet/Cleaned" + mInputCollection_.label();
+      ibooker.setCurrentFolder(baseDir + "Cleaned" + mInputCollection_.label());
+      DirName = baseDir + "Cleaned" + mInputCollection_.label();
     } else {
-      ibooker.setCurrentFolder("HLT/ScoutingOffline/Jet/Uncleaned" + mInputCollection_.label());
-      DirName = "HLT/ScoutingOffline/Jet/Uncleaned" + mInputCollection_.label();
+      ibooker.setCurrentFolder(baseDir + "Uncleaned" + mInputCollection_.label());
+      DirName = baseDir + "Uncleaned" + mInputCollection_.label();
     }
   } else {
     if (jetCleaningFlag_) {
@@ -2615,10 +2619,12 @@ void JetAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
 void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //set general folders first --> change later on for different folders
   if (isScoutingJet_) {
+    std::string baseDir = isOnlineDQM_ ? "HLT/ScoutingOnline/Jet/" : "HLT/ScoutingOffline/Jet/";
+
     if (jetCleaningFlag_) {
-      DirName = "HLT/ScoutingOffline/Jet/Cleaned" + mInputCollection_.label();
+      DirName = baseDir + "Cleaned" + mInputCollection_.label();
     } else {
-      DirName = "HLT/ScoutingOffline/Jet/Uncleaned" + mInputCollection_.label();
+      DirName = baseDir + "Uncleaned" + mInputCollection_.label();
     }
   } else {
     if (jetCleaningFlag_) {
