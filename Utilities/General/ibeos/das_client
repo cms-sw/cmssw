@@ -15,14 +15,14 @@ function get_parent_cmds ()
   get_parent_cmds "$XPID" "$DEPTH"
 }
 
+export CMSSW_LIMIT_RESULTS="-0"
 CMD_NAME=$(basename $0)
-LIMIT_RESULTS="NO"
 QUERY=
 FORMAT="plain"
 HELP=
 for ((i=1; i<=$#; i++)); do
   next=$((i+1))
-  case  ${!i} in
+  case ${!i} in
     --query=* | -query=* ) QUERY="${!i#*=}" ;;
     --query | -query ) QUERY=${!next} ;;
     --format=* | -format=* ) FORMAT="${!i#*=}" ;;
@@ -66,7 +66,6 @@ if [ "${FORMAT}" = "json" ]  ; then
   fi
 else
   QUERY_RESULTS=$((curl -f -L -s "${QUERY_URL}" || true) | grep /store/ | sed 's| ||g;s|"||g;s|,||g')
-  export CMSSW_LIMIT_RESULTS="-0"
   if (get_parent_cmds $$ 0 2>&1 || true) | grep -aq '/cmsDriver.py'; then
     export CMSSW_LIMIT_RESULTS="20"
   fi
