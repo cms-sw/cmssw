@@ -92,7 +92,9 @@ DAQSource::DAQSource(edm::ParameterSet const& pset, edm::InputSourceDescription 
   } else if (dataModeConfig_ == "ScoutingRun3") {
     dataMode_ = std::make_shared<DataModeScoutingRun3>(this);
   } else if (dataModeConfig_ == "DTH") {
-    dataMode_ = std::make_shared<DataModeDTH>(this, verifyChecksum_);
+    dataMode_ = std::make_shared<DataModeDTH>(this, verifyChecksum_, false);
+  } else if (dataModeConfig_ == "DTHLegacyCollection") {
+    dataMode_ = std::make_shared<DataModeDTH>(this, verifyChecksum_, true);
   } else
     throw cms::Exception("DAQSource::DAQSource") << "Unknown data mode " << dataModeConfig_;
 
