@@ -545,7 +545,7 @@ upgradeWFs['lstOnCPUIters01TrackingOnly'].step3 = upgradeWFs['trackingOnly'].ste
 class UpgradeWorkflow_lstOnGPUIters01TrackingOnly(UpgradeWorkflowTracking):
     def setup__(self, step, stepName, stepDict, k, properties):
         if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
-        elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, stepDict[step][k]])
+        elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM', '--procModifiers': 'trackingIters01,trackingLST'}, stepDict[step][k]])
         elif 'ALCA' in step: stepDict[stepName][k] = None
     def condition(self, fragment, stepList, key, hasHarvest):
         result = (fragment=="TTbar_14TeV") and hasHarvest and ('Run4' in key)
