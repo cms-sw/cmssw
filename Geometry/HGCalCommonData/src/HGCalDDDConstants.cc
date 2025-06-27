@@ -1858,10 +1858,9 @@ void HGCalDDDConstants::waferFromPosition(const double x,
     bool fineCoarse =
         ((celltype == HGCSiliconDetId::HGCalHD120) || (celltype == HGCSiliconDetId::HGCalHD200)) ? false : true;
     cellHex(xx, yy, fineCoarse, place, part, cellU, cellV, extend, debug);
-    wt = ((((celltype == HGCSiliconDetId::HGCalHD120) || (celltype == HGCSiliconDetId::HGCalHD200)) &&
-           (hgpar_->useSimWt_ > 0))
+    wt = (((celltype == HGCSiliconDetId::HGCalHD120) && (hgpar_->useSimWt_ > 0))
               ? (hgpar_->cellThickness_[celltype] / hgpar_->waferThick_)
-              : 1.0);
+	  : 1.0);
   } else {
     cellU = cellV = 2 * hgpar_->nCellsFine_;
     wt = 1.0;
