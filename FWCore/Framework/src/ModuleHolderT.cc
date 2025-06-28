@@ -33,6 +33,34 @@ namespace edm::maker {
 
   namespace {
     template <typename T>
+    concept HasStreamFunctions = requires(T mod, StreamID id) {
+      { mod.doBeginStream(id) } -> std::same_as<void>;
+      { mod.doEndStream(id) } -> std::same_as<void>;
+    };
+  }  // namespace
+
+  template <typename T>
+  void ModuleHolderT<T>::beginJob() {
+    m_mod->doBeginJob();
+  }
+  template <typename T>
+  void ModuleHolderT<T>::endJob() {
+    m_mod->doEndJob();
+  }
+  template <typename T>
+  void ModuleHolderT<T>::beginStream(StreamID iID) {
+    if constexpr (HasStreamFunctions<T>) {
+      m_mod->doBeginStream(iID);
+    }
+  }
+  template <typename T>
+  void ModuleHolderT<T>::endStream(StreamID iID) {
+    if constexpr (HasStreamFunctions<T>) {
+      m_mod->doEndStream(iID);
+    }
+  }
+  namespace {
+    template <typename T>
     bool mustPrefetchMayGet();
 
     template <>

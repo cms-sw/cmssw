@@ -108,14 +108,9 @@ namespace edm {
     bool implDoStreamBegin(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) override;
     bool implDoStreamEnd(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) override;
     bool implDoEnd(LumiTransitionInfo const&, ModuleCallingContext const*) override;
-    void implBeginJob() override;
-    void implEndJob() override;
-    void implBeginStream(StreamID) override;
-    void implEndStream(StreamID) override;
     void implRespondToOpenInputFile(FileBlock const& fb) override;
     void implRespondToCloseInputFile(FileBlock const& fb) override;
     void implRespondToCloseOutputFile() override;
-    std::string workerType() const override;
     TaskQueueAdaptor serializeRunModule() override;
 
     std::vector<ModuleConsumesInfo> moduleConsumesInfos() const override;

@@ -20,6 +20,7 @@
 #include "FWCore/Framework/interface/OutputModuleCommunicator.h"
 #include "FWCore/Framework/interface/maker/ModuleHolder.h"
 #include "FWCore/Framework/interface/ModuleRegistry.h"
+#include "FWCore/Framework/interface/ModuleRegistryUtilities.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
 #include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/Framework/src/PathStatusInserter.h"
@@ -33,7 +34,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ModuleConsumesInfo.h"
-#include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
@@ -750,7 +750,7 @@ namespace edm {
   }
 
   void Schedule::endJob(ExceptionCollector& collector) {
-    globalSchedule_->endJob(collector);
+    globalSchedule_->endJob(collector, *moduleRegistry_);
     if (collector.hasThrown()) {
       return;
     }
@@ -1153,21 +1153,19 @@ namespace edm {
   void Schedule::beginJob(ProductRegistry const& iRegistry,
                           eventsetup::ESRecordsToProductResolverIndices const& iESIndices,
                           ProcessBlockHelperBase const& processBlockHelperBase,
-                          ProcessContext const& processContext) {
-    auto const& processName = processContext.processConfiguration()->processName();
-
-    moduleRegistry_->finishModulesInitialization(iRegistry, iESIndices, processBlockHelperBase, processName);
-    globalSchedule_->beginJob(processContext);
+                          std::string const& iProcessName) {
+    finishModulesInitialization(*moduleRegistry_, iRegistry, iESIndices, processBlockHelperBase, iProcessName);
+    globalSchedule_->beginJob(*moduleRegistry_);
   }
 
   void Schedule::beginStream(unsigned int streamID) {
     assert(streamID < streamSchedules_.size());
-    streamSchedules_[streamID]->beginStream();
+    streamSchedules_[streamID]->beginStream(*moduleRegistry_);
   }
 
   void Schedule::endStream(unsigned int streamID, ExceptionCollector& collector, std::mutex& collectorMutex) noexcept {
     assert(streamID < streamSchedules_.size());
-    streamSchedules_[streamID]->endStream(collector, collectorMutex);
+    streamSchedules_[streamID]->endStream(*moduleRegistry_, collector, collectorMutex);
   }
 
   void Schedule::processOneEventAsync(WaitingTaskHolder iTask,
@@ -1259,9 +1257,6 @@ namespace edm {
   Schedule::AllWorkers const& Schedule::allWorkers() const { return globalSchedule_->allWorkers(); }
 
   void Schedule::convertCurrentProcessAlias(std::string const& processName) {
-    //for (auto const& worker : allWorkers()) {
-    //  worker->convertCurrentProcessAlias(processName);
-    //}
     moduleRegistry_->forAllModuleHolders([&](auto& iHolder) { iHolder->convertCurrentProcessAlias(processName); });
   }
 
