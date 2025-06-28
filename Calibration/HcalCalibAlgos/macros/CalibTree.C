@@ -344,6 +344,7 @@ private:
   CalibCorr *cFactor_;
   CalibSelectRBX *cSelect_;
   CalibDuplicate *cDuplicate_;
+  CalibThreshold *cThr_;
   const int truncateFlag_;
   const bool useIter_;
   const bool useMean_;
@@ -575,6 +576,7 @@ CalibTree::CalibTree(const char *dupFileName,
       cFactor_(nullptr),
       cSelect_(nullptr),
       cDuplicate_(nullptr),
+      cThr_(nullptr),
       truncateFlag_(flag),
       useIter_(useIter),
       useMean_(useMean),
@@ -624,6 +626,8 @@ CalibTree::CalibTree(const char *dupFileName,
   }
   if (std::string(rbxFile) != "")
     cSelect_ = new CalibSelectRBX(rbxFile, false);
+  if (thrForm_ > 0)
+    cThr_ = new CalibThreshold(thrForm_);
 }
 
 CalibTree::~CalibTree() {
@@ -844,7 +848,7 @@ Double_t CalibTree::Loop(int loop,
         if ((rmin >= 0 && ratio > rmin) && (rmax >= 0 && ratio < rmax) && l1c) {
           for (unsigned int idet = 0; idet < (*t_DetIds).size(); idet++) {
             // Apply thresholds if necessary
-            bool okcell = (thrForm_ == 0) || ((*t_HitEnergies)[idet] > threshold((*t_DetIds)[idet], thrForm_));
+            bool okcell = (thrForm_ == 0) || ((*t_HitEnergies)[idet] > (cThr_->threshold((*t_DetIds)[idet])));
             if (okcell && selectPhi((*t_DetIds)[idet])) {
               unsigned int id = (*t_DetIds)[idet];
               unsigned int detid = truncateId(id, truncateFlag_, false);
@@ -1237,10 +1241,11 @@ void CalibTree::writeCorrFactor(const char *corrFileName, int ietaMax) {
       int subdet, depth, zside, ieta, iphi;
       unpackDetId(detId, subdet, zside, ieta, iphi, depth);
       if (ieta <= ietaMax) {
+	double corrf = ((itr->second.first > 0.1) && (itr->second.first < 4.0)) ? itr->second.first : 1.0;
+	double dcorr = ((itr->second.first > 0.1) && (itr->second.first < 4.0)) ? itr->second.second : 0.0;
         myfile << std::setw(10) << std::hex << detId << std::setw(10) << std::dec << zside * ieta << std::setw(10)
-               << depth << std::setw(10) << itr->second.first << " " << std::setw(10) << itr->second.second
-               << std::endl;
-        std::cout << itr->second.first << ",";
+               << depth << std::setw(10) << corrf << " " << std::setw(10) << dcorr << std::endl;
+        std::cout << corrf << ",";
       }
     }
     myfile.close();
@@ -1475,7 +1480,7 @@ CalibTree::energyCalor CalibTree::energyHcal(double pmom, const Long64_t &entry,
     etot = etot2 = 0;
     for (unsigned int idet = 0; idet < (*t_DetIds).size(); idet++) {
       // Apply thresholds if necessary
-      bool okcell = (thrForm_ == 0) || ((*t_HitEnergies)[idet] > threshold((*t_DetIds)[idet], thrForm_));
+      bool okcell = (thrForm_ == 0) || ((*t_HitEnergies)[idet] > (cThr_->threshold((*t_DetIds)[idet])));
       if (okcell && selectPhi((*t_DetIds)[idet])) {
         unsigned int id = (*t_DetIds)[idet];
         double hitEn(0);
@@ -1502,7 +1507,7 @@ CalibTree::energyCalor CalibTree::energyHcal(double pmom, const Long64_t &entry,
     if (t_DetIds1 != 0 && t_DetIds3 != 0) {
       for (unsigned int idet = 0; idet < (*t_DetIds1).size(); idet++) {
         // Apply thresholds if necessary
-        bool okcell = (thrForm_ == 0) || ((*t_HitEnergies1)[idet] > threshold((*t_DetIds1)[idet], thrForm_));
+        bool okcell = (thrForm_ == 0) || ((*t_HitEnergies1)[idet] > (cThr_->threshold((*t_DetIds1)[idet])));
         if (okcell && selectPhi((*t_DetIds1)[idet])) {
           unsigned int id = (*t_DetIds1)[idet];
           unsigned int detid = truncateId(id, truncateFlag_, false);
@@ -1525,7 +1530,7 @@ CalibTree::energyCalor CalibTree::energyHcal(double pmom, const Long64_t &entry,
       }
       for (unsigned int idet = 0; idet < (*t_DetIds3).size(); idet++) {
         // Apply thresholds if necessary
-        bool okcell = (thrForm_ == 0) || ((*t_HitEnergies3)[idet] > threshold((*t_DetIds3)[idet], thrForm_));
+        bool okcell = (thrForm_ == 0) || ((*t_HitEnergies3)[idet] > (cThr_->threshold((*t_DetIds3)[idet])));
         if (okcell && selectPhi((*t_DetIds3)[idet])) {
           unsigned int id = (*t_DetIds3)[idet];
           unsigned int detid = truncateId(id, truncateFlag_, false);
