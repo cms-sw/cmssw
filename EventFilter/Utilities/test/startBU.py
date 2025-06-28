@@ -171,7 +171,8 @@ elif  options.dataType == "DTH":
         numEventsPerFile = cms.uint32(options.eventsPerFile),
         frdVersion = cms.uint32(0),
         frdFileVersion = cms.uint32(0),
-        sourceIdList = cms.untracked.vuint32(66,1511)
+        sourceIdList = cms.untracked.vuint32(66,1511),
+        rawProductName = cms.untracked.string("RawDataBuffer")
     )
 
 if options.conversionTest:
