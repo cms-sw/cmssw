@@ -4,6 +4,8 @@
 #include "FWCore/Framework/src/PathStatusInserter.h"
 #include "FWCore/Framework/src/EndPathStatusInserter.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/ModuleRegistry.h"
+#include "FWCore/Framework/interface/ModuleRegistryUtilities.h"
 
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
@@ -12,6 +14,11 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
+#include "FWCore/Utilities/interface/ConvertException.h"
+#include "FWCore/Utilities/interface/make_sentry.h"
+
+#include "FWCore/ServiceRegistry/interface/GlobalContext.h"
+#include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 
 #include <algorithm>
 #include <cassert>
@@ -38,8 +45,8 @@ namespace edm {
         processContext_(processContext),
         numberOfConcurrentLumis_(prealloc.numberOfLuminosityBlocks()),
         numberOfConcurrentRuns_(prealloc.numberOfRuns()) {
-    unsigned int nManagers = prealloc.numberOfLuminosityBlocks() + prealloc.numberOfRuns() +
-                             numberOfConcurrentProcessBlocks_ + numberOfConcurrentJobs_;
+    unsigned int nManagers =
+        prealloc.numberOfLuminosityBlocks() + prealloc.numberOfRuns() + numberOfConcurrentProcessBlocks_;
     workerManagers_.reserve(nManagers);
     for (unsigned int i = 0; i < nManagers; ++i) {
       workerManagers_.emplace_back(modReg, areg, actions);
@@ -80,29 +87,32 @@ namespace edm {
 
   }  // GlobalSchedule::GlobalSchedule
 
-  void GlobalSchedule::beginJob(ProcessContext const& processContext) {
-    GlobalContext globalContext(GlobalContext::Transition::kBeginJob, processContext_);
-    unsigned int const managerIndex =
-        numberOfConcurrentLumis_ + numberOfConcurrentRuns_ + numberOfConcurrentProcessBlocks_;
+  void GlobalSchedule::beginJob(ModuleRegistry& modReg) {
+    constexpr static char const* const globalContext = "Processing begin Job";
 
+    GlobalContext gc(GlobalContext::Transition::kBeginJob, processContext_);
     std::exception_ptr exceptionPtr;
-    CMS_SA_ALLOW try {
-      try {
-        convertException::wrap([this, &processContext]() { actReg_->preBeginJobSignal_(processContext); });
-      } catch (cms::Exception& ex) {
-        exceptionContext(ex, globalContext, "Handling pre signal, likely in a service function");
-        throw;
-      }
-      workerManagers_[managerIndex].beginJob(globalContext);
-    } catch (...) {
+    try {
+      convertException::wrap([this]() { actReg_->preBeginJobSignal_(*processContext_); });
+    } catch (cms::Exception& ex) {
+      ex.addContext("Handling pre signal, likely in a service function");
+      ex.addContext(globalContext);
       exceptionPtr = std::current_exception();
     }
-
+    if (not exceptionPtr) {
+      try {
+        runBeginJobForModules(gc, modReg, *actReg_, beginJobFailedForModule_);
+      } catch (cms::Exception& ex) {
+        ex.addContext(globalContext);
+        exceptionPtr = std::current_exception();
+      }
+    }
     try {
       convertException::wrap([this]() { actReg_->postBeginJobSignal_(); });
     } catch (cms::Exception& ex) {
       if (!exceptionPtr) {
-        exceptionContext(ex, globalContext, "Handling post signal, likely in a service function");
+        ex.addContext("Handling post signal, likely in a service function");
+        ex.addContext(globalContext);
         exceptionPtr = std::current_exception();
       }
     }
@@ -111,29 +121,27 @@ namespace edm {
     }
   }
 
-  void GlobalSchedule::endJob(ExceptionCollector& collector) {
-    GlobalContext globalContext(GlobalContext::Transition::kEndJob, processContext_);
-    unsigned int const managerIndex =
-        numberOfConcurrentLumis_ + numberOfConcurrentRuns_ + numberOfConcurrentProcessBlocks_;
-
+  void GlobalSchedule::endJob(ExceptionCollector& collector, ModuleRegistry& modReg) {
+    constexpr static char const* const context = "Processing end Job";
+    GlobalContext gc(GlobalContext::Transition::kEndJob, processContext_);
     std::exception_ptr exceptionPtr;
-    CMS_SA_ALLOW try {
-      try {
-        convertException::wrap([this]() { actReg_->preEndJobSignal_(); });
-      } catch (cms::Exception& ex) {
-        exceptionContext(ex, globalContext, "Handling pre signal, likely in a service function");
-        throw;
-      }
-      workerManagers_[managerIndex].endJob(collector, globalContext);
-    } catch (...) {
+    try {
+      convertException::wrap([this]() { actReg_->preEndJobSignal_(); });
+    } catch (cms::Exception& ex) {
+      ex.addContext("Handling pre signal, likely in a service function");
+      ex.addContext(context);
       exceptionPtr = std::current_exception();
+    }
+    if (not exceptionPtr) {
+      runEndJobForModules(gc, modReg, *actReg_, collector, beginJobFailedForModule_);
     }
 
     try {
       convertException::wrap([this]() { actReg_->postEndJobSignal_(); });
     } catch (cms::Exception& ex) {
       if (!exceptionPtr) {
-        exceptionContext(ex, globalContext, "Handling post signal, likely in a service function");
+        ex.addContext("Handling post signal, likely in a service function");
+        ex.addContext(context);
         exceptionPtr = std::current_exception();
       }
     }
@@ -144,9 +152,6 @@ namespace edm {
 
   void GlobalSchedule::replaceModule(maker::ModuleHolder* iMod, std::string const& iLabel) {
     Worker* found = nullptr;
-    unsigned int const jobManagerIndex =
-        numberOfConcurrentLumis_ + numberOfConcurrentRuns_ + numberOfConcurrentProcessBlocks_;
-    unsigned int managerIndex = 0;
     for (auto& wm : workerManagers_) {
       for (auto const& worker : wm.allWorkers()) {
         if (worker->description()->moduleLabel() == iLabel) {
@@ -157,14 +162,12 @@ namespace edm {
       if (nullptr == found) {
         return;
       }
-
       iMod->replaceModuleFor(found);
-      if (managerIndex == jobManagerIndex) {
-        GlobalContext globalContext(GlobalContext::Transition::kBeginJob, processContext_);
-        found->beginJob(globalContext);
-      }
-      ++managerIndex;
     }
+    auto sentry = make_sentry(
+        iMod, [&](auto const* mod) { beginJobFailedForModule_.emplace_back(mod->moduleDescription().id()); });
+    iMod->beginJob();
+    sentry.release();
   }
 
   void GlobalSchedule::deleteModule(std::string const& iLabel) {

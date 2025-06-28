@@ -20,22 +20,24 @@ Module type=IntProducer, Module label=intProducer, Parameter Set ID=b4b90439a301
 ++++ finished: constructing module with label 'intVectorProducer' id = 6
 ++ preallocate: 1 concurrent runs, 1 concurrent luminosity sections, 1 streams
 ++ starting: begin job
-++++ starting: begin job for module with label 'intProducerU' id = 5
-++++ finished: begin job for module with label 'intProducerU' id = 5
-++++ starting: begin job for module with label 'intVectorProducer' id = 6
-++++ finished: begin job for module with label 'intVectorProducer' id = 6
+++++ starting: begin job for module with label 'TriggerResults' id = 1
+++++ finished: begin job for module with label 'TriggerResults' id = 1
 ++++ starting: begin job for module with label 'intProducer' id = 3
 Module type=IntProducer, Module label=intProducer, Parameter Set ID=b4b90439a3015d748c803aa5c60a25d3
 ++++ finished: begin job for module with label 'intProducer' id = 3
 Module type=IntProducer, Module label=intProducer, Parameter Set ID=b4b90439a3015d748c803aa5c60a25d3
+++++ starting: begin job for module with label 'intProducerU' id = 5
+++++ finished: begin job for module with label 'intProducerU' id = 5
+++++ starting: begin job for module with label 'intVectorProducer' id = 6
+++++ finished: begin job for module with label 'intVectorProducer' id = 6
 ++++ starting: begin job for module with label 'out' id = 4
 ++++ finished: begin job for module with label 'out' id = 4
-++++ starting: begin job for module with label 'TriggerResults' id = 1
-++++ finished: begin job for module with label 'TriggerResults' id = 1
 ++++ starting: begin job for module with label 'p' id = 2
 ++++ finished: begin job for module with label 'p' id = 2
 ++ finished: begin job
 ++ starting: begin stream 0
+++++ starting: begin stream for module: stream = 0 label = 'TriggerResults' id = 1
+++++ finished: begin stream for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ starting: begin stream for module: stream = 0 label = 'intProducer' id = 3
 StreamContext: StreamID = 0 transition = BeginStream
     run: 0 lumi: 0 event: 0
@@ -60,12 +62,14 @@ ModuleCallingContext state = Running
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
     ProcessContext: PROD2 9a42d7e4995aeb2a3c9d04a3ef0f3879
 
-++++ starting: begin stream for module: stream = 0 label = 'out' id = 4
-++++ finished: begin stream for module: stream = 0 label = 'out' id = 4
 ++++ starting: begin stream for module: stream = 0 label = 'intProducerU' id = 5
 ++++ finished: begin stream for module: stream = 0 label = 'intProducerU' id = 5
 ++++ starting: begin stream for module: stream = 0 label = 'intVectorProducer' id = 6
 ++++ finished: begin stream for module: stream = 0 label = 'intVectorProducer' id = 6
+++++ starting: begin stream for module: stream = 0 label = 'out' id = 4
+++++ finished: begin stream for module: stream = 0 label = 'out' id = 4
+++++ starting: begin stream for module: stream = 0 label = 'p' id = 2
+++++ finished: begin stream for module: stream = 0 label = 'p' id = 2
 ++ finished: begin stream 0
 ++++ starting: begin process block
 GlobalContext: transition = BeginProcessBlock
@@ -815,6 +819,8 @@ GlobalContext: transition = WriteProcessBlock
     ProcessContext: PROD2 9a42d7e4995aeb2a3c9d04a3ef0f3879
 
 ++ starting: end stream 0
+++++ starting: end stream for module: stream = 0 label = 'TriggerResults' id = 1
+++++ finished: end stream for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ starting: end stream for module: stream = 0 label = 'intProducer' id = 3
 StreamContext: StreamID = 0 transition = EndStream
     run: 0 lumi: 0 event: 0
@@ -839,26 +845,28 @@ ModuleCallingContext state = Running
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
     ProcessContext: PROD2 9a42d7e4995aeb2a3c9d04a3ef0f3879
 
-++++ starting: end stream for module: stream = 0 label = 'out' id = 4
-++++ finished: end stream for module: stream = 0 label = 'out' id = 4
 ++++ starting: end stream for module: stream = 0 label = 'intProducerU' id = 5
 ++++ finished: end stream for module: stream = 0 label = 'intProducerU' id = 5
 ++++ starting: end stream for module: stream = 0 label = 'intVectorProducer' id = 6
 ++++ finished: end stream for module: stream = 0 label = 'intVectorProducer' id = 6
+++++ starting: end stream for module: stream = 0 label = 'out' id = 4
+++++ finished: end stream for module: stream = 0 label = 'out' id = 4
+++++ starting: end stream for module: stream = 0 label = 'p' id = 2
+++++ finished: end stream for module: stream = 0 label = 'p' id = 2
 ++ finished: end stream 0
 ++ starting: end job
-++++ starting: end job for module with label 'intProducerU' id = 5
-++++ finished: end job for module with label 'intProducerU' id = 5
-++++ starting: end job for module with label 'intVectorProducer' id = 6
-++++ finished: end job for module with label 'intVectorProducer' id = 6
+++++ starting: end job for module with label 'TriggerResults' id = 1
+++++ finished: end job for module with label 'TriggerResults' id = 1
 ++++ starting: end job for module with label 'intProducer' id = 3
 Module type=IntProducer, Module label=intProducer, Parameter Set ID=b4b90439a3015d748c803aa5c60a25d3
 ++++ finished: end job for module with label 'intProducer' id = 3
 Module type=IntProducer, Module label=intProducer, Parameter Set ID=b4b90439a3015d748c803aa5c60a25d3
+++++ starting: end job for module with label 'intProducerU' id = 5
+++++ finished: end job for module with label 'intProducerU' id = 5
+++++ starting: end job for module with label 'intVectorProducer' id = 6
+++++ finished: end job for module with label 'intVectorProducer' id = 6
 ++++ starting: end job for module with label 'out' id = 4
 ++++ finished: end job for module with label 'out' id = 4
-++++ starting: end job for module with label 'TriggerResults' id = 1
-++++ finished: end job for module with label 'TriggerResults' id = 1
 ++++ starting: end job for module with label 'p' id = 2
 ++++ finished: end job for module with label 'p' id = 2
 ++ finished: end job
