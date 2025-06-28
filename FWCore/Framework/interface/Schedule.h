@@ -170,7 +170,7 @@ namespace edm {
     void beginJob(ProductRegistry const&,
                   eventsetup::ESRecordsToProductResolverIndices const&,
                   ProcessBlockHelperBase const&,
-                  ProcessContext const&);
+                  std::string const& processName);
     void endJob(ExceptionCollector& collector);
     void sendFwkSummaryToMessageLogger() const;
 

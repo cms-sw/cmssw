@@ -693,7 +693,8 @@ namespace edm {
     // after they all complete.
     std::exception_ptr firstException;
     CMS_SA_ALLOW try {
-      schedule_->beginJob(*preg_, esRecordsToProductResolverIndices, *processBlockHelper_, processContext_);
+      schedule_->beginJob(
+          *preg_, esRecordsToProductResolverIndices, *processBlockHelper_, processContext_.processName());
     } catch (...) {
       firstException = std::current_exception();
     }

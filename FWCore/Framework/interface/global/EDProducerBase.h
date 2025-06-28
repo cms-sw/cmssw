@@ -111,7 +111,6 @@ namespace edm {
       void registerProductsAndCallbacks(EDProducerBase* module, SignallingProductRegistryFiller* reg) {
         registerProducts(module, reg, moduleDescription_);
       }
-      std::string workerType() const { return "WorkerT<EDProducer>"; }
 
       virtual void produce(StreamID, Event&, EventSetup const&) const = 0;
       //For now this is a placeholder
