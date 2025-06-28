@@ -90,6 +90,7 @@ private:
 
   const bool onlyScouting_;
   const edm::EDGetTokenT<std::vector<Run3ScoutingMuon>> muonsToken_;
+  const edm::EDGetTokenT<std::vector<Run3ScoutingMuon>> muonsVtxToken_;
   const edm::EDGetTokenT<std::vector<Run3ScoutingElectron>> electronsToken_;
   const edm::EDGetTokenT<std::vector<Run3ScoutingVertex>> primaryVerticesToken_;
   const edm::EDGetTokenT<std::vector<Run3ScoutingVertex>> verticesToken_;
@@ -235,61 +236,60 @@ private:
   dqm::reco::MonitorElement* sMin_ele_hist;
   dqm::reco::MonitorElement* sMaj_ele_hist;
 
-  // muon histograms
-  dqm::reco::MonitorElement* pt_mu_hist;
-  dqm::reco::MonitorElement* eta_mu_hist;
-  dqm::reco::MonitorElement* phi_mu_hist;
-  dqm::reco::MonitorElement* type_mu_hist;
-  dqm::reco::MonitorElement* charge_mu_hist;
-  dqm::reco::MonitorElement* normalizedChi2_mu_hist;
-  dqm::reco::MonitorElement* ecalIso_mu_hist;
-  dqm::reco::MonitorElement* hcalIso_mu_hist;
-  dqm::reco::MonitorElement* trackIso_mu_hist;
-  dqm::reco::MonitorElement* nValidStandAloneMuonHits_mu_hist;
-  dqm::reco::MonitorElement* nStandAloneMuonMatchedStations_mu_hist;
-  dqm::reco::MonitorElement* nValidRecoMuonHits_mu_hist;
-  dqm::reco::MonitorElement* nRecoMuonChambers_mu_hist;
-  dqm::reco::MonitorElement* nRecoMuonChambersCSCorDT_mu_hist;
-  dqm::reco::MonitorElement* nRecoMuonMatches_mu_hist;
-  dqm::reco::MonitorElement* nRecoMuonMatchedStations_mu_hist;
-  dqm::reco::MonitorElement* nRecoMuonExpectedMatchedStations_mu_hist;
-  dqm::reco::MonitorElement* recoMuonStationMask_mu_hist;
-  dqm::reco::MonitorElement* nRecoMuonMatchedRPCLayers_mu_hist;
-  dqm::reco::MonitorElement* recoMuonRPClayerMask_mu_hist;
-  dqm::reco::MonitorElement* nValidPixelHits_mu_hist;
-  dqm::reco::MonitorElement* nValidStripHits_mu_hist;
-  dqm::reco::MonitorElement* nPixelLayersWithMeasurement_mu_hist;
-  dqm::reco::MonitorElement* nTrackerLayersWithMeasurement_mu_hist;
-  dqm::reco::MonitorElement* trk_chi2_mu_hist;
-  dqm::reco::MonitorElement* trk_ndof_mu_hist;
-  dqm::reco::MonitorElement* trk_dxy_mu_hist;
-  dqm::reco::MonitorElement* trk_dz_mu_hist;
-  dqm::reco::MonitorElement* trk_qoverp_mu_hist;
-  dqm::reco::MonitorElement* trk_lambda_mu_hist;
-  dqm::reco::MonitorElement* trk_pt_mu_hist;
-  dqm::reco::MonitorElement* trk_phi_mu_hist;
-  dqm::reco::MonitorElement* trk_eta_mu_hist;
-  dqm::reco::MonitorElement* trk_dxyError_mu_hist;
-  dqm::reco::MonitorElement* trk_dzError_mu_hist;
-  dqm::reco::MonitorElement* trk_qoverpError_mu_hist;
-  dqm::reco::MonitorElement* trk_lambdaError_mu_hist;
-  dqm::reco::MonitorElement* trk_phiError_mu_hist;
-  dqm::reco::MonitorElement* trk_dsz_mu_hist;
-  dqm::reco::MonitorElement* trk_dszError_mu_hist;
-  dqm::reco::MonitorElement* trk_qoverp_lambda_cov_mu_hist;
-  dqm::reco::MonitorElement* trk_qoverp_phi_cov_mu_hist;
-  dqm::reco::MonitorElement* trk_qoverp_dxy_cov_mu_hist;
-  dqm::reco::MonitorElement* trk_qoverp_dsz_cov_mu_hist;
-  dqm::reco::MonitorElement* trk_lambda_phi_cov_mu_hist;
-  dqm::reco::MonitorElement* trk_lambda_dxy_cov_mu_hist;
-  dqm::reco::MonitorElement* trk_lambda_dsz_cov_mu_hist;
-  dqm::reco::MonitorElement* trk_phi_dxy_cov_mu_hist;
-  dqm::reco::MonitorElement* trk_phi_dsz_cov_mu_hist;
-  dqm::reco::MonitorElement* trk_dxy_dsz_cov_mu_hist;
-  dqm::reco::MonitorElement* trk_vx_mu_hist;
-  dqm::reco::MonitorElement* trk_vy_mu_hist;
-  dqm::reco::MonitorElement* trk_vz_mu_hist;
-  dqm::reco::MonitorElement* trk_chi2_prob_hist;
+  // muon histograms (index 0: noVtx, index1: Vtx
+  dqm::reco::MonitorElement* pt_mu_hist[2];
+  dqm::reco::MonitorElement* eta_mu_hist[2];
+  dqm::reco::MonitorElement* phi_mu_hist[2];
+  dqm::reco::MonitorElement* type_mu_hist[2];
+  dqm::reco::MonitorElement* charge_mu_hist[2];
+  dqm::reco::MonitorElement* normalizedChi2_mu_hist[2];
+  dqm::reco::MonitorElement* ecalIso_mu_hist[2];
+  dqm::reco::MonitorElement* hcalIso_mu_hist[2];
+  dqm::reco::MonitorElement* trackIso_mu_hist[2];
+  dqm::reco::MonitorElement* nValidStandAloneMuonHits_mu_hist[2];
+  dqm::reco::MonitorElement* nStandAloneMuonMatchedStations_mu_hist[2];
+  dqm::reco::MonitorElement* nValidRecoMuonHits_mu_hist[2];
+  dqm::reco::MonitorElement* nRecoMuonChambers_mu_hist[2];
+  dqm::reco::MonitorElement* nRecoMuonChambersCSCorDT_mu_hist[2];
+  dqm::reco::MonitorElement* nRecoMuonMatches_mu_hist[2];
+  dqm::reco::MonitorElement* nRecoMuonMatchedStations_mu_hist[2];
+  dqm::reco::MonitorElement* nRecoMuonExpectedMatchedStations_mu_hist[2];
+  dqm::reco::MonitorElement* recoMuonStationMask_mu_hist[2];
+  dqm::reco::MonitorElement* nRecoMuonMatchedRPCLayers_mu_hist[2];
+  dqm::reco::MonitorElement* recoMuonRPClayerMask_mu_hist[2];
+  dqm::reco::MonitorElement* nValidPixelHits_mu_hist[2];
+  dqm::reco::MonitorElement* nValidStripHits_mu_hist[2];
+  dqm::reco::MonitorElement* nPixelLayersWithMeasurement_mu_hist[2];
+  dqm::reco::MonitorElement* nTrackerLayersWithMeasurement_mu_hist[2];
+  dqm::reco::MonitorElement* trk_chi2_mu_hist[2];
+  dqm::reco::MonitorElement* trk_ndof_mu_hist[2];
+  dqm::reco::MonitorElement* trk_dxy_mu_hist[2];
+  dqm::reco::MonitorElement* trk_dz_mu_hist[2];
+  dqm::reco::MonitorElement* trk_qoverp_mu_hist[2];
+  dqm::reco::MonitorElement* trk_lambda_mu_hist[2];
+  dqm::reco::MonitorElement* trk_pt_mu_hist[2];
+  dqm::reco::MonitorElement* trk_phi_mu_hist[2];
+  dqm::reco::MonitorElement* trk_eta_mu_hist[2];
+  dqm::reco::MonitorElement* trk_dxyError_mu_hist[2];
+  dqm::reco::MonitorElement* trk_dzError_mu_hist[2];
+  dqm::reco::MonitorElement* trk_qoverpError_mu_hist[2];
+  dqm::reco::MonitorElement* trk_lambdaError_mu_hist[2];
+  dqm::reco::MonitorElement* trk_phiError_mu_hist[2];
+  dqm::reco::MonitorElement* trk_dsz_mu_hist[2];
+  dqm::reco::MonitorElement* trk_dszError_mu_hist[2];
+  dqm::reco::MonitorElement* trk_qoverp_lambda_cov_mu_hist[2];
+  dqm::reco::MonitorElement* trk_qoverp_phi_cov_mu_hist[2];
+  dqm::reco::MonitorElement* trk_qoverp_dxy_cov_mu_hist[2];
+  dqm::reco::MonitorElement* trk_qoverp_dsz_cov_mu_hist[2];
+  dqm::reco::MonitorElement* trk_lambda_phi_cov_mu_hist[2];
+  dqm::reco::MonitorElement* trk_lambda_dxy_cov_mu_hist[2];
+  dqm::reco::MonitorElement* trk_lambda_dsz_cov_mu_hist[2];
+  dqm::reco::MonitorElement* trk_phi_dxy_cov_mu_hist[2];
+  dqm::reco::MonitorElement* trk_phi_dsz_cov_mu_hist[2];
+  dqm::reco::MonitorElement* trk_dxy_dsz_cov_mu_hist[2];
+  dqm::reco::MonitorElement* trk_vx_mu_hist[2];
+  dqm::reco::MonitorElement* trk_vy_mu_hist[2];
+  dqm::reco::MonitorElement* trk_vz_mu_hist[2];
 
   // PF Jet histograms
   dqm::reco::MonitorElement* pt_pfj_hist;
@@ -344,7 +344,7 @@ private:
   dqm::reco::MonitorElement* xzCov_vtx_hist;
   dqm::reco::MonitorElement* yzCov_vtx_hist;
 
-  // tracker histograms
+  // general tracking histograms
   dqm::reco::MonitorElement* tk_pt_tk_hist;
   dqm::reco::MonitorElement* tk_eta_tk_hist;
   dqm::reco::MonitorElement* tk_phi_tk_hist;
@@ -380,7 +380,7 @@ private:
   dqm::reco::MonitorElement* tk_vy_tk_hist;
   dqm::reco::MonitorElement* tk_vz_tk_hist;
   dqm::reco::MonitorElement* tk_chi2_ndof_tk_hist;
-
+  dqm::reco::MonitorElement* tk_chi2_prob_hist;
   dqm::reco::MonitorElement* tk_PV_dxy_hist;
   dqm::reco::MonitorElement* tk_PV_dz_hist;
 };
@@ -391,6 +391,7 @@ private:
 ScoutingCollectionMonitor::ScoutingCollectionMonitor(const edm::ParameterSet& iConfig)
     : onlyScouting_(iConfig.getParameter<bool>("onlyScouting")),
       muonsToken_(consumes<std::vector<Run3ScoutingMuon>>(iConfig.getParameter<edm::InputTag>("muons"))),
+      muonsVtxToken_(consumes<std::vector<Run3ScoutingMuon>>(iConfig.getParameter<edm::InputTag>("muonsVtx"))),
       electronsToken_(consumes<std::vector<Run3ScoutingElectron>>(iConfig.getParameter<edm::InputTag>("electrons"))),
       primaryVerticesToken_(
           consumes<std::vector<Run3ScoutingVertex>>(iConfig.getParameter<edm::InputTag>("primaryVertices"))),
@@ -404,9 +405,7 @@ ScoutingCollectionMonitor::ScoutingCollectionMonitor(const edm::ParameterSet& iC
       pfjetsToken_(consumes<std::vector<Run3ScoutingPFJet>>(iConfig.getParameter<edm::InputTag>("pfjets"))),
       tracksToken_(consumes<std::vector<Run3ScoutingTrack>>(iConfig.getParameter<edm::InputTag>("tracks"))),
       onlineMetaDataDigisToken_(consumes(iConfig.getParameter<edm::InputTag>("onlineMetaDataDigis"))),
-      topfoldername_(iConfig.getParameter<std::string>("topfoldername"))
-
-{}
+      topfoldername_(iConfig.getParameter<std::string>("topfoldername")) {}
 
 //
 // member functions
@@ -438,6 +437,7 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
   edm::Handle<std::vector<Run3ScoutingPhoton>> photonsH;
   edm::Handle<std::vector<Run3ScoutingElectron>> electronsH;
   edm::Handle<std::vector<Run3ScoutingMuon>> muonsH;
+  edm::Handle<std::vector<Run3ScoutingMuon>> muonsVtxH;
   edm::Handle<std::vector<Run3ScoutingPFJet>> PFjetsH;
   edm::Handle<std::vector<Run3ScoutingVertex>> verticesH;
   edm::Handle<std::vector<Run3ScoutingVertex>> primaryVerticesH;
@@ -451,6 +451,7 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
       !getValidHandle(iEvent, photonsToken_, photonsH, "photons") ||
       !getValidHandle(iEvent, electronsToken_, electronsH, "electrons") ||
       !getValidHandle(iEvent, muonsToken_, muonsH, "muons") ||
+      !getValidHandle(iEvent, muonsVtxToken_, muonsVtxH, "muonsVtx") ||
       !getValidHandle(iEvent, pfjetsToken_, PFjetsH, "PF jets") ||
       !getValidHandle(iEvent, verticesToken_, verticesH, "vertices") ||
       !getValidHandle(iEvent, primaryVerticesToken_, primaryVerticesH, "primary vertices") ||
@@ -611,62 +612,70 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
     sMaj_ele_hist->Fill(ele.sMaj());
   }
 
-  // fill all the muon histograms
-  for (const auto& mu : *muonsH) {
-    pt_mu_hist->Fill(mu.pt());
-    eta_mu_hist->Fill(mu.eta());
-    phi_mu_hist->Fill(mu.phi());
-    type_mu_hist->Fill(mu.type());
-    charge_mu_hist->Fill(mu.charge());
-    normalizedChi2_mu_hist->Fill(mu.normalizedChi2());
-    ecalIso_mu_hist->Fill(mu.ecalIso());
-    hcalIso_mu_hist->Fill(mu.hcalIso());
-    trackIso_mu_hist->Fill(mu.trackIso());
-    nValidStandAloneMuonHits_mu_hist->Fill(mu.nValidStandAloneMuonHits());
-    nStandAloneMuonMatchedStations_mu_hist->Fill(mu.nStandAloneMuonMatchedStations());
-    nValidRecoMuonHits_mu_hist->Fill(mu.nValidRecoMuonHits());
-    nRecoMuonChambers_mu_hist->Fill(mu.nRecoMuonChambers());
-    nRecoMuonChambersCSCorDT_mu_hist->Fill(mu.nRecoMuonChambersCSCorDT());
-    nRecoMuonMatches_mu_hist->Fill(mu.nRecoMuonMatches());
-    nRecoMuonMatchedStations_mu_hist->Fill(mu.nRecoMuonMatchedStations());
-    nRecoMuonExpectedMatchedStations_mu_hist->Fill(mu.nRecoMuonExpectedMatchedStations());
-    recoMuonStationMask_mu_hist->Fill(mu.recoMuonStationMask());
-    nRecoMuonMatchedRPCLayers_mu_hist->Fill(mu.nRecoMuonMatchedRPCLayers());
-    recoMuonRPClayerMask_mu_hist->Fill(mu.recoMuonRPClayerMask());
-    nValidPixelHits_mu_hist->Fill(mu.nValidPixelHits());
-    nValidStripHits_mu_hist->Fill(mu.nValidStripHits());
-    nPixelLayersWithMeasurement_mu_hist->Fill(mu.nPixelLayersWithMeasurement());
-    nTrackerLayersWithMeasurement_mu_hist->Fill(mu.nTrackerLayersWithMeasurement());
-    trk_chi2_mu_hist->Fill(mu.trk_chi2());
-    trk_ndof_mu_hist->Fill(mu.trk_ndof());
-    trk_dxy_mu_hist->Fill(mu.trk_dxy());
-    trk_dz_mu_hist->Fill(mu.trk_dz());
-    trk_qoverp_mu_hist->Fill(mu.trk_qoverp());
-    trk_lambda_mu_hist->Fill(mu.trk_lambda());
-    trk_pt_mu_hist->Fill(mu.trk_pt());
-    trk_phi_mu_hist->Fill(mu.trk_phi());
-    trk_eta_mu_hist->Fill(mu.trk_eta());
-    trk_dxyError_mu_hist->Fill(mu.trk_dxyError());
-    trk_dzError_mu_hist->Fill(mu.trk_dzError());
-    trk_qoverpError_mu_hist->Fill(mu.trk_qoverpError());
-    trk_lambdaError_mu_hist->Fill(mu.trk_lambdaError());
-    trk_phiError_mu_hist->Fill(mu.trk_phiError());
-    trk_dsz_mu_hist->Fill(mu.trk_dsz());
-    trk_dszError_mu_hist->Fill(mu.trk_dszError());
-    trk_qoverp_lambda_cov_mu_hist->Fill(mu.trk_qoverp_lambda_cov());
-    trk_qoverp_phi_cov_mu_hist->Fill(mu.trk_qoverp_phi_cov());
-    trk_qoverp_dxy_cov_mu_hist->Fill(mu.trk_qoverp_dxy_cov());
-    trk_qoverp_dsz_cov_mu_hist->Fill(mu.trk_qoverp_dsz_cov());
-    trk_lambda_phi_cov_mu_hist->Fill(mu.trk_lambda_phi_cov());
-    trk_lambda_dxy_cov_mu_hist->Fill(mu.trk_lambda_dxy_cov());
-    trk_lambda_dsz_cov_mu_hist->Fill(mu.trk_lambda_dsz_cov());
-    trk_phi_dxy_cov_mu_hist->Fill(mu.trk_phi_dxy_cov());
-    trk_phi_dsz_cov_mu_hist->Fill(mu.trk_phi_dsz_cov());
-    trk_dxy_dsz_cov_mu_hist->Fill(mu.trk_dxy_dsz_cov());
-    trk_vx_mu_hist->Fill(mu.trk_vx());
-    trk_vy_mu_hist->Fill(mu.trk_vy());
-    trk_vz_mu_hist->Fill(mu.trk_vz());
-  }
+  // Apply to both collections
+  auto fillMuonHistograms = [&](const auto& mu, size_t idx) {
+    pt_mu_hist[idx]->Fill(mu.pt());
+    eta_mu_hist[idx]->Fill(mu.eta());
+    phi_mu_hist[idx]->Fill(mu.phi());
+    type_mu_hist[idx]->Fill(mu.type());
+    charge_mu_hist[idx]->Fill(mu.charge());
+    normalizedChi2_mu_hist[idx]->Fill(mu.normalizedChi2());
+    ecalIso_mu_hist[idx]->Fill(mu.ecalIso());
+    hcalIso_mu_hist[idx]->Fill(mu.hcalIso());
+    trackIso_mu_hist[idx]->Fill(mu.trackIso());
+    nValidStandAloneMuonHits_mu_hist[idx]->Fill(mu.nValidStandAloneMuonHits());
+    nStandAloneMuonMatchedStations_mu_hist[idx]->Fill(mu.nStandAloneMuonMatchedStations());
+    nValidRecoMuonHits_mu_hist[idx]->Fill(mu.nValidRecoMuonHits());
+    nRecoMuonChambers_mu_hist[idx]->Fill(mu.nRecoMuonChambers());
+    nRecoMuonChambersCSCorDT_mu_hist[idx]->Fill(mu.nRecoMuonChambersCSCorDT());
+    nRecoMuonMatches_mu_hist[idx]->Fill(mu.nRecoMuonMatches());
+    nRecoMuonMatchedStations_mu_hist[idx]->Fill(mu.nRecoMuonMatchedStations());
+    nRecoMuonExpectedMatchedStations_mu_hist[idx]->Fill(mu.nRecoMuonExpectedMatchedStations());
+    recoMuonStationMask_mu_hist[idx]->Fill(mu.recoMuonStationMask());
+    nRecoMuonMatchedRPCLayers_mu_hist[idx]->Fill(mu.nRecoMuonMatchedRPCLayers());
+    recoMuonRPClayerMask_mu_hist[idx]->Fill(mu.recoMuonRPClayerMask());
+    nValidPixelHits_mu_hist[idx]->Fill(mu.nValidPixelHits());
+    nValidStripHits_mu_hist[idx]->Fill(mu.nValidStripHits());
+    nPixelLayersWithMeasurement_mu_hist[idx]->Fill(mu.nPixelLayersWithMeasurement());
+    nTrackerLayersWithMeasurement_mu_hist[idx]->Fill(mu.nTrackerLayersWithMeasurement());
+    trk_chi2_mu_hist[idx]->Fill(mu.trk_chi2());
+    trk_ndof_mu_hist[idx]->Fill(mu.trk_ndof());
+    trk_dxy_mu_hist[idx]->Fill(mu.trk_dxy());
+    trk_dz_mu_hist[idx]->Fill(mu.trk_dz());
+    trk_qoverp_mu_hist[idx]->Fill(mu.trk_qoverp());
+    trk_lambda_mu_hist[idx]->Fill(mu.trk_lambda());
+    trk_pt_mu_hist[idx]->Fill(mu.trk_pt());
+    trk_phi_mu_hist[idx]->Fill(mu.trk_phi());
+    trk_eta_mu_hist[idx]->Fill(mu.trk_eta());
+    trk_dxyError_mu_hist[idx]->Fill(mu.trk_dxyError());
+    trk_dzError_mu_hist[idx]->Fill(mu.trk_dzError());
+    trk_qoverpError_mu_hist[idx]->Fill(mu.trk_qoverpError());
+    trk_lambdaError_mu_hist[idx]->Fill(mu.trk_lambdaError());
+    trk_phiError_mu_hist[idx]->Fill(mu.trk_phiError());
+    trk_dsz_mu_hist[idx]->Fill(mu.trk_dsz());
+    trk_dszError_mu_hist[idx]->Fill(mu.trk_dszError());
+    trk_qoverp_lambda_cov_mu_hist[idx]->Fill(mu.trk_qoverp_lambda_cov());
+    trk_qoverp_phi_cov_mu_hist[idx]->Fill(mu.trk_qoverp_phi_cov());
+    trk_qoverp_dxy_cov_mu_hist[idx]->Fill(mu.trk_qoverp_dxy_cov());
+    trk_qoverp_dsz_cov_mu_hist[idx]->Fill(mu.trk_qoverp_dsz_cov());
+    trk_lambda_phi_cov_mu_hist[idx]->Fill(mu.trk_lambda_phi_cov());
+    trk_lambda_dxy_cov_mu_hist[idx]->Fill(mu.trk_lambda_dxy_cov());
+    trk_lambda_dsz_cov_mu_hist[idx]->Fill(mu.trk_lambda_dsz_cov());
+    trk_phi_dxy_cov_mu_hist[idx]->Fill(mu.trk_phi_dxy_cov());
+    trk_phi_dsz_cov_mu_hist[idx]->Fill(mu.trk_phi_dsz_cov());
+    trk_dxy_dsz_cov_mu_hist[idx]->Fill(mu.trk_dxy_dsz_cov());
+    trk_vx_mu_hist[idx]->Fill(mu.trk_vx());
+    trk_vy_mu_hist[idx]->Fill(mu.trk_vy());
+    trk_vz_mu_hist[idx]->Fill(mu.trk_vz());
+  };
+
+  // muon histograms (index 0: noVtx)
+  for (const auto& mu : *muonsH)
+    fillMuonHistograms(mu, 0);
+
+  // muon histograms (index1: Vtx)
+  for (const auto& mu : *muonsVtxH)
+    fillMuonHistograms(mu, 1);
 
   // fill all the PF Jet histograms
   for (const auto& jet : *PFjetsH) {
@@ -759,7 +768,7 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
     tk_vy_tk_hist->Fill(tk.tk_vy());
     tk_vz_tk_hist->Fill(tk.tk_vz());
     tk_chi2_ndof_tk_hist->Fill(tk.tk_chi2() / tk.tk_ndof());
-    trk_chi2_prob_hist->Fill(TMath::Prob(tk.tk_chi2(), tk.tk_ndof()));
+    tk_chi2_prob_hist->Fill(TMath::Prob(tk.tk_chi2(), tk.tk_ndof()));
 
     // initialize the impact parameters to large values
     std::pair<float, float> best_offset{9999.f, 99999.f};
@@ -920,81 +929,150 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   sMin_ele_hist = ibook.book1D("sMin_ele", "sMin Electron; sMin; Entries", 100, 0.0, 3);
   sMaj_ele_hist = ibook.book1D("sMaj_ele", "sMaj Electron; sMaj; Entries", 100, 0.0, 3);
 
-  ibook.setCurrentFolder(topfoldername_ + "/Muon");
-  pt_mu_hist = ibook.book1D("pt_mu", "Muon pT; p_{T} (GeV); Entries", 100, 0.0, 200.0);
-  eta_mu_hist = ibook.book1D("eta_mu", "Muon #eta; #eta; Entries", 100, -2.7, 2.7);
-  phi_mu_hist = ibook.book1D("phi_mu", "Muon #phi; #phi (rad); Entries", 100, -3.14, 3.14);
-  type_mu_hist = ibook.book1D("type_mu", "Muon Type; Type; Entries", 10, 0, 10);
-  charge_mu_hist = ibook.book1D("charge_mu", "Muon Charge; Charge; Entries", 3, -1, 2);
-  normalizedChi2_mu_hist = ibook.book1D("normalizedChi2_mu", "Normalized chi2; chi2; Entries", 100, 0.0, 10.0);
-  ecalIso_mu_hist = ibook.book1D("ecalIso_mu", "ECAL Isolation Muon; Isolation (GeV); Entries", 100, 0.0, 100.0);
-  hcalIso_mu_hist = ibook.book1D("hcalIso_mu", "HCAL Isolation Muon; Isolation (GeV); Entries", 100, 0.0, 100.0);
-  trackIso_mu_hist = ibook.book1D("trackIso_mu", "Track Isolation Muon; Isolation (GeV); Entries", 100, 0.0, 10.0);
-  nValidStandAloneMuonHits_mu_hist =
-      ibook.book1D("nValidStandAloneMuonHits_mu", "Valid Standalone Muon Hits; Hits; Entries", 50, 0, 50);
-  nStandAloneMuonMatchedStations_mu_hist = ibook.book1D(
-      "nStandAloneMuonMatchedStations_mu", "Standalone Muon Matched Stations; Stations; Entries", 10, 0, 10);
-  nValidRecoMuonHits_mu_hist = ibook.book1D("nValidRecoMuonHits_mu", "Valid Reco Muon Hits; Hits; Entries", 50, 0, 50);
-  nRecoMuonChambers_mu_hist = ibook.book1D("nRecoMuonChambers_mu", "Reco Muon Chambers; Chambers; Entries", 10, 0, 20);
-  nRecoMuonChambersCSCorDT_mu_hist =
-      ibook.book1D("nRecoMuonChambersCSCorDT_mu", "Reco Muon Chambers (CSC or DT); Chambers; Entries", 10, 0, 14);
-  nRecoMuonMatches_mu_hist = ibook.book1D("nRecoMuonMatches_mu", "Reco Muon Matches; Matches; Entries", 10, 0, 10);
-  nRecoMuonMatchedStations_mu_hist =
-      ibook.book1D("nRecoMuonMatchedStations_mu", "Reco Muon Matched Stations; Stations; Entries", 10, 0, 10);
-  nRecoMuonExpectedMatchedStations_mu_hist = ibook.book1D(
-      "nRecoMuonExpectedMatchedStations_mu", "Reco Muon Expected Matched Stations; Stations; Entries", 10, 0, 10);
-  recoMuonStationMask_mu_hist =
-      ibook.book1D("recoMuonStationMask_mu", "Reco Muon Station Mask; Mask; Entries", 20, 0, 20);
-  nRecoMuonMatchedRPCLayers_mu_hist =
-      ibook.book1D("nRecoMuonMatchedRPCLayers_mu", "Reco Muon Matched RPC Layers; Layers; Entries", 10, 0, 2);
-  recoMuonRPClayerMask_mu_hist =
-      ibook.book1D("recoMuonRPClayerMask_mu", "Reco Muon RPC Layer Mask; Mask; Entries", 20, 0, 5);
-  nValidPixelHits_mu_hist = ibook.book1D("nValidPixelHits_mu", "Valid Pixel Hits; Hits; Entries", 20, 0, 20);
-  nValidStripHits_mu_hist = ibook.book1D("nValidStripHits_mu", "Valid Strip Hits; Hits; Entries", 50, 0, 50);
-  nPixelLayersWithMeasurement_mu_hist =
-      ibook.book1D("nPixelLayersWithMeasurement_mu", "Pixel Layers with Measurement; Layers; Entries", 10, 0, 10);
-  nTrackerLayersWithMeasurement_mu_hist =
-      ibook.book1D("nTrackerLayersWithMeasurement_mu", "Tracker Layers with Measurement; Layers; Entries", 20, 0, 20);
-  trk_chi2_mu_hist = ibook.book1D("trk_chi2_mu", "Muon Tracker chi2; #chi^{2}; Entries", 100, 0.0, 100.0);
-  trk_ndof_mu_hist = ibook.book1D("trk_ndof_mu", "Muon Tracker Ndof; Ndof; Entries", 100, 0, 100);
-  trk_dxy_mu_hist = ibook.book1D("trk_dxy_mu", "Muon Tracker dxy; dxy (cm); Entries", 100, -0.5, 0.5);
-  trk_dz_mu_hist = ibook.book1D("trk_dz_mu", "Muon Tracker dz; dz (cm); Entries", 100, -20.0, 20.0);
-  trk_qoverp_mu_hist = ibook.book1D("trk_qoverp_mu", "Muon q/p; q/p; Entries", 100, -1, 1);
-  trk_lambda_mu_hist = ibook.book1D("trk_lambda_mu", "Muon Lambda; #lambda; Entries", 100, -2, 2);
-  trk_pt_mu_hist = ibook.book1D("trk_pt_mu", "Muon Tracker pT; p_{T} (GeV); Entries", 100, 0.0, 200.0);
-  trk_phi_mu_hist = ibook.book1D("trk_phi_mu", "Muon Tracker #phi; #phi (rad); Entries", 100, -3.14, 3.14);
-  trk_eta_mu_hist = ibook.book1D("trk_eta_mu", "Muon Tracker #eta; #eta; Entries", 100, -2.7, 2.7);
-  trk_dxyError_mu_hist = ibook.book1D("trk_dxyError_mu", "Muon dxy Error; dxy Error (cm); Entries", 100, 0.0, 0.05);
-  trk_dzError_mu_hist = ibook.book1D("trk_dzError_mu", "Muon dz Error; dz Error (cm); Entries", 100, 0.0, 0.05);
-  trk_qoverpError_mu_hist = ibook.book1D("trk_qoverpError_mu", "Muon q/p Error; q/p Error; Entries", 100, 0.0, 0.01);
-  trk_lambdaError_mu_hist =
-      ibook.book1D("trk_lambdaError_mu", "Muon Lambda Error; #lambda Error; Entries", 100, 0.0, 0.1);
-  trk_phiError_mu_hist = ibook.book1D("trk_phiError_mu", "Muon Phi Error; #phi Error (rad); Entries", 100, 0.0, 0.01);
-  trk_dsz_mu_hist = ibook.book1D("trk_dsz_mu", "Muon dsz; dsz (cm); Entries", 100, -2, 2);
-  trk_dszError_mu_hist = ibook.book1D("trk_dszError_mu", "Muon dsz Error; dsz Error (cm); Entries", 100, 0.0, 0.05);
-  trk_qoverp_lambda_cov_mu_hist =
-      ibook.book1D("trk_qoverp_lambda_cov_mu", "Muon q/p-#lambda Covariance; Covariance; Entries", 100, -0.001, 0.001);
-  trk_qoverp_phi_cov_mu_hist =
-      ibook.book1D("trk_qoverp_phi_cov_mu", "Muon q/p-#phi Covariance; Covariance; Entries", 100, -0.001, 0.001);
-  trk_qoverp_dxy_cov_mu_hist =
-      ibook.book1D("trk_qoverp_dxy_cov_mu", "Muon q/p-dxy Covariance; Covariance; Entries", 100, -0.001, 0.001);
-  trk_qoverp_dsz_cov_mu_hist =
-      ibook.book1D("trk_qoverp_dsz_cov_mu", "Muon q/p-dsz Covariance; Covariance; Entries", 100, -0.001, 0.001);
-  trk_lambda_phi_cov_mu_hist =
-      ibook.book1D("trk_lambda_phi_cov_mu", "Muon Lambda-#phi Covariance; Covariance; Entries", 100, -0.001, 0.001);
-  trk_lambda_dxy_cov_mu_hist =
-      ibook.book1D("trk_lambda_dxy_cov_mu", "Muon Lambda-dxy Covariance; Covariance; Entries", 100, -0.001, 0.001);
-  trk_lambda_dsz_cov_mu_hist =
-      ibook.book1D("trk_lambda_dsz_cov_mu", "Muon Lambda-dsz Covariance; Covariance; Entries", 100, -0.001, 0.001);
-  trk_phi_dxy_cov_mu_hist =
-      ibook.book1D("trk_phi_dxy_cov_mu", "Muon Phi-dxy Covariance; Covariance; Entries", 100, -0.001, 0.001);
-  trk_phi_dsz_cov_mu_hist =
-      ibook.book1D("trk_phi_dsz_cov_mu", "Muon Phi-dsz Covariance; Covariance; Entries", 100, -0.001, 0.001);
-  trk_dxy_dsz_cov_mu_hist =
-      ibook.book1D("trk_dxy_dsz_cov_mu", "Muon dxy-dsz Covariance; Covariance; Entries", 100, -0.001, 0.001);
-  trk_vx_mu_hist = ibook.book1D("trk_vx_mu", "Muon Tracker Vertex X; x (cm); Entries", 100, -0.5, 0.5);
-  trk_vy_mu_hist = ibook.book1D("trk_vy_mu", "Muon Tracker Vertex Y; y (cm); Entries", 100, -0.5, 0.5);
-  trk_vz_mu_hist = ibook.book1D("trk_vz_mu", "Muon Tracker Vertex Z; z (cm); Entries", 100, -20.0, 20.0);
+  // book the muon histograms (noVtx and Vtx collections)
+  const std::array<std::string, 2> muonLabels = {{"muonsNoVtx", "muonsVtx"}};
+  const std::array<std::string, 2> suffixes = {{"_noVtx", "_Vtx"}};
+  for (int i = 0; i < 2; ++i) {
+    ibook.setCurrentFolder(topfoldername_ + "/" + muonLabels[i]);
+
+    const std::string& sfx = suffixes[i];
+    const std::string& lbl = muonLabels[i];
+
+    pt_mu_hist[i] = ibook.book1D("pt_mu" + sfx, "Muon pT (" + lbl + "); p_{T} (GeV); Entries", 100, 0.0, 200.0);
+    eta_mu_hist[i] = ibook.book1D("eta_mu" + sfx, "Muon #eta (" + lbl + "); #eta; Entries", 100, -2.7, 2.7);
+    phi_mu_hist[i] = ibook.book1D("phi_mu" + sfx, "Muon #phi (" + lbl + "); #phi (rad); Entries", 100, -3.14, 3.14);
+    type_mu_hist[i] = ibook.book1D("type_mu" + sfx, "Muon Type (" + lbl + "); Type; Entries", 10, 0, 10);
+    charge_mu_hist[i] = ibook.book1D("charge_mu" + sfx, "Muon Charge (" + lbl + "); Charge; Entries", 3, -1, 2);
+    normalizedChi2_mu_hist[i] =
+        ibook.book1D("normalizedChi2_mu" + sfx, "Normalized chi2 (" + lbl + "); chi2; Entries", 100, 0.0, 10.0);
+    ecalIso_mu_hist[i] = ibook.book1D(
+        "ecalIso_mu" + sfx, "ECAL Isolation Muon (" + lbl + "); Isolation (GeV); Entries", 100, 0.0, 100.0);
+    hcalIso_mu_hist[i] = ibook.book1D(
+        "hcalIso_mu" + sfx, "HCAL Isolation Muon (" + lbl + "); Isolation (GeV); Entries", 100, 0.0, 100.0);
+    trackIso_mu_hist[i] = ibook.book1D(
+        "trackIso_mu" + sfx, "Track Isolation Muon (" + lbl + "); Isolation (GeV); Entries", 100, 0.0, 10.0);
+    nValidStandAloneMuonHits_mu_hist[i] = ibook.book1D(
+        "nValidStandAloneMuonHits_mu" + sfx, "Valid Standalone Muon Hits (" + lbl + "); Hits; Entries", 50, 0, 50);
+    nStandAloneMuonMatchedStations_mu_hist[i] =
+        ibook.book1D("nStandAloneMuonMatchedStations_mu" + sfx,
+                     "Standalone Muon Matched Stations (" + lbl + "); Stations; Entries",
+                     10,
+                     0,
+                     10);
+    nValidRecoMuonHits_mu_hist[i] =
+        ibook.book1D("nValidRecoMuonHits_mu" + sfx, "Valid Reco Muon Hits (" + lbl + "); Hits; Entries", 50, 0, 50);
+    nRecoMuonChambers_mu_hist[i] =
+        ibook.book1D("nRecoMuonChambers_mu" + sfx, "Reco Muon Chambers (" + lbl + "); Chambers; Entries", 10, 0, 20);
+    nRecoMuonChambersCSCorDT_mu_hist[i] =
+        ibook.book1D("nRecoMuonChambersCSCorDT_mu" + sfx,
+                     "Reco Muon Chambers (CSC or DT) (" + lbl + "); Chambers; Entries",
+                     10,
+                     0,
+                     14);
+    nRecoMuonMatches_mu_hist[i] =
+        ibook.book1D("nRecoMuonMatches_mu" + sfx, "Reco Muon Matches (" + lbl + "); Matches; Entries", 10, 0, 10);
+    nRecoMuonMatchedStations_mu_hist[i] = ibook.book1D(
+        "nRecoMuonMatchedStations_mu" + sfx, "Reco Muon Matched Stations (" + lbl + "); Stations; Entries", 10, 0, 10);
+    nRecoMuonExpectedMatchedStations_mu_hist[i] =
+        ibook.book1D("nRecoMuonExpectedMatchedStations_mu" + sfx,
+                     "Reco Muon Expected Matched Stations (" + lbl + "); Stations; Entries",
+                     10,
+                     0,
+                     10);
+    recoMuonStationMask_mu_hist[i] =
+        ibook.book1D("recoMuonStationMask_mu" + sfx, "Reco Muon Station Mask (" + lbl + "); Mask; Entries", 20, 0, 20);
+    nRecoMuonMatchedRPCLayers_mu_hist[i] = ibook.book1D(
+        "nRecoMuonMatchedRPCLayers_mu" + sfx, "Reco Muon Matched RPC Layers (" + lbl + "); Layers; Entries", 10, 0, 2);
+    recoMuonRPClayerMask_mu_hist[i] = ibook.book1D(
+        "recoMuonRPClayerMask_mu" + sfx, "Reco Muon RPC Layer Mask (" + lbl + "); Mask; Entries", 20, 0, 5);
+    nValidPixelHits_mu_hist[i] =
+        ibook.book1D("nValidPixelHits_mu" + sfx, "Valid Pixel Hits (" + lbl + "); Hits; Entries", 20, 0, 20);
+    nValidStripHits_mu_hist[i] =
+        ibook.book1D("nValidStripHits_mu" + sfx, "Valid Strip Hits (" + lbl + "); Hits; Entries", 50, 0, 50);
+    nPixelLayersWithMeasurement_mu_hist[i] =
+        ibook.book1D("nPixelLayersWithMeasurement_mu" + sfx,
+                     "Pixel Layers with Measurement (" + lbl + "); Layers; Entries",
+                     10,
+                     0,
+                     10);
+    nTrackerLayersWithMeasurement_mu_hist[i] =
+        ibook.book1D("nTrackerLayersWithMeasurement_mu" + sfx,
+                     "Tracker Layers with Measurement (" + lbl + "); Layers; Entries",
+                     20,
+                     0,
+                     20);
+    trk_chi2_mu_hist[i] =
+        ibook.book1D("trk_chi2_mu" + sfx, "Muon Tracker chi2 (" + lbl + "); #chi^{2}; Entries", 100, 0.0, 100.0);
+    trk_ndof_mu_hist[i] =
+        ibook.book1D("trk_ndof_mu" + sfx, "Muon Tracker Ndof (" + lbl + "); Ndof; Entries", 100, 0, 100);
+    trk_dxy_mu_hist[i] =
+        ibook.book1D("trk_dxy_mu" + sfx, "Muon Tracker dxy (" + lbl + "); dxy (cm); Entries", 100, -0.5, 0.5);
+    trk_dz_mu_hist[i] =
+        ibook.book1D("trk_dz_mu" + sfx, "Muon Tracker dz (" + lbl + "); dz (cm); Entries", 100, -20.0, 20.0);
+    trk_qoverp_mu_hist[i] = ibook.book1D("trk_qoverp_mu" + sfx, "Muon q/p (" + lbl + "); q/p; Entries", 100, -1, 1);
+    trk_lambda_mu_hist[i] =
+        ibook.book1D("trk_lambda_mu" + sfx, "Muon Lambda (" + lbl + "); #lambda; Entries", 100, -2, 2);
+    trk_pt_mu_hist[i] =
+        ibook.book1D("trk_pt_mu" + sfx, "Muon Tracker pT (" + lbl + "); p_{T} (GeV); Entries", 100, 0.0, 200.0);
+    trk_phi_mu_hist[i] =
+        ibook.book1D("trk_phi_mu" + sfx, "Muon Tracker #phi (" + lbl + "); #phi (rad); Entries", 100, -3.14, 3.14);
+    trk_eta_mu_hist[i] =
+        ibook.book1D("trk_eta_mu" + sfx, "Muon Tracker #eta (" + lbl + "); #eta; Entries", 100, -2.7, 2.7);
+    trk_dxyError_mu_hist[i] =
+        ibook.book1D("trk_dxyError_mu" + sfx, "Muon dxy Error (" + lbl + "); dxy Error (cm); Entries", 100, 0.0, 0.05);
+    trk_dzError_mu_hist[i] =
+        ibook.book1D("trk_dzError_mu" + sfx, "Muon dz Error (" + lbl + "); dz Error (cm); Entries", 100, 0.0, 0.05);
+    trk_qoverpError_mu_hist[i] =
+        ibook.book1D("trk_qoverpError_mu" + sfx, "Muon q/p Error (" + lbl + "); q/p Error; Entries", 100, 0.0, 0.01);
+    trk_lambdaError_mu_hist[i] = ibook.book1D(
+        "trk_lambdaError_mu" + sfx, "Muon Lambda Error (" + lbl + "); #lambda Error; Entries", 100, 0.0, 0.1);
+    trk_phiError_mu_hist[i] = ibook.book1D(
+        "trk_phiError_mu" + sfx, "Muon Phi Error (" + lbl + "); #phi Error (rad); Entries", 100, 0.0, 0.01);
+    trk_dsz_mu_hist[i] = ibook.book1D("trk_dsz_mu" + sfx, "Muon dsz (" + lbl + "); dsz (cm); Entries", 100, -2, 2);
+    trk_dszError_mu_hist[i] =
+        ibook.book1D("trk_dszError_mu" + sfx, "Muon dsz Error (" + lbl + "); dsz Error (cm); Entries", 100, 0.0, 0.05);
+    trk_qoverp_lambda_cov_mu_hist[i] = ibook.book1D("trk_qoverp_lambda_cov_mu" + sfx,
+                                                    "Muon q/p-#lambda Covariance (" + lbl + "); Covariance; Entries",
+                                                    100,
+                                                    -0.001,
+                                                    0.001);
+    trk_qoverp_phi_cov_mu_hist[i] = ibook.book1D("trk_qoverp_phi_cov_mu" + sfx,
+                                                 "Muon q/p-#phi Covariance (" + lbl + "); Covariance; Entries",
+                                                 100,
+                                                 -0.001,
+                                                 0.001);
+    trk_qoverp_dxy_cov_mu_hist[i] = ibook.book1D(
+        "trk_qoverp_dxy_cov_mu" + sfx, "Muon q/p-dxy Covariance (" + lbl + "); Covariance; Entries", 100, -0.001, 0.001);
+    trk_qoverp_dsz_cov_mu_hist[i] = ibook.book1D(
+        "trk_qoverp_dsz_cov_mu" + sfx, "Muon q/p-dsz Covariance (" + lbl + "); Covariance; Entries", 100, -0.001, 0.001);
+    trk_lambda_phi_cov_mu_hist[i] = ibook.book1D("trk_lambda_phi_cov_mu" + sfx,
+                                                 "Muon Lambda-#phi Covariance (" + lbl + "); Covariance; Entries",
+                                                 100,
+                                                 -0.001,
+                                                 0.001);
+    trk_lambda_dxy_cov_mu_hist[i] = ibook.book1D("trk_lambda_dxy_cov_mu" + sfx,
+                                                 "Muon Lambda-dxy Covariance (" + lbl + "); Covariance; Entries",
+                                                 100,
+                                                 -0.001,
+                                                 0.001);
+    trk_lambda_dsz_cov_mu_hist[i] = ibook.book1D("trk_lambda_dsz_cov_mu" + sfx,
+                                                 "Muon Lambda-dsz Covariance (" + lbl + "); Covariance; Entries",
+                                                 100,
+                                                 -0.001,
+                                                 0.001);
+    trk_phi_dxy_cov_mu_hist[i] = ibook.book1D(
+        "trk_phi_dxy_cov_mu" + sfx, "Muon Phi-dxy Covariance (" + lbl + "); Covariance; Entries", 100, -0.001, 0.001);
+    trk_phi_dsz_cov_mu_hist[i] = ibook.book1D(
+        "trk_phi_dsz_cov_mu" + sfx, "Muon Phi-dsz Covariance (" + lbl + "); Covariance; Entries", 100, -0.001, 0.001);
+    trk_dxy_dsz_cov_mu_hist[i] = ibook.book1D(
+        "trk_dxy_dsz_cov_mu" + sfx, "Muon dxy-dsz Covariance (" + lbl + "); Covariance; Entries", 100, -0.001, 0.001);
+    trk_vx_mu_hist[i] =
+        ibook.book1D("trk_vx_mu" + sfx, "Muon Tracker Vertex X (" + lbl + "); x (cm); Entries", 100, -0.5, 0.5);
+    trk_vy_mu_hist[i] =
+        ibook.book1D("trk_vy_mu" + sfx, "Muon Tracker Vertex Y (" + lbl + "); y (cm); Entries", 100, -0.5, 0.5);
+    trk_vz_mu_hist[i] =
+        ibook.book1D("trk_vz_mu" + sfx, "Muon Tracker Vertex Z (" + lbl + "); z (cm); Entries", 100, -20.0, 20.0);
+  }
 
   ibook.setCurrentFolder(topfoldername_ + "/PFJet");
   pt_pfj_hist = ibook.book1D("pt_pfj", "PF Jet pT; p_{T} (GeV); Entries", 100, 0.0, 150.0);
@@ -1087,7 +1165,7 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   tk_vy_tk_hist = ibook.book1D("tk_vy_tk", "Tracker Vertex Y; y (cm); Entries", 100, -0.5, 0.5);
   tk_vz_tk_hist = ibook.book1D("tk_vz_tk", "Tracker Vertex Z; z (cm); Entries", 100, -20.0, 20.0);
   tk_chi2_ndof_tk_hist = ibook.book1D("tk_chi2_ndof_tk", "Reduced #chi^{2}; #chi^{2}/NDOF; Entries", 100, 0, 50);
-  trk_chi2_prob_hist = ibook.book1D("tk_chi2_prob_hist", "p(#chi^{2}, NDOF); p(#chi^{2}, NDOF); Entries", 100, 0, 1);
+  tk_chi2_prob_hist = ibook.book1D("tk_chi2_prob_hist", "p(#chi^{2}, NDOF); p(#chi^{2}, NDOF); Entries", 100, 0, 1);
   tk_PV_dz_hist = ibook.book1D("tk_PV_dz", "Track dz w.r.t. PV; Track dz w.r.t. PV; Entries", 100, -0.35, 0.35);
   tk_PV_dxy_hist = ibook.book1D("tk_PV_dxy", "Track dxy w.r.t. PV; Track dxy w.r.t. PV; Entries", 100, -0.15, 0.15);
 }
@@ -1098,11 +1176,12 @@ void ScoutingCollectionMonitor::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<bool>("onlyScouting", false);
   desc.add<edm::InputTag>("electrons", edm::InputTag("hltScoutingEgammaPacker"));
   desc.add<edm::InputTag>("muons", edm::InputTag("hltScoutingMuonPackerNoVtx"));
+  desc.add<edm::InputTag>("muonsVtx", edm::InputTag("hltScoutingMuonPackerVtx"));
   desc.add<edm::InputTag>("pfcands", edm::InputTag("hltScoutingPFPacker"));
   desc.add<edm::InputTag>("photons", edm::InputTag("hltScoutingEgammaPacker"));
   desc.add<edm::InputTag>("pfjets", edm::InputTag("hltScoutingPFPacker"));
   desc.add<edm::InputTag>("tracks", edm::InputTag("hltScoutingTrackPacker"));
-  desc.add<edm::InputTag>("displacedVertices", edm::InputTag("hltScoutingMuonPackerNoVtx", "displacedVtx"));
+  desc.add<edm::InputTag>("displacedVertices", edm::InputTag("hltScoutingMuonPackerVtx", "displacedVtx"));
   desc.add<edm::InputTag>("primaryVertices", edm::InputTag("hltScoutingPrimaryVertexPacker", "primaryVtx"));
   desc.add<edm::InputTag>("pfMetPt", edm::InputTag("hltScoutingPFPacker", "pfMetPt"));
   desc.add<edm::InputTag>("pfMetPhi", edm::InputTag("hltScoutingPFPacker", "pfMetPhi"));
