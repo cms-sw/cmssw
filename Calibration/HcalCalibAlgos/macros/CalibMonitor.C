@@ -104,7 +104,8 @@
 //                               d: as the format for threshold application,
 //                               0: no threshold; 1: 2022 prompt data; 2:
 //                               2022 reco data; 3: 2023 prompt data; 4: 2025
-//                               Begin of Year.
+//                               Begin of Year; 5: Derived from the file
+//                               PFCuts_IOV_362975.txt.
 //                               (default = 0)
 //   etalo/etahi (int,int)     = |eta| ranges (default = 0:30)
 //   runlo  (int)              = lower value of run number to be included (+ve)

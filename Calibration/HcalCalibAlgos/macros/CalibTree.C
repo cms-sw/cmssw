@@ -82,7 +82,8 @@
 //                              For threshold h: the format for threshold
 //                              application, 0: no threshold; 1: 2022 prompt
 //                              data; 2: 2022 reco data; 3: 2023 prompt data;
-//                              4: 2025 Begin of Year.
+//                              4: 2025 Begin of Year; 5: Derived from the file
+//                              PFCuts_IOV_362975.txt.
 //                              (Default 0)
 //  useGen          (bool)    = use generator level momentum information (false)
 //  runlo           (int)     = lower value of run number to be included (+ve)
@@ -1241,8 +1242,8 @@ void CalibTree::writeCorrFactor(const char *corrFileName, int ietaMax) {
       int subdet, depth, zside, ieta, iphi;
       unpackDetId(detId, subdet, zside, ieta, iphi, depth);
       if (ieta <= ietaMax) {
-	double corrf = ((itr->second.first > 0.1) && (itr->second.first < 4.0)) ? itr->second.first : 1.0;
-	double dcorr = ((itr->second.first > 0.1) && (itr->second.first < 4.0)) ? itr->second.second : 0.0;
+        double corrf = ((itr->second.first > 0.1) && (itr->second.first < 4.0)) ? itr->second.first : 1.0;
+        double dcorr = ((itr->second.first > 0.1) && (itr->second.first < 4.0)) ? itr->second.second : 0.0;
         myfile << std::setw(10) << std::hex << detId << std::setw(10) << std::dec << zside * ieta << std::setw(10)
                << depth << std::setw(10) << corrf << " " << std::setw(10) << dcorr << std::endl;
         std::cout << corrf << ",";

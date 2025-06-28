@@ -552,6 +552,7 @@ public:
   ~CalibThreshold() {}
 
   double threshold(unsigned int detId);
+
 private:
   double threshold(int subdet, int ieta, int depth);
   bool fileThreshold(const char* fname);
@@ -586,20 +587,21 @@ bool CalibThreshold::fileThreshold(const char* fname) {
           continue;  //ignore comment
         std::vector<std::string> items = splitString(std::string(buffer));
         if (items.size() != 7) {
-	  ++bad;
+          ++bad;
           std::cout << "Ignore  line: " << buffer << std::endl;
         } else {
           ++good;
-	  int ieta = std::atoi(items[0].c_str());
-	  int depth = std::atoi(items[2].c_str());
-	  double thr = std::atof(items[4].c_str());
-	  thresh_[std::pair<int, int>(ieta, depth)] = thr;
-	}
+          int ieta = std::atoi(items[0].c_str());
+          int depth = std::atoi(items[2].c_str());
+          double thr = std::atof(items[4].c_str());
+          thresh_[std::pair<int, int>(ieta, depth)] = thr;
+        }
       }
       fInput.close();
-      std::cout << "Reads " << all << " entries from " << fname << " with " << good << " Good and " << bad << " bad records" << std::endl;
+      std::cout << "Reads " << all << " entries from " << fname << " with " << good << " Good and " << bad
+                << " bad records" << std::endl;
       if (good > 0)
-	ok = true;
+        ok = true;
     }
   }
   return ok;
@@ -610,23 +612,19 @@ double CalibThreshold::threshold(int subdet, int ieta, int depth) {
                         {0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2},
                         {0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2},
                         {0.2, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3}};
-  double cutHB[4][4] = {{0.1, 0.2, 0.3, 0.3}, 
-			{0.25, 0.25, 0.3, 0.3}, 
-			{0.4, 0.3, 0.3, 0.3}, 
-			{0.6, 0.4, 0.4, 0.5}};
+  double cutHB[4][4] = {{0.1, 0.2, 0.3, 0.3}, {0.25, 0.25, 0.3, 0.3}, {0.4, 0.3, 0.3, 0.3}, {0.6, 0.4, 0.4, 0.5}};
 
   double thr(0);
   if (ok_) {
     if ((form_ > 0) && (form_ <= 4)) {
       if (subdet == 2)
-	thr = cutHE[form_ - 1][depth - 1];
+        thr = cutHE[form_ - 1][depth - 1];
       else
-	thr = cutHB[form_ - 1][depth - 1];
+        thr = cutHB[form_ - 1][depth - 1];
     } else {
-      std::map<std::pair<int, int>, double>::const_iterator itr =
-	thresh_.find(std::pair<int, int>(ieta, depth));
+      std::map<std::pair<int, int>, double>::const_iterator itr = thresh_.find(std::pair<int, int>(ieta, depth));
       if (itr != thresh_.end())
-	thr = itr->second;
+        thr = itr->second;
     }
   }
   return thr;

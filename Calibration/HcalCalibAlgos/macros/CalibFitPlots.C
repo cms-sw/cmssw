@@ -536,7 +536,8 @@ results fitOneGauss(TH1D* hist, bool fitTwice, bool debug) {
     if (LowEdge < 0.5)
       LowEdge = 0.5;
     diff = Fit1->Value(1) - LowEdge;
-    HighEdge = (diff > fitrangeFactor1 * rms) ? (Fit1->Value(1) + fitrangeFactor1 * Fit1->Value(2)) : (Fit1->Value(1) + diff);
+    HighEdge =
+        (diff > fitrangeFactor1 * rms) ? (Fit1->Value(1) + fitrangeFactor1 * Fit1->Value(2)) : (Fit1->Value(1) + diff);
     if (HighEdge > 5.0)
       HighEdge = 5.0;
     if (debug)
