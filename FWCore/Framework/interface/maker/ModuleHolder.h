@@ -55,6 +55,11 @@ namespace edm {
                                               SignallingProductRegistryFiller* iReg) = 0;
       virtual void replaceModuleFor(Worker*) const = 0;
 
+      virtual void beginJob() = 0;
+      virtual void endJob() = 0;
+      virtual void beginStream(StreamID) = 0;
+      virtual void endStream(StreamID) = 0;
+
       virtual std::unique_ptr<OutputModuleCommunicator> createOutputModuleCommunicator() = 0;
 
       void registerThinnedAssociations(ProductRegistry const& registry, ThinnedAssociationsHelper& helper);
@@ -107,6 +112,11 @@ namespace edm {
         finishModuleInitialization(*m_mod, iDesc, iPrealloc, iReg);
       }
       std::unique_ptr<OutputModuleCommunicator> createOutputModuleCommunicator() final;
+
+      void beginJob() final;
+      void endJob() final;
+      void beginStream(StreamID) final;
+      void endStream(StreamID) final;
 
       void updateLookup(BranchType iBranchType, ProductResolverIndexHelper const&) final;
       void updateLookup(eventsetup::ESRecordsToProductResolverIndices const&) final;

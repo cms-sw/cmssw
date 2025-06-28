@@ -110,7 +110,6 @@ namespace edm {
       void registerProductsAndCallbacks(EDFilterBase* module, SignallingProductRegistryFiller* reg) {
         registerProducts(module, reg, moduleDescription_);
       }
-      std::string workerType() const { return "WorkerT<EDFilter>"; }
 
       SharedResourcesAcquirer& sharedResourcesAcquirer() { return resourcesAcquirer_; }
 

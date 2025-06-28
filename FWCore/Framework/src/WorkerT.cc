@@ -561,50 +561,15 @@ namespace edm {
   }
 
   template <typename T>
-  inline std::string WorkerT<T>::workerType() const {
-    return module_->workerType();
-  }
-
-  template <typename T>
-  inline void WorkerT<T>::implBeginJob() {
-    module_->doBeginJob();
-  }
-
-  template <typename T>
-  inline void WorkerT<T>::implEndJob() {
-    module_->doEndJob();
-  }
-
-  template <typename T>
   template <typename D>
   void WorkerT<T>::callWorkerBeginStream(D, StreamID id) {
     module_->doBeginStream(id);
   }
 
   template <typename T>
-  inline void WorkerT<T>::implBeginStream(StreamID id) {
-    std::conditional_t<workerimpl::has_stream_functions<T>::value or
-                           workerimpl::has_only_stream_transition_functions<T>::value,
-                       workerimpl::DoBeginStream<T>,
-                       workerimpl::DoNothing>
-        might_call;
-    might_call(this, id);
-  }
-
-  template <typename T>
   template <typename D>
   void WorkerT<T>::callWorkerEndStream(D, StreamID id) {
     module_->doEndStream(id);
-  }
-
-  template <typename T>
-  inline void WorkerT<T>::implEndStream(StreamID id) {
-    std::conditional_t<workerimpl::has_stream_functions<T>::value or
-                           workerimpl::has_only_stream_transition_functions<T>::value,
-                       workerimpl::DoEndStream<T>,
-                       workerimpl::DoNothing>
-        might_call;
-    might_call(this, id);
   }
 
   template <typename T>
