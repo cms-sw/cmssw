@@ -24,6 +24,7 @@
 #include "KinVtxFitter.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "helper.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class DiTrackBuilder : public edm::global::EDProducer<> {
 public:
@@ -113,10 +114,15 @@ void DiTrackBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup con
       if (!pre_vtx_selection_(ditrack_cand))
         continue;
 
-      KinVtxFitter fitter(
-          {ttracks->at(trk1_idx), ttracks->at(trk2_idx)}, {bph::K_MASS, bph::K_MASS}, {bph::K_SIGMA, bph::K_SIGMA}
-          // K and PI sigma equal...
-      );
+      KinVtxFitter fitter;
+      try {
+        fitter = KinVtxFitter(
+            {ttracks->at(trk1_idx), ttracks->at(trk2_idx)}, {bph::K_MASS, bph::K_MASS}, {bph::K_SIGMA, bph::K_SIGMA});
+      } catch (const VertexException &e) {
+        edm::LogWarning("KinematicFit")
+            << "DiTrack Rebuilder - KK mass hypothesis: Skipping candidate due to fit failure: " << e.what();
+        continue;
+      }
       if (!fitter.success())
         continue;
       ditrack_cand.addUserFloat("fitted_mass_KK", fitter.fitted_candidate().mass());
@@ -124,21 +130,34 @@ void DiTrackBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup con
                                 sqrt(fitter.fitted_candidate().kinematicParametersError().matrix()(6, 6)));
       // fits required in order to calculate the error of the mass for each mass
       // hypothesis.
-      KinVtxFitter fitter_Kpi(
-          {ttracks->at(trk1_idx), ttracks->at(trk2_idx)}, {bph::K_MASS, bph::PI_MASS}, {bph::K_SIGMA, bph::K_SIGMA}
-          // K and PI sigma equal...
-      );
+      KinVtxFitter fitter_Kpi;
+      try {
+        fitter_Kpi = KinVtxFitter(
+            {ttracks->at(trk1_idx), ttracks->at(trk2_idx)}, {bph::K_MASS, bph::PI_MASS}, {bph::K_SIGMA, bph::K_SIGMA});
+      } catch (const VertexException &e) {
+        edm::LogWarning("KinematicFit")
+            << "DiTrack Rebuilder - Kpi mass hypothesis: Skipping candidate due to fit failure: " << e.what();
+        continue;
+      }
       if (!fitter_Kpi.success())
         continue;
       ditrack_cand.addUserFloat("fitted_mass_Kpi", fitter_Kpi.fitted_candidate().mass());
       ditrack_cand.addUserFloat("fitted_mass_Kpi_Err",
                                 sqrt(fitter_Kpi.fitted_candidate().kinematicParametersError().matrix()(6, 6)));
-      KinVtxFitter fitter_piK(
-          {ttracks->at(trk1_idx), ttracks->at(trk2_idx)}, {bph::PI_MASS, bph::K_MASS}, {bph::K_SIGMA, bph::K_SIGMA}
-          // K and PI sigma equal...
-      );
+      KinVtxFitter fitter_piK;
+      try {
+        fitter_piK = KinVtxFitter(
+            {ttracks->at(trk1_idx), ttracks->at(trk2_idx)}, {bph::PI_MASS, bph::K_MASS}, {bph::K_SIGMA, bph::K_SIGMA});
+      } catch (const VertexException &e) {
+        edm::LogWarning("KinematicFit")
+            << "DiTrack Rebuilder - piK mass hypothesis: Skipping candidate due to fit failure: " << e.what();
+        continue;
+      }
       if (!fitter_piK.success())
         continue;
+      ditrack_cand.addUserFloat("fitted_mass_piK", fitter_piK.fitted_candidate().mass());
+      ditrack_cand.addUserFloat("fitted_mass_piK_Err",
+                                sqrt(fitter_piK.fitted_candidate().kinematicParametersError().matrix()(6, 6)));
       ditrack_cand.addUserFloat("fitted_mass_piK", fitter_piK.fitted_candidate().mass());
       ditrack_cand.addUserFloat("fitted_mass_piK_Err",
                                 sqrt(fitter_piK.fitted_candidate().kinematicParametersError().matrix()(6, 6)));
