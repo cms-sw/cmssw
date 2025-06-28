@@ -14,25 +14,40 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Provenance/interface/EventID.h"
-#include "DataFormats/FEDRawData/interface/RawDataBuffer.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include <algorithm>
 
 class DaqFakeReader : public edm::one::EDProducer<> {
 public:
+  //
+  // construction/destruction
+  //
   DaqFakeReader(const edm::ParameterSet& pset);
-  ~DaqFakeReader() override {}
+  ~DaqFakeReader() override;
+
+  //
+  // public member functions
+  //
 
   // Generate and fill FED raw data for a full event
-  virtual int fillRawData(edm::Event& e, RawDataBuffer*& data);
+  virtual int fillRawData(edm::Event& e, FEDRawDataCollection*& data);
+
   void produce(edm::Event&, edm::EventSetup const&) override;
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void getSizes(const int, const int, float meansize, float width);
-  void fillFEDs(const int, const int, edm::EventID& eID, RawDataBuffer& data, float meansize, float width);
-  void fillTCDSFED(edm::EventID& eID, RawDataBuffer& data, uint32_t ls, timeval* now);
+  //
+  // private member functions
+  //
+  void fillFEDs(const int, const int, edm::EventID& eID, FEDRawDataCollection& data, float meansize, float width);
+  void fillTCDSFED(edm::EventID& eID, FEDRawDataCollection& data, uint32_t ls, timeval* now);
   virtual void beginLuminosityBlock(edm::LuminosityBlock const& iL, edm::EventSetup const& iE);
 
+private:
+  //
+  // member data
+  //
   edm::RunNumber_t runNum;
   edm::EventNumber_t eventNum;
   bool empty_events;
@@ -52,10 +67,6 @@ private:
   bool haveDT_ = false;
   bool haveCSC_ = false;
   bool haveRPC_ = false;
-
-  uint32_t totSize_ = 0;
-  std::vector<float> logSizes_;
-  uint16_t logSizeIndex_;
 };
 
 #endif
