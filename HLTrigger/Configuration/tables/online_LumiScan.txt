@@ -12,6 +12,9 @@ AlCa_LumiPixelsCounts_ZeroBiasVdM_v*
 AlCa_RPCMuonNormalisation_v*
 DST_Physics_v*
 DST_ZeroBias_v*
+DST_PFScouting_SingleMuon_v*                    # CMSHLT-3075, CMSHLT-3579
+DST_PFScouting_ZeroBiasVdM_v*                   # CMSHLT-3579
+HLT_TriggersForScoutingPFMonitor_SingleMuon_v*  # CMSHLT-3579
 HLT_EcalCalibration_v*
 HLT_HcalCalibration_v*
 HLT_HT60_Beamspot_v*
@@ -49,12 +52,14 @@ DQMOutput
 DQMCalibrationOutput
 DQMEventDisplayOutput
 DQMOnlineBeamspotOutput
+DQMOnlineScoutingOutput # CMSHLT-3579
 DQMPPSRandomOutput
 EcalCalibrationOutput
 ExpressAlignmentOutput
 ExpressOutput
 NanoDSTOutput
 PhysicsCommissioningOutput
+PhysicsScoutingPFMonitorOutput # CMSHLT-487, CMSHLT-548, CMSHLT-599, CMSHLT-603, CMSHLT-2231, CMSHLT-3579
 PhysicsSpecialZeroBias0Output
 PhysicsSpecialZeroBias1Output
 PhysicsSpecialZeroBias2Output
@@ -89,6 +94,8 @@ PhysicsSpecialZeroBias30Output
 PhysicsSpecialZeroBias31Output
 
 RPCMONOutput
+
+ScoutingPFOutput # CMSHLT-548, CMSHLT-2231, CMSHLT-3579
 
 ######## Paths that are different between online and offline ########
 
