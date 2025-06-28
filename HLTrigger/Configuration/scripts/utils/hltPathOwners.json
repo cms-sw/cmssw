@@ -381,6 +381,13 @@
       "SMP"
     ]
   },
+  "DST_PFScouting_ZeroBiasVdM_v": {
+    "online?": true,
+    "owners": [
+      "BRIL",
+      "HLT-Scouting"
+    ]
+  },
   "DST_PFScouting_ZeroBias_v": {
     "online?": true,
     "owners": [
@@ -1373,6 +1380,12 @@
     ]
   },
   "HLT_Dimuon0_Upsilon_NoVertexing_v": {
+    "online?": true,
+    "owners": [
+      "BPH"
+    ]
+  },
+  "HLT_Dimuon0_Upsilon_v": {
     "online?": true,
     "owners": [
       "BPH"
@@ -8365,6 +8378,13 @@
   "HLT_TriggersForScoutingPFMonitor_PS500_v": {
     "online?": true,
     "owners": [
+      "HLT-Scouting"
+    ]
+  },
+  "HLT_TriggersForScoutingPFMonitor_SingleMuon_v": {
+    "online?": true,
+    "owners": [
+      "BRIL",
       "HLT-Scouting"
     ]
   },
