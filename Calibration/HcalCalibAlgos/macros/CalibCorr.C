@@ -238,28 +238,6 @@ int truncateDepth(int ieta, int depth, int truncateFlag) {
   return d;
 }
 
-double threshold(int subdet, int depth, int form) {
-  double cutHE[4][7] = {{0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2},
-                        {0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2},
-                        {0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2},
-                        {0.2, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3}};
-  double cutHB[4][4] = {{0.1, 0.2, 0.3, 0.3}, {0.25, 0.25, 0.3, 0.3}, {0.4, 0.3, 0.3, 0.3}, {0.6, 0.4, 0.4, 0.5}};
-  double thr(0);
-  if (form > 0) {
-    if (subdet == 2)
-      thr = cutHE[form - 1][depth - 1];
-    else
-      thr = cutHB[form - 1][depth - 1];
-  }
-  return thr;
-}
-
-double threshold(unsigned int detId, int form) {
-  int subdet = ((detId >> 25) & (0x7));
-  int depth = ((detId & 0x1000000) == 0) ? ((detId >> 14) & 0x1F) : ((detId >> 20) & 0xF);
-  return threshold(subdet, depth, form);
-}
-
 double puFactor(int type, int ieta, double pmom, double eHcal, double ediff, bool debug = false) {
   double fac(1.0);
   if (debug)
@@ -566,6 +544,96 @@ std::vector<std::string> splitString(const std::string& fLine) {
     }
   }
   return result;
+}
+
+class CalibThreshold {
+public:
+  CalibThreshold(int form);
+  ~CalibThreshold() {}
+
+  double threshold(unsigned int detId);
+
+private:
+  double threshold(int subdet, int ieta, int depth);
+  bool fileThreshold(const char* fname);
+
+  int form_;
+  std::map<std::pair<int, int>, double> thresh_;
+  bool ok_;
+};
+
+CalibThreshold::CalibThreshold(int form) : form_(form) {
+  if (form_ == 5)
+    ok_ = fileThreshold("PFCuts362975.txt");
+  else if ((form_ < 1) || (form_ > 5))
+    ok_ = false;
+  else
+    ok_ = true;
+  std::cout << "CalibThreshold initialized with flag " << ok_ << " for form " << form_ << std::endl;
+}
+
+bool CalibThreshold::fileThreshold(const char* fname) {
+  bool ok(false);
+  if (std::string(fname) != "") {
+    std::ifstream fInput(fname);
+    if (!fInput.good()) {
+      std::cout << "Cannot open file " << fname << std::endl;
+    } else {
+      char buffer[1024];
+      unsigned int all(0), good(0), bad(0);
+      while (fInput.getline(buffer, 1024)) {
+        ++all;
+        if (buffer[0] == '#')
+          continue;  //ignore comment
+        std::vector<std::string> items = splitString(std::string(buffer));
+        if (items.size() != 7) {
+          ++bad;
+          std::cout << "Ignore  line: " << buffer << std::endl;
+        } else {
+          ++good;
+          int ieta = std::atoi(items[0].c_str());
+          int depth = std::atoi(items[2].c_str());
+          double thr = std::atof(items[4].c_str());
+          thresh_[std::pair<int, int>(ieta, depth)] = thr;
+        }
+      }
+      fInput.close();
+      std::cout << "Reads " << all << " entries from " << fname << " with " << good << " Good and " << bad
+                << " bad records" << std::endl;
+      if (good > 0)
+        ok = true;
+    }
+  }
+  return ok;
+}
+
+double CalibThreshold::threshold(int subdet, int ieta, int depth) {
+  double cutHE[4][7] = {{0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2},
+                        {0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2},
+                        {0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2},
+                        {0.2, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3}};
+  double cutHB[4][4] = {{0.1, 0.2, 0.3, 0.3}, {0.25, 0.25, 0.3, 0.3}, {0.4, 0.3, 0.3, 0.3}, {0.6, 0.4, 0.4, 0.5}};
+
+  double thr(0);
+  if (ok_) {
+    if ((form_ > 0) && (form_ <= 4)) {
+      if (subdet == 2)
+        thr = cutHE[form_ - 1][depth - 1];
+      else
+        thr = cutHB[form_ - 1][depth - 1];
+    } else {
+      std::map<std::pair<int, int>, double>::const_iterator itr = thresh_.find(std::pair<int, int>(ieta, depth));
+      if (itr != thresh_.end())
+        thr = itr->second;
+    }
+  }
+  return thr;
+}
+
+double CalibThreshold::threshold(unsigned int detId) {
+  int subdet, zside, ieta, iphi, depth;
+  unpackDetId(detId, subdet, zside, ieta, iphi, depth);
+  return threshold(subdet, (zside * ieta), depth);
 }
 
 class CalibCorrFactor {
