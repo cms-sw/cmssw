@@ -15,6 +15,9 @@ AlCa_LumiPixelsCounts_ZeroBiasVdM_v*    #       CMSHLT-2860
 AlCa_LumiPixelsCounts_ZeroBiasGated_v*  #       CMSHLT-2860
 DST_Physics_v*                          #       CMSHLT-2860
 DST_ZeroBias_v*                         #       CMSHLT-2860
+DST_PFScouting_SingleMuon_v*                    # CMSHLT-3075, CMSHLT-3579
+DST_PFScouting_ZeroBiasVdM_v*                   # CMSHLT-3579
+HLT_TriggersForScoutingPFMonitor_SingleMuon_v*  # CMSHLT-3579
 HLT_L1SingleMuOpen_v*                   #       CMSHLT-2860
 HLT_L1SingleMuCosmics_v*  #       CMSHLT-2860
 HLT_L1SingleMuCosmics_CosmicTracking_v*         # CMSHLT-3364
@@ -132,6 +135,7 @@ DQMCalibrationOutput
 DQMEventDisplayOutput
 DQMGPUvsCPUOutput
 DQMOnlineBeamspotOutput
+DQMOnlineScoutingOutput # CMSHLT-3579
 DQMPPSRandomOutput
 EcalCalibrationOutput
 ExpressOutput
@@ -141,6 +145,7 @@ HLTMonitorOutput		      # CMSHLT-3444
 CosmicHLTMonitorOutput		      # CMSHLT-3439
 NanoDSTOutput
 PhysicsCommissioningOutput
+PhysicsScoutingPFMonitorOutput # CMSHLT-487, CMSHLT-548, CMSHLT-599, CMSHLT-603, CMSHLT-2231, CMSHLT-3579
 
 PhysicsSpecialMinimumBias0Output      # CMSHLT-3427
 PhysicsSpecialMinimumBias1Output      # CMSHLT-3427
@@ -222,6 +227,8 @@ PhysicsVRRandom6Output
 PhysicsVRRandom7Output
 
 RPCMONOutput
+
+ScoutingPFOutput # CMSHLT-548, CMSHLT-2231, CMSHLT-3579
 
 ######## paths that are different between Special and online_special ################################
 
