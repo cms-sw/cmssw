@@ -104,7 +104,8 @@
 //                               d: as the format for threshold application,
 //                               0: no threshold; 1: 2022 prompt data; 2:
 //                               2022 reco data; 3: 2023 prompt data; 4: 2025
-//                               Begin of Year.
+//                               Begin of Year; 5: Derived from the file
+//                               PFCuts_IOV_362975.txt.
 //                               (default = 0)
 //   etalo/etahi (int,int)     = |eta| ranges (default = 0:30)
 //   runlo  (int)              = lower value of run number to be included (+ve)
@@ -314,6 +315,7 @@ private:
   CalibCorr *cFactor_;
   CalibSelectRBX *cSelect_;
   CalibDuplicate *cDuplicate_;
+  CalibThreshold *cThr_;
   const std::string fname_, dirnm_, prefix_, outFileName_;
   const int corrPU_, flag_, numb_;
   const bool isRealData_, useGen_;
@@ -370,6 +372,7 @@ CalibMonitor::CalibMonitor(const char *fname,
       cFactor_(nullptr),
       cSelect_(nullptr),
       cDuplicate_(nullptr),
+      cThr_(nullptr),
       fname_(std::string(fname)),
       dirnm_(std::string(dirnm)),
       prefix_(prefix),
@@ -440,6 +443,8 @@ CalibMonitor::CalibMonitor(const char *fname,
     }
     if (std::string(rbxFile) != "")
       cSelect_ = new CalibSelectRBX(rbxFile, false);
+    if (thrForm_ > 0)
+      cThr_ = new CalibThreshold(thrForm_);
   }
 }
 
@@ -1150,7 +1155,7 @@ void CalibMonitor::Loop(Long64_t nmax, bool debug) {
       eHcal = 0;
       for (unsigned int k = 0; k < t_HitEnergies->size(); ++k) {
         // Apply thresholds if necessary
-        bool okcell = (thrForm_ == 0) || ((*t_HitEnergies)[k] > threshold((*t_DetIds)[k], thrForm_));
+        bool okcell = (thrForm_ == 0) || ((*t_HitEnergies)[k] > (cThr_->threshold((*t_DetIds)[k])));
         // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
         if (okcell) {
           double cfac(1.0);
@@ -1572,7 +1577,7 @@ bool CalibMonitor::selectPhi(bool debug) {
     // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
     for (unsigned int k = 0; k < t_HitEnergies->size(); ++k) {
       // Apply thresholds if necessary
-      bool okcell = (thrForm_ == 0) || ((*t_HitEnergies)[k] > threshold((*t_DetIds)[k], thrForm_));
+      bool okcell = (thrForm_ == 0) || ((*t_HitEnergies)[k] > (cThr_->threshold((*t_DetIds)[k])));
       if (okcell) {
         int iphi = ((*t_DetIds)[k]) & (0x3FF);
         int zside = ((*t_DetIds)[k] & 0x80000) ? (1) : (-1);
@@ -1760,7 +1765,7 @@ void CalibMonitor::correctEnergy(double &eHcal, const Long64_t &entry) {
       // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
       for (unsigned int idet = 0; idet < (*t_DetIds1).size(); idet++) {
         // Apply thresholds if necessary
-        bool okcell = (thrForm_ == 0) || ((*t_HitEnergies1)[idet] > threshold((*t_DetIds1)[idet], thrForm_));
+        bool okcell = (thrForm_ == 0) || ((*t_HitEnergies1)[idet] > (cThr_->threshold((*t_DetIds1)[idet])));
         if (okcell) {
           unsigned int id = truncateId((*t_DetIds1)[idet], truncateFlag_, false);
           double cfac = corrFactor_->getCorr(id);
@@ -1779,7 +1784,7 @@ void CalibMonitor::correctEnergy(double &eHcal, const Long64_t &entry) {
       }
       for (unsigned int idet = 0; idet < (*t_DetIds3).size(); idet++) {
         // Apply thresholds if necessary
-        bool okcell = (thrForm_ == 0) || ((*t_HitEnergies3)[idet] > threshold((*t_DetIds3)[idet], thrForm_));
+        bool okcell = (thrForm_ == 0) || ((*t_HitEnergies3)[idet] > (cThr_->threshold((*t_DetIds3)[idet])));
         if (okcell) {
           unsigned int id = truncateId((*t_DetIds3)[idet], truncateFlag_, false);
           double cfac = corrFactor_->getCorr(id);

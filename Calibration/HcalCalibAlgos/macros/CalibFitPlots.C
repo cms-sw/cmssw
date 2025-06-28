@@ -265,6 +265,7 @@
 #include "CalibCorr.C"
 
 const double fitrangeFactor = 1.5;
+const double fitrangeFactor1 = 1.2;
 
 struct cfactors {
   int ieta, depth;
@@ -445,7 +446,7 @@ results fitTwoGauss(TH1D* hist, bool debug) {
   std::pair<double, double> mrms = GetMean(hist, 0.2, 2.0, rms);
   double mean = mrms.first;
   double LowEdge = mean - fitrangeFactor * rms;
-  double HighEdge = mean + fitrangeFactor * rms;
+  double HighEdge = mean + fitrangeFactor1 * rms;
   if (LowEdge < 0.15)
     LowEdge = 0.15;
   std::string option = (hist->GetEntries() > 100) ? "QRS" : "QRWLS";
@@ -482,7 +483,7 @@ results fitTwoGauss(TH1D* hist, bool debug) {
   highValue[5] = 100. * startvalues[5];
   //fitrange[0] = mean - 2.0*rms; fitrange[1] = mean + 2.0*rms;
   fitrange[0] = Fit->Value(1) - fitrangeFactor * Fit->Value(2);
-  fitrange[1] = Fit->Value(1) + fitrangeFactor * Fit->Value(2);
+  fitrange[1] = Fit->Value(1) + fitrangeFactor1 * Fit->Value(2);
   TFitResultPtr Fitfun = functionFit(hist, fitrange, startvalues, lowValue, highValue);
   double wt1 = (Fitfun->Value(0)) * (Fitfun->Value(2));
   double value1 = Fitfun->Value(1);
@@ -514,7 +515,8 @@ results fitOneGauss(TH1D* hist, bool fitTwice, bool debug) {
   std::pair<double, double> mrms = GetMean(hist, 0.2, 2.0, rms);
   double mean = mrms.first;
   double LowEdge = ((mean - fitrangeFactor * rms) < 0.5) ? 0.5 : (mean - fitrangeFactor * rms);
-  double HighEdge = (mean + fitrangeFactor * rms);
+  double diff = mean - LowEdge;
+  double HighEdge = (diff > fitrangeFactor1 * rms) ? (mean + fitrangeFactor1 * rms) : (mean + diff);
   if (debug)
     std::cout << hist->GetName() << " Mean " << mean << " RMS " << rms << " Range " << LowEdge << ":" << HighEdge
               << "\n";
@@ -531,9 +533,11 @@ results fitOneGauss(TH1D* hist, bool fitTwice, bool debug) {
   double werror = Fit1->FitResult::Error(2);
   if (fitTwice) {
     LowEdge = Fit1->Value(1) - fitrangeFactor * Fit1->Value(2);
-    HighEdge = Fit1->Value(1) + fitrangeFactor * Fit1->Value(2);
     if (LowEdge < 0.5)
       LowEdge = 0.5;
+    diff = Fit1->Value(1) - LowEdge;
+    HighEdge =
+        (diff > fitrangeFactor1 * rms) ? (Fit1->Value(1) + fitrangeFactor1 * Fit1->Value(2)) : (Fit1->Value(1) + diff);
     if (HighEdge > 5.0)
       HighEdge = 5.0;
     if (debug)
@@ -2220,6 +2224,7 @@ void PlotHistCorrFactor(char* infile,
   int nbin = etamax - etamin + 1;
   std::vector<TH1D*> hists;
   std::vector<int> entries;
+  std::vector<int> depths;
   char name[100];
   double dy(0);
   int fits(0);
@@ -2254,17 +2259,20 @@ void PlotHistCorrFactor(char* infile,
       TF1* func = new TF1(name, "pol0", etamin, etamax);
       h->Fit(func, "+QWLR", "");
     }
-    h->SetLineColor(colors[j]);
-    h->SetMarkerColor(colors[j]);
-    h->SetMarkerStyle(mtype[j]);
-    h->GetXaxis()->SetTitle("i#eta");
-    h->GetYaxis()->SetTitle("Correction Factor");
-    h->GetYaxis()->SetLabelOffset(0.005);
-    h->GetYaxis()->SetTitleOffset(1.20);
-    h->GetYaxis()->SetRangeUser(0.0, 2.0);
-    hists.push_back(h);
-    entries.push_back(nent);
-    dy += 0.025;
+    if (nent > 0) {
+      h->SetLineColor(colors[j]);
+      h->SetMarkerColor(colors[j]);
+      h->SetMarkerStyle(mtype[j]);
+      h->GetXaxis()->SetTitle("i#eta");
+      h->GetYaxis()->SetTitle("Correction Factor");
+      h->GetYaxis()->SetLabelOffset(0.005);
+      h->GetYaxis()->SetTitleOffset(1.20);
+      h->GetYaxis()->SetRangeUser(0.0, 2.5);
+      hists.push_back(h);
+      entries.push_back(nent);
+      depths.push_back(j + 1);
+      dy += 0.025;
+    }
   }
   sprintf(name, "c_%sCorrFactor", prefixF.c_str());
   TCanvas* pad = new TCanvas(name, name, 700, 500);
@@ -2292,7 +2300,7 @@ void PlotHistCorrFactor(char* infile,
       st1->SetX2NDC(0.90);
       yh -= dy;
     }
-    sprintf(name, "Depth %d (%s)", k + 1, text.c_str());
+    sprintf(name, "Depth %d (%s)", depths[k], text.c_str());
     legend->AddEntry(hists[k], name, "lp");
   }
   legend->Draw("same");
@@ -2493,7 +2501,7 @@ void PlotHistCorrAsymmetry(
   std::vector<int> entries;
   char name[100];
   double dy(0);
-  int maxd = (depth < 0) ? maxdepth : 1;
+  int maxd = (depth <= 0) ? maxdepth : 1;
   for (int j = 0; j < maxd; ++j) {
     int dep = (depth <= 0) ? (j + 1) : depth;
     sprintf(name, "hd%d", dep);
@@ -4330,7 +4338,7 @@ void PlotMeanError(const std::string infilest, int reg = 3, bool resol = false, 
   } else {
     ok = true;
     fInput >> nEner >> nType >> nPts;
-    int nmax = nEner * nType;
+    const int nmax = nEner * nType;
     int type, elow, ehigh;
     double v1[4], e1[4], v2[4], e2[4];
     for (int n = 0; n < nmax; ++n) {
@@ -4406,7 +4414,7 @@ void PlotMeanError(const std::string infilest, int reg = 3, bool resol = false, 
     legend->SetFillColor(kWhite);
     std::string nameg[ntypmx] = {"MAHI", "M0", "M2"};
     for (int n = 0; n < nType; ++n) {
-      unsigned int nmax0 = energy[n].size();
+      const unsigned int nmax0 = energy[n].size();
       double mom[nmax0], dmom[nmax0], mean[nmax0], dmean[nmax0];
       for (unsigned int k = 0; k < nmax0; ++k) {
         mom[k] = energy[n][k];
