@@ -1861,7 +1861,7 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
   // ******************************************
 
   Handle<CandidateCollection> genParticles;
-  evt.getByLabel("genParticleCandidates", genParticles);
+  evt.getByLabel("genParticles", genParticles);
 
   // *********************
   // Partons (Z')

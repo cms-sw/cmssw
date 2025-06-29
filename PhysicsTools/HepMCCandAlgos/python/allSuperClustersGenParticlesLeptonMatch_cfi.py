@@ -4,7 +4,6 @@ allSuperClustersGenParticlesLeptonMatch = cms.EDFilter("MCTruthDeltaRMatcher",
     src = cms.InputTag("allSuperClusters"),
     distMin = cms.double(0.15),
     matchPDGId = cms.vint32(11),
-    matched = cms.InputTag("genParticleCandidates")
+    matched = cms.InputTag("genParticles")
 )
-
 

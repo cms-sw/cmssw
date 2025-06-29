@@ -6,7 +6,6 @@ allStandAloneMuonTracksGenParticlesLeptonMatch = cms.EDFilter("MCTruthDeltaRMatc
     # poor resolution
     distMin = cms.double(0.5),
     matchPDGId = cms.vint32(13),
-    matched = cms.InputTag("genParticleCandidates")
+    matched = cms.InputTag("genParticles")
 )
-
 

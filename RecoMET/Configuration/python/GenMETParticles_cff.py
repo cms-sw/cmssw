@@ -10,8 +10,6 @@ import FWCore.ParameterSet.Config as cms
 #
 # F.R. Mar. 22, 2007 IMPORTANT: this configuration assumes that some
 #                    GenParticle collections are made via GenJet's configuration
-from PhysicsTools.HepMCCandAlgos.genParticleCandidatesFast_cfi import *
-#from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
 from RecoJets.Configuration.GenJetParticles_cff import *
 
 genCandidatesForMET = cms.EDProducer(
