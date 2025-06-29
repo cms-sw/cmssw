@@ -12,13 +12,13 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-#include "DataFormats/HGCalReco/interface/Common.h"
-#include "DataFormats/HGCalReco/interface/TICLLayerTile.h"
-#include "DataFormats/HGCalReco/interface/Trackster.h"
+#include "DataFormats/TICLReco/interface/Common.h"
+#include "DataFormats/TICLReco/interface/TICLLayerTile.h"
+#include "DataFormats/TICLReco/interface/Trackster.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
-#include "DataFormats/HGCalReco/interface/TICLCandidate.h"
+#include "DataFormats/TICLReco/interface/TICLCandidate.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 

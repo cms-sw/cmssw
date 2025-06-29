@@ -13,13 +13,13 @@
 #include <Math/VectorUtil.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/HGCalReco/interface/Trackster.h"
+#include "DataFormats/TICLReco/interface/Trackster.h"
 
 namespace ticl {
 
   std::vector<float> SuperclusteringDNNInputV1::computeVector(Trackster const& ts_base, Trackster const& ts_toCluster) {
-    /*  We use the barycenter for most of the variables below as that is what seems to have been used by Alessandro Tarabini, 
-        but using PCA might be better. 
+    /*  We use the barycenter for most of the variables below as that is what seems to have been used by Alessandro Tarabini,
+        but using PCA might be better.
         (It would need retraining of the DNN)
     */
     return {{
