@@ -15,7 +15,7 @@ options.register('geometry',
                  "V18",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: V17, V17Shift, V18, V19 V19n")
+                  "geometry of operations: V17, V17Shift, V18, V19, V19n")
 
 ### get and parse the command line arguments
  
