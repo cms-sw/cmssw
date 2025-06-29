@@ -19,11 +19,26 @@ bool SiStripMatchedRecHit2D::sharesInput(const TrackingRecHit* other, SharedInpu
     return false;
 
   auto const& otherClus = reinterpret_cast<const BaseTrackerRecHit*>(other)->firstClusterRef();
-  return (otherClus == stereoClusterRef()) || (otherClus == monoClusterRef());
+  if (monoClusterRef().id() == otherClus.id() || stereoClusterRef().id() == otherClus.id())
+    return (otherClus == stereoClusterRef()) || (otherClus == monoClusterRef());
+  else {
+    const bool sameDetId = (geographicalId() == other->geographicalId());
+    bool stereoOverlap = (sameDetId) ? otherClus.stripOverlap(stereoClusterRef()) : false;
+    bool monoOverlap = (sameDetId) ? otherClus.stripOverlap(monoClusterRef()) : false;
+    return (stereoOverlap || monoOverlap);
+  }
 }
 
 bool SiStripMatchedRecHit2D::sharesInput(TrackerSingleRecHit const& other) const {
-  return other.sameCluster(monoClusterRef()) || other.sameCluster(stereoClusterRef());
+  auto const& otherClus = other.firstClusterRef();
+  if (monoClusterRef().id() == otherClus.id() || stereoClusterRef().id() == otherClus.id())
+    return (otherClus == stereoClusterRef()) || (otherClus == monoClusterRef());
+  else {
+    const bool sameDetId = (geographicalId() == other.geographicalId());
+    bool stereoOverlap = (sameDetId) ? otherClus.stripOverlap(stereoClusterRef()) : false;
+    bool monoOverlap = (sameDetId) ? otherClus.stripOverlap(monoClusterRef()) : false;
+    return (stereoOverlap || monoOverlap);
+  }
 }
 
 // it does not have components anymore...
