@@ -7,11 +7,11 @@ adcNbitsBH = digiparam.hgchebackDigitizer.digiCfg.feCfg.adcNbits
 
 # MAX_LAYERS should be equal to kNHGCalLayersMax_ defined in interface/HGCalCoarseTriggerCellMapping.h
 # MAX_LAYERS can be larger than the actual number of layers
-# CTC / STC sizes vectors should have a length of 4*MAX_LAYERS, 4 = 3 different silicon thicknesses + scintillator portion
+# CTC / STC sizes vectors should have a length of 5*MAX_LAYERS, 5 = 4 different silicon thicknesses/types (HD120, LD200, LD300, HD200) + scintillator portion
 MAX_LAYERS = 52
-CTC_2_SIZES = cms.vuint32( [2]*(MAX_LAYERS+1)*4 )
-STC_4_AND_16_SIZES = cms.vuint32( [4]*(MAX_LAYERS+1)+ [16]*(MAX_LAYERS+1)*3 )
-STC_4_AND_8_SIZES = cms.vuint32( [4]*(MAX_LAYERS+1)+ [8]*(MAX_LAYERS+1)*3 )
+CTC_2_SIZES = cms.vuint32( [2]*(MAX_LAYERS+1)*5 )
+STC_4_AND_16_SIZES = cms.vuint32( [4]*(MAX_LAYERS+1)+ [16]*(MAX_LAYERS+1)*4 )
+STC_4_AND_8_SIZES = cms.vuint32( [4]*(MAX_LAYERS+1)+ [8]*(MAX_LAYERS+1)*4 )
 
 threshold_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcessorSelection'),
                                Method = cms.vstring(['thresholdSelect']*3),
