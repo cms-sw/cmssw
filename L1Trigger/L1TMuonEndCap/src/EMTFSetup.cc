@@ -21,10 +21,9 @@ EMTFSetup::EMTFSetup(const edm::ParameterSet& iConfig, edm::ConsumesCollector iC
   // Set pt assignment engine according to Era
   if (era() == "Run2_2016") {
     pt_assign_engine_ = std::make_unique<PtAssignmentEngine2016>();
-  } else if (era() == "Run2_2017" || era() == "Run2_2018") {
+  } else if (era() == "Run2_2017" || era() == "Run2_2018" || era() == "Run3_2021" || era() == "Run3_2023" ||
+             era() == "Run3_2024" || era() == "Run3_2025") {
     pt_assign_engine_ = std::make_unique<PtAssignmentEngine2017>();
-  } else if (era() == "Run3_2021") {
-    pt_assign_engine_ = std::make_unique<PtAssignmentEngine2017>();  //TODO - implement ver 2021
   } else {
     throw cms::Exception("L1TMuonEndCap") << "Cannot recognize the era option: " << era();
   }
