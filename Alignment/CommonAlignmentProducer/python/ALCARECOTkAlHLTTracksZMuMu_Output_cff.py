@@ -14,6 +14,7 @@ OutALCARECOTkAlHLTTracksZMuMu_noDrop = cms.PSet(
         'keep L1AcceptBunchCrossings_*_*_*',
         'keep *_TriggerResults_*_*',
         'keep *_hltPixelVertices_*_*',
+        'keep *_ALCARECOTkAlHLTPixelZMuMuVertexTracks_*_*',
 	'keep *_hltVerticesPFFilter_*_*',
         'keep *_hltOnlineBeamSpot_*_*'
     )
