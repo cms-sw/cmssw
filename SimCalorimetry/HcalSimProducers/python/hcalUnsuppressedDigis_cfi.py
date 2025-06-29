@@ -23,6 +23,7 @@ hcalSimBlock = cms.PSet(
     hitsProducer = cms.string('g4SimHits'),
     DelivLuminosity = cms.double(0),
     TestNumbering = cms.bool(False),
+    TestNumberingPU = cms.bool(False),
     doNeutralDensityFilter = cms.bool(True),
     HBDarkening = cms.bool(False),
     HEDarkening = cms.bool(False),
@@ -60,7 +61,9 @@ premix_stage1.toModify(hcalSimBlock,
 
 # test numbering not used in fastsim
 from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
-(run2_HCAL_2017 & ~fastSim).toModify( hcalSimBlock, TestNumbering = True )
+(run2_HCAL_2017 & ~fastSim).toModify( hcalSimBlock,
+                                      TestNumbering = True,
+                                      TestNumberingPU = True )
 
 # remove HE processing for phase 2, completely put in HGCal land
 # Also inhibit ZDC digitization
