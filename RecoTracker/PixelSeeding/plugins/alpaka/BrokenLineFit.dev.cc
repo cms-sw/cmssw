@@ -1,6 +1,6 @@
-//#define BROKENLINE_DEBUG
-//#define BL_DUMP_HITS
-
+// #define BROKENLINE_DEBUG
+// #define BL_DUMP_HITS
+// #define GPU_DEBUG
 #include <cstdint>
 
 #include <alpaka/alpaka.hpp>
@@ -8,31 +8,26 @@
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/debug.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforDevice.h"
+#include "RecoTracker/PixelSeeding/interface/CAGeometrySoA.h"
 #include "RecoTracker/PixelTrackFitting/interface/alpaka/BrokenLine.h"
 
 #include "HelixFit.h"
 
-template <typename TrackerTraits>
-using Tuples = typename reco::TrackSoA<TrackerTraits>::HitContainer;
-template <typename TrackerTraits>
-using OutputSoAView = reco::TrackSoAView<TrackerTraits>;
-template <typename TrackerTraits>
-using TupleMultiplicity = caStructures::TupleMultiplicityT<TrackerTraits>;
-
-// #define BL_DUMP_HITS
+using OutputSoAView = reco::TrackSoAView;
+using TupleMultiplicity = caStructures::GenericContainer;
+using Tuples = caStructures::SequentialContainer;
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
-  template <int N, typename TrackerTraits>
+
+  template <int N>
   class Kernel_BLFastFit {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const &acc,
-                                  Tuples<TrackerTraits> const *__restrict__ foundNtuplets,
-                                  TupleMultiplicity<TrackerTraits> const *__restrict__ tupleMultiplicity,
-                                  TrackingRecHitSoAConstView<TrackerTraits> hh,
-                                  pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits> const *__restrict__ cpeParams,
-                                  typename TrackerTraits::tindex_type *__restrict__ ptkids,
+    ALPAKA_FN_ACC void operator()(Acc1D const &acc,
+                                  Tuples const *__restrict__ foundNtuplets,
+                                  TupleMultiplicity const *__restrict__ tupleMultiplicity,
+                                  ::reco::TrackingRecHitConstView hh,
+                                  ::reco::CAModulesConstView cm,
+                                  typename caStructures::tindex_type *__restrict__ ptkids,
                                   double *__restrict__ phits,
                                   float *__restrict__ phits_ge,
                                   double *__restrict__ pfast_fit,
@@ -40,7 +35,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   uint32_t nHitsH,
                                   int32_t offset) const {
       constexpr uint32_t hitsInFit = N;
-      constexpr auto invalidTkId = std::numeric_limits<typename TrackerTraits::tindex_type>::max();
+      constexpr auto invalidTkId = std::numeric_limits<typename caStructures::tindex_type>::max();
 
       ALPAKA_ASSERT_ACC(hitsInFit <= nHitsL);
       ALPAKA_ASSERT_ACC(nHitsL <= nHitsH);
@@ -55,7 +50,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       ALPAKA_ASSERT_ACC(totTK >= 0);
 
 #ifdef BROKENLINE_DEBUG
-      const uint32_t threadIdx(alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0u]);
       if (cms::alpakatools::once_per_grid(acc)) {
         printf("%d total Ntuple\n", tupleMultiplicity->size());
         printf("%d Ntuple of size %d/%d for %d hits to fit\n", totTK, nHitsL, nHitsH, hitsInFit);
@@ -115,7 +109,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           float ge[6];
 
 #ifdef YERR_FROM_DC
-          auto const &dp = cpeParams->detParams(hh.detectorIndex(hit));
+          auto const &dp = cm->detParams(hh.detectorIndex(hit));
           auto status = hh[hit].chargeAndStatus().status;
           int qbin = CPEFastParametrisation::kGenErrorQBins - 1 - status.qBin;
           ALPAKA_ASSERT_ACC(qbin >= 0 && qbin < 5);
@@ -136,7 +130,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           yerr = nok ? hh[hit].yerrLocal() : yerr;
           dp.frame.toGlobal(hh[hit].xerrLocal(), 0, yerr, ge);
 #else
-          cpeParams->detParams(hh[hit].detectorIndex()).frame.toGlobal(hh[hit].xerrLocal(), 0, hh[hit].yerrLocal(), ge);
+          auto const &frame = cm.detFrame(hh.detectorIndex(hit));
+          frame.toGlobal(hh[hit].xerrLocal(), 0, hh[hit].yerrLocal(), ge);
 #endif
 
 #ifdef BL_DUMP_HITS
@@ -174,12 +169,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <int N, typename TrackerTraits>
   struct Kernel_BLFit {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const &acc,
-                                  TupleMultiplicity<TrackerTraits> const *__restrict__ tupleMultiplicity,
+    ALPAKA_FN_ACC void operator()(Acc1D const &acc,
+                                  TupleMultiplicity const *__restrict__ tupleMultiplicity,
                                   double bField,
-                                  OutputSoAView<TrackerTraits> results_view,
-                                  typename TrackerTraits::tindex_type const *__restrict__ ptkids,
+                                  OutputSoAView results_view,
+                                  typename caStructures::tindex_type const *__restrict__ ptkids,
                                   double *__restrict__ phits,
                                   float *__restrict__ phits_ge,
                                   double *__restrict__ pfast_fit) const {
@@ -190,7 +184,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       ALPAKA_ASSERT_ACC(results_view.eta());
       ALPAKA_ASSERT_ACC(results_view.chi2());
       ALPAKA_ASSERT_ACC(pfast_fit);
-      constexpr auto invalidTkId = std::numeric_limits<typename TrackerTraits::tindex_type>::max();
+
+      constexpr auto invalidTkId = std::numeric_limits<typename caStructures::tindex_type>::max();
 
       // same as above...
       // look in bin for this hit multiplicity
@@ -200,7 +195,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           break;
         auto tkid = ptkids[local_idx];
 
-        ALPAKA_ASSERT_ACC(tkid < TrackerTraits::maxNumberOfTuples);
+        ALPAKA_ASSERT_ACC(int(tkid) < tupleMultiplicity->capacity());
 
         riemannFit::Map3xNd<N> hits(phits + local_idx);
         riemannFit::Map4d fast_fit(pfast_fit + local_idx);
@@ -215,8 +210,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         brokenline::lineFit(acc, hits_ge, fast_fit, bField, data, line);
         brokenline::circleFit(acc, hits, hits_ge, fast_fit, bField, data, circle);
 
-        TracksUtilities<TrackerTraits>::copyFromCircle(
-            results_view, circle.par, circle.cov, line.par, line.cov, 1.f / float(bField), tkid);
+        reco::copyFromCircle(results_view, circle.par, circle.cov, line.par, line.cov, 1.f / float(bField), tkid);
         results_view[tkid].pt() = float(bField) / float(std::abs(circle.par(2)));
         results_view[tkid].eta() = alpaka::math::asinh(acc, line.par(0));
         results_view[tkid].chi2() = (circle.chi2 + line.chi2) / (2 * N - 5);
@@ -246,13 +240,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   };
 
   template <typename TrackerTraits>
-  void HelixFit<TrackerTraits>::launchBrokenLineKernels(
-      const TrackingRecHitSoAConstView<TrackerTraits> &hv,
-      pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits> const *cpeParams,
-      uint32_t hitsInFit,
-      uint32_t maxNumberOfTuples,
-      Queue &queue) {
+  void HelixFit<TrackerTraits>::launchBrokenLineKernels(const ::reco::TrackingRecHitConstView &hv,
+                                                        const ::reco::CAModulesConstView &cm,
+                                                        uint32_t hitsInFit,
+                                                        uint32_t maxNumberOfTuples,
+                                                        Queue &queue) {
     ALPAKA_ASSERT_ACC(tuples_);
+
+#ifdef GPU_DEBUG
+    alpaka::wait(queue);
+    std::cout << "Starting HelixFit<TrackerTraits>::launchBrokenLineKernels" << std::endl;
+#endif
 
     uint32_t blockSize = 64;
     uint32_t numberOfBlocks = cms::alpakatools::divide_up_by(maxNumberOfConcurrentFits_, blockSize);
@@ -261,7 +259,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     //  Fit internals
     auto tkidDevice =
-        cms::alpakatools::make_device_buffer<typename TrackerTraits::tindex_type[]>(queue, maxNumberOfConcurrentFits_);
+        cms::alpakatools::make_device_buffer<typename caStructures::tindex_type[]>(queue, maxNumberOfConcurrentFits_);
     auto hitsDevice = cms::alpakatools::make_device_buffer<double[]>(
         queue, maxNumberOfConcurrentFits_ * sizeof(riemannFit::Matrix3xNd<6>) / sizeof(double));
     auto hits_geDevice = cms::alpakatools::make_device_buffer<float[]>(
@@ -274,11 +272,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       alpaka::exec<Acc1D>(queue,
                           workDivTriplets,
-                          Kernel_BLFastFit<3, TrackerTraits>{},
+                          Kernel_BLFastFit<3>{},
                           tuples_,
                           tupleMultiplicity_,
                           hv,
-                          cpeParams,
+                          cm,
                           tkidDevice.data(),
                           hitsDevice.data(),
                           hits_geDevice.data(),
@@ -286,7 +284,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           3,
                           3,
                           offset);
-
+#ifdef GPU_DEBUG
+      alpaka::wait(queue);
+      std::cout << "Kernel_BLFastFit(3) -> done! " << std::endl;
+#endif
       alpaka::exec<Acc1D>(queue,
                           workDivTriplets,
                           Kernel_BLFit<3, TrackerTraits>{},
@@ -297,12 +298,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           hitsDevice.data(),
                           hits_geDevice.data(),
                           fast_fit_resultsDevice.data());
+#ifdef GPU_DEBUG
+      alpaka::wait(queue);
+      std::cout << "Kernel_BLFit(3) -> done! " << std::endl;
+#endif
 
       if (fitNas4_) {
         // fit all as 4
         riemannFit::rolling_fits<4, TrackerTraits::maxHitsOnTrack, 1>([this,
                                                                        &hv,
-                                                                       &cpeParams,
+                                                                       &cm,
                                                                        &tkidDevice,
                                                                        &hitsDevice,
                                                                        &hits_geDevice,
@@ -312,11 +317,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                                        &workDivQuadsPenta](auto i) {
           alpaka::exec<Acc1D>(queue,
                               workDivQuadsPenta,
-                              Kernel_BLFastFit<4, TrackerTraits>{},
+                              Kernel_BLFastFit<4>{},
                               tuples_,
                               tupleMultiplicity_,
                               hv,
-                              cpeParams,
+                              cm,
                               tkidDevice.data(),
                               hitsDevice.data(),
                               hits_geDevice.data(),
@@ -336,11 +341,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                               hits_geDevice.data(),
                               fast_fit_resultsDevice.data());
         });
-
       } else {
         riemannFit::rolling_fits<4, TrackerTraits::maxHitsOnTrackForFullFit, 1>([this,
                                                                                  &hv,
-                                                                                 &cpeParams,
+                                                                                 &cm,
                                                                                  &tkidDevice,
                                                                                  &hitsDevice,
                                                                                  &hits_geDevice,
@@ -350,11 +354,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                                                  &workDivQuadsPenta](auto i) {
           alpaka::exec<Acc1D>(queue,
                               workDivQuadsPenta,
-                              Kernel_BLFastFit<i, TrackerTraits>{},
+                              Kernel_BLFastFit<i>{},
                               tuples_,
                               tupleMultiplicity_,
                               hv,
-                              cpeParams,
+                              cm,
                               tkidDevice.data(),
                               hitsDevice.data(),
                               hits_geDevice.data(),
@@ -373,6 +377,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                               hitsDevice.data(),
                               hits_geDevice.data(),
                               fast_fit_resultsDevice.data());
+#ifdef GPU_DEBUG
+          alpaka::wait(queue);
+          std::cout << "Kernel_BLFastFit(" << i << ") and Kernel_BLFit(" << i << ") -> done! " << std::endl;
+#endif
         });
 
         static_assert(TrackerTraits::maxHitsOnTrackForFullFit < TrackerTraits::maxHitsOnTrack);
@@ -380,11 +388,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         //Fit all the rest using the maximum from previous call
         alpaka::exec<Acc1D>(queue,
                             workDivQuadsPenta,
-                            Kernel_BLFastFit<TrackerTraits::maxHitsOnTrackForFullFit, TrackerTraits>{},
+                            Kernel_BLFastFit<TrackerTraits::maxHitsOnTrackForFullFit>{},
                             tuples_,
                             tupleMultiplicity_,
                             hv,
-                            cpeParams,
+                            cm,
                             tkidDevice.data(),
                             hitsDevice.data(),
                             hits_geDevice.data(),
