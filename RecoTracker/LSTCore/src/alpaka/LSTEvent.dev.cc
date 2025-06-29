@@ -62,7 +62,8 @@ void LSTEvent::resetEventSync() {
   pixelSegmentsDC_.reset();
   tripletsDC_.reset();
   quintupletsDC_.reset();
-  trackCandidatesDC_.reset();
+  trackCandidatesBaseDC_.reset();
+  trackCandidatesExtendedDC_.reset();
   pixelTripletsDC_.reset();
   pixelQuintupletsDC_.reset();
 
@@ -76,7 +77,8 @@ void LSTEvent::resetEventSync() {
   quintupletsHC_.reset();
   pixelTripletsHC_.reset();
   pixelQuintupletsHC_.reset();
-  trackCandidatesHC_.reset();
+  trackCandidatesBaseHC_.reset();
+  trackCandidatesExtendedHC_.reset();
   modulesHC_.reset();
 }
 
@@ -433,9 +435,13 @@ void LSTEvent::createTriplets() {
 }
 
 void LSTEvent::createTrackCandidates(bool no_pls_dupclean, bool tc_pls_triplets) {
-  if (!trackCandidatesDC_) {
-    trackCandidatesDC_.emplace(n_max_nonpixel_track_candidates + n_max_pixel_track_candidates, queue_);
-    auto buf = trackCandidatesDC_->buffer();
+  if (!trackCandidatesBaseDC_) {
+    trackCandidatesBaseDC_.emplace(n_max_nonpixel_track_candidates + n_max_pixel_track_candidates, queue_);
+    auto buf = trackCandidatesBaseDC_->buffer();
+    alpaka::memset(queue_, buf, 0u);
+
+    trackCandidatesExtendedDC_.emplace(n_max_nonpixel_track_candidates + n_max_pixel_track_candidates, queue_);
+    buf = trackCandidatesExtendedDC_->buffer();
     alpaka::memset(queue_, buf, 0u);
   }
 
@@ -457,7 +463,8 @@ void LSTEvent::createTrackCandidates(bool no_pls_dupclean, bool tc_pls_triplets)
                       AddpT3asTrackCandidates{},
                       nLowerModules_,
                       pixelTripletsDC_->const_view(),
-                      trackCandidatesDC_->view(),
+                      trackCandidatesBaseDC_->view(),
+                      trackCandidatesExtendedDC_->view(),
                       lstInputDC_->const_view<PixelSeedsSoA>(),
                       rangesDC_->const_view());
 
@@ -503,7 +510,8 @@ void LSTEvent::createTrackCandidates(bool no_pls_dupclean, bool tc_pls_triplets)
                       nLowerModules_,
                       quintupletsDC_->const_view<QuintupletsSoA>(),
                       quintupletsDC_->const_view<QuintupletsOccupancySoA>(),
-                      trackCandidatesDC_->view(),
+                      trackCandidatesBaseDC_->view(),
+                      trackCandidatesExtendedDC_->view(),
                       rangesDC_->const_view());
 
   if (!no_pls_dupclean) {
@@ -527,7 +535,8 @@ void LSTEvent::createTrackCandidates(bool no_pls_dupclean, bool tc_pls_triplets)
                       modules_.const_view<ModulesSoA>(),
                       rangesDC_->const_view(),
                       pixelTripletsDC_->const_view(),
-                      trackCandidatesDC_->view(),
+                      trackCandidatesBaseDC_->view(),
+                      trackCandidatesExtendedDC_->view(),
                       segmentsDC_->const_view<SegmentsSoA>(),
                       segmentsDC_->const_view<SegmentsOccupancySoA>(),
                       lstInputDC_->const_view<PixelSeedsSoA>(),
@@ -542,7 +551,8 @@ void LSTEvent::createTrackCandidates(bool no_pls_dupclean, bool tc_pls_triplets)
                       addpLSasTrackCandidate_workDiv,
                       AddpLSasTrackCandidate{},
                       nLowerModules_,
-                      trackCandidatesDC_->view(),
+                      trackCandidatesBaseDC_->view(),
+                      trackCandidatesExtendedDC_->view(),
                       segmentsDC_->const_view<SegmentsOccupancySoA>(),
                       lstInputDC_->const_view<PixelSeedsSoA>(),
                       pixelSegmentsDC_->const_view(),
@@ -555,16 +565,16 @@ void LSTEvent::createTrackCandidates(bool no_pls_dupclean, bool tc_pls_triplets)
   auto nTrackCanT5Host_buf = cms::alpakatools::make_host_buffer<unsigned int>(queue_);
   alpaka::memcpy(queue_,
                  nTrackCanpT5Host_buf,
-                 cms::alpakatools::make_device_view(queue_, (*trackCandidatesDC_)->nTrackCandidatespT5()));
+                 cms::alpakatools::make_device_view(queue_, (*trackCandidatesExtendedDC_)->nTrackCandidatespT5()));
   alpaka::memcpy(queue_,
                  nTrackCanpT3Host_buf,
-                 cms::alpakatools::make_device_view(queue_, (*trackCandidatesDC_)->nTrackCandidatespT3()));
+                 cms::alpakatools::make_device_view(queue_, (*trackCandidatesExtendedDC_)->nTrackCandidatespT3()));
   alpaka::memcpy(queue_,
                  nTrackCanpLSHost_buf,
-                 cms::alpakatools::make_device_view(queue_, (*trackCandidatesDC_)->nTrackCandidatespLS()));
+                 cms::alpakatools::make_device_view(queue_, (*trackCandidatesExtendedDC_)->nTrackCandidatespLS()));
   alpaka::memcpy(queue_,
                  nTrackCanT5Host_buf,
-                 cms::alpakatools::make_device_view(queue_, (*trackCandidatesDC_)->nTrackCandidatesT5()));
+                 cms::alpakatools::make_device_view(queue_, (*trackCandidatesExtendedDC_)->nTrackCandidatesT5()));
   alpaka::wait(queue_);  // wait to get the values before using them
 
   auto nTrackCandidatespT5 = *nTrackCanpT5Host_buf.data();
@@ -818,9 +828,13 @@ void LSTEvent::createPixelQuintuplets() {
         cms::alpakatools::make_device_view(queue_, (*pixelQuintupletsDC_)->totOccupancyPixelQuintuplets());
     alpaka::memset(queue_, totOccupancyPixelQuintuplets_view, 0u);
   }
-  if (!trackCandidatesDC_) {
-    trackCandidatesDC_.emplace(n_max_nonpixel_track_candidates + n_max_pixel_track_candidates, queue_);
-    auto buf = trackCandidatesDC_->buffer();
+  if (!trackCandidatesBaseDC_) {
+    trackCandidatesBaseDC_.emplace(n_max_nonpixel_track_candidates + n_max_pixel_track_candidates, queue_);
+    auto buf = trackCandidatesBaseDC_->buffer();
+    alpaka::memset(queue_, buf, 0u);
+
+    trackCandidatesExtendedDC_.emplace(n_max_nonpixel_track_candidates + n_max_pixel_track_candidates, queue_);
+    buf = trackCandidatesExtendedDC_->buffer();
     alpaka::memset(queue_, buf, 0u);
   }
   SegmentsOccupancy segmentsOccupancy = segmentsDC_->view<SegmentsOccupancySoA>();
@@ -936,7 +950,8 @@ void LSTEvent::createPixelQuintuplets() {
                       AddpT5asTrackCandidate{},
                       nLowerModules_,
                       pixelQuintupletsDC_->const_view(),
-                      trackCandidatesDC_->view(),
+                      trackCandidatesBaseDC_->view(),
+                      trackCandidatesExtendedDC_->view(),
                       lstInputDC_->const_view<PixelSeedsSoA>(),
                       rangesDC_->const_view());
 
@@ -1211,7 +1226,7 @@ int LSTEvent::getNumberOfTrackCandidates() {
 
   alpaka::memcpy(queue_,
                  nTrackCandidates_buf_h,
-                 cms::alpakatools::make_device_view(queue_, (*trackCandidatesDC_)->nTrackCandidates()));
+                 cms::alpakatools::make_device_view(queue_, (*trackCandidatesBaseDC_)->nTrackCandidates()));
   alpaka::wait(queue_);
 
   return *nTrackCandidates_buf_h.data();
@@ -1222,7 +1237,7 @@ int LSTEvent::getNumberOfPT5TrackCandidates() {
 
   alpaka::memcpy(queue_,
                  nTrackCandidatesPT5_buf_h,
-                 cms::alpakatools::make_device_view(queue_, (*trackCandidatesDC_)->nTrackCandidatespT5()));
+                 cms::alpakatools::make_device_view(queue_, (*trackCandidatesExtendedDC_)->nTrackCandidatespT5()));
   alpaka::wait(queue_);
 
   return *nTrackCandidatesPT5_buf_h.data();
@@ -1233,7 +1248,7 @@ int LSTEvent::getNumberOfPT3TrackCandidates() {
 
   alpaka::memcpy(queue_,
                  nTrackCandidatesPT3_buf_h,
-                 cms::alpakatools::make_device_view(queue_, (*trackCandidatesDC_)->nTrackCandidatespT3()));
+                 cms::alpakatools::make_device_view(queue_, (*trackCandidatesExtendedDC_)->nTrackCandidatespT3()));
   alpaka::wait(queue_);
 
   return *nTrackCandidatesPT3_buf_h.data();
@@ -1244,7 +1259,7 @@ int LSTEvent::getNumberOfPLSTrackCandidates() {
 
   alpaka::memcpy(queue_,
                  nTrackCandidatesPLS_buf_h,
-                 cms::alpakatools::make_device_view(queue_, (*trackCandidatesDC_)->nTrackCandidatespLS()));
+                 cms::alpakatools::make_device_view(queue_, (*trackCandidatesExtendedDC_)->nTrackCandidatespLS()));
   alpaka::wait(queue_);
 
   return *nTrackCandidatesPLS_buf_h.data();
@@ -1256,10 +1271,10 @@ int LSTEvent::getNumberOfPixelTrackCandidates() {
 
   alpaka::memcpy(queue_,
                  nTrackCandidates_buf_h,
-                 cms::alpakatools::make_device_view(queue_, (*trackCandidatesDC_)->nTrackCandidates()));
+                 cms::alpakatools::make_device_view(queue_, (*trackCandidatesBaseDC_)->nTrackCandidates()));
   alpaka::memcpy(queue_,
                  nTrackCandidatesT5_buf_h,
-                 cms::alpakatools::make_device_view(queue_, (*trackCandidatesDC_)->nTrackCandidatesT5()));
+                 cms::alpakatools::make_device_view(queue_, (*trackCandidatesExtendedDC_)->nTrackCandidatesT5()));
   alpaka::wait(queue_);
 
   return (*nTrackCandidates_buf_h.data()) - (*nTrackCandidatesT5_buf_h.data());
@@ -1270,7 +1285,7 @@ int LSTEvent::getNumberOfT5TrackCandidates() {
 
   alpaka::memcpy(queue_,
                  nTrackCandidatesT5_buf_h,
-                 cms::alpakatools::make_device_view(queue_, (*trackCandidatesDC_)->nTrackCandidatesT5()));
+                 cms::alpakatools::make_device_view(queue_, (*trackCandidatesExtendedDC_)->nTrackCandidatesT5()));
   alpaka::wait(queue_);
 
   return *nTrackCandidatesT5_buf_h.data();
@@ -1294,28 +1309,6 @@ typename TSoA::ConstView LSTEvent::getInput(bool sync) {
 }
 template HitsBaseConst LSTEvent::getInput<HitsBaseSoA>(bool);
 template PixelSeedsConst LSTEvent::getInput<PixelSeedsSoA>(bool);
-
-template <typename TDev>
-HitsBaseConst LSTEvent::getTrimmedHitsBase(bool sync) {
-  if constexpr (std::is_same_v<TDev, DevHost>) {
-    return lstInputDC_->const_view<HitsBaseSoA>();
-  } else {
-    if (!lstInputHC_) {
-      auto hits_d = lstInputDC_->view<HitsBaseSoA>();
-      int nHits = hits_d.metadata().size();
-      std::array<int, 2> const hits_sizes{{nHits, 0}};
-      lstInputHC_.emplace(hits_sizes, queue_);
-      auto hits_h = lstInputHC_->view<HitsBaseSoA>();
-      auto idxs_h = cms::alpakatools::make_host_view(hits_h.idxs(), nHits);
-      auto idxs_d = cms::alpakatools::make_device_view(queue_, hits_d.idxs(), nHits);
-      alpaka::memcpy(queue_, idxs_h, idxs_d);
-      if (sync)
-        alpaka::wait(queue_);  // host consumers expect filled data
-    }
-    return lstInputHC_->const_view<HitsBaseSoA>();
-  }
-}
-template HitsBaseConst LSTEvent::getTrimmedHitsBase(bool);
 
 template <typename TSoA, typename TDev>
 typename TSoA::ConstView LSTEvent::getHits(bool sync) {
@@ -1478,51 +1471,44 @@ PixelQuintupletsConst LSTEvent::getPixelQuintuplets(bool sync) {
 }
 template PixelQuintupletsConst LSTEvent::getPixelQuintuplets<>(bool);
 
-const TrackCandidatesConst& LSTEvent::getTrackCandidates(bool inCMSSW, bool sync) {
-  if (!trackCandidatesHC_) {
-    // Get nTrackCanHost parameter to initialize host based instance
-    auto nTrackCanHost_buf_h = cms::alpakatools::make_host_buffer<unsigned int>(queue_);
-    alpaka::memcpy(queue_,
-                   nTrackCanHost_buf_h,
-                   cms::alpakatools::make_device_view(queue_, (*trackCandidatesDC_)->nTrackCandidates()));
-    alpaka::wait(queue_);  // wait here before we get nTrackCanHost and trackCandidatesInCPU becomes usable
+template <typename TDev>
+TrackCandidatesBaseConst LSTEvent::getTrackCandidatesBase(bool sync) {
+  if constexpr (std::is_same_v<TDev, DevHost>) {
+    return trackCandidatesBaseDC_->const_view();
+  } else {
+    if (!trackCandidatesBaseHC_) {
+      trackCandidatesBaseHC_.emplace(
+          cms::alpakatools::CopyToHost<::PortableCollection<TrackCandidatesBaseSoA, TDev>>::copyAsync(
+              queue_, *trackCandidatesBaseDC_));
 
-    auto const nTrackCanHost = *nTrackCanHost_buf_h.data();
-    trackCandidatesHC_.emplace(nTrackCanHost, queue_);
-
-    (*trackCandidatesHC_)->nTrackCandidates() = nTrackCanHost;
-    alpaka::memcpy(queue_,
-                   cms::alpakatools::make_host_view((*trackCandidatesHC_)->hitIndices()->data(),
-                                                    Params_pT5::kHits * nTrackCanHost),
-                   cms::alpakatools::make_device_view(
-                       queue_, (*trackCandidatesDC_)->hitIndices()->data(), Params_pT5::kHits * nTrackCanHost));
-    alpaka::memcpy(queue_,
-                   cms::alpakatools::make_host_view((*trackCandidatesHC_)->pixelSeedIndex(), nTrackCanHost),
-                   cms::alpakatools::make_device_view(queue_, (*trackCandidatesDC_)->pixelSeedIndex(), nTrackCanHost));
-    if (not inCMSSW) {
-      alpaka::memcpy(queue_,
-                     cms::alpakatools::make_host_view((*trackCandidatesHC_)->logicalLayers()->data(),
-                                                      Params_pT5::kLayers * nTrackCanHost),
-                     cms::alpakatools::make_device_view(
-                         queue_, (*trackCandidatesDC_)->logicalLayers()->data(), Params_pT5::kLayers * nTrackCanHost));
-      alpaka::memcpy(
-          queue_,
-          cms::alpakatools::make_host_view((*trackCandidatesHC_)->directObjectIndices(), nTrackCanHost),
-          cms::alpakatools::make_device_view(queue_, (*trackCandidatesDC_)->directObjectIndices(), nTrackCanHost));
-      alpaka::memcpy(
-          queue_,
-          cms::alpakatools::make_host_view((*trackCandidatesHC_)->objectIndices()->data(), 2 * nTrackCanHost),
-          cms::alpakatools::make_device_view(
-              queue_, (*trackCandidatesDC_)->objectIndices()->data(), 2 * nTrackCanHost));
+      if (sync)
+        alpaka::wait(queue_);  // host consumers expect filled data
     }
-    alpaka::memcpy(
-        queue_,
-        cms::alpakatools::make_host_view((*trackCandidatesHC_)->trackCandidateType(), nTrackCanHost),
-        cms::alpakatools::make_device_view(queue_, (*trackCandidatesDC_)->trackCandidateType(), nTrackCanHost));
-    if (sync)
-      alpaka::wait(queue_);  // host consumers expect filled data
   }
-  return trackCandidatesHC_.value().const_view();
+  return trackCandidatesBaseHC_->const_view();
+}
+template TrackCandidatesBaseConst LSTEvent::getTrackCandidatesBase<>(bool);
+
+template <typename TDev>
+TrackCandidatesExtendedConst LSTEvent::getTrackCandidatesExtended(bool sync) {
+  if constexpr (std::is_same_v<TDev, DevHost>) {
+    return trackCandidatesExtendedDC_->const_view();
+  } else {
+    if (!trackCandidatesExtendedHC_) {
+      trackCandidatesExtendedHC_.emplace(
+          cms::alpakatools::CopyToHost<::PortableCollection<TrackCandidatesExtendedSoA, TDev>>::copyAsync(
+              queue_, *trackCandidatesExtendedDC_));
+
+      if (sync)
+        alpaka::wait(queue_);  // host consumers expect filled data
+    }
+  }
+  return trackCandidatesExtendedHC_->const_view();
+}
+template TrackCandidatesExtendedConst LSTEvent::getTrackCandidatesExtended<>(bool);
+
+std::unique_ptr<TrackCandidatesBaseDeviceCollection> LSTEvent::releaseTrackCandidatesBaseDeviceCollection() {
+  return std::make_unique<TrackCandidatesBaseDeviceCollection>(std::move(trackCandidatesBaseDC_.value()));
 }
 
 template <typename TSoA, typename TDev>
