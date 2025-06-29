@@ -25,7 +25,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "RecoLocalTracker/Records/interface/PixelCPEFastParamsRecord.h"
+#include "RecoLocalTracker/Records/interface/TkPixelCPERecord.h"
 
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforDevice.h"
@@ -45,7 +45,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   private:
     void produce(edm::StreamID streamID, device::Event& iEvent, const device::EventSetup& iSetup) const override;
 
-    const device::ESGetToken<PixelCPEFastParams<TrackerTraits>, PixelCPEFastParamsRecord> cpeToken_;
+    const device::ESGetToken<PixelCPEFastParams<TrackerTraits>, TkPixelCPERecord> cpeToken_;
     const device::EDGetToken<BeamSpotDevice> tBeamSpot;
     const device::EDGetToken<SiPixelClustersSoACollection> tokenClusters_;
     const device::EDGetToken<SiPixelDigisSoACollection> tokenDigi_;
