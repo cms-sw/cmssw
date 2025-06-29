@@ -40,15 +40,4 @@ ALCARECOTkAlHLTTracks.TwoBodyDecaySelector.applyMassrangeFilter = False
 ALCARECOTkAlHLTTracks.TwoBodyDecaySelector.applyChargeFilter = False
 ALCARECOTkAlHLTTracks.TwoBodyDecaySelector.applyAcoplanarityFilter = False
 
-##################################################################
-# Tracks from the selected vertex
-#################################################################
-import Alignment.CommonAlignmentProducer.AlignmentTracksFromVertexSelector_cfi as TracksFromPixelVertex
-ALCARECOTkAlHLTPixelVertexTracks = TracksFromPixelVertex.AlignmentTracksFromVertexSelector.clone(
-    src = 'hltPixelTracks',
-    vertices = 'hltPixelVertices',
-    useClosestVertexToDilepton = False,
-    vertexIndex = 0,
-)
-
-seqALCARECOTkAlHLTTracks = cms.Sequence(ALCARECOTkAlHLTTracksHLT+ALCARECOTkAlHLTTracksDCSFilter+ALCARECOTkAlHLTTracks+ALCARECOTkAlHLTPixelVertexTracks)
+seqALCARECOTkAlHLTTracks = cms.Sequence(ALCARECOTkAlHLTTracksHLT+ALCARECOTkAlHLTTracksDCSFilter+ALCARECOTkAlHLTTracks)
