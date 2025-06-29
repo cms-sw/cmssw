@@ -8,6 +8,7 @@ hltUpgradeNanoTask = cms.Task(nanoMetadata)
 ### Tracksters
 hltTrackstersTable = cms.EDProducer(
     "TracksterCollectionTableProducer",
+    skipNonExistingSrc = cms.bool(True),
     src=cms.InputTag("hltTiclTrackstersMerge"),
     cut=cms.string(""),
     name=cms.string("tracksters"),

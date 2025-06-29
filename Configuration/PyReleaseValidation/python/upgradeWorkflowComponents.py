@@ -1974,6 +1974,17 @@ upgradeWFs['NGTScoutingWithNano'].offset = 0.771
 upgradeWFs['NGTScoutingWithNano'].step2 = {
     '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:NGTScouting,NANO:@NGTScouting',
     '--datatier':'GEN-SIM-DIGI-RAW,NANOAODSIM',
+    '--procModifiers': 'ngtScouting',
+    '--eventcontent':'FEVTDEBUGHLT,NANOAODSIM'
+}
+
+upgradeWFs['NGTScoutingWithNanoValid'] = deepcopy(upgradeWFs['HLTPhaseWithNano'])
+upgradeWFs['NGTScoutingWithNanoValid'].suffix = '_NGTScoutingWithNanoVal'
+upgradeWFs['NGTScoutingWithNanoValid'].offset = 0.772
+upgradeWFs['NGTScoutingWithNanoValid'].step2 = {
+    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:NGTScouting,VALIDATION:@hltValidation,NANO:@NGTScoutingVal',
+    '--datatier':'GEN-SIM-DIGI-RAW,NANOAODSIM',
+    '--procModifiers': 'ngtScouting',
     '--eventcontent':'FEVTDEBUGHLT,NANOAODSIM'
 }
 

@@ -80,6 +80,7 @@ numWFIB.extend([prefixDet+34.757]) # HLTTiming75e33, alpaka,singleIterPatatrack,
 numWFIB.extend([prefixDet+34.759]) # HLTTiming75e33 + NANO
 numWFIB.extend([prefixDet+34.77])  # NGTScouting
 numWFIB.extend([prefixDet+34.771]) # NGTScouting + NANO
+numWFIB.extend([prefixDet+34.772]) # NGTScouting + NANO (including validation)
 
 for numWF in numWFIB:
     workflows[numWF] = _upgrade_workflows[numWF]
