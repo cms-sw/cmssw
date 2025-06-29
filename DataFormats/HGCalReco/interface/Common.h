@@ -28,6 +28,16 @@ namespace ticl {
     static constexpr int nBins = nEtaBins * nPhiBins;
   };
 
+  struct TileConstantsBarrel {
+    static constexpr float minEta = -1.5f;
+    static constexpr float maxEta = 1.5f;
+    static constexpr int nEtaBins = 68;
+    static constexpr int nPhiBins = 36;
+    static constexpr int nLayers = 5;
+    static constexpr int iterations = 1;
+    static constexpr int nBins = nEtaBins * nPhiBins;
+  };
+
 }  // namespace ticl
 
 namespace ticl {

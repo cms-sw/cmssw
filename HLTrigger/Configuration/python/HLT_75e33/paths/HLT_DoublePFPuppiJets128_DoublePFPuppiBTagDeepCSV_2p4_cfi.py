@@ -4,7 +4,7 @@ from ..modules.hltBTagPFPuppiDeepCSV0p865DoubleEta2p4_cfi import *
 from ..modules.hltDoublePFPuppiJets128Eta2p4MaxDeta1p6_cfi import *
 from ..modules.hltDoublePFPuppiJets128MaxEta2p4_cfi import *
 from ..modules.hltL1SeedsForDoublePuppiJetBtagFilter_cfi import *
-from ..sequences.HLTHgcalLocalRecoSequence_cfi import *
+from ..sequences.HLTTICLLocalRecoSequence_cfi import *
 from ..sequences.HLTAK4PFPuppiJetsReconstruction_cfi import *
 from ..sequences.HLTBeginSequence_cfi import *
 from ..sequences.HLTBtagDeepCSVSequencePFPuppiModEta2p4_cfi import *
@@ -19,8 +19,8 @@ HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepCSV_2p4 = cms.Path(
     HLTBeginSequence
     + hltL1SeedsForDoublePuppiJetBtagFilter
     + HLTRawToDigiSequence
-    + HLTHgcalLocalRecoSequence
     + HLTLocalrecoSequence
+    + HLTTICLLocalRecoSequence
     + HLTTrackingSequence
     + HLTMuonsSequence
     + HLTParticleFlowSequence
