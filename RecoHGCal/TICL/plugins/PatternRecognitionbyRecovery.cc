@@ -47,12 +47,11 @@ void PatternRecognitionbyRecovery<TILES>::makeTracksters(
     trackster.setTimeAndError(input.layerClustersTime.get(i).first, input.layerClustersTime.get(i).second);
     trackster.setRawEnergy(lc.energy());
     trackster.setBarycenter({float(lc.x()), float(lc.y()), float(lc.z())});
-    float invcosh = 1.f / std::cosh(lc.position().eta());
-    trackster.setRawPt(lc.energy() * invcosh);
+    trackster.calculateRawPt();
 
     if (std::abs(lc.z()) <= z_limit_em) {
       trackster.setRawEmEnergy(lc.energy());
-      trackster.setRawEmPt(lc.energy() * invcosh);
+      trackster.calculateRawEmPt();
     }
 
     // Add the trackster to the result vector
