@@ -41,6 +41,7 @@ using namespace Pythia8;
 
 //decay filter hook
 #include "GeneratorInterface/Pythia8Interface/interface/ResonanceDecayFilterHook.h"
+#include "GeneratorInterface/Pythia8Interface/interface/ResonanceDecayFilterCounter.h"
 
 //decay filter hook
 #include "GeneratorInterface/Pythia8Interface/interface/PTFilterHook.h"
@@ -273,8 +274,8 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params)
   if (params.exists("reweightGen")) {
     edm::LogInfo("Pythia8Interface") << "Start setup for reweightGen";
     edm::ParameterSet rgParams = params.getParameter<edm::ParameterSet>("reweightGen");
-    fReweightUserHook = std::make_shared<PtHatReweightUserHook>(
-        rgParams.getParameter<double>("pTRef"), rgParams.getParameter<double>("power"));
+    fReweightUserHook = std::make_shared<PtHatReweightUserHook>(rgParams.getParameter<double>("pTRef"),
+                                                                rgParams.getParameter<double>("power"));
     edm::LogInfo("Pythia8Interface") << "End setup for reweightGen";
   }
   if (params.exists("reweightGenEmp")) {
@@ -291,22 +292,23 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params)
     edm::LogInfo("Pythia8Interface") << "Start setup for reweightGenRap";
     edm::ParameterSet rgrParams = params.getParameter<edm::ParameterSet>("reweightGenRap");
     fReweightRapUserHook = std::make_shared<RapReweightUserHook>(rgrParams.getParameter<std::string>("yLabSigmaFunc"),
-                                                       rgrParams.getParameter<double>("yLabPower"),
-                                                       rgrParams.getParameter<std::string>("yCMSigmaFunc"),
-                                                       rgrParams.getParameter<double>("yCMPower"),
-                                                       rgrParams.getParameter<double>("pTHatMin"),
-                                                       rgrParams.getParameter<double>("pTHatMax"));
-    edm::LogInfo("Pythia8Interface") << "End setup for reweightGenRap";
-  }
-  if (params.exists("reweightGenPtHatRap")) {
-    edm::LogInfo("Pythia8Interface") << "Start setup for reweightGenPtHatRap";
-    edm::ParameterSet rgrParams = params.getParameter<edm::ParameterSet>("reweightGenPtHatRap");
-    fReweightPtHatRapUserHook = std::make_shared<PtHatRapReweightUserHook>(rgrParams.getParameter<std::string>("yLabSigmaFunc"),
                                                                  rgrParams.getParameter<double>("yLabPower"),
                                                                  rgrParams.getParameter<std::string>("yCMSigmaFunc"),
                                                                  rgrParams.getParameter<double>("yCMPower"),
                                                                  rgrParams.getParameter<double>("pTHatMin"),
                                                                  rgrParams.getParameter<double>("pTHatMax"));
+    edm::LogInfo("Pythia8Interface") << "End setup for reweightGenRap";
+  }
+  if (params.exists("reweightGenPtHatRap")) {
+    edm::LogInfo("Pythia8Interface") << "Start setup for reweightGenPtHatRap";
+    edm::ParameterSet rgrParams = params.getParameter<edm::ParameterSet>("reweightGenPtHatRap");
+    fReweightPtHatRapUserHook =
+        std::make_shared<PtHatRapReweightUserHook>(rgrParams.getParameter<std::string>("yLabSigmaFunc"),
+                                                   rgrParams.getParameter<double>("yLabPower"),
+                                                   rgrParams.getParameter<std::string>("yCMSigmaFunc"),
+                                                   rgrParams.getParameter<double>("yCMPower"),
+                                                   rgrParams.getParameter<double>("pTHatMin"),
+                                                   rgrParams.getParameter<double>("pTHatMax"));
     edm::LogInfo("Pythia8Interface") << "End setup for reweightGenPtHatRap";
   }
 
@@ -360,16 +362,16 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params)
     if (params.exists("EV1_nFinalMode"))
       EV1_nFinalMode = params.getParameter<int>("EV1_nFinalMode");
     fEmissionVetoHook1 = std::make_shared<EmissionVetoHook1>(EV1_nFinal,
-                                                   EV1_vetoOn,
-                                                   EV1_maxVetoCount,
-                                                   EV1_pThardMode,
-                                                   EV1_pTempMode,
-                                                   EV1_emittedMode,
-                                                   EV1_pTdefMode,
-                                                   EV1_MPIvetoOn,
-                                                   EV1_QEDvetoMode,
-                                                   EV1_nFinalMode,
-                                                   0);
+                                                             EV1_vetoOn,
+                                                             EV1_maxVetoCount,
+                                                             EV1_pThardMode,
+                                                             EV1_pTempMode,
+                                                             EV1_emittedMode,
+                                                             EV1_pTdefMode,
+                                                             EV1_MPIvetoOn,
+                                                             EV1_QEDvetoMode,
+                                                             EV1_nFinalMode,
+                                                             0);
   }
 
   if (params.exists("UserCustomization")) {
@@ -531,6 +533,7 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
   }
 
   bool resonanceDecayFilter = fMasterGen->settings.flag("ResonanceDecayFilter:filter");
+  ResonanceDecayFilterCounter::getInstance().setFilterBool(resonanceDecayFilter);
   if (resonanceDecayFilter) {
     fResonanceDecayFilterHook = std::make_shared<ResonanceDecayFilterHook>();
     (fUserHooksVector->hooks).push_back(fResonanceDecayFilterHook);
@@ -698,6 +701,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
   }
 
   bool resonanceDecayFilter = fMasterGen->settings.flag("ResonanceDecayFilter:filter");
+  ResonanceDecayFilterCounter::getInstance().setFilterBool(resonanceDecayFilter);
   if (resonanceDecayFilter) {
     fResonanceDecayFilterHook = std::make_shared<ResonanceDecayFilterHook>();
     (fUserHooksVector->hooks).push_back(fResonanceDecayFilterHook);
@@ -969,6 +973,12 @@ bool Pythia8Hadronizer::hadronize() {
       double wgt = fMasterGen->info.weight(i);
       event()->weights().push_back(wgt);
     }
+  }
+
+  if (fMasterGen->settings.flag("ResonanceDecayFilter:filter")) {
+    int eventCounterValue = fResonanceDecayFilterHook->returnEventCounter();
+    ResonanceDecayFilterCounter::getInstance().setEventCounter(eventCounterValue);
+    fResonanceDecayFilterHook->resetEventCounter();
   }
 
   return true;
