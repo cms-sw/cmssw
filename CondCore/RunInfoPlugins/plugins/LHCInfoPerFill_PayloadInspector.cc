@@ -22,24 +22,29 @@ namespace {
       if (!payload) {
         return false;
       }
-      std::ostringstream ss;
-      ss << "LHCInfoPerFill Inspector\n\n";
-      ss << "Fill Number: " << payload->fillNumber() << "\n";
-      ss << "Beam Energy: " << payload->energy() << "\n";
-      ss << "Deliv Lumi: " << payload->delivLumi() << "\n";
-      ss << "Rec Lumi: " << payload->recLumi() << "\n";
-      ss << "Inst Lumi: " << payload->instLumi() << "\n";
-      ss << "Injection Scheme: " << payload->injectionScheme() << "\n";
-      ss << "Colliding Bunches: " << payload->collidingBunches() << "\n";
-      ss << "Target Bunches: " << payload->targetBunches() << "\n";
-      // Add more fields as needed
 
-      std::string outText = ss.str();
-      // Save as a simple image (text on white bg)
-      TCanvas canvas("c", "c", 800, 600);
+      std::vector<std::string> lines;
+      lines.push_back("LHCInfoPerFill Inspector");
+      lines.push_back("");
+      lines.push_back("Fill Number: " + std::to_string(payload->fillNumber()));
+      lines.push_back("Beam Energy: " + std::to_string(payload->energy()));
+      lines.push_back("Deliv Lumi: " + std::to_string(payload->delivLumi()));
+      lines.push_back("Rec Lumi: " + std::to_string(payload->recLumi()));
+      lines.push_back("Inst Lumi: " + std::to_string(payload->instLumi()));
+      lines.push_back("Injection Scheme: " + payload->injectionScheme());
+      lines.push_back("Colliding Bunches: " + std::to_string(payload->collidingBunches()));
+      lines.push_back("Target Bunches: " + std::to_string(payload->targetBunches()));
+
+      TCanvas canvas("c","c",800,600);
+      canvas.cd();
       TLatex latex;
       latex.SetTextSize(0.03);
-      latex.DrawLatexNDC(0.05, 0.95, outText.c_str());
+      
+      float startY = 0.95;
+      float stepY = 0.06;
+      for (std::size_t i = 0; i < lines.size(); ++i) {
+	latex.DrawLatexNDC(0.05, startY - i * stepY, lines[i].c_str());
+      }
       std::string fileName = "LHCInfoPerFill.png";
       canvas.SaveAs(fileName.c_str());
       return true;

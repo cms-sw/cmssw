@@ -21,22 +21,28 @@ namespace {
       if (!payload) {
         return false;
       }
-      std::ostringstream ss;
-      ss << "LHCInfoPerLS Inspector\n\n";
-      ss << "LS: " << payload->lumiSection() << "\n";
-      ss << "crossingAngleX: " << payload->crossingAngleX() << "\n";
-      ss << "crossingAngleY: " << payload->crossingAngleY() << "\n";
-      ss << "betaStarX: " << payload->betaStarX() << "\n";
-      ss << "betaStarY: " << payload->betaStarY() << "\n";
-      ss << "runNumber: " << payload->runNumber() << "\n";
+      // Prepare lines for printing
+      std::vector<std::string> lines;
+      lines.push_back("LHCInfoPerLS Inspector");
+      lines.push_back("");
+      lines.push_back("LS: " + std::to_string(payload->lumiSection()));
+      lines.push_back("crossingAngleX: " + std::to_string(payload->crossingAngleX()));
+      lines.push_back("crossingAngleY: " + std::to_string(payload->crossingAngleY()));
+      lines.push_back("betaStarX: " + std::to_string(payload->betaStarX()));
+      lines.push_back("betaStarY: " + std::to_string(payload->betaStarY()));
+      lines.push_back("runNumber: " + std::to_string(payload->runNumber()));
       // Add more fields as needed
 
-      std::string outText = ss.str();
-      // Save as a simple image (text on white bg)
-      TCanvas canvas("c", "c", 800, 600);
+      TCanvas canvas("c","c",800,600);
+      canvas.cd();
       TLatex latex;
       latex.SetTextSize(0.03);
-      latex.DrawLatexNDC(0.05, 0.95, outText.c_str());
+      
+      float startY = 0.95;
+      float stepY = 0.06;
+      for (std::size_t i = 0; i < lines.size(); ++i) {
+	latex.DrawLatexNDC(0.05, startY - i * stepY, lines[i].c_str());
+      }
       std::string fileName = "LHCInfoPerLS.png";
       canvas.SaveAs(fileName.c_str());
       return true;
