@@ -251,14 +251,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         .add<std::vector<double>>("caThetaCuts",
                                   std::vector<double>(std::begin(thetaCuts), std::begin(thetaCuts) + numberOfLayers))
         ->setComment("Cut on origin radius. One per layer, the layer being the innermost one for a triplet.");
-    geometryParams.add<std::vector<unsigned int>>("startingPairs", {0u, 1u, 2u})
+    geometryParams.add<std::vector<int>>("startingPairs", {0u, 1u, 2u})
         ->setComment(
             "The list of the ids of pairs from which the CA ntuplets building may start.");  //TODO could be parsed via an expression
     // cells params
     geometryParams
-        .add<std::vector<unsigned int>>(
+        .add<std::vector<int>>(
             "pairGraph",
-            std::vector<unsigned int>(std::begin(layerPairs),
+            std::vector<int>(std::begin(layerPairs),
                                       std::begin(layerPairs) + (pixelTopology::Phase1::nPairsForQuadruplets * 2)))
       ->setComment("CA graph");
     geometryParams
@@ -325,14 +325,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   std::vector<double>(std::begin(phase1HIonPixelTopology::thetaCuts),
                                                       std::begin(phase1HIonPixelTopology::thetaCuts) + numberOfLayers))
         ->setComment("Cut on origin radius. One per layer, the layer being the innermost one for a triplet.");
-    geometryParams.add<std::vector<unsigned int>>("startingPairs", {0u, 1u, 2u})
+    geometryParams.add<std::vector<int>>("startingPairs", {0u, 1u, 2u})
         ->setComment(
             "The list of the ids of pairs from which the CA ntuplets building may start.");  //TODO could be parsed via an expression
     // cells params
     geometryParams
-        .add<std::vector<unsigned int>>(
+        .add<std::vector<int>>(
             "pairGraph",
-            std::vector<unsigned int>(std::begin(layerPairs),
+            std::vector<int>(std::begin(layerPairs),
                                       std::begin(layerPairs) + (pixelTopology::Phase1::nPairsForQuadruplets * 2)))
         ->setComment("CA graph");
     geometryParams
@@ -389,15 +389,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   std::vector<double>(std::begin(thetaCuts), std::begin(thetaCuts) + numberOfLayers))
         ->setComment("Cut on origin radius. One per layer, the layer being the innermost one for a triplet.");
     geometryParams
-        .add<std::vector<unsigned int>>("startingPairs",
+        .add<std::vector<int>>("startingPairs",
                                         {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15, 16,
                                          17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32})
         ->setComment(
             "The list of the ids of pairs from which the CA ntuplets building may start.");  //TODO could be parsed via an expression
     // cells params
     geometryParams
-        .add<std::vector<unsigned int>>(
-            "pairGraph", std::vector<unsigned int>(std::begin(layerPairs), std::begin(layerPairs) + (nPairs * 2)))
+        .add<std::vector<int>>(
+            "pairGraph", std::vector<int>(std::begin(layerPairs), std::begin(layerPairs) + (nPairs * 2)))
         ->setComment("CA graph");
     geometryParams
         .add<std::vector<int>>("phiCuts", std::vector<int>(std::begin(phicuts), std::begin(phicuts) + nPairs))

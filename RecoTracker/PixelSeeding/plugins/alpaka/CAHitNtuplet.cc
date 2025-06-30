@@ -45,8 +45,8 @@ namespace reco {
     CAGeometryParams(edm::ParameterSet const& iConfig)
         : caThetaCuts_(iConfig.getParameter<std::vector<double>>("caThetaCuts")),
           caDCACuts_(iConfig.getParameter<std::vector<double>>("caDCACuts")),
-          pairGraph_(iConfig.getParameter<std::vector<unsigned int>>("pairGraph")),
-          startingPairs_(iConfig.getParameter<std::vector<unsigned int>>("startingPairs")),
+          pairGraph_(iConfig.getParameter<std::vector<int>>("pairGraph")),
+          startingPairs_(iConfig.getParameter<std::vector<int>>("startingPairs")),
           phiCuts_(iConfig.getParameter<std::vector<int>>("phiCuts")),
           minZ_(iConfig.getParameter<std::vector<double>>("minZ")),
           maxZ_(iConfig.getParameter<std::vector<double>>("maxZ")),
@@ -57,8 +57,8 @@ namespace reco {
     const std::vector<double> caDCACuts_;
 
     // Cells params
-    const std::vector<unsigned int> pairGraph_;
-    const std::vector<unsigned int> startingPairs_;
+    const std::vector<int> pairGraph_;
+    const std::vector<int> startingPairs_;
     const std::vector<int> phiCuts_;
     const std::vector<double> minZ_;
     const std::vector<double> maxZ_;

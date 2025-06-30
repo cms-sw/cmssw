@@ -18,7 +18,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "RecoTracker/PixelSeeding/interface/CAGeometrySoA.h"
 
-#include "CACell.h"
+#include "CASimpleCell.h"
 #include "CAStructures.h"
 #include "CAHitNtupletGeneratorKernels.h"
 

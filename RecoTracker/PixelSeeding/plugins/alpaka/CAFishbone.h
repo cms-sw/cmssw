@@ -27,9 +27,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
   template <typename TrackerTraits>
   class CAFishbone {
   public:
-    ALPAKA_FN_ACC void operator()(Acc2D const& acc,
+    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+    ALPAKA_FN_ACC void operator()(TAcc const& acc,
                                   HitsConstView hh,
-                                  CACell<TrackerTraits>* cells,
+                                  CASimpleCell<TrackerTraits>* cells,
                                   uint32_t const* __restrict__ nCells,
                                   HitToCell const* __restrict__ outerHitHisto,
                                   CellToTracks const* __restrict__ cellTracksHisto,
