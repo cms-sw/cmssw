@@ -26,3 +26,4 @@ __init__.py
 
 HeterogeneousCore/MPICore/test/test_results_thesis/
 HeterogeneousCore/MPICore/test/plotters/figures/
+HeterogeneousCore/MPICore/plugins/metadata.h

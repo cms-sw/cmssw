@@ -18,6 +18,17 @@
 
 #include <iostream>
 #include <utility>
+#include <bitset>
+
+struct alignas(8) ProductMetadata {
+  size_t product_num;              // Number of products
+  std::bitset<64> present_mask;      // Bit i is set if product[i] is present
+
+  // Optional: constructor for convenience
+  ProductMetadata(size_t num = 0, std::bitset<64> mask = {})
+      : product_num(num), present_mask(mask) {}
+};
+
 
 class MPIChannel {
 public:
@@ -69,6 +80,9 @@ public:
   MPI_Status receiveEvent(edm::EventAuxiliary& aux, MPI_Message& message) {
     return receiveEventAuxiliary_(aux, message);
   }
+
+  void sendMetadata(int instance, const ProductMetadata& meta);
+  void receiveMetadata(int instance, ProductMetadata& meta);
 
   // serialize an object of type T using its ROOT dictionary, and transmit it
   template <typename T>
@@ -176,7 +190,7 @@ private:
   template <typename T>
   void sendTrivialProduct_(int instance, T const& product) {
     int tag = EDM_MPI_SendTrivialProduct | instance * EDM_MPI_MessageTagWidth_;
-    MPI_Ssend(&product, sizeof(T), MPI_BYTE, dest_, tag, comm_);
+    MPI_Send(&product, sizeof(T), MPI_BYTE, dest_, tag, comm_);
   }
 
   // send and receive generic primitive datatype

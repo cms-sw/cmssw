@@ -97,13 +97,32 @@ public:
   void acquire(edm::Event const& event, edm::EventSetup const&, edm::WaitingTaskWithArenaHolder holder) final {
     MPIToken token = event.get(upstream_);
 
-    int numProducts = static_cast<int>(products_.size());
+    size_t numProducts = products_.size();
+
+    std::bitset<64> present_products;
+    size_t index = 0;
+
+    for (auto const& entry : products_) {
+      // Get the product
+      edm::Handle<edm::WrapperBase> handle(entry.type.typeInfo());
+      event.getByToken(entry.token, handle);
+
+      if (handle.isValid()) {
+        present_products.set(index);  // mark bit as present
+      } else {
+        // optionally log or handle missing product
+        present_products.reset(index);  // not necessary, bit is 0 by default
+      }
+      ++index;
+    }
+
+    ProductMetadata meta(numProducts, present_products);
 
     // Submit sending of all products to run in the additional asynchronous threadpool
     edm::Service<edm::Async> as;
     as->runAsync(
         std::move(holder),
-        [this, token, numProducts]() { token.channel()->sendProduct(instance_, numProducts); },
+        [this, token, meta = std::move(meta)]() { token.channel()->sendMetadata(instance_, meta); },
         []() { return "Calling MPISender::acquire()"; });
   }
 

@@ -68,10 +68,8 @@ public:
     as->runAsync(
         std::move(holder),
         [this, token]() {
-          int numProducts;
-          token.channel()->receiveProduct(instance_, numProducts);
-          // edm::LogAbsolute("MPIReceiver") << "Received number of products: " << numProducts;
-          assert((numProducts == static_cast<int>(products_.size())) &&
+          token.channel()->receiveMetadata(instance_, received_meta_);
+          assert((received_meta_.product_num == products_.size()) &&
                  "Receiver number of products is different than expected");
         },
         []() { return "Calling MPIReceiver::acquire()"; });
@@ -81,7 +79,15 @@ public:
     // read the MPIToken used to establish the communication channel
     MPIToken token = event.get(upstream_);
 
+    size_t index = 0;
+
     for (auto const& entry : products_) {
+      if (!received_meta_.present_mask.test(index)) {
+        ++index;
+        edm::LogWarning("MPIReceiver") << "Product " << entry.type.name() << " was not received.";
+        continue;  // Skip products that weren't sent
+      }
+
       std::unique_ptr<edm::WrapperBase> wrapper(
           reinterpret_cast<edm::WrapperBase*>(entry.wrappedType.getClass()->New()));
 
@@ -111,7 +117,8 @@ private:
   std::vector<Entry> products_;             // data to be read over the channel and put into the Event
   int32_t const instance_;                  // instance used to identify the source-destination pair
 
-  std::vector<std::unique_ptr<edm::WrapperBase>> received_products_;
+  mutable ProductMetadata received_meta_;
+  // std::vector<std::unique_ptr<edm::WrapperBase>> received_products_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"

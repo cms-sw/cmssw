@@ -158,6 +158,22 @@ MPI_Status MPIChannel::receiveEventAuxiliary_(edm::EventAuxiliary& aux, MPI_Mess
   return status;
 }
 
+void MPIChannel::sendMetadata(int instance, const ProductMetadata& meta){
+  int tag = EDM_MPI_SendMetadata | instance * EDM_MPI_MessageTagWidth_;
+  MPI_Ssend(&meta, sizeof(ProductMetadata), MPI_BYTE, dest_, tag, comm_);
+}
+
+void MPIChannel::receiveMetadata(int instance, ProductMetadata& meta){
+  int tag = EDM_MPI_SendMetadata | instance * EDM_MPI_MessageTagWidth_;
+  MPI_Message message;
+  MPI_Status status;
+  MPI_Mprobe(dest_, tag, comm_, &message, &status);
+  int size;
+  MPI_Get_count(&status, MPI_BYTE, &size);
+  assert(static_cast<int>(sizeof(ProductMetadata)) == size);
+  MPI_Mrecv(&meta, sizeof(ProductMetadata), MPI_BYTE, &message, MPI_STATUS_IGNORE);
+}
+
 void MPIChannel::sendSerializedProduct_(int instance, TClass const* type, void const* product) {
   TBufferFile buffer{TBuffer::kWrite};
   type->Streamer(const_cast<void*>(product), buffer);
