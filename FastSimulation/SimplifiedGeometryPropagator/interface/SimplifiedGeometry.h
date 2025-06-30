@@ -22,6 +22,7 @@ namespace edm {
 
 namespace fastsim {
   class SimplifiedGeometryFactory;
+  class Geometry;
 
   //! Implementation of a generic detector layer (base class for forward/barrel layers).
   /*!
@@ -56,9 +57,6 @@ namespace fastsim {
 
     //! Hack to interface "old" Calorimetry with "new" Tracker
     enum CaloType { NONE, TRACKERBOUNDARY, PRESHOWER1, PRESHOWER2, ECAL, HCAL, VFCAL };
-
-    //! Hack to interface "old" Calorimetry with "new" Tracker
-    void setCaloType(CaloType type) { caloType_ = type; }
 
     //! Hack to interface "old" Calorimetry with "new" Tracker
     CaloType getCaloType() const { return caloType_; }
@@ -148,8 +146,12 @@ namespace fastsim {
     friend std::ostream& operator<<(std::ostream& os, const SimplifiedGeometry& layer);
 
     friend class fastsim::SimplifiedGeometryFactory;
+    friend class fastsim::Geometry;
 
   protected:
+    //! Hack to interface "old" Calorimetry with "new" Tracker
+    void setCaloType(CaloType type) { caloType_ = type; }
+
     double geomProperty_;  //!< Geometric property of the layer: radius (barrel layer) / position z (forward layer)
     int index_;  //!< Return index of this layer (layers are numbered according to their position in the detector). The (usual) order is increasing 'geomProperty'.
     const DetLayer* detLayer_;                 //!< Return pointer to the assigned active layer (if any).
