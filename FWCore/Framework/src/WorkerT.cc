@@ -737,11 +737,6 @@ namespace edm {
     return Worker::kStream;
   }
 
-  template <typename T>
-  std::vector<ModuleConsumesInfo> WorkerT<T>::moduleConsumesInfos() const {
-    return module_->moduleConsumesInfos();
-  }
-
   //Explicitly instantiate our needed templates to avoid having the compiler
   // instantiate them in all of our libraries
   template class WorkerT<one::EDProducerBase>;

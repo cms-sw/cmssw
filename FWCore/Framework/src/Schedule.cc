@@ -567,11 +567,11 @@ namespace edm {
     const std::string kTriggerResults("TriggerResults");
 
     std::set<std::string> usedModuleLabels;
-    for (auto const& worker : allWorkers()) {
-      if (worker->description()->moduleLabel() != kTriggerResults) {
-        usedModuleLabels.insert(worker->description()->moduleLabel());
+    moduleRegistry_->forAllModuleHolders([&usedModuleLabels, &kTriggerResults](maker::ModuleHolder* iHolder) {
+      if (iHolder->moduleDescription().moduleLabel() != kTriggerResults) {
+        usedModuleLabels.insert(iHolder->moduleDescription().moduleLabel());
       }
-    }
+    });
     std::vector<std::string> modulesInConfig(proc_pset.getParameter<std::vector<std::string>>("@all_modules"));
     std::map<std::string, std::vector<std::pair<std::string, int>>> outputModulePathPositions;
     reduceParameterSet(proc_pset, tns.getEndPaths(), modulesInConfig, usedModuleLabels, outputModulePathPositions);
@@ -601,7 +601,7 @@ namespace edm {
 
     // This is used for a little sanity-check to make sure no code
     // modifications alter the number of workers at a later date.
-    size_t all_workers_count = allWorkers().size();
+    size_t all_workers_count = moduleRegistry_->maxModuleID();
 
     moduleRegistry_->forAllModuleHolders([this](maker::ModuleHolder* iHolder) {
       auto comm = iHolder->createOutputModuleCommunicator();
@@ -609,12 +609,12 @@ namespace edm {
         all_output_communicators_.emplace_back(std::shared_ptr<OutputModuleCommunicator>{comm.release()});
       }
     });
-    // Now that the output workers are filled in, set any output limits or information.
+    // Now that the output communicators are filled in, set any output limits or information.
     limitOutput(proc_pset, branchIDListHelper.branchIDLists());
 
-    // Sanity check: make sure nobody has added a worker after we've
-    // already relied on the WorkerManager being full.
-    assert(all_workers_count == allWorkers().size());
+    // Sanity check: make sure nobody has added a module after we've
+    // already relied on the ModuleRegistry being full.
+    assert(all_workers_count == moduleRegistry_->maxModuleID());
 
     branchIDListHelper.updateFromRegistry(preg.registry());
 
@@ -638,16 +638,17 @@ namespace edm {
       // We now get a collection of types that may be consumed.
       std::set<TypeID> productTypesConsumed;
       std::set<TypeID> elementTypesConsumed;
-      // Loop over all modules
-      for (auto const& worker : allWorkers()) {
-        for (auto const& consumesInfo : worker->moduleConsumesInfos()) {
-          if (consumesInfo.kindOfType() == PRODUCT_TYPE) {
-            productTypesConsumed.emplace(consumesInfo.type());
-          } else {
-            elementTypesConsumed.emplace(consumesInfo.type());
-          }
-        }
-      }
+
+      moduleRegistry_->forAllModuleHolders(
+          [&productTypesConsumed, &elementTypesConsumed](maker::ModuleHolder* iHolder) {
+            for (auto const& consumesInfo : iHolder->moduleConsumesInfos()) {
+              if (consumesInfo.kindOfType() == PRODUCT_TYPE) {
+                productTypesConsumed.emplace(consumesInfo.type());
+              } else {
+                elementTypesConsumed.emplace(consumesInfo.type());
+              }
+            }
+          });
       // The RandomNumberGeneratorService is not a module, yet it consumes.
       { RngEDConsumer rngConsumer = RngEDConsumer(productTypesConsumed); }
       preg.setFrozen(productTypesConsumed, elementTypesConsumed, processConfiguration->processName());
@@ -1241,15 +1242,11 @@ namespace edm {
 
   std::vector<ModuleDescription const*> Schedule::getAllModuleDescriptions() const {
     std::vector<ModuleDescription const*> result;
-    result.reserve(allWorkers().size());
+    result.reserve(moduleRegistry_->maxModuleID() + 1);
 
-    for (auto const& worker : allWorkers()) {
-      ModuleDescription const* p = worker->description();
-      result.push_back(p);
-    }
+    moduleRegistry_->forAllModuleHolders([&](auto const* iHolder) { result.push_back(&iHolder->moduleDescription()); });
     return result;
   }
-
   Schedule::AllWorkers const& Schedule::allWorkers() const { return globalSchedule_->allWorkers(); }
 
   void Schedule::convertCurrentProcessAlias(std::string const& processName) {

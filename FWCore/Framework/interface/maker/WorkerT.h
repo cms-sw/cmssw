@@ -110,11 +110,6 @@ namespace edm {
     bool implDoEnd(LumiTransitionInfo const&, ModuleCallingContext const*) override;
     TaskQueueAdaptor serializeRunModule() override;
 
-    std::vector<ModuleConsumesInfo> moduleConsumesInfos() const override;
-    std::vector<ModuleConsumesMinimalESInfo> moduleConsumesMinimalESInfos() const final {
-      return module_->moduleConsumesMinimalESInfos();
-    }
-
     void itemsToGet(BranchType branchType, std::vector<ProductResolverIndexAndSkipBit>& indexes) const override {
       module_->itemsToGet(branchType, indexes);
     }

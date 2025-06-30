@@ -235,6 +235,15 @@ namespace edm::maker {
     resolvePutIndiciesImpl(m_mod.get(), iBranchType, iIndicies, moduleDescription().moduleLabel());
   }
 
+  template <typename T>
+  std::vector<ModuleConsumesInfo> ModuleHolderT<T>::moduleConsumesInfos() const {
+    return m_mod->moduleConsumesInfos();
+  }
+  template <typename T>
+  std::vector<ModuleConsumesMinimalESInfo> ModuleHolderT<T>::moduleConsumesMinimalESInfos() const {
+    return m_mod->moduleConsumesMinimalESInfos();
+  }
+
   //Explicitly instantiate our needed templates to avoid having the compiler
   // instantiate them in all of our libraries
   template class ModuleHolderT<one::EDProducerBase>;

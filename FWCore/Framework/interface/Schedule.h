@@ -289,6 +289,8 @@ namespace edm {
     /// returns the collection of pointers to workers
     AllWorkers const& allWorkers() const;
 
+    ModuleRegistry const& moduleRegistry() const { return *moduleRegistry_; }
+
     /// Convert "@currentProcess" in InputTag process names to the actual current process name.
     void convertCurrentProcessAlias(std::string const& processName);
 
@@ -301,7 +303,9 @@ namespace edm {
       return get_underlying_safe(resultsInserter_);
     }
     std::shared_ptr<TriggerResultInserter>& resultsInserter() { return get_underlying_safe(resultsInserter_); }
-    std::shared_ptr<ModuleRegistry const> moduleRegistry() const { return get_underlying_safe(moduleRegistry_); }
+    std::shared_ptr<ModuleRegistry const> moduleRegistrySharedPtr() const {
+      return get_underlying_safe(moduleRegistry_);
+    }
     std::shared_ptr<ModuleRegistry>& moduleRegistry() { return get_underlying_safe(moduleRegistry_); }
 
     edm::propagate_const<std::shared_ptr<ModuleRegistry>> moduleRegistry_;
