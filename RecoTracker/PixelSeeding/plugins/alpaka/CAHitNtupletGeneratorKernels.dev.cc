@@ -257,7 +257,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using namespace caHitNtupletGeneratorKernels;
 
     const auto workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(1, ll.metadata().size() - 1);
-    alpaka::exec<Acc1D>(queue, workDiv1D, SetHitsLayerStart{}, mm, ll, this->device_layerStarts_->data());
+    alpaka::exec<Acc1D>(queue, workDiv1D, SetHitsLayerStart{}, mm, ll, this->device_layerStarts_.data());
 
     cms::alpakatools::fillManyFromVector<Acc1D>(device_hitPhiHist_->data(),
                                                 device_hitPhiView_,
@@ -810,6 +810,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           this->device_hitContainer_.data(),
                           this->counters_.data());
 
+
       workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(1,1);
       alpaka::exec<Acc1D>(queue, workDiv1D, Kernel_printCounters{}, this->counters_.data());
       alpaka::wait(queue);
@@ -827,6 +828,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           0);
       alpaka::wait(queue);
   }
+
+
 #ifdef GPU_DEBUG
     alpaka::wait(queue);
 #endif
@@ -878,5 +881,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template class CAHitNtupletGeneratorKernels<pixelTopology::Phase1>;
   template class CAHitNtupletGeneratorKernels<pixelTopology::Phase2>;
   template class CAHitNtupletGeneratorKernels<pixelTopology::HIonPhase1>;
+  template class CAHitNtupletGeneratorKernels<pixelTopology::Phase2OT>;
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

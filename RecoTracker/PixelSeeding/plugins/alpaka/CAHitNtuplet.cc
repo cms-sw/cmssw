@@ -144,8 +144,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto layerCount = 0;
 
     std::vector<int> layerStarts(n_layers + 1);
+    //^ why n_layers + 1? This is a cumulative sum of the number
+    // of modules each layer has. And we need the  extra spot
+    // at the end to hold the total number of modules.
+   
     std::vector<int> moduleToindexInDets;
-
+    
     auto isPinPSinOTBarrel = [&](DetId detId) {
       //    std::cout << (int)trackerGeometry->getDetectorType(detId) << " " << (trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP) << "\n";
       //    std::cout << (int)detId.subdetId() << " " << (detId.subdetId() == StripSubdetector::TOB) << std::endl;
@@ -201,6 +205,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       layerStarts[n_layers] = n_modules;
       std::cout << "OT LayerStart: " << n_layers << " has " << n_modules << " modules." << std::endl;
     } else {
+
+
       for (auto& det : dets) {
         DetId detid = det->geographicalId();
 #ifdef GPU_DEBUG
@@ -338,6 +344,7 @@ void CAHitNtupletAlpaka<TrackerTraits>::produce(device::Event& iEvent, const dev
 using CAHitNtupletAlpakaPhase1 = CAHitNtupletAlpaka<pixelTopology::Phase1>;
 using CAHitNtupletAlpakaHIonPhase1 = CAHitNtupletAlpaka<pixelTopology::HIonPhase1>;
 using CAHitNtupletAlpakaPhase2 = CAHitNtupletAlpaka<pixelTopology::Phase2>;
+using CAHitNtupletAlpakaPhase2OT = CAHitNtupletAlpaka<pixelTopology::Phase2OT>;
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"

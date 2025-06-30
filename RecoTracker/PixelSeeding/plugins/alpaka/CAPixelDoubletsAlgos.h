@@ -129,17 +129,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
   }
 
   template <typename TrackerTraits, typename TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE void doubletsFromHisto(const TAcc& acc,
-                                                        uint32_t maxNumOfDoublets,
-                                                        CACell<TrackerTraits>* cells,
-                                                        uint32_t* nCells,
-                                                        HitsConstView hh,
-                                                        ::reco::CAGraphSoAConstView cc,
-                                                        ::reco::CALayersSoAConstView ll,
-                                                        uint32_t const* __restrict__ offsets,
-                                                        PhiBinner<TrackerTraits> const* phiBinner,
-                                                        HitToCell* outerHitHisto,
-                                                        AlgoParams const& params) {
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void __attribute__((always_inline)) doubletsFromHisto(
+      const TAcc& acc,
+      uint32_t maxNumOfDoublets,
+      CASimpleCell<TrackerTraits>* cells,
+      uint32_t* nCells,
+      HitsConstView hh,
+      ::reco::CAGraphSoAConstView cc,
+      ::reco::CALayersSoAConstView ll,
+      uint32_t const* __restrict__ offsets,
+      PhiBinner<TrackerTraits> const* phiBinner,
+      HitToCell* outerHitHisto,
+      AlgoParams const& params) {
+
     const bool doClusterCut = params.minYsizeB1_ > 0 or params.minYsizeB2_ > 0;
     const bool doZSizeCut = params.maxDYsize12_ > 0 or params.maxDYsize_ > 0 or params.maxDYPred_ > 0;
 

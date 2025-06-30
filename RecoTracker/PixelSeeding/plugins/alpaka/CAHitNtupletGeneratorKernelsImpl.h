@@ -389,7 +389,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         auto ro = thisCell.outer_r(hh);
         auto zo = thisCell.outer_z(hh);
         auto thetaCut = ll[thisCell.innerLayer()].caThetaCut();
-
+        
         // loop on inner cells
         for (uint32_t j : cms::alpakatools::independent_group_elements_x(acc, numberOfPossibleNeighbors)) {
           auto otherCell = outerHitCells[j];

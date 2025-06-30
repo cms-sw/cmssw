@@ -33,6 +33,7 @@ namespace reco {
         : HitPortableCollectionDevice<TDev>({{int(nHits), int(nModules + 1)}}, queue) {}
 
     // N.B. why this + 1? Because the HitModulesLayout is holding the
+    // N.B. why this + 1? Because the HitModulesLayout is holding the 
     // moduleStart vector that is a cumulative sum of all the hits
     // in each module. The extra element of the array (the last one)
     // is used to hold the total number of hits. We are "hiding" this
