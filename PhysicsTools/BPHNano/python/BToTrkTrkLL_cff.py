@@ -33,7 +33,7 @@ BToTrkTrkMuMuTable = cms.EDProducer(
         l2_idx      = Var("userInt('l2_idx')", int, doc = "subleading muon index to the BPH muon collection"),
         trk1_idx    = Var("userInt('trk1_idx')", int, doc = "leading track index to the BPH track collection"),
         trk2_idx    = Var("userInt('trk2_idx')", int, doc = "subleading track index to the BPH track collection"),
-        ditrack_idx = Var("userInt('ditrack_idx')", int, doc = "Ditrack pair index to the BPH DiTrack collection"),
+#        ditrack_idx = Var("userInt('ditrack_idx')", int, doc = "Ditrack pair index to the BPH DiTrack collection"), please check the .cc code. 
         ll_idx  = Var("userInt('ll_idx')", int, doc = "dilepton index to the MuMu collection"),
         fit_mass_KK = Var("userFloat('fitted_mass_KK')", float, doc = "mass of the B candidate for the leading trk->Kaon subleading trk->kaon mass hypothesis"),
         fit_mass_Kpi = Var("userFloat('fitted_mass_Kpi')", float, doc = "mass of the B candidate for the leading trk->Kaon subleading trk->pion mass hypothesis"),
