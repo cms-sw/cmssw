@@ -79,8 +79,10 @@ private:
 
   edm::ParameterSet iConfig_;
   edm::EDGetTokenT<edm::HepMCProduct> genParticlesToken_;  //!< Token to get the genParticles
-  fastsim::Geometry geometry_;                             //!< The definition of the tracker according to python config
-  fastsim::Geometry caloGeometry_;                         //!< Hack to interface "old" calo to "new" tracking
+  fastsim::GeometryConsumer geometryConsumer_;
+  std::unique_ptr<fastsim::Geometry> geometry_;            //!< The definition of the tracker according to python config
+  fastsim::GeometryConsumer caloGeometryConsumer_;
+  std::unique_ptr<fastsim::Geometry> caloGeometry_;        //!< Hack to interface "old" calo to "new" tracking
   double beamPipeRadius_;                                  //!< The radius of the beampipe
   double deltaRchargedMother_;              //!< Cut on deltaR for ClosestChargedDaughter algorithm (FastSim tracking)
   fastsim::ParticleFilter particleFilter_;  //!< Decides which particles have to be propagated
@@ -113,8 +115,8 @@ const std::string FastSimProducer::MESSAGECATEGORY = "FastSimulation";
 FastSimProducer::FastSimProducer(const edm::ParameterSet& iConfig)
     : iConfig_(iConfig),
       genParticlesToken_(consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("src"))),
-      geometry_(iConfig.getParameter<edm::ParameterSet>("trackerDefinition"), consumesCollector()),
-      caloGeometry_(iConfig.getParameter<edm::ParameterSet>("caloDefinition"), consumesCollector()),
+      geometryConsumer_(iConfig.getParameter<edm::ParameterSet>("trackerDefinition"), consumesCollector()),
+      caloGeometryConsumer_(iConfig.getParameter<edm::ParameterSet>("caloDefinition"), consumesCollector()),
       beamPipeRadius_(iConfig.getParameter<double>("beamPipeRadius")),
       deltaRchargedMother_(iConfig.getParameter<double>("deltaRchargedMother")),
       particleFilter_(iConfig.getParameter<edm::ParameterSet>("particleFilter")),
@@ -175,8 +177,16 @@ void FastSimProducer::beginStream(const edm::StreamID id) {
 void FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   LogDebug(MESSAGECATEGORY) << "   produce";
 
-  geometry_.update(iSetup, interactionModelNames_);
-  caloGeometry_.update(iSetup, interactionModelNames_);
+  if (!geometry_ or !geometry_->checkCache(iSetup))
+    geometry_ = std::make_unique<fastsim::Geometry>(iConfig_.getParameter<edm::ParameterSet>("trackerDefinition"),
+                                                    interactionModelNames_,
+                                                    iSetup,
+                                                    geometryConsumer_);
+  if (!caloGeometry_ or !caloGeometry_->checkCache(iSetup))
+    caloGeometry_ = std::make_unique<fastsim::Geometry>(iConfig_.getParameter<edm::ParameterSet>("caloDefinition"),
+                                                        interactionModelNames_,
+                                                        iSetup,
+                                                        caloGeometryConsumer_);
 
   // Define containers for SimTracks, SimVertices
   auto simTracks = std::make_unique<edm::SimTrackContainer>();
@@ -202,13 +212,13 @@ void FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //  Initialize the calorimeter geometry
   if (simulateCalorimetry_) {
-    //evaluate here since || short circuits and we want to be sure bother are updated
+    //evaluate here since || short circuits and we want to be sure both are updated
     auto newGeom = watchCaloGeometry_.check(iSetup);
     auto newTopo = watchCaloTopology_.check(iSetup);
     if (newGeom || newTopo) {
       myCalorimetry_ =
         std::make_unique<CalorimetryManager>(iConfig_.getParameter<edm::ParameterSet>("Calorimetry"),
-                                             geometry_.getMagneticFieldZ(math::XYZTLorentzVector(0., 0., 0., 0.)),
+                                             geometry_->getMagneticFieldZ(math::XYZTLorentzVector(0., 0., 0., 0.)),
                                              iSetup,
                                              myCaloConsumer_);
     }
@@ -237,7 +247,7 @@ void FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     if (particle->position().Perp2() < caloBoundaryPerp2_ && std::abs(particle->position().Z()) < caloBoundaryZ_) {
       // move the particle through the layers
-      fastsim::LayerNavigator layerNavigator(geometry_);
+      fastsim::LayerNavigator layerNavigator(*geometry_);
       const fastsim::SimplifiedGeometry* layer = nullptr;
 
       // moveParticleToNextLayer(..) returns 0 in case that particle decays
@@ -381,7 +391,7 @@ void FastSimProducer::createFSimTrack(fastsim::Particle* particle,
                         particleManager->getSimVertex(particle->simVertexIndex()));
 
   // move the particle through the caloLayers
-  fastsim::LayerNavigator caloLayerNavigator(caloGeometry_);
+  fastsim::LayerNavigator caloLayerNavigator(*caloGeometry_);
   const fastsim::SimplifiedGeometry* caloLayer = nullptr;
 
   // moveParticleToNextLayer(..) returns 0 in case that particle decays

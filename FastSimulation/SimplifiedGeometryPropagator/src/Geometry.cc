@@ -17,17 +17,29 @@
 
 using namespace fastsim;
 
+GeometryConsumer::GeometryConsumer(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC) :
+  useFixedMagneticFieldZ(cfg.exists("magneticFieldZ")),
+  useTrackerRecoGeometryRecord(cfg.getUntrackedParameter<bool>("useTrackerRecoGeometryRecord", true))
+{
+  if (useTrackerRecoGeometryRecord) {
+    geometricSearchTrackerESToken = iC.esConsumes(edm::ESInputTag("", cfg.getUntrackedParameter<std::string>("trackerAlignmentLabel", "")));
+  }
+  if (!useFixedMagneticFieldZ) {
+    magneticFieldESToken = iC.esConsumes();
+  }
+}
+
 Geometry::~Geometry() { ; }
 
-Geometry::Geometry(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC)
+Geometry::Geometry(const edm::ParameterSet& cfg,
+                   const std::vector<std::string>& interactionModelNames,
+                   const edm::EventSetup& iSetup,
+                   const GeometryConsumer& consumer)
     : cacheIdentifierTrackerRecoGeometry_(0),
       cacheIdentifierIdealMagneticField_(0),
       geometricSearchTracker_(nullptr),
       magneticField_(nullptr),
-      useFixedMagneticFieldZ_(cfg.exists("magneticFieldZ")),
       fixedMagneticFieldZ_(cfg.getUntrackedParameter<double>("magneticFieldZ", 0.)),
-      useTrackerRecoGeometryRecord_(cfg.getUntrackedParameter<bool>("useTrackerRecoGeometryRecord", true)),
-      trackerAlignmentLabel_(cfg.getUntrackedParameter<std::string>("trackerAlignmentLabel", "")),
       barrelLayerCfg_(cfg.getParameter<std::vector<edm::ParameterSet>>("BarrelLayers")),
       forwardLayerCfg_(cfg.getParameter<std::vector<edm::ParameterSet>>("EndcapLayers")),
       maxRadius_(cfg.getUntrackedParameter<double>("maxRadius", 500.)),
@@ -44,26 +56,12 @@ Geometry::Geometry(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC)
                                      ? cfg.getParameter<edm::ParameterSet>("trackerForwardBoundary")
                                      : edm::ParameterSet())  // Hack to interface "old" calo to "new" tracking
 {
-  if (useTrackerRecoGeometryRecord_) {
-    geometricSearchTrackerESToken_ = iC.esConsumes(edm::ESInputTag("", trackerAlignmentLabel_));
-  }
-  if (!useFixedMagneticFieldZ_) {
-    magneticFieldESToken_ = iC.esConsumes();
-  }
-}
-
-void Geometry::update(const edm::EventSetup& iSetup, const std::vector<std::string>& interactionModelNames) {
-  if (iSetup.get<TrackerRecoGeometryRecord>().cacheIdentifier() == cacheIdentifierTrackerRecoGeometry_ &&
-      iSetup.get<IdealMagneticFieldRecord>().cacheIdentifier() == cacheIdentifierIdealMagneticField_) {
-    return;
-  }
-
   //----------------
   // find tracker reconstruction geometry
   //----------------
   if (iSetup.get<TrackerRecoGeometryRecord>().cacheIdentifier() != cacheIdentifierTrackerRecoGeometry_) {
-    if (useTrackerRecoGeometryRecord_) {
-      geometricSearchTracker_ = &iSetup.getData(geometricSearchTrackerESToken_);
+    if (consumer.useTrackerRecoGeometryRecord) {
+      geometricSearchTracker_ = &iSetup.getData(consumer.geometricSearchTrackerESToken);
     }
   }
 
@@ -71,13 +69,13 @@ void Geometry::update(const edm::EventSetup& iSetup, const std::vector<std::stri
   // update magnetic field
   //----------------
   if (iSetup.get<IdealMagneticFieldRecord>().cacheIdentifier() != cacheIdentifierIdealMagneticField_) {
-    if (useFixedMagneticFieldZ_)  // use constant magnetic field
+    if (consumer.useFixedMagneticFieldZ)  // use constant magnetic field
     {
       ownedMagneticField_ = std::make_unique<UniformMagneticField>(fixedMagneticFieldZ_);
       magneticField_ = ownedMagneticField_.get();
     } else  // get magnetic field from EventSetup
     {
-      magneticField_ = &iSetup.getData(magneticFieldESToken_);
+      magneticField_ = &iSetup.getData(consumer.magneticFieldESToken);
     }
   }
 
@@ -150,6 +148,11 @@ void Geometry::update(const edm::EventSetup& iSetup, const std::vector<std::stri
       }
     }
   }
+}
+
+bool Geometry::checkCache(const edm::EventSetup& iSetup) const {
+  return iSetup.get<TrackerRecoGeometryRecord>().cacheIdentifier() == cacheIdentifierTrackerRecoGeometry_ &&
+         iSetup.get<IdealMagneticFieldRecord>().cacheIdentifier() == cacheIdentifierIdealMagneticField_;
 }
 
 double fastsim::Geometry::getMagneticFieldZ(const math::XYZTLorentzVector& position) const {
