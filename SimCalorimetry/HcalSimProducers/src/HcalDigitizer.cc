@@ -225,7 +225,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet &ps, edm::ConsumesCollector
   testNumbering_ = ps.getParameter<bool>("TestNumbering");
   testNumberingPU_ = ps.getParameter<bool>("TestNumberingPU");
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalSim") << "Flag to see if Hit Relabeller to be initiated " << testNumbering_<< ":"
+  edm::LogVerbatim("HcalSim") << "Flag to see if Hit Relabeller to be initiated " << testNumbering_ << ":"
                               << testNumberingPU_;
 #endif
   if (testNumbering_ || testNumberingPU_)

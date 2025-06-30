@@ -70,7 +70,7 @@ private:
                           CLHEP::HepRandomEngine *,
                           const HcalTopology *h,
                           const ZdcTopology *z,
-			  bool signal);
+                          bool signal);
 
   /// some hits in each subdetector, just for testing purposes
   void fillFakeHits();
