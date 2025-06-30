@@ -69,7 +69,8 @@ private:
                           int bunchCrossing,
                           CLHEP::HepRandomEngine *,
                           const HcalTopology *h,
-                          const ZdcTopology *z);
+                          const ZdcTopology *z,
+			  bool signal);
 
   /// some hits in each subdetector, just for testing purposes
   void fillFakeHits();
@@ -169,6 +170,7 @@ private:
 
   bool isZDC, isHCAL, zdcgeo, hbhegeo, hogeo, hfgeo;
   bool testNumbering_;
+  bool testNumberingPU_;
   bool doHFWindow_;
   bool killHE_;
   bool debugCS_;

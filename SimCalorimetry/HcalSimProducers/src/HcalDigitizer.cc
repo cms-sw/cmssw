@@ -125,7 +125,6 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet &ps, edm::ConsumesCollector
   }
   zdcToken_ = zdc_list[0];
   hcalToken_ = hcal_list[0];
-
   bool doNoise = ps.getParameter<bool>("doNoise");
 
   bool PreMix1 = ps.getParameter<bool>("HcalPreMixStage1");  // special threshold/pedestal treatment
@@ -224,10 +223,12 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet &ps, edm::ConsumesCollector
   edm::LogVerbatim("HcalDigitizer") << "iszDC: " << isZDC << " theZDCDigitizer: " << theZDCDigitizer;
 
   testNumbering_ = ps.getParameter<bool>("TestNumbering");
+  testNumberingPU_ = ps.getParameter<bool>("TestNumberingPU");
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalSim") << "Flag to see if Hit Relabeller to be initiated " << testNumbering_;
+  edm::LogVerbatim("HcalSim") << "Flag to see if Hit Relabeller to be initiated " << testNumbering_<< ":"
+                              << testNumberingPU_;
 #endif
-  if (testNumbering_)
+  if (testNumbering_ || testNumberingPU_)
     theRelabeller = std::make_unique<HcalHitRelabeller>(ps.getParameter<bool>("doNeutralDensityFilter"));
 
   if (ps.getParameter<bool>("doIonFeedback") && theHBHEResponse) {
@@ -367,7 +368,8 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit>> const 
                                        int bunchCrossing,
                                        CLHEP::HepRandomEngine *engine,
                                        const HcalTopology *htopoP,
-                                       const ZdcTopology *ztopoP) {
+                                       const ZdcTopology *ztopoP,
+                                       bool signal) {
   // Step A: pass in inputs, and accumulate digis
   if (isHCAL) {
     std::vector<PCaloHit> hcalHitsOrig = *hcalHandle.product();
@@ -377,12 +379,12 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit>> const 
     hcalHits.reserve(hcalHitsOrig.size());
 
     // evaluate darkening before relabeling
-    if (testNumbering_) {
+    if ((signal && testNumbering_) || ((!signal) && testNumberingPU_)) {
       if (m_HBDarkening || m_HEDarkening || m_HFRecalibration) {
         darkening(hcalHitsOrig);
       }
       // Relabel PCaloHits if necessary
-      edm::LogVerbatim("HcalDigitizer") << "Calling Relabeller";
+      edm::LogVerbatim("HcalDigitizer") << "Calling Relabeller for signal " << signal;
       theRelabeller->process(hcalHitsOrig);
     }
 
@@ -479,7 +481,7 @@ void HcalDigitizer::accumulate(edm::Event const &e, edm::EventSetup const &event
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalDigitizer") << "Accumulate Signal Hits with Tag " << hitsProducer_;
 #endif
-  accumulateCaloHits(hcalHandle, zdcHandle, 0, engine, htopoP, ztopoP);
+  accumulateCaloHits(hcalHandle, zdcHandle, 0, engine, htopoP, ztopoP, true);
 }
 
 void HcalDigitizer::accumulate(PileUpEventPrincipal const &e,
@@ -499,7 +501,7 @@ void HcalDigitizer::accumulate(PileUpEventPrincipal const &e,
   const HcalTopology *htopoP = &eventSetup.getData(topoToken_);
   const ZdcTopology *ztopoP = &eventSetup.getData(topoZToken_);
 
-  accumulateCaloHits(hcalHandle, zdcHandle, e.bunchCrossing(), engine, htopoP, ztopoP);
+  accumulateCaloHits(hcalHandle, zdcHandle, e.bunchCrossing(), engine, htopoP, ztopoP, false);
 }
 
 void HcalDigitizer::finalizeEvent(edm::Event &e, const edm::EventSetup &eventSetup, CLHEP::HepRandomEngine *engine) {
