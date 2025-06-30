@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/interface/maker/Worker.h"
+#include "FWCore/Framework/interface/ModuleRegistry.h"
 #include "FWCore/Framework/interface/ESModuleProducesInfo.h"
 #include "FWCore/Framework/interface/ESModuleConsumesMinimalInfo.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
@@ -73,14 +74,14 @@ namespace edm {
       }
     }
 
-    void modulesWhoseProductsAreConsumed(Worker* iWorker,
+    void modulesWhoseProductsAreConsumed(edm::maker::ModuleHolder const* iHolder,
                                          std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modulesAll,
                                          ProductRegistry const& preg,
                                          std::map<std::string, ModuleDescription const*> const& labelsToDesc,
                                          std::string const& processName) {
       std::set<std::string> alreadyFound;
 
-      for (ModuleConsumesInfo const& consumesInfo : iWorker->moduleConsumesInfos()) {
+      for (ModuleConsumesInfo const& consumesInfo : iHolder->moduleConsumesInfos()) {
         ProductResolverIndexHelper const& helper = *preg.productLookup(consumesInfo.branchType());
         std::vector<ModuleDescription const*>& modules = *modulesAll[consumesInfo.branchType()];
 
@@ -129,50 +130,49 @@ namespace edm {
         }
       };
     }
-    void fillModuleAndConsumesInfo(Schedule::AllWorkers const& allWorkers,
+    void fillModuleAndConsumesInfo(ModuleRegistry const& moduleRegistry,
                                    std::vector<ModuleDescription const*>& allModuleDescriptions,
-                                   std::vector<std::pair<unsigned int, unsigned int>>& moduleIDToIndex,
+                                   std::vector<edm::maker::ModuleHolder const*>& moduleIDToHolder,
                                    std::array<std::vector<std::vector<ModuleDescription const*>>, NumBranchTypes>&
                                        modulesWhoseProductsAreConsumedBy,
                                    ProductRegistry const& preg) {
       allModuleDescriptions.clear();
-      moduleIDToIndex.clear();
+      moduleIDToHolder.clear();
       for (auto iBranchType = 0U; iBranchType < NumBranchTypes; ++iBranchType) {
         modulesWhoseProductsAreConsumedBy[iBranchType].clear();
       }
 
-      allModuleDescriptions.reserve(allWorkers.size());
-      moduleIDToIndex.reserve(allWorkers.size());
+      allModuleDescriptions.reserve(moduleRegistry.maxModuleID() + 1);
+      moduleIDToHolder.resize(moduleRegistry.maxModuleID() + 1);
       for (auto iBranchType = 0U; iBranchType < NumBranchTypes; ++iBranchType) {
-        modulesWhoseProductsAreConsumedBy[iBranchType].resize(allWorkers.size());
+        modulesWhoseProductsAreConsumedBy[iBranchType].resize(moduleRegistry.maxModuleID() + 1);
       }
 
       std::map<std::string, ModuleDescription const*> labelToDesc;
-      unsigned int i = 0;
-      for (auto const& worker : allWorkers) {
-        ModuleDescription const* p = worker->description();
+      moduleRegistry.forAllModuleHolders([&](auto const* iHolder) {
+        ModuleDescription const* p = &iHolder->moduleDescription();
         allModuleDescriptions.push_back(p);
-        moduleIDToIndex.push_back(std::pair<unsigned int, unsigned int>(p->id(), i));
+        moduleIDToHolder[p->id()] = iHolder;
         labelToDesc[p->moduleLabel()] = p;
-        ++i;
-      }
-      sort_all(moduleIDToIndex);
-
-      i = 0;
-      for (auto const& worker : allWorkers) {
+      });
+      std::sort(allModuleDescriptions.begin(), allModuleDescriptions.end(), [](auto const* iL, auto const* iR) {
+        return iL->moduleLabel() < iR->moduleLabel();
+      });
+      moduleRegistry.forAllModuleHolders([&](auto const* iHolder) {
+        // Fill the modulesWhoseProductsAreConsumedBy for each module
         std::array<std::vector<ModuleDescription const*>*, NumBranchTypes> modules;
         for (auto iBranchType = 0U; iBranchType < NumBranchTypes; ++iBranchType) {
-          modules[iBranchType] = &modulesWhoseProductsAreConsumedBy[iBranchType].at(i);
+          modules[iBranchType] = &modulesWhoseProductsAreConsumedBy[iBranchType].at(iHolder->moduleDescription().id());
         }
         try {
-          modulesWhoseProductsAreConsumed(worker, modules, preg, labelToDesc, worker->description()->processName());
+          modulesWhoseProductsAreConsumed(
+              iHolder, modules, preg, labelToDesc, iHolder->moduleDescription().processName());
         } catch (cms::Exception& ex) {
           ex.addContext("Calling Worker::modulesWhoseProductsAreConsumed() for module " +
-                        worker->description()->moduleLabel());
+                        iHolder->moduleDescription().moduleLabel());
           throw;
         }
-        ++i;
-      }
+      });
     }
   }  // namespace
 
@@ -206,19 +206,22 @@ namespace edm {
       ++i;
     }
 
-    fillModuleAndConsumesInfo(
-        schedule_->allWorkers(), allModuleDescriptions_, moduleIDToIndex_, modulesWhoseProductsAreConsumedBy_, *preg);
+    fillModuleAndConsumesInfo(schedule_->moduleRegistry(),
+                              allModuleDescriptions_,
+                              moduleIDToHolder_,
+                              modulesWhoseProductsAreConsumedBy_,
+                              *preg);
   }
 
   using ProducedByESModule = PathsAndConsumesOfModules::ProducedByESModule;
   namespace {
     void esModulesWhoseProductsAreConsumed(
-        Worker* worker,
+        edm::maker::ModuleHolder const* holder,
         std::array<std::vector<eventsetup::ComponentDescription const*>*, kNumberOfEventSetupTransitions>& esModules,
         ProducedByESModule const& producedByESModule) {
       std::array<std::set<std::string>, kNumberOfEventSetupTransitions> alreadyFound;
 
-      for (auto const& info : worker->moduleConsumesMinimalESInfos()) {
+      for (auto const& info : holder->moduleConsumesMinimalESInfos()) {
         auto const& recordInfo = producedByESModule.find(info.record_);
         if (recordInfo != producedByESModule.end()) {
           auto itFound = recordInfo->second.find(info.dataKey_);
@@ -241,29 +244,28 @@ namespace edm {
     }
 
     std::array<std::vector<std::vector<eventsetup::ComponentDescription const*>>, kNumberOfEventSetupTransitions>
-    esModulesWhoseProductsAreConsumedByCreate(Schedule::AllWorkers const& allWorkers,
+    esModulesWhoseProductsAreConsumedByCreate(ModuleRegistry const& moduleRegistry,
                                               ProducedByESModule const& producedByESModule) {
       std::array<std::vector<std::vector<eventsetup::ComponentDescription const*>>, kNumberOfEventSetupTransitions>
           esModulesWhoseProductsAreConsumedBy;
 
       for (auto& item : esModulesWhoseProductsAreConsumedBy) {
-        item.resize(allWorkers.size());
+        item.resize(moduleRegistry.maxModuleID() + 1);
       }
 
-      for (unsigned int i = 0; auto const& worker : allWorkers) {
+      moduleRegistry.forAllModuleHolders([&](auto const* holder) {
         std::array<std::vector<eventsetup::ComponentDescription const*>*, kNumberOfEventSetupTransitions> esModules;
         for (auto transition = 0U; transition < kNumberOfEventSetupTransitions; ++transition) {
-          esModules[transition] = &esModulesWhoseProductsAreConsumedBy[transition].at(i);
+          esModules[transition] = &esModulesWhoseProductsAreConsumedBy[transition].at(holder->moduleDescription().id());
         }
         try {
-          esModulesWhoseProductsAreConsumed(worker, esModules, producedByESModule);
+          esModulesWhoseProductsAreConsumed(holder, esModules, producedByESModule);
         } catch (cms::Exception& ex) {
           ex.addContext("Calling Worker::esModulesWhoseProductsAreConsumed() for module " +
-                        worker->description()->moduleLabel());
+                        holder->moduleDescription().moduleLabel());
           throw;
         }
-        ++i;
-      }
+      });
       return esModulesWhoseProductsAreConsumedBy;
     }
 
@@ -351,7 +353,7 @@ namespace edm {
     producedByESModule_ = fillProducedByESModule(eventSetupProvider);
 
     esModulesWhoseProductsAreConsumedBy_ =
-        esModulesWhoseProductsAreConsumedByCreate(schedule_->allWorkers(), producedByESModule_);
+        esModulesWhoseProductsAreConsumedByCreate(schedule_->moduleRegistry(), producedByESModule_);
 
     for (unsigned int i = 0; i < allESProductResolverProviders_.size(); ++i) {
       eventsetup::ComponentDescription const& componentDescription = allESProductResolverProviders_[i]->description();
@@ -396,24 +398,19 @@ namespace edm {
     };
     checkPath(modulesOnPaths_);
     checkPath(modulesOnEndPaths_);
-
-    // Remove the modules and adjust the indices in idToIndex map
-    for (auto iModule = 0U; iModule != allModuleDescriptions_.size(); ++iModule) {
-      auto found = std::find(modules.begin(), modules.end(), allModuleDescriptions_[iModule]);
-      if (found != modules.end()) {
-        allModuleDescriptions_.erase(allModuleDescriptions_.begin() + iModule);
-        for (auto iBranchType = 0U; iBranchType != NumBranchTypes; ++iBranchType) {
-          modulesWhoseProductsAreConsumedBy_[iBranchType].erase(
-              modulesWhoseProductsAreConsumedBy_[iBranchType].begin() + iModule);
-        }
-        for (auto& idToIndex : moduleIDToIndex_) {
-          if (idToIndex.second >= iModule) {
-            idToIndex.second--;
-          }
-        }
-        --iModule;
+    allModuleDescriptions_.clear();
+    for (auto const& mod : modules) {
+      moduleIDToHolder_[mod->id()] = nullptr;
+    }
+    allModuleDescriptions_.reserve(moduleIDToHolder_.size() - modules.size());
+    for (auto const* mod : moduleIDToHolder_) {
+      if (mod) {
+        allModuleDescriptions_.push_back(&mod->moduleDescription());
       }
     }
+    std::sort(allModuleDescriptions_.begin(), allModuleDescriptions_.end(), [](auto const* iL, auto const* iR) {
+      return iL->moduleLabel() < iR->moduleLabel();
+    });
   }
 
   std::vector<std::string> const& PathsAndConsumesOfModules::doPaths() const { return paths_; }
@@ -424,15 +421,7 @@ namespace edm {
   }
 
   ModuleDescription const* PathsAndConsumesOfModules::doModuleDescription(unsigned int moduleID) const {
-    unsigned int dummy = 0;
-    auto target = std::make_pair(moduleID, dummy);
-    std::vector<std::pair<unsigned int, unsigned int>>::const_iterator iter =
-        std::lower_bound(moduleIDToIndex_.begin(), moduleIDToIndex_.end(), target);
-    if (iter == moduleIDToIndex_.end() || iter->first != moduleID) {
-      throw Exception(errors::LogicError)
-          << "PathsAndConsumesOfModules::moduleDescription: Unknown moduleID " << moduleID << "\n";
-    }
-    return allModuleDescriptions_.at(iter->second);
+    return &moduleIDToHolder_[moduleIndex(moduleID)]->moduleDescription();
   }
 
   std::vector<ModuleDescription const*> const& PathsAndConsumesOfModules::doModulesOnPath(unsigned int pathIndex) const {
@@ -456,8 +445,7 @@ namespace edm {
   }
 
   std::vector<ModuleConsumesInfo> PathsAndConsumesOfModules::doModuleConsumesInfos(unsigned int moduleID) const {
-    Worker const* worker = schedule_->allWorkers().at(moduleIndex(moduleID));
-    return worker->moduleConsumesInfos();
+    return moduleIDToHolder_[moduleIndex(moduleID)]->moduleConsumesInfos();
   }
 
   auto const& labelForComponentDescription(eventsetup::ComponentDescription const* description) {
@@ -469,8 +457,8 @@ namespace edm {
 
   std::vector<ModuleConsumesESInfo> PathsAndConsumesOfModules::doModuleConsumesESInfos(unsigned int moduleID) const {
     checkEventSetupInitialization();
-    Worker const* worker = schedule_->allWorkers().at(moduleIndex(moduleID));
-    auto const& minConsumesESInfos = worker->moduleConsumesMinimalESInfos();
+    auto const* holder = moduleIDToHolder_[moduleIndex(moduleID)];
+    auto const& minConsumesESInfos = holder->moduleConsumesMinimalESInfos();
     std::vector<ModuleConsumesESInfo> result;
     result.reserve(minConsumesESInfos.size());
     for (auto const& minInfo : minConsumesESInfos) {
@@ -524,8 +512,7 @@ namespace edm {
   }
 
   unsigned int PathsAndConsumesOfModules::doLargestModuleID() const {
-    // moduleIDToIndex_ is sorted, so last element has the largest ID
-    return moduleIDToIndex_.empty() ? 0 : moduleIDToIndex_.back().first;
+    return schedule_->moduleRegistry().maxModuleID();
   }
 
   std::vector<eventsetup::ComponentDescription const*> const& PathsAndConsumesOfModules::doAllESModules() const {
@@ -670,15 +657,11 @@ namespace edm {
   }
 
   unsigned int PathsAndConsumesOfModules::moduleIndex(unsigned int moduleID) const {
-    unsigned int dummy = 0;
-    auto target = std::make_pair(moduleID, dummy);
-    std::vector<std::pair<unsigned int, unsigned int>>::const_iterator iter =
-        std::lower_bound(moduleIDToIndex_.begin(), moduleIDToIndex_.end(), target);
-    if (iter == moduleIDToIndex_.end() || iter->first != moduleID) {
+    if (moduleID >= moduleIDToHolder_.size() or moduleIDToHolder_[moduleID] == nullptr) {
       throw Exception(errors::LogicError)
           << "PathsAndConsumesOfModules::moduleIndex: Unknown moduleID " << moduleID << "\n";
     }
-    return iter->second;
+    return moduleID;
   }
 
   unsigned int PathsAndConsumesOfModules::esModuleIndex(unsigned int esModuleID) const {

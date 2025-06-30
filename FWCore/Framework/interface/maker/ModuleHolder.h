@@ -50,6 +50,9 @@ namespace edm {
       virtual std::unique_ptr<Worker> makeWorker(ExceptionToActionTable const* actions) const = 0;
 
       virtual ModuleDescription const& moduleDescription() const = 0;
+      virtual std::vector<ModuleConsumesInfo> moduleConsumesInfos() const = 0;
+      virtual std::vector<ModuleConsumesMinimalESInfo> moduleConsumesMinimalESInfos() const = 0;
+
       virtual void finishModuleInitialization(ModuleDescription const& iDesc,
                                               PreallocationConfiguration const& iPrealloc,
                                               SignallingProductRegistryFiller* iReg) = 0;
@@ -112,6 +115,8 @@ namespace edm {
         }
       };
       ModuleDescription const& moduleDescription() const final { return m_mod->moduleDescription(); }
+      std::vector<ModuleConsumesInfo> moduleConsumesInfos() const final;
+      std::vector<ModuleConsumesMinimalESInfo> moduleConsumesMinimalESInfos() const final;
 
       void finishModuleInitialization(ModuleDescription const& iDesc,
                                       PreallocationConfiguration const& iPrealloc,

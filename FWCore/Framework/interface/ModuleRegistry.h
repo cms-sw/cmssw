@@ -104,6 +104,14 @@ namespace edm {
       }
     }
 
+    template <typename F>
+    void forAllModuleHolders(F iFunc) const {
+      for (auto& labelMod : labelToModule_) {
+        maker::ModuleHolder const* t = labelMod.second.get();
+        iFunc(t);
+      }
+    }
+
     unsigned int maxModuleID() const { return maxModuleID_; }
 
   private:

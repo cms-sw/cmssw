@@ -399,6 +399,7 @@ namespace edm {
     trig_paths_.reserve(pathNames.size());
     for (auto const& trig_name : pathNames) {
       fillTrigPath(proc_pset,
+                   *modReg,
                    preg,
                    &prealloc,
                    processConfiguration,
@@ -423,6 +424,7 @@ namespace edm {
     end_paths_.reserve(endPathNames.size());
     for (auto const& end_path_name : endPathNames) {
       fillEndPath(proc_pset,
+                  *modReg,
                   preg,
                   &prealloc,
                   processConfiguration,
@@ -560,7 +562,8 @@ namespace edm {
         continue;
       }
       //determine if this module could read a branch we want to delete early
-      auto consumes = w->moduleConsumesInfos();
+      auto consumes = modReg.getExistingModule(w->description()->moduleLabel())->moduleConsumesInfos();
+      //auto consumes = w->moduleConsumesInfos();
       if (not consumes.empty()) {
         bool foundAtLeastOneMatchingBranch = false;
         for (auto const& product : consumes) {
@@ -730,6 +733,7 @@ namespace edm {
 
   std::vector<Worker*> StreamSchedule::tryToPlaceConditionalModules(
       Worker* worker,
+      ModuleRegistry& iModuleRegistry,
       std::unordered_set<std::string>& conditionalModules,
       std::unordered_multimap<std::string, edm::ProductDescription const*> const& conditionalModuleBranches,
       std::unordered_multimap<std::string, AliasInfo> const& aliasMap,
@@ -738,8 +742,9 @@ namespace edm {
       PreallocationConfiguration const* prealloc,
       std::shared_ptr<ProcessConfiguration const> processConfiguration) {
     std::vector<Worker*> returnValue;
-    auto const& consumesInfo = worker->moduleConsumesInfos();
-    auto moduleLabel = worker->description()->moduleLabel();
+    //auto const& consumesInfo = worker->moduleConsumesInfos();
+    auto const& moduleLabel = worker->description()->moduleLabel();
+    auto const& consumesInfo = iModuleRegistry.getExistingModule(moduleLabel)->moduleConsumesInfos();
     using namespace productholderindexhelper;
     for (auto const& ci : consumesInfo) {
       if (not ci.skipCurrentProcess() and
@@ -789,6 +794,7 @@ namespace edm {
           conditionalModules.erase(itFound);
 
           auto dependents = tryToPlaceConditionalModules(condWorker,
+                                                         iModuleRegistry,
                                                          conditionalModules,
                                                          conditionalModuleBranches,
                                                          aliasMap,
@@ -806,6 +812,7 @@ namespace edm {
 
   StreamSchedule::PathWorkers StreamSchedule::fillWorkers(
       ParameterSet& proc_pset,
+      ModuleRegistry& moduleRegistry,
       SignallingProductRegistryFiller& preg,
       PreallocationConfiguration const* prealloc,
       std::shared_ptr<ProcessConfiguration const> processConfiguration,
@@ -893,6 +900,7 @@ namespace edm {
       }
 
       auto condModules = tryToPlaceConditionalModules(worker,
+                                                      moduleRegistry,
                                                       conditionalmods,
                                                       conditionalModsBranches,
                                                       conditionalTaskHelper.aliasMap(),
@@ -913,6 +921,7 @@ namespace edm {
   }
 
   void StreamSchedule::fillTrigPath(ParameterSet& proc_pset,
+                                    ModuleRegistry& moduleRegistry,
                                     SignallingProductRegistryFiller& preg,
                                     PreallocationConfiguration const* prealloc,
                                     std::shared_ptr<ProcessConfiguration const> processConfiguration,
@@ -923,6 +932,7 @@ namespace edm {
                                     ConditionalTaskHelper const& conditionalTaskHelper,
                                     std::unordered_set<std::string>& allConditionalModules) {
     PathWorkers tmpworkers = fillWorkers(proc_pset,
+                                         moduleRegistry,
                                          preg,
                                          prealloc,
                                          processConfiguration,
@@ -942,6 +952,7 @@ namespace edm {
   }
 
   void StreamSchedule::fillEndPath(ParameterSet& proc_pset,
+                                   ModuleRegistry& moduleRegistry,
                                    SignallingProductRegistryFiller& preg,
                                    PreallocationConfiguration const* prealloc,
                                    std::shared_ptr<ProcessConfiguration const> processConfiguration,
@@ -951,6 +962,7 @@ namespace edm {
                                    ConditionalTaskHelper const& conditionalTaskHelper,
                                    std::unordered_set<std::string>& allConditionalModules) {
     PathWorkers tmpworkers = fillWorkers(proc_pset,
+                                         moduleRegistry,
                                          preg,
                                          prealloc,
                                          processConfiguration,

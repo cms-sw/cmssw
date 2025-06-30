@@ -253,6 +253,7 @@ namespace edm {
 
     std::vector<Worker*> tryToPlaceConditionalModules(
         Worker*,
+        ModuleRegistry& iRegistry,
         std::unordered_set<std::string>& conditionalModules,
         std::unordered_multimap<std::string, edm::ProductDescription const*> const& conditionalModuleBranches,
         std::unordered_multimap<std::string, AliasInfo> const& aliasMap,
@@ -261,6 +262,7 @@ namespace edm {
         PreallocationConfiguration const* prealloc,
         std::shared_ptr<ProcessConfiguration const> processConfiguration);
     PathWorkers fillWorkers(ParameterSet& proc_pset,
+                            ModuleRegistry& moduleRegistry,
                             SignallingProductRegistryFiller& preg,
                             PreallocationConfiguration const* prealloc,
                             std::shared_ptr<ProcessConfiguration const> processConfiguration,
@@ -270,6 +272,7 @@ namespace edm {
                             ConditionalTaskHelper const& conditionalTaskHelper,
                             std::unordered_set<std::string>& allConditionalModules);
     void fillTrigPath(ParameterSet& proc_pset,
+                      ModuleRegistry& moduleRegistry,
                       SignallingProductRegistryFiller& preg,
                       PreallocationConfiguration const* prealloc,
                       std::shared_ptr<ProcessConfiguration const> processConfiguration,
@@ -280,6 +283,7 @@ namespace edm {
                       ConditionalTaskHelper const& conditionalTaskHelper,
                       std::unordered_set<std::string>& allConditionalModules);
     void fillEndPath(ParameterSet& proc_pset,
+                     ModuleRegistry& moduleRegistry,
                      SignallingProductRegistryFiller& preg,
                      PreallocationConfiguration const* prealloc,
                      std::shared_ptr<ProcessConfiguration const> processConfiguration,

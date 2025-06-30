@@ -206,9 +206,6 @@ namespace edm {
 
     void setEarlyDeleteHelper(EarlyDeleteHelper* iHelper);
 
-    virtual std::vector<ModuleConsumesInfo> moduleConsumesInfos() const = 0;
-    virtual std::vector<ModuleConsumesMinimalESInfo> moduleConsumesMinimalESInfos() const = 0;
-
     virtual Types moduleType() const = 0;
     virtual ConcurrencyTypes moduleConcurrencyType() const = 0;
 

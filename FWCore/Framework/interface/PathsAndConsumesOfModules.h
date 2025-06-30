@@ -29,9 +29,13 @@
 namespace edm {
 
   class ModuleDescription;
+  class ModuleRegistry;
   class ProductRegistry;
   class Schedule;
 
+  namespace maker {
+    class ModuleHolder;
+  }  // namespace maker
   namespace eventsetup {
     struct ComponentDescription;
     class ESProductResolverProvider;
@@ -96,9 +100,8 @@ namespace edm {
     std::vector<std::vector<ModuleDescription const*>> modulesOnPaths_;
     std::vector<std::vector<ModuleDescription const*>> modulesOnEndPaths_;
 
-    // Gives a translation from the module ID to the index into the
-    // following data member
-    std::vector<std::pair<unsigned int, unsigned int>> moduleIDToIndex_;
+    // Gives a translation from the module ID to the holder
+    std::vector<edm::maker::ModuleHolder const*> moduleIDToHolder_;
 
     std::array<std::vector<std::vector<ModuleDescription const*>>, NumBranchTypes> modulesWhoseProductsAreConsumedBy_;
 
@@ -114,6 +117,7 @@ namespace edm {
     std::vector<std::vector<eventsetup::ComponentDescription const*>> esModulesWhoseProductsAreConsumedByESModule_;
 
     Schedule const* schedule_ = nullptr;
+    ModuleRegistry const* moduleRegistry_ = nullptr;
     ProducedByESModule producedByESModule_;
     std::shared_ptr<ProductRegistry const> preg_;
     bool eventSetupInfoInitialized_ = false;
