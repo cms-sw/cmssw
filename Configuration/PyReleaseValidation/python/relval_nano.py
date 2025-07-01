@@ -3,32 +3,39 @@ import math
 
 
 class WFN:
-    # a simple class to number workflows dynamically
-    def __init__(self, offset):
+    def __init__(self, offset: int):
         self.offset = offset
-        self.index = 0
-        self.subindex = 1
+        self.index = 1
+        self.thousands = 0
+        self.hundreds = 0
 
-    def __call__(self):
-        if self.subindex == 100:
-            print("this is not going to work nicely")
-            self.subindex = 0 / 0
-        r = float(f'{self.offset}.{self.index}{self.subindex:02d}')
-        self.subindex += 1
-        return r
+    def __call__(self) -> float:
+        if self.index >= 100:
+            raise ValueError("Overflow: Leading-index exceeded limit (100)")
+        value_str = f"{self.offset}.{self.thousands}{self.hundreds}{self.index:02d}"
+        result = float(value_str)
+        self.index += 1
+        return result
 
-    def next(self, index=None):
+    def subnext(self) -> None:
+        self.hundreds += 1
+        self.index = 1
+        if self.hundreds >= 10:
+            raise ValueError("Overflow: Sub-index (hundreds) exceeded limit (999)")
+
+    def next(self, index: int = None) -> None:
         if index is None:
-            self.index += 1
+            self.thousands += 1
+            self.hundreds = 0
         else:
-            # manually set the index if given
-            assert index > self.index
-            self.index = index
-        self.subindex = 1
+            if index <= self.thousands:
+                raise ValueError("New index must be greater than current index")
+            self.thousands = index
+            self.hundreds = 0
 
-    def subnext(self):
-        # go to the next tenth for the subindex 10 because of 02d formating
-        self.subindex = math.ceil(self.subindex / 10.) * 10 + 1
+        if self.thousands >= 10:
+            raise ValueError("Overflow: Sub-sub-index (thousands) exceeded limit (9999)")
+        self.index = 1
 
 
 workflows = Matrix()
@@ -378,7 +385,7 @@ steps['NANOGENFromMini'] = merge([{'-s': 'NANO:@GENFromMini,DQM:@nanogenDQM',
 
 ################################################################
 _wfn = WFN(2500)
-######## 2500.0xx ########
+######## 2500.0xxx ########
 # Run2, 10_6_X MiniAOD input (current recommendation for 2016--2018)
 workflows[_wfn()] = ['NANOmc106Xul16v2', ['TTbarMINIAOD10.6_UL16v2', 'NANO_mc10.6ul16v2', 'HRV_NANO_mc']]
 workflows[_wfn()] = ['NANOmc106Xul17v2', ['TTbarMINIAOD10.6_UL17v2', 'NANO_mc10.6ul17v2', 'HRV_NANO_mc']]
@@ -403,7 +410,7 @@ workflows[_wfn()] = ['NANOdataUL17reMINI', ['RunJetHT2017F_reminiaodUL', 'REMINI
 workflows[_wfn()] = ['NANOdataUL18reMINI', ['RunJetHT2018D_reminiaodUL', 'REMINIAOD_data2018UL', 'NANO_data_UL18reMINI', 'HRV_NANO_data']]  # noqa
 
 _wfn.next(1)
-######## 2500.1xx ########
+######## 2500.1xxx ########
 # Run3, 13_0_X input (current recommendation for 2022--2023)
 workflows[_wfn()] = ['NANOmc130X', ['TTbarMINIAOD13.0', 'NANO_mc13.0', 'HRV_NANO_mc']]
 
@@ -421,7 +428,7 @@ workflows[_wfn()] = ['ScoutingNANOdata130Xrun3', ['ScoutingPFRun32022RAW13.0', '
 _wfn.subnext()
 
 _wfn.next(2)
-######## 2500.2xx ########
+######## 2500.2xxx ########
 # Run3, 14_0_X input (2024 RAW/AOD)
 # Standard NANO, MC
 
@@ -474,7 +481,7 @@ _wfn.subnext()
 workflows[_wfn()] = ['NANOdata2024reMINI', ['JetMET1_Run2024H_AOD_140X', 'REMINIAOD_data2024', 'NANO_data_2024_reMINI', 'HRV_NANO_data']]  # noqa
 
 _wfn.next(3)
-######## 2500.3xx ########
+######## 2500.3xxx ########
 # Run3, 15_0_X input (2024 MINIv6+NANOv15 & 2025 data-taking)
 # Standard NANO, MC
 workflows[_wfn()] = ['NANOmc150X', ['TTbar_13p6_Summer24_MINIAOD_150X', 'NANO_mc15.0', 'HRV_NANO_mc']]
@@ -516,7 +523,7 @@ _wfn.subnext()
 
 
 _wfn.next(9)
-######## 2500.9xx ########
+######## 2500.9xxx ########
 # NANOGEN
 workflows[_wfn()] = ['', ['TTbarMINIAOD10.6_UL18v2', 'NANOGENFromMini']]
 workflows[_wfn()] = ['', ['TTbarMINIAOD14.0', 'NANOGENFromMini']]
