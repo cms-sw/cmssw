@@ -10,9 +10,8 @@ cmsDriver.py \
 	--mc \
 	--beamspot DBrealistic \
 	--geometry DB:Extended \
-	--eventcontent RAWSIM \
+	--eventcontent TauEmbeddingSimHLT \
 	--datatier RAWSIM \
-	--outputCommands 'keep *_*_*_SELECT','keep *_*_*_LHEembeddingCLEAN','keep *_*_unsmeared_SIMembeddingpreHLT','keep DcsStatuss_hltScalersRawToDigi_*_*' \
     --era ... \
     --conditions ... \
     --filein ... \
