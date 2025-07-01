@@ -399,15 +399,19 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
                                 << " (raw=" << finalToA << ") ns ";
 
     //last fC (tdcOnset) are dissipated trough pulse
-    if (it + busyBxs < (int)(newCharge_.size())) {
-      const float deltaT2nextBx((busyBxs * 25 - integTime));
-      const float tdcOnsetLeakage(tdcOnset * vdt::fast_expf(-deltaT2nextBx / tdcChargeDrainParameterisation_[11]));
+    int ft = it + busyBxs;
+    constexpr size_t tdcLeakageTauIdx_ = 11;
+    if (ft > it && ft < static_cast<int>(newCharge_.size()) &&
+        tdcChargeDrainParameterisation_.size() > tdcLeakageTauIdx_) {
+      const float deltaT2nextBx((busyBxs * 25.0f - integTime));
+      const float tdcOnsetLeakage(tdcOnset *
+                                  vdt::fast_expf(-deltaT2nextBx / tdcChargeDrainParameterisation_[tdcLeakageTauIdx_]));
       if (debug)
         edm::LogVerbatim("HGCFE") << "\t Leaking remainder of TDC onset " << tdcOnset << " fC, to be dissipated in "
                                   << deltaT2nextBx << " DeltaT/tau=" << deltaT2nextBx << " / "
-                                  << tdcChargeDrainParameterisation_[11] << " ns, adds " << tdcOnsetLeakage << " fC @ "
-                                  << it + busyBxs << " bx (first free bx)";
-      newCharge_[it + busyBxs] += tdcOnsetLeakage;
+                                  << tdcChargeDrainParameterisation_[tdcLeakageTauIdx_] << " ns, adds "
+                                  << tdcOnsetLeakage << " fC @ " << it + busyBxs << " bx (first free bx)";
+      newCharge_[ft] += tdcOnsetLeakage;
     }
   }
 
