@@ -104,6 +104,10 @@ void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   //serial unpacking calls
   if (doSerial_) {
     for (unsigned fedId = 0; fedId < moduleIndexer.fedCount(); ++fedId) {
+      const auto& frs = moduleIndexer.getFEDReadoutSequences()[fedId];
+      if (frs.readoutTypes_.empty()) {
+        continue;
+      }
       const auto& fed_data = raw_data.FEDData(fedId);
       fedPacketInfo.view()[fedId].FEDPayload() = fed_data.size();
       if (fed_data.size() == 0)
@@ -116,6 +120,10 @@ void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   else {
     oneapi::tbb::this_task_arena::isolate([&]() {
       oneapi::tbb::parallel_for(0U, moduleIndexer.fedCount(), [&](unsigned fedId) {
+        const auto& frs = moduleIndexer.getFEDReadoutSequences()[fedId];
+        if (frs.readoutTypes_.empty()) {
+          return;
+        }
         const auto& fed_data = raw_data.FEDData(fedId);
         fedPacketInfo.view()[fedId].FEDPayload() = fed_data.size();
         if (fed_data.size() == 0)
