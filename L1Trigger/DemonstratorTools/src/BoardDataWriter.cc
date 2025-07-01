@@ -13,7 +13,8 @@ namespace l1t::demo {
                                    const size_t framesPerBX,
                                    const size_t tmux,
                                    const size_t maxFramesPerFile,
-                                   const ChannelMap_t& channelSpecs)
+                                   const ChannelMap_t& channelSpecs,
+                                   const bool staggerTmuxSlices)
       : fileFormat_(format),
         boardDataFileID_("CMSSW"),
         filePathGen_([=](const size_t i) { return path + "_" + std::to_string(i) + "." + fileExt; }),
@@ -23,7 +24,8 @@ namespace l1t::demo {
         maxEventsPerFile_(maxFramesPerFile_),
         eventIndex_(0),
         pendingEvents_(0),
-        channelMap_(channelSpecs) {
+        channelMap_(channelSpecs),
+        staggerTmuxSlices_(staggerTmuxSlices) {
     if (channelMap_.empty())
       throw std::runtime_error("BoardDataWriter channel map cannnot be empty");
     if (fileExt != "txt" && fileExt != "txt.gz" && fileExt != "txt.xz")
@@ -46,7 +48,7 @@ namespace l1t::demo {
                                  ", does not match link:board TMUX ratio, " + std::to_string(tmuxRatio));
 
       maxEventsPerFile_ = std::min(maxEventsPerFile_,
-                                   ((maxFramesPerFile_ - spec.offset) / (framesPerBX_ * boardTMUX_)) - (tmuxRatio - 1));
+                                   ((maxFramesPerFile_ - spec.offset) / (framesPerBX_ * boardTMUX_)) - (staggerTmuxSlices ? tmuxRatio - 1 : 0));
     }
 
     resetBoardData();
@@ -59,9 +61,10 @@ namespace l1t::demo {
                                    const size_t tmux,
                                    const size_t maxFramesPerFile,
                                    const std::map<LinkId, std::vector<size_t>>& channelMap,
-                                   const std::map<std::string, ChannelSpec>& channelSpecs)
+                                   const std::map<std::string, ChannelSpec>& channelSpecs,
+                                   const bool staggerTmuxSlices)
       : BoardDataWriter(
-            format, path, fileExt, framesPerBX, tmux, maxFramesPerFile, mergeMaps(channelMap, channelSpecs)) {}
+            format, path, fileExt, framesPerBX, tmux, maxFramesPerFile, mergeMaps(channelMap, channelSpecs), staggerTmuxSlices) {}
 
   void BoardDataWriter::setBoardDataFileID(const std::string& aId) { boardDataFileID_ = aId; }
 
@@ -156,10 +159,12 @@ namespace l1t::demo {
     for (auto& x : boardData_)
       x.second.clear();
 
-    for (const auto& [id, value] : channelMap_) {
-      const auto& [spec, indices] = value;
-      for (size_t tmuxIndex = 0; tmuxIndex < indices.size(); tmuxIndex++)
-        boardData_.at(indices.at(tmuxIndex)).resize(tmuxIndex * boardTMUX_ * framesPerBX_ + spec.offset);
+    if (staggerTmuxSlices_) {
+      for (const auto& [id, value] : channelMap_) {
+        const auto& [spec, indices] = value;
+        for (size_t tmuxIndex = 0; tmuxIndex < indices.size(); tmuxIndex++)
+          boardData_.at(indices.at(tmuxIndex)).resize(tmuxIndex * boardTMUX_ * framesPerBX_ + spec.offset);
+      }
     }
 
     pendingEvents_ = 0;
