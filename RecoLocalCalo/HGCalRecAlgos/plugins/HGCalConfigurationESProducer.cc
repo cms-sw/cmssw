@@ -97,6 +97,7 @@ public:
     // follow indexing by HGCalMappingModuleIndexer
     // HGCalConfiguration = container class holding FED structs of ECON-D structs of eRx structs
     std::unique_ptr<HGCalConfiguration> config_ = std::make_unique<HGCalConfiguration>();
+    config_->feds.resize(moduleMap.getMaxFEDSize());
     for (std::size_t fedid = 0; fedid < moduleMap.getMaxFEDSize(); ++fedid) {
       // sanity checks
       if (moduleMap.getFEDReadoutSequences()[fedid].readoutTypes_.empty())         // check if FED exists (non-empty)
@@ -153,7 +154,7 @@ public:
         fed.econds[imod] = mod;  // add to FED's vector<HGCalECONDConfig> of ECON-D modules
       }
 
-      config_->feds.push_back(fed);  // add to config's vector of HGCalFedConfig FEDs
+      config_->feds[fedid] = fed;  // add to config's vector of HGCalFedConfig FEDs
     }
 
     // consistency check
