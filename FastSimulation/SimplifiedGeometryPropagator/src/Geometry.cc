@@ -22,10 +22,10 @@ GeometryConsumer::GeometryConsumer(const edm::ParameterSet& cfg, edm::ConsumesCo
   useTrackerRecoGeometryRecord(cfg.getUntrackedParameter<bool>("useTrackerRecoGeometryRecord", true))
 {
   if (useTrackerRecoGeometryRecord) {
-    geometricSearchTrackerESToken = iC.esConsumes(edm::ESInputTag("", cfg.getUntrackedParameter<std::string>("trackerAlignmentLabel", "")));
+    geometricSearchTrackerESToken = iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", cfg.getUntrackedParameter<std::string>("trackerAlignmentLabel", "")));
   }
   if (!useFixedMagneticFieldZ) {
-    magneticFieldESToken = iC.esConsumes();
+    magneticFieldESToken = iC.esConsumes<edm::Transition::BeginRun>();
   }
 }
 
@@ -35,9 +35,7 @@ Geometry::Geometry(const edm::ParameterSet& cfg,
                    const std::vector<std::string>& interactionModelNames,
                    const edm::EventSetup& iSetup,
                    const GeometryConsumer& consumer)
-    : cacheIdentifierTrackerRecoGeometry_(0),
-      cacheIdentifierIdealMagneticField_(0),
-      geometricSearchTracker_(nullptr),
+    : geometricSearchTracker_(nullptr),
       magneticField_(nullptr),
       fixedMagneticFieldZ_(cfg.getUntrackedParameter<double>("magneticFieldZ", 0.)),
       barrelLayerCfg_(cfg.getParameter<std::vector<edm::ParameterSet>>("BarrelLayers")),
@@ -59,24 +57,20 @@ Geometry::Geometry(const edm::ParameterSet& cfg,
   //----------------
   // find tracker reconstruction geometry
   //----------------
-  if (iSetup.get<TrackerRecoGeometryRecord>().cacheIdentifier() != cacheIdentifierTrackerRecoGeometry_) {
-    if (consumer.useTrackerRecoGeometryRecord) {
-      geometricSearchTracker_ = &iSetup.getData(consumer.geometricSearchTrackerESToken);
-    }
+  if (consumer.useTrackerRecoGeometryRecord) {
+    geometricSearchTracker_ = &iSetup.getData(consumer.geometricSearchTrackerESToken);
   }
 
   //----------------
   // update magnetic field
   //----------------
-  if (iSetup.get<IdealMagneticFieldRecord>().cacheIdentifier() != cacheIdentifierIdealMagneticField_) {
-    if (consumer.useFixedMagneticFieldZ)  // use constant magnetic field
-    {
-      ownedMagneticField_ = std::make_unique<UniformMagneticField>(fixedMagneticFieldZ_);
-      magneticField_ = ownedMagneticField_.get();
-    } else  // get magnetic field from EventSetup
-    {
-      magneticField_ = &iSetup.getData(consumer.magneticFieldESToken);
-    }
+  if (consumer.useFixedMagneticFieldZ)  // use constant magnetic field
+  {
+    ownedMagneticField_ = std::make_unique<UniformMagneticField>(fixedMagneticFieldZ_);
+    magneticField_ = ownedMagneticField_.get();
+  } else  // get magnetic field from EventSetup
+  {
+    magneticField_ = &iSetup.getData(consumer.magneticFieldESToken);
   }
 
   //---------------
@@ -148,11 +142,6 @@ Geometry::Geometry(const edm::ParameterSet& cfg,
       }
     }
   }
-}
-
-bool Geometry::checkCache(const edm::EventSetup& iSetup) const {
-  return iSetup.get<TrackerRecoGeometryRecord>().cacheIdentifier() == cacheIdentifierTrackerRecoGeometry_ &&
-         iSetup.get<IdealMagneticFieldRecord>().cacheIdentifier() == cacheIdentifierIdealMagneticField_;
 }
 
 double fastsim::Geometry::getMagneticFieldZ(const math::XYZTLorentzVector& position) const {

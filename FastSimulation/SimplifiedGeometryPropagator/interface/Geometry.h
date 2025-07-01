@@ -48,9 +48,6 @@ namespace fastsim {
     //! Default destructor.
     ~Geometry();
 
-    //! Checks if the geometry needs to be updated.
-    bool checkCache(const edm::EventSetup& iSetup) const;
-
     //! Initializes the tracker geometry.
     /*!
             Get the field from the MagneticFieldRecord (or set constant if defined in python config)
@@ -151,9 +148,6 @@ namespace fastsim {
         forwardLayers_;  //!< The vector of forward layers (increasing Z-position)
     std::unique_ptr<MagneticField>
         ownedMagneticField_;  //!< Needed to create a uniform magnetic field if speciefied in config
-
-    unsigned long long cacheIdentifierTrackerRecoGeometry_;  //!< Check interval of validity of the tracker geometry
-    unsigned long long cacheIdentifierIdealMagneticField_;   //!< Check interval of validity of the magnetic field
 
     const GeometricSearchTracker* geometricSearchTracker_;  //! The tracker geometry
     const MagneticField* magneticField_;                    //!< The magnetic field
