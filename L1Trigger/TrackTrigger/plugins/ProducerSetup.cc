@@ -50,6 +50,7 @@ namespace tt {
     const edm::ParameterSet& pSetHybrid = iConfig.getParameter<edm::ParameterSet>("Hybrid");
     iConfig_.hybridNumLayers_ = pSetHybrid.getParameter<int>("NumLayers");
     iConfig_.hybridNumRingsPS_ = pSetHybrid.getParameter<std::vector<int>>("NumRingsPS");
+    iConfig_.hybridWidthsND_ = pSetHybrid.getParameter<std::vector<int>>("WidthsND");
     iConfig_.hybridWidthsR_ = pSetHybrid.getParameter<std::vector<int>>("WidthsR");
     iConfig_.hybridWidthsZ_ = pSetHybrid.getParameter<std::vector<int>>("WidthsZ");
     iConfig_.hybridWidthsPhi_ = pSetHybrid.getParameter<std::vector<int>>("WidthsPhi");
@@ -61,6 +62,7 @@ namespace tt {
     iConfig_.hybridLayerRs_ = pSetHybrid.getParameter<std::vector<double>>("LayerRs");
     iConfig_.hybridDiskZs_ = pSetHybrid.getParameter<std::vector<double>>("DiskZs");
     iConfig_.hybridDisk2SRsSet_ = pSetHybrid.getParameter<std::vector<edm::ParameterSet>>("Disk2SRsSet");
+    iConfig_.hybridOffsetRDiskPS_ = pSetHybrid.getParameter<double>("OffsetRDiskPS");
     iConfig_.tbBarrelHalfLength_ = pSetHybrid.getParameter<double>("BarrelHalfLength");
     iConfig_.tbInnerRadius_ = pSetHybrid.getParameter<double>("InnerRadius");
     iConfig_.tbWidthsR_ = pSetHybrid.getParameter<std::vector<int>>("WidthsRTB");

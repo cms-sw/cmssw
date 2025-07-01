@@ -85,6 +85,7 @@ namespace trackerTFP {
     iConfig_.widthC22_ = iConfig.getParameter<int>("WidthC22");
     iConfig_.widthC23_ = iConfig.getParameter<int>("WidthC23");
     iConfig_.widthC33_ = iConfig.getParameter<int>("WidthC33");
+    iConfig_.widthchi2_ = iConfig.getParameter<int>("Widthchi2");
     iConfig_.baseShiftx0_ = iConfig.getParameter<int>("BaseShiftx0");
     iConfig_.baseShiftx1_ = iConfig.getParameter<int>("BaseShiftx1");
     iConfig_.baseShiftx2_ = iConfig.getParameter<int>("BaseShiftx2");
@@ -119,10 +120,17 @@ namespace trackerTFP {
     iConfig_.baseShiftC33_ = iConfig.getParameter<int>("BaseShiftC33");
     iConfig_.baseShiftr0Shifted_ = iConfig.getParameter<int>("BaseShiftr0Shifted");
     iConfig_.baseShiftr1Shifted_ = iConfig.getParameter<int>("BaseShiftr1Shifted");
+    iConfig_.baseShiftr02Shifted_ = iConfig.getParameter<int>("BaseShiftr02Shifted");
+    iConfig_.baseShiftr12Shifted_ = iConfig.getParameter<int>("BaseShiftr12Shifted");
     iConfig_.baseShiftr02_ = iConfig.getParameter<int>("BaseShiftr02");
     iConfig_.baseShiftr12_ = iConfig.getParameter<int>("BaseShiftr12");
     iConfig_.baseShiftchi20_ = iConfig.getParameter<int>("BaseShiftchi20");
     iConfig_.baseShiftchi21_ = iConfig.getParameter<int>("BaseShiftchi21");
+    iConfig_.baseShiftchi2_ = iConfig.getParameter<int>("BaseShiftchi2");
+    iConfig_.baseShiftHv0_ = iConfig.getParameter<int>("BaseShiftHv0");
+    iConfig_.baseShiftHv1_ = iConfig.getParameter<int>("BaseShiftHv1");
+    iConfig_.baseShiftH2v0_ = iConfig.getParameter<int>("BaseShiftH2v0");
+    iConfig_.baseShiftH2v1_ = iConfig.getParameter<int>("BaseShiftH2v1");
     printDebug_ = iConfig.getParameter<bool>("PrintKFDebug");
     const std::string& label = iConfig.getParameter<std::string>("InputLabelKF");
     const std::string& branchStubs = iConfig.getParameter<std::string>("BranchStubs");

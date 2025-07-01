@@ -32,7 +32,11 @@ void Projection::init(Settings const& settings,
   if (layerdisk < N_LAYER) {
     fpgarzproj_.set(irzproj, settings.nzbitsstub(layerdisk), false, __LINE__, __FILE__);
   } else {
-    fpgarzproj_.set(irzproj, settings.nrbitsstub(layerdisk), false, __LINE__, __FILE__);
+    fpgarzproj_.set(irzproj,
+                    settings.nrbitsstub(layerdisk) + 1,
+                    false,
+                    __LINE__,
+                    __FILE__);  // + 1 to account for artificially reduced nrbits from r value offset for diskps stubs
   }
 
   if (layerdisk < N_LAYER) {

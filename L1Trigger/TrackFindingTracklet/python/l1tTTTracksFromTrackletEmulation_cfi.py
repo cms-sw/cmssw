@@ -19,10 +19,11 @@ l1tTTTracksFromTrackletEmulation = cms.EDProducer("L1FPGATrackProducer",
                                                Extended = cms.bool(False),
                                                Reduced = cms.bool(False),
                                                Hnpar = cms.uint32(4),
-                                               # These 3 files only used for extended or reduced mode.
-                                               memoryModulesFile = cms.FileInPath('L1Trigger/TrackFindingTracklet/data/memorymodules_hourglassExtendedAllCombined.dat'),
-                                               processingModulesFile = cms.FileInPath('L1Trigger/TrackFindingTracklet/data/processingmodules_hourglassExtendedAllCombined.dat'),
-                                               wiresFile = cms.FileInPath('L1Trigger/TrackFindingTracklet/data/wires_hourglassExtendedAllCombined.dat'),
+                                               # These 3 files only used for reduced mode and set in Customize_cff.py
+                                               memoryModulesFile = cms.string(""),
+                                               processingModulesFile = cms.string(""),
+                                               wiresFile = cms.string(""),
+                                               wiresJSONFile = cms.string("L1Trigger/TrackFindingTracklet/data/seedWiring.json"),
                                                # Quality Flag and Quality params
                                                TrackQuality = cms.bool(True),
                                                Fakefit = cms.bool(False), # True causes Tracklet reco to output TTTracks before DR & KF

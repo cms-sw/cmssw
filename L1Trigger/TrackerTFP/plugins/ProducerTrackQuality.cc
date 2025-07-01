@@ -29,8 +29,6 @@ namespace trackerTFP {
       iConfig_.weightBinFraction_ = iConfig.getParameter<int>("WeightBinFraction");
       iConfig_.dzTruncation_ = iConfig.getParameter<int>("DzTruncation");
       iConfig_.dphiTruncation_ = iConfig.getParameter<int>("DphiTruncation");
-      iConfig_.widthM20_ = iConfig.getParameter<int>("WidthM20");
-      iConfig_.widthM21_ = iConfig.getParameter<int>("WidthM21");
       iConfig_.widthInvV0_ = iConfig.getParameter<int>("WidthInvV0");
       iConfig_.widthInvV1_ = iConfig.getParameter<int>("WidthInvV1");
       iConfig_.widthchi2rphi_ = iConfig.getParameter<int>("Widthchi2rphi");

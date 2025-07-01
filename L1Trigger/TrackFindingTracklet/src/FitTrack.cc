@@ -14,7 +14,9 @@ using namespace std;
 using namespace trklet;
 
 FitTrack::FitTrack(string name, Settings const& settings, Globals* global)
-    : ProcessBase(name, settings, global), trackfit_(nullptr) {}
+    : ProcessBase(name, settings, global), trackfit_(nullptr) {
+  fullmatch_.resize(N_LAYER + N_DISK);
+}
 
 void FitTrack::addOutput(MemoryBase* memory, string output) {
   if (settings_.writetrace()) {
@@ -42,29 +44,18 @@ void FitTrack::addInput(MemoryBase* memory, string input) {
     seedtracklet_.push_back(tmp);
     return;
   }
-  if (input.substr(0, 10) == "fullmatch1") {
-    auto* tmp = dynamic_cast<FullMatchMemory*>(memory);
-    assert(tmp != nullptr);
-    fullmatch1_.push_back(tmp);
-    return;
-  }
-  if (input.substr(0, 10) == "fullmatch2") {
-    auto* tmp = dynamic_cast<FullMatchMemory*>(memory);
-    assert(tmp != nullptr);
-    fullmatch2_.push_back(tmp);
-    return;
-  }
-  if (input.substr(0, 10) == "fullmatch3") {
-    auto* tmp = dynamic_cast<FullMatchMemory*>(memory);
-    assert(tmp != nullptr);
-    fullmatch3_.push_back(tmp);
-    return;
-  }
-  if (input.substr(0, 10) == "fullmatch4") {
-    auto* tmp = dynamic_cast<FullMatchMemory*>(memory);
-    assert(tmp != nullptr);
-    fullmatch4_.push_back(tmp);
-    return;
+
+  for (unsigned int i = 0; i < N_LAYER + N_DISK; i++) {
+    std::ostringstream oss;
+    oss << "fullmatch" << i << "in";
+    ;
+    auto const& str = oss.str();
+    if (input.substr(0, 11) == str.substr(0, 11)) {
+      auto* tmp = dynamic_cast<FullMatchMemory*>(memory);
+      assert(tmp != nullptr);
+      fullmatch_[i].push_back(tmp);
+      return;
+    }
   }
 
   throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__ << " input = " << input << " not found";
@@ -84,34 +75,12 @@ void FitTrack::trackFitKF(Tracklet* tracklet,
     trackstublist.emplace_back(tracklet->outerFPGAStub());
 
     // Now get ALL matches (can have multiple per layer)
-    for (const auto& i : fullmatch1_) {
-      for (unsigned int j = 0; j < i->nMatches(); j++) {
-        if (i->getTracklet(j)->TCID() == tracklet->TCID()) {
-          trackstublist.push_back(i->getMatch(j).second);
-        }
-      }
-    }
-
-    for (const auto& i : fullmatch2_) {
-      for (unsigned int j = 0; j < i->nMatches(); j++) {
-        if (i->getTracklet(j)->TCID() == tracklet->TCID()) {
-          trackstublist.push_back(i->getMatch(j).second);
-        }
-      }
-    }
-
-    for (const auto& i : fullmatch3_) {
-      for (unsigned int j = 0; j < i->nMatches(); j++) {
-        if (i->getTracklet(j)->TCID() == tracklet->TCID()) {
-          trackstublist.push_back(i->getMatch(j).second);
-        }
-      }
-    }
-
-    for (const auto& i : fullmatch4_) {
-      for (unsigned int j = 0; j < i->nMatches(); j++) {
-        if (i->getTracklet(j)->TCID() == tracklet->TCID()) {
-          trackstublist.push_back(i->getMatch(j).second);
+    for (unsigned int k = 0; k < fullmatch_.size(); k++) {
+      for (const auto& i : fullmatch_[k]) {
+        for (unsigned int j = 0; j < i->nMatches(); j++) {
+          if (i->getTracklet(j)->TCID() == tracklet->TCID()) {
+            trackstublist.push_back(i->getMatch(j).second);
+          }
         }
       }
     }
@@ -880,123 +849,80 @@ void FitTrack::execute(deque<string>& streamTrackRaw,
                        vector<deque<StubStreamData>>& streamsStubRaw,
                        unsigned int iSector) {
   // merge
-  const std::vector<Tracklet*>& matches1 = orderedMatches(fullmatch1_);
-  const std::vector<Tracklet*>& matches2 = orderedMatches(fullmatch2_);
-  const std::vector<Tracklet*>& matches3 = orderedMatches(fullmatch3_);
-  const std::vector<Tracklet*>& matches4 = orderedMatches(fullmatch4_);
+  std::vector<std::vector<Tracklet*>> matches;
+
+  for (unsigned int i = 0; i < fullmatch_.size(); i++) {
+    matches.push_back(orderedMatches(fullmatch_[i]));
+  }
+
+  bool print = getName() == "FT_D1D2" && iSector == 3;
+  print = false;
 
   iSector_ = iSector;
 
-  if (settings_.debugTracklet() && (matches1.size() + matches2.size() + matches3.size() + matches4.size()) > 0) {
-    for (auto& imatch : fullmatch1_) {
-      edm::LogVerbatim("Tracklet") << imatch->getName() << " " << imatch->nMatches();
-    }
-    edm::LogVerbatim("Tracklet") << getName() << " matches : " << matches1.size() << " " << matches2.size() << " "
-                                 << matches3.size() << " " << matches4.size();
-  }
-
-  unsigned int indexArray[4];
-  for (unsigned int i = 0; i < 4; i++) {
+  unsigned int indexArray[N_LAYER + N_DISK];
+  for (unsigned int i = 0; i < N_LAYER + N_DISK; i++) {
     indexArray[i] = 0;
   }
 
-  unsigned int countAll = 0;
+  unsigned int count = 0;
   unsigned int countFit = 0;
+  unsigned int countAll = 0;
+
+  int istep = -1;
 
   Tracklet* bestTracklet = nullptr;
   do {
-    countAll++;
+    istep++;
+    count++;
     bestTracklet = nullptr;
 
-    if (indexArray[0] < matches1.size()) {
-      if (bestTracklet == nullptr) {
-        bestTracklet = matches1[indexArray[0]];
-      } else {
-        if (matches1[indexArray[0]]->TCID() < bestTracklet->TCID())
-          bestTracklet = matches1[indexArray[0]];
-      }
-    }
-
-    if (indexArray[1] < matches2.size()) {
-      if (bestTracklet == nullptr) {
-        bestTracklet = matches2[indexArray[1]];
-      } else {
-        if (matches2[indexArray[1]]->TCID() < bestTracklet->TCID())
-          bestTracklet = matches2[indexArray[1]];
-      }
-    }
-
-    if (indexArray[2] < matches3.size()) {
-      if (bestTracklet == nullptr) {
-        bestTracklet = matches3[indexArray[2]];
-      } else {
-        if (matches3[indexArray[2]]->TCID() < bestTracklet->TCID())
-          bestTracklet = matches3[indexArray[2]];
-      }
-    }
-
-    if (indexArray[3] < matches4.size()) {
-      if (bestTracklet == nullptr) {
-        bestTracklet = matches4[indexArray[3]];
-      } else {
-        if (matches4[indexArray[3]]->TCID() < bestTracklet->TCID())
-          bestTracklet = matches4[indexArray[3]];
+    for (unsigned int i = 0; i < matches.size(); i++) {
+      if (indexArray[i] < matches[i].size()) {
+        if (bestTracklet == nullptr) {
+          bestTracklet = matches[i][indexArray[i]];
+        } else {
+          if (matches[i][indexArray[i]]->TCID() < bestTracklet->TCID()) {
+            bestTracklet = matches[i][indexArray[i]];
+          }
+        }
       }
     }
 
     if (bestTracklet == nullptr)
       break;
 
+    countAll++;
+
     //Counts total number of matched hits
     int nMatches = 0;
 
     //Counts unique hits in each layer
     int nMatchesUniq = 0;
-    bool match = false;
 
-    while (indexArray[0] < matches1.size() && matches1[indexArray[0]] == bestTracklet) {
-      indexArray[0]++;
-      nMatches++;
-      match = true;
+    if (print)
+      std::cout << "istep = " << istep;
+
+    for (unsigned int i = 0; i < matches.size(); i++) {
+      bool match = false;
+      while (indexArray[i] < matches[i].size() && matches[i][indexArray[i]] == bestTracklet) {
+        if (print)
+          std::cout << " match" << i;
+        indexArray[i]++;
+        nMatches++;
+        match = true;
+      }
+
+      if (match)
+        nMatchesUniq++;
     }
-
-    if (match)
-      nMatchesUniq++;
-    match = false;
-
-    while (indexArray[1] < matches2.size() && matches2[indexArray[1]] == bestTracklet) {
-      indexArray[1]++;
-      nMatches++;
-      match = true;
-    }
-
-    if (match)
-      nMatchesUniq++;
-    match = false;
-
-    while (indexArray[2] < matches3.size() && matches3[indexArray[2]] == bestTracklet) {
-      indexArray[2]++;
-      nMatches++;
-      match = true;
-    }
-
-    if (match)
-      nMatchesUniq++;
-    match = false;
-
-    while (indexArray[3] < matches4.size() && matches4[indexArray[3]] == bestTracklet) {
-      indexArray[3]++;
-      nMatches++;
-      match = true;
-    }
-
-    if (match)
-      nMatchesUniq++;
 
     if (settings_.debugTracklet()) {
-      edm::LogVerbatim("Tracklet") << getName() << " : nMatches = " << nMatches << " nMatchesUniq = " << nMatchesUniq
-                                   << " " << asinh(bestTracklet->t());
+      edm::LogVerbatim("Tracklet") << getName() << " : nMatches = " << nMatches << " nMatchesUniq = " << nMatchesUniq;
     }
+
+    if (print)
+      std::cout << " nMatchesUniq = " << nMatchesUniq << std::endl;
 
     std::vector<const Stub*> trackstublist;
     std::vector<std::pair<int, int>> stubidslist;
@@ -1063,14 +989,24 @@ void FitTrack::execute(deque<string>& streamTrackRaw,
         if (bestTracklet->match(ilayer)) {
           const Residual& resid = bestTracklet->resid(ilayer);
           // create bit accurate 64 bit word
+          // Need to extract the corrected r value
           string r = resid.stubptr()->r().str();
           const string& phi = resid.fpgaphiresid().str();
           const string& rz = resid.fpgarzresid().str();
           const L1TStub* stub = resid.stubptr()->l1tstub();
           static constexpr int widthDisk2Sidentifier = 8;
           bool disk2S = (stub->disk() != 0) && (stub->isPSmodule() == 0);
-          if (disk2S)
+          if (disk2S) {
             r = string(widthDisk2Sidentifier, '0') + r;
+            //std::cout << "2s stub : " << r << std::endl;
+          }
+          bool diskPS = (stub->disk() != 0) && (stub->isPSmodule() != 0);
+          if (diskPS) {
+            //  std::cout << "old r: " << r << " new r: " ;
+            FPGAWord tmp(resid.stubptr()->rvalue(), 12);
+            r = tmp.str();
+            //  std::cout << r << std::endl;
+          }
           const string& stubId = resid.fpgastubid().str();
           // store seed, L1TStub, and bit accurate 64 bit word in clock accurate output
           streamsStubRaw[ihit++].emplace_back(seedType, *stub, valid + stubId + r + phi + rz);
@@ -1089,7 +1025,7 @@ void FitTrack::execute(deque<string>& streamTrackRaw,
       }
     }
 
-  } while (bestTracklet != nullptr && countAll < settings_.maxStep("TB"));
+  } while (bestTracklet != nullptr && count < settings_.maxStep("TB"));
 
   if (settings_.writeMonitorData("FT")) {
     globals_->ofstream("fittrack.txt") << getName() << " " << countAll << " " << countFit << endl;

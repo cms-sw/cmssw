@@ -278,7 +278,7 @@ namespace trackerTFP {
   DataFormat makeDataFormat<Variable::phiT, Process::kf>(const tt::Setup* setup) {
     const DataFormat tfp = makeDataFormat<Variable::phiT, Process::tfp>(setup);
     const DataFormat ht = makeDataFormat<Variable::phiT, Process::ht>(setup);
-    const double range = ht.range() + 2. * ht.base();
+    const double range = ht.range();
     const double base = ht.base() * std::pow(2., std::floor(std::log2(tfp.base() / ht.base())));
     const int width = std::ceil(std::log2(range / base));
     return DataFormat(true, width, base, range);
@@ -307,7 +307,7 @@ namespace trackerTFP {
     const DataFormat phi = makeDataFormat<Variable::phi, Process::dtc>(setup);
     const DataFormat phiT = makeDataFormat<Variable::phiT, Process::kf>(setup);
     const DataFormat inv2R = makeDataFormat<Variable::inv2R, Process::kf>(setup);
-    const double range = phiT.base() + setup->maxRphi() * inv2R.base();
+    const double range = 3. * phiT.base() + setup->maxRphi() * 3. * inv2R.base();
     const double base = phi.base();
     const int width = std::ceil(std::log2(range / base));
     return DataFormat(true, width, base, range);

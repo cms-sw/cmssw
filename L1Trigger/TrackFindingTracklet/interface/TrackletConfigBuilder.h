@@ -15,6 +15,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
+#include "nlohmann/json.hpp"
 
 namespace tt {
   class Setup;
@@ -35,8 +36,17 @@ namespace trklet {
     // memories and processing modules
     //
 
+    // Separate displaced seed string into layers/disks
+    void setLayDiskStr(std::string& layerdisk1, std::string& layerdisk2, std::string& layerdisk3, std::string seed);
+
     //Seed string, eg. L1L2
     std::string iSeedStr(unsigned int iSeed) const;
+
+    //Seed int value
+    unsigned int strSeedInt(std::string strSeed) const;
+
+    //TB string, AAAA or BBBB
+    std::string iTBStr(unsigned int iTB) const;
 
     //Return unsigned as string
     static std::string numStr(unsigned int i);
@@ -44,11 +54,17 @@ namespace trklet {
     //Return iTC as string - ie A, B, C, etc
     std::string iTCStr(unsigned int iTC) const;
 
+    //Return iTC as string - ie AB, CD, ABC, etc
+    static std::string iMergedTCStr(unsigned int iSeed, unsigned int iMergedTC);
+
     //The region string A, B, C etc for layers and disks; X, Y, Z etc for overlap
     std::string iRegStr(unsigned int iReg, unsigned int iSeed) const;
 
     //TC Name
     std::string TCName(unsigned int iSeed, unsigned int iTC) const;
+
+    //TC Name
+    std::string PCName(unsigned int iSeed, unsigned int iMergedTC) const;
 
     //Name of layer or disk, e.g. L1 or D1
     static std::string LayerName(unsigned int ilayer);
@@ -56,8 +72,11 @@ namespace trklet {
     //Tracklet projection name
     std::string TPROJName(unsigned int iSeed, unsigned int iTC, unsigned int ilayer, unsigned int ireg) const;
 
-    //Projection router name
-    std::string PRName(unsigned int ilayer, unsigned int ireg) const;
+    //Merged tracklet projection name
+    std::string MPROJName(unsigned int iSeed, unsigned int iTC, unsigned int ilayer, unsigned int ireg) const;
+
+    //MatchProcessor name
+    std::string MPName(unsigned int ilayer, unsigned int ireg) const;
 
   private:
     //
@@ -199,29 +218,35 @@ namespace trklet {
     //
     // This group of methods are used to print out the configuration as a file
     //
-    void writeProjectionMemories(std::ostream& os, std::ostream& memories, std::ostream& modules);
+    void writeProjectionMemoriesExt(std::ostream& os, std::ostream& memories, std::ostream& modules);
 
-    void writeSPMemories(std::ostream& os, std::ostream& memories, std::ostream& modules);
+    void writeMergedProjectionMemories(std::ostream& os, std::ostream& memories, std::ostream& modules);
 
     void writeSPDMemories(std::ostream& os, std::ostream& memories, std::ostream& modules);
 
-    void writeAPMemories(std::ostream& os, std::ostream& memories, std::ostream& modules);
-
-    void writeCMMemories(std::ostream& os, std::ostream& memories, std::ostream& modules);
-
-    void writeVMPROJMemories(std::ostream& os, std::ostream& memories, std::ostream& modules);
-
     void writeFMMemories(std::ostream& os, std::ostream& memories, std::ostream& modules);
+
+    void writeFMMemoriesExt(std::ostream& os, std::ostream& memories, std::ostream& modules);
 
     void writeASMemories(std::ostream& os, std::ostream& memories, std::ostream& modules);
 
+    void writeASMemoriesExt(std::ostream& os, std::ostream& memories, std::ostream& modules);
+
     void writeVMSMemories(std::ostream& os, std::ostream& memories, std::ostream& modules);
+
+    void writeVMSMemoriesExt(std::ostream& os, std::ostream& memories, std::ostream& modules);
 
     void writeTPARMemories(std::ostream& os, std::ostream& memories, std::ostream& modules);
 
+    void writeTPARMemoriesExt(std::ostream& os, std::ostream& memories, std::ostream& modules);
+
     void writeTFMemories(std::ostream& os, std::ostream& memories, std::ostream& modules);
 
+    void writeTFMemoriesExt(std::ostream& os, std::ostream& memories, std::ostream& modules);
+
     void writeCTMemories(std::ostream& os, std::ostream& memories, std::ostream& modules);
+
+    void writeCTMemoriesExt(std::ostream& os, std::ostream& memories, std::ostream& modules);
 
     void writeILMemories(std::ostream& os, std::ostream& memories, std::ostream& modules);
 
@@ -232,8 +257,7 @@ namespace trklet {
     unsigned int NSector_;  //Number of sectors
     double rcrit_;          //critical radius that defines the sector
 
-    bool duplicateMPs_;     //if true write configuration with MPs duplicated for L3,L4
-    bool combinedmodules_;  //if true write configuration for combined modules
+    bool duplicateMPs_;  //if true write configuration with MPs duplicated for L3,L4
 
     bool extended_;  //if true write configuration for extended configuration
 
@@ -245,11 +269,11 @@ namespace trklet {
 
     double dphisectorHG_;  //Full sector width
 
-    unsigned int NTC_[N_SEED_PROMPT];  //Number of TC per seeding combination
+    unsigned int NTC_[N_SEED];  //Number of TC per seeding combination
 
-    unsigned int NRegions_[N_LAYER + N_DISK];                     //Regions (all stubs memories 6 layers +5 disks
-    unsigned int NVMME_[N_LAYER + N_DISK];                        //Number of MEs (all stubs memories 6 layers +5 disks
-    std::pair<unsigned int, unsigned int> NVMTE_[N_SEED_PROMPT];  //number of TEs for each seeding combination
+    unsigned int NRegions_[N_LAYER + N_DISK];              //Regions (all stubs memories 6 layers +5 disks
+    unsigned int NVMME_[N_LAYER + N_DISK];                 //Number of MEs (all stubs memories 6 layers +5 disks
+    std::pair<unsigned int, unsigned int> NVMTE_[N_SEED];  //number of TEs for each seeding combination
 
     //Min and max phi for a phi region (e.g. all stubs)
     std::vector<std::pair<double, double> > allStubs_[N_LAYER + N_DISK];
@@ -258,28 +282,37 @@ namespace trklet {
     std::vector<std::pair<double, double> > VMStubsME_[N_LAYER + N_DISK];
 
     //Phi ranges for the stubs in the VM bins used in the pair in th TE
-    std::pair<std::vector<std::pair<double, double> >, std::vector<std::pair<double, double> > >
-        VMStubsTE_[N_SEED_PROMPT];
+    std::pair<std::vector<std::pair<double, double> >, std::vector<std::pair<double, double> > > VMStubsTE_[N_SEED];
 
     // VM bin in inner/outer seeding layer of each TE.
-    std::vector<std::pair<unsigned int, unsigned int> > TE_[N_SEED_PROMPT];
+    std::vector<std::pair<unsigned int, unsigned int> > TE_[N_SEED];
 
     //The ID of all TE that send data to TCs for each seeding combination
-    std::vector<std::vector<unsigned int> > TC_[N_SEED_PROMPT];
+    std::vector<std::vector<unsigned int> > TC_[N_SEED];
 
     //The projections to each layer/disk from a seed and TC
     std::vector<std::vector<std::pair<unsigned int, unsigned int> > > projections_[N_LAYER + N_DISK];
 
     //Which matches are used for each seeding layer
-    //                                                L1 L2 L3 L4 L5 L6 D1 D2 D3 D4 D5
-    int matchport_[N_SEED_PROMPT][N_LAYER + N_DISK] = {{-1, -1, 1, 2, 3, 4, 4, 3, 2, 1, -1},       //L1L2
-                                                       {1, -1, -1, 2, 3, -1, 4, 3, 2, 1, -1},      //L2L3
-                                                       {1, 2, -1, -1, 3, 4, 4, 3, -1, -1, -1},     //L3L4
-                                                       {1, 2, 3, 4, -1, -1, -1, -1, -1, -1, -1},   //L5L6
-                                                       {1, 2, -1, -1, -1, -1, -1, -1, 2, 3, 4},    //D1D2
-                                                       {1, -1, -1, -1, -1, -1, 2, 3, -1, -1, 4},   //D3D4
-                                                       {-1, -1, -1, -1, -1, -1, -1, 1, 2, 3, 4},   //L1D1
-                                                       {1, -1, -1, -1, -1, -1, -1, 2, 3, 4, -1}};  //L2D1
+    //                                            L1 L2 L3 L4 L5 L6 D1 D2 D3 D4 D5
+    int matchport_[N_SEED][N_LAYER + N_DISK] = {{-1, -1, 1, 2, 3, 4, 4, 3, 2, 1, -1},       //L1L2
+                                                {1, -1, -1, 2, 3, -1, 4, 3, 2, 1, -1},      //L2L3
+                                                {1, 2, -1, -1, 3, 4, 4, 3, -1, -1, -1},     //L3L4
+                                                {1, 2, 3, 4, -1, -1, -1, -1, -1, -1, -1},   //L5L6
+                                                {1, 2, -1, -1, -1, -1, -1, -1, 2, 3, 4},    //D1D2
+                                                {1, -1, -1, -1, -1, -1, 2, 3, -1, -1, 4},   //D3D4
+                                                {-1, -1, -1, -1, -1, -1, -1, 1, 2, 3, 4},   //L1D1
+                                                {1, -1, -1, -1, -1, -1, -1, 2, 3, 4, -1},   //L2D1
+                                                {1, -1, -1, -1, 2, 3, 4, 3, 2, -1, -1},     //L3L4L2
+                                                {1, 2, 3, -1, -1, -1, -1, -1, -1, -1, -1},  //L5L6L4
+                                                {1, -1, -1, 2, -1, -1, -1, 4, 3, 2, -1},    //L2L3D1
+                                                {1, -1, 4, -1, -1, -1, -1, -1, 2, 3, 4}};   //D1D2L2
+
+    //allStub, VMStub, and projection wires for the displaced tracking
+    nlohmann::ordered_json seedwires_;
+
+    //Which seeds handled by each TB
+    int tbseed_[N_TB][4] = {{0, 1, 3, 7}, {2, 4, 5, 6}};
 
     struct DTCinfo {
       std::string name;

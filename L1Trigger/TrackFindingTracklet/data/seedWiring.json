@@ -1,0 +1,1296 @@
+//wirings are mapped out visually at https://docs.google.com/spreadsheets/d/1ow6LUQcHBjiv58O9RcVDPsNyrHE15uPbJlvaEiZV9HQ/edit?gid=0#gid=0
+{
+  "L3L4L2": { //split into A-J phi region TPD instances
+    "A": {
+      "innerstub": [ //L2 split into A-D phi regions
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A6"
+      ],
+      "middlestub": [ //L3 split into A-D phi regions
+        "A"
+      ],
+      "outerstub": [ //L4 split into A-D phi regions
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A6",
+        "A7",
+        "A8",
+        "B9"
+      ],
+      "projections": [ //seed projection into other layers/disks
+        "L1PHIA",
+        "L1PHIB",
+        "L1PHIC",
+        "L5PHIA",
+        "L5PHIB",
+        "L6PHIA",
+        "L6PHIB",
+        "D1PHIA",
+        "D1PHIB",
+        "D2PHIA",
+        "D2PHIB",
+        "D3PHIA",
+        "D3PHIB"
+      ]
+    },
+    "B": {
+      "innerstub": [
+        "A7",
+        "A8",
+        "B9",
+        "B10"
+      ],
+      "middlestub": [
+        "A"
+      ],
+      "outerstub": [
+        "A4",
+        "A5",
+        "A6",
+        "A7",
+        "A8",
+        "B9"
+      ],
+      "projections": [
+        "L1PHIA",
+        "L1PHIB",
+        "L1PHIC",
+        "L5PHIA",
+        "L5PHIB",
+        "L6PHIA",
+        "L6PHIB",
+        "L6PHIC",
+        "D1PHIA",
+        "D1PHIB",
+        "D1PHIC",
+        "D2PHIA",
+        "D2PHIB",
+        "D2PHIC",
+        "D3PHIA",
+        "D3PHIB",
+        "D3PHIC"
+      ]
+    },
+    "C": {
+      "innerstub": [
+        "A7",
+        "A8",
+        "B9",
+        "B10"
+      ],
+      "middlestub": [
+        "B"
+      ],
+      "outerstub": [
+        "A8",
+        "B9",
+        "B10",
+        "B11",
+        "B12",
+        "B13"
+      ],
+      "projections": [
+        "L1PHIB",
+        "L1PHIC",
+        "L5PHIA",
+        "L5PHIB",
+        "L6PHIA",
+        "L6PHIB",
+        "L6PHIC",
+        "D1PHIA",
+        "D1PHIB",
+        "D1PHIC",
+        "D2PHIA",
+        "D2PHIB",
+        "D2PHIC",
+        "D3PHIA",
+        "D3PHIB",
+        "D3PHIC"
+      ]
+    },
+    "D": {
+      "innerstub": [
+        "B11",
+        "B12",
+        "B13",
+        "B14"
+      ],
+      "middlestub": [
+        "B"
+      ],
+      "outerstub": [
+        "A8",
+        "B9",
+        "B10",
+        "B11",
+        "B12",
+        "B13",
+        "B14",
+        "B15",
+        "B16",
+        "C17"
+      ],
+      "projections": [
+        "L1PHIB",
+        "L1PHIC",
+        "L1PHID",
+        "L1PHIE",
+        "L5PHIA",
+        "L5PHIB",
+        "L5PHIC",
+        "L6PHIA",
+        "L6PHIB",
+        "L6PHIC",
+        "D1PHIA",
+        "D1PHIB",
+        "D1PHIC",
+        "D2PHIA",
+        "D2PHIB",
+        "D2PHIC",
+        "D3PHIA",
+        "D3PHIB",
+        "D3PHIC"
+      ]
+    },
+    "E": {
+      "innerstub": [
+        "B15",
+        "B16",
+        "C17",
+        "C18"
+      ],
+      "middlestub": [
+        "B"
+      ],
+      "outerstub": [
+        "B12",
+        "B13",
+        "B14",
+        "B15",
+        "B16",
+        "C17"
+      ],
+      "projections": [
+        "L1PHIB",
+        "L1PHIC",
+        "L1PHID",
+        "L1PHIE",
+        "L5PHIA",
+        "L5PHIB",
+        "L5PHIC",
+        "L6PHIA",
+        "L6PHIB",
+        "L6PHIC",
+        "L6PHID",
+        "D1PHIB",
+        "D1PHIC",
+        "D1PHID",
+        "D2PHIA",
+        "D2PHIB",
+        "D2PHIC",
+        "D2PHID",
+        "D3PHIA",
+        "D3PHIB",
+        "D3PHIC",
+        "D3PHID"
+      ]
+    },
+    "F": {
+      "innerstub": [
+        "B15",
+        "B16",
+        "C17",
+        "C18"
+      ],
+      "middlestub": [
+        "C"
+      ],
+      "outerstub": [
+        "B16",
+        "C17",
+        "C18",
+        "C19",
+        "C20",
+        "C21"
+      ],
+      "projections": [
+        "L1PHID",
+        "L1PHIE",
+        "L1PHIF",
+        "L1PHIG",
+        "L5PHIB",
+        "L5PHIC",
+        "L5PHID",
+        "L6PHIB",
+        "L6PHIC",
+        "L6PHID",
+        "D1PHIB",
+        "D1PHIC",
+        "D1PHID",
+        "D2PHIB",
+        "D2PHIC",
+        "D2PHID",
+        "D3PHIB",
+        "D3PHIC",
+        "D3PHID"
+      ]
+    },
+    "G": {
+      "innerstub": [
+        "C19",
+        "C20",
+        "C21",
+        "C22"
+      ],
+      "middlestub": [
+        "C"
+      ],
+      "outerstub": [
+        "B16",
+        "C17",
+        "C18",
+        "C19",
+        "C20",
+        "C21",
+        "C22",
+        "C23",
+        "C24",
+        "D25"
+      ],
+      "projections": [
+        "L1PHID",
+        "L1PHIE",
+        "L1PHIF",
+        "L1PHIG",
+        "L5PHIB",
+        "L5PHIC",
+        "L5PHID",
+        "L6PHIB",
+        "L6PHIC",
+        "L6PHID",
+        "D1PHIB",
+        "D1PHIC",
+        "D1PHID",
+        "D2PHIC",
+        "D2PHID",
+        "D3PHIB",
+        "D3PHIC",
+        "D3PHID"
+      ]
+    },
+    "H": {
+      "innerstub": [
+        "C23",
+        "C24",
+        "D25",
+        "D26"
+      ],
+      "middlestub": [
+        "C"
+      ],
+      "outerstub": [
+        "C20",
+        "C21",
+        "C22",
+        "C23",
+        "C24",
+        "D25"
+      ],
+      "projections": [
+        "L1PHIF",
+        "L1PHIG",
+        "L5PHIC",
+        "L5PHID",
+        "L6PHIC",
+        "L6PHID",
+        "D1PHIC",
+        "D1PHID",
+        "D2PHIC",
+        "D2PHID",
+        "D3PHIC",
+        "D3PHID"
+      ]
+    },
+    "I": {
+      "innerstub": [
+        "C23",
+        "C24",
+        "D25",
+        "D26"
+      ],
+      "middlestub": [
+        "D"
+      ],
+      "outerstub": [
+        "C24",
+        "D25",
+        "D26",
+        "D27",
+        "D28",
+        "D29"
+      ],
+      "projections": [
+        "L1PHIF",
+        "L1PHIG",
+        "L1PHIH",
+        "L5PHIC",
+        "L5PHID",
+        "L6PHIC",
+        "L6PHID",
+        "D1PHIC",
+        "D1PHID",
+        "D2PHIC",
+        "D2PHID",
+        "D3PHIC",
+        "D3PHID"
+      ]
+    },
+    "J": {
+      "innerstub": [
+        "D27",
+        "D28",
+        "D29",
+        "D30",
+        "D31",
+        "D32"
+      ],
+      "middlestub": [
+        "D"
+      ],
+      "outerstub": [
+        "C24",
+        "D25",
+        "D26",
+        "D27",
+        "D28",
+        "D29",
+        "D30",
+        "D31",
+        "D32"
+      ],
+      "projections": [
+        "L1PHIF",
+        "L1PHIG",
+        "L1PHIH",
+        "L5PHID",
+        "L6PHIC",
+        "L6PHID",
+        "D1PHIC",
+        "D1PHID",
+        "D2PHIC",
+        "D2PHID",
+        "D3PHIC",
+        "D3PHID"
+      ]
+    }
+  },
+  "L5L6L4": { //split into A-J phi region TPD instances
+    "A": {
+      "innerstub": [ //L4 split into A-D phi regions
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A6"
+      ],
+      "middlestub": [ //L5 split into A-D phi regions
+        "A"
+      ],
+      "outerstub": [ //L6 split into A-D phi regions
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A6",
+        "A7",
+        "A8",
+        "B9"
+      ],
+      "projections": [ //seed projection into other layers/disks
+        "L1PHIA",
+        "L1PHIB",
+        "L2PHIA",
+        "L3PHIA",
+        "L3PHIB"
+      ]
+    },
+    "B": {
+      "innerstub": [
+        "A7",
+        "A8",
+        "B9",
+        "B10"
+      ],
+      "middlestub": [
+        "A"
+      ],
+      "outerstub": [
+        "A4",
+        "A5",
+        "A6",
+        "A7",
+        "A8",
+        "B9"
+      ],
+      "projections": [
+        "L1PHIA",
+        "L1PHIB",
+        "L1PHIC",
+        "L2PHIA",
+        "L2PHIB",
+        "L3PHIA",
+        "L3PHIB"
+      ]
+    },
+    "C": {
+      "innerstub": [
+        "A7",
+        "A8",
+        "B9",
+        "B10"
+      ],
+      "middlestub": [
+        "B"
+      ],
+      "outerstub": [
+        "A8",
+        "B9",
+        "B10",
+        "B11",
+        "B12",
+        "B13"
+      ],
+      "projections": [
+        "L1PHIA",
+        "L1PHIB",
+        "L1PHIC",
+        "L1PHID",
+        "L2PHIA",
+        "L2PHIB",
+        "L3PHIA",
+        "L3PHIB"
+      ]
+    },
+    "D": {
+      "innerstub": [
+        "B11",
+        "B12",
+        "B13",
+        "B14"
+      ],
+      "middlestub": [
+        "B"
+      ],
+      "outerstub": [
+        "A8",
+        "B9",
+        "B10",
+        "B11",
+        "B12",
+        "B13",
+        "B14",
+        "B15",
+        "B16",
+        "C17"
+      ],
+      "projections": [
+        "L1PHIA",
+        "L1PHIB",
+        "L1PHIC",
+        "L1PHID",
+        "L1PHIE",
+        "L2PHIA",
+        "L2PHIB",
+        "L2PHIC",
+        "L3PHIA",
+        "L3PHIB",
+        "L3PHIC"
+      ]
+    },
+    "E": {
+      "innerstub": [
+        "B15",
+        "B16",
+        "C17",
+        "C18"
+      ],
+      "middlestub": [
+        "B"
+      ],
+      "outerstub": [
+        "B12",
+        "B13",
+        "B14",
+        "B15",
+        "B16",
+        "C17"
+      ],
+      "projections": [
+        "L1PHIB",
+        "L1PHIC",
+        "L1PHID",
+        "L1PHIE",
+        "L2PHIB",
+        "L2PHIC",
+        "L3PHIB",
+        "L3PHIC"
+      ]
+    },
+    "F": {
+      "innerstub": [
+        "B15",
+        "B16",
+        "C17",
+        "C18"
+      ],
+      "middlestub": [
+        "C"
+      ],
+      "outerstub": [
+        "B16",
+        "C17",
+        "C18",
+        "C19",
+        "C20",
+        "C21"
+      ],
+      "projections": [
+        "L1PHIC",
+        "L1PHID",
+        "L1PHIE",
+        "L1PHIF",
+        "L1PHIG",
+        "L2PHIB",
+        "L2PHIC",
+        "L3PHIB",
+        "L3PHIC"
+      ]
+    },
+    "G": {
+      "innerstub": [
+        "C19",
+        "C20",
+        "C21",
+        "C22"
+      ],
+      "middlestub": [
+        "C"
+      ],
+      "outerstub": [
+        "B16",
+        "C17",
+        "C18",
+        "C19",
+        "C20",
+        "C21",
+        "C22",
+        "C23",
+        "C24",
+        "D25"
+      ],
+      "projections": [
+        "L1PHIC",
+        "L1PHID",
+        "L1PHIE",
+        "L1PHIF",
+        "L1PHIG",
+        "L2PHIB",
+        "L2PHIC",
+        "L2PHID",
+        "L3PHIB",
+        "L3PHIC",
+        "L3PHID"
+      ]
+    },
+    "H": {
+      "innerstub": [
+        "C23",
+        "C24",
+        "D25",
+        "D26"
+      ],
+      "middlestub": [
+        "C"
+      ],
+      "outerstub": [
+        "C20",
+        "C21",
+        "C22",
+        "C23",
+        "C24",
+        "D25"
+      ],
+      "projections": [
+        "L1PHIE",
+        "L1PHIF",
+        "L1PHIG",
+        "L1PHIH",
+        "L2PHIC",
+        "L2PHID",
+        "L3PHIC",
+        "L3PHID"
+      ]
+    },
+    "I": {
+      "innerstub": [
+        "C23",
+        "C24",
+        "D25",
+        "D26"
+      ],
+      "middlestub": [
+        "D"
+      ],
+      "outerstub": [
+        "C24",
+        "D25",
+        "D26",
+        "D27",
+        "D28",
+        "D29"
+      ],
+      "projections": [
+        "L1PHIE",
+        "L1PHIF",
+        "L1PHIG",
+        "L1PHIH",
+        "L2PHIC",
+        "L2PHID",
+        "L3PHIC",
+        "L3PHID"
+      ]
+    },
+    "J": {
+      "innerstub": [
+        "D27",
+        "D28",
+        "D29",
+        "D30",
+        "D31",
+        "D32"
+      ],
+      "middlestub": [
+        "D"
+      ],
+      "outerstub": [
+        "C24",
+        "D25",
+        "D26",
+        "D27",
+        "D28",
+        "D29",
+        "D30",
+        "D31",
+        "D32"
+      ],
+      "projections": [
+        "L1PHIE",
+        "L1PHIF",
+        "L1PHIG",
+        "L1PHIH",
+        "L2PHIC",
+        "L2PHID",
+        "L3PHIC",
+        "L3PHID"
+      ]
+    }
+  },
+  "L2L3D1": { //split into A-J phi region TPD instances
+    "A": {
+      "innerstub": [ //D1 split into x,y,z,w phi regions
+        "x1",
+        "x2",
+        "x3",
+        "x4",
+        "y5"
+      ],
+      "middlestub": [ //L2 split into A-D phi regions
+        "A"
+      ],
+      "outerstub": [ //L3 split into a-d phi regions
+        "a1",
+        "a2",
+        "a3"
+      ],
+      "projections": [ //seed projection into other layers/disks
+        "L1PHIA",
+        "L1PHIB",
+        "L1PHIC",
+        "L4PHIA",
+        "L4PHIB",
+        "D2PHIA",
+        "D2PHIB",
+        "D3PHIA",
+        "D3PHIB",
+        "D4PHIA",
+        "D4PHIB"
+      ]
+    },
+    "B": {
+      "innerstub": [
+        "x3",
+        "x4",
+        "y5",
+        "y6",
+        "y7"
+      ],
+      "middlestub": [
+        "A"
+      ],
+      "outerstub": [
+        "a4",
+        "b5"
+      ],
+      "projections": [
+        "L1PHIA",
+        "L1PHIB",
+        "L1PHIC",
+        "L4PHIA",
+        "L4PHIB",
+        "D2PHIB",
+        "D3PHIB",
+        "D4PHIB"
+      ]
+    },
+    "C": {
+      "innerstub": [
+        "x2",
+        "x3",
+        "x4",
+        "y5",
+        "y6"
+      ],
+      "middlestub": [
+        "B"
+      ],
+      "outerstub": [
+        "a4",
+        "b5"
+      ],
+      "projections": [
+        "L1PHIA",
+        "L1PHIB",
+        "L1PHIC",
+        "L4PHIA",
+        "D2PHIA",
+        "D2PHIB",
+        "D3PHIA",
+        "D3PHIB",
+        "D4PHIA",
+        "D4PHIB"
+      ]
+    },
+    "D": {
+      "innerstub": [
+        "x4",
+        "y5",
+        "y6",
+        "y7",
+        "y8",
+        "z9"
+      ],
+      "middlestub": [
+        "B"
+      ],
+      "outerstub": [
+        "b6",
+        "b7"
+      ],
+      "projections": [
+        "L1PHIA",
+        "L1PHIB",
+        "L1PHIC",
+        "L1PHID",
+        "L1PHIE",
+        "L4PHIA",
+        "L4PHIB",
+        "L4PHIC",
+        "D2PHIA",
+        "D2PHIB",
+        "D2PHIC",
+        "D3PHIA",
+        "D3PHIB",
+        "D3PHIC",
+        "D4PHIA",
+        "D4PHIB",
+        "D4PHIC"
+      ]
+    },
+    "E": {
+      "innerstub": [
+        "y7",
+        "y8",
+        "z9",
+        "z10",
+        "z11"
+      ],
+      "middlestub": [
+        "B"
+      ],
+      "outerstub": [
+        "b8",
+        "c9"
+      ],
+      "projections": [
+        "L1PHIC",
+        "L1PHID",
+        "L1PHIE",
+        "L4PHIB",
+        "L4PHIC",
+        "D2PHIC",
+        "D3PHIC",
+        "D4PHIC"
+      ]
+    },
+    "F": {
+      "innerstub": [
+        "y6",
+        "y7",
+        "y8",
+        "z9",
+        "z10"
+      ],
+      "middlestub": [
+        "C"
+      ],
+      "outerstub": [
+        "b8",
+        "c9"
+      ],
+      "projections": [
+        "L1PHIB",
+        "L1PHIC",
+        "L1PHID",
+        "L1PHIE",
+        "L4PHIB",
+        "D2PHIB",
+        "D2PHIC",
+        "D3PHIB",
+        "D3PHIC",
+        "D4PHIB",
+        "D4PHIC"
+      ]
+    },
+    "G": {
+      "innerstub": [
+        "y8",
+        "z9",
+        "z10",
+        "z11",
+        "z12",
+        "w13"
+      ],
+      "middlestub": [
+        "C"
+      ],
+      "outerstub": [
+        "c10",
+        "c11"
+      ],
+      "projections": [
+        "L1PHIB",
+        "L1PHIC",
+        "L1PHID",
+        "L1PHIE",
+        "L1PHIF",
+        "L1PHIG",
+        "L4PHIB",
+        "L4PHIC",
+        "L4PHID",
+        "D2PHIB",
+        "D2PHIC",
+        "D2PHID",
+        "D3PHIB",
+        "D3PHIC",
+        "D3PHID",
+        "D4PHIB",
+        "D4PHIC",
+        "D4PHID"
+      ]
+    },
+    "H": {
+      "innerstub": [
+        "z11",
+        "z12",
+        "w13",
+        "w14",
+        "w15"
+      ],
+      "middlestub": [
+        "C"
+      ],
+      "outerstub": [
+        "c12",
+        "d13"
+      ],
+      "projections": [
+        "L1PHIE",
+        "L1PHIF",
+        "L1PHIG",
+        "L4PHID",
+        "D2PHID",
+        "D3PHID",
+        "D4PHID"
+      ]
+    },
+    "I": {
+      "innerstub": [
+        "z10",
+        "z11",
+        "z12",
+        "w13",
+        "w14"
+      ],
+      "middlestub": [
+        "D"
+      ],
+      "outerstub": [
+        "c12",
+        "d13"
+      ],
+      "projections": [
+        "L1PHID",
+        "L1PHIE",
+        "L1PHIF",
+        "L1PHIG",
+        "L4PHIC",
+        "D2PHIC",
+        "D2PHID",
+        "D3PHIC",
+        "D3PHID",
+        "D4PHIC",
+        "D4PHID"
+      ]
+    },
+    "J": {
+      "innerstub": [
+        "z12",
+        "w13",
+        "w14",
+        "w15",
+        "w16"
+      ],
+      "middlestub": [
+        "D"
+      ],
+      "outerstub": [
+        "d14",
+        "d15",
+        "d16"
+      ],
+      "projections": [
+        "L1PHID",
+        "L1PHIE",
+        "L1PHIF",
+        "L1PHIG",
+        "L1PHIH",
+        "L4PHIC",
+        "L4PHID",
+        "D2PHIC",
+        "D2PHID",
+        "D3PHIC",
+        "D3PHID",
+        "D4PHIC",
+        "D4PHID"
+      ]
+    }
+  },
+  "D1D2L2": { //split into A-J phi region TPD instances
+    "A": {
+      "innerstub": [ //L2 split into x,y,z,w phi regions
+        "x1",
+        "x2"
+      ],
+      "middlestub": [ //D1 split into A-D phi regions
+        "A"
+      ],
+      "outerstub": [ //D2 split into A-D phi regions
+        "A1",
+        "A2",
+        "A3"
+      ],
+      "projections": [ //seed projection into other layers/disks
+        "L1PHIA",
+        "L1PHIB",
+        "L1PHIC",
+        "L3PHIA",
+        "L3PHIB",
+        "D3PHIA",
+        "D3PHIB",
+        "D4PHIA",
+        "D4PHIB",
+        "D5PHIA",
+        "D5PHIB"
+      ]
+    },
+    "B": {
+      "innerstub": [
+        "x2",
+        "y3"
+      ],
+      "middlestub": [
+        "A"
+      ],
+      "outerstub": [
+        "A4",
+        "B5",
+        "B6"
+      ],
+      "projections": [
+        "L1PHIA",
+        "L1PHIB",
+        "L1PHIC",
+        "L3PHIA",
+        "L3PHIB",
+        "D3PHIA",
+        "D3PHIB",
+        "D3PHIC",
+        "D4PHIA",
+        "D4PHIB",
+        "D4PHIC",
+        "D5PHIA",
+        "D5PHIB",
+        "D5PHIC"
+      ]
+    },
+    "C": {
+      "innerstub": [
+        "x2",
+        "y3"
+      ],
+      "middlestub": [
+        "B"
+      ],
+      "outerstub": [
+        "A3",
+        "A4",
+        "B5"
+      ],
+      "projections": [
+        "L1PHIB",
+        "L1PHIC",
+        "L1PHID",
+        "L1PHIE",
+        "L3PHIA",
+        "L3PHIB",
+        "L3PHIC",
+        "D3PHIA",
+        "D3PHIB",
+        "D3PHIC",
+        "D4PHIA",
+        "D4PHIB",
+        "D4PHIC",
+        "D5PHIA",
+        "D5PHIB",
+        "D5PHIC"
+      ]
+    },
+    "D": {
+      "innerstub": [
+        "y3",
+        "y4"
+      ],
+      "middlestub": [
+        "B"
+      ],
+      "outerstub": [
+        "B6",
+        "B7"
+      ],
+      "projections": [
+        "L1PHIB",
+        "L1PHIC",
+        "L1PHID",
+        "L1PHIE",
+        "L3PHIA",
+        "L3PHIB",
+        "L3PHIC",
+        "D3PHIB",
+        "D3PHIC",
+        "D4PHIA",
+        "D4PHIB",
+        "D4PHIC",
+        "D5PHIA",
+        "D5PHIB",
+        "D5PHIC"
+      ]
+    },
+    "E": {
+      "innerstub": [
+        "y4",
+        "z5"
+      ],
+      "middlestub": [
+        "B"
+      ],
+      "outerstub": [
+        "B8",
+        "C9",
+        "C10"
+      ],
+      "projections": [
+        "L1PHID",
+        "L1PHIE",
+        "L3PHIB",
+        "L3PHIC",
+        "D3PHIB",
+        "D3PHIC",
+        "D3PHID",
+        "D4PHIB",
+        "D4PHIC",
+        "D4PHID",
+        "D5PHIB",
+        "D5PHIC",
+        "D5PHID"
+      ]
+    },
+    "F": {
+      "innerstub": [
+        "y4",
+        "z5"
+      ],
+      "middlestub": [
+        "C"
+      ],
+      "outerstub": [
+        "B7",
+        "B8",
+        "C9"
+      ],
+      "projections": [
+        "L1PHID",
+        "L1PHIE",
+        "L1PHIF",
+        "L1PHIG",
+        "L3PHIC",
+        "L3PHID",
+        "D3PHIB",
+        "D3PHIC",
+        "D3PHID",
+        "D4PHIB",
+        "D4PHIC",
+        "D4PHID",
+        "D5PHIB",
+        "D5PHIC",
+        "D5PHID"
+      ]
+    },
+    "G": {
+      "innerstub": [
+        "z5",
+        "z6"
+      ],
+      "middlestub": [
+        "C"
+      ],
+      "outerstub": [
+        "C10",
+        "C11"
+      ],
+      "projections": [
+        "L1PHID",
+        "L1PHIE",
+        "L1PHIF",
+        "L1PHIG",
+        "L3PHIB",
+        "L3PHIC",
+        "L3PHID",
+        "D3PHIB",
+        "D3PHIC",
+        "D3PHID",
+        "D4PHIC",
+        "D4PHID",
+        "D5PHIB",
+        "D5PHIC",
+        "D5PHID"
+      ]
+    },
+    "H": {
+      "innerstub": [
+        "z6",
+        "w7"
+      ],
+      "middlestub": [
+        "C"
+      ],
+      "outerstub": [
+        "C12",
+        "D13",
+        "D14"
+      ],
+      "projections": [
+        "L1PHIF",
+        "L1PHIG",
+        "L3PHIC",
+        "L3PHID",
+        "D3PHIC",
+        "D3PHID",
+        "D4PHIC",
+        "D4PHID",
+        "D5PHIC",
+        "D5PHID"
+      ]
+    },
+    "I": {
+      "innerstub": [
+        "z6",
+        "w7"
+      ],
+      "middlestub": [
+        "D"
+      ],
+      "outerstub": [
+        "C11",
+        "C12",
+        "D13"
+      ],
+      "projections": [
+        "L1PHIF",
+        "L1PHIG",
+        "L1PHIH",
+        "L3PHIC",
+        "L3PHID",
+        "D3PHIC",
+        "D3PHID",
+        "D4PHIC",
+        "D4PHID",
+        "D5PHIC",
+        "D5PHID"
+      ]
+    },
+    "J": {
+      "innerstub": [
+        "w7",
+        "w8"
+      ],
+      "middlestub": [
+        "D"
+      ],
+      "outerstub": [
+        "D14",
+        "D15",
+        "D16"
+      ],
+      "projections": [
+        "L1PHIF",
+        "L1PHIG",
+        "L1PHIH",
+        "L3PHIC",
+        "L3PHID",
+        "D3PHID",
+        "D4PHIC",
+        "D4PHID",
+        "D5PHID"
+      ]
+    }
+  }
+}

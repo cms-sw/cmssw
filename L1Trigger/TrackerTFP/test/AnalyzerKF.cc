@@ -82,6 +82,8 @@ namespace trackerTFP {
     bool useMCTruth_;
     //
     int nEvents_ = 0;
+    //
+    int numRegions_;
 
     // Histograms
 
@@ -145,6 +147,7 @@ namespace trackerTFP {
     // helper class to store configurations
     setup_ = &iSetup.getData(esGetTokenSetup_);
     dataFormats_ = &iSetup.getData(esGetTokenDataFormats_);
+    numRegions_ = setup_->numRegions();
     // book histograms
     edm::Service<TFileService> fs;
     TFileDirectory dir;

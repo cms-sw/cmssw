@@ -61,12 +61,13 @@ namespace trackerTFP {
     C22,
     C23,
     C33,
-    r0Shifted,
-    r1Shifted,
     r02,
     r12,
+    r02Shifted,
+    r12Shifted,
     chi20,
     chi21,
+    chi2,
     dH,
     invdH,
     invdH2,
@@ -94,6 +95,7 @@ namespace trackerTFP {
     int widthC22_;
     int widthC23_;
     int widthC33_;
+    int widthchi2_;
     int baseShiftx0_;
     int baseShiftx1_;
     int baseShiftx2_;
@@ -128,10 +130,17 @@ namespace trackerTFP {
     int baseShiftC33_;
     int baseShiftr0Shifted_;
     int baseShiftr1Shifted_;
+    int baseShiftr02Shifted_;
+    int baseShiftr12Shifted_;
     int baseShiftr02_;
     int baseShiftr12_;
     int baseShiftchi20_;
     int baseShiftchi21_;
+    int baseShiftchi2_;
+    int baseShiftHv0_;
+    int baseShiftHv1_;
+    int baseShiftH2v0_;
+    int baseShiftH2v1_;
   };
 
   class DataFormatKF {
@@ -268,17 +277,19 @@ namespace trackerTFP {
   template <>
   DataFormatKF makeDataFormat<VariableKF::C33>(const DataFormats* dataFormats, const ConfigKF& iConfig);
   template <>
-  DataFormatKF makeDataFormat<VariableKF::r0Shifted>(const DataFormats* dataFormats, const ConfigKF& iConfig);
-  template <>
-  DataFormatKF makeDataFormat<VariableKF::r1Shifted>(const DataFormats* dataFormats, const ConfigKF& iConfig);
-  template <>
   DataFormatKF makeDataFormat<VariableKF::r02>(const DataFormats* dataFormats, const ConfigKF& iConfig);
   template <>
   DataFormatKF makeDataFormat<VariableKF::r12>(const DataFormats* dataFormats, const ConfigKF& iConfig);
   template <>
+  DataFormatKF makeDataFormat<VariableKF::r02Shifted>(const DataFormats* dataFormats, const ConfigKF& iConfig);
+  template <>
+  DataFormatKF makeDataFormat<VariableKF::r12Shifted>(const DataFormats* dataFormats, const ConfigKF& iConfig);
+  template <>
   DataFormatKF makeDataFormat<VariableKF::chi20>(const DataFormats* dataFormats, const ConfigKF& iConfig);
   template <>
   DataFormatKF makeDataFormat<VariableKF::chi21>(const DataFormats* dataFormats, const ConfigKF& iConfig);
+  template <>
+  DataFormatKF makeDataFormat<VariableKF::chi2>(const DataFormats* dataFormats, const ConfigKF& iConfig);
 
   template <>
   DataFormatKF makeDataFormat<VariableKF::dH>(const DataFormats* dataFormats, const ConfigKF& iConfig);

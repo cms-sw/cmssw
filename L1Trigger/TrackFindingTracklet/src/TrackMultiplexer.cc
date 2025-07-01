@@ -124,7 +124,7 @@ namespace trklet {
           hw >>= widthR;
           const TTBV hwStubId(hw, channelAssignment_->tmWidthStubId(), 0, false);
           const int stubId = hwStubId.val();
-          double r = hwR.val(baseR) + (barrel ? setup_->hybridLayerR(indexLayerId) : 0.);
+          double r = hwR.val(baseR) + (barrel ? setup_->hybridLayerR(indexLayerId) : 0.0);
           if (type == tt::SensorModule::Disk2S)
             r = setup_->disk2SR(indexLayerId, r);
           r = digi(r - setup_->chosenRofPhi(), baseUr_);

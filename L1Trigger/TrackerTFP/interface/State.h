@@ -29,8 +29,32 @@ namespace trackerTFP {
           const TTBV& maybe,
           int trackId);
     // updated state constructor
-    State(State* state, const std::vector<double>& doubles);
-    // combinatoric and seed building state constructor
+    State(State* state,
+          double x0,
+          double x1,
+          double x2,
+          double x3,
+          double C00,
+          double C01,
+          double C11,
+          double C22,
+          double C23,
+          double C33,
+          double chi20,
+          double chi21);
+    // seed state constructor
+    State(State* state,
+          double x0,
+          double x1,
+          double x2,
+          double x3,
+          double C00,
+          double C01,
+          double C11,
+          double C22,
+          double C23,
+          double C33);
+    // combinatoric state constructor
     State(State* state, State* parent, Stub* stub, int layer);
     ~State() = default;
     //
@@ -95,7 +119,7 @@ namespace trackerTFP {
     double v0() const { return stub_->v0_; }
     // squared stub projected z uncertainty instead of wheight (wrong but simpler)
     double v1() const { return stub_->v1_; }
-    //const std::vector<std::vector<StubCTB*>>& stubs() const { return stubs_; }
+    const std::vector<std::vector<Stub*>>& stubs() const { return stubs_; }
 
   private:
     //
@@ -123,24 +147,24 @@ namespace trackerTFP {
     // shows which layer the found track has stubs on
     TTBV trackPattern_;
     // helix inv2R wrt input helix
-    double x0_ = 0.;
+    double x0_;
     // helix phi at radius ChosenRofPhi wrt input helix
-    double x1_ = 0.;
+    double x1_;
     // helix cot(Theta) wrt input helix
-    double x2_ = 0.;
+    double x2_;
     // helix z at radius chosenRofZ wrt input helix
-    double x3_ = 0.;
+    double x3_;
     // chi2 for the r-phi plane straight line fit
-    double chi20_ = 0.;
+    double chi20_;
     // chi2 for the r-z plane straight line fit
-    double chi21_ = 0.;
+    double chi21_;
     // cov. matrix
-    double C00_ = 9.e9;
-    double C01_ = 0.;
-    double C11_ = 9.e9;
-    double C22_ = 9.e9;
-    double C23_ = 0.;
-    double C33_ = 9.e9;
+    double C00_;
+    double C01_;
+    double C11_;
+    double C22_;
+    double C23_;
+    double C33_;
   };
 
 }  // namespace trackerTFP

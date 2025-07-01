@@ -102,8 +102,8 @@ namespace trackerTFP {
       ttStubRefs.push_back(frameStub.first);
       const double m20 = tq->format(VariableTQ::m20).digi(std::pow(stub.phi(), 2));
       const double m21 = tq->format(VariableTQ::m21).digi(std::pow(stub.z(), 2));
-      const double invV0 = tq->format(VariableTQ::invV0).digi(1. / std::pow(stub.dPhi(), 2));
-      const double invV1 = tq->format(VariableTQ::invV1).digi(1. / std::pow(stub.dZ(), 2));
+      const double invV0 = tq->format(VariableTQ::invV0).digi(1. / std::pow(2. * stub.dPhi(), 2));
+      const double invV1 = tq->format(VariableTQ::invV1).digi(1. / std::pow(2. * stub.dZ(), 2));
       const double stubchi2rphi = tq->format(VariableTQ::chi2rphi).digi(m20 * invV0);
       const double stubchi2rz = tq->format(VariableTQ::chi2rz).digi(m21 * invV1);
       trackchi2rphi += stubchi2rphi;
@@ -151,7 +151,9 @@ namespace trackerTFP {
         bdt.decision_function({cot, z0, chi2B, nstub, n_missint, chi2rphi, chi2rz});
     const float mva = output[0].to_float();
     // fill frame
-    TTBV ttBV = hitPattern;
+    std::string hits = hitPattern.str();
+    std::reverse(hits.begin(), hits.end());
+    TTBV ttBV(hits);
     ttBV += TTBV(tq->toBinMVA(mva), widthMVA_);
     tq->format(VariableTQ::chi2rphi).attach(trackchi2rphi, ttBV);
     tq->format(VariableTQ::chi2rz).attach(trackchi2rz, ttBV);
@@ -161,33 +163,37 @@ namespace trackerTFP {
   template <>
   DataFormat makeDataFormat<VariableTQ::m20>(const DataFormats* dataFormats, const ConfigTQ& iConfig) {
     const DataFormat phi = makeDataFormat<Variable::phi, Process::kf>(dataFormats->setup());
-    const int width = iConfig.widthM20_;
-    const double base = std::pow(phi.base(), 2) * pow(2., width - phi.width());
-    const double range = base * std::pow(2, width);
+    const int width = 2 * phi.width();
+    const double base = std::pow(phi.base(), 2);
+    const double range = std::pow(phi.range(), 2) / 4.;
     return DataFormat(false, width, base, range);
   }
   template <>
   DataFormat makeDataFormat<VariableTQ::m21>(const DataFormats* dataFormats, const ConfigTQ& iConfig) {
     const DataFormat z = makeDataFormat<Variable::z, Process::gp>(dataFormats->setup());
-    const int width = iConfig.widthM21_;
-    const double base = std::pow(z.base(), 2) * std::pow(2., width - z.width());
-    const double range = base * std::pow(2, width);
+    const int width = 2 * z.width();
+    const double base = std::pow(z.base(), 2);
+    const double range = std::pow(z.range(), 2) / 4.;
     return DataFormat(false, width, base, range);
   }
   template <>
   DataFormat makeDataFormat<VariableTQ::invV0>(const DataFormats* dataFormats, const ConfigTQ& iConfig) {
     const DataFormat dPhi = makeDataFormat<Variable::dPhi, Process::ctb>(dataFormats->setup());
     const int width = iConfig.widthInvV0_;
-    const double range = 4.0 / std::pow(dPhi.base(), 2);
-    const double base = range * std::pow(2, -width);
+    double base = std::pow(dPhi.base(), -2);
+    const double range = base * std::pow(2, width) / (std::pow(2, width) - 1);
+    const int shift = std::ceil(std::log2(range / base)) - width;
+    base *= std::pow(2, shift);
     return DataFormat(false, width, base, range);
   }
   template <>
   DataFormat makeDataFormat<VariableTQ::invV1>(const DataFormats* dataFormats, const ConfigTQ& iConfig) {
     const DataFormat dZ = makeDataFormat<Variable::dZ, Process::ctb>(dataFormats->setup());
     const int width = iConfig.widthInvV1_;
-    const double range = 4.0 / std::pow(dZ.base(), 2);
-    const double base = range * std::pow(2, -width);
+    double base = std::pow(dZ.base(), -2);
+    const double range = base * std::pow(2, width) / (std::pow(2, width) - 1);
+    const int shift = std::ceil(std::log2(range / base)) - width;
+    base *= std::pow(2, shift);
     return DataFormat(false, width, base, range);
   }
   template <>

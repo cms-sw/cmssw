@@ -38,6 +38,7 @@ namespace tt {
         // Hybrid specific parameter
         hybridNumLayers_(iConfig.hybridNumLayers_),
         hybridNumRingsPS_(iConfig.hybridNumRingsPS_),
+        hybridWidthsND_(iConfig.hybridWidthsND_),
         hybridWidthsR_(iConfig.hybridWidthsR_),
         hybridWidthsZ_(iConfig.hybridWidthsZ_),
         hybridWidthsPhi_(iConfig.hybridWidthsPhi_),
@@ -49,6 +50,7 @@ namespace tt {
         hybridLayerRs_(iConfig.hybridLayerRs_),
         hybridDiskZs_(iConfig.hybridDiskZs_),
         hybridDisk2SRsSet_(iConfig.hybridDisk2SRsSet_),
+        hybridOffsetRDiskPS_(iConfig.hybridOffsetRDiskPS_),
         tbBarrelHalfLength_(iConfig.tbBarrelHalfLength_),
         tbInnerRadius_(iConfig.tbInnerRadius_),
         tbWidthsR_(iConfig.tbWidthsR_),
@@ -591,9 +593,10 @@ namespace tt {
       hybridBasesAlpha_.emplace_back(hybridRangesAlpha_.at(type) / std::pow(2., hybridWidthsAlpha_.at(type)));
     hybridNumsUnusedBits_.reserve(SensorModule::NumTypes);
     for (int type = 0; type < SensorModule::NumTypes; type++)
-      hybridNumsUnusedBits_.emplace_back(TTBV::S_ - hybridWidthsR_.at(type) - hybridWidthsZ_.at(type) -
-                                         hybridWidthsPhi_.at(type) - hybridWidthsAlpha_.at(type) -
-                                         hybridWidthsBend_.at(type) - hybridWidthLayerId_ - 1);
+      hybridNumsUnusedBits_.emplace_back(TTBV::S_ - hybridWidthsND_.at(type) - hybridWidthsR_.at(type) -
+                                         hybridWidthsZ_.at(type) - hybridWidthsPhi_.at(type) -
+                                         hybridWidthsAlpha_.at(type) - hybridWidthsBend_.at(type) -
+                                         hybridWidthLayerId_ - 1);
     hybridBaseR_ = *std::min_element(hybridBasesR_.begin(), hybridBasesR_.end());
     hybridBasePhi_ = *std::min_element(hybridBasesPhi_.begin(), hybridBasesPhi_.end());
     hybridBaseZ_ = *std::min_element(hybridBasesZ_.begin(), hybridBasesZ_.end());

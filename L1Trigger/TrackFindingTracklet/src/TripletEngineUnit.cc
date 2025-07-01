@@ -68,18 +68,30 @@ void TripletEngineUnit::step() {
   const VMStubTE& outervmstub = outervmstubs_[outmem_]->getVMStubTEBinned(ibin_out, istub_out_);
   const VMStubTE& innervmstub = innervmstubs_[inmem_]->getVMStubTEBinned(ibin_in, istub_in_);
 
-  // check if r/z of outer stub is within projection range
-  int rzbin = (outervmstub.vmbits().value() & (settings_->NLONGVMBINS() - 1));
-  if (trpdata_.start_out_ != ibin_out)
-    rzbin += 8;
-  if (rzbin < trpdata_.rzbinfirst_out_ || rzbin - trpdata_.rzbinfirst_out_ > trpdata_.rzdiffmax_out_) {
+  // check if r/z of outer/inner stubs is within projection range
+  int rzbin_out = (outervmstub.vmbits().value() & (settings_->NLONGVMBINS() - 1));
+  int rzbin_in = (innervmstub.vmbits().value() & (settings_->NLONGVMBINS() - 1));
+
+  if (trpdata_.start_out_ != ibin_out)  // if looking at the "next" bin
+    rzbin_out += (1 << NFINERZBITS);
+  if (rzbin_out < trpdata_.rzbinfirst_out_ || rzbin_out - trpdata_.rzbinfirst_out_ > trpdata_.rzdiffmax_out_) {
     if (settings_->debugTracklet()) {
       edm::LogVerbatim("Tracklet") << "Outer stub rejected because of wrong r/z bin";
     }
-  } else {
-    candtriplet_ =
-        std::tuple<const Stub*, const Stub*, const Stub*>(innervmstub.stub(), trpdata_.stub_, outervmstub.stub());
-    goodtriplet_ = true;
+  } else {  // condition on outer stub satisfied
+    if ((trpdata_.start_in_ != ibin_in))
+      rzbin_in += (1 << NFINERZBITS);
+
+    if (rzbin_in < trpdata_.rzbinfirst_in_ || rzbin_in - trpdata_.rzbinfirst_in_ > trpdata_.rzdiffmax_in_) {
+      if (settings_->debugTracklet()) {
+        edm::LogVerbatim("Tracklet") << "Inner stub rejected because of wrong r/z bin";
+      }
+    } else {  // condition on both inner and outer stubs satisfied
+
+      candtriplet_ =
+          std::tuple<const Stub*, const Stub*, const Stub*>(innervmstub.stub(), trpdata_.stub_, outervmstub.stub());
+      goodtriplet_ = true;
+    }
   }
 
   // go to next projection (looping through all inner stubs for each outer stub)

@@ -33,38 +33,79 @@ namespace trackerTFP {
     layer_ = trackPattern_.plEncode();
     stub_ = stubs_[layer_].front();
     hitPattern_.set(layer_);
+    chi20_ = formats_->format(VariableKF::chi20).digi(0);
+    chi21_ = formats_->format(VariableKF::chi21).digi(0);
   }
 
   // updated state constructor
-  State::State(State* state, const std::vector<double>& doubles) : State(state) {
+  State::State(State* state,
+               double x0,
+               double x1,
+               double x2,
+               double x3,
+               double C00,
+               double C01,
+               double C11,
+               double C22,
+               double C23,
+               double C33,
+               double chi20,
+               double chi21)
+      : State(state) {
     parent_ = state;
     // updated track parameter and uncertainties
-    x0_ = doubles[0];
-    x1_ = doubles[1];
-    x2_ = doubles[2];
-    x3_ = doubles[3];
-    chi20_ = doubles[4];
-    chi21_ = doubles[5];
-    C00_ = doubles[6];
-    C11_ = doubles[7];
-    C22_ = doubles[8];
-    C33_ = doubles[9];
-    C01_ = doubles[10];
-    C23_ = doubles[11];
+    x0_ = x0;
+    x1_ = x1;
+    x2_ = x2;
+    x3_ = x3;
+    chi20_ = chi20;
+    chi21_ = chi21;
+    C00_ = C00;
+    C11_ = C11;
+    C22_ = C22;
+    C33_ = C33;
+    C01_ = C01;
+    C23_ = C23;
     // pick next stub (first stub in next layer with stub)
     stub_ = nullptr;
+    layer_ = trackPattern_.plEncode(layer_ + 1, setup_->numLayers());
     if (hitPattern_.count() >= setup_->kfMinLayers() || hitPattern_.count() == setup_->kfMaxLayers()) {
       layer_ = 0;
       return;
     }
-    layer_ = trackPattern_.plEncode(layer_ + 1, setup_->numLayers());
     if (layer_ == setup_->numLayers())
       return;
     stub_ = stubs_[layer_].front();
     hitPattern_.set(layer_);
   }
 
-  // combinatoric and seed building state constructor
+  // seed state constructor
+  State::State(State* state,
+               double x0,
+               double x1,
+               double x2,
+               double x3,
+               double C00,
+               double C01,
+               double C11,
+               double C22,
+               double C23,
+               double C33)
+      : State(state) {
+    // seed track parameter and uncertainties
+    x0_ = x0;
+    x1_ = x1;
+    x2_ = x2;
+    x3_ = x3;
+    C00_ = C00;
+    C11_ = C11;
+    C22_ = C22;
+    C33_ = C33;
+    C01_ = C01;
+    C23_ = C23;
+  }
+
+  // combinatoric state constructor
   State::State(State* state, State* parent, Stub* stub, int layer) : State(state) {
     parent_ = parent;
     stub_ = stub;
@@ -95,8 +136,8 @@ namespace trackerTFP {
       return &states.back();
     }
     // skip this layer
-    const int nextLayer = trackPattern_.plEncode(layer + 1, setup_->numLayers());
-    if (gapCheck(nextLayer)) {
+    if (gapCheck(layer)) {
+      const int nextLayer = trackPattern_.plEncode(layer + 1, setup_->numLayers());
       states.emplace_back(this, parent_, stubs_[nextLayer].front(), nextLayer);
       return &states.back();
     }
@@ -124,8 +165,8 @@ namespace trackerTFP {
       return &states.back();
     }
     // handle skip
-    const int nextLayer = trackPattern_.plEncode(layer + 1, setup_->numLayers());
-    if (gapCheck(nextLayer)) {
+    if (gapCheck(layer)) {
+      const int nextLayer = trackPattern_.plEncode(layer + 1, setup_->numLayers());
       states.emplace_back(this, parent_, stubs_[nextLayer].front(), nextLayer);
       return &states.back();
     }
@@ -143,7 +184,8 @@ namespace trackerTFP {
       if (k == setup_->kfMaxSeedingLayer())
         if (hits < setup_->kfNumSeedStubs())
           return false;
-      if (hitPattern_[k]) {
+      const TTBV& pattern = k < layer ? hitPattern_ : trackPattern_;
+      if (k != layer && pattern[k]) {
         gap = false;
         if (++hits >= setup_->kfMinLayers() && k >= layer)
           return true;

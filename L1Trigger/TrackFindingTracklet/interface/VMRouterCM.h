@@ -79,9 +79,6 @@ namespace trklet {
     std::vector<AllStubsMemory*> allstubs_;
     std::vector<std::pair<char, AllInnerStubsMemory*> > allinnerstubs_;
 
-    //The VM stubs memories used by the MEs
-    std::vector<VMStubsMEMemory*> vmstubsMEPHI_;
-
     //The VM stubs memories used by the TEs (using structure defined above)
     std::vector<VMStubsTEPHICM> vmstubsTEPHI_;
   };

@@ -15,7 +15,7 @@ def setupUseTMTT(process):
   process.TrackTriggerSetup.CleanTrackBuilder.MaxStubs    =  4       # cut on number of stub per layer for input candidates
   process.TrackTriggerSetup.KalmanFilter.NumWorker        =  4       # number of kf worker
   process.TrackTriggerSetup.KalmanFilter.MaxLayers        =  8       # maximum number of  layers added to a track
-  process.TrackTriggerSetup.KalmanFilter.MaxSeedingLayer  =  3       # perform seeding in layers 0 to this
+  process.TrackTriggerSetup.KalmanFilter.MaxSeedingLayer  =  4       # perform seeding in layers 0 to this
   process.TrackTriggerSetup.KalmanFilter.MaxGaps          =  2       # maximum number of layer gaps allowed during cominatorical track building
   process.TrackTriggerSetup.KalmanFilter.ShiftChi20       =  0       # shiting chi2 in r-phi plane by power of two when caliclating chi2
   process.TrackTriggerSetup.KalmanFilter.ShiftChi21       =  0       # shiting chi2 in r-z plane by power of two when caliclating chi2

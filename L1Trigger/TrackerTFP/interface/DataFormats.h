@@ -241,7 +241,7 @@ namespace trackerTFP {
           Process::x,
           Process::gp,
           Process::x,
-          Process::gp,
+          Process::x,
           Process::kf,
           Process::dr,
           Process::tfp}},  // Variable::cot

@@ -23,13 +23,12 @@ TrackQuality_params = cms.PSet(
   WeightBinFraction = cms.int32(      0 ), # Number of bits dropped from dphi and dz for v0 and v1 LUTs
   DzTruncation      = cms.int32( 262144 ), # Constant used in FW to prevent 32-bit int overflow
   DphiTruncation    = cms.int32(     16 ), # Constant used in FW to prevent 32-bit int overflow
-  WidthM20          = cms.int32(     16 ), #
-  WidthM21          = cms.int32(     16 ), #
-  WidthInvV0        = cms.int32(     16 ), #
-  WidthInvV1        = cms.int32(     16 ), #
-  Widthchi2rphi     = cms.int32(     20 ), #
-  Widthchi2rz       = cms.int32(     20 ), #
-  BaseShiftchi2rphi = cms.int32(     -6 ), #
-  BaseShiftchi2rz   = cms.int32(     -6 )  #
+
+  WidthInvV0        = cms.int32(     16 ), # Number of bits used for looked up inverse phi uncertainty squared
+  WidthInvV1        = cms.int32(     16 ), # Number of bits used for looked up inverse z uncertainty squared
+  Widthchi2rphi     = cms.int32(     20 ), # Number of bits used to represent chi2rphi
+  Widthchi2rz       = cms.int32(     20 ), # Number of bits used to represent chi2rz
+  BaseShiftchi2rphi = cms.int32(    -10 ), # Base of chi2rphi gets shifted by that power of 2 w.r.t 1
+  BaseShiftchi2rz   = cms.int32(    -10 )  # Base of chi2rz gets shifted by that power of 2 w.r.t 1
 
 )

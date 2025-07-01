@@ -48,8 +48,6 @@ namespace trackerTFP {
     int weightBinFraction_;
     int dzTruncation_;
     int dphiTruncation_;
-    int widthM20_;
-    int widthM21_;
     int widthInvV0_;
     int widthInvV1_;
     int widthchi2rphi_;
@@ -78,7 +76,7 @@ namespace trackerTFP {
   DataFormat makeDataFormat<VariableTQ::chi2rz>(const DataFormats* dataFormats, const ConfigTQ& iConfig);
 
   /*! \class  trackerTFP::TrackQuality
-   *  \brief  Bit accurate emulation of the track quality BDT
+   *  \brief  Bit accurate emulation of the track quality BDT including calculation of chi2s.
    *  \author C.Brown
    *  \date   28/07/20
    *  \update 2024, June by Claire Savard

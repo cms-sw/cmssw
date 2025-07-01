@@ -53,6 +53,7 @@ namespace tt {
       int tmttWidthZ_;
       int hybridNumLayers_;
       std::vector<int> hybridNumRingsPS_;
+      std::vector<int> hybridWidthsND_;
       std::vector<int> hybridWidthsR_;
       std::vector<int> hybridWidthsZ_;
       std::vector<int> hybridWidthsPhi_;
@@ -65,6 +66,7 @@ namespace tt {
       std::vector<double> hybridDiskZs_;
       std::vector<edm::ParameterSet> hybridDisk2SRsSet_;
       double hybridRangePhi_;
+      double hybridOffsetRDiskPS_;
       double tbBarrelHalfLength_;
       double tbInnerRadius_;
       std::vector<int> tbWidthsR_;
@@ -395,8 +397,10 @@ namespace tt {
 
     // Hybrid specific parameter
 
-    // max number of layer connected to one DTC
-    double hybridNumLayers() const { return hybridNumLayers_; }
+    // max number of detector layer connected to one DTC
+    int hybridNumLayers() const { return hybridNumLayers_; }
+    // number of bits used for stub negative disk (w.r.t. z region of detector) boolean for module types (barrelPS, barrel2S, diskPS, disk2S)
+    int hybridWidthND(SensorModule::Type type) const { return hybridWidthsND_.at(type); }
     // number of bits used for stub r w.r.t layer/disk centre for module types (barrelPS, barrel2S, diskPS, disk2S)
     int hybridWidthR(SensorModule::Type type) const { return hybridWidthsR_.at(type); }
     // number of bits used for stub z w.r.t layer/disk centre for module types (barrelPS, barrel2S, diskPS, disk2S)
@@ -434,6 +438,8 @@ namespace tt {
     double hybridRangePhi() const { return hybridRangePhi_; }
     // range of stub r in cm
     double hybridRangeR() const { return hybridRangesR_[SensorModule::DiskPS]; }
+    // radial offset in cm applied to dsik PS stubs
+    double hybridOffsetRDiskPS() const { return hybridOffsetRDiskPS_; }
     // biggest barrel stub z position after TrackBuilder in cm
     double tbBarrelHalfLength() const { return tbBarrelHalfLength_; }
     // smallest stub radius after TrackBuilder in cm
@@ -721,6 +727,8 @@ namespace tt {
     int hybridNumLayers_;
     // number of outer PS rings for disk 1, 2, 3, 4, 5
     std::vector<int> hybridNumRingsPS_;
+    // number of bits used for stub negative disk (w.r.t. z region of detector) boolean for module types (barrelPS, barrel2S, diskPS, disk2S)
+    std::vector<int> hybridWidthsND_;
     // number of bits used for stub r w.r.t layer/disk centre for module types (barrelPS, barrel2S, diskPS, disk2S)
     std::vector<int> hybridWidthsR_;
     // number of bits used for stub z w.r.t layer/disk centre for module types (barrelPS, barrel2S, diskPS, disk2S)
@@ -745,6 +753,8 @@ namespace tt {
     std::vector<edm::ParameterSet> hybridDisk2SRsSet_;
     // range of stub phi in rad
     double hybridRangePhi_;
+    // radial offset in cm applied to dsik PS stubs
+    double hybridOffsetRDiskPS_;
     // biggest barrel stub z position after TrackBuilder in cm
     double tbBarrelHalfLength_;
     // smallest stub radius after TrackBuilder in cm

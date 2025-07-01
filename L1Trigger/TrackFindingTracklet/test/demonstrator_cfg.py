@@ -31,7 +31,8 @@ process.tt = cms.Sequence (  process.ProducerDTC
                            + process.L1THybridTracks
                            + process.ProducerTM
                            + process.ProducerDR
-                           #+ process.ProducerKF
+                           + process.ProducerKF
+                           + process.ProducerTQ
                           )
 process.demo = cms.Path( process.tt + process.TrackerTFPDemonstrator )
 process.schedule = cms.Schedule( process.demo )
