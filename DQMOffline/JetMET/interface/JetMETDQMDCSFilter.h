@@ -18,7 +18,8 @@
 class JetMETDQMDCSFilter {
 public:
   JetMETDQMDCSFilter(const edm::ParameterSet&, edm::ConsumesCollector&);
-  JetMETDQMDCSFilter(const std::string& detectorTypes,
+  JetMETDQMDCSFilter(const edm::ParameterSet&,
+                     const std::string& detectorTypes,
                      edm::ConsumesCollector&,
                      const bool verbose = false,
                      const bool alwaysPass = false);
@@ -35,6 +36,8 @@ private:
   bool verbose_;
   bool filter_;
   bool detectorOn_;
+  edm::InputTag scalersSrc_;
+  edm::InputTag onlineMetaDataDigiSrc_;
   std::string detectorTypes_;
   std::map<std::string, std::vector<int>> associationMap_;
   std::map<std::string, bool> passPerDet_;
