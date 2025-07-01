@@ -14,6 +14,7 @@ fastSimProducer = cms.EDProducer(
     simulateCalorimetry = cms.bool(True),
     simulateMuons = cms.bool(True),
     useFastSimDecayer = cms.bool(False),
+    verboseDecayer = cms.bool(False),
     caloDefinition = CaloMaterialBlock.CaloMaterial, #  Hack to interface "old" calorimetry with "new" propagation in tracker
     beamPipeRadius = cms.double(3.),
     deltaRchargedMother = cms.double(0.02), # Maximum angle to associate a charged daughter to a charged mother (mostly done to associate muons to decaying pions)

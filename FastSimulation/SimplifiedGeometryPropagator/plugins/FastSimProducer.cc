@@ -128,6 +128,7 @@ FastSimProducer::FastSimProducer(const edm::ParameterSet& iConfig)
                    iConfig.getParameter<edm::ParameterSet>("GFlash")),
       simulateMuons_(iConfig.getParameter<bool>("simulateMuons")),
       useFastSimDecayer_(iConfig.getParameter<bool>("useFastSimDecayer")),
+      decayer_(iConfig.getParameter<bool>("verboseDecayer")),
       particleDataTableESToken_(esConsumes()) {
 
   //----------------
