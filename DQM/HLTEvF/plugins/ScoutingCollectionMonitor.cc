@@ -94,6 +94,7 @@ private:
   const edm::EDGetTokenT<std::vector<Run3ScoutingElectron>> electronsToken_;
   const edm::EDGetTokenT<std::vector<Run3ScoutingVertex>> primaryVerticesToken_;
   const edm::EDGetTokenT<std::vector<Run3ScoutingVertex>> verticesToken_;
+  const edm::EDGetTokenT<std::vector<Run3ScoutingVertex>> verticesNoVtxToken_;
   const edm::EDGetTokenT<std::vector<Run3ScoutingPhoton>> photonsToken_;
   const edm::EDGetTokenT<double> rhoToken_;
   const edm::EDGetTokenT<double> pfMetPhiToken_;
@@ -236,7 +237,7 @@ private:
   dqm::reco::MonitorElement* sMin_ele_hist;
   dqm::reco::MonitorElement* sMaj_ele_hist;
 
-  // muon histograms (index 0: noVtx, index1: Vtx
+  // muon histograms (index 0: noVtx, index1: Vtx)
   dqm::reco::MonitorElement* pt_mu_hist[2];
   dqm::reco::MonitorElement* eta_mu_hist[2];
   dqm::reco::MonitorElement* phi_mu_hist[2];
@@ -329,20 +330,20 @@ private:
   dqm::reco::MonitorElement* xzCov_pv_hist;
   dqm::reco::MonitorElement* yzCov_pv_hist;
 
-  // displaced vertex histograms
-  dqm::reco::MonitorElement* x_vtx_hist;
-  dqm::reco::MonitorElement* y_vtx_hist;
-  dqm::reco::MonitorElement* z_vtx_hist;
-  dqm::reco::MonitorElement* zError_vtx_hist;
-  dqm::reco::MonitorElement* xError_vtx_hist;
-  dqm::reco::MonitorElement* yError_vtx_hist;
-  dqm::reco::MonitorElement* tracksSize_vtx_hist;
-  dqm::reco::MonitorElement* chi2_vtx_hist;
-  dqm::reco::MonitorElement* ndof_vtx_hist;
-  dqm::reco::MonitorElement* isValidVtx_vtx_hist;
-  dqm::reco::MonitorElement* xyCov_vtx_hist;
-  dqm::reco::MonitorElement* xzCov_vtx_hist;
-  dqm::reco::MonitorElement* yzCov_vtx_hist;
+  // displaced vertex histograms (index 0: Vtx, index1: NoVtx)
+  dqm::reco::MonitorElement* x_vtx_hist[2];
+  dqm::reco::MonitorElement* y_vtx_hist[2];
+  dqm::reco::MonitorElement* z_vtx_hist[2];
+  dqm::reco::MonitorElement* zError_vtx_hist[2];
+  dqm::reco::MonitorElement* xError_vtx_hist[2];
+  dqm::reco::MonitorElement* yError_vtx_hist[2];
+  dqm::reco::MonitorElement* tracksSize_vtx_hist[2];
+  dqm::reco::MonitorElement* chi2_vtx_hist[2];
+  dqm::reco::MonitorElement* ndof_vtx_hist[2];
+  dqm::reco::MonitorElement* isValidVtx_vtx_hist[2];
+  dqm::reco::MonitorElement* xyCov_vtx_hist[2];
+  dqm::reco::MonitorElement* xzCov_vtx_hist[2];
+  dqm::reco::MonitorElement* yzCov_vtx_hist[2];
 
   // general tracking histograms
   dqm::reco::MonitorElement* tk_pt_tk_hist;
@@ -397,6 +398,8 @@ ScoutingCollectionMonitor::ScoutingCollectionMonitor(const edm::ParameterSet& iC
           consumes<std::vector<Run3ScoutingVertex>>(iConfig.getParameter<edm::InputTag>("primaryVertices"))),
       verticesToken_(
           consumes<std::vector<Run3ScoutingVertex>>(iConfig.getParameter<edm::InputTag>("displacedVertices"))),
+      verticesNoVtxToken_(
+          consumes<std::vector<Run3ScoutingVertex>>(iConfig.getParameter<edm::InputTag>("displacedVertices"))),
       photonsToken_(consumes<std::vector<Run3ScoutingPhoton>>(iConfig.getParameter<edm::InputTag>("photons"))),
       rhoToken_(consumes<double>(iConfig.getParameter<edm::InputTag>("rho"))),
       pfMetPhiToken_(consumes<double>(iConfig.getParameter<edm::InputTag>("pfMetPhi"))),
@@ -440,6 +443,7 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
   edm::Handle<std::vector<Run3ScoutingMuon>> muonsVtxH;
   edm::Handle<std::vector<Run3ScoutingPFJet>> PFjetsH;
   edm::Handle<std::vector<Run3ScoutingVertex>> verticesH;
+  edm::Handle<std::vector<Run3ScoutingVertex>> verticesNoVtxH;
   edm::Handle<std::vector<Run3ScoutingVertex>> primaryVerticesH;
   edm::Handle<std::vector<Run3ScoutingTrack>> tracksH;
   edm::Handle<OnlineLuminosityRecord> onlineMetaDataDigisHandle;
@@ -454,6 +458,7 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
       !getValidHandle(iEvent, muonsVtxToken_, muonsVtxH, "muonsVtx") ||
       !getValidHandle(iEvent, pfjetsToken_, PFjetsH, "PF jets") ||
       !getValidHandle(iEvent, verticesToken_, verticesH, "vertices") ||
+      !getValidHandle(iEvent, verticesNoVtxToken_, verticesNoVtxH, "verticesNoVtx") ||
       !getValidHandle(iEvent, primaryVerticesToken_, primaryVerticesH, "primary vertices") ||
       !getValidHandle(iEvent, tracksToken_, tracksH, "tracks")) {
     return;
@@ -725,21 +730,29 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
   }
 
   // fill all the displaced vertices histograms
-  for (const auto& vtx : *verticesH) {
-    x_vtx_hist->Fill(vtx.x());
-    y_vtx_hist->Fill(vtx.y());
-    z_vtx_hist->Fill(vtx.z());
-    zError_vtx_hist->Fill(vtx.zError());
-    xError_vtx_hist->Fill(vtx.xError());
-    yError_vtx_hist->Fill(vtx.yError());
-    tracksSize_vtx_hist->Fill(vtx.tracksSize());
-    chi2_vtx_hist->Fill(vtx.chi2());
-    ndof_vtx_hist->Fill(vtx.ndof());
-    isValidVtx_vtx_hist->Fill(vtx.isValidVtx());
-    xyCov_vtx_hist->Fill(vtx.xyCov());
-    xzCov_vtx_hist->Fill(vtx.xzCov());
-    yzCov_vtx_hist->Fill(vtx.yzCov());
-  }
+  auto fillVtxHistograms = [&](const auto& vtx, size_t idx) {
+    x_vtx_hist[idx]->Fill(vtx.x());
+    y_vtx_hist[idx]->Fill(vtx.y());
+    z_vtx_hist[idx]->Fill(vtx.z());
+    zError_vtx_hist[idx]->Fill(vtx.zError());
+    xError_vtx_hist[idx]->Fill(vtx.xError());
+    yError_vtx_hist[idx]->Fill(vtx.yError());
+    tracksSize_vtx_hist[idx]->Fill(vtx.tracksSize());
+    chi2_vtx_hist[idx]->Fill(vtx.chi2());
+    ndof_vtx_hist[idx]->Fill(vtx.ndof());
+    isValidVtx_vtx_hist[idx]->Fill(vtx.isValidVtx());
+    xyCov_vtx_hist[idx]->Fill(vtx.xyCov());
+    xzCov_vtx_hist[idx]->Fill(vtx.xzCov());
+    yzCov_vtx_hist[idx]->Fill(vtx.yzCov());
+  };
+
+  // displaced vertex histograms with MuonVtx (index 0: Vtx)
+  for (const auto& vtx : *verticesH)
+    fillVtxHistograms(vtx, 0);
+
+  // displaced vertex histograms with MuonNoVtx (index1: NoVtx)
+  for (const auto& vtx : *verticesNoVtxH)
+    fillVtxHistograms(vtx, 1);
 
   // fill tracks histograms
   for (const auto& tk : *tracksH) {
@@ -1123,20 +1136,39 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   xzCov_pv_hist = ibook.book1D("xzCov_pv", "Primary Vertex XZ Covariance; Cov(x,z); Entries", 100, -0.01, 0.01);
   yzCov_pv_hist = ibook.book1D("yzCov_pv", "Primary Vertex YZ Covariance; Cov(y,z); Entries", 100, -0.01, 0.01);
 
-  ibook.setCurrentFolder(topfoldername_ + "/DisplacedVertex");
-  x_vtx_hist = ibook.book1D("x_vtx", "Vertex X Position; x (cm); Entries", 100, -0.5, 0.5);
-  y_vtx_hist = ibook.book1D("y_vtx", "Vertex Y Position; y (cm); Entries", 100, -0.5, 0.5);
-  z_vtx_hist = ibook.book1D("z_vtx", "Vertex Z Position; z (cm); Entries", 100, -20.0, 20.0);
-  zError_vtx_hist = ibook.book1D("zError_vtx", "Vertex Z Error; z Error (cm); Entries", 100, 0.0, 0.2);
-  xError_vtx_hist = ibook.book1D("xError_vtx", "Vertex X Error; x Error (cm); Entries", 100, 0.0, 0.2);
-  yError_vtx_hist = ibook.book1D("yError_vtx", "Vertex Y Error; y Error (cm); Entries", 100, 0.0, 0.2);
-  tracksSize_vtx_hist = ibook.book1D("tracksSize_vtx", "Number of Tracks at Vertex; Tracks; Entries", 100, 0, 100);
-  chi2_vtx_hist = ibook.book1D("chi2_vtx", "Vertex #chi^{2}; #chi^{2}; Entries", 100, 0.0, 5.0);
-  ndof_vtx_hist = ibook.book1D("ndof_vtx", "Vertex Ndof; Ndof; Entries", 100, 0, 5);
-  isValidVtx_vtx_hist = ibook.book1D("isValidVtx_vtx", "Is Valid Vertex?; 0 = False, 1 = True; Entries", 2, 0, 2);
-  xyCov_vtx_hist = ibook.book1D("xyCov_vtx", "Vertex XY Covariance; Cov(x,y); Entries", 100, -0.01, 0.01);
-  xzCov_vtx_hist = ibook.book1D("xzCov_vtx", "Vertex XZ Covariance; Cov(x,z); Entries", 100, -0.01, 0.01);
-  yzCov_vtx_hist = ibook.book1D("yzCov_vtx", "Vertex YZ Covariance; Cov(y,z); Entries", 100, -0.01, 0.01);
+  // book the displaced vertex histograms (Vtx and noVtx collections)
+  const std::array<std::string, 2> vertexLabels = {{"displacedVertices", "displacedVerticesNoVtx"}};
+  const std::array<std::string, 2> suffixesVtx = {{"_Vtx", "_noVtx"}};
+
+  for (int i = 0; i < 2; ++i) {
+    const std::string& sfx = suffixesVtx[i];
+    const std::string& lbl = vertexLabels[i];
+
+    ibook.setCurrentFolder(topfoldername_ + "/" + vertexLabels[i]);
+
+    x_vtx_hist[i] = ibook.book1D("x_vtx" + sfx, "Vertex X Position (" + lbl + "); x (cm); Entries", 100, -0.5, 0.5);
+    y_vtx_hist[i] = ibook.book1D("y_vtx" + sfx, "Vertex Y Position (" + lbl + "); y (cm); Entries", 100, -0.5, 0.5);
+    z_vtx_hist[i] = ibook.book1D("z_vtx" + sfx, "Vertex Z Position (" + lbl + "); z (cm); Entries", 100, -20.0, 20.0);
+    xError_vtx_hist[i] =
+        ibook.book1D("xError_vtx" + sfx, "Vertex X Error (" + lbl + "); x Error (cm); Entries", 100, 0.0, 0.2);
+    yError_vtx_hist[i] =
+        ibook.book1D("yError_vtx" + sfx, "Vertex Y Error (" + lbl + "); y Error (cm); Entries", 100, 0.0, 0.2);
+    zError_vtx_hist[i] =
+        ibook.book1D("zError_vtx" + sfx, "Vertex Z Error (" + lbl + "); z Error (cm); Entries", 100, 0.0, 0.2);
+    tracksSize_vtx_hist[i] =
+        ibook.book1D("tracksSize_vtx" + sfx, "Number of Tracks at Vertex (" + lbl + "); Tracks; Entries", 100, 0, 100);
+    chi2_vtx_hist[i] =
+        ibook.book1D("chi2_vtx" + sfx, "Vertex #chi^{2} (" + lbl + "); #chi^{2}; Entries", 100, 0.0, 5.0);
+    ndof_vtx_hist[i] = ibook.book1D("ndof_vtx" + sfx, "Vertex Ndof (" + lbl + "); Ndof; Entries", 100, 0, 5);
+    isValidVtx_vtx_hist[i] =
+        ibook.book1D("isValidVtx_vtx" + sfx, "Is Valid Vertex? (" + lbl + "); 0 = False, 1 = True; Entries", 2, 0, 2);
+    xyCov_vtx_hist[i] =
+        ibook.book1D("xyCov_vtx" + sfx, "Vertex XY Covariance (" + lbl + "); Cov(x,y); Entries", 100, -0.01, 0.01);
+    xzCov_vtx_hist[i] =
+        ibook.book1D("xzCov_vtx" + sfx, "Vertex XZ Covariance (" + lbl + "); Cov(x,z); Entries", 100, -0.01, 0.01);
+    yzCov_vtx_hist[i] =
+        ibook.book1D("yzCov_vtx" + sfx, "Vertex YZ Covariance (" + lbl + "); Cov(y,z); Entries", 100, -0.01, 0.01);
+  }
 
   ibook.setCurrentFolder(topfoldername_ + "/Tracking");
   tk_pt_tk_hist = ibook.book1D("tk_pt_tk", "Track pT; p_{T} (GeV); Entries", 100, 0.0, 30.0);
@@ -1182,6 +1214,7 @@ void ScoutingCollectionMonitor::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<edm::InputTag>("pfjets", edm::InputTag("hltScoutingPFPacker"));
   desc.add<edm::InputTag>("tracks", edm::InputTag("hltScoutingTrackPacker"));
   desc.add<edm::InputTag>("displacedVertices", edm::InputTag("hltScoutingMuonPackerVtx", "displacedVtx"));
+  desc.add<edm::InputTag>("displacedVerticesNoVtx", edm::InputTag("hltScoutingMuonPackerNoVtx", "displacedVtx"));
   desc.add<edm::InputTag>("primaryVertices", edm::InputTag("hltScoutingPrimaryVertexPacker", "primaryVtx"));
   desc.add<edm::InputTag>("pfMetPt", edm::InputTag("hltScoutingPFPacker", "pfMetPt"));
   desc.add<edm::InputTag>("pfMetPhi", edm::InputTag("hltScoutingPFPacker", "pfMetPhi"));
