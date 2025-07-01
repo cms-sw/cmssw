@@ -8,9 +8,8 @@ cmsDriver.py \
 	--step NANO:TauAnalysis/MCEmbeddingTools/Nano_cff.embedding_nanoAOD_seq \
 	--data \
 	--scenario pp \
-	--eventcontent NANOAODSIM \
+	--eventcontent TauEmbeddingNANOAOD \
 	--datatier NANOAODSIM \
-	--outputCommands 'keep edmTriggerResults_*_*_SIMembeddingpreHLT','keep edmTriggerResults_*_*_SIMembeddingHLT','keep edmTriggerResults_*_*_SIMembedding','keep edmTriggerResults_*_*_MERGE','keep edmTriggerResults_*_*_NANO' \
 	--era ... \
     --conditions ... \
     --filein ... \

@@ -10,9 +10,8 @@ cmsDriver.py \
     --processName SELECT \
     --data \
     --scenario pp \
-    --eventcontent RAWRECO \
+    --eventcontent TauEmbeddingSelection \
     --datatier RAWRECO \
-    --outputCommands 'keep *_selectedMuonsForEmbedding_*_SELECT','keep *_patMuonsAfterID_*_SELECT','keep *_slimmedMuons_*_SELECT','keep *_slimmedMuonTrackExtras_*_SELECT','keep recoVertexs_offlineSlimmedPrimaryVertices_*_SELECT','keep *_firstStepPrimaryVertices_*_SELECT','keep *_ecalDrivenElectronSeeds_*_SELECT' \
     --era ... \
     --conditions ... \
     --filein ... \
