@@ -1,6 +1,7 @@
 //Framework Headers
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FastSimulation/MaterialEffects/interface/NuclearInteractionSimulator.h"
 #include "FastSimulation/Particle/interface/makeParticle.h"
@@ -33,7 +34,8 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(std::vector<double>& ha
                                                          std::map<int, int>& idMap,
                                                          std::string inputFile,
                                                          unsigned int distAlgo,
-                                                         double distCut)
+                                                         double distCut,
+                                                         bool saveOutput)
     : MaterialEffectsSimulator(),
       thePionEN(hadronEnergies),
       thePionID(hadronTypes),
@@ -46,6 +48,7 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(std::vector<double>& ha
       theIDMap(idMap),
       theDistAlgo(distAlgo),
       theDistCut(distCut),
+      mySaveOutput(saveOutput),
       currentValuesWereSet(false) {
   std::string fullPath;
 
@@ -87,12 +90,14 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(std::vector<double>& ha
   // Read the information from a previous run (to keep reproducibility)
   currentValuesWereSet = this->read(inputFile);
   if (currentValuesWereSet)
-    std::cout << "***WARNING*** You are reading nuclear-interaction information from the file " << inputFile
-              << " created in an earlier run." << std::endl;
+    edm::LogWarning("FastSimulation/MaterialEffects") << "You are reading nuclear-interaction information from the file " << inputFile
+                                                      << " created in an earlier run." << std::endl;
 
   // Open the file for saving the information of the current run
-  myOutputFile.open("NuclearInteractionOutputFile.txt");
-  myOutputBuffer = 0;
+  if (mySaveOutput) {
+    myOutputFile.open("NuclearInteractionOutputFile.txt");
+    myOutputBuffer = 0;
+  }
 
   // Open the root files
   //  for ( unsigned file=0; file<theFileNames.size(); ++file ) {
@@ -175,9 +180,8 @@ NuclearInteractionSimulator::~NuclearInteractionSimulator() {
   }
 
   // Close the output file
-  myOutputFile.close();
-
-  //  dbe->save("test.root");
+  if (mySaveOutput)
+    myOutputFile.close();
 }
 
 void NuclearInteractionSimulator::compute(ParticlePropagator& Particle, RandomEngineAndDistribution const* random) {
@@ -520,6 +524,9 @@ double NuclearInteractionSimulator::distanceToPrimary(const RawParticle& Particl
 }
 
 void NuclearInteractionSimulator::save() {
+  if (!mySaveOutput)
+    return;
+
   // Size of buffer
   ++myOutputBuffer;
 

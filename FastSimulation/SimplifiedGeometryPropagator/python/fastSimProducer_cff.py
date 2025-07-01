@@ -28,6 +28,7 @@ fastSimProducer = cms.EDProducer(
                 className = cms.string("fastsim::NuclearInteraction"),
                 distCut = cms.double(0.020),
                 hadronEnergy = cms.double(0.2), # the smallest momentum for elastic interactions
+                saveOutput = cms.untracked.bool(False),
                 # inputFile = cms.string("NuclearInteractionInputFile.txt"), # the file to read the starting interaction in each files (random reproducibility in case of a crash)
                 ),
             #nuclearInteractionFTF = cms.PSet(
