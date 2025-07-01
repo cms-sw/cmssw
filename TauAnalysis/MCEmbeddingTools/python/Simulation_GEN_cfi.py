@@ -9,9 +9,8 @@ cmsDriver.py TauAnalysis/MCEmbeddingTools/python/Simulation_GEN_cfi.py \
 	--mc \
 	--beamspot DBrealistic \
 	--geometry DB:Extended \
-	--eventcontent RAWSIM \
+	--eventcontent TauEmbeddingSimGen \
 	--datatier RAWSIM \
-	--outputCommands 'keep *_*_*_LHEembeddingCLEAN','keep *_*_*_SELECT','drop *_muonReducedTrackExtras_*_*','drop *_*_uncleanedConversions_*','drop *_diamondSampicLocalTracks_*_*','keep *_*_unsmeared_*', \
 	--procModifiers tau_embedding_mu_to_mu \
     --era ... \
     --conditions ... \
