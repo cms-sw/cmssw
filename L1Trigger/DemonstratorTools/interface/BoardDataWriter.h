@@ -28,7 +28,8 @@ namespace l1t::demo {
                     const size_t framesPerBX,
                     const size_t tmux,
                     const size_t maxFramesPerFile,
-                    const ChannelMap_t&);
+                    const ChannelMap_t&,
+                    bool staggerTmuxSlices = true);
 
     BoardDataWriter(FileFormat,
                     const std::string& filePath,
@@ -37,7 +38,8 @@ namespace l1t::demo {
                     const size_t tmux,
                     const size_t maxFramesPerFile,
                     const std::map<LinkId, std::vector<size_t>>&,
-                    const std::map<std::string, ChannelSpec>&);
+                    const std::map<std::string, ChannelSpec>&,
+                    const bool staggerTmuxSlices = true);
 
     // Set ID string that's written at start of board data files
     void setBoardDataFileID(const std::string&);
@@ -79,6 +81,10 @@ namespace l1t::demo {
 
     // map of logical channel ID -> [TMUX period, interpacket-gap & offset; channel indices]
     ChannelMap_t channelMap_;
+
+    // Flag that controls whether channels of different TMUX slices are offset from each other by
+    // framesPerBX_ x relative BX ID (via invalid words at start of file)
+    bool stagggerTmuxSlices_;
   };
 
 }  // namespace l1t::demo
