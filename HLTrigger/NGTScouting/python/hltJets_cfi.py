@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
 
 hltPFCandidateTable = cms.EDProducer("SimplePFCandidateFlatTableProducer",
+    skipNonExistingSrc = cms.bool(True),
     src = cms.InputTag("hltParticleFlowTmp"),
     name = cms.string("hltPFCandidate"),
     cut = cms.string(""),
@@ -15,6 +16,7 @@ hltPFCandidateTable = cms.EDProducer("SimplePFCandidateFlatTableProducer",
   )
 
 hltJetTable = cms.EDProducer("SimplePFJetFlatTableProducer",
+      skipNonExistingSrc = cms.bool(True),
       src = cms.InputTag("hltAK4PFPuppiJets"),
       name = cms.string("hltAK4PuppiJet"),
       cut = cms.string(""),

@@ -4,6 +4,7 @@ from PhysicsTools.NanoAOD.common_cff import *
 
 hltMuonTable = cms.EDProducer(
     "SimpleTriggerTrackFlatTableProducer",
+    skipNonExistingSrc = cms.bool(True),
     src = cms.InputTag("hltPhase2L3MuonIdTracks"),
     cut = cms.string(""),
     name = cms.string("hltMuon"),
