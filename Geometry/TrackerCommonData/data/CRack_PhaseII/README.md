@@ -41,8 +41,17 @@ cmsShow --sim-geom-file cmsSimGeom-Run4D500.root -c Fireworks/Core/macros/simGeo
 Alternatively, use a ROOT macro to visualize the geometry. This method works on both Linux and macOS. On macOS, run the macro locally (not via ssh to lxplus) to avoid X11 forwarding issues.
 
 ```
- root Geometry_plotter.C 
+ root Geometry_plotter.C
 ```
+
+## Gen-Sim step 
+
+To run the Gen-Sim step for the CRACK, run the following command: 
+```
+cmsRun
+```
+
+
 
 ## Run the workflow  (NEEDS TO BE UPDATED)
 500 is the new detector version for the standelone CRACK. The following step creates available workflows for D500 sush as a simple the GEN-SIM step
