@@ -9,8 +9,8 @@ function die {
     exit $2
 }
 
-## This is a PRE SKIMED dataset
-dataset="root://eoscms.cern.ch//store/group/phys_tau/embedding_test_files/2016_C-v2_RAW_preselected.root"
+## This is a dataset from the CMSSW integration file catalog (IBEos) from the release validation tests (runTheMatrix.py)
+dataset="root://eoscms.cern.ch//store/user/cmsbuild/store/data/Run2016C/DoubleMuon/RAW/v2/000/276/092/00000/00E35B2C-4A3F-E611-AE34-02163E014479.root"
 
 echo "################ Selection ################"
 cmsDriver.py \
@@ -25,7 +25,7 @@ cmsDriver.py \
     --customise Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016 \
     --filein $dataset \
     --fileout file:selection.root \
-    -n -1 \
+    -n 100 \
     --python_filename selection.py || die 'Failure during selecting step' $?
 
 echo "################ LHE production and cleaning ################"
