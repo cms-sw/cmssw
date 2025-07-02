@@ -37,7 +37,7 @@ LD_PRELOAD="/lib64/libLLVM-17.so"
 cmsShow --sim-geom-file cmsSimGeom-Run4D500.root -c Fireworks/Core/macros/simGeo.fwc
 ```
 
-### ROOT (both Linux and macOS:)
+### ROOT (both Linux and macOS)
 Alternatively, use a ROOT macro to visualize the geometry. This method works on both Linux and macOS. On macOS, run the macro locally (not via ssh to lxplus) to avoid X11 forwarding issues.
 
 ```
