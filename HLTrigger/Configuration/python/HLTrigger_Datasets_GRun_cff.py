@@ -687,6 +687,7 @@ streamParkingLLP_datasetParkingLLP0_selector.triggerConditions = cms.vstring(
     'HLT_L1MET_DTCluster50_v13',
     'HLT_L1MET_DTClusterNoMB1S50_v13',
     'HLT_L1SingleLLPJet_v8',
+    'HLT_L1SingleMuShower_v1',
     'HLT_L1Tau_DelayedJet40_DoubleDelay0p5nsTrackless_v11',
     'HLT_L1Tau_DelayedJet40_DoubleDelay0p75nsInclusive_v11',
     'HLT_L1Tau_DelayedJet40_DoubleDelay1nsTrackless_v11',
@@ -779,6 +780,7 @@ streamParkingLLP_datasetParkingLLP1_selector.triggerConditions = cms.vstring(
     'HLT_L1MET_DTCluster50_v13',
     'HLT_L1MET_DTClusterNoMB1S50_v13',
     'HLT_L1SingleLLPJet_v8',
+    'HLT_L1SingleMuShower_v1',
     'HLT_L1Tau_DelayedJet40_DoubleDelay0p5nsTrackless_v11',
     'HLT_L1Tau_DelayedJet40_DoubleDelay0p75nsInclusive_v11',
     'HLT_L1Tau_DelayedJet40_DoubleDelay1nsTrackless_v11',
@@ -3075,8 +3077,12 @@ streamPhysicsScoutingPFMonitor_datasetScoutingPFMonitor_selector.hltResults = cm
 streamPhysicsScoutingPFMonitor_datasetScoutingPFMonitor_selector.l1tResults = cms.InputTag('')
 streamPhysicsScoutingPFMonitor_datasetScoutingPFMonitor_selector.throw      = cms.bool(False)
 streamPhysicsScoutingPFMonitor_datasetScoutingPFMonitor_selector.triggerConditions = cms.vstring(
+    'DST_PFScouting_DoubleEGMonitorJPsi_v1',
+    'DST_PFScouting_DoubleEGMonitorZ_v1',
     'DST_PFScouting_DoubleMuonVtxMonitorJPsi_v3',
     'DST_PFScouting_DoubleMuonVtxMonitorZ_v3',
+    'DST_PFScouting_SinglePhotonEBMonitorJPsi_v1',
+    'DST_PFScouting_SinglePhotonEBMonitorZ_v1',
     'HLT_TriggersForScoutingPFMonitor_PS1000_v1',
     'HLT_TriggersForScoutingPFMonitor_PS125_v1',
     'HLT_TriggersForScoutingPFMonitor_PS250_v1',
