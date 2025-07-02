@@ -46,10 +46,13 @@ Alternatively, use a ROOT macro to visualize the geometry. This method works on 
 
 ## Gen-Sim step 
 
-To run the Gen-Sim step for the CRACK, run the following command: 
+To run the Gen-Sim step for the CRACK, run the following command:
+
 ```
 cmsRun myTrackerOnly_cfg.py
 ```
+
+This will create a step1.root file. To analyse the hits in the root file, you can use the [SimHitAnalyzer](https://github.com/hayfasfar/SimHitAnalyzer/tree/master/SimHitAnalyzer).
 
 
 
