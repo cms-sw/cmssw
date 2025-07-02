@@ -48,7 +48,7 @@ Alternatively, use a ROOT macro to visualize the geometry. This method works on 
 
 To run the Gen-Sim step for the CRACK, run the following command: 
 ```
-cmsRun
+cmsRun myTrackerOnly_cfg.py
 ```
 
 
