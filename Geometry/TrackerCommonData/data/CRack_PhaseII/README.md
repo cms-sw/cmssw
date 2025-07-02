@@ -22,6 +22,12 @@ python3 ./scripts/generateCRACKIIGeometry.py -D 500
 ```
 ## Geometry validation:
 
+To validate the geometry, two options are available:
+
+1. Fireworks Geometry Display (Linux only)
+
+2. ROOT Macro Visualization (Linux and macOS)
+
 To validate the geometry, there are two methods. First, you can use the Geometry display Fireworks and second you can use the ROOT macro [here](https://root.cern.ch/doc/master//web__cms_8cxx.html)
 
 Fireworks instructions (works only on Linux):
