@@ -28,16 +28,18 @@ To validate the geometry, two options are available:
 
 2. ROOT Macro Visualization (Linux and macOS)
 
-To validate the geometry, there are two methods. First, you can use the Geometry display Fireworks and second you can use the ROOT macro [here](https://root.cern.ch/doc/master//web__cms_8cxx.html)
+### Fireworks (Linux only)
 
-Fireworks instructions (works only on Linux):
 ```
 git cms-addpkg Fireworks
 cmsRun Fireworks/Geometry/python/dumpSimGeometry_cfg.py tag=Run4 version=D500
 LD_PRELOAD="/lib64/libLLVM-17.so"
 cmsShow --sim-geom-file cmsSimGeom-Run4D500.root -c Fireworks/Core/macros/simGeo.fwc
 ```
-ROOT instructions (works for both Linux and MAC) - for MAC please run the script on your local machine instead of lxplus to avoid X11 forwarding issues. 
+
+### ROOT (both Linux and macOS:)
+Alternatively, use a ROOT macro to visualize the geometry. This method works on both Linux and macOS. On macOS, run the macro locally (not via ssh to lxplus) to avoid X11 forwarding issues.
+
 ```
  root Geometry_plotter.C 
 ```
