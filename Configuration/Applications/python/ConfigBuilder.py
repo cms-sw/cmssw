@@ -1655,7 +1655,7 @@ class ConfigBuilder(object):
             # case where HLT:something was provided (most of the cases)
             if '.' in stepSpec:
                 # case where HLT:path/to/config_cff.customiser.something was provided
-                # the customiser alowes to modify parts of the HLT menue
+                # the customiser allows to modify parts of the HLT menu
                 hltcustomiser, stepSpec = stepSpec.rsplit('.', 1)
                 self._options.customisation_file_unsch.insert(0, hltcustomiser)
             self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff' % stepSpec)
