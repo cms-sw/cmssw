@@ -1,11 +1,17 @@
 # CRACK for PhaseII:
 
 ## Geometry generation
-This is a complete (NOT YET) instructions on how to create the CRACK geometry: 
-This setup does not use TKLayout, it is a manual setup to create a customised standelone Tracker , in this case the CRACK. In case you want to run a standard GEEN-SIM workflow please refere to the instructions [here](https://github.com/cms-sw/cmssw/tree/master/Configuration/Geometry) and [here](https://github.com/cms-sw/cmssw/tree/master/Configuration/PyReleaseValidation).
 
-The dictionary of the CRACK is a set of XML files that are registered under the name TCRACK in dictCRACKIIGeometry.py 
-To create a new detector version with standelone CRACK, you should run
+This section provides complete instructions for creating the CRACK geometry.
+If you only wish to use the geometry without generating it, please skip to the next section.
+
+This setup does not use TKLayout. It is a manual setup to create a custom standalone Tracker, in this case, the CRACK geometry.
+If you want to run a standard GEN-SIM workflow instead, please refer to the official instructions:
+[here](https://github.com/cms-sw/cmssw/tree/master/Configuration/Geometry) and [here](https://github.com/cms-sw/cmssw/tree/master/Configuration/PyReleaseValidation).
+
+The CRACK geometry is defined through a set of XML files registered under the name TCRACK in dictCRACKIIGeometry.py.
+
+To create a new detector version with the standalone CRACK geometry, run the following commands:
 
 ```
 git cms-addpkg Geometry/CMSCommonData
