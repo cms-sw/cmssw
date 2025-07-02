@@ -1,5 +1,5 @@
 # import the definition of the steps and input files:
-from  Configuration.PyReleaseValidation.relval_steps import *
+from Configuration.PyReleaseValidation.relval_steps import *
 
 # here only define the workflows as a combination of the steps defined above:
 workflows = Matrix()
@@ -414,7 +414,11 @@ workflows[136.901] = ['', ['RunDoubleMuon2016C', 'TauEmbedding_Selection_2016_HI
 workflows[136.902] = ['', ['RunDoubleMuon2016H', 'TauEmbedding_Selection_2016', 'TauEmbedding_Cleaning_2016', 'TauEmbedding_GenPreHLT_2016', 'TauEmbedding_GenHLT_2016', 'TauEmbedding_GenPostHLT_2016', 'TauEmbedding_Merging_2016']]
 workflows[136.903] = ['', ['RunDoubleMuon2017B', 'TauEmbedding_Selection_2017', 'TauEmbedding_Cleaning_2017', 'TauEmbedding_GenPreHLT_2017', 'TauEmbedding_GenHLT_2017', 'TauEmbedding_GenPostHLT_2017', 'TauEmbedding_Merging_2017']]
 workflows[136.904] = ['', ['RunDoubleMuon2018C', 'TauEmbedding_Selection_2018', 'TauEmbedding_Cleaning_2018', 'TauEmbedding_GenPreHLT_2018', 'TauEmbedding_GenHLT_2018', 'TauEmbedding_GenPostHLT_2018', 'TauEmbedding_Merging_2018']]
-
+#### Test of tau embedding on RUN3 data ####
+workflows[136.905] = ['', ['RunDoubleMuon2022C', 'TauEmbedding_Selection_2022', 'TauEmbedding_Cleaning_2022', 'TauEmbedding_GenPreHLT_2022', 'TauEmbedding_GenHLT_2022', 'TauEmbedding_GenPostHLT_2022', 'TauEmbedding_Merging_2022']]
+workflows[136.906] = ['', ['RunMuon2022E', 'TauEmbedding_Selection_2022_EE', 'TauEmbedding_Cleaning_2022_EE', 'TauEmbedding_GenPreHLT_2022_EE', 'TauEmbedding_GenHLT_2022_EE', 'TauEmbedding_GenPostHLT_2022_EE', 'TauEmbedding_Merging_2022_EE']]
+# Input file for 2024 is not there yet, so this will be activated in the future.
+# workflows[136.909] = ['', ['RunMuon2024C', 'TauEmbedding_Selection_2024', 'TauEmbedding_Cleaning_2024', 'TauEmbedding_GenPreHLT_2024', 'TauEmbedding_GenHLT_2024', 'TauEmbedding_GenPostHLT_2024', 'TauEmbedding_Merging_2024']]
 
 ### run 2021 collisions ###
 workflows[139.001] = ['RunMinimumBias2021',['RunMinimumBias2021','HLTDR3_2022','RECODR3_reHLT_MinBiasOffline','HARVESTD2021MB_reHLT']]
