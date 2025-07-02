@@ -1774,7 +1774,8 @@ class UpgradeWorkflow_HLT75e33Timing(UpgradeWorkflow):
         else:
             stepDict[stepName][k] = merge([stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return fragment=="TTbar_14TeV" and 'Run4' in key
+        fragments = ["TTbar_14","ZMM_14","ZEE_14","NuGun","SingleMu"]
+        return any(f in fragment for f in fragments) and 'Run4' in key
     
 upgradeWFs['HLTTiming75e33'] = UpgradeWorkflow_HLT75e33Timing(
     steps = [
