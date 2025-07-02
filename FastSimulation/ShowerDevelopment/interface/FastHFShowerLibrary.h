@@ -52,17 +52,17 @@ public:
   ~FastHFShowerLibrary() {}
 
 public:
-  void initHFShowerLibrary(const edm::EventSetup&);
-  void recoHFShowerLibrary(const FSimTrack& myTrack, HFHitMaker* hitMaker) const;
+  std::unique_ptr<HFShowerLibrary> initHFShowerLibrary() const;
+  void recoHFShowerLibrary(const FSimTrack& myTrack, HFHitMaker* hitMaker, HFShowerLibrary* hfshower) const;
   void modifyDepth(HcalNumberingFromDDD::HcalID& id) const;
 
   static void setRandom(const RandomEngineAndDistribution*);
 
 private:
   const edm::ParameterSet fast;
-  std::unique_ptr<HFShowerLibrary> hfshower;
   std::unique_ptr<HcalNumberingFromDDD> numberingFromDDD;
   const HcalDDDSimConstants* hcalConstants;
+  const HcalSimulationConstants* hsps;
   HcalNumberingScheme numberingScheme;
 
   bool applyFidCut;

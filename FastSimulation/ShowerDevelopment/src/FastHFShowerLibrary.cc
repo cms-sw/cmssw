@@ -42,14 +42,11 @@ FastHFShowerLibrary::FastHFShowerLibrary(edm::ParameterSet const& p, const edm::
     : fast(p) {
   applyFidCut = p.getParameter<edm::ParameterSet>("HFShowerLibrary").getParameter<bool>("ApplyFiducialCut");
 
-  edm::LogInfo("FastCalorimetry") << "initHFShowerLibrary::initialization";
+  edm::LogInfo("FastCalorimetry") << "FastHFShowerLibrary::constructor";
 
   hcalConstants = &iSetup.getData(iConsumer.hcalDDDSimConstantsESToken);
-  const HcalSimulationConstants* hsps = &iSetup.getData(iConsumer.hcalSimulationConstantsESToken);
-
-  std::string name = "HcalHits";
+  hsps = &iSetup.getData(iConsumer.hcalSimulationConstantsESToken);
   numberingFromDDD = std::make_unique<HcalNumberingFromDDD>(hcalConstants);
-  hfshower = std::make_unique<HFShowerLibrary>(name, hcalConstants, hsps->hcalsimpar(), fast);
 
   //only one thread can be allowed to setup the G4 physics table.
   std::call_once(initializeOnce, []() {
@@ -68,7 +65,11 @@ void FastHFShowerLibrary::setRandom(const RandomEngineAndDistribution* rnd) {
       << "Begin of event " << G4UniformRand() << "  " << rnd->theEngine().name() << "  " << rnd->theEngine();
 }
 
-void FastHFShowerLibrary::recoHFShowerLibrary(const FSimTrack& myTrack, HFHitMaker* hitMaker) const {
+std::unique_ptr<HFShowerLibrary> FastHFShowerLibrary::initHFShowerLibrary() const {
+  return std::make_unique<HFShowerLibrary>("HcalHits", hcalConstants, hsps->hcalsimpar(), fast);
+}
+
+void FastHFShowerLibrary::recoHFShowerLibrary(const FSimTrack& myTrack, HFHitMaker* hitMaker, HFShowerLibrary* hfshower) const {
 #ifdef DebugLog
   edm::LogInfo("FastCalorimetry") << "FastHFShowerLibrary: recoHFShowerLibrary ";
 #endif

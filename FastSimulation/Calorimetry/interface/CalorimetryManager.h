@@ -3,6 +3,7 @@
 
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimG4CMS/Calo/interface/CaloHitID.h"
+#include "SimG4CMS/Calo/interface/HFShowerLibrary.h"
 
 // FastSimulation headers
 #include "FastSimulation/Calorimetry/interface/HCALResponse.h"
@@ -69,6 +70,7 @@ struct CalorimetryState {
   std::unique_ptr<GflashPiKShowerProfile> thePiKProfile;
   std::unique_ptr<GflashProtonShowerProfile> theProtonProfile;
   std::unique_ptr<GflashAntiProtonShowerProfile> theAntiProtonProfile;
+  std::unique_ptr<HFShowerLibrary> theHFShower; // delayed initialization because of EventSetup dependence
 };
 
 class CalorimetryManager {
@@ -85,9 +87,6 @@ public:
 
   // Return the address of the Calorimeter
   CaloGeometryHelper* getCalorimeter() const { return myCalorimeter_.get(); }
-
-  // Return the address of the FastHFShowerLibrary
-  FastHFShowerLibrary* getHFShowerLibrary() const { return theHFShowerLibrary_.get(); }
 
 private:
   // Simulation of electromagnetic showers in PS, ECAL, HCAL

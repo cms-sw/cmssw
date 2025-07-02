@@ -43,6 +43,3 @@ run2_common.toModify( HFShowerBlock, ProbMax = 0.5 )
 from Configuration.Eras.Modifier_run3_HFSL_cff import run3_HFSL
 run3_HFSL.toModify( HFLibraryFileBlock, FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_run3_v7.root', FileVersion = 3 )
 run3_HFSL.toModify( HFShowerBlock, EqualizeTimeShift = True )
-
-from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toModify(HFLibraryFileBlock, cacheBranches = cms.untracked.bool(True))

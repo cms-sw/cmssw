@@ -139,6 +139,10 @@ void CalorimetryManager::reconstructTrack(const FSimTrack& myTrack, RandomEngine
     LogInfo("FastCalorimetry") << " ===> pid = " << pid << std::endl;
   }
 
+  // initialize HFShowerLibrary if it doesn't exist yet
+  if (!state.theHFShower)
+    state.theHFShower = theHFShowerLibrary_->initHFShowerLibrary();
+
   // Check that the particle hasn't decayed
   if (myTrack.noEndVertex()) {
     // Simulate energy smearing for photon and electrons
@@ -149,7 +153,7 @@ void CalorimetryManager::reconstructTrack(const FSimTrack& myTrack, RandomEngine
       else if (myTrack.onVFcal()) {
         if (useShowerLibrary_) {
           HFHitMaker myHits;
-          theHFShowerLibrary_->recoHFShowerLibrary(myTrack, &myHits);
+          theHFShowerLibrary_->recoHFShowerLibrary(myTrack, &myHits, state.theHFShower.get());
           const auto& hfcorr = myHDResponse_->correctHF(myTrack.hcalEntrance().e(), abs(myTrack.type()));
           updateHCAL(myHits.hitMap(), true, myTrack.id(), container, 1., hfcorr.first, hfcorr.second);
         } else
@@ -412,8 +416,6 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack, RandomEngineA
 }
 
 void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const* random, CaloProductContainer& container, CalorimetryState& state) const {
-  FastHFShowerLibrary::setRandom(random);
-
   const XYZTLorentzVector& moment = myTrack.momentum();
 
   if (debug_)
@@ -508,7 +510,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
       //           For HF, the resolution is due to the PE statistic
 
       if (useShowerLibrary_) {
-        theHFShowerLibrary_->recoHFShowerLibrary(myTrack, &myHFHitMaker);
+        theHFShowerLibrary_->recoHFShowerLibrary(myTrack, &myHFHitMaker, state.theHFShower.get());
         status = true;
       } else {
         HFShower theShower(random, &theHDShowerparam, &myGrid, &myHcalHitMaker, onECAL, eGen);
