@@ -245,6 +245,8 @@ private:
   CoupledMonitorElement h_numTPVsPt_;
   CoupledMonitorElement h_numTPVsEta_;
   CoupledMonitorElement h_numTPVsPhi_;
+  CoupledMonitorElement h_numTPVsDxy_;
+  CoupledMonitorElement h_numTPVsDz_;
   CoupledMonitorElement h_numTPVsEtaPt_;
   CoupledMonitorElement h_numTPVsEtaPhi_;
   CoupledMonitorElement h_numTPVsPhiPt_;
@@ -258,6 +260,7 @@ private:
   CoupledMonitorElement h_numRecHitsVsPt_;
   CoupledMonitorElement h_numLayersVsPt_;
   CoupledMonitorElement h_numTPVsPdgId_;
+  CoupledMonitorElement h_numRecHitsPerLayer_;
   // histograms of SimDoublets
   CoupledMonitorElement h_layerPairs_;
   CoupledMonitorElement h_numSkippedLayers_;
@@ -289,6 +292,7 @@ private:
   CoupledMonitorElement h_bestNtuplet_firstLayerId_;
   CoupledMonitorElement h_bestNtuplet_lastLayerId_;
   CoupledMonitorElement h_bestNtuplet_layerSpan_;
+  CoupledMonitorElement h_bestNtuplet_firstVsSecondLayer_;
   CoupledMonitorElement h_bestNtuplet_firstLayerVsEta_;
   CoupledMonitorElement h_bestNtuplet_lastLayerVsEta_;
   MonitorElement* h_aliveNtuplet_fracNumRecHits_eta_;
