@@ -14,6 +14,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+#include "SimTracker/TrackAssociation/interface/TrackingParticleIP.h"
 #include "RecoTracker/PixelSeeding/interface/CircleEq.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -626,9 +627,12 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
   SimDoubletsCollection const& simDoubletsCollection = iEvent.get(simDoublets_getToken_);
 
   // initialize a bunch of variables that we will use in the coming for loops
-  double true_pT, true_eta, true_phi, relativeLength;
+  double true_pT, true_eta, true_phi, true_dxy, true_dz, relativeLength;
   int true_pdgId, numSimDoublets, pass_numSimDoublets, layerPairId, layerPairIdIndex, numSkippedLayers;
   bool passed, hasValidNeighbors, isAlive;
+
+  int numTotalLayers = TrackerTraits::numberOfLayers + numLayersOT_;
+  std::vector<int> countsRecHitsPerLayer(numTotalLayers);
 
   // initialize the manager for keeping track of which cluster cuts are applied to the inidividual doublets
   simdoublets::ClusterSizeCutManager clusterSizeCutManager;
@@ -638,10 +642,15 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
   // loop over SimDoublets (= loop over TrackingParticles)
   for (auto const& simDoublets : simDoubletsCollection) {
     // get true pT of the TrackingParticle
-    true_pT = simDoublets.trackingParticle()->pt();
-    true_eta = simDoublets.trackingParticle()->eta();
-    true_phi = simDoublets.trackingParticle()->phi();
-    true_pdgId = simDoublets.trackingParticle()->pdgId();
+    auto trackingParticle = simDoublets.trackingParticle();
+    true_pT = trackingParticle->pt();
+    true_eta = trackingParticle->eta();
+    true_phi = trackingParticle->phi();
+    true_pdgId = trackingParticle->pdgId();
+    auto momentum = trackingParticle->momentum();
+    auto vertex = trackingParticle->vertex();
+    true_dxy = TrackingParticleIP::dxy(vertex, momentum, simDoublets.beamSpotPosition());
+    true_dz = TrackingParticleIP::dz(vertex, momentum, simDoublets.beamSpotPosition());
 
     // check if a valid Ntuplet is possible for the given TP and geometry ignoring any cuts and fill hists
     bool reconstructable = configAllowsForValidNtuplet(simDoublets);
@@ -785,6 +794,7 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
       h_bestNtuplet_firstLayerId_.fill(isAlive, bestNtuplet.firstLayerId());
       h_bestNtuplet_lastLayerId_.fill(isAlive, bestNtuplet.lastLayerId());
       h_bestNtuplet_layerSpan_.fill(isAlive, bestNtuplet.firstLayerId(), bestNtuplet.lastLayerId());
+      h_bestNtuplet_firstVsSecondLayer_.fill(isAlive, bestNtuplet.firstLayerId(), bestNtuplet.secondLayerId());
       h_bestNtuplet_firstLayerVsEta_.fill(isAlive, true_eta, bestNtuplet.firstLayerId());
       h_bestNtuplet_lastLayerVsEta_.fill(isAlive, true_eta, bestNtuplet.lastLayerId());
 
@@ -854,10 +864,20 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
     h_numLayersVsPt_.fill(passed, true_pT, simDoublets.numLayers());
     h_numSkippedLayersVsPt_.fill(passed, true_pT, numSkippedLayers);
     h_numLayersVsEtaPt_->Fill(true_eta, true_pT, simDoublets.numLayers());
+    // count number of RecHits in layers
+    std::fill(countsRecHitsPerLayer.begin(), countsRecHitsPerLayer.end(), 0);
+    for (auto const layerId : simDoublets.layerIds())
+      countsRecHitsPerLayer.at(layerId)++;
+    for (int layerId{0}; auto countRecHits : countsRecHitsPerLayer) {
+      h_numRecHitsPerLayer_.fill(passed, layerId, countRecHits);
+      layerId++;
+    }
     // fill histograms for number of TrackingParticles
     h_numTPVsPt_.fill(passed, true_pT);
     h_numTPVsEta_.fill(passed, true_eta);
     h_numTPVsPhi_.fill(passed, true_phi);
+    h_numTPVsDxy_.fill(passed, true_dxy);
+    h_numTPVsDz_.fill(passed, true_dz);
     h_numTPVsEtaPhi_.fill(passed, true_eta, true_phi);
     h_numTPVsEtaPt_.fill(passed, true_eta, true_pT);
     h_numTPVsPhiPt_.fill(passed, true_phi, true_pT);
@@ -979,6 +999,17 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                                                 16,
                                                 -1.5,
                                                 14.5);
+  h_numRecHitsPerLayer_.book2D(ibook,
+                               "numRecHits_vs_layer",
+                               "Number of RecHits by Tracking Particle per layer",
+                               "Layer Id",
+                               "Number of RecHits",
+                               numTotalLayers,
+                               -0.5,
+                               -0.5 + numTotalLayers,
+                               11,
+                               -0.5,
+                               10.5);
   h_numRecHitsVsEta_.book2D(ibook,
                             "numRecHits_vs_eta",
                             "Number of RecHits by Tracking Particle vs #eta",
@@ -1069,6 +1100,10 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                        phiNBins,
                        phimin,
                        phimax);
+  h_numTPVsDxy_.book1D(
+      ibook, "num_vs_dxy", "Number of TrackingParticles", "True dxy [cm]", "Number of TrackingParticles", 50, -5, 5);
+  h_numTPVsDz_.book1D(
+      ibook, "num_vs_dz", "Number of TrackingParticles", "True dz [cm]", "Number of TrackingParticles", 20, -20, 20);
   h_numTPVsEtaPhi_.book2D(ibook,
                           "num_vs_etaPhi",
                           "Number of TrackingParticles",
@@ -1228,9 +1263,9 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                    "Difference between actual and predicted cluster size along z of inner cluster",
                    "Absolute difference [num of pixels]",
                    "Number of SimDoublets",
-                   201,
+                   76,
                    -1,
-                   200);
+                   75);
 
   // -----------------------------------------------------------------------
   // booking layer pair dependent histograms (sub-folders for layer pairs)
@@ -1262,7 +1297,7 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                 "dr of RecHit pair " + layerTitle,
                 "dr between outer and inner RecHit [cm]",
                 "Number of SimDoublets",
-                31,
+                93,
                 -1,
                 30);
 
@@ -1293,7 +1328,7 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                 "z of the inner RecHit " + layerTitle,
                 "z of inner RecHit [cm]",
                 "Number of SimDoublets",
-                100,
+                600,
                 -300,
                 300);
 
@@ -1339,8 +1374,8 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                         "Curvature of a pair of neighboring SimDoublets",
                         "Curvature [1/cm]",
                         "Number of SimDoublet connections",
-                        51,
-                        -0.04,
+                        50,
+                        0,
                         0.04);
 
   // loop through layer ids
@@ -1419,6 +1454,17 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                                   numTotalLayers,
                                   -0.5,
                                   -0.5 + numTotalLayers);
+  h_bestNtuplet_firstVsSecondLayer_.book2D(ibook,
+                                           "firstVsSecondLayer",
+                                           "First two layers of most alive SimNtuplet per TrackingParticle",
+                                           "First layer ID",
+                                           "Second layer ID",
+                                           numTotalLayers,
+                                           -0.5,
+                                           -0.5 + numTotalLayers,
+                                           numTotalLayers,
+                                           -0.5,
+                                           -0.5 + numTotalLayers);
   h_aliveNtuplet_fracNumRecHits_pt_ =
       simdoublets::makeProfileLogX(ibook,
                                    "fracNumRecHits_vs_pt",
