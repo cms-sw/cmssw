@@ -84,7 +84,7 @@ namespace l1t::demo {
 
     // Flag that controls whether channels of different TMUX slices are offset from each other by
     // framesPerBX_ x relative BX ID (via invalid words at start of file)
-    bool stagggerTmuxSlices_;
+    bool staggerTmuxSlices_;
   };
 
 }  // namespace l1t::demo
