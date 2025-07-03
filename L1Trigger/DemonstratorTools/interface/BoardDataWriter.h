@@ -51,6 +51,8 @@ namespace l1t::demo {
     // If there are events that have not been written to file, forces creation of a board data file containing them
     void flush();
 
+    std::vector<std::string> fileNames_;
+
   private:
     static ChannelMap_t mergeMaps(const std::map<LinkId, std::vector<size_t>>&,
                                   const std::map<std::string, ChannelSpec>&);
@@ -63,8 +65,6 @@ namespace l1t::demo {
     std::string boardDataFileID_;
 
     std::function<std::string(const size_t)> filePathGen_;
-
-    std::vector<std::string> fileNames_;
 
     size_t framesPerBX_;
 

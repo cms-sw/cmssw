@@ -59,6 +59,7 @@ public:
   explicit GTTFileWriter(const edm::ParameterSet&);
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void checkNumFiles(const std::vector<l1t::demo::BoardDataWriter*>& fileWriters);
 
 private:
   // ----------constants, enums and typedefs ---------
@@ -246,13 +247,22 @@ void GTTFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 // ------------ method called once each job just after ending the event loop  ------------
 void GTTFileWriter::endJob() {
+  // Create a vector of pointers to all file writers
+  const std::vector<l1t::demo::BoardDataWriter*> fileWriters = {
+      &fileWriterInputTracks_,
+      &fileWriterConvertedTracks_,
+      &fileWriterSelectedTracks_,
+      &fileWriterVertexAssociatedTracks_,
+      &fileWriterOutputToCorrelator_,
+      &fileWriterOutputToGlobalTrigger_};
+
   // Writing pending events to file before exiting
-  fileWriterInputTracks_.flush();
-  fileWriterConvertedTracks_.flush();
-  fileWriterSelectedTracks_.flush();
-  fileWriterVertexAssociatedTracks_.flush();
-  fileWriterOutputToCorrelator_.flush();
-  fileWriterOutputToGlobalTrigger_.flush();
+  for (auto& fileWriter : fileWriters) {
+    fileWriter->flush();
+  }
+
+  // Check that all file writers have written the same number of files
+  checkNumFiles(fileWriters);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
@@ -282,6 +292,20 @@ void GTTFileWriter::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.addUntracked<std::string>("format", "APx");
   desc.addUntracked<std::string>("fileExtension", "txt");
   descriptions.add("GTTFileWriter", desc);
+}
+
+// ------------ method checks the number of files written is the same for all instances of BoardDataWriter ------------
+void GTTFileWriter::checkNumFiles(const std::vector<l1t::demo::BoardDataWriter*>& fileWriters) {
+  // Check that all file writers have written the same number of files
+  if (fileWriters.empty())
+    return;
+
+  const size_t numFiles = fileWriters.front()->fileNames_.size();
+  for (const auto& fileWriter : fileWriters) {
+    if (fileWriter->fileNames_.size() != numFiles) {
+      throw std::runtime_error("GTTFileWriter: All BoardDataWriters must write the same number of files.");
+    }
+  }
 }
 
 //define this as a plug-in
