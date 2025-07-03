@@ -25,7 +25,7 @@ def customise(process):
         hoHamamatsu = hcaldigi.hoHamamatsu,
         # from hcalUnsuppressedDigis
         hitsProducer = hcaldigi.hitsProducer,
-        TestNumbering = hcaldigi.TestNumberingPU,
+        TestNumbering = hcaldigi.TestNumbering,
         CaloSamplesTag = cms.InputTag(cstag,"HcalSamples"),
     )
 
