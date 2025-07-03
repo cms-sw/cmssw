@@ -46,8 +46,24 @@ private:
   int global_dt_ = 0;
   int global_ast_ = 0;
 
+  // Histograms in eta bins
+  TH1D* h_rt_eta;
+  TH1D* h_at_eta;
+  TH1D* h_st_eta;
+  TH1D* h_dt_eta;
+  TH1D* h_ast_eta;
+
+  // Histograms in pt bins
+  TH1D* h_rt_pt;
+  TH1D* h_at_pt;
+  TH1D* h_st_pt;
+  TH1D* h_dt_pt;
+  TH1D* h_ast_pt;
+
   TrackingParticleSelector tpSelector;
   TTree* output_tree_;
+  TTree* output_tree_eta_;
+  TTree* output_tree_pt_;
   const std::vector<edm::InputTag> trackLabels_;
   std::vector<edm::EDGetTokenT<edm::View<reco::Track>>> trackTokens_;
   const edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> trackAssociatorToken_;
@@ -56,8 +72,8 @@ private:
 
 SimpleTrackValidation::SimpleTrackValidation(const edm::ParameterSet& iConfig)
     : trackLabels_(iConfig.getParameter<std::vector<edm::InputTag>>("trackLabels")),
-      trackAssociatorToken_(consumes<reco::TrackToTrackingParticleAssociator>(
-          iConfig.getUntrackedParameter<edm::InputTag>("trackAssociator"))),
+      trackAssociatorToken_(
+          consumes<reco::TrackToTrackingParticleAssociator>(iConfig.getParameter<edm::InputTag>("trackAssociator"))),
       trackingParticleToken_(
           consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("trackingParticles"))) {
   for (auto& itag : trackLabels_) {
@@ -107,31 +123,42 @@ void SimpleTrackValidation::analyze(const edm::Event& iEvent, const edm::EventSe
     reco::RecoToSimCollection recSimColl = associatorByHits.associateRecoToSim(trackRefs, tpCollection);
     reco::SimToRecoCollection simRecColl = associatorByHits.associateSimToReco(trackRefs, tpCollection);
 
-    int rt = 0;                    // number of reconstructed tracks;
-    int at = 0;                    // number of reconstructed tracks associated to a tracking particle
-    int ast = 0;                   // number of tracking particles associated to at least a reconstructed track.
-    int dt = 0;                    //  number of duplicates (number of sim associated to more than one reco);
-    int st = tpCollection.size();  // number of tracking particles;
+    int rt = 0;   // number of reconstructed tracks;
+    int at = 0;   // number of reconstructed tracks associated to a tracking particle;
+    int ast = 0;  // number of tracking particles associated to at least a reconstructed track;
+    int dt = 0;   // number of duplicates (number of reconstructed tracks associated to more than one sim track);
+    int st = 0;   // number of tracking particles;
 
     for (const auto& track : trackRefs) {
       rt++;
+      h_rt_eta->Fill(track->eta());
+      h_rt_pt->Fill(track->pt());
       auto foundTP = recSimColl.find(track);
       if (foundTP != recSimColl.end()) {
         const auto& tp = foundTP->val;
         if (!tp.empty()) {
           at++;
+          h_at_eta->Fill(track->eta());
+          h_at_pt->Fill(track->pt());
         }
         if (simRecColl.find(tp[0].first) != simRecColl.end()) {
           if (simRecColl[tp[0].first].size() > 1) {
             dt++;
+            h_dt_eta->Fill(track->eta());
+            h_dt_pt->Fill(track->pt());
           }
         }
       }
     }
     for (const TrackingParticleRef& tpr : tpCollection) {
+      st++;
+      h_st_eta->Fill(tpr->eta());
+      h_st_pt->Fill(tpr->pt());
       auto foundTrack = simRecColl.find(tpr);
       if (foundTrack != simRecColl.end()) {
         ast++;
+        h_ast_eta->Fill(tpr->eta());
+        h_ast_pt->Fill(tpr->pt());
       }
     }
 
@@ -149,14 +176,61 @@ void SimpleTrackValidation::beginJob() {
   edm::Service<TFileService> fs;
   output_tree_ = fs->make<TTree>("output", "Simple Track Validation TTree");
 
+  // Counters used for computing the efficiency are filled with the Tracking Particle variables
+  // Counters used for computing the fake and duplicate rate are filled with the Reco Track variables
   output_tree_->Branch("rt", &global_rt_);
   output_tree_->Branch("at", &global_at_);
   output_tree_->Branch("st", &global_st_);
   output_tree_->Branch("dt", &global_dt_);
   output_tree_->Branch("ast", &global_ast_);
+
+  // Define 3 bins in eta for negative endcap, barrel, and positive endcap
+  std::vector<double> V_bins_eta = {-4, -1.5, 1.5, 4};
+  int n_bins_eta = V_bins_eta.size() - 1;
+  double* v_bins_eta = &V_bins_eta[0];
+
+  // Define 3 bins in pt 0-3 GeV, 3-10 GeV, 10-100 GeV
+  std::vector<double> V_bins_pt = {0, 3, 10, 1000};
+  int n_bins_pt = V_bins_pt.size() - 1;
+  double* v_bins_pt = &V_bins_pt[0];
+
+  output_tree_eta_ = fs->make<TTree>("output_eta", "Simple Track Validation Binned in Eta TTree");
+
+  h_st_eta =
+      fs->make<TH1D>("h_st_eta", " ; Tracking Particle #eta; Number of tracking particles", n_bins_eta, v_bins_eta);
+  h_ast_eta = fs->make<TH1D>(
+      "h_ast_eta",
+      " ; Tracking Particle #eta; Number of tracking particles associated to at least a reconstructed track",
+      n_bins_eta,
+      v_bins_eta);
+  h_rt_eta = fs->make<TH1D>("h_rt_eta", " ; Reco Track #eta; Number of reconstructed tracks", n_bins_eta, v_bins_eta);
+  h_dt_eta = fs->make<TH1D>("h_dt_eta", " ; Reco Track #eta; Number of duplicates", n_bins_eta, v_bins_eta);
+  h_at_eta = fs->make<TH1D>("h_at_eta",
+                            " ; Reco Track #eta; Number of reconstructed tracks associated to a tracking particle",
+                            n_bins_eta,
+                            v_bins_eta);
+
+  output_tree_pt_ = fs->make<TTree>("output_pt", "Simple Track Validation Binned in Pt TTree");
+
+  h_st_pt = fs->make<TH1D>("h_st_pt", " ; Tracking Particle p_{T}; Number of tracking particles", n_bins_pt, v_bins_pt);
+  h_ast_pt = fs->make<TH1D>(
+      "h_ast_pt",
+      " ; Tracking Particle p_{T}; Number of tracking particles associated to at least a reconstructed track",
+      n_bins_pt,
+      v_bins_pt);
+  h_rt_pt = fs->make<TH1D>("h_rt_pt", " ; Reco Track p_{T}; Number of reconstructed tracks", n_bins_pt, v_bins_pt);
+  h_at_pt = fs->make<TH1D>("h_at_pt",
+                           " ; Reco Track p_{T}; Number of reconstructed tracks associated to a tracking particle",
+                           n_bins_pt,
+                           v_bins_pt);
+  h_dt_pt = fs->make<TH1D>("h_dt_pt", " ; Reco Track p_{T}; Number of duplicates", n_bins_pt, v_bins_pt);
 }
 
-void SimpleTrackValidation::endJob() { output_tree_->Fill(); }
+void SimpleTrackValidation::endJob() {
+  output_tree_->Fill();
+  output_tree_eta_->Fill();
+  output_tree_pt_->Fill();
+}
 
 void SimpleTrackValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -168,8 +242,8 @@ void SimpleTrackValidation::fillDescriptions(edm::ConfigurationDescriptions& des
   // TP Selector parameters
   desc.add<double>("ptMinTP", 0.9);
   desc.add<double>("ptMaxTP", 1e100);
-  desc.add<double>("minRapidityTP", -2.4);
-  desc.add<double>("maxRapidityTP", 2.4);
+  desc.add<double>("minRapidityTP", -4);
+  desc.add<double>("maxRapidityTP", 4);
   desc.add<double>("tipTP", 3.5);
   desc.add<double>("lipTP", 30.0);
   desc.add<int>("minHitTP", 0);
