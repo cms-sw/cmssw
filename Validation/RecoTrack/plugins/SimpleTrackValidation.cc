@@ -57,7 +57,7 @@ private:
 SimpleTrackValidation::SimpleTrackValidation(const edm::ParameterSet& iConfig)
     : trackLabels_(iConfig.getParameter<std::vector<edm::InputTag>>("trackLabels")),
       trackAssociatorToken_(consumes<reco::TrackToTrackingParticleAssociator>(
-          iConfig.getUntrackedParameter<edm::InputTag>("trackAssociator"))),
+          iConfig.getParameter<edm::InputTag>("trackAssociator"))),
       trackingParticleToken_(
           consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("trackingParticles"))) {
   for (auto& itag : trackLabels_) {
