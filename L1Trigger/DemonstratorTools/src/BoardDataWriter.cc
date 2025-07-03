@@ -66,6 +66,18 @@ namespace l1t::demo {
       : BoardDataWriter(
             format, path, fileExt, framesPerBX, tmux, maxFramesPerFile, mergeMaps(channelMap, channelSpecs), staggerTmuxSlices) {}
 
+  BoardDataWriter::~BoardDataWriter() {
+    // Print a warning if there are events that have been processed but not written to file.
+    // Note we don't call flush() in the destructor because any exceptions would not be properly handled.
+    // BoardDataWriter::flush() should be called in the endJob() function, e.g. GTTFileWriter::endJob().
+    if (pendingEvents_ > 0) {
+      std::cerr << "BoardDataWriter: Warning: The last " << pendingEvents_ << " events were not written to file. Please remember to flush() in the endJob() function of your file writer." << std::endl;
+      if (!fileNames_.empty()) {
+        std::cerr << "BoardDataWriter: The name of the last complete output buffer file was " << fileNames_.back() << std::endl;
+      }
+    }
+  }
+
   void BoardDataWriter::setBoardDataFileID(const std::string& aId) { boardDataFileID_ = aId; }
 
   void BoardDataWriter::addEvent(const EventData& eventData) {

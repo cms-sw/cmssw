@@ -41,6 +41,8 @@ namespace l1t::demo {
                     const std::map<std::string, ChannelSpec>&,
                     const bool staggerTmuxSlices = true);
 
+    ~BoardDataWriter();
+
     // Set ID string that's written at start of board data files
     void setBoardDataFileID(const std::string&);
 
