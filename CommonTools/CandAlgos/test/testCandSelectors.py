@@ -12,31 +12,31 @@ process.source = Source("PoolSource",
 
 # select the 10 particles with the larget Pt
 process.largestPtCands = EDProducer("LargestPtCandSelector",
-  src = InputTag("genParticleCandidates"),
+  src = InputTag("genParticles"),
   maxNumber = uint32( 10 )
 )
 
 # select only electrons, and save a vector of references 
 process.electronRefs = EDProducer("PdgIdCandRefVectorSelector",
-  src = InputTag("genParticleCandidates"),
+  src = InputTag("genParticles"),
   pdgId = vint32( 11 )
 )
 
 # select only electrons, and save clones
 process.electrons = EDProducer("PdgIdCandSelector",
-  src = InputTag("genParticleCandidates"),
+  src = InputTag("genParticles"),
   pdgId = vint32( 11 )
 )
 
 # select only muons, and save a vector of references 
 process.muonRefs = EDProducer("PdgIdCandRefVectorSelector",
-  src = InputTag("genParticleCandidates"),
+  src = InputTag("genParticles"),
   pdgId = vint32( 13 )
 )
 
 # select only muons, and save clones
 process.muons = EDProducer("PdgIdCandSelector",
-  src = InputTag("genParticleCandidates"),
+  src = InputTag("genParticles"),
   pdgId = vint32( 13 )
 )
 
