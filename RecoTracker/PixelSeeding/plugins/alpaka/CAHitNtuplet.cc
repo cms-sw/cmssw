@@ -140,7 +140,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
 
       auto oldLayer = 0u;
-      auto layerCount = 0;
+      auto layerCount = 0u;
 
       std::vector<int> layerStarts(n_layers + 1);
       //^ why n_layers + 1? This is a cumulative sum of the number
@@ -162,7 +162,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         if (layer != oldLayer) {
           layerStarts[layerCount++] = n_modules;
 
-          if (layerCount > n_layers + 1)
+          if (layerCount >= layerStarts.size())
             break;
 
           oldLayer = layer;
