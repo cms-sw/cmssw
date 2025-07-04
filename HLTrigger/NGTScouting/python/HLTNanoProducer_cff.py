@@ -91,7 +91,7 @@ def hltNanoCustomize(process):
         )
         process.NANOAODSIMoutput.SelectEvents = cms.untracked.PSet(
             SelectEvents = cms.vstring(
-                [p for p in process.paths if p.startswith('HLT_') or p.startswith('DST_')]
+                [p for p in process.paths if p.startswith('HLT_') or p.startswith('MC_') or p.startswith('DST_')]
             )
         )
 
