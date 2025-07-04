@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
+from Configuration.Eras.Modifier_phase2_hgcalV19_cff import phase2_hgcalV19
 
 # Digitization parameters
 adcSaturationBH_MIP = digiparam.hgchebackDigitizer.digiCfg.feCfg.adcSaturation_fC
@@ -7,11 +8,18 @@ adcNbitsBH = digiparam.hgchebackDigitizer.digiCfg.feCfg.adcNbits
 
 # MAX_LAYERS should be equal to kNHGCalLayersMax_ defined in interface/HGCalCoarseTriggerCellMapping.h
 # MAX_LAYERS can be larger than the actual number of layers
-# CTC / STC sizes vectors should have a length of 5*MAX_LAYERS, 5 = 4 different silicon thicknesses/types (HD120, LD200, LD300, HD200) + scintillator portion
+# CTC / STC sizes vectors should have a length of (N_THICKNESSES+1)*MAX_LAYERS
+# <V19: 3 different silicon thicknesses/types (HD120, LD200, LD300) + scintillator portion
+# >=V19: 4 different silicon thicknesses/types (HD120, LD200, LD300, HD200) + scintillator portion
 MAX_LAYERS = 52
-CTC_2_SIZES = cms.vuint32( [2]*(MAX_LAYERS+1)*5 )
-STC_4_AND_16_SIZES = cms.vuint32( [4]*(MAX_LAYERS+1)+ [16]*(MAX_LAYERS+1)*4 )
-STC_4_AND_8_SIZES = cms.vuint32( [4]*(MAX_LAYERS+1)+ [8]*(MAX_LAYERS+1)*4 )
+N_THICKNESSES = 3
+CTC_2_SIZES = cms.vuint32( [2]*(MAX_LAYERS+1)*(N_THICKNESSES+1) )
+STC_4_AND_16_SIZES = cms.vuint32( [4]*(MAX_LAYERS+1)+ [16]*(MAX_LAYERS+1)*N_THICKNESSES )
+STC_4_AND_8_SIZES = cms.vuint32( [4]*(MAX_LAYERS+1)+ [8]*(MAX_LAYERS+1)*N_THICKNESSES )
+N_THICKNESSES_V19 = 4
+CTC_2_SIZES_V19 = cms.vuint32( [2]*(MAX_LAYERS+1)*(N_THICKNESSES_V19+1) )
+STC_4_AND_16_SIZES_V19 = cms.vuint32( [4]*(MAX_LAYERS+1)+ [16]*(MAX_LAYERS+1)*N_THICKNESSES_V19 )
+STC_4_AND_8_SIZES_V19 = cms.vuint32( [4]*(MAX_LAYERS+1)+ [8]*(MAX_LAYERS+1)*N_THICKNESSES_V19 )
 
 threshold_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcessorSelection'),
                                Method = cms.vstring(['thresholdSelect']*3),
@@ -22,6 +30,10 @@ threshold_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorPro
                                allTrigCellsInTrigSums = cms.bool(True),
                                ctcSize = CTC_2_SIZES,
                                )
+
+phase2_hgcalV19.toModify(threshold_conc_proc, 
+                         ctcSize = CTC_2_SIZES_V19,
+                         ) 
 
 # Column is Nlinks, Row is NWafers
 # Requested size = 8(links)x8(wafers)
@@ -79,6 +91,9 @@ best_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcesso
                           superTCCalibration_nose = vfe_proc.calibrationCfg_nose.clone(),
                           ctcSize = CTC_2_SIZES,
                           )
+phase2_hgcalV19.toModify(best_conc_proc, 
+                         ctcSize = CTC_2_SIZES_V19,
+                         ) 
 
 supertc_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcessorSelection'),
                              Method = cms.vstring(['superTriggerCellSelect']*3),
@@ -95,6 +110,11 @@ supertc_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProce
                              superTCCalibration_hesc = vfe_proc.calibrationCfg_hesc.clone(),
                              superTCCalibration_nose = vfe_proc.calibrationCfg_nose.clone(),
                              )
+phase2_hgcalV19.toModify(supertc_conc_proc, 
+                         stcSize = STC_4_AND_16_SIZES_V19,
+                         ctcSize = CTC_2_SIZES_V19,
+                         ) 
+
 
 custom_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcessorSelection'),
                           Method = cms.vstring('bestChoiceSelect','superTriggerCellSelect','superTriggerCellSelect'),
@@ -114,6 +134,10 @@ custom_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProces
                           superTCCalibration_hesc = vfe_proc.calibrationCfg_hesc.clone(),
                           superTCCalibration_nose = vfe_proc.calibrationCfg_nose.clone(),
                           )
+phase2_hgcalV19.toModify(custom_conc_proc, 
+                         stcSize = STC_4_AND_16_SIZES_V19,
+                         ctcSize = CTC_2_SIZES_V19,
+                         ) 
 
 
 coarsetc_onebitfraction_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcessorSelection'),
@@ -134,6 +158,10 @@ coarsetc_onebitfraction_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcen
                              superTCCalibration_hesc = vfe_proc.calibrationCfg_hesc.clone(),
                              superTCCalibration_nose = vfe_proc.calibrationCfg_nose.clone(),
                              )
+phase2_hgcalV19.toModify(coarsetc_onebitfraction_proc, 
+                         stcSize = STC_4_AND_8_SIZES_V19,
+                         ctcSize = CTC_2_SIZES_V19,
+                         ) 
 
 
 coarsetc_equalshare_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcessorSelection'),
@@ -151,6 +179,10 @@ coarsetc_equalshare_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentrat
                              superTCCalibration_hesc = vfe_proc.calibrationCfg_hesc.clone(),
                              superTCCalibration_nose = vfe_proc.calibrationCfg_nose.clone(),
 )
+phase2_hgcalV19.toModify(coarsetc_equalshare_proc, 
+                         stcSize = STC_4_AND_8_SIZES_V19,
+                         ctcSize = CTC_2_SIZES_V19,
+                         ) 
 
 
 autoencoder_triggerCellRemap = [0,16, 32,
