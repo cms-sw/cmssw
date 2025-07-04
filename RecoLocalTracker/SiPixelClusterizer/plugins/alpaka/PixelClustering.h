@@ -32,12 +32,69 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
     // Phase-1 pixel modules
     constexpr uint32_t pixelSizeX = pixelTopology::Phase1::numRowsInModule;
     constexpr uint32_t pixelSizeY = pixelTopology::Phase1::numColsInModule;
-    constexpr int32_t empVal = std::numeric_limits<int32_t>::max() -
+    constexpr uint16_t empVal = std::numeric_limits<uint16_t>::max() -
                                2;  // TODO: Move this to DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h
-    constexpr int32_t fakeVal = std::numeric_limits<int32_t>::max() -
+    constexpr uint16_t fakeVal = std::numeric_limits<uint16_t>::max() -
                                 4;  // TODO: Move this to DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h
-    constexpr int32_t eroded = std::numeric_limits<int32_t>::max() -
+    constexpr uint16_t eroded = std::numeric_limits<uint16_t>::max() -
                                3;  // TODO: Move this to DataFormats/SiPixelClusterSoA/interface/ClusteringConstants.h
+    // Use 0x00, 0x01, 0x03 so each can be OR'ed on top of the previous ones
+    enum Status : uint32_t { kEmpty = 0x00, kFound = 0x01, kDuplicate = 0x03 };
+
+    constexpr uint32_t bits = 2;
+    constexpr uint32_t mask = (0x01 << bits) - 1;
+    constexpr uint32_t valuesPerWord = sizeof(uint32_t) * 8 / bits;
+    constexpr uint32_t size = pixelSizeX * pixelSizeY / valuesPerWord;
+
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE constexpr uint32_t getIndex(uint16_t x, uint16_t y) {
+      return (pixelSizeX * y + x) / valuesPerWord;
+    }
+
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE constexpr uint32_t getShift(uint16_t x, uint16_t y) {
+      return (x % valuesPerWord) * 2;
+    }
+
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE constexpr Status getStatus(uint32_t const* __restrict__ status,
+                                                              uint16_t x,
+                                                              uint16_t y) {
+      uint32_t index = getIndex(x, y);
+      uint32_t shift = getShift(x, y);
+      return Status{(status[index] >> shift) & mask};
+    }
+
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE constexpr bool isDuplicate(uint32_t const* __restrict__ status,
+                                                              uint16_t x,
+                                                              uint16_t y) {
+      return getStatus(status, x, y) == kDuplicate;
+    }
+
+    /* FIXME
+       * In the more general case (e.g. a multithreaded CPU backend) there is a potential race condition
+       * between the read of status[index] at line NNN and the atomicCas at line NNN.
+       * We should investigate:
+       *   - if `status` should be read through a `volatile` pointer (CUDA/ROCm)
+       *   - if `status` should be read with an atomic load (CPU)
+       */
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE constexpr void promote(Acc1D const& acc,
+                                                          uint32_t* __restrict__ status,
+                                                          const uint16_t x,
+                                                          const uint16_t y) {
+      uint32_t index = getIndex(x, y);
+      uint32_t shift = getShift(x, y);
+      uint32_t old_word = status[index];
+      uint32_t expected = old_word;
+      do {
+        expected = old_word;
+        Status old_status{(old_word >> shift) & mask};
+        if (kDuplicate == old_status) {
+          // nothing to do
+          return;
+        }
+        Status new_status = (kEmpty == old_status) ? kFound : kDuplicate;
+        uint32_t new_word = old_word | (static_cast<uint32_t>(new_status) << shift);
+        old_word = alpaka::atomicCas(acc, &status[index], expected, new_word, alpaka::hierarchy::Blocks{});
+      } while (expected != old_word);
+    }
   }  // namespace pixelStatus
 
   template <typename TrackerTraits>
@@ -99,6 +156,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
 
       auto &lastPixel = alpaka::declareSharedVar<unsigned int, __COUNTER__>(acc);
 
+
       const uint32_t lastModule = clus_view[0].moduleStart();
       for (uint32_t module : cms::alpakatools::independent_groups(acc, lastModule)) {
         auto firstPixel = clus_view[1 + module].moduleStart();
@@ -157,6 +215,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
         alpaka::syncBlockThreads(acc);
 
         // remove duplicate pixels
+#if 0
         constexpr bool isPhase2 = std::is_base_of<pixelTopology::Phase2, TrackerTraits>::value;
         for (uint32_t i : cms::alpakatools::independent_group_elements(acc, firstPixel, lastPixel)) {
           if (digi_view[i].moduleId() == ::pixelClustering::invalidModuleId)
@@ -175,6 +234,63 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
           }
         }
         alpaka::syncBlockThreads(acc);
+#endif
+
+	constexpr bool isPhase2 = std::is_base_of<pixelTopology::Phase2, TrackerTraits>::value;
+	if constexpr (not isPhase2) {
+		// packed words array used to store the pixelStatus of each pixel
+		auto& status = alpaka::declareSharedVar<uint32_t[pixelStatus::size], __COUNTER__>(acc);
+
+		if (lastPixel > 1) {
+			for (uint32_t i : cms::alpakatools::independent_group_elements(acc, pixelStatus::size)) {
+				status[i] = 0;
+			}
+			alpaka::syncBlockThreads(acc);
+
+			for (uint32_t i : cms::alpakatools::independent_group_elements(acc, firstPixel, lastPixel)) {
+				// skip invalid pixels
+				if (digi_view[i].moduleId() == ::pixelClustering::invalidModuleId)
+					continue;
+				pixelStatus::promote(acc, status, digi_view[i].xx(), digi_view[i].yy());
+			}
+			alpaka::syncBlockThreads(acc);
+
+			alpaka::syncBlockThreads(acc);
+			for (uint32_t i : cms::alpakatools::independent_group_elements(acc, firstPixel, lastPixel)) {
+				// skip invalid pixels
+				if (digi_view[i].moduleId() == ::pixelClustering::invalidModuleId)
+					continue;
+
+				if (pixelStatus::isDuplicate(status, digi_view[i].xx(), digi_view[i].yy())) {
+					digi_view[i].moduleId() = ::pixelClustering::invalidModuleId;
+					digi_view[i].rawIdArr() = 0;
+					continue;
+				}
+				int fpX = digi_view[i].xx() + offset;
+				int fpY = digi_view[i].yy() + offset;
+				images[module].clus()[fpY][fpX] = static_cast<uint16_t>(digi_view[i].clus() - firstPixel);
+			}
+			alpaka::syncBlockThreads(acc);
+		}
+	}
+	else
+	{
+		auto& clusterCounter = alpaka::declareSharedVar<int32_t, __COUNTER__>(acc);
+		if (cms::alpakatools::once_per_block(acc)) {
+			clusterCounter = 0;
+		}
+		alpaka::syncBlockThreads(acc);
+		for (uint32_t i : cms::alpakatools::independent_group_elements(acc, firstPixel, lastPixel)) {
+			if (digi_view[i].moduleId() == ::pixelClustering::invalidModuleId)
+				continue;
+			int fpX = digi_view[i].xx() + offset;
+			int fpY = digi_view[i].yy() + offset;
+			int32_t uniqueClusterId = alpaka::atomicInc(acc, &clusterCounter, int(0xFFFFFFFF), alpaka::hierarchy::Blocks{});
+			ALPAKA_ASSERT_ACC(uniqueClusterId < static_cast<uint16_t>(std::numeric_limits<uint16_t>::max() - 5));
+			images[module].clus()[fpY][fpX] = static_cast<uint16_t>(uniqueClusterId);
+		}
+	}
+
         if (offset > 1) {
           uint32_t morphingsize = (pixelStatus::pixelSizeX + 2) * (pixelStatus::pixelSizeY + 2);
           //Morphing: Dilation
@@ -243,7 +359,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
           int fpY = digi_view[i].yy() + offset;
           if (digi_view[i].moduleId() == ::pixelClustering::invalidModuleId)
             continue;
-          digi_view[i].clus() = images[module].clus()[fpY][fpX];
+          digi_view[i].clus() = images[module].clus()[fpY][fpX] + firstPixel;
         }
 
         alpaka::syncBlockThreads(acc);
@@ -263,6 +379,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
           }
         }
         alpaka::syncBlockThreads(acc);
+	
 
         // propagate the negative id to all the pixels in the cluster.
         for (uint32_t i : cms::alpakatools::independent_group_elements(acc, firstPixel, lastPixel)) {
