@@ -7,7 +7,7 @@ hltTriggerAcceptFilter = _triggerResultsFilter.clone(
     l1tResults = cms.InputTag( "" ),
     l1tIgnoreMaskAndPrescale = cms.bool( False ),
     throw = cms.bool( False ),
-    triggerConditions = cms.vstring('HLT_*')
+    triggerConditions = cms.vstring('HLT_*', 'MC_*')
 )
 
 dstTriggerAcceptFilter = _triggerResultsFilter.clone(
