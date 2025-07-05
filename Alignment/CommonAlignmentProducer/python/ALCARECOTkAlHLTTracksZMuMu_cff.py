@@ -55,6 +55,22 @@ ALCARECOTkAlHLTTracksZMuMu.TwoBodyDecaySelector.charge = 0
 ALCARECOTkAlHLTTracksZMuMu.TwoBodyDecaySelector.applyAcoplanarityFilter = False
 ALCARECOTkAlHLTTracksZMuMu.TwoBodyDecaySelector.numberOfCandidates = 1
 
-seqALCARECOTkAlHLTTracksZMuMu = cms.Sequence(ALCARECOTkAlHLTTracksZMuMuHLT+ALCARECOTkAlHLTTracksZMuMuDCSFilter+ALCARECOTkAlHLTTracksZMuMuGoodMuons+ALCARECOTkAlHLTTracksZMuMuRelCombIsoMuons+ALCARECOTkAlHLTTracksZMuMu)
+##################################################################
+# Tracks from the selected vertex
+#################################################################
+import Alignment.CommonAlignmentProducer.AlignmentTracksFromVertexSelector_cfi as _TracksFromPixelVertex
+ALCARECOTkAlHLTPixelZMuMuVertexTracks = _TracksFromPixelVertex.AlignmentTracksFromVertexSelector.clone(
+    src = 'hltPixelTracks',
+    vertices = 'hltPixelVertices',
+    leptonTracks = 'ALCARECOTkAlHLTTracksZMuMu',
+    useClosestVertexToDilepton = True,
+)
+
+seqALCARECOTkAlHLTTracksZMuMu = cms.Sequence(ALCARECOTkAlHLTTracksZMuMuHLT+
+                                             ALCARECOTkAlHLTTracksZMuMuDCSFilter+
+                                             ALCARECOTkAlHLTTracksZMuMuGoodMuons+
+                                             ALCARECOTkAlHLTTracksZMuMuRelCombIsoMuons+
+                                             ALCARECOTkAlHLTTracksZMuMu+
+                                             ALCARECOTkAlHLTPixelZMuMuVertexTracks)
 
 
