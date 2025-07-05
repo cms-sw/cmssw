@@ -6,7 +6,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#include "DataFormats/HGCalReco/interface/Trackster.h"
+#include "DataFormats/TICLReco/interface/Trackster.h"
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/Framework/interface/ESHandle.h"

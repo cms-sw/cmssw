@@ -4,7 +4,7 @@
 #include <memory>
 #include <array>
 #include "RecoHGCal/TICL/plugins/LinkingAlgoBase.h"
-#include "DataFormats/HGCalReco/interface/Common.h"
+#include "DataFormats/TICLReco/interface/Common.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -13,14 +13,14 @@
 
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
-#include "DataFormats/HGCalReco/interface/TICLLayerTile.h"
+#include "DataFormats/TICLReco/interface/TICLLayerTile.h"
 
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "DataFormats/HGCalReco/interface/Trackster.h"
+#include "DataFormats/TICLReco/interface/Trackster.h"
 
 namespace ticl {
   class LinkingAlgoByDirectionGeometric final : public LinkingAlgoBase {

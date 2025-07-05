@@ -27,7 +27,7 @@ Note that all tracksters are translated to reco::CaloCluster, even those that ar
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
-#include "DataFormats/HGCalReco/interface/Trackster.h"
+#include "DataFormats/TICLReco/interface/Trackster.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 using cms::Ort::ONNXRuntime;

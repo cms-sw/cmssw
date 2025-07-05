@@ -5,7 +5,7 @@
 #define RecoHGCal_TICL_TracksterInferenceAlgo_H__
 
 #include <vector>
-#include "DataFormats/HGCalReco/interface/Trackster.h"
+#include "DataFormats/TICLReco/interface/Trackster.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -14,7 +14,7 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-#include "DataFormats/HGCalReco/interface/TICLCandidate.h"
+#include "DataFormats/TICLReco/interface/TICLCandidate.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"

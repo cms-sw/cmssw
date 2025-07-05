@@ -122,7 +122,6 @@ namespace {
       addSeed(seed, &*s, positron, out);
     }
   }
-
 }  // namespace
 
 ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset,

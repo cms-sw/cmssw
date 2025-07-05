@@ -1,5 +1,5 @@
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
-#include "DataFormats/HGCalReco/interface/Trackster.h"
+#include "DataFormats/TICLReco/interface/Trackster.h"
 
 #include "TEveTrans.h"
 #include "TGeoSphere.h"
