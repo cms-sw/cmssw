@@ -165,7 +165,7 @@ namespace gctpf {
 
   inline GCTint_t getPeakPositionHF(const RegionHF_t& region) {
     GCTEtaHFStripPeak_t etaPeak;
-    for (int i = 0; i < nHfPhi / 6; i++) {
+    for (int i = 0; i < nHfEta; i++) {
       etaPeak.p[i] = getPeakOfHFStrip(region.s[i]);
     }
     GCTint_t max = getPeakBinHF(etaPeak);
