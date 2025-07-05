@@ -1577,7 +1577,6 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
       (void)ygx0(i);
       (void)ygsig(i);
 
-
       chi2yavg_[i] = (1.f - yratio_) * enty0_->chi2yavg[i] + yratio_ * enty1_->chi2yavg[i];
       chi2ymin_[i] = (1.f - yratio_) * enty0_->chi2ymin[i] + yratio_ * enty1_->chi2ymin[i];
       chi2xavg[i] = (1.f - yratio_) * enty0_->chi2xavg[i] + yratio_ * enty1_->chi2xavg[i];
