@@ -1572,10 +1572,10 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
         ygsig_[i] = (1.f - yratio_) * enty0_->ygsig[i] + yratio_ * enty1_->ygsig[i];
       }  //if(goodEdgeAlgo)
 
-      ygx0_[i] = 0.f;
-      ygsig_[i] = 0.f;
-      (void)ygx0(i);
-      (void)ygsig(i);
+      // ygx0_[i] = 0.f;
+      // ygsig_[i] = 0.f;
+      // (void)ygx0(i);
+      // (void)ygsig(i);
 
       chi2yavg_[i] = (1.f - yratio_) * enty0_->chi2yavg[i] + yratio_ * enty1_->chi2yavg[i];
       chi2ymin_[i] = (1.f - yratio_) * enty0_->chi2ymin[i] + yratio_ * enty1_->chi2ymin[i];
