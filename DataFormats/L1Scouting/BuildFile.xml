@@ -1,5 +1,6 @@
 <use name="FWCore/Utilities"/>
 <use name="DataFormats/Common"/>
+<use name="DataFormats/NanoAOD"/>
 <export>
   <lib name="1"/>
 </export>
