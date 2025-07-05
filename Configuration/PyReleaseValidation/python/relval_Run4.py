@@ -77,6 +77,7 @@ numWFIB.extend([prefixDet+34.756]) # HLTTiming75e33, phase2_hlt_vertexTrimming
 numWFIB.extend([prefixDet+34.7561])# HLTTiming75e33, alpaka,phase2_hlt_vertexTrimming
 numWFIB.extend([prefixDet+34.7562])# HLTTiming75e33, alpaka,phase2_hlt_vertexTrimming,singleIterPatatrack
 numWFIB.extend([prefixDet+34.757]) # HLTTiming75e33, alpaka,singleIterPatatrack,trackingLST,seedingLST
+numWFIB.extend([prefixDet+34.758]) # HLTTiming75e33, ticl_barrel
 numWFIB.extend([prefixDet+34.759]) # HLTTiming75e33 + NANO
 numWFIB.extend([prefixDet+34.77])  # NGTScouting
 numWFIB.extend([prefixDet+34.771]) # NGTScouting + NANO
