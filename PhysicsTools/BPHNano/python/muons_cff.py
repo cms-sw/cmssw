@@ -28,7 +28,7 @@ countTrgMuons = cms.EDFilter("PATCandViewCountFilter",
 TrgMatchMuonTable = simplePATMuonFlatTableProducer.clone(
     src  = cms.InputTag("muonBPH:SelectedMuons"), # Could this be removed and simply select userInt('isTriggering')==1
     cut  = cms.string(""), # We should not filter on cross linked collections
-    name = cms.string("TrgMatchMuon"),
+    name = cms.string("BPHMuon"),
     doc  = cms.string("slimmedMuons after basic selection and trigger match"),
     singleton = cms.bool(False), # the number of entries is variable
     extension = cms.bool(False), # this is the main table for the muons
