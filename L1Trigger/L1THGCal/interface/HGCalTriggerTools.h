@@ -49,6 +49,8 @@ public:
   bool isSilicon(const DetId&) const;
   bool isScintillator(const DetId& id) const { return !isSilicon(id); }
   bool isNose(const DetId&) const;
+  bool isSiliconHighDensity(const DetId&) const;
+  bool isSiliconLowDensity(const DetId&) const;
   int zside(const DetId&) const;
   int thicknessIndex(const DetId&) const;
 
@@ -84,7 +86,7 @@ public:
   DetId simToReco(const DetId&, const HGCalTopology&) const;
   unsigned triggerLayer(const unsigned id) const { return geom_->triggerLayer(id); }
 
-  static constexpr unsigned kScintillatorPseudoThicknessIndex_ = 3;
+  static constexpr unsigned kScintillatorPseudoThicknessIndex_ = 4;
 
   enum SubDetectorType {
     hgcal_silicon_CEE,

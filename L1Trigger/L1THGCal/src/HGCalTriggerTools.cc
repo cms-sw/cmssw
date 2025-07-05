@@ -185,6 +185,52 @@ bool HGCalTriggerTools::isSilicon(const DetId& id) const {
   return silicon;
 }
 
+bool HGCalTriggerTools::isSiliconHighDensity(const DetId& id) const {
+  if (isScintillator(id)) {
+    return false;
+  }
+  unsigned det = id.det();
+  bool hd = false;
+  if (det == DetId::HGCalEE || det == DetId::HGCalHSi) {
+    hd = HGCSiliconDetId(id).highDensity();
+  } else if (det == DetId::Forward && id.subdetId() == ForwardSubdetector::HFNose) {
+    hd = (HFNoseDetId(id).type() == HFNoseDetId::HFNoseFine);
+  } else if (det == DetId::Forward && id.subdetId() == ForwardSubdetector::HGCTrigger) {
+    hd = HGCalTriggerModuleDetId(id).isSiliconHighDensity();
+  } else if (id.det() == DetId::HGCalTrigger &&
+             (HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HGCalEETrigger ||
+              HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HGCalHSiTrigger)) {
+    hd = HGCalTriggerDetId(id).highDensity();
+  } else if (id.det() == DetId::HGCalTrigger &&
+             HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HFNoseTrigger) {
+    hd = (HFNoseDetId(id).type() == HFNoseDetId::HFNoseFine);
+  }
+  return hd;
+}
+
+bool HGCalTriggerTools::isSiliconLowDensity(const DetId& id) const {
+  if (isScintillator(id)) {
+    return false;
+  }
+  unsigned det = id.det();
+  bool ld = false;
+  if (det == DetId::HGCalEE || det == DetId::HGCalHSi) {
+    ld = HGCSiliconDetId(id).lowDensity();
+  } else if (det == DetId::Forward && id.subdetId() == ForwardSubdetector::HFNose) {
+    ld = (HFNoseDetId(id).type() != HFNoseDetId::HFNoseFine);
+  } else if (det == DetId::Forward && id.subdetId() == ForwardSubdetector::HGCTrigger) {
+    ld = HGCalTriggerModuleDetId(id).isSiliconLowDensity();
+  } else if (id.det() == DetId::HGCalTrigger &&
+             (HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HGCalEETrigger ||
+              HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HGCalHSiTrigger)) {
+    ld = HGCalTriggerDetId(id).lowDensity();
+  } else if (id.det() == DetId::HGCalTrigger &&
+             HGCalTriggerDetId(id).subdet() == HGCalTriggerSubdetector::HFNoseTrigger) {
+    ld = (HFNoseDetId(id).type() != HFNoseDetId::HFNoseFine);
+  }
+  return ld;
+}
+
 HGCalTriggerTools::SubDetectorType HGCalTriggerTools::getSubDetectorType(const DetId& id) const {
   SubDetectorType subdet;
   if (!isScintillator(id)) {

@@ -28,8 +28,7 @@ HGCDigitizerBase::HGCDigitizerBase(const edm::ParameterSet& ps)
   }
 
   if (myCfg_.existsAs<double>("noise_fC")) {
-    noise_fC_.reserve(1);
-    noise_fC_.push_back(myCfg_.getParameter<double>("noise_fC"));
+    noise_fC_.resize(4, myCfg_.getParameter<double>("noise_fC"));
   } else if (myCfg_.existsAs<std::vector<double>>("noise_fC")) {
     const auto& noises = myCfg_.getParameter<std::vector<double>>("noise_fC");
     noise_fC_ = std::vector<float>(noises.begin(), noises.end());
@@ -47,7 +46,7 @@ HGCDigitizerBase::HGCDigitizerBase(const edm::ParameterSet& ps)
     scalHFNose_.setDoseMap(doseMapFile_, scaleByDoseAlgo);
     scalHFNose_.setFluenceScaleFactor(scaleByDoseFactor_);
   } else {
-    noise_fC_.resize(1, 1.f);
+    noise_fC_.resize(4, 1.f);
   }
   if (myCfg_.existsAs<edm::ParameterSet>("ileakParam")) {
     scal_.setIleakParam(
@@ -144,7 +143,6 @@ void HGCDigitizerBase::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& coll,
     uint32_t thrADC(std::floor(myFEelectronics_->getTargetMipValue() / 2));
     uint32_t gainIdx = 0;
     std::array<float, 6>& adcPulse = myFEelectronics_->getDefaultADCPulse();
-
     double tdcOnsetAuto = -1;
     if (scaleByDose_) {
       if (id.det() == DetId::Forward && id.subdetId() == ForwardSubdetector::HFNose) {

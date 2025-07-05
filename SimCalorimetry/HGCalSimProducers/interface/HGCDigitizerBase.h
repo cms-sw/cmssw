@@ -21,6 +21,9 @@
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
+#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
+
 #include "SimCalorimetry/HGCalSimAlgos/interface/HGCalSiNoiseMap.h"
 
 namespace hgc = hgc_digi;
@@ -29,14 +32,15 @@ namespace hgc_digi_utils {
   using hgc::HGCCellInfo;
 
   inline void addCellMetadata(HGCCellInfo& info, const HGCalGeometry* geom, const DetId& detid) {
-    const auto& dddConst = geom->topology().dddConstants();
-    bool isHalf = (((dddConst.geomMode() == HGCalGeometryMode::Hexagon) ||
-                    (dddConst.geomMode() == HGCalGeometryMode::HexagonFull))
-                       ? dddConst.isHalfCell(HGCalDetId(detid).wafer(), HGCalDetId(detid).cell())
-                       : false);
-    //base time samples for each DetId, initialized to 0
-    info.size = (isHalf ? 0.5 : 1.0);
-    info.thickness = 1 + dddConst.waferType(detid, false);
+    if (detid.det() == DetId::HGCalHSc) {
+      HGCScintillatorDetId sipmdetid(detid);
+      info.size = sipmdetid.sipm();
+      info.thickness = sipmdetid.granularity();
+    } else {
+      HGCSiliconDetId sidetid(detid);
+      info.size = sidetid.highDensity() ? 0.5 : 1.0;
+      info.thickness = sidetid.type();
+    }
   }
 
   inline void addCellMetadata(HGCCellInfo& info, const CaloSubdetectorGeometry* geom, const DetId& detid) {
@@ -80,7 +84,7 @@ public:
   float keV2fC() const { return keV2fC_; }
   bool toaModeByEnergy() const { return (myFEelectronics_->toaMode() == HGCFEElectronics<DFr>::WEIGHTEDBYE); }
   float tdcOnset() const { return myFEelectronics_->getTDCOnset(); }
-  std::array<float, 3> tdcForToAOnset() const { return myFEelectronics_->getTDCForToAOnset(); }
+  std::vector<float> tdcForToAOnset() const { return myFEelectronics_->getTDCForToAOnset(); }
   DetId::Detector det() const { return det_; }
   ForwardSubdetector subdet() const { return subdet_; }
 
