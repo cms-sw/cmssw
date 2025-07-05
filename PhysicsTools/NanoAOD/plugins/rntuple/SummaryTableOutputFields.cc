@@ -1,12 +1,13 @@
 #include "SummaryTableOutputFields.h"
 
+using ROOT::RNTupleModel;
+
 template <typename T, typename Col>
 std::vector<RNTupleFieldPtr<T>> SummaryTableOutputFields::makeFields(const std::vector<Col> &tabcols,
                                                                      RNTupleModel &model) {
   std::vector<RNTupleFieldPtr<T>> fields;
   fields.reserve(tabcols.size());
   for (const auto &col : tabcols) {
-    // TODO field description
     fields.emplace_back(RNTupleFieldPtr<T>(col.name, col.doc, model));
   }
   return fields;
@@ -26,6 +27,7 @@ void SummaryTableOutputFields::fillScalarFields(const std::vector<Col> &tabcols,
   }
 }
 
+// TODO: maybe we can unify with the function above since now it's the same
 template <typename T, typename Col>
 void SummaryTableOutputFields::fillVectorFields(const std::vector<Col> &tabcols,
                                                 std::vector<RNTupleFieldPtr<T>> fields) {
@@ -36,22 +38,17 @@ void SummaryTableOutputFields::fillVectorFields(const std::vector<Col> &tabcols,
     if (tabcols[i].name != fields[i].getFieldName()) {
       throw cms::Exception("LogicError", "Mismatch in table columns");
     }
-    auto data = tabcols[i].values;
-    // TODO remove this awful hack when std::int64_t is supported
-    // -- turns std::vector<int64_t> into std::vector<uint64_t>
-    T casted_data(data.begin(), data.end());
-    fields[i].fill(casted_data);
+    fields[i].fill(tabcols[i].values);
   }
 }
 
 SummaryTableOutputFields::SummaryTableOutputFields(const nanoaod::MergeableCounterTable &tab, RNTupleModel &model) {
-  // TODO use std::int64_t when supported
-  m_intFields = makeFields<std::uint64_t>(tab.intCols(), model);
-  m_floatFields = makeFields<double>(tab.floatCols(), model);
-  m_floatWithNormFields = makeFields<double>(tab.floatWithNormCols(), model);
-  m_vintFields = makeFields<std::vector<std::uint64_t>>(tab.vintCols(), model);
-  m_vfloatFields = makeFields<std::vector<double>>(tab.vfloatCols(), model);
-  m_vfloatWithNormFields = makeFields<std::vector<double>>(tab.vfloatWithNormCols(), model);
+  m_intFields = makeFields<int_accumulator>(tab.intCols(), model);
+  m_floatFields = makeFields<float_accumulator>(tab.floatCols(), model);
+  m_floatWithNormFields = makeFields<float_accumulator>(tab.floatWithNormCols(), model);
+  m_vintFields = makeFields<std::vector<int_accumulator>>(tab.vintCols(), model);
+  m_vfloatFields = makeFields<std::vector<float_accumulator>>(tab.vfloatCols(), model);
+  m_vfloatWithNormFields = makeFields<std::vector<float_accumulator>>(tab.vfloatWithNormCols(), model);
 }
 
 void SummaryTableOutputFields::fill(const nanoaod::MergeableCounterTable &tab) {
