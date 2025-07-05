@@ -5,7 +5,9 @@
 #include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
 #include "DataFormats/HcalRecHit/interface/HBHEChannelInfo.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "CondFormats/HcalObjects/interface/HcalRecoParam.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShapeLookup.h"
 
 class AbsHcalAlgoData;
 
@@ -26,6 +28,7 @@ class AbsHcalAlgoData;
 //
 class AbsHBHEPhase1Algo {
 public:
+  inline AbsHBHEPhase1Algo() : channelPulseShapes_(nullptr) {}
   inline virtual ~AbsHBHEPhase1Algo() {}
 
   inline virtual void beginRun(const edm::Run&, const edm::EventSetup&) {}
@@ -50,6 +53,11 @@ public:
                                  const HcalRecoParam* params,
                                  const HcalCalibrations& calibs,
                                  bool isRealData) = 0;
+
+  inline virtual void setPulseShapes(const HcalPulseShapeLookup* ptr) { channelPulseShapes_ = ptr; }
+
+protected:
+  const HcalPulseShapeLookup* channelPulseShapes_;
 };
 
 #endif  // RecoLocalCalo_HcalRecAlgos_AbsHBHEPhase1Algo_h_
