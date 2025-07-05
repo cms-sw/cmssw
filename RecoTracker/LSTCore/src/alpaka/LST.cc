@@ -8,68 +8,6 @@ using namespace ALPAKA_ACCELERATOR_NAMESPACE::lst;
 #include "Math/VectorUtil.h"
 using XYZVector = ROOT::Math::XYZVector;
 
-namespace {
-  using namespace ALPAKA_ACCELERATOR_NAMESPACE::lst;
-  std::vector<unsigned int> getHitIdxs(short trackCandidateType,
-                                       Params_pT5::ArrayUxHits const& tcHitIndices,
-                                       unsigned int const* hitIndices) {
-    std::vector<unsigned int> hits;
-
-    unsigned int maxNHits = 0;
-    if (trackCandidateType == LSTObjType::pT5)
-      maxNHits = Params_pT5::kHits;
-    else if (trackCandidateType == LSTObjType::pT3)
-      maxNHits = Params_pT3::kHits;
-    else if (trackCandidateType == LSTObjType::T5)
-      maxNHits = Params_T5::kHits;
-    else if (trackCandidateType == LSTObjType::pLS)
-      maxNHits = Params_pLS::kHits;
-
-    for (unsigned int i = 0; i < maxNHits; i++) {
-      unsigned int hitIdxDev = tcHitIndices[i];
-      unsigned int hitIdx =
-          (trackCandidateType == LSTObjType::pLS)
-              ? hitIdxDev
-              : hitIndices[hitIdxDev];  // Hit indices are stored differently in the standalone for pLS.
-
-      // For p objects, the 3rd and 4th hit maybe the same,
-      // due to the way pLS hits are stored in the standalone.
-      // This is because pixel seeds can be either triplets or quadruplets.
-      if (trackCandidateType != LSTObjType::T5 && hits.size() == 3 &&
-          hits.back() == hitIdx)  // Remove duplicate 4th hits.
-        continue;
-
-      hits.push_back(hitIdx);
-    }
-
-    return hits;
-  }
-
-}  // namespace
-
-void LST::getOutput(LSTEvent& event) {
-  out_tc_hitIdxs_.clear();
-  out_tc_len_.clear();
-  out_tc_seedIdx_.clear();
-  out_tc_trackCandidateType_.clear();
-
-  auto const hitsBase = event.getTrimmedHitsBase(false);  // sync on next line
-  auto const& trackCandidates = event.getTrackCandidates(/*inCMSSW*/ true, /*sync*/ true);
-
-  unsigned int nTrackCandidates = trackCandidates.nTrackCandidates();
-
-  for (unsigned int idx = 0; idx < nTrackCandidates; idx++) {
-    short trackCandidateType = trackCandidates.trackCandidateType()[idx];
-    std::vector<unsigned int> hit_idx =
-        getHitIdxs(trackCandidateType, trackCandidates.hitIndices()[idx], hitsBase.idxs());
-
-    out_tc_hitIdxs_.push_back(hit_idx);
-    out_tc_len_.push_back(hit_idx.size());
-    out_tc_seedIdx_.push_back(trackCandidates.pixelSeedIndex()[idx]);
-    out_tc_trackCandidateType_.push_back(trackCandidateType);
-  }
-}
-
 void LST::run(Queue& queue,
               bool verbose,
               float const ptCut,
@@ -177,5 +115,5 @@ void LST::run(Queue& queue,
     printf("        # of T5 TrackCandidates produced: %d\n", event.getNumberOfT5TrackCandidates());
   }
 
-  getOutput(event);
+  trackCandidatesBaseDC_ = event.releaseTrackCandidatesBaseDeviceCollection();
 }
