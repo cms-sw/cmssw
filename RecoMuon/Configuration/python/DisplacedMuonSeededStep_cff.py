@@ -8,7 +8,7 @@ from RecoMuon.MuonIdentification.earlyMuons_cfi import earlyDisplacedMuons
 import RecoTracker.SpecialSeedGenerators.outInSeedsFromStandaloneMuons_cfi
 muonSeededSeedsOutInDisplaced = RecoTracker.SpecialSeedGenerators.outInSeedsFromStandaloneMuons_cfi.outInSeedsFromStandaloneMuons.clone(
     src        = "earlyDisplacedMuons",
-    fromVertex = False
+    fromVertex = True
 )
 ###------------- MeasurementEstimator, defining the searcgh window for pattern recongnition ----------------
 #for displaced global muons
