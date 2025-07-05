@@ -1110,6 +1110,19 @@ Nominal2025OOCollisionVtxSmearingParameters = cms.PSet(
     Z0 = cms.double(0.3423956)
 )
 
+# From 2025 pO data runs 393975-394007)
+Realistic2025pOCollisionVtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(100),
+    Emittance = cms.double(3.835e-08),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(4.855060),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.041049),
+    Y0 = cms.double(-0.008035),
+    Z0 = cms.double(0.569058)
+)
+
 # Parameters for HL-LHC operation at 13TeV
 HLLHCVtxSmearingParameters = cms.PSet(
     MeanXIncm = cms.double(0.),
