@@ -40,14 +40,13 @@ CustomProcessHelper::CustomProcessHelper(const edm::ParameterSet& p, CustomParti
   mixing = p.getParameter<double>("mixing");
 
   edm::LogVerbatim("SimG4CoreCustomPhysics")
-    << "ProcessHelper: Read in physics parameters:"
-                                         << "\n Resonant = " << resonant << "\n ResonanceEnergy = " << ek_0 / GeV
-                                         << " GeV"
-                                         << "\n Gamma = " << gamma / GeV << " GeV"
-                                         << "\n Amplitude = " << amplitude / millibarn << " millibarn"
-                                         << "ReggeSuppression = " << 100 * suppressionfactor << " %"
-                                         << "HadronLifeTime = " << hadronlifetime << " s"
-                                         << "ReggeModel = " << reggemodel << "Mixing = " << mixing * 100 << " %";
+      << "ProcessHelper: Read in physics parameters:"
+      << "\n Resonant = " << resonant << "\n ResonanceEnergy = " << ek_0 / GeV << " GeV"
+      << "\n Gamma = " << gamma / GeV << " GeV"
+      << "\n Amplitude = " << amplitude / millibarn << " millibarn"
+      << "ReggeSuppression = " << 100 * suppressionfactor << " %"
+      << "HadronLifeTime = " << hadronlifetime << " s"
+      << "ReggeModel = " << reggemodel << "Mixing = " << mixing * 100 << " %";
 
   checkfraction = 0;
   n_22 = 0;
@@ -98,10 +97,9 @@ CustomProcessHelper::CustomProcessHelper(const edm::ParameterSet& p, CustomParti
   for (auto part : fParticleFactory->getCustomParticles()) {
     CustomParticle* particle = dynamic_cast<CustomParticle*>(part);
     if (particle) {
-      edm::LogVerbatim("SimG4CoreCustomPhysics")
-	  << "ProcessHelper: Lifetime of " << part->GetParticleName() << " set to "
-	  << particle->GetPDGLifeTime() / s << " s;"
-	  << " isStable: " << particle->GetPDGStable();
+      edm::LogVerbatim("SimG4CoreCustomPhysics") << "ProcessHelper: Lifetime of " << part->GetParticleName()
+                                                 << " set to " << particle->GetPDGLifeTime() / s << " s;"
+                                                 << " isStable: " << particle->GetPDGStable();
     }
   }
 }
@@ -358,7 +356,7 @@ ReactionProduct CustomProcessHelper::GetFinalState(const G4Track& aTrack, G4Part
 }
 
 G4double CustomProcessHelper::ReactionProductMass(const ReactionProduct& aReaction,
-                                              const G4DynamicParticle* aDynamicParticle) {
+                                                  const G4DynamicParticle* aDynamicParticle) {
   // Incident energy:
   G4double E_incident = aDynamicParticle->GetTotalEnergy();
   //edm::LogInfo("SimG4CoreCustomPhysics")<<"Total energy: "<<E_incident<<" Kinetic: "<<aDynamicParticle->GetKineticEnergy()<<G4endl;
@@ -379,7 +377,7 @@ G4double CustomProcessHelper::ReactionProductMass(const ReactionProduct& aReacti
 }
 
 G4bool CustomProcessHelper::ReactionIsPossible(const ReactionProduct& aReaction,
-                                           const G4DynamicParticle* aDynamicParticle) {
+                                               const G4DynamicParticle* aDynamicParticle) {
   return (ReactionProductMass(aReaction, aDynamicParticle) > 0);
 }
 
@@ -425,7 +423,7 @@ double CustomProcessHelper::Regge(const double boost) {
   return 1.5 * exp(a + b / boost + c * log(boost));
 }
 
-double G4ProcessHelper::Pom(const double boost) {
+double CustomProcessHelper::Pom(const double boost) {
   double a = 4.138224000651535;
   double b = 1.50377557581421;
   double c = -0.05449742257808247;

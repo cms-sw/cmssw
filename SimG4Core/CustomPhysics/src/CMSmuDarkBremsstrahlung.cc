@@ -10,8 +10,8 @@
 using namespace std;
 
 CMSmuDarkBremsstrahlung::CMSmuDarkBremsstrahlung(const G4String& scalefile,
-                                               const G4double biasFactor,
-                                               const G4String& name)
+                                                 const G4double biasFactor,
+                                                 const G4String& name)
     : G4VEmProcess(name), isInitialised(false), mgfile(scalefile), cxBias(biasFactor) {
   G4int subtype = 40;
   SetProcessSubType(subtype);

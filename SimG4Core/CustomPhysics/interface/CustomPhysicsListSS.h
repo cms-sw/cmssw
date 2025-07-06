@@ -11,7 +11,7 @@ class CustomParticleFactory;
 class CustomPhysicsListSS : public G4VPhysicsConstructor {
 public:
   CustomPhysicsListSS(const std::string& name, const edm::ParameterSet& p, bool useuni = false);
-  ~CustomPhysicsListSS() override;
+  ~CustomPhysicsListSS() override = default;
 
   void ConstructParticle() override;
   void ConstructProcess() override;

@@ -14,16 +14,15 @@
 #include "TFile.h"
 #include "TTree.h"
 //gsl
-/*
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_integration.h>
-*/
+
 using namespace std;
 
 CMSmuDarkBremsstrahlungModel::CMSmuDarkBremsstrahlungModel(const G4String& scalefile,
-                                                         const G4double biasFactor,
-                                                         const G4ParticleDefinition* p,
-                                                         const G4String& nam)
+                                                           const G4double biasFactor,
+                                                           const G4ParticleDefinition* p,
+                                                           const G4String& nam)
     : G4VEmModel(nam),
       mgfile(scalefile),
       cxBias(biasFactor),
@@ -37,7 +36,7 @@ CMSmuDarkBremsstrahlungModel::CMSmuDarkBremsstrahlungModel(const G4String& scale
     SetParticle(p);
   }  //Verify that the particle is a muon.
   theAPrime = CMSAPrime::APrime();
-  MA = CMSAPrime::APrime()->GetPDGMass() / CLHEP::GeV;                        //Get the A' mass.
+  MA = CMSAPrime::APrime()->GetPDGMass() / CLHEP::GeV;                       //Get the A' mass.
   muonMass = G4MuonMinus::MuonMinusDefinition()->GetPDGMass() / CLHEP::GeV;  //Get the muon mass
   highKinEnergy = HighEnergyLimit();
   lowKinEnergy = LowEnergyLimit();
@@ -287,8 +286,8 @@ G4double CMSmuDarkBremsstrahlungModel::ComputeCrossSectionPerAtom(
 }
 
 G4DataVector* CMSmuDarkBremsstrahlungModel::ComputePartialSumSigma(const G4Material* material,
-                                                                  G4double kineticEnergy,
-                                                                  G4double cut)
+                                                                   G4double kineticEnergy,
+                                                                   G4double cut)
 
 // Build the table of cross section per element.
 //The table is built for MATERIALS.
@@ -310,10 +309,10 @@ G4DataVector* CMSmuDarkBremsstrahlungModel::ComputePartialSumSigma(const G4Mater
 }
 
 void CMSmuDarkBremsstrahlungModel::SampleSecondaries(std::vector<G4DynamicParticle*>* vdp,
-                                                    const G4MaterialCutsCouple* couple,
-                                                    const G4DynamicParticle* dp,
-                                                    G4double tmin,
-                                                    G4double maxEnergy)
+                                                     const G4MaterialCutsCouple* couple,
+                                                     const G4DynamicParticle* dp,
+                                                     G4double tmin,
+                                                     G4double maxEnergy)
 //Simulates the emission of a dark photon + electron. Gets an energy fraction and Pt from madgraph files. Scales the energy so that the fraction of kinectic energy is constant, keeps the Pt constant. If the Pt is larger than the new energy, that event is skipped, and a new one is taken from the file.
 {
   //Deactivate the process after one dark brem. Needs to be reactivated in the end of event action. If this is in the stepping action instead, more than one brem can occur within each step.

@@ -13,7 +13,7 @@ class CMSAntiSQ : public G4ParticleDefinition {
 private:
   static CMSAntiSQ* theInstance;
   CMSAntiSQ() = default;
-  ~CMSAntiSQ() = default;
+  ~CMSAntiSQ() override = default;
 
 public:
   static CMSAntiSQ* Definition(double mass);

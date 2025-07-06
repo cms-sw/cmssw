@@ -1,5 +1,5 @@
 #include "SimG4Core/CustomPhysics/interface/FullModelHadronicProcess.h"
-#include "SimG4Core/CustomPhysics/interface/G4ProcessHelper.h"
+#include "SimG4Core/CustomPhysics/interface/CustomProcessHelper.h"
 #include "SimG4Core/CustomPhysics/interface/Decay3Body.h"
 #include "SimG4Core/CustomPhysics/interface/CustomPDGParser.h"
 #include "SimG4Core/CustomPhysics/interface/CustomParticle.h"
@@ -12,8 +12,8 @@
 
 using namespace CLHEP;
 
-FullModelHadronicProcess::FullModelHadronicProcess(G4ProcessHelper* aHelper, const G4String& processName)
-    : G4VDiscreteProcess(processName), theHelper(aHelper) {
+FullModelHadronicProcess::FullModelHadronicProcess(CustomProcessHelper* aHelper, const G4String& pname)
+    : G4VDiscreteProcess(pname), theHelper(aHelper) {
   xsec_.reserve(12);
 }
 
@@ -64,8 +64,8 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
   auto aMaterial = aTrack.GetMaterial();
   auto elm = (*aMaterial->GetElementVector())[0];
   if (ne > 1) {
-    G4double sig = G4UniformRand()*xsec_[ne - 1];
-    for (std::size_t i=0; i<ne; ++i) {
+    G4double sig = G4UniformRand() * xsec_[ne - 1];
+    for (std::size_t i = 0; i < ne; ++i) {
       if (sig <= xsec_[i]) {
         elm = (*aMaterial->GetElementVector())[i];
         break;
@@ -79,7 +79,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
     auto abun = elm->GetRelativeAbundanceVector();
     G4double q = G4UniformRand();
     G4double x = 0.0;
-    for (std::size_t i=0; i<niso; ++i) {
+    for (std::size_t i = 0; i < niso; ++i) {
       x += abun[i];
       if (x >= q) {
         iso = (*isovec)[i];

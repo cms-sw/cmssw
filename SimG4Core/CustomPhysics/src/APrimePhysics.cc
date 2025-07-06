@@ -15,15 +15,12 @@ APrimePhysics::APrimePhysics(double APMass, const G4String& scalefile, const G4d
   biasFactor = cxBias;
 }
 
-APrimePhysics::~APrimePhysics() {}
-
 void APrimePhysics::ConstructParticle() {
   /**
         * Insert A-prime into the Geant4 particle table.
         * For now we flag it as stable.
         */
   aprimeDef_ = CMSAPrime::APrime(apmass);
-  //aprimeDef->SetProcessManager(new G4ProcessManager(aprimeDef));
 }
 
 void APrimePhysics::ConstructProcess() {

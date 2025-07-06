@@ -36,9 +36,9 @@ class G4ParticleChangeForLoss;
 class CMSmuDarkBremsstrahlungModel : public G4VEmModel {
 public:
   CMSmuDarkBremsstrahlungModel(const G4String& scalefile,
-                              const G4double biasFactor,
-                              const G4ParticleDefinition* p = nullptr,
-                              const G4String& nam = "eDBrem");
+                               const G4double biasFactor,
+                               const G4ParticleDefinition* p = nullptr,
+                               const G4String& nam = "eDBrem");
 
   ~CMSmuDarkBremsstrahlungModel() override;
 

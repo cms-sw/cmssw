@@ -10,11 +10,11 @@
 
 #include "SimG4Core/CustomPhysics/interface/FullModelReactionDynamics.h"
 
-class G4ProcessHelper;
+class CustomProcessHelper;
 
 class FullModelHadronicProcess : public G4VDiscreteProcess {
 public:
-  FullModelHadronicProcess(G4ProcessHelper *aHelper, const G4String &processName = "FullModelHadronicProcess");
+  FullModelHadronicProcess(CustomProcessHelper *aHelper, const G4String &processName = "FullModelHadronicProcess");
 
   ~FullModelHadronicProcess() override = default;
 
@@ -23,11 +23,9 @@ public:
   G4VParticleChange *PostStepDoIt(const G4Track &aTrack, const G4Step &aStep) override;
 
 protected:
-  
-  G4double GetMeanFreePath(const G4Track &aTrack, G4double, G4ForceCondition*) override;
+  G4double GetMeanFreePath(const G4Track &aTrack, G4double, G4ForceCondition *) override;
 
 private:
-
   void CalculateMomenta(G4FastVector<G4ReactionProduct, MYGHADLISTSIZE> &vec,
                         G4int &vecLen,
                         const G4HadProjectile *originalIncident,
@@ -46,9 +44,9 @@ private:
 
   void Rotate(G4FastVector<G4ReactionProduct, MYGHADLISTSIZE> &vec, G4int &vecLen);
 
-  G4ProcessHelper* theHelper;
-  const G4ParticleDefinition* theParticle{nullptr};
-  G4ParticleDefinition* newParticle{nullptr};
+  CustomProcessHelper *theHelper;
+  const G4ParticleDefinition *theParticle{nullptr};
+  G4ParticleDefinition *newParticle{nullptr};
 
   G4Nucleus targetNucleus;
   FullModelReactionDynamics theReactionDynamics;
