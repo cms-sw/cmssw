@@ -1,11 +1,11 @@
 /**
- * @file G4muDarkBremsstrahlungModel.h
+ * @file CMSmuDarkBremsstrahlungModel.h
  * @brief Class provided to simulate the dark brem cross section and interaction.
  * @author Michael Revering, University of Minnesota
  */
 
-#ifndef G4muDarkBremsstrahlungModel_h
-#define G4muDarkBremsstrahlungModel_h
+#ifndef CMSmuDarkBremsstrahlungModel_h
+#define CMSmuDarkBremsstrahlungModel_h
 
 // Geant
 #include "G4VEmModel.hh"
@@ -33,14 +33,14 @@ struct frame {
 class G4Element;
 class G4ParticleChangeForLoss;
 
-class G4muDarkBremsstrahlungModel : public G4VEmModel {
+class CMSmuDarkBremsstrahlungModel : public G4VEmModel {
 public:
-  G4muDarkBremsstrahlungModel(const G4String& scalefile,
+  CMSmuDarkBremsstrahlungModel(const G4String& scalefile,
                               const G4double biasFactor,
                               const G4ParticleDefinition* p = nullptr,
                               const G4String& nam = "eDBrem");
 
-  ~G4muDarkBremsstrahlungModel() override;
+  ~CMSmuDarkBremsstrahlungModel() override;
 
   void Initialise(const G4ParticleDefinition*, const G4DataVector&) override;
 
@@ -62,8 +62,8 @@ public:
   void SetMethod(std::string);
 
   frame GetMadgraphData(double E0);
-  G4muDarkBremsstrahlungModel& operator=(const G4muDarkBremsstrahlungModel& right) = delete;
-  G4muDarkBremsstrahlungModel(const G4muDarkBremsstrahlungModel&) = delete;
+  CMSmuDarkBremsstrahlungModel& operator=(const CMSmuDarkBremsstrahlungModel& right) = delete;
+  CMSmuDarkBremsstrahlungModel(const CMSmuDarkBremsstrahlungModel&) = delete;
 
 protected:
   const G4Element* SelectRandomAtom(const G4MaterialCutsCouple* couple);

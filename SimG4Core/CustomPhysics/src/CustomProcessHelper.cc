@@ -1,4 +1,4 @@
-#include "SimG4Core/CustomPhysics/interface/G4ProcessHelper.h"
+#include "SimG4Core/CustomPhysics/interface/CustomProcessHelper.h"
 #include "SimG4Core/CustomPhysics/interface/CustomPDGParser.h"
 #include "SimG4Core/CustomPhysics/interface/CustomParticle.h"
 #include "SimG4Core/CustomPhysics/interface/CustomParticleFactory.h"
@@ -16,7 +16,7 @@
 
 using namespace CLHEP;
 
-G4ProcessHelper::G4ProcessHelper(const edm::ParameterSet& p, CustomParticleFactory* ptr) {
+CustomProcessHelper::CustomProcessHelper(const edm::ParameterSet& p, CustomParticleFactory* ptr) {
   fParticleFactory = ptr;
 
   particleTable = G4ParticleTable::GetParticleTable();
@@ -39,7 +39,8 @@ G4ProcessHelper::G4ProcessHelper(const edm::ParameterSet& p, CustomParticleFacto
   reggemodel = p.getParameter<bool>("reggeModel");
   mixing = p.getParameter<double>("mixing");
 
-  edm::LogInfo("SimG4CoreCustomPhysics") << "ProcessHelper: Read in physics parameters:"
+  edm::LogVerbatim("SimG4CoreCustomPhysics")
+    << "ProcessHelper: Read in physics parameters:"
                                          << "\n Resonant = " << resonant << "\n ResonanceEnergy = " << ek_0 / GeV
                                          << " GeV"
                                          << "\n Gamma = " << gamma / GeV << " GeV"
@@ -65,11 +66,11 @@ G4ProcessHelper::G4ProcessHelper(const edm::ParameterSet& p, CustomParticleFacto
     known_particles[incidentDef] = true;
 
     G4String target = tokens[1];
-    edm::LogInfo("SimG4CoreCustomPhysics") << "ProcessHelper: Incident " << incident << "; Target " << target;
+    edm::LogVerbatim("SimG4CoreCustomPhysics") << "ProcessHelper: Incident " << incident << "; Target " << target;
 
     // Making a ReactionProduct
     ReactionProduct prod;
-    for (size_t i = 2; i != tokens.size(); i++) {
+    for (std::size_t i = 2; i != tokens.size(); i++) {
       G4String part = tokens[i];
       if (particleTable->contains(part)) {
         prod.push_back(particleTable->FindParticle(part)->GetPDGEncoding());
@@ -97,23 +98,20 @@ G4ProcessHelper::G4ProcessHelper(const edm::ParameterSet& p, CustomParticleFacto
   for (auto part : fParticleFactory->getCustomParticles()) {
     CustomParticle* particle = dynamic_cast<CustomParticle*>(part);
     if (particle) {
-      edm::LogInfo("SimG4CoreCustomPhysics") << "ProcessHelper: Lifetime of " << part->GetParticleName() << " set to "
-                                             << particle->GetPDGLifeTime() / s << " s;"
-                                             << " isStable: " << particle->GetPDGStable();
+      edm::LogVerbatim("SimG4CoreCustomPhysics")
+	  << "ProcessHelper: Lifetime of " << part->GetParticleName() << " set to "
+	  << particle->GetPDGLifeTime() / s << " s;"
+	  << " isStable: " << particle->GetPDGStable();
     }
   }
 }
 
-G4ProcessHelper::~G4ProcessHelper() {}
-
-G4bool G4ProcessHelper::ApplicabilityTester(const G4ParticleDefinition& aPart) {
+G4bool CustomProcessHelper::ApplicabilityTester(const G4ParticleDefinition& aPart) {
   const G4ParticleDefinition* aP = &aPart;
-  if (known_particles[aP])
-    return true;
-  return false;
+  return (known_particles[aP]);
 }
 
-G4double G4ProcessHelper::GetInclusiveCrossSection(const G4DynamicParticle* aParticle, const G4Element* anElement) {
+G4double CustomProcessHelper::GetInclusiveCrossSection(const G4DynamicParticle* aParticle, const G4Element* anElement) {
   //We really do need a dedicated class to handle the cross sections. They might not always be constant
 
   //Disassemble the PDG-code
@@ -184,7 +182,7 @@ G4double G4ProcessHelper::GetInclusiveCrossSection(const G4DynamicParticle* aPar
   return theXsec * pow(anElement->GetN(), 0.7) * 1.25;  // * 0.523598775598299;
 }
 
-ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4ParticleDefinition*& aTarget) {
+ReactionProduct CustomProcessHelper::GetFinalState(const G4Track& aTrack, G4ParticleDefinition*& aTarget) {
   const G4DynamicParticle* aDynamicParticle = aTrack.GetDynamicParticle();
 
   //-----------------------------------------------
@@ -319,20 +317,16 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
 
   G4bool selected = false;
   G4int tries = 0;
-  //  ReactionProductList::iterator prod_it;
 
   //Keep looping over the list until we have a choice, or until we have tried 100 times
   unsigned int i;
   while (!selected && tries < 100) {
     i = 0;
     G4double dice = G4UniformRand();
-    // edm::LogInfo("SimG4CoreCustomPhysics")<<"What's the dice?"<<dice<<G4endl;
     while (dice > Probabilities[i] && i < theReactionProductList.size()) {
       //      edm::LogInfo("SimG4CoreCustomPhysics")<<"i: "<<i<<G4endl;
       i++;
     }
-
-    //    edm::LogInfo("SimG4CoreCustomPhysics")<<"Chosen i: "<<i<<G4endl;
 
     if (!TwotoThreeFlag[i]) {
       // 2 -> 2 processes are chosen immediately
@@ -341,28 +335,15 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
       // 2 -> 3 processes require a phase space lookup
       if (PhaseSpace(theReactionProductList[i], aDynamicParticle) > G4UniformRand())
         selected = true;
-      //selected = true;
     }
     //    double suppressionfactor=0.5;
     if (selected && particleTable->FindParticle(theReactionProductList[i][0])->GetPDGCharge() !=
                         aDynamicParticle->GetDefinition()->GetPDGCharge()) {
-      /*
-	edm::LogInfo("SimG4CoreCustomPhysics")<<"Incoming particle "<<aDynamicParticle->GetDefinition()->GetParticleName()
-	      <<" has charge "<<aDynamicParticle->GetDefinition()->GetPDGCharge()<<G4endl;
-	edm::LogInfo("SimG4CoreCustomPhysics")<<"Suggested particle "<<particleTable->FindParticle(theReactionProductList[i][0])->GetParticleName()
-	      <<" has charge "<<particleTable->FindParticle(theReactionProductList[i][0])->GetPDGCharge()<<G4endl;
-	*/
       if (G4UniformRand() < suppressionfactor)
         selected = false;
     }
     tries++;
-    //    edm::LogInfo("SimG4CoreCustomPhysics")<<"Tries: "<<tries<<G4endl;
   }
-  if (tries >= 100)
-    G4cerr << "Could not select process!!!!" << G4endl;
-
-  //  edm::LogInfo("SimG4CoreCustomPhysics")<<"So far so good"<<G4endl;
-  //  edm::LogInfo("SimG4CoreCustomPhysics")<<"Sec's: "<<theReactionProductList[i].size()<<G4endl;
 
   //Updating checkfraction:
   if (theReactionProductList[i].size() == 2) {
@@ -372,13 +353,11 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
   }
 
   checkfraction = (1.0 * n_22) / (n_22 + n_23);
-  //  edm::LogInfo("SimG4CoreCustomPhysics")<<"n_22: "<<n_22<<" n_23: "<<n_23<<" Checkfraction: "<<checkfraction<<G4endl;
-  //  edm::LogInfo("SimG4CoreCustomPhysics") <<"Biig number: "<<n_22+n_23<<G4endl;
   //Return the chosen ReactionProduct
   return theReactionProductList[i];
 }
 
-G4double G4ProcessHelper::ReactionProductMass(const ReactionProduct& aReaction,
+G4double CustomProcessHelper::ReactionProductMass(const ReactionProduct& aReaction,
                                               const G4DynamicParticle* aDynamicParticle) {
   // Incident energy:
   G4double E_incident = aDynamicParticle->GetTotalEnergy();
@@ -399,27 +378,25 @@ G4double G4ProcessHelper::ReactionProductMass(const ReactionProduct& aReaction,
   return sqrts - M_after;
 }
 
-G4bool G4ProcessHelper::ReactionIsPossible(const ReactionProduct& aReaction,
+G4bool CustomProcessHelper::ReactionIsPossible(const ReactionProduct& aReaction,
                                            const G4DynamicParticle* aDynamicParticle) {
-  if (ReactionProductMass(aReaction, aDynamicParticle) > 0)
-    return true;
-  return false;
+  return (ReactionProductMass(aReaction, aDynamicParticle) > 0);
 }
 
-G4bool G4ProcessHelper::ReactionGivesBaryon(const ReactionProduct& aReaction) {
+G4bool CustomProcessHelper::ReactionGivesBaryon(const ReactionProduct& aReaction) {
   for (ReactionProduct::const_iterator it = aReaction.begin(); it != aReaction.end(); it++)
     if (CustomPDGParser::s_isSbaryon(*it) || CustomPDGParser::s_isRBaryon(*it))
       return true;
   return false;
 }
 
-G4double G4ProcessHelper::PhaseSpace(const ReactionProduct& aReaction, const G4DynamicParticle* aDynamicParticle) {
+G4double CustomProcessHelper::PhaseSpace(const ReactionProduct& aReaction, const G4DynamicParticle* aDynamicParticle) {
   G4double qValue = ReactionProductMass(aReaction, aDynamicParticle);
   G4double phi = sqrt(1 + qValue / (2 * 0.139 * GeV)) * pow(qValue / (1.1 * GeV), 3. / 2.);
   return (phi / (1 + phi));
 }
 
-void G4ProcessHelper::ReadAndParse(const G4String& str, std::vector<G4String>& tokens, const G4String& delimiters) {
+void CustomProcessHelper::ReadAndParse(const G4String& str, std::vector<G4String>& tokens, const G4String& delimiters) {
   // Skip delimiters at beginning.
   G4String::size_type lastPos = str.find_first_not_of(delimiters, 0);
   // Find first "non-delimiter".
@@ -441,7 +418,7 @@ void G4ProcessHelper::ReadAndParse(const G4String& str, std::vector<G4String>& t
   }
 }
 
-double G4ProcessHelper::Regge(const double boost) {
+double CustomProcessHelper::Regge(const double boost) {
   double a = 2.165635078566177;
   double b = 0.1467453738547229;
   double c = -0.9607903711871166;

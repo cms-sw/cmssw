@@ -1,6 +1,6 @@
-#include "SimG4Core/CustomPhysics/interface/G4muDarkBremsstrahlungModel.h"
-#include "SimG4Core/CustomPhysics/interface/G4muDarkBremsstrahlung.h"
-#include "SimG4Core/CustomPhysics/interface/G4APrime.h"
+#include "SimG4Core/CustomPhysics/interface/CMSmuDarkBremsstrahlungModel.h"
+#include "SimG4Core/CustomPhysics/interface/CMSmuDarkBremsstrahlung.h"
+#include "SimG4Core/CustomPhysics/interface/CMSAPrime.h"
 
 //Geant 4
 #include "G4ProcessTable.hh"
@@ -10,15 +10,17 @@
 #include "G4ProductionCutsTable.hh"
 #include <CLHEP/Units/SystemOfUnits.h>
 //Root
+
 #include "TFile.h"
 #include "TTree.h"
 //gsl
+/*
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_integration.h>
-
+*/
 using namespace std;
 
-G4muDarkBremsstrahlungModel::G4muDarkBremsstrahlungModel(const G4String& scalefile,
+CMSmuDarkBremsstrahlungModel::CMSmuDarkBremsstrahlungModel(const G4String& scalefile,
                                                          const G4double biasFactor,
                                                          const G4ParticleDefinition* p,
                                                          const G4String& nam)
@@ -34,15 +36,15 @@ G4muDarkBremsstrahlungModel::G4muDarkBremsstrahlungModel(const G4String& scalefi
   if (p) {
     SetParticle(p);
   }  //Verify that the particle is a muon.
-  theAPrime = G4APrime::APrime();
-  MA = G4APrime::APrime()->GetPDGMass() / CLHEP::GeV;                        //Get the A' mass.
+  theAPrime = CMSAPrime::APrime();
+  MA = CMSAPrime::APrime()->GetPDGMass() / CLHEP::GeV;                        //Get the A' mass.
   muonMass = G4MuonMinus::MuonMinusDefinition()->GetPDGMass() / CLHEP::GeV;  //Get the muon mass
   highKinEnergy = HighEnergyLimit();
   lowKinEnergy = LowEnergyLimit();
   fParticleChange = nullptr;
 }
 
-G4muDarkBremsstrahlungModel::~G4muDarkBremsstrahlungModel() {
+CMSmuDarkBremsstrahlungModel::~CMSmuDarkBremsstrahlungModel() {
   size_t n = partialSumSigma.size();
   if (n > 0) {
     for (size_t i = 0; i < n; i++) {
@@ -51,7 +53,7 @@ G4muDarkBremsstrahlungModel::~G4muDarkBremsstrahlungModel() {
   }
 }
 
-void G4muDarkBremsstrahlungModel::SetParticle(const G4ParticleDefinition* p) {
+void CMSmuDarkBremsstrahlungModel::SetParticle(const G4ParticleDefinition* p) {
   particle = p;
 
   if ((p == G4MuonPlus::MuonPlus()) || (p == G4MuonMinus::MuonMinus())) {
@@ -61,7 +63,7 @@ void G4muDarkBremsstrahlungModel::SetParticle(const G4ParticleDefinition* p) {
   }
 }
 
-void G4muDarkBremsstrahlungModel::Initialise(const G4ParticleDefinition* p, const G4DataVector& cuts) {
+void CMSmuDarkBremsstrahlungModel::Initialise(const G4ParticleDefinition* p, const G4DataVector& cuts) {
   if (p) {
     SetParticle(p);
   }
@@ -101,7 +103,7 @@ void G4muDarkBremsstrahlungModel::Initialise(const G4ParticleDefinition* p, cons
   isInitialised = true;
 }
 
-void G4muDarkBremsstrahlungModel::LoadMG()
+void CMSmuDarkBremsstrahlungModel::LoadMG()
 //Parses a Madgraph root file to extract the kinetic energy fraction and pt of the outgoing electron in each event. Loads the two numbers from every event into a map of vectors of pairs (mgdata). Map is keyed by energy, vector pairs are energy fraction + pt. Also creates an list of energies and placeholders (energies), so that different energies can be looped separately.
 {
   TFile* f = TFile::Open(mgfile.c_str());
@@ -135,7 +137,7 @@ void G4muDarkBremsstrahlungModel::LoadMG()
   f->Close();
 }
 
-void G4muDarkBremsstrahlungModel::MakePlaceholders() {
+void CMSmuDarkBremsstrahlungModel::MakePlaceholders() {
   //Need to do this to set up random sampling of mg distributions
   for (const auto& iter : mgdata) {
     energies.push_back(std::make_pair(iter.first, iter.second.size()));
@@ -146,7 +148,7 @@ void G4muDarkBremsstrahlungModel::MakePlaceholders() {
   }
 }
 
-frame G4muDarkBremsstrahlungModel::GetMadgraphData(double E0)
+frame CMSmuDarkBremsstrahlungModel::GetMadgraphData(double E0)
 //Gets the energy fraction and Pt from the imported LHE data. E0 should be in GeV, returns the total energy and Pt in GeV. Scales from the closest imported beam energy above the given value (scales down to avoid biasing issues).
 {
   frame cmdata;
@@ -181,7 +183,7 @@ frame G4muDarkBremsstrahlungModel::GetMadgraphData(double E0)
   return cmdata;
 }
 
-G4double G4muDarkBremsstrahlungModel::DsigmaDx(double x, void* pp) {
+G4double CMSmuDarkBremsstrahlungModel::DsigmaDx(double x, void* pp) {
   ParamsForChi* params = (ParamsForChi*)pp;
 
   G4double beta = sqrt(1 - (params->MMA) * (params->MMA) / (params->EE0) / (params->EE0));
@@ -192,7 +194,7 @@ G4double G4muDarkBremsstrahlungModel::DsigmaDx(double x, void* pp) {
   return DsDx;
 }
 
-G4double G4muDarkBremsstrahlungModel::chi(double t, void* pp) {
+G4double CMSmuDarkBremsstrahlungModel::chi(double t, void* pp) {
   ParamsForChi* params = (ParamsForChi*)pp;
   /* Reminder II:
  * params->AA;
@@ -221,7 +223,7 @@ G4double G4muDarkBremsstrahlungModel::chi(double t, void* pp) {
   return Under;
 }
 
-G4double G4muDarkBremsstrahlungModel::ComputeCrossSectionPerAtom(
+G4double CMSmuDarkBremsstrahlungModel::ComputeCrossSectionPerAtom(
     const G4ParticleDefinition*, G4double E0, G4double Z, G4double A, G4double cut, G4double)
 // Calculates the cross section per atom in GEANT4 internal units. Uses WW approximation to find the total cross section, performing numerical integrals over x and theta.
 {
@@ -243,7 +245,7 @@ G4double G4muDarkBremsstrahlungModel::ComputeCrossSectionPerAtom(
 
   gsl_function F;
   ParamsForChi alpha = {1.0, 1.0, 1.0, 1.0, 1.0};
-  F.function = &G4muDarkBremsstrahlungModel::chi;
+  F.function = &CMSmuDarkBremsstrahlungModel::chi;
   F.params = &alpha;
   alpha.AA = A;
   alpha.ZZ = Z;
@@ -284,7 +286,7 @@ G4double G4muDarkBremsstrahlungModel::ComputeCrossSectionPerAtom(
   return cross;
 }
 
-G4DataVector* G4muDarkBremsstrahlungModel::ComputePartialSumSigma(const G4Material* material,
+G4DataVector* CMSmuDarkBremsstrahlungModel::ComputePartialSumSigma(const G4Material* material,
                                                                   G4double kineticEnergy,
                                                                   G4double cut)
 
@@ -307,7 +309,7 @@ G4DataVector* G4muDarkBremsstrahlungModel::ComputePartialSumSigma(const G4Materi
   return dv;
 }
 
-void G4muDarkBremsstrahlungModel::SampleSecondaries(std::vector<G4DynamicParticle*>* vdp,
+void CMSmuDarkBremsstrahlungModel::SampleSecondaries(std::vector<G4DynamicParticle*>* vdp,
                                                     const G4MaterialCutsCouple* couple,
                                                     const G4DynamicParticle* dp,
                                                     G4double tmin,
@@ -408,7 +410,7 @@ void G4muDarkBremsstrahlungModel::SampleSecondaries(std::vector<G4DynamicParticl
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-const G4Element* G4muDarkBremsstrahlungModel::SelectRandomAtom(const G4MaterialCutsCouple* couple) {
+const G4Element* CMSmuDarkBremsstrahlungModel::SelectRandomAtom(const G4MaterialCutsCouple* couple) {
   // select randomly 1 element within the material
 
   const G4Material* material = couple->GetMaterial();
@@ -437,7 +439,7 @@ const G4Element* G4muDarkBremsstrahlungModel::SelectRandomAtom(const G4MaterialC
   return elm;
 }
 
-void G4muDarkBremsstrahlungModel::SetMethod(std::string method_in) {
+void CMSmuDarkBremsstrahlungModel::SetMethod(std::string method_in) {
   method = method_in;
   return;
 }

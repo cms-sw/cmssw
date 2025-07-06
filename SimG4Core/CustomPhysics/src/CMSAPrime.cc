@@ -1,9 +1,9 @@
-#include "SimG4Core/CustomPhysics/interface/G4APrime.h"
+#include "SimG4Core/CustomPhysics/interface/CMSAPrime.h"
 #include <CLHEP/Units/SystemOfUnits.h>
 
-G4APrime* G4APrime::theAPrime = nullptr;
+CMSAPrime* CMSAPrime::theAPrime = nullptr;
 
-G4APrime::G4APrime(const G4String& aName,
+CMSAPrime::CMSAPrime(const G4String& aName,
                    G4double mass,
                    G4double width,
                    G4double charge,
@@ -38,9 +38,7 @@ G4APrime::G4APrime(const G4String& aName,
                            lifetime,
                            decaytable) {}
 
-G4APrime::~G4APrime() {}
-
-G4APrime* G4APrime::APrime(double apmass) {
+CMSAPrime* CMSAPrime::APrime(double apmass) {
   if (!theAPrime) {
     const G4String& name = "A^1";
     G4double mass = apmass * CLHEP::MeV;
@@ -60,23 +58,23 @@ G4APrime* G4APrime::APrime(double apmass) {
     G4double lifetime = -1;
     G4DecayTable* decaytable = nullptr;
 
-    theAPrime = new G4APrime(name,
-                             mass,
-                             width,
-                             charge,
-                             iSpin,
-                             iParity,
-                             iConjugation,
-                             iIsospin,
-                             iIsospin3,
-                             gParity,
-                             pType,
-                             lepton,
-                             baryon,
-                             encoding,
-                             stable,
-                             lifetime,
-                             decaytable);
+    theAPrime = new CMSAPrime(name,
+                              mass,
+                              width,
+                              charge,
+                              iSpin,
+                              iParity,
+                              iConjugation,
+                              iIsospin,
+                              iIsospin3,
+                              gParity,
+                              pType,
+                              lepton,
+                              baryon,
+                              encoding,
+                              stable,
+                              lifetime,
+                              decaytable);
   }
   return theAPrime;
 }

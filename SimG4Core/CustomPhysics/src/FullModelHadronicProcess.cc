@@ -1,45 +1,42 @@
-#include "G4ProcessManager.hh"
-#include "G4ParticleTable.hh"
-#include "G4HadronicException.hh"
-
 #include "SimG4Core/CustomPhysics/interface/FullModelHadronicProcess.h"
 #include "SimG4Core/CustomPhysics/interface/G4ProcessHelper.h"
 #include "SimG4Core/CustomPhysics/interface/Decay3Body.h"
 #include "SimG4Core/CustomPhysics/interface/CustomPDGParser.h"
 #include "SimG4Core/CustomPhysics/interface/CustomParticle.h"
 
+#include "G4ProcessManager.hh"
+#include "G4ParticleTable.hh"
+#include "G4Material.hh"
+#include "G4Element.hh"
+#include "G4Isotope.hh"
+
 using namespace CLHEP;
 
 FullModelHadronicProcess::FullModelHadronicProcess(G4ProcessHelper* aHelper, const G4String& processName)
-    : G4VDiscreteProcess(processName), theHelper(aHelper) {}
-
-FullModelHadronicProcess::~FullModelHadronicProcess() {}
+    : G4VDiscreteProcess(processName), theHelper(aHelper) {
+  xsec_.reserve(12);
+}
 
 G4bool FullModelHadronicProcess::IsApplicable(const G4ParticleDefinition& aP) {
   return theHelper->ApplicabilityTester(aP);
 }
 
-G4double FullModelHadronicProcess::GetMicroscopicCrossSection(const G4DynamicParticle* aParticle,
-                                                              const G4Element* anElement,
-                                                              G4double aTemp) {
-  //Get the cross section for this particle/element combination from the ProcessHelper
-  G4double InclXsec = theHelper->GetInclusiveCrossSection(aParticle, anElement);
-  return InclXsec;
-}
-
-G4double FullModelHadronicProcess::GetMeanFreePath(const G4Track& aTrack, G4double, G4ForceCondition*) {
+G4double FullModelHadronicProcess::GetMeanFreePath(const G4Track& aTrack, G4double, G4ForceCondition* cond) {
+  *cond = NotForced;
   G4Material* aMaterial = aTrack.GetMaterial();
   const G4DynamicParticle* aParticle = aTrack.GetDynamicParticle();
   G4double sigma = 0.0;
 
-  G4int nElements = aMaterial->GetNumberOfElements();
+  std::size_t nElements = aMaterial->GetNumberOfElements();
+  xsec_.resize(nElements);
 
   const G4double* theAtomicNumDensityVector = aMaterial->GetAtomicNumDensityVector();
-  G4double aTemp = aMaterial->GetTemperature();
 
-  for (G4int i = 0; i < nElements; ++i) {
-    G4double xSection = GetMicroscopicCrossSection(aParticle, (*aMaterial->GetElementVector())[i], aTemp);
+  for (std::size_t i = 0; i < nElements; ++i) {
+    auto anElement = (*aMaterial->GetElementVector())[i];
+    G4double xSection = theHelper->GetInclusiveCrossSection(aParticle, anElement);
     sigma += theAtomicNumDensityVector[i] * xSection;
+    xsec_[i] = sigma;
   }
   G4double res = DBL_MAX;
   if (sigma > 0.0) {
@@ -61,7 +58,36 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
   G4ParticleTable* theParticleTable = G4ParticleTable::GetParticleTable();
   G4bool incomingRhadronSurvives = false;
   G4bool TargetSurvives = false;
-  G4Nucleus targetNucleus(aTrack.GetMaterial());
+
+  // select isotope
+  std::size_t ne = xsec_.size();
+  auto aMaterial = aTrack.GetMaterial();
+  auto elm = (*aMaterial->GetElementVector())[0];
+  if (ne > 1) {
+    G4double sig = G4UniformRand()*xsec_[ne - 1];
+    for (std::size_t i=0; i<ne; ++i) {
+      if (sig <= xsec_[i]) {
+        elm = (*aMaterial->GetElementVector())[i];
+        break;
+      }
+    }
+  }
+  auto isovec = elm->GetIsotopeVector();
+  std::size_t niso = elm->GetNumberOfIsotopes();
+  const G4Isotope* iso = (*isovec)[0];
+  if (niso > 1) {
+    auto abun = elm->GetRelativeAbundanceVector();
+    G4double q = G4UniformRand();
+    G4double x = 0.0;
+    for (std::size_t i=0; i<niso; ++i) {
+      x += abun[i];
+      if (x >= q) {
+        iso = (*isovec)[i];
+        break;
+      }
+    }
+  }
+  targetNucleus.SetIsotope(iso);
 
   G4ParticleDefinition* outgoingRhadronDefinition = nullptr;
   G4ParticleDefinition* outgoingCloudDefinition = nullptr;
@@ -247,12 +273,12 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
   }
 
   //Update the momenta of the target track
-  G4DynamicParticle* targetParticleG4DynamicAfterInteraction = new G4DynamicParticle;
   if (outgoingTargetG4Reaction.GetMass() > 0.0)  // outgoingTargetG4Reaction can be eliminated in TwoBody
   {
+    G4DynamicParticle* targetParticleG4DynamicAfterInteraction = new G4DynamicParticle;
     targetParticleG4DynamicAfterInteraction->SetDefinition(outgoingTargetG4Reaction.GetDefinition());
     targetParticleG4DynamicAfterInteraction->SetMomentum(outgoingTargetG4Reaction.GetMomentum().rotate(
-        2. * pi * G4UniformRand(),
+        twopi * G4UniformRand(),
         incomingCloud3Momentum));  // rotate(const G4double angle, const ThreeVector &axis) const;
     targetParticleG4DynamicAfterInteraction->SetMomentum(
         (cloudParticleToLabFrameRotation * targetParticleG4DynamicAfterInteraction->Get4Momentum()).vect());
@@ -279,7 +305,6 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
 
   delete incomingCloudG4HadProjectile;
   delete outgoingTargetG4Dynamic;
-  //aParticleChange.DumpInfo();
   ClearNumberOfInteractionLengthLeft();
 
   return &aParticleChange;
@@ -298,7 +323,6 @@ void FullModelHadronicProcess::CalculateMomenta(
     G4bool& targetHasChanged,                     //True if the target particle has changed
     G4bool quasiElastic)                          //True if the reaction product size equals 2, false otherwise
 {
-  FullModelReactionDynamics theReactionDynamics;
   incomingCloud3Momentum = incomingCloudG4HadProjectile->Get4Momentum().v();  //Use this for rotations later
 
   //If the reaction is quasi-elastic, use the TwoBody method to calculate the momenta of the outgoing particles.
