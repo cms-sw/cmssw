@@ -305,4 +305,5 @@ PAYLOAD_2XML_MODULE(pluginUtilities_payload2xml) {
   PAYLOAD_2XML_CLASS(l1t::CaloParams);
   PAYLOAD_2XML_CLASS(lumi::LumiSectionData);
   PAYLOAD_2XML_CLASS(std::vector<unsigned long long>);
+  PAYLOAD_2XML_CLASS(Metadata);
 }

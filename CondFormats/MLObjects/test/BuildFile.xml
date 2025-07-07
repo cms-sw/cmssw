@@ -1,0 +1,3 @@
+<bin file="testSerializationMetadata.cpp">
+  <use name="CondFormats/MLObjects"/>
+</bin>
