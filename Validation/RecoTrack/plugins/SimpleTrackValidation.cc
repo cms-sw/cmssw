@@ -62,8 +62,6 @@ private:
 
   TrackingParticleSelector tpSelector;
   TTree* output_tree_;
-  TTree* output_tree_eta_;
-  TTree* output_tree_pt_;
   std::vector<double> etaBins_;
   std::vector<double> ptBins_;
 
@@ -167,8 +165,8 @@ void SimpleTrackValidation::analyze(const edm::Event& iEvent, const edm::EventSe
       }
     }
 
-    LogPrint("TrackValidator") << "Tag " << trackLabels_[0].label() << " Total simulated " << st
-                               << " Associated tracks " << at << " Total reconstructed " << rt;
+    LogInfo("TrackValidator") << "Tag " << trackLabels_[0].label() << " Total simulated " << st << " Associated tracks "
+                              << at << " Total reconstructed " << rt;
     global_rt_ += rt;
     global_st_ += st;
     global_at_ += at;
@@ -180,56 +178,57 @@ void SimpleTrackValidation::analyze(const edm::Event& iEvent, const edm::EventSe
 void SimpleTrackValidation::beginJob() {
   edm::Service<TFileService> fs;
   output_tree_ = fs->make<TTree>("output", "Simple Track Validation TTree");
-
-  // Counters used for computing the efficiency are filled with the Tracking Particle variables
-  // Counters used for computing the fake and duplicate rate are filled with the Reco Track variables
   output_tree_->Branch("rt", &global_rt_);
   output_tree_->Branch("at", &global_at_);
   output_tree_->Branch("st", &global_st_);
   output_tree_->Branch("dt", &global_dt_);
   output_tree_->Branch("ast", &global_ast_);
 
+  // Counters used for computing the efficiency are filled with the Tracking Particle variables
+  // Counters used for computing the fake and duplicate rate are filled with the Reco Track variables
+
+  TFileDirectory output_dir_eta_ = fs->mkdir("SimpleTrackValidationEtaBins");
   int n_bins_eta = etaBins_.size() - 1;
   double* v_bins_eta = etaBins_.data();
-  output_tree_eta_ = fs->make<TTree>("output_eta", "Simple Track Validation Binned in Eta TTree");
 
-  h_st_eta =
-      fs->make<TH1D>("h_st_eta", " ; Tracking Particle #eta; Number of tracking particles", n_bins_eta, v_bins_eta);
-  h_ast_eta = fs->make<TH1D>(
+  h_st_eta = output_dir_eta_.make<TH1D>(
+      "h_st_eta", " ; Tracking Particle #eta; Number of tracking particles", n_bins_eta, v_bins_eta);
+  h_ast_eta = output_dir_eta_.make<TH1D>(
       "h_ast_eta",
       " ; Tracking Particle #eta; Number of tracking particles associated to at least a reconstructed track",
       n_bins_eta,
       v_bins_eta);
-  h_rt_eta = fs->make<TH1D>("h_rt_eta", " ; Reco Track #eta; Number of reconstructed tracks", n_bins_eta, v_bins_eta);
-  h_dt_eta = fs->make<TH1D>("h_dt_eta", " ; Reco Track #eta; Number of duplicates", n_bins_eta, v_bins_eta);
-  h_at_eta = fs->make<TH1D>("h_at_eta",
-                            " ; Reco Track #eta; Number of reconstructed tracks associated to a tracking particle",
-                            n_bins_eta,
-                            v_bins_eta);
+  h_rt_eta = output_dir_eta_.make<TH1D>(
+      "h_rt_eta", " ; Reco Track #eta; Number of reconstructed tracks", n_bins_eta, v_bins_eta);
+  h_dt_eta = output_dir_eta_.make<TH1D>("h_dt_eta", " ; Reco Track #eta; Number of duplicates", n_bins_eta, v_bins_eta);
+  h_at_eta =
+      output_dir_eta_.make<TH1D>("h_at_eta",
+                                 " ; Reco Track #eta; Number of reconstructed tracks associated to a tracking particle",
+                                 n_bins_eta,
+                                 v_bins_eta);
 
+  TFileDirectory output_dir_pt_ = fs->mkdir("SimpleTrackValidationPtBins");
   int n_bins_pt = ptBins_.size() - 1;
   double* v_bins_pt = ptBins_.data();
-  output_tree_pt_ = fs->make<TTree>("output_pt", "Simple Track Validation Binned in Pt TTree");
 
-  h_st_pt = fs->make<TH1D>("h_st_pt", " ; Tracking Particle p_{T}; Number of tracking particles", n_bins_pt, v_bins_pt);
-  h_ast_pt = fs->make<TH1D>(
+  h_st_pt = output_dir_pt_.make<TH1D>(
+      "h_st_pt", " ; Tracking Particle p_{T}; Number of tracking particles", n_bins_pt, v_bins_pt);
+  h_ast_pt = output_dir_pt_.make<TH1D>(
       "h_ast_pt",
       " ; Tracking Particle p_{T}; Number of tracking particles associated to at least a reconstructed track",
       n_bins_pt,
       v_bins_pt);
-  h_rt_pt = fs->make<TH1D>("h_rt_pt", " ; Reco Track p_{T}; Number of reconstructed tracks", n_bins_pt, v_bins_pt);
-  h_at_pt = fs->make<TH1D>("h_at_pt",
-                           " ; Reco Track p_{T}; Number of reconstructed tracks associated to a tracking particle",
-                           n_bins_pt,
-                           v_bins_pt);
-  h_dt_pt = fs->make<TH1D>("h_dt_pt", " ; Reco Track p_{T}; Number of duplicates", n_bins_pt, v_bins_pt);
+  h_rt_pt =
+      output_dir_pt_.make<TH1D>("h_rt_pt", " ; Reco Track p_{T}; Number of reconstructed tracks", n_bins_pt, v_bins_pt);
+  h_at_pt =
+      output_dir_pt_.make<TH1D>("h_at_pt",
+                                " ; Reco Track p_{T}; Number of reconstructed tracks associated to a tracking particle",
+                                n_bins_pt,
+                                v_bins_pt);
+  h_dt_pt = output_dir_pt_.make<TH1D>("h_dt_pt", " ; Reco Track p_{T}; Number of duplicates", n_bins_pt, v_bins_pt);
 }
 
-void SimpleTrackValidation::endJob() {
-  output_tree_->Fill();
-  output_tree_eta_->Fill();
-  output_tree_pt_->Fill();
-}
+void SimpleTrackValidation::endJob() { output_tree_->Fill(); }
 
 void SimpleTrackValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
