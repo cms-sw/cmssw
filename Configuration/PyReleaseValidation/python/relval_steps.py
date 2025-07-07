@@ -2340,11 +2340,11 @@ steps['HLTDR3_2023']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2023,},{'--con
 
 steps['HLTDR3_2023B']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2023,},{'--conditions':'auto:run3_hlt_relval'},{'--era' : 'Run3'},steps['HLTD'] ] )
 
-steps['HLTDR3_2024']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2025,},{'--conditions':'auto:run3_hlt_relval'},{'--era' : 'Run3_2024'},steps['HLTD'] ] )
+steps['HLTDR3_2024']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2024,},{'--conditions':'auto:run3_hlt_relval'},{'--era' : 'Run3_2024'},steps['HLTD'] ] )
 
 steps['HLTDR3_2025']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2025,},{'--conditions':'auto:run3_hlt_relval'},{'--era' : 'Run3_2025'},steps['HLTD'] ] )
 
-steps['HLTDR3_ScoutingPFMonitor_2024']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2025,},
+steps['HLTDR3_ScoutingPFMonitor_2024']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2024,},
                                                 {'--conditions':'auto:run3_hlt_relval'},
                                                 {'--era' : 'Run3_2024'},
                                                 {'--filein' : '/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/Scouting/Run3/ScoutingPFMonitor/300684ed-1a51-474f-8c4f-b3bf1e1f5044_skimmed.root'},
