@@ -46,7 +46,7 @@ Alternatively, use a ROOT macro to visualize the geometry. This method works on 
 
 ## Gen-Sim step 
 
-To run the Gen-Sim step for the CRACK, run the following command:
+To run the cosmic rays Gen-Sim step for the CRACK, run the following command:
 
 ```
 cmsRun myTrackerOnly_cfg.py
