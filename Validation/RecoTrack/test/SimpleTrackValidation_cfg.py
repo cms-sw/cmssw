@@ -106,7 +106,7 @@ process.simDoubletProduction = cms.Path(
 )
 
 process.options = cms.untracked.PSet(
-    numberOfThreads = cms.untracked.uint32(1),
-    numberOfStreams = cms.untracked.uint32(1),
+    numberOfThreads = cms.untracked.uint32(8),
+    numberOfStreams = cms.untracked.uint32(8),
     wantSummary = cms.untracked.bool(True)
 )
