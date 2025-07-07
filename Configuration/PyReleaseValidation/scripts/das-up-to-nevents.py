@@ -37,7 +37,6 @@ def get_lumi_ranges(i):
     return result
 
 def das_do_command(cmd):
-    print( "Running DAS command: %s"%cmd) ##TODO: remove me
     out = subprocess.check_output(cmd, shell=True, executable="/bin/bash").decode('utf8')
     return out.split("\n")
 
@@ -151,7 +150,7 @@ if __name__ == '__main__':
             json_list = os.listdir(cert_path)
             if len(json_list) == 0:
                 web_fallback == True 
-            json_list = [c for c in json_list if "golden" in c.lower() and "era" not in c.lower()]
+            json_list = [c for c in json_list if "golden" in c.lower() and "era" not in c.lower() and "ppref" not in c.lower()]
             json_list = [c for c in json_list if c.lower().startswith("cert_c") and c.endswith("json")]
         else:
             web_fallback = True
@@ -159,14 +158,13 @@ if __name__ == '__main__':
         if web_fallback:
             cert_url = base_cert_url + cert_type + "/"
             json_list = get_url_clean(cert_url).split("\n")
-            json_list = [c for c in json_list if "golden" in c.lower() and "era" not in c.lower() and "cert_c" in c.lower()]
+            json_list = [c for c in json_list if "golden" in c.lower() and "era" not in c.lower() and "cert_c" in c.lower() and "ppref" not in c.lower()]
             json_list = [[cc for cc in c.split(" ") if cc.lower().startswith("cert_c") and cc.endswith("json")][0] for c in json_list]
 
         # the larger the better, assuming file naming schema 
         # Cert_X_RunStart_RunFinish_Type.json
         # TODO if args.run keep golden only with right range
-
-        run_ranges = [int(c.split("_")[3]) - int(c.split("_")[2]) for c in json_list]
+        run_ranges = [int(c.split("_")[-2]) - int(c.split("_")[-3]) for c in json_list]
         latest_json = np.array(json_list[np.argmax(run_ranges)]).reshape(1,-1)[0].astype(str)
         best_json = str(latest_json[0])
         if not web_fallback:
