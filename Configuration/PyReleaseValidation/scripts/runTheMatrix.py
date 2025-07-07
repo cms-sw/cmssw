@@ -99,7 +99,7 @@ if __name__ == '__main__':
             12846.0,    # RelValZEE_13                  2024
             13034.0,    # RelValTTbar_14TeV             2024 PU = Run3_Flat55To75_PoissonOOTPU
             16834.0,    # RelValTTbar_14TeV             2025
-            17034.0,    # RelValTTbar_14TeV		        2025 PU = Run3_Flat55To75_PoissonOOTPU
+            17034.0,    # RelValTTbar_14TeV             2025 PU = Run3_Flat55To75_PoissonOOTPU
             14034.0,    # RelValTTbar_14TeV             Run3_2023_FastSim
             14234.0,    # RelValTTbar_14TeV             Run3_2023_FastSim   PU = Run3_Flat55To75_PoissonOOTPU
             2500.3001,   # RelValTTbar_14TeV             NanoAOD from existing MINI
@@ -110,24 +110,24 @@ if __name__ == '__main__':
             139.001,    # Run2021  MinimumBias                  Commissioning2021
 
             # 2022
-            2022.106001,     # Run2022C JetHT
+            2022.0030001,     # Run2022C JetHT
 
             # 2023
-            2023.211001,     # Run2023D ZeroBias
+            2023.0020001,     # Run2023D JetMET0
 
             # 2024
-            2024.014001,      # Run2024B ZeroBias
-            2024.204001,      # Run2024C JetMet0
-            2024.202001,      # Run2024D EGamma0
-            2024.301001,      # Run2024E DisplacedJet
-            2024.408001,      # Run2024F ParkingDoubleMuonLowMass0
-            2024.500001,      # Run2024G BTagMu
-            2024.504001,      # Run2024H JetMET0
-            2024.713001,      # Run2024I Tau
+            2024.0000001,      # Run2024B ZeroBias
+            2024.0010001,      # Run2024C JetMET0
+            2024.0020001,      # Run2024D EGamma0
+            2024.0030001,      # Run2024E DisplacedJet
+            2024.0040001,      # Run2024F ParkingDoubleMuonLowMass0
+            2024.0050001,      # Run2024G BTagMu
+            2024.0060001,      # Run2024H Muon0
+            2024.0070001,      # Run2024I Tau
 
             # 2025
-            2025.014001,     # Run2025B ZeroBias
-            2025.104001,     # Run2025C JetMet0
+            2025.0000001,     # Run2025B ZeroBias
+            2025.0010001,     # Run2025C JetMET0
         ],
 
         'phase2' : [

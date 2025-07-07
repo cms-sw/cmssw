@@ -1,5 +1,6 @@
 # import the definition of the steps and input files:
 from  Configuration.PyReleaseValidation.relval_steps import *
+from functools import partial
 
 # here only define the workflows as a combination of the steps defined above:
 workflows = Matrix()
@@ -7,110 +8,57 @@ workflows = Matrix()
 ## Here we define fixed high stats data workflows
 ## not to be run as default. 10k, 50k, 150k, 250k, 500k or 1M events each
 
-offset_era = 0.1 # less than 10 eras per year (hopefully!)
-offset_pd = 0.001 # less than 100 pds per year
-offset_events = 0.0001 # less than 10 event setups (10k,50k,150k,250k,500k,1M)
+def run3NameMod(name):
+    # ParkingDouble* PDs would end up with a too long name for the submission infrastructure
+    return name.replace('ParkingDouble','Park2') 
 
-## 2025
-base_wf = 2025.0
-for e_n,era in enumerate(eras_2025):
-    for p_n,pd in enumerate(pds_2025):
-        for e_key,evs in event_steps_dict.items(): 
-            wf_number = base_wf
-            wf_number = wf_number + offset_era * e_n
-            wf_number = wf_number + offset_pd * p_n
-            wf_number = wf_number + offset_events * evs 
-            wf_number = round(wf_number,6)
+def run3RecoMod(pd):
+    ## ZeroBias and ScoutingPFMonitor have 
+    ## their own RECO and HARVESTING setup
+    if 'ZeroBias' in pd:
+        return 'ZB_'
+    elif 'ScoutingPFMonitor' in pd:
+        return 'ScoutingPFMonitor_'
+    else:
+        return ''
+    
+def run3HLTMod(pd):
+     ## ScoutingPFMonitor has its own HLT setup
+    if 'ScoutingPFMonitor' in pd:
+        return 'ScoutingPFMonitor_'
+    else:
+        return ''
+    
+def addFixedEventsWfs(years, pds, eras, suffreco = None, suffhlt = None, namemod = None):
 
-            ## ZeroBias has its own RECO and HARVESTING setup
-            ## ScoutingPFMonitor has its own HLT, RECO and HARVESTING setup
-            recoharv = hlt = '' 
-            if 'ZeroBias' in pd:
-                recoharv = 'ZB_'
-            elif 'ScoutingPFMonitor' in pd:
-                hlt = recoharv = 'ScoutingPFMonitor_'
-            
-            recosetup = 'RECONANORUN3_' + recoharv + 'reHLT_2025' 
-            
-            y = str(int(base_wf))
-            
-            ## this is because ParkingDouble* PDs would end up with a too long name for the submission infrastructure
-            step_name = 'Run' + pd.replace('ParkingDouble','Park2') + era.split('Run')[1] + '_' + e_key 
+    for y in years:
+        for era in eras:
+            for pd in pds:
+                for e_key,evs in event_steps_dict.items(): 
+                    ## ZeroBias have their own HARVESTING
+                    suff = 'ZB_' if 'ZeroBias' in pd else ''
 
-            workflows[wf_number] = ['',[step_name,'HLTDR3_' + hlt + y,'RECONANORUN3_' + recoharv + 'reHLT_'+y,'HARVESTRUN3_' + recoharv + y]]
+                    wf_number = float(y) + offset_pd * pds.index(pd)
+                    wf_number = wf_number + offset_era * eras.index(era)
+                    wf_number = round(wf_number + offset_events * evs, 6)
 
-## 2024
-base_wf = 2024.0
-for e_n,era in enumerate(eras_2024):
-    for p_n,pd in enumerate(pds_2024):
-        for e_key,evs in event_steps_dict.items(): 
-            wf_number = base_wf
-            wf_number = wf_number + offset_era * e_n
-            wf_number = wf_number + offset_pd * p_n
-            wf_number = wf_number + offset_events * evs 
-            wf_number = round(wf_number,6)
+                    # Here we customise the steps depending on the PD name                
+                    recoharv = suffreco(pd) if suffreco is not None else ''
+                    hlt = suffhlt(pd) if suffhlt is not None else ''
 
-            ## Here we use JetMET1 PD to run the TeVJet skims
-            skim = 'TeVJet' if pd == 'JetMET1' else ''
+                    recosetup = 'RECONANORUN3_' + recoharv + 'reHLT_2025' 
+                    harvsetup = 'HARVESTRUN3_'  + recoharv + y
+                    hltsetup  = 'HLTDR3_' + hlt + y
 
-            ## ZeroBias has its own RECO and HARVESTING setup
-            suff = 'ZB_' if 'ZeroBias' in pd else ''
+                    step_name = 'Run' + pd.replace('ParkingDouble','Park2') + y + era + '_' + e_key 
+                    if namemod is not None:
+                        step_name = namemod(step_name)
 
-            # Running C,D,E with the offline GT.
-            # Could be removed once 2025 wfs are in and we'll test the online GT with them
-            recosetup = 'RECONANORUN3_' + suff + 'reHLT_2024' 
-            recosetup = recosetup if era[-1] > 'E' else recosetup + '_Offline'
-            
-            y = str(int(base_wf))
+                    workflows[wf_number] = ['',[step_name, hltsetup, recosetup, harvsetup]]
 
-            ## this is because ParkingDouble* PDs would end up with a too long name for the submission infrastructure
-            step_name = 'Run' + pd.replace('ParkingDouble','Park2') + era.split('Run')[1] + skim + '_' + e_key
-
-            workflows[wf_number] = ['',[step_name,'HLTDR3_' + y,'RECONANORUN3_' + suff + 'reHLT_'+y,'HARVESTRUN3_' + suff + y]]
-
-## 2023
-base_wf = 2023.0
-for e_n,era in enumerate(eras_2023):
-    for p_n,pd in enumerate(pds_2023):
-        for e_key,evs in event_steps_dict.items():  
-            wf_number = base_wf
-            wf_number = wf_number + offset_era * e_n
-            wf_number = wf_number + offset_pd * p_n
-            wf_number = wf_number + offset_events * evs 
-            wf_number = round(wf_number,6)
-
-            ## this is because ParkingDouble* PDs would end up with a too long name for the submission infrastructure
-            step_name = 'Run' + pd.replace('ParkingDouble','Park2') + era.split('Run')[1] + '_' + e_key
-
-            y = str(int(base_wf)) + 'B' if '2023B' in era else str(int(base_wf))
-            suff = 'ZB_' if 'ZeroBias' in step_name else ''
-            workflows[wf_number] = ['',[step_name,'HLTDR3_' + y,'RECONANORUN3_' + suff + 'reHLT_'+y,'HARVESTRUN3_' + suff + y]]
-
-## 2022
-base_wf = 2022.0
-for e_n,era in enumerate(eras_2022_1):
-    for p_n,pd in enumerate(pds_2022_1):
-        for e_key,evs in event_steps_dict.items(): 
-            wf_number = base_wf
-            wf_number = wf_number + offset_era * e_n
-            wf_number = wf_number + offset_pd * p_n
-            wf_number = wf_number + offset_events * evs
-            wf_number = round(wf_number,6)
-            step_name = 'Run' + pd + era.split('Run')[1] + '_' + e_key
-            y = str(int(base_wf))
-            suff = 'ZB_' if 'ZeroBias' in step_name else ''
-            workflows[wf_number] = ['',[step_name,'HLTDR3_' + y,'RECONANORUN3_' + suff + 'reHLT_'+y,'HARVESTRUN3_' + suff + y]]
-
-# PD names changed during 2022
-for e_n,era in enumerate(eras_2022_2):
-    for p_n,pd in enumerate(pds_2022_2):
-        for e_key,evs in event_steps_dict.items(): 
-            wf_number = base_wf
-            wf_number = wf_number + offset_era * (e_n + len(eras_2022_1))
-            wf_number = wf_number + offset_pd * (p_n + len(pds_2022_1))
-            wf_number = wf_number + offset_events * evs 
-            wf_number = round(wf_number,6)
-            step_name = 'Run' + pd + era.split('Run')[1] + '_' + e_key
-            y = str(int(base_wf))
-            suff = 'ZB_' if 'ZeroBias' in step_name else ''
-            workflows[wf_number] = ['',[step_name,'HLTDR3_' + y,'RECONANORUN3_' + suff + 'reHLT_'+y,'HARVESTRUN3_' + suff + y]] 
+run3FixedWfs = partial(addFixedEventsWfs,suffreco = run3RecoMod, suffhlt = run3HLTMod, namemod = run3NameMod)
+run3FixedWfs(['2025'],pds_2025,eras_2025)
+run3FixedWfs(['2024'],pds_2024,eras_2024)
+run3FixedWfs(['2023'],pds_2023,eras_2023)
+run3FixedWfs(['2022'],pds_2022_2,eras_2022_2)
+run3FixedWfs(['2022'],pds_2022_1,eras_2022_1)

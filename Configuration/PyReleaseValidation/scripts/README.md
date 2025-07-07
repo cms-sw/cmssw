@@ -367,20 +367,21 @@ pp Data reRECO workflows:
 | 2021 	|  	|  	|  	|  	|  	
 | 139.001 	| Run2021 	MinimumBias 	| run3_hlt_relval 	| Run3 	| HLT@relval2022 (Commissioning2021) |	
 | 2022 	|  	|  	|  	|  	|  	
-| 2022.002001 	| Run2022D ZeroBias 	|  	run3_hlt_relval + run3_data_relval |  	Run3 |  	HLT:@relval2022 | 
-| 2022.000001 	| Run2022D JetHT 	|  	run3_hlt_relval + run3_data_relval |  	Run3 |  	HLT:@relval2022 |  	
+| 2022.0030001 	| Run2022D JetHT 	|  	run3_hlt_relval + run3_data_relval |  	Run3 |  	HLT:@relval2022 | 
 | 2023 	|  	|  	|  	|  	|  
-| 2023.002001 	| Run2023D ZeroBias 	|  	run3_hlt_relval + run3_data_relval|  	Run3_2023 |  	HLT:@relval2023 | 
-| 2023.000001 	| Run2023D MuonEG 	|  	run3_hlt_relval + run3_data_relval|  	Run3_2023 |  	HLT:@relval2023 | 
+| 2023.0020001 	| Run2023D JetMET0 	|  	run3_hlt_relval + run3_data_relval|  	Run3_2023 |  	HLT:@relval2023 | 
 | 2024 	|  	|  	|  	|  	|
-| 145.014 	| Run2024B ZeroBias 	|  	run3_hlt_relval + run3_data_relval|  	Run3_2024 |  	HLT:@relval2025 |  
-| 145.104 	| Run2024C JetMet0 	|  	run3_hlt_relval + run3_data_relval|  	Run3_2024 |  	HLT:@relval2025 |  
-| 145.202 	| Run2024D EGamma0 	|  	run3_hlt_relval + run3_data_relval|  	Run3_2024 |  	HLT:@relval2025 |  
-| 145.301 	| Run2024E DisplacedJet 	|  	run3_hlt_relval + run3_data_prompt_relval|  	Run3_2024 |  	HLT:@relval2025 |  
-| 145.408 	| Run2024B ParkingDoubleMuonLowMass0 	|  	run3_hlt_relval + run3_data_prompt_relval|  	Run3_2024 |  	HLT:@relval2025 |  
-| 145.500 	| Run2024B BTagMu 	|  	run3_hlt_relval + run3_data_prompt_relval|  	Run3_2024 |  	HLT:@relval2025 |  
-| 145.604 	| Run2024B JetMET0 	|  	run3_hlt_relval + run3_data_prompt_relval|  	Run3_2024 |  	HLT:@relval2025 |  
-| 145.713 	| Run2024B Tau 	|  	run3_hlt_relval + run3_data_prompt_relval|  	Run3_2024 |  	HLT:@relval2025 |  
+| 2024.0000001 	| Run2024B ZeroBias 	|  	run3_hlt_relval + run3_data_relval|  	Run3_2024 |  	HLT:@relval2024 | 
+| 2024.0010001 	| Run2024C JetMET0 	|  	run3_hlt_relval + run3_data_relval|  	Run3_2024 |  	HLT:@relval2024 |  
+| 2024.0020001 	| Run2024D EGamma0 	|  	run3_hlt_relval + run3_data_relval|  	Run3_2024 |  	HLT:@relval2024 |  
+| 2024.0030001 	| Run2024E DisplacedJet 	|  	run3_hlt_relval + run3_data_relval|  	Run3_2024 |  	HLT:@relval2024 |  
+| 2024.0040001 	| Run2024F ParkingDoubleMuonLowMass0 	|  	run3_hlt_relval + run3_data_relval|  	Run3_2024 |  	HLT:@relval2024 |  
+| 2024.0050001 	| Run2024G BTagMu 	|  	run3_hlt_relval + run3_data_relval|  	Run3_2024 |  	HLT:@relval2024 |  
+| 2024.0060001 	| Run2024H Muon0 	|  	run3_hlt_relval + run3_data_relval|  	Run3_2024 |  	HLT:@relval2024 |  
+| 2024.0070001 	| Run2024I Tau 	|  	run3_hlt_relval + run3_data_relval|  	Run3_2024 |  	HLT:@relval2024 |  
+| 2025 	|  	|  	|  	|  	|
+| 2025.0000001 	| Run2024I ZeroBias 	|  	run3_hlt_relval + run3_data_prompt_relval|  	Run3_2025 |  	HLT:@relval2025 |
+| 2025.0000001 	| Run2024I JetMET0 	|  	run3_hlt_relval + run3_data_prompt_relval|  	Run3_2025 |  	HLT:@relval2025 |
 
 And Heavy Ion workflows:
 
