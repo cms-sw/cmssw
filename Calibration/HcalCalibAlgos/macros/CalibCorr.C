@@ -49,6 +49,9 @@
 //      A class for selecting a given set of Read Out Box's and provides
 //        bool isItRBX(detId): if it/they is in the chosen RBXs
 //        bool isItRBX(ieta, iphi): if it is in the chosen RBXs
+// CalibExcludRun(runFile, debug)
+//      A class for rejecting runs among the list of evets in the tree
+//        bool exclude(run): if the run is in the list of runs in runFile
 // CalibDuplicate(infile, flag, debug)
 //      A class for either rejecting duplicate entries or giving depth
 //        dependent weight. flag is 0 for keeping a list of duplicate
@@ -708,6 +711,18 @@ public:
 private:
   bool debug_;
   std::vector<int> zsphis_;
+};
+
+class CalibExcludeRuns {
+public:
+  CalibExcludeRuns(const char* runFile, bool debug = false);
+  ~CalibExcludeRuns() {}
+
+  bool exclude(int run);
+
+private:
+  bool debug_;
+  std::vector<int> runs_;
 };
 
 class CalibDuplicate {
@@ -1371,6 +1386,46 @@ bool CalibSelectRBX::isItRBX(const int ieta, const int iphi) {
     std::cout << "isItRBX: ieta " << ieta << " iphi " << iphi << " OK " << ok << std::endl;
   }
   return ok;
+}
+
+CalibExcludeRuns::CalibExcludeRuns(const char* runFile, bool debug) : debug_(debug) {
+  std::cout << "Enters CalibExcludeRuns for " << runFile << std::endl;
+  unsigned int all(0), good(0);
+  std::ifstream fInput(runFile);
+  if (!fInput.good()) {
+    std::cout << "Cannot open file " << runFile << std::endl;
+  } else {
+    char buffer[1024];
+    while (fInput.getline(buffer, 1024)) {
+      ++all;
+      std::string bufferString(buffer);
+      if (bufferString.substr(0, 1) == "#") {
+        continue;  //ignore other comments
+      } else {
+        std::vector<std::string> items = splitString(bufferString);
+	++good;
+	for (unsigned int k = 0; k < items.size(); ++k) {
+          int run = std::atoi(items[k].c_str());
+          runs_.push_back(run);
+        }
+      }
+    }
+    fInput.close();
+  }
+  std::cout << "Select a set of " << runs_.size() << " runs to be excluded " 
+	    << " by reading " << all << ":" << good << " records from " 
+	    << runFile << std::endl;
+}
+
+bool CalibExcludeRuns::exclude(int run) {
+  bool reject(false);
+  if (runs_.size() > 0) {
+    reject = (std::find(runs_.begin(), runs_.end(), run) != runs_.end());
+
+    if (debug_)
+      std::cout << "CalibExcludeRuns: reject flag " << reject << " for Run " << run << std::endl;
+  }
+  return reject;
 }
 
 CalibDuplicate::CalibDuplicate(const char* fname, int flag, bool debug)

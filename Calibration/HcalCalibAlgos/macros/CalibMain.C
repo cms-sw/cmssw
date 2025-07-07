@@ -12,7 +12,7 @@
 //  <Truncate> <Nmax> <datamc> <numb> <usegen> <scale> <usescale> <etalo>
 //  <etahi> <runlo> <runhi> <phimin> <phimax> <zside> <nvxlo> <nvxhi>
 //  <exclude> <etamax> <append> <all> <corrfile> <rcorfile> <dupfile>
-//  <rbxfile> <comfile> <outfile>
+//  <rbxfile> <comfile> <outfile> <excludeRunFile>
 //
 //  Other parameters for CalibProperties:
 //  <InputFile> <HistogramFile> <Flag> <DirectoryName> <Prefix> <PUcorr>
@@ -26,7 +26,7 @@
 //  <useweight> <usemean> <nmin> <inverse> <ratmin> <ratmax> <ietamax>
 //  <ietatrack> <sysmode> <rcorform> <usegen> <runlo> <runhi> <phimin>
 //  <phimax> <zside> <nvxlo> <nvxhi> <exclude> <higheta> <fraction>
-//  <writehisto> <debug> <rcorfile> <dupfile> <rbxfile> <treename>
+//  <writehisto> <rcorfile> <dupfile> <rbxfile> <excludeRunFile> <treename>
 //
 //  Other parameters for CalibSplit:
 //  <InputFile> <HistogramFile> <Flag> <DirectoryName> <Prefix> <PUcorr>
@@ -118,6 +118,7 @@ int main(Int_t argc, Char_t* argv[]) {
     const char* rbxfile = (argc > 32) ? argv[32] : "";
     const char* comfile = (argc > 33) ? argv[33] : "";
     const char* outfile = (argc > 34) ? argv[34] : "";
+    const char* excludeRunfile = (argc > 35) ? argv[35] : "";
     if (strcmp(corrfile, "junk.txt") == 0)
       corrfile = "";
     if (strcmp(rcorfile, "junk.txt") == 0)
@@ -128,6 +129,8 @@ int main(Int_t argc, Char_t* argv[]) {
       comfile = "";
     if (strcmp(rbxfile, "junk.txt") == 0)
       rbxfile = "";
+    if (strcmp(excludeRunfile, "junk.txt") == 0)
+      excludeRunfile = "";
 
     std::cout << "Execute CalibMonitor with infile:" << infile << " dirName: " << dirname << " dupFile: " << dupfile
               << " comFile:" << comfile << " outFile:" << outfile << " prefix: " << prefix << " corrFile: " << corrfile
@@ -136,7 +139,8 @@ int main(Int_t argc, Char_t* argv[]) {
               << " useScale:" << usescale << " etaRange:" << etalo << ":" << etahi << " runRange:" << runlo << ":"
               << runhi << " phiRange:" << phimin << ":" << phimax << " zside:" << zside << " nvxRange:" << nvxlo << ":"
               << nvxhi << " rbxFile:" << rbxfile << " exclude:" << exclude << " etaMax:" << etamax
-              << " histFile:" << histfile << " append:" << append << " all:" << all << " nmax:" << nmax << std::endl;
+	      << " excludeRunfile " << excludeRunfile  << " histFile:" << histfile << " append:" << append 
+	      << " all:" << all << " nmax:" << nmax << std::endl;
 
     CalibMonitor c1(infile,
                     dirname,
@@ -164,6 +168,7 @@ int main(Int_t argc, Char_t* argv[]) {
                     nvxlo,
                     nvxhi,
                     rbxfile,
+		    excludeRunfile,
                     exclude,
                     etamax);
     c1.Loop(nmax, debug);
@@ -263,13 +268,16 @@ int main(Int_t argc, Char_t* argv[]) {
     const char* rcorfile = (argc > 40) ? argv[40] : "";
     const char* dupfile = (argc > 41) ? argv[41] : "";
     const char* rbxfile = (argc > 42) ? argv[42] : "";
-    const char* treename = (argc > 43) ? argv[43] : "CalibTree";
+    const char* excludeRunfile = (argc > 43) ? argv[43] : "";
+    const char* treename = (argc > 44) ? argv[44] : "CalibTree";
     if (strcmp(rcorfile, "junk.txt") == 0)
       rcorfile = "";
     if (strcmp(dupfile, "junk.txt") == 0)
       dupfile = "";
     if (strcmp(rbxfile, "junk.txt") == 0)
       rbxfile = "";
+    if (strcmp(excludeRunfile, "junk.txt") == 0)
+      excludeRunfile = "";
 
     char name[500];
     sprintf(name, "%s/%s", dirname, treename);
@@ -289,11 +297,12 @@ int main(Int_t argc, Char_t* argv[]) {
                 << " with nentries (tracks): " << nentries << std::endl;
       unsigned int k(0), kmax(maxIter);
       std::cout << "Proceed using CalibTree with dupFile:" << dupfile << " rcorFile:" << rcorfile
-                << " trunCate:" << truncate << " useIter:" << useiter << " useMean:" << usemean << " runRange:" << runlo
+		<< " rbxFile: " << rbxfile << " exclude Run File: " << excludeRunfile  << " trunCate:" 
+		<< truncate << " useIter:" << useiter << " useMean:" << usemean << " runRange:" << runlo
                 << ":" << runhi << " phiRange:" << phimin << ":" << phimax << " zSide:" << zside
-                << " nvxRange:" << nvxlo << ":" << nvxhi << " sysMode:" << sysmode << " rbxFile:" << rbxfile
-                << " puCorr:" << pucorr << " rcorForm:" << rcorform << " useGen:" << usegen << " exclude:" << exclude
-                << " highEta:" << higheta << " pRange:" << pmin << ":" << pmax << std::endl;
+                << " nvxRange:" << nvxlo << ":" << nvxhi << " sysMode:" << sysmode  << " puCorr:" << pucorr
+		<< " rcorForm:" << rcorform << " useGen:" << usegen << " exclude:" << exclude << " highEta:" 
+		<< higheta << " pRange:" << pmin << ":" << pmax << std::endl;
       CalibTree t(dupfile,
                   rcorfile,
                   truncate,
@@ -313,6 +322,7 @@ int main(Int_t argc, Char_t* argv[]) {
                   usegen,
                   exclude,
                   higheta,
+		  excludeRunfile,
                   pmin,
                   pmax,
                   chain);

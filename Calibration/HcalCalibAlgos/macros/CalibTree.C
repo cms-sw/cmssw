@@ -6,7 +6,7 @@
 //      ratMax, ietaMax, ietaTrack, sysmode, puCorr, applyL1Cut, l1Cut,
 //      truncateFlag, maxIter, corForm, useGen, runlo, runhi, phimin, phimax,
 //      zside, nvxlo, nvxhi, rbxFile, exclude, higheta, fraction,
-//      writeDebugHisto, pmin, pmax, debug, nmax);
+//      badRunFile, writeDebugHisto, pmin, pmax, nmax);
 //
 //  where:
 //
@@ -106,14 +106,14 @@
 //                              as 1 (0) or of ieta = ietamax with same sign
 //                              and depth 1 (1) (default 1)
 //  fraction        (double)  = fraction of events to be done (1.0)
+//  badRunFile      (char *)  = Name of the file containing a list of runs 
+//                              to be excluded
 //  writeDebugHisto (bool)    = Flag to check writing intermediate histograms
 //                              in o/p file (false)
 //  pmin            (double)  = minimum momentum of tracks to be used in
 //                              estimating the correction factor
 //  pmax            (double)  = maximum momentum of tracks to be used in
 //                              estimating the correction factor
-//  debug           (bool)    = To produce more debug printing on screen
-//                              (false)
 //  nmax            (Long64_t)= maximum number of entries to be processed,
 //                              if -1, all entries to be processed; -2 take
 //                              all odd entries; -3 take all even entries (-1)
@@ -179,10 +179,10 @@ void Run(const char *inFileName = "Silver.root",
          bool exclude = true,
          int higheta = 1,
          double fraction = 1.0,
+	 const char *badRunFile = "",
          bool writeDebugHisto = false,
          double pmin = 40.0,
          double pmax = 60.0,
-         bool debug = false,
          Long64_t nmax = -1);
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
@@ -219,6 +219,7 @@ public:
             bool useGen,
             bool exclude,
             int higheta,
+            const char *badRunFile,
             double pmin,
             double pmax,
             TChain *tree);
@@ -346,6 +347,7 @@ private:
   CalibSelectRBX *cSelect_;
   CalibDuplicate *cDuplicate_;
   CalibThreshold *cThr_;
+  CalibExcludeRuns *cRunEx_;
   const int truncateFlag_;
   const bool useIter_;
   const bool useMean_;
@@ -410,10 +412,10 @@ void doIt(const char *infile, const char *dup) {
         true,
         1,
         lumi,
+	"",
         false,
         40.0,
         60.0,
-        false,
         -1);
   }
 }
@@ -453,11 +455,12 @@ void Run(const char *inFileName,
          bool exclude,
          int higheta,
          double fraction,
+         const char *badRunFile,
          bool writeHisto,
          double pmin,
          double pmax,
-         bool debug,
          Long64_t nmax) {
+  bool debug(false);
   char name[500];
   sprintf(name, "%s/%s", dirName, treeName);
   TChain *chain = new TChain(name);
@@ -495,6 +498,7 @@ void Run(const char *inFileName,
                 useGen,
                 exclude,
                 higheta,
+		badRunFile,
                 pmin,
                 pmax,
                 chain);
@@ -570,6 +574,7 @@ CalibTree::CalibTree(const char *dupFileName,
                      bool gen,
                      bool excl,
                      int heta,
+                     const char *badRunFile,
                      double pmin,
                      double pmax,
                      TChain *tree)
@@ -578,6 +583,7 @@ CalibTree::CalibTree(const char *dupFileName,
       cSelect_(nullptr),
       cDuplicate_(nullptr),
       cThr_(nullptr),
+      cRunEx_(nullptr),
       truncateFlag_(flag),
       useIter_(useIter),
       useMean_(useMean),
@@ -616,25 +622,36 @@ CalibTree::CalibTree(const char *dupFileName,
             << " RadDam Corrections read from " << rcorFileName << " rcorFormat " << rcorForm_ << " Treat RBX "
             << rbxFile_ << " with exclusion mode " << exclude_ << std::endl;
   Init(tree);
-  if (std::string(dupFileName) != "")
+  if (std::string(dupFileName) != "") {
+    std::cout << "dupFileName: " << dupFileName << std::endl;
     cDuplicate_ = new CalibDuplicate(dupFileName, duplicate_, false);
+  }
   if (std::string(rcorFileName) != "") {
+    std::cout << "rcorFileName: " << rcorFileName << std::endl;
     cFactor_ = new CalibCorr(rcorFileName, rcorForm_, false);
     if (cFactor_->absent())
       rcorForm_ = -1;
   } else {
     rcorForm_ = -1;
   }
-  if (std::string(rbxFile) != "")
+  if (std::string(rbxFile) != "") {
+    std::cout << "RBX File: " << rbxFile << std::endl;
     cSelect_ = new CalibSelectRBX(rbxFile, false);
+  }
   if (thrForm_ > 0)
     cThr_ = new CalibThreshold(thrForm_);
+  if (std::string(badRunFile) != "") {
+    std::cout << "File with list of excluded runs: " << badRunFile << std::endl;
+    cRunEx_ = new CalibExcludeRuns(badRunFile, false);
+  }
 }
 
 CalibTree::~CalibTree() {
   delete cFactor_;
   delete cSelect_;
   delete cDuplicate_;
+  delete cThr_;
+  delete cRunEx_;
   if (!fChain)
     return;
   delete fChain->GetCurrentFile();
@@ -794,7 +811,8 @@ Double_t CalibTree::Loop(int loop,
         continue;
     }
     bool select = ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(0))) ? (cDuplicate_->isDuplicate(jentry)) : true;
-    if (!select)
+    bool reject = (!cRunEx_) ? cRunEx_->exclude(t_Run) : false;
+    if ((!select) || reject)
       continue;
     bool selRun = (includeRun_ ? ((t_Run >= runlo_) && (t_Run <= runhi_)) : ((t_Run < runlo_) || (t_Run > runhi_)));
     if (!selRun)
