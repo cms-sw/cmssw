@@ -124,7 +124,7 @@
 //                               to be consdered (default = ""). RBX's are
 //                               specified by zside*(Subdet*100+RBX #).
 //                               For HEP17 it will be 217
-//   badRunFile      (char *)  = Name of the file containing a list of runs 
+//   badRunFile      (char *)  = Name of the file containing a list of runs
 //                               to be excluded
 //   exclude         (bool)    = RBX specified by the contents in *rbxFile* to
 //                               be exluded or only considered (default = false)

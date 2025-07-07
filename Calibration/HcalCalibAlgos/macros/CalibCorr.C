@@ -1403,8 +1403,8 @@ CalibExcludeRuns::CalibExcludeRuns(const char* runFile, bool debug) : debug_(deb
         continue;  //ignore other comments
       } else {
         std::vector<std::string> items = splitString(bufferString);
-	++good;
-	for (unsigned int k = 0; k < items.size(); ++k) {
+        ++good;
+        for (unsigned int k = 0; k < items.size(); ++k) {
           int run = std::atoi(items[k].c_str());
           runs_.push_back(run);
         }
@@ -1412,9 +1412,8 @@ CalibExcludeRuns::CalibExcludeRuns(const char* runFile, bool debug) : debug_(deb
     }
     fInput.close();
   }
-  std::cout << "Select a set of " << runs_.size() << " runs to be excluded " 
-	    << " by reading " << all << ":" << good << " records from " 
-	    << runFile << std::endl;
+  std::cout << "Select a set of " << runs_.size() << " runs to be excluded "
+            << " by reading " << all << ":" << good << " records from " << runFile << std::endl;
 }
 
 bool CalibExcludeRuns::exclude(int run) {

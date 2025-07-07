@@ -106,7 +106,7 @@
 //                              as 1 (0) or of ieta = ietamax with same sign
 //                              and depth 1 (1) (default 1)
 //  fraction        (double)  = fraction of events to be done (1.0)
-//  badRunFile      (char *)  = Name of the file containing a list of runs 
+//  badRunFile      (char *)  = Name of the file containing a list of runs
 //                              to be excluded
 //  writeDebugHisto (bool)    = Flag to check writing intermediate histograms
 //                              in o/p file (false)
@@ -179,7 +179,7 @@ void Run(const char *inFileName = "Silver.root",
          bool exclude = true,
          int higheta = 1,
          double fraction = 1.0,
-	 const char *badRunFile = "",
+         const char *badRunFile = "",
          bool writeDebugHisto = false,
          double pmin = 40.0,
          double pmax = 60.0,
@@ -412,7 +412,7 @@ void doIt(const char *infile, const char *dup) {
         true,
         1,
         lumi,
-	"",
+        "",
         false,
         40.0,
         60.0,
@@ -498,7 +498,7 @@ void Run(const char *inFileName,
                 useGen,
                 exclude,
                 higheta,
-		badRunFile,
+                badRunFile,
                 pmin,
                 pmax,
                 chain);

@@ -138,9 +138,9 @@ int main(Int_t argc, Char_t* argv[]) {
               << " dataMC:" << datamc << " truncate:" << truncate << " useGen:" << usegen << " Scale:" << scale
               << " useScale:" << usescale << " etaRange:" << etalo << ":" << etahi << " runRange:" << runlo << ":"
               << runhi << " phiRange:" << phimin << ":" << phimax << " zside:" << zside << " nvxRange:" << nvxlo << ":"
-              << nvxhi << " rbxFile:" << rbxfile << " exclude:" << exclude << " etaMax:" << etamax
-	      << " excludeRunfile " << excludeRunfile  << " histFile:" << histfile << " append:" << append 
-	      << " all:" << all << " nmax:" << nmax << std::endl;
+              << nvxhi << " rbxFile:" << rbxfile << " exclude:" << exclude << " etaMax:" << etamax << " excludeRunfile "
+              << excludeRunfile << " histFile:" << histfile << " append:" << append << " all:" << all
+              << " nmax:" << nmax << std::endl;
 
     CalibMonitor c1(infile,
                     dirname,
@@ -168,7 +168,7 @@ int main(Int_t argc, Char_t* argv[]) {
                     nvxlo,
                     nvxhi,
                     rbxfile,
-		    excludeRunfile,
+                    excludeRunfile,
                     exclude,
                     etamax);
     c1.Loop(nmax, debug);
@@ -297,12 +297,12 @@ int main(Int_t argc, Char_t* argv[]) {
                 << " with nentries (tracks): " << nentries << std::endl;
       unsigned int k(0), kmax(maxIter);
       std::cout << "Proceed using CalibTree with dupFile:" << dupfile << " rcorFile:" << rcorfile
-		<< " rbxFile: " << rbxfile << " exclude Run File: " << excludeRunfile  << " trunCate:" 
-		<< truncate << " useIter:" << useiter << " useMean:" << usemean << " runRange:" << runlo
-                << ":" << runhi << " phiRange:" << phimin << ":" << phimax << " zSide:" << zside
-                << " nvxRange:" << nvxlo << ":" << nvxhi << " sysMode:" << sysmode  << " puCorr:" << pucorr
-		<< " rcorForm:" << rcorform << " useGen:" << usegen << " exclude:" << exclude << " highEta:" 
-		<< higheta << " pRange:" << pmin << ":" << pmax << std::endl;
+                << " rbxFile: " << rbxfile << " exclude Run File: " << excludeRunfile << " trunCate:" << truncate
+                << " useIter:" << useiter << " useMean:" << usemean << " runRange:" << runlo << ":" << runhi
+                << " phiRange:" << phimin << ":" << phimax << " zSide:" << zside << " nvxRange:" << nvxlo << ":"
+                << nvxhi << " sysMode:" << sysmode << " puCorr:" << pucorr << " rcorForm:" << rcorform
+                << " useGen:" << usegen << " exclude:" << exclude << " highEta:" << higheta << " pRange:" << pmin << ":"
+                << pmax << std::endl;
       CalibTree t(dupfile,
                   rcorfile,
                   truncate,
@@ -322,7 +322,7 @@ int main(Int_t argc, Char_t* argv[]) {
                   usegen,
                   exclude,
                   higheta,
-		  excludeRunfile,
+                  excludeRunfile,
                   pmin,
                   pmax,
                   chain);
