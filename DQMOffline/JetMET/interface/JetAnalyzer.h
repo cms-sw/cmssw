@@ -937,6 +937,8 @@ private:
   bool isPUPPIJet_;
   bool isScoutingJet_;
 
+  bool isOnlineDQM_;
+
   bool fill_jet_high_level_histo;
 
   bool fill_CHS_histos;
