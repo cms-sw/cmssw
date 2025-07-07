@@ -93,7 +93,9 @@ process.SimpleTrackValidation = cms.EDAnalyzer("SimpleTrackValidation",
     tipTP = cms.double(3.5),
     trackAssociator = cms.InputTag("hltTrackAssociatorByHits"),
     trackLabels = cms.VInputTag("hltPhase2PixelTracks"),
-    trackingParticles = cms.InputTag("mix","MergedTrackTruth")
+    trackingParticles = cms.InputTag("mix","MergedTrackTruth"),
+    etaBins = cms.vdouble(-4.0, -1.5, 1.5, 4.0),  # Default bins in eta for negative endcap, barrel, and positive endcap
+    ptBins = cms.vdouble(0.0, 3.0, 10.0, 1000.0)  # Default bins in pt 0-3 GeV, 3-10 GeV, 10-1000 GeV
 )
 
 ####  set up the paths

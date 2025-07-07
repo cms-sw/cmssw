@@ -64,6 +64,9 @@ private:
   TTree* output_tree_;
   TTree* output_tree_eta_;
   TTree* output_tree_pt_;
+  std::vector<double> etaBins_;
+  std::vector<double> ptBins_;
+
   const std::vector<edm::InputTag> trackLabels_;
   std::vector<edm::EDGetTokenT<edm::View<reco::Track>>> trackTokens_;
   const edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> trackAssociatorToken_;
@@ -94,6 +97,8 @@ SimpleTrackValidation::SimpleTrackValidation(const edm::ParameterSet& iConfig)
                                         iConfig.getParameter<bool>("invertRapidityCutTP"),
                                         iConfig.getParameter<double>("minPhiTP"),
                                         iConfig.getParameter<double>("maxPhiTP"));
+  etaBins_ = iConfig.getParameter<std::vector<double>>("etaBins");
+  ptBins_ = iConfig.getParameter<std::vector<double>>("ptBins");
 }
 
 void SimpleTrackValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -184,16 +189,8 @@ void SimpleTrackValidation::beginJob() {
   output_tree_->Branch("dt", &global_dt_);
   output_tree_->Branch("ast", &global_ast_);
 
-  // Define 3 bins in eta for negative endcap, barrel, and positive endcap
-  std::vector<double> V_bins_eta = {-4, -1.5, 1.5, 4};
-  int n_bins_eta = V_bins_eta.size() - 1;
-  double* v_bins_eta = &V_bins_eta[0];
-
-  // Define 3 bins in pt 0-3 GeV, 3-10 GeV, 10-100 GeV
-  std::vector<double> V_bins_pt = {0, 3, 10, 1000};
-  int n_bins_pt = V_bins_pt.size() - 1;
-  double* v_bins_pt = &V_bins_pt[0];
-
+  int n_bins_eta = etaBins_.size() - 1;
+  double* v_bins_eta = etaBins_.data();
   output_tree_eta_ = fs->make<TTree>("output_eta", "Simple Track Validation Binned in Eta TTree");
 
   h_st_eta =
@@ -210,6 +207,8 @@ void SimpleTrackValidation::beginJob() {
                             n_bins_eta,
                             v_bins_eta);
 
+  int n_bins_pt = ptBins_.size() - 1;
+  double* v_bins_pt = ptBins_.data();
   output_tree_pt_ = fs->make<TTree>("output_pt", "Simple Track Validation Binned in Pt TTree");
 
   h_st_pt = fs->make<TH1D>("h_st_pt", " ; Tracking Particle p_{T}; Number of tracking particles", n_bins_pt, v_bins_pt);
@@ -255,6 +254,11 @@ void SimpleTrackValidation::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<bool>("invertRapidityCutTP", false);
   desc.add<double>("minPhiTP", -3.2);
   desc.add<double>("maxPhiTP", 3.2);
+
+  // Default bins in eta for negative endcap, barrel, and positive endcap
+  desc.add<std::vector<double>>("etaBins", {-4, -1.5, 1.5, 4});
+  // Default bins in pt 0-3 GeV, 3-10 GeV, 10-100 GeV
+  desc.add<std::vector<double>>("ptBins", {0, 3, 10, 1000});
 
   descriptions.addWithDefaultLabel(desc);
 }
