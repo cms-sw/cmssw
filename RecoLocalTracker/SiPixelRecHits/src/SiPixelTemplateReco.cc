@@ -158,20 +158,22 @@ int SiPixelTemplateReco::PixelTempReco1D(int id,
                                          bool goodEdgeAlgo)
 
 {
-
-
   // Local variables
   int i = 0, j = 0, k = 0, minbin = -1, binl = 0, binh = 0, binq = 0, midpix = 0, fypix = -1, lypix = 0, logypx = 0;
   int fxpix = -1, lxpix = 0, logxpx = 0, shifty = 0, shiftx = 0, nyzero[TYSIZE] = {};
-  int nclusx= 0, nclusy= 0;
+  int nclusx = 0, nclusy = 0;
   int deltaj = 0, jmin = 0, jmax = 0, fxbin = 3, lxbin = 37, fybin = 3, lybin = 37, djy = 1, djx = 1;
   //int fypix2D, lypix2D, fxpix2D, lxpix2D;
-  float sythr = 0.f, sxthr = 0.f, rnorm = 0.f, delta = 0.f, sigma = 0.f, sigavg = 0.f, pseudopix = 0.f, qscale = 0.f, q50 = 0.f;
-  float ss2 = 0.f, ssa = 0.f, sa2 = 0.f, ssba = 0.f, saba = 0.f, sba2 = 0.f, rat = 0.f, fq = 0.f, qtotal = 0.f, qpixel = 1.f, fbin[3] = {0.f, 0.f, 0.f};
-  float originx = 0.f, originy = 0.f, qfy = 0.f, qly = 0.f, qfx = 0.f, qlx = 0.f, bias = 0.f, maxpix = 0.f, minmax = 0.f;
+  float sythr = 0.f, sxthr = 0.f, rnorm = 0.f, delta = 0.f, sigma = 0.f, sigavg = 0.f, pseudopix = 0.f, qscale = 0.f,
+        q50 = 0.f;
+  float ss2 = 0.f, ssa = 0.f, sa2 = 0.f, ssba = 0.f, saba = 0.f, sba2 = 0.f, rat = 0.f, fq = 0.f, qtotal = 0.f,
+        qpixel = 1.f, fbin[3] = {0.f, 0.f, 0.f};
+  float originx = 0.f, originy = 0.f, qfy = 0.f, qly = 0.f, qfx = 0.f, qlx = 0.f, bias = 0.f, maxpix = 0.f,
+        minmax = 0.f;
   double chi2x = 0., meanx = 0., chi2y = 0., meany = 0., chi2ymin = 1.e15, chi2xmin = 1.e15, chi21max = 1.e15;
   double hchi2 = 0., hndof = 0., prvav = 0., mpv = 0., sigmaQ = 0., kappa = 0., xvav = 0., beta2 = 1.;
-  float ytemp[41][BYSIZE] = {}, xtemp[41][BXSIZE] = {}, ysum[BYSIZE] = {}, xsum[BXSIZE] = {}, ysort[BYSIZE] = {}, xsort[BXSIZE] = {};
+  float ytemp[41][BYSIZE] = {}, xtemp[41][BXSIZE] = {}, ysum[BYSIZE] = {}, xsum[BXSIZE] = {}, ysort[BYSIZE] = {},
+        xsort[BXSIZE] = {};
   float chi2ybin[41] = {}, chi2xbin[41] = {}, ysig2[BYSIZE] = {}, xsig2[BXSIZE] = {};
   float yw2[BYSIZE] = {}, xw2[BXSIZE] = {}, ysw[BYSIZE] = {}, xsw[BXSIZE] = {};
   bool yd[BYSIZE] = {}, xd[BXSIZE] = {}, anyyd = false, anyxd = false, calc_probQ = false, use_VVIObj = false;
