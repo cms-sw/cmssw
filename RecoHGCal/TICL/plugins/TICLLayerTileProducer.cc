@@ -10,7 +10,7 @@
 #include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-#include "DataFormats/HGCalReco/interface/TICLLayerTile.h"
+#include "DataFormats/TICLReco/interface/TICLLayerTile.h"
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 

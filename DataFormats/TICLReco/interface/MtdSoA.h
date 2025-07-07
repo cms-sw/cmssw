@@ -1,5 +1,5 @@
-#ifndef DataFormats_HGCalReco_MtdSoA_h
-#define DataFormats_HGCalReco_MtdSoA_h
+#ifndef DataFormats_TICLReco_MtdSoA_h
+#define DataFormats_TICLReco_MtdSoA_h
 
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 
