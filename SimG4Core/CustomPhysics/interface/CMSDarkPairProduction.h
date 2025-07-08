@@ -22,7 +22,7 @@ public:
                         G4double df = 1.0,
                         const G4String& nam = "BetheHeitlerLPM");
 
-  ~CMSDarkPairProduction() override;
+  ~CMSDarkPairProduction() override = default;
 
   G4double ComputeCrossSectionPerAtom(const G4ParticleDefinition*,
                                       G4double kinEnergy,
