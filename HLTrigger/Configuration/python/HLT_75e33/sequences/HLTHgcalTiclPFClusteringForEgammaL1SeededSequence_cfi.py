@@ -6,7 +6,7 @@ from ..modules.hltHgcalDigisL1Seeded_cfi import *
 from ..modules.hltHgcalLayerClustersEEL1Seeded_cfi import *
 from ..modules.hltHgcalLayerClustersHSciL1Seeded_cfi import *
 from ..modules.hltHgcalLayerClustersHSiL1Seeded_cfi import *
-from ..modules.hltHgcalMergeLayerClustersL1Seeded_cfi import *
+from ..modules.hltMergeLayerClustersL1Seeded_cfi import *
 from ..modules.hltHGCalRecHitL1Seeded_cfi import *
 from ..modules.hltHGCalUncalibRecHitL1Seeded_cfi import *
 from ..modules.hltL1TEGammaHGCFilteredCollectionProducer_cfi import *
@@ -18,8 +18,9 @@ from ..modules.hltTiclLayerTileProducerL1Seeded_cfi import *
 from ..modules.hltTiclSeedingL1_cfi import *
 from ..modules.hltTiclTrackstersCLUE3DHighL1Seeded_cfi import *
 from ..modules.hltTiclTracksterLinksL1Seeded_cfi import *
+from ..modules.hltBarrelLayerClustersEBL1Seeded_cfi import *
 
-_HgcalLocalRecoL1SeededSequence = cms.Sequence(hltHgcalDigis+hltL1TEGammaHGCFilteredCollectionProducer+hltHgcalDigisL1Seeded+hltHGCalUncalibRecHitL1Seeded+hltHGCalRecHitL1Seeded+hltParticleFlowRecHitHGCL1Seeded+hltRechitInRegionsHGCAL+hltHgcalLayerClustersEEL1Seeded+hltHgcalLayerClustersHSciL1Seeded+hltHgcalLayerClustersHSiL1Seeded+hltHgcalMergeLayerClustersL1Seeded)
+_HgcalLocalRecoL1SeededSequence = cms.Sequence(hltHgcalDigis+hltL1TEGammaHGCFilteredCollectionProducer+hltHgcalDigisL1Seeded+hltHGCalUncalibRecHitL1Seeded+hltHGCalRecHitL1Seeded+hltParticleFlowRecHitHGCL1Seeded+hltRechitInRegionsHGCAL+hltHgcalLayerClustersEEL1Seeded+hltHgcalLayerClustersHSciL1Seeded+hltHgcalLayerClustersHSiL1Seeded+hltMergeLayerClustersL1Seeded)
 _HgcalTICLPatternRecognitionL1SeededSequence = cms.Sequence(hltFilteredLayerClustersCLUE3DHighL1Seeded+hltTiclSeedingL1+hltTiclLayerTileProducerL1Seeded+hltTiclTrackstersCLUE3DHighL1Seeded)
 _SuperclusteringL1SeededSequence = cms.Sequence(hltParticleFlowClusterHGCalFromTICLL1Seeded+hltParticleFlowSuperClusterHGCalFromTICLL1Seeded)
 
@@ -49,7 +50,7 @@ from RecoHGCal.TICL.ticlEGammaSuperClusterProducer_cfi import ticlEGammaSuperClu
 hltTiclEGammaSuperClusterProducerL1Seeded = _ticlEGammaSuperClusterProducer.clone(
     ticlSuperClusters = "hltTiclTracksterLinksSuperclusteringDNNL1Seeded",
     ticlTrackstersEM = "hltTiclTrackstersCLUE3DHighL1Seeded",
-    layerClusters = "hltHgcalMergeLayerClustersL1Seeded"
+    layerClusters = "hltMergeLayerClustersL1Seeded"
 )
 
 # DNN
@@ -72,6 +73,23 @@ ticl_superclustering_mustache_ticl.toReplaceWith(_SuperclusteringL1SeededSequenc
 ticl_superclustering_mustache_ticl.toModify(hltTiclEGammaSuperClusterProducerL1Seeded, 
                                             ticlSuperClusters=cms.InputTag("hltTiclTracksterLinksSuperclusteringMustacheL1Seeded"),
                                             ticlTrackstersEM=cms.InputTag("hltTiclTrackstersCLUE3DHighL1Seeded"),
-                                            layerClusters=cms.InputTag("hltHgcalMergeLayerClustersL1Seeded"),
+                                            layerClusters=cms.InputTag("hltMergeLayerClustersL1Seeded"),
                                             enableRegression=cms.bool(False)
 )
+
+from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
+_HgcalLocalRecoL1SeededSequence_barrel = cms.Sequence(
+    hltHgcalDigis+
+    hltL1TEGammaHGCFilteredCollectionProducer+
+    hltHgcalDigisL1Seeded+
+    hltHGCalUncalibRecHitL1Seeded+
+    hltHGCalRecHitL1Seeded+
+    hltParticleFlowRecHitHGCL1Seeded+
+    hltRechitInRegionsHGCAL+
+    hltHgcalLayerClustersEEL1Seeded+
+    hltHgcalLayerClustersHSciL1Seeded+
+    hltHgcalLayerClustersHSiL1Seeded+
+    hltBarrelLayerClustersEBL1Seeded+
+    hltMergeLayerClustersL1Seeded
+) 
+ticl_barrel.toReplaceWith(_HgcalLocalRecoL1SeededSequence, _HgcalLocalRecoL1SeededSequence_barrel)

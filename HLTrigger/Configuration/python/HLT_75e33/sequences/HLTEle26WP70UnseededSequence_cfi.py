@@ -42,6 +42,7 @@ from ..sequences.HLTTrackingSequence_cfi import *
 
 HLTEle26WP70UnseededSequence = cms.Sequence(hltEGL1SeedsForSingleEleIsolatedFilter
                                             +HLTDoFullUnpackingEgammaEcalSequence
+                                            +HLTEGammaDoLocalHcalSequence    
                                             +HLTPFClusteringForEgammaUnseededSequence
                                             +HLTHgcalTiclPFClusteringForEgammaUnseededSequence
                                             +hltEgammaCandidatesUnseeded
@@ -53,7 +54,6 @@ HLTEle26WP70UnseededSequence = cms.Sequence(hltEGL1SeedsForSingleEleIsolatedFilt
                                             +hltEle26WP70ClusterShapeSigmavvUnseededFilter
                                             +hltEle26WP70ClusterShapeSigmawwUnseededFilter
                                             +hltEle26WP70HgcalHEUnseededFilter
-                                            +HLTEGammaDoLocalHcalSequence    
                                             +HLTFastJetForEgammaSequence
                                             +hltEgammaHoverEUnseeded
                                             +hltEle26WP70HEUnseededFilter

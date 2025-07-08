@@ -4,11 +4,11 @@ hltTiclTrackstersCLUE3DHighL1Seeded = cms.EDProducer("TrackstersProducer",
     detector = cms.string('HGCAL'),
     filtered_mask = cms.InputTag("hltFilteredLayerClustersCLUE3DHighL1Seeded","CLUE3DHigh"),
     itername = cms.string('CLUE3DHigh'),
-    layer_clusters = cms.InputTag("hltHgcalMergeLayerClustersL1Seeded"),
+    layer_clusters = cms.InputTag("hltMergeLayerClustersL1Seeded"),
     layer_clusters_hfnose_tiles = cms.InputTag("ticlLayerTileHFNose"),
     layer_clusters_tiles = cms.InputTag("hltTiclLayerTileProducerL1Seeded"),
     mightGet = cms.optional.untracked.vstring,
-    original_mask = cms.InputTag("hltHgcalMergeLayerClustersL1Seeded","InitialLayerClustersMask"),
+    original_mask = cms.InputTag("hltMergeLayerClustersL1Seeded","InitialLayerClustersMask"),
     patternRecognitionBy = cms.string('CLUE3D'),
     inferenceAlgo = cms.string('TracksterInferenceByCNNv4'),
     pluginPatternRecognitionByCA = cms.PSet(
@@ -150,7 +150,7 @@ hltTiclTrackstersCLUE3DHighL1Seeded = cms.EDProducer("TrackstersProducer",
     
     ),
     seeding_regions = cms.InputTag("hltTiclSeedingL1"),
-    time_layerclusters = cms.InputTag("hltHgcalMergeLayerClustersL1Seeded","timeLayerCluster"),
+    time_layerclusters = cms.InputTag("hltMergeLayerClustersL1Seeded","timeLayerCluster"),
 )
 
 from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5

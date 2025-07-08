@@ -20,3 +20,4 @@ hgcalValidatorPostProcessor = cms.Sequence(
     postProcessorHGCALsimclusters+
     postProcessorHGCALTracksters+
     postProcessorHGCALCandidates)
+

@@ -997,6 +997,68 @@ upgradeWFs['CPfromPU'].step2 = {'--procModifiers': 'enableCPfromPU'}
 upgradeWFs['CPfromPU'].step3 = {'--procModifiers': 'enableCPfromPU'}
 upgradeWFs['CPfromPU'].step4 = {'--procModifiers': 'enableCPfromPU'}
 
+class UpgradeWorkflow_ticl_barrel(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if ('Digi' in step and 'NoHLT' not in step) or ('HLTOnly' in step):      
+            stepDict[stepName][k] = merge([self.step2, stepDict[step][k]])
+        if 'RecoGlobal' in step:
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        if 'HARVESTGlobal' in step:
+            stepDict[stepName][k] = merge([self.step4, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return ('CloseByPGun_Barrel') in fragment and ('Run4' in key)
+
+upgradeWFs['ticl_barrel'] = UpgradeWorkflow_ticl_barrel(
+    steps = [
+        'HLTOnly',
+        'DigiTrigger',
+        'RecoGlobal',
+        'HARVESTGlobal'
+    ],
+    PU = [
+        'HLTOnly',
+        'DigiTrigger',
+        'RecoGlobal',
+        'HARVESTGlobal'
+    ], 
+    suffix = '_ticl_barrel',
+    offset = 0.209,
+)
+upgradeWFs['ticl_barrel'].step2 = {'--procModifiers': 'ticl_barrel'}
+upgradeWFs['ticl_barrel'].step3 = {'--procModifiers': 'ticl_barrel'}
+upgradeWFs['ticl_barrel'].step4 = {'--procModifiers': 'ticl_barrel'}
+
+class UpgradeWorkflow_ticl_barrel_CPfromPU(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if ('Digi' in step and 'NoHLT' not in step) or ('HLTOnly' in step):
+            stepDict[stepName][k] = merge([self.step2, stepDict[step][k]])
+        if 'RecoGlobal' in step:
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        if 'HARVESTGlobal' in step:
+            stepDict[stepName][k] = merge([self.step4, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return ('CloseByPGun_Barrel') in fragment and ('Run4' in key) and ('PU' in key)
+
+upgradeWFs['ticl_barrel_CPfromPU'] = UpgradeWorkflow_ticl_barrel_CPfromPU(
+    steps = [
+        'HLTOnly',
+        'DigiTrigger',
+        'RecoGlobal',
+        'HARVESTGlobal'
+    ],
+    PU = [
+        'HLTOnly',
+        'DigiTrigger',
+        'RecoGlobal',
+        'HARVESTGlobal'
+    ],
+    suffix = '_ticl_barrel_CPfromPU',
+    offset = 0.2091,
+)
+upgradeWFs['ticl_barrel_CPfromPU'].step2 = {'--procModifiers': 'ticl_barrel,enableCPfromPU'}
+upgradeWFs['ticl_barrel_CPfromPU'].step3 = {'--procModifiers': 'ticl_barrel,enableCPfromPU'}
+upgradeWFs['ticl_barrel_CPfromPU'].step4 = {'--procModifiers': 'ticl_barrel,enableCPfromPU'}
+
 # L3 Tracker Muon Outside-In reconstruction first
 class UpgradeWorkflow_phase2L3MuonsOIFirst(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
@@ -1920,6 +1982,19 @@ upgradeWFs['HLTTiming75e33AlpakaSingleIterLSTSeeding'].step2 = {
     '--eventcontent':'FEVTDEBUGHLT,DQMIO'
 }
 upgradeWFs['HLTTiming75e33AlpakaSingleIterLSTSeeding'].step3 = {
+    '-s':'HARVESTING:@hltValidation'
+}
+
+upgradeWFs['HLTTiming75e33TiclBarrel'] = deepcopy(upgradeWFs['HLTTiming75e33'])
+upgradeWFs['HLTTiming75e33TiclBarrel'].suffix = '_HLT75e33TimingTiclBarrel'
+upgradeWFs['HLTTiming75e33TiclBarrel'].offset = 0.758
+upgradeWFs['HLTTiming75e33TiclBarrel'].step2 = {
+    '-s' : 'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33_timing,VALIDATION:@hltValidation',
+    '--procModifiers': 'ticl_barrel',
+    '--datatier':'GEN-SIM-DIGI-RAW,DQMIO',
+    '--eventcontent':'FEVTDEBUGHLT,DQMIO'
+}
+upgradeWFs['HLTTiming75e33TiclBarrel'].step3 = {
     '-s':'HARVESTING:@hltValidation'
 }
 
@@ -3804,4 +3879,5 @@ upgradeFragments = OrderedDict([
     ('Hydjet_Quenched_MinBias_5362GeV_cfi', UpgradeFragment(U2000by1,'HydjetQMinBias_5362GeV')),
     ('Hydjet_Quenched_MinBias_5519GeV_cfi', UpgradeFragment(U2000by1,'HydjetQMinBias_5519GeV')),
     ('SingleMuPt15Eta0_0p4_cfi', UpgradeFragment(Kby(9,100),'SingleMuPt15Eta0p_0p4')),
+    ('CloseByPGun_Barrel_Front_cfi', UpgradeFragment(Kby(9,100),'CloseByPGun_Barrel_Front')),
 ])
