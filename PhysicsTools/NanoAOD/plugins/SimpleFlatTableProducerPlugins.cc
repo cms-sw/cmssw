@@ -73,6 +73,9 @@ typedef SimpleFlatTableProducer<reco::GsfTrack> SimpleGsfTrackFlatTableProducer;
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 typedef SimpleFlatTableProducer<pat::CompositeCandidate> SimpleCompositeCandidateFlatTableProducer;
 
+#include "DataFormats/MuonReco/interface/MuonRecHitCluster.h"
+typedef SimpleFlatTableProducer<reco::MuonRecHitCluster> SimpleMuonRecHitClusterFlatTableProducer;
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SimpleCandidateFlatTableProducer);
 DEFINE_FWK_MODULE(SimplePFCandidateFlatTableProducer);
@@ -99,3 +102,4 @@ DEFINE_FWK_MODULE(SimpleL2MuonTrajectorySeedFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleTriggerTrackFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleGsfTrackFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleCompositeCandidateFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleMuonRecHitClusterFlatTableProducer);

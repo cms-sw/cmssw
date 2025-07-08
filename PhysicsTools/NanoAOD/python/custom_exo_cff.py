@@ -1,19 +1,112 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
 
-from PhysicsTools.EXOnanoAOD.cscMDSshowerTable_cfi import cscMDSshowerTable 
-from PhysicsTools.EXOnanoAOD.dtMDSshowerTable_cfi import dtMDSshowerTable 
+from RecoMuon.MuonRechitClusterProducer.cscRechitClusterProducer_cfi import cscRechitClusterProducer
+from RecoMuon.MuonRechitClusterProducer.dtRechitClusterProducer_cfi import dtRechitClusterProducer 
 
-cscMDSshowerTable = cscMDSshowerTable.clone( 
-    name = cms.string("cscMDSCluster"),
-    recHitLabel = cms.InputTag("csc2DRecHits"),
-    segmentLabel = cms.InputTag("dt4DSegments"),
-    rpcLabel = cms.InputTag("rpcRecHits")
+unpackedTracksAndVertices = cms.EDProducer('PATTrackAndVertexUnpacker',
+                                           slimmedVertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
+                                           slimmedSecondaryVertices = cms.InputTag("slimmedSecondaryVertices"),
+                                           additionalTracks= cms.InputTag("lostTracks"),
+                                           packedCandidates = cms.InputTag("packedPFCandidates"))
+
+# ref: https://github.com/cms-sw/cmssw/blob/2bed69b1658e4deeaef914e462741919e9183be3/RecoVertex/AdaptiveVertexFinder/plugins/InclusiveVertexFinder.h#L48
+
+displacedInclusiveVertexFinder  = cms.EDProducer("InclusiveVertexFinder",
+                                                 beamSpot = cms.InputTag("offlineBeamSpot"),
+                                                 primaryVertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
+                                                 tracks = cms.InputTag("unpackedTracksAndVertices"),
+                                                 minHits = cms.uint32(6), # 8
+                                                 maximumLongitudinalImpactParameter = cms.double(20), # 0.3
+                                                 minPt = cms.double(0.8), # 0.8
+                                                 maxNTracks = cms.uint32(100), # 30
+                                                 
+                                                 clusterizer = cms.PSet(
+                                                     seedMax3DIPSignificance = cms.double(9999.), # 9999.
+                                                     seedMax3DIPValue = cms.double(9999.), # 9999.
+                                                     seedMin3DIPSignificance = cms.double(1.2), # 1.2
+                                                     seedMin3DIPValue = cms.double(0.005), # 0.005
+                                                     clusterMaxDistance = cms.double(0.4), # 0.05
+                                                     clusterMaxSignificance = cms.double(4.5), # 4.5
+                                                     distanceRatio = cms.double(20), # 20
+                                                     clusterMinAngleCosine = cms.double(0.5), # 0.5
+                                                 ),
+                                                     
+                                                 vertexMinAngleCosine = cms.double(0.95), # 0.95
+                                                 vertexMinDLen2DSig = cms.double(2.5), # 2.5
+                                                 vertexMinDLenSig = cms.double(0.5), # 0.5
+                                                 fitterSigmacut =  cms.double(3), # 3
+                                                 fitterTini = cms.double(256), # 256
+                                                 fitterRatio = cms.double(0.25), # 0.25
+                                                 useDirectVertexFitter = cms.bool(True), # True
+                                                 useVertexReco  = cms.bool(True), # True
+                                                 vertexReco = cms.PSet(
+                                                     finder = cms.string('avr'),
+                                                     primcut = cms.double(1.0), # 1.0
+                                                     seccut = cms.double(3), # 3
+                                                     smoothing = cms.bool(True)) # True
+                                            )
+                                            
+displacedVertexMerger = cms.EDProducer("VertexMerger",
+                                       secondaryVertices = cms.InputTag("displacedInclusiveVertexFinder"),
+                                       maxFraction = cms.double(0.7),
+                                       minSignificance = cms.double(2))
+
+# ref: https://github.com/cms-sw/cmssw/blob/2bed69b1658e4deeaef914e462741919e9183be3/RecoVertex/AdaptiveVertexFinder/plugins/VertexArbitrators.cc#L54
+
+displacedTrackVertexArbitrator = cms.EDProducer("TrackVertexArbitrator",
+                                                beamSpot = cms.InputTag("offlineBeamSpot"),
+                                                primaryVertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
+                                                tracks = cms.InputTag("unpackedTracksAndVertices"),
+                                                secondaryVertices = cms.InputTag("displacedVertexMerger"),
+                                                dLenFraction = cms.double(0.333), # 0.333
+                                                dRCut = cms.double(1), # 0.4
+                                                distCut = cms.double(0.1), # 0.04
+                                                sigCut = cms.double(5), # 5
+                                                fitterSigmacut =  cms.double(3), # 3
+                                                fitterTini = cms.double(256), # 256
+                                                fitterRatio = cms.double(0.25), # 0.25
+                                                trackMinLayers = cms.int32(4), # 4
+                                                trackMinPt = cms.double(.4), # 0.4
+                                                trackMinPixels = cms.int32(0) # 1
 )
-dtMDSshowerTable = dtMDSshowerTable.clone( 
-    name = cms.string("dtMDSCluster"),
-    recHitLabel = cms.InputTag("dt1DRecHits"),
-    rpcLabel = cms.InputTag("rpcRecHits")
+    
+displacedInclusiveSecondaryVertices = displacedVertexMerger.clone()
+displacedInclusiveSecondaryVertices.secondaryVertices = cms.InputTag("displacedTrackVertexArbitrator")
+displacedInclusiveSecondaryVertices.maxFraction = 0.2
+displacedInclusiveSecondaryVertices.minSignificance = 10
+    
+displacedInclusiveVertexing = cms.Sequence(unpackedTracksAndVertices * displacedInclusiveVertexFinder  * displacedVertexMerger * displacedTrackVertexArbitrator * displacedInclusiveSecondaryVertices)
+
+# MDSnano tables 
+cscMDSClusterTable = cms.EDProducer("SimpleMuonRecHitClusterFlatTableProducer",
+    src  = cms.InputTag("ca4CSCrechitClusters"),
+    name = cms.string("cscMDSHLTCluster"),
+    doc  = cms.string("MDS cluster at HLT"),
+    variables = cms.PSet(
+        eta = Var("eta", float, doc="cluster eta"),
+        phi = Var("phi", float, doc="cluster phi"),
+        x   = Var("x"  , float, doc="cluster x"),
+        y   = Var("y"  , float, doc="cluster y"),
+        z   = Var("z"  , float, doc="cluster z"),
+        r   = Var("r"  , float, doc="cluster r"),
+        size   = Var("size"  , int, doc="cluster size"),
+        nStation   = Var("nStation"  , int, doc="cluster nStation"),
+        avgStation   = Var("avgStation"  , float, doc="cluster avgStation"),
+        nMB1   = Var("nMB1"  , int, doc="cluster nMB1"),
+        nMB2   = Var("nMB2"  , int, doc="cluster nMB2"),
+        nME11   = Var("nME11"  , int, doc="cluster nME11"),
+        nME12   = Var("nME12"  , int, doc="cluster nME12"),
+        nME41   = Var("nME41"  , int, doc="cluster nME41"),
+        nME42   = Var("nME42"  , int, doc="cluster nME42"),
+        time   = Var("time"  , float, doc="cluster time = avg cathode and anode time"),
+        timeSpread   = Var("timeSpread"  , float, doc="cluster timeSpread")
+    )
+)
+
+dtMDSClusterTable = cscMDSClusterTable.clone(
+    src = cms.InputTag("ca4DTrechitClusters"),
+    name= cms.string("dtMDSHLTCluster")
 )
 
 #DSA muon tables
@@ -70,7 +163,13 @@ dispJetTable = cms.EDProducer("DispJetTableProducer",
 )
 
 def add_dispJetTables(process):
-    process.load('PhysicsTools.EXOnanoAOD.displacedInclusiveVertexing_cff')
+    # process.load('PhysicsTools.displacedInclusiveVertexing_cff')
+    process.dispJetTable = dispJetTable
+    process.unpackedTracksAndVertices = unpackedTracksAndVertices
+    process.displacedInclusiveVertexFinder = displacedInclusiveVertexFinder
+    process.displacedVertexMerger = displacedVertexMerger
+    process.displacedTrackVertexArbitrator = displacedTrackVertexArbitrator
+    process.displacedInclusiveSecondaryVertices = displacedInclusiveSecondaryVertices
     process.dispJetTable = dispJetTable
     process.dispJetTask = cms.Task(process.unpackedTracksAndVertices)
     process.dispJetTask.add(process.displacedInclusiveVertexFinder)
@@ -83,11 +182,15 @@ def add_dispJetTables(process):
     return process
 
 def add_mdsTables(process):
-    process.cscMDSshowerTable = cscMDSshowerTable    
-    process.dtMDSshowerTable = dtMDSshowerTable   
+    process.ca4CSCrechitClusters = cscRechitClusterProducer    
+    process.ca4DTrechitClusters = dtRechitClusterProducer
+    process.cscMDSClusterTable = cscMDSClusterTable
+    process.dtMDSClusterTable = dtMDSClusterTable 
 
-    process.MDSTask = cms.Task(process.cscMDSshowerTable)
-    process.MDSTask.add(process.dtMDSshowerTable)
+    process.MDSTask = cms.Task(process.ca4CSCrechitClusters)
+    process.MDSTask.add(process.ca4DTrechitClusters)
+    process.MDSTask.add(process.cscMDSClusterTable)
+    process.MDSTask.add(process.dtMDSClusterTable)
 
     process.nanoTableTaskCommon.add(process.MDSTask)
 
@@ -158,20 +261,23 @@ def add_exonanoTables(process):
 
     process = update_genParticleTable(process)
 
-    return process
-
-def add_exonanoTablesMINIAOD(process):
-
-#    process = add_mdsTables(process)
-#    process = add_dsamuonTables(process)
-    process = add_electronVertexTables(process)
-    process = add_muonExtendedTable(process)
-    process = add_dispJetTables(process)
+    if hasattr(process, "nanoSequenceMC") and process.schedule.contains(process.nanoSequenceMC):
+        process = update_genParticleTable(process)
 
     return process
 
-def add_exonanoMCTables(process):
+# def add_exonanoTablesMINIAOD(process):
 
-    process = update_genParticleTable(process)
+# #    process = add_mdsTables(process)
+# #    process = add_dsamuonTables(process)
+#     process = add_electronVertexTables(process)
+#     process = add_muonExtendedTable(process)
+#     process = add_dispJetTables(process)
 
-    return process
+#     return process
+
+# def add_exonanoMCTables(process):
+
+#     process = update_genParticleTable(process)
+
+#     return process
