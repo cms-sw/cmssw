@@ -21,6 +21,7 @@
 <use name="SimTracker/TrackHistory"/>
 <use name="Validation/RecoTrack"/>
 <use name="RecoTracker/PixelTrackFitting"/>
+<use name="RecoLocalTracker/SiPixelRecHits"/>
 <use name="DataFormats/VertexReco"/>
 <use name="DataFormats/Phase2TrackerCluster"/>
 <lib name="MathMore"/>
