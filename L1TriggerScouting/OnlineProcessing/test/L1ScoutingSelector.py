@@ -186,7 +186,7 @@ process.MaskedCollections = cms.Sequence(
     process.FinalBxSelectorMuon +
     process.FinalBxSelectorJet +
     process.FinalBxSelectorEGamma +
-    # process.FinalBxSelectorTau +
+    process.FinalBxSelectorTau +
     process.FinalBxSelectorBxSums +
     process.FinalBxSelectorBMTFStub
 )
