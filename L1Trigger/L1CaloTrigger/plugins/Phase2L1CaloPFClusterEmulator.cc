@@ -150,7 +150,7 @@ void Phase2L1CaloPFClusterEmulator::produce(edm::Event& iEvent, const edm::Event
     if (k % 2 == 0)
       etaoffset = 0;
     else
-      etaoffset = 17;
+      etaoffset = nTowerEta / 2 - 2;
     if (k > 1 && k % 2 == 0)
       phioffset = phioffset + 4;
 
