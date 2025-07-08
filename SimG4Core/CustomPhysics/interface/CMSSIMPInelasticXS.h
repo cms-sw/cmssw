@@ -10,7 +10,7 @@ class CMSSIMPInelasticXS : public G4VCrossSectionDataSet {
 public:
   CMSSIMPInelasticXS();
 
-  ~CMSSIMPInelasticXS() override;
+  ~CMSSIMPInelasticXS() override = default;
 
   G4bool IsElementApplicable(const G4DynamicParticle*, G4int Z, const G4Material*) override;
 
