@@ -192,6 +192,9 @@ private:
   // function that fills all histograms of SimDoublets (in folder SimDoublets)
   void fillSimDoubletHistograms(SimDoublets::Doublet const&, double const, double const);
 
+  // function that fills all histograms of SimNtuplets (in folder SimNtuplets)
+  void fillSimNtupletHistograms(SimDoublets const&, double const, double const);
+
   // function that trys to find a valid Ntuplet for the given SimDoublets object using the given geometry configuration
   // (layer pairs, starting pairs, minimum number of hits) ignoring all cuts on doublets/connections and returns if it was able to find one
   bool configAllowsForValidNtuplet(SimDoublets const&) const;
@@ -233,6 +236,9 @@ private:
   int minNumDoubletsPerNtuplet_;
 
   std::string folder_;  // main folder in the DQM file
+  // inputIsRecoTracks_: - set to false if SimPixelTracks were produced based on TrackingParticles (truth information)
+  //                      - set to true if they were produced based on reconstructed tracks
+  bool inputIsRecoTracks_; 
 
   // monitor elements
   // profiles to be filled
@@ -250,9 +256,10 @@ private:
   CoupledMonitorElement h_numTPVsEtaPt_;
   CoupledMonitorElement h_numTPVsEtaPhi_;
   CoupledMonitorElement h_numTPVsPhiPt_;
-  CoupledMonitorElement h_numSimDoubletsPerTrackingParticle_;
-  CoupledMonitorElement h_numSkippedLayersPerTrackingParticle_;
-  CoupledMonitorElement h_numLayersPerTrackingParticle_;
+  CoupledMonitorElement h_numSimDoubletsPerTrackingObject_;
+  CoupledMonitorElement h_numSkippedLayersPerTrackingObject_;
+  CoupledMonitorElement h_numRecHitsPerTrackingObject_;
+  CoupledMonitorElement h_numLayersPerTrackingObject_;
   CoupledMonitorElement h_numSkippedLayersVsEta_;
   CoupledMonitorElement h_numRecHitsVsEta_;
   CoupledMonitorElement h_numLayersVsEta_;
