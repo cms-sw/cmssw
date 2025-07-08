@@ -226,7 +226,7 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTCaloTowersRecSeque
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTCsclocalrecoSequence_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTDtlocalrecoSequence_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTGemLocalRecoSequence_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTHgcalLocalRecoSequence_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTTICLLocalRecoSequence_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTHighPtTripletStepSeedingSequence_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTHighPtTripletStepSequence_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTAK4PFJetsReconstruction_cfi")
