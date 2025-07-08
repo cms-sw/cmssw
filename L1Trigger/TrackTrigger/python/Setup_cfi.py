@@ -52,7 +52,7 @@ TrackTrigger_params = cms.PSet (
       cms.PSet( Disk2SRs = cms.vdouble( 63.9903, 68.9903, 74.2750, 79.2750, 81.9562, 86.9562, 92.4920, 97.4920, 99.8160, 104.8160 ) ), # disk 4
       cms.PSet( Disk2SRs = cms.vdouble( 63.9903, 68.9903, 74.2750, 79.2750, 81.9562, 86.9562, 92.4920, 97.4920, 99.8160, 104.8160 ) )  # disk 5
     ),
-    OffsetRDiskPS    = cms.double(   7.5 ), # radial offset in cm applied to dsik PS stubs
+    OffsetRDiskPS    = cms.double(   7.5 ), # radial offset in cm applied to disk PS stubs
     BarrelHalfLength = cms.double( 120.0 ), # biggest barrel stub z position after TrackBuilder in cm
     InnerRadius      = cms.double(  19.6 ), # smallest stub radius after TrackBuilder in cm
   ),
