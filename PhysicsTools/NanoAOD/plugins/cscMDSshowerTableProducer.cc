@@ -29,115 +29,108 @@
 #include "fastjet/ClusterSequence.hh"
 #include "fastjet/JetDefinition.hh"
 #include "fastjet/PseudoJet.hh"
-  
+
 using RecHitRef = edm::Ref<CSCRecHit2DCollection>;
 using RecHitRefVector = edm::RefVector<CSCRecHit2DCollection>;
 
 class cscMDSshowerTableProducer : public edm::global::EDProducer<> {
+public:
+  cscMDSshowerTableProducer(const edm::ParameterSet& iConfig)
+      : geometryToken_(esConsumes<CSCGeometry, MuonGeometryRecord>()),
+        dtgeometryToken_(esConsumes<DTGeometry, MuonGeometryRecord>()),
+        rpcgeometryToken_(esConsumes<RPCGeometry, MuonGeometryRecord>()),
+        inputToken_(consumes<CSCRecHit2DCollection>(iConfig.getParameter<edm::InputTag>("recHitLabel"))),
+        dtSegmentToken_(consumes<DTRecSegment4DCollection>(iConfig.getParameter<edm::InputTag>("segmentLabel"))),
+        rpchitToken_(consumes<RPCRecHitCollection>(iConfig.getParameter<edm::InputTag>("rpcLabel"))),
+        rParam_(iConfig.getParameter<double>("rParam")),
+        nRechitMin_(iConfig.getParameter<int>("nRechitMin")),
+        nStationThres_(iConfig.getParameter<int>("nStationThres")),
+        stripErr_(iConfig.getParameter<double>("stripErr")),
+        wireError_(iConfig.getParameter<double>("wireError")),
+        pruneCut_(iConfig.getParameter<double>("pruneCut")),
+        name_(iConfig.getParameter<std::string>("name")) {
+    produces<nanoaod::FlatTable>(name_ + "Rechits");
+    produces<nanoaod::FlatTable>(name_);
+  }
 
+  ~cscMDSshowerTableProducer() override {}
 
-  public:
-    cscMDSshowerTableProducer(const edm::ParameterSet &iConfig)
-      :
-      geometryToken_(esConsumes<CSCGeometry, MuonGeometryRecord>()),
-      dtgeometryToken_(esConsumes<DTGeometry, MuonGeometryRecord>()),
-      rpcgeometryToken_(esConsumes<RPCGeometry, MuonGeometryRecord>()),
-      inputToken_(consumes<CSCRecHit2DCollection>(iConfig.getParameter<edm::InputTag>("recHitLabel"))),
-      dtSegmentToken_(consumes<DTRecSegment4DCollection>(iConfig.getParameter<edm::InputTag>("segmentLabel"))),
-      rpchitToken_(consumes<RPCRecHitCollection>(iConfig.getParameter<edm::InputTag>("rpcLabel"))),
-      rParam_(iConfig.getParameter<double>("rParam")),
-      nRechitMin_(iConfig.getParameter<int>("nRechitMin")),
-      nStationThres_(iConfig.getParameter<int>("nStationThres")),
-      stripErr_(iConfig.getParameter<double>("stripErr")),
-      wireError_(iConfig.getParameter<double>("wireError")),
-      pruneCut_(iConfig.getParameter<double>("pruneCut")),
-      name_(iConfig.getParameter<std::string>("name"))
-      {
-      produces<nanoaod::FlatTable>(name_+"Rechits");
-      produces<nanoaod::FlatTable>(name_);
-    }
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("recHitLabel")->setComment("input cscRechit collection");
+    desc.add<edm::InputTag>("segmentLabel")->setComment("input dt segment collection for veto");
+    desc.add<edm::InputTag>("rpcLabel")->setComment("input rpcRechit collection for veto");
+    desc.add<double>("rParam", 0.4);
+    desc.add<int>("nRechitMin", 50);
+    desc.add<int>("nStationThres", 10);
+    desc.add<double>("stripErr", 7.0);
+    desc.add<double>("wireError", 8.6);
+    desc.add<double>("pruneCut", 9.0);
+    desc.add<std::string>("name", "cscRechits")->setComment("name of the output collection");
+    descriptions.add("cscMDSshowerTable", desc);
+  }
+  float getWeightedTime(RecHitRefVector rechits) const;
 
-    ~cscMDSshowerTableProducer() override {}
+private:
+  void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
-    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
-      edm::ParameterSetDescription desc;
-      desc.add<edm::InputTag>("recHitLabel")->setComment("input cscRechit collection");
-      desc.add<edm::InputTag>("segmentLabel")->setComment("input dt segment collection for veto");
-      desc.add<edm::InputTag>("rpcLabel")->setComment("input rpcRechit collection for veto");
-      desc.add<double>("rParam", 0.4);
-      desc.add<int>("nRechitMin", 50);
-      desc.add<int>("nStationThres", 10);
-      desc.add<double>("stripErr", 7.0);
-      desc.add<double>("wireError", 8.6);
-      desc.add<double>("pruneCut", 9.0);
-      desc.add<std::string>("name","cscRechits")->setComment("name of the output collection");
-      descriptions.add("cscMDSshowerTable", desc);
-    }
-    float getWeightedTime(RecHitRefVector rechits) const;
-
-  private:
-    void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
-
-    const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> geometryToken_;
-    const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtgeometryToken_;
-    const edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcgeometryToken_;
-    edm::EDGetTokenT<CSCRecHit2DCollection> inputToken_;
-    edm::EDGetTokenT<DTRecSegment4DCollection> dtSegmentToken_;
-    edm::EDGetTokenT<RPCRecHitCollection> rpchitToken_;
-    const double rParam_;
-    const int nRechitMin_;     // min number of rechits
-    const int nStationThres_;  // min number of rechits to count towards nStation 
-    const double stripErr_,wireError_,pruneCut_; //constants for CSC time
-    const std::string name_;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> geometryToken_;
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtgeometryToken_;
+  const edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcgeometryToken_;
+  edm::EDGetTokenT<CSCRecHit2DCollection> inputToken_;
+  edm::EDGetTokenT<DTRecSegment4DCollection> dtSegmentToken_;
+  edm::EDGetTokenT<RPCRecHitCollection> rpchitToken_;
+  const double rParam_;
+  const int nRechitMin_;                          // min number of rechits
+  const int nStationThres_;                       // min number of rechits to count towards nStation
+  const double stripErr_, wireError_, pruneCut_;  //constants for CSC time
+  const std::string name_;
 };
 
 //From: https://github.com/cms-sw/cmssw/blob/master/RecoMuon/MuonIdentification/src/CSCTimingExtractor.cc#L165-L234
-float cscMDSshowerTableProducer::getWeightedTime(RecHitRefVector rechits) const{
-     
-      bool modified = false;
-      double totalWeightTimeVtx = 0;
-      float timeVtx = 0;
+float cscMDSshowerTableProducer::getWeightedTime(RecHitRefVector rechits) const {
+  bool modified = false;
+  double totalWeightTimeVtx = 0;
+  float timeVtx = 0;
 
-      do {
-      modified = false;
-      totalWeightTimeVtx = 0;
-      timeVtx = 0;
-      for (auto const& rechit : rechits) {
-        timeVtx += rechit->wireTime() * 1./(wireError_*wireError_);
-        timeVtx += rechit->tpeak() * 1./(stripErr_*stripErr_);
-        totalWeightTimeVtx += 1./(wireError_*wireError_);
-        totalWeightTimeVtx += 1./(stripErr_*stripErr_);
-      }
-      timeVtx /= totalWeightTimeVtx;
+  do {
+    modified = false;
+    totalWeightTimeVtx = 0;
+    timeVtx = 0;
+    for (auto const& rechit : rechits) {
+      timeVtx += rechit->wireTime() * 1. / (wireError_ * wireError_);
+      timeVtx += rechit->tpeak() * 1. / (stripErr_ * stripErr_);
+      totalWeightTimeVtx += 1. / (wireError_ * wireError_);
+      totalWeightTimeVtx += 1. / (stripErr_ * stripErr_);
+    }
+    timeVtx /= totalWeightTimeVtx;
 
-      // cut away outliers
-      double diff_tvtx_strip,diff_tvtx_wire;
-      double chimax = 0.0;
-      int tmmax=0;
-      for (size_t i = 0; i < rechits.size(); ++i) {
-        const auto& rechit = rechits[i];
-        //diff_tvtx = (cscHits[i].time - timeVtx) * (cscHits[i].time - timeVtx) * cscHits[i].error;
-        diff_tvtx_strip = (rechit->tpeak() - timeVtx) * (rechit->tpeak() - timeVtx) *  1./(stripErr_*stripErr_);
-        diff_tvtx_wire = (rechit->wireTime() - timeVtx) * (rechit->wireTime() - timeVtx) *  1./(wireError_*wireError_);
-    
-        if ((diff_tvtx_strip > chimax)||(diff_tvtx_wire>chimax)) {
-          tmmax =  i;
-          chimax = std::max(diff_tvtx_strip,diff_tvtx_wire);
-        }
-      }
-      // cut away the outliers and repeat 
-      if (chimax > pruneCut_) {
-        rechits.erase(rechits.begin()+tmmax);
-        modified = true;
-      }
-    } while (modified);
+    // cut away outliers
+    double diff_tvtx_strip, diff_tvtx_wire;
+    double chimax = 0.0;
+    int tmmax = 0;
+    for (size_t i = 0; i < rechits.size(); ++i) {
+      const auto& rechit = rechits[i];
+      //diff_tvtx = (cscHits[i].time - timeVtx) * (cscHits[i].time - timeVtx) * cscHits[i].error;
+      diff_tvtx_strip = (rechit->tpeak() - timeVtx) * (rechit->tpeak() - timeVtx) * 1. / (stripErr_ * stripErr_);
+      diff_tvtx_wire = (rechit->wireTime() - timeVtx) * (rechit->wireTime() - timeVtx) * 1. / (wireError_ * wireError_);
 
-    return timeVtx;
+      if ((diff_tvtx_strip > chimax) || (diff_tvtx_wire > chimax)) {
+        tmmax = i;
+        chimax = std::max(diff_tvtx_strip, diff_tvtx_wire);
+      }
+    }
+    // cut away the outliers and repeat
+    if (chimax > pruneCut_) {
+      rechits.erase(rechits.begin() + tmmax);
+      modified = true;
+    }
+  } while (modified);
+
+  return timeVtx;
 }
 
-
 void cscMDSshowerTableProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
- 
   auto const& geo = iSetup.getData(geometryToken_);
   auto const& dt_geo = iSetup.getData(dtgeometryToken_);
   auto const& rpc_geo = iSetup.getData(rpcgeometryToken_);
@@ -176,12 +169,17 @@ void cscMDSshowerTableProducer::produce(edm::StreamID, edm::Event& iEvent, const
   std::vector<fastjet::PseudoJet> fjJets = clus_seq.inclusive_jets(ptmin);
 
   // Constituent rechit fields
-  std::vector<float> cscRechitsX,cscRechitsY,cscRechitsZ,cscRechitsPhi,cscRechitsEta,cscRechitsE,cscRechitsTpeak,cscRechitsTwire;
-  std::vector<int> cscRechitsNStrips,cscRechitsHitWire,cscRechitsWGroupsBX,cscRechitsNWireGroups,cscRechitsQuality,cscRechitsChamber,cscRechitsIChamber,cscRechitsStation;;
+  std::vector<float> cscRechitsX, cscRechitsY, cscRechitsZ, cscRechitsPhi, cscRechitsEta, cscRechitsE, cscRechitsTpeak,
+      cscRechitsTwire;
+  std::vector<int> cscRechitsNStrips, cscRechitsHitWire, cscRechitsWGroupsBX, cscRechitsNWireGroups, cscRechitsQuality,
+      cscRechitsChamber, cscRechitsIChamber, cscRechitsStation;
+  ;
 
   // MDS fields
-  std::vector<float> clsX,clsY,clsZ,clsPhi,clsEta,clsTime,clsTimeSpread,clsTimeWeighted,clsTimeSpreadWeighted,clsAvgStation;
-  std::vector<int> clsSize,clsNstation,cls_nME11,cls_nME12,clsUniqueChamber,cls_nMB1dtSeg,cls_nRE12hit,cls_nRB1hit;
+  std::vector<float> clsX, clsY, clsZ, clsPhi, clsEta, clsTime, clsTimeSpread, clsTimeWeighted, clsTimeSpreadWeighted,
+      clsAvgStation;
+  std::vector<int> clsSize, clsNstation, cls_nME11, cls_nME12, clsUniqueChamber, cls_nMB1dtSeg, cls_nRE12hit,
+      cls_nRB1hit;
 
   for (auto const& fjJet : fjJets) {
     // skip if the cluster has too few rechits
@@ -197,7 +195,7 @@ void cscMDSshowerTableProducer::produce(edm::StreamID, edm::Event& iEvent, const
     }
 
     //Derive cluster properties
-    int nME12=0,nME11=0,nMB1dtSeg = 0,nRE12hit=0,nRB1hit=0;
+    int nME12 = 0, nME11 = 0, nMB1dtSeg = 0, nRE12hit = 0, nRB1hit = 0;
     int nStation = 0;
     int totStation = 0;
     float avgStation = 0.0;
@@ -205,13 +203,12 @@ void cscMDSshowerTableProducer::produce(edm::StreamID, edm::Event& iEvent, const
     float time = 0.0;
     float time_strip = 0.0;  // for timeSpread calculation
     double timeWeighted = 0.0;
-    float timeSpreadWeighted = 0.0;   
+    float timeSpreadWeighted = 0.0;
 
     std::map<int, int> station_count_map;
 
     //fill rechits fields
     for (auto const& rechit : rechits) {
-    
       LocalPoint recHitLocalPosition = rechit->localPosition();
       auto detid = rechit->cscDetId();
       unique_ids.insert(detid.chamberId());
@@ -219,31 +216,31 @@ void cscMDSshowerTableProducer::produce(edm::StreamID, edm::Event& iEvent, const
       int endcap = CSCDetId::endcap(detid) == 1 ? 1 : -1;
       if (thischamber) {
         GlobalPoint globalPosition = thischamber->toGlobal(recHitLocalPosition);
-    
-        cscRechitsX.push_back( globalPosition.x());
-        cscRechitsY.push_back( globalPosition.y());
-        cscRechitsZ.push_back( globalPosition.z());
-        cscRechitsPhi.push_back( globalPosition.phi());
-        cscRechitsEta.push_back( globalPosition.eta());
-        cscRechitsE.push_back( rechit->energyDepositedInLayer());//not saved
-        cscRechitsTpeak.push_back( rechit->tpeak());
-        cscRechitsTwire.push_back( rechit->wireTime());
-        cscRechitsQuality.push_back( rechit->quality());
+
+        cscRechitsX.push_back(globalPosition.x());
+        cscRechitsY.push_back(globalPosition.y());
+        cscRechitsZ.push_back(globalPosition.z());
+        cscRechitsPhi.push_back(globalPosition.phi());
+        cscRechitsEta.push_back(globalPosition.eta());
+        cscRechitsE.push_back(rechit->energyDepositedInLayer());  //not saved
+        cscRechitsTpeak.push_back(rechit->tpeak());
+        cscRechitsTwire.push_back(rechit->wireTime());
+        cscRechitsQuality.push_back(rechit->quality());
 
         int stationRing = (CSCDetId::station(detid) * 10 + CSCDetId::ring(detid));
         if (CSCDetId::ring(detid) == 4)
           stationRing = (CSCDetId::station(detid) * 10 + 1);  // ME1/a has ring==4
 
-        cscRechitsChamber.push_back( endcap * stationRing);
-        cscRechitsIChamber.push_back( CSCDetId::chamber(detid));
-        cscRechitsStation.push_back( endcap *CSCDetId::station(detid));
-        cscRechitsNStrips.push_back(  rechit->nStrips());
-        cscRechitsHitWire.push_back(  rechit->hitWire());
-        cscRechitsWGroupsBX.push_back(  rechit->wgroupsBX());
-        cscRechitsNWireGroups.push_back(  rechit->nWireGroups());
+        cscRechitsChamber.push_back(endcap * stationRing);
+        cscRechitsIChamber.push_back(CSCDetId::chamber(detid));
+        cscRechitsStation.push_back(endcap * CSCDetId::station(detid));
+        cscRechitsNStrips.push_back(rechit->nStrips());
+        cscRechitsHitWire.push_back(rechit->hitWire());
+        cscRechitsWGroupsBX.push_back(rechit->wgroupsBX());
+        cscRechitsNWireGroups.push_back(rechit->nWireGroups());
 
         //compute for cluster fields
-        station_count_map[CSCDetId::station(detid)]++;    
+        station_count_map[CSCDetId::station(detid)]++;
         if (stationRing == 11)
           nME11++;
         if (stationRing == 12)
@@ -274,41 +271,43 @@ void cscMDSshowerTableProducer::produce(edm::StreamID, edm::Event& iEvent, const
     }
     timeSpread = std::sqrt(timeSpread * invN);
 
-    float i_clsEta = etaFromXYZ(fjJet.px() * invN, fjJet.py() * invN,fjJet.pz() * invN);
+    float i_clsEta = etaFromXYZ(fjJet.px() * invN, fjJet.py() * invN, fjJet.pz() * invN);
     float i_clsPhi = std::atan2(fjJet.py() * invN, fjJet.px() * invN);
 
-    //MB1 DT seg 
+    //MB1 DT seg
     for (auto const& segment : segments) {
-    
-        LocalPoint localPosition = segment.localPosition();
-        auto geoid = segment.geographicalId();
-        DTChamberId dtdetid = DTChamberId(geoid);
-        auto thischamber = dt_geo.chamber(dtdetid);
-        if (thischamber) {
-          GlobalPoint globalPosition = thischamber->toGlobal(localPosition);
-          float eta = globalPosition.eta();
-          float phi = globalPosition.phi();
-          if (dtdetid.station()==1 && reco::deltaR(eta,phi,i_clsEta,i_clsPhi)<0.4) nMB1dtSeg++;
-        }
+      LocalPoint localPosition = segment.localPosition();
+      auto geoid = segment.geographicalId();
+      DTChamberId dtdetid = DTChamberId(geoid);
+      auto thischamber = dt_geo.chamber(dtdetid);
+      if (thischamber) {
+        GlobalPoint globalPosition = thischamber->toGlobal(localPosition);
+        float eta = globalPosition.eta();
+        float phi = globalPosition.phi();
+        if (dtdetid.station() == 1 && reco::deltaR(eta, phi, i_clsEta, i_clsPhi) < 0.4)
+          nMB1dtSeg++;
+      }
     }
     //RPC hits
     for (auto const& rechit : rpchits) {
+      LocalPoint recHitLocalPosition = rechit.localPosition();
+      auto geoid = rechit.geographicalId();
+      RPCDetId rpcdetid = RPCDetId(geoid);
+      auto thischamber = rpc_geo.chamber(rpcdetid);
 
-        LocalPoint recHitLocalPosition = rechit.localPosition();
-        auto geoid = rechit.geographicalId();
-        RPCDetId rpcdetid = RPCDetId(geoid);
-        auto thischamber = rpc_geo.chamber(rpcdetid);
-    
-        if (thischamber) {
-          GlobalPoint globalPosition = thischamber->toGlobal(recHitLocalPosition);
-          float eta = globalPosition.eta();
-          float phi = globalPosition.phi();
-         
-          //RE12 hits 
-          if (rpcdetid.station()==1 && rpcdetid.ring()==2 && abs(rpcdetid.region())==1 && reco::deltaR(eta,phi,i_clsEta,i_clsPhi)<0.4) nRE12hit++;
-          //RB1 hits 
-          if (rpcdetid.station()==1 && rpcdetid.region()==0 && reco::deltaR(eta,phi,i_clsEta,i_clsPhi)<0.4) nRB1hit++;
-        }
+      if (thischamber) {
+        GlobalPoint globalPosition = thischamber->toGlobal(recHitLocalPosition);
+        float eta = globalPosition.eta();
+        float phi = globalPosition.phi();
+
+        //RE12 hits
+        if (rpcdetid.station() == 1 && rpcdetid.ring() == 2 && abs(rpcdetid.region()) == 1 &&
+            reco::deltaR(eta, phi, i_clsEta, i_clsPhi) < 0.4)
+          nRE12hit++;
+        //RB1 hits
+        if (rpcdetid.station() == 1 && rpcdetid.region() == 0 && reco::deltaR(eta, phi, i_clsEta, i_clsPhi) < 0.4)
+          nRB1hit++;
+      }
     }
 
     //fill cluster fields
@@ -341,9 +340,8 @@ void cscMDSshowerTableProducer::produce(edm::StreamID, edm::Event& iEvent, const
 
     clsTimeWeighted.push_back(timeWeighted);
     clsTimeSpreadWeighted.push_back(timeSpreadWeighted);
-
   }
-  auto cscRechitTab = std::make_unique<nanoaod::FlatTable>(cscRechitsX.size(), name_+"Rechits", false, false);
+  auto cscRechitTab = std::make_unique<nanoaod::FlatTable>(cscRechitsX.size(), name_ + "Rechits", false, false);
 
   cscRechitTab->addColumn<float>("X", cscRechitsX, "csc rechit X");
   cscRechitTab->addColumn<float>("Y", cscRechitsY, "csc rechit Y");
@@ -355,15 +353,14 @@ void cscMDSshowerTableProducer::produce(edm::StreamID, edm::Event& iEvent, const
   cscRechitTab->addColumn<float>("Twire", cscRechitsTwire, "csc rechit time from anode");
   cscRechitTab->addColumn<int>("Quality", cscRechitsQuality, "csc rechit quality");
   cscRechitTab->addColumn<int>("Chamber", cscRechitsChamber, "csc rechit station-Ring");
-  cscRechitTab->addColumn<int>("IChamber", cscRechitsIChamber, "csc rechit chamber in ring" );
+  cscRechitTab->addColumn<int>("IChamber", cscRechitsIChamber, "csc rechit chamber in ring");
   cscRechitTab->addColumn<int>("Station", cscRechitsStation, "csc rechit station");
   cscRechitTab->addColumn<int>("NStrips", cscRechitsNStrips, "csc rechit nstrips");
   cscRechitTab->addColumn<int>("WGroupsBX", cscRechitsWGroupsBX, "csc rechit wire group BX");
-  cscRechitTab->addColumn<int>("HitWire",    cscRechitsHitWire, "csc rechit hit wire");
+  cscRechitTab->addColumn<int>("HitWire", cscRechitsHitWire, "csc rechit hit wire");
   cscRechitTab->addColumn<int>("NWireGroups", cscRechitsNWireGroups, "csc rechit n wire groups");
 
-
-  iEvent.put(std::move(cscRechitTab), name_+"Rechits"); 
+  iEvent.put(std::move(cscRechitTab), name_ + "Rechits");
 
   auto clsTab = std::make_unique<nanoaod::FlatTable>(clsSize.size(), name_, false, false);
 
@@ -386,11 +383,8 @@ void cscMDSshowerTableProducer::produce(edm::StreamID, edm::Event& iEvent, const
   clsTab->addColumn<int>("nRE12hit", cls_nRE12hit, "cluster nRE12hit");
   clsTab->addColumn<int>("nRB1hit", cls_nRB1hit, "cluster nRB1hit");
 
-  iEvent.put(std::move(clsTab), name_); 
-
+  iEvent.put(std::move(clsTab), name_);
 }
-
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(cscMDSshowerTableProducer);
-

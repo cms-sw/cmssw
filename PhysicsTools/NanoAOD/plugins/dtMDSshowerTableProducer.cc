@@ -26,59 +26,53 @@
 #include "fastjet/ClusterSequence.hh"
 #include "fastjet/JetDefinition.hh"
 #include "fastjet/PseudoJet.hh"
-  
+
 using RecHitRef = edm::Ref<DTRecHitCollection>;
 using RecHitRefVector = edm::RefVector<DTRecHitCollection>;
 
 class dtMDSshowerTableProducer : public edm::global::EDProducer<> {
+public:
+  dtMDSshowerTableProducer(const edm::ParameterSet& iConfig)
+      : dtgeometryToken_(esConsumes<DTGeometry, MuonGeometryRecord>()),
+        rpcgeometryToken_(esConsumes<RPCGeometry, MuonGeometryRecord>()),
+        inputToken_(consumes<DTRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitLabel"))),
+        rpchitToken_(consumes<RPCRecHitCollection>(iConfig.getParameter<edm::InputTag>("rpcLabel"))),
+        rParam_(iConfig.getParameter<double>("rParam")),
+        nRechitMin_(iConfig.getParameter<int>("nRechitMin")),
+        nStationThres_(iConfig.getParameter<int>("nStationThres")),
+        name_(iConfig.getParameter<std::string>("name")) {
+    produces<nanoaod::FlatTable>(name_ + "Rechits");
+    produces<nanoaod::FlatTable>(name_);
+  }
 
+  ~dtMDSshowerTableProducer() override {}
 
-  public:
-    dtMDSshowerTableProducer(const edm::ParameterSet &iConfig)
-      :
-      dtgeometryToken_(esConsumes<DTGeometry, MuonGeometryRecord>()),
-      rpcgeometryToken_(esConsumes<RPCGeometry, MuonGeometryRecord>()),
-      inputToken_(consumes<DTRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitLabel"))),
-      rpchitToken_(consumes<RPCRecHitCollection>(iConfig.getParameter<edm::InputTag>("rpcLabel"))),
-      rParam_(iConfig.getParameter<double>("rParam")),
-      nRechitMin_(iConfig.getParameter<int>("nRechitMin")),
-      nStationThres_(iConfig.getParameter<int>("nStationThres")),
-      name_(iConfig.getParameter<std::string>("name"))
-      {
-      produces<nanoaod::FlatTable>(name_+"Rechits");
-      produces<nanoaod::FlatTable>(name_);
-    }
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("recHitLabel")->setComment("input dtRechit collection");
+    desc.add<edm::InputTag>("rpcLabel")->setComment("input rpcRechit collection for veto");
+    desc.add<double>("rParam", 0.4);
+    desc.add<int>("nRechitMin", 50);
+    desc.add<int>("nStationThres", 10);
+    desc.add<std::string>("name", "dt1DRecHits")->setComment("name of the output collection");
+    descriptions.add("dtMDSshowerTable", desc);
+  }
+  float getWeightedTime(RecHitRefVector rechits) const;
 
-    ~dtMDSshowerTableProducer() override {}
+private:
+  void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
-    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
-      edm::ParameterSetDescription desc;
-      desc.add<edm::InputTag>("recHitLabel")->setComment("input dtRechit collection");
-      desc.add<edm::InputTag>("rpcLabel")->setComment("input rpcRechit collection for veto");
-      desc.add<double>("rParam", 0.4);
-      desc.add<int>("nRechitMin", 50);
-      desc.add<int>("nStationThres", 10);
-      desc.add<std::string>("name","dt1DRecHits")->setComment("name of the output collection");
-      descriptions.add("dtMDSshowerTable", desc);
-    }
-    float getWeightedTime(RecHitRefVector rechits) const;
-
-  private:
-    void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
-
-    const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtgeometryToken_;
-    const edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcgeometryToken_;
-    edm::EDGetTokenT<DTRecHitCollection> inputToken_;
-    edm::EDGetTokenT<RPCRecHitCollection> rpchitToken_;
-    const double rParam_;
-    const int nRechitMin_;     // min number of rechits
-    const int nStationThres_;  // min number of rechits to count towards nStation 
-    const std::string name_;
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtgeometryToken_;
+  const edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcgeometryToken_;
+  edm::EDGetTokenT<DTRecHitCollection> inputToken_;
+  edm::EDGetTokenT<RPCRecHitCollection> rpchitToken_;
+  const double rParam_;
+  const int nRechitMin_;     // min number of rechits
+  const int nStationThres_;  // min number of rechits to count towards nStation
+  const std::string name_;
 };
 
-
 void dtMDSshowerTableProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
- 
   auto const& dt_geo = iSetup.getData(dtgeometryToken_);
   auto const& rpc_geo = iSetup.getData(rpcgeometryToken_);
   auto const& rechits = iEvent.get(inputToken_);
@@ -96,17 +90,16 @@ void dtMDSshowerTableProducer::produce(edm::StreamID, edm::Event& iEvent, const 
     LocalPoint recHitLocalPosition = rechit.localPosition();
     auto geoid = rechit.geographicalId();
     DTChamberId dtdetid = DTChamberId(geoid);
-    DTLayerId  dtlayerid = DTLayerId(geoid);
+    DTLayerId dtlayerid = DTLayerId(geoid);
 
     auto thischamber = dt_geo.chamber(dtdetid);
-    auto thislayer   = dt_geo.layer(dtlayerid);
+    auto thislayer = dt_geo.layer(dtlayerid);
 
     if (thischamber) {
       GlobalPoint globalPosition;
-      if (thislayer){
+      if (thislayer) {
         globalPosition = thislayer->toGlobal(recHitLocalPosition);
-      }
-      else{
+      } else {
         globalPosition = thischamber->toGlobal(recHitLocalPosition);
       }
       float x = globalPosition.x();
@@ -126,12 +119,12 @@ void dtMDSshowerTableProducer::produce(edm::StreamID, edm::Event& iEvent, const 
   std::vector<fastjet::PseudoJet> fjJets = clus_seq.inclusive_jets(ptmin);
 
   // Constituent rechit fields
-  std::vector<float> dtRechitsX,dtRechitsY,dtRechitsZ,dtRechitsPhi,dtRechitsEta;
-  std::vector<int> dtRechitsLayer,dtRechitsSuperLayer,dtRechitsSector,dtRechitsStation,dtRechitsWheel;
+  std::vector<float> dtRechitsX, dtRechitsY, dtRechitsZ, dtRechitsPhi, dtRechitsEta;
+  std::vector<int> dtRechitsLayer, dtRechitsSuperLayer, dtRechitsSector, dtRechitsStation, dtRechitsWheel;
 
   // MDS fields
-  std::vector<float> clsX,clsY,clsZ,clsPhi,clsEta,clsAvgStation;
-  std::vector<int> clsSize,clsNstation,clsWheel,clsUniqueChamber,cls_nRB1hit,cls_nRPC,clsBX;
+  std::vector<float> clsX, clsY, clsZ, clsPhi, clsEta, clsAvgStation;
+  std::vector<int> clsSize, clsNstation, clsWheel, clsUniqueChamber, cls_nRB1hit, cls_nRPC, clsBX;
 
   for (auto const& fjJet : fjJets) {
     // skip if the cluster has too few rechits
@@ -147,7 +140,7 @@ void dtMDSshowerTableProducer::produce(edm::StreamID, edm::Event& iEvent, const 
     }
 
     //Derive cluster properties
-    int size_z=0,size_xy=0,size=0;
+    int size_z = 0, size_xy = 0, size = 0;
     float avg_x_sl2(0.0), avg_y_sl2(0.0), avg_z_sl2(0.0);
     float avg_x(0.0), avg_y(0.0), avg_z(0.0);
     int nStation = 0;
@@ -158,65 +151,62 @@ void dtMDSshowerTableProducer::produce(edm::StreamID, edm::Event& iEvent, const 
 
     //fill rechits fields
     for (auto const& rechit : rechits) {
-    
-        LocalPoint recHitLocalPosition = rechit->localPosition();
-        auto geoid = rechit->geographicalId();
-      
-        DTChamberId dtdetid = DTChamberId(geoid);
-        DTLayerId  dtlayerid = DTLayerId(geoid);
+      LocalPoint recHitLocalPosition = rechit->localPosition();
+      auto geoid = rechit->geographicalId();
 
-        unique_ids.insert(dtdetid);
-    
-        auto thischamber = dt_geo.chamber(dtdetid);
-        auto thislayer   = dt_geo.layer(dtlayerid);
-    
-        if (thischamber) {
-    
-          if (thislayer){
-              GlobalPoint globalPosition = thislayer->toGlobal(recHitLocalPosition);
-              dtRechitsX.push_back( globalPosition.x());
-              dtRechitsY.push_back( globalPosition.y());
-              dtRechitsZ.push_back( globalPosition.z());
-              dtRechitsPhi.push_back( globalPosition.phi());
-              dtRechitsEta.push_back( globalPosition.eta());
-              dtRechitsLayer.push_back( dtlayerid.layer());
-              dtRechitsSuperLayer.push_back( dtlayerid.superlayer());
-              // use xy-coordinates from SL1/SL3 when available 
-              if (dtlayerid.superlayer()==1 || dtlayerid.superlayer()==3){
-                   avg_x += globalPosition.x();
-                   avg_y += globalPosition.y();
-                   avg_z += globalPosition.z();
-                   size_xy++;
-              } 
-              // use z-coordinates from SL2 when available 
-              else if (dtlayerid.superlayer()==2){
-                   avg_x_sl2 += globalPosition.x();
-                   avg_y_sl2 += globalPosition.y();
-                   avg_z_sl2 += globalPosition.z();
-                   size_z++;
-              }
+      DTChamberId dtdetid = DTChamberId(geoid);
+      DTLayerId dtlayerid = DTLayerId(geoid);
+
+      unique_ids.insert(dtdetid);
+
+      auto thischamber = dt_geo.chamber(dtdetid);
+      auto thislayer = dt_geo.layer(dtlayerid);
+
+      if (thischamber) {
+        if (thislayer) {
+          GlobalPoint globalPosition = thislayer->toGlobal(recHitLocalPosition);
+          dtRechitsX.push_back(globalPosition.x());
+          dtRechitsY.push_back(globalPosition.y());
+          dtRechitsZ.push_back(globalPosition.z());
+          dtRechitsPhi.push_back(globalPosition.phi());
+          dtRechitsEta.push_back(globalPosition.eta());
+          dtRechitsLayer.push_back(dtlayerid.layer());
+          dtRechitsSuperLayer.push_back(dtlayerid.superlayer());
+          // use xy-coordinates from SL1/SL3 when available
+          if (dtlayerid.superlayer() == 1 || dtlayerid.superlayer() == 3) {
+            avg_x += globalPosition.x();
+            avg_y += globalPosition.y();
+            avg_z += globalPosition.z();
+            size_xy++;
           }
-          else{
-              GlobalPoint globalPosition = thischamber->toGlobal(recHitLocalPosition);
-              dtRechitsX.push_back( globalPosition.x());
-              dtRechitsY.push_back( globalPosition.y());
-              dtRechitsZ.push_back( globalPosition.z());
-              dtRechitsPhi.push_back( globalPosition.phi());
-              dtRechitsEta.push_back( globalPosition.eta());
-              dtRechitsLayer.push_back( 0 );     //default value;
-              dtRechitsSuperLayer.push_back( 0 );//default value
-              avg_x += globalPosition.x();
-              avg_y += globalPosition.y();
-              avg_z += globalPosition.z();
+          // use z-coordinates from SL2 when available
+          else if (dtlayerid.superlayer() == 2) {
+            avg_x_sl2 += globalPosition.x();
+            avg_y_sl2 += globalPosition.y();
+            avg_z_sl2 += globalPosition.z();
+            size_z++;
           }
-          dtRechitsSector.push_back( dtdetid.sector());
-          dtRechitsStation.push_back( dtdetid.station());
-          dtRechitsWheel.push_back( dtdetid.wheel());
-          size++; 
-        
-          //compute for cluster fields
-          station_count_map[dtdetid.station()]++;    
+        } else {
+          GlobalPoint globalPosition = thischamber->toGlobal(recHitLocalPosition);
+          dtRechitsX.push_back(globalPosition.x());
+          dtRechitsY.push_back(globalPosition.y());
+          dtRechitsZ.push_back(globalPosition.z());
+          dtRechitsPhi.push_back(globalPosition.phi());
+          dtRechitsEta.push_back(globalPosition.eta());
+          dtRechitsLayer.push_back(0);       //default value;
+          dtRechitsSuperLayer.push_back(0);  //default value
+          avg_x += globalPosition.x();
+          avg_y += globalPosition.y();
+          avg_z += globalPosition.z();
         }
+        dtRechitsSector.push_back(dtdetid.sector());
+        dtRechitsStation.push_back(dtdetid.station());
+        dtRechitsWheel.push_back(dtdetid.wheel());
+        size++;
+
+        //compute for cluster fields
+        station_count_map[dtdetid.station()]++;
+      }
     }
     //station statistics
     std::map<int, int>::iterator it;
@@ -232,63 +222,61 @@ void dtMDSshowerTableProducer::produce(edm::StreamID, edm::Event& iEvent, const 
     }
 
     //for DT correct position, calculate average Z using sl2 and average XY using sl1/3
-    if (size_xy > 0 && size_z > 0) {   // both SL1/SL3 and SL2 rechits
-      avg_x = avg_x/size_xy;
-      avg_y = avg_y/size_xy;
-      avg_z = avg_z_sl2/size_z;
-    }
-    else if (size_xy == 0 && size_z > 0)// only SL2 rechits
+    if (size_xy > 0 && size_z > 0) {  // both SL1/SL3 and SL2 rechits
+      avg_x = avg_x / size_xy;
+      avg_y = avg_y / size_xy;
+      avg_z = avg_z_sl2 / size_z;
+    } else if (size_xy == 0 && size_z > 0)  // only SL2 rechits
     {
-      avg_x = avg_x_sl2/size_z;
-      avg_y = avg_y_sl2/size_z;
-      avg_z = avg_z_sl2/size_z;
-    }
-    else if (size_xy > 0 && size_z == 0) // no SL2 rechits
+      avg_x = avg_x_sl2 / size_z;
+      avg_y = avg_y_sl2 / size_z;
+      avg_z = avg_z_sl2 / size_z;
+    } else if (size_xy > 0 && size_z == 0)  // no SL2 rechits
     {
-      avg_x = avg_x/size_xy;
-      avg_y = avg_y/size_xy;
-      avg_z = avg_z/size_xy;
-    }
-    else                                // no SL information
+      avg_x = avg_x / size_xy;
+      avg_y = avg_y / size_xy;
+      avg_z = avg_z / size_xy;
+    } else  // no SL information
     {
-      avg_x = avg_x/size;
-      avg_y = avg_y/size;
-      avg_z = avg_z/size;
+      avg_x = avg_x / size;
+      avg_y = avg_y / size;
+      avg_z = avg_z / size;
     }
 
-
-    float i_clsEta = etaFromXYZ(avg_x, avg_y,avg_z);
+    float i_clsEta = etaFromXYZ(avg_x, avg_y, avg_z);
     float i_clsPhi = std::atan2(avg_y, avg_x);
-    int i_clsWheel = (std::abs(avg_z) < 126.8) ? 0 :
-        (avg_z > 126.8 && avg_z < 395.4) ? 1 :
-        (avg_z < -126.8 && avg_z > -395.4) ? -1 :
-        (avg_z < 0) ? -2 : 2;
+    int i_clsWheel = (std::abs(avg_z) < 126.8)            ? 0
+                     : (avg_z > 126.8 && avg_z < 395.4)   ? 1
+                     : (avg_z < -126.8 && avg_z > -395.4) ? -1
+                     : (avg_z < 0)                        ? -2
+                                                          : 2;
 
     // RPC hits
-    std::map<int, int> bxCounts; // bx of matched RPC hits : counts
-    int nRB1hit=0;
+    std::map<int, int> bxCounts;  // bx of matched RPC hits : counts
+    int nRB1hit = 0;
     for (auto const& rechit : rpchits) {
+      LocalPoint recHitLocalPosition = rechit.localPosition();
+      auto geoid = rechit.geographicalId();
+      RPCDetId rpcdetid = RPCDetId(geoid);
+      auto thischamber = rpc_geo.chamber(rpcdetid);
 
-        LocalPoint recHitLocalPosition = rechit.localPosition();
-        auto geoid = rechit.geographicalId();
-        RPCDetId rpcdetid = RPCDetId(geoid);
-        auto thischamber = rpc_geo.chamber(rpcdetid);
-   
-        // Only matching RB hits 
-        if (rpcdetid.region()!=0) continue;
-        if (thischamber) {
-          GlobalPoint globalPosition = thischamber->toGlobal(recHitLocalPosition);
- 
-          //match to RPC hits with dPhi<0.5 and same wheel in DT
-          if (reco::deltaPhi(globalPosition.phi(),i_clsPhi)<0.5 && rpcdetid.ring()==i_clsWheel) {
-            //RB1 hits 
-            if (rpcdetid.station()==1) nRB1hit++;
-            bxCounts[rechit.BunchX()]++;
-          }
+      // Only matching RB hits
+      if (rpcdetid.region() != 0)
+        continue;
+      if (thischamber) {
+        GlobalPoint globalPosition = thischamber->toGlobal(recHitLocalPosition);
+
+        //match to RPC hits with dPhi<0.5 and same wheel in DT
+        if (reco::deltaPhi(globalPosition.phi(), i_clsPhi) < 0.5 && rpcdetid.ring() == i_clsWheel) {
+          //RB1 hits
+          if (rpcdetid.station() == 1)
+            nRB1hit++;
+          bxCounts[rechit.BunchX()]++;
         }
+      }
     }
     // find the mode of BX
-    int modeBX = 0,maxCount = 0, i_cls_nRPC = 0;
+    int modeBX = 0, maxCount = 0, i_cls_nRPC = 0;
     for (const auto& [bx, count] : bxCounts) {
       i_cls_nRPC += count;
       if (count > maxCount) {
@@ -312,9 +300,8 @@ void dtMDSshowerTableProducer::produce(edm::StreamID, edm::Event& iEvent, const 
     clsUniqueChamber.push_back(unique_ids.size());
     cls_nRB1hit.push_back(nRB1hit);
     cls_nRPC.push_back(i_cls_nRPC);
-
   }
-  auto dtRechitTab = std::make_unique<nanoaod::FlatTable>(dtRechitsX.size(), name_+"Rechits", false, false);
+  auto dtRechitTab = std::make_unique<nanoaod::FlatTable>(dtRechitsX.size(), name_ + "Rechits", false, false);
 
   dtRechitTab->addColumn<float>("X", dtRechitsX, "dt rechit X");
   dtRechitTab->addColumn<float>("Y", dtRechitsY, "dt rechit Y");
@@ -327,7 +314,7 @@ void dtMDSshowerTableProducer::produce(edm::StreamID, edm::Event& iEvent, const 
   dtRechitTab->addColumn<int>("Station", dtRechitsStation, "dt rechit station");
   dtRechitTab->addColumn<int>("Wheel", dtRechitsWheel, "dt rechit nstrips");
 
-  iEvent.put(std::move(dtRechitTab), name_+"Rechits"); 
+  iEvent.put(std::move(dtRechitTab), name_ + "Rechits");
 
   auto clsTab = std::make_unique<nanoaod::FlatTable>(clsSize.size(), name_, false, false);
 
@@ -345,11 +332,8 @@ void dtMDSshowerTableProducer::produce(edm::StreamID, edm::Event& iEvent, const 
   clsTab->addColumn<int>("nRPC", cls_nRPC, "cluster nRPC");
   clsTab->addColumn<int>("nRB1hit", cls_nRB1hit, "cluster nRB1hit");
 
-  iEvent.put(std::move(clsTab), name_); 
-
+  iEvent.put(std::move(clsTab), name_);
 }
-
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(dtMDSshowerTableProducer);
-

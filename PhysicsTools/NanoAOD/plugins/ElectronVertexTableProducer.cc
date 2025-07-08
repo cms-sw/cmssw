@@ -50,58 +50,51 @@
 #include <iostream>
 
 class ElectronVertexTableProducer : public edm::global::EDProducer<> {
+public:
+  explicit ElectronVertexTableProducer(const edm::ParameterSet& iConfig)
+      : electronTag_(consumes<std::vector<pat::Electron>>(iConfig.getParameter<edm::InputTag>("electrons"))),
+        bsTag_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamspot"))),
+        pvTag_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primaryVertex"))),
+        generalTrackTag_(consumes<std::vector<reco::Track>>(iConfig.getParameter<edm::InputTag>("generalTracks"))),
+        magneticFieldToken_(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
+        tkerGeomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
+        tkerTopoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
+        transientTrackBuilderToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))) {
+    produces<nanoaod::FlatTable>("ElectronVertex");
+    produces<nanoaod::FlatTable>("ElectronVertexRefittedTracks");
+  }
 
-  public:
-    explicit ElectronVertexTableProducer(const edm::ParameterSet &iConfig)
-      :
-      electronTag_(consumes<std::vector<pat::Electron>>(iConfig.getParameter<edm::InputTag>("electrons"))),
-      bsTag_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamspot"))),
-      pvTag_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primaryVertex"))),
-      generalTrackTag_(consumes<std::vector<reco::Track>>(iConfig.getParameter<edm::InputTag>("generalTracks"))),
-      magneticFieldToken_(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
-      tkerGeomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
-      tkerTopoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
-      transientTrackBuilderToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder")))
-      {
-      produces<nanoaod::FlatTable>("ElectronVertex");
-      produces<nanoaod::FlatTable>("ElectronVertexRefittedTracks");
-    }
+  ~ElectronVertexTableProducer() override {}
 
-    ~ElectronVertexTableProducer() override {}
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("electrons")->setComment("input pat electrons collection");
+    desc.add<edm::InputTag>("beamspot")->setComment("input beamspot collection");
+    desc.add<edm::InputTag>("primaryVertex")->setComment("input primaryVertex collection");
+    desc.add<edm::InputTag>("generalTracks")->setComment("input generalTracks collection");
+    descriptions.add("electronVertexTables", desc);
+  }
 
-    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
-      edm::ParameterSetDescription desc;
-      desc.add<edm::InputTag>("electrons")->setComment("input pat electrons collection");
-      desc.add<edm::InputTag>("beamspot")->setComment("input beamspot collection");
-      desc.add<edm::InputTag>("primaryVertex")->setComment("input primaryVertex collection");
-      desc.add<edm::InputTag>("generalTracks")->setComment("input generalTracks collection");
-      descriptions.add("electronVertexTables", desc);
-    }
+private:
+  void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
-  private:
-    void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
+  std::pair<float, float> getVxy(const reco::Vertex electronVertex) const;
+  std::pair<float, float> getVxyz(const reco::Vertex electronVertex) const;
 
-    std::pair<float,float> getVxy(const reco::Vertex electronVertex) const;
-    std::pair<float,float> getVxyz(const reco::Vertex electronVertex) const;
+  std::tuple<float, float, GlobalPoint> getDistanceBetweenElectronTracks(
+      const reco::Track& track1, const reco::Track& track2, const edm::ESHandle<MagneticField>& magneticField) const;
 
-    std::tuple<float, float, GlobalPoint> getDistanceBetweenElectronTracks(const reco::Track& track1, 
-                                          const reco::Track& track2,
-                                          const edm::ESHandle<MagneticField>& magneticField) const;
-
-    const edm::EDGetTokenT<std::vector<pat::Electron>> electronTag_;
-    const edm::EDGetTokenT<reco::BeamSpot> bsTag_;
-    const edm::EDGetTokenT<reco::VertexCollection> pvTag_;
-    const edm::EDGetTokenT<std::vector<reco::Track>> generalTrackTag_;
-    const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
-    const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkerGeomToken_;
-    const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tkerTopoToken_;
-    const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackBuilderToken_;
-
+  const edm::EDGetTokenT<std::vector<pat::Electron>> electronTag_;
+  const edm::EDGetTokenT<reco::BeamSpot> bsTag_;
+  const edm::EDGetTokenT<reco::VertexCollection> pvTag_;
+  const edm::EDGetTokenT<std::vector<reco::Track>> generalTrackTag_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkerGeomToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tkerTopoToken_;
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackBuilderToken_;
 };
 
-void ElectronVertexTableProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const 
-{
-  
+void ElectronVertexTableProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   edm::Handle<std::vector<pat::Electron>> electronHandle;
   iEvent.getByToken(electronTag_, electronHandle);
 
@@ -131,29 +124,33 @@ void ElectronVertexTableProducer::produce(edm::StreamID, edm::Event& iEvent, con
   int refittedTrackIdx_counter = 0;
 
   std::vector<bool> vertexIsValid;
-  std::vector<float> vxy,vxyz,vx,vy,vz,t,vxySigma,vxyzSigma,vxErr,vyErr,vzErr,tErr;
-  std::vector<float> chi2,ndof,normChi2,dR,originalElectronIdx1,originalElectronIdx2,refittedTrackIdx1,refittedTrackIdx2;
-  std::vector<float> DCA,DCAstatus,DCAx,DCAy,DCAz;
-  std::vector<float> hitsInFrontOfVert1,missHitsAfterVert1,hitsInFrontOfVert2,missHitsAfterVert2;
+  std::vector<float> vxy, vxyz, vx, vy, vz, t, vxySigma, vxyzSigma, vxErr, vyErr, vzErr, tErr;
+  std::vector<float> chi2, ndof, normChi2, dR, originalElectronIdx1, originalElectronIdx2, refittedTrackIdx1,
+      refittedTrackIdx2;
+  std::vector<float> DCA, DCAstatus, DCAx, DCAy, DCAz;
+  std::vector<float> hitsInFrontOfVert1, missHitsAfterVert1, hitsInFrontOfVert2, missHitsAfterVert2;
 
-  std::vector<float> refittedTrackIdx,refittedTrackOriginalIdx,refittedTrackPt,refittedTrackPtErr,refittedTrackPx,refittedTrackPy,refittedTrackPz;
-  std::vector<float> refittedTrackEta,refittedTrackEtaErr,refittedTrackPhi,refittedTrackPhiErr,refittedTrackCharge,refittedTrackNormChi2,refittedTrackNdof,refittedTrackChi2;
-  std::vector<float> refittedTrackDzPV,refittedTrackDzPVErr,refittedTrackDxyPVTraj,refittedTrackDxyPVTrajErr,refittedTrackDxyPVSigned,refittedTrackDxyPVSignedErr,refittedTrackIp3DPVSigned,refittedTrackIp3DPVSignedErr;
-  std::vector<float> refittedTrackDxyBS,refittedTrackDxyBSErr,refittedTrackDzBS,refittedTrackDzBSErr,refittedTrackDxyBSTraj,refittedTrackDxyBSTrajErr,refittedTrackDxyBSSigned,refittedTrackDxyBSSignedErr,refittedTrackIp3DBSSigned,refittedTrackIp3DBSSignedErr;
-  std::vector<float> refittedVertMass,refittedVertPt,refittedVertEta,refittedVertPhi; 
+  std::vector<float> refittedTrackIdx, refittedTrackOriginalIdx, refittedTrackPt, refittedTrackPtErr, refittedTrackPx,
+      refittedTrackPy, refittedTrackPz;
+  std::vector<float> refittedTrackEta, refittedTrackEtaErr, refittedTrackPhi, refittedTrackPhiErr, refittedTrackCharge,
+      refittedTrackNormChi2, refittedTrackNdof, refittedTrackChi2;
+  std::vector<float> refittedTrackDzPV, refittedTrackDzPVErr, refittedTrackDxyPVTraj, refittedTrackDxyPVTrajErr,
+      refittedTrackDxyPVSigned, refittedTrackDxyPVSignedErr, refittedTrackIp3DPVSigned, refittedTrackIp3DPVSignedErr;
+  std::vector<float> refittedTrackDxyBS, refittedTrackDxyBSErr, refittedTrackDzBS, refittedTrackDzBSErr,
+      refittedTrackDxyBSTraj, refittedTrackDxyBSTrajErr, refittedTrackDxyBSSigned, refittedTrackDxyBSSignedErr,
+      refittedTrackIp3DBSSigned, refittedTrackIp3DBSSignedErr;
+  std::vector<float> refittedVertMass, refittedVertPt, refittedVertEta, refittedVertPhi;
   // pat electrons
-  for(size_t i = 0; i < electronHandle->size(); i++){
-
+  for (size_t i = 0; i < electronHandle->size(); i++) {
     const pat::Electron& electron_i = electronHandle->at(i);
-    
+
     reco::GsfTrackRef trackRef_i = electron_i.gsfTrack();
 
     const auto& electronTrack_i = trackRef_i.get();
     reco::TransientTrack electronTransientTrack_i = builder->build(electronTrack_i);
 
     // pat-pat electron vertex
-    for(size_t j = i+1; j < electronHandle->size(); j++){
-    
+    for (size_t j = i + 1; j < electronHandle->size(); j++) {
       const pat::Electron& electron_j = electronHandle->at(j);
 
       reco::GsfTrackRef trackRef_j = electron_j.gsfTrack();
@@ -168,18 +165,21 @@ void ElectronVertexTableProducer::produce(edm::StreamID, edm::Event& iEvent, con
       TransientVertex transientElectronVertex = vertexFitter.vertex(electronTransientTracks);
       reco::Vertex electronVertex = reco::Vertex(transientElectronVertex);
 
-      if (!transientElectronVertex.isValid()) continue;
-      std::tuple<float,float,GlobalPoint> distanceTuple = getDistanceBetweenElectronTracks(*electronTrack_i, *electronTrack_j, magneticField);
+      if (!transientElectronVertex.isValid())
+        continue;
+      std::tuple<float, float, GlobalPoint> distanceTuple =
+          getDistanceBetweenElectronTracks(*electronTrack_i, *electronTrack_j, magneticField);
       // if dca status is good but dca is more than 15 cm
-      if(std::get<1>(distanceTuple) && std::get<0>(distanceTuple) > 15) continue;
+      if (std::get<1>(distanceTuple) && std::get<0>(distanceTuple) > 15)
+        continue;
 
       nElectronVertices++;
 
       vertexIsValid.push_back(transientElectronVertex.isValid());
-      std::pair<float,float> vxy_ = getVxy(electronVertex);
+      std::pair<float, float> vxy_ = getVxy(electronVertex);
       vxy.push_back(vxy_.first);
       vxySigma.push_back(vxy_.second);
-      std::pair<float,float> vxyz_ = getVxyz(electronVertex);
+      std::pair<float, float> vxyz_ = getVxyz(electronVertex);
       vxyz.push_back(vxyz_.first);
       vxyzSigma.push_back(vxyz_.second);
       ndof.push_back(electronVertex.ndof());
@@ -205,12 +205,12 @@ void ElectronVertexTableProducer::produce(edm::StreamID, edm::Event& iEvent, con
       DCAz.push_back(std::get<2>(distanceTuple).z());
 
       CheckHitPattern checkHitPattern;
-      checkHitPattern.init(tkerTopo,*tkerGeom,*builder);
+      checkHitPattern.init(tkerTopo, *tkerGeom, *builder);
       // checkHitPattern.init(iSetup);
       CheckHitPattern::Result hitPattern_i = checkHitPattern(*electronTrack_i, transientElectronVertex.vertexState());
       hitsInFrontOfVert1.push_back(hitPattern_i.hitsInFrontOfVert);
       missHitsAfterVert1.push_back(hitPattern_i.missHitsAfterVert);
-    
+
       CheckHitPattern::Result hitPattern_j = checkHitPattern(*electronTrack_j, transientElectronVertex.vertexState());
       hitsInFrontOfVert2.push_back(hitPattern_j.hitsInFrontOfVert);
       missHitsAfterVert2.push_back(hitPattern_j.missHitsAfterVert);
@@ -237,11 +237,16 @@ void ElectronVertexTableProducer::produce(edm::StreamID, edm::Event& iEvent, con
       TrajectoryStateClosestToPoint trajectoryPV_i = refittedTrack_i.trajectoryStateClosestToPoint(primaryVertex);
       refittedTrackDxyPVTraj.push_back(trajectoryPV_i.perigeeParameters().transverseImpactParameter());
       refittedTrackDxyPVTrajErr.push_back(trajectoryPV_i.perigeeError().transverseImpactParameterError());
-      GlobalVector electronRefTrackDir_i(refittedTrack_i.track().px(),refittedTrack_i.track().py(),refittedTrack_i.track().pz());
-      refittedTrackDxyPVSigned.push_back(IPTools::signedTransverseImpactParameter(refittedTrack_i, electronRefTrackDir_i, pv).second.value());
-      refittedTrackDxyPVSignedErr.push_back(IPTools::signedTransverseImpactParameter(refittedTrack_i, electronRefTrackDir_i, pv).second.error());
-      refittedTrackIp3DPVSigned.push_back(IPTools::signedImpactParameter3D(refittedTrack_i, electronRefTrackDir_i, pv).second.value());
-      refittedTrackIp3DPVSignedErr.push_back(IPTools::signedImpactParameter3D(refittedTrack_i, electronRefTrackDir_i, pv).second.error());  
+      GlobalVector electronRefTrackDir_i(
+          refittedTrack_i.track().px(), refittedTrack_i.track().py(), refittedTrack_i.track().pz());
+      refittedTrackDxyPVSigned.push_back(
+          IPTools::signedTransverseImpactParameter(refittedTrack_i, electronRefTrackDir_i, pv).second.value());
+      refittedTrackDxyPVSignedErr.push_back(
+          IPTools::signedTransverseImpactParameter(refittedTrack_i, electronRefTrackDir_i, pv).second.error());
+      refittedTrackIp3DPVSigned.push_back(
+          IPTools::signedImpactParameter3D(refittedTrack_i, electronRefTrackDir_i, pv).second.value());
+      refittedTrackIp3DPVSignedErr.push_back(
+          IPTools::signedImpactParameter3D(refittedTrack_i, electronRefTrackDir_i, pv).second.error());
       refittedTrackDxyBS.push_back(refittedTrack_i.track().dxy(bs));
       refittedTrackDxyBSErr.push_back(std::hypot(refittedTrack_i.track().dxyError(), beamSpotVertex.zError()));
       refittedTrackDzBS.push_back(refittedTrack_i.track().dz(bs));
@@ -249,10 +254,16 @@ void ElectronVertexTableProducer::produce(edm::StreamID, edm::Event& iEvent, con
       TrajectoryStateClosestToBeamLine trajectoryBS_i = refittedTrack_i.stateAtBeamLine();
       refittedTrackDxyBSTraj.push_back(trajectoryBS_i.transverseImpactParameter().value());
       refittedTrackDxyBSTrajErr.push_back(trajectoryBS_i.transverseImpactParameter().error());
-      refittedTrackDxyBSSigned.push_back(IPTools::signedTransverseImpactParameter(refittedTrack_i, electronRefTrackDir_i, beamSpotVertex).second.value());
-      refittedTrackDxyBSSignedErr.push_back(IPTools::signedTransverseImpactParameter(refittedTrack_i, electronRefTrackDir_i, beamSpotVertex).second.error());  
-      refittedTrackIp3DBSSigned.push_back(IPTools::signedImpactParameter3D(refittedTrack_i, electronRefTrackDir_i, beamSpotVertex).second.value());
-      refittedTrackIp3DBSSignedErr.push_back(IPTools::signedImpactParameter3D(refittedTrack_i, electronRefTrackDir_i, beamSpotVertex).second.error());
+      refittedTrackDxyBSSigned.push_back(
+          IPTools::signedTransverseImpactParameter(refittedTrack_i, electronRefTrackDir_i, beamSpotVertex)
+              .second.value());
+      refittedTrackDxyBSSignedErr.push_back(
+          IPTools::signedTransverseImpactParameter(refittedTrack_i, electronRefTrackDir_i, beamSpotVertex)
+              .second.error());
+      refittedTrackIp3DBSSigned.push_back(
+          IPTools::signedImpactParameter3D(refittedTrack_i, electronRefTrackDir_i, beamSpotVertex).second.value());
+      refittedTrackIp3DBSSignedErr.push_back(
+          IPTools::signedImpactParameter3D(refittedTrack_i, electronRefTrackDir_i, beamSpotVertex).second.error());
       refittedTrackIdx.push_back(refittedTrackIdx_counter);
       refittedTrackIdx1.push_back(refittedTrackIdx_counter);
       refittedTrackIdx_counter++;
@@ -277,11 +288,16 @@ void ElectronVertexTableProducer::produce(edm::StreamID, edm::Event& iEvent, con
       TrajectoryStateClosestToPoint trajectoryPV_j = refittedTrack_j.trajectoryStateClosestToPoint(primaryVertex);
       refittedTrackDxyPVTraj.push_back(trajectoryPV_j.perigeeParameters().transverseImpactParameter());
       refittedTrackDxyPVTrajErr.push_back(trajectoryPV_j.perigeeError().transverseImpactParameterError());
-      GlobalVector electronRefTrackDir_j(refittedTrack_j.track().px(),refittedTrack_j.track().py(),refittedTrack_j.track().pz());
-      refittedTrackDxyPVSigned.push_back(IPTools::signedTransverseImpactParameter(refittedTrack_j, electronRefTrackDir_j, pv).second.value());
-      refittedTrackDxyPVSignedErr.push_back(IPTools::signedTransverseImpactParameter(refittedTrack_j, electronRefTrackDir_j, pv).second.error());
-      refittedTrackIp3DPVSigned.push_back(IPTools::signedImpactParameter3D(refittedTrack_j, electronRefTrackDir_j, pv).second.value());
-      refittedTrackIp3DPVSignedErr.push_back(IPTools::signedImpactParameter3D(refittedTrack_j, electronRefTrackDir_j, pv).second.error());  
+      GlobalVector electronRefTrackDir_j(
+          refittedTrack_j.track().px(), refittedTrack_j.track().py(), refittedTrack_j.track().pz());
+      refittedTrackDxyPVSigned.push_back(
+          IPTools::signedTransverseImpactParameter(refittedTrack_j, electronRefTrackDir_j, pv).second.value());
+      refittedTrackDxyPVSignedErr.push_back(
+          IPTools::signedTransverseImpactParameter(refittedTrack_j, electronRefTrackDir_j, pv).second.error());
+      refittedTrackIp3DPVSigned.push_back(
+          IPTools::signedImpactParameter3D(refittedTrack_j, electronRefTrackDir_j, pv).second.value());
+      refittedTrackIp3DPVSignedErr.push_back(
+          IPTools::signedImpactParameter3D(refittedTrack_j, electronRefTrackDir_j, pv).second.error());
       refittedTrackDxyBS.push_back(refittedTrack_j.track().dxy(bs));
       refittedTrackDxyBSErr.push_back(std::hypot(refittedTrack_j.track().dxyError(), beamSpotVertex.zError()));
       refittedTrackDzBS.push_back(refittedTrack_j.track().dz(bs));
@@ -289,10 +305,16 @@ void ElectronVertexTableProducer::produce(edm::StreamID, edm::Event& iEvent, con
       TrajectoryStateClosestToBeamLine trajectoryBS_j = refittedTrack_j.stateAtBeamLine();
       refittedTrackDxyBSTraj.push_back(trajectoryBS_j.transverseImpactParameter().value());
       refittedTrackDxyBSTrajErr.push_back(trajectoryBS_j.transverseImpactParameter().error());
-      refittedTrackDxyBSSigned.push_back(IPTools::signedTransverseImpactParameter(refittedTrack_j, electronRefTrackDir_j, beamSpotVertex).second.value());
-      refittedTrackDxyBSSignedErr.push_back(IPTools::signedTransverseImpactParameter(refittedTrack_j, electronRefTrackDir_j, beamSpotVertex).second.error());  
-      refittedTrackIp3DBSSigned.push_back(IPTools::signedImpactParameter3D(refittedTrack_j, electronRefTrackDir_j, beamSpotVertex).second.value());
-      refittedTrackIp3DBSSignedErr.push_back(IPTools::signedImpactParameter3D(refittedTrack_j, electronRefTrackDir_j, beamSpotVertex).second.error());
+      refittedTrackDxyBSSigned.push_back(
+          IPTools::signedTransverseImpactParameter(refittedTrack_j, electronRefTrackDir_j, beamSpotVertex)
+              .second.value());
+      refittedTrackDxyBSSignedErr.push_back(
+          IPTools::signedTransverseImpactParameter(refittedTrack_j, electronRefTrackDir_j, beamSpotVertex)
+              .second.error());
+      refittedTrackIp3DBSSigned.push_back(
+          IPTools::signedImpactParameter3D(refittedTrack_j, electronRefTrackDir_j, beamSpotVertex).second.value());
+      refittedTrackIp3DBSSignedErr.push_back(
+          IPTools::signedImpactParameter3D(refittedTrack_j, electronRefTrackDir_j, beamSpotVertex).second.error());
       refittedTrackIdx.push_back(refittedTrackIdx_counter);
       refittedTrackIdx2.push_back(refittedTrackIdx_counter);
       refittedTrackIdx_counter++;
@@ -304,8 +326,8 @@ void ElectronVertexTableProducer::produce(edm::StreamID, edm::Event& iEvent, con
       float chi = 0.;
       float ndf = 0.;
       std::vector<RefCountedKinematicParticle> eleParticles;
-      eleParticles.push_back(pFactory.particle(electronTransientTracks[0],e_mass,chi,ndf,e_sigma));
-      eleParticles.push_back(pFactory.particle(electronTransientTracks[1],e_mass,chi,ndf,e_sigma));
+      eleParticles.push_back(pFactory.particle(electronTransientTracks[0], e_mass, chi, ndf, e_sigma));
+      eleParticles.push_back(pFactory.particle(electronTransientTracks[1], e_mass, chi, ndf, e_sigma));
       KinematicParticleVertexFitter fitter;
       try {
         RefCountedKinematicTree vertexFitTree = fitter.fit(eleParticles);
@@ -318,26 +340,25 @@ void ElectronVertexTableProducer::produce(edm::StreamID, edm::Event& iEvent, con
           refittedVertPt.push_back(diele_state.globalMomentum().transverse());
           refittedVertEta.push_back(diele_state.globalMomentum().eta());
           refittedVertPhi.push_back(diele_state.globalMomentum().phi());
+        } else {
+          refittedVertMass.push_back(-999.);
+          refittedVertPt.push_back(-999.);
+          refittedVertEta.push_back(-999.);
+          refittedVertPhi.push_back(-999.);
         }
-	else {
-	  refittedVertMass.push_back(-999.);
-	  refittedVertPt.push_back(-999.);
-	  refittedVertEta.push_back(-999.);
-	  refittedVertPhi.push_back(-999.);
-	}
-      }
-      catch (std::exception ex) {
-	  std::cout << "kinematic vertex fit failed!" << std::endl;
-	  refittedVertMass.push_back(-999.);
-	  refittedVertPt.push_back(-999.);
-	  refittedVertEta.push_back(-999.);
-	  refittedVertPhi.push_back(-999.);
+      } catch (std::exception ex) {
+        std::cout << "kinematic vertex fit failed!" << std::endl;
+        refittedVertMass.push_back(-999.);
+        refittedVertPt.push_back(-999.);
+        refittedVertEta.push_back(-999.);
+        refittedVertPhi.push_back(-999.);
       }
     }
   }
 
   auto vertexTab = std::make_unique<nanoaod::FlatTable>(nElectronVertices, "ElectronVertex", false, false);
-  auto refittedTracksTab = std::make_unique<nanoaod::FlatTable>(nElectronVertices*2, "ElectronVertexRefittedTracks", false, false);
+  auto refittedTracksTab =
+      std::make_unique<nanoaod::FlatTable>(nElectronVertices * 2, "ElectronVertexRefittedTracks", false, false);
 
   vertexTab->addColumn<float>("isValid", vertexIsValid, "");
   vertexTab->addColumn<float>("vxy", vxy, "");
@@ -409,41 +430,47 @@ void ElectronVertexTableProducer::produce(edm::StreamID, edm::Event& iEvent, con
   refittedTracksTab->addColumn<float>("dxyBSSignedErr", refittedTrackDxyBSSignedErr, "");
   refittedTracksTab->addColumn<float>("ip3DBSSigned", refittedTrackIp3DBSSigned, "");
   refittedTracksTab->addColumn<float>("ip3DBSSignedErr", refittedTrackIp3DBSSignedErr, "");
-  
+
   iEvent.put(std::move(refittedTracksTab), "ElectronVertexRefittedTracks");
-  
 }
 
-std::pair<float,float> ElectronVertexTableProducer::getVxy(const reco::Vertex electronVertex) const {
-  float vxy = sqrt(electronVertex.x()*electronVertex.x() + electronVertex.y()*electronVertex.y());
-  float vxySigma = (1/vxy)*sqrt(electronVertex.x()*electronVertex.x()*electronVertex.xError()*electronVertex.xError() + electronVertex.y()*electronVertex.y()*electronVertex.yError()*electronVertex.yError());
-  return std::make_pair(vxy,vxySigma);
+std::pair<float, float> ElectronVertexTableProducer::getVxy(const reco::Vertex electronVertex) const {
+  float vxy = sqrt(electronVertex.x() * electronVertex.x() + electronVertex.y() * electronVertex.y());
+  float vxySigma =
+      (1 / vxy) * sqrt(electronVertex.x() * electronVertex.x() * electronVertex.xError() * electronVertex.xError() +
+                       electronVertex.y() * electronVertex.y() * electronVertex.yError() * electronVertex.yError());
+  return std::make_pair(vxy, vxySigma);
 }
 
-std::pair<float,float> ElectronVertexTableProducer::getVxyz(const reco::Vertex electronVertex) const {
-  float vxyz = sqrt(electronVertex.x()*electronVertex.x() + electronVertex.y()*electronVertex.y() + electronVertex.z()*electronVertex.z());
-  float vxyzSigma = (1/vxyz)*sqrt(electronVertex.x()*electronVertex.x()*electronVertex.xError()*electronVertex.xError() + electronVertex.y()*electronVertex.y()*electronVertex.yError()*electronVertex.yError() + electronVertex.z()*electronVertex.z()*electronVertex.zError()*electronVertex.zError());
-  return std::make_pair(vxyz,vxyzSigma);
+std::pair<float, float> ElectronVertexTableProducer::getVxyz(const reco::Vertex electronVertex) const {
+  float vxyz = sqrt(electronVertex.x() * electronVertex.x() + electronVertex.y() * electronVertex.y() +
+                    electronVertex.z() * electronVertex.z());
+  float vxyzSigma =
+      (1 / vxyz) * sqrt(electronVertex.x() * electronVertex.x() * electronVertex.xError() * electronVertex.xError() +
+                        electronVertex.y() * electronVertex.y() * electronVertex.yError() * electronVertex.yError() +
+                        electronVertex.z() * electronVertex.z() * electronVertex.zError() * electronVertex.zError());
+  return std::make_pair(vxyz, vxyzSigma);
 }
 
 /**
 *  Proximity between the electrons based on EXO-23-010
 *  Getting Distance of Closest Approach between electron tracks using TwoTrackMinimumDistance
 *  Returns tuple of distance (float), error of distance (float) and crossing point (GlobalPoint)
-**/ 
-std::tuple<float, float, GlobalPoint> ElectronVertexTableProducer::getDistanceBetweenElectronTracks(const reco::Track& track1, 
-                                                            const reco::Track& track2,
-                                                            const edm::ESHandle<MagneticField>& magneticField) const 
-{
+**/
+std::tuple<float, float, GlobalPoint> ElectronVertexTableProducer::getDistanceBetweenElectronTracks(
+    const reco::Track& track1, const reco::Track& track2, const edm::ESHandle<MagneticField>& magneticField) const {
   TwoTrackMinimumDistance ttmd;
   FreeTrajectoryState fts1(GlobalPoint(track1.vx(), track1.vy(), track1.vz()),
-                            GlobalVector(track1.px(), track1.py(), track1.pz()),
-                            track1.charge(), magneticField.product());
+                           GlobalVector(track1.px(), track1.py(), track1.pz()),
+                           track1.charge(),
+                           magneticField.product());
   FreeTrajectoryState fts2(GlobalPoint(track2.vx(), track2.vy(), track2.vz()),
-                            GlobalVector(track2.px(), track2.py(), track2.pz()),
-                            track2.charge(), magneticField.product());
+                           GlobalVector(track2.px(), track2.py(), track2.pz()),
+                           track2.charge(),
+                           magneticField.product());
   bool status = ttmd.calculate(fts1, fts2);
-  if (!status) return std::tuple(-999.f, status, GlobalPoint(-999.f,-999.f,-999.f));
+  if (!status)
+    return std::tuple(-999.f, status, GlobalPoint(-999.f, -999.f, -999.f));
   return std::make_tuple(ttmd.distance(), status, ttmd.crossingPoint());
 }
 
