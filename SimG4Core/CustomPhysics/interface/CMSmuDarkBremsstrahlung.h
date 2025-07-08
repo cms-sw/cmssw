@@ -1,22 +1,22 @@
 /**
- * @file G4muDarkBremsstrahlung.h
+ * @file CMSmuDarkBremsstrahlung.h
  * @brief Class providing the Dark Bremsstrahlung process class.
  * @author Michael Revering, University of Minnesota
  */
 
-#ifndef G4muDarkBremsstrahlung_h
-#define G4muDarkBremsstrahlung_h
+#ifndef CMSmuDarkBremsstrahlung_h
+#define CMSmuDarkBremsstrahlung_h
 
 // Geant
 #include "G4VEmProcess.hh"
 
 class G4Material;
 
-class G4muDarkBremsstrahlung : public G4VEmProcess {
+class CMSmuDarkBremsstrahlung : public G4VEmProcess {
 public:
-  G4muDarkBremsstrahlung(const G4String& scalefile, const G4double biasFactor, const G4String& name = "muDBrem");
+  CMSmuDarkBremsstrahlung(const G4String& scalefile, const G4double biasFactor, const G4String& name = "muDBrem");
 
-  ~G4muDarkBremsstrahlung() override;
+  ~CMSmuDarkBremsstrahlung() override = default;
 
   G4bool IsApplicable(const G4ParticleDefinition& p) override;
 
@@ -24,8 +24,8 @@ public:
 
   G4bool IsEnabled();
   void SetEnable(bool active);
-  G4muDarkBremsstrahlung& operator=(const G4muDarkBremsstrahlung& right) = delete;
-  G4muDarkBremsstrahlung(const G4muDarkBremsstrahlung&) = delete;
+  CMSmuDarkBremsstrahlung& operator=(const CMSmuDarkBremsstrahlung& right) = delete;
+  CMSmuDarkBremsstrahlung(const CMSmuDarkBremsstrahlung&) = delete;
 
 protected:
   void InitialiseProcess(const G4ParticleDefinition*) override;
