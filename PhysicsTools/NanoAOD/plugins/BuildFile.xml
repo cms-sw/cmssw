@@ -1,3 +1,24 @@
+<!-- <use name="DataFormats/L1TGlobal"/>
+<use name="DataFormats/NanoAOD"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/PluginManager"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="Geometry/RPCGeometry"/>
+<use name="Geometry/DTGeometry"/>
+<use name="Geometry/CSCGeometry"/>
+<use name="MagneticField/Records"/>
+<use name="PhysicsTools/RecoUtils"/>
+<use name="RecoVertex/KalmanVertexFit"/>
+<use name="TrackingTools/Records"/>
+<use name="TrackingTools/IPTools"/>
+<use name="fastjet"/>
+<flags EDM_PLUGIN="1"/>
+<export>
+  <lib name="1"/>
+</export> -->
+
 <use name="fastjet"/>
 <use name="fastjet-contrib"/>
 <use name="roothistmatrix"/>
@@ -22,8 +43,17 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/Utilities"/>
+<use name="FWCore/PluginManager"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="Geometry/RPCGeometry"/>
+<use name="Geometry/DTGeometry"/>
+<use name="Geometry/CSCGeometry"/>
 <use name="IOPool/Provenance"/>
+<use name="MagneticField/Records"/>
 <use name="PhysicsTools/PatAlgos"/>
+<use name="PhysicsTools/RecoUtils"/>
+<use name="RecoVertex/KalmanVertexFit"/>
 <use name="RecoVertex/VertexPrimitives"/>
 <use name="RecoVertex/VertexTools"/>
 <library file="*.cc" name="PhysicsToolsNanoAODPlugins">
@@ -34,6 +64,7 @@
   <use name="PhysicsTools/JetMCUtils"/>
   <use name="RecoBTag/FeatureTools"/>
   <use name="RecoJets/JetAlgorithms"/>
+  <use name="TrackingTools/IPTools"/>
   <use name="TrackingTools/Records"/>
   <use name="roottmva"/>
   <flags EDM_PLUGIN="1"/>
