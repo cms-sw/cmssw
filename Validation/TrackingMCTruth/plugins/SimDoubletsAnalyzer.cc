@@ -29,7 +29,7 @@ namespace simdoublets {
       // inner RecHit properties
       GlobalPoint inner_globalPosition = doublet.innerGlobalPos();
       inner_z_ = inner_globalPosition.z();
-      double inner_r = inner_globalPosition.perp();
+      inner_r_ = inner_globalPosition.perp();
       double inner_phi = inner_globalPosition.barePhi();  // returns float, whereas .phi() returns phi object
       double inner_x = inner_globalPosition.x();
       double inner_y = inner_globalPosition.y();
@@ -45,15 +45,15 @@ namespace simdoublets {
 
       // relative properties
       dz_ = outer_z - inner_z_;
-      dr_ = outer_r - inner_r;
+      dr_ = outer_r - inner_r_;
       dphi_ = reco::deltaPhi(inner_phi, outer_phi);
       idphi_ = std::min(std::abs(int16_t(outer_iphi - inner_iphi)), std::abs(int16_t(inner_iphi - outer_iphi)));
 
       // longitudinal impact parameter with respect to the beamspot
-      z0_ = std::abs(inner_r * outer_z - inner_z_ * outer_r) / dr_;
+      z0_ = std::abs(inner_r_ * outer_z - inner_z_ * outer_r) / dr_;
 
       // radius of the circle defined by the two RecHits and the beamspot
-      curvature_ = 1.f / 2.f * std::sqrt((dr_ / dphi_) * (dr_ / dphi_) + (inner_r * outer_r));
+      curvature_ = 1.f / 2.f * std::sqrt((dr_ / dphi_) * (dr_ / dphi_) + (inner_r_ * outer_r));
 
       // pT that this curvature radius corresponds to
       pT_ = curvature_ / 87.78f;
@@ -81,7 +81,7 @@ namespace simdoublets {
         double radius_diff = std::abs(neighbor_r - outer_r);
         double distance_13_squared = radius_diff * radius_diff + (neighbor_z - outer_z) * (neighbor_z - outer_z);
         double tan_12_13_half_mul_distance_13_squared = fabs(
-            neighbor_z * (inner_r - outer_r) + inner_z_ * (outer_r - neighbor_r) + outer_z * (neighbor_r - inner_r));
+            neighbor_z * (inner_r_ - outer_r) + inner_z_ * (outer_r - neighbor_r) + outer_z * (neighbor_r - inner_r_));
         double denominator = std::sqrt(distance_13_squared) * radius_diff;
         CAThetaCut_.push_back(tan_12_13_half_mul_distance_13_squared / denominator);
 
@@ -94,6 +94,7 @@ namespace simdoublets {
 
     // methods to get the cut variables
     double inner_z() const { return inner_z_; }
+    double inner_r() const { return inner_r_; }
     double dz() const { return dz_; }
     double dr() const { return dr_; }
     double dphi() const { return dphi_; }
@@ -112,7 +113,7 @@ namespace simdoublets {
     double hardCurvCut(int i) const { return hardCurvCut_.at(i); }
 
   private:
-    double inner_z_, dz_, dr_, dphi_, z0_, curvature_, pT_;  // double-valued variables
+    double inner_z_, inner_r_, dz_, dr_, dphi_, z0_, curvature_, pT_;  // double-valued variables
     int idphi_, Ysize_, DYsize_, DYPred_;                    // integer-valued variables
     std::vector<double> CAThetaCut_, dcaCut_, hardCurvCut_;  // doublet connection cut variables
   };
@@ -381,9 +382,11 @@ SimDoubletsAnalyzer<TrackerTraits>::SimDoubletsAnalyzer(const edm::ParameterSet&
 
   // resize all histogram vectors, so that we can fill them according to the
   // layerPairIndex saved in the map that we just created
+  hVector_dz_.resize(numLayerPairs);
   hVector_dr_.resize(numLayerPairs);
   hVector_dphi_.resize(numLayerPairs);
   hVector_idphi_.resize(numLayerPairs);
+  hVector_innerR_.resize(numLayerPairs);
   hVector_innerZ_.resize(numLayerPairs);
   hVector_Ysize_.resize(numLayerPairs);
   hVector_DYsize_.resize(numLayerPairs);
@@ -504,6 +507,9 @@ void SimDoubletsAnalyzer<TrackerTraits>::fillCutHistograms(
   hVector_idphi_[layerPairIdIndex].fill(passed, cellCutVariables.idphi());
   // z of the inner RecHit histogram
   hVector_innerZ_[layerPairIdIndex].fill(passed, cellCutVariables.inner_z());
+  // potential cuts for inner r and dz
+  hVector_innerR_[layerPairIdIndex].fill(passed, cellCutVariables.inner_r());
+  hVector_dz_[layerPairIdIndex].fill(passed, cellCutVariables.dz());
 
   // -------------------------------------------------------------------------
   //  cluster size cuts (global + sub-folders for layer pairs)
@@ -1334,6 +1340,17 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
     // set folder to the sub-folder for the layer pair
     ibook.setCurrentFolder(folder_ + subFolderName);
 
+    // histogram for potential dz cut
+    hVector_dz_.at(layerPairIdIndex)
+        .book1D(ibook,
+                "dz",
+                "dz of RecHit pair " + layerTitle,
+                "dz between outer and inner RecHit [cm]",
+                "Number of " + doublet + "s",
+                100,
+                -50,
+                50);
+
     // histogram for z0cutoff  (maxr)
     hVector_dr_.at(layerPairIdIndex)
         .book1D(ibook,
@@ -1364,6 +1381,17 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                 100,
                 0,
                 2000);
+
+    // histogram for potential innerR cut
+    hVector_innerR_.at(layerPairIdIndex)
+        .book1D(ibook,
+                "innerR",
+                "r of the inner RecHit " + layerTitle,
+                "r of inner RecHit [cm]",
+                "Number of " + doublet + "s",
+                600,
+                0,
+                60);
 
     // histogram for z window  (minz and maxz)
     hVector_innerZ_.at(layerPairIdIndex)

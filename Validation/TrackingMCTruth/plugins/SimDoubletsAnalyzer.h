@@ -282,10 +282,12 @@ private:
   CoupledMonitorElement h_DYsize_;
   CoupledMonitorElement h_DYPred_;
   // vectors of histograms (one hist per layer pair)
+  std::vector<CoupledMonitorElement> hVector_dz_;
   std::vector<CoupledMonitorElement> hVector_dr_;
   std::vector<CoupledMonitorElement> hVector_dphi_;
   std::vector<CoupledMonitorElement> hVector_idphi_;
   std::vector<CoupledMonitorElement> hVector_innerZ_;
+  std::vector<CoupledMonitorElement> hVector_innerR_;
   std::vector<CoupledMonitorElement> hVector_Ysize_;
   std::vector<CoupledMonitorElement> hVector_DYsize_;
   std::vector<CoupledMonitorElement> hVector_DYPred_;
