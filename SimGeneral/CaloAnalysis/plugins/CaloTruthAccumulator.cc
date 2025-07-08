@@ -558,13 +558,14 @@ void CaloTruthAccumulator::fillSimHits(std::vector<std::pair<DetId, const PCaloH
   for (auto const &collectionTag : collectionTags_) {
     edm::Handle<std::vector<PCaloHit>> hSimHits;
     const bool isHcal = (collectionTag.instance().find("HcalHits") != std::string::npos);
+    const bool isHGCal = (collectionTag.instance().find("HGCHits") != std::string::npos);
     event.getByLabel(collectionTag, hSimHits);
 
     for (auto const &simHit : *hSimHits) {
       DetId id(0);
 
       //Relabel as necessary for HGCAL
-      if (doHGCAL) {
+      if (isHGCal) {
         const uint32_t simId = simHit.id();
         if (geometryType_ == 1) {
           // no test numbering in new geometry
