@@ -7,10 +7,11 @@ release=$1
 conditions=$2
 era=$3
 beamspot=$4
+fragment=$5
 
 echo '> Running GEN,SIM + DIGI,L1,DIGI2RAW steps in ' $release
 
-cmsDriver.py TTbar_14TeV_TuneCP5_cfi --python_filename gen_sim.py \
+cmsDriver.py $fragment --python_filename gen_sim.py \
 --eventcontent RAWSIM --customise Configuration/DataProcessing/Utils.addMonitoring \
 --datatier GEN-SIM --fileout file:step1.root --conditions $conditions --beamspot $beamspot \
 --step GEN,SIM --geometry DB:Extended --era $era --mc -n 10 --no_exec
