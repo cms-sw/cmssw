@@ -13,11 +13,11 @@ class CMSSQInelasticCrossSection : public G4VCrossSectionDataSet {
 public:
   CMSSQInelasticCrossSection(double mass);
 
-  ~CMSSQInelasticCrossSection();
+  ~CMSSQInelasticCrossSection() override = default;
 
-  virtual G4bool IsElementApplicable(const G4DynamicParticle* aPart, G4int Z, const G4Material*);
+  G4bool IsElementApplicable(const G4DynamicParticle* aPart, G4int Z, const G4Material*) override;
 
-  virtual G4double GetElementCrossSection(const G4DynamicParticle*, G4int Z, const G4Material*);
+  G4double GetElementCrossSection(const G4DynamicParticle*, G4int Z, const G4Material*) override;
 
   G4double GetSQCrossSection(G4double kineticEnergy, G4int Z);
 

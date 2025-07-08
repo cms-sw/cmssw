@@ -1,5 +1,5 @@
-#ifndef SimG4Core_CustomPhysics_G4ProcessHelper_H
-#define SimG4Core_CustomPhysics_G4ProcessHelper_H
+#ifndef SimG4Core_CustomPhysics_CustomProcessHelper_H
+#define SimG4Core_CustomPhysics_CustomProcessHelper_H
 
 #include "globals.hh"
 #include "G4ParticleDefinition.hh"
@@ -19,15 +19,12 @@ typedef std::map<G4int, ReactionProductList> ReactionMap;
 
 class G4ParticleTable;
 class CustomParticleFactory;
-class HistoHelper;
-class TProfile;
-class TH1D;
 
-class G4ProcessHelper {
+class CustomProcessHelper {
 public:
-  G4ProcessHelper(const edm::ParameterSet& p, CustomParticleFactory* ptr);
+  CustomProcessHelper(const edm::ParameterSet& p, CustomParticleFactory* ptr);
 
-  ~G4ProcessHelper();
+  ~CustomProcessHelper() = default;
 
   G4bool ApplicabilityTester(const G4ParticleDefinition& aPart);
 
@@ -36,8 +33,8 @@ public:
   //Make sure the element is known (for n/p-decision)
   ReactionProduct GetFinalState(const G4Track& aTrack, G4ParticleDefinition*& aTarget);
 
-  G4ProcessHelper(const G4ProcessHelper&) = delete;
-  G4ProcessHelper& operator=(const G4ProcessHelper&) = delete;
+  CustomProcessHelper(const CustomProcessHelper&) = delete;
+  CustomProcessHelper& operator=(const CustomProcessHelper&) = delete;
 
 private:
   G4double Regge(const double boost);
@@ -89,11 +86,6 @@ private:
 
   CustomParticleFactory* fParticleFactory;
   G4ParticleTable* particleTable;
-  HistoHelper* theHistoHelper;
-  TProfile* h_xsec_lab;
-  TProfile* h_xsec_cms;
-  TH1D* h_sqrts;
-  TProfile* h_q_p;
-  TProfile* h_q_gamma;
 };
+
 #endif

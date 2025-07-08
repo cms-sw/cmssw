@@ -5,19 +5,19 @@
 #include "G4VPhysicsConstructor.hh"
 #include <string>
 
-class G4ProcessHelper;
+class CustomProcessHelper;
 class CustomParticleFactory;
 
 class CustomPhysicsListSS : public G4VPhysicsConstructor {
 public:
   CustomPhysicsListSS(const std::string& name, const edm::ParameterSet& p, bool useuni = false);
-  ~CustomPhysicsListSS() override;
+  ~CustomPhysicsListSS() override = default;
 
   void ConstructParticle() override;
   void ConstructProcess() override;
 
 private:
-  static G4ThreadLocal std::unique_ptr<G4ProcessHelper> myHelper;
+  static G4ThreadLocal CustomProcessHelper* myHelper;
 
   std::unique_ptr<CustomParticleFactory> fParticleFactory;
 
