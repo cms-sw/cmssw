@@ -105,7 +105,7 @@ SimDoublets::Doublet::Doublet(SimDoublets const& simDoublets,
 // ------------------------------------------------------------------------------------------------------
 
 // method to add a RecHit to the SimPixelTrack
-void SimDoublets::addRecHit(BaseTrackerRecHit const& recHit,
+void SimDoublets::addRecHit(TrackingRecHit const& recHit,
                             uint8_t const layerId,
                             int16_t const clusterYSize,
                             unsigned int const detId,
@@ -126,12 +126,17 @@ void SimDoublets::addRecHit(BaseTrackerRecHit const& recHit,
   clusterYSizeVector_.push_back(clusterYSize);
 }
 
-// method to sort the RecHits according to the position
+// method to sort the RecHits according to the position relative to the TP vertex
 void SimDoublets::sortRecHits() {
+  auto vertex = trackingParticleRef_->vertex();
+  sortRecHits(vertex.x(), vertex.y(), vertex.z());
+}
+// method to sort the RecHits according to the position relative to a given reference
+void SimDoublets::sortRecHits(float const x, float const y, float const z) {
   // get the production vertex of the TrackingParticle (corrected for beamspot)
-  const GlobalVector vertex(trackingParticleRef_->vx() - beamSpotPosition_.x(),
-                            trackingParticleRef_->vy() - beamSpotPosition_.y(),
-                            trackingParticleRef_->vz() - beamSpotPosition_.z());
+  const GlobalVector vertex(x - beamSpotPosition_.x(),
+                            y - beamSpotPosition_.y(),
+                            z - beamSpotPosition_.z());
 
   // get the vector of squared magnitudes of the global RecHit positions relative to vertex
   std::vector<double> recHitMag2;

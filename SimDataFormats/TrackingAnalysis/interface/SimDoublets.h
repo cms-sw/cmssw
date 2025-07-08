@@ -2,6 +2,7 @@
 #define SimDataFormats_TrackingAnalysis_SimDoublets_h
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -36,6 +37,7 @@
  */
 class SimDoublets {
 public:
+  typedef math::XYZPoint Point;
   /**
     * Sub-class for true doublets of RecHits
     *  - first hit = inner RecHit
@@ -256,9 +258,10 @@ public:
   // constructor
   SimDoublets(TrackingParticleRef const trackingParticleRef, reco::BeamSpot const& beamSpot)
       : trackingParticleRef_(trackingParticleRef), beamSpotPosition_(beamSpot.x0(), beamSpot.y0(), beamSpot.z0()) {}
+  SimDoublets(reco::BeamSpot const& beamSpot) : beamSpotPosition_(beamSpot.x0(), beamSpot.y0(), beamSpot.z0()) {}
 
   // method to add a RecHit to the SimPixelTrack
-  void addRecHit(BaseTrackerRecHit const& recHit,
+  void addRecHit(TrackingRecHit const& recHit,
                  uint8_t const layerId,
                  int16_t const clusterYSize,
                  unsigned int const detId,
@@ -302,8 +305,9 @@ public:
   // method to get the number of SimDoublets
   int numDoublets() const { return doublets_.size(); }
 
-  // method to sort the RecHits according to the position
+  // method to sort the RecHits according to the position (either a given reference point or the TP vertex)
   void sortRecHits();
+  void sortRecHits(float const, float const, float const);
 
   // method to produce the SimDoublets from the RecHits
   void buildSimDoublets(const TrackerTopology* trackerTopology) const;
