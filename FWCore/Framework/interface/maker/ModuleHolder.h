@@ -41,7 +41,8 @@ namespace edm {
   class ProductResolverIndexAndSkipBit;
   class ProductRegistry;
   class ThinnedAssociationsHelper;
-
+  class ModuleConsumesInfo;
+  class ModuleConsumesMinimalESInfo;
   namespace maker {
     class ModuleHolder {
     public:

@@ -7,8 +7,6 @@
 #include "FWCore/Framework/interface/ModuleRegistry.h"
 #include "FWCore/Framework/interface/ModuleRegistryUtilities.h"
 
-#include "DataFormats/Provenance/interface/ProcessConfiguration.h"
-#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
@@ -34,12 +32,9 @@ namespace edm {
       std::vector<edm::propagate_const<std::shared_ptr<EndPathStatusInserter>>>& endPathStatusInserters,
       std::shared_ptr<ModuleRegistry> modReg,
       std::vector<edm::ModuleDescription const*> const& iModulesToUse,
-      ParameterSet& proc_pset,
-      SignallingProductRegistryFiller& pregistry,
       PreallocationConfiguration const& prealloc,
       ExceptionToActionTable const& actions,
       std::shared_ptr<ActivityRegistry> areg,
-      std::shared_ptr<ProcessConfiguration const> processConfiguration,
       ProcessContext const* processContext)
       : actReg_(areg),
         processContext_(processContext),

@@ -36,6 +36,7 @@ namespace edm {
   struct MakeModuleParams;
   class ModuleDescription;
   class PreallocationConfiguration;
+  class SignallingProductRegistryFiller;
 
   class ModuleRegistry {
   public:

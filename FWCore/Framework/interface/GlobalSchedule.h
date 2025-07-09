@@ -3,7 +3,6 @@
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Common/interface/FWCoreCommonFwd.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/ExceptionHelpers.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -13,7 +12,6 @@
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/WorkerManager.h"
 #include "FWCore/Framework/interface/maker/Worker.h"
-#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
@@ -46,24 +44,25 @@ namespace edm {
   class PathStatusInserter;
   class EndPathStatusInserter;
 
+  namespace maker {
+    class ModuleHolder;
+  }
+
   class GlobalSchedule {
   public:
-    typedef std::vector<std::string> vstring;
-    typedef std::vector<Worker*> AllWorkers;
-    typedef std::shared_ptr<Worker> WorkerPtr;
-    typedef std::vector<Worker*> Workers;
+    using vstring = std::vector<std::string>;
+    using AllWorkers = std::vector<Worker*>;
+    using WorkerPtr = std::shared_ptr<Worker>;
+    using Wokers = std::vector<Worker*>;
 
     GlobalSchedule(std::shared_ptr<TriggerResultInserter> inserter,
                    std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters,
                    std::vector<edm::propagate_const<std::shared_ptr<EndPathStatusInserter>>>& endPathStatusInserters,
                    std::shared_ptr<ModuleRegistry> modReg,
                    std::vector<edm::ModuleDescription const*> const& modulesToUse,
-                   ParameterSet& proc_pset,
-                   SignallingProductRegistryFiller& pregistry,
                    PreallocationConfiguration const& prealloc,
                    ExceptionToActionTable const& actions,
                    std::shared_ptr<ActivityRegistry> areg,
-                   std::shared_ptr<ProcessConfiguration const> processConfiguration,
                    ProcessContext const* processContext);
     GlobalSchedule(GlobalSchedule const&) = delete;
 

@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/ModuleRegistry.h"
 #include "FWCore/Framework/interface/ESModuleProducesInfo.h"
 #include "FWCore/Framework/interface/ESModuleConsumesMinimalInfo.h"
+#include "FWCore/Framework/interface/ModuleConsumesMinimalESInfo.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/ServiceRegistry/interface/ESModuleConsumesInfo.h"
 #include "FWCore/ServiceRegistry/interface/ModuleConsumesESInfo.h"

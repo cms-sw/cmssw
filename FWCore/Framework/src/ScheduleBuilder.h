@@ -8,8 +8,7 @@
 
 #include <memory>
 #include <vector>
-#include <string_view>
-#include <set>
+#include <string>
 namespace edm {
   class ParameterSet;
   class PreallocationConfiguration;
@@ -18,6 +17,7 @@ namespace edm {
   class TriggerResultInserter;
   class PathStatusInserter;
   class EndPathStatusInserter;
+  class ProcessConfiguration;
 
   namespace service {
     class TriggerNamesService;

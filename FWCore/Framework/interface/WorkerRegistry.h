@@ -21,13 +21,7 @@ namespace edm {
   class Worker;
   class ActivityRegistry;
   class ModuleRegistry;
-  class ModuleTypeResolverMaker;
-  class ParameterSet;
   class ExceptionToActionTable;
-  namespace maker {
-    class ModuleHolder;
-  }
-
   /**
      \class WorkerRegistry WorkerRegistry.h "edm/WorkerRegistry.h"
 

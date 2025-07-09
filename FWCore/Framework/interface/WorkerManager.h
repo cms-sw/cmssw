@@ -18,11 +18,8 @@
 #include <vector>
 
 namespace edm {
-  class ExceptionCollector;
   class ExceptionToActionTable;
   class ModuleRegistry;
-  class ModuleTypeResolverMaker;
-  class PreallocationConfiguration;
   class Worker;
   namespace eventsetup {
     class ESRecordsToProductResolverIndices;

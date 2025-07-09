@@ -306,7 +306,7 @@ namespace edm {
     std::shared_ptr<ModuleRegistry const> moduleRegistrySharedPtr() const {
       return get_underlying_safe(moduleRegistry_);
     }
-    std::shared_ptr<ModuleRegistry>& moduleRegistry() { return get_underlying_safe(moduleRegistry_); }
+    std::shared_ptr<ModuleRegistry>& moduleRegistrySharedPtr() { return get_underlying_safe(moduleRegistry_); }
 
     edm::propagate_const<std::shared_ptr<ModuleRegistry>> moduleRegistry_;
     edm::propagate_const<std::shared_ptr<TriggerResultInserter>> resultsInserter_;
