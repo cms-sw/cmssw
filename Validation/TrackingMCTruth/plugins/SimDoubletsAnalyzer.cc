@@ -1353,9 +1353,9 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                 "dz of RecHit pair " + layerTitle,
                 "dz between outer and inner RecHit [cm]",
                 "Number of " + doublet + "s",
-                100,
-                -50,
-                50);
+                200,
+                -100,
+                100);
 
     // histogram for z0cutoff  (maxr)
     hVector_dr_.at(layerPairIdIndex)
