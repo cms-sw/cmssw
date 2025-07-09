@@ -16,8 +16,6 @@
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
 
-//DEBUG
-#include <iostream>
 namespace edm {
 
   namespace {

@@ -2,12 +2,9 @@
 
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/EventID.h"
-#include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
-#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/Framework/src/OutputModuleDescription.h"
-#include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/TriggerReport.h"
 #include "FWCore/Framework/src/TriggerTimingReport.h"
 #include "FWCore/Framework/src/ModuleHolderFactory.h"
@@ -17,7 +14,6 @@
 #include "FWCore/Framework/src/EndPathStatusInserter.h"
 #include "FWCore/Framework/interface/WorkerInPath.h"
 #include "FWCore/Framework/interface/maker/ModuleHolder.h"
-#include "FWCore/Framework/interface/maker/WorkerT.h"
 #include "FWCore/Framework/interface/ModuleRegistry.h"
 #include "FWCore/Framework/interface/ModuleRegistryUtilities.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -33,7 +29,6 @@
 #include "FWCore/Utilities/interface/RunIndex.h"
 
 #include "LuminosityBlockProcessingStatus.h"
-#include "processEDAliases.h"
 
 #include <algorithm>
 #include <cassert>
@@ -154,11 +149,8 @@ namespace edm {
                                  std::vector<ModuleDescription const*> const& unscheduledModules,
                                  std::shared_ptr<TriggerResultInserter> inserter,
                                  std::shared_ptr<ModuleRegistry> modReg,
-                                 ParameterSet& proc_pset,
-                                 PreallocationConfiguration const& prealloc,
                                  ExceptionToActionTable const& actions,
                                  std::shared_ptr<ActivityRegistry> areg,
-                                 std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                  StreamID streamID,
                                  ProcessContext const* processContext)
       : workerManagerRuns_(modReg, areg, actions),

@@ -455,12 +455,9 @@ namespace edm {
                                                                                endpaths,
                                                                                builder.unscheduledModules_,
                                                                                resultsInserter(),
-                                                                               moduleRegistry(),
-                                                                               proc_pset,
-                                                                               prealloc,
+                                                                               moduleRegistrySharedPtr(),
                                                                                actions,
                                                                                areg,
-                                                                               processConfiguration,
                                                                                StreamID{i},
                                                                                processContext));
     }
@@ -468,14 +465,11 @@ namespace edm {
     globalSchedule_ = std::make_unique<GlobalSchedule>(resultsInserter(),
                                                        pathStatusInserters_,
                                                        endPathStatusInserters_,
-                                                       moduleRegistry(),
+                                                       moduleRegistrySharedPtr(),
                                                        builder.allNeededModules_,
-                                                       proc_pset,
-                                                       preg,
                                                        prealloc,
                                                        actions,
                                                        areg,
-                                                       processConfiguration,
                                                        processContext);
   }
 
@@ -1162,8 +1156,7 @@ namespace edm {
                                        std::vector<std::string> const& modulesToSkip,
                                        edm::ProductRegistry const& preg) {
     for (auto& stream : streamSchedules_) {
-      stream->initializeEarlyDelete(
-          *moduleRegistry(), branchesToDeleteEarly, referencesToBranches, modulesToSkip, preg);
+      stream->initializeEarlyDelete(*moduleRegistry_, branchesToDeleteEarly, referencesToBranches, modulesToSkip, preg);
     }
   }
 

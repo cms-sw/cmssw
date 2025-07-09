@@ -1,21 +1,14 @@
 #include "FWCore/Framework/interface/WorkerManager.h"
 #include "UnscheduledConfigurator.h"
 
-#include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
 #include "FWCore/Framework/interface/maker/Worker.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/ExceptionCollector.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <exception>
 #include <functional>
-
-static const std::string kFilterType("EDFilter");
-static const std::string kProducerType("EDProducer");
 
 namespace edm {
   // -----------------------------

@@ -31,7 +31,6 @@ the worker is reset().
 #include "FWCore/Framework/interface/ModuleContextSentry.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/ProductResolverIndexAndSkipBit.h"
-#include "FWCore/Framework/interface/ModuleConsumesMinimalESInfo.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
@@ -41,8 +40,6 @@ the worker is reset().
 #include "FWCore/ServiceRegistry/interface/InternalContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
-#include "FWCore/ServiceRegistry/interface/PathContext.h"
-#include "FWCore/ServiceRegistry/interface/PlaceInPathContext.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueueChain.h"
@@ -75,10 +72,7 @@ namespace edm {
   class EventPrincipal;
   class EventSetupImpl;
   class EarlyDeleteHelper;
-  class ProductResolverIndexHelper;
   class ProductResolverIndexAndSkipBit;
-  class ProductRegistry;
-  class ThinnedAssociationsHelper;
 
   namespace workerhelper {
     template <typename O>

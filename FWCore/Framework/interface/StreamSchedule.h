@@ -48,12 +48,6 @@
   The order of the paths from the input configuration is
   preserved in the main paths list.
 
-  ------------------------
-
-  The StreamSchedule uses the TriggerNamesService to get the names of the
-  trigger paths and end paths. When a TriggerResults object is created
-  the results are stored in the same order as the trigger names from
-  TriggerNamesService.
 
 */
 
@@ -114,24 +108,22 @@ namespace edm {
   class TriggerResultInserter;
   class PathStatusInserter;
   class EndPathStatusInserter;
-  class PreallocationConfiguration;
-  class ConditionalTaskHelper;
 
-  namespace service {
-    class TriggerNamesService;
+  namespace maker {
+    class ModuleHolder;
   }
 
   class StreamSchedule {
   public:
-    typedef std::vector<std::string> vstring;
-    typedef std::vector<Path> TrigPaths;
-    typedef std::shared_ptr<HLTGlobalStatus> TrigResPtr;
-    typedef std::shared_ptr<HLTGlobalStatus const> TrigResConstPtr;
-    typedef std::vector<Worker*> AllWorkers;
+    using vstring = std::vector<std::string>;
+    using TrigPaths = std::vector<Path>;
+    using TrigResPtr = std::shared_ptr<HLTGlobalStatus>;
+    using TrigResConstPtr = std::shared_ptr<HLTGlobalStatus const>;
+    using AllWorkers = std::vector<Worker*>;
 
-    typedef std::vector<Worker*> Workers;
+    using Workers = std::vector<Worker*>;
 
-    typedef std::vector<WorkerInPath> PathWorkers;
+    using PathWorkers = std::vector<WorkerInPath>;
 
     struct PathInfo {
       PathInfo(std::string name, std::vector<edm::ModuleInPath> modules, std::shared_ptr<PathStatusInserter> inserter)
@@ -155,11 +147,8 @@ namespace edm {
                    std::vector<ModuleDescription const*> const& unscheduledModules,
                    std::shared_ptr<TriggerResultInserter> inserter,
                    std::shared_ptr<ModuleRegistry>,
-                   ParameterSet& proc_pset,
-                   PreallocationConfiguration const& prealloc,
                    ExceptionToActionTable const& actions,
                    std::shared_ptr<ActivityRegistry> areg,
-                   std::shared_ptr<ProcessConfiguration const> processConfiguration,
                    StreamID streamID,
                    ProcessContext const* processContext);
 
