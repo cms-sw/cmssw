@@ -37,7 +37,6 @@
  */
 class SimDoublets {
 public:
-  typedef math::XYZPoint Point;
   /**
     * Sub-class for true doublets of RecHits
     *  - first hit = inner RecHit
