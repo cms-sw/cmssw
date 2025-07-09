@@ -288,6 +288,8 @@ private:
   std::vector<CoupledMonitorElement> hVector_idphi_;
   std::vector<CoupledMonitorElement> hVector_innerZ_;
   std::vector<CoupledMonitorElement> hVector_innerR_;
+  std::vector<CoupledMonitorElement> hVector_outerZ_;
+  std::vector<CoupledMonitorElement> hVector_outerR_;
   std::vector<CoupledMonitorElement> hVector_Ysize_;
   std::vector<CoupledMonitorElement> hVector_DYsize_;
   std::vector<CoupledMonitorElement> hVector_DYPred_;

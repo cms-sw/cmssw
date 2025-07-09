@@ -36,24 +36,24 @@ namespace simdoublets {
       int inner_iphi = unsafe_atan2s<7>(inner_globalPosition.y(), inner_x);
       // outer RecHit properties
       GlobalPoint outer_globalPosition = doublet.outerGlobalPos();
-      double outer_z = outer_globalPosition.z();
-      double outer_r = outer_globalPosition.perp();
+      outer_z_ = outer_globalPosition.z();
+      outer_r_ = outer_globalPosition.perp();
       double outer_x = outer_globalPosition.x();
       double outer_y = outer_globalPosition.y();
       double outer_phi = outer_globalPosition.barePhi();
       int outer_iphi = unsafe_atan2s<7>(outer_globalPosition.y(), outer_globalPosition.x());
 
       // relative properties
-      dz_ = outer_z - inner_z_;
-      dr_ = outer_r - inner_r_;
+      dz_ = outer_z_ - inner_z_;
+      dr_ = outer_r_ - inner_r_;
       dphi_ = reco::deltaPhi(inner_phi, outer_phi);
       idphi_ = std::min(std::abs(int16_t(outer_iphi - inner_iphi)), std::abs(int16_t(inner_iphi - outer_iphi)));
 
       // longitudinal impact parameter with respect to the beamspot
-      z0_ = std::abs(inner_r_ * outer_z - inner_z_ * outer_r) / dr_;
+      z0_ = std::abs(inner_r_ * outer_z_ - inner_z_ * outer_r_) / dr_;
 
       // radius of the circle defined by the two RecHits and the beamspot
-      curvature_ = 1.f / 2.f * std::sqrt((dr_ / dphi_) * (dr_ / dphi_) + (inner_r_ * outer_r));
+      curvature_ = 1.f / 2.f * std::sqrt((dr_ / dphi_) * (dr_ / dphi_) + (inner_r_ * outer_r_));
 
       // pT that this curvature radius corresponds to
       pT_ = curvature_ / 87.78f;
@@ -78,10 +78,10 @@ namespace simdoublets {
         double neighbor_y = neighbor_globalPosition.y();
 
         // alignement cut variable in R-Z assuming ptmin = 1 GeV
-        double radius_diff = std::abs(neighbor_r - outer_r);
-        double distance_13_squared = radius_diff * radius_diff + (neighbor_z - outer_z) * (neighbor_z - outer_z);
+        double radius_diff = std::abs(neighbor_r - outer_r_);
+        double distance_13_squared = radius_diff * radius_diff + (neighbor_z - outer_z_) * (neighbor_z - outer_z_);
         double tan_12_13_half_mul_distance_13_squared = fabs(
-            neighbor_z * (inner_r_ - outer_r) + inner_z_ * (outer_r - neighbor_r) + outer_z * (neighbor_r - inner_r_));
+            neighbor_z * (inner_r_ - outer_r_) + inner_z_ * (outer_r_ - neighbor_r) + outer_z_ * (neighbor_r - inner_r_));
         double denominator = std::sqrt(distance_13_squared) * radius_diff;
         CAThetaCut_.push_back(tan_12_13_half_mul_distance_13_squared / denominator);
 
@@ -95,6 +95,8 @@ namespace simdoublets {
     // methods to get the cut variables
     double inner_z() const { return inner_z_; }
     double inner_r() const { return inner_r_; }
+    double outer_z() const { return outer_z_; }
+    double outer_r() const { return outer_r_; }
     double dz() const { return dz_; }
     double dr() const { return dr_; }
     double dphi() const { return dphi_; }
@@ -113,7 +115,8 @@ namespace simdoublets {
     double hardCurvCut(int i) const { return hardCurvCut_.at(i); }
 
   private:
-    double inner_z_, inner_r_, dz_, dr_, dphi_, z0_, curvature_, pT_;  // double-valued variables
+    double inner_z_, inner_r_, outer_z_, outer_r_, dz_, dr_;
+    double dphi_, z0_, curvature_, pT_;  // double-valued variables
     int idphi_, Ysize_, DYsize_, DYPred_;                    // integer-valued variables
     std::vector<double> CAThetaCut_, dcaCut_, hardCurvCut_;  // doublet connection cut variables
   };
@@ -388,6 +391,8 @@ SimDoubletsAnalyzer<TrackerTraits>::SimDoubletsAnalyzer(const edm::ParameterSet&
   hVector_idphi_.resize(numLayerPairs);
   hVector_innerR_.resize(numLayerPairs);
   hVector_innerZ_.resize(numLayerPairs);
+  hVector_outerR_.resize(numLayerPairs);
+  hVector_outerZ_.resize(numLayerPairs);
   hVector_Ysize_.resize(numLayerPairs);
   hVector_DYsize_.resize(numLayerPairs);
   hVector_DYPred_.resize(numLayerPairs);
@@ -510,6 +515,8 @@ void SimDoubletsAnalyzer<TrackerTraits>::fillCutHistograms(
   // potential cuts for inner r and dz
   hVector_innerR_[layerPairIdIndex].fill(passed, cellCutVariables.inner_r());
   hVector_dz_[layerPairIdIndex].fill(passed, cellCutVariables.dz());
+  hVector_outerZ_[layerPairIdIndex].fill(passed, cellCutVariables.outer_z());
+  hVector_outerR_[layerPairIdIndex].fill(passed, cellCutVariables.outer_r());
 
   // -------------------------------------------------------------------------
   //  cluster size cuts (global + sub-folders for layer pairs)
@@ -794,7 +801,6 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
   // loop over SimDoublets (= loop over TrackingParticles/RecoTracks)
   for (auto const& simDoublets : simDoubletsCollection) {
     if (!inputIsRecoTracks_) {
-      std::cout << "I AM RESPONSIBLE !" << std::endl;
       // get true quantities of the TrackingParticle
       auto trackingParticle = simDoublets.trackingParticle();
       true_pT = trackingParticle->pt();
@@ -1399,6 +1405,28 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                 "innerZ",
                 "z of the inner RecHit " + layerTitle,
                 "z of inner RecHit [cm]",
+                "Number of " + doublet + "s",
+                600,
+                -300,
+                300);
+  
+    // histogram for potential outerR cut
+    hVector_outerR_.at(layerPairIdIndex)
+        .book1D(ibook,
+                "outerR",
+                "r of the outer RecHit " + layerTitle,
+                "r of outer RecHit [cm]",
+                "Number of " + doublet + "s",
+                600,
+                0,
+                60);
+
+    // histogram for potential outerZ cut
+    hVector_outerZ_.at(layerPairIdIndex)
+        .book1D(ibook,
+                "outerZ",
+                "z of the outer RecHit " + layerTitle,
+                "z of outer RecHit [cm]",
                 "Number of " + doublet + "s",
                 600,
                 -300,
