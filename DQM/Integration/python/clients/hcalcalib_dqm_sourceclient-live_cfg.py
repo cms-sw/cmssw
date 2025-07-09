@@ -199,6 +199,14 @@ process.qie11Task_pedestal = process.qie11Task.clone(
 
 process.ledTask.name = cms.untracked.string("LEDTask")
 
+process.hfRaddamTask.laserType = cms.untracked.uint32(24)
+
+process.megatileTask = process.laserTask.clone(
+    name = "MegatileTask",
+    laserType = 24
+)
+
+
 #-------------------------------------
 #	Hcal DQM Tasks Sequence Definition
 #-------------------------------------
@@ -206,17 +214,18 @@ process.tasksSequence = cms.Sequence(
 		process.pedestalTask
 		*process.hfRaddamTask
 		*process.rawTask
-		*process.hbhehpdTask
-		*process.hoTask
-		*process.hfTask
-		*process.hepmegaTask
-		*process.hemmegaTask
-		*process.hbpmegaTask
-		*process.hbmmegaTask
+		#*process.hbhehpdTask
+		#*process.hoTask
+		#*process.hfTask
+		#*process.hepmegaTask
+		#*process.hemmegaTask
+		#*process.hbpmegaTask
+		#*process.hbmmegaTask
 		*process.umnioTask
-		*process.qie11Task_laser
+		#*process.qie11Task_laser
 		*process.qie11Task_pedestal
 		*process.ledTask
+        *process.megatileTask
 )
 
 process.harvestingSequence = cms.Sequence(
