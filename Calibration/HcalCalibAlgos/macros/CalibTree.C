@@ -811,7 +811,7 @@ Double_t CalibTree::Loop(int loop,
         continue;
     }
     bool select = ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(0))) ? (cDuplicate_->isDuplicate(jentry)) : true;
-    bool reject = (!cRunEx_) ? cRunEx_->exclude(t_Run) : false;
+    bool reject = (cRunEx_ != nullptr) ? cRunEx_->exclude(t_Run) : false;
     if ((!select) || reject)
       continue;
     bool selRun = (includeRun_ ? ((t_Run >= runlo_) && (t_Run <= runhi_)) : ((t_Run < runlo_) || (t_Run > runhi_)));

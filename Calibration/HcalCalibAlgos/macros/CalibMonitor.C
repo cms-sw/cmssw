@@ -985,7 +985,7 @@ void CalibMonitor::Loop(Long64_t nmax, bool debug) {
       ++kount5[0];
     }
     bool select = ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(0))) ? (cDuplicate_->isDuplicate(jentry)) : true;
-    bool reject = (!cRunEx_) ? cRunEx_->exclude(t_Run) : false;
+    bool reject = (cRunEx_ != nullptr) ? cRunEx_->exclude(t_Run) : false;
     if ((!select) || reject) {
       ++duplicate;
       if (debug)
