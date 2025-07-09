@@ -563,8 +563,8 @@ namespace edm {
                                oAllConditionalModules);
     }
 
-    static const std::string kFilterType("EDFilter");
-    static const std::string kProducerType("EDProducer");
+    const std::string kFilterType("EDFilter");
+    const std::string kProducerType("EDProducer");
 
   }  // namespace
   ScheduleBuilder::ScheduleBuilder(ModuleRegistry& iModuleRegistry,
