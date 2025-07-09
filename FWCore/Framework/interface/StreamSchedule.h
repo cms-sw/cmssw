@@ -64,10 +64,10 @@
 #include "FWCore/Framework/interface/ExceptionHelpers.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
-#include "FWCore/Framework/interface/UnscheduledCallProducer.h"
 #include "FWCore/Framework/interface/WorkerManager.h"
 #include "FWCore/Framework/interface/Path.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/ModuleInPath.h"
 #include "FWCore/Framework/interface/maker/Worker.h"
 #include "FWCore/Framework/interface/EarlyDeleteHelper.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
@@ -109,7 +109,6 @@ namespace edm {
   class ExceptionCollector;
   class ExceptionToActionTable;
   class OutputModuleCommunicator;
-  class UnscheduledCallProducer;
   class WorkerInPath;
   class ModuleRegistry;
   class TriggerResultInserter;
@@ -134,14 +133,30 @@ namespace edm {
 
     typedef std::vector<WorkerInPath> PathWorkers;
 
-    StreamSchedule(std::shared_ptr<TriggerResultInserter> inserter,
-                   std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters,
-                   std::vector<edm::propagate_const<std::shared_ptr<EndPathStatusInserter>>>& endPathStatusInserters,
+    struct PathInfo {
+      PathInfo(std::string name, std::vector<edm::ModuleInPath> modules, std::shared_ptr<PathStatusInserter> inserter)
+          : name_(std::move(name)), modules_(std::move(modules)), inserter_(std::move(inserter)) {}
+      std::string name_;
+      std::vector<edm::ModuleInPath> modules_;
+      std::shared_ptr<PathStatusInserter> inserter_;
+    };
+    struct EndPathInfo {
+      EndPathInfo(std::string name,
+                  std::vector<edm::ModuleInPath> modules,
+                  std::shared_ptr<EndPathStatusInserter> inserter)
+          : name_(std::move(name)), modules_(std::move(modules)), inserter_(std::move(inserter)) {}
+      std::string name_;
+      std::vector<edm::ModuleInPath> modules_;
+      std::shared_ptr<EndPathStatusInserter> inserter_;
+    };
+
+    StreamSchedule(std::vector<PathInfo> const& paths,
+                   std::vector<EndPathInfo> const& endPaths,
+                   std::vector<ModuleDescription const*> const& unscheduledModules,
+                   std::shared_ptr<TriggerResultInserter> inserter,
                    std::shared_ptr<ModuleRegistry>,
                    ParameterSet& proc_pset,
-                   service::TriggerNamesService const& tns,
                    PreallocationConfiguration const& prealloc,
-                   SignallingProductRegistryFiller& pregistry,
                    ExceptionToActionTable const& actions,
                    std::shared_ptr<ActivityRegistry> areg,
                    std::shared_ptr<ProcessConfiguration const> processConfiguration,
@@ -232,13 +247,6 @@ namespace edm {
 
     StreamContext const& context() const { return streamContext_; }
 
-    struct AliasInfo {
-      std::string friendlyClassName;
-      std::string instanceLabel;
-      std::string originalInstanceLabel;
-      std::string originalModuleLabel;
-    };
-
   private:
     /// returns the action table
     ExceptionToActionTable const& actionTable() const { return workerManagerLumisAndEvents_.actionTable(); }
@@ -251,59 +259,14 @@ namespace edm {
 
     void reportSkipped(EventPrincipal const& ep) const;
 
-    std::vector<Worker*> tryToPlaceConditionalModules(
-        Worker*,
-        ModuleRegistry& iRegistry,
-        std::unordered_set<std::string>& conditionalModules,
-        std::unordered_multimap<std::string, edm::ProductDescription const*> const& conditionalModuleBranches,
-        std::unordered_multimap<std::string, AliasInfo> const& aliasMap,
-        ParameterSet& proc_pset,
-        SignallingProductRegistryFiller& preg,
-        PreallocationConfiguration const* prealloc,
-        std::shared_ptr<ProcessConfiguration const> processConfiguration);
-    PathWorkers fillWorkers(ParameterSet& proc_pset,
-                            ModuleRegistry& moduleRegistry,
-                            SignallingProductRegistryFiller& preg,
-                            PreallocationConfiguration const* prealloc,
-                            std::shared_ptr<ProcessConfiguration const> processConfiguration,
-                            std::string const& name,
-                            bool ignoreFilters,
-                            std::vector<std::string> const& endPathNames,
-                            ConditionalTaskHelper const& conditionalTaskHelper,
-                            std::unordered_set<std::string>& allConditionalModules);
-    void fillTrigPath(ParameterSet& proc_pset,
-                      ModuleRegistry& moduleRegistry,
-                      SignallingProductRegistryFiller& preg,
-                      PreallocationConfiguration const* prealloc,
-                      std::shared_ptr<ProcessConfiguration const> processConfiguration,
-                      int bitpos,
-                      std::string const& name,
-                      TrigResPtr,
-                      std::vector<std::string> const& endPathNames,
-                      ConditionalTaskHelper const& conditionalTaskHelper,
-                      std::unordered_set<std::string>& allConditionalModules);
-    void fillEndPath(ParameterSet& proc_pset,
-                     ModuleRegistry& moduleRegistry,
-                     SignallingProductRegistryFiller& preg,
-                     PreallocationConfiguration const* prealloc,
-                     std::shared_ptr<ProcessConfiguration const> processConfiguration,
-                     int bitpos,
-                     std::string const& name,
-                     std::vector<std::string> const& endPathNames,
-                     ConditionalTaskHelper const& conditionalTaskHelper,
-                     std::unordered_set<std::string>& allConditionalModules);
-
-    void addToAllWorkers(Worker* w);
+    PathWorkers fillWorkers(std::vector<ModuleInPath> const&);
+    void fillTrigPath(PathInfo const&, int bitpos, TrigResPtr);
+    void fillEndPath(EndPathInfo const&, int bitpos);
 
     void resetEarlyDelete();
 
     TrigResConstPtr results() const { return get_underlying_safe(results_); }
     TrigResPtr& results() { return get_underlying_safe(results_); }
-
-    void makePathStatusInserters(
-        std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters,
-        std::vector<edm::propagate_const<std::shared_ptr<EndPathStatusInserter>>>& endPathStatusInserters,
-        ExceptionToActionTable const& actions);
 
     template <typename T>
     void preScheduleSignal(StreamContext const*) const;

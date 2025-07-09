@@ -60,6 +60,15 @@ namespace edm {
     return worker;
   }
 
+  void WorkerManager::addToUnscheduledWorkers(ModuleDescription const& iDescription) {
+    auto newWorker = workerReg_.getWorkerFromExistingModule(iDescription.moduleLabel(), actionTable_);
+    assert(nullptr != newWorker);
+    assert(newWorker->moduleType() == Worker::kProducer || newWorker->moduleType() == Worker::kFilter);
+    unscheduled_.addWorker(newWorker);
+    //add to list so it gets reset each new event
+    addToAllWorkers(newWorker);
+  }
+
   void WorkerManager::addToUnscheduledWorkers(ParameterSet& pset,
                                               SignallingProductRegistryFiller& preg,
                                               PreallocationConfiguration const* prealloc,

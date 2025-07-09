@@ -40,6 +40,8 @@ namespace edm {
 
     void deleteModuleIfExists(std::string const& moduleLabel);
 
+    void addToUnscheduledWorkers(ModuleDescription const& iDescription);
+
     void addToUnscheduledWorkers(ParameterSet& pset,
                                  SignallingProductRegistryFiller& preg,
                                  PreallocationConfiguration const* prealloc,
@@ -82,12 +84,21 @@ namespace edm {
                       bool addToAllWorkers = true);
 
     template <typename T>
+      requires requires(T const& x) { x.moduleDescription(); }
     Worker* getWorkerForModule(T const& module) {
       auto* worker = getWorkerForExistingModule(module.moduleDescription().moduleLabel());
       assert(worker != nullptr);
       assert(worker->matchesBaseClassPointer(static_cast<typename T::ModuleType const*>(&module)));
       return worker;
     }
+
+    Worker* getWorkerForModule(edm::ModuleDescription const& iDescription) {
+      auto* worker = getWorkerForExistingModule(iDescription.moduleLabel());
+      assert(worker != nullptr);
+      assert(worker->description() == &iDescription);
+      return worker;
+    }
+
     void resetAll();
 
   private:

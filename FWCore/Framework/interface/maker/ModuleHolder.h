@@ -53,6 +53,12 @@ namespace edm {
       virtual std::vector<ModuleConsumesInfo> moduleConsumesInfos() const = 0;
       virtual std::vector<ModuleConsumesMinimalESInfo> moduleConsumesMinimalESInfos() const = 0;
 
+      enum class Type { kAnalyzer, kFilter, kProducer, kOutputModule };
+      enum class Concurrency { kGlobal, kLimited, kOne, kStream };
+
+      virtual Type moduleType() const = 0;
+      virtual Concurrency moduleConcurrencyType() const = 0;
+
       virtual void finishModuleInitialization(ModuleDescription const& iDesc,
                                               PreallocationConfiguration const& iPrealloc,
                                               SignallingProductRegistryFiller* iReg) = 0;
@@ -117,6 +123,8 @@ namespace edm {
       ModuleDescription const& moduleDescription() const final { return m_mod->moduleDescription(); }
       std::vector<ModuleConsumesInfo> moduleConsumesInfos() const final;
       std::vector<ModuleConsumesMinimalESInfo> moduleConsumesMinimalESInfos() const final;
+      Type moduleType() const final;
+      Concurrency moduleConcurrencyType() const final;
 
       void finishModuleInitialization(ModuleDescription const& iDesc,
                                       PreallocationConfiguration const& iPrealloc,
