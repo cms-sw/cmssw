@@ -35,6 +35,8 @@
 
 #include <optional>
 
+//#define GPU_DEBUG
+
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class SiPixelRecHitExtendedAlpaka : public global::EDProducer<> {
@@ -67,185 +69,130 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     descriptions.addWithDefaultLabel(desc);
   }
+  // This utility unrolls the SoA columns (tuples) at compile time, calling the provided functor 'f'
+  // once for each element. The index is passed as a std::integral_constant so it
+  // is available at compile time.
+  template <std::size_t N, typename F, std::size_t... Is>
+  void unrollColumns(F&& f, std::index_sequence<Is...>) {
+    (f(std::integral_constant<std::size_t, Is>{}), ...);
+  }
+  // User-facing wrapper to deduce the size of the tuple and create the index sequence
+  // Usage: mergeSoAColumns<NumberOfColumns>([&](auto columnIndex) { ... });
+  template <std::size_t N, typename F>
+  void mergeSoAColumns(F&& f) {
+    unrollColumns<N>(std::forward<F>(f), std::make_index_sequence<N>{});
+  }
 
   void SiPixelRecHitExtendedAlpaka::produce(edm::StreamID streamID,
                                             device::Event& iEvent,
                                             const device::EventSetup& es) const {
-    // get both Pixel and Tracker recHits
+    // get both Pixel and Tracker SoA collections
     auto queue = iEvent.queue();
-    const auto& pixelRecHitsSoA = iEvent.get(pixelRecHitToken_);
-    const auto& otRecHitsSoA = iEvent.get(trackerRecHitToken_);
-    //std::cout << "----------------- Merging Pixel and Tracker RecHits -----------------" << std::endl;
-    const int nPixelHits = pixelRecHitsSoA.nHits();
-    //std::cout << "Number of Pixel recHits: " << nPixelHits << std::endl;
-    const int nTrackerHits = otRecHitsSoA.nHits();
-    //std::cout << "Number of Tracker recHits: " << nTrackerHits << std::endl;
-    const int nTotHits = nPixelHits + nTrackerHits;
-    //std::cout << "Number of Pixel modules: " << pixelRecHitsSoA.nModules() << std::endl;
-    //std::cout << "Number of Tracker modules: " << otRecHitsSoA.nModules() << std::endl;
-    const int nTotModules = pixelRecHitsSoA.nModules() + otRecHitsSoA.nModules();
+    const auto& pixColl = iEvent.get(pixelRecHitToken_);
+    const auto& trkColl = iEvent.get(trackerRecHitToken_);
 
-    auto outputSoA = reco::TrackingRecHitsSoACollection(queue, nTotHits, nTotModules);
-    //std::cout << "Total number of recHits: " << outputSoA.nHits() << std::endl;
+    // pix and trk SoA collections have the same layout
+    // each of them is made up of two SoAs:
+    // - one that contains the hits
+    // - one to track the number of hits in each module (hitModuleSoA)
+    // this code merges and copy both of them into a new SoA collection
+    // taking into account that for the hits the copy is straightforward,
+    // while for the hitModuleSoA we need to copy nPixelModules + nTrackerModules + 1 elements
+    // to account for the last "hidden" element in the SoA which is used to store
+    // the cumulative sum of hits in all the previous modules (thus this SoA has 1 more
+    // element than the actual number of modules to track the hits in the last module
+    // and sum them to the others).
+    // See also DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsDevice.h
 
-    // copy all columns from pixelRecHitsSoA and otRecHitsSoA to outputSoA
-    // xLocal
-    auto xLocalOutputPixel = cms::alpakatools::make_device_view(queue, outputSoA.view().xLocal(), nPixelHits);
-    auto xLocalOutputTracker =
-        cms::alpakatools::make_device_view(queue, outputSoA.view().xLocal() + nPixelHits, nTrackerHits);
-    auto xLocalPixel = cms::alpakatools::make_device_view(queue, pixelRecHitsSoA.view().xLocal(), nPixelHits);
-    auto xLocalTracker = cms::alpakatools::make_device_view(queue, otRecHitsSoA.view().xLocal(), nTrackerHits);
-    alpaka::memcpy(queue, xLocalOutputPixel, xLocalPixel);
-    alpaka::memcpy(queue, xLocalOutputTracker, xLocalTracker);
+    const int nPixHits = pixColl.nHits();
+    const int nTrkHits = trkColl.nHits();
 
-    // yLocal
-    auto yLocalOutputPixel = cms::alpakatools::make_device_view(queue, outputSoA.view().yLocal(), nPixelHits);
-    auto yLocalOutputTracker =
-        cms::alpakatools::make_device_view(queue, outputSoA.view().yLocal() + nPixelHits, nTrackerHits);
-    auto yLocalPixel = cms::alpakatools::make_device_view(queue, pixelRecHitsSoA.view().yLocal(), nPixelHits);
-    auto yLocalTracker = cms::alpakatools::make_device_view(queue, otRecHitsSoA.view().yLocal(), nTrackerHits);
-    alpaka::memcpy(queue, yLocalOutputPixel, yLocalPixel);
-    alpaka::memcpy(queue, yLocalOutputTracker, yLocalTracker);
+    const int nPixMod = pixColl.nModules();
+    const int nTrkMod = trkColl.nModules() + 1;  // +1 for the "hidden" last element in the SoA
 
-    // xerrLocal
-    auto xerrLocalOutputPixel = cms::alpakatools::make_device_view(queue, outputSoA.view().xerrLocal(), nPixelHits);
-    auto xerrLocalOutputTracker =
-        cms::alpakatools::make_device_view(queue, outputSoA.view().xerrLocal() + nPixelHits, nTrackerHits);
-    auto xerrLocalPixel = cms::alpakatools::make_device_view(queue, pixelRecHitsSoA.view().xerrLocal(), nPixelHits);
-    auto xerrLocalTracker = cms::alpakatools::make_device_view(queue, otRecHitsSoA.view().xerrLocal(), nTrackerHits);
-    alpaka::memcpy(queue, xerrLocalOutputPixel, xerrLocalPixel);
-    alpaka::memcpy(queue, xerrLocalOutputTracker, xerrLocalTracker);
+    // the output is also a SoA collection with the same layout as the input ones
+    auto output = reco::TrackingRecHitsSoACollection(queue, nPixHits + nTrkHits, nPixMod + nTrkMod);
 
-    // yerrLocal
-    auto yerrLocalOutputPixel = cms::alpakatools::make_device_view(queue, outputSoA.view().yerrLocal(), nPixelHits);
-    auto yerrLocalOutputTracker =
-        cms::alpakatools::make_device_view(queue, outputSoA.view().yerrLocal() + nPixelHits, nTrackerHits);
-    auto yerrLocalPixel = cms::alpakatools::make_device_view(queue, pixelRecHitsSoA.view().yerrLocal(), nPixelHits);
-    auto yerrLocalTracker = cms::alpakatools::make_device_view(queue, otRecHitsSoA.view().yerrLocal(), nTrackerHits);
-    alpaka::memcpy(queue, yerrLocalOutputPixel, yerrLocalPixel);
-    alpaka::memcpy(queue, yerrLocalOutputTracker, yerrLocalTracker);
+#ifdef GPU_DEBUG
+    std::cout << "----------------- Merging Pixel and Tracker RecHits -----------------\n"
+              << "Number of Pixel recHits: " << nPixHits << '\n'
+              << "Number of Tracker recHits: " << nTrkHits << '\n'
+              << "Total number of recHits: " << output.nHits() << '\n'
+              << "Number of Pixel modules: " << nPixMod << '\n'
+              << "Number of Tracker modules: " << nTrkMod - 1 << '\n'
+              << "Total number of modules: " << output.nModules() << '\n'
+              << "---------------------------------------------------------------------\n";
+#endif
 
-    // xGlobal
-    auto xGlobalOutputPixel = cms::alpakatools::make_device_view(queue, outputSoA.view().xGlobal(), nPixelHits);
-    auto xGlobalOutputTracker =
-        cms::alpakatools::make_device_view(queue, outputSoA.view().xGlobal() + nPixelHits, nTrackerHits);
-    auto xGlobalPixel = cms::alpakatools::make_device_view(queue, pixelRecHitsSoA.view().xGlobal(), nPixelHits);
-    auto xGlobalTracker = cms::alpakatools::make_device_view(queue, otRecHitsSoA.view().xGlobal(), nTrackerHits);
-    alpaka::memcpy(queue, xGlobalOutputPixel, xGlobalPixel);
-    alpaka::memcpy(queue, xGlobalOutputTracker, xGlobalTracker);
+    // start from the hits SoA, use metarecords to loop over all the columns
+    auto outView = output.view();
+    auto pixView = pixColl.view();
+    auto trkView = trkColl.view();
 
-    // yGlobal
-    auto yGlobalOutputPixel = cms::alpakatools::make_device_view(queue, outputSoA.view().yGlobal(), nPixelHits);
-    auto yGlobalOutputTracker =
-        cms::alpakatools::make_device_view(queue, outputSoA.view().yGlobal() + nPixelHits, nTrackerHits);
-    auto yGlobalPixel = cms::alpakatools::make_device_view(queue, pixelRecHitsSoA.view().yGlobal(), nPixelHits);
-    auto yGlobalTracker = cms::alpakatools::make_device_view(queue, otRecHitsSoA.view().yGlobal(), nTrackerHits);
-    alpaka::memcpy(queue, yGlobalOutputPixel, yGlobalPixel);
-    alpaka::memcpy(queue, yGlobalOutputTracker, yGlobalTracker);
+    // layout type (same for all views)
+    using ViewType = decltype(outView);
+    using LayoutType = typename ViewType::Metadata::TypeOf_Layout;
 
-    // zGlobal
-    auto zGlobalOutputPixel = cms::alpakatools::make_device_view(queue, outputSoA.view().zGlobal(), nPixelHits);
-    auto zGlobalOutputTracker =
-        cms::alpakatools::make_device_view(queue, outputSoA.view().zGlobal() + nPixelHits, nTrackerHits);
-    auto zGlobalPixel = cms::alpakatools::make_device_view(queue, pixelRecHitsSoA.view().zGlobal(), nPixelHits);
-    auto zGlobalTracker = cms::alpakatools::make_device_view(queue, otRecHitsSoA.view().zGlobal(), nTrackerHits);
-    alpaka::memcpy(queue, zGlobalOutputPixel, zGlobalPixel);
-    alpaka::memcpy(queue, zGlobalOutputTracker, zGlobalTracker);
+    // build descriptors (tuple of spans: one span for each column)
+    auto outDesc = LayoutType::Descriptor(outView);
+    auto pixDesc = LayoutType::ConstDescriptor(pixView);
+    auto trkDesc = LayoutType::ConstDescriptor(trkView);
 
-    // rGlobal
-    auto rGlobalOutputPixel = cms::alpakatools::make_device_view(queue, outputSoA.view().rGlobal(), nPixelHits);
-    auto rGlobalOutputTracker =
-        cms::alpakatools::make_device_view(queue, outputSoA.view().rGlobal() + nPixelHits, nTrackerHits);
-    auto rGlobalPixel = cms::alpakatools::make_device_view(queue, pixelRecHitsSoA.view().rGlobal(), nPixelHits);
-    auto rGlobalTracker = cms::alpakatools::make_device_view(queue, otRecHitsSoA.view().rGlobal(), nTrackerHits);
-    alpaka::memcpy(queue, rGlobalOutputPixel, rGlobalPixel);
-    alpaka::memcpy(queue, rGlobalOutputTracker, rGlobalTracker);
+    // merge all columns using a compile-time loop
 
-    // iphi
-    auto iphiOutputPixel = cms::alpakatools::make_device_view(queue, outputSoA.view().iphi(), nPixelHits);
-    auto iphiOutputTracker =
-        cms::alpakatools::make_device_view(queue, outputSoA.view().iphi() + nPixelHits, nTrackerHits);
-    auto iphiPixel = cms::alpakatools::make_device_view(queue, pixelRecHitsSoA.view().iphi(), nPixelHits);
-    auto iphiTracker = cms::alpakatools::make_device_view(queue, otRecHitsSoA.view().iphi(), nTrackerHits);
-    alpaka::memcpy(queue, iphiOutputPixel, iphiPixel);
-    alpaka::memcpy(queue, iphiOutputTracker, iphiTracker);
+    // number of columns (same for all hits SoAs)
+    constexpr std::size_t N = std::tuple_size_v<decltype(outDesc.buff)>;
 
-    // chargeAndStatus
-    auto chargeAndStatusOutputPixel =
-        cms::alpakatools::make_device_view(queue, outputSoA.view().chargeAndStatus(), nPixelHits);
-    auto chargeAndStatusOutputTracker =
-        cms::alpakatools::make_device_view(queue, outputSoA.view().chargeAndStatus() + nPixelHits, nTrackerHits);
-    auto chargeAndStatusPixel =
-        cms::alpakatools::make_device_view(queue, pixelRecHitsSoA.view().chargeAndStatus(), nPixelHits);
-    auto chargeAndStatusTracker =
-        cms::alpakatools::make_device_view(queue, otRecHitsSoA.view().chargeAndStatus(), nTrackerHits);
-    alpaka::memcpy(queue, chargeAndStatusOutputPixel, chargeAndStatusPixel);
-    alpaka::memcpy(queue, chargeAndStatusOutputTracker, chargeAndStatusTracker);
+    mergeSoAColumns<N>([&](auto columnIndex) {
+      auto& outCol = std::get<columnIndex>(outDesc.buff);
+      const auto& pixCol = std::get<columnIndex>(pixDesc.buff);
+      const auto& trkCol = std::get<columnIndex>(trkDesc.buff);
+      // FIXME offsetBPIX2 is the only scalar column, all others are arrays
+      // and should be copied as such, I have not found a better way to distinguish it from the others,
+      // the code below is a workaround to copy the scalar column (as long as the layout does not change)
+      if constexpr (columnIndex == 13) {
+        alpaka::memcpy(queue,
+                       cms::alpakatools::make_device_view(queue, outCol.data(), 1),
+                       cms::alpakatools::make_device_view(queue, pixCol.data(), 1));
+#ifdef GPU_DEBUG
+        alpaka::wait(queue);
+        std::cout << "Copied scalar column with index " << columnIndex << '\n';
+#endif
+      } else {
+        // copy Pixel hits
+        alpaka::memcpy(queue,
+                       cms::alpakatools::make_device_view(queue, outCol.data(), nPixHits),
+                       cms::alpakatools::make_device_view(queue, pixCol.data(), nPixHits));
+        // copy Tracker hits (offset after Pixel hits)
+        alpaka::memcpy(queue,
+                       cms::alpakatools::make_device_view(queue, outCol.data() + nPixHits, nTrkHits),
+                       cms::alpakatools::make_device_view(queue, trkCol.data(), nTrkHits));
+#ifdef GPU_DEBUG
+        alpaka::wait(queue);
+        std::cout << "Copied array column with index " << columnIndex << '\n';
+#endif
+      }
+    });
+    // copy hitModuleStart for Pixel modules
+    alpaka::memcpy(
+        queue,
+        cms::alpakatools::make_device_view(queue, output.view<::reco::HitModuleSoA>().moduleStart(), nPixMod),
+        cms::alpakatools::make_device_view(queue, pixColl.view<::reco::HitModuleSoA>().moduleStart(), nPixMod));
+    // copy hitModuleStart for Tracker modules (offset after Pixel modules)
+    alpaka::memcpy(
+        queue,
+        cms::alpakatools::make_device_view(queue, output.view<::reco::HitModuleSoA>().moduleStart() + nPixMod, nTrkMod),
+        cms::alpakatools::make_device_view(queue, trkColl.view<::reco::HitModuleSoA>().moduleStart(), nTrkMod));
+#ifdef GPU_DEBUG
+    alpaka::wait(queue);
+    std::cout << "Copied hitModuleStart for Pixel and Tracker modules\n";
+#endif
 
-    // clusterSizeX
-    auto clusterSizeXOutputPixel =
-        cms::alpakatools::make_device_view(queue, outputSoA.view().clusterSizeX(), nPixelHits);
-    auto clusterSizeXOutputTracker =
-        cms::alpakatools::make_device_view(queue, outputSoA.view().clusterSizeX() + nPixelHits, nTrackerHits);
-    auto clusterSizeXPixel =
-        cms::alpakatools::make_device_view(queue, pixelRecHitsSoA.view().clusterSizeX(), nPixelHits);
-    auto clusterSizeXTracker =
-        cms::alpakatools::make_device_view(queue, otRecHitsSoA.view().clusterSizeX(), nTrackerHits);
-    alpaka::memcpy(queue, clusterSizeXOutputPixel, clusterSizeXPixel);
-    alpaka::memcpy(queue, clusterSizeXOutputTracker, clusterSizeXTracker);
+    // update the information cached in the output collection with device information
+    output.updateFromDevice(queue);
 
-    // clusterSizeY
-    auto clusterSizeYOutputPixel =
-        cms::alpakatools::make_device_view(queue, outputSoA.view().clusterSizeY(), nPixelHits);
-    auto clusterSizeYOutputTracker =
-        cms::alpakatools::make_device_view(queue, outputSoA.view().clusterSizeY() + nPixelHits, nTrackerHits);
-    auto clusterSizeYPixel =
-        cms::alpakatools::make_device_view(queue, pixelRecHitsSoA.view().clusterSizeY(), nPixelHits);
-    auto clusterSizeYTracker =
-        cms::alpakatools::make_device_view(queue, otRecHitsSoA.view().clusterSizeY(), nTrackerHits);
-    alpaka::memcpy(queue, clusterSizeYOutputPixel, clusterSizeYPixel);
-    alpaka::memcpy(queue, clusterSizeYOutputTracker, clusterSizeYTracker);
-
-    // detectorIndex
-    auto detectorIndexOutputPixel =
-        cms::alpakatools::make_device_view(queue, outputSoA.view().detectorIndex(), nPixelHits);
-    auto detectorIndexOutputTracker =
-        cms::alpakatools::make_device_view(queue, outputSoA.view().detectorIndex() + nPixelHits, nTrackerHits);
-    auto detectorIndexPixel =
-        cms::alpakatools::make_device_view(queue, pixelRecHitsSoA.view().detectorIndex(), nPixelHits);
-    auto detectorIndexTracker =
-        cms::alpakatools::make_device_view(queue, otRecHitsSoA.view().detectorIndex(), nTrackerHits);
-    alpaka::memcpy(queue, detectorIndexOutputPixel, detectorIndexPixel);
-    alpaka::memcpy(queue, detectorIndexOutputTracker, detectorIndexTracker);
-
-    auto offsetBPIX2Output = cms::alpakatools::make_device_view(queue, outputSoA.view().offsetBPIX2());
-    auto offsetBPIX2Pixel = cms::alpakatools::make_device_view(queue, pixelRecHitsSoA.view().offsetBPIX2());
-    alpaka::memcpy(queue, offsetBPIX2Output, offsetBPIX2Pixel);
-
-    // copy the moduleStart from pixelRecHitsSoA and otRecHitsSoA to outputSoA
-    const int nPixelModules = pixelRecHitsSoA.nModules();
-    const int nTrackerModules = otRecHitsSoA.nModules() + 1;
-    // size of the copy nPixelModules + nTrackerModules + 1 to account for the last "hidden"
-    // element of the SoA, keeping track of the cumulative sum of all the hits in the previous
-    // modules (thus one more than the number of modules is required to account for the hits
-    // in the last tracker module) see also DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsDevice.h
-
-    auto hitModuleStartOutputPixel =
-        cms::alpakatools::make_device_view(queue, outputSoA.view<::reco::HitModuleSoA>().moduleStart(), nPixelModules);
-    auto hitModuleStartOutputTracker = cms::alpakatools::make_device_view(
-        queue, outputSoA.view<::reco::HitModuleSoA>().moduleStart() + nPixelModules, nTrackerModules);
-
-    const auto hitModuleStartPixel = cms::alpakatools::make_device_view(
-        queue, pixelRecHitsSoA.view<::reco::HitModuleSoA>().moduleStart(), nPixelModules);
-    const auto hitModuleStartTracker = cms::alpakatools::make_device_view(
-        queue, otRecHitsSoA.view<::reco::HitModuleSoA>().moduleStart(), nTrackerModules);
-
-    alpaka::memcpy(queue, hitModuleStartOutputPixel, hitModuleStartPixel);
-    alpaka::memcpy(queue, hitModuleStartOutputTracker, hitModuleStartTracker);
-
-    outputSoA.updateFromDevice(queue);
-    // emplace the merged SoA in the event
-    iEvent.emplace(outputRecHitsSoAToken_, std::move(outputSoA));
+    // emplace the merged SoA collection in the event
+    iEvent.emplace(outputRecHitsSoAToken_, std::move(output));
   }
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
