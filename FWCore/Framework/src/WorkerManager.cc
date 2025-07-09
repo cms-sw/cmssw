@@ -38,20 +38,6 @@ namespace edm {
     }
   }
 
-  Worker* WorkerManager::getWorker(ParameterSet& pset,
-                                   SignallingProductRegistryFiller& preg,
-                                   PreallocationConfiguration const* prealloc,
-                                   std::shared_ptr<ProcessConfiguration const> processConfiguration,
-                                   std::string const& label,
-                                   bool addToAll) {
-    WorkerParams params(&pset, preg, prealloc, processConfiguration, *actionTable_);
-    auto worker = workerReg_.getWorker(params, label);
-    if (nullptr != worker and addToAll) {
-      addToAllWorkers(worker);
-    }
-    return worker;
-  }
-
   Worker* WorkerManager::getWorkerForExistingModule(std::string const& label) {
     auto worker = workerReg_.getWorkerFromExistingModule(label, actionTable_);
     if (nullptr != worker) {
@@ -67,29 +53,6 @@ namespace edm {
     unscheduled_.addWorker(newWorker);
     //add to list so it gets reset each new event
     addToAllWorkers(newWorker);
-  }
-
-  void WorkerManager::addToUnscheduledWorkers(ParameterSet& pset,
-                                              SignallingProductRegistryFiller& preg,
-                                              PreallocationConfiguration const* prealloc,
-                                              std::shared_ptr<ProcessConfiguration const> processConfiguration,
-                                              std::string label,
-                                              std::set<std::string>& unscheduledLabels,
-                                              std::vector<std::string>& shouldBeUsedLabels) {
-    //Need to
-    // 1) create worker
-    // 2) if it is a WorkerT<EDProducer>, add it to our list
-    auto modType = pset.getParameter<std::string>("@module_edm_type");
-    if (modType == kProducerType || modType == kFilterType) {
-      Worker* newWorker = getWorker(pset, preg, prealloc, processConfiguration, label);
-      assert(newWorker->moduleType() == Worker::kProducer || newWorker->moduleType() == Worker::kFilter);
-      unscheduledLabels.insert(label);
-      unscheduled_.addWorker(newWorker);
-      //add to list so it gets reset each new event
-      addToAllWorkers(newWorker);
-    } else {
-      shouldBeUsedLabels.push_back(label);
-    }
   }
 
   void WorkerManager::resetAll() { for_all(allWorkers_, std::bind(&Worker::reset, std::placeholders::_1)); }

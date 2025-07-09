@@ -20,7 +20,6 @@ namespace edm {
 
   class Worker;
   class ActivityRegistry;
-  struct WorkerParams;
   class ModuleRegistry;
   class ModuleTypeResolverMaker;
   class ParameterSet;
@@ -46,17 +45,13 @@ namespace edm {
     WorkerRegistry(WorkerRegistry const&) = delete;             // Disallow copying and moving
     WorkerRegistry& operator=(WorkerRegistry const&) = delete;  // Disallow copying and moving
 
-    /// Retrieve the particular instance of the worker
-    /** If the worker with that set of parameters does not exist,
-        create it
-        @note Workers are owned by this class, do not delete them*/
-    Worker* getWorker(WorkerParams const& p, std::string const& moduleLabel);
-
     /// Retrieve particular instance of the worker without creating it
     /// If one doesn't exist, returns nullptr
     Worker const* get(std::string const& moduleLabel) const;
 
-    //Creates worker if needed
+    /** Creates worker if doesn't already exist
+     * @note Workers are owned by this class, do not delete them
+     */
     Worker* getWorkerFromExistingModule(std::string const& moduleLabel, ExceptionToActionTable const* actions);
 
     /// Deletes the module of the Worker, but the Worker continues to exist.

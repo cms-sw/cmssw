@@ -42,14 +42,6 @@ namespace edm {
 
     void addToUnscheduledWorkers(ModuleDescription const& iDescription);
 
-    void addToUnscheduledWorkers(ParameterSet& pset,
-                                 SignallingProductRegistryFiller& preg,
-                                 PreallocationConfiguration const* prealloc,
-                                 std::shared_ptr<ProcessConfiguration const> processConfiguration,
-                                 std::string label,
-                                 std::set<std::string>& unscheduledLabels,
-                                 std::vector<std::string>& shouldBeUsedLabels);
-
     template <typename T, typename U>
     void processOneOccurrenceAsync(WaitingTaskHolder,
                                    typename T::TransitionInfoType&,
@@ -75,13 +67,6 @@ namespace edm {
     void addToAllWorkers(Worker* w);
 
     ExceptionToActionTable const& actionTable() const { return *actionTable_; }
-
-    Worker* getWorker(ParameterSet& pset,
-                      SignallingProductRegistryFiller& preg,
-                      PreallocationConfiguration const* prealloc,
-                      std::shared_ptr<ProcessConfiguration const> processConfiguration,
-                      std::string const& label,
-                      bool addToAllWorkers = true);
 
     template <typename T>
       requires requires(T const& x) { x.moduleDescription(); }
