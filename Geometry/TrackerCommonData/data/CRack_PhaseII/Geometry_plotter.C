@@ -1,8 +1,6 @@
 
-//SIMPLE SCRIPT for geometry plotting and debugging. 
+//SIMPLE SCRIPT for geometry plotting and debugging.
 void Geometry_plotter() {
-
- 
   TGeoManager::Import("cmsSimGeom-Run4D500_validation.root");
 
   gGeoManager->GetListOfVolumes()->Print();
@@ -20,10 +18,12 @@ void Geometry_plotter() {
   // Loop over all nodes (components) inside the volume
   for (int i = 0; i < tb2s->GetNdaughters(); ++i) {
     TGeoNode* node = tb2s->GetNode(i);
-    if (!node) continue;
+    if (!node)
+      continue;
 
     TGeoVolume* daughterVol = node->GetVolume();
-    if (!daughterVol || !daughterVol->GetMaterial()) continue;
+    if (!daughterVol || !daughterVol->GetMaterial())
+      continue;
 
     std::string matName = daughterVol->GetMaterial()->GetName();
     //std::cout << "material is: " << matName << std::endl;
@@ -32,8 +32,8 @@ void Geometry_plotter() {
       materialColors[matName] = colorIndex++;
       //std::cout << "material is: " << matName << "  color is " << colorIndex << std::endl;
 
-      if (colorIndex > 50) colorIndex = 2;
-
+      if (colorIndex > 50)
+        colorIndex = 2;
     }
     /*if(matName == "materials:Air") {
        daughterVol->SetTransparency(100);
@@ -46,4 +46,3 @@ void Geometry_plotter() {
 
   tb2s->Draw("ogl");
 }
-
