@@ -61,8 +61,6 @@ public:
 private:
   void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
-  int getMatches(const pat::Muon& muon, const reco::Track& dsaMuon, const float minPositionDiff) const;
-
   float getPFIso(const pat::Muon& muon) const;
   int findMatchedJet(const reco::Candidate& lepton, const edm::Handle<std::vector<pat::Jet>>& jets) const;
   void fillLeptonJetVariables(const reco::Muon* mu,
@@ -236,29 +234,6 @@ void MuonExtendedTableProducer::produce(edm::StreamID, edm::Event& iEvent, const
       trkNumTrkLayers[i] = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement();
     }
 
-    std::vector<std::pair<float, float>> dsaMatches(5, std::make_pair(-1.0, -1.0));
-    std::vector<float> nDsaMatches;
-    for (unsigned int j = 0; j < nDsaMuons; j++) {
-      if (j > 4)
-        break;
-      const reco::Track& dsaMuon = (*dsaMuons)[j];
-      // Muon-DSA Matches Table
-      int nMatches = getMatches(muon, dsaMuon, minPositionDiffForMatching);
-      dsaMatches[j] = std::make_pair(nMatches, j);
-      nDsaMatches.push_back(nMatches);
-    }
-    nMatchesPerDSA.push_back(nDsaMatches);
-    std::sort(dsaMatches.rbegin(), dsaMatches.rend());
-    dsaMatch1.push_back(dsaMatches[0].first);
-    dsaMatch1idx.push_back(dsaMatches[0].second);
-    dsaMatch2.push_back(dsaMatches[1].first);
-    dsaMatch2idx.push_back(dsaMatches[1].second);
-    dsaMatch3.push_back(dsaMatches[2].first);
-    dsaMatch3idx.push_back(dsaMatches[2].second);
-    dsaMatch4.push_back(dsaMatches[3].first);
-    dsaMatch4idx.push_back(dsaMatches[3].second);
-    dsaMatch5.push_back(dsaMatches[4].first);
-    dsaMatch5idx.push_back(dsaMatches[4].second);
   }
 
   auto tab = std::make_unique<nanoaod::FlatTable>(nMuons, name_, false, true);
@@ -313,50 +288,7 @@ void MuonExtendedTableProducer::produce(edm::StreamID, edm::Event& iEvent, const
   tab->addColumn<float>("innerEta", innerEta, "");
   tab->addColumn<float>("innerPhi", innerPhi, "");
 
-  tab->addColumn<float>("dsaMatch1", dsaMatch1, "");
-  tab->addColumn<float>("dsaMatch1idx", dsaMatch1idx, "");
-  tab->addColumn<float>("dsaMatch2", dsaMatch2, "");
-  tab->addColumn<float>("dsaMatch2idx", dsaMatch2idx, "");
-  tab->addColumn<float>("dsaMatch3", dsaMatch3, "");
-  tab->addColumn<float>("dsaMatch3idx", dsaMatch3idx, "");
-  tab->addColumn<float>("dsaMatch4", dsaMatch4, "");
-  tab->addColumn<float>("dsaMatch4idx", dsaMatch4idx, "");
-  tab->addColumn<float>("dsaMatch5", dsaMatch5, "");
-  tab->addColumn<float>("dsaMatch5idx", dsaMatch5idx, "");
-
   iEvent.put(std::move(tab));
-}
-
-int MuonExtendedTableProducer::getMatches(const pat::Muon& muon,
-                                          const reco::Track& dsaMuon,
-                                          const float minPositionDiff = 1e-6) const {
-  int nMatches = 0;
-
-  if (dsaMuon.extra().isNonnull() && dsaMuon.extra().isAvailable()) {
-    for (auto& hit : dsaMuon.recHits()) {
-      if (!hit->isValid())
-        continue;
-      DetId id = hit->geographicalId();
-      if (id.det() != DetId::Muon)
-        continue;
-
-      if (id.subdetId() == MuonSubdetId::DT || id.subdetId() == MuonSubdetId::CSC) {
-        for (auto& chamber : muon.matches()) {
-          if (chamber.id.rawId() != id.rawId())
-            continue;
-
-          for (auto& segment : chamber.segmentMatches) {
-            if (fabs(segment.x - hit->localPosition().x()) < minPositionDiff &&
-                fabs(segment.y - hit->localPosition().y()) < minPositionDiff) {
-              nMatches++;
-              break;
-            }
-          }
-        }
-      }
-    }
-  }
-  return nMatches;
 }
 
 float MuonExtendedTableProducer::getPFIso(const pat::Muon& muon) const {
