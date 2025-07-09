@@ -104,3 +104,6 @@ else:
     process.p = cms.Path(process.t)
 
 process.e = cms.EndPath(process.out)
+
+from FWCore.Services.modules import Tracer
+process.add_(Tracer())

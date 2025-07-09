@@ -33,7 +33,7 @@ namespace edm {
       std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters,
       std::vector<edm::propagate_const<std::shared_ptr<EndPathStatusInserter>>>& endPathStatusInserters,
       std::shared_ptr<ModuleRegistry> modReg,
-      std::vector<std::string> const& iModulesToUse,
+      std::vector<edm::ModuleDescription const*> const& iModulesToUse,
       ParameterSet& proc_pset,
       SignallingProductRegistryFiller& pregistry,
       PreallocationConfiguration const& prealloc,
@@ -51,17 +51,10 @@ namespace edm {
     for (unsigned int i = 0; i < nManagers; ++i) {
       workerManagers_.emplace_back(modReg, areg, actions);
     }
-    for (auto const& moduleLabel : iModulesToUse) {
-      bool isTracked;
-      ParameterSet* modpset = proc_pset.getPSetForUpdate(moduleLabel, isTracked);
-      if (modpset != nullptr) {  // It will be null for PathStatusInserters, it should
-                                 // be impossible to be null for anything else
-        assert(isTracked);
-
-        //side effect keeps this module around
-        for (auto& wm : workerManagers_) {
-          (void)wm.getWorker(*modpset, pregistry, &prealloc, processConfiguration, moduleLabel);
-        }
+    for (auto const& module : iModulesToUse) {
+      //side effect keeps this module around
+      for (auto& wm : workerManagers_) {
+        (void)wm.getWorkerForModule(*module);
       }
     }
     if (inserter) {

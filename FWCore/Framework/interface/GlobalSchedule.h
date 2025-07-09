@@ -57,7 +57,7 @@ namespace edm {
                    std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters,
                    std::vector<edm::propagate_const<std::shared_ptr<EndPathStatusInserter>>>& endPathStatusInserters,
                    std::shared_ptr<ModuleRegistry> modReg,
-                   std::vector<std::string> const& modulesToUse,
+                   std::vector<edm::ModuleDescription const*> const& modulesToUse,
                    ParameterSet& proc_pset,
                    SignallingProductRegistryFiller& pregistry,
                    PreallocationConfiguration const& prealloc,

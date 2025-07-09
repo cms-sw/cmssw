@@ -387,6 +387,12 @@
   <use name="FWCore/Utilities"/>
 </bin>
 
+<bin file="test_catch2_main.cc,test_catch2_ScheduleBuilder.cc" name="TestFWCoreFrameworkScheduleBuilder">
+  <use name="catch2"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/Utilities"/>
+</bin>
+
 <test name="testFWCoreFrameworkCmsRunParsing" command="run_cmsRun_parsing.sh"/>
 <test name="testFWCoreFrameworkCmsRunVarparsing" command="run_cmsRun_varparsing.sh"/>
 <test name="testFWCoreFrameworkCmsRunArgparse" command="run_cmsRun_argparse.sh"/>

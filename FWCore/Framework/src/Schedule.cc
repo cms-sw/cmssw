@@ -1,4 +1,5 @@
 #include "FWCore/Framework/interface/Schedule.h"
+#include "FWCore/Framework/src/ScheduleBuilder.h"
 
 #include "DataFormats/Common/interface/setIsMergeable.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -64,64 +65,6 @@ namespace edm {
 
     bool binary_search_string(std::vector<std::string> const& v, std::string const& s) {
       return std::binary_search(v.begin(), v.end(), s);
-    }
-
-    // Here we make the trigger results inserter directly.  This should
-    // probably be a utility in the WorkerRegistry or elsewhere.
-
-    std::shared_ptr<TriggerResultInserter> makeInserter(ParameterSet& proc_pset,
-                                                        PreallocationConfiguration const& iPrealloc,
-                                                        SignallingProductRegistryFiller& preg,
-                                                        ExceptionToActionTable const& actions,
-                                                        std::shared_ptr<ActivityRegistry> areg,
-                                                        std::shared_ptr<ProcessConfiguration const> processConfiguration,
-                                                        ModuleRegistry& moduleRegistry) {
-      ParameterSet* trig_pset = proc_pset.getPSetForUpdate("@trigger_paths");
-      trig_pset->registerIt();
-
-      WorkerParams work_args(trig_pset, preg, &iPrealloc, processConfiguration, actions);
-      ModuleDescription md(trig_pset->id(),
-                           "TriggerResultInserter",
-                           "TriggerResults",
-                           processConfiguration.get(),
-                           ModuleDescription::getUniqueID());
-
-      return moduleRegistry.makeExplicitModule<TriggerResultInserter>(md,
-                                                                      iPrealloc,
-                                                                      &preg,
-                                                                      areg->preModuleConstructionSignal_,
-                                                                      areg->postModuleConstructionSignal_,
-                                                                      *trig_pset,
-                                                                      iPrealloc.numberOfStreams());
-    }
-
-    template <typename T>
-    void makePathStatusInserters(std::vector<edm::propagate_const<std::shared_ptr<T>>>& pathStatusInserters,
-                                 std::vector<std::string> const& pathNames,
-                                 PreallocationConfiguration const& iPrealloc,
-                                 SignallingProductRegistryFiller& preg,
-                                 std::shared_ptr<ActivityRegistry> areg,
-                                 std::shared_ptr<ProcessConfiguration const> processConfiguration,
-                                 ModuleRegistry& moduleRegistry,
-                                 std::string const& moduleTypeName) {
-      ParameterSet pset;
-      pset.addParameter<std::string>("@module_type", moduleTypeName);
-      pset.addParameter<std::string>("@module_edm_type", "EDProducer");
-      pset.registerIt();
-
-      pathStatusInserters.reserve(pathNames.size());
-
-      for (auto const& pathName : pathNames) {
-        ModuleDescription md(
-            pset.id(), moduleTypeName, pathName, processConfiguration.get(), ModuleDescription::getUniqueID());
-        auto module = moduleRegistry.makeExplicitModule<T>(md,
-                                                           iPrealloc,
-                                                           &preg,
-                                                           areg->preModuleConstructionSignal_,
-                                                           areg->postModuleConstructionSignal_,
-                                                           iPrealloc.numberOfStreams());
-        pathStatusInserters.emplace_back(std::move(module));
-      }
     }
 
     typedef std::vector<std::string> vstring;
@@ -471,46 +414,50 @@ namespace edm {
                      ModuleTypeResolverMaker const* resolverMaker)
       :  //Only create a resultsInserter if there is a trigger path
         moduleRegistry_(std::make_shared<ModuleRegistry>(resolverMaker)),
-        resultsInserter_{
-            tns.getTrigPaths().empty()
-                ? std::shared_ptr<TriggerResultInserter>{}
-                : makeInserter(proc_pset, prealloc, preg, actions, areg, processConfiguration, *moduleRegistry_)},
         all_output_communicators_(),
         preallocConfig_(prealloc),
         pathNames_(&tns.getTrigPaths()),
         endPathNames_(&tns.getEndPaths()),
         wantSummary_(tns.wantSummary()) {
-    makePathStatusInserters(pathStatusInserters_,
-                            *pathNames_,
-                            prealloc,
-                            preg,
-                            areg,
-                            processConfiguration,
-                            *moduleRegistry_,
-                            std::string("PathStatusInserter"));
+    ScheduleBuilder builder(
+        *moduleRegistry_, proc_pset, *pathNames_, *endPathNames_, prealloc, preg, *areg, processConfiguration);
+    resultsInserter_ = std::move(builder.resultsInserter_);
+    assert(builder.pathStatusInserters_.size() == builder.pathNameAndModules_.size());
+    assert(builder.endPathStatusInserters_.size() == builder.endpathNameAndModules_.size() or
+           (builder.endpathNameAndModules_.size() == 1 and builder.endPathStatusInserters_.empty()));
+    pathStatusInserters_ = std::move(builder.pathStatusInserters_);
+    endPathStatusInserters_ = std::move(builder.endPathStatusInserters_);
 
-    if (endPathNames_->size() > 1) {
-      makePathStatusInserters(endPathStatusInserters_,
-                              *endPathNames_,
-                              prealloc,
-                              preg,
-                              areg,
-                              processConfiguration,
-                              *moduleRegistry_,
-                              std::string("EndPathStatusInserter"));
+    std::vector<StreamSchedule::PathInfo> paths;
+    paths.reserve(builder.pathNameAndModules_.size());
+    unsigned int index = 0;
+    for (auto& path : builder.pathNameAndModules_) {
+      paths.emplace_back(path.first, std::move(path.second), get_underlying_safe(pathStatusInserters_[index]));
+      ++index;
+    }
+    std::vector<StreamSchedule::EndPathInfo> endpaths;
+    endpaths.reserve(builder.endpathNameAndModules_.size());
+    index = 0;
+    for (auto& path : builder.endpathNameAndModules_) {
+      if (endPathStatusInserters_.empty()) {
+        endpaths.emplace_back(path.first, std::move(path.second), std::shared_ptr<EndPathStatusInserter>());
+
+      } else {
+        endpaths.emplace_back(path.first, std::move(path.second), get_underlying_safe(endPathStatusInserters_[index]));
+      }
+      ++index;
     }
 
     assert(0 < prealloc.numberOfStreams());
     streamSchedules_.reserve(prealloc.numberOfStreams());
     for (unsigned int i = 0; i < prealloc.numberOfStreams(); ++i) {
-      streamSchedules_.emplace_back(make_shared_noexcept_false<StreamSchedule>(resultsInserter(),
-                                                                               pathStatusInserters_,
-                                                                               endPathStatusInserters_,
+      streamSchedules_.emplace_back(make_shared_noexcept_false<StreamSchedule>(paths,
+                                                                               endpaths,
+                                                                               builder.unscheduledModules_,
+                                                                               resultsInserter(),
                                                                                moduleRegistry(),
                                                                                proc_pset,
-                                                                               tns,
                                                                                prealloc,
-                                                                               preg,
                                                                                actions,
                                                                                areg,
                                                                                processConfiguration,
@@ -518,31 +465,11 @@ namespace edm {
                                                                                processContext));
     }
 
-    const std::string kTriggerResults("TriggerResults");
-    std::vector<std::string> modulesToUse;
-    modulesToUse.reserve(streamSchedules_[0]->allWorkersLumisAndEvents().size());
-    for (auto const& worker : streamSchedules_[0]->allWorkersLumisAndEvents()) {
-      if (worker->description()->moduleLabel() != kTriggerResults) {
-        modulesToUse.push_back(worker->description()->moduleLabel());
-      }
-    }
-    //The unscheduled modules are at the end of the list, but we want them at the front
-    unsigned int const nUnscheduledModules = streamSchedules_[0]->numberOfUnscheduledModules();
-    if (nUnscheduledModules > 0) {
-      std::vector<std::string> temp;
-      temp.reserve(modulesToUse.size());
-      auto itBeginUnscheduled = modulesToUse.begin() + modulesToUse.size() - nUnscheduledModules;
-      std::copy(itBeginUnscheduled, modulesToUse.end(), std::back_inserter(temp));
-      std::copy(modulesToUse.begin(), itBeginUnscheduled, std::back_inserter(temp));
-      temp.swap(modulesToUse);
-    }
-
-    // propagate_const<T> has no reset() function
     globalSchedule_ = std::make_unique<GlobalSchedule>(resultsInserter(),
                                                        pathStatusInserters_,
                                                        endPathStatusInserters_,
                                                        moduleRegistry(),
-                                                       modulesToUse,
+                                                       builder.allNeededModules_,
                                                        proc_pset,
                                                        preg,
                                                        prealloc,
