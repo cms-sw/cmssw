@@ -43,7 +43,7 @@ protected:
   void _resetMonitors(hcaldqm::UpdateFreq) override;
   bool _isApplicable(edm::Event const &) override;
   virtual void _dump();
-  void processLaserMon(edm::Handle<QIE11DigiCollection> &col, std::vector<int> &iLaserMonADC);
+  void processLaserMon(edm::Handle<QIE11DigiCollection> &col, QIE11DataFrame &iLaserMonDigi);
 
   //	tags and tokens
   edm::InputTag _tagQIE11;

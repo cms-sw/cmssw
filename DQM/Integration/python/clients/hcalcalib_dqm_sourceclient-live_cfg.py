@@ -21,6 +21,7 @@ errorstr     = "### HcalDQM::cfg::ERROR:"
 useOfflineGT = False
 useFileInput = False
 useMap       = False
+usetxtMap    = False
 
 #-------------------------------------
 #	Central DQM Stuff imports
@@ -125,6 +126,17 @@ if useMap:
                  #tag = cms.string("HcalElectronicsMap_v7.05_hlt"),
                  tag = cms.string("HcalElectronicsMap_v9.0_hlt"),
         ))
+if usetxtMap:
+    process.es_ascii = cms.ESSource(
+                'HcalTextCalibrations',
+                input = cms.VPSet(
+                        cms.PSet(
+                                object = cms.string('ElectronicsMap'),
+                                file = cms.FileInPath("ElectronicsMap_Run394200_new.txt")
+                        )
+                )
+        )
+    process.es_prefer = cms.ESPrefer('HcalTextCalibrations', 'es_ascii')
 
 #-------------------------------------
 #	Some Settings before Finishing up

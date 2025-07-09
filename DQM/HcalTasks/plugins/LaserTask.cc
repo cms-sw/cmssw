@@ -544,34 +544,15 @@ LaserTask::LaserTask(edm::ParameterSet const& ps)
   if (!e.getByToken(_tokLaserMon, cLaserMon)) {
     _logger.dqmthrow("QIE10DigiCollection for laserMonDigis isn't available.");
   }
-  std::vector<int> laserMonADC;
-  processLaserMon(c_QIE11, laserMonADC);
+  //std::vector<int> laserMonADC;
+  QIE11DataFrame laserMonDigi;
+  processLaserMon(c_QIE11, laserMonDigi);
 
-  // SumQ = peak +/- 3 TSes
-  // Timing = fC-weighted average (TS-TS0) * 25 ns, also in peak +/- 3 TSes
-  int peakTS = -1;
-  double peakLaserMonADC = -1;
-  for (unsigned int iTS = 0; iTS < laserMonADC.size(); ++iTS) {
-    if (laserMonADC[iTS] > peakLaserMonADC) {
-      peakLaserMonADC = laserMonADC[iTS];
-      peakTS = iTS;
-    }
-  }
-
-  double laserMonSumQ = 0;
+  double laserMonSumQ = hcaldqm::utilities::sumQ_v10<QIE11DataFrame>(laserMonDigi, 0, 0, laserMonDigi.samples() - 1);
   double laserMonTiming = 0.;
 
-  if (peakTS >= 0) {
-    int minTS = std::max(0, peakTS - 3);
-    int maxTS = std::min(int(laserMonADC.size() - 1), peakTS + 3);
-    for (int iTS = minTS; iTS <= maxTS; ++iTS) {
-      double this_fC = hcaldqm::constants::adc2fC[laserMonADC[iTS]];
-      laserMonSumQ += this_fC;
-      laserMonTiming += 25. * (iTS - _laserMonTS0) * this_fC;
-    }
-  }
   if (laserMonSumQ > 0.) {
-    laserMonTiming = laserMonTiming / laserMonSumQ;
+    laserMonTiming = hcaldqm::utilities::aveTS_v10<QIE11DataFrame>(laserMonDigi, 0, 0, laserMonDigi.samples() - 1);
   } else {
     ++_xMissingLaserMon;
   }
@@ -749,26 +730,15 @@ LaserTask::LaserTask(edm::ParameterSet const& ps)
   }
 }
 
-void LaserTask::processLaserMon(edm::Handle<QIE11DigiCollection>& col, std::vector<int>& iLaserMonADC) {
+void LaserTask::processLaserMon(edm::Handle<QIE11DigiCollection>& col, QIE11DataFrame& iLaserMonDigi) {
   for (QIE11DigiCollection::const_iterator it = col->begin(); it != col->end(); ++it) {
     const QIE11DataFrame digi = static_cast<const QIE11DataFrame>(*it);
     HcalCalibDetId hcdid(digi.id());
 
-    if (!(hcdid.hcalSubdet() == constants::HBLasMon.hcalSubdet() && hcdid.ieta() == constants::HBLasMon.ieta() &&
-          hcdid.iphi() == constants::HBLasMon.iphi() && hcdid.cboxChannel() == constants::HBLasMon.cboxChannel()))
+    if (hcdid.rawId() != constants::HBLasMon.rawId())
       continue;
 
-    // First initialize the vectors to -1 (need to know the length of the digi)
-    if (iLaserMonADC.empty()) {
-      int totalNSamples = digi.samples();
-      for (int i = 0; i < totalNSamples; ++i) {
-        iLaserMonADC.push_back(-1);
-      }
-    }
-
-    for (int subindex = 0; subindex < digi.samples(); ++subindex) {
-      iLaserMonADC[subindex] = digi[subindex].adc();
-    }
+    iLaserMonDigi = digi;
   }
 }
 
