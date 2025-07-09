@@ -1,19 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoLocalCalo.HGCalRecProducers.recHitMapProducer_cfi import recHitMapProducer as _recHitMapProducer
+from RecoLocalCalo.HGCalRecProducers.recHitMapProducer_cfi import recHitMapProducer as recHitMapProducer_
 
-recHitMapProducer = _recHitMapProducer.clone(
-    hits = dict(HGCEE  = ("HGCalRecHit", "HGCEERecHits"),
-                HGCHEF = ("HGCalRecHit", "HGCHEFRecHits"),
-                HGCHEB = ("HGCalRecHit", "HGCHEBRecHits"))
-)
+recHitMapProducer = recHitMapProducer_.clone()
+
+hits = ["HGCalRecHit:HGCEERecHits",
+        "HGCalRecHit:HGCHEFRecHits",
+        "HGCalRecHit:HGCHEBRecHits",
+        "particleFlowRecHitECAL",
+        "particleFlowRecHitHBHE"]
 
 from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
-ticl_barrel.toModify(recHitMapProducer,
-                     hits = dict(HGCEE  = ("HGCalRecHit", "HGCEERecHits"),
-                                 HGCHEF = ("HGCalRecHit", "HGCHEFRecHits"),
-                                 HGCHEB = ("HGCalRecHit", "HGCHEBRecHits"),
-                                 ECAL   = "particleFlowRecHitECAL",
-                                 HBHE   = "particleFlowRecHitHBHE"),
-                     hgcalOnly = False
-                     )
+ticl_barrel.toModify(recHitMapProducer, hits = hits, hgcalOnly = cms.bool(False)) 
