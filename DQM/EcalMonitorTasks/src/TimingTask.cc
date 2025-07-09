@@ -76,10 +76,12 @@ namespace ecaldqm {
     // timing with cross-correlation (cc) algo
     MESet& meTimeAmp_nonCorr(MEs_.at("TimeAmp_nonCorr"));
     MESet& meTimeAmpAll_nonCorr(MEs_.at("TimeAmpAll_nonCorr"));
-    MESet& meTimingVsBX_nonCorr(onlineMode_ ? MEs_.at("BarrelTimingVsBX_nonCorr") : MEs_.at("BarrelTimingVsBXFineBinned_nonCorr"));
+    MESet& meTimingVsBX_nonCorr(onlineMode_ ? MEs_.at("BarrelTimingVsBX_nonCorr")
+                                            : MEs_.at("BarrelTimingVsBXFineBinned_nonCorr"));
     MESet& meTimeAll_nonCorr(MEs_.at("TimeAll_nonCorr"));
     MESet& meTimeAllMap_nonCorr(MEs_.at("TimeAllMap_nonCorr"));
-    MESet& meTimeMap_nonCorr(MEs_.at("TimeMap_nonCorr"));  // contains cumulative run stats => not suitable for Trend plots
+    MESet& meTimeMap_nonCorr(
+        MEs_.at("TimeMap_nonCorr"));  // contains cumulative run stats => not suitable for Trend plots
     MESet& meTime1D_nonCorr(MEs_.at("Time1D_nonCorr"));
 
     uint32_t goodOROOTBits(0x1 << EcalRecHit::kGood | 0x1 << EcalRecHit::kOutOfTime);
