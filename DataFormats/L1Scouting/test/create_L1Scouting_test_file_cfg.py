@@ -15,7 +15,7 @@ process.l1ScoutingTestProducer = cms.EDProducer("TestWriteL1Scouting",
   tauValues = cms.vint32(11, 12),
   bxSumsValues = cms.vint32(13),
   bmtfStubValues = cms.vint32(1, 2),
-  caloTowerStubValues = cms.vint32(14, 15),
+  caloTowerValues = cms.vint32(14, 15)
 
 )
 

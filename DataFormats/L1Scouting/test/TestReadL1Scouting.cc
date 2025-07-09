@@ -374,8 +374,11 @@ namespace edmtest {
     }
   }
   void TestReadL1Scouting::analyzeCaloTowers(edm::Event const& iEvent) const {
-    auto const& caloTowersCollection = iEvent.get(caloTowerToken_);
 
+    if (caloTowerClassVersion_ < 3) {
+      return;
+    }
+    auto const& caloTowersCollection = iEvent.get(caloTowerToken_);
     for (const unsigned& bx : bxValues_) {
       unsigned nCaloTowers = caloTowersCollection.getBxSize(bx);
       if (nCaloTowers != expectedCaloTowerValues_.size()) {
@@ -421,7 +424,7 @@ namespace edmtest {
     desc.add<edm::InputTag>("bmtfStubTag");
     desc.add<int>("caloTowerClassVersion");
     desc.add<std::vector<int>>("expectedCaloTowerValues");
-    desc.add<edm::InputTag>("CaloTowerTag");
+    desc.add<edm::InputTag>("caloTowerTag");
 
     descriptions.addDefault(desc);
   }
