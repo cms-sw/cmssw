@@ -20,9 +20,25 @@ from ..modules.hltTiclTrackstersCLUE3DHighL1Seeded_cfi import *
 from ..modules.hltTiclTracksterLinksL1Seeded_cfi import *
 from ..modules.hltBarrelLayerClustersEBL1Seeded_cfi import *
 
-_HgcalLocalRecoL1SeededSequence = cms.Sequence(hltHgcalDigis+hltL1TEGammaHGCFilteredCollectionProducer+hltHgcalDigisL1Seeded+hltHGCalUncalibRecHitL1Seeded+hltHGCalRecHitL1Seeded+hltParticleFlowRecHitHGCL1Seeded+hltRechitInRegionsHGCAL+hltHgcalLayerClustersEEL1Seeded+hltHgcalLayerClustersHSciL1Seeded+hltHgcalLayerClustersHSiL1Seeded+hltMergeLayerClustersL1Seeded)
-_HgcalTICLPatternRecognitionL1SeededSequence = cms.Sequence(hltFilteredLayerClustersCLUE3DHighL1Seeded+hltTiclSeedingL1+hltTiclLayerTileProducerL1Seeded+hltTiclTrackstersCLUE3DHighL1Seeded)
-_SuperclusteringL1SeededSequence = cms.Sequence(hltParticleFlowClusterHGCalFromTICLL1Seeded+hltParticleFlowSuperClusterHGCalFromTICLL1Seeded)
+_HgcalLocalRecoL1SeededSequence = cms.Sequence(hltHgcalDigis+
+                                               hltL1TEGammaHGCFilteredCollectionProducer+
+                                               hltHgcalDigisL1Seeded+
+                                               hltHGCalUncalibRecHitL1Seeded+
+                                               hltHGCalRecHitL1Seeded+
+                                               hltParticleFlowRecHitHGCL1Seeded+
+                                               hltRechitInRegionsHGCAL+
+                                               hltHgcalLayerClustersEEL1Seeded+
+                                               hltHgcalLayerClustersHSciL1Seeded+
+                                               hltHgcalLayerClustersHSiL1Seeded+
+                                               hltMergeLayerClustersL1Seeded)
+
+_HgcalTICLPatternRecognitionL1SeededSequence = cms.Sequence(hltFilteredLayerClustersCLUE3DHighL1Seeded+
+                                                            hltTiclSeedingL1+
+                                                            hltTiclLayerTileProducerL1Seeded+
+                                                            hltTiclTrackstersCLUE3DHighL1Seeded)
+
+_SuperclusteringL1SeededSequence = cms.Sequence(hltParticleFlowClusterHGCalFromTICLL1Seeded+
+                                                hltParticleFlowSuperClusterHGCalFromTICLL1Seeded)
 
 # The baseline sequence
 HLTHgcalTiclPFClusteringForEgammaL1SeededSequence = cms.Sequence(_HgcalLocalRecoL1SeededSequence + _HgcalTICLPatternRecognitionL1SeededSequence + _SuperclusteringL1SeededSequence)
