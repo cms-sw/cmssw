@@ -22,26 +22,6 @@ namespace edm {
 
   void WorkerRegistry::clear() { m_workerMap.clear(); }
 
-  Worker* WorkerRegistry::getWorker(WorkerParams const& p, std::string const& moduleLabel) {
-    WorkerMap::iterator workerIt = m_workerMap.find(moduleLabel);
-
-    // if the worker is not there, make it
-    if (workerIt == m_workerMap.end()) {
-      MakeModuleParams mmp(p.pset_, *p.reg_, p.preallocate_, p.processConfiguration_);
-      auto modulePtr = modRegistry_->getModule(
-          mmp, moduleLabel, actReg_->preModuleConstructionSignal_, actReg_->postModuleConstructionSignal_);
-      auto workerPtr = modulePtr->makeWorker(p.actions_);
-
-      workerPtr->setActivityRegistry(actReg_);
-
-      // Transfer ownership of worker to the registry
-      m_workerMap[moduleLabel] =
-          std::shared_ptr<Worker>(workerPtr.release());  // propagate_const<T> has no reset() function
-      return m_workerMap[moduleLabel].get();
-    }
-    return (workerIt->second.get());
-  }
-
   Worker const* WorkerRegistry::get(std::string const& moduleLabel) const {
     WorkerMap::const_iterator workerIt = m_workerMap.find(moduleLabel);
     if (workerIt != m_workerMap.end()) {
