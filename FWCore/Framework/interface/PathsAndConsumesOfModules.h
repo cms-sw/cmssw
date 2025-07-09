@@ -117,7 +117,6 @@ namespace edm {
     std::vector<std::vector<eventsetup::ComponentDescription const*>> esModulesWhoseProductsAreConsumedByESModule_;
 
     Schedule const* schedule_ = nullptr;
-    ModuleRegistry const* moduleRegistry_ = nullptr;
     ProducedByESModule producedByESModule_;
     std::shared_ptr<ProductRegistry const> preg_;
     bool eventSetupInfoInitialized_ = false;
