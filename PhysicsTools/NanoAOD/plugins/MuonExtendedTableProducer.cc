@@ -233,7 +233,6 @@ void MuonExtendedTableProducer::produce(edm::StreamID, edm::Event& iEvent, const
       trkNumPixelHits[i] = muon.innerTrack()->hitPattern().numberOfValidPixelHits();
       trkNumTrkLayers[i] = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement();
     }
-
   }
 
   auto tab = std::make_unique<nanoaod::FlatTable>(nMuons, name_, false, true);
