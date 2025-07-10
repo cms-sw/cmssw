@@ -462,7 +462,7 @@ namespace edm {
                                 iProcessConfiguration);
         if (module == nullptr) {
           std::string pathType("endpath");
-          if (std::count(iEndPathNames.begin(), iEndPathNames.end(), iPathName) == 0) {
+          if (std::find(iEndPathNames.begin(), iEndPathNames.end(), iPathName) == iEndPathNames.end()) {
             pathType = std::string("path");
           }
           throw Exception(errors::Configuration)
@@ -476,8 +476,8 @@ namespace edm {
           // See if the filter is allowed.
           std::vector<std::string> allowed_filters =
               ioProcessPSet.getUntrackedParameter<std::vector<std::string>>("@filters_on_endpaths");
-          if (std::count(allowed_filters.begin(), allowed_filters.end(), module->moduleDescription().moduleName()) ==
-              0) {
+          if (std::find(allowed_filters.begin(), allowed_filters.end(), module->moduleDescription().moduleName()) ==
+              allowed_filters.end()) {
             // Filter is not allowed. Ignore the result, and issue a warning.
             filterAction = WorkerInPath::Ignore;
             LogWarning("FilterOnEndPath")
@@ -686,15 +686,17 @@ namespace edm {
         }
       }
       if (!shouldBeUsedLabels.empty()) {
-        std::ostringstream unusedStream;
-        unusedStream << "'" << shouldBeUsedLabels.front() << "'";
-        for (std::vector<std::string>::iterator itLabel = shouldBeUsedLabels.begin() + 1,
-                                                itLabelEnd = shouldBeUsedLabels.end();
-             itLabel != itLabelEnd;
-             ++itLabel) {
-          unusedStream << ",'" << *itLabel << "'";
-        }
-        LogInfo("path") << "The following module labels are not assigned to any path:\n" << unusedStream.str() << "\n";
+        LogInfo("path").log([&shouldBeUsedLabels](auto& l) {
+          l << "The following module labels are not assigned to any path:\n";
+          l << "'" << shouldBeUsedLabels.front() << "'";
+          for (std::vector<std::string>::iterator itLabel = shouldBeUsedLabels.begin() + 1,
+                                                  itLabelEnd = shouldBeUsedLabels.end();
+               itLabel != itLabelEnd;
+               ++itLabel) {
+            l << ",'" << *itLabel << "'";
+          }
+          l << "\n";
+        });
       }
     }
 

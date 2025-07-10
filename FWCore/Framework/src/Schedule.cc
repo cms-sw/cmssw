@@ -423,8 +423,6 @@ namespace edm {
         *moduleRegistry_, proc_pset, *pathNames_, *endPathNames_, prealloc, preg, *areg, processConfiguration);
     resultsInserter_ = std::move(builder.resultsInserter_);
     assert(builder.pathStatusInserters_.size() == builder.pathNameAndModules_.size());
-    assert(builder.endPathStatusInserters_.size() == builder.endpathNameAndModules_.size() or
-           (builder.endpathNameAndModules_.size() == 1 and builder.endPathStatusInserters_.empty()));
     pathStatusInserters_ = std::move(builder.pathStatusInserters_);
     endPathStatusInserters_ = std::move(builder.endPathStatusInserters_);
 
@@ -437,15 +435,17 @@ namespace edm {
     }
     std::vector<StreamSchedule::EndPathInfo> endpaths;
     endpaths.reserve(builder.endpathNameAndModules_.size());
-    index = 0;
-    for (auto& path : builder.endpathNameAndModules_) {
-      if (endPathStatusInserters_.empty()) {
-        endpaths.emplace_back(path.first, std::move(path.second), std::shared_ptr<EndPathStatusInserter>());
-
-      } else {
+    if (builder.endpathNameAndModules_.size() == 1) {
+      assert(endPathStatusInserters_.empty());
+      auto& path = builder.endpathNameAndModules_.front();
+      endpaths.emplace_back(path.first, std::move(path.second), std::shared_ptr<EndPathStatusInserter>());
+    } else {
+      assert(endPathStatusInserters_.size() == builder.endpathNameAndModules_.size());
+      index = 0;
+      for (auto& path : builder.endpathNameAndModules_) {
         endpaths.emplace_back(path.first, std::move(path.second), get_underlying_safe(endPathStatusInserters_[index]));
+        ++index;
       }
-      ++index;
     }
 
     assert(0 < prealloc.numberOfStreams());
