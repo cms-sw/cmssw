@@ -645,12 +645,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         alpaka::memcpy(queue, kernel1_d, kernel1_h);
         alpaka::memcpy(queue, kernel2_d, kernel2_h);
 	std::optional<ImageType> images_;
-	images_ = ImageType(nModules_Clusters_h[0], queue);
 
 	constexpr uint32_t modulesPerBlock = FindClus<TrackerTraits,ImageType>::modulesPerBlock;
 	const uint32_t groups = ( nModules_Clusters_h[0] + modulesPerBlock - 1) / modulesPerBlock;
         const auto workDivMaxNumModules =
             cms::alpakatools::make_workdiv<Acc1D>(groups, elementsPerBlockFindClus);
+	images_ = ImageType(groups, queue);
         alpaka::exec<Acc1D>(queue,
                             workDivMaxNumModules,
                             FindClus<TrackerTraits, ImageType>{},
