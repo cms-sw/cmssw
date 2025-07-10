@@ -30,7 +30,6 @@ public:
       : name_(iConfig.getParameter<std::string>("name")),
         rhoTag_(consumes<double>(iConfig.getParameter<edm::InputTag>("rho"))),
         muonTag_(consumes<std::vector<pat::Muon>>(iConfig.getParameter<edm::InputTag>("muons"))),
-        dsaMuonTag_(consumes<std::vector<reco::Track>>(iConfig.getParameter<edm::InputTag>("dsaMuons"))),
         vtxTag_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primaryVertex"))),
         bsTag_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamspot"))),
         generalTrackTag_(consumes<std::vector<reco::Track>>(iConfig.getParameter<edm::InputTag>("generalTracks"))),
@@ -47,7 +46,6 @@ public:
     edm::ParameterSetDescription desc;
     desc.add<edm::InputTag>("rho")->setComment("input rho parameter");
     desc.add<edm::InputTag>("muons")->setComment("input muon collection");
-    desc.add<edm::InputTag>("dsaMuons")->setComment("input displaced standalone muon collection");
     desc.add<edm::InputTag>("primaryVertex")->setComment("input primary vertex collection");
     desc.add<edm::InputTag>("beamspot")->setComment("input beamspot collection");
     desc.add<edm::InputTag>("generalTracks")->setComment("input generalTracks collection");
@@ -76,7 +74,6 @@ private:
   std::string name_;
   edm::EDGetTokenT<double> rhoTag_;
   edm::EDGetTokenT<std::vector<pat::Muon>> muonTag_;
-  edm::EDGetTokenT<std::vector<reco::Track>> dsaMuonTag_;
   edm::EDGetTokenT<reco::VertexCollection> vtxTag_;
   edm::EDGetTokenT<reco::BeamSpot> bsTag_;
   edm::EDGetTokenT<std::vector<reco::Track>> generalTrackTag_;
@@ -87,14 +84,11 @@ private:
 };
 
 void MuonExtendedTableProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-  float minPositionDiffForMatching = 1e-6;
 
   edm::Handle<double> rhoHandle;
   iEvent.getByToken(rhoTag_, rhoHandle);
   edm::Handle<std::vector<pat::Muon>> muons;
   iEvent.getByToken(muonTag_, muons);
-  edm::Handle<std::vector<reco::Track>> dsaMuons;
-  iEvent.getByToken(dsaMuonTag_, dsaMuons);
   edm::Handle<reco::VertexCollection> primaryVertices;
   iEvent.getByToken(vtxTag_, primaryVertices);
   edm::Handle<reco::BeamSpot> beamspots;
@@ -118,7 +112,6 @@ void MuonExtendedTableProducer::produce(edm::StreamID, edm::Event& iEvent, const
   edm::ESHandle<TransientTrackBuilder> builder = iSetup.getHandle(transientTrackBuilderToken_);
 
   unsigned int nMuons = muons->size();
-  unsigned int nDsaMuons = dsaMuons->size();
 
   std::vector<float> idx, charge, trkPt, trkPtErr;
 
@@ -138,10 +131,6 @@ void MuonExtendedTableProducer::produce(edm::StreamID, edm::Event& iEvent, const
   std::vector<float> outerEta(nMuons, -5), outerPhi(nMuons, -5);
   std::vector<float> innerVx(nMuons, -1), innerVy(nMuons, -1), innerVz(nMuons, -1), innerPt(nMuons, -1),
       innerEta(nMuons, -5), innerPhi(nMuons, -5);
-
-  std::vector<std::vector<float>> nMatchesPerDSA;
-  std::vector<float> dsaMatch1, dsaMatch1idx, dsaMatch2, dsaMatch2idx, dsaMatch3, dsaMatch3idx, dsaMatch4, dsaMatch4idx,
-      dsaMatch5, dsaMatch5idx;
 
   for (unsigned int i = 0; i < nMuons; i++) {
     const pat::Muon& muon = (*muons)[i];

@@ -129,7 +129,6 @@ PATmuonExtendedTable = cms.EDProducer("MuonExtendedTableProducer",
     name=cms.string("Muon"),
     rho=cms.InputTag("fixedGridRhoFastjetAll"),
     muons=cms.InputTag("linkedObjects","muons"),
-    dsaMuons=cms.InputTag("displacedStandAloneMuons"),
     primaryVertex=cms.InputTag("offlineSlimmedPrimaryVertices"),
     beamspot=cms.InputTag("offlineBeamSpot"),                        
     generalTracks=cms.InputTag("generalTracks"),
@@ -265,19 +264,3 @@ def add_exonanoTables(process):
         process = update_genParticleTable(process)
 
     return process
-
-# def add_exonanoTablesMINIAOD(process):
-
-# #    process = add_mdsTables(process)
-# #    process = add_dsamuonTables(process)
-#     process = add_electronVertexTables(process)
-#     process = add_muonExtendedTable(process)
-#     process = add_dispJetTables(process)
-
-#     return process
-
-# def add_exonanoMCTables(process):
-
-#     process = update_genParticleTable(process)
-
-#     return process

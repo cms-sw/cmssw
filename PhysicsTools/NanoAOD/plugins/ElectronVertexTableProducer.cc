@@ -346,7 +346,7 @@ void ElectronVertexTableProducer::produce(edm::StreamID, edm::Event& iEvent, con
           refittedVertEta.push_back(-999.);
           refittedVertPhi.push_back(-999.);
         }
-      } catch (std::exception ex) {
+      } catch (std::exception &ex) {
         std::cout << "kinematic vertex fit failed!" << std::endl;
         refittedVertMass.push_back(-999.);
         refittedVertPt.push_back(-999.);
