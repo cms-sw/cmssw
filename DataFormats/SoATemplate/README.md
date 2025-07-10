@@ -46,13 +46,14 @@ This view can point to data belonging to different SoAs and thus not contiguous 
 
 ## Descriptor
 
-The nested class `ConstDescriptor` can only be instantiated passing a `View` or a `ConstView` and provides access to
-each column through a `std::tuple<std::span<T>...>`. This class should be considered an internal implementation detail,
+The nested class `ConstDescriptor` can only be instantiated passing a `View` or a `ConstView` and provides access to columns
+and related information. This class should be considered an internal implementation detail,
 used solely by the SoA and EDM frameworks for performing heterogeneous memory operations. It is used to implement the
 `deepCopy` from a `View` referencing different memory buffers, as shown in 
 [`PortableHostCollection<T>`](../../DataFormats/Portable/README.md#portablehostCollection)
 and [`PortableDeviceCollection<T, TDev>`](../../DataFormats/Portable/README.md#portabledeviceCollection) sections.
-It should likely not be used for other purposes.
+More specifically, it provides access to the each column through a `std::tuple<std::span<T>...>` accessible via `descriptor.buff`
+as well as the types of the columns via a `std::tuple<cms::soa::SoAColumnType>` accessible via `descriptor.columnTypes`.
 
 ## Metadata subclass
 
