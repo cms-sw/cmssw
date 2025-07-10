@@ -156,7 +156,7 @@ namespace edm {
       : workerManagerRuns_(modReg, areg, actions),
         workerManagerLumisAndEvents_(modReg, areg, actions),
         actReg_(areg),
-        results_(new HLTGlobalStatus(paths.size())),
+        results_(std::make_shared<HLTGlobalStatus>(paths.size())),
         results_inserter_(),
         trig_paths_(),
         end_paths_(),
@@ -245,7 +245,6 @@ namespace edm {
       }
       //determine if this module could read a branch we want to delete early
       auto consumes = modReg.getExistingModule(w->description()->moduleLabel())->moduleConsumesInfos();
-      //auto consumes = w->moduleConsumesInfos();
       if (not consumes.empty()) {
         bool foundAtLeastOneMatchingBranch = false;
         for (auto const& product : consumes) {

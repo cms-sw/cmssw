@@ -143,6 +143,7 @@ namespace edm {
         modulesWhoseProductsAreConsumedBy[iBranchType].clear();
       }
 
+      //The maxModuleID will be used as an index so we need the +1 to accomodate that
       allModuleDescriptions.reserve(moduleRegistry.maxModuleID() + 1);
       moduleIDToHolder.resize(moduleRegistry.maxModuleID() + 1);
       for (auto iBranchType = 0U; iBranchType < NumBranchTypes; ++iBranchType) {

@@ -42,7 +42,7 @@ namespace edm {
   class ProductRegistry;
   class ThinnedAssociationsHelper;
   class ModuleConsumesInfo;
-  class ModuleConsumesMinimalESInfo;
+  struct ModuleConsumesMinimalESInfo;
   namespace maker {
     class ModuleHolder {
     public:
