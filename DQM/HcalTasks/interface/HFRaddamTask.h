@@ -33,6 +33,11 @@ protected:
   edm::EDGetTokenT<QIE10DigiCollection> _tokHF;
   edm::EDGetTokenT<HcalUMNioDigi> _tokuMN;
 
+  edm::InputTag _tagFEDs;
+  edm::EDGetTokenT<FEDRawDataCollection> _tokFEDs;
+
+  uint32_t _laserType;
+
   //	vector of Detector Ids for RadDam
   std::vector<HcalDetId> _vDetIds;
 
