@@ -84,7 +84,6 @@ private:
 };
 
 void MuonExtendedTableProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-
   edm::Handle<double> rhoHandle;
   iEvent.getByToken(rhoTag_, rhoHandle);
   edm::Handle<std::vector<pat::Muon>> muons;
