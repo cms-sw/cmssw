@@ -30,10 +30,16 @@ public:
   KalmanVertexFitter(bool useSmoothing = false);
 
   /**
+   * Same as above, including a boolean for extending tracker bounds to muon system
+   * \param useMuonSystemBounds Specifies whether the tracker bounds should include the muon system or not.
+   */
+  KalmanVertexFitter(bool useSmoothing, bool useMuonSystemBounds);
+
+  /**
    * Same as above, using a ParameterSet to set the convergence criteria
    */
 
-  KalmanVertexFitter(const edm::ParameterSet& pSet, bool useSmoothing = false);
+  KalmanVertexFitter(const edm::ParameterSet& pSet, bool useSmoothing = false, bool useMuonSystemBounds = false);
 
   KalmanVertexFitter(const KalmanVertexFitter& other) : theSequentialFitter(other.theSequentialFitter->clone()) {}
 
@@ -104,11 +110,11 @@ public:
   //  edm::ParameterSet defaultParameters() const;
 
 private:
-  void setup(const edm::ParameterSet& pSet, bool useSmoothing);
+  void setup(const edm::ParameterSet& pSet, bool useSmoothing, bool useMuonSystemBounds);
 
   edm::ParameterSet defaultParameters() const;
 
-  const SequentialVertexFitter<5>* theSequentialFitter;
+  SequentialVertexFitter<5>* theSequentialFitter;
 };
 
 #endif

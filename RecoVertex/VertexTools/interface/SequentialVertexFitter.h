@@ -180,6 +180,11 @@ public:
     trackerBoundsHalfLength = halfLength;
   }
 
+  void setMuonSystemBounds() {
+    trackerBoundsRadius = kMuonSystemBoundsRadius;
+    trackerBoundsHalfLength = kMuonSystemBoundsHalfLength;
+  }
+
 protected:
   /**
    *   Default constructor. Is here, as we do not want anybody to use it.
@@ -245,6 +250,8 @@ private:
   // FIXME using hard-coded tracker bounds as default instead of taking them from geometry service
   float trackerBoundsRadius{112.};
   float trackerBoundsHalfLength{273.5};
+  static constexpr float kMuonSystemBoundsRadius = 740.;
+  static constexpr float kMuonSystemBoundsHalfLength = 960.;
 
   edm::ParameterSet thePSet;
   LinearizationPointFinder* theLinP;
