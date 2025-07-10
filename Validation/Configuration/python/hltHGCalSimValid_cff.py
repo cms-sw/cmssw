@@ -16,7 +16,7 @@ from RecoLocalCalo.HGCalRecProducers.recHitMapProducer_cff import recHitMapProdu
 hits = ["hltHGCalRecHit:HGCEERecHits", "hltHGCalRecHit:HGCHEFRecHits", "hltHGCalRecHit:HGCHEBRecHits"]
 hltRecHitMapProducer = _recHitMapProducer.clone(
     hits = hits,
-    hgcalOnly = cms.bool(True),
+    hgcalOnly = True,
 )
 
 hltLcAssocByEnergyScoreProducer = _lcAssocByEnergyScoreProducer.clone(

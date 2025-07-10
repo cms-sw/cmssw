@@ -73,6 +73,8 @@ void RecHitMapProducer::produce(edm::StreamID, edm::Event& evt, const edm::Event
     return;
   }
 
+  // TODO may be worth to avoid dependency on the order
+  // of the collections, maybe using a map
   MultiVectorManager<HGCRecHit> rechitManager;
   rechitManager.addVector(*ee_hits);
   rechitManager.addVector(*fh_hits);
