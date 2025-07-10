@@ -143,6 +143,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
     // this must be larger than maxPixInModule / maxIterGPU, and should be a multiple of the warp size
     static constexpr uint32_t maxElementsPerBlock =
         cms::alpakatools::round_up_by(TrackerTraits::maxPixInModule / maxIterGPU, 128);
+    static constexpr uint32_t modulesPerBlock = 4;
 
     ALPAKA_FN_ACC void operator()(Acc1D const &acc,
                                   SiPixelDigisSoAView digi_view,
@@ -158,7 +159,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
 
 
       const uint32_t lastModule = clus_view[0].moduleStart();
-	constexpr uint32_t modulesPerBlock = 4;
 	const uint32_t blocks = (lastModule + modulesPerBlock - 1) / modulesPerBlock;
       for (uint32_t group : cms::alpakatools::independent_groups(acc, blocks)) {
 	      uint32_t firstModule = group * modulesPerBlock;

@@ -647,7 +647,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 	std::optional<ImageType> images_;
 	images_ = ImageType(nModules_Clusters_h[0], queue);
 
-	constexpr uint32_t modulesPerBlock = 4;
+	constexpr uint32_t modulesPerBlock = FindClus<TrackerTraits,ImageType>::modulesPerBlock;
 	const uint32_t groups = ( nModules_Clusters_h[0] + modulesPerBlock - 1) / modulesPerBlock;
         const auto workDivMaxNumModules =
             cms::alpakatools::make_workdiv<Acc1D>(groups, elementsPerBlockFindClus);
