@@ -374,7 +374,6 @@ namespace edmtest {
     }
   }
   void TestReadL1Scouting::analyzeCaloTowers(edm::Event const& iEvent) const {
-
     if (caloTowerClassVersion_ < 3) {
       return;
     }
