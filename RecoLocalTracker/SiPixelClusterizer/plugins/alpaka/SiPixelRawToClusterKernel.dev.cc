@@ -629,8 +629,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         alpaka::memcpy(queue, nModules_Clusters_h, moduleStartFirstElement);
 
         const auto elementsPerBlockFindClus = FindClus<TrackerTraits, ImageType>::maxElementsPerBlock;
-        const auto workDivMaxNumModules =
-            cms::alpakatools::make_workdiv<Acc1D>(numberOfModules, elementsPerBlockFindClus);
 #ifdef GPU_DEBUG
         std::cout << " FindClus kernel launch with " << numberOfModules << " blocks of " << elementsPerBlockFindClus
                   << " threadsPerBlockOrElementsPerThread\n";
@@ -649,6 +647,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 	std::optional<ImageType> images_;
 	images_ = ImageType(nModules_Clusters_h[0], queue);
 
+	constexpr uint32_t modulesPerBlock = 4;
+	const uint32_t groups = ( nModules_Clusters_h[0] + modulesPerBlock - 1) / modulesPerBlock;
+        const auto workDivMaxNumModules =
+            cms::alpakatools::make_workdiv<Acc1D>(groups, elementsPerBlockFindClus);
         alpaka::exec<Acc1D>(queue,
                             workDivMaxNumModules,
                             FindClus<TrackerTraits, ImageType>{},
