@@ -2,6 +2,10 @@
 // Author: Theo Cuisset - theo.cuisset@cern.ch
 // Date: 11/2023
 
+// Modified by Gamze Sokmen 
+// Changes: Implementation of the delta time feature under a new DNN input version (v3) for the superclustering DNN and correcting the seed pT calculation.
+// Date: 07/2025
+
 #ifndef __RecoHGCal_TICL_SuperclusteringDNNInputs_H__
 #define __RecoHGCal_TICL_SuperclusteringDNNInputs_H__
 
@@ -86,6 +90,38 @@ namespace ticl {
               "explVarRatio"};
     }
   };
+
+  /* Third version of DNN by Gamze Sokmen, making use of time information as new variables.
+  Uses features : ['DeltaEta', 'DeltaPhi', 'multi_en', 'multi_eta', 'multi_pt', 'seedEta','seedPhi','seedEn', 'seedPt',   theta', 'theta_xz_seedFrame', 'theta_yz_seedFrame', 'theta_xy_cmsFrame', 'theta_yz_cmsFrame', 'theta_xz_cmsFrame', 'explVar', 'explVarRatio', 'mod_deltaTime']
+  */
+ 
+  class SuperclusteringDNNInputV3 : public AbstractSuperclusteringDNNInput {
+    public:
+      unsigned int featureCount() const override { return 18; }
+
+      std::vector<float> computeVector(ticl::Trackster const& ts_base, ticl::Trackster const& ts_toCluster) override;
+
+      std::vector<std::string> featureNames() const override {
+        return {"DeltaEtaBaryc",
+                "DeltaPhiBaryc",
+                "multi_en",
+                "multi_eta",
+                "multi_pt",
+                "seedEta",
+                "seedPhi",
+                "seedEn",
+                "seedPt",
+                "theta",
+                "theta_xz_seedFrame",
+                "theta_yz_seedFrame",
+                "theta_xy_cmsFrame",
+                "theta_yz_cmsFrame",
+                "theta_xz_cmsFrame",
+                "explVar",
+                "explVarRatio",
+                "mod_deltaTime"};
+      }
+    };  
 
   std::unique_ptr<AbstractSuperclusteringDNNInput> makeSuperclusteringDNNInputFromString(std::string dnnVersion);
 }  // namespace ticl
