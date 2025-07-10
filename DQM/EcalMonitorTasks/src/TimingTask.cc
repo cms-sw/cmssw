@@ -54,12 +54,16 @@ namespace ecaldqm {
     bxBin_ = static_cast<int>(pBin - bxBinEdges_.begin()) - 0.5;
     if (ByLumiResetSwitch) {
       meTimeMapByLS = &MEs_.at("TimeMapByLS");
-      if (timestamp_.iLumi % 10 == 0)
+      meTimeMapByLS_nonCorr = &MEs_.at("TimeMapByLS_nonCorr");
+      if (timestamp_.iLumi % 10 == 0) {
         meTimeMapByLS->reset(GetElectronicsMap());
+        meTimeMapByLS_nonCorr->reset(GetElectronicsMap());
+      }
     }
   }
 
   void TimingTask::runOnRecHits(EcalRecHitCollection const& _hits, Collections _collection) {
+    // timing
     MESet& meTimeAmp(MEs_.at("TimeAmp"));
     MESet& meTimeAmpAll(MEs_.at("TimeAmpAll"));
     MESet& meTimingVsBX(onlineMode_ ? MEs_.at("BarrelTimingVsBX") : MEs_.at("BarrelTimingVsBXFineBinned"));
@@ -68,6 +72,15 @@ namespace ecaldqm {
     MESet& meTimeMap(MEs_.at("TimeMap"));  // contains cumulative run stats => not suitable for Trend plots
     MESet& meTime1D(MEs_.at("Time1D"));
     MESet& meChi2(MEs_.at("Chi2"));
+
+    // timing with cross-correlation (cc) algo
+    MESet& meTimeAmp_nonCorr(MEs_.at("TimeAmp_nonCorr"));
+    MESet& meTimeAmpAll_nonCorr(MEs_.at("TimeAmpAll_nonCorr"));
+    MESet& meTimingVsBX_nonCorr(onlineMode_ ? MEs_.at("BarrelTimingVsBX_nonCorr") : MEs_.at("BarrelTimingVsBXFineBinned_nonCorr"));
+    MESet& meTimeAll_nonCorr(MEs_.at("TimeAll_nonCorr"));
+    MESet& meTimeAllMap_nonCorr(MEs_.at("TimeAllMap_nonCorr"));
+    MESet& meTimeMap_nonCorr(MEs_.at("TimeMap_nonCorr"));  // contains cumulative run stats => not suitable for Trend plots
+    MESet& meTime1D_nonCorr(MEs_.at("Time1D_nonCorr"));
 
     uint32_t goodOROOTBits(0x1 << EcalRecHit::kGood | 0x1 << EcalRecHit::kOutOfTime);
     int signedSubdet;
@@ -79,6 +92,7 @@ namespace ecaldqm {
       DetId id(hit.id());
 
       float time(hit.time());
+      float time_nonCorr(hit.nonCorrectedTime());
       float energy(hit.energy());
 
       float energyThreshold;
@@ -94,8 +108,9 @@ namespace ecaldqm {
           signedSubdet = EcalEndcap;
       }
 
-      if (energy > energyThreshold)
+      if (energy > energyThreshold) {
         meChi2.fill(getEcalDQMSetupObjects(), signedSubdet, hit.chi2());
+      }
 
       if (!splashSwitch_) {  //Not applied for splash events
         float chi2Threshold;
@@ -115,8 +130,13 @@ namespace ecaldqm {
       meTimeAmp.fill(getEcalDQMSetupObjects(), id, energy, time);
       meTimeAmpAll.fill(getEcalDQMSetupObjects(), id, energy, time);
 
-      if (energy > timingVsBXThreshold_ && signedSubdet == EcalBarrel)
+      meTimeAmp_nonCorr.fill(getEcalDQMSetupObjects(), id, energy, time_nonCorr);
+      meTimeAmpAll_nonCorr.fill(getEcalDQMSetupObjects(), id, energy, time_nonCorr);
+
+      if (energy > timingVsBXThreshold_ && signedSubdet == EcalBarrel) {
         meTimingVsBX.fill(getEcalDQMSetupObjects(), bxBin_, time);
+        meTimingVsBX_nonCorr.fill(getEcalDQMSetupObjects(), bxBin_, time);
+      }
 
       if (energy > energyThreshold) {
         meTimeAll.fill(getEcalDQMSetupObjects(), id, time);
@@ -124,6 +144,12 @@ namespace ecaldqm {
         meTimeMapByLS->fill(getEcalDQMSetupObjects(), id, time);
         meTime1D.fill(getEcalDQMSetupObjects(), id, time);
         meTimeAllMap.fill(getEcalDQMSetupObjects(), id, time);
+
+        meTimeAll_nonCorr.fill(getEcalDQMSetupObjects(), id, time_nonCorr);
+        meTimeMap_nonCorr.fill(getEcalDQMSetupObjects(), id, time_nonCorr);
+        meTimeMapByLS_nonCorr->fill(getEcalDQMSetupObjects(), id, time_nonCorr);
+        meTime1D_nonCorr.fill(getEcalDQMSetupObjects(), id, time_nonCorr);
+        meTimeAllMap_nonCorr.fill(getEcalDQMSetupObjects(), id, time_nonCorr);
       }
     });
   }
