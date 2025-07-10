@@ -19,6 +19,7 @@
 //  <Truncate> <Nmax> <datamc> <usegen> <scale> <usescale> <etalo> <etahi>
 //  <runlo> <runhi> <phimin> <phimax> <zside> <nvxlo> <nvxhi> <exclude>
 //  <etamax> <append> <all> <corrfile> <rcorfile> <dupfile> <rbxfile>
+//  <excludeRunFile>
 //
 //  Other parameters for CalibTree:
 //  <InputFile> <OutputFile> <Flag> <DirectoryName> <Prefix> <PUcorr>
@@ -196,6 +197,7 @@ int main(Int_t argc, Char_t* argv[]) {
     const char* rcorfile = (argc > 28) ? argv[28] : "";
     const char* dupfile = (argc > 29) ? argv[29] : "";
     const char* rbxfile = (argc > 30) ? argv[30] : "";
+    const char* excludeRunfile = (argc > 31) ? argv[31] : "";
     if (strcmp(corrfile, "junk.txt") == 0)
       corrfile = "";
     if (strcmp(rcorfile, "junk.txt") == 0)
@@ -204,6 +206,8 @@ int main(Int_t argc, Char_t* argv[]) {
       dupfile = "";
     if (strcmp(rbxfile, "junk.txt") == 0)
       rbxfile = "";
+    if (strcmp(excludeRunfile, "junk.txt") == 0)
+      excludeRunfile = "";
     bool debug(false);
 
     CalibPlotProperties c1(infile,
@@ -229,6 +233,7 @@ int main(Int_t argc, Char_t* argv[]) {
                            nvxlo,
                            nvxhi,
                            rbxfile,
+			   excludeRunfile,
                            exclude,
                            etamax);
     c1.Loop(nmax);

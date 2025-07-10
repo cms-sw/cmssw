@@ -566,8 +566,10 @@ private:
 };
 
 CalibThreshold::CalibThreshold(int form) : form_(form) {
-  if (form_ == 5)
+  if (form_ == 6)
     ok_ = fileThreshold("PFCuts362975.txt");
+  else if (form_ == 5)
+    ok_ = fileThreshold("PFCuts2025.txt");
   else if ((form_ < 1) || (form_ > 5))
     ok_ = false;
   else
