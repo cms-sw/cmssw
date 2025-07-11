@@ -379,13 +379,22 @@ class SwitchProducer(EDProducer):
         return myname
     def caseLabel_(self, name:str, case:str):
         return name+"@"+case
+    def cloneCaseModuleIfNeeded_(self, myname:str, case:str):
+        mod = self.__dict__[case]
+        if (self.caseLabel_(myname, case) != mod.label_()):
+            clne = mod.clone()
+            clne.setLabel(None)
+            clne.setLabel(self.caseLabel_(myname, case))
+            self.__dict__[case] = clne
+            mod = clne
+        return mod
     def modulesForConditionalTask_(self):
         # Need the contained modules (not EDAliases) for ConditionalTask
         ret = []
         for case in self.parameterNames_():
             caseobj = self.__dict__[case]
             if not isinstance(caseobj, EDAlias):
-                ret.append(caseobj)
+                ret.append(self.cloneCaseModuleIfNeeded_(self.label_(), case))
         return ret
     def appendToProcessDescLists_(self, modules, aliases, myname:str):
         # This way we can insert the chosen EDProducer to @all_modules
@@ -400,6 +409,8 @@ class SwitchProducer(EDProducer):
     def insertInto(self, parameterSet, myname:str, accelerators):
         for case in self.parameterNames_():
             producer = self.__dict__[case]
+            if isinstance(producer, EDProducer):
+                producer = self.cloneCaseModuleIfNeeded_(myname, case)
             producer.insertInto(parameterSet, self.caseLabel_(myname, case))
         newpset = parameterSet.newPSet()
         newpset.addString(True, "@module_label", self.moduleLabel_(myname))
