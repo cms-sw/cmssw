@@ -158,20 +158,24 @@ MPI_Status MPIChannel::receiveEventAuxiliary_(edm::EventAuxiliary& aux, MPI_Mess
   return status;
 }
 
-void MPIChannel::sendMetadata(int instance, const ProductMetadata& meta){
+void MPIChannel::sendMetadata(int instance, std::shared_ptr<ProductMetadataBuilder> meta){
   int tag = EDM_MPI_SendMetadata | instance * EDM_MPI_MessageTagWidth_;
-  MPI_Ssend(&meta, sizeof(ProductMetadata), MPI_BYTE, dest_, tag, comm_);
+  MPI_Ssend(meta->data(), meta->size(), MPI_BYTE, dest_, tag, comm_);
 }
 
-void MPIChannel::receiveMetadata(int instance, ProductMetadata& meta){
+void MPIChannel::receiveMetadata(int instance, std::shared_ptr<ProductMetadataBuilder> meta){
   int tag = EDM_MPI_SendMetadata | instance * EDM_MPI_MessageTagWidth_;
   MPI_Message message;
   MPI_Status status;
   MPI_Mprobe(dest_, tag, comm_, &message, &status);
   int size;
   MPI_Get_count(&status, MPI_BYTE, &size);
-  assert(static_cast<int>(sizeof(ProductMetadata)) == size);
-  MPI_Mrecv(&meta, sizeof(ProductMetadata), MPI_BYTE, &message, MPI_STATUS_IGNORE);
+  meta->receiveMetadata(message, size);
+}
+
+void MPIChannel::sendBuffer(const void* buf, size_t size, int instance, EDM_MPI_MessageTag tag){
+  int commtag = tag | instance * EDM_MPI_MessageTagWidth_;
+  MPI_Send(buf, size, MPI_BYTE, dest_, commtag, comm_);
 }
 
 void MPIChannel::sendSerializedProduct_(int instance, TClass const* type, void const* product) {
@@ -181,13 +185,23 @@ void MPIChannel::sendSerializedProduct_(int instance, TClass const* type, void c
   MPI_Send(buffer.Buffer(), buffer.Length(), MPI_BYTE, dest_, tag, comm_);
 }
 
-// send simple datatypes directly
-void MPIChannel::sendTrivialProduct_(int instance, edm::ObjectWithDict const& product) {
-  int tag = EDM_MPI_SendTrivialProduct | instance * EDM_MPI_MessageTagWidth_;
-  MPI_Send(product.address(), product.typeOf().size(), MPI_BYTE, dest_, tag, comm_);
-}
 
 // receive a binary blob, and deserialize an object of generic type using its ROOT dictionary
+void MPIChannel::receiveSerializedBuffer(int instance, size_t size, void* buffer) {
+  int tag = EDM_MPI_SendSerializedProduct | instance * EDM_MPI_MessageTagWidth_;
+  MPI_Message message;
+  MPI_Status status;
+  MPI_Mprobe(dest_, tag, comm_, &message, &status);
+  int size_;
+  MPI_Get_count(&status, MPI_BYTE, &size_);
+  std::cerr << "Size mismatch in receiveSerializedProduct_: expected "
+            << size << ", got " << size_ << std::endl;
+  assert(static_cast<int>(size) == size_);
+  // TBufferFile buffer{TBuffer::kRead, size};
+  MPI_Mrecv(buffer, size, MPI_BYTE, &message, &status);
+  // type->Streamer(product, buffer);
+}
+
 void MPIChannel::receiveSerializedProduct_(int instance, TClass const* type, void* product) {
   int tag = EDM_MPI_SendSerializedProduct | instance * EDM_MPI_MessageTagWidth_;
   MPI_Message message;
@@ -198,27 +212,17 @@ void MPIChannel::receiveSerializedProduct_(int instance, TClass const* type, voi
   TBufferFile buffer{TBuffer::kRead, size};
   MPI_Mrecv(buffer.Buffer(), size, MPI_BYTE, &message, &status);
   type->Streamer(product, buffer);
-}
 
-void MPIChannel::receiveTrivialProduct_(int instance, edm::ObjectWithDict& product) {
-  int tag = EDM_MPI_SendTrivialProduct | instance * EDM_MPI_MessageTagWidth_;
-  MPI_Message message;
-  MPI_Status status;
-  MPI_Mprobe(dest_, tag, comm_, &message, &status);
-  int size;
-  MPI_Get_count(&status, MPI_BYTE, &size);
-  assert(static_cast<int>(product.typeOf().size()) == size);
-  MPI_Mrecv(product.address(), size, MPI_BYTE, &message, MPI_STATUS_IGNORE);
 }
 
 void MPIChannel::sendTrivialCopyProduct_(int instance, edm::WrapperBase const* wrapper) {
   int tag = EDM_MPI_SendTrivialCopyProduct | instance * EDM_MPI_MessageTagWidth_;
 
   // if the wrapped type requires it, send the properties required toinitialise the remote copy
-  if (wrapper->hasTrivialCopyProperties()) {
-    edm::AnyBuffer buffer = wrapper->trivialCopyParameters();
-    MPI_Send(buffer.data(), buffer.size_bytes(), MPI_BYTE, dest_, tag, comm_);
-  }
+  // if (wrapper->hasTrivialCopyProperties()) {
+  //   edm::AnyBuffer buffer = wrapper->trivialCopyParameters();
+  //   MPI_Send(buffer.data(), buffer.size_bytes(), MPI_BYTE, dest_, tag, comm_);
+  // }
 
   // transfer the memory regions
   auto regions = wrapper->trivialCopyRegions();
@@ -267,4 +271,44 @@ void MPIChannel::receiveTrivialCopyProduct_(int instance, edm::WrapperBase* wrap
 
   // finalize the clone after the trivialCopy, if the type requires it
   wrapper->trivialCopyFinalize();
+}
+
+
+void MPIChannel::receiveInitializedTrivialCopy(int instance, edm::WrapperBase* wrapper) {
+  int tag = EDM_MPI_SendTrivialCopyProduct | instance * EDM_MPI_MessageTagWidth_;
+
+  MPI_Message message;
+  MPI_Status status;
+  int size;
+
+  // mark the wrapped object as present
+  // wrapper->markAsPresent();
+
+  // // if the wrapped type requires it, send the properties required toinitialise the remote copy
+  // if (wrapper->hasTrivialCopyProperties()) {
+  //   edm::AnyBuffer buffer = wrapper->trivialCopyParameters();
+  //   MPI_Mprobe(dest_, tag, comm_, &message, &status);
+  //   // check that the message size matches the expected buffer size
+  //   MPI_Get_count(&status, MPI_BYTE, &size);
+  //   assert(static_cast<int>(buffer.size_bytes()) == size);
+  //   // receive the properties
+  //   MPI_Mrecv(buffer.data(), buffer.size_bytes(), MPI_BYTE, &message, &status);
+  //   wrapper->trivialCopyInitialize(buffer);
+  // }
+
+  // receive the memory regions
+  auto regions = wrapper->trivialCopyRegions();
+  // TODO receive and validate the number of regions ?
+  for (size_t i = 0; i < regions.size(); ++i) {
+    assert(regions[i].data() != nullptr);
+    MPI_Mprobe(dest_, tag, comm_, &message, &status);
+    // check that the message size matches the expected region size
+    MPI_Get_count(&status, MPI_BYTE, &size);
+    assert(static_cast<int>(regions[i].size_bytes()) == size);
+    // receive the data region
+    MPI_Mrecv(regions[i].data(), regions[i].size_bytes(), MPI_BYTE, &message, &status);
+  }
+
+  // finalize the clone after the trivialCopy, if the type requires it
+  // wrapper->trivialCopyFinalize();
 }

@@ -15,19 +15,20 @@
 
 // local headers
 #include "messages.h"
+#include "metadata.h"
 
 #include <iostream>
 #include <utility>
 #include <bitset>
 
-struct alignas(8) ProductMetadata {
-  size_t product_num;              // Number of products
-  std::bitset<64> present_mask;      // Bit i is set if product[i] is present
+// struct alignas(8) ProductMetadata {
+//   size_t product_num;              // Number of products
+//   std::bitset<64> present_mask;      // Bit i is set if product[i] is present
 
-  // Optional: constructor for convenience
-  ProductMetadata(size_t num = 0, std::bitset<64> mask = {})
-      : product_num(num), present_mask(mask) {}
-};
+//   // Optional: constructor for convenience
+//   ProductMetadata(size_t num = 0, std::bitset<64> mask = {})
+//       : product_num(num), present_mask(mask) {}
+// };
 
 
 class MPIChannel {
@@ -81,8 +82,10 @@ public:
     return receiveEventAuxiliary_(aux, message);
   }
 
-  void sendMetadata(int instance, const ProductMetadata& meta);
-  void receiveMetadata(int instance, ProductMetadata& meta);
+  void sendMetadata(int instance, std::shared_ptr<ProductMetadataBuilder> meta);
+  void receiveMetadata(int instance, std::shared_ptr<ProductMetadataBuilder> meta);
+
+  void sendBuffer(const void* buf, size_t size, int instance, EDM_MPI_MessageTag tag);
 
   // serialize an object of type T using its ROOT dictionary, and transmit it
   template <typename T>
@@ -159,6 +162,23 @@ public:
     }
   }
 
+  // this is what is used when fundamental datatype is wrapped in ObjectWithDict
+  void receiveTrivialProduct_(int instance, edm::ObjectWithDict& product);
+
+  // serialize a generic object using its ROOT dictionary, and send the binary blob
+  void sendSerializedProduct_(int instance, TClass const* type, void const* product);
+
+  // receive a binary blob, and deserialize an object of generic type using its ROOT dictionary
+  void receiveSerializedProduct_(int instance, TClass const* type, void* product);
+  void receiveSerializedBuffer(int instance, size_t size, void* buffer);
+
+  // transfer a wrapped object using its TrivialCopyTraits
+  void sendTrivialCopyProduct_(int instance, edm::WrapperBase const* wrapper);
+
+  // receive a wrapped object using its TrivialCopyTraits
+  void receiveTrivialCopyProduct_(int instance, edm::WrapperBase* wrapper);
+  void receiveInitializedTrivialCopy(int instance, edm::WrapperBase* wrapper);
+
 private:
   // serialize an EDM object to a simplified representation that can be transmitted as an MPI message
   void edmToBuffer_(EDM_MPI_RunAuxiliary_t& buffer, edm::RunAuxiliary const& aux);
@@ -209,20 +229,20 @@ private:
     MPI_Mrecv(&product, size, MPI_BYTE, &message, MPI_STATUS_IGNORE);
   }
 
-  // this is what is used when fundamental datatype is wrapped in ObjectWithDict
-  void receiveTrivialProduct_(int instance, edm::ObjectWithDict& product);
+  // // this is what is used when fundamental datatype is wrapped in ObjectWithDict
+  // void receiveTrivialProduct_(int instance, edm::ObjectWithDict& product);
 
-  // serialize a generic object using its ROOT dictionary, and send the binary blob
-  void sendSerializedProduct_(int instance, TClass const* type, void const* product);
+  // // serialize a generic object using its ROOT dictionary, and send the binary blob
+  // void sendSerializedProduct_(int instance, TClass const* type, void const* product);
 
-  // receive a binary blob, and deserialize an object of generic type using its ROOT dictionary
-  void receiveSerializedProduct_(int instance, TClass const* type, void* product);
+  // // receive a binary blob, and deserialize an object of generic type using its ROOT dictionary
+  // void receiveSerializedProduct_(int instance, TClass const* type, void* product);
 
-  // transfer a wrapped object using its TrivialCopyTraits
-  void sendTrivialCopyProduct_(int instance, edm::WrapperBase const* wrapper);
+  // // transfer a wrapped object using its TrivialCopyTraits
+  // void sendTrivialCopyProduct_(int instance, edm::WrapperBase const* wrapper);
 
-  // receive a wrapped object using its TrivialCopyTraits
-  void receiveTrivialCopyProduct_(int instance, edm::WrapperBase* wrapper);
+  // // receive a wrapped object using its TrivialCopyTraits
+  // void receiveTrivialCopyProduct_(int instance, edm::WrapperBase* wrapper);
 
   // MPI intercommunicator
   MPI_Comm comm_ = MPI_COMM_NULL;

@@ -29,6 +29,8 @@
 
 // local include files
 #include "api.h"
+#include <TBufferFile.h>
+#include <TClass.h>
 
 class MPIReceiver : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
@@ -64,13 +66,15 @@ public:
   void acquire(edm::Event const& event, edm::EventSetup const&, edm::WaitingTaskWithArenaHolder holder) final {
     MPIToken token = event.get(upstream_);
 
+    received_meta_ = std::make_shared<ProductMetadataBuilder>();
+
     edm::Service<edm::Async> as;
     as->runAsync(
         std::move(holder),
         [this, token]() {
           token.channel()->receiveMetadata(instance_, received_meta_);
-          assert((received_meta_.product_num == products_.size()) &&
-                 "Receiver number of products is different than expected");
+          // assert((received_meta_.product_num == products_.size()) &&
+          //        "Receiver number of products is different than expected");
         },
         []() { return "Calling MPIReceiver::acquire()"; });
   }
@@ -78,22 +82,44 @@ public:
   void produce(edm::Event& event, edm::EventSetup const&) final {
     // read the MPIToken used to establish the communication channel
     MPIToken token = event.get(upstream_);
+    // received_meta_->debugPrintMetadataSummary();
 
-    size_t index = 0;
 
     for (auto const& entry : products_) {
-      if (!received_meta_.present_mask.test(index)) {
-        ++index;
-        edm::LogWarning("MPIReceiver") << "Product " << entry.type.name() << " was not received.";
-        continue;  // Skip products that weren't sent
-      }
 
       std::unique_ptr<edm::WrapperBase> wrapper(
           reinterpret_cast<edm::WrapperBase*>(entry.wrappedType.getClass()->New()));
 
+      auto product_meta = received_meta_->getNext();
+
+      if (product_meta.kind == ProductMetadata::Kind::Missing) {
+        edm::LogWarning("MPIReceiver") << "Product " << entry.type.name() << " was not received.";
+        continue;  // Skip products that weren't sent
+      } 
+      
+      else if (product_meta.kind == ProductMetadata::Kind::Serialized) {
+        assert(!wrapper->hasTrivialCopyTraits() && "mismatch between expected and factual metadata type");
+        TBufferFile buffer{TBuffer::kRead, static_cast<int>(product_meta.sizeMeta)};
+        token.channel()->receiveSerializedBuffer(instance_, product_meta.sizeMeta, buffer.Buffer());
+        entry.wrappedType.getClass()->Streamer(wrapper.get(), buffer);
+      }
+      
+      else if (product_meta.kind == ProductMetadata::Kind::TrivialCopy) {
+        assert(wrapper->hasTrivialCopyTraits() && "mismatch between expected and factual metadata type");
+        // token.channel()->receiveTrivialCopyProduct_(instance_, wrapper.get());
+        wrapper->markAsPresent();
+        edm::AnyBuffer buffer = wrapper->trivialCopyParameters();  // constructs buffer with typeid
+        assert(buffer.size_bytes() == product_meta.sizeMeta);
+        std::memcpy(buffer.data(), product_meta.trivialCopyOffset, product_meta.sizeMeta);
+        wrapper->trivialCopyInitialize(buffer);
+        token.channel()->receiveInitializedTrivialCopy(instance_, wrapper.get());
+        wrapper->trivialCopyFinalize();
+      }
+
+
       // receive the data sent over the MPI channel
       // note: currently this uses a blocking probe/recv
-      token.channel()->receiveProduct(instance_, entry.wrappedType, *wrapper);
+      // token.channel()->receiveProduct(instance_, entry.wrappedType, *wrapper);
 
       // put the data into the Event
       event.put(entry.token, std::move(wrapper));
@@ -117,7 +143,7 @@ private:
   std::vector<Entry> products_;             // data to be read over the channel and put into the Event
   int32_t const instance_;                  // instance used to identify the source-destination pair
 
-  mutable ProductMetadata received_meta_;
+  std::shared_ptr<ProductMetadataBuilder> received_meta_;
   // std::vector<std::unique_ptr<edm::WrapperBase>> received_products_;
 };
 
