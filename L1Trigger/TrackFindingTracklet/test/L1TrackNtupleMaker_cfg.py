@@ -15,8 +15,8 @@ process = cms.Process("L1TrackNtuple")
 ############################################################
 
 # D110 recommended (but D98 still works)
-#GEOMETRY = "D98"
-GEOMETRY = "D110"
+GEOMETRY = "D98"
+#GEOMETRY = "D110"
 
 # Set L1 tracking algorithm:
 # 'HYBRID' (baseline, 4par fit) or 'HYBRID_DISPLACED' (extended, 5par fit).
