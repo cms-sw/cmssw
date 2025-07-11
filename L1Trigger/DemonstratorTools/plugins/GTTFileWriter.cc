@@ -245,6 +245,8 @@ void GTTFileWriter::endJob() {
   // Writing pending events to file before exiting
   fileWriterInputTracks_.flush();
   fileWriterConvertedTracks_.flush();
+  fileWriterSelectedTracks_.flush();
+  fileWriterVertexAssociatedTracks_.flush();
   fileWriterOutputToCorrelator_.flush();
   fileWriterOutputToGlobalTrigger_.flush();
 }
