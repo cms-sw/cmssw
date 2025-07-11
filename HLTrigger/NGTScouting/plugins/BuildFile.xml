@@ -8,6 +8,7 @@
 <use name="DataFormats/Scouting"/>
 <use name="DataFormats/StdDictionaries"/>
 <use name="DataFormats/VertexReco"/>
+<use name="SimDataFormats/CaloAnalysis"/>
 <use name="FWCore/Common"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>

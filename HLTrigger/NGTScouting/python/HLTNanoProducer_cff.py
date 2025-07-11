@@ -21,6 +21,8 @@ from HLTrigger.NGTScouting.hltTracks_cfi import *
 from HLTrigger.NGTScouting.hltJets_cfi import *
 from HLTrigger.NGTScouting.hltTaus_cfi import *
 from HLTrigger.NGTScouting.hltTracksters_cfi import *
+from HLTrigger.NGTScouting.hltTICLCandidates_cfi import *
+from HLTrigger.NGTScouting.hltTICLSuperClusters_cfi import *
 from HLTrigger.NGTScouting.hltSums_cfi import *
 from HLTrigger.NGTScouting.hltTriggerAcceptFilter_cfi import hltTriggerAcceptFilter,dstTriggerAcceptFilter
 
@@ -53,7 +55,10 @@ hltNanoProducer = cms.Sequence(
     + hltMuonTable
     + hltPFCandidateTable
     + hltJetTable
-    + hltTrackstersTable
+    + hltTrackstersTableSequence
+    + hltTiclCandidateTable
+    + hltTiclCandidateExtraTable
+    + hltTiclSuperClustersTable
     + hltTauTable
     + hltTauExtTable
     + METTable
@@ -74,7 +79,10 @@ dstNanoProducer = cms.Sequence(
     + hltPFCandidateTable
     + hltJetTable
     + hltTauTable
-    + hltTrackstersTable
+    + hltTrackstersTableSequence
+    + hltTiclCandidateTable
+    + hltTiclCandidateExtraTable
+    + hltTiclSuperClustersTable
     + hltTauExtTable
     + METTable
     + HTTable
@@ -99,6 +107,7 @@ def hltNanoCustomize(process):
 
 def hltNanoValCustomize(process):
     if hasattr(process, "dstNanoProducer"):
-        process.dstNanoProducer += (process.hltTrackstersAssociationOneToManyTable + process.hltSimCl2CPOneToOneFlatTable)
+
+        process.dstNanoProducer += (process.hltTiclAssociationsTableSequence + process.hltSimTracksterSequence + process.hltSimTiclCandidateTable + process.hltSimTiclCandidateExtraTable )
 
     return process

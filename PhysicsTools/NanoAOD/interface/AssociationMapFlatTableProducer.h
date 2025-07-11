@@ -96,7 +96,6 @@ public:
         }
         this->coltables.push_back(std::move(coltable));
         edm::stream::EDProducer<>::produces<nanoaod::FlatTable>(coltables.back().name + "Table");
-        std::cout << "MR OneToMany will produce " << coltables.back().name + "Table" << std::endl;
       }
     }
   }
