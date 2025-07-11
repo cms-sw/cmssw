@@ -22,6 +22,14 @@ namespace edm {
 namespace hgcal {
   class RecHitTools {
   public:
+    struct siliconWaferInfo {
+      int32_t type, partialType, orientation, placementIndex, cassette;
+      siliconWaferInfo(int32_t t = 0, int32_t p = 0, int32_t o = 0, int32_t i = 0, int32_t c = 0) : type(t), partialType(p), orientation(o), placementIndex(i), cassette(c) {}
+    };
+    struct scintillatorTileInfo {
+      int32_t type, sipm, cassette;
+      scintillatorTileInfo(int32_t t = 0, int32_t s = 0, int32_t c = 0) : type(t), sipm(s), cassette(c) {}
+    };
     RecHitTools()
         : geom_(nullptr),
           eeOffset_(0),
@@ -63,6 +71,7 @@ namespace hgcal {
 
     bool isSilicon(const DetId&) const;
     bool isScintillator(const DetId&) const;
+    bool isScintillatorFine(const DetId& id) const;
     bool isBarrel(const DetId&) const;
 
     bool isOnlySilicon(const unsigned int layer) const;
@@ -76,7 +85,8 @@ namespace hgcal {
     float getEta(const DetId& id, const float& vertex_z = 0.) const;
     float getPhi(const DetId& id) const;
     float getPt(const DetId& id, const float& hitEnergy, const float& vertex_z = 0.) const;
-
+    int getScintMaxIphi(const DetId& id) const;
+ 
     inline const CaloGeometry* getGeometry() const { return geom_; };
     unsigned int lastLayerEE(bool nose = false) const { return (nose ? HFNoseDetId::HFNoseLayerEEmax : fhOffset_); }
     unsigned int lastLayerFH() const { return fhLastLayer_; }
@@ -93,6 +103,9 @@ namespace hgcal {
     inline int getGeometryType() const { return geometryType_; }
     bool maskCell(const DetId& id, int corners = 3) const;
 
+    // Informaion of the wafer/tile
+    siliconWaferInfo getWaferInfo(const DetId& id) const;
+    scintillatorTileInfo getTileInfo(const DetId& id) const;
   private:
     const CaloGeometry* geom_;
     unsigned int eeOffset_, fhOffset_, bhFirstLayer_, bhLastLayer_, bhOffset_, fhLastLayer_, noseLastLayer_;
