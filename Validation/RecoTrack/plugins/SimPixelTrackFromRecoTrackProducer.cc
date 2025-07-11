@@ -113,6 +113,8 @@ namespace simdoublets {
         // add offest in the forward endcap to get, e.g. for Phase 2, from (1,12) to (4,15)
         layerId = trackerTopology->pxfDisk(detId) + numBarrelLayers - 1;
       }
+    } else if (detId.subdetId() == StripSubdetector::TOB) {
+      layerId = trackerTopology->getOTLayerNumber(detId) + 27;
     }
     // return the determined Id
     return layerId;
