@@ -24,7 +24,8 @@ namespace hgcal {
   public:
     struct siliconWaferInfo {
       int32_t type, partialType, orientation, placementIndex, cassette;
-      siliconWaferInfo(int32_t t = 0, int32_t p = 0, int32_t o = 0, int32_t i = 0, int32_t c = 0) : type(t), partialType(p), orientation(o), placementIndex(i), cassette(c) {}
+      siliconWaferInfo(int32_t t = 0, int32_t p = 0, int32_t o = 0, int32_t i = 0, int32_t c = 0)
+          : type(t), partialType(p), orientation(o), placementIndex(i), cassette(c) {}
     };
     struct scintillatorTileInfo {
       int32_t type, sipm, cassette;
@@ -86,7 +87,7 @@ namespace hgcal {
     float getPhi(const DetId& id) const;
     float getPt(const DetId& id, const float& hitEnergy, const float& vertex_z = 0.) const;
     int getScintMaxIphi(const DetId& id) const;
- 
+
     inline const CaloGeometry* getGeometry() const { return geom_; };
     unsigned int lastLayerEE(bool nose = false) const { return (nose ? HFNoseDetId::HFNoseLayerEEmax : fhOffset_); }
     unsigned int lastLayerFH() const { return fhLastLayer_; }
@@ -106,6 +107,7 @@ namespace hgcal {
     // Informaion of the wafer/tile
     siliconWaferInfo getWaferInfo(const DetId& id) const;
     scintillatorTileInfo getTileInfo(const DetId& id) const;
+
   private:
     const CaloGeometry* geom_;
     unsigned int eeOffset_, fhOffset_, bhFirstLayer_, bhLastLayer_, bhOffset_, fhLastLayer_, noseLastLayer_;
