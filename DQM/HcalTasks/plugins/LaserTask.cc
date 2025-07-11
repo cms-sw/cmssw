@@ -18,6 +18,8 @@ LaserTask::LaserTask(edm::ParameterSet const& ps)
   _tokQIE10 = consumes<QIE10DigiCollection>(_tagQIE10);
   _tokuMN = consumes<HcalUMNioDigi>(_taguMN);
   _tokLaserMon = consumes<QIE10DigiCollection>(_tagLaserMon);
+  _tagFEDs = ps.getUntrackedParameter<edm::InputTag>("tagFEDs", edm::InputTag("hltHcalCalibrationRaw"));
+  _tokFEDs = consumes<FEDRawDataCollection>(_tagFEDs);
 
   _vflags.resize(nLaserFlag);
   _vflags[fBadTiming] = hcaldqm::flag::Flag("BadTiming");
@@ -223,6 +225,16 @@ LaserTask::LaserTask(edm::ParameterSet const& ps)
                              new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                              0);
 
+  if (_ptype == fOnline || _ptype == fLocal) {
+    _cADCvsTS_SubdetPM.initialize(_name,
+                                  "ADCvsTS",
+                                  hcaldqm::hashfunctions::fSubdetPM,
+                                  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
+                                  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
+                                  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),
+                                  0);
+  }
+
   //	initialize compact containers
   _xSignalSum.initialize(hcaldqm::hashfunctions::fDChannel);
   _xSignalSum2.initialize(hcaldqm::hashfunctions::fDChannel);
@@ -364,6 +376,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps)
   _xTimingSum2.book(_emap);
 
   if (_ptype == fOnline || _ptype == fLocal) {
+    _cADCvsTS_SubdetPM.book(ib, _emap, _subsystem);
     _cLaserMonSumQ.book(ib, _subsystem);
     _cLaserMonTiming.book(ib, _subsystem);
     if (_ptype == fOnline) {
@@ -531,34 +544,15 @@ LaserTask::LaserTask(edm::ParameterSet const& ps)
   if (!e.getByToken(_tokLaserMon, cLaserMon)) {
     _logger.dqmthrow("QIE10DigiCollection for laserMonDigis isn't available.");
   }
-  std::vector<int> laserMonADC;
-  processLaserMon(cLaserMon, laserMonADC);
+  //std::vector<int> laserMonADC;
+  QIE11DataFrame laserMonDigi;
+  processLaserMon(c_QIE11, laserMonDigi);
 
-  // SumQ = peak +/- 3 TSes
-  // Timing = fC-weighted average (TS-TS0) * 25 ns, also in peak +/- 3 TSes
-  int peakTS = -1;
-  double peakLaserMonADC = -1;
-  for (unsigned int iTS = 0; iTS < laserMonADC.size(); ++iTS) {
-    if (laserMonADC[iTS] > peakLaserMonADC) {
-      peakLaserMonADC = laserMonADC[iTS];
-      peakTS = iTS;
-    }
-  }
-
-  double laserMonSumQ = 0;
+  double laserMonSumQ = hcaldqm::utilities::sumQ_v10<QIE11DataFrame>(laserMonDigi, 0, 0, laserMonDigi.samples() - 1);
   double laserMonTiming = 0.;
 
-  if (peakTS >= 0) {
-    int minTS = std::max(0, peakTS - 3);
-    int maxTS = std::min(int(laserMonADC.size() - 1), peakTS + 3);
-    for (int iTS = minTS; iTS <= maxTS; ++iTS) {
-      double this_fC = hcaldqm::constants::adc2fC[laserMonADC[iTS]];
-      laserMonSumQ += this_fC;
-      laserMonTiming += 25. * (iTS - _laserMonTS0) * this_fC;
-    }
-  }
   if (laserMonSumQ > 0.) {
-    laserMonTiming = laserMonTiming / laserMonSumQ;
+    laserMonTiming = hcaldqm::utilities::aveTS_v10<QIE11DataFrame>(laserMonDigi, 0, 0, laserMonDigi.samples() - 1);
   } else {
     ++_xMissingLaserMon;
   }
@@ -625,6 +619,12 @@ LaserTask::LaserTask(edm::ParameterSet const& ps)
       _cSignalvsBX_SubdetPM.fill(did, bx, sumQ);
       _cTimingDiffLS_SubdetPM.fill(did, _currentLS, hcaldqm::utilities::getRBX(did.iphi()), deltaTiming);
     }
+
+    if (_ptype == fOnline || _ptype == fLocal) {
+      for (int iTS = 0; iTS < digi.samples(); ++iTS) {
+        _cADCvsTS_SubdetPM.fill(did, iTS, digi[iTS].adc());
+      }
+    }
   }
   for (HODigiCollection::const_iterator it = c_ho->begin(); it != c_ho->end(); ++it) {
     const HODataFrame digi = (const HODataFrame)(*it);
@@ -665,6 +665,12 @@ LaserTask::LaserTask(edm::ParameterSet const& ps)
       _cTimingvsBX_SubdetPM.fill(did, bx, aveTS);
       _cSignalvsBX_SubdetPM.fill(did, bx, sumQ);
       _cTimingDiffLS_SubdetPM.fill(did, _currentLS, hcaldqm::utilities::getRBX(did.iphi()), deltaTiming);
+    }
+
+    if (_ptype == fOnline || _ptype == fLocal) {
+      for (int iTS = 0; iTS < digi.size(); ++iTS) {
+        _cADCvsTS_SubdetPM.fill(did, iTS, digi.sample(iTS).adc());
+      }
     }
   }
   for (QIE10DigiCollection::const_iterator it = c_QIE10->begin(); it != c_QIE10->end(); ++it) {
@@ -716,36 +722,23 @@ LaserTask::LaserTask(edm::ParameterSet const& ps)
       _cSignalvsBX_SubdetPM.fill(did, bx, sumQ);
       _cTimingDiffLS_SubdetPM.fill(did, _currentLS, hcaldqm::utilities::getRBX(did.iphi()), deltaTiming);
     }
+    if (_ptype == fOnline || _ptype == fLocal) {
+      for (int iTS = 0; iTS < digi.samples(); ++iTS) {
+        _cADCvsTS_SubdetPM.fill(did, iTS, digi[iTS].adc());
+      }
+    }
   }
 }
 
-void LaserTask::processLaserMon(edm::Handle<QIE10DigiCollection>& col, std::vector<int>& iLaserMonADC) {
-  for (QIE10DigiCollection::const_iterator it = col->begin(); it != col->end(); ++it) {
-    const QIE10DataFrame digi = (const QIE10DataFrame)(*it);
+void LaserTask::processLaserMon(edm::Handle<QIE11DigiCollection>& col, QIE11DataFrame& iLaserMonDigi) {
+  for (QIE11DigiCollection::const_iterator it = col->begin(); it != col->end(); ++it) {
+    const QIE11DataFrame digi = static_cast<const QIE11DataFrame>(*it);
     HcalCalibDetId hcdid(digi.id());
 
-    if ((hcdid.ieta() != _laserMonIEta) || (hcdid.cboxChannel() != _laserMonCBox)) {
+    if (hcdid.rawId() != constants::HBLasMon.rawId())
       continue;
-    }
 
-    unsigned int digiIndex =
-        std::find(_vLaserMonIPhi.begin(), _vLaserMonIPhi.end(), hcdid.iphi()) - _vLaserMonIPhi.begin();
-    if (digiIndex == _vLaserMonIPhi.size()) {
-      continue;
-    }
-
-    // First digi: initialize the vectors to -1 (need to know the length of the digi)
-    if (iLaserMonADC.empty()) {
-      int totalNSamples = (digi.samples() - _laserMonDigiOverlap) * _vLaserMonIPhi.size();
-      for (int i = 0; i < totalNSamples; ++i) {
-        iLaserMonADC.push_back(-1);
-      }
-    }
-
-    for (int subindex = 0; subindex < digi.samples() - _laserMonDigiOverlap; ++subindex) {
-      int totalIndex = (digi.samples() - _laserMonDigiOverlap) * digiIndex + subindex;
-      iLaserMonADC[totalIndex] = (digi[subindex].ok() ? digi[subindex].adc() : -1);
-    }
+    iLaserMonDigi = digi;
   }
 }
 
@@ -769,15 +762,42 @@ void LaserTask::processLaserMon(edm::Handle<QIE10DigiCollection>& col, std::vect
     if (!e.getByToken(_tokuMN, cumn))
       return false;
 
-    //	event type check first
-    uint8_t eventType = cumn->eventType();
-    if (eventType != constants::EVENTTYPE_LASER)
+    // Below we are requiring both laser type equals 24 and uHTR event type from crate:slot 25:11 equals 14 to confirm this is a megatile laser signal
+    //  laser type check
+    uint32_t laserType = cumn->valueUserWord(0);
+    if (laserType != _laserType)
       return false;
 
-    //	check if this analysis task is of the right laser type
-    uint32_t laserType = cumn->valueUserWord(0);
-    if (laserType == _laserType)
+    // uHTR event type check from crate:slot 25:11 for megatile
+    int eventflag_uHTR = -1;
+    edm::Handle<FEDRawDataCollection> craw;
+    if (!e.getByToken(_tokFEDs, craw))
+      _logger.dqmthrow("Collection FEDRawDataCollection isn't available " + _tagFEDs.label() + " " +
+                       _tagFEDs.instance());
+
+    for (int fed = FEDNumbering::MINHCALFEDID; fed <= FEDNumbering::MAXHCALuTCAFEDID && !(eventflag_uHTR >= 0); fed++) {
+      if ((fed > FEDNumbering::MAXHCALFEDID && fed < FEDNumbering::MINHCALuTCAFEDID) ||
+          fed > FEDNumbering::MAXHCALuTCAFEDID)
+        continue;
+      FEDRawData const& raw = craw->FEDData(fed);
+      if (raw.size() < constants::RAW_EMPTY)
+        continue;
+
+      hcal::AMC13Header const* hamc13 = (hcal::AMC13Header const*)raw.data();
+      if (!hamc13)
+        continue;
+
+      for (int iamc = 0; iamc < hamc13->NAMC(); iamc++) {
+        HcalUHTRData uhtr(hamc13->AMCPayload(iamc), hamc13->AMCSize(iamc));
+        if (static_cast<int>(uhtr.crateId()) == 25 && static_cast<int>(uhtr.slot()) == 11) {
+          eventflag_uHTR = uhtr.getEventType();
+          break;
+        }
+      }
+    }
+    if (eventflag_uHTR == constants::EVENTTYPE_LASER) {
       return true;
+    }
   }
 
   return false;

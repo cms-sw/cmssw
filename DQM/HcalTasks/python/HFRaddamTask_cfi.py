@@ -13,9 +13,12 @@ hfRaddamTask = DQMEDAnalyzer(
 	mtype = cms.untracked.bool(True),
 	subsystem = cms.untracked.string('HcalCalib'),
 
+    laserType = cms.untracked.uint32(0),
+
 	#	tags
 	tagHF = cms.untracked.InputTag("hcalDigis"),
-	tagRaw = cms.untracked.InputTag('hltHcalCalibrationRaw')
+	tagRaw = cms.untracked.InputTag('hltHcalCalibrationRaw'),
+    tagFEDs = cms.untracked.InputTag("hltHcalCalibrationRaw")
 )
 
 
