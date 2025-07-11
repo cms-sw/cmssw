@@ -301,7 +301,7 @@ namespace simdoublets {
     desc.add<int>("numLayersOT", 0)->setComment("Number of additional layers from the OT extension.");
 
     // starting layer pairs for Ntuplets in reconstruction
-    desc.add<std::vector<int>>("startingPairs", std::vector<int>({}))
+    desc.add<std::vector<uint>>("startingPairs", std::vector<uint>({}))
         ->setComment("Array of variable length with the indices of the starting pairs for Ntuplet building");
 
     // cut parameters for connecting doublets
@@ -363,10 +363,10 @@ SimDoubletsAnalyzer<TrackerTraits>::SimDoubletsAnalyzer(const edm::ParameterSet&
       folder_(iConfig.getParameter<std::string>("folder")),
       inputIsRecoTracks_(iConfig.getParameter<bool>("inputIsRecoTracks")) {
   // get layer pairs from configuration
-  std::vector<int> layerPairs{iConfig.getParameter<std::vector<int>>("layerPairs")};
+  std::vector<uint> layerPairs{iConfig.getParameter<std::vector<uint>>("layerPairs")};
 
   // get staring layer pairs from configuration
-  std::vector<int> startingPairs{iConfig.getParameter<std::vector<int>>("startingPairs")};
+  std::vector<uint> startingPairs{iConfig.getParameter<std::vector<uint>>("startingPairs")};
 
   // number of configured layer pairs
   size_t numLayerPairs = layerPairs.size() / 2;
@@ -1353,9 +1353,9 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                 "dz of RecHit pair " + layerTitle,
                 "dz between outer and inner RecHit [cm]",
                 "Number of " + doublet + "s",
-                200,
-                -100,
-                100);
+                300,
+                -150,
+                150);
 
     // histogram for z0cutoff  (maxr)
     hVector_dr_.at(layerPairIdIndex)
@@ -1979,9 +1979,9 @@ void SimDoubletsAnalyzer<pixelTopology::Phase1>::fillDescriptions(edm::Configura
   desc.add<edm::InputTag>("simDoubletsSrc", edm::InputTag("simDoubletsProducerPhase1"));
 
   // layer pairs in reconstruction
-  desc.add<std::vector<int>>(
+  desc.add<std::vector<uint>>(
           "layerPairs",
-          std::vector<int>(std::begin(phase1PixelTopology::layerPairs), std::end(phase1PixelTopology::layerPairs)))
+          std::vector<uint>(std::begin(phase1PixelTopology::layerPairs), std::end(phase1PixelTopology::layerPairs)))
       ->setComment(
           "Array of length 2*NumberOfPairs where the elements at 2i and 2i+1 are the inner and outer layers of layer "
           "pair i");
@@ -2018,9 +2018,9 @@ void SimDoubletsAnalyzer<pixelTopology::Phase2>::fillDescriptions(edm::Configura
   desc.add<edm::InputTag>("simDoubletsSrc", edm::InputTag("simDoubletsProducerPhase2"));
 
   // layer pairs in reconstruction
-  desc.add<std::vector<int>>(
+  desc.add<std::vector<uint>>(
           "layerPairs",
-          std::vector<int>(std::begin(phase2PixelTopology::layerPairs), std::end(phase2PixelTopology::layerPairs)))
+          std::vector<uint>(std::begin(phase2PixelTopology::layerPairs), std::end(phase2PixelTopology::layerPairs)))
       ->setComment(
           "Array of length 2*NumberOfPairs where the elements at 2i and 2i+1 are the inner and outer layers of layer "
           "pair i");
