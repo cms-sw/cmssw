@@ -24,7 +24,7 @@ hltInitialStepTrackCandidates = cms.EDProducer("CkfTrackCandidateMaker",
     useHitsSplitting = cms.bool(False)
 )
 
-_hltInitialStepTrackCandidatesLST = cms.EDProducer('LSTOutputConverter',
+_hltInitialStepTrackCandidatesLST = cms.EDProducer('LSTOutputConverter@alpaka',
     lstOutput = cms.InputTag('hltLST'),
     lstInput = cms.InputTag('hltInputLST'),
     lstPixelSeeds = cms.InputTag('hltInputLST'),

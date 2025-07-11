@@ -1,6 +1,7 @@
 #ifndef RecoTracker_LSTCore_src_alpaka_LSTEvent_h
 #define RecoTracker_LSTCore_src_alpaka_LSTEvent_h
 
+#include <algorithm>
 #include <optional>
 
 #include "RecoTracker/LSTCore/interface/LSTInputHostCollection.h"
@@ -61,7 +62,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     std::optional<PixelSegmentsDeviceCollection> pixelSegmentsDC_;
     std::optional<TripletsDeviceCollection> tripletsDC_;
     std::optional<QuintupletsDeviceCollection> quintupletsDC_;
-    std::optional<TrackCandidatesDeviceCollection> trackCandidatesDC_;
+    std::optional<TrackCandidatesBaseDeviceCollection> trackCandidatesBaseDC_;
+    std::optional<TrackCandidatesExtendedDeviceCollection> trackCandidatesExtendedDC_;
     std::optional<PixelTripletsDeviceCollection> pixelTripletsDC_;
     std::optional<PixelQuintupletsDeviceCollection> pixelQuintupletsDC_;
 
@@ -73,7 +75,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     std::optional<SegmentsHostCollection> segmentsHC_;
     std::optional<PixelSegmentsHostCollection> pixelSegmentsHC_;
     std::optional<TripletsHostCollection> tripletsHC_;
-    std::optional<TrackCandidatesHostCollection> trackCandidatesHC_;
+    std::optional<TrackCandidatesBaseHostCollection> trackCandidatesBaseHC_;
+    std::optional<TrackCandidatesExtendedHostCollection> trackCandidatesExtendedHC_;
     std::optional<ModulesHostCollection> modulesHC_;
     std::optional<QuintupletsHostCollection> quintupletsHC_;
     std::optional<PixelTripletsHostCollection> pixelTripletsHC_;
@@ -164,8 +167,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     // HANDLE WITH CARE
     template <typename TSoA, typename TDev = Device>
     typename TSoA::ConstView getInput(bool sync = true);
-    template <typename TDev = Device>
-    HitsBaseConst getTrimmedHitsBase(bool sync = true);
     template <typename TSoA, typename TDev = Device>
     typename TSoA::ConstView getHits(bool sync = true);
     template <typename TDev = Device>
@@ -184,7 +185,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     PixelSegmentsConst getPixelSegments(bool sync = true);
     template <typename TDev = Device>
     PixelQuintupletsConst getPixelQuintuplets(bool sync = true);
-    const TrackCandidatesConst& getTrackCandidates(bool inCMSSW = false, bool sync = true);
+    template <typename TDev = Device>
+    TrackCandidatesBaseConst getTrackCandidatesBase(bool sync = true);
+    template <typename TDev = Device>
+    TrackCandidatesExtendedConst getTrackCandidatesExtended(bool sync = true);
+    std::unique_ptr<TrackCandidatesBaseDeviceCollection> releaseTrackCandidatesBaseDeviceCollection();
     template <typename TSoA, typename TDev = Device>
     typename TSoA::ConstView getModules(bool sync = true);
   };

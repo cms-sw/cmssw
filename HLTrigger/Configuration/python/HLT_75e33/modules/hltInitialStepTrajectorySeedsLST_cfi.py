@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hltInitialStepTrajectorySeedsLST = cms.EDProducer('LSTOutputConverter',
+hltInitialStepTrajectorySeedsLST = cms.EDProducer('LSTOutputConverter@alpaka',
     lstOutput = cms.InputTag('hltLST'),
     lstInput = cms.InputTag('hltInputLST'),
     lstPixelSeeds = cms.InputTag('hltInputLST'),
