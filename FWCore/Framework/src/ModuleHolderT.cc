@@ -20,10 +20,20 @@
 #include "FWCore/Framework/interface/OutputModuleCommunicatorT.h"
 
 namespace edm::maker {
+  namespace {
+    template <typename T>
+    concept HasRegisterThinnedAssociationsFunction =
+        requires(T mod, ProductRegistry reg, ThinnedAssociationsHelper helper) {
+          { mod.doRegisterThinnedAssociations(reg, helper) } -> std::same_as<void>;
+        };
+  }  // namespace
+
   template <typename T>
   inline void ModuleHolderT<T>::implRegisterThinnedAssociations(ProductRegistry const& registry,
                                                                 ThinnedAssociationsHelper& helper) {
-    m_mod->doRegisterThinnedAssociations(registry, helper);
+    if constexpr (HasRegisterThinnedAssociationsFunction<T>) {
+      m_mod->doRegisterThinnedAssociations(registry, helper);
+    }
   }
 
   template <typename T>
@@ -59,6 +69,41 @@ namespace edm::maker {
       m_mod->doEndStream(iID);
     }
   }
+
+  namespace {
+    template <typename T>
+    concept HasRespondToInputFileFunctions = requires(T mod, FileBlock fb) {
+      { mod.doRespondToOpenInputFile(fb) } -> std::same_as<void>;
+      { mod.doRespondToCloseInputFile(fb) } -> std::same_as<void>;
+    };
+
+    template <typename T>
+    concept HasRespondToCloseOutputFileFunction = requires(T mod) {
+      { mod.doRespondToCloseOutputFile() } -> std::same_as<void>;
+    };
+  }  // namespace
+
+  template <typename T>
+  inline void ModuleHolderT<T>::implRespondToOpenInputFile(FileBlock const& fb) {
+    if constexpr (HasRespondToInputFileFunctions<T>) {
+      m_mod->doRespondToOpenInputFile(fb);
+    }
+  }
+
+  template <typename T>
+  inline void ModuleHolderT<T>::implRespondToCloseInputFile(FileBlock const& fb) {
+    if constexpr (HasRespondToInputFileFunctions<T>) {
+      m_mod->doRespondToCloseInputFile(fb);
+    }
+  }
+
+  template <typename T>
+  void ModuleHolderT<T>::implRespondToCloseOutputFile() {
+    if constexpr (HasRespondToCloseOutputFileFunction<T>) {
+      m_mod->doRespondToCloseOutputFile();
+    }
+  }
+
   namespace {
     template <typename T>
     bool mustPrefetchMayGet();
@@ -188,6 +233,143 @@ namespace edm::maker {
       std::unordered_multimap<std::string, std::tuple<TypeID const*, const char*, edm::ProductResolverIndex>> const&
           iIndicies) {
     resolvePutIndiciesImpl(m_mod.get(), iBranchType, iIndicies, moduleDescription().moduleLabel());
+  }
+
+  template <typename T>
+  std::vector<ModuleConsumesInfo> ModuleHolderT<T>::moduleConsumesInfos() const {
+    return m_mod->moduleConsumesInfos();
+  }
+  template <typename T>
+  std::vector<ModuleConsumesMinimalESInfo> ModuleHolderT<T>::moduleConsumesMinimalESInfos() const {
+    return m_mod->moduleConsumesMinimalESInfos();
+  }
+
+  template <>
+  ModuleHolder::Type ModuleHolderT<edm::one::EDProducerBase>::moduleType() const {
+    return Type::kProducer;
+  }
+  template <>
+  ModuleHolder::Type ModuleHolderT<edm::one::EDFilterBase>::moduleType() const {
+    return Type::kFilter;
+  }
+  template <>
+  ModuleHolder::Type ModuleHolderT<edm::one::EDAnalyzerBase>::moduleType() const {
+    return Type::kAnalyzer;
+  }
+  template <>
+  ModuleHolder::Type ModuleHolderT<edm::one::OutputModuleBase>::moduleType() const {
+    return Type::kOutputModule;
+  }
+
+  template <>
+  ModuleHolder::Type ModuleHolderT<edm::global::EDProducerBase>::moduleType() const {
+    return Type::kProducer;
+  }
+  template <>
+  ModuleHolder::Type ModuleHolderT<edm::global::EDFilterBase>::moduleType() const {
+    return Type::kFilter;
+  }
+  template <>
+  ModuleHolder::Type ModuleHolderT<edm::global::EDAnalyzerBase>::moduleType() const {
+    return Type::kAnalyzer;
+  }
+  template <>
+  ModuleHolder::Type ModuleHolderT<edm::global::OutputModuleBase>::moduleType() const {
+    return Type::kOutputModule;
+  }
+
+  template <>
+  ModuleHolder::Type ModuleHolderT<edm::limited::EDProducerBase>::moduleType() const {
+    return Type::kProducer;
+  }
+  template <>
+  ModuleHolder::Type ModuleHolderT<edm::limited::EDFilterBase>::moduleType() const {
+    return Type::kFilter;
+  }
+  template <>
+  ModuleHolder::Type ModuleHolderT<edm::limited::EDAnalyzerBase>::moduleType() const {
+    return Type::kAnalyzer;
+  }
+  template <>
+  ModuleHolder::Type ModuleHolderT<edm::limited::OutputModuleBase>::moduleType() const {
+    return Type::kOutputModule;
+  }
+
+  template <>
+  ModuleHolder::Type ModuleHolderT<edm::stream::EDProducerAdaptorBase>::moduleType() const {
+    return Type::kProducer;
+  }
+  template <>
+  ModuleHolder::Type ModuleHolderT<edm::stream::EDFilterAdaptorBase>::moduleType() const {
+    return Type::kFilter;
+  }
+  template <>
+  ModuleHolder::Type ModuleHolderT<edm::stream::EDAnalyzerAdaptorBase>::moduleType() const {
+    return Type::kAnalyzer;
+  }
+
+  template <>
+  ModuleHolder::Concurrency ModuleHolderT<edm::one::EDProducerBase>::moduleConcurrencyType() const {
+    return Concurrency::kOne;
+  }
+  template <>
+  ModuleHolder::Concurrency ModuleHolderT<edm::one::EDFilterBase>::moduleConcurrencyType() const {
+    return Concurrency::kOne;
+  }
+  template <>
+  ModuleHolder::Concurrency ModuleHolderT<edm::one::EDAnalyzerBase>::moduleConcurrencyType() const {
+    return Concurrency::kOne;
+  }
+  template <>
+  ModuleHolder::Concurrency ModuleHolderT<edm::one::OutputModuleBase>::moduleConcurrencyType() const {
+    return Concurrency::kOne;
+  }
+
+  template <>
+  ModuleHolder::Concurrency ModuleHolderT<edm::global::EDProducerBase>::moduleConcurrencyType() const {
+    return Concurrency::kGlobal;
+  }
+  template <>
+  ModuleHolder::Concurrency ModuleHolderT<edm::global::EDFilterBase>::moduleConcurrencyType() const {
+    return Concurrency::kGlobal;
+  }
+  template <>
+  ModuleHolder::Concurrency ModuleHolderT<edm::global::EDAnalyzerBase>::moduleConcurrencyType() const {
+    return Concurrency::kGlobal;
+  }
+  template <>
+  ModuleHolder::Concurrency ModuleHolderT<edm::global::OutputModuleBase>::moduleConcurrencyType() const {
+    return Concurrency::kGlobal;
+  }
+
+  template <>
+  ModuleHolder::Concurrency ModuleHolderT<edm::limited::EDProducerBase>::moduleConcurrencyType() const {
+    return Concurrency::kLimited;
+  }
+  template <>
+  ModuleHolder::Concurrency ModuleHolderT<edm::limited::EDFilterBase>::moduleConcurrencyType() const {
+    return Concurrency::kLimited;
+  }
+  template <>
+  ModuleHolder::Concurrency ModuleHolderT<edm::limited::EDAnalyzerBase>::moduleConcurrencyType() const {
+    return Concurrency::kLimited;
+  }
+  template <>
+  ModuleHolder::Concurrency ModuleHolderT<edm::limited::OutputModuleBase>::moduleConcurrencyType() const {
+    return Concurrency::kLimited;
+  }
+
+  template <>
+  ModuleHolder::Concurrency ModuleHolderT<edm::stream::EDProducerAdaptorBase>::moduleConcurrencyType() const {
+    return Concurrency::kStream;
+  }
+  template <>
+  ModuleHolder::Concurrency ModuleHolderT<edm::stream::EDFilterAdaptorBase>::moduleConcurrencyType() const {
+    return Concurrency::kStream;
+  }
+  template <>
+  ModuleHolder::Concurrency ModuleHolderT<edm::stream::EDAnalyzerAdaptorBase>::moduleConcurrencyType() const {
+    return Concurrency::kStream;
   }
 
   //Explicitly instantiate our needed templates to avoid having the compiler

@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/Framework/interface/ModuleRegistry.h"
 #include "FWCore/Framework/interface/ModuleRegistryUtilities.h"
+#include "FWCore/Framework/interface/maker/MakeModuleParams.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/make_sentry.h"
@@ -68,8 +69,18 @@ namespace edm {
     const PreallocationConfiguration preallocConfig;
     for (auto& pset : psets) {
       std::string label = pset.getParameter<std::string>("@module_label");
-      workerManager_.addToUnscheduledWorkers(
-          pset, preg, &preallocConfig, processConfiguration, label, unscheduledLabels, shouldBeUsedLabels);
+      MakeModuleParams params(&pset, preg, &preallocConfig, processConfiguration);
+      auto module = moduleRegistry_->getModule(params,
+                                               label,
+                                               activityRegistry_->preModuleConstructionSignal_,
+                                               activityRegistry_->postModuleConstructionSignal_);
+      if (module->moduleType() != edm::maker::ModuleHolder::Type::kProducer or
+          module->moduleType() != edm::maker::ModuleHolder::Type::kFilter) {
+        throw edm::Exception(edm::errors::Configuration)
+            << "The module with label " << label << " is not an EDProducer or EDFilter so can not be run unscheduled";
+      }
+      workerManager_.addToUnscheduledWorkers(module->moduleDescription());
+      unscheduledLabels.insert(label);
     }
     if (!unscheduledLabels.empty()) {
       preg.setUnscheduledProducts(unscheduledLabels);

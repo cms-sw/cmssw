@@ -7,8 +7,6 @@
 #include "FWCore/Framework/interface/ModuleRegistry.h"
 #include "FWCore/Framework/interface/ModuleRegistryUtilities.h"
 
-#include "DataFormats/Provenance/interface/ProcessConfiguration.h"
-#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
@@ -33,13 +31,10 @@ namespace edm {
       std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters,
       std::vector<edm::propagate_const<std::shared_ptr<EndPathStatusInserter>>>& endPathStatusInserters,
       std::shared_ptr<ModuleRegistry> modReg,
-      std::vector<std::string> const& iModulesToUse,
-      ParameterSet& proc_pset,
-      SignallingProductRegistryFiller& pregistry,
+      std::vector<edm::ModuleDescription const*> const& iModulesToUse,
       PreallocationConfiguration const& prealloc,
       ExceptionToActionTable const& actions,
       std::shared_ptr<ActivityRegistry> areg,
-      std::shared_ptr<ProcessConfiguration const> processConfiguration,
       ProcessContext const* processContext)
       : actReg_(areg),
         processContext_(processContext),
@@ -51,17 +46,10 @@ namespace edm {
     for (unsigned int i = 0; i < nManagers; ++i) {
       workerManagers_.emplace_back(modReg, areg, actions);
     }
-    for (auto const& moduleLabel : iModulesToUse) {
-      bool isTracked;
-      ParameterSet* modpset = proc_pset.getPSetForUpdate(moduleLabel, isTracked);
-      if (modpset != nullptr) {  // It will be null for PathStatusInserters, it should
-                                 // be impossible to be null for anything else
-        assert(isTracked);
-
-        //side effect keeps this module around
-        for (auto& wm : workerManagers_) {
-          (void)wm.getWorker(*modpset, pregistry, &prealloc, processConfiguration, moduleLabel);
-        }
+    for (auto const& module : iModulesToUse) {
+      //side effect keeps this module around
+      for (auto& wm : workerManagers_) {
+        (void)wm.getWorkerForModule(*module);
       }
     }
     if (inserter) {

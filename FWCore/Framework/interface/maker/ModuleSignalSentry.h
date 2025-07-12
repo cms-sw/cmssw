@@ -2,7 +2,8 @@
 #define FWCore_Framework_ModuleSignalSentry_h
 
 #include "FWCore/Utilities/interface/ConvertException.h"
-
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 namespace edm {
   class ActivityRegistry;
   class ModuleCallingContext;
