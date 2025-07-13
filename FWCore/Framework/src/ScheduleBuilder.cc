@@ -699,31 +699,6 @@ namespace edm {
         });
       }
     }
-
-    // Print conditional modules that were not consumed in any of their associated Paths
-    if (not conditionalModules.empty()) {
-      // Intersection of unscheduled and ConditionalTask modules gives
-      // directly the set of conditional modules that were not
-      // consumed by anything in the Paths associated to the
-      // corresponding ConditionalTask.
-      std::vector<std::string_view> labelsToPrint;
-      std::copy_if(
-          unscheduledLabels.begin(),
-          unscheduledLabels.end(),
-          std::back_inserter(labelsToPrint),
-          [&conditionalModules](auto const& lab) { return conditionalModules.find(lab) != conditionalModules.end(); });
-
-      if (not labelsToPrint.empty()) {
-        edm::LogWarning log("NonConsumedConditionalModules");
-        log << "The following modules were part of some ConditionalTask, but were not\n"
-            << "consumed by any other module in any of the Paths to which the ConditionalTask\n"
-            << "was associated. Perhaps they should be either removed from the\n"
-            << "job, or moved to a Task to make it explicit they are unscheduled.\n";
-        for (auto const& modLabel : labelsToPrint) {
-          log.format("\n {}", modLabel);
-        }
-      }
-    }
     //we want the unscheduled modules at the beginning of the allNeededModules list
     allNeededModules_.insert(allNeededModules_.begin(), unscheduledModules_.begin(), unscheduledModules_.end());
   }
