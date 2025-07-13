@@ -57,7 +57,7 @@ void HGCalGeometryDump::analyze(const edm::Event& /*iEvent*/, const edm::EventSe
     for (unsigned int k = 0; k < thick.size(); ++k)
       st1 << " : " << thick[k];
     edm::LogVerbatim("HGCalGeomX") << st1.str() << std::endl;
-    
+
     const std::vector<DetId>& ids = geom->getValidDetIds();
     edm::LogVerbatim("HGCalGeomX") << ids.size() << " valid Ids for detector " << names_[k];
     int nall(0);

@@ -411,7 +411,7 @@ std::vector<double> HGCalDDDConstants::cellThickness() const {
   std::vector<double> thick;
   if (waferHexagon8()) {
     thick = hgpar_->cellThickness_;
-    HGCalGeomParameters::rescale(thick, 10000.0); //cm to micron
+    HGCalGeomParameters::rescale(thick, 10000.0);  //cm to micron
   } else if (waferHexagon6()) {
     for (int k = 0; k < 3; ++k)
       thick.emplace_back(100.0 * (k + 1));
