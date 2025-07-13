@@ -7,11 +7,17 @@ The following parameters are expected/accepted in the json/yaml configuration fi
 ```
 validations:
     PixBary:
-        single:
+        <step_type>:
             <job_name>:
                 <options>
 ```
 
+The following steps are supported:
+- single (run the analyzer to compute the barycentre)
+- extract (retrieve the barycentre from the `single` output)
+
+### Single PixBary jobs
+Runs PixelBaryCentreAnalyzer_cfg.py.
 The following options are understood:
 
 Variable | Default value | Explanation/Options
@@ -20,3 +26,11 @@ firstRun | 290550 | The first run to process (inclusive)
 lastRun | 325175 | The last run to process (inclusive)
 lumisPerRun | 1 | The number of LumiSections tested for a change in the TrackerAlignmentRcd in each run
 alignments | None | List of alignments for which this validation is run
+
+### Extract PixBary jobs
+Runs extractBarycentre.py.
+The following options are understood:
+
+Variable | Default value | Explanation/Options
+-------- | ------------- | --------------------
+styles   | [csv, twiki]  | List of styles to be used; see `extractBarycentre.py -h`
