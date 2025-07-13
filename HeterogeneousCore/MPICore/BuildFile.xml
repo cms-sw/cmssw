@@ -1,6 +1,6 @@
 <use name="DataFormats/Common"/>
 <use name="FWCore/Framework"/>
-<use name="openmpi"/>
+<use name="mpich"/>
 <export>
   <lib name="1"/>
 </export>
