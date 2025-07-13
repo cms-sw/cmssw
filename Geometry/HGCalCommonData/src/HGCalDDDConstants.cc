@@ -407,6 +407,18 @@ bool HGCalDDDConstants::cellInLayer(int waferU, int waferV, int cellU, int cellV
   }
 }
 
+std::vector<double> HGCalDDDConstants::cellThickness() const {
+  std::vector<double> thick;
+  if (waferHexagon8()) {
+    thick = hgpar_->cellThickness_;
+    HGCalGeomParameters::rescale(thick, 10000.0); //cm to micron
+  } else if (waferHexagon6()) {
+    for (int k = 0; k < 3; ++k)
+      thick.emplace_back(100.0 * (k + 1));
+  }
+  return thick;
+}
+
 double HGCalDDDConstants::cellThickness(int layer, int waferU, int waferV) const {
   double thick(-1);
   int type = waferType(layer, waferU, waferV, false);
