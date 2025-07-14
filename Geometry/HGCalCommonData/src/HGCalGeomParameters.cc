@@ -2633,6 +2633,10 @@ std::vector<double> HGCalGeomParameters::getDDDArray(const std::string& str, con
   }
 }
 
+void HGCalGeomParameters::rescale(std::vector<double>& v, const double s) {
+  std::for_each(v.begin(), v.end(), [s](double& n) { n *= s; });
+}
+
 std::pair<double, double> HGCalGeomParameters::cellPosition(
     const std::vector<HGCalGeomParameters::cellParameters>& wafers,
     std::vector<HGCalGeomParameters::cellParameters>::const_iterator& itrf,
@@ -2658,10 +2662,6 @@ std::pair<double, double> HGCalGeomParameters::cellPosition(
       dy = 0;
   }
   return std::make_pair(dx, dy);
-}
-
-void HGCalGeomParameters::rescale(std::vector<double>& v, const double s) {
-  std::for_each(v.begin(), v.end(), [s](double& n) { n *= s; });
 }
 
 void HGCalGeomParameters::resetZero(std::vector<double>& v) {
