@@ -194,9 +194,9 @@ void MPIChannel::receiveSerializedBuffer(int instance, size_t size, void* buffer
   MPI_Mprobe(dest_, tag, comm_, &message, &status);
   int size_;
   MPI_Get_count(&status, MPI_BYTE, &size_);
-  std::cerr << "Size mismatch in receiveSerializedProduct_: expected "
-            << size << ", got " << size_ << std::endl;
-  assert(static_cast<int>(size) == size_);
+  // std::cerr << "Size mismatch in receiveSerializedProduct_: expected "
+  //           << size << ", got " << size_ << std::endl;
+  assert(static_cast<int>(size) == size_ && "Size mismatch in receiveSerializedProduct_");
   // TBufferFile buffer{TBuffer::kRead, size};
   MPI_Mrecv(buffer, size, MPI_BYTE, &message, &status);
   // type->Streamer(product, buffer);
