@@ -67,6 +67,7 @@ public:
   inline std::pair<double, double> cellSizeTrap(int type, int irad) const {
     return std::make_pair(hgpar_->radiusLayer_[type][irad - 1], hgpar_->radiusLayer_[type][irad]);
   }
+  std::vector<double> cellThickness() const;
   double cellThickness(int layer, int waferU, int waferV) const;
   int32_t cellType(int type, int waferU, int waferV, int iz, int fwdBack, int orient) const;
   double distFromEdgeHex(double x, double y, double z) const;
