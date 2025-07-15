@@ -231,14 +231,28 @@ namespace ecaldqm {
       meEtSummary.fill(getEcalDQMSetupObjects(), ttid, et);
       meEtSummaryByLumi.fill(getEcalDQMSetupObjects(), ttid, et);
 
-      if (et > 60)
-        etSum_ += et;
-
       if (ttid.subDet() == EcalBarrel) {
+        if (et > 26) {
+          etSum_[0] += et;
+          if (et > 40) {
+            etSum_[1] += et;
+            if (et > 60) {
+              etSum_[2] += et;
+            }
+          }
+        }
+
         if (mapTowerOfflineSpikes_[ttid] == 1) {
           meEtRealSpikeMatched.fill(getEcalDQMSetupObjects(), ttid, et);
-          if (et > 60)
-            etSpikeMatchSum_ += et;
+          if (et > 26) {
+            etSpikeMatchSum_[0] += et;
+            if (et > 40) {
+              etSpikeMatchSum_[1] += et;
+              if (et > 60) {
+                etSpikeMatchSum_[2] += et;
+              }
+            }
+          }
         }
       }
 
@@ -433,14 +447,22 @@ namespace ecaldqm {
   }
 
   void TrigPrimTask::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-    MESet& meTrendEtSum(MEs_.at("TrendEtSum"));
-    MESet& meTrendEtSpikeMatchSum(MEs_.at("TrendEtSpikeMatchSum"));
+    MESet& meTrendEtSum13(MEs_.at("TrendEtSum13"));
+    MESet& meTrendEtSum20(MEs_.at("TrendEtSum20"));
+    MESet& meTrendEtSum30(MEs_.at("TrendEtSum30"));
+    MESet& meTrendEtSpikeMatchSum13(MEs_.at("TrendEtSpikeMatchSum13"));
+    MESet& meTrendEtSpikeMatchSum20(MEs_.at("TrendEtSpikeMatchSum20"));
+    MESet& meTrendEtSpikeMatchSum30(MEs_.at("TrendEtSpikeMatchSum30"));
 
-    meTrendEtSum.fill(getEcalDQMSetupObjects(), EcalBarrel, double(timestamp_.iLumi), etSum_);
-    meTrendEtSpikeMatchSum.fill(getEcalDQMSetupObjects(), EcalBarrel, double(timestamp_.iLumi), etSpikeMatchSum_);
+    meTrendEtSum13.fill(getEcalDQMSetupObjects(), EcalBarrel, double(timestamp_.iLumi), etSum_[0]);
+    meTrendEtSum20.fill(getEcalDQMSetupObjects(), EcalBarrel, double(timestamp_.iLumi), etSum_[1]);
+    meTrendEtSum30.fill(getEcalDQMSetupObjects(), EcalBarrel, double(timestamp_.iLumi), etSum_[2]);
+    meTrendEtSpikeMatchSum13.fill(getEcalDQMSetupObjects(), EcalBarrel, double(timestamp_.iLumi), etSpikeMatchSum_[0]);
+    meTrendEtSpikeMatchSum20.fill(getEcalDQMSetupObjects(), EcalBarrel, double(timestamp_.iLumi), etSpikeMatchSum_[1]);
+    meTrendEtSpikeMatchSum30.fill(getEcalDQMSetupObjects(), EcalBarrel, double(timestamp_.iLumi), etSpikeMatchSum_[2]);
 
-    etSum_ = 0.;
-    etSpikeMatchSum_ = 0.;
+    etSum_ = {0., 0., 0.};
+    etSpikeMatchSum_ = {0., 0., 0.};
   }
 
   DEFINE_ECALDQM_WORKER(TrigPrimTask);
