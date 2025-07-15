@@ -20,6 +20,7 @@ laserTask = DQMEDAnalyzer(
 	taguMN      = cms.untracked.InputTag("hcalDigis"),
 	tagRaw      = cms.untracked.InputTag('hltHcalCalibrationRaw'),
 	tagLaserMon = cms.untracked.InputTag("hcalDigis:LASERMON"),
+	tagFEDs = cms.untracked.InputTag("hltHcalCalibrationRaw"),
 
 	laserType = cms.untracked.uint32(0),
 

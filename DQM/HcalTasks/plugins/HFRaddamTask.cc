@@ -70,6 +70,11 @@ HFRaddamTask::HFRaddamTask(edm::ParameterSet const& ps) : DQTask(ps) {
   _taguMN = ps.getUntrackedParameter<edm::InputTag>("taguMN", edm::InputTag("hcalDigis"));
   _tokHF = consumes<QIE10DigiCollection>(_tagHF);
   _tokuMN = consumes<HcalUMNioDigi>(_taguMN);
+
+  _tagFEDs = ps.getUntrackedParameter<edm::InputTag>("tagFEDs", edm::InputTag("hltHcalCalibrationRaw"));
+  _tokFEDs = consumes<FEDRawDataCollection>(_tagFEDs);
+
+  _laserType = (uint32_t)ps.getUntrackedParameter<uint32_t>("laserType");
 }
 
 /* virtual */ void HFRaddamTask::bookHistograms(DQMStore::IBooker& ib, edm::Run const& r, edm::EventSetup const& es) {
@@ -120,10 +125,43 @@ HFRaddamTask::HFRaddamTask(edm::ParameterSet const& ps) : DQTask(ps) {
     if (!e.getByToken(_tokuMN, cumn))
       return false;
 
-    //  event type check
-    uint8_t eventType = cumn->eventType();
-    if (eventType == constants::EVENTTYPE_HFRADDAM)
+    // Below we are requiring both laser type equals 24 and uHTR event type from crate:slot 22:01 equals 14 to confirm this is a HFRaddam laser signal
+    //  laser type check
+    uint32_t laserType = cumn->valueUserWord(0);
+    if (laserType != _laserType)
+      return false;
+
+    // uHTR event type check from crate:slot 22:01 for HF Raddam
+    bool eventflag_uHTR = false;
+    edm::Handle<FEDRawDataCollection> craw;
+    if (!e.getByToken(_tokFEDs, craw))
+      _logger.dqmthrow("Collection FEDRawDataCollection isn't available " + _tagFEDs.label() + " " +
+                       _tagFEDs.instance());
+
+    for (int fed = FEDNumbering::MINHCALFEDID; fed <= FEDNumbering::MAXHCALuTCAFEDID && !eventflag_uHTR; fed++) {
+      if ((fed > FEDNumbering::MAXHCALFEDID && fed < FEDNumbering::MINHCALuTCAFEDID) ||
+          fed > FEDNumbering::MAXHCALuTCAFEDID)
+        continue;
+      FEDRawData const& raw = craw->FEDData(fed);
+      if (raw.size() < constants::RAW_EMPTY)
+        continue;
+
+      hcal::AMC13Header const* hamc13 = (hcal::AMC13Header const*)raw.data();
+      if (!hamc13)
+        continue;
+
+      for (int iamc = 0; iamc < hamc13->NAMC(); iamc++) {
+        HcalUHTRData uhtr(hamc13->AMCPayload(iamc), hamc13->AMCSize(iamc));
+        if (static_cast<int>(uhtr.crateId()) == 22 && static_cast<int>(uhtr.slot()) == 1)
+          if (uhtr.getEventType() == constants::EVENTTYPE_LASER) {
+            eventflag_uHTR = true;
+            break;
+          }
+      }
+    }
+    if (eventflag_uHTR)
       return true;
+
   } else if (_ptype == fLocal) {
     //	local, just return true as all the settings will be done in cfg
     return true;
