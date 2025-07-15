@@ -62,8 +62,8 @@ namespace ecaldqm {
     double bxBin_;
     double bxBinFine_;
 
-    double etSum_;
-    double etSpikeMatchSum_;
+    std::vector<double> etSum_ = {0., 0., 0.};  // when using 13, 20, 30 GeV thresholds
+    std::vector<double> etSpikeMatchSum_ = {0., 0., 0.};
 
     std::map<uint32_t, unsigned> towerReadouts_;
 
