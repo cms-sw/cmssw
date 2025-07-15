@@ -9,6 +9,8 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
 <use name="RecoTracker/Record"/>
+<use name="DataFormats/TrackerCommon"/>
+<use name="Geometry/Records"/>
 
 <iftool name="cuda-gcc-support">
   <use name="cuda"/>

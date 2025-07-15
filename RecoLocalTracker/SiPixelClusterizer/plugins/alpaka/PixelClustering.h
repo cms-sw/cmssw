@@ -97,6 +97,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
     }
   }  // namespace pixelStatus
 
+    ALPAKA_FN_ACC
+	    bool isMorphingModule(uint32_t moduleId, const uint32_t* morphingModules, uint32_t nMorphingModules) {
+		    for (uint32_t i = 0; i < nMorphingModules; ++i) {
+			    if (morphingModules[i] == moduleId)
+				    return true;
+		    }
+		    return false;
+	    }
+
   template <typename TrackerTraits>
   struct CountModules {
     ALPAKA_FN_ACC void operator()(Acc1D const &acc,
@@ -151,6 +160,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
                                   int offset,
                                   int32_t *kernel1,
                                   int32_t *kernel2,
+				  uint32_t *morphingModules,
+				  uint32_t nMorphingModules,
                                   SiPixelClustersSoAView clus_view,
                                   const unsigned int numElements) const {
       static_assert(TrackerTraits::numberOfModules < ::pixelClustering::maxNumModules);
@@ -168,6 +179,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
 		      if (module >= lastModule) break;
 		      auto firstPixel = clus_view[1 + module].moduleStart();
 		      uint32_t thisModuleId = digi_view[firstPixel].moduleId();
+		      uint32_t rawModuleId = digi_view[firstPixel].rawIdArr();
 		      ALPAKA_ASSERT_ACC(thisModuleId < TrackerTraits::numberOfModules);
 
 #ifdef GPU_DEBUG
@@ -298,7 +310,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
 			      }
 		      }
 
-		      if (offset > 1) {
+		      if (offset > 1 && isMorphingModule(rawModuleId,morphingModules,nMorphingModules)) {
 			      uint32_t morphingsize = (pixelStatus::pixelSizeX + 2) * (pixelStatus::pixelSizeY + 2);
 			      //Morphing: Dilation
 			      for (uint32_t j : cms::alpakatools::independent_group_elements(acc, morphingsize)) {
