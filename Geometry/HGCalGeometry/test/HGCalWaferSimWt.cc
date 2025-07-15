@@ -43,7 +43,10 @@ void HGCalWaferSimWt::fillDescriptions(edm::ConfigurationDescriptions& descripti
 }
 
 void HGCalWaferSimWt::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup) {
-  std::vector<std::string> parType = {"Full", "Five", "ChopTwo", "ChopTwoM", "Half", "Semi", "Semi2", "Three", "Half2", "Five2", "JK10", "LDTop", "LDBottom", "LDLeft", "LDRight", "LDFive", "LDThree", "JK17", "JK18", "JK19", "JK20", "HDTop", "HDBottom", "HDLeft", "HDRight", "HDFive"};
+  std::vector<std::string> parType = {"Full",    "Five",     "ChopTwo", "ChopTwoM", "Half",  "Semi",     "Semi2",
+                                      "Three",   "Half2",    "Five2",   "JK10",     "LDTop", "LDBottom", "LDLeft",
+                                      "LDRight", "LDFive",   "LDThree", "JK17",     "JK18",  "JK19",     "JK20",
+                                      "HDTop",   "HDBottom", "HDLeft",  "HDRight",  "HDFive"};
   std::vector<std::string> detType = {"HD120", "LD200", "LD300", "HD200"};
   for (unsigned int k = 0; k < names_.size(); ++k) {
     const auto& geomR = iSetup.getData(geomTokens_[k]);
@@ -58,25 +61,28 @@ void HGCalWaferSimWt::analyze(const edm::Event& /*iEvent*/, const edm::EventSetu
       HGCSiliconDetId hid(id);
       int type = hid.type();
       int part = geom->topology().dddConstants().partialWaferType(hid.layer(), hid.waferU(), hid.waferV());
-      int idx = part*10 + type;
+      int idx = part * 10 + type;
       if (std::find(idxs.begin(), idxs.end(), idx) == idxs.end()) {
-	++ntypes;
-	idxs.push_back(idx);
-	double xpos = 10.0 * (cell->getPosition().x());
-	double ypos = 10.0 * (cell->getPosition().y());
-	int waferU, waferV, cellU, cellV, cellType;
-	double wt;
-	geom->topology().dddConstants().waferFromPosition(xpos, ypos, hid.zside(), hid.layer(), waferU, waferV, cellU, cellV, cellType, wt, false, true);
-	std::string stype = (type >= 0 && type <= 3) ? detType[type] : ("JK" + std::to_string(type));
-	std::string spart = (part >= 0 && part <= 25) ? parType[part] : ("JK" + std::to_string(part));
-	int index = HGCalWaferIndex::waferIndex(hid.layer(), waferU, waferV);
+        ++ntypes;
+        idxs.push_back(idx);
+        double xpos = 10.0 * (cell->getPosition().x());
+        double ypos = 10.0 * (cell->getPosition().y());
+        int waferU, waferV, cellU, cellV, cellType;
+        double wt;
+        geom->topology().dddConstants().waferFromPosition(
+            xpos, ypos, hid.zside(), hid.layer(), waferU, waferV, cellU, cellV, cellType, wt, false, true);
+        std::string stype = (type >= 0 && type <= 3) ? detType[type] : ("JK" + std::to_string(type));
+        std::string spart = (part >= 0 && part <= 25) ? parType[part] : ("JK" + std::to_string(part));
+        int index = HGCalWaferIndex::waferIndex(hid.layer(), waferU, waferV);
         int celltypeX = HGCalWaferType::getType(index, geom->topology().dddConstants().getParameter()->waferInfoMap_);
-	edm::LogVerbatim("HGCalGeomX") << "[" << ntypes << "] " << stype << " " << spart << " wt " << wt << " for " << hid << " at " << xpos << ":" << ypos << " Wafer " << waferU << ":" << waferV << " cell " << cellU << ":" << cellV << " Type " << cellType << ":" << celltypeX;
+        edm::LogVerbatim("HGCalGeomX") << "[" << ntypes << "] " << stype << " " << spart << " wt " << wt << " for "
+                                       << hid << " at " << xpos << ":" << ypos << " Wafer " << waferU << ":" << waferV
+                                       << " cell " << cellU << ":" << cellV << " Type " << cellType << ":" << celltypeX;
       }
     }
-    edm::LogVerbatim("HGCalGeomX") << "\n\nFinds " << idxs.size() << " different wafer types among " << nall << " cells of the detector\n";
+    edm::LogVerbatim("HGCalGeomX") << "\n\nFinds " << idxs.size() << " different wafer types among " << nall
+                                   << " cells of the detector\n";
   }
 }
 
 DEFINE_FWK_MODULE(HGCalWaferSimWt);
- 
