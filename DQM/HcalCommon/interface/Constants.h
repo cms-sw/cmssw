@@ -160,6 +160,9 @@ namespace hcaldqm {
  *	Detector Constants
  */
 
+    // HBLAS pin diode channel id
+    const HcalCalibDetId HBLasMon(HcalBarrel, 0, 31, 0);
+
     //	Hcal Subdetector
     int const HB = 1;
     int const HE = 2;
