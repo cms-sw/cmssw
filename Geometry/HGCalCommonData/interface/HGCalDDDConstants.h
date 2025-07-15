@@ -268,7 +268,8 @@ public:
   int waferType(DetId const& id, bool fromFile) const;
   int waferType(int layer, int waferU, int waferV, bool fromFile) const;
   inline int waferTypes() const {
-    return ((waferHexagon8()) ? (hgpar_->cellThickness_.size()) : ((waferHexagon6()) ? 3 : 0));;
+    return ((waferHexagon8()) ? (hgpar_->cellThickness_.size()) : ((waferHexagon6()) ? 3 : 0));
+    ;
   }
   std::tuple<int, int, int> waferType(HGCSiliconDetId const& id, bool fromFile) const;
   std::pair<int, int> waferTypeRotation(int layer, int waferU, int waferV, bool fromFile, bool debug) const;

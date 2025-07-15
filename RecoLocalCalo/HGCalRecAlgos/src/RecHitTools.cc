@@ -71,7 +71,9 @@ namespace {
     return ddd;
   }
 
-  inline const HGCalDDDConstants* get_ddd(const CaloGeometry* geom, DetId::Detector det, int subdet = ForwardSubdetector::ForwardEmpty) {
+  inline const HGCalDDDConstants* get_ddd(const CaloGeometry* geom,
+                                          DetId::Detector det,
+                                          int subdet = ForwardSubdetector::ForwardEmpty) {
     const HGCalGeometry* hg = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(det, subdet));
     const HGCalDDDConstants* ddd = &(hg->topology().dddConstants());
     check_ddd(ddd);
