@@ -71,6 +71,13 @@ namespace {
     return ddd;
   }
 
+  inline const HGCalDDDConstants* get_ddd(const CaloGeometry* geom, DetId::Detector det, int subdet = ForwardSubdetector::ForwardEmpty) {
+    const HGCalGeometry* hg = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(det, subdet));
+    const HGCalDDDConstants* ddd = &(hg->topology().dddConstants());
+    check_ddd(ddd);
+    return ddd;
+  }
+
   enum CellType {
     CE_E_120 = 0,
     CE_E_200 = 1,
@@ -611,4 +618,14 @@ RecHitTools::scintillatorTileInfo RecHitTools::getTileInfo(const DetId& id) cons
     info.cassette = info2.cassette;
   }
   return info;
+}
+
+int RecHitTools::getWaferTypes(DetId::Detector det, int subdet) const {
+  auto ddd = get_ddd(geom_, det, subdet);
+  return ddd->waferTypes();
+}
+
+std::vector<double> RecHitTools::getSiThickness(DetId::Detector det, int subdet) const {
+  auto ddd = get_ddd(geom_, det, subdet);
+  return ddd->cellThickness();
 }
