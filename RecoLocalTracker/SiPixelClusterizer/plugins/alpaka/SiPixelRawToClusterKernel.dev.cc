@@ -448,7 +448,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void SiPixelRawToClusterKernel<TrackerTraits>::makePhase1ClustersAsync(
         Queue &queue,
         const SiPixelClusterThresholds clusterThresholds,
-     //   ImageType::View images_,
+        //   ImageType::View images_,
         bool doDigiMorphing,
         const SiPixelMorphingConfig *digiMorphingConfig,
         const SiPixelMappingSoAConstView &cablingMap,
@@ -588,13 +588,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         alpaka::memcpy(queue, kernel1_d, kernel1_h);
         alpaka::memcpy(queue, kernel2_d, kernel2_h);
-	std::optional<ImageType> images_;
+        std::optional<ImageType> images_;
 
-	constexpr uint32_t modulesPerBlock = FindClus<TrackerTraits,ImageType>::modulesPerBlock;
-	const uint32_t groups = ( nModules_Clusters_h[0] + modulesPerBlock - 1) / modulesPerBlock;
-        const auto workDivMaxNumModules =
-            cms::alpakatools::make_workdiv<Acc1D>(groups, elementsPerBlockFindClus);
-	images_ = ImageType(groups, queue);
+        constexpr uint32_t modulesPerBlock = FindClus<TrackerTraits, ImageType>::modulesPerBlock;
+        const uint32_t groups = (nModules_Clusters_h[0] + modulesPerBlock - 1) / modulesPerBlock;
+        const auto workDivMaxNumModules = cms::alpakatools::make_workdiv<Acc1D>(groups, elementsPerBlockFindClus);
+        images_ = ImageType(groups, queue);
         alpaka::exec<Acc1D>(queue,
                             workDivMaxNumModules,
                             FindClus<TrackerTraits, ImageType>{},
@@ -673,7 +672,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     template void Phase1Kernel::makePhase1ClustersAsync<SiPixelImageDevice>(
         Queue &,
         const SiPixelClusterThresholds,
-    //    SiPixelImageDevice::View,
+        //    SiPixelImageDevice::View,
         bool,
         const SiPixelMorphingConfig *,
         const SiPixelMappingSoAConstView &,
@@ -688,7 +687,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     template void Phase1Kernel::makePhase1ClustersAsync<SiPixelImageMorphDevice>(
         Queue &,
         const SiPixelClusterThresholds,
-    //    SiPixelImageMorphDevice::View,
+        //    SiPixelImageMorphDevice::View,
         bool,
         const SiPixelMorphingConfig *,
         const SiPixelMappingSoAConstView &,
@@ -703,7 +702,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     template void HIonPhase1Kernel::makePhase1ClustersAsync<SiPixelImageDevice>(
         Queue &,
         const SiPixelClusterThresholds,
-      //  SiPixelImageDevice::View,
+        //  SiPixelImageDevice::View,
         bool,
         const SiPixelMorphingConfig *,
         const SiPixelMappingSoAConstView &,
@@ -718,7 +717,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     template void HIonPhase1Kernel::makePhase1ClustersAsync<SiPixelImageMorphDevice>(
         Queue &,
         const SiPixelClusterThresholds,
-    //    SiPixelImageMorphDevice::View,
+        //    SiPixelImageMorphDevice::View,
         bool,
         const SiPixelMorphingConfig *,
         const SiPixelMappingSoAConstView &,
