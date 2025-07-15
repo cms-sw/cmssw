@@ -1881,7 +1881,7 @@ void HGCalDDDConstants::waferFromPosition(const double x,
                                     << hexside;
     }
   }
-  edm::LogVerbatim("HGCalGeomX") << "Input x:y:layer " << x << ":" << y << ":" << layer << " Wafer " << waferU << ":"
+  edm::LogVerbatim("HGCalGeom") << "Input x:y:layer " << x << ":" << y << ":" << layer << " Wafer " << waferU << ":"
                                  << waferV << " Cell " << cellU << ":" << cellV << ":" << celltype << " wt " << wt;
 }
 
