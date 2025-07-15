@@ -7,4 +7,4 @@
 using SiPixelImageHost = PortableHostCollection<SiPixelImageSoA>;
 using SiPixelImageMorphHost = PortableHostCollection<SiPixelImageMorphSoA>;
 
-#endif
+#endif  // RecoLocalTracker_SiPixelClusterizer_interface_SiPixelImageHost_h

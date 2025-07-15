@@ -448,7 +448,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void SiPixelRawToClusterKernel<TrackerTraits>::makePhase1ClustersAsync(
         Queue &queue,
         const SiPixelClusterThresholds clusterThresholds,
-        //   ImageType::View images_,
         bool doDigiMorphing,
         const SiPixelMorphingConfig *digiMorphingConfig,
         const SiPixelMappingSoAConstView &cablingMap,
@@ -528,14 +527,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         using namespace pixelClustering;
         // calibrations
         using namespace calibPixel;
-        const int threadsPerBlockOrElementsPerThread = []() {
-          if constexpr (std::is_same_v<Device, alpaka_common::DevHost>) {
-            // NB: MPORTANT: This could be tuned to benefit from innermost loop.
-            return 32;
-          } else {
-            return 256;
-          }
-        }();
+
+        const int threadsPerBlockOrElementsPerThread =
+            cms::alpakatools::requires_single_thread_per_block_v<Acc1D> ? 32 : 256;
         const auto blocks = cms::alpakatools::divide_up_by(std::max<int>(wordCounter, numberOfModules),
                                                            threadsPerBlockOrElementsPerThread);
         const auto workDiv = cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlockOrElementsPerThread);
@@ -568,7 +562,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         alpaka::exec<Acc1D>(
             queue, workDiv, CountModules<TrackerTraits>{}, digis_d->view(), clusters_d->view(), wordCounter);
 
-        alpaka::wait(queue);
         auto moduleStartFirstElement = cms::alpakatools::make_device_view(queue, clusters_d->view().moduleStart(), 1u);
         alpaka::memcpy(queue, nModules_Clusters_h, moduleStartFirstElement);
 
@@ -579,26 +572,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
         int offset = int(doDigiMorphing) + 1;
 
-        auto kernel1_d = cms::alpakatools::make_device_buffer<int32_t[]>(queue, digiMorphingConfig->kernel1_.size());
-        auto kernel2_d = cms::alpakatools::make_device_buffer<int32_t[]>(queue, digiMorphingConfig->kernel2_.size());
+        auto kernel1_d = cms::alpakatools::make_device_buffer<int32_t[]>(queue, digiMorphingConfig->kernel1.size());
+        auto kernel2_d = cms::alpakatools::make_device_buffer<int32_t[]>(queue, digiMorphingConfig->kernel2.size());
         auto kernel1_h =
-            cms::alpakatools::make_host_view(digiMorphingConfig->kernel1_.data(), digiMorphingConfig->kernel1_.size());
+            cms::alpakatools::make_host_view(digiMorphingConfig->kernel1.data(), digiMorphingConfig->kernel1.size());
         auto kernel2_h =
-            cms::alpakatools::make_host_view(digiMorphingConfig->kernel2_.data(), digiMorphingConfig->kernel2_.size());
+            cms::alpakatools::make_host_view(digiMorphingConfig->kernel2.data(), digiMorphingConfig->kernel2.size());
 
         alpaka::memcpy(queue, kernel1_d, kernel1_h);
         alpaka::memcpy(queue, kernel2_d, kernel2_h);
-        std::optional<ImageType> images_;
 
-        constexpr uint32_t modulesPerBlock = FindClus<TrackerTraits, ImageType>::modulesPerBlock;
-        const uint32_t groups = (nModules_Clusters_h[0] + modulesPerBlock - 1) / modulesPerBlock;
-        const auto workDivMaxNumModules = cms::alpakatools::make_workdiv<Acc1D>(groups, elementsPerBlockFindClus);
-        images_ = ImageType(groups, queue);
+        const uint32_t blocksFindClus = 64;  // TODO arbitrary, to be optimised
+        const auto workDivMaxNumModules =
+            cms::alpakatools::make_workdiv<Acc1D>(blocksFindClus, elementsPerBlockFindClus);
+        ImageType images(blocksFindClus, queue);
         alpaka::exec<Acc1D>(queue,
                             workDivMaxNumModules,
                             FindClus<TrackerTraits, ImageType>{},
                             digis_d->view(),
-                            images_->view(),
+                            images.view(),
                             offset,
                             kernel1_d.data(),
                             kernel2_d.data(),
