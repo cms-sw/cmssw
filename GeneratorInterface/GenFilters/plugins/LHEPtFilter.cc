@@ -123,6 +123,7 @@ bool LHEPtFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetu
 void LHEPtFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<bool>("isScalar", false);  // default is false
+  descriptions.addDefault(desc);
 }
 
 //define this as a plug-in
