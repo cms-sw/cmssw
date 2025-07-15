@@ -74,10 +74,14 @@ namespace hgcaldigi {
                       // If exception found before ECON-D, this would be 0
                       // Otherwise the payload length of the ECON-D
                       SOA_COLUMN(uint16_t, payloadLength),
-                      // Diffrence between the BX,L1A,Orbit number in the S-Link header and the ECON-D header
-                      SOA_COLUMN(int16_t, BXdifference),
-                      SOA_COLUMN(int8_t, L1Adifference),
-                      SOA_COLUMN(int8_t, Orbitdifference),
+                      // BX,L1A,Orbit number of the ECON-D
+                      SOA_COLUMN(uint16_t, BX),
+                      SOA_COLUMN(uint8_t, L1A),
+                      SOA_COLUMN(uint8_t, Orbit),
+                      // BX,L1A,Orbit number of the Capture Block
+                      SOA_COLUMN(uint16_t, CBBX),
+                      SOA_COLUMN(uint8_t, CBL1A),
+                      SOA_COLUMN(uint8_t, CBOrbit),
                       // Common modes
                       SOA_EIGEN_COLUMN(Matrix, cm))
   using HGCalECONDPacketInfoSoA = HGCalECONDPacketInfoSoALayout<>;

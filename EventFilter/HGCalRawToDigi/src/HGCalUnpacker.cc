@@ -18,6 +18,7 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
                                      const HGCalMappingModuleIndexer& moduleIndexer,
                                      const HGCalConfiguration& config,
                                      hgcaldigi::HGCalDigiHost& digis,
+                                     hgcaldigi::HGCalFEDPacketInfoHost& fedPacketInfo,
                                      hgcaldigi::HGCalECONDPacketInfoHost& econdPacketInfo,
                                      bool headerOnlyMode) {
   // ReadoutSequence object for this FED
@@ -51,17 +52,18 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
   const auto* ptr = header;
 
   // read L1A number from the SLink header
-  int8_t L1ASLink = ((*(header + 1) >> BACKEND_FRAME::SLINK_GLOBAL_EVENTID_LSB_POS) &
-                     ECOND_FRAME::L1A_MASK);  // use mask in ECON-D to get lowest 6 bits
+  uint64_t SLinkL1Amask = (uint64_t(BACKEND_FRAME::SLINK_GLOBAL_EVENTID_MSB_MASK) << 32) |
+                          uint64_t(BACKEND_FRAME::SLINK_GLOBAL_EVENTID_LSB_MASK);
+  uint64_t L1ASLink = ((*(header + 1) >> BACKEND_FRAME::SLINK_GLOBAL_EVENTID_LSB_POS) & SLinkL1Amask);
   // read BX number and Orbit number from the SLink trailer
-  int16_t BXSLink = ((*(trailer - 1) >> BACKEND_FRAME::SLINK_BXID_POS) &
-                     ECOND_FRAME::BX_MASK);  // use mask in ECON-D to get lowest 12 bits
-  int8_t OrbitSLink = ((*(trailer - 2) >> (BACKEND_FRAME::SLINK_ORBID_POS + 32)) &
-                       ECOND_FRAME::ORBIT_MASK);  // use mask in ECON-D to get lowest 3 bits
+  uint16_t BXSLink = ((*(trailer - 1) >> BACKEND_FRAME::SLINK_BXID_POS) & BACKEND_FRAME::SLINK_BXID_MASK);
+  uint32_t OrbitSLink = ((*(trailer - 2) >> (BACKEND_FRAME::SLINK_ORBID_POS + 32)) & BACKEND_FRAME::SLINK_ORBID_MASK);
+  fedPacketInfo.view()[fedId].FEDL1A() = L1ASLink;
+  fedPacketInfo.view()[fedId].FEDBX() = BXSLink;
+  fedPacketInfo.view()[fedId].FEDOrbit() = OrbitSLink;
 #ifdef EDM_ML_DEBUG
-  LogDebug("[HGCalUnpacker]") << "Global BX number:" << std::dec << BXSLink;
-  LogDebug("[HGCalUnpacker]") << "Global L1A number:" << std::dec << (int)L1ASLink;
-  LogDebug("[HGCalUnpacker]") << "Global Orbit ID:" << std::dec << (int)OrbitSLink;
+  LogDebug("[HGCalUnpacker]") << "S-Link BX number:" << std::dec << BXSLink << ", L1A number:" << std::dec
+                              << (int)L1ASLink << ", Orbit ID:" << std::dec << (int)OrbitSLink;
 
   for (unsigned iword = 0; ptr < trailer; ++iword) {
     LogDebug("[HGCalUnpacker]") << std::setw(8) << iword << ": 0x" << std::hex << std::setfill('0') << std::setw(16)
@@ -100,6 +102,7 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
   for (uint32_t captureblockIdx = 0; captureblockIdx < HGCalMappingModuleIndexer::maxCBperFED_ && ptr < trailer - 2;
        captureblockIdx++) {
     // check capture block header (64b)
+
 #ifdef EDM_ML_DEBUG
     LogDebug("[HGCalUnpacker]") << "@" << std::setw(8) << std::distance(header, ptr) << ": 0x" << std::hex
                                 << std::setfill('0') << std::setw(16) << *ptr << std::dec;
@@ -141,6 +144,16 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
                                          << " from 0x" << cb_header << ".";
       return (0x1 << hgcaldigi::FEDUnpackingFlags::ErrorCaptureBlockHeader);
     }
+    uint16_t BXCaptureBlock =
+        ((cb_header >> (BACKEND_FRAME::CAPTUREBLOCK_BC_POS + 32)) & BACKEND_FRAME::CAPTUREBLOCK_BC_MASK);
+    uint8_t L1ACaptureBlock =
+        ((cb_header >> (BACKEND_FRAME::CAPTUREBLOCK_EC_POS + 32)) & BACKEND_FRAME::CAPTUREBLOCK_EC_MASK);
+    uint8_t OrbitCaptureBlock =
+        ((cb_header >> (BACKEND_FRAME::CAPTUREBLOCK_OC_POS + 32)) & BACKEND_FRAME::CAPTUREBLOCK_OC_MASK);
+#ifdef EDM_ML_DEBUG
+    LogDebug("[HGCalUnpacker]") << "CB BX number:" << std::dec << BXCaptureBlock << ", L1A number:" << std::dec
+                                << (int)L1ACaptureBlock << ", Orbit number:" << std::dec << (int)OrbitCaptureBlock;
+#endif
     ++ptr;
 
     // parse Capture Block body (ECON-Ds)
@@ -176,22 +189,18 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
       const auto econd_payload_length = ((econd_headers[0] >> ECOND_FRAME::PAYLOAD_POS) & ECOND_FRAME::PAYLOAD_MASK);
 
       // read BX, L1A, and Orbit number from the ECON-D header
-      int16_t BXECOND = ((econd_headers[1] >> ECOND_FRAME::BX_POS) & ECOND_FRAME::BX_MASK);
-      int8_t L1AECOND = ((econd_headers[1] >> ECOND_FRAME::L1A_POS) & ECOND_FRAME::L1A_MASK);
-      int8_t OrbitECOND = ((econd_headers[1] >> ECOND_FRAME::ORBIT_POS) & ECOND_FRAME::ORBIT_MASK);
-      // save the difference between the SLink and ECON-D BX, L1A, and Orbit numbers(ECON-D - SLink)
-      econdPacketInfo.view()[ECONDdenseIdx].BXdifference() = BXECOND - BXSLink;
-      econdPacketInfo.view()[ECONDdenseIdx].L1Adifference() = L1AECOND - L1ASLink;
-      econdPacketInfo.view()[ECONDdenseIdx].Orbitdifference() = OrbitECOND - OrbitSLink;
+      uint16_t BXECOND = ((econd_headers[1] >> ECOND_FRAME::BX_POS) & ECOND_FRAME::BX_MASK);
+      uint8_t L1AECOND = ((econd_headers[1] >> ECOND_FRAME::L1A_POS) & ECOND_FRAME::L1A_MASK);
+      uint8_t OrbitECOND = ((econd_headers[1] >> ECOND_FRAME::ORBIT_POS) & ECOND_FRAME::ORBIT_MASK);
+      econdPacketInfo.view()[ECONDdenseIdx].BX() = BXECOND;
+      econdPacketInfo.view()[ECONDdenseIdx].L1A() = L1AECOND;
+      econdPacketInfo.view()[ECONDdenseIdx].Orbit() = OrbitECOND;
+      econdPacketInfo.view()[ECONDdenseIdx].CBBX() = BXCaptureBlock;
+      econdPacketInfo.view()[ECONDdenseIdx].CBL1A() = L1ACaptureBlock;
+      econdPacketInfo.view()[ECONDdenseIdx].CBOrbit() = OrbitCaptureBlock;
 #ifdef EDM_ML_DEBUG
-      LogDebug("[HGCalUnpacker]") << "SLink BX number:" << std::dec << BXSLink << ", ECON-D BX number:" << std::dec
-                                  << BXECOND << ", difference:" << econdPacketInfo.view()[ECONDdenseIdx].BXdifference();
-      LogDebug("[HGCalUnpacker]") << "SLink L1A number:" << std::dec << (int)L1ASLink
-                                  << ", ECON-D L1A number:" << std::dec << (int)L1AECOND
-                                  << ", difference:" << (int)econdPacketInfo.view()[ECONDdenseIdx].L1Adifference();
-      LogDebug("[HGCalUnpacker]") << "SLink Orbit number:" << std::dec << (int)OrbitSLink
-                                  << ", ECON-D Orbit number:" << std::dec << (int)OrbitECOND
-                                  << ", difference:" << (int)econdPacketInfo.view()[ECONDdenseIdx].Orbitdifference();
+      LogDebug("[HGCalUnpacker]") << "ECON-D BX number:" << std::dec << BXECOND << ", L1A number:" << std::dec
+                                  << (int)L1AECOND << ", Orbit number:" << std::dec << (int)OrbitECOND;
 #endif
       // sanity check
       if (((econd_headers[0] >> ECOND_FRAME::HEADER_POS) & ECOND_FRAME::HEADER_MASK) !=
