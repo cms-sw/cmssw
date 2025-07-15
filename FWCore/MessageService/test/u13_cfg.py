@@ -49,4 +49,4 @@ process.sendSomeMessages = cms.EDAnalyzer("UnitTestClient_H")
 
 process.p = cms.Path(process.sendSomeMessages)
 
-
+process.add_(cms.Service("edmtest::UnitTestService_H"))

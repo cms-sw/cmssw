@@ -23,7 +23,6 @@ process.ttrigRef = cms.ESSource("PoolDBESSource",
         messageLevel = cms.untracked.int32(0),
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
-    timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('DTTtrigRcd'),
         tag = cms.string('DT_tTrig_CRAFT_V04_k-07_offline'),
@@ -36,7 +35,6 @@ process.ttrigRef = cms.ESSource("PoolDBESSource",
             label = cms.untracked.string('ttrigToValidate')
         )),
     connect = cms.string('oracle://cms_orcoff_prep/CMS_COND_30X_DT'),
-    siteLocalConfig = cms.untracked.bool(False)
 )
 
 process.MessageLogger = cms.Service("MessageLogger",

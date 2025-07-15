@@ -36,6 +36,14 @@ void LCToSCAssociatorByEnergyScoreProducer<HIT>::produce(edm::StreamID,
     for (auto &token : hgcal_hits_token_) {
       edm::Handle<HGCRecHitCollection> hits_handle;
       iEvent.getByToken(token, hits_handle);
+
+      // Check handle validity
+      if (!hits_handle.isValid()) {
+        edm::LogWarning("LCToSCAssociatorByEnergyScoreProducer")
+            << "Hit collection not available for token. Skipping this collection.";
+        continue;  // Skip invalid handle
+      }
+
       for (const auto &hit : *hits_handle) {
         hits.push_back(&hit);
       }
@@ -44,6 +52,14 @@ void LCToSCAssociatorByEnergyScoreProducer<HIT>::produce(edm::StreamID,
     for (auto &token : hits_token_) {
       edm::Handle<std::vector<HIT>> hits_handle;
       iEvent.getByToken(token, hits_handle);
+
+      // Check handle validity
+      if (!hits_handle.isValid()) {
+        edm::LogWarning("LCToSCAssociatorByEnergyScoreProducer")
+            << "Hit collection not available for token. Skipping this collection.";
+        continue;  // Skip invalid handle
+      }
+
       for (const auto &hit : *hits_handle) {
         hits.push_back(&hit);
       }
@@ -69,10 +85,8 @@ void LCToSCAssociatorByEnergyScoreProducer<HIT>::fillDescriptions(edm::Configura
                                           edm::InputTag("HGCalRecHit", "HGCHEBRecHits")});
   } else {
     desc.add<edm::InputTag>("hitMapTag", edm::InputTag("recHitMapProducer", "barrelRecHitMap"));
-    desc.add<std::vector<edm::InputTag>>("hits",
-                                         {edm::InputTag("particleFlowRecHitECAL", ""),
-                                          edm::InputTag("particleFlowRecHitHBHE", ""),
-                                          edm::InputTag("particleFlowRecHitHO", "")});
+    desc.add<std::vector<edm::InputTag>>(
+        "hits", {edm::InputTag("particleFlowRecHitECAL", ""), edm::InputTag("particleFlowRecHitHBHE", "")});
   }
   cfg.addWithDefaultLabel(desc);
 }

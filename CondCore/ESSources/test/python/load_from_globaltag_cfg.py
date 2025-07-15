@@ -7,10 +7,10 @@ process = cms.Process("TEST")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 process.source = cms.Source("EmptyIOVSource",
-                                lastValue = cms.uint64(3),
-                                timetype = cms.string('runnumber'),
-                                firstValue = cms.uint64(1),
-                                interval = cms.uint64(1)
+                            lastValue = cms.uint64(3),
+                            timetype = cms.string('runnumber'),
+                            firstValue = cms.uint64(1),
+                            interval = cms.uint64(1)
                             )
 
 from CondCore.ESSources.GlobalTag import GlobalTag

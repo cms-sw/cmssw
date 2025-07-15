@@ -1097,6 +1097,32 @@ Realistic2024PbPbCollisionVtxSmearingParameters = cms.PSet(
     Z0 = cms.double(0.2290316)
 )
 
+# Estimate for the 2025 OO beam conditions, based on the 2024 PbPb beam width parameters from Realistic2024PbPbCollisionVtxSmearingParameters with the pp beam centroid from runs 392109 and 392112
+Nominal2025OOCollisionVtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(50),
+    Emittance = cms.double(6.684e-08),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(4.9068349),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.0184194),
+    Y0 = cms.double(-0.0141852),
+    Z0 = cms.double(0.3423956)
+)
+
+# From 2025 pO data runs 393975-394007)
+Realistic2025pOCollisionVtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(100),
+    Emittance = cms.double(3.835e-08),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(4.855060),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.041049),
+    Y0 = cms.double(-0.008035),
+    Z0 = cms.double(0.569058)
+)
+
 # Parameters for HL-LHC operation at 13TeV
 HLLHCVtxSmearingParameters = cms.PSet(
     MeanXIncm = cms.double(0.),

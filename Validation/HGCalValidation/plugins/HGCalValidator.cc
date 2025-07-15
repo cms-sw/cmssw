@@ -119,10 +119,9 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
   associatorMapSimtR = consumes<ticl::SimToRecoCollectionWithSimClusters>(associatorSim_);
   associatorMapRtSim = consumes<ticl::RecoToSimCollectionWithSimClusters>(associatorSim_);
 
-  simTrackstersMap_ = consumes<std::map<uint, std::vector<uint>>>(edm::InputTag("ticlSimTracksters"));
+  simTrackstersMap_ = consumes<std::map<uint, std::vector<uint>>>(pset.getParameter<edm::InputTag>("simTrackstersMap"));
 
-  hitMap_ =
-      consumes<std::unordered_map<DetId, const unsigned int>>(edm::InputTag("recHitMapProducer", "hgcalRecHitMap"));
+  hitMap_ = consumes<std::unordered_map<DetId, const unsigned int>>(pset.getParameter<edm::InputTag>("hitMap"));
 
   simClusters_ = consumes<std::vector<SimCluster>>(pset.getParameter<edm::InputTag>("label_scl"));
 
@@ -384,10 +383,18 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
 
   edm::Handle<ticl::TracksterCollection> simTracksterHandle;
   event.getByToken(simTracksters_, simTracksterHandle);
+  if (!simTracksterHandle.isValid()) {
+    edm::LogWarning("MissingInput") << "Missing SimTrackster collection";
+    return;
+  }
   ticl::TracksterCollection const& simTracksters = *simTracksterHandle;
 
   edm::Handle<ticl::TracksterCollection> simTracksterFromCPHandle;
   event.getByToken(simTracksters_fromCPs_, simTracksterFromCPHandle);
+  if (!simTracksterFromCPHandle.isValid()) {
+    edm::LogWarning("MissingInput") << "Missing SimTrackster collection from CP";
+    return;
+  }
   ticl::TracksterCollection const& simTrackstersFromCPs = *simTracksterFromCPHandle;
 
   edm::Handle<std::map<uint, std::vector<uint>>> simTrackstersMapHandle;
@@ -488,7 +495,14 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
         histograms.histoProducerAlgo, simClusters, totallayers_to_monitor_, thicknesses_to_monitor_);
 
     for (unsigned int ws = 0; ws < label_clustersmask.size(); ws++) {
-      const auto& inputClusterMask = event.get(clustersMaskTokens_[ws]);
+      const auto& inputClusterMaskHandle = event.getHandle(clustersMaskTokens_[ws]);
+
+      if (!inputClusterMaskHandle.isValid()) {
+        edm::LogError("ClusterMaskError") << "Failed to retrieve clusters mask for ws index: " << ws;
+        continue;  // Or handle the error appropriately
+      }
+
+      const auto& inputClusterMask = *inputClusterMaskHandle;
 
       edm::Handle<ticl::SimToRecoCollectionWithSimClusters> simtorecoCollectionH;
       event.getByToken(associatorMapSimtR, simtorecoCollectionH);
@@ -554,6 +568,12 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
     if (doTrackstersPlots_) {
       edm::Handle<ticl::TracksterCollection> tracksterHandle;
       event.getByToken(label_tstTokens[wml], tracksterHandle);
+
+      if (!tracksterHandle.isValid()) {
+        edm::LogWarning("MissinInput") << "Failed to retrieve tracksters for wml index: " << wml;
+        continue;  // Or handle the error as needed
+      }
+
       const ticl::TracksterCollection& tracksters = *tracksterHandle;
       edm::Handle<TracksterToTracksterMap> trackstersToSimTrackstersMapH, simTrackstersToTrackstersMapH,
           trackstersToSimTrackstersFromCPsMapH, simTrackstersFromCPsToTrackstersMapH,
@@ -846,6 +866,8 @@ void HGCalValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<edm::InputTag>("label_cp_fake", edm::InputTag("mix", "MergedCaloTruth"));
   desc.add<edm::InputTag>("label_scl", edm::InputTag("mix", "MergedCaloTruth"));
   desc.add<edm::InputTag>("simVertices", edm::InputTag("g4SimHits"));
+  desc.add<edm::InputTag>("simTrackstersMap", edm::InputTag("ticlSimTracksters"));
+  desc.add<edm::InputTag>("hitMap", edm::InputTag("recHitMapProducer", "hgcalRecHitMap"));
   desc.add<std::vector<edm::InputTag>>("LayerClustersInputMask",
                                        {
                                            edm::InputTag("ticlTrackstersCLUE3DHigh"),

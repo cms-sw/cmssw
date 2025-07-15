@@ -57,7 +57,7 @@ namespace edm {
 
     // member functions
 
-    void PrescaleService::preBeginJob(PathsAndConsumesOfModulesBase const&, ProcessContext const& processContext) {
+    void PrescaleService::preBeginJob(ProcessContext const& processContext) {
       if (!processParameterSetID_.isValid()) {
         processParameterSetID_ = processContext.parameterSetID();
       }

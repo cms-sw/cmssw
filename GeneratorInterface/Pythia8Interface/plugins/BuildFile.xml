@@ -2,6 +2,7 @@
 <library file="Pythia8Hadronizer.cc,Py8toJetInput.cc,*Hook*.cc,LHA*.cc" name="GeneratorInterfacePythia8Filters">
   <use name="GeneratorInterface/PartonShowerVeto"/>
   <use name="GeneratorInterface/ExternalDecays"/>
+  <use name="FWCore/AbstractServices"/>
   <use name="FWCore/Concurrency"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/ParameterSet"/>
@@ -17,6 +18,7 @@
 <library file="Pythia8HepMC3Hadronizer.cc,Py8toJetInput.cc,*Hook*.cc,LHA*.cc" name="GeneratorInterfacePythia8HepMC3Filters">
   <use name="GeneratorInterface/PartonShowerVeto"/>
   <use name="GeneratorInterface/ExternalDecays"/>
+  <use name="FWCore/AbstractServices"/>
   <use name="FWCore/Concurrency"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/ParameterSet"/>

@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/ProductResolversFactory.h"
 #include "FWCore/Framework/interface/ProductResolverBase.h"
 #include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
+#include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "ProductResolvers.h"
 #include "DroppedDataProductResolver.h"
 
@@ -59,10 +60,6 @@ namespace edm::productResolversFactory {
 
       return std::make_shared<SwitchAliasProductResolver>(
           std::move(bd), dynamic_cast<DataManagingOrAliasProductResolver&>(*iResolvers[index]));
-    }
-
-    std::shared_ptr<ProductResolverBase> makeParentProcessProduct(std::shared_ptr<ProductDescription const> bd) {
-      return std::make_shared<ParentProcessProductResolver>(std::move(bd));
     }
 
     void addProductOrThrow(std::shared_ptr<ProductResolverBase> iResolver,
@@ -195,8 +192,7 @@ namespace edm::productResolversFactory {
 
   std::vector<std::shared_ptr<ProductResolverBase>> make(BranchType bt,
                                                          std::string_view iProcessName,
-                                                         ProductRegistry const& iReg,
-                                                         bool isForPrimaryProcess) {
+                                                         ProductRegistry const& iReg) {
     auto const& helper = iReg.productLookup(bt);
     std::vector<std::shared_ptr<ProductResolverBase>> productResolvers(iReg.getNextIndexValue(bt));
     ProductRegistry::ProductList const& prodsList = iReg.productList();
@@ -208,22 +204,12 @@ namespace edm::productResolversFactory {
     for (auto const& prod : prodsList) {
       ProductDescription const& bd = prod.second;
       if (bd.branchType() == bt) {
-        if (isForPrimaryProcess or bd.processName() == iProcessName) {
-          if (bd.isAlias()) {
-            hasAliases = true;
-          } else if (bd.isSwitchAlias()) {
-            hasSwitchAliases = true;
-          } else {
-            addProductOrThrow(makeForPrimary(bd, iReg, *helper), productResolvers, iReg);
-          }
+        if (bd.isAlias()) {
+          hasAliases = true;
+        } else if (bd.isSwitchAlias()) {
+          hasSwitchAliases = true;
         } else {
-          //We are in a SubProcess and this branch is from the parent
-          auto cbd = std::make_shared<ProductDescription const>(bd);
-          if (bd.dropped()) {
-            addProductOrThrow(makeDroppedProduct(cbd), productResolvers, iReg);
-          } else {
-            addProductOrThrow(makeParentProcessProduct(cbd), productResolvers, iReg);
-          }
+          addProductOrThrow(makeForPrimary(bd, iReg, *helper), productResolvers, iReg);
         }
       }
     }

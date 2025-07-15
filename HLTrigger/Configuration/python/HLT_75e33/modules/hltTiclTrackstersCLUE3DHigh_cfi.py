@@ -4,11 +4,11 @@ hltTiclTrackstersCLUE3DHigh = cms.EDProducer("TrackstersProducer",
     detector = cms.string('HGCAL'),
     filtered_mask = cms.InputTag("hltFilteredLayerClustersCLUE3DHigh","CLUE3DHigh"),
     itername = cms.string('CLUE3DHigh'),
-    layer_clusters = cms.InputTag("hltHgcalMergeLayerClusters"),
+    layer_clusters = cms.InputTag("hltMergeLayerClusters"),
     layer_clusters_hfnose_tiles = cms.InputTag("ticlLayerTileHFNose"),
     layer_clusters_tiles = cms.InputTag("hltTiclLayerTileProducer"),
     mightGet = cms.optional.untracked.vstring,
-    original_mask = cms.InputTag("hltHgcalMergeLayerClusters","InitialLayerClustersMask"),
+    original_mask = cms.InputTag("hltMergeLayerClusters","InitialLayerClustersMask"),
     patternRecognitionBy = cms.string('CLUE3D'),
     inferenceAlgo = cms.string('TracksterInferenceByCNNv4'),
     pluginPatternRecognitionByCA = cms.PSet(
@@ -121,8 +121,8 @@ hltTiclTrackstersCLUE3DHigh = cms.EDProducer("TrackstersProducer",
     ),
     pluginInferenceAlgoTracksterInferenceByDNN = cms.PSet(
         algo_verbosity = cms.int32(0),
-	onnxPIDModelPath = cms.FileInPath('RecoHGCal/TICL/data/ticlv5/onnx_models/patternrecognition/id_v0.onnx'),
-        onnxEnergyModelPath = cms.FileInPath('RecoHGCal/TICL/data/ticlv5/onnx_models/patternrecognition/energy_v0.onnx'),
+	onnxPIDModelPath = cms.FileInPath('RecoHGCal/TICL/data/ticlv5/onnx_models/DNN/patternrecognition/id_v0.onnx'),
+        onnxEnergyModelPath = cms.FileInPath('RecoHGCal/TICL/data/ticlv5/onnx_models/DNN/patternrecognition/energy_v0.onnx'),
         inputNames  = cms.vstring('input'),
         output_en   = cms.vstring('enreg_output'),
         output_id   = cms.vstring('pid_output'),
@@ -132,15 +132,28 @@ hltTiclTrackstersCLUE3DHigh = cms.EDProducer("TrackstersProducer",
         doRegression = cms.int32(0),
         type = cms.string('TracksterInferenceByDNN')
     ),
+    pluginInferenceAlgoTracksterInferenceByPFN = cms.PSet(
+        algo_verbosity = cms.int32(0),
+        onnxPIDModelPath = cms.FileInPath('RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/patternrecognition/id_v0.onnx'),
+        onnxEnergyModelPath = cms.FileInPath('RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/patternrecognition/energy_v0.onnx'),
+        inputNames  = cms.vstring('input','input_tr_features'),
+        output_en   = cms.vstring('enreg_output'),
+        output_id   = cms.vstring('pid_output'),
+        eid_n_layers = cms.int32(50),
+        eid_n_clusters = cms.int32(10),
+        doPID = cms.int32(1),
+        doRegression = cms.int32(0),
+        type = cms.string('TracksterInferenceByPFN')
+    ),
     pluginInferenceAlgoTracksterInferenceByANN = cms.PSet(
         algo_verbosity = cms.int32(0),
         type = cms.string('TracksterInferenceByANN')
 
     ),
     seeding_regions = cms.InputTag("hltTiclSeedingGlobal"),
-    time_layerclusters = cms.InputTag("hltHgcalMergeLayerClusters","timeLayerCluster")
+    time_layerclusters = cms.InputTag("hltMergeLayerClusters","timeLayerCluster")
     )
     
 from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
 ticl_v5.toModify(hltTiclTrackstersCLUE3DHigh.pluginPatternRecognitionByCLUE3D, computeLocalTime = cms.bool(True))
-ticl_v5.toModify(hltTiclTrackstersCLUE3DHigh.inferenceAlgo, type = cms.string('TracksterInferenceByDNN'))
+ticl_v5.toModify(hltTiclTrackstersCLUE3DHigh, inferenceAlgo = cms.string('TracksterInferenceByPFN'))

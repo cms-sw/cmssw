@@ -29,16 +29,6 @@
   <flags NO_TESTRUN="1"/>
 </bin>
 
-<bin file="rfio2.cpp" name="test_StorageFactory_Rfio2">
-</bin>
-
-<bin file="rfio3.cpp" name="test_StorageFactory_Rfio3">
-</bin>
-
-<bin file="write.cpp" name="test_StorageFactory_Write">
-  <flags NO_TESTRUN="1"/>
-</bin>
-
 <bin file="mkstemp.cpp" name="test_StorageFactory_Mkstemp">
 </bin>
 
@@ -51,3 +41,7 @@ It's not that hard guard accesses to the PluginManager, but per Chris Jones, we 
 to wait until the framework decides on a threading model to implement a fix.
 file="threadsafe.cpp" name="test_StorageFactory_threadsafe"
 -->
+
+<test name="test_StorageFactory_StorageProxies" command="test_storageproxies.sh"/>
+
+<test name="test_StorageFactory_edmStorageTrace" command="python3 ${LOCALTOP}/src/Utilities/StorageFactory/scripts/edmStorageTrace.py --test"/>

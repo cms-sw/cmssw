@@ -43,7 +43,6 @@
 
 namespace edm {
   class ModuleCallingContext;
-  class ModuleProcessName;
   class ProductResolverIndexHelper;
   class EDConsumerBase;
   class PreallocationConfiguration;
@@ -51,6 +50,7 @@ namespace edm {
   class ActivityRegistry;
   class ThinnedAssociationsHelper;
   class SignallingProductRegistryFiller;
+  struct ModuleConsumesMinimalESInfo;
 
   namespace maker {
     template <typename T>
@@ -91,7 +91,6 @@ namespace edm {
       virtual bool wantsStreamRuns() const noexcept = 0;
       virtual bool wantsStreamLuminosityBlocks() const noexcept = 0;
 
-      std::string workerType() const { return "WorkerT<EDAnalyzerAdaptorBase>"; }
       void registerProductsAndCallbacks(EDAnalyzerAdaptorBase const*, SignallingProductRegistryFiller* reg);
 
     protected:
@@ -121,22 +120,10 @@ namespace edm {
 
       const EDConsumerBase* consumer() const;
 
-      void modulesWhoseProductsAreConsumed(std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modules,
-                                           std::vector<ModuleProcessName>& modulesInPreviousProcesses,
-                                           ProductRegistry const& preg,
-                                           std::map<std::string, ModuleDescription const*> const& labelsToDesc,
-                                           std::string const& processName) const;
-
-      void esModulesWhoseProductsAreConsumed(
-          std::array<std::vector<eventsetup::ComponentDescription const*>*, kNumberOfEventSetupTransitions>& esModules,
-          eventsetup::ESRecordsToProductResolverIndices const&) const;
-
       void convertCurrentProcessAlias(std::string const& processName);
 
       std::vector<ModuleConsumesInfo> moduleConsumesInfos() const;
-      std::vector<ModuleConsumesESInfo> moduleConsumesESInfos(
-          eventsetup::ESRecordsToProductResolverIndices const&) const;
-
+      std::vector<ModuleConsumesMinimalESInfo> moduleConsumesMinimalESInfos() const;
       void deleteModulesEarly();
 
     private:

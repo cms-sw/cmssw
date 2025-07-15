@@ -46,6 +46,7 @@ namespace edm {
       DataKey makeKey(const std::string& iName) const override {
         return DataKey(DataKey::makeTypeTag<typename T::value_type>(), iName.c_str());
       }
+      unsigned int produceMethodID() const override { return 0; }
     };
   }  // namespace eventsetup
 }  // namespace edm

@@ -26,8 +26,8 @@ hltInitialStepTrackCandidates = cms.EDProducer("CkfTrackCandidateMaker",
 
 _hltInitialStepTrackCandidatesLST = cms.EDProducer('LSTOutputConverter',
     lstOutput = cms.InputTag('hltLST'),
-    phase2OTHits = cms.InputTag('hltPhase2OTHitsInputLST'),
-    lstPixelSeeds = cms.InputTag('hltPixelSeedInputLST'),
+    lstInput = cms.InputTag('hltInputLST'),
+    lstPixelSeeds = cms.InputTag('hltInputLST'),
     includeT5s = cms.bool(True),
     includeNonpLSTSs = cms.bool(False),
     propagatorAlong = cms.ESInputTag('', 'PropagatorWithMaterial'),
@@ -44,5 +44,11 @@ _hltInitialStepTrackCandidatesLST = cms.EDProducer('LSTOutputConverter',
     )
 )
 
+from Configuration.ProcessModifiers.singleIterPatatrack_cff import singleIterPatatrack
 from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
-trackingLST.toReplaceWith(hltInitialStepTrackCandidates, _hltInitialStepTrackCandidatesLST)
+from Configuration.ProcessModifiers.seedingLST_cff import seedingLST
+# All useful combinations added to make the code work as expected and for clarity
+(~singleIterPatatrack & trackingLST & ~seedingLST).toReplaceWith(hltInitialStepTrackCandidates, _hltInitialStepTrackCandidatesLST)
+(~singleIterPatatrack & trackingLST & seedingLST).toReplaceWith(hltInitialStepTrackCandidates, _hltInitialStepTrackCandidatesLST)
+(singleIterPatatrack & trackingLST & ~seedingLST).toReplaceWith(hltInitialStepTrackCandidates, _hltInitialStepTrackCandidatesLST)
+(singleIterPatatrack & trackingLST & seedingLST).toModify(hltInitialStepTrackCandidates, src = "hltInitialStepTrajectorySeedsLST") # All LST seeds

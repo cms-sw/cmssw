@@ -27,7 +27,7 @@ public:
   using BTLValues = BTLLayout;
 
   struct ETLfaceLayout {
-    uint32_t idDiscSide_;  // disc face identifier
+    uint32_t idDiscSide_;  // disc face identifier: 0 disc1 F, 1 disc1 B, 2 disc2 F, 3 disc2 B
     uint32_t idDetType1_;  // module type id identifier for first row
 
     std::array<std::vector<int>, 2> start_copy_;  // start copy per row, first of type idDetType1_

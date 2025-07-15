@@ -13,21 +13,15 @@
 
 namespace hph {
 
-  Setup::Setup(const edm::ParameterSet& iConfig,
+  Setup::Setup(const Config& iConfig,
                const tt::Setup& setupTT,
                const trackerTFP::DataFormats& dataFormats,
                const trackerTFP::LayerEncoding& layerEncoding)
-      : iConfig_(iConfig),
-        oldKFPSet_(iConfig.getParameter<edm::ParameterSet>("oldKFPSet")),
-        setupTT_(setupTT),
-        dataFormats_(dataFormats),
-        dfcot_(dataFormats_.format(trackerTFP::Variable::cot, trackerTFP::Process::kfin)),
-        dfzT_(dataFormats_.format(trackerTFP::Variable::zT, trackerTFP::Process::kfin)),
-        layerEncoding_(layerEncoding),
-        hphDebug_(iConfig.getParameter<bool>("hphDebug")),
-        useNewKF_(iConfig.getParameter<bool>("useNewKF")),
-        chosenRofZNewKF_(setupTT_.chosenRofZ()),
-        etaRegionsNewKF_(setupTT_.boundarieEta()),
+      : setupTT_(&setupTT),
+        layerEncoding_(&layerEncoding),
+        hphDebug_(iConfig.hphDebug_),
+        useNewKF_(iConfig.useNewKF_),
+        chosenRofZNewKF_(setupTT_->chosenRofZ()),
         layermap_(),
         nEtaRegions_(tmtt::KFbase::nEta_ / 2),
         nKalmanLayers_(tmtt::KFbase::nKFlayer_) {
@@ -35,8 +29,8 @@ namespace hph {
       chosenRofZ_ = chosenRofZNewKF_;
       etaRegions_ = etaRegionsNewKF_;
     } else {
-      chosenRofZ_ = oldKFPSet_.getParameter<double>("ChosenRofZ");
-      etaRegions_ = oldKFPSet_.getParameter<std::vector<double>>("EtaRegions");
+      chosenRofZ_ = iConfig.chosenRofZ_;
+      etaRegions_ = iConfig.etaRegions_;
     }
     static constexpr auto layerIds = {1, 2, 3, 4, 5, 6, 11, 12, 13, 14, 15};  //layer ID 11~15 correspond to D1~D5
     // Converting tmtt::KFbase::layerMap_ to a format that is acceptatble by HitPatternHelper
@@ -62,11 +56,8 @@ namespace hph {
         etaRegions_(setup_->etaRegions()),
         layermap_(setup_->layermap()),
         nKalmanLayers_(setup_->nKalmanLayers()),
-        etaBin_(setup_->etaRegion(z0, cot, true)),
-        cotBin_(setup_->digiCot(cot, etaBin_)),
-        zTBin_(setup_->digiZT(z0, cot, etaBin_)),
-        layerEncoding_(setup->layerEncoding(etaBin_, zTBin_, cotBin_)),
-        layerEncodingMap_(setup->layerEncodingMap(etaBin_, zTBin_, cotBin_)),
+        zT_(z0 + cot * setup_->chosenRofZ()),
+        layerEncoding_(setup->layerEncoding(zT_)),
         numExpLayer_(layerEncoding_.size()),
         hitpattern_(hitpattern),
         etaSector_(setup_->etaRegion(z0, cot, useNewKF_)),
@@ -79,6 +70,7 @@ namespace hph {
         numMissingInterior2_(0),
         binary_(11, 0),  //there are 11 unique layer IDs, as defined in variable "layerIds"
         bonusFeatures_() {
+    setup->analyze(hitpattern, cot, z0, numPS_, num2S_, numMissingPS_, numMissing2S_);
     int kf_eta_reg = etaSector_;
     if (kf_eta_reg < ((int)etaRegions_.size() - 1) / 2) {
       kf_eta_reg = ((int)etaRegions_.size() - 1) / 2 - 1 - kf_eta_reg;
@@ -139,22 +131,10 @@ namespace hph {
           if (hphDebug_) {
             edm::LogVerbatim("TrackTriggerHPH") << "Layer found in hitpattern";
           }
-
           binary_[reducedId(layerEncoding_[i])] = 1;
-          if (layerEncodingMap_[layerEncoding_[i]]->psModule()) {
-            numPS_++;
-          } else {
-            num2S_++;
-          }
         } else {
           if (hphDebug_) {
             edm::LogVerbatim("TrackTriggerHPH") << "Layer missing in hitpattern";
-          }
-
-          if (layerEncodingMap_[layerEncoding_[i]]->psModule()) {
-            numMissingPS_++;
-          } else {
-            numMissing2S_++;
           }
         }
       }
@@ -205,22 +185,10 @@ namespace hph {
             if (hphDebug_) {
               edm::LogVerbatim("TrackTriggerHPH") << "Layer found in hitpattern";
             }
-
             binary_[reducedId(j)] = 1;
-            if (layerEncodingMap_[layerEncoding_[k]]->psModule()) {
-              numPS_++;
-            } else {
-              num2S_++;
-            }
           } else {
             if (hphDebug_) {
               edm::LogVerbatim("TrackTriggerHPH") << "Layer missing in hitpattern";
-            }
-
-            if (layerEncodingMap_[layerEncoding_[k]]->psModule()) {
-              numMissingPS_++;
-            } else {
-              numMissing2S_++;
             }
           }
         }
@@ -256,17 +224,6 @@ namespace hph {
       kf_eta_reg = iEtaSec;
     }
     return kf_eta_reg;
-  }
-
-  int Setup::digiCot(double cot, int binEta) const {
-    double cotLocal = dfcot_.digi(cot - setupTT_.sectorCot(binEta));
-    return dfcot_.toUnsigned(dfcot_.integer(cotLocal));
-  }
-
-  int Setup::digiZT(double z0, double cot, int binEta) const {
-    double zT = z0 + setupTT_.chosenRofZ() * cot;
-    double zTLocal = dfzT_.digi(zT - setupTT_.sectorCot(binEta) * setupTT_.chosenRofZ());
-    return dfzT_.toUnsigned(dfzT_.integer(zTLocal));
   }
 
   int HitPatternHelper::reducedId(int layerId) {

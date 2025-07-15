@@ -3,6 +3,7 @@
 <use name="DataFormats/GeometryVector"/>
 <use name="DataFormats/SiStripDetId"/>
 <use name="DataFormats/TrackerRecHit2D"/>
+<use name="FWCore/AbstractServices"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>

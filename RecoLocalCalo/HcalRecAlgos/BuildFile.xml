@@ -1,6 +1,5 @@
 <use name="boost"/>
 <use name="clhep"/>
-<use name="cuda"/>
 <use name="eigen"/>
 <use name="rootminuit2"/>
 <use name="vdt_headers"/>
@@ -14,8 +13,6 @@
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="Geometry/CaloTopology"/>
-<use name="HeterogeneousCore/CUDACore"/>
-<use name="HeterogeneousCore/CUDAUtilities"/>
 <use name="RecoLocalCalo/EcalRecAlgos"/>
 <export>
   <lib name="1"/>

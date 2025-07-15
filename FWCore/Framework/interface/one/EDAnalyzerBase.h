@@ -101,7 +101,6 @@ namespace edm {
       void doRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) {}
 
       void registerProductsAndCallbacks(EDAnalyzerBase const* module, SignallingProductRegistryFiller* reg);
-      std::string workerType() const { return "WorkerT<EDAnalyzer>"; }
 
       SharedResourcesAcquirer& sharedResourcesAcquirer() { return resourcesAcquirer_; }
 

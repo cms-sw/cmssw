@@ -1,7 +1,7 @@
 # Unit test configuration file for MessageLogger service:
 # threshold levels for destinations
 # limit=0 for a category (needed to avoid time stamps in files to be compared)
-# enabling all (*) LogDebug, with one destination responding
+# enabling all LogDebug, with one destination responding
 # verify that by default, the threshold for a destination is INFO
 # test done with debug enabled
 
@@ -57,7 +57,7 @@ process.MessageLogger = cms.Service("MessageLogger",
           noTimeStamps = cms.untracked.bool(True)
       )
     ),
-    debugModules = cms.untracked.vstring('*')
+    debugModules = cms.untracked.vstring()
 )
 
 process.CPU = cms.Service("CPU",

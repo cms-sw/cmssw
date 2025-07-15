@@ -961,11 +961,11 @@ class ModuleAllocCompactFileParser(object):
                 if s > numStreamsFromSource:
                   numStreamsFromSource = s
             if len(l) > 5 and l[0:2] == "#M":
-                (id,name)=tuple(l[2:].split())
+                (id,name,mType)=tuple(l[2:].split())
                 moduleNames[int(id)] = name
                 continue
             if len(l) > 5 and l[0:2] == "#N":
-                (id,name)=tuple(l[2:].split())
+                (id,name,mType)=tuple(l[2:].split())
                 esModuleNames[int(id)] = name
                 continue
             if len(l) > 5 and l[0:2] == "#R":
@@ -1315,8 +1315,8 @@ class TestModuleCommand(unittest.TestCase):
         
         self.tracerFile.extend([
             '#R 1 Record',
-            '#M 1 Module',
-            '#N 1 ESModule',
+            '#M 1 Module ModuleType',
+            '#N 1 ESModule ESModuleType',
              f'F {Phase.startTracing} 0 0 0 0 {incr(t)}',
              f'S {Phase.construction} 0 {incr(t)}',
              f's {Phase.construction} 0 {incr(t)} 1 1 10 0 10 10',

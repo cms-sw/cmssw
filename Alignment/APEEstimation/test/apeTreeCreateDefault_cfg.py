@@ -93,7 +93,6 @@ from CondCore.CondDB.CondDB_cfi import *
 CondDBAlignmentError = CondDB.clone(connect = cms.string(theSource))
 process.myTrackerAlignmentErr = cms.ESSource("PoolDBESSource",
     CondDBAlignmentError,
-    timetype = cms.string("runnumber"),
     toGet = cms.VPSet(
         cms.PSet(
             record = cms.string('TrackerAlignmentErrorExtendedRcd'),

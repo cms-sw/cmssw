@@ -42,8 +42,8 @@ TEST_CASE("BeamSpot Compatibility Checker", "[compareBS]") {
   edm::ParameterSet pset;
   pset.addParameter<double>("warningThr", 1.0);
   pset.addParameter<double>("errorThr", 2.0);
-  pset.addParameter<edm::InputTag>("bsFromEvent", edm::InputTag(""));
-  pset.addParameter<bool>("dbFromEvent", false);
+  pset.addParameter<edm::InputTag>("bsFromFile", edm::InputTag(""));
+  pset.addParameter<bool>("dbFromEvent", true);
   pset.addParameter<edm::InputTag>("bsFromDB", edm::InputTag(""));
 
   BeamSpotCompatibilityChecker checker(pset);

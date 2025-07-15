@@ -79,7 +79,7 @@ namespace edm {
       std::set<ComponentDescription> resolverProviderDescriptions() const;
 
       /// The available DataKeys in the Record. The order can be used to request the data by index
-      std::vector<DataKey> registeredDataKeys() const;
+      std::vector<DataKey> const& registeredDataKeys() const;
 
       std::vector<ComponentDescription const*> componentsForRegisteredDataKeys() const;
       std::vector<unsigned int> produceMethodIDsForRegisteredDataKeys() const;

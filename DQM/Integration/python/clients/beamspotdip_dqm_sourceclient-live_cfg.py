@@ -60,5 +60,6 @@ process.DQMMonitoringService = cms.Service("DQMMonitoringService")
 
 # path
 process.p = cms.Path( process.beamSpotDipServer )
+print("Global Tag used:", process.GlobalTag.globaltag.value())
 print("Final Source settings:", process.source)
 

@@ -17,7 +17,7 @@ When the name of the `TrackerTopology` method is written in _italic_, it means t
 ### Run 1 Detector DetId schema
 The Run 1 detector DetId schema profits of all the six available subdetectors (from 1 to 6) and it is defined as follows
 
-* Subdetector 1 (`DetId::subDetId() == PixelSubdetector::PixelBarrel`): Pixel Barrel
+* Subdetector 1 (`DetId::subdetId() == PixelSubdetector::PixelBarrel`): Pixel Barrel
 
 | Name | start bit | hex mask | bit size | `TrackerTopology` method | Notes |
 |------|-----------|-----------|-----|----|-----|
@@ -27,7 +27,7 @@ The Run 1 detector DetId schema profits of all the six available subdetectors (f
 | Module | 2 | 0x3F | 6 | pxbModule(id) | increasing z |
 | _not used_ | 0 | 0x3 | 2 | | |
 
-* Subdetector 2 (`DetId::subDetId() == PixelSubdetector::PixelEndcap`): Pixel Forward
+* Subdetector 2 (`DetId::subdetId() == PixelSubdetector::PixelEndcap`): Pixel Forward
 
 | Name | start bit | hex mask | bit size | `TrackerToplogy` method | Notes |
 |------|-----------|-----------|----|-----|-----|
@@ -39,7 +39,7 @@ The Run 1 detector DetId schema profits of all the six available subdetectors (f
 | Module | 2 | 0x3F | 6 | pxfModule(id) | increasing r |
 | _not used_ | 0 | 0x3 | 2 | | |
 
-* Subdetector 3 (`DetId::subDetId() == StripSubdetector::TIB`): TIB
+* Subdetector 3 (`DetId::subdetId() == StripSubdetector::TIB`): TIB
 
 | Name | start bit | hex mask | bit size | `TrackerTopology` method | Notes |
 |------|-----------|-----------|-----|----|-----|
@@ -51,7 +51,7 @@ The Run 1 detector DetId schema profits of all the six available subdetectors (f
 | Module | 2 | 0x3 | 2 | tibModule(id) | increasing abs(z) |
 | Module type | 0 | 0x3 | 2 | tibStereo(id) or tibGlued(id) | 1=stereo, 2=rphi, 0=pair |
 
-* Subdetector 4 (`DetId::subDetId() == StripSubdetector::TID`): TID
+* Subdetector 4 (`DetId::subdetId() == StripSubdetector::TID`): TID
 
 | Name | start bit | hex mask | bit size | `TrackerTopology` method | Notes |
 |------|-----------|-----------|-----|----|-----|
@@ -63,7 +63,7 @@ The Run 1 detector DetId schema profits of all the six available subdetectors (f
 | Module | 2 | 0x1F | 5 | tidModule(id) | increasing phi |
 | Module type | 0 | 0x3 | 2 | tidStereo(id) or tidGlued(id) | 1=stereo, 2=rphi, 0=pair |
 
-* Subdetector 5 (`DetId::subDetId() == StripSubdetector::TOB`): TOB 
+* Subdetector 5 (`DetId::subdetId() == StripSubdetector::TOB`): TOB 
 
 | Name | start bit | hex mask | bit size | `TrackerTopology` method | Notes |
 |------|-----------|-----------|-----|----|----|
@@ -74,7 +74,7 @@ The Run 1 detector DetId schema profits of all the six available subdetectors (f
 | Module | 2 | 0x7 | 3 | tobModule(id) | increasing abs(z) |
 | Module type | 0 | 0x3 | 2 | tobStereo(id) or tobGlued(id) | 1=stereo, 2=rphi, 0=pair |
 
-* Subdetector 6 (`DetId::subDetId() == StripSubdetector::TEC`): TEC
+* Subdetector 6 (`DetId::subdetId() == StripSubdetector::TEC`): TEC
 
 | Name | start bit | hex mask | bit size | `TrackerTopology` method | Notes |
 |------|-----------|-----------|-----|----|----|
@@ -96,7 +96,7 @@ The xml description of tracker parameters for this detid schema is in [Geometry/
 The phase 1 detector DetId schema differs from that of the Run 1 detector only in the first two subdetectors which
 corresponds to the Pixel Barrel and Forward detector. Therefore only them will be repeated here:
 
-* Subdetector 1 (`DetId::subDetId() == PixelSubdetector::PixelBarrel`): Phase1 Pixel Barrel
+* Subdetector 1 (`DetId::subdetId() == PixelSubdetector::PixelBarrel`): Phase1 Pixel Barrel
 
 | Name | start bit | hex mask | bit size | `TrackerTopology` method | Notes |
 |------|-----------|-----------|-----|----|-----|
@@ -106,7 +106,7 @@ corresponds to the Pixel Barrel and Forward detector. Therefore only them will b
 | Module | 2 | 0x3FF | 10 | pxbModule(id) | increasing z |
 | _not used_ | 0 | 0x3 | 2 | | |
 
-* Subdetector 2 (`DetId::subDetId() == PixelSubdetector::PixelEndcap`): Phase1 Pixel Forward
+* Subdetector 2 (`DetId::subdetId() == PixelSubdetector::PixelEndcap`): Phase1 Pixel Forward
 
 | Name | start bit | hex mask | bit size | `TrackerTopology` method | Notes |
 |------|-----------|-----------|----|-----|-----|
@@ -130,7 +130,7 @@ The OT tilted option has been introduced in the subdetector 5 with two bits (in 
 
 With this subdetector, the flat geometry is compatible using just the central barrel part of the subdetector 5.
  
-* Subdetector 1: (`DetId::subDetId() == PixelSubdetector::PixelBarrel`): Phase2 Pixel Barrel
+* Subdetector 1: (`DetId::subdetId() == PixelSubdetector::PixelBarrel`): Phase2 Pixel Barrel
 
 | Name | start bit | hex mask | bit size | `TrackerTopology` method | Notes |
 |------|-----------|-----------|-----|----|-----|
@@ -140,7 +140,7 @@ With this subdetector, the flat geometry is compatible using just the central ba
 | Module | 2 | 0x3FF | 10 | pxbModule(id) | increasing z |
 | _not used_ | 0 | 0x3 | 2 | | |
 
-* Subdetector 2: (`DetId::subDetId() == PixelSubdetector::PixelEndcap`): Phase2 Pixel Forward
+* Subdetector 2: (`DetId::subdetId() == PixelSubdetector::PixelEndcap`): Phase2 Pixel Forward
 
 | Name | start bit | hex mask | bit size | `TrackerTopology` method | Notes |
 |------|-----------|-----------|----|-----|-----|
@@ -152,7 +152,7 @@ With this subdetector, the flat geometry is compatible using just the central ba
 | Module | 2 | 0xFF | 8 | pxfModule(id) | increasing phi |
 | _not used_ | 0 | 0x3 | 2 | | |
 
-* Subdetector 5  (`DetId::subDetId() == StripSubdetector::TOB`): Phase2 Outer Tracker Barrel
+* Subdetector 5  (`DetId::subdetId() == StripSubdetector::TOB`): Phase2 Outer Tracker Barrel
 
 | Name | start bit | hex mask | bit size | `TrackerTopology` method | Notes |
 |------|-----------|-----------|-----|----|-----|
@@ -180,7 +180,7 @@ The xml description of tracker parameters for this detid schema is in [Geometry/
 ### Phase 2 Upgrade Detector DetId schema modified to account for the re-ordering of the pixel 
 Only the subdetector 2 schema is different wrt the original Phase 2 upgrade DetIdSchema
  
-* Subdetector 2: (`DetId::subDetId() == PixelSubdetector::PixelEndcap`): Phase2 Pixel Forward
+* Subdetector 2: (`DetId::subdetId() == PixelSubdetector::PixelEndcap`): Phase2 Pixel Forward
 
 | Name | start bit | hex mask | bit size | `TrackerTopology` method | Notes |
 |------|-----------|-----------|----|-----|-----|
@@ -199,7 +199,7 @@ The xml description of tracker parameters for this detid schema is in [Geometry/
 
 From CMSSW_14_1_X on [Geometry/TrackerCommonData/data/PhaseII/TFPXTEPXReordered/trackerParameters.xml](../TrackerCommonData/data/PhaseII/TFPXTEPXReordered/trackerParameters.xml) has been updated to reflect a single geometry merging the splitted sensors detID numbering and the detID rearrangement described above. 
 
-* Subdetector 1: (`DetId::subDetId() == PixelSubdetector::PixelBarrel`): Phase2 Pixel Barrel
+* Subdetector 1: (`DetId::subdetId() == PixelSubdetector::PixelBarrel`): Phase2 Pixel Barrel
 
 | Name | start bit | hex mask | bit size | `TrackerTopology` method | Notes |
 |------|-----------|-----------|-----|----|-----|
@@ -209,7 +209,7 @@ From CMSSW_14_1_X on [Geometry/TrackerCommonData/data/PhaseII/TFPXTEPXReordered/
 | Module | 2 | 0x3FF | 10 | pxbModule(id) | increasing z |
 | Sensor | 0 | 0x3 | 2 |pxbSensor(id) | |
 
-* Subdetector 2: (`DetId::subDetId() == PixelSubdetector::PixelEndcap`): Phase2 Pixel Forward
+* Subdetector 2: (`DetId::subdetId() == PixelSubdetector::PixelEndcap`): Phase2 Pixel Forward
 
 | Name | start bit | hex mask | bit size | `TrackerTopology` method | Notes |
 |------|-----------|-----------|----|-----|-----|

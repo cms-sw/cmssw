@@ -10,7 +10,7 @@ void SummaryTableOutputBranches::makeScalarBranches(const std::vector<Col> &tabc
           return x.name == col.name;
         }) == branches.end()) {
       T backFillValue = 0;
-      auto *br = tree.Branch(col.name.c_str(), &backFillValue, (col.name + "/" + rootType).c_str());
+      auto *br = tree.Branch(col.name.c_str(), &backFillValue, (col.name + "/" + rootType).c_str(), /*bufsize=*/1024);
       br->SetTitle(col.doc.c_str());
       for (unsigned long i = 0; i < m_fills; i++)
         br->Fill();

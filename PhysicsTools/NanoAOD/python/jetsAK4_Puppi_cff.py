@@ -26,7 +26,6 @@ updatedJetsPuppi = updatedPatJets.clone(
     jetCorrFactorsSource=cms.VInputTag(cms.InputTag("jetPuppiCorrFactorsNano") ),
 )
 
-
 #HF shower shape recomputation
 from RecoJets.JetProducers.hfJetShowerShape_cfi import hfJetShowerShape
 hfJetPuppiShowerShapeforNanoAOD = hfJetShowerShape.clone(jets="updatedJetsPuppi",vertices="offlineSlimmedPrimaryVertices")
@@ -116,20 +115,6 @@ jetPuppiTable = simplePATJetFlatTableProducer.clone(
     )
 )
 
-run2_nanoAOD_ANY.toModify(
-    jetPuppiTable.variables,
-    btagCSVV2 = Var("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')",float,doc=" pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)",precision=10),
-    btagDeepB = Var("?(bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb'))>=0?bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb'):-1",float,doc="DeepCSV b+bb tag discriminator",precision=10),
-    btagDeepCvL = Var("?bDiscriminator('pfDeepCSVJetTags:probc')>=0?bDiscriminator('pfDeepCSVJetTags:probc')/(bDiscriminator('pfDeepCSVJetTags:probc')+bDiscriminator('pfDeepCSVJetTags:probudsg')):-1", float,doc="DeepCSV c vs udsg discriminator",precision=10),
-    btagDeepCvB = Var("?bDiscriminator('pfDeepCSVJetTags:probc')>=0?bDiscriminator('pfDeepCSVJetTags:probc')/(bDiscriminator('pfDeepCSVJetTags:probc')+bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb')):-1",float,doc="DeepCSV c vs b+bb discriminator",precision=10)
-)
-
-run3_nanoAOD_pre142X.toModify(
-    jetPuppiTable.variables,
-    puIdDisc = None,
-)
-
-
 #jets are not as precise as muons
 jetPuppiTable.variables.pt.precision=10
 
@@ -161,14 +146,18 @@ def nanoAOD_addDeepInfoAK4(process,addParticleNet,addRobustParTAK4=False,addUnif
     print("Will recalculate the following discriminators: "+", ".join(_btagDiscriminators))
     updateJetCollection(
         process,
-        jetSource = cms.InputTag('slimmedJetsPuppi'),
+        jetSource = cms.InputTag('slimmedJetsPuppi', processName=cms.InputTag.skipCurrentProcess()),
         jetCorrections = ('AK4PFPuppi', cms.vstring(['L2Relative', 'L3Absolute']), 'None'),
         btagDiscriminators = _btagDiscriminators,
         postfix = 'PuppiWithDeepInfo',
     )
     process.load("Configuration.StandardSequences.MagneticField_cff")
-    process.jetPuppiCorrFactorsNano.src = "selectedUpdatedPatJetsPuppiWithDeepInfo"
-    process.updatedJetsPuppi.jetSource = "selectedUpdatedPatJetsPuppiWithDeepInfo"
+
+    from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
+    task = getPatAlgosToolsTask(process)
+    addToProcessAndTask("slimmedJetsPuppi", process.selectedUpdatedPatJetsPuppiWithDeepInfo.clone(), process, task)
+    del process.selectedUpdatedPatJetsPuppiWithDeepInfo
+
     return process
 
 nanoAOD_addDeepInfoAK4_switch = cms.PSet(

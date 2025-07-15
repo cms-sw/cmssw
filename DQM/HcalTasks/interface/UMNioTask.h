@@ -56,6 +56,8 @@ protected:
   edm::EDGetTokenT<HcalUMNioDigi> tokuMN_;
   edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
 
+  edm::InputTag _tagFEDs;
+  edm::EDGetTokenT<FEDRawDataCollection> _tokFEDs;
   //	cuts
   double lowHBHE_, lowHO_, lowHF_;
 
@@ -68,5 +70,9 @@ protected:
   hcaldqm::ContainerSingle2D _cEventType;
   hcaldqm::ContainerSingle2D _cTotalCharge;
   hcaldqm::ContainerSingleProf2D _cTotalChargeProfile;
+
+  // 1D histograms for uHTR eventType and uMNio eventType
+  hcaldqm::ContainerSingle1D _cEventType_uMNio;
+  hcaldqm::ContainerSingle1D _cEventType_uHTR;
 };
 #endif

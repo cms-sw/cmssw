@@ -194,6 +194,9 @@ Source::Source(timespec now, std::unique_ptr<XrdCl::File> fh, const std::string 
 #endif
 {
   if (m_fh.get()) {
+    std::string lastUrl;
+    m_fh->GetProperty("LastURL", lastUrl);
+    edm::LogFwkInfo("XrdAdaptor") << "Opened a file at URL " << lastUrl;
     if (!m_fh->GetProperty("DataServer", m_id)) {
       edm::LogWarning("XrdFileWarning") << "Source::Source() failed to determine data server name.'";
     }

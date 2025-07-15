@@ -96,7 +96,7 @@ void DDHGCalCell::execute(DDCompactView& cpv) {
 
   static const double sqrt3 = std::sqrt(3.0);
   double R =
-      (addWaferSeparation_ <= 1) ? waferSize_ / (3.0 * nCells_) : (waferSize_ + waferSeparation_) / (3.0 * nCells_);
+      (addWaferSeparation_ >= 1) ? waferSize_ / (3.0 * nCells_) : (waferSize_ + waferSeparation_) / (3.0 * nCells_);
   double r = 0.5 * R * sqrt3;
   double dx1 = R;
   double dx2 = 0.5 * dx1;

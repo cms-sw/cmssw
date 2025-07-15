@@ -118,7 +118,7 @@ fi
 
 if [ $1 -eq 15 ]
 then
-    grep -q "Processing endJob" $logfile || die " - Cannot find the following string in the exception message: Processing endJob " $?
+    grep -q "Processing end Job" $logfile || die " - Cannot find the following string in the exception message: Processing end Job " $?
     grep -q "ExceptionThrowingProducer::endJob, module configured to throw during endJob" $logfile || die " - Cannot find the following string in the exception message: ExceptionThrowingProducer::endJob, module configured to throw during endJob " $?
 fi
 

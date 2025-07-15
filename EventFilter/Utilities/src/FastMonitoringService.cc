@@ -15,7 +15,6 @@
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
-#include "FWCore/ServiceRegistry/interface/PathsAndConsumesOfModulesBase.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -318,7 +317,7 @@ namespace evf {
     //start concurrency tracking
   }
 
-  void FastMonitoringService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::ProcessContext const& pc) {
+  void FastMonitoringService::preBeginJob(edm::ProcessContext const& pc) {
     // FIND RUN DIRECTORY
     // The run dir should be set via the configuration of EvFDaqDirector
     if (tbbConcurrencyTracker_)
@@ -1050,6 +1049,11 @@ namespace evf {
       fmt_->jsonMonitor_->snapGlobal(ls);
     } else
       fmt_->jsonMonitor_->snap(ls);
+  }
+
+  bool FastMonitoringService::streamIsIdle(unsigned int i) const {
+    auto ms = microstate_.at(i);
+    return ms == getmIdle();
   }
 
 }  //end namespace evf

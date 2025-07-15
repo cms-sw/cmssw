@@ -1,8 +1,8 @@
 /*
  * Simple Service to make a GraphViz graph of the modules runtime dependencies:
  *   - draw hard dependencies according to the "consumes" dependencies;
- *   - draw soft dependencies to reflect the order of scheduled modue in each path;
- *   - draw SubProcesses in subgraphs.
+ *     (only event dependences included, not run/lumi/process block dependences)
+ *   - draw soft dependencies to reflect the order of scheduled modules in each path;
  *
  * Use GraphViz dot to generate an SVG representation of the dependencies:
  *
@@ -10,10 +10,15 @@
  *
  */
 
-#include <iostream>
-#include <vector>
+#include <cstddef>
+#include <fstream>
+#include <limits>
+#include <map>
 #include <string>
 #include <type_traits>
+#include <unordered_set>
+#include <utility>
+#include <vector>
 
 // boost optional (used by boost graph) results in some false positives with -Wmaybe-uninitialized
 #pragma GCC diagnostic push
@@ -31,7 +36,6 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/PathsAndConsumesOfModulesBase.h"
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace edm;
@@ -39,6 +43,8 @@ using namespace edm::service;
 
 namespace {
   namespace {
+
+    constexpr std::size_t kInvalidVertex = std::numeric_limits<std::size_t>::max();
 
     template <typename T>
     std::unordered_set<T> make_unordered_set(std::vector<T> &&entries) {
@@ -55,11 +61,10 @@ class DependencyGraph {
 public:
   DependencyGraph(const ParameterSet &, ActivityRegistry &);
 
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions &);
 
   void preSourceConstruction(ModuleDescription const &);
-  void preBeginJob(PathsAndConsumesOfModulesBase const &, ProcessContext const &);
-  void postBeginJob();
+  void lookupInitializationComplete(PathsAndConsumesOfModulesBase const &, ProcessContext const &);
 
 private:
   bool highlighted(std::string const &module) { return (m_highlightModules.find(module) != m_highlightModules.end()); }
@@ -124,7 +129,9 @@ private:
   std::unordered_set<std::string> m_highlightModules;
 
   bool m_showPathDependencies;
-  bool m_initialized;
+
+  std::vector<std::size_t> m_moduleIDToGraphIndex;
+  std::size_t m_nextGraphIndexToAdd = 0;
 };
 
 constexpr const char *DependencyGraph::module_type_desc[];
@@ -168,11 +175,9 @@ DependencyGraph::DependencyGraph(ParameterSet const &config, ActivityRegistry &r
     : m_filename(config.getUntrackedParameter<std::string>("fileName")),
       m_highlightModules(
           make_unordered_set(config.getUntrackedParameter<std::vector<std::string>>("highlightModules"))),
-      m_showPathDependencies(config.getUntrackedParameter<bool>("showPathDependencies")),
-      m_initialized(false) {
+      m_showPathDependencies(config.getUntrackedParameter<bool>("showPathDependencies")) {
   registry.watchPreSourceConstruction(this, &DependencyGraph::preSourceConstruction);
-  registry.watchPreBeginJob(this, &DependencyGraph::preBeginJob);
-  registry.watchPostBeginJob(this, &DependencyGraph::postBeginJob);
+  registry.watchLookupInitializationComplete(this, &DependencyGraph::lookupInitializationComplete);
 }
 
 // adaptor to use range-based for loops with boost::graph edges(...) and vertices(...) functions
@@ -191,11 +196,19 @@ iterator_pair_as_a_range<I> make_range(std::pair<I, I> p) {
 }
 
 void DependencyGraph::preSourceConstruction(ModuleDescription const &module) {
-  // create graph vertex for the source module and fill its attributes
+  if (module.id() >= m_moduleIDToGraphIndex.size()) {
+    m_moduleIDToGraphIndex.resize(module.id() + 1, kInvalidVertex);
+  }
+  m_moduleIDToGraphIndex[module.id()] = m_nextGraphIndexToAdd;
+  ++m_nextGraphIndexToAdd;
+
+  auto graphIndex = m_moduleIDToGraphIndex[module.id()];
+
+  // Create graph vertex for the source module and fill its attributes
   boost::add_vertex(m_graph);
-  m_graph.m_graph[module.id()] =
+  m_graph.m_graph[graphIndex] =
       node{module.moduleLabel(), module.moduleName(), module.id(), EDMModuleType::Source, true};
-  auto &attributes = boost::get(boost::get(boost::vertex_attribute, m_graph), 0);
+  auto &attributes = boost::get(boost::get(boost::vertex_attribute, m_graph), graphIndex);
   attributes["label"] = module.moduleLabel();
   attributes["tooltip"] = module.moduleName();
   attributes["shape"] = shapes[static_cast<std::underlying_type_t<EDMModuleType>>(EDMModuleType::Source)];
@@ -204,49 +217,40 @@ void DependencyGraph::preSourceConstruction(ModuleDescription const &module) {
   attributes["fillcolor"] = highlighted(module.moduleLabel()) ? "lightgreen" : "white";
 }
 
-void DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const &pathsAndConsumes,
-                                  ProcessContext const &context) {
-  // if the Service is not in the main Process do not do anything
-  if (context.isSubProcess() and not m_initialized) {
-    edm::LogError("DependencyGraph") << "You have requested an instance of the DependencyGraph Service in the \""
-                                     << context.processName()
-                                     << "\" SubProcess, which is not supported.\nPlease move it to the main process.";
-    return;
+void DependencyGraph::lookupInitializationComplete(PathsAndConsumesOfModulesBase const &pathsAndConsumes,
+                                                   ProcessContext const &context) {
+  // set the graph name property to the process name
+  boost::get_property(m_graph, boost::graph_name) = context.processName();
+  boost::get_property(m_graph, boost::graph_graph_attribute)["label"] = "process " + context.processName();
+  boost::get_property(m_graph, boost::graph_graph_attribute)["labelloc"] = "top";
+
+  if (pathsAndConsumes.largestModuleID() >= m_moduleIDToGraphIndex.size()) {
+    m_moduleIDToGraphIndex.resize(pathsAndConsumes.largestModuleID() + 1, kInvalidVertex);
   }
 
-  if (not context.isSubProcess()) {
-    // set the graph name property to the process name
-    boost::get_property(m_graph, boost::graph_name) = context.processName();
-    boost::get_property(m_graph, boost::graph_graph_attribute)["label"] = "process " + context.processName();
-    boost::get_property(m_graph, boost::graph_graph_attribute)["labelloc"] = "top";
+  auto numberOfSourceGraphVertexes = m_nextGraphIndexToAdd;
+  for (edm::ModuleDescription const *module : pathsAndConsumes.allModules()) {
+    m_moduleIDToGraphIndex[module->id()] = m_nextGraphIndexToAdd;
+    ++m_nextGraphIndexToAdd;
+  }
+  auto numberOfGraphVertexes = m_nextGraphIndexToAdd;
 
-    // create graph vertices associated to all modules in the process
-    auto size = pathsAndConsumes.largestModuleID() - boost::num_vertices(m_graph) + 1;
-    for (size_t i = 0; i < size; ++i)
-      boost::add_vertex(m_graph);
-
-    m_initialized = true;
-  } else {
-    // create a subgraph to match the subprocess
-    auto &graph = m_graph.create_subgraph();
-
-    // set the subgraph name property to the subprocess name
-    boost::get_property(graph, boost::graph_name) = "cluster" + context.processName();
-    boost::get_property(graph, boost::graph_graph_attribute)["label"] = "subprocess " + context.processName();
-    boost::get_property(graph, boost::graph_graph_attribute)["labelloc"] = "top";
-
-    // create graph vertices associated to all modules in the subprocess
-    auto size = pathsAndConsumes.largestModuleID() - boost::num_vertices(m_graph) + 1;
-    for (size_t i = 0; i < size; ++i)
-      boost::add_vertex(graph);
+  // Create graph vertices associated to all modules in the process.
+  // Note that we skip over source vertexes that were already made
+  // (currently always 1 source but possibly in the future there
+  // might be more than 1 source)
+  for (std::size_t i = numberOfSourceGraphVertexes; i < numberOfGraphVertexes; ++i) {
+    boost::add_vertex(m_graph);
   }
 
   // set the vertices properties (use the module id as the global index into the graph)
   for (edm::ModuleDescription const *module : pathsAndConsumes.allModules()) {
-    m_graph.m_graph[module->id()] = {
+    auto graphIndex = m_moduleIDToGraphIndex[module->id()];
+
+    m_graph.m_graph[graphIndex] = {
         module->moduleLabel(), module->moduleName(), module->id(), edmModuleTypeEnum(*module), false};
 
-    auto &attributes = boost::get(boost::get(boost::vertex_attribute, m_graph), module->id());
+    auto &attributes = boost::get(boost::get(boost::vertex_attribute, m_graph), graphIndex);
     attributes["label"] = module->moduleLabel();
     attributes["tooltip"] = module->moduleName();
     attributes["shape"] = shapes[static_cast<std::underlying_type_t<EDMModuleType>>(edmModuleTypeEnum(*module))];
@@ -264,7 +268,8 @@ void DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const &pathsAndC
     for (edm::ModuleDescription const *module : pathsAndConsumes.modulesWhoseProductsAreConsumedBy(consumer->id())) {
       edm::LogInfo("DependencyGraph") << "module " << consumer->moduleLabel() << " depends on module "
                                       << module->moduleLabel();
-      auto edge_status = boost::add_edge(consumer->id(), module->id(), m_graph);
+      auto edge_status =
+          boost::add_edge(m_moduleIDToGraphIndex[consumer->id()], m_moduleIDToGraphIndex[module->id()], m_graph);
       // highlight the edge between highlighted nodes
       if (highlighted(module->moduleLabel()) and highlighted(consumer->moduleLabel())) {
         auto const &edge = edge_status.first;
@@ -286,7 +291,7 @@ void DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const &pathsAndC
 
     // add to the subgraph the node corresponding to the scheduled modules on the Path
     for (edm::ModuleDescription const *module : pathsAndConsumes.modulesOnPath(i)) {
-      boost::add_vertex(module->id(), graph);
+      boost::add_vertex(m_moduleIDToGraphIndex[module->id()], graph);
     }
   }
   for (unsigned int i = 0; i < endps.size(); ++i) {
@@ -300,7 +305,7 @@ void DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const &pathsAndC
 
     // add to the subgraph the node corresponding to the scheduled modules on the EndPath
     for (edm::ModuleDescription const *module : pathsAndConsumes.modulesOnEndPath(i)) {
-      boost::add_vertex(module->id(), graph);
+      boost::add_vertex(m_moduleIDToGraphIndex[module->id()], graph);
     }
   }
 
@@ -321,16 +326,18 @@ void DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const &pathsAndC
   for (unsigned int i = 0; i < paths.size(); ++i) {
     previous = nullptr;
     for (edm::ModuleDescription const *module : pathsAndConsumes.modulesOnPath(i)) {
-      m_graph.m_graph[module->id()].scheduled = true;
-      auto &attributes = boost::get(boost::get(boost::vertex_attribute, m_graph), module->id());
+      auto graphIndex = m_moduleIDToGraphIndex[module->id()];
+      m_graph.m_graph[graphIndex].scheduled = true;
+      auto &attributes = boost::get(boost::get(boost::vertex_attribute, m_graph), graphIndex);
       attributes["fillcolor"] = highlighted(module->moduleLabel()) ? "lightgreen" : "white";
       if (previous and m_showPathDependencies) {
+        auto previousGraphIndex = m_moduleIDToGraphIndex[previous->id()];
         edm::LogInfo("DependencyGraph") << "module " << module->moduleLabel() << " follows module "
                                         << previous->moduleLabel() << " in Path " << paths[i];
-        auto edge_status = boost::lookup_edge(module->id(), previous->id(), m_graph);
+        auto edge_status = boost::lookup_edge(graphIndex, previousGraphIndex, m_graph);
         bool found = edge_status.second;
         if (not found) {
-          edge_status = boost::add_edge(module->id(), previous->id(), m_graph);
+          edge_status = boost::add_edge(graphIndex, previousGraphIndex, m_graph);
           auto const &edge = edge_status.first;
           auto &edgeAttributes = boost::get(boost::get(boost::edge_attribute, m_graph), edge);
           edgeAttributes["style"] = "dashed";
@@ -349,7 +356,7 @@ void DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const &pathsAndC
           edm::LogInfo("DependencyGraph") << "module " << paths[i] << " implicitly follows module "
                                           << previous->moduleLabel() << " in Path " << paths[i];
           // add an edge from the PathStatusInserter module to the last module scheduled on the path
-          auto edge_status = boost::add_edge(j, previous->id(), m_graph);
+          auto edge_status = boost::add_edge(j, m_moduleIDToGraphIndex[previous->id()], m_graph);
           auto const &edge = edge_status.first;
           auto &edgeAttributes = boost::get(boost::get(boost::edge_attribute, m_graph), edge);
           edgeAttributes["style"] = "dashed";
@@ -377,16 +384,18 @@ void DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const &pathsAndC
   for (unsigned int i = 0; i < endps.size(); ++i) {
     previous = nullptr;
     for (edm::ModuleDescription const *module : pathsAndConsumes.modulesOnEndPath(i)) {
-      m_graph.m_graph[module->id()].scheduled = true;
-      auto &attributes = boost::get(boost::get(boost::vertex_attribute, m_graph), module->id());
+      auto graphIndex = m_moduleIDToGraphIndex[module->id()];
+      m_graph.m_graph[graphIndex].scheduled = true;
+      auto &attributes = boost::get(boost::get(boost::vertex_attribute, m_graph), graphIndex);
       attributes["fillcolor"] = highlighted(module->moduleLabel()) ? "lightgreen" : "white";
       if (previous and m_showPathDependencies) {
+        auto previousGraphIndex = m_moduleIDToGraphIndex[previous->id()];
         edm::LogInfo("DependencyGraph") << "module " << module->moduleLabel() << " follows module "
                                         << previous->moduleLabel() << " in EndPath " << i;
-        auto edge_status = boost::lookup_edge(module->id(), previous->id(), m_graph);
+        auto edge_status = boost::lookup_edge(graphIndex, previousGraphIndex, m_graph);
         bool found = edge_status.second;
         if (not found) {
-          edge_status = boost::add_edge(module->id(), previous->id(), m_graph);
+          edge_status = boost::add_edge(graphIndex, previousGraphIndex, m_graph);
           auto const &edge = edge_status.first;
           auto &edgeAttributes = boost::get(boost::get(boost::edge_attribute, m_graph), edge);
           edgeAttributes["style"] = "dashed";
@@ -398,31 +407,12 @@ void DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const &pathsAndC
       previous = module;
     }
   }
-}
-
-void DependencyGraph::postBeginJob() {
-  if (not m_initialized)
-    return;
-
-  // remove the nodes corresponding to the modules that have been removed from the process
-  for (int i = boost::num_vertices(m_graph) - 1; i > 1; --i) {
-    if (m_graph.m_graph[i].label.empty())
-      boost::remove_vertex(i, m_graph.m_graph);
-  }
 
   // draw the dependency graph
   std::ofstream out(m_filename);
   boost::write_graphviz(out, m_graph);
   out.close();
 }
-
-namespace edm {
-  namespace service {
-
-    inline bool isProcessWideService(DependencyGraph const *) { return true; }
-
-  }  // namespace service
-}  // namespace edm
 
 // define as a framework servie
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"

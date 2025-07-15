@@ -236,7 +236,6 @@ namespace edmtest {
     const bool shouldBeMissing_;
   };
   using GenericIntsAnalyzer = GenericAnalyzerT<IntProduct>;
-  using GenericUInt64Analyzer = GenericAnalyzerT<UInt64Product>;
 
   //--------------------------------------------------------------------
   //
@@ -465,7 +464,6 @@ DEFINE_FWK_MODULE(NonAnalyzer);
 DEFINE_FWK_MODULE(IntTestAnalyzer);
 DEFINE_FWK_MODULE(MultipleIntsAnalyzer);
 DEFINE_FWK_MODULE(edmtest::GenericIntsAnalyzer);
-DEFINE_FWK_MODULE(edmtest::GenericUInt64Analyzer);
 DEFINE_FWK_MODULE(IntConsumingAnalyzer);
 DEFINE_FWK_MODULE(edmtest::IntFromRunConsumingAnalyzer);
 DEFINE_FWK_MODULE(ConsumingStreamAnalyzer);

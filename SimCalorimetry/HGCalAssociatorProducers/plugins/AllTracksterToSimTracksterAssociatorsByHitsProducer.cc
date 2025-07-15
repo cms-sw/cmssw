@@ -27,7 +27,6 @@ private:
 
   std::vector<std::pair<std::string, edm::EDGetTokenT<std::vector<ticl::Trackster>>>> tracksterCollectionTokens_;
   std::vector<std::pair<std::string, edm::EDGetTokenT<std::vector<ticl::Trackster>>>> simTracksterCollectionTokens_;
-  edm::EDGetTokenT<std::vector<reco::CaloCluster>> layerClustersToken_;
   std::vector<std::pair<std::string, edm::EDGetTokenT<ticl::AssociationMap<ticl::mapWithFraction>>>>
       hitToTracksterMapTokens_;
   std::vector<std::pair<std::string, edm::EDGetTokenT<ticl::AssociationMap<ticl::mapWithFraction>>>>
@@ -52,18 +51,18 @@ AllTracksterToSimTracksterAssociatorsByHitsProducer::AllTracksterToSimTracksterA
       hitToCaloParticleMapToken_(consumes<ticl::AssociationMap<ticl::mapWithFraction>>(
           pset.getParameter<edm::InputTag>("hitToCaloParticleMap"))) {
   const auto& tracksterCollections = pset.getParameter<std::vector<edm::InputTag>>("tracksterCollections");
+
+  std::string allHitToTSAccoc = pset.getParameter<std::string>("allHitToTSAccoc");
   for (const auto& tag : tracksterCollections) {
     std::string label = tag.label();
     if (!tag.instance().empty()) {
       label += tag.instance();
     }
     tracksterCollectionTokens_.emplace_back(label, consumes<std::vector<ticl::Trackster>>(tag));
-    hitToTracksterMapTokens_.emplace_back(label,
-                                          consumes<ticl::AssociationMap<ticl::mapWithFraction>>(
-                                              edm::InputTag("allHitToTracksterAssociations", "hitTo" + label)));
-    tracksterToHitMapTokens_.emplace_back(label,
-                                          consumes<ticl::AssociationMap<ticl::mapWithFraction>>(
-                                              edm::InputTag("allHitToTracksterAssociations", label + "ToHit")));
+    hitToTracksterMapTokens_.emplace_back(
+        label, consumes<ticl::AssociationMap<ticl::mapWithFraction>>(edm::InputTag(allHitToTSAccoc, "hitTo" + label)));
+    tracksterToHitMapTokens_.emplace_back(
+        label, consumes<ticl::AssociationMap<ticl::mapWithFraction>>(edm::InputTag(allHitToTSAccoc, label + "ToHit")));
   }
 
   const auto& simTracksterCollections = pset.getParameter<std::vector<edm::InputTag>>("simTracksterCollections");
@@ -73,12 +72,10 @@ AllTracksterToSimTracksterAssociatorsByHitsProducer::AllTracksterToSimTracksterA
       label += tag.instance();
     }
     simTracksterCollectionTokens_.emplace_back(label, consumes<std::vector<ticl::Trackster>>(tag));
-    hitToSimTracksterMapTokens_.emplace_back(label,
-                                             consumes<ticl::AssociationMap<ticl::mapWithFraction>>(
-                                                 edm::InputTag("allHitToTracksterAssociations", "hitTo" + label)));
-    simTracksterToHitMapTokens_.emplace_back(label,
-                                             consumes<ticl::AssociationMap<ticl::mapWithFraction>>(
-                                                 edm::InputTag("allHitToTracksterAssociations", label + "ToHit")));
+    hitToSimTracksterMapTokens_.emplace_back(
+        label, consumes<ticl::AssociationMap<ticl::mapWithFraction>>(edm::InputTag(allHitToTSAccoc, "hitTo" + label)));
+    simTracksterToHitMapTokens_.emplace_back(
+        label, consumes<ticl::AssociationMap<ticl::mapWithFraction>>(edm::InputTag(allHitToTSAccoc, label + "ToHit")));
   }
 
   // Hits
@@ -111,7 +108,33 @@ void AllTracksterToSimTracksterAssociatorsByHitsProducer::produce(edm::StreamID,
   for (const auto& token : hitsTokens_) {
     Handle<HGCRecHitCollection> hitsHandle;
     iEvent.getByToken(token, hitsHandle);
+
+    if (!hitsHandle.isValid()) {
+      edm::LogWarning("AllTracksterToSimTracksterAssociatorsByHitsProducer")
+          << "Missing HGCRecHitCollection for one of the hitsTokens.";
+      continue;
+    }
     rechitManager.addVector(*hitsHandle);
+  }
+
+  // Check if rechitManager is empty
+  if (rechitManager.size() == 0) {
+    edm::LogWarning("AllTracksterToSimTracksterAssociatorsByHitsProducer")
+        << "No valid HGCRecHitCollections found. Association maps will be empty.";
+
+    for (const auto& tracksterToken : tracksterCollectionTokens_) {
+      for (const auto& simTracksterToken : simTracksterCollectionTokens_) {
+        iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore,
+                                                         std::vector<ticl::Trackster>,
+                                                         std::vector<ticl::Trackster>>>(),
+                   tracksterToken.first + "To" + simTracksterToken.first);
+        iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore,
+                                                         std::vector<ticl::Trackster>,
+                                                         std::vector<ticl::Trackster>>>(),
+                   simTracksterToken.first + "To" + tracksterToken.first);
+      }
+    }
+    return;
   }
 
   Handle<ticl::AssociationMap<ticl::mapWithFraction>> hitToSimClusterMapHandle;
@@ -128,6 +151,25 @@ void AllTracksterToSimTracksterAssociatorsByHitsProducer::produce(edm::StreamID,
   for (const auto& tracksterToken : tracksterCollectionTokens_) {
     Handle<std::vector<ticl::Trackster>> recoTrackstersHandle;
     iEvent.getByToken(tracksterToken.second, recoTrackstersHandle);
+
+    if (!recoTrackstersHandle.isValid()) {
+      edm::LogWarning("AllTracksterToSimTracksterAssociatorsByHitsProducer")
+          << "No valid Trackster collection found. Association maps will be empty.";
+      for (const auto& simTracksterToken : simTracksterCollectionTokens_) {
+        Handle<std::vector<ticl::Trackster>> simTrackstersHandle;
+
+        iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore,
+                                                         std::vector<ticl::Trackster>,
+                                                         std::vector<ticl::Trackster>>>(),
+                   tracksterToken.first + "To" + simTracksterToken.first);
+        iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore,
+                                                         std::vector<ticl::Trackster>,
+                                                         std::vector<ticl::Trackster>>>(),
+                   simTracksterToken.first + "To" + tracksterToken.first);
+      }
+      continue;
+    }
+
     const auto& recoTracksters = *recoTrackstersHandle;
 
     // Retrieve the correct HitToTracksterMap for the current trackster collection
@@ -150,11 +192,30 @@ void AllTracksterToSimTracksterAssociatorsByHitsProducer::produce(edm::StreamID,
     if (tracksterToHitMapTokenIter != tracksterToHitMapTokens_.end()) {
       iEvent.getByToken(tracksterToHitMapTokenIter->second, tracksterToHitMapHandle);
     }
+
+    if (!tracksterToHitMapHandle.isValid()) {
+      edm::LogError("AllTracksterToSimTracksterAssociatorsByHitsProducer") << "tracksterToHitMapHandle is invalid";
+      continue;
+    }
+
     const auto& tracksterToHitMap = *tracksterToHitMapHandle;
 
     for (const auto& simTracksterToken : simTracksterCollectionTokens_) {
       Handle<std::vector<ticl::Trackster>> simTrackstersHandle;
       iEvent.getByToken(simTracksterToken.second, simTrackstersHandle);
+
+      if (!simTrackstersHandle.isValid()) {
+        iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore,
+                                                         std::vector<ticl::Trackster>,
+                                                         std::vector<ticl::Trackster>>>(),
+                   tracksterToken.first + "To" + simTracksterToken.first);
+        iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore,
+                                                         std::vector<ticl::Trackster>,
+                                                         std::vector<ticl::Trackster>>>(),
+                   simTracksterToken.first + "To" + tracksterToken.first);
+        continue;
+      }
+
       const auto& simTracksters = *simTrackstersHandle;
 
       // Retrieve the correct HitToSimTracksterMap for the current simTrackster collection
@@ -191,11 +252,17 @@ void AllTracksterToSimTracksterAssociatorsByHitsProducer::produce(edm::StreamID,
 
       for (unsigned int tracksterIndex = 0; tracksterIndex < recoTracksters.size(); ++tracksterIndex) {
         edm::Ref<std::vector<ticl::Trackster>> recoTracksterRef(recoTrackstersHandle, tracksterIndex);
+
         float recoToSimScoresDenominator = 0.f;
         const auto& recoTracksterHitsAndFractions = tracksterToHitMap[tracksterIndex];
+
+        if (tracksterToHitMap.size() == 0)
+          continue;
+
         ticl::AssociationMap<ticl::mapWithFraction> hitToAssociatedSimTracksterMap(
             recoTracksterHitsAndFractions.size());
         std::vector<unsigned int> associatedSimTracksterIndices;
+
         for (unsigned int i = 0; i < recoTracksterHitsAndFractions.size(); ++i) {
           const auto& hitElement = recoTracksterHitsAndFractions[i];
           unsigned int hitIndex = hitElement.index();
@@ -212,6 +279,7 @@ void AllTracksterToSimTracksterAssociatorsByHitsProducer::produce(edm::StreamID,
             const auto& simTrackster = simTracksters[simTracksterIndex];
             auto& seed = simTrackster.seedID();
             float simFraction = 0;
+
             if (seed == caloParticlesHandle.id()) {
               unsigned int caloParticleIndex = simTrackster.seedIndex();
               auto it =
@@ -230,6 +298,7 @@ void AllTracksterToSimTracksterAssociatorsByHitsProducer::produce(edm::StreamID,
                 simFraction = it->fraction();
               }
             }
+
             hitToAssociatedSimTracksterMap.insert(i, simTracksterIndex, simFraction);
             associatedSimTracksterIndices.push_back(simTracksterIndex);
           }
@@ -258,7 +327,6 @@ void AllTracksterToSimTracksterAssociatorsByHitsProducer::produce(edm::StreamID,
           unsigned int hitIndex = recoTracksterHitsAndFractions[i].index();
           const auto& recHit = rechitManager[hitIndex];
           float recoFraction = recoTracksterHitsAndFractions[i].fraction();
-          float squaredRecoFraction = recoFraction * recoFraction;
           float rechitEnergy = recHit.energy();
           float squaredRecHitEnergy = rechitEnergy * rechitEnergy;
           float recoSharedEnergy = rechitEnergy * recoFraction;
@@ -268,9 +336,15 @@ void AllTracksterToSimTracksterAssociatorsByHitsProducer::produce(edm::StreamID,
             auto simFraction = simTracksterElement.fraction();
             edm::Ref<std::vector<ticl::Trackster>> simTracksterRef(simTrackstersHandle, simTracksterIndex);
             float sharedEnergy = std::min(simFraction * rechitEnergy, recoSharedEnergy);
-            float squaredFraction =
-                std::min(squaredRecoFraction, (recoFraction - simFraction) * (recoFraction - simFraction));
-            float score = invDenominator * squaredFraction * squaredRecHitEnergy;
+            /* RecoToSim score logic:
+             - simFraction >= 0 && recoFraction == 0 : simtrackster contains non-reco associated elements : ignore in recoToSim association
+             - simFraction == 0 && recoFraction > 0 : rechits not present in sim trackster : penalty in score by recoFraction*E
+             - simFraction == 1 && recoFraction == 1 : good association
+             - 1 > recoFraction > simFraction > 0 :  sim does not contain some reco energy, penalty in score by the additional part : (recoFraction-simFraction)*E
+             - 1 > simFraction> recoFraction > 0 : consider as good association, as there is enough sim to cover the reco
+            */
+            float recoMinusSimFraction = std::max(0.f, recoFraction - simFraction);
+            float score = invDenominator * recoMinusSimFraction * recoMinusSimFraction * squaredRecHitEnergy;
             tracksterToSimTracksterMap->insert(recoTracksterRef, simTracksterRef, sharedEnergy, score);
           }
         }
@@ -342,18 +416,24 @@ void AllTracksterToSimTracksterAssociatorsByHitsProducer::produce(edm::StreamID,
           float simFraction = simFractions[i];
           const auto& recHit = rechitManager[hitIndex];
           float rechitEnergy = recHit.energy();
-          float squaredSimFraction = simFraction * simFraction;
           float squaredRecHitEnergy = rechitEnergy * rechitEnergy;
           float simSharedEnergy = rechitEnergy * simFraction;
           const auto& hitToRecoTracksterVec = hitToAssociatedRecoTracksterMap[i];
           for (const auto& recoTracksterElement : hitToRecoTracksterVec) {
             auto recoTracksterIndex = recoTracksterElement.index();
-            float recoFraction = recoTracksterElement.fraction();
+            float recoFraction =
+                recoTracksterElement.fraction();  // Either zero or one when no sharing of rechits between tracksters
             edm::Ref<std::vector<ticl::Trackster>> recoTracksterRef(recoTrackstersHandle, recoTracksterIndex);
             float sharedEnergy = std::min(recoFraction * rechitEnergy, simSharedEnergy);
-            float squaredFraction =
-                std::min(squaredSimFraction, (recoFraction - simFraction) * (recoFraction - simFraction));
-            float score = invDenominator * squaredFraction * squaredRecHitEnergy;
+            /* SimToReco score logic:
+             - simFraction = 0 && recoFraction >= 0 : trackster contains non-sim associated elements : ignore in simToReco
+             - simFraction > 0 && recoFraction == 0 : simhits not present in reco trackster : penalty in score by simFraction*E
+             - simFraction == 1 && recoFraction == 1 : good association
+             - 1 > simFraction > recoFraction > 0 :  we are missing some sim energy, penalty in score by the missing part : (simFraction-recoFraction)*E
+             - 1 > recoFraction > simFraction > 0 : consider as good association, as there is enough reco to cover the sim
+            */
+            float simMinusRecoFraction = std::max(0.f, simFraction - recoFraction);
+            float score = invDenominator * simMinusRecoFraction * simMinusRecoFraction * squaredRecHitEnergy;
             simTracksterToTracksterMap->insert(simTracksterRef, recoTracksterRef, sharedEnergy, score);
           }
         }
@@ -380,6 +460,7 @@ void AllTracksterToSimTracksterAssociatorsByHitsProducer::produce(edm::StreamID,
 void AllTracksterToSimTracksterAssociatorsByHitsProducer::fillDescriptions(
     edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  desc.add<std::string>("allHitToTSAccoc", "allHitToTracksterAssociations");
   desc.add<std::vector<edm::InputTag>>(
       "tracksterCollections", {edm::InputTag("ticlTrackstersCLUE3DHigh"), edm::InputTag("ticlTrackstersLinks")});
   desc.add<std::vector<edm::InputTag>>(

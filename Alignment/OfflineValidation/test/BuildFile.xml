@@ -30,6 +30,7 @@
   <test name="Genericall" command="testingScripts/test_unitGeneric.sh">
     <flags PRE_TEST="validateAlignments"/>
   </test>
+  <test name="PVValidation" command="testingScripts/test_unitPVValidation.sh"/>
   <bin file="testTrackAnalyzers.cc" name="testTrackAnalysis">
     <use name="FWCore/TestProcessor"/>
     <use name="catch2"/>
@@ -59,4 +60,13 @@
     <use name="Alignment/OfflineValidation"/>
   </bin>
   <test name="Miscellanea" command="testingScripts/test_unitMiscellanea.sh"/>
+  <test name="ShortTrackValidation" command="testingScripts/test_unitShortTrackValidation.sh"/>
+  <test name="SagittaBiasNtuplizer" command="testingScripts/test_unitSagittaBiasNtuplizer.sh"/>
+  <bin file="testanalyzeDiMuonBiases.cpp" name="testDiMuonBiasesPlotting">
+    <flags PRE_TEST="SagittaBiasNtuplizer"/>
+    <use name="rootmath"/>
+    <use name="roothistmatrix"/>
+    <use name="rootgraphics"/>
+    <use name="Alignment/OfflineValidation"/>
+  </bin>
 </environment>

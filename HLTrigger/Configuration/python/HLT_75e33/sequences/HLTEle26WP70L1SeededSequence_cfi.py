@@ -6,7 +6,6 @@ from ..sequences.HLTElePixelMatchL1SeededSequence_cfi import *
 from ..sequences.HLTFastJetForEgammaSequence_cfi import *
 from ..sequences.HLTGsfElectronL1SeededSequence_cfi import *
 from ..sequences.HLTHgcalTiclPFClusteringForEgammaL1SeededSequence_cfi import *
-from ..sequences.HLTL1Sequence_cfi import *
 from ..sequences.HLTPFClusteringForEgammaL1SeededSequence_cfi import *
 from ..sequences.HLTPFHcalClusteringForEgammaSequence_cfi import *
 from ..sequences.HLTTrackingSequence_cfi import *
@@ -41,8 +40,8 @@ from ..modules.hltEle26WP70HgcalIsoL1SeededFilter_cfi import *
 from ..modules.hltEle26WP70PixelMatchL1SeededFilter_cfi import *
 from ..modules.hltEle26WP70PMS2L1SeededFilter_cfi import *
 
-HLTEle26WP70L1SeededSequence = cms.Sequence(HLTL1Sequence
-    +hltEGL1SeedsForSingleEleIsolatedFilter
+HLTEle26WP70L1SeededSequence = cms.Sequence(
+    hltEGL1SeedsForSingleEleIsolatedFilter
     +HLTDoFullUnpackingEgammaEcalL1SeededSequence
     +HLTPFClusteringForEgammaL1SeededSequence
     +HLTHgcalTiclPFClusteringForEgammaL1SeededSequence

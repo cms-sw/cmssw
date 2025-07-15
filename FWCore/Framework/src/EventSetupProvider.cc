@@ -76,6 +76,15 @@ namespace edm {
       return recordProviders_[index].get();
     }
 
+    EventSetupRecordProvider const* EventSetupProvider::tryToGetRecordProvider(const EventSetupRecordKey& iKey) const {
+      auto lb = std::lower_bound(recordKeys_.begin(), recordKeys_.end(), iKey);
+      if (lb == recordKeys_.end() || iKey != *lb) {
+        return nullptr;
+      }
+      auto index = std::distance(recordKeys_.begin(), lb);
+      return recordProviders_[index].get();
+    }
+
     void EventSetupProvider::fillAllESProductResolverProviders(
         std::vector<ESProductResolverProvider const*>& allESProductResolverProviders) const {
       std::unordered_set<unsigned int> componentIDs;

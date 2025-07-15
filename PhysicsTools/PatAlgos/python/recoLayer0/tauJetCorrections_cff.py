@@ -21,7 +21,6 @@ SQLliteInput = cms.ESSource("PoolDBESSource",
     DBParameters = cms.PSet(
         messageLevel = cms.untracked.int32(0)
     ),
-    timetype = cms.string('runnumber'),
     toGet = cms.VPSet(PoolDBESSource_toGet),
     connect = cms.string('sqlite_fip:CondFormats/JetMETObjects/data/TauJec11_V1.db')
 )

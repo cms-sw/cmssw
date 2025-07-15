@@ -183,7 +183,6 @@ namespace edm {
       // only has processes which created mergeable run products that were
       // read from the input data files. Note storedProcesses may be
       // missing processes because the output module dropped products.
-      // The other vector may be missing processes because of SubProcesses.
       for (unsigned int transientProcessIndex = 0; transientProcessIndex < processesWithMergeableRunProducts.size();
            ++transientProcessIndex) {
         // This string comparison could be optimized away by storing an index mapping in

@@ -3,6 +3,8 @@
 
 #include <type_traits>
 
+#include <span>
+
 #include <alpaka/alpaka.hpp>
 
 #include "HeterogeneousCore/AlpakaInterface/interface/AllocatorPolicy.h"
@@ -158,6 +160,11 @@ namespace cms::alpakatools {
   }
 
   template <typename T>
+  host_view<T[]> make_host_view(std::span<T> span) {
+    return alpaka::ViewPlainPtr<DevHost, T, Dim1D, Idx>(span.data(), host(), Vec1D{span.size()});
+  }
+
+  template <typename T>
   std::enable_if_t<cms::is_unbounded_array_v<T> and not std::is_array_v<std::remove_extent_t<T>>, host_view<T>>
   make_host_view(T& data, Extent extent) {
     return alpaka::ViewPlainPtr<DevHost, std::remove_extent_t<T>, Dim1D, Idx>(data, host(), Vec1D{extent});
@@ -268,6 +275,12 @@ namespace cms::alpakatools {
   }
 
   template <typename T, typename TDev>
+  std::enable_if_t<alpaka::isDevice<TDev>, device_view<TDev, T[]>> make_device_view(TDev const& device,
+                                                                                    std::span<T> span) {
+    return alpaka::ViewPlainPtr<TDev, T, Dim1D, Idx>(span.data(), device, Vec1D{span.size()});
+  }
+
+  template <typename T, typename TDev>
   std::enable_if_t<alpaka::isDevice<TDev> and cms::is_unbounded_array_v<T> and
                        not std::is_array_v<std::remove_extent_t<T>>,
                    device_view<TDev, T>>
@@ -294,6 +307,13 @@ namespace cms::alpakatools {
                                                                                                     T* data,
                                                                                                     Extent extent) {
     return alpaka::ViewPlainPtr<alpaka::Dev<TQueue>, T, Dim1D, Idx>(data, alpaka::getDev(queue), Vec1D{extent});
+  }
+
+  template <typename T, typename TQueue>
+  std::enable_if_t<alpaka::isQueue<TQueue>, device_view<alpaka::Dev<TQueue>, T[]>> make_device_view(TQueue const& queue,
+                                                                                                    std::span<T> span) {
+    return alpaka::ViewPlainPtr<alpaka::Dev<TQueue>, T, Dim1D, Idx>(
+        span.data(), alpaka::getDev(queue), Vec1D{span.size()});
   }
 
   template <typename T, typename TQueue>

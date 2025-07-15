@@ -1,7 +1,15 @@
-#include "PhysicsTools/NanoAOD/interface/SimpleFlatTableProducer.h"
-
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "PhysicsTools/NanoAOD/interface/SimpleFlatTableProducer.h"
 typedef SimpleFlatTableProducer<reco::Candidate> SimpleCandidateFlatTableProducer;
+
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+typedef SimpleFlatTableProducer<reco::PFCandidate> SimplePFCandidateFlatTableProducer;
+
+#include "DataFormats/METReco/interface/MET.h"
+typedef SimpleFlatTableProducer<reco::MET> SimpleMETFlatTableProducer;
+
+#include "DataFormats/TauReco/interface/PFTau.h"
+typedef SimpleFlatTableProducer<reco::PFTau> SimplePFTauCandidateFlatTableProducer;
 
 typedef SimpleCollectionFlatTableProducer<reco::Candidate> SimpleCandidateCollectionFlatTableProducer;
 
@@ -62,8 +70,17 @@ typedef SimpleFlatTableProducer<L2MuonTrajectorySeed> SimpleL2MuonTrajectorySeed
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 typedef SimpleFlatTableProducer<reco::Track> SimpleTriggerTrackFlatTableProducer;
 
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+typedef SimpleFlatTableProducer<reco::GsfTrack> SimpleGsfTrackFlatTableProducer;
+
+#include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
+typedef SimpleFlatTableProducer<pat::CompositeCandidate> SimpleCompositeCandidateFlatTableProducer;
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SimpleCandidateFlatTableProducer);
+DEFINE_FWK_MODULE(SimplePFCandidateFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleMETFlatTableProducer);
+DEFINE_FWK_MODULE(SimplePFTauCandidateFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleCandidateCollectionFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleTrackFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleSuperclusterFlatTableProducer);
@@ -84,3 +101,5 @@ DEFINE_FWK_MODULE(SimpleBeamspotFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleTrajectorySeedFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleL2MuonTrajectorySeedFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleTriggerTrackFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleGsfTrackFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleCompositeCandidateFlatTableProducer);

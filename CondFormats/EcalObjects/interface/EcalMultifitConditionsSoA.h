@@ -5,7 +5,6 @@
 #include <Eigen/Dense>
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
-#include "DataFormats/SoATemplate/interface/SoAView.h"
 #include "DataFormats/EcalDigi/interface/EcalConstants.h"
 #include "CondFormats/EcalObjects/interface/EcalPulseShapes.h"
 

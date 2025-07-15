@@ -3,6 +3,7 @@
 <use name="DataFormats/L1TrackTrigger"/>
 <use name="DataFormats/Math"/>
 <use name="DataFormats/Phase2TrackerDigi"/>
+<use name="FWCore/AbstractServices"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>

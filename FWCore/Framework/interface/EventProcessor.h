@@ -55,7 +55,6 @@ namespace edm {
   class EDLooperBase;
   class HistoryAppender;
   class ProcessDesc;
-  class SubProcess;
   class WaitingTaskHolder;
   class LuminosityBlockPrincipal;
   class LuminosityBlockProcessingStatus;
@@ -341,7 +340,6 @@ namespace edm {
     std::multimap<std::string, std::string> referencesToBranches_;
     std::vector<std::string> modulesToIgnoreForDeleteEarly_;
 
-    std::vector<SubProcess> subProcesses_;
     edm::propagate_const<std::unique_ptr<HistoryAppender>> historyAppender_;
 
     edm::propagate_const<std::shared_ptr<FileBlock>> fb_;

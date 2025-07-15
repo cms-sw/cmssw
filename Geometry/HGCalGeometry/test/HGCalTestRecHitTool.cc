@@ -43,11 +43,14 @@ private:
   double getLayerZ(DetId const&) const;
   double getLayerZ(int type, int layer) const;
   GlobalPoint getPosition(DetId const&) const;
+  int getScintMaxIphi(const DetId& id) const;
+  bool isScintillatorFine(const DetId& id) const;
 
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
   const CaloGeometry* geom_;
   const int mode_;
   int layerEE_, layerFH_, layerBH_;
+  int eeOffset_, fhOffset_, bhOffset_;
   int layerEE1000_, layerFH1000_, layerBH1000_;
 };
 
@@ -56,7 +59,9 @@ HGCalTestRecHitTool::HGCalTestRecHitTool(const edm::ParameterSet& iC)
       geom_(nullptr),
       mode_(iC.getParameter<int>("Mode")) {
   layerEE_ = layerFH_ = layerBH_ = 0;
+  eeOffset_ = fhOffset_ = bhOffset_ = 0;
   layerEE1000_ = layerFH1000_ = layerBH1000_ = 0;
+  edm::LogVerbatim("HGCalGeom") << "Instantiate HGCalTestRecHitTool with mode " << mode_;
 }
 
 HGCalTestRecHitTool::~HGCalTestRecHitTool() {}
@@ -69,13 +74,19 @@ void HGCalTestRecHitTool::analyze(const edm::Event&, const edm::EventSetup& iSet
                                 : static_cast<const HGCalGeometry*>(
                                       geom_->getSubdetectorGeometry(DetId::HGCalEE, ForwardSubdetector::ForwardEmpty)));
     layerEE_ = (geomEE->topology().dddConstants()).layers(true);
+    eeOffset_ = (geomEE->topology().dddConstants()).getLayerOffset();
     layerEE1000_ = (geomEE->topology().dddConstants()).getLayer(10000., true);
+    edm::LogVerbatim("HGCalGeom") << "EE::Layers " << layerEE_ << " Offset " << eeOffset_ << " Layer # at 1000 cm "
+                                  << layerEE1000_;
     auto geomFH = ((mode_ == 0) ? static_cast<const HGCalGeometry*>(
                                       geom_->getSubdetectorGeometry(DetId::Forward, ForwardSubdetector::HGCHEF))
                                 : static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(
                                       DetId::HGCalHSi, ForwardSubdetector::ForwardEmpty)));
     layerFH_ = (geomFH->topology().dddConstants()).layers(true);
+    fhOffset_ = (geomFH->topology().dddConstants()).getLayerOffset();
     layerFH1000_ = (geomFH->topology().dddConstants()).getLayer(10000., true);
+    edm::LogVerbatim("HGCalGeom") << "FH::Layers " << layerFH_ << " Offsets " << fhOffset_ << " Layer # at 1000 cm "
+                                  << layerFH1000_;
     if (mode_ == 0) {
       auto geomBH =
           static_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal, HcalSubdetector::HcalEndcap));
@@ -84,21 +95,35 @@ void HGCalTestRecHitTool::analyze(const edm::Event&, const edm::EventSetup& iSet
       auto geomBH = static_cast<const HGCalGeometry*>(
           geom_->getSubdetectorGeometry(DetId::HGCalHSc, ForwardSubdetector::ForwardEmpty));
       layerBH_ = (geomBH->topology().dddConstants()).layers(true);
+      bhOffset_ = (geomBH->topology().dddConstants()).getLayerOffset();
       layerBH1000_ = (geomBH->topology().dddConstants()).getLayer(10000., true);
     }
-    edm::LogVerbatim("HGCalGeom") << "Layers " << layerEE_ << ":" << layerFH_ << ":" << layerBH_
-                                  << "\nLayer # at 1000 cm " << layerEE1000_ << ":" << layerFH1000_ << ":"
+    edm::LogVerbatim("HGCalGeom") << "BH::Layers " << layerBH_ << " nOffsets " << bhOffset_ << " Layer # at 1000 cm "
                                   << layerBH1000_;
     for (int layer = 1; layer <= layerEE_; ++layer)
       edm::LogVerbatim("HGCalGeom") << "EE Layer " << layer << " Wafers "
                                     << (geomEE->topology().dddConstants()).wafers(layer, 0) << ":"
                                     << (geomEE->topology().dddConstants()).wafers(layer, 1) << ":"
-                                    << (geomEE->topology().dddConstants()).wafers(layer, 2) << std::endl;
+                                    << (geomEE->topology().dddConstants()).wafers(layer, 2);
     for (int layer = 1; layer <= layerFH_; ++layer)
       edm::LogVerbatim("HGCalGeom") << "FH Layer " << layer << " Wafers "
                                     << (geomFH->topology().dddConstants()).wafers(layer, 0) << ":"
                                     << (geomFH->topology().dddConstants()).wafers(layer, 1) << ":"
-                                    << (geomFH->topology().dddConstants()).wafers(layer, 2) << std::endl;
+                                    << (geomFH->topology().dddConstants()).wafers(layer, 2);
+    if (mode_ != 0) {
+      auto geomBH = static_cast<const HGCalGeometry*>(
+          geom_->getSubdetectorGeometry(DetId::HGCalHSc, ForwardSubdetector::ForwardEmpty));
+      int firstL = (geomBH->topology().dddConstants()).firstLayer();
+      edm::LogVerbatim("HGCalGeom") << "BH First Layer " << firstL << " Total " << layerBH_;
+      for (int lay = 1; lay <= layerBH_; ++lay) {
+        int layer = firstL + lay - 1;
+        int ring = (geomBH->topology().dddConstants()).tileRings(layer).first + 1;
+        auto typm = (geomBH->topology().dddConstants()).tileType(layer, ring, 1);
+        HGCScintillatorDetId id(typm.first, layer, ring, 1, false, typm.second, 0);
+        edm::LogVerbatim("HGCalGeom") << "BH Layer " << layer << " Ring " << ring << " Max phi "
+                                      << getScintMaxIphi(DetId(id)) << " Fine " << isScintillatorFine(DetId(id));
+      }
+    }
     int nlayer = ((mode_ == 0) ? (layerEE_ + layerFH_ + layerBH_) : (layerEE_ + layerFH_));
     retrieveLayerPositions(nlayer);
   } else {
@@ -226,6 +251,29 @@ double HGCalTestRecHitTool::getLayerZ(int type, int layer) const {
     zpos = ddd->waferZ(layer, true);
   }
   return zpos;
+}
+
+int HGCalTestRecHitTool::getScintMaxIphi(const DetId& id) const {
+  if (id.det() == DetId::HGCalHSc) {
+    int layer = HGCScintillatorDetId(id).layer();
+    auto hg = static_cast<const HGCalGeometry*>(
+        geom_->getSubdetectorGeometry(DetId::HGCalHSc, ForwardSubdetector::ForwardEmpty));
+    return hg->topology().dddConstants().maxCells(layer, true);
+  } else {
+    return 0;
+  }
+}
+
+bool HGCalTestRecHitTool::isScintillatorFine(const DetId& id) const {
+  edm::LogVerbatim("HGCalGeom") << "isScintillatorFine " << id.det() << ":" << DetId::HGCalHSc << ":" << bhOffset_;
+  if (id.det() == DetId::HGCalHSc) {
+    int layer = HGCScintillatorDetId(id).layer();
+    auto hg = static_cast<const HGCalGeometry*>(
+        geom_->getSubdetectorGeometry(DetId::HGCalHSc, ForwardSubdetector::ForwardEmpty));
+    return hg->topology().dddConstants().scintFine(layer);
+  } else {
+    return false;
+  }
 }
 
 //define this as a plug-in

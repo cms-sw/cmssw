@@ -125,7 +125,6 @@ class Process(object):
         self.__dict__['_Process__switchproducers'] = {}
         self.__dict__['_Process__source'] = None
         self.__dict__['_Process__looper'] = None
-        self.__dict__['_Process__subProcesses'] = []
         self.__dict__['_Process__schedule'] = None
         self.__dict__['_Process__analyzers'] = {}
         self.__dict__['_Process__outputmodules'] = {}
@@ -293,10 +292,6 @@ class Process(object):
     @staticmethod
     def defaultMaxLuminosityBlocks_():
         return untracked.PSet(input=untracked.int32(-1))
-    def subProcesses_(self):
-        """returns a list of the subProcesses that have been added to the Process"""
-        return self.__subProcesses
-    subProcesses = property(subProcesses_,doc='the SubProcesses that have been added to the Process')
     def analyzers_(self):
         """returns a dict of the analyzers that have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__analyzers)
@@ -725,11 +720,6 @@ class Process(object):
             raise ValueError("The label '"+name+"' can not be used for a Looper.  Only 'looper' is allowed.")
         self.__dict__['_Process__looper'] = mod
         self.__dict__[mod.type_()] = mod
-    def _placeSubProcess(self,name:str,mod):
-        self.__dict__['_Process__subProcess'] = mod
-        self.__dict__[mod.type_()] = mod
-    def addSubProcess(self,mod):
-        self.__subProcesses.append(mod)
     def _placeService(self,typeName:str,mod):
         self._place(typeName, mod, self.__services)
         if typeName in self.__dict__:
@@ -828,10 +818,6 @@ class Process(object):
             config += options.indentation()+"source = "+self.source_().dumpConfig(options)
         if self.looper_():
             config += options.indentation()+"looper = "+self.looper_().dumpConfig(options)
-
-        config+=self._dumpConfigNamedList(self.subProcesses_(),
-                                  'subProcess',
-                                  options)
         config+=self._dumpConfigNamedList(self.producers_().items(),
                                   'module',
                                   options)
@@ -891,12 +877,6 @@ class Process(object):
         for item in self.es_prefers_().values():
             result +=options.indentation()+'es_prefer '+item.targetLabel_()+' = '+item.dumpConfig(options)
         return result
-
-    def _dumpPythonSubProcesses(self, l, options:PrintOptions) -> str:
-        returnValue = ''
-        for item in l:
-            returnValue += item.dumpPython(options)+'\n\n'
-        return returnValue
 
     def _dumpPythonList(self, d, options:PrintOptions) -> str:
         returnValue = ''
@@ -1044,7 +1024,6 @@ class Process(object):
             result += "process.looper = "+self.looper_().dumpPython()
         result+=self._dumpPythonList(self.psets, options)
         result+=self._dumpPythonList(self.vpsets, options)
-        result+=self._dumpPythonSubProcesses(self.subProcesses_(), options)
         result+=self._dumpPythonList(self.producers_(), options)
         result+=self._dumpPythonList(self.switchProducers_(), options)
         result+=self._dumpPythonList(self.filters_() , options)
@@ -1089,10 +1068,6 @@ class Process(object):
 
         parts.update(self._splitPythonList('psets', self.psets, options))
         parts.update(self._splitPythonList('psets', self.vpsets, options))
-        # FIXME
-        #parts.update(self._splitPythonSubProcesses(self.subProcesses_(), options))
-        if len(self.subProcesses_()):
-          sys.stderr.write("error: subprocesses are not supported yet\n\n")
         parts.update(self._splitPythonList('modules', self.producers_(), options))
         parts.update(self._splitPythonList('modules', self.switchProducers_(), options))
         parts.update(self._splitPythonList('modules', self.filters_() , options))
@@ -1207,19 +1182,6 @@ class Process(object):
         aliases.sort()
         parameterSet.addVString(tracked, labelModules, modules)
         parameterSet.addVString(tracked, labelAliases, aliases)
-    def _insertSubProcessesInto(self, parameterSet, label:str, itemList, tracked:bool):
-        l = []
-        subprocs = []
-        for value in itemList:
-            name = value.getProcessName()
-            newLabel = value.nameInProcessDesc_(name)
-            l.append(newLabel)
-            pset = value.getSubProcessPSet(parameterSet)
-            subprocs.append(pset)
-        # alphabetical order is easier to compare with old language
-        l.sort()
-        parameterSet.addVString(tracked, label, l)
-        parameterSet.addVPSet(False,"subProcesses",subprocs)
     def _insertPaths(self, processPSet, nodeVisitor):
         scheduledPaths = []
         triggerPaths = []
@@ -1421,7 +1383,6 @@ class Process(object):
         self._insertInto(adaptor, self.vpsets_())
         self._insertOneInto(adaptor,  "@all_sources", self.source_(), True)
         self._insertOneInto(adaptor,  "@all_loopers", self.looper_(), True)
-        self._insertSubProcessesInto(adaptor, "@all_subprocesses", self.subProcesses_(), False)
         self._insertManyInto(adaptor, "@all_esprefers", self.es_prefers_(), True)
         self._insertManyInto(adaptor, "@all_aliases", self.aliases_(), True)
         # This will visit all the paths and endpaths that are scheduled to run,
@@ -1640,61 +1601,6 @@ class FilteredStream(dict):
         return "FilteredStream object: %s" %self["name"]
     def __getattr__(self,attr):
         return self[attr]
-
-class SubProcess(_Unlabelable):
-    """Allows embedding another process within a parent process. This allows one to 
-    chain processes together directly in one cmsRun job rather than having to run
-    separate jobs that are connected via a temporary file.
-    """
-    def __init__(self,process, SelectEvents = untracked.PSet(), outputCommands = untracked.vstring()):
-        """
-        """
-        if not isinstance(process, Process):
-            raise ValueError("the 'process' argument must be of type cms.Process")
-        if not isinstance(SelectEvents,PSet):
-            raise ValueError("the 'SelectEvents' argument must be of type cms.untracked.PSet")
-        if not isinstance(outputCommands,vstring):
-            raise ValueError("the 'outputCommands' argument must be of type cms.untracked.vstring")
-        self.__process = process
-        self.__SelectEvents = SelectEvents
-        self.__outputCommands = outputCommands
-        # Need to remove MessageLogger from the subprocess now that MessageLogger is always present
-        if self.__process.MessageLogger is not MessageLogger:
-            print("""Warning: You have reconfigured service
-'edm::MessageLogger' in a subprocess.
-This service has already been configured.
-This particular service may not be reconfigured in a subprocess.
-The reconfiguration will be ignored.""")
-        del self.__process.MessageLogger
-    def dumpPython(self, options:PrintOptions=PrintOptions()) -> str:
-        out = "parentProcess"+str(hash(self))+" = process\n"
-        out += self.__process.dumpPython()
-        out += "childProcess = process\n"
-        out += "process = parentProcess"+str(hash(self))+"\n"
-        out += "process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = "+self.__SelectEvents.dumpPython(options) +", outputCommands = "+self.__outputCommands.dumpPython(options) +"))"
-        return out
-    def getProcessName(self) -> str:
-        return self.__process.name_()
-    def process(self):
-        return self.__process
-    def SelectEvents(self):
-        return self.__SelectEvents
-    def outputCommands(self):
-        return self.__outputCommands
-    def type_(self):
-        return 'subProcess'
-    def nameInProcessDesc_(self,label:str) -> str:
-        return label
-    def _place(self,label,process):
-        process._placeSubProcess('subProcess',self)
-    def getSubProcessPSet(self,parameterSet):
-        topPSet = parameterSet.newPSet()
-        self.__process.fillProcessDesc(topPSet)
-        subProcessPSet = parameterSet.newPSet()
-        self.__SelectEvents.insertInto(subProcessPSet,"SelectEvents")
-        self.__outputCommands.insertInto(subProcessPSet,"outputCommands")
-        subProcessPSet.addPSet(False,"process",topPSet)
-        return subProcessPSet
 
 class _ParameterModifier(object):
     """Helper class for Modifier that takes key/value pairs and uses them to reset parameters of the object"""
@@ -3590,41 +3496,6 @@ process.prefer("juicer",
             m2 = m.clone(p = PSet(i = int32(5)), j = int32(8))
             m2.p.i = 6
             m2.j = 8
-        def testSubProcess(self):
-            process = Process("Parent")
-            subProcess = Process("Child")
-            subProcess.a = EDProducer("A")
-            subProcess.p = Path(subProcess.a)
-            subProcess.add_(Service("Foo"))
-            process.addSubProcess(SubProcess(subProcess))
-            d = process.dumpPython()
-            equalD ="""parentProcess = process
-process.a = cms.EDProducer("A")
-process.Foo = cms.Service("Foo")
-process.p = cms.Path(process.a)
-childProcess = process
-process = parentProcess
-process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.untracked.PSet(
-), outputCommands = cms.untracked.vstring()))"""
-            equalD = equalD.replace("parentProcess","parentProcess"+str(hash(process.subProcesses_()[0])))
-            # SubProcesses are dumped before Services, so in order to
-            # craft the dump of the Parent and Child manually the dump
-            # of the Parent needs to be split at the MessageLogger
-            # boundary (now when it is part of Process by default),
-            # and insert the dump of the Child between the top part of
-            # the Parent (before MessageLogger) and the bottom part of
-            # the Parent (after and including MessageLogger)
-            messageLoggerSplit = 'process.MessageLogger = cms.Service'
-            parentDumpSplit = Process('Parent').dumpPython().split(messageLoggerSplit)
-            childProcess = Process('Child')
-            del childProcess.MessageLogger
-            combinedDump = parentDumpSplit[0] + childProcess.dumpPython() + messageLoggerSplit + parentDumpSplit[1]
-            self.assertEqual(_lineDiff(d, combinedDump), equalD)
-            p = TestMakePSet()
-            process.fillProcessDesc(p)
-            self.assertEqual((True,['a']),p.values["subProcesses"][1][0].values["process"][1].values['@all_modules'])
-            self.assertEqual((True,['p']),p.values["subProcesses"][1][0].values["process"][1].values['@paths'])
-            self.assertEqual({'@service_type':(True,'Foo')}, p.values["subProcesses"][1][0].values["process"][1].values["services"][1][0].values)
         def testRefToPSet(self):
             proc = Process("test")
             proc.top = PSet(a = int32(1))

@@ -4,6 +4,7 @@
   <use name="RecoJets/JetProducers"/>
   <use name="RecoJets/JetAlgorithms"/>
   <use name="RecoEgamma/EgammaIsolationAlgos"/>
+  <use name="FWCore/AbstractServices"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
   <use name="DataFormats/BTauReco"/>

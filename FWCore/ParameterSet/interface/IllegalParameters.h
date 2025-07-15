@@ -6,7 +6,6 @@
 namespace edm {
 
   class EventProcessor;
-  class SubProcess;
   class ParameterSetDescription;
 
   class IllegalParameters {
@@ -16,7 +15,6 @@ namespace edm {
     static void setThrowAnException(bool v) { throwAnException_ = v; }
 
     friend class EventProcessor;
-    friend class SubProcess;
     friend class ParameterSetDescription;
   };
 }  // namespace edm

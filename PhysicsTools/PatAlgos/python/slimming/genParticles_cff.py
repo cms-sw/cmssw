@@ -23,4 +23,5 @@ _genParticlesHITask = genParticlesTask.copy()
 _genParticlesHITask.add(packedGenParticlesSignal)
 
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
-pp_on_AA.toReplaceWith(genParticlesTask, _genParticlesHITask)
+from Configuration.Eras.Modifier_run3_oxygen_cff import run3_oxygen
+(pp_on_AA | run3_oxygen).toReplaceWith(genParticlesTask, _genParticlesHITask)

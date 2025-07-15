@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from GeneratorInterface.Core.ExternalGeneratorFilter import ExternalGeneratorFilter
 
-generator = cms.EDFilter("HijingGeneratorFilter",
+generator = ExternalGeneratorFilter(cms.EDFilter("HijingGeneratorFilter",
                          rotateEventPlane = cms.bool(True),
                          frame = cms.string('CMS     '),
                          targ = cms.string('P       '),
@@ -12,7 +13,7 @@ generator = cms.EDFilter("HijingGeneratorFilter",
                          iat = cms.int32(1),
                          bMax = cms.double(15),
                          iap = cms.int32(208)
-                         )
+                         ))
 
 configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.3 $'),

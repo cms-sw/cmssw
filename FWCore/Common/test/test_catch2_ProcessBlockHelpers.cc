@@ -2,7 +2,6 @@
 #include "catch.hpp"
 #include "FWCore/Common/interface/OutputProcessBlockHelper.h"
 #include "FWCore/Common/interface/ProcessBlockHelper.h"
-#include "FWCore/Common/interface/SubProcessBlockHelper.h"
 
 #include <string>
 #include <vector>
@@ -33,6 +32,4 @@ TEST_CASE("Test ProcessBlockHelpers", "[ProcessBlockHelpers]") {
     REQUIRE(edm::ProcessBlockHelper::invalidCacheIndex() == 0xffffffff);
     REQUIRE(edm::ProcessBlockHelper::invalidProcessIndex() == 0xffffffff);
   }
-
-  SECTION("SubProcessBlockHelper") { edm::SubProcessBlockHelper subProcessBlockHelper; }
 }
