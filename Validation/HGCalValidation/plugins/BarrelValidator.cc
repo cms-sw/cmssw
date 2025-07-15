@@ -64,7 +64,9 @@ bool assignTracksterMaps(const edm::Handle<std::vector<ticl::Trackster>>& tracks
 
 BarrelValidator::BarrelValidator(const edm::ParameterSet& pset)
     : caloGeomToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
-      label_lcl(pset.getParameter<edm::InputTag>("label_lcl")),
+      lclTag_(pset.getParameter<edm::InputTag>("lclTag")),
+      sclTag_(pset.getParameter<edm::InputTag>("sclTag")),
+      rechitmapTag_(pset.getParameter<edm::InputTag>("rechitmapTag")),
       associator_(pset.getUntrackedParameter<std::vector<edm::InputTag>>("associator")),
       associatorSim_(pset.getUntrackedParameter<std::vector<edm::InputTag>>("associatorSim")),
       SaveGeneralInfo_(pset.getUntrackedParameter<bool>("SaveGeneralInfo")),
@@ -73,22 +75,19 @@ BarrelValidator::BarrelValidator(const edm::ParameterSet& pset)
       doSimClustersPlots_(pset.getUntrackedParameter<bool>("doSimClustersPlots")),
       label_SimClustersPlots_(pset.getParameter<std::string>("label_SimClusters")),
       label_SimClustersLevel_(pset.getParameter<std::string>("label_SimClustersLevel")),
+      simVerticesTag_(pset.getParameter<edm::InputTag>("simVertices")),
       doLayerClustersPlots_(pset.getUntrackedParameter<bool>("doLayerClustersPlots")),
       label_layerClustersPlots_(pset.getParameter<std::string>("label_layerClustersPlots")),
       label_LCToCPLinking_(pset.getParameter<std::string>("label_LCToCPLinking")),
       hitsToken_(consumes<edm::RefProdVector<reco::PFRecHitCollection>>(pset.getParameter<edm::InputTag>("hits"))),
       scToCpMapToken_(
-          consumes<SimClusterToCaloParticleMap>(pset.getParameter<edm::InputTag>("simClustersToCaloParticlesMap"))) {
-  //In this way we can easily generalize to associations between other objects also.
-  const edm::InputTag& label_cp_effic_tag = pset.getParameter<edm::InputTag>("label_cp_effic");
-  const edm::InputTag& label_cp_fake_tag = pset.getParameter<edm::InputTag>("label_cp_fake");
+          consumes<SimClusterToCaloParticleMap>(pset.getParameter<edm::InputTag>("simClustersToCaloParticlesMap"))),
+      cpTag_(pset.getParameter<edm::InputTag>("cpTag_")) {
+  cpToken_ = consumes<std::vector<CaloParticle>>(cpTag_);
 
-  label_cp_effic = consumes<std::vector<CaloParticle>>(label_cp_effic_tag);
-  label_cp_fake = consumes<std::vector<CaloParticle>>(label_cp_fake_tag);
+  simVertices_ = consumes<std::vector<SimVertex>>(simVerticesTag_);
 
-  simVertices_ = consumes<std::vector<SimVertex>>(pset.getParameter<edm::InputTag>("simVertices"));
-
-  for (auto& itag : label_clustersmask) {
+  for (auto& itag : clustersmaskTags_) {
     clustersMaskTokens_.push_back(consumes<std::vector<float>>(itag));
   }
 
@@ -101,12 +100,11 @@ BarrelValidator::BarrelValidator(const edm::ParameterSet& pset)
         consumes<ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>>(itag));
   }
 
-  barrelHitMap_ =
-      consumes<std::unordered_map<DetId, const unsigned int>>(edm::InputTag("recHitMapProducer", "barrelRecHitMap"));
+  barrelHitMap_ = consumes<std::unordered_map<DetId, const unsigned int>>(rechitmapTag_);
 
-  simClusters_ = consumes<std::vector<SimCluster>>(pset.getParameter<edm::InputTag>("label_scl"));
+  simClusters_ = consumes<std::vector<SimCluster>>(sclTag_);
 
-  layerclusters_ = consumes<reco::CaloClusterCollection>(label_lcl);
+  layerClusters_ = consumes<reco::CaloClusterCollection>(lclTag_);
 
   for (auto& itag : associator_) {
     associatorMapRtS.push_back(consumes<ticl::RecoToSimCollectionT<reco::CaloClusterCollection>>(itag));
@@ -171,9 +169,9 @@ void BarrelValidator::bookHistograms(DQMStore::IBooker& ibook,
     ibook.setCurrentFolder(dirName_ + label_SimClustersPlots_ + "/" + label_SimClustersLevel_);
     histoProducerAlgo_->bookSimClusterHistos(ibook, histograms.histoProducerAlgo, totallayers_to_monitor_);
 
-    for (unsigned int ws = 0; ws < label_clustersmask.size(); ws++) {
+    for (unsigned int ws = 0; ws < clustersmaskTags_.size(); ws++) {
       ibook.cd();
-      InputTag algo = label_clustersmask[ws];
+      InputTag algo = clustersmaskTags_[ws];
       string dirName = dirName_ + label_SimClustersPlots_ + "/";
       if (!algo.process().empty())
         dirName += algo.process() + "_";
@@ -225,7 +223,6 @@ void BarrelValidator::cpParametersAndSelection(const Histograms& histograms,
   size_t j = 0;
   for (auto const& caloParticle : cPeff) {
     int id = caloParticle.pdgId();
-
     if (!doCaloParticleSelection_ || (doCaloParticleSelection_ && cpSelector(caloParticle, simVertices))) {
       selected_cPeff.push_back(j);
       if (doCaloParticlePlots_) {
@@ -251,10 +248,20 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
 
   edm::Handle<std::vector<SimVertex>> simVerticesHandle;
   event.getByToken(simVertices_, simVerticesHandle);
+  if (!simVerticesHandle.isValid()) {
+    edm::LogWarning("BarrelValidator") << "simVerticesHandle with InputTag " << simVerticesTag_ << " is not valid.";
+    return;
+  }
+
   std::vector<SimVertex> const& simVertices = *simVerticesHandle;
 
   edm::Handle<std::vector<CaloParticle>> caloParticleHandle;
-  event.getByToken(label_cp_effic, caloParticleHandle);
+  event.getByToken(cpToken_, caloParticleHandle);
+  if (!caloParticleHandle.isValid()) {
+    edm::LogWarning("BarrelValidator") << "caloParticleHandle with InputTag " << cpTag_ << " is not valid.";
+    return;
+  }
+
   std::vector<CaloParticle> const& caloParticles = *caloParticleHandle;
 
   edm::ESHandle<CaloGeometry> geom = setup.getHandle(caloGeomToken_);
@@ -266,14 +273,27 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
   for (unsigned int i = 0; i < associatorMapRtS.size(); ++i) {
     edm::Handle<ticl::SimToRecoCollectionT<reco::CaloClusterCollection>> simToRecoCollectionH;
     event.getByToken(associatorMapStR[i], simToRecoCollectionH);
+    if (!simToRecoCollectionH.isValid()) {
+      edm::LogWarning("BarrelValidator") << "simToRecoCollectionH with InputTag " << associator_[i] << " is not valid.";
+      return;
+    }
     simRecColl.push_back(*simToRecoCollectionH);
+
     edm::Handle<ticl::RecoToSimCollectionT<reco::CaloClusterCollection>> recoToSimCollectionH;
     event.getByToken(associatorMapRtS[i], recoToSimCollectionH);
+    if (!recoToSimCollectionH.isValid()) {
+      edm::LogWarning("BarrelValidator") << "recoToSimCollectionH with InputTag " << associator_[i] << " is not valid.";
+      return;
+    }
     recSimColl.push_back(*recoToSimCollectionH);
   }
 
   edm::Handle<std::unordered_map<DetId, const unsigned int>> barrelHitMapHandle;
   event.getByToken(barrelHitMap_, barrelHitMapHandle);
+  if (!barrelHitMapHandle.isValid()) {
+    edm::LogWarning("BarrelValidator") << "barrelHitMapHandle with InputTag " << rechitmapTag_ << " is not valid.";
+    return;
+  }
   const std::unordered_map<DetId, const unsigned int>& barrelHitMap = *barrelHitMapHandle;
 
   if (!event.getHandle(hitsToken_).isValid()) {
@@ -318,11 +338,20 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
   //simClusters
   edm::Handle<std::vector<SimCluster>> simClustersHandle;
   event.getByToken(simClusters_, simClustersHandle);
+  if (!simClustersHandle.isValid()) {
+    edm::LogWarning("BarrelValidator") << "simClustersHandle with InputTag " << sclTag_ << " is not valid.";
+    return;
+  }
+
   std::vector<SimCluster> const& simClusters = *simClustersHandle;
 
   //Layer clusters
   edm::Handle<reco::CaloClusterCollection> clusterHandle;
-  event.getByToken(layerclusters_, clusterHandle);
+  event.getByToken(layerClusters_, clusterHandle);
+  if (!clusterHandle.isValid()) {
+    edm::LogWarning("BarrelValidator") << "clusterHandle with InputTag " << lclTag_ << " is not valid.";
+    return;
+  }
   const reco::CaloClusterCollection& clusters = *clusterHandle;
 
   auto nSimClusters = simClusters.size();
@@ -347,7 +376,7 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
   if (doSimClustersPlots_) {
     histoProducerAlgo_->fill_simCluster_histos(histograms.histoProducerAlgo, simClusters, totallayers_to_monitor_);
 
-    for (unsigned int ws = 0; ws < label_clustersmask.size(); ws++) {
+    for (unsigned int ws = 0; ws < clustersmaskTags_.size(); ws++) {
       const auto& inputClusterMask = event.get(clustersMaskTokens_[ws]);
 
       std::vector<ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection>> recSimColl;
@@ -355,9 +384,20 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
       for (unsigned int i = 0; i < associatorMapRtSim.size(); ++i) {
         edm::Handle<ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>> simtorecoCollectionH;
         event.getByToken(associatorMapSimtR[i], simtorecoCollectionH);
+        if (!simtorecoCollectionH.isValid()) {
+          edm::LogWarning("BarrelValidator")
+              << "simtorecoCollectionH with InputTag " << associatorSim_[i] << " is not valid.";
+          return;
+        }
         simRecColl.push_back(*simtorecoCollectionH);
+
         edm::Handle<ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection>> recotosimCollectionH;
         event.getByToken(associatorMapRtSim[i], recotosimCollectionH);
+        if (!recotosimCollectionH.isValid()) {
+          edm::LogWarning("BarrelValidator")
+              << "simtorecoCollectionH with InputTag " << associatorSim_[i] << " is not valid.";
+          return;
+        }
         recSimColl.push_back(*recotosimCollectionH);
       }
 
@@ -377,7 +417,7 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
 
       //General Info on simClusters
       LogTrace("BarrelValidator") << "\n# of SimClusters: " << nSimClusters
-                                  << ", layerClusters mask label: " << label_clustersmask[ws].label() << "\n";
+                                  << ", layerClusters mask label: " << clustersmaskTags_[ws].label() << "\n";
     }  //end of loop overs masks
   }
 
@@ -405,8 +445,8 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
     }
 
     //General Info on hgcalLayerClusters
-    LogTrace("BarrelValidator") << "\n# of layer clusters with " << label_lcl.process() << ":" << label_lcl.label()
-                                << ":" << label_lcl.instance() << ": " << clusters.size() << "\n";
+    LogTrace("BarrelValidator") << "\n# of layer clusters with " << lclTag_.process() << ":" << lclTag_.label() << ":"
+                                << lclTag_.instance() << ": " << clusters.size() << "\n";
   }
 }
 
@@ -522,7 +562,8 @@ void BarrelValidator::fillDescriptions(edm::ConfigurationDescriptions& descripti
     desc.add<edm::ParameterSetDescription>("histoProducerAlgoBlock", psd1);
   }
   desc.add<edm::InputTag>("hits", edm::InputTag("recHitMapProducer", "RefProdVectorPFRecHitCollection"));
-  desc.add<edm::InputTag>("label_lcl", edm::InputTag("hgcalMergeLayerClusters"));
+  desc.add<edm::InputTag>("lclTag", edm::InputTag("hgcalMergeLayerClusters"));
+  desc.add<edm::InputTag>("rechitmapTag", edm::InputTag("recHitMapProducer", "barrelRecHitMap"));
   desc.add<std::vector<edm::InputTag>>("label_tst",
                                        {
                                            edm::InputTag("ticlTrackstersCLUE3DHigh"),
@@ -547,9 +588,8 @@ void BarrelValidator::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<std::string>("label_LCToCPLinking", "LCToCP_association");
   desc.add<edm::InputTag>("simClustersToCaloParticlesMap",
                           edm::InputTag("SimClusterToCaloParticleAssociation", "simClusterToCaloParticleMap"));
-  desc.add<edm::InputTag>("label_cp_effic", edm::InputTag("mix", "MergedCaloTruth"));
-  desc.add<edm::InputTag>("label_cp_fake", edm::InputTag("mix", "MergedCaloTruth"));
-  desc.add<edm::InputTag>("label_scl", edm::InputTag("mix", "MergedCaloTruth"));
+  desc.add<edm::InputTag>("cpTag_", edm::InputTag("mix", "MergedCaloTruth"));
+  desc.add<edm::InputTag>("sclTag", edm::InputTag("mix", "MergedCaloTruth"));
   desc.add<edm::InputTag>("simVertices", edm::InputTag("g4SimHits"));
   desc.add<int>("totallayers_to_monitor", 5);
   desc.add<std::string>("dirName", "BarrelCalorimeters/BarrelValidator/");

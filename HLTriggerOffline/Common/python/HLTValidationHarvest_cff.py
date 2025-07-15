@@ -17,6 +17,7 @@ from HLTriggerOffline.Btag.HltBtagPostValidation_cff import *
 from HLTriggerOffline.Egamma.HLTpostProcessorGsfTracker_cfi import *
 from Validation.HGCalValidation.HLTHGCalPostProcessor_cff import *
 from Validation.HLTrigger.HLTGenValidationHarvesting_cff import *
+from Validation.HGCalValidation.BarrelPostProcessor_cff import *
 
 hltpostvalidation = cms.Sequence( 
     postProcessorHLTtrackingSequence
@@ -58,11 +59,19 @@ _phase2_hltpostvalidation =  hltpostvalidation.copyAndExclude([HLTTauPostVal,
 # Add HGCal validation
 _phase2_hltpostvalidation += hltHcalValidatorPostProcessor
 
+# TODO: Add jet validation for PF @ HLT
+# _phase2_hltpostvalidation += DQMHarvestHLTPF
+
 # Add HLT gen validation
 _phase2_hltpostvalidation += hltGenValidationClient
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toReplaceWith(hltpostvalidation, _phase2_hltpostvalidation)
+
+_phase2_hltpostvalidation_WithBarrel = _phase2_hltpostvalidation.copy()
+_phase2_hltpostvalidation_WithBarrel += barrelValidatorPostProcessor
+from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
+ticl_barrel.toReplaceWith(hltpostvalidation, _phase2_hltpostvalidation_WithBarrel)
 
 # fastsim customs
 from Configuration.Eras.Modifier_fastSim_cff import fastSim

@@ -101,8 +101,10 @@ vjetResponseDir = [jetResponseDir + "slimmedJets/JEC/",
                    jetResponseDir + "slimmedJetsPuppi/JEC/",
                    jetResponseDir + "slimmedJetsPuppi/noJEC/"]
 
-pfJetDQMPostProcessor = cms.EDProducer("PFJetDQMPostProcessor",
+vjetResponseDirHLT = [jetResponseDir + "hltAK4PFJet/JEC/",
+                      jetResponseDir + "hltAK4PFJet/noJEC/"]
 
+pfJetDQMPostProcessor = cms.EDProducer("PFJetDQMPostProcessor",
     jetResponseDir = cms.vstring( vjetResponseDir ),
     genjetDir = cms.string( genjetDir ),
     offsetDir = cms.string( offsetDir ),
@@ -111,6 +113,14 @@ pfJetDQMPostProcessor = cms.EDProducer("PFJetDQMPostProcessor",
     recoPtCut = cms.double(10. )
 )
 
+pfJetHLTDQMPostProcessor = cms.EDProducer("PFJetDQMPostProcessor",
+    jetResponseDir = cms.vstring( vjetResponseDirHLT ),
+    genjetDir = cms.string( genjetDir ),
+    offsetDir = cms.string( offsetDir ),
+    ptBins = cms.vdouble( ptbins ),
+    etaBins = cms.vdouble( etabins ),
+    recoPtCut = cms.double(10. )
+)
 
 # PFCandidates
 PFCandAnalyzerDQM = cms.EDProducer("PFCandidateAnalyzerDQM",
@@ -120,5 +130,10 @@ PFCandAnalyzerDQM = cms.EDProducer("PFCandidateAnalyzerDQM",
     pdgStrs = cms.vstring( default.pdgIDDict.values() )
 )
 
-
-#----- ----- ----- ----- ----- ----- ----- -----
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+PFCandAnalyzerHLTDQM = DQMEDAnalyzer("PFCandidateAnalyzerDQM",
+  PFCandType = cms.InputTag("hltParticleFlowTmp"),
+  etabins = cms.vdouble( default.etaBinsOffset ),
+  pdgKeys = cms.vuint32( default.pdgIDDict.keys() ),
+  pdgStrs = cms.vstring( default.pdgIDDict.values() )
+)

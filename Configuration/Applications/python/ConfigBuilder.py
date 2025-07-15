@@ -2026,7 +2026,6 @@ class ConfigBuilder(object):
             else:
                 return '%s'%index
 
-
         #rename the HLT process in validation steps
         if ('HLT' in self.stepMap and not self._options.fast) or self._options.hltProcess:
             for s in valSeqName+prevalSeqName:
@@ -2059,7 +2058,6 @@ class ConfigBuilder(object):
             #will get in the schedule, smoothly
             for (i,s) in enumerate(valSeqName):
                 getattr(self.process,'validation_step%s'%NFI(i)).insert(0, self.process.genstepfilter)
-
         return
 
 

@@ -28,6 +28,7 @@ from Validation.RecoMuon.muonValidationHLT_cff import *
 from Validation.EventGenerator.BasicGenValidation_cff import *
 # miniAOD
 from Validation.RecoParticleFlow.miniAODValidation_cff import *
+from Validation.RecoParticleFlow.DQMForPF_MiniAOD_cff import *
 from Validation.RecoEgamma.photonMiniAODValidationSequence_cff import *
 from Validation.RecoEgamma.egammaValidationMiniAOD_cff import *
 from Validation.RecoTau.RecoTauValidation_cff import *
