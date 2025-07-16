@@ -46,7 +46,10 @@ public:
       : upstream_(consumes<MPIToken>(config.getParameter<edm::InputTag>("upstream"))),
         token_(produces<MPIToken>()),
         patterns_(edm::productPatterns(config.getParameter<std::vector<std::string>>("products"))),
-        instance_(config.getParameter<int32_t>("instance"))  //
+        instance_(config.getParameter<int32_t>("instance")),
+        buffer_ = std::make_unique<TBufferFile>(TBuffer::kWrite),
+        buffer_offset_(0),
+        metadata_size_(0)
   {
     // instance 0 is reserved for the MPIController / MPISource pair
     // instance values greater than 255 may not fit in the MPI tag
@@ -79,6 +82,22 @@ public:
                   << product.productInstanceName() << '_' << product.processName() << "\" of type \""
                   << entry.type.name() << "\" over MPI channel instance " << instance_;
 
+              edm::Handle<edm::WrapperBase> handle(entry.type.typeInfo());
+
+              edm::WrapperBase const* wrapper = handle.product();
+
+              // parameter getting does not work in constructor, i suppose wee need an event for this
+              
+              // if (wrapper->hasTrivialCopyTraits()) {
+              //   metadata_size_ += 9;
+              // } else {
+                // parameter getting does not work in constructor, i suppose wee need an event for this
+
+                // edm::AnyBuffer buffer = wrapper->trivialCopyParameters();
+                // metadata_size_ += buffer.size_bytes();
+              //   metadata_size_ += 9;
+              //   metadata_size_ += 24;
+              // }
               products_.emplace_back(std::move(entry));
               break;
             }
@@ -102,10 +121,14 @@ public:
 
   void acquire(edm::Event const& event, edm::EventSetup const&, edm::WaitingTaskWithArenaHolder holder) final {
     MPIToken token = event.get(upstream_);
-    auto meta = std::make_shared<ProductMetadataBuilder>(products_.size());
+    auto meta = std::make_shared<ProductMetadataBuilder>(products_.size()*24);
     size_t index = 0;
     // this seems to work fine, but does this vector indeed persist between acquire() and produce()?
-    serializedBuffers_.clear();
+    // serializedBuffers_.clear();
+    buffer_->Reset();
+    buffer_offset_ = 0;
+
+    // estimate buffer size in the constructor
 
     for (auto const& entry : products_) {
       // Get the product
@@ -158,22 +181,20 @@ public:
     // }
 
     for (auto const& entry : products_) {
-      // read the products to be sent over the MPI channel
       edm::Handle<edm::WrapperBase> handle(entry.type.typeInfo());
       event.getByToken(entry.token, handle);
       edm::WrapperBase const* wrapper = handle.product();
-      // send the products over MPI
-      // note: currently this uses a blocking send
-      if (wrapper->hasTrivialCopyTraits()) {
-        token.channel()->sendTrivialCopyProduct_(instance_, wrapper);
-      } else {
-        // sendSerializedProduct_(instance, type.getClass(), &wrapper);
-        assert(serializedBuffers_[serializedIndex].first == index && "mismatch between expected and factual serialised index in produce()");
-        token.channel()->sendBuffer(serializedBuffers_[serializedIndex].second->Buffer(), serializedBuffers_[serializedIndex].second->Length(), instance_, EDM_MPI_SendSerializedProduct);
-        serializedIndex++;
+      // we don't send missing products
+      if (handle.isValid()) {
+        if (wrapper->hasTrivialCopyTraits()) {
+          token.channel()->sendTrivialCopyProduct_(instance_, wrapper);
+        } else {
+          assert(serializedBuffers_[serializedIndex].first == index && "mismatch between expected and factual serialised index in produce()");
+          token.channel()->sendBuffer(serializedBuffers_[serializedIndex].second->Buffer(), serializedBuffers_[serializedIndex].second->Length(), instance_, EDM_MPI_SendSerializedProduct);
+          serializedIndex++;
+        }
+        index++;
       }
-      // token.channel()->sendProduct(instance_, entry.wrappedType, *wrapper);
-      index++;
     }
     // write a shallow copy of the channel to the output, so other modules can consume it
     // to indicate that they should run after this
@@ -183,10 +204,13 @@ public:
 private:
   
   size_t serializeAndStoreBuffer_(size_t index, TClass* type, void const* product) {
-    auto buffer = std::make_shared<TBufferFile>(TBuffer::kWrite);
-    type->Streamer(const_cast<void*>(product), *buffer);
-    serializedBuffers_.emplace_back(index, buffer);
-    return buffer->Length();
+    // auto buffer = std::make_shared<TBufferFile>(TBuffer::kWrite);
+    // buf->ResetMap();
+    type->Streamer(const_cast<void*>(product), *buffer_);
+    // serializedBuffers_.emplace_back(index, buffer);
+    size_t prod_size = buf->Length() - buffer_offset_;
+    buffer_offset_ = buf->Length(); 
+    return prod_size;
   }
 
   struct Entry {
@@ -201,7 +225,10 @@ private:
   std::vector<edm::ProductNamePattern> patterns_;  // branches to read from the Event and send over the MPI channel
   std::vector<Entry> products_;                    // types and tokens corresponding to the branches
   int32_t const instance_;                         // instance used to identify the source-destination pair
-  std::vector<std::pair<size_t, std::shared_ptr<TBufferFile>>> serializedBuffers_;  // buffers per serialized product
+  // std::vector<std::pair<size_t, std::shared_ptr<TBufferFile>>> serializedBuffers_;  // buffers per serialized product
+  std::unique_ptr<TBufferFile> buffer_;
+  size_t buffer_offset_;
+  size_t metadata_size_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"

@@ -66,6 +66,7 @@ public:
   void acquire(edm::Event const& event, edm::EventSetup const&, edm::WaitingTaskWithArenaHolder holder) final {
     MPIToken token = event.get(upstream_);
 
+    //also try unique or optional
     received_meta_ = std::make_shared<ProductMetadataBuilder>();
 
     edm::Service<edm::Async> as;
@@ -110,6 +111,7 @@ public:
         wrapper->markAsPresent();
         edm::AnyBuffer buffer = wrapper->trivialCopyParameters();  // constructs buffer with typeid
         assert(buffer.size_bytes() == product_meta.sizeMeta);
+        // can we add func to AnyBuffer to replace pointer to the data
         std::memcpy(buffer.data(), product_meta.trivialCopyOffset, product_meta.sizeMeta);
         wrapper->trivialCopyInitialize(buffer);
         token.channel()->receiveInitializedTrivialCopy(instance_, wrapper.get());

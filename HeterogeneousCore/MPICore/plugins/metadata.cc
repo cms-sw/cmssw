@@ -6,10 +6,10 @@
 ProductMetadataBuilder::ProductMetadataBuilder()
     : buffer_(nullptr), capacity_(0), size_(0), readOffset_(0) {}
 
-ProductMetadataBuilder::ProductMetadataBuilder(size_t productCount)
+ProductMetadataBuilder::ProductMetadataBuilder(size_t expectedSize)
     : buffer_(nullptr), capacity_(0), size_(0), readOffset_(0) {
-  constexpr size_t estimatedBytesPerProduct = 24;
-  reserve(productCount * estimatedBytesPerProduct);
+  // constexpr size_t estimatedBytesPerProduct = 24; // we need 1 byte for type, 8 bytes for size and ? bytes for trivial copy parameters buffer
+  reserve(expectedSize);
 }
 
 ProductMetadataBuilder::~ProductMetadataBuilder() {
@@ -124,6 +124,7 @@ void ProductMetadataBuilder::ensureCapacity(size_t needed) {
 
   uint8_t* newData = static_cast<uint8_t*>(std::realloc(buffer_, newCapacity));
   if (!newData) throw std::bad_alloc();
+  std::cerr << "resized metadata buffer" << std::endl;
   buffer_ = newData;
   capacity_ = newCapacity;
 }
