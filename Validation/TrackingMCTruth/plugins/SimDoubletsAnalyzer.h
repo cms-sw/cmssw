@@ -73,6 +73,47 @@ public:
   void dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
+  // small struct keeping all cut parameters
+  struct CAGeometryParams {
+    //Constructor from ParameterSet
+    CAGeometryParams(edm::ParameterSet const& iConfig, double const ptmin)
+        : caDCACuts_(iConfig.getParameter<std::vector<double>>("caDCACuts")),
+          phiCuts_(iConfig.getParameter<std::vector<int>>("phiCuts")),
+          minInnerZ_(iConfig.getParameter<std::vector<double>>("minInnerZ")),
+          maxInnerZ_(iConfig.getParameter<std::vector<double>>("maxInnerZ")),
+          minOuterZ_(iConfig.getParameter<std::vector<double>>("minOuterZ")),
+          maxOuterZ_(iConfig.getParameter<std::vector<double>>("maxOuterZ")),
+          minInnerR_(iConfig.getParameter<std::vector<double>>("minInnerR")),
+          maxInnerR_(iConfig.getParameter<std::vector<double>>("maxInnerR")),
+          minOuterR_(iConfig.getParameter<std::vector<double>>("minOuterR")),
+          maxOuterR_(iConfig.getParameter<std::vector<double>>("maxOuterR")),
+          maxDZ_(iConfig.getParameter<std::vector<double>>("maxDZ")),
+          minDZ_(iConfig.getParameter<std::vector<double>>("minDZ")),
+          maxDR_(iConfig.getParameter<std::vector<double>>("maxDR")) {
+      for (double const caThetaCut : iConfig.getParameter<std::vector<double>>("caThetaCuts")) {
+        caThetaCuts_over_ptmin_.push_back(caThetaCut / ptmin);
+      }
+    }
+
+    // Layers params
+    std::vector<double> caThetaCuts_over_ptmin_;
+    const std::vector<double> caDCACuts_;
+
+    // Cells params
+    const std::vector<int> phiCuts_;
+    const std::vector<double> minInnerZ_;
+    const std::vector<double> maxInnerZ_;
+    const std::vector<double> minOuterZ_;
+    const std::vector<double> maxOuterZ_;
+    const std::vector<double> minInnerR_;
+    const std::vector<double> maxInnerR_;
+    const std::vector<double> minOuterR_;
+    const std::vector<double> maxOuterR_;
+    const std::vector<double> maxDZ_;
+    const std::vector<double> minDZ_;
+    const std::vector<double> maxDR_;
+  };
+
   // this is simply a little helper to allow us to book histograms easier
   // it automatically books both a pass and tot histogram and allows us to fill them easily
   class CoupledMonitorElement {
@@ -195,6 +236,9 @@ private:
   // function that fills all histograms of SimNtuplets (in folder SimNtuplets)
   void fillSimNtupletHistograms(SimDoublets const&, double const, double const);
 
+  // function that fills all general histograms (in folder general)
+  void fillGeneralHistograms(SimDoublets const&, double const, double const, int const, int const, int const);
+
   // function that trys to find a valid Ntuplet for the given SimDoublets object using the given geometry configuration
   // (layer pairs, starting pairs, minimum number of hits) ignoring all cuts on doublets/connections and returns if it was able to find one
   bool configAllowsForValidNtuplet(SimDoublets const&) const;
@@ -219,26 +263,21 @@ private:
   std::set<int> startingPairs_;
 
   // cutting parameters
-  std::vector<double> cellMinz_;
-  std::vector<double> cellMaxz_;
-  std::vector<int> cellPhiCuts_;
-  std::vector<double> cellMaxr_;
-  int cellMinYSizeB1_;
-  int cellMinYSizeB2_;
-  int cellMaxDYSize12_;
-  int cellMaxDYSize_;
-  int cellMaxDYPred_;
-  double cellZ0Cut_;
-  double cellPtCut_;
-  std::vector<double> caThetaCuts_over_ptmin_;
-  std::vector<double> dcaCuts_;
-  double hardCurvCut_;
-  int minNumDoubletsPerNtuplet_;
+  CAGeometryParams cellCuts_;
+  const int cellMinYSizeB1_;
+  const int cellMinYSizeB2_;
+  const int cellMaxDYSize12_;
+  const int cellMaxDYSize_;
+  const int cellMaxDYPred_;
+  const double cellZ0Cut_;
+  const double cellPtCut_;
+  const double hardCurvCut_;
+  const int minNumDoubletsPerNtuplet_;
 
   std::string folder_;  // main folder in the DQM file
   // inputIsRecoTracks_: - set to false if SimPixelTracks were produced based on TrackingParticles (truth information)
   //                      - set to true if they were produced based on reconstructed tracks
-  bool inputIsRecoTracks_; 
+  bool inputIsRecoTracks_;
 
   // monitor elements
   // profiles to be filled
@@ -264,6 +303,8 @@ private:
   CoupledMonitorElement h_numRecHitsVsEta_;
   CoupledMonitorElement h_numLayersVsEta_;
   CoupledMonitorElement h_numSkippedLayersVsPt_;
+  CoupledMonitorElement h_numSkippedLayersVsNumLayers_;
+  CoupledMonitorElement h_numSkippedLayersVsNumRecHits_;
   CoupledMonitorElement h_numRecHitsVsPt_;
   CoupledMonitorElement h_numLayersVsPt_;
   CoupledMonitorElement h_numTPVsPdgId_;
@@ -306,6 +347,7 @@ private:
   CoupledMonitorElement h_bestNtuplet_firstVsSecondLayer_;
   CoupledMonitorElement h_bestNtuplet_firstLayerVsEta_;
   CoupledMonitorElement h_bestNtuplet_lastLayerVsEta_;
+  CoupledMonitorElement h_bestNtuplet_numSkippedLayersVsNumLayers_;
   MonitorElement* h_aliveNtuplet_fracNumRecHits_eta_;
   MonitorElement* h_aliveNtuplet_fracNumRecHits_pt_;
   // histograms of the longest Ntuplet per TP
@@ -316,6 +358,7 @@ private:
   CoupledMonitorElement h_longNtuplet_firstVsSecondLayer_;
   CoupledMonitorElement h_longNtuplet_firstLayerVsEta_;
   CoupledMonitorElement h_longNtuplet_lastLayerVsEta_;
+  CoupledMonitorElement h_longNtuplet_numSkippedLayersVsNumLayers_;
   // status of the most alive SimNtuplet per TP
   MonitorElement* h_bestNtuplet_alive_eta_;
   MonitorElement* h_bestNtuplet_undefDoubletCuts_eta_;

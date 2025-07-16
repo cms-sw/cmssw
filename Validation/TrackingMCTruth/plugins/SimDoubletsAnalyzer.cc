@@ -14,6 +14,7 @@
 #include "DataFormats/Math/interface/approx_atan2.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimTracker/TrackAssociation/interface/TrackingParticleIP.h"
 #include "RecoTracker/PixelSeeding/interface/CircleEq.h"
@@ -80,8 +81,9 @@ namespace simdoublets {
         // alignement cut variable in R-Z assuming ptmin = 1 GeV
         double radius_diff = std::abs(neighbor_r - outer_r_);
         double distance_13_squared = radius_diff * radius_diff + (neighbor_z - outer_z_) * (neighbor_z - outer_z_);
-        double tan_12_13_half_mul_distance_13_squared = fabs(
-            neighbor_z * (inner_r_ - outer_r_) + inner_z_ * (outer_r_ - neighbor_r) + outer_z_ * (neighbor_r - inner_r_));
+        double tan_12_13_half_mul_distance_13_squared =
+            fabs(neighbor_z * (inner_r_ - outer_r_) + inner_z_ * (outer_r_ - neighbor_r) +
+                 outer_z_ * (neighbor_r - inner_r_));
         double denominator = std::sqrt(distance_13_squared) * radius_diff;
         CAThetaCut_.push_back(tan_12_13_half_mul_distance_13_squared / denominator);
 
@@ -116,7 +118,7 @@ namespace simdoublets {
 
   private:
     double inner_z_, inner_r_, outer_z_, outer_r_, dz_, dr_;
-    double dphi_, z0_, curvature_, pT_;  // double-valued variables
+    double dphi_, z0_, curvature_, pT_;                      // double-valued variables
     int idphi_, Ysize_, DYsize_, DYPred_;                    // integer-valued variables
     std::vector<double> CAThetaCut_, dcaCut_, hardCurvCut_;  // doublet connection cut variables
   };
@@ -300,29 +302,13 @@ namespace simdoublets {
     // Extension settings
     desc.add<int>("numLayersOT", 0)->setComment("Number of additional layers from the OT extension.");
 
-    // starting layer pairs for Ntuplets in reconstruction
-    desc.add<std::vector<uint>>("startingPairs", std::vector<uint>({}))
-        ->setComment("Array of variable length with the indices of the starting pairs for Ntuplet building");
-
-    // cut parameters for connecting doublets
-    desc.add<std::vector<double>>("CAThetaCuts",
-                                  {0.002, 0.002, 0.002, 0.002,  // BPix
-                                   0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003,
-                                   0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003})
-        ->setComment("Cut on RZ alignement in GeV depending on centered RecHit of triplet");
+    // cut parameters with scalar values
     desc.add<double>("ptmin", 0.9)
         ->setComment(
             "Minimum tranverse momentum considered for the multiple scattering expectation when checking alignement in "
             "R-z plane of two doublets in GeV");
-    desc.add<std::vector<double>>("dcaCuts",
-                                  {0.15,  //BPix1
-                                   0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,
-                                   0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25})
-        ->setComment("Cut on origin radius depending on most inner RecHit of triplet");
     desc.add<double>("hardCurvCut", 1. / (0.35 * 87.))
         ->setComment("Cut on minimum curvature, used in DCA ntuplet selection");
-
-    // cut parameters with scalar values
     desc.add<int>("cellMaxDYSize12", TrackerTraits::maxDYsize12)
         ->setComment("Maximum difference in cluster size for B1/B2");
     desc.add<int>("cellMaxDYSize", TrackerTraits::maxDYsize)->setComment("Maximum difference in cluster size");
@@ -346,10 +332,8 @@ SimDoubletsAnalyzer<TrackerTraits>::SimDoubletsAnalyzer(const edm::ParameterSet&
     : topology_getToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
       simDoublets_getToken_(consumes(iConfig.getParameter<edm::InputTag>("simDoubletsSrc"))),
       numLayersOT_(iConfig.getParameter<int>("numLayersOT")),
-      cellMinz_(iConfig.getParameter<std::vector<double>>("cellMinz")),
-      cellMaxz_(iConfig.getParameter<std::vector<double>>("cellMaxz")),
-      cellPhiCuts_(iConfig.getParameter<std::vector<int>>("cellPhiCuts")),
-      cellMaxr_(iConfig.getParameter<std::vector<double>>("cellMaxr")),
+      cellCuts_(
+          CAGeometryParams(iConfig.getParameter<edm::ParameterSet>("geometry"), iConfig.getParameter<double>("ptmin"))),
       cellMinYSizeB1_(iConfig.getParameter<int>("cellMinYSizeB1")),
       cellMinYSizeB2_(iConfig.getParameter<int>("cellMinYSizeB2")),
       cellMaxDYSize12_(iConfig.getParameter<int>("cellMaxDYSize12")),
@@ -357,16 +341,16 @@ SimDoubletsAnalyzer<TrackerTraits>::SimDoubletsAnalyzer(const edm::ParameterSet&
       cellMaxDYPred_(iConfig.getParameter<int>("cellMaxDYPred")),
       cellZ0Cut_(iConfig.getParameter<double>("cellZ0Cut")),
       cellPtCut_(iConfig.getParameter<double>("cellPtCut")),
-      dcaCuts_(iConfig.getParameter<std::vector<double>>("dcaCuts")),
       hardCurvCut_(iConfig.getParameter<double>("hardCurvCut")),
       minNumDoubletsPerNtuplet_(iConfig.getParameter<uint>("minHitsPerNtuplet") - 1),
       folder_(iConfig.getParameter<std::string>("folder")),
       inputIsRecoTracks_(iConfig.getParameter<bool>("inputIsRecoTracks")) {
+  edm::ParameterSet geometryConfig{iConfig.getParameter<edm::ParameterSet>("geometry")};
   // get layer pairs from configuration
-  std::vector<uint> layerPairs{iConfig.getParameter<std::vector<uint>>("layerPairs")};
+  std::vector<uint> layerPairs{geometryConfig.getParameter<std::vector<uint>>("pairGraph")};
 
   // get staring layer pairs from configuration
-  std::vector<uint> startingPairs{iConfig.getParameter<std::vector<uint>>("startingPairs")};
+  std::vector<uint> startingPairs{geometryConfig.getParameter<std::vector<uint>>("startingPairs")};
 
   // number of configured layer pairs
   size_t numLayerPairs = layerPairs.size() / 2;
@@ -401,12 +385,6 @@ SimDoubletsAnalyzer<TrackerTraits>::SimDoubletsAnalyzer(const edm::ParameterSet&
   numLayers_ = TrackerTraits::numberOfLayers + numLayersOT_;
   hVector_CAThetaCut_.resize(numLayers_);
   hVector_dcaCut_.resize(numLayers_);
-
-  // fill layer-dependent cut parameter vectors for connections
-  double ptmin = iConfig.getParameter<double>("ptmin");
-  for (double const caThetaCut : iConfig.getParameter<std::vector<double>>("CAThetaCuts")) {
-    caThetaCuts_over_ptmin_.push_back(caThetaCut / ptmin);
-  }
 }
 
 template <typename TrackerTraits>
@@ -431,16 +409,28 @@ void SimDoubletsAnalyzer<TrackerTraits>::applyCuts(
   //  apply cuts for doublet creation
   // -------------------------------------------------------------------------
 
-  if (/* z window cut */
-      (cellCutVariables.inner_z() < cellMinz_[layerPairIdIndex] ||
-       cellCutVariables.inner_z() > cellMaxz_[layerPairIdIndex]) ||
+  if (/* inner r window cut */
+      (cellCutVariables.inner_r() < cellCuts_.minInnerR_[layerPairIdIndex] ||
+       cellCutVariables.inner_r() > cellCuts_.maxInnerR_[layerPairIdIndex]) ||
+      /* outer r window cut */
+      (cellCutVariables.outer_r() < cellCuts_.minOuterR_[layerPairIdIndex] ||
+       cellCutVariables.outer_r() > cellCuts_.maxOuterR_[layerPairIdIndex]) ||
+      /* inner z window cut */
+      (cellCutVariables.inner_z() < cellCuts_.minInnerZ_[layerPairIdIndex] ||
+       cellCutVariables.inner_z() > cellCuts_.maxInnerZ_[layerPairIdIndex]) ||
+      /* outer z window cut */
+      (cellCutVariables.outer_z() < cellCuts_.minOuterZ_[layerPairIdIndex] ||
+       cellCutVariables.outer_z() > cellCuts_.maxOuterZ_[layerPairIdIndex]) ||
+      /* dz window */
+      cellCutVariables.dz() > cellCuts_.maxDZ_[layerPairIdIndex] ||
+      cellCutVariables.dz() < cellCuts_.minDZ_[layerPairIdIndex] ||
       /* z0cutoff */
-      (cellCutVariables.dr() > cellMaxr_[layerPairIdIndex] || cellCutVariables.dr() < 0 ||
+      (cellCutVariables.dr() > cellCuts_.maxDR_[layerPairIdIndex] || cellCutVariables.dr() < 0 ||
        cellCutVariables.z0() > cellZ0Cut_) ||
       /* ptcut */
       (cellCutVariables.pT() < cellPtCut_) ||
       /* idphicut */
-      (cellCutVariables.idphi() > cellPhiCuts_[layerPairIdIndex]) ||
+      (cellCutVariables.idphi() > cellCuts_.phiCuts_[layerPairIdIndex]) ||
       /* YsizeB1 cut */
       (clusterSizeCutManager.isSubjectToYsizeB1() && (cellCutVariables.Ysize() < cellMinYSizeB1_)) ||
       /* YsizeB2 cut */
@@ -466,11 +456,11 @@ void SimDoubletsAnalyzer<TrackerTraits>::applyCuts(
     for (int i{0}; auto& neighbor : doublet.innerNeighbors()) {
       if (
           // apply CAThetaCut
-          (cellCutVariables.CAThetaCut(i) > caThetaCuts_over_ptmin_.at(doublet.innerLayerId())) ||
+          (cellCutVariables.CAThetaCut(i) > cellCuts_.caThetaCuts_over_ptmin_.at(doublet.innerLayerId())) ||
           // apply hardCurvCut
           (cellCutVariables.hardCurvCut(i) > hardCurvCut_) ||
           // apply dcaCut
-          (cellCutVariables.dcaCut(i) > dcaCuts_.at(doublet.innerNeighborsInnerLayerId()))) {
+          (cellCutVariables.dcaCut(i) > cellCuts_.caDCACuts_.at(doublet.innerNeighborsInnerLayerId()))) {
         neighbor.setKilled();
       } else {
         neighbor.setAlive();
@@ -612,6 +602,7 @@ void SimDoubletsAnalyzer<TrackerTraits>::fillSimNtupletHistograms(SimDoublets co
   h_longNtuplet_lastLayerId_.fill(isAlive, longNtuplet.lastLayerId());
   h_longNtuplet_layerSpan_.fill(isAlive, longNtuplet.firstLayerId(), longNtuplet.lastLayerId());
   h_longNtuplet_firstVsSecondLayer_.fill(isAlive, longNtuplet.firstLayerId(), longNtuplet.secondLayerId());
+  h_longNtuplet_numSkippedLayersVsNumLayers_.fill(isAlive, longNtuplet.numRecHits(), longNtuplet.numSkippedLayers());
 
   // if input are RecoTracks break here and don't fill the other histograms
   if (inputIsRecoTracks_)
@@ -677,6 +668,7 @@ void SimDoubletsAnalyzer<TrackerTraits>::fillSimNtupletHistograms(SimDoublets co
   h_bestNtuplet_firstVsSecondLayer_.fill(isAlive, bestNtuplet.firstLayerId(), bestNtuplet.secondLayerId());
   h_bestNtuplet_firstLayerVsEta_.fill(isAlive, true_eta, bestNtuplet.firstLayerId());
   h_bestNtuplet_lastLayerVsEta_.fill(isAlive, true_eta, bestNtuplet.lastLayerId());
+  h_bestNtuplet_numSkippedLayersVsNumLayers_.fill(isAlive, bestNtuplet.numRecHits(), bestNtuplet.numSkippedLayers());
 
   // fill the respective histogram
   // 1. check if alive
@@ -727,6 +719,68 @@ void SimDoubletsAnalyzer<TrackerTraits>::fillSimNtupletHistograms(SimDoublets co
     double relativeLength = (double)aliveNtuplet.numRecHits() / (double)longNtuplet.numRecHits();
     h_aliveNtuplet_fracNumRecHits_eta_->Fill(true_eta, relativeLength);
     h_aliveNtuplet_fracNumRecHits_pt_->Fill(true_pT, relativeLength);
+  }
+}
+
+// function that fills all general histograms (in folder general)
+template <typename TrackerTraits>
+void SimDoubletsAnalyzer<TrackerTraits>::fillGeneralHistograms(SimDoublets const& simDoublets,
+                                                               double const true_eta,
+                                                               double const true_pT,
+                                                               int const pass_numSimDoublets,
+                                                               int const numSimDoublets,
+                                                               int const numSkippedLayers) {
+  // Now check if the TrackingParticle has a surviving SimNtuplet
+  bool passed = simDoublets.hasAliveSimNtuplet();
+
+  // count number of RecHits in layers
+  std::vector<int> countsRecHitsPerLayer(numLayers_, 0);
+  for (auto const layerId : simDoublets.layerIds())
+    countsRecHitsPerLayer.at(layerId)++;
+  for (int layerId{0}; auto countRecHits : countsRecHitsPerLayer) {
+    h_numRecHitsPerLayer_.fill(passed, layerId, countRecHits);
+    layerId++;
+  }
+
+  // fill histograms for number of SimDoublets
+  h_numSimDoubletsPerTrackingObject_.fill(passed, numSimDoublets);
+  h_numRecHitsPerTrackingObject_.fill(passed, simDoublets.numRecHits());
+  h_numLayersPerTrackingObject_.fill(passed, simDoublets.numLayers());
+  h_numSkippedLayersPerTrackingObject_.fill(passed, numSkippedLayers);
+  h_numSkippedLayersVsNumLayers_.fill(passed, simDoublets.numLayers(), numSkippedLayers);
+  h_numSkippedLayersVsNumRecHits_.fill(passed, simDoublets.numRecHits(), numSkippedLayers);
+
+  if (!inputIsRecoTracks_) {
+    auto trackingParticle = simDoublets.trackingParticle();
+    auto true_phi = trackingParticle->phi();
+    auto true_pdgId = trackingParticle->pdgId();
+    auto momentum = trackingParticle->momentum();
+    auto vertex = trackingParticle->vertex();
+    auto true_dxy = TrackingParticleIP::dxy(vertex, momentum, simDoublets.beamSpotPosition());
+    auto true_dz = TrackingParticleIP::dz(vertex, momentum, simDoublets.beamSpotPosition());
+
+    h_numRecHitsVsEta_.fill(passed, true_eta, simDoublets.numRecHits());
+    h_numLayersVsEta_.fill(passed, true_eta, simDoublets.numLayers());
+    h_numSkippedLayersVsEta_.fill(passed, true_eta, numSkippedLayers);
+    h_numRecHitsVsPt_.fill(passed, true_pT, simDoublets.numRecHits());
+    h_numLayersVsPt_.fill(passed, true_pT, simDoublets.numLayers());
+    h_numSkippedLayersVsPt_.fill(passed, true_pT, numSkippedLayers);
+    h_numLayersVsEtaPt_->Fill(true_eta, true_pT, simDoublets.numLayers());
+    // fill histograms for number of TrackingParticles
+    h_numTPVsPt_.fill(passed, true_pT);
+    h_numTPVsEta_.fill(passed, true_eta);
+    h_numTPVsPhi_.fill(passed, true_phi);
+    h_numTPVsDxy_.fill(passed, true_dxy);
+    h_numTPVsDz_.fill(passed, true_dz);
+    h_numTPVsEtaPhi_.fill(passed, true_eta, true_phi);
+    h_numTPVsEtaPt_.fill(passed, true_eta, true_pT);
+    h_numTPVsPhiPt_.fill(passed, true_phi, true_pT);
+    h_numTPVsPdgId_.fill(passed, true_pdgId);
+    // Fill the efficiency profile per Tracking Particle only if the TP has at least one SimDoublet
+    if (numSimDoublets > 0) {
+      h_effSimDoubletsPerTPVsEta_->Fill(true_eta, (double)pass_numSimDoublets / (double)numSimDoublets);
+      h_effSimDoubletsPerTPVsPt_->Fill(true_pT, (double)pass_numSimDoublets / (double)numSimDoublets);
+    }
   }
 }
 
@@ -786,12 +840,9 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
   SimDoubletsCollection const& simDoubletsCollection = iEvent.get(simDoublets_getToken_);
 
   // initialize a bunch of variables that we will use in the coming for loops
-  double true_pT{0.}, true_eta{0.}, true_phi{0.}, true_dxy{0.}, true_dz{0.};
-  int true_pdgId{0}, numSimDoublets, pass_numSimDoublets, layerPairId, layerPairIdIndex, numSkippedLayers;
-  bool passed, hasValidNeighbors;
-
-  int numTotalLayers = TrackerTraits::numberOfLayers + numLayersOT_;
-  std::vector<int> countsRecHitsPerLayer(numTotalLayers);
+  double true_pT{0.}, true_eta{0.};
+  int numSimDoublets, pass_numSimDoublets, layerPairId, layerPairIdIndex, numSkippedLayers;
+  bool hasValidNeighbors;
 
   // initialize the manager for keeping track of which cluster cuts are applied to the inidividual doublets
   simdoublets::ClusterSizeCutManager clusterSizeCutManager;
@@ -805,12 +856,6 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
       auto trackingParticle = simDoublets.trackingParticle();
       true_pT = trackingParticle->pt();
       true_eta = trackingParticle->eta();
-      true_phi = trackingParticle->phi();
-      true_pdgId = trackingParticle->pdgId();
-      auto momentum = trackingParticle->momentum();
-      auto vertex = trackingParticle->vertex();
-      true_dxy = TrackingParticleIP::dxy(vertex, momentum, simDoublets.beamSpotPosition());
-      true_dz = TrackingParticleIP::dz(vertex, momentum, simDoublets.beamSpotPosition());
 
       // check if a valid Ntuplet is possible for the given TP and geometry ignoring any cuts and fill hists
       bool reconstructable = configAllowsForValidNtuplet(simDoublets);
@@ -875,9 +920,6 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
     // -----------------------------------------------------------------------------
     //  plots related to SimNtuplets (SimNtuplets folder)
     // -----------------------------------------------------------------------------
-    // Now check if the TrackingParticle has a surviving SimNtuplet
-    passed = simDoublets.hasAliveSimNtuplet();
-
     // set the number of skipped layers by default to -1
     numSkippedLayers = -1;
 
@@ -890,44 +932,7 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
     // -----------------------------------------------------------------------------
     //  general plots related to TrackingParticles (general folder)
     // -----------------------------------------------------------------------------
-    // count number of RecHits in layers
-    std::fill(countsRecHitsPerLayer.begin(), countsRecHitsPerLayer.end(), 0);
-    for (auto const layerId : simDoublets.layerIds())
-      countsRecHitsPerLayer.at(layerId)++;
-    for (int layerId{0}; auto countRecHits : countsRecHitsPerLayer) {
-      h_numRecHitsPerLayer_.fill(passed, layerId, countRecHits);
-      layerId++;
-    }
-    // fill histograms for number of SimDoublets
-    h_numSimDoubletsPerTrackingObject_.fill(passed, numSimDoublets);
-    h_numRecHitsPerTrackingObject_.fill(passed, simDoublets.numRecHits());
-    h_numLayersPerTrackingObject_.fill(passed, simDoublets.numLayers());
-    h_numSkippedLayersPerTrackingObject_.fill(passed, numSkippedLayers);
-
-    if (!inputIsRecoTracks_) {
-      h_numRecHitsVsEta_.fill(passed, true_eta, simDoublets.numRecHits());
-      h_numLayersVsEta_.fill(passed, true_eta, simDoublets.numLayers());
-      h_numSkippedLayersVsEta_.fill(passed, true_eta, numSkippedLayers);
-      h_numRecHitsVsPt_.fill(passed, true_pT, simDoublets.numRecHits());
-      h_numLayersVsPt_.fill(passed, true_pT, simDoublets.numLayers());
-      h_numSkippedLayersVsPt_.fill(passed, true_pT, numSkippedLayers);
-      h_numLayersVsEtaPt_->Fill(true_eta, true_pT, simDoublets.numLayers());
-      // fill histograms for number of TrackingParticles
-      h_numTPVsPt_.fill(passed, true_pT);
-      h_numTPVsEta_.fill(passed, true_eta);
-      h_numTPVsPhi_.fill(passed, true_phi);
-      h_numTPVsDxy_.fill(passed, true_dxy);
-      h_numTPVsDz_.fill(passed, true_dz);
-      h_numTPVsEtaPhi_.fill(passed, true_eta, true_phi);
-      h_numTPVsEtaPt_.fill(passed, true_eta, true_pT);
-      h_numTPVsPhiPt_.fill(passed, true_phi, true_pT);
-      h_numTPVsPdgId_.fill(passed, true_pdgId);
-      // Fill the efficiency profile per Tracking Particle only if the TP has at least one SimDoublet
-      if (numSimDoublets > 0) {
-        h_effSimDoubletsPerTPVsEta_->Fill(true_eta, (double)pass_numSimDoublets / (double)numSimDoublets);
-        h_effSimDoubletsPerTPVsPt_->Fill(true_pT, (double)pass_numSimDoublets / (double)numSimDoublets);
-      }
-    }
+    fillGeneralHistograms(simDoublets, true_eta, true_pT, pass_numSimDoublets, numSimDoublets, numSkippedLayers);
 
     // clear SimDoublets and SimNtuplets of the TrackingParticle
     simDoublets.clearMutables();
@@ -952,7 +957,6 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
   int pdgIdmax = 340;
   int pdgIdmin = -pdgIdmax;
   int pdgIdNBins = pdgIdmax - pdgIdmin;
-  int numTotalLayers = TrackerTraits::numberOfLayers + numLayersOT_;
   std::string trackingObject = inputIsRecoTracks_ ? "PixelTrack" : "Tracking Particle";
   std::string doublet = inputIsRecoTracks_ ? "Doublet" : "SimDoublet";
   std::string ntuplet = inputIsRecoTracks_ ? "Ntuplet" : "SimNtuplet";
@@ -1001,12 +1005,34 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                                "Number of RecHits by " + trackingObject + " per layer",
                                "Layer Id",
                                "Number of RecHits",
-                               numTotalLayers,
+                               numLayers_,
                                -0.5,
-                               -0.5 + numTotalLayers,
+                               -0.5 + numLayers_,
                                11,
                                -0.5,
                                10.5);
+  h_numSkippedLayersVsNumLayers_.book2D(ibook,
+                                        "numSkippedLayers_vs_numLayers",
+                                        "Number of layers skipped by Tracking Particle vs layers",
+                                        "Number of layers hit by Tracking Particle",
+                                        "Number of skipped layers",
+                                        15,
+                                        -0.5,
+                                        14.5,
+                                        16,
+                                        -1.5,
+                                        14.5);
+  h_numSkippedLayersVsNumRecHits_.book2D(ibook,
+                                         "numSkippedLayers_vs_numRecHits",
+                                         "Number of layers skipped by Tracking Particle vs layers",
+                                         "Number of RecHits by Tracking Particle",
+                                         "Number of skipped layers",
+                                         25,
+                                         -0.5,
+                                         24.5,
+                                         16,
+                                         -1.5,
+                                         14.5);
   if (!inputIsRecoTracks_) {
     h_effConfigLimitVsPt_ =
         simdoublets::makeProfileLogX(ibook,
@@ -1211,12 +1237,12 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                        "Layer pairs in " + doublet + "s",
                        "Inner layer ID",
                        "Outer layer ID",
-                       numTotalLayers,
+                       numLayers_,
                        -0.5,
-                       -0.5 + numTotalLayers,
-                       numTotalLayers,
+                       -0.5 + numLayers_,
+                       numLayers_,
                        -0.5,
-                       -0.5 + numTotalLayers);
+                       -0.5 + numLayers_);
   h_numSkippedLayers_.book1D(ibook,
                              "numSkippedLayers",
                              "Number of skipped layers",
@@ -1409,7 +1435,7 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                 600,
                 -300,
                 300);
-  
+
     // histogram for potential outerR cut
     hVector_outerR_.at(layerPairIdIndex)
         .book1D(ibook,
@@ -1533,39 +1559,50 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                                        "First layer of most alive SimNtuplet per TrackingParticle",
                                        "Layer ID",
                                        "Number of TrackingParticles",
-                                       numTotalLayers,
+                                       numLayers_,
                                        -0.5,
-                                       -0.5 + numTotalLayers);
+                                       -0.5 + numLayers_);
     h_bestNtuplet_lastLayerId_.book1D(ibook,
                                       "lastLayerId",
                                       "Last layer of most alive SimNtuplet per TrackingParticle",
                                       "Layer ID",
                                       "Number of TrackingParticles",
-                                      numTotalLayers,
+                                      numLayers_,
                                       -0.5,
-                                      -0.5 + numTotalLayers);
+                                      -0.5 + numLayers_);
     h_bestNtuplet_layerSpan_.book2D(ibook,
                                     "layerSpan",
                                     "Layer span of most alive SimNtuplet per TrackingParticle",
                                     "First layer ID",
                                     "Last layer ID",
-                                    numTotalLayers,
+                                    numLayers_,
                                     -0.5,
-                                    -0.5 + numTotalLayers,
-                                    numTotalLayers,
+                                    -0.5 + numLayers_,
+                                    numLayers_,
                                     -0.5,
-                                    -0.5 + numTotalLayers);
+                                    -0.5 + numLayers_);
     h_bestNtuplet_firstVsSecondLayer_.book2D(ibook,
                                              "firstVsSecondLayer",
                                              "First two layers of most alive SimNtuplet per TrackingParticle",
                                              "First layer ID",
                                              "Second layer ID",
-                                             numTotalLayers,
+                                             numLayers_,
                                              -0.5,
-                                             -0.5 + numTotalLayers,
-                                             numTotalLayers,
+                                             -0.5 + numLayers_,
+                                             numLayers_,
                                              -0.5,
-                                             -0.5 + numTotalLayers);
+                                             -0.5 + numLayers_);
+  h_bestNtuplet_numSkippedLayersVsNumLayers_.book2D(ibook,
+                                        "numSkippedLayers_vs_numLayers",
+                                        "Number of layers skipped of most alive SimNtuplet by Tracking Particle vs layers",
+                                        "Number of layers hit by Tracking Particle",
+                                        "Number of skipped layers",
+                                        15,
+                                        -0.5,
+                                        14.5,
+                                        16,
+                                        -1.5,
+                                        14.5);
     h_aliveNtuplet_fracNumRecHits_pt_ =
         simdoublets::makeProfileLogX(ibook,
                                      "fracNumRecHits_vs_pt",
@@ -1597,9 +1634,9 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                                           etaNBins,
                                           etamin,
                                           etamax,
-                                          numTotalLayers,
+                                          numLayers_,
                                           -0.5,
-                                          -0.5 + numTotalLayers);
+                                          -0.5 + numLayers_);
     h_bestNtuplet_lastLayerVsEta_.book2D(ibook,
                                          "lastLayer_vs_eta",
                                          "Last layer of most alive SimNtuplet per TrackingParticle",
@@ -1608,9 +1645,9 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                                          etaNBins,
                                          etamin,
                                          etamax,
-                                         numTotalLayers,
+                                         numLayers_,
                                          -0.5,
-                                         -0.5 + numTotalLayers);
+                                         -0.5 + numLayers_);
 
     // status histograms of the most alive SimNtuplets of the TrackingParticles
     h_bestNtuplet_alive_pt_ = simdoublets::make1DLogX(ibook,
@@ -1765,39 +1802,50 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                                      "First layer of longest " + ntuplet + " per " + trackingObject,
                                      "Layer ID",
                                      "Number of " + trackingObject + "s",
-                                     numTotalLayers,
+                                     numLayers_,
                                      -0.5,
-                                     -0.5 + numTotalLayers);
+                                     -0.5 + numLayers_);
   h_longNtuplet_lastLayerId_.book1D(ibook,
                                     "lastLayerId",
                                     "Last layer of longest " + ntuplet + " per " + trackingObject,
                                     "Layer ID",
                                     "Number of " + trackingObject + "s",
-                                    numTotalLayers,
+                                    numLayers_,
                                     -0.5,
-                                    -0.5 + numTotalLayers);
+                                    -0.5 + numLayers_);
   h_longNtuplet_layerSpan_.book2D(ibook,
                                   "layerSpan",
                                   "Layer span of longest " + ntuplet + " per " + trackingObject,
                                   "First layer ID",
                                   "Last layer ID",
-                                  numTotalLayers,
+                                  numLayers_,
                                   -0.5,
-                                  -0.5 + numTotalLayers,
-                                  numTotalLayers,
+                                  -0.5 + numLayers_,
+                                  numLayers_,
                                   -0.5,
-                                  -0.5 + numTotalLayers);
+                                  -0.5 + numLayers_);
   h_longNtuplet_firstVsSecondLayer_.book2D(ibook,
                                            "firstVsSecondLayer",
                                            "First two layers of longest " + ntuplet + " per " + trackingObject,
                                            "First layer ID",
                                            "Second layer ID",
-                                           numTotalLayers,
+                                           numLayers_,
                                            -0.5,
-                                           -0.5 + numTotalLayers,
-                                           numTotalLayers,
+                                           -0.5 + numLayers_,
+                                           numLayers_,
                                            -0.5,
-                                           -0.5 + numTotalLayers);
+                                           -0.5 + numLayers_);
+  h_longNtuplet_numSkippedLayersVsNumLayers_.book2D(ibook,
+                                        "numSkippedLayers_vs_numLayers",
+                                        "Number of layers skipped of longest " + ntuplet + " per " + trackingObject,
+                                        "Number of layers hit by Tracking Particle",
+                                        "Number of skipped layers",
+                                        15,
+                                        -0.5,
+                                        14.5,
+                                        16,
+                                        -1.5,
+                                        14.5);
 
   if (!inputIsRecoTracks_) {
     h_longNtuplet_firstLayerVsEta_.book2D(ibook,
@@ -1808,9 +1856,9 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                                           etaNBins,
                                           etamin,
                                           etamax,
-                                          numTotalLayers,
+                                          numLayers_,
                                           -0.5,
-                                          -0.5 + numTotalLayers);
+                                          -0.5 + numLayers_);
     h_longNtuplet_lastLayerVsEta_.book2D(ibook,
                                          "lastLayer_vs_eta",
                                          "Last layer of longest SimNtuplet per TrackingParticle",
@@ -1819,9 +1867,9 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                                          etaNBins,
                                          etamin,
                                          etamax,
-                                         numTotalLayers,
+                                         numLayers_,
                                          -0.5,
-                                         -0.5 + numTotalLayers);
+                                         -0.5 + numLayers_);
 
     // status histograms of the longest SimNtuplets of the TrackingParticles
     h_longNtuplet_alive_pt_ = simdoublets::make1DLogX(ibook,
@@ -1972,38 +2020,79 @@ void SimDoubletsAnalyzer<TrackerTraits>::fillDescriptions(edm::ConfigurationDesc
 // fillDescription for Phase 1
 template <>
 void SimDoubletsAnalyzer<pixelTopology::Phase1>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  int nPairs = pixelTopology::Phase1::nPairsForQuadruplets;
+
   edm::ParameterSetDescription desc;
   simdoublets::fillDescriptionsCommon<pixelTopology::Phase1>(desc);
 
   // input source for SimDoublets
   desc.add<edm::InputTag>("simDoubletsSrc", edm::InputTag("simDoubletsProducerPhase1"));
 
-  // layer pairs in reconstruction
-  desc.add<std::vector<uint>>(
-          "layerPairs",
-          std::vector<uint>(std::begin(phase1PixelTopology::layerPairs), std::end(phase1PixelTopology::layerPairs)))
-      ->setComment(
-          "Array of length 2*NumberOfPairs where the elements at 2i and 2i+1 are the inner and outer layers of layer "
-          "pair i");
-
   // cutting parameters
   desc.add<int>("cellMinYSizeB1", 36)->setComment("Minimum cluster size for inner RecHit from B1");
   desc.add<int>("cellMinYSizeB2", 28)->setComment("Minimum cluster size for inner RecHit not from B1");
   desc.add<double>("cellZ0Cut", 12.0)->setComment("Maximum longitudinal impact parameter");
   desc.add<double>("cellPtCut", 0.5)->setComment("Minimum tranverse momentum");
-  desc.add<std::vector<double>>(
-          "cellMinz", std::vector<double>(std::begin(phase1PixelTopology::minz), std::end(phase1PixelTopology::minz)))
-      ->setComment("Minimum z of inner RecHit for each layer pair");
-  desc.add<std::vector<double>>(
-          "cellMaxz", std::vector<double>(std::begin(phase1PixelTopology::maxz), std::end(phase1PixelTopology::maxz)))
-      ->setComment("Maximum z of inner RecHit for each layer pair");
-  desc.add<std::vector<int>>(
-          "cellPhiCuts",
-          std::vector<int>(std::begin(phase1PixelTopology::phicuts), std::end(phase1PixelTopology::phicuts)))
-      ->setComment("Cuts in delta phi for cells");
-  desc.add<std::vector<double>>(
-          "cellMaxr", std::vector<double>(std::begin(phase1PixelTopology::maxr), std::end(phase1PixelTopology::maxr)))
-      ->setComment("Cut for dr of cells");
+
+  // layer-dependent parameters + layer pairs
+  edm::ParameterSetDescription geometryParams;
+  // layers params
+  geometryParams
+      .add<std::vector<double>>(
+          "caDCACuts",
+          std::vector<double>(std::begin(phase1PixelTopology::dcaCuts), std::end(phase1PixelTopology::dcaCuts)))
+      ->setComment("Cut on RZ alignement. One per layer, the layer being the middle one for a triplet.");
+  geometryParams
+      .add<std::vector<double>>(
+          "caThetaCuts",
+          std::vector<double>(std::begin(phase1PixelTopology::thetaCuts), std::end(phase1PixelTopology::thetaCuts)))
+      ->setComment("Cut on origin radius. One per layer, the layer being the innermost one for a triplet.");
+  geometryParams.add<std::vector<unsigned int>>("startingPairs", {0u, 1u, 2u})
+      ->setComment(
+          "Array of variable length with the indices of the starting pairs for Ntuplet building");  //TODO could be parsed via an expression
+  // cells params
+  geometryParams
+      .add<std::vector<unsigned int>>(
+          "pairGraph",
+          std::vector<uint>(std::begin(phase1PixelTopology::layerPairs), std::end(phase1PixelTopology::layerPairs)))
+      ->setComment(
+          "Array of length 2*NumberOfPairs where the elements at 2i and 2i+1 are the inner and outer layers of layer "
+          "pair i considered in the CA for doublet building");
+  geometryParams
+      .add<std::vector<int>>(
+          "phiCuts", std::vector<int>(std::begin(phase1PixelTopology::phicuts), std::end(phase1PixelTopology::phicuts)))
+      ->setComment("Cuts in phi for cells");
+  geometryParams
+      .add<std::vector<double>>(
+          "minInnerZ", std::vector<double>(std::begin(phase1PixelTopology::minz), std::end(phase1PixelTopology::minz)))
+      ->setComment("Cuts in min z (on inner hit) for cells");
+  geometryParams
+      .add<std::vector<double>>(
+          "maxInnerZ", std::vector<double>(std::begin(phase1PixelTopology::maxz), std::end(phase1PixelTopology::maxz)))
+      ->setComment("Cuts in max z (on inner hit) for cells");
+  geometryParams
+      .add<std::vector<double>>(
+          "maxDR", std::vector<double>(std::begin(phase1PixelTopology::maxr), std::end(phase1PixelTopology::maxr)))
+      ->setComment("Cuts in max r for cells");
+  geometryParams.add<std::vector<double>>("minOuterZ", std::vector<double>(nPairs, -10000))
+      ->setComment("Cuts in min z (of outer hit) for cells");
+  geometryParams.add<std::vector<double>>("maxOuterZ", std::vector<double>(nPairs, 10000))
+      ->setComment("Cuts in max z (of outer hit) for cells");
+  geometryParams.add<std::vector<double>>("minInnerR", std::vector<double>(nPairs, 0))
+      ->setComment("Cuts in min r (of inner hit) for cells");
+  geometryParams.add<std::vector<double>>("maxInnerR", std::vector<double>(nPairs, 10000))
+      ->setComment("Cuts in max r (of inner hit) for cells");
+  geometryParams.add<std::vector<double>>("minOuterR", std::vector<double>(nPairs, 0))
+      ->setComment("Cuts in min r (of outer hit) for cells");
+  geometryParams.add<std::vector<double>>("maxOuterR", std::vector<double>(nPairs, 10000))
+      ->setComment("Cuts in max r (of outer hit) for cells");
+  geometryParams.add<std::vector<double>>("minDZ", std::vector<double>(nPairs, -10000))
+      ->setComment("Cuts in max dz for cells");
+  geometryParams.add<std::vector<double>>("maxDZ", std::vector<double>(nPairs, 10000))
+      ->setComment("Cuts in min dz for cells");
+
+  desc.add<edm::ParameterSetDescription>("geometry", geometryParams)
+      ->setComment("Layer pair graph, layer-dependent cut values.");
 
   descriptions.addWithDefaultLabel(desc);
 }
@@ -2011,38 +2100,79 @@ void SimDoubletsAnalyzer<pixelTopology::Phase1>::fillDescriptions(edm::Configura
 // fillDescription for Phase 2
 template <>
 void SimDoubletsAnalyzer<pixelTopology::Phase2>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  int nPairs = pixelTopology::Phase2::nPairs;
+
   edm::ParameterSetDescription desc;
   simdoublets::fillDescriptionsCommon<pixelTopology::Phase2>(desc);
 
   // input source for SimDoublets
   desc.add<edm::InputTag>("simDoubletsSrc", edm::InputTag("simDoubletsProducerPhase2"));
 
-  // layer pairs in reconstruction
-  desc.add<std::vector<uint>>(
-          "layerPairs",
-          std::vector<uint>(std::begin(phase2PixelTopology::layerPairs), std::end(phase2PixelTopology::layerPairs)))
-      ->setComment(
-          "Array of length 2*NumberOfPairs where the elements at 2i and 2i+1 are the inner and outer layers of layer "
-          "pair i");
-
   // cutting parameters for doublets
   desc.add<int>("cellMinYSizeB1", 25)->setComment("Minimum cluster size for inner RecHit from B1");
   desc.add<int>("cellMinYSizeB2", 15)->setComment("Minimum cluster size for inner RecHit not from B1");
   desc.add<double>("cellZ0Cut", 7.5)->setComment("Maximum longitudinal impact parameter");
   desc.add<double>("cellPtCut", 0.85)->setComment("Minimum tranverse momentum in GeV");
-  desc.add<std::vector<double>>(
-          "cellMinz", std::vector<double>(std::begin(phase2PixelTopology::minz), std::end(phase2PixelTopology::minz)))
-      ->setComment("Minimum z of inner RecHit for each layer pair");
-  desc.add<std::vector<double>>(
-          "cellMaxz", std::vector<double>(std::begin(phase2PixelTopology::maxz), std::end(phase2PixelTopology::maxz)))
-      ->setComment("Maximum z of inner RecHit for each layer pair");
-  desc.add<std::vector<int>>(
-          "cellPhiCuts",
-          std::vector<int>(std::begin(phase2PixelTopology::phicuts), std::end(phase2PixelTopology::phicuts)))
-      ->setComment("Cuts in delta phi for cells");
-  desc.add<std::vector<double>>(
-          "cellMaxr", std::vector<double>(std::begin(phase2PixelTopology::maxr), std::end(phase2PixelTopology::maxr)))
-      ->setComment("Cut for dr of cells");
+
+  // layer-dependent parameters + layer pairs
+  edm::ParameterSetDescription geometryParams;
+  // layers params
+  geometryParams
+      .add<std::vector<double>>(
+          "caDCACuts",
+          std::vector<double>(std::begin(phase2PixelTopology::dcaCuts), std::end(phase2PixelTopology::dcaCuts)))
+      ->setComment("Cut on RZ alignement. One per layer, the layer being the middle one for a triplet.");
+  geometryParams
+      .add<std::vector<double>>(
+          "caThetaCuts",
+          std::vector<double>(std::begin(phase2PixelTopology::thetaCuts), std::end(phase2PixelTopology::thetaCuts)))
+      ->setComment("Cut on origin radius. One per layer, the layer being the innermost one for a triplet.");
+  geometryParams.add<std::vector<unsigned int>>("startingPairs", {0u, 1u, 2u})
+      ->setComment(
+          "Array of variable length with the indices of the starting pairs for Ntuplet building");  //TODO could be parsed via an expression
+  // cells params
+  geometryParams
+      .add<std::vector<unsigned int>>(
+          "pairGraph",
+          std::vector<uint>(std::begin(phase2PixelTopology::layerPairs), std::end(phase2PixelTopology::layerPairs)))
+      ->setComment(
+          "Array of length 2*NumberOfPairs where the elements at 2i and 2i+1 are the inner and outer layers of layer "
+          "pair i considered in the CA for doublet building");
+  geometryParams
+      .add<std::vector<int>>(
+          "phiCuts", std::vector<int>(std::begin(phase2PixelTopology::phicuts), std::end(phase2PixelTopology::phicuts)))
+      ->setComment("Cuts in phi for cells");
+  geometryParams
+      .add<std::vector<double>>(
+          "minInnerZ", std::vector<double>(std::begin(phase2PixelTopology::minz), std::end(phase2PixelTopology::minz)))
+      ->setComment("Cuts in min z (on inner hit) for cells");
+  geometryParams
+      .add<std::vector<double>>(
+          "maxInnerZ", std::vector<double>(std::begin(phase2PixelTopology::maxz), std::end(phase2PixelTopology::maxz)))
+      ->setComment("Cuts in max z (on inner hit) for cells");
+  geometryParams
+      .add<std::vector<double>>(
+          "maxDR", std::vector<double>(std::begin(phase2PixelTopology::maxr), std::end(phase2PixelTopology::maxr)))
+      ->setComment("Cuts in max r for cells");
+  geometryParams.add<std::vector<double>>("minOuterZ", std::vector<double>(nPairs, -10000))
+      ->setComment("Cuts in min z (of outer hit) for cells");
+  geometryParams.add<std::vector<double>>("maxOuterZ", std::vector<double>(nPairs, 10000))
+      ->setComment("Cuts in max z (of outer hit) for cells");
+  geometryParams.add<std::vector<double>>("minInnerR", std::vector<double>(nPairs, 0))
+      ->setComment("Cuts in min r (of inner hit) for cells");
+  geometryParams.add<std::vector<double>>("maxInnerR", std::vector<double>(nPairs, 10000))
+      ->setComment("Cuts in max r (of inner hit) for cells");
+  geometryParams.add<std::vector<double>>("minOuterR", std::vector<double>(nPairs, 0))
+      ->setComment("Cuts in min r (of outer hit) for cells");
+  geometryParams.add<std::vector<double>>("maxOuterR", std::vector<double>(nPairs, 10000))
+      ->setComment("Cuts in max r (of outer hit) for cells");
+  geometryParams.add<std::vector<double>>("minDZ", std::vector<double>(nPairs, -10000))
+      ->setComment("Cuts in max dz for cells");
+  geometryParams.add<std::vector<double>>("maxDZ", std::vector<double>(nPairs, 10000))
+      ->setComment("Cuts in min dz for cells");
+
+  desc.add<edm::ParameterSetDescription>("geometry", geometryParams)
+      ->setComment("Layer pair graph, layer-dependent cut values.");
 
   descriptions.addWithDefaultLabel(desc);
 }
