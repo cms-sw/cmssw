@@ -186,21 +186,20 @@ void MPIChannel::sendSerializedProduct_(int instance, TClass const* type, void c
 }
 
 
-// receive a binary blob, and deserialize an object of generic type using its ROOT dictionary
-void MPIChannel::receiveSerializedBuffer(int instance, size_t size, void* buffer) {
+std::unique_ptr<TBufferFile> MPIChannel::receiveSerializedBuffer(int instance) {
   int tag = EDM_MPI_SendSerializedProduct | instance * EDM_MPI_MessageTagWidth_;
   MPI_Message message;
   MPI_Status status;
+
   MPI_Mprobe(dest_, tag, comm_, &message, &status);
-  int size_;
-  MPI_Get_count(&status, MPI_BYTE, &size_);
-  // std::cerr << "Size mismatch in receiveSerializedProduct_: expected "
-  //           << size << ", got " << size_ << std::endl;
-  assert(static_cast<int>(size) == size_ && "Size mismatch in receiveSerializedProduct_");
-  // TBufferFile buffer{TBuffer::kRead, size};
-  MPI_Mrecv(buffer, size, MPI_BYTE, &message, &status);
-  // type->Streamer(product, buffer);
+  int size;
+  MPI_Get_count(&status, MPI_BYTE, &size);
+
+  auto buffer = std::make_unique<TBufferFile>(TBuffer::kRead, size);
+  MPI_Mrecv(buffer->Buffer(), size, MPI_BYTE, &message, &status);
+  return buffer;
 }
+
 
 void MPIChannel::receiveSerializedProduct_(int instance, TClass const* type, void* product) {
   int tag = EDM_MPI_SendSerializedProduct | instance * EDM_MPI_MessageTagWidth_;

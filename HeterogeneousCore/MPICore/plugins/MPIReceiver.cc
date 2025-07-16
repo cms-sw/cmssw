@@ -85,6 +85,8 @@ public:
     MPIToken token = event.get(upstream_);
     // received_meta_->debugPrintMetadataSummary();
 
+    auto serialized_buffer = token.channel()->receiveSerializedBuffer(instance_);
+    char* buf_ptr = serialized_buffer->Buffer();
 
     for (auto const& entry : products_) {
 
@@ -100,9 +102,12 @@ public:
       
       else if (product_meta.kind == ProductMetadata::Kind::Serialized) {
         assert(!wrapper->hasTrivialCopyTraits() && "mismatch between expected and factual metadata type");
-        TBufferFile buffer{TBuffer::kRead, static_cast<int>(product_meta.sizeMeta)};
-        token.channel()->receiveSerializedBuffer(instance_, product_meta.sizeMeta, buffer.Buffer());
-        entry.wrappedType.getClass()->Streamer(wrapper.get(), buffer);
+        // TBufferFile buffer{TBuffer::kRead, static_cast<int>(product_meta.sizeMeta)};
+        // token.channel()->receiveSerializedBuffer(instance_, product_meta.sizeMeta, buffer.Buffer());
+        auto productBuffer = TBufferFile(TBuffer::kRead, product_meta.sizeMeta);
+        productBuffer.SetBuffer(buf_ptr, product_meta.sizeMeta, kFALSE /* adopt = false */);
+        buf_ptr += product_meta.sizeMeta;
+        entry.wrappedType.getClass()->Streamer(wrapper.get(), productBuffer);
       }
       
       else if (product_meta.kind == ProductMetadata::Kind::TrivialCopy) {

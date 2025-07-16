@@ -47,7 +47,7 @@ public:
         token_(produces<MPIToken>()),
         patterns_(edm::productPatterns(config.getParameter<std::vector<std::string>>("products"))),
         instance_(config.getParameter<int32_t>("instance")),
-        buffer_ = std::make_unique<TBufferFile>(TBuffer::kWrite),
+        buffer_(std::make_unique<TBufferFile>(TBuffer::kWrite)),
         buffer_offset_(0),
         metadata_size_(0)
   {
@@ -172,13 +172,15 @@ public:
   void produce(edm::Event& event, edm::EventSetup const&) final {
     MPIToken token = event.get(upstream_);
     size_t index = 0;
-    size_t serializedIndex = 0;
+    // size_t serializedIndex = 0;
 
     // std::cerr << "MPISender::produce(): "
     //           << serializedBuffers_.size() << " serialized product(s) stored.\n";
     // for (auto const& [index, buffer] : serializedBuffers_) {
     //   std::cerr << "  - index: " << index << ", buffer size: " << buffer->Length() << " bytes\n";
     // }
+
+    token.channel()->sendBuffer(buffer_->Buffer(), buffer_->Length(), instance_, EDM_MPI_SendSerializedProduct);
 
     for (auto const& entry : products_) {
       edm::Handle<edm::WrapperBase> handle(entry.type.typeInfo());
@@ -188,10 +190,10 @@ public:
       if (handle.isValid()) {
         if (wrapper->hasTrivialCopyTraits()) {
           token.channel()->sendTrivialCopyProduct_(instance_, wrapper);
-        } else {
-          assert(serializedBuffers_[serializedIndex].first == index && "mismatch between expected and factual serialised index in produce()");
-          token.channel()->sendBuffer(serializedBuffers_[serializedIndex].second->Buffer(), serializedBuffers_[serializedIndex].second->Length(), instance_, EDM_MPI_SendSerializedProduct);
-          serializedIndex++;
+        // } else {
+        //   assert(serializedBuffers_[serializedIndex].first == index && "mismatch between expected and factual serialised index in produce()");
+        //   token.channel()->sendBuffer(serializedBuffers_[serializedIndex].second->Buffer(), serializedBuffers_[serializedIndex].second->Length(), instance_, EDM_MPI_SendSerializedProduct);
+        //   serializedIndex++;
         }
         index++;
       }
@@ -205,11 +207,11 @@ private:
   
   size_t serializeAndStoreBuffer_(size_t index, TClass* type, void const* product) {
     // auto buffer = std::make_shared<TBufferFile>(TBuffer::kWrite);
-    // buf->ResetMap();
+    buffer_->ResetMap();
     type->Streamer(const_cast<void*>(product), *buffer_);
     // serializedBuffers_.emplace_back(index, buffer);
-    size_t prod_size = buf->Length() - buffer_offset_;
-    buffer_offset_ = buf->Length(); 
+    size_t prod_size = buffer_->Length() - buffer_offset_;
+    buffer_offset_ += buffer_->Length(); 
     return prod_size;
   }
 

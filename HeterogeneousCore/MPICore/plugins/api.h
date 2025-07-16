@@ -170,7 +170,7 @@ public:
 
   // receive a binary blob, and deserialize an object of generic type using its ROOT dictionary
   void receiveSerializedProduct_(int instance, TClass const* type, void* product);
-  void receiveSerializedBuffer(int instance, size_t size, void* buffer);
+  std::unique_ptr<TBufferFile> receiveSerializedBuffer(int instance);
 
   // transfer a wrapped object using its TrivialCopyTraits
   void sendTrivialCopyProduct_(int instance, edm::WrapperBase const* wrapper);
