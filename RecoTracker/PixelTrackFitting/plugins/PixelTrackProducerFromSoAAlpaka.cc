@@ -92,6 +92,7 @@ private:
   int32_t const minNumberOfHits_;
   pixelTrack::Quality const minQuality_;
   const bool useOTExtension_;
+  const bool requireQuadsFromConsecutiveLayers_;
 };
 
 PixelTrackProducerFromSoAAlpaka::PixelTrackProducerFromSoAAlpaka(const edm::ParameterSet &iConfig)
@@ -106,7 +107,8 @@ PixelTrackProducerFromSoAAlpaka::PixelTrackProducerFromSoAAlpaka(const edm::Para
       trackerGeometryTokenRun_(esConsumes<edm::Transition::BeginRun>()),
       minNumberOfHits_(iConfig.getParameter<int>("minNumberOfHits")),
       minQuality_(pixelTrack::qualityByName(iConfig.getParameter<std::string>("minQuality"))),
-      useOTExtension_(iConfig.getParameter<bool>("useOTExtension")) {
+      useOTExtension_(iConfig.getParameter<bool>("useOTExtension")),
+      requireQuadsFromConsecutiveLayers_(iConfig.getParameter<bool>("requireQuadsFromConsecutiveLayers")) {
   if (minQuality_ == pixelTrack::Quality::notQuality) {
     throw cms::Exception("PixelTrackConfiguration")
         << iConfig.getParameter<std::string>("minQuality") + " is not a pixelTrack::Quality";
@@ -176,6 +178,7 @@ void PixelTrackProducerFromSoAAlpaka::fillDescriptions(edm::ConfigurationDescrip
   desc.add<int>("minNumberOfHits", 0);
   desc.add<std::string>("minQuality", "loose");
   desc.add<bool>("useOTExtension", false);
+  desc.add<bool>("requireQuadsFromConsecutiveLayers", false);
   descriptions.addWithDefaultLabel(desc);
 }
 
@@ -285,6 +288,66 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
     }
   }
 
+  // function that returns the layerId given a TrackingRecHit pointer (only works for Phase-2 for now...)
+  auto getLayerId = [&](const TrackingRecHit *recHit) {
+    constexpr unsigned int numBarrelLayers{4};
+    constexpr unsigned int numEndcapDisks{12};
+    auto detId = recHit->geographicalId();
+
+    // set default to 999 (invalid)
+    int layerId{99};
+
+    if (detId.subdetId() == PixelSubdetector::PixelBarrel) {
+      // subtract 1 in the barrel to get, e.g. for Phase 2, from (1,4) to (0,3)
+      layerId = trackerTopology.pxbLayer(detId) - 1;
+    } else if (detId.subdetId() == PixelSubdetector::PixelEndcap) {
+      if (trackerTopology.pxfSide(detId) == 1) {
+        // add offset in the backward endcap to get, e.g. for Phase 2, from (1,12) to (16,27)
+        layerId = trackerTopology.pxfDisk(detId) + numBarrelLayers + numEndcapDisks - 1;
+      } else {
+        // add offest in the forward endcap to get, e.g. for Phase 2, from (1,12) to (4,15)
+        layerId = trackerTopology.pxfDisk(detId) + numBarrelLayers - 1;
+      }
+    } else if (detId.subdetId() == StripSubdetector::TOB) {
+      layerId = trackerTopology.getOTLayerNumber(detId) + 27;
+    }
+    return layerId;
+  };
+
+  // function that returns the skipped layers for a given layer pair (i, o)
+  auto getNskippedLayers = [&](const int i, const int o) {
+    if (i == o)
+      return 0;
+
+    bool innerInBarrel = (i <= 3);
+    bool outerInBarrel = (o <= 3);
+    bool innerInOTExtension = (i >= 28);
+    bool outerInOTExtension = (o >= 28);
+    bool innerInBackward = (i >= 16) && (i <= 27);
+    bool outerInBackward = (o >= 16) && (o <= 27);
+    bool innerInForward = (i >= 4) && (i <= 15);
+    bool outerInForward = (o >= 4) && (o <= 15);
+
+    if ((innerInBarrel && outerInBarrel) || (innerInForward && outerInForward) ||
+        (innerInBackward && outerInBackward) || (innerInOTExtension && outerInOTExtension))
+      return (o - i - 1);
+
+    else if (innerInBarrel && outerInOTExtension)
+      return (o - i - 25);
+
+    else if (outerInOTExtension)
+        return (o - 28);
+
+    else if (innerInBarrel && outerInBackward)
+      return (o - 16);
+
+    else if (innerInBarrel && outerInForward)
+      return (o - 4);
+
+    else
+      return -99;
+  };
+
   std::vector<const TrackingRecHit *> hits;
   hits.reserve(5);  //TODO move to a configurable parameter?
 
@@ -337,6 +400,23 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
 
     for (auto iHit = start; iHit < end; ++iHit)
       hits[iHit - start] = hitmap[hitIdxs[iHit]];
+
+    // implement custome requirement for quadruplets coming from consecutive layers
+    if (requireQuadsFromConsecutiveLayers_ && (nHits == 4)) {
+      bool skipThisTrack{false};
+      int i, o;
+      // loop over layer pairs and check if they skip
+      for (auto iHit = start; iHit < end - 1; ++iHit) {
+        i = getLayerId(hits[iHit - start]);
+        o = getLayerId(hits[iHit - start + 1]);
+        if (getNskippedLayers(i, o) > 0) {
+          skipThisTrack = true;
+          break;
+        }
+      }
+      if (skipThisTrack)
+        continue;
+    }
 
 //#ifdef CA_DEBUG
 #if 0
