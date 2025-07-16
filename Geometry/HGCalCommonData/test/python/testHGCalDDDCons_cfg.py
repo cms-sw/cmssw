@@ -1,8 +1,8 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun testHGCalNumbering_cfg.py type=V19
+#   cmsRun testHGCalDDDCons_cfi.py geometry=D120
 #
-#   Options for type V16, V17, V17n, V18, V19
+#   Options for Geometry D120
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -29,11 +29,7 @@ GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
 
 
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-process = cms.Process("HGCalCellArea",ERA)
-
-#geomFile = "Geometry.HGCalCommonData.testHGCal" + options.type + "XML_cfi"
-#print("Geometry file: ", geomFile)
-
+process = cms.Process("TestHGCalDDDCons",ERA)
 
 process.load(geomFile)
 process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
