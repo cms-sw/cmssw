@@ -128,12 +128,8 @@ namespace trackerTFP {
     int baseShiftC22_;
     int baseShiftC23_;
     int baseShiftC33_;
-    int baseShiftr0Shifted_;
-    int baseShiftr1Shifted_;
     int baseShiftr02Shifted_;
     int baseShiftr12Shifted_;
-    int baseShiftr02_;
-    int baseShiftr12_;
     int baseShiftchi20_;
     int baseShiftchi21_;
     int baseShiftchi2_;

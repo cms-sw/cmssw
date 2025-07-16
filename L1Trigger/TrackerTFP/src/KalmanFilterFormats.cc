@@ -621,7 +621,7 @@ namespace trackerTFP {
     const int baseShift = iConfig.baseShiftHv0_;
     const double base = H00.base() * v0.base() * std::pow(2, baseShift);
     const double range = base * std::pow(2., width);
-    return DataFormatKF(VariableKF::end, false, iConfig.enableIntegerEmulation_, width, base, range);
+    return DataFormatKF(VariableKF::Hv0, true, iConfig.enableIntegerEmulation_, width, base, range);
   }
 
   template <>
@@ -632,7 +632,7 @@ namespace trackerTFP {
     const int baseShift = iConfig.baseShiftHv1_;
     const double base = H12.base() * v1.base() * std::pow(2, baseShift);
     const double range = base * std::pow(2., width);
-    return DataFormatKF(VariableKF::end, false, iConfig.enableIntegerEmulation_, width, base, range);
+    return DataFormatKF(VariableKF::Hv1, true, iConfig.enableIntegerEmulation_, width, base, range);
   }
 
   template <>
@@ -643,7 +643,7 @@ namespace trackerTFP {
     const int width = dataFormats->setup()->widthDSPau();
     const double base = H00.base() * H00.base() * v0.base() * std::pow(2, baseShift);
     const double range = base * std::pow(2., width);
-    return DataFormatKF(VariableKF::end, false, iConfig.enableIntegerEmulation_, width, base, range);
+    return DataFormatKF(VariableKF::H2v0, false, iConfig.enableIntegerEmulation_, width, base, range);
   }
 
   template <>
@@ -654,7 +654,7 @@ namespace trackerTFP {
     const int baseShift = iConfig.baseShiftH2v1_;
     const double base = H12.base() * H12.base() * v1.base() * std::pow(2, baseShift);
     const double range = base * std::pow(2., width);
-    return DataFormatKF(VariableKF::end, false, iConfig.enableIntegerEmulation_, width, base, range);
+    return DataFormatKF(VariableKF::H2v1, false, iConfig.enableIntegerEmulation_, width, base, range);
   }
 
 }  // namespace trackerTFP

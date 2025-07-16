@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 def setupTMTT(process):
     from L1Trigger.TrackerDTC.DTC_cfi import TrackerDTC_params
     # use Hybrid or TMTT as TT algorithm
-    process.TrackTriggerSetup.UseHybrid = False
+    process.TrackTriggerSetup.Firmware.UseHybrid = False
     # min track pt in GeV, also defines region overlap shape
     process.TrackTriggerSetup.TrackFinding.MinPt = 3.0
     # cut on stub eta

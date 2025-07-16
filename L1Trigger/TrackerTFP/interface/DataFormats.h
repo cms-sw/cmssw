@@ -154,6 +154,8 @@ namespace trackerTFP {
   DataFormat makeDataFormat<Variable::dZ, Process::ctb>(const tt::Setup* setup);
   template <>
   DataFormat makeDataFormat<Variable::layer, Process::ctb>(const tt::Setup* setup);
+  template <>
+  DataFormat makeDataFormat<Variable::cot, Process::ctb>(const tt::Setup* setup);
 
   template <>
   DataFormat makeDataFormat<Variable::inv2R, Process::kf>(const tt::Setup* setup);
@@ -241,7 +243,7 @@ namespace trackerTFP {
           Process::x,
           Process::gp,
           Process::x,
-          Process::x,
+          Process::ctb,
           Process::kf,
           Process::dr,
           Process::tfp}},  // Variable::cot

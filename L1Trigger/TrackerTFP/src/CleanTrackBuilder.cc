@@ -12,13 +12,11 @@ namespace trackerTFP {
   CleanTrackBuilder::CleanTrackBuilder(const tt::Setup* setup,
                                        const DataFormats* dataFormats,
                                        const LayerEncoding* layerEncoding,
-                                       const DataFormat& cot,
                                        std::vector<StubCTB>& stubs,
                                        std::vector<TrackCTB>& tracks)
       : setup_(setup),
         dataFormats_(dataFormats),
         layerEncoding_(layerEncoding),
-        cot_(cot),
         stubsCTB_(stubs),
         tracksCTB_(tracks),
         r_(dataFormats_->format(Variable::r, Process::ctb)),
@@ -38,7 +36,7 @@ namespace trackerTFP {
     numBinsZT_ = setup_->ctbNumBinsZT();
     baseInv2R_ = dataFormats_->base(Variable::inv2R, Process::ctb) / numBinsInv2R_;
     basePhiT_ = phiT_.base() / numBinsPhiT_;
-    baseCot_ = cot_.base();
+    baseCot_ = dataFormats_->base(Variable::cot, Process::ctb);
     baseZT_ = zT_.base() / numBinsZT_;
   }
 

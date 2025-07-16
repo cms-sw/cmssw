@@ -206,12 +206,9 @@ namespace trackerTFP {
       int numConsistentPS(0);
       TTBV hitPattern = state->hitPattern();
       TTBV ttBV = state->hitPattern();
-      std::vector<StubCTB*> stubs;
-      std::vector<double> phis;
-      std::vector<double> zs;
-      stubs.reserve(setup_->numLayers());
-      phis.reserve(setup_->numLayers());
-      zs.reserve(setup_->numLayers());
+      std::vector<StubCTB*> stubs(setup_->numLayers(), nullptr);
+      std::vector<double> phis(setup_->numLayers());
+      std::vector<double> zs(setup_->numLayers());
       // stub residual cut
       State* s = state;
       while ((s = s->parent())) {
@@ -225,9 +222,9 @@ namespace trackerTFP {
         const int layer = ttBV.pmEncode();
         ttBV.reset(layer);
         if (validPhi && validZ) {
-          stubs.push_back(&stub);
-          phis.push_back(phi);
-          zs.push_back(z);
+          stubs[layer] = &stub;
+          phis[layer] = phi;
+          zs[layer] = z;
           if (std::abs(phi) <= s->dPhi() && std::abs(z) <= s->dZ()) {
             numConsistent++;
             if (setup_->psModule(stub.frame().first))

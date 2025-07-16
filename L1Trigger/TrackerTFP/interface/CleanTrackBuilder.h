@@ -18,7 +18,6 @@ namespace trackerTFP {
     CleanTrackBuilder(const tt::Setup* setup,
                       const DataFormats* dataFormats,
                       const LayerEncoding* layerEncoding,
-                      const DataFormat& cot,
                       std::vector<StubCTB>& stubs,
                       std::vector<TrackCTB>& tracks);
     ~CleanTrackBuilder() = default;
@@ -118,8 +117,6 @@ namespace trackerTFP {
     const DataFormats* dataFormats_;
     //
     const LayerEncoding* layerEncoding_;
-    //
-    DataFormat cot_;
     // container of internal stubs
     std::vector<Stub> stubs_;
     // container of internal tracks

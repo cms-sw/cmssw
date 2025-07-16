@@ -36,7 +36,6 @@ namespace trackerTFP {
     ~ProducerHT() override = default;
 
   private:
-    void beginRun(const edm::Run&, const edm::EventSetup&) override;
     void produce(edm::Event&, const edm::EventSetup&) override;
     // ED input token of gp stubs
     edm::EDGetTokenT<tt::StreamsStub> edGetToken_;
@@ -48,12 +47,6 @@ namespace trackerTFP {
     edm::ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
     // LayerEncoding token
     edm::ESGetToken<LayerEncoding, DataFormatsRcd> esGetTokenLayerEncoding_;
-    // number of input channel
-    int numChannelIn_;
-    // number of output channel
-    int numChannelOut_;
-    // number of processing regions
-    int numRegions_;
   };
 
   ProducerHT::ProducerHT(const edm::ParameterSet& iConfig) {
@@ -68,34 +61,24 @@ namespace trackerTFP {
     esGetTokenLayerEncoding_ = esConsumes();
   }
 
-  void ProducerHT::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-    // helper class to store configurations
-    const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
-    numRegions_ = setup->numRegions();
-    // helper class to extract structured data from tt::Frames
-    const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
-    numChannelIn_ = dataFormats->numChannel(Process::gp);
-    numChannelOut_ = dataFormats->numChannel(Process::ht);
-  }
-
   void ProducerHT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
     const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
     const LayerEncoding* layerEncoding = &iSetup.getData(esGetTokenLayerEncoding_);
     // empty HT products
-    tt::StreamsStub accepted(numRegions_ * numChannelOut_);
+    tt::StreamsStub accepted(setup->numRegions() * dataFormats->numChannel(Process::ht));
     // read in DTC Product and produce TFP product
     const tt::StreamsStub& streamsStub = iEvent.get(edGetToken_);
     // helper
     auto validFrame = [](int sum, const tt::FrameStub& frame) { return sum + (frame.first.isNonnull() ? 1 : 0); };
     auto toFrame = [](StubHT* object) { return object ? object->frame() : tt::FrameStub(); };
     // produce HT output per region
-    for (int region = 0; region < numRegions_; region++) {
-      const int offsetIn = region * numChannelIn_;
-      const int offsetOut = region * numChannelOut_;
+    for (int region = 0; region < setup->numRegions(); region++) {
+      const int offsetIn = region * dataFormats->numChannel(Process::gp);
+      const int offsetOut = region * dataFormats->numChannel(Process::ht);
       // count input objects
       int nStubsGP(0);
-      for (int channelIn = 0; channelIn < numChannelIn_; channelIn++) {
+      for (int channelIn = 0; channelIn < dataFormats->numChannel(Process::gp); channelIn++) {
         const tt::StreamStub& stream = streamsStub[offsetIn + channelIn];
         nStubsGP += std::accumulate(stream.begin(), stream.end(), 0, validFrame);
       }
@@ -103,9 +86,9 @@ namespace trackerTFP {
       std::vector<StubGP> stubsGP;
       stubsGP.reserve(nStubsGP);
       // h/w liked organized pointer to input data
-      std::vector<std::vector<StubGP*>> streamsIn(numChannelIn_);
+      std::vector<std::vector<StubGP*>> streamsIn(dataFormats->numChannel(Process::gp));
       // read input data
-      for (int channelIn = 0; channelIn < numChannelIn_; channelIn++) {
+      for (int channelIn = 0; channelIn < dataFormats->numChannel(Process::gp); channelIn++) {
         const tt::StreamStub& streamStub = streamsStub[offsetIn + channelIn];
         std::vector<StubGP*>& stream = streamsIn[channelIn];
         stream.reserve(streamStub.size());
@@ -123,11 +106,11 @@ namespace trackerTFP {
       // object to find initial rough candidates in r-phi in a region
       HoughTransform ht(setup, dataFormats, layerEncoding, stubsHT);
       // empty h/w liked organized pointer to output data
-      std::vector<std::deque<StubHT*>> streamsOut(numChannelOut_);
+      std::vector<std::deque<StubHT*>> streamsOut(dataFormats->numChannel(Process::ht));
       // fill output data
       ht.produce(streamsIn, streamsOut);
       // convert data to ed products
-      for (int channelOut = 0; channelOut < numChannelOut_; channelOut++) {
+      for (int channelOut = 0; channelOut < dataFormats->numChannel(Process::ht); channelOut++) {
         const std::deque<StubHT*>& objects = streamsOut[channelOut];
         tt::StreamStub& stream = accepted[offsetOut + channelOut];
         stream.reserve(objects.size());
