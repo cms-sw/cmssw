@@ -21,8 +21,15 @@
 //        This will plot histograms of momenta spectra of types between
 //        pLow and pHigh and save the canvases
 //
+//  PlotTwoHists(infile1, prefix1, text1, infile2, prefix2, text2, flagC,
+//               drawStatBox, normalize, etalo, etahi, save);
+//
+//        This will plot two superimposed histograms from the two files
+//        with the possibility of normalizing and save the canvases
+//      
 // .L CalibPlotProperties.C+g
-//  CalibSplit c1(fname, dirname, outFileName, pmin, pmax, runMin, runMax, debug);
+//  CalibSplit c1(fname, dirname, outFileName, pmin, pmax, runMin, runMax,
+//                debug);
 //  c1.Loop(nentries);
 //
 //        This will split the tree and keep for tacks with momenta between
@@ -360,9 +367,12 @@ private:
   std::vector<TH1D *> h_etaEE[CalibPlots::npbin0];
   std::vector<TH1D *> h_etaEE0[CalibPlots::npbin0];
   std::vector<TH1D *> h_mom, h_eEcal, h_eHcal;
+  std::vector<TH1D *> h_momX, h_eEcalX, h_eHcalX;
   std::vector<TH1D *> h_eHdepth[CalibPlots::ndepth];
-  std::vector<TH1F *> h_bvlist, h_bvlist2, h_evlist, h_evlist2;
-  std::vector<TH1F *> h_bvlist3, h_evlist3;
+  std::vector<TH1F *> h_bvlist, h_bvlist2, h_bvlist3;
+  std::vector<TH1F *> h_evlist, h_evlist2, h_evlist3;
+  std::vector<TH1F *> h_bvlistX, h_bvlist2X, h_bvlist3X;
+  std::vector<TH1F *> h_evlistX, h_evlist2X, h_evlist3X;
   TH2F *h_etaE;
 };
 
@@ -723,43 +733,79 @@ void CalibPlotProperties::Init(TChain *tree) {
       }
     }
 
+    char nameX[20], titleX[200];
     for (int j = 0; j < CalibPlots::netabin; ++j) {
       sprintf(name, "%senergyH%d", prefix_.c_str(), j);
-      if (j == 0)
+      sprintf(nameX, "%senergyHX%d", prefix_.c_str(), j);
+      if (j == 0) {
         sprintf(title, "HCAL energy for %s (All)", CalibPlots::getTitle(3).c_str());
-      else
+        sprintf(titleX, "HCAL energy for %s (All Final Selection)", CalibPlots::getTitle(3).c_str());
+      } else {
         sprintf(title,
                 "HCAL energy for %s (|#eta| = %d:%d)",
                 CalibPlots::getTitle(3).c_str(),
                 CalibPlots::getEta(j - 1),
                 CalibPlots::getEta(j));
+        sprintf(titleX,
+                "HCAL energy for %s (|#eta| = %d:%d) Final Selection",
+                CalibPlots::getTitle(3).c_str(),
+                CalibPlots::getEta(j - 1),
+                CalibPlots::getEta(j));
+      }
       h_eHcal.push_back(new TH1D(name, title, 200, 0, 200));
       kk = h_eHcal.size() - 1;
       h_eHcal[kk]->Sumw2();
+      h_eHcalX.push_back(new TH1D(nameX, titleX, 200, 0, 200));
+      kk = h_eHcalX.size() - 1;
+      h_eHcalX[kk]->Sumw2();
+
       sprintf(name, "%senergyP%d", prefix_.c_str(), j);
-      if (j == 0)
+      sprintf(nameX, "%senergyPX%d", prefix_.c_str(), j);
+      if (j == 0) {
         sprintf(title, "Track momentum for %s (All)", CalibPlots::getTitle(3).c_str());
-      else
+        sprintf(titleX, "Track momentum for %s (All Final Selection)", CalibPlots::getTitle(3).c_str());
+      } else {
         sprintf(title,
                 "Track momentum for %s (|#eta| = %d:%d)",
                 CalibPlots::getTitle(3).c_str(),
                 CalibPlots::getEta(j - 1),
                 CalibPlots::getEta(j));
+        sprintf(titleX,
+                "Track momentum for %s (|#eta| = %d:%d) Final Selection",
+                CalibPlots::getTitle(3).c_str(),
+                CalibPlots::getEta(j - 1),
+                CalibPlots::getEta(j));
+      }
       h_mom.push_back(new TH1D(name, title, 100, 0, 100));
       kk = h_mom.size() - 1;
       h_mom[kk]->Sumw2();
+      h_momX.push_back(new TH1D(nameX, titleX, 100, 0, 100));
+      kk = h_momX.size() - 1;
+      h_momX[kk]->Sumw2();
+
       sprintf(name, "%senergyE%d", prefix_.c_str(), j);
-      if (j == 0)
+      sprintf(nameX, "%senergyEX%d", prefix_.c_str(), j);
+      if (j == 0) {
         sprintf(title, "ECAL energy for %s (All)", CalibPlots::getTitle(3).c_str());
-      else
+        sprintf(titleX, "ECAL energy for %s (All) Final Selection", CalibPlots::getTitle(3).c_str());
+      } else {
         sprintf(title,
                 "ECAL energy for %s (|#eta| = %d:%d)",
                 CalibPlots::getTitle(3).c_str(),
                 CalibPlots::getEta(j - 1),
                 CalibPlots::getEta(j));
+        sprintf(titleX,
+                "ECAL energy for %s (|#eta| = %d:%d) Final Selection",
+                CalibPlots::getTitle(3).c_str(),
+                CalibPlots::getEta(j - 1),
+                CalibPlots::getEta(j));
+      }
       h_eEcal.push_back(new TH1D(name, title, 100, 0, 10));
       kk = h_eEcal.size() - 1;
       h_eEcal[kk]->Sumw2();
+      h_eEcalX.push_back(new TH1D(nameX, titleX, 100, 0, 10));
+      kk = h_eEcalX.size() - 1;
+      h_eEcalX[kk]->Sumw2();
 
       for (int k = 0; k < CalibPlots::ndepth; ++k) {
         sprintf(name, "%sEnergyDepth%dEta%d", prefix_.c_str(), k, j);
@@ -801,6 +847,30 @@ void CalibPlotProperties::Init(TChain *tree) {
       sprintf(title, "#RecHits in depth %d (Endcap)", i + 1);
       h_evlist3.push_back(new TH1F(name, title, 1000, 0, 100));
       h_evlist3[i]->Sumw2();
+      sprintf(name, "b_edepthX%d", i);
+      sprintf(title, "Total RecHit energy in depth %d (Barrel Final)", i + 1);
+      h_bvlistX.push_back(new TH1F(name, title, 1000, 0, 100));
+      h_bvlistX[i]->Sumw2();
+      sprintf(name, "b_recedepthX%d", i);
+      sprintf(title, "RecHit energy in depth %d (Barrel Final)", i + 1);
+      h_bvlist2X.push_back(new TH1F(name, title, 1000, 0, 100));
+      h_bvlist2X[i]->Sumw2();
+      sprintf(name, "b_nrecdepthX%d", i);
+      sprintf(title, "#RecHits in depth %d (Barrel Final)", i + 1);
+      h_bvlist3X.push_back(new TH1F(name, title, 1000, 0, 100));
+      h_bvlist3X[i]->Sumw2();
+      sprintf(name, "e_edepthX%d", i);
+      sprintf(title, "Total RecHit energy in depth %d (Endcap Final)", i + 1);
+      h_evlistX.push_back(new TH1F(name, title, 1000, 0, 100));
+      h_evlistX[i]->Sumw2();
+      sprintf(name, "e_recedepthX%d", i);
+      sprintf(title, "RecHit energy in depth %d (Endcap Final)", i + 1);
+      h_evlist2X.push_back(new TH1F(name, title, 1000, 0, 100));
+      h_evlist2X[i]->Sumw2();
+      sprintf(name, "e_nrecdepthX%d", i);
+      sprintf(title, "#RecHits in depth %d (Endcap Final)", i + 1);
+      h_evlist3X.push_back(new TH1F(name, title, 1000, 0, 100));
+      h_evlist3X[i]->Sumw2();
     }
     h_etaE = new TH2F("heta", "", 60, -30, 30, 100, 0, 100);
   }
@@ -1034,6 +1104,7 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
       }
     }
 
+    bool final = (t_qltyFlag && t_selectTk && (t_hmaxNearP < cut) && (t_eMipDR < 1.0)) ? true : false;
     if (goodTk && kp != CalibPlots::npbin0 && selPhi) {
       if (rat > rcut) {
         if (plotEnergy_) {
@@ -1055,6 +1126,14 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
               h_mom[je2]->Fill(pmom, t_EventWeight);
               h_eEcal[je1]->Fill(t_eMipDR, t_EventWeight);
               h_eEcal[je2]->Fill(t_eMipDR, t_EventWeight);
+	      if (final) {
+		h_eHcalX[je1]->Fill(eHcal, t_EventWeight);
+		h_eHcalX[je2]->Fill(eHcal, t_EventWeight);
+		h_momX[je1]->Fill(pmom, t_EventWeight);
+		h_momX[je2]->Fill(pmom, t_EventWeight);
+		h_eEcalX[je1]->Fill(t_eMipDR, t_EventWeight);
+		h_eEcalX[je2]->Fill(t_eMipDR, t_EventWeight);
+	      }
             }
           }
         }
@@ -1093,11 +1172,15 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
                     eb += ener;
                     bv[depth - 1] += ener;
                     h_bvlist2[depth - 1]->Fill(ener, weight);
+		    if (final)
+		      h_bvlist2X[depth - 1]->Fill(ener, weight);
                     ++bnrec[depth - 1];
                   } else if (subdet == 2) {
                     ee += ener;
                     ev[depth - 1] += ener;
                     h_evlist2[depth - 1]->Fill(ener, weight);
+		    if (final)
+		      h_evlist2X[depth - 1]->Fill(ener, weight);
                     ++enrec[depth - 1];
                   }
                 }
@@ -1112,9 +1195,17 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
               if (barrel) {
                 h_bvlist[i]->Fill(bv[i], weight);
                 h_bvlist3[i]->Fill((bnrec[i] + 0.001), weight);
+		if (final) {
+		  h_bvlistX[i]->Fill(bv[i], weight);
+		  h_bvlist3X[i]->Fill((bnrec[i] + 0.001), weight);
+		}
               } else {
                 h_evlist[i]->Fill(ev[i], weight);
                 h_evlist3[i]->Fill((enrec[i] + 0.001), weight);
+		if (final) {
+		  h_evlistX[i]->Fill(ev[i], weight);
+		  h_evlist3X[i]->Fill((enrec[i] + 0.001), weight);
+		}
               }
             }
           }
@@ -1271,6 +1362,18 @@ void CalibPlotProperties::savePlot(const std::string &theName, bool append, bool
         TH1D *hist = (TH1D *)h_eEcal[j]->Clone();
         hist->Write();
       }
+      if (h_eHcalX.size() > (unsigned int)(j) && (h_eHcalX[j] != nullptr)) {
+        TH1D *hist = (TH1D *)h_eHcalX[j]->Clone();
+        hist->Write();
+      }
+      if (h_momX.size() > (unsigned int)(j) && (h_momX[j] != nullptr)) {
+        TH1D *hist = (TH1D *)h_momX[j]->Clone();
+        hist->Write();
+      }
+      if (h_eEcalX.size() > (unsigned int)(j) && (h_eEcalX[j] != nullptr)) {
+        TH1D *hist = (TH1D *)h_eEcalX[j]->Clone();
+        hist->Write();
+      }
     }
     for (int j = 1; j < CalibPlots::netabin; ++j) {
       for (int k = 0; k < CalibPlots::ndepth; ++k) {
@@ -1296,6 +1399,12 @@ void CalibPlotProperties::savePlot(const std::string &theName, bool append, bool
       h_evlist[i]->Write();
       h_evlist2[i]->Write();
       h_evlist3[i]->Write();
+      h_bvlistX[i]->Write();
+      h_bvlist2X[i]->Write();
+      h_bvlist3X[i]->Write();
+      h_evlistX[i]->Write();
+      h_evlist2X[i]->Write();
+      h_evlist3X[i]->Write();
     }
   }
   std::cout << "All done" << std::endl;
@@ -1774,7 +1883,51 @@ void PlotHist(const char *hisFileName,
         hist->GetXaxis()->SetTitle(title);
         PlotThisHist(hist, text, isRealData, save);
       }
+
+      sprintf(name, "%senergyHX%d", prefix.c_str(), j);
+      hist = (TH1D *)(file->FindObjectAny(name));
+      if (hist != nullptr) {
+        if (j == 0)
+          sprintf(title, "HCAL energy for %s (All) Final Selection", CalibPlots::getTitle(3).c_str());
+        else
+          sprintf(title,
+                  "HCAL energy for %s (|#eta| = %d:%d) Final Selection",
+                  CalibPlots::getTitle(3).c_str(),
+                  CalibPlots::getEta(j - 1),
+                  CalibPlots::getEta(j));
+        hist->GetXaxis()->SetTitle(title);
+        PlotThisHist(hist, text, isRealData, save);
+      }
+      sprintf(name, "%senergyPX%d", prefix.c_str(), j);
+      hist = (TH1D *)(file->FindObjectAny(name));
+      if (hist != nullptr) {
+        if (j == 0)
+          sprintf(title, "Track momentum for %s (All) Final Selection", CalibPlots::getTitle(3).c_str());
+        else
+          sprintf(title,
+                  "Track momentum for %s (|#eta| = %d:%d) Final Selection",
+                  CalibPlots::getTitle(3).c_str(),
+                  CalibPlots::getEta(j - 1),
+                  CalibPlots::getEta(j));
+        hist->GetXaxis()->SetTitle(title);
+        PlotThisHist(hist, text, isRealData, save);
+      }
+      sprintf(name, "%senergyEX%d", prefix.c_str(), j);
+      hist = (TH1D *)(file->FindObjectAny(name));
+      if (hist != nullptr) {
+        if (j == 0)
+          sprintf(title, "ECAL energy for %s (All) Final Selection", CalibPlots::getTitle(3).c_str());
+        else
+          sprintf(title,
+                  "ECAL energy for %s (|#eta| = %d:%d) Final Selection",
+                  CalibPlots::getTitle(3).c_str(),
+                  CalibPlots::getEta(j - 1),
+                  CalibPlots::getEta(j));
+        hist->GetXaxis()->SetTitle(title);
+        PlotThisHist(hist, text, isRealData, save);
+      }
     }
+
     for (int j = 1; j < CalibPlots::netabin; ++j) {
       for (int k = 0; k < CalibPlots::ndepth; ++k) {
         sprintf(name, "%sEnergyDepth%dEta%d", prefix.c_str(), k, j);
@@ -1833,6 +1986,49 @@ void PlotHist(const char *hisFileName,
       hist = (TH1D *)(file->FindObjectAny(name));
       if (hist != nullptr) {
         sprintf(title, "#RecHits in depth %d (Endcap)", i + 1);
+        hist->GetXaxis()->SetTitle(title);
+        PlotThisHist(hist, text, isRealData, save);
+      }
+ 
+      sprintf(name, "b_edepthX%d", i);
+      hist = (TH1D *)(file->FindObjectAny(name));
+      if (hist != nullptr) {
+        sprintf(title, "Total RecHit energy in depth %d (Barrel) Final Selection", i + 1);
+        hist->GetXaxis()->SetTitle(title);
+        PlotThisHist(hist, text, isRealData, save);
+      }
+      sprintf(name, "b_recedepthX%d", i);
+      hist = (TH1D *)(file->FindObjectAny(name));
+      if (hist != nullptr) {
+        sprintf(title, "RecHit energy in depth %d (Barrel) Final Selection", i + 1);
+        hist->GetXaxis()->SetTitle(title);
+        PlotThisHist(hist, text, isRealData, save);
+      }
+      sprintf(name, "b_nrecdepthX%d", i);
+      hist = (TH1D *)(file->FindObjectAny(name));
+      if (hist != nullptr) {
+        sprintf(title, "#RecHits in depth %d (Barrel) Final Selection", i + 1);
+        hist->GetXaxis()->SetTitle(title);
+        PlotThisHist(hist, text, isRealData, save);
+      }
+      sprintf(name, "e_edepthX%d", i);
+      hist = (TH1D *)(file->FindObjectAny(name));
+      if (hist != nullptr) {
+        sprintf(title, "Total RecHit energy in depth %d (Endcap) Final Selection", i + 1);
+        hist->GetXaxis()->SetTitle(title);
+        PlotThisHist(hist, text, isRealData, save);
+      }
+      sprintf(name, "e_recedepthX%d", i);
+      hist = (TH1D *)(file->FindObjectAny(name));
+      if (hist != nullptr) {
+        sprintf(title, "RecHit energy in depth %d (Endcap) Final Selection", i + 1);
+        hist->GetXaxis()->SetTitle(title);
+        PlotThisHist(hist, text, isRealData, save);
+      }
+      sprintf(name, "e_nrecdepthX%d", i);
+      hist = (TH1D *)(file->FindObjectAny(name));
+      if (hist != nullptr) {
+        sprintf(title, "#RecHits in depth %d (Endcap) Final Selection", i + 1);
         hist->GetXaxis()->SetTitle(title);
         PlotThisHist(hist, text, isRealData, save);
       }
@@ -2237,6 +2433,61 @@ void PlotTwoHists(const char *infile1,
           hist2->GetXaxis()->SetTitle(title);
           PlotTheseHists(name, hist1, prefix1, text1, hist2, prefix2, text2, isRealData, normalize, save);
         }
+
+        sprintf(name, "%senergyHX%d", prefix1.c_str(), j);
+        hist1 = (TH1D *)(file1->FindObjectAny(name));
+        sprintf(name, "%senergyHX%d", prefix2.c_str(), j);
+        hist2 = (TH1D *)(file2->FindObjectAny(name));
+        sprintf(name, "energyHX%d", j);
+        if ((hist1 != nullptr) && (hist2 != nullptr)) {
+          if (j == 0)
+            sprintf(title, "HCAL energy for %s (All) Final Selection", CalibPlots::getTitle(3).c_str());
+          else
+            sprintf(title,
+                    "HCAL energy for %s (|#eta| = %d:%d) Final Selection",
+                    CalibPlots::getTitle(3).c_str(),
+                    CalibPlots::getEta(j - 1),
+                    CalibPlots::getEta(j));
+          hist1->GetXaxis()->SetTitle(title);
+          hist2->GetXaxis()->SetTitle(title);
+          PlotTheseHists(name, hist1, prefix1, text1, hist2, prefix2, text2, isRealData, normalize, save);
+        }
+        sprintf(name, "%senergyPX%d", prefix1.c_str(), j);
+        hist1 = (TH1D *)(file1->FindObjectAny(name));
+        sprintf(name, "%senergyPX%d", prefix2.c_str(), j);
+        hist2 = (TH1D *)(file2->FindObjectAny(name));
+        sprintf(name, "energyPX%d", j);
+        if ((hist1 != nullptr) && (hist2 != nullptr)) {
+          if (j == 0)
+            sprintf(title, "Track momentum for %s (All) Final Selection", CalibPlots::getTitle(3).c_str());
+          else
+            sprintf(title,
+                    "Track momentum for %s (|#eta| = %d:%d) Final Selection",
+                    CalibPlots::getTitle(3).c_str(),
+                    CalibPlots::getEta(j - 1),
+                    CalibPlots::getEta(j));
+          hist1->GetXaxis()->SetTitle(title);
+          hist2->GetXaxis()->SetTitle(title);
+          PlotTheseHists(name, hist1, prefix1, text1, hist2, prefix2, text2, isRealData, normalize, save);
+        }
+        sprintf(name, "%senergyEX%d", prefix1.c_str(), j);
+        hist1 = (TH1D *)(file1->FindObjectAny(name));
+        sprintf(name, "%senergyEX%d", prefix2.c_str(), j);
+        hist2 = (TH1D *)(file2->FindObjectAny(name));
+        sprintf(name, "energyEX%d", j);
+        if ((hist1 != nullptr) && (hist2 != nullptr)) {
+          if (j == 0)
+            sprintf(title, "ECAL energy for %s (All) Final Selection", CalibPlots::getTitle(3).c_str());
+          else
+            sprintf(title,
+                    "ECAL energy for %s (|#eta| = %d:%d) Final Selection",
+                    CalibPlots::getTitle(3).c_str(),
+                    CalibPlots::getEta(j - 1),
+                    CalibPlots::getEta(j));
+          hist1->GetXaxis()->SetTitle(title);
+          hist2->GetXaxis()->SetTitle(title);
+          PlotTheseHists(name, hist1, prefix1, text1, hist2, prefix2, text2, isRealData, normalize, save);
+        }
       }
     }
 
@@ -2321,6 +2572,67 @@ void PlotTwoHists(const char *infile1,
       sprintf(name, "eNrecdepth%d", i);
       if ((hist1 != nullptr) && (hist2 != nullptr)) {
         sprintf(title, "#RecHits in depth %d (Endcap)", i + 1);
+        hist1->GetXaxis()->SetTitle(title);
+        hist2->GetXaxis()->SetTitle(title);
+        PlotTheseHists(name, hist1, prefix1, text1, hist2, prefix2, text2, isRealData, normalize, save);
+      }
+
+      sprintf(name, "b_edepthX%d", i);
+      hist1 = (TH1D *)(file1->FindObjectAny(name));
+      hist2 = (TH1D *)(file2->FindObjectAny(name));
+      sprintf(name, "bEdepthX%d", i);
+      if ((hist1 != nullptr) && (hist2 != nullptr)) {
+        sprintf(title, "Total RecHit energy in depth %d (Barrel) Final Selection", i + 1);
+        hist1->GetXaxis()->SetTitle(title);
+        hist2->GetXaxis()->SetTitle(title);
+        PlotTheseHists(name, hist1, prefix1, text1, hist2, prefix2, text2, isRealData, normalize, save);
+      }
+      sprintf(name, "b_recedepthX%d", i);
+      hist1 = (TH1D *)(file1->FindObjectAny(name));
+      hist2 = (TH1D *)(file2->FindObjectAny(name));
+      sprintf(name, "bRecedepthX%d", i);
+      if ((hist1 != nullptr) && (hist2 != nullptr)) {
+        sprintf(title, "RecHit energy in depth %d (Barrel) Final Selection", i + 1);
+        hist1->GetXaxis()->SetTitle(title);
+        hist2->GetXaxis()->SetTitle(title);
+        PlotTheseHists(name, hist1, prefix1, text1, hist2, prefix2, text2, isRealData, normalize, save);
+      }
+      sprintf(name, "b_nrecdepthX%d", i);
+      hist1 = (TH1D *)(file1->FindObjectAny(name));
+      hist2 = (TH1D *)(file2->FindObjectAny(name));
+      sprintf(name, "bNrecdepthX%d", i);
+      if ((hist1 != nullptr) && (hist2 != nullptr)) {
+        sprintf(title, "#RecHits in depth %d (Barrel) Final Selection", i + 1);
+        hist1->GetXaxis()->SetTitle(title);
+        hist2->GetXaxis()->SetTitle(title);
+        PlotTheseHists(name, hist1, prefix1, text1, hist2, prefix2, text2, isRealData, normalize, save);
+      }
+      sprintf(name, "e_edepthX%d", i);
+      hist1 = (TH1D *)(file1->FindObjectAny(name));
+      hist2 = (TH1D *)(file2->FindObjectAny(name));
+      sprintf(name, "eEdepthX%d", i);
+      if ((hist1 != nullptr) && (hist2 != nullptr)) {
+        sprintf(title, "Total RecHit energy in depth %d (Endcap) Final Selection", i + 1);
+        hist1->GetXaxis()->SetTitle(title);
+        hist2->GetXaxis()->SetTitle(title);
+        PlotTheseHists(name, hist1, prefix1, text1, hist2, prefix2, text2, isRealData, normalize, save);
+      }
+      sprintf(name, "e_recedepthX%d", i);
+      hist1 = (TH1D *)(file1->FindObjectAny(name));
+      hist2 = (TH1D *)(file2->FindObjectAny(name));
+      sprintf(name, "eRecedepthX%d", i);
+      if ((hist1 != nullptr) && (hist2 != nullptr)) {
+        sprintf(title, "RecHit energy in depth %d (Endcap) Final Selection", i + 1);
+        hist1->GetXaxis()->SetTitle(title);
+        hist2->GetXaxis()->SetTitle(title);
+        PlotTheseHists(name, hist1, prefix1, text1, hist2, prefix2, text2, isRealData, normalize, save);
+      }
+      sprintf(name, "e_nrecdepthX%d", i);
+      hist1 = (TH1D *)(file1->FindObjectAny(name));
+      hist2 = (TH1D *)(file2->FindObjectAny(name));
+      sprintf(name, "eNrecdepthX%d", i);
+      if ((hist1 != nullptr) && (hist2 != nullptr)) {
+        sprintf(title, "#RecHits in depth %d (Endcap) Final Selection", i + 1);
         hist1->GetXaxis()->SetTitle(title);
         hist2->GetXaxis()->SetTitle(title);
         PlotTheseHists(name, hist1, prefix1, text1, hist2, prefix2, text2, isRealData, normalize, save);
