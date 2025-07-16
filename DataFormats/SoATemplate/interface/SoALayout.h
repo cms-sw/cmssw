@@ -105,34 +105,7 @@ namespace cms::soa {
 
 // clang-format off
 #define _DECLARE_SOA_STREAM_INFO_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                                \
-  _SWITCH_ON_TYPE(                                                                                                     \
-      VALUE_TYPE,                                                                                                      \
-      /* Dump scalar */                                                                                                \
-      _soa_impl_os << " Scalar " BOOST_PP_STRINGIZE(NAME) " at offset " << _soa_impl_offset                            \
-         << " has size " << sizeof(CPP_TYPE)                                                                           \
-         << " and padding " << ((sizeof(CPP_TYPE) - 1) / alignment + 1) * alignment - sizeof(CPP_TYPE)                 \
-         << std::endl;                                                                                                 \
-      _soa_impl_offset += ((sizeof(CPP_TYPE) - 1) / alignment + 1) * alignment;                                        \
-      ,                                                                                                                \
-      /* Dump column */                                                                                                \
-      _soa_impl_os << " Column " BOOST_PP_STRINGIZE(NAME) " at offset " << _soa_impl_offset << " has size "            \
-         << sizeof(CPP_TYPE) * elements_ << " and padding "                                                            \
-         << cms::soa::alignSize(elements_ * sizeof(CPP_TYPE), alignment) - (elements_ * sizeof(CPP_TYPE))              \
-         << std::endl;                                                                                                 \
-      _soa_impl_offset += cms::soa::alignSize(elements_ * sizeof(CPP_TYPE), alignment);                                \
-      ,                                                                                                                \
-      /* Dump Eigen column */                                                                                          \
-      _soa_impl_os << " Eigen value " BOOST_PP_STRINGIZE(NAME) " at offset " << _soa_impl_offset << " has dimension "  \
-         << "(" << CPP_TYPE::RowsAtCompileTime << " x " << CPP_TYPE::ColsAtCompileTime << ")"                          \
-         << " and per column size "                                                                                    \
-         << sizeof(CPP_TYPE::Scalar) * elements_                                                                       \
-         << " and padding "                                                                                            \
-         << cms::soa::alignSize(elements_ * sizeof(CPP_TYPE::Scalar), alignment)                                       \
-            - (elements_ * sizeof(CPP_TYPE::Scalar))                                                                   \
-         << std::endl;                                                                                                 \
-      _soa_impl_offset += cms::soa::alignSize(elements_ * sizeof(CPP_TYPE::Scalar), alignment)                         \
-                * CPP_TYPE::RowsAtCompileTime * CPP_TYPE::ColsAtCompileTime;                                           \
-  )
+  cms::soa::printColumn(_soa_impl_os, ConstView::BOOST_PP_CAT(NAME, Parameters_), BOOST_PP_STRINGIZE(NAME), _soa_impl_offset, elements_, alignment);
 // clang-format on
 
 #define _DECLARE_SOA_STREAM_INFO(R, DATA, TYPE_NAME)                                        \
@@ -147,23 +120,12 @@ namespace cms::soa {
 #define _DEFINE_METADATA_MEMBERS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                                \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar */                                                                                                     \
-      byte_size_type BOOST_PP_CAT(NAME, Pitch()) const {                                                               \
-        return cms::soa::alignSize(sizeof(CPP_TYPE), ParentClass::alignment);                                          \
-      }                                                                                                                \
       constexpr static cms::soa::SoAColumnType BOOST_PP_CAT(ColumnTypeOf_, NAME) = cms::soa::SoAColumnType::scalar;    \
-      SOA_HOST_DEVICE SOA_INLINE                                                                                       \
-      CPP_TYPE const* BOOST_PP_CAT(addressOf_, NAME)() const {                                                         \
-        return parent_.metadata().BOOST_PP_CAT(parametersOf_, NAME)().addr_;                                           \
-      }                                                                                                                \
       using BOOST_PP_CAT(ParametersTypeOf_, NAME) =                                                                    \
         cms::soa::SoAParameters_ColumnType<cms::soa::SoAColumnType::scalar>::DataType<CPP_TYPE>;                       \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
       BOOST_PP_CAT(ParametersTypeOf_, NAME) BOOST_PP_CAT(parametersOf_, NAME)() const {                                \
         return  BOOST_PP_CAT(ParametersTypeOf_, NAME) (parent_.BOOST_PP_CAT(NAME, _));                                 \
-      }                                                                                                                \
-      SOA_HOST_DEVICE SOA_INLINE                                                                                       \
-      CPP_TYPE* BOOST_PP_CAT(addressOf_, NAME)() {                                                                     \
-        return parent_.metadata().BOOST_PP_CAT(parametersOf_, NAME)().addr_;                                           \
       },                                                                                                               \
       /* Column */                                                                                                     \
       using BOOST_PP_CAT(ParametersTypeOf_, NAME) =                                                                    \
@@ -171,18 +133,6 @@ namespace cms::soa {
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
       BOOST_PP_CAT(ParametersTypeOf_, NAME) BOOST_PP_CAT(parametersOf_, NAME)() const {                                \
         return  BOOST_PP_CAT(ParametersTypeOf_, NAME) (parent_.BOOST_PP_CAT(NAME, _));                                 \
-      }                                                                                                                \
-      SOA_HOST_DEVICE SOA_INLINE                                                                                       \
-      CPP_TYPE const* BOOST_PP_CAT(addressOf_, NAME)() const {                                                         \
-        return parent_.metadata().BOOST_PP_CAT(parametersOf_, NAME)().addr_;                                           \
-      }                                                                                                                \
-      SOA_HOST_DEVICE SOA_INLINE                                                                                       \
-      CPP_TYPE* BOOST_PP_CAT(addressOf_, NAME)() {                                                                     \
-        return parent_.metadata().BOOST_PP_CAT(parametersOf_, NAME)().addr_;                                           \
-      }                                                                                                                \
-      SOA_HOST_DEVICE SOA_INLINE                                                                                       \
-      byte_size_type BOOST_PP_CAT(NAME, Pitch()) const {                                                               \
-        return cms::soa::alignSize(parent_.elements_ * sizeof(CPP_TYPE), ParentClass::alignment);                      \
       }                                                                                                                \
       constexpr static cms::soa::SoAColumnType BOOST_PP_CAT(ColumnTypeOf_, NAME) = cms::soa::SoAColumnType::column;,   \
       /* Eigen column */                                                                                               \
@@ -194,22 +144,21 @@ namespace cms::soa {
           parent_.BOOST_PP_CAT(NAME, _),                                                                               \
           parent_.BOOST_PP_CAT(NAME, Stride_));                                                                        \
       }                                                                                                                \
-      SOA_HOST_DEVICE SOA_INLINE                                                                                       \
-      byte_size_type BOOST_PP_CAT(NAME, Pitch()) const {                                                               \
-        return cms::soa::alignSize(parent_.elements_ * sizeof(CPP_TYPE::Scalar), ParentClass::alignment)               \
-              * CPP_TYPE::RowsAtCompileTime * CPP_TYPE::ColsAtCompileTime;                                             \
-      }                                                                                                                \
       constexpr static cms::soa::SoAColumnType BOOST_PP_CAT(ColumnTypeOf_, NAME) = cms::soa::SoAColumnType::eigen;     \
-      SOA_HOST_DEVICE SOA_INLINE                                                                                       \
-      CPP_TYPE::Scalar const* BOOST_PP_CAT(addressOf_, NAME)() const {                                                 \
-        return parent_.metadata().BOOST_PP_CAT(parametersOf_, NAME)().addr_;                                           \
-      }                                                                                                                \
-      SOA_HOST_DEVICE SOA_INLINE                                                                                       \
-      CPP_TYPE::Scalar* BOOST_PP_CAT(addressOf_, NAME)() {                                                             \
-        return parent_.metadata().BOOST_PP_CAT(parametersOf_, NAME)().addr_;                                           \
-      }                                                                                                                \
-  )
-// clang-format on
+  )																													   \
+  SOA_HOST_DEVICE SOA_INLINE                                                                                       	   \
+  auto* BOOST_PP_CAT(addressOf_, NAME)() {                                                                     		   \
+	return parent_.metadata().BOOST_PP_CAT(parametersOf_, NAME)().addr_;                                           	   \
+  }                                                                                                               	   \
+  SOA_HOST_DEVICE SOA_INLINE                                                                                       	   \
+  const auto* BOOST_PP_CAT(addressOf_, NAME)() const {                                                         		   \
+	return parent_.metadata().BOOST_PP_CAT(parametersOf_, NAME)().addr_;                                           	   \
+  } 																												   \
+  byte_size_type BOOST_PP_CAT(NAME, Pitch()) const {                                                               	   \
+	return cms::soa::computePitch(parent_.metadata().BOOST_PP_CAT(parametersOf_, NAME)(),							   \
+						ParentClass::alignment, parent_.elements_);													   \
+  } \
+  // clang-format on
 
 #define _DEFINE_METADATA_MEMBERS(R, DATA, TYPE_NAME)                                        \
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
@@ -221,16 +170,7 @@ namespace cms::soa {
  */
 // clang-format off
 #define _DECLARE_CONST_DESCRIPTOR_SPANS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                        \
-  _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                         \
-    /* Scalar */                                                                                                      \
-    (std::span<std::add_const_t<CPP_TYPE>>)                                                                           \
-    ,                                                                                                                 \
-    /* Column */                                                                                                      \
-    (std::span<std::add_const_t<CPP_TYPE>>)                                                                           \
-    ,                                                                                                                 \
-    /* Eigen column*/                                                                                                 \
-    (std::span<std::add_const_t<CPP_TYPE::Scalar>>)                                                                   \
-  )
+  (typename cms::soa::getConstSpanType<typename Metadata::BOOST_PP_CAT(ParametersTypeOf_, NAME)>::type)
 // clang-format on
 
 #define _DECLARE_CONST_DESCRIPTOR_SPANS(R, DATA, TYPE_NAME)                                 \
@@ -243,16 +183,7 @@ namespace cms::soa {
  */
 // clang-format off
 #define _DECLARE_DESCRIPTOR_SPANS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                              \
-  _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                         \
-    /* Scalar */                                                                                                      \
-    (std::span<CPP_TYPE>)                                                                                             \
-    ,                                                                                                                 \
-    /* Column */                                                                                                      \
-    (std::span<CPP_TYPE>)                                                                                             \
-    ,                                                                                                                 \
-    /* Eigen column */                                                                                                \
-    (std::span<CPP_TYPE::Scalar>)                                                                                     \
-  )
+  (typename cms::soa::getSpanType<typename Metadata::BOOST_PP_CAT(ParametersTypeOf_, NAME)>::type)
 // clang-format on
 
 #define _DECLARE_DESCRIPTOR_SPANS(R, DATA, TYPE_NAME)                                       \
@@ -264,22 +195,8 @@ namespace cms::soa {
  * Build the spans of the (const) descriptor from a (const) view 
  */
 // clang-format off
-#define _ASSIGN_SPAN_TO_COLUMNS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                                \
-  _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                         \
-    /* Scalar */                                                                                                      \
-    (std::span(view.metadata().BOOST_PP_CAT(addressOf_, NAME)(),                                                      \
-                    cms::soa::alignSize(sizeof(CPP_TYPE), alignment) / sizeof(CPP_TYPE)))                             \
-    ,                                                                                                                 \
-    /* Column */                                                                                                      \
-    (std::span(view.metadata().BOOST_PP_CAT(addressOf_, NAME)(),                                                      \
-                    cms::soa::alignSize(view.metadata().size() * sizeof(CPP_TYPE), alignment) / sizeof(CPP_TYPE)))    \
-    ,                                                                                                                 \
-    /* Eigen column */                                                                                                \
-    (std::span(view.metadata().BOOST_PP_CAT(addressOf_, NAME)(),                                                      \
-                    cms::soa::alignSize(view.metadata().size() * sizeof(CPP_TYPE::Scalar), alignment) *               \
-                        CPP_TYPE::RowsAtCompileTime * CPP_TYPE::ColsAtCompileTime / sizeof(CPP_TYPE::Scalar)))        \
-  )
-// clang-format on
+#define _ASSIGN_SPAN_TO_COLUMNS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                                		   \
+    (cms::soa::assignSpanToColumn(view.metadata().BOOST_PP_CAT(parametersOf_, NAME)(), view.metadata().size(), alignment))  // clang-format on
 
 #define _ASSIGN_SPAN_TO_COLUMNS(R, DATA, TYPE_NAME)                                         \
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
@@ -456,17 +373,7 @@ namespace cms::soa {
  */
 // clang-format off
 #define _ACCUMULATE_SOA_ELEMENT_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                                 \
-  _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
-      /* Scalar */                                                                                                     \
-      _soa_impl_ret += cms::soa::alignSize(sizeof(CPP_TYPE), alignment);                                               \
-      ,                                                                                                                \
-      /* Column */                                                                                                     \
-      _soa_impl_ret += cms::soa::alignSize(elements * sizeof(CPP_TYPE), alignment);                                    \
-      ,                                                                                                                \
-      /* Eigen column */                                                                                               \
-      _soa_impl_ret += cms::soa::alignSize(elements * sizeof(CPP_TYPE::Scalar), alignment)                             \
-             * CPP_TYPE::RowsAtCompileTime * CPP_TYPE::ColsAtCompileTime;                                              \
-  )
+  _soa_impl_ret += cms::soa::AccumulateSoAElements<BOOST_PP_CAT(typename Metadata::ParametersTypeOf_, NAME)>{}(elements, alignment);
 // clang-format on
 
 #define _ACCUMULATE_SOA_ELEMENT(R, DATA, TYPE_NAME)                                         \
@@ -531,7 +438,7 @@ namespace cms::soa {
  */
 // clang-format off
 #define _STREAMER_READ_SOA_DATA_MEMBER_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                          \
-  _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
+    _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                        \
       /* Scalar */                                                                                                     \
       memcpy(BOOST_PP_CAT(NAME, _), onfile.BOOST_PP_CAT(NAME, _), sizeof(CPP_TYPE));                                   \
       ,                                                                                                                \
@@ -541,7 +448,7 @@ namespace cms::soa {
       /* Eigen column */                                                                                               \
       memcpy(BOOST_PP_CAT(NAME, _), onfile.BOOST_PP_CAT(NAME, _),                                                      \
         sizeof(CPP_TYPE::Scalar) * BOOST_PP_CAT(NAME, ElementsWithPadding_));                                          \
-  )
+	)
 // clang-format on
 
 #define _STREAMER_READ_SOA_DATA_MEMBER(R, DATA, TYPE_NAME)                                  \
@@ -1744,6 +1651,8 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
     size_type elements_;                                                                                               \
     size_type const scalar_ = 1;                                                                                       \
     byte_size_type byteSize_ EDM_REFLEX_TRANSIENT;                                                                     \
+	/* TODO: The layout will contain SoAParametersImpl as members for the columns, which will allow the use of   	   \
+	 * more template helper functions. */																			   \
     _ITERATE_ON_ALL(_DECLARE_SOA_DATA_MEMBER, ~, __VA_ARGS__)                                                          \
     /* Making the code conditional is problematic in macros as the commas will interfere with parameter lisings     */ \
     /* So instead we make the code unconditional with paceholder names which are protected by a private protection. */ \
