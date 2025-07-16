@@ -51,6 +51,9 @@ public:
 
   // Receiver-side
   void receiveMetadata(MPI_Message message, int size);
+  
+  // Not memory safe for trivial copy products. 
+  // Please make sure that ProductMetadataBuilder lives longer than returned ProductMetadata
   ProductMetadata getNext();
 
   void debugPrintMetadataSummary() const;
@@ -76,6 +79,7 @@ private:
 
   template <typename T>
   T consume() {
+    static_assert(std::is_trivially_copyable_v<T>);
     if (readOffset_ + sizeof(T) > size_)
       throw std::runtime_error("Buffer underflow");
     T val;
