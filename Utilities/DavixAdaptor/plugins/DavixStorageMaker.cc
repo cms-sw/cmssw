@@ -15,10 +15,8 @@ namespace edm::storage {
                                   const std::string &path,
                                   int mode,
                                   AuxSettings const &aux) const override {
-      const StorageFactory *f = StorageFactory::get();
       std::string newurl((proto == "web" ? "http" : proto) + ":" + path);
-      auto file = std::make_unique<DavixFile>(newurl, mode);
-      return f->wrapNonLocalFile(std::move(file), proto, std::string(), mode);
+      return std::make_unique<DavixFile>(newurl, mode);
     }
 
     bool check(const std::string &proto,
@@ -43,6 +41,8 @@ namespace edm::storage {
       }
       return true;
     }
+
+    UseLocalFile usesLocalFile() const override { return UseLocalFile::kNo; }
   };
 }  // namespace edm::storage
 

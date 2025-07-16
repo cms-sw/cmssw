@@ -439,6 +439,15 @@ namespace l1t::demo {
     //     5 -> RSV1
     //     6 -> RSV2
     //     7 -> RSV3
+    //   Current (March 2025)
+    //     0 -> FFO (First Frame of Orbit)
+    //     1 -> SOF (Start Of Frame)
+    //     2 -> EOF (End Of Frame)
+    //     3 -> Valid
+    //     4 -> CRCSTRB (Strobe that marks the position of the CRC error bit)
+    //     5 -> CRCERR (Marks CRC error)
+    //     6 -> THROTTLE (Marks a throttled word, applicable for mixed 320/360MHz systems)
+    //     7 -> RSV3
 
     file << std::setfill('0');
     file << "#Sideband ON" << std::endl;
@@ -461,9 +470,10 @@ namespace l1t::demo {
       for (const auto& channel : data) {
         //const auto j = channel.first;
         const auto channelData = channel.second;
-        uint16_t sideband = channelData.at(i).valid;
+        uint16_t sideband = channelData.at(i).startOfOrbit;
         sideband |= channelData.at(i).startOfPacket << 1;
-        sideband |= channelData.at(i).endOfPacket << 3;
+        sideband |= channelData.at(i).endOfPacket << 2;
+        sideband |= channelData.at(i).valid << 3;
         file << "    0x" << std::setw(2) << sideband;
         file << " 0x" << std::setw(16) << uint64_t(channelData.at(i).data);
       }

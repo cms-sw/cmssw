@@ -4,6 +4,7 @@
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
 #include "Utilities/StorageFactory/interface/StatisticsSenderService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/ExceptionPropagate.h"
 #include "ReadRepacker.h"
@@ -99,7 +100,7 @@ static inline StorageAccount::Counter &storageCounter(std::atomic<StorageAccount
   return *c.load();
 }
 
-TStorageFactoryFile::TStorageFactoryFile(void) : storage_() {
+TStorageFactoryFile::TStorageFactoryFile() : storage_(), token_(edm::ServiceRegistry::instance().presentToken()) {
   StorageAccount::Stamp stats(storageCounter(s_statsCtor, StorageAccount::Operation::construct));
   stats.tick(0);
 }
@@ -198,6 +199,7 @@ void TStorageFactoryFile::Initialize(const char *path, Option_t *option /* = "" 
   }
 
   // Record the statistics.
+  token_ = edm::ServiceRegistry::instance().presentToken();
   try {
     edm::Service<edm::storage::StatisticsSenderService> statsService;
     if (statsService.isAvailable()) {
@@ -227,6 +229,7 @@ TStorageFactoryFile::~TStorageFactoryFile(void) { Close(); }
 Bool_t TStorageFactoryFile::ReadBuffer(char *buf, Long64_t pos, Int_t len) {
   // This function needs to be optimized to minimize seeks.
   // See TFile::ReadBuffer(char *buf, Long64_t pos, Int_t len) in ROOT 5.27.06.
+  edm::ServiceRegistry::Operate operate(token_.lock());
   Seek(pos);
   return ReadBuffer(buf, len);
 }
@@ -252,6 +255,8 @@ Bool_t TStorageFactoryFile::ReadBuffer(char *buf, Int_t len) {
   // cache (excluding those recursive reads), and "readx" counts
   // the amount actually passed to read from the storage object.
   StorageAccount::Stamp stats(storageCounter(s_statsRead, StorageAccount::Operation::read));
+
+  edm::ServiceRegistry::Operate operate(token_.lock());
 
   // If we have a cache, read from there first.  This returns 0
   // if the block hasn't been prefetched, 1 if it was in cache,
@@ -326,6 +331,8 @@ Bool_t TStorageFactoryFile::ReadBufferAsync(Long64_t off, Int_t len) {
   }
 
   StorageAccount::Stamp stats(storageCounter(s_statsARead, StorageAccount::Operation::readAsync));
+
+  edm::ServiceRegistry::Operate operate(token_.lock());
 
   // If asynchronous reading is disabled, bail out now, regardless
   // whether the underlying storage supports prefetching.  If it is
@@ -447,6 +454,8 @@ Bool_t TStorageFactoryFile::ReadBuffers(char *buf, Long64_t *pos, Int_t *len, In
     return kTRUE;
   }
 
+  edm::ServiceRegistry::Operate operate(token_.lock());
+
   // For synchronous reads, we have special logic to optimize the I/O requests
   // from ROOT before handing it to the storage.
   if (buf) {
@@ -499,6 +508,8 @@ Bool_t TStorageFactoryFile::WriteBuffer(const char *buf, Int_t len) {
     Error("WriteBuffer", "File is not writable");
     return kTRUE;
   }
+
+  edm::ServiceRegistry::Operate operate(token_.lock());
 
   StorageAccount::Stamp stats(storageCounter(s_statsWrite, StorageAccount::Operation::write));
   StorageAccount::Stamp cstats(storageCounter(s_statsCWrite, StorageAccount::Operation::writeViaCache));
@@ -588,6 +599,8 @@ Long64_t TStorageFactoryFile::SysSeek(Int_t /* fd */, Long64_t offset, Int_t whe
   StorageAccount::Stamp stats(storageCounter(s_statsSeek, StorageAccount::Operation::seek));
   Storage::Relative rel = (whence == SEEK_SET ? Storage::SET : whence == SEEK_CUR ? Storage::CURRENT : Storage::END);
 
+  edm::ServiceRegistry::Operate operate(token_.lock());
+
   offset = storage_->position(offset, rel);
   stats.tick();
   return offset;
@@ -595,6 +608,8 @@ Long64_t TStorageFactoryFile::SysSeek(Int_t /* fd */, Long64_t offset, Int_t whe
 
 Int_t TStorageFactoryFile::SysSync(Int_t /* fd */) {
   StorageAccount::Stamp stats(storageCounter(s_statsFlush, StorageAccount::Operation::flush));
+  edm::ServiceRegistry::Operate operate(token_.lock());
+
   storage_->flush();
   stats.tick();
   return 0;

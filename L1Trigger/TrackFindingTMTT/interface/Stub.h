@@ -69,6 +69,19 @@ namespace tmtt {
          const DegradeBend* degradeBend,
          const StubKiller* stubKiller);
 
+    // KF emualtor: stub constructor
+    Stub(const TTStubRef& ttStubRef,
+         double r,
+         double phi,
+         double z,
+         int layerId,
+         int layerIdReduced,
+         double stripPitch,
+         double stripLength,
+         bool psModule,
+         bool barrel,
+         bool tiltedBarrel);
+
     bool operator==(const Stub& stubOther) { return (this->index() == stubOther.index()); }
 
     // Return reference to original TTStub.

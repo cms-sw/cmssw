@@ -278,6 +278,12 @@ void Phase2GCTBarrelToCorrelatorLayer1::produce(edm::Event& iEvent, const edm::E
           iEta = std::abs(temp_iEta_signed + 1);
         }
 
+        // Don't add clusters that are outside the eta range. Eta is stored in 7 bits
+        constexpr int maxEta = 0x7f;
+        if (iEta > maxEta) {
+          continue;
+        }
+
         // Initialize the new cluster
         l1tp2::GCTHadDigiCluster pfOut =
             l1tp2::GCTHadDigiCluster(pfIn.clusterEt() / p2eg::ECAL_LSB,  // convert to integer

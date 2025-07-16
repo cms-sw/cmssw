@@ -142,8 +142,6 @@ namespace edm {
       std::shared_ptr<const void> sigFpeHandler_;
     };
 
-    inline bool isProcessWideService(InitRootHandlers const*) { return true; }
-
   }  // end of namespace service
 }  // end of namespace edm
 

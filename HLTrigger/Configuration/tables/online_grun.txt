@@ -232,6 +232,7 @@ HLT_Dimuon0_Upsilon_L1_4p5_v*	#	CMSHLT-1298
 HLT_Dimuon0_Upsilon_L1_4p5er2p0_v*	#	CMSHLT-1298
 HLT_Dimuon0_Upsilon_L1_4p5er2p0M_v*	#	CMSHLT-1298
 HLT_Dimuon0_Upsilon_NoVertexing_v*	#	CMSHLT-1298
+HLT_Dimuon0_Upsilon_v*                  # CMSHLT-3568
 HLT_DoubleMu2_Jpsi_LowPt_v*             # CMSHLT-3065
 HLT_DoubleMu4_3_LowMass_SS_v*           # CMSHLT-3069
 HLT_DoubleMu4_Jpsi_Displaced_v*	#	CMSHLT-1298
@@ -794,6 +795,8 @@ PhysicsCommissioningOutput
 PhysicsBTagMuEGTauOutput               # CMSHLT-3487
 PhysicsEGamma0Output                   # CMSHLT-2596
 PhysicsEGamma1Output                   # CMSHLT-2596
+PhysicsEGamma2Output                   # CMSHLT-3549
+PhysicsEGamma3Output                   # CMSHLT-3549
 PhysicsJetMET0Output                   # CMSHLT-2431, CMSHLT-2596
 PhysicsJetMET1Output                   # CMSHLT-2431, CMSHLT-2596
 PhysicsMuon0Output                     # CMSHLT-2431, CMSHLT-2596
@@ -805,6 +808,7 @@ DQMCalibrationOutput
 DQMEventDisplayOutput
 DQMGPUvsCPUOutput       # CMSHLT-2287
 DQMOnlineBeamspotOutput # CMSHLT-1288
+DQMOnlineScoutingOutput # CMSHLT-3571
 DQMPPSRandomOutput      # CMSHLT-2606, CMSHLT-2728
 HLTMonitorOutput        # CMSHLT-462, CMSHLT-481
 CalibrationOutput

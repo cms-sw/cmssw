@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from ..sequences.HLTHgcalLocalRecoSequence_cfi import *
+from ..sequences.HLTTICLLocalRecoSequence_cfi import *
 from ..sequences.HLTAK4PFJetsReconstruction_cfi import *
 from ..sequences.HLTBeginSequence_cfi import *
 from ..sequences.HLTEndSequence_cfi import *
@@ -35,8 +35,8 @@ HLT_IsoMu20_eta2p1_LooseDeepTauPFTauHPS27_eta2p1_CrossL1 = cms.Path(
     HLTBeginSequence
     + hltPuppiTauTkMuon4218L1TkFilter
     + HLTRawToDigiSequence
-    + HLTHgcalLocalRecoSequence
     + HLTLocalrecoSequence
+    + HLTTICLLocalRecoSequence
     + HLTTrackingSequence
     + HLTMuonsSequence
     + HLTParticleFlowSequence

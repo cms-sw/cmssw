@@ -42,10 +42,13 @@ int main(int argc, char* argv[]) {
       "JSON,j", "JSON output format.  Any arguments listed below are ignored")("ls,l", "list file content")(
       "map,m", "Print TFile::Map(\"extended\"). The output can be HUGE.")("print,P", "Print all")(
       "verbose,v", "Verbose printout")("printBranchDetails,b", "Call Print()sc for all branches")(
+      "printBaskets",
+      boost::program_options::value<std::string>(),
+      "Print detailed information about baskets and clusters for the given branch")(
       "printClusters", "Print detailed information about baskets and clusters for all branches")(
       "tree,t",
       boost::program_options::value<std::string>(),
-      "Select tree used with -P, -b, and --printClusters options")(
+      "Select tree used with -P, -b, --printClusters, and --printBaskets options")(
       "events,e",
       "Print list of all Events, Runs, and LuminosityBlocks in the file sorted by run number, luminosity block number, "
       "and event number.  Also prints the entry numbers and whether it is possible to use fast copy with the file.")(
@@ -114,6 +117,7 @@ int main(int argc, char* argv[]) {
     bool print = more && (vm.count("print") > 0 ? true : false);
     bool printBranchDetails = more && (vm.count("printBranchDetails") > 0 ? true : false);
     bool printClusters = more && (vm.count("printClusters") > 0 ? true : false);
+    std::string printBaskets = (vm.count("printBaskets") ? vm["printBaskets"].as<std::string>() : std::string());
     bool onlyDecodeLFN =
         decodeLFN && !(uuid || adler32 || allowRecovery || json || events || tree || ls || print || printBranchDetails);
     std::string selectedTree = tree ? vm["tree"].as<std::string>() : edm::poolNames::eventTreeName();
@@ -257,36 +261,29 @@ int main(int argc, char* argv[]) {
         tfile->Map("extended");
       }
 
-      // Print out each tree
-      if (print) {
+      if (print or printBranchDetails or printClusters or not printBaskets.empty()) {
         TTree* printTree = (TTree*)tfile->Get(selectedTree.c_str());
         if (printTree == nullptr) {
           std::cout << "Tree " << selectedTree << " appears to be missing. Could not find it in the file.\n";
           std::cout << "Exiting\n";
           return 1;
         }
-        edm::printBranchNames(printTree);
-      }
+        // Print out each tree
+        if (print) {
+          edm::printBranchNames(printTree);
+        }
 
-      if (printBranchDetails) {
-        TTree* printTree = (TTree*)tfile->Get(selectedTree.c_str());
-        if (printTree == nullptr) {
-          std::cout << "Tree " << selectedTree << " appears to be missing. Could not find it in the file.\n";
-          std::cout << "Exiting\n";
-          return 1;
+        if (printBranchDetails) {
+          edm::longBranchPrint(printTree);
         }
-        edm::longBranchPrint(printTree);
-      }
 
-      if (printClusters) {
-        bool const isEventsTree = (selectedTree == edm::BranchTypeToProductTreeName(edm::InEvent));
-        TTree* printTree = (TTree*)tfile->Get(selectedTree.c_str());
-        if (printTree == nullptr) {
-          std::cout << "Tree " << selectedTree << " appears to be missing. Could not find it in the file.\n";
-          std::cout << "Exiting\n";
-          return 1;
+        if (printClusters) {
+          edm::clusterPrint(printTree);
         }
-        edm::clusterPrint(printTree, isEventsTree);
+
+        if (not printBaskets.empty()) {
+          edm::basketPrint(printTree, printBaskets);
+        }
       }
 
       // Print out event lists

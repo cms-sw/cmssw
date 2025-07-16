@@ -7,7 +7,7 @@ from ..modules.hltHtMhtPFPuppiCentralJetsQuadC30MaxEta2p4_cfi import *
 from ..modules.hltPFPuppiCentralJetQuad30MaxEta2p4_cfi import *
 from ..modules.hltPFPuppiCentralJetsQuad30HT200MaxEta2p4_cfi import *
 from ..modules.hltL1SeedsForQuadPuppiJetTripleBtagFilter_cfi import *
-from ..sequences.HLTHgcalLocalRecoSequence_cfi import *
+from ..sequences.HLTTICLLocalRecoSequence_cfi import *
 from ..sequences.HLTAK4PFPuppiJetsReconstruction_cfi import *
 from ..sequences.HLTBeginSequence_cfi import *
 from ..sequences.HLTBtagDeepFlavourSequencePFPuppiModEta2p4_cfi import *
@@ -22,8 +22,8 @@ HLT_PFHT200PT30_QuadPFPuppiJet_70_40_30_30_TriplePFPuppiBTagDeepFlavour_2p4 = cm
     HLTBeginSequence
     + hltL1SeedsForQuadPuppiJetTripleBtagFilter
     + HLTRawToDigiSequence
-    + HLTHgcalLocalRecoSequence
     + HLTLocalrecoSequence
+    + HLTTICLLocalRecoSequence
     + HLTTrackingSequence
     + HLTMuonsSequence
     + HLTParticleFlowSequence

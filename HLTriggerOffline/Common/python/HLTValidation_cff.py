@@ -18,6 +18,8 @@ from Validation.HcalDigis.HLTHcalDigisParam_cfi import *
 from Validation.HcalRecHits.HLTHcalRecHitParam_cfi import *
 ## SiTracker Phase2
 from Validation.SiTrackerPhase2V.HLTPhase2TrackerValidationFirstStep_cff import *
+# Gen-level Validation
+from Validation.HLTrigger.HLTGenValidation_cff import *
 
 # HGCAL Rechit Calibration
 from Validation.HGCalValidation.hgcalHitCalibrationDefault_cfi import hgcalHitCalibrationDefault as _hgcalHitCalibrationDefault
@@ -62,7 +64,6 @@ from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 _phase2_hltassociation = hltassociation.copyAndExclude([
     egammaSelectors,
     ExoticaValidationProdSeq,
-    hltMultiTrackValidationGsfTracks
 ])
 
 # Add hltTrackerphase2ValidationSource to the sequence
@@ -115,6 +116,7 @@ _hltvalidationWithMC_Phase2 = hltvalidationWithMC.copyAndExclude([#HLTMuonVal,
   hltHCALNoiseRates])
 _hltvalidationWithMC_Phase2.insert(-1, hgcalHitCalibrationHLT)
 _hltvalidationWithMC_Phase2.insert(-1, hltHgcalValidator)
+_hltvalidationWithMC_Phase2.insert(-1, hltGENValidation)
 phase2_common.toReplaceWith(hltvalidationWithMC, _hltvalidationWithMC_Phase2)
 
 hltvalidationWithData = cms.Sequence(

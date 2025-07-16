@@ -130,7 +130,7 @@ namespace fwlite {
     ////END OF WORK AROUND
 
     if (tcUse_) {
-      TTreeCache* tcache = dynamic_cast<TTreeCache*>(branchMap_->getFile()->GetCacheRead());
+      TTreeCache* tcache = dynamic_cast<TTreeCache*>(branchMap_->getFile()->GetCacheRead(nullptr));
 
       if (nullptr != tcache) {
         if (!tcTrained_) {

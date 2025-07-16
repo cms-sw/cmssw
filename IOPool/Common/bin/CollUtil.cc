@@ -18,6 +18,7 @@
 
 #include <iomanip>
 #include <iostream>
+#include <ranges>
 
 namespace edm {
 
@@ -109,6 +110,8 @@ namespace edm {
 
       bool isAlignedWithClusterBoundaries() const { return isAligned_; }
 
+      std::string_view name() const { return branchName_; }
+
       // Processes "next cluster" for the branch, calculating the
       // number of bytes and baskets in the cluster
       //
@@ -151,7 +154,7 @@ namespace edm {
       bool isAligned_ = true;
     };
 
-    std::vector<BranchBasketBytes> makeBranchBasketBytes(TBranch *branch, bool isEventsTree) {
+    std::vector<BranchBasketBytes> makeBranchBasketBytes(TBranch *branch) {
       std::vector<BranchBasketBytes> ret;
 
       TObjArray *subBranches = branch->GetListOfBranches();
@@ -159,7 +162,7 @@ namespace edm {
         // process sub-branches if there are any
         auto const nbranches = subBranches->GetEntries();
         for (Long64_t iBranch = 0; iBranch < nbranches; ++iBranch) {
-          auto vec = makeBranchBasketBytes(dynamic_cast<TBranch *>(subBranches->At(iBranch)), isEventsTree);
+          auto vec = makeBranchBasketBytes(dynamic_cast<TBranch *>(subBranches->At(iBranch)));
           ret.insert(ret.end(), std::make_move_iterator(vec.begin()), std::make_move_iterator(vec.end()));
         }
       } else {
@@ -167,60 +170,116 @@ namespace edm {
       }
       return ret;
     }
-  }  // namespace
 
-  void clusterPrint(TTree *tr, bool isEventsTree) {
-    TTree::TClusterIterator clusterIter = tr->GetClusterIterator(0);
-    Long64_t const nentries = tr->GetEntries();
+    template <typename T>
+    void processClusters(TTree *tr, T printer, const std::string &limitToBranch = "") {
+      TTree::TClusterIterator clusterIter = tr->GetClusterIterator(0);
+      Long64_t const nentries = tr->GetEntries();
 
-    // Keep the state of each branch basket index so that we don't
-    // have to iterate through everything on every cluster
-    std::vector<BranchBasketBytes> processors;
-    {
-      TObjArray *branches = tr->GetListOfBranches();
-      Long64_t const nbranches = branches->GetEntries();
-      for (Long64_t iBranch = 0; iBranch < nbranches; ++iBranch) {
-        auto vec = makeBranchBasketBytes(dynamic_cast<TBranch *>(branches->At(iBranch)), isEventsTree);
-        processors.insert(processors.end(), std::make_move_iterator(vec.begin()), std::make_move_iterator(vec.end()));
-      }
-    }
-
-    std::cout << "Printing cluster boundaries in terms of tree entries of the tree " << tr->GetName()
-              << ". Note that end boundary is exclusive." << std::endl;
-    if (isEventsTree) {
-      std::cout << "For the Events tree the metadata branches are excluded from this calculation, "
-                   "because their basket boundaries do not necessarily align with the cluster boundaries."
-                << std::endl;
-    }
-    std::cout << std::setw(15) << "Begin" << std::setw(15) << "End" << std::setw(15) << "Entries" << std::setw(15)
-              << "Max baskets" << std::setw(15) << "Bytes" << std::endl;
-    // Record branches whose baskets do not align with cluster boundaires
-    std::set<std::string_view> nonAlignedBranches;
-    Long64_t clusterBegin;
-    while ((clusterBegin = clusterIter()) < nentries) {
-      Long64_t clusterEnd = clusterIter.GetNextEntry();
-      Long64_t bytes = 0;
-      unsigned int maxbaskets = 0;
-      for (auto &p : processors) {
-        if (p.isAlignedWithClusterBoundaries()) {
-          auto const [byt, bas] = p.bytesInNextCluster(clusterBegin, clusterEnd, nonAlignedBranches);
-          bytes += byt;
-          maxbaskets = std::max(bas, maxbaskets);
+      // Keep the state of each branch basket index so that we don't
+      // have to iterate through everything on every cluster
+      std::vector<BranchBasketBytes> processors;
+      {
+        TObjArray *branches = tr->GetListOfBranches();
+        Long64_t const nbranches = branches->GetEntries();
+        for (Long64_t iBranch = 0; iBranch < nbranches; ++iBranch) {
+          auto branch = dynamic_cast<TBranch *>(branches->At(iBranch));
+          if (limitToBranch.empty() or
+              std::string_view(branch->GetName()).find(limitToBranch) != std::string_view::npos) {
+            auto vec = makeBranchBasketBytes(branch);
+            processors.insert(
+                processors.end(), std::make_move_iterator(vec.begin()), std::make_move_iterator(vec.end()));
+          }
         }
       }
-      std::cout << std::setw(15) << clusterBegin << std::setw(15) << clusterEnd << std::setw(15)
-                << (clusterEnd - clusterBegin) << std::setw(15) << maxbaskets << std::setw(15) << bytes << std::endl;
-    }
 
-    if (not nonAlignedBranches.empty()) {
-      std::cout << "\nThe following branches had baskets whose entry boundaries did not align with the cluster "
-                   "boundaries. Their baskets are excluded from the cluster size calculation above starting from the "
-                   "first basket that did not align with a cluster boundary."
-                << std::endl;
-      for (auto &name : nonAlignedBranches) {
-        std::cout << "  " << name << std::endl;
+      printer.header(tr, processors);
+      // Record branches whose baskets do not align with cluster boundaries
+      std::set<std::string_view> nonAlignedBranches;
+      {
+        Long64_t clusterBegin;
+        while ((clusterBegin = clusterIter()) < nentries) {
+          Long64_t clusterEnd = clusterIter.GetNextEntry();
+          printer.beginCluster(clusterBegin, clusterEnd);
+          for (auto &p : processors) {
+            if (p.isAlignedWithClusterBoundaries()) {
+              auto const [bytes, baskets] = p.bytesInNextCluster(clusterBegin, clusterEnd, nonAlignedBranches);
+              printer.processBranch(bytes, baskets);
+            }
+          }
+          printer.endCluster();
+        }
+      }
+
+      if (not nonAlignedBranches.empty()) {
+        std::cout << "\nThe following branches had baskets whose entry boundaries did not align with the cluster "
+                     "boundaries. Their baskets are excluded from the cluster size calculation above starting from the "
+                     "first basket that did not align with a cluster boundary."
+                  << std::endl;
+        for (auto &name : nonAlignedBranches) {
+          std::cout << "  " << name << std::endl;
+        }
       }
     }
+  }  // namespace
+
+  void clusterPrint(TTree *tr) {
+    struct ClusterPrinter {
+      void header(TTree const *tr, std::vector<BranchBasketBytes> const &branchProcessors) const {
+        std::cout << "Printing cluster boundaries in terms of tree entries of the tree " << tr->GetName()
+                  << ". Note that the end boundary is exclusive." << std::endl;
+        std::cout << std::setw(15) << "Begin" << std::setw(15) << "End" << std::setw(15) << "Entries" << std::setw(15)
+                  << "Max baskets" << std::setw(15) << "Bytes" << std::endl;
+      }
+
+      void beginCluster(Long64_t clusterBegin, Long64_t clusterEnd) {
+        bytes_ = 0;
+        maxbaskets_ = 0;
+        std::cout << std::setw(15) << clusterBegin << std::setw(15) << clusterEnd << std::setw(15)
+                  << (clusterEnd - clusterBegin);
+      }
+
+      void processBranch(Long64_t bytes, unsigned int baskets) {
+        bytes_ += bytes;
+        maxbaskets_ = std::max(baskets, maxbaskets_);
+      }
+
+      void endCluster() const { std::cout << std::setw(15) << maxbaskets_ << std::setw(15) << bytes_ << std::endl; }
+
+      Long64_t bytes_ = 0;
+      unsigned int maxbaskets_ = 0;
+    };
+    processClusters(tr, ClusterPrinter{});
+  }
+
+  void basketPrint(TTree *tr, const std::string &branchName) {
+    struct BasketPrinter {
+      void header(TTree const *tr, std::vector<BranchBasketBytes> const &branchProcessors) const {
+        std::cout << "Printing cluster boundaries in terms of tree entries of the tree " << tr->GetName()
+                  << ". Note that the end boundary is exclusive." << std::endl;
+        std::cout << "\nBranches for which number of baskets in each cluster are printed\n";
+        for (int i = 0; auto const &p : branchProcessors) {
+          std::cout << "[" << i << "] " << p.name() << std::endl;
+          ++i;
+        }
+        std::cout << "\n"
+                  << std::setw(15) << "Begin" << std::setw(15) << "End" << std::setw(15) << "Entries" << std::setw(15);
+        for (auto i : std::views::iota(0U, branchProcessors.size())) {
+          std::cout << std::setw(5) << (std::string("[") + std::to_string(i) + "]");
+        }
+        std::cout << std::endl;
+      }
+
+      void beginCluster(Long64_t clusterBegin, Long64_t clusterEnd) const {
+        std::cout << std::setw(15) << clusterBegin << std::setw(15) << clusterEnd << std::setw(15)
+                  << (clusterEnd - clusterBegin);
+      }
+
+      void processBranch(Long64_t bytes, unsigned int baskets) const { std::cout << std::setw(5) << baskets; }
+
+      void endCluster() const { std::cout << std::endl; }
+    };
+    processClusters(tr, BasketPrinter{}, branchName);
   }
 
   std::string getUuid(TTree *uuidTree) {

@@ -2,4 +2,3 @@
 #include "CondFormats/HGCalObjects/interface/HGCalCalibrationParameterHost.h"
 
 TYPELOOKUP_DATA_REG(hgcalrechit::HGCalCalibParamHost);
-TYPELOOKUP_DATA_REG(hgcalrechit::HGCalConfigParamHost);

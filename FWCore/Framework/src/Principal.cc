@@ -21,6 +21,7 @@
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 #include "FWCore/Utilities/interface/Likely.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -109,7 +110,8 @@ namespace edm {
   }  // namespace
 
   // Value 0 means unset and is used in Principal constructor. First call to fillPrincipal() will get value 1.
-  static std::array<std::atomic<Principal::CacheIdentifier_t>, edm::NumBranchTypes> s_nextIdentifiers{{1, 1, 1, 1}};
+  CMS_THREAD_SAFE static std::array<std::atomic<Principal::CacheIdentifier_t>, edm::NumBranchTypes> s_nextIdentifiers{
+      {1, 1, 1, 1}};
   static inline Principal::CacheIdentifier_t nextIdentifier(edm::BranchType bt) {
     return s_nextIdentifiers[bt].fetch_add(1, std::memory_order_acq_rel);
   }

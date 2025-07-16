@@ -128,7 +128,8 @@ run3_upc.toModify(dedxEstimator, dedxEstimators = ["dedxHarmonic2", "dedxPixelHa
 run3_upc.toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), hiPixelTracks, packedPFCandidateTrackChi2, lostTrackChi2, dedxEstimator))
 
 from Configuration.Eras.Modifier_run3_oxygen_cff import run3_oxygen
-run3_oxygen.toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), hiPixelTracks, hiEvtPlane, hiEvtPlaneFlat, packedPFCandidateTrackChi2, lostTrackChi2, centralityBin, hiHFfilters))
+run3_oxygen.toModify(dedxEstimator, dedxEstimators = ["dedxPixelLikelihood", "dedxStripLikelihood", "dedxAllLikelihood"])
+run3_oxygen.toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), hiPixelTracks, hiEvtPlane, hiEvtPlaneFlat, packedPFCandidateTrackChi2, lostTrackChi2, centralityBin))
 
 from Configuration.Eras.Modifier_ppRef_2024_cff import ppRef_2024
 ppRef_2024.toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), packedPFCandidateTrackChi2, lostTrackChi2))

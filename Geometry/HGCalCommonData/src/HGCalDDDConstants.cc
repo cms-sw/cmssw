@@ -27,14 +27,23 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp, const std::strin
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::Mode " << mode_ << " FullAndPart " << fullAndPart_
                                 << " waferHex6:waverHex8 " << waferHexagon6() << ":" << waferHexagon8() << " cassettte "
-                                << cassetteMode();
+                                << cassetteMode() << " v16OrLess " << v16OrLess();
 #endif
   if (waferHexagon6() || waferHexagon8()) {
     rmax_ = (HGCalParameters::k_ScaleFromDDD * (hgpar_->waferR_) * std::cos(30._deg));
-    rmaxT_ = rmax_ + 0.5 * hgpar_->sensorSeparation_;
+    if (hgpar_->waferNoGap_ > 0)
+      rmax_ -= hgpar_->sensorSeparation_;
+    if (v16OrLess()) {
+      rmax_ += (0.5 * hgpar_->sensorSeparation_);
+      rmaxT_ = rmax_;
+    } else {
+      rmaxT_ = rmax_ + hgpar_->sensorSeparation_;
+    }
     hexside_ = 2.0 * rmax_ * tan30deg_;
     hexsideT_ = 2.0 * rmaxT_ * tan30deg_;
-    hgcell_ = std::make_unique<HGCalCell>(2.0 * rmaxT_, hgpar_->nCellsFine_, hgpar_->nCellsCoarse_);
+    hgcell_ = waferHexagon8Calib()
+                  ? std::make_unique<HGCalCell>(2.0 * rmax_, hgpar_->nCellsFine_, hgpar_->nCellsCoarse_)
+                  : std::make_unique<HGCalCell>(2.0 * rmaxT_, hgpar_->nCellsFine_, hgpar_->nCellsCoarse_);
     hgcellUV_ = std::make_unique<HGCalCellUV>(
         2.0 * rmax_, hgpar_->sensorSeparation_, hgpar_->nCellsFine_, hgpar_->nCellsCoarse_);
     cellOffset_ = std::make_unique<HGCalCellOffset>(hgpar_->waferSize_,
@@ -45,8 +54,8 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp, const std::strin
                                                     hgpar_->sensorSizeOffset_);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::rmax_ " << rmax_ << ":" << rmaxT_ << ":" << hexside_ << ":"
-                                  << hexsideT_ << " CellSize "
-                                  << 0.5 * HGCalParameters::k_ScaleFromDDD * hgpar_->cellSize_[0] << ":"
+                                  << hexsideT_ << " NoGap: " << hgpar_->waferNoGap_ << ":" << hgpar_->sensorSeparation_
+                                  << " CellSize " << 0.5 * HGCalParameters::k_ScaleFromDDD * hgpar_->cellSize_[0] << ":"
                                   << 0.5 * HGCalParameters::k_ScaleFromDDD * hgpar_->cellSize_[1];
 #endif
   } else {
@@ -396,6 +405,18 @@ bool HGCalDDDConstants::cellInLayer(int waferU, int waferV, int cellU, int cellV
   } else {
     return false;
   }
+}
+
+std::vector<double> HGCalDDDConstants::cellThickness() const {
+  std::vector<double> thick;
+  if (waferHexagon8()) {
+    thick = hgpar_->cellThickness_;
+    HGCalGeomParameters::rescale(thick, 10000.0);  //cm to micron
+  } else if (waferHexagon6()) {
+    for (int k = 0; k < 3; ++k)
+      thick.emplace_back(100.0 * (k + 1));
+  }
+  return thick;
 }
 
 double HGCalDDDConstants::cellThickness(int layer, int waferU, int waferV) const {
@@ -951,10 +972,14 @@ std::pair<float, float> HGCalDDDConstants::locateCell(int zside,
         place = HGCalCell::cellPlacementIndex(1, HGCalTypes::layerFrontBack(layertype), (ktr->second).orient);
     }
     int part = partialWaferType(lay, waferU, waferV);
-    auto xy = (waferHexagon8Fine() || cog) ? cellOffset_->cellOffsetUV2XY1(cellU, cellV, place, fineCoarse, part)
-                                           : hgcell_->cellUV2XY2(cellU, cellV, place, fineCoarse);
+    auto xy = hgcell_->cellUV2XY2(cellU, cellV, place, fineCoarse);
     x = xy.first;
     y = xy.second;
+    if (waferHexagon8Fine() || cog) {
+      xy = cellOffset_->cellOffsetUV2XY1(cellU, cellV, place, fineCoarse, part);
+      x += xy.first;
+      y += xy.second;
+    }
     if (debug)
       edm::LogVerbatim("HGCalGeom") << "Type " << type << " Place " << place << " Cell " << cellU << ":" << cellV
                                     << " Position " << x << ":" << y;
@@ -1204,7 +1229,7 @@ int HGCalDDDConstants::maxCells(int lay, bool reco) const {
     }
     return cells;
   } else if (tileTrapezoid()) {
-    return hgpar_->scintCells(index.first + hgpar_->firstLayer_);
+    return hgpar_->scintCells(lay);  //(index.first + hgpar_->firstLayer_);
   } else {
     return 0;
   }
@@ -1520,8 +1545,8 @@ bool HGCalDDDConstants::tileExist(int zside, int layer, int ring, int phi) const
         edm::LogWarning("HGCalGeomT") << "TileExist:input " << zside << ":" << layer << ":" << ring << ":" << phi
                                       << " Index flag " << indx << ":" << (itr != hgpar_->tileInfoMap_.end()) << " ok "
                                       << ok;
-      if (HGCalTileIndex::tileFineExist(itr->second.hex, zside, phi) !=
-          HGCalTileIndex::tileExist(itr->second.hex, zside, phi))
+      else if (HGCalTileIndex::tileFineExist(itr->second.hex, zside, phi) !=
+               HGCalTileIndex::tileExist(itr->second.hex, zside, phi))
         edm::LogVerbatim("HGCalGeom") << "Zside:Layer:Ring:Phi " << zside << ":" << layer << ":" << ring << ":" << phi
                                       << " hex " << std::hex << itr->second.hex[0] << ":" << itr->second.hex[1] << ":"
                                       << itr->second.hex[2] << ":" << itr->second.hex[3] << ":" << itr->second.hex[4]
@@ -1845,8 +1870,7 @@ void HGCalDDDConstants::waferFromPosition(const double x,
     bool fineCoarse =
         ((celltype == HGCSiliconDetId::HGCalHD120) || (celltype == HGCSiliconDetId::HGCalHD200)) ? false : true;
     cellHex(xx, yy, fineCoarse, place, part, cellU, cellV, extend, debug);
-    wt = ((((celltype == HGCSiliconDetId::HGCalHD120) || (celltype == HGCSiliconDetId::HGCalHD200)) &&
-           (hgpar_->useSimWt_ > 0))
+    wt = (((celltype == HGCSiliconDetId::HGCalHD120) && (hgpar_->useSimWt_ > 0))
               ? (hgpar_->cellThickness_[celltype] / hgpar_->waferThick_)
               : 1.0);
   } else {
@@ -2203,7 +2227,8 @@ void HGCalDDDConstants::cellHex(
   if (cassetteMode()) {
     auto uv = (part == HGCalTypes::WaferFull)
                   ? hgcellUV_->cellUVFromXY3(xloc, yloc, place, cellType, true, debug)
-                  : hgcellUV_->cellUVFromXY1(xloc, yloc, place, cellType, part, true, debug);
+                  : (waferHexagon8Calib() ? hgcellUV_->cellUVFromXY2(xloc, yloc, place, cellType, part, true, debug)
+                                          : hgcellUV_->cellUVFromXY1(xloc, yloc, place, cellType, part, true, debug));
     cellU = uv.first;
     cellV = uv.second;
   } else if (waferHexagon8File()) {

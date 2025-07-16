@@ -366,6 +366,86 @@ ALCARECOTkAlMinBiasTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
 ALCARECOTkAlMinBiasDQM = cms.Sequence( ALCARECOTkAlMinBiasTrackingDQM + ALCARECOTkAlMinBiasTkAlDQM )
 
 ########################################################
+#############--- TkAlHLTTracks ---######################
+########################################################
+__selectionName = 'TkAlHLTTracks'
+ALCARECOTkAlHLTTracksTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
+    #names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName,
+    FolderName = "AlCaReco/"+__selectionName,
+    BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
+    # margins and settings
+    TkSizeBin = 71,
+    TkSizeMin = -0.5,
+    TkSizeMax = 70.5,
+    TrackPtMax = 30
+)
+
+ALCARECOTkAlHLTTracksTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
+    #names and desigantions
+    ReferenceTrackProducer= "hltMergedTracks",
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName,
+    FolderName = "AlCaReco/"+__selectionName,
+    # margins and settings
+    fillInvariantMass = False,
+    TrackPtMax = 30,
+    SumChargeBin = 101,
+    SumChargeMin = -50.5,
+    SumChargeMax = 50.5
+)
+
+ALCARECOTkAlHLTTracksDQM = cms.Sequence( ALCARECOTkAlHLTTracksTrackingDQM  + ALCARECOTkAlHLTTracksTkAlDQM )
+
+########################################################
+#############--- TkAlHLTTracksZMuMu ---################
+########################################################
+__selectionName = 'TkAlHLTTracksZMuMu'
+ALCARECOTkAlHLTTracksZMuMuTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
+    #names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName,
+    FolderName = "AlCaReco/"+__selectionName,
+    BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
+    # margins and settings
+    TkSizeBin = 71,
+    TkSizeMin = -0.5,
+    TkSizeMax = 70.5,
+    TrackPtMax = 30
+)
+
+ALCARECOTkAlHLTTracksZMuMuTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
+    #names and desigantions
+    ReferenceTrackProducer= "hltMergedTracks",
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName,
+    FolderName = "AlCaReco/"+__selectionName,
+    # margins and settings
+    fillInvariantMass = True,
+    MassBin = 80,
+    MassMin = 80.0,
+    MassMax = 120.0,
+    TrackPtMax = 100,
+    SumChargeBin = 101,
+    SumChargeMin = -50.5,
+    SumChargeMax = 50.5
+)
+
+ALCARECOTkAlHLTTracksZMuMuVtxDQM = ALCARECOTkAlDiMuonAndVertexVtxDQM.clone(
+    muonTracks = 'ALCARECO'+__selectionName,
+    vertices = 'hltPixelVertices',
+    FolderName = "AlCaReco/"+__selectionName,
+)
+
+ALCARECOTkAlHLTTracksZMuMuMassBiasDQM = ALCARECOTkAlDiMuonMassBiasDQM.clone(
+    muonTracks = 'ALCARECO'+__selectionName,
+    FolderName = "AlCaReco/"+__selectionName,
+)
+
+ALCARECOTkAlHLTTracksZMuMuDQM = cms.Sequence( ALCARECOTkAlHLTTracksZMuMuTrackingDQM  + ALCARECOTkAlHLTTracksZMuMuTkAlDQM + ALCARECOTkAlHLTTracksZMuMuVtxDQM + ALCARECOTkAlHLTTracksZMuMuMassBiasDQM)
+
+########################################################
 #############---  TkAlKshorts ---#######################
 ########################################################
 __selectionName = 'TkAlKShortTracks'
@@ -392,7 +472,10 @@ ALCARECOTkAlKShortTracksTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
     # margins and settings
-    fillInvariantMass = False,
+    fillInvariantMass = True,
+    MassBin = 100,
+    MassMin = 0.4,
+    MassMax = 0.6,
     TrackPtMax = 30,
     SumChargeBin = 101,
     SumChargeMin = -50.5,
@@ -437,7 +520,10 @@ ALCARECOTkAlLambdaTracksTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
     # margins and settings
-    fillInvariantMass = False,
+    fillInvariantMass = True,
+    MassBin = 100,
+    MassMin = 1.050,
+    MassMax = 1.250,
     TrackPtMax = 30,
     SumChargeBin = 101,
     SumChargeMin = -50.5,

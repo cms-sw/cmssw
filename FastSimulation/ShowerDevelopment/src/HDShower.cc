@@ -32,6 +32,16 @@ HDShower::HDShower(const RandomEngineAndDistribution* engine,
       e(epart),
       //    pmip(pmip),
       random(engine) {
+  init(engine, myParam, myGrid, myHcalHitMaker, onECAL, epart, pmip);
+}
+
+void HDShower::init(const RandomEngineAndDistribution* engine,
+                    HDShowerParametrization* myParam,
+                    EcalHitMaker* myGrid,
+                    HcalHitMaker* myHcalHitMaker,
+                    int onECAL,
+                    double epart,
+                    double pmip) {
   // To get an access to constants read in FASTCalorimeter
   //  FASTCalorimeter * myCalorimeter= FASTCalorimeter::instance();
 

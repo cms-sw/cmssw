@@ -700,7 +700,8 @@ phase2_tracker.toModify(FEVTDEBUGHLTEventContent,
 phase2_common.toModify(FEVTDEBUGHLTEventContent,
                        outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
                            'keep *_hltHGCalRecHit_*_*',
-                           'keep *_hltHgcalMergeLayerClusters_*_*',
+                           'keep *_hltMergeLayerClusters_*_*',
+                           'keep *_hltParticleFlowRecHit*_*_*',
                            'keep *_hltEgammaGsfTracksL1Seeded_*_*',
                        ])
 
@@ -711,21 +712,11 @@ phase2_muon.toModify(FEVTDEBUGHLTEventContent,
         'keep *_hltL2MuonsFromL1TkMuon_*_*',
         'keep *_hltIter2Phase2L3FromL1TkMuonMerged_*_*',
         'keep *_hltPhase2L3OIMuonTrackSelectionHighPurity_*_*',
+        'keep *_hltPhase2L3MuonFilter_*_*',
         'keep *_hltPhase2L3MuonMerged_*_*',
         'keep *_hltPhase2L3GlbMuon_*_*',
         'keep *_hltPhase2L3MuonsNoID_*_*',
         'keep *_hltPhase2L3Muons_*_*'])
-
-from Configuration.ProcessModifiers.phase2L2AndL3Muons_cff import phase2L2AndL3Muons
-(phase2_muon & ~phase2L2AndL3Muons).toModify(FEVTDEBUGHLTEventContent, 
-    outputCommands = FEVTDEBUGHLTEventContent.outputCommands + [
-        'keep *_hltL2OfflineMuonSeeds_*_*'
-    ])
-
-(phase2_muon & phase2L2AndL3Muons).toModify(FEVTDEBUGHLTEventContent, 
-    outputCommands = FEVTDEBUGHLTEventContent.outputCommands + [
-        'keep *_hltPhase2L3MuonFilter_*_*'
-    ])
 
 phase2_hgcal.toModify(FEVTDEBUGHLTEventContent,
     outputCommands = FEVTDEBUGHLTEventContent.outputCommands + TICL_FEVTHLT.outputCommands)

@@ -24,20 +24,16 @@ class DTRecoConditions;
 class TFile;
 class TH1D;
 
-class DTVDriftAnalyzer : public edm::one::EDAnalyzer<> {
+class DTVDriftAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
-  /// Constructor
   DTVDriftAnalyzer(const edm::ParameterSet& pset);
 
-  /// Destructor
   virtual ~DTVDriftAnalyzer();
-
-  /// Operations
-  //Read the DTGeometry and the vdrift DB
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& setup);
-  void analyze(const edm::Event& event, const edm::EventSetup& setup) {}
-  //Do the real work
-  void endJob();
+  void beginJob() override {}
+  void beginRun(const edm::Run& run, const edm::EventSetup& setup) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override {}
+  void endRun(const edm::Run& run, const edm::EventSetup& setup) override {}
+  void endJob() override;
 
 protected:
 private:

@@ -14,6 +14,7 @@ def Custom_Muon_Task(process):
     process.nanoTableTaskCommon.remove(process.boostedTauTablesTask)
     process.nanoTableTaskCommon.remove(process.jetPuppiTablesTask)
     process.nanoTableTaskCommon.remove(process.jetAK8TablesTask)
+    process.nanoTableTaskCommon.remove(process.jetConstituentsTablesTask)
 
     process.nanoTableTaskFS.remove(process.electronMCTask)
     process.nanoTableTaskFS.remove(process.lowPtElectronMCTask)
@@ -24,7 +25,8 @@ def Custom_Muon_Task(process):
     process.nanoTableTaskFS.remove(process.metMCTable)
     process.nanoTableTaskFS.remove(process.ttbarCatMCProducersTask)
     process.nanoTableTaskFS.remove(process.ttbarCategoryTableTask)
-    
+    process.nanoTableTaskFS.remove(process.tauSpinnerTableTask)
+
     return process
 
 def AddPFTracks(proc):

@@ -18,7 +18,6 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimG4CMS/Calo/interface/CaloSimUtils.h"
-#include "SimG4CMS/Calo/interface/HGCGuardRing.h"
 
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
@@ -26,6 +25,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
+#include "Geometry/HGCalCommonData/interface/HGCGuardRing.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferMask.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
