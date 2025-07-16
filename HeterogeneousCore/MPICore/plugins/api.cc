@@ -158,12 +158,13 @@ MPI_Status MPIChannel::receiveEventAuxiliary_(edm::EventAuxiliary& aux, MPI_Mess
   return status;
 }
 
-void MPIChannel::sendMetadata(int instance, std::shared_ptr<ProductMetadataBuilder> meta){
+void MPIChannel::sendMetadata(int instance, std::shared_ptr<ProductMetadataBuilder> meta) {
   int tag = EDM_MPI_SendMetadata | instance * EDM_MPI_MessageTagWidth_;
+  meta->setHeader();
   MPI_Ssend(meta->data(), meta->size(), MPI_BYTE, dest_, tag, comm_);
 }
 
-void MPIChannel::receiveMetadata(int instance, std::shared_ptr<ProductMetadataBuilder> meta){
+void MPIChannel::receiveMetadata(int instance, std::shared_ptr<ProductMetadataBuilder> meta) {
   int tag = EDM_MPI_SendMetadata | instance * EDM_MPI_MessageTagWidth_;
   MPI_Message message;
   MPI_Status status;
@@ -173,7 +174,7 @@ void MPIChannel::receiveMetadata(int instance, std::shared_ptr<ProductMetadataBu
   meta->receiveMetadata(message, size);
 }
 
-void MPIChannel::sendBuffer(const void* buf, size_t size, int instance, EDM_MPI_MessageTag tag){
+void MPIChannel::sendBuffer(const void* buf, size_t size, int instance, EDM_MPI_MessageTag tag) {
   int commtag = tag | instance * EDM_MPI_MessageTagWidth_;
   MPI_Send(buf, size, MPI_BYTE, dest_, commtag, comm_);
 }
@@ -184,7 +185,6 @@ void MPIChannel::sendSerializedProduct_(int instance, TClass const* type, void c
   int tag = EDM_MPI_SendSerializedProduct | instance * EDM_MPI_MessageTagWidth_;
   MPI_Send(buffer.Buffer(), buffer.Length(), MPI_BYTE, dest_, tag, comm_);
 }
-
 
 std::unique_ptr<TBufferFile> MPIChannel::receiveSerializedBuffer(int instance) {
   int tag = EDM_MPI_SendSerializedProduct | instance * EDM_MPI_MessageTagWidth_;
@@ -200,7 +200,6 @@ std::unique_ptr<TBufferFile> MPIChannel::receiveSerializedBuffer(int instance) {
   return buffer;
 }
 
-
 void MPIChannel::receiveSerializedProduct_(int instance, TClass const* type, void* product) {
   int tag = EDM_MPI_SendSerializedProduct | instance * EDM_MPI_MessageTagWidth_;
   MPI_Message message;
@@ -211,7 +210,6 @@ void MPIChannel::receiveSerializedProduct_(int instance, TClass const* type, voi
   TBufferFile buffer{TBuffer::kRead, size};
   MPI_Mrecv(buffer.Buffer(), size, MPI_BYTE, &message, &status);
   type->Streamer(product, buffer);
-
 }
 
 void MPIChannel::sendTrivialCopyProduct_(int instance, edm::WrapperBase const* wrapper) {
@@ -271,7 +269,6 @@ void MPIChannel::receiveTrivialCopyProduct_(int instance, edm::WrapperBase* wrap
   // finalize the clone after the trivialCopy, if the type requires it
   wrapper->trivialCopyFinalize();
 }
-
 
 void MPIChannel::receiveInitializedTrivialCopy(int instance, edm::WrapperBase* wrapper) {
   int tag = EDM_MPI_SendTrivialCopyProduct | instance * EDM_MPI_MessageTagWidth_;

@@ -49,8 +49,7 @@ public:
         instance_(config.getParameter<int32_t>("instance")),
         buffer_(std::make_unique<TBufferFile>(TBuffer::kWrite)),
         buffer_offset_(0),
-        metadata_size_(0)
-  {
+        metadata_size_(0) {
     // instance 0 is reserved for the MPIController / MPISource pair
     // instance values greater than 255 may not fit in the MPI tag
     if (instance_ < 1 or instance_ > 255) {
@@ -82,19 +81,19 @@ public:
                   << product.productInstanceName() << '_' << product.processName() << "\" of type \""
                   << entry.type.name() << "\" over MPI channel instance " << instance_;
 
-              edm::Handle<edm::WrapperBase> handle(entry.type.typeInfo());
+              // edm::Handle<edm::WrapperBase> handle(entry.type.typeInfo());
 
-              edm::WrapperBase const* wrapper = handle.product();
+              // edm::WrapperBase const* wrapper = handle.product();
 
               // parameter getting does not work in constructor, i suppose wee need an event for this
-              
+
               // if (wrapper->hasTrivialCopyTraits()) {
               //   metadata_size_ += 9;
               // } else {
-                // parameter getting does not work in constructor, i suppose wee need an event for this
+              // parameter getting does not work in constructor, i suppose wee need an event for this
 
-                // edm::AnyBuffer buffer = wrapper->trivialCopyParameters();
-                // metadata_size_ += buffer.size_bytes();
+              // edm::AnyBuffer buffer = wrapper->trivialCopyParameters();
+              // metadata_size_ += buffer.size_bytes();
               //   metadata_size_ += 9;
               //   metadata_size_ += 24;
               // }
@@ -121,12 +120,15 @@ public:
 
   void acquire(edm::Event const& event, edm::EventSetup const&, edm::WaitingTaskWithArenaHolder holder) final {
     MPIToken token = event.get(upstream_);
-    auto meta = std::make_shared<ProductMetadataBuilder>(products_.size()*24);
+    // we need 1 byte for type, 8 bytes for size and at least 8 bytes for trivial copy parameters buffer
+    auto meta = std::make_shared<ProductMetadataBuilder>(products_.size() * 24);
     size_t index = 0;
     // this seems to work fine, but does this vector indeed persist between acquire() and produce()?
     // serializedBuffers_.clear();
     buffer_->Reset();
     buffer_offset_ = 0;
+    meta->setProductCount(products_.size());
+    has_serialized_ = false;
 
     // estimate buffer size in the constructor
 
@@ -137,9 +139,6 @@ public:
 
       if (handle.isValid()) {
         edm::WrapperBase const* wrapper = handle.product();
-        
-        // can there be such product without these properties?
-        // how should the case be handled if yes? 
         if (wrapper->hasTrivialCopyTraits()) {
           edm::AnyBuffer buffer = wrapper->trivialCopyParameters();
           meta->addTrivialCopy(buffer.data(), buffer.size_bytes());
@@ -148,9 +147,9 @@ public:
           if (!cls) {
             throw cms::Exception("MPISender") << "Failed to get TClass for type: " << entry.type.name();
           }
-
           size_t bufLen = serializeAndStoreBuffer_(index, cls, wrapper);
           meta->addSerialized(bufLen);
+          has_serialized_ = true;
         }
 
       } else {
@@ -164,23 +163,16 @@ public:
     edm::Service<edm::Async> as;
     as->runAsync(
         std::move(holder),
-        [this, token, meta = std::move(meta)]() {
-           token.channel()->sendMetadata(instance_, meta); },
+        [this, token, meta = std::move(meta)]() { token.channel()->sendMetadata(instance_, meta); },
         []() { return "Calling MPISender::acquire()"; });
   }
 
   void produce(edm::Event& event, edm::EventSetup const&) final {
     MPIToken token = event.get(upstream_);
-    size_t index = 0;
-    // size_t serializedIndex = 0;
 
-    // std::cerr << "MPISender::produce(): "
-    //           << serializedBuffers_.size() << " serialized product(s) stored.\n";
-    // for (auto const& [index, buffer] : serializedBuffers_) {
-    //   std::cerr << "  - index: " << index << ", buffer size: " << buffer->Length() << " bytes\n";
-    // }
-
-    token.channel()->sendBuffer(buffer_->Buffer(), buffer_->Length(), instance_, EDM_MPI_SendSerializedProduct);
+    if (has_serialized_) {
+      token.channel()->sendBuffer(buffer_->Buffer(), buffer_->Length(), instance_, EDM_MPI_SendSerializedProduct);
+    }
 
     for (auto const& entry : products_) {
       edm::Handle<edm::WrapperBase> handle(entry.type.typeInfo());
@@ -190,12 +182,7 @@ public:
       if (handle.isValid()) {
         if (wrapper->hasTrivialCopyTraits()) {
           token.channel()->sendTrivialCopyProduct_(instance_, wrapper);
-        // } else {
-        //   assert(serializedBuffers_[serializedIndex].first == index && "mismatch between expected and factual serialised index in produce()");
-        //   token.channel()->sendBuffer(serializedBuffers_[serializedIndex].second->Buffer(), serializedBuffers_[serializedIndex].second->Length(), instance_, EDM_MPI_SendSerializedProduct);
-        //   serializedIndex++;
         }
-        index++;
       }
     }
     // write a shallow copy of the channel to the output, so other modules can consume it
@@ -204,14 +191,11 @@ public:
   }
 
 private:
-  
   size_t serializeAndStoreBuffer_(size_t index, TClass* type, void const* product) {
-    // auto buffer = std::make_shared<TBufferFile>(TBuffer::kWrite);
     buffer_->ResetMap();
     type->Streamer(const_cast<void*>(product), *buffer_);
-    // serializedBuffers_.emplace_back(index, buffer);
     size_t prod_size = buffer_->Length() - buffer_offset_;
-    buffer_offset_ += buffer_->Length(); 
+    buffer_offset_ = buffer_->Length();
     return prod_size;
   }
 
@@ -227,10 +211,10 @@ private:
   std::vector<edm::ProductNamePattern> patterns_;  // branches to read from the Event and send over the MPI channel
   std::vector<Entry> products_;                    // types and tokens corresponding to the branches
   int32_t const instance_;                         // instance used to identify the source-destination pair
-  // std::vector<std::pair<size_t, std::shared_ptr<TBufferFile>>> serializedBuffers_;  // buffers per serialized product
   std::unique_ptr<TBufferFile> buffer_;
   size_t buffer_offset_;
   size_t metadata_size_;
+  bool has_serialized_ = false;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"

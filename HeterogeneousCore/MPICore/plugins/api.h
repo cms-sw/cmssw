@@ -30,7 +30,6 @@
 //       : product_num(num), present_mask(mask) {}
 // };
 
-
 class MPIChannel {
 public:
   MPIChannel() = default;
