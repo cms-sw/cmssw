@@ -115,7 +115,6 @@ void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
         continue;
       fedPacketInfo.view()[fedId].FEDUnpackingFlag() =
           callUnpacker(fedId, fed_data, moduleIndexer, config, digis, fedPacketInfo, econdPacketInfo);
-      
     }
   }
   //parallel unpacking calls
@@ -151,8 +150,8 @@ uint16_t HGCalRawToDigi::callUnpacker(unsigned fedId,
                                       hgcaldigi::HGCalDigiHost& digis,
                                       hgcaldigi::HGCalFEDPacketInfoHost& fedPacketInfo,
                                       hgcaldigi::HGCalECONDPacketInfoHost& econdPacketInfo) {
-  uint16_t status =
-      unpacker_.parseFEDData(fedId, fed_data, moduleIndexer, config, digis, fedPacketInfo, econdPacketInfo, headersOnly_);
+  uint16_t status = unpacker_.parseFEDData(
+      fedId, fed_data, moduleIndexer, config, digis, fedPacketInfo, econdPacketInfo, headersOnly_);
   return status;
 }
 

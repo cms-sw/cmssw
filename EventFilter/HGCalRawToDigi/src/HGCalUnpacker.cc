@@ -265,7 +265,6 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
       LogDebug("[HGCalUnpacker]") << "fedId = " << fedId << ", captureblockIdx = " << captureblockIdx
                                   << ", econdIdx = " << econdIdx << ", econd_headers = " << std::hex
                                   << std::setfill('0') << std::setw(8) << econd_headers[0] << " " << econd_headers[1]
-                                  << std::dec << ", econd_payload_length = " << econd_payload_length;
                                   << ", econd_payload_length = " << std::dec << econd_payload_length << ", "
                                   << "H/T = 0b"
                                   << std::bitset<2>((econd_headers[0] >> ECOND_FRAME::HT_POS) & ECOND_FRAME::HT_MASK)
