@@ -70,11 +70,8 @@ private:
 HGCalTestDDDCons::HGCalTestDDDCons(const edm::ParameterSet &iC)
     : nameDetectors_(iC.getParameter<std::vector<std::string>>("nameDetectors")),
       fileName_(iC.getParameter<std::string>("fileName")),
-      tok_hgcal_{
-          edm::vector_transform(nameDetectors_,
-                                [this](const std::string &name) {
-                                  return esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
-                                      edm::ESInputTag{"", name});
+      tok_hgcal_{edm::vector_transform(nameDetectors_, [this](const std::string &name) {
+        return esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name});
       })} {
   std::ostringstream st1;
   for (const auto &name : nameDetectors_)
@@ -188,16 +185,18 @@ void HGCalTestDDDCons::beginRun(edm::Run const &iRun, edm::EventSetup const &iSe
                                 << ":" << cellxy_ncog.first << "," << cellxy_ncog.second << ":" << cellxy_cog.first
                                 << "," << cellxy_cog.second << " CellType:CellPosition " << cellType.second << ":"
                                 << cellType.first;
-    if (std::sqrt(std::pow(waferxy.first + scale * xwafer_[k], 2) + std::pow(waferxy.second - scale * ywafer_[k], 2)) > 0.01) {
+    if (std::sqrt(std::pow(waferxy.first + scale * xwafer_[k], 2) + std::pow(waferxy.second - scale * ywafer_[k], 2)) >
+        0.01) {
       edm::LogVerbatim("HGCGeom") << " Error wafer mismatch actual:observed (" << xwafer_[k] << "," << ywafer_[k]
                                   << "):(" << waferxy.first << "," << waferxy.second << ") ";
     }
-    if (std::sqrt(std::pow(cellxy_ncog.first + scale * xcell_[k], 2) + std::pow(cellxy_ncog.second - scale * ycell_[k], 2)) > 0.01) {
+    if (std::sqrt(std::pow(cellxy_ncog.first + scale * xcell_[k], 2) +
+                  std::pow(cellxy_ncog.second - scale * ycell_[k], 2)) > 0.01) {
       edm::LogVerbatim("HGCGeom") << " Error cell COG mismatch actual:observed (" << xcell_[k] << "," << ycell_[k]
                                   << "):(" << cellxy_ncog.first << "," << cellxy_ncog.second << ") ";
     }
-    if (std::sqrt(std::pow(cellxy_cog.first + scale * xcellOff_[k], 2) + std::pow(cellxy_cog.second - scale * ycellOff_[k], 2)) >
-        0.01) {
+    if (std::sqrt(std::pow(cellxy_cog.first + scale * xcellOff_[k], 2) +
+                  std::pow(cellxy_cog.second - scale * ycellOff_[k], 2)) > 0.01) {
       edm::LogVerbatim("HGCGeom") << " Error cell center mismatch actual:observed (" << xcellOff_[k] << ","
                                   << ycellOff_[k] << "):(" << cellxy_cog.first << "," << cellxy_cog.second << ") ";
     }
