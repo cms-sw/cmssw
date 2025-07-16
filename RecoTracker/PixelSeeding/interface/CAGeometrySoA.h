@@ -38,9 +38,17 @@ namespace reco {
                       SOA_COLUMN(GraphNode, graph),
                       SOA_COLUMN(bool, startingPair),
                       SOA_COLUMN(int16_t, phiCuts),
-                      SOA_COLUMN(float, minz),
-                      SOA_COLUMN(float, maxz),
-                      SOA_COLUMN(float, maxr))
+                      SOA_COLUMN(float, minInnerZ),
+                      SOA_COLUMN(float, maxInnerZ),
+                      SOA_COLUMN(float, minOuterZ),
+                      SOA_COLUMN(float, maxOuterZ),
+                      SOA_COLUMN(float, minInnerR),
+                      SOA_COLUMN(float, maxInnerR),
+                      SOA_COLUMN(float, minOuterR),
+                      SOA_COLUMN(float, maxOuterR),
+                      SOA_COLUMN(float, maxDZ),
+                      SOA_COLUMN(float, minDZ),
+                      SOA_COLUMN(float, maxDR))
 
   using CALayersSoA = CALayersLayout<>;
   using CALayersSoAView = CALayersSoA::View;
