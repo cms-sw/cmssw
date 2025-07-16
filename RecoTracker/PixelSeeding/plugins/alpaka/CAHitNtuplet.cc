@@ -48,9 +48,17 @@ namespace reco {
           pairGraph_(iConfig.getParameter<std::vector<unsigned int>>("pairGraph")),
           startingPairs_(iConfig.getParameter<std::vector<unsigned int>>("startingPairs")),
           phiCuts_(iConfig.getParameter<std::vector<int>>("phiCuts")),
-          minZ_(iConfig.getParameter<std::vector<double>>("minZ")),
-          maxZ_(iConfig.getParameter<std::vector<double>>("maxZ")),
-          maxR_(iConfig.getParameter<std::vector<double>>("maxR")) {}
+          minInnerZ_(iConfig.getParameter<std::vector<double>>("minInnerZ")),
+          maxInnerZ_(iConfig.getParameter<std::vector<double>>("maxInnerZ")),
+          minOuterZ_(iConfig.getParameter<std::vector<double>>("minOuterZ")),
+          maxOuterZ_(iConfig.getParameter<std::vector<double>>("maxOuterZ")),
+          minInnerR_(iConfig.getParameter<std::vector<double>>("minInnerR")),
+          maxInnerR_(iConfig.getParameter<std::vector<double>>("maxInnerR")),
+          minOuterR_(iConfig.getParameter<std::vector<double>>("minOuterR")),
+          maxOuterR_(iConfig.getParameter<std::vector<double>>("maxOuterR")),
+          maxDZ_(iConfig.getParameter<std::vector<double>>("maxDZ")),
+          minDZ_(iConfig.getParameter<std::vector<double>>("minDZ")),
+          maxDR_(iConfig.getParameter<std::vector<double>>("maxDR")){}
 
     // Layers params
     const std::vector<double> caThetaCuts_;
@@ -60,9 +68,17 @@ namespace reco {
     const std::vector<unsigned int> pairGraph_;
     const std::vector<unsigned int> startingPairs_;
     const std::vector<int> phiCuts_;
-    const std::vector<double> minZ_;
-    const std::vector<double> maxZ_;
-    const std::vector<double> maxR_;
+    const std::vector<double> minInnerZ_;
+    const std::vector<double> maxInnerZ_;
+    const std::vector<double> minOuterZ_;
+    const std::vector<double> maxOuterZ_;
+    const std::vector<double> minInnerR_;
+    const std::vector<double> maxInnerR_;
+    const std::vector<double> minOuterR_;
+    const std::vector<double> maxOuterR_;
+    const std::vector<double> maxDZ_;
+    const std::vector<double> minDZ_;
+    const std::vector<double> maxDR_;
 
     mutable edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tokenGeometry_;
     mutable edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tokenTopology_;
@@ -105,9 +121,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     static std::shared_ptr<CAGeometryCache> globalBeginRun(edm::Run const& iRun,
                                                            edm::EventSetup const& iSetup,
                                                            GlobalCache const* iCache) {
-      assert(iCache->minZ_.size() == iCache->maxZ_.size());
-      assert(iCache->minZ_.size() == iCache->maxR_.size());
-      assert(iCache->minZ_.size() == iCache->phiCuts_.size());
+      assert(iCache->maxDR_.size() == iCache->minInnerZ_.size());
+      assert(iCache->maxDR_.size() == iCache->maxInnerZ_.size());
+      assert(iCache->maxDR_.size() == iCache->minOuterZ_.size());
+      assert(iCache->maxDR_.size() == iCache->maxOuterZ_.size());
+      assert(iCache->maxDR_.size() == iCache->minInnerR_.size());
+      assert(iCache->maxDR_.size() == iCache->maxInnerR_.size());
+      assert(iCache->maxDR_.size() == iCache->minOuterR_.size());
+      assert(iCache->maxDR_.size() == iCache->maxOuterR_.size());
+      assert(iCache->maxDR_.size() == iCache->maxDZ_.size());
+      assert(iCache->maxDR_.size() == iCache->minDZ_.size());
+      assert(iCache->maxDR_.size() == iCache->phiCuts_.size());
 
       assert(iCache->caThetaCuts_.size() == iCache->caDCACuts_.size());
 
@@ -120,7 +144,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       std::cout << "No. Pairs to be used = " << n_pairs << std::endl;
 #endif
 
-      assert(int(n_pairs) == int(iCache->minZ_.size()));
+
+      assert(int(n_pairs) == int(iCache->maxDR_.size()));
       assert(int(*std::max_element(iCache->startingPairs_.begin(), iCache->startingPairs_.end())) < n_pairs);
       assert(int(*std::max_element(iCache->pairGraph_.begin(), iCache->pairGraph_.end())) < n_layers);
 
@@ -304,9 +329,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       for (int i = 0; i < n_pairs; ++i) {
         cellSoA.graph()[i] = {{uint32_t(iCache->pairGraph_[2 * i]), uint32_t(iCache->pairGraph_[2 * i + 1])}};
         cellSoA.phiCuts()[i] = iCache->phiCuts_[i];
-        cellSoA.minz()[i] = iCache->minZ_[i];
-        cellSoA.maxz()[i] = iCache->maxZ_[i];
-        cellSoA.maxr()[i] = iCache->maxR_[i];
+        cellSoA.minInnerZ()[i] = iCache->minInnerZ_[i];
+        cellSoA.maxInnerZ()[i] = iCache->maxInnerZ_[i];
+        cellSoA.minOuterZ()[i] = iCache->minOuterZ_[i];
+        cellSoA.maxOuterZ()[i] = iCache->maxOuterZ_[i];
+        cellSoA.minInnerR()[i] = iCache->minInnerR_[i];
+        cellSoA.maxInnerR()[i] = iCache->maxInnerR_[i];
+        cellSoA.minOuterR()[i] = iCache->minOuterR_[i];
+        cellSoA.maxOuterR()[i] = iCache->maxOuterR_[i];
+        cellSoA.maxDZ()[i] = iCache->maxDZ_[i];
+        cellSoA.minDZ()[i] = iCache->minDZ_[i];
+        cellSoA.maxDR()[i] = iCache->maxDR_[i];
         cellSoA.startingPair()[i] = false;
       }
 

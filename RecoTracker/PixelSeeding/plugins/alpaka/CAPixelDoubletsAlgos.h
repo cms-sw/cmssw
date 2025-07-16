@@ -231,18 +231,34 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
       if ( ((inner<3) & (outer>3)) && bpos!=fpos) continue;
       */
 
-      auto mez = hh[i].zGlobal();
+      auto zi = hh[i].zGlobal();
 
-      if (mez < cc.minz()[pairLayerId] || mez > cc.maxz()[pairLayerId]) {
+      // cut on inner z
+      if (zi < cc.minInnerZ()[pairLayerId] || zi > cc.maxInnerZ()[pairLayerId]) {
 #ifdef DOUBLETS_DEBUG
-        printf("Killed here 2 --> mez: %f [index: %d], miz: %f, maxz: %f\n",
-               mez,
+        printf("Killed here 2 --> zi: %f [index: %d], minInnerZ: %f, maxInnerZ: %f\n",
+               zi,
                hh[i].detectorIndex(),
-               cc.minz()[pairLayerId],
-               cc.maxz()[pairLayerId]);
+               cc.minInnerZ()[pairLayerId],
+               cc.maxInnerZ()[pairLayerId]);
 #endif
         continue;
       }
+
+      auto ri = hh[i].rGlobal();
+
+      // cut on inner r
+      if (ri < cc.minInnerR()[pairLayerId] || ri > cc.maxInnerR()[pairLayerId]) {
+#ifdef DOUBLETS_DEBUG
+        printf("Killed here 3 --> ri: %f [index: %d], minInnerR: %f, maxInnerR: %f\n",
+               zi,
+               hh[i].detectorIndex(),
+               cc.minInnerR()[pairLayerId],
+               cc.maxInnerR()[pairLayerId]);
+#endif
+        continue;
+      }
+
 #ifdef DOUBLETS_DEBUG
       if (doClusterCut && outer > pixelTopology::last_barrel_layer)
         printf("clustCut: %d %d \n", i, clusterCut<TAcc>(acc, hh, ll, params, i));
@@ -250,18 +266,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
 
       if (doClusterCut && outer > pixelTopology::last_barrel_layer && clusterCut<TAcc>(acc, hh, ll, params, i)) {
 #ifdef DOUBLETS_DEBUG
-        printf("Killed here 3\n");
+        printf("Killed here 4\n");
 #endif
         continue;
       }
 
       auto mep = hh[i].iphi();
-      auto mer = hh[i].rGlobal();
 
       // all cuts: true if fails
       auto ptcut = [&](int j, int16_t idphi) {
         auto r2t4 = minRadius2T4;
-        auto ri = mer;
         auto ro = hh[j].rGlobal();
         auto dphi = short2phi(idphi);
         return dphi * dphi * (r2t4 - ri * ro) > (ro - ri) * (ro - ri);
@@ -269,16 +283,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
       auto z0cutoff = [&](int j) {
         auto zo = hh[j].zGlobal();
         auto ro = hh[j].rGlobal();
-        auto dr = ro - mer;
+        auto dr = ro - ri;
 #ifdef DOUBLETS_DEBUG
-        printf("dr: %4.3f, %4.3f, %4.3f --> %d\n", mer, ro, dr, (dr > cc.maxr()[pairLayerId]));
-        printf("mez: %4.3f, zo: %4.3f, std::abs((mez * ro - mer * zo)): %4.3f --> %d\n",
-               mez,
+        printf("dr: %4.3f, %4.3f, %4.3f --> %d\n", ri, ro, dr, (dr > cc.maxDR()[pairLayerId]));
+        printf("zi: %4.3f, zo: %4.3f, std::abs((zi * ro - ri * zo)): %4.3f --> %d\n",
+               zi,
                zo,
-               std::abs((mez * ro - mer * zo)),
-               (std::abs((mez * ro - mer * zo)) > params.cellZ0Cut_ * dr));
+               std::abs((zi * ro - ri * zo)),
+               (std::abs((zi * ro - ri * zo)) > params.cellZ0Cut_ * dr));
 #endif
-        return dr > cc.maxr()[pairLayerId] || dr < 0 || std::abs((mez * ro - mer * zo)) > params.cellZ0Cut_ * dr;
+        return dr > cc.maxDR()[pairLayerId] || dr < 0 || std::abs((zi * ro - ri * zo)) > params.cellZ0Cut_ * dr;
       };
 
       auto iphicut = cc.phiCuts()[pairLayerId];
@@ -291,9 +305,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
       printf("pairLayerId %d %d %.2f %.2f %.2f \n",
              pairLayerId,
              cc.phiCuts()[pairLayerId],
-             cc.maxr()[pairLayerId],
-             cc.maxz()[pairLayerId],
-             cc.minz()[pairLayerId]);
+             cc.maxDR()[pairLayerId],
+             cc.maxInnerZ()[pairLayerId],
+             cc.minInnerZ()[pairLayerId]);
 #endif
 
       auto khh = kh;
@@ -326,6 +340,49 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
 #endif
             continue;
           }
+
+          auto zo = hh[oi].zGlobal();
+
+          // cut on outer z
+          if (zo < cc.minOuterZ()[pairLayerId] || zo > cc.maxOuterZ()[pairLayerId]) {
+#ifdef DOUBLETS_DEBUG
+            printf("Killed here 5 --> zo: %f [index: %d], minOuterZ: %f, maxOuterZ: %f\n",
+                   zo,
+                   mo,
+                   cc.minOuterZ()[pairLayerId],
+                   cc.maxOuterZ()[pairLayerId]);
+#endif
+            continue;
+          }
+
+          auto ro = hh[oi].rGlobal();
+
+          // cut on outer r
+          if (ro < cc.minOuterR()[pairLayerId] || ri > cc.maxOuterR()[pairLayerId]) {
+#ifdef DOUBLETS_DEBUG
+            printf("Killed here 6 --> ro: %f [index: %d], minOuterR: %f, maxOuterR: %f\n",
+                   zo,
+                   mo,
+                   cc.minOuterR()[pairLayerId],
+                   cc.maxOuterR()[pairLayerId]);
+#endif
+            continue;
+          }
+          
+          auto dz = zo-zi;
+
+          // cut on outer z
+          if (dz < cc.minDZ()[pairLayerId] || dz > cc.maxDZ()[pairLayerId]) {
+#ifdef DOUBLETS_DEBUG
+            printf("Killed here 5 --> dz: %f [index: %d], minDZ: %f, maxDZ: %f\n",
+                   dz,
+                   mo,
+                   cc.minDZ()[pairLayerId],
+                   cc.maxDZ()[pairLayerId]);
+#endif
+            continue;
+          }
+
 
           if (params.cellZ0Cut_ > 0. && z0cutoff(oi)) {
 #ifdef DOUBLETS_DEBUG
