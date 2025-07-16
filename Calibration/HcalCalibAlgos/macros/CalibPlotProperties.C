@@ -26,7 +26,7 @@
 //
 //        This will plot two superimposed histograms from the two files
 //        with the possibility of normalizing and save the canvases
-//      
+//
 // .L CalibPlotProperties.C+g
 //  CalibSplit c1(fname, dirname, outFileName, pmin, pmax, runMin, runMax,
 //                debug);
@@ -1126,14 +1126,14 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
               h_mom[je2]->Fill(pmom, t_EventWeight);
               h_eEcal[je1]->Fill(t_eMipDR, t_EventWeight);
               h_eEcal[je2]->Fill(t_eMipDR, t_EventWeight);
-	      if (final) {
-		h_eHcalX[je1]->Fill(eHcal, t_EventWeight);
-		h_eHcalX[je2]->Fill(eHcal, t_EventWeight);
-		h_momX[je1]->Fill(pmom, t_EventWeight);
-		h_momX[je2]->Fill(pmom, t_EventWeight);
-		h_eEcalX[je1]->Fill(t_eMipDR, t_EventWeight);
-		h_eEcalX[je2]->Fill(t_eMipDR, t_EventWeight);
-	      }
+              if (final) {
+                h_eHcalX[je1]->Fill(eHcal, t_EventWeight);
+                h_eHcalX[je2]->Fill(eHcal, t_EventWeight);
+                h_momX[je1]->Fill(pmom, t_EventWeight);
+                h_momX[je2]->Fill(pmom, t_EventWeight);
+                h_eEcalX[je1]->Fill(t_eMipDR, t_EventWeight);
+                h_eEcalX[je2]->Fill(t_eMipDR, t_EventWeight);
+              }
             }
           }
         }
@@ -1172,15 +1172,15 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
                     eb += ener;
                     bv[depth - 1] += ener;
                     h_bvlist2[depth - 1]->Fill(ener, weight);
-		    if (final)
-		      h_bvlist2X[depth - 1]->Fill(ener, weight);
+                    if (final)
+                      h_bvlist2X[depth - 1]->Fill(ener, weight);
                     ++bnrec[depth - 1];
                   } else if (subdet == 2) {
                     ee += ener;
                     ev[depth - 1] += ener;
                     h_evlist2[depth - 1]->Fill(ener, weight);
-		    if (final)
-		      h_evlist2X[depth - 1]->Fill(ener, weight);
+                    if (final)
+                      h_evlist2X[depth - 1]->Fill(ener, weight);
                     ++enrec[depth - 1];
                   }
                 }
@@ -1195,17 +1195,17 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
               if (barrel) {
                 h_bvlist[i]->Fill(bv[i], weight);
                 h_bvlist3[i]->Fill((bnrec[i] + 0.001), weight);
-		if (final) {
-		  h_bvlistX[i]->Fill(bv[i], weight);
-		  h_bvlist3X[i]->Fill((bnrec[i] + 0.001), weight);
-		}
+                if (final) {
+                  h_bvlistX[i]->Fill(bv[i], weight);
+                  h_bvlist3X[i]->Fill((bnrec[i] + 0.001), weight);
+                }
               } else {
                 h_evlist[i]->Fill(ev[i], weight);
                 h_evlist3[i]->Fill((enrec[i] + 0.001), weight);
-		if (final) {
-		  h_evlistX[i]->Fill(ev[i], weight);
-		  h_evlist3X[i]->Fill((enrec[i] + 0.001), weight);
-		}
+                if (final) {
+                  h_evlistX[i]->Fill(ev[i], weight);
+                  h_evlist3X[i]->Fill((enrec[i] + 0.001), weight);
+                }
               }
             }
           }
@@ -1989,7 +1989,7 @@ void PlotHist(const char *hisFileName,
         hist->GetXaxis()->SetTitle(title);
         PlotThisHist(hist, text, isRealData, save);
       }
- 
+
       sprintf(name, "b_edepthX%d", i);
       hist = (TH1D *)(file->FindObjectAny(name));
       if (hist != nullptr) {
