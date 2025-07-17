@@ -59,7 +59,7 @@ namespace hgcal {
       int iphi = modulev * iphi_casette_offset + celliv + 1;
 
       int granularity = isHD ? 1 : 0;
-      
+
       return HGCScintillatorDetId(type, layer, ring, iphi, false, celltype, granularity).rawId();
     }
 
