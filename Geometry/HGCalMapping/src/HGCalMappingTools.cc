@@ -55,7 +55,7 @@ namespace hgcal {
       int type = 0;  // depends on SiPM size to be updated with new geometry
 
       int ring = (zside ? celliu : (-1) * celliu);
-      int iphi_casette_offset = isHD ? 33 : 24;
+      int iphi_casette_offset = isHD ? 36 : 24;
       int iphi = modulev * iphi_casette_offset + celliv + 1;
 
       int granularity = isHD ? 1 : 0;
