@@ -70,7 +70,8 @@ int main(int argc, char **argv) {
       "I,job_index",
       "job_index of split jobs (--nsplit_jobs must be set. index starts from 0. i.e. 0, 1, 2, 3, etc...)",
       cxxopts::value<int>())("3,tc_pls_triplets", "Allow triplet pLSs in TC collection")(
-      "2,no_pls_dupclean", "Disable pLS duplicate cleaning (both steps)")("h,help", "Print help");
+      "2,no_pls_dupclean", "Disable pLS duplicate cleaning (both steps)")("h,help", "Print help")(
+      "J,jet_branches", "Accounts for specific jet branches in input root file for testing");
 
   auto result = options.parse(argc, argv);
 
@@ -91,6 +92,7 @@ int main(int argc, char **argv) {
 
   // A default value one
   TString TrackingNtupleDir = gSystem->Getenv("TRACKINGNTUPLEDIR");
+
   if (ana.input_raw_string.EqualTo("muonGun"))
     ana.input_file_list_tstring = TString::Format("%s/trackingNtuple_10mu_pt_0p5_2.root", TrackingNtupleDir.Data());
   else if (ana.input_raw_string.EqualTo("muonGun_highPt"))
@@ -260,6 +262,10 @@ int main(int argc, char **argv) {
   //_______________________________________________________________________________
   // --no_pls_dupclean
   ana.no_pls_dupclean = result["no_pls_dupclean"].as<bool>();
+
+  //_______________________________________________________________________________
+  // --jet_branches
+  ana.jet_branches = result["jet_branches"].as<bool>();
 
   // Printing out the option settings overview
   std::cout << "=========================================================" << std::endl;
