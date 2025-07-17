@@ -176,6 +176,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
       for (uint32_t module : cms::alpakatools::independent_groups(acc, lastModule)) {
         auto firstPixel = clus_view[1 + module].moduleStart();
         uint32_t thisModuleId = digi_view[firstPixel].moduleId();
+        uint32_t rawModuleId = digi_view[firstPixel].rawIdArr();
         ALPAKA_ASSERT_ACC(thisModuleId < TrackerTraits::numberOfModules);
 
 #ifdef GPU_DEBUG
@@ -311,11 +312,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
 		for (uint32_t j : cms::alpakatools::independent_group_elements(acc, morphingsize)) {
 			uint16_t row = j / (pixelStatus::pixelSizeY + 2) + 1;
 			uint16_t col = j % (pixelStatus::pixelSizeY + 2) + 1;
-			for (int i = 0; i < 3 && images[group].clus()[col][row] == pixelStatus::empVal; i++) {
+			for (int i = 0; i < 3 && image.clus()[col][row] == pixelStatus::empVal; i++) {
 				for (int jj = 0; jj < 3; jj++) {
-					if (images[group].clus()[col + i - 1][row + jj - 1] != pixelStatus::empVal &&
-							images[group].clus()[col + i - 1][row + jj - 1] != pixelStatus::fakeVal && kernel1[i * 3 + jj]) {
-						images[group].clus()[col][row] = pixelStatus::fakeVal;
+					if (image.clus()[col + i - 1][row + jj - 1] != pixelStatus::empVal &&
+							image.clus()[col + i - 1][row + jj - 1] != pixelStatus::fakeVal && kernel1[i * 3 + jj]) {
+						image.clus()[col][row] = pixelStatus::fakeVal;
 					}
 				}
 			}
@@ -325,10 +326,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
 		for (uint32_t j : cms::alpakatools::independent_group_elements(acc, morphingsize)) {
 			uint16_t row = j / (pixelStatus::pixelSizeY + 2) + 1;
 			uint16_t col = j % (pixelStatus::pixelSizeY + 2) + 1;
-			for (int i = 0; i < 3 && images[group].clus()[col][row] == pixelStatus::fakeVal; i++) {
+			for (int i = 0; i < 3 && image.clus()[col][row] == pixelStatus::fakeVal; i++) {
 				for (int jj = 0; jj < 3; jj++) {
-					if (images[group].clus()[col + i - 1][row + jj - 1] == pixelStatus::empVal && kernel2[i * 3 + jj]) {
-						images[group].clus()[col][row] = pixelStatus::eroded;
+					if (image.clus()[col + i - 1][row + jj - 1] == pixelStatus::empVal && kernel2[i * 3 + jj]) {
+						image.clus()[col][row] = pixelStatus::eroded;
 						break;
 					}
 				}
