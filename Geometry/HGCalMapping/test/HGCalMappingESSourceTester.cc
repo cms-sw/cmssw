@@ -272,7 +272,7 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
   assert(gid.cellU() == celliu);
   assert(gid.cellV() == celliv);
 
-  int modidx(0), cellidx(1);
+  int modidx(2), cellidx(1);
   printf(
       "[HGCalMappingIndexESSourceTester][produce]  Creating %d number of raw ElectronicsIds from SoAs module idx: "
       "%d, cell idx: %d\n",
@@ -392,7 +392,7 @@ std::map<uint32_t, uint32_t> HGCalMappingESSourceTester::mapGeoToElectronics(
 
       if (sipm) {
         geoid = ::hgcal::mappingtools::getSiPMDetId(
-            imod.zside(), imod.plane(), imod.i2(), imod.celltype(), jcell.i1(), jcell.i2());
+            imod.zside(), imod.plane(), imod.i2(), imod.celltype(), jcell.i1(), jcell.i2(), jcell.isHD());
       } else {
         geoid = imod.detid() + jcell.detid();
       }
