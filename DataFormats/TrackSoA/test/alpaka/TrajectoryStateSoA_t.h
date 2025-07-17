@@ -8,7 +8,7 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE::test {
 
   template <typename TrackerTraits>
-  void testTrackSoA(Queue& queue, reco::TrackSoAView<TrackerTraits>& tracks);
+  void testTrackSoA(Queue& queue, ::reco::TrackSoAView& tracks);
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::test
 

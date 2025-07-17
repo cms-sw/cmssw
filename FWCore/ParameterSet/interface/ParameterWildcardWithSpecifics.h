@@ -23,7 +23,7 @@ namespace edm {
     ParameterDescriptionNode* clone() const override;
 
   private:
-    void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, bool optional) const override;
+    void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, Modifier modifier) const override;
 
     bool hasNestedContent_() const override;
 

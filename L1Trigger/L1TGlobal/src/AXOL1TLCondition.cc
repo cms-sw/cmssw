@@ -41,6 +41,16 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
+namespace {
+  //template function for reading results
+  template <typename ResultType, typename LossType>
+  LossType readResult(hls4mlEmulator::Model& model) {
+    std::pair<ResultType, LossType> ADModelResult;  //model outputs a pair of the (result vector, loss)
+    model.read_result(&ADModelResult);
+    return ADModelResult.second;
+  }
+}  // namespace
+
 l1t::AXOL1TLCondition::AXOL1TLCondition()
     : ConditionEvaluation(), m_gtAXOL1TLTemplate{nullptr}, m_gtGTB{nullptr}, m_model{nullptr} {}
 
@@ -130,10 +140,7 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
 
   //types of inputs and outputs
   typedef ap_fixed<18, 13> inputtype;
-  typedef std::array<ap_fixed<10, 7, AP_RND_CONV, AP_SAT>, 8> resulttype;  //v3
   typedef ap_ufixed<18, 14> losstype;
-  typedef std::pair<resulttype, losstype> pairtype;
-  // typedef std::array<ap_fixed<10, 7>, 13> resulttype;  //deprecated v1 type:
 
   //define zero
   inputtype fillzero = 0.0;
@@ -148,10 +155,10 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
   inputtype EtSumInput[EtSumVecSize];
 
   //declare result vectors +score
-  resulttype result;
+  // resulttype result;
   losstype loss;
-  pairtype ADModelResult;  //model outputs a pair of the (result vector, loss)
-  float score = -1.0;      //not sure what the best default is hm??
+  // pairtype ADModelResult;  //model outputs a pair of the (result vector, loss)
+  float score = -1.0;  //not sure what the best default is hm??
 
   //check number of input objects we actually have (muons, jets etc)
   int NCandMu = candMuVec->size(useBx);
@@ -198,8 +205,8 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
       if (iMu < NMuons) {  //stop if fill the Nobjects we need
         MuInput[0 + (3 * iMu)] = ((candMuVec->at(useBx, iMu))->hwPt()) /
                                  2;  //index 0,3,6,9 //have to do hwPt/2 in order to match original et inputs
-        MuInput[1 + (3 * iMu)] = (candMuVec->at(useBx, iMu))->hwEta();  //index 1,4,7,10
-        MuInput[2 + (3 * iMu)] = (candMuVec->at(useBx, iMu))->hwPhi();  //index 2,5,8,11
+        MuInput[1 + (3 * iMu)] = (candMuVec->at(useBx, iMu))->hwEtaAtVtx();  //index 1,4,7,10
+        MuInput[2 + (3 * iMu)] = (candMuVec->at(useBx, iMu))->hwPhiAtVtx();  //index 2,5,8,11
       }
     }
   }
@@ -234,10 +241,18 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
   //now run the inference
   m_model->prepare_input(ADModelInput);  //scaling internal here
   m_model->predict();
-  m_model->read_result(&ADModelResult);  // this should be the square sum model result
+  // m_model->read_result(&ADModelResult);  // this should be the square sum model result
+  if ((m_model_loader.model_name() == "GTADModel_v3") ||
+      (m_model_loader.model_name() == "GTADModel_v4")) {  //v3/v4 overwrite
+    using resulttype = std::array<ap_fixed<10, 7, AP_RND_CONV, AP_SAT>, 8>;
+    loss = readResult<resulttype, losstype>(*m_model);
+  } else {  //v5 default
+    using resulttype = ap_fixed<18, 14, AP_RND_CONV, AP_SAT>;
+    loss = readResult<resulttype, losstype>(*m_model);
+  }
 
-  result = ADModelResult.first;
-  loss = ADModelResult.second;
+  // result = ADModelResult.first;
+  // loss = ADModelResult.second;
   score = ((loss).to_float()) * 16.0;  //scaling to match threshold
   //save score to class variable in case score saving needed
   setScore(score);

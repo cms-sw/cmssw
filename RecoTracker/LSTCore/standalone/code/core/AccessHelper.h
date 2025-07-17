@@ -33,6 +33,8 @@ std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> getHitIdxsAndHi
 std::vector<unsigned int> getLSsFromT3(LSTEvent* event, unsigned int T3);
 std::vector<unsigned int> getMDsFromT3(LSTEvent* event, unsigned int T3);
 std::vector<unsigned int> getHitsFromT3(LSTEvent* event, unsigned int T3);
+std::vector<unsigned int> getHitTypesFromT3(LSTEvent* event, unsigned int T3);
+std::vector<unsigned int> getModuleIdxsFromT3(LSTEvent* event, unsigned int T3);
 std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> getHitIdxsAndHitTypesFromT3(LSTEvent* event,
                                                                                              unsigned T3);
 

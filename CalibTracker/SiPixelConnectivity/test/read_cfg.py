@@ -43,7 +43,6 @@ process.CondDBCommon.DBParameters.messageLevel = 1
 ###### TAGS TO READ ######
 process.PoolDBESSourceForReader = cms.ESSource("PoolDBESSource",
     process.CondDBCommon,
-    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
     toGet = cms.VPSet(
         cms.PSet(
             record = cms.string('SiPixelFedCablingMapRcd'),

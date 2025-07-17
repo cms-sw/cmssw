@@ -27,7 +27,6 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     process.CondDBCommon,
-    timetype = cms.untracked.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('EcalPedestalsRcd'),
         tag = cms.string('EcalPedestals_v5_online')

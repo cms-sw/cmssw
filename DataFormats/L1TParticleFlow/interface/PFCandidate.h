@@ -2,9 +2,7 @@
 #define DataFormats_L1TParticleFlow_PFCandidate_h
 
 #include <vector>
-#include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/L1TMuonPhase2/interface/SAMuon.h"
-#include "DataFormats/L1TParticleFlow/interface/PFCluster.h"
 #include "DataFormats/L1TParticleFlow/interface/PFTrack.h"
 #include "DataFormats/L1Trigger/interface/RegionalOutput.h"
 
@@ -13,6 +11,7 @@ namespace l1t {
   class PFCandidate : public L1Candidate {
   public:
     typedef l1t::SAMuonRef MuonRef;
+    typedef edm::Ptr<l1t::L1Candidate> L1CandPtr;
     enum ParticleType { ChargedHadron = 0, Electron = 1, NeutralHadron = 2, Photon = 3, Muon = 4 };
 
     PFCandidate() {}
@@ -37,8 +36,8 @@ namespace l1t {
     const PFTrackRef& pfTrack() const { return trackRef_; }
     void setPFTrack(const PFTrackRef& ref) { trackRef_ = ref; }
 
-    const PFClusterRef& pfCluster() const { return clusterRef_; }
-    void setPFCluster(const PFClusterRef& ref) { clusterRef_ = ref; }
+    const L1CandPtr& caloPtr() const { return caloPtr_; }
+    void setCaloPtr(const L1CandPtr& ptr) { caloPtr_ = ptr; }
 
     const MuonRef& muon() const { return muonRef_; }
     void setMuon(const MuonRef& ref) { muonRef_ = ref; }
@@ -71,7 +70,7 @@ namespace l1t {
     void setEncodedPuppi64(uint64_t encodedPuppi64) { encodedPuppi64_ = encodedPuppi64; }
 
   private:
-    PFClusterRef clusterRef_;
+    L1CandPtr caloPtr_;
     PFTrackRef trackRef_;
     MuonRef muonRef_;
     float dxy_, puppiWeight_, caloEta_, caloPhi_;

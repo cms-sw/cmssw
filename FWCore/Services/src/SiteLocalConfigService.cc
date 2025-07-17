@@ -78,7 +78,6 @@ namespace edm {
           m_trivialDataCatalogs(),
           m_dataCatalogs(),
           m_frontierConnect(),
-          m_rfioType("castor"),
           m_connected(false),
           m_cacheTempDir(),
           m_cacheTempDirPtr(nullptr),
@@ -288,8 +287,6 @@ namespace edm {
       return input;
     }
 
-    std::string const SiteLocalConfigService::rfioType(void) const { return m_rfioType; }
-
     std::string const *SiteLocalConfigService::sourceCacheTempDir() const { return m_cacheTempDirPtr; }
 
     double const *SiteLocalConfigService::sourceCacheMinFree() const { return m_cacheMinFreePtr; }
@@ -355,7 +352,6 @@ namespace edm {
       //   <subsite name="FNAL_SUBSITE"/>
       //   <event-data>
       //     <catalog url="trivialcatalog_file:/x/y/z.xml"/>
-      //     <rfiotype value="castor"/>
       //   </event-data>
       //   <calib-data>
       //     <catalog url="trivialcatalog_file:/x/y/z.xml"/>
@@ -411,10 +407,6 @@ namespace edm {
               m_trivialDataCatalogs.push_back(safe(catalog->Attribute("url")));
               catalog = catalog->NextSiblingElement("catalog");
             }
-          }
-          auto rfiotype = eventData->FirstChildElement("rfiotype");
-          if (rfiotype) {
-            m_rfioType = safe(rfiotype->Attribute("value"));
           }
         }
 
@@ -584,10 +576,12 @@ namespace edm {
               "Specify the file containing the site local config. Empty string will load from default directory.");
       desc.addOptionalUntracked<std::string>("overrideSourceCacheTempDir");
       desc.addOptionalUntracked<double>("overrideSourceCacheMinFree");
-      desc.addOptionalUntracked<std::string>("overrideSourceCacheHintDir");
+      desc.addOptionalUntracked<std::string>("overrideSourceCacheHintDir")
+          ->setComment("Set cache hint. See AdaptorConfig plugin for valid values.");
       desc.addOptionalUntracked<std::string>("overrideSourceCloneCacheHintDir")
           ->setComment("Provide an alternate cache hint for fast cloning.");
-      desc.addOptionalUntracked<std::string>("overrideSourceReadHint");
+      desc.addOptionalUntracked<std::string>("overrideSourceReadHint")
+          ->setComment("Set read hint. See AdaptorConfig plugin for valid values.");
       desc.addOptionalUntracked<std::vector<std::string> >("overrideSourceNativeProtocols");
       desc.addOptionalUntracked<unsigned int>("overrideSourceTTreeCacheSize");
       desc.addOptionalUntracked<unsigned int>("overrideSourceTimeout");

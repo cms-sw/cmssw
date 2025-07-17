@@ -47,8 +47,7 @@ void AlcaBeamSpotManager::readLumi(const LuminosityBlock &iLumi) {
   if (beamSpotHandle.isValid()) {  // check the product
     std::pair<edm::Timestamp, reco::BeamSpot> time_bs(iLumi.beginTime(), *beamSpotHandle);
     beamSpotMap_[iLumi.luminosityBlock()] = time_bs;
-    const BeamSpot *aBeamSpot = &beamSpotMap_[iLumi.luminosityBlock()].second;
-    aBeamSpot = beamSpotHandle.product();
+    const BeamSpot *aBeamSpot = beamSpotHandle.product();
     LogInfo("AlcaBeamSpotManager") << "Lumi: " << iLumi.luminosityBlock() << std::endl;
     LogInfo("AlcaBeamSpotManager") << *aBeamSpot << std::endl;
   } else {

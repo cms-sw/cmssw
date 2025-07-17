@@ -49,9 +49,9 @@ namespace edm {
 
   void ParameterWildcard<ParameterSetDescription>::validate_(ParameterSet& pset,
                                                              std::set<std::string>& validatedLabels,
-                                                             bool optional) const {
+                                                             Modifier modifier) const {
     std::vector<std::string> parameterNames = pset.getParameterNamesForType<ParameterSet>(isTracked());
-    validateMatchingNames(parameterNames, validatedLabels, optional);
+    validateMatchingNames(parameterNames, validatedLabels, modifier == Modifier::kOptional);
 
     if (psetDesc_) {
       for_all(parameterNames,
@@ -162,9 +162,9 @@ namespace edm {
 
   void ParameterWildcard<std::vector<ParameterSet> >::validate_(ParameterSet& pset,
                                                                 std::set<std::string>& validatedLabels,
-                                                                bool optional) const {
+                                                                Modifier modifier) const {
     std::vector<std::string> parameterNames = pset.getParameterNamesForType<std::vector<ParameterSet> >(isTracked());
-    validateMatchingNames(parameterNames, validatedLabels, optional);
+    validateMatchingNames(parameterNames, validatedLabels, modifier == Modifier::kOptional);
 
     if (psetDesc_) {
       for_all(parameterNames,

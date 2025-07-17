@@ -240,9 +240,28 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
   auto cpToSc_SimTrackstersMap = std::make_unique<std::map<uint, std::vector<uint>>>();
   auto result_ticlCandidates = std::make_unique<std::vector<TICLCandidate>>();
 
-  const auto& layerClusters = evt.get(clusters_token_);
-  const auto& layerClustersTimes = evt.get(clustersTime_token_);
-  const auto& inputClusterMask = evt.get(filtered_layerclusters_mask_token_);
+  const auto& layerClustersHandle = evt.getHandle(clusters_token_);
+  const auto& layerClustersTimesHandle = evt.getHandle(clustersTime_token_);
+  const auto& inputClusterMaskHandle = evt.getHandle(filtered_layerclusters_mask_token_);
+
+  // Validate input collections
+  if (!layerClustersHandle.isValid() || !layerClustersTimesHandle.isValid() || !inputClusterMaskHandle.isValid()) {
+    edm::LogWarning("SimTrackstersProducer") << "Missing input collections. Producing empty outputs.";
+
+    evt.put(std::move(result_ticlCandidates));
+    evt.put(std::move(output_mask));
+    evt.put(std::move(result_fromCP), "fromCPs");
+    evt.put(std::move(resultPU), "PU");
+    evt.put(std::move(output_mask_fromCP), "fromCPs");
+    evt.put(std::move(cpToSc_SimTrackstersMap));
+    return;
+  }
+
+  // Proceed if inputs are valid
+  const auto& layerClusters = *layerClustersHandle;
+  const auto& layerClustersTimes = *layerClustersTimesHandle;
+  const auto& inputClusterMask = *inputClusterMaskHandle;
+
   output_mask->resize(layerClusters.size(), 1.f);
   output_mask_fromCP->resize(layerClusters.size(), 1.f);
 

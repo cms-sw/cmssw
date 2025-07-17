@@ -64,7 +64,18 @@ options.register ('dataType',
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "Choice between FRD or raw DTH data generation")
 
+options.register ('subsystems',
+                  "",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,          # string, int, or float
+                  "List of generated subsystem FEDs. Empty means all.")
 
+
+options.register ('conversionTest',
+                  False,
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.bool,
+                  "Test conversion between new and old format")
 
 
 options.parseArguments()
@@ -135,6 +146,9 @@ if  options.dataType == "FRD":
                                tcdsFEDID = cms.untracked.uint32(1024),
                                injectErrPpm = cms.untracked.uint32(0)
                                )
+    if options.subsystems:
+        #set FED filering
+        process.s.subsystems = cms.untracked.vstring(tuple(options.subsystems.split(',')))
 
     process.out = cms.OutputModule("RawStreamFileWriterForBU",
         source = cms.InputTag("s"),
@@ -157,9 +171,17 @@ elif  options.dataType == "DTH":
         numEventsPerFile = cms.uint32(options.eventsPerFile),
         frdVersion = cms.uint32(0),
         frdFileVersion = cms.uint32(0),
-        sourceIdList = cms.untracked.vuint32(66,1511)
+        sourceIdList = cms.untracked.vuint32(66,1511),
+        rawProductName = cms.untracked.string("RawDataBuffer")
     )
 
-process.p = cms.Path(process.s+process.a)
+if options.conversionTest:
+  print("Running conversion TEST")
+  process.bufToColl = cms.EDProducer("RawBufferToCollection", source = cms.InputTag("s"))
+  process.collToBuf = cms.EDProducer("RawCollectionToBuffer", source = cms.InputTag("bufToColl"))
+  process.p = cms.Path(process.s+process.a+process.bufToColl+process.collToBuf)
+  process.out.source="collToBuf"
+else:
+  process.p = cms.Path(process.s+process.a)
 
 process.ep = cms.EndPath(process.out)

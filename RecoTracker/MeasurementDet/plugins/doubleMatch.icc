@@ -46,6 +46,7 @@ namespace {
 #include "RecHitPropagator.h"
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
+#include "DataFormats/Math/interface/logic.h"
 
 namespace {
   inline void print(const char* where, const TrajectoryStateOnSurface& t1, const TrajectoryStateOnSurface& t2) {
@@ -128,7 +129,7 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts,
     return;
   }
 
-  if ((!monoHits.empty()) && (!stereoHits.empty())) {
+  if (reco::branchless_and(!monoHits.empty(), !stereoHits.empty())) {
     const GluedGeomDet* gluedDet = &specificGeomDet();
     LocalVector trdir = (ts.isValid() ? ts.localDirection() : surface().toLocal(position() - GlobalPoint(0, 0, 0)));
 

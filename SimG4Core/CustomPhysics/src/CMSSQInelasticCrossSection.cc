@@ -13,8 +13,6 @@ CMSSQInelasticCrossSection::CMSSQInelasticCrossSection(double mass) : G4VCrossSe
   theAntiSQ = CMSAntiSQ::AntiSQ(mass);
 }
 
-CMSSQInelasticCrossSection::~CMSSQInelasticCrossSection() {}
-
 G4bool CMSSQInelasticCrossSection::IsElementApplicable(const G4DynamicParticle* aPart, G4int Z, const G4Material*) {
   return true;
 }

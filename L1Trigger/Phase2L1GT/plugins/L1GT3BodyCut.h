@@ -30,46 +30,44 @@ namespace l1t {
           minInvMassSqrDiv2_(getOptionalParam<int64_t, double>("minInvMass",
                                                                config,
                                                                [&](double value) {
-                                                                 return std::round(scales.to_hw_InvMassSqrDiv2(value) *
+                                                                 return std::floor(scales.to_hw_InvMassSqrDiv2(value) *
                                                                                    cosPhiLUT_.output_scale());
                                                                })),
-          maxInvMassSqrDiv2_(getOptionalParam<int64_t, double>("maxInvMass",
-                                                               config,
-                                                               [&](double value) {
-                                                                 return std::round(scales.to_hw_InvMassSqrDiv2(value) *
-                                                                                   cosPhiLUT_.output_scale());
-                                                               })),
+          maxInvMassSqrDiv2_(getOptionalParam<int64_t, double>(
+              "maxInvMass",
+              config,
+              [&](double value) { return std::ceil(scales.to_hw_InvMassSqrDiv2(value) * cosPhiLUT_.output_scale()); })),
           minTransMassSqrDiv2_(getOptionalParam<int64_t, double>(
               "minTransMass",
               config,
               [&](double value) {
-                return std::round(scales.to_hw_TransMassSqrDiv2(value) * cosPhiLUT_.output_scale());
+                return std::floor(scales.to_hw_TransMassSqrDiv2(value) * cosPhiLUT_.output_scale());
               })),
           maxTransMassSqrDiv2_(getOptionalParam<int64_t, double>(
               "maxTransMass",
               config,
               [&](double value) {
-                return std::round(scales.to_hw_TransMassSqrDiv2(value) * cosPhiLUT_.output_scale());
+                return std::ceil(scales.to_hw_TransMassSqrDiv2(value) * cosPhiLUT_.output_scale());
               })),
           scaleNormalShift_(std::round(std::log2(std::ceil(coshEtaLUT_.output_scale() / coshEtaLUT2_.output_scale())))),
           invMassResolutionReduceShift_([&]() {
+            // Computation of the dynamic input two-body mass resolution w.r.t. the cut value.
+            // The result is a resolution of inputs between 2^-15 to 2^-16 of the cut value.
             if (minInvMassSqrDiv2_) {
-              return std::max<int>(
-                  std::ceil(std::log2(minInvMassSqrDiv2_.value() * cosPhiLUT_.output_scale() + 1.0)) - 16, 0);
+              return std::max<int>(std::floor(std::log2(minInvMassSqrDiv2_.value())) + 1 - CALC_BITS, 0);
             } else if (maxInvMassSqrDiv2_) {
-              return std::max<int>(std::ceil(std::log2(maxInvMassSqrDiv2_.value() * cosPhiLUT_.output_scale())) - 16,
-                                   0);
+              return std::max<int>(std::floor(std::log2(maxInvMassSqrDiv2_.value())) + 1 - CALC_BITS, 0);
             } else {
               return 0;
             }
           }()),
           transMassResolutionReduceShift_([&]() {
+            // Computation of the dynamic input two-body mass resolution w.r.t. the cut value.
+            // The result is a resolution of inputs between 2^-15 to 2^-16 of the cut value.
             if (minTransMassSqrDiv2_) {
-              return std::max<int>(
-                  std::ceil(std::log2(minTransMassSqrDiv2_.value() * cosPhiLUT_.output_scale() + 1.0)) - 16, 0);
+              return std::max<int>(std::floor(std::log2(minTransMassSqrDiv2_.value())) + 1 - CALC_BITS, 0);
             } else if (maxTransMassSqrDiv2_) {
-              return std::max<int>(std::ceil(std::log2(maxTransMassSqrDiv2_.value() * cosPhiLUT_.output_scale())) - 16,
-                                   0);
+              return std::max<int>(std::floor(std::log2(maxTransMassSqrDiv2_.value())) + 1 - CALC_BITS, 0);
             } else {
               return 0;
             }
@@ -114,6 +112,7 @@ namespace l1t {
 
   private:
     static constexpr int HW_PI = 1 << (P2GTCandidate::hwPhi_t::width - 1);  // assumes phi in [-pi, pi)
+    static constexpr int CALC_BITS = 16;                                    // Allocate 16 bits to the calculation
 
     int64_t calc2BodyInvMass(const P2GTCandidate& obj1,
                              const P2GTCandidate& obj2,

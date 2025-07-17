@@ -1,4 +1,5 @@
 <use name="DataFormats/HepMCCandidate"/>
+<use name="FWCore/AbstractServices"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>

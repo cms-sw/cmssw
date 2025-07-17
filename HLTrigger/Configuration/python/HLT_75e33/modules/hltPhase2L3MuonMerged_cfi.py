@@ -10,7 +10,7 @@ hltPhase2L3MuonMerged = cms.EDProducer("TrackListMerger",
     ShareFrac = cms.double(0.19),
     TrackProducers = cms.VInputTag(
         "hltPhase2L3OIMuonTrackSelectionHighPurity",
-        "hltIter2Phase2L3FromL1TkMuonMerged",
+        "hltPhase2L3MuonFilter:L3IOTracksFiltered",
     ),
     allowFirstHitShare = cms.bool(True),
     copyExtras = cms.untracked.bool(True),
@@ -20,28 +20,15 @@ hltPhase2L3MuonMerged = cms.EDProducer("TrackListMerger",
     newQuality = cms.string("confirmed"),
     selectedTrackQuals = cms.VInputTag(
         "hltPhase2L3OIMuonTrackSelectionHighPurity",
-        "hltIter2Phase2L3FromL1TkMuonMerged",
+        "hltPhase2L3MuonFilter:L3IOTracksFiltered",
     ),
     setsToMerge = cms.VPSet(cms.PSet(pQual = cms.bool(False), tLists = cms.vint32(0, 1))),
     trackAlgoPriorityOrder = cms.string("hltESPTrackAlgoPriorityOrder"),
     writeOnlyTrkQuals = cms.bool(False),
 )
 
-from Configuration.ProcessModifiers.phase2L2AndL3Muons_cff import phase2L2AndL3Muons
-phase2L2AndL3Muons.toModify(
-    hltPhase2L3MuonMerged,
-    TrackProducers = cms.VInputTag(
-        "hltPhase2L3OIMuonTrackSelectionHighPurity",
-        "hltPhase2L3MuonFilter:L3IOTracksFiltered",
-    ),
-    selectedTrackQuals = cms.VInputTag(
-        "hltPhase2L3OIMuonTrackSelectionHighPurity",
-        "hltPhase2L3MuonFilter:L3IOTracksFiltered",
-    ),
-)
-
 from Configuration.ProcessModifiers.phase2L3MuonsOIFirst_cff import phase2L3MuonsOIFirst
-(phase2L2AndL3Muons & phase2L3MuonsOIFirst).toModify(
+phase2L3MuonsOIFirst.toModify(
     hltPhase2L3MuonMerged,
     TrackProducers = cms.VInputTag(
         "hltPhase2L3MuonFilter:L3OITracksFiltered",

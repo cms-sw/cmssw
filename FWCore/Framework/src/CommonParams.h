@@ -3,13 +3,11 @@
 
 /*----------------------------------------------------------------------
 
-Class to hold parameters used by the EventProcessor and also by subprocesses.
+Class to hold parameters used by the EventProcessor.
 
 ----------------------------------------------------------------------*/
 
 namespace edm {
-  //------------------------------------------------------------------
-  //
 
   struct CommonParams {
     CommonParams() : maxEventsInput_(), maxLumisInput_(), maxSecondsUntilRampdown_() {}

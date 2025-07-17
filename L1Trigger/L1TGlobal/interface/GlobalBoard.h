@@ -174,7 +174,8 @@ namespace l1t {
     /// pointer to External data list
     inline const BXVector<const GlobalExtBlk*>* getCandL1External() const { return m_candL1External; }
 
-    inline const float getCICADAScore() const { return m_cicadaScore; }
+    /// pointer to CICADA-score data list
+    inline const BXVector<float>* getCandL1CICADAScore() const { return m_candL1CICADAScore; }
 
     /*  Drop individual EtSums for Now
     /// pointer to ETM data list
@@ -208,8 +209,6 @@ namespace l1t {
     void setResetPSCountersEachLumiSec(bool val) { m_resetPSCountersEachLumiSec = val; }
     void setSemiRandomInitialPSCounters(bool val) { m_semiRandomInitialPSCounters = val; }
 
-    void setCICADAScore(float val) { m_cicadaScore = val; }
-
   public:
     inline void setVerbosity(const int verbosity) { m_verbosity = verbosity; }
 
@@ -224,6 +223,7 @@ namespace l1t {
     BXVector<const l1t::EtSum*>* m_candL1EtSum;
     BXVector<const l1t::EtSum*>* m_candL1EtSumZdc;
     BXVector<const GlobalExtBlk*>* m_candL1External;
+    BXVector<float>* m_candL1CICADAScore;
 
     //    BXVector<const l1t::EtSum*>* m_candETM;
     //    BXVector<const l1t::EtSum*>* m_candETT;
@@ -232,8 +232,6 @@ namespace l1t {
 
     int m_bxFirst_;
     int m_bxLast_;
-
-    float m_cicadaScore = 0.0;
 
     std::bitset<GlobalAlgBlk::maxPhysicsTriggers> m_gtlAlgorithmOR;
     std::bitset<GlobalAlgBlk::maxPhysicsTriggers> m_gtlDecisionWord;

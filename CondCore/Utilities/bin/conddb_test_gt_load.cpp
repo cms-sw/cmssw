@@ -250,7 +250,6 @@ cond::TestGTLoad::TestGTLoad() : Utilities("conddb_test_gt_load") {
 
 int cond::TestGTLoad::execute() {
   std::string gtag = getOptionValue<std::string>("globaltag");
-  bool debug = hasDebug();
   std::string connect = getOptionValue<std::string>("connect");
   bool verbose = hasOptionValue("verbose");
   size_t n = 1;

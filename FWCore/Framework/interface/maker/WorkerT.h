@@ -25,7 +25,6 @@ WorkerT: Code common to all workers.
 
 namespace edm {
 
-  class ModuleProcessName;
   class ProductResolverIndexAndSkipBit;
   class ThinnedAssociationsHelper;
 
@@ -60,16 +59,6 @@ namespace edm {
     SerialTaskQueue* globalRunsQueue() final;
     SerialTaskQueue* globalLuminosityBlocksQueue() final;
 
-    void updateLookup(BranchType iBranchType, ProductResolverIndexHelper const&) final;
-    void updateLookup(eventsetup::ESRecordsToProductResolverIndices const&) final;
-    void releaseMemoryPostLookupSignal() final;
-    void selectInputProcessBlocks(ProductRegistry const&, ProcessBlockHelperBase const&) final;
-
-    void resolvePutIndicies(
-        BranchType iBranchType,
-        std::unordered_multimap<std::string, std::tuple<TypeID const*, const char*, edm::ProductResolverIndex>> const&
-            iIndicies) final;
-
     template <typename D>
     void callWorkerBeginStream(D, StreamID);
     template <typename D>
@@ -82,6 +71,8 @@ namespace edm {
     void callWorkerStreamBegin(D, StreamID, LumiTransitionInfo const&, ModuleCallingContext const*);
     template <typename D>
     void callWorkerStreamEnd(D, StreamID, LumiTransitionInfo const&, ModuleCallingContext const*);
+
+    bool matchesBaseClassPointer(void const* iPtr) const noexcept final { return &(*module_) == iPtr; }
 
   protected:
     T& module() { return *module_; }
@@ -117,39 +108,15 @@ namespace edm {
     bool implDoStreamBegin(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) override;
     bool implDoStreamEnd(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) override;
     bool implDoEnd(LumiTransitionInfo const&, ModuleCallingContext const*) override;
-    void implBeginJob() override;
-    void implEndJob() override;
-    void implBeginStream(StreamID) override;
-    void implEndStream(StreamID) override;
     void implRespondToOpenInputFile(FileBlock const& fb) override;
     void implRespondToCloseInputFile(FileBlock const& fb) override;
     void implRespondToCloseOutputFile() override;
-    void implRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) override;
-    std::string workerType() const override;
     TaskQueueAdaptor serializeRunModule() override;
 
-    void modulesWhoseProductsAreConsumed(
-        std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modules,
-        std::vector<ModuleProcessName>& modulesInPreviousProcesses,
-        ProductRegistry const& preg,
-        std::map<std::string, ModuleDescription const*> const& labelsToDesc) const override {
-      module_->modulesWhoseProductsAreConsumed(
-          modules, modulesInPreviousProcesses, preg, labelsToDesc, module_->moduleDescription().processName());
-    }
-
-    void esModulesWhoseProductsAreConsumed(
-        std::array<std::vector<eventsetup::ComponentDescription const*>*, kNumberOfEventSetupTransitions>& esModules,
-        eventsetup::ESRecordsToProductResolverIndices const& iPI) const override {
-      module_->esModulesWhoseProductsAreConsumed(esModules, iPI);
-    }
-
-    void convertCurrentProcessAlias(std::string const& processName) override {
-      module_->convertCurrentProcessAlias(processName);
-    }
-
     std::vector<ModuleConsumesInfo> moduleConsumesInfos() const override;
-    std::vector<ModuleConsumesESInfo> moduleConsumesESInfos(
-        eventsetup::ESRecordsToProductResolverIndices const& iPI) const override;
+    std::vector<ModuleConsumesMinimalESInfo> moduleConsumesMinimalESInfos() const final {
+      return module_->moduleConsumesMinimalESInfos();
+    }
 
     void itemsToGet(BranchType branchType, std::vector<ProductResolverIndexAndSkipBit>& indexes) const override {
       module_->itemsToGet(branchType, indexes);

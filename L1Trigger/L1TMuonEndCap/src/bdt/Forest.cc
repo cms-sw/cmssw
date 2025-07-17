@@ -45,37 +45,17 @@ Forest::Forest() { events = std::vector<std::vector<Event*>>(1); }
 
 Forest::Forest(std::vector<Event*>& trainingEvents) { setTrainingEvents(trainingEvents); }
 
-/////////////////////////////////////////////////////////////////////////
-// _______________________Destructor____________________________________//
-//////////////////////////////////////////////////////////////////////////
-
-Forest::~Forest() {
-  // When the forest is destroyed it will delete the trees as well as the
-  // events from the training and testing sets.
-  // The user may want the events to remain after they destroy the forest
-  // this should be changed in future upgrades.
-
-  for (unsigned int i = 0; i < trees.size(); i++) {
-    if (trees[i])
-      delete trees[i];
-  }
-}
-
 Forest::Forest(const Forest& forest) {
-  transform(forest.trees.cbegin(), forest.trees.cend(), back_inserter(trees), [](const Tree* tree) {
-    return new Tree(*tree);
+  transform(forest.trees.cbegin(), forest.trees.cend(), back_inserter(trees), [](const std::unique_ptr<Tree>& tree) {
+    return std::make_unique<Tree>(*tree);
   });
 }
 
 Forest& Forest::operator=(const Forest& forest) {
-  for (unsigned int i = 0; i < trees.size(); i++) {
-    if (trees[i])
-      delete trees[i];
-  }
   trees.resize(0);
-
-  transform(forest.trees.cbegin(), forest.trees.cend(), back_inserter(trees), [](const Tree* tree) {
-    return new Tree(*tree);
+  trees.reserve(forest.trees.size());
+  transform(forest.trees.cbegin(), forest.trees.cend(), back_inserter(trees), [](const std::unique_ptr<Tree>& tree) {
+    return std::make_unique<Tree>(*tree);
   });
   return *this;
 }
@@ -113,7 +93,7 @@ std::vector<Event*> Forest::getTrainingEvents() { return events[0]; }
 // return the ith tree
 Tree* Forest::getTree(unsigned int i) {
   if (/*i>=0 && */ i < trees.size())
-    return trees[i];
+    return trees[i].get();
   else {
     //std::cout << i << "is an invalid input for getTree. Out of range." << std::endl;
     return nullptr;
@@ -124,7 +104,7 @@ Tree* Forest::getTree(unsigned int i) {
 // ______________________Various_Helpful_Functions______________________//
 //////////////////////////////////////////////////////////////////////////
 
-unsigned int Forest::size() {
+unsigned int Forest::size() const {
   // Return the number of trees in the forest.
   return trees.size();
 }
@@ -139,7 +119,7 @@ unsigned int Forest::size() {
 // ----------------------------------------------------------------------
 //////////////////////////////////////////////////////////////////////////
 
-void Forest::listEvents(std::vector<std::vector<Event*>>& e) {
+void Forest::listEvents(std::vector<std::vector<Event*>>& e) const {
   // Simply list the events in each event vector. We have multiple copies
   // of the events vector. Each copy is sorted according to a different
   // determining variable.
@@ -178,7 +158,7 @@ bool compareEventsById(Event* e1, Event* e2) {
 // ----------------------------------------------------------------------
 //////////////////////////////////////////////////////////////////////////
 
-void Forest::sortEventVectors(std::vector<std::vector<Event*>>& e) {
+void Forest::sortEventVectors(std::vector<std::vector<Event*>>& e) const {
   // When a node chooses the optimum split point and split variable it needs
   // the events to be sorted according to the variable it is considering.
 
@@ -192,7 +172,7 @@ void Forest::sortEventVectors(std::vector<std::vector<Event*>>& e) {
 // ----------------------------------------------------------------------
 //////////////////////////////////////////////////////////////////////////
 
-void Forest::rankVariables(std::vector<int>& rank) {
+void Forest::rankVariables(std::vector<int>& rank) const {
   // This function ranks the determining variables according to their importance
   // in determining the fit. Use a low learning rate for better results.
   // Separates completely useless variables from useful ones well,
@@ -242,7 +222,7 @@ void Forest::rankVariables(std::vector<int>& rank) {
 // ----------------------------------------------------------------------
 //////////////////////////////////////////////////////////////////////////
 
-void Forest::saveSplitValues(const char* savefilename) {
+void Forest::saveSplitValues(const char* savefilename) const {
   // This function gathers all of the split values from the forest and puts them into lists.
 
   std::ofstream splitvaluefile;
@@ -377,8 +357,8 @@ void Forest::doRegression(int nodeLimit,
 
   for (unsigned int i = 0; i < (unsigned)treeLimit; i++) {
     // std::cout << "++Building Tree " << i << "... " << std::endl;
-    Tree* tree = new Tree(events);
-    trees.push_back(tree);
+    trees.emplace_back(std::make_unique<Tree>(events));
+    Tree* tree = trees.back().get();
     tree->buildTree(nodeLimit);
 
     // Update the targets for the next tree to fit.
@@ -426,7 +406,7 @@ void Forest::predictEvents(std::vector<Event*>& eventsp, unsigned int numtrees) 
 void Forest::appendCorrection(std::vector<Event*>& eventsp, int treenum) {
   // Update the prediction by appending the next correction.
 
-  Tree* tree = trees[treenum];
+  Tree* tree = trees[treenum].get();
   tree->filterEvents(eventsp);
 
   // Update the events with their new prediction.
@@ -463,7 +443,7 @@ void Forest::predictEvent(Event* e, unsigned int numtrees) {
 void Forest::appendCorrection(Event* e, int treenum) {
   // Update the prediction by appending the next correction.
 
-  Tree* tree = trees[treenum];
+  Tree* tree = trees[treenum].get();
   Node* terminalNode = tree->filterEvent(e);
 
   // Update the event with its new prediction.
@@ -478,12 +458,13 @@ void Forest::loadForestFromXML(const char* directory, unsigned int numTrees) {
   // Load a forest that has already been created and stored into XML somewhere.
 
   // Initialize the vector of trees.
-  trees = std::vector<Tree*>(numTrees);
+  trees.resize(numTrees);
+  trees.shrink_to_fit();
 
   // Load the Forest.
   // std::cout << std::endl << "Loading Forest from XML ... " << std::endl;
   for (unsigned int i = 0; i < numTrees; i++) {
-    trees[i] = new Tree();
+    trees[i] = std::make_unique<Tree>();
 
     std::stringstream ss;
     ss << directory << "/" << i << ".xml";
@@ -499,17 +480,12 @@ void Forest::loadFromCondPayload(const L1TMuonEndCapForest::DForest& forest) {
   // Initialize the vector of trees.
   unsigned int numTrees = forest.size();
 
-  // clean-up leftovers from previous initialization (if any)
-  for (unsigned int i = 0; i < trees.size(); i++) {
-    if (trees[i])
-      delete trees[i];
-  }
-
-  trees = std::vector<Tree*>(numTrees);
+  trees.resize(numTrees);
+  trees.shrink_to_fit();
 
   // Load the Forest.
   for (unsigned int i = 0; i < numTrees; i++) {
-    trees[i] = new Tree();
+    trees[i] = std::make_unique<Tree>();
     trees[i]->loadFromCondPayload(forest[i]);
   }
 }
@@ -556,7 +532,8 @@ void Forest::doStochasticRegression(
 
   // Prepare some things.
   sortEventVectors(events);
-  trees = std::vector<Tree*>(treeLimit);
+  trees.resize(treeLimit);
+  trees.shrink_to_fit();
 
   // See how long the regression takes.
   TStopwatch timer;
@@ -572,7 +549,7 @@ void Forest::doStochasticRegression(
   for (unsigned int i = 0; i < (unsigned)treeLimit; i++) {
     // Build the tree using a random subsample.
     prepareRandomSubsample(fraction);
-    trees[i] = new Tree(subSample);
+    trees[i] = std::make_unique<Tree>(subSample);
     trees[i]->buildTree(nodeLimit);
 
     // Fit all of the events based upon the tree we built using
@@ -580,7 +557,7 @@ void Forest::doStochasticRegression(
     trees[i]->filterEvents(events[0]);
 
     // Update the targets for the next tree to fit.
-    updateRegTargets(trees[i], learningRate, l);
+    updateRegTargets(trees[i].get(), learningRate, l);
 
     // Save trees to xml in some directory.
     std::ostringstream ss;

@@ -1,12 +1,7 @@
-
 //
 // Hadronic Process: Reaction Dynamics
-// original by H.P. Wellisch
-// Modified by J.L.Chuma 19-Nov-96
-// Modified by J.L.Chuma 27-Mar-97
-// Modified by J.L.Chuma 30-Apr-97
-// Modified by J.L.Chuma 06-Aug-97  to include the original incident particle
-//                                  before Fermi motion and evaporation effects
+// original by H.P. Wellisch 1997 from GHEISHA code
+//
 
 #ifndef SimG4Core_CustomPhysics_FullModelReactionDynamics_h
 #define SimG4Core_CustomPhysics_FullModelReactionDynamics_h 1

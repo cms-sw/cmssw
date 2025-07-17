@@ -11,7 +11,6 @@ def customise(process):
 
     process.ecalConditions1 = cms.ESSource("PoolDBESSource",                                          
          process.CondDBSetup,                                                                         
-         timetype = cms.string('runnumber'),                                                          
          toGet = cms.VPSet(                                                                           
              cms.PSet(                                                                                
         record = cms.string('EcalADCToGeVConstantRcd'),                                               
@@ -59,13 +58,11 @@ def customise(process):
         ),                                                                                            
              ),                                                                                       
         connect = cms.string('frontier://FrontierProd/CMS_COND_31X_ECAL'),                            
-              authenticationMethod = cms.untracked.uint32(0)                                          
     )                                                                                                 
                                                                                                       
 
     process.ecalConditions2 = cms.ESSource("PoolDBESSource",
                                            process.CondDBSetup,
-                                           timetype = cms.string('runnumber'),
                                            toGet = cms.VPSet(
         cms.PSet(
         record = cms.string('EcalTPGCrystalStatusRcd'),
@@ -125,7 +122,6 @@ def customise(process):
         ),
         ),
         connect = cms.string('frontier://FrontierProd/CMS_COND_34X_ECAL'),
-               authenticationMethod = cms.untracked.uint32(0)
     )
 
     process.es_prefer_ecal1 = cms.ESPrefer("PoolDBESSource","ecalConditions1")                        
@@ -134,7 +130,6 @@ def customise(process):
                                                                                                       
     process.hcalConditions = cms.ESSource("PoolDBESSource",                                           
                                           process.CondDBSetup,                          
-                                          timetype = cms.string('runnumber'),                         
                                           toGet = cms.VPSet(                                          
         cms.PSet(                                                                                     
         record = cms.string('HcalChannelQualityRcd'),                                                 
@@ -186,7 +181,6 @@ def customise(process):
         ),                                                                                            
         ),                                                                                            
              connect = cms.string('frontier://FrontierProd/CMS_COND_31X_HCAL'),                       
-                      authenticationMethod = cms.untracked.uint32(0)                                  
     )                                                                                                 
                                                                                                       
     process.es_prefer_hcal = cms.ESPrefer("PoolDBESSource","hcalConditions")                          

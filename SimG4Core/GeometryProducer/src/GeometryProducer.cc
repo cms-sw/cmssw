@@ -22,6 +22,7 @@
 #include "G4TransportationManager.hh"
 #include "G4EmParameters.hh"
 #include "G4HadronicParameters.hh"
+#include "G4GeometryManager.hh"
 
 #include <iostream>
 #include <memory>
@@ -81,6 +82,10 @@ GeometryProducer::GeometryProducer(edm::ParameterSet const &p)
     m_kernel = new G4RunManagerKernel();
 
   m_kernel->SetVerboseLevel(m_verbose);
+
+#if G4VERSION_NUMBER >= 1130
+  G4GeometryManager::GetInstance()->RequestParallelOptimisation(false, false);
+#endif
 
   tokMF_ = esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>();
   if (m_pGeoFromDD4hep) {

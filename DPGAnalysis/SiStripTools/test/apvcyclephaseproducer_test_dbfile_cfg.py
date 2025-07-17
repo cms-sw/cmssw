@@ -44,12 +44,10 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = "GR_R_70_V1::All"
 #-------------------------------------------------------------------------
 process.poolDBESSource = cms.ESSource("PoolDBESSource",
-   BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
    DBParameters = cms.PSet(
         messageLevel = cms.untracked.int32(1),
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
-    timetype = cms.untracked.string('runnumber'),
     connect = cms.string('sqlite_file:apvphaseoffsets.db'),
     appendToDataLabel = cms.string("apvphaseoffsets"),
     toGet = cms.VPSet(cms.PSet(

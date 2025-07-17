@@ -15,9 +15,8 @@ hltPhase2L3MuonFilter = cms.EDProducer("Phase2HLTMuonSelectorForL3",
     MaxPtDifference = cms.double(999.0),
 )
 
-from Configuration.ProcessModifiers.phase2L2AndL3Muons_cff import phase2L2AndL3Muons
 from Configuration.ProcessModifiers.phase2L3MuonsOIFirst_cff import phase2L3MuonsOIFirst
-(phase2L2AndL3Muons & phase2L3MuonsOIFirst).toModify(
+phase2L3MuonsOIFirst.toModify(
     hltPhase2L3MuonFilter,
     l3Tracks = "hltPhase2L3OIMuonTrackSelectionHighPurity",
     IOFirst = False,

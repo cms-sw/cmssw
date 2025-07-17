@@ -139,7 +139,6 @@ else:
           from CondCore.DBCommon.CondDBSetup_cfi import *
           process.trackerAlignment = cms.ESSource("PoolDBESSource",CondDBSetup,
                                                   connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
-                                                  timetype = cms.string("runnumber"),
                                                   toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentRcd'),
                                                                              tag = cms.string('TrackerAlignment_Upgrade2017_design_v4')
                                                                         )
@@ -152,7 +151,6 @@ else:
           ####################################################################
           process.setAPE = cms.ESSource("PoolDBESSource",CondDBSetup,
                                         connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
-                                        timetype = cms.string("runnumber"),
                                         toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentErrorExtendedRcd'),
                                                                    tag = cms.string('TrackerAlignmentErrorsExtended_Upgrade2017_design_v0')
                                                               )
@@ -220,16 +218,17 @@ process.noslowpt = cms.EDFilter("FilterOutLowPt",
 ####################################################################
 from RecoVertex.BeamSpotProducer.beamSpotCompatibilityChecker_cfi import beamSpotCompatibilityChecker
 process.BeamSpotChecker = beamSpotCompatibilityChecker.clone(
-     bsFromEvent = "offlineBeamSpot::RECO",  # source of the event beamspot (in the ALCARECO files)
-     bsFromDB = "offlineBeamSpot",           # source of the DB beamspot (from Global Tag) NOTE: only if dbFromEvent is True!
+     bsFromFile = "offlineBeamSpot::RECO",  # source of the event beamspot (in the ALCARECO files)
+     bsFromDB = "offlineBeamSpot::@currentProcess", # source of the DB beamspot (from Global Tag) NOTE: only if dbFromEvent is True!
+     dbFromEvent = True,
      warningThr = 5, # significance threshold to emit a warning message
      errorThr = 10,  # significance threshold to abort the job
 )
 
 if _isMC:
-     process.goodvertexSkim = cms.Sequence(process.BeamSpotChecker + process.noscraping)
+     process.goodvertexSkim = cms.Sequence(process.noscraping)
 else:
-     process.goodvertexSkim = cms.Sequence(process.BeamSpotChecker + process.primaryVertexFilter + process.noscraping + process.noslowpt)
+     process.goodvertexSkim = cms.Sequence(process.primaryVertexFilter + process.noscraping + process.noslowpt)
 
 
 if(_theRefitter == RefitType.COMMON):
@@ -363,6 +362,7 @@ process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
 ####################################################################
 process.p = cms.Path(process.goodvertexSkim*
                      process.seqTrackselRefit*
+                     process.BeamSpotChecker*
                      process.PVValidation)
 
 ## PV refit part
@@ -407,8 +407,8 @@ process.vertexanalysis = cms.EDAnalyzer('GeneralPurposeVertexAnalyzer',
                                         TkSizeMin = cms.double(499.5),
                                         TkSizeMax = cms.double(-0.5),
                                         DxyBin = cms.int32(100),
-                                        DxyMin = cms.double(5000),
-                                        DxyMax = cms.double(-5000),
+                                        DxyMin = cms.double(-2000),
+                                        DxyMax = cms.double(2000),
                                         DzBin = cms.int32(100),
                                         DzMin = cms.double(-2000),
                                         DzMax = cms.double(2000),
@@ -436,6 +436,7 @@ process.PrimaryVertexResolution = cms.EDAnalyzer('SplitVertexResolution',
 
 process.p2 = cms.Path(process.HLTFilter                               +
                       process.seqTrackselRefit                        +
+                      process.BeamSpotChecker                         +
                       process.offlinePrimaryVerticesFromRefittedTrks  +
                       process.PrimaryVertexResolution                 +
                       process.trackanalysis                           +

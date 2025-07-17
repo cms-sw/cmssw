@@ -5,6 +5,7 @@
 <use name="FWCore/Utilities"/>
 <use name="SimGeneral/NoiseGenerators"/>
 <library file="GaussianTailNoiseGeneratorTest.cc" name="GaussianTailNoiseGeneratorTest">
+  <use name="FWCore/AbstractServices"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 

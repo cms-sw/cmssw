@@ -130,6 +130,8 @@ addMixingScenario("2023_25ns_EraD_PoissonOOTPU",{'file': 'SimGeneral.MixingModul
 addMixingScenario("2023_25ns_EraCD_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2023_25ns_EraCD_PoissonOOTPU_cfi'})
 addMixingScenario("2023_25ns_RunIII2023Summer24_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2023_25ns_RunIII2023Summer24_PoissonOOTPU_cfi'})
 addMixingScenario("2024_25ns_RunIII2024Summer24_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2024_25ns_RunIII2024Summer24_PoissonOOTPU_cfi'})
+addMixingScenario("2024_RunIIIpp5p36Winter24_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2024_RunIIIpp5p36Winter24_PoissonOOTPU_cfi'})
+addMixingScenario("2025_25ns_Run3pp13p6TeVSpring25_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2025_25ns_Run3pp13p6TeVSpring25_PoissonOOTPU_cfi'})
 addMixingScenario("ProdStep2",{'file': 'SimGeneral.MixingModule.mixProdStep2_cfi'})
 addMixingScenario("fromDB",{'file': 'SimGeneral.MixingModule.mix_fromDB_cfi'})
 addMixingScenario("2022_LHC_Simulation_10h_2h",{'file': 'SimGeneral.MixingModule.Run3_2022_LHC_Simulation_10h_2h_cfi'})

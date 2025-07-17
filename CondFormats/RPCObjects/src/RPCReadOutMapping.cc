@@ -180,7 +180,7 @@ std::vector<const LinkBoardSpec *> RPCReadOutMapping::getLBforChamber(const std:
   linkboard.dccInputChannelNum = 1;
   linkboard.tbLinkInputNum = 1;
   linkboard.lbNumInLink = 0;
-  const LinkBoardSpec *location = this->location(linkboard);
+  const LinkBoardSpec *location = nullptr;
 
   for (int k = 0; k < 18; k++) {
     linkboard.dccInputChannelNum = 1;

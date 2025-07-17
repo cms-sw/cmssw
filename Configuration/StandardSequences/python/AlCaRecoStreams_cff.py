@@ -102,6 +102,8 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrk_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrkFilter_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrkFilterNoHLT_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrkProducerFilter_cff import *
+# Run HcalCalIsoTrkProducerFilter on dedicated AlCaRaw data stream AlCaHcalIsoTrk
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrkFromAlCaRaw_cff import *
 # HCAL noise
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalNoise_cff import *
 #HCAL calibration iterative PhiSym
@@ -206,8 +208,8 @@ pathALCARECOTkAlMinBias = cms.Path(seqALCARECOTkAlMinBias*ALCARECOTkAlMinBiasDQM
 pathALCARECOTkAlJetHT = cms.Path(seqALCARECOTkAlJetHT*ALCARECOTkAlJetHTDQM)
 pathALCARECOTkAlK0s = cms.Path(seqALCARECOTkAlK0s*ALCARECOTkAlKShortTracksDQM)
 pathALCARECOTkAlLambdas = cms.Path(seqALCARECOTkAlLambdas*ALCARECOTkAlLambdaTracksDQM)
-pathALCARECOTkAlHLTTracks = cms.Path(seqALCARECOTkAlHLTTracks)
-pathALCARECOTkAlHLTTracksZMuMu = cms.Path(seqALCARECOTkAlHLTTracksZMuMu)
+pathALCARECOTkAlHLTTracks = cms.Path(seqALCARECOTkAlHLTTracks*ALCARECOTkAlHLTTracksDQM)
+pathALCARECOTkAlHLTTracksZMuMu = cms.Path(seqALCARECOTkAlHLTTracksZMuMu*ALCARECOTkAlHLTTracksZMuMuDQM)
 pathALCARECOSiPixelCalSingleMuon = cms.Path(seqALCARECOSiPixelCalSingleMuon)
 pathALCARECOSiPixelCalSingleMuonLoose = cms.Path(seqALCARECOSiPixelCalSingleMuonLoose)
 pathALCARECOSiPixelCalSingleMuonTight = cms.Path(seqALCARECOSiPixelCalSingleMuonTight * ALCARECOSiPixelCalSingleMuonTightDQM)
@@ -251,6 +253,7 @@ pathALCARECOHcalCalIsoTrk = cms.Path(seqALCARECOHcalCalIsoTrk*ALCARECOHcalCalIso
 pathALCARECOHcalCalIsoTrkFilter = cms.Path(seqALCARECOHcalCalIsoTrkFilter)
 pathALCARECOHcalCalIsoTrkFilterNoHLT = cms.Path(seqALCARECOHcalCalIsoTrkFilterNoHLT)
 pathALCARECOHcalCalIsoTrkProducerFilter = cms.Path(seqALCARECOHcalCalIsoTrkProducerFilter)
+pathALCARECOHcalCalIsoTrkFromAlCaRaw = cms.Path(seqALCARECOHcalCalIsoTrkFromAlCaRaw)
 pathALCARECOHcalCalNoise = cms.Path(seqALCARECOHcalCalNoise)
 pathALCARECOHcalCalIterativePhiSym = cms.Path(seqALCARECOHcalCalIterativePhiSym*ALCARECOHcalCalIterativePhisymDQM)
 pathALCARECOHcalCalIsolatedBunchSelector = cms.Path(seqALCARECOHcalCalIsolatedBunchSelector*ALCARECOHcalCalIsolatedBunchDQM)
@@ -758,6 +761,16 @@ ALCARECOStreamHcalCalIsoTrkProducerFilter = cms.FilteredStream(
 	selectEvents = OutALCARECOHcalCalIsoTrkProducerFilter.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
+
+ALCARECOStreamHcalCalIsoTrkFromAlCaRaw = cms.FilteredStream(
+	responsible = 'Joshua Hiltbrand',
+	name = 'HcalCalIsoTrkFromAlCaRaw',
+	paths  = (pathALCARECOHcalCalIsoTrkFromAlCaRaw),
+	content = OutALCARECOHcalCalIsoTrkFromAlCaRaw.outputCommands,
+	selectEvents = OutALCARECOHcalCalIsoTrkFromAlCaRaw.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
 
 ALCARECOStreamHcalCalNoise = cms.FilteredStream(
 	responsible = 'Grigory Safronov',

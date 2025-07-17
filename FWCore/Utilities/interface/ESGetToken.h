@@ -16,6 +16,7 @@
 
 #include "FWCore/Utilities/interface/ESInputTag.h"
 #include "FWCore/Utilities/interface/ESIndices.h"
+#include "FWCore/Utilities/interface/OftenEmptyCString.h"
 #include <limits>
 
 namespace edm {
@@ -69,8 +70,8 @@ namespace edm {
     explicit constexpr ESGetToken(unsigned int transitionID, ESTokenIndex index, char const* productLabel) noexcept
         : m_productLabel{productLabel}, m_transitionID{transitionID}, m_index{index} {}
 
-    constexpr char const* productLabel() const noexcept { return m_productLabel; }
-    char const* m_productLabel{nullptr};
+    constexpr char const* productLabel() const noexcept { return m_productLabel.c_str(); }
+    OftenEmptyCString m_productLabel{nullptr};
     // Note that for ESProducers, m_transitionID is actually a produceMethodID
     // (count of the setWhatProduced methods in the ESProducer)
     unsigned int m_transitionID{std::numeric_limits<unsigned int>::max()};

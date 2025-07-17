@@ -56,7 +56,7 @@ namespace edm {
     // in the output file
     std::vector<std::string> processesWithProcessBlockProducts_;
 
-    // This will have the value of 0 or 1, except for the SubProcess case.
+    // This will have the value of 0 or 1.
     // This is incremented to 1 if the current process produces new
     // ProcessBlock products and they are kept by the OutputModule.
     unsigned int nAddedProcesses_ = 0;
@@ -66,7 +66,6 @@ namespace edm {
     std::vector<unsigned int> translateFromStoredIndex_;
 
     // Points to the main ProcessBlockHelper owned by the EventProcessor
-    // or SubProcess
     ProcessBlockHelperBase const* processBlockHelper_ = nullptr;
 
     bool productsFromInputKept_ = false;

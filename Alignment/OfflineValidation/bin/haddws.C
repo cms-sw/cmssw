@@ -170,7 +170,7 @@ void haddws() {
 
 void MergeRootfile(TDirectory *target, const vector<pair<TFile *, double> > &vFileList) {
   //cout << "Target path: " << target->GetPath() << endl;
-  TString path((char *)strstr(target->GetPath(), ":"));
+  TString path(strstr(target->GetPath(), ":"));
   path.Remove(0, 2);
 
   vec_pair_it it = vFileList.begin();

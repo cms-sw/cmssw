@@ -15,7 +15,6 @@
 #include "FWCore/ServiceRegistry/interface/PathsAndConsumesOfModulesBase.h"
 
 #include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
-#include "FWCore/Framework/interface/ModuleProcessName.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/Transition.h"
@@ -25,6 +24,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <map>
 
 namespace edm {
 
@@ -44,14 +44,17 @@ namespace edm {
     ~PathsAndConsumesOfModules() override = default;
 
     void initialize(Schedule const*, std::shared_ptr<ProductRegistry const>);
-    void initializeForEventSetup(eventsetup::ESRecordsToProductResolverIndices&&,
-                                 eventsetup::EventSetupProvider const&);
+    void initializeForEventSetup(eventsetup::EventSetupProvider const&);
     void checkEventSetupInitialization() const;
 
     void removeModules(std::vector<ModuleDescription const*> const& modules);
 
-    std::vector<ModuleProcessName> const& modulesInPreviousProcessesWhoseProductsAreConsumedBy(
-        unsigned int moduleID) const;
+    struct ESProductInfo {
+      eventsetup::ComponentDescription const* componentDescription_ = nullptr;
+      unsigned int produceMethodID_ = std::numeric_limits<unsigned int>::max();
+    };
+    using ProducedByESModule =
+        std::map<edm::eventsetup::EventSetupRecordKey, std::map<edm::eventsetup::DataKey, ESProductInfo>>;
 
   private:
     std::vector<std::string> const& doPaths() const override;
@@ -98,7 +101,6 @@ namespace edm {
     std::vector<std::pair<unsigned int, unsigned int>> moduleIDToIndex_;
 
     std::array<std::vector<std::vector<ModuleDescription const*>>, NumBranchTypes> modulesWhoseProductsAreConsumedBy_;
-    std::vector<std::vector<ModuleProcessName>> modulesInPreviousProcessesWhoseProductsAreConsumedBy_;
 
     std::array<std::vector<std::vector<eventsetup::ComponentDescription const*>>, kNumberOfEventSetupTransitions>
         esModulesWhoseProductsAreConsumedBy_;
@@ -112,13 +114,12 @@ namespace edm {
     std::vector<std::vector<eventsetup::ComponentDescription const*>> esModulesWhoseProductsAreConsumedByESModule_;
 
     Schedule const* schedule_ = nullptr;
-    eventsetup::ESRecordsToProductResolverIndices esRecordsToProductResolverIndices_;
+    ProducedByESModule producedByESModule_;
     std::shared_ptr<ProductRegistry const> preg_;
     bool eventSetupInfoInitialized_ = false;
   };
 
-  std::vector<ModuleDescription const*> nonConsumedUnscheduledModules(
-      edm::PathsAndConsumesOfModulesBase const& iPnC, std::vector<ModuleProcessName>& consumedByChildren);
+  std::vector<ModuleDescription const*> nonConsumedUnscheduledModules(edm::PathsAndConsumesOfModulesBase const& iPnC);
 
   void checkForModuleDependencyCorrectness(edm::PathsAndConsumesOfModulesBase const& iPnC, bool iPrintDependencies);
 }  // namespace edm

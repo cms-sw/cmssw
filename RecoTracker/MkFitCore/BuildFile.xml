@@ -6,6 +6,7 @@
 <flags CXXFLAGS="-fopenmp-simd"/>
 <flags ADD_SUBDIR="1"/>
 <flags REM_CXXFLAGS="-Ofast" FILE="IterationConfig.cc"/>
+<use name="no-array-bounds-flag"/>
 <export>
   <lib name="RecoTrackerMkFitCore"/>
 </export>

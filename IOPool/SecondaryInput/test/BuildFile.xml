@@ -4,6 +4,7 @@
   <library file="SecondaryProducer.cc" name="SecondaryProducer">
     <flags EDM_PLUGIN="1"/>
     <use name="DataFormats/Provenance"/>
+    <use name="FWCore/AbstractServices"/>
     <use name="FWCore/Framework"/>
     <use name="FWCore/Sources"/>
     <use name="FWCore/Utilities"/>

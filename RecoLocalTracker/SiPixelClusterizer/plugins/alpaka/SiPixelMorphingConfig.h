@@ -1,13 +1,13 @@
-#ifndef RecoLocalTracker_SiPixelClusterizer_plugins_SiPixelMorphingConfig_h
-#define RecoLocalTracker_SiPixelClusterizer_plugins_SiPixelMorphingConfig_h
+#ifndef RecoLocalTracker_SiPixelClusterizer_plugins_alpaka_SiPixelMorphingConfig_h
+#define RecoLocalTracker_SiPixelClusterizer_plugins_alpaka_SiPixelMorphingConfig_h
 
 #include <cstdint>
 #include <vector>
 
 struct SiPixelMorphingConfig {
-  std::array<int32_t, 9> kernel1_;
-  std::array<int32_t, 9> kernel2_;
-  std::vector<uint32_t> morphingModules_; 
+  std::vector<uint32_t> morphingModules; 
+  std::array<int32_t, 9> kernel1;
+  std::array<int32_t, 9> kernel2;
 };
 
-#endif
+#endif  // RecoLocalTracker_SiPixelClusterizer_plugins_alpaka_SiPixelMorphingConfig_h

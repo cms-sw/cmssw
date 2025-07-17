@@ -36,7 +36,6 @@ cond::EditTagUtilities::EditTagUtilities() : Utilities("conddb_edit_tag") {
 cond::EditTagUtilities::~EditTagUtilities() {}
 
 int cond::EditTagUtilities::execute() {
-  bool debug = hasDebug();
   std::string connect = getOptionValue<std::string>("connect");
 
   // this is mandatory

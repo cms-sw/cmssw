@@ -332,6 +332,12 @@ This simulates a problem happening early in the job which causes processing not 
       void closeOutputFiles();
       void endJob();
 
+      template <typename Traits>
+      void processTransitionForAllStreams(typename Traits::TransitionInfoType& transitionInfo);
+
+      template <typename Traits>
+      void processGlobalTransition(typename Traits::TransitionInfoType& transitionInfo);
+
       // ---------- member data --------------------------------
       oneapi::tbb::global_control globalControl_;
       oneapi::tbb::task_group taskGroup_;

@@ -26,12 +26,17 @@ public:
   /** Enumerated type for MTD sub-deteector systems. */
   enum MTDType { typeUNKNOWN = 0, BTL = 1, ETL = 2 };
 
+  static const uint32_t kMTDOffset = 25;
   static const uint32_t kMTDsubdOffset = 23;
   static const uint32_t kMTDsubdMask = 0x3;
   static const uint32_t kZsideOffset = 22;
   static const uint32_t kZsideMask = 0x1;
   static const uint32_t kRodRingOffset = 16;
   static const uint32_t kRodRingMask = 0x3F;
+
+  static constexpr uint32_t kMTDMask = 0x31;  // DetId::Detector::Forward && MTDDetId::SubDetector::FastTime
+  static constexpr uint32_t kBTLMask = 0xc5;  // isMTD && MTDDetId::MTDType::BTL
+  static constexpr uint32_t kETLMask = 0xc6;  // isMTD && MTDDetId::MTDType::ETL
 
   // ---------- Constructors, enumerated types ----------
 
@@ -54,6 +59,16 @@ public:
 
   /** Returns enumerated type specifying MTD sub-detector, i.e. BTL or ETL. */
   inline int mtdSubDetector() const { return (id_ >> kMTDsubdOffset) & kMTDsubdMask; }
+
+  static inline bool const testForMTD(const DetId& id) {
+    return (id.rawId() >> MTDDetId::kMTDOffset) == MTDDetId::kMTDMask;
+  }
+  static inline bool const testForBTL(const DetId& id) {
+    return (id.rawId() >> MTDDetId::kMTDsubdOffset) == MTDDetId::kBTLMask;
+  }
+  static inline bool const testForETL(const DetId& id) {
+    return (id.rawId() >> MTDDetId::kMTDsubdOffset) == MTDDetId::kETLMask;
+  }
 
   /** Returns MTD side, i.e. Z-=0 or Z+=1. */
   inline int mtdSide() const { return (id_ >> kZsideOffset) & kZsideMask; }

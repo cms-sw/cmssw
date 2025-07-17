@@ -2,6 +2,7 @@
 <library file="*.cc" name="SimMuonCSCDigitizerPlugins">
   <use name="DataFormats/CSCDigi"/>
   <use name="DataFormats/MuonDetId"/>
+  <use name="FWCore/AbstractServices"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/Utilities"/>

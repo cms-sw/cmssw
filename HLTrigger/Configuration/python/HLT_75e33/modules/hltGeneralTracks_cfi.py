@@ -25,6 +25,10 @@ hltGeneralTracks = cms.EDProducer("TrackListMerger",
     writeOnlyTrkQuals = cms.bool(False)
 )
 
+from Configuration.ProcessModifiers.singleIterPatatrack_cff import singleIterPatatrack
+from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
+from Configuration.ProcessModifiers.seedingLST_cff import seedingLST
+
 _hltGeneralTracksSingleIterPatatrack = hltGeneralTracks.clone(
     TrackProducers = ["hltInitialStepTrackSelectionHighPurity"],
     hasSelector = [0],
@@ -36,8 +40,7 @@ _hltGeneralTracksSingleIterPatatrack = hltGeneralTracks.clone(
     )]
 )
 
-from Configuration.ProcessModifiers.singleIterPatatrack_cff import singleIterPatatrack
-singleIterPatatrack.toReplaceWith(hltGeneralTracks, _hltGeneralTracksSingleIterPatatrack)
+(singleIterPatatrack & ~trackingLST & ~seedingLST).toReplaceWith(hltGeneralTracks, _hltGeneralTracksSingleIterPatatrack)
 
 _hltGeneralTracksLST = hltGeneralTracks.clone(
     TrackProducers = ["hltInitialStepTrackSelectionHighPuritypTTCLST", "hltInitialStepTrackSelectionHighPuritypLSTCLST", "hltInitialStepTracksT5TCLST", "hltHighPtTripletStepTrackSelectionHighPurity"],
@@ -50,10 +53,9 @@ _hltGeneralTracksLST = hltGeneralTracks.clone(
     )]
 )
 
-from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
-trackingLST.toReplaceWith(hltGeneralTracks, _hltGeneralTracksLST)
+(~singleIterPatatrack & trackingLST & ~seedingLST).toReplaceWith(hltGeneralTracks, _hltGeneralTracksLST)
 
-_hltGeneralTracksLSTSingleIterPatatrack = hltGeneralTracks.clone(
+_hltGeneralTracksSingleIterPatatrackLST = hltGeneralTracks.clone(
     TrackProducers = ["hltInitialStepTrackSelectionHighPuritypTTCLST", "hltInitialStepTrackSelectionHighPuritypLSTCLST", "hltInitialStepTracksT5TCLST"],
     hasSelector = [0,0,0],
     indivShareFrac = [0.1,0.1,0.1],
@@ -64,7 +66,7 @@ _hltGeneralTracksLSTSingleIterPatatrack = hltGeneralTracks.clone(
     )]
 )
 
-(singleIterPatatrack & trackingLST).toReplaceWith(hltGeneralTracks, _hltGeneralTracksLSTSingleIterPatatrack)
+(singleIterPatatrack & trackingLST & ~seedingLST).toReplaceWith(hltGeneralTracks, _hltGeneralTracksSingleIterPatatrackLST)
 
 _hltGeneralTracksLSTSeeding = hltGeneralTracks.clone(
             TrackProducers = ["hltInitialStepTrackSelectionHighPuritypTTCLST", "hltInitialStepTracksT5TCLST", "hltHighPtTripletStepTrackSelectionHighPuritypLSTCLST"],
@@ -77,5 +79,9 @@ _hltGeneralTracksLSTSeeding = hltGeneralTracks.clone(
             )]
     )
 
-from Configuration.ProcessModifiers.seedingLST_cff import seedingLST
-(seedingLST & trackingLST).toReplaceWith(hltGeneralTracks, _hltGeneralTracksLSTSeeding)
+(~singleIterPatatrack & trackingLST & seedingLST).toReplaceWith(hltGeneralTracks, _hltGeneralTracksLSTSeeding)
+
+(singleIterPatatrack & trackingLST & seedingLST).toModify(_hltGeneralTracksSingleIterPatatrack,
+                                                          TrackProducers = ["hltInitialStepTracks"],
+                                                          selectedTrackQuals = ["hltInitialStepTracks"])
+(singleIterPatatrack & trackingLST & seedingLST).toReplaceWith(hltGeneralTracks, _hltGeneralTracksSingleIterPatatrack)

@@ -1,6 +1,7 @@
 <use name="CondFormats/Serialization"/>
 <use name="FWCore/Utilities"/>
 <use name="boost_serialization"/>
+<use name="rootcling"/>
 <export>
   <lib name="1"/>
 </export>

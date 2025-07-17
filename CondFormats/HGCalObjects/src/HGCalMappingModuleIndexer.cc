@@ -1,6 +1,14 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
+#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"       // for HGCSiliconDetId::waferType
+#include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"  // for HGCScintillatorDetId::tileGranularity
 
-//
+/**
+ * @short for a new module it adds it's type to the readaout sequence vector
+ * if the fed id is not yet existing in the mapping it's added
+ * a dense indexer is used to create the necessary indices for the new module
+ * unused indices will be set with -1
+ */
 void HGCalMappingModuleIndexer::processNewModule(uint32_t fedid,
                                                  uint16_t captureblockIdx,
                                                  uint16_t econdIdx,
@@ -48,7 +56,7 @@ void HGCalMappingModuleIndexer::processNewModule(uint32_t fedid,
   }
 }
 
-//
+/// @short to be called after all the modules have been processed
 void HGCalMappingModuleIndexer::finalize() {
   //max indices at different levels
   nfeds_ = fedReadoutSequences_.size();
@@ -121,6 +129,48 @@ void HGCalMappingModuleIndexer::finalize() {
       typeCounters[type_val]++;
     }
   }
+}
+
+/**
+ * @short decode silicon or sipm type and cell type for the detector id 
+ * from the typecode string: "M[LH]-X[123]X-*" for Si, "T[LH]-L*S*[PN]" for SiPm
+ */
+std::pair<bool, int8_t> HGCalMappingModuleIndexer::getCellType(std::string_view typecode) {
+  if (typecode.size() < 5) {
+    cms::Exception ex("InvalidHGCALTypeCode");
+    ex << "'" << typecode << "' is invalid for decoding readout cell type";
+    ex.addContext("Calling HGCalMappingModuleIndexer::getCellType()");
+    throw ex;
+  }
+  int8_t celltype = -1;
+  const bool isSiPM = (typecode[0] == 'T');
+  const bool isHD = (typecode[1] == 'H');
+  if (isSiPM) {  // assign SiPM type coarse or molded with next version of modulelocator
+    if (isHD)
+      celltype = HGCScintillatorDetId::tileGranularity::HGCalTileFine;
+    else
+      celltype = HGCScintillatorDetId::tileGranularity::HGCalTileNormal;
+  } else {  // assign Si wafer type low/high density and thickness (120, 200, 300 um)
+    const char thickness = typecode[4];
+    if (isHD) {
+      if (thickness == '1')
+        celltype = HGCSiliconDetId::waferType::HGCalHD120;
+      else if (thickness == '2')
+        celltype = HGCSiliconDetId::waferType::HGCalHD200;
+    } else {
+      if (thickness == '2')
+        celltype = HGCSiliconDetId::waferType::HGCalLD200;
+      else if (thickness == '3')
+        celltype = HGCSiliconDetId::waferType::HGCalLD300;
+    }
+  }
+  if (celltype == -1) {
+    cms::Exception ex("InvalidHGCALTypeCode");
+    ex << "Could not parse cell type from typecode='" << typecode << "'";
+    ex.addContext("Calling HGCalMappingModuleIndexer::getCellType()");
+    throw ex;
+  }
+  return std::pair<bool, int8_t>(isSiPM, celltype);
 }
 
 //

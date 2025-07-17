@@ -235,8 +235,8 @@ namespace edm {
 
     void EventSetupRecordProvider::fillReferencedDataKeys(
         std::map<DataKey, ComponentDescription const*>& referencedDataKeys) const {
-      std::vector<DataKey> keys;
-      firstRecordImpl().fillRegisteredDataKeys(keys);
+      std::vector<DataKey> const& keys = firstRecordImpl().registeredDataKeys();
+
       std::vector<ComponentDescription const*> components = firstRecordImpl().componentsForRegisteredDataKeys();
       auto itComponents = components.begin();
       for (auto const& k : keys) {
@@ -316,10 +316,8 @@ namespace edm {
       }
     }
 
-    std::vector<DataKey> EventSetupRecordProvider::registeredDataKeys() const {
-      std::vector<DataKey> ret;
-      firstRecordImpl().fillRegisteredDataKeys(ret);
-      return ret;
+    std::vector<DataKey> const& EventSetupRecordProvider::registeredDataKeys() const {
+      return firstRecordImpl().registeredDataKeys();
     }
 
     std::vector<ComponentDescription const*> EventSetupRecordProvider::componentsForRegisteredDataKeys() const {

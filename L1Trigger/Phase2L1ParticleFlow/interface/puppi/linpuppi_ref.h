@@ -5,6 +5,8 @@
 #include "linpuppi_bits.h"
 
 #include <vector>
+#include "L1Trigger/Phase2L1ParticleFlow/interface/NNVtxAssoc.h"
+#include <memory>
 
 namespace edm {
   class ParameterSet;
@@ -12,10 +14,15 @@ namespace edm {
 }  // namespace edm
 
 namespace l1ct {
+#ifdef CMSSW_GIT_HASH
+  const bool withinCMSSW_ = true;
+#else
+  const bool withinCMSSW_ = false;
+#endif
 
   class LinPuppiEmulator {
   public:
-    enum class SortAlgo { Insertion, BitonicRUFL, BitonicHLS, Hybrid, FoldedHybrid };
+    enum class SortAlgo { Insertion, BitonicRUFL, BitonicHLS, Hybrid, FoldedHybrid, BitonicVHDL };
 
     LinPuppiEmulator(unsigned int nTrack,
                      unsigned int nIn,
@@ -35,6 +42,12 @@ namespace l1ct {
                      double priorNe,
                      double priorPh,
                      pt_t ptCut,
+                     bool useMLAssociation = false,
+                     const double associationThreshold = 0.0,
+                     std::string associationGraphPath = "",
+                     std::vector<double> associationNetworkZ0binning = {},
+                     std::vector<double> associationNetworkEtaBounds = {},
+                     std::vector<double> associationNetworkZ0ResBins = {},
                      unsigned int nFinalSort = 0,
                      SortAlgo finalSortAlgo = SortAlgo::Insertion)
         : nTrack_(nTrack),
@@ -56,10 +69,19 @@ namespace l1ct {
           priorNe_(1, priorNe),
           priorPh_(1, priorPh),
           ptCut_(1, ptCut),
+          useMLAssociation_(useMLAssociation),
           nFinalSort_(nFinalSort ? nFinalSort : nOut),
           finalSortAlgo_(finalSortAlgo),
           debug_(false),
-          fakePuppi_(false) {}
+          fakePuppi_(false) {
+      if (useMLAssociation_ and withinCMSSW_) {
+        nnVtxAssoc_ = std::make_unique<NNVtxAssoc>(NNVtxAssoc(associationGraphPath,
+                                                              associationThreshold,
+                                                              associationNetworkZ0binning,
+                                                              associationNetworkEtaBounds,
+                                                              associationNetworkZ0ResBins));
+      }
+    }
 
     LinPuppiEmulator(unsigned int nTrack,
                      unsigned int nIn,
@@ -90,6 +112,12 @@ namespace l1ct {
                      double priorPh_1,
                      pt_t ptCut_0,
                      pt_t ptCut_1,
+                     bool useMLAssociation = false,
+                     const double associationThreshold = 0.0,
+                     std::string associationGraphPath = "",
+                     std::vector<double> associationNetworkZ0binning = {},
+                     std::vector<double> associationNetworkEtaBounds = {},
+                     std::vector<double> associationNetworkZ0ResBins = {},
                      unsigned int nFinalSort = 0,
                      SortAlgo finalSortAlgo = SortAlgo::Insertion);
 
@@ -112,6 +140,12 @@ namespace l1ct {
                      const std::vector<double> &priorNe,
                      const std::vector<double> &priorPh,
                      const std::vector<pt_t> &ptCut,
+                     bool useMLAssociation,
+                     const double associationThreshold,
+                     std::string associationGraphPath,
+                     std::vector<double> associationNetworkZ0binning,
+                     std::vector<double> associationNetworkEtaBounds,
+                     std::vector<double> associationNetworkZ0ResBins,
                      unsigned int nFinalSort,
                      SortAlgo finalSortAlgo)
         : nTrack_(nTrack),
@@ -133,6 +167,7 @@ namespace l1ct {
           priorNe_(priorNe),
           priorPh_(priorPh),
           ptCut_(ptCut),
+          useMLAssociation_(useMLAssociation),
           nFinalSort_(nFinalSort),
           finalSortAlgo_(finalSortAlgo),
           debug_(false),
@@ -211,6 +246,11 @@ namespace l1ct {
     std::vector<double> alphaSlope_, alphaZero_, alphaCrop_;
     std::vector<double> priorNe_, priorPh_;
     std::vector<pt_t> ptCut_;
+
+    // NNVtx Association:
+    bool useMLAssociation_;
+    std::unique_ptr<NNVtxAssoc> nnVtxAssoc_;
+
     unsigned int nFinalSort_;  // output after a full sort of charged + neutral
     SortAlgo finalSortAlgo_;
 

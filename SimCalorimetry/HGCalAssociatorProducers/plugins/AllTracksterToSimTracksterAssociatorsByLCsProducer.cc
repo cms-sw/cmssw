@@ -41,6 +41,8 @@ AllTracksterToSimTracksterAssociatorsByLCsProducer::AllTracksterToSimTracksterAs
     const edm::ParameterSet& pset)
     : layerClustersToken_(consumes<std::vector<reco::CaloCluster>>(pset.getParameter<edm::InputTag>("layerClusters"))) {
   const auto& tracksterCollections = pset.getParameter<std::vector<edm::InputTag>>("tracksterCollections");
+
+  std::string allLCtoTSAccoc = pset.getParameter<std::string>("allLCtoTSAccoc");
   for (const auto& tag : tracksterCollections) {
     std::string label = tag.label();
     if (!tag.instance().empty()) {
@@ -49,9 +51,9 @@ AllTracksterToSimTracksterAssociatorsByLCsProducer::AllTracksterToSimTracksterAs
     tracksterCollectionTokens_.emplace_back(label, consumes<std::vector<ticl::Trackster>>(tag));
     layerClusterToTracksterMapTokens_.emplace_back(
         label,
-        consumes<
-            ticl::AssociationMap<ticl::mapWithSharedEnergy, std::vector<reco::CaloCluster>, std::vector<ticl::Trackster>>>(
-            edm::InputTag("allLayerClusterToTracksterAssociations", label)));
+        consumes<ticl::AssociationMap<ticl::mapWithSharedEnergy,
+                                      std::vector<reco::CaloCluster>,
+                                      std::vector<ticl::Trackster>>>(edm::InputTag(allLCtoTSAccoc, label)));
   }
 
   const auto& simTracksterCollections = pset.getParameter<std::vector<edm::InputTag>>("simTracksterCollections");
@@ -63,9 +65,9 @@ AllTracksterToSimTracksterAssociatorsByLCsProducer::AllTracksterToSimTracksterAs
     simTracksterCollectionTokens_.emplace_back(label, consumes<std::vector<ticl::Trackster>>(tag));
     layerClusterToSimTracksterMapTokens_.emplace_back(
         label,
-        consumes<
-            ticl::AssociationMap<ticl::mapWithSharedEnergy, std::vector<reco::CaloCluster>, std::vector<ticl::Trackster>>>(
-            edm::InputTag("allLayerClusterToTracksterAssociations", label)));
+        consumes<ticl::AssociationMap<ticl::mapWithSharedEnergy,
+                                      std::vector<reco::CaloCluster>,
+                                      std::vector<ticl::Trackster>>>(edm::InputTag(allLCtoTSAccoc, label)));
   }
 
   // Produce separate association maps for each trackster-simTrackster combination
@@ -88,13 +90,50 @@ void AllTracksterToSimTracksterAssociatorsByLCsProducer::produce(edm::StreamID,
                                                                  const edm::EventSetup&) const {
   using namespace edm;
 
-  Handle<std::vector<reco::CaloCluster>> layerClustersHandle;
-  iEvent.getByToken(layerClustersToken_, layerClustersHandle);
+  // Retrieve layer clusters with protection
+  const auto& layerClustersHandle = iEvent.getHandle(layerClustersToken_);
+
+  // If layer clusters are missing, produce empty maps and return
+  if (!layerClustersHandle.isValid()) {
+    edm::LogWarning("MissingInput") << "Layer clusters collection not found. Producing empty maps.";
+    for (const auto& tracksterToken : tracksterCollectionTokens_) {
+      for (const auto& simTracksterToken : simTracksterCollectionTokens_) {
+        iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore,
+                                                         std::vector<ticl::Trackster>,
+                                                         std::vector<ticl::Trackster>>>(),
+                   tracksterToken.first + "To" + simTracksterToken.first);
+
+        iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore,
+                                                         std::vector<ticl::Trackster>,
+                                                         std::vector<ticl::Trackster>>>(),
+                   simTracksterToken.first + "To" + tracksterToken.first);
+      }
+    }
+    return;
+  }
+
   const auto& layerClusters = *layerClustersHandle;
 
   for (const auto& tracksterToken : tracksterCollectionTokens_) {
     Handle<std::vector<ticl::Trackster>> recoTrackstersHandle;
     iEvent.getByToken(tracksterToken.second, recoTrackstersHandle);
+
+    if (!recoTrackstersHandle.isValid()) {
+      edm::LogWarning("MissingInput") << "trackster  collection not found. Producing empty maps.";
+      for (const auto& simTracksterToken : simTracksterCollectionTokens_) {
+        iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore,
+                                                         std::vector<ticl::Trackster>,
+                                                         std::vector<ticl::Trackster>>>(),
+                   tracksterToken.first + "To" + simTracksterToken.first);
+
+        iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore,
+                                                         std::vector<ticl::Trackster>,
+                                                         std::vector<ticl::Trackster>>>(),
+                   simTracksterToken.first + "To" + tracksterToken.first);
+      }
+      continue;
+    }
+
     const auto& recoTracksters = *recoTrackstersHandle;
 
     // Retrieve the correct LayerClusterToTracksterMap for the current trackster collection
@@ -186,7 +225,6 @@ void AllTracksterToSimTracksterAssociatorsByLCsProducer::produce(edm::StreamID,
           unsigned int layerClusterId = layerClustersIds[i];
           const auto& layerCluster = layerClusters[layerClusterId];
           float recoFraction = 1.f / recoTrackster.vertex_multiplicity(i);
-          float squaredRecoFraction = recoFraction * recoFraction;
           float squaredLayerClusterEnergy = layerCluster.energy() * layerCluster.energy();
           float recoSharedEnergy = layerCluster.energy() * recoFraction;
           float invLayerClusterEnergy = 1.f / layerCluster.energy();
@@ -197,9 +235,15 @@ void AllTracksterToSimTracksterAssociatorsByLCsProducer::produce(edm::StreamID,
             edm::Ref<std::vector<ticl::Trackster>> simTracksterRef(simTrackstersHandle, simTracksterIndex);
             float sharedEnergy = std::min(simSharedEnergy, recoSharedEnergy);
             float simFraction = simSharedEnergy * invLayerClusterEnergy;
-            float score = invDenominator *
-                          std::min(squaredRecoFraction, (recoFraction - simFraction) * (recoFraction - simFraction)) *
-                          squaredLayerClusterEnergy;
+            /* RecoToSim score logic:
+             - simFraction >= 0 && recoFraction == 0 : simtrackster contains non-reco associated elements : ignore in recoToSim association
+             - simFraction == 0 && recoFraction > 0 : rechits not present in sim trackster : penalty in score by recoFraction*E
+             - simFraction == 1 && recoFraction == 1 : good association
+             - 1 > recoFraction > simFraction > 0 :  sim does not contain some reco energy, penalty in score by the additional part : (recoFraction-simFraction)*E
+             - 1 > simFraction> recoFraction > 0 : consider as good association, as there is enough sim to cover the reco
+            */
+            float recoMinusSimFraction = std::max(0.f, recoFraction - simFraction);
+            float score = invDenominator * recoMinusSimFraction * recoMinusSimFraction * squaredLayerClusterEnergy;
             tracksterToSimTracksterMap->insert(recoTracksterRef, simTracksterRef, sharedEnergy, score);
           }
         }
@@ -251,7 +295,6 @@ void AllTracksterToSimTracksterAssociatorsByLCsProducer::produce(edm::StreamID,
           unsigned int layerClusterId = layerClustersIds[i];
           const auto& layerCluster = layerClusters[layerClusterId];
           float simFraction = 1.f / simTrackster.vertex_multiplicity(i);
-          float squaredSimFraction = simFraction * simFraction;
           float squaredLayerClusterEnergy = layerCluster.energy() * layerCluster.energy();
           float simSharedEnergy = layerCluster.energy() * simFraction;
           float invLayerClusterEnergy = 1.f / layerCluster.energy();
@@ -261,10 +304,18 @@ void AllTracksterToSimTracksterAssociatorsByLCsProducer::produce(edm::StreamID,
             float recoSharedEnergy = recoTracksterElement.sharedEnergy();
             edm::Ref<std::vector<ticl::Trackster>> recoTracksterRef(recoTrackstersHandle, recoTracksterIndex);
             float sharedEnergy = std::min(recoSharedEnergy, simSharedEnergy);
-            float recoFraction = recoSharedEnergy * invLayerClusterEnergy;
-            float score = invDenominator *
-                          std::min(squaredSimFraction, (simFraction - recoFraction) * (simFraction - recoFraction)) *
-                          squaredLayerClusterEnergy;
+            float recoFraction =
+                recoSharedEnergy *
+                invLayerClusterEnergy;  // Either zero or one when no sharing of rechits between tracksters
+            /* SimToReco score logic:
+             - simFraction = 0 && recoFraction >= 0 : trackster contains non-sim associated elements : ignore in simToReco
+             - simFraction > 0 && recoFraction == 0 : simhits not present in reco trackster : penalty in score by simFraction*E
+             - simFraction == 1 && recoFraction == 1 : good association
+             - 1 > simFraction > recoFraction > 0 :  we are missing some sim energy, penalty in score by the missing part : (simFraction-recoFraction)*E
+             - 1 > recoFraction > simFraction > 0 : consider as good association, as there is enough reco to cover the sim
+            */
+            float simMinusRecoFraction = std::max(0.f, simFraction - recoFraction);
+            float score = invDenominator * simMinusRecoFraction * simMinusRecoFraction * squaredLayerClusterEnergy;
             simTracksterToTracksterMap->insert(tracksterIndex, recoTracksterIndex, sharedEnergy, score);
           }
         }
@@ -289,6 +340,7 @@ void AllTracksterToSimTracksterAssociatorsByLCsProducer::produce(edm::StreamID,
 
 void AllTracksterToSimTracksterAssociatorsByLCsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  desc.add<std::string>("allLCtoTSAccoc", "allLayerClusterToTracksterAssociations");
   desc.add<std::vector<edm::InputTag>>(
       "tracksterCollections", {edm::InputTag("ticlTrackstersCLUE3DHigh"), edm::InputTag("ticlTrackstersLinks")});
   desc.add<std::vector<edm::InputTag>>(

@@ -27,8 +27,6 @@
 // forward declarations
 namespace edm {
 
-  class SubProcessParentageHelper;
-
   namespace one {
 
     class OutputModuleBase : public core::OutputModuleCore {
@@ -58,8 +56,6 @@ namespace edm {
       virtual SerialTaskQueue* globalLuminosityBlocksQueue() { return nullptr; }
       SharedResourcesAcquirer& sharedResourcesAcquirer() { return resourcesAcquirer_; }
 
-      SubProcessParentageHelper const* subProcessParentageHelper() const { return subProcessParentageHelper_; }
-
     protected:
       void doPreallocate(PreallocationConfiguration const&);
 
@@ -69,15 +65,11 @@ namespace edm {
       void configure(OutputModuleDescription const& desc);
 
     private:
-      SubProcessParentageHelper const* subProcessParentageHelper_;
-
       SharedResourcesAcquirer resourcesAcquirer_;
       SerialTaskQueue runQueue_;
       SerialTaskQueue luminosityBlockQueue_;
 
       virtual SharedResourcesAcquirer createAcquirer();
-
-      std::string workerType() const { return "WorkerT<edm::one::OutputModuleBase>"; }
 
       virtual void preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
                                                 ModuleCallingContext const& iModuleCallingContext,

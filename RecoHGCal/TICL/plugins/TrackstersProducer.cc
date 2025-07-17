@@ -119,7 +119,7 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<edm::InputTag>("seeding_regions", edm::InputTag("ticlSeedingRegionProducer"));
   desc.add<std::string>("patternRecognitionBy", "CA");
   desc.add<std::string>("itername", "unknown");
-  desc.add<std::string>("inferenceAlgo", "TracksterInferenceByDNN");
+  desc.add<std::string>("inferenceAlgo", "TracksterInferenceByPFN");
 
   // CA Plugin
   edm::ParameterSetDescription pluginDesc;
@@ -145,6 +145,11 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   edm::ParameterSetDescription inferenceDesc;
   inferenceDesc.addNode(edm::PluginDescription<TracksterInferenceAlgoFactory>("type", "TracksterInferenceByDNN", true));
   desc.add<edm::ParameterSetDescription>("pluginInferenceAlgoTracksterInferenceByDNN", inferenceDesc);
+
+  edm::ParameterSetDescription inferenceDescPFN;
+  inferenceDescPFN.addNode(
+      edm::PluginDescription<TracksterInferenceAlgoFactory>("type", "TracksterInferenceByPFN", true));
+  desc.add<edm::ParameterSetDescription>("pluginInferenceAlgoTracksterInferenceByPFN", inferenceDescPFN);
 
   edm::ParameterSetDescription inferenceDescANN;
   inferenceDescANN.addNode(

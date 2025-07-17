@@ -10,6 +10,8 @@
 #include "RecoTracker/LSTCore/interface/TripletsSoA.h"
 #include "RecoTracker/LSTCore/interface/Circle.h"
 
+#include "NeuralNetwork.h"
+
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void addTripletToMemory(ModulesConst modules,
@@ -30,7 +32,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                          float circleRadius,
                                                          float circleCenterX,
                                                          float circleCenterY,
-                                                         unsigned int tripletIndex) {
+                                                         unsigned int tripletIndex,
+                                                         float (&t3Scores)[dnn::t3dnn::kOutputFeatures]) {
     triplets.segmentIndices()[tripletIndex][0] = innerSegmentIndex;
     triplets.segmentIndices()[tripletIndex][1] = outerSegmentIndex;
     triplets.lowerModuleIndices()[tripletIndex][0] = innerInnerLowerModuleIndex;
@@ -63,6 +66,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     triplets.rtOut()[tripletIndex] = rtOut;
     triplets.betaInCut()[tripletIndex] = betaInCut;
 #endif
+
+    triplets.fakeScore()[tripletIndex] = t3Scores[0];
+    triplets.promptScore()[tripletIndex] = t3Scores[1];
+    triplets.displacedScore()[tripletIndex] = t3Scores[2];
   }
 
   template <typename TAcc>
@@ -645,11 +652,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                    float& circleRadius,
                                                                    float& circleCenterX,
                                                                    float& circleCenterY,
-                                                                   const float ptCut) {
-    //this cut reduces the number of candidates by a factor of 4, i.e., 3 out of 4 warps can end right here!
-    if (segments.mdIndices()[innerSegmentIndex][1] != segments.mdIndices()[outerSegmentIndex][0])
-      return false;
-
+                                                                   const float ptCut,
+                                                                   float (&t3Scores)[dnn::t3dnn::kOutputFeatures]) {
     unsigned int firstMDIndex = segments.mdIndices()[innerSegmentIndex][0];
     unsigned int secondMDIndex = segments.mdIndices()[outerSegmentIndex][0];
     unsigned int thirdMDIndex = segments.mdIndices()[outerSegmentIndex][1];
@@ -698,6 +702,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                    ptCut))
       return false;
 
+    bool inference =
+        lst::t3dnn::runInference(acc, mds, firstMDIndex, secondMDIndex, thirdMDIndex, circleRadius, betaIn, t3Scores);
+    if (!inference)  // T3-building cut
+      return false;
+
     return true;
   }
 
@@ -734,9 +743,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           for (unsigned int outerSegmentArrayIndex : cms::alpakatools::uniform_elements_x(acc, nOuterSegments)) {
             unsigned int outerSegmentIndex = ranges.segmentRanges()[middleLowerModuleIndex][0] + outerSegmentArrayIndex;
 
+            //this cut reduces the number of candidates by a factor of 4, i.e., 3 out of 4 warps can end right here!
+            if (segments.mdIndices()[innerSegmentIndex][1] != segments.mdIndices()[outerSegmentIndex][0])
+              continue;
+
             uint16_t outerOuterLowerModuleIndex = segments.outerLowerModuleIndices()[outerSegmentIndex];
 
             float zOut, rtOut, betaIn, betaInCut, circleRadius, circleCenterX, circleCenterY;
+
+            float t3Scores[dnn::t3dnn::kOutputFeatures] = {0.f};
 
             bool success = runTripletConstraintsAndAlgo(acc,
                                                         modules,
@@ -754,7 +769,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                         circleRadius,
                                                         circleCenterX,
                                                         circleCenterY,
-                                                        ptCut);
+                                                        ptCut,
+                                                        t3Scores);
 
             if (success) {
               unsigned int totOccupancyTriplets =
@@ -792,7 +808,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                    circleRadius,
                                    circleCenterX,
                                    circleCenterY,
-                                   tripletIndex);
+                                   tripletIndex,
+                                   t3Scores);
               }
             }
           }

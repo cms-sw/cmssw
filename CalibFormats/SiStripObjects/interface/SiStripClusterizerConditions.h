@@ -14,21 +14,18 @@ public:
 
   struct Det {
     bool valid() const { return ind != invalidI; }
-    uint16_t rawNoise(const uint16_t strip) const { return rawNoises[strip]; }
-    float noise(const uint16_t strip) const { return 0.1f * float(rawNoises[strip]); }
+    uint16_t rawNoise(const uint16_t strip) const { return SiStripNoises::getRawNoise(strip, noiseRange); }
+    float noise(const uint16_t strip) const { return SiStripNoises::getNoise(strip, noiseRange); }
     float weight(const uint16_t strip) const { return m_weight[strip / 128]; }
-    bool bad(const uint16_t strip) const { return qualityBits[strip]; }
+    bool bad(const uint16_t strip) const { return quality->IsStripBad(qualityRange, strip); }
     bool allBadBetween(uint16_t L, const uint16_t& R) const {
       while (++L < R && bad(L)) {
       };
       return L == R;
     }
-    static constexpr uint16_t kMaxStrips = 768;
     SiStripQuality const* quality;
-    SiStripQuality::Range qualityRange;
-    std::array<bool, kMaxStrips> qualityBits = {};
     SiStripNoises::Range noiseRange;
-    std::array<uint16_t, kMaxStrips> rawNoises = {};
+    SiStripQuality::Range qualityRange;
     float m_weight[6];
     uint32_t detId = 0;
     unsigned short ind = invalidI;
@@ -75,15 +72,7 @@ public:
     auto& det = m_dets.emplace_back();
     det.quality = m_quality;
     det.qualityRange = qualityRange;
-    for (uint16_t s = 0U; s < det.kMaxStrips; ++s)
-      det.qualityBits[s] = m_quality->IsStripBad(qualityRange, s);
     det.noiseRange = noiseRange;
-    auto maxRange8 = (noiseRange.second - noiseRange.first) * 8;
-    for (uint16_t s = 0U; s < det.kMaxStrips; ++s) {
-      if (9 * s >= maxRange8)
-        break;
-      det.rawNoises[s] = SiStripNoises::getRawNoise(s, noiseRange);
-    }
     for (uint32_t i = 0; i != invGains.size(); ++i) {
       det.m_weight[i] = invGains[i];
     }

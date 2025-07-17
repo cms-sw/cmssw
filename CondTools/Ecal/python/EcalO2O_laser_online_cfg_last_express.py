@@ -35,7 +35,6 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
                                       process.CondDBCommon,
-                                      timetype = cms.untracked.string('timestamp'),
                                       toGet = cms.VPSet(cms.PSet(
     record = cms.string('EcalLaserAPDPNRatiosRcd'),
     tag = cms.string('EcalLaserAPDPNRatios_last')

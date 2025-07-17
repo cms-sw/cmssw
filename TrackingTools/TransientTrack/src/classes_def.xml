@@ -1,0 +1,7 @@
+<lcgdict>
+
+ <class name="reco::TransientTrack"/> 
+ <class name="std::vector<reco::TransientTrack>"/>
+ <class name="edm::Wrapper<std::vector<reco::TransientTrack> >" persistent="false"/>
+
+</lcgdict>

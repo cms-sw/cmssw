@@ -41,8 +41,7 @@ namespace edm::storage {
       else
         mode |= IOFlags::OpenUnbuffered;
 
-      auto file = std::make_unique<DCacheFile>(normalise(proto, path), mode);
-      return f->wrapNonLocalFile(std::move(file), proto, std::string(), mode);
+      return std::make_unique<DCacheFile>(normalise(proto, path), mode);
     }
 
     void stagein(const std::string &proto, const std::string &path, const AuxSettings &aux) const override {
@@ -76,6 +75,8 @@ namespace edm::storage {
 
       return true;
     }
+
+    UseLocalFile usesLocalFile() const override { return UseLocalFile::kNo; }
 
   private:
     void setTimeout(unsigned int timeout) const {

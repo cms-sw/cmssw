@@ -92,10 +92,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const bool includeErrors_;
     const bool useQuality_;
     const bool doDigiMorphing_;
+    const bool verbose_;
     uint32_t nDigis_;
     const SiPixelClusterThresholds clusterThresholds_;
-    //std::optional<SiPixelImageDevice> imagesNoMorph_;
-    //std::optional<SiPixelImageMorphDevice> imagesMorph_;
     SiPixelMorphingConfig digiMorphingConfig_;
     edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
 
@@ -116,6 +115,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         includeErrors_(iConfig.getParameter<bool>("IncludeErrors")),
         useQuality_(iConfig.getParameter<bool>("UseQualityInfo")),
         doDigiMorphing_(iConfig.getParameter<bool>("DoDigiMorphing")),
+        verbose_(iConfig.getParameter<bool>("verbose")),
         clusterThresholds_{iConfig.getParameter<int32_t>("clusterThreshold_layer1"),
                            iConfig.getParameter<int32_t>("clusterThreshold_otherLayers"),
                            static_cast<float>(iConfig.getParameter<double>("VCaltoElectronGain")),
@@ -137,20 +137,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
     if (doDigiMorphing_) {
       edm::ParameterSet digiPSet = iConfig.getParameter<edm::ParameterSet>("DigiMorphing");
-      auto k1 = digiPSet.getParameter<std::vector<int32_t>>("kernel1");
-      auto k2 = digiPSet.getParameter<std::vector<int32_t>>("kernel2");
-
-      if (k1.size() != 9 || k2.size() != 9) {
-        std::cerr << "Incorrect kernel size! Falling back to default." << std::endl;
-        k1 = {1, 1, 1, 1, 1, 1, 1, 1, 1};
-        k2 = {0, 1, 0, 1, 1, 1, 0, 1, 0};
-      }
-
-      SiPixelMorphingConfig config;
-      std::copy_n(k1.begin(), 9, config.kernel1_.begin());
-      std::copy_n(k2.begin(), 9, config.kernel2_.begin());
-
-      digiMorphingConfig_ = config;
+      digiMorphingConfig_.kernel1 = digiPSet.getParameter<std::array<int32_t, 9>>("kernel1");
+      digiMorphingConfig_.kernel2 = digiPSet.getParameter<std::array<int32_t, 9>>("kernel2");
     }
   }
 
@@ -254,6 +242,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     edm::ParameterSetDescription desc;
     desc.add<bool>("IncludeErrors", true);
     desc.add<bool>("UseQualityInfo", false);
+    desc.add<bool>("verbose", false)->setComment("verbose FED / ROC errors output");
     // Note: this parameter is obsolete: it is ignored and will have no effect.
     // It is kept to avoid breaking older configurations, and will not be printed in the generated cfi.py file.
     desc.addOptionalNode(edm::ParameterDescription<uint32_t>("MaxFEDWords", 0, true), false)
@@ -410,39 +399,35 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       wordFedAppender.initializeWordFed(fedIds_[i], index[i], start[i], words[i]);
     }
     if (doDigiMorphing_) {
-      //imagesMorph_ = SiPixelImageMorphDevice(pixelTopology::Phase1::numberOfModules, iEvent.queue());
-
-      Algo_.template makePhase1ClustersAsync<SiPixelImageMorphDevice>(iEvent.queue(),
-                                                                      clusterThresholds_,
-                                                                      //imagesMorph_->view(),
-                                                                      doDigiMorphing_,
-                                                                      &digiMorphingConfig_,
-                                                                      hMap.const_view(),
-                                                                      modulesToUnpack,
-                                                                      dGains.const_view(),
-                                                                      wordFedAppender,
-                                                                      wordCounter,
-                                                                      fedCounter,
-                                                                      useQuality_,
-                                                                      includeErrors_,
-                                                                      edm::MessageDrop::instance()->debugEnabled);
+      Algo_.template makePhase1ClustersAsync<SiPixelImageMorphDevice>(
+          iEvent.queue(),
+          clusterThresholds_,
+          doDigiMorphing_,
+          &digiMorphingConfig_,  // TODO it may be more efficient to pass these to the kernel by value
+          hMap.const_view(),
+          modulesToUnpack,
+          dGains.const_view(),
+          wordFedAppender,
+          wordCounter,
+          fedCounter,
+          useQuality_,
+          includeErrors_,
+          verbose_);
     } else {
-      //imagesNoMorph_ = SiPixelImageDevice(pixelTopology::Phase1::numberOfModules, iEvent.queue());
-
-      Algo_.template makePhase1ClustersAsync<SiPixelImageDevice>(iEvent.queue(),
-                                                                 clusterThresholds_,
-                                                                 //imagesNoMorph_->view(),
-                                                                 doDigiMorphing_,
-                                                                 &digiMorphingConfig_,
-                                                                 hMap.const_view(),
-                                                                 modulesToUnpack,
-                                                                 dGains.const_view(),
-                                                                 wordFedAppender,
-                                                                 wordCounter,
-                                                                 fedCounter,
-                                                                 useQuality_,
-                                                                 includeErrors_,
-                                                                 edm::MessageDrop::instance()->debugEnabled);
+      Algo_.template makePhase1ClustersAsync<SiPixelImageDevice>(
+          iEvent.queue(),
+          clusterThresholds_,
+          doDigiMorphing_,
+          &digiMorphingConfig_,  // TODO it may be more efficient to pass these to the kernel by value
+          hMap.const_view(),
+          modulesToUnpack,
+          dGains.const_view(),
+          wordFedAppender,
+          wordCounter,
+          fedCounter,
+          useQuality_,
+          includeErrors_,
+          verbose_);
     }
   }
 

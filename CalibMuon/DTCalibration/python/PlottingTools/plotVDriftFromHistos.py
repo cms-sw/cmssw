@@ -5,7 +5,7 @@ def binNumber(station,sector):
     start = (station - 1)*12
     return start + sector
  
-def plot(fileName,sl,option="HISTOP",draw=True):
+def plot(fileName,sl,run="1",option="HISTOP",draw=True):
 
     slType = sl
     slStr = "SL%d" % slType
@@ -21,14 +21,14 @@ def plot(fileName,sl,option="HISTOP",draw=True):
     histosWheel = {}
     for wh in wheels:
         histoName = 'Wheel%d_%s_VDrift' % (wh,slStr)
-        print("Accessing",histoName)
+        #print("Accessing",histoName)
         histosWheel[wh] = file.Get(histoName)
 
     # (Wh-2 MB1 Sec1 ... Wh-2 MB1 Sec12 ... Wh-1 MB1 Sec1 ... Wh-1 MB1 Sec12 ...)
     # (Wh-2 MB2 Sec1 ... Wh-2 MB2 Sec12 ... Wh-1 MB2 Sec1 ... Wh-1 MB1 Sec12 ...) ...  
     nBins = 250
     if slType == 2: nBins = 180
-    histo = ROOT.TH1F("h_VDriftAll","VDrift",nBins,0,nBins)
+    histo = ROOT.TH1F("h_VDriftAll_SL%s"%slStr,"VDrift for Run=%s at %s" % (run,slStr),nBins,0,nBins)
     for st in stations:
         nSectors = 12
         if st == 4: nSectors = 14 
@@ -53,9 +53,9 @@ def plot(fileName,sl,option="HISTOP",draw=True):
                     if wh == -2: label += " MB%d" % st  
                     histo.GetXaxis().SetBinLabel(binHistoNew,label) 
 
-    objects = drawHisto(histo,
-                        title="v_{drift} (#mum/ns)",
-                        ymin=53,ymax=57,option=option,draw=draw)
+        objects = drawHisto(histo,
+                            yaxis_title="v_{drift} (#mum/ns)",
+                            ymin=52,ymax=57,option=option,draw=draw)
 
     return objects
 

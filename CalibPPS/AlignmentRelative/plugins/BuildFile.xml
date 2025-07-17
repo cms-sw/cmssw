@@ -4,6 +4,7 @@
   <use name="hepmc"/>
   <use name="clhep"/>
 
+  <use name="FWCore/AbstractServices"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/ServiceRegistry"/>

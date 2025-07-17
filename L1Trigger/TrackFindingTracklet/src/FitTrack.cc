@@ -1077,10 +1077,10 @@ void FitTrack::execute(deque<string>& streamTrackRaw,
         }
       }
       // convert seed stubs
-      const string& stubId0 = bestTracklet->innerFPGAStub()->stubindex().str();
+      const string& stubId0 = bestTracklet->innerFPGAStub()->phiregionaddressstr();
       const L1TStub* stub0 = bestTracklet->innerFPGAStub()->l1tstub();
       streamsStubRaw[ihit++].emplace_back(seedType, *stub0, valid + stubId0);
-      const string& stubId1 = bestTracklet->outerFPGAStub()->stubindex().str();
+      const string& stubId1 = bestTracklet->outerFPGAStub()->phiregionaddressstr();
       const L1TStub* stub1 = bestTracklet->outerFPGAStub()->l1tstub();
       streamsStubRaw[ihit++].emplace_back(seedType, *stub1, valid + stubId1);
       // fill all layers that have no stubs with gaps

@@ -368,6 +368,13 @@ namespace cmsdt {
   constexpr float KRES_CONV = 65536. / 2;
 
   /*
+ * Front-End positions in local chamber coordinates
+ */
+  constexpr float vwire = 24.4;                                    // Wire propagation velocity cm/ns
+  constexpr float zFE[5] = {-658.9, -393.3, 126.4, 393.3, 658.9};  // Front-End z positions in cm
+  constexpr float xFE[3] = {218 / 2., 266.8 / 2., 315 / 2.};       // Front-End x positions in cm
+
+  /*
  * Size of pre-mixer buffers for DTPrimitives
  *
  * As first approach, this value should be evaluated in order to allow storing

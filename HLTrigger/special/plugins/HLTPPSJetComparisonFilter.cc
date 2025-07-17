@@ -9,29 +9,33 @@ Matching can be done on the xi and/or mass+rapidity variables, using the do_xi a
 */
 
 // include files
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/global/EDFilter.h"
-
+#include "CondTools/RunInfo/interface/LHCInfoCombined.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/ProtonReco/interface/ForwardProton.h"
-
-#include "CondTools/RunInfo/interface/LHCInfoCombined.h"
-
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 // class declaration
 //
-class HLTPPSJetComparisonFilter : public edm::global::EDFilter<> {
+class HLTPPSJetComparisonFilter : public edm::global::EDFilter<edm::LuminosityBlockCache<float>> {
 public:
   explicit HLTPPSJetComparisonFilter(const edm::ParameterSet &);
-  ~HLTPPSJetComparisonFilter() override;
+  ~HLTPPSJetComparisonFilter() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions &);
+
+  std::shared_ptr<float> globalBeginLuminosityBlock(const edm::LuminosityBlock &,
+                                                    const edm::EventSetup &) const override;
+
+  void globalEndLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) const override;
+
   bool filter(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
 
 private:
@@ -39,24 +43,23 @@ private:
   const edm::ESGetToken<LHCInfo, LHCInfoRcd> lhcInfoToken_;
   const edm::ESGetToken<LHCInfoPerLS, LHCInfoPerLSRcd> lhcInfoPerLSToken_;
   const edm::ESGetToken<LHCInfoPerFill, LHCInfoPerFillRcd> lhcInfoPerFillToken_;
+
   const bool useNewLHCInfo_;
 
-  edm::ParameterSet param_;
+  const edm::InputTag jetInputTag_;  // Input tag identifying the jet track
+  const edm::EDGetTokenT<reco::PFJetCollection> jet_token_;
 
-  edm::InputTag jetInputTag_;  // Input tag identifying the jet track
-  edm::EDGetTokenT<reco::PFJetCollection> jet_token_;
+  const edm::InputTag forwardProtonInputTag_;  // Input tag identifying the forward proton collection
+  const edm::EDGetTokenT<std::vector<reco::ForwardProton>> recoProtonSingleRPToken_;
 
-  edm::InputTag forwardProtonInputTag_;  // Input tag identifying the forward proton collection
-  edm::EDGetTokenT<std::vector<reco::ForwardProton>> recoProtonSingleRPToken_;
+  const double maxDiffxi_;
+  const double maxDiffm_;
+  const double maxDiffy_;
 
-  double maxDiffxi_;
-  double maxDiffm_;
-  double maxDiffy_;
+  const unsigned int n_jets_;
 
-  unsigned int n_jets_;
-
-  bool do_xi_;
-  bool do_my_;
+  const bool do_xi_;
+  const bool do_my_;
 };
 
 // fill descriptions
@@ -90,14 +93,31 @@ void HLTPPSJetComparisonFilter::fillDescriptions(edm::ConfigurationDescriptions 
   return;
 }
 
-// destructor and constructor
-//
-HLTPPSJetComparisonFilter::~HLTPPSJetComparisonFilter() = default;
+std::shared_ptr<float> HLTPPSJetComparisonFilter::globalBeginLuminosityBlock(const edm::LuminosityBlock &,
+                                                                             const edm::EventSetup &iSetup) const {
+  auto cache = std::make_shared<float>();
+
+  LHCInfoCombined lhcInfoCombined(iSetup, lhcInfoPerLSToken_, lhcInfoPerFillToken_, lhcInfoToken_, useNewLHCInfo_);
+  float sqs = 2. * lhcInfoCombined.energy;
+
+  if (sqs == 0.f || !edm::isFinite(sqs)) {
+    edm::LogError("HLTPPSJetComparisonFilter")
+        << "LHC energy is zero (sqrt(s) = 0). All events in this IOV will be rejected.";
+  }
+
+  *cache = sqs;
+  return cache;
+}
+
+void HLTPPSJetComparisonFilter::globalEndLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) const {}
 
 HLTPPSJetComparisonFilter::HLTPPSJetComparisonFilter(const edm::ParameterSet &iConfig)
-    : lhcInfoToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("lhcInfoLabel")))),
-      lhcInfoPerLSToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("lhcInfoPerLSLabel")))),
-      lhcInfoPerFillToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("lhcInfoPerFillLabel")))),
+    : lhcInfoToken_(esConsumes<LHCInfo, LHCInfoRcd, edm::Transition::BeginLuminosityBlock>(
+          edm::ESInputTag("", iConfig.getParameter<std::string>("lhcInfoLabel")))),
+      lhcInfoPerLSToken_(esConsumes<LHCInfoPerLS, LHCInfoPerLSRcd, edm::Transition::BeginLuminosityBlock>(
+          edm::ESInputTag("", iConfig.getParameter<std::string>("lhcInfoPerLSLabel")))),
+      lhcInfoPerFillToken_(esConsumes<LHCInfoPerFill, LHCInfoPerFillRcd, edm::Transition::BeginLuminosityBlock>(
+          edm::ESInputTag("", iConfig.getParameter<std::string>("lhcInfoPerFillLabel")))),
       useNewLHCInfo_(iConfig.getParameter<bool>("useNewLHCInfo")),
 
       jetInputTag_(iConfig.getParameter<edm::InputTag>("jetInputTag")),
@@ -118,8 +138,12 @@ HLTPPSJetComparisonFilter::HLTPPSJetComparisonFilter(const edm::ParameterSet &iC
 // member functions
 //
 bool HLTPPSJetComparisonFilter::filter(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
-  LHCInfoCombined lhcInfoCombined(iSetup, lhcInfoPerLSToken_, lhcInfoPerFillToken_, lhcInfoToken_, useNewLHCInfo_);
-  float sqs = 2. * lhcInfoCombined.energy;  // get sqrt(s)
+  // get the cached value of the LHC energy from the cache
+  const float sqs = *luminosityBlockCache(iEvent.getLuminosityBlock().index());
+
+  // early return in case of not physical energy
+  if (sqs == 0.f || !edm::isFinite(sqs))
+    return false;
 
   edm::Handle<reco::PFJetCollection> jets;
   iEvent.getByToken(jet_token_, jets);  // get jet collection

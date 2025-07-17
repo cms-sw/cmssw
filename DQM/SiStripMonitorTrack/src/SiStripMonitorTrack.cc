@@ -115,12 +115,11 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& iS
   iLumisection = e.orbitNumber() / 262144.0;
 
   // initialise # of clusters
-  for (std::map<std::string, SubDetMEs>::iterator iSubDet = SubDetMEsMap.begin(); iSubDet != SubDetMEsMap.end();
-       iSubDet++) {
-    iSubDet->second.totNClustersOnTrack = 0;
-    iSubDet->second.totNClustersOffTrack = 0;
-    iSubDet->second.totNClustersOnTrackMono = 0;
-    iSubDet->second.totNClustersOnTrackStereo = 0;
+  for (auto& iSubDet : SubDetMEsMap) {
+    iSubDet.second.totNClustersOnTrack = 0;
+    iSubDet.second.totNClustersOffTrack = 0;
+    iSubDet.second.totNClustersOnTrackMono = 0;
+    iSubDet.second.totNClustersOnTrackStereo = 0;
   }
 
   trackerTopology_ = &iSetup.getData(trackerTopologyEventToken_);
@@ -141,8 +140,6 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& iS
   }
 
   if (Trend_On_) {
-    // for (std::map<std::string, SubDetMEs>::iterator iSubDet = SubDetMEsMap.begin(), iterEnd=SubDetMEsMaps.end();
-    //      iSubDet != iterEnd; ++iSubDet) {
     for (auto const& iSubDet : SubDetMEsMap) {
       SubDetMEs subdet_mes = iSubDet.second;
       if (subdet_mes.totNClustersOnTrack > 0) {
@@ -256,7 +253,7 @@ void SiStripMonitorTrack::book(DQMStore::IBooker& ibooker, const TrackerTopology
       }
 
       // book sub-detector plots
-      std::pair<std::string, std::string> sdet_pair = folder_organizer.getSubDetFolderAndTag(detid, tTopo);
+      auto sdet_pair = folder_organizer.getSubDetFolderAndTag(detid, tTopo);
       if (SubDetMEsMap.find(sdet_pair.second) == SubDetMEsMap.end()) {
         ibooker.setCurrentFolder(sdet_pair.first);
         bookSubDetMEs(ibooker, sdet_pair.second);
@@ -306,7 +303,7 @@ void SiStripMonitorTrack::book(DQMStore::IBooker& ibooker, const TrackerTopology
       }
 
       // book sub-detector plots
-      std::pair<std::string, std::string> sdet_pair = folder_organizer.getSubDetFolderAndTag(detid, tTopo);
+      auto sdet_pair = folder_organizer.getSubDetFolderAndTag(detid, tTopo);
       if (SubDetMEsMap.find(sdet_pair.second) == SubDetMEsMap.end()) {
         ibooker.setCurrentFolder(sdet_pair.first);
         bookSubDetMEs(ibooker, sdet_pair.second);
@@ -704,9 +701,10 @@ void SiStripMonitorTrack::bookRingMEs(DQMStore::IBooker& ibooker, const uint32_t
 //
 // -- Book Histograms at Sub-Detector Level
 //
-void SiStripMonitorTrack::bookSubDetMEs(DQMStore::IBooker& ibooker, std::string& name) {
+void SiStripMonitorTrack::bookSubDetMEs(DQMStore::IBooker& ibooker, std::string_view& name) {
   std::string subdet_tag;
-  subdet_tag = "__" + name;
+  auto sname = std::string(name);
+  subdet_tag = "__" + sname;
   std::string completeName;
   std::string axisName;
 
@@ -714,38 +712,38 @@ void SiStripMonitorTrack::bookSubDetMEs(DQMStore::IBooker& ibooker, std::string&
 
   // TotalNumber of Cluster OnTrack
   completeName = "Summary_TotalNumberOfClusters_OnTrack" + subdet_tag;
-  axisName = "Number of on-track clusters in " + name;
+  axisName = "Number of on-track clusters in " + sname;
   theSubDetMEs.nClustersOnTrack = bookME1D(ibooker, "TH1nClustersOn", completeName.c_str());
   theSubDetMEs.nClustersOnTrack->setAxisTitle(axisName);
   theSubDetMEs.nClustersOnTrack->setStatOverflows(kTRUE);
 
   // TotalNumber of Cluster OnTrack
   completeName = "Summary_TotalNumberOfClusters_OnTrackStereo" + subdet_tag;
-  axisName = "Number of on-track stereo clusters in " + name;
+  axisName = "Number of on-track stereo clusters in " + sname;
   theSubDetMEs.nClustersOnTrackStereo = bookME1D(ibooker, "TH1nClustersOnStereo", completeName.c_str());
   theSubDetMEs.nClustersOnTrackStereo->setAxisTitle(axisName);
   theSubDetMEs.nClustersOnTrackStereo->setStatOverflows(kTRUE);
 
   // TotalNumber of Cluster OffTrack
   completeName = "Summary_TotalNumberOfClusters_OffTrack" + subdet_tag;
-  axisName = "Number of off-track clusters in " + name;
+  axisName = "Number of off-track clusters in " + sname;
   theSubDetMEs.nClustersOffTrack = bookME1D(ibooker, "TH1nClustersOff", completeName.c_str());
   theSubDetMEs.nClustersOffTrack->setAxisTitle(axisName);
 
   double xmaximum = 0;
-  if (name.find("TIB") != std::string::npos) {
+  if (sname.find("TIB") != std::string_view::npos) {
     xmaximum = 40000.0;
     theSubDetMEs.nClustersOffTrack->setAxisRange(0.0, xmaximum, 1);
   }
-  if (name.find("TOB") != std::string::npos) {
+  if (sname.find("TOB") != std::string_view::npos) {
     xmaximum = 40000.0;
     theSubDetMEs.nClustersOffTrack->setAxisRange(0.0, xmaximum, 1);
   }
-  if (name.find("TID") != std::string::npos) {
+  if (sname.find("TID") != std::string_view::npos) {
     xmaximum = 10000.0;
     theSubDetMEs.nClustersOffTrack->setAxisRange(0.0, xmaximum, 1);
   }
-  if (name.find("TEC") != std::string::npos) {
+  if (sname.find("TEC") != std::string_view::npos) {
     xmaximum = 40000.0;
     theSubDetMEs.nClustersOffTrack->setAxisRange(0.0, xmaximum, 1);
   }
@@ -1336,7 +1334,7 @@ SiStripMonitorTrack::Det2MEs SiStripMonitorTrack::findMEs(const TrackerTopology*
 
   std::string layer_id = hidmanager1.getSubdetid(detid, tTopo, false);
   std::string ring_id = hidmanager1.getSubdetid(detid, tTopo, true);
-  std::string sdet_tag = folderOrganizer_.getSubDetFolderAndTag(detid, tTopo).second;
+  const std::string_view sdet_tag = folderOrganizer_.getSubDetTag(detid, tTopo);
 
   Det2MEs me;
   me.iLayer = nullptr;
@@ -1353,7 +1351,7 @@ SiStripMonitorTrack::Det2MEs SiStripMonitorTrack::findMEs(const TrackerTopology*
     me.iRing = &(iRing->second);
   }
 
-  std::map<std::string, SubDetMEs>::iterator iSubdet = SubDetMEsMap.find(sdet_tag);
+  auto iSubdet = SubDetMEsMap.find(sdet_tag);
   if (iSubdet != SubDetMEsMap.end()) {
     me.iSubdet = &(iSubdet->second);
   }

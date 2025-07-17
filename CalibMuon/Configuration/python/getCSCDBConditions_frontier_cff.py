@@ -4,7 +4,6 @@ import FWCore.ParameterSet.Config as cms
 from CondCore.DBCommon.CondDBSetup_cfi import *
 cscConditions = cms.ESSource("PoolDBESSource",
     CondDBSetup,
-    timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('CSCDBGainsRcd'),
         tag = cms.string('CSCDBGains_ideal')
@@ -23,7 +22,6 @@ cscConditions = cms.ESSource("PoolDBESSource",
         )),
     connect = cms.string('frontier://FrontierDev/CMS_COND_ALIGNMENT'), ##FrontierDev/CMS_COND_ALIGNMENT"
 
-    siteLocalConfig = cms.untracked.bool(True)
 )
 
 

@@ -17,6 +17,7 @@
 // user include files
 #include "FWCore/Framework/interface/ESProductResolverFactoryProducer.h"
 #include "FWCore/Framework/interface/ESProductResolverFactoryBase.h"
+#include "FWCore/Framework/interface/ESModuleProducesInfo.h"
 
 #include "FWCore/Framework/interface/ESProductResolver.h"
 
@@ -30,6 +31,14 @@ namespace edm {
   ESProductResolverFactoryProducer::ESProductResolverFactoryProducer() : record2Factories_() {}
 
   ESProductResolverFactoryProducer::~ESProductResolverFactoryProducer() noexcept(false) {}
+
+  std::vector<ESModuleProducesInfo> ESProductResolverFactoryProducer::producesInfo() const {
+    std::vector<ESModuleProducesInfo> producesInfo;
+    for (auto const& it : record2Factories_) {
+      producesInfo.emplace_back(it.first, it.second.key_, it.second.factory_->produceMethodID());
+    }
+    return producesInfo;
+  }
 
   ESProductResolverProvider::KeyedResolversVector ESProductResolverFactoryProducer::registerResolvers(
       const EventSetupRecordKey& iRecord, unsigned int iovIndex) {

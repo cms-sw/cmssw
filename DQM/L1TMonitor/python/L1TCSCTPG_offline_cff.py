@@ -5,7 +5,6 @@ from EventFilter.CSCRawToDigi.cscUnpacker_cfi import *
 from DQM.L1TMonitor.L1TCSCTPG_cfi import *
 cscConditions = cms.ESSource("PoolDBESSource",
     CondDBSetup,
-    siteLocalConfig = cms.untracked.bool(False),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('CSCDBGainsRcd'),
         tag = cms.string('CSCDBGains_ideal')
@@ -38,11 +37,8 @@ cscConditions = cms.ESSource("PoolDBESSource",
             record = cms.string('CSCDDUMapRcd'),
             tag = cms.string('CSCDDUMap')
         )),
-    messagelevel = cms.untracked.uint32(0),
-    timetype = cms.string('runnumber'),
     #                string connect = "frontier://(serverurl=http://frontier1.cms:8000/FrontierOn)(serverurl=http://frontier2.cms:8000/FrontierOn)(retrieve-ziplevel=0)/CMS_COND_ON_18x_CSC"
     connect = cms.string('frontier://Frontier/CMS_COND_ON_18x_CSC'),
-    authenticationMethod = cms.untracked.uint32(1)
 )
 
 l1tcsctpgpath = cms.Path(muonCSCDigis*l1tcsctpg)

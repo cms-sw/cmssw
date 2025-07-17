@@ -324,7 +324,6 @@ namespace edm {
       // in the TTree instead of calling Fill once for the entire TTree.
       tree->SetEntries(-1);
     }
-    setRefCoreStreamer(true);
     tree->AutoSave("FlushBaskets");
   }
 

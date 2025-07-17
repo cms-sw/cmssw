@@ -2,11 +2,11 @@
 # Way to use this:
 #   cmsRun testHGCalSize_cfg.py geometry=V17
 #
-#   Options for geometry V16, V17, V18
+#   Options for geometry V16, V17, V18, V19
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
-import os, sys, imp, re
+import os, sys, importlib, re
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 ####################################################################
@@ -16,7 +16,7 @@ options.register('geometry',
                  "V17",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: V16, V17, V18")
+                  "geometry of operations: V16, V17, V18, V19")
 
 ### get and parse the command line arguments
 options.parseArguments()

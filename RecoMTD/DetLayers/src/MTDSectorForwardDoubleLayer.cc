@@ -140,7 +140,8 @@ vector<DetGroup> MTDSectorForwardDoubleLayer::groupedCompatibleDets(const Trajec
     result.push_back(DetGroup(detWithStates1));
   if (!detWithStates2.empty())
     result.push_back(DetGroup(detWithStates2));
-  LogTrace("MTDDetLayers") << "DoubleLayer Compatible dets: " << result.size();
+  LogTrace("MTDDetLayers") << "DoubleLayer Compatible dets: " << result.size() << " front: " << detWithStates1.size()
+                           << " back: " << detWithStates2.size();
   return result;
 }
 

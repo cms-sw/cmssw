@@ -140,7 +140,7 @@ namespace edm {
       unsigned int iovIndex() const { return impl_->iovIndex(); }
 
       ///clears the oToFill vector and then fills it with the keys for all registered data keys
-      void fillRegisteredDataKeys(std::vector<DataKey>& oToFill) const { impl_->fillRegisteredDataKeys(oToFill); }
+      void fillRegisteredDataKeys(std::vector<DataKey>& oToFill) const { oToFill = impl_->registeredDataKeys(); }
 
       ///Classes that derive from EventSetupRecord can redefine this with a false value
       static constexpr bool allowConcurrentIOVs_ = true;

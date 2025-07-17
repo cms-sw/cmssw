@@ -13,95 +13,100 @@
 #include <filesystem>
 
 using LSTEvent = ALPAKA_ACCELERATOR_NAMESPACE::lst::LSTEvent;
+using LSTInputDeviceCollection = ALPAKA_ACCELERATOR_NAMESPACE::lst::LSTInputDeviceCollection;
 using ::lst::PixelType;
 
 // --------------------- ======================== ---------------------
 
 bool goodEvent();
-float runMiniDoublet(LSTEvent *event, int evt);
-float runSegment(LSTEvent *event);
-float runT4(LSTEvent *event);
-float runT4x(LSTEvent *event);
-float runpT4(LSTEvent *event);
-float runT3(LSTEvent *event);
-float runTrackCandidate(LSTEvent *event, bool no_pls_dupclean, bool tc_pls_triplets);
-float runQuintuplet(LSTEvent *event);
-float runPixelQuintuplet(LSTEvent *event);
-float runPixelLineSegment(LSTEvent *event,
-                          std::vector<unsigned int> hitIndices_vec0,
-                          std::vector<unsigned int> hitIndices_vec1,
-                          std::vector<unsigned int> hitIndices_vec2,
-                          std::vector<unsigned int> hitIndices_vec3,
-                          std::vector<float> deltaPhi_vec,
-                          bool no_pls_dupclean);
-float runpT3(LSTEvent *event);
+float runMiniDoublet(LSTEvent* event, int evt);
+float runSegment(LSTEvent* event);
+float runT4(LSTEvent* event);
+float runT4x(LSTEvent* event);
+float runpT4(LSTEvent* event);
+float runT3(LSTEvent* event);
+float runTrackCandidate(LSTEvent* event, bool no_pls_dupclean, bool tc_pls_triplets);
+float runQuintuplet(LSTEvent* event);
+float runPixelQuintuplet(LSTEvent* event);
+float runPixelLineSegment(LSTEvent* event, bool no_pls_dupclean);
+float runpT3(LSTEvent* event);
 
 // --------------------- ======================== ---------------------
 
 std::vector<int> matchedSimTrkIdxs(std::vector<unsigned int> hitidxs,
                                    std::vector<unsigned int> hittypes,
+                                   std::vector<int> const& trk_simhit_simTrkIdx,
+                                   std::vector<std::vector<int>> const& trk_ph2_simHitIdx,
+                                   std::vector<std::vector<int>> const& trk_pix_simHitIdx,
                                    bool verbose = false,
-                                   float *pmatched = nullptr);
-std::vector<int> matchedSimTrkIdxs(std::vector<int> hitidxs, std::vector<int> hittypes, bool verbose = false);
-int getDenomSimTrkType(int isimtrk);
-int getDenomSimTrkType(std::vector<int> simidxs);
+                                   float* pmatched = nullptr);
+int getDenomSimTrkType(int isimtrk,
+                       std::vector<int> const& trk_sim_q,
+                       std::vector<float> const& trk_sim_pt,
+                       std::vector<float> const& trk_sim_eta,
+                       std::vector<int> const& trk_sim_bunchCrossing,
+                       std::vector<int> const& trk_sim_event,
+                       std::vector<int> const& trk_sim_parentVtxIdx,
+                       std::vector<float> const& trk_simvtx_x,
+                       std::vector<float> const& trk_simvtx_y,
+                       std::vector<float> const& trk_simvtx_z);
+int getDenomSimTrkType(std::vector<int> simidxs,
+                       std::vector<int> const& trk_sim_q,
+                       std::vector<float> const& trk_sim_pt,
+                       std::vector<float> const& trk_sim_eta,
+                       std::vector<int> const& trk_sim_bunchCrossing,
+                       std::vector<int> const& trk_sim_event,
+                       std::vector<int> const& trk_sim_parentVtxIdx,
+                       std::vector<float> const& trk_simvtx_x,
+                       std::vector<float> const& trk_simvtx_y,
+                       std::vector<float> const& trk_simvtx_z);
 
 // --------------------- ======================== ---------------------
 
-float drfracSimHitConsistentWithHelix(int isimtrk, int isimhitidx);
-float drfracSimHitConsistentWithHelix(lst_math::Helix &helix, int isimhitidx);
-float distxySimHitConsistentWithHelix(int isimtrk, int isimhitidx);
-float distxySimHitConsistentWithHelix(lst_math::Helix &helix, int isimhitidx);
-TVector3 calculateR3FromPCA(const TVector3 &p3, const float dxy, const float dz);
+float drfracSimHitConsistentWithHelix(int isimtrk,
+                                      int isimhitidx,
+                                      std::vector<float> const& trk_simvtx_x,
+                                      std::vector<float> const& trk_simvtx_y,
+                                      std::vector<float> const& trk_simvtx_z,
+                                      std::vector<float> const& trk_sim_pt,
+                                      std::vector<float> const& trk_sim_eta,
+                                      std::vector<float> const& trk_sim_phi,
+                                      std::vector<int> const& trk_sim_q,
+                                      std::vector<float> const& trk_simhit_x,
+                                      std::vector<float> const& trk_simhit_y,
+                                      std::vector<float> const& trk_simhit_z);
+float drfracSimHitConsistentWithHelix(lst_math::Helix& helix,
+                                      int isimhitidx,
+                                      std::vector<float> const& trk_simhit_x,
+                                      std::vector<float> const& trk_simhit_y,
+                                      std::vector<float> const& trk_simhit_z);
+float distxySimHitConsistentWithHelix(int isimtrk,
+                                      int isimhitidx,
+                                      std::vector<float> const& trk_simvtx_x,
+                                      std::vector<float> const& trk_simvtx_y,
+                                      std::vector<float> const& trk_simvtx_z,
+                                      std::vector<float> const& trk_sim_pt,
+                                      std::vector<float> const& trk_sim_eta,
+                                      std::vector<float> const& trk_sim_phi,
+                                      std::vector<int> const& trk_sim_q,
+                                      std::vector<float> const& trk_simhit_x,
+                                      std::vector<float> const& trk_simhit_y,
+                                      std::vector<float> const& trk_simhit_z);
+float distxySimHitConsistentWithHelix(lst_math::Helix& helix,
+                                      int isimhitidx,
+                                      std::vector<float> const& trk_simhit_x,
+                                      std::vector<float> const& trk_simhit_y,
+                                      std::vector<float> const& trk_simhit_z);
+TVector3 calculateR3FromPCA(const TVector3& p3, const float dxy, const float dz);
 
 // --------------------- ======================== ---------------------
 
-void addInputsToLineSegmentTrackingPreLoad(std::vector<std::vector<float>> &out_trkX,
-                                           std::vector<std::vector<float>> &out_trkY,
-                                           std::vector<std::vector<float>> &out_trkZ,
-                                           std::vector<std::vector<unsigned int>> &out_hitId,
-                                           std::vector<std::vector<unsigned int>> &out_hitIdxs,
-                                           std::vector<std::vector<unsigned int>> &out_hitIndices_vec0,
-                                           std::vector<std::vector<unsigned int>> &out_hitIndices_vec1,
-                                           std::vector<std::vector<unsigned int>> &out_hitIndices_vec2,
-                                           std::vector<std::vector<unsigned int>> &out_hitIndices_vec3,
-                                           std::vector<std::vector<float>> &out_deltaPhi_vec,
-                                           std::vector<std::vector<float>> &out_ptIn_vec,
-                                           std::vector<std::vector<float>> &out_ptErr_vec,
-                                           std::vector<std::vector<float>> &out_px_vec,
-                                           std::vector<std::vector<float>> &out_py_vec,
-                                           std::vector<std::vector<float>> &out_pz_vec,
-                                           std::vector<std::vector<float>> &out_eta_vec,
-                                           std::vector<std::vector<float>> &out_etaErr_vec,
-                                           std::vector<std::vector<float>> &out_phi_vec,
-                                           std::vector<std::vector<int>> &out_charge_vec,
-                                           std::vector<std::vector<unsigned int>> &out_seedIdx_vec,
-                                           std::vector<std::vector<int>> &out_superbin_vec,
-                                           std::vector<std::vector<PixelType>> &out_pixelType_vec,
-                                           std::vector<std::vector<char>> &out_isQuad_vec);
+float addInputsToEventPreLoad(LSTEvent* event,
+                              lst::LSTInputHostCollection* lstInputHC,
+                              LSTInputDeviceCollection* lstInputDC,
+                              ALPAKA_ACCELERATOR_NAMESPACE::Queue& queue);
 
-float addInputsToEventPreLoad(LSTEvent *event,
-                              bool useOMP,
-                              std::vector<float> trkX,
-                              std::vector<float> trkY,
-                              std::vector<float> trkZ,
-                              std::vector<unsigned int> hitId,
-                              std::vector<unsigned int> hitIdxs,
-                              std::vector<float> ptIn_vec,
-                              std::vector<float> ptErr_vec,
-                              std::vector<float> px_vec,
-                              std::vector<float> py_vec,
-                              std::vector<float> pz_vec,
-                              std::vector<float> eta_vec,
-                              std::vector<float> etaErr_vec,
-                              std::vector<float> phi_vec,
-                              std::vector<int> charge_vec,
-                              std::vector<unsigned int> seedIdx_vec,
-                              std::vector<int> superbin_vec,
-                              std::vector<PixelType> pixelType_vec,
-                              std::vector<char> isQuad_vec);
-
-void printTimingInformation(std::vector<std::vector<float>> &timing_information, float fullTime, float fullavg);
+void printTimingInformation(std::vector<std::vector<float>>& timing_information, float fullTime, float fullavg);
 
 // --------------------- ======================== ---------------------
 
@@ -111,7 +116,7 @@ void writeMetaData();
 // --------------------- ======================== ---------------------
 
 // DEPRECATED FUNCTION
-float addInputsToLineSegmentTrackingUsingExplicitMemory(LSTEvent &event);
-float addInputsToLineSegmentTracking(LSTEvent &event, bool useOMP);
+float addInputsToLineSegmentTrackingUsingExplicitMemory(LSTEvent& event);
+float addInputsToLineSegmentTracking(LSTEvent& event, bool useOMP);
 
 #endif
