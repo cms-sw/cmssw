@@ -63,6 +63,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   private:
     void acquire(device::Event const& iEvent, device::EventSetup const& iSetup) override;
     void produce(device::Event& iEvent, device::EventSetup const& iSetup) override;
+    void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
     std::vector<region> parseRegions(const std::vector<std::string>& regionStrings, size_t size);
     bool skipDetId(const TrackerTopology* tTopo,
 		    const DetId& detId,
@@ -80,6 +81,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const device::ESGetToken<SiPixelMappingDevice, SiPixelMappingSoARecord> mapToken_;
     const device::ESGetToken<SiPixelGainCalibrationForHLTDevice, SiPixelGainCalibrationForHLTSoARcd> gainsToken_;
     const edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> cablingMapToken_;
+    const edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> cablingMapTokenBeginRun_;
 
     std::unique_ptr<SiPixelFedCablingTree> cabling_;
     std::vector<unsigned int> fedIds_;
@@ -112,6 +114,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         gainsToken_(esConsumes()),
         cablingMapToken_(esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd>(
             edm::ESInputTag("", iConfig.getParameter<std::string>("CablingMapLabel")))),
+        cablingMapTokenBeginRun_(esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd,edm::Transition::BeginRun>(
+            edm::ESInputTag("", iConfig.getParameter<std::string>("CablingMapLabel")))),
         includeErrors_(iConfig.getParameter<bool>("IncludeErrors")),
         useQuality_(iConfig.getParameter<bool>("UseQualityInfo")),
         doDigiMorphing_(iConfig.getParameter<bool>("DoDigiMorphing")),
@@ -122,7 +126,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                            static_cast<float>(iConfig.getParameter<double>("VCaltoElectronGain_L1")),
                            static_cast<float>(iConfig.getParameter<double>("VCaltoElectronOffset")),
                            static_cast<float>(iConfig.getParameter<double>("VCaltoElectronOffset_L1"))},
-	trackerTopologyToken_(esConsumes()),
+	trackerTopologyToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()),
 	theBarrelRegions_(parseRegions(iConfig.getParameter<std::vector<std::string>>("barrelRegions"), 3)),
 	theEndcapRegions_(parseRegions(iConfig.getParameter<std::vector<std::string>>("endcapRegions"), 4))
 	{
@@ -281,12 +285,28 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     desc.add<std::string>("CablingMapLabel", "")->setComment("CablingMap label");  //Tav
     descriptions.addWithDefaultLabel(desc);
   }
+  template <typename TrackerTraits>
+	  void SiPixelRawToCluster<TrackerTraits>::beginRun(edm::Run const&, edm::EventSetup const& iSetup) {
+		  // retrieve topology and cabling map
+		  const SiPixelFedCablingMap* cablingMapBeginRun_ = &iSetup.getData(cablingMapTokenBeginRun_);
+		  const TrackerTopology* tTopo = &iSetup.getData(trackerTopologyToken_);
+
+		  digiMorphingConfig_.morphingModules.clear();
+		  for (const auto& connection : cablingMapBeginRun_->det2fedMap()) {
+			  auto rawId = connection.first;
+			  if (rawId == 0) continue;
+
+			  DetId detId(rawId);
+			  if (!skipDetId(tTopo, detId, theBarrelRegions_, theEndcapRegions_)) {
+				  digiMorphingConfig_.morphingModules.push_back(rawId);
+			  }
+		  }
+	  }
 
   template <typename TrackerTraits>
   void SiPixelRawToCluster<TrackerTraits>::acquire(device::Event const& iEvent, device::EventSetup const& iSetup) {
     auto const& hMap = iSetup.getData(mapToken_);
     auto const& dGains = iSetup.getData(gainsToken_);
-    const TrackerTopology* tTopo = &iSetup.getData(trackerTopologyToken_);
     
 
     // initialize cabling map or update if necessary
@@ -297,15 +317,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       cabling_ = cablingMap_->cablingTree();
       LogDebug("map version:") << cablingMap_->version();
     }
-    for (const auto& connection : cablingMap_->det2fedMap()) {
-	    auto rawId = connection.first;
-	    if (rawId == 0) continue;
+#if 0
+    if(!digiMorphingConfig_.morphingModules)
+    {
+	    for (const auto& connection : cablingMap_->det2fedMap()) {
+		    auto rawId = connection.first;
+		    if (rawId == 0) continue;
 
-	    DetId detId(rawId);
-	    if (!skipDetId(tTopo, detId, theBarrelRegions_, theEndcapRegions_)) {
-		    digiMorphingConfig_.morphingModules_.push_back(rawId);
+		    DetId detId(rawId);
+		    if (!skipDetId(tTopo, detId, theBarrelRegions_, theEndcapRegions_)) {
+			    digiMorphingConfig_.morphingModules.push_back(rawId);
+		    }
 	    }
     }
+#endif
 
     // if used, the buffer is guaranteed to stay alive until the after the execution of makePhase1ClustersAsync completes
     std::optional<cms::alpakatools::device_buffer<Device, unsigned char[]>> modulesToUnpackRegional;
