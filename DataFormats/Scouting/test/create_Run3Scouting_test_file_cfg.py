@@ -91,6 +91,24 @@ process.run3ScoutingProducer = cms.EDProducer("TestWriteRun3Scouting",
     ),
     vertexesIntegralValues = cms.vint32(
         15,  25,  35
+    ),
+    ebRecHitsFloatingPointValues = cms.vdouble(
+        16.0,   26.0
+    ),
+    ebRecHitsIntegralValues = cms.vint32(
+        16,  26
+    ),
+    eeRecHitsFloatingPointValues = cms.vdouble(
+        17.0,   27.0
+    ),
+    eeRecHitsIntegralValues = cms.vint32(
+        17
+    ),
+    hbheRecHitsFloatingPointValues = cms.vdouble(
+        18.0
+    ),
+    hbheRecHitsIntegralValues = cms.vint32(
+        18
     )
 )
 
