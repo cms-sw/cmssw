@@ -272,7 +272,7 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
   assert(gid.cellU() == celliu);
   assert(gid.cellV() == celliv);
 
-  int modidx(2), cellidx(1);
+  int modidx(0), cellidx(1);
   printf(
       "[HGCalMappingIndexESSourceTester][produce]  Creating %d number of raw ElectronicsIds from SoAs module idx: "
       "%d, cell idx: %d\n",
