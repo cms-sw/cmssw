@@ -15,26 +15,26 @@ function get_parent_cmds ()
   get_parent_cmds "$XPID" "$DEPTH"
 }
 
+export CMSSW_LIMIT_RESULTS="-0"
 CMD_NAME=$(basename $0)
-LIMIT_RESULTS="NO"
 QUERY=
 FORMAT="plain"
 HELP=
 for ((i=1; i<=$#; i++)); do
   next=$((i+1))
-  case  ${!i} in
-    --query=*  ) QUERY=$(echo ${!i} | sed 's|.*=||') ;;
-    --query    ) QUERY=${!next} ;;
-    --format=* ) FORMAT=$(echo ${!i} | sed 's|.*=||') ;;
-    --format   ) FORMAT=${!next} ;;
-    -h|--help  ) HELP=YES ;;
+  case ${!i} in
+    --query=* | -query=* ) QUERY="${!i#*=}" ;;
+    --query | -query ) QUERY=${!next} ;;
+    --format=* | -format=* ) FORMAT="${!i#*=}" ;;
+    --format | -format ) FORMAT=${!next} ;;
+    -h | --help | -help  ) HELP=YES ;;
   esac
 done
 
 ORIG_DAS_CLIENT=""
 for DAS_CLIENT in $(echo $PATH | tr ':' '\n' | sed "s|\$|/${CMD_NAME}|") ; do
  [ -e ${DAS_CLIENT} ] || continue
- if [ $(head -2 ${DAS_CLIENT} | grep 'CMSSDT_DAS_CLIENT_SIGN' | wc -l) -eq 0 ] ; then ORIG_DAS_CLIENT=${DAS_CLIENT}; break; fi
+ if ! head -2 ${DAS_CLIENT} | grep -q 'CMSSDT_DAS_CLIENT_SIGN'; then ORIG_DAS_CLIENT=${DAS_CLIENT}; break; fi
 done
 
 if [ "X${ORIG_DAS_CLIENT}" = "X" ] ; then
@@ -64,19 +64,19 @@ if [ "${FORMAT}" = "json" ]  ; then
   else
     echo "${QUERY_RESULTS}" > ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.out
   fi
+  cat ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.out
+  exit 0
 else
   QUERY_RESULTS=$((curl -f -L -s "${QUERY_URL}" || true) | grep /store/ | sed 's| ||g;s|"||g;s|,||g')
-  [ $((get_parent_cmds $$ 0 2>&1 || true) | grep '/cmsDriver.py' | wc -l) -gt 0 ] && LIMIT_RESULTS="YES"
+  if (get_parent_cmds $$ 0 2>&1 || true) | grep -aq '/cmsDriver.py'; then
+    export CMSSW_LIMIT_RESULTS="20"
+  fi
   if [ "${QUERY_RESULTS}" = "" ] ; then
     ${ORIG_DAS_CLIENT} "$@" > ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.out
   else
     echo "${QUERY_RESULTS}" > ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.out
   fi
 fi
-echo $LIMIT_RESULTS >> ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.info
-if [ "$LIMIT_RESULTS" = "YES" ] ; then
-  cat ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.out | ibeos-lfn-sort > ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.selected
-  cat ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.selected
-else
-  cat ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.out
-fi
+echo $CMSSW_LIMIT_RESULTS >> ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.info
+cat ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.out | ibeos-lfn-sort > ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.selected
+cat ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.selected
