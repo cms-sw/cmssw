@@ -107,6 +107,8 @@ namespace hgcal {
     // Informaion of the wafer/tile
     siliconWaferInfo getWaferInfo(const DetId& id) const;
     scintillatorTileInfo getTileInfo(const DetId& id) const;
+    int getWaferTypes(DetId::Detector det, int subdet = ForwardSubdetector::ForwardEmpty) const;
+    std::vector<double> getSiThickness(DetId::Detector det, int subdet = ForwardSubdetector::ForwardEmpty) const;
 
   private:
     const CaloGeometry* geom_;
