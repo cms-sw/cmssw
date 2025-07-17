@@ -28,8 +28,8 @@ process = customise_hgcalmapper(process,
                                 sipmcells=options.sipmcells,
                                 offsetfile=options.offsetfile)
 
-#Geometry
-process.load('Configuration.Geometry.GeometryExtended2026D99Reco_cff')
+# Geometry
+process.load('Configuration.Geometry.GeometryExtendedRun4D104Reco_cff')
 
 #tester
 process.tester = cms.EDAnalyzer('HGCalMappingESSourceTester')
