@@ -98,14 +98,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
 
   }  // namespace pixelStatus
 
-    ALPAKA_FN_ACC
-	    bool isMorphingModule(uint32_t moduleId, const uint32_t* morphingModules, uint32_t nMorphingModules) {
-		    for (uint32_t i = 0; i < nMorphingModules; ++i) {
-			    if (morphingModules[i] == moduleId)
-				    return true;
-		    }
-		    return false;
-	    }
+  ALPAKA_FN_ACC
+  bool isMorphingModule(uint32_t moduleId, const uint32_t* morphingModules, uint32_t nMorphingModules) {
+    for (uint32_t i = 0; i < nMorphingModules; ++i) {
+      if (morphingModules[i] == moduleId)
+        return true;
+    }
+    return false;
+  }
 
   template <typename TrackerTraits>
   struct CountModules {
@@ -160,8 +160,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
                                   int offset,
                                   int32_t* kernel1,
                                   int32_t* kernel2,
-				  uint32_t* morphingModules,
-				  uint32_t nMorphingModules,
+                                  uint32_t* morphingModules,
+                                  uint32_t nMorphingModules,
                                   SiPixelClustersSoAView clus_view,
                                   const unsigned int numElements) const {
       static_assert(TrackerTraits::numberOfModules < ::pixelClustering::maxNumModules);
@@ -306,37 +306,37 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
           }
         }
 
-	if (offset > 1 && isMorphingModule(rawModuleId,morphingModules,nMorphingModules)) {
-		uint32_t morphingsize = (pixelStatus::pixelSizeX + 2) * (pixelStatus::pixelSizeY + 2);
-		//Morphing: Dilation
-		for (uint32_t j : cms::alpakatools::independent_group_elements(acc, morphingsize)) {
-			uint16_t row = j / (pixelStatus::pixelSizeY + 2) + 1;
-			uint16_t col = j % (pixelStatus::pixelSizeY + 2) + 1;
-			for (int i = 0; i < 3 && image.clus()[col][row] == pixelStatus::empVal; i++) {
-				for (int jj = 0; jj < 3; jj++) {
-					if (image.clus()[col + i - 1][row + jj - 1] != pixelStatus::empVal &&
-							image.clus()[col + i - 1][row + jj - 1] != pixelStatus::fakeVal && kernel1[i * 3 + jj]) {
-						image.clus()[col][row] = pixelStatus::fakeVal;
-					}
-				}
-			}
-		}
-		alpaka::syncBlockThreads(acc);
-		//Morphing: Erosion
-		for (uint32_t j : cms::alpakatools::independent_group_elements(acc, morphingsize)) {
-			uint16_t row = j / (pixelStatus::pixelSizeY + 2) + 1;
-			uint16_t col = j % (pixelStatus::pixelSizeY + 2) + 1;
-			for (int i = 0; i < 3 && image.clus()[col][row] == pixelStatus::fakeVal; i++) {
-				for (int jj = 0; jj < 3; jj++) {
-					if (image.clus()[col + i - 1][row + jj - 1] == pixelStatus::empVal && kernel2[i * 3 + jj]) {
-						image.clus()[col][row] = pixelStatus::eroded;
-						break;
-					}
-				}
-			}
-		}
-		alpaka::syncBlockThreads(acc);
-	}
+        if (offset > 1 && isMorphingModule(rawModuleId, morphingModules, nMorphingModules)) {
+          uint32_t morphingsize = (pixelStatus::pixelSizeX + 2) * (pixelStatus::pixelSizeY + 2);
+          //Morphing: Dilation
+          for (uint32_t j : cms::alpakatools::independent_group_elements(acc, morphingsize)) {
+            uint16_t row = j / (pixelStatus::pixelSizeY + 2) + 1;
+            uint16_t col = j % (pixelStatus::pixelSizeY + 2) + 1;
+            for (int i = 0; i < 3 && image.clus()[col][row] == pixelStatus::empVal; i++) {
+              for (int jj = 0; jj < 3; jj++) {
+                if (image.clus()[col + i - 1][row + jj - 1] != pixelStatus::empVal &&
+                    image.clus()[col + i - 1][row + jj - 1] != pixelStatus::fakeVal && kernel1[i * 3 + jj]) {
+                  image.clus()[col][row] = pixelStatus::fakeVal;
+                }
+              }
+            }
+          }
+          alpaka::syncBlockThreads(acc);
+          //Morphing: Erosion
+          for (uint32_t j : cms::alpakatools::independent_group_elements(acc, morphingsize)) {
+            uint16_t row = j / (pixelStatus::pixelSizeY + 2) + 1;
+            uint16_t col = j % (pixelStatus::pixelSizeY + 2) + 1;
+            for (int i = 0; i < 3 && image.clus()[col][row] == pixelStatus::fakeVal; i++) {
+              for (int jj = 0; jj < 3; jj++) {
+                if (image.clus()[col + i - 1][row + jj - 1] == pixelStatus::empVal && kernel2[i * 3 + jj]) {
+                  image.clus()[col][row] = pixelStatus::eroded;
+                  break;
+                }
+              }
+            }
+          }
+          alpaka::syncBlockThreads(acc);
+        }
         // for each pixel, look at all the pixels until the end of the module;
         // when two valid pixels within +/- 1 in x or y are found, set their id to the minimum;
         // after the loop, all the pixel in each cluster should have the id equeal to the lowest

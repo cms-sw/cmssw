@@ -5,7 +5,7 @@
 #include <vector>
 
 struct SiPixelMorphingConfig {
-  std::vector<uint32_t> morphingModules; 
+  std::vector<uint32_t> morphingModules;
   std::array<int32_t, 9> kernel1;
   std::array<int32_t, 9> kernel2;
 };

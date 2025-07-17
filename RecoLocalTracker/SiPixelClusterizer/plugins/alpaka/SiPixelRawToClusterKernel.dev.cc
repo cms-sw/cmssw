@@ -574,13 +574,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         auto kernel1_d = cms::alpakatools::make_device_buffer<int32_t[]>(queue, digiMorphingConfig->kernel1.size());
         auto kernel2_d = cms::alpakatools::make_device_buffer<int32_t[]>(queue, digiMorphingConfig->kernel2.size());
-        auto morphingModules_d = cms::alpakatools::make_device_buffer<uint32_t[]>(queue, digiMorphingConfig->morphingModules.size());
+        auto morphingModules_d =
+            cms::alpakatools::make_device_buffer<uint32_t[]>(queue, digiMorphingConfig->morphingModules.size());
         auto kernel1_h =
             cms::alpakatools::make_host_view(digiMorphingConfig->kernel1.data(), digiMorphingConfig->kernel1.size());
         auto kernel2_h =
             cms::alpakatools::make_host_view(digiMorphingConfig->kernel2.data(), digiMorphingConfig->kernel2.size());
-        auto morphingModules_h =
-            cms::alpakatools::make_host_view(digiMorphingConfig->morphingModules.data(), digiMorphingConfig->morphingModules.size());
+        auto morphingModules_h = cms::alpakatools::make_host_view(digiMorphingConfig->morphingModules.data(),
+                                                                  digiMorphingConfig->morphingModules.size());
 
         alpaka::memcpy(queue, kernel1_d, kernel1_h);
         alpaka::memcpy(queue, kernel2_d, kernel2_h);
@@ -598,8 +599,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                             offset,
                             kernel1_d.data(),
                             kernel2_d.data(),
-			    morphingModules_d.data(),
-			    digiMorphingConfig->morphingModules.size(),
+                            morphingModules_d.data(),
+                            digiMorphingConfig->morphingModules.size(),
                             clusters_d->view(),
                             wordCounter);
         //alpaka::exec<Acc1D>(
