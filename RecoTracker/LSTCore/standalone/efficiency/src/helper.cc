@@ -31,8 +31,7 @@ void parseArguments(int argc, char** argv) {
       "p,pt_cut", "Transverse momentum cut", cxxopts::value<float>()->default_value("0.9"))(
       "e,eta_cut", "Pseudorapidity cut", cxxopts::value<float>()->default_value("4.5"))(
       "d,debug", "Run debug job. i.e. overrides output option to 'debug.root' and 'recreate's the file.")(
-      "J,jet_branches", "Accounts for specific jet branches in input root file for testing")(
-      "h,help", "Print help");
+      "J,jet_branches", "Accounts for specific jet branches in input root file for testing")("h,help", "Print help");
 
   auto result = options.parse(argc, argv);
 
