@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/GetterOfProducts.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
 
 #include "DataFormats/Histograms/interface/DQMToken.h"
@@ -62,6 +63,15 @@ protected:
   edm::EDPutTokenT<DQMToken> lumiToken_;
   edm::EDPutTokenT<DQMToken> runToken_;
   edm::EDPutTokenT<DQMToken> jobToken_;
+
+  static void fillDescription(edm::ParameterSetDescription &iDesc) {
+    iDesc.addUntracked<std::string>("inputGeneration", "DQMGenerationReco");
+    iDesc.addUntracked<std::string>("outputGeneration", "DQMGenerationHarvesting");
+    iDesc.addUntracked<std::vector<edm::InputTag>>("inputMEs", std::vector<edm::InputTag>())
+        ->setComment(
+            "DQM tokens to read from other modules. Used to form dependencies between MonitorElements created by other "
+            "modules.");
+  }
 
 public:
   DQMEDHarvester(edm::ParameterSet const &iConfig) {
