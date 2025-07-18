@@ -1123,6 +1123,19 @@ Realistic2025pOCollisionVtxSmearingParameters = cms.PSet(
     Z0 = cms.double(0.569058)
 )
 
+# From 2025 OO data runs 394153-394217, exluding runs with VdM scans, i.e 394154 and 394217
+Realistic2025OOCollisionVtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(50),
+    Emittance = cms.double(6.684e-08),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(5.2929),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.0158483),
+    Y0 = cms.double(-0.00652439),
+    Z0 = cms.double(0.557563)
+)
+
 # Parameters for HL-LHC operation at 13TeV
 HLLHCVtxSmearingParameters = cms.PSet(
     MeanXIncm = cms.double(0.),
@@ -1140,4 +1153,24 @@ HLLHCVtxSmearingParameters = cms.PSet(
     BunchLengthInm = cms.double(0.090),
     CrabbingAngleCrossingInurad = cms.double(380.0),
     CrabbingAngleSeparationInurad = cms.double(0.0)
+)
+
+# Parameters for HL-LHC Crab-kissing operation 13 TeV
+HLLHCCrabKissingVtxSmearingParameters = cms.PSet(
+    MeanXIncm = cms.double(0.),
+    MeanYIncm = cms.double(0.),
+    MeanZIncm = cms.double(0.),
+    TimeOffsetInns = cms.double(0.0),
+    EprotonInGeV = cms.double(6500.0),
+    HalfCrossingAngleInurad = cms.double(200.0),
+    CrabAngleCrossingPlaneInurad = cms.double(200.0),
+    CrabFrequencyCrossingPlaneInMHz = cms.double(400.0),
+    NormalizedEmittanceCrossingPlaneInum = cms.double(2.5),
+    BetaStarCrossingPlaneInm = cms.double(0.30),
+    CrabAngleParallelPlaneInurad = cms.double(100.0),
+    CrabFrequencyParallelPlaneInMHz = cms.double(400.0),
+    NormalizedEmittanceParallelPlaneInum = cms.double(2.5),
+    BetaStarParallelPlaneInm = cms.double(0.075),
+    ZsizeInm = cms.double(0.15),
+    BeamProfile=cms.string("Flat")
 )
