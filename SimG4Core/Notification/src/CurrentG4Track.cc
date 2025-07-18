@@ -10,4 +10,3 @@ const G4Track* CurrentG4Track::track() { return m_track; }
 int CurrentG4Track::NumberOfThreads() { return m_nThreads; };
 
 void CurrentG4Track::setNumberOfThreads(int n) { m_nThreads = n; };
-

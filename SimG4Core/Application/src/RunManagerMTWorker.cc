@@ -181,7 +181,9 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& p, edm::Consumes
       m_G4CommandsEndRun(p.getParameter<std::vector<std::string>>("G4CommandsEndRun")),
       m_p(p) {
   int id = getThreadIndex();
-  if (id > CurrentG4Track::NumberOfThreads()) { CurrentG4Track::setNumberOfThreads(id); } 
+  if (id > CurrentG4Track::NumberOfThreads()) {
+    CurrentG4Track::setNumberOfThreads(id);
+  }
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker for the thread " << id;
 
   // Initialize per-thread output
@@ -764,15 +766,14 @@ void RunManagerMTWorker::DumpMagneticField(const G4Field* field, const std::stri
     for (int k = 0; k <= nx; ++k) {
       double x = k * dx - rmax;
       for (int i = 0; i <= nx; ++i) {
-	double y = i * dx - rmax;
+        double y = i * dx - rmax;
         for (int j = 0; j <= nz; ++j) {
-	  double z = j * dz - zmax;
+          double z = j * dz - zmax;
           point[0] = x;
           point[1] = y;
           point[2] = z;
           field->GetFieldValue(point, bfield);
-          fout << x * d2 << " " << y * d2 << " " << z * d2 << " "
-	       << bfield[0] * d3 << " " << bfield[1] * d3 << " "
+          fout << x * d2 << " " << y * d2 << " " << z * d2 << " " << bfield[0] * d3 << " " << bfield[1] * d3 << " "
                << bfield[2] * d3 << G4endl;
         }
       }
