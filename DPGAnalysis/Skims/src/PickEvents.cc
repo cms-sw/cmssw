@@ -140,7 +140,7 @@ bool PickEvents::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       }
     }
 
-  }       // end of isRunLsBased_
+  }  // end of isRunLsBased_
   else {  // !isRunLsBased_
 
     for (unsigned int cond = 0; cond < whattodo.size(); cond++) {

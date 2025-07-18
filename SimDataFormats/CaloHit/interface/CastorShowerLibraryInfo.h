@@ -11,8 +11,8 @@
 #include <string>
 class SLBin : public TObject {
 public:
-  SLBin(){};
-  ~SLBin() override{};
+  SLBin() {}
+  ~SLBin() override {}
   // Setters
   void Clear(Option_t* option = "") override {
     NEvts = NBins = NEvtPerBin = 0;

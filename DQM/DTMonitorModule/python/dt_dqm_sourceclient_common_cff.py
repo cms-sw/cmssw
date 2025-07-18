@@ -20,6 +20,9 @@ gtDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone(
    DaqGtInputTag = 'rawDataCollector'
 )
 
+from EventFilter.L1TRawToDigi.gtStage2Digis_cfi import gtStage2Digis
+gtStage2Digis.InputLabel = 'rawDataCollector'
+
 # Scalers info
 from EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi import *
 scalersRawToDigi.scalersInputTag = 'rawDataCollector'
@@ -122,3 +125,6 @@ dtDQMCalib = cms.Sequence(dtTPmonitor + dtTPTriggerMonitor + dtTPmonitorTest + d
 # sequence to be run on physics events (includes filters, reco and DQM)
 dtDQMPhysSequence = cms.Sequence(dtScalerInfoMonitor + gtDigis + reco + dtDQMTask + dtDQMTest)
 
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+dtDQMPhysSequenceStage2 = cms.Sequence(dtScalerInfoMonitor + gtStage2Digis + reco + dtDQMTask + dtDQMTest)
+stage2L1Trigger.toReplaceWith(dtDQMPhysSequence,dtDQMPhysSequenceStage2)

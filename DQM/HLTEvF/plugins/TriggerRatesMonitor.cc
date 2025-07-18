@@ -35,10 +35,12 @@ namespace {
   struct RunBasedHistograms {
     // HLT configuration
     struct HLTIndices {
+      unsigned int index_trigger;
       unsigned int index_l1_seed;
       unsigned int index_prescale;
 
-      HLTIndices() : index_l1_seed((unsigned int)-1), index_prescale((unsigned int)-1) {}
+      HLTIndices()
+          : index_trigger((unsigned int)-1), index_l1_seed((unsigned int)-1), index_prescale((unsigned int)-1) {}
     };
 
     HLTConfigProvider hltConfig;
@@ -66,7 +68,7 @@ namespace {
     std::vector<MonitorElement *> l1t_counts;
 
     // HLT triggers
-    std::vector<std::vector<HLTRatesPlots>> hlt_by_dataset_counts;
+    std::vector<HLTRatesPlots> hlt_counts;
 
     // datasets
     std::vector<MonitorElement *> dataset_counts;
@@ -86,7 +88,7 @@ namespace {
           // L1T triggers
           l1t_counts(),
           // HLT triggers
-          hlt_by_dataset_counts(),
+          hlt_counts(),
           // datasets
           dataset_counts(),
           // streams
@@ -177,17 +179,16 @@ void TriggerRatesMonitor::dqmBeginRun(edm::Run const &run,
   if (histograms.hltConfig.init(run, setup, labels.process, changed)) {
     // number of trigger paths in labels.process
     auto const nTriggers = histograms.hltConfig.size();
+    histograms.hltIndices.clear();
     histograms.hltIndices.resize(nTriggers);
+    histograms.hlt_counts.clear();
+    histograms.hlt_counts.resize(nTriggers);
 
     unsigned int const nDatasets = histograms.hltConfig.datasetNames().size();
-    histograms.hlt_by_dataset_counts.clear();
-    histograms.hlt_by_dataset_counts.resize(nDatasets);
-
     histograms.datasets.clear();
     histograms.datasets.resize(nDatasets);
     for (unsigned int i = 0; i < nDatasets; ++i) {
       auto const &paths = histograms.hltConfig.datasetContent(i);
-      histograms.hlt_by_dataset_counts[i].resize(paths.size());
       histograms.datasets[i].reserve(paths.size());
       for (auto const &path : paths) {
         auto const triggerIdx = histograms.hltConfig.triggerIndex(path);
@@ -277,64 +278,58 @@ void TriggerRatesMonitor::bookHistograms(DQMStore::IBooker &booker,
   }
 
   if (histograms.hltConfig.inited()) {
-    auto const &datasetNames = histograms.hltConfig.datasetNames();
-
     // book the rate histograms for the HLT triggers
-    for (unsigned int d = 0; d < datasetNames.size(); ++d) {
-      booker.setCurrentFolder(m_dqm_path + "/HLT/" + datasetNames[d]);
-      for (unsigned int i = 0; i < histograms.datasets[d].size(); ++i) {
-        unsigned int index = histograms.datasets[d][i];
-        std::string const &name = histograms.hltConfig.triggerName(index);
-        histograms.hlt_by_dataset_counts[d][i].pass_l1_seed = booker.book1D(name + "_pass_L1_seed",
-                                                                            name + " pass L1 seed, vs. lumisection",
-                                                                            m_lumisections_range + 1,
-                                                                            -0.5,
-                                                                            m_lumisections_range + 0.5);
-        histograms.hlt_by_dataset_counts[d][i].pass_prescale = booker.book1D(name + "_pass_prescaler",
-                                                                             name + " pass prescaler, vs. lumisection",
-                                                                             m_lumisections_range + 1,
-                                                                             -0.5,
-                                                                             m_lumisections_range + 0.5);
-        histograms.hlt_by_dataset_counts[d][i].accept = booker.book1D(name + "_accept",
-                                                                      name + " accept, vs. lumisection",
-                                                                      m_lumisections_range + 1,
-                                                                      -0.5,
-                                                                      m_lumisections_range + 0.5);
-        histograms.hlt_by_dataset_counts[d][i].reject = booker.book1D(name + "_reject",
-                                                                      name + " reject, vs. lumisection",
-                                                                      m_lumisections_range + 1,
-                                                                      -0.5,
-                                                                      m_lumisections_range + 0.5);
-        histograms.hlt_by_dataset_counts[d][i].error = booker.book1D(name + "_error",
-                                                                     name + " error, vs. lumisection",
-                                                                     m_lumisections_range + 1,
-                                                                     -0.5,
-                                                                     m_lumisections_range + 0.5);
-      }
+    auto const &triggerNames = histograms.hltConfig.triggerNames();
+    for (unsigned int i = 0; i < triggerNames.size(); ++i) {
+      std::string const &name = triggerNames[i];
+      booker.setCurrentFolder(m_dqm_path + "/HLT/" + name);
 
-      for (unsigned int i : histograms.datasets[d]) {
-        // look for the index of the (last) L1T seed and prescale module in each path
-        histograms.hltIndices[i].index_l1_seed = histograms.hltConfig.size(i);
-        histograms.hltIndices[i].index_prescale = histograms.hltConfig.size(i);
-        for (unsigned int j = 0; j < histograms.hltConfig.size(i); ++j) {
-          std::string const &label = histograms.hltConfig.moduleLabel(i, j);
-          std::string const &type = histograms.hltConfig.moduleType(label);
-          if (type == "HLTL1TSeed" or type == "HLTLevel1GTSeed" or type == "HLTLevel1Activity" or
-              type == "HLTLevel1Pattern") {
-            // there might be more L1T seed filters in sequence
-            // keep looking and store the index of the last one
-            histograms.hltIndices[i].index_l1_seed = j;
-          } else if (type == "HLTPrescaler") {
-            // there should be only one prescaler in a path, and it should follow all L1T seed filters
-            histograms.hltIndices[i].index_prescale = j;
-            break;
-          }
+      histograms.hlt_counts[i].pass_l1_seed = booker.book1D(name + "_pass_L1_seed",
+                                                            name + " pass L1 seed, vs. lumisection",
+                                                            m_lumisections_range + 1,
+                                                            -0.5,
+                                                            m_lumisections_range + 0.5);
+      histograms.hlt_counts[i].pass_prescale = booker.book1D(name + "_pass_prescaler",
+                                                             name + " pass prescaler, vs. lumisection",
+                                                             m_lumisections_range + 1,
+                                                             -0.5,
+                                                             m_lumisections_range + 0.5);
+      histograms.hlt_counts[i].accept = booker.book1D(name + "_accept",
+                                                      name + " accept, vs. lumisection",
+                                                      m_lumisections_range + 1,
+                                                      -0.5,
+                                                      m_lumisections_range + 0.5);
+      histograms.hlt_counts[i].reject = booker.book1D(name + "_reject",
+                                                      name + " reject, vs. lumisection",
+                                                      m_lumisections_range + 1,
+                                                      -0.5,
+                                                      m_lumisections_range + 0.5);
+      histograms.hlt_counts[i].error = booker.book1D(
+          name + "_error", name + " error, vs. lumisection", m_lumisections_range + 1, -0.5, m_lumisections_range + 0.5);
+
+      // set trigger index, and indices of the (last) L1T seed and prescale module in each path
+      histograms.hltIndices[i].index_trigger = histograms.hltConfig.triggerIndex(name);
+      histograms.hltIndices[i].index_l1_seed = histograms.hltConfig.size(i);
+      histograms.hltIndices[i].index_prescale = histograms.hltConfig.size(i);
+      for (unsigned int j = 0; j < histograms.hltConfig.size(i); ++j) {
+        std::string const &label = histograms.hltConfig.moduleLabel(i, j);
+        std::string const &type = histograms.hltConfig.moduleType(label);
+        if (type == "HLTL1TSeed" or type == "HLTLevel1GTSeed" or type == "HLTLevel1Activity" or
+            type == "HLTLevel1Pattern") {
+          // there might be more L1T seed filters in sequence
+          // keep looking and store the index of the last one
+          histograms.hltIndices[i].index_l1_seed = j;
+        } else if (type == "HLTPrescaler") {
+          // there should be only one prescaler in a path, and it should follow all L1T seed filters
+          histograms.hltIndices[i].index_prescale = j;
+          break;
         }
       }
     }
 
     // book the rate histograms for the HLT datasets
     booker.setCurrentFolder(m_dqm_path + "/Datasets");
+    auto const &datasetNames = histograms.hltConfig.datasetNames();
     for (unsigned int i = 0; i < datasetNames.size(); ++i)
       histograms.dataset_counts[i] =
           booker.book1D(datasetNames[i], datasetNames[i], m_lumisections_range + 1, -0.5, m_lumisections_range + 0.5);
@@ -387,37 +382,41 @@ void TriggerRatesMonitor::dqmAnalyze(edm::Event const &event,
       return;
     }
 
+    for (unsigned int i = 0; i < histograms.hltIndices.size(); ++i) {
+      auto const index = histograms.hltIndices[i].index_trigger;
+      edm::HLTPathStatus const &path = hltResults[index];
+
+      if (path.index() > histograms.hltIndices[i].index_l1_seed)
+        histograms.hlt_counts[i].pass_l1_seed->Fill(lumisection);
+      if (path.index() > histograms.hltIndices[i].index_prescale)
+        histograms.hlt_counts[i].pass_prescale->Fill(lumisection);
+      if (path.accept())
+        histograms.hlt_counts[i].accept->Fill(lumisection);
+      else if (path.error())
+        histograms.hlt_counts[i].error->Fill(lumisection);
+      else
+        histograms.hlt_counts[i].reject->Fill(lumisection);
+    }
+
     for (unsigned int d = 0; d < histograms.datasets.size(); ++d) {
-      for (unsigned int i : histograms.datasets[d])
+      for (unsigned int i : histograms.datasets[d]) {
         if (hltResults[i].accept()) {
           histograms.dataset_counts[d]->Fill(lumisection);
           // ensure each dataset is incremented only once per event
           break;
         }
-      for (unsigned int i = 0; i < histograms.datasets[d].size(); ++i) {
-        unsigned int const index = histograms.datasets[d][i];
-        edm::HLTPathStatus const &path = hltResults[index];
-
-        if (path.index() > histograms.hltIndices[index].index_l1_seed)
-          histograms.hlt_by_dataset_counts[d][i].pass_l1_seed->Fill(lumisection);
-        if (path.index() > histograms.hltIndices[index].index_prescale)
-          histograms.hlt_by_dataset_counts[d][i].pass_prescale->Fill(lumisection);
-        if (path.accept())
-          histograms.hlt_by_dataset_counts[d][i].accept->Fill(lumisection);
-        else if (path.error())
-          histograms.hlt_by_dataset_counts[d][i].error->Fill(lumisection);
-        else
-          histograms.hlt_by_dataset_counts[d][i].reject->Fill(lumisection);
       }
     }
 
-    for (unsigned int i = 0; i < histograms.streams.size(); ++i)
-      for (unsigned int j : histograms.streams[i])
+    for (unsigned int i = 0; i < histograms.streams.size(); ++i) {
+      for (unsigned int j : histograms.streams[i]) {
         if (hltResults[j].accept()) {
           histograms.stream_counts[i]->Fill(lumisection);
           // ensure each stream is incremented only once per event
           break;
         }
+      }
+    }
   }
 }
 

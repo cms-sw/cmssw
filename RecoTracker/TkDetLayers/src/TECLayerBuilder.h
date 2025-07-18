@@ -13,7 +13,7 @@
 #pragma GCC visibility push(hidden)
 class TECLayerBuilder {
 public:
-  TECLayerBuilder(){};
+  TECLayerBuilder() {}
   TECLayer* build(const GeometricDet* aTECLayer, const TrackerGeometry* theGeomDetGeometry) __attribute__((cold));
 };
 

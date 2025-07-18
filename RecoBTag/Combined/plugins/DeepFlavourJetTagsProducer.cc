@@ -288,11 +288,26 @@ namespace {
 
   // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
   void DeepFlavourJetTagsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-    //The following says we do not know what parameters are allowed so do no validation
-    // Please change this to state exactly what you do use, even if it is no parameters
     edm::ParameterSetDescription desc;
-    desc.setUnknown();
-    descriptions.addDefault(desc);
+
+    // Define the parameters
+    desc.add<edm::InputTag>("src", edm::InputTag("pfDeepCSVTagInfos"))
+        ->setComment("InputTag for the source tag info collection.");
+    desc.add<bool>("checkSVForDefaults", false)->setComment("Flag to check secondary vertex defaults.");
+    desc.add<bool>("meanPadding", false)->setComment("Enable or disable mean padding for input features.");
+    desc.add<edm::FileInPath>("NNConfig", edm::FileInPath("RecoBTag/Combined/data/DeepFlavourNoSL.json"))
+        ->setComment("Path to the JSON file containing the neural network configuration.");
+
+    // Define the 'toAdd' parameter as a ParameterSet with arbitrary string keys
+    edm::ParameterSetDescription toAddDesc;
+    toAddDesc.setAllowAnything();  // Allow any string-to-string mappings
+    desc.add<edm::ParameterSetDescription>("toAdd", toAddDesc)
+        ->setComment(
+            "ParameterSet for merging different NN outputs together. "
+            "Each key is an output to merge, and its value is the target output.");
+
+    // Add this producer's description to the descriptions registry
+    descriptions.addWithDefaultLabel(desc);
   }
 }  // end unnamed namespace
 

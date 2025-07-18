@@ -440,41 +440,41 @@ namespace tmtt {
     edm::ParameterSet trackDigi_;
 
     // General settings
-    bool enableMCtruth_;
-    bool enableHistos_;
-    bool enableOutputIntermediateTTTracks_;
+    bool enableMCtruth_ = false;
+    bool enableHistos_ = false;
+    bool enableOutputIntermediateTTTracks_ = false;
 
     // Cuts on truth tracking particles.
-    double genMinPt_;
-    double genMaxAbsEta_;
-    double genMaxVertR_;
-    double genMaxVertZ_;
-    double genMaxD0_;
-    double genMaxZ0_;
+    double genMinPt_ = 0.;
+    double genMaxAbsEta_ = 0.;
+    double genMaxVertR_ = 0.;
+    double genMaxVertZ_ = 0.;
+    double genMaxD0_ = 0.;
+    double genMaxZ0_ = 0.;
     std::vector<int> genPdgIds_;
-    unsigned int genMinStubLayers_;
+    unsigned int genMinStubLayers_ = 0;
 
     // Cuts applied to stubs before arriving in L1 track finding board.
-    unsigned int degradeBendRes_;
-    double maxStubEta_;
-    bool killLowPtStubs_;
-    bool printStubWindows_;
-    double bendCut_;
-    double bendCutExtra_;
-    bool orderStubsByBend_;
+    unsigned int degradeBendRes_ = 0;
+    double maxStubEta_ = 0.;
+    bool killLowPtStubs_ = false;
+    bool printStubWindows_ = false;
+    double bendCut_ = 0.;
+    double bendCutExtra_ = 0.;
+    bool orderStubsByBend_ = false;
 
     // Optional stub digitization.
-    bool enableDigitize_;
-    unsigned int phiSectorBits_;
-    unsigned int phiSBits_;
-    double phiSRange_;
-    unsigned int rtBits_;
-    double rtRange_;
-    unsigned int zBits_;
-    double zRange_;
-    unsigned int phiNBits_;
-    double phiNRange_;
-    unsigned int bendBits_;
+    bool enableDigitize_ = false;
+    unsigned int phiSectorBits_ = 0;
+    unsigned int phiSBits_ = 0;
+    double phiSRange_ = false;
+    unsigned int rtBits_ = 0;
+    double rtRange_ = 0.;
+    unsigned int zBits_ = 0;
+    double zRange_ = 0.;
+    unsigned int phiNBits_ = 0;
+    double phiNRange_ = 0.;
+    unsigned int bendBits_ = 0;
 
     // Tracker module type for FW.
     std::vector<double> pitchVsType_;
@@ -487,115 +487,115 @@ namespace tmtt {
     std::vector<unsigned int> tiltedVsTypeTmp_;
 
     // Configuration of Geometric Processor.
-    bool useApproxB_;
-    double bApprox_gradient_;
-    double bApprox_intercept_;
+    bool useApproxB_ = false;
+    double bApprox_gradient_ = 0.;
+    double bApprox_intercept_ = 0.;
 
     // Definition of phi sectors.
-    unsigned int numPhiNonants_;
-    unsigned int numPhiSectors_;
-    double chosenRofPhi_;
-    bool useStubPhi_;
-    bool useStubPhiTrk_;
-    double assumedPhiTrkRes_;
-    bool calcPhiTrkRes_;
+    unsigned int numPhiNonants_ = 0;
+    unsigned int numPhiSectors_ = 0;
+    double chosenRofPhi_ = 0.;
+    bool useStubPhi_ = false;
+    bool useStubPhiTrk_ = false;
+    double assumedPhiTrkRes_ = 0.;
+    bool calcPhiTrkRes_ = false;
 
     // Definition of eta sectors.
     std::vector<double> etaRegions_;
-    double chosenRofZ_;
-    double beamWindowZ_;
-    bool allowOver2EtaSecs_;
+    double chosenRofZ_ = 0.;
+    double beamWindowZ_ = 0.;
+    bool allowOver2EtaSecs_ = false;
 
     // r-phi Hough transform array specifications.
-    double houghMinPt_;
-    unsigned int houghNbinsPt_;
-    unsigned int houghNbinsPhi_;
-    bool enableMerge2x2_;
-    double maxPtToMerge2x2_;
-    unsigned int numSubSecsEta_;
-    unsigned int shape_;
-    bool miniHTstage_;
-    unsigned int miniHoughNbinsPt_;
-    unsigned int miniHoughNbinsPhi_;
-    double miniHoughMinPt_;
-    bool miniHoughDontKill_;
-    double miniHoughDontKillMinPt_;
-    unsigned int miniHoughLoadBalance_;
+    double houghMinPt_ = 0.;
+    unsigned int houghNbinsPt_ = 0;
+    unsigned int houghNbinsPhi_ = 0;
+    bool enableMerge2x2_ = false;
+    double maxPtToMerge2x2_ = 0.;
+    unsigned int numSubSecsEta_ = 0;
+    unsigned int shape_ = 0;
+    bool miniHTstage_ = false;
+    unsigned int miniHoughNbinsPt_ = 0;
+    unsigned int miniHoughNbinsPhi_ = 0;
+    double miniHoughMinPt_ = 0.;
+    bool miniHoughDontKill_ = false;
+    double miniHoughDontKillMinPt_ = 0.;
+    unsigned int miniHoughLoadBalance_ = 0;
 
     // Rules governing how stubs are filled into the r-phi Hough Transform array.
-    unsigned int killSomeHTCellsRphi_;
-    bool useBendFilter_;
-    unsigned int maxStubsInCell_;
-    unsigned int maxStubsInCellMiniHough_;
-    bool busySectorKill_;
-    unsigned int busySectorNumStubs_;
+    unsigned int killSomeHTCellsRphi_ = 0;
+    bool useBendFilter_ = false;
+    unsigned int maxStubsInCell_ = 0;
+    unsigned int maxStubsInCellMiniHough_ = 0;
+    bool busySectorKill_ = false;
+    unsigned int busySectorNumStubs_ = 0;
     std::vector<unsigned int> busySectorMbinRanges_;
     std::vector<unsigned int> busySectorMbinOrder_;
-    bool busyInputSectorKill_;
-    unsigned int busyInputSectorNumStubs_;
-    unsigned int muxOutputsHT_;
+    bool busyInputSectorKill_ = false;
+    unsigned int busyInputSectorNumStubs_ = 0;
+    unsigned int muxOutputsHT_ = 0;
     std::vector<unsigned int> etaRegWhitelist_;
 
     // Options controlling r-z track filters (or any other track filters run after the Hough transform, as opposed to inside it).
     std::string rzFilterName_;
-    double seedResCut_;
-    bool keepAllSeed_;
-    unsigned int maxSeedCombinations_;
-    unsigned int maxGoodSeedCombinations_;
-    unsigned int maxSeedsPerStub_;
-    bool zTrkSectorCheck_;
-    unsigned int minFilterLayers_;
+    double seedResCut_ = 0.;
+    bool keepAllSeed_ = false;
+    unsigned int maxSeedCombinations_ = 0;
+    unsigned int maxGoodSeedCombinations_ = 0;
+    unsigned int maxSeedsPerStub_ = 0;
+    bool zTrkSectorCheck_ = false;
+    unsigned int minFilterLayers_ = 0;
 
     // Rules for deciding when the track-finding has found an L1 track candidate
-    unsigned int minStubLayers_;
-    double minPtToReduceLayers_;
+    unsigned int minStubLayers_ = 0;
+    double minPtToReduceLayers_ = 0.;
     std::vector<unsigned int> etaSecsReduceLayers_;
-    bool reduceLayerID_;
+    bool reduceLayerID_ = false;
 
     // Specification of algorithm to eliminate duplicate tracks
-    unsigned int dupTrkAlgFit_;
+    unsigned int dupTrkAlgFit_ = 0;
 
     // Rules for deciding when a reconstructed L1 track matches a MC truth particle (i.e. tracking particle).
-    double minFracMatchStubsOnReco_;
-    double minFracMatchStubsOnTP_;
-    unsigned int minNumMatchLayers_;
-    unsigned int minNumMatchPSLayers_;
-    bool stubMatchStrict_;
+    double minFracMatchStubsOnReco_ = 0.;
+    double minFracMatchStubsOnTP_ = 0.;
+    unsigned int minNumMatchLayers_ = 0;
+    unsigned int minNumMatchPSLayers_ = 0;
+    bool stubMatchStrict_ = false;
 
     // Track Fitting Settings
     std::vector<std::string> trackFitters_;
     std::vector<std::string> useRZfilter_;
-    double chi2OverNdfCut_;
-    bool detailedFitOutput_;
-    bool trackFitCheat_;
+    double chi2OverNdfCut_ = 0.;
+    bool detailedFitOutput_ = false;
+    bool trackFitCheat_ = false;
     //
-    unsigned int numTrackFitIterations_;
-    bool killTrackFitWorstHit_;
-    double generalResidualCut_;
-    double killingResidualCut_;
+    unsigned int numTrackFitIterations_ = 0;
+    bool killTrackFitWorstHit_ = false;
+    double generalResidualCut_ = 0.;
+    double killingResidualCut_ = 0.;
     //
-    bool digitizeSLR_;
-    unsigned int dividerBitsHelix_;
-    unsigned int dividerBitsHelixZ_;
-    unsigned int ShiftingBitsDenRPhi_;
-    unsigned int ShiftingBitsDenRZ_;
-    unsigned int ShiftingBitsPt_;
-    unsigned int ShiftingBitsPhi_;
+    bool digitizeSLR_ = false;
+    unsigned int dividerBitsHelix_ = 0;
+    unsigned int dividerBitsHelixZ_ = 0;
+    unsigned int ShiftingBitsDenRPhi_ = 0;
+    unsigned int ShiftingBitsDenRZ_ = 0;
+    unsigned int ShiftingBitsPt_ = 0;
+    unsigned int ShiftingBitsPhi_ = 0;
 
-    unsigned int ShiftingBitsLambda_;
-    unsigned int ShiftingBitsZ0_;
-    double slr_chi2cut_;
-    double residualCut_;
+    unsigned int ShiftingBitsLambda_ = 0;
+    unsigned int ShiftingBitsZ0_ = 0;
+    double slr_chi2cut_ = 0.;
+    double residualCut_ = 0.;
     //
-    unsigned kalmanDebugLevel_;
-    unsigned int kalmanMinNumStubs_;
-    unsigned int kalmanMaxNumStubs_;
-    bool kalmanAddBeamConstr_;
-    bool kalmanRemove2PScut_;
-    unsigned int kalmanMaxSkipLayersHard_;
-    unsigned int kalmanMaxSkipLayersEasy_;
-    unsigned int kalmanMaxStubsEasy_;
-    bool kfUseMaybeLayers_;
+    unsigned kalmanDebugLevel_ = 0;
+    unsigned int kalmanMinNumStubs_ = 0;
+    unsigned int kalmanMaxNumStubs_ = 0;
+    bool kalmanAddBeamConstr_ = false;
+    bool kalmanRemove2PScut_ = false;
+    unsigned int kalmanMaxSkipLayersHard_ = 0;
+    unsigned int kalmanMaxSkipLayersEasy_ = 0;
+    unsigned int kalmanMaxStubsEasy_ = 0;
+    bool kfUseMaybeLayers_ = false;
 
     std::vector<double> kfLayerVsPtToler_;
     std::vector<double> kfLayerVsD0Cut5_;
@@ -604,64 +604,64 @@ namespace tmtt {
     std::vector<double> kfLayerVsChiSq5_;
     std::vector<double> kfLayerVsChiSq4_;
 
-    unsigned int kalmanMaxStubsPerLayer_;
-    double kalmanMultiScattTerm_;
-    unsigned int kalmanChi2RphiScale_;
-    bool kalmanHOtilted_;
-    bool kalmanHOhelixExp_;
-    unsigned int kalmanHOalpha_;
-    unsigned int kalmanHOprojZcorr_;
-    bool kalmanHOfw_;
+    unsigned int kalmanMaxStubsPerLayer_ = 0;
+    double kalmanMultiScattTerm_ = 0.;
+    unsigned int kalmanChi2RphiScale_ = 0;
+    bool kalmanHOtilted_ = false;
+    bool kalmanHOhelixExp_ = false;
+    unsigned int kalmanHOalpha_ = 0;
+    unsigned int kalmanHOprojZcorr_ = 0;
+    bool kalmanHOfw_ = false;
 
     // Treatment of dead modules.
-    unsigned int killScenario_;
-    bool killRecover_;
+    unsigned int killScenario_ = 0;
+    bool killRecover_ = false;
 
     // Track digitisation configuration for various track fitters
-    bool slr_skipTrackDigi_;
-    unsigned int slr_oneOver2rBits_;
-    double slr_oneOver2rRange_;
-    double slr_oneOver2rMult_;
-    unsigned int slr_d0Bits_;
-    double slr_d0Range_;
-    unsigned int slr_phi0Bits_;
-    double slr_phi0Range_;
-    unsigned int slr_z0Bits_;
-    double slr_z0Range_;
-    unsigned int slr_tanlambdaBits_;
-    double slr_tanlambdaRange_;
-    unsigned int slr_chisquaredBits_;
-    double slr_chisquaredRange_;
+    bool slr_skipTrackDigi_ = false;
+    unsigned int slr_oneOver2rBits_ = 0;
+    double slr_oneOver2rRange_ = 0.;
+    double slr_oneOver2rMult_ = 0.;
+    unsigned int slr_d0Bits_ = 0;
+    double slr_d0Range_ = 0.;
+    unsigned int slr_phi0Bits_ = 0;
+    double slr_phi0Range_ = 0.;
+    unsigned int slr_z0Bits_ = 0;
+    double slr_z0Range_ = 0.;
+    unsigned int slr_tanlambdaBits_ = 0;
+    double slr_tanlambdaRange_ = 0.;
+    unsigned int slr_chisquaredBits_ = 0;
+    double slr_chisquaredRange_ = 0.;
     //
-    bool kf_skipTrackDigi_;
-    unsigned int kf_oneOver2rBits_;
-    double kf_oneOver2rRange_;
-    double kf_oneOver2rMult_;
-    unsigned int kf_d0Bits_;
-    double kf_d0Range_;
-    unsigned int kf_phi0Bits_;
-    double kf_phi0Range_;
-    unsigned int kf_z0Bits_;
-    double kf_z0Range_;
-    unsigned int kf_tanlambdaBits_;
-    double kf_tanlambdaRange_;
-    unsigned int kf_chisquaredBits_;
-    double kf_chisquaredRange_;
+    bool kf_skipTrackDigi_ = false;
+    unsigned int kf_oneOver2rBits_ = 0;
+    double kf_oneOver2rRange_ = 0.;
+    double kf_oneOver2rMult_ = 0.;
+    unsigned int kf_d0Bits_ = 0;
+    double kf_d0Range_ = 0.;
+    unsigned int kf_phi0Bits_ = 0;
+    double kf_phi0Range_ = 0.;
+    unsigned int kf_z0Bits_ = 0;
+    double kf_z0Range_ = 0.;
+    unsigned int kf_tanlambdaBits_ = 0;
+    double kf_tanlambdaRange_ = 0.;
+    unsigned int kf_chisquaredBits_ = 0;
+    double kf_chisquaredRange_ = 0.;
     std::vector<double> kf_chisquaredBinEdges_;
     //
-    bool other_skipTrackDigi_;
+    bool other_skipTrackDigi_ = false;
 
     // Debug printout
-    bool resPlotOpt_;
+    bool resPlotOpt_ = false;
 
     // Boolean indicating an an EDM output file will be written.
-    bool writeOutEdmFile_;
+    bool writeOutEdmFile_ = false;
 
     // B-field in Tesla
     mutable std::atomic<float> magneticField_;
 
     // Hybrid tracking
-    bool hybrid_;
+    bool hybrid_ = false;
   };
 
 }  // namespace tmtt

@@ -34,7 +34,7 @@ DTSegmentCand::DTSegmentCand(const AssPointCont& hits,
 DTSegmentCand::~DTSegmentCand() {}
 
 /* Operations */
-bool DTSegmentCand::operator==(const DTSegmentCand& seg) {
+bool DTSegmentCand::operator==(const DTSegmentCand& seg) const {
   static const double epsilon = 0.00001;
   if (nHits() != seg.nHits())
     return false;
@@ -49,7 +49,7 @@ bool DTSegmentCand::operator==(const DTSegmentCand& seg) {
   return true;
 }
 
-bool DTSegmentCand::operator<(const DTSegmentCand& seg) {
+bool DTSegmentCand::operator<(const DTSegmentCand& seg) const {
   if (nHits() == seg.nHits())
     return (chi2() > seg.chi2());
   return (nHits() < seg.nHits());

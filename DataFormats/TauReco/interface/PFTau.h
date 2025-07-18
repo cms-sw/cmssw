@@ -57,7 +57,7 @@ namespace reco {
 
     PFTau();
     PFTau(Charge q, const LorentzVector&, const Point& = Point(0, 0, 0));
-    ~PFTau() override{};
+    ~PFTau() override {}
     PFTau* clone() const override;
 
     const JetBaseRef& jetRef() const;

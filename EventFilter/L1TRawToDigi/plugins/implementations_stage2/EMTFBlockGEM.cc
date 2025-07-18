@@ -23,7 +23,7 @@ namespace l1t {
       // };
 
     }  // namespace emtf
-  }    // namespace stage2
+  }  // namespace stage2
 }  // namespace l1t
 
 namespace l1t {
@@ -104,11 +104,11 @@ namespace l1t {
         neighbor = -99;
         layer = -99;  // the GEM layer is 1 or 2, depending on the cluster ID
 
-        // Neighbor indicated by link == 6
-        sector = (link != 6 ? evt_sector : (evt_sector == 1 ? 6 : evt_sector - 1));
-        subsector = (link != 6 ? link : 0);  // TODO: verify subsector 0 in the neighbouring sector?
-        neighbor = (link == 6 ? 1 : 0);  // TODO: verify that 6 is for the neighbour, not 0 (as written in EMTFBlockRPC)
-        layer = (cluster_id % 8);        // + 1 if layer should be 1 or 2, otherwise layer is 0 or 1
+        // Neighbor indicated by link == 4
+        sector = (link != 4 ? evt_sector : (evt_sector == 1 ? 6 : evt_sector - 1));
+        subsector = (link < 4 ? link : (link == 4 ? 5 : link - 1));
+        neighbor = (link == 4 ? 1 : 0);
+        layer = (cluster_id / 4) % 2 + 1;
       }
 
       /**
@@ -162,7 +162,6 @@ namespace l1t {
           res_hit = static_cast<EMTFCollections*>(coll)->getEMTFHits();
           EMTFHit Hit_;
 
-          // TODO: Verify this is correct for GEM
           GEMPadDigiClusterCollection* res_GEM;
           res_GEM = static_cast<EMTFCollections*>(coll)->getEMTFGEMPadClusters();
 
@@ -170,7 +169,7 @@ namespace l1t {
           // Unpack the GEM Data Record
           ////////////////////////////
           if (run3_DAQ_format) {  // Run 3 DAQ format has 2 TPs per block
-            if (i == 1) {
+            if (i == 1) {         // GE1/1 layer 1, GE2/1 not know yet
               GEM_.set_pad(GetHexBits(GEMa, 0, 8));
               GEM_.set_partition(GetHexBits(GEMa, 9, 11));
               GEM_.set_cluster_size(GetHexBits(GEMa, 12, 14));
@@ -183,7 +182,7 @@ namespace l1t {
               GEM_.set_bc0(GetHexBits(GEMb, 7, 7));
               GEM_.set_cluster_id(GetHexBits(GEMb, 8, 11));
               GEM_.set_link(GetHexBits(GEMb, 12, 14));
-            } else if (i == 2) {
+            } else if (i == 2) {  // GE1/1 layer2, GE2/1 not know yet
               GEM_.set_pad(GetHexBits(GEMc, 0, 8));
               GEM_.set_partition(GetHexBits(GEMc, 9, 11));
               GEM_.set_cluster_size(GetHexBits(GEMc, 12, 14));
@@ -215,7 +214,6 @@ namespace l1t {
           }
 
           // Convert specially-encoded GEM quantities
-          // TODO: is the RPC or CSC method for this function better... - JS 06.07.20
           int _station, _ring, _sector, _subsector, _neighbor, _layer;
           convert_GEM_location(_station,
                                _ring,
@@ -227,14 +225,10 @@ namespace l1t {
                                GEM_.ClusterID(),
                                GEM_.Link());
 
-          // Rotate by 20 deg to match GEM convention in CMSSW) // FIXME VERIFY
-          // int _sector_gem = (_subsector < 5) ? _sector : (_sector % 6) + 1; //
           int _sector_gem = _sector;
-          // Rotate by 2 to match GEM convention in CMSSW (GEMDetId.h) // FIXME VERIFY
-          int _subsector_gem = ((_subsector + 1) % 6) + 1;
-          // Define chamber number) // FIXME VERIFY
-          int _chamber = (_sector_gem - 1) * 6 + _subsector_gem;
-          // Define CSC-like subsector) // FIXME WHY?? VERIFY
+          int _subsector_gem = _subsector;
+          int _chamber = ((_sector_gem - 1) * 6 + _subsector_gem + 2) % 36 + 1;
+          // Define CSC-like subsector)
           int _subsector_csc = (_station != 1) ? 0 : ((_chamber % 6 > 2) ? 1 : 2);
 
           Hit_.set_station(_station);
@@ -243,12 +237,13 @@ namespace l1t {
           Hit_.set_subsector(_subsector_csc);
           Hit_.set_chamber(_chamber);
           Hit_.set_neighbor(_neighbor);
+          Hit_.set_layer(_layer);
 
           // Fill the EMTFHit
           ImportGEM(Hit_, GEM_, (res->at(iOut)).PtrEventHeader()->Endcap(), (res->at(iOut)).PtrEventHeader()->Sector());
 
           // Set the stub number for this hit
-          // Each chamber can send up to 2 stubs per BX // FIXME is this true for GEM, are stubs relevant for GEMs?
+          // Each GEM superchamber can send up to 8 clusters per layer per BX
           // Also count stubs in corresponding CSC chamber; GEM hit counting is on top of LCT counting
           Hit_.set_stub_num(0);
           // See if matching hit is already in event record
@@ -305,7 +300,7 @@ namespace l1t {
       // } // End bool GEMBlockPacker::pack
 
     }  // End namespace emtf
-  }    // End namespace stage2
+  }  // End namespace stage2
 }  // End namespace l1t
 
 DEFINE_L1T_UNPACKER(l1t::stage2::emtf::GEMBlockUnpacker);

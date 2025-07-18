@@ -56,8 +56,6 @@ private:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void endJob() override;
 
-  ParameterSet conf_;
-
   unsigned int ev;
   // ----------member data ---------------------------
 
@@ -77,6 +75,11 @@ private:
 
   TH1F *eg_r9_eb, *pf_r9_eb, *ged_r9_eb;
   TH1F *eg_r9_ee, *pf_r9_ee, *ged_r9_ee;
+
+  const edm::EDGetTokenT<reco::PFCandidateCollection> pfToken_;
+  const edm::EDGetTokenT<reco::PhotonCollection> phoToken_;
+  const edm::EDGetTokenT<edm::HepMCProduct> mcToken_;
+  const edm::EDGetTokenT<reco::PhotonCollection> gedPhoToken_;
 };
 
 //
@@ -91,9 +94,10 @@ private:
 // constructors and destructor
 //
 EgGEDPhotonAnalyzer::EgGEDPhotonAnalyzer(const edm::ParameterSet &iConfig)
-    : conf_(iConfig)
-
-{
+    : pfToken_(consumes<reco::PFCandidateCollection>(edm::InputTag("particleFlow"))),
+      phoToken_(consumes<reco::PhotonCollection>(edm::InputTag("photons"))),
+      mcToken_(consumes<edm::HepMCProduct>(edm::InputTag("VtxSmeared"))),
+      gedPhoToken_(consumes<reco::PhotonCollection>(edm::InputTag("gedPhotons"))) {
   usesResource(TFileService::kSharedResource);
 
   edm::Service<TFileService> fs;
@@ -166,25 +170,10 @@ EgGEDPhotonAnalyzer::~EgGEDPhotonAnalyzer() {
 // ------------ method called to for each event  ------------
 void EgGEDPhotonAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // Candidate info
-  Handle<reco::PFCandidateCollection> collection;
-  InputTag label("particleFlow");  // <- Special electron coll.
-  iEvent.getByLabel(label, collection);
-  std::vector<reco::PFCandidate> candidates = (*collection.product());
-
-  InputTag recoPhotonLabel(string("photons"));
-  Handle<PhotonCollection> theRecoPhotonCollection;
-  iEvent.getByLabel(recoPhotonLabel, theRecoPhotonCollection);
-  const PhotonCollection theRecoPh = *(theRecoPhotonCollection.product());
-
-  InputTag MCTruthCollection(string("VtxSmeared"));
-  edm::Handle<edm::HepMCProduct> pMCTruth;
-  iEvent.getByLabel(MCTruthCollection, pMCTruth);
-  const HepMC::GenEvent *genEvent = pMCTruth->GetEvent();
-
-  InputTag gedPhotonLabel(string("gedPhotons"));
-  Handle<PhotonCollection> theGedPhotonCollection;
-  iEvent.getByLabel(gedPhotonLabel, theGedPhotonCollection);
-  const PhotonCollection theGedPh = *(theGedPhotonCollection.product());
+  const auto &candidates = iEvent.get(pfToken_);
+  const auto &theRecoPh = iEvent.get(phoToken_);
+  const auto &genEvent = iEvent.get(mcToken_).GetEvent();
+  const auto &theGedPh = iEvent.get(gedPhoToken_);
 
   bool debug = true;
 
@@ -212,14 +201,13 @@ void EgGEDPhotonAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetu
       if (debug)
         cout << " MC particle:  pt " << ptmc << " eta,phi " << etamc << ", " << phimc << endl;
 
-      std::vector<reco::PFCandidate>::iterator it;
-      for (it = candidates.begin(); it != candidates.end(); ++it) {
-        reco::PFCandidate::ParticleType type = (*it).particleId();
+      for (const auto &cand : candidates) {
+        reco::PFCandidate::ParticleType type = cand.particleId();
 
         if (type == reco::PFCandidate::gamma) {
-          reco::PhotonRef phref = (*it).photonRef();
-          float eta = (*it).eta();
-          float phi = (*it).phi();
+          reco::PhotonRef phref = cand.photonRef();
+          float eta = cand.eta();
+          float phi = cand.phi();
 
           float deta = etamc - eta;
           float dphi = normalizedPhi(phimc - phi);
@@ -258,11 +246,11 @@ void EgGEDPhotonAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetu
             }
 
             if (debug)
-              cout << " PF photon matched:  pt " << (*it).pt() << " eta,phi " << eta << ", " << phi << endl;
+              cout << " PF photon matched:  pt " << cand.pt() << " eta,phi " << eta << ", " << phi << endl;
             // all for the moment
           }
         }  // End PFCandidates Electron Selection
-      }    // End Loop PFCandidates
+      }  // End Loop PFCandidates
 
       if (MindR < 0.1) {
         h_etaec_ele->Fill(etamc);

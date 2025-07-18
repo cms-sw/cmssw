@@ -324,7 +324,7 @@ void HitParentTest::analyzeHits(const std::vector<PCaloHit>& hits,
             hitZ[id]->Fill(oldest_parent_vertex.Z());
           }
         }  // a match was found
-      }    // geant track id found in simtracks
+      }  // geant track id found in simtracks
 
       if (!found)
         ++noSimTrack[id];
@@ -391,13 +391,13 @@ void HitParentTest::analyzeAPDHits(const std::vector<PCaloHit>& hits,
                 << " present=" << simTrackPresent(simTk, (*simVtx)[simTrkItr->vertIndex()].parentIndex());
 
           }  // a match was found
-        }    // geant track id found in simtracks
+        }  // geant track id found in simtracks
 
         if (!found)
           ++num_apd_hits_no_simtrack[depth - 1];
       }  // hits with a valid SimTrack Id
-    }    // right depth index
-  }      // loop over all calohits (of the given depth)
+    }  // right depth index
+  }  // loop over all calohits (of the given depth)
 }
 
 bool HitParentTest::simTrackPresent(const edm::Handle<edm::SimTrackContainer>& simTk, int id) {

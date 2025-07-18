@@ -26,7 +26,7 @@ pfParticleNetFromMiniAODAK4CHSForwardTagInfos = ParticleNetFeatureEvaluator.clon
 pfParticleNetFromMiniAODAK4PuppiCentralTagInfos = ParticleNetFeatureEvaluator.clone(
     jets = "slimmedJetsPuppi",
     jet_radius = 0.4,
-    min_jet_pt = 15,
+    min_jet_pt = 0.,
     min_jet_eta = 0.,
     max_jet_eta = 2.5,
 )
@@ -34,9 +34,9 @@ pfParticleNetFromMiniAODAK4PuppiCentralTagInfos = ParticleNetFeatureEvaluator.cl
 pfParticleNetFromMiniAODAK4PuppiForwardTagInfos = ParticleNetFeatureEvaluator.clone(
     jets = "slimmedJetsPuppi",
     jet_radius = 0.4,
-    min_jet_pt = 15,
+    min_jet_pt = 0.,
     min_jet_eta = 2.5,
-    max_jet_eta = 4.7,
+    max_jet_eta = 5.0,
 )
 
 

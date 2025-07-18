@@ -17,7 +17,7 @@ class CocoaSolidShape {
 public:
   //---------- Constructors / Destructor
   CocoaSolidShape(ALIstring type);
-  virtual ~CocoaSolidShape(){};
+  virtual ~CocoaSolidShape() {}
 
   ALIstring getType() const { return theType; }
 

@@ -44,7 +44,7 @@ namespace clangcms {
   }
 
   void FMWalkAST::VisitCallExpr(clang::CallExpr *CE) {
-    const clang::Expr *Callee = CE->getCallee();
+    assert(CE);
     const FunctionDecl *FD = CE->getDirectCallee();
     if (!FD)
       return;

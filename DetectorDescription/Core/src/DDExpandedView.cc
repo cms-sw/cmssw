@@ -127,7 +127,7 @@ bool DDExpandedView::firstChild() {
       history_.emplace_back(expn);
       result = true;
     }  // if firstChild
-  }    // if depthNotReached
+  }  // if depthNotReached
   return result;
 }
 

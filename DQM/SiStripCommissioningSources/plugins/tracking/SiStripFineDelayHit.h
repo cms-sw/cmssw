@@ -46,7 +46,7 @@ public:
 private:
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endRun(const edm::Run&, const edm::EventSetup&) override{};
+  void endRun(const edm::Run&, const edm::EventSetup&) override {}
   virtual void produceNoTracking(edm::Event&, const edm::EventSetup&);
   using DeviceMask = std::pair<uint32_t, uint32_t>;
   DeviceMask deviceMask(const StripSubdetector::SubDetector subdet,

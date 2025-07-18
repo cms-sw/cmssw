@@ -57,15 +57,15 @@ namespace lutNN {
       lutLayer3_1.setName("lutLayer3_1");
     };
 
-    ~LutNetworkFixedPointRegression2Outputs() override{};
+    ~LutNetworkFixedPointRegression2Outputs() override {}
 
     typedef LutNeuronLayerFixedPoint<input_I, input_F, inputSize, layer1_lut_I, layer1_lut_F, layer1_neurons, layer1_output_I>
         LutLayer1;
     LutLayer1 lutLayer1;
 
-    static const unsigned int noHitCntShift = layer1_output_I;  //FIXME should be layer1_output_I ???
+    static constexpr unsigned int noHitCntShift = layer1_output_I;  //FIXME should be layer1_output_I ???
 
-    static const int layer2_input_F = layer1_lut_F;
+    static constexpr int layer2_input_F = layer1_lut_F;
 
     typedef LutNeuronLayerFixedPoint<layer2_input_I,
                                      layer2_input_F,
@@ -77,7 +77,7 @@ namespace lutNN {
         LutLayer2;
     LutLayer2 lutLayer2;
 
-    static const int layer3_input_F = layer2_lut_F;
+    static constexpr int layer3_input_F = layer2_lut_F;
 
     typedef LutNeuronLayerFixedPoint<layer3_input_I,
                                      layer3_input_F,

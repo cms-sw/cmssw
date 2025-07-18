@@ -115,10 +115,9 @@ namespace edm {
       void doRespondToCloseOutputFile() { clearInputProcessBlockCaches(); }
       void doRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) {}
 
-      void registerProductsAndCallbacks(EDFilterBase* module, ProductRegistry* reg) {
+      void registerProductsAndCallbacks(EDFilterBase* module, SignallingProductRegistryFiller* reg) {
         registerProducts(module, reg, moduleDescription_);
       }
-      std::string workerType() const { return "WorkerT<EDProducer>"; }
 
       virtual bool filter(StreamID, Event&, EventSetup const&) const = 0;
       virtual void beginJob() {}
@@ -158,7 +157,7 @@ namespace edm {
       virtual void doBeginLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c);
       virtual void doEndLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c);
 
-      virtual size_t transformIndex_(edm::BranchDescription const& iBranch) const noexcept;
+      virtual size_t transformIndex_(edm::ProductDescription const& iBranch) const noexcept;
       virtual ProductResolverIndex transformPrefetch_(std::size_t iIndex) const noexcept;
       virtual void transformAsync_(WaitingTaskHolder iTask,
                                    std::size_t iIndex,

@@ -25,7 +25,7 @@ class RPixDetTrackFinder {
 public:
   RPixDetTrackFinder(edm::ParameterSet const &parameterSet) : romanPotId_(CTPPSPixelDetId(0, 2, 3, 0)) {}
 
-  virtual ~RPixDetTrackFinder(){};
+  virtual ~RPixDetTrackFinder() {}
 
   void setHits(std::map<CTPPSPixelDetId, std::vector<RPixDetPatternFinder::PointInPlane> > *hitMap) {
     hitMap_ = hitMap;

@@ -14,7 +14,7 @@
 namespace L1Analysis {
   struct L1AnalysisGTDataFormat {
     L1AnalysisGTDataFormat() { Reset(); };
-    ~L1AnalysisGTDataFormat(){};
+    ~L1AnalysisGTDataFormat() {}
 
     void Reset() {
       tw1.clear();

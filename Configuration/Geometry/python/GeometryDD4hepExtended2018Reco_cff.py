@@ -4,6 +4,7 @@ from Configuration.Geometry.GeometryDD4hepExtended2018DD4hep_cff import *
 
 from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *
 from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
+from Geometry.TrackerGeometryBuilder.TrackerAdditionalParametersPerDet_cfi import *
 from Geometry.TrackerGeometryBuilder.trackerParameters_cff import *
 from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *
 from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *
@@ -25,4 +26,5 @@ from Geometry.HcalEventSetup.CaloTowerGeometry_cfi import *
 from Geometry.HcalEventSetup.CaloTowerTopology_cfi import *
 from Geometry.HcalCommonData.hcalDDDRecConstants_cfi import *
 from Geometry.HcalEventSetup.hcalTopologyIdeal_cfi import *
+from Geometry.ForwardGeometry.zdcTopologyEP_cfi import *
 from Geometry.ForwardGeometry.ForwardGeometry_cfi import *

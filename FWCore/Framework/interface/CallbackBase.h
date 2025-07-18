@@ -68,11 +68,11 @@ namespace edm {
     class CallbackBase {
     public:
       CallbackBase(T* iProd, std::shared_ptr<TProduceFunc> iProduceFunc, unsigned int iID, const TDecorator& iDec)
-          : proxyData_{},
+          : resolverData_{},
             producer_(iProd),
             callingContext_(&iProd->description(), iID),
             produceFunction_(std::move(iProduceFunc)),
-            id_(iID),
+            produceMethodID_(iID),
             wasCalledForThisRecord_(false),
             decorator_(iDec) {}
 
@@ -127,13 +127,13 @@ namespace edm {
                     try {
                       convertException::wrap([this, &serviceToken, &record, &eventSetupImpl, &produceFunctor] {
                         ESModuleCallingContext const& context = callingContext_;
-                        auto proxies = getTokenIndices();
+                        auto resolvers = getTokenIndices();
                         if (postMayGetResolvers_) {
-                          proxies = &((*postMayGetResolvers_).front());
+                          resolvers = &((*postMayGetResolvers_).front());
                         }
                         TRecord rec;
                         ESParentContext pc{&context};
-                        rec.setImpl(record, transitionID(), proxies, eventSetupImpl, &pc);
+                        rec.setImpl(record, produceMethodID(), resolvers, eventSetupImpl, &pc);
                         ServiceRegistry::Operate operate(serviceToken.lock());
                         record->activityRegistry()->preESModuleSignal_.emit(record->key(), context);
                         struct EndGuard {
@@ -202,12 +202,12 @@ namespace edm {
 
       template <class DataT>
       void holdOntoPointer(DataT* iData) {
-        proxyData_[produce::find_index<TReturn, DataT>::value] = iData;
+        resolverData_[produce::find_index<TReturn, DataT>::value] = iData;
       }
 
       template <class RemainingContainerT, class DataT, class ProductsT>
       void setData(ProductsT& iProducts) {
-        DataT* temp = reinterpret_cast<DataT*>(proxyData_[produce::find_index<TReturn, DataT>::value]);
+        DataT* temp = reinterpret_cast<DataT*>(resolverData_[produce::find_index<TReturn, DataT>::value]);
         if (nullptr != temp) {
           moveFromTo(iProducts, *temp);
         }
@@ -221,8 +221,8 @@ namespace edm {
         taskList_.reset();
       }
 
-      unsigned int transitionID() const noexcept { return id_; }
-      ESResolverIndex const* getTokenIndices() const noexcept { return producer_->getTokenIndices(id_); }
+      unsigned int produceMethodID() const noexcept { return produceMethodID_; }
+      ESResolverIndex const* getTokenIndices() const noexcept { return producer_->getTokenIndices(produceMethodID_); }
 
       std::optional<std::vector<ESResolverIndex>> const& postMayGetResolvers() const { return postMayGetResolvers_; }
       T* producer() noexcept { return producer_.get(); }
@@ -243,14 +243,14 @@ namespace edm {
 
       void prefetchNeededDataAsync(WaitingTaskHolder task,
                                    EventSetupImpl const* iImpl,
-                                   ESResolverIndex const* proxies,
+                                   ESResolverIndex const* resolvers,
                                    ServiceToken const& token) const noexcept {
-        auto recs = producer_->getTokenRecordIndices(id_);
-        auto n = producer_->numberOfTokenIndices(id_);
+        auto recs = producer_->getTokenRecordIndices(produceMethodID_);
+        auto n = producer_->numberOfTokenIndices(produceMethodID_);
         for (size_t i = 0; i != n; ++i) {
           auto rec = iImpl->findImpl(recs[i]);
           if (rec) {
-            rec->prefetchAsync(task, proxies[i], iImpl, token, ESParentContext{&callingContext_});
+            rec->prefetchAsync(task, resolvers[i], iImpl, token, ESParentContext{&callingContext_});
           }
         }
       }
@@ -259,12 +259,12 @@ namespace edm {
         //Handle mayGets
         TRecord rec;
         ESParentContext pc{&callingContext_};
-        rec.setImpl(iRecord, transitionID(), getTokenIndices(), iEventSetupImpl, &pc);
-        postMayGetResolvers_ = producer_->updateFromMayConsumes(id_, rec);
+        rec.setImpl(iRecord, produceMethodID(), getTokenIndices(), iEventSetupImpl, &pc);
+        postMayGetResolvers_ = producer_->updateFromMayConsumes(produceMethodID_, rec);
         return static_cast<bool>(postMayGetResolvers_);
       }
 
-      std::array<void*, produce::size<TReturn>::value> proxyData_;
+      std::array<void*, produce::size<TReturn>::value> resolverData_;
       std::optional<std::vector<ESResolverIndex>> postMayGetResolvers_;
       propagate_const<T*> producer_;
       ESModuleCallingContext callingContext_;
@@ -272,8 +272,8 @@ namespace edm {
       // Using std::shared_ptr in order to share the state of the
       // functors across all clones
       std::shared_ptr<TProduceFunc> produceFunction_;
-      // This transition id identifies which setWhatProduced call this Callback is associated with
-      const unsigned int id_;
+      // produceMethodID_ identifies which setWhatProduced call this Callback is associated with
+      const unsigned int produceMethodID_;
       std::atomic<bool> wasCalledForThisRecord_;
       TDecorator decorator_;
     };

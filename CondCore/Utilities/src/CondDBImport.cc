@@ -90,6 +90,7 @@ namespace cond {
         IMPORT_PAYLOAD_CASE(CastorRecoParams)
         IMPORT_PAYLOAD_CASE(CastorSaturationCorrs)
         IMPORT_PAYLOAD_CASE(CentralityTable)
+        IMPORT_PAYLOAD_CASE(DeDxCalibration)
         IMPORT_PAYLOAD_CASE(DTCCBConfig)
         IMPORT_PAYLOAD_CASE(DTDeadFlag)
         IMPORT_PAYLOAD_CASE(DTHVStatus)
@@ -263,7 +264,6 @@ namespace cond {
         IMPORT_PAYLOAD_CASE(L1TriggerKey)
         IMPORT_PAYLOAD_CASE(MagFieldConfig)
         if (inputTypeName == "L1TriggerKeyList") {
-          match = true;
           throwException("Import of \"L1TriggerKeyList\" type payloads is not supported.", "import");
         }
         //IMPORT_PAYLOAD_CASE( L1TriggerKeyList )
@@ -312,6 +312,7 @@ namespace cond {
         IMPORT_PAYLOAD_CASE(RecoIdealGeometry)
         IMPORT_PAYLOAD_CASE(RunInfo)
         IMPORT_PAYLOAD_CASE(SimBeamSpotObjects)
+        IMPORT_PAYLOAD_CASE(SimBeamSpotHLLHCObjects)
         IMPORT_PAYLOAD_CASE(SiPhase2OuterTrackerLorentzAngle)
         IMPORT_PAYLOAD_CASE(SiPixelCalibConfiguration)
         IMPORT_PAYLOAD_CASE(SiPixelCPEGenericErrorParm)

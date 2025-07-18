@@ -1,4 +1,3 @@
-from __future__ import print_function
 import sys
 # $Id: physics_dqm_sourceclient-live_cfg.py,v 1.11 2012/02/13 15:09:30 lilopera Exp $
 
@@ -31,8 +30,8 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'Physics'
 process.dqmSaver.tag = 'Physics'
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = 'Physics'
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = 'Physics'
+# process.dqmSaverPB.runNumber = options.runNumber
 
 # 0=random, 1=physics, 2=calibration, 3=technical
 process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
@@ -58,11 +57,11 @@ process.p = cms.Path(
 #    process.dump *
     process.qcdLowPtDQM *
     process.dqmEnv *
-    process.dqmSaver *
-    process.dqmSaverPB
+    process.dqmSaver # *
+    # process.dqmSaverPB
 )
 
-process.siPixelDigis.cpu.InputLabel = "rawDataCollector"
+process.siPixelDigis.InputLabel = "rawDataCollector"
 
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
@@ -75,4 +74,4 @@ process = customise(process)
 print("Running with run type = ", process.runType.getRunType())
 
 if (process.runType.getRunType() == process.runType.hi_run):
-    process.siPixelDigis.cpu.InputLabel = "rawDataRepacker"
+    process.siPixelDigis.InputLabel = "rawDataRepacker"

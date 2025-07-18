@@ -47,23 +47,3 @@ makePatOOTPhotonsTask = cms.Task(
     )
 
 makePatOOTPhotons = cms.Sequence(makePatOOTPhotonsTask)
-
-## For legacy reprocessing
-from RecoEgamma.EgammaPhotonProducers.ootPhotonSequence_cff import *
-from RecoEgamma.EgammaIsolationAlgos.pfClusterIsolation_cfi import ootPhotonEcalPFClusterIsolationProducer
-
-from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-run2_miniAOD_80XLegacy.toReplaceWith(makePatOOTPhotonsTask, cms.Task(
-                                     ootPhotonTask,
-                                     ootPhotonEcalPFClusterIsolationProducer,
-                                     makePatOOTPhotonsTask.copy()
-                                     ))
-#the OOT are made from scratch in re-miniAOD 
-#we could put the PFCluster isolation in there when we initially make them
-#but decided to emulate what is done in 80X where the the isolation is only put 
-#into the pat object and value maps are saved
-#hence we need to have the source to be ootPhotons not ootPhotonsTmp
-run2_miniAOD_80XLegacy.toModify(ootPhotonEcalPFClusterIsolationProducer,candidateProducer = cms.InputTag('ootPhotons') )
-
-run2_miniAOD_80XLegacy.toModify(patOOTPhotons, addPFClusterIso = cms.bool(True),ecalPFClusterIsoMap = cms.InputTag("reducedEgamma", "ootPhoEcalPFClusIso"),hcalPFClusterIsoMap = cms.InputTag("") )
-

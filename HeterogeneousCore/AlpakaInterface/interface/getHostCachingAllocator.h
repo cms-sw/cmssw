@@ -12,17 +12,14 @@
 namespace cms::alpakatools {
 
   template <typename TQueue, typename = std::enable_if_t<alpaka::isQueue<TQueue>>>
-  inline CachingAllocator<alpaka_common::DevHost, TQueue>& getHostCachingAllocator() {
+  inline CachingAllocator<alpaka_common::DevHost, TQueue>& getHostCachingAllocator(
+      AllocatorConfig const& config = AllocatorConfig{}, bool debug = false) {
     // thread safe initialisation of the host allocator
     CMS_THREAD_SAFE static CachingAllocator<alpaka_common::DevHost, TQueue> allocator(
         host(),
-        config::binGrowth,
-        config::minBin,
-        config::maxBin,
-        config::maxCachedBytes,
-        config::maxCachedFraction,
-        false,   // reuseSameQueueAllocations
-        false);  // debug
+        config,
+        false,  // reuseSameQueueAllocations
+        debug);
 
     // the public interface is thread safe
     return allocator;

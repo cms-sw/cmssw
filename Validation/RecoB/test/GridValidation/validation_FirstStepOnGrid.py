@@ -1,4 +1,3 @@
-from __future__ import print_function
 # The following comments couldn't be translated into the new config version:
 #! /bin/env cmsRun
 

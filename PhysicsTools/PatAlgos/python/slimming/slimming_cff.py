@@ -66,6 +66,7 @@ slimmingTask = cms.Task(
     slimmedLambdaVertices,
     slimmedMETs,
     metFilterPathsTask,
+    superClusterMerger,
     reducedEgamma,
     slimmedHcalRecHits,
     bunchSpacingProducer,
@@ -76,15 +77,12 @@ from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 pp_on_AA.toReplaceWith(slimmingTask, slimmingTask.copyAndExclude([slimmedOOTPhotons]))
 pp_on_AA.toReplaceWith(slimmingTask, slimmingTask.copyAndExclude([slimmedJPTJets]))
 
-from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
-from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-_mAOD = (run2_miniAOD_94XFall17 | run2_miniAOD_80XLegacy)
-(pp_on_AA | _mAOD).toReplaceWith(slimmingTask,
-                                 slimmingTask.copyAndExclude([slimmedLowPtElectronsTask]))
+(pp_on_AA).toReplaceWith(slimmingTask,
+                         slimmingTask.copyAndExclude([slimmedLowPtElectronsTask]))
 
 from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
 from Configuration.Eras.Era_Run2_2016_HIPM_cff import Run2_2016_HIPM
-(pp_on_AA | _mAOD | run2_miniAOD_UL | Run2_2016_HIPM).toReplaceWith(slimmingTask,
+(pp_on_AA | run2_miniAOD_UL | Run2_2016_HIPM).toReplaceWith(slimmingTask,
                                                    slimmingTask.copyAndExclude([slimmedDisplacedMuons, slimmedDisplacedMuonTrackExtras]))
 
 from PhysicsTools.PatAlgos.slimming.hiPixelTracks_cfi import hiPixelTracks
@@ -124,7 +122,14 @@ from Configuration.ProcessModifiers.photonDRN_cff import _photonDRN
 _photonDRN.toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), patPhotonsDRN))
 
 from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
-run3_upc.toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), hiPixelTracks, packedPFCandidateTrackChi2, lostTrackChi2))
+from PhysicsTools.PatAlgos.modules import DeDxEstimatorRekeyer
+dedxEstimator = DeDxEstimatorRekeyer()
+run3_upc.toModify(dedxEstimator, dedxEstimators = ["dedxHarmonic2", "dedxPixelHarmonic2", "dedxPixelLikelihood", "dedxStripLikelihood", "dedxAllLikelihood"])
+run3_upc.toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), hiPixelTracks, packedPFCandidateTrackChi2, lostTrackChi2, dedxEstimator))
+
+from Configuration.Eras.Modifier_run3_oxygen_cff import run3_oxygen
+run3_oxygen.toModify(dedxEstimator, dedxEstimators = ["dedxPixelLikelihood", "dedxStripLikelihood", "dedxAllLikelihood"])
+run3_oxygen.toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), hiPixelTracks, hiEvtPlane, hiEvtPlaneFlat, packedPFCandidateTrackChi2, lostTrackChi2, centralityBin))
 
 from Configuration.Eras.Modifier_ppRef_2024_cff import ppRef_2024
 ppRef_2024.toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), packedPFCandidateTrackChi2, lostTrackChi2))

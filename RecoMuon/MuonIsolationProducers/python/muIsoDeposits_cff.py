@@ -14,6 +14,7 @@ from RecoMuon.MuonIsolationProducers.muIsoDepositCopies_cfi import *
 import RecoMuon.MuonIsolationProducers.muIsoDepositTk_cfi
 import RecoMuon.MuonIsolationProducers.muIsoDepositCalByAssociatorTowers_cfi
 import RecoMuon.MuonIsolationProducers.muIsoDepositCalByAssociatorHits_cfi
+import RecoMuon.MuonIsolationProducers.muIsoDepositCalByAssociatorMixed_cfi
 import RecoMuon.MuonIsolationProducers.muIsoDepositJets_cfi
 import RecoMuon.MuonIsolationProducers.muIsoDepositCal_cfi
 
@@ -25,20 +26,21 @@ muParamGlobalIsoDepositCalEcal = RecoMuon.MuonIsolationProducers.muIsoDepositCal
 muParamGlobalIsoDepositCalHcal = RecoMuon.MuonIsolationProducers.muIsoDepositCal_cfi.muIsoDepositCal.clone()
 muParamGlobalIsoDepositCalByAssociatorTowers = RecoMuon.MuonIsolationProducers.muIsoDepositCalByAssociatorTowers_cfi.muIsoDepositCalByAssociatorTowers.clone()
 muParamGlobalIsoDepositCalByAssociatorHits   = RecoMuon.MuonIsolationProducers.muIsoDepositCalByAssociatorHits_cfi.muIsoDepositCalByAssociatorHits.clone()
+muParamGlobalIsoDepositCalByAssociatorMixed   = RecoMuon.MuonIsolationProducers.muIsoDepositCalByAssociatorMixed_cfi.muIsoDepositCalByAssociatorMixed.clone()
 #
 # and now sequences of the above
 #
 #------------------------------
 # "standard sequences"
-muIsoDeposits_muonsTask = cms.Task(muIsoDepositTk,muIsoDepositCalByAssociatorHits,muIsoDepositJets)
+muIsoDeposits_muonsTask = cms.Task(muIsoDepositTk,muIsoDepositCalByAssociatorHits,muIsoDepositCalByAssociatorTowers,muIsoDepositJets)
 muIsoDeposits_muons = cms.Sequence(muIsoDeposits_muonsTask)
 # "displaced sequences"
-muIsoDeposits_displacedMuonsTask = cms.Task(muIsoDepositTkDisplaced,muIsoDepositCalByAssociatorHitsDisplaced,muIsoDepositJetsDisplaced)
+muIsoDeposits_displacedMuonsTask = cms.Task(muIsoDepositTkDisplaced,muIsoDepositCalByAssociatorHitsDisplaced,muIsoDepositCalByAssociatorTowersDisplaced,muIsoDepositJetsDisplaced)
 muIsoDeposits_displacedMuons = cms.Sequence(muIsoDeposits_displacedMuonsTask)
 #old one, using a reduced config set
 muIsoDeposits_ParamGlobalMuonsOldTask = cms.Task(muParamGlobalIsoDepositGsTk,muParamGlobalIsoDepositCalEcal,muParamGlobalIsoDepositCalHcal)
 muIsoDeposits_ParamGlobalMuonsOld = cms.Sequence(muIsoDeposits_ParamGlobalMuonsOldTask)
-muIsoDeposits_ParamGlobalMuonsTask = cms.Task(muParamGlobalIsoDepositTk,muParamGlobalIsoDepositCalByAssociatorHits,muParamGlobalIsoDepositJets)
+muIsoDeposits_ParamGlobalMuonsTask = cms.Task(muParamGlobalIsoDepositTk,muParamGlobalIsoDepositCalByAssociatorMixed,muParamGlobalIsoDepositJets)
 muIsoDeposits_ParamGlobalMuons = cms.Sequence(muIsoDeposits_ParamGlobalMuonsTask)
 muParamGlobalIsoDepositCtfTk.IOPSet = cms.PSet(
     MIsoDepositParamGlobalViewIOBlock
@@ -50,6 +52,9 @@ muParamGlobalIsoDepositCalByAssociatorTowers.IOPSet = cms.PSet(
     MIsoDepositParamGlobalViewMultiIOBlock
 )
 muParamGlobalIsoDepositCalByAssociatorHits.IOPSet = cms.PSet(
+    MIsoDepositParamGlobalViewMultiIOBlock
+)
+muParamGlobalIsoDepositCalByAssociatorMixed.IOPSet = cms.PSet(
     MIsoDepositParamGlobalViewMultiIOBlock
 )
 muParamGlobalIsoDepositJets.IOPSet = cms.PSet(

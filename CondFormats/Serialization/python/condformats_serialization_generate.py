@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import print_function
 '''CMS Conditions DB Serialization generator.
 
 Generates the non-intrusive serialization code required for the classes

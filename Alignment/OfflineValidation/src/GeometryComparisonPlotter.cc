@@ -742,7 +742,7 @@ void GeometryComparisonPlotter::MakePlots(
         // printing will be performed after customisation (e.g. legend or title) just after the loops on ix and iy
       }
     }  // end of loop on y
-  }    // end of loop on x
+  }  // end of loop on x
 
   // CUSTOMISATION
   gStyle->SetOptTitle(0);  // otherwise, the title is repeated in every pad of the global canvases
@@ -1066,7 +1066,7 @@ void GeometryComparisonPlotter::MakePlots(
         }
 
       }  // end of loop on y
-    }    // end of loop on x
+    }  // end of loop on x
 
     // CUSTOMISATION
     gStyle->SetOptTitle(0);  // otherwise, the title is repeated in every pad of the global canvases
@@ -1358,7 +1358,8 @@ void GeometryComparisonPlotter::MakeTables(
       // combine +/-z histograms for barrel detectors
       if (ihist % (NB_SUBLEVELS * NB_Z_SLICES) == 0 || ihist % (NB_SUBLEVELS * NB_Z_SLICES) == 2 ||
           ihist % (NB_SUBLEVELS * NB_Z_SLICES) == 4) {
-        histos[iy][ihist]->Add(histos[iy][ihist + NB_SUBLEVELS]);
+        // histos is properly initialized
+        [[clang::suppress]] histos[iy][ihist]->Add(histos[iy][ihist + NB_SUBLEVELS]);
       }
       // combine +/-x histograms for endcap detectors (only used for half shells in barrel)
       if (ihist < NB_SUBLEVELS * NB_Z_SLICES &&
@@ -1380,7 +1381,8 @@ void GeometryComparisonPlotter::MakeTables(
       // combine +/-z histograms for barrel detectors
       if (ihist % (NB_SUBLEVELS * NB_Z_SLICES) == 0 || ihist % (NB_SUBLEVELS * NB_Z_SLICES) == 2 ||
           ihist % (NB_SUBLEVELS * NB_Z_SLICES) == 4) {
-        histosx[ix][ihist]->Add(histosx[ix][ihist + NB_SUBLEVELS]);
+        // histosx is properly initialized
+        [[clang::suppress]] histosx[ix][ihist]->Add(histosx[ix][ihist + NB_SUBLEVELS]);
       }
       // combine +/-x histograms for endcap detectors (only used for half shells in barrel)
       if (ihist < NB_SUBLEVELS * NB_Z_SLICES &&

@@ -55,44 +55,76 @@ void SiStripRawProcessingAlgorithms::initialize(const edm::EventSetup& es, const
  *
  * @return number of restored APVs
  */
-uint16_t SiStripRawProcessingAlgorithms::suppressHybridData(const edm::DetSet<SiStripDigi>& hybridDigis,
+uint16_t SiStripRawProcessingAlgorithms::suppressHybridData(const uint16_t maxNStrips,
+                                                            const edm::DetSet<SiStripDigi>& hybridDigis,
                                                             edm::DetSet<SiStripDigi>& suppressedDigis,
                                                             uint16_t firstAPV) {
-  uint16_t nAPVFlagged = 0;
-  auto beginAPV = hybridDigis.begin();
-  const auto indigis_end = hybridDigis.end();
-  auto iAPV = firstAPV;
-  while (beginAPV != indigis_end) {
-    const auto endAPV = std::lower_bound(beginAPV, indigis_end, SiStripDigi((iAPV + 1) * 128, 0));
-    const auto nDigisInAPV = std::distance(beginAPV, endAPV);
+  uint16_t nAPVFlagged = 0;  // Count of flagged APVs
+  auto currentDigi = hybridDigis.begin();
+  const auto endDigi = hybridDigis.end();
+  auto currentAPV = firstAPV;
+
+  // Loop through the APVs in the range
+  while (currentDigi != endDigi) {
+    // Determine the range of digis belonging to the current APV
+    const auto nextAPVBoundary = SiStripDigi((currentAPV + 1) * 128, 0);
+
+    // Reject any APV larger than the max possible
+    if (nextAPVBoundary.strip() > maxNStrips) {
+      edm::LogError("SiStripRawProcessingAlgorithms")
+          << "In DetId " << suppressedDigis.id << " encountered APV boundary with strip number "
+          << nextAPVBoundary.strip() << ", which exceeds the maximum allowed value for this module (" << maxNStrips
+          << "). Exiting loop.";
+      break;
+    }
+
+    const auto nextAPVDigi = std::lower_bound(currentDigi, endDigi, nextAPVBoundary);
+    const auto nDigisInAPV = std::distance(currentDigi, nextAPVDigi);
+
+    // Handle based on the number of digis in the current APV
     if (nDigisInAPV > 64) {
+      // Process hybrid data for noisy APV
       digivector_t workDigis(128, -1024);
-      for (auto it = beginAPV; it != endAPV; ++it) {
-        workDigis[it->strip() - 128 * iAPV] = it->adc() * 2 - 1024;
+
+      // Populate `workDigis` with values from `currentDigi`
+      for (auto it = currentDigi; it != nextAPVDigi; ++it) {
+        workDigis[it->strip() - 128 * currentAPV] = it->adc() * 2 - 1024;
       }
+
+      // Perform pedestal subtraction
       digivector_t workDigisPedSubtracted(workDigis);
-      subtractorCMN->subtract(hybridDigis.id, iAPV, workDigis);
+      subtractorCMN->subtract(hybridDigis.id, currentAPV, workDigis);
+
+      // Inspect and restore digis
       const auto apvFlagged = restorer->inspectAndRestore(
-          hybridDigis.id, iAPV, workDigisPedSubtracted, workDigis, subtractorCMN->getAPVsCM());
+          hybridDigis.id, currentAPV, workDigisPedSubtracted, workDigis, subtractorCMN->getAPVsCM());
       nAPVFlagged += apvFlagged;
-      if (getAPVFlags()[iAPV]) {
-        suppressor->suppress(workDigis, iAPV, suppressedDigis);
-      } else {  // bad APV: more than 64 but not flagged
-        for (uint16_t i = 0; i != 128; ++i) {
+
+      // Process based on the APV flag
+      if (getAPVFlags()[currentAPV]) {
+        // Suppress flagged APVs
+        suppressor->suppress(workDigis, currentAPV, suppressedDigis);
+      } else {
+        // Handle bad APV: not flagged but exceeds threshold
+        for (uint16_t i = 0; i < 128; ++i) {
           const auto digi = workDigisPedSubtracted[i];
           if (digi > 0) {
-            suppressedDigis.push_back(SiStripDigi(iAPV * 128 + i, suppressor->truncate(digi)));
+            suppressedDigis.push_back(SiStripDigi(currentAPV * 128 + i, suppressor->truncate(digi)));
           }
         }
       }
-    } else {  // already zero-suppressed, copy and truncate
-      std::transform(beginAPV, endAPV, std::back_inserter(suppressedDigis), [this](const SiStripDigi inDigi) {
+    } else {
+      // Already zero-suppressed: copy and truncate
+      std::transform(currentDigi, nextAPVDigi, std::back_inserter(suppressedDigis), [this](const SiStripDigi& inDigi) {
         return SiStripDigi(inDigi.strip(), suppressor->truncate(inDigi.adc()));
       });
     }
-    beginAPV = endAPV;
-    ++iAPV;
+
+    // Move to the next APV
+    currentDigi = nextAPVDigi;
+    ++currentAPV;
   }
+
   return nAPVFlagged;
 }
 

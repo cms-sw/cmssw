@@ -1145,21 +1145,21 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
       HGCSiliconDetId id(itHit->id());
       if (name_ == "HGCalEESensitive") {
         hELossEE->Fill(convertGeVToKeV(itHit->energy()));
-        if (id.type() == HGCSiliconDetId::HGCalFine)
+        if (id.type() == HGCSiliconDetId::HGCalHD120)
           hELossEEF->Fill(convertGeVToKeV(itHit->energy()));  //in keV
-        if (id.type() == HGCSiliconDetId::HGCalCoarseThin)
+        if (id.type() == HGCSiliconDetId::HGCalLD200)
           hELossEECN->Fill(convertGeVToKeV(itHit->energy()));  //in keV
-        if (id.type() == HGCSiliconDetId::HGCalCoarseThick)
+        if (id.type() == HGCSiliconDetId::HGCalLD300)
           hELossEECK->Fill(convertGeVToKeV(itHit->energy()));  //in keV
       }
 
       if (name_ == "HGCalHESiliconSensitive") {
         hELossHEF->Fill(convertGeVToKeV(itHit->energy()));
-        if (id.type() == HGCSiliconDetId::HGCalFine)
+        if (id.type() == HGCSiliconDetId::HGCalHD120)
           hELossHEFF->Fill(convertGeVToKeV(itHit->energy()));  //in keV
-        if (id.type() == HGCSiliconDetId::HGCalCoarseThin)
+        if (id.type() == HGCSiliconDetId::HGCalLD200)
           hELossHEFCN->Fill(convertGeVToKeV(itHit->energy()));  //in keV
-        if (id.type() == HGCSiliconDetId::HGCalCoarseThick)
+        if (id.type() == HGCSiliconDetId::HGCalLD300)
           hELossHEFCK->Fill(convertGeVToKeV(itHit->energy()));  //in keV
       }
     }
@@ -1270,21 +1270,21 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
 
           if (name_ == "HGCalEESensitive") {
             hYZhitsEE->Fill(TMath::Abs(global2.z()), TMath::Abs(global2.y()));
-            if (id.type() == HGCSiliconDetId::HGCalFine)
+            if (id.type() == HGCSiliconDetId::HGCalHD120)
               hYZhitsEEF->Fill(TMath::Abs(global2.z()), TMath::Abs(global2.y()));
-            if (id.type() == HGCSiliconDetId::HGCalCoarseThin)
+            if (id.type() == HGCSiliconDetId::HGCalLD200)
               hYZhitsEECN->Fill(TMath::Abs(global2.z()), TMath::Abs(global2.y()));
-            if (id.type() == HGCSiliconDetId::HGCalCoarseThick)
+            if (id.type() == HGCSiliconDetId::HGCalLD300)
               hYZhitsEECK->Fill(TMath::Abs(global2.z()), TMath::Abs(global2.y()));
           }
 
           if (name_ == "HGCalHESiliconSensitive") {
             hYZhitsHEF->Fill(TMath::Abs(global2.z()), TMath::Abs(global2.y()));
-            if (id.type() == HGCSiliconDetId::HGCalFine)
+            if (id.type() == HGCSiliconDetId::HGCalHD120)
               hYZhitsHEFF->Fill(TMath::Abs(global2.z()), TMath::Abs(global2.y()));
-            if (id.type() == HGCSiliconDetId::HGCalCoarseThin)
+            if (id.type() == HGCSiliconDetId::HGCalLD200)
               hYZhitsHEFCN->Fill(TMath::Abs(global2.z()), TMath::Abs(global2.y()));
-            if (id.type() == HGCSiliconDetId::HGCalCoarseThick)
+            if (id.type() == HGCSiliconDetId::HGCalLD300)
               hYZhitsHEFCK->Fill(TMath::Abs(global2.z()), TMath::Abs(global2.y()));
           }
         }
@@ -1357,7 +1357,7 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
           HGCSiliconDetId id(itHit->id());
           HGCalDetId hid(itHit->id());
 
-          if (id.type() == HGCSiliconDetId::HGCalFine) {
+          if (id.type() == HGCSiliconDetId::HGCalHD120) {
             if (global1.z() < 0.0) {
               grXYhitsF0[il]->SetPoint(ixyF0[il]++, global1.x(), global1.y());
               grEtaPhihitsF0[il]->SetPoint(iepF0[il]++, global1.eta(), global1.phi());
@@ -1366,7 +1366,7 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
               grEtaPhihitsF1[il]->SetPoint(iepF1[il]++, global1.eta(), global1.phi());
             }
           }
-          if (id.type() == HGCSiliconDetId::HGCalCoarseThin) {
+          if (id.type() == HGCSiliconDetId::HGCalLD200) {
             if (global1.z() < 0.0) {
               grXYhitsCN0[il]->SetPoint(ixyCN0[il]++, global1.x(), global1.y());
               grEtaPhihitsCN0[il]->SetPoint(iepCN0[il]++, global1.eta(), global1.phi());
@@ -1375,7 +1375,7 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
               grEtaPhihitsCN1[il]->SetPoint(iepCN1[il]++, global1.eta(), global1.phi());
             }
           }
-          if (id.type() == HGCSiliconDetId::HGCalCoarseThick) {  //case 2 :
+          if (id.type() == HGCSiliconDetId::HGCalLD300) {  //case 2 :
 
             if (global1.z() < 0.0) {
               grXYhitsCK0[il]->SetPoint(ixyCK0[il]++, global1.x(), global1.y());
@@ -1451,7 +1451,7 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
         if (rhtools_.isSilicon(id1)) {
           HGCSiliconDetId id((*itr).first);
           //int il = rhtools_.getLayerWithOffset(id1);
-          if (id.type() == HGCSiliconDetId::HGCalFine) {
+          if (id.type() == HGCSiliconDetId::HGCalHD120) {
             if (global1.z() < 0.0) {
               hXYhitsF0[il]->Fill(global1.x(), global1.y());
               hEPhitsF0[il]->Fill(global1.eta(), global1.phi());
@@ -1462,7 +1462,7 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
               hELossLayerF1[il]->Fill(esum.etotal * 1.0e6);
             }
           }
-          if (id.type() == HGCSiliconDetId::HGCalCoarseThin) {
+          if (id.type() == HGCSiliconDetId::HGCalLD200) {
             if (global1.z() < 0.0) {
               hXYhitsCN0[il]->Fill(global1.x(), global1.y());
               hEPhitsCN0[il]->Fill(global1.eta(), global1.phi());
@@ -1473,7 +1473,7 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
               hELossLayerCN1[il]->Fill(esum.etotal * 1.0e6);
             }
           }
-          if (id.type() == HGCSiliconDetId::HGCalCoarseThick) {  //case 2 :
+          if (id.type() == HGCSiliconDetId::HGCalLD300) {  //case 2 :
 
             if (global1.z() < 0.0) {
               hXYhitsCK0[il]->Fill(global1.x(), global1.y());
@@ -1499,13 +1499,13 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
           }
 
         }  //is Sci or Si
-      }    //valid detid
+      }  //valid detid
       //Now for invalid detids
       else {
         if (rhtools_.isSilicon(id1)) {
           HGCSiliconDetId id((*itr).first);
           //int il = rhtools_.getLayerWithOffset(id1);
-          if (id.type() == HGCSiliconDetId::HGCalFine) {
+          if (id.type() == HGCSiliconDetId::HGCalHD120) {
             if (global1.z() < 0.0) {
               hXYFailhitsF0[il]->Fill(global1.x(), global1.y());
               hEPFailhitsF0[il]->Fill(global1.eta(), global1.phi());
@@ -1514,7 +1514,7 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
               hEPFailhitsF1[il]->Fill(global1.eta(), global1.phi());
             }
           }
-          if (id.type() == HGCSiliconDetId::HGCalCoarseThin) {
+          if (id.type() == HGCSiliconDetId::HGCalLD200) {
             if (global1.z() < 0.0) {
               hXYFailhitsCN0[il]->Fill(global1.x(), global1.y());
               hEPFailhitsCN0[il]->Fill(global1.eta(), global1.phi());
@@ -1523,7 +1523,7 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
               hEPFailhitsCN1[il]->Fill(global1.eta(), global1.phi());
             }
           }
-          if (id.type() == HGCSiliconDetId::HGCalCoarseThick) {  //case 2 :
+          if (id.type() == HGCSiliconDetId::HGCalLD300) {  //case 2 :
 
             if (global1.z() < 0.0) {
               hXYFailhitsCK0[il]->Fill(global1.x(), global1.y());
@@ -1553,27 +1553,27 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
     if (!TMath::AreEqualAbs(convertGeVToKeV(esum.eTime[0]), 0.0, 1.e-5)) {
       if (name_ == "HGCalEESensitive") {
         hELossCSinBunchEE->Fill(convertGeVToKeV(esum.eTime[0]));
-        if (id.type() == HGCSiliconDetId::HGCalFine) {
+        if (id.type() == HGCSiliconDetId::HGCalHD120) {
           hELossCSinBunchEEF->Fill(convertGeVToKeV(esum.eTime[0]));  //in keV
         }
-        if (id.type() == HGCSiliconDetId::HGCalCoarseThin) {
+        if (id.type() == HGCSiliconDetId::HGCalLD200) {
           hELossCSinBunchEECN->Fill(convertGeVToKeV(esum.eTime[0]));  //in keV
         }
-        if (id.type() == HGCSiliconDetId::HGCalCoarseThick) {
+        if (id.type() == HGCSiliconDetId::HGCalLD300) {
           hELossCSinBunchEECK->Fill(convertGeVToKeV(esum.eTime[0]));  //in keV
         }
       }
 
       if (name_ == "HGCalHESiliconSensitive") {
         hELossCSinBunchHEF->Fill(convertGeVToKeV(esum.eTime[0]));
-        if (id.type() == HGCSiliconDetId::HGCalFine) {
+        if (id.type() == HGCSiliconDetId::HGCalHD120) {
           hELossCSinBunchHEFF->Fill(convertGeVToKeV(esum.eTime[0]));  //in keV
           if (convertGeVToKeV(esum.eTime[0]) < 35.) {
             hXYLowELosshitsF->Fill(hinfo.x, hinfo.y);
             hYZLowELosshitsF->Fill(TMath::Abs(hinfo.z), TMath::Sqrt(hinfo.x * hinfo.x + hinfo.y * hinfo.y));
           }
         }
-        if (id.type() == HGCSiliconDetId::HGCalCoarseThin) {
+        if (id.type() == HGCSiliconDetId::HGCalLD200) {
           hELossCSinBunchHEFCN->Fill(convertGeVToKeV(esum.eTime[0]));  //in keV
           if (TMath::Sqrt(hinfo.x * hinfo.x + hinfo.y * hinfo.y) > 45.0 and
               TMath::Sqrt(hinfo.x * hinfo.x + hinfo.y * hinfo.y) < 60.0 and hinfo.layer >= 38)
@@ -1595,7 +1595,7 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
               hZLowELosshitsHEFCN->Fill(hinfo.z);
           }
         }
-        if (id.type() == HGCSiliconDetId::HGCalCoarseThick) {
+        if (id.type() == HGCSiliconDetId::HGCalLD300) {
           hELossCSinBunchHEFCK->Fill(convertGeVToKeV(esum.eTime[0]));  //in keV
           if (convertGeVToKeV(esum.eTime[0]) < 10.) {
             hXYLowELosshitsCK->Fill(hinfo.x, hinfo.y);
@@ -1608,11 +1608,11 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
     if (!TMath::AreEqualAbs(convertGeVToKeV(esum.eTime[2]), 0.0, 1.e-5)) {
       if (name_ == "HGCalEESensitive") {
         hELossCSmissedEE->Fill(convertGeVToKeV(esum.eTime[2]));
-        if (id.type() == HGCSiliconDetId::HGCalFine)
+        if (id.type() == HGCSiliconDetId::HGCalHD120)
           hELossCSmissedEEF->Fill(convertGeVToKeV(esum.eTime[2]));  //in keV
-        if (id.type() == HGCSiliconDetId::HGCalCoarseThin)
+        if (id.type() == HGCSiliconDetId::HGCalLD200)
           hELossCSmissedEECN->Fill(convertGeVToKeV(esum.eTime[2]));  //in keV
-        if (id.type() == HGCSiliconDetId::HGCalCoarseThick)
+        if (id.type() == HGCSiliconDetId::HGCalLD300)
           hELossCSmissedEECK->Fill(convertGeVToKeV(esum.eTime[2]));  //in keV
         hXYmissedhits->Fill(hinfo.x, hinfo.y);
         hYZmissedhits->Fill(TMath::Abs(hinfo.z), TMath::Abs(hinfo.y));
@@ -1620,11 +1620,11 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
 
       if (name_ == "HGCalHESiliconSensitive") {
         hELossCSmissedHEF->Fill(convertGeVToKeV(esum.eTime[2]));
-        if (id.type() == HGCSiliconDetId::HGCalFine)
+        if (id.type() == HGCSiliconDetId::HGCalHD120)
           hELossCSmissedHEFF->Fill(convertGeVToKeV(esum.eTime[2]));  //in keV
-        if (id.type() == HGCSiliconDetId::HGCalCoarseThin)
+        if (id.type() == HGCSiliconDetId::HGCalLD200)
           hELossCSmissedHEFCN->Fill(convertGeVToKeV(esum.eTime[2]));  //in keV
-        if (id.type() == HGCSiliconDetId::HGCalCoarseThick)
+        if (id.type() == HGCSiliconDetId::HGCalLD300)
           hELossCSmissedHEFCK->Fill(convertGeVToKeV(esum.eTime[2]));  //in keV
         hXYmissedhits->Fill(hinfo.x, hinfo.y);
         hYZmissedhits->Fill(TMath::Abs(hinfo.z), TMath::Abs(hinfo.y));
@@ -1720,7 +1720,7 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
     if (name_ == "HGCalEESensitive") {
       hCellThickness->Fill(rhtools_.getSiThickness(id1));
       hELossCSMaxEE->Fill(convertGeVToKeV(esum.eTime[0]));
-      if (id.type() == HGCSiliconDetId::HGCalFine) {
+      if (id.type() == HGCSiliconDetId::HGCalHD120) {
         hELossCSMaxEEF->Fill(convertGeVToKeV(esum.eTime[0]));  //in keV
         hELCSMaxF[il]->Fill(convertGeVToKeV(esum.eTime[0]));   //in keV
         if (isPWafer) {
@@ -1733,7 +1733,7 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
           hHxELCSMaxF[il]->Fill(convertGeVToKeV(esum.eTime[0]));
         }
       }
-      if (id.type() == HGCSiliconDetId::HGCalCoarseThin) {
+      if (id.type() == HGCSiliconDetId::HGCalLD200) {
         hELossCSMaxEECN->Fill(convertGeVToKeV(esum.eTime[0]));  //in keV
         hELCSMaxCN[il]->Fill(convertGeVToKeV(esum.eTime[0]));   //in keV
         if (isPWafer) {
@@ -1746,7 +1746,7 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
           hHxELCSMaxCN[il]->Fill(convertGeVToKeV(esum.eTime[0]));
         }
       }
-      if (id.type() == HGCSiliconDetId::HGCalCoarseThick) {
+      if (id.type() == HGCSiliconDetId::HGCalLD300) {
         hELossCSMaxEECK->Fill(convertGeVToKeV(esum.eTime[0]));  //in keV
         hELCSMaxCK[il]->Fill(convertGeVToKeV(esum.eTime[0]));   //in keV
         if (isPWafer) {
@@ -1764,7 +1764,7 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
     if (name_ == "HGCalHESiliconSensitive") {
       hCellThickness->Fill(rhtools_.getSiThickness(id1));
       hELossCSMaxHEF->Fill(convertGeVToKeV(esum.eTime[0]));
-      if (id.type() == HGCSiliconDetId::HGCalFine) {
+      if (id.type() == HGCSiliconDetId::HGCalHD120) {
         hELossCSMaxHEFF->Fill(convertGeVToKeV(esum.eTime[0]));  //in keV
         hELCSMaxF[il]->Fill(convertGeVToKeV(esum.eTime[0]));    //in keV
         if (isPWafer) {
@@ -1777,7 +1777,7 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
           hHxELCSMaxF[il]->Fill(convertGeVToKeV(esum.eTime[0]));
         }
       }
-      if (id.type() == HGCSiliconDetId::HGCalCoarseThin) {
+      if (id.type() == HGCSiliconDetId::HGCalLD200) {
         hELossCSMaxHEFCN->Fill(convertGeVToKeV(esum.eTime[0]));  //in keV
         hELCSMaxCN[il]->Fill(convertGeVToKeV(esum.eTime[0]));    //in keV
         if (convertGeVToKeV(esum.eTime[0]) < 30. and convertGeVToKeV(esum.eTime[0]) > 10.)
@@ -1794,7 +1794,7 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
           hHxELCSMaxCN[il]->Fill(convertGeVToKeV(esum.eTime[0]));
         }
       }
-      if (id.type() == HGCSiliconDetId::HGCalCoarseThick) {
+      if (id.type() == HGCSiliconDetId::HGCalLD300) {
         hELossCSMaxHEFCK->Fill(convertGeVToKeV(esum.eTime[0]));  //in keV
         hELCSMaxCK[il]->Fill(convertGeVToKeV(esum.eTime[0]));    //in keV
         if (convertGeVToKeV(esum.eTime[0]) < 10.)

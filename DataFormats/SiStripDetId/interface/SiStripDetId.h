@@ -3,6 +3,7 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/SiStripEnums.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include <ostream>
 
 class SiStripDetId;
@@ -58,6 +59,9 @@ public:
 
   /** Returns strip length of strip tracker sensor, otherwise null. */
   inline double stripLength() const;
+
+  /** Returns number of APVs connected to each strip tracker module */
+  inline unsigned int numberOfAPVs() const;
 
   // ---------- Constructors that set "reserved" field ----------
 
@@ -182,5 +186,26 @@ uint32_t SiStripDetId::partnerDetId() const {
 double SiStripDetId::stripLength() const { return 0.; }
 
 uint16_t SiStripDetId::reserved() const { return static_cast<uint16_t>((id_ >> reservedStartBit_) & reservedMask_); }
+
+unsigned int SiStripDetId::numberOfAPVs() const {
+  const auto &moduleGeometry = this->moduleGeometry();
+
+  // Check for unknown geometry and throw a meaningful exception
+  if (moduleGeometry == SiStripModuleGeometry::UNKNOWNGEOMETRY) {
+    throw cms::Exception("InvalidModuleGeometry")
+        << "Error in SiStripDetId::numberOfAPVs(): Module geometry is UNKNOWNGEOMETRY. "
+        << "This indicates an invalid or unsupported module geometry for the current DetId: " << this->rawId();
+  }
+
+  // Determine the number of APVs based on the module geometry
+  if (moduleGeometry == SiStripModuleGeometry::IB1 || moduleGeometry == SiStripModuleGeometry::OB1 ||
+      moduleGeometry == SiStripModuleGeometry::W1A || moduleGeometry == SiStripModuleGeometry::W1B ||
+      moduleGeometry == SiStripModuleGeometry::W2A || moduleGeometry == SiStripModuleGeometry::W2B ||
+      moduleGeometry == SiStripModuleGeometry::W5) {
+    return 6;
+  } else {
+    return 4;
+  }
+}
 
 #endif  // DataFormats_SiStripDetId_SiStripDetId_h

@@ -26,7 +26,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFramePlaybackInfoExtended.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFramePlaybackInfoNew.h"
 #include "FWCore/Utilities/interface/TypeID.h"

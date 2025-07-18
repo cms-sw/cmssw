@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun dumpHGCalPassive_cfg.py geometry=V18 type=DDD
 #
-#   Options for geometry V18, V19
+#   Options for geometry V18, V19, V19c
 #               type     DDD, DD4hep
 #
 ###############################################################################
@@ -17,7 +17,7 @@ options.register('geometry',
                  "V18",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "type of operations: V18, V19")
+                  "type of operations: V18, V19, V19c")
 options.register('type',
                  "DDD",
                   VarParsing.VarParsing.multiplicity.singleton,

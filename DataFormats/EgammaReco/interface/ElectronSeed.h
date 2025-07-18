@@ -112,14 +112,14 @@ namespace reco {
 
     unsigned int hitsMask() const;
     void initTwoHitSeed(const unsigned char hitMask);
-    void setNegAttributes(const float dRZ2 = std::numeric_limits<float>::infinity(),
-                          const float dPhi2 = std::numeric_limits<float>::infinity(),
-                          const float dRZ1 = std::numeric_limits<float>::infinity(),
-                          const float dPhi1 = std::numeric_limits<float>::infinity());
-    void setPosAttributes(const float dRZ2 = std::numeric_limits<float>::infinity(),
-                          const float dPhi2 = std::numeric_limits<float>::infinity(),
-                          const float dRZ1 = std::numeric_limits<float>::infinity(),
-                          const float dPhi1 = std::numeric_limits<float>::infinity());
+    void setNegAttributes(const float dRZ2 = std::numeric_limits<float>::max(),
+                          const float dPhi2 = std::numeric_limits<float>::max(),
+                          const float dRZ1 = std::numeric_limits<float>::max(),
+                          const float dPhi1 = std::numeric_limits<float>::max());
+    void setPosAttributes(const float dRZ2 = std::numeric_limits<float>::max(),
+                          const float dPhi2 = std::numeric_limits<float>::max(),
+                          const float dRZ1 = std::numeric_limits<float>::max(),
+                          const float dPhi1 = std::numeric_limits<float>::max());
 
     //this is a backwards compatible function designed to
     //convert old format ElectronSeeds to the new format
@@ -140,7 +140,7 @@ namespace reco {
     static float bestVal(float val1, float val2) { return std::abs(val1) < std::abs(val2) ? val1 : val2; }
     template <typename T>
     T getVal(unsigned int hitNr, T PMVars::*val) const {
-      return hitNr < hitInfo_.size() ? hitInfo_[hitNr].*val : std::numeric_limits<T>::infinity();
+      return hitNr < hitInfo_.size() ? hitInfo_[hitNr].*val : std::numeric_limits<T>::max();
     }
     static std::vector<unsigned int> hitNrsFromMask(unsigned int hitMask);
 

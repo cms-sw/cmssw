@@ -8,9 +8,9 @@
 
 class CutBasedPhotonIDAlgo {
 public:
-  CutBasedPhotonIDAlgo(){};
+  CutBasedPhotonIDAlgo() {}
 
-  virtual ~CutBasedPhotonIDAlgo(){};
+  virtual ~CutBasedPhotonIDAlgo() {}
 
   void setup(const edm::ParameterSet &conf);
   void decideEB(const reco::Photon *pho, bool &LooseEM, bool &LoosePhoton, bool &TightPhoton);

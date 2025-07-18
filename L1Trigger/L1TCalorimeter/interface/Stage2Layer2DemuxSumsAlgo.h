@@ -23,7 +23,7 @@ namespace l1t {
   public:
     virtual void processEvent(const std::vector<l1t::EtSum>& inputSums, std::vector<l1t::EtSum>& outputSums) = 0;
 
-    virtual ~Stage2Layer2DemuxSumsAlgo(){};
+    virtual ~Stage2Layer2DemuxSumsAlgo() {}
   };
 
 }  // namespace l1t

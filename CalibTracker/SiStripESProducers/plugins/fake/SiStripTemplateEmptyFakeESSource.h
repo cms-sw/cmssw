@@ -22,7 +22,7 @@ public:
   SiStripTemplateEmptyFakeESSource(const edm::ParameterSet&);
   SiStripTemplateEmptyFakeESSource(const SiStripTemplateEmptyFakeESSource&) = delete;
   const SiStripTemplateEmptyFakeESSource& operator=(const SiStripTemplateEmptyFakeESSource&) = delete;
-  ~SiStripTemplateEmptyFakeESSource() override{};
+  ~SiStripTemplateEmptyFakeESSource() override {}
 
   std::unique_ptr<TObject> produce(const TRecord&);
 

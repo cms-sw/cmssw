@@ -1,4 +1,3 @@
-from __future__ import print_function
 from builtins import range, object
 import inspect
 from typing import Union
@@ -174,15 +173,7 @@ class _Parameterizable(object):
         self.__dict__['_Parameterizable__validator'] = None
         """The named arguments are the 'parameters' which are added as 'python attributes' to the object"""
         if len(arg) != 0:
-            #raise ValueError("unnamed arguments are not allowed. Please use the syntax 'name = value' when assigning arguments.")
-            for block in arg:
-                # Allow __PSet for testing
-                if type(block).__name__ not in ["PSet", "__PSet", "dict"]:
-                    raise ValueError("Only PSets can be passed as unnamed argument blocks.  This is a "+type(block).__name__)
-                if isinstance(block,dict):
-                    kargs = block
-                else:
-                    self.__setParameters(block.parameters_())
+            self.__setParametersFromArg(*arg)
         self.__setParameters(kargs)
         self._isModified = False
         
@@ -258,6 +249,15 @@ class _Parameterizable(object):
         self.__dict__[name]=value
         self.__parameterNames.append(name)
         self._isModified = True
+    def __setParametersFromArg(self, *arg):
+        for block in arg:
+            # Allow __PSet for testing
+            if type(block).__name__ not in ["PSet", "__PSet", "dict"]:
+                raise ValueError("Only PSets can be passed as unnamed argument blocks.  This is a "+type(block).__name__)
+            if isinstance(block,dict):
+                self.__setParameters(block)
+            else:
+                self.__setParameters(block.parameters_())
 
     def __setParameters(self,parameters):
         v = None
@@ -268,6 +268,8 @@ class _Parameterizable(object):
             self.__addParameter(name, value)
         if v is not None:
             self.__validator=v
+    def hasNoParameters(self) -> bool:
+        return len(self.__parameterNames) == 0
     def __setattr__(self,name:str,value):
         #since labels are not supposed to have underscores at the beginning
         # I will assume that if we have such then we are setting an internal variable
@@ -290,6 +292,17 @@ class _Parameterizable(object):
             else:
                 self.__dict__[name].setValue(value)
             self._isModified = True
+    def update_(self, d):
+        """"Takes a PSet or dict and adds the entries as parameters. Already existing parameters will be overwritten.
+        """
+        if type(d).__name__ not in ["PSet", "__PSet", "dict"]:
+            raise ValueError("Only PSets or dicts can be passed to update_.  This is a "+type(d).__name__)
+
+        items = d.items() if isinstance(d, dict) else d.parameters_().items()
+        for k,v in items:
+                setattr(self, k, v)
+
+
 
     def isFrozen(self) -> bool:
         return self._isFrozen
@@ -686,7 +699,9 @@ class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
         if n>=256:
             #wrap in a tuple since they don't have a size constraint
             result+=" ("
+        wroteAtLeastOne = False
         for i, v in enumerate(self):
+            wroteAtLeastOne = True
             if i == 0:
                 if n>nPerLine: result += '\n'+options.indentation()
             else:
@@ -695,13 +710,20 @@ class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
                 else:
                     result += ', '
             result += self.pythonValueForItem(v,options)
+        if n>=256:
+            result +=' ) '
+        moreArgs = self._additionalInitArguments(options)
+        if moreArgs:
+            if wroteAtLeastOne:
+                result += ', \n' + options.indentation()
+            result += moreArgs
         if n>nPerLine:
             options.unindent()
             result += '\n'+options.indentation()
-        if n>=256:
-            result +=' ) '
         result += ')'
-        return result            
+        return result  
+    def _additionalInitArguments(self, options):
+        return ''
     def directDependencies(self):
         return []
     @staticmethod
@@ -828,6 +850,30 @@ if __name__ == "__main__":
             self.assertEqual(b.a.value(), 1)
             self.assertEqual(b.b.value(), 2)
             self.assertRaises(ValueError, lambda: __Test("MyType", __PSet(a=__TestType(1)), __PSet(a=__TestType(2))))
+            c = __Test("MyType", dict(a=__TestType(1)), dict(b=__TestType(2)))
+            self.assertEqual(c.a.value(), 1)
+            self.assertEqual(c.b.value(), 2)
+            self.assertRaises(ValueError, lambda: __Test("MyType", dict(a=__TestType(1)), dict(a=__TestType(2))))
+        def testUpdate_(self):
+            class __Test(_TypedParameterizable):
+                pass
+            class __TestType(_SimpleParameterTypeBase):
+                def _isValid(self,value):
+                    return True
+            class __PSet(_ParameterTypeBase,_Parameterizable):
+                def __init__(self,*arg,**args):
+                    #need to call the inits separately
+                    _ParameterTypeBase.__init__(self)
+                    _Parameterizable.__init__(self,*arg,**args)
+            a = __Test("MyType", a = __TestType(1))
+            a.update_(dict(b=__TestType(2)))
+            self.assertEqual(a.a.value(), 1)
+            self.assertEqual(a.b.value(), 2)
+            a.update_(dict(a=3))
+            self.assertEqual(a.a.value(), 3)
+            a.update_(__PSet(a=__TestType(5)))
+            self.assertEqual(a.a.value(), 5)
+            self.assertRaises(TypeError, lambda: a.update_(dict(c=6)))
 
         def testCopy(self):
             class __Test(_TypedParameterizable):

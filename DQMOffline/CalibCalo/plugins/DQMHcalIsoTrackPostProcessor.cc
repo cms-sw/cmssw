@@ -10,7 +10,7 @@
 class DQMHcalIsoTrackPostProcessor : public DQMEDHarvester {
 public:
   DQMHcalIsoTrackPostProcessor(const edm::ParameterSet &pset);
-  ~DQMHcalIsoTrackPostProcessor() override{};
+  ~DQMHcalIsoTrackPostProcessor() override {}
 
   //  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup)
   //  override {};

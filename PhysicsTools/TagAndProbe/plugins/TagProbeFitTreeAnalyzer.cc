@@ -14,8 +14,8 @@ using namespace edm;
 class TagProbeFitTreeAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset);
-  ~TagProbeFitTreeAnalyzer() override{};
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override{};
+  ~TagProbeFitTreeAnalyzer() override {}
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override {}
   void calculateEfficiency(string name, const edm::ParameterSet& pset);
 
 private:

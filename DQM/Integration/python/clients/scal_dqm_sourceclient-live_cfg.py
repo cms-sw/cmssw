@@ -31,8 +31,8 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'Scal'
 process.dqmSaver.tag = 'Scal'
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = 'Scal'
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = 'Scal'
+# process.dqmSaverPB.runNumber = options.runNumber
 #-----------------------------
 process.load("DQMServices.Components.DQMScalInfo_cfi")
 
@@ -73,7 +73,7 @@ process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 process.dump = cms.EDAnalyzer('EventContentAnalyzer')
 
 # DQM Modules
-process.dqmmodules = cms.Sequence(process.dqmEnv + process.dqmSaver + process.dqmSaverPB)
+process.dqmmodules = cms.Sequence(process.dqmEnv + process.dqmSaver )#+ process.dqmSaverPB)
 process.evfDQMmodulesPath = cms.Path(
                               process.l1GtUnpack*
 			      process.gtDigis*
@@ -99,11 +99,12 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.muonDTDigis.inputLabel = "rawDataRepacker"
     process.muonRPCDigis.InputLabel = "rawDataRepacker"
     process.scalersRawToDigi.scalersInputTag = "rawDataRepacker"
-    process.siPixelDigis.cpu.InputLabel = "rawDataRepacker"
+    process.siPixelDigis.InputLabel = "rawDataRepacker"
     process.siStripDigis.ProductLabel = "rawDataRepacker"
 
 
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
+print("Global Tag used:", process.GlobalTag.globaltag.value())
 print("Final Source settings:", process.source)

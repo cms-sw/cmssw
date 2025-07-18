@@ -1058,8 +1058,8 @@ void QcdUeDQM::fillUE_with_MaxpTtrack(const std::vector<const reco::Track *> &tr
           }
         }
       }  // track loop
-    }    // leading track
-         // non empty collection
+    }  // leading track
+    // non empty collection
     fillProfile(hdNdEtadPhi_pTMax_Toward500_, track[0]->pt(), nTrk500_TowardReg, w);
     fillProfile(hdNdEtadPhi_pTMax_Transverse500_, track[0]->pt(), nTrk500_TransReg, w);
     fillProfile(hdNdEtadPhi_pTMax_Away500_, track[0]->pt(), nTrk500_AwayReg, w);

@@ -10,7 +10,7 @@
 typedef std::vector<SimCluster> SimClusterCollection;
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticleFwd.h"
 
-namespace hgcal {
+namespace ticl {
 
   enum validationType { Linking = 0, PatternRecognition, PatternRecognition_CP };
 
@@ -31,14 +31,14 @@ namespace hgcal {
     /// Destructor
     virtual ~TracksterToSimTracksterHitLCAssociatorBaseImpl();
 
-    hgcal::association_t makeConnections(const edm::Handle<ticl::TracksterCollection> &tCH,
-                                         const edm::Handle<reco::CaloClusterCollection> &lCCH,
-                                         const edm::Handle<SimClusterCollection> &sCCH,
-                                         const edm::Handle<CaloParticleCollection> &cPCH,
-                                         const edm::Handle<ticl::TracksterCollection> &sTCH) const;
+    ticl::association_t makeConnections(const edm::Handle<ticl::TracksterCollection> &tCH,
+                                        const edm::Handle<reco::CaloClusterCollection> &lCCH,
+                                        const edm::Handle<SimClusterCollection> &sCCH,
+                                        const edm::Handle<CaloParticleCollection> &cPCH,
+                                        const edm::Handle<ticl::TracksterCollection> &sTCH) const;
 
     /// Associate a Trackster to SimClusters
-    virtual hgcal::RecoToSimCollectionSimTracksters associateRecoToSim(
+    virtual ticl::RecoToSimCollectionSimTracksters associateRecoToSim(
         const edm::Handle<ticl::TracksterCollection> &tCH,
         const edm::Handle<reco::CaloClusterCollection> &lCCH,
         const edm::Handle<SimClusterCollection> &sCCH,
@@ -46,13 +46,13 @@ namespace hgcal {
         const edm::Handle<ticl::TracksterCollection> &sTCH) const;
 
     /// Associate a SimCluster to Tracksters
-    virtual hgcal::SimToRecoCollectionSimTracksters associateSimToReco(
+    virtual ticl::SimToRecoCollectionSimTracksters associateSimToReco(
         const edm::Handle<ticl::TracksterCollection> &tCH,
         const edm::Handle<reco::CaloClusterCollection> &lCCH,
         const edm::Handle<SimClusterCollection> &sCCH,
         const edm::Handle<CaloParticleCollection> &cPCH,
         const edm::Handle<ticl::TracksterCollection> &sTCH) const;
   };
-}  // namespace hgcal
+}  // namespace ticl
 
 #endif

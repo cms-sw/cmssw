@@ -21,6 +21,7 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <optional>
 
 typedef std::map<DetId, EcalRecHit> RecHitsMap;
 
@@ -31,18 +32,15 @@ public:
   //so we define a proto basic cluster class which contains all the information which would be in a basic cluster
   //which allows the addition of its seed and the removal of a seed of another cluster easily
   class ProtoBasicCluster {
-    float energy_;
-    EcalRecHit seed_;
     std::vector<std::pair<DetId, float> > hits_;
+    EcalRecHit seed_;
+    float energy_;
     bool containsSeed_;
 
   public:
     ProtoBasicCluster();
-    ProtoBasicCluster(float iEnergy, const EcalRecHit &iSeed, std::vector<std::pair<DetId, float> > &iHits)
-        : energy_(iEnergy), seed_(iSeed) {
-      hits_.swap(iHits);
-      containsSeed_ = isSeedCrysInHits_();
-    }
+    ProtoBasicCluster(float iEnergy, const EcalRecHit &iSeed, std::vector<std::pair<DetId, float> > iHits)
+        : hits_(std::move(iHits)), seed_(iSeed), energy_(iEnergy), containsSeed_{isSeedCrysInHits_()} {}
 
     float energy() const { return energy_; }
     const EcalRecHit &seed() const { return seed_; }
@@ -63,8 +61,8 @@ public:
                       const std::vector<int> &v_chstatus,
                       const PositionCalc &posCalc,
                       bool reassignSeedCrysToClusterItSeeds = false)
-      : ecalBarrelSeedThreshold(ebst),
-        ecalEndcapSeedThreshold(ecst),
+      : ecalBarrelSeedThreshold_(ebst),
+        ecalEndcapSeedThreshold_(ecst),
         v_chstatus_(v_chstatus),
         reassignSeedCrysToClusterItSeeds_(reassignSeedCrysToClusterItSeeds) {
     posCalculator_ = posCalc;
@@ -94,60 +92,46 @@ private:
   reco::CaloID::Detectors detector_;
 
   // Energy required for a seed:
-  double ecalBarrelSeedThreshold;
-  double ecalEndcapSeedThreshold;
+  double ecalBarrelSeedThreshold_;
+  double ecalEndcapSeedThreshold_;
 
-  // collection of all rechits
-  const EcalRecHitCollection *recHits_;
-
-  // The vector of seeds:
-  std::vector<EcalRecHit> seeds;
-
-  std::vector<std::pair<DetId, int> > whichClusCrysBelongsTo_;
-
-  // The set of used DetID's
-  std::set<DetId> used_s;
-  std::set<DetId> canSeed_s;  // set of crystals not to be added but which can seed
-  // a new 3x3 (e.g. the outer crystals in a 5x5)
-
-  // The vector of DetId's in the cluster currently reconstructed
-  std::vector<std::pair<DetId, float> > current_v;
-
-  // The vector of clusters
-  std::vector<reco::BasicCluster> clusters_v;
-  std::vector<ProtoBasicCluster> protoClusters_;
   // recHit flag to be excluded from seeding
   std::vector<int> v_chstatus_;
 
   bool reassignSeedCrysToClusterItSeeds_;  //the seed of the 5x5 crystal is sometimes in another basic cluster, however we may want to put it back into the cluster it seeds
 
-  void mainSearch(const EcalRecHitCollection *hits,
-                  const CaloSubdetectorGeometry *geometry_p,
-                  const CaloSubdetectorTopology *topology_p,
-                  const CaloSubdetectorGeometry *geometryES_p);
+  std::vector<reco::BasicCluster> mainSearch(const EcalRecHitCollection *hits,
+                                             const CaloSubdetectorGeometry *geometry_p,
+                                             const CaloSubdetectorTopology *topology_p,
+                                             const CaloSubdetectorGeometry *geometryES_p,
+                                             const std::vector<EcalRecHit> &seeds);
 
   // Is the crystal at the navigator position a
   // local maxiumum in energy?
-  bool checkMaxima(CaloNavigator<DetId> &navigator, const EcalRecHitCollection *hits);
+  bool checkMaxima(CaloNavigator<DetId> &navigator, const EcalRecHitCollection *hits) const;
 
   // prepare the 5x5 taking care over which crystals
   // are allowed to seed new clusters and which are not
   // after the preparation is complete
-  void prepareCluster(CaloNavigator<DetId> &navigator,
-                      const EcalRecHitCollection *hits,
-                      const CaloSubdetectorGeometry *geometry);
+  std::vector<std::pair<DetId, float> > prepareCluster(CaloNavigator<DetId> &navigator,
+                                                       const EcalRecHitCollection *hits,
+                                                       const CaloSubdetectorGeometry *geometry,
+                                                       std::set<DetId> &used_seeds,
+                                                       std::set<DetId> &canSeed_s) const;
 
   // Add the crystal with DetId det to the current
   // vector of crystals if it meets certain criteria
-  void addCrystal(const DetId &det);
+  static bool addCrystal(const DetId &det, const EcalRecHitCollection &recHits);
 
   // take the crystals in the current_v and build
   // them into a BasicCluster
-  void makeCluster(const EcalRecHitCollection *hits,
-                   const CaloSubdetectorGeometry *geometry_p,
-                   const CaloSubdetectorGeometry *geometryES_p,
-                   const EcalRecHitCollection::const_iterator &seedIt,
-                   bool seedOutside);
+  // NOTE: this can't be const because of posCalculator_
+  std::optional<ProtoBasicCluster> makeCluster(const EcalRecHitCollection *hits,
+                                               const CaloSubdetectorGeometry *geometry_p,
+                                               const CaloSubdetectorGeometry *geometryES_p,
+                                               const EcalRecHitCollection::const_iterator &seedIt,
+                                               bool seedOutside,
+                                               std::vector<std::pair<DetId, float> > &current_v);
 };
 
 #endif

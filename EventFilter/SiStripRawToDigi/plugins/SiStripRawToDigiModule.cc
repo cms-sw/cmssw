@@ -161,3 +161,23 @@ namespace sistrip {
 
   void RawToDigiModule::endStream() { rawToDigi_->printWarningSummary(); }
 }  // namespace sistrip
+
+void sistrip::RawToDigiModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("ProductLabel", edm::InputTag("rawDataCollector"));
+  desc.add<int>("AppendedBytes", 0);
+  desc.add<int>("TriggerFedId", 0);
+  desc.add<bool>("LegacyUnpacker", false);
+  desc.add<bool>("UseDaqRegister", false);
+  desc.add<bool>("UseFedKey", false);
+  desc.add<bool>("UnpackBadChannels", false);
+  desc.add<bool>("MarkModulesOnMissingFeds", true);
+  desc.addUntracked<int>("FedBufferDumpFreq", 0);
+  desc.addUntracked<int>("FedEventDumpFreq", 0);
+  desc.addUntracked<bool>("Quiet", true);
+  desc.add<bool>("UnpackCommonModeValues", false);
+  desc.add<bool>("DoAllCorruptBufferChecks", false);
+  desc.add<bool>("DoAPVEmulatorCheck", false);
+  desc.add<unsigned int>("ErrorThreshold", 7174);
+  descriptions.addWithDefaultLabel(desc);
+}

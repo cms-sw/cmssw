@@ -12,15 +12,17 @@ class TICLLayerTileT {
 public:
   typedef T type;
 
-  void fill(double eta, double phi, unsigned int layerClusterId) {
-    tile_[globalBin(eta, phi)].push_back(layerClusterId);
-  }
+  void fill(float eta, float phi, unsigned int layerClusterId) { tile_[globalBin(eta, phi)].push_back(layerClusterId); }
 
   int etaBin(float eta) const {
     constexpr float etaRange = T::maxEta - T::minEta;
     static_assert(etaRange >= 0.f);
     float r = T::nEtaBins / etaRange;
-    int etaBin = (std::abs(eta) - T::minEta) * r;
+    int etaBin;
+    if constexpr (std::is_same_v<T, ticl::TileConstantsBarrel>)
+      etaBin = (eta - T::minEta) * r;
+    else
+      etaBin = (std::abs(eta) - T::minEta) * r;
     etaBin = std::clamp(etaBin, 0, T::nEtaBins - 1);
     return etaBin;
   }
@@ -36,8 +38,10 @@ public:
   std::array<int, 4> searchBoxEtaPhi(float etaMin, float etaMax, float phiMin, float phiMax) const {
     // The tile only handles one endcap at a time and does not hold mixed eta
     // values.
-    if (etaMin * etaMax < 0) {
-      return std::array<int, 4>({{0, 0, 0, 0}});
+    if (!std::is_same_v<T, ticl::TileConstantsBarrel>) {
+      if (etaMin * etaMax < 0) {
+        return std::array<int, 4>({{0, 0, 0, 0}});
+      }
     }
     if (etaMax - etaMin < 0) {
       return std::array<int, 4>({{0, 0, 0, 0}});
@@ -62,7 +66,7 @@ public:
 
   int globalBin(int etaBin, int phiBin) const { return phiBin + etaBin * T::nPhiBins; }
 
-  int globalBin(double eta, double phi) const { return phiBin(phi) + etaBin(eta) * T::nPhiBins; }
+  int globalBin(float eta, float phi) const { return phiBin(phi) + etaBin(eta) * T::nPhiBins; }
 
   void clear() {
     auto nBins = T::nEtaBins * T::nPhiBins;
@@ -85,6 +89,9 @@ namespace ticl {
   using TilesHFNose = std::array<TICLLayerTileHFNose, TileConstantsHFNose::nLayers>;
   using TracksterTilesHFNose = std::array<TICLLayerTileHFNose, TileConstantsHFNose::iterations>;
 
+  using TICLLayerTileBarrel = TICLLayerTileT<TileConstantsBarrel>;
+  using TilesBarrel = std::array<TICLLayerTileBarrel, TileConstantsBarrel::nLayers>;
+  using TracksterTilesBarrel = std::array<TICLLayerTileBarrel, TileConstantsBarrel::iterations>;
 }  // namespace ticl
 
 template <typename T>
@@ -96,7 +103,7 @@ public:
   // numbering is not handled internally. It is the user's responsibility to
   // properly use and consistently access it here.
   const auto& operator[](int index) const { return tiles_[index]; }
-  void fill(int index, double eta, double phi, unsigned int objectId) { tiles_[index].fill(eta, phi, objectId); }
+  void fill(int index, float eta, float phi, unsigned int objectId) { tiles_[index].fill(eta, phi, objectId); }
 
 private:
   T tiles_;
@@ -106,5 +113,7 @@ using TICLLayerTiles = TICLGenericTile<ticl::Tiles>;
 using TICLTracksterTiles = TICLGenericTile<ticl::TracksterTiles>;
 using TICLLayerTilesHFNose = TICLGenericTile<ticl::TilesHFNose>;
 using TICLTracksterTilesHFNose = TICLGenericTile<ticl::TracksterTilesHFNose>;
+using TICLLayerTilesBarrel = TICLGenericTile<ticl::TilesBarrel>;
+using TICLTracksterTilesBarrel = TICLGenericTile<ticl::TracksterTilesBarrel>;
 
 #endif

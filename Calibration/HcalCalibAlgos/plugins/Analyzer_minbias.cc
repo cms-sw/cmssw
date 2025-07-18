@@ -282,8 +282,8 @@ namespace cms {
             hCalo2mom2[i][j] = fs->make<TH1F>(str11, "h11", 320, 0., 120.);
           }
         }  // HE/HF boundary
-      }    // j
-    }      // i
+      }  // j
+    }  // i
 
     hbheNoiseE = fs->make<TH1F>("hbheNoiseE", "hbheNoiseE", 320, -10., 10.);
     hfNoiseE = fs->make<TH1F>("hfNoiseE", "hfNoiseE", 320, -10., 10.);
@@ -392,10 +392,10 @@ namespace cms {
               ii++;
 
             }  // Min>0
-          }    // ieta
-        }      // iphi
-      }        // depth
-    }          //subd
+          }  // ieta
+        }  // iphi
+      }  // depth
+    }  //subd
 
     edm::LogVerbatim("AnalyzerMB") << " Number of cells " << ii;
 

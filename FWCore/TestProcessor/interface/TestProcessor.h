@@ -30,12 +30,14 @@
 #include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Framework/interface/PrincipalCache.h"
-#include "FWCore/Framework/interface/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Framework/interface/ModuleRegistry.h"
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/DataKey.h"
+#include "FWCore/Framework/interface/MergeableRunProductProcesses.h"
+
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/ServiceRegistry/interface/ServiceLegacy.h"
@@ -317,14 +319,24 @@ This simulates a problem happening early in the job which causes processing not 
       void teardownProcessing();
 
       void beginJob();
+      void respondToOpenInputFile();
+      void openOutputFiles();
       void beginProcessBlock();
       void beginRun();
       void beginLuminosityBlock();
       void event();
       std::shared_ptr<LuminosityBlockPrincipal> endLuminosityBlock();
       std::shared_ptr<RunPrincipal> endRun();
+      void respondToCloseInputFile();
       ProcessBlockPrincipal const* endProcessBlock();
+      void closeOutputFiles();
       void endJob();
+
+      template <typename Traits>
+      void processTransitionForAllStreams(typename Traits::TransitionInfoType& transitionInfo);
+
+      template <typename Traits>
+      void processGlobalTransition(typename Traits::TransitionInfoType& transitionInfo);
 
       // ---------- member data --------------------------------
       oneapi::tbb::global_control globalControl_;
@@ -346,7 +358,10 @@ This simulates a problem happening early in the job which causes processing not 
       std::shared_ptr<ProcessConfiguration const> processConfiguration_;
       ProcessContext processContext_;
 
+      MergeableRunProductProcesses mergeableRunProductProcesses_;
+
       ProcessHistoryRegistry processHistoryRegistry_;
+      ProcessHistory processHistory_;
       std::unique_ptr<HistoryAppender> historyAppender_;
 
       PrincipalCache principalCache_;
@@ -357,15 +372,17 @@ This simulates a problem happening early in the job which causes processing not 
       std::shared_ptr<RunPrincipal> runPrincipal_;
       std::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal_;
 
-      std::vector<std::pair<edm::BranchDescription, std::unique_ptr<WrapperBase>>> dataProducts_;
+      std::vector<std::pair<edm::ProductDescription, std::unique_ptr<WrapperBase>>> dataProducts_;
 
       RunNumber_t runNumber_ = 1;
       LuminosityBlockNumber_t lumiNumber_ = 1;
       EventNumber_t eventNumber_ = 1;
       bool beginJobCalled_ = false;
+      bool respondToOpenInputFileCalled_ = false;
       bool beginProcessBlockCalled_ = false;
       bool beginRunCalled_ = false;
       bool beginLumiCalled_ = false;
+      bool openOutputFilesCalled_ = false;
     };
   }  // namespace test
 }  // namespace edm

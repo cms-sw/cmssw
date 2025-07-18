@@ -63,12 +63,10 @@ public:
 
 protected:
   // Modify the RawPtr class
-  const CaloCellGeometry* getGeometryRawPtr(uint32_t index) const override;
+  CaloCellGeometryPtr getGeometryRawPtr(uint32_t index) const override;
 
 private:
   const CastorTopology* theTopology;
-  mutable DetId::Detector lastReqDet_;
-  mutable int lastReqSubdet_;
   bool m_ownsTopology;
 
   CellVec m_cellVec;

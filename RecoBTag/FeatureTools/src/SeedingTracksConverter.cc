@@ -213,7 +213,7 @@ namespace btagbtvdeep {
     if (sortedSeedsMap.size() < 10) {
       for (unsigned int i = sortedSeedsMap.size(); i < 10; i++) {
         std::vector<btagbtvdeep::TrackPairFeatures> tp_features_zeropad(20);
-        btagbtvdeep::SeedingTrackFeatures seed_features_zeropad;
+        btagbtvdeep::SeedingTrackFeatures seed_features_zeropad{};
         seed_features_zeropad.nearTracks = tp_features_zeropad;
         seedingT_features_vector.push_back(seed_features_zeropad);
       }

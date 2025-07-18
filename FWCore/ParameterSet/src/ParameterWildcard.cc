@@ -49,9 +49,9 @@ namespace edm {
 
   void ParameterWildcard<ParameterSetDescription>::validate_(ParameterSet& pset,
                                                              std::set<std::string>& validatedLabels,
-                                                             bool optional) const {
+                                                             Modifier modifier) const {
     std::vector<std::string> parameterNames = pset.getParameterNamesForType<ParameterSet>(isTracked());
-    validateMatchingNames(parameterNames, validatedLabels, optional);
+    validateMatchingNames(parameterNames, validatedLabels, modifier == Modifier::kOptional);
 
     if (psetDesc_) {
       for_all(parameterNames,
@@ -111,11 +111,13 @@ namespace edm {
     return parameterNames.size() == 1U;
   }
 
-  void ParameterWildcard<ParameterSetDescription>::writeTemplate(std::ostream& os, int indentation) const {
+  void ParameterWildcard<ParameterSetDescription>::writeTemplate(std::ostream& os,
+                                                                 int indentation,
+                                                                 CfiOptions& options) const {
     os << "PSetTemplate(";
     indentation += 2;
     if (psetDesc_) {
-      psetDesc_->writeCfi(os, false, indentation);
+      psetDesc_->writeCfi(os, false, indentation, options);
     }
     os << ")";
   }
@@ -160,9 +162,9 @@ namespace edm {
 
   void ParameterWildcard<std::vector<ParameterSet> >::validate_(ParameterSet& pset,
                                                                 std::set<std::string>& validatedLabels,
-                                                                bool optional) const {
+                                                                Modifier modifier) const {
     std::vector<std::string> parameterNames = pset.getParameterNamesForType<std::vector<ParameterSet> >(isTracked());
-    validateMatchingNames(parameterNames, validatedLabels, optional);
+    validateMatchingNames(parameterNames, validatedLabels, modifier == Modifier::kOptional);
 
     if (psetDesc_) {
       for_all(parameterNames,

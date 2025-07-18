@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 # Define once the BeamSpotOnline record name,
@@ -14,8 +13,8 @@ if 'runkey=hi_run' in sys.argv:
   from Configuration.Eras.Era_Run3_pp_on_PbPb_approxSiStripClusters_cff import Run3_pp_on_PbPb_approxSiStripClusters
   process = cms.Process("BeamMonitorHLT", Run3_pp_on_PbPb_approxSiStripClusters)
 else:
-  from Configuration.Eras.Era_Run3_cff import Run3
-  process = cms.Process("BeamMonitorHLT", Run3)
+  from Configuration.Eras.Era_Run3_2025_cff import Run3_2025
+  process = cms.Process("BeamMonitorHLT", Run3_2025)
 
 
 # Message logger
@@ -85,8 +84,8 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'BeamMonitorHLT'
 process.dqmSaver.tag           = 'BeamMonitorHLT'
 process.dqmSaver.runNumber     = options.runNumber
-process.dqmSaverPB.tag         = 'BeamMonitorHLT'
-process.dqmSaverPB.runNumber   = options.runNumber
+# process.dqmSaverPB.tag         = 'BeamMonitorHLT'
+# process.dqmSaverPB.runNumber   = options.runNumber
 
 # Configure tag and jobName if running Playback system
 if process.isDqmPlayback.value :
@@ -124,7 +123,7 @@ else:
   process.dqmBeamMonitor.BeamFitter.DIPFileName = '/nfshome0/dqmdev/BeamMonitorDQM/BeamFitResults.txt'
 
 process.dqmcommon = cms.Sequence(process.dqmEnv
-                               * process.dqmSaver*process.dqmSaverPB)
+                               * process.dqmSaver)#*process.dqmSaverPB)
 
 process.monitor = cms.Sequence(process.dqmBeamMonitor)
 
@@ -153,10 +152,6 @@ process.tcdsDigis.InputLabel                         = rawDataInputTag
 # Swap offline <-> online BeamSpot as in Express and HLT
 import RecoVertex.BeamSpotProducer.onlineBeamSpotESProducer_cfi as _mod
 process.BeamSpotESProducer = _mod.onlineBeamSpotESProducer.clone()
-
-# for running offline enhance the time validity of the online beamspot in DB
-if ((not live) or process.isDqmPlayback.value): 
-  process.BeamSpotESProducer.timeThreshold = cms.int32(int(1e6))
 
 import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
 process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
@@ -218,11 +213,13 @@ if (process.runType.getRunType() == process.runType.pp_run or
 
     #TriggerName for selecting pv for DIP publication, NO wildcard needed here
     #it will pick all triggers which have these strings in their name
-    process.dqmBeamMonitor.jetTrigger = cms.untracked.vstring(
-        "HLT_HT300_Beamspot", "HLT_HT300_Beamspot",
-        "HLT_PAZeroBias_v", "HLT_ZeroBias_", "HLT_QuadJet",
-        "HLT_HI",
-        "HLT_PixelClusters")
+    process.dqmBeamMonitor.jetTrigger = cms.untracked.vstring("HLT_HT300_Beamspot",
+                                                              "HLT_BeamSpot",
+                                                              "HLT_PAZeroBias_v",
+                                                              "HLT_ZeroBias_",
+                                                              "HLT_QuadJet",
+                                                              "HLT_HI",
+                                                              "HLT_PixelClusters")
 
     process.dqmBeamMonitor.hltResults = "TriggerResults::HLT"
 

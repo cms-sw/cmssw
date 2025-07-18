@@ -14,7 +14,7 @@ namespace edm {
   class EDProductGetter;
 }
 
-namespace hgcal {
+namespace ticl {
   struct detIdInfoInCluster {
     bool operator==(const detIdInfoInCluster &o) const { return clusterId == o.clusterId; };
     long unsigned int clusterId;
@@ -33,32 +33,34 @@ namespace hgcal {
   };
 
   typedef std::vector<std::vector<std::pair<unsigned int, float>>> tracksterToSimCluster;
-  typedef std::vector<hgcal::simClusterOnBLayer> simClusterToTrackster;
+  typedef std::vector<ticl::simClusterOnBLayer> simClusterToTrackster;
   typedef std::tuple<tracksterToSimCluster, simClusterToTrackster> association;
-}  // namespace hgcal
+}  // namespace ticl
 
-class TSToSCAssociatorByEnergyScoreImpl : public hgcal::TracksterToSimClusterAssociatorBaseImpl {
+class TSToSCAssociatorByEnergyScoreImpl : public ticl::TracksterToSimClusterAssociatorBaseImpl {
 public:
   explicit TSToSCAssociatorByEnergyScoreImpl(edm::EDProductGetter const &,
                                              bool,
                                              std::shared_ptr<hgcal::RecHitTools>,
-                                             const std::unordered_map<DetId, const HGCRecHit *> *);
+                                             const std::unordered_map<DetId, const unsigned int> *,
+                                             std::vector<const HGCRecHit *> &hits);
 
-  hgcal::RecoToSimCollectionTracksters associateRecoToSim(const edm::Handle<ticl::TracksterCollection> &tCH,
-                                                          const edm::Handle<reco::CaloClusterCollection> &lCCH,
-                                                          const edm::Handle<SimClusterCollection> &sCCH) const override;
+  ticl::RecoToSimCollectionTracksters associateRecoToSim(const edm::Handle<ticl::TracksterCollection> &tCH,
+                                                         const edm::Handle<reco::CaloClusterCollection> &lCCH,
+                                                         const edm::Handle<SimClusterCollection> &sCCH) const override;
 
-  hgcal::SimToRecoCollectionTracksters associateSimToReco(const edm::Handle<ticl::TracksterCollection> &tCH,
-                                                          const edm::Handle<reco::CaloClusterCollection> &lCCH,
-                                                          const edm::Handle<SimClusterCollection> &sCCH) const override;
+  ticl::SimToRecoCollectionTracksters associateSimToReco(const edm::Handle<ticl::TracksterCollection> &tCH,
+                                                         const edm::Handle<reco::CaloClusterCollection> &lCCH,
+                                                         const edm::Handle<SimClusterCollection> &sCCH) const override;
 
 private:
   const bool hardScatterOnly_;
   std::shared_ptr<hgcal::RecHitTools> recHitTools_;
-  const std::unordered_map<DetId, const HGCRecHit *> *hitMap_;
+  const std::unordered_map<DetId, const unsigned int> *hitMap_;
+  std::vector<const HGCRecHit *> hits_;
   unsigned layers_;
   edm::EDProductGetter const *productGetter_;
-  hgcal::association makeConnections(const edm::Handle<ticl::TracksterCollection> &tCH,
-                                     const edm::Handle<reco::CaloClusterCollection> &lCCH,
-                                     const edm::Handle<SimClusterCollection> &sCCH) const;
+  ticl::association makeConnections(const edm::Handle<ticl::TracksterCollection> &tCH,
+                                    const edm::Handle<reco::CaloClusterCollection> &lCCH,
+                                    const edm::Handle<SimClusterCollection> &sCCH) const;
 };

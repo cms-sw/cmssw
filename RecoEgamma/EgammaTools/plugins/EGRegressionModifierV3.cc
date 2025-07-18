@@ -61,6 +61,7 @@ private:
   edm::EDGetTokenT<double> rhoToken_;
 
   bool useClosestToCentreSeedCrysDef_;
+  bool useBuggedHOverE_;  //this allows us to use the regression corrected H/E which is incorrect wrong
   float maxRawEnergyForLowPtEBSigma_;
   float maxRawEnergyForLowPtEESigma_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
@@ -74,6 +75,7 @@ EGRegressionModifierV3::EGRegressionModifierV3(const edm::ParameterSet& conf, ed
       rhoValue_(0.),
       rhoToken_(cc.consumes(conf.getParameter<edm::InputTag>("rhoTag"))),
       useClosestToCentreSeedCrysDef_(conf.getParameter<bool>("useClosestToCentreSeedCrysDef")),
+      useBuggedHOverE_(conf.getParameter<bool>("useBuggedHOverE")),
       maxRawEnergyForLowPtEBSigma_(conf.getParameter<double>("maxRawEnergyForLowPtEBSigma")),
       maxRawEnergyForLowPtEESigma_(conf.getParameter<double>("maxRawEnergyForLowPtEESigma")) {
   if (conf.exists("eleRegs")) {
@@ -219,7 +221,8 @@ std::array<float, 32> EGRegressionModifierV3::getRegData(const reco::GsfElectron
   data[2] = superClus->phiWidth();
   data[3] = superClus->seed()->energy() / rawEnergy;
   data[4] = ssFull5x5.e5x5 / rawEnergy;
-  data[5] = ele.hcalOverEcalBc();
+  //the full5x5 is not regression corrected and thus is the correct one to use
+  data[5] = useBuggedHOverE_ ? ele.hcalOverEcalBc() : ele.full5x5_hcalOverEcalBc();
   data[6] = rhoValue_;
   data[7] = seedClus->eta() - superClus->position().Eta();
   data[8] = reco::deltaPhi(seedClus->phi(), superClus->position().Phi());

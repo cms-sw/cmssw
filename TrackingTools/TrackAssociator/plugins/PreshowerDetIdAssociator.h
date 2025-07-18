@@ -22,7 +22,7 @@
 
 class PreshowerDetIdAssociator : public CaloDetIdAssociator {
 public:
-  PreshowerDetIdAssociator() : CaloDetIdAssociator(30, 60, 0.1, nullptr){};
+  PreshowerDetIdAssociator() : CaloDetIdAssociator(30, 60, 0.1, nullptr) {}
 
   using CaloDetIdAssociator::CaloDetIdAssociator;
 

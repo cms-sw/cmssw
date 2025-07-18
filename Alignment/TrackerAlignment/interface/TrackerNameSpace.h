@@ -266,5 +266,5 @@ namespace align {
     TID tid_;
     TEC tec_;
   };
-};     // namespace align
+};  // namespace align
 #endif /* Alignment_TrackerAlignment_TrackerNameSpace_H */

@@ -13,9 +13,9 @@
 namespace l1t {
   class MicroGMTLUT : public LUT {
   public:
-    MicroGMTLUT() : m_totalInWidth(0), m_outWidth(0), m_initialized(false){};
+    MicroGMTLUT() : m_totalInWidth(0), m_outWidth(0), m_initialized(false) {}
     MicroGMTLUT(l1t::LUT* lut);
-    virtual ~MicroGMTLUT(){};
+    virtual ~MicroGMTLUT() {}
 
     // should be implemented in each daughter!
     // This function is the minimum that should be provided

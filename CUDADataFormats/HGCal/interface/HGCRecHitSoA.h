@@ -23,7 +23,7 @@ namespace memory {
     constexpr unsigned uint32_hgcrechits_soa = 2;  //number of uint32_t pointers in the rechits SoA
     constexpr unsigned uint8_hgcrechits_soa = 1;   //number of uint8_t pointers in the rechits SoA
     constexpr unsigned ntypes_hgcrechits_soa = 3;  //number of different pointer types in the rechits SoA
-  }                                                // namespace npointers
+  }  // namespace npointers
 }  // namespace memory
 
 #endif  //CUDADataFormats_HGCal_HGCRecHitSoA_h

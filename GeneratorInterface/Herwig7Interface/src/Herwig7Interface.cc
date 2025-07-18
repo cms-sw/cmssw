@@ -99,7 +99,7 @@ void Herwig7Interface::initRepository(const edm::ParameterSet &pset) {
     else
       runModeTemp.erase(0, pos + 1);
 
-    HwUI_.reset(new Herwig::HerwigUIProvider(pset, dumpConfig_, Herwig::RunMode::READ));
+    HwUI_ = std::make_shared<Herwig::HerwigUIProvider>(pset, dumpConfig_, Herwig::RunMode::READ);
     edm::LogInfo("Herwig7Interface") << "HerwigUIProvider object with run mode " << HwUI_->runMode() << " created.\n";
 
     // Chose run mode

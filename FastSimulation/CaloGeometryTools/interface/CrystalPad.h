@@ -117,8 +117,8 @@ public:
   class padEqual {
   public:
     padEqual(unsigned cell)
-        : ref_(cell){
-              //	    std::cout << " quadEqual " << ref_ << std::endl;
+        : ref_(cell) {
+            //	    std::cout << " quadEqual " << ref_ << std::endl;
           };
     ~padEqual() { ; };
     inline bool operator()(const CrystalPad& quad) const { return (ref_ == quad.getNumber()); }

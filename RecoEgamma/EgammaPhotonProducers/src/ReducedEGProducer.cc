@@ -153,6 +153,7 @@ private:
   }
 
   //tokens for input collections
+  const edm::EDGetTokenT<reco::SuperClusterCollection> superclusterT_;
   const edm::EDGetTokenT<reco::PhotonCollection> photonT_;
   edm::EDGetTokenT<reco::PhotonCollection> ootPhotonT_;
   const edm::EDGetTokenT<reco::GsfElectronCollection> gsfElectronT_;
@@ -177,6 +178,10 @@ private:
 
   const edm::EDGetTokenT<reco::HIPhotonIsolationMap> recoHIPhotonIsolationMapInputToken_;
   edm::EDPutTokenT<reco::HIPhotonIsolationMap> recoHIPhotonIsolationMapOutputName_;
+
+  const double scPtMin_;
+  const double scAbsetaMax_;
+  const double relinkSuperclusterPtMin_;
 
   const bool applyPhotonCalibOnData_;
   const bool applyPhotonCalibOnMC_;
@@ -263,7 +268,8 @@ namespace {
 }  // namespace
 
 ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config)
-    : photonT_(consumes(config.getParameter<edm::InputTag>("photons"))),
+    : superclusterT_(consumes(config.getParameter<edm::InputTag>("pflowSuperclusters"))),
+      photonT_(consumes(config.getParameter<edm::InputTag>("photons"))),
       gsfElectronT_(consumes(config.getParameter<edm::InputTag>("gsfElectrons"))),
       conversionT_(consumes(config.getParameter<edm::InputTag>("conversions"))),
       singleConversionT_(consumes(config.getParameter<edm::InputTag>("singleConversions"))),
@@ -280,6 +286,9 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config)
           !config.getParameter<edm::InputTag>("hiPhotonIsolationMapInput").label().empty()
               ? consumes<reco::HIPhotonIsolationMap>(config.getParameter<edm::InputTag>("hiPhotonIsolationMapInput"))
               : edm::EDGetTokenT<reco::HIPhotonIsolationMap>{}},
+      scPtMin_(config.getParameter<double>("keepPfSuperclusterPtMin")),
+      scAbsetaMax_(config.getParameter<double>("keepPfSuperclusterAbsetaMax")),
+      relinkSuperclusterPtMin_(config.getParameter<double>("relinkSuperclusterPtMin")),
       //calibration flags
       applyPhotonCalibOnData_(config.getParameter<bool>("applyPhotonCalibOnData")),
       applyPhotonCalibOnMC_(config.getParameter<bool>("applyPhotonCalibOnMC")),
@@ -380,6 +389,7 @@ void ReducedEGProducer::beginRun(edm::Run const& run, const edm::EventSetup& iSe
 void ReducedEGProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup) {
   //get input collections
 
+  auto scHandle = event.getHandle(superclusterT_);
   auto photonHandle = event.getHandle(photonT_);
 
   auto ootPhotonHandle =
@@ -680,6 +690,25 @@ void ReducedEGProducer::produce(edm::Event& event, const edm::EventSetup& eventS
 
     //hcal hits
     linkHcalHits(*gsfElectron.superCluster(), *hbheHitHandle, hcalRechitMap);
+  }
+
+  //loop over input SuperClusters
+  index = -1;
+  for (const auto& superCluster : *scHandle) {
+    index++;
+
+    const double superclusPt = superCluster.energy() / std::cosh(superCluster.eta());
+
+    if (superclusPt < scPtMin_)
+      continue;
+
+    if (std::abs(superCluster.eta()) > scAbsetaMax_)
+      continue;
+
+    bool relinkSupercluster = superclusPt > relinkSuperclusterPtMin_;
+
+    reco::SuperClusterRef superClusterRef(scHandle, index);
+    linkSuperCluster(superClusterRef, superClusterMap, superClusters, relinkSupercluster, superClusterFullRelinkMap);
   }
 
   //loop over output SuperClusters and fill maps

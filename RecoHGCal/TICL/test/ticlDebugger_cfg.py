@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("TICLDEBUG")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D49Reco_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T15', '')

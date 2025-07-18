@@ -30,9 +30,10 @@ private:
   const bool useTimingAverage_;
   const float timingQualityThreshold_;
   const bool energy_from_regression_;
+  const bool isTICLv5_;
   // inputs
   const edm::EDGetTokenT<edm::View<TICLCandidate>> ticl_candidates_;
-  const edm::EDGetTokenT<edm::ValueMap<float>> srcTrackTime_, srcTrackTimeError_, srcTrackTimeQuality_;
+  edm::EDGetTokenT<edm::ValueMap<float>> srcTrackTime_, srcTrackTimeError_, srcTrackTimeQuality_;
   const edm::EDGetTokenT<reco::MuonCollection> muons_;
   // For PFMuonAlgo
   std::unique_ptr<PFMuonAlgo> pfmu_;
@@ -45,13 +46,16 @@ PFTICLProducer::PFTICLProducer(const edm::ParameterSet& conf)
       useTimingAverage_(conf.getParameter<bool>("useTimingAverage")),
       timingQualityThreshold_(conf.getParameter<double>("timingQualityThreshold")),
       energy_from_regression_(conf.getParameter<bool>("energyFromRegression")),
+      isTICLv5_(conf.getParameter<bool>("isTICLv5")),
       ticl_candidates_(consumes<edm::View<TICLCandidate>>(conf.getParameter<edm::InputTag>("ticlCandidateSrc"))),
-      srcTrackTime_(consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeValueMap"))),
-      srcTrackTimeError_(consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeErrorMap"))),
-      srcTrackTimeQuality_(consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeQualityMap"))),
       muons_(consumes<reco::MuonCollection>(conf.getParameter<edm::InputTag>("muonSrc"))),
       pfmu_(std::make_unique<PFMuonAlgo>(conf.getParameterSet("pfMuonAlgoParameters"),
                                          false)) {  // postMuonCleaning = false
+  if (not isTICLv5_) {
+    srcTrackTime_ = consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeValueMap"));
+    srcTrackTimeError_ = consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeErrorMap"));
+    srcTrackTimeQuality_ = consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeQualityMap"));
+  }
   produces<reco::PFCandidateCollection>();
 }
 
@@ -64,6 +68,7 @@ void PFTICLProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<bool>("energyFromRegression", true);
   desc.add<double>("timingQualityThreshold", 0.5);
   desc.add<bool>("useMTDTiming", true);
+  desc.add<bool>("isTICLv5", false);
   desc.add<bool>("useTimingAverage", false);
   // For PFMuonAlgo
   desc.add<edm::InputTag>("muonSrc", edm::InputTag("muons1stStep"));
@@ -80,9 +85,11 @@ void PFTICLProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   evt.getByToken(ticl_candidates_, ticl_cand_h);
   const auto ticl_candidates = *ticl_cand_h;
   edm::Handle<edm::ValueMap<float>> trackTimeH, trackTimeErrH, trackTimeQualH;
-  evt.getByToken(srcTrackTime_, trackTimeH);
-  evt.getByToken(srcTrackTimeError_, trackTimeErrH);
-  evt.getByToken(srcTrackTimeQuality_, trackTimeQualH);
+  if (not isTICLv5_) {
+    evt.getByToken(srcTrackTime_, trackTimeH);
+    evt.getByToken(srcTrackTimeError_, trackTimeErrH);
+    evt.getByToken(srcTrackTimeQuality_, trackTimeQualH);
+  }
   const auto muonH = evt.getHandle(muons_);
   const auto& muons = *muonH;
 
@@ -139,44 +146,60 @@ void PFTICLProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
       candidate.setTrackRef(trackref);
       // Utilize PFMuonAlgo
       const int muId = PFMuonAlgo::muAssocToTrack(trackref, muons);
-      if (muId != -1) {
-        const reco::MuonRef muonref = reco::MuonRef(muonH, muId);
-        const bool allowLoose = (part_type == reco::PFCandidate::mu);
-        // Redefine pfmuon candidate kinematics and add muonref
-        pfmu_->reconstructMuon(candidate, muonref, allowLoose);
-      }
-    }
-
-    // HGCAL timing as default values
-    auto time = ticl_cand.time();
-    auto timeE = ticl_cand.timeError();
-
-    if (useMTDTiming_ and candidate.charge()) {
-      // Ignore HGCAL timing until it will be TOF corrected
-      time = -99.;
-      timeE = -1.;
-      // Check MTD timing availability
-      const bool assocQuality = (*trackTimeQualH)[candidate.trackRef()] > timingQualityThreshold_;
-      if (assocQuality) {
-        const auto timeHGC = time;
-        const auto timeEHGC = timeE;
-        const auto timeMTD = (*trackTimeH)[candidate.trackRef()];
-        const auto timeEMTD = (*trackTimeErrH)[candidate.trackRef()];
-
-        if (useTimingAverage_ && (timeEMTD > 0 && timeEHGC > 0)) {
-          // Compute weighted average between HGCAL and MTD timing
-          const auto invTimeESqHGC = pow(timeEHGC, -2);
-          const auto invTimeESqMTD = pow(timeEMTD, -2);
-          timeE = (invTimeESqHGC * invTimeESqMTD) / (invTimeESqHGC + invTimeESqMTD);
-          time = (timeHGC * invTimeESqHGC + timeMTD * invTimeESqMTD) * timeE;
-          timeE = sqrt(timeE);
-        } else if (timeEMTD > 0) {  // Ignore HGCal timing until it will be TOF corrected
-          time = timeMTD;
-          timeE = timeEMTD;
+      if (isTICLv5_) {
+        if (muId != -1) {
+          const reco::MuonRef muonref = reco::MuonRef(muonH, muId);
+          if ((PFMuonAlgo::isMuon(muonref) and not(*muonH)[muId].isTrackerMuon()) or
+              (ticl_cand.tracksters().empty() and muonref.isNonnull() and muonref->isGlobalMuon())) {
+            const bool allowLoose = (part_type == reco::PFCandidate::mu);
+            // Redefine pfmuon candidate kinematics and add muonref
+            pfmu_->reconstructMuon(candidate, muonref, allowLoose);
+          }
+        }
+      } else {
+        if (muId != -1) {
+          const reco::MuonRef muonref = reco::MuonRef(muonH, muId);
+          const bool allowLoose = (part_type == reco::PFCandidate::mu);
+          // Redefine pfmuon candidate kinematics and add muonref
+          pfmu_->reconstructMuon(candidate, muonref, allowLoose);
         }
       }
     }
-    candidate.setTime(time, timeE);
+
+    if (isTICLv5_) {
+      candidate.setTime(ticl_cand.time(), ticl_cand.timeError());
+    } else {
+      // HGCAL timing as default values
+      auto time = ticl_cand.time();
+      auto timeE = ticl_cand.timeError();
+
+      if (useMTDTiming_ and candidate.charge()) {
+        // Ignore HGCAL timing until it will be TOF corrected
+        time = -99.;
+        timeE = -1.;
+        // Check MTD timing availability
+        const bool assocQuality = (*trackTimeQualH)[candidate.trackRef()] > timingQualityThreshold_;
+        if (assocQuality) {
+          const auto timeHGC = time;
+          const auto timeEHGC = timeE;
+          const auto timeMTD = (*trackTimeH)[candidate.trackRef()];
+          const auto timeEMTD = (*trackTimeErrH)[candidate.trackRef()];
+
+          if (useTimingAverage_ && (timeEMTD > 0 && timeEHGC > 0)) {
+            // Compute weighted average between HGCAL and MTD timing
+            const auto invTimeESqHGC = pow(timeEHGC, -2);
+            const auto invTimeESqMTD = pow(timeEMTD, -2);
+            timeE = 1.f / (invTimeESqHGC + invTimeESqMTD);
+            time = (timeHGC * invTimeESqHGC + timeMTD * invTimeESqMTD) * timeE;
+            timeE = sqrt(timeE);
+          } else if (timeEMTD > 0) {  // Ignore HGCal timing until it will be TOF corrected
+            time = timeMTD;
+            timeE = timeEMTD;
+          }
+        }
+      }
+      candidate.setTime(time, timeE);
+    }
   }
 
   evt.put(std::move(candidates));

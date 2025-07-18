@@ -9,7 +9,7 @@
 #include "ConstCastAwayChecker.h"
 #include "GlobalStaticChecker.h"
 #include "StaticLocalChecker.h"
-#include "MutableMemberChecker.h"
+#include "MutableMemberModificationChecker.h"
 #include "ClassChecker.h"
 #include "ClassDumper.h"
 #include "edmChecker.h"
@@ -24,6 +24,8 @@
 #include "ThrUnsafeFCallChecker.h"
 #include "ESRecordGetChecker.h"
 #include "PsetExistsFCallChecker.h"
+#include "PublicMutableChecker.h"
+#include "UnnecessaryMutableChecker.h"
 
 #include <clang/StaticAnalyzer/Frontend/CheckerRegistry.h>
 
@@ -46,9 +48,9 @@ extern "C" void clang_registerCheckers(clang::ento::CheckerRegistry &registry) {
       "threadsafety.StaticLocal",
       "Checks for non-const method local statics which might not be thread-safe",
       "no docs");
-  registry.addChecker<clangcms::MutableMemberChecker>(
+  registry.addChecker<clangcms::MutableMemberModificationChecker>(
       "threadsafety.MutableMember",
-      "Checks for members with the mutable keyword which might not be thread-safe",
+      "Checks for modifying members with the mutable keyword in const member functions, which might not be thread-safe",
       "no docs");
   registry.addChecker<clangcms::GlobalStaticChecker>(
       "threadsafety.GlobalStatic", "Checks for global non-const statics which might not be thread-safe", "no docs");
@@ -91,6 +93,12 @@ extern "C" void clang_registerCheckers(clang::ento::CheckerRegistry &registry) {
       "optional.EDMPluginDumper", "Dumps macro DEFINE_EDM_PLUGIN types", "no docs");
   registry.addChecker<clangcms::ThrUnsafeFCallChecker>(
       "threadsafety.ThrUnsafeFCallChecker", "Reports calls of known thread unsafe functions", "no docs");
+  registry.addChecker<clangcms::PublicMutableChecker>(
+      "threadsafety.PublicMutableMember", "Checks for non-private mutable member", "no docs");
+  registry.addChecker<clangcms::UnnecessaryMutableChecker>(
+      "cms.CodeRules.UnnecessaryMutableChecker",
+      "Checks for mutable members that are not modified in any const method",
+      "no focs");
 }
 
 extern "C" const char clang_analyzerAPIVersionString[] = CLANG_ANALYZER_API_VERSION_STRING;

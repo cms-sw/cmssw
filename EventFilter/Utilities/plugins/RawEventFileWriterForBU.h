@@ -18,21 +18,25 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "IOPool/Streamer/interface/FRDEventMessage.h"
 
+namespace evf {
+  class FastMonitoringService;
+}
+
 class RawEventFileWriterForBU {
 public:
   explicit RawEventFileWriterForBU(edm::ParameterSet const& ps);
   explicit RawEventFileWriterForBU(std::string const& fileName);
   ~RawEventFileWriterForBU();
 
-  void doOutputEvent(FRDEventMsgView const& msg);
+  void doOutputEvent(edm::streamer::FRDEventMsgView const& msg);
+  void doOutputEvent(void* startAddress, size_t size);
 
-  uint32 adler32() const { return (adlerb_ << 16) | adlera_; }
+  edm::streamer::uint32 adler32() const { return (adlerb_ << 16) | adlera_; }
 
   void start() {}
   void stop();
-  void initialize(std::string const& destinationDir, std::string const& name, int ls);
-  void endOfLS(int ls);
-  void makeRunPrefix(std::string const& destinationDir);
+  void initialize(std::string const& destinationDir, std::string const& name, int run, unsigned int ls);
+  void endOfLS(unsigned int ls);
 
   static void extendDescription(edm::ParameterSetDescription& desc);
 
@@ -45,17 +49,20 @@ private:
     } else
       return false;
   }
-  void finishFileWrite(int ls);
+  void finishFileWrite(unsigned int ls);
   void writeJsds();
   int outfd_ = -1;
 
   int run_ = -1;
   std::string runPrefix_;
+  evf::FastMonitoringService* fms_ = nullptr;
 
   jsoncollector::IntJ perRunEventCount_;
   jsoncollector::IntJ perRunFileCount_;
   jsoncollector::IntJ perRunLumiCount_;
   jsoncollector::IntJ perRunLastLumi_;
+  jsoncollector::IntJ perRunTotalEventCount_;
+  jsoncollector::IntJ perRunLostEventCount_;
 
   jsoncollector::IntJ perLumiEventCount_;
   jsoncollector::IntJ perLumiFileCount_;
@@ -82,8 +89,8 @@ private:
   int microSleep_;
   unsigned int frdFileVersion_;
 
-  uint32 adlera_;
-  uint32 adlerb_;
+  edm::streamer::uint32 adlera_;
+  edm::streamer::uint32 adlerb_;
 
   unsigned int lumiOpen_ = 0;
   unsigned int lumiClosed_ = 0;

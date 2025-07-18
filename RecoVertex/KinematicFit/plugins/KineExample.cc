@@ -63,7 +63,7 @@ public:
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  void endRun(edm::Run const&, edm::EventSetup const&) override{};
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
 
 private:
   void printout(const RefCountedKinematicVertex& myVertex) const;

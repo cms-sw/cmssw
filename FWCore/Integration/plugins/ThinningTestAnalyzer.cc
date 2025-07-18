@@ -401,25 +401,6 @@ namespace edmtest {
         throw cms::Exception("TestFailure") << "unexpected value (true) from refToBaseVector::isAvailable";
       }
     }
-    k = 0;
-    for (auto iExpectedValue : expectedValues_) {
-      if (refToParentIsAvailable_ and iExpectedValue != -1) {
-        const int expected = (iExpectedValue + eventOffset) * refSlimmedValueFactor_;
-        if (track.refVector1[k]->a != expected) {
-          throw cms::Exception("TestFailure")
-              << "unexpected values from refVector1, got " << track.refVector1[k]->a << " expected " << expected;
-        }
-        if (track.ptrVector1[k]->a != expected) {
-          throw cms::Exception("TestFailure") << "unexpected values from ptrVector1";
-        }
-        if (track.refToBaseVector1[k]->a != expected) {
-          throw cms::Exception("TestFailure") << "unexpected values from refToBaseVector1";
-        }
-      } else {
-        allPresent = false;
-      }
-      ++k;
-    }
   }
 
   void ThinningTestAnalyzer::incrementExpectedValue(std::vector<int>::const_iterator& iter) const {

@@ -1,10 +1,8 @@
-extern "C"
-{
-  void bcvegpy_();
+extern "C" {
+void bcvegpy_();
 }
 
-int main()
-{
+int main() {
   bcvegpy_();
   return 1;
 }

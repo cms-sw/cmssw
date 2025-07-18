@@ -51,7 +51,7 @@ int PtAssignmentEngineAux2017::getNLBdPhi(int dPhi, int bits, int max) const {
         }
       }
     }  // End conditional: if (bits == 5)
-  }    // End conditional: if (max == 256)
+  }  // End conditional: if (max == 256)
 
   else if (max == 512) {
     if (bits == 7) {
@@ -63,7 +63,7 @@ int PtAssignmentEngineAux2017::getNLBdPhi(int dPhi, int bits, int max) const {
         }
       }
     }  // End conditional: if (bits == 7)
-  }    // End conditional: else if (max == 512)
+  }  // End conditional: else if (max == 512)
 
   emtf_assert(abs(sign_) == 1 && dPhi_ >= 0 && dPhi_ < max);
   return (sign_ * dPhi_);
@@ -95,7 +95,7 @@ int PtAssignmentEngineAux2017::getNLBdPhiBin(int dPhi, int bits, int max) const 
         }
       }
     }  // End conditional: if (bits == 5)
-  }    // End conditional: if (max == 256)
+  }  // End conditional: if (max == 256)
 
   else if (max == 512) {
     if (bits == 7) {
@@ -106,7 +106,7 @@ int PtAssignmentEngineAux2017::getNLBdPhiBin(int dPhi, int bits, int max) const 
         }
       }
     }  // End conditional: if (bits == 7)
-  }    // End conditional: else if (max == 512)
+  }  // End conditional: else if (max == 512)
 
   emtf_assert(dPhiBin_ >= 0 && dPhiBin_ < pow(2, bits));
   return (dPhiBin_);
@@ -992,7 +992,7 @@ void PtAssignmentEngineAux2017::calcRPCs(int& RPC1,
       }
 
     }  // End conditional: if (nRPC >= 2)
-  }    // End conditional: if (BIT_COMP)
+  }  // End conditional: if (BIT_COMP)
 
 }  // End function: void PtAssignmentEngineAux2017::calcRPCs()
 

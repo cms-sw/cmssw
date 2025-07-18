@@ -1,40 +1,38 @@
 #ifndef SimpleCosmicBONSeeder_h
 #define SimpleCosmicBONSeeder_h
 
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/EDGetToken.h"
-
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
 #include "RecoTracker/PixelSeeding/interface/OrderedHitTriplets.h"
-#include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
+#include "RecoTracker/SpecialSeedGenerators/interface/ClusterChecker.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastCircle.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
-#include "RecoTracker/SpecialSeedGenerators/interface/ClusterChecker.h"
-
+#include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 
 class SeedingLayerSetsHits;
 
@@ -42,7 +40,9 @@ class SimpleCosmicBONSeeder : public edm::stream::EDProducer<> {
 public:
   explicit SimpleCosmicBONSeeder(const edm::ParameterSet &conf);
 
-  ~SimpleCosmicBONSeeder() override {}
+  ~SimpleCosmicBONSeeder() override = default;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
   void produce(edm::Event &e, const edm::EventSetup &c) override;
 

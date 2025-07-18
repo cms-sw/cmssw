@@ -197,7 +197,7 @@ void AlignPCLThresholdsWriter<T>::writePayload(T& myThresholds) {
         myThresholds.setAlignPCLThreshold(alignableId, a);
 
       }  // if alignable is found in the PSet
-    }    // loop on the PSets
+    }  // loop on the PSets
 
     // checks if all mandatories are present
     edm::LogInfo("AlignPCLThresholdsWriter")

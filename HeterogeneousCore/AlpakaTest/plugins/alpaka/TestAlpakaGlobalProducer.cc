@@ -21,7 +21,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class TestAlpakaGlobalProducer : public global::EDProducer<> {
   public:
     TestAlpakaGlobalProducer(edm::ParameterSet const& config)
-        : esToken_(esConsumes(config.getParameter<edm::ESInputTag>("eventSetupSource"))),
+        : EDProducer<>(config),
+          esToken_(esConsumes(config.getParameter<edm::ESInputTag>("eventSetupSource"))),
+          esMultiToken_(esConsumes(config.getParameter<edm::ESInputTag>("eventSetupSourceMulti"))),
           deviceToken_{produces()},
           deviceTokenMulti2_{produces()},
           deviceTokenMulti3_{produces()},
@@ -34,6 +36,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     void produce(edm::StreamID, device::Event& iEvent, device::EventSetup const& iSetup) const override {
       [[maybe_unused]] auto const& esData = iSetup.getData(esToken_);
+      [[maybe_unused]] auto const& esMultiData = iSetup.getData(esMultiToken_);
 
       portabletest::TestDeviceCollection deviceProduct{size_, iEvent.queue()};
       portabletest::TestDeviceMultiCollection2 deviceProductMulti2{{{size_, size2_}}, iEvent.queue()};
@@ -52,6 +55,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
       desc.add("eventSetupSource", edm::ESInputTag{});
+      desc.add("eventSetupSourceMulti", edm::ESInputTag{});
 
       edm::ParameterSetDescription psetSize;
       psetSize.add<int32_t>("alpaka_serial_sync");
@@ -64,6 +68,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   private:
     const device::ESGetToken<AlpakaESTestDataADevice, AlpakaESTestRecordA> esToken_;
+    const device::ESGetToken<AlpakaESTestDataACMultiDevice, AlpakaESTestRecordA> esMultiToken_;
     const device::EDPutToken<portabletest::TestDeviceCollection> deviceToken_;
     const device::EDPutToken<portabletest::TestDeviceMultiCollection2> deviceTokenMulti2_;
     const device::EDPutToken<portabletest::TestDeviceMultiCollection3> deviceTokenMulti3_;

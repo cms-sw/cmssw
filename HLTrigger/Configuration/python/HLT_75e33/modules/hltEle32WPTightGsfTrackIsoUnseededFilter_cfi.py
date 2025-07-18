@@ -28,5 +28,5 @@ hltEle32WPTightGsfTrackIsoUnseededFilter = cms.EDFilter("HLTEgammaGenericQuadrat
     thrRegularEE1 = cms.vdouble(2.2),
     thrRegularEE2 = cms.vdouble(2.2),
     useEt = cms.bool(True),
-    varTag = cms.InputTag("hltEgammaEleGsfTrackIsoV6Unseeded")
+    varTag = cms.InputTag("hltEgammaEleGsfTrackIsoUnseeded")
 )

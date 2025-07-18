@@ -37,7 +37,7 @@ void TrackletCalculatorBase::exacttracklet(double r1,
                                            double rprojdisk[N_DISK],
                                            double phiderdisk[N_DISK],
                                            double rderdisk[N_DISK]) {
-  double deltaphi = reco::reduceRange(phi1 - phi2);
+  double deltaphi = reco::reducePhiRange(phi1 - phi2);
 
   double dist = sqrt(r2 * r2 + r1 * r1 - 2 * r1 * r2 * cos(deltaphi));
 
@@ -45,7 +45,7 @@ void TrackletCalculatorBase::exacttracklet(double r1,
 
   double phi1tmp = phi1 - phimin_;
 
-  phi0 = reco::reduceRange(phi1tmp + asin(0.5 * r1 * rinv));
+  phi0 = reco::reducePhiRange(phi1tmp + asin(0.5 * r1 * rinv));
 
   double rhopsi1 = 2 * asin(0.5 * r1 * rinv) / rinv;
   double rhopsi2 = 2 * asin(0.5 * r2 * rinv) / rinv;
@@ -90,7 +90,7 @@ void TrackletCalculatorBase::exacttrackletdisk(double r1,
                                                double rproj[N_DISK - 2],
                                                double phider[N_DISK - 2],
                                                double rder[N_DISK - 2]) {
-  double deltaphi = reco::reduceRange(phi1 - phi2);
+  double deltaphi = reco::reducePhiRange(phi1 - phi2);
 
   double dist = sqrt(r2 * r2 + r1 * r1 - 2 * r1 * r2 * cos(deltaphi));
 
@@ -98,7 +98,7 @@ void TrackletCalculatorBase::exacttrackletdisk(double r1,
 
   double phi1tmp = phi1 - phimin_;
 
-  phi0 = reco::reduceRange(phi1tmp + asin(0.5 * r1 * rinv));
+  phi0 = reco::reducePhiRange(phi1tmp + asin(0.5 * r1 * rinv));
 
   double rhopsi1 = 2 * asin(0.5 * r1 * rinv) / rinv;
   double rhopsi2 = 2 * asin(0.5 * r2 * rinv) / rinv;
@@ -143,7 +143,7 @@ void TrackletCalculatorBase::exacttrackletOverlap(double r1,
                                                   double rproj[N_DISK - 2],
                                                   double phider[N_DISK - 2],
                                                   double rder[N_DISK - 2]) {
-  double deltaphi = reco::reduceRange(phi1 - phi2);
+  double deltaphi = reco::reducePhiRange(phi1 - phi2);
 
   double dist = sqrt(r2 * r2 + r1 * r1 - 2 * r1 * r2 * cos(deltaphi));
 
@@ -154,7 +154,7 @@ void TrackletCalculatorBase::exacttrackletOverlap(double r1,
 
   double phi1tmp = phi1 - phimin_;
 
-  phi0 = reco::reduceRange(phi1tmp + asin(0.5 * r1 * rinv));
+  phi0 = reco::reducePhiRange(phi1tmp + asin(0.5 * r1 * rinv));
 
   double rhopsi1 = 2 * asin(0.5 * r1 * rinv) / rinv;
   double rhopsi2 = 2 * asin(0.5 * r2 * rinv) / rinv;

@@ -9,11 +9,11 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/CMSCommonData/data/extend/cmsextent.xml',
         # 'Geometry/CMSCommonData/data/cms.xml',            # Phase-1 Muon
         'Geometry/CMSCommonData/data/cavernData/2017/v1/cavernData.xml',
-        'Geometry/CMSCommonData/data/cms/2026/v1/cms.xml',      # Phase-2 Muon
-        'Geometry/CMSCommonData/data/eta3/etaMax.xml',      # Phase-2 Muon
+        'Geometry/CMSCommonData/data/cms/2015/v1/cms.xml',     
+        'Geometry/CMSCommonData/data/eta3/etaMax.xml',      
         'Geometry/CMSCommonData/data/cmsMother.xml',
         'Geometry/CMSCommonData/data/cmsTracker.xml',
-        'Geometry/CMSCommonData/data/muonBase/2026/v1/muonBase.xml', # Phase-2 Muon
+        'Geometry/CMSCommonData/data/muonBase/2015/v1/muonBase.xml', # Phase-2 Muon
         'Geometry/CMSCommonData/data/cmsMuon.xml',
         'Geometry/CMSCommonData/data/mgnt.xml',
         'Geometry/CMSCommonData/data/beampipe/2015/v1/beampipe.xml',
@@ -210,13 +210,13 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/MuonCommonData/data/mb3/2015/v1/mb3.xml',
         'Geometry/MuonCommonData/data/mb4/2015/v1/mb4.xml',
         'Geometry/MuonCommonData/data/muonYoke/2015/v1/muonYoke.xml',
-        'Geometry/MuonCommonData/data/mf/2026/v1/mf.xml',        # Phase-2 Muon
-        'Geometry/MuonCommonData/data/rpcf/2026/v1/rpcf.xml',    # Phase-2 Muon
+        'Geometry/MuonCommonData/data/mf/2030/v1/mf.xml',        # Phase-2 Muon
+        'Geometry/MuonCommonData/data/rpcf/2030/v1/rpcf.xml',    # Phase-2 Muon
         'Geometry/MuonCommonData/data/gemf/TDR_BaseLine/gemf.xml', # Phase-2 Muon
         'Geometry/MuonCommonData/data/gem11/TDR_BaseLine/gem11.xml',  # Phase-2 Muon
         'Geometry/MuonCommonData/data/gem21/TDR_BaseLine/gem21.xml',  # Phase-2 Muon
         'Geometry/MuonCommonData/data/csc/2015/v1/csc.xml',
-        'Geometry/MuonCommonData/data/mfshield/2026/v1/mfshield.xml',  # Phase-2 Muon
+        'Geometry/MuonCommonData/data/mfshield/2030/v1/mfshield.xml',  # Phase-2 Muon
         'Geometry/MuonCommonData/data/me0/TDR_BaseLine/me0.xml',  # Phase-2 Muon
         # --- Muon ------------------------------------------------------------
 

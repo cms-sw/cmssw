@@ -14,10 +14,10 @@
  *
  */
 
-#include <DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h>
-#include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
-
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
+#include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 class CSCGeometry;
 class CSCSegmentAlgorithm;
@@ -31,6 +31,8 @@ public:
   explicit CSCSegmentBuilder(const edm::ParameterSet&);
   /// Destructor
   ~CSCSegmentBuilder();
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
   /** Find rechits in each CSCChamber, build CSCSegment's in each chamber,
      *  and fill into output collection.

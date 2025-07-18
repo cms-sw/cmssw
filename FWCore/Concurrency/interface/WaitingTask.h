@@ -41,7 +41,7 @@ namespace edm {
 
     ///Constructor
     WaitingTask() noexcept : m_ptr{} {}
-    ~WaitingTask() noexcept override{};
+    ~WaitingTask() noexcept override {}
 
     // ---------- const member functions ---------------------------
 

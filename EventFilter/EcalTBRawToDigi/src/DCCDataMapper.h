@@ -46,7 +46,7 @@ public:
   /**
      Class destructor
   */
-  ~DCCTBDataField(){};
+  ~DCCTBDataField() {}
 
 protected:
   std::string name_;

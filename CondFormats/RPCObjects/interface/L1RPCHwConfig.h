@@ -34,8 +34,8 @@
 
 struct L1RPCDevCoords {
 public:
-  L1RPCDevCoords() : m_tower(-255), m_PAC(-255){};
-  L1RPCDevCoords(int tower, int sector, int segment) : m_tower(tower), m_PAC(sector * 12 + segment){};
+  L1RPCDevCoords() : m_tower(-255), m_PAC(-255) {}
+  L1RPCDevCoords(int tower, int sector, int segment) : m_tower(tower), m_PAC(sector * 12 + segment) {}
   int getTower() { return m_tower; };
   int getPAC() { return m_PAC; };
   int getSector() { return m_PAC / 12; };

@@ -68,7 +68,7 @@ namespace edm {
         this->globalEndLuminosityBlockProduce(rp, c);
       }
     }  // namespace impl
-  }    // namespace limited
+  }  // namespace limited
 }  // namespace edm
 
 #endif

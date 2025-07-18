@@ -1148,7 +1148,7 @@ void PixelCalibConfiguration::nextFECState(std::map<unsigned int, PixelFECConfig
       }
 
     }  // end of instructions for the beginning of a scan
-  }    // end of loop over ROCs
+  }  // end of loop over ROCs
 
   if (_bufferData) {
     std::map<unsigned int, PixelFECConfigInterface*>::iterator iPixelFEC = pixelFECs.begin();

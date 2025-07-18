@@ -17,8 +17,8 @@ class SeedLayerPairs {
 public:
   typedef std::pair<const LayerWithHits*, const LayerWithHits*> LayerPair;
 
-  SeedLayerPairs(){};
-  virtual ~SeedLayerPairs(){};
+  SeedLayerPairs() {}
+  virtual ~SeedLayerPairs() {}
   virtual std::vector<LayerPair> operator()() = 0;
 };
 

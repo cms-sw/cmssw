@@ -14,7 +14,7 @@ namespace magneticfield {
   class FakeInterpolator : public MagProviderInterpol {
   public:
     /// Constructor
-    FakeInterpolator(){};
+    FakeInterpolator() {}
 
     // Operations
     LocalVectorType valueInTesla(const LocalPointType& p) const override { return LocalVectorType(0., 0., 0.); }

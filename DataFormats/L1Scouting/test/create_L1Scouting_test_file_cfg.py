@@ -13,7 +13,8 @@ process.l1ScoutingTestProducer = cms.EDProducer("TestWriteL1Scouting",
   jetValues = cms.vint32(4, 5, 6, 7),
   eGammaValues = cms.vint32(8, 9, 10),
   tauValues = cms.vint32(11, 12),
-  bxSumsValues = cms.vint32(13)
+  bxSumsValues = cms.vint32(13),
+  bmtfStubValues = cms.vint32(1, 2),
 )
 
 process.out = cms.OutputModule("PoolOutputModule",

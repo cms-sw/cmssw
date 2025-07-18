@@ -45,7 +45,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonTopologies/interface/GeometryAligner.h"
+#include "Geometry/GeometryAligner/interface/GeometryAligner.h"
 
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
@@ -132,6 +132,7 @@ private:
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
   const edm::ESGetToken<GeometricDet, IdealGeometryRecord> geomDetToken_;
   const edm::ESGetToken<PTrackerParameters, PTrackerParametersRcd> ptpToken_;
+  const edm::ESGetToken<PTrackerAdditionalParametersPerDet, PTrackerAdditionalParametersPerDetRcd> ptitpToken_;
   const edm::ESGetToken<Alignments, GlobalPositionRcd> gprToken_;
   const edm::ESGetToken<SiStripPedestals, SiStripPedestalsRcd> stripPedestalsToken_;
 

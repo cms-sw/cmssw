@@ -93,7 +93,7 @@ public:
       if (sub_version_ == 1) {
         tauBlockTensor_ = std::make_unique<tensorflow::Tensor>(
             tensorflow::DT_FLOAT, tensorflow::TensorShape{1, TauBlockInputs::NumberOfInputs});
-      } else if (sub_version_ == 5) {
+      } else if ((sub_version_ == 5) || ((sub_version_ == 0) && (year_ == 20161718))) {
         tauBlockTensor_ = std::make_unique<tensorflow::Tensor>(
             tensorflow::DT_FLOAT,
             tensorflow::TensorShape{1,

@@ -1,6 +1,6 @@
 #include "SimG4Core/Application/interface/TrackingAction.h"
+#include "SimG4Core/Physics/interface/CMSG4TrackInterface.h"
 
-#include "SimG4Core/Notification/interface/CurrentG4Track.h"
 #include "SimG4Core/Notification/interface/BeginOfTrack.h"
 #include "SimG4Core/Notification/interface/EndOfTrack.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
@@ -25,6 +25,7 @@ TrackingAction::TrackingAction(SimTrackManager* stm, CMSSteppingVerbose* sv, con
       saveCaloBoundaryInformation_(p.getParameter<bool>("SaveCaloBoundaryInformation")),
       ekinMin_(p.getParameter<double>("PersistencyEmin") * CLHEP::GeV),
       ekinMinRegion_(p.getParameter<std::vector<double>>("RegionEmin")) {
+  interface_ = CMSG4TrackInterface::instance();
   double eth = p.getParameter<double>("EminFineTrack") * CLHEP::MeV;
   if (doFineCalo_ && eth < ekinMin_) {
     ekinMin_ = eth;
@@ -39,6 +40,7 @@ TrackingAction::TrackingAction(SimTrackManager* stm, CMSSteppingVerbose* sv, con
 void TrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
   g4Track_ = aTrack;
   currentTrack_ = new TrackWithHistory(aTrack, aTrack->GetParentID());
+  interface_->setCurrentTrack(aTrack);
 
   BeginOfTrack bt(aTrack);
   m_beginOfTrackSignal(&bt);

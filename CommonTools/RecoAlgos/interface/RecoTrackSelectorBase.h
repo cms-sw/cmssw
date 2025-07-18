@@ -1,17 +1,18 @@
 #ifndef CommonTools_RecoAlgos_RecoTrackSelectorBase_h
 #define CommonTools_RecoAlgos_RecoTrackSelectorBase_h
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class RecoTrackSelectorBase {
 public:
@@ -77,6 +78,29 @@ public:
     if (hVtx->empty())
       return;
     vertex_ = (*hVtx)[0].position();
+  }
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc) {
+    desc.add<bool>("invertRapidityCut", false);
+    desc.add<bool>("usePV", false);
+    desc.add<double>("lip", 300.0);
+    desc.add<double>("maxChi2", 10000.0);
+    desc.add<double>("maxPhi", -3.2);
+    desc.add<double>("maxRapidity", 5.0);
+    desc.add<double>("minPhi", 3.2);
+    desc.add<double>("minRapidity", -5.0);
+    desc.add<double>("ptMin", 0.1);
+    desc.add<double>("tip", 120.0);
+    desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
+    desc.add<edm::InputTag>("vertexTag", edm::InputTag("offlinePrimaryVertices"));
+    desc.add<int>("min3DLayer", 0);
+    desc.add<int>("minHit", 0);
+    desc.add<int>("minLayer", 3);
+    desc.add<int>("minPixelHit", 0);
+    desc.add<std::vector<std::string> >("algorithm", {});
+    desc.add<std::vector<std::string> >("algorithmMaskContains", {});
+    desc.add<std::vector<std::string> >("originalAlgorithm", {});
+    desc.add<std::vector<std::string> >("quality", {});
   }
 
   bool operator()(const reco::TrackRef& tref) const { return (*this)(*tref); }

@@ -142,7 +142,7 @@ namespace tnp {
     BaseTreeFiller &operator=(const BaseTreeFiller &) = delete;
     /// specify the name of the TTree, and the configuration for it
     BaseTreeFiller(const char *name, const edm::ParameterSet &config, edm::ConsumesCollector &&iC)
-        : BaseTreeFiller(name, config, iC){};
+        : BaseTreeFiller(name, config, iC) {}
     BaseTreeFiller(const char *name, const edm::ParameterSet &config, edm::ConsumesCollector &iC);
 
     /// Add branches to an existing TTree managed by another BaseTreeFiller

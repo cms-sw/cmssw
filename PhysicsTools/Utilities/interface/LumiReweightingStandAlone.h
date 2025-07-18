@@ -37,7 +37,7 @@ namespace reweight {
 
   class PoissonMeanShifter {
   public:
-    PoissonMeanShifter(){};
+    PoissonMeanShifter() {}
 
     PoissonMeanShifter(float Shift) {
       // these are the polynomial or exponential coefficients for each bin of a 25-bin sequence that
@@ -117,7 +117,7 @@ namespace reweight {
 
   class LumiReWeighting {
   public:
-    LumiReWeighting(){};
+    LumiReWeighting() {}
 
     LumiReWeighting(std::string generatedFile, std::string dataFile, std::string GenHistName, std::string DataHistName)
         : generatedFileName_(generatedFile),

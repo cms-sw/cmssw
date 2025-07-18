@@ -18,11 +18,13 @@
 #ifndef __GCCXML__
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #endif
+
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "PhysicsTools/SelectorUtils/interface/Selector.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "PhysicsTools/SelectorUtils/interface/Selector.h"
 
 #include <TMath.h>
 class JetIDSelectionFunctor : public Selector<pat::Jet> {
@@ -63,6 +65,13 @@ public:  // interface
     } else {
       throw cms::Exception("InvalidInput") << "Expect version to be one of CRAFT08, PURE09, DQM09" << std::endl;
     }
+  }
+
+  static edm::ParameterSetDescription getDescription() {
+    edm::ParameterSetDescription desc;
+    desc.add<std::string>("version", std::string(""));
+    desc.add<std::string>("quality", std::string(""));
+    return desc;
   }
 
   JetIDSelectionFunctor(Version_t version, Quality_t quality) { initialize(version, quality); }
@@ -399,11 +408,11 @@ public:  // interface
               tight_emf = false;
 
           }  // end if HF
-        }    // end if outside HBHE
+        }  // end if outside HBHE
         if (ignoreCut(index_TIGHT_EMF_) || tight_emf)
           passCut(ret, index_TIGHT_EMF_);
       }  // end if tight
-    }    // end if loose or tight
+    }  // end if loose or tight
 
     setIgnored(ret);
 

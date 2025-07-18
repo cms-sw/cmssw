@@ -20,8 +20,8 @@ public:
   //---------- Constructors / Destructor
   OptOSource();
   OptOSource(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data)
-      : OpticalObject(parent, type, name, copy_data){};
-  ~OptOSource() override{};
+      : OpticalObject(parent, type, name, copy_data) {}
+  ~OptOSource() override {}
 
 #ifdef COCOA_VIS
   virtual void fillVRML();

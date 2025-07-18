@@ -5,6 +5,7 @@
 #include <vector>
 #include <unordered_map>
 #include "FWCore/Utilities/interface/Exception.h"
+#include "DataFormats/BTauReco/interface/RefMacros.h"
 
 namespace btagbtvdeep {
 
@@ -56,6 +57,8 @@ namespace btagbtvdeep {
     bool is_empty_ = true;
     std::unordered_map<std::string, std::vector<float>> feature_map_;
   };
+
+  DECLARE_EDM_REFS(DeepBoostedJetFeatures)
 
 }  // namespace btagbtvdeep
 

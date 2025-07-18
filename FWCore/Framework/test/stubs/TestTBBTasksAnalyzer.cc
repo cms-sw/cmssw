@@ -19,7 +19,7 @@
 // system include files
 #include <memory>
 #include <atomic>
-#include <unistd.h>
+#include <chrono>
 #include "oneapi/tbb/task_group.h"
 #include "oneapi/tbb/task_arena.h"
 
@@ -108,7 +108,7 @@ unsigned int TestTBBTasksAnalyzer::startTasks(unsigned int iNTasks, unsigned int
           break;
         }
       }
-      usleep(m_usecondsToSleep);
+      std::this_thread::sleep_for(std::chrono::microseconds(m_usecondsToSleep));
       --(count);
     });
   }

@@ -7,13 +7,7 @@
 
 typedef CaloCellGeometry::CCGFloat CCGFloat;
 
-ZdcHardcodeGeometryLoader::ZdcHardcodeGeometryLoader() : theTopology(new ZdcTopology), extTopology(theTopology) {
-  init();
-}
-
-ZdcHardcodeGeometryLoader::ZdcHardcodeGeometryLoader(const ZdcTopology& ht) : theTopology(nullptr), extTopology(&ht) {
-  init();
-}
+ZdcHardcodeGeometryLoader::ZdcHardcodeGeometryLoader(const ZdcTopology& ht) : extTopology(&ht) { init(); }
 
 void ZdcHardcodeGeometryLoader::init() {}
 
@@ -56,7 +50,7 @@ void ZdcHardcodeGeometryLoader::fill(HcalZDCDetId::Section section, ReturnType g
       zdcIds.emplace_back(id);
   }
   if (geom->cornersMgr() == nullptr)
-    geom->allocateCorners(HcalZDCDetId::kSizeForDenseIndexing);
+    geom->allocateCorners(extTopology->kSizeForDenseIndexing());
   if (geom->parMgr() == nullptr)
     geom->allocatePar(ZdcGeometry::k_NumberOfParametersPerShape * ZdcGeometry::k_NumberOfShapes,
                       ZdcGeometry::k_NumberOfParametersPerShape);

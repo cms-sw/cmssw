@@ -719,7 +719,7 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
           }
         }
       }  //end iteration over trajectory measurements
-    }    //end iteration over trajectories
+    }  //end iteration over trajectories
   }
 }
 
@@ -903,8 +903,8 @@ void SiPixelLorentzAnglePCLWorker::bookHistograms(DQMStore::IBooker& iBooker,
           iHists.h_fpixMean_[idxBeta] = iBooker.book1D(name, title, 60, -3., 3.);
 
         }  // loop over sides
-      }    // loop over panels
-    }      // loop over rings
+      }  // loop over panels
+    }  // loop over rings
     iBooker.setCurrentFolder(fmt::sprintf("%s/FPix", folder_.data()));
     for (int r = 0; r < iHists.nRings_; ++r) {
       for (int p = 0; p < iHists.nPanels_; ++p) {
@@ -930,10 +930,10 @@ void SiPixelLorentzAnglePCLWorker::bookHistograms(DQMStore::IBooker& iBooker,
             title = fmt::sprintf("%s_magField%d;B_{%c} [T];Entries", baseTitle, m, bComp);
             iHists.h_fpixMagField_[m][idx] = iBooker.book1D(name, title, 10000, -5., 5.);
           }  // mag. field comps
-        }    // loop over sides
-      }      // loop over panels
-    }        // loop over rings
-  }          // if MinimalClusterSize
+        }  // loop over sides
+      }  // loop over panels
+    }  // loop over rings
+  }  // if MinimalClusterSize
 
   // book the track monitoring plots
   iBooker.setCurrentFolder(fmt::sprintf("%s/TrackMonitoring", folder_.data()));

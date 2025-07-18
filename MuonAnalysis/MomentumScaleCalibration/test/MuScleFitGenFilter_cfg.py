@@ -212,7 +212,7 @@ process.looper = cms.Looper(
 
 
     # Only used when reading events from a root tree
-    MaxEventsFromRootTree = cms.int32(-1)
+    MaxEventsFromRootTree = cms.int32(-1),
 
     # Specify a file if you want to read events from a root tree in a local file.
     # In this case the input source should be an empty source with 0 events.

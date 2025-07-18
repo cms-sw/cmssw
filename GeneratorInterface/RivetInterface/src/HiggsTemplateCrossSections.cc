@@ -46,7 +46,7 @@ namespace Rivet {
       if (prodVtx == nullptr)
         return false;
       // for each ancestor, check if it matches any of the input particles
-      for (const auto &ancestor : HepMCUtils::particles(prodVtx, HepMC::ancestors)) {
+      for (const auto &ancestor : HepMCUtils::particles(prodVtx, Relatives::ANCESTORS)) {
         for (const auto &part : ptcls)
           if (ancestor == part.genParticle())
             return true;
@@ -73,7 +73,7 @@ namespace Rivet {
 
     /// @brief Checks whether the input particle has a parent with a given PDGID
     bool hasParent(const ConstGenParticlePtr &ptcl, int pdgID) {
-      for (auto parent : HepMCUtils::particles(ptcl->production_vertex(), HepMC::parents))
+      for (const auto &parent : HepMCUtils::particles(ptcl->production_vertex(), Relatives::PARENTS))
         if (parent->pdg_id() == pdgID)
           return true;
       return false;
@@ -92,7 +92,7 @@ namespace Rivet {
     /// @brief Return true if particle decays to charged leptons.
     bool ChLeptonDecay(const Particle &p) {
       for (const auto &child : p.children()) {
-        if (PID::isChLepton(child.pid())) {
+        if (PID::isChargedLepton(child.pid())) {
           return true;
         }
       }
@@ -151,9 +151,9 @@ namespace Rivet {
        *  There should be only one of each.
        */
 
-      ConstGenVertexPtr HSvtx = event.genEvent()->signal_process_vertex();
+      ConstGenVertexPtr HSvtx = nullptr;
       int Nhiggs = 0;
-      for (const ConstGenParticlePtr ptcl : HepMCUtils::particles(event.genEvent())) {
+      for (const ConstGenParticlePtr &ptcl : HepMCUtils::particles(event.genEvent())) {
         // a) Reject all non-Higgs particles
         if (!PID::isHiggs(ptcl->pdg_id()))
           continue;
@@ -162,7 +162,7 @@ namespace Rivet {
           cat.higgs = Particle(ptcl);
           ++Nhiggs;
         }
-        // c) if HepMC::signal_proces_vertex is missing
+        // c) HepMC3 does not provide signal_proces_vertex anymore
         //    set hard-scatter vertex based on first Higgs boson
         if (HSvtx == nullptr && ptcl->production_vertex() && !hasParent(ptcl, PID::HIGGS))
           HSvtx = ptcl->production_vertex();
@@ -191,7 +191,7 @@ namespace Rivet {
       FourVector uncatV_v4(0, 0, 0, 0);
       int nWs = 0, nZs = 0;
       if (isVH(prodMode)) {
-        for (auto ptcl : HepMCUtils::particles(HSvtx, HepMC::children)) {
+        for (const auto &ptcl : HepMCUtils::particles(HSvtx, Relatives::CHILDREN)) {
           if (PID::isW(ptcl->pdg_id())) {
             ++nWs;
             cat.V = Particle(ptcl);
@@ -204,7 +204,7 @@ namespace Rivet {
         if (nWs + nZs > 0)
           cat.V = getLastInstance(cat.V);
         else {
-          for (auto ptcl : HepMCUtils::particles(HSvtx, HepMC::children)) {
+          for (const auto &ptcl : HepMCUtils::particles(HSvtx, Relatives::CHILDREN)) {
             if (!PID::isHiggs(ptcl->pdg_id())) {
               uncatV_decays += Particle(ptcl);
               uncatV_p4 += Particle(ptcl).momentum();
@@ -236,7 +236,7 @@ namespace Rivet {
       Particles Ws;
       if (prodMode == HTXS::TTH || prodMode == HTXS::TH) {
         // loop over particles produced in hard-scatter vertex
-        for (auto ptcl : HepMCUtils::particles(HSvtx, HepMC::children)) {
+        for (const auto &ptcl : HepMCUtils::particles(HSvtx, Relatives::CHILDREN)) {
           if (!PID::isTop(ptcl->pdg_id()))
             continue;
           Particle top = getLastInstance(Particle(ptcl));
@@ -296,11 +296,34 @@ namespace Rivet {
       cat.p4decay_V = vSum;
 
       FinalState fps_temp;
-      FastJets jets(fps_temp, FastJets::ANTIKT, 0.4);
+      FastJets jets(fps_temp, JetAlg::ANTIKT, 0.4);
       jets.calc(hadrons);
 
       cat.jets25 = jets.jetsByPt(Cuts::pT > 25.0);
       cat.jets30 = jets.jetsByPt(Cuts::pT > 30.0);
+
+      // Temporary fix: add variables to perform STXS 1.3 classification with nanoAOD on-the-fly
+      // Vector-boson pt for VH production modes
+      if (isVH(prodMode)) {
+        cat.V_pt = cat.V.pt();
+      } else {
+        cat.V_pt = -999;
+      }
+      // Dijet variables using jets30 collection
+      if (cat.jets30.size() >= 2) {
+        cat.Mjj = (cat.jets30[0].mom() + cat.jets30[1].mom()).mass();
+        cat.ptHjj = (cat.jets30[0].mom() + cat.jets30[1].mom() + cat.higgs.momentum()).pt();
+        cat.dPhijj = cat.jets30[0].mom().phi() - cat.jets30[1].mom().phi();
+        // Return phi angle in the interval [-PI,PI)
+        if (cat.dPhijj >= Rivet::pi)
+          cat.dPhijj -= 2 * Rivet::pi;
+        else if (cat.dPhijj < -1 * Rivet::pi)
+          cat.dPhijj += 2 * Rivet::pi;
+      } else {
+        cat.Mjj = -999;
+        cat.ptHjj = -999;
+        cat.dPhijj = -999;
+      }
 
       // check that four mometum sum of all stable particles satisfies momentum consevation
       /*
@@ -1072,23 +1095,23 @@ namespace Rivet {
     void finalize() override {
       printClassificationSummary();
       double sf = m_sumw > 0 ? 1.0 / m_sumw : 1.0;
-      for (const auto &hist : {hist_stage0,
-                               hist_stage1_pTjet25,
-                               hist_stage1_pTjet30,
-                               hist_stage1_2_pTjet25,
-                               hist_stage1_2_pTjet30,
-                               hist_stage1_2_fine_pTjet25,
-                               hist_stage1_2_fine_pTjet30,
-                               hist_Njets25,
-                               hist_Njets30,
-                               hist_pT_Higgs,
-                               hist_y_Higgs,
-                               hist_pT_V,
-                               hist_pT_jet1,
-                               hist_deltay_jj,
-                               hist_dijet_mass,
-                               hist_pT_Hjj})
-        scale(hist, sf);
+      scale({hist_stage0,
+             hist_stage1_pTjet25,
+             hist_stage1_pTjet30,
+             hist_stage1_2_pTjet25,
+             hist_stage1_2_pTjet30,
+             hist_stage1_2_fine_pTjet25,
+             hist_stage1_2_fine_pTjet30,
+             hist_Njets25,
+             hist_Njets30,
+             hist_pT_Higgs,
+             hist_y_Higgs,
+             hist_pT_V,
+             hist_pT_jet1,
+             hist_deltay_jj,
+             hist_dijet_mass,
+             hist_pT_Hjj},
+            sf);
     }
 
     /*

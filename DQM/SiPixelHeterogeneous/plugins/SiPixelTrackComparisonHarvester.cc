@@ -28,15 +28,31 @@ SiPixelTrackComparisonHarvester::SiPixelTrackComparisonHarvester(const edm::Para
     : topFolder_(iConfig.getParameter<std::string>("topFolderName")) {}
 
 void SiPixelTrackComparisonHarvester::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
-  MonitorElement* hpt_eta_tkAllCPU = igetter.get(topFolder_ + "/ptetatrkAllCPU");
-  MonitorElement* hpt_eta_tkAllCPUmatched = igetter.get(topFolder_ + "/ptetatrkAllCPUmatched");
-  MonitorElement* hphi_z_tkAllCPU = igetter.get(topFolder_ + "/phiztrkAllCPU");
-  MonitorElement* hphi_z_tkAllCPUmatched = igetter.get(topFolder_ + "/phiztrkAllCPUmatched");
-
-  if (hpt_eta_tkAllCPU == nullptr or hpt_eta_tkAllCPUmatched == nullptr or hphi_z_tkAllCPU == nullptr or
-      hphi_z_tkAllCPUmatched == nullptr) {
+  MonitorElement* hpt_eta_tkAllReference = igetter.get(topFolder_ + "/ptetatrkAllReference");
+  if (hpt_eta_tkAllReference == nullptr) {
     edm::LogError("SiPixelTrackComparisonHarvester")
-        << "MEs needed for this module are not found in the input file. Skipping.";
+        << "MonitorElement not found: " << topFolder_ << "/ptetatrkAllReference. Skipping.";
+    return;
+  }
+
+  MonitorElement* hpt_eta_tkAllReferencematched = igetter.get(topFolder_ + "/ptetatrkAllReferencematched");
+  if (hpt_eta_tkAllReferencematched == nullptr) {
+    edm::LogError("SiPixelTrackComparisonHarvester")
+        << "MonitorElement not found: " << topFolder_ << "/ptetatrkAllReferencematched. Skipping.";
+    return;
+  }
+
+  MonitorElement* hphi_z_tkAllReference = igetter.get(topFolder_ + "/phiztrkAllReference");
+  if (hphi_z_tkAllReference == nullptr) {
+    edm::LogError("SiPixelTrackComparisonHarvester")
+        << "MonitorElement not found: " << topFolder_ << "/phiztrkAllReference. Skipping.";
+    return;
+  }
+
+  MonitorElement* hphi_z_tkAllReferencematched = igetter.get(topFolder_ + "/phiztrkAllReferencematched");
+  if (hphi_z_tkAllReferencematched == nullptr) {
+    edm::LogError("SiPixelTrackComparisonHarvester")
+        << "MonitorElement not found: " << topFolder_ << "/phiztrkAllReferencematched. Skipping.";
     return;
   }
 
@@ -47,8 +63,8 @@ void SiPixelTrackComparisonHarvester::dqmEndJob(DQMStore::IBooker& ibooker, DQMS
   MonitorElement* hphi_z_matchRatio = ibooker.book2D(
       "matchingeff_phi_z", "Efficiency of track matching; #phi; z [cm];", 30, -M_PI, M_PI, 30, -30., 30.);
 
-  hpt_eta_matchRatio->divide(hpt_eta_tkAllCPUmatched, hpt_eta_tkAllCPU, 1., 1., "B");
-  hphi_z_matchRatio->divide(hphi_z_tkAllCPUmatched, hphi_z_tkAllCPU, 1., 1., "B");
+  hpt_eta_matchRatio->divide(hpt_eta_tkAllReferencematched, hpt_eta_tkAllReference, 1., 1., "B");
+  hphi_z_matchRatio->divide(hphi_z_tkAllReferencematched, hphi_z_tkAllReference, 1., 1., "B");
 
   // now create the 1D projection from the 2D histograms
   std::vector<std::string> listOfMEsToProject = {"nTracks",
@@ -59,12 +75,14 @@ void SiPixelTrackComparisonHarvester::dqmEndJob(DQMStore::IBooker& ibooker, DQMS
                                                  "nChi2ndof",
                                                  "charge",
                                                  "pt",
+                                                 "curvature",
                                                  "eta",
                                                  "phi",
                                                  "z",
                                                  "tip"};
   for (const auto& me : listOfMEsToProject) {
     MonitorElement* input2D = igetter.get(topFolder_ + "/" + me);
+    edm::LogPrint("SiPixelTrackComparisonHarvester") << "processing " << topFolder_ + "/" + me;
     this->project2DalongDiagonal(input2D, ibooker);
   }
 }
@@ -72,7 +90,7 @@ void SiPixelTrackComparisonHarvester::dqmEndJob(DQMStore::IBooker& ibooker, DQMS
 void SiPixelTrackComparisonHarvester::project2DalongDiagonal(MonitorElement* input2D, DQMStore::IBooker& ibooker) {
   if (input2D == nullptr) {
     edm::LogError("SiPixelTrackComparisonHarvester")
-        << "MEs needed for diagonal projection are not found in the input file. Skipping.";
+        << "ME needed for diagonal projection is not found in the input file at" << topFolder_ << ". Skipping.";
     return;
   }
 

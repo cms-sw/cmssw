@@ -89,7 +89,7 @@ align::Scalars MuonScenarioBuilder::extractParameters(const edm::ParameterSet& p
     else if ((*iParam) == "dZ")
       dZ_ = Parameters.getParameter<double>(*iParam);
     else if (Parameters.retrieve(*iParam).typeCode() != 'P') {  // Add unknown parameter to list
-      if (!error.str().length())
+      if (error.str().empty())
         error << "Unknown parameter name(s): ";
       error << " " << *iParam;
     }

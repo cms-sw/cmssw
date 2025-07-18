@@ -23,6 +23,7 @@ class Phase2StripCPEESProducer : public edm::ESProducer {
 public:
   Phase2StripCPEESProducer(const edm::ParameterSet&);
   std::unique_ptr<ClusterParameterEstimator<Phase2TrackerCluster1D> > produce(const TkPhase2OTCPERecord& iRecord);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   enum CPE_t { DEFAULT, GEOMETRIC };
@@ -51,6 +52,19 @@ Phase2StripCPEESProducer::Phase2StripCPEESProducer(const edm::ParameterSet& p) {
     pDDToken_ = c.consumes();
     lorentzAngleToken_ = c.consumes();
   }
+}
+
+void Phase2StripCPEESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("ComponentType", "Phase2StripCPE");
+
+  {
+    edm::ParameterSetDescription paramsDesc;
+    Phase2StripCPE::fillPSetDescription(paramsDesc);
+    desc.add<edm::ParameterSetDescription>("parameters", paramsDesc);
+  }
+
+  descriptions.addWithDefaultLabel(desc);
 }
 
 std::unique_ptr<ClusterParameterEstimator<Phase2TrackerCluster1D> > Phase2StripCPEESProducer::produce(

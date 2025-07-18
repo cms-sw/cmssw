@@ -41,7 +41,7 @@ private:
   void beginJob() override;
   void beginRun(const edm::Run &, const edm::EventSetup &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void endRun(const edm::Run &, const edm::EventSetup &) override{};
+  void endRun(const edm::Run &, const edm::EventSetup &) override {}
 
   // Member data
   const edm::ESGetToken<ParticleDataTable, PDTRecord> pdtToken_;

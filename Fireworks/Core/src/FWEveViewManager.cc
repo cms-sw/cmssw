@@ -13,6 +13,7 @@
 // system include files
 
 #include <functional>
+#include <memory>
 
 // user include files
 #include "TEveManager.h"
@@ -278,25 +279,25 @@ FWViewBase* FWEveViewManager::buildView(TEveWindowSlot* iParent, const std::stri
   std::shared_ptr<FWEveView> view;
   switch (type) {
     case FWViewType::k3D:
-      view.reset(new FW3DView(iParent, type));
+      view = std::make_shared<FW3DView>(iParent, type);
       break;
     case FWViewType::kISpy:
-      view.reset(new FWISpyView(iParent, type));
+      view = std::make_shared<FWISpyView>(iParent, type);
       break;
     case FWViewType::kRhoPhi:
     case FWViewType::kRhoZ:
     case FWViewType::kRhoPhiPF:
-      view.reset(new FWRPZView(iParent, type));
+      view = std::make_shared<FWRPZView>(iParent, type);
       break;
     case FWViewType::kLego:
     case FWViewType::kLegoPFECAL:
-      view.reset(new FWEveLegoView(iParent, type));
+      view = std::make_shared<FWEveLegoView>(iParent, type);
       break;
     case FWViewType::kLegoHF:
-      view.reset(new FWHFView(iParent, type));
+      view = std::make_shared<FWHFView>(iParent, type);
       break;
     case FWViewType::kGlimpse:
-      view.reset(new FWGlimpseView(iParent, type));
+      view = std::make_shared<FWGlimpseView>(iParent, type);
       break;
     default:
       break;

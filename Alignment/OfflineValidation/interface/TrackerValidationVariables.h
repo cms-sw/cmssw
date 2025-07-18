@@ -86,7 +86,7 @@ public:
           dz(-999.),
           charge(-999),
           numberOfValidHits(0),
-          numberOfLostHits(0){};
+          numberOfLostHits(0) {}
     float p;
     float pt;
     float ptError;

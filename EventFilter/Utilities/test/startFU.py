@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 import os
@@ -41,14 +40,22 @@ options.register ('numFwkStreams',
                   VarParsing.VarParsing.varType.int,          # string, int, or float
                   "Number of CMSSW streams")
 
+options.register ('numEventsToWrite',
+                 -1, # default value
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.int,          # string, int, or float
+                 "Number of Events to process. -1 means all.")
+
 options.parseArguments()
 
 cmsswbase = os.path.expandvars("$CMSSW_BASE/")
 
 process = cms.Process("TESTFU")
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(options.numEventsToWrite)
 )
+if options.numEventsToWrite == 0:
+  process.maxEvents.input = 1
 
 process.options = cms.untracked.PSet(
     numberOfThreads = cms.untracked.uint32(options.numThreads),
@@ -65,7 +72,7 @@ process.FastMonitoringService = cms.Service("FastMonitoringService",
 )
 
 process.EvFDaqDirector = cms.Service("EvFDaqDirector",
-    useFileBroker = cms.untracked.bool(False),
+    useFileBroker = cms.untracked.bool(True),
     fileBrokerHostFromCfg = cms.untracked.bool(True),
     fileBrokerHost = cms.untracked.string("htcp40.cern.ch"),
     runNumber = cms.untracked.uint32(options.runNumber),
@@ -81,6 +88,7 @@ except Exception as ex:
   pass
 
 process.source = cms.Source("FedRawDataInputSource",
+    fileDiscoveryMode = cms.untracked.bool(True),
     getLSFromFilename = cms.untracked.bool(True),
     verifyChecksum = cms.untracked.bool(True),
     useL1EventID = cms.untracked.bool(False),
@@ -104,6 +112,12 @@ process.PrescaleService = cms.Service( "PrescaleService",
                                        lvl1Labels = cms.vstring( 'Default' )
                                        )
 
+#used in case where we write no events
+process.pre = cms.EDFilter("PrescaleEventFilter", offset = cms.uint32(0), prescale=cms.uint32(1))
+if options.numEventsToWrite:
+  process.pre.offset = 2
+  process.pre.prescale = 4
+
 process.filter1 = cms.EDFilter("HLTPrescaler",
                                L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
                                )
@@ -124,8 +138,8 @@ import EventFilter.OnlineMetaDataRawToDigi.tcdsRawToDigi_cfi
 process.tcdsRawToDigi = EventFilter.OnlineMetaDataRawToDigi.tcdsRawToDigi_cfi.tcdsRawToDigi.clone()
 process.tcdsRawToDigi.InputLabel = cms.InputTag("rawDataCollector")
 
-process.HLT_Physics = cms.Path(process.a*process.tcdsRawToDigi*process.filter1)
-process.HLT_Muon = cms.Path(process.b*process.filter2)
+process.HLT_Physics = cms.Path(process.a*process.tcdsRawToDigi*process.filter1*process.pre)
+process.HLT_Muon = cms.Path(process.b*process.filter2*process.pre)
 
 process.streamA = cms.OutputModule("GlobalEvFOutputModule",
     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'HLT_Physics' ))

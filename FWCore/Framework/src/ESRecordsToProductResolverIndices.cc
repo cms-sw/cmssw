@@ -18,10 +18,6 @@
 #include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
 
-//
-// constants, enums and typedefs
-//
-
 namespace edm::eventsetup {
   ESRecordsToProductResolverIndices::ESRecordsToProductResolverIndices(std::vector<EventSetupRecordKey> iRecords)
       : recordKeys_{std::move(iRecords)} {
@@ -34,13 +30,16 @@ namespace edm::eventsetup {
       unsigned int iRecordIndex,
       EventSetupRecordKey const& iRecord,
       std::vector<DataKey> const& iDataKeys,
-      std::vector<ComponentDescription const*> const& iComponents) {
+      std::vector<ComponentDescription const*> const& iComponents,
+      std::vector<unsigned int> const& iProduceMethodIDs) {
     assert(iRecord == recordKeys_[iRecordIndex]);
     assert(iDataKeys.size() == iComponents.size());
+    assert(iDataKeys.size() == iProduceMethodIDs.size());
     assert(iRecordIndex + 1 == recordOffsets_.size());
     dataKeys_.insert(dataKeys_.end(), iDataKeys.begin(), iDataKeys.end());
     ++iRecordIndex;
     components_.insert(components_.end(), iComponents.begin(), iComponents.end());
+    produceMethodIDs_.insert(produceMethodIDs_.end(), iProduceMethodIDs.begin(), iProduceMethodIDs.end());
     recordOffsets_.push_back(dataKeys_.size());
     return iRecordIndex;
   }
@@ -52,7 +51,7 @@ namespace edm::eventsetup {
                                                                    DataKey const& iDK) const noexcept {
     auto it = std::lower_bound(recordKeys_.begin(), recordKeys_.end(), iRK);
     if (it == recordKeys_.end() or *it != iRK) {
-      return missingResolverIndex();
+      return ESResolverIndex::noResolverConfigured();
     }
 
     auto beginOffset = recordOffsets_[std::distance(recordKeys_.begin(), it)];
@@ -61,7 +60,7 @@ namespace edm::eventsetup {
 
     auto itDK = std::lower_bound(dataKeys_.begin() + beginOffset, dataKeys_.begin() + endOffset, iDK);
     if (itDK == dataKeys_.begin() + endOffset or *itDK != iDK) {
-      return missingResolverIndex();
+      return ESResolverIndex::noResolverConfigured();
     }
 
     return ESResolverIndex{static_cast<int>(std::distance(dataKeys_.begin() + beginOffset, itDK))};
@@ -93,6 +92,23 @@ namespace edm::eventsetup {
     return components_[std::distance(dataKeys_.begin(), itDK)];
   }
 
+  std::tuple<ComponentDescription const*, unsigned int> ESRecordsToProductResolverIndices::componentAndProduceMethodID(
+      EventSetupRecordKey const& iRK, ESResolverIndex esResolverIndex) const noexcept {
+    auto const recIndex = recordIndexFor(iRK);
+    if (recIndex == missingRecordIndex()) {
+      return {nullptr, 0};
+    }
+    auto const beginIndex = recordOffsets_[recIndex.value()];
+    auto const endIndex = recordOffsets_[recIndex.value() + 1];
+
+    int resolverIndex = esResolverIndex.value();
+    if (resolverIndex < 0 || static_cast<unsigned int>(resolverIndex) >= endIndex - beginIndex) {
+      return {nullptr, 0};
+    }
+    auto index = beginIndex + resolverIndex;
+    return {components_[index], produceMethodIDs_[index]};
+  }
+
   ESTagGetter ESRecordsToProductResolverIndices::makeTagGetter(EventSetupRecordKey const& iRK,
                                                                TypeTag const& iTT) const {
     auto recIndex = recordIndexFor(iRK);
@@ -115,10 +131,12 @@ namespace edm::eventsetup {
         }
       } else {
         foundFirstIndex = true;
-        returnValue.emplace_back(
-            keyIndex - beginIndex,
-            dataKeys_[keyIndex].name().value(),
-            components_[keyIndex] ? std::string_view(components_[keyIndex]->label_) : std::string_view());
+        returnValue.emplace_back(keyIndex - beginIndex,
+                                 dataKeys_[keyIndex].name().value(),
+                                 components_[keyIndex] ? components_[keyIndex]->label_.empty()
+                                                             ? std::string_view(components_[keyIndex]->type_)
+                                                             : std::string_view(components_[keyIndex]->label_)
+                                                       : std::string_view());
       }
       ++keyIndex;
     }

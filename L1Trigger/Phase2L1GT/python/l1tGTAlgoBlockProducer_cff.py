@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 import re
 
+
+TYPE_STANDARD_PHYSICS = cms.vint32(1) # TODO
+
 algorithms = cms.VPSet()
 
 l1tGTAlgoBlockProducer = cms.EDProducer(

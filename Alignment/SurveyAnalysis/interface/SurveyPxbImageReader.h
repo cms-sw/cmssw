@@ -18,7 +18,7 @@ public:
 
   // Constructors
   //! Empty default constructor
-  SurveyPxbImageReader(){};
+  SurveyPxbImageReader() {}
   //! Constructor with ifstream and destination vector
   SurveyPxbImageReader(std::ifstream &infile, measurements_t &measurements, SurveyPxbImage::count_t reserve = 800) {
     read(infile, measurements, reserve);

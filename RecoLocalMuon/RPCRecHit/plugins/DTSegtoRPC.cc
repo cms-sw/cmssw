@@ -278,7 +278,7 @@ std::unique_ptr<RPCRecHitCollection> DTSegtoRPC::thePoints(const DTRecSegment4DC
             if (debug)
               LogDebug("DTSegtoRPC") << "DT \t \t \t No, Exrtrapolation too long!, canceled" << std::endl;
           }  //D so big
-        }    //loop over all the rolls asociated
+        }  //loop over all the rolls asociated
       }
     }
 

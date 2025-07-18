@@ -9,7 +9,7 @@
 class PatElectronEAIsoCorrectionProducer : public edm::stream::EDProducer<> {
 public:
   explicit PatElectronEAIsoCorrectionProducer(const edm::ParameterSet& iConfig);
-  ~PatElectronEAIsoCorrectionProducer() override{};
+  ~PatElectronEAIsoCorrectionProducer() override {}
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:

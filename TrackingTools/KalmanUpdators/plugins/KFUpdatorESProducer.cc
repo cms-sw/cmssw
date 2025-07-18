@@ -37,8 +37,8 @@ std::unique_ptr<TrajectoryStateUpdator> KFUpdatorESProducer::produce(const Track
 
 void KFUpdatorESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("ComponentName");
-  descriptions.addDefault(desc);
+  desc.add<std::string>("ComponentName", "KFUpdator");
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(KFUpdatorESProducer);

@@ -170,17 +170,17 @@ public:
   };
 
   /// destructor
-  virtual ~L1MuGMTScales(){
-      //     for (int i=0; i<4; i++) {
-      //       delete m_ReducedEtaScale[i];
-      //       delete m_OvlEtaScale[i];
-      //     }
-      //     for (int i=0; i<6; i++) {
-      //       delete m_DeltaEtaScale[i];
-      //     }
+  virtual ~L1MuGMTScales() {
+    //     for (int i=0; i<4; i++) {
+    //       delete m_ReducedEtaScale[i];
+    //       delete m_OvlEtaScale[i];
+    //     }
+    //     for (int i=0; i<6; i++) {
+    //       delete m_DeltaEtaScale[i];
+    //     }
 
-      //     delete m_DeltaPhiScale;
-      //     delete m_CaloEtaScale;
+    //     delete m_DeltaPhiScale;
+    //     delete m_CaloEtaScale;
   };
 
   /// get the recuced eta scale for matching in the overlap region (4 bit); isys = 0(DT), 1(bRPC), 2(CSC), 3(fwdRPC)

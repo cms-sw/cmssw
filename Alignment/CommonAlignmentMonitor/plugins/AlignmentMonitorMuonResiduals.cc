@@ -34,7 +34,7 @@
 class AlignmentMonitorMuonResiduals : public AlignmentMonitorBase {
 public:
   AlignmentMonitorMuonResiduals(const edm::ParameterSet &cfg, edm::ConsumesCollector iC);
-  ~AlignmentMonitorMuonResiduals() override{};
+  ~AlignmentMonitorMuonResiduals() override {}
 
   void book() override;
   void event(const edm::Event &iEvent,
@@ -2012,7 +2012,7 @@ void AlignmentMonitorMuonResiduals::event(const edm::Event &iEvent,
         }  // else if CSC
 
       }  // end if good hit
-    }    // end loop over measurements
+    }  // end loop over measurements
 
   }  // end loop over track-trajectories
 }
@@ -2264,7 +2264,7 @@ void AlignmentMonitorMuonResiduals::afterAlignment() {
           m_xerronmean_me41->Fill(xerronmean);
         }
       }  // else itis CSC
-    }    // end if xmean, xstdev exist
+    }  // end if xmean, xstdev exist
 
     if (m_numy[id] > 0.) {
       double ymean = m_y_wy[id] / m_y_w[id];
@@ -2458,7 +2458,7 @@ void AlignmentMonitorMuonResiduals::afterAlignment() {
           m_yerronmean_me41->Fill(yerronmean);
         }
       }  // else itis CSC
-    }    // end if ymean, ystdev exist
+    }  // end if ymean, ystdev exist
 
   }  // end loop over chambers
 }

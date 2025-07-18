@@ -1,4 +1,3 @@
-from __future__ import print_function
 from ROOT import TH1F, TH2F, TFile
 
 

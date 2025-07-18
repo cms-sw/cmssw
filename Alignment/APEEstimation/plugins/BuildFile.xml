@@ -1,6 +1,7 @@
 <library file="*.cc" name="ApeEstimatorApeEstimatorPlugins">
   <use name="Alignment/APEEstimation" source_only="1"/>
   <use name="CommonTools/UtilAlgos"/>
+  <use name="CondFormats/Alignment"/>
   <use name="DataFormats/TrackingRecHit"/>
   <use name="DataFormats/TrackerRecHit2D"/>
   <use name="DataFormats/TrackReco"/>

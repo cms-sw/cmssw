@@ -18,10 +18,10 @@ class LightRay;
 class OptOLaser : public OpticalObject {
 public:
   //---------- Constructors / Destructor
-  OptOLaser(){};
+  OptOLaser() {}
   OptOLaser(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data)
-      : OpticalObject(parent, type, name, copy_data){};
-  ~OptOLaser() override{};
+      : OpticalObject(parent, type, name, copy_data) {}
+  ~OptOLaser() override {}
 
   //---------- Default behaviour: create a LightRay object
   void defaultBehaviour(LightRay& lightray, Measurement& meas) override;

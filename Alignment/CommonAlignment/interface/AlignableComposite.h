@@ -115,7 +115,7 @@ protected:
 
 private:
   /// default constructor hidden
-  AlignableComposite() : Alignable(0, RotationType()){};
+  AlignableComposite() : Alignable(0, RotationType()) {}
 
   Alignables theComponents;  // direct daughters
 };

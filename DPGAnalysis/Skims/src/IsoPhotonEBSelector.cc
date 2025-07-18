@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Class:      ZElectronsSelector
+// Class:      IsoPhotonEBSelector
 //
 // Original Author:  Silvia Taroni
 //         Created:  Wed, 29 Nov 2017 18:23:54 GMT
@@ -24,6 +24,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
@@ -42,6 +43,9 @@ namespace edm {
 class IsoPhotonEBSelector {
 public:
   IsoPhotonEBSelector(const edm::ParameterSet&, edm::ConsumesCollector& iC);
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
+
   bool operator()(const reco::Photon&) const;
   void newEvent(const edm::Event&, const edm::EventSetup&);
   const float getEffectiveArea(float eta) const;
@@ -81,15 +85,31 @@ const float IsoPhotonEBSelector::getEffectiveArea(float eta) const {
   return effArea;
 }
 
+void IsoPhotonEBSelector::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  desc.add<edm::InputTag>("rho", edm::InputTag("fixedGridRhoFastjetCentralCalo"));
+  desc.add<std::vector<double>>("absEtaMin", {0.0000, 1.0000, 1.4790, 2.0000, 2.2000, 2.3000, 2.4000});
+  desc.add<std::vector<double>>("absEtaMax", {1.0000, 1.4790, 2.0000, 2.2000, 2.3000, 2.4000, 5.0000});
+  desc.add<std::vector<double>>("effectiveAreaValues", {0.1703, 0.1715, 0.1213, 0.1230, 0.1635, 0.1937, 0.2393});
+
+  // Define the photonIDWP PSet
+  edm::ParameterSetDescription photonIDWP;
+  photonIDWP.add<std::vector<double>>("full5x5_sigmaIEtaIEtaCut", {0.011, -1.0});
+  photonIDWP.add<std::vector<double>>("hOverECut", {0.1, -1.0});
+  photonIDWP.add<std::vector<double>>("relCombIsolationWithEACut", {0.05, -1.0});
+
+  // Add the PSet to the main description
+  desc.add<edm::ParameterSetDescription>("phID", photonIDWP);
+}
+
 IsoPhotonEBSelector::IsoPhotonEBSelector(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC)
     : theRhoToken_(iC.consumes<double>(cfg.getParameter<edm::InputTag>("rho"))),
-      absEtaMin_(cfg.getParameter<std::vector<double> >("absEtaMin")),
-      absEtaMax_(cfg.getParameter<std::vector<double> >("absEtaMax")),
-      effectiveAreaValues_(cfg.getParameter<std::vector<double> >("effectiveAreaValues")),
+      absEtaMin_(cfg.getParameter<std::vector<double>>("absEtaMin")),
+      absEtaMax_(cfg.getParameter<std::vector<double>>("absEtaMax")),
+      effectiveAreaValues_(cfg.getParameter<std::vector<double>>("effectiveAreaValues")),
       phIDWP_(cfg.getParameter<edm::ParameterSet>("phID")),
-      sigmaIEtaIEtaCut_(phIDWP_.getParameter<std::vector<double> >("full5x5_sigmaIEtaIEtaCut")),
-      hOverECut_(phIDWP_.getParameter<std::vector<double> >("hOverECut")),
-      relCombIso_(phIDWP_.getParameter<std::vector<double> >("relCombIsolationWithEACut")) {
+      sigmaIEtaIEtaCut_(phIDWP_.getParameter<std::vector<double>>("full5x5_sigmaIEtaIEtaCut")),
+      hOverECut_(phIDWP_.getParameter<std::vector<double>>("hOverECut")),
+      relCombIso_(phIDWP_.getParameter<std::vector<double>>("relCombIsolationWithEACut")) {
   //printEffectiveAreas();
 }
 

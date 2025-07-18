@@ -536,7 +536,7 @@ void hcalCalib::GetCoefFromMtrxInvOfAve() {
 
     std::map<Int_t, Float_t>::iterator n_it = aveHitE[iEtaList[i]].begin();
     for (; n_it != aveHitE[iEtaList[i]].end(); ++n_it) {
-      if (fabs(n_it->first) > CALIB_ABS_IETA_MAX || fabs(n_it->first) < CALIB_ABS_IETA_MIN)
+      if (std::abs(n_it->first) > CALIB_ABS_IETA_MAX || std::abs(n_it->first) < CALIB_ABS_IETA_MIN)
         continue;
       Int_t j = Int_t(find(iEtaList.begin(), iEtaList.end(), n_it->first) - iEtaList.begin());
       A(i, j) = n_it->second;

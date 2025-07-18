@@ -56,7 +56,7 @@ public:
 
   L1Phase2MuDTExtThDigi(const L1Phase2MuDTExtThDigi &digi);
 
-  ~L1Phase2MuDTExtThDigi() override{};
+  ~L1Phase2MuDTExtThDigi() override {}
 
   // Operations
   int yLocal() const;

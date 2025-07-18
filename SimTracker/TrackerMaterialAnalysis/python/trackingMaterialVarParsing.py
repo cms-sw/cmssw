@@ -1,4 +1,3 @@
-from __future__ import print_function
 from FWCore.ParameterSet.VarParsing import VarParsing
 import sys
 

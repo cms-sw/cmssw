@@ -28,7 +28,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CommonTopologies/interface/GeometryAligner.h"
+#include "Geometry/GeometryAligner/interface/GeometryAligner.h"
 #include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
@@ -59,6 +59,7 @@ TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg)
       topoToken_(esConsumes()),
       geomDetToken_(esConsumes()),
       ptpToken_(esConsumes()),
+      ptitpToken_(esConsumes()),
       pixQualityToken_(esConsumes()),
       stripQualityToken_(esConsumes()),
       referenceTracker(nullptr),
@@ -392,10 +393,11 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup) {
 
   const GeometricDet* theGeometricDet = &iSetup.getData(geomDetToken_);
   const PTrackerParameters* ptp = &iSetup.getData(ptpToken_);
+  const PTrackerAdditionalParametersPerDet* ptitp = &iSetup.getData(ptitpToken_);
   TrackerGeomBuilderFromGeometricDet trackerBuilder;
 
   //reference tracker
-  TrackerGeometry* theRefTracker = trackerBuilder.build(theGeometricDet, *ptp, tTopo);
+  TrackerGeometry* theRefTracker = trackerBuilder.build(theGeometricDet, ptitp, *ptp, tTopo);
   if (inputFilename1_ != "IDEAL") {
     GeometryAligner aligner1;
     aligner1.applyAlignments<TrackerGeometry>(
@@ -444,7 +446,7 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup) {
   }
 
   //currernt tracker
-  TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet, *ptp, tTopo);
+  TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet, ptitp, *ptp, tTopo);
   if (inputFilename2_ != "IDEAL") {
     GeometryAligner aligner2;
     aligner2.applyAlignments<TrackerGeometry>(

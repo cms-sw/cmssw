@@ -1,0 +1,107 @@
+<?xml version="1.0"?>
+<DDDefinition>
+HGCalEECoolingL13F5PN
+<PosPartSection label="hgcalpos.xml">
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalPassive:HGCalEECoolingL01F0PN"/>
+    <Translation x="0.0*cm" y="0.0*cm" z="-45.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalPassive:HGCalEECoolingL01F1PN"/>
+    <Translation x="0.0*cm" y="0.0*cm" z="-45.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalPassive:HGCalEECoolingL02F1PN"/>
+    <Translation x="0.0*cm" y="0*cm" z="-35.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalPassive:HGCalEECoolingL02F2PN"/>
+    <Translation x="0.0*cm" y="0*cm" z="-35.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalPassive:HGCalEECoolingL03F2PN"/>
+    <Translation x="0.0*cm" y="0*cm" z="-25.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalPassive:HGCalEECoolingL03F3PN"/>
+    <Translation x="0.0*cm" y="0*cm" z="-25.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalPassive:HGCalEECoolingL04F3PN"/>
+    <Translation x="0.0*cm" y="0*cm" z="-15.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalPassive:HGCalEECoolingL04F4PN"/>
+    <Translation x="0.0*cm" y="0*cm" z="-15.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalPassive:HGCalEECoolingL05F4PN"/>
+    <Translation x="0.0*cm" y="0*cm" z="-5.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalPassive:HGCalEECoolingL05F5PN"/>
+    <Translation x="0.0*cm" y="0*cm" z="-5.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalPassive:HGCalEECoolingL06F5PN"/>
+    <Translation x="0.0*cm" y="0*cm" z="5.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalPassive:HGCalEECoolingL06F0PN"/>
+    <Translation x="0.0*cm" y="0*cm" z="5.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalPassive:HGCalEECoolingL07F0PN"/>
+    <Translation x="0.0*cm" y="0*cm" z="15.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalPassive:HGCalEECoolingL07F1PN"/>
+    <Translation x="0.0*cm" y="0*cm" z="15.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalPassive:HGCalEECoolingL08F1PN"/>
+    <Translation x="0.0*cm" y="0*cm" z="25.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalPassive:HGCalEECoolingL08F2PN"/>
+    <Translation x="0.0*cm" y="0*cm" z="25.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalPassive:HGCalEECoolingL09F2PN"/>
+    <Translation x="0.0*cm" y="0*cm" z="35.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalPassive:HGCalEECoolingL09F3PN"/>
+    <Translation x="0.0*cm" y="0*cm" z="35.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalPassive:HGCalEECoolingL10F3PN"/>
+    <Translation x="0.0*cm" y="0*cm" z="45.0*cm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalPassive:HGCalEECoolingL10F4PN"/>
+    <Translation x="0.0*cm" y="0*cm" z="45.0*cm"/>
+  </PosPart>
+</PosPartSection>
+
+</DDDefinition>

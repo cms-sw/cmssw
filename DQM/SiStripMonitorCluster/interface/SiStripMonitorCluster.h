@@ -132,7 +132,7 @@ private:
   void createMEs(const edm::EventSetup& es, DQMStore::IBooker& ibooker);
   void createLayerMEs(std::string label, int ndets, DQMStore::IBooker& ibooker);
   void createModuleMEs(ModMEs& mod_single, uint32_t detid, DQMStore::IBooker& ibooker, const SiStripDetCabling&);
-  void createSubDetMEs(std::string label, DQMStore::IBooker& ibooker);
+  void createSubDetMEs(std::string_view label, DQMStore::IBooker& ibooker);
   int FindRegion(int nstrip, int npixel);
   void fillModuleMEs(ModMEs& mod_mes, ClusterProperties& cluster);
   void fillLayerMEs(LayerMEs&, ClusterProperties& cluster);
@@ -163,7 +163,7 @@ private:
   std::map<uint32_t, ModMEs> ModuleMEsMap;
   std::map<std::string, LayerMEs> LayerMEsMap;
   std::map<std::string, std::vector<uint32_t> > LayerDetMap;
-  std::map<std::string, SubDetMEs> SubDetMEsMap;
+  std::map<std::string_view, SubDetMEs> SubDetMEsMap;
   std::map<std::string, std::string> SubDetPhasePartMap;
 
   // flags

@@ -481,7 +481,7 @@ void StripClusterMCanalysis::analyze(const edm::Event& iEvent, const edm::EventS
           }  // if (newHit)
           prevIdx = stripIdx;
         }  // DigiSimLink belongs to this cluster
-      }    // Traverse DigiSimLinks
+      }  // Traverse DigiSimLinks
       if (prevIdx == -1)
         continue;  // No truth information for this cluster; move on to the next one.
 
@@ -534,7 +534,7 @@ void StripClusterMCanalysis::analyze(const edm::Event& iEvent, const edm::EventS
       clusNtp_.stereo = stereo;
       clusTree_->Fill();
     }  // traverse clusters in subdetector
-  }    // traverse subdetectors
+  }  // traverse subdetectors
   if (printOut_ > 0)
     std::cout << clusterCount << " total clusters; " << clustersNoDigiSimLink << " without digiSimLinks" << std::endl;
 }

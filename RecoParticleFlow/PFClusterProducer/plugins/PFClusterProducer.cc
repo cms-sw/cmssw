@@ -22,6 +22,7 @@ public:
 
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   // inputs
@@ -33,8 +34,8 @@ private:
   // options
   const bool _prodInitClusters;
   // the actual algorithm
-  std::vector<std::unique_ptr<RecHitTopologicalCleanerBase> > _cleaners;
-  std::vector<std::unique_ptr<RecHitTopologicalCleanerBase> > _seedcleaners;
+  std::vector<std::unique_ptr<RecHitTopologicalCleanerBase>> _cleaners;
+  std::vector<std::unique_ptr<RecHitTopologicalCleanerBase>> _seedcleaners;
   std::unique_ptr<SeedFinderBase> _seedFinder;
   std::unique_ptr<InitialClusteringStepBase> _initialClustering;
   std::unique_ptr<PFClusterBuilderBase> _pfClusterBuilder;
@@ -44,6 +45,171 @@ private:
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PFClusterProducer);
+
+void PFClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("recHitsSource", {});
+  desc.add<bool>("usePFThresholdsFromDB", false);
+  {
+    edm::ParameterSetDescription psd;
+    psd.add<std::string>("algoName", "");
+    desc.addVPSet("recHitCleaners", psd, {});
+  }
+  {
+    edm::ParameterSetDescription psd;
+    psd.add<std::string>("algoName", "");
+    psd.add<std::vector<std::string>>("RecHitFlagsToBeExcluded", {});
+    desc.addVPSet("seedCleaners", psd, {});
+  }
+  {
+    edm::ParameterSetDescription pset;
+    pset.add<std::string>("algoName", "");
+    pset.add<int>("nNeighbours", 0);
+    {
+      edm::ParameterSetDescription psd;
+      psd.add<std::string>("detector", "");
+      psd.addNode((edm::ParameterDescription<double>("seedingThreshold", 0, true) and
+                   edm::ParameterDescription<double>("seedingThresholdPt", 0, true)) xor
+                  (edm::ParameterDescription<std::vector<int>>("depths", {}, true) and
+                   edm::ParameterDescription<std::vector<double>>("seedingThreshold", {}, true) and
+                   edm::ParameterDescription<std::vector<double>>("seedingThresholdPt", {}, true)));
+      pset.addVPSet("thresholdsByDetector", psd, {});
+    }
+    desc.add<edm::ParameterSetDescription>("seedFinder", pset);
+  }
+  {
+    edm::ParameterSetDescription pset;
+    pset.add<std::string>("algoName", "");
+    {
+      edm::ParameterSetDescription psd;
+      psd.add<std::string>("detector", "");
+      psd.addNode((edm::ParameterDescription<double>("gatheringThreshold", 0, true) and
+                   edm::ParameterDescription<double>("gatheringThresholdPt", 0, true)) xor
+                  (edm::ParameterDescription<std::vector<int>>("depths", {}, true) and
+                   edm::ParameterDescription<std::vector<double>>("gatheringThreshold", {}, true) and
+                   edm::ParameterDescription<std::vector<double>>("gatheringThresholdPt", {}, true)));
+      pset.addVPSet("thresholdsByDetector", psd, {});
+    }
+    pset.add<bool>("useCornerCells", false);
+    pset.add<edm::InputTag>("clusterSrc", {});
+    pset.add<bool>("filterByTracksterIteration", false);
+    pset.add<bool>("filterByTracksterPID", false);
+    pset.add<std::vector<int>>("filter_on_categories", {});
+    pset.add<std::vector<int>>("filter_on_iterations", {});
+    pset.add<double>("pid_threshold", 0);
+    pset.add<edm::InputTag>("tracksterSrc", {});
+    pset.add<double>("exclusiveFraction", 0);
+    pset.add<double>("invisibleFraction", 0);
+    pset.add<bool>("maxDistanceFilter", false);
+    pset.add<double>("maxDistance", 0);
+    pset.add<double>("maxDforTimingSquared", 0);
+    pset.add<double>("timeOffset", 0);
+    pset.add<uint32_t>("minNHitsforTiming", 0);
+    pset.add<bool>("useMCFractionsForExclEnergy", false);
+    pset.add<std::vector<double>>("hadronCalib", {});
+    pset.add<std::vector<double>>("egammaCalib", {});
+    pset.add<double>("calibMinEta", 0);
+    pset.add<double>("calibMaxEta", 0);
+    pset.add<edm::InputTag>("simClusterSrc", {});
+    desc.add<edm::ParameterSetDescription>("initialClusteringStep", pset);
+  }
+  {
+    edm::ParameterSetDescription pset;
+    pset.add<std::string>("algoName", "");
+    {
+      edm::ParameterSetDescription pset2;
+      pset2.add<std::string>("algoName", "");
+      pset2.add<double>("minFractionInCalc", 0);
+      pset2.add<int>("posCalcNCrystals", -1);
+      {
+        edm::ParameterSetDescription psd;
+        psd.add<std::string>("detector", "");
+        psd.add<std::vector<int>>("depths", {});
+        psd.add<std::vector<double>>("logWeightDenominator", {});
+        pset2.addVPSet("logWeightDenominatorByDetector", psd, {});
+      }
+      pset2.add<double>("logWeightDenominator", 0);
+      pset2.add<double>("minAllowedNormalization", 0);
+      {
+        edm::ParameterSetDescription pset3;
+        pset3.add<double>("constantTerm", 0);
+        pset3.add<double>("constantTermLowE", 0);
+        pset3.add<double>("corrTermLowE", 0);
+        pset3.add<double>("noiseTerm", 0);
+        pset3.add<double>("noiseTermLowE", 0);
+        pset3.add<double>("threshHighE", -1.);
+        pset3.add<double>("threshLowE", -1.);
+        pset2.add<edm::ParameterSetDescription>("timeResolutionCalcBarrel", pset3);
+        pset2.add<edm::ParameterSetDescription>("timeResolutionCalcEndcap", pset3);
+      }
+      pset.add<edm::ParameterSetDescription>("allCellsPositionCalc", pset2);
+      pset.add<edm::ParameterSetDescription>("positionCalc", pset2);
+    }
+    pset.add<double>("minFractionToKeep", 0);
+    pset.add<double>("nSigmaEta", 0);
+    pset.add<double>("nSigmaPhi", 0);
+    pset.add<bool>("excludeOtherSeeds", false);
+    pset.add<uint32_t>("maxIterations", 0);
+    pset.add<double>("minFracTot", 0);
+    {
+      edm::ParameterSetDescription pset2;
+      pset2.add<std::string>("algoName", "");
+      pset2.add<double>("minFractionInCalc", 0);
+      pset2.add<double>("T0_EB", 0);
+      pset2.add<double>("T0_EE", 0);
+      pset2.add<double>("T0_ES", 0);
+      pset2.add<double>("W0", 0);
+      pset2.add<double>("X0", 0);
+      pset2.add<double>("minAllowedNormalization", 0);
+      pset2.add<edm::ParameterSetDescription>("timeResolutionCalc", {});
+      pset.add<edm::ParameterSetDescription>("positionCalcForConvergence", pset2);
+    }
+    {
+      edm::ParameterSetDescription psd;
+      psd.add<std::string>("detector", "");
+      psd.addNode(edm::ParameterDescription<double>("recHitEnergyNorm", 0, true) xor
+                  (edm::ParameterDescription<std::vector<int>>("depths", {}, true) and
+                   edm::ParameterDescription<std::vector<double>>("recHitEnergyNorm", {}, true)));
+      pset.addVPSet("recHitEnergyNorms", psd, {});
+    }
+    pset.add<double>("showerSigma", 1.5);
+    pset.add<double>("stoppingTolerance", 1e-08);
+    pset.add<bool>("clusterTimeResFromSeed", false);
+    pset.add<double>("maxNSigmaTime", 10.0);
+    pset.add<double>("minChi2Prob", 0);
+    {
+      edm::ParameterSetDescription pset2;
+      pset2.add<double>("constantTerm", 0);
+      pset2.add<double>("constantTermLowE", 0);
+      pset2.add<double>("corrTermLowE", 0);
+      pset2.add<double>("noiseTerm", 0);
+      pset2.add<double>("noiseTermLowE", 0);
+      pset2.add<double>("threshHighE", -1.);
+      pset2.add<double>("threshLowE", -1.);
+      pset.add<edm::ParameterSetDescription>("timeResolutionCalcBarrel", pset2);
+      pset.add<edm::ParameterSetDescription>("timeResolutionCalcEndcap", pset2);
+    }
+    pset.add<double>("timeSigmaEB", 10.0);
+    pset.add<double>("timeSigmaEE", 10.0);
+    desc.add<edm::ParameterSetDescription>("pfClusterBuilder", pset);
+  }
+  {
+    edm::ParameterSetDescription pset;
+    pset.add<std::string>("algoName", "");
+    pset.add<double>("minFractionInCalc", 0);
+    pset.add<bool>("updateTiming", false);
+    pset.add<double>("T0_EB", 0);
+    pset.add<double>("T0_EE", 0);
+    pset.add<double>("T0_ES", 0);
+    pset.add<double>("W0", 0);
+    pset.add<double>("X0", 0);
+    pset.add<double>("minAllowedNormalization", 0);
+    pset.add<edm::ParameterSetDescription>("timeResolutionCalc", {});
+    desc.add<edm::ParameterSetDescription>("positionReCalc", pset);
+  }
+  desc.add<edm::ParameterSetDescription>("energyCorrector", {});
+  descriptions.addWithDefaultLabel(desc);
+}
 
 #ifdef PFLOW_DEBUG
 #define LOGVERB(x) edm::LogVerbatim(x)
@@ -74,9 +240,8 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf)
     _cleaners.emplace_back(RecHitTopologicalCleanerFactory::get()->create(cleanerName, conf, cc));
   }
 
-  if (conf.exists("seedCleaners")) {
-    const edm::VParameterSet& seedcleanerConfs = conf.getParameterSetVector("seedCleaners");
-
+  const auto& seedcleanerConfs = conf.getParameterSetVector("seedCleaners");
+  if (!seedcleanerConfs.empty()) {
     for (const auto& conf : seedcleanerConfs) {
       const std::string& seedcleanerName = conf.getParameter<std::string>("algoName");
       _seedcleaners.emplace_back(RecHitTopologicalCleanerFactory::get()->create(seedcleanerName, conf, cc));
@@ -95,19 +260,22 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf)
   const edm::ParameterSet& pfcConf = conf.getParameterSet("pfClusterBuilder");
   if (!pfcConf.empty()) {
     const std::string& pfcName = pfcConf.getParameter<std::string>("algoName");
-    _pfClusterBuilder = PFClusterBuilderFactory::get()->create(pfcName, pfcConf, cc);
+    if (!pfcName.empty())
+      _pfClusterBuilder = PFClusterBuilderFactory::get()->create(pfcName, pfcConf, cc);
   }
   //setup (possible) recalcuation of positions
   const edm::ParameterSet& pConf = conf.getParameterSet("positionReCalc");
   if (!pConf.empty()) {
     const std::string& pName = pConf.getParameter<std::string>("algoName");
-    _positionReCalc = PFCPositionCalculatorFactory::get()->create(pName, pConf, cc);
+    if (!pName.empty())
+      _positionReCalc = PFCPositionCalculatorFactory::get()->create(pName, pConf, cc);
   }
   // see if new need to apply corrections, setup if there.
   const edm::ParameterSet& cConf = conf.getParameterSet("energyCorrector");
   if (!cConf.empty()) {
     const std::string& cName = cConf.getParameter<std::string>("algoName");
-    _energyCorrector = PFClusterEnergyCorrectorFactory::get()->create(cName, cConf);
+    if (!cName.empty())
+      _energyCorrector = PFClusterEnergyCorrectorFactory::get()->create(cName, cConf);
   }
 
   if (_prodInitClusters) {

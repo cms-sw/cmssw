@@ -5,6 +5,12 @@
 #include "RecoTracker/MkFitCore/interface/MatrixSTypes.h"
 
 #include <cmath>
+#include <vdt/atan2.h>
+#include <vdt/cos.h>
+#include <vdt/log.h>
+#include <vdt/sin.h>
+#include <vdt/sincos.h>
+#include <vdt/tan.h>
 #include <vector>
 #include <string_view>
 
@@ -31,17 +37,17 @@ namespace mkfit {
 
   inline float getInvRad2(float x, float y) { return 1.0f / (x * x + y * y); }
 
-  inline float getPhi(float x, float y) { return std::atan2(y, x); }
+  inline float getPhi(float x, float y) { return vdt::fast_atan2f(y, x); }
 
-  inline float getTheta(float r, float z) { return std::atan2(r, z); }
+  inline float getTheta(float r, float z) { return vdt::fast_atan2f(r, z); }
 
-  inline float getEta(float r, float z) { return -1.0f * std::log(std::tan(getTheta(r, z) / 2.0f)); }
+  inline float getEta(float r, float z) { return -1.0f * vdt::fast_logf(vdt::fast_tanf(getTheta(r, z) / 2.0f)); }
 
-  inline float getEta(float theta) { return -1.0f * std::log(std::tan(theta / 2.0f)); }
+  inline float getEta(float theta) { return -1.0f * vdt::fast_logf(vdt::fast_tanf(theta / 2.0f)); }
 
   inline float getEta(float x, float y, float z) {
-    const float theta = std::atan2(std::sqrt(x * x + y * y), z);
-    return -1.0f * std::log(std::tan(theta / 2.0f));
+    const float theta = vdt::fast_atan2f(std::sqrt(x * x + y * y), z);
+    return -1.0f * vdt::fast_logf(vdt::fast_tanf(theta / 2.0f));
   }
 
   inline float getHypot(float x, float y) { return std::sqrt(x * x + y * y); }
@@ -82,22 +88,24 @@ namespace mkfit {
 
   inline float getPxPxErr2(float ipt, float phi, float vipt, float vphi) {  // ipt = 1/pT, v = variance
     const float iipt2 = 1.0f / (ipt * ipt);                                 //iipt = 1/(1/pT) = pT
-    const float cosP = std::cos(phi);
-    const float sinP = std::sin(phi);
+    float cosP;
+    float sinP;
+    vdt::fast_sincosf(phi, sinP, cosP);
     return iipt2 * (iipt2 * cosP * cosP * vipt + sinP * sinP * vphi);
   }
 
   inline float getPyPyErr2(float ipt, float phi, float vipt, float vphi) {  // ipt = 1/pT, v = variance
     const float iipt2 = 1.0f / (ipt * ipt);                                 //iipt = 1/(1/pT) = pT
-    const float cosP = std::cos(phi);
-    const float sinP = std::sin(phi);
+    float cosP;
+    float sinP;
+    vdt::fast_sincosf(phi, sinP, cosP);
     return iipt2 * (iipt2 * sinP * sinP * vipt + cosP * cosP * vphi);
   }
 
   inline float getPzPzErr2(float ipt, float theta, float vipt, float vtheta) {  // ipt = 1/pT, v = variance
     const float iipt2 = 1.0f / (ipt * ipt);                                     //iipt = 1/(1/pT) = pT
-    const float cotT = 1.0f / std::tan(theta);
-    const float cscT = 1.0f / std::sin(theta);
+    const float cotT = 1.0f / vdt::fast_tanf(theta);
+    const float cscT = 1.0f / vdt::fast_sinf(theta);
     return iipt2 * (iipt2 * cotT * cotT * vipt + cscT * cscT * cscT * cscT * vtheta);
   }
 
@@ -121,20 +129,13 @@ namespace mkfit {
   struct MeasurementState {
   public:
     MeasurementState() {}
-    MeasurementState(const SVector3& p, const SVector6& e) : pos_(p), err_(e) {}
-    MeasurementState(const SVector3& p, const SMatrixSym33& e) : pos_(p) {
-      for (int i = 0; i < 6; ++i)
-        err_[i] = e.Array()[i];
-    }
+    MeasurementState(const SVector3& p, const SMatrixSym33& e) : pos_(p), err_(e) {}
+
     const SVector3& parameters() const { return pos_; }
-    SMatrixSym33 errors() const {
-      SMatrixSym33 result;
-      for (int i = 0; i < 6; ++i)
-        result.Array()[i] = err_[i];
-      return result;
-    }
+    const SMatrixSym33& errors() const { return err_; }
+
     SVector3 pos_;
-    SVector6 err_;
+    SMatrixSym33 err_;
   };
 
   class Hit {
@@ -146,14 +147,14 @@ namespace mkfit {
 
     const SVector3& position() const { return state_.parameters(); }
     const SVector3& parameters() const { return state_.parameters(); }
-    const SMatrixSym33 error() const { return state_.errors(); }
+    const SMatrixSym33& error() const { return state_.err_; }
 
     const float* posArray() const { return state_.pos_.Array(); }
     const float* errArray() const { return state_.err_.Array(); }
 
     // Non-const versions needed for CopyOut of Matriplex.
     SVector3& parameters_nc() { return state_.pos_; }
-    SVector6& error_nc() { return state_.err_; }
+    SMatrixSym33& error_nc() { return state_.err_; }
 
     float r() const {
       return sqrtf(state_.parameters().At(0) * state_.parameters().At(0) +
@@ -273,21 +274,5 @@ namespace mkfit {
 
   void print(std::string_view label, const MeasurementState& s);
 
-  struct DeadRegion {
-    float phi1, phi2, q1, q2;
-    DeadRegion(float a1, float a2, float b1, float b2) : phi1(a1), phi2(a2), q1(b1), q2(b2) {}
-  };
-  typedef std::vector<DeadRegion> DeadVec;
-
-  struct BeamSpot {
-    float x = 0, y = 0, z = 0;
-    float sigmaZ = 5;
-    float beamWidthX = 5e-4, beamWidthY = 5e-4;
-    float dxdz = 0, dydz = 0;
-
-    BeamSpot() = default;
-    BeamSpot(float ix, float iy, float iz, float is, float ibx, float iby, float idxdz, float idydz)
-        : x(ix), y(iy), z(iz), sigmaZ(is), beamWidthX(ibx), beamWidthY(iby), dxdz(idxdz), dydz(idydz) {}
-  };
 }  // end namespace mkfit
 #endif

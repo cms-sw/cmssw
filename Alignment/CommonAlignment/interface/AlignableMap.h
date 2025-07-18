@@ -28,8 +28,8 @@ class AlignableMap {
   using Container = std::map<std::string, align::Alignables>;
 
 public:
-  AlignableMap(){};
-  virtual ~AlignableMap(){};
+  AlignableMap() {}
+  virtual ~AlignableMap() {}
 
   /// Get an object from map using its name.
   /// A new object is default-constructed if the name does not exist.

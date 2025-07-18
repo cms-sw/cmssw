@@ -87,25 +87,37 @@ from RecoTracker.FinalTrackSelectors.trackListMerger_cfi import trackListMerger 
 trackingPhase2PU140.toReplaceWith(earlyGeneralTracks, _trackListMerger.clone(
     TrackProducers =['initialStepTracks',
                      'highPtTripletStepTracks',
+                     'jetCoreRegionalStepTracks',
                      'lowPtQuadStepTracks',
                      'lowPtTripletStepTracks',
                      'detachedQuadStepTracks',
                      'pixelPairStepTracks',
                     ],
-    hasSelector = [1,1,1,1,1,1],
-    indivShareFrac = [1.0,0.16,0.095,0.09,0.09,0.09],
+    hasSelector = [1,1,1,1,1,1,1],
+    indivShareFrac = [1.0,0.16,1.0,0.095,0.09,0.09,0.09],
     selectedTrackQuals = ['initialStepSelector:initialStep',
                           'highPtTripletStepSelector:highPtTripletStep',
+                          'jetCoreRegionalStepSelector:jetCoreRegionalStep',
                           'lowPtQuadStepSelector:lowPtQuadStep',
                           'lowPtTripletStepSelector:lowPtTripletStep',
                           'detachedQuadStep',
                           'pixelPairStepSelector:pixelPairStep',
                           ],
-    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4,5), pQual=cms.bool(True) ) 
+    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4,5,6), pQual=cms.bool(True) )
 	),
     copyExtras = True,
     makeReKeyedSeeds = cms.untracked.bool(False)
     )
+)
+from Configuration.ProcessModifiers.trackingIters01_cff import trackingIters01
+trackingIters01.toModify(earlyGeneralTracks,
+                         TrackProducers = ['initialStepTracks', 'highPtTripletStepTracks'],
+                         hasSelector = [1,1],
+                         indivShareFrac = [1,0.16],
+                         selectedTrackQuals = ['initialStepSelector:initialStep',
+                                               'highPtTripletStepSelector:highPtTripletStep'
+                         ],
+                         setsToMerge = {0: dict(tLists = [0,1])}
 )
 from Configuration.ProcessModifiers.vectorHits_cff import vectorHits
 def _extend_pixelLess(x):
@@ -116,3 +128,13 @@ def _extend_pixelLess(x):
     x.setsToMerge[0].tLists += [6]
 (trackingPhase2PU140 & vectorHits).toModify(earlyGeneralTracks, _extend_pixelLess)
 
+from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
+(trackingPhase2PU140 & trackingLST).toModify(earlyGeneralTracks,
+                         TrackProducers = ['highPtTripletStepLSTpTracks', 'highPtTripletStepLSTT5Tracks'],
+                         hasSelector = [1,0],
+                         indivShareFrac = [0.1,0.1],
+                         selectedTrackQuals = ['highPtTripletStepSelector:highPtTripletStep',
+                                               'highPtTripletStepSelectorLSTT5:highPtTripletStepLSTT5'
+                         ],
+                         setsToMerge = {0: dict(tLists = [0,1])}
+)

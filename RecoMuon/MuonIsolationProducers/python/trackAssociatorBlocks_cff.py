@@ -15,6 +15,10 @@ MIsoTrackAssociatorHits = cms.PSet(
     TrackAssociatorParameterBlock
 )
 
+MIsoTrackAssociatorMixed = cms.PSet(
+    TrackAssociatorParameterBlock
+)
+
 MIsoTrackAssociatorJets = cms.PSet(
     TrackAssociatorParameterBlock
 )
@@ -51,6 +55,17 @@ MIsoTrackAssociatorHits.TrackAssociatorParameters.dREcalPreselection = 1.0
 MIsoTrackAssociatorHits.TrackAssociatorParameters.dRHcalPreselection = 1.0
 MIsoTrackAssociatorHits.TrackAssociatorParameters.dREcal = 1.0
 MIsoTrackAssociatorHits.TrackAssociatorParameters.dRHcal = 1.0
+
+MIsoTrackAssociatorMixed.TrackAssociatorParameters.useEcal = True ## RecoHits
+MIsoTrackAssociatorMixed.TrackAssociatorParameters.useHcal = False ## RecoHits
+MIsoTrackAssociatorMixed.TrackAssociatorParameters.useHO = False ## RecoHits
+MIsoTrackAssociatorMixed.TrackAssociatorParameters.useCalo = True ## CaloTowers
+MIsoTrackAssociatorMixed.TrackAssociatorParameters.useMuon = False ## RecoHits
+MIsoTrackAssociatorMixed.TrackAssociatorParameters.usePreshower = False
+MIsoTrackAssociatorMixed.TrackAssociatorParameters.dREcalPreselection = 1.0
+MIsoTrackAssociatorMixed.TrackAssociatorParameters.dRHcalPreselection = 1.0
+MIsoTrackAssociatorMixed.TrackAssociatorParameters.dREcal = 1.0
+MIsoTrackAssociatorMixed.TrackAssociatorParameters.dRHcal = 1.0
 
 MIsoTrackAssociatorJets.TrackAssociatorParameters.useEcal = False ## RecoHits
 MIsoTrackAssociatorJets.TrackAssociatorParameters.useHcal = False ## RecoHits

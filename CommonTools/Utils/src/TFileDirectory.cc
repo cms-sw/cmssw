@@ -16,9 +16,9 @@ bool TFileDirectory::cd() const {
 
 TDirectory *TFileDirectory::_cd(const string &subdir, bool createNeededDirectories) const {
   string fpath = fullPath();
-  if (subdir.length()) {
+  if (!subdir.empty()) {
     // not empty, we need to append it to path
-    if (fpath.length()) {
+    if (!fpath.empty()) {
       // path is also not empty, so add a slash and let's get going.
       fpath += "/" + subdir;
     } else {
@@ -50,7 +50,7 @@ TDirectory *TFileDirectory::_cd(const string &subdir, bool createNeededDirectori
     // already exist (since you shoudln't be cd'ing into a directory
     // before making it and the cd with a subdir is only used to get
     // histograms that are already made).
-    if (subdir.length()) {
+    if (!subdir.empty()) {
       throw cms::Exception("InvalidDirectory") << "directory " << fpath << " doesn't exist.";
     }
     // if we're here, then that means that this is the first time
@@ -98,7 +98,7 @@ TObject *TFileDirectory::_getObj(const string &objname, const string &subdir) co
   TObject *objPtr = getBareDirectory(subdir)->Get(objname.c_str());
   if (!objPtr) {
     // no histogram found by that name.  Sorry dude.
-    if (subdir.length()) {
+    if (!subdir.empty()) {
       throw cms::Exception("ObjectNotFound") << "Can not find object named " << objname << " in subdir " << subdir;
     } else {
       throw cms::Exception("ObjectNotFound") << "Can not find object named " << objname;

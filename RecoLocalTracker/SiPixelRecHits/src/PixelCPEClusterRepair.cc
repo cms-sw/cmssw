@@ -75,7 +75,9 @@ PixelCPEClusterRepair::PixelCPEClusterRepair(edm::ParameterSet const& conf,
   }
 
   speed_ = conf.getParameter<int>("speed");
+  goodEdgeAlgo_ = conf.getParameter<bool>("GoodEdgeAlgo");
   LogDebug("PixelCPEClusterRepair::PixelCPEClusterRepair:") << "Template speed = " << speed_ << "\n";
+  LogDebug("PixelCPEClusterRepair::PixelCPEClusterRepair:") << "GoodEdgeAlgo = " << goodEdgeAlgo_ << "\n";
 
   // this returns the magnetic field value in kgauss (1T = 10 kgauss)
   int theMagField = mag->nominalValue();
@@ -236,11 +238,11 @@ LocalPoint PixelCPEClusterRepair::localPosition(DetParam const& theDetParam, Clu
   bool xdouble[mrow], ydouble[mcol];
   // x directions (shorter), rows
   for (int irow = 0; irow < mrow; ++irow)
-    xdouble[irow] = theDetParam.theRecTopol->isItBigPixelInX(irow + row_offset);
+    xdouble[irow] = theDetParam.theTopol->isItBigPixelInX(irow + row_offset);
   //
   // y directions (longer), columns
   for (int icol = 0; icol < mcol; ++icol)
-    ydouble[icol] = theDetParam.theRecTopol->isItBigPixelInY(icol + col_offset);
+    ydouble[icol] = theDetParam.theTopol->isItBigPixelInY(icol + col_offset);
 
   //--- C-style matrix.  We'll need it in either case.
   float clustMatrix[mrow][mcol];
@@ -355,7 +357,8 @@ void PixelCPEClusterRepair::callTempReco1D(DetParam const& theDetParam,
                                          zeropix,
                                          theClusterParam.probabilityQ_,
                                          nypix,
-                                         nxpix);
+                                         nxpix,
+                                         goodEdgeAlgo_);
   // ******************************************************************
 
   //--- Check exit status
@@ -549,7 +552,8 @@ void PixelCPEClusterRepair::checkRecommend2D(DetParam const& theDetParam,
   }
   // The 1d pixel template
   SiPixelTemplate templ(*thePixelTemp_);
-  if (!templ.interpolate(ID, theClusterParam.cotalpha, theClusterParam.cotbeta, theDetParam.bz, theDetParam.bx)) {
+  if (!templ.interpolate(
+          ID, theClusterParam.cotalpha, theClusterParam.cotbeta, theDetParam.bz, theDetParam.bx, goodEdgeAlgo_)) {
     //error setting up template, return false
     theClusterParam.recommended2D_ = false;
     return;
@@ -718,6 +722,7 @@ void PixelCPEClusterRepair::fillPSetDescription(edm::ParameterSetDescription& de
   desc.add<int>("forwardTemplateID", 0);
   desc.add<int>("directoryWithTemplates", 0);
   desc.add<int>("speed", -2);
+  desc.add<bool>("GoodEdgeAlgo", false);
   desc.add<bool>("UseClusterSplitter", false);
   desc.add<double>("MaxSizeMismatchInY", 0.3);
   desc.add<double>("MinChargeRatio", 0.8);

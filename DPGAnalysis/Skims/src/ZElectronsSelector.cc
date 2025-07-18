@@ -24,6 +24,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
@@ -45,6 +46,9 @@ namespace edm {
 class ZElectronsSelector {
 public:
   ZElectronsSelector(const edm::ParameterSet&, edm::ConsumesCollector& iC);
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
+
   bool operator()(const reco::GsfElectron&) const;
   void newEvent(const edm::Event&, const edm::EventSetup&);
   const float getEffectiveArea(float eta) const;
@@ -89,21 +93,40 @@ const float ZElectronsSelector::getEffectiveArea(float eta) const {
   return effArea;
 }
 
+void ZElectronsSelector::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  desc.add<edm::InputTag>("rho", edm::InputTag("fixedGridRhoFastjetCentralCalo"));
+  desc.add<std::vector<double>>("absEtaMin", {0.0000, 1.0000, 1.4790, 2.0000, 2.2000, 2.3000, 2.4000});
+  desc.add<std::vector<double>>("absEtaMax", {1.0000, 1.4790, 2.0000, 2.2000, 2.3000, 2.4000, 5.0000});
+  desc.add<std::vector<double>>("effectiveAreaValues", {0.1703, 0.1715, 0.1213, 0.1230, 0.1635, 0.1937, 0.2393});
+
+  edm::ParameterSetDescription eleIDWP;
+  eleIDWP.add<std::vector<double>>("full5x5_sigmaIEtaIEtaCut", {0.0128, 0.0445});
+  eleIDWP.add<std::vector<double>>("dEtaInSeedCut", {0.00523, 0.00984});
+  eleIDWP.add<std::vector<double>>("dPhiInCut", {0.159, 0.157});
+  eleIDWP.add<std::vector<double>>("hOverECut", {0.247, 0.0982});
+  eleIDWP.add<std::vector<double>>("relCombIsolationWithEACut", {0.168, 0.185});
+  eleIDWP.add<std::vector<double>>("EInverseMinusPInverseCut", {0.193, 0.0962});
+  eleIDWP.add<std::vector<int>>("missingHitsCut", {2, 3});
+
+  // Add the PSet to the main description
+  desc.add<edm::ParameterSetDescription>("eleID", eleIDWP);
+}
+
 ZElectronsSelector::ZElectronsSelector(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC)
     : theRhoToken(iC.consumes<double>(cfg.getParameter<edm::InputTag>("rho"))) {
-  absEtaMin_ = cfg.getParameter<std::vector<double> >("absEtaMin");
-  absEtaMax_ = cfg.getParameter<std::vector<double> >("absEtaMax");
-  effectiveAreaValues_ = cfg.getParameter<std::vector<double> >("effectiveAreaValues");
+  absEtaMin_ = cfg.getParameter<std::vector<double>>("absEtaMin");
+  absEtaMax_ = cfg.getParameter<std::vector<double>>("absEtaMax");
+  effectiveAreaValues_ = cfg.getParameter<std::vector<double>>("effectiveAreaValues");
   //printEffectiveAreas();
   eleIDWP = cfg.getParameter<edm::ParameterSet>("eleID");
 
-  missHits = eleIDWP.getParameter<std::vector<int> >("missingHitsCut");
-  sigmaIEtaIEtaCut = eleIDWP.getParameter<std::vector<double> >("full5x5_sigmaIEtaIEtaCut");
-  dEtaInSeedCut = eleIDWP.getParameter<std::vector<double> >("dEtaInSeedCut");
-  dPhiInCut = eleIDWP.getParameter<std::vector<double> >("dPhiInCut");
-  hOverECut = eleIDWP.getParameter<std::vector<double> >("hOverECut");
-  relCombIso = eleIDWP.getParameter<std::vector<double> >("relCombIsolationWithEACut");
-  EInvMinusPInv = eleIDWP.getParameter<std::vector<double> >("EInverseMinusPInverseCut");
+  missHits = eleIDWP.getParameter<std::vector<int>>("missingHitsCut");
+  sigmaIEtaIEtaCut = eleIDWP.getParameter<std::vector<double>>("full5x5_sigmaIEtaIEtaCut");
+  dEtaInSeedCut = eleIDWP.getParameter<std::vector<double>>("dEtaInSeedCut");
+  dPhiInCut = eleIDWP.getParameter<std::vector<double>>("dPhiInCut");
+  hOverECut = eleIDWP.getParameter<std::vector<double>>("hOverECut");
+  relCombIso = eleIDWP.getParameter<std::vector<double>>("relCombIsolationWithEACut");
+  EInvMinusPInv = eleIDWP.getParameter<std::vector<double>>("EInverseMinusPInverseCut");
 }
 
 void ZElectronsSelector::newEvent(const edm::Event& ev, const edm::EventSetup&) {

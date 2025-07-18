@@ -28,7 +28,7 @@ namespace {
   public:
     HcalL1TriggerObjectContainer(std::shared_ptr<HcalL1TriggerObjects> payload, unsigned int run)
         : HcalObjRepresent::HcalDataContainer<HcalL1TriggerObjects, HcalL1TriggerObject>(payload, run) {}
-    float getValue(HcalL1TriggerObject* trig) override { return trig->getRespGain(); }
+    float getValue(const HcalL1TriggerObject* trig) override { return trig->getRespGain(); }
   };
 
   /******************************************

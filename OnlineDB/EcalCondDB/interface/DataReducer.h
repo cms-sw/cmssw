@@ -42,7 +42,7 @@ public:
   typedef typename std::list<MyData<T> >::iterator iterator;
 
   DataReducer() { m_printout = false; };
-  ~DataReducer(){};
+  ~DataReducer() {}
 
   static const int TIMELIMIT = 60;  // the time limit in seconds to consider two events in the same IOV creation
 

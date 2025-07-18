@@ -22,7 +22,7 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 class HODetIdAssociator : public CaloDetIdAssociator {
 public:
-  HODetIdAssociator() : CaloDetIdAssociator(72, 30, 0.087, nullptr){};
+  HODetIdAssociator() : CaloDetIdAssociator(72, 30, 0.087, nullptr) {}
 
   using CaloDetIdAssociator::CaloDetIdAssociator;
 

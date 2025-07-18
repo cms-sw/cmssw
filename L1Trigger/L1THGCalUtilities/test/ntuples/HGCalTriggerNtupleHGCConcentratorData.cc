@@ -11,7 +11,7 @@
 class HGCalTriggerNtupleHGCConcentratorData : public HGCalTriggerNtupleBase {
 public:
   HGCalTriggerNtupleHGCConcentratorData(const edm::ParameterSet& conf);
-  ~HGCalTriggerNtupleHGCConcentratorData() override{};
+  ~HGCalTriggerNtupleHGCConcentratorData() override {}
   void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
   void fill(const edm::Event& e, const HGCalTriggerNtupleEventSetup& es) final;
 

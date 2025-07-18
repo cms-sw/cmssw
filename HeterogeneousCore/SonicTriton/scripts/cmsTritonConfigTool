@@ -381,7 +381,7 @@ def cfg_threadcontrol(args):
     for key,val in thread_control_parameters.items():
         if key in platform: # partial matching
             for param in val:
-                item = args.model.parameters.get_or_create(key)
+                item = args.model.parameters.get_or_create(param)
                 item.string_value = "1"
             found_params = True
             break

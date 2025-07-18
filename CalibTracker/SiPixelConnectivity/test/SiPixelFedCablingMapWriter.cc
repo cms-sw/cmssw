@@ -45,9 +45,6 @@ SiPixelFedCablingMapWriter::SiPixelFedCablingMapWriter(const edm::ParameterSet& 
   out << " input file name " << fileName_ << endl;
   //out << " phase " << phase1_ << endl;
   LogInfo("initialisation: ") << out.str();
-
-  //::putenv(const_cast<char*>(std::string("CORAL_AUTH_USER=me").c_str()));
-  //::putenv(const_cast<char*>(std::string("CORAL_AUTH_PASSWORD=none").c_str()));
 }
 
 SiPixelFedCablingMapWriter::~SiPixelFedCablingMapWriter() = default;

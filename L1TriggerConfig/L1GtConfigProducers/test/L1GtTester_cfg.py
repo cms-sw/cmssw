@@ -1,4 +1,3 @@
-from __future__ import print_function
 # cfg file to test L1 GT records
 #
 # V M Ghete  2008 - 2010 - 2012

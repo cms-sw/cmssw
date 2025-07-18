@@ -89,9 +89,9 @@ namespace tmtt {
 
     // For Hybrid tracking
     // Produce plots of tracklet seed finding efficiency before track reco
-    virtual void plotTrackletSeedEfficiency(){};
+    virtual void plotTrackletSeedEfficiency() {}
     // Produce plots of hybrid duplicate removal efficiency after track reco
-    virtual void plotHybridDupRemovalEfficiency(){};
+    virtual void plotHybridDupRemovalEfficiency() {}
 
     virtual void makeEfficiencyPlot(
         TFileDirectory& inputDir, TEfficiency* outputEfficiency, TH1F* pass, TH1F* all, TString name, TString title);
@@ -104,10 +104,10 @@ namespace tmtt {
 
     // For Hybrid tracking
     // Print summary of seed finding and extrapolation performance during track pattern reco.
-    virtual void printTrackletSeedFindingPerformance(){};
+    virtual void printTrackletSeedFindingPerformance() {}
 
     // Print summary of duplicate removal performance after track pattern reco.
-    virtual void printHybridDupRemovalPerformance(){};
+    virtual void printHybridDupRemovalPerformance() {}
 
   protected:
     edm::Service<TFileService> fs_;

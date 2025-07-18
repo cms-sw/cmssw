@@ -119,7 +119,6 @@ int main(int argc, char **argv) {
     if (cut_ptmin && cut_dR && cut_njets) {
       ind_pt = getBin(ptGen, pt_vec);
       ind_eta = getBin(etaJet, eta_vec);
-      resp = 0.;
       if (UseRatioForResponse && ptGen > 0)
         resp = ptJet / ptGen;
       else

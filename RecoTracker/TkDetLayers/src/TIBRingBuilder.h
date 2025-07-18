@@ -13,7 +13,7 @@
 #pragma GCC visibility push(hidden)
 class TIBRingBuilder {
 public:
-  TIBRingBuilder(){};
+  TIBRingBuilder() {}
   TIBRing* build(const std::vector<const GeometricDet*>& detsInRing, const TrackerGeometry* theGeomDetGeometry)
       __attribute__((cold));
 };

@@ -37,7 +37,7 @@ CaloTowerTopologyEP::~CaloTowerTopologyEP() {}
 
 void CaloTowerTopologyEP::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  descriptions.add("CaloTowerTopology", desc);
+  descriptions.add("CaloTowerTopologyEP", desc);
 }
 
 //

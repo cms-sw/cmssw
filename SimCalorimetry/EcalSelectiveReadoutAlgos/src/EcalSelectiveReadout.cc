@@ -123,8 +123,8 @@ void EcalSelectiveReadout::runSelectiveReadout0(const ttFlag_t ttFlags[nTriggerT
         assert(0 <= eeRuInterest(xtal) && eeRuInterest(xtal) <= 0x7);
 
       }  //next iY0
-    }    //next iX0
-  }      //next iZ0
+    }  //next iX0
+  }  //next iZ0
 #endif  //ECALSELECTIVEREADOUT_NOGEOM not defined
 }
 
@@ -300,7 +300,7 @@ void EcalSelectiveReadout::printEndcap(int endcap, std::ostream& os) const {
       os << c;
     }
     os << "\n";  //one Y supercystal column per line
-  }              //next supercrystal X-index
+  }  //next supercrystal X-index
 }
 
 std::ostream& operator<<(std::ostream& os, const EcalSelectiveReadout& selectiveReadout) {

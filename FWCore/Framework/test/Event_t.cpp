@@ -7,7 +7,7 @@ Test program for edm::Event.
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventID.h"
@@ -29,17 +29,17 @@ Test program for edm::Event.
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/ProducerBase.h"
+#include "FWCore/Framework/interface/ProductResolversFactory.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Reflection/interface/TypeWithDict.h"
-#include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
 
 #include "cppunit/extensions/HelperMacros.h"
@@ -53,6 +53,8 @@ Test program for edm::Event.
 #include <string>
 #include <typeinfo>
 #include <vector>
+
+#include "makeDummyProcessConfiguration.h"
 
 using namespace edm;
 
@@ -167,7 +169,7 @@ private:
                                                std::string const& productInstanceLabel,
                                                bool doCommit = true);
 
-  std::shared_ptr<ProductRegistry> availableProducts_;
+  std::shared_ptr<SignallingProductRegistryFiller> availableProducts_;
   std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
   std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;
   std::shared_ptr<edm::LuminosityBlockPrincipal> lbp_;
@@ -196,7 +198,7 @@ void testEvent::registerProduct(std::string const& tag,
                                 std::string const& processName,
                                 std::string const& productInstanceName) {
   if (!availableProducts_)
-    availableProducts_.reset(new ProductRegistry());
+    availableProducts_.reset(new SignallingProductRegistryFiller());
 
   ParameterSet moduleParams;
   moduleParams.template addParameter<std::string>("@module_type", moduleClassName);
@@ -208,22 +210,20 @@ void testEvent::registerProduct(std::string const& tag,
   processParams.template addParameter<ParameterSet>(moduleLabel, moduleParams);
   processParams.registerIt();
 
-  ProcessConfiguration process(processName, processParams.id(), getReleaseVersion(), getPassID());
+  auto process = edmtest::makeDummyProcessConfiguration(processName, processParams.id());
 
   auto processX = std::make_shared<ProcessConfiguration>(process);
   processConfigurations_.push_back(processX);
 
   TypeWithDict product_type(typeid(T));
 
-  BranchDescription branch(InEvent,
-                           moduleLabel,
-                           processName,
-                           product_type.userClassName(),
-                           product_type.friendlyClassName(),
-                           productInstanceName,
-                           moduleClassName,
-                           moduleParams.id(),
-                           product_type);
+  ProductDescription branch(InEvent,
+                            moduleLabel,
+                            processName,
+                            product_type.userClassName(),
+                            product_type.friendlyClassName(),
+                            productInstanceName,
+                            product_type);
 
   moduleDescriptions_[tag] = ModuleDescription(
       moduleParams.id(), moduleClassName, moduleLabel, processX.get(), ModuleDescription::getUniqueID());
@@ -318,7 +318,7 @@ std::unique_ptr<ProducerBase> testEvent::emplaceProduct(T product,
 }
 
 testEvent::testEvent()
-    : availableProducts_(new ProductRegistry()),
+    : availableProducts_(new SignallingProductRegistryFiller()),
       branchIDListHelper_(new BranchIDListHelper()),
       thinnedAssociationsHelper_(new ThinnedAssociationsHelper()),
       principal_(),
@@ -353,7 +353,7 @@ testEvent::testEvent()
   processParams.addParameter(moduleLabel, moduleParams);
   processParams.registerIt();
 
-  ProcessConfiguration process(processName, processParams.id(), getReleaseVersion(), getPassID());
+  auto process = edmtest::makeDummyProcessConfiguration(processName, processParams.id());
 
   TypeWithDict product_type(typeid(prod_t));
 
@@ -364,21 +364,19 @@ testEvent::testEvent()
 
   std::string productInstanceName("int1");
 
-  BranchDescription branch(InEvent,
-                           moduleLabel,
-                           processName,
-                           product_type.userClassName(),
-                           product_type.friendlyClassName(),
-                           productInstanceName,
-                           moduleClassName,
-                           moduleParams.id(),
-                           product_type);
+  ProductDescription branch(InEvent,
+                            moduleLabel,
+                            processName,
+                            product_type.userClassName(),
+                            product_type.friendlyClassName(),
+                            productInstanceName,
+                            product_type);
 
   availableProducts_->addProduct(branch);
 
   // Freeze the product registry before we make the Event.
   availableProducts_->setFrozen();
-  branchIDListHelper_->updateFromRegistry(*availableProducts_);
+  branchIDListHelper_->updateFromRegistry(availableProducts_->registry());
 }
 
 testEvent::~testEvent() {}
@@ -401,7 +399,7 @@ void testEvent::setUp() {
   processParamsEarly.addParameter(moduleLabelEarly, moduleParamsEarly);
   processParamsEarly.registerIt();
 
-  ProcessConfiguration processEarly("EARLY", processParamsEarly.id(), getReleaseVersion(), getPassID());
+  auto processEarly = edmtest::makeDummyProcessConfiguration("EARLY", processParamsEarly.id());
 
   ParameterSet moduleParamsLate;
   std::string moduleLabelLate("currentModule");
@@ -416,7 +414,7 @@ void testEvent::setUp() {
   processParamsLate.addParameter(moduleLabelLate, moduleParamsLate);
   processParamsLate.registerIt();
 
-  ProcessConfiguration processLate("LATE", processParamsLate.id(), getReleaseVersion(), getPassID());
+  auto processLate = edmtest::makeDummyProcessConfiguration("LATE", processParamsLate.id());
 
   auto processHistory = std::make_unique<ProcessHistory>();
   ProcessHistory& ph = *processHistory;
@@ -442,20 +440,26 @@ void testEvent::setUp() {
   // and that is used to create the product holder in the principal used to
   // look up the object.
 
-  std::shared_ptr<ProductRegistry const> preg(availableProducts_);
+  std::shared_ptr<ProductRegistry const> preg(std::make_shared<ProductRegistry>(availableProducts_->registry()));
   std::string uuid = createGlobalIdentifier();
   Timestamp time = make_timestamp();
   EventID id = make_id();
   ProcessConfiguration const& pc = currentModuleDescription_->processConfiguration();
-  auto rp = std::make_shared<RunPrincipal>(preg, pc, &historyAppender_, 0);
+  auto rp = std::make_shared<RunPrincipal>(preg, edm::productResolversFactory::makePrimary, pc, &historyAppender_, 0);
   rp->setAux(RunAuxiliary(id.run(), time, time));
-  lbp_ = std::make_shared<LuminosityBlockPrincipal>(preg, pc, &historyAppender_, 0);
+  lbp_ = std::make_shared<LuminosityBlockPrincipal>(
+      preg, edm::productResolversFactory::makePrimary, pc, &historyAppender_, 0);
   lbp_->setAux(LuminosityBlockAuxiliary(rp->run(), 1, time, time));
   lbp_->setRunPrincipal(rp);
   EventAuxiliary eventAux(id, uuid, time, true);
   const_cast<ProcessHistoryID&>(eventAux.processHistoryID()) = processHistoryID;
-  principal_.reset(new edm::EventPrincipal(
-      preg, branchIDListHelper_, thinnedAssociationsHelper_, pc, &historyAppender_, edm::StreamID::invalidStreamID()));
+  principal_.reset(new edm::EventPrincipal(preg,
+                                           edm::productResolversFactory::makePrimary,
+                                           branchIDListHelper_,
+                                           thinnedAssociationsHelper_,
+                                           pc,
+                                           &historyAppender_,
+                                           edm::StreamID::invalidStreamID()));
   principal_->fillEventPrincipal(eventAux, processHistoryRegistry_.getMapped(eventAux.processHistoryID()));
   principal_->setLuminosityBlockPrincipal(lbp_.get());
   ModuleCallingContext mcc(currentModuleDescription_.get());
@@ -987,7 +991,7 @@ void testEvent::deleteProduct() {
 
   BranchID id;
 
-  availableProducts_->callForEachBranch([&id](const BranchDescription& iDesc) {
+  availableProducts_->callForEachBranch([&id](const ProductDescription& iDesc) {
     if (iDesc.moduleLabel() == "modMulti" && iDesc.productInstanceName() == "int1") {
       id = iDesc.branchID();
     }

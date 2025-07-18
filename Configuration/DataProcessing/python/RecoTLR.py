@@ -1,15 +1,9 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 ##############################################################################
 # common utilities
 ##############################################################################
 def _swapOfflineBSwithOnline(process):
-    import RecoVertex.BeamSpotProducer.onlineBeamSpotESProducer_cfi as _mod
-    process.BeamSpotESProducer = _mod.onlineBeamSpotESProducer.clone(
-        timeThreshold = 999999 # for express allow >48h old payloads for replays. DO NOT CHANGE
-    )
-
     from RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi import onlineBeamSpotProducer
     process.offlineBeamSpot = onlineBeamSpotProducer.clone()
     return process
@@ -95,6 +89,16 @@ def customisePostEra_Run3_2023(process):
     customisePostEra_Run3(process)
     return process
 
+def customisePostEra_Run3_2024(process):
+    #start with a repeat of 2023
+    customisePostEra_Run3_2023(process)
+    return process
+
+def customisePostEra_Run3_2025(process):
+    #start with a repeat of 2024
+    customisePostEra_Run3_2024(process)
+    return process
+
 def customisePostEra_Run3_express_trackingOnly(process):
     #start with a repeat of 2018
     customisePostEra_Run2_2018_express_trackingOnly(process)
@@ -119,6 +123,38 @@ def customisePostEra_Run3_pp_on_PbPb_approxSiStripClusters(process):
 
 def customisePostEra_Run3_pp_on_PbPb_approxSiStripClusters_2023(process):
     customisePostEra_Run3_pp_on_PbPb_2023(process)
+    return process
+
+def customisePostEra_Run3_pp_on_PbPb_2024(process):
+    customisePostEra_Run3_2024(process)
+    return process
+
+def customisePostEra_Run3_pp_on_PbPb_approxSiStripClusters_2024(process):
+    customisePostEra_Run3_pp_on_PbPb_2024(process)
+    return process
+
+def customisePostEra_Run3_2024_UPC(process):
+    customisePostEra_Run3_2024(process)
+    return process
+
+def customisePostEra_Run3_2024_ppRef(process):
+    customisePostEra_Run3_2024(process)
+    return process
+
+def customisePostEra_Run3_pp_on_PbPb_2025(process):
+    customisePostEra_Run3_2025(process)
+    return process
+
+def customisePostEra_Run3_pp_on_PbPb_approxSiStripClusters_2025(process):
+    customisePostEra_Run3_pp_on_PbPb_2025(process)
+    return process
+
+def customisePostEra_Run3_2025_UPC(process):
+    customisePostEra_Run3_2025(process)
+    return process
+
+def customisePostEra_Run3_2025_OXY(process):
+    customisePostEra_Run3_2025(process)
     return process
 
 ##############################################################################

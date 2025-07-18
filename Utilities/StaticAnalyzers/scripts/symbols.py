@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 
-from __future__ import print_function
 import networkx as nx
 import collections
 import os

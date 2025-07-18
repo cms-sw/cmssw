@@ -62,7 +62,7 @@ namespace {
 class SiStripQualityESProducer : public edm::ESProducer {
 public:
   SiStripQualityESProducer(const edm::ParameterSet&);
-  ~SiStripQualityESProducer() override{};
+  ~SiStripQualityESProducer() override {}
 
   std::unique_ptr<SiStripQuality> produce(const SiStripQualityRcd&);
 

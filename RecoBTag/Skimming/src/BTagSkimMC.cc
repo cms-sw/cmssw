@@ -51,7 +51,7 @@ bool BTagSkimMC::filter(Event& evt, const EventSetup& es) {
       }
     }
 
-  }                           // ALPGEN
+  }  // ALPGEN
   else if (processID == 4) {  // this is the number for external ALPGEN events
 
     Handle<GenParticleCollection> genParticles;

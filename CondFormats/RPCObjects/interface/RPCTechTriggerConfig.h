@@ -29,7 +29,7 @@ public:
     m_triggerMode = trigmode;
   };
 
-  virtual ~RPCTechTriggerConfig(){};  ///< Destructor
+  virtual ~RPCTechTriggerConfig() {}  ///< Destructor
 
   int m_runId;
   int m_runType;

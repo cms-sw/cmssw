@@ -27,7 +27,7 @@ def parser():
 
 ##Called in fillJson function in parallel
 def getFileInfo(filename):
-    print "Processing: {}".format(filename)
+    print("Processing: {}".format(filename))
 
     ##Get file info
     try:
@@ -37,7 +37,7 @@ def getFileInfo(filename):
 
     ##File not at CERN
     except:
-        print "Not at CERN {}".format(filename)
+        print("Not at CERN {}".format(filename))
         runInfo = filename
 
     return runInfo
@@ -52,7 +52,7 @@ def getFileList(dataset):
     ##Find files in dataset
     dbs = DbsApi('https://cmsweb.cern.ch/dbs/prod/global/DBSReader')
 
-    print "Processing: {}".format(dataset)
+    print("Processing: {}".format(dataset))
     sites = subprocess.check_output(["dasgoclient", "--query", "site dataset={}".format(dataset)]).split()
 
     if "T2_CH_CERN" in sites:
@@ -68,7 +68,7 @@ def getFileList(dataset):
                 emptyfiles.append(filename)
 
     else:
-        print "Not at CERN {}".format(dataset)
+        print("Not at CERN {}".format(dataset))
 
     return filelist, emptyfiles, nEvents
 

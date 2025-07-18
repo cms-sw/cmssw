@@ -18,7 +18,7 @@
 class AlignTrackSegments {
 public:
   AlignTrackSegments(L1MuDTChambPhContainer inphiDigis);
-  ~AlignTrackSegments(){};
+  ~AlignTrackSegments() {}
 
   void run();
 

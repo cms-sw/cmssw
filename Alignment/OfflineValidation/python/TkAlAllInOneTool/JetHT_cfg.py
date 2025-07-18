@@ -289,14 +289,28 @@ process.TFileService = cms.Service("TFileService",
                                    )
 
 
+###################################################################
+# Beamspot compatibility check
+###################################################################
+from RecoVertex.BeamSpotProducer.beamSpotCompatibilityChecker_cfi import beamSpotCompatibilityChecker
+process.BeamSpotChecker = beamSpotCompatibilityChecker.clone(
+    bsFromFile = configuration["validation"].get("bsFromFile","offlineBeamSpot::RECO"),  # source of the event beamspot (in the ALCARECO files)
+    bsFromDB = "offlineBeamSpot::@currentProcess", # source of the DB beamspot (from Global Tag) NOTE: only if dbFromEvent is True!
+    dbFromEvent = True,
+    warningThr = configuration["validation"].get("bsIncompatibleWarnThresh", 3), # significance threshold to emit a warning message
+    errorThr = configuration["validation"].get("bsIncompatibleErrThresh", 5),    # significance threshold to abort the job
+)
+
 if (triggerFilter == "nothing" or triggerFilter == ""):
-    process.p = cms.Path(process.offlineBeamSpot                        + 
+    process.p = cms.Path(process.offlineBeamSpot                        +
+                         process.BeamSpotChecker                        +
                          process.TrackRefitter                          + 
                          process.offlinePrimaryVerticesFromRefittedTrks +
                          process.jetHTAnalyzer)
 else:
     process.p = cms.Path(process.HLTFilter                              +
-                         process.offlineBeamSpot                        + 
+                         process.offlineBeamSpot                        +
+                         process.BeamSpotChecker                        +
                          process.TrackRefitter                          + 
                          process.offlinePrimaryVerticesFromRefittedTrks +
                          process.jetHTAnalyzer)

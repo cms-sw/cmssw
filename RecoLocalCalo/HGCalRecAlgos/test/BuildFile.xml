@@ -1,8 +1,21 @@
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
 <use name="Geometry/Records"/>
+<use name="Geometry/HGCalMapping"/>
 <use name="RecoLocalCalo/HGCalRecAlgos"/>
+<use name="DataFormats/HGCalRecHit"/>
+<use name="DataFormats/HGCalDigi"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/HGCalObjects"/>
 <flags EDM_PLUGIN="1"/>
 <library name="RecoLocalCaloHGCalRecAlgosTestPlugin" file="*.cc">
+</library>
+<library name="RecoLocalCaloHGCalRecAlgosTestPluginAlpaka" file="alpaka/*.cc">
+  <use name="alpaka"/>
+  <use name="HeterogeneousCore/AlpakaCore"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <flags ALPAKA_BACKENDS="1"/>
+  <flags EDM_PLUGIN="1"/>
 </library>

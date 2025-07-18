@@ -22,12 +22,12 @@ def add_rawRelVals(process, inputName):
          'The parenthood is needed to add RAW secondary input files' % process.source.fileNames[0]
          )
    for i in dataset['data']:
-	try: n_files = i['dataset'][0]['num_file']
-	except: pass
+        try: n_files = i['dataset'][0]['num_file']
+        except: pass
    raw_files = cmssw_das_client.get_data('file '+query, limit = 0)
    files = []
    for i in raw_files['data']:
-	files.append( i['file'][0]['name'])
+        files.append( i['file'][0]['name'])
    
    raw_files = ['root://cms-xrd-global.cern.ch/'+str(i) for i in files]
    process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(raw_files))

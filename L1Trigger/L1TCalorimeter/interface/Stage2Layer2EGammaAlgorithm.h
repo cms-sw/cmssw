@@ -28,7 +28,7 @@ namespace l1t {
                               const std::vector<CaloTower>& towers,
                               std::vector<l1t::EGamma>& egammas) = 0;
 
-    virtual ~Stage2Layer2EGammaAlgorithm(){};
+    virtual ~Stage2Layer2EGammaAlgorithm() {}
   };
 
 }  // namespace l1t

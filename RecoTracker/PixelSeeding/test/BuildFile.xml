@@ -34,4 +34,5 @@
   <use name="alpaka"/>
   <use name="eigen"/>
   <use name="boost"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
 </bin>

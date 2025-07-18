@@ -7,6 +7,8 @@
 
 */
 
+#include <sstream>
+
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexFitterBase.h"
@@ -14,8 +16,8 @@
 
 class SequentialPrimaryVertexFitterAdapter : public PrimaryVertexFitterBase {
 public:
-  SequentialPrimaryVertexFitterAdapter() : fitter(nullptr){};
-  SequentialPrimaryVertexFitterAdapter(const VertexFitter<5>* vertex_fitter) : fitter(vertex_fitter){};
+  SequentialPrimaryVertexFitterAdapter() : fitter(nullptr) {}
+  SequentialPrimaryVertexFitterAdapter(const VertexFitter<5>* vertex_fitter) : fitter(vertex_fitter) {}
   ~SequentialPrimaryVertexFitterAdapter() override = default;
 
   std::vector<TransientVertex> fit(const std::vector<reco::TransientTrack>& dummy,
@@ -27,7 +29,15 @@ public:
       const std::vector<reco::TransientTrack>& tracklist = cluster.originalTracks();
       TransientVertex v;
       if (useBeamConstraint && (tracklist.size() > 1)) {
-        v = fitter->vertex(tracklist, beamspot);
+        try {
+          v = fitter->vertex(tracklist, beamspot);
+        } catch (VertexException& ex) {
+          std::ostringstream beamspotInfo;
+          beamspotInfo << "While processing SequentialPrimaryVertexFitterAdapter::fit() with BeamSpot parameters: \n"
+                       << beamspot;
+          ex.addContext(beamspotInfo.str());
+          throw;  // rethrow the exception
+        }
       } else if (!(useBeamConstraint) && (tracklist.size() > 1)) {
         v = fitter->vertex(tracklist);
       }  // else: no fit ==> v.isValid()=False

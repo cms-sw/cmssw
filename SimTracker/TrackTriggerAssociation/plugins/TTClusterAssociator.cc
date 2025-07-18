@@ -146,7 +146,7 @@ void TTClusterAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, co
               clusterToTrackingParticleVectorMap.find(tempCluRef)->second.push_back(tempTPPtr);
             }
           }  /// End of loop over PixelDigiSimLink
-        }    /// End of loop over all the hits composing the Cluster
+        }  /// End of loop over all the hits composing the Cluster
 
         /// Check that the cluster has a non-NULL TP pointer
         const std::vector<TrackingParticlePtr>& theseClusterTrackingParticlePtrs =

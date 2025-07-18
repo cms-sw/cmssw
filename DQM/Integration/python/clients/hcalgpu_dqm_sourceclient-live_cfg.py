@@ -60,8 +60,8 @@ if not useFileInput:
 process.dqmEnv.subSystemFolder = subsystem
 process.dqmSaver.tag = 'HcalGPU'
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = 'HcalGPU'
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = 'HcalGPU'
+# process.dqmSaverPB.runNumber = options.runNumber
 process = customise(process)
 process.DQMStore.verbose = 0
 if not unitTest and not useFileInput :
@@ -108,8 +108,8 @@ process.load('DQM.HcalTasks.HcalQualityTests_cfi')
 #	New Style Modules
 #-------------------------------------
 oldsubsystem = subsystem
-process.hcalGPUComparisonTask.tagHBHE_ref = "hltHbherecoLegacy"
-process.hcalGPUComparisonTask.tagHBHE_target = "hltHbherecoFromGPU"
+process.hcalGPUComparisonTask.tagHBHE_ref = "hltHbherecoSerialSync"
+process.hcalGPUComparisonTask.tagHBHE_target = "hltHbhereco"
 process.hcalGPUComparisonTask.runkeyVal = runType
 process.hcalGPUComparisonTask.runkeyName = runTypeName
 
@@ -128,7 +128,7 @@ process.dqmPath = cms.EndPath(
 		process.dqmEnv)
 process.dqmPath1 = cms.EndPath(
 		process.dqmSaver
-		*process.dqmSaverPB
+		#*process.dqmSaverPB
 )
 
 process.schedule = cms.Schedule(
@@ -151,5 +151,6 @@ process.options.wantSummary = True
 
 # tracer
 #process.Tracer = cms.Service("Tracer")
-print("Final Source settings:", process.source)
 process = customise(process)
+print("Global Tag used:", process.GlobalTag.globaltag.value())
+print("Final Source settings:", process.source)

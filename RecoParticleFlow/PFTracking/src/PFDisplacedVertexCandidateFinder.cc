@@ -314,10 +314,11 @@ bool PFDisplacedVertexCandidateFinder::goodPtResolution(const TrackBaseRef& trac
   double dxy = trackref->dxy(pvtx_);
 
   double pt_error = dpt / pt * 100;
+  double qoverpError = trackref->qoverpError();
 
   LogDebug("PFDisplacedVertexCandidateFinder")
       << " PFDisplacedVertexFinder: PFrecTrack->Track Pt= " << pt << " dPt/Pt = " << pt_error << "% nChi2 = " << nChi2;
-  if (nChi2 > nChi2_max_ || pt < pt_min_) {
+  if (nChi2 > nChi2_max_ || pt < pt_min_ || qoverpError > qoverpError_max_) {
     LogDebug("PFDisplacedVertexCandidateFinder") << " PFBlockAlgo: skip badly measured or low pt track"
                                                  << " nChi2_cut = " << 5 << " pt_cut = " << 0.2;
     return false;

@@ -21,6 +21,7 @@ errorstr     = "### HcalDQM::cfg::ERROR:"
 useOfflineGT = False
 useFileInput = False
 useMap       = False
+usetxtMap    = False
 
 #-------------------------------------
 #	Central DQM Stuff imports
@@ -48,8 +49,8 @@ process.source.streamLabel = cms.untracked.string("streamDQMCalibration")
 process.dqmEnv.subSystemFolder = subsystem
 process.dqmSaver.tag = subsystem
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = subsystem
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = subsystem
+# process.dqmSaverPB.runNumber = options.runNumber
 process = customise(process)
 if not useFileInput:
   if not options.BeamSplashRun : 
@@ -125,6 +126,17 @@ if useMap:
                  #tag = cms.string("HcalElectronicsMap_v7.05_hlt"),
                  tag = cms.string("HcalElectronicsMap_v9.0_hlt"),
         ))
+if usetxtMap:
+    process.es_ascii = cms.ESSource(
+                'HcalTextCalibrations',
+                input = cms.VPSet(
+                        cms.PSet(
+                                object = cms.string('ElectronicsMap'),
+                                file = cms.FileInPath("ElectronicsMap_Run394200_new.txt")
+                        )
+                )
+        )
+    process.es_prefer = cms.ESPrefer('HcalTextCalibrations', 'es_ascii')
 
 #-------------------------------------
 #	Some Settings before Finishing up
@@ -199,6 +211,14 @@ process.qie11Task_pedestal = process.qie11Task.clone(
 
 process.ledTask.name = cms.untracked.string("LEDTask")
 
+process.hfRaddamTask.laserType = cms.untracked.uint32(24)
+
+process.megatileTask = process.laserTask.clone(
+    name = "MegatileTask",
+    laserType = 24
+)
+
+
 #-------------------------------------
 #	Hcal DQM Tasks Sequence Definition
 #-------------------------------------
@@ -206,17 +226,18 @@ process.tasksSequence = cms.Sequence(
 		process.pedestalTask
 		*process.hfRaddamTask
 		*process.rawTask
-		*process.hbhehpdTask
-		*process.hoTask
-		*process.hfTask
-		*process.hepmegaTask
-		*process.hemmegaTask
-		*process.hbpmegaTask
-		*process.hbmmegaTask
+		#*process.hbhehpdTask
+		#*process.hoTask
+		#*process.hfTask
+		#*process.hepmegaTask
+		#*process.hemmegaTask
+		#*process.hbpmegaTask
+		#*process.hbmmegaTask
 		*process.umnioTask
-		*process.qie11Task_laser
+		#*process.qie11Task_laser
 		*process.qie11Task_pedestal
 		*process.ledTask
+        *process.megatileTask
 )
 
 process.harvestingSequence = cms.Sequence(
@@ -232,11 +253,12 @@ process.p = cms.Path(
 					*process.harvestingSequence
                     *process.dqmEnv
                     *process.dqmSaver
-		    *process.dqmSaverPB)
+		    )#*process.dqmSaverPB)
 
 #-------------------------------------
 #	Scheduling
 #-------------------------------------
+print("Global Tag used:", process.GlobalTag.globaltag.value())
 print("Final Source settings:", process.source)
 process.options = cms.untracked.PSet(
 	Rethrow = cms.untracked.vstring(

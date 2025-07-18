@@ -34,10 +34,10 @@ namespace pat {
       /// Constructors and Destructor
 
       /// Default constructor
-      TriggerMatchHelper(){};
+      TriggerMatchHelper() {}
 
       /// Destructor
-      ~TriggerMatchHelper(){};
+      ~TriggerMatchHelper() {}
 
       /// Methods
 

@@ -9,6 +9,7 @@
 // Utility to concatenate streamer files outside of the framework
 // Mimics the behavior of DAQ
 // Largely copied from DiagStreamerFile
+using namespace edm::streamer;
 
 void help();
 void mergefile(StreamerOutputFile&, std::string const&, bool);
@@ -45,7 +46,7 @@ void mergefile(StreamerOutputFile& stream_output, std::string const& filename, b
   uint32 num_events(0);
 
   try {
-    edm::StreamerInputFile stream_reader(filename);
+    StreamerInputFile stream_reader(filename);
 
     std::cout << "Trying to Read The Init message from Streamer File: " << std::endl << filename << std::endl;
     InitMsgView const* init = stream_reader.startMessage();
@@ -56,7 +57,7 @@ void mergefile(StreamerOutputFile& stream_output, std::string const& filename, b
 
     std::cout << "Trying to read the Event messages" << std::endl;
     EventMsgView const* eview(nullptr);
-    while (edm::StreamerInputFile::Next::kEvent == stream_reader.next()) {
+    while (StreamerInputFile::Next::kEvent == stream_reader.next()) {
       eview = stream_reader.currentRecord();
       ++num_events;
       stream_output.write(*eview);

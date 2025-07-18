@@ -79,7 +79,7 @@ namespace tmtt {
         if ((!usePtAndZ0Cuts) ||
             (std::abs(trk.z0()) < settings_->beamWindowZ() && trk.pt() > settings_->houghMinPt() - 0.2)) {
           // For debugging.
-          const TP* tp = trk.matchedTP();
+          [[clang::suppress]] const TP* tp = trk.matchedTP();
 
           // Check if this track's fitted (q/pt, phi0) helix parameters correspond to the same HT cell as the HT originally found the track in.
           bool consistentCell = trk.consistentHTcell();
@@ -175,7 +175,7 @@ namespace tmtt {
             htCellUsed.insert(htCell);
 
           // For debugging.
-          const TP* tp = trk->matchedTP();
+          [[clang::suppress]] const TP* tp = trk->matchedTP();
 
           if (debug && tp != nullptr) {
             PrintL1trk() << "SECOND PASS: m=" << trk->cellLocationHT().first << "/" << trk->cellLocationFit().first

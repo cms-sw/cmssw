@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 import sys
-from Configuration.Eras.Era_Run3_cff import Run3
-process = cms.Process("L1TStage2EmulatorDQM", Run3)
+from Configuration.Eras.Era_Run3_2025_cff import Run3_2025
+process = cms.Process("L1TStage2EmulatorDQM", Run3_2025)
 
 unitTest = False
 if 'unitTest=True' in sys.argv:
@@ -39,13 +39,13 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = "L1TEMU"
 process.dqmSaver.tag = "L1TEMU"
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = "L1TEMU"
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = "L1TEMU"
+# process.dqmSaverPB.runNumber = options.runNumber
 
 process.dqmEndPath = cms.EndPath(
     process.dqmEnv *
-    process.dqmSaver *
-    process.dqmSaverPB
+    process.dqmSaver # *
+    # process.dqmSaverPB
 )
 
 #--------------------------------------------------
@@ -139,7 +139,7 @@ if process.runType.getRunType() == process.runType.hi_run:
     process.muonRPCDigis.InputLabel = rawDataRepackerLabel
     process.muonGEMDigis.InputLabel = rawDataRepackerLabel
     process.scalersRawToDigi.scalersInputTag = rawDataRepackerLabel
-    process.siPixelDigis.cpu.InputLabel = rawDataRepackerLabel
+    process.siPixelDigis.InputLabel = rawDataRepackerLabel
     process.siStripDigis.ProductLabel = rawDataRepackerLabel
     process.tcdsDigis.InputLabel = rawDataRepackerLabel
     process.tcdsRawToDigi.InputLabel = rawDataRepackerLabel
@@ -164,6 +164,7 @@ if process.runType.getRunType() == process.runType.hi_run:
     process.selfFatEventFilter.rawInput = rawDataRepackerLabel
     process.rpcTwinMuxRawToDigi.inputTag = rawDataRepackerLabel
     process.rpcCPPFRawToDigi.inputTag = rawDataRepackerLabel
+    process.rpcunpacker.InputLabel = rawDataRepackerLabel
 
 #--------------------------------------------------
 # L1T Emulator Online DQM Schedule
@@ -180,4 +181,5 @@ process.schedule = cms.Schedule(
 
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
+print("Global Tag used:", process.GlobalTag.globaltag.value())
 print("Final Source settings:", process.source)

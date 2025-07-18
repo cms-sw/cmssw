@@ -72,8 +72,8 @@ namespace {
             // fill the Histogram2D here
             fillWithValue((EBDetId(rawid)).iphi(), (EBDetId(rawid)).ieta(), p2);
           }  // loop over cellid
-        }    // if payload.get()
-      }      // loop over IOV's (1 in this case)
+        }  // if payload.get()
+      }  // loop over IOV's (1 in this case)
 
       return true;
     }  // fill method
@@ -118,8 +118,8 @@ namespace {
             else
               fillWithValue(myEEId.ix() + IX_MAX + EEhistSplit, myEEId.iy(), p2);
           }  // loop over cellid
-        }    // payload
-      }      // loop over IOV's (1 in this case)
+        }  // payload
+      }  // loop over IOV's (1 in this case)
       return true;
     }  // fill method
   };
@@ -208,7 +208,7 @@ namespace {
             endc_m[2]->Fill(myEEId.ix(), myEEId.iy(), p3);
           }
         }  // validDetId
-      }    // if payload.get()
+      }  // if payload.get()
       else
         return false;
 
@@ -464,7 +464,7 @@ namespace {
               }
             }
           }  // loop over cellid
-        }    //  if payload.get()
+        }  //  if payload.get()
         else
           return false;
       }  // loop over IOVs
@@ -572,7 +572,7 @@ namespace {
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };   // class EcalLaserAPDPNRatiosDiffBase
+  };  // class EcalLaserAPDPNRatiosDiffBase
   using EcalLaserAPDPNRatiosDiffOneTag = EcalLaserAPDPNRatiosBase<cond::payloadInspector::SINGLE_IOV, 1, 0>;
   using EcalLaserAPDPNRatiosDiffTwoTags = EcalLaserAPDPNRatiosBase<cond::payloadInspector::SINGLE_IOV, 2, 0>;
   using EcalLaserAPDPNRatiosRatioOneTag = EcalLaserAPDPNRatiosBase<cond::payloadInspector::SINGLE_IOV, 1, 1>;

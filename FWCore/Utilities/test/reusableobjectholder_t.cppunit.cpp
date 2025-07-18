@@ -180,28 +180,24 @@ void reusableobjectholder_test::testDeletion() {
       CPPUNIT_ASSERT(*p == 2);
 
       {
-        auto p3 = intHolder.makeOrGet([]() {
-          return std::unique_ptr<int, CustomDeleter>{new int{3}, CustomDeleter{3}};
-        });
+        auto p3 =
+            intHolder.makeOrGet([]() { return std::unique_ptr<int, CustomDeleter>{new int{3}, CustomDeleter{3}}; });
         CPPUNIT_ASSERT(p.get() != nullptr);
         CPPUNIT_ASSERT(*p3 == 3);
 
-        auto p4 = intHolder.makeOrGet([]() {
-          return std::unique_ptr<int, CustomDeleter>{new int{4}, CustomDeleter{4}};
-        });
+        auto p4 =
+            intHolder.makeOrGet([]() { return std::unique_ptr<int, CustomDeleter>{new int{4}, CustomDeleter{4}}; });
         CPPUNIT_ASSERT(p.get() != nullptr);
         CPPUNIT_ASSERT(*p4 == 4);
       }
 
-      auto p34 = intHolder.makeOrGet([]() {
-        return std::unique_ptr<int, CustomDeleter>{new int{3}, CustomDeleter{3}};
-      });
+      auto p34 =
+          intHolder.makeOrGet([]() { return std::unique_ptr<int, CustomDeleter>{new int{3}, CustomDeleter{3}}; });
       CPPUNIT_ASSERT(p.get() != nullptr);
       CPPUNIT_ASSERT(*p34 == 3 or *p34 == 4);
 
-      auto p43 = intHolder.makeOrGet([]() {
-        return std::unique_ptr<int, CustomDeleter>{new int{4}, CustomDeleter{4}};
-      });
+      auto p43 =
+          intHolder.makeOrGet([]() { return std::unique_ptr<int, CustomDeleter>{new int{4}, CustomDeleter{4}}; });
       CPPUNIT_ASSERT(p.get() != nullptr);
       CPPUNIT_ASSERT(*p43 == 3 or *p43 == 4);
       CPPUNIT_ASSERT(*p34 != *p43);

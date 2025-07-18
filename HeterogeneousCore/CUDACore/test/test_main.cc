@@ -17,6 +17,7 @@ public:
         R"_(import FWCore.ParameterSet.Config as cms
 process = cms.Process('Test')
 process.CUDAService = cms.Service('CUDAService')
+process.AsyncService = cms.Service('AsyncService')
 )_"};
 
     std::unique_ptr<edm::ParameterSet> params;

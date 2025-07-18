@@ -2,26 +2,29 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.Trigger.SiPixel_OfflineMonitoring_Cluster_cff import *
 from DQMOffline.Trigger.SiPixel_OfflineMonitoring_TrackCluster_cff import *
+from DQMOffline.Trigger.SiPixel_OfflineMonitoring_TrackResiduals_cff import *
 from RecoTracker.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
 from DQM.SiPixelMonitorTrack.RefitterForPixelDQM import *
 from RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi import *
 
-hltSiPixelClusterShapeCache = siPixelClusterShapeCache.clone(src = 'hltSiPixelClusters')
+hltSiPixelClusterShapeCacheForDQM = siPixelClusterShapeCache.clone(src = 'hltSiPixelClusters')
 
 from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
-pp_on_PbPb_run3.toModify(hltSiPixelClusterShapeCache,
+pp_on_PbPb_run3.toModify(hltSiPixelClusterShapeCacheForDQM,
                          src =  "hltSiPixelClustersAfterSplittingPPOnAA")
 
-hltrefittedForPixelDQM = refittedForPixelDQM.clone(src ='hltMergedTracks',
-                                                   TTRHBuilder = 'WithTrackAngle') # no templates at HLT
+hltTrackRefitterForPixelDQM = refittedForPixelDQM.clone(src                     = "hltMergedTracks",
+                                                        beamSpot                = "hltOnlineBeamSpot",
+                                                        TTRHBuilder             = 'hltESPTTRHBWithTrackAngle') # no template at HLT
 
-pp_on_PbPb_run3.toModify(hltrefittedForPixelDQM,
+pp_on_PbPb_run3.toModify(hltTrackRefitterForPixelDQM,
                          src ='hltMergedTracksPPOnAA')
 
 sipixelMonitorHLTsequence = cms.Sequence(
-    hltSiPixelClusterShapeCache
+    hltSiPixelClusterShapeCacheForDQM
     + hltSiPixelPhase1ClustersAnalyzer
-    + hltrefittedForPixelDQM
-    + hltSiPixelPhase1TrackClustersAnalyzer,
+    + hltTrackRefitterForPixelDQM
+    + hltSiPixelPhase1TrackClustersAnalyzer
+    + hltSiPixelPhase1TrackResidualsAnalyzer,
     cms.Task(SiPixelTemplateStoreESProducer)
 )

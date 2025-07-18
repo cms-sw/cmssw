@@ -59,14 +59,7 @@ namespace edm {
 
     Path& operator=(Path const&) = delete;
 
-    template <typename T>
-    void runAllModulesAsync(WaitingTaskHolder,
-                            typename T::TransitionInfoType const&,
-                            ServiceToken const&,
-                            StreamID const&,
-                            typename T::Context const*);
-
-    void processOneOccurrenceAsync(
+    void processEventUsingPathAsync(
         WaitingTaskHolder, EventTransitionInfo const&, ServiceToken const&, StreamID const&, StreamContext const*);
 
     int bitPosition() const { return bitpos_; }
@@ -177,17 +170,6 @@ namespace edm {
       PathContext const* pathContext_;
     };
   }  // namespace
-
-  template <typename T>
-  void Path::runAllModulesAsync(WaitingTaskHolder task,
-                                typename T::TransitionInfoType const& info,
-                                ServiceToken const& token,
-                                StreamID const& streamID,
-                                typename T::Context const* context) {
-    for (auto& worker : workers_) {
-      worker.runWorkerAsync<T>(task, info, token, streamID, context);
-    }
-  }
 
 }  // namespace edm
 

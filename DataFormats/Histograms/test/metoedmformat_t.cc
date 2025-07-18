@@ -207,11 +207,17 @@ namespace {
       //std::cout <<"Dummy Add "<<m_i<<" "<<iOther->m_i<<std::endl;
     }
 
+    void Add(const Dummy* iOther, float weight = 1.) { m_i += iOther->m_i; }
     bool operator!=(const Dummy& iOther) const { return m_i != iOther.m_i; }
 
     int GetNbinsX() const { return 1; }
     int GetNbinsY() const { return 1; }
     int GetNbinsZ() const { return 1; }
+
+    int GetNcells() const { return 9; }
+    float GetBinContent(int bin) const { return -1.; }
+    void SetBinContent(int bin, float value) const { return; }
+    const TClass* IsA() const { return 0; }
 
     const TAxis* GetXaxis() const { return &dummy; }
     const TAxis* GetYaxis() const { return &dummy; }

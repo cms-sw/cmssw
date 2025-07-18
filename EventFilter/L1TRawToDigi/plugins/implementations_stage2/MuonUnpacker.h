@@ -10,7 +10,7 @@ namespace l1t {
     class MuonUnpacker : public Unpacker {
     public:
       MuonUnpacker();
-      ~MuonUnpacker() override{};
+      ~MuonUnpacker() override {}
 
       bool unpack(const Block& block, UnpackerCollections* coll) override;
 

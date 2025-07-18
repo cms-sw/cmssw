@@ -47,7 +47,7 @@ namespace edm {
       GROUP_STATS  // GRP
       ,
       FJR_SUMMARY  // JRS -- handshaked
-    };             // OpCode
+    };  // OpCode
 
     // ---  birth via a surrogate:
     static MessageLoggerQ* instance();

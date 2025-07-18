@@ -9,6 +9,7 @@
  <class name="std::map<short,unsigned int>"/>
  <class name="std::map<std::basic_string<char>,bool>"/>
  <class name="std::map<std::basic_string<char>,int>"/>
+ <class name="std::map<std::basic_string<char>,unsigned long long>"/>
  <class name="std::map<std::basic_string<char>,std::basic_string<char> >"/>
  <class name="std::map<std::basic_string<char>,std::map<std::basic_string<char>,std::basic_string<char> > >"/>
  <class name="std::map<std::basic_string<char>,std::pair<unsigned int,unsigned int> >"/>

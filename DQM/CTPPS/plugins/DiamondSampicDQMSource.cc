@@ -106,7 +106,7 @@ private:
     MonitorElement *trackCorrelation = nullptr;
     MonitorElement *trackCorrelationLowMultiplicity = nullptr;
     MonitorElement *digiSentPercentage = nullptr;
-    SectorPlots(){};
+    SectorPlots() {}
     SectorPlots(DQMStore::IBooker &ibooker, unsigned int id, bool plotOnline);
   };
   std::unordered_map<unsigned int, SectorPlots> sectorPlots_;
@@ -146,7 +146,7 @@ private:
     std::set<unsigned int> planesWithDigisSet;
     std::set<unsigned int> planesWithTimeSet;
 
-    PotPlots(){};
+    PotPlots() {}
     PotPlots(DQMStore::IBooker &ibooker, unsigned int id, bool plotOnline);
   };
 

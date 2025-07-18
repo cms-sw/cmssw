@@ -185,7 +185,7 @@ EcalDeadCellTriggerPrimitiveFilter::EcalDeadCellTriggerPrimitiveFilter(const edm
       usekTPSaturated_(iConfig.getParameter<bool>("usekTPSaturated")),
       putToken_(produces<bool>()),
       tokens_(consumesCollector()) {
-  callWhenNewProductsRegistered([this](edm::BranchDescription const& iBranch) {
+  callWhenNewProductsRegistered([this](edm::ProductDescription const& iBranch) {
     // If TP is available, always use TP.
     // In RECO file, we always have ecalTPSkim (at least from 38X for data and 39X for MC).
     // In AOD file, we can only have recovered rechits in the reduced rechits collection after 42X
@@ -655,7 +655,7 @@ int EcalDeadCellTriggerPrimitiveFilter::getChannelStatusMaps() {
         EcalAllDeadChannelsBitMap.insert(std::make_pair(detid, bitVec));
       }
     }  // end loop iphi
-  }    // end loop ieta
+  }  // end loop ieta
 
   // Loop over EE detid
   if (doEEfilter_) {
@@ -692,8 +692,8 @@ int EcalDeadCellTriggerPrimitiveFilter::getChannelStatusMaps() {
             EcalAllDeadChannelsBitMap.insert(std::make_pair(detid, bitVec));
           }
         }  // end loop iz
-      }    // end loop iy
-    }      // end loop ix
+      }  // end loop iy
+    }  // end loop ix
   }
 
   EcalAllDeadChannelsTTMap.clear();

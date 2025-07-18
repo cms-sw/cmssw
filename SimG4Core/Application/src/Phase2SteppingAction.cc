@@ -202,28 +202,15 @@ void Phase2SteppingAction::UserSteppingAction(const G4Step* aStep) {
       if (!trkinfo->crossedBoundary()) {
         trkinfo->setCrossedBoundary(theTrack);
       }
-    } else if (preStep->GetPhysicalVolume() == calo && postStep->GetPhysicalVolume() != calo) {
-      bool backscattering(false);
-      if (postStep->GetPhysicalVolume() == tracker) {
-        backscattering = true;
-      } else if (postStep->GetPhysicalVolume() == cmse) {
-        // simple protection to avoid possible steps from calo towards the outer part of the detector, if allowed by geometry
-        // to be removed as soon as tracker-calo boundary becomes again the default
-        if (preStep->GetPosition().mag2() > postStep->GetPosition().mag2()) {
-          backscattering = true;
-        }
-      }
-      // store transition calo -> cmse to tag backscattering
-      if (backscattering) {
-        TrackInformation* trkinfo = static_cast<TrackInformation*>(theTrack->GetUserInformation());
-        if (!trkinfo->isInTrkFromBackscattering()) {
-          trkinfo->setInTrkFromBackscattering();
+    } else if ((preStep->GetPhysicalVolume() == calo && postStep->GetPhysicalVolume() == tracker) ||
+               (preStep->GetPhysicalVolume() == cmse && postStep->GetPhysicalVolume() == tracker)) {
+      // accounting for both geometries with direct CALO -> Tracker transitions or older versions with CMSE in the middle
+      TrackInformation* trkinfo = static_cast<TrackInformation*>(theTrack->GetUserInformation());
+      trkinfo->setInTrkFromBackscattering();
 #ifdef EDM_ML_DEBUG
-          LogDebug("SimG4CoreApplication")
-              << "Setting flag for backscattering from CALO " << trkinfo->isInTrkFromBackscattering();
+      LogDebug("SimG4CoreApplication") << "Setting flag for backscattering from CALO "
+                                       << trkinfo->isInTrkFromBackscattering();
 #endif
-        }
-      }
     }
   } else {
     theTrack->SetTrackStatus(fStopAndKill);

@@ -1,6 +1,8 @@
 // Original author: Leonardo Cristella
 
 // user include files
+#include <memory>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 
@@ -29,10 +31,10 @@ private:
 
 LCToSimTSAssociatorByEnergyScoreProducer::LCToSimTSAssociatorByEnergyScoreProducer(const edm::ParameterSet &ps)
     : caloGeometry_(esConsumes<CaloGeometry, CaloGeometryRecord>()) {
-  rhtools_.reset(new hgcal::RecHitTools());
+  rhtools_ = std::make_shared<hgcal::RecHitTools>();
 
   // Register the product
-  produces<hgcal::LayerClusterToSimTracksterAssociator>();
+  produces<ticl::LayerClusterToSimTracksterAssociator>();
 }
 
 LCToSimTSAssociatorByEnergyScoreProducer::~LCToSimTSAssociatorByEnergyScoreProducer() {}
@@ -44,7 +46,7 @@ void LCToSimTSAssociatorByEnergyScoreProducer::produce(edm::StreamID,
   rhtools_->setGeometry(*geom);
 
   auto impl = std::make_unique<LCToSimTSAssociatorByEnergyScoreImpl>(iEvent.productGetter());
-  auto toPut = std::make_unique<hgcal::LayerClusterToSimTracksterAssociator>(std::move(impl));
+  auto toPut = std::make_unique<ticl::LayerClusterToSimTracksterAssociator>(std::move(impl));
   iEvent.put(std::move(toPut));
 }
 

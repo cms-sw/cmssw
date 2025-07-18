@@ -12,6 +12,6 @@ public:
 private:
   template <typename T>
   void subtract_(uint32_t detId, uint16_t firstAPV, std::vector<T>& digis);
-  MedianCMNSubtractor(){};
+  MedianCMNSubtractor() {}
 };
 #endif

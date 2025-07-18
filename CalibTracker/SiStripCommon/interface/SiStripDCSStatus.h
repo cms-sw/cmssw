@@ -18,7 +18,7 @@ class SiStripFedCablingRcd;
 
 class SiStripDCSStatus {
 public:
-  SiStripDCSStatus(edm::ConsumesCollector&& iC) : SiStripDCSStatus(iC){};
+  SiStripDCSStatus(edm::ConsumesCollector&& iC) : SiStripDCSStatus(iC) {}
   SiStripDCSStatus(edm::ConsumesCollector& iC);
 
   bool getStatus(edm::Event const& e, edm::EventSetup const& eSetup);

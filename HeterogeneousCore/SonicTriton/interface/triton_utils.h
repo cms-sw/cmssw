@@ -2,11 +2,11 @@
 #define HeterogeneousCore_SonicTriton_triton_utils
 
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/Span.h"
 #include "HeterogeneousCore/SonicTriton/interface/TritonException.h"
 
 #include <string>
 #include <string_view>
+#include <span>
 #include <vector>
 #include <unordered_set>
 
@@ -82,8 +82,7 @@ inline bool triton_utils::checkType<double>(inference::DataType dtype) {
       throw TritonException("TritonFailure", NOTIFY) << (MSG) << (err.Message().empty() ? "" : ": " + err.Message()); \
   }
 
-extern template std::string triton_utils::printColl(const edm::Span<std::vector<int64_t>::const_iterator>& coll,
-                                                    const std::string& delim);
+extern template std::string triton_utils::printColl(const std::span<const int64_t>& coll, const std::string& delim);
 extern template std::string triton_utils::printColl(const std::vector<uint8_t>& coll, const std::string& delim);
 extern template std::string triton_utils::printColl(const std::vector<float>& coll, const std::string& delim);
 extern template std::string triton_utils::printColl(const std::vector<std::string>& coll, const std::string& delim);

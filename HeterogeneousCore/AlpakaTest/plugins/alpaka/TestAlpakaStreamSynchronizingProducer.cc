@@ -25,7 +25,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class TestAlpakaStreamSynchronizingProducer : public stream::SynchronizingEDProducer<> {
   public:
     TestAlpakaStreamSynchronizingProducer(edm::ParameterSet const& iConfig)
-        : esTokenDevice_(esConsumes()),
+        : SynchronizingEDProducer<>(iConfig),
+          esTokenDevice_(esConsumes()),
           putToken_{produces()},
           putTokenMulti2_{produces()},
           putTokenMulti3_{produces()},

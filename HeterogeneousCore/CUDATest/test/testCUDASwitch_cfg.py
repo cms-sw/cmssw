@@ -30,8 +30,8 @@ if args.accelerator is not None:
 # Flow diagram of the modules
 #
 #     1   5
-#    / \  |
-#   2  4  6
+#    / \
+#   2  4
 #   |
 #   3
 
@@ -39,7 +39,6 @@ from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
 
 process.load("HeterogeneousCore.CUDATest.prod1Switch_cff")
 process.load("HeterogeneousCore.CUDATest.prod5Switch_cff")
-process.load("HeterogeneousCore.CUDATest.prod6Switch_cff")
 
 # GPU producers
 from HeterogeneousCore.CUDATest.testCUDAProducerGPUFirst_cfi import testCUDAProducerGPUFirst
@@ -72,7 +71,7 @@ process.prod4 = SwitchProducerCUDA(
 
 # GPU analyzer (optionally)
 from HeterogeneousCore.CUDATest.testCUDAAnalyzerGPU_cfi import testCUDAAnalyzerGPU
-process.anaCUDA = testCUDAAnalyzerGPU.clone(src="prod6CUDA")
+process.anaCUDA = testCUDAAnalyzerGPU.clone(src="prod5CUDA")
 if args.silent:
     process.anaCUDA.minValue = 2.3e7
     process.anaCUDA.maxValue = 2.5e7
@@ -81,7 +80,6 @@ process.out = cms.OutputModule("AsciiOutputModule",
     outputCommands = cms.untracked.vstring(
         "keep *_prod3_*_*",
         "keep *_prod4_*_*",
-        "keep *_prod6_*_*",
     ),
     verbosity = cms.untracked.uint32(0),
 )
@@ -96,7 +94,6 @@ process.t = cms.Task(
     process.prod3Task,
     process.prod4Task,
     process.prod5Task,
-    process.prod6Task
 )
 process.p = cms.Path()
 if args.includeAnalyzer:

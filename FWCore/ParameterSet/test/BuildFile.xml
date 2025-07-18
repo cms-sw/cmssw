@@ -15,3 +15,5 @@
 
 <test name="testFWCoreParameterSetEdmConfigDump" command="run_edmConfigDump.sh"/>
 <test name="testFWCoreParameterSetEdmConfigSplit" command="run_edmConfigSplit.sh"/>
+
+<test name="TestFWCoreParameterSetVarParsingList" command="python3 ${LOCALTOP}/src/FWCore/ParameterSet/test/test_varparsing_list.py"/>

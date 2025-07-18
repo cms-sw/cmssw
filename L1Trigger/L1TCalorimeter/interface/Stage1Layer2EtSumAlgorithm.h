@@ -28,7 +28,7 @@ namespace l1t {
                               const std::vector<l1t::Jet>* jets,
                               std::vector<l1t::EtSum>* sums) = 0;
 
-    virtual ~Stage1Layer2EtSumAlgorithm(){};
+    virtual ~Stage1Layer2EtSumAlgorithm() {}
   };
 
 }  // namespace l1t

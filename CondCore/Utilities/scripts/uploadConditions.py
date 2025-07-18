@@ -2,7 +2,6 @@
 '''Script that uploads to the new CMS conditions uploader.
 Adapted to the new infrastructure from v6 of the upload.py script for the DropBox from Miguel Ojeda.
 '''
-from __future__ import print_function
 
 __author__ = 'Andreas Pfeiffer'
 __copyright__ = 'Copyright 2015, CERN CMS'

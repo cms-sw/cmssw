@@ -77,6 +77,9 @@ std::pair<uint16_t, uint16_t> SiStripLatency::latencyAndMode(const uint32_t detI
 }
 
 uint16_t SiStripLatency::singleLatency() const {
+  if (latencies_.empty()) {
+    return 255;
+  }
   if (latencies_.size() == 1) {
     return latencies_[0].latency;
   }
@@ -94,6 +97,9 @@ uint16_t SiStripLatency::singleLatency() const {
 }
 
 uint16_t SiStripLatency::singleMode() const {
+  if (latencies_.empty()) {
+    return 0;
+  }
   if (latencies_.size() == 1) {
     return latencies_[0].mode;
   }

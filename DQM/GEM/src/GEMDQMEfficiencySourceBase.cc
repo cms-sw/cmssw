@@ -251,8 +251,8 @@ bool GEMDQMEfficiencySourceBase::maskChamberWithError(const GEMDetId& chamber_id
         // GEMOHStatus is bad. Mask this chamber.
         return mask;
       }  // isBad
-    }    // range
-  }      // collection
+    }  // range
+  }  // collection
 
   for (auto iter = vfat_status_collection->begin(); iter != vfat_status_collection->end(); iter++) {
     const auto [vfat_id, range] = (*iter);
@@ -264,7 +264,7 @@ bool GEMDQMEfficiencySourceBase::maskChamberWithError(const GEMDetId& chamber_id
         return mask;
       }
     }  // range
-  }    // collection
+  }  // collection
 
   return not mask;
 }

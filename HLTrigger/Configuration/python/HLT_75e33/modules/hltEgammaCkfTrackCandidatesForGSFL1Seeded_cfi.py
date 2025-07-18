@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 hltEgammaCkfTrackCandidatesForGSFL1Seeded = cms.EDProducer("CkfTrackCandidateMaker",
+    MeasurementTrackerEvent = cms.InputTag("hltMeasurementTrackerEvent"),
     NavigationSchool = cms.string('SimpleNavigationSchool'),
     RedundantSeedCleaner = cms.string('CachingSeedCleanerBySharedInput'),
     TrajectoryBuilderPSet = cms.PSet(

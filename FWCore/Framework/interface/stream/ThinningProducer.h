@@ -159,7 +159,7 @@ namespace edm {
 
     ProductRegistry::ProductList const& productList = productRegistry.productList();
     for (auto const& product : productList) {
-      BranchDescription const& desc = product.second;
+      ProductDescription const& desc = product.second;
       if (desc.dropped()) {
         // Dropped branch does not have type information, but they can
         // be ignored here because all of the parent/thinned/association

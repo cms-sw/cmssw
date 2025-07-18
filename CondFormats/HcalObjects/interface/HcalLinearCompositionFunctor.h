@@ -52,7 +52,7 @@ private:
     // in boost for versions 1.56, 1.57, 1.58. For detail, see
     // https://svn.boost.org/trac/boost/ticket/10727
 #if BOOST_VERSION < 105600 || BOOST_VERSION > 105800
-    ar& other_& a_& b_;
+    ar & other_ & a_ & b_;
 #else
     throw cms::Exception(
         "HcalLinearCompositionFunctor can not be"

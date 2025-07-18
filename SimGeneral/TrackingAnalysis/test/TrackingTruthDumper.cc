@@ -19,11 +19,11 @@
 class TrackingTruthDumper : public edm::one::EDAnalyzer<> {
 public:
   explicit TrackingTruthDumper(const edm::ParameterSet&);
-  ~TrackingTruthDumper() override{};
+  ~TrackingTruthDumper() override {}
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void beginJob() override{};
-  void endJob() override{};
+  void beginJob() override {}
+  void endJob() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -51,8 +51,8 @@ void TrackingTruthDumper::analyze(const edm::Event& iEvent, const edm::EventSetu
   auto SimVtx = edm::makeValid(iEvent.getHandle(simTVToken_));
 
   edm::LogPrint("DumpTkVtx") << "\n SimVertex / SimTrack structure dump \n";
-  edm::LogPrint("DumpTkVtx") << " SimVertex in the event = " << (*SimTk).size();
-  edm::LogPrint("DumpTkVtx") << " SimTracks in the event = " << (*SimVtx).size();
+  edm::LogPrint("DumpTkVtx") << " SimVertex in the event = " << (*SimVtx).size();
+  edm::LogPrint("DumpTkVtx") << " SimTracks in the event = " << (*SimTk).size();
   edm::LogPrint("DumpTkVtx") << "\n";
   size_t isimvtx(0);
   size_t isimtk(0);
@@ -63,7 +63,8 @@ void TrackingTruthDumper::analyze(const edm::Event& iEvent, const edm::EventSetu
       edm::LogPrint("DumpTkVtx") << "TPs of this vertex: \n";
       isimtk = 0;
       for (const auto& tk : vtx.daughterTracks()) {
-        edm::LogPrint("DumpTkVtx") << "TrackingParticle " << isimtk << " = " << *tk << "\n";
+        bool isMerged = tk->g4Tracks().size() > 1;
+        edm::LogPrint("DumpTkVtx") << "TrackingParticle " << isimtk << " isMerged " << isMerged << "\n" << *tk << "\n";
         isimtk++;
       }
       edm::LogPrint("DumpTkVtx") << "\n";
@@ -72,10 +73,11 @@ void TrackingTruthDumper::analyze(const edm::Event& iEvent, const edm::EventSetu
   }
 
   if (dumpTk_) {
+    edm::LogPrint("DumpTkVtx") << "TrackingParticles: \n";
     isimtk = 0;
     for (const auto& tk : *SimTk) {
       bool isMerged = tk.g4Tracks().size() > 1;
-      edm::LogPrint("DumpTkVtx") << "TrackingParticle " << isimtk << " isMerged " << isMerged << " = " << tk << "\n";
+      edm::LogPrint("DumpTkVtx") << "TrackingParticle " << isimtk << " isMerged " << isMerged << "\n" << tk << "\n";
       isimtk++;
     }
   }

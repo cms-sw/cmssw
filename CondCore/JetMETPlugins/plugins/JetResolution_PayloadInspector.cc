@@ -528,7 +528,7 @@ namespace JME {
       }  // for
       return true;
     }  // fill
-  };   // class
+  };  // class
 
   typedef JetScaleFactorVsEta<NORM> JetScaleFactorVsEtaNORM;
   typedef JetScaleFactorVsEta<DOWN> JetScaleFactorVsEtaDOWN;
@@ -590,7 +590,7 @@ namespace JME {
       }  // for
       return true;
     }  // fill
-  };   // class
+  };  // class
 
   typedef JetScaleFactorVsPt<NORM> JetScaleFactorVsPtNORM;
   typedef JetScaleFactorVsPt<DOWN> JetScaleFactorVsPtDOWN;

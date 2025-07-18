@@ -36,6 +36,8 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "RecoTracker/DeDx/interface/DeDxTools.h"
 #include "RecoTracker/DeDx/interface/GenericTruncatedAverageDeDxEstimator.h"
+#include "RecoTracker/PixelLowPtUtilities/interface/ClusterShape.h"
+#include "RecoTracker/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 using namespace reco;
@@ -52,10 +54,12 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   void makeCalibrationMap(const TrackerGeometry& tkGeom_);
+  void processRec(reco::DeDxHitInfo&, const SiStripRecHit2D&, const LocalPoint&, const LocalVector&, const float&);
   void processHit(const TrackingRecHit* recHit,
                   const float trackMomentum,
-                  const float cosine,
+                  const LocalVector& trackDirection,
                   reco::DeDxHitInfo& hitDeDxInfo,
+                  std::vector<float>& hitMomentum,
                   const LocalPoint& hitLocalPos);
 
   // ----------member data ---------------------------
@@ -72,6 +76,8 @@ private:
   const std::string calibrationPath_;
   const bool useCalibration_;
   const bool doShapeTest_;
+  const bool usePixelShape_;
+  const bool storeMomentumAtHit_;
 
   const unsigned int lowPtTracksPrescalePass_, lowPtTracksPrescaleFail_;
   GenericTruncatedAverageDeDxEstimator lowPtTracksEstimator_;
@@ -79,8 +85,12 @@ private:
   const bool usePixelForPrescales_;
 
   const edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
-  edm::ESHandle<TrackerGeometry> tkGeom_;
+  const edm::EDGetTokenT<SiPixelClusterShapeCache> pixShapeCacheToken_;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  const edm::ESGetToken<ClusterShapeHitFilter, CkfComponentsRecord> clShapeToken_;
+  edm::ESHandle<TrackerGeometry> tkGeom_;
+  edm::ESHandle<ClusterShapeHitFilter> clShape_;
+  edm::Handle<SiPixelClusterShapeCache> pixShapeCache_;
 
   std::vector<std::vector<float>> calibGains_;
   unsigned int offsetDU_;
@@ -107,16 +117,23 @@ DeDxHitInfoProducer::DeDxHitInfoProducer(const edm::ParameterSet& iConfig)
       calibrationPath_(iConfig.getParameter<string>("calibrationPath")),
       useCalibration_(iConfig.getParameter<bool>("useCalibration")),
       doShapeTest_(iConfig.getParameter<bool>("shapeTest")),
+      usePixelShape_(not iConfig.getParameter<edm::InputTag>("clusterShapeCache").label().empty()),
+      storeMomentumAtHit_(iConfig.getParameter<bool>("storeMomentumAtHit")),
       lowPtTracksPrescalePass_(iConfig.getParameter<uint32_t>("lowPtTracksPrescalePass")),
       lowPtTracksPrescaleFail_(iConfig.getParameter<uint32_t>("lowPtTracksPrescaleFail")),
       lowPtTracksEstimator_(iConfig.getParameter<edm::ParameterSet>("lowPtTracksEstimatorParameters")),
       lowPtTracksDeDxThreshold_(iConfig.getParameter<double>("lowPtTracksDeDxThreshold")),
       usePixelForPrescales_(iConfig.getParameter<bool>("usePixelForPrescales")),
       tracksToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"))),
-      tkGeomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()) {
+      pixShapeCacheToken_(consumes<SiPixelClusterShapeCache>(iConfig.getParameter<edm::InputTag>("clusterShapeCache"))),
+      tkGeomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
+      clShapeToken_(
+          esConsumes<ClusterShapeHitFilter, CkfComponentsRecord>(edm::ESInputTag("", "ClusterShapeHitFilter"))) {
   produces<reco::DeDxHitInfoCollection>();
   produces<reco::DeDxHitInfoAss>();
   produces<edm::ValueMap<int>>("prescale");
+  if (storeMomentumAtHit_)
+    produces<edm::ValueMap<std::vector<float>>>("momentumAtHit");
 
   if (!usePixel_ && !useStrip_)
     edm::LogError("DeDxHitsProducer") << "No Pixel Hits NOR Strip Hits will be saved.  Running this module is useless";
@@ -139,11 +156,16 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   iEvent.getByToken(tracksToken_, trackCollectionHandle);
   const TrackCollection& trackCollection(*trackCollectionHandle.product());
 
+  clShape_ = iSetup.getHandle(clShapeToken_);
+  if (usePixelShape_)
+    pixShapeCache_ = iEvent.getHandle(pixShapeCacheToken_);
+
   // creates the output collection
   auto resultdedxHitColl = std::make_unique<reco::DeDxHitInfoCollection>();
 
   std::vector<int> indices;
   std::vector<int> prescales;
+  std::vector<std::vector<float>> hitMomenta;
   uint64_t state[2] = {iEvent.id().event(), iEvent.id().luminosityBlock()};
   for (unsigned int j = 0; j < trackCollection.size(); j++) {
     const reco::Track& track = trackCollection[j];
@@ -165,6 +187,7 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     }
 
     reco::DeDxHitInfo hitDeDxInfo;
+    std::vector<float> hitMomentum;
     auto const& trajParams = track.extra()->trajParams();
     auto hb = track.recHitsBegin();
     for (unsigned int h = 0; h < track.recHitsSize(); h++) {
@@ -172,11 +195,10 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       if (!trackerHitRTTI::isFromDet(*recHit))
         continue;
 
-      auto trackDirection = trajParams[h].direction();
-      float cosine = trackDirection.z() / trackDirection.mag();
-
-      processHit(recHit, track.p(), cosine, hitDeDxInfo, trajParams[h].position());
+      const auto& traj = trajParams[h];
+      processHit(recHit, traj.momentum().mag(), traj.direction(), hitDeDxInfo, hitMomentum, traj.position());
     }
+    assert(!storeMomentumAtHit_ || hitMomentum.size() == hitDeDxInfo.size());
 
     if (!passPt) {
       std::vector<DeDxHit> hits;
@@ -217,6 +239,8 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     }
     indices.push_back(resultdedxHitColl->size());
     resultdedxHitColl->push_back(hitDeDxInfo);
+    if (storeMomentumAtHit_)
+      hitMomenta.push_back(hitMomentum);
   }
   ///////////////////////////////////////
 
@@ -234,18 +258,54 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   pfiller.insert(dedxHitCollHandle, prescales.begin(), prescales.end());
   pfiller.fill();
   iEvent.put(std::move(dedxPrescale), "prescale");
+
+  if (storeMomentumAtHit_) {
+    auto dedxMomenta = std::make_unique<edm::ValueMap<std::vector<float>>>();
+    edm::ValueMap<std::vector<float>>::Filler mfiller(*dedxMomenta);
+    mfiller.insert(dedxHitCollHandle, hitMomenta.begin(), hitMomenta.end());
+    mfiller.fill();
+    iEvent.put(std::move(dedxMomenta), "momentumAtHit");
+  }
+}
+
+void DeDxHitInfoProducer::processRec(reco::DeDxHitInfo& hitDeDxInfo,
+                                     const SiStripRecHit2D& recHit,
+                                     const LocalPoint& lpos,
+                                     const LocalVector& ldir,
+                                     const float& cos) {
+  uint8_t type(0);
+  int meas;
+  float pred;
+  const auto& usable = clShape_->getSizes(recHit, {}, ldir, meas, pred);
+  if (usable && meas <= int(std::abs(pred)) + 4)
+    type |= (1 << reco::DeDxHitInfo::Complete);
+  if (clShape_->isCompatible(recHit, ldir))
+    type |= (1 << reco::DeDxHitInfo::Compatible);
+  if (usable)
+    type |= (1 << reco::DeDxHitInfo::Calibration);
+
+  int NSaturating(0);
+  const auto& detId = recHit.geographicalId();
+  const auto* detUnit = recHit.detUnit();
+  if (detUnit == nullptr)
+    detUnit = tkGeom_->idToDet(detId);
+  const auto pathLen = detUnit->surface().bounds().thickness() / cos;
+  float chargeAbs = deDxTools::getCharge(&(recHit.stripCluster()), NSaturating, *detUnit, calibGains_, offsetDU_);
+  hitDeDxInfo.addHit(chargeAbs, pathLen, detId, lpos, type, recHit.stripCluster());
 }
 
 void DeDxHitInfoProducer::processHit(const TrackingRecHit* recHit,
                                      const float trackMomentum,
-                                     const float cosine,
+                                     const LocalVector& trackDirection,
                                      reco::DeDxHitInfo& hitDeDxInfo,
+                                     std::vector<float>& hitMomentum,
                                      const LocalPoint& hitLocalPos) {
   auto const& thit = static_cast<BaseTrackerRecHit const&>(*recHit);
   if (!thit.isValid())
     return;
 
   //make sure cosine is not 0
+  float cosine = trackDirection.z() / trackDirection.mag();
   float cosineAbs = std::max(0.00000001f, std::abs(cosine));
 
   auto const& clus = thit.firstClusterRef();
@@ -262,40 +322,39 @@ void DeDxHitInfoProducer::processHit(const TrackingRecHit* recHit,
     if (!usePixel_)
       return;
 
+    uint8_t type(0);
+    const auto& pixelDet = *dynamic_cast<const PixelGeomDetUnit*>(detUnit);
+    const auto& pixelRecHit = *dynamic_cast<const SiPixelRecHit*>(recHit);
+    ClusterData data;
+    ClusterShape().determineShape(pixelDet, clus.pixelCluster(), data);
+    if (data.isComplete)
+      type |= (1 << reco::DeDxHitInfo::Complete);
+    if (usePixelShape_ && clShape_->isCompatible(pixelRecHit, trackDirection, *pixShapeCache_))
+      type |= (1 << reco::DeDxHitInfo::Compatible);
+    if (data.isComplete && data.isStraight && data.hasBigPixelsOnlyInside)
+      type |= (1 << reco::DeDxHitInfo::Calibration);
+
     float chargeAbs = clus.pixelCluster().charge();
-    hitDeDxInfo.addHit(chargeAbs, pathLen, thit.geographicalId(), hitLocalPos, clus.pixelCluster());
+    hitDeDxInfo.addHit(chargeAbs, pathLen, thit.geographicalId(), hitLocalPos, type, clus.pixelCluster());
   } else if (clus.isStrip() && !thit.isMatched()) {
     if (!useStrip_)
       return;
 
-    int NSaturating = 0;
-    float chargeAbs = deDxTools::getCharge(&(clus.stripCluster()), NSaturating, *detUnit, calibGains_, offsetDU_);
-    hitDeDxInfo.addHit(chargeAbs, pathLen, thit.geographicalId(), hitLocalPos, clus.stripCluster());
+    processRec(hitDeDxInfo, {thit.geographicalId(), clus}, hitLocalPos, trackDirection, cosineAbs);
   } else if (clus.isStrip() && thit.isMatched()) {
     if (!useStrip_)
       return;
     const SiStripMatchedRecHit2D* matchedHit = dynamic_cast<const SiStripMatchedRecHit2D*>(recHit);
     if (!matchedHit)
       return;
+    if (storeMomentumAtHit_)
+      hitMomentum.push_back(trackMomentum);
 
-    const auto* detUnitM = matchedHit->monoHit().detUnit();
-    if (detUnitM == nullptr)
-      detUnitM = tkGeom_->idToDet(matchedHit->monoHit().geographicalId());
-    int NSaturating = 0;
-    auto pathLenM = detUnitM->surface().bounds().thickness() / cosineAbs;
-    float chargeAbs =
-        deDxTools::getCharge(&(matchedHit->monoHit().stripCluster()), NSaturating, *detUnitM, calibGains_, offsetDU_);
-    hitDeDxInfo.addHit(chargeAbs, pathLenM, thit.geographicalId(), hitLocalPos, matchedHit->monoHit().stripCluster());
-
-    const auto* detUnitS = matchedHit->stereoHit().detUnit();
-    if (detUnitS == nullptr)
-      detUnitS = tkGeom_->idToDet(matchedHit->stereoHit().geographicalId());
-    NSaturating = 0;
-    auto pathLenS = detUnitS->surface().bounds().thickness() / cosineAbs;
-    chargeAbs =
-        deDxTools::getCharge(&(matchedHit->stereoHit().stripCluster()), NSaturating, *detUnitS, calibGains_, offsetDU_);
-    hitDeDxInfo.addHit(chargeAbs, pathLenS, thit.geographicalId(), hitLocalPos, matchedHit->stereoHit().stripCluster());
+    processRec(hitDeDxInfo, matchedHit->monoHit(), hitLocalPos, trackDirection, cosineAbs);
+    processRec(hitDeDxInfo, matchedHit->stereoHit(), hitLocalPos, trackDirection, cosineAbs);
   }
+  if (storeMomentumAtHit_ && (clus.isPixel() || clus.isStrip()))
+    hitMomentum.push_back(trackMomentum);
 }
 
 //define this as a plug-in

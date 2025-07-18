@@ -117,7 +117,7 @@ int DTDDUFileReader::fillRawData(Event& e,
         if (dataTag) {
           swap(word);
         }  // WARNING also the ddu status words have been swapped!
-           // Control the correct interpretation in DDUUnpacker
+        // Control the correct interpretation in DDUUnpacker
       }
 
       eventData.push_back(word);

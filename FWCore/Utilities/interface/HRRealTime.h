@@ -76,6 +76,12 @@ namespace edm {
       __asm__ __volatile__("isb; mrs %0, cntvct_el0" : "=r"(ret));
       return ret;
     }
+#elif defined(__riscv) && __riscv_xlen == 64
+    static __inline__ unsigned long long rdtsc(void) {
+      unsigned long long cycles;
+      asm volatile("rdcycle %0" : "=r"(cycles));
+      return cycles;
+    }
 #else
 #error The file FWCore/Utilities/interface/HRRealTime.h needs to be set up for your CPU type.
 #endif

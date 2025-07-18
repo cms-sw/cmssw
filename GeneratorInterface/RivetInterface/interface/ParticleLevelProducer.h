@@ -8,7 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMC3Product.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
@@ -36,7 +36,7 @@ private:
     return reco::Candidate::LorentzVector(p.px(), p.py(), p.pz(), p.energy());
   }
 
-  const edm::EDGetTokenT<edm::HepMCProduct> srcToken_;
+  const edm::EDGetTokenT<edm::HepMC3Product> srcToken_;
   const edm::ParameterSet pset_;
 
   reco::Particle::Point genVertex_;

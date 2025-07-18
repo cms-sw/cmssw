@@ -36,7 +36,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('RecoTracker.TkSeedGenerator.trackerClusterCheck_cfi')
 process.load('RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi')
 process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
-process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
+process.load("RecoVertex.Configuration.RecoPixelVertexing_cff")
 process.load('Validation.TrackerRecHits.test.StripClusterMCanalysis_cfi')
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )

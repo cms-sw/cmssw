@@ -33,8 +33,8 @@ const std::vector<DetId>& CaloSubdetectorGeometry::getValidDetIds(DetId::Detecto
   return m_validIds;
 }
 
-std::shared_ptr<const CaloCellGeometry> CaloSubdetectorGeometry::getGeometry(const DetId& id) const {
-  return cellGeomPtr(CaloGenericDetId(id).denseIndex());
+CaloSubdetectorGeometry::CellMayOwnPtr CaloSubdetectorGeometry::getGeometry(const DetId& id) const {
+  return CellMayOwnPtr(cellGeomPtr(CaloGenericDetId(id).denseIndex()));
 }
 
 bool CaloSubdetectorGeometry::present(const DetId& id) const {
@@ -48,7 +48,7 @@ DetId CaloSubdetectorGeometry::getClosestCell(const GlobalPoint& r) const {
   CCGFloat closest(1e9);
 
   for (uint32_t i(0); i != m_validIds.size(); ++i) {
-    std::shared_ptr<const CaloCellGeometry> cell(getGeometry(m_validIds[i]));
+    auto cell = getGeometry(m_validIds[i]);
     if (nullptr != cell) {
       const GlobalPoint& p(cell->getPosition());
       const CCGFloat eta0(p.eta());
@@ -72,7 +72,7 @@ CaloSubdetectorGeometry::DetIdSet CaloSubdetectorGeometry::getCells(const Global
 
   if (0.000001 < dR) {
     for (uint32_t i(0); i != m_validIds.size(); ++i) {
-      std::shared_ptr<const CaloCellGeometry> cell(getGeometry(m_validIds[i]));
+      auto cell = getGeometry(m_validIds[i]);
       if (nullptr != cell) {
         const GlobalPoint& p(cell->getPosition());
         const CCGFloat eta0(p.eta());
@@ -98,8 +98,9 @@ CaloSubdetectorGeometry::CellSet CaloSubdetectorGeometry::getCellSet(const Globa
   DetIdSet ids = getCells(r, dR);
   CellSet cells;
   cells.reserve(ids.size());
+  static const auto do_not_delete = [](const void*) {};
   for (auto id : ids)
-    cells.emplace_back(getGeometry(id));
+    cells.emplace_back(std::shared_ptr<CaloCellGeometry const>(getGeometry(id).get(), do_not_delete));
   return cells;
 }
 
@@ -131,7 +132,7 @@ void CaloSubdetectorGeometry::getSummary(CaloSubdetectorGeometry::TrVec& tVec,
 
   for (uint32_t i(0); i != m_validIds.size(); ++i) {
     Tr3D tr;
-    std::shared_ptr<const CaloCellGeometry> ptr(cellGeomPtr(i));
+    auto ptr{cellGeomPtr(i)};
     assert(nullptr != ptr);
     ptr->getTransform(tr, (Pt3DVec*)nullptr);
 
@@ -184,7 +185,7 @@ CCGFloat CaloSubdetectorGeometry::deltaPhi(const DetId& detId) const {
     const uint32_t kSize(sizeForDenseIndex(detId));
     auto ptr = new std::vector<CCGFloat>(kSize);
     for (uint32_t i(0); i != kSize; ++i) {
-      std::shared_ptr<const CaloCellGeometry> cellPtr(cellGeomPtr(i));
+      auto cellPtr{cellGeomPtr(i)};
       if (nullptr != cellPtr) {
         CCGFloat dPhi1(fabs(GlobalPoint((cellPtr->getCorners()[0].x() + cellPtr->getCorners()[1].x()) / 2.,
                                         (cellPtr->getCorners()[0].y() + cellPtr->getCorners()[1].y()) / 2.,
@@ -222,7 +223,7 @@ CCGFloat CaloSubdetectorGeometry::deltaEta(const DetId& detId) const {
     const uint32_t kSize(sizeForDenseIndex(detId));
     auto ptr = new std::vector<CCGFloat>(kSize);
     for (uint32_t i(0); i != kSize; ++i) {
-      std::shared_ptr<const CaloCellGeometry> cellPtr(cellGeomPtr(i));
+      auto cellPtr{cellGeomPtr(i)};
       if (nullptr != cellPtr) {
         const CCGFloat dEta1(fabs(GlobalPoint((cellPtr->getCorners()[0].x() + cellPtr->getCorners()[1].x()) / 2.,
                                               (cellPtr->getCorners()[0].y() + cellPtr->getCorners()[1].y()) / 2.,
@@ -257,9 +258,7 @@ unsigned int CaloSubdetectorGeometry::sizeForDenseIndex(const DetId& id) const {
   return CaloGenericDetId(id).sizeForDenseIndexing();
 }
 
-std::shared_ptr<const CaloCellGeometry> CaloSubdetectorGeometry::cellGeomPtr(uint32_t index) const {
+CaloSubdetectorGeometry::CellPtr CaloSubdetectorGeometry::cellGeomPtr(uint32_t index) const {
   // Default version
-  auto ptr = getGeometryRawPtr(index);
-  static const auto do_not_delete = [](const void*) {};
-  return ptr == nullptr ? nullptr : std::shared_ptr<const CaloCellGeometry>(ptr, do_not_delete);
+  return getGeometryRawPtr(index);
 }

@@ -14,7 +14,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"

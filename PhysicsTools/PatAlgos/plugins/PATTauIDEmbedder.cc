@@ -11,7 +11,7 @@
 class PATTauIDEmbedder : public edm::stream::EDProducer<> {
 public:
   explicit PATTauIDEmbedder(const edm::ParameterSet&);
-  ~PATTauIDEmbedder() override{};
+  ~PATTauIDEmbedder() override {}
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 

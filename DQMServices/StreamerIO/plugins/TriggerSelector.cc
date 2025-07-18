@@ -11,6 +11,7 @@
 #include <algorithm>
 
 #include <boost/regex.hpp>
+#include <memory>
 
 namespace dqmservices {
 
@@ -18,7 +19,7 @@ namespace dqmservices {
 
   TriggerSelector::TriggerSelector(Strings const& pathspecs, Strings const& triggernames) : useOld_(true) {
     acceptAll_ = false;
-    eventSelector_.reset(new edm::EventSelector(pathspecs, triggernames));
+    eventSelector_ = std::make_shared<edm::EventSelector>(pathspecs, triggernames);
   }
 
   TriggerSelector::TriggerSelector(std::string const& expression, Strings const& triggernames) : useOld_(false) {
@@ -47,7 +48,7 @@ namespace dqmservices {
     }
 
     // build decision tree
-    masterElement_.reset(new TreeElement(expression_, triggernames));
+    masterElement_ = std::make_shared<TreeElement>(expression_, triggernames);
   }
 
   bool TriggerSelector::acceptEvent(edm::TriggerResults const& tr) const {

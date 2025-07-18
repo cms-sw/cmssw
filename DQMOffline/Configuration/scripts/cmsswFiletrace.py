@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import print_function
 import os
 import re
 import sys
@@ -213,7 +212,7 @@ def trace_python(prog_argv, path):
       # now turn on the traceing
       sys.settrace(tracefunc)
       try:
-        exec code in globals, globals
+        exec(code, globals, globals)
       finally:
         sys.settrace(None)
 

@@ -6,7 +6,7 @@ namespace l1t {
 
   class Mask {
   public:
-    Mask(){};
+    Mask() {}
     Mask(std::string id, std::string procRole);
     void setProcRole(std::string procRole) { procRole_ = procRole; };
     void setPort(std::string id);

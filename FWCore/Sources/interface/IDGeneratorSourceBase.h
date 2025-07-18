@@ -71,7 +71,7 @@ namespace edm {
     virtual bool setRunAndEventInfo(EventID& id, TimeValue_t& time, EventAuxiliary::ExperimentType& etype) = 0;
     virtual bool noFiles() const;
     virtual size_t fileIndex() const;
-    void beginJob() override;
+    void beginJob(ProductRegistry const&) override;
 
     std::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
     std::shared_ptr<RunAuxiliary> readRunAuxiliary_() override;

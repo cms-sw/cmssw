@@ -1,4 +1,3 @@
-from __future__ import print_function
 #
 # This cfg calls MakeAngleLUT which is obsolete and completely unused.
 #

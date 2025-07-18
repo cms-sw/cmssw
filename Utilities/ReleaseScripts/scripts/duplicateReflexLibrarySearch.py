@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 
-from __future__ import print_function
 import optparse
 import os
 import re
@@ -32,10 +31,10 @@ typedefsDict = \
 equivDict = \
      [
          {'SelectorUtils': ['VersionedSelector']},
-         {'Associations': ['TTTrackTruthPair', 'edm::Wrapper.+edm::AssociationMap.+TrackingParticle', 'MtdSimLayerCluster.+TrackingParticle', 'TrackingParticle.+MtdSimLayerCluster']},
+         {'Associations': ['TTTrackTruthPair', 'edm::Wrapper.+edm::AssociationMap.+TrackingParticle', 'MtdSimLayerCluster.+TrackingParticle', 'TrackingParticle.+MtdSimLayerCluster',
+                           '(TTClusterAssociationMap|TTStubAssociationMap|TTTrackAssociationMap|TrackingParticle).*Phase2TrackerDigi',
+                           '(TTStub|TTCluster|TTTrack).*Phase2TrackerDigi.*TrackingParticle']},
          {'TrajectoryState'         : ['TrajectoryStateOnSurface']},
-         {'TrackTriggerAssociation' : ['(TTClusterAssociationMap|TTStubAssociationMap|TTTrackAssociationMap|TrackingParticle).*Phase2TrackerDigi',
-                                       '(TTStub|TTCluster|TTTrack).*Phase2TrackerDigi.*TrackingParticle']},
          {'L1TrackTrigger'        : ['(TTStub|TTCluster|TTTrack).*Phase2TrackerDigi']},
          {'L1TCalorimeterPhase2'  : ['l1tp2::CaloTower.*']},
          {'L1TCalorimeter'        : ['l1t::CaloTower.*']},
@@ -62,7 +61,7 @@ equivDict = \
          {'TrackInfo'             : ['reco::TrackingRecHitInfo']},
          {'EgammaCandidates'      : ['reco::GsfElectron.*','reco::Photon.*']},
          {'HcalIsolatedTrack'     : ['reco::IsolatedPixelTrackCandidate', 'reco::EcalIsolatedParticleCandidate', 'reco::HcalIsolatedTrackCandidate']},
-         {'HcalRecHit'            : ['HFRecHit','HORecHit','ZDCRecHit','HBHERecHit']},
+         {'HcalRecHit'            : ['HFRecHit','HORecHit','ZDCRecHit','HBHERecHit','HcalRecHitSoA']},
          {'PFRootEvent'           : ['EventColin::']},
          {'CaloTowers'            : ['CaloTower.*']},
          {'GsfTrackReco'          : ['GsfTrack.*']},
@@ -72,12 +71,12 @@ equivDict = \
          {'PhysicsToolsObjects'   : ['PhysicsTools::Calibration']},
          {'TrackReco'             : ['reco::Track','reco::TrackRef']},
          {'VertexReco'            : ['reco::Vertex']},
-         {'TFWLiteSelectorTest'   : ['tfwliteselectortest']},
          {'TauReco'               : ['reco::PFJetRef']},
          {'JetReco'               : ['reco::.*Jet','reco::.*Jet(Collection|Ref)']},
          {'HGCDigi'               : ['HGCSample']},
          {'HGCRecHit'             : ['constHGCRecHit','HGCRecHit']},
          {'SiPixelObjects'        : ['SiPixelQuality.*']},
+         {'EcalRecHit'            : ['EcalRecHitSoA.*']},
      ]
 
 ignoreEdmDP = {
@@ -132,7 +131,7 @@ def searchClassDefXml ():
     ncdict = {'class' : 'className', 'function' : 'functionName'}
     for filename in xmlFiles:
         if (not filename) or (ignoreSrcRE.match(filename)): continue
-        dupProblems     = ''
+        lostProblems    = ''
         exceptName      = ''
         regexList       = []
         localObjects    = []
@@ -216,7 +215,7 @@ def searchClassDefXml ():
             if foundEquiv: continue
             for exRes in explicitREs:
                 if exRes[0].search(className):
-                    dupProblems += "  %s : %s\n" % (exRes[1], className)
+                    lostProblems += "  %s : %s\n" % (exRes[1], className)
                     foundEquiv = True
                     break
             if foundEquiv: continue
@@ -224,17 +223,17 @@ def searchClassDefXml ():
                 # don't bother looking for the name of this
                 # package in this package
                 if packagesREs[packageName].search (className):
-                    dupProblems += "  %s : %s\n" % (packageName, className)
+                    lostProblems += "  %s : %s\n" % (packageName, className)
                     break
         # for piece
-        if dupProblems:
-            print('\n%s\n%s\n' % (filename, dupProblems))
+        if lostProblems:
+            print(f'\n{filename} defines the following dictionaries that should be defined in another package\n{lostProblems}\n')
     # for filename
     if options.dups:
         for name, fileSet in sorted( classDict.items() ):
             if len (fileSet) < 2:
                 continue
-            print(name)
+            print(f"{name} is defined in more than one package")
             fileList = sorted (fileSet)
             for filename in fileList:
                 print("  ", filename)

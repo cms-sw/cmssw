@@ -1,6 +1,8 @@
+<use name="FWCore/AbstractServices"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
+<use name="Geometry/ForwardGeometry"/>
 <use name="SimCalorimetry/HcalSimAlgos"/>
 <use name="SimGeneral/MixingModule"/>
 <use name="DataFormats/HcalDetId"/>

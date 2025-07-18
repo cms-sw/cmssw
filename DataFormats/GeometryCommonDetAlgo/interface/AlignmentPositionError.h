@@ -9,15 +9,15 @@
 
 class AlignmentPositionError {
 public:
-  AlignmentPositionError(){};
+  AlignmentPositionError() {}
 
   AlignmentPositionError(float xx, float yy, float zz, float phixphix = 0, float phiyphiy = 0, float phizphiz = 0);
 
-  AlignmentPositionError(const GlobalErrorExtended& ge) : theGlobalError(ge){};
+  AlignmentPositionError(const GlobalErrorExtended& ge) : theGlobalError(ge) {}
 
   AlignmentPositionError(const GlobalError& ge);
 
-  ~AlignmentPositionError(){};
+  ~AlignmentPositionError() {}
 
   bool valid() const { return (theGlobalError.cxx() > 0 || theGlobalError.cyy() > 0 || theGlobalError.czz() > 0); }
 

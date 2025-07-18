@@ -34,7 +34,7 @@ private:
     int ringMin, ringMax;
     double rMin, rMax;
     layerInfo(int minR = 100, double rMn = 0, int maxR = 0, double rMx = 0)
-        : ringMin(minR), ringMax(maxR), rMin(rMn), rMax(rMx){};
+        : ringMin(minR), ringMax(maxR), rMin(rMn), rMax(rMx) {}
   };
 };
 

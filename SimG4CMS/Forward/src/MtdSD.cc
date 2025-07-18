@@ -16,6 +16,8 @@
 
 #include <iostream>
 
+using namespace MtdHitCategory;
+
 //-------------------------------------------------------------------
 MtdSD::MtdSD(const std::string& name,
              const SensitiveDetectorCatalog& clg,
@@ -106,12 +108,14 @@ int MtdSD::getTrackID(const G4Track* aTrack) {
 #ifdef EDM_ML_DEBUG
     trkInfo->Print();
 #endif
+    if (!trkInfo->storeTrack()) {
+      theID = trkInfo->idLastStoredAncestor();
+    }
     if (rname == "FastTimerRegionSensBTL") {
-      theID = trkInfo->mcTruthID();
-      if (trkInfo->isExtSecondary() && !trkInfo->isInTrkFromBackscattering()) {
-        theID = PSimHit::addTrackIdOffset(theID, k_idsecOffset);
-      } else if (trkInfo->isInTrkFromBackscattering()) {
+      if (trkInfo->isInTrkFromBackscattering()) {
         theID = PSimHit::addTrackIdOffset(theID, k_idFromCaloOffset);
+      } else if (trkInfo->isExtSecondary() && !trkInfo->isInTrkFromBackscattering() && !trkInfo->storeTrack()) {
+        theID = PSimHit::addTrackIdOffset(theID, k_idsecOffset);
       } else if (trkInfo->isBTLlooper()) {
         theID = PSimHit::addTrackIdOffset(theID, k_idloopOffset);
       }
@@ -120,11 +124,16 @@ int MtdSD::getTrackID(const G4Track* aTrack) {
                                  << " BTL Track ID: " << trkInfo->mcTruthID() << ":" << theID;
 #endif
     } else if (rname == "FastTimerRegionSensETL") {
-      theID = trkInfo->getIDonCaloSurface();
+      if (hitClassID == k_idETLfromBack) {
+        theID = PSimHit::addTrackIdOffset(theID, k_idETLfromBack);
+      }
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("MtdSim") << "MtdSD: Track ID: " << aTrack->GetTrackID()
                                  << " ETL Track ID: " << trkInfo->mcTruthID() << ":" << theID;
 #endif
+      // In the case of ECAL GFlash fast spot may be inside MTD and should be ignored
+    } else if (rname == "EcalRegion") {
+      theID = -2;
     } else {
       throw cms::Exception("MtdSDError") << "MtdSD called in incorrect region " << rname;
     }
@@ -134,4 +143,20 @@ int MtdSD::getTrackID(const G4Track* aTrack) {
 #endif
   }
   return theID;
+}
+
+void MtdSD::setHitClassID(const G4Step* aStep) {
+  TrackInformation* trkInfo = cmsTrackInformation(aStep->GetTrack());
+  const G4String& rname = aStep->GetTrack()->GetVolume()->GetLogicalVolume()->GetRegion()->GetName();
+  if (rname == "FastTimerRegionSensETL") {
+    double zin = std::abs(aStep->GetPreStepPoint()->GetPosition().z());
+    double zout = std::abs(aStep->GetPostStepPoint()->GetPosition().z());
+    if (zout - zin < 0.) {
+      hitClassID = k_idETLfromBack;
+      trkInfo->setETLfromBack();
+    } else {
+      hitClassID = 0;
+      trkInfo->setETLfromFront();
+    }
+  }
 }

@@ -1,6 +1,6 @@
 ###############################################################################
 # Usage example:
-#   cmsRun g4OverlapCheck2026DDD_cfg.py geometry=D102 tol=0.01
+#   cmsRun g4OverlapCheckRun4DDD_cfg.py geometry=D102 tol=0.01
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -36,7 +36,7 @@ options.parseArguments()
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 process = cms.Process('OverlapCheck',Phase2C17I13M9)
 
-baseName = "GeometryExtended2026" + options.geometry
+baseName = "GeometryExtendedRun4" + options.geometry
 geomFile = "Configuration.Geometry." + baseName + "_cff"
 
 print("Base file Name:     ", baseName)

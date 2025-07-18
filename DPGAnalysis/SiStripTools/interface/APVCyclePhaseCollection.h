@@ -7,8 +7,8 @@
 
 class APVCyclePhaseCollection {
 public:
-  APVCyclePhaseCollection() : _apvmap(){};
-  ~APVCyclePhaseCollection(){};
+  APVCyclePhaseCollection() : _apvmap() {}
+  ~APVCyclePhaseCollection() {}
 
   const std::map<std::string, int>& get() const { return _apvmap; };
 

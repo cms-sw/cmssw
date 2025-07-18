@@ -1582,7 +1582,7 @@ void JetTester_HeavyIons::analyze(const edm::Event &mEvent, const edm::EventSetu
               if (inForward)
                 mPtRecoOverGen_F_20_30_Cent_50_80->Fill(response);
             }  //
-          }    // pt bin 20-30
+          }  // pt bin 20-30
 
           if (gjet->pt() >= 30 && gjet->pt() < 50) {
             if (isCentral) {
@@ -1621,7 +1621,7 @@ void JetTester_HeavyIons::analyze(const edm::Event &mEvent, const edm::EventSetu
               if (inForward)
                 mPtRecoOverGen_F_30_50_Cent_50_80->Fill(response);
             }  //
-          }    // pt bin 30-50
+          }  // pt bin 30-50
 
           if (gjet->pt() >= 50 && gjet->pt() < 80) {
             if (isCentral) {
@@ -1660,7 +1660,7 @@ void JetTester_HeavyIons::analyze(const edm::Event &mEvent, const edm::EventSetu
               if (inForward)
                 mPtRecoOverGen_F_50_80_Cent_50_80->Fill(response);
             }  //
-          }    // pt bin 50-80
+          }  // pt bin 50-80
 
           if (gjet->pt() >= 80 && gjet->pt() < 120) {
             if (isCentral) {
@@ -1699,7 +1699,7 @@ void JetTester_HeavyIons::analyze(const edm::Event &mEvent, const edm::EventSetu
               if (inForward)
                 mPtRecoOverGen_F_80_120_Cent_50_80->Fill(response);
             }  //
-          }    // pt bin 80-120
+          }  // pt bin 80-120
 
           if (gjet->pt() >= 120 && gjet->pt() < 180) {
             if (isCentral) {
@@ -1738,7 +1738,7 @@ void JetTester_HeavyIons::analyze(const edm::Event &mEvent, const edm::EventSetu
               if (inForward)
                 mPtRecoOverGen_F_120_180_Cent_50_80->Fill(response);
             }  //
-          }    // pt bin 120-180
+          }  // pt bin 120-180
 
           if (gjet->pt() >= 180 && gjet->pt() < 300) {
             if (isCentral) {
@@ -1777,7 +1777,7 @@ void JetTester_HeavyIons::analyze(const edm::Event &mEvent, const edm::EventSetu
               if (inForward)
                 mPtRecoOverGen_F_180_300_Cent_50_80->Fill(response);
             }  //
-          }    // pt bin 180-300
+          }  // pt bin 180-300
 
           if (gjet->pt() >= 300) {
             if (isCentral) {
@@ -1816,7 +1816,7 @@ void JetTester_HeavyIons::analyze(const edm::Event &mEvent, const edm::EventSetu
               if (inForward)
                 mPtRecoOverGen_F_300_Inf_Cent_50_80->Fill(response);
             }  //
-          }    // pt bin 300-Inf
+          }  // pt bin 300-Inf
 
         }  // delta R < mRthreshold
 

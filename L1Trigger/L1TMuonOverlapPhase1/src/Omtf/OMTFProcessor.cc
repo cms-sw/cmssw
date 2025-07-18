@@ -95,7 +95,6 @@ void OMTFProcessor<GoldenPatternType>::init(const edm::ParameterSet& edmCfg, edm
 
   edm::LogVerbatim("OMTFReconstruction") << "useFloatingPointExtrapolation " << useFloatingPointExtrapolation
                                          << std::endl;
-  edm::LogVerbatim("OMTFReconstruction") << "extrapolFactorsFilename " << extrapolFactorsFilename << std::endl;
 }
 
 template <class GoldenPatternType>
@@ -294,7 +293,6 @@ std::vector<l1t::RegionalMuonCand> OMTFProcessor<GoldenPatternType>::getFinalcan
     //check if it matters if it needs to be here as well
     trackAddr[1] = myCand->getRefLayer();
     trackAddr[2] = myCand->getDisc();
-    trackAddr[3] = myCand->getGpResultUnconstr().getPdfSumUnconstr();
     if (candidate.hwPt() > 0 || candidate.hwPtUnconstrained() > 0) {
       candidate.setTrackAddress(trackAddr);
       candidate.setTFIdentifiers(iProcessor, mtfType);
@@ -909,8 +907,8 @@ void OMTFProcessor<GoldenPatternType>::loadExtrapolFactors(const std::string& fi
       int iLayer = lutNode.second.get<int>("<xmlattr>.Layer");
       std::string keyType = lutNode.second.get<std::string>("<xmlattr>.KeyType");
 
-      edm::LogVerbatim("OMTFReconstruction")
-          << "iRefLayer " << iRefLayer << " iLayer " << iLayer << " keyType " << keyType << std::endl;
+      LogTrace("OMTFReconstruction") << "iRefLayer " << iRefLayer << " iLayer " << iLayer << " keyType " << keyType
+                                     << std::endl;
 
       auto& valueNodes = lutNode.second;
       for (boost::property_tree::ptree::value_type& valueNode : valueNodes) {
@@ -918,7 +916,7 @@ void OMTFProcessor<GoldenPatternType>::loadExtrapolFactors(const std::string& fi
           int key = valueNode.second.get<int>("<xmlattr>.key");
           float value = valueNode.second.get<float>("<xmlattr>.value");
           extrapolFactors.at(iRefLayer).at(iLayer)[key] = value;
-          edm::LogVerbatim("OMTFReconstruction") << "key " << key << " value " << value << std::endl;
+          LogTrace("OMTFReconstruction") << "key " << key << " value " << value << std::endl;
         }
       }
     }

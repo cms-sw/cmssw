@@ -11,7 +11,6 @@
 #TODO:
 #In the future can put it in scripts/ and take dir to run from and write to as options.
 
-from __future__ import print_function
 import os, subprocess
 
 def ProduceTkMapVoltageInputFiles(workdir=os.getcwd()): #Setting the dir by default to the current working directory...
@@ -69,10 +68,10 @@ def ProduceTkMapVoltageInputFiles(workdir=os.getcwd()): #Setting the dir by defa
 		LVDict={}
 		HVDict={}
 		for line in logfile:
-		    if "OFF" in line: #All the interesting lines contain "OFF" by definition 
-		        (detid,HV,LV)=line.split()
-			LVDict.update({detid:LV})
-			HVDict.update({detid:HV})
+			if "OFF" in line: #All the interesting lines contain "OFF" by definition 
+				(detid,HV,LV)=line.split()
+				LVDict.update({detid:LV})
+				HVDict.update({detid:HV})
 	
 		#Handle the LV/HV files:
 		for detid in StripDetIDAlias.keys():
@@ -101,17 +100,17 @@ def runcmd(command):
 	Function that uses subprocess.Popen to run commands, it returns the exit code of the command. 
 	"""
 	try:
-	    process  = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
-	    pid=process.pid
-	    exitstat= process.wait()
-	    cmdout   = process.stdout.read()
-	    exitstat = process.returncode
+		process  = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+		pid=process.pid
+		exitstat= process.wait()
+		cmdout   = process.stdout.read()
+		exitstat = process.returncode
 	except OSError as detail:
-	    print("Race condition in subprocess.Popen has robbed us of the exit code of the %s process (PID %s).Assume it failed!\n %s\n"%(command,pid,detail))
-	    exitstat=999
+		print("Race condition in subprocess.Popen has robbed us of the exit code of the %s process (PID %s).Assume it failed!\n %s\n"%(command,pid,detail))
+		exitstat=999
 	if exitstat == None:
-	    print("Something strange is going on! Exit code was None for command %s: check if it really ran!"%command)
-	    exitstat=0
+		print("Something strange is going on! Exit code was None for command %s: check if it really ran!"%command)
+		exitstat=0
 	return exitstat
 
 def CreateTkVoltageMapsCfgs(workdir=os.getcwd()): #Default to current working directory (could pass HV/LV list)
@@ -121,7 +120,7 @@ def CreateTkVoltageMapsCfgs(workdir=os.getcwd()): #Default to current working di
 	"""
 	#Use HV log files to loop... could use also LV logs...
 	HVLogs=[x for x in os.listdir(workdir) if x.startswith("HV") and "FROM" in x and x.endswith(".log")]
-	
+
 	#Open the file to use as template
 	TkMapCreatorTemplateFile=open(os.path.join(os.getenv("CMSSW_BASE"),"src/CalibTracker/SiStripDCS/test","TkVoltageMapCreator_cfg.py"),"r")
 	TkMapCreatorTemplateContent=TkMapCreatorTemplateFile.readlines()
@@ -130,7 +129,7 @@ def CreateTkVoltageMapsCfgs(workdir=os.getcwd()): #Default to current working di
 	for HVlog in HVLogs:
 		#Use full path since workdir could be different than current working dir:
 		HVlog=os.path.join(workdir,HVlog)
-	        #Check if the corresponding LV log is there!
+		#Check if the corresponding LV log is there!
 		LVlog=os.path.join(workdir,HVlog.replace("HV","LV"))
 		if not os.path.exists(LVlog):
 			print("ARGH! Missing LV file for file %s"%HVlog)
@@ -149,7 +148,7 @@ def CreateTkVoltageMapsCfgs(workdir=os.getcwd()): #Default to current working di
 				line='\tHVTkMapName = cms.string("%s")\n'%HVlog.replace(".log",".png")
 			TkMapCfg.write(line)
 		TkMapCfg.close()
-	        
+
 	TkMapCreatorTemplateFile.close()
 	return TkMapCfgFilenames
 
@@ -168,7 +167,7 @@ def CreateTkVoltageMaps(workdir=os.getcwd()): #Default to current working direct
 		if exitstat != 0:
 			print("Uh-Oh!")
 			print("Command %s FAILED!"%cmsRunCmd)
-			
+
 #Could put in a def main...
 
 #Create the TkVoltageMapCreator input files in the test dir below:

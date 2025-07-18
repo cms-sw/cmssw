@@ -482,6 +482,7 @@ void HcalSimHitStudy::analyzeHits(std::vector<PCaloHit> &hits) {
 
   for (int i = 0; i < ieta_bins_HB; i++) {
     for (int j = 0; j < iphi_bins; j++) {
+      [[clang::suppress]]
       if (HBEneMap[i][j] != 0) {
         meHBEneSum_->Fill(HBEneMap[i][j]);
         meHBEneSum_vs_ieta_->Fill((i - eta_offset_HB), HBEneMap[i][j]);
@@ -492,6 +493,7 @@ void HcalSimHitStudy::analyzeHits(std::vector<PCaloHit> &hits) {
 
   for (int i = 0; i < ieta_bins_HE; i++) {
     for (int j = 0; j < iphi_bins; j++) {
+      [[clang::suppress]]
       if (HEEneMap[i][j] != 0) {
         meHEEneSum_->Fill(HEEneMap[i][j]);
         meHEEneSum_vs_ieta_->Fill((i - eta_offset_HE), HEEneMap[i][j]);
@@ -502,6 +504,7 @@ void HcalSimHitStudy::analyzeHits(std::vector<PCaloHit> &hits) {
 
   for (int i = 0; i < ieta_bins_HO; i++) {
     for (int j = 0; j < iphi_bins; j++) {
+      [[clang::suppress]]
       if (HOEneMap[i][j] != 0) {
         meHOEneSum_->Fill(HOEneMap[i][j]);
         meHOEneSum_vs_ieta_->Fill((i - eta_offset_HO), HOEneMap[i][j]);
@@ -512,6 +515,7 @@ void HcalSimHitStudy::analyzeHits(std::vector<PCaloHit> &hits) {
 
   for (int i = 0; i < ieta_bins_HF; i++) {
     for (int j = 0; j < iphi_bins; j++) {
+      [[clang::suppress]]
       if (HFEneMap[i][j] != 0) {
         meHFEneSum_->Fill(HFEneMap[i][j]);
         meHFEneSum_vs_ieta_->Fill((i - eta_offset_HF), HFEneMap[i][j]);

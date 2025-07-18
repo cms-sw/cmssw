@@ -157,6 +157,9 @@ namespace reco {
     /// get the residuals
     const TrackResiduals& residuals() const { return extra_->residuals(); }
 
+    // Check validity of track extra and rechits
+    bool recHitsOk() const { return extra_.isNonnull() && extra_.isAvailable() && extra_->recHitsOk(); }
+
   private:
     /// Reference to additional information stored only on RECO.
     TrackExtraRef extra_;

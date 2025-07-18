@@ -32,7 +32,7 @@ class SurveyDataConverter : public edm::one::EDAnalyzer<> {
 public:
   explicit SurveyDataConverter(const edm::ParameterSet& iConfig);
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
-  void endJob() override{};
+  void endJob() override {}
 
 private:
   static const int NFILES = 2;

@@ -1,11 +1,5 @@
-/*
- *
- */
-
 #include <cassert>
-#include <iostream>
 #include <string>
-#include <type_traits>
 #include <vector>
 
 // boost optional (used by boost graph) results in some false positives with -Wmaybe-uninitialized
@@ -16,33 +10,10 @@
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
-#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
 #include "FWCore/ServiceRegistry/interface/PathsAndConsumesOfModulesBase.h"
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 #include "HLTrigger/Timer/interface/ProcessCallGraph.h"
-
-// adaptor to use range-based for loops with boost::graph edges(...) and vertices(...) functions
-template <typename I>
-struct iterator_pair_as_a_range : std::pair<I, I> {
-public:
-  using std::pair<I, I>::pair;
-
-  I begin() { return this->first; }
-  I end() { return this->second; }
-};
-
-template <typename I>
-iterator_pair_as_a_range<I> make_range(std::pair<I, I> p) {
-  return iterator_pair_as_a_range<I>(p);
-}
 
 void ProcessCallGraph::preSourceConstruction(edm::ModuleDescription const& module) {
   // check that the Source has not already been added
@@ -56,18 +27,13 @@ void ProcessCallGraph::preSourceConstruction(edm::ModuleDescription const& modul
   graph_.m_graph[module.id()] = {module, edm::EDMModuleType::kSource, true};
 }
 
-// FIXME
-//  - check that all module ids are valid (e.g. subprocesses are not being added in
-//    the wrong order)
-void ProcessCallGraph::preBeginJob(edm::PathsAndConsumesOfModulesBase const& pathsAndConsumes,
-                                   edm::ProcessContext const& context) {
-  unsigned int pid = registerProcess(context);
-
+void ProcessCallGraph::lookupInitializationComplete(edm::PathsAndConsumesOfModulesBase const& pathsAndConsumes,
+                                                    edm::ProcessContext const& context) {
   // check that the Source has already been added
   assert(source_ != edm::ModuleDescription::invalidID());
 
-  // work on the full graph (for the main process) or a subgraph (for a subprocess)
-  GraphType& graph = context.isSubProcess() ? graph_.create_subgraph() : graph_.root();
+  // work on the full graph (for the main process)
+  GraphType& graph = graph_.root();
 
   // set the graph name property to the process name
   boost::get_property(graph, boost::graph_name) = context.processName();
@@ -126,14 +92,8 @@ void ProcessCallGraph::preBeginJob(edm::PathsAndConsumesOfModulesBase const& pat
   }
 
   // store the description of process, modules and paths
-  process_description_.emplace_back(context.processName(), graph, modules, paths, endPaths);
-  assert(process_description_.size() == pid + 1);
-
-  // attach a subprocess to its parent
-  if (context.isSubProcess()) {
-    unsigned int parent_pid = processId(context.parentProcessContext());
-    process_description_[parent_pid].subprocesses_.push_back(pid);
-  }
+  process_description_ = std::make_unique<ProcessType>(
+      context.processName(), graph, std::move(modules), std::move(paths), std::move(endPaths));
 }
 
 // number of modules stored in the call graph
@@ -197,11 +157,10 @@ std::pair<std::vector<unsigned int>, std::vector<unsigned int>> ProcessCallGraph
     if (color == 0)
       ++size;
 
-  // allocate the output vectors
-  std::vector<unsigned int> dependencies(size);
-  dependencies.resize(0);
-  std::vector<unsigned int> indices(path.size());
-  indices.resize(0);
+  std::vector<unsigned int> dependencies;
+  dependencies.reserve(size);
+  std::vector<unsigned int> indices;
+  indices.reserve(path.size());
 
   // reset the color map
   for (unsigned int& color : colors)
@@ -227,67 +186,4 @@ std::pair<std::vector<unsigned int>, std::vector<unsigned int>> ProcessCallGraph
   return std::make_pair(dependencies, indices);
 }
 
-// register a (sub)process and assigns it a "process id"
-// throws an exception if called with a duplicate process name
-unsigned int ProcessCallGraph::registerProcess(edm::ProcessContext const& context) {
-  // registerProcess (called by preBeginJob) must be called for the parent process before its subprocess(es)
-  if (context.isSubProcess() and process_id_.find(context.parentProcessContext().processName()) == process_id_.end()) {
-    throw edm::Exception(edm::errors::LogicError)
-        << "ProcessCallGraph::preBeginJob(): called for subprocess \"" << context.processName() << "\""
-        << " before being called for its parent process \"" << context.parentProcessContext().processName() << "\"";
-  }
-
-  // registerProcess (called by preBeginJob) should be called once or each (sub)process
-  auto id = process_id_.find(context.processName());
-  if (id != process_id_.end()) {
-    throw edm::Exception(edm::errors::LogicError)
-        << "ProcessCallGraph::preBeginJob(): called twice for the same "
-        << (context.isSubProcess() ? "subprocess" : "process") << " " << context.processName();
-  }
-
-  // this assumes that registerProcess (called by preBeginJob) is not called concurrently from different threads
-  // otherwise, process_id_.size() should be replaces with an atomic counter
-  std::tie(id, std::ignore) = process_id_.insert(std::make_pair(context.processName(), process_id_.size()));
-  return id->second;
-}
-
-// retrieve the "process id" of a process, given its ProcessContex
-// throws an exception if the (sub)process was not registered
-unsigned int ProcessCallGraph::processId(edm::ProcessContext const& context) const {
-  auto id = process_id_.find(context.processName());
-  if (id == process_id_.end())
-    throw edm::Exception(edm::errors::LogicError)
-        << "ProcessCallGraph::processId(): unexpected " << (context.isSubProcess() ? "subprocess" : "process") << " "
-        << context.processName();
-  return id->second;
-}
-
-// retrieve the "process id" of a process, given its ProcessContex
-// throws an exception if the (sub)process was not registered
-unsigned int ProcessCallGraph::processId(std::string const& processName) const {
-  auto id = process_id_.find(processName);
-  if (id == process_id_.end())
-    throw edm::Exception(edm::errors::LogicError)
-        << "ProcessCallGraph::processId(): unexpected (sub)process " << processName;
-  return id->second;
-}
-
-// retrieve the number of processes
-std::vector<ProcessCallGraph::ProcessType> const& ProcessCallGraph::processes() const { return process_description_; }
-
-// retrieve information about a process, given its "process id"
-ProcessCallGraph::ProcessType const& ProcessCallGraph::processDescription(unsigned int pid) const {
-  return process_description_.at(pid);
-}
-
-// retrieve information about a process, given its ProcessContex
-ProcessCallGraph::ProcessType const& ProcessCallGraph::processDescription(edm::ProcessContext const& context) const {
-  unsigned int pid = processId(context);
-  return process_description_[pid];
-}
-
-// retrieve information about a process, given its ProcessContex
-ProcessCallGraph::ProcessType const& ProcessCallGraph::processDescription(std::string const& processName) const {
-  unsigned int pid = processId(processName);
-  return process_description_[pid];
-}
+ProcessCallGraph::ProcessType const& ProcessCallGraph::processDescription() const { return *process_description_; }

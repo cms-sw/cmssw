@@ -17,7 +17,7 @@ class Plane;
 
 class ConversionBarrelEstimator : public MeasurementEstimator {
 public:
-  ConversionBarrelEstimator(){};
+  ConversionBarrelEstimator() {}
   ConversionBarrelEstimator(float phiRangeMin, float phiRangeMax, float zRangeMin, float zRangeMax, double nSigma = 3.)
       : thePhiRangeMin(phiRangeMin),
         thePhiRangeMax(phiRangeMax),

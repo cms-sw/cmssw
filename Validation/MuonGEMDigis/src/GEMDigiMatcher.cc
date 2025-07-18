@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "Validation/MuonGEMDigis/interface/GEMDigiMatcher.h"
 
 using namespace std;
@@ -31,7 +33,7 @@ GEMDigiMatcher::GEMDigiMatcher(const edm::ParameterSet& pset, edm::ConsumesColle
   verboseCoPad_ = gemCoPad.getParameter<int>("verbose");
 
   // make a new simhits matcher
-  muonSimHitMatcher_.reset(new GEMSimHitMatcher(pset, std::move(iC)));
+  muonSimHitMatcher_ = std::make_shared<GEMSimHitMatcher>(pset, std::move(iC));
 
   if (matchToSimLink_)
     gemSimLinkToken_ =

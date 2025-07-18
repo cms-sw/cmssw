@@ -363,13 +363,8 @@ PixelModuleName::ModuleType PixelBarrelNameUpgrade::moduleType() const {
   return isHalfModule() ? PixelBarrelNameUpgrade::v1x8 : PixelBarrelNameUpgrade::v2x8;
 }
 
-bool PixelBarrelNameUpgrade::operator==(const PixelModuleName& o) const {
-  if (o.isBarrel()) {
-    const PixelBarrelNameUpgrade* other = dynamic_cast<const PixelBarrelNameUpgrade*>(&o);
-    return (other && thePart == other->thePart && theLayer == other->theLayer && theModule == other->theModule &&
-            theLadder == other->theLadder);
-  } else
-    return false;
+bool PixelBarrelNameUpgrade::operator==(const PixelModuleName& other) const {
+  return other.isBarrel() ? (dynamic_cast<const PixelBarrelNameUpgrade&>(other) == *this) : false;
 }
 
 string PixelBarrelNameUpgrade::name() const {
@@ -417,7 +412,7 @@ PXBDetId PixelBarrelNameUpgrade::getDetId() {
       ladder = tmpLadder + 11;
     else if (layer == 4)
       ladder = tmpLadder + 16;
-  }       // outer
+  }  // outer
   else {  // inner
     if (layer == 1) {
       if (tmpLadder <= 3)
@@ -443,7 +438,7 @@ PXBDetId PixelBarrelNameUpgrade::getDetId() {
       else if (tmpLadder <= 32)
         ladder = 81 - tmpLadder;
     }  // layer 4
-  }    // inner
+  }  // inner
 
   // translate the module number from naming convention to cmssw convention
   // numbering starts at positive z

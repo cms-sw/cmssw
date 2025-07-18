@@ -73,7 +73,7 @@ public:
   /// default constructor
   Calculate_miniAOD(int maxNJets, double wMass);
   /// default destructor
-  ~Calculate_miniAOD(){};
+  ~Calculate_miniAOD() {}
 
   /// calculate W boson mass estimate
   double massWBoson(const std::vector<pat::Jet>& jets);
@@ -130,7 +130,7 @@ public:
   /// default constructor
   Calculate(int maxNJets, double wMass);
   /// default destructor
-  ~Calculate(){};
+  ~Calculate() {}
 
   /// calculate W boson mass estimate
   double massWBoson(const std::vector<reco::Jet>& jets);
@@ -242,7 +242,7 @@ public:
   /// default constructor
   SelectionStep(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC);
   /// default destructor
-  ~SelectionStep(){};
+  ~SelectionStep() {}
 
   /// apply selection
   bool select(const edm::Event& event);
@@ -378,17 +378,13 @@ bool SelectionStep<Object>::select(const edm::Event& event, const std::string& t
     if (dynamic_cast<const reco::PFCandidate*>(&*obj)) {
       reco::PFCandidate objtmp = dynamic_cast<const reco::PFCandidate&>(*obj);
 
-      if (objtmp.muonRef().isNonnull() && type == "muon") {
+      if (type == "muon") {
         if (select_(*obj)) {
           ++n;
         }
-      } else if (objtmp.gsfElectronRef().isNonnull() && type == "electron") {
+      } else if (type == "electron") {
         if (select_(*obj)) {
-          if (electronId_.isUninitialized()) {
-            ++n;
-          } else if (((double)(*electronId)[obj->gsfElectronRef()] >= eidCutValue_)) {
-            ++n;
-          }
+          ++n;
         }
         //        idx_gsf++;
       }

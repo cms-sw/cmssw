@@ -100,7 +100,7 @@ namespace edm {
         this->endLuminosityBlockProduce(rp, c);
       }
     }  // namespace impl
-  }    // namespace one
+  }  // namespace one
 }  // namespace edm
 
 #endif

@@ -45,7 +45,7 @@ public:
   InputTagDistributorService(const edm::ParameterSet& iConfig, edm::ActivityRegistry& r) {
     r.watchPreModuleConstruction(this, &InputTagDistributorService::preModule);
   };
-  ~InputTagDistributorService(){};
+  ~InputTagDistributorService() {}
 
   InputTagDistributor& init(std::string user, const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC) {
     if (multipleInstance_.find(user) != multipleInstance_.end()) {

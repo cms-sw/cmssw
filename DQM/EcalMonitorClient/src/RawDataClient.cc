@@ -11,11 +11,12 @@
 
 namespace ecaldqm {
 
-  RawDataClient::RawDataClient() : DQWorkerClient(), synchErrThresholdFactor_(0.) {
+  RawDataClient::RawDataClient() : DQWorkerClient(), minEvents_(0), synchErrThresholdFactor_(0.) {
     qualitySummaries_.insert("QualitySummary");
   }
 
   void RawDataClient::setParams(edm::ParameterSet const& _params) {
+    minEvents_ = _params.getUntrackedParameter<int>("minEvents");
     synchErrThresholdFactor_ = _params.getUntrackedParameter<double>("synchErrThresholdFactor");
   }
 
@@ -57,7 +58,7 @@ namespace ecaldqm {
       for (unsigned iS(0); iS < nFEFlags; iS++) {
         float entries(sFEStatus.getBinContent(getEcalDQMSetupObjects(), id, iS + 1));
         towerEntries += entries;
-        if (entries > 0. && iS != Enabled && iS != Suppressed && iS != ForcedFullSupp && iS != FIFOFull &&
+        if (entries > minEvents_ && iS != Enabled && iS != Suppressed && iS != ForcedFullSupp && iS != FIFOFull &&
             iS != ForcedZS)
           towerStatus = doMask ? kMBad : kBad;
       }

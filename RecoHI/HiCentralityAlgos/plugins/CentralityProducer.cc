@@ -80,6 +80,7 @@ namespace reco {
     const double trackEtaCut_;
     const double hfEtaCut_;
 
+    const bool isPhase2_;
     const bool reuseAny_;
     const bool useQuality_;
     const reco::TrackBase::TrackQuality trackQuality_;
@@ -128,6 +129,7 @@ namespace reco {
         trackPtCut_(iConfig.getParameter<double>("trackPtCut")),
         trackEtaCut_(iConfig.getParameter<double>("trackEtaCut")),
         hfEtaCut_(iConfig.getParameter<double>("hfEtaCut")),
+        isPhase2_(iConfig.getParameter<bool>("isPhase2")),
         reuseAny_(iConfig.getParameter<bool>("reUseCentrality")),
         useQuality_(iConfig.getParameter<bool>("useQuality")),
         trackQuality_(TrackBase::qualityByName(iConfig.getParameter<std::string>("trackQuality"))),
@@ -210,7 +212,7 @@ namespace reco {
         const CaloTower& tower = (*towers)[i];
         double eta = tower.eta();
         if (produceHFtowers_) {
-          bool isHF = tower.ietaAbs() > 29;
+          bool isHF = tower.ietaAbs() > (isPhase2_ ? 16 : 29);
           if (isHF && eta > 0) {
             creco->etHFtowerSumPlus_ += tower.pt();
             if (tower.energy() > 1.5)
@@ -539,6 +541,7 @@ namespace reco {
     desc.add<double>("hfEtaCut", 4)->setComment("hf above the absolute value of this cut is used");
     desc.add<double>("midRapidityRange", 1);
     desc.add<bool>("lowGainZDC", true);
+    desc.add<bool>("isPhase2", false);
 
     descriptions.addDefault(desc);
   }

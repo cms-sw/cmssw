@@ -113,7 +113,7 @@ void ClusterRefinerTagMCmerged::refineCluster(const edm::Handle<edmNew::DetSetVe
       // 		<< " " << clust->amplitudes().size()
       // 		<< std::endl;
     }  // traverse clusters
-  }    // traverse sensors
+  }  // traverse sensors
 }
 
 template <class T>

@@ -5,11 +5,11 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "CLHEP/Random/RandFlat.h"
 
@@ -24,7 +24,7 @@ FileRandomMultiParticlePGunProducer::FileRandomMultiParticlePGunProducer(const P
   fMinP_ = pgunParams.getParameter<double>("MinP");
   fMaxP_ = pgunParams.getParameter<double>("MaxP");
   edm::FileInPath fp = pgunParams.getParameter<edm::FileInPath>("FileName");
-  std::string file = fp.fullPath();
+  const std::string& file = fp.fullPath();
 
   produces<HepMCProduct>("unsmeared");
   produces<GenEventInfoProduct>();

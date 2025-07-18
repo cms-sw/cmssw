@@ -12,7 +12,7 @@ class CutBasedElectronID : public ElectronIDAlgo {
 public:
   CutBasedElectronID(const edm::ParameterSet& conf, edm::ConsumesCollector& iC);
 
-  ~CutBasedElectronID() override{};
+  ~CutBasedElectronID() override {}
 
   void setup(const edm::ParameterSet& conf) override;
   double result(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&) override;
@@ -20,6 +20,8 @@ public:
   double robustSelection(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&);
   int classify(const reco::GsfElectron*);
   bool compute_cut(double x, double et, double cut_min, double cut_max, bool gtn = false);
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
 private:
   bool wantBinning_;

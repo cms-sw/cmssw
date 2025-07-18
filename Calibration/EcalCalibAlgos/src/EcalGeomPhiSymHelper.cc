@@ -127,8 +127,8 @@ void EcalGeomPhiSymHelper::setup(const CaloGeometry* geometry, const EcalChannel
           }  //sign
 
         }  //if
-      }    //ix
-    }      //iy
+      }  //ix
+    }  //iy
 
     meanCellArea_[ring] /= nRing_[ring];
 
@@ -148,9 +148,9 @@ void EcalGeomPhiSymHelper::setup(const CaloGeometry* geometry, const EcalChannel
             if (cellPhi_[ix][iy] < phimin && cellPhi_[ix][iy] > philast) {
               phimin = cellPhi_[ix][iy];
             }  //if edges
-          }    //if ring
-        }      //iy
-      }        //ix
+          }  //if ring
+        }  //iy
+      }  //ix
       phi_endc_[ip][ring] = phimin;
       philast = phimin;
     }  //ip

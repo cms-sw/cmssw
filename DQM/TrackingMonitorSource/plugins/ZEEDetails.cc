@@ -230,7 +230,7 @@ void ZEEDetails::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       if (beamSpot.isValid()) {
         trkd0 = -(trk->dxy(beamSpot->position()));
       } else {
-        edm::LogError("ElectronTrackProducer") << "Error >> Failed to get BeamSpot for label: " << bsTag_;
+        edm::LogError("ZEEDetails") << "Error >> Failed to get BeamSpot for label: " << bsTag_;
       }
       if (std::fabs(trkd0) >= maxD0_)
         continue;
@@ -261,16 +261,17 @@ void ZEEDetails::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       finalelectrons.push_back(ele);
     }
   } else {
-    edm::LogError("ElectronTrackProducer") << "Error >> Failed to get ElectronCollection for label: " << electronTag_;
+    edm::LogError("ZEEDetails") << "Error >> Failed to get ElectronCollection for label: " << electronTag_;
   }
 
   edm::Handle<reco::VertexCollection> vertexColl;
   iEvent.getByToken(vertexToken_, vertexColl);
   if (!vertexColl.isValid()) {
-    edm::LogError("DqmTrackStudy") << "Error! Failed to get reco::Vertex Collection, " << vertexTag_;
+    edm::LogError("ZEEDetails") << "Error! Failed to get reco::Vertex Collection, " << vertexTag_;
+    return;
   }
   if (vertexColl->empty()) {
-    edm::LogError("DqmTrackStudy") << "No good vertex in the event!!";
+    edm::LogError("ZEEDetails") << "No good vertex in the event!!";
     return;
   }
 
@@ -294,7 +295,7 @@ void ZEEDetails::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
         }
       }
     } else
-      edm::LogError("DqmTrackStudy") << "PUSummary for input tag: " << puSummaryTag_ << " not found!!";
+      edm::LogError("ZEEDetails") << "PUSummary for input tag: " << puSummaryTag_ << " not found!!";
   }
 
   for (unsigned int I = 0; I != finalelectrons.size(); I++) {

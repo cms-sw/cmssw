@@ -5,6 +5,7 @@
   <use name="CondFormats/Alignment"/>
   <use name="CommonTools/TrackerMap"/>
   <use name="CalibTracker/StandaloneTrackerTopology"/>
+  <use name="DQM/TrackerRemapper"/>
 </library>
 
 <library file="TrackerAlignment_PayloadInspector.cc" name="TrackerAlignment_PayloadInspector">

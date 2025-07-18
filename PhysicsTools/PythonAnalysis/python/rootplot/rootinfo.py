@@ -1,8 +1,6 @@
 """
 Print information about objects in a ROOT file.
 """
-from __future__ import absolute_import
-from __future__ import print_function
 
 from builtins import range
 from .version import __version__

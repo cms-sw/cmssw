@@ -1,4 +1,3 @@
-from __future__ import print_function
 from HTMLParser import HTMLParser
 from urllib2 import urlopen
 import cPickle as pickle

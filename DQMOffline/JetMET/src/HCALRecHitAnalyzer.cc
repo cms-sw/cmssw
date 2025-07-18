@@ -554,7 +554,7 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
           hHCAL_D3_Minenergy_ieta_iphi->setBinContent(EtaRing + 1, iphi, Energy);
         break;
     }  // end switch
-  }    // end loop over HBHERecHit's
+  }  // end loop over HBHERecHit's
 
   // Fill eta-ring MET quantities
   for (int iEtaRing = 0; iEtaRing < 83; iEtaRing++) {
@@ -601,9 +601,9 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
             hHCAL_D3_Occvsieta->Fill(iEtaRing - 41, HBHENActiveCells[iEtaRing][jDepth]);
             break;
         }  //switch
-      }    //activering
-    }      //depth
-  }        //etaring
+      }  //activering
+    }  //depth
+  }  //etaring
 
   //-------------------------------------------------HO
   TLorentzVector vHOMET_EtaRing[83];

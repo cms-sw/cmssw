@@ -21,7 +21,7 @@ namespace pat {
       edm::EDGetTokenT<IsoValueMap> inputDoubleToken_;
       float getValue(const edm::ProductID &id, size_t index) const override { return handle_->get(id, index); }
     };  // class SimpleIsolator
-  }     // namespace helper
+  }  // namespace helper
 }  // namespace pat
 
 #endif

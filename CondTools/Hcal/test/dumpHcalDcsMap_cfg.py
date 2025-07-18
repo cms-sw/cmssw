@@ -43,12 +43,12 @@ process.source = cms.Source("EmptySource",
 )
 
 
-process.es_pool = cms.ESSource("PoolDBESSource",
-     process.CondDBSetup,
-     timetype = cms.string('runnumber'),
-     connect = cms.string('sqlite_file:testExample.db'),
-     authenticationMethod = cms.untracked.uint32(0),
-     toGet = cms.VPSet(
+#process.es_pool = cms.ESSource("PoolDBESSource",
+#     process.CondDBSetup,
+#     timetype = cms.string('runnumber'),
+#     connect = cms.string('sqlite_file:testExample.db'),
+#     authenticationMethod = cms.untracked.uint32(0),
+#     toGet = cms.VPSet(
 #        cms.PSet(
 #            record = cms.string('HcalPedestalsRcd'),
 #            tag = cms.string('hcal_pedestals_fC_v6_mc')

@@ -77,12 +77,12 @@ namespace hcaldqm {
     void fill(HcalTrigTowerDetId const &, double, double, double);
 
   private:
-    void fill(uint32_t) override{};
-    void fill(uint32_t, int) override{};
-    void fill(uint32_t, double) override{};
-    void fill(uint32_t, int, double) override{};
-    void fill(uint32_t, int, int) override{};
-    void fill(uint32_t, double, double) override{};
+    void fill(uint32_t) override {}
+    void fill(uint32_t, int) override {}
+    void fill(uint32_t, double) override {}
+    void fill(uint32_t, int, double) override {}
+    void fill(uint32_t, int, int) override {}
+    void fill(uint32_t, double, double) override {}
   };
 }  // namespace hcaldqm
 

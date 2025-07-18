@@ -4,6 +4,7 @@ from DQMServices.Components.DQMMessageLogger_cfi import *
 from DQMServices.Components.DQMProvInfo_cfi import *
 from DQMServices.Components.DQMFastTimerService_cff import *
 
+from DQMOffline.HLTScouting.HLTScoutingDqmOffline_cff import *
 from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
 from DQMOffline.Ecal.ecal_dqm_source_offline_cff import *
 from DQM.EcalPreshowerMonitorModule.es_dqm_source_offline_cff import *
@@ -27,6 +28,9 @@ DQMMessageLoggerSeq = cms.Sequence( DQMMessageLogger )
 dqmProvInfo.runType = "pp_run"
 dqmProvInfo.dcsRecord = cms.untracked.InputTag("onlineMetaDataDigis")
 DQMOfflineDCS = cms.Sequence( dqmProvInfo )
+
+# HLT Scouting trigger sequence
+DQMOfflineScouting = cms.Sequence( hltScoutingDqmOffline ) 
 
 # L1 trigger sequences
 DQMOfflineL1T = cms.Sequence( l1TriggerDqmOffline ) # L1 emulator is run within this sequence for real data
@@ -129,7 +133,8 @@ DQMOfflineTracking = cms.Sequence( TrackingDQMSourceTier0 *
                                    DQMOfflineVertex *
                                    materialDumperAnalyzer )
 
-DQMOfflineMUO = cms.Sequence(muonMonitors)
+DQMOfflineMUO = cms.Sequence(muonMonitors
+                             *cscMonitor)
 muonRecoAnalyzer.doMVA =         cms.bool( True )
 muonRecoAnalyzer_miniAOD.doMVA = cms.bool( True )
 
@@ -158,7 +163,7 @@ DQMOfflinePrePOG = cms.Sequence( DQMOfflineTracking *
 
 
 DQMOfflinePrePOGExpress = cms.Sequence( DQMOfflineTracking *
-                                 DQMOfflineMUO *
+                                 #DQMOfflineMUO *
                                  #DQMOfflineJetMET *
                                  #DQMOfflineEGamma *
                                  DQMOfflineTrigger *

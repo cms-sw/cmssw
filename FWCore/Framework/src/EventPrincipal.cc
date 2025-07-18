@@ -32,14 +32,14 @@
 
 namespace edm {
   EventPrincipal::EventPrincipal(std::shared_ptr<ProductRegistry const> reg,
+                                 std::vector<std::shared_ptr<ProductResolverBase>>&& resolvers,
                                  std::shared_ptr<BranchIDListHelper const> branchIDListHelper,
                                  std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper,
                                  ProcessConfiguration const& pc,
                                  HistoryAppender* historyAppender,
                                  unsigned int streamIndex,
-                                 bool isForPrimaryProcess,
                                  ProcessBlockHelperBase const* processBlockHelper)
-      : Base(reg, reg->productLookup(InEvent), pc, InEvent, historyAppender, isForPrimaryProcess),
+      : Base(reg, std::move(resolvers), pc, InEvent, historyAppender),
         aux_(),
         luminosityBlockPrincipal_(nullptr),
         provRetrieverPtr_(new ProductProvenanceRetriever(streamIndex, *reg)),
@@ -161,7 +161,7 @@ namespace edm {
         //  If not, then we've internally changed the original BranchID to the alias BranchID
         //  in the ProductID lookup so we need the alias BranchID.
 
-        auto const& bd = prod->branchDescription();
+        auto const& bd = prod->productDescription();
         prod->setProductID(branchIDToProductID(bd.isAlias() ? bd.originalBranchID() : bd.branchID()));
       }
     }
@@ -178,7 +178,7 @@ namespace edm {
 
   RunPrincipal const& EventPrincipal::runPrincipal() const { return luminosityBlockPrincipal().runPrincipal(); }
 
-  void EventPrincipal::put(BranchDescription const& bd,
+  void EventPrincipal::put(ProductDescription const& bd,
                            std::unique_ptr<WrapperBase> edp,
                            ProductProvenance const& productProvenance) const {
     // assert commented out for DaqSource.  When DaqSource no longer uses put(), the assert can be restored.
@@ -201,20 +201,19 @@ namespace edm {
     }
     auto phb = getProductResolverByIndex(index);
 
-    productProvenanceRetrieverPtr()->insertIntoSet(
-        ProductProvenance(phb->branchDescription().branchID(), std::move(parentage)));
+    productProvenanceRetrieverPtr()->insertIntoSet(ProductProvenance(phb->productDescription().branchID(), parentage));
 
     assert(phb);
     // ProductResolver assumes ownership
     dynamic_cast<ProductPutterBase const*>(phb)->putProduct(std::move(edp));
   }
 
-  void EventPrincipal::putOnRead(BranchDescription const& bd,
+  void EventPrincipal::putOnRead(ProductDescription const& bd,
                                  std::unique_ptr<WrapperBase> edp,
                                  std::optional<ProductProvenance> productProvenance) const {
     assert(!bd.produced());
     if (productProvenance) {
-      productProvenanceRetrieverPtr()->insertIntoSet(std::move(*productProvenance));
+      productProvenanceRetrieverPtr()->insertIntoSet(*productProvenance);
     }
     auto phb = getExistingProduct(bd.branchID());
     assert(phb);
@@ -239,7 +238,15 @@ namespace edm {
 
   unsigned int EventPrincipal::transitionIndex_() const { return streamID_.value(); }
 
-  void EventPrincipal::changedIndexes_() { provRetrieverPtr_->update(productRegistry()); }
+  void EventPrincipal::changedIndexes_() {
+    provRetrieverPtr_->update(productRegistry());
+    //If new Retrievers were added, we need to pass the provenance retriever
+    for (auto& prod : *this) {
+      if (prod->singleProduct()) {
+        prod->setProductProvenanceRetriever(productProvenanceRetrieverPtr());
+      }
+    }
+  }
 
   static void throwProductDeletedException(ProductID const& pid,
                                            edm::EventPrincipal::ConstProductResolverPtr const phb) {

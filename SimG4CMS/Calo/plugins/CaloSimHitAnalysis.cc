@@ -98,10 +98,9 @@ CaloSimHitAnalysis::CaloSimHitAnalysis(const edm::ParameterSet& ps)
       allSteps_(ps.getUntrackedParameter<int>("allSteps", 100)),
       detNames_(ps.getUntrackedParameter<std::vector<std::string> >("detNames")),
       tokGeom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
-      toks_calo_{edm::vector_transform(hitLab_,
-                                       [this](const std::string& name) {
-                                         return consumes<edm::PCaloHitContainer>(edm::InputTag{g4Label_, name});
-                                       })},
+      toks_calo_{edm::vector_transform(
+          hitLab_,
+          [this](const std::string& name) { return consumes<edm::PCaloHitContainer>(edm::InputTag{g4Label_, name}); })},
       tok_passive_(consumes<edm::PassiveHitContainer>(edm::InputTag(g4Label_, "AllPassiveHits"))) {
   usesResource(TFileService::kSharedResource);
 

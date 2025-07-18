@@ -1,8 +1,8 @@
 #include "SimDataFormats/Associations/interface/MtdRecoClusterToSimLayerClusterAssociatorBaseImpl.h"
 
 namespace reco {
-  MtdRecoClusterToSimLayerClusterAssociatorBaseImpl::MtdRecoClusterToSimLayerClusterAssociatorBaseImpl(){};
-  MtdRecoClusterToSimLayerClusterAssociatorBaseImpl::~MtdRecoClusterToSimLayerClusterAssociatorBaseImpl(){};
+  MtdRecoClusterToSimLayerClusterAssociatorBaseImpl::MtdRecoClusterToSimLayerClusterAssociatorBaseImpl() {}
+  MtdRecoClusterToSimLayerClusterAssociatorBaseImpl::~MtdRecoClusterToSimLayerClusterAssociatorBaseImpl() {}
 
   reco::RecoToSimCollectionMtd MtdRecoClusterToSimLayerClusterAssociatorBaseImpl::associateRecoToSim(
       const edm::Handle<FTLClusterCollection> &btlRecoClusH,

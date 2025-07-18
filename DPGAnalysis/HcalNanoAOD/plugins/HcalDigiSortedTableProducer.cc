@@ -216,7 +216,7 @@ void HcalDigiSortedTableProducer::produce(edm::Event& iEvent, const edm::EventSe
   hbNanoTable->addColumn<bool>("valid", hbDigiTable_->valids_, "valid");
   hbNanoTable->addColumn<uint8_t>("sipmTypes", hbDigiTable_->sipmTypes_, "sipmTypes");
 
-  for (unsigned int iTS = 0; iTS < 8; ++iTS) {
+  for (unsigned int iTS = 0; iTS < nTS_HB_; ++iTS) {
     hbNanoTable->addColumn<int>(
         std::string("adc") + std::to_string(iTS), hbDigiTable_->adcs_[iTS], std::string("adc") + std::to_string(iTS));
     hbNanoTable->addColumn<int>(
@@ -246,7 +246,7 @@ void HcalDigiSortedTableProducer::produce(edm::Event& iEvent, const edm::EventSe
   heNanoTable->addColumn<bool>("valid", heDigiTable_->valids_, "valid");
   heNanoTable->addColumn<uint8_t>("sipmTypes", heDigiTable_->sipmTypes_, "sipmTypes");
 
-  for (unsigned int iTS = 0; iTS < 8; ++iTS) {
+  for (unsigned int iTS = 0; iTS < nTS_HE_; ++iTS) {
     heNanoTable->addColumn<int>(
         std::string("adc") + std::to_string(iTS), heDigiTable_->adcs_[iTS], std::string("adc") + std::to_string(iTS));
     heNanoTable->addColumn<int>(
@@ -275,7 +275,7 @@ void HcalDigiSortedTableProducer::produce(edm::Event& iEvent, const edm::EventSe
   hfNanoTable->addColumn<bool>("valid", hfDigiTable_->valids_, "valid");
   //hfNanoTable->addColumn<uint8_t>("sipmTypes", hfDigiTable_->sipmTypes_, "sipmTypes");
 
-  for (unsigned int iTS = 0; iTS < 3; ++iTS) {
+  for (unsigned int iTS = 0; iTS < nTS_HF_; ++iTS) {
     hfNanoTable->addColumn<int>(
         std::string("adc") + std::to_string(iTS), hfDigiTable_->adcs_[iTS], std::string("adc") + std::to_string(iTS));
     hfNanoTable->addColumn<int>(
@@ -307,7 +307,7 @@ void HcalDigiSortedTableProducer::produce(edm::Event& iEvent, const edm::EventSe
   hoNanoTable->addColumn<int>("soi", hoDigiTable_->sois_, "soi");
   hoNanoTable->addColumn<bool>("valid", hoDigiTable_->valids_, "valid");
 
-  for (unsigned int iTS = 0; iTS < 10; ++iTS) {
+  for (unsigned int iTS = 0; iTS < nTS_HO_; ++iTS) {
     hoNanoTable->addColumn<int>(
         std::string("adc") + std::to_string(iTS), hoDigiTable_->adcs_[iTS], std::string("adc") + std::to_string(iTS));
     hoNanoTable->addColumn<int>(std::string("capid") + std::to_string(iTS),

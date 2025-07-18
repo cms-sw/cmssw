@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    SiPixelFakeQualityESSource
+// Package:    CalibTracker/SiPixelESProducers
 // Class:      SiPixelFakeQualityESSource
 //
-/**\class SiPixelFakeQualityESSource SiPixelFakeQualityESSource.h CalibTracker/SiPixelESProducer/src/SiPixelFakeQualityESSource.cc
+/**\class CalibTracker/SiPixelESProducers/plugins/SiPixelFakeQualityESSource.cc
 
  Description: <one line class summary>
 
@@ -16,13 +16,47 @@
 //
 //
 
-// user include files
+// system include files
+#include <memory>
 
-#include "CalibTracker/SiPixelESProducers/interface/SiPixelFakeQualityESSource.h"
+// user include files
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelDetInfoFileReader.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "CondFormats/DataRecord/interface/SiPixelQualityFromDbRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
+//
+// class decleration
+//
+
+class SiPixelFakeQualityESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+public:
+  SiPixelFakeQualityESSource(const edm::ParameterSet&);
+  ~SiPixelFakeQualityESSource() override = default;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  virtual std::unique_ptr<SiPixelQuality> produce(const SiPixelQualityFromDbRcd&);
+
+protected:
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+                      const edm::IOVSyncValue&,
+                      edm::ValidityInterval&) override;
+
+private:
+  edm::FileInPath fp_;
+};
+
 //
 // constructors and destructor
 //
@@ -33,11 +67,6 @@ SiPixelFakeQualityESSource::SiPixelFakeQualityESSource(const edm::ParameterSet& 
   // data is being produced
   setWhatProduced(this);
   findingRecord<SiPixelQualityFromDbRcd>();
-}
-
-SiPixelFakeQualityESSource::~SiPixelFakeQualityESSource() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 std::unique_ptr<SiPixelQuality> SiPixelFakeQualityESSource::produce(const SiPixelQualityFromDbRcd&) {
@@ -65,3 +94,11 @@ void SiPixelFakeQualityESSource::setIntervalFor(const edm::eventsetup::EventSetu
   edm::ValidityInterval infinity(iosv.beginOfTime(), iosv.endOfTime());
   oValidity = infinity;
 }
+
+void SiPixelFakeQualityESSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::FileInPath>("file", edm::FileInPath("CalibTracker/SiPixelESProducers/data/PixelSkimmedGeometry.txt"));
+  descriptions.addWithDefaultLabel(desc);
+}
+
+DEFINE_FWK_EVENTSETUP_SOURCE(SiPixelFakeQualityESSource);

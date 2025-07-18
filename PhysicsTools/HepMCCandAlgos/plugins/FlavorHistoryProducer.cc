@@ -253,7 +253,7 @@ void FlavorHistoryProducer::produce(StreamID, Event &evt, const EventSetup &) co
                 foundProgenitor = true;
               }
             }  // end if progenitorIndex > 5
-          }    // end loop over parents
+          }  // end loop over parents
 
           // Otherwise, classify it as gluon splitting. Take the first status 3 parton with 1 parent
           // that you see as the progenitor
@@ -271,10 +271,10 @@ void FlavorHistoryProducer::produce(StreamID, Event &evt, const EventSetup &) co
                 foundProgenitor = true;
               }
             }  // end loop over parents
-          }    // end if we haven't found a progenitor, and if we haven't found a status 3 parton of the same flavor
-               // (i.e. end if examining gluon splitting)
-        }      // End if this parton passes some minimal kinematic cuts
-      }        // End if this particle is status 2 (has strings as daughters)
+          }  // end if we haven't found a progenitor, and if we haven't found a status 3 parton of the same flavor
+          // (i.e. end if examining gluon splitting)
+        }  // End if this parton passes some minimal kinematic cuts
+      }  // End if this particle is status 2 (has strings as daughters)
 
       // Make sure we've actually found a progenitor
       if (!foundProgenitor)
@@ -288,7 +288,7 @@ void FlavorHistoryProducer::produce(StreamID, Event &evt, const EventSetup &) co
       sisterIndices.push_back(-1);  // set below
 
     }  // End if this particle was a status==2 parton
-  }    // end loop over particles
+  }  // end loop over particles
 
   // Now add sisters.
   // Also if the event is preliminarily classified as "matrix element", check to

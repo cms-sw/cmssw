@@ -1,11 +1,11 @@
+// -*- C++ -*-
 #ifndef FWCore_Framework_DependentRecordImplementation_h
 #define FWCore_Framework_DependentRecordImplementation_h
-// -*- C++ -*-
 //
 // Package:     Framework
 // Class  :     DependentRecordImplementation
 //
-/**\class DependentRecordImplementation DependentRecordImplementation.h FWCore/Framework/interface/DependentRecordImplementation.h
+/**\class edm::eventsetup::DependentRecordImplementation
 
  Description: <one line class summary>
 

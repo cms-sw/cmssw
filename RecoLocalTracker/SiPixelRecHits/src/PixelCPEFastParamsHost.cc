@@ -10,6 +10,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEFastParamsHost.h"
 
+// #define ONLY_TRIPLETS_IN_HOLE
 //-----------------------------------------------------------------------------
 //!  The constructor.
 //-----------------------------------------------------------------------------
@@ -42,28 +43,17 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
 
   buffer_->commonParams().theThicknessB = m_DetParams.front().theThickness;
   buffer_->commonParams().theThicknessE = m_DetParams.back().theThickness;
-  buffer_->commonParams().thePitchX = m_DetParams[0].thePitchX;
-  buffer_->commonParams().thePitchY = m_DetParams[0].thePitchY;
 
-  buffer_->commonParams().numberOfLaddersInBarrel = TrackerTraits::numberOfLaddersInBarrel;
-
-  LogDebug("PixelCPEFastParamsHost") << "pitch & thickness " << buffer_->commonParams().thePitchX << ' '
-                                     << buffer_->commonParams().thePitchY << "  "
-                                     << buffer_->commonParams().theThicknessB << ' '
+  LogDebug("PixelCPEFastParamsHost") << "thickness " << buffer_->commonParams().theThicknessB << ' '
                                      << buffer_->commonParams().theThicknessE;
 
+#ifdef ONLY_TRIPLETS_IN_HOLE
   // zero average geometry
   memset(&buffer_->averageGeometry(), 0, sizeof(pixelTopology::AverageGeometryT<TrackerTraits>));
-
-  uint32_t oldLayer = 0;
-  uint32_t oldLadder = 0;
-  float rl = 0;
-  float zl = 0;
-  float miz = 500, mxz = 0;
-  float pl = 0;
-  int nl = 0;
+#endif
 
   assert(m_DetParams.size() <= TrackerTraits::numberOfModules);
+
   for (auto i = 0U; i < m_DetParams.size(); ++i) {
     auto& p = m_DetParams[i];
     auto& g = buffer_->detParams(i);
@@ -76,8 +66,6 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
     g.numPixsInModule = g.nRows * g.nCols;
 
     assert(p.theDet->index() == int(i));
-    assert(buffer_->commonParams().thePitchY == p.thePitchY);
-    assert(buffer_->commonParams().thePitchX == p.thePitchX);
 
     g.isBarrel = GeomDetEnumerators::isBarrel(p.thePart);
     g.isPosZ = p.theDet->surface().position().z() > 0;
@@ -86,29 +74,6 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
     g.rawId = p.theDet->geographicalId();
     auto thickness = g.isBarrel ? buffer_->commonParams().theThicknessB : buffer_->commonParams().theThicknessE;
     assert(thickness == p.theThickness);
-
-    auto ladder = ttopo_.pxbLadder(p.theDet->geographicalId());
-    if (oldLayer != g.layer) {
-      oldLayer = g.layer;
-      LogDebug("PixelCPEFastParamsHost") << "new layer at " << i << (g.isBarrel ? " B  " : (g.isPosZ ? " E+ " : " E- "))
-                                         << g.layer << " starting at " << g.rawId << '\n'
-                                         << "old layer had " << nl << " ladders";
-      nl = 0;
-    }
-    if (oldLadder != ladder) {
-      oldLadder = ladder;
-      LogDebug("PixelCPEFastParamsHost") << "new ladder at " << i
-                                         << (g.isBarrel ? " B  " : (g.isPosZ ? " E+ " : " E- ")) << ladder
-                                         << " starting at " << g.rawId << '\n'
-                                         << "old ladder ave z,r,p mz " << zl / 8.f << " " << rl / 8.f << " " << pl / 8.f
-                                         << ' ' << miz << ' ' << mxz;
-      rl = 0;
-      zl = 0;
-      pl = 0;
-      miz = 500;
-      mxz = 0;
-      nl++;
-    }
 
     g.shiftX = 0.5f * p.lorentzShiftInCmX;
     g.shiftY = 0.5f * p.lorentzShiftInCmY;
@@ -119,15 +84,12 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
     g.y0 = p.theOrigin.y();
     g.z0 = p.theOrigin.z();
 
+    g.thePitchX = p.thePitchX;
+    g.thePitchY = p.thePitchY;
+
     auto vv = p.theDet->surface().position();
     auto rr = pixelCPEforDevice::Rotation(p.theDet->surface().rotation());
     g.frame = pixelCPEforDevice::Frame(vv.x(), vv.y(), vv.z(), rr);
-
-    zl += vv.z();
-    miz = std::min(miz, std::abs(vv.z()));
-    mxz = std::max(mxz, std::abs(vv.z()));
-    rl += vv.perp();
-    pl += vv.phi();  // (not obvious)
 
     // errors .....
     ClusterParamGeneric cp;
@@ -144,7 +106,7 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
     auto toMicron = [&](float x) { return std::min(511, int(x * 1.e4f + 0.5f)); };
 
     // average angle
-    auto gvx = p.theOrigin.x() + 40.f * buffer_->commonParams().thePitchX;
+    auto gvx = p.theOrigin.x() + 40.f * p.thePitchX;
     auto gvy = p.theOrigin.y();
     auto gvz = 1.f / p.theOrigin.z();
     //--- Note that the normalization is not required as only the ratio used
@@ -177,7 +139,7 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
     // moduleOffsetX is the definition of TrackerTraits::xOffset,
     // needs to be calculated because for Phase2 the modules are not uniform
     float moduleOffsetX = -(0.5f * float(g.nRows) + TrackerTraits::bigPixXCorrection);
-    auto const xoff = moduleOffsetX * buffer_->commonParams().thePitchX;
+    auto const xoff = moduleOffsetX * g.thePitchX;
 
     for (int ix = 0; ix < pixelCPEforDevice::kNumErrorBins; ++ix) {
       auto x = xoff * (1.f - (0.5f + float(ix)) / 8.f);
@@ -197,11 +159,11 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
     // sample yerr as function of position
     // moduleOffsetY is the definition of TrackerTraits::yOffset (removed)
     float moduleOffsetY = 0.5f * float(g.nCols) + TrackerTraits::bigPixYCorrection;
-    auto const yoff = -moduleOffsetY * buffer_->commonParams().thePitchY;
+    auto const yoff = -moduleOffsetY * p.thePitchY;
 
     for (int ix = 0; ix < pixelCPEforDevice::kNumErrorBins; ++ix) {
       auto y = yoff * (1.f - (0.5f + float(ix)) / 8.f);
-      auto gvx = p.theOrigin.x() + 40.f * buffer_->commonParams().thePitchY;
+      auto gvx = p.theOrigin.x() + 40.f * p.thePitchY;
       auto gvy = p.theOrigin.y() - y;
       auto gvz = 1.f / p.theOrigin.z();
       cp.cotbeta = gvy * gvz;
@@ -221,19 +183,33 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
     int qbin = pixelCPEforDevice::kGenErrorQBins;  // low charge
     int k = 0;
     int qClusIncrement = 100;
-    for (int qclus = 1000; k < pixelCPEforDevice::kGenErrorQBins;
-         qclus += qClusIncrement) {  //increase charge until we cover all qBin categories
+    for (int qclus = 100; k < pixelCPEforDevice::kGenErrorQBins; qclus += qClusIncrement) {
       errorFromTemplates(p, cp, qclus);
-      if (cp.qBin_ == qbin)
+      if (cp.qBin_ == qbin) {
         continue;
+      }
+
+      // Check if we have skipped a qBin
+      if (cp.qBin_ < qbin - 1) {
+        //qBin=4 (second lowest charge) sometimes may get skipped
+        //In that case, set its threshold at halfway to threshold of qBin=3 and fill with sigmax/y values of qBin=5
+        //In reality, it does not really matter because we will not encounter this qBin for any cluster (otherwise we would not have skipped it)
+        qbin += 1;
+        qclus -= qClusIncrement;
+        errorFromTemplates(p, cp, qclus);
+        g.xfact[k] = cp.sigmax;
+        g.yfact[k] = cp.sigmay;
+        g.minCh[k++] = qclus / 2;
+        continue;
+      }
+
       qbin = cp.qBin_;
-      //There are two qBin categories with low charge. Their qBins are 5 and 4 (pixelCPEforDevice::kGenErrorQBins, pixelCPEforDevice::kGenErrorQBins-1)
-      //We increment charge until qBin gets switched from 5 and then we start writing detParams as we are not interested in cases with qBin=5
-      //The problem is that with a too large qClusIncrement, we may go directly from 5 to 3, breaking the logic of the for loop
-      //Therefore, we start with lower increment (100) until we get to qBin=4
+
+      //The difference in charge between first two qBins is small, so for other steps we can have a larger increment
       if (qbin < pixelCPEforDevice::kGenErrorQBins) {
         qClusIncrement = 1000;
       }
+
       g.xfact[k] = cp.sigmax;
       g.yfact[k] = cp.sigmay;
       g.minCh[k++] = qclus;
@@ -243,7 +219,7 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
                                          << m * cp.sx2 << ' ' << m * cp.sigmay << ' ' << m * cp.sy1 << ' ' << m * cp.sy2
                                          << std::endl;
 #endif  // EDM_ML_DEBUG
-    }
+    }  //for (int qclus = 100; k < pixelCPEforDevice::kGenErrorQBins; qclus += qClusIncrement) {
 
     assert(k <= pixelCPEforDevice::kGenErrorQBins);
 
@@ -267,8 +243,8 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
       ys += 1.f;  // first bin 0 is for size 9  (and size is in fixed point 2^3)
       if (pixelCPEforDevice::kNumErrorBins - 1 == iy)
         ys += 8.f;  // last bin for "overflow"
-      // cp.cotalpha = ys*(buffer_->commonParams().thePitchX/(8.f*thickness));  //  use this to print sampling in "x"  (and comment the line below)
-      cp.cotbeta = std::copysign(ys * (buffer_->commonParams().thePitchY / (8.f * thickness)), aveCB);
+      // cp.cotalpha = ys*(g.thePitchX/(8.f*thickness));  //  use this to print sampling in "x"  (and comment the line below)
+      cp.cotbeta = std::copysign(ys * (g.thePitchY / (8.f * thickness)), aveCB);
       errorFromTemplates(p, cp, 20000.f);
       g.sigmay[iy] = toMicron(cp.sigmay);
       LogDebug("PixelCPEFastParamsHost") << "sigmax/sigmay " << i << ' ' << (ys + 4.f) / 8.f << ' ' << cp.cotalpha
@@ -276,6 +252,9 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
                                          << std::endl;
     }
   }  // loop over det
+
+#ifdef ONLY_TRIPLETS_IN_HOLE
+  // compute ladder baricenter (only in global z) for the barrel
 
   constexpr int numberOfModulesInLadder = TrackerTraits::numberOfModulesInLadder;
   constexpr int numberOfLaddersInBarrel = TrackerTraits::numberOfLaddersInBarrel;
@@ -286,8 +265,6 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
   constexpr int firstEndcapPos = TrackerTraits::firstEndcapPos;
   constexpr int firstEndcapNeg = TrackerTraits::firstEndcapNeg;
 
-  // compute ladder baricenter (only in global z) for the barrel
-  //
   auto& aveGeom = buffer_->averageGeometry();
   int il = 0;
   for (int im = 0, nm = numberOfModulesInBarrel; im < nm; ++im) {
@@ -323,6 +300,7 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
   // correct for outer ring being closer
   aveGeom.endCapZ[0] -= TrackerTraits::endcapCorrection;
   aveGeom.endCapZ[1] += TrackerTraits::endcapCorrection;
+
 #ifdef EDM_ML_DEBUG
   for (int jl = 0, nl = numberOfLaddersInBarrel; jl < nl; ++jl) {
     LogDebug("PixelCPEFastParamsHost") << jl << ':' << aveGeom.ladderR[jl] << '/'
@@ -333,16 +311,7 @@ void PixelCPEFastParamsHost<TrackerTraits>::fillParamsForDevice() {
   }
   LogDebug("PixelCPEFastParamsHost") << aveGeom.endCapZ[0] << ' ' << aveGeom.endCapZ[1];
 #endif  // EDM_ML_DEBUG
-
-  // fill Layer and ladders geometry
-  memset(&buffer_->layerGeometry(), 0, sizeof(pixelCPEforDevice::LayerGeometryT<TrackerTraits>));
-  memcpy(buffer_->layerGeometry().layerStart,
-         TrackerTraits::layerStart,
-         sizeof(pixelCPEforDevice::LayerGeometryT<TrackerTraits>::layerStart));
-  memcpy(buffer_->layerGeometry().layer,
-         pixelTopology::layer<TrackerTraits>.data(),
-         pixelTopology::layer<TrackerTraits>.size());
-  buffer_->layerGeometry().maxModuleStride = pixelTopology::maxModuleStride<TrackerTraits>;
+#endif  //ONLY_TRIPLETS_IN_HOLE
 }
 
 template <typename TrackerTraits>

@@ -76,3 +76,9 @@ alpaka.toReplaceWith(ecalDigisTask, cms.Task(
     # copy the ECAL digis from GPU to CPU (if needed) and convert them from SoA to legacy format
     ecalDigis
 ))
+
+# for alpaka validation compare the legacy CPU module with the alpaka module
+from Configuration.ProcessModifiers.alpakaValidationEcal_cff import alpakaValidationEcal
+alpakaValidationEcal.toModify(ecalDigis, cpu = ecalDigisCPU)
+alpakaValidationEcal.toModify(ecalDigis, cuda = _ecalDigisFromPortable.clone())
+

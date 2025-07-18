@@ -28,6 +28,7 @@ public:
   ~PFDisplacedVertexCandidateProducer() override;
 
   void produce(edm::Event&, const edm::EventSetup&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   /// Reco Tracks used to spot the nuclear interactions
@@ -48,6 +49,45 @@ private:
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PFDisplacedVertexCandidateProducer);
+
+void PFDisplacedVertexCandidateProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  // The track collection use for the fitting. May be any collection.
+  // The only condition is that it shall contain the hit pattern information
+  desc.add<edm::InputTag>("trackCollection", {"generalTracks"});
+  // verbosity
+  desc.addUntracked<bool>("verbose", false);
+  // Debug flag
+  desc.addUntracked<bool>("debug", false);
+  // maximum dca distance for two tracks to be linked
+  desc.add<double>("dcaCut", 0.5);
+  // minimum distance of secondary vertex with respect to the primary
+  desc.add<double>("primaryVertexCut", 1.8);
+  // maximum distance between the DCA Point and the inner hit of the track
+  // not used for the moment
+  desc.add<double>("dcaPInnerHitCut", 1000.0);
+  // Primary vertex information used for dxy calculation
+  desc.add<edm::InputTag>("mainVertexLabel", {"offlinePrimaryVertices", ""});
+  desc.add<edm::InputTag>("offlineBeamSpotLabel", {"offlineBeamSpot", ""});
+  // Tracks preselection to reduce the combinatorics in PFDisplacedVertexCandidates
+  // this cuts are repeated then in a smarter way in the PFDisplacedVertexFinder
+  // be sure you are consistent between them.
+  {
+    edm::ParameterSetDescription pset;
+    // selection parameters for secondary tracks
+    pset.add<double>("nChi2_max", 5.);
+    pset.add<double>("pt_min", 0.2);
+    // if the tracks is not a good candidate to be a secondary (dxy cut) restrict in minimal pt
+    // this cut reduce drastically the combinatorics. It is very useful to reduce the
+    // PFDisplacedVertex timing
+    pset.add<double>("pt_min_prim", 0.8);
+    pset.add<double>("dxy", 0.2);
+    pset.add<double>("qoverpError_max", 1.0e+7);
+
+    desc.add<edm::ParameterSetDescription>("tracksSelectorParameters", pset);
+  }
+  descriptions.add("particleFlowDisplacedVertexCandidate", desc);
+}
 
 using namespace std;
 using namespace edm;

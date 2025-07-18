@@ -61,7 +61,7 @@ public:
     }
   };
 
-  GEMROmap(){};
+  GEMROmap() {}
 
   bool isValidChipID(const eCoord& r) const { return roMapED_.find(r) != roMapED_.end(); }
   const dCoord& hitPosition(const eCoord& r) const { return roMapED_.at(r); }

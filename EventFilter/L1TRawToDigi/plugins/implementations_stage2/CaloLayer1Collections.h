@@ -6,6 +6,7 @@
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 #include "EventFilter/L1TRawToDigi/interface/UnpackerCollections.h"
 #include "L1TObjectCollections.h"
+#include "DataFormats/L1CaloTrigger/interface/CICADA.h"
 
 namespace l1t {
   namespace stage2 {
@@ -15,7 +16,8 @@ namespace l1t {
           : L1TObjectCollections(e),
             ecalDigis_(new EcalTrigPrimDigiCollection()),
             hcalDigis_(new HcalTrigPrimDigiCollection()),
-            caloRegions_(new L1CaloRegionCollection()) {
+            caloRegions_(new L1CaloRegionCollection()),
+            cicadaDigis_(std::make_unique<CICADABxCollection>()) {
         // Pre-allocate:
         //  72 iPhi values
         //  28 iEta values in Ecal, 28 + 12 iEta values in Hcal + HF
@@ -37,6 +39,7 @@ namespace l1t {
       inline EcalTrigPrimDigiCollection* getEcalDigisBx(const unsigned int copy) override {
         return ecalDigisBx_[copy].get();
       };
+      inline CICADABxCollection* getCICADABxCollection() { return cicadaDigis_.get(); };
 
     private:
       std::unique_ptr<EcalTrigPrimDigiCollection> ecalDigis_;
@@ -44,6 +47,7 @@ namespace l1t {
       std::unique_ptr<L1CaloRegionCollection> caloRegions_;
 
       std::array<std::unique_ptr<EcalTrigPrimDigiCollection>, 5> ecalDigisBx_;
+      std::unique_ptr<CICADABxCollection> cicadaDigis_;
     };
   }  // namespace stage2
 }  // namespace l1t

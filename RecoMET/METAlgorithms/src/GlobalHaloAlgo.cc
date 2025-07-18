@@ -186,7 +186,6 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
           PhiWedge NewWedge(*iWedge);
           NewWedge.SetOverlappingCSCSegments(HcalOverlapping_CSCSegments[iWedge->iPhi()]);
           NewWedge.SetOverlappingCSCRecHits(HcalOverlapping_CSCRecHits[iWedge->iPhi()]);
-          PhiWedge wedge(*iWedge);
           TheGlobalHaloData.GetMatchedHcalPhiWedges().push_back(NewWedge);
         }
       }

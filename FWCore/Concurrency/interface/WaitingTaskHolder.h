@@ -83,7 +83,7 @@ namespace edm {
     /** Use in the case where you need to inform the parent task of a
      failure before some other child task which may be run later reports
      a different, but related failure. You must later call doneWaiting
-     in the same thread passing the same exceptoin.
+     in the same thread passing the same exception.
      */
     void presetTaskAsFailed(std::exception_ptr iExcept) noexcept {
       if (iExcept) {

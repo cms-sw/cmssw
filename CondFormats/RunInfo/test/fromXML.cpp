@@ -67,8 +67,7 @@ T fromXML(std::string filename = "") {
 
 class Simple {
 public:
-  Simple() : my_i(42), my_f(42.) { /* nop */
-  }
+  Simple() : my_i(42), my_f(42.) { /* nop */ }
 
   // COND_SERIALIZABLE;
   template <class Archive>

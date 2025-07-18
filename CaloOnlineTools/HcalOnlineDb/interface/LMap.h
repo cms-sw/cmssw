@@ -30,8 +30,8 @@
 
 class LMapRow {
 public:
-  LMapRow(){};
-  ~LMapRow(){};
+  LMapRow() {}
+  ~LMapRow() {}
 
   int side;
   int eta, phi, dphi, depth;
@@ -55,8 +55,8 @@ private:
 
 class LMapDetId {
 public:
-  LMapDetId(){};
-  ~LMapDetId(){};
+  LMapDetId() {}
+  ~LMapDetId() {}
 
   int side;
   int eta, phi, depth;
@@ -110,7 +110,7 @@ public:
       zdc_channel = 0;
       zdc_section = "UNKNOWN";
     }
-    ~EMapRow(){};
+    ~EMapRow() {}
 
     bool operator<(const EMapRow& other) const;
 

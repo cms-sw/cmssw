@@ -130,6 +130,8 @@ namespace {
                                     cfg.getParameter<bool>("idealConditions"),
                                     (float)cfg.getParameter<double>("z0Cut"),
                                     (float)cfg.getParameter<double>("ptCut"),
+                                    cfg.getParameter<int>("minYsizeB1"),
+                                    cfg.getParameter<int>("minYsizeB2"),
                                     cfg.getParameter<std::vector<int>>("phiCuts")};
   }
 
@@ -197,6 +199,9 @@ void CAHitNtupletGeneratorOnGPU<pixelTopology::Phase1>::fillDescriptions(edm::Pa
   trackQualityCuts.add<double>("quadrupletMaxTip", 0.5)->setComment("Max |Tip| for quadruplets, in cm");
   trackQualityCuts.add<double>("quadrupletMaxZip", 12.)->setComment("Max |Zip| for quadruplets, in cm");
 
+  desc.add<int>("minYsizeB1", 1)->setComment("Min Y cluster size in pixel B1");
+  desc.add<int>("minYsizeB2", 1)->setComment("Min Y cluster size in pixel B2");
+
   desc.add<std::vector<int>>(
           "phiCuts", std::vector<int>(std::begin(phase1PixelTopology::phicuts), std::end(phase1PixelTopology::phicuts)))
       ->setComment("Cuts in phi for cells");
@@ -230,6 +235,9 @@ void CAHitNtupletGeneratorOnGPU<pixelTopology::HIonPhase1>::fillDescriptions(edm
   trackQualityCuts.add<double>("quadrupletMaxTip", 0.5)->setComment("Max |Tip| for quadruplets, in cm");
   trackQualityCuts.add<double>("quadrupletMaxZip", 6.)->setComment("Max |Zip| for quadruplets, in cm");
 
+  desc.add<int>("minYsizeB1", 36)->setComment("Min Y cluster size in pixel B1");
+  desc.add<int>("minYsizeB2", 28)->setComment("Min Y cluster size in pixel B2");
+
   desc.add<std::vector<int>>(
           "phiCuts", std::vector<int>(std::begin(phase1PixelTopology::phicuts), std::end(phase1PixelTopology::phicuts)))
       ->setComment("Cuts in phi for cells");
@@ -255,6 +263,9 @@ void CAHitNtupletGeneratorOnGPU<pixelTopology::Phase2>::fillDescriptions(edm::Pa
   trackQualityCuts.add<double>("minPt", 0.5)->setComment("Min pT in GeV");
   trackQualityCuts.add<double>("maxTip", 0.3)->setComment("Max |Tip| in cm");
   trackQualityCuts.add<double>("maxZip", 12.)->setComment("Max |Zip|, in cm");
+
+  desc.add<int>("minYsizeB1", 25)->setComment("Min Y cluster size in pixel B1");
+  desc.add<int>("minYsizeB2", 15)->setComment("Min Y cluster size in pixel B2");
 
   desc.add<std::vector<int>>(
           "phiCuts", std::vector<int>(std::begin(phase2PixelTopology::phicuts), std::end(phase2PixelTopology::phicuts)))

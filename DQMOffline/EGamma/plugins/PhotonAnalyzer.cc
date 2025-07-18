@@ -1956,8 +1956,8 @@ void PhotonAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& esup) {
           fill3DHistoVector(h_pOverETracks_, 1. / aConv->EoverPrefittedTracks(), cut, type, part);
           fill3DHistoVector(h_dCotTracks_, aConv->pairCotThetaSeparation(), cut, type, part);
         }  //end loop over conversions
-      }    //end loop over photons passing cuts
-    }      //end loop over transverse energy cuts
+      }  //end loop over photons passing cuts
+    }  //end loop over transverse energy cuts
 
     //make invariant mass plots
 

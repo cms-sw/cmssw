@@ -63,11 +63,17 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
   options_.emplace_back(params.getParameter<std::string>("modelName"));
   //get appropriate server for this model
   edm::Service<TritonService> ts;
+
+  // We save the token to be able to notify the service in case of an exception in the evaluate method.
+  // The evaluate method can be called outside the frameworks TBB threadpool in the case of a retry. In
+  // this case the context is not setup to access the service registry, we need the service token to
+  // create the context.
+  token_ = edm::ServiceRegistry::instance().presentToken();
+
   const auto& server =
       ts->serverInfo(options_[0].model_name_, params.getUntrackedParameter<std::string>("preferredServer"));
   serverType_ = server.type;
-  if (verbose_)
-    edm::LogInfo(fullDebugName_) << "Using server: " << server.url;
+  edm::LogInfo("TritonDiscovery") << debugName_ << " assigned server: " << server.url;
   //enforce sync mode for fallback CPU server to avoid contention
   //todo: could enforce async mode otherwise (unless mode was specified by user?)
   if (serverType_ == TritonServerType::LocalCPU)
@@ -99,7 +105,7 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
   //get fixed parameters from local config
   inference::ModelConfig localModelConfig;
   {
-    const std::string& localModelConfigPath(params.getParameter<edm::FileInPath>("modelConfigPath").fullPath());
+    const std::string localModelConfigPath(params.getParameter<edm::FileInPath>("modelConfigPath").fullPath());
     int fileDescriptor = open(localModelConfigPath.c_str(), O_RDONLY);
     if (fileDescriptor < 0)
       throw TritonException("LocalFailure")
@@ -264,8 +270,8 @@ unsigned TritonClient::batchSize() const { return batchMode_ == TritonBatchMode:
 bool TritonClient::setBatchSize(unsigned bsize) {
   if (batchMode_ == TritonBatchMode::Rectangular) {
     if (bsize > maxOuterDim_) {
-      edm::LogWarning(fullDebugName_) << "Requested batch size " << bsize << " exceeds server-specified max batch size "
-                                      << maxOuterDim_ << ". Batch size will remain as " << outerDim_;
+      throw TritonException("LocalFailure")
+          << "Requested batch size " << bsize << " exceeds server-specified max batch size " << maxOuterDim_ << ".";
       return false;
     } else {
       outerDim_ = bsize;
@@ -364,6 +370,9 @@ void TritonClient::getResults(const std::vector<std::shared_ptr<tc::InferResult>
 void TritonClient::evaluate() {
   //undo previous signal from TritonException
   if (tries_ > 0) {
+    // If we are retrying then the evaluate method is called outside the frameworks TBB thread pool.
+    // So we need to setup the service token for the current thread to access the service registry.
+    edm::ServiceRegistry::Operate op(token_);
     edm::Service<TritonService> ts;
     ts->notifyCallStatus(true);
   }

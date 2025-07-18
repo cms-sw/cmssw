@@ -27,7 +27,7 @@ class RPixDetPatternFinder {
 public:
   RPixDetPatternFinder(edm::ParameterSet const &parameterSet) {}
 
-  virtual ~RPixDetPatternFinder(){};
+  virtual ~RPixDetPatternFinder() {}
 
   typedef struct {
     CTPPSGeometry::Vector globalPoint;

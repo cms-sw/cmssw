@@ -14,7 +14,7 @@ class EntryData;
 
 class EntryMgr {
 private:
-  EntryMgr(){};
+  EntryMgr() {}
 
 public:
   static EntryMgr* getInstance();

@@ -12,6 +12,10 @@
  */
 
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "CondFormats/DataRecord/interface/SimBeamSpotHLLHCObjectsRcd.h"
+#include "CondFormats/BeamSpotObjects/interface/SimBeamSpotHLLHCObjects.h"
 
 #include <string>
 
@@ -33,69 +37,41 @@ public:
   /** Copy assignment operator */
   HLLHCEvtVtxGenerator& operator=(const HLLHCEvtVtxGenerator& rhs) = delete;
 
-  ~HLLHCEvtVtxGenerator() override;
+  ~HLLHCEvtVtxGenerator() override = default;
+
+  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   /// return a new event vertex
-  HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override;
+  ROOT::Math::XYZTVector vertexShift(CLHEP::HepRandomEngine*) const override;
 
   TMatrixD const* GetInvLorentzBoost() const override { return nullptr; };
 
 private:
-  //spatial and time offset for mean collision
-  const double fMeanX, fMeanY, fMeanZ, fTimeOffset;
+  // Configurable parameters
+  double fMeanX, fMeanY, fMeanZ, fTimeOffset_c_light;  //spatial and time offset for mean collision
+  double fEProton;                                     // proton beam energy
+  double fCrossingAngle;                               // crossing angle
+  double fCrabFrequency;                               // crab cavity frequency
+  bool fRF800;                                         // 800 MHz RF?
+  double fBetaCrossingPlane;                           // beta crossing plane (m)
+  double fBetaSeparationPlane;                         // beta separation plane (m)
+  double fHorizontalEmittance;                         // horizontal emittance
+  double fVerticalEmittance;                           // vertical emittance
+  double fBunchLength;                                 // bunch length
+  double fCrabbingAngleCrossing;                       // crabbing angle crossing
+  double fCrabbingAngleSeparation;                     // crabbing angle separation
 
-  //proton beam energy
-  const double momeV;
-  const double gamma;
-  const double beta;
-  const double betagamma;
-
-  //crossing angle
-  const double phi;
-
-  //crab cavity frequency
-  const double wcc;
-
-  // 800 MHz RF?
-  const bool RF800;
-
-  //beta crossing plane (m)
-  const double betx;
-
-  //beta separation plane (m)
-  const double bets;
-
-  //horizontal emittance
-  const double epsxn;
-
-  //vertical emittance
-  const double epssn;
-
-  //bunch length
-  const double sigs;
-
-  //crabbing angle crossing
-  const double alphax;
-
-  //crabbing angle separation
-  const double alphay;
-
-  // ratio of crabbing angle to crossing angle
-  const double oncc;
-
-  //normalized crossing emittance
-  const double epsx;
-
-  //normlaized separation emittance
-  const double epss;
-
-  //size in x
-  const double sigx;
-
-  // crossing angle * crab frequency
-  const double phiCR;
+  // Parameters inferred from configurables
+  double gamma;  // beam configurations
+  double beta;
+  double betagamma;
+  double oncc;   // ratio of crabbing angle to crossing angle
+  double epsx;   // normalized crossing emittance
+  double epss;   // normalized separation emittance
+  double sigx;   // size in x
+  double phiCR;  // crossing angle * crab frequency
 
   //width for y plane
   double sigma(double z, double epsilon, double beta, double betagamma) const;
@@ -105,6 +81,12 @@ private:
 
   // 4D intensity
   double intensity(double x, double y, double z, double t) const;
+
+  // Read from DB
+  bool readDB_;
+  void update(const edm::EventSetup& iEventSetup);
+  edm::ESWatcher<SimBeamSpotHLLHCObjectsRcd> parameterWatcher_;
+  edm::ESGetToken<SimBeamSpotHLLHCObjects, SimBeamSpotHLLHCObjectsRcd> beamToken_;
 };
 
 #endif

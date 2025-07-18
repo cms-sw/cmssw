@@ -7,7 +7,14 @@ from PhysicsTools.PatAlgos.producersLayer1.genericParticleProducer_cfi import pa
 
 PbPbZMuHLTFilter = copy.deepcopy(hltHighLevel)
 PbPbZMuHLTFilter.throw = cms.bool(False)
-PbPbZMuHLTFilter.HLTPaths = ["HLT_HIL3Mu*"]
+PbPbZMuHLTFilter.HLTPaths = ["HLT_HIL2SingleMu*","HLT_HIL3SingleMu*"]
+
+# selection of valid vertex
+primaryVertexFilterForPbPbZMuSkim = cms.EDFilter("VertexSelector",
+    src = cms.InputTag("offlinePrimaryVertices"),
+    cut = cms.string("!isFake && abs(z) <= 25 && position.Rho <= 2"), 
+    filter = cms.bool(True),
+    )
 
 ### Z -> MuMu candidates
 # Get muons of needed quality for Zs
@@ -15,16 +22,16 @@ PbPbZMuHLTFilter.HLTPaths = ["HLT_HIL3Mu*"]
 ###create a track collection with generic kinematic cuts
 looseMuonsForPbPbZMuSkim = cms.EDFilter("TrackSelector",
                              src = cms.InputTag("generalTracks"),
-                             cut = cms.string('pt > 10 &&  abs(eta)<2.4 &&  (charge!=0)'),
+                             cut = cms.string('pt > 10 && abs(eta)<2.4 && (charge!=0)'),
                              filter = cms.bool(True)                                
                              )
 
 
 
 ###cloning the previous collection into a collection of candidates
-ConcretelooseMuonsForPbPbZMuSkim = cms.EDProducer("ConcreteChargedCandidateProducer",
+concreteLooseMuonsForPbPbZMuSkim = cms.EDProducer("ConcreteChargedCandidateProducer",
                                               src = cms.InputTag("looseMuonsForPbPbZMuSkim"),
-                                              particleType = cms.string("mu+")
+                                              particleType = cms.string("mu+") # the sign is dummy
                                               )
 
 
@@ -86,7 +93,7 @@ looseIsoMuonsForPbPbZMuSkim = cms.EDFilter("PATGenericParticleSelector",
 
 tightMuonsForPbPbZMuSkim = cms.EDFilter("MuonSelector",
     src = cms.InputTag("muons"),
-    cut = cms.string("(isGlobalMuon) && pt > 25. &&  (abs(eta)<2.4) &&  (isPFMuon>0) && (globalTrack().normalizedChi2() < 10) && (globalTrack().hitPattern().numberOfValidMuonHits()>0)&& (numberOfMatchedStations() > 1)&& (innerTrack().hitPattern().numberOfValidPixelHits() > 0)&& (innerTrack().hitPattern().trackerLayersWithMeasurement() > 5) && ((isolationR03().sumPt/pt)<0.1)"),
+    cut = cms.string("(isGlobalMuon) && pt > 15. && (abs(eta)<2.4) && (isPFMuon>0) && (globalTrack().normalizedChi2() < 10) && (globalTrack().hitPattern().numberOfValidMuonHits()>0) && (numberOfMatchedStations() > 1) && (innerTrack().hitPattern().numberOfValidPixelHits() > 0) && (innerTrack().hitPattern().trackerLayersWithMeasurement() > 5)"),
     filter = cms.bool(True)
     )
 
@@ -96,8 +103,8 @@ tightMuonsForPbPbZMuSkim = cms.EDFilter("MuonSelector",
 # build Z-> MuMu candidates
 dimuonsForPbPbZMuSkim = cms.EDProducer("CandViewShallowCloneCombiner",
                          checkCharge = cms.bool(False),
-                         cut = cms.string('(mass > 60) &&  (charge=0)'),       
-                         decay = cms.string("tightMuonsForPbPbZMuSkim looseIsoMuonsForPbPbZMuSkim")
+                         cut = cms.string('(mass > 60)'),       
+                         decay = cms.string("tightMuonsForPbPbZMuSkim concreteLooseMuonsForPbPbZMuSkim")
                          )                                    
 
 
@@ -111,11 +118,12 @@ dimuonsFilterForPbPbZMuSkim = cms.EDFilter("CandViewCountFilter",
 
 diMuonSelSeqForPbPbZMuSkim = cms.Sequence(
                             PbPbZMuHLTFilter *
+                            primaryVertexFilterForPbPbZMuSkim *
                             looseMuonsForPbPbZMuSkim *
-                            ConcretelooseMuonsForPbPbZMuSkim *
-                            tkIsoDepositTkForPbPbZMuSkim *
-                            allPatTracksForPbPbZMuSkim *
-                            looseIsoMuonsForPbPbZMuSkim * 
+                            concreteLooseMuonsForPbPbZMuSkim *
+                            #tkIsoDepositTkForPbPbZMuSkim *
+                            #allPatTracksForPbPbZMuSkim *
+                            #looseIsoMuonsForPbPbZMuSkim * 
                             tightMuonsForPbPbZMuSkim *
                             dimuonsForPbPbZMuSkim *
                             dimuonsFilterForPbPbZMuSkim 

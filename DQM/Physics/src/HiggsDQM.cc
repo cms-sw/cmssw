@@ -288,7 +288,7 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup) {
         //     recoElectron->deltaEtaSuperClusterTrackAtVtx() > 0.01 ||
         //     recoElectron->sigmaIetaIeta() > 0.027 ) continue;
       }  // end of loop over electrons
-    }    // end if passed HLT
+    }  // end if passed HLT
     nEle = posEle + negEle;
     if (nEle > 9.)
       nEle = 9.;

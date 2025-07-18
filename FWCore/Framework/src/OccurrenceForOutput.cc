@@ -29,6 +29,10 @@ namespace edm {
     return provRecorder_.principal().getProvenance(bid);
   }
 
+  StableProvenance const& OccurrenceForOutput::getStableProvenance(BranchID const& bid) const {
+    return provRecorder_.principal().getStableProvenance(bid);
+  }
+
   void OccurrenceForOutput::getAllProvenance(std::vector<Provenance const*>& provenances) const {
     provRecorder_.principal().getAllProvenance(provenances);
   }
@@ -36,6 +40,12 @@ namespace edm {
   void OccurrenceForOutput::getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const {
     provRecorder_.principal().getAllStableProvenance(provenances);
   }
+
+  std::vector<ProductDescription const*> OccurrenceForOutput::productDescriptions() const {
+    return principal().productDescriptions();
+  }
+
+  ProductRegistry const& OccurrenceForOutput::productRegistry() const { return principal().productRegistry(); }
 
   ProcessHistory const& OccurrenceForOutput::processHistory() const { return provRecorder_.processHistory(); }
 

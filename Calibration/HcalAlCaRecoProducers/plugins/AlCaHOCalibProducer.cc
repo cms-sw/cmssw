@@ -924,7 +924,7 @@ void AlCaHOCalibProducer::fillHOStore(const reco::TrackRef& ncosm,
         Noccu++;
       hostore->push_back(tmpHOCalib);
     }  // if (ipath)
-  }    // Cut on calo energy
+  }  // Cut on calo energy
 }
 
 void AlCaHOCalibProducer::findHOEtaPhi(int iphisect, int& ietaho, int& iphiho) {

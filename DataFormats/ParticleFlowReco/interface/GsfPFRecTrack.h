@@ -23,7 +23,7 @@ namespace reco {
   */
   class GsfPFRecTrack : public PFRecTrack {
   public:
-    GsfPFRecTrack(){};
+    GsfPFRecTrack() {}
     GsfPFRecTrack(double charge,
                   AlgoType_t algoType,
                   int trackId,

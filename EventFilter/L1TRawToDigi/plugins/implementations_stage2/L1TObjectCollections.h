@@ -7,6 +7,7 @@
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
 #include "DataFormats/L1Trigger/interface/MuonShower.h"
+#include "DataFormats/L1CaloTrigger/interface/CICADA.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
@@ -16,7 +17,7 @@ namespace l1t {
   namespace stage2 {
     class L1TObjectCollections : public UnpackerCollections {
     public:
-      L1TObjectCollections(edm::Event& e) : UnpackerCollections(e){};
+      L1TObjectCollections(edm::Event& e) : UnpackerCollections(e) {}
       ~L1TObjectCollections() override;
 
       virtual MuonBxCollection* getMuons(const unsigned int copy) { return nullptr; }
@@ -26,6 +27,7 @@ namespace l1t {
       virtual EtSumBxCollection* getZDCSums(const unsigned int copy) { return nullptr; }
       virtual JetBxCollection* getJets(const unsigned int copy) { return nullptr; }
       virtual TauBxCollection* getTaus(const unsigned int copy) { return nullptr; }
+      virtual CICADABxCollection* getCICADAScore() { return nullptr; }
 
       virtual EcalTrigPrimDigiCollection* getEcalDigisBx(const unsigned int copy) { return nullptr; };
     };

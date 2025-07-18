@@ -445,7 +445,7 @@ void TSGForRoadSearch::makeSeeds_4(const reco::Track &muon, std::vector<Trajecto
       (*layerIt)->compatibleDetsV(
           inner, *theProxyService->propagator(thePropagatorCompatibleName), *theChi2Estimator, compatible);
     }  //while
-  }    //if size==0
+  }  //if size==0
 
   pushTrajectorySeed(muon, compatible, alongMomentum, result);
 
@@ -543,3 +543,7 @@ void TSGForRoadSearch::pushTrajectorySeed(const reco::Track &muon,
   }
   return;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGeneratorFactory.h"
+DEFINE_EDM_PLUGIN(TrackerSeedGeneratorFactory, TSGForRoadSearch, "TSGForRoadSearch");

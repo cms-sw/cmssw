@@ -23,7 +23,7 @@ namespace trklet {
 
     void resize(int nbins) { stubsbinnedvm_.resize(nbins); }
 
-    bool addVMStub(VMStubTE vmstub, int bin);
+    bool addVMStub(VMStubTE vmstub, int bin, int ivmte = 0, bool combined = true);
 
     bool addVMStub(VMStubTE vmstub);
 

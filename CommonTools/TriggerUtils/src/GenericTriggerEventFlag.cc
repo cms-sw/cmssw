@@ -205,12 +205,14 @@ void GenericTriggerEventFlag::initRun(const edm::Run& run, const edm::EventSetup
     if (stage2_) {
       l1uGt_->retrieveL1Setup(setup);
 
-      const std::vector<std::pair<std::string, double>> prescales = l1uGt_->prescales();
+      const auto& prescales = l1uGt_->prescales();
+      algoNames.reserve(prescales.size());
       for (const auto& ip : prescales)
-        algoNames.push_back(ip.first);
+        algoNames.emplace_back(ip.first);
     } else {
       l1Gt_->getL1GtRunCache(run, setup, useL1EventSetup, useL1GtTriggerMenuLite);
-      L1GtTriggerMenu const& l1GtTriggerMenu = setup.get<L1GtTriggerMenuRcd>().get(l1GtTriggerMenuToken_);
+      const auto& l1GtTriggerMenuRcd = setup.get<L1GtTriggerMenuRcd>();
+      L1GtTriggerMenu const& l1GtTriggerMenu = l1GtTriggerMenuRcd.get(l1GtTriggerMenuToken_);
 
       const AlgorithmMap& l1GtPhys(l1GtTriggerMenu.gtAlgorithmMap());
       for (CItAlgo iAlgo = l1GtPhys.begin(); iAlgo != l1GtPhys.end(); ++iAlgo) {

@@ -619,7 +619,7 @@ void PPSAlignmentHarvester::xAlignment(DQMStore::IBooker& iBooker,
 
       std::unique_ptr<TGraphErrors> g_ref = buildGraphFromVector(vec_ref);
 
-      if (debug_)
+      if (debug_) [[clang::suppress]]
         gDirectory = rpDir->mkdir("fits_test");
       std::unique_ptr<TGraphErrors> g_test = buildGraphFromMonitorElements(
           iGetter, rpc, mes_test, cfg.fitProfileMinBinEntries(), cfg.fitProfileMinNReasonable());

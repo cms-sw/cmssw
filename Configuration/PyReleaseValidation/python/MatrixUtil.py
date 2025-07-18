@@ -1,5 +1,6 @@
-from __future__ import print_function
 import os
+import subprocess
+
 class Matrix(dict):
     def __setitem__(self,key,value):
         if key in self:
@@ -103,7 +104,7 @@ def selectedLS(list_runs=[],maxNum=-1,l_json=data_json2015):
 
 InputInfoNDefault=2000000    
 class InputInfo(object):
-    def __init__(self,dataSet,dataSetParent='',label='',run=[],ls={},files=1000,events=InputInfoNDefault,split=10,location='CAF',ib_blacklist=None,ib_block=None) :
+    def __init__(self,dataSet,dataSetParent='',label='',run=[],ls={},files=1000,events=InputInfoNDefault,split=10,location='CAF',ib_blacklist=None,ib_block=None,skimEvents=False) :
         self.run = run
         self.ls = ls
         self.files = files
@@ -115,29 +116,40 @@ class InputInfo(object):
         self.ib_blacklist = ib_blacklist
         self.ib_block = ib_block
         self.dataSetParent = dataSetParent
-        
+        self.skimEvents = skimEvents
+
     def das(self, das_options, dataset):
-        if len(self.run) != 0 or self.ls:
+        if not self.skimEvents and (len(self.run) != 0 or self.ls):
             queries = self.queries(dataset)
             if len(self.run) != 0:
-              command = ";".join(["dasgoclient %s --query '%s'" % (das_options, query) for query in queries])
+                command = ";".join(["dasgoclient %s --query '%s'" % (das_options, query) for query in queries])
             else:
               lumis = self.lumis()
               commands = []
               while queries:
-                commands.append("dasgoclient %s --query 'lumi,%s' --format json | das-selected-lumis.py %s " % (das_options, queries.pop(), lumis.pop()))
+                    commands.append("dasgoclient %s --query 'lumi,%s' --format json | das-selected-lumis.py %s " % (das_options, queries.pop(), lumis.pop()))
               command = ";".join(commands)
             command = "({0})".format(command)
-        else:
+        elif not self.skimEvents:
             command = "dasgoclient %s --query '%s'" % (das_options, self.queries(dataset)[0])
-       
+        elif self.skimEvents:
+            from os import getenv
+            if getenv("JENKINS_PREFIX") is not None:
+                # to be sure that whatever happens the files are only those at CERN
+                command = "das-up-to-nevents.py -d %s -e %d -pc -l lumi_ranges.txt"%(dataset,self.events)
+            else:
+                command = "das-up-to-nevents.py -d %s -e %d -l lumi_ranges.txt"%(dataset,self.events)
         # Run filter on DAS output 
         if self.ib_blacklist:
             command += " | grep -E -v "
             command += " ".join(["-e '{0}'".format(pattern) for pattern in self.ib_blacklist])
-        from os import getenv
-        if getenv("CMSSW_USE_IBEOS","false")=="true": return command + " | ibeos-lfn-sort"
-        return command + " | sort -u"
+        if not self.skimEvents: ## keep run-lumi sorting
+            from os import getenv
+            if getenv("CMSSW_USE_IBEOS","false")=="true":
+                return "export CMSSW_USE_IBEOS=true; " + command + " | ibeos-lfn-sort"
+            return command + " | sort -u"
+        else:
+            return command
 
     def lumiRanges(self):
         if len(self.run) != 0:
@@ -145,7 +157,7 @@ class InputInfo(object):
         if self.ls :
             return "echo '{\n"+",".join(('"%d" : %s\n'%( int(x),self.ls[x]) for x in self.ls.keys()))+"}'"
         return None
-
+    
     def lumis(self):
       query_lumis = []
       if self.ls:
@@ -266,4 +278,63 @@ def genvalid(fragment,d,suffix='all',fi='',dataSet=''):
     c['cfg']=fragment
     return c
 
+def check_dups(input):
+    seen = set()
+    dups = set(x for x in input if x in seen or seen.add(x))
+    
+    return dups
 
+class AvailableGPU():
+
+    def __init__(self, make, counter, id, capability, name):
+        self.make = make
+        self.counter = counter
+        self.id = id
+        self.capability = capability
+        self.name = name
+    
+    def __str__(self):
+        return "> GPU no.{0}: {1} - {2} - {3} - {4}".format(self.counter,self.make,self.id,self.capability,self.name)
+    
+    def isCUDA(self):
+        return self.make == 'CUDA'
+    def isROCM(self):
+        return self.make == 'ROCM'
+    
+    def gpuBind(self):
+        
+        cmd = ''
+        if self.make == 'CUDA':
+            cmd = 'CUDA_VISIBLE_DEVICES=' + str(self.id) + " HIP_VISIBLE_DEVICES= "
+        elif self.make == 'ROCM':
+            cmd = 'CUDA_VISIBLE_DEVICES= HIP_VISIBLE_DEVICES=' + str(self.id) + " "
+        
+        return cmd
+
+def cleanComputeCapabilities(make, offset = 0):
+        
+    # Building on top of {cuda|rocm}ComputeCapabilities
+    # with output:
+    # ID     computeCapability    Architetcure Model Info 
+
+    out = subprocess.run(make + "ComputeCapabilities", capture_output = True, text = True)
+
+    if out.returncode > 0:
+        return []
+
+    gpus = []
+    for f in out.stdout.split("\n"):
+
+        if not len(f)>0:
+            continue
+        
+        if "unsupported" in f:
+            print("> Warning! Unsupported GPU:")
+            print(" > " + " ".join(f))
+            continue
+
+        gpus.append(f.split())
+
+    gpus = [AvailableGPU(make.upper(), i + offset, int(f[0]),f[1]," ".join(f[2:])) for i,f in enumerate(gpus)]
+
+    return gpus

@@ -43,22 +43,18 @@ class TriggerMenu;
 class L1TGlobalProducer : public edm::stream::EDProducer<> {
 public:
   explicit L1TGlobalProducer(const edm::ParameterSet&);
-  ~L1TGlobalProducer() override;
+  ~L1TGlobalProducer() override = default;
 
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void beginRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) override;
+
+  void produce(edm::Event& iEvent, const edm::EventSetup& iEventSetup) override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  /// cached stuff
-
-  /// stable parameters
-  const L1TGlobalParameters* m_l1GtStablePar;
-  unsigned long long m_l1GtParCacheID;
-
   // trigger menu
   std::unique_ptr<TriggerMenu> m_l1GtMenu;
-  unsigned long long m_l1GtMenuCacheID;
+  L1TUtmTriggerMenu const* m_utml1GtMenu;
 
   // number of physics triggers
   unsigned int m_numberPhysTriggers;
@@ -98,8 +94,6 @@ private:
   const std::vector<std::vector<double>>* m_prescaleFactorsAlgoTrig;
   std::vector<std::vector<double>> m_initialPrescaleFactorsAlgoTrig;
 
-  uint m_currentLumi;
-
   /// trigger masks & veto masks
   const L1GtTriggerMask* m_l1GtTmAlgo;
   unsigned long long m_l1GtTmAlgoCacheID;
@@ -127,11 +121,13 @@ private:
   edm::InputTag m_jetInputTag;
   edm::InputTag m_sumInputTag;
   edm::InputTag m_sumZdcInputTag;
+  edm::InputTag m_CICADAInputTag;
   edm::EDGetTokenT<BXVector<l1t::EGamma>> m_egInputToken;
   edm::EDGetTokenT<BXVector<l1t::Tau>> m_tauInputToken;
   edm::EDGetTokenT<BXVector<l1t::Jet>> m_jetInputToken;
   edm::EDGetTokenT<BXVector<l1t::EtSum>> m_sumInputToken;
   edm::EDGetTokenT<BXVector<l1t::EtSum>> m_sumZdcInputToken;
+  edm::EDGetTokenT<BXVector<float>> m_CICADAInputToken;
 
   /// input tag for external conditions
   edm::InputTag m_extInputTag;
@@ -182,7 +178,7 @@ private:
   bool m_getPrescaleColumnFromData;
   bool m_requireMenuToMatchAlgoBlkInput;
   edm::InputTag m_algoblkInputTag;
-  edm::EDGetToken m_algoblkInputToken;
+  edm::EDGetTokenT<BXVector<GlobalAlgBlk>> m_algoblkInputToken;
 
   edm::ESGetToken<L1TGlobalParameters, L1TGlobalParametersRcd> m_l1GtStableParToken;
   edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> m_l1GtMenuToken;
@@ -197,6 +193,9 @@ private:
 
   // switch to load muon showers in the global board
   bool m_useMuonShowers;
+
+  //switch to save axo scores in global board
+  bool m_produceAXOL1TLScore;
 };
 
 #endif  // L1TGlobalProducer_h

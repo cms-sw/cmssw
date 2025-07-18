@@ -48,7 +48,7 @@ namespace edm {
 
   protected:
     //If inheriting class overrides, they need to call this function as well
-    void beginJob() override;
+    void beginJob(edm::ProductRegistry const&) override;
 
   private:
     void doBeginLumi(LuminosityBlockPrincipal& lbp, ProcessContext const*) override;

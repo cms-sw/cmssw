@@ -172,7 +172,7 @@ namespace hitfit {
     /**
      Destructor.
    */
-    ~Constraint_Intermed_Constant() override{};
+    ~Constraint_Intermed_Constant() override {}
 
     // Copy constructor.
     /**
@@ -258,7 +258,7 @@ namespace hitfit {
     /**
      Destructor.
    */
-    ~Constraint_Intermed_Labels() override{};
+    ~Constraint_Intermed_Labels() override {}
 
     // Return true if this guy references both labels ILABEL and JLABEL.
     /**

@@ -1,6 +1,8 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -16,9 +18,11 @@ using namespace sistrip;
 class SiStripRegionConnectivity : public edm::ESProducer {
 public:
   SiStripRegionConnectivity(const edm::ParameterSet&);
-  ~SiStripRegionConnectivity() override;
+  ~SiStripRegionConnectivity() override = default;
 
   std::unique_ptr<SiStripRegionCabling> produceRegionCabling(const SiStripRegionCablingRcd&);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> detcablingToken_;
@@ -45,7 +49,13 @@ SiStripRegionConnectivity::SiStripRegionConnectivity(const edm::ParameterSet& ps
   tTopoToken_ = cc.consumes();
 }
 
-SiStripRegionConnectivity::~SiStripRegionConnectivity() {}
+void SiStripRegionConnectivity::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<unsigned int>("EtaDivisions", 10);
+  desc.addUntracked<unsigned int>("PhiDivisions", 10);
+  desc.addUntracked<double>("EtaMax", 2.4);
+  descriptions.addWithDefaultLabel(desc);
+}
 
 std::unique_ptr<SiStripRegionCabling> SiStripRegionConnectivity::produceRegionCabling(
     const SiStripRegionCablingRcd& iRecord) {

@@ -34,7 +34,7 @@ struct MuStubsInputTokens {
 
 class DigiToStubsConverterBase {
 public:
-  virtual ~DigiToStubsConverterBase(){};
+  virtual ~DigiToStubsConverterBase() {}
 
   virtual void loadDigis(const edm::Event& event) = 0;
 
@@ -50,9 +50,9 @@ class DtDigiToStubsConverter : public DigiToStubsConverterBase {
 public:
   DtDigiToStubsConverter(edm::EDGetTokenT<L1MuDTChambPhContainer> inputTokenDtPh,
                          edm::EDGetTokenT<L1MuDTChambThContainer> inputTokenDtTh)
-      : inputTokenDtPh(inputTokenDtPh), inputTokenDtTh(inputTokenDtTh){};
+      : inputTokenDtPh(inputTokenDtPh), inputTokenDtTh(inputTokenDtTh) {}
 
-  ~DtDigiToStubsConverter() override{};
+  ~DtDigiToStubsConverter() override {}
 
   //virtual void initialize(const edm::ParameterSet& edmCfg, const edm::EventSetup& es, const ProcConfigurationBase* procConf) {} //TODO is it needed at all?
 
@@ -95,9 +95,9 @@ class CscDigiToStubsConverter : public DigiToStubsConverterBase {
 public:
   CscDigiToStubsConverter(const ProcConfigurationBase* config,
                           edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> inputTokenCsc)
-      : config(config), inputTokenCsc(inputTokenCsc){};
+      : config(config), inputTokenCsc(inputTokenCsc) {}
 
-  ~CscDigiToStubsConverter() override{};
+  ~CscDigiToStubsConverter() override {}
 
   //virtual void initialize(const edm::ParameterSet& edmCfg, const edm::EventSetup& es, const ProcConfigurationBase* procConf) {} //TODO is it needed at all?
 
@@ -133,9 +133,9 @@ public:
   RpcDigiToStubsConverter(const ProcConfigurationBase* config,
                           edm::EDGetTokenT<RPCDigiCollection> inputTokenRpc,
                           const RpcClusterization* rpcClusterization)
-      : config(config), inputTokenRpc(inputTokenRpc), rpcClusterization(rpcClusterization){};
+      : config(config), inputTokenRpc(inputTokenRpc), rpcClusterization(rpcClusterization) {}
 
-  ~RpcDigiToStubsConverter() override{};
+  ~RpcDigiToStubsConverter() override {}
 
   //virtual void initialize(const edm::ParameterSet& edmCfg, const edm::EventSetup& es, const ProcConfigurationBase* procConf) {} //TODO is it needed at all?
 

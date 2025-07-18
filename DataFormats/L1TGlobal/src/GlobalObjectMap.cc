@@ -12,57 +12,47 @@
  *
  */
 
-// this class header
 #include "DataFormats/L1TGlobal/interface/GlobalObjectMap.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-// system include files
 #include <iostream>
 #include <iomanip>
 #include <iterator>
-
 #include <algorithm>
 
-// user include files
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-// forward declarations
-
-// methods
-
-// return all the combinations passing the requirements imposed in condition condNameVal
-const CombinationsInCond* GlobalObjectMap::getCombinationsInCond(const std::string& condNameVal) const {
+/// return all the combinations passing the requirements imposed in condition condNameVal
+const CombinationsWithBxInCond* GlobalObjectMap::getCombinationsInCond(const std::string& condNameVal) const {
   for (size_t i = 0; i < m_operandTokenVector.size(); ++i) {
     if ((m_operandTokenVector[i]).tokenName == condNameVal) {
-      return &(m_combinationVector.at((m_operandTokenVector[i]).tokenNumber));
+      return &(m_combinationWithBxVector.at((m_operandTokenVector[i]).tokenNumber));
     }
   }
 
   // return a null address - should not arrive here
   edm::LogError("GlobalObjectMap") << "\n\n  ERROR: The requested condition with tokenName = " << condNameVal
                                    << "\n  does not exists in the operand token vector."
-                                   << "\n  Returning zero pointer for getCombinationsInCond\n\n"
-                                   << std::endl;
+                                   << "\n  Returning zero pointer for getCombinationsInCond\n\n";
 
   return nullptr;
 }
 
 /// return all the combinations passing the requirements imposed in condition condNumberVal
-const CombinationsInCond* GlobalObjectMap::getCombinationsInCond(const int condNumberVal) const {
+const CombinationsWithBxInCond* GlobalObjectMap::getCombinationsInCond(const int condNumberVal) const {
   for (size_t i = 0; i < m_operandTokenVector.size(); ++i) {
     if ((m_operandTokenVector[i]).tokenNumber == condNumberVal) {
-      return &(m_combinationVector.at((m_operandTokenVector[i]).tokenNumber));
+      return &(m_combinationWithBxVector.at((m_operandTokenVector[i]).tokenNumber));
     }
   }
 
   // return a null address - should not arrive here
   edm::LogError("GlobalObjectMap") << "\n\n  ERROR: The requested condition with tokenNumber = " << condNumberVal
                                    << "\n  does not exists in the operand token vector."
-                                   << "\n  Returning zero pointer for getCombinationsInCond\n\n"
-                                   << std::endl;
+                                   << "\n  Returning zero pointer for getCombinationsInCond\n\n";
 
   return nullptr;
 }
-// return the result for the condition condNameVal
+
+/// return the result for the condition condNameVal
 const bool GlobalObjectMap::getConditionResult(const std::string& condNameVal) const {
   for (size_t i = 0; i < m_operandTokenVector.size(); ++i) {
     if ((m_operandTokenVector[i]).tokenName == condNameVal) {
@@ -73,8 +63,8 @@ const bool GlobalObjectMap::getConditionResult(const std::string& condNameVal) c
   // return false - should not arrive here
   edm::LogError("GlobalObjectMap") << "\n\n  ERROR: The requested condition with name = " << condNameVal
                                    << "\n  does not exists in the operand token vector."
-                                   << "\n  Returning false for getConditionResult\n\n"
-                                   << std::endl;
+                                   << "\n  Returning false for getConditionResult\n\n";
+
   return false;
 }
 
@@ -92,7 +82,7 @@ void GlobalObjectMap::reset() {
   m_operandTokenVector.clear();
 
   // vector of combinations for all conditions in an algorithm
-  m_combinationVector.clear();
+  m_combinationWithBxVector.clear();
 }
 
 void GlobalObjectMap::print(std::ostream& myCout) const {
@@ -117,35 +107,29 @@ void GlobalObjectMap::print(std::ostream& myCout) const {
     }
   }
 
-  myCout << "    CombinationVector size: " << m_combinationVector.size() << std::endl;
+  myCout << "    CombinationWithBxVector size: " << m_combinationWithBxVector.size() << std::endl;
 
   myCout << "  conditions: " << std::endl;
 
-  std::vector<CombinationsInCond>::const_iterator itVVV;
-  int iCond = 0;
-  for (itVVV = m_combinationVector.begin(); itVVV != m_combinationVector.end(); itVVV++) {
-    std::string condName = (m_operandTokenVector[iCond]).tokenName;
-    bool condResult = (m_operandTokenVector[iCond]).tokenResult;
-
+  for (size_t i1 = 0; i1 < m_combinationWithBxVector.size(); ++i1) {
+    auto const& condName = m_operandTokenVector[i1].tokenName;
+    auto const condResult = m_operandTokenVector[i1].tokenResult;
     myCout << "    Condition " << condName << " evaluated to " << condResult << std::endl;
-
     myCout << "    List of combinations passing all requirements for this condition:" << std::endl;
-
     myCout << "    ";
 
-    if ((*itVVV).empty()) {
+    if (m_combinationWithBxVector[i1].empty()) {
       myCout << "(none)";
     } else {
-      CombinationsInCond::const_iterator itVV;
-      for (itVV = (*itVVV).begin(); itVV != (*itVVV).end(); itVV++) {
+      for (size_t i2 = 0; i2 < m_combinationWithBxVector[i1].size(); ++i2) {
         myCout << "( ";
-
-        std::copy((*itVV).begin(), (*itVV).end(), std::ostream_iterator<int>(myCout, " "));
-
+        for (size_t i3 = 0; i3 < m_combinationWithBxVector[i1][i2].size(); ++i3) {
+          myCout << m_combinationWithBxVector[i1][i2][i3].first << ":";
+          myCout << m_combinationWithBxVector[i1][i2][i3].second << " ";
+        }
         myCout << "); ";
       }
     }
-    iCond++;
     myCout << "\n\n";
   }
 }

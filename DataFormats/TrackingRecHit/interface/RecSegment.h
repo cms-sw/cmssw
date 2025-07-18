@@ -30,7 +30,7 @@ public:
   RecSegment(TrackingRecHit::id_type id = 0) : TrackingRecHit(id) {}
 
   /// Destructor
-  ~RecSegment() override{};
+  ~RecSegment() override {}
 
   /// Local direction
   virtual LocalVector localDirection() const = 0;

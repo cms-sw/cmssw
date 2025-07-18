@@ -27,10 +27,9 @@ JetCorrectionUncertainty::JetCorrectionUncertainty() {
   mIsLepPyset = false;
   mIsLepPzset = false;
   mAddLepToJet = false;
-  mUncertainty = new SimpleJetCorrectionUncertainty();
 }
 /////////////////////////////////////////////////////////////////////////
-JetCorrectionUncertainty::JetCorrectionUncertainty(const std::string& fDataFile) {
+JetCorrectionUncertainty::JetCorrectionUncertainty(const std::string& fDataFile) : mUncertainty{fDataFile} {
   mJetEta = -9999;
   mJetPt = -9999;
   mJetPhi = -9999;
@@ -48,10 +47,10 @@ JetCorrectionUncertainty::JetCorrectionUncertainty(const std::string& fDataFile)
   mIsLepPyset = false;
   mIsLepPzset = false;
   mAddLepToJet = false;
-  mUncertainty = new SimpleJetCorrectionUncertainty(fDataFile);
 }
 /////////////////////////////////////////////////////////////////////////
-JetCorrectionUncertainty::JetCorrectionUncertainty(const JetCorrectorParameters& fParameters) {
+JetCorrectionUncertainty::JetCorrectionUncertainty(const JetCorrectorParameters& fParameters)
+    : mUncertainty{fParameters} {
   mJetEta = -9999;
   mJetPt = -9999;
   mJetPhi = -9999;
@@ -69,23 +68,18 @@ JetCorrectionUncertainty::JetCorrectionUncertainty(const JetCorrectorParameters&
   mIsLepPyset = false;
   mIsLepPzset = false;
   mAddLepToJet = false;
-  mUncertainty = new SimpleJetCorrectionUncertainty(fParameters);
 }
-/////////////////////////////////////////////////////////////////////////
-JetCorrectionUncertainty::~JetCorrectionUncertainty() { delete mUncertainty; }
 /////////////////////////////////////////////////////////////////////////
 void JetCorrectionUncertainty::setParameters(const std::string& fDataFile) {
-  //---- delete the mParameters pointer before setting the new address ---
-  delete mUncertainty;
-  mUncertainty = new SimpleJetCorrectionUncertainty(fDataFile);
+  mUncertainty = SimpleJetCorrectionUncertainty(fDataFile);
 }
 /////////////////////////////////////////////////////////////////////////
 float JetCorrectionUncertainty::getUncertainty(bool fDirection) {
   float result;
   std::vector<float> vx, vy;
-  vx = fillVector(mUncertainty->parameters().definitions().binVar());
-  vy = fillVector(mUncertainty->parameters().definitions().parVar());
-  result = mUncertainty->uncertainty(vx, vy[0], fDirection);
+  vx = fillVector(mUncertainty.parameters().definitions().binVar());
+  vy = fillVector(mUncertainty.parameters().definitions().parVar());
+  result = mUncertainty.uncertainty(vx, vy[0], fDirection);
   mIsJetEset = false;
   mIsJetPtset = false;
   mIsJetPhiset = false;

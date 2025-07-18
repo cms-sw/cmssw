@@ -142,8 +142,7 @@ void BaseTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSet
   for (const auto i_tag : preSel_tag_indices) {
     reco::Muon tag = (*muons).at(i_tag);
     float pt_max = 0.;
-    int max_pt_idx;
-    bool pair_found = false;
+    int max_pt_idx = -1;
 
     for (const auto i_probe : preSel_probe_indices) {
       //Prevent tag and probe to be the same object
@@ -166,12 +165,11 @@ void BaseTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSet
 
       float pair_pt = (tag.polarP4() + preSel_probe.polarP4()).Pt();
       if (pair_pt > pt_max) {
-        pair_found = true;
         pt_max = pair_pt;
         max_pt_idx = i_probe;
       }
     }
-    if (pair_found) {
+    if (max_pt_idx != -1) {
       probe_indices.push_back(max_pt_idx);
       tag_indices.push_back(i_tag);
     }

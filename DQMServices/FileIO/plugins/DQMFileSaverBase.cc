@@ -47,7 +47,7 @@ DQMFileSaverBase::DQMFileSaverBase(const edm::ParameterSet &ps) {
   // This makes sure a file saver runs in a very end
   lumigetter_ = edm::GetterOfProducts<DQMToken>(edm::ProcessMatch("*"), this, edm::InLumi);
   rungetter_ = edm::GetterOfProducts<DQMToken>(edm::ProcessMatch("*"), this, edm::InRun);
-  callWhenNewProductsRegistered([this](edm::BranchDescription const &bd) {
+  callWhenNewProductsRegistered([this](edm::ProductDescription const &bd) {
     this->lumigetter_(bd);
     this->rungetter_(bd);
   });

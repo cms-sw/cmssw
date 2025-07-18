@@ -127,8 +127,7 @@ void FEConfigLUTGroupDat::fetchData(map<EcalLogicID, FEConfigLUTGroupDat>* fillM
 
     int nrows = 1024;
 
-    int igold = -1;
-    int ig = igold;
+    int ig = -1;
 
     while (rset->next()) {
       ig = rset->getInt(1);

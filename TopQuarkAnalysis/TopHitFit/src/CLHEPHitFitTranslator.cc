@@ -28,6 +28,7 @@ namespace hitfit {
 
   template <>
   LeptonTranslatorBase<CLHEP::HepLorentzVector>::LeptonTranslatorBase() {
+    [[clang::suppress]]
     std::string CMSSW_BASE(std::getenv("CMSSW_BASE"));
     std::string resolution_filename =
         CMSSW_BASE + std::string("/src/TopQuarkAnalysis/TopHitFit/data/exampleElectronResolution.txt");
@@ -37,6 +38,7 @@ namespace hitfit {
 
   template <>
   LeptonTranslatorBase<CLHEP::HepLorentzVector>::LeptonTranslatorBase(const std::string& ifile) {
+    [[clang::suppress]]
     std::string CMSSW_BASE(std::getenv("CMSSW_BASE"));
     std::string resolution_filename;
 
@@ -79,6 +81,7 @@ namespace hitfit {
 
   template <>
   JetTranslatorBase<CLHEP::HepLorentzVector>::JetTranslatorBase() {
+    [[clang::suppress]]
     std::string CMSSW_BASE(std::getenv("CMSSW_BASE"));
     std::string udsc_resolution_filename =
         CMSSW_BASE + std::string("/src/TopQuarkAnalysis/TopHitFit/data/exampleJetResolution.txt");
@@ -91,6 +94,7 @@ namespace hitfit {
 
   template <>
   JetTranslatorBase<CLHEP::HepLorentzVector>::JetTranslatorBase(const std::string& udscFile, const std::string& bFile) {
+    [[clang::suppress]]
     std::string CMSSW_BASE(std::getenv("CMSSW_BASE"));
     std::string udsc_resolution_filename;
     std::string b_resolution_filename;

@@ -26,7 +26,7 @@ public:
   }
 
   // destructor
-  ~EcalRecHitSimpleAlgo() override{};
+  ~EcalRecHitSimpleAlgo() override {}
 
   /// Compute parameters
   EcalRecHit makeRecHit(const EcalUncalibratedRecHit& uncalibRH,

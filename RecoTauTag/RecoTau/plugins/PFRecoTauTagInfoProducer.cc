@@ -5,30 +5,25 @@
  * authors: Ludovic Houchu
  */
 
+#include <memory>
+
+#include <CLHEP/Random/RandGauss.h>
+#include <Math/GenVector/VectorUtil.h>
+
 #include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 #include "DataFormats/TauReco/interface/PFTauTagInfo.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-
-#include "RecoTauTag/RecoTau/interface/PFRecoTauTagInfoAlgorithm.h"
-
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
-#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
-
-#include "CLHEP/Random/RandGauss.h"
-
-#include "Math/GenVector/VectorUtil.h"
-
-#include <memory>
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "RecoTauTag/RecoTau/interface/PFRecoTauTagInfoAlgorithm.h"
 
 using namespace reco;
 using namespace edm;
@@ -108,7 +103,6 @@ void PFRecoTauTagInfoProducer::produce(edm::StreamID, edm::Event& iEvent, const 
     resultExt->push_back(myPFTauTagInfo);
   }
 
-  //  OrphanHandle<PFTauTagInfoCollection> myPFTauTagInfoCollection=iEvent.put(std::move(resultExt));
   iEvent.put(std::move(resultExt));
 }
 

@@ -15,7 +15,7 @@ using namespace std::chrono;
 template <class valType>
 inline constexpr valType useReduceRange(valType angle) {
   constexpr valType twoPi = 2._pi;
-  angle = reduceRange(angle);
+  angle = reducePhiRange(angle);
   if (angle < 0.)
     angle += twoPi;
   return angle;

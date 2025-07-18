@@ -100,9 +100,9 @@ void PixelFEDChannelCollectionMapTestReader::analyze(const edm::Event& e, const 
                   ch.roc_last);
           //std::cout <<  disabledChannels.detId() << " "<< ch.fed << " " << ch.link << " " << ch.roc_first << " " << ch.roc_last << std::endl;
         }  // loop over disable channels
-      }    // loop over the detSetVector
-    }      // main loop on the map
-  }        // if file exists
+      }  // loop over the detSetVector
+    }  // main loop on the map
+  }  // if file exists
 }
 
 void PixelFEDChannelCollectionMapTestReader::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

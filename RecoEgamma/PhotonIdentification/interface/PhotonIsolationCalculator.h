@@ -32,16 +32,14 @@ class EcalSeverityLevelAlgoRcd;
 
 class PhotonIsolationCalculator {
 public:
-  PhotonIsolationCalculator() {}
+  PhotonIsolationCalculator(const edm::ParameterSet& conf,
+                            std::vector<int> const& flagsEB_,
+                            std::vector<int> const& flagsEE_,
+                            std::vector<int> const& severitiesEB_,
+                            std::vector<int> const& severitiesEE_,
+                            edm::ConsumesCollector&& iC);
 
-  ~PhotonIsolationCalculator() {}
-
-  void setup(const edm::ParameterSet& conf,
-             std::vector<int> const& flagsEB_,
-             std::vector<int> const& flagsEE_,
-             std::vector<int> const& severitiesEB_,
-             std::vector<int> const& severitiesEE_,
-             edm::ConsumesCollector&& iC);
+  ~PhotonIsolationCalculator() = default;
 
   void calculate(const reco::Photon*,
                  const edm::Event&,

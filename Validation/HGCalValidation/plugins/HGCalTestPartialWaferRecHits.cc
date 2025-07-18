@@ -57,7 +57,7 @@ HGCalTestPartialWaferRecHits::HGCalTestPartialWaferRecHits(const edm::ParameterS
                                << " Missing Wafer file " << missingFile_;
   if (!missingFile_.empty()) {
     edm::FileInPath filetmp("SimG4CMS/Calo/data/" + missingFile_);
-    std::string fileName = filetmp.fullPath();
+    const std::string& fileName = filetmp.fullPath();
     std::ifstream fInput(fileName.c_str());
     if (!fInput.good()) {
       edm::LogVerbatim("HGCalSim") << "Cannot open file " << fileName;

@@ -30,7 +30,7 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTFConfig.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTFConfig.h"
 #include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTrackFinder.h"
 #include "DataFormats/L1TMuon/interface/L1MuBMTrack.h"
 #include "DataFormats/L1TMuon/interface/BMTF/L1MuBMSecProcId.h"
@@ -75,28 +75,28 @@ void L1MuBMWedgeSorter::run() {
       continue;
     L1MuBMSecProcId tmpspid(wheel, sector);
     for (int number = 0; number < 2; number++) {
-      const L1MuBMTrack* cand = m_tf.sp(tmpspid)->track(number);
-      if (cand && !cand->empty()) {
+      const L1MuBMTrack& cand = m_tf.sp(tmpspid)->track(number);
+      if (!cand.empty()) {
         // remove tracks which where found in wheel 0 and
         // which didn't cross wheel boundaries (SP -1)
         bool reject = false;
         if (wheel == -1) {
           reject = true;
           for (int stat = 2; stat <= 4; stat++) {
-            int adr = cand->address(stat);
+            int adr = cand.address(stat);
             // check addresses : 0,1,4,5,8,9 (own wheel)
             if (adr != 15)
               reject &= ((adr / 2) % 2 == 0);
           }
         }
         if (!reject)
-          wedgecands.push_back(const_cast<L1MuBMTrack*>(cand));
+          wedgecands.push_back(const_cast<L1MuBMTrack*>(&cand));
       }
     }
   }
 
   // print input data
-  if (L1MuBMTFConfig::Debug(5)) {
+  if (m_tf.config().Debug(5)) {
     cout << "Wedge Sorter " << m_wsid << " input: " << wedgecands.size() << endl;
     vector<L1MuBMTrack*>::const_iterator iter;
     for (iter = wedgecands.begin(); iter != wedgecands.end(); iter++) {
@@ -122,7 +122,7 @@ void L1MuBMWedgeSorter::run() {
   // sort candidates by pt and quality and copy the 2 best candidates
   partial_sort_copy(wedgecands.begin(), wedgecands.end(), m_TrackCands.begin(), m_TrackCands.end(), L1MuBMTrack::rank);
 
-  if (L1MuBMTFConfig::Debug(4)) {
+  if (m_tf.config().Debug(4)) {
     cout << "Wedge Sorter " << m_wsid << " output: " << endl;
     vector<const L1MuBMTrack*>::const_iterator iter;
     for (iter = m_TrackCands.begin(); iter != m_TrackCands.end(); iter++) {
@@ -215,14 +215,14 @@ void L1MuBMWedgeSorter::runCOL(vector<L1MuBMTrack*>& cands) const {
       }
       if (countTS > 0) {
         if (qual1 < qual2) {
-          if (L1MuBMTFConfig::Debug(5)) {
+          if (m_tf.config().Debug(5)) {
             cout << "Wedge Sorter cancel : ";
             (*iter1)->print();
           }
           (*iter1)->disable();
           break;
         } else {
-          if (L1MuBMTFConfig::Debug(5)) {
+          if (m_tf.config().Debug(5)) {
             cout << "Wedge Sorter cancel : ";
             (*iter2)->print();
           }

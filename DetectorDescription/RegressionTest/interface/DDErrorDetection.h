@@ -131,7 +131,7 @@ public:
   bool noErrorsInTheReport(const DDCompactView& cpv);
 
 private:
-  DDErrorDetection(){};
+  DDErrorDetection() {}
 };
 
 #endif

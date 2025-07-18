@@ -1,3 +1,4 @@
+
 import FWCore.ParameterSet.Config as cms
 
 from L1TriggerConfig.DTTPGConfigProducers.L1DTTPGConfigFromDB_cff import *
@@ -23,6 +24,11 @@ dtTriggerPhase2PrimitiveDigis = cms.EDProducer("DTTrigPhase2Prod",
                                                minx_match_2digis = cms.double(1.),
                                                scenario = cms.int32(0), #0 for mc, 1 for data, 2 for slice test
                                                df_extended = cms.int32(0), # DF: 0 for standard, 1 for extended, 2 for both 
+                                               co_option = cms.int32(1), # coincidence w.r.t. : -1 = off, 0 = co all, 1 = co phi, 2 = co theta
+                                               co_quality = cms.int32(1), # quality cut (>X) for coincidence TP: request TPs to be above this cut
+                                               co_wh2option = cms.int32(1),#0 (filter all stations in Wh2), 1(pass Wh2 St1), 2(pass Wh2 St1+2)
+                                               th_option = cms.int32(1), # save 1st, 2nd,... closest Phi-Theta pair. 0 disables filtering (saves all)
+                                               th_quality = cms.int32(2), # quality cut (>X) for Theta matching: Phi TPs above are not filtered
                                                max_primitives = cms.int32(999),
 
                                                output_mixer = cms.bool(False),
@@ -40,9 +46,8 @@ dtTriggerPhase2PrimitiveDigis = cms.EDProducer("DTTrigPhase2Prod",
                                                lut_2sl = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/fitterlut_2sl.dat'),
                                                shift_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/wire_rawId_x.txt'),
                                                shift_theta_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/theta_shift.txt'),
-                                               maxdrift_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/drift_time_per_chamber.txt'),
+                                               maxdrift_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/simple_vdrift.txt'),
                                                global_coords_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/global_coord_perp_x_phi0.txt'),
-                                               laterality_filename  = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/lat_predictions.dat'),
                                                algo = cms.int32(0), # 0 = STD gr., 2 = Hough transform, 1 = PseudoBayes Approach
 
                                                minHits4Fit = cms.int32(3),

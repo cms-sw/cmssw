@@ -13,7 +13,7 @@
 #pragma GCC visibility push(hidden)
 class Phase2EndcapSubDiskBuilder {
 public:
-  Phase2EndcapSubDiskBuilder(){};
+  Phase2EndcapSubDiskBuilder() {}
   Phase2EndcapSubDisk* build(const GeometricDet* aPhase2EndcapSubDisk, const TrackerGeometry* theGeomDetGeometry)
       __attribute__((cold));
 };

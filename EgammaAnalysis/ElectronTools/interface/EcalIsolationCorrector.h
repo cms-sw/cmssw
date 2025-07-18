@@ -19,7 +19,7 @@ public:
   enum RunRange { RunAB, RunC, RunD };
 
   EcalIsolationCorrector(bool forElectrons);
-  ~EcalIsolationCorrector(){};
+  ~EcalIsolationCorrector() {}
 
 #ifndef STANDALONE_ECALCORR
   // Global correction for ABCD together

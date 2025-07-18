@@ -1,13 +1,14 @@
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #ifdef VERIFY_PH2_TK_CLUS
 #include "Phase2TrackerClusterizerAlgorithm.h"
@@ -30,8 +31,10 @@
 class Phase2TrackerClusterizer : public edm::stream::EDProducer<> {
 public:
   explicit Phase2TrackerClusterizer(const edm::ParameterSet& conf);
-  ~Phase2TrackerClusterizer() override;
+  ~Phase2TrackerClusterizer() override = default;
   void produce(edm::Event& event, const edm::EventSetup& eventSetup) override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
 #ifdef VERIFY_PH2_TK_CLUS
@@ -53,8 +56,6 @@ Phase2TrackerClusterizer::Phase2TrackerClusterizer(edm::ParameterSet const& conf
       token_(consumes<edm::DetSetVector<Phase2TrackerDigi> >(conf.getParameter<edm::InputTag>("src"))) {
   produces<Phase2TrackerCluster1DCollectionNew>();
 }
-
-Phase2TrackerClusterizer::~Phase2TrackerClusterizer() {}
 
 /*
      * Clusterize the events
@@ -144,6 +145,14 @@ void Phase2TrackerClusterizer::produce(edm::Event& event, const edm::EventSetup&
   // Add the data to the output
   outputClusters->shrink_to_fit();
   event.put(std::move(outputClusters));
+}
+
+void Phase2TrackerClusterizer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<unsigned int>("maxClusterSize", 0);
+  desc.add<unsigned int>("maxNumberClusters", 0);
+  desc.add<edm::InputTag>("src", edm::InputTag("mix", "Tracker"));
+  descriptions.add("default_phase2TrackerClusterizer", desc);
 }
 
 DEFINE_FWK_MODULE(Phase2TrackerClusterizer);

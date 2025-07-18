@@ -49,7 +49,6 @@
 <test name="import-future" command="python3 -c 'import future'"/>
 <test name="import-concurrent.futures" command="python3 -c 'import concurrent.futures'"/>
 <test name="import-h5py" command="python3 -c 'import h5py'"/>
-<test name="import-histbook" command="python3 -c 'import histbook'"/>
 <test name="import-html5lib" command="python3 -c 'import html5lib'"/>
 <test name="import-idna" command="python3 -c 'import idna'"/>
 <test name="import-ipykernel" command="python3 -c 'import ipykernel'"/>
@@ -129,12 +128,4 @@
 <test name="run-flawfinder" command="flawfinder -h"/>
 <test name="run-ipython" command="ipython -h"/>
 <test name="run-pylint" command="pylint -h"/>
-
-<bin name="testTorch" file="testTorch.cc">
-  <use name="pytorch"/>
-</bin>
-
-<bin name="testTorchTimeSeries" file="time_serie_prediction.cpp">
-  <use name="pytorch"/>
-  <use name="pytorch-cuda"/>
-</bin>
+<test name="run-jupyter-notebook" command="jupyter notebook --help"/>

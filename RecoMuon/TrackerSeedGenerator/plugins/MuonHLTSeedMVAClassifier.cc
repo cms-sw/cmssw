@@ -8,6 +8,7 @@
 // system include files
 #include <memory>
 #include <cmath>
+#include <tinyxml2.h>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -22,6 +23,8 @@
 // Geometry
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
+#include "CommonTools/MVAUtils/interface/TMVAZipReader.h"
 
 // TrajectorySeed
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
@@ -44,6 +47,7 @@ public:
   ~MuonHLTSeedMVAClassifier() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  bool checkMVAFileConsistency(const std::string& weightsFileFullPath, bool isFromL1) const;
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
@@ -87,33 +91,67 @@ private:
                     const reco::RecoChargedCandidateCollection& l2Muons);
 };
 
+bool MuonHLTSeedMVAClassifier::checkMVAFileConsistency(const std::string& weightsFileFullPath,
+                                                       const bool isFromL1) const {
+  tinyxml2::XMLDocument xmlDoc;
+  if (reco::details::hasEnding(weightsFileFullPath, ".xml")) {
+    xmlDoc.LoadFile(weightsFileFullPath.c_str());
+  } else {
+    edm::LogError("MuonHLTSeedMVAClassifier") << "unsupported file extension, it should be a .xml file!";
+    return false;
+  }
+  tinyxml2::XMLElement* root = xmlDoc.FirstChildElement("MethodSetup");
+  if (root == nullptr) {
+    edm::LogError("MuonHLTSeedMVAClassifier") << "could not retrieve the MethodSetup node from XML file!";
+    return false;
+  }
+
+  const auto& vars = root->FirstChildElement("Variables");
+  size_t n = 0;
+  if (vars != nullptr) {
+    for (tinyxml2::XMLElement* e = vars->FirstChildElement("Variable"); e != nullptr;
+         e = e->NextSiblingElement("Variable")) {
+      ++n;
+    }
+  } else {
+    edm::LogError("MuonHLTSeedMVAClassifier") << "could not retrieve the Variables node from XML file!";
+    return false;
+  }
+
+  LogTrace("MuonHLTSeedMVAClassifier") << "MVA file:" << weightsFileFullPath.c_str() << " n Var:" << n;
+  bool condition = (isFromL1 && (n == inputIndexes::kLastL1)) || (!isFromL1 && (n == inputIndexes::kLastL2));
+  return condition;
+}
+
 MuonHLTSeedMVAClassifier::MuonHLTSeedMVAClassifier(const edm::ParameterSet& iConfig)
     : seedToken_(consumes<TrajectorySeedCollection>(iConfig.getParameter<edm::InputTag>("src"))),
       l1MuonToken_(consumes<l1t::MuonBxCollection>(iConfig.getParameter<edm::InputTag>("L1Muon"))),
       l2MuonToken_(consumes<reco::RecoChargedCandidateCollection>(iConfig.getParameter<edm::InputTag>("L2Muon"))),
       trackerGeometryToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
-
       rejectAll_(iConfig.getParameter<bool>("rejectAll")),
       isFromL1_(iConfig.getParameter<bool>("isFromL1")),
-
-      mvaFileB_(iConfig.getParameter<edm::FileInPath>(isFromL1_ ? "mvaFileBL1" : "mvaFileBL2")),
-      mvaFileE_(iConfig.getParameter<edm::FileInPath>(isFromL1_ ? "mvaFileEL1" : "mvaFileEL2")),
-
-      mvaScaleMeanB_(iConfig.getParameter<std::vector<double>>(isFromL1_ ? "mvaScaleMeanBL1" : "mvaScaleMeanBL2")),
-      mvaScaleStdB_(iConfig.getParameter<std::vector<double>>(isFromL1_ ? "mvaScaleStdBL1" : "mvaScaleStdBL2")),
-      mvaScaleMeanE_(iConfig.getParameter<std::vector<double>>(isFromL1_ ? "mvaScaleMeanEL1" : "mvaScaleMeanEL2")),
-      mvaScaleStdE_(iConfig.getParameter<std::vector<double>>(isFromL1_ ? "mvaScaleStdEL1" : "mvaScaleStdEL2")),
-
+      mvaFileB_(iConfig.getParameter<edm::FileInPath>("mvaFileB")),
+      mvaFileE_(iConfig.getParameter<edm::FileInPath>("mvaFileE")),
+      mvaScaleMeanB_(iConfig.getParameter<std::vector<double>>("mvaScaleMeanB")),
+      mvaScaleStdB_(iConfig.getParameter<std::vector<double>>("mvaScaleStdB")),
+      mvaScaleMeanE_(iConfig.getParameter<std::vector<double>>("mvaScaleMeanE")),
+      mvaScaleStdE_(iConfig.getParameter<std::vector<double>>("mvaScaleStdE")),
       doSort_(iConfig.getParameter<bool>("doSort")),
       nSeedsMaxB_(iConfig.getParameter<int>("nSeedsMaxB")),
       nSeedsMaxE_(iConfig.getParameter<int>("nSeedsMaxE")),
-
       etaEdge_(iConfig.getParameter<double>("etaEdge")),
       mvaCutB_(iConfig.getParameter<double>("mvaCutB")),
       mvaCutE_(iConfig.getParameter<double>("mvaCutE")),
-
       minL1Qual_(iConfig.getParameter<int>("minL1Qual")),
       baseScore_(iConfig.getParameter<double>("baseScore")) {
+  const auto& mvaFileBPath = mvaFileB_.fullPath();
+  const auto& mvaFileEPath = mvaFileE_.fullPath();
+
+  if (!checkMVAFileConsistency(mvaFileBPath, isFromL1_) || !checkMVAFileConsistency(mvaFileEPath, isFromL1_)) {
+    throw cms::Exception("ConfigurationError") << " MVA files appear to be not consistent with the value of isFromL1 "
+                                                  "parameter.\n Please check your configuration.";
+  }
+
   if (!rejectAll_) {
     mvaEstimator_ = std::make_pair(
         std::make_unique<SeedMvaEstimator>(mvaFileB_, mvaScaleMeanB_, mvaScaleStdB_, isFromL1_, minL1Qual_),
@@ -247,22 +285,14 @@ void MuonHLTSeedMVAClassifier::fillDescriptions(edm::ConfigurationDescriptions& 
   desc.add<bool>("rejectAll", false);
   desc.add<bool>("isFromL1", false);
 
-  desc.add<edm::FileInPath>("mvaFileBL1",
+  desc.add<edm::FileInPath>("mvaFileB",
                             edm::FileInPath("RecoMuon/TrackerSeedGenerator/data/xgb_Run3_Iter2FromL1Seeds_barrel.xml"));
-  desc.add<edm::FileInPath>("mvaFileEL1",
+  desc.add<edm::FileInPath>("mvaFileE",
                             edm::FileInPath("RecoMuon/TrackerSeedGenerator/data/xgb_Run3_Iter2FromL1Seeds_endcap.xml"));
-  desc.add<edm::FileInPath>("mvaFileBL2",
-                            edm::FileInPath("RecoMuon/TrackerSeedGenerator/data/xgb_Run3_Iter2Seeds_barrel.xml"));
-  desc.add<edm::FileInPath>("mvaFileEL2",
-                            edm::FileInPath("RecoMuon/TrackerSeedGenerator/data/xgb_Run3_Iter2Seeds_endcap.xml"));
-  desc.add<std::vector<double>>("mvaScaleMeanBL1", {0., 0., 0., 0., 0., 0., 0., 0.});
-  desc.add<std::vector<double>>("mvaScaleStdBL1", {1., 1., 1., 1., 1., 1., 1., 1.});
-  desc.add<std::vector<double>>("mvaScaleMeanEL1", {0., 0., 0., 0., 0., 0., 0., 0.});
-  desc.add<std::vector<double>>("mvaScaleStdEL1", {1., 1., 1., 1., 1., 1., 1., 1.});
-  desc.add<std::vector<double>>("mvaScaleMeanBL2", {0., 0., 0., 0., 0., 0., 0., 0., 0., 0.});
-  desc.add<std::vector<double>>("mvaScaleStdBL2", {1., 1., 1., 1., 1., 1., 1., 1., 1., 1.});
-  desc.add<std::vector<double>>("mvaScaleMeanEL2", {0., 0., 0., 0., 0., 0., 0., 0., 0., 0.});
-  desc.add<std::vector<double>>("mvaScaleStdEL2", {1., 1., 1., 1., 1., 1., 1., 1., 1., 1.});
+  desc.add<std::vector<double>>("mvaScaleMeanB", {0., 0., 0., 0., 0., 0., 0., 0.});
+  desc.add<std::vector<double>>("mvaScaleStdB", {1., 1., 1., 1., 1., 1., 1., 1.});
+  desc.add<std::vector<double>>("mvaScaleMeanE", {0., 0., 0., 0., 0., 0., 0., 0.});
+  desc.add<std::vector<double>>("mvaScaleStdE", {1., 1., 1., 1., 1., 1., 1., 1.});
 
   desc.add<bool>("doSort", false);
   desc.add<int>("nSeedsMaxB", 1e6);

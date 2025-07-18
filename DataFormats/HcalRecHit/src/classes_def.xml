@@ -35,7 +35,8 @@
     <version ClassVersion="12" checksum="1242817974"/>
     <version ClassVersion="10" checksum="1310006561"/>
    </class>
-   <class name="ZDCRecHit" ClassVersion="12">
+   <class name="ZDCRecHit" ClassVersion="13">
+    <version ClassVersion="13" checksum="1625066895"/>
     <version ClassVersion="12" checksum="4082648564"/>
     <version ClassVersion="11" checksum="2452340764"/>
    </class>
@@ -118,4 +119,9 @@
   <class name="edm::reftobase::Holder<CaloRecHit,edm::Ref<edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit> >,HFRecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit> >,HFRecHit> > >" />
   <class name="edm::reftobase::Holder<CaloRecHit,edm::Ref<edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit> >,HORecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit> >,HORecHit> > >" />
   <class name="edm::reftobase::Holder<CaloRecHit,edm::Ref<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit> >,HBHERecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit> >,HBHERecHit> > >" />
-</lcgdict>
+
+  <class name="hcal::HcalRecHitSoA"/>
+  <class name="hcal::HcalRecHitSoA::View"/>
+  <class name="hcal::RecHitHostCollection" />
+  <class name="edm::Wrapper<hcal::RecHitHostCollection>" splitLevel="0"/>
+  </lcgdict>

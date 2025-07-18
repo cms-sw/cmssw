@@ -76,6 +76,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -94,7 +96,9 @@ namespace reco {
   class EcalHaloDataProducer : public edm::stream::EDProducer<> {
   public:
     explicit EcalHaloDataProducer(const edm::ParameterSet&);
-    ~EcalHaloDataProducer() override;
+    ~EcalHaloDataProducer() override = default;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
     void produce(edm::Event&, const edm::EventSetup&) override;

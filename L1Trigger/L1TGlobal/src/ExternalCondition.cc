@@ -100,7 +100,7 @@ const bool l1t::ExternalCondition::evaluateCondition(const int bxEval) const {
 
   // store the indices of the calorimeter objects
   // from the combination evaluated in the condition
-  SingleCombInCond objectsInComb;
+  SingleCombWithBxInCond objectsInComb;
 
   // clear the m_combinationsInCond vector
   (combinationsInCond()).clear();
@@ -111,34 +111,32 @@ const bool l1t::ExternalCondition::evaluateCondition(const int bxEval) const {
   const BXVector<const GlobalExtBlk*>* candVec = m_uGtB->getCandL1External();
 
   // Look at objects in bx = bx + relativeBx
-  int useBx = bxEval + m_gtExternalTemplate->condRelativeBx();
-  unsigned int exCondCh = m_gtExternalTemplate->extChannel();
+  L1TObjBxIndexType const useBx = bxEval + m_gtExternalTemplate->condRelativeBx();
 
   // Fail condition if attempting to get Bx outside of range
   if ((useBx < candVec->getFirstBX()) || (useBx > candVec->getLastBX())) {
     return false;
   }
 
-  int numberObjects = candVec->size(useBx);
+  auto const numberObjects = candVec->size(useBx);
   if (numberObjects < 1) {
     return false;
   }
 
   //get external block (should only be one for the bx)
-  GlobalExtBlk ext = *(candVec->at(useBx, 0));
+  unsigned int const candIndex{0u};
+  GlobalExtBlk const& ext = *(candVec->at(useBx, candIndex));
   //ext.print(std::cout);
 
   // check external bit
+  unsigned int exCondCh = m_gtExternalTemplate->extChannel();
   if (!ext.getExternalDecision(exCondCh)) {
     LogDebug("L1TGlobal") << "\t\t External Condition was not set" << std::endl;
     return false;
   }
 
-  // index is always zero, as they are global quantities (there is only one object)
-  int indexObj = 0;
-
-  //Do we need this?
-  objectsInComb.push_back(indexObj);
+  // Do we need this?
+  objectsInComb.emplace_back(useBx, candIndex);
   (combinationsInCond()).push_back(objectsInComb);
 
   // if we get here all checks were successfull for this combination

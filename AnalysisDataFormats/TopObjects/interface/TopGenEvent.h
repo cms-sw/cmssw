@@ -40,11 +40,11 @@ namespace WDecay {
 class TopGenEvent {
 public:
   /// empty constructor
-  TopGenEvent(){};
+  TopGenEvent() {}
   /// default constructor
   TopGenEvent(reco::GenParticleRefProd& decaySubset, reco::GenParticleRefProd& iniSubset);
   /// default destructor
-  virtual ~TopGenEvent(){};
+  virtual ~TopGenEvent() {}
 
   /// return particles of decay chain
   const reco::GenParticleCollection& particles() const { return *parts_; }

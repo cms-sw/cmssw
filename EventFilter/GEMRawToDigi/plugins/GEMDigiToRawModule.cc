@@ -33,7 +33,7 @@ public:
   // global::EDProducer
   std::shared_ptr<GEMChMap> globalBeginRun(edm::Run const&, edm::EventSetup const&) const override;
   void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
-  void globalEndRun(edm::Run const&, edm::EventSetup const&) const override{};
+  void globalEndRun(edm::Run const&, edm::EventSetup const&) const override {}
 
   // Fill parameters descriptions
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -238,7 +238,7 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
       amc13->setCDFTrailer(EvtLength);
       amc13s.emplace_back(std::move(amc13));
     }  // finished making amc13 data
-  }    // end of FED loop
+  }  // end of FED loop
 
   // read out amc13s into fedRawData
   for (const auto& amc13e : amc13s) {

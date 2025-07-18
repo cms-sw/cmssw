@@ -67,10 +67,10 @@ public:
   virtual double t0() const { return thet0; }
 
   /// equality operator based on position, direction, chi2 and nHits
-  virtual bool operator==(const DTSegmentCand& seg);
+  virtual bool operator==(const DTSegmentCand& seg) const;
 
   /// less operator based on nHits and chi2
-  virtual bool operator<(const DTSegmentCand& seg);
+  virtual bool operator<(const DTSegmentCand& seg) const;
 
   /// the super layer on which relies
   const DTSuperLayer* superLayer() const { return theSL; }

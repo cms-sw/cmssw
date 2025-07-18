@@ -149,8 +149,9 @@ calotowermaker = cms.EDProducer("CaloTowersCreator",
     HcalPhase = cms.int32(0),
 
 # Read HBHE thresholds from Global Tag
-    usePFThresholdsFromDB = cms.bool(False)
-    
+    usePFThresholdsFromDB = cms.bool(False),
+# Read ECAL thresholds from Global Tag
+    EcalRecHitThresh = cms.bool(False)
 )
 
 from Configuration.Eras.Modifier_run2_HE_2018_cff import run2_HE_2018

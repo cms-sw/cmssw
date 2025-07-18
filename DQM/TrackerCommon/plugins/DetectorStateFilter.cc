@@ -27,6 +27,7 @@ private:
   uint64_t nEvents_, nSelectedEvents_;
   bool detectorOn_;
   const std::string detectorType_;
+  const std::vector<std::string> combinations_;  // Vector of strings specifying accepted combinations
   const edm::EDGetTokenT<DcsStatusCollection> dcsStatusLabel_;
   const edm::EDGetTokenT<DCSRecord> dcsRecordToken_;
 
@@ -34,6 +35,8 @@ private:
   bool checkSubdet(const T& DCS, const int index);
   template <typename T>
   bool checkDCS(const T& DCS);
+  template <typename T>
+  bool checkDCSCombinations(const T& DCS, const std::vector<std::string>& combinations);
 
   bool checkDCSStatus(const DcsStatusCollection& dcsStatus);
   bool checkDCSRecord(const DCSRecord& dcsRecord);
@@ -44,7 +47,43 @@ private:
 //
 namespace DetStateFilter {
   enum parts { BPix = 0, FPix = 1, TIBTID = 2, TOB = 3, TECp = 4, TECm = 5, Invalid };
-}
+
+  // Map from string to enum
+  parts partNameToEnum(const std::string& partName) {
+    if (partName == "BPix")
+      return BPix;
+    if (partName == "FPix")
+      return FPix;
+    if (partName == "TIBTID")
+      return TIBTID;
+    if (partName == "TOB")
+      return TOB;
+    if (partName == "TECp")
+      return TECp;
+    if (partName == "TECm")
+      return TECm;
+    return Invalid;
+  }
+
+  // Single function to parse and split the vector of strings
+  std::vector<std::vector<std::string>> parseAndSplit(const std::vector<std::string>& input, char delimiter) {
+    std::vector<std::vector<std::string>> parsedResult;
+
+    for (const auto& str : input) {
+      std::vector<std::string> splitStrings;
+      std::stringstream ss(str);
+      std::string item;
+
+      while (std::getline(ss, item, delimiter)) {
+        splitStrings.push_back(item);
+      }
+
+      parsedResult.push_back(splitStrings);
+    }
+
+    return parsedResult;
+  }
+}  // namespace DetStateFilter
 
 //
 // -- Constructor
@@ -52,6 +91,7 @@ namespace DetStateFilter {
 DetectorStateFilter::DetectorStateFilter(const edm::ParameterSet& pset)
     : verbose_(pset.getUntrackedParameter<bool>("DebugOn", false)),
       detectorType_(pset.getUntrackedParameter<std::string>("DetectorType", "sistrip")),
+      combinations_(pset.getUntrackedParameter<std::vector<std::string>>("acceptedCombinations")),
       dcsStatusLabel_(consumes<DcsStatusCollection>(
           pset.getUntrackedParameter<edm::InputTag>("DcsStatusLabel", edm::InputTag("scalersRawToDigi")))),
       dcsRecordToken_(consumes<DCSRecord>(
@@ -136,6 +176,104 @@ DetectorStateFilter::checkDCS(const T& DCS)
   return accepted;
 }
 
+template <typename T>
+bool
+//*********************************************************************//
+DetectorStateFilter::checkDCSCombinations(const T& DCS, const std::vector<std::string>& combinations)
+//*********************************************************************//
+{
+  // check that the configuration is sound
+  if (detectorType_ != "pixel" && detectorType_ != "sistrip") {
+    throw cms::Exception("Wrong Configuration")
+        << "Stated DetectorType '" << detectorType_
+        << "' is neither 'pixel' or 'sistrip', please check your configuration!";
+  }
+
+  bool accepted = false;
+
+  // first get the combinations to check
+  std::vector<std::vector<std::string>> vec_to_check = DetStateFilter::parseAndSplit(combinations, '+');
+
+  if (verbose_) {
+    edm::LogInfo("DetectorStatusFilter") << "Debug Mode: Printing all possible combinations";
+    for (const auto& combination : vec_to_check) {
+      std::string combinationStr;
+      for (const auto& part : combination) {
+        if (!combinationStr.empty()) {
+          combinationStr += " + ";
+        }
+        combinationStr += part;
+      }
+      edm::LogInfo("DetectorStatusFilter") << "Combination: " << combinationStr;
+    }
+  }
+
+  // Initialize a vector<bool> to store the pass results
+  std::vector<bool> bitset(vec_to_check.size(), false);
+  for (size_t i = 0; i < vec_to_check.size(); ++i) {
+    const auto& subdetectors = vec_to_check[i];
+    std::vector<DetStateFilter::parts> partsToCheck;
+    partsToCheck.reserve(subdetectors.size());
+
+    // fill vector of parts to check
+    for (const auto& sub : subdetectors) {
+      DetStateFilter::parts partEnum = DetStateFilter::partNameToEnum(sub);
+      if (partEnum == DetStateFilter::Invalid) {
+        throw cms::Exception("InvalidSubdetector", "Subdetector name '" + sub + "' is invalid.");
+      }
+      partsToCheck.push_back(partEnum);
+    }
+
+    if (detectorType_ == "pixel") {
+      for (const auto& part : partsToCheck) {
+        if (part >= DetStateFilter::TIBTID) {
+          throw cms::Exception("InvalidSubdetector", "Detector type 'pixel' cannot have partitions TIBTID or larger");
+        }
+      }
+    } else if (detectorType_ == "sistrip") {
+      for (const auto& part : partsToCheck) {
+        if (part < DetStateFilter::TIBTID) {
+          throw cms::Exception("InvalidSubdetector",
+                               "Detector type 'strip' cannot have partitions smaller than TIBTID");
+        }
+      }
+    }
+
+    // Use std::all_of to compute the logical AND of checkSubdet(DCS, part)
+    bool passes = std::all_of(partsToCheck.begin(), partsToCheck.end(), [this, &DCS](DetStateFilter::parts part) {
+      return checkSubdet(DCS, part);
+    });
+
+    // Set the corresponding bit in bitset
+    bitset[i] = passes;
+  }
+
+  // Set the value of accepted to the OR of all the bits in the bitset
+  accepted = std::any_of(bitset.begin(), bitset.end(), [](bool bit) { return bit; });
+
+  if (accepted)
+    nSelectedEvents_++;
+
+  if (detectorType_ == "pixel") {
+    if (verbose_) {
+      edm::LogInfo("DetectorStatusFilter")
+          << " Total Events " << nEvents_ << " Selected Events " << nSelectedEvents_ << " DCS States : "
+          << " BPix " << checkSubdet(DCS, DetStateFilter::BPix) << " FPix " << checkSubdet(DCS, DetStateFilter::FPix)
+          << " Detector State " << accepted << std::endl;
+    }
+  } else if (detectorType_ == "sistrip") {
+    if (verbose_) {
+      edm::LogInfo("DetectorStatusFilter")
+          << " Total Events " << nEvents_ << " Selected Events " << nSelectedEvents_ << " DCS States : "
+          << " TEC- " << checkSubdet(DCS, DetStateFilter::TECm) << " TEC+ " << checkSubdet(DCS, DetStateFilter::TECp)
+          << " TIB/TID " << checkSubdet(DCS, DetStateFilter::TIBTID) << " TOB " << checkSubdet(DCS, DetStateFilter::TOB)
+          << " Detector States " << accepted << std::endl;
+    }
+  }
+
+  return accepted;
+}
+
 //*********************************************************************//
 bool DetectorStateFilter::filter(edm::Event& evt, edm::EventSetup const& es)
 //*********************************************************************//
@@ -150,10 +288,18 @@ bool DetectorStateFilter::filter(edm::Event& evt, edm::EventSetup const& es)
 
     if (dcsStatus.isValid() && !dcsStatus->empty()) {
       // if the old style DCS status is valid (Run1 + Run2)
-      detectorOn_ = checkDCS(*dcsStatus);
+      if (combinations_.empty()) {
+        detectorOn_ = checkDCS(*dcsStatus);
+      } else {
+        detectorOn_ = checkDCSCombinations(*dcsStatus, combinations_);
+      }
     } else if (dcsRecord.isValid()) {
       // in case of real data check for DCSRecord content (Run >=3)
-      detectorOn_ = checkDCS(*dcsRecord);
+      if (combinations_.empty()) {
+        detectorOn_ = checkDCS(*dcsRecord);
+      } else {
+        detectorOn_ = checkDCSCombinations(*dcsRecord, combinations_);
+      }
     } else {
       edm::LogError("DetectorStatusFilter")
           << "Error! can't get the products, neither DCSRecord, nor scalersRawToDigi: accept in any case!";
@@ -176,6 +322,7 @@ void DetectorStateFilter::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.setComment("filters on the HV status of the Tracker (either pixels or strips)");
   desc.addUntracked<bool>("DebugOn", false)->setComment("activates debugging");
   desc.addUntracked<std::string>("DetectorType", "sistrip")->setComment("either strips or pixels");
+  desc.addUntracked<std::vector<std::string>>("acceptedCombinations", {});
   desc.addUntracked<edm::InputTag>("DcsStatusLabel", edm::InputTag("scalersRawToDigi"))
       ->setComment("event data for DCS (Run2)");
   desc.addUntracked<edm::InputTag>("DCSRecordLabel", edm::InputTag("onlineMetaDataDigis"))

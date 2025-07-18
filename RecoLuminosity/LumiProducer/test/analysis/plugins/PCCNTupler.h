@@ -39,7 +39,6 @@ class TObject;
 class TTree;
 class TH1D;
 class TFile;
-class RectangularPixelTopology;
 class DetId;
 
 class PCCNTupler : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchLuminosityBlocks> {

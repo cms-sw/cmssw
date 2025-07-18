@@ -10,7 +10,7 @@ hltRechitInRegionsHGCAL = cms.EDProducer("HLTHGCalRecHitsInRegionsProducer",
         minEt = cms.double(5.0),
         type = cms.string('L1P2GTCandidate')
     )),
-    inputCollTags = cms.VInputTag("HGCalRecHitL1Seeded:HGCEERecHits", "HGCalRecHitL1Seeded:HGCHEBRecHits", "HGCalRecHitL1Seeded:HGCHEFRecHits"),
+    inputCollTags = cms.VInputTag("hltHGCalRecHitL1Seeded:HGCEERecHits", "hltHGCalRecHitL1Seeded:HGCHEBRecHits", "hltHGCalRecHitL1Seeded:HGCHEFRecHits"),
     outputProductNames = cms.vstring(
         'HGCEERecHits',
         'HGCHEBRecHits',

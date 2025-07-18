@@ -24,9 +24,9 @@ public:
                              const OmtfAngleConverter* angleConverter,
                              edm::EDGetTokenT<L1MuDTChambPhContainer> inputTokenDtPh,
                              edm::EDGetTokenT<L1MuDTChambThContainer> inputTokenDtTh)
-      : DtDigiToStubsConverter(inputTokenDtPh, inputTokenDtTh), config(config), angleConverter(angleConverter){};
+      : DtDigiToStubsConverter(inputTokenDtPh, inputTokenDtTh), config(config), angleConverter(angleConverter) {}
 
-  ~DtDigiToStubsConverterOmtf() override{};
+  ~DtDigiToStubsConverterOmtf() override {}
 
   //dtThDigis is provided as argument, because in the OMTF implementation the phi and eta digis are merged (even thought it is artificial)
   void addDTphiDigi(MuonStubPtrs2D& muonStubsInLayers,
@@ -52,9 +52,9 @@ public:
   CscDigiToStubsConverterOmtf(const OMTFConfiguration* config,
                               const OmtfAngleConverter* angleConverter,
                               edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> inputTokenCsc)
-      : CscDigiToStubsConverter(config, inputTokenCsc), config(config), angleConverter(angleConverter){};
+      : CscDigiToStubsConverter(config, inputTokenCsc), config(config), angleConverter(angleConverter) {}
 
-  ~CscDigiToStubsConverterOmtf() override{};
+  ~CscDigiToStubsConverterOmtf() override {}
 
   //can add both phi and eta stubs
   void addCSCstubs(MuonStubPtrs2D& muonStubsInLayers,
@@ -78,9 +78,9 @@ public:
                               edm::EDGetTokenT<RPCDigiCollection> inputTokenRpc)
       : RpcDigiToStubsConverter(config, inputTokenRpc, rpcClusterization),
         config(config),
-        angleConverter(angleConverter){};
+        angleConverter(angleConverter) {}
 
-  ~RpcDigiToStubsConverterOmtf() override{};
+  ~RpcDigiToStubsConverterOmtf() override {}
 
   void addRPCstub(MuonStubPtrs2D& muonStubsInLayers,
                   const RPCDetId& roll,

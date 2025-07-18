@@ -88,7 +88,7 @@ namespace spr {
   };
 
   struct trackAtOrigin {
-    trackAtOrigin() { ok = false; }
+    trackAtOrigin() : ok(false), charge(0), position(), momentum() {};
     bool ok;
     int charge;
     GlobalPoint position;

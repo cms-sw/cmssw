@@ -109,7 +109,8 @@ namespace edm {
     Ptr() : core_(), key_(key_traits<key_type>::value) {}
 
     template <typename U>
-    Ptr(Ptr<U> const& iOther, std::enable_if_t<std::is_base_of<T, U>::value>* = nullptr)
+      requires std::is_base_of_v<T, U>
+    Ptr(Ptr<U> const& iOther)
         : core_(iOther.id(),
                 (iOther.hasProductCache() ? static_cast<T const*>(iOther.get()) : static_cast<T const*>(nullptr)),
                 iOther.productGetter(),
@@ -123,7 +124,8 @@ namespace edm {
     }
 
     template <typename U>
-    explicit Ptr(Ptr<U> const& iOther, std::enable_if_t<std::is_base_of<U, T>::value>* = nullptr)
+      requires std::is_base_of_v<U, T>
+    explicit Ptr(Ptr<U> const& iOther)
         : core_(iOther.id(), dynamic_cast<T const*>(iOther.get()), nullptr, iOther.isTransient()), key_(iOther.key()) {}
 
     /// Destructor

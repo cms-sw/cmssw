@@ -50,7 +50,7 @@
 class EcalUncalibRecHitWorkerMultiFit final : public EcalUncalibRecHitWorkerBaseClass {
 public:
   EcalUncalibRecHitWorkerMultiFit(const edm::ParameterSet&, edm::ConsumesCollector& c);
-  EcalUncalibRecHitWorkerMultiFit(){};
+  EcalUncalibRecHitWorkerMultiFit() {}
 
 private:
   void set(const edm::EventSetup& es) override;
@@ -169,6 +169,8 @@ private:
   double CCTimeShiftWrtRations_;
   double CCtargetTimePrecision_;
   double CCtargetTimePrecisionForDelayedPulses_;
+  bool crossCorrelationUseSlewCorrectionEB_;
+  bool crossCorrelationUseSlewCorrectionEE_;
 };
 
 EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::ParameterSet& ps, edm::ConsumesCollector& c)
@@ -238,11 +240,13 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
     CCminTimeToBeLateMin_ = ps.getParameter<double>("crossCorrelationMinTimeToBeLateMin") / ecalcctiming::clockToNS;
     CCminTimeToBeLateMax_ = ps.getParameter<double>("crossCorrelationMinTimeToBeLateMax") / ecalcctiming::clockToNS;
     CCTimeShiftWrtRations_ = ps.getParameter<double>("crossCorrelationTimeShiftWrtRations");
+    crossCorrelationUseSlewCorrectionEB_ = ps.getParameter<bool>("crossCorrelationUseSlewCorrectionEB");
+    crossCorrelationUseSlewCorrectionEE_ = ps.getParameter<bool>("crossCorrelationUseSlewCorrectionEE");
     computeCC_ = std::make_unique<EcalUncalibRecHitTimingCCAlgo>(startTime, stopTime);
   } else if (timeAlgoName != "None")
     edm::LogError("EcalUncalibRecHitError") << "No time estimation algorithm defined";
 
-  // ratio method parameters
+  // time reco parameters
   EBtimeFitParameters_ = ps.getParameter<std::vector<double>>("EBtimeFitParameters");
   EEtimeFitParameters_ = ps.getParameter<std::vector<double>>("EEtimeFitParameters");
   EBamplitudeFitParameters_ = ps.getParameter<std::vector<double>>("EBamplitudeFitParameters");
@@ -640,13 +644,21 @@ void EcalUncalibRecHitWorkerMultiFit::run(const edm::Event& evt,
         for (unsigned int ibx = 0; ibx < activeBX.size(); ++ibx)
           amplitudes[ibx] = uncalibRecHit.outOfTimeAmplitude(ibx);
 
-        float jitter =
-            computeCC_->computeTimeCC(*itdg, amplitudes, aped, aGain, fullpulse, CCtargetTimePrecision_, true) +
-            CCTimeShiftWrtRations_ / ecalcctiming::clockToNS;
-        float noCorrectedJitter =
-            computeCC_->computeTimeCC(
-                *itdg, amplitudes, aped, aGain, fullpulse, CCtargetTimePrecisionForDelayedPulses_, false) +
-            CCTimeShiftWrtRations_ / ecalcctiming::clockToNS;
+        bool const doSlewCorrection =
+            barrel ? crossCorrelationUseSlewCorrectionEB_ : crossCorrelationUseSlewCorrectionEE_;
+
+        float jitter = computeCC_->computeTimeCC(
+                           *itdg, amplitudes, aped, aGain, fullpulse, CCtargetTimePrecision_, true, doSlewCorrection) +
+                       CCTimeShiftWrtRations_ / ecalcctiming::clockToNS;
+        float noCorrectedJitter = computeCC_->computeTimeCC(*itdg,
+                                                            amplitudes,
+                                                            aped,
+                                                            aGain,
+                                                            fullpulse,
+                                                            CCtargetTimePrecisionForDelayedPulses_,
+                                                            false,
+                                                            doSlewCorrection) +
+                                  CCTimeShiftWrtRations_ / ecalcctiming::clockToNS;
 
         uncalibRecHit.setJitter(jitter);
         uncalibRecHit.setNonCorrectedTime(jitter, noCorrectedJitter);
@@ -783,6 +795,8 @@ edm::ParameterSetDescription EcalUncalibRecHitWorkerMultiFit::getAlgoDescription
               edm::ParameterDescription<double>("outOfTimeThresholdGain61mEE", 1000, true) and
               edm::ParameterDescription<double>("amplitudeThresholdEB", 10, true) and
               edm::ParameterDescription<double>("amplitudeThresholdEE", 10, true) and
+              edm::ParameterDescription<bool>("crossCorrelationUseSlewCorrectionEB", true, true) and
+              edm::ParameterDescription<bool>("crossCorrelationUseSlewCorrectionEE", false, true) and
               edm::ParameterDescription<double>("crossCorrelationStartTime", -25.0, true) and
               edm::ParameterDescription<double>("crossCorrelationStopTime", 25.0, true) and
               edm::ParameterDescription<double>("crossCorrelationTargetTimePrecision", 0.01, true) and

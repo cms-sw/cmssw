@@ -25,9 +25,9 @@ public:
   /// default destructor
   ~AnalysisTasksAnalyzerBTag() override;
   /// everything that needs to be done before the event loop
-  void beginJob() override{};
+  void beginJob() override {}
   /// everything that needs to be done after the event loop
-  void endJob() override{};
+  void endJob() override {}
   /// everything that needs to be done during the event loop
   void analyze(const edm::EventBase& event) override;
 

@@ -40,7 +40,7 @@ private:
   }
 
 public:
-  EcalTrigPrimCompactColl() : formatVers_(0), data_(nBins){};
+  EcalTrigPrimCompactColl() : formatVers_(0), data_(nBins) {}
 
   ///Set data
   void setValue(int ieta, int iphi, uint16_t sample) { data_[index(ieta, iphi)] = sample; }

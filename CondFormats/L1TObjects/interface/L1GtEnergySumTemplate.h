@@ -63,9 +63,7 @@ public:
     unsigned long long phiRange1Word;
 
     // make sure all objects (esp. the bool) are properly initialised to avoid problems with serialisation:
-    ObjectParameter() : etThreshold(0), energyOverflow(false), phiRange0Word(0), phiRange1Word(0) { /*nop*/
-      ;
-    };
+    ObjectParameter() : etThreshold(0), energyOverflow(false), phiRange0Word(0), phiRange1Word(0) { /*nop*/ ; }
 
     COND_SERIALIZABLE;
   };

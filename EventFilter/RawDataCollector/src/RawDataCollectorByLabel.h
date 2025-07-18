@@ -17,9 +17,11 @@ public:
   RawDataCollectorByLabel(const edm::ParameterSet& pset);
 
   ///Destructor
-  ~RawDataCollectorByLabel() override;
+  ~RawDataCollectorByLabel() override = default;
 
   void produce(edm::Event& e, const edm::EventSetup& c) override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   typedef std::vector<edm::InputTag>::const_iterator tag_iterator_t;

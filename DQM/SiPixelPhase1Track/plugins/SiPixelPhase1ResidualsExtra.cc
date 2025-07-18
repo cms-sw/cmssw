@@ -7,55 +7,87 @@
 
  Description: Create the Phsae 1 pixel DRnR plots
 
- Implementation:
-     <Notes on implementation>
+ Implementation: Introduce some computation over the PixelPhase1 residuals distributions
 */
 //
 // Original Author:  Alessandro Rossi
 //         Created:  25th May 2021
 //
 //
-#include "DQM/SiPixelPhase1Track/interface/SiPixelPhase1ResidualsExtra.h"
-// Framework
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-// DQM Framework
-#include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-// Geometry
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-// DataFormats
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
-#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
-//
+
+// system includes
 #include <string>
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <sstream>
 
+// user includes
+#include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
 using namespace std;
 using namespace edm;
 
+class SiPixelPhase1ResidualsExtra : public DQMEDHarvester {
+public:
+  explicit SiPixelPhase1ResidualsExtra(const edm::ParameterSet& conf);
+  ~SiPixelPhase1ResidualsExtra() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+protected:
+  // BeginRun
+  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
+
+  // EndJob
+  void dqmEndJob(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter) override;
+
+private:
+  const std::string topFolderName_;
+  const std::string inputFolderName_;
+  const int minHits_;
+
+  std::map<std::string, MonitorElement*> residuals_;
+  std::map<std::string, MonitorElement*> DRnR_;
+
+  //Book Monitoring Elements
+  void bookMEs(DQMStore::IBooker& iBooker);
+
+  //Fill Monitoring Elements
+  void fillMEs(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter);
+};
+
 SiPixelPhase1ResidualsExtra::SiPixelPhase1ResidualsExtra(const edm::ParameterSet& iConfig)
-    : DQMEDHarvester(iConfig), conf_(iConfig) {
+    : DQMEDHarvester(iConfig),
+      topFolderName_(iConfig.getParameter<std::string>("TopFolderName")),
+      inputFolderName_(iConfig.getParameter<std::string>("InputFolderName")),
+      minHits_(iConfig.getParameter<int>("MinHits")) {
   LogInfo("PixelDQM") << "SiPixelPhase1ResidualsExtra::SiPixelPhase1ResidualsExtra: Got DQM BackEnd interface" << endl;
-  topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
-  minHits_ = conf_.getParameter<int>("MinHits");
 }
 
 SiPixelPhase1ResidualsExtra::~SiPixelPhase1ResidualsExtra() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
   LogInfo("PixelDQM") << "SiPixelPhase1ResidualsExtra::~SiPixelPhase1ResidualsExtra: Destructor" << endl;
 }
 
@@ -292,13 +324,13 @@ void SiPixelPhase1ResidualsExtra::fillMEs(DQMStore::IBooker& iBooker, DQMStore::
 
   for (std::string layer : {"1", "2", "3", "4"}) {
     MonitorElement* me_x =
-        iGetter.get("PixelPhase1/Tracks/PXBarrel/residual_x_per_SignedModule_per_SignedLadder_PXLayer_" + layer);
+        iGetter.get(inputFolderName_ + "/PXBarrel/residual_x_per_SignedModule_per_SignedLadder_PXLayer_" + layer);
     MonitorElement* me_y =
-        iGetter.get("PixelPhase1/Tracks/PXBarrel/residual_y_per_SignedModule_per_SignedLadder_PXLayer_" + layer);
+        iGetter.get(inputFolderName_ + "/PXBarrel/residual_y_per_SignedModule_per_SignedLadder_PXLayer_" + layer);
     MonitorElement* me2_x = iGetter.get(
-        "PixelPhase1/Tracks/ResidualsExtra/PXBarrel/DRnR_x_per_SignedModule_per_SignedLadder_PXLayer_" + layer);
+        inputFolderName_ + "/ResidualsExtra/PXBarrel/DRnR_x_per_SignedModule_per_SignedLadder_PXLayer_" + layer);
     MonitorElement* me2_y = iGetter.get(
-        "PixelPhase1/Tracks/ResidualsExtra/PXBarrel/DRnR_y_per_SignedModule_per_SignedLadder_PXLayer_" + layer);
+        inputFolderName_ + "/ResidualsExtra/PXBarrel/DRnR_y_per_SignedModule_per_SignedLadder_PXLayer_" + layer);
 
     if (me_x == nullptr || me_y == nullptr || me2_x == nullptr || me2_y == nullptr) {
       edm::LogWarning("SiPixelPhase1ResidualsExtra")
@@ -388,13 +420,13 @@ void SiPixelPhase1ResidualsExtra::fillMEs(DQMStore::IBooker& iBooker, DQMStore::
   //PXForward separating outer and inner modules as well as positive and negative side
   for (std::string ring : {"1", "2"}) {
     MonitorElement* me_x =
-        iGetter.get("PixelPhase1/Tracks/PXForward/residual_x_per_PXDisk_per_SignedBladePanel_PXRing_" + ring);
+        iGetter.get(inputFolderName_ + "/PXForward/residual_x_per_PXDisk_per_SignedBladePanel_PXRing_" + ring);
     MonitorElement* me_y =
-        iGetter.get("PixelPhase1/Tracks/PXForward/residual_y_per_PXDisk_per_SignedBladePanel_PXRing_" + ring);
+        iGetter.get(inputFolderName_ + "/PXForward/residual_y_per_PXDisk_per_SignedBladePanel_PXRing_" + ring);
     MonitorElement* me2_x = iGetter.get(
-        "PixelPhase1/Tracks/ResidualsExtra/PXForward/DRnR_x_per_PXDisk_per_SignedBladePanel_PXRing_" + ring);
+        inputFolderName_ + "/ResidualsExtra/PXForward/DRnR_x_per_PXDisk_per_SignedBladePanel_PXRing_" + ring);
     MonitorElement* me2_y = iGetter.get(
-        "PixelPhase1/Tracks/ResidualsExtra/PXForward/DRnR_y_per_PXDisk_per_SignedBladePanel_PXRing_" + ring);
+        inputFolderName_ + "/ResidualsExtra/PXForward/DRnR_y_per_PXDisk_per_SignedBladePanel_PXRing_" + ring);
 
     if (me_x == nullptr || me_y == nullptr || me2_x == nullptr || me2_y == nullptr) {
       edm::LogWarning("SiPixelPhase1ResidualsExtra")
@@ -470,6 +502,15 @@ void SiPixelPhase1ResidualsExtra::fillMEs(DQMStore::IBooker& iBooker, DQMStore::
       }
     }
   }
+}
+
+void SiPixelPhase1ResidualsExtra::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("TopFolderName", "PixelPhase1/Tracks/ResidualsExtra")
+      ->setComment("Folder in which to write output histograms");
+  desc.add<std::string>("InputFolderName", "")->setComment("Folder from which to fetch in the input MEs");
+  desc.add<int>("MinHits", 30)->setComment("minimum number of hits per module to fill the DRnR plots");
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

@@ -144,15 +144,15 @@ std::unique_ptr<SiPixelQuality> SiPixelBadModuleByHandBuilder::getNewObject() {
       if (it.second == 65535) {  // "whole"
         BadModule.errorType = 0;
         BadModule.BadRocs = 65535;
-      }                             //corresponds to all rocs being bad
+      }  //corresponds to all rocs being bad
       else if (it.second == 255) {  // "tbmA"
         BadModule.errorType = 1;
         BadModule.BadRocs = 255;
-      }                               //corresponds to Rocs 0-7 being bad
+      }  //corresponds to Rocs 0-7 being bad
       else if (it.second == 65280) {  // "tbmB"
         BadModule.errorType = 2;
         BadModule.BadRocs = 65280;
-      }       //corresponds to Rocs 8-15 being bad
+      }  //corresponds to Rocs 8-15 being bad
       else {  // "none"
         BadModule.errorType = 3;
         BadModule.BadRocs = it.second;

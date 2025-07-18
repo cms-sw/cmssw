@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-
-TransientTrackBuilderESProducer = cms.ESProducer("TransientTrackBuilderESProducer",
-    ComponentName = cms.string('TransientTrackBuilder')
-)
+from TrackingTools.TransientTrack.transientTrackBuilderESProducer_cfi import transientTrackBuilderESProducer as _transientTrackBuilderESProducer
+TransientTrackBuilderESProducer = _transientTrackBuilderESProducer.clone()
 
 

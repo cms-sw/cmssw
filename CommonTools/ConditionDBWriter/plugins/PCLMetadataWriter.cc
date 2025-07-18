@@ -29,8 +29,8 @@ public:
   ~PCLMetadataWriter() override = default;
 
   // Operations
-  void analyze(const edm::Event &, const edm::EventSetup &) override{};
-  void beginRun(const edm::Run &, const edm::EventSetup &) override{};
+  void analyze(const edm::Event &, const edm::EventSetup &) override {}
+  void beginRun(const edm::Run &, const edm::EventSetup &) override {}
   void endRun(const edm::Run &, const edm::EventSetup &) override;
 
 protected:

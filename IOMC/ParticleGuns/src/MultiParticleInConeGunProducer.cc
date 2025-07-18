@@ -9,10 +9,10 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "CLHEP/Random/RandFlat.h"
 
@@ -165,7 +165,7 @@ void MultiParticleInConeGunProducer::produce(Event& e, const EventSetup& es) {
         Vtx->add_particle_out(PartIc);
         break;
       }  //try many times while not in acceptance
-    }    //loop over the particle Ids in the cone
+    }  //loop over the particle Ids in the cone
   }
 
   fEvt->add_vertex(Vtx);

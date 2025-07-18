@@ -64,7 +64,7 @@ namespace TopDiLeptonOffline {
     /// MonitorEnsemble(const char* label, const edm::ParameterSet& cfg);
     MonitorEnsemble(const char* label, const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC);
     /// default destructor
-    ~MonitorEnsemble(){};
+    ~MonitorEnsemble() {}
 
     /// book histograms in subdirectory _directory_
     void book(DQMStore::IBooker& ibooker);

@@ -667,7 +667,7 @@ TH1* CommissioningHistograms::histogram(const sistrip::Monitorable& mon,
   // Construct histogram name
   std::string name = SummaryGenerator::name(task_, mon, pres, view, directory);
 
-  MonitorElement* me = bei_->get(bei_->pwd() + "/" + name);
+  MonitorElement* me = nullptr;
 
   // Create summary plot
   float high = static_cast<float>(xbins);

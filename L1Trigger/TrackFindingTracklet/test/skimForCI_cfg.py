@@ -39,8 +39,8 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 
 # D88 geometry (T24 tracker)
-process.load('Configuration.Geometry.GeometryExtended2026D98Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D98_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D98Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D98_cff')
 
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 

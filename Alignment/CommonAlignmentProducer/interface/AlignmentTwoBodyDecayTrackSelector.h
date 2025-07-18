@@ -5,6 +5,7 @@
 //Framework
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 //STL
 #include <vector>
@@ -31,6 +32,8 @@ public:
   Tracks select(const Tracks& tracks, const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
   bool useThisFilter();
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
 private:
   ///checks if the mass of the mother is in the mass region

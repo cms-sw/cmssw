@@ -4,7 +4,13 @@
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 
-process = cms.Process("MaterialAnalyser")
+###################################################################
+# Set default phase-2 settings
+###################################################################
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
+
+process = cms.Process("MaterialAnalyser",_PH2_ERA)
 
 options = VarParsing('analysis')
 
@@ -20,9 +26,9 @@ options.parseArguments()
 if options.fromDB :
    process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
    from Configuration.AlCa.GlobalTag import GlobalTag
-   process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '')
+   process.GlobalTag = GlobalTag(process.GlobalTag, _PH2_GLOBAL_TAG, '')
 else:
-   process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
+   process.load('Configuration.Geometry.GeometryExtendedRun4DefaultReco_cff')
    process.trackerGeometry.applyAlignment = False # needed to avoid to pass the Global Position Record
 
 process.load('FWCore.MessageService.MessageLogger_cfi')

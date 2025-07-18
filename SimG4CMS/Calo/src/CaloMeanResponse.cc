@@ -13,7 +13,7 @@ using CLHEP::GeV;
 CaloMeanResponse::CaloMeanResponse(edm::ParameterSet const& p) {
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("CaloResponse");
   edm::FileInPath fp = m_p.getParameter<edm::FileInPath>("ResponseFile");
-  std::string fName = fp.fullPath();
+  const std::string& fName = fp.fullPath();
   useTable = m_p.getParameter<bool>("UseResponseTable");
   scale = m_p.getParameter<double>("ResponseScale");
   edm::LogVerbatim("CaloSim") << "CaloMeanResponse initialized with scale " << scale << " and use Table " << useTable

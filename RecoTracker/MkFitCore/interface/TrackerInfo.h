@@ -28,16 +28,43 @@ namespace mkfit {
 
   //==============================================================================
 
+  struct ModuleShape {
+    float dx1;  // half-extent along x (bottom edge for trap)
+    float dx2;  // 0 for rect; half-extent along x, top edge for trap
+    float dy;   // half extent along y / less precise direction
+    float dz;   // half thickness in z
+
+    // round to 1 mum precision
+    float rmu(float x) { return std::round(1e4f * x) * 1e-4f; }
+    void round_assign(float x1, float x2, float y, float z) {
+      dx1 = rmu(x1);
+      dx2 = rmu(x2);
+      dy = rmu(y);
+      dz = rmu(z);
+    }
+
+    bool is_rect() const { return dx2 == 0.f; }
+    bool is_trap() const { return dx2 != 0.f; }
+
+    bool operator==(const ModuleShape& s) const { return dx1 == s.dx1 && dx2 == s.dx2 && dy == s.dy && dz == s.dz; }
+  };
+
   struct ModuleInfo {
     SVector3 pos;
-    SVector3 zdir;
-    SVector3 xdir;
-    float half_length;
+    SVector3 zdir;  // normal to module plane
+    SVector3 xdir;  // the precise / "phi" direction
     unsigned int detid;
+    unsigned short shapeid;
 
     ModuleInfo() = default;
-    ModuleInfo(SVector3 p, SVector3 zd, SVector3 xd, float hl, unsigned int id)
-        : pos(p), zdir(zd), xdir(xd), half_length(hl), detid(id) {}
+    ModuleInfo(SVector3 p, SVector3 zd, SVector3 xd, unsigned int did, unsigned short sid)
+        : pos(p), zdir(zd), xdir(xd), detid(did), shapeid(sid) {}
+
+    SVector3 calc_ydir() const {
+      return {zdir[1] * xdir[2] - zdir[2] * xdir[1],
+              zdir[2] * xdir[0] - zdir[0] * xdir[2],
+              zdir[0] * zdir[1] - zdir[1] * xdir[0]};
+    }
   };
 
   //==============================================================================
@@ -124,9 +151,14 @@ namespace mkfit {
       return m_modules.size() - 1;
     }
 
+    void resize_shapes(int ns) { m_shapes.resize(ns); }
+    void register_shape(const ModuleShape& ms, unsigned short sid) { m_shapes[sid] = ms; }
+
     unsigned int short_id(unsigned int detid) const { return m_detid2sid.at(detid); }
     int n_modules() const { return m_modules.size(); }
+    int n_shapes() const { return m_shapes.size(); }
     const ModuleInfo& module_info(unsigned int sid) const { return m_modules[sid]; }
+    const ModuleShape& module_shape(unsigned short msid) const { return m_shapes[msid]; }
 
   private:
     bool is_in_r_hole_no_check(float r) const { return r > m_hole_r_min && r < m_hole_r_max; }
@@ -144,9 +176,12 @@ namespace mkfit {
     bool m_is_stereo = false;
     bool m_is_pixel = false;
     bool m_has_charge = true;
+    // NOTE: offset of the last element is used in write/read_bin file.
+    bool m_final_member_for_streaming = false;
 
     std::unordered_map<unsigned int, unsigned int> m_detid2sid;
     std::vector<ModuleInfo> m_modules;
+    std::vector<ModuleShape> m_shapes;
   };
 
   //==============================================================================
@@ -221,7 +256,7 @@ namespace mkfit {
 
     void write_bin_file(const std::string& fname) const;
     void read_bin_file(const std::string& fname);
-    void print_tracker(int level) const;
+    void print_tracker(int level, int precision = 3) const;
 
     void create_material(int nBinZ, float rngZ, int nBinR, float rngR);
     int mat_nbins_z() const { return m_mat_vec.n1(); }

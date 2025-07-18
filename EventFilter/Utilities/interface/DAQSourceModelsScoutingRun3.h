@@ -20,7 +20,7 @@
 class DataModeScoutingRun3 : public DataMode {
 public:
   DataModeScoutingRun3(DAQSource* daqSource) : DataMode(daqSource) {}
-  ~DataModeScoutingRun3() override{};
+  ~DataModeScoutingRun3() override {}
   std::vector<std::shared_ptr<const edm::DaqProvenanceHelper>>& makeDaqProvenanceHelpers() override;
   void readEvent(edm::EventPrincipal& eventPrincipal) override;
 
@@ -31,19 +31,17 @@ public:
   void detectVersion(unsigned char* fileBuf, uint32_t fileHeaderOffset) override {
     detectedFRDversion_ = *((uint16_t*)(fileBuf + fileHeaderOffset));
   }
-  uint32_t headerSize() const override { return FRDHeaderVersionSize[detectedFRDversion_]; }
-  bool versionCheck() const override { return detectedFRDversion_ <= FRDHeaderMaxVersion; }
+  uint32_t headerSize() const override { return edm::streamer::FRDHeaderVersionSize[detectedFRDversion_]; }
+  bool versionCheck() const override { return detectedFRDversion_ <= edm::streamer::FRDHeaderMaxVersion; }
 
   uint64_t dataBlockSize() const override {
     // get event size from the first data source (main)
     return events_[0]->size();
   }
 
-  void makeDataBlockView(unsigned char* addr,
-                         size_t maxSize,
-                         std::vector<uint64_t> const& fileSizes,
-                         size_t fileHeaderSize) override {
-    fileHeaderSize_ = fileHeaderSize;
+  void makeDataBlockView(unsigned char* addr, RawInputFile* rawFile) override {
+    std::vector<uint64_t> const& fileSizes = rawFile->fileSizes_;
+    fileHeaderSize_ = rawFile->rawHeaderSize_;
     numFiles_ = fileSizes.size();
 
     // initalize vectors keeping tracks of valid orbits and completed blocks
@@ -57,15 +55,15 @@ public:
     dataBlockAddrs_.clear();
     dataBlockAddrs_.push_back(addr);
     dataBlockMaxAddrs_.clear();
-    dataBlockMaxAddrs_.push_back(addr + fileSizes[0] - fileHeaderSize);
+    dataBlockMaxAddrs_.push_back(addr + fileSizes[0] - fileHeaderSize_);
     auto fileAddr = addr;
     for (unsigned int i = 1; i < fileSizes.size(); i++) {
       fileAddr += fileSizes[i - 1];
       dataBlockAddrs_.push_back(fileAddr);
-      dataBlockMaxAddrs_.push_back(fileAddr + fileSizes[i] - fileHeaderSize);
+      dataBlockMaxAddrs_.push_back(fileAddr + fileSizes[i] - fileHeaderSize_);
     }
 
-    dataBlockMax_ = maxSize;
+    dataBlockMax_ = rawFile->currentChunkSize();
     blockCompleted_ = false;
     //set event cached as we set initial address here
     bool result = makeEvents();
@@ -74,14 +72,10 @@ public:
     setDataBlockInitialized(true);
   }
 
-  bool nextEventView() override;
+  bool nextEventView(RawInputFile*) override;
+  bool blockChecksumValid() override { return true; }
   bool checksumValid() override;
   std::string getChecksumError() const override;
-
-  bool isRealData() const override {
-    assert(!events_.empty());
-    return events_[0]->isRealData();
-  }
 
   uint32_t run() const override {
     assert(!events_.empty());
@@ -93,6 +87,7 @@ public:
   bool requireHeader() const override { return true; }
 
   bool fitToBuffer() const override { return true; }
+  void unpackFile(RawInputFile* file) override {}
 
   bool dataBlockInitialized() const override { return dataBlockInitialized_; }
 
@@ -102,6 +97,8 @@ public:
 
   void makeDirectoryEntries(std::vector<std::string> const& baseDirs,
                             std::vector<int> const& numSources,
+                            std::vector<int> const& sourceIDs,
+                            std::string const& sourceIdentifier,
                             std::string const& runDir) override;
 
   std::pair<bool, std::vector<std::string>> defineAdditionalFiles(std::string const& primaryName,
@@ -113,7 +110,7 @@ private:
   uint16_t detectedFRDversion_ = 0;
   size_t fileHeaderSize_ = 0;
   size_t headerSize_ = 0;
-  std::vector<std::unique_ptr<FRDEventMsgView>> events_;
+  std::vector<std::unique_ptr<edm::streamer::FRDEventMsgView>> events_;
   unsigned char* dataBlockAddr_ = nullptr;
   std::vector<unsigned char*> dataBlockAddrs_;
   std::vector<unsigned char*> dataBlockMaxAddrs_;

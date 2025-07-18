@@ -113,6 +113,7 @@ const int GlobalCondition::nrObjects() const {
     case l1t::TypeHTT:
     case l1t::TypeHTM:
     case l1t::TypeETMHF:
+    case l1t::TypeHTMHF:
     case l1t::TypeTowerCount:
     case l1t::TypeMinBiasHFP0:
     case l1t::TypeMinBiasHFM0:
@@ -324,6 +325,12 @@ void GlobalCondition::print(std::ostream& myCout) const {
     }
 
     break;
+    case l1t::TypeHTMHF: {
+      myCout << "  Condition type:     "
+             << "TypeHTMHF" << std::endl;
+    }
+
+    break;
     case l1t::TypeTowerCount: {
       myCout << "  Condition type:     "
              << "TypeTowerCount" << std::endl;
@@ -498,6 +505,11 @@ void GlobalCondition::print(std::ostream& myCout) const {
 
       case l1t::gtETMHF: {
         myCout << " ETMHF ";
+      }
+
+      break;
+      case l1t::gtHTMHF: {
+        myCout << " HTMHF ";
       }
 
       break;

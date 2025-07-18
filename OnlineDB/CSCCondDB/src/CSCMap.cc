@@ -1,5 +1,6 @@
 #include "OnlineDB/CSCCondDB/interface/CSCMap.h"
 #include <cstdlib>
+#include <cassert>
 
 /**
    * Constructor for cscmap
@@ -10,6 +11,8 @@ cscmap::cscmap() noexcept(false) {
   env = oracle::occi::Environment::createEnvironment(oracle::occi::Environment::DEFAULT);
   char *c_user = std::getenv("CSCMAP_AUTH_USER");
   char *c_pass = std::getenv("CSCMAP_AUTH_PASSWORD");
+  assert(c_user);
+  assert(c_pass);
   db_user = std::string(c_user);
   db_pass = std::string(c_pass);
   con = env->createConnection(db_user, db_pass, "devdb");

@@ -39,8 +39,8 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'Info'
 process.dqmSaver.tag = 'Info'
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = 'Info'
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = 'Info'
+# process.dqmSaverPB.runNumber = options.runNumber
 #-----------------------------
 
 # Digitisation: produce the Scalers digis containing DCS bits
@@ -57,7 +57,7 @@ process.onlineMetaDataDigis = cms.EDProducer('OnlineMetaDataRawToDigi')
 process.load("DQMServices.Components.DQMProvInfo_cfi")
 
 # DQM Modules
-process.dqmmodules = cms.Sequence(process.dqmEnv + process.dqmSaver + process.dqmSaverPB)
+process.dqmmodules = cms.Sequence(process.dqmEnv + process.dqmSaver )#+ process.dqmSaverPB)
 process.evfDQMmodulesPath = cms.Path(
                                      process.scalersRawToDigi*
                                      process.tcdsDigis*
@@ -80,4 +80,5 @@ else:
 # Process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
+print("Global Tag used:", process.GlobalTag.globaltag.value())
 print("Final Source settings:", process.source)

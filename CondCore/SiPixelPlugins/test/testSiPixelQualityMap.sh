@@ -61,3 +61,16 @@ getPayloadData.py \
     --test;
 
 mv *.png $W_DIR/plots_Quality/SiPixelQuality_forDigitizer_phase1_2018_permanentlyBad_FPix.png
+
+getPayloadData.py \
+    --plugin pluginSiPixelQuality_PayloadInspector \
+    --plot plot_SiPixelQualityBadFracCompareTwoTags \
+    --tag SiPixelQuality_phase1_2023_v1_mc \
+    --tagtwo SiPixelQuality_phase1_2023_v6_mc  \
+    --time_type Lumi \
+    --iovs '{"start_iov": "1", "end_iov": "1"}' \
+    --iovstwo '{"start_iov": "1", "end_iov": "1"}' \
+    --db Prod \
+    --test;
+
+mv *.png $W_DIR/plots_Quality/SiPixelQualityBadFracCompareTwoTags_2023.png

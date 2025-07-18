@@ -454,7 +454,7 @@ void HLTTauDQMPathPlotter::analyze(const edm::TriggerResults& triggerResults,
   int firstMatchedMETFilter = -1;
   if (hCounter_) {
     hCounter_->Fill(0.5);
-    if (refCollection.taus.size() > 0) {
+    if (!refCollection.taus.empty()) {
       hCounter_->Fill(1.5);
       if (hltPath_.fired(triggerResults))
         hCounter_->Fill(2.5);

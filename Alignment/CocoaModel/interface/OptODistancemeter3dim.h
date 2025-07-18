@@ -18,10 +18,10 @@ class LightRay;
 class OptODistancemeter3dim : public OpticalObject {
 public:
   //---------- Constructors / Destructor
-  OptODistancemeter3dim(){};
+  OptODistancemeter3dim() {}
   OptODistancemeter3dim(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data)
-      : OpticalObject(parent, type, name, copy_data){};
-  ~OptODistancemeter3dim() override{};
+      : OpticalObject(parent, type, name, copy_data) {}
+  ~OptODistancemeter3dim() override {}
 
   //---------- defaultBehaviour: make measurement
   void defaultBehaviour(LightRay& lightray, Measurement& meas) override;

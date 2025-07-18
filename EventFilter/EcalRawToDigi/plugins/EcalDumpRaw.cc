@@ -598,7 +598,7 @@ bool EcalDumpRaw::decode(const uint32_t* data, int iWord64, ostream& out) {
               << tpg_[iTcc_ - 1][0 + tpgOffset];
       }
     }  // else{
-       // if(d) out << "ERROR";
+    // if(d) out << "ERROR";
     //}
     ++iTccWord64_;
     if (iTccWord64_ >= (unsigned)tccBlockLen64_)

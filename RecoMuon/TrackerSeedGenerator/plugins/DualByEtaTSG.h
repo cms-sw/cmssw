@@ -8,7 +8,7 @@
  * \author Jean-Roch vlimant, Adam Everett
  */
 
-#include "RecoMuon/TrackerSeedGenerator/plugins/SeparatingTSG.h"
+#include "RecoMuon/TrackerSeedGenerator/interface/SeparatingTSG.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class DualByEtaTSG : public SeparatingTSG {

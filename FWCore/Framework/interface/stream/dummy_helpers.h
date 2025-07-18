@@ -80,7 +80,7 @@ namespace edm {
         using type = dummy_mutex;
       };
     }  // namespace impl
-  }    // namespace stream
+  }  // namespace stream
 }  // namespace edm
 
 #endif

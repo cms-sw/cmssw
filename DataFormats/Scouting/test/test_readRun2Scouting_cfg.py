@@ -90,7 +90,8 @@ process.testReadRun2Scouting = cms.EDAnalyzer("TestReadRun2Scouting",
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string(args.outputFileName)
+    fileName = cms.untracked.string(args.outputFileName),
+    fastCloning = cms.untracked.bool(False)
 )
 
 process.path = cms.Path(process.testReadRun2Scouting)

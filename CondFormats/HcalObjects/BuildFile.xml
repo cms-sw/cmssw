@@ -3,13 +3,16 @@
 </ifrelease>
 <use name="boost_serialization"/>
 <use name="CondFormats/Serialization"/>
+<use name="DataFormats/Portable"/>
 <use name="DataFormats/DetId"/>
 <use name="DataFormats/HcalDetId"/>
+<use name="DataFormats/SoATemplate"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
 <use name="Geometry/CaloTopology"/>
-<use name="HeterogeneousCore/CUDACore"/>
-<use name="HeterogeneousCore/CUDAUtilities"/>
+<use name="HeterogeneousCore/AlpakaCore"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
+<flags ALPAKA_BACKENDS="1"/>
 <export>
   <lib name="1"/>
 </export>

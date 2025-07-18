@@ -5,8 +5,6 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
-
-process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.MessageLogger.cerr.threshold = 'ERROR'
 
@@ -15,24 +13,25 @@ process.options = cms.untracked.PSet(
   Rethrow = FWCore.Framework.test.cmsExceptionsFatalOption_cff.Rethrow
 )
 
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
+from IOPool.Input.modules import PoolSource
+process.source = PoolSource(
+    fileNames = [
         'file:testRunMerge1.root',
         'file:testRunMerge2.root'
-    )
-    #, processingMode = cms.untracked.string('RunsAndLumis')
-    #, duplicateCheckMode = cms.untracked.string('checkEachRealDataFile')
-    , noEventSort = cms.untracked.bool(True)
-    , inputCommands = cms.untracked.vstring(
+    ]
+    #, processingMode = 'RunsAndLumis'
+    #, duplicateCheckMode = 'checkEachRealDataFile'
+    , noEventSort = True
+    , inputCommands = [
         'keep *',
         'drop edmtestThingWithMerge_makeThingToBeDropped1_*_*'
-    )
+    ]
 )
 
-
-process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
-    verbose = cms.untracked.bool(True)
-    , expectedRunLumiEvents = cms.untracked.vuint32(
+from FWCore.Framework.modules import RunLumiEventAnalyzer
+process.test = RunLumiEventAnalyzer(
+    verbose = True
+    , expectedRunLumiEvents = [
     1, 0, 0,
     1, 1, 0,
     1, 1, 11,
@@ -62,14 +61,15 @@ process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
     1, 1, 21,
     1, 1, 0,
     1, 0, 0
-    )
+    ]
 )
 
 process.looper = cms.Looper("NavigateEventsLooper")
 
-process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('file:testLooperEventNavigation.root'),
-    fastCloning = cms.untracked.bool(False)
+from IOPool.Output.modules import PoolOutputModule
+process.out = PoolOutputModule(
+    fileName = 'testLooperEventNavigation.root',
+    fastCloning = False
 )
 
 process.path1 = cms.Path(process.test)

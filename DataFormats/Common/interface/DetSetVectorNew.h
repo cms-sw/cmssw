@@ -47,10 +47,10 @@ namespace edmNew {
    */
   namespace dstvdetails {
 
-    void errorFilling();
-    void notSafe();
-    void errorIdExists(det_id_type iid);
-    void throw_range(det_id_type iid);
+    void errorFilling() noexcept(false);
+    void notSafe() noexcept(false);
+    void errorIdExists(det_id_type iid) noexcept(false);
+    void throw_range(det_id_type iid) noexcept(false);
 
     struct DetSetVectorTrans {
       typedef unsigned int size_type;  // for persistency
@@ -130,15 +130,14 @@ namespace edmNew {
         operator id_type() const { return id; }
       };
 
-      bool ready() const {
+      void startFilling() const noexcept(false) {
         bool expected = false;
         if (!m_filling.compare_exchange_strong(expected, true))
           errorFilling();
-        return true;
       }
     };
 
-    inline void throwCapacityExausted() { throw CapacityExaustedException(); }
+    inline void throwCapacityExausted() noexcept(false) { throw CapacityExaustedException(); }
   }  // namespace dstvdetails
 
   /** an optitimized container that linearized a "map of vector".
@@ -202,25 +201,15 @@ namespace edmNew {
       typedef typename DetSetVector<T>::id_type id_type;
       typedef typename DetSetVector<T>::size_type size_type;
 
-      // here just to make the compiler happy
-      static DetSetVector<T>::Item& dummy() {
-        assert(false);
-        static DetSetVector<T>::Item d;
-        return d;
-      }
-
       FastFiller(DetSetVector<T>& iv, id_type id, bool isaveEmpty = false)
-          : m_v(iv), m_item(m_v.ready() ? m_v.push_back(id) : dummy()), m_saveEmpty(isaveEmpty) {
-        if (m_v.onDemand())
-          dstvdetails::notSafe();
-      }
+          : m_v(iv), m_item(getItem(m_v, id)), m_saveEmpty(isaveEmpty) {}
 
       FastFiller(DetSetVector<T>& iv, typename DetSetVector<T>::Item& it, bool isaveEmpty = false)
           : m_v(iv), m_item(it), m_saveEmpty(isaveEmpty) {
         if (m_v.onDemand())
           dstvdetails::notSafe();
-        if (m_v.ready())
-          m_item.offset = int(m_v.m_data.size());
+        m_v.startFilling();
+        m_item.offset = int(m_v.m_data.size());
       }
       ~FastFiller() {
         if (!m_saveEmpty && m_item.size == 0) {
@@ -296,6 +285,13 @@ namespace edmNew {
       //for testing
       friend class ::TestDetSet;
 
+      static DetSetVector<T>::Item& getItem(DetSetVector<T>& iv, id_type id) noexcept(false) {
+        iv.startFilling();
+        if (iv.onDemand())
+          dstvdetails::notSafe();
+        return iv.push_back(id);
+      }
+
       DetSetVector<T>& m_v;
       typename DetSetVector<T>::Item& m_item;
       bool m_saveEmpty;
@@ -310,14 +306,8 @@ namespace edmNew {
       typedef typename DetSetVector<T>::id_type id_type;
       typedef typename DetSetVector<T>::size_type size_type;
 
-      // here just to make the compiler happy
-      static DetSetVector<T>::Item const& dummy() {
-        assert(false);
-        static DetSetVector<T>::Item const d;
-        return d;
-      }
       // this constructor is not supposed to be used in Concurrent mode
-      TSFastFiller(DetSetVector<T>& iv, id_type id) : m_v(iv), m_item(m_v.ready() ? iv.push_back(id) : dummy()) {
+      TSFastFiller(DetSetVector<T>& iv, id_type id) : m_v(iv), m_item(getItem(iv, id)) {
         assert(m_v.m_filling == true);
         m_v.m_filling = false;
       }
@@ -375,6 +365,11 @@ namespace edmNew {
     private:
       //for testing
       friend class ::TestDetSet;
+
+      static DetSetVector<T>::Item& getItem(DetSetVector<T>& iv, id_type id) noexcept(false) {
+        iv.startFilling();
+        return iv.push_back(id);
+      }
 
       std::vector<T> m_lv;
       DetSetVector<T> const& m_v;
@@ -690,7 +685,7 @@ namespace edm {
       typedef FindSetForNewDetSetVector<T> value;
     };
   }  // namespace refhelper
-     /* ... implementation is provided, just in case it's needed */
+  /* ... implementation is provided, just in case it's needed */
 }  // namespace edm
 
 namespace edmNew {

@@ -506,7 +506,7 @@ void RPCStripsRing::compressConnections() {
                 break;
               }
             }  // otherConnections iter ends
-          }    // otherStrip iter ends
+          }  // otherStrip iter ends
 
           /*
           if (itConn->m_tower==3 && itConn->m_PAC==73 && itConn->m_logplane==4 && detId==637569977){
@@ -537,9 +537,9 @@ void RPCStripsRing::compressConnections() {
           ++compressedCons;
 
         }  // if(!allreadyDone)
-      }    // iterate on connections
-    }      // iterate on strips
-  }        // iterate on chambers
+      }  // iterate on connections
+    }  // iterate on strips
+  }  // iterate on chambers
 
   // 159 -87
   //std::cout << offsetMax << " TT " << offsetMin << std::endl;

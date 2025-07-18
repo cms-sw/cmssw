@@ -5,6 +5,7 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include "DataFormats/Common/interface/Uninitialized.h"
 #include "DataFormats/Portable/interface/PortableDeviceCollection.h"
 #include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigiErrorsSoA.h"
 #include "DataFormats/SiPixelRawData/interface/SiPixelErrorCompact.h"
@@ -14,7 +15,9 @@
 template <typename TDev>
 class SiPixelDigiErrorsDevice : public PortableDeviceCollection<SiPixelDigiErrorsSoA, TDev> {
 public:
-  SiPixelDigiErrorsDevice() = default;
+  SiPixelDigiErrorsDevice(edm::Uninitialized)
+      : PortableDeviceCollection<SiPixelDigiErrorsSoA, TDev>{edm::kUninitialized} {}
+
   template <typename TQueue>
   explicit SiPixelDigiErrorsDevice(size_t maxFedWords, TQueue queue)
       : PortableDeviceCollection<SiPixelDigiErrorsSoA, TDev>(maxFedWords, queue), maxFedWords_(maxFedWords) {}

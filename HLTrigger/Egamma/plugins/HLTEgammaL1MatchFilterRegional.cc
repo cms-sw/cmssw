@@ -154,7 +154,7 @@ bool HLTEgammaL1MatchFilterRegional::hltFilter(edm::Event& iEvent,
       }  //end endcap fiduical check
 
     }  //end loop over all isolated RecoEcalCandidates
-  }    //end doIsolatedCheck
+  }  //end doIsolatedCheck
 
   // filter decision
   bool accept(n >= ncandcut_);

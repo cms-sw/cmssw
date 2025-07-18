@@ -53,9 +53,6 @@ mkdatapkg TestDataPackage -author "Test Author"
 
 mkskel TestSkeleton -author "Test Author"
 
-mktsel TestSelector -author "Test Author"
-mktsel TestSelectorTrack example_track -author "Test Author"
-
 popd
 git add TestSubsystem
 git commit -a -m "Other skeletong code"

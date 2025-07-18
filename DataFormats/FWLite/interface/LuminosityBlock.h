@@ -33,13 +33,13 @@
 #include "DataFormats/FWLite/interface/EntryFinder.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // forward declarations
 namespace edm {
   class WrapperBase;
   class ProductRegistry;
-  class BranchDescription;
   class EDProductGetter;
   class LuminosityBlockAux;
   class Timestamp;
@@ -89,8 +89,8 @@ namespace fwlite {
 
     edm::LuminosityBlockAuxiliary const& luminosityBlockAuxiliary() const override;
 
-    std::vector<edm::BranchDescription> const& getBranchDescriptions() const {
-      return branchMap_->getBranchDescriptions();
+    std::vector<edm::ProductDescription> const& getProductDescriptions() const {
+      return branchMap_->getProductDescriptions();
     }
 
     //       void setGetter(//Copy from Event if needed

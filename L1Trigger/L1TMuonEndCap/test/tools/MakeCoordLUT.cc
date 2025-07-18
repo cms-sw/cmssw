@@ -497,13 +497,13 @@ void MakeCoordLUT::generateLUTs_run() {
 
                   ++index;
                 }  // end loop over strip
-              }    // end loop over wire
-            }      // end if ME1/1b
-          }        // end loop over chamber
-        }          // end loop over subsector
-      }            // end loop over station
-    }              // end loop over sector
-  }                // end loop over endcap
+              }  // end loop over wire
+            }  // end if ME1/1b
+          }  // end loop over chamber
+        }  // end loop over subsector
+      }  // end loop over station
+    }  // end loop over sector
+  }  // end loop over endcap
   return;
 }
 
@@ -524,8 +524,8 @@ void MakeCoordLUT::generateLUTs_final() {
         if (th_cover_max[st][ch_type] < th_cover[es][st][ch])
           th_cover_max[st][ch_type] = th_cover[es][st][ch];
       }  // end loop over ch
-    }    // end loop over st
-  }      // end loop over es
+    }  // end loop over st
+  }  // end loop over es
 
   for (int st = 0; st < 5; ++st) {
     for (int ch_type = 0; ch_type < 3; ++ch_type) {
@@ -535,7 +535,7 @@ void MakeCoordLUT::generateLUTs_final() {
                   << " th_cover_max: " << th_cover_max[st][ch_type] << std::endl;
       }
     }  // end loop over ch_type
-  }    // end loop over st
+  }  // end loop over st
   return;
 }
 
@@ -835,9 +835,9 @@ void MakeCoordLUT::validateLUTs() {
                       << " fth_sim: " << fth_sim << std::endl;
           }
         }  // end loop over strip
-      }    // end loop over wire
-    }      // end loop over lut_id
-  }        // end loop over es
+      }  // end loop over wire
+    }  // end loop over lut_id
+  }  // end loop over es
 
   ttree->Write();
   tfile->Close();
@@ -965,7 +965,7 @@ void MakeCoordLUT::writeFiles() {
           ++num_of_files;
         }
       }  // end loop over ch
-    }    // end loop over st
+    }  // end loop over st
 
   }  // end loop over es
 

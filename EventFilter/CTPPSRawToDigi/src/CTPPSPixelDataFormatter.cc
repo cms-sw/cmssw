@@ -308,8 +308,8 @@ void CTPPSPixelDataFormatter::formatRawData(const bool& isRun3,
         m_hasDetDigis++;
 
       }  // range
-    }    // for DetDigis
-  }      // for Digis
+    }  // for DetDigis
+  }  // for Digis
 
   LogTrace(" allDetDigis/hasDetDigis : ") << m_allDetDigis << "/" << m_hasDetDigis;
   for (auto const& feddata : words) {

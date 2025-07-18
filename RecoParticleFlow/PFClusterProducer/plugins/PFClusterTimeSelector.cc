@@ -20,6 +20,7 @@ public:
   void beginRun(const edm::Run& run, const edm::EventSetup& es) override;
 
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
   struct CutInfo {
@@ -38,6 +39,124 @@ protected:
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PFClusterTimeSelector);
+
+void PFClusterTimeSelector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("src", {"particleFlowClusterECALWithTimeUncorrected"});
+  {
+    std::vector<edm::ParameterSet> vpset;
+    vpset.reserve(10);
+    {
+      edm::ParameterSet pset;
+      pset.addParameter<double>("depth", 1.0);
+      pset.addParameter<double>("minEnergy", 0.0);
+      pset.addParameter<double>("maxEnergy", 1.0);
+      pset.addParameter<bool>("endcap", false);
+      pset.addParameter<double>("minTime", -12.);
+      pset.addParameter<double>("maxTime", 12.);
+      vpset.emplace_back(pset);
+    }
+    {
+      edm::ParameterSet pset;
+      pset.addParameter<double>("depth", 1.0);
+      pset.addParameter<double>("minEnergy", 0.0);
+      pset.addParameter<double>("maxEnergy", 1.0);
+      pset.addParameter<bool>("endcap", true);
+      pset.addParameter<double>("minTime", -31.5);
+      pset.addParameter<double>("maxTime", 31.5);
+      vpset.emplace_back(pset);
+    }
+    {
+      edm::ParameterSet pset;
+      pset.addParameter<double>("depth", 1.0);
+      pset.addParameter<double>("minEnergy", 1.0);
+      pset.addParameter<double>("maxEnergy", 2.0);
+      pset.addParameter<bool>("endcap", false);
+      pset.addParameter<double>("minTime", -6.);
+      pset.addParameter<double>("maxTime", 6.);
+      vpset.emplace_back(pset);
+    }
+    {
+      edm::ParameterSet pset;
+      pset.addParameter<double>("depth", 1.0);
+      pset.addParameter<double>("minEnergy", 1.0);
+      pset.addParameter<double>("maxEnergy", 2.0);
+      pset.addParameter<bool>("endcap", true);
+      pset.addParameter<double>("minTime", -20.5);
+      pset.addParameter<double>("maxTime", 20.5);
+      vpset.emplace_back(pset);
+    }
+    {
+      edm::ParameterSet pset;
+      pset.addParameter<double>("depth", 1.0);
+      pset.addParameter<double>("minEnergy", 2.0);
+      pset.addParameter<double>("maxEnergy", 5.0);
+      pset.addParameter<bool>("endcap", false);
+      pset.addParameter<double>("minTime", -4.);
+      pset.addParameter<double>("maxTime", 4.);
+      vpset.emplace_back(pset);
+    }
+    {
+      edm::ParameterSet pset;
+      pset.addParameter<double>("depth", 1.0);
+      pset.addParameter<double>("minEnergy", 2.0);
+      pset.addParameter<double>("maxEnergy", 5.0);
+      pset.addParameter<bool>("endcap", true);
+      pset.addParameter<double>("minTime", -12.);
+      pset.addParameter<double>("maxTime", 12.);
+      vpset.emplace_back(pset);
+    }
+    {
+      edm::ParameterSet pset;
+      pset.addParameter<double>("depth", 1.0);
+      pset.addParameter<double>("minEnergy", 5.0);
+      pset.addParameter<double>("maxEnergy", 20.0);
+      pset.addParameter<bool>("endcap", false);
+      pset.addParameter<double>("minTime", -4.);
+      pset.addParameter<double>("maxTime", 4.);
+      vpset.emplace_back(pset);
+    }
+    {
+      edm::ParameterSet pset;
+      pset.addParameter<double>("depth", 1.0);
+      pset.addParameter<double>("minEnergy", 5.0);
+      pset.addParameter<double>("maxEnergy", 20.0);
+      pset.addParameter<bool>("endcap", true);
+      pset.addParameter<double>("minTime", -5.);
+      pset.addParameter<double>("maxTime", 5.);
+      vpset.emplace_back(pset);
+    }
+    {
+      edm::ParameterSet pset;
+      pset.addParameter<double>("depth", 1.0);
+      pset.addParameter<double>("minEnergy", 20.0);
+      pset.addParameter<double>("maxEnergy", 1e24);
+      pset.addParameter<bool>("endcap", false);
+      pset.addParameter<double>("minTime", -4.);
+      pset.addParameter<double>("maxTime", 4.);
+      vpset.emplace_back(pset);
+    }
+    {
+      edm::ParameterSet pset;
+      pset.addParameter<double>("depth", 1.0);
+      pset.addParameter<double>("minEnergy", 20.0);
+      pset.addParameter<double>("maxEnergy", 1e24);
+      pset.addParameter<bool>("endcap", true);
+      pset.addParameter<double>("minTime", -5.);
+      pset.addParameter<double>("maxTime", 5.);
+      vpset.emplace_back(pset);
+    }
+    edm::ParameterSetDescription psd;
+    psd.add<double>("depth", 1.0);
+    psd.add<double>("minEnergy", 0.0);
+    psd.add<double>("maxEnergy", 1e24);
+    psd.add<bool>("endcap", false);
+    psd.add<double>("minTime", -50.);
+    psd.add<double>("maxTime", 50.);
+    desc.addVPSet("cuts", psd, vpset);
+  }
+  descriptions.add("particleFlowClusterECALTimeSelected", desc);
+}
 
 using namespace std;
 using namespace edm;

@@ -84,7 +84,7 @@ namespace PhysicsTools {
 
     float m0, m1;
     Segment *seg = &segments[0];
-    m0 = 0.0, m1 = 0.5 * (vals[2] - vals[0]);
+    m1 = 0.5 * (vals[2] - vals[0]);
     seg->coeffs[0] = vals[0];
     seg->coeffs[1] = -2.0 * vals[0] + 2.0 * vals[1] - m1;
     seg->coeffs[2] = vals[0] - vals[1] + m1;

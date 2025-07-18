@@ -25,16 +25,16 @@ class Out:
         self.text += "\\begin{{frame}}[t]{{{0}}}\n".format(head)
         self.text += text
         self.text += """\\vfill
-                        \\rule{0.9\paperwidth}{1pt}
-                        \insertnavigation{0.89\paperwidth}
+                        \\rule{0.9\\paperwidth}{1pt}
+                        \\insertnavigation{0.89\\paperwidth}
                         \\end{frame}\n"""
                         
     def addSlide_fragile(self, head, text):
         self.text += "\\begin{{frame}}[fragile=singleslide]{{{0}}}\n".format(head)
         self.text += text
         self.text += """\\vfill
-                        \\rule{0.9\paperwidth}{1pt}
-                        \insertnavigation{0.89\paperwidth}
+                        \\rule{0.9\\paperwidth}{1pt}
+                        \\insertnavigation{0.89\\paperwidth}
                         \\end{frame}\n"""
                         
     def add(self, text):
@@ -59,19 +59,19 @@ def create(alignables, pedeDump, additionalData, outputFile, config):
     
     # title page
     if (config.message):
-        text += """\centering
+        text += """\\centering
                     \\vspace*{{4cm}}
-                    \Huge\\bfseries Alignment Validation\par
+                    \\Huge\\bfseries Alignment Validation\\par
                     \\vspace{{2cm}}	
-                    \scshape\huge Alignment Campaign\\\\ {{{0}}}\par
+                    \\scshape\\huge Alignment Campaign\\\\ {{{0}}}\\par
                     \\vfill
-                    \large \\today\par""".format(config.message)
+                    \\large \\today\\par""".format(config.message)
     else:
-        text += """\centering
+        text += """\\centering
                     \\vspace*{4cm}
-                    \Huge\\bfseries Alignment Validation\par
+                    \\Huge\\bfseries Alignment Validation\\par
                     \\vfill
-                    \large \\today\par"""
+                    \\large \\today\\par"""
     out.addSlide("", text)
     
     # table of contents
@@ -79,7 +79,7 @@ def create(alignables, pedeDump, additionalData, outputFile, config):
     out.addSlide("Overview", text)
 
     # general information
-    out.add("\section{General information}")
+    out.add("\\section{General information}")
     text = ""
     if (config.message):
         text = "Project: {{{0}}}\\\\\n".format(config.message)
@@ -91,7 +91,7 @@ def create(alignables, pedeDump, additionalData, outputFile, config):
     
     # alignment_merge.py
     try:
-        out.add("\subsection{Alignment Configuration}")
+        out.add("\\subsection{Alignment Configuration}")
         text = "\\textbf{{PedeSteerer method:}} {{{0}}}\\\\\n".format(
             additionalData.pede_steerer_method)
         text += "\\textbf{{PedeSteerer options:}}\\\\\n"
@@ -105,14 +105,14 @@ def create(alignables, pedeDump, additionalData, outputFile, config):
     
     # table of input files with number of tracks
     if config.showmonitor:
-        out.add("\subsection{Datasets with tracks}")
+        out.add("\\subsection{Datasets with tracks}")
         text = """\\begin{table}[h]
-            \centering
-            \caption{Datasets with tracks}
+            \\centering
+            \\caption{Datasets with tracks}
             \\begin{tabular}{ccc}
-            \hline
+            \\hline
             Dataset & Number of used tracks & Weight \\\\
-            \hline \n"""
+            \\hline \n"""
         try:
             for monitor in mpsv_classes.MonitorData.monitors:
                 text += "{0} & {1} & {2}\\\\\n".format(monitor.name, monitor.ntracks,
@@ -120,15 +120,15 @@ def create(alignables, pedeDump, additionalData, outputFile, config):
         except Exception as e:
             logger.error("data not found - {0} {1}".format(type(e), e))
         if (pedeDump.nrec):
-            text += "\hline\nNumber of records & {0}\\\\\n".format(pedeDump.nrec)
-        text += """\hline
-                  \end{tabular}\n
-                  \end{table}\n"""
+            text += "\\hline\nNumber of records & {0}\\\\\n".format(pedeDump.nrec)
+        text += """\\hline
+                  \\end{tabular}\n
+                  \\end{table}\n"""
         text += "The information in this table is based on the monitor root files. Note that the number of tracks which where used in the pede step can differ from this table.\n"
         out.addSlide("Datasets with tracks", text)
 
     # pede.dump.gz
-    out.add("\subsection{Pede monitoring information}")
+    out.add("\\subsection{Pede monitoring information}")
     try:
         if (pedeDump.sumValue != 0):
             text = r"\begin{{align*}}Sum(Chi^2)/Sum(Ndf) &= {0}\\ &= {1}\end{{align*}}".format(
@@ -149,20 +149,20 @@ def create(alignables, pedeDump, additionalData, outputFile, config):
         logger.error("data not found - {0} {1}".format(type(e), e))
         
     # Parameter plots
-    out.add("\section{Parameter plots}")
+    out.add("\\section{Parameter plots}")
     
     # high level Structures
-    out.add("\subsection{High-level parameters}")
+    out.add("\\subsection{High-level parameters}")
     big = [x for x in config.outputList if (x.plottype == "big")]
 
     for i in big:
-        text = "\includegraphics[height=0.85\\textheight]{{{0}/plots/pdf/{1}.pdf}}\n".format(
+        text = "\\includegraphics[height=0.85\\textheight]{{{0}/plots/pdf/{1}.pdf}}\n".format(
             config.outputPath, i.filename)
 
         out.addSlide("High-level parameters", text)
 
     # time (IOV) dependent plots
-    out.add("\subsection{High-level parameters versus time (IOV)}")
+    out.add("\\subsection{High-level parameters versus time (IOV)}")
     time = [x for x in config.outputList if (x.plottype == "time")]
 
     if time:
@@ -172,13 +172,13 @@ def create(alignables, pedeDump, additionalData, outputFile, config):
                 text = "\\framesubtitle{{{0}}}\n".format(structure)
                 if any([x.filename for x in time if (x.parameter == mode and x.name == structure)]):
                     filename = [x.filename for x in time if (x.parameter == mode and x.name == structure)][0]
-                    text += "\includegraphics[height=0.85\\textheight]{{{0}/plots/pdf/{1}.pdf}}\n".format(
+                    text += "\\includegraphics[height=0.85\\textheight]{{{0}/plots/pdf/{1}.pdf}}\n".format(
                         config.outputPath, filename)
 
                 out.addSlide("High-level parameters versus time (IOV)", text)
 
     # hole modules
-    out.add("\subsection{Module-level parameters}")
+    out.add("\\subsection{Module-level parameters}")
     # check if there are module plots
     if any(x for x in config.outputList if (x.plottype == "mod" and x.number == "")):
 
@@ -201,7 +201,7 @@ def create(alignables, pedeDump, additionalData, outputFile, config):
                     # check if plot there is a plot in this mode
                     if module:
                         text = "\\framesubtitle{{{0}}}\n".format(moduleName)
-                        text += "\includegraphics[height=0.85\\textheight]{{{0}/plots/pdf/{1}.pdf}}\n".format(
+                        text += "\\includegraphics[height=0.85\\textheight]{{{0}/plots/pdf/{1}.pdf}}\n".format(
                             config.outputPath, module[0].filename)
 
                         out.addSlide("Module-level parameters", text)
@@ -210,16 +210,16 @@ def create(alignables, pedeDump, additionalData, outputFile, config):
                         for plot in moduleSub:
                             text = "\\framesubtitle{{{0}}}\n".format(
                                 moduleName)
-                            text += "\includegraphics[height=0.85\\textheight]{{{0}/plots/pdf/{1}.pdf}}\n".format(
+                            text += "\\includegraphics[height=0.85\\textheight]{{{0}/plots/pdf/{1}.pdf}}\n".format(
                                 config.outputPath, plot.filename)
 
                             out.addSlide("Module-level parameters", text)
 
     # plot taken from the millePedeMonitor_merge.root file
-    out.add("\section{Monitor plots}")
+    out.add("\\section{Monitor plots}")
     for plot in [x for x in config.outputList if x.plottype == "monitor"]:
         text = "\\framesubtitle{{{0}}}\n".format(plot.name)
-        text += "\includegraphics[height=0.85\\textheight]{{{0}/plots/pdf/{1}.pdf}}\n".format(
+        text += "\\includegraphics[height=0.85\\textheight]{{{0}/plots/pdf/{1}.pdf}}\n".format(
             config.outputPath, plot.filename)
         out.addSlide("Monitor", text)
 

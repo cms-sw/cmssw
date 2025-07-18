@@ -1,4 +1,3 @@
-from __future__ import print_function
 import itertools
 
 from PhysicsTools.Heppy.analyzers.core.VertexHistograms import VertexHistograms

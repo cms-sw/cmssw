@@ -1,8 +1,8 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun testHGCalCellHitSum_cfg.py geometry=D92 layers=1 type=mu
+#   cmsRun testHGCalCellHitSum_cfg.py geometry=D110 layers=1 type=mu
 #
-#   Options for geometry D88, D92, D93
+#   Options for geometry D105, D110, D114
 #               layers '1', '1,2', any combination from 1..47           
 #               type mu, tt
 #
@@ -15,10 +15,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D92",
+                 "D110",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D88, D92, D93")
+                  "geometry of operations: D105, D110, D114")
 
 options.register('layers',
                  "1",
@@ -44,13 +44,13 @@ print(options)
 ####################################################################
 # Use the options
 
-loadFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+loadFile = "Configuration.Geometry.GeometryExtendedRun4" + options.geometry + "Reco_cff"
 inputFile = "file:step1" + options.geometry + options.type + ".root"
 outputFile = "file:geantoutput" + options.geometry + options.type + ".root"
 
-if (options.geometry == "D88"):
+if (options.geometry == "D105"):
     geomFile = 'Validation/HGCalValidation/data/wafer_v16.csv'
-elif (options.geometry == "D93"):
+elif (options.geometry == "D114"):
     geomFile = 'Validation/HGCalValidation/data/wafer_v17.csv'
 else:
     geomFile = 'Validation/HGCalValidation/data/wafer_v17.csv'

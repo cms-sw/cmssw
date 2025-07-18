@@ -1,5 +1,3 @@
-from __future__ import print_function
-from __future__ import absolute_import
 # Copyright (C) 2014 Colin Bernet
 # https://github.com/cbernet/heppy/blob/master/LICENSE
 
@@ -44,7 +42,7 @@ class CFG(object):
                                           name=self.name)
         varlines = ['\t{var:<15}:   {value}'.format(var=var, value=value) \
                     for var,value in sorted(vars(self.items())) \
-                    if var is not 'name']
+                    if var != 'name']
         all = [ header ]
         all.extend(varlines)
         return '\n'.join( all )

@@ -77,20 +77,14 @@ public:
 
   static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 
-  // new interface returning the start Trajectory...
-  virtual TempTrajectory buildTrajectories(const TrajectorySeed& seed,
-                                           TrajectoryContainer& ret,
-                                           unsigned int& nCandPerSeed,
-                                           const TrajectoryFilter*) const {
+  virtual void buildTrajectories(const TrajectorySeed& seed,
+                                 TrajectoryContainer& ret,
+                                 unsigned int& nCandPerSeed,
+                                 const TrajectoryFilter*) const {
     assert(0 == 1);
-    return TempTrajectory();
   }
 
-  virtual void rebuildTrajectories(TempTrajectory const& startingTraj,
-                                   const TrajectorySeed& seed,
-                                   TrajectoryContainer& result) const {
-    assert(0 == 1);
-  }
+  virtual void rebuildTrajectories(const TrajectorySeed& seed, TrajectoryContainer& result) const { assert(0 == 1); }
 
   void setNavigationSchool(NavigationSchool const* nv) { theNavigationSchool = nv; }
 

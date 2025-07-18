@@ -4,9 +4,11 @@ from DQM.GEM.GEMDigiSource_cfi import *
 from DQM.GEM.GEMRecHitSource_cfi import *
 from DQM.GEM.GEMDAQStatusSource_cfi import *
 from DQM.GEM.GEMDQMHarvester_cfi import *
+from DQM.GEM.GEMPadDigiClusterSource_cfi import *
 
 GEMDQM = cms.Sequence(
   GEMDigiSource
+  *GEMPadDigiClusterSource
   *GEMRecHitSource
   *GEMDAQStatusSource
   +GEMDQMHarvester

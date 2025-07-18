@@ -4,10 +4,29 @@
   <class name="CoreSimTrack" ClassVersion="10">
    <version ClassVersion="10" checksum="3936841839"/>
   </class>
-  <class name="SimTrack" ClassVersion="12">
+  <class name="SimTrack" ClassVersion="13">
+   <version ClassVersion="13" checksum="1912247222"/>
    <version ClassVersion="12" checksum="3470347245"/>
    <version ClassVersion="11" checksum="1785575744"/>
    <version ClassVersion="10" checksum="1430205451"/>
+   <ioread sourceClass = "SimTrack" version="[12]" targetClass="SimTrack" source="bool crossedBoundary_; int idAtBoundary_; math::XYZTLorentzVectorF positionAtBoundary_; math::XYZTLorentzVectorF momentumAtBoundary_; int igenpart" target="trackInfo_, idAtBoundary_, positionAtBoundary_, momentumAtBoundary_">
+    <![CDATA[
+        // set crossedBoundary infos
+        newObj->setCrossedBoundaryVars(onfile.crossedBoundary_, onfile.idAtBoundary_, onfile.positionAtBoundary_, onfile.momentumAtBoundary_);
+        // set isPrimary info of trackInfo_
+        if (onfile.igenpart != -1)
+          newObj->setIsPrimary();
+        // it's not possible to set the isFromBackScattering info for old simTracks
+    ]]>
+   </ioread>
+   <ioread sourceClass = "SimTrack" version="[-11]" targetClass="SimTrack" source="int igenpart" target="trackInfo_">
+    <![CDATA[
+        // set isPrimary info of trackInfo_
+        if (onfile.igenpart != -1)
+          newObj->setIsPrimary();
+        // it's not possible to set the isFromBackScattering and crossedBoundary info for old simTracks
+    ]]>
+   </ioread>
   </class>
   <class name="edm::Wrapper<std::vector<SimTrack> >" />
   <class name="edm::RefProd<std::vector<SimTrack> >"/>

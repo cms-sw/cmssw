@@ -26,7 +26,7 @@
 namespace edmtest {
   class DeleteEarly {
   public:
-    DeleteEarly(){};
+    DeleteEarly() {}
     ~DeleteEarly() { ++s_nDeletes; }
     // ---------- const member functions ---------------------
 

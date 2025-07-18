@@ -22,7 +22,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
                      OutputProduct& uncalibRecHitsDevEB,
                      OutputProduct& uncalibRecHitsDevEE,
                      EcalMultifitConditionsDevice const& conditionsDev,
-                     EcalMultifitParametersDevice const& paramsDev,
+                     EcalMultifitParameters const* paramsDev,
                      ConfigurationParameters const& configParams) {
     using digis_type = std::vector<uint16_t>;
     using dids_type = std::vector<uint32_t>;
@@ -118,20 +118,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
       // TODO: small kernel only for EB. It needs to be checked if
       /// fusing such small kernels is beneficial in here
       //
-      // we are running only over EB digis
-      // therefore we need to create threads/blocks only for that
-      auto const threadsFixMGPA = threads_1d;
-      auto const blocksFixMGPA = cms::alpakatools::divide_up_by(kMaxSamples * ebSize, threadsFixMGPA);
-      auto workDivTimeFixMGPAslew1D = cms::alpakatools::make_workdiv<Acc1D>(blocksFixMGPA, threadsFixMGPA);
-      alpaka::exec<Acc1D>(queue,
-                          workDivTimeFixMGPAslew1D,
-                          Kernel_time_compute_fixMGPAslew{},
-                          digisDevEB.const_view(),
-                          digisDevEE.const_view(),
-                          conditionsDev.const_view(),
-                          scratch.sample_valuesDevBuf.value().data(),
-                          scratch.sample_value_errorsDevBuf.value().data(),
-                          scratch.useless_sample_valuesDevBuf.value().data());
+      if (ebSize > 0) {
+        // we are running only over EB digis
+        // therefore we need to create threads/blocks only for that
+        auto const threadsFixMGPA = threads_1d;
+        auto const blocksFixMGPA = cms::alpakatools::divide_up_by(kMaxSamples * ebSize, threadsFixMGPA);
+        auto workDivTimeFixMGPAslew1D = cms::alpakatools::make_workdiv<Acc1D>(blocksFixMGPA, threadsFixMGPA);
+        alpaka::exec<Acc1D>(queue,
+                            workDivTimeFixMGPAslew1D,
+                            Kernel_time_compute_fixMGPAslew{},
+                            digisDevEB.const_view(),
+                            digisDevEE.const_view(),
+                            conditionsDev.const_view(),
+                            scratch.sample_valuesDevBuf.value().data(),
+                            scratch.sample_value_errorsDevBuf.value().data(),
+                            scratch.useless_sample_valuesDevBuf.value().data());
+      }
 
       auto const threads_nullhypot = threads_1d;
       auto const blocks_nullhypot = blocks_1d;
@@ -170,7 +172,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
                           scratch.accTimeMaxDevBuf.value().data(),
                           scratch.accTimeWgtDevBuf.value().data(),
                           scratch.tcStateDevBuf.value().data(),
-                          paramsDev.const_view(),
+                          paramsDev,
                           configParams.timeFitLimitsFirstEB,
                           configParams.timeFitLimitsFirstEE,
                           configParams.timeFitLimitsSecondEB,
@@ -199,7 +201,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
                           scratch.ampMaxErrorDevBuf.value().data(),
                           scratch.timeMaxDevBuf.value().data(),
                           scratch.timeErrorDevBuf.value().data(),
-                          paramsDev.const_view());
+                          paramsDev);
 
       auto const threads_timecorr = 32;
       auto const blocks_timecorr = cms::alpakatools::divide_up_by(totalChannels, threads_timecorr);

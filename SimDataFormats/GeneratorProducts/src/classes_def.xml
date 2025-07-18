@@ -81,7 +81,7 @@
 	<!-- HepMCProduct -->
 
 	<class name="edm::Wrapper&lt;edm::HepMCProduct&gt;"/>
-	<class name="edm::HepMCProduct" ClassVersion="10">
+	<class name="edm::HepMCProduct" ClassVersion="10" rntupleStreamerMode="true">
   <version ClassVersion="10" checksum="3587845075"/>
  </class>
         <class name="std::vector&lt;const edm::HepMCProduct*&gt;"/>
@@ -96,6 +96,25 @@
 	<class name="std::pair&lt;const int,HepMC::GenParticle*&gt;"/>
 	<class name="std::pair&lt;int,HepMC::GenParticle*&gt;"/>
 	<class name="std::map&lt;int,HepMC::GenVertex*,std::greater&lt;int&gt; &gt;"/>
+
+	<class name="edm::Wrapper<edm::HepMC3Product>"/>
+	<class name="edm::HepMC3Product" ClassVersion="3">
+		<version ClassVersion="3" checksum="91123597"/>
+	</class>
+	<class name="HepMC3::GenEventData" ClassVersion="3">
+		<version ClassVersion="3" checksum="1128771783"/>
+	</class>
+	<class name="HepMC3::FourVector" ClassVersion="3">
+		<version ClassVersion="3" checksum="743129961"/>
+	</class>
+	<class name="HepMC3::GenParticleData" ClassVersion="3">
+		<version ClassVersion="3" checksum="3857904215"/>
+	</class>
+	<class name="HepMC3::GenVertexData" ClassVersion="3">
+		<version ClassVersion="3" checksum="2170201021"/>
+	</class>
+	<class name="std::vector<HepMC3::GenParticleData>"/>
+	<class name="std::vector<HepMC3::GenVertexData>"/>
 
 	<!-- Classes shared between different kinds of products -->
 
@@ -184,6 +203,11 @@
     <![CDATA[nMEPartonsFiltered_ = -1;]]>
  </ioread> 
 	<class name="edm::Wrapper&lt;GenEventInfoProduct&gt;"/>
+
+	<class name="GenEventInfoProduct3" ClassVersion="3">
+		<version ClassVersion="3" checksum="2242328487"/>
+	</class>
+	<class name="edm::Wrapper&lt;GenEventInfoProduct3&gt;"/>
 
 	<!-- LHE products -->
 

@@ -120,7 +120,7 @@ namespace cms {
                                     ContextState& state)
           : ScopedContextGetterBase(data), holderHelper_{std::move(waitingTaskHolder)}, contextState_{&state} {}
 
-      ~ScopedContextAcquire();
+      ~ScopedContextAcquire() noexcept(false);
 
       template <typename F>
       void pushNextTask(F&& f) {
@@ -184,36 +184,6 @@ namespace cms {
     };
 
     /**
-     * The aim of this class is to do necessary per-task "initialization" tasks created in ExternalWork acquire():
-     * - setting the current device
-     * - calling edm::WaitingTaskWithArenaHolder::doneWaiting() when necessary
-     * and enforce that those get done in a proper way in RAII fashion.
-     */
-    class ScopedContextTask : public impl::ScopedContextBase {
-    public:
-      /// Constructor to re-use the CUDA stream of acquire() (ExternalWork module)
-      explicit ScopedContextTask(ContextState const* state, edm::WaitingTaskWithArenaHolder waitingTaskHolder)
-          : ScopedContextBase(state->device(), state->streamPtr()),  // don't move, state is re-used afterwards
-            holderHelper_{std::move(waitingTaskHolder)},
-            contextState_{state} {}
-
-      ~ScopedContextTask();
-
-      template <typename F>
-      void pushNextTask(F&& f) {
-        holderHelper_.pushNextTask(std::forward<F>(f), contextState_);
-      }
-
-      void replaceWaitingTaskHolder(edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
-        holderHelper_.replaceWaitingTaskHolder(std::move(waitingTaskHolder));
-      }
-
-    private:
-      impl::ScopedContextHolderHelper holderHelper_;
-      ContextState const* contextState_;
-    };
-
-    /**
      * The aim of this class is to do necessary per-event "initialization" in analyze()
      * - setting the current device
      * - synchronizing between CUDA streams if necessary
@@ -224,20 +194,7 @@ namespace cms {
       /// Constructor to (possibly) re-use a CUDA stream
       explicit ScopedContextAnalyze(const ProductBase& data) : ScopedContextGetterBase(data) {}
     };
-
-    namespace impl {
-      template <typename F>
-      void ScopedContextHolderHelper::pushNextTask(F&& f, ContextState const* state) {
-        auto group = waitingTaskHolder_.group();
-        replaceWaitingTaskHolder(edm::WaitingTaskWithArenaHolder{
-            *group,
-            edm::make_waiting_task_with_holder(std::move(waitingTaskHolder_),
-                                               [state, func = std::forward<F>(f)](edm::WaitingTaskWithArenaHolder h) {
-                                                 func(ScopedContextTask{state, std::move(h)});
-                                               })});
-      }
-    }  // namespace impl
-  }    // namespace cuda
+  }  // namespace cuda
 }  // namespace cms
 
 #endif

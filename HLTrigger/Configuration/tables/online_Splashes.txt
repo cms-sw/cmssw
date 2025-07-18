@@ -41,7 +41,7 @@ Status_OnGPU # CMSHLT3186
 
 HLTriggerFinalPath
 
-## EndPaths / FinalPaths ##
+## EndPaths ##
 
 DQMOutput
 DQMEventDisplayOutput

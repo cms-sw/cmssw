@@ -82,6 +82,7 @@ bool L1TCaloLayer1FetchLUTs(
   }
   size_t numEcalPhiBins = (*std::max_element(ecalScalePhiBins.begin(), ecalScalePhiBins.end())) + 1;
   auto ecalSF = caloParams.layer1ECalScaleFactors();
+  auto ecalZSF = caloParams.layer1ECalZSFactors();
   if (ecalSF.size() != ecalScaleETBins.size() * numEcalPhiBins * 28) {
     edm::LogError("L1TCaloLayer1FetchLUTs") << "caloParams.layer1ECalScaleFactors().size() != "
                                                "caloParams.layer1ECalScaleETBins().size()*numEcalPhiBins*28 !!";
@@ -97,6 +98,7 @@ bool L1TCaloLayer1FetchLUTs(
   }
   size_t numHcalPhiBins = (*std::max_element(hcalScalePhiBins.begin(), hcalScalePhiBins.end())) + 1;
   auto hcalSF = caloParams.layer1HCalScaleFactors();
+  auto hcalZSF = caloParams.layer1HCalZSFactors();
   if (hcalSF.size() != hcalScaleETBins.size() * numHcalPhiBins * 28) {
     edm::LogError("L1TCaloLayer1FetchLUTs") << "caloParams.layer1HCalScaleFactors().size() != "
                                                "caloParams.layer1HCalScaleETBins().size()*numHcalPhiBins*28 !!";
@@ -195,6 +197,8 @@ bool L1TCaloLayer1FetchLUTs(
               calibratedECalInput *= ecalSF.at(phiBin * ecalScaleETBins.size() * 28 + etBin * 28 + etaBin);
             if (useLSB)
               calibratedECalInput /= caloLSB;
+            if (ecalZSF.size() >= 28 && ecalInput < ecalZSF.size() / 28 - 1)
+              calibratedECalInput *= ecalZSF.at(ecalInput * 28 + etaBin);
 
             value = calibratedECalInput;
             if (fwVersion > 2) {
@@ -261,7 +265,8 @@ bool L1TCaloLayer1FetchLUTs(
               calibratedHcalInput *= hcalSF.at(phiBin * hcalScaleETBins.size() * 28 + etBin * 28 + etaBin);
             if (useLSB)
               calibratedHcalInput /= caloLSB;
-
+            if (hcalZSF.size() >= 28 && hcalInput < hcalZSF.size() / 28 - 1)
+              calibratedHcalInput *= hcalZSF.at(hcalInput * 28 + etaBin);
             value = calibratedHcalInput;
             if (fwVersion > 2) {
               // Saturate if either decompressed value is over 127.5 GeV or input saturated

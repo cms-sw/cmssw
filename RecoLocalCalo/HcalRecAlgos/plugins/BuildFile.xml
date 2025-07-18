@@ -5,3 +5,11 @@
 <library file="*.cc" name="RecoLocalCaloHcalRecAlgosPlugin">
   <flags EDM_PLUGIN="1"/>
 </library>
+<library file="alpaka/*.cc" name="RecoLocalCaloHcalRecAlgosPluginsPortable">
+  <use name="alpaka"/>    
+  <use name="CondFormats/HcalObjects"/>
+  <use name="HeterogeneousCore/AlpakaCore"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <flags ALPAKA_BACKENDS="1"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

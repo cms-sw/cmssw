@@ -22,7 +22,7 @@ namespace mkfit {
 
   void MkFitter::printPt(int idx) {
     for (int i = 0; i < NN; ++i) {
-      printf("%5.2f  ", std::hypot(m_Par[idx].At(i, 3, 0), m_Par[idx].At(i, 4, 0)));
+      printf("%5.2f  ", getHypot(m_Par[idx].At(i, 3, 0), m_Par[idx].At(i, 4, 0)));
     }
   }
 

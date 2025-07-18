@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import Validation.RecoTau.ValidationUtils as Utils
 import copy
@@ -450,10 +449,10 @@ class ApplyFunctionToSequence:
 def TranslateToLegacyProdNames(input):
    input = re.sub('fixedConePFTauProducer', 'pfRecoTauProducer', input)
    #fixedDiscriminationRegex = re.compile('fixedConePFTauDiscrimination( \w* )')
-   fixedDiscriminationRegex = re.compile('fixedConePFTauDiscrimination(\w*)')
+   fixedDiscriminationRegex = re.compile('fixedConePFTauDiscrimination(\\w*)')
    input = fixedDiscriminationRegex.sub(r'pfRecoTauDiscrimination\1', input)
    input = re.sub('shrinkingConePFTauProducer', 'pfRecoTauProducerHighEfficiency', input)
-   shrinkingDiscriminationRegex = re.compile('shrinkingConePFTauDiscrimination(\w*)')
+   shrinkingDiscriminationRegex = re.compile('shrinkingConePFTauDiscrimination(\\w*)')
    input = shrinkingDiscriminationRegex.sub(r'pfRecoTauDiscrimination\1HighEfficiency', input)
    return input
 

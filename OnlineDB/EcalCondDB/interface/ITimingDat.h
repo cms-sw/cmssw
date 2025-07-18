@@ -31,7 +31,7 @@ public:
     m_taskStatus = false;
   };
 
-  ~ITimingDat() override{};
+  ~ITimingDat() override {}
 
   // User data methods
   inline std::string getTable() override { return m_table_name; }

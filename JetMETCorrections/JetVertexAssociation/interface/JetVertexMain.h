@@ -14,7 +14,7 @@ class JetVertexMain {
 public:
   JetVertexMain(const edm::ParameterSet& parameters);
 
-  ~JetVertexMain(){};
+  ~JetVertexMain() {}
 
   std::pair<double, bool> Main(const reco::CaloJet& jet,
                                edm::Handle<reco::TrackCollection> tracks,

@@ -49,9 +49,9 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     maxPhi = cms.double(3.1416),
     nintPhi = cms.int32(36),
     #
-    minDxy = cms.double(-25),
-    maxDxy = cms.double(25),
-    nintDxy = cms.int32(100),
+    minDxy = cms.double(-20),
+    maxDxy = cms.double(20),
+    nintDxy = cms.int32(500),
     #
     minDz = cms.double(-30),
     maxDz = cms.double(30),

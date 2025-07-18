@@ -47,7 +47,7 @@ public:
   DTConfigTraco(const edm::ParameterSet& ps);
 
   //! Constructor
-  DTConfigTraco(){};
+  DTConfigTraco() {}
 
   //! Constructor from string
   DTConfigTraco(int debug, unsigned short int* buffer);

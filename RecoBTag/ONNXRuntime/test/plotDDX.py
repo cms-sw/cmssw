@@ -1,4 +1,3 @@
-from __future__ import print_function
 import ROOT
 from DataFormats.FWLite import Handle, Events
 import numpy as np

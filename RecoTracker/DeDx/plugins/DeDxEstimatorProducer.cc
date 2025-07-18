@@ -30,6 +30,9 @@ void DeDxEstimatorProducer::fillDescriptions(edm::ConfigurationDescriptions& des
   edm::ParameterSetDescription desc;
   desc.add<string>("estimator", "generic");
   desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
+  desc.add<bool>("UseDeDxHits", false);
+  desc.add<edm::InputTag>("pixelDeDxHits", {});
+  desc.add<edm::InputTag>("stripDeDxHits", {});
   desc.add<bool>("UsePixel", false);
   desc.add<bool>("UseStrip", true);
   desc.add<double>("MeVperADCPixel", 3.61e-06);
@@ -62,6 +65,8 @@ DeDxEstimatorProducer::DeDxEstimatorProducer(const edm::ParameterSet& iConfig)
     m_estimator = std::make_unique<GenericTruncatedAverageDeDxEstimator>(iConfig);
   else if (estimatorName == "unbinnedFit")
     m_estimator = std::make_unique<UnbinnedFitDeDxEstimator>(iConfig);
+  else if (estimatorName == "likelihoodFit")
+    m_estimator = std::make_unique<LikelihoodFitDeDxEstimator>(iConfig);
   else if (estimatorName == "productDiscrim")
     m_estimator = std::make_unique<ProductDeDxDiscriminator>(iConfig, cCollector);
   else if (estimatorName == "btagDiscrim")
@@ -75,6 +80,10 @@ DeDxEstimatorProducer::DeDxEstimatorProducer(const edm::ParameterSet& iConfig)
   //   MaxNrStrips         = iConfig.getUntrackedParameter<unsigned>("maxNrStrips"        ,  255);
 
   m_tracksTag = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
+
+  useDeDxHits = iConfig.getParameter<bool>("UseDeDxHits");
+  m_pixelDeDxHitsTag = consumes<reco::TrackDeDxHitsCollection>(iConfig.getParameter<edm::InputTag>("pixelDeDxHits"));
+  m_stripDeDxHitsTag = consumes<reco::TrackDeDxHitsCollection>(iConfig.getParameter<edm::InputTag>("stripDeDxHits"));
 
   usePixel = iConfig.getParameter<bool>("UsePixel");
   useStrip = iConfig.getParameter<bool>("UseStrip");
@@ -110,27 +119,38 @@ void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
   edm::Handle<reco::TrackCollection> trackCollectionHandle;
   iEvent.getByToken(m_tracksTag, trackCollectionHandle);
+  const auto& pixelDeDxHits = iEvent.getHandle(m_pixelDeDxHitsTag);
+  const auto& stripDeDxHits = iEvent.getHandle(m_stripDeDxHitsTag);
 
   std::vector<DeDxData> dedxEstimate(trackCollectionHandle->size());
 
   for (unsigned int j = 0; j < trackCollectionHandle->size(); j++) {
-    const reco::TrackRef track = reco::TrackRef(trackCollectionHandle.product(), j);
+    const reco::TrackRef track = reco::TrackRef(trackCollectionHandle, j);
 
     int NClusterSaturating = 0;
     DeDxHitCollection dedxHits;
 
-    auto const& trajParams = track->extra()->trajParams();
-    assert(trajParams.size() == track->recHitsSize());
-    auto hb = track->recHitsBegin();
-    dedxHits.reserve(track->recHitsSize() / 2);
-    for (unsigned int h = 0; h < track->recHitsSize(); h++) {
-      auto recHit = *(hb + h);
-      if (!trackerHitRTTI::isFromDet(*recHit))
-        continue;
+    if (useDeDxHits) {
+      if (usePixel)
+        dedxHits = (*pixelDeDxHits)[track];
+      if (useStrip) {
+        const auto& hits = (*stripDeDxHits)[track];
+        dedxHits.insert(dedxHits.end(), hits.begin(), hits.end());
+      }
+    } else {
+      auto const& trajParams = track->extra()->trajParams();
+      assert(trajParams.size() == track->recHitsSize());
+      auto hb = track->recHitsBegin();
+      dedxHits.reserve(track->recHitsSize() / 2);
+      for (unsigned int h = 0; h < track->recHitsSize(); h++) {
+        auto recHit = *(hb + h);
+        if (!trackerHitRTTI::isFromDet(*recHit))
+          continue;
 
-      auto trackDirection = trajParams[h].direction();
-      float cosine = trackDirection.z() / trackDirection.mag();
-      processHit(recHit, track->p(), cosine, dedxHits, NClusterSaturating);
+        auto trackDirection = trajParams[h].direction();
+        float cosine = trackDirection.z() / trackDirection.mag();
+        processHit(recHit, track->p(), cosine, dedxHits, NClusterSaturating);
+      }
     }
 
     sort(dedxHits.begin(), dedxHits.end(), less<DeDxHit>());

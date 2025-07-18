@@ -7,9 +7,10 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include "DataFormats/Common/interface/Uninitialized.h"
+#include "DataFormats/Portable/interface/PortableCollectionCommon.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
-#include "DataFormats/Portable/interface/PortableCollectionCommon.h"
 
 // generic SoA-based product in device memory
 template <typename T, typename TDev, typename = std::enable_if_t<alpaka::isDevice<TDev>>>
@@ -21,10 +22,14 @@ public:
   using Layout = T;
   using View = typename Layout::View;
   using ConstView = typename Layout::ConstView;
+  using Descriptor = typename Layout::Descriptor;
+  using ConstDescriptor = typename Layout::ConstDescriptor;
   using Buffer = cms::alpakatools::device_buffer<TDev, std::byte[]>;
   using ConstBuffer = cms::alpakatools::const_device_buffer<TDev, std::byte[]>;
 
-  PortableDeviceCollection() = default;
+  PortableDeviceCollection() = delete;
+
+  explicit PortableDeviceCollection(edm::Uninitialized) noexcept {}
 
   PortableDeviceCollection(int32_t elements, TDev const& device)
       : buffer_{cms::alpakatools::make_device_buffer<std::byte[]>(device, Layout::computeDataSize(elements))},
@@ -70,7 +75,35 @@ public:
   ConstBuffer buffer() const { return *buffer_; }
   ConstBuffer const_buffer() const { return *buffer_; }
 
+  // erases the data in the Buffer by writing zeros (bytes containing '\0') to it
+  template <typename TQueue, typename = std::enable_if_t<alpaka::isQueue<TQueue>>>
+  void zeroInitialise(TQueue&& queue) {
+    alpaka::memset(std::forward<TQueue>(queue), *buffer_, 0x00);
+  }
+
+  // Copy column by column heterogeneously for device to host/device data transfer.
+  template <typename TQueue>
+  void deepCopy(ConstView const& view, TQueue& queue) {
+    ConstDescriptor desc{view};
+    Descriptor desc_{view_};
+    _deepCopy<0>(desc_, desc, queue);
+  }
+
 private:
+  // Helper function implementing the recursive deep copy
+  template <int I, typename TQueue>
+  void _deepCopy(Descriptor& dest, ConstDescriptor const& src, TQueue& queue) {
+    if constexpr (I < ConstDescriptor::num_cols) {
+      assert(std::get<I>(dest.buff).size_bytes() == std::get<I>(src.buff).size_bytes());
+      alpaka::memcpy(
+          queue,
+          alpaka::createView(alpaka::getDev(queue), std::get<I>(dest.buff).data(), std::get<I>(dest.buff).size()),
+          alpaka::createView(alpaka::getDev(queue), std::get<I>(src.buff).data(), std::get<I>(src.buff).size()));
+      _deepCopy<I + 1>(dest, src, queue);
+    }
+  }
+
+  // Data members
   std::optional<Buffer> buffer_;  //!
   Layout layout_;                 //
   View view_;                     //!
@@ -138,7 +171,9 @@ private:
   }
 
 public:
-  PortableDeviceMultiCollection() = default;
+  PortableDeviceMultiCollection() = delete;
+
+  explicit PortableDeviceMultiCollection(edm::Uninitialized) noexcept {};
 
   PortableDeviceMultiCollection(int32_t elements, TDev const& device)
       : buffer_{cms::alpakatools::make_device_buffer<std::byte[]>(device, Layout<>::computeDataSize(elements))},
@@ -275,7 +310,13 @@ public:
   ConstBuffer buffer() const { return *buffer_; }
   ConstBuffer const_buffer() const { return *buffer_; }
 
-  // Extract the sizes array
+  // erases the data in the Buffer by writing zeros (bytes containing '\0') to it
+  template <typename TQueue, typename = std::enable_if_t<alpaka::isQueue<TQueue>>>
+  void zeroInitialise(TQueue&& queue) {
+    alpaka::memset(std::forward<TQueue>(queue), *buffer_, 0x00);
+  }
+
+  // extract the sizes array
   SizesArray sizes() const {
     SizesArray ret;
     portablecollection::constexpr_for<0, members_>([&](auto i) { ret[i] = get<i>().layout_.metadata().size(); });

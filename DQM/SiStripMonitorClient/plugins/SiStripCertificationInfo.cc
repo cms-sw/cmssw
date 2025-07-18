@@ -35,7 +35,7 @@ public:
 
 private:
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override{};
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override {}
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) override;
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
   void analyze(edm::Event const&, edm::EventSetup const&) override;
@@ -268,7 +268,7 @@ void SiStripCertificationInfo::fillSiStripCertificationMEs(DQMStore& dqm_store, 
       if (SiStripCertificationSummaryMap)
         SiStripCertificationSummaryMap->Fill(xbin, ilayer + 1, fraction_layer);
     }
-    if (ybin <= SiStripCertificationSummaryMap->getNbinsY()) {
+    if (SiStripCertificationSummaryMap && ybin <= SiStripCertificationSummaryMap->getNbinsY()) {
       for (int k = ybin + 1; k <= SiStripCertificationSummaryMap->getNbinsY(); k++)
         SiStripCertificationSummaryMap->Fill(xbin, k, -1.0);
     }

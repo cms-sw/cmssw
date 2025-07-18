@@ -429,15 +429,15 @@ void Comparator::Draw(TH1 *h0, TH1 *h1, Mode mode) {
     std::ostringstream oss3;
     oss3 << h1_->GetEntries();
     const std::string txt_entries = "Entries = " + oss3.str();
-    text = ptstats2->AddText(txt_entries.c_str());
+    ptstats2->AddText(txt_entries.c_str());
     std::ostringstream oss;
     oss << h1_->GetMean();
     const std::string txt_mean = "Mean  = " + oss.str();
-    text = ptstats2->AddText(txt_mean.c_str());
+    ptstats2->AddText(txt_mean.c_str());
     std::ostringstream oss2;
     oss2 << h1_->GetRMS();
     const std::string txt_rms = "RMS  = " + oss2.str();
-    text = ptstats2->AddText(txt_rms.c_str());
+    ptstats2->AddText(txt_rms.c_str());
     ptstats2->SetOptStat(1111);
     ptstats2->SetOptFit(0);
     ptstats2->Draw();

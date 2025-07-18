@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 # This config file can be used to retrieve constants from the Condition Data Base. 
 # Ricky Egeland 18/08/06 Modif Alex Zabi: change into cff file
 PoolDBESSource = cms.ESSource("PoolDBESSource",
-    loadAll = cms.bool(True),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('EcalPedestalsRcd'),
         tag = cms.string('EcalPedestals_from_online')
@@ -28,13 +27,9 @@ PoolDBESSource = cms.ESSource("PoolDBESSource",
             record = cms.string('EcalTBWeightsRcd'),
             tag = cms.string('EcalTBWeights_standard_V0')
         )),
-    messagelevel = cms.untracked.uint32(2),
-    catalog = cms.untracked.string('relationalcatalog_oracle://cms_testbeam/CMS_ECAL_H4_COND'), ##cms_testbeam/CMS_ECAL_H4_COND"
 
-    timetype = cms.string('runnumber'),
     connect = cms.string('oracle://cms_testbeam/CMS_ECAL_H4_COND'), ##cms_testbeam/CMS_ECAL_H4_COND"
 
-    authenticationMethod = cms.untracked.uint32(1)
 )
 
 getCond = cms.EDAnalyzer("EventSetupRecordDataGetter",

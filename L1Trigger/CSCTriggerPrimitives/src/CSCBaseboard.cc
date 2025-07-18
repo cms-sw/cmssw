@@ -3,7 +3,7 @@
 CSCBaseboard::Parameters::Parameters(const edm::ParameterSet& conf)
     : conf_(&conf),
       commonParams_(conf.getParameter<edm::ParameterSet>("commonParam")),
-      showerParams_(conf.getParameterSet("showerParam")){};
+      showerParams_(conf.getParameterSet("showerParam")) {}
 
 void CSCBaseboard::Parameters::chooseParams(std::string_view tmb, std::string_view alct, std::string_view clct) {
   if (tmbName_ != tmb) {

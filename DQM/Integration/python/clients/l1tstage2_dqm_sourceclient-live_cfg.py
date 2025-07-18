@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 import sys
-from Configuration.Eras.Era_Run3_cff import Run3
-process = cms.Process("L1TStage2DQM", Run3)
+from Configuration.Eras.Era_Run3_2025_cff import Run3_2025
+process = cms.Process("L1TStage2DQM", Run3_2025)
 
 unitTest = False
 if 'unitTest=True' in sys.argv:
@@ -43,10 +43,10 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = "L1T"
 process.dqmSaver.tag = "L1T"
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = "L1T"
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = "L1T"
+# process.dqmSaverPB.runNumber = options.runNumber
 
-process.dqmEndPath = cms.EndPath(process.dqmEnv * process.dqmSaver * process.dqmSaverPB)
+process.dqmEndPath = cms.EndPath(process.dqmEnv * process.dqmSaver )#* process.dqmSaverPB)
 
 #--------------------------------------------------
 # Standard Unpacking Path
@@ -127,6 +127,10 @@ if process.runType.getRunType() == process.runType.cosmic_run:
 if process.runType.getRunType() == process.runType.hi_run:
     process.hltFatEventFilter.HLTPaths.append('HLT_HIPhysics_v*')
     rawDataRepackerLabel = 'rawDataRepacker'
+    process.l1tStage2uGTTiming.firstBXInTrainAlgo=cms.untracked.string("L1_FirstBunchInTrain_50ns")
+    process.l1tStage2uGTTiming.lastBXInTrainAlgo=cms.untracked.string("L1_LastBunchInTrain_50ns")
+    process.l1tObjectsTiming.firstBXInTrainAlgo=cms.untracked.string("L1_FirstBunchInTrain_50ns")
+    process.l1tObjectsTiming.lastBXInTrainAlgo=cms.untracked.string("L1_LastBunchInTrain_50ns")
     process.onlineMetaDataDigis.onlineMetaDataInputLabel = rawDataRepackerLabel
     process.onlineMetaDataRawToDigi.onlineMetaDataInputLabel = rawDataRepackerLabel
     process.castorDigis.InputLabel = rawDataRepackerLabel
@@ -140,7 +144,7 @@ if process.runType.getRunType() == process.runType.hi_run:
     process.muonRPCDigis.InputLabel = rawDataRepackerLabel
     process.muonGEMDigis.InputLabel = rawDataRepackerLabel
     process.scalersRawToDigi.scalersInputTag = rawDataRepackerLabel
-    process.siPixelDigis.cpu.InputLabel = rawDataRepackerLabel
+    process.siPixelDigis.InputLabel = rawDataRepackerLabel
     process.siStripDigis.ProductLabel = rawDataRepackerLabel
     process.tcdsDigis.InputLabel = rawDataRepackerLabel
     process.tcdsRawToDigi.InputLabel = rawDataRepackerLabel
@@ -182,4 +186,5 @@ process.schedule = cms.Schedule(
 
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
+print("Global Tag used:", process.GlobalTag.globaltag.value())
 print("Final Source settings:", process.source)

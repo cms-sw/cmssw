@@ -72,16 +72,15 @@ namespace l1t {
       }  // End ImportRPC
 
       void ImportGEM(EMTFHit& _hit, const l1t::emtf::GEM& _GEM, const int _endcap, const int _evt_sector) {
-        constexpr uint8_t GEM_MAX_CLUSTERS_PER_LAYER = 8;
+        constexpr uint8_t GEM_MAX_NROLL = 8;  //unpacked roll number 0-7, GE1/1 case only
         _hit.set_endcap(_endcap == 1 ? 1 : -1);
         _hit.set_sector_idx(_endcap == 1 ? _evt_sector - 1 : _evt_sector + 5);
 
         _hit.set_pad(_GEM.Pad());
         _hit.set_pad_hi(_GEM.Pad() + (_GEM.ClusterSize() - 1));
         _hit.set_pad_low(_GEM.Pad());
-        _hit.set_partition(_GEM.Partition());
-        // TODO: verify layer naming is 0/1 and not 1/2
-        _hit.set_layer(_GEM.ClusterID() < GEM_MAX_CLUSTERS_PER_LAYER ? 0 : 1);
+        //_GEM.Partition() is roll number, 0-7, ieta is for GEMDetID, 8-1
+        _hit.set_partition(GEM_MAX_NROLL - _GEM.Partition());
         _hit.set_cluster_size(_GEM.ClusterSize());
         _hit.set_cluster_id(_GEM.ClusterID());
         // TODO: FIXME is this value known for GEM? - JS 13.07.20
@@ -91,8 +90,6 @@ namespace l1t {
         _hit.set_subsystem(l1tmu::kGEM);
 
         _hit.set_ring(1);  // GEM only on ring 1
-        // TODO: FIXME correct for GEM, should match CSC chamber, but GEM have 2 chambers (layers in a superchamber) per CSC chamber - JS 13.07.20
-        // _hit.set_chamber(L1TMuonEndCap::calc_chamber(_hit.Station(), _hit.Sector(), _hit.Subsector(), _hit.Ring(), _hit.GEM_ID()));
         _hit.SetGEMDetId(_hit.CreateGEMDetId());
         // _hit.SetGEMDigi(_hit.CreateGEMPadDigi());
 
@@ -136,5 +133,5 @@ namespace l1t {
       }  // End ImportSP
 
     }  // End namespace emtf
-  }    // End namespace stage2
+  }  // End namespace stage2
 }  // End namespace l1t

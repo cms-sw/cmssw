@@ -7,21 +7,16 @@
 #include <type_traits>
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::detail {
+  // host backends can use TProduct directly
+  // all device backends need to be wrapped
+  inline constexpr bool useESProductDirectly = std::is_same_v<Platform, alpaka::PlatformCpu>;
+
   /**
-   * This "trait" class abstracts the actual product type put in an
+   * Type alias for the actual product type put in an
    * EventSetup record
    */
   template <typename TProduct>
-  struct ESDeviceProductType {
-    using type = std::conditional_t<std::is_same_v<Platform, alpaka::PlatformCpu>,
-                                    // host backends can use TProduct directly
-                                    TProduct,
-                                    // all device backends need to be wrapped
-                                    ESDeviceProduct<TProduct>>;
-  };
-
-  template <typename TProduct>
-  inline constexpr bool useESProductDirectly = std::is_same_v<typename ESDeviceProductType<TProduct>::type, TProduct>;
+  using ESDeviceProductType = std::conditional_t<useESProductDirectly, TProduct, ESDeviceProduct<TProduct>>;
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::detail
 
 #endif

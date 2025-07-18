@@ -65,12 +65,12 @@ private:
     // Make sure that there are no duplicate ids
     if ((const_cast<HcalIndexLookup*>(this))->hasDuplicateIds())
       throw cms::Exception("In HcalIndexLookup::save: invalid data");
-    ar& data_& sorted_;
+    ar & data_ & sorted_;
   }
 
   template <class Archive>
   inline void load(Archive& ar, const unsigned /* version */) {
-    ar& data_& sorted_;
+    ar & data_ & sorted_;
     if (hasDuplicateIds())
       throw cms::Exception("In HcalIndexLookup::load: invalid data");
   }

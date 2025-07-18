@@ -13,11 +13,11 @@ namespace CLHEP {
 namespace gen {
   class EvtGenInterfaceBase {
   public:
-    EvtGenInterfaceBase(){};
-    virtual ~EvtGenInterfaceBase(){};
+    EvtGenInterfaceBase() {}
+    virtual ~EvtGenInterfaceBase() {}
 
-    virtual void SetPhotosDecayRandomEngine(CLHEP::HepRandomEngine* decayRandomEngine){};
-    virtual void init(){};
+    virtual void SetPhotosDecayRandomEngine(CLHEP::HepRandomEngine* decayRandomEngine) {}
+    virtual void init() {}
     virtual const std::vector<int>& operatesOnParticles() { return m_PDGs; }
     virtual const std::vector<std::string>& specialSettings() { return fSpecialSettings; }
     virtual HepMC::GenEvent* decay(HepMC::GenEvent* evt) { return evt; }

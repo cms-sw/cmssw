@@ -617,7 +617,7 @@ def diffTrackListsGeneric(trackPrinter, lst1, lst2, ignoreAdditionalLst2=False):
     return diff
 
 def _formatHitDiffForTwiki(diffHits, prefix):
-    line_re = re.compile("(?P<sign>[ \-+])\s+(?P<det>[a-zA-Z]+)(?P<lay>\d+)\D*?(\((?P<missing>missing|inactive)\))?\s+\d+")
+    line_re = re.compile("(?P<sign>[ \\-+])\\s+(?P<det>[a-zA-Z]+)(?P<lay>\\d+)\\D*?(\\((?P<missing>missing|inactive)\\))?\\s+\\d+")
 
     summary = []
     prevdet = ""

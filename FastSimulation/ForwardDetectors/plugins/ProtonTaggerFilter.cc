@@ -119,7 +119,7 @@ void ProtonTaggerFilter::beginJob() {
   edm::LogVerbatim("FastSimProtonTaggerFilter") << "ProtonTaggerFilter: Getting ready ...";
 
   edm::FileInPath myDataFile("FastSimulation/ForwardDetectors/data/acceptance_420_220.root");
-  std::string fullPath = myDataFile.fullPath();
+  const std::string& fullPath = myDataFile.fullPath();
 
   edm::LogVerbatim("FastSimProtonTaggerFilter") << "Opening " << fullPath;
   TFile f(fullPath.c_str());

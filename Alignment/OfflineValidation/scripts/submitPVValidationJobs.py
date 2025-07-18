@@ -6,7 +6,6 @@ usage:
 submitPVValidationJobs.py -j TEST -D /HLTPhysics/Run2016C-TkAlMinBias-07Dec2018-v1/ALCARECO -i testPVValidation_Relvals_DATA.ini -r
 '''
 
-from __future__ import print_function
 from builtins import range
 
 __author__ = 'Marco Musich'

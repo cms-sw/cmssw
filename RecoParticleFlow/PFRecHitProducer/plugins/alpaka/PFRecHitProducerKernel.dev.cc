@@ -13,8 +13,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // Kernel to apply cuts to calorimeter hits and construct PFRecHits
   template <typename CAL>
   struct PFRecHitProducerKernelConstruct {
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(const TAcc& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   const typename CAL::ParameterType::ConstView params,
                                   const typename CAL::TopologyTypeDevice::ConstView topology,
                                   const typename CAL::CaloRecHitSoATypeDevice::ConstView recHits,
@@ -59,8 +58,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const uint32_t detId = rh.detId();
     const uint32_t depth = HCAL::getDepth(detId);
     const uint32_t subdet = getSubdet(detId);
+
+    // skip bad channels
+    if (rh.chi2() < 0)
+      return false;
+
     if (topology.cutsFromDB()) {
-      threshold = topology.noiseThreshold()[HCAL::detId2denseId(detId)];
+      const auto& denseId = HCAL::detId2denseId(detId);
+      if (denseId != HCAL::kInvalidDenseId) {
+        threshold = topology.noiseThreshold()[denseId];
+      } else {
+        printf("Encountered invalid denseId for detId %u (subdetector %u)!", detId, subdet);
+        return false;
+      }
     } else {
       if (subdet == HcalBarrel) {
         threshold = params.energyThresholds()[depth - 1];
@@ -99,7 +109,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     pfrh.detId() = rh.detId();
     pfrh.denseId() = HCAL::detId2denseId(rh.detId());
     pfrh.energy() = rh.energy();
-    pfrh.time() = rh.time();
+    pfrh.time() = rh.timeM0();
     pfrh.depth() = HCAL::getDepth(pfrh.detId());
     const uint32_t subdet = getSubdet(pfrh.detId());
     if (subdet == HcalBarrel)
@@ -131,8 +141,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // Kernel to associate topology information of PFRecHits
   template <typename CAL>
   struct PFRecHitProducerKernelTopology {
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(const TAcc& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   const typename CAL::TopologyTypeDevice::ConstView topology,
                                   reco::PFRecHitDeviceCollection::View pfRecHits,
                                   const uint32_t* __restrict__ denseId2pfRecHit,
@@ -152,7 +161,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         for (uint32_t n = 0; n < 8; n++) {
           pfRecHits.neighbours(i)(n) = -1;
           const uint32_t denseId_neighbour = topology.neighbours(denseId)(n);
-          if (denseId_neighbour != 0xffffffff) {
+          if (denseId_neighbour != CAL::kInvalidDenseId) {
             const uint32_t pfRecHit_neighbour = denseId2pfRecHit[denseId_neighbour];
             if (pfRecHit_neighbour != 0xffffffff)
               pfRecHits.neighbours(i)(n) = (int32_t)pfRecHit_neighbour;

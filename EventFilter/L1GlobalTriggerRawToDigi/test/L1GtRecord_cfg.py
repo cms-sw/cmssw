@@ -1,4 +1,3 @@
-from __future__ import print_function
 #
 # cfg file to produce L1GlobalTriggerRecord from a L1GlobalTriggerReadoutRecord
 # when running on RAW data, one also unpack the data

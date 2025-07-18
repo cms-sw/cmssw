@@ -24,9 +24,9 @@ namespace TtFullLepDaughter {
 class TtFullLeptonicEvent : public TtEvent {
 public:
   /// empty constructor
-  TtFullLeptonicEvent(){};
+  TtFullLeptonicEvent() {}
   /// default destructor
-  ~TtFullLeptonicEvent() override{};
+  ~TtFullLeptonicEvent() override {}
 
   /// get top of the given hypothesis
   const reco::Candidate* top(const std::string& key, const unsigned& cmb = 0) const {

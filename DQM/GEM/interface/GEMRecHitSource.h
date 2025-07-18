@@ -14,11 +14,11 @@
 class GEMRecHitSource : public GEMDQMBase {
 public:
   explicit GEMRecHitSource(const edm::ParameterSet& cfg);
-  ~GEMRecHitSource() override{};
+  ~GEMRecHitSource() override {}
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
-  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override{};
+  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override {}
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
 

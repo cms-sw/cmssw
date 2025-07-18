@@ -37,7 +37,7 @@
 #include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/interface/FWJobMetadataManager.h"
 
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "FWCore/Common/interface/EventBase.h"
 #include "DataFormats/FWLite/interface/Event.h"
 static std::string viewNameFrom(const std::string& iFull) {

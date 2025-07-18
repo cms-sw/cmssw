@@ -12,8 +12,9 @@
 
 // system include files
 #include <cassert>
-#include <iostream>
 #include <functional>
+#include <iostream>
+#include <memory>
 
 // user include files
 
@@ -39,9 +40,9 @@ class FWViewBase* FWTriggerTableViewManager::buildView(TEveWindowSlot* iParent, 
   std::shared_ptr<FWTriggerTableView> view;
 
   if (type == FWViewType::sName[FWViewType::kTableHLT])
-    view.reset(new FWHLTTriggerTableView(iParent));
+    view = std::make_shared<FWHLTTriggerTableView>(iParent);
   else
-    view.reset(new FWL1TriggerTableView(iParent));
+    view = std::make_shared<FWL1TriggerTableView>(iParent);
 
   view->setProcessList(&(context().metadataManager()->processNamesInJob()));
 

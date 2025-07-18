@@ -80,7 +80,7 @@ public:
   const std::string& name() const override { return _name; }
 
   //! Destructor
-  ~CutApplicatorBase() override{};
+  ~CutApplicatorBase() override {}
 
 private:
   const std::string _name;

@@ -7,8 +7,8 @@
 #include "DataFormats/TestObjects/interface/ThingCollection.h"
 #include "DataFormats/Common/interface/RandomNumberGeneratorState.h"
 
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include <cstdio>
 #include <iostream>
@@ -63,8 +63,9 @@ namespace testinter {
     }
 
     template <typename SERIAL>
-    auto doTransition(SERIAL& iDeserializer, edm::Transition iTrans, unsigned long long iTransitionID)
-        -> decltype(iDeserializer.deserialize()) {
+    auto doTransition(SERIAL& iDeserializer,
+                      edm::Transition iTrans,
+                      unsigned long long iTransitionID) -> decltype(iDeserializer.deserialize()) {
       decltype(iDeserializer.deserialize()) value;
       if (not channel_.doTransition(
               [&value, this]() {

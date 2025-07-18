@@ -14,6 +14,8 @@
 #include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
+#include "Geometry/Records/interface/MTDTopologyRcd.h"
+#include "Geometry/MTDGeometryBuilder/interface/MTDTopology.h"
 
 #include "MtdRecoClusterToSimLayerClusterAssociatorByHitsImpl.h"
 

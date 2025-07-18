@@ -9,7 +9,7 @@
 
 class ZGeneratorLineShape : public RooAbsPdf {
 public:
-  ZGeneratorLineShape(){};
+  ZGeneratorLineShape() {}
   ZGeneratorLineShape(
       const char* name,
       const char* title,
@@ -20,7 +20,7 @@ public:
 
   ZGeneratorLineShape(const ZGeneratorLineShape& other, const char* name);
   inline TObject* clone(const char* newname) const override { return new ZGeneratorLineShape(*this, newname); }
-  inline ~ZGeneratorLineShape() override{};
+  inline ~ZGeneratorLineShape() override {}
   ClassDefOverride(ZGeneratorLineShape, 1) Double_t evaluate() const override;
 
 protected:

@@ -18,7 +18,6 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimG4CMS/Calo/interface/CaloSimUtils.h"
-#include "SimG4CMS/Calo/interface/HGCGuardRing.h"
 
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
@@ -26,6 +25,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
+#include "Geometry/HGCalCommonData/interface/HGCGuardRing.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferMask.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
@@ -62,10 +62,7 @@ HGCalTestGuardRing::HGCalTestGuardRing(const edm::ParameterSet& ps)
                                << " for wafers read from file " << waferFile_;
   if (!waferFile_.empty()) {
     std::string thick[4] = {"h120", "l200", "l300", "h200"};
-    int addType[4] = {HGCalTypes::WaferFineThin,
-                      HGCalTypes::WaferCoarseThin,
-                      HGCalTypes::WaferCoarseThick,
-                      HGCalTypes::WaferFineThick};
+    int addType[4] = {HGCalTypes::WaferHD120, HGCalTypes::WaferLD200, HGCalTypes::WaferLD300, HGCalTypes::WaferHD200};
     const int partTypeH[6] = {HGCalTypes::WaferFull,
                               HGCalTypes::WaferHalf2,
                               HGCalTypes::WaferChopTwoM,
@@ -80,7 +77,7 @@ HGCalTestGuardRing::HGCalTestGuardRing(const edm::ParameterSet& ps)
                               HGCalTypes::WaferFive,
                               HGCalTypes::WaferThree};
     edm::FileInPath filetmp("SimG4CMS/Calo/data/" + waferFile_);
-    std::string fileName = filetmp.fullPath();
+    const std::string& fileName = filetmp.fullPath();
     std::ifstream fInput(fileName.c_str());
     if (!fInput.good()) {
       edm::LogVerbatim("HGCalSim") << "Cannot open file " << fileName;
@@ -98,7 +95,7 @@ HGCalTestGuardRing::HGCalTestGuardRing(const edm::ParameterSet& ps)
           int orient = std::atoi(items[5].c_str());
           int part = std::atoi(items[1].c_str());
           if (part >= 0) {
-            if (type == HGCalTypes::WaferFineThin)
+            if ((type == HGCalTypes::WaferHD120) || (type == HGCalTypes::WaferHD200))
               part = partTypeH[part];
             else
               part = partTypeL[part];

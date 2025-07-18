@@ -1,11 +1,10 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys, os
 import FWCore.ParameterSet.VarParsing as VarParsing
 from FWCore.Utilities.Enumerate import Enumerate
-from Configuration.Geometry.dict2026Geometry import detectorVersionDict
+from Configuration.Geometry.dictRun4Geometry import detectorVersionDict
 
-varType = Enumerate ("Run1 2015 2015dev 2017 2017Muon 2021 2026")
+varType = Enumerate ("Run1 2015 2015dev 2017 2017Muon 2021 Run4")
 defaultVersion=str();
 
 def help():
@@ -15,7 +14,7 @@ def help():
    print("      ", varType.keys())
    print("")
    print("   version=versionNumber")
-   print("       scenario version from 2026 dictionary")
+   print("       scenario version from Run4 dictionary")
    print("")
    print("   out=outputFileName")
    print("       default is cmsSimGeom<tag><version>.root")
@@ -24,7 +23,7 @@ def help():
 
 def versionCheck(ver):
    if ver == "":
-      print("Please, specify 2026 scenario version\n")
+      print("Please, specify Run4 scenario version\n")
       print(sorted([x[1] for x in detectorVersionDict.items()]))
       print("")
       help()
@@ -49,9 +48,9 @@ def simGeoLoad(score):
     elif score == "2021":
        process.load("Geometry.CMSCommonData.cmsExtendedGeometry2021XML_cfi")
 
-    elif score == "2026":
+    elif score == "Run4":
        versionCheck(options.version)
-       process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026" + options.version + "XML_cfi")
+       process.load("Geometry.CMSCommonData.cmsExtendedGeometryRun4" + options.version + "XML_cfi")
  
     else:
       help()
@@ -71,7 +70,7 @@ options.register ('version',
                   defaultVersion, # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "info about 2026 geometry scenario version")
+                  "info about Run4 geometry scenario version")
 options.register ('out',
                   defaultOutputFileName, # default value
                   VarParsing.VarParsing.multiplicity.singleton,

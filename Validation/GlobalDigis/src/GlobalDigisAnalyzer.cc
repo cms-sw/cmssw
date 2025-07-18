@@ -741,7 +741,7 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event &iEvent, const edm::EventSet
   bool validDigiES = true;
   if (!EcalDigiES.isValid()) {
     LogDebug(MsgLoggerCat) << "Unable to find EcalDigiES in event!";
-    validDigiES = false;
+    [[clang::suppress]] validDigiES = false;
   }
 
   // ONLY WHILE GEOMETRY IS REMOVED
@@ -1468,7 +1468,7 @@ void GlobalDigisAnalyzer::fillMuon(const edm::Event &iEvent, const edm::EventSet
   bool validrpcdigi = true;
   if (!rpcDigis.isValid()) {
     LogDebug(MsgLoggerCat) << "Unable to find rpcDigis in event!";
-    validrpcdigi = false;
+    [[clang::suppress]] validrpcdigi = false;
   }
 
   // ONLY UNTIL PROBLEM WITH RPC DIGIS IS FIGURED OUT

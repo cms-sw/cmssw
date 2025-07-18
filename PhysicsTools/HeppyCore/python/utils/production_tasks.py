@@ -1,5 +1,3 @@
-from __future__ import print_function
-from __future__ import absolute_import
 
 from builtins import range
 import copy, datetime, inspect, fnmatch, os, re, subprocess, sys, tempfile, time
@@ -240,7 +238,7 @@ class CheckForMask(Task):
 
         report = None
         if (hasattr(self.options,'check') and self.options.check) or not hasattr(self.options,'check'):
-            file_mask = castortools.matchingFiles(dir, '^%s_.*\.txt$' % mask)
+            file_mask = castortools.matchingFiles(dir, '^%s_.*\\.txt$' % mask)
 
             if file_mask:
                 p = PublishToFileSystem(mask)

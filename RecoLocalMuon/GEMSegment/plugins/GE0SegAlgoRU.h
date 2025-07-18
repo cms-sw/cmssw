@@ -65,7 +65,7 @@ public:
   /// Constructor
   explicit GE0SegAlgoRU(const edm::ParameterSet& ps);
   /// Destructor
-  ~GE0SegAlgoRU() override{};
+  ~GE0SegAlgoRU() override {}
 
   /**
    * Here we must implement the algorithm

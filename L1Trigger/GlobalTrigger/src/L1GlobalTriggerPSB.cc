@@ -1110,7 +1110,7 @@ void L1GlobalTriggerPSB::fillPsbBlock(edm::Event &iEvent,
                   }
                 }
               } else {
-                iHf = nHfBitCounts % hfPerWord;
+                // iHf = nHfBitCounts % hfPerWord;
                 // LogTrace("L1GlobalTrigger")
                 //        << "\n No HfBitCounts collection - skip "
                 //        << iHf*hfBits << " bits "
@@ -1157,12 +1157,6 @@ void L1GlobalTriggerPSB::fillPsbBlock(edm::Event &iEvent,
                     }
                   }
                 }
-              } else {
-                iHf = nHfRingEtSums % hfPerWord;
-                // LogTrace("L1GlobalTrigger")
-                //        << "\n No HfRingEtSums collection - skip "
-                //        << iHf*hfBits << " bits "
-                //        << std::endl;
               }
 
               psbWordValue.setAData(aDataVal, iAB + iPair);

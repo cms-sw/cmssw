@@ -67,7 +67,8 @@ void TriggerResultsFilterFromDB::fillDescriptions(edm::ConfigurationDescriptions
 void TriggerResultsFilterFromDB::parse(const std::vector<std::string>& expressions) {
   // parse the logical expressions into functionals
   if (expressions.empty()) {
-    edm::LogWarning("Configuration") << "Empty trigger results expression";
+    edm::LogWarning("Configuration") << "Empty trigger results expression. Will substitute with *";
+    m_expression = triggerExpression::parse("*");
   } else if (expressions.size() == 1) {
     parse(expressions[0]);
   } else {

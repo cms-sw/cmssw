@@ -609,7 +609,7 @@ edm::EDLooper::Status Pi0FixedMassWindowCalibration::duringLoop(const edm::Event
         }
 
       }  // End of the "j" loop over BCEB
-    }    // End of the "i" loop over BCEB
+    }  // End of the "i" loop over BCEB
 
   } else {
     cout << " Not enough ECAL Barrel Basic Clusters: " << nIslandBCEB << endl;

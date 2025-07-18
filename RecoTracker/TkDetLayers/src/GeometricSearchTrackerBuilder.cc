@@ -13,7 +13,7 @@
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
+#include "Geometry/MTDGeometryBuilder/interface/MTDTopology.h"
 
 using namespace std;
 

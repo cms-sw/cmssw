@@ -91,6 +91,13 @@ private:
       *pf_scsff_eb, *pf_scsff_ee;
 
   TH1F *pf_MET_reco, *pf_MET_rereco;
+
+  const edm::EDGetTokenT<reco::PFCandidateCollection> pfToken_;
+  const edm::EDGetTokenT<reco::GsfElectronCollection> gsfEleToken_;
+  const edm::EDGetTokenT<reco::GenParticleCollection> mcToken_;
+  const edm::EDGetTokenT<reco::GsfElectronCollection> gedEleToken_;
+  const edm::EDGetTokenT<std::vector<reco::PFMET>> metToken_;
+  const edm::EDGetTokenT<std::vector<reco::PFMET>> reMetToken_;
 };
 
 //
@@ -105,9 +112,12 @@ private:
 // constructors and destructor
 //
 GsfGEDElectronAnalyzer::GsfGEDElectronAnalyzer(const edm::ParameterSet &iConfig)
-    : conf_(iConfig)
-
-{
+    : pfToken_(consumes<reco::PFCandidateCollection>(edm::InputTag("particleFlow::reRECO"))),
+      gsfEleToken_(consumes<reco::GsfElectronCollection>(edm::InputTag("gsfElectrons"))),
+      mcToken_(consumes<reco::GenParticleCollection>(edm::InputTag("genParticles"))),
+      gedEleToken_(consumes<reco::GsfElectronCollection>(edm::InputTag("gedGsfElectrons::reRECO"))),
+      metToken_(consumes<std::vector<reco::PFMET>>(edm::InputTag("pfMet::RECO"))),
+      reMetToken_(consumes<std::vector<reco::PFMET>>(edm::InputTag("pfMet::reRECO"))) {
   usesResource(TFileService::kSharedResource);
 
   edm::Service<TFileService> fs;
@@ -238,36 +248,15 @@ GsfGEDElectronAnalyzer::~GsfGEDElectronAnalyzer() {
 // ------------ method called to for each event  ------------
 void GsfGEDElectronAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // Candidate info
-  Handle<reco::PFCandidateCollection> collection;
-  InputTag label("particleFlow::reRECO");  // <- Special electron coll.
-  iEvent.getByLabel(label, collection);
-  std::vector<reco::PFCandidate> candidates = (*collection.product());
+  const auto &candidates = iEvent.get(pfToken_);
+  const auto &theGsfEle = iEvent.get(gsfEleToken_);
+  const auto &pMCTruth = iEvent.get(mcToken_);
+  const auto &theGedEle = iEvent.get(gedEleToken_);
+  const auto &recoMet = iEvent.get(metToken_);
+  const auto &rerecoMet = iEvent.get(reMetToken_);
 
-  InputTag egammaLabel(string("gsfElectrons"));
-  Handle<GsfElectronCollection> theGsfEleCollection;
-  iEvent.getByLabel(egammaLabel, theGsfEleCollection);
-  const GsfElectronCollection theGsfEle = *(theGsfEleCollection.product());
-
-  InputTag MCTruthCollection(string("genParticles"));
-  edm::Handle<std::vector<reco::GenParticle> > pMCTruth;
-  iEvent.getByLabel(MCTruthCollection, pMCTruth);
-
-  InputTag gedEleLabel(string("gedGsfElectrons::reRECO"));
-  Handle<GsfElectronCollection> theGedEleCollection;
-  iEvent.getByLabel(gedEleLabel, theGedEleCollection);
-  const GsfElectronCollection theGedEle = *(theGedEleCollection.product());
-
-  //get and plot the reco met
-  InputTag pfMETRecoLabel("pfMet::RECO");
-  Handle<std::vector<reco::PFMET> > recoMet;
-  iEvent.getByLabel(pfMETRecoLabel, recoMet);
-  pf_MET_reco->Fill(recoMet->at(0).et());
-
-  //get and plot the rereco met
-  InputTag pfMETReRecoLabel("pfMet::reRECO");
-  Handle<std::vector<reco::PFMET> > rerecoMet;
-  iEvent.getByLabel(pfMETReRecoLabel, rerecoMet);
-  pf_MET_rereco->Fill(rerecoMet->at(0).et());
+  pf_MET_reco->Fill(recoMet[0].et());
+  pf_MET_rereco->Fill(rerecoMet[0].et());
 
   bool debug = true;
 
@@ -278,13 +267,13 @@ void GsfGEDElectronAnalyzer::analyze(const edm::Event &iEvent, const edm::EventS
 
   // Validation from generator events
 
-  for (std::vector<reco::GenParticle>::const_iterator cP = pMCTruth->begin(); cP != pMCTruth->end(); cP++) {
-    float etamc = cP->eta();
-    float phimc = cP->phi();
-    float ptmc = cP->pt();
-    float Emc = cP->energy();
+  for (const auto &cP : pMCTruth) {
+    float etamc = cP.eta();
+    float phimc = cP.phi();
+    float ptmc = cP.pt();
+    float Emc = cP.energy();
 
-    if (abs(cP->pdgId()) == 11 && cP->status() == 1 && cP->pt() > 2. && fabs(cP->eta()) < 2.5) {
+    if (abs(cP.pdgId()) == 11 && cP.status() == 1 && cP.pt() > 2. && fabs(cP.eta()) < 2.5) {
       h_etamc_ele->Fill(etamc);
       h_ptmc_ele->Fill(ptmc);
 
@@ -296,16 +285,15 @@ void GsfGEDElectronAnalyzer::analyze(const edm::Event &iEvent, const edm::EventS
       if (debug)
         cout << " MC particle:  pt " << ptmc << " eta,phi " << etamc << ", " << phimc << endl;
 
-      std::vector<reco::PFCandidate>::iterator it;
-      for (it = candidates.begin(); it != candidates.end(); ++it) {
-        reco::PFCandidate::ParticleType type = (*it).particleId();
+      for (const auto &cand : candidates) {
+        reco::PFCandidate::ParticleType type = cand.particleId();
 
         if (type == reco::PFCandidate::e) {
-          float eta = (*it).eta();
-          float phi = (*it).phi();
-          float pfmva = (*it).mva_e_pi();
+          float eta = cand.eta();
+          float phi = cand.phi();
+          float pfmva = cand.mva_e_pi();
 
-          reco::GsfTrackRef refGsf = (*it).gsfTrackRef();
+          reco::GsfTrackRef refGsf = cand.gsfTrackRef();
           //ElectronSeedRef seedRef= refGsf->extra()->seedRef().castTo<ElectronSeedRef>();
 
           float deta = etamc - eta;
@@ -314,7 +302,7 @@ void GsfGEDElectronAnalyzer::analyze(const edm::Event &iEvent, const edm::EventS
 
           if (dR < 0.05) {
             MindR = dR;
-            mvaCutEle = (*it).mva_e_pi();
+            mvaCutEle = cand.mva_e_pi();
             /*
 	    if(seedRef->isEcalDriven())
 	      isPfEcDr = true;
@@ -323,12 +311,12 @@ void GsfGEDElectronAnalyzer::analyze(const edm::Event &iEvent, const edm::EventS
 	    */
 
             if (debug)
-              cout << " PF ele matched:  pt " << (*it).pt() << " (" << (*it).ecalEnergy() / std::cosh(eta) << ") "
+              cout << " PF ele matched:  pt " << cand.pt() << " (" << cand.ecalEnergy() / std::cosh(eta) << ") "
                    << " eta,phi " << eta << ", " << phi << " pfmva " << pfmva << endl;
             // all for the moment
           }
         }  // End PFCandidates Electron Selection
-      }    // End Loop PFCandidates
+      }  // End Loop PFCandidates
 
       if (MindR < 0.05) {
         h_mva_ele->Fill(mvaCutEle);
@@ -351,26 +339,26 @@ void GsfGEDElectronAnalyzer::analyze(const edm::Event &iEvent, const edm::EventS
       bool isEgTrDr = false;
       bool isEgEcDr = false;
 
-      for (uint j = 0; j < theGsfEle.size(); j++) {
-        reco::GsfTrackRef egGsfTrackRef = (theGsfEle[j]).gsfTrack();
-        float etareco = theGsfEle[j].eta();
-        float phireco = theGsfEle[j].phi();
+      for (const auto &gsfEle : theGsfEle) {
+        reco::GsfTrackRef egGsfTrackRef = gsfEle.gsfTrack();
+        float etareco = gsfEle.eta();
+        float phireco = gsfEle.phi();
 
-        float pfmva = theGsfEle[j].mva_e_pi();
+        float pfmva = gsfEle.mva_e_pi();
 
-        reco::GsfTrackRef refGsf = theGsfEle[j].gsfTrack();
+        reco::GsfTrackRef refGsf = gsfEle.gsfTrack();
         //ElectronSeedRef seedRef= refGsf->extra()->seedRef().castTo<ElectronSeedRef>();
 
         float deta = etamc - etareco;
         float dphi = normalizedPhi(phimc - phireco);
         float dR = sqrt(deta * deta + dphi * dphi);
 
-        float SCEnergy = (theGsfEle[j]).superCluster()->energy();
+        float SCEnergy = gsfEle.superCluster()->energy();
         float ErecoEtrue = SCEnergy / Emc;
 
         if (dR < 0.05) {
           if (debug)
-            cout << " EG ele matched: pt " << theGsfEle[j].pt() << " (" << SCEnergy / std::cosh(etareco) << ") "
+            cout << " EG ele matched: pt " << gsfEle.pt() << " (" << SCEnergy / std::cosh(etareco) << ") "
                  << " eta,phi " << etareco << ", " << phireco << " pfmva " << pfmva << endl;
 
           if (fabs(etamc) < 0.5) {
@@ -389,8 +377,8 @@ void GsfGEDElectronAnalyzer::analyze(const edm::Event &iEvent, const edm::EventS
             eg_EEcalEtrue_5->Fill(ErecoEtrue);
           }
 
-          if ((theGsfEle[j].parentSuperCluster()).isNonnull()) {
-            float SCPF = (theGsfEle[j]).parentSuperCluster()->rawEnergy();
+          if ((gsfEle.parentSuperCluster()).isNonnull()) {
+            float SCPF = gsfEle.parentSuperCluster()->rawEnergy();
             float EpfEtrue = SCPF / Emc;
             if (fabs(etamc) < 0.5) {
               pf_EEcalEtrue_1->Fill(EpfEtrue);
@@ -407,47 +395,47 @@ void GsfGEDElectronAnalyzer::analyze(const edm::Event &iEvent, const edm::EventS
             if (fabs(etamc) >= 2.0 && fabs(etamc) < 2.5) {
               pf_EEcalEtrue_5->Fill(EpfEtrue);
             }
-            const reco::GsfElectron::ShowerShape &pfshapes = theGsfEle[j].showerShape();
+            const reco::GsfElectron::ShowerShape &pfshapes = gsfEle.showerShape();
 
             pf_e1x5_all->Fill(pfshapes.e1x5);
             pf_sihih_all->Fill(pfshapes.sigmaIetaIeta);
             pf_r9_all->Fill(pfshapes.r9);
-            pf_scshh_all->Fill((theGsfEle[j]).parentSuperCluster()->etaWidth());
-            pf_scsff_all->Fill((theGsfEle[j]).parentSuperCluster()->phiWidth());
+            pf_scshh_all->Fill(gsfEle.parentSuperCluster()->etaWidth());
+            pf_scsff_all->Fill(gsfEle.parentSuperCluster()->phiWidth());
             if (std::abs(etareco) < 1.479) {
               pf_e1x5_eb->Fill(pfshapes.e1x5);
               pf_sihih_eb->Fill(pfshapes.sigmaIetaIeta);
               pf_r9_eb->Fill(pfshapes.r9);
-              pf_scshh_eb->Fill((theGsfEle[j]).parentSuperCluster()->etaWidth());
-              pf_scsff_eb->Fill((theGsfEle[j]).parentSuperCluster()->phiWidth());
+              pf_scshh_eb->Fill(gsfEle.parentSuperCluster()->etaWidth());
+              pf_scsff_eb->Fill(gsfEle.parentSuperCluster()->phiWidth());
             }
             if (std::abs(etareco) >= 1.479) {
               pf_e1x5_ee->Fill(pfshapes.e1x5);
               pf_sihih_ee->Fill(pfshapes.sigmaIetaIeta);
               pf_r9_ee->Fill(pfshapes.r9);
-              pf_scshh_ee->Fill((theGsfEle[j]).parentSuperCluster()->etaWidth());
-              pf_scsff_ee->Fill((theGsfEle[j]).parentSuperCluster()->phiWidth());
+              pf_scshh_ee->Fill(gsfEle.parentSuperCluster()->etaWidth());
+              pf_scsff_ee->Fill(gsfEle.parentSuperCluster()->phiWidth());
             }
           }
 
-          eg_e1x5_all->Fill(theGsfEle[j].e1x5());
-          eg_sihih_all->Fill(theGsfEle[j].sigmaIetaIeta());
-          eg_r9_all->Fill(theGsfEle[j].r9());
-          eg_scshh_all->Fill((theGsfEle[j]).superCluster()->etaWidth());
-          eg_scsff_all->Fill((theGsfEle[j]).superCluster()->phiWidth());
+          eg_e1x5_all->Fill(gsfEle.e1x5());
+          eg_sihih_all->Fill(gsfEle.sigmaIetaIeta());
+          eg_r9_all->Fill(gsfEle.r9());
+          eg_scshh_all->Fill(gsfEle.superCluster()->etaWidth());
+          eg_scsff_all->Fill(gsfEle.superCluster()->phiWidth());
           if (std::abs(etareco) < 1.479) {
-            eg_e1x5_eb->Fill(theGsfEle[j].e1x5());
-            eg_sihih_eb->Fill(theGsfEle[j].sigmaIetaIeta());
-            eg_r9_eb->Fill(theGsfEle[j].r9());
-            eg_scshh_eb->Fill((theGsfEle[j]).superCluster()->etaWidth());
-            eg_scsff_eb->Fill((theGsfEle[j]).superCluster()->phiWidth());
+            eg_e1x5_eb->Fill(gsfEle.e1x5());
+            eg_sihih_eb->Fill(gsfEle.sigmaIetaIeta());
+            eg_r9_eb->Fill(gsfEle.r9());
+            eg_scshh_eb->Fill(gsfEle.superCluster()->etaWidth());
+            eg_scsff_eb->Fill(gsfEle.superCluster()->phiWidth());
           }
           if (std::abs(etareco) >= 1.479) {
-            eg_e1x5_ee->Fill(theGsfEle[j].e1x5());
-            eg_sihih_ee->Fill(theGsfEle[j].sigmaIetaIeta());
-            eg_r9_ee->Fill(theGsfEle[j].r9());
-            eg_scshh_ee->Fill((theGsfEle[j]).superCluster()->etaWidth());
-            eg_scsff_ee->Fill((theGsfEle[j]).superCluster()->phiWidth());
+            eg_e1x5_ee->Fill(gsfEle.e1x5());
+            eg_sihih_ee->Fill(gsfEle.sigmaIetaIeta());
+            eg_r9_ee->Fill(gsfEle.r9());
+            eg_scshh_ee->Fill(gsfEle.superCluster()->etaWidth());
+            eg_scsff_ee->Fill(gsfEle.superCluster()->phiWidth());
           }
 
           MindREG = dR;
@@ -480,26 +468,26 @@ void GsfGEDElectronAnalyzer::analyze(const edm::Event &iEvent, const edm::EventS
       bool isGedEgTrDr = false;
       bool isGedEgEcDr = false;
 
-      for (uint j = 0; j < theGedEle.size(); j++) {
-        reco::GsfTrackRef egGsfTrackRef = (theGedEle[j]).gsfTrack();
-        float etareco = theGedEle[j].eta();
-        float phireco = theGedEle[j].phi();
-        float pfmva = theGedEle[j].mva_e_pi();
+      for (const auto &gedEle : theGedEle) {
+        reco::GsfTrackRef egGsfTrackRef = gedEle.gsfTrack();
+        float etareco = gedEle.eta();
+        float phireco = gedEle.phi();
+        float pfmva = gedEle.mva_e_pi();
 
-        reco::GsfTrackRef refGsf = theGedEle[j].gsfTrack();
+        reco::GsfTrackRef refGsf = gedEle.gsfTrack();
         //ElectronSeedRef seedRef= refGsf->extra()->seedRef().castTo<ElectronSeedRef>();
 
         float deta = etamc - etareco;
         float dphi = normalizedPhi(phimc - phireco);
         float dR = sqrt(deta * deta + dphi * dphi);
 
-        float SCEnergy = (theGedEle[j]).superCluster()->energy();
+        float SCEnergy = gedEle.superCluster()->energy();
         float ErecoEtrue = SCEnergy / Emc;
 
         if (dR < 0.05) {
           const reco::PFCandidate *matchPF = NULL;
           if (debug)
-            cout << " GED ele matched: pt " << theGedEle[j].pt() << " (" << SCEnergy / std::cosh(etareco) << ") "
+            cout << " GED ele matched: pt " << gedEle.pt() << " (" << SCEnergy / std::cosh(etareco) << ") "
                  << " eta,phi " << etareco << ", " << phireco << " pfmva " << pfmva << endl;
 
           for (unsigned k = 0; k < candidates.size(); ++k) {
@@ -539,7 +527,7 @@ void GsfGEDElectronAnalyzer::analyze(const edm::Event &iEvent, const edm::EventS
 		 << ", " << matchPF->phi() << " pfmva " 
 		 <<  matchPF->mva_e_pi() << endl;
 	      std::cout << "GED Clusters: " << std::endl;
-	      for( const auto& c : theGedEle[j].superCluster()->clusters() ) {
+	      for( const auto& c : gedEle.superCluster()->clusters() ) {
 		std::cout << " E/eta/phi : " << c->energy() 
 			  << '/' << c->eta() 
 			  << '/' << c->phi() << std::endl;		
@@ -555,24 +543,24 @@ void GsfGEDElectronAnalyzer::analyze(const edm::Event &iEvent, const edm::EventS
 	    */
           }
 
-          ged_e1x5_all->Fill(theGedEle[j].e1x5());
-          ged_sihih_all->Fill(theGedEle[j].sigmaIetaIeta());
-          ged_r9_all->Fill(theGedEle[j].r9());
-          ged_scshh_all->Fill((theGedEle[j]).superCluster()->etaWidth());
-          ged_scsff_all->Fill((theGedEle[j]).superCluster()->phiWidth());
+          ged_e1x5_all->Fill(gedEle.e1x5());
+          ged_sihih_all->Fill(gedEle.sigmaIetaIeta());
+          ged_r9_all->Fill(gedEle.r9());
+          ged_scshh_all->Fill(gedEle.superCluster()->etaWidth());
+          ged_scsff_all->Fill(gedEle.superCluster()->phiWidth());
           if (std::abs(etareco) < 1.479) {
-            ged_e1x5_eb->Fill(theGedEle[j].e1x5());
-            ged_sihih_eb->Fill(theGedEle[j].sigmaIetaIeta());
-            ged_r9_eb->Fill(theGedEle[j].r9());
-            ged_scshh_eb->Fill((theGedEle[j]).superCluster()->etaWidth());
-            ged_scsff_eb->Fill((theGedEle[j]).superCluster()->phiWidth());
+            ged_e1x5_eb->Fill(gedEle.e1x5());
+            ged_sihih_eb->Fill(gedEle.sigmaIetaIeta());
+            ged_r9_eb->Fill(gedEle.r9());
+            ged_scshh_eb->Fill(gedEle.superCluster()->etaWidth());
+            ged_scsff_eb->Fill(gedEle.superCluster()->phiWidth());
           }
           if (std::abs(etareco) >= 1.479) {
-            ged_e1x5_ee->Fill(theGedEle[j].e1x5());
-            ged_sihih_ee->Fill(theGedEle[j].sigmaIetaIeta());
-            ged_r9_ee->Fill(theGedEle[j].r9());
-            ged_scshh_ee->Fill((theGedEle[j]).superCluster()->etaWidth());
-            ged_scsff_eb->Fill((theGedEle[j]).superCluster()->phiWidth());
+            ged_e1x5_ee->Fill(gedEle.e1x5());
+            ged_sihih_ee->Fill(gedEle.sigmaIetaIeta());
+            ged_r9_ee->Fill(gedEle.r9());
+            ged_scshh_ee->Fill(gedEle.superCluster()->etaWidth());
+            ged_scsff_eb->Fill(gedEle.superCluster()->phiWidth());
           }
 
           MindRGedEg = dR;

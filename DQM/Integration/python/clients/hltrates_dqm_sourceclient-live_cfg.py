@@ -37,8 +37,8 @@ process.load("DQM.Integration.config.environment_cfi")
 
 process.dqmSaver.tag = "HLTRates"
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = 'HLTRates'
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = 'HLTRates'
+# process.dqmSaverPB.runNumber = options.runNumber
 
 #process.load("Configuration.StandardSequences.GeometryPilot2_cff")
 #process.load("Configuration.StandardSequences.MagneticField_cff")
@@ -98,7 +98,7 @@ process.load("DQM.HLTEvF.triggerRatesMonitor_cfi")
 # Add RawToDigi
 process.rateMon = cms.EndPath(process.hltPreTrigResRateMon *process.triggerRatesMonitor)
 
-process.pp = cms.Path(process.dqmEnv+process.dqmSaver+process.dqmSaverPB)
+process.pp = cms.Path(process.dqmEnv+process.dqmSaver)#+process.dqmSaverPB)
 
 process.dqmEnv.subSystemFolder = 'HLT/TrigResults'
 #process.hltResults.plotAll = True

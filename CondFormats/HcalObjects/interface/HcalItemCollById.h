@@ -124,7 +124,7 @@ private:
 
   template <class Archive>
   inline void serialize(Archive& ar, unsigned /* version */) {
-    ar& coll_& lookup_& default_& transformCode_;
+    ar & coll_ & lookup_ & default_ & transformCode_;
   }
 };
 

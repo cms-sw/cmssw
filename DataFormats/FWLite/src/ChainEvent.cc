@@ -156,7 +156,7 @@ namespace fwlite {
             return true;
           }
         }  // end ignore "first" file that we tried
-      }    // end loop over files
+      }  // end loop over files
 
       // did not find the event with id "id".
       return false;
@@ -195,8 +195,8 @@ namespace fwlite {
     return event_->getBranchNameFor(iType, iModule, iInstance, iProcess);
   }
 
-  std::vector<edm::BranchDescription> const& ChainEvent::getBranchDescriptions() const {
-    return event_->getBranchDescriptions();
+  std::vector<edm::ProductDescription> const& ChainEvent::getProductDescriptions() const {
+    return event_->getProductDescriptions();
   }
 
   std::vector<std::string> const& ChainEvent::getProcessHistory() const { return event_->getProcessHistory(); }

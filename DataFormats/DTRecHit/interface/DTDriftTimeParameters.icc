@@ -4,6 +4,7 @@
 // THIS_CLASS should be #defined accordingly.
 
 #include <string>
+#include <cassert>
 
 #define DT_Cell_Width 42
 #define DT_Cell_HalfWidth 21
@@ -473,6 +474,10 @@ inline void THIS_CLASS::MB_DT_Get_grid_values(
       break;
     }
   }
+
+  // To silence LLVM analyzer warning
+  assert(jValue >= 0);
+  assert(iValue >= 0);
 
   if (fabs(Values[iValue] - Var) <= fabs(Var - Values[jValue])) {
     *pi = iValue;

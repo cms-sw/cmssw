@@ -27,7 +27,7 @@
 template <class C>
 class EcalZeroSuppressor {
 public:
-  virtual ~EcalZeroSuppressor(){};
+  virtual ~EcalZeroSuppressor() {}
 
   // the threshold has to be expressed in number of noise sigmas for ADC counts
   // in the highest gain

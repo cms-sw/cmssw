@@ -34,7 +34,6 @@
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
-//#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/CommonTopologies/interface/Topology.h"
 

@@ -24,7 +24,7 @@ const reco::Candidate* MuScleFitMuonSelector::getStatus1Muon(const reco::Candida
       } else
         continue;
     }  //for loop
-  }    //while loop
+  }  //while loop
 
   return tempMuon;
 }
@@ -46,7 +46,7 @@ const reco::Candidate* MuScleFitMuonSelector::getStatus3Muon(const reco::Candida
       } else
         continue;
     }  //for loop
-  }    //while loop
+  }  //while loop
 
   return tempMuon;
 }

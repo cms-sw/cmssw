@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 DisplacedDiPhotonPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
         "HLT_DiPhoton10Time1p4ns_v", # New for Run3 (introduced in HLT V1.3)
-        "HLT_DiPhoton10sminlt0p1_v", # New for Run3 (introduced in HLT V1.3)
         ),
     recElecLabel  = cms.InputTag("gedGsfElectrons"),
     # -- Analysis specific cuts

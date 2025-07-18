@@ -376,7 +376,7 @@ namespace sistrip {
           }
         }
       }  // channel loop
-    }    // fed loop
+    }  // fed loop
 
     // bad channels warning
     unsigned int detIdsSize = detids.size();

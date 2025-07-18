@@ -124,23 +124,32 @@ namespace edm {
                                     std::set<ParameterTypes>& parameterTypes,
                                     std::set<ParameterTypes>& wildcardTypes) const final {}
 
-    void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, bool optional) const final {
+    void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, Modifier modifier) const final {
       loadDescription(findType(pset)).validate(pset);
       //all names are good
       auto n = pset.getParameterNames();
       validatedLabels.insert(n.begin(), n.end());
     }
 
-    void writeCfi_(
-        std::ostream& os, bool optional, bool& startWithComma, int indentation, bool& wroteSomething) const final {
+    void writeCfi_(std::ostream& os,
+                   Modifier modifier,
+                   bool& startWithComma,
+                   int indentation,
+                   CfiOptions& options,
+                   bool& wroteSomething) const final {
       if (not defaultType_.empty()) {
         if (!edmplugin::PluginManager::isAvailable()) {
           auto conf = edmplugin::standard::config();
           conf.allowNoCache();
           edmplugin::PluginManager::configure(conf);
         }
-        loadDescription(defaultType_).writeCfi(os, startWithComma, indentation);
+        //given each plugin can have very different parameters we should do a full dump
+        CfiOptions ops = cfi::Typed{};
+        loadDescription(defaultType_).writeCfi(os, startWithComma, indentation, ops);
         wroteSomething = true;
+      }
+      if (std::holds_alternative<cfi::ClassFile>(options)) {
+        std::get<cfi::ClassFile>(options).parameterMustBeTyped();
       }
     }
 

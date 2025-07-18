@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 # Define once the BeamSpotOnline record name,
@@ -6,8 +5,8 @@ import FWCore.ParameterSet.Config as cms
 
 import sys
 
-from Configuration.Eras.Era_Run3_cff import Run3
-process = cms.Process("OnlineBeamMonitor", Run3)
+from Configuration.Eras.Era_Run3_2025_cff import Run3_2025
+process = cms.Process("OnlineBeamMonitor", Run3_2025)
 
 # Message logger
 #process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -27,76 +26,8 @@ unitTest = 'unitTest=True' in sys.argv
 
 #-----------------------------
 if unitTest:
-  import FWCore.ParameterSet.VarParsing as VarParsing
-  options = VarParsing.VarParsing("analysis")
-
-  options.register(
-      "runkey",
-      "pp_run",
-      VarParsing.VarParsing.multiplicity.singleton,
-      VarParsing.VarParsing.varType.string,
-      "Run Keys of CMS"
-  )
-
-  options.register('runNumber',
-                  346508,
-                  VarParsing.VarParsing.multiplicity.singleton,
-                  VarParsing.VarParsing.varType.int,
-                  "Run number. This run number has to be present in the dataset configured with the dataset option.")
-
-  options.register('dataset',
-                  '/ExpressPhysics/Commissioning2021-Express-v1/FEVT',
-                  VarParsing.VarParsing.multiplicity.singleton,
-                  VarParsing.VarParsing.varType.string,
-                  "Dataset name like '/ExpressCosmics/Commissioning2019-Express-v1/FEVT'")
-
-  options.register('maxLumi',
-                  2,
-                  VarParsing.VarParsing.multiplicity.singleton,
-                  VarParsing.VarParsing.varType.int,
-                  "Only lumisections up to maxLumi are processed.")
-
-  options.register('minLumi',
-                  1,
-                  VarParsing.VarParsing.multiplicity.singleton,
-                  VarParsing.VarParsing.varType.int,
-                  "Only lumisections starting from minLumi are processed.")
-
-  options.register('lumiPattern',
-                  '*',
-                  VarParsing.VarParsing.multiplicity.singleton,
-                  VarParsing.VarParsing.varType.string,
-                  "Only lumisections with numbers matching lumiPattern are processed.")
-
-  options.register('eventsPerLumi',
-                  100,
-                  VarParsing.VarParsing.multiplicity.singleton,
-                  VarParsing.VarParsing.varType.int,
-                  "This number of last events in each lumisection will be processed.")
-
-  # This is used only by the online clients themselves. 
-  # We need to register it here because otherwise an error occurs saying that there is an unidentified option.
-  options.register('unitTest',
-                  True,
-                  VarParsing.VarParsing.multiplicity.singleton,
-                  VarParsing.VarParsing.varType.bool,
-                  "Required to avoid the error.")
-
-  options.register('noDB',
-                  True, # default value
-                  VarParsing.VarParsing.multiplicity.singleton,
-                  VarParsing.VarParsing.varType.bool,
-                  "Don't upload the BeamSpot conditions to the DB")
-
-  options.parseArguments()
-  
-  process.source = cms.Source("EmptySource")
-  process.source.numberEventsInRun=cms.untracked.uint32(100)
-  process.source.firstRun = cms.untracked.uint32(options.runNumber)
-  process.source.firstLuminosityBlock = cms.untracked.uint32(1)
-  process.source.numberEventsInLuminosityBlock = cms.untracked.uint32(2)
-  process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
-
+  process.load("DQM.Integration.config.unitteststreamerinputsource_cfi")
+  from DQM.Integration.config.unitteststreamerinputsource_cfi import options
 else:
   process.load("DQM.Integration.config.inputsource_cfi")
   from DQM.Integration.config.inputsource_cfi import options
@@ -112,12 +43,8 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'OnlineBeamMonitor'
 process.dqmSaver.tag           = 'OnlineBeamMonitor'
 process.dqmSaver.runNumber     = options.runNumber
-process.dqmSaverPB.tag         = 'OnlineBeamMonitor'
-process.dqmSaverPB.runNumber   = options.runNumber
-
-# for running offline enhance the time validity of the online beamspot in DB
-if (unitTest or process.isDqmPlayback.value):
-  process.BeamSpotESProducer.timeThreshold = cms.int32(int(1e6))
+# process.dqmSaverPB.tag         = 'OnlineBeamMonitor'
+# process.dqmSaverPB.runNumber   = options.runNumber
 
 #-----------------------------
 # BeamMonitor
@@ -126,6 +53,7 @@ process.dqmOnlineBeamMonitor = cms.EDProducer("OnlineBeamMonitor",
 MonitorName         = cms.untracked.string("OnlineBeamMonitor"),
 AppendRunToFileName = cms.untracked.bool(False),
 WriteDIPAscii       = cms.untracked.bool(True),
+OnlineBeamSpotLabel = cms.untracked.InputTag("hltOnlineBeamSpot"),
 DIPFileName         = cms.untracked.string("/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResultsForDIP.txt")
 )
 
@@ -152,7 +80,7 @@ process.GlobalTag.toGet = cms.VPSet(
 )
 
 process.dqmcommon = cms.Sequence(process.dqmEnv
-                               * process.dqmSaver * process.dqmSaverPB)
+                               * process.dqmSaver )#* process.dqmSaverPB)
 
 process.monitor = cms.Sequence(process.dqmOnlineBeamMonitor)
 
@@ -163,4 +91,5 @@ process = customise(process)
 
 process.p = cms.Path( process.dqmcommon * process.monitor )
 
+print("Global Tag used:", process.GlobalTag.globaltag.value())
 print("Final Source settings:", process.source)

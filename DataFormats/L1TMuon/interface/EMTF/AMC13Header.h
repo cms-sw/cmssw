@@ -26,7 +26,7 @@ namespace l1t {
             h(-99),
             x(-99),
             format_errors(0),
-            dataword(-99){};
+            dataword(-99) {}
 
       // Fill constructor
       AMC13Header(int int_orn,
@@ -52,9 +52,9 @@ namespace l1t {
             h(int_h),
             x(int_x),
             format_errors(0),
-            dataword(-99){};
+            dataword(-99) {}
 
-      virtual ~AMC13Header(){};
+      virtual ~AMC13Header() {}
 
       void set_orn(int bits) { orn = bits; }
       void set_lv1_id(int bits) { lv1_id = bits; }
@@ -100,7 +100,7 @@ namespace l1t {
       uint64_t dataword;
 
     };  // End class AMC13Header
-  }     // End namespace emtf
+  }  // End namespace emtf
 }  // End namespace l1t
 
 #endif /* define __l1t_emtf_AMC13Header_h__ */

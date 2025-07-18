@@ -97,8 +97,8 @@ void DTT0Correction::endJob() {
           continue;
         }
       }  // End of loop on wires
-    }    // End of loop on layers
-  }      // End of loop on superlayers
+    }  // End of loop on layers
+  }  // End of loop on superlayers
 
   //Write object to DB
   LogVerbatim("Calibration") << "[DTT0Correction]: Writing t0 object to DB!" << endl;

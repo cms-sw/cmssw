@@ -120,8 +120,7 @@ namespace tmtt {
       std::stringstream text;
       text << "WARNING: TrackerModule found tracker module type unknown to firmware: pitch=" << pitch
            << " separation=" << space << " barrel=" << barrel << " tilted=" << tiltedBarrel << " PS=" << psModule;
-      std::call_once(
-          printOnce, [](string t) { edm::LogWarning("L1track") << t; }, text.str());
+      std::call_once(printOnce, [](string t) { edm::LogWarning("L1track") << t; }, text.str());
     }
     return moduleType;
   }

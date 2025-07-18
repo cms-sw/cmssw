@@ -13,7 +13,7 @@
 #pragma GCC visibility push(hidden)
 class PixelRodBuilder {
 public:
-  PixelRodBuilder(){};
+  PixelRodBuilder() {}
   PixelRod* build(const GeometricDet* aRod, const TrackerGeometry* theGeomDetGeometry) __attribute__((cold));
 };
 

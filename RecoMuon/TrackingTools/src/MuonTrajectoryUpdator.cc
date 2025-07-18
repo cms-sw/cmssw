@@ -156,6 +156,12 @@ pair<bool, TrajectoryStateOnSurface> MuonTrajectoryUpdator::update(const Traject
 
             lastUpdatedTSOS = measurementUpdator()->update(propagatedTSOS, *((*recHit).get()));
 
+            if (!lastUpdatedTSOS.isValid()) {
+              edm::LogInfo(metname) << "Invalid last TSOS, will skip RecHit ";
+              lastUpdatedTSOS = propagatedTSOS;  // Revert update
+              continue;
+            }
+
             LogTrace(metname) << "  Fit   Position : " << lastUpdatedTSOS.globalPosition()
                               << "  Fit  Direction : " << lastUpdatedTSOS.globalDirection() << "\n"
                               << "  Fit position radius : " << lastUpdatedTSOS.globalPosition().perp()

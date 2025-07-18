@@ -1,4 +1,4 @@
-#include "FWCore/Utilities/interface/RootHandlers.h"
+#include "FWCore/AbstractServices/interface/RootHandlers.h"
 
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
@@ -141,8 +141,6 @@ namespace edm {
       std::shared_ptr<const void> sigAbrtHandler_;
       std::shared_ptr<const void> sigFpeHandler_;
     };
-
-    inline bool isProcessWideService(InitRootHandlers const*) { return true; }
 
   }  // end of namespace service
 }  // end of namespace edm

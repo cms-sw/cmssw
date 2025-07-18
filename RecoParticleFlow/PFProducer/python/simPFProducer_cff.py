@@ -3,6 +3,7 @@ from RecoParticleFlow.PFSimProducer.simPFProducer_cfi import *
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 phase2_timing.toModify(
     simPFProducer,
+    useTiming = cms.bool(True),
     trackTimeValueMap = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModel"),
     trackTimeErrorMap = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModelResolution"),
     gsfTrackTimeValueMap = cms.InputTag("gsfTrackTimeValueMapProducer:electronGsfTracksConfigurableFlatResolutionModel"),
@@ -12,6 +13,8 @@ phase2_timing.toModify(
 from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
 phase2_timing_layer.toModify(
     simPFProducer,
+    useTiming = cms.bool(True),
+    useTimingQuality = cms.bool(True),
     trackTimeValueMap = cms.InputTag("tofPID:t0"),
     trackTimeErrorMap = cms.InputTag("tofPID:sigmat0"),
     trackTimeQualityMap = cms.InputTag("mtdTrackQualityMVA:mtdQualMVA"),

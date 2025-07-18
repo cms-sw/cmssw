@@ -30,7 +30,7 @@ public:
                                          const std::vector<TrajectoryStateOnSurface> &tsos);
 
   /// destructor
-  ~CompositeAlignmentDerivativesExtractor(void){};
+  ~CompositeAlignmentDerivativesExtractor(void) {}
 
   const AlgebraicMatrix &derivatives(void) const { return theDerivatives; }
   const AlgebraicVector &correctionTerm(void) const { return theCorrectionTerm; }

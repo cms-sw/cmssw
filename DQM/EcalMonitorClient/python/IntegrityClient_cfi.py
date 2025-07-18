@@ -27,7 +27,7 @@ ecalIntegrityClient = cms.untracked.PSet(
             kind = cms.untracked.string('TH2F'),
             otype = cms.untracked.string('Ecal3P'),
             btype = cms.untracked.string('Crystal'),
-            description = cms.untracked.string('Summary of the data integrity. A channel is red if more than ' + str(errFractionThreshold) + ' of its entries have integrity errors.')
+            description = cms.untracked.string('Summary of the data integrity. A channel is red if more than ' + str(errFractionThreshold) + ' of its entries have integrity errors. Also, an entire SuperModule can show red if more than 0.01 of its entries have DCC-SRP or DCC-TCC Desync errors.')
         ),
         Quality = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sIntegrityClient/%(prefix)sIT data integrity quality %(sm)s'),

@@ -1,4 +1,5 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 
@@ -10,8 +11,9 @@
 
 #include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
-#include "CondFormats/HGCalObjects/interface/HGCalMappingParameterHostCollection.h"
-#include "CondFormats/HGCalObjects/interface/alpaka/HGCalMappingParameterDeviceCollection.h"
+#include "CondFormats/HGCalObjects/interface/HGCalMappingParameterHost.h"
+#include "CondFormats/HGCalObjects/interface/alpaka/HGCalMappingParameterDevice.h"
+#include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "DataFormats/HGCalDigi/interface/HGCalElectronicsId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
@@ -21,6 +23,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <charconv>
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
@@ -30,9 +33,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     public:
       //
       HGCalMappingCellESProducer(const edm::ParameterSet& iConfig)
-          : ESProducer(iConfig), filelist_(iConfig.getParameter<std::vector<std::string> >("filelist")) {
+          : ESProducer(iConfig),
+            filelist_(iConfig.getParameter<std::vector<std::string> >("filelist")),
+            offsetfile_(iConfig.getParameter<edm::FileInPath>("offsetfile")) {
         auto cc = setWhatProduced(this);
         cellIndexTkn_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("cellindexer"));
+        moduleIndexTkn_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("moduleindexer"));
       }
 
       //
@@ -41,20 +47,61 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         desc.add<std::vector<std::string> >("filelist", std::vector<std::string>({}))
             ->setComment("list of files with the readout cells of each module");
         desc.add<edm::ESInputTag>("cellindexer", edm::ESInputTag(""))->setComment("Dense cell index tool");
+        desc.add<edm::ESInputTag>("moduleindexer", edm::ESInputTag(""))->setComment("Module index tool");
+        desc.add<edm::FileInPath>(
+                "offsetfile",
+                edm::FileInPath("Geometry/HGCalMapping/data/CellMaps/calibration_to_surrounding_offsetMap.txt"))
+            ->setComment("file containing the offsets between calibration and surrounding cells");
         descriptions.addWithDefaultLabel(desc);
       }
 
+      std::map<int, int> makeOffsetMap(edm::FileInPath input_offsetfile,
+                                       const HGCalMappingCellIndexer& cellIndexer,
+                                       const HGCalMappingModuleIndexer& moduleIndexer) {
+        std::map<int, int> offsetMap;
+        const auto& offsetfile = input_offsetfile.fullPath();
+        ::hgcal::mappingtools::HGCalEntityList omap;
+        edm::FileInPath fip(offsetfile);
+        omap.buildFrom(fip.fullPath());
+        auto& mapEntries = omap.getEntries();
+
+        for (auto row : mapEntries) {
+          std::string typecode = omap.getAttr("Typecode", row);
+          const auto& allTypecodes = moduleIndexer.getTypecodeMap();
+          // Skip if typecode is not in the module indexer
+          bool typecodeFound = false;
+          for (const auto& key : allTypecodes) {
+            if (key.first.find(typecode) != std::string::npos) {
+              typecodeFound = true;
+              break;
+            }
+          }
+          if (!typecodeFound)
+            continue;
+          int roc = omap.getIntAttr("ROC", row);
+          int halfroc = omap.getIntAttr("HalfROC", row);
+          int readoutsequence = omap.getIntAttr("Seq", row);
+          int offset = omap.getIntAttr("Offset", row);
+          int idx = cellIndexer.denseIndex(typecode, roc, halfroc, readoutsequence);
+          offsetMap[idx] = offset;
+        }
+        return offsetMap;
+      }
+
       //
-      std::optional<HGCalMappingCellParamHostCollection> produce(const HGCalElectronicsMappingRcd& iRecord) {
-        //get cell indexer
+      std::optional<HGCalMappingCellParamHost> produce(const HGCalElectronicsMappingRcd& iRecord) {
+        //get cell and module indexers
         const HGCalMappingCellIndexer& cellIndexer = iRecord.get(cellIndexTkn_);
+        const HGCalMappingModuleIndexer& moduleIndexer = iRecord.get(moduleIndexTkn_);
         const uint32_t size = cellIndexer.maxDenseIndex();  // channel-level size
-        HGCalMappingCellParamHostCollection cellParams(size, cms::alpakatools::host());
+        HGCalMappingCellParamHost cellParams(size, cms::alpakatools::host());
         for (uint32_t i = 0; i < size; i++)
           cellParams.view()[i].valid() = false;
 
+        auto offsetMap = makeOffsetMap(offsetfile_, cellIndexer, moduleIndexer);
+
         //loop over cell types and then over cells
-        for (auto url : filelist_) {
+        for (const auto& url : filelist_) {
           ::hgcal::mappingtools::HGCalEntityList pmap;
           edm::FileInPath fip(url);
           pmap.buildFrom(fip.fullPath());
@@ -113,15 +160,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             cell.trace() = pmap.getFloatAttr("trace", row);
             cell.eleid() = HGCalElectronicsId(false, 0, 0, 0, chip * 2 + half, seq).raw();
             cell.detid() = detid;
+
+            int offset = (iscalib && offsetMap.find(idx) != offsetMap.end()) ? offsetMap[idx] : 0;
+            cell.caliboffset() = offset;
+
           }  //end loop over entities
-        }    //end loop over cell types
+        }  //end loop over cell types
 
         return cellParams;
       }  // end of produce()
 
     private:
       edm::ESGetToken<HGCalMappingCellIndexer, HGCalElectronicsMappingRcd> cellIndexTkn_;
+      edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> moduleIndexTkn_;
       const std::vector<std::string> filelist_;
+      edm::FileInPath offsetfile_;
     };
 
   }  // namespace hgcal

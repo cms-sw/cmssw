@@ -6,6 +6,7 @@
 <use name="CondFormats/EcalObjects"/>
 <use name="CalibCalorimetry/EcalLaserCorrection"/>
 <use name="CalibFormats/CaloObjects"/>
+<use name="FWCore/AbstractServices"/>
 <use name="clhep"/>
 <use name="roothistmatrix"/>
 <export>

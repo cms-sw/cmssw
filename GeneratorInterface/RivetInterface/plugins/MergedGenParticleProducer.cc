@@ -75,7 +75,6 @@ void MergedGenParticleProducer::produce(edm::Event& event, const edm::EventSetup
     }
   }
 
-  // Fix by Markus
   // check for photons from pruned (light) hadrons
   unsigned int nPhotonsFromPrunedHadron = 0;
   for (unsigned int j = 0; j < packed_handle->size(); ++j) {
@@ -102,19 +101,21 @@ void MergedGenParticleProducer::produce(edm::Event& event, const edm::EventSetup
     if (isLeptonFromPrunedPhoton(old_cand)) {
       ++idx;
       reco::GenParticle& dummy_mother = cands->at(idx);
-      dummy_mother = reco::GenParticle(0, old_cand.p4(), old_cand.vertex(), 22, 2, true);
+      dummy_mother = reco::GenParticle(0, old_cand.p4() * 1e-20, old_cand.vertex(), 22, 2, true);
+      dummy_mother.addDaughter(reco::GenParticleRef(ref, idx - 1));
+      new_cand.clearMothers();
+      new_cand.addMother(reco::GenParticleRef(ref, idx));
+      // now link the dummy to the packed candidate mothers
       for (unsigned m = 0; m < old_cand.numberOfMothers(); ++m) {
-        new_cand.addMother(reco::GenParticleRef(ref, idx));
-        // Since the packed candidates drop the vertex position we'll take this from the mother
-        if (m == 0) {
-          dummy_mother.setP4(old_cand.mother(0)->p4());
-          dummy_mother.setVertex(old_cand.mother(0)->vertex());
-          new_cand.setVertex(old_cand.mother(0)->vertex());
-        }
-        // Should then add the GenParticle as a daughter of its dummy mother
-        dummy_mother.addDaughter(reco::GenParticleRef(ref, idx - 1));
-        for (unsigned m = 0; m < old_cand.numberOfMothers(); ++m) {
-          dummy_mother.addMother(reco::GenParticleRef(ref, pruned_idx_map.at(old_cand.mother(m))));
+        dummy_mother.addMother(reco::GenParticleRef(ref, pruned_idx_map.at(old_cand.mother(m))));
+        unsigned int midx = pruned_idx_map.at(old_cand.mother(m));
+        if (midx < idx) {  // update existing mother to point to dummy
+          reco::GenParticle& mother = cands->at(midx);
+          mother.addDaughter(reco::GenParticleRef(ref, idx));
+        } else {
+          edm::LogWarning("MergedGenParticleProducer")
+              << "Cannot assign to dummy photon with index " << idx
+              << " as daughter to unprocessed particle with index " << idx << "\n";
         }
       }
     } else {

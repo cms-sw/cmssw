@@ -15,25 +15,22 @@
 
  */
 
-#include "FWCore/Framework/interface/BranchActionType.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/OccurrenceTraits.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Framework/interface/maker/Worker.h"
 #include "FWCore/Framework/interface/UnscheduledAuxiliary.h"
-#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
-#include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
+#include "FWCore/Utilities/interface/Signal.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
-#include <vector>
-#include <unordered_map>
-#include <string>
-#include <sstream>
+#include <algorithm>
 #include <cassert>
+#include <functional>
+#include <vector>
 
 namespace edm {
 
   class EventTransitionInfo;
-  class ModuleCallingContext;
 
   class UnscheduledCallProducer {
   public:
@@ -67,28 +64,6 @@ namespace edm {
     const_iterator end() const { return unscheduledWorkers_.end(); }
     worker_container const& workers() const { return unscheduledWorkers_; }
 
-    template <typename T, typename U>
-    void runNowAsync(WaitingTaskHolder task,
-                     typename T::TransitionInfoType const& info,
-                     ServiceToken const& token,
-                     StreamID streamID,
-                     typename T::Context const* topContext,
-                     U const* context) const noexcept {
-      //do nothing for event since we will run when requested
-      if (!T::isEvent_) {
-        for (auto worker : unscheduledWorkers_) {
-          ParentContext parentContext(context);
-
-          // We do not need to run prefetching here because this only handles
-          // stream transitions for runs and lumis. There are no products put
-          // into the runs or lumis in stream transitions, so there can be
-          // no data dependencies which require prefetching. Prefetching is
-          // needed for global transitions, but they are run elsewhere.
-          worker->doWorkNoPrefetchingAsync<T>(task, info, token, streamID, parentContext, topContext);
-        }
-      }
-    }
-
     template <typename T>
     void runAccumulatorsAsync(WaitingTaskHolder task,
                               typename T::TransitionInfoType const& info,
@@ -102,12 +77,6 @@ namespace edm {
     }
 
   private:
-    template <typename T, typename ID>
-    void addContextToException(cms::Exception& ex, Worker const* worker, ID const& id) const {
-      std::ostringstream ost;
-      ost << "Processing " << T::transitionName() << " " << id;
-      ex.addContext(ost.str());
-    }
     worker_container unscheduledWorkers_;
     worker_container accumulatorWorkers_;
     UnscheduledAuxiliary aux_;

@@ -16,7 +16,7 @@
 // Note these objects may be at different memory addresses on the host and device, so their pointers will be different
 // -- but the actual values should be the same.
 
-#ifdef __CUDA_ARCH__
+#if defined(__CUDA_ARCH__) or defined(__HIP_DEVICE_COMPILE__)
 #define HOST_DEVICE_CONSTANT __device__ constexpr
 #else
 #define HOST_DEVICE_CONSTANT constexpr

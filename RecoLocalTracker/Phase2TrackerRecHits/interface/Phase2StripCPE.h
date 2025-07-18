@@ -1,15 +1,16 @@
 #ifndef RecoLocalTracker_Phase2TrackerRecHits_Phase2StripCPE_H
 #define RecoLocalTracker_Phase2TrackerRecHits_Phase2StripCPE_H
 
-#include "RecoLocalTracker/ClusterParameterEstimator/interface/ClusterParameterEstimator.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "CondFormats/SiPhase2TrackerObjects/interface/SiPhase2OuterTrackerLorentzAngle.h"
+#include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
-#include "CondFormats/SiPhase2TrackerObjects/interface/SiPhase2OuterTrackerLorentzAngle.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "RecoLocalTracker/ClusterParameterEstimator/interface/ClusterParameterEstimator.h"
 
 class Phase2StripCPE final : public ClusterParameterEstimator<Phase2TrackerCluster1D> {
 public:
@@ -23,6 +24,8 @@ public:
     LocalError localErr;
     float coveredStrips;
   };
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
 public:
   Phase2StripCPE(edm::ParameterSet& conf,

@@ -1,9 +1,8 @@
-from __future__ import print_function
 import sys, os
 
 from Configuration.PyReleaseValidation.WorkFlow import WorkFlow
 from Configuration.PyReleaseValidation.MatrixUtil import InputInfo
-
+from Configuration.PyReleaseValidation.upgradeWorkflowComponents import defaultDataSets,undefInput
 # ================================================================================
 
 class MatrixException(Exception):
@@ -26,8 +25,9 @@ class MatrixReader(object):
         self.apply=opt.apply
         self.commandLineWf=opt.workflow
         self.overWrite=opt.overWrite
-
+        
         self.noRun = opt.noRun
+        self.checkInputs = opt.checkInputs
         return
 
     def reset(self, what='all'):
@@ -51,11 +51,12 @@ class MatrixReader(object):
                              'relval_cleanedupgrade':'clnupg-',
                              'relval_gpu':'gpu-',
                              'relval_2017':'2017-',
-                             'relval_2026':'2026-',
+                             'relval_Run4':'Run4-',
                              'relval_identity':'id-',
                              'relval_machine': 'mach-',
                              'relval_premix': 'premix-',
-                             'relval_nano':'nano-'
+                             'relval_nano':'nano-',
+                             'relval_data_highstats':'data-'
                              }
 
         self.files = ['relval_standard' ,
@@ -69,11 +70,12 @@ class MatrixReader(object):
                       'relval_cleanedupgrade',
                       'relval_gpu',
                       'relval_2017',
-                      'relval_2026',
+                      'relval_Run4',
                       'relval_identity',
                       'relval_machine',
                       'relval_premix',
-                      'relval_nano'
+                      'relval_nano',
+                      'relval_data_highstats'
                       ]
         self.filesDefault = {'relval_standard':True ,
                              'relval_highstats':True ,
@@ -86,11 +88,12 @@ class MatrixReader(object):
                              'relval_cleanedupgrade':False,
                              'relval_gpu':False,
                              'relval_2017':True,
-                             'relval_2026':True,
+                             'relval_Run4':True,
                              'relval_identity':False,
                              'relval_machine':True,
                              'relval_premix':True,
-                             'relval_nano':True
+                             'relval_nano':True,
+                             'relval_data_highstats':False
                              }
 
         self.relvalModule = None
@@ -124,6 +127,21 @@ class MatrixReader(object):
             return copyStep
         else:    
             return step
+
+    def verifyDefaultInputs(self):
+        for wf in self.workFlowSteps.values():
+            undefs = [driver for driver in wf[2] if isinstance(driver,str) and undefInput in driver ]
+            if len(undefs)>0:
+                raise ValueError("""in MatrixReader.py:{0}
+=============================================================================
+For wf {1}(*) the default dataset not defined in defaultDataSets dictionary.
+With --checkInputs option this throws an error.
+                                 
+(*)
+{2}
+
+=============================================================================
+                             """.format(sys._getframe(1).f_lineno - 1,wf[0],wf))    
 
     def readMatrix(self, fileNameIn, useInput=None, refRel=None, fromScratch=None):
         
@@ -304,6 +322,8 @@ class MatrixReader(object):
                     if self.wm and self.revertDqmio=='yes':
                         cmd=cmd.replace('DQMIO','DQM')
                         cmd=cmd.replace('--filetype DQM','')
+                    if os.getenv("CMSSW_USE_IBEOS","false")=="true":
+                        cmd="export CMSSW_USE_IBEOS=true; "+cmd
                 commands.append(cmd)
                 ranStepList.append(stepName)
                 stepIndex+=1
@@ -330,6 +350,8 @@ class MatrixReader(object):
 
             try:
                 self.readMatrix(matrixFile, useInput, refRel, fromScratch)
+                if self.checkInputs:
+                    self.verifyDefaultInputs()
             except Exception as e:
                 print("ERROR reading file:", matrixFile, str(e))
                 raise
@@ -505,6 +527,8 @@ class MatrixReader(object):
             
             try:
                 self.readMatrix(matrixFile, useInput, refRel, fromScratch)
+                if self.checkInputs:
+                    self.verifyDefaultInputs()
             except Exception as e:
                 print("ERROR reading file:", matrixFile, str(e))
                 raise

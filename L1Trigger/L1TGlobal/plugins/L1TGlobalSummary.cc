@@ -30,7 +30,7 @@ using namespace l1t;
 class L1TGlobalSummary : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit L1TGlobalSummary(const edm::ParameterSet&);
-  ~L1TGlobalSummary() override{};
+  ~L1TGlobalSummary() override {}
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void beginRun(Run const&, EventSetup const&) override;
   void endRun(Run const&, EventSetup const&) override;
@@ -80,25 +80,33 @@ L1TGlobalSummary::L1TGlobalSummary(const edm::ParameterSet& iConfig) {
   }
 }
 
+namespace {
+  edm::ParameterSetDescription makeDesc(edm::InputTag const& alg, edm::InputTag const& ext, int minBx, int maxBx) {
+    edm::ParameterSetDescription desc;
+    // These parameters are part of the L1T/HLT interface, avoid changing if possible::
+    desc.add<edm::InputTag>("AlgInputTag", alg)
+        ->setComment("InputTag for uGT Algorithm Block (required parameter:  default value is invalid)");
+    desc.add<edm::InputTag>("ExtInputTag", ext)
+        ->setComment("InputTag for uGT External Block (required parameter:  default value is invalid)");
+    // These parameters have well defined  default values and are not currently
+    // part of the L1T/HLT interface.  They can be cleaned up or updated at will:
+    desc.add<int>("MinBx", minBx);
+    desc.add<int>("MaxBx", maxBx);
+    desc.add<bool>("DumpTrigResults", false);
+    desc.add<bool>("DumpRecord", false);
+    desc.add<bool>("DumpTrigSummary", true);
+    desc.add<bool>("ReadPrescalesFromFile", false);
+    desc.add<std::string>("psFileName", "prescale_L1TGlobal.csv")
+        ->setComment("File should be located in directory: L1Trigger/L1TGlobal/data/Luminosity/startup");
+    desc.add<int>("psColumn", 0);
+
+    return desc;
+  }
+}  // namespace
+
 void L1TGlobalSummary::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription desc;
-  // These parameters are part of the L1T/HLT interface, avoid changing if possible::
-  desc.add<edm::InputTag>("AlgInputTag", edm::InputTag(""))
-      ->setComment("InputTag for uGT Algorithm Block (required parameter:  default value is invalid)");
-  desc.add<edm::InputTag>("ExtInputTag", edm::InputTag(""))
-      ->setComment("InputTag for uGT External Block (required parameter:  default value is invalid)");
-  // These parameters have well defined  default values and are not currently
-  // part of the L1T/HLT interface.  They can be cleaned up or updated at will:
-  desc.add<int>("MinBx", 0);
-  desc.add<int>("MaxBx", 0);
-  desc.add<bool>("DumpTrigResults", false);
-  desc.add<bool>("DumpRecord", false);
-  desc.add<bool>("DumpTrigSummary", true);
-  desc.add<bool>("ReadPrescalesFromFile", false);
-  desc.add<std::string>("psFileName", "prescale_L1TGlobal.csv")
-      ->setComment("File should be located in directory: L1Trigger/L1TGlobal/data/Luminosity/startup");
-  desc.add<int>("psColumn", 0);
-  descriptions.add("L1TGlobalSummary", desc);
+  descriptions.add("L1TGlobalSummary", makeDesc(edm::InputTag("gtStage2Digis"), edm::InputTag("gtStage2Digis"), -2, 2));
+  descriptions.addDefault(makeDesc(edm::InputTag(""), edm::InputTag(""), 0, 0));
 }
 
 void L1TGlobalSummary::beginRun(Run const&, EventSetup const& evSetup) {
@@ -177,11 +185,11 @@ void L1TGlobalSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     LogDebug("l1t|Global") << "retrieved L1 data from GT Util" << endl;
 
     // grab the map for the final decisions
-    const std::vector<std::pair<std::string, bool>> initialDecisions = gtUtil_->decisionsInitial();
-    const std::vector<std::pair<std::string, bool>> intermDecisions = gtUtil_->decisionsInterm();
-    const std::vector<std::pair<std::string, bool>> finalDecisions = gtUtil_->decisionsFinal();
-    const std::vector<std::pair<std::string, double>> prescales = gtUtil_->prescales();
-    const std::vector<std::pair<std::string, std::vector<int>>> masks = gtUtil_->masks();
+    const auto& initialDecisions = gtUtil_->decisionsInitial();
+    const auto& intermDecisions = gtUtil_->decisionsInterm();
+    const auto& finalDecisions = gtUtil_->decisionsFinal();
+    const auto& prescales = gtUtil_->prescales();
+    const auto& masks = gtUtil_->masks();
 
     if ((decisionCount_.size() != gtUtil_->decisionsInitial().size()) ||
         (intermCount_.size() != gtUtil_->decisionsInterm().size()) ||
@@ -203,7 +211,7 @@ void L1TGlobalSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
     for (unsigned int i = 0; i < initialDecisions.size(); i++) {
       // get the name and trigger result
-      std::string name = (initialDecisions.at(i)).first;
+      std::string name{(initialDecisions.at(i)).first};
       if (name == "NULL")
         continue;
 

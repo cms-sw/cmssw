@@ -52,7 +52,7 @@ public:
   ~ClusterShapeExtractor();
   virtual void beginRun(const edm::Run& run, const edm::EventSetup& es) override;
   virtual void analyze(const edm::Event& ev, const edm::EventSetup& es) override;
-  virtual void endRun(const edm::Run& run, const edm::EventSetup& es) override{};
+  virtual void endRun(const edm::Run& run, const edm::EventSetup& es) override {}
   virtual void endJob() override;
 
 private:

@@ -4,6 +4,8 @@
 
 <test name="TestFWCoreModulesEmptySourceRunsAndLumis" command="cmsRun ${LOCALTOP}/src/FWCore/Modules/test/emptysource_RunsAndLumis_cfg.py"/>
 
+<test name="TestFWCoreModulesEmptySourceFromEventIDs" command="cmsRun ${LOCALTOP}/src/FWCore/Modules/test/testEmptySourceFromEventIDs_cfg.py"/>
+
 <test name="testGenericConsumer" command="${LOCALTOP}/src/FWCore/Modules/test/testGenericConsumer.sh"/>
 
 <bin file="test_catch2_*.cc" name="TestFWCoreModulesTP">

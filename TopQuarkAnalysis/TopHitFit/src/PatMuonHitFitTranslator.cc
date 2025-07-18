@@ -21,6 +21,7 @@ namespace hitfit {
 
   template <>
   LeptonTranslatorBase<pat::Muon>::LeptonTranslatorBase() {
+    [[clang::suppress]]
     std::string CMSSW_BASE(std::getenv("CMSSW_BASE"));
     std::string resolution_filename =
         CMSSW_BASE + std::string("/src/TopQuarkAnalysis/PatHitFit/data/exampleMuonResolution.txt");
@@ -30,6 +31,7 @@ namespace hitfit {
 
   template <>
   LeptonTranslatorBase<pat::Muon>::LeptonTranslatorBase(const std::string& ifile) {
+    [[clang::suppress]]
     std::string CMSSW_BASE(std::getenv("CMSSW_BASE"));
     std::string resolution_filename;
 

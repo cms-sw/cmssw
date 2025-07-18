@@ -240,7 +240,7 @@ protected:
   std::unique_ptr<CaloL1Information::perStreamMonitoringDataHolder> beginStream(edm::StreamID) const override {
     return std::make_unique<CaloL1Information::perStreamMonitoringDataHolder>();
   };
-  void streamEndLuminosityBlock(edm::StreamID, edm::LuminosityBlock const &, edm::EventSetup const &) const override{};
+  void streamEndLuminosityBlock(edm::StreamID, edm::LuminosityBlock const &, edm::EventSetup const &) const override {}
 
   //lumi summary functionality
   void streamEndLuminosityBlockSummary(edm::StreamID,

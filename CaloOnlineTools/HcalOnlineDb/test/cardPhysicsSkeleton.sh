@@ -1,6 +1,7 @@
 Tag="<LUTTAG>"
 Run=1
 GlobalTag="<Globaltag>"
+Era="<Era>"
 description="<Description of updates>"
 HOAsciiInput=HO_ped9_inputLUTcoderDec.txt
 

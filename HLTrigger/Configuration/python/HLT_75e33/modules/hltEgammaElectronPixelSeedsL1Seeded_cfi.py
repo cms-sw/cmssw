@@ -44,7 +44,7 @@ hltEgammaElectronPixelSeedsL1Seeded = cms.EDProducer("ElectronNHitSeedProducer",
         useParamMagFieldIfDefined = cms.bool(True),
         useRecoVertex = cms.bool(False)
     ),
-    measTkEvt = cms.InputTag("MeasurementTrackerEvent"),
+    measTkEvt = cms.InputTag("hltMeasurementTrackerEvent"),
     superClusters = cms.VInputTag("hltEgammaSuperClustersToPixelMatchL1Seeded"),
     vertices = cms.InputTag("")
 )

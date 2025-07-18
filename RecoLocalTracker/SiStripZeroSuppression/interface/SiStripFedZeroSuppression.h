@@ -32,7 +32,7 @@ public:
         theFEDalgorithm(fedalgo),
         doTruncate(trunc),
         doTruncate10bits(trunc10bits) {}
-  ~SiStripFedZeroSuppression(){};
+  ~SiStripFedZeroSuppression() {}
   void init(const edm::EventSetup& es);
   void suppress(const std::vector<SiStripDigi>& in,
                 std::vector<SiStripDigi>& selectedSignal,

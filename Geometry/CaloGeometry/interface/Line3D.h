@@ -29,7 +29,7 @@ public:
   HepLine3D(const HepLine3D& line) : pp(line.pp), uu(line.uu), eps(line.eps) {}
 
   // Destructor
-  ~HepLine3D(){};
+  ~HepLine3D() {}
 
   // Assignment
   HepLine3D& operator=(const HepLine3D& line) {

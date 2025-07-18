@@ -14,7 +14,6 @@
 
 // user include files
 #include "FWCore/Framework/interface/ESTagGetter.h"
-#include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
 
 using namespace edm;
@@ -23,14 +22,13 @@ using namespace edm;
 // const member functions
 //
 ESResolverIndex ESTagGetter::operator()(std::string_view iModuleLabel, std::string_view iProductLabel) const {
-  ESResolverIndex returnValue = eventsetup::ESRecordsToProductResolverIndices::missingResolverIndex();
   for (auto const& item : lookup_) {
     if (item.productLabel_ == iProductLabel) {
-      if (iProductLabel.empty() or iProductLabel == item.productLabel_) {
+      if (iModuleLabel.empty() or iModuleLabel == item.moduleLabel_) {
         return item.index_;
       }
-      break;
+      return ESResolverIndex::moduleLabelDoesNotMatch();
     }
   }
-  return returnValue;
+  return ESResolverIndex::noResolverConfigured();
 }

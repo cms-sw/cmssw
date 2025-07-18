@@ -502,7 +502,7 @@ void SiPixelLorentzAnglePCLHarvesterMCS::dqmEndJob(DQMStore::IBooker& iBooker, D
           fmh.bfield[2] = hists_.h_fpixMagField_[2][idx]->getMean();
           fitMuH.add(fmh);
         }  // if fut converged
-      }    // loop over z sides
+      }  // loop over z sides
 
       if (fitMuH.size() == hists_.nSides_) {
         std::string fpixPartNames = "R" + std::to_string(r + 1) + "_P" + std::to_string(p + 1);

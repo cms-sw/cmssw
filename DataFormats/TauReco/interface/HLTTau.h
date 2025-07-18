@@ -56,7 +56,7 @@ namespace reco {
     double getSeedEcalHitEt() const { return seedEcalHitEt_; }  //Lead PF Cluster Et /or simple cluster/or crystal
     std::vector<double> getEcalClusterShape() const {
       return ecalClusterShape_;
-    }                                                //cluster shapes eta [0], Phi[0] DeltaR [1]
+    }  //cluster shapes eta [0], Phi[0] DeltaR [1]
     int getNEcalHits() const { return nEcalHits_; }  //N Ecal PF Clusters or simple clusters or crystals
 
     double getHcalIsolEt() const { return hcalIsolEt_; }

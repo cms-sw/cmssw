@@ -1,22 +1,24 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun dumpHGCalGeometryDD4hep_cfg.py geometry=D88
+#   cmsRun dumpHGCalGeometryDD4hep_cfg.py geometry=D110
 #
-#   Options for geometry D88, D92, D93, D98, D99, D101
+#   Options for geometry D95, D96, D98, D99, D100, D101, D102, D103, D104,
+#                        D105, D106, D107, D108, D109, D110, D111, D112, D113,
+#                        D114, D115, D116, D117, D118, D119, D120
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
-import os, sys, imp, re
+import os, sys, importlib, re
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 ####################################################################
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D88",
+                 "D110",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D88, D92, D93, D98, D99, D101")
+                  "geometry of operations: D95, D96, D98, D99, D100, D101, D102, D103, D104, D105, D106, D107, D108, D109, D110, D111, D112, D113, D114, D115, D116, D117, D118, D119, D120")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -28,8 +30,8 @@ print(options)
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 process = cms.Process('GeomDump',Phase2C17I13M9)
 
-geomFile = "Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2026" + options.geometry + ".xml"
-fileName = "CMS2026" + options.geometry + "DD4hep.root"
+geomFile = "Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometryRun4" + options.geometry + ".xml"
+fileName = "CMSRun4" + options.geometry + "DD4hep.root"
 
 print("Geometry file: ", geomFile)
 print("Output file:   ", fileName)

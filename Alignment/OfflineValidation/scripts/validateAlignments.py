@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 #test execute: export CMSSW_BASE=/tmp/CMSSW && ./validateAlignments.py -c defaultCRAFTValidation.ini,test.ini -n -N test
-from __future__ import print_function
 from future.utils import lmap
 import subprocess
 import json
@@ -20,6 +19,8 @@ import Alignment.OfflineValidation.TkAlAllInOneTool.SplitV as SplitV
 import Alignment.OfflineValidation.TkAlAllInOneTool.JetHT as JetHT
 import Alignment.OfflineValidation.TkAlAllInOneTool.DiMuonV as DiMuonV
 import Alignment.OfflineValidation.TkAlAllInOneTool.MTS as MTS
+import Alignment.OfflineValidation.TkAlAllInOneTool.PixBary as PixBary
+import Alignment.OfflineValidation.TkAlAllInOneTool.GenericV as GenericV
 
 ##############################################
 def parser():
@@ -264,10 +265,19 @@ def main():
 
         elif validation == "JetHT":
             jobs.extend(JetHT.JetHT(config, validationDir))
+
         elif validation == "DiMuonV":
             jobs.extend(DiMuonV.DiMuonV(config, validationDir))
+
         elif validation == "MTS":
             jobs.extend(MTS.MTS(config, validationDir))
+
+        elif validation == "PixBary":
+            jobs.extend(PixBary.PixBary(config, validationDir, args.verbose))
+
+        elif validation == "Generic":
+            jobs.extend(GenericV.GenericV(config, validationDir))
+
         else:
             raise Exception("Unknown validation method: {}".format(validation)) 
             

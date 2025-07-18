@@ -29,8 +29,8 @@
 
 #include <memory>
 #include <optional>
-#include <unistd.h>
 #include <vector>
+#include <chrono>
 
 namespace {
   constexpr int kAcquireTestValue = 11;
@@ -42,6 +42,7 @@ namespace {
 
 namespace edmtest {
 
+  using namespace std::chrono_literals;
   class AcquireIntESProducer : public edm::ESProducerExternalWork {
   public:
     AcquireIntESProducer(edm::ParameterSet const&);
@@ -108,13 +109,13 @@ namespace edmtest {
 
     setWhatAcquiredProducedWithLambda(
         [this](ESTestRecordI const& record, edm::WaitingTaskWithArenaHolder holder) {
-          usleep(200000);
+          std::this_thread::sleep_for(200ms);
           auto returnValue = std::make_unique<TestValue>(kAcquireTestValueUniquePtr1);
           lambdaUniqueTestPointers_[record.iovIndex()] = returnValue.get();
           return returnValue;
         },
         [this](ESTestRecordI const& record, auto testValue) {
-          usleep(200000);
+          std::this_thread::sleep_for(200ms);
           if (testValue.get() != lambdaUniqueTestPointers_[record.iovIndex()]) {
             throw cms::Exception("TestFailure") << "AcquireIntESProducer::<lambda produceUniquePtr>"
                                                 << " unexpected value passed in as argument";
@@ -125,7 +126,7 @@ namespace edmtest {
 
     setWhatAcquiredProducedWithLambda(
         [this](ESTestRecordI const& record, edm::WaitingTaskWithArenaHolder holder) {
-          usleep(200000);
+          std::this_thread::sleep_for(200ms);
           std::vector<TestValue> testVector;
           testVector.push_back(kAcquireTestValueOptional1);
           auto returnValue = std::make_optional<std::vector<TestValue>>(std::move(testVector));
@@ -133,7 +134,7 @@ namespace edmtest {
           return returnValue;
         },
         [this](ESTestRecordI const& record, std::optional<std::vector<TestValue>> testValue) {
-          usleep(200000);
+          std::this_thread::sleep_for(200ms);
           if (&testValue.value()[0] != lambdaOptionalTestPointers_[record.iovIndex()]) {
             throw cms::Exception("TestFailure") << "AcquireIntESProducer::<lambda produceOptional>"
                                                 << " unexpected value passed in as argument";
@@ -164,7 +165,7 @@ namespace edmtest {
   }
 
   int AcquireIntESProducer::acquire(ESTestRecordI const& record, edm::WaitingTaskWithArenaHolder holder) {
-    usleep(200000);
+    std::this_thread::sleep_for(200ms);
 
     test_acquire::Cache& iovCache = caches_[record.iovIndex()];
     iovCache.retrieved().clear();
@@ -199,7 +200,7 @@ namespace edmtest {
   }
 
   std::unique_ptr<ESTestDataI> AcquireIntESProducer::produce(ESTestRecordI const& record, int valueReturnedByAcquire) {
-    usleep(200000);
+    std::this_thread::sleep_for(200ms);
 
     if (valueReturnedByAcquire != kAcquireTestValue) {
       throw cms::Exception("TestFailure") << "AcquireIntESProducer::produce"
@@ -229,7 +230,7 @@ namespace edmtest {
 
   std::unique_ptr<AcquireIntESProducer::TestValue> AcquireIntESProducer::acquireUniquePtr(
       ESTestRecordI const& record, edm::WaitingTaskWithArenaHolder holder) {
-    usleep(200000);
+    std::this_thread::sleep_for(200ms);
     auto returnValue = std::make_unique<TestValue>(kAcquireTestValueUniquePtr1);
     uniqueTestPointers_[record.iovIndex()] = returnValue.get();
     return returnValue;
@@ -237,7 +238,7 @@ namespace edmtest {
 
   std::unique_ptr<ESTestDataI> AcquireIntESProducer::produceUniquePtr(ESTestRecordI const& record,
                                                                       std::unique_ptr<TestValue> testValue) {
-    usleep(200000);
+    std::this_thread::sleep_for(200ms);
     if (testValue.get() != uniqueTestPointers_[record.iovIndex()]) {
       throw cms::Exception("TestFailure") << "AcquireIntESProducer::produceUniquePtr"
                                           << " unexpected value passed in as argument";
@@ -247,7 +248,7 @@ namespace edmtest {
 
   std::optional<std::vector<AcquireIntESProducer::TestValue>> AcquireIntESProducer::acquireOptional(
       ESTestRecordI const& record, edm::WaitingTaskWithArenaHolder holder) {
-    usleep(200000);
+    std::this_thread::sleep_for(200ms);
     std::vector<TestValue> testVector;
     testVector.push_back(kAcquireTestValueOptional1);
     auto returnValue = std::make_optional<std::vector<TestValue>>(std::move(testVector));
@@ -257,7 +258,7 @@ namespace edmtest {
 
   std::unique_ptr<ESTestDataI> AcquireIntESProducer::produceOptional(ESTestRecordI const& record,
                                                                      std::optional<std::vector<TestValue>> testValue) {
-    usleep(200000);
+    std::this_thread::sleep_for(200ms);
     if (&testValue.value()[0] != optionalTestPointers_[record.iovIndex()]) {
       throw cms::Exception("TestFailure") << "AcquireIntESProducer::produceOptional"
                                           << " unexpected value passed in as argument";

@@ -35,10 +35,13 @@ ticlTrackstersTrk = _trackstersProducer.clone(
     itername = "Trk"
 )
 
+from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
+ticl_v5.toModify(ticlTrackstersTrk.pluginPatternRecognitionByCA, computeLocalTime = cms.bool(True))
+
 ticlTrkStepTask = cms.Task(ticlSeedingTrk
     ,filteredLayerClustersTrk
     ,ticlTrackstersTrk)
-    
+
 # HFNOSE CLUSTER FILTERING/MASKING
 
 filteredLayerClustersHFNoseTrk = filteredLayerClustersTrk.clone(
@@ -69,6 +72,8 @@ ticlTrackstersHFNoseTrk = ticlTrackstersTrk.clone(
     ),
     itername = "Trkn"
 )
+
+ticl_v5.toModify(ticlTrackstersHFNoseTrk.pluginPatternRecognitionByCA, computeLocalTime = cms.bool(True))
 
 ticlHFNoseTrkStepTask = cms.Task(ticlSeedingTrkHFNose
     ,filteredLayerClustersHFNoseTrk

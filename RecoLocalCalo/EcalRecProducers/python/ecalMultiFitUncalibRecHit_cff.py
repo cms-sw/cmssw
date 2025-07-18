@@ -73,13 +73,6 @@ from Configuration.ProcessModifiers.alpaka_cff import alpaka
 
 # ECAL conditions used by the multifit running on the accelerator
 from RecoLocalCalo.EcalRecProducers.ecalMultifitConditionsHostESProducer_cfi import ecalMultifitConditionsHostESProducer
-from RecoLocalCalo.EcalRecProducers.ecalMultifitParametersHostESProducer_cfi import ecalMultifitParametersHostESProducer
-
-ecalMultifitParametersSource = cms.ESSource("EmptyESSource",
-    recordName = cms.string('EcalMultifitParametersRcd'),
-    iovIsRunNotTime = cms.bool(True),
-    firstValid = cms.vuint32(1)
-)
 
 # ECAL multifit running on the accelerator
 from RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitProducerPortable_cfi import ecalUncalibRecHitProducerPortable as _ecalUncalibRecHitProducerPortable
@@ -97,9 +90,14 @@ alpaka.toModify(ecalMultiFitUncalibRecHit,
 alpaka.toReplaceWith(ecalMultiFitUncalibRecHitTask, cms.Task(
   # ECAL conditions used by the multifit running on the accelerator
   ecalMultifitConditionsHostESProducer,
-  ecalMultifitParametersHostESProducer,
   # ECAL multifit running on device
   ecalMultiFitUncalibRecHitPortable,
   # ECAL multifit running on CPU, or convert the uncalibrated rechits from SoA to legacy format
   ecalMultiFitUncalibRecHit,
 ))
+
+# for alpaka validation compare the legacy CPU module with the alpaka module
+from Configuration.ProcessModifiers.alpakaValidationEcal_cff import alpakaValidationEcal
+alpakaValidationEcal.toModify(ecalMultiFitUncalibRecHit, cpu = ecalMultiFitUncalibRecHitCPU)
+alpakaValidationEcal.toModify(ecalMultiFitUncalibRecHit, cuda = _ecalUncalibRecHitSoAToLegacy.clone())
+

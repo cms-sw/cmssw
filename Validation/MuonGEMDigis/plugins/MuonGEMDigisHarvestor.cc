@@ -82,6 +82,6 @@ void MuonGEMDigisHarvestor::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGett
         bookEff1D(booker, getter, pad_phi_path, simhit_phi_path, eff_folder_pad, eff_phi_name, eff_phi_title);
         bookEff1D(booker, getter, cluster_phi_path, simhit_phi_path, eff_folder_cluster, eff_phi_name, eff_phi_title);
       }  // layer loop
-    }    // statino loop
-  }      // region loop
+    }  // statino loop
+  }  // region loop
 }

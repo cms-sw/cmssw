@@ -17,7 +17,7 @@ SiPixelModuleStatus::SiPixelModuleStatus(int detId, int nrocs) : fDetid_(detId),
 };
 
 // ----------------------------------------------------------------------
-SiPixelModuleStatus::~SiPixelModuleStatus(){};
+SiPixelModuleStatus::~SiPixelModuleStatus() {}
 
 // ----------------------------------------------------------------------
 void SiPixelModuleStatus::fillDIGI(int iroc) {

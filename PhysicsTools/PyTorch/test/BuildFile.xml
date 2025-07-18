@@ -1,0 +1,36 @@
+<use name="python_tools"/>
+
+<ifarch value="x86_64">
+  <bin name="testTorchSimpleDnn" file="testRunner.cc,testTorchSimpleDnn.cc">
+    <use name="pytorch"/>
+    <use name="boost_filesystem"/>
+    <use name="cppunit"/>
+  </bin>
+</ifarch>
+
+<iftool name="cuda">
+  <bin name="testTorchSimpleDnnCUDA" file="testRunner.cc,testTorchSimpleDnnCUDA.cc">
+    <use name="boost_filesystem"/>
+    <use name="catch2"/>
+    <use name="cppunit"/>
+    <use name="cuda"/>
+    <use name="pytorch"/>
+    <use name="FWCore/AbstractServices"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/ParameterSetReader"/>
+    <use name="FWCore/PluginManager"/>
+    <use name="FWCore/ServiceRegistry"/>
+    <use name="FWCore/Utilities"/>
+    <use name="HeterogeneousCore/CUDAServices"/>
+  </bin>
+</iftool>
+
+
+<bin name="testTorch" file="testTorch.cc">
+  <use name="pytorch"/>
+</bin>
+
+<bin name="testTorchTimeSeries" file="time_serie_prediction.cpp">
+  <use name="pytorch"/>
+  <use name="pytorch-cuda"/>
+</bin>

@@ -5,48 +5,58 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include "DataFormats/Common/interface/Uninitialized.h"
 #include "DataFormats/Portable/interface/PortableHostCollection.h"
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
+#include "DataFormats/SiPixelClusterSoA/interface/SiPixelClustersHost.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
-template <typename TrackerTraits>
-class TrackingRecHitHost : public PortableHostCollection<TrackingRecHitLayout<TrackerTraits>> {
-public:
-  using hitSoA = TrackingRecHitSoA<TrackerTraits>;
+// TODO: The class is created via inheritance of the PortableCollection.
+// This is generally discouraged, and should be done via composition.
+// See: https://github.com/cms-sw/cmssw/pull/40465#discussion_r1067364306
 
-  // Need to decorate the class with the inherited portable accessors being now a template
-  using PortableHostCollection<TrackingRecHitLayout<TrackerTraits>>::view;
-  using PortableHostCollection<TrackingRecHitLayout<TrackerTraits>>::const_view;
-  using PortableHostCollection<TrackingRecHitLayout<TrackerTraits>>::buffer;
+namespace reco {
 
-  TrackingRecHitHost() = default;
+  using HitPortableCollectionHost = PortableHostMultiCollection<reco::TrackingRecHitSoA, reco::HitModuleSoA>;
 
-  // Constructor which specifies only the SoA size, to be used when copying the results from the device to the host
-  template <typename TQueue>
-  explicit TrackingRecHitHost(TQueue queue, uint32_t nHits)
-      : PortableHostCollection<TrackingRecHitLayout<TrackerTraits>>(nHits, queue) {}
+  class TrackingRecHitHost : public HitPortableCollectionHost {
+  public:
+    TrackingRecHitHost(edm::Uninitialized)
+        : PortableHostMultiCollection<reco::TrackingRecHitSoA, reco::HitModuleSoA>{edm::kUninitialized} {}
 
-  // Constructor which specifies the SoA size, number of BPIX1 hits, and the modules entry points
-  template <typename TQueue>
-  explicit TrackingRecHitHost(TQueue queue, uint32_t nHits, int32_t offsetBPIX2, uint32_t const* hitsModuleStart)
-      : PortableHostCollection<TrackingRecHitLayout<TrackerTraits>>(nHits, queue) {
-    std::copy(hitsModuleStart, hitsModuleStart + TrackerTraits::numberOfModules + 1, view().hitsModuleStart().data());
-    view().offsetBPIX2() = offsetBPIX2;
-  }
+    // Constructor which specifies only the SoA size, to be used when copying the results from the device to the host
+    template <typename TQueue>
+    explicit TrackingRecHitHost(TQueue queue, uint32_t nHits, uint32_t nModules)
+        : HitPortableCollectionHost({{int(nHits), int(nModules + 1)}}, queue) {}
+    // Why this +1? See TrackingRecHitDevice.h constructor for an explanation
 
-  uint32_t nHits() const { return view().metadata().size(); }
+    // Constructor from clusters
+    template <typename TQueue>
+    explicit TrackingRecHitHost(TQueue queue, SiPixelClustersHost const &clusters)
+        : HitPortableCollectionHost({{int(clusters.nClusters()), clusters.view().metadata().size()}}, queue) {
+      auto hitsView = this->template view<TrackingRecHitSoA>();
+      auto modsView = this->template view<HitModuleSoA>();
 
-  int32_t offsetBPIX2() const { return view().offsetBPIX2(); }
+      auto nModules = clusters.view().metadata().size();
 
-  uint32_t const* hitsModuleStart() const { return view().hitsModuleStart().data(); }
+      auto clusters_m = cms::alpakatools::make_host_view(clusters.view().clusModuleStart(), nModules);
+      auto hits_m = cms::alpakatools::make_host_view(modsView.moduleStart(), nModules);
 
-  // do nothing for a host collection
-  template <typename TQueue>
-  void updateFromDevice(TQueue) {}
-};
+      alpaka::memcpy(queue, hits_m, clusters_m);
 
-using TrackingRecHitHostPhase1 = TrackingRecHitHost<pixelTopology::Phase1>;
-using TrackingRecHitHostPhase2 = TrackingRecHitHost<pixelTopology::Phase2>;
-using TrackingRecHitHostHIonPhase1 = TrackingRecHitHost<pixelTopology::HIonPhase1>;
+      hitsView.offsetBPIX2() = clusters.offsetBPIX2();
+    }
+
+    uint32_t nHits() const { return this->template view<TrackingRecHitSoA>().metadata().size(); }
+    uint32_t nModules() const { return this->template view<HitModuleSoA>().metadata().size() - 1; }
+
+    int32_t offsetBPIX2() const { return this->template view<TrackingRecHitSoA>().offsetBPIX2(); }
+
+    // do nothing for a host collection
+    template <typename TQueue>
+    void updateFromDevice(TQueue) {}
+  };
+
+}  // namespace reco
 
 #endif  // DataFormats_TrackingRecHitSoA_interface_TrackingRecHitsHost_h

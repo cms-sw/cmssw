@@ -40,6 +40,7 @@ HLTHighLevel::HLTHighLevel(const edm::ParameterSet& iConfig)
       andOr_(iConfig.getParameter<bool>("andOr")),
       throw_(iConfig.getParameter<bool>("throw")),
       eventSetupPathsKey_(iConfig.getParameter<std::string>("eventSetupPathsKey")),
+      eventSetupPathsLabel_(iConfig.getParameter<std::string>("eventSetupPathsLabel")),
       HLTPatterns_(iConfig.getParameter<std::vector<std::string> >("HLTPaths")),
       HLTPathsByName_(),
       HLTPathsByIndex_() {
@@ -55,7 +56,8 @@ HLTHighLevel::HLTHighLevel(const edm::ParameterSet& iConfig)
           << HLTPatterns_.size() << " HLTPaths and\n"
           << " eventSetupPathsKey " << eventSetupPathsKey_ << ", choose either of them.";
     }
-    alcaRecotriggerBitsToken_ = esConsumes<AlCaRecoTriggerBits, AlCaRecoTriggerBitsRcd>();
+    alcaRecotriggerBitsToken_ =
+        esConsumes<AlCaRecoTriggerBits, AlCaRecoTriggerBitsRcd>(edm::ESInputTag("", eventSetupPathsLabel_));
     watchAlCaRecoTriggerBitsRcd_.emplace();
   }
 }
@@ -72,6 +74,7 @@ void HLTHighLevel::fillDescriptions(edm::ConfigurationDescriptions& descriptions
   desc.add<std::vector<std::string> >("HLTPaths", hltPaths);
   // # not empty => use read paths from AlCaRecoTriggerBitsRcd via this key
   desc.add<std::string>("eventSetupPathsKey", "");
+  desc.add<std::string>("eventSetupPathsLabel", "");
   // # how to deal with multiple triggers: True (OR) accept if ANY is true, False (AND) accept if ALL are true
   desc.add<bool>("andOr", true);
   // # throw exception on unknown path names

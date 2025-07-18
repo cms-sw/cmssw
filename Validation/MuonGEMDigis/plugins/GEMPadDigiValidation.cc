@@ -105,8 +105,8 @@ void GEMPadDigiValidation::bookHistograms(DQMStore::IBooker& booker,
               bookHist1D(booker, key3, "occ_pad", "Pad Occupancy", num_pads, 0, num_pads, "Pad number");
         }
       }  // layer loop
-    }    // station loop
-  }      // region loop
+    }  // station loop
+  }  // region loop
 
   // NOTE Bunch Crossing
   if (detail_plot_) {
@@ -133,9 +133,9 @@ void GEMPadDigiValidation::bookHistograms(DQMStore::IBooker& booker,
 
           me_detail_bx_[key3] = bookHist1D(booker, key3, "bx", "Pad Bunch Crossing", 5, -2, 3, "Bunch crossing");
         }  // chamber loop
-      }    // station loop
-    }      // region loop
-  }        // detail plot
+      }  // station loop
+    }  // region loop
+  }  // detail plot
 }
 
 GEMPadDigiValidation::~GEMPadDigiValidation() {}
@@ -218,8 +218,8 @@ void GEMPadDigiValidation::analyze(const edm::Event& event, const edm::EventSetu
         me_detail_occ_det_[key2]->Fill(bin_x, ieta);
         me_detail_bx_[key3]->Fill(bx);
       }  // if detail_plot
-    }    // digi loop
-  }      // range loop
+    }  // digi loop
+  }  // range loop
 
   for (const auto& region : gem->regions()) {
     Int_t region_id = region->region();

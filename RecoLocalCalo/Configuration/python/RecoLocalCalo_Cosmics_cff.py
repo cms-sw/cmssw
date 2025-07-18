@@ -19,7 +19,7 @@ from RecoLocalCalo.HcalRecAlgos.hcalChannelPropertiesESProd_cfi import *
 # sequence CaloLocalReco
 #
 
-hbhereco = _hcalLocalReco_cff.hbheprereco.cpu.clone(
+hbhereco = _hcalLocalReco_cff.hbheprereco.clone(
     tsFromDB = False,
     recoParamsFromDB = False,
     algorithm = dict(
@@ -107,3 +107,11 @@ calolocalrecoCosmics = cms.Sequence(calolocalrecoTaskCosmics)
 from RecoLocalCalo.Configuration.hcalLocalRecoNZS_cff import *
 calolocalrecoTaskCosmicsNZS = cms.Task(ecalLocalRecoTaskCosmics,hcalLocalRecoTask,hcalLocalRecoTaskNZS) 
 calolocalrecoCosmicsNZS = cms.Sequence(calolocalrecoTaskCosmicsNZS) 
+
+#--- for Run 3 and later
+_run3_hcalLocalRecoTask = _phase1_hcalLocalRecoTask.copy()
+from RecoLocalCalo.HcalRecProducers.zdcrecoRun3_cfi import zdcrecoRun3
+_run3_hcalLocalRecoTask.remove(zdcreco)
+_run3_hcalLocalRecoTask.add(zdcrecoRun3)
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toReplaceWith(hcalLocalRecoTask, _run3_hcalLocalRecoTask)

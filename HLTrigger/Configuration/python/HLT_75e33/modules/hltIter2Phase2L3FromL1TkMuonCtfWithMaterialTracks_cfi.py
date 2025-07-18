@@ -11,7 +11,6 @@ hltIter2Phase2L3FromL1TkMuonCtfWithMaterialTracks = cms.EDProducer("TrackProduce
     SimpleMagneticField = cms.string(''),
     TTRHBuilder = cms.string('WithTrackAngle'),
     TrajectoryInEvent = cms.bool(False),
-    alias = cms.untracked.string('ctfWithMaterialTracks'),
     beamSpot = cms.InputTag("hltOnlineBeamSpot"),
     clusterRemovalInfo = cms.InputTag(""),
     src = cms.InputTag("hltIter2Phase2L3FromL1TkMuonCkfTrackCandidates"),

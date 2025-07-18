@@ -87,7 +87,7 @@ namespace {
           std::cout << ss.str() << std::endl;
 
         }  // payload
-      }    // iovs
+      }  // iovs
       return true;
     }  // fill
   };
@@ -214,11 +214,8 @@ namespace {
       std::string titleMap =
           "Fraction of bad Strips per module, IOV: " + theIOVsince + " (tag:#color[2]{" + tagname + "})";
 
-      SiStripTkMaps myMap("COLZA0 L");
+      SiStripTkMaps myMap("COLZ0 AL");
       myMap.bookMap(titleMap, "Fraction of bad Strips per module");
-
-      SiStripTkMaps ghost("AL");
-      ghost.bookMap(titleMap, "");
 
       std::vector<uint32_t> detid;
       payload->getDetIds(detid);
@@ -249,7 +246,6 @@ namespace {
       std::string fileName(m_imageFileName);
       TCanvas canvas("Bad Components fraction", "bad components fraction");
       myMap.drawMap(canvas, "");
-      ghost.drawMap(canvas, "same");
       canvas.SaveAs(fileName.c_str());
 
       return true;

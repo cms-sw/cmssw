@@ -97,7 +97,7 @@ private:
   /// InputTag ordering class
   struct OrderInputTag {
     bool ignoreProcess_;
-    OrderInputTag(bool ignoreProcess) : ignoreProcess_(ignoreProcess){};
+    OrderInputTag(bool ignoreProcess) : ignoreProcess_(ignoreProcess) {}
     inline bool operator()(const edm::InputTag& l, const edm::InputTag& r) const {
       int c = l.label().compare(r.label());
       if (0 == c) {

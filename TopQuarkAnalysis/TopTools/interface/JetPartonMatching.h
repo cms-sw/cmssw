@@ -15,7 +15,7 @@ public:
   typedef std::vector<std::pair<unsigned int, int> > MatchingCollection;
   enum algorithms { totalMinDist, minSumDist, ptOrderedMinDist, unambiguousOnly };
 
-  JetPartonMatching(){};
+  JetPartonMatching() {}
   JetPartonMatching(const std::vector<const reco::Candidate*>&,
                     const std::vector<reco::GenJet>&,
                     const int,
@@ -40,7 +40,7 @@ public:
                     const bool,
                     const bool,
                     const double);
-  ~JetPartonMatching(){};
+  ~JetPartonMatching() {}
 
   //matching meta information
   unsigned int getNumberOfAvailableCombinations() { return matching.size(); }

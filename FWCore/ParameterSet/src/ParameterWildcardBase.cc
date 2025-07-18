@@ -61,7 +61,10 @@ namespace edm {
     wildcardTypes.insert(type());
   }
 
-  void ParameterWildcardBase::print_(std::ostream& os, bool optional, bool /*writeToCfi*/, DocFormatHelper& dfh) const {
+  void ParameterWildcardBase::print_(std::ostream& os,
+                                     Modifier modifier,
+                                     bool /*writeToCfi*/,
+                                     DocFormatHelper& dfh) const {
     if (dfh.pass() == 0) {
       dfh.setAtLeast1(11U);
       if (isTracked()) {
@@ -71,6 +74,8 @@ namespace edm {
       }
       dfh.setAtLeast3(8U);
     } else {
+      const bool optional = (Modifier::kOptional == modifier);
+      const bool obsolete = (Modifier::kObsolete == modifier);
       if (dfh.brief()) {
         dfh.indent(os);
         std::ios::fmtflags oldFlags = os.flags();
@@ -89,6 +94,8 @@ namespace edm {
         os << std::setw(dfh.column3());
         if (optional)
           os << "optional";
+        else if (obsolete)
+          os << "obsolete";
         else
           os << "";
 
@@ -121,6 +128,8 @@ namespace edm {
 
         if (optional)
           os << " optional";
+        if (obsolete)
+          os << "obsolete";
         os << "\n";
 
         dfh.indent2(os);
@@ -146,8 +155,12 @@ namespace edm {
     }
   }
 
-  void ParameterWildcardBase::writeCfi_(
-      std::ostream& os, bool optional, bool& startWithComma, int indentation, bool& wroteSomething) const {
+  void ParameterWildcardBase::writeCfi_(std::ostream& os,
+                                        Modifier modifier,
+                                        bool& startWithComma,
+                                        int indentation,
+                                        CfiOptions& options,
+                                        bool& wroteSomething) const {
     wroteSomething = true;
     if (startWithComma)
       os << ",";
@@ -158,18 +171,20 @@ namespace edm {
 
     os << "allowAnyLabel_ = cms.";
 
-    if (optional) {
+    if (Modifier::kOptional == modifier) {
       os << "optional.";
+    } else if (Modifier::kObsolete == modifier) {
+      os << "obsolete.";
     } else {
       os << "required.";
     }
     if (!isTracked())
       os << "untracked.";
 
-    writeTemplate(os, indentation);
+    writeTemplate(os, indentation, options);
   }
 
-  void ParameterWildcardBase::writeTemplate(std::ostream& os, int indentation) const {
+  void ParameterWildcardBase::writeTemplate(std::ostream& os, int indentation, CfiOptions&) const {
     os << parameterTypeEnumToString(type());
   }
 

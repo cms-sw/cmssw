@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
@@ -200,11 +201,11 @@ namespace edm {
     pathStatusInserterWorker_ = pathStatusInserterWorker;
   }
 
-  void Path::processOneOccurrenceAsync(WaitingTaskHolder iTask,
-                                       EventTransitionInfo const& iInfo,
-                                       ServiceToken const& iToken,
-                                       StreamID const& iStreamID,
-                                       StreamContext const* iStreamContext) {
+  void Path::processEventUsingPathAsync(WaitingTaskHolder iTask,
+                                        EventTransitionInfo const& iInfo,
+                                        ServiceToken const& iToken,
+                                        StreamID const& iStreamID,
+                                        StreamContext const* iStreamContext) {
     waitingTasks_.reset();
     modulesToRun_ = workers_.size();
     ++timesRun_;
@@ -245,9 +246,7 @@ namespace edm {
     if (iException) {
       shouldContinue = false;
       std::unique_ptr<cms::Exception> pEx;
-      try {
-        std::rethrow_exception(*iException);
-      } catch (cms::Exception& oldEx) {
+      CMS_SA_ALLOW try { std::rethrow_exception(*iException); } catch (cms::Exception& oldEx) {
         pEx = std::unique_ptr<cms::Exception>(oldEx.clone());
       } catch (std::exception const& oldEx) {
         pEx = std::make_unique<edm::Exception>(errors::StdException);

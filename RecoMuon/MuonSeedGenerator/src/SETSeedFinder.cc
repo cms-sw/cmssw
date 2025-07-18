@@ -2,7 +2,7 @@
     I. Bloch, E. James, S. Stoynev
  */
 
-#include "RecoMuon/MuonSeedGenerator/src/SETSeedFinder.h"
+#include "RecoMuon/MuonSeedGenerator/interface/SETSeedFinder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"

@@ -141,7 +141,7 @@ L1RpcTBMuonsVec2 RPCHalfSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2, edm::ESHandl
         //tcsMuonsVec2[iTC][iMu].setGBData(0);       // gbData is used nowhere from now, we
         //      want to act same as hw
       }
-    }           // iter. over muons end
+    }  // iter. over muons end
     ++secAddr;  // Next trigger crate. Update the address
 
     if (tcsMuonsVec2[iTC].empty() || hsbConf->getHsbMask(0, iTC + 1) == 3) {

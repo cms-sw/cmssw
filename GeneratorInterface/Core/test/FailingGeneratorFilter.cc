@@ -119,6 +119,7 @@ namespace test {
     std::vector<std::string> sharedResources() const { return {}; }
 
     HepMC::GenEvent* decay(HepMC::GenEvent const*) { return nullptr; }
+    HepMC3::GenEvent* decay(HepMC3::GenEvent const*) { return nullptr; }
     void statistics() const {}
 
     void init(const edm::EventSetup&) const {}

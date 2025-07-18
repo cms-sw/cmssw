@@ -13,8 +13,6 @@
 
 #include <filesystem>
 
-#include "EventFilter/Utilities/interface/MicroStateService.h"
-
 #include <string>
 #include <vector>
 #include <map>
@@ -33,9 +31,6 @@
   At snapshot time only (every few seconds) we do the map lookup to produce snapshot.
   The general counters and status variables (event number, number of processed events, number of passed and stored 
   events, luminosity section etc.) are also monitored here.
-
-  N.B. MicroStateService is referenced by a common base class which is now trivial.
-  It's complete removal will be completed in the future commit.
 */
 
 class FedRawDataInputSource;
@@ -156,6 +151,10 @@ namespace evf {
       inWaitChunk_newFileWaitChunk,
       inSupThrottled,
       inThrottled,
+      //additions (appended to keep the color scheme)
+      inSupFileHeldLimit,
+      inWaitInput_fileHeldLimit,
+      inWaitChunk_fileHeldLimit,
       inCOUNT
     };
   }  // namespace FastMonState
@@ -164,7 +163,7 @@ namespace evf {
   //reserve output module space
   constexpr int nReservedModules = 128;
 
-  class FastMonitoringService : public MicroStateService {
+  class FastMonitoringService {
   public:
     // the names of the states - some of them are never reached in an online app
     static const edm::ModuleDescription specialMicroStateNames[FastMonState::mCOUNT];
@@ -172,7 +171,7 @@ namespace evf {
     static const std::string inputStateNames[FastMonState::inCOUNT];
     // Reserved names for microstates
     FastMonitoringService(const edm::ParameterSet&, edm::ActivityRegistry&);
-    ~FastMonitoringService() override;
+    ~FastMonitoringService();
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
     std::string makeModuleLegendaJson();
@@ -180,7 +179,7 @@ namespace evf {
 
     void preallocate(edm::service::SystemBounds const&);
     void jobFailure();
-    void preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::ProcessContext const& pc);
+    void preBeginJob(edm::ProcessContext const& pc);
 
     void preModuleBeginJob(edm::ModuleDescription const&);
     void postBeginJob();
@@ -232,6 +231,7 @@ namespace evf {
     void setTMicrostate(FastMonState::Microstate m);
 
     static unsigned int getTID() { return tbb::this_task_arena::current_thread_index(); }
+    bool streamIsIdle(unsigned int i) const;
 
   private:
     void doSnapshot(const unsigned int ls, const bool isGlobalEOL);

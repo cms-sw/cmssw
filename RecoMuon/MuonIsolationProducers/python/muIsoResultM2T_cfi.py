@@ -16,7 +16,7 @@ muIsoResultM2T = cms.EDProducer("MuIsoTrackResultProducer",
             UnweightedInputHitEcalDeps
         ), 
         cms.PSet(
-            UnweightedInputHitHcalDeps
+            UnweightedInputTowHcalDeps
         ))
 )
 

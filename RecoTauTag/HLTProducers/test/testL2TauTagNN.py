@@ -151,9 +151,7 @@ associatePatAlgosToolsTask(process)
 # Automatic addition of the customisation function
 
 if isData:
-    # Customisation from command line
-    from HLTrigger.Configuration.customizeHLTforCMSSW import customiseFor2018Input
-    process = customiseFor2018Input(process)
+    pass
 else:
     from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
     process = customizeHLTforMC(process)

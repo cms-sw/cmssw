@@ -10,6 +10,7 @@
 // user include files
 #include "FWCore/Framework/interface/ESSourceProductResolverTemplate.h"
 #include "FWCore/Framework/interface/DataKey.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
 
 #include "CondCore/CondDB/interface/IOVProxy.h"
 #include "CondCore/CondDB/interface/PayloadProxy.h"
@@ -69,6 +70,7 @@ namespace cond {
     virtual edm::eventsetup::TypeTag type() const = 0;
     virtual ProxyP proxy(unsigned int iovIndex) const = 0;
     virtual esResolverP esResolver(unsigned int iovIndex) const = 0;
+    virtual edm::eventsetup::EventSetupRecordKey recordKey() const = 0;
 
     ProductResolverWrapperBase();
     // late initialize (to allow to load ALL library first)
@@ -105,6 +107,8 @@ namespace cond {
     ValidityInterval setIntervalFor(Time_t target);
     TimeType timeType() const { return m_iovProxy.tagInfo().timeType; }
 
+    void setPrintDebug(bool printDebug) { m_printDebug = printDebug; }
+
   private:
     std::string m_label;
     std::string m_connString;
@@ -113,6 +117,9 @@ namespace cond {
     Iov_t m_currentIov;
     persistency::Session m_session;
     std::shared_ptr<std::vector<Iov_t>> m_requests;
+
+    // whether additional debug info should be printed in loadTag and setIntervalFor
+    bool m_printDebug = false;
   };
 }  // namespace cond
 
@@ -173,6 +180,13 @@ public:
   edm::eventsetup::TypeTag type() const override { return m_type; }
   ProxyP proxy(unsigned int iovIndex) const override { return m_proxies.at(iovIndex); }
   esResolverP esResolver(unsigned int iovIndex) const override { return m_esResolvers.at(iovIndex); }
+
+  // ProductResolverWrapper returning the Key for the RecordT
+  // guarantees the proper linking order between the Records and
+  // CondDBESSource
+  edm::eventsetup::EventSetupRecordKey recordKey() const final {
+    return edm::eventsetup::EventSetupRecordKey::makeKey<RecordT>();
+  }
 
 private:
   std::string m_source;

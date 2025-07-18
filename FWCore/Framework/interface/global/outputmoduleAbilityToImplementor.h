@@ -38,7 +38,7 @@ namespace edm {
         InputFileWatcher(edm::ParameterSet const& iPSet) : OutputModuleBase(iPSet) {}
         InputFileWatcher(InputFileWatcher const&) = delete;
         InputFileWatcher& operator=(InputFileWatcher const&) = delete;
-        ~InputFileWatcher() noexcept(false) override{};
+        ~InputFileWatcher() noexcept(false) override {}
 
       private:
         void doRespondToOpenInputFile_(FileBlock const&) final;
@@ -85,7 +85,7 @@ namespace edm {
         RunCacheHolder(edm::ParameterSet const& iPSet) : OutputModuleBase(iPSet) {}
         RunCacheHolder(RunCacheHolder<T, C> const&) = delete;
         RunCacheHolder<T, C>& operator=(RunCacheHolder<T, C> const&) = delete;
-        ~RunCacheHolder() noexcept(false) override{};
+        ~RunCacheHolder() noexcept(false) override {}
 
       protected:
         C const* runCache(edm::RunIndex iID) const { return cache_.get(); }
@@ -109,7 +109,7 @@ namespace edm {
         LuminosityBlockCacheHolder(edm::ParameterSet const& iPSet) : OutputModuleBase(iPSet) {}
         LuminosityBlockCacheHolder(LuminosityBlockCacheHolder<T, C> const&) = delete;
         LuminosityBlockCacheHolder<T, C>& operator=(LuminosityBlockCacheHolder<T, C> const&) = delete;
-        ~LuminosityBlockCacheHolder() noexcept(false) override{};
+        ~LuminosityBlockCacheHolder() noexcept(false) override {}
 
       protected:
         void preallocLumis(unsigned int iNLumis) final { caches_.reset(new std::shared_ptr<C>[iNLumis]); }
@@ -136,13 +136,13 @@ namespace edm {
         ExternalWork(edm::ParameterSet const& iPSet) : OutputModuleBase(iPSet) {}
         ExternalWork(ExternalWork const&) = delete;
         ExternalWork& operator=(ExternalWork const&) = delete;
-        ~ExternalWork() noexcept(false) override{};
+        ~ExternalWork() noexcept(false) override {}
 
       private:
         bool hasAcquire() const noexcept override { return true; }
 
-        void doAcquire_(StreamID id, EventForOutput const& event, WaitingTaskWithArenaHolder& holder) final {
-          acquire(id, event, holder);
+        void doAcquire_(StreamID id, EventForOutput const& event, WaitingTaskHolder&& holder) final {
+          acquire(id, event, WaitingTaskWithArenaHolder(std::move(holder)));
         }
 
         virtual void acquire(StreamID, EventForOutput const&, WaitingTaskWithArenaHolder) const = 0;
@@ -177,7 +177,7 @@ namespace edm {
       };
 
     }  // namespace outputmodule
-  }    // namespace global
+  }  // namespace global
 }  // namespace edm
 
 #endif

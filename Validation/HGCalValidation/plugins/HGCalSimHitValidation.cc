@@ -206,7 +206,7 @@ void HGCalSimHitValidation::analyzeHits(std::vector<PCaloHit>& hits) {
     HepGeom::Point3D<float> gcoord;
     std::pair<float, float> xy;
     if (hgcons_->waferHexagon8()) {
-      xy = hgcons_->locateCell(zside, layer, sector, subsector, cell, cell2, false, true, false, false);
+      xy = hgcons_->locateCell(zside, layer, sector, subsector, cell, cell2, false, true, false, false, false);
     } else {
       xy = hgcons_->locateCellTrap(zside, layer, sector, cell, false, false);
     }
@@ -334,19 +334,19 @@ void HGCalSimHitValidation::fillMuonTomoHistos(int partialType, std::pair<hitsin
     if (nameDetector_ == "HGCalEESensitive" or nameDetector_ == "HGCalHESiliconSensitive") {
       // Fill the energy loss histograms for MIP
       if (!TMath::AreEqualAbs(edep, 0.0, 1.e-5)) {  //to avoid peak at zero due Eloss less than 10 mili eV.
-        if (hinfo.type == HGCSiliconDetId::HGCalFine) {
+        if (hinfo.type == HGCSiliconDetId::HGCalHD120) {
           if (partialType == 0)
             energyFWF_.at(ilayer)->Fill(edep);
           if (partialType > 0)
             energyPWF_.at(ilayer)->Fill(edep);
         }
-        if (hinfo.type == HGCSiliconDetId::HGCalCoarseThin) {
+        if (hinfo.type == HGCSiliconDetId::HGCalLD200) {
           if (partialType == 0)
             energyFWCN_.at(ilayer)->Fill(edep);
           if (partialType > 0)
             energyPWCN_.at(ilayer)->Fill(edep);
         }
-        if (hinfo.type == HGCSiliconDetId::HGCalCoarseThick) {
+        if (hinfo.type == HGCSiliconDetId::HGCalLD300) {
           if (partialType == 0)
             energyFWCK_.at(ilayer)->Fill(edep);
           if (partialType > 0)
@@ -355,20 +355,20 @@ void HGCalSimHitValidation::fillMuonTomoHistos(int partialType, std::pair<hitsin
       }
 
       // Fill the XY distribution of detector hits
-      if (hinfo.type == HGCSiliconDetId::HGCalFine)
+      if (hinfo.type == HGCSiliconDetId::HGCalHD120)
         hitXYFWF_.at(ilayer)->Fill(x, y);
 
-      if (hinfo.type == HGCSiliconDetId::HGCalCoarseThin)
+      if (hinfo.type == HGCSiliconDetId::HGCalLD200)
         hitXYFWCN_.at(ilayer)->Fill(x, y);
 
-      if (hinfo.type == HGCSiliconDetId::HGCalCoarseThick)
+      if (hinfo.type == HGCSiliconDetId::HGCalLD300)
         hitXYFWCK_.at(ilayer)->Fill(x, y);
 
     }  //is Silicon
     if (nameDetector_ == "HGCalHEScintillatorSensitive") {
       hitXYB_.at(ilayer)->Fill(x, y);
     }  //is Scintillator
-  }    //layer condition
+  }  //layer condition
 }
 
 // ------------ method called when starting to processes a run  ------------

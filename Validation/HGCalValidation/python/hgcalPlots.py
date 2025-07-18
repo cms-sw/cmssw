@@ -1,4 +1,3 @@
-from __future__ import print_function
 import os
 import sys
 import copy
@@ -16,11 +15,11 @@ import Validation.RecoTrack.plotting.plotting as plotting
 import Validation.RecoTrack.plotting.validation as validation
 import Validation.RecoTrack.plotting.html as html
 
-from Validation.HGCalValidation.HGCalValidator_cfi import hgcalValidator
-from Validation.HGCalValidation.PostProcessorHGCAL_cfi import lcToCP_linking, simDict, tsToCP_linking, tsToSTS_patternRec, variables
+from Validation.HGCalValidation.HGCalValidator_cff import hgcalValidator
+from Validation.HGCalValidation.PostProcessorHGCAL_cfi import lcToCP_linking, simDict, TSbyHits_CP, TSbyLCs, TSbyLCs_CP, TSbyHits, variables
 
 hgcVal_dqm = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/"
-#The number of layers per endcap in the current default geometry scenario. 
+#The number of layers per endcap in the current default geometry scenario.
 geometryscenario = 47
 
 #To be able to spot any issues both in -z and +z a layer id was introduced
@@ -1177,18 +1176,18 @@ _common_energy_score = dict(removeEmptyBins=False, xbinlabelsize=10,
     xmax=1.,
     ymin=0.01,
     ymax=1.)
-_energyscore_cp2lc_zminus = PlotGroup("Energy_vs_Score_CP2LC", [Plot("Energy_vs_Score_caloparticle2layer_perlayer{:02d}".format(i), title="Energy_vs_Score_CP2LC", 
+_energyscore_cp2lc_zminus = PlotGroup("Energy_vs_Score_CP2LC", [Plot("Energy_vs_Score_caloparticle2layer_perlayer{:02d}".format(i), title="Energy_vs_Score_CP2LC",
                                                      xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score) for i in range(0, maxlayerzm)
                                                      ], ncols=10)
 
-_energyscore_cp2lc_zplus = PlotGroup("Energy_vs_Score_CP2LC", [Plot("Energy_vs_Score_caloparticle2layer_perlayer{:02d}".format(i), title="Energy_vs_Score_CP2LC", 
+_energyscore_cp2lc_zplus = PlotGroup("Energy_vs_Score_CP2LC", [Plot("Energy_vs_Score_caloparticle2layer_perlayer{:02d}".format(i), title="Energy_vs_Score_CP2LC",
                                                      xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score) for i in range(maxlayerzm,maxlayerzp)
                                                      ], ncols=10)
 _common_energy_score["xmin"]=-0.1
-_energyscore_lc2cp_zminus = PlotGroup("Energy_vs_Score_LC2CP", [Plot("Energy_vs_Score_layer2caloparticle_perlayer{:02d}".format(i), title="Energy_vs_Score_LC2CP", 
+_energyscore_lc2cp_zminus = PlotGroup("Energy_vs_Score_LC2CP", [Plot("Energy_vs_Score_layer2caloparticle_perlayer{:02d}".format(i), title="Energy_vs_Score_LC2CP",
                                                      xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score) for i in range(0, maxlayerzm)
                                                      ], ncols=10)
-_energyscore_lc2cp_zplus = PlotGroup("Energy_vs_Score_LC2CP", [Plot("Energy_vs_Score_layer2caloparticle_perlayer{:02d}".format(i), title="Energy_vs_Score_LC2CP", 
+_energyscore_lc2cp_zplus = PlotGroup("Energy_vs_Score_LC2CP", [Plot("Energy_vs_Score_layer2caloparticle_perlayer{:02d}".format(i), title="Energy_vs_Score_LC2CP",
                                                      xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_energy_score) for i in range(maxlayerzm,maxlayerzp)
                                                      ], ncols=10)
 
@@ -1615,22 +1614,43 @@ _sharedEnergy_to_trackster = []
 _sharedEnergy_trackster_to = []
 versions = ["", "_assoc", "_assoc_vs_eta", "_assoc_vs_phi"]
 
+_score_simtrackster_to_trackster = []
+_score_trackster_to_simtrackster = []
+score_versions_simToReco = ["", "Dupl", "Pur"]
+score_versions_recoToSim= ["", "Fake", "Merge"]
+
 _energyscore_to_trackster = []
 _energyscore_trackster_to = []
 en_vs_score = ["","best","secBest"]
 for val in simDict:
     _sharedEnergy_to_trackster.append(PlotGroup("SharedEnergy_"+val+"ToTrackster", [], ncols=2))
+    print("appending plot group", "SharedEnergy_"+val+"ToTrackster")
     _sharedEnergy_trackster_to.append(PlotGroup("SharedEnergy_TracksterTo"+val, [], ncols=2))
+    print("appending plot group", "SharedEnergy_TracksterTo"+val)
+    _score_simtrackster_to_trackster.append(PlotGroup("Score_"+val+"2trackster", [], ncols=3))
+    print("appending plot group", "Score_"+val+"2trackster")
+    _score_trackster_to_simtrackster.append(PlotGroup("Score_trackster2"+val, [], ncols=3))
+    print("appending plot group", "Score_trackster2"+val)
     for ver in versions:
-        _sharedEnergy_to_trackster[-1].append(Plot("SharedEnergy_"+val.lower()+"2trackster"+ver, **_common_shared))
-        _sharedEnergy_trackster_to[-1].append(Plot("SharedEnergy_trackster2"+val.lower()+ver, **_common_shared))
+        _sharedEnergy_to_trackster[-1].append(Plot("SharedEnergy_"+val+"2trackster"+ver, **_common_shared))
+        print("appending plot ", "SharedEnergy_"+val+"2trackster"+ver)
+        _sharedEnergy_trackster_to[-1].append(Plot("SharedEnergy_trackster2"+val+ver, **_common_shared))
+        print("appending plot ", "SharedEnergy_trackster2"+val+ver)
+    for ver in score_versions_simToReco:
+      _score_simtrackster_to_trackster[-1].append(Plot("Score"+ver+"_"+val+"2trackster", **_common_score))
+      print("appending plot ", "Score"+ver+"_"+val+"2trackster")
+    for ver in score_versions_recoToSim:
+      _score_trackster_to_simtrackster[-1].append(Plot("Score"+ver+"_trackster2"+val, **_common_score))
+      print("appending plot ", "Score"+ver+"_trackster2"+val)
+    
 
     _energyscore_to_trackster.append(PlotGroup("Energy_vs_Score_"+val+"ToTracksters", [], ncols=len(en_vs_score)))
     _energyscore_trackster_to.append(PlotGroup("Energy_vs_Score_TrackstersTo"+val, [], ncols=len(en_vs_score)))
     for ver in en_vs_score:
-        _energyscore_to_trackster[-1].append(Plot("Energy_vs_Score_"+val.lower()+"2"+ver+"Trackster", **_common_energy_score))
+        _energyscore_to_trackster[-1].append(Plot("Energy_vs_Score_"+val+"2"+ver+"Trackster", **_common_energy_score))
+        print("appending plot ", "Energy_vs_Score_"+val+"2"+ver+"Trackster")
         _energyscore_trackster_to[-1].append(Plot("Energy_vs_Score_trackster2"+ver+val, **_common_energy_score))
-
+        print("appending plot ", "Energy_vs_Score_trackster2"+ver+val)
 _common_assoc = {#"title": "Cell Association Table",
                  "stat": False,
                  "legend": False,
@@ -1665,13 +1685,20 @@ for val in simDict:
     for v in variables:
         kwargs = _common_metric_logx if v in ["energy","pt"] else _common_metric
         _effplots.extend([Plot("effic_"+v+simDict[val], xtitle = variables[v][0]+variables[v][1], **kwargs)])
+        print("appending plot", "effic_"+v+simDict[val])
         _purityplots.extend([Plot("purity_"+v+simDict[val], xtitle = variables[v][0]+variables[v][1], **kwargs)])
+        print("appending plot", "purity_"+v+simDict[val])
         _dupplots.extend([Plot("duplicate_"+v+simDict[val], xtitle = variables[v][0]+variables[v][1], **kwargs)])
+        print("appending plot", "duplicate_"+v+simDict[val])
         _fakeplots.extend([Plot("fake_"+v+simDict[val], xtitle = variables[v][0]+variables[v][1], **kwargs)])
+        print("appending plot", "fake_"+v+simDict[val])
         _mergeplots.extend([Plot("merge_"+v+simDict[val], xtitle = variables[v][0]+variables[v][1], **kwargs)])
+        print("appending plot", "merge_"+v+simDict[val])
 
     _efficiencies.append(PlotGroup("Efficiencies"+simDict[val], _effplots, ncols=3))
+    print("appending plot group", "Efficiencies"+simDict[val])
     _purities.append(PlotGroup("Purities"+simDict[val], _purityplots, ncols=3))
+    print("appending plot group", "Purities"+simDict[val])
     _duplicates.append(PlotGroup("Duplicates"+simDict[val], _dupplots, ncols=3))
     _fakes.append(PlotGroup("FakeRate"+simDict[val], _fakeplots, ncols=3))
     _merges.append(PlotGroup("MergeRate"+simDict[val], _mergeplots, ncols=3))
@@ -1689,7 +1716,7 @@ _trackster_layernum_plots.extend([Plot("trackster_lastlayer", **_common)])
 _trackster_layernum_plots.extend([Plot("trackster_layersnum", **_common)])
 _trackster_layernum = PlotGroup("LayerNumbersOfTrackster", _trackster_layernum_plots, ncols=3)
 
-_common["xmax"] = 50
+_common["xmax"] = 150
 _clusternum_in_trackster = PlotGroup("NumberofLayerClustersinTrackster",[
   Plot("clusternum_in_trackster", **_common)
 ],ncols=1)
@@ -1709,7 +1736,7 @@ _multiplicity_zplus_numberOfEventsHistogram = hgcVal_dqm + "ticlTrackstersMerge/
 _multiplicityOfLCinTST_plots = [Plot("multiplicityOfLCinTST",
                                 drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)]
 _multiplicityOfLCinTST_plots.extend([Plot("multiplicityOfLCinTST_vs_layerclusterenergy",
-                                drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)]) 
+                                drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)])
 _multiplicityOfLCinTST_plots.extend([Plot("multiplicityOfLCinTST_vs_layercluster_zplus",
                                 drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)])
 _multiplicityOfLCinTST_plots.extend([Plot("multiplicityOfLCinTST_vs_layercluster_zminus",
@@ -1763,6 +1790,67 @@ _trackster_xyz_plots.extend([Plot("trackster_z", **_common)])
 _trackster_xyz = PlotGroup("XYZ", _trackster_xyz_plots, ncols=3)
 
 #--------------------------------------------------------------------------------------------
+# CANDIDATES
+#--------------------------------------------------------------------------------------------
+
+# all candidates
+cand_plots_names = ["N of tracksters in candidate", "Candidates PDG Id", "Candidates charge", "Candidates type"]
+_candidate_nts_plots = []
+for name in cand_plots_names:
+    _candidate_nts_plots.extend([Plot(name, **_common)])
+_candidatesPlots1 = PlotGroup("General_plots_pid_type", _candidate_nts_plots, ncols=2)
+
+cand_plots_names = ["Candidates pT", "Candidates raw energy", "Candidates regressed energy"]
+_candidate_nts_plots = []
+for name in cand_plots_names:
+    _candidate_nts_plots.extend([Plot(name, **_common)])
+_candidatesPlots2 = PlotGroup("General_plots_pt_energy", _candidate_nts_plots, ncols=3)
+
+_candidatesPlots = [_candidatesPlots1, _candidatesPlots2]
+
+# divided by candidate's type
+cand_type = ["charged_hadrons", "electrons", "muons", "neutral_hadrons", "neutral_pions", "photons"]
+cand_plots_names = [" candidates PDG Id", " candidates charge", " candidates type"]
+cand_plots_names_den = ["den_fake_cand_vs_energy_", "den_fake_cand_vs_eta_", "den_fake_cand_vs_phi_", "den_fake_cand_vs_pt_"]
+
+_all_cand_type_plots = []
+for ct in cand_type:
+    cand_type_plots = [Plot("N of tracksters in candidate for "+ct, title="N of tracksters in candidate for "+ct.replace("_", " "), **_common)]
+    for name in cand_plots_names:
+        cand_type_plots.extend([Plot(ct+name, title=ct.replace("_", " ")+name, **_common)])
+    _all_cand_type_plots.append(cand_type_plots)
+
+_all_cand_ene_plots = []
+for ct in cand_type:
+    name = "candidates regressed energy"
+    cand_type_plots = [Plot(ct+name, title=ct.replace("_", " ")+" "+name, **_common)]
+    for name in cand_plots_names_den:
+        cand_type_plots.extend([Plot(name+ct, title=ct.replace("_", " ")+" candidates "+name.replace("den_fake_cand_vs_", "").replace("_", ""), **_common)])
+    _all_cand_ene_plots.append(cand_type_plots)
+
+#efficiency and fake
+_common_eff_fake = {"stat": False, "legend": False, "xbinlabelsize": 14, "xtitle": "Default", "xbinlabeloption": "d", "ymin": 0.0, "ymax": 1.1}
+_all_cand_eff_plots = []
+for ct in cand_type:
+    cand_eff_plots = []
+    for var in ["pt", "energy", "eta", "phi"]:
+        for cut in ["track", "pid", "energy"]:
+            cand_eff_plots.extend([Plot("eff_"+ct+"_"+cut+"_"+var, title=cut + " efficiency for "+ct.replace("_", " ")+" vs "+var, ytitle="Efficiency", **_common_eff_fake)])
+    _all_cand_eff_plots.append(cand_eff_plots)
+
+_all_cand_fake_plots = []
+for ct in cand_type:
+    cand_fake_plots = []
+    for var in ["pt", "energy", "eta", "phi"]:
+        for cut in ["track", "pid", "energy"]:
+            cand_fake_plots.extend([Plot("fake_"+ct+"_"+cut+"_"+var, title=cut + " fake rate for "+ct.replace("_", " ")+" vs "+var, ytitle="Fake rate", **_common_eff_fake)])
+    _all_cand_fake_plots.append(cand_fake_plots)
+
+_allCandidatesPlots = [[],[],[],[],[],[]]
+for i in range(6):
+    _allCandidatesPlots[i].extend([PlotGroup(cand_type[i]+"_type", _all_cand_type_plots[i], ncols=2), PlotGroup(cand_type[i]+"_kin", _all_cand_ene_plots[i], ncols=3), PlotGroup(cand_type[i]+"_eff", _all_cand_eff_plots[i], ncols=3), PlotGroup(cand_type[i]+"_fake", _all_cand_fake_plots[i], ncols=3)])
+
+#--------------------------------------------------------------------------------------------
 # SIMHITS, DIGIS, RECHITS
 #--------------------------------------------------------------------------------------------
 
@@ -1776,143 +1864,143 @@ _HitValidation = PlotGroup("HitValidation", [
 
 _common = {"stat": True, "drawStyle": "hist", "staty": 0.65}
 
-_Occupancy_EE_zplus = PlotGroup("Occupancy_EE_zplus", [Plot("HitOccupancy_Plus_layer_{:02d}".format(i), title="Occupancy_EE_zplus", 
+_Occupancy_EE_zplus = PlotGroup("Occupancy_EE_zplus", [Plot("HitOccupancy_Plus_layer_{:02d}".format(i), title="Occupancy_EE_zplus",
                                                         xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
                                                         ], ncols=7)
 
-_Occupancy_HE_Silicon_zplus = PlotGroup("Occupancy_HE_Silicon_zplus", [Plot("HitOccupancy_Plus_layer_{:02d}".format(i), title="Occupancy_HE_zplus", 
+_Occupancy_HE_Silicon_zplus = PlotGroup("Occupancy_HE_Silicon_zplus", [Plot("HitOccupancy_Plus_layer_{:02d}".format(i), title="Occupancy_HE_zplus",
                                                                        xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
                                                                        ], ncols=7)
 
-_Occupancy_HE_Scintillator_zplus = PlotGroup("Occupancy_HE_Scintillator_zplus", [Plot("HitOccupancy_Plus_layer_{:02d}".format(i), title="Occupancy_HE_Scintillator_zplus", 
+_Occupancy_HE_Scintillator_zplus = PlotGroup("Occupancy_HE_Scintillator_zplus", [Plot("HitOccupancy_Plus_layer_{:02d}".format(i), title="Occupancy_HE_Scintillator_zplus",
                                                                                          xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
                                                                                          ], ncols=7)
 
-_Occupancy_EE_zminus = PlotGroup("Occupancy_EE_zminus", [Plot("HitOccupancy_Minus_layer_{:02d}".format(i), title="Occupancy_EE_zminus", 
+_Occupancy_EE_zminus = PlotGroup("Occupancy_EE_zminus", [Plot("HitOccupancy_Minus_layer_{:02d}".format(i), title="Occupancy_EE_zminus",
                                                          xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
                                                          ], ncols=7)
 
-_Occupancy_HE_Silicon_zminus = PlotGroup("Occupancy_HE_Silicon_zminus", [Plot("HitOccupancy_Minus_layer_{:02d}".format(i), title="Occupancy_HE_Silicon_zminus", 
+_Occupancy_HE_Silicon_zminus = PlotGroup("Occupancy_HE_Silicon_zminus", [Plot("HitOccupancy_Minus_layer_{:02d}".format(i), title="Occupancy_HE_Silicon_zminus",
                                                                          xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
                                                                          ], ncols=7)
 
-_Occupancy_HE_Scintillator_zminus = PlotGroup("Occupancy_HE_Scintillator_zminus", [Plot("HitOccupancy_Minus_layer_{:02d}".format(i), title="Occupancy_HE_Scintillator_zminus", 
+_Occupancy_HE_Scintillator_zminus = PlotGroup("Occupancy_HE_Scintillator_zminus", [Plot("HitOccupancy_Minus_layer_{:02d}".format(i), title="Occupancy_HE_Scintillator_zminus",
                                                                                    xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
                                                                                    ], ncols=7)
 
 _common_etaphi = dict(removeEmptyBins=False, xbinlabelsize=10, xbinlabeloption="d", ymin=None)
 
-_EtaPhi_EE_zplus = PlotGroup("EtaPhi_EE_zplus", [Plot("EtaPhi_Plus_layer_{:02d}".format(i), title="EtaPhi_EE_zplus", 
+_EtaPhi_EE_zplus = PlotGroup("EtaPhi_EE_zplus", [Plot("EtaPhi_Plus_layer_{:02d}".format(i), title="EtaPhi_EE_zplus",
                                                      xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi) for i in range(EE_min,EE_max+1)
                                                      ], ncols=7)
 
-_EtaPhi_HE_Silicon_zplus = PlotGroup("EtaPhi_HE_Silicon_zplus", [Plot("EtaPhi_Plus_layer_{:02d}".format(i), title="EtaPhi_HE_Silicon_zplus", 
+_EtaPhi_HE_Silicon_zplus = PlotGroup("EtaPhi_HE_Silicon_zplus", [Plot("EtaPhi_Plus_layer_{:02d}".format(i), title="EtaPhi_HE_Silicon_zplus",
                                                      xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi) for i in range(HESilicon_min,HESilicon_max+1)
                                                      ], ncols=7)
 
-_EtaPhi_HE_Scintillator_zplus = PlotGroup("EtaPhi_HE_Scintillator_zplus", [Plot("EtaPhi_Plus_layer_{:02d}".format(i), title="EtaPhi_HE_Scintillator_zplus", 
+_EtaPhi_HE_Scintillator_zplus = PlotGroup("EtaPhi_HE_Scintillator_zplus", [Plot("EtaPhi_Plus_layer_{:02d}".format(i), title="EtaPhi_HE_Scintillator_zplus",
                                                      xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi) for i in range(HEScintillator_min,HEScintillator_max+1)
                                                      ], ncols=7)
 
-_EtaPhi_EE_zminus = PlotGroup("EtaPhi_EE_zminus", [Plot("EtaPhi_Minus_layer_{:02d}".format(i), title="EtaPhi_EE_zminus", 
+_EtaPhi_EE_zminus = PlotGroup("EtaPhi_EE_zminus", [Plot("EtaPhi_Minus_layer_{:02d}".format(i), title="EtaPhi_EE_zminus",
                                                       xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi) for i in range(EE_min,EE_max+1)
                                                       ], ncols=7)
 
-_EtaPhi_HE_Silicon_zminus = PlotGroup("EtaPhi_HE_Silicon_zminus", [Plot("EtaPhi_Minus_layer_{:02d}".format(i), title="EtaPhi_HE_Silicon_zminus", 
+_EtaPhi_HE_Silicon_zminus = PlotGroup("EtaPhi_HE_Silicon_zminus", [Plot("EtaPhi_Minus_layer_{:02d}".format(i), title="EtaPhi_HE_Silicon_zminus",
                                                      xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi) for i in range(HESilicon_min,HESilicon_max+1)
                                                      ], ncols=7)
 
-_EtaPhi_HE_Scintillator_zminus = PlotGroup("EtaPhi_HE_Scintillator_zminus", [Plot("EtaPhi_Minus_layer_{:02d}".format(i), title="EtaPhi_HE_Scintillator_zminus", 
+_EtaPhi_HE_Scintillator_zminus = PlotGroup("EtaPhi_HE_Scintillator_zminus", [Plot("EtaPhi_Minus_layer_{:02d}".format(i), title="EtaPhi_HE_Scintillator_zminus",
                                                      xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_etaphi) for i in range(HEScintillator_min,HEScintillator_max+1)
                                                      ], ncols=7)
 
 _common = {"stat": True, "drawStyle": "hist", "staty": 0.65, "ymin": 0.1, "ylog": True}
 
-_Energy_EE_0 = PlotGroup("Energy_Time_0_EE", [Plot("energy_time_0_layer_{:02d}".format(i), title="Energy_Time_0_EE", 
+_Energy_EE_0 = PlotGroup("Energy_Time_0_EE", [Plot("energy_time_0_layer_{:02d}".format(i), title="Energy_Time_0_EE",
                                               xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
                                               ], ncols=7)
 
-_Energy_HE_Silicon_0 = PlotGroup("Energy_Time_0_HE_Silicon", [Plot("energy_time_0_layer_{:02d}".format(i), title="Energy_Time_0_HE_Silicon", 
+_Energy_HE_Silicon_0 = PlotGroup("Energy_Time_0_HE_Silicon", [Plot("energy_time_0_layer_{:02d}".format(i), title="Energy_Time_0_HE_Silicon",
                                                               xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
                                                               ], ncols=7)
 
-_Energy_HE_Scintillator_0 = PlotGroup("Energy_Time_0_HE_Scintillator", [Plot("energy_time_0_layer_{:02d}".format(i), title="Energy_Time_0_HE_Scintillator", 
+_Energy_HE_Scintillator_0 = PlotGroup("Energy_Time_0_HE_Scintillator", [Plot("energy_time_0_layer_{:02d}".format(i), title="Energy_Time_0_HE_Scintillator",
                                                                         xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
                                                                         ], ncols=7)
 
-_Energy_EE_1 = PlotGroup("Energy_Time_1_EE", [Plot("energy_time_1_layer_{:02d}".format(i), title="Energy_Time_1_EE", 
+_Energy_EE_1 = PlotGroup("Energy_Time_1_EE", [Plot("energy_time_1_layer_{:02d}".format(i), title="Energy_Time_1_EE",
                                               xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
                                               ], ncols=7)
 
-_Energy_HE_Silicon_1 = PlotGroup("Energy_Time_1_HE_Silicon", [Plot("energy_time_1_layer_{:02d}".format(i), title="Energy_Time_1_HE_Silicon", 
+_Energy_HE_Silicon_1 = PlotGroup("Energy_Time_1_HE_Silicon", [Plot("energy_time_1_layer_{:02d}".format(i), title="Energy_Time_1_HE_Silicon",
                                                               xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
                                                               ], ncols=7)
 
-_Energy_HE_Scintillator_1 = PlotGroup("Energy_Time_1_HE_Scintillator", [Plot("energy_time_1_layer_{:02d}".format(i), title="Energy_Time_1_HE_Scintillator", 
+_Energy_HE_Scintillator_1 = PlotGroup("Energy_Time_1_HE_Scintillator", [Plot("energy_time_1_layer_{:02d}".format(i), title="Energy_Time_1_HE_Scintillator",
                                                                         xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
                                                                         ], ncols=7)
 
-_Energy_EE = PlotGroup("Energy_EE", [Plot("energy_layer_{:02d}".format(i), title="Energy_EE", 
+_Energy_EE = PlotGroup("Energy_EE", [Plot("energy_layer_{:02d}".format(i), title="Energy_EE",
                                              xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
                                              ], ncols=7)
 
-_Energy_HE_Silicon = PlotGroup("Energy_HE_Silicon", [Plot("energy_layer_{:02d}".format(i), title="Energy_HE_Silicon", 
+_Energy_HE_Silicon = PlotGroup("Energy_HE_Silicon", [Plot("energy_layer_{:02d}".format(i), title="Energy_HE_Silicon",
                                                              xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
                                                              ], ncols=7)
 
-_Energy_HE_Scintillator = PlotGroup("Energy_HE_Scintillator", [Plot("energy_layer_{:02d}".format(i), title="Energy_HE_Scintillator", 
+_Energy_HE_Scintillator = PlotGroup("Energy_HE_Scintillator", [Plot("energy_layer_{:02d}".format(i), title="Energy_HE_Scintillator",
                                                                                xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
                                                                                ], ncols=7)
 
-_DigiHits_ADC_EE = PlotGroup("ADC_EE", [Plot("ADC_layer_{:02d}".format(i), title="DigiHits_ADC_EE", 
+_DigiHits_ADC_EE = PlotGroup("ADC_EE", [Plot("ADC_layer_{:02d}".format(i), title="DigiHits_ADC_EE",
                                         xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
                                         ], ncols=7)
 
-_DigiHits_ADC_HE_Silicon = PlotGroup("ADC_HE_Silicon", [Plot("ADC_layer_{:02d}".format(i), title="DigiHits_ADC_HE_Silicon", 
+_DigiHits_ADC_HE_Silicon = PlotGroup("ADC_HE_Silicon", [Plot("ADC_layer_{:02d}".format(i), title="DigiHits_ADC_HE_Silicon",
                                                        xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
                                                        ], ncols=7)
 
-_DigiHits_ADC_HE_Scintillator = PlotGroup("ADC_HE_Scintillator", [Plot("ADC_layer_{:02d}".format(i), title="DigiHits_ADC_HE_Scintillator", 
+_DigiHits_ADC_HE_Scintillator = PlotGroup("ADC_HE_Scintillator", [Plot("ADC_layer_{:02d}".format(i), title="DigiHits_ADC_HE_Scintillator",
                                                                   xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
                                                                   ], ncols=7)
 
 _common = {"stat": True, "drawStyle": "hist", "staty": 0.65}
 
-_DigiHits_Occupancy_EE_zplus = PlotGroup("Occupancy_EE_zplus", [Plot("DigiOccupancy_Plus_layer_{:02d}".format(i), title="DigiHits_Occupancy_EE_zplus", 
+_DigiHits_Occupancy_EE_zplus = PlotGroup("Occupancy_EE_zplus", [Plot("DigiOccupancy_Plus_layer_{:02d}".format(i), title="DigiHits_Occupancy_EE_zplus",
                                                                 xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
                                                                 ], ncols=7)
 
-_DigiHits_Occupancy_HE_Silicon_zplus = PlotGroup("Occupancy_HE_Silicon_zplus", [Plot("DigiOccupancy_Plus_layer_{:02d}".format(i), title="DigiHits_Occupancy_HE_Silicon_zplus", 
+_DigiHits_Occupancy_HE_Silicon_zplus = PlotGroup("Occupancy_HE_Silicon_zplus", [Plot("DigiOccupancy_Plus_layer_{:02d}".format(i), title="DigiHits_Occupancy_HE_Silicon_zplus",
                                                                                  xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
                                                                                  ], ncols=7)
 
-_DigiHits_Occupancy_HE_Scintillator_zplus = PlotGroup("Occupancy_HE_Scintillator_zplus", [Plot("DigiOccupancy_Plus_layer_{:02d}".format(i), title="DigiHits_Occupancy_HE_Scintillator_zplus", 
+_DigiHits_Occupancy_HE_Scintillator_zplus = PlotGroup("Occupancy_HE_Scintillator_zplus", [Plot("DigiOccupancy_Plus_layer_{:02d}".format(i), title="DigiHits_Occupancy_HE_Scintillator_zplus",
                                                                                           xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
                                                                                            ], ncols=7)
 
-_DigiHits_Occupancy_EE_zminus = PlotGroup("Occupancy_EE_zminus", [Plot("DigiOccupancy_Minus_layer_{:02d}".format(i), title="DigiHits_Occupancy_EE_zminus", 
+_DigiHits_Occupancy_EE_zminus = PlotGroup("Occupancy_EE_zminus", [Plot("DigiOccupancy_Minus_layer_{:02d}".format(i), title="DigiHits_Occupancy_EE_zminus",
                                                                   xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
                                                                   ], ncols=7)
 
-_DigiHits_Occupancy_HE_Silicon_zminus = PlotGroup("Occupancy_HE_Silicon_zminus", [Plot("DigiOccupancy_Minus_layer_{:02d}".format(i), title="DigiHits_Occupancy_HE_Silicon_zminus", 
+_DigiHits_Occupancy_HE_Silicon_zminus = PlotGroup("Occupancy_HE_Silicon_zminus", [Plot("DigiOccupancy_Minus_layer_{:02d}".format(i), title="DigiHits_Occupancy_HE_Silicon_zminus",
                                                                                   xtitle="Layer {}".format(i), **_common) for i in range(HESilicon_min,HESilicon_max+1)
                                                                                   ], ncols=7)
 
-_DigiHits_Occupancy_HE_Scintillator_zminus = PlotGroup("Occupancy_HE_Scintillator_zminus", [Plot("DigiOccupancy_Minus_layer_{:02d}".format(i), title="DigiHits_Occupancy_HE_Scintillator_zminus", 
+_DigiHits_Occupancy_HE_Scintillator_zminus = PlotGroup("Occupancy_HE_Scintillator_zminus", [Plot("DigiOccupancy_Minus_layer_{:02d}".format(i), title="DigiHits_Occupancy_HE_Scintillator_zminus",
                                                                                             xtitle="Layer {}".format(i), **_common) for i in range(HEScintillator_min,HEScintillator_max+1)
                                                                                             ], ncols=7)
 
 _common_XY = dict(removeEmptyBins=True, xbinlabelsize=10, xbinlabeloption="d", ymin=None)
 
-_DigiHits_Occupancy_XY_EE = PlotGroup("Occupancy_XY_EE", [Plot("DigiOccupancy_XY_layer_{:02d}".format(i), title="DigiHits_Occupancy_XY_EE", 
+_DigiHits_Occupancy_XY_EE = PlotGroup("Occupancy_XY_EE", [Plot("DigiOccupancy_XY_layer_{:02d}".format(i), title="DigiHits_Occupancy_XY_EE",
                                                      xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_XY) for i in range(EE_min,EE_max+1)
                                                      ], ncols=7)
 
-_DigiHits_Occupancy_XY_HE_Silicon = PlotGroup("Occupancy_XY_HE_Silicon", [Plot("DigiOccupancy_XY_layer_{:02d}".format(i), title="DigiHits_Occupancy_XY_HE_Silicon", 
+_DigiHits_Occupancy_XY_HE_Silicon = PlotGroup("Occupancy_XY_HE_Silicon", [Plot("DigiOccupancy_XY_layer_{:02d}".format(i), title="DigiHits_Occupancy_XY_HE_Silicon",
                                                      xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_XY) for i in range(HESilicon_min,HESilicon_max+1)
                                                      ], ncols=7)
 
-_DigiHits_Occupancy_XY_HE_Scintillator = PlotGroup("Occupancy_XY_HE_Scintillator", [Plot("DigiOccupancy_XY_layer_{:02d}".format(i), title="DigiHits_Occupancy_XY_HE_Scintillator", 
+_DigiHits_Occupancy_XY_HE_Scintillator = PlotGroup("Occupancy_XY_HE_Scintillator", [Plot("DigiOccupancy_XY_layer_{:02d}".format(i), title="DigiHits_Occupancy_XY_HE_Scintillator",
                                                      xtitle="Layer {}".format(i), drawStyle="COLZ", adjustMarginRight=0.1, **_common_XY) for i in range(HEScintillator_min,HEScintillator_max+1)
                                                      ], ncols=7)
 
@@ -2186,7 +2274,7 @@ lc_cp_association_zplus = [
   # Merge Rate Plots
   _merges_zplus,
   _merges_zplus_eta,
-  _merges_zplus_phi,  
+  _merges_zplus_phi,
   # Score of CaloParticles wrt Layer Clusters
   _score_caloparticle_to_layerclusters_zplus,
   # Score of LayerClusters wrt CaloParticles
@@ -2280,22 +2368,22 @@ def append_hgcalLayerClustersPlots(collection = hgcalValidator.label_layerCluste
   regions_ClusterLevel       = ["General: Cluster Level", "Z-minus: Cluster Level", "Z-plus: Cluster Level"]
   regions_CellLevel          = ["Z-minus: Cell Level", "Z-plus: Cell Level"]
   regions_LCtoCP_association = ["Z-minus: LC_CP association", "Z-plus: LC_CP association"]
-  
+
   plots_lc_general_clusterlevel  = lc_general_clusterlevel
-  plots_lc_clusterlevel_zminus   = lc_clusterlevel_zminus 
-  plots_lc_cellevel_zminus       = lc_cellevel_zminus 
+  plots_lc_clusterlevel_zminus   = lc_clusterlevel_zminus
+  plots_lc_cellevel_zminus       = lc_cellevel_zminus
   plots_lc_clusterlevel_zplus    = lc_clusterlevel_zplus
   plots_lc_cellevel_zplus        = lc_cellevel_zplus
   plots_lc_cp_association_zminus = lc_cp_association_zminus
   plots_lc_cp_association_zplus  = lc_cp_association_zplus
 
   if extended :
-    #plots_lc_clusterlevel_zminus   = lc_clusterlevel_zminus 
-    #plots_lc_clusterlevel_zplus    = lc_clusterlevel_zplus 
+    #plots_lc_clusterlevel_zminus   = lc_clusterlevel_zminus
+    #plots_lc_clusterlevel_zplus    = lc_clusterlevel_zplus
     plots_lc_cellevel_zminus       = lc_cellevel_zminus + lc_zminus_extended
     plots_lc_cellevel_zplus        = lc_cellevel_zplus + lc_zplus_extended
-    #plots_lc_cp_association_zminus = lc_cp_association_zminus 
-    #plots_lc_cp_association_zplus  = lc_cp_association_zplus 
+    #plots_lc_cp_association_zminus = lc_cp_association_zminus
+    #plots_lc_cp_association_zplus  = lc_cp_association_zplus
 
   setPlots_ClusterLevel       = [plots_lc_general_clusterlevel, plots_lc_clusterlevel_zminus, plots_lc_clusterlevel_zplus]
   setPlots_CellLevel          = [plots_lc_cellevel_zminus, plots_lc_cellevel_zplus]
@@ -2450,33 +2538,62 @@ _trackstersPlots = [
   _multiplicityOfLCinTST,
 ]
 
-_trackstersToCPLinkPlots = [
+_trackstersToSimTracksterFromCPByHitsPlots = [
   _efficiencies[0],
   _purities[0],
   _duplicates[0],
   _fakes[0],
   _merges[0],
-  _score_caloparticle_to_tracksters,
-  _score_trackster_to_caloparticles,
+  _score_simtrackster_to_trackster[0],
+  _score_trackster_to_simtrackster[0],
   _sharedEnergy_to_trackster[0],
   _sharedEnergy_trackster_to[0],
   _energyscore_to_trackster[0],
   _energyscore_trackster_to[0],
 ]
 
-_trackstersToSTSPRPlots = [
+_trackstersToSimTracksterByLCsPlots = [
   _efficiencies[1],
   _purities[1],
   _duplicates[1],
   _fakes[1],
   _merges[1],
-  _score_simtrackster_to_tracksters,
-  _score_trackster_to_simtracksters,
+  _score_simtrackster_to_trackster[1],
+  _score_trackster_to_simtrackster[1],
   _sharedEnergy_to_trackster[1],
   _sharedEnergy_trackster_to[1],
   _energyscore_to_trackster[1],
   _energyscore_trackster_to[1],
 ]
+
+_trackstersToSimTracksterFromCPByLCsPlots = [
+  _efficiencies[2],
+  _purities[2],
+  _duplicates[2],
+  _fakes[2],
+  _merges[2],
+  _score_simtrackster_to_trackster[2],
+  _score_trackster_to_simtrackster[2],
+  _sharedEnergy_to_trackster[2],
+  _sharedEnergy_trackster_to[2],
+  _energyscore_to_trackster[2],
+  _energyscore_trackster_to[2],
+]
+
+_trackstersToSimTracksterByHitsPlots = [
+  _efficiencies[3],
+  _purities[3],
+  _duplicates[3],
+  _fakes[3],
+  _merges[3],
+  _score_simtrackster_to_trackster[3],
+  _score_trackster_to_simtrackster[3],
+  _sharedEnergy_to_trackster[3],
+  _sharedEnergy_trackster_to[3],
+  _energyscore_to_trackster[3],
+  _energyscore_trackster_to[3],
+]
+
 hgcalTrackstersPlotter = Plotter()
 def append_hgcalTrackstersPlots(collection = 'ticlTrackstersMerge', name_collection = "TrackstersMerge"):
   # Appending generic plots for Tracksters
@@ -2487,45 +2604,49 @@ def append_hgcalTrackstersPlots(collection = 'ticlTrackstersMerge', name_collect
               loopSubFolders=False,
               purpose=PlotPurpose.Timing, page="Tracksters", section=name_collection))
 
-  # Appending plots for Tracksters-CP linking
+
+  # Appending plots for Tracksters TSbyHits_CP, TSbyLCs, TSbyLCs_CP, TSbyHits
   hgcalTrackstersPlotter.append(collection, [
-              _hgcalFolders(collection + "/" + tsToCP_linking)
+              _hgcalFolders(collection + "/" + TSbyHits_CP)
               ], PlotFolder(
-              *_trackstersToCPLinkPlots,
+              *_trackstersToSimTracksterFromCPByHitsPlots,
               loopSubFolders=False,
               purpose=PlotPurpose.Timing
-              #,page=tsToCP_linking.replace('TSToCP_','TICL-')
-              ,page=tsToCP_linking.replace('TSToCP_','TICL-linking').replace('linking','')
+              ,page="Trackster to SimTracksters from CP Associated by Hits"
               ,section=name_collection)
               )
-
-  # Appending plots for Tracksters Pattern Recognition
+  
   hgcalTrackstersPlotter.append(collection, [
-              _hgcalFolders(collection + "/" + tsToSTS_patternRec)
+              _hgcalFolders(collection + "/" + TSbyLCs)
               ], PlotFolder(
-              *_trackstersToSTSPRPlots,
+              *_trackstersToSimTracksterByLCsPlots,
               loopSubFolders=False,
-              purpose=PlotPurpose.Timing, page=tsToSTS_patternRec.replace('TSToSTS_','TICL-'), section=name_collection))
-
-  #We append here two PlotFolder because we want the text to be in percent
-  #and the number of events are different in zplus and zminus
-  #hgcalTrackstersPlotter.append("Multiplicity", [
-  #            dqmfolder
-  #            ], PlotFolder(
-  #            _multiplicityOfLCinTST_vs_layercluster_zminus,
-  #            loopSubFolders=False,
-  #            purpose=PlotPurpose.Timing, page=collection,
-  #            numberOfEventsHistogram=_multiplicity_zminus_numberOfEventsHistogram
-  #            ))
-  #
-  #hgcalTrackstersPlotter.append("Multiplicity", [
-  #            dqmfolder
-  #            ], PlotFolder(
-  #            _multiplicityOfLCinTST_vs_layercluster_zplus,
-  #            loopSubFolders=False,
-  #            purpose=PlotPurpose.Timing, page=collection,
-  #            numberOfEventsHistogram=_multiplicity_zplus_numberOfEventsHistogram
-  #            ))
+              purpose=PlotPurpose.Timing
+              ,page="Trackster to SimTracksters Associated by LCs"
+              ,section=name_collection)
+              )
+  
+  hgcalTrackstersPlotter.append(collection, [
+              _hgcalFolders(collection + "/" + TSbyLCs_CP)
+              ], PlotFolder(
+              *_trackstersToSimTracksterFromCPByLCsPlots,
+              loopSubFolders=False,
+              purpose=PlotPurpose.Timing
+              ,page="Trackster to SimTracksters from CP Associated by LCs"
+              ,section=name_collection)
+              )
+  
+  hgcalTrackstersPlotter.append(collection, [
+              _hgcalFolders(collection + "/" + TSbyHits)
+              ], PlotFolder(
+              *_trackstersToSimTracksterByHitsPlots,
+              loopSubFolders=False,
+              purpose=PlotPurpose.Timing
+              ,page="Trackster to SimTracksters Associated by Hits"
+              ,section=name_collection)
+              )
+  
+  
 
 #=================================================================================================
 _common_Calo = {"stat": False, "drawStyle": "hist", "staty": 0.65, "ymin": 0.0, "ylog": False, "xtitle": "Default", "ytitle": "Default"}
@@ -2610,6 +2731,7 @@ def create_hgcalTrackstersPlotter(files, collection = 'ticlTrackstersMerge', nam
                                            xtitle="Default", ytitle="Default",
                                            **_common)
                                      )
+                print("Adding %s to %s"%(name,group))
     else:
         pg = None
         if obj.InheritsFrom("TH2"):
@@ -2718,7 +2840,7 @@ hgcalHitPlotter.append("SimHits_Validation", [
 def append_hgcalHitsPlots(collection = "HGCalSimHitsV", name_collection = "Simulated Hits"):
   _hitsCommonPlots_EE = [
     _Occupancy_EE_zplus,
-    _Occupancy_EE_zminus, 
+    _Occupancy_EE_zminus,
     _EtaPhi_EE_zminus,
     _EtaPhi_EE_zplus
   ]
@@ -2840,3 +2962,20 @@ hgcalHitCalibPlotter.append("EcalDrivenGsfElectronsFromTrackster_Closest_EoverCP
         loopSubFolders=False,
         purpose=PlotPurpose.Timing, page=hitCalibrationLabel, section=hitCalibrationLabel
         ))
+
+hgcalTICLCandPlotter = Plotter()
+
+hgcalTICLCandPlotter.append('ticlCandidates', [
+             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/"+hgcalValidator.ticlCandidates.value(),
+            ], PlotFolder(
+            *_candidatesPlots,
+            loopSubFolders=False,
+            purpose=PlotPurpose.Timing, page="General", section="Candidates"))
+
+for i in range(6):
+    hgcalTICLCandPlotter.append('ticlCandidates', [
+             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/"+hgcalValidator.ticlCandidates.value()+"/"+cand_type[i],
+            ], PlotFolder(
+            *_allCandidatesPlots[i],
+            loopSubFolders=False,
+            purpose=PlotPurpose.Timing, page=cand_type[i], section="Candidates"))

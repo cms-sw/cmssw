@@ -1,5 +1,4 @@
 #! /usr/bin/env python3
-from __future__ import print_function
 #pylint: disable-msg=W0403
 """
 MakeBuildSet - utilizes dependency discovery mechanism for Partial Releases.

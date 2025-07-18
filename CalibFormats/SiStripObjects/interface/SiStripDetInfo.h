@@ -29,9 +29,9 @@
 class SiStripDetInfo {
 public:
   struct DetInfo {
-    DetInfo(){};
+    DetInfo() {}
     DetInfo(unsigned short _nApvs, double _stripLength, float _thickness)
-        : nApvs(_nApvs), stripLength(_stripLength), thickness(_thickness){};
+        : nApvs(_nApvs), stripLength(_stripLength), thickness(_thickness) {}
 
     unsigned short nApvs;
     double stripLength;

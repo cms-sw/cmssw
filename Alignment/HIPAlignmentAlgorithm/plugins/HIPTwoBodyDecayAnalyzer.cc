@@ -51,10 +51,7 @@ private:
   const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> ttkbuilderToken_;
 
   enum BranchType { BranchType_short_t, BranchType_int_t, BranchType_float_t, BranchType_unknown_t };
-
-  void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
   void bookAllBranches();
   bool bookBranch(std::string bname, BranchType btype);
@@ -282,13 +279,13 @@ void HIPTwoBodyDecayAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   tree->Fill();
 }
 
-void HIPTwoBodyDecayAnalyzer::beginJob() {}
-void HIPTwoBodyDecayAnalyzer::endJob() {}
-
 void HIPTwoBodyDecayAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<edm::InputTag>("alcarecotracks", edm::InputTag("ALCARECOTkAlZMuMu"));
+  desc.add<edm::InputTag>("refit1tracks", edm::InputTag("FirstTrackRefitter"));
+  desc.add<edm::InputTag>("refit2tracks", edm::InputTag("HitFilteredTracksTrackFitter"));
+  desc.add<edm::InputTag>("finaltracks", edm::InputTag("FinalTrackRefitter"));
+  descriptions.addWithDefaultLabel(desc);
 }
 
 void HIPTwoBodyDecayAnalyzer::analyzeTrackCollection(std::string strTrackType,

@@ -30,7 +30,7 @@ public:
     CFpos = 0;
     fract = 0;
   };
-  ~PixelDigiSimLink(){};
+  ~PixelDigiSimLink() {}
   unsigned int channel() const { return chan; };
   unsigned int SimTrackId() const { return simTkId; };
   unsigned int CFposition() const { return CFpos & 0x7FFFFFFF; }

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 #example taken from https://pypi.python.org/pypi/uncertainties/3.0.1
-from __future__ import print_function
 from uncertainties import ufloat
 x = ufloat(2, 0.25)
 print(x)

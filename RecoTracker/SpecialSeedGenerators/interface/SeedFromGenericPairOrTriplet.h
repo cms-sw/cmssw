@@ -37,7 +37,7 @@ public:
                                const std::vector<int>& charges,
                                bool momFromPSet,
                                double errorRescaling);
-  ~SeedFromGenericPairOrTriplet(){};
+  ~SeedFromGenericPairOrTriplet() {}
   void setMomentumTo(double mom) { theP = mom; };
   bool momentumFromPSet() { return theSetMomentum; };
   //builds a seed from a pair or triplet. it returns a null pointer if the seed does not pass the quality filter

@@ -3,7 +3,7 @@
 
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
 #include "DataFormats/GeometrySurface/interface/BoundDiskSector.h"
-#include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
+#include "Geometry/MTDGeometryBuilder/interface/MTDTopology.h"
 
 #include <ostream>
 
@@ -21,7 +21,7 @@ public:
   /// Construct from a vector of GeomDet*
   MTDDetSector(const std::vector<const GeomDet*>& dets, const MTDTopology& topo);
 
-  ~MTDDetSector() override{};
+  ~MTDDetSector() override {}
 
   // GeometricSearchDet structure
 

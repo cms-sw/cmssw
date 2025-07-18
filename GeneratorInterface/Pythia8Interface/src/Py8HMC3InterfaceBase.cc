@@ -20,13 +20,18 @@ namespace gen {
     pythiaHepMCVerbosity = ps.getUntrackedParameter<bool>("pythiaHepMCVerbosity", false);
     pythiaHepMCVerbosityParticles = ps.getUntrackedParameter<bool>("pythiaHepMCVerbosityParticles", false);
     maxEventsToPrint = ps.getUntrackedParameter<int>("maxEventsToPrint", 0);
+    p8RndmEngine_ = std::make_shared<P8RndmEngine>();
 
     //if (pythiaHepMCVerbosityParticles)
     //  ascii_io = new HepMC::IO_AsciiParticles("cout", std::ios::out);
 
     if (ps.exists("useEvtGenPlugin")) {
       useEvtGen = true;
-      string evtgenpath(std::getenv("EVTGENDATA"));
+      auto env = std::getenv("EVTGENDATA");
+      if (not env) {
+        throw cms::Exception("EvtGenMissingEnv") << "The environment variable EVTGENDATA must be defined";
+      }
+      string evtgenpath(env);
       evtgenDecFile = evtgenpath + string("/DECAY_2010.DEC");
       evtgenPdlFile = evtgenpath + string("/evt.pdl");
 
@@ -65,9 +70,15 @@ namespace gen {
   }
 
   bool Py8HMC3InterfaceBase::readSettings(int) {
+    //Pythia 8's default value for first argument to constructor
+    const string xmlDir = "../share/Pythia8/xmldoc";
+    bool printBanner = true;
+    if (fParameters.exists("printBanner")) {
+      printBanner = fParameters.getUntrackedParameter<bool>("printBanner");
+    }
     if (!fMasterGen.get())
-      fMasterGen = std::make_unique<Pythia>();
-    fDecayer = std::make_unique<Pythia>();
+      fMasterGen = std::make_unique<Pythia>(xmlDir, printBanner);
+    fDecayer = std::make_unique<Pythia>(xmlDir, printBanner);
 
     //add settings for resonance decay filter
     fMasterGen->settings.addFlag("BiasedTauDecayer:filter", false);
@@ -93,21 +104,22 @@ namespace gen {
     fMasterGen->settings.addParm("PTFilter:quarkRapidity", 10.0, true, true, 0.0, 10.);
     fMasterGen->settings.addParm("PTFilter:quarkPt", -.1, true, true, -.1, 100.);
 
+    //add settings for RecoilToTop tool
+    fMasterGen->settings.addFlag("TopRecoilHook:doTopRecoilIn", false);
+    fMasterGen->settings.addFlag("TopRecoilHook:useOldDipoleIn", false);
+    fMasterGen->settings.addFlag("TopRecoilHook:doListIn", false);
+
     //add settings for powheg resonance scale calculation
     fMasterGen->settings.addFlag("POWHEGres:calcScales", false);
     fMasterGen->settings.addFlag("POWHEG:bb4l", false);
-    fMasterGen->settings.addFlag("POWHEG:bb4l:FSREmission:onlyDistance1", false);
     fMasterGen->settings.addFlag("POWHEG:bb4l:FSREmission:veto", false);
-    fMasterGen->settings.addFlag("POWHEG:bb4l:FSREmission:dryRun", false);
-    fMasterGen->settings.addFlag("POWHEG:bb4l:FSREmission:vetoAtPL", false);
     fMasterGen->settings.addFlag("POWHEG:bb4l:FSREmission:vetoQED", false);
-    fMasterGen->settings.addFlag("POWHEG:bb4l:PartonLevel:veto", false);
-    fMasterGen->settings.addFlag("POWHEG:bb4l:PartonLevel:excludeFSRConflicting", false);
     fMasterGen->settings.addFlag("POWHEG:bb4l:DEBUG", false);
     fMasterGen->settings.addFlag("POWHEG:bb4l:ScaleResonance:veto", false);
     fMasterGen->settings.addFlag("POWHEG:bb4l:FSREmission:vetoDipoleFrame", false);
     fMasterGen->settings.addFlag("POWHEG:bb4l:FSREmission:pTpythiaVeto", false);
     fMasterGen->settings.addParm("POWHEG:bb4l:pTminVeto", 10.0, true, true, 0.0, 10.);
+    fMasterGen->settings.addFlag("POWHEG:bb4l:vetoAllRadtypes", false);
 
     fMasterGen->setRndmEnginePtr(p8RndmEngine_);
     fDecayer->setRndmEnginePtr(p8RndmEngine_);

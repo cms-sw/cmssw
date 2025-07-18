@@ -4,16 +4,16 @@
 #include <cmath>
 #include <vdt/vdtMath.h>
 
-PerigeeTrajectoryParameters PerigeeConversions::ftsToPerigeeParameters(const FTS& originalFTS,
-                                                                       const GlobalPoint& referencePoint,
-                                                                       double& pt)
+std::optional<PerigeeTrajectoryParameters> PerigeeConversions::ftsToPerigeeParameters(const FTS& originalFTS,
+                                                                                      const GlobalPoint& referencePoint,
+                                                                                      double& pt)
 
 {
   GlobalVector impactDistance = originalFTS.position() - referencePoint;
 
   pt = originalFTS.momentum().perp();
   if (pt == 0.)
-    throw cms::Exception("PerigeeConversions", "Track with pt=0");
+    return std::nullopt;
 
   double theta = originalFTS.momentum().theta();
   double phi = originalFTS.momentum().phi();

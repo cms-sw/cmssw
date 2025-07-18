@@ -11,8 +11,8 @@
  */
 class QGLikelihoodCalculator {
 public:
-  QGLikelihoodCalculator(){};
-  ~QGLikelihoodCalculator(){};
+  QGLikelihoodCalculator() {}
+  ~QGLikelihoodCalculator() {}
 
   float computeQGLikelihood(
       const QGLikelihoodObject &QGLParamsColl, float pt, float eta, float rho, std::vector<float> vars) const;

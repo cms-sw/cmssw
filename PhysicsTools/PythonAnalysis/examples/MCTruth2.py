@@ -1,4 +1,3 @@
-from __future__ import print_function
 from PhysicsTools.PythonAnalysis import *
 from ROOT import gSystem
 

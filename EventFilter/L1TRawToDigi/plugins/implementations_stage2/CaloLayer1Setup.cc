@@ -6,6 +6,8 @@
 
 #include "CaloLayer1Setup.h"
 
+#include "DataFormats/L1CaloTrigger/interface/CICADA.h"
+
 namespace l1t {
   namespace stage2 {
     std::unique_ptr<PackerTokens> CaloLayer1Setup::registerConsumes(const edm::ParameterSet& cfg,
@@ -58,6 +60,7 @@ namespace l1t {
       for (int i = 0; i < 5; ++i) {
         prod.produces<EcalTrigPrimDigiCollection>("EcalDigisBx" + std::to_string(i + 1));
       }
+      prod.produces<CICADABxCollection>("CICADAScore");
     }
 
     std::unique_ptr<UnpackerCollections> CaloLayer1Setup::getCollections(edm::Event& e) {
@@ -71,6 +74,9 @@ namespace l1t {
       if (fed == 1354 || fed == 1356 || fed == 1358) {
         if (board < 18) {
           res[0] = UnpackerFactory::get()->make("stage2::CaloLayer1Unpacker");
+        }
+        if (fed == 1356 && amc == 7) {  //calo summary board
+          res[0] = UnpackerFactory::get()->make("stage2::CICADAUnpacker");
         }
       }
 

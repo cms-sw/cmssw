@@ -1592,7 +1592,7 @@ void MtdEleIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
         }
       }
     }  // electron matched to a track
-  }    // electron collection inside single event
+  }  // electron collection inside single event
 }
 
 // ------------ method for histogram booking ------------

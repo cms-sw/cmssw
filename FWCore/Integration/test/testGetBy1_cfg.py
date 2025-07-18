@@ -109,11 +109,3 @@ process.t = cms.Task(process.intProducerU,
 process.p = cms.Path(process.intProducer * process.a1 * process.a2 * process.a3, process.t)
 
 process.e = cms.EndPath(process.out)
-
-copyProcess = cms.Process("COPY")
-process.addSubProcess(cms.SubProcess(copyProcess,
-    outputCommands = cms.untracked.vstring(
-        "keep *", 
-        "drop *_intProducerA_*_*"
-    )
-))

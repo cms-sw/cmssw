@@ -15,6 +15,7 @@
 // system include files
 #include <algorithm>
 #include <cassert>
+#include <unordered_set>
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupProvider.h"
@@ -73,6 +74,23 @@ namespace edm {
       }
       auto index = std::distance(recordKeys_.begin(), lb);
       return recordProviders_[index].get();
+    }
+
+    EventSetupRecordProvider const* EventSetupProvider::tryToGetRecordProvider(const EventSetupRecordKey& iKey) const {
+      auto lb = std::lower_bound(recordKeys_.begin(), recordKeys_.end(), iKey);
+      if (lb == recordKeys_.end() || iKey != *lb) {
+        return nullptr;
+      }
+      auto index = std::distance(recordKeys_.begin(), lb);
+      return recordProviders_[index].get();
+    }
+
+    void EventSetupProvider::fillAllESProductResolverProviders(
+        std::vector<ESProductResolverProvider const*>& allESProductResolverProviders) const {
+      std::unordered_set<unsigned int> componentIDs;
+      for (auto const& recordProvider : recordProviders_) {
+        recordProvider->fillAllESProductResolverProviders(allESProductResolverProviders, componentIDs);
+      }
     }
 
     void EventSetupProvider::insert(const EventSetupRecordKey& iKey,
@@ -264,7 +282,7 @@ namespace edm {
       finders_.reset();
 
       //Now handle providers since sources can also be finders and the sources can delay registering
-      // their Records and therefore could delay setting up their Proxies
+      // their Records and therefore could delay setting up their Resolvers
       psetIDToRecordKey_->clear();
       for (auto& productResolverProvider : *dataProviders_) {
         ParameterSetIDHolder psetID(productResolverProvider->description().pid_);
@@ -347,10 +365,6 @@ namespace edm {
         }
       }
 
-      auto indices = recordsToResolverIndices();
-      for (auto& provider : *dataProviders_) {
-        provider->updateLookup(indices);
-      }
       dataProviders_.reset();
 
       mustFinishConfiguration_ = false;
@@ -383,16 +397,16 @@ namespace edm {
 
       dependents.erase(std::unique(dependents.begin(), dependents.end()), dependents.end());
 
-      recProvider->resetProxies();
+      recProvider->resetResolvers();
       for (auto& d : dependents) {
-        d->resetProxies();
+        d->resetResolvers();
       }
     }
 
     void EventSetupProvider::forceCacheClear() {
       for (auto& recProvider : recordProviders_) {
         if (recProvider) {
-          recProvider->resetProxies();
+          recProvider->resetResolvers();
         }
       }
     }
@@ -502,7 +516,7 @@ namespace edm {
             }
           }
         }  // end loop over components used by record
-      }    // end loop over records
+      }  // end loop over records
 
       // Loop over candidates
       for (auto const& candidate : candidateNotRejectedYet) {
@@ -538,6 +552,13 @@ namespace edm {
             ModuleFactory::get()->addTo(esController, *this, pset, resolverMaker, true);
           }
         }
+      }
+    }
+
+    void EventSetupProvider::updateLookup() {
+      auto indices = recordsToResolverIndices();
+      for (auto& recordProvider : recordProviders_) {
+        recordProvider->updateLookup(indices);
       }
     }
 
@@ -762,8 +783,11 @@ namespace edm {
 
       unsigned int index = 0;
       for (const auto& provider : recordProviders_) {
-        index = ret.dataKeysInRecord(
-            index, provider->key(), provider->registeredDataKeys(), provider->componentsForRegisteredDataKeys());
+        index = ret.dataKeysInRecord(index,
+                                     provider->key(),
+                                     provider->registeredDataKeys(),
+                                     provider->componentsForRegisteredDataKeys(),
+                                     provider->produceMethodIDsForRegisteredDataKeys());
       }
 
       return ret;

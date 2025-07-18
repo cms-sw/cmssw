@@ -56,7 +56,7 @@ namespace reco {
     }
 
     /// destructor
-    ~RecoTauPiZero() override{};
+    ~RecoTauPiZero() override {}
 
     /// Number of PFGamma constituents
     size_t numberOfGammas() const;

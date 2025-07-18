@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from __future__ import print_function
 from builtins import range
 import os
 import re
@@ -11,7 +10,6 @@ import argparse
 import subprocess
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.tools as mps_tools
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.Mpslibclass as mpslib
-
 
 parser = argparse.ArgumentParser(description = "Setup local mps database")
 parser.add_argument("-m", "--setup-merge", dest = "setup_merge",
@@ -158,28 +156,25 @@ if not args.memory or args.memory < pedeMemMin:
 # Create the job directories
 nJobExist = 0
 if args.append and os.path.isdir("jobData"):
-    # Append mode, and "jobData" exists
+    # Append mode, and "jobData" exists. Find the highest existing job number
     jobs = os.listdir("jobData")
-    job_regex = re.compile(r"job([0-9]{3})") # should we really restrict it to 3 digits?
-    existing_jobs = [job_regex.search(item) for item in jobs]
-    existing_jobs = [int(job.group(1)) for job in existing_jobs if job is not None]
-    nJobExist = sorted(existing_jobs)[-1]
-
-if nJobExist == 0 or nJobExist <=0 or nJobExist > 999: # quite rude method... -> enforce job number limit earlier?
-    # Delete all
-    mps_tools.remove_existing_object("jobData")
-    os.makedirs("jobData")
-    nJobExist = 0;
+    job_regex = re.compile(r"job(\d+)") # can have any number of digits
+    existing_jobs_set = set()
+    for item in jobs:
+        job_regex = re.compile(r"job(\d+)")
+        x = job_regex.search(item)
+        if x:
+            #print(x.group(1))
+            existing_jobs_set.add(int(x.group(1)))
+    nJobExist = max(existing_jobs_set)
 
 for j in range(1, args.n_jobs + 1):
     i = j+nJobExist
     jobdir = "job{0:03d}".format(i)
-    print("jobdir", jobdir)
     os.makedirs(os.path.join("jobData", jobdir))
 
 # build the absolute job directory path (needed by mps_script)
 theJobData = os.path.abspath("jobData")
-print("theJobData =", theJobData)
 
 if args.append:
     # save current values
@@ -244,7 +239,7 @@ for j in range(1, args.n_jobs + 1):
     cmd = ["mps_split.pl", args.input_file_list,
            str(j if args.max_events is None else 1),
            str(args.n_jobs if args.max_events is None else 1)]
-    print(" ".join(cmd)+" > jobData/{}/theSplit".format(jobdir))
+    #print(" ".join(cmd)+" > jobData/{}/theSplit".format(jobdir))
     with open("jobData/{}/theSplit".format(jobdir), "w") as f:
         try:
             subprocess.check_call(cmd, stdout = f)
@@ -254,19 +249,20 @@ for j in range(1, args.n_jobs + 1):
     theIsn = "{0:03d}".format(i)
 
     # create the cfg file
-    cmd = ["mps_splice.py", args.config_template,
-           "jobData/{}/theSplit".format(jobdir),
-           "jobData/{}/the.py".format(jobdir), theIsn]
+    skip_events = 0
+    max_events = 0
     if args.max_events is not None:
         chunk_size = int(args.max_events/args.n_jobs)
-        event_options = ["--skip-events", str(chunk_size*(j-1))]
+        skip_events = chunk_size*(j-1)
         max_events = (args.max_events - (args.n_jobs-1)*chunk_size
                       if j == args.n_jobs    # last job gets the remaining events
                       else chunk_size)
-        event_options.extend(["--max-events", str(max_events)])
-        cmd.extend(event_options)
-    print(" ".join(cmd))
-    mps_tools.run_checked(cmd)
+    
+    lib.mps_splice(args.config_template,
+                   "jobData/{}/theSplit".format(jobdir),
+                   "jobData/{}/the.py".format(jobdir),
+                   theIsn)
+
 
     # create the run script
     print("mps_script.pl {}  jobData/{}/theScript.sh {}/{} the.py jobData/{}/theSplit {} {} {}".format(args.batch_script, jobdir, theJobData, jobdir, jobdir, theIsn, args.mss_dir, lib.mssDirPool))

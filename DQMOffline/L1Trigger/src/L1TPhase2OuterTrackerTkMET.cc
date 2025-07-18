@@ -28,9 +28,9 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTTrackAssociationMap.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
+#include "SimDataFormats/Associations/interface/TTStubAssociationMap.h"
+#include "SimDataFormats/Associations/interface/TTTrackAssociationMap.h"
+#include "SimDataFormats/Associations/interface/TTClusterAssociationMap.h"
 
 #include "DQMOffline/L1Trigger/interface/L1TPhase2OuterTrackerTkMET.h"
 

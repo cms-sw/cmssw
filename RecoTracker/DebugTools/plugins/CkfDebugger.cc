@@ -693,7 +693,7 @@ bool CkfDebugger::correctMeas(const TM& tm, const PSimHit* correctHit) const {
           }
           if (assocTrackId(*ch2) != ((int)(correctHit->trackId()))) {
             LogTrace("CkfDebugger") << "returning false 1"; /*return false;*/
-          }                                                 //fixme
+          }  //fixme
           if (test) {
             // 	    LogTrace("CkfDebugger") << "returning false 2" ;
             return false;  // not all components from same simtrack

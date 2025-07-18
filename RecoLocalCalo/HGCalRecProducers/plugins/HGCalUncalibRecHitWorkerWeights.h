@@ -24,8 +24,8 @@ namespace edm {
 
 class HGCalUncalibRecHitWorkerWeights : public HGCalUncalibRecHitWorkerBaseClass {
 public:
-  HGCalUncalibRecHitWorkerWeights(const edm::ParameterSet&, edm::ConsumesCollector iC);
-  ~HGCalUncalibRecHitWorkerWeights() override{};
+  HGCalUncalibRecHitWorkerWeights(const edm::ParameterSet&, edm::ConsumesCollector iC, bool useTime);
+  ~HGCalUncalibRecHitWorkerWeights() override {}
 
   bool runHGCEE(const edm::ESHandle<HGCalGeometry>& geom,
                 const HGCalDigiCollection& digis,

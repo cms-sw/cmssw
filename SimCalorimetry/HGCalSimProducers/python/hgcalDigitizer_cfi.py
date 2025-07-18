@@ -240,7 +240,7 @@ def HGCal_setRealisticStartupNoise(process):
       (for instance turning on the 0th  bit turns off the impact of fluence in Si)
     """
     process=HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=1)
-    process=HGCal_setRealisticNoiseSci(process,byDose=True,byDoseAlgo=2+8+16,referenceIdark=0.125,referenceXtalk=0.01)
+    process=HGCal_setRealisticNoiseSci(process,byDose=True,byDoseAlgo=2+16+32,byDoseFactor=0,referenceIdark=0.125,referenceXtalk=0.01)
     return process
 
 def HGCal_setRealisticStartupNoise_fixedSiPMTileAreasAndSN(process,targetSN=7,referenceXtalk=-1,ignorePedestal=False):

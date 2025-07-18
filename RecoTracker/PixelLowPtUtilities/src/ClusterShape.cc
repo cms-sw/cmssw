@@ -122,7 +122,7 @@ void ClusterShape::determineShape(const PixelGeomDetUnit& pixelDet, const SiPixe
     if (pos.first > x[1]) {  // column ready
       if (processColumn(pos, true) == false) {
         data.isStraight = false;
-      }                          // break; }
+      }  // break; }
     } else {                     // increasing column
       if (pos.second > hig + 1)  // at least a pixel is missing
       {

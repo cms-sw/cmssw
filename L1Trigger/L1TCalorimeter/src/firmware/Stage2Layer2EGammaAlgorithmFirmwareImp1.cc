@@ -246,7 +246,7 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
       egamma.setP4(calibP4);
 
     }  //end of cuts on cluster to make EGamma
-  }    //end of cluster loop
+  }  //end of cluster loop
 
   // prepare content to be sorted -- each phi ring contains 18 elements, with Et = 0 if no candidate exists
   math::PtEtaPhiMLorentzVector emptyP4;

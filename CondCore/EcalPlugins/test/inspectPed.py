@@ -1,7 +1,7 @@
 #
 # I should write a decent test of the python binding...
 #
-import sys, DLFCN
+import sys, DLFCN, importlib
 sys.setdlopenflags(DLFCN.RTLD_GLOBAL+DLFCN.RTLD_LAZY)
 
 from pluginCondDBPyInterface import *
@@ -27,13 +27,13 @@ vf = VFloat()
 for tag in tags.split() :
     try :
         log = db.lastLogEntry(tag)
-        print log.getState()
+        print(log.getState())
         iov = inspect.Iov(db,tag)
-        print iov.list()
-#        print iov.summaries()
-#        print iov.trend("",[0,2,12])
+        print(iov.list())
+#        print(iov.summaries())
+#        print(iov.trend("",[0,2,12]))
     except RuntimeError :
-        print " no iov? in", tag
+        print(" no iov? in", tag)
 
 
 iov=0
@@ -50,11 +50,11 @@ for key in what.keys():
 
 
 iov = inspect.Iov(db,tag)
-print iov.trend(ans)
+print(iov.trend(ans))
 ans = {'how': 'all', 'quantity': 'mean_x3', 'which' : []}
-print iov.trend(an)
+print(iov.trend(ans))
 ans = {'how': 'singleChannel', 'quantity': 'mean_x6', 'which' : [0,200,1200]}
-print iov.trend(ans)
+print(iov.trend(ans))
 
 
 
@@ -64,7 +64,7 @@ print iov.trend(ans)
 token = log.payloadToken
 
 p = inspect.PayLoad(db,token)
-print p
+print(p)
 
 p=0
 
@@ -83,21 +83,21 @@ iov.trend("",[0,2,12])
 
 o = iovInspector.PayLoad(db,log.payloadToken)
 
-        exec('import '+db.moduleName(tag)+' as Plug')   
-        iov = db.iov(tag)
-        log = db.lastLogEntry(tag)
-        print tag, iov.size(), log.execmessage, log.exectime, log.payloadIdx 
-        vi = VInt()
-        vi.append(0)
-        vi.append(2)
-        vi.append(12)
-        ex = Plug.Extractor("",vi)
-        for elem in iov.elements :
-            p = Plug.Object(elem)
-            print elem.since(), elem.till(),p.summary()
-            p.extract(ex)
-            for v in ex.values() :
-                print v
+Plug = importlib.import_module(db.moduleName(tag))
+iov = db.iov(tag)
+log = db.lastLogEntry(tag)
+print(tag, iov.size(), log.execmessage, log.exectime, log.payloadIdx )
+vi = VInt()
+vi.append(0)
+vi.append(2)
+vi.append(12)
+ex = Plug.Extractor("",vi)
+for elem in iov.elements :
+    p = Plug.Object(elem)
+    print(elem.since(), elem.till(),p.summary())
+    p.extract(ex)
+    for v in ex.values() :
+        print(v)
 
 
 token = '[DB=00000000-0000-0000-0000-000000000000][CNT=EcalPedestalsRcd][CLID=75E7B995-8233-097B-FD4A-31AEC6A040C8][TECH=00000B01][OID=0000000C-00000114]'

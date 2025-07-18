@@ -134,3 +134,6 @@ void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es) {
   LogDebug("TSGFromL1Muon") << result->size() << " seeds to the event.";
   ev.put(std::move(result));
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(TSGFromL1Muon);

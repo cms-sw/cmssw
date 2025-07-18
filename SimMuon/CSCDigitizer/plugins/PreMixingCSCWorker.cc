@@ -76,7 +76,7 @@ void PreMixingMuonWorker<CSCStripDigiCollection>::put(edm::Event &iEvent) {
         } else {
           NewDigiList.push_back(**StripPtr);
         }
-      }                    // if strips monotonically increasing...  Haven't hit duplicates yet
+      }  // if strips monotonically increasing...  Haven't hit duplicates yet
       else {               // reached end of signal digis, or there was no overlap
         PrevStrip = 1000;  // now into pileup signals, stop looking forward for
                            // duplicates

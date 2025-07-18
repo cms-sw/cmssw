@@ -13,7 +13,7 @@
 namespace L1Analysis {
   struct L1AnalysisGMTDataFormat {
     L1AnalysisGMTDataFormat() { Reset(); };
-    ~L1AnalysisGMTDataFormat(){};
+    ~L1AnalysisGMTDataFormat() {}
 
     void Reset() {
       Ndt = 0;

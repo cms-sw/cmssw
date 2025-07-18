@@ -19,9 +19,9 @@ class G4Nucleus;
 
 class CMSDummyDeexcitation : public G4VPreCompoundModel {
 public:
-  CMSDummyDeexcitation() : G4VPreCompoundModel(nullptr, "PRECO"){};
+  CMSDummyDeexcitation() : G4VPreCompoundModel(nullptr, "PRECO") {}
 
-  ~CMSDummyDeexcitation() override{};
+  ~CMSDummyDeexcitation() override {}
 
   G4HadFinalState* ApplyYourself(const G4HadProjectile&, G4Nucleus&) override { return nullptr; }
 

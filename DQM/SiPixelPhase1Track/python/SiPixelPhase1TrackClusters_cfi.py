@@ -287,7 +287,7 @@ SiPixelPhase1TrackClustersOnTrackPositionB = DefaultHistoTrack.clone(
   title = "Cluster_onTrack Positions",
   range_min   =  -60, range_max   =  60, range_nbins   = 300,
   range_y_min = -3.2, range_y_max = 3.2, range_y_nbins = 200,
-  xlabel = "Global Z", ylabel = "Global \phi",
+  xlabel = "Global Z", ylabel = "Global \\phi",
   dimensions = 2,
   specs = VPSet(
     Specification().groupBy("PXBarrel/PXLayer").save(),

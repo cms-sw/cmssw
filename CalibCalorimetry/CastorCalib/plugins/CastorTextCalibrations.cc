@@ -37,7 +37,7 @@ public:
   CastorTextCalibrations(const edm::ParameterSet&);
   ~CastorTextCalibrations() override;
 
-  void produce(){};
+  void produce() {}
 
 protected:
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,

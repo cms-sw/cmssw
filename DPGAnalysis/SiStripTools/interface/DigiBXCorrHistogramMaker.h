@@ -25,7 +25,7 @@ public:
   DigiBXCorrHistogramMaker(edm::ConsumesCollector&& iC, const int ncorbins = 1000);
   DigiBXCorrHistogramMaker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC);
 
-  ~DigiBXCorrHistogramMaker(){};
+  ~DigiBXCorrHistogramMaker() {}
 
   void book(const char* dirname, const std::map<int, std::string>& labels);
   void beginRun(const unsigned int nrun);

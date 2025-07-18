@@ -11,12 +11,12 @@
 //
 
 // system include files
-#include <unistd.h>
 #include <vector>
 #include <thread>
 #include <atomic>
 #include <condition_variable>
 #include <mutex>
+#include <chrono>
 
 // user include files
 #include "FWCore/Framework/interface/global/EDProducer.h"
@@ -41,7 +41,8 @@
 namespace timestudy {
   namespace {
     struct Sleeper {
-      Sleeper(edm::ParameterSet const& p, edm::ConsumesCollector&& iCol) {
+      Sleeper(edm::ParameterSet const& p, edm::ConsumesCollector&& iCol)
+          : useCacheID_{p.getParameter<bool>("useCacheID")} {
         auto const& cv = p.getParameter<std::vector<edm::InputTag>>("consumes");
         tokens_.reserve(cv.size());
         for (auto const& c : cv) {
@@ -60,7 +61,8 @@ namespace timestudy {
           (void)e.getHandle(t);
         }
         //Event number minimum value is 1
-        usleep(eventTimes_[(e.id().event() - 1) % eventTimes_.size()]);
+        auto id = useCacheID_ ? e.cacheIdentifier() : e.id().event();
+        std::this_thread::sleep_for(std::chrono::microseconds(eventTimes_[(id - 1) % eventTimes_.size()]));
       }
 
       static void fillDescription(edm::ParameterSetDescription& desc) {
@@ -68,12 +70,15 @@ namespace timestudy {
         desc.add<std::vector<double>>("eventTimes")
             ->setComment(
                 "The time, in seconds, for how long the module should sleep each event. The index to use is based on a "
-                "modulo of size of the list applied to the Event ID number.");
+                "modulo of size of the list applied to the Event ID or Event cache ID number depending on useCacheID "
+                "value.");
+        desc.add<bool>("useCacheID", false)->setComment("If False, use Event ID; if True, use Event cache ID");
       }
 
     private:
       std::vector<edm::EDGetTokenT<int>> tokens_;
       std::vector<useconds_t> eventTimes_;
+      bool const useCacheID_;
     };
   }  // namespace
   //--------------------------------------------------------------------
@@ -210,7 +215,7 @@ namespace timestudy {
     void asyncWork(
         edm::StreamID id, edm::WaitingTaskWithArenaHolder iTask, long initTime, long workTime, long finishTime) {
       waitTimesPerStream_[id.value()] = {{initTime, workTime, finishTime}};
-      waitingTaskPerStream_[id.value()] = std::move(iTask);
+      waitingTaskPerStream_.at(id.value()) = std::move(iTask);
       {
         std::lock_guard<std::mutex> lk{mutex_};
         waitingStreams_.push_back(id.value());
@@ -226,13 +231,15 @@ namespace timestudy {
       if (waitingStreams_.size() >= nWaitingEvents_) {
         return true;
       }
-      //every running stream is now waiting
-      return waitingStreams_.size() == activeStreams_;
+      //every running stream is now waiting but guard against spurious wakeups
+      return !waitingStreams_.empty() and waitingStreams_.size() == activeStreams_;
     }
 
     void threadWork() {
       while (not stopProcessing_.load()) {
         std::vector<int> streamsToProcess;
+        // preallocate to fixed size so there are no resizes
+        streamsToProcess.reserve(waitTimesPerStream_.size());
         {
           std::unique_lock<std::mutex> lk(mutex_);
           condition_.wait(lk, [this]() { return readyToDoSomething(); });
@@ -248,19 +255,20 @@ namespace timestudy {
           if (v[1] > longestTime) {
             longestTime = v[1];
           }
-          usleep(v[0]);
+          std::this_thread::sleep_for(std::chrono::microseconds(v[0]));
         }
         //simulate running external device
-        usleep(longestTime);
+        std::this_thread::sleep_for(std::chrono::microseconds(longestTime));
 
         //simulate copying data back
         for (auto i : streamsToProcess) {
           auto const& v = waitTimesPerStream_[i];
-          usleep(v[2]);
+          std::this_thread::sleep_for(std::chrono::microseconds(v[2]));
           waitingTaskPerStream_[i].doneWaiting(std::exception_ptr());
         }
       }
       waitingTaskPerStream_.clear();
+      waitingTaskPerStream_.resize(waitingTaskPerStream_.capacity());
     }
     const unsigned int nWaitingEvents_;
     std::unique_ptr<std::thread> serverThread_;

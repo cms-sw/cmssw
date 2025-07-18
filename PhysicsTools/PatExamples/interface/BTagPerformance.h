@@ -16,7 +16,7 @@
 
 class BTagPerformance {
 public:
-  BTagPerformance(){};
+  BTagPerformance() {}
   void Set(std::string name) {
     fname = name;
     fNcuts = 40;

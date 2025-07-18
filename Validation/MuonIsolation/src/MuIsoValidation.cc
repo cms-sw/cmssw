@@ -473,7 +473,7 @@ void MuIsoValidation::FillHistos() {
     h_1D[var]->Fill(theData[var]);
     if (cdCompNeeded[var])
       cd_plots[var]->Fill(theData[var]);  //right now, this is a regular PDF (just like h_1D)
-  }                                       //Finish 1D
+  }  //Finish 1D
 
   //----------Fill 2D histograms---------------
   for (int var1 = 0; var1 < NUM_VARS; ++var1) {

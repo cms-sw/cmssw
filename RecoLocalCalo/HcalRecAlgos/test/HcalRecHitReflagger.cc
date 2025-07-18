@@ -298,7 +298,7 @@ bool HcalRecHitReflagger::CheckPET(const HFRecHit& hf) {
       return true;  // channel looks noisy
     } else
       return false;  // channel doesn't look noisy
-  }                  // if (depth==1)
+  }  // if (depth==1)
 
   else if (depth == 2)  //short fibers
   {
@@ -325,8 +325,8 @@ bool HcalRecHitReflagger::CheckPET(const HFRecHit& hf) {
       return true;  // looks noisy
     } else
       return false;  //doesn't look noisy
-  }                  // else if (depth==2)
-  return false;      // should never reach this part
+  }  // else if (depth==2)
+  return false;  // should never reach this part
 }  // CheckPET(HFRecHit& hf)
 
 bool HcalRecHitReflagger::CheckS9S1(const HFRecHit& hf) {

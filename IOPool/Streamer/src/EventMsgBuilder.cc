@@ -5,7 +5,9 @@
 #include <cassert>
 #include <cstring>
 
-#define MAX_HOSTNAME_LEN 25
+static constexpr int MAX_HOSTNAME_LEN = 25;
+
+using namespace edm::streamer;
 
 EventMsgBuilder::EventMsgBuilder(void* buf,
                                  uint32 size,

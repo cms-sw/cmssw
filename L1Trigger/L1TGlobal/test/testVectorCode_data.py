@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from __future__ import print_function
 import sys
 
 """
@@ -89,10 +88,14 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
     fileNames = cms.untracked.vstring(
-        "/store/data/Run2023D/EphemeralHLTPhysics0/RAW/v1/000/369/870/00000/8daa24c0-6005-41a8-a4f1-bd75b5bdf7a2.root",
-        "/store/data/Run2023D/EphemeralHLTPhysics0/RAW/v1/000/369/870/00000/cbe27e9e-1471-4eda-b011-5b56739f88bd.root",
-        "/store/data/Run2023D/EphemeralHLTPhysics0/RAW/v1/000/369/870/00000/03978c75-76b5-4334-aa88-9fb938f2540e.root",
-        "/store/data/Run2023D/EphemeralHLTPhysics0/RAW/v1/000/369/870/00000/e822a72d-988a-4cb0-9e40-f7b90fdeb6fc.root",
+        "/store/data/Run2024E/EphemeralHLTPhysics0/RAW/v1/000/381/065/00000/0041494e-c2c5-4008-a687-5a856740b2f9.root",
+        "/store/data/Run2024E/EphemeralHLTPhysics0/RAW/v1/000/381/065/00000/00dc1cfe-994b-4e7a-9ea5-7883435a95e2.root",
+        "/store/data/Run2024E/EphemeralHLTPhysics0/RAW/v1/000/381/065/00000/007244f0-fbac-480a-a8b4-d7d6fd31b01f.root",
+        "/store/data/Run2024E/EphemeralHLTPhysics0/RAW/v1/000/381/065/00000/033842c3-61c6-43af-8e9f-d698bfd10282.root",
+        #"/store/data/Run2023D/EphemeralHLTPhysics0/RAW/v1/000/369/870/00000/8daa24c0-6005-41a8-a4f1-bd75b5bdf7a2.root",
+        #"/store/data/Run2023D/EphemeralHLTPhysics0/RAW/v1/000/369/870/00000/cbe27e9e-1471-4eda-b011-5b56739f88bd.root",
+        #"/store/data/Run2023D/EphemeralHLTPhysics0/RAW/v1/000/369/870/00000/03978c75-76b5-4334-aa88-9fb938f2540e.root",
+        #"/store/data/Run2023D/EphemeralHLTPhysics0/RAW/v1/000/369/870/00000/e822a72d-988a-4cb0-9e40-f7b90fdeb6fc.root",
     ),
     skipEvents = cms.untracked.uint32(skip)
     )
@@ -123,7 +126,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '124X_dataRun3_Prompt_v4', '')
 # ----------------
 process.load('L1Trigger.L1TGlobal.GlobalParameters_cff')
 process.load("L1Trigger.L1TGlobal.TriggerMenu_cff")
-xmlMenu="L1Menu_Collisions2024_v1_1_0.xml"
+xmlMenu="L1Menu_Collisions2024_v1_3_0.xml"
 process.TriggerMenu.L1TriggerMenuFile = cms.string(xmlMenu)
 process.ESPreferL1TXML = cms.ESPrefer("L1TUtmTriggerMenuESProducer","TriggerMenu")
 
@@ -172,17 +175,17 @@ process.simGtStage2Digis.MuonShowerInputTag  = cms.InputTag("gtStage2Digis", "Mu
 process.simGtStage2Digis.EGammaInputTag      = cms.InputTag("gtStage2Digis", "EGamma")
 process.simGtStage2Digis.TauInputTag         = cms.InputTag("gtStage2Digis", "Tau")
 process.simGtStage2Digis.JetInputTag         = cms.InputTag("gtStage2Digis", "Jet")
-process.simGtStage2Digis.EtSumInputTag       = cms.InputTag("gtStage2Digis", "ETSum")
-process.simGtStage2Digis.EtSumZdcInputTag    = cms.InputTag("etSumZdcProducer")
+process.simGtStage2Digis.EtSumInputTag       = cms.InputTag("gtStage2Digis", "EtSum")
+process.simGtStage2Digis.EtSumZdcInputTag    = cms.InputTag("l1tZDCEtSums")
 process.simGtStage2Digis.EmulateBxInEvent    = cms.int32(1)
-    
+
 process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
                                       egInputTag       = cms.InputTag("gtStage2Digis", "EGamma"),
 		                      muInputTag       = cms.InputTag("gtStage2Digis", "Muon"),
 		                      muShowerInputTag = cms.InputTag("gtStage2Digis", "MuonShower"),
 		                      tauInputTag      = cms.InputTag("gtStage2Digis", "Tau"),
                                       jetInputTag      = cms.InputTag("gtStage2Digis", "Jet"),
-                                      etsumInputTag    = cms.InputTag("gtStage2Digis", "ETSum"),
+                                      etsumInputTag    = cms.InputTag("gtStage2Digis", "EtSum"),
                                       uGtAlgInputTag   = cms.InputTag("simGtStage2Digis"),
                                       uGtExtInputTag   = cms.InputTag("simGtExtFakeProd"),
                                       uGtObjectMapInputTag = cms.InputTag("simGtStage2Digis"),

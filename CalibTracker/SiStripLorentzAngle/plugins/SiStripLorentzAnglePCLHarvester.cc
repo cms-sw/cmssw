@@ -435,7 +435,7 @@ void SiStripLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
       throw cms::Exception("SiStripLorentzAnglePCLHarvester")
           << "Trying to fill an inexistent module location from " << loc.second << "!";
     }  //
-  }    // ends loop on location types
+  }  // ends loop on location types
 
   // book the TkDetMaps
   const auto tkDetMapFolderIn = (fmt::format("{}Harvesting/TkDetMaps_LAInput", dqmDir_));

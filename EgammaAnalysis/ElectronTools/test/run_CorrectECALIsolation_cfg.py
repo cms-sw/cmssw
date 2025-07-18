@@ -18,11 +18,10 @@ process.source = cms.Source("PoolSource",
     )
 
 process.correctEcalIso = cms.EDAnalyzer("CorrectECALIsolation",
-                                        
                                         # input collections
                                         Electrons = cms.InputTag('gsfElectrons'),
                                         isData = cms.bool(True)
-
+)
 process.p = cms.Path(process.correctEcalIso)
 
 

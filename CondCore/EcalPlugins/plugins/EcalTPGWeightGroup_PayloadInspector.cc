@@ -27,7 +27,7 @@ namespace {
     IY_MAX = 100,
     EEhistXMax = 220
   };  // endcaps lower and upper bounds on x and y
-      /***********************************************
+  /***********************************************
     2d plot of EcalTPGWeightGroup of 1 IOV
 ************************************************/
   class EcalTPGWeightGroupPlot : public cond::payloadInspector::PlotImage<EcalTPGWeightGroup> {

@@ -51,6 +51,7 @@
 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
+#include "DataFormats/L1CaloTrigger/interface/CICADA.h"
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 
@@ -106,6 +107,7 @@ private:
   int fwVersion;
 
   edm::EDGetTokenT<L1CaloRegionCollection> regionToken;
+  edm::EDGetTokenT<L1CaloRegionCollection> backupRegionToken;
 
   UCTLayer1* layer1;
 
@@ -140,7 +142,9 @@ L1TCaloSummary<INPUT, OUTPUT>::L1TCaloSummary(const edm::ParameterSet& iConfig)
       boostedJetPtFactor(iConfig.getParameter<double>("boostedJetPtFactor")),
       verbose(iConfig.getParameter<bool>("verbose")),
       fwVersion(iConfig.getParameter<int>("firmwareVersion")),
-      regionToken(consumes<L1CaloRegionCollection>(edm::InputTag("simCaloStage2Layer1Digis"))),
+      regionToken(consumes<L1CaloRegionCollection>(iConfig.getParameter<edm::InputTag>("caloLayer1Regions"))),
+      //backupRegionToken(consumes<L1CaloRegionCollection>(edm::InputTag("simCaloStage2Layer1Digis"))),
+      backupRegionToken(consumes<L1CaloRegionCollection>(iConfig.getParameter<edm::InputTag>("backupRegionToken"))),
       loader(hls4mlEmulator::ModelLoader(iConfig.getParameter<string>("CICADAModelVersion"))),
       overwriteWithTestPatterns(iConfig.getParameter<bool>("useTestPatterns")),
       testPatterns(iConfig.getParameter<std::vector<edm::ParameterSet>>("testPatterns")) {
@@ -166,7 +170,7 @@ L1TCaloSummary<INPUT, OUTPUT>::L1TCaloSummary(const edm::ParameterSet& iConfig)
 
   //anomaly trigger loading
   model = loader.load_model();
-  produces<float>("CICADAScore");
+  produces<l1t::CICADABxCollection>("CICADAScore");
 }
 
 //
@@ -180,7 +184,8 @@ void L1TCaloSummary<INPUT, OUTPUT>::produce(edm::Event& iEvent, const edm::Event
 
   std::unique_ptr<L1JetParticleCollection> bJetCands(new L1JetParticleCollection);
 
-  std::unique_ptr<float> CICADAScore = std::make_unique<float>();
+  std::unique_ptr<l1t::CICADABxCollection> CICADAScore = std::make_unique<l1t::CICADABxCollection>();
+  CICADAScore->setBXRange(-2, 2);
 
   UCTGeometry g;
 
@@ -190,12 +195,18 @@ void L1TCaloSummary<INPUT, OUTPUT>::produce(edm::Event& iEvent, const edm::Event
   // of size 7*2. Indices are mapped in UCTSummaryCard accordingly.
   UCTSummaryCard summaryCard =
       UCTSummaryCard(&pumLUT, jetSeed, tauSeed, tauIsolationFactor, eGammaSeed, eGammaIsolationFactor);
-  std::vector<UCTRegion*> inputRegions;
-  inputRegions.clear();
+  std::vector<UCTRegion> inputRegions;
+  inputRegions.reserve(252);  // 252 calorimeter regions. 18 phi * 14 eta
   edm::Handle<std::vector<L1CaloRegion>> regionCollection;
   if (!iEvent.getByToken(regionToken, regionCollection))
     edm::LogError("L1TCaloSummary") << "UCT: Failed to get regions from region collection!";
   iEvent.getByToken(regionToken, regionCollection);
+
+  if (regionCollection->empty()) {
+    iEvent.getByToken(backupRegionToken, regionCollection);
+    edm::LogWarning("L1TCaloSummary") << "Switched to emulated regions since data regions was empty.\n";
+  }
+
   //Model input
   //This is done as a flat vector input, but future versions may involve 2D input
   //This will have to be handled later
@@ -211,8 +222,8 @@ void L1TCaloSummary<INPUT, OUTPUT>::produce(edm::Event& iEvent, const edm::Event
     uint32_t crate = g.getCrate(t.first, t.second);
     uint32_t card = g.getCard(t.first, t.second);
     uint32_t region = g.getRegion(absCaloEta, absCaloPhi);
-    UCTRegion* test = new UCTRegion(crate, card, negativeEta, region, fwVersion);
-    test->setRegionSummary(i.raw());
+    UCTRegion test = UCTRegion(crate, card, negativeEta, region, fwVersion);
+    test.setRegionSummary(i.raw());
     inputRegions.push_back(test);
     //This *should* fill the tensor in the proper order to be fed to the anomaly model
     //We take 4 off of the GCT eta/iEta.
@@ -254,10 +265,10 @@ void L1TCaloSummary<INPUT, OUTPUT>::produce(edm::Event& iEvent, const edm::Event
   model->predict();
   model->read_result(modelResult);
 
-  *CICADAScore = modelResult[0].to_float();
+  CICADAScore->push_back(0, modelResult[0].to_float());
 
   if (overwriteWithTestPatterns)
-    edm::LogInfo("L1TCaloSummary") << "Test Pattern Output: " << *CICADAScore;
+    edm::LogInfo("L1TCaloSummary") << "Test Pattern Output: " << CICADAScore->at(0, 0);
 
   summaryCard.setRegionData(inputRegions);
 
@@ -271,9 +282,10 @@ void L1TCaloSummary<INPUT, OUTPUT>::produce(edm::Event& iEvent, const edm::Event
   double phi = -999.;
   double mass = 0;
 
-  std::list<UCTObject*> boostedJetObjs = summaryCard.getBoostedJetObjs();
-  for (std::list<UCTObject*>::const_iterator i = boostedJetObjs.begin(); i != boostedJetObjs.end(); i++) {
-    const UCTObject* object = *i;
+  std::list<std::shared_ptr<UCTObject>> boostedJetObjs = summaryCard.getBoostedJetObjs();
+  for (std::list<std::shared_ptr<UCTObject>>::const_iterator i = boostedJetObjs.begin(); i != boostedJetObjs.end();
+       i++) {
+    const std::shared_ptr<UCTObject>& object = *i;
     pt = ((double)object->et()) * caloScaleFactor * boostedJetPtFactor;
     eta = g.getUCTTowerEta(object->iEta());
     phi = g.getUCTTowerPhi(object->iPhi());

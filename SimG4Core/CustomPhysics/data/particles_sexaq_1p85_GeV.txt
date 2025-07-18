@@ -1,0 +1,5 @@
+Block MASS   #
+#  PDG code    mass                 particle
+ 1020000020     1.85                  # sexaq
+ -1020000020     1.85                  # anti_sexaq
+Block

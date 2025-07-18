@@ -171,198 +171,198 @@ void TrackTypeMonitor::bookHistograms(DQMStore::IBooker& iBook, edm::Run const& 
   std::string currentFolder = moduleName_ + "/" + folderName_;
   iBook.setCurrentFolder(currentFolder);
 
-  trackEtaHList_.push_back(iBook.book1D("trackEtaIso",
-                                        "Isolated Track Eta",
-                                        TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                        TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                        TrackEtaHistoPar.getParameter<double>("Xmax")));
-  trackEtaHList_.push_back(iBook.book1D("trackEtaNoIso",
-                                        "NonIsolated Track Eta",
-                                        TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                        TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                        TrackEtaHistoPar.getParameter<double>("Xmax")));
-  trackEtaHList_.push_back(iBook.book1D("trackEtaUL",
-                                        "Underlying Track Eta",
-                                        TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                        TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                        TrackEtaHistoPar.getParameter<double>("Xmax")));
-  trackEtaHList_.push_back(iBook.book1D("trackEtaALL",
-                                        "All Track Eta",
-                                        TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
-                                        TrackEtaHistoPar.getParameter<double>("Xmin"),
-                                        TrackEtaHistoPar.getParameter<double>("Xmax")));
+  trackEtaHList_.push_back(iBook.book1DD("trackEtaIso",
+                                         "Isolated Track Eta",
+                                         TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
+                                         TrackEtaHistoPar.getParameter<double>("Xmin"),
+                                         TrackEtaHistoPar.getParameter<double>("Xmax")));
+  trackEtaHList_.push_back(iBook.book1DD("trackEtaNoIso",
+                                         "NonIsolated Track Eta",
+                                         TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
+                                         TrackEtaHistoPar.getParameter<double>("Xmin"),
+                                         TrackEtaHistoPar.getParameter<double>("Xmax")));
+  trackEtaHList_.push_back(iBook.book1DD("trackEtaUL",
+                                         "Underlying Track Eta",
+                                         TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
+                                         TrackEtaHistoPar.getParameter<double>("Xmin"),
+                                         TrackEtaHistoPar.getParameter<double>("Xmax")));
+  trackEtaHList_.push_back(iBook.book1DD("trackEtaALL",
+                                         "All Track Eta",
+                                         TrackEtaHistoPar.getParameter<int32_t>("Xbins"),
+                                         TrackEtaHistoPar.getParameter<double>("Xmin"),
+                                         TrackEtaHistoPar.getParameter<double>("Xmax")));
 
-  trackPhiHList_.push_back(iBook.book1D("trackPhiIso",
-                                        "Isolated Track Phi",
-                                        TrackPhiHistoPar.getParameter<int32_t>("Xbins"),
-                                        TrackPhiHistoPar.getParameter<double>("Xmin"),
-                                        TrackPhiHistoPar.getParameter<double>("Xmax")));
-  trackPhiHList_.push_back(iBook.book1D("trackPhiNonIso",
-                                        "NonIsolated Track Phi",
-                                        TrackPhiHistoPar.getParameter<int32_t>("Xbins"),
-                                        TrackPhiHistoPar.getParameter<double>("Xmin"),
-                                        TrackPhiHistoPar.getParameter<double>("Xmax")));
-  trackPhiHList_.push_back(iBook.book1D("trackPhiUL",
-                                        "Underlying Track Phi",
-                                        TrackPhiHistoPar.getParameter<int32_t>("Xbins"),
-                                        TrackPhiHistoPar.getParameter<double>("Xmin"),
-                                        TrackPhiHistoPar.getParameter<double>("Xmax")));
-  trackPhiHList_.push_back(iBook.book1D("trackPhiALL",
-                                        "All Track Phi",
-                                        TrackPhiHistoPar.getParameter<int32_t>("Xbins"),
-                                        TrackPhiHistoPar.getParameter<double>("Xmin"),
-                                        TrackPhiHistoPar.getParameter<double>("Xmax")));
+  trackPhiHList_.push_back(iBook.book1DD("trackPhiIso",
+                                         "Isolated Track Phi",
+                                         TrackPhiHistoPar.getParameter<int32_t>("Xbins"),
+                                         TrackPhiHistoPar.getParameter<double>("Xmin"),
+                                         TrackPhiHistoPar.getParameter<double>("Xmax")));
+  trackPhiHList_.push_back(iBook.book1DD("trackPhiNonIso",
+                                         "NonIsolated Track Phi",
+                                         TrackPhiHistoPar.getParameter<int32_t>("Xbins"),
+                                         TrackPhiHistoPar.getParameter<double>("Xmin"),
+                                         TrackPhiHistoPar.getParameter<double>("Xmax")));
+  trackPhiHList_.push_back(iBook.book1DD("trackPhiUL",
+                                         "Underlying Track Phi",
+                                         TrackPhiHistoPar.getParameter<int32_t>("Xbins"),
+                                         TrackPhiHistoPar.getParameter<double>("Xmin"),
+                                         TrackPhiHistoPar.getParameter<double>("Xmax")));
+  trackPhiHList_.push_back(iBook.book1DD("trackPhiALL",
+                                         "All Track Phi",
+                                         TrackPhiHistoPar.getParameter<int32_t>("Xbins"),
+                                         TrackPhiHistoPar.getParameter<double>("Xmin"),
+                                         TrackPhiHistoPar.getParameter<double>("Xmax")));
 
-  trackPHList_.push_back(iBook.book1D("trackPIso",
-                                      "Isolated Track P",
-                                      TrackPHistoPar.getParameter<int32_t>("Xbins"),
-                                      TrackPHistoPar.getParameter<double>("Xmin"),
-                                      TrackPHistoPar.getParameter<double>("Xmax")));
-  trackPHList_.push_back(iBook.book1D("trackPNonIso",
-                                      "NonIsolated Track P",
-                                      TrackPHistoPar.getParameter<int32_t>("Xbins"),
-                                      TrackPHistoPar.getParameter<double>("Xmin"),
-                                      TrackPHistoPar.getParameter<double>("Xmax")));
-  trackPHList_.push_back(iBook.book1D("trackPUL",
-                                      "Underlying Track P",
-                                      TrackPHistoPar.getParameter<int32_t>("Xbins"),
-                                      TrackPHistoPar.getParameter<double>("Xmin"),
-                                      TrackPHistoPar.getParameter<double>("Xmax")));
-  trackPHList_.push_back(iBook.book1D("trackPALL",
-                                      "All Track P",
-                                      TrackPHistoPar.getParameter<int32_t>("Xbins"),
-                                      TrackPHistoPar.getParameter<double>("Xmin"),
-                                      TrackPHistoPar.getParameter<double>("Xmax")));
+  trackPHList_.push_back(iBook.book1DD("trackPIso",
+                                       "Isolated Track P",
+                                       TrackPHistoPar.getParameter<int32_t>("Xbins"),
+                                       TrackPHistoPar.getParameter<double>("Xmin"),
+                                       TrackPHistoPar.getParameter<double>("Xmax")));
+  trackPHList_.push_back(iBook.book1DD("trackPNonIso",
+                                       "NonIsolated Track P",
+                                       TrackPHistoPar.getParameter<int32_t>("Xbins"),
+                                       TrackPHistoPar.getParameter<double>("Xmin"),
+                                       TrackPHistoPar.getParameter<double>("Xmax")));
+  trackPHList_.push_back(iBook.book1DD("trackPUL",
+                                       "Underlying Track P",
+                                       TrackPHistoPar.getParameter<int32_t>("Xbins"),
+                                       TrackPHistoPar.getParameter<double>("Xmin"),
+                                       TrackPHistoPar.getParameter<double>("Xmax")));
+  trackPHList_.push_back(iBook.book1DD("trackPALL",
+                                       "All Track P",
+                                       TrackPHistoPar.getParameter<int32_t>("Xbins"),
+                                       TrackPHistoPar.getParameter<double>("Xmin"),
+                                       TrackPHistoPar.getParameter<double>("Xmax")));
 
-  trackPtHList_.push_back(iBook.book1D("trackPtIsolated",
-                                       "Isolated Track Pt",
-                                       TrackPtHistoPar.getParameter<int32_t>("Xbins"),
-                                       TrackPtHistoPar.getParameter<double>("Xmin"),
-                                       TrackPtHistoPar.getParameter<double>("Xmax")));
-  trackPtHList_.push_back(iBook.book1D("trackPtNonIsolated",
-                                       "NonIsolated Track Pt",
-                                       TrackPtHistoPar.getParameter<int32_t>("Xbins"),
-                                       TrackPtHistoPar.getParameter<double>("Xmin"),
-                                       TrackPtHistoPar.getParameter<double>("Xmax")));
-  trackPtHList_.push_back(iBook.book1D("trackPtUL",
-                                       "Underlying Track Pt",
-                                       TrackPtHistoPar.getParameter<int32_t>("Xbins"),
-                                       TrackPtHistoPar.getParameter<double>("Xmin"),
-                                       TrackPtHistoPar.getParameter<double>("Xmax")));
-  trackPtHList_.push_back(iBook.book1D("trackPtALL",
-                                       "All Track Pt",
-                                       TrackPtHistoPar.getParameter<int32_t>("Xbins"),
-                                       TrackPtHistoPar.getParameter<double>("Xmin"),
-                                       TrackPtHistoPar.getParameter<double>("Xmax")));
+  trackPtHList_.push_back(iBook.book1DD("trackPtIsolated",
+                                        "Isolated Track Pt",
+                                        TrackPtHistoPar.getParameter<int32_t>("Xbins"),
+                                        TrackPtHistoPar.getParameter<double>("Xmin"),
+                                        TrackPtHistoPar.getParameter<double>("Xmax")));
+  trackPtHList_.push_back(iBook.book1DD("trackPtNonIsolated",
+                                        "NonIsolated Track Pt",
+                                        TrackPtHistoPar.getParameter<int32_t>("Xbins"),
+                                        TrackPtHistoPar.getParameter<double>("Xmin"),
+                                        TrackPtHistoPar.getParameter<double>("Xmax")));
+  trackPtHList_.push_back(iBook.book1DD("trackPtUL",
+                                        "Underlying Track Pt",
+                                        TrackPtHistoPar.getParameter<int32_t>("Xbins"),
+                                        TrackPtHistoPar.getParameter<double>("Xmin"),
+                                        TrackPtHistoPar.getParameter<double>("Xmax")));
+  trackPtHList_.push_back(iBook.book1DD("trackPtALL",
+                                        "All Track Pt",
+                                        TrackPtHistoPar.getParameter<int32_t>("Xbins"),
+                                        TrackPtHistoPar.getParameter<double>("Xmin"),
+                                        TrackPtHistoPar.getParameter<double>("Xmax")));
 
-  trackPterrHList_.push_back(iBook.book1D("trackPterrIsolated",
-                                          "Isolated Track Pterr",
-                                          TrackPterrHistoPar.getParameter<int32_t>("Xbins"),
-                                          TrackPterrHistoPar.getParameter<double>("Xmin"),
-                                          TrackPterrHistoPar.getParameter<double>("Xmax")));
-  trackPterrHList_.push_back(iBook.book1D("trackPterrNonIsolated",
-                                          "NonIsolated Track Pterr",
-                                          TrackPterrHistoPar.getParameter<int32_t>("Xbins"),
-                                          TrackPterrHistoPar.getParameter<double>("Xmin"),
-                                          TrackPterrHistoPar.getParameter<double>("Xmax")));
-  trackPterrHList_.push_back(iBook.book1D("trackPterrUL",
-                                          "Underlying Track Pterr",
-                                          TrackPterrHistoPar.getParameter<int32_t>("Xbins"),
-                                          TrackPterrHistoPar.getParameter<double>("Xmin"),
-                                          TrackPterrHistoPar.getParameter<double>("Xmax")));
-  trackPterrHList_.push_back(iBook.book1D("trackPterrALL",
-                                          "All Track Pterr",
-                                          TrackPterrHistoPar.getParameter<int32_t>("Xbins"),
-                                          TrackPterrHistoPar.getParameter<double>("Xmin"),
-                                          TrackPterrHistoPar.getParameter<double>("Xmax")));
+  trackPterrHList_.push_back(iBook.book1DD("trackPterrIsolated",
+                                           "Isolated Track Pterr",
+                                           TrackPterrHistoPar.getParameter<int32_t>("Xbins"),
+                                           TrackPterrHistoPar.getParameter<double>("Xmin"),
+                                           TrackPterrHistoPar.getParameter<double>("Xmax")));
+  trackPterrHList_.push_back(iBook.book1DD("trackPterrNonIsolated",
+                                           "NonIsolated Track Pterr",
+                                           TrackPterrHistoPar.getParameter<int32_t>("Xbins"),
+                                           TrackPterrHistoPar.getParameter<double>("Xmin"),
+                                           TrackPterrHistoPar.getParameter<double>("Xmax")));
+  trackPterrHList_.push_back(iBook.book1DD("trackPterrUL",
+                                           "Underlying Track Pterr",
+                                           TrackPterrHistoPar.getParameter<int32_t>("Xbins"),
+                                           TrackPterrHistoPar.getParameter<double>("Xmin"),
+                                           TrackPterrHistoPar.getParameter<double>("Xmax")));
+  trackPterrHList_.push_back(iBook.book1DD("trackPterrALL",
+                                           "All Track Pterr",
+                                           TrackPterrHistoPar.getParameter<int32_t>("Xbins"),
+                                           TrackPterrHistoPar.getParameter<double>("Xmin"),
+                                           TrackPterrHistoPar.getParameter<double>("Xmax")));
 
-  trackqOverpHList_.push_back(iBook.book1D("trackqOverpIsolated",
-                                           "Isolated Track qOverp",
-                                           TrackqOverpHistoPar.getParameter<int32_t>("Xbins"),
-                                           TrackqOverpHistoPar.getParameter<double>("Xmin"),
-                                           TrackqOverpHistoPar.getParameter<double>("Xmax")));
-  trackqOverpHList_.push_back(iBook.book1D("trackqOverpNonIsolated",
-                                           "NonIsolated Track qOverp",
-                                           TrackqOverpHistoPar.getParameter<int32_t>("Xbins"),
-                                           TrackqOverpHistoPar.getParameter<double>("Xmin"),
-                                           TrackqOverpHistoPar.getParameter<double>("Xmax")));
-  trackqOverpHList_.push_back(iBook.book1D("trackqOverpUL",
-                                           "Underlying Track qOverp",
-                                           TrackqOverpHistoPar.getParameter<int32_t>("Xbins"),
-                                           TrackqOverpHistoPar.getParameter<double>("Xmin"),
-                                           TrackqOverpHistoPar.getParameter<double>("Xmax")));
-  trackqOverpHList_.push_back(iBook.book1D("trackqOverpALL",
-                                           "All Track qOverp",
-                                           TrackqOverpHistoPar.getParameter<int32_t>("Xbins"),
-                                           TrackqOverpHistoPar.getParameter<double>("Xmin"),
-                                           TrackqOverpHistoPar.getParameter<double>("Xmax")));
+  trackqOverpHList_.push_back(iBook.book1DD("trackqOverpIsolated",
+                                            "Isolated Track qOverp",
+                                            TrackqOverpHistoPar.getParameter<int32_t>("Xbins"),
+                                            TrackqOverpHistoPar.getParameter<double>("Xmin"),
+                                            TrackqOverpHistoPar.getParameter<double>("Xmax")));
+  trackqOverpHList_.push_back(iBook.book1DD("trackqOverpNonIsolated",
+                                            "NonIsolated Track qOverp",
+                                            TrackqOverpHistoPar.getParameter<int32_t>("Xbins"),
+                                            TrackqOverpHistoPar.getParameter<double>("Xmin"),
+                                            TrackqOverpHistoPar.getParameter<double>("Xmax")));
+  trackqOverpHList_.push_back(iBook.book1DD("trackqOverpUL",
+                                            "Underlying Track qOverp",
+                                            TrackqOverpHistoPar.getParameter<int32_t>("Xbins"),
+                                            TrackqOverpHistoPar.getParameter<double>("Xmin"),
+                                            TrackqOverpHistoPar.getParameter<double>("Xmax")));
+  trackqOverpHList_.push_back(iBook.book1DD("trackqOverpALL",
+                                            "All Track qOverp",
+                                            TrackqOverpHistoPar.getParameter<int32_t>("Xbins"),
+                                            TrackqOverpHistoPar.getParameter<double>("Xmin"),
+                                            TrackqOverpHistoPar.getParameter<double>("Xmax")));
 
-  trackdzHList_.push_back(iBook.book1D("trackdzIsolated",
-                                       "Isolated Track dz",
-                                       TrackdzHistoPar.getParameter<int32_t>("Xbins"),
-                                       TrackdzHistoPar.getParameter<double>("Xmin"),
-                                       TrackdzHistoPar.getParameter<double>("Xmax")));
-  trackdzHList_.push_back(iBook.book1D("trackdzNonIsolated",
-                                       "NonIsolated Track dz",
-                                       TrackdzHistoPar.getParameter<int32_t>("Xbins"),
-                                       TrackdzHistoPar.getParameter<double>("Xmin"),
-                                       TrackdzHistoPar.getParameter<double>("Xmax")));
-  trackdzHList_.push_back(iBook.book1D("trackdzUL",
-                                       "Underlying Track dz",
-                                       TrackdzHistoPar.getParameter<int32_t>("Xbins"),
-                                       TrackdzHistoPar.getParameter<double>("Xmin"),
-                                       TrackdzHistoPar.getParameter<double>("Xmax")));
-  trackdzHList_.push_back(iBook.book1D("trackdzALL",
-                                       "All Track dz",
-                                       TrackdzHistoPar.getParameter<int32_t>("Xbins"),
-                                       TrackdzHistoPar.getParameter<double>("Xmin"),
-                                       TrackdzHistoPar.getParameter<double>("Xmax")));
+  trackdzHList_.push_back(iBook.book1DD("trackdzIsolated",
+                                        "Isolated Track dz",
+                                        TrackdzHistoPar.getParameter<int32_t>("Xbins"),
+                                        TrackdzHistoPar.getParameter<double>("Xmin"),
+                                        TrackdzHistoPar.getParameter<double>("Xmax")));
+  trackdzHList_.push_back(iBook.book1DD("trackdzNonIsolated",
+                                        "NonIsolated Track dz",
+                                        TrackdzHistoPar.getParameter<int32_t>("Xbins"),
+                                        TrackdzHistoPar.getParameter<double>("Xmin"),
+                                        TrackdzHistoPar.getParameter<double>("Xmax")));
+  trackdzHList_.push_back(iBook.book1DD("trackdzUL",
+                                        "Underlying Track dz",
+                                        TrackdzHistoPar.getParameter<int32_t>("Xbins"),
+                                        TrackdzHistoPar.getParameter<double>("Xmin"),
+                                        TrackdzHistoPar.getParameter<double>("Xmax")));
+  trackdzHList_.push_back(iBook.book1DD("trackdzALL",
+                                        "All Track dz",
+                                        TrackdzHistoPar.getParameter<int32_t>("Xbins"),
+                                        TrackdzHistoPar.getParameter<double>("Xmin"),
+                                        TrackdzHistoPar.getParameter<double>("Xmax")));
 
-  trackChi2bynDOFHList_.push_back(iBook.book1D("trackChi2bynDOFIsolated",
-                                               "Isolated Track Chi2bynDOF",
-                                               TrackChi2bynDOFHistoPar.getParameter<int32_t>("Xbins"),
-                                               TrackChi2bynDOFHistoPar.getParameter<double>("Xmin"),
-                                               TrackChi2bynDOFHistoPar.getParameter<double>("Xmax")));
-  trackChi2bynDOFHList_.push_back(iBook.book1D("trackChi2bynDOFNonIsolated",
-                                               "NonIsolated Track Chi2bynDOF",
-                                               TrackChi2bynDOFHistoPar.getParameter<int32_t>("Xbins"),
-                                               TrackChi2bynDOFHistoPar.getParameter<double>("Xmin"),
-                                               TrackChi2bynDOFHistoPar.getParameter<double>("Xmax")));
-  trackChi2bynDOFHList_.push_back(iBook.book1D("trackChi2bynDOFUL",
-                                               "Underlying Track Chi2bynDOF",
-                                               TrackChi2bynDOFHistoPar.getParameter<int32_t>("Xbins"),
-                                               TrackChi2bynDOFHistoPar.getParameter<double>("Xmin"),
-                                               TrackChi2bynDOFHistoPar.getParameter<double>("Xmax")));
-  trackChi2bynDOFHList_.push_back(iBook.book1D("trackChi2bynDOFAll",
-                                               "All Track Chi2bynDOF",
-                                               TrackChi2bynDOFHistoPar.getParameter<int32_t>("Xbins"),
-                                               TrackChi2bynDOFHistoPar.getParameter<double>("Xmin"),
-                                               TrackChi2bynDOFHistoPar.getParameter<double>("Xmax")));
+  trackChi2bynDOFHList_.push_back(iBook.book1DD("trackChi2bynDOFIsolated",
+                                                "Isolated Track Chi2bynDOF",
+                                                TrackChi2bynDOFHistoPar.getParameter<int32_t>("Xbins"),
+                                                TrackChi2bynDOFHistoPar.getParameter<double>("Xmin"),
+                                                TrackChi2bynDOFHistoPar.getParameter<double>("Xmax")));
+  trackChi2bynDOFHList_.push_back(iBook.book1DD("trackChi2bynDOFNonIsolated",
+                                                "NonIsolated Track Chi2bynDOF",
+                                                TrackChi2bynDOFHistoPar.getParameter<int32_t>("Xbins"),
+                                                TrackChi2bynDOFHistoPar.getParameter<double>("Xmin"),
+                                                TrackChi2bynDOFHistoPar.getParameter<double>("Xmax")));
+  trackChi2bynDOFHList_.push_back(iBook.book1DD("trackChi2bynDOFUL",
+                                                "Underlying Track Chi2bynDOF",
+                                                TrackChi2bynDOFHistoPar.getParameter<int32_t>("Xbins"),
+                                                TrackChi2bynDOFHistoPar.getParameter<double>("Xmin"),
+                                                TrackChi2bynDOFHistoPar.getParameter<double>("Xmax")));
+  trackChi2bynDOFHList_.push_back(iBook.book1DD("trackChi2bynDOFAll",
+                                                "All Track Chi2bynDOF",
+                                                TrackChi2bynDOFHistoPar.getParameter<int32_t>("Xbins"),
+                                                TrackChi2bynDOFHistoPar.getParameter<double>("Xmin"),
+                                                TrackChi2bynDOFHistoPar.getParameter<double>("Xmax")));
 
-  nTracksHList_.push_back(iBook.book1D("nTracksIsolated",
-                                       "Isolated Track nTracks",
-                                       nTracksHistoPar.getParameter<int32_t>("Xbins"),
-                                       nTracksHistoPar.getParameter<double>("Xmin"),
-                                       nTracksHistoPar.getParameter<double>("Xmax")));
-  nTracksHList_.push_back(iBook.book1D("nTracksNonIsolated",
-                                       "NonIsolated Track nTracks",
-                                       nTracksHistoPar.getParameter<int32_t>("Xbins"),
-                                       nTracksHistoPar.getParameter<double>("Xmin"),
-                                       nTracksHistoPar.getParameter<double>("Xmax")));
-  nTracksHList_.push_back(iBook.book1D("nTracksUL",
-                                       "Underlying Track nTracks",
-                                       nTracksHistoPar.getParameter<int32_t>("Xbins"),
-                                       nTracksHistoPar.getParameter<double>("Xmin"),
-                                       nTracksHistoPar.getParameter<double>("Xmax")));
-  nTracksHList_.push_back(iBook.book1D("nTracksAll",
-                                       "All Track nTracks",
-                                       nTracksHistoPar.getParameter<int32_t>("Xbins"),
-                                       nTracksHistoPar.getParameter<double>("Xmin"),
-                                       nTracksHistoPar.getParameter<double>("Xmax")));
+  nTracksHList_.push_back(iBook.book1DD("nTracksIsolated",
+                                        "Isolated Track nTracks",
+                                        nTracksHistoPar.getParameter<int32_t>("Xbins"),
+                                        nTracksHistoPar.getParameter<double>("Xmin"),
+                                        nTracksHistoPar.getParameter<double>("Xmax")));
+  nTracksHList_.push_back(iBook.book1DD("nTracksNonIsolated",
+                                        "NonIsolated Track nTracks",
+                                        nTracksHistoPar.getParameter<int32_t>("Xbins"),
+                                        nTracksHistoPar.getParameter<double>("Xmin"),
+                                        nTracksHistoPar.getParameter<double>("Xmax")));
+  nTracksHList_.push_back(iBook.book1DD("nTracksUL",
+                                        "Underlying Track nTracks",
+                                        nTracksHistoPar.getParameter<int32_t>("Xbins"),
+                                        nTracksHistoPar.getParameter<double>("Xmin"),
+                                        nTracksHistoPar.getParameter<double>("Xmax")));
+  nTracksHList_.push_back(iBook.book1DD("nTracksAll",
+                                        "All Track nTracks",
+                                        nTracksHistoPar.getParameter<int32_t>("Xbins"),
+                                        nTracksHistoPar.getParameter<double>("Xmin"),
+                                        nTracksHistoPar.getParameter<double>("Xmax")));
 
-  hcounterH_ = iBook.book1D("hcounter", "hcounter", 7, -0.5, 6.5);
-  dphiH_ = iBook.book1D("dphi", "dphi", 100, 0, 7);
-  drH_ = iBook.book1D("dr", "dr", 100, 0, 6);
+  hcounterH_ = iBook.book1DD("hcounter", "hcounter", 7, -0.5, 6.5);
+  dphiH_ = iBook.book1DD("dphi", "dphi", 100, 0, 7);
+  drH_ = iBook.book1DD("dr", "dr", 100, 0, 6);
 }
 void TrackTypeMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
   // read the beam spot

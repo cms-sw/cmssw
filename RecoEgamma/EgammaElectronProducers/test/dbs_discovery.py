@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-from __future__ import print_function
 import httplib, urllib, urllib2, types, string, os, sys
 
 # return the list of files obtained from the data discovery and based upon environnement variables:

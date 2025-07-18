@@ -1,4 +1,3 @@
-from __future__ import print_function
 import ROOT
 ROOT.gROOT.SetBatch(True)
 from setTDRStyle import setTDRStyle

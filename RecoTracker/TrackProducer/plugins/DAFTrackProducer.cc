@@ -1,21 +1,55 @@
+/** \class DAFTrackProducer
+  *  EDProducer for DAFTrackProducerAlgorithm.
+  *
+  *  \author tropiano, genta
+  *  \review in May 2014 by brondolin 
+  */
+
 #include <memory>
 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "RecoTracker/Record/interface/MultiRecHitRecord.h"
 #include "RecoTracker/SiTrackerMRHTools/interface/MultiRecHitCollector.h"
 #include "RecoTracker/SiTrackerMRHTools/interface/SiTrackerMultiRecHitUpdator.h"
-#include "RecoTracker/TrackProducer/plugins/DAFTrackProducer.h"
+#include "RecoTracker/TrackProducer/interface/DAFTrackProducerAlgorithm.h"
+#include "RecoTracker/TrackProducer/interface/KfTrackProducerBase.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajAnnealing.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+class DAFTrackProducer : public KfTrackProducerBase, public edm::stream::EDProducer<> {
+public:
+  typedef std::vector<Trajectory> TrajectoryCollection;
+  //  typedef std::vector<TrajAnnealing> TrajAnnealingCollection;
+  explicit DAFTrackProducer(const edm::ParameterSet& iConfig);
+
+  // Implementation of produce method
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+  /// fillDescriptions
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  DAFTrackProducerAlgorithm theAlgo;
+  using TrackProducerBase<reco::Track>::getFromEvt;
+  void getFromEvt(edm::Event&, edm::Handle<TrajTrackAssociationCollection>&, reco::BeamSpot&);
+  void putInEvtTrajAnn(edm::Event& theEvent,
+                       TrajAnnealingCollection& trajannResults,
+                       std::unique_ptr<TrajAnnealingCollection>& selTrajAnn);
+
+  bool TrajAnnSaving_;
+  edm::EDGetTokenT<TrajTrackAssociationCollection> srcTT_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttopoToken_;
+  edm::ESGetToken<MultiRecHitCollector, MultiRecHitRecord> measurementCollectorToken_;
+  edm::ESGetToken<SiTrackerMultiRecHitUpdator, MultiRecHitRecord> updatorToken_;
+};
 
 DAFTrackProducer::DAFTrackProducer(const edm::ParameterSet& iConfig)
     : KfTrackProducerBase(iConfig.getParameter<bool>("TrajectoryInEvent"), false), theAlgo(iConfig) {
@@ -42,6 +76,18 @@ DAFTrackProducer::DAFTrackProducer(const edm::ParameterSet& iConfig)
   measurementCollectorToken_ = esConsumes(edm::ESInputTag("", measurementCollectorName));
   std::string updatorName = getConf().getParameter<std::string>("UpdatorName");
   updatorToken_ = esConsumes(edm::ESInputTag("", updatorName));
+}
+
+void DAFTrackProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("TrajectoryInEvent", false);
+  desc.add<edm::InputTag>("src", edm::InputTag("DAFTrackCandidateMaker"));
+  desc.add<bool>("TrajAnnealingSaving", false);
+  desc.add<std::string>("MeasurementCollector", "simpleMultiRecHitCollector");
+  desc.add<std::string>("UpdatorName", "SiTrackerMultiRecHitUpdator");
+  KfTrackProducerBase::fillPSetDescription(desc);
+  DAFTrackProducerAlgorithm::fillPSetDescription(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 void DAFTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup) {
@@ -193,3 +239,6 @@ void DAFTrackProducer::putInEvtTrajAnn(edm::Event& theEvent,
 
   theEvent.put(std::move(outputTrajAnnColl));
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(DAFTrackProducer);

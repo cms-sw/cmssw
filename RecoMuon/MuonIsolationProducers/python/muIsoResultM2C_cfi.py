@@ -17,7 +17,7 @@ muIsoResultM2C = cms.EDProducer("MuIsoCandidateResultProducer",
             UnweightedInputHitEcalDeps
         ), 
         cms.PSet(
-            UnweightedInputHitHcalDeps
+            UnweightedInputTowHcalDeps
         )),
     BeamlineOption = cms.string('BeamSpotFromEvent')
 )

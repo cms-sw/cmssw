@@ -37,7 +37,7 @@ public:
 
   /**Destructor
    */
-  ~EcalDccWeightBuilder() override{};
+  ~EcalDccWeightBuilder() override {}
 
   //method(s)
 public:

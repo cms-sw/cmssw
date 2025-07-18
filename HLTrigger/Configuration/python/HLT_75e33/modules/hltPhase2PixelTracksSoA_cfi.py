@@ -1,0 +1,48 @@
+import FWCore.ParameterSet.Config as cms
+
+hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2@alpaka',
+    pixelRecHitSrc = cms.InputTag('hltPhase2SiPixelRecHitsSoA'),
+    ptmin = cms.double(0.9),
+    hardCurvCut = cms.double(0.0328407225),
+    earlyFishbone = cms.bool(True),
+    lateFishbone = cms.bool(False),
+    fillStatistics = cms.bool(False),
+    minHitsPerNtuplet = cms.uint32(4),
+    maxNumberOfDoublets = cms.string(str(5*512*1024)),
+    maxNumberOfTuples = cms.string(str(32*1024)), 
+    cellPtCut = cms.double(0.85),
+    cellZ0Cut = cms.double(7.5),
+    minYsizeB1 = cms.int32(25),
+    minYsizeB2 = cms.int32(15),
+    maxDYsize12 = cms.int32(12),
+    maxDYsize = cms.int32(10),
+    maxDYPred = cms.int32(20),
+    avgHitsPerTrack = cms.double(7.0),
+    avgCellsPerHit = cms.double(6),
+    avgCellsPerCell = cms.double(0.151),
+    avgTracksPerCell = cms.double(0.040),
+    minHitsForSharingCut = cms.uint32(10),
+    fitNas4 = cms.bool(False),
+    useRiemannFit = cms.bool(False),
+    doSharedHitCut = cms.bool(True),
+    dupPassThrough = cms.bool(False),
+    useSimpleTripletCleaner = cms.bool(True),
+    trackQualityCuts = cms.PSet(
+        maxChi2 = cms.double(5.0),
+        minPt   = cms.double(0.9),
+        maxTip  = cms.double(0.3),
+        maxZip  = cms.double(12.),
+    ),
+    geometry = cms.PSet(
+        caDCACuts = cms.vdouble(0.15, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25),
+        caThetaCuts = cms.vdouble(0.002, 0.002, 0.002, 0.002, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003),
+        startingPairs = cms.vuint32(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32),
+        pairGraph = cms.vuint32(0, 1, 0, 4, 0, 16, 1, 2, 1, 4, 1, 16, 2, 3, 2, 4, 2, 16, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 16, 17, 17, 18, 18, 19, 19, 20, 20, 21, 21, 22, 22, 23, 0, 2, 0, 5, 0, 17, 0, 6, 0, 18, 1, 3, 1, 5, 1, 17, 1, 6, 1, 18, 11, 12, 12, 13, 13, 14, 14, 15, 23, 24, 24, 25, 25, 26, 26, 27, 4, 6, 5, 7, 6, 8, 7, 9, 8, 10, 9, 11, 10, 12, 16, 18, 17, 19, 18, 20, 19, 21, 20, 22, 21, 23, 22, 24),
+        phiCuts = cms.vint32(522, 522, 522, 626, 730, 730, 626, 730, 730, 522, 522, 522, 522, 522, 522, 522, 522, 522, 522, 522, 522, 522, 522, 522, 522, 522, 522, 522, 522, 730, 730, 730, 730, 730, 730, 730, 730, 730, 730, 730, 730, 730, 730, 730, 730, 730, 730, 522, 522, 522, 522, 522, 522, 522, 522),
+        minZ = cms.vdouble(-16, 4, -22, -17, 6, -22, -18, 11, -22, 23, 30, 39, 50, 65, 82, 109, -28, -35, -44, -55, -70, -87, -113, -16, 7, -22, 11, -22, -17, 9, -22, 13, -22, 137, 173, 199, 229, -142, -177, -203, -233, 23, 30, 39, 50, 65, 82, 109, -28, -35, -44, -55, -70, -87, -113),
+        maxZ = cms.vdouble(17, 22, -4, 17, 22, -6, 18, 22, -11, 28, 35, 44, 55, 70, 87, 113, -23, -30, -39, -50, -65, -82, -109, 17, 22, -7, 22, -10, 17, 22, -9, 22, -13, 142, 177, 203, 233, -137, -173, -199, -229, 28, 35, 44, 55, 70, 87, 113, -23, -30, -39, -50, -65, -82, -109),
+        maxR = cms.vdouble(5, 5, 5, 7, 8, 8, 7, 7, 7, 6, 6, 6, 6, 5, 6, 5, 6, 6, 6, 6, 5, 6, 5, 5, 5, 5, 5, 5, 5, 8, 8, 8, 8, 6, 5, 5, 5, 6, 5, 5, 5, 9, 9, 9, 8, 8, 8, 11, 9, 9, 9, 8, 8, 8, 11)
+    ),
+    # autoselect the alpaka backend
+    alpaka = cms.untracked.PSet(backend = cms.untracked.string(''))
+)

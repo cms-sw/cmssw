@@ -39,12 +39,19 @@ options.register('startLumi',
                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                  VarParsing.VarParsing.varType.int, # string, int, or float
                  "IOV Start Lumi")
+options.register('maxIOVtoProcess',
+                 999, # default value
+                 VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                 VarParsing.VarParsing.varType.int, # string, int, or float
+                 "max number of IOVs (events) to process")
 options.parseArguments()
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 100000 # do not clog output with IO
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(999))
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(options.maxIOVtoProcess)
+)
 
 ####################################################################
 # Empty source 
@@ -53,7 +60,7 @@ process.source = cms.Source("EmptySource",
                             firstRun = cms.untracked.uint32(options.startRun),                  
                             firstLuminosityBlock = cms.untracked.uint32(options.startLumi),     
                             numberEventsInLuminosityBlock = cms.untracked.uint32(1),            
-                            numberEventsInRun = cms.untracked.uint32(999))
+                            numberEventsInRun = cms.untracked.uint32(options.maxIOVtoProcess))
 
 ####################################################################
 # Connect to conditions DB

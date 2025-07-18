@@ -34,12 +34,12 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'PPSRANDOM'
 process.dqmSaver.tag = 'PPSRANDOM'
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = 'PPSRANDOM'
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = 'PPSRANDOM'
+# process.dqmSaverPB.runNumber = options.runNumber
 
 if test:
   process.dqmSaver.path = "."
-  process.dqmSaverPB.path = "./pb"
+  # process.dqmSaverPB.path = "./pb"
 
 process.load("DQMServices.Components.DQMProvInfo_cfi")
 
@@ -90,5 +90,6 @@ process.dqmProvInfo.runType = process.runType.getRunTypeName()
 
 # Process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
-print("Final Source settings:", process.source)
 process = customise(process)
+print("Global Tag used:", process.GlobalTag.globaltag.value())
+print("Final Source settings:", process.source)

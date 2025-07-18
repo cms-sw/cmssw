@@ -144,6 +144,7 @@ void EnergyScaleAnalyzer::analyze(const edm::Event &evt, const edm::EventSetup &
   Labels l;
   labelsForToken(hepMCLabel_, l);
 
+  [[clang::suppress]]
   const HepMC::GenEvent *genEvent = hepMC->GetEvent();
   if (!(hepMC.isValid())) {
     LogInfo("EnergyScaleAnalyzer") << "Could not get MC Product!";

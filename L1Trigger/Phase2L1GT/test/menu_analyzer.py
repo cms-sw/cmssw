@@ -30,7 +30,8 @@ const char* getObjectName(l1t::P2GTCandidate::ObjectType objectType){
         case l1t::P2GTCandidate::GTTPromptHtSum: return "GTTPromptHtSum";
         case l1t::P2GTCandidate::GTTDisplacedHtSum: return "GTTDisplacedHtSum";
         case l1t::P2GTCandidate::GTTEtSum: return "GTTEtSum";
-        case l1t::P2GTCandidate::CL2Jets: return "CL2Jet";
+        case l1t::P2GTCandidate::CL2JetsSC4: return "CL2JetSc4";
+        case l1t::P2GTCandidate::CL2JetsSC8: return "CL2JetSc8";
         case l1t::P2GTCandidate::CL2Taus: return "CL2Tau";
         case l1t::P2GTCandidate::CL2Electrons: return "CL2Electron";
         case l1t::P2GTCandidate::CL2Photons: return "CL2Photon";
@@ -61,18 +62,18 @@ if __name__ == "__main__":
     for idx, event in enumerate(events):
         print('Event:', idx)
 
-        algo_blocks = Handle('l1t::P2GTAlgoBlockCollection')
+        algo_blocks = Handle('l1t::P2GTAlgoBlockMap')
         event.getByLabel('l1tGTAlgoBlockProducer', '', args.process, algo_blocks)
 
-        for algo_blk in algo_blocks.product():
-            print(algo_blk.algoName(), algo_blk.decisionBeforeBxMaskAndPrescale())
+        for name, algo_blk in algo_blocks.product():
+            print(name, algo_blk.decisionBeforeBxMaskAndPrescale())
 
             for obj in algo_blk.trigObjects():
                 if object_name(obj.objectType()) in ["CL2Electron", "CL2Photon"]:
                     print(" {}: pt {:3.1f} eta {:3.2f} phi {:3.2f} iso: {:3.2f} relIso: {:3.2f}".format(
                         object_name(obj.objectType()), obj.pt(), obj.eta(), obj.phi(),
-                        obj.hwIso() * scale_parameter.isolation_lsb.value(),
-                        obj.hwIso() * scale_parameter.isolation_lsb.value()/(obj.hwPT() * scale_parameter.pT_lsb.value())))
+                        obj.hwIso() * scale_parameter.isolationPT_lsb.value(),
+                        obj.hwIso() * scale_parameter.isolationPT_lsb.value()/(obj.hwPT() * scale_parameter.pT_lsb.value())))
                 elif "Sum" not in object_name(obj.objectType()):
                     print(" {}: pt {:3.1f} eta {:3.2f} phi {:3.2f}".format(
                         object_name(obj.objectType()), obj.pt(), obj.eta(), obj.phi()))

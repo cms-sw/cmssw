@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 from CalibTracker.SiStripCommon.shallowTree_test_template import *

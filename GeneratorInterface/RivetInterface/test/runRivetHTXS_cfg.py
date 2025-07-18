@@ -38,7 +38,6 @@ process.mergedGenParticles = cms.EDProducer("MergedGenParticleProducer",
 process.myGenerator = cms.EDProducer("GenParticles2HepMCConverter",
     genParticles = cms.InputTag("mergedGenParticles"),
     genEventInfo = cms.InputTag("generator"),
-    signalParticlePdgIds = cms.vint32(25), ## for the Higgs analysis
 )
 process.p = cms.Path(process.mergedGenParticles*process.myGenerator*process.rivetProducerHTXS)
 
@@ -50,7 +49,7 @@ process.p = cms.Path(process.mergedGenParticles*process.myGenerator*process.rive
 #process.p = cms.Path(process.myGenerator*process.rivetProducerHTXS)
 
 process.out = cms.OutputModule("PoolOutputModule",
-    outputCommands = cms.untracked.vstring('drop *','keep *_*_*_runRivetAnalysis','keep *_generator_*_*','keep *_externalLHEProducer_*_*'),
+    outputCommands = cms.untracked.vstring('drop *','keep *_rivetProducerHTXS_*_runRivetAnalysis','keep *_generator_*_*','keep *_externalLHEProducer_*_*'),
     fileName = cms.untracked.string('testHTXSRivet_ggH4l_MINIAOD_100k.root')
 )
 process.o = cms.EndPath( process.out )

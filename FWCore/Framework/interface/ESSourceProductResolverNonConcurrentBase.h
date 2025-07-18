@@ -1,16 +1,16 @@
+// -*- C++ -*-
 #ifndef FWCore_Framework_ESSourceProductResolverNonConcurrentBase_h
 #define FWCore_Framework_ESSourceProductResolverNonConcurrentBase_h
-// -*- C++ -*-
 //
 // Package:     FWCore/Framework
 // Class  :     ESSourceProductResolverNonConcurrentBase
 //
-/**\class ESSourceProductResolverNonConcurrentBase ESSourceProductResolverNonConcurrentBase.h "FWCore/Framework/interface/ESSourceProductResolverNonConcurrentBase.h"
+/**\class edm::eventsetup::ESSourceProductResolverNonConcurrentBase
 
- Description: Base class for DataProxies for ESSources that require synchronization
+ Description: Base class for ESProductResolvers for ESSources that require synchronization
 
  Usage:
-    The ESSourceProductResolverNonConcurrentBase uses a SerialTaskQueue to serialize all DataProxies for the ESSource and a
+    The ESSourceProductResolverNonConcurrentBase uses a SerialTaskQueue to serialize all ESProductResolvers for the ESSource and a
     std::mutex to protect from concurrent calls to a ESProductResolver and the ESSource itself. Such concurrent calls
     can happen if concurrent LuminosityBlocks are being used.
 

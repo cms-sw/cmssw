@@ -41,7 +41,7 @@ public:
   /// Compute the ttrig by fiting the TB rising edge
   void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
-  void endRun(const edm::Run&, const edm::EventSetup& setup) override{};
+  void endRun(const edm::Run&, const edm::EventSetup& setup) override {}
 
   /// Write ttrig in the DB
   void endJob() override;

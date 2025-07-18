@@ -442,9 +442,9 @@ void HitResol::analyze(const edm::Event& e, const edm::EventSetup& es) {
             reso->Fill();
           }
         }  //itTraj2 != TMeas.end()
-      }    //hit1->isValid()....
-    }      // itm
-  }        // it
+      }  //hit1->isValid()....
+    }  // itm
+  }  // it
 }
 
 void HitResol::endJob() {

@@ -40,7 +40,7 @@ template <typename T>
 class PATLeptonTimeLifeInfoProducer : public edm::stream::EDProducer<> {
 public:
   explicit PATLeptonTimeLifeInfoProducer(const edm::ParameterSet&);
-  ~PATLeptonTimeLifeInfoProducer() override{};
+  ~PATLeptonTimeLifeInfoProducer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void produce(edm::Event&, const edm::EventSetup&) override;
@@ -53,9 +53,14 @@ private:
   static bool fitVertex(const std::vector<reco::TransientTrack>& transTrk, TransientVertex& transVtx) {
     if (transTrk.size() < 2)
       return false;
-    KalmanVertexFitter kvf(true);
-    transVtx = kvf.vertex(transTrk);
-    return transVtx.hasRefittedTracks() && transVtx.refittedTracks().size() == transTrk.size();
+    try {
+      KalmanVertexFitter kvf(true);
+      transVtx = kvf.vertex(transTrk);
+      return transVtx.hasRefittedTracks() && transVtx.refittedTracks().size() == transTrk.size();
+    } catch (VertexException& e) {
+      edm::LogWarning("PATLeptonTimeLifeInfoProducer") << " fitVertex failed: " << e.what();
+      return false;
+    }
   }
 
   //--- configuration parameters

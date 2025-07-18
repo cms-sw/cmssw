@@ -8,51 +8,45 @@
 class PuppiContainer {
 public:
   PuppiContainer(const edm::ParameterSet &iConfig);
-  ~PuppiContainer();
-  void initialize(const std::vector<RecoObj> &iRecoObjects);
-  void setPUProxy(double const iPUProxy) { fPUProxy = iPUProxy; }
 
-  std::vector<PuppiCandidate> const &pfParticles() const { return fPFParticles; }
-  std::vector<double> const &puppiWeights();
-  const std::vector<double> &puppiRawAlphas() { return fRawAlphas; }
-  const std::vector<double> &puppiAlphas() { return fVals; }
-  // const std::vector<double> puppiAlpha   () {return fAlpha;}
-  const std::vector<double> &puppiAlphasMed() { return fAlphaMed; }
-  const std::vector<double> &puppiAlphasRMS() { return fAlphaRMS; }
+  struct Weights {
+    std::vector<double> weights;
+    std::vector<double> puppiRawAlphas;
+    std::vector<double> puppiAlphas;
+    std::vector<double> puppiAlphasMed;
+    std::vector<double> puppiAlphasRMS;
+  };
 
-  int puppiNAlgos() { return fNAlgos; }
+  Weights calculatePuppiWeights(const std::vector<RecoObj> &iRecoObjects, double iPUProxy);
 
-protected:
-  double goodVar(PuppiCandidate const &iPart, std::vector<PuppiCandidate> const &iParts, int iOpt, const double iRCone);
+  int puppiNAlgos() const { return fPuppiAlgo.size(); }
+
+private:
+  void initialize(const std::vector<RecoObj> &iRecoObjects,
+                  std::vector<PuppiCandidate> &fPFParticles,
+                  std::vector<PuppiCandidate> &fPFParticlesForVar,
+                  std::vector<PuppiCandidate> &fPFParticlesForVarChargedPV) const;
+
+  double goodVar(PuppiCandidate const &iPart,
+                 std::vector<PuppiCandidate> const &iParts,
+                 int iOpt,
+                 const double iRCone) const;
   void getRMSAvg(int iOpt,
                  std::vector<PuppiCandidate> const &iConstits,
                  std::vector<PuppiCandidate> const &iParticles,
-                 std::vector<PuppiCandidate> const &iChargeParticles);
-  void getRawAlphas(int iOpt,
-                    std::vector<PuppiCandidate> const &iConstits,
-                    std::vector<PuppiCandidate> const &iParticles,
-                    std::vector<PuppiCandidate> const &iChargeParticles);
-  double getChi2FromdZ(double iDZ);
+                 std::vector<PuppiCandidate> const &iChargeParticles,
+                 std::vector<double> &oVals);
+  std::vector<double> getRawAlphas(int iOpt,
+                                   std::vector<PuppiCandidate> const &iConstits,
+                                   std::vector<PuppiCandidate> const &iParticles,
+                                   std::vector<PuppiCandidate> const &iChargeParticles) const;
+  double getChi2FromdZ(double iDZ) const;
   int getPuppiId(float iPt, float iEta);
   double var_within_R(int iId,
                       const std::vector<PuppiCandidate> &particles,
                       const PuppiCandidate &centre,
-                      const double R);
+                      const double R) const;
 
-  bool fPuppiDiagnostics;
-  const std::vector<RecoObj> *fRecoParticles;
-  std::vector<PuppiCandidate> fPFParticles;
-  std::vector<PuppiCandidate> fPFParticlesForVar;
-  std::vector<PuppiCandidate> fPFParticlesForVarChargedPV;
-  std::vector<double> fWeights;
-  std::vector<double> fVals;
-  std::vector<double> fRawAlphas;
-  std::vector<double> fAlphaMed;
-  std::vector<double> fAlphaRMS;
-
-  bool fApplyCHS;
-  bool fInvert;
-  bool fUseExp;
   double fNeutralMinPt;
   double fNeutralSlope;
   double fPuppiWeightCut;
@@ -60,8 +54,11 @@ protected:
   double fEtaMaxPhotons;
   double fPtMaxNeutrals;
   double fPtMaxNeutralsStartSlope;
-  int fNAlgos;
-  double fPUProxy;
   std::vector<PuppiAlgo> fPuppiAlgo;
+
+  bool fPuppiDiagnostics;
+  bool fApplyCHS;
+  bool fInvert;
+  bool fUseExp;
 };
 #endif

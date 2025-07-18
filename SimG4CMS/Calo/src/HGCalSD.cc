@@ -54,7 +54,6 @@ HGCalSD::HGCalSD(const std::string& name,
       cos30deg_(std::cos(30.0 * CLHEP::deg)) {
   numberingScheme_.reset(nullptr);
   guardRing_.reset(nullptr);
-  guardRingPartial_.reset(nullptr);
   mouseBite_.reset(nullptr);
   cellOffset_.reset(nullptr);
 
@@ -168,8 +167,9 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
   }
   int module = touch->GetReplicaNumber(moduleLev);
   if (verbose_ && (cell == -1))
-    edm::LogVerbatim("HGCSim") << "Top " << touch->GetVolume(0)->GetName() << " Module "
-                               << touch->GetVolume(moduleLev)->GetName();
+    edm::LogVerbatim("HGCSim") << "Top " << touch->GetVolume(0)->GetName() << " Module " << moduleLev << ":"
+                               << touch->GetVolume(moduleLev)->GetName() << " " << module << " Layer " << layer << ":"
+                               << cell;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCSim") << "DepthsTop: " << touch->GetHistoryDepth() << ":" << levelT1_ << ":" << levelT2_ << ":"
                              << useSimWt_ << " name " << touch->GetVolume(0)->GetName() << " layer:module:cell "
@@ -190,6 +190,10 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
     return 0;
 
   uint32_t id = setDetUnitId(layer, module, cell, iz, hitPoint);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCSim") << "ID Layer " << layer << " Module " << module << " Cell " << cell << " " << std::hex
+                             << id << std::dec << " " << HGCSiliconDetId(id);
+#endif
   if ((rejectMB_ || fiducialCut_) && id != 0) {
     auto uv = HGCSiliconDetId(id).waferUV();
 #ifdef EDM_ML_DEBUG
@@ -207,13 +211,21 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
     if (fiducialCut_) {
       int layertype = hgcons_->layerType(layer);
       int frontBack = HGCalTypes::layerFrontBack(layertype);
-      if (guardRing_->exclude(local, iz, frontBack, layer, uv.first, uv.second) ||
-          guardRingPartial_->exclude(local, iz, frontBack, layer, uv.first, uv.second)) {
-        id = 0;
+      bool reject = ((guardRing_->exclude(local, iz, frontBack, layer, uv.first, uv.second)) ||
+                     (guardRing_->excludePartial(local, iz, frontBack, layer, uv.first, uv.second)));
 #ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCSim") << "Zside:Layer:WaferU:WaferV " << iz << ":" << layer << ":" << uv.first << ":"
+                                 << uv.second << " LayerType " << layertype << " FrontBack " << frontBack
+                                 << " PartialType " << hgcons_->partialWaferType(layer, uv.first, uv.second) << ":"
+                                 << HGCalTypes::WaferFull << " Reject "
+                                 << guardRing_->exclude(local, iz, frontBack, layer, uv.first, uv.second) << ":"
+                                 << guardRing_->excludePartial(local, iz, frontBack, layer, uv.first, uv.second) << ":"
+                                 << reject;
+      if (reject)
         edm::LogVerbatim("HGCSim") << "Rejected by GuardRing cutoff *****";
 #endif
-      }
+      if (reject)
+        id = 0;
     }
     if ((rejectMB_) && (mouseBite_->exclude(local, iz, layer, uv.first, uv.second))) {
       id = 0;
@@ -279,17 +291,17 @@ void HGCalSD::update(const BeginOfJob* job) {
     waferSize_ = hgcons_->waferSize(false);
     double mouseBite = hgcons_->mouseBite(false);
     guardRingOffset_ = hgcons_->guardRingOffset(false);
-    double sensorSizeOffset = hgcons_->sensorSizeOffset(false);
+    sensorSizeOffset_ = hgcons_->sensorSizeOffset(false);
     if (useOffset > 0) {
       rejectMB_ = true;
       fiducialCut_ = true;
     }
-    double mouseBiteNew = (fiducialCut_) ? (mouseBite + guardRingOffset_ + sensorSizeOffset / cos30deg_) : mouseBite;
+    double mouseBiteNew = (fiducialCut_) ? (mouseBite + guardRingOffset_ + sensorSizeOffset_ / cos30deg_) : mouseBite;
     mouseBiteCut_ = waferSize_ * tan30deg_ - mouseBiteNew;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "HGCalSD::Initialized with mode " << geom_mode_ << " Slope cut " << slopeMin_
                                << " top Level " << levelT1_ << ":" << levelT2_ << " useSimWt " << useSimWt_ << " wafer "
-                               << waferSize_ << ":" << mouseBite << ":" << guardRingOffset_ << ":" << sensorSizeOffset
+                               << waferSize_ << ":" << mouseBite << ":" << guardRingOffset_ << ":" << sensorSizeOffset_
                                << ":" << mouseBiteNew << ":" << mouseBiteCut_ << " useOffset " << useOffset
                                << " dd4hep " << dd4hep_;
 #endif
@@ -299,7 +311,6 @@ void HGCalSD::update(const BeginOfJob* job) {
       mouseBite_ = std::make_unique<HGCMouseBite>(*hgcons_, angles_, mouseBiteCut_, waferRot_);
     if (fiducialCut_) {
       guardRing_ = std::make_unique<HGCGuardRing>(*hgcons_);
-      guardRingPartial_ = std::make_unique<HGCGuardRingPartial>(*hgcons_);
     }
 
     //Now for calibration cells
@@ -337,7 +348,7 @@ void HGCalSD::update(const BeginOfJob* job) {
   if ((nHC_ > 1) && calibCells_)
     newCollection(collName_[1], ps_);
   cellOffset_ = std::make_unique<HGCalCellOffset>(
-      waferSize_, hgcons_->getUVMax(0), hgcons_->getUVMax(1), guardRingOffset_, mouseBiteCut_);
+      waferSize_, hgcons_->getUVMax(0), hgcons_->getUVMax(1), guardRingOffset_, mouseBiteCut_, sensorSizeOffset_);
 }
 
 void HGCalSD::initRun() {}

@@ -22,16 +22,17 @@ protected:
 
 private:
   void computeEfficiency1D(MonitorElement* num, MonitorElement* den, MonitorElement* result);
+  void scaleby(MonitorElement* h, double scale);
 
   void incrementME(MonitorElement* base, MonitorElement* toBeAdded);
 
   const std::string folder_;
 
   // --- Histograms
-  MonitorElement* meMVAPtSelEff_;
-  MonitorElement* meMVAEtaSelEff_;
-  MonitorElement* meMVAPtMatchEff_;
-  MonitorElement* meMVAEtaMatchEff_;
+  MonitorElement* meTPPtSelEff_;
+  MonitorElement* meTPEtaSelEff_;
+  MonitorElement* meTPPtMatchEff_;
+  MonitorElement* meTPEtaMatchEff_;
 
   MonitorElement* meBarrelTruePi_;
   MonitorElement* meBarrelTrueK_;
@@ -111,6 +112,17 @@ void Primary4DVertexHarvester::computeEfficiency1D(MonitorElement* num, MonitorE
   }
 }
 
+void Primary4DVertexHarvester::scaleby(MonitorElement* h, double scale) {
+  double ent = h->getEntries();
+  for (int ibin = 1; ibin <= h->getNbinsX(); ibin++) {
+    double eff = h->getBinContent(ibin) * scale;
+    double bin_err = h->getBinError(ibin) * scale;
+    h->setBinContent(ibin, eff);
+    h->setBinError(ibin, bin_err);
+  }
+  h->setEntries(ent);
+}
+
 // auxiliary method to add 1D MonitorElement toBeAdded to a base ME
 void Primary4DVertexHarvester::incrementME(MonitorElement* base, MonitorElement* toBeAdded) {
   for (int ibin = 1; ibin <= base->getNbinsX(); ibin++) {
@@ -124,68 +136,73 @@ void Primary4DVertexHarvester::incrementME(MonitorElement* base, MonitorElement*
 // ------------ endjob tasks ----------------------------
 void Primary4DVertexHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter& igetter) {
   // --- Get the monitoring histograms
-  MonitorElement* meMVATrackEffPtTot = igetter.get(folder_ + "MVAEffPtTot");
-  MonitorElement* meMVATrackMatchedEffPtTot = igetter.get(folder_ + "MVAMatchedEffPtTot");
-  MonitorElement* meMVATrackMatchedEffPtMtd = igetter.get(folder_ + "MVAMatchedEffPtMtd");
-  MonitorElement* meMVATrackEffEtaTot = igetter.get(folder_ + "MVAEffEtaTot");
-  MonitorElement* meMVATrackMatchedEffEtaTot = igetter.get(folder_ + "MVAMatchedEffEtaTot");
-  MonitorElement* meMVATrackMatchedEffEtaMtd = igetter.get(folder_ + "MVAMatchedEffEtaMtd");
-  MonitorElement* meRecoVtxVsLineDensity = igetter.get(folder_ + "RecoVtxVsLineDensity");
-  MonitorElement* meRecVerNumber = igetter.get(folder_ + "RecVerNumber");
+  MonitorElement* meTrackEffPtTot = igetter.get(folder_ + "EffPtTot");
+  MonitorElement* meTrackMatchedTPEffPtTot = igetter.get(folder_ + "MatchedTPEffPtTot");
+  MonitorElement* meTrackMatchedTPEffPtMtd = igetter.get(folder_ + "MatchedTPEffPtMtd");
+  MonitorElement* meTrackEffEtaTot = igetter.get(folder_ + "EffEtaTot");
+  MonitorElement* meTrackMatchedTPEffEtaTot = igetter.get(folder_ + "MatchedTPEffEtaTot");
+  MonitorElement* meTrackMatchedTPEffEtaMtd = igetter.get(folder_ + "MatchedTPEffEtaMtd");
+  MonitorElement* meRecSelVerNumber = igetter.get(folder_ + "RecSelVerNumber");
+  MonitorElement* meRecVerZ = igetter.get(folder_ + "recPVZ");
+  MonitorElement* meRecVerT = igetter.get(folder_ + "recPVT");
+  MonitorElement* meSimVerNumber = igetter.get(folder_ + "SimVerNumber");
+  MonitorElement* meSimVerZ = igetter.get(folder_ + "simPVZ");
+  MonitorElement* meSimVerT = igetter.get(folder_ + "simPVT");
 
-  if (!meMVATrackEffEtaTot || !meMVATrackMatchedEffEtaTot || !meMVATrackMatchedEffEtaMtd || !meMVATrackEffEtaTot ||
-      !meMVATrackMatchedEffEtaTot || !meMVATrackMatchedEffEtaMtd || !meRecoVtxVsLineDensity || !meRecVerNumber) {
+  if (!meTrackEffPtTot || !meTrackMatchedTPEffPtTot || !meTrackMatchedTPEffPtMtd || !meTrackEffEtaTot ||
+      !meTrackMatchedTPEffEtaTot || !meTrackMatchedTPEffEtaMtd || !meRecSelVerNumber || !meRecVerZ || !meRecVerT ||
+      !meSimVerNumber || !meSimVerZ || !meSimVerT) {
     edm::LogError("Primary4DVertexHarvester") << "Monitoring histograms not found!" << std::endl;
     return;
   }
 
-  // Normalize line density plot
-  double nEvt = meRecVerNumber->getEntries();
-  if (nEvt > 0.) {
-    nEvt = 1. / nEvt;
-    double nEntries = meRecoVtxVsLineDensity->getEntries();
-    for (int ibin = 1; ibin <= meRecoVtxVsLineDensity->getNbinsX(); ibin++) {
-      double cont = meRecoVtxVsLineDensity->getBinContent(ibin) * nEvt;
-      double bin_err = meRecoVtxVsLineDensity->getBinError(ibin) * nEvt;
-      meRecoVtxVsLineDensity->setBinContent(ibin, cont);
-      meRecoVtxVsLineDensity->setBinError(ibin, bin_err);
-    }
-    meRecoVtxVsLineDensity->setEntries(nEntries);
+  // Normalize z,time multiplicty plots to get correct line densities
+  double scale = meRecSelVerNumber->getTH1F()->Integral();
+  scale = (scale > 0.) ? 1. / scale : 0.;
+  if (scale > 0.) {
+    scaleby(meRecVerZ, scale);
+    scaleby(meRecVerT, scale);
+  }
+  scale = meSimVerNumber->getTH1F()->Integral();
+  scale = (scale > 0.) ? 1. / scale : 0.;
+  if (scale > 0.) {
+    scaleby(meSimVerZ, scale);
+    scaleby(meSimVerT, scale);
   }
 
   // --- Book  histograms
   ibook.cd(folder_);
-  meMVAPtSelEff_ = ibook.book1D("MVAPtSelEff",
-                                "Track selected efficiency VS Pt;Pt [GeV];Efficiency",
-                                meMVATrackEffPtTot->getNbinsX(),
-                                meMVATrackEffPtTot->getTH1()->GetXaxis()->GetXmin(),
-                                meMVATrackEffPtTot->getTH1()->GetXaxis()->GetXmax());
-  meMVAPtSelEff_->getTH1()->SetMinimum(0.);
-  computeEfficiency1D(meMVATrackMatchedEffPtTot, meMVATrackEffPtTot, meMVAPtSelEff_);
+  meTPPtSelEff_ = ibook.book1D("TPPtSelEff",
+                               "Track associated to LV selected efficiency TP VS Pt;Pt [GeV];Efficiency",
+                               meTrackEffPtTot->getNbinsX(),
+                               meTrackEffPtTot->getTH1()->GetXaxis()->GetXmin(),
+                               meTrackEffPtTot->getTH1()->GetXaxis()->GetXmax());
+  meTPPtSelEff_->getTH1()->SetMinimum(0.);
+  computeEfficiency1D(meTrackMatchedTPEffPtTot, meTrackEffPtTot, meTPPtSelEff_);
 
-  meMVAEtaSelEff_ = ibook.book1D("MVAEtaSelEff",
-                                 "Track selected efficiency VS Eta;Eta;Efficiency",
-                                 meMVATrackEffEtaTot->getNbinsX(),
-                                 meMVATrackEffEtaTot->getTH1()->GetXaxis()->GetXmin(),
-                                 meMVATrackEffEtaTot->getTH1()->GetXaxis()->GetXmax());
-  meMVAEtaSelEff_->getTH1()->SetMinimum(0.);
-  computeEfficiency1D(meMVATrackMatchedEffEtaTot, meMVATrackEffEtaTot, meMVAEtaSelEff_);
+  meTPEtaSelEff_ = ibook.book1D("TPEtaSelEff",
+                                "Track associated to LV selected efficiency TP VS Eta;Eta;Efficiency",
+                                meTrackEffEtaTot->getNbinsX(),
+                                meTrackEffEtaTot->getTH1()->GetXaxis()->GetXmin(),
+                                meTrackEffEtaTot->getTH1()->GetXaxis()->GetXmax());
+  meTPEtaSelEff_->getTH1()->SetMinimum(0.);
+  computeEfficiency1D(meTrackMatchedTPEffEtaTot, meTrackEffEtaTot, meTPEtaSelEff_);
 
-  meMVAPtMatchEff_ = ibook.book1D("MVAPtMatchEff",
-                                  "Track matched to GEN efficiency VS Pt;Pt [GeV];Efficiency",
-                                  meMVATrackMatchedEffPtTot->getNbinsX(),
-                                  meMVATrackMatchedEffPtTot->getTH1()->GetXaxis()->GetXmin(),
-                                  meMVATrackMatchedEffPtTot->getTH1()->GetXaxis()->GetXmax());
-  meMVAPtMatchEff_->getTH1()->SetMinimum(0.);
-  computeEfficiency1D(meMVATrackMatchedEffPtMtd, meMVATrackMatchedEffPtTot, meMVAPtMatchEff_);
+  meTPPtMatchEff_ = ibook.book1D("TPPtMatchEff",
+                                 "Track associated to LV matched to TP efficiency VS Pt;Pt [GeV];Efficiency",
+                                 meTrackMatchedTPEffPtTot->getNbinsX(),
+                                 meTrackMatchedTPEffPtTot->getTH1()->GetXaxis()->GetXmin(),
+                                 meTrackMatchedTPEffPtTot->getTH1()->GetXaxis()->GetXmax());
+  meTPPtMatchEff_->getTH1()->SetMinimum(0.);
+  computeEfficiency1D(meTrackMatchedTPEffPtMtd, meTrackMatchedTPEffPtTot, meTPPtMatchEff_);
 
-  meMVAEtaMatchEff_ = ibook.book1D("MVAEtaMatchEff",
-                                   "Track matched to GEN efficiency VS Eta;Eta;Efficiency",
-                                   meMVATrackMatchedEffEtaTot->getNbinsX(),
-                                   meMVATrackMatchedEffEtaTot->getTH1()->GetXaxis()->GetXmin(),
-                                   meMVATrackMatchedEffEtaTot->getTH1()->GetXaxis()->GetXmax());
-  meMVAEtaMatchEff_->getTH1()->SetMinimum(0.);
-  computeEfficiency1D(meMVATrackMatchedEffEtaMtd, meMVATrackMatchedEffEtaTot, meMVAEtaMatchEff_);
+  meTPEtaMatchEff_ = ibook.book1D("TPEtaMatchEff",
+                                  "Track associated to LV matched to TP efficiency VS Eta;Eta;Efficiency",
+                                  meTrackMatchedTPEffEtaTot->getNbinsX(),
+                                  meTrackMatchedTPEffEtaTot->getTH1()->GetXaxis()->GetXmin(),
+                                  meTrackMatchedTPEffEtaTot->getTH1()->GetXaxis()->GetXmax());
+  meTPEtaMatchEff_->getTH1()->SetMinimum(0.);
+  computeEfficiency1D(meTrackMatchedTPEffEtaMtd, meTrackMatchedTPEffEtaTot, meTPEtaMatchEff_);
 
   MonitorElement* meBarrelPIDp = igetter.get(folder_ + "BarrelPIDp");
   MonitorElement* meEndcapPIDp = igetter.get(folder_ + "EndcapPIDp");

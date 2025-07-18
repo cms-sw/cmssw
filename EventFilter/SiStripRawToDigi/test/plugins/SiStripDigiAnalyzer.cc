@@ -295,7 +295,7 @@ void SiStripDigiAnalyzer::analyze(const edm::Event& event, const edm::EventSetup
         }
       }
     }  // channel loop
-  }    // fed loop
+  }  // fed loop
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

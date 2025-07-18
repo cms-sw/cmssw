@@ -1,7 +1,4 @@
 <use name="boost"/>
-<use name="cuda"/>
-<use name="CUDADataFormats/HcalDigi"/>
-<use name="CUDADataFormats/HcalRecHitSoA"/>
 <use name="CalibCalorimetry/HcalAlgos"/>
 <use name="CalibFormats/HcalObjects"/>
 <use name="CommonTools/UtilAlgos"/>
@@ -14,12 +11,6 @@
 <use name="FWCore/ServiceRegistry"/>
 <use name="Geometry/HcalCommonData"/>
 <use name="Geometry/Records"/>
-<use name="HeterogeneousCore/CUDACore"/>
-<use name="HeterogeneousCore/CUDAUtilities"/>
 <use name="RecoLocalCalo/HcalRecAlgos"/>
 <use name="SimCalorimetry/HcalSimAlgos"/>
-<iftool name="cuda-gcc-support">
-<else/>
-  <flags SKIP_FILES="%.cu"/>
-</iftool>
 <flags EDM_PLUGIN="1"/>

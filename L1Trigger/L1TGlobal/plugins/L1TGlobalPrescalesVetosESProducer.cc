@@ -103,16 +103,16 @@ L1TGlobalPrescalesVetosESProducer::L1TGlobalPrescalesVetosESProducer(const edm::
 
   // Full path
   edm::FileInPath f1_prescale("L1Trigger/L1TGlobal/data/Luminosity/" + menuDir + "/" + prescalesFileName);
-  std::string m_prescaleFile = f1_prescale.fullPath();
+  const std::string& m_prescaleFile = f1_prescale.fullPath();
 
   edm::FileInPath f1_mask_algobx("L1Trigger/L1TGlobal/data/Luminosity/" + menuDir + "/" + algobxmaskFileName);
-  std::string m_algobxmaskFile = f1_mask_algobx.fullPath();
+  const std::string& m_algobxmaskFile = f1_mask_algobx.fullPath();
 
   edm::FileInPath f1_mask_finor("L1Trigger/L1TGlobal/data/Luminosity/" + menuDir + "/" + finormaskFileName);
-  std::string m_finormaskFile = f1_mask_finor.fullPath();
+  const std::string& m_finormaskFile = f1_mask_finor.fullPath();
 
   edm::FileInPath f1_mask_veto("L1Trigger/L1TGlobal/data/Luminosity/" + menuDir + "/" + vetomaskFileName);
-  std::string m_vetomaskFile = f1_mask_veto.fullPath();
+  const std::string& m_vetomaskFile = f1_mask_veto.fullPath();
 
   // XML payloads
   std::string xmlPayload_prescale;

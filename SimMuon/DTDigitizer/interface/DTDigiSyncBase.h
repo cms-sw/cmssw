@@ -13,10 +13,10 @@ class DTLayer;
 class DTDigiSyncBase {
 public:
   /// Constructor
-  DTDigiSyncBase(){};
+  DTDigiSyncBase() {}
 
   /// Destructor
-  virtual ~DTDigiSyncBase(){};
+  virtual ~DTDigiSyncBase() {}
 
   /// Delays to be added to digi times during digitization, in ns.
   virtual double digitizerOffset(const DTWireId *id, const DTLayer *layer) const = 0;

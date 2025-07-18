@@ -387,11 +387,11 @@ void StandaloneTrackMonitor::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.addUntracked<bool>("haveAllHistograms", false);
   desc.addUntracked<std::string>("puScaleFactorFile", "PileupScaleFactor.root");
   desc.addUntracked<std::string>("trackScaleFactorFile", "PileupScaleFactor.root");
-  desc.addUntracked<std::vector<std::string> >("MVAProducers");
-  desc.addUntracked<edm::InputTag>("TrackProducerForMVA");
+  desc.addUntracked<std::vector<std::string> >("MVAProducers", {"initialStepClassifier1", "initialStepClassifier2"});
+  desc.addUntracked<edm::InputTag>("TrackProducerForMVA", edm::InputTag("initialStepTracks"));
 
-  desc.addUntracked<edm::InputTag>("TCProducer");
-  desc.addUntracked<std::string>("AlgoName");
+  desc.addUntracked<edm::InputTag>("TCProducer", edm::InputTag("initialStepTrackCandidates"));
+  desc.addUntracked<std::string>("AlgoName", "GenTk");
   desc.addUntracked<bool>("verbose", false);
 
   {
@@ -636,44 +636,44 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
 
   // The following are common with the official tool
   if (haveAllHistograms_) {
-    trackEtaH_ = ibook.book1D("trackEta",
-                              "Track Eta",
-                              TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
-                              TrackEtaHistoPar_.getParameter<double>("Xmin"),
-                              TrackEtaHistoPar_.getParameter<double>("Xmax"));
+    trackEtaH_ = ibook.book1DD("trackEta",
+                               "Track Eta",
+                               TrackEtaHistoPar_.getParameter<int32_t>("Xbins"),
+                               TrackEtaHistoPar_.getParameter<double>("Xmin"),
+                               TrackEtaHistoPar_.getParameter<double>("Xmax"));
 
-    trackEtaerrH_ = ibook.book1D("trackEtaerr", "Track Eta Error", 50, 0.0, 1.0);
-    trackCosThetaH_ = ibook.book1D("trackCosTheta", "Track Cos(Theta)", 50, -1.0, 1.0);
-    trackThetaerrH_ = ibook.book1D("trackThetaerr", "Track Theta Error", 50, 0.0, 1.0);
-    trackPhiH_ = ibook.book1D("trackPhi", "Track Phi", 70, -3.5, 3.5);
-    trackPhierrH_ = ibook.book1D("trackPhierr", "Track Phi Error", 50, 0.0, 1.0);
+    trackEtaerrH_ = ibook.book1DD("trackEtaerr", "Track Eta Error", 50, 0.0, 1.0);
+    trackCosThetaH_ = ibook.book1DD("trackCosTheta", "Track Cos(Theta)", 50, -1.0, 1.0);
+    trackThetaerrH_ = ibook.book1DD("trackThetaerr", "Track Theta Error", 50, 0.0, 1.0);
+    trackPhiH_ = ibook.book1DD("trackPhi", "Track Phi", 70, -3.5, 3.5);
+    trackPhierrH_ = ibook.book1DD("trackPhierr", "Track Phi Error", 50, 0.0, 1.0);
 
-    trackPH_ = ibook.book1D("trackP", "Track 4-momentum", 50, 0.0, 10.0);
-    trackPtH_ = ibook.book1D("trackPt",
-                             "Track Pt",
-                             TrackPtHistoPar_.getParameter<int32_t>("Xbins"),
-                             TrackPtHistoPar_.getParameter<double>("Xmin"),
-                             TrackPtHistoPar_.getParameter<double>("Xmax"));
-    trackPt_ZoomH_ = ibook.book1D("trackPt_Zoom", "Track Pt", 100, 60, 70);
-    trackPterrH_ = ibook.book1D("trackPterr", "Track Pt Error", 100, 0.0, 100.0);
-    trackqOverpH_ = ibook.book1D("trackqOverp", "q Over p", 100, -0.5, 0.5);
-    trackqOverperrH_ = ibook.book1D("trackqOverperr", "q Over p Error", 50, 0.0, 0.5);
-    trackChargeH_ = ibook.book1D("trackCharge", "Track Charge", 3, -1.5, 1.5);
-    trackChi2H_ = ibook.book1D("trackChi2", "Chi2", 100, 0.0, 100.0);
-    tracknDOFH_ = ibook.book1D("tracknDOF", "nDOF", 100, 0.0, 100.0);
-    trackChi2ProbH_ = ibook.book1D("trackChi2Prob", "Chi2prob", 50, 0.0, 1.0);
-    trackChi2oNDFH_ = ibook.book1D("trackChi2oNDF", "Chi2oNDF", 100, 0.0, 100.0);
-    trackd0H_ = ibook.book1D("trackd0", "Track d0", 100, -1, 1);
-    trackChi2bynDOFH_ = ibook.book1D("trackChi2bynDOF", "Chi2 Over nDOF", 100, 0.0, 10.0);
-    trackalgoH_ = ibook.book1D("trackalgo", "Track Algo", 46, 0.0, 46.0);
-    trackorigalgoH_ = ibook.book1D("trackorigalgo", "Track Original Algo", 46, 0.0, 46.0);
+    trackPH_ = ibook.book1DD("trackP", "Track 4-momentum", 50, 0.0, 10.0);
+    trackPtH_ = ibook.book1DD("trackPt",
+                              "Track Pt",
+                              TrackPtHistoPar_.getParameter<int32_t>("Xbins"),
+                              TrackPtHistoPar_.getParameter<double>("Xmin"),
+                              TrackPtHistoPar_.getParameter<double>("Xmax"));
+    trackPt_ZoomH_ = ibook.book1DD("trackPt_Zoom", "Track Pt", 100, 60, 70);
+    trackPterrH_ = ibook.book1DD("trackPterr", "Track Pt Error", 100, 0.0, 100.0);
+    trackqOverpH_ = ibook.book1DD("trackqOverp", "q Over p", 100, -0.5, 0.5);
+    trackqOverperrH_ = ibook.book1DD("trackqOverperr", "q Over p Error", 50, 0.0, 0.5);
+    trackChargeH_ = ibook.book1DD("trackCharge", "Track Charge", 3, -1.5, 1.5);
+    trackChi2H_ = ibook.book1DD("trackChi2", "Chi2", 100, 0.0, 100.0);
+    tracknDOFH_ = ibook.book1DD("tracknDOF", "nDOF", 100, 0.0, 100.0);
+    trackChi2ProbH_ = ibook.book1DD("trackChi2Prob", "Chi2prob", 50, 0.0, 1.0);
+    trackChi2oNDFH_ = ibook.book1DD("trackChi2oNDF", "Chi2oNDF", 100, 0.0, 100.0);
+    trackd0H_ = ibook.book1DD("trackd0", "Track d0", 100, -1, 1);
+    trackChi2bynDOFH_ = ibook.book1DD("trackChi2bynDOF", "Chi2 Over nDOF", 100, 0.0, 10.0);
+    trackalgoH_ = ibook.book1DD("trackalgo", "Track Algo", 46, 0.0, 46.0);
+    trackorigalgoH_ = ibook.book1DD("trackorigalgo", "Track Original Algo", 46, 0.0, 46.0);
 
     for (size_t ibin = 0; ibin < reco::TrackBase::algoSize - 1; ibin++) {
       trackalgoH_->setBinLabel(ibin + 1, reco::TrackBase::algoNames[ibin], 1);
       trackorigalgoH_->setBinLabel(ibin + 1, reco::TrackBase::algoNames[ibin], 1);
     }
 
-    trackStoppingSourceH_ = ibook.book1D("trackstoppingsource", "Track Stopping Source", 12, 0.0, 12.0);
+    trackStoppingSourceH_ = ibook.book1DD("trackstoppingsource", "Track Stopping Source", 12, 0.0, 12.0);
 
     // DataFormats/TrackCandidate/interface/TrajectoryStopReasons.h
     size_t StopReasonNameSize = static_cast<size_t>(StopReason::SIZE);
@@ -682,9 +682,9 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
     }
 
     DistanceOfClosestApproachToPVH_ =
-        ibook.book1D("DistanceOfClosestApproachToPV", "DistanceOfClosestApproachToPV", 1000, -1.0, 1.0);
+        ibook.book1DD("DistanceOfClosestApproachToPV", "DistanceOfClosestApproachToPV", 1000, -1.0, 1.0);
     DistanceOfClosestApproachToPVZoomedH_ =
-        ibook.book1D("DistanceOfClosestApproachToPVZoomed", "DistanceOfClosestApproachToPV", 1000, -0.1, 0.1);
+        ibook.book1DD("DistanceOfClosestApproachToPVZoomed", "DistanceOfClosestApproachToPV", 1000, -0.1, 0.1);
     DistanceOfClosestApproachToPVVsPhiH_ = ibook.bookProfile(
         "DistanceOfClosestApproachToPVVsPhi", "DistanceOfClosestApproachToPVVsPhi", 100, -3.5, 3.5, 0.0, 0.0, "g");
     xPointOfClosestApproachVsZ0wrtPVH_ = ibook.bookProfile(
@@ -692,9 +692,9 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
     yPointOfClosestApproachVsZ0wrtPVH_ = ibook.bookProfile(
         "yPointOfClosestApproachVsZ0wrtPV", "yPointOfClosestApproachVsZ0wrtPV", 120, -60, 60, 0.0, 0.0, "g");
     trackDeltaRwrtClosestTrack_ =
-        ibook.book1D("trackDeltaRwrtClosestTrack", "min#DeltaR(considered track,other tracks)", 500, 0, 10);
+        ibook.book1DD("trackDeltaRwrtClosestTrack", "min#DeltaR(considered track,other tracks)", 500, 0, 10);
 
-    ip2dToPVH_ = ibook.book1D("ip2dToPV", "IP in 2d To PV", 1000, -1.0, 1.0);
+    ip2dToPVH_ = ibook.book1DD("ip2dToPV", "IP in 2d To PV", 1000, -1.0, 1.0);
     unsigned int niperrbins = 100;
     float iperrbinning[niperrbins + 1];
     float miniperr = 0.0001, maxiperr = 5;
@@ -702,135 +702,135 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
     for (unsigned int i = 1; i != niperrbins + 1; i++) {
       iperrbinning[i] = iperrbinning[i - 1] * pow(maxiperr / miniperr, 1. / niperrbins);
     }
-    iperr2dToPVH_ = ibook.book1D("iperr2dToPV", "IP error in 2d To PV", niperrbins, iperrbinning);
-    iperr2dToPVWtH_ = ibook.book1D("iperr2dToPVWt", "IP error in 2d To PV", niperrbins, iperrbinning);
+    iperr2dToPVH_ = ibook.book1DD("iperr2dToPV", "IP error in 2d To PV", niperrbins, iperrbinning);
+    iperr2dToPVWtH_ = ibook.book1DD("iperr2dToPVWt", "IP error in 2d To PV", niperrbins, iperrbinning);
 
-    ip3dToPVH_ = ibook.book1D("ip3dToPV", "IP in 3d To PV", 200, -20, 20);
-    ip3dToBSH_ = ibook.book1D("ip3dToBS", "IP in 3d To BS", 200, -20, 20);
-    iperr3dToPVH_ = ibook.book1D("iperr3dToPV", "IP error in 3d To PV", niperrbins, iperrbinning);
-    iperr3dToBSH_ = ibook.book1D("iperr3dToBS", "IP error in 3d To BS", niperrbins, iperrbinning);
-    sip3dToPVH_ = ibook.book1D("sip3dToPV", "IP significance in 3d To PV", 200, -10, 10);
-    sip3dToBSH_ = ibook.book1D("sip3dToBS", "IP significance in 3d To BS", 200, -10, 10);
+    ip3dToPVH_ = ibook.book1DD("ip3dToPV", "IP in 3d To PV", 200, -20, 20);
+    ip3dToBSH_ = ibook.book1DD("ip3dToBS", "IP in 3d To BS", 200, -20, 20);
+    iperr3dToPVH_ = ibook.book1DD("iperr3dToPV", "IP error in 3d To PV", niperrbins, iperrbinning);
+    iperr3dToBSH_ = ibook.book1DD("iperr3dToBS", "IP error in 3d To BS", niperrbins, iperrbinning);
+    sip3dToPVH_ = ibook.book1DD("sip3dToPV", "IP significance in 3d To PV", 200, -10, 10);
+    sip3dToBSH_ = ibook.book1DD("sip3dToBS", "IP significance in 3d To BS", 200, -10, 10);
 
     ip3dToPV2validpixelhitsH_ =
-        ibook.book1D("ip3dToPV2validpixelhits", "IP in 3d To PV (nValidPixelHits>2)", 200, -0.20, 0.20);
+        ibook.book1DD("ip3dToPV2validpixelhits", "IP in 3d To PV (nValidPixelHits>2)", 200, -0.20, 0.20);
     ip3dToBS2validpixelhitsH_ =
-        ibook.book1D("ip3dToBS2validpixelhits", "IP in 3d To BS (nValidPixelHits>2)", 200, -0.20, 0.20);
-    iperr3dToPV2validpixelhitsH_ = ibook.book1D(
+        ibook.book1DD("ip3dToBS2validpixelhits", "IP in 3d To BS (nValidPixelHits>2)", 200, -0.20, 0.20);
+    iperr3dToPV2validpixelhitsH_ = ibook.book1DD(
         "iperr3dToPV2validpixelhits", "IP error in 3d To PV (nValidPixelHits>2)", niperrbins, iperrbinning);
-    iperr3dToBS2validpixelhitsH_ = ibook.book1D(
+    iperr3dToBS2validpixelhitsH_ = ibook.book1DD(
         "iperr3dToBS2validpixelhits", "IP error in 3d To BS (nValidPixelHits>2)", niperrbins, iperrbinning);
     sip3dToPV2validpixelhitsH_ =
-        ibook.book1D("sip3dToPV2validpixelhits", "IP significance in 3d To PV (nValidPixelHits>2)", 200, -10, 10);
+        ibook.book1DD("sip3dToPV2validpixelhits", "IP significance in 3d To PV (nValidPixelHits>2)", 200, -10, 10);
     sip3dToBS2validpixelhitsH_ =
-        ibook.book1D("sip3dToBS2validpixelhits", "IP significance in 3d To BS (nValidPixelHits>2)", 200, -10, 10);
+        ibook.book1DD("sip3dToBS2validpixelhits", "IP significance in 3d To BS (nValidPixelHits>2)", 200, -10, 10);
 
-    ip2dToBSH_ = ibook.book1D("ip2dToBS", "IP in 2d To BS", 1000, -1., 1.);  //Beamspot
-    iperr2dToBSH_ = ibook.book1D("iperr2dToBS", "IP error in 2d To BS", niperrbins, iperrbinning);
-    sip2dToBSH_ = ibook.book1D("sip2dToBS", "IP significance in 2d To BS", 200, -10, 10);
+    ip2dToBSH_ = ibook.book1DD("ip2dToBS", "IP in 2d To BS", 1000, -1., 1.);  //Beamspot
+    iperr2dToBSH_ = ibook.book1DD("iperr2dToBS", "IP error in 2d To BS", niperrbins, iperrbinning);
+    sip2dToBSH_ = ibook.book1DD("sip2dToBS", "IP significance in 2d To BS", 200, -10, 10);
 
-    iperr3dToPVWtH_ = ibook.book1D("iperr3dToPVWt", "IP error in 3d To PV", niperrbins, iperrbinning);
-    sip2dToPVH_ = ibook.book1D("sip2dToPV", "IP significance in 2d To PV", 200, -10, 10);
+    iperr3dToPVWtH_ = ibook.book1DD("iperr3dToPVWt", "IP error in 3d To PV", niperrbins, iperrbinning);
+    sip2dToPVH_ = ibook.book1DD("sip2dToPV", "IP significance in 2d To PV", 200, -10, 10);
 
-    sip2dToPVWtH_ = ibook.book1D("sip2dToPVWt", "IP significance in 2d To PV", 200, -10, 10);
-    sipDxyToPVH_ = ibook.book1D("sipDxyToPV", "IP significance in dxy To PV", 100, -10, 10);
-    sipDzToPVH_ = ibook.book1D("sipDzToPV", "IP significance in dz To PV", 100, -10, 10);
+    sip2dToPVWtH_ = ibook.book1DD("sip2dToPVWt", "IP significance in 2d To PV", 200, -10, 10);
+    sipDxyToPVH_ = ibook.book1DD("sipDxyToPV", "IP significance in dxy To PV", 100, -10, 10);
+    sipDzToPVH_ = ibook.book1DD("sipDzToPV", "IP significance in dz To PV", 100, -10, 10);
 
-    nallHitsH_ = ibook.book1D("nallHits", "No. of All Hits", 60, -0.5, 59.5);
-    ntrackerHitsH_ = ibook.book1D("ntrackerHits", "No. of Tracker Hits", 60, -0.5, 59.5);
+    nallHitsH_ = ibook.book1DD("nallHits", "No. of All Hits", 60, -0.5, 59.5);
+    ntrackerHitsH_ = ibook.book1DD("ntrackerHits", "No. of Tracker Hits", 60, -0.5, 59.5);
 
-    nvalidTrackerHitsH_ = ibook.book1D("nvalidTrackerhits", "No. of Valid Tracker Hits", 47, -0.5, 46.5);
-    nvalidPixelHitsH_ = ibook.book1D("nvalidPixelHits", "No. of Valid Hits in Pixel", 8, -0.5, 7.5);
-    nvalidPixelBHitsH_ = ibook.book1D("nvalidPixelBarrelHits", "No. of Valid Hits in Pixel Barrel", 6, -0.5, 5.5);
-    nvalidPixelEHitsH_ = ibook.book1D("nvalidPixelEndcapHits", "No. of Valid Hits in Pixel Endcap", 6, -0.5, 6.5);
-    nvalidStripHitsH_ = ibook.book1D("nvalidStripHits", "No. of Valid Hits in Strip", 36, -0.5, 35.5);
-    nvalidTIBHitsH_ = ibook.book1D("nvalidTIBHits", "No. of Valid Hits in Strip TIB", 6, -0.5, 5.5);
-    nvalidTOBHitsH_ = ibook.book1D("nvalidTOBHits", "No. of Valid Hits in Strip TOB", 11, -0.5, 10.5);
-    nvalidTIDHitsH_ = ibook.book1D("nvalidTIDHits", "No. of Valid Hits in Strip TID", 6, -0.5, 5.5);
-    nvalidTECHitsH_ = ibook.book1D("nvalidTECHits", "No. of Valid Hits in Strip TEC", 11, -0.5, 10.5);
+    nvalidTrackerHitsH_ = ibook.book1DD("nvalidTrackerhits", "No. of Valid Tracker Hits", 47, -0.5, 46.5);
+    nvalidPixelHitsH_ = ibook.book1DD("nvalidPixelHits", "No. of Valid Hits in Pixel", 8, -0.5, 7.5);
+    nvalidPixelBHitsH_ = ibook.book1DD("nvalidPixelBarrelHits", "No. of Valid Hits in Pixel Barrel", 6, -0.5, 5.5);
+    nvalidPixelEHitsH_ = ibook.book1DD("nvalidPixelEndcapHits", "No. of Valid Hits in Pixel Endcap", 6, -0.5, 6.5);
+    nvalidStripHitsH_ = ibook.book1DD("nvalidStripHits", "No. of Valid Hits in Strip", 36, -0.5, 35.5);
+    nvalidTIBHitsH_ = ibook.book1DD("nvalidTIBHits", "No. of Valid Hits in Strip TIB", 6, -0.5, 5.5);
+    nvalidTOBHitsH_ = ibook.book1DD("nvalidTOBHits", "No. of Valid Hits in Strip TOB", 11, -0.5, 10.5);
+    nvalidTIDHitsH_ = ibook.book1DD("nvalidTIDHits", "No. of Valid Hits in Strip TID", 6, -0.5, 5.5);
+    nvalidTECHitsH_ = ibook.book1DD("nvalidTECHits", "No. of Valid Hits in Strip TEC", 11, -0.5, 10.5);
 
-    nlostTrackerHitsH_ = ibook.book1D("nlostTrackerhits", "No. of Lost Tracker Hits", 15, -0.5, 14.5);
-    nlostPixelHitsH_ = ibook.book1D("nlostPixelHits", "No. of Lost Hits in Pixel", 8, -0.5, 7.5);
-    nlostPixelBHitsH_ = ibook.book1D("nlostPixelBarrelHits", "No. of Lost Hits in Pixel Barrel", 5, -0.5, 4.5);
-    nlostPixelEHitsH_ = ibook.book1D("nlostPixelEndcapHits", "No. of Lost Hits in Pixel Endcap", 4, -0.5, 3.5);
-    nlostStripHitsH_ = ibook.book1D("nlostStripHits", "No. of Lost Hits in Strip", 10, -0.5, 9.5);
-    nlostTIBHitsH_ = ibook.book1D("nlostTIBHits", "No. of Lost Hits in Strip TIB", 5, -0.5, 4.5);
-    nlostTOBHitsH_ = ibook.book1D("nlostTOBHits", "No. of Lost Hits in Strip TOB", 10, -0.5, 9.5);
-    nlostTIDHitsH_ = ibook.book1D("nlostTIDHits", "No. of Lost Hits in Strip TID", 5, -0.5, 4.5);
-    nlostTECHitsH_ = ibook.book1D("nlostTECHits", "No. of Lost Hits in Strip TEC", 10, -0.5, 9.5);
+    nlostTrackerHitsH_ = ibook.book1DD("nlostTrackerhits", "No. of Lost Tracker Hits", 15, -0.5, 14.5);
+    nlostPixelHitsH_ = ibook.book1DD("nlostPixelHits", "No. of Lost Hits in Pixel", 8, -0.5, 7.5);
+    nlostPixelBHitsH_ = ibook.book1DD("nlostPixelBarrelHits", "No. of Lost Hits in Pixel Barrel", 5, -0.5, 4.5);
+    nlostPixelEHitsH_ = ibook.book1DD("nlostPixelEndcapHits", "No. of Lost Hits in Pixel Endcap", 4, -0.5, 3.5);
+    nlostStripHitsH_ = ibook.book1DD("nlostStripHits", "No. of Lost Hits in Strip", 10, -0.5, 9.5);
+    nlostTIBHitsH_ = ibook.book1DD("nlostTIBHits", "No. of Lost Hits in Strip TIB", 5, -0.5, 4.5);
+    nlostTOBHitsH_ = ibook.book1DD("nlostTOBHits", "No. of Lost Hits in Strip TOB", 10, -0.5, 9.5);
+    nlostTIDHitsH_ = ibook.book1DD("nlostTIDHits", "No. of Lost Hits in Strip TID", 5, -0.5, 4.5);
+    nlostTECHitsH_ = ibook.book1DD("nlostTECHits", "No. of Lost Hits in Strip TEC", 10, -0.5, 9.5);
 
-    trkLayerwithMeasurementH_ = ibook.book1D("trkLayerwithMeasurement", "No. of Layers per Track", 20, 0.0, 20.0);
+    trkLayerwithMeasurementH_ = ibook.book1DD("trkLayerwithMeasurement", "No. of Layers per Track", 20, 0.0, 20.0);
     pixelLayerwithMeasurementH_ =
-        ibook.book1D("pixelLayerwithMeasurement", "No. of Pixel Layers per Track", 10, 0.0, 10.0);
+        ibook.book1DD("pixelLayerwithMeasurement", "No. of Pixel Layers per Track", 10, 0.0, 10.0);
     pixelBLayerwithMeasurementH_ =
-        ibook.book1D("pixelBLayerwithMeasurement", "No. of Pixel Barrel Layers per Track", 5, 0.0, 5.0);
+        ibook.book1DD("pixelBLayerwithMeasurement", "No. of Pixel Barrel Layers per Track", 5, 0.0, 5.0);
     pixelELayerwithMeasurementH_ =
-        ibook.book1D("pixelELayerwithMeasurement", "No. of Pixel Endcap Layers per Track", 5, 0.0, 5.0);
+        ibook.book1DD("pixelELayerwithMeasurement", "No. of Pixel Endcap Layers per Track", 5, 0.0, 5.0);
     stripLayerwithMeasurementH_ =
-        ibook.book1D("stripLayerwithMeasurement", "No. of Strip Layers per Track", 20, 0.0, 20.0);
+        ibook.book1DD("stripLayerwithMeasurement", "No. of Strip Layers per Track", 20, 0.0, 20.0);
     stripTIBLayerwithMeasurementH_ =
-        ibook.book1D("stripTIBLayerwithMeasurement", "No. of Strip TIB Layers per Track", 10, 0.0, 10.0);
+        ibook.book1DD("stripTIBLayerwithMeasurement", "No. of Strip TIB Layers per Track", 10, 0.0, 10.0);
     stripTOBLayerwithMeasurementH_ =
-        ibook.book1D("stripTOBLayerwithMeasurement", "No. of Strip TOB Layers per Track", 10, 0.0, 10.0);
+        ibook.book1DD("stripTOBLayerwithMeasurement", "No. of Strip TOB Layers per Track", 10, 0.0, 10.0);
     stripTIDLayerwithMeasurementH_ =
-        ibook.book1D("stripTIDLayerwithMeasurement", "No. of Strip TID Layers per Track", 5, 0.0, 5.0);
+        ibook.book1DD("stripTIDLayerwithMeasurement", "No. of Strip TID Layers per Track", 5, 0.0, 5.0);
     stripTECLayerwithMeasurementH_ =
-        ibook.book1D("stripTECLayerwithMeasurement", "No. of Strip TEC Layers per Track", 15, 0.0, 15.0);
+        ibook.book1DD("stripTECLayerwithMeasurement", "No. of Strip TEC Layers per Track", 15, 0.0, 15.0);
 
-    nlostHitsH_ = ibook.book1D("nlostHits", "No. of Lost Hits", 10, -0.5, 9.5);
+    nlostHitsH_ = ibook.book1DD("nlostHits", "No. of Lost Hits", 10, -0.5, 9.5);
     nMissingExpectedInnerHitsH_ =
-        ibook.book1D("nMissingExpectedInnerHits", "No. of Missing Expected Inner Hits", 10, -0.5, 9.5);
+        ibook.book1DD("nMissingExpectedInnerHits", "No. of Missing Expected Inner Hits", 10, -0.5, 9.5);
     nMissingExpectedOuterHitsH_ =
-        ibook.book1D("nMissingExpectedOuterHits", "No. of Missing Expected Outer Hits", 10, -0.5, 9.5);
+        ibook.book1DD("nMissingExpectedOuterHits", "No. of Missing Expected Outer Hits", 10, -0.5, 9.5);
 
-    beamSpotXYposH_ = ibook.book1D("beamSpotXYpos", "d_{xy} w.r.t beam spot", 100, -1.0, 1.0);
-    beamSpotXYposerrH_ = ibook.book1D("beamSpotXYposerr", "error on d_{xy} w.r.t beam spot", 50, 0.0, 0.25);
-    beamSpotZposH_ = ibook.book1D("beamSpotZpos", "d_{z} w.r.t beam spot", 100, -20.0, 20.0);
-    beamSpotZposerrH_ = ibook.book1D("beamSpotZposerr", "error on d_{z} w.r.t. beam spot", 50, 0.0, 0.25);
+    beamSpotXYposH_ = ibook.book1DD("beamSpotXYpos", "d_{xy} w.r.t beam spot", 100, -1.0, 1.0);
+    beamSpotXYposerrH_ = ibook.book1DD("beamSpotXYposerr", "error on d_{xy} w.r.t beam spot", 50, 0.0, 0.25);
+    beamSpotZposH_ = ibook.book1DD("beamSpotZpos", "d_{z} w.r.t beam spot", 100, -20.0, 20.0);
+    beamSpotZposerrH_ = ibook.book1DD("beamSpotZposerr", "error on d_{z} w.r.t. beam spot", 50, 0.0, 0.25);
 
-    vertexXposH_ = ibook.book1D("vertexXpos", "Vertex X position", 100, -0.1, 0.1);
-    vertexYposH_ = ibook.book1D("vertexYpos", "Vertex Y position", 200, -0.1, 0.1);
-    vertexZposH_ = ibook.book1D("vertexZpos", "Vertex Z position", 100, -20.0, 20.0);
-    nVertexH_ = ibook.book1D("nVertex", "# of vertices", 120, -0.5, 119.5);
-    nVtxH_ = ibook.book1D("nVtx", "# of vtxs", 120, -0.5, 119.5);
+    vertexXposH_ = ibook.book1DD("vertexXpos", "Vertex X position", 100, -0.1, 0.1);
+    vertexYposH_ = ibook.book1DD("vertexYpos", "Vertex Y position", 200, -0.1, 0.1);
+    vertexZposH_ = ibook.book1DD("vertexZpos", "Vertex Z position", 100, -20.0, 20.0);
+    nVertexH_ = ibook.book1DD("nVertex", "# of vertices", 120, -0.5, 119.5);
+    nVtxH_ = ibook.book1DD("nVtx", "# of vtxs", 120, -0.5, 119.5);
 
-    nMissingInnerHitBH_ = ibook.book1D("nMissingInnerHitB", "No. missing inner hit per Track in Barrel", 6, -0.5, 5.5);
-    nMissingInnerHitEH_ = ibook.book1D("nMissingInnerHitE", "No. missing inner hit per Track in Endcap", 6, -0.5, 5.5);
+    nMissingInnerHitBH_ = ibook.book1DD("nMissingInnerHitB", "No. missing inner hit per Track in Barrel", 6, -0.5, 5.5);
+    nMissingInnerHitEH_ = ibook.book1DD("nMissingInnerHitE", "No. missing inner hit per Track in Endcap", 6, -0.5, 5.5);
     nMissingOuterHitBH_ =
-        ibook.book1D("nMissingOuterHitB", "No. missing outer hit per Track in Barrel", 11, -0.5, 10.5);
+        ibook.book1DD("nMissingOuterHitB", "No. missing outer hit per Track in Barrel", 11, -0.5, 10.5);
     nMissingOuterHitEH_ =
-        ibook.book1D("nMissingOuterHitE", "No. missing outer hit per Track in Endcap", 11, -0.5, 10.5);
-    nPixBarrelH_ = ibook.book1D("nHitPixelBarrel", "No. of hits in Pixel Barrel per Track", 20, 0, 20.0);
-    nPixEndcapH_ = ibook.book1D("nHitPixelEndcap", "No. of hits in Pixel Endcap per Track", 20, 0, 20.0);
-    nStripTIBH_ = ibook.book1D("nHitStripTIB", "No. of hits in Strip TIB per Track", 30, 0, 30.0);
-    nStripTOBH_ = ibook.book1D("nHitStripTOB", "No. of hits in Strip TOB per Track", 30, 0, 30.0);
-    nStripTECH_ = ibook.book1D("nHitStripTEC", "No. of hits in Strip TEC per Track", 30, 0, 30.0);
-    nStripTIDH_ = ibook.book1D("nHitStripTID", "No. of hits in Strip TID per Tracks", 30, 0, 30.0);
-    nTracksH_ = ibook.book1D("nTracks", "No. of Tracks", 1200, -0.5, 1199.5);
-    nJet_ = ibook.book1D("nJet", "Number of Jets", 101, -0.5, 100.5);
-    Jet_pt_ = ibook.book1D("Jet_pt", "Jet p_{T}", 200, 0., 200.);
-    Jet_eta_ = ibook.book1D("Jet_eta", "Jet #eta", 100, -5.2, 5.2);
-    Jet_energy_ = ibook.book1D("Jet_energy", "Jet Energy", 200, 0., 200.);
+        ibook.book1DD("nMissingOuterHitE", "No. missing outer hit per Track in Endcap", 11, -0.5, 10.5);
+    nPixBarrelH_ = ibook.book1DD("nHitPixelBarrel", "No. of hits in Pixel Barrel per Track", 20, 0, 20.0);
+    nPixEndcapH_ = ibook.book1DD("nHitPixelEndcap", "No. of hits in Pixel Endcap per Track", 20, 0, 20.0);
+    nStripTIBH_ = ibook.book1DD("nHitStripTIB", "No. of hits in Strip TIB per Track", 30, 0, 30.0);
+    nStripTOBH_ = ibook.book1DD("nHitStripTOB", "No. of hits in Strip TOB per Track", 30, 0, 30.0);
+    nStripTECH_ = ibook.book1DD("nHitStripTEC", "No. of hits in Strip TEC per Track", 30, 0, 30.0);
+    nStripTIDH_ = ibook.book1DD("nHitStripTID", "No. of hits in Strip TID per Tracks", 30, 0, 30.0);
+    nTracksH_ = ibook.book1DD("nTracks", "No. of Tracks", 1200, -0.5, 1199.5);
+    nJet_ = ibook.book1DD("nJet", "Number of Jets", 101, -0.5, 100.5);
+    Jet_pt_ = ibook.book1DD("Jet_pt", "Jet p_{T}", 200, 0., 200.);
+    Jet_eta_ = ibook.book1DD("Jet_eta", "Jet #eta", 100, -5.2, 5.2);
+    Jet_energy_ = ibook.book1DD("Jet_energy", "Jet Energy", 200, 0., 200.);
     Jet_chargedMultiplicity_ =
-        ibook.book1D("Jet_chargedMultiplicity", "Jet charged Hadron Multiplicity", 201, -0.5, 200.5);
-    Zpt_ = ibook.book1D("Zpt", "Z-boson transverse momentum", 100, 0, 100);
-    ZInvMass_ = ibook.book1D("ZInvMass", "m_{ll}", 120, 75, 105);
-    cosPhi3DdileptonH_ = ibook.book1D("cosPhi3Ddilepton", "cos#Phi_{3D,ll}", 202, -1.01, 1.01);
+        ibook.book1DD("Jet_chargedMultiplicity", "Jet charged Hadron Multiplicity", 201, -0.5, 200.5);
+    Zpt_ = ibook.book1DD("Zpt", "Z-boson transverse momentum", 100, 0, 100);
+    ZInvMass_ = ibook.book1DD("ZInvMass", "m_{ll}", 120, 75, 105);
+    cosPhi3DdileptonH_ = ibook.book1DD("cosPhi3Ddilepton", "cos#Phi_{3D,ll}", 202, -1.01, 1.01);
   }
   if (isMC_) {
-    bunchCrossingH_ = ibook.book1D("bunchCrossing", "Bunch Crossing", 60, 0, 60.0);
-    nPUH_ = ibook.book1D("nPU", "No of Pileup", 100, 0, 100.0);
-    trueNIntH_ = ibook.book1D("trueNInt", "True no of Interactions", 100, 0, 100.0);
+    bunchCrossingH_ = ibook.book1DD("bunchCrossing", "Bunch Crossing", 60, 0, 60.0);
+    nPUH_ = ibook.book1DD("nPU", "No of Pileup", 100, 0, 100.0);
+    trueNIntH_ = ibook.book1DD("trueNInt", "True no of Interactions", 100, 0, 100.0);
   }
   // Exclusive histograms
 
-  nLostHitByLayerH_ = ibook.book1D("nLostHitByLayer", "No. of Lost Hit per Layer", 29, 0.5, 29.5);
+  nLostHitByLayerH_ = ibook.book1DD("nLostHitByLayer", "No. of Lost Hit per Layer", 29, 0.5, 29.5);
 
   nLostHitByLayerPixH_ =
-      ibook.book1D("nLostHitByLayerPix", "No. of Lost Hit per Layer for Pixel detector", 7, 0.5, 7.5);
+      ibook.book1DD("nLostHitByLayerPix", "No. of Lost Hit per Layer for Pixel detector", 7, 0.5, 7.5);
 
   nLostHitByLayerStripH_ =
-      ibook.book1D("nLostHitByLayerStrip", "No. of Lost Hit per Layer for SiStrip detector", 22, 0.5, 22.5);
+      ibook.book1DD("nLostHitByLayerStrip", "No. of Lost Hit per Layer for SiStrip detector", 22, 0.5, 22.5);
 
   nLostHitsVspTH_ = ibook.bookProfile("nLostHitsVspT",
                                       "Number of Lost Hits Vs pT",
@@ -1286,21 +1286,21 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker& ibook,
       ibook.book2D("trackSip2dVsChi2prob2D", "sip2d of Tracks Vs chi2prob 2d", 50, 0., 1., 200, -10., 10.);
 
   // On and off-track cluster properties
-  hOnTrkClusChargeThinH_ = ibook.book1D("hOnTrkClusChargeThin", "On-track Cluster Charge (Thin Sensor)", 100, 0, 1000);
-  hOnTrkClusWidthThinH_ = ibook.book1D("hOnTrkClusWidthThin", "On-track Cluster Width (Thin Sensor)", 20, -0.5, 19.5);
+  hOnTrkClusChargeThinH_ = ibook.book1DD("hOnTrkClusChargeThin", "On-track Cluster Charge (Thin Sensor)", 100, 0, 1000);
+  hOnTrkClusWidthThinH_ = ibook.book1DD("hOnTrkClusWidthThin", "On-track Cluster Width (Thin Sensor)", 20, -0.5, 19.5);
   hOnTrkClusChargeThickH_ =
-      ibook.book1D("hOnTrkClusChargeThick", "On-track Cluster Charge (Thick Sensor)", 100, 0, 1000);
+      ibook.book1DD("hOnTrkClusChargeThick", "On-track Cluster Charge (Thick Sensor)", 100, 0, 1000);
   hOnTrkClusWidthThickH_ =
-      ibook.book1D("hOnTrkClusWidthThick", "On-track Cluster Width (Thick Sensor)", 20, -0.5, 19.5);
+      ibook.book1DD("hOnTrkClusWidthThick", "On-track Cluster Width (Thick Sensor)", 20, -0.5, 19.5);
 
   hOffTrkClusChargeThinH_ =
-      ibook.book1D("hOffTrkClusChargeThin", "Off-track Cluster Charge (Thin Sensor)", 100, 0, 1000);
+      ibook.book1DD("hOffTrkClusChargeThin", "Off-track Cluster Charge (Thin Sensor)", 100, 0, 1000);
   hOffTrkClusWidthThinH_ =
-      ibook.book1D("hOffTrkClusWidthThin", "Off-track Cluster Width (Thin Sensor)", 20, -0.5, 19.5);
+      ibook.book1DD("hOffTrkClusWidthThin", "Off-track Cluster Width (Thin Sensor)", 20, -0.5, 19.5);
   hOffTrkClusChargeThickH_ =
-      ibook.book1D("hOffTrkClusChargeThick", "Off-track Cluster Charge (Thick Sensor)", 100, 0, 1000);
+      ibook.book1DD("hOffTrkClusChargeThick", "Off-track Cluster Charge (Thick Sensor)", 100, 0, 1000);
   hOffTrkClusWidthThickH_ =
-      ibook.book1D("hOffTrkClusWidthThick", "Off-track Cluster Width (Thick Sensor)", 20, -0.5, 19.5);
+      ibook.book1DD("hOffTrkClusWidthThick", "Off-track Cluster Width (Thick Sensor)", 20, -0.5, 19.5);
 }
 void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
   if (verbose_)
@@ -1315,7 +1315,8 @@ void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup c
   edm::Handle<reco::VertexCollection> vertexColl;
   iEvent.getByToken(vertexToken_, vertexColl);
   if (!vertexColl.isValid()) {
-    edm::LogError("DqmTrackStudy") << "Error! Failed to get reco::Vertex Collection, " << vertexTag_;
+    edm::LogError("StandaloneTrackMonitor") << "Error! Failed to get reco::Vertex Collection, " << vertexTag_;
+    return;
   }
   if (vertexColl->empty()) {
     edm::LogError("StandalonaTrackMonitor") << "No good vertex in the event!!" << std::endl;
@@ -1326,14 +1327,18 @@ void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup c
   // Beam spot
   edm::Handle<reco::BeamSpot> beamSpot;
   iEvent.getByToken(bsToken_, beamSpot);
-  if (!beamSpot.isValid())
+  if (!beamSpot.isValid()) {
     edm::LogError("StandalonaTrackMonitor") << "Beamspot for input tag: " << bsTag_ << " not found!!";
+    return;
+  }
 
   // Track collection
   edm::Handle<reco::TrackCollection> tracks;
   iEvent.getByToken(trackToken_, tracks);
-  if (!tracks.isValid())
+  if (!tracks.isValid()) {
     edm::LogError("StandalonaTrackMonitor") << "TrackCollection for input tag: " << trackTag_ << " not found!!";
+    return;
+  }
 
   // Access PU information
   double wfac = 1.0;  // for data
@@ -1836,17 +1841,18 @@ void StandaloneTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup c
             theMainVtx = *theClosestVertex;
           }
           if (theMainVtx.isValid()) {
-            const math::XYZPoint theMainVtxPos(
-                theMainVtx.position().x(), theMainVtx.position().y(), theMainVtx.position().z());
-            const math::XYZPoint myVertex(
-                mumuTransientVtx.position().x(), mumuTransientVtx.position().y(), mumuTransientVtx.position().z());
-            const math::XYZPoint deltaVtx(
-                theMainVtxPos.x() - myVertex.x(), theMainVtxPos.y() - myVertex.y(), theMainVtxPos.z() - myVertex.z());
-            double cosphi3D =
-                (Zp.Px() * deltaVtx.x() + Zp.Py() * deltaVtx.y() + Zp.Pz() * deltaVtx.z()) /
-                (sqrt(Zp.Px() * Zp.Px() + Zp.Py() * Zp.Py() + Zp.Pz() * Zp.Pz()) *
-                 sqrt(deltaVtx.x() * deltaVtx.x() + deltaVtx.y() * deltaVtx.y() + deltaVtx.z() * deltaVtx.z()));
-            cosPhi3DdileptonH_->Fill(cosphi3D, wfac);
+            const auto& mainVertexPos = theMainVtx.position();
+            const auto& myVertexPos = mumuTransientVtx.position();
+
+            const double deltaX = myVertexPos.x() - mainVertexPos.x();
+            const double deltaY = myVertexPos.y() - mainVertexPos.y();
+            const double deltaZ = myVertexPos.z() - mainVertexPos.z();
+
+            const double deltaNorm = sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
+            const double zpNorm = sqrt(Zp.Px() * Zp.Px() + Zp.Py() * Zp.Py() + Zp.Pz() * Zp.Pz());
+
+            const double cosPhi3D = (Zp.Px() * deltaX + Zp.Py() * deltaY + Zp.Pz() * deltaZ) / (zpNorm * deltaNorm);
+            cosPhi3DdileptonH_->Fill(cosPhi3D, wfac);
           }
         }
       }

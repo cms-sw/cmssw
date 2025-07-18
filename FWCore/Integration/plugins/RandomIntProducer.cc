@@ -1,9 +1,10 @@
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
+
 #include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Utilities/interface/Transition.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"

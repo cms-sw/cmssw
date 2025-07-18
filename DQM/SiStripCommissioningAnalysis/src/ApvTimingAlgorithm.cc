@@ -240,7 +240,6 @@ void ApvTimingAlgorithm::analyse() {
   if (!found) {  //Try tick mark recovery
 
     max_derivative_bin = sistrip::invalid_;
-    max_derivative = -1. * sistrip::invalid_;
 
     // Find rising edges_r (derivative_r across five bins > threshold)
     std::map<uint16_t, float> edges_r;
@@ -288,7 +287,6 @@ void ApvTimingAlgorithm::analyse() {
         // Store max derivative_r
         if (temp_r > max_derivative_r && ii_r < 10) {
           max_derivative_r = temp_r;
-          max_derivative = temp_r;
           max_derivative_bin = bin_r;
         }
 
@@ -304,11 +302,9 @@ void ApvTimingAlgorithm::analyse() {
       // Break from loop if recovery tick mark found
       if (valid_r) {
         found_r = true;
-        found = true;
         anal->addErrorCode(sistrip::tickMarkRecovered_);
       } else {
         max_derivative_r = -1. * sistrip::invalid_;
-        max_derivative = -1. * sistrip::invalid_;
         max_derivative_bin = sistrip::invalid_;
         //edges_r.erase(iter_r);
         anal->addErrorCode(sistrip::rejectedCandidate_);

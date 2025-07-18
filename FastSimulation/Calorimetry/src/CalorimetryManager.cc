@@ -221,7 +221,7 @@ void CalorimetryManager::reconstructTrack(FSimTrack& myTrack, RandomEngineAndDis
           HDShowerSimulation(myTrack, random);
       }
     }  // pid < 1000000
-  }    // myTrack.noEndVertex()
+  }  // myTrack.noEndVertex()
 }
 
 // Simulation of electromagnetic showers in PS, ECAL, HCAL
@@ -391,7 +391,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack, RandomEngi
     {
       myGrid.setRadiusFactor(radiusFactorEE_);
     }
-  }     //if(myTrack.onEcal() == 2)
+  }  //if(myTrack.onEcal() == 2)
   else  // else if on EB
   {
     myGrid.setRadiusFactor(radiusFactorEB_);

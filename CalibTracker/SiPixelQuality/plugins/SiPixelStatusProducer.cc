@@ -268,7 +268,7 @@ void SiPixelStatusProducer::endLuminosityBlock(edm::LuminosityBlock const&, edm:
           fDet_.fillFEDerror25(detid, chs[ich]);
         }
       }  // loop over detIds
-    }    // if non-empty FEDerror25
+    }  // if non-empty FEDerror25
 
   }  // only for non-zero events
 }

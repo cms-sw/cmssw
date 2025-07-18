@@ -176,11 +176,11 @@ namespace {
               default:
                 edm::LogError("SiStripDetVOffListOfModules") << "Unrecognized type: " << my_type << std::endl;
                 break;
-            }     // switch
+            }  // switch
             i++;  // increase counting of modules
-          }       // loop on detids
-        }         // if gets the payload
-      }           // loop on iovs
+          }  // loop on detids
+        }  // if gets the payload
+      }  // loop on iovs
       return true;
     }  // fill()
   };
@@ -233,7 +233,7 @@ namespace {
           std::cout << ss.str() << std::endl;
 
         }  // payload
-      }    // iovs
+      }  // iovs
       return true;
     }  // fill
   private:

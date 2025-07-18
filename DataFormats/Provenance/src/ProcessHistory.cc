@@ -15,8 +15,8 @@ namespace edm {
     // We do not use operator<< because it does not write out everything.
     std::ostringstream oss;
     for (auto const& item : *this) {
-      oss << item.processName() << ' ' << item.parameterSetID() << ' ' << item.releaseVersion() << ' ' << item.passID()
-          << ' ';
+      oss << item.processName() << ' ' << item.parameterSetID() << ' ' << item.releaseVersion() << ' '
+          << item.hardwareResourcesDescriptionSerialized() << ' ';
     }
     std::string stringrep = oss.str();
     cms::Digest md5alg(stringrep);

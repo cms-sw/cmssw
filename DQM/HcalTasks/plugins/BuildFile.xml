@@ -2,4 +2,5 @@
 <use name="PhysicsTools/ONNXRuntime"/>
 <use name="rootmath"/>
 <use name="DQM/HcalTasks"/>
+<use name="DataFormats/L1Trigger"/>
 <flags EDM_PLUGIN="1"/>

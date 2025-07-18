@@ -26,7 +26,8 @@ namespace edm {
                                             "ResourceInformationService",
                                             "CPU",
                                             "CondorStatusService",
-                                            "XrdStatisticsService"};
+                                            "XrdStatisticsService",
+                                            "AsyncService"};
 
     return returnValue;
   }

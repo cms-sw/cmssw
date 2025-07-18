@@ -98,7 +98,7 @@ namespace reco::tau::xclean {
   // particle id
   class FilterPFCandByParticleId {
   public:
-    FilterPFCandByParticleId(int particleId) : id_(particleId){};
+    FilterPFCandByParticleId(int particleId) : id_(particleId) {}
     template <typename PFCandCompatiblePtrType>
     bool operator()(const PFCandCompatiblePtrType& ptr) const {
       return ptr->particleId() == id_;
@@ -111,7 +111,7 @@ namespace reco::tau::xclean {
   // Predicate to filter CandPtrs by the abs(pdgId)
   class FilterCandByAbsPdgId {
   public:
-    FilterCandByAbsPdgId(int pdgId) : id_(pdgId){};
+    FilterCandByAbsPdgId(int pdgId) : id_(pdgId) {}
     template <typename CandCompatiblePtrType>
     bool operator()(const CandCompatiblePtrType& ptr) const {
       return std::abs(ptr->pdgId()) == id_;

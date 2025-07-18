@@ -29,7 +29,7 @@ class CSGActionSupervisor;
 
 class CSGConnector : public TQObject {
 public:
-  CSGConnector(CSGAction *action, CSGActionSupervisor *supervisor) : m_action(action), m_supervisor(supervisor){};
+  CSGConnector(CSGAction *action, CSGActionSupervisor *supervisor) : m_action(action), m_supervisor(supervisor) {}
   //virtual ~CSGConnector();
 
   // ---------- member functions ---------------------------

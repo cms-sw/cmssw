@@ -672,7 +672,7 @@ void SiStripCommissioningSource::fillHistos(const SiStripEventSummary* const sum
         }
       }
     }  // fed channel loop
-  }    // fed id loop
+  }  // fed id loop
 }
 
 // -----------------------------------------------------------------------------
@@ -890,11 +890,11 @@ void SiStripCommissioningSource::createCablingTasks() {
               }
 
             }  // loop through apv pairs
-          }    // loop through modules
-        }      // loop through ccus
-      }        // loop through rings
-    }          // loop through fecs
-  }            // loop through crates
+          }  // loop through modules
+        }  // loop through ccus
+      }  // loop through rings
+    }  // loop through fecs
+  }  // loop through crates
 
   edm::LogVerbatim(mlDqmSource_) << "[SiStripCommissioningSource::" << __func__ << "]"
                                  << " Created " << booked << " CommissioningTask objects and booked histograms";
@@ -1039,8 +1039,8 @@ void SiStripCommissioningSource::createTasks(sistrip::RunType run_type, const ed
           edm::LogWarning(mlDqmSource_) << ss.str();
         }
       }  // loop over fed channels
-    }    // loop over feds
-  }      // end other tasks
+    }  // loop over feds
+  }  // end other tasks
   edm::LogVerbatim(mlDqmSource_) << "[SiStripCommissioningSource::" << __func__ << "]"
                                  << " Created " << booked << " CommissioningTask objects and booked histograms";
 }

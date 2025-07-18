@@ -38,7 +38,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 
-class RectangularPixelTopology;
 class MagneticField;
 class PixelCPEBase : public PixelClusterParameterEstimator {
 public:
@@ -47,7 +46,6 @@ public:
     const PixelGeomDetUnit* theDet;
     // gavril : replace RectangularPixelTopology with PixelTopology
     const PixelTopology* theTopol;
-    const RectangularPixelTopology* theRecTopol;
 
     //set default value of enum to avoid USBAN errors
     GeomDetType::SubDetector thePart = GeomDetEnumerators::invalidDet;

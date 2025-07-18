@@ -1,3 +1,5 @@
+<use name="FWCore/AbstractServices"/>
+<use name="FWCore/Concurrency"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="PerfTools/AllocMonitor"/>

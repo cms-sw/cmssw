@@ -10,8 +10,7 @@ static constexpr int nHgcalEta = 36;
 static constexpr int nHgcalPhi = 72;
 static constexpr int nHfEta = 24;
 static constexpr int nHfPhi = 72;
-static constexpr int nSTEta = 6;
-static constexpr int nSTEta_hf = 4;
+static constexpr int nSTEta = 8;
 static constexpr int nSTPhi = 24;
 static constexpr int nJets = 10;
 
@@ -144,9 +143,9 @@ namespace gctobj {
 
     int index_i = 0;
     int index_j = 0;
-    for (int i = 0; i < nBarrelEta / 2 + 1; i += 3) {  // 17+1 to divide into 6 super towers
+    for (int i = 0; i < nBarrelEta / 2 + 1; i += 3) {  // 17+1 to divide into 6 supertowers, 7th and 8th to be set 0
       index_j = 0;
-      for (int j = 0; j < nBarrelPhi; j += 3) {  // 72 phi to 24 super towers
+      for (int j = 0; j < nBarrelPhi; j += 3) {  // 72 phi to 24 supertowers
         stripEta[index_i][index_j][0] = ex_et[i][j] + ex_et[i][j + 1] + ex_et[i][j + 2];
         stripEta[index_i][index_j][1] = ex_et[i + 1][j] + ex_et[i + 1][j + 1] + ex_et[i + 1][j + 2];
         stripEta[index_i][index_j][2] = ex_et[i + 2][j] + ex_et[i + 2][j + 1] + ex_et[i + 2][j + 2];
@@ -163,20 +162,30 @@ namespace gctobj {
     for (int i = 0; i < nSTEta; i++) {
       for (int j = 0; j < nSTPhi; j++) {
         GCTsupertower_t temp;
-        float supertowerEt = et_sumEta[i][j][0] + et_sumEta[i][j][1] + et_sumEta[i][j][2];
-        temp.et = supertowerEt;
-        temp.eta = i;
-        temp.phi = j;
-        int peakEta = getPeakBinOf3(stripEta[i][j][0], stripEta[i][j][1], stripEta[i][j][2]);
-        temp.towerEta = peakEta;
-        int peakPhi = getPeakBinOf3(stripPhi[i][j][0], stripPhi[i][j][1], stripPhi[i][j][2]);
-        temp.towerPhi = peakPhi;
-        float peakEt = ex_et[i * 3 + peakEta][j * 3 + peakPhi];
-        temp.towerEt = peakEt;
-        int cEta = getEtCenterOf3(stripEta[i][j][0], stripEta[i][j][1], stripEta[i][j][2]);
-        temp.centerEta = cEta;
-        int cPhi = getEtCenterOf3(stripPhi[i][j][0], stripPhi[i][j][1], stripPhi[i][j][2]);
-        temp.centerPhi = cPhi;
+        temp.et = 0;
+        temp.eta = 0;
+        temp.phi = 0;
+        temp.towerEta = 0;
+        temp.towerPhi = 0;
+        temp.towerEt = 0;
+        temp.centerEta = 0;
+        temp.centerPhi = 0;
+        if (i < 6) {
+          float supertowerEt = et_sumEta[i][j][0] + et_sumEta[i][j][1] + et_sumEta[i][j][2];
+          temp.et = supertowerEt;
+          temp.eta = i;
+          temp.phi = j;
+          int peakEta = getPeakBinOf3(stripEta[i][j][0], stripEta[i][j][1], stripEta[i][j][2]);
+          temp.towerEta = peakEta;
+          int peakPhi = getPeakBinOf3(stripPhi[i][j][0], stripPhi[i][j][1], stripPhi[i][j][2]);
+          temp.towerPhi = peakPhi;
+          float peakEt = ex_et[i * 3 + peakEta][j * 3 + peakPhi];
+          temp.towerEt = peakEt;
+          int cEta = getEtCenterOf3(stripEta[i][j][0], stripEta[i][j][1], stripEta[i][j][2]);
+          temp.centerEta = cEta;
+          int cPhi = getEtCenterOf3(stripPhi[i][j][0], stripPhi[i][j][1], stripPhi[i][j][2]);
+          temp.centerPhi = cPhi;
+        }
         supertower_return[i][j] = temp;
       }
     }
@@ -190,9 +199,9 @@ namespace gctobj {
 
     int index_i = 0;
     int index_j = 0;
-    for (int i = 0; i < nHgcalEta / 2; i += 3) {  // 18 eta to 6 super towers
+    for (int i = 0; i < nHgcalEta / 2; i += 3) {  // 18 eta to 6 supertowers, 7th and 8th to be set 0
       index_j = 0;
-      for (int j = 0; j < nHgcalPhi; j += 3) {  // 72 phi to 24 super towers
+      for (int j = 0; j < nHgcalPhi; j += 3) {  // 72 phi to 24 supertowers
         stripEta[index_i][index_j][0] = hgcalTowers[i][j] + hgcalTowers[i][j + 1] + hgcalTowers[i][j + 2];
         stripEta[index_i][index_j][1] = hgcalTowers[i + 1][j] + hgcalTowers[i + 1][j + 1] + hgcalTowers[i + 1][j + 2];
         stripEta[index_i][index_j][2] = hgcalTowers[i + 2][j] + hgcalTowers[i + 2][j + 1] + hgcalTowers[i + 2][j + 2];
@@ -219,35 +228,37 @@ namespace gctobj {
         temp.towerEt = 0;
         temp.centerEta = 0;
         temp.centerPhi = 0;
-        float supertowerEt = et_sumEta[i][j][0] + et_sumEta[i][j][1] + et_sumEta[i][j][2];
-        temp.et = supertowerEt;
-        temp.eta = i;
-        temp.phi = j;
-        int peakEta = getPeakBinOf3(stripEta[i][j][0], stripEta[i][j][1], stripEta[i][j][2]);
-        temp.towerEta = peakEta;
-        int peakPhi = getPeakBinOf3(stripPhi[i][j][0], stripPhi[i][j][1], stripPhi[i][j][2]);
-        temp.towerPhi = peakPhi;
-        float peakEt = hgcalTowers[i * 3 + peakEta][j * 3 + peakPhi];
-        temp.towerEt = peakEt;
-        int cEta = getEtCenterOf3(stripEta[i][j][0], stripEta[i][j][1], stripEta[i][j][2]);
-        temp.centerEta = cEta;
-        int cPhi = getEtCenterOf3(stripPhi[i][j][0], stripPhi[i][j][1], stripPhi[i][j][2]);
-        temp.centerPhi = cPhi;
+        if (i < 6) {
+          float supertowerEt = et_sumEta[i][j][0] + et_sumEta[i][j][1] + et_sumEta[i][j][2];
+          temp.et = supertowerEt;
+          temp.eta = i;
+          temp.phi = j;
+          int peakEta = getPeakBinOf3(stripEta[i][j][0], stripEta[i][j][1], stripEta[i][j][2]);
+          temp.towerEta = peakEta;
+          int peakPhi = getPeakBinOf3(stripPhi[i][j][0], stripPhi[i][j][1], stripPhi[i][j][2]);
+          temp.towerPhi = peakPhi;
+          float peakEt = hgcalTowers[i * 3 + peakEta][j * 3 + peakPhi];
+          temp.towerEt = peakEt;
+          int cEta = getEtCenterOf3(stripEta[i][j][0], stripEta[i][j][1], stripEta[i][j][2]);
+          temp.centerEta = cEta;
+          int cPhi = getEtCenterOf3(stripPhi[i][j][0], stripPhi[i][j][1], stripPhi[i][j][2]);
+          temp.centerPhi = cPhi;
+        }
         supertower_return[i][j] = temp;
       }
     }
   }
 
-  inline void makeST_hf(const float hfTowers[nHfEta / 2][nHfPhi], GCTsupertower_t supertower_return[nSTEta][nSTPhi]) {
+  inline void makeST_hf(const float hfTowers[nHfEta][nHfPhi], GCTsupertower_t supertower_return[nSTEta][nSTPhi]) {
     float et_sumEta[nSTEta][nSTPhi][3];
     float stripEta[nSTEta][nSTPhi][3];
     float stripPhi[nSTEta][nSTPhi][3];
 
-    int index_i = 0;  // 5th and 6th ST to be set 0
+    int index_i = 0;
     int index_j = 0;
-    for (int i = 0; i < nHfEta / 2; i += 3) {  // 12 eta to 4 super towers
+    for (int i = 0; i < nHfEta; i += 3) {  // 24 eta to 8 supertowers
       index_j = 0;
-      for (int j = 0; j < nHfPhi; j += 3) {  // 72 phi to 24 super towers
+      for (int j = 0; j < nHfPhi; j += 3) {  // 72 phi to 24 supertowers
         stripEta[index_i][index_j][0] = hfTowers[i][j] + hfTowers[i][j + 1] + hfTowers[i][j + 2];
         stripEta[index_i][index_j][1] = hfTowers[i + 1][j] + hfTowers[i + 1][j + 1] + hfTowers[i + 1][j + 2];
         stripEta[index_i][index_j][2] = hfTowers[i + 2][j] + hfTowers[i + 2][j + 1] + hfTowers[i + 2][j + 2];
@@ -273,22 +284,20 @@ namespace gctobj {
         temp.towerEt = 0;
         temp.centerEta = 0;
         temp.centerPhi = 0;
-        if (i < 4) {
-          float supertowerEt = et_sumEta[i][j][0] + et_sumEta[i][j][1] + et_sumEta[i][j][2];
-          temp.et = supertowerEt;
-          temp.eta = i;
-          temp.phi = j;
-          int peakEta = getPeakBinOf3(stripEta[i][j][0], stripEta[i][j][1], stripEta[i][j][2]);
-          temp.towerEta = peakEta;
-          int peakPhi = getPeakBinOf3(stripPhi[i][j][0], stripPhi[i][j][1], stripPhi[i][j][2]);
-          temp.towerPhi = peakPhi;
-          float peakEt = hfTowers[i * 3 + peakEta][j * 3 + peakPhi];
-          temp.towerEt = peakEt;
-          int cEta = getEtCenterOf3(stripEta[i][j][0], stripEta[i][j][1], stripEta[i][j][2]);
-          temp.centerEta = cEta;
-          int cPhi = getEtCenterOf3(stripPhi[i][j][0], stripPhi[i][j][1], stripPhi[i][j][2]);
-          temp.centerPhi = cPhi;
-        }
+        float supertowerEt = et_sumEta[i][j][0] + et_sumEta[i][j][1] + et_sumEta[i][j][2];
+        temp.et = supertowerEt;
+        temp.eta = i;
+        temp.phi = j;
+        int peakEta = getPeakBinOf3(stripEta[i][j][0], stripEta[i][j][1], stripEta[i][j][2]);
+        temp.towerEta = peakEta;
+        int peakPhi = getPeakBinOf3(stripPhi[i][j][0], stripPhi[i][j][1], stripPhi[i][j][2]);
+        temp.towerPhi = peakPhi;
+        float peakEt = hfTowers[i * 3 + peakEta][j * 3 + peakPhi];
+        temp.towerEt = peakEt;
+        int cEta = getEtCenterOf3(stripEta[i][j][0], stripEta[i][j][1], stripEta[i][j][2]);
+        temp.centerEta = cEta;
+        int cPhi = getEtCenterOf3(stripPhi[i][j][0], stripPhi[i][j][1], stripPhi[i][j][2]);
+        temp.centerPhi = cPhi;
         supertower_return[i][j] = temp;
       }
     }
@@ -331,25 +340,26 @@ namespace gctobj {
     return bestOf24;
   }
 
-  inline towerMax getPeakBin6N(const etaStripPeak_t& etaStrip) {
+  inline towerMax getPeakBin8N(const etaStripPeak_t& etaStrip) {
     towerMax x;
 
     GCTsupertower_t best01 = bestOf2(etaStrip.pk[0], etaStrip.pk[1]);
     GCTsupertower_t best23 = bestOf2(etaStrip.pk[2], etaStrip.pk[3]);
     GCTsupertower_t best45 = bestOf2(etaStrip.pk[4], etaStrip.pk[5]);
+    GCTsupertower_t best67 = bestOf2(etaStrip.pk[6], etaStrip.pk[7]);
 
     GCTsupertower_t best0123 = bestOf2(best01, best23);
+    GCTsupertower_t best4567 = bestOf2(best45, best67);
+    GCTsupertower_t bestOf8 = bestOf2(best0123, best4567);
 
-    GCTsupertower_t bestOf6 = bestOf2(best0123, best45);
-
-    x.energy = bestOf6.et;
-    x.phi = bestOf6.phi;
-    x.eta = bestOf6.eta;
-    x.energyMax = bestOf6.towerEt;
-    x.etaMax = bestOf6.towerEta;
-    x.phiMax = bestOf6.towerPhi;
-    x.etaCenter = bestOf6.centerEta;
-    x.phiCenter = bestOf6.centerPhi;
+    x.energy = bestOf8.et;
+    x.phi = bestOf8.phi;
+    x.eta = bestOf8.eta;
+    x.energyMax = bestOf8.towerEt;
+    x.etaMax = bestOf8.towerEta;
+    x.phiMax = bestOf8.towerPhi;
+    x.etaCenter = bestOf8.centerEta;
+    x.phiCenter = bestOf8.centerPhi;
     return x;
   }
 
@@ -365,26 +375,26 @@ namespace gctobj {
       etaStripPeak.pk[i] = getPeakBin24N(test);
     }
 
-    towerMax peakIn6;
-    peakIn6 = getPeakBin6N(etaStripPeak);
+    towerMax peakIn8;
+    peakIn8 = getPeakBin8N(etaStripPeak);
 
-    jet.seedEnergy = peakIn6.energy;
+    jet.seedEnergy = peakIn8.energy;
     jet.energy = 0;
     jet.tauEt = 0;
-    jet.eta = peakIn6.eta;
-    jet.phi = peakIn6.phi;
-    jet.energyMax = peakIn6.energyMax;
-    jet.etaMax = peakIn6.etaMax;        // overwritten in getJetValues
-    jet.phiMax = peakIn6.phiMax;        // overwritten in getJetValues
-    jet.etaCenter = peakIn6.etaCenter;  // overwritten in getJetValues
-    jet.phiCenter = peakIn6.phiCenter;  // overwritten in getJetValues
+    jet.eta = peakIn8.eta;
+    jet.phi = peakIn8.phi;
+    jet.energyMax = peakIn8.energyMax;
+    jet.etaMax = peakIn8.etaMax;        // overwritten in getJetValues
+    jet.phiMax = peakIn8.phiMax;        // overwritten in getJetValues
+    jet.etaCenter = peakIn8.etaCenter;  // overwritten in getJetValues
+    jet.phiCenter = peakIn8.phiCenter;  // overwritten in getJetValues
 
     return jet;
   }
 
   inline jetInfo getJetValues(GCTsupertower_t tempX[nSTEta][nSTPhi], int seed_eta, int seed_phi) {
     float temp[nSTEta + 2][nSTPhi + 2];
-    float eta_slice[3] = {0.f, 0.f, 0.f};
+    float eta_slice[3] = {0.};
     jetInfo jet_tmp;
 
     for (int i = 0; i < nSTEta + 2; i++) {
@@ -419,7 +429,7 @@ namespace gctobj {
     }
 
     jet_tmp.energy = eta_slice[0] + eta_slice[1] + eta_slice[2];
-    jet_tmp.tauEt = eta_slice[1];  //set tau Pt to be sum of ST energies in center eta slice */
+    jet_tmp.tauEt = eta_slice[1];  //set tau Pt to be sum of ST energies in center eta slice
     // To find the jet centre: note that seed supertower is always (1, 1)
     jet_tmp.etaCenter =
         3 * seed_eta + tempX[seed_eta][seed_phi].centerEta;  //this is the ET weighted eta centre of the ST
@@ -446,12 +456,9 @@ namespace gctobj {
     jet_tmp = getJetPosition(temp);
     int seed_phi = jet_tmp.phi;
     int seed_eta = jet_tmp.eta;
-    float seed_energy = jet_tmp.seedEnergy;
     float seed_tower_energy = jet_tmp.energyMax;
     jet = getJetValues(temp, seed_eta, seed_phi);
-    if (seed_energy > 10. &&
-        seed_tower_energy >
-            TTseedThreshold) {  // suppress <= 10 GeV ST as ST seed and <=5 GeV (3 GeV) as max TT in ST barrel/HF (endcap)
+    if (seed_tower_energy > TTseedThreshold) {  // suppress ST seeds with max TT <=5 GeV (3 GeV) in barrel (endcap/HF)
       jet_tmp.energy = jet.energy;
       jet_tmp.tauEt = jet.tauEt;
     } else {

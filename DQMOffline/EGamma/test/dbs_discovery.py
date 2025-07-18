@@ -22,7 +22,6 @@
 #===================================================================
 
 
-from __future__ import print_function
 import httplib, urllib, urllib2, types, string, os, sys
 
 if 'DBS_RELEASE' not in os.environ:

@@ -157,7 +157,7 @@ void Phase2OTMonitorTTCluster::analyze(const edm::Event &iEvent, const edm::Even
 
         Cluster_Barrel_XY->Fill(posClu.x(), posClu.y());
 
-      }                                                                         // end if isBarrel
+      }  // end if isBarrel
       else if (detIdClu.subdetId() == static_cast<int>(StripSubdetector::TID))  // Phase 2 Outer Tracker Endcap
       {
         if (memberClu == 0) {
@@ -183,8 +183,8 @@ void Phase2OTMonitorTTCluster::analyze(const edm::Event &iEvent, const edm::Even
         }
 
       }  // end if isEndcap
-    }    // end loop contentIter
-  }      // end loop inputIter
+    }  // end loop contentIter
+  }  // end loop inputIter
 }  // end of method
 
 // ------------ method called once each job just before starting event loop

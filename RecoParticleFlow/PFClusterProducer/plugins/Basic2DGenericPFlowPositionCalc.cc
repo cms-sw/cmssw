@@ -29,16 +29,13 @@ public:
     std::vector<double> logWeightDenom;
     std::vector<float> logWeightDenomInv;
 
-    if (conf.exists("logWeightDenominatorByDetector")) {
-      const std::vector<edm::ParameterSet>& logWeightDenominatorByDetectorPSet =
-          conf.getParameterSetVector("logWeightDenominatorByDetector");
-
+    const auto& logWeightDenominatorByDetectorPSet = conf.getParameterSetVector("logWeightDenominatorByDetector");
+    if (!logWeightDenominatorByDetectorPSet.empty()) {
       for (const auto& pset : logWeightDenominatorByDetectorPSet) {
-        if (!pset.exists("detector")) {
+        const auto& det = pset.getParameter<std::string>("detector");
+        if (det.empty()) {
           throw cms::Exception("logWeightDenominatorByDetectorPSet") << "logWeightDenominator : detector not specified";
         }
-
-        const std::string& det = pset.getParameter<std::string>("detector");
 
         if (det == std::string("HCAL_BARREL1") || det == std::string("HCAL_ENDCAP")) {
           std::vector<int> depthsT = pset.getParameter<std::vector<int> >("depths");
@@ -70,15 +67,13 @@ public:
     _logWeightDenom = std::make_tuple(detectorEnum, depths, logWeightDenomInv);
 
     _timeResolutionCalcBarrel.reset(nullptr);
-    if (conf.exists("timeResolutionCalcBarrel")) {
-      const edm::ParameterSet& timeResConf = conf.getParameterSet("timeResolutionCalcBarrel");
-      _timeResolutionCalcBarrel = std::make_unique<CaloRecHitResolutionProvider>(timeResConf);
-    }
+    const auto& timeResConfBarrel = conf.getParameterSet("timeResolutionCalcBarrel");
+    if (!timeResConfBarrel.empty() && timeResConfBarrel.getParameter<double>("threshHighE") >= 0)
+      _timeResolutionCalcBarrel = std::make_unique<CaloRecHitResolutionProvider>(timeResConfBarrel);
     _timeResolutionCalcEndcap.reset(nullptr);
-    if (conf.exists("timeResolutionCalcEndcap")) {
-      const edm::ParameterSet& timeResConf = conf.getParameterSet("timeResolutionCalcEndcap");
-      _timeResolutionCalcEndcap = std::make_unique<CaloRecHitResolutionProvider>(timeResConf);
-    }
+    const auto& timeResConfEndcap = conf.getParameterSet("timeResolutionCalcEndcap");
+    if (!timeResConfEndcap.empty() && timeResConfEndcap.getParameter<double>("threshHighE") >= 0)
+      _timeResolutionCalcEndcap = std::make_unique<CaloRecHitResolutionProvider>(timeResConfEndcap);
 
     switch (_posCalcNCrystals) {
       case 5:

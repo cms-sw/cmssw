@@ -4,7 +4,6 @@
 This script checks the outputs from SiStripDetVOffFakeBuilder and reader. It compares the status of all detIds
 both for low and high voltage and it checks that the values written in the database are correctly read back.
 '''
-from __future__ import print_function
 
 import os
 

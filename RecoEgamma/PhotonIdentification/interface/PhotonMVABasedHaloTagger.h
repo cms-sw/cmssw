@@ -31,34 +31,50 @@ public:
   double calculateMVA(const reco::Photon* pho,
                       const GBRForest* gbr_,
                       const edm::Event& iEvent,
-                      const edm::EventSetup& es);
+                      const edm::EventSetup& es) const;
 
 private:
-  void calphoClusCoordinECAL(const CaloGeometry* geo,
-                             const reco::Photon*,
-                             const EcalPFRecHitThresholds* thresholds,
-                             const EcalRecHitCollection& ecalRecHits);
+  struct CalClus {
+    double x_ = 0.;
+    double y_ = 0.;
+    double z_ = 0.;
+    double e_ = 0.;
+    int nHits_ = 0;
+  };
 
-  void calmatchedHBHECoordForBothHypothesis(const CaloGeometry* geo,
-                                            const reco::Photon*,
-                                            const HBHERecHitCollection& HBHERecHits);
+  struct HcalHyp {
+    CalClus samedPhi_;
+    CalClus samedR_;
+  };
 
-  void calmatchedESCoordForBothHypothesis(const CaloGeometry* geo,
-                                          const reco::Photon*,
-                                          const EcalRecHitCollection& ESRecHits);
+  struct PreshowerHyp {
+    CalClus samedPhi_;
+    CalClus samedR_;
+  };
 
-  double calAngleBetweenEEAndSubDet(int nhits, double subdetClusX, double subdetClusY, double subdetClusZ);
+  struct EcalClus {
+    double x_ = 0.;
+    double y_ = 0.;
+    double z_ = 0.;
+    double e_ = 0.;
+    int nHits_ = 0;
+  };
 
-  int hcalClusNhits_samedPhi_, hcalClusNhits_samedR_;
-  int ecalClusNhits_, preshowerNhits_samedPhi_, preshowerNhits_samedR_;
-  double hcalClusX_samedPhi_, hcalClusY_samedPhi_, hcalClusZ_samedPhi_, hcalClusX_samedR_, hcalClusY_samedR_,
-      hcalClusZ_samedR_;
-  double hcalClusE_samedPhi_, hcalClusE_samedR_;
+  PreshowerHyp calmatchedESCoordForBothHypothesis(const CaloGeometry& geo,
+                                                  const reco::Photon*,
+                                                  const EcalRecHitCollection& ESRecHits,
+                                                  const EcalClus& ecalClus) const;
 
-  double ecalClusX_, ecalClusY_, ecalClusZ_;
-  double preshowerX_samedPhi_, preshowerY_samedPhi_, preshowerZ_samedPhi_, preshowerX_samedR_, preshowerY_samedR_,
-      preshowerZ_samedR_;
-  double ecalClusE_, preshowerE_samedPhi_, preshowerE_samedR_;
+  EcalClus calphoClusCoordinECAL(const CaloGeometry& geo,
+                                 const reco::Photon*,
+                                 const EcalPFRecHitThresholds* thresholds,
+                                 const EcalRecHitCollection& ecalRecHits) const;
+  HcalHyp calmatchedHBHECoordForBothHypothesis(const CaloGeometry& geo,
+                                               const reco::Photon*,
+                                               const HBHERecHitCollection& HBHERecHits,
+                                               const EcalClus& ecalClus) const;
+  double calAngleBetweenEEAndSubDet(CalClus const& subdet, EcalClus const&) const;
+
   double noiseThrES_;
 
   EgammaHcalIsolation::arrayHB recHitEThresholdHB_;
@@ -68,7 +84,6 @@ private:
   const edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd> ecalPFRechitThresholdsToken_;
   const EcalClusterLazyTools::ESGetTokens ecalClusterToolsESGetTokens_;
 
-  edm::ESHandle<CaloGeometry> pG_;
   edm::EDGetTokenT<double> rhoLabel_;
   edm::EDGetTokenT<EcalRecHitCollection> EBecalCollection_;
   edm::EDGetTokenT<EcalRecHitCollection> EEecalCollection_;

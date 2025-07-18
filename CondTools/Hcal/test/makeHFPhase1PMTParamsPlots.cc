@@ -126,7 +126,7 @@ int main(int argc, char* argv[]) {
       return 1;
     }
     eos::portable_iarchive ar(is);
-    ar& cuts;
+    ar & cuts;
   }
 
   // Load the reference table of cuts
@@ -139,7 +139,7 @@ int main(int argc, char* argv[]) {
       return 1;
     }
     eos::portable_iarchive ar(is);
-    ar& refcuts;
+    ar & refcuts;
     refptr = &refcuts;
   }
 

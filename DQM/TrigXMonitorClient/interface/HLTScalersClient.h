@@ -68,7 +68,7 @@ public:
   // helper data structures - slightly modified stl objects
   class CountLS_t : public std::pair<int, double> {
   public:
-    CountLS_t(int ls, double cnt) : std::pair<int, double>(ls, cnt){};
+    CountLS_t(int ls, double cnt) : std::pair<int, double>(ls, cnt) {}
     bool operator==(int ls) const { return ls == this->first; }
     bool operator<(CountLS_t &rhs) { return this->first < rhs.first; };
   };

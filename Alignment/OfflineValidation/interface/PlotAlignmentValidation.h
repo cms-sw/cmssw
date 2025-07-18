@@ -123,12 +123,15 @@ public:
   void plotDMR(const std::string& plotVar = "medianX",
                Int_t minHits = 50,
                const std::string& options = "plain",
-               const std::string& filterName = "");
+               const std::string& filterName = "",
+               Float_t maxBadLumiPixel = 0.5,
+               Float_t maxBadLumiStrip = 7.0);
   /**<
   * plotVar=mean,meanX,meanY,median,rms etc., comma-separated list can be given; 
   * minHits=the minimum hits needed for module to appear in plot; 
   * options="plain" for regular DMR, "split" for inwards/outwards split, "layers" for layerwise DMR, "layer=N" for Nth layer, or combination of the previous (e.g. "split layers")
   * filterName=rootfile containing tree with module ids to be skipped in plotting (to be used for averaged plots or in debugging)
+  * maxBadLumiPixel and maxBadLumiStrip place cuts on maximum luminosity for which module wont be skipped if it does not satisfy condition for guaranteed number of hits
   */
   void plotSurfaceShapes(const std::string& options = "layers", const std::string& variable = "");
   void plotChi2(const char* inputFile);
@@ -169,6 +172,8 @@ public:
     TH1F* h2;
     bool firsthisto;
     std::string filterName;
+    float maxBadLumiPixel;
+    float maxBadLumiStrip;
   };
 
 private:

@@ -37,11 +37,7 @@ using namespace edm;
 //
 // inizialization
 //
-void TrackerSeedCleaner::init(const MuonServiceProxy* service) {
-  theProxyService = service;
-
-  theRedundantCleaner = new RedundantSeedCleaner();
-}
+void TrackerSeedCleaner::init(const MuonServiceProxy* service) { theProxyService = service; }
 
 //
 //
@@ -55,8 +51,9 @@ void TrackerSeedCleaner::clean(const reco::TrackRef& muR,
                                const RectangularEtaPhiTrackingRegion& region,
                                tkSeeds& seeds) {
   // call the shared input cleaner
-  if (cleanBySharedHits)
-    theRedundantCleaner->define(seeds);
+  if (cleanBySharedHits) {
+    seeds = nonRedundantSeeds(seeds);
+  }
 
   theTTRHBuilder = theProxyService->eventSetup().getHandle(theTTRHBuilderToken);
 
@@ -146,4 +143,63 @@ void TrackerSeedCleaner::clean(const reco::TrackRef& muR,
   LogDebug("TrackerSeedCleaner") << seeds.size() << " trajectory seeds to the events after cleaning" << endl;
 
   return;
+}
+
+TrackerSeedCleaner::tkSeeds TrackerSeedCleaner::nonRedundantSeeds(tkSeeds const& seeds) const {
+  std::vector<uint> idxTriplets{}, idxNonTriplets{};
+  idxTriplets.reserve(seeds.size());
+  idxNonTriplets.reserve(seeds.size());
+
+  for (uint i1 = 0; i1 < seeds.size(); ++i1) {
+    auto const& s1 = seeds[i1];
+    if (s1.nHits() == 3)
+      idxTriplets.emplace_back(i1);
+    else
+      idxNonTriplets.emplace_back(i1);
+  }
+
+  if (idxTriplets.empty()) {
+    return seeds;
+  }
+
+  std::vector<bool> keepSeedFlags(seeds.size(), true);
+  for (uint j1 = 0; j1 < idxNonTriplets.size(); ++j1) {
+    auto const i1 = idxNonTriplets[j1];
+    auto const& seed = seeds[i1];
+    keepSeedFlags[i1] = seedIsNotRedundant(seeds, seed, idxTriplets);
+  }
+
+  tkSeeds result{};
+  result.reserve(seeds.size());
+
+  for (uint i1 = 0; i1 < seeds.size(); ++i1) {
+    if (keepSeedFlags[i1]) {
+      result.emplace_back(seeds[i1]);
+    }
+  }
+
+  return result;
+}
+
+bool TrackerSeedCleaner::seedIsNotRedundant(tkSeeds const& seeds,
+                                            TrajectorySeed const& s1,
+                                            std::vector<uint> const& otherIdxs) const {
+  auto const& rh1s = s1.recHits();
+  for (uint j2 = 0; j2 < otherIdxs.size(); ++j2) {
+    auto const& s2 = seeds[otherIdxs[j2]];
+    // number of shared hits
+    uint shared = 0;
+    for (auto const& h2 : s2.recHits()) {
+      for (auto const& h1 : rh1s) {
+        if (h2.sharesInput(&h1, TrackingRecHit::all)) {
+          ++shared;
+        }
+      }
+    }
+    if (shared == 2) {
+      return false;
+    }
+  }
+
+  return true;
 }

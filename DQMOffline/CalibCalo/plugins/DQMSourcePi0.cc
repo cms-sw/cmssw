@@ -923,7 +923,7 @@ void DQMSourcePi0::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
             }
           }
         }  // End of the "j" loop over Simple Clusters
-      }    // End of the "i" loop over Simple Clusters
+      }  // End of the "i" loop over Simple Clusters
 
     }  // rhEBpi0.valid() ends
 
@@ -1227,7 +1227,7 @@ void DQMSourcePi0::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
             }
           }
         }  // End of the "j" loop over Simple Clusters
-      }    // End of the "i" loop over Simple Clusters
+      }  // End of the "i" loop over Simple Clusters
 
     }  // rhEBeta.valid() ends
 
@@ -1476,10 +1476,10 @@ void DQMSourcePi0::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
             }
           }
         }  // End of the "j" loop over Simple Clusters
-      }    // End of the "i" loop over Simple Clusters
+      }  // End of the "i" loop over Simple Clusters
 
     }  // rhEEpi0
-  }    // isMonEEpi0
+  }  // isMonEEpi0
 
   //================End of Pi0 endcap=======================//
 
@@ -1722,10 +1722,10 @@ void DQMSourcePi0::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
             }
           }
         }  // End of the "j" loop over Simple Clusters
-      }    // End of the "i" loop over Simple Clusters
+      }  // End of the "i" loop over Simple Clusters
 
     }  // rhEEeta
-  }    // isMonEEeta
+  }  // isMonEEeta
 
   //================End of Pi0 endcap=======================//
 

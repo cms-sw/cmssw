@@ -5,7 +5,6 @@
 #include <CLHEP/Random/RandGaussQ.h>
 #include <CLHEP/Units/SystemOfUnits.h>
 #include <CLHEP/Units/GlobalPhysicalConstants.h>
-#include "HepMC/SimpleVector.h"
 
 using CLHEP::cm;
 using CLHEP::ns;
@@ -48,24 +47,31 @@ void GaussEvtVtxGenerator::beginLuminosityBlock(edm::LuminosityBlock const&, edm
 void GaussEvtVtxGenerator::update(const edm::EventSetup& iEventSetup) {
   if (readDB_ && parameterWatcher_.check(iEventSetup)) {
     edm::ESHandle<SimBeamSpotObjects> beamhandle = iEventSetup.getHandle(beamToken_);
-    fMeanX = beamhandle->meanX() * cm;
-    fMeanY = beamhandle->meanY() * cm;
-    fMeanZ = beamhandle->meanZ() * cm;
-    fSigmaX = beamhandle->sigmaX() * cm;
-    fSigmaY = beamhandle->sigmaY() * cm;
-    fSigmaZ = beamhandle->sigmaZ() * cm;
-    fTimeOffset = beamhandle->timeOffset() * ns * c_light;  // HepMC distance units are in mm
+    if (beamhandle->isGaussian()) {
+      fMeanX = beamhandle->meanX() * cm;
+      fMeanY = beamhandle->meanY() * cm;
+      fMeanZ = beamhandle->meanZ() * cm;
+      fSigmaX = beamhandle->sigmaX() * cm;
+      fSigmaY = beamhandle->sigmaY() * cm;
+      fSigmaZ = beamhandle->sigmaZ() * cm;
+      fTimeOffset = beamhandle->timeOffset() * ns * c_light;  // HepMC distance units are in mm
+    } else {
+      throw cms::Exception("Configuration")
+          << "Error in GaussEvtVtxGenerator::update: The provided SimBeamSpotObjects is not Gaussian.\n"
+          << "Please check the configuration and ensure that the beam spot parameters are appropriate for a Gaussian "
+             "distribution.";
+    }
   }
 }
 
-HepMC::FourVector GaussEvtVtxGenerator::newVertex(CLHEP::HepRandomEngine* engine) const {
+ROOT::Math::XYZTVector GaussEvtVtxGenerator::vertexShift(CLHEP::HepRandomEngine* engine) const {
   double X, Y, Z, T;
   X = CLHEP::RandGaussQ::shoot(engine, fMeanX, fSigmaX);
   Y = CLHEP::RandGaussQ::shoot(engine, fMeanY, fSigmaY);
   Z = CLHEP::RandGaussQ::shoot(engine, fMeanZ, fSigmaZ);
   T = CLHEP::RandGaussQ::shoot(engine, fTimeOffset, fSigmaZ);
 
-  return HepMC::FourVector(X, Y, Z, T);
+  return ROOT::Math::XYZTVector(X, Y, Z, T);
 }
 
 void GaussEvtVtxGenerator::sigmaX(double s) {

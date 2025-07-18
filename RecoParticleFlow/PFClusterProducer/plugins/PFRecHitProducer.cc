@@ -23,7 +23,7 @@ public:
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
   void beginRun(edm::Run const&, const edm::EventSetup&) override;
-  std::vector<std::unique_ptr<PFRecHitCreatorBase> > creators_;
+  std::vector<std::unique_ptr<PFRecHitCreatorBase>> creators_;
   std::unique_ptr<PFRecHitNavigatorBase> navigator_;
   bool init_;
 };
@@ -44,7 +44,7 @@ PFRecHitProducer::PFRecHitProducer(const edm::ParameterSet& iConfig) {
 
   edm::ConsumesCollector cc = consumesCollector();
 
-  std::vector<edm::ParameterSet> creators = iConfig.getParameter<std::vector<edm::ParameterSet> >("producers");
+  std::vector<edm::ParameterSet> creators = iConfig.getParameter<std::vector<edm::ParameterSet>>("producers");
   for (auto& creator : creators) {
     std::string name = creator.getParameter<std::string>("name");
     creators_.emplace_back(PFRecHitFactory::get()->create(name, creator, cc));
@@ -100,9 +100,63 @@ void PFRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 }
 
 void PFRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  {
+    edm::ParameterSetDescription pset;
+    pset.add<std::string>("name", "");
+    pset.add<std::vector<int>>("hcalEnums", {});
+    pset.add<edm::ParameterSetDescription>("barrel", {});
+    pset.add<edm::ParameterSetDescription>("endcap", {});
+    {
+      edm::ParameterSetDescription pset2;
+      pset2.add<std::string>("name", "");
+      pset2.add<std::string>("topologySource", "");
+      pset.add<edm::ParameterSetDescription>("hgcee", pset2);
+      pset.add<edm::ParameterSetDescription>("hgcheb", pset2);
+      pset.add<edm::ParameterSetDescription>("hgchef", pset2);
+    }
+    desc.add<edm::ParameterSetDescription>("navigator", pset);
+  }
+  {
+    edm::ParameterSetDescription psd;
+    psd.add<std::string>("name", "");
+    psd.add<edm::InputTag>("src", {});
+    {
+      edm::ParameterSetDescription psd2;
+      psd2.add<std::string>("name", "");
+      psd2.add<std::vector<int>>("maxSeverities", {});
+      psd2.add<std::vector<double>>("cleaningThresholds", {});
+      psd2.add<std::vector<std::string>>("flags", {});
+      psd2.add<bool>("usePFThresholdsFromDB", false);
+      {
+        edm::ParameterSetDescription psd3;
+        psd3.add<std::vector<int>>("depth", {});
+        psd3.add<std::vector<double>>("threshold", {});
+        psd3.add<int>("detectorEnum", 0);
+        psd2.addVPSet("cuts", psd3, {});
+      }
+      psd2.add<double>("thresholdSNR", 0);
+      psd2.add<bool>("applySelectionsToAllCrystals", false);
+      psd2.add<double>("cleaningThreshold", 0);
+      psd2.add<bool>("timingCleaning", false);
+      psd2.add<bool>("topologicalCleaning", false);
+      psd2.add<bool>("skipTTRecoveredHits", false);
+      psd2.add<double>("threshold", 0);
+      psd2.add<double>("threshold_ring0", 0);
+      psd2.add<double>("threshold_ring12", 0);
+      psd.addVPSet("qualityTests", psd2, {});
+    }
+    psd.add<double>("EMDepthCorrection", 0);
+    psd.add<double>("HADDepthCorrection", 0);
+    psd.add<double>("thresh_HF", 0);
+    psd.add<double>("ShortFibre_Cut", 0);
+    psd.add<double>("LongFibre_Fraction", 0);
+    psd.add<double>("LongFibre_Cut", 0);
+    psd.add<double>("ShortFibre_Fraction", 0);
+    psd.add<double>("HFCalib29", 0);
+    psd.add<edm::InputTag>("srFlags", {});
+    psd.add<std::string>("geometryInstance", "");
+    desc.addVPSet("producers", psd, {});
+  }
+  descriptions.addWithDefaultLabel(desc);
 }

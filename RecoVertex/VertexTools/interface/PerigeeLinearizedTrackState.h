@@ -112,9 +112,9 @@ public:
 
   bool hasError() const override;
 
-  bool operator==(LinearizedTrackState<5>& other) const override;
+  bool operator==(const LinearizedTrackState<5>& other) const override;
 
-  bool operator==(ReferenceCountingPointer<LinearizedTrackState<5> >& other) const;
+  bool operator==(const ReferenceCountingPointer<LinearizedTrackState<5> >& other) const;
 
   /** Creates the correct refitted state according to the results of the
    *  track refit.

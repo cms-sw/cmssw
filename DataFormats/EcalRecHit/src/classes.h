@@ -16,3 +16,5 @@
 
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHitHostCollection.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHitSoA.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitHostCollection.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitSoA.h"

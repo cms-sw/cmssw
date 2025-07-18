@@ -1181,11 +1181,11 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
       dr04.hcalRecHitSumEtBc[id] = eventData.hadIsolation04Bc.getHcalEtSumBc(&ele, id + 1, hcalCuts);
     }
 
-    dr03.ecalRecHitSumEt = eventData.ecalBarrelIsol03.getEtSum(&ele, thresholds);
-    dr03.ecalRecHitSumEt += eventData.ecalEndcapIsol03.getEtSum(&ele, thresholds);
+    dr03.ecalRecHitSumEt = eventData.ecalBarrelIsol03.getEtSum(&ele, &thresholds);
+    dr03.ecalRecHitSumEt += eventData.ecalEndcapIsol03.getEtSum(&ele, &thresholds);
 
-    dr04.ecalRecHitSumEt = eventData.ecalBarrelIsol04.getEtSum(&ele, thresholds);
-    dr04.ecalRecHitSumEt += eventData.ecalEndcapIsol04.getEtSum(&ele, thresholds);
+    dr04.ecalRecHitSumEt = eventData.ecalBarrelIsol04.getEtSum(&ele, &thresholds);
+    dr04.ecalRecHitSumEt += eventData.ecalEndcapIsol04.getEtSum(&ele, &thresholds);
   }
 
   dr03.pre7DepthHcal = false;

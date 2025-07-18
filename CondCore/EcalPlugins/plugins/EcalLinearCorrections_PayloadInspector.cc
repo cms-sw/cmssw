@@ -16,9 +16,9 @@
 #include <string>
 
 namespace {
-  enum { kEBChannels = 61200, kEEChannels = 14648, kSides = 2, kValues = 3, kRMS = 5 };
-  enum { MIN_IETA = 1, MIN_IPHI = 1, MAX_IETA = 85, MAX_IPHI = 360 };  // barrel lower and upper bounds on eta and phi
-  enum { IX_MIN = 1, IY_MIN = 1, IX_MAX = 100, IY_MAX = 100 };         // endcaps lower and upper bounds on x and y
+  constexpr int kEBChannels = 61200, kEEChannels = 14648, kSides = 2, kValues = 3, kRMS = 5;
+  constexpr int MAX_IETA = 85, MAX_IPHI = 360;                       // barrel lower and upper bounds on eta and phi
+  constexpr int IX_MIN = 1, IY_MIN = 1, IX_MAX = 100, IY_MAX = 100;  // endcaps lower and upper bounds on x and y
 
   /*************************************************
      2d plot of ECAL LinearCorrections of 1 IOV
@@ -91,7 +91,7 @@ namespace {
             EBrms[2] = EBrms[2] + val * val;
             EBtot[2]++;
           }  // iphi
-        }    // ieta
+        }  // ieta
 
         for (int sign = 0; sign < kSides; sign++) {
           int thesign = sign == 1 ? 1 : -1;
@@ -125,9 +125,9 @@ namespace {
               else
                 endc_m[2]->Fill(ix, iy, val);
             }  // iy
-          }    // ix
-        }      // side
-      }        // if payload.get()
+          }  // ix
+        }  // side
+      }  // if payload.get()
       else
         return false;
 
@@ -200,7 +200,7 @@ namespace {
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };   // class EcalLinearCorrectionsPlot
+  };  // class EcalLinearCorrectionsPlot
 
   /****************************************************************
      2d plot of ECAL LinearCorrections difference between 2 IOVs
@@ -312,7 +312,7 @@ namespace {
                 EBtot[2]++;
               }
             }  // iphi
-          }    // ieta
+          }  // ieta
 
           for (int sign = 0; sign < kSides; sign++) {
             int thesign = sign == 1 ? 1 : -1;
@@ -362,9 +362,9 @@ namespace {
                     endc_m[2]->Fill(ix, iy, diff);
                 }
               }  // iy
-            }    // ix
-          }      // side
-        }        // if payload.get()
+            }  // ix
+          }  // side
+        }  // if payload.get()
         else
           return false;
       }  // loop over IOVs
@@ -454,7 +454,7 @@ namespace {
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };   // class EcalLinearCorrectionsDiffBase
+  };  // class EcalLinearCorrectionsDiffBase
   using EcalLinearCorrectionsDiffOneTag = EcalLinearCorrectionsDiffBase<cond::payloadInspector::SINGLE_IOV, 1>;
   using EcalLinearCorrectionsDiffTwoTags = EcalLinearCorrectionsDiffBase<cond::payloadInspector::SINGLE_IOV, 2>;
 

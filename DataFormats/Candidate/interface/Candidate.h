@@ -50,7 +50,7 @@ namespace reco {
     typedef unsigned int index;
 
     /// default constructor
-    Candidate(){};
+    Candidate() {}
     /// destructor
     virtual ~Candidate();
     /// electric charge
@@ -176,7 +176,7 @@ namespace reco {
     /// this function can be used to set the ptr to the source of the
     /// Candidate, which will allow to keep track
     /// of the reconstruction history.
-    virtual void setSourceCandidatePtr(const CandidatePtr& ptr){};
+    virtual void setSourceCandidatePtr(const CandidatePtr& ptr) {}
 
     /// chi-squares
     virtual double vertexChi2() const = 0;

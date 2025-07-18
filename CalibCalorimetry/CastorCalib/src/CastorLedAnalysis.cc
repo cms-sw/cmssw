@@ -618,7 +618,7 @@ void CastorLedAnalysis::LedCastorHists(const HcalDetId& detid,
     if (adc < 0) {
       adc = 0;
     }  // to prevent negative adcs after ped subtraction, which should really only happen
-       // if you're using the wrong peds.
+    // if you're using the wrong peds.
     double fC = m_coder->charge(*m_shape, adc, capid);
     //ta = (fC - m_ped->getValue(capid));
     ta = fC;

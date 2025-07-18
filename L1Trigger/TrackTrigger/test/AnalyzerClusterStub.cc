@@ -18,8 +18,6 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/L1TrackTrigger/interface/TTCluster.h"
 #include "DataFormats/L1TrackTrigger/interface/TTStub.h"
-//#include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
-//#include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"

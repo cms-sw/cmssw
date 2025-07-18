@@ -186,7 +186,7 @@ void MuonDetCleaner<T1, T2>::produce(edm::Event &iEvent, edm::EventSetup const &
   vetoHits.erase(unique(vetoHits.begin(), vetoHits.end()), vetoHits.end());
 
   // Now this can also handle different instance
-  for (auto input_ : inputs_) {
+  for (const auto &input_ : inputs_) {
     // Second read in the RecHit Colltection which is to be replaced, without the vetoRecHits
     typedef edm::Handle<RecHitCollection> RecHitCollectionHandle;
     RecHitCollectionHandle RecHitinput;

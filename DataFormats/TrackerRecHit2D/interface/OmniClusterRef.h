@@ -28,6 +28,7 @@ public:
   typedef edm::Ref<FTLClusterCollection, FTLCluster> ClusterMTDRef;
 
   OmniClusterRef() : me(edm::RefCore(), kInvalid) {}
+  OmniClusterRef(edm::ProductID const& id, SiStripCluster const* clu, unsigned int key) : me(id, clu, key | kIsStrip) {}
   explicit OmniClusterRef(ClusterPixelRef const& ref, unsigned int subClus = 0)
       : me(ref.refCore(), (ref.isNonnull() ? ref.key() | (subClus << subClusShift) : kInvalid)) {}
   explicit OmniClusterRef(ClusterStripRef const& ref, unsigned int subClus = 0)
@@ -62,6 +63,22 @@ public:
 
   bool operator<(OmniClusterRef const& lh) const {
     return rawIndex() < lh.rawIndex();  // in principle this is enough!
+  }
+
+  bool const stripOverlap(OmniClusterRef const& lh, bool includeEdges = true) const {
+    if (!isStrip())
+      return false;
+    const auto& tc = stripCluster();
+    const uint16_t tf = tc.firstStrip();
+    const uint16_t tl = tf + tc.amplitudes().size();
+    const auto& oc = lh.stripCluster();
+    const uint16_t of = oc.firstStrip();
+    const uint16_t ol = of + oc.amplitudes().size();
+    // By default, include edge overlaps
+    const auto e = includeEdges ? 1 : 0;
+    // Check that last strip of "other" cluster is within first and last strip of "this", or viceversa
+    // Edge strips are considered for determining overlap (e=1) if includeEdges = true (default)
+    return (((ol + e) > tf && ol < (tl + e)) || ((tl + e) > of && tl < (ol + e)));
   }
 
 public:

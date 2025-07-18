@@ -40,10 +40,10 @@ public:
   static const int NTCTSS = 4;
 
   //! Constructor
-  DTConfig(){};
+  DTConfig() {}
 
   //! Destructor
-  virtual ~DTConfig(){};
+  virtual ~DTConfig() {}
 };
 
 #endif

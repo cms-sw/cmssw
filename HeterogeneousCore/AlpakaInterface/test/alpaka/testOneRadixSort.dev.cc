@@ -65,13 +65,8 @@ ALPAKA_FN_HOST_ACC T truncate(T const& t) {
 
 namespace {
   struct testKernel {
-    template <typename TAcc>
     ALPAKA_FN_ACC void operator()(
-        const TAcc& acc, FLOAT* gpu_input, int* gpu_product, int elements, bool doPrint) const {
-      //size_t firstElement = threadIdx.x + blockIdx.x * blockDim.x;  // This is going to be the track index
-      //size_t gridSize = blockDim.x * gridDim.x;
-      bool threadZero = !alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0u];
-
+        Acc1D const& acc, FLOAT* gpu_input, int* gpu_product, int elements, bool doPrint) const {
       // radix sort works in a single block (and the assert macro does not like the comma of the template parameters).
       const auto blocksPerGrid = alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u];
       const auto blocksIdx = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u];
@@ -83,17 +78,13 @@ namespace {
       auto& sws = alpaka::declareSharedVar<uint16_t[2048], __COUNTER__>(acc);
       auto& z = alpaka::declareSharedVar<float[2048], __COUNTER__>(acc);
       auto& iz = alpaka::declareSharedVar<int[2048], __COUNTER__>(acc);
-      //      __shared__ uint16_t order[2048];
-      //      __shared__ uint16_t sws[2048];
-      //      __shared__ float z[2048];
-      //      __shared__ int iz[2048];
       for (auto itrack : uniform_elements(acc, elements)) {
         z[itrack] = gpu_input[itrack];
         iz[itrack] = 10000 * gpu_input[itrack];
         // order[itrack] = itrack;
       }
       alpaka::syncBlockThreads(acc);
-      radixSort<TAcc, float, 2>(acc, z, order, sws, elements);
+      radixSort<Acc1D, float, 2>(acc, z, order, sws, elements);
       alpaka::syncBlockThreads(acc);
 
       //verify
@@ -106,7 +97,7 @@ namespace {
       alpaka::syncBlockThreads(acc);
 
       if (doPrint)
-        if (threadZero) {
+        if (once_per_grid(acc)) {
           for (int itrackO = 0; itrackO < elements; itrackO++) {
             int itrack = order[itrackO];
             printf(
@@ -122,7 +113,7 @@ namespace {
         }
 
       alpaka::syncBlockThreads(acc);
-      radixSort<TAcc, int, 4>(acc, iz, order, sws, elements);
+      radixSort<Acc1D, int, 4>(acc, iz, order, sws, elements);
       alpaka::syncBlockThreads(acc);
 
       for (auto itrack : uniform_elements(acc, elements - 1)) {
@@ -132,7 +123,7 @@ namespace {
       }
 
       if (doPrint)
-        if (threadZero) {
+        if (once_per_grid(acc)) {
           for (int itrackO = 0; itrackO < elements; itrackO++) {
             int itrack = order[itrackO];
             printf(

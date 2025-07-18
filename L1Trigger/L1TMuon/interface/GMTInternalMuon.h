@@ -13,7 +13,7 @@ namespace l1t {
     GMTInternalMuon(const GMTInternalMuon&);
     // GMTInternalMuon() {};
 
-    virtual ~GMTInternalMuon(){};
+    virtual ~GMTInternalMuon() {}
 
     void setHwCancelBit(int bit) { m_hwCancelBit = bit; };
     void setHwRank(int bits) { m_hwRank = bits; };

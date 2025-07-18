@@ -5,12 +5,12 @@
 #include <vector>
 #include <TTree.h>
 #include "FWCore/Framework/interface/EventForOutput.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 class EventStringOutputBranches {
 public:
-  EventStringOutputBranches(const edm::BranchDescription *desc,
+  EventStringOutputBranches(const edm::ProductDescription *desc,
                             const edm::EDGetToken &token,
                             bool update_only_at_new_lumi = false)
       : m_token(token), m_lastLumi(-1), m_fills(0), m_update_only_at_new_lumi(update_only_at_new_lumi) {

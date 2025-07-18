@@ -26,8 +26,8 @@
 // class SiStripBackPlaneCorrection : public SiStripBaseObject
 class SiStripBackPlaneCorrection {
 public:
-  SiStripBackPlaneCorrection(){};
-  ~SiStripBackPlaneCorrection(){};
+  SiStripBackPlaneCorrection() {}
+  ~SiStripBackPlaneCorrection() {}
 
   inline void putLorentsAngles(std::map<unsigned int, float>& BPC) { m_BPC = BPC; }
   inline const std::map<unsigned int, float>& getBackPlaneCorrections() const { return m_BPC; }

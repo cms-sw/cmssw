@@ -132,7 +132,7 @@ unsigned short L1RCTParameters::calcTower(unsigned short rct_iphi, unsigned shor
     regionPhi = iphi % 2;
     // HF MAPPING, just regions now, don't need to worry about towers
     // just calling it "tower" for convenience
-    tower = (regionPhi)*4 + absIeta - 29;
+    tower = (regionPhi) * 4 + absIeta - 29;
   }
   return tower;
 }

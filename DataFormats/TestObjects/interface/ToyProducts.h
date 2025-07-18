@@ -12,6 +12,7 @@ Toy EDProducts for testing purposes only.
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/Common/interface/SortedCollection.h"
+#include "DataFormats/Common/interface/Uninitialized.h"
 #include "FWCore/Utilities/interface/typedefs.h"
 
 #include <stdexcept>
@@ -44,6 +45,16 @@ namespace edmtest {
     ~IntProduct() {}
 
     bool operator==(IntProduct const& rhs) const { return value == rhs.value; }
+
+    cms_int32_t value;
+  };
+
+  struct MaybeUninitializedIntProduct {
+    explicit MaybeUninitializedIntProduct(edm::Uninitialized) {}
+    explicit MaybeUninitializedIntProduct(int i) : value(i) {}
+    ~MaybeUninitializedIntProduct() {}
+
+    bool operator==(MaybeUninitializedIntProduct const& rhs) const { return value == rhs.value; }
 
     cms_int32_t value;
   };

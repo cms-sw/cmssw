@@ -6,6 +6,8 @@
 #include <cstdint>
 #include <unistd.h>
 
+using namespace edm::streamer;
+
 InitMsgBuilder::InitMsgBuilder(void* buf,
                                uint32 size,
                                uint32 run,

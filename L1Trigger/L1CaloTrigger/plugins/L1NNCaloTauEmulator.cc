@@ -107,7 +107,7 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   static std::unique_ptr<NNmodels_GlobalCache> initializeGlobalCache(const edm::ParameterSet&);
-  static void globalEndJob(const NNmodels_GlobalCache*){/*do nothing*/};
+  static void globalEndJob(const NNmodels_GlobalCache*) { /*do nothing*/ }
 
 private:
   // ----fixed LSBs, Nbits, scales, and types----
@@ -507,6 +507,7 @@ void L1NNCaloTauEmulator::produce(edm::Event& iEvent, const edm::EventSetup& eSe
     // Implement cl3d PU ID as done in
     // https://github.com/cms-sw/cmssw/blob/master/L1Trigger/Phase2L1ParticleFlow/plugins/PFClusterProducerFromHGC3DClusters.cc#L120
     bool isEM = preEmId(*cl3dIt);
+    // FIXME: I suspect the PFCluster and the code handling its energy are not actually needed
     l1t::PFCluster cluster(cl3d.pt(), cl3d.eta(), cl3d.phi(), cl3d.hOverE());
     if (scenario == UseEmInterp::EmOnly)  // for emID objs, use EM interp as pT and set H = 0
     {
@@ -531,8 +532,7 @@ void L1NNCaloTauEmulator::produce(edm::Event& iEvent, const edm::EventSetup& eSe
 
     float idScore = -1.;
     if (!VsPuId.method().empty()) {
-      idScore = VsPuId.passID(*cl3dIt, cluster);
-      idScore = cluster.egVsPUMVAOut();
+      VsPuId.passID(*cl3dIt, idScore);
     }
 
     float eta_hgcalCoord = correctInputEtaCl3d(cl3d.eta());
@@ -717,7 +717,6 @@ void L1NNCaloTauEmulator::produce(edm::Event& iEvent, const edm::EventSetup& eSe
   }  // End while loop of barrel TowerClusters creation
 
   // Barrel TauMinator application
-  tensorflow::setLogging("2");
   int batchSize_CB = (int)(Nclusters_CB);
   tensorflow::TensorShape imageShape_CB({batchSize_CB, IEta_dim, IPhi_dim, 2});
   tensorflow::TensorShape positionShape_CB({batchSize_CB, 2});

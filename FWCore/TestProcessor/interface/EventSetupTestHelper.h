@@ -1,11 +1,11 @@
+// -*- C++ -*-
 #ifndef FWCore_TestProcessor_EventSetupTestHelper_h
 #define FWCore_TestProcessor_EventSetupTestHelper_h
-// -*- C++ -*-
 //
 // Package:     FWCore/TestProcessor
 // Class  :     EventSetupTestHelper
 //
-/**\class EventSetupTestHelper EventSetupTestHelper.h "EventSetupTestHelper.h"
+/**\class edm::test::EventSetupTestHelper
 
  Description: [one line class summary]
 
@@ -39,7 +39,9 @@ namespace edm {
 
       std::shared_ptr<eventsetup::ESProductResolver> getResolver(unsigned int index);
 
-      void resetAllProxies();
+      void resetAllResolvers();
+
+      std::vector<eventsetup::ESModuleProducesInfo> producesInfo() const final;
 
     protected:
       void setIntervalFor(const eventsetup::EventSetupRecordKey&, const IOVSyncValue&, ValidityInterval&) final;
@@ -48,7 +50,7 @@ namespace edm {
 
     private:
       // ---------- member data --------------------------------
-      std::vector<ESProduceEntry> proxies_;
+      std::vector<ESProduceEntry> resolvers_;
     };
   }  // namespace test
 }  // namespace edm

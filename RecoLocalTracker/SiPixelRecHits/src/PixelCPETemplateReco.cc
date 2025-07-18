@@ -3,7 +3,6 @@
 
 // Geometry services
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 
 //#define DEBUG
 
@@ -82,6 +81,7 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const& conf,
           << " not loaded correctly from text file. Reconstruction will fail.\n\n";
   }
 
+  goodEdgeAlgo_ = conf.getParameter<bool>("GoodEdgeAlgo");
   speed_ = conf.getParameter<int>("speed");
   LogDebug("PixelCPETemplateReco::PixelCPETemplateReco:") << "Template speed = " << speed_ << "\n";
 
@@ -206,11 +206,11 @@ LocalPoint PixelCPETemplateReco::localPosition(DetParam const& theDetParam, Clus
   bool xdouble[mrow], ydouble[mcol];
   // x directions (shorter), rows
   for (int irow = 0; irow < mrow; ++irow)
-    xdouble[irow] = theDetParam.theRecTopol->isItBigPixelInX(irow + row_offset);
+    xdouble[irow] = theDetParam.theTopol->isItBigPixelInX(irow + row_offset);
 
   // y directions (longer), columns
   for (int icol = 0; icol < mcol; ++icol)
-    ydouble[icol] = theDetParam.theRecTopol->isItBigPixelInY(icol + col_offset);
+    ydouble[icol] = theDetParam.theTopol->isItBigPixelInY(icol + col_offset);
 
   SiPixelTemplateReco::ClusMatrix clusterPayload{&clustMatrix[0][0], xdouble, ydouble, mrow, mcol};
 
@@ -250,7 +250,8 @@ LocalPoint PixelCPETemplateReco::localPosition(DetParam const& theDetParam, Clus
                                          theClusterParam.templProbX_,
                                          theClusterParam.templQbin_,
                                          speed_,
-                                         theClusterParam.templProbQ_);
+                                         theClusterParam.templProbQ_,
+                                         goodEdgeAlgo_);
 
   // ******************************************************************
 
@@ -385,7 +386,7 @@ LocalPoint PixelCPETemplateReco::localPosition(DetParam const& theDetParam, Clus
         //   <<" "<<theDetParam.lorentzShiftInCmY
         //   << endl; //dk
       }  //else {cout<<" LA is 0, disable offset corrections "<<endl;} //dk
-    }    //else {cout<<" Do not do LA offset correction "<<endl;} //dk
+    }  //else {cout<<" Do not do LA offset correction "<<endl;} //dk
   }
 
   // Save probabilities and qBin in the quantities given to us by the base class
@@ -441,10 +442,10 @@ LocalError PixelCPETemplateReco::localError(DetParam const& theDetParam, Cluster
     int minPixelRow = theClusterParam.theCluster->minPixelRow();
 
     //--- Are we near either of the edges?
-    bool edgex = (theDetParam.theRecTopol->isItEdgePixelInX(minPixelRow) ||
-                  theDetParam.theRecTopol->isItEdgePixelInX(maxPixelRow));
-    bool edgey = (theDetParam.theRecTopol->isItEdgePixelInY(minPixelCol) ||
-                  theDetParam.theRecTopol->isItEdgePixelInY(maxPixelCol));
+    bool edgex =
+        (theDetParam.theTopol->isItEdgePixelInX(minPixelRow) || theDetParam.theTopol->isItEdgePixelInX(maxPixelRow));
+    bool edgey =
+        (theDetParam.theTopol->isItEdgePixelInY(minPixelCol) || theDetParam.theTopol->isItEdgePixelInY(maxPixelCol));
 
     if (theClusterParam.ierr != 0) {
       // If reconstruction fails the hit position is calculated from cluster center of gravity
@@ -530,4 +531,5 @@ void PixelCPETemplateReco::fillPSetDescription(edm::ParameterSetDescription& des
   desc.add<int>("directoryWithTemplates", 0);
   desc.add<int>("speed", -2);
   desc.add<bool>("UseClusterSplitter", false);
+  desc.add<bool>("GoodEdgeAlgo", false);
 }

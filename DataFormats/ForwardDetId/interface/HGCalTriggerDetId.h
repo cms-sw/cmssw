@@ -15,9 +15,10 @@
    [13:16] abs(v) of the wafer (v-axis points 60-degree wrt x-axis)
    [17:17] sign of v (0:+v; 1:-v) (v=0 is at the center of beam line)
    [18:22] layer number 
-   [23:24] Type (0 fine divisions of wafer with 120 mum thick silicon
-                 1 coarse divisions of wafer with 200 mum thick silicon
-                 2 coarse divisions of wafer with 300 mum thick silicon)
+   [23:24] Type (0 high density wafer with depltetion thickness of 120 mum
+                 1 low density wafer with depletion thickness of 200 mum
+                 2 low density wafer with depletion thickness of 300 mum
+                 3 high density wafer with depletion thickness of 200 mum)
    [25:26] Subdetector Type (HGCalEETrigger/HGCalHSiTrigger)
    [27:27] z-side (0 for +z; 1 for -z)
    [28:31] Detector type (HGCalTrigger)

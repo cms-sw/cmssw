@@ -46,17 +46,19 @@ namespace edm {
 
     //////////
 
-    template <typename F, typename = void>
+    template <typename F>
     struct ReturnArgumentTypes;
 
     template <typename F>
-    struct ReturnArgumentTypes<F, std::enable_if_t<std::is_class_v<F>>> {
+      requires std::is_class_v<F>
+    struct ReturnArgumentTypes<F> {
       using argument_type = typename ReturnArgumentTypesImpl<decltype(&F::operator())>::argument_type;
       using return_type = typename ReturnArgumentTypesImpl<decltype(&F::operator())>::return_type;
     };
 
     template <typename F>
-    struct ReturnArgumentTypes<F, std::enable_if_t<std::is_pointer_v<F>>> {
+      requires std::is_pointer_v<F>
+    struct ReturnArgumentTypes<F> {
       using argument_type = typename ReturnArgumentTypesImpl<F>::argument_type;
       using return_type = typename ReturnArgumentTypesImpl<F>::return_type;
     };

@@ -23,9 +23,9 @@ public:
   CSCFileDumper(edm::ParameterSet const& pset);
   ~CSCFileDumper(void) override;
 
-  void beginJob() override{};
+  void beginJob() override {}
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-  void endJob() override{};
+  void endJob() override {}
 
 private:
   std::vector<unsigned int> cscFEDids;

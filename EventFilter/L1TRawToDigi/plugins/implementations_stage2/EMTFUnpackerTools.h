@@ -60,7 +60,7 @@ namespace l1t {
       }
 
     }  // End namespace emtf
-  }    // End namespace stage2
+  }  // End namespace stage2
 }  // End namespace l1t
 
 #endif /* define EventFilter_L1TRawToDigi_EMTFUnpackerTools_h */

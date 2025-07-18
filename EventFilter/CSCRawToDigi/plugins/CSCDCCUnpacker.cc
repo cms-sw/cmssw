@@ -706,10 +706,10 @@ void CSCDCCUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
                   comparatorProduct->move(std::make_pair(comparatorDigis.begin(), comparatorDigis.end()), layer);
                 }
               }  // end of loop over cfebs
-            }    // end of loop over layers
-          }      // end of loop over chambers
-        }        // endof loop over DDUs
-      }          // end of good event
+            }  // end of loop over layers
+          }  // end of loop over chambers
+        }  // endof loop over DDUs
+      }  // end of good event
       else {
         LogTrace("CSCDCCUnpacker|CSCRawToDigi") << "ERROR! Examiner rejected FED #" << id;
         if (examiner) {
@@ -730,7 +730,7 @@ void CSCDCCUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
       if (examiner != nullptr)
         delete examiner;
     }  // end of if fed has data
-  }    // end of loop over DCCs
+  }  // end of loop over DCCs
   // put into the event
   e.put(std::move(wireProduct), "MuonCSCWireDigi");
   e.put(std::move(stripProduct), "MuonCSCStripDigi");

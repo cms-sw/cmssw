@@ -1,5 +1,4 @@
 #include "Validation/RecoTrack/interface/MultiTrackValidator.h"
-#include "Validation/RecoTrack/interface/trackFromSeedFitFailed.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -7,6 +6,7 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/trackFromSeedFitFailed.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -347,7 +347,7 @@ void MultiTrackValidator::bookHistograms(DQMStore::IBooker& ibook,
         histoProducerAlgo_->bookSeedHistos(ibook, histograms.histoProducerAlgo);
       }
     }  //end loop www
-  }    // end loop ww
+  }  // end loop ww
 }
 
 #ifdef EDM_ML_DEBUG
@@ -1204,5 +1204,5 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event,
                                  << "Total Associated (recoToSim): " << at << "\n"
                                  << "Total Fakes: " << rT - at << "\n";
     }  // End of  for (unsigned int www=0;www<label.size();www++){
-  }    //END of for (unsigned int ww=0;ww<associators.size();ww++){
+  }  //END of for (unsigned int ww=0;ww<associators.size();ww++){
 }

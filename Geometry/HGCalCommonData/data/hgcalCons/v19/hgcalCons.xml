@@ -38,22 +38,25 @@
   <SpecPar name="HGCalEELayer">
     <PartSelector path="//HGCalEELayer.*"/>    
     <Parameter name="Volume" value="HGCalEELayer" eval="false"/>
-    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8CalibCell" eval="false"/>
+    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8FineCell" eval="false"/>
     <Parameter name="LevelZSide"          value="3"/>
     <Parameter name="LevelTop"            value="9"/>
     <Parameter name="LevelTop"            value="12"/>
     <Parameter name="WaferThickness"      value="[hgcal:WaferThicknessFine]"/>
     <Parameter name="WaferThickness"      value="[hgcal:WaferThicknessCoarse1]"/>
     <Parameter name="WaferThickness"      value="[hgcal:WaferThicknessCoarse2]"/>
+    <Parameter name="WaferThickness"      value="[hgcal:WaferThicknessCoarse1]"/>
     <Parameter name="CellThickness"       value="[hgcal:CellThicknessFine]"/>
     <Parameter name="CellThickness"       value="[hgcal:CellThicknessCoarse1]"/>
     <Parameter name="CellThickness"       value="[hgcal:CellThicknessCoarse2]"/>
+    <Parameter name="CellThickness"       value="[hgcal:CellThicknessCoarse1]"/>
     <Parameter name="FirstMixedLayer"     value="-1"/>
     <Parameter name="LayerOffset"         value="0"/>
     <Parameter name="DetectorType"        value="1"/>
     <Parameter name="UseSimWt"            value="0"/>
     <Parameter name="WaferMaskMode"       value="5"/>
     <Parameter name="WaferZside"          value="-1"/>
+    <Parameter name="WaferNoGap"          value="0"/>
     <Parameter name="LayerRotation"       value="[hgcal:LayerRotation]"/>
     <Parameter name="Cassettes"           value="6"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P0]"/>
@@ -102,22 +105,25 @@
   <SpecPar name="HGCalHESiliconLayer">
     <PartSelector path="//HGCalHESiliconLayer.*"/>
     <Parameter name="Volume" value="HGCalHESiliconLayer" eval="false"/>
-    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8CalibCell" eval="false"/>
+    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8FineCell" eval="false"/>
     <Parameter name="LevelZSide"          value="3"/>
     <Parameter name="LevelTop"            value="9"/>
     <Parameter name="LevelTop"            value="12"/>
     <Parameter name="WaferThickness"      value="[hgcal:WaferThicknessFine]"/>
     <Parameter name="WaferThickness"      value="[hgcal:WaferThicknessCoarse1]"/>
     <Parameter name="WaferThickness"      value="[hgcal:WaferThicknessCoarse2]"/>
+    <Parameter name="WaferThickness"      value="[hgcal:WaferThicknessCoarse1]"/>
     <Parameter name="CellThickness"       value="[hgcal:CellThicknessFine]"/>
     <Parameter name="CellThickness"       value="[hgcal:CellThicknessCoarse1]"/>
     <Parameter name="CellThickness"       value="[hgcal:CellThicknessCoarse2]"/>
+    <Parameter name="CellThickness"       value="[hgcal:CellThicknessCoarse1]"/>
     <Parameter name="FirstMixedLayer"     value="[hgcal:FirstMixedLayer]"/>
     <Parameter name="LayerOffset"         value="26"/>
     <Parameter name="DetectorType"        value="2"/>
     <Parameter name="UseSimWt"            value="0"/>
     <Parameter name="WaferMaskMode"       value="6"/>
     <Parameter name="WaferZside"          value="-1"/>
+    <Parameter name="WaferNoGap"          value="0"/>
     <Parameter name="LayerRotation"       value="[hgcal:LayerRotation]"/>
     <Parameter name="Cassettes"           value="12"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P0]"/>
@@ -166,7 +172,7 @@
   <SpecPar name="HGCalHEScintillatorSensitive">
     <PartSelector path="//HGCalHEScintillatorSensitive.*"/>
     <Parameter name="Volume" value="HGCalHEScintillatorSensitive" eval="false"/>
-    <Parameter name="GeometryMode" value="HGCalGeometryMode::TrapezoidFineCassette" eval="false"/>
+    <Parameter name="GeometryMode" value="HGCalGeometryMode::TrapezoidFineCell" eval="false"/>
     <Parameter name="LevelZSide"          value="3"/>
     <Parameter name="LevelTop"            value="9"/>
     <Parameter name="LevelTop"            value="11"/>
@@ -175,14 +181,15 @@
     <Parameter name="LayerOffset"         value="26"/>
     <Parameter name="DetectorType"        value="3"/>
     <Parameter name="UseSimWt"            value="0"/>
-    <Parameter name="WaferMaskMode"       value="7"/>
+    <Parameter name="WaferMaskMode"       value="8"/>
     <Parameter name="WaferZside"          value="1"/>
+    <Parameter name="WaferNoGap"          value="0"/>
     <Parameter name="WaferThickness"      value="[hgcal:ScintillatorThickness]"/>
     <Parameter name="MinimumTileSize"     value="[MinimumTileSize]"/>
-    <Parameter name="NPhiBinBH"           value="432"/>
-    <Parameter name="NPhiBinBH"           value="288"/>
+    <Parameter name="NPhiBinBH"           value="[hgcal:NPhiBinBH]"/>
+    <Parameter name="NPhiBinBH"           value="[hgcal:NPhiBinBHFine]"/>
     <Parameter name="LayerFrontBH"        value="[hgcal:FirstMixedLayer]"/>
-    <Parameter name="LayerFrontBH"        value="[hgcal:FirstMixedLayer]"/>
+    <Parameter name="LayerFrontBH"        value="[hgcal:FirstMixedCoarseLayer]"/>
     <Parameter name="Cassettes"           value="12"/>
     <Parameter name="RMinLayerBH"         value="[hgcal:radMixL3]"/>
     <Parameter name="RMinLayerBH"         value="[hgcal:radMixL13]"/>
@@ -217,6 +224,7 @@
     <Parameter name="OnlyForHGCalNumbering" value="HGCal" eval="false"/>
     <Parameter name="WaferMode" value="HGCalGeometryMode::ExtrudedPolygon" eval="false"/>
     <Parameter name="WaferSize"           value="[hgcal:WaferSize]"/>
+    <Parameter name="WaferSizeNominal"    value="[hgcal:WaferSizeNominal]"/>
     <Parameter name="WaferThickness"      value="[hgcal:WaferThickness]"/>
     <Parameter name="SensorSeparation"    value="[hgcal:SensorSeparation]"/>
     <Parameter name="SensorSizeOffset"    value="[hgcal:SensorSizeOffset]"/>

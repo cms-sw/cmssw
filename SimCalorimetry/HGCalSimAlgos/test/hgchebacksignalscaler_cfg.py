@@ -1,4 +1,4 @@
-#run with: cmsRun test/hgchebacksignalscaler_cfg.py doseMap=SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.7.20.txt geom=GeometryExtended2026D49Reco
+#run with: cmsRun test/hgchebacksignalscaler_cfg.py doseMap=SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.7.20.txt geom=GeometryExtendedRun4D49Reco
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
@@ -7,7 +7,7 @@ from Configuration.StandardSequences.Eras import eras
 options = VarParsing()
 options.register("doseMap",  "SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.7.20.txt",  VarParsing.multiplicity.singleton, VarParsing.varType.string)
 options.register("sipmMap",  "SimCalorimetry/HGCalSimProducers/data/sipmParams_geom-10.txt",  VarParsing.multiplicity.singleton, VarParsing.varType.string)
-options.register("geometry", "GeometryExtended2026D49Reco",  VarParsing.multiplicity.singleton, VarParsing.varType.string)
+options.register("geometry", "GeometryExtendedRun4D49Reco",  VarParsing.multiplicity.singleton, VarParsing.varType.string)
 options.parseArguments()
 
 from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9

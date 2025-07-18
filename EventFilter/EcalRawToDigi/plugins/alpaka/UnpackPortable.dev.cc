@@ -15,8 +15,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::raw {
 
   class Kernel_unpack {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   unsigned char const* __restrict__ data,
                                   uint32_t const* __restrict__ offsets,
                                   int const* __restrict__ feds,
@@ -202,7 +201,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::raw {
 
           ElectronicsIdGPU eid{fed2dcc(fed), ttid, stripid, xtalid};
           auto const didraw = isBarrel ? compute_ebdetid(eid) : eid2did[eid.linearIndex()].rawid();
-          // FIXME: what kind of channels are these guys
+          // skip channels with an invalid detid
           if (didraw == 0)
             continue;
 

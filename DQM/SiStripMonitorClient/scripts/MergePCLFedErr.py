@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from __future__ import print_function
 import ROOT
 from ROOT import TBufferFile, TH1F, TProfile, TProfile2D, TH2F, TFile, TH1D, TH2D
 import re

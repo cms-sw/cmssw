@@ -540,6 +540,11 @@ namespace HTXS {
     HTXS::Stage1_2_Fine::Category stage1_2_fine_cat_pTjet30GeV;
     // Flag for Z->vv decay mode (needed to split QQ2ZH and GG2ZH)
     bool isZ2vvDecay = false;
+    // Temporary fix: add variables to perform STXS 1.3 classification with nanoAOD on-the-fly
+    double V_pt;
+    double Mjj;
+    double ptHjj;
+    double dPhijj;
     // Error code :: classification was succesful or some error occured
     HTXS::ErrorCode errorCode;
   };
@@ -567,6 +572,11 @@ namespace HTXS {
     cat.stage1_2_fine_cat_pTjet25GeV = htxs_cat_rivet.stage1_2_fine_cat_pTjet25GeV;
     cat.stage1_2_fine_cat_pTjet30GeV = htxs_cat_rivet.stage1_2_fine_cat_pTjet30GeV;
     cat.isZ2vvDecay = htxs_cat_rivet.isZ2vvDecay;
+    // Temporary fix: add variables to perform STXS 1.3 classification with nanoAOD on-the-fly
+    cat.V_pt = htxs_cat_rivet.V_pt;
+    cat.Mjj = htxs_cat_rivet.Mjj;
+    cat.ptHjj = htxs_cat_rivet.ptHjj;
+    cat.dPhijj = htxs_cat_rivet.dPhijj;
     return cat;
   }
 
@@ -766,6 +776,11 @@ namespace Rivet {
     HTXS::Stage1_2_Fine::Category stage1_2_fine_cat_pTjet30GeV;
     /// Flag to distiguish the Z->vv and Z->l+l- decay modes
     bool isZ2vvDecay = false;
+    // Temporary fix: add variables to perform STXS 1.3 classification with nanoAOD on-the-fly
+    double V_pt;
+    double Mjj;
+    double ptHjj;
+    double dPhijj;
     /// Error code: Whether classification was succesful or some error occured
     HTXS::ErrorCode errorCode;
   };

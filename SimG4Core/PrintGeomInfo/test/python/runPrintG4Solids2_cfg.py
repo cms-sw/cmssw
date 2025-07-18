@@ -1,10 +1,11 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun grunPrintG4Solids_cfg.py geometry=D98 dd4hep=False
+#   cmsRun grunPrintG4Solids2_cfg.py geometry=D110 dd4hep=False
 #
-#   Options for geometry D88, D91, D92, D93, D94, D95, D96, D98, D99, D100,
-#                        D101, D102, D103, D104,D105, D106, D107,
-#                        D108, D109, D110
+#   Options for geometry D95, D96, D98, D99, D100, D101, D102, D103, D104,
+#                        D105, D106, D107, D108, D109, D110, D111, D112, D113,
+#                        D114, D115, D116, D117, D118, D119, D120, D121, D122,
+#                        D123
 #   Options for type DDD, DD4hep
 #
 ###############################################################################
@@ -16,10 +17,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D88",
+                 "D110",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D88, D91, D92, D93, D94, D95, D96, D98, D99, D100, D101, D102, D103, D104,D105, D106, D107, D108, D109, D110")
+                  "geometry of operations: D95, D96, D98, D99, D100, D101, D102, D103, D104, D105, D106, D107, D108, D109, D110, D111, D112, D113, D114, D115, D116, D117, D118, D119, D120, D121, D122, D123")
 options.register('type',
                  "DDD",
                   VarParsing.VarParsing.multiplicity.singleton,
@@ -33,26 +34,26 @@ print(options)
 
 ####################################################################
 # Use the options
-from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
+
+geomName = "Run4" + options.geometry
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
+print("Geometry Name:   ", geomName)
+print("Global Tag Name: ", GLOBAL_TAG)
+print("Era Name:        ", ERA)
 
 if (options.type == "DD4hep"):
-    geomFile = "Configuration.Geometry.GeometryDD4hepExtended2026" + options.geometry + "Reco_cff"
-    if (options.geometry == "D94"):
-        from Configuration.Eras.Era_Phase2C20I13M9_cff import Phase2C20I13M9
-        process = cms.Process('PrintG4Solids',Phase2C20I13M9,dd4hep)
-    else:
-        from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-        process = cms.Process('PrintG4Solids',Phase2C17I13M9,dd4hep)
+    from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
+    process = cms.Process('G4PrintGeometry',ERA,dd4hep)
+    geomFile = "Configuration.Geometry.GeometryDD4hepExtended" + geomName + "Reco_cff"
+    dd4hep = True
 else:
-    geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
-    if (options.geometry == "D94"):
-        from Configuration.Eras.Era_Phase2C20I13M9_cff import Phase2C20I13M9
-        process = cms.Process('PrintG4Solids',Phase2C20I13M9)
-    else:
-        from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-        process = cms.Process('PrintG4Solids',Phase2C17I13M9)
+    process = cms.Process('G4PrintGeometry',ERA)
+    geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
+    dd4hep = False
 
 print("Geometry file Name: ", geomFile)
+print("dd4hep Flag:        ", dd4hep)
 
 process.load(geomFile)
 process.load('FWCore.MessageService.MessageLogger_cfi')
@@ -94,11 +95,6 @@ process.g4SimHits.Physics.type = 'SimG4Core/Physics/DummyPhysics'
 process.g4SimHits.Physics.DummyEMPhysics = True
 process.g4SimHits.Physics.DefaultCutValue = 10. 
 process.g4SimHits.LHCTransport = False
-
-if (options.type == "DD4hep"):
-    dd4hep = True
-else:
-    dd4hep = False
 
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     dd4hep         = cms.untracked.bool(dd4hep),

@@ -54,7 +54,6 @@ process.load("CondCore.DBCommon.CondDBCommon_cfi")   # needed because the Global
 process.CondDBCommon.connect='frontier://FrontierProd/CMS_CONDITIONS'
 process.poolDBESSource=cms.ESSource("PoolDBESSource",
                                     process.CondDBCommon,
-                                    BlobStreamerName=cms.untracked.string('TBufferBlobStreamingService'),
                                     toGet           =cms.VPSet(
     cms.PSet(
     record=cms.string('SiStripFedCablingRcd'),

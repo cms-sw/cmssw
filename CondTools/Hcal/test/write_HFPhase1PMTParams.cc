@@ -97,10 +97,10 @@ int main(int argc, char *argv[]) {
     std::ifstream is(outputfile, mode);
     if (usingTxt) {
       boost::archive::text_iarchive ar(is);
-      ar &p2;
+      ar & p2;
     } else {
       eos::portable_iarchive ar(is);
-      ar &p2;
+      ar & p2;
     }
   }
 

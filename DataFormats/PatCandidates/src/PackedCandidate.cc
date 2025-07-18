@@ -39,8 +39,11 @@ void pat::PackedCandidate::packVtx(bool unpackAfterwards) {
   // if we want to go back to the full x,y,z we need to store also
   // float dl = dxPV * c + dyPV * s;
   // float xRec = - dxy_ * s + dl * c, yRec = dxy_ * c + dl * s;
-  float pzpt = p4_.load()->Pz() / p4_.load()->Pt();
-  dz_ = vertex_.load()->Z() - pv.Z() - (dxPV * c + dyPV * s) * pzpt;
+  dz_ = 0;
+  if (p4_.load()->Pt() != 0.f) {
+    float pzpt = p4_.load()->Pz() / p4_.load()->Pt();
+    dz_ = vertex_.load()->Z() - pv.Z() - (dxPV * c + dyPV * s) * pzpt;
+  }
   packedDxy_ = MiniFloatConverter::float32to16(dxy_ * 100);
   packedDz_ = pvRef.isNonnull() ? MiniFloatConverter::float32to16(dz_ * 100)
                                 : int16_t(std::round(dz_ / 40.f * std::numeric_limits<int16_t>::max()));

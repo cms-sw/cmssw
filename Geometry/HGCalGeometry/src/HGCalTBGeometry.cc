@@ -85,9 +85,9 @@ void HGCalTBGeometry::newCell(
 #endif
 }
 
-std::shared_ptr<const CaloCellGeometry> HGCalTBGeometry::getGeometry(const DetId& detId) const {
+CaloCellGeometryMayOwnPtr HGCalTBGeometry::getGeometry(const DetId& detId) const {
   if (detId == DetId())
-    return nullptr;  // nothing to get
+    return CaloCellGeometryMayOwnPtr();  // nothing to get
   DetId geomId = getGeometryDetId(detId);
   const uint32_t cellIndex(m_topology.detId2denseGeomId(geomId));
   const GlobalPoint pos = (detId != geomId) ? getPosition(detId, false) : GlobalPoint();
@@ -352,37 +352,36 @@ unsigned int HGCalTBGeometry::indexFor(const DetId& detId) const {
 
 unsigned int HGCalTBGeometry::sizeForDenseIndex() const { return m_topology.totalGeomModules(); }
 
-const CaloCellGeometry* HGCalTBGeometry::getGeometryRawPtr(uint32_t index) const {
+CaloCellGeometryPtr HGCalTBGeometry::getGeometryRawPtr(uint32_t index) const {
   // Modify the RawPtr class
-  if (m_cellVec.size() < index)
-    return nullptr;
+  if (m_cellVec.size() <= index)
+    return CaloCellGeometryPtr();
   const CaloCellGeometry* cell(&m_cellVec[index]);
-  return (nullptr == cell->param() ? nullptr : cell);
+  return CaloCellGeometryPtr(nullptr == cell->param() ? nullptr : cell);
 }
 
-std::shared_ptr<const CaloCellGeometry> HGCalTBGeometry::cellGeomPtr(uint32_t index) const {
+CaloCellGeometryPtr HGCalTBGeometry::cellGeomPtr(uint32_t index) const {
   if (index >= m_cellVec.size())
-    return nullptr;
-  static const auto do_not_delete = [](const void*) {};
-  auto cell = std::shared_ptr<const CaloCellGeometry>(&m_cellVec[index], do_not_delete);
+    return CaloCellGeometryPtr();
+  auto cell = &m_cellVec[index];
   if (nullptr == cell->param())
-    return nullptr;
-  return cell;
+    return CaloCellGeometryPtr();
+  return CaloCellGeometryPtr(cell);
 }
 
-std::shared_ptr<const CaloCellGeometry> HGCalTBGeometry::cellGeomPtr(uint32_t index, const GlobalPoint& pos) const {
+CaloCellGeometryMayOwnPtr HGCalTBGeometry::cellGeomPtr(uint32_t index, const GlobalPoint& pos) const {
   if ((index >= m_cellVec.size()) || (m_validGeomIds[index].rawId() == 0))
-    return nullptr;
+    return CaloCellGeometryMayOwnPtr();
   if (pos == GlobalPoint())
-    return cellGeomPtr(index);
-  auto cell = std::make_shared<FlatHexagon>(m_cellVec[index]);
+    return CaloCellGeometryMayOwnPtr(cellGeomPtr(index));
+  auto cell = std::make_unique<FlatHexagon>(m_cellVec[index]);
   cell->setPosition(pos);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "cellGeomPtr " << index << ":" << cell;
 #endif
   if (nullptr == cell->param())
-    return nullptr;
-  return cell;
+    return CaloCellGeometryMayOwnPtr();
+  return CaloCellGeometryMayOwnPtr(std::move(cell));
 }
 
 void HGCalTBGeometry::addValidID(const DetId& id) {

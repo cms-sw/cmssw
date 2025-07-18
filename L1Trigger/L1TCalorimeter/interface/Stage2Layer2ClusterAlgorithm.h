@@ -22,7 +22,7 @@ namespace l1t {
   public:
     virtual void processEvent(const std::vector<l1t::CaloTower>& towers, std::vector<l1t::CaloCluster>& clusters) = 0;
 
-    virtual ~Stage2Layer2ClusterAlgorithm(){};
+    virtual ~Stage2Layer2ClusterAlgorithm() {}
   };
 
 }  // namespace l1t

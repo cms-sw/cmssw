@@ -21,10 +21,7 @@
 DQMSummaryReader::DQMSummaryReader(const std::string& connectionString,
                                    const std::string& user,
                                    const std::string& pass)
-    : TestBase(), /*ReadBase(),*/
-      m_connectionString(connectionString),
-      m_user(user),
-      m_pass(pass) {
+    : TestBase(), m_connectionString(connectionString), m_user(user), m_pass(pass) {
   m_tableToRead = "";
 }
 

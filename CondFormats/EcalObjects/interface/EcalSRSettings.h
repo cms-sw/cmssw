@@ -33,7 +33,7 @@ public:
 
   /**Destructor
    */
-  virtual ~EcalSRSettings(){};
+  virtual ~EcalSRSettings() {}
 
   //method(s)
 public:

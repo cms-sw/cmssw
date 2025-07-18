@@ -15,11 +15,11 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/mc/Phase2HLTTDRWinter20DIGI/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW/PU200_110X_mcRun4_realistic_v3-v2/110000/005E74D6-B50E-674E-89E6-EAA9A617B476.root',)
+    fileNames = cms.untracked.vstring( '/store/cmst3/group/l1tr/cerminar/14_0_X/fpinputs_131X/v3/TTbar_PU200/inputs131X_1.root',)
 )
 
-process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D95Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D95_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
@@ -33,8 +33,8 @@ process.load('CalibCalorimetry.CaloTPG.CaloTPGTranscoder_cfi')
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('L1Trigger.TrackTrigger.TrackTrigger_cff')
 process.load("L1Trigger.TrackFindingTracklet.L1HybridEmulationTracks_cff") 
-process.load("L1Trigger.TrackerDTC.ProducerES_cff") 
-process.load("L1Trigger.TrackerDTC.ProducerED_cff") 
+
+process.load("L1Trigger.TrackerDTC.DTC_cff") 
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
 process.l1tLayer1Barrel9 = process.l1tLayer1Barrel.clone()
@@ -52,10 +52,11 @@ process.l1tLayer1Barrel9.boards=cms.VPSet(
 process.PFInputsTask = cms.Task(
     process.TTClustersFromPhase2TrackerDigis,
     process.TTStubsFromPhase2TrackerDigis,
-    process.TrackerDTCProducer,
+    process.ProducerDTC,
     process.offlineBeamSpot,
     process.l1tTTTracksFromTrackletEmulation,
     process.SimL1EmulatorTask
+    # process.L1THGCalTriggerPrimitivesTask
 )
 process.RunPF = cms.Path( 
         process.l1tLayer1Barrel +

@@ -29,7 +29,7 @@ namespace edm {
     private:
       bool enableSigInt_;
     };  // class UnixSignalService
-  }     // end of namespace service
+  }  // end of namespace service
 }  // end of namespace edm
 
 namespace edm {

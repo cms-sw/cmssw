@@ -21,7 +21,7 @@ public:
   StandAloneMuonBackwardFilter(const edm::ParameterSet& par, const MuonServiceProxy*);
 
   /// Destructor
-  virtual ~StandAloneMuonBackwardFilter(){};
+  virtual ~StandAloneMuonBackwardFilter() {}
 
   // Operations
 

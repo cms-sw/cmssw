@@ -29,6 +29,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/RunID.h"
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 
 #include "FWCore/Common/interface/EventBase.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -55,7 +56,6 @@ class testEvent;
 
 namespace edm {
 
-  class BranchDescription;
   class ModuleCallingContext;
   class TriggerResultsByName;
   class TriggerResults;
@@ -270,7 +270,7 @@ namespace edm {
 
     void fillLuminosityBlock() const;
 
-    ProductID makeProductID(BranchDescription const& desc) const;
+    ProductID makeProductID(ProductDescription const& desc) const;
 
     //override used by EventBase class
     BasicHandle getByLabelImpl(std::type_info const& iWrapperType,
@@ -374,8 +374,7 @@ namespace edm {
   OrphanHandle<PROD> Event::putImpl(EDPutToken::value_type index, std::unique_ptr<PROD> product) {
     // The following will call post_insert if T has such a function,
     // and do nothing if T has no such function.
-    std::conditional_t<detail::has_postinsert<PROD>::value, DoPostInsert<PROD>, DoNotPostInsert<PROD>> maybe_inserter;
-    maybe_inserter(product.get());
+    detail::do_post_insert_if_available(*product.get());
 
     assert(index < putProducts().size());
 
@@ -456,8 +455,7 @@ namespace edm {
 
     // The following will call post_insert if T has such a function,
     // and do nothing if T has no such function.
-    std::conditional_t<detail::has_postinsert<PROD>::value, DoPostInsert<PROD>, DoNotPostInsert<PROD>> maybe_inserter;
-    maybe_inserter(&(wp->bareProduct()));
+    detail::do_post_insert_if_available(wp->bareProduct());
 
     PROD const* prod = wp->product();
 

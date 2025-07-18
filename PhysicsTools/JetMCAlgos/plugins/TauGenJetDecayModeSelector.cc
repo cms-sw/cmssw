@@ -6,6 +6,10 @@ TauGenJetDecayModeSelectorImp::TauGenJetDecayModeSelectorImp(const edm::Paramete
   selectedTauDecayModes_ = cfg.getParameter<vstring>("select");
 }
 
+void TauGenJetDecayModeSelectorImp::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  desc.add<std::vector<std::string>>("select", {});
+}
+
 bool TauGenJetDecayModeSelectorImp::operator()(const reco::GenJet& tauGenJet) const {
   std::string tauGenJetDecayMode = JetMCTagUtils::genTauDecayMode(tauGenJet);
   for (vstring::const_iterator selectedTauDecayMode = selectedTauDecayModes_.begin();

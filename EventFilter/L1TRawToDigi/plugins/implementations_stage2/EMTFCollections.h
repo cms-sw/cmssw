@@ -39,7 +39,7 @@ namespace l1t {
             EMTFCPPFs_(new CPPFDigiCollection()),
             EMTFCPPFs_ZS_(new CPPFDigiCollection()),
             EMTFGEMPadClusters_(std::make_unique<GEMPadDigiClusterCollection>()),
-            EMTFGEMPadClusters_ZS_(std::make_unique<GEMPadDigiClusterCollection>()){};
+            EMTFGEMPadClusters_ZS_(std::make_unique<GEMPadDigiClusterCollection>()) {}
 
       ~EMTFCollections() override;
 

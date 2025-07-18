@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 
-from __future__ import print_function
 import os
 import sys
 import fileinput
@@ -117,7 +116,7 @@ def do_validation(samples, GlobalTag):
             harvestedfile = './DQM_V0001_R000000001__' + GlobalTag + '__' + sample + '__Validation.root'
             if(( Sequence == "harvesting" and os.path.isfile(harvestedfile)) == False):
 #                cmd = 'dbsql "find dataset.createdate, dataset where dataset like *'
-		cmd = 'dbsql "find dataset where dataset like *'
+                cmd = 'dbsql "find dataset where dataset like *'
                 cmd += sample + '/' + NewRelease + '_' + GlobalTag + '*GEN-SIM-RECO*" '
                 cmd += '| grep ' + sample + ' | grep -v test | sort | tail -1 | cut -f2 '
                 print(cmd)

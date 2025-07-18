@@ -11,7 +11,6 @@
 # Michael Anderson
 # Sept 15, 2009
 
-from __future__ import print_function
 import sys, os, shutil
 #----------------------------------------------------------------------
 # parameters

@@ -39,7 +39,7 @@ HGCalCalibrationCell::HGCalCalibrationCell(const HGCalDDDConstants* cons) : cons
 int HGCalCalibrationCell::findCell(
     int zside, int layer, int waferU, int waferV, int cellUV, const std::pair<double, double>& xy) const {
   const auto& info = cons_->waferInfo(layer, waferU, waferV);
-  int ld = (info.type == HGCalTypes::WaferFineThin) ? 1 : 0;
+  int ld = ((info.type == HGCalTypes::WaferHD120) || (info.type == HGCalTypes::WaferHD200)) ? 1 : 0;
   int part = (info.part == HGCalTypes::WaferFull) ? 1 : 0;
   int indx = 2 * ld + part;
 #ifdef EDM_ML_DEBUG

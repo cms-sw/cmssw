@@ -1,4 +1,3 @@
-from __future__ import print_function
 #
 # cfg file to pack (DigiToRaw) a GT DAQ record, unpack (RawToDigi) it back
 # and compare the two set of digis

@@ -293,7 +293,7 @@ void DTResolutionAnalysisTest::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::I
             << "[DTResolutionAnalysisTask] Histo: " << getMEName(slID) << " not found" << endl;
       }
     }  // loop on SLs
-  }    // Loop on Stations
+  }  // Loop on Stations
 }
 
 void DTResolutionAnalysisTest::bookHistos(DQMStore::IBooker& ibooker, int wh) {

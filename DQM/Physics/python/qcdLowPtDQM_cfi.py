@@ -7,7 +7,7 @@ from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi import *
 from RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi         import *
 from RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff    import *
 
-siPixelDigis.cpu.InputLabel = cms.InputTag("source")
+siPixelDigis.InputLabel = cms.InputTag("source")
 
 myRecoSeq1 = cms.Sequence(
     siPixelDigis    *

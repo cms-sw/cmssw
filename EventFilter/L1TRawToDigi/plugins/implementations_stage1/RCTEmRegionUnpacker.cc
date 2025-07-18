@@ -82,7 +82,7 @@ namespace l1t {
             resRCTEMCands_->push_back(em);
           }
         }  // end if odd
-      }    // end of loop over BX
+      }  // end of loop over BX
     }
 
     void unpack_region(const Block& block, UnpackerCollections* coll) {
@@ -154,7 +154,7 @@ namespace l1t {
             }
           }
         }  // end if even
-      }    // end of loop over BX
+      }  // end of loop over BX
     }
 
     bool RCTEmRegionUnpacker::unpack(const Block& block, UnpackerCollections* coll) {

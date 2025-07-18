@@ -3,7 +3,8 @@
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalUncalibRecHitWorkerBaseClass.h"
-typedef edmplugin::PluginFactory<HGCalUncalibRecHitWorkerBaseClass*(const edm::ParameterSet&, edm::ConsumesCollector)>
+typedef edmplugin::PluginFactory<HGCalUncalibRecHitWorkerBaseClass*(
+    const edm::ParameterSet&, edm::ConsumesCollector, bool)>
     HGCalUncalibRecHitWorkerFactory;
 
 #endif

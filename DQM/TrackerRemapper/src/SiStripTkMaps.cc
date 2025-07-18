@@ -56,8 +56,14 @@ void SiStripTkMaps::bookMap(const std::string mapTitle, const std::string zAxisT
   m_trackerMap->GetZaxis()->SetTitle(m_zAxisTitle.c_str());
   m_trackerMap->GetZaxis()->CenterTitle();
 
+  // Add all bins
   for (const auto& pair : m_bins) {
     m_trackerMap->AddBin(pair.second->Clone());
+  }
+
+  // Initialize all bins with zero values
+  for (const auto& pair : m_bins) {
+    m_trackerMap->Fill(pair.first, 0.0);
   }
 }
 
@@ -79,6 +85,26 @@ void SiStripTkMaps::drawMap(TCanvas& canvas, std::string option) {
   static constexpr int wH_ = 3000;
   static constexpr int hH_ = 700;
 
+  // Define a special value for "empty" bins
+  static constexpr double emptyBinValue = -9999;
+
+  // Ensure all bins are drawn, including empty ones
+  for (int i = 1; i <= m_trackerMap->GetNumberOfBins(); ++i) {
+    if (m_trackerMap->GetBinContent(i) == 0) {
+      m_trackerMap->SetBinContent(i, emptyBinValue);
+    }
+  }
+
+  // Adjust the color palette
+  if (!m_values.empty()) {
+    double minValue = *std::min_element(m_values.begin(), m_values.end());
+    double maxValue = *std::max_element(m_values.begin(), m_values.end());
+
+    // Setting a palette that skips the color for the emptyBinValue
+    m_trackerMap->SetMinimum(minValue);  // Set min to the smallest valid value
+    m_trackerMap->SetMaximum(maxValue);  // Set max to the largest valid value
+  }
+
   canvas.cd();
   adjustCanvasMargins(canvas.cd(), tmargin_, bmargin_, lmargin_, rmargin_);
   canvas.Update();
@@ -88,6 +114,14 @@ void SiStripTkMaps::drawMap(TCanvas& canvas, std::string option) {
     m_trackerMap->Draw(option.c_str());
   } else {
     m_trackerMap->Draw();
+  }
+
+  // Set the "empty" bins color to white
+  for (int i = 1; i <= m_trackerMap->GetNumberOfBins(); ++i) {
+    if (m_trackerMap->GetBinContent(i) == emptyBinValue) {
+      m_trackerMap->SetBinContent(i, emptyBinValue);
+      m_trackerMap->SetMarkerColor(kWhite);
+    }
   }
 
   canvas.SetFrameLineColor(0);
@@ -275,8 +309,8 @@ void SiStripTkMaps::readVertices(double& minx, double& maxx, double& miny, doubl
           }
           ++iy;
         }  // else
-      }    // else
-    }      // loop on entries
+      }  // else
+    }  // loop on entries
 
     if (isPixel) {
       continue;

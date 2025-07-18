@@ -2,7 +2,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Framework/interface/NoDataException.h"
 #include "FWCore/Framework/interface/NoRecordException.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

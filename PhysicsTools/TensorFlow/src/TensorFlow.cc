@@ -6,9 +6,9 @@
  */
 
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
+#include "FWCore/AbstractServices/interface/ResourceInformation.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/ResourceInformation.h"
 
 namespace tensorflow {
 
@@ -41,7 +41,7 @@ namespace tensorflow {
     }
     // NVidia GPU
     else if (backend == Backend::cuda) {
-      if (not ri->nvidiaDriverVersion().empty()) {
+      if (ri->hasGpuNvidia()) {
         // Check if one GPU device is visible to TF
         // If not, an exception is raised --> this can happen in case of driver version mismatch
         // or missing CUDA support in TF compilation
@@ -73,7 +73,7 @@ namespace tensorflow {
     // Get NVidia GPU if possible or fallback to CPU
     else if (backend == Backend::best) {
       // Check if a Nvidia GPU is availabl
-      if (not ri->nvidiaDriverVersion().empty()) {
+      if (ri->hasGpuNvidia()) {
         // Take only the first GPU in the CUDA_VISIBLE_DEVICE list
         (*_options.config.mutable_device_count())["GPU"] = 1;
         _options.config.mutable_gpu_options()->set_visible_device_list("0");
@@ -85,16 +85,6 @@ namespace tensorflow {
         _options.config.mutable_gpu_options()->set_visible_device_list("");
       }
     }
-  }
-
-  void setLogging(const std::string& level) {
-    /*
-     * 0 = all messages are logged (default behavior)
-     * 1 = INFO messages are not printed
-     * 2 = INFO and WARNING messages are not printed
-     * 3 = INFO, WARNING, and ERROR messages are not printed
-     */
-    setenv("TF_CPP_MIN_LOG_LEVEL", level.c_str(), 0);
   }
 
   MetaGraphDef* loadMetaGraphDef(const std::string& exportDir, const std::string& tag) {
@@ -265,6 +255,19 @@ namespace tensorflow {
     return state;
   }
 
+  bool checkEmptyInputs(const NamedTensorList& inputs) {
+    // check for empty tensors in the inputs
+    bool isEmpty = false;
+    for (const auto& input : inputs) {
+      // Checking using the shape
+      if (input.second.shape().num_elements() == 0) {
+        isEmpty = true;
+        break;
+      }
+    }
+    return isEmpty;
+  }
+
   void run(Session* session,
            const NamedTensorList& inputs,
            const std::vector<std::string>& outputNames,
@@ -276,6 +279,10 @@ namespace tensorflow {
 
     // create empty run options
     RunOptions runOptions;
+
+    // Check if the inputs are empty
+    if (checkEmptyInputs(inputs))
+      return;
 
     // run and check the status
     Status status = session->Run(runOptions, inputs, outputNames, {}, outputs, nullptr, threadPoolOptions);

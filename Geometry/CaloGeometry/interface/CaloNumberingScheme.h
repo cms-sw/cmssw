@@ -10,7 +10,7 @@ class CaloNumberingScheme {
 public:
   /// Constructor with optional verbosity control
   CaloNumberingScheme(int iv = 0);
-  virtual ~CaloNumberingScheme(){};
+  virtual ~CaloNumberingScheme() {}
   /// Verbosity setting
   void setVerbosity(int);
 

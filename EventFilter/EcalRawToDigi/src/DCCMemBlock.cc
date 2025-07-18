@@ -254,7 +254,7 @@ void DCCMemBlock::unpackMemTowerData() {
 
       data_ += numbDWInXtalBlock_;
     }  //loop over xtals
-  }    // loop over strips
+  }  // loop over strips
 }
 
 void DCCMemBlock::fillPnDiodeDigisCollection() {

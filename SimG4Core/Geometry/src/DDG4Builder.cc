@@ -159,8 +159,8 @@ G4LogicalVolume *DDG4Builder::BuildGeometry(SensitiveDetectorCatalog &catalog) {
                        gra.edgeData(cit->second)->copyno() + offset + tag,  // copy number
                        check_);
       }  // iterate over children
-    }    // if (children)
-  }      // iterate over graph nodes
+    }  // if (children)
+  }  // iterate over graph nodes
 
   // Looking for in the G4ReflectionFactory secretly created reflected
   // G4LogicalVolumes

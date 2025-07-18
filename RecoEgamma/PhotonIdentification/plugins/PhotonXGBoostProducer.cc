@@ -20,7 +20,7 @@
 class PhotonXGBoostProducer : public edm::global::EDProducer<> {
 public:
   explicit PhotonXGBoostProducer(edm::ParameterSet const&);
-  ~PhotonXGBoostProducer() = default;
+  ~PhotonXGBoostProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -38,8 +38,8 @@ private:
   const unsigned mvaNTreeLimitB_;
   const unsigned mvaNTreeLimitE_;
   const double mvaThresholdEt_;
-  std::unique_ptr<PhotonXGBoostEstimator> mvaEstimatorB_;
-  std::unique_ptr<PhotonXGBoostEstimator> mvaEstimatorE_;
+  const std::unique_ptr<const PhotonXGBoostEstimator> mvaEstimatorB_;
+  const std::unique_ptr<const PhotonXGBoostEstimator> mvaEstimatorE_;
 };
 
 PhotonXGBoostProducer::PhotonXGBoostProducer(edm::ParameterSet const& config)
@@ -54,9 +54,9 @@ PhotonXGBoostProducer::PhotonXGBoostProducer(edm::ParameterSet const& config)
       mvaFileXgbE_(config.getParameter<edm::FileInPath>("mvaFileXgbE")),
       mvaNTreeLimitB_(config.getParameter<unsigned int>("mvaNTreeLimitB")),
       mvaNTreeLimitE_(config.getParameter<unsigned int>("mvaNTreeLimitE")),
-      mvaThresholdEt_(config.getParameter<double>("mvaThresholdEt")) {
-  mvaEstimatorB_ = std::make_unique<PhotonXGBoostEstimator>(mvaFileXgbB_, mvaNTreeLimitB_);
-  mvaEstimatorE_ = std::make_unique<PhotonXGBoostEstimator>(mvaFileXgbE_, mvaNTreeLimitE_);
+      mvaThresholdEt_(config.getParameter<double>("mvaThresholdEt")),
+      mvaEstimatorB_{std::make_unique<const PhotonXGBoostEstimator>(mvaFileXgbB_, mvaNTreeLimitB_)},
+      mvaEstimatorE_{std::make_unique<const PhotonXGBoostEstimator>(mvaFileXgbE_, mvaNTreeLimitE_)} {
   produces<reco::RecoEcalCandidateIsolationMap>();
 }
 

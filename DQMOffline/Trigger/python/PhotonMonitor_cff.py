@@ -51,6 +51,10 @@ Photon60_DisplacedIdL_PFHT350_monitoring = hltPhotonmonitoring.clone(
     numGenericTriggerEventPSet = dict(hltPaths = ["HLT_Photon60_R9Id90_CaloIdL_IsoL_DisplacedIdL_PFHT350_v*"])
 )
 
+CscCluster50_Photon20Unseeded = hltPhotonmonitoring.clone(
+    FolderName = 'HLT/EXO/DisplacedPhoton/CscCluster50_Photon20Unseeded/',
+    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_CscCluster50_Photon20Unseeded_v*"])
+)
 
 from DQMOffline.Trigger.ObjMonitor_cfi import hltobjmonitoring
 
@@ -108,6 +112,7 @@ exoHLTPhotonmonitoring = cms.Sequence(
     + SinglePhoton165_R9Id90_HE10_IsoM_monitoring
     + Photon50_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ300DEta3_PFMET50_monitoring
     + Photon75_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ300DEta3_monitoring
+    + CscCluster50_Photon20Unseeded
 )
 
 
@@ -157,13 +162,6 @@ DiPhoton10Time1p4ns_monitoring = hltPhotonmonitoring.clone(
     numGenericTriggerEventPSet = dict(hltPaths = ["HLT_DiPhoton10Time1p4ns_v*"]),
 )
 
-DiPhoton10sminlt0p1_monitoring = hltPhotonmonitoring.clone(
-    FolderName = 'HLT/EXO/DiPhoton/DiPhoton10sminlt0p1/',
-    nphotons = 2,
-    photonSelection = "(pt > 10 && abs(eta)<1.4442 && hadTowOverEm<0.12 && full5x5_sigmaIetaIeta()<0.015 && full5x5_r9>.5)||(pt > 10 && abs(eta)<2.5 && abs(eta)>1.5556 && hadTowOverEm<0.12 && full5x5_sigmaIetaIeta()<0.035 && full5x5_r9>.8)",
-    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_DiPhoton10sminlt0p1_v*"]),
-)
-
 higgsHLTDiphotonMonitoring = cms.Sequence(
     DiphotonMass90_monitoring
     +DiphotonMass95_monitoring
@@ -171,5 +169,4 @@ higgsHLTDiphotonMonitoring = cms.Sequence(
     +Diphoton3018_monitoring
     +Diphoton2214_monitoring
     +DiPhoton10Time1p4ns_monitoring
-    +DiPhoton10sminlt0p1_monitoring
 )

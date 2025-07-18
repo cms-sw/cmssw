@@ -33,6 +33,8 @@ public:
   virtual int rocsX() const = 0;
   virtual int rowsperroc() const = 0;
   virtual int colsperroc() const = 0;
+  virtual bool bigpixelsX() const = 0;
+  virtual bool bigpixelsY() const = 0;
 
   virtual float localX(float mpX) const = 0;
   virtual float localY(float mpY) const = 0;
@@ -41,6 +43,8 @@ public:
 
   virtual bool isItBigPixelInX(int ixbin) const = 0;
   virtual bool isItBigPixelInY(int iybin) const = 0;
+  virtual float pixelFractionInX(int ixbin) const = 0;
+  virtual float pixelFractionInY(int iybin) const = 0;
   virtual bool containsBigPixelInX(int ixmin, int ixmax) const = 0;
   virtual bool containsBigPixelInY(int iymin, int iymax) const = 0;
 

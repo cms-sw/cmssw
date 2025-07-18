@@ -6,8 +6,6 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("MERGE")
-
-process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.MessageLogger.cerr.threshold = 'ERROR'
 
@@ -17,35 +15,37 @@ process.options = cms.untracked.PSet(
   Rethrow = FWCore.Framework.test.cmsExceptionsFatalOption_cff.Rethrow
 )
 
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
+from IOPool.Input.modules import PoolSource
+process.source = PoolSource(
+    fileNames = [
         'file:testRunMerge1.root', 
         'file:testRunMerge2.root', 
         'file:testRunMerge3.root',
         'file:testRunMerge4.root',
         'file:testRunMerge5.root'
-    )
-    , firstRun = cms.untracked.uint32(17)
-    , firstLuminosityBlock = cms.untracked.uint32(3)
-    , firstEvent = cms.untracked.uint32(6)
-    , lumisToSkip = cms.untracked.VLuminosityBlockRange(
-                                           '18:3',
-                                           '19:2',
-                                           '21:4',
-                                           '16:2'
-                                          )
-    , duplicateCheckMode = cms.untracked.string('checkEachRealDataFile')
+    ]
+    , firstRun = 17
+    , firstLuminosityBlock = 3
+    , firstEvent = 6
+    , lumisToSkip = [
+        '18:3',
+        '19:2',
+        '21:4',
+        '16:2'
+    ]
+    , duplicateCheckMode = 'checkEachRealDataFile'
 )
 
-process.thingWithMergeProducer = cms.EDProducer("ThingWithMergeProducer")
+from FWCore.Integration.modules import ThingWithMergeProducer
+process.thingWithMergeProducer = ThingWithMergeProducer()
 
-process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('testRunMerge_a.root')
-)
+from IOPool.Output.modules import PoolOutputModule
+process.out = PoolOutputModule(fileName = 'testRunMerge_a.root')
 
-process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
-    verbose = cms.untracked.bool(True),
-    expectedRunLumiEvents = cms.untracked.vuint32(
+from FWCore.Framework.modules import RunLumiEventAnalyzer
+process.test = RunLumiEventAnalyzer(
+    verbose = True,
+    expectedRunLumiEvents = [
 17, 0, 0,
 17, 3, 0,
 17, 3, 6,
@@ -109,7 +109,7 @@ process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
 21, 3, 6,
 21, 3, 0,
 21, 0, 0
-)
+]
 )
 
 process.path1 = cms.Path(process.thingWithMergeProducer + process.test)

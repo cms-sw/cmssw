@@ -29,4 +29,5 @@
 <use name="root"/>
 <use name="gsl"/>
 <use name="fastjet"/>
+<use name="SimFastTiming/FastTimingCommon"/>
 <flags EDM_PLUGIN="1"/>

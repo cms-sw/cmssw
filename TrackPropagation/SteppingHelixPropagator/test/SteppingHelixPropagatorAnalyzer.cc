@@ -359,9 +359,10 @@ void SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const ed
       std::map<double, const GlobalSimHit*>::const_iterator simHitsCI = simHitsByDistance.begin();
       for (; simHitsCI != simHitsByDistance.end(); simHitsCI++) {
         const GlobalSimHit* igHit = simHitsCI->second;
-        const PSimHit* iHit = simHitsCI->second->hit;
 
         if (debug_) {
+          [[clang::suppress]]
+          const PSimHit* iHit = simHitsCI->second->hit;
           LogTrace(metname) << igHit->id.rawId() << " r3L:" << iHit->localPosition() << " r3G:" << igHit->r3
                             << " p3L:" << iHit->momentumAtEntry() << " p3G:" << igHit->p3
                             << " pId:" << iHit->particleType() << " tId:" << iHit->trackId() << std::endl;
@@ -371,7 +372,6 @@ void SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const ed
           LogTrace(metname) << "Will propagate to surface: " << igHit->surf->position() << " "
                             << igHit->surf->rotation() << std::endl;
         }
-        pStatus = 0;
         if (startFromPrevHit_) {
           if (simHitsCI != simHitsByDistance.begin()) {
             std::map<double, const GlobalSimHit*>::const_iterator simHitPrevCI = simHitsCI;

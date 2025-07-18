@@ -54,7 +54,6 @@
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"

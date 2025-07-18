@@ -63,13 +63,13 @@
 #include "DataFormats/Provenance/interface/EventProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // forward declarations
 namespace edm {
   class WrapperBase;
   class ProductRegistry;
-  class BranchDescription;
   class EDProductGetter;
   class EventAux;
   class Timestamp;
@@ -100,8 +100,7 @@ namespace fwlite {
     // DataGetterHelper caching is enabled. When user sets useCache to
     // false no cache is created unless user attaches and controls it
     // himself.
-    Event(
-        TFile* iFile, bool useCache = true, std::function<void(TBranch const&)> baFunc = [](TBranch const&) {});
+    Event(TFile* iFile, bool useCache = true, std::function<void(TBranch const&)> baFunc = [](TBranch const&) {});
 
     Event(Event const&) = delete;  // stop default
 
@@ -174,8 +173,8 @@ namespace fwlite {
 
     edm::EventAuxiliary const& eventAuxiliary() const override;
 
-    std::vector<edm::BranchDescription> const& getBranchDescriptions() const {
-      return branchMap_.getBranchDescriptions();
+    std::vector<edm::ProductDescription> const& getProductDescriptions() const {
+      return branchMap_.getProductDescriptions();
     }
     std::vector<std::string> const& getProcessHistory() const;
     TFile* getTFile() const { return branchMap_.getFile(); }

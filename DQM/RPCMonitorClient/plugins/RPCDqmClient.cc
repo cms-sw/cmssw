@@ -162,7 +162,7 @@ void RPCDqmClient::getMonitorElements(DQMStore::IGetter& igetter) {
       myDetIds.push_back(detId);
 
     }  //end loop on clients
-  }    //end loop on all geometry and get all histos
+  }  //end loop on all geometry and get all histos
 
   //Clustersize
   std::vector<MonitorElement*> myMeVectCl;

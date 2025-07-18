@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.Trigger.SiPixel_OfflineMonitoring_Cluster_cff import *
 from DQMOffline.Trigger.SiPixel_OfflineMonitoring_TrackCluster_cff import *
+from DQMOffline.Trigger.SiPixel_OfflineMonitoring_TrackResiduals_cff import *
 
 from DQM.HLTEvF.dqmCorrelationClient_cfi import *
 pixelClusterVsLumi = dqmCorrelationClient.clone(
@@ -51,9 +52,11 @@ pixelTrackClusterVsLumiPXForward.me2.folder = "HLT/Pixel/TrackClusters"
 pixelTrackClusterVsLumiPXForward.me2.name   = "num_clusters_ontrack_per_Lumisection_PXForward"
 
 sipixelHarvesterHLTsequence = cms.Sequence(
-#    hltSiPixelPhase1ClustersHarvester
-#    + hltSiPixelPhase1TrackClustersHarvester
-    pixelClusterVsLumiPXBarrel
+    #hltSiPixelPhase1ClustersHarvester
+    #+ hltSiPixelPhase1TrackClustersHarvester
+    hltSiPixelPhase1TrackResidualsHarvester
+    + hltSiPixelPhase1ResidualsExtra
+    + pixelClusterVsLumiPXBarrel
     + pixelClusterVsLumiPXForward
 #    + pixelTrackClusterVsLumiPXBarrel
 #    + pixelTrackClusterVsLumiPXForward

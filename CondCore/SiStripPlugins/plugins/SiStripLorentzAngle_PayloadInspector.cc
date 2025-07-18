@@ -122,9 +122,9 @@ namespace {
       std::shared_ptr<SiStripLorentzAngle> last_payload = fetchPayload(std::get<1>(lastiov));
       std::shared_ptr<SiStripLorentzAngle> first_payload = fetchPayload(std::get<1>(firstiov));
 
-      SiStripLorentzAngleContainer *l_objContainer = new SiStripLorentzAngleContainer(last_payload, lastiov, tagname1);
+      SiStripLorentzAngleContainer *l_objContainer = new SiStripLorentzAngleContainer(last_payload, lastiov, tagname2);
       SiStripLorentzAngleContainer *f_objContainer =
-          new SiStripLorentzAngleContainer(first_payload, firstiov, tagname2);
+          new SiStripLorentzAngleContainer(first_payload, firstiov, tagname1);
 
       l_objContainer->compare(f_objContainer);
 
@@ -162,7 +162,7 @@ namespace {
             fillWithValue(element.second);
           }
         }  // payload
-      }    // iovs
+      }  // iovs
       return true;
     }  // fill
   };

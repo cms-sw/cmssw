@@ -95,8 +95,11 @@ public:
     calcMuonSubtrRawPtAsValueMap_ = cfg.getParameter<bool>("calcMuonSubtrRawPtAsValueMap");
 
     produces<std::vector<T>>();
-    if (calcMuonSubtrRawPtAsValueMap_)
+    if (calcMuonSubtrRawPtAsValueMap_) {
       produces<edm::ValueMap<float>>("MuonSubtrRawPt");
+      produces<edm::ValueMap<float>>("MuonSubtrRawEta");
+      produces<edm::ValueMap<float>>("MuonSubtrRawPhi");
+    }
   }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -139,6 +142,8 @@ private:
 
     int numJets = jets->size();
     std::vector<float> muonSubtrRawPt(numJets, 0);
+    std::vector<float> muonSubtrRawEta(numJets, 0);
+    std::vector<float> muonSubtrRawPhi(numJets, 0);
 
     for (int jetIndex = 0; jetIndex < numJets; ++jetIndex) {
       const T& jet = jets->at(jetIndex);
@@ -179,8 +184,11 @@ private:
         continue;
 
       cleanedJets->push_back(jet);
-      if (calcMuonSubtrRawPtAsValueMap_)
+      if (calcMuonSubtrRawPtAsValueMap_) {
         muonSubtrRawPt[jetIndex] = rawJetP4.Pt();
+        muonSubtrRawEta[jetIndex] = rawJetP4.Eta();
+        muonSubtrRawPhi[jetIndex] = rawJetP4.Phi();
+      }
     }
 
     evt.put(std::move(cleanedJets));
@@ -191,6 +199,18 @@ private:
       fillerMuonSubtrRawPt.insert(jets, muonSubtrRawPt.begin(), muonSubtrRawPt.end());
       fillerMuonSubtrRawPt.fill();
       evt.put(std::move(muonSubtrRawPtV), "MuonSubtrRawPt");
+
+      std::unique_ptr<edm::ValueMap<float>> muonSubtrRawEtaV(new edm::ValueMap<float>());
+      edm::ValueMap<float>::Filler fillerMuonSubtrRawEta(*muonSubtrRawEtaV);
+      fillerMuonSubtrRawEta.insert(jets, muonSubtrRawEta.begin(), muonSubtrRawEta.end());
+      fillerMuonSubtrRawEta.fill();
+      evt.put(std::move(muonSubtrRawEtaV), "MuonSubtrRawEta");
+
+      std::unique_ptr<edm::ValueMap<float>> muonSubtrRawPhiV(new edm::ValueMap<float>());
+      edm::ValueMap<float>::Filler fillerMuonSubtrRawPhi(*muonSubtrRawPhiV);
+      fillerMuonSubtrRawPhi.insert(jets, muonSubtrRawPhi.begin(), muonSubtrRawPhi.end());
+      fillerMuonSubtrRawPhi.fill();
+      evt.put(std::move(muonSubtrRawPhiV), "MuonSubtrRawPhi");
     }
   }
 

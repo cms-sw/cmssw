@@ -434,7 +434,7 @@ void testCSCDigis::readCSCWireDigi(CSCWireDigiCollection &collection) {
       std::cout << std::endl;
       std::cout << " CSC Wire Word with Time Bins Bits On " << (*digiIt).getTimeBinWord() << std::endl;
     }  // for digis in layer
-  }    // end of for (detUnitIt=...
+  }  // end of for (detUnitIt=...
 
   printf("CSC Wire count:  %3d \n", count);
 }
@@ -468,7 +468,7 @@ void testCSCDigis::readCSCComparatorDigi(CSCComparatorDigiCollection &collection
       std::cout << std::endl;
 
     }  // for digis in layer
-  }    // end of for (detUnitIt=...
+  }  // end of for (detUnitIt=...
 
   printf("CSCComparatorDigi count:  %3d \n", count);
 }
@@ -503,7 +503,7 @@ void testCSCDigis::readCSCStripDigi(CSCStripDigiCollection &collection) {
           (*digiIt).getADCCounts()[7]);
 
     }  // for digis in layer
-  }    // end of for (detUnitIt=...
+  }  // end of for (detUnitIt=...
 
   printf("CSC Strip count:  %3d \n", count);
 }
@@ -530,7 +530,7 @@ void testCSCDigis::readCSCRPCDigi(CSCRPCDigiCollection &collection) {
              (*digiIt).getBXN());
 
     }  // for digis in layer
-  }    // end of for (detUnitIt=...
+  }  // end of for (detUnitIt=...
 
   printf("RPC count:  %3d \n", count);
 }
@@ -568,7 +568,7 @@ void testCSCDigis::readCSCALCTDigi(CSCALCTDigiCollection &collection) {
           (*digiIt).getBX(),
           (*digiIt).getTrknmb());
     }  // for digis in layer
-  }    // end of for (detUnitIt=...
+  }  // end of for (detUnitIt=...
   printf("CSC ALCT count:  %3d \n", count);
 }
 
@@ -610,7 +610,7 @@ void testCSCDigis::readCSCCLCTDigi(CSCCLCTDigiCollection &collection) {
           (*digiIt).getTrknmb());
 
     }  // for digis in layer
-  }    // end of for (detUnitIt=...
+  }  // end of for (detUnitIt=...
   printf("CSC CLCT count:  %3d \n", count);
 }
 
@@ -658,7 +658,7 @@ void testCSCDigis::readCSCCFEBStatusDigi(CSCCFEBStatusDigiCollection &collection
       std::cout<<std::endl;
 */
     }  // for digis in collection
-  }    // end of for (detUnitIt=...
+  }  // end of for (detUnitIt=...
 }
 
 void testCSCDigis::readCSCTMBStatusDigi(CSCTMBStatusDigiCollection &collection) {
@@ -684,7 +684,7 @@ void testCSCDigis::readCSCTMBStatusDigi(CSCTMBStatusDigiCollection &collection) 
       */
 
     }  // for digis in collection
-  }    // end of for (detUnitIt=...
+  }  // end of for (detUnitIt=...
 }
 /*
 void testCSCDigis::readCSCDCCFormatStatusDigi(CSCDCCFormatStatusDigiCollection & collection) {

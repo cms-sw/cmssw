@@ -353,7 +353,10 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold,
   // nalgo=N;
 }
 
-void CaloTowersCreationAlgo::setThresFromDB(const HcalPFCuts* cuts) { hcalCuts = cuts; }
+void CaloTowersCreationAlgo::setThresFromDB(const EcalPFRecHitThresholds* EcalCuts, const HcalPFCuts* HcalCuts) {
+  ecalCuts = EcalCuts;
+  hcalCuts = HcalCuts;
+}
 
 void CaloTowersCreationAlgo::setGeometry(const CaloTowerTopology* cttopo,
                                          const CaloTowerConstituentsMap* ctmap,
@@ -629,7 +632,7 @@ void CaloTowersCreationAlgo::assignHitHcal(const CaloRecHit* recHit) {
       tower28.E_outer += e28;
       tower29.E_outer += e29;
     }  // not a "bad" hit
-  }    // end of special case
+  }  // end of special case
 
   else {
     HcalDetId hcalDetId(detId);
@@ -1253,14 +1256,22 @@ void CaloTowersCreationAlgo::getThresholdAndWeight(const DetId& detId, double& t
 
     EcalSubdetector subdet = (EcalSubdetector)(detId.subdetId());
     if (subdet == EcalBarrel) {
-      threshold = theEBthreshold;
+      if (ecalCuts == nullptr) {  // this means that ecalRecHitThresh_ is false
+        threshold = theEBthreshold;
+      } else {
+        threshold = (*ecalCuts)[detId];
+      }
       weight = theEBweight;
       if (weight <= 0.) {
         ROOT::Math::Interpolator my(theEBGrid, theEBWeights, ROOT::Math::Interpolation::kAKIMA);
         weight = my.Eval(theEBEScale);
       }
     } else if (subdet == EcalEndcap) {
-      threshold = theEEthreshold;
+      if (ecalCuts == nullptr) {
+        threshold = theEEthreshold;
+      } else {
+        threshold = (*ecalCuts)[detId];
+      }
       weight = theEEweight;
       if (weight <= 0.) {
         ROOT::Math::Interpolator my(theEEGrid, theEEWeights, ROOT::Math::Interpolation::kAKIMA);

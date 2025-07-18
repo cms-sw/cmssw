@@ -38,11 +38,11 @@
 class SimDigiDumper : public edm::one::EDAnalyzer<> {
 public:
   explicit SimDigiDumper(const edm::ParameterSet&);
-  virtual ~SimDigiDumper(){};
+  virtual ~SimDigiDumper() {}
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginJob(){};
-  virtual void endJob(){};
+  virtual void beginJob() {}
+  virtual void endJob() {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

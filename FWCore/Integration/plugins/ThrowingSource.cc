@@ -12,7 +12,7 @@ namespace edm {
     explicit ThrowingSource(ParameterSet const&, InputSourceDescription const&);
     ~ThrowingSource() noexcept(false) override;
 
-    void beginJob() override;
+    void beginJob(ProductRegistry const&) override;
     void endJob() override;
     void beginLuminosityBlock(edm::LuminosityBlock&) override;
     void beginRun(edm::Run&) override;
@@ -63,7 +63,7 @@ namespace edm {
 
   void ThrowingSource::produce(edm::Event&) {}
 
-  void ThrowingSource::beginJob() {
+  void ThrowingSource::beginJob(edm::ProductRegistry const&) {
     if (whenToThrow_ == kBeginJob)
       throw cms::Exception("TestThrow") << "ThrowingSource::beginJob";
   }

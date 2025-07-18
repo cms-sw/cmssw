@@ -355,7 +355,7 @@ void EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
         if (ebSrFlags)
           ebSrFlags->push_back(EBSrFlag(id, flag));
       }  //next iPhi
-    }    //next barrel iEta
+    }  //next barrel iEta
 
     //endcap:
     EcalScDetId id;
@@ -382,7 +382,7 @@ void EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
                                                 << "negative interest in EE for SC " << id << "\n";
         }
       }  //next iY
-    }    //next iX
+    }  //next iX
   }
 }
 

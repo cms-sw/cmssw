@@ -264,8 +264,8 @@ void SiPixelPhase1RawDataErrorComparator::bookHistograms(DQMStore::IBooker& iBoo
                    -0.5,
                    nErrors - 0.5,
                    nFEDs,
-                   FEDNumbering::MINSiPixeluTCAFEDID - 0.5,
-                   FEDNumbering::MAXSiPixeluTCAFEDID - 0.5);
+                   static_cast<double>(FEDNumbering::MINSiPixeluTCAFEDID) - 0.5,
+                   static_cast<double>(FEDNumbering::MAXSiPixeluTCAFEDID) - 0.5);
   for (int j = 0; j < nErrors; j++) {
     const auto& errorCode = static_cast<SiPixelFEDErrorCodes>(j + k_FED25);
     h_FEDerrorVsFEDIdUnbalance_->setBinLabel(j + 1, errorCodeToTypeMap.at(errorCode));
@@ -284,7 +284,7 @@ void SiPixelPhase1RawDataErrorComparator::bookHistograms(DQMStore::IBooker& iBoo
                                 log10(1000.));
 
   for (const auto& element : errorCodeToStringMap) {
-    h_nFEDErrors_[element.first] = iBook.book2I(fmt::sprintf("nFED%i_Errors", element.first),
+    h_nFEDErrors_[element.first] = iBook.book2I(fmt::sprintf("nFED%i_Errors", static_cast<int>(element.first)),
                                                 fmt::sprintf("n. of %ss per event; CPU; GPU", element.second),
                                                 1000,
                                                 -0.5,

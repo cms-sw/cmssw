@@ -53,8 +53,7 @@ typename std::unique_ptr<DistanceBetweenComponents<N> > DistanceBetweenComponent
 template <unsigned int N>
 void DistanceBetweenComponentsESProducer<N>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("DistanceMeasure");
-  desc.add<std::string>("ComponentName");
-
-  descriptions.addDefault(desc);
+  desc.add<std::string>("DistanceMeasure", "");
+  desc.add<std::string>("ComponentName", "");
+  descriptions.addWithDefaultLabel(desc);
 }

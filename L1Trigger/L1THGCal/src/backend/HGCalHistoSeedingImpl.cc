@@ -92,7 +92,7 @@ HGCalHistoSeedingImpl::Histogram HGCalHistoSeedingImpl::fillHistoClusters(
     switch (seedingSpace_) {
       case RPhi:
         x1 = sqrt(pow(clu->centreProj().x(), 2) + pow(clu->centreProj().y(), 2));
-        x2 = reco::reduceRange(clu->phi());
+        x2 = reco::reducePhiRange(clu->phi());
         break;
       case XY:
         x1 = clu->centreProj().x();

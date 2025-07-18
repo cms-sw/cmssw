@@ -1,6 +1,5 @@
 #!/bin/env python3
 
-from __future__ import print_function
 import argparse
 import FWCore.ParameterSet.Config as cms
 from importlib import import_module

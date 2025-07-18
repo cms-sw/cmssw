@@ -1,4 +1,3 @@
-from __future__ import print_function
 #
 # cfg file to run online L1 Trigger emulator DQM
 #     the user can choose the environment (live, playback, file-P5, file)

@@ -45,7 +45,7 @@ protected:
 
   virtual double getEventRateWeight(double pt) { return 1; }
 
-  virtual void saveHists(TFile& outfile){};
+  virtual void saveHists(TFile& outfile) {}
 
   GoldenPatternVec<GoldenPatternWithStat>& goldenPatterns;
 

@@ -26,8 +26,8 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TH1.h"
 
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Concurrency/interface/SharedResourceNames.h"
-//#include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -43,12 +43,10 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "TauSpinner/SimpleParticle.h"
 
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-
 class TauSpinnerCMS : public edm::one::EDProducer<edm::one::SharedResources> {
 public:
   explicit TauSpinnerCMS(const edm::ParameterSet &);
-  ~TauSpinnerCMS() override{};  // no need to delete ROOT stuff
+  ~TauSpinnerCMS() override {}  // no need to delete ROOT stuff
 
   void produce(edm::Event &, const edm::EventSetup &) final;
   void beginJob() final;

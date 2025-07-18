@@ -55,11 +55,11 @@ namespace edm {
     bool EDProducerBase::doEvent(EventTransitionInfo const& info,
                                  ActivityRegistry* act,
                                  ModuleCallingContext const* mcc) {
+      EventSignalsSentry sentry(act, mcc);
       Event e(info, moduleDescription_, mcc);
       e.setConsumer(this);
       const auto streamIndex = e.streamID().value();
       e.setProducer(this, &previousParentages_[streamIndex]);
-      EventSignalsSentry sentry(act, mcc);
       ESParentContext parentC(mcc);
       const EventSetup c{
           info, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), parentC};
@@ -78,7 +78,7 @@ namespace edm {
       transformAsync_(iTask, iTransformIndex, ev, iAct, iToken);
     }
 
-    size_t EDProducerBase::transformIndex_(edm::BranchDescription const& iBranch) const noexcept { return -1; }
+    size_t EDProducerBase::transformIndex_(edm::ProductDescription const& iBranch) const noexcept { return -1; }
     ProductResolverIndex EDProducerBase::transformPrefetch_(std::size_t iIndex) const noexcept { return 0; }
     void EDProducerBase::transformAsync_(WaitingTaskHolder iTask,
                                          std::size_t iIndex,

@@ -40,6 +40,8 @@ int VTXBINS = 60;
    to be used to plot
 */
 
+bool debugMode = false;
+
 class PVResolutionVariables {
 public:
   PVResolutionVariables(TString fileName, TString baseDir, TString legName = "", int color = 1, int style = 1);
@@ -1061,11 +1063,26 @@ statmode::fitParams fitResolutions(TH1* hist, bool singleTime)
     sigma = func.GetParameter(2);
 
     if (!singleTime) {
+      // Check if histogram is weighted
+      double sumWeights = hist->GetSumOfWeights();
+      double effectiveEntries = hist->GetEffectiveEntries();
+      bool isWeighted = !(sumWeights == effectiveEntries);
+
+      if (isWeighted && debugMode) {
+        std::cout << "A weighted input histogram has been provided, will use least squares fit instead of likelihood!"
+                  << " Sum of weights: " << sumWeights << " effective entries: " << hist->GetEffectiveEntries()
+                  << std::endl;
+      }
+      // If histogram is weighted, exclude the "L" option (Likelihood fit)
+      std::string fitOptions = isWeighted ? "Q0R" : "Q0LR";
+
       // second fit: three sigma of first fit around mean of first fit
       func.SetRange(std::max(mean - 3 * sigma, minHist), std::min(mean + 3 * sigma, maxHist));
+
+      // Perform fit with the appropriate options
       // I: integral gives more correct results if binning is too wide
       // L: Likelihood can treat empty bins correctly (if hist not weighted...)
-      if (0 == hist->Fit(&func, "Q0LR")) {
+      if (0 == hist->Fit(&func, fitOptions.c_str())) {
         if (hist->GetFunction(func.GetName())) {  // Take care that it is later on drawn:
           hist->GetFunction(func.GetName())->ResetBit(TF1::kNotDraw);
         }

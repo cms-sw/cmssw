@@ -10,15 +10,15 @@ class SiStripCommonModeNoiseSubtractor {
   friend class SiStripRawProcessingFactory;
 
 public:
-  virtual ~SiStripCommonModeNoiseSubtractor(){};
-  virtual void init(const edm::EventSetup& es){};
+  virtual ~SiStripCommonModeNoiseSubtractor() {}
+  virtual void init(const edm::EventSetup& es) {}
   virtual void subtract(uint32_t detId, uint16_t firstStrip, std::vector<int16_t>& digis) = 0;
   virtual void subtract(uint32_t detId, uint16_t firstStrip, std::vector<float>& digis) = 0;
 
   const std::vector<std::pair<short, float> >& getAPVsCM() const { return _vmedians; }
 
 protected:
-  SiStripCommonModeNoiseSubtractor(){};
+  SiStripCommonModeNoiseSubtractor() {}
   template <typename T>
   float median(std::vector<T>&);
 

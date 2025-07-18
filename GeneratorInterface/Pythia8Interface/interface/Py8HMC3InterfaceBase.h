@@ -62,7 +62,7 @@ namespace gen {
     std::string slhafile_;
 
   private:
-    P8RndmEnginePtr p8RndmEngine_;
+    std::shared_ptr<P8RndmEngine> p8RndmEngine_;
   };
 }  // namespace gen
 #endif

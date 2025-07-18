@@ -1,0 +1,11 @@
+<flags CXXFLAGS="-g -O3 -lASImage -lMultiProc" />
+<use name="DQM/TrackerRemapper"/>
+<use name="fmt"/>
+<use name="rootcore"/>
+<use name="rootgraphics"/>
+<use name="rootmath"/>
+<lib name="stdc++fs" />
+<bin name="printPixelTrackerMap" file="printPixelTrackerMap.cc" />
+<bin name="printPixelROCsMap" file="printPixelROCsMap.cc" />
+<bin name="printPixelLayersDisksMap" file="printPixelLayersDisksMap.cc" />
+<bin name="printStripTrackerMap" file="printStripTrackerMap.cc" />

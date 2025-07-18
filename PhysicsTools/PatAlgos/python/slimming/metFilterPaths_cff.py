@@ -10,7 +10,6 @@ from RecoMET.METFilters.metFilters_cff import chargedHadronTrackResolutionFilter
 from RecoMET.METFilters.metFilters_cff import BadChargedCandidateFilter, BadPFMuonFilter, BadPFMuonDzFilter #2016 post-ICHEPversion
 from RecoMET.METFilters.metFilters_cff import BadChargedCandidateSummer16Filter, BadPFMuonSummer16Filter #2016 ICHEP version
 from RecoMET.METFilters.metFilters_cff import hfNoisyHitsFilter
-from RecoMET.METFilters.metFilters_cff import metFilters
 
 # individual filters
 Flag_HBHENoiseFilter = cms.Path(HBHENoiseFilterResultProducer * HBHENoiseFilter)
@@ -44,17 +43,13 @@ Flag_trkPOG_manystripclus53X = cms.Path(~manystripclus53X)
 Flag_trkPOG_toomanystripclus53X = cms.Path(~toomanystripclus53X)
 Flag_trkPOG_logErrorTooManyClusters = cms.Path(~logErrorTooManyClusters)
 
-
-# and the summary
-Flag_METFilters = cms.Path(metFilters)
-
 #add your new path here!!
 allMetFilterPaths=['HBHENoiseFilter','HBHENoiseIsoFilter','CSCTightHaloFilter','CSCTightHaloTrkMuUnvetoFilter','CSCTightHalo2015Filter','globalTightHalo2016Filter','globalSuperTightHalo2016Filter','HcalStripHaloFilter','hcalLaserEventFilter','EcalDeadCellTriggerPrimitiveFilter','EcalDeadCellBoundaryEnergyFilter','ecalBadCalibFilter','goodVertices','eeBadScFilter',
                    'ecalLaserCorrFilter','trkPOGFilters','chargedHadronTrackResolutionFilter','muonBadTrackFilter',
                    'BadChargedCandidateFilter','BadPFMuonFilter', 'BadPFMuonDzFilter', 'hfNoisyHitsFilter', 'BadChargedCandidateSummer16Filter','BadPFMuonSummer16Filter',
-                   'trkPOG_manystripclus53X','trkPOG_toomanystripclus53X','trkPOG_logErrorTooManyClusters','METFilters']
+                   'trkPOG_manystripclus53X','trkPOG_toomanystripclus53X','trkPOG_logErrorTooManyClusters']
 
-       
+
 def miniAOD_customizeMETFiltersFastSim(process):
     """Replace some MET filters that don't work in FastSim with trivial bools"""
     for X in 'CSCTightHaloFilter', 'CSCTightHaloTrkMuUnvetoFilter','CSCTightHalo2015Filter','globalTightHalo2016Filter','globalSuperTightHalo2016Filter','HcalStripHaloFilter':

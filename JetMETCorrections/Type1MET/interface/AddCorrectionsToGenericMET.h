@@ -26,8 +26,8 @@
 
 class AddCorrectionsToGenericMET {
 public:
-  AddCorrectionsToGenericMET(){};
-  ~AddCorrectionsToGenericMET(){};
+  AddCorrectionsToGenericMET() {}
+  ~AddCorrectionsToGenericMET() {}
 
   void setCorTokens(std::vector<edm::EDGetTokenT<CorrMETData> > const& corrTokens);
 

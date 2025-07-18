@@ -232,6 +232,7 @@ namespace trklet {
     unsigned int NSector_;  //Number of sectors
     double rcrit_;          //critical radius that defines the sector
 
+    bool duplicateMPs_;     //if true write configuration with MPs duplicated for L3,L4
     bool combinedmodules_;  //if true write configuration for combined modules
 
     bool extended_;  //if true write configuration for extended configuration

@@ -242,7 +242,7 @@ void CSCSegAlgoTC::tryAddingHitsToSegment(const ChamberHitContainer& rechits,
       } else
         increaseProtoSegment(h, layer);
     }  // h & seg close
-  }    // i
+  }  // i
 }
 
 bool CSCSegAlgoTC::addHit(const CSCRecHit2D* aHit, int layer) {

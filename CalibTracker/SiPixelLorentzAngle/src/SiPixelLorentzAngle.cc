@@ -464,7 +464,7 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
           SiPixelLorentzAngleTreeForward_->Fill();
         }
       }  //end iteration over trajectory measurements
-    }    //end iteration over trajectories
+    }  //end iteration over trajectories
   }
 }
 

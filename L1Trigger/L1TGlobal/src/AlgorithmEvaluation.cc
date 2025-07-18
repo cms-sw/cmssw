@@ -75,7 +75,7 @@ void l1t::AlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
 
     switch (it->operation) {
       case GlobalLogicParser::OP_OPERAND: {
-        CItEvalMap itCond = (conditionResultMaps.at(chipNumber)).find(it->operand);
+        auto itCond = conditionResultMaps.at(chipNumber).find(it->operand);
         if (itCond != (conditionResultMaps[chipNumber]).end()) {
           if (nullptr == itCond->second) {
             // it should never be happen, only valid conditions are in the maps
@@ -99,7 +99,7 @@ void l1t::AlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
           opNumber++;
 
           //
-          CombinationsInCond const& combInCondition = (itCond->second)->getCombinationsInCond();
+          auto const& combInCondition = (itCond->second)->getCombinationsInCond();
           m_algoCombinationVector.push_back(combInCondition);
 
         } else {
@@ -161,9 +161,9 @@ void l1t::AlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
 void l1t::AlgorithmEvaluation::print(std::ostream& myCout) const {
   myCout << std::endl;
 
-  myCout << "    Algorithm result:          " << m_algoResult << std::endl;
+  myCout << "    Algorithm result:       " << m_algoResult << std::endl;
 
-  myCout << "    CombinationVector size:    " << m_algoCombinationVector.size() << std::endl;
+  myCout << "    CombinationVector size: " << m_algoCombinationVector.size() << std::endl;
 
   int operandTokenVectorSize = m_operandTokenVector.size();
 

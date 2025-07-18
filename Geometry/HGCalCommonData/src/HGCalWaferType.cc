@@ -87,20 +87,20 @@ int HGCalWaferType::getType(double xpos, double ypos, double zpos) {
   double fracArea(0);
   if (choice_ == 1) {
     if (fine.size() >= cutValue_)
-      type = HGCSiliconDetId::HGCalFine;
+      type = HGCSiliconDetId::HGCalHD120;
     else if (coarse.size() >= cutValue_)
-      type = HGCSiliconDetId::HGCalCoarseThin;
+      type = HGCSiliconDetId::HGCalLD200;
     else
-      type = HGCSiliconDetId::HGCalCoarseThick;
+      type = HGCSiliconDetId::HGCalLD300;
   } else {
     if (fine.size() >= 4)
-      type = HGCSiliconDetId::HGCalFine;
+      type = HGCSiliconDetId::HGCalHD120;
     else if (coarse.size() >= 4 && fine.size() <= 1)
-      type = HGCSiliconDetId::HGCalCoarseThin;
+      type = HGCSiliconDetId::HGCalLD200;
     else if (coarse.size() < 2 && fine.empty())
-      type = HGCSiliconDetId::HGCalCoarseThick;
+      type = HGCSiliconDetId::HGCalLD300;
     else if (!fine.empty())
-      type = -1;
+      type = HGCSiliconDetId::HGCalHD200;
     if (type <= -1) {
       unsigned int kmax = (type == -1) ? fine.size() : coarse.size();
       std::vector<double> xcn, ycn;

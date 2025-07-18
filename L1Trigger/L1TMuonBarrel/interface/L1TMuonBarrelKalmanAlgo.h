@@ -141,6 +141,8 @@ private:
   //double pointResolutionPhiB_;
   //point resolution for vertex
   double pointResolutionVertex_;
+  //Toggle for the new quality calculation in the emulator
+  bool useNewQualityCalculation_;
 
   //Sorter
   class StubSorter {

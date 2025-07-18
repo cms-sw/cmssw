@@ -37,8 +37,7 @@ namespace cms {
         globalThreshold_(iConfig.getParameter<double>("globalThreshold")) {
     noHF_ = iConfig.getParameter<bool>("noHF");
 
-    std::string alias = iConfig.exists("alias") ? iConfig.getParameter<std::string>("alias") : "";
-
+    std::string alias = iConfig.getParameter<std::string>("alias");
     produces<reco::CaloMETCollection>().setBranchAlias(alias);
 
     if (calculateSignificance_)
@@ -74,6 +73,18 @@ namespace cms {
     auto calometcoll = std::make_unique<reco::CaloMETCollection>();
     calometcoll->push_back(calomet);
     event.put(std::move(calometcoll));
+  }
+
+  //____________________________________________________________________________||
+  void CaloMETProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("src", edm::InputTag("towerMaker"));
+    desc.add<bool>("calculateSignificance", false);
+    desc.add<double>("globalThreshold", 0.3);
+    desc.add<bool>("noHF", false);
+    desc.add<std::string>("alias", "");
+    metsig::SignAlgoResolutions::fillPSetDescription(desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
   //____________________________________________________________________________||

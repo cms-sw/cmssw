@@ -164,8 +164,8 @@ void SimG4FluxProducer::update(const G4Step *aStep) {
             << flx.momentum << " Vertex " << flx.vertex;
 #endif
       }  //if(Step ok)
-    }    //if( it != map.end() )
-  }      //if (aStep != NULL)
+    }  //if( it != map.end() )
+  }  //if (aStep != NULL)
 }
 
 void SimG4FluxProducer::endOfEvent(ParticleFlux &flux, unsigned int k) {

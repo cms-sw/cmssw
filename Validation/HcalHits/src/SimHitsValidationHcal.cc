@@ -37,22 +37,22 @@ void SimHitsValidationHcal::bookHistograms(DQMStore::IBooker &ib, edm::Run const
   float iphi_max = NphiMax + 0.5;
   int iphi_bins = (int)(iphi_max - iphi_min);
 
-  int iEtaHBMax = hcons->getEtaRange(0).second;
-  int iEtaHEMax = std::max(hcons->getEtaRange(1).second, 1);
-  int iEtaHFMax = hcons->getEtaRange(2).second;
-  int iEtaHOMax = hcons->getEtaRange(3).second;
+  //int iEtaHBMax = hcons->getEtaRange(0).second;
+  //int iEtaHEMax = std::max(hcons->getEtaRange(1).second, 1);
+  //int iEtaHFMax = hcons->getEtaRange(2).second;
+  //int iEtaHOMax = hcons->getEtaRange(3).second;
 
   // Retain classic behavior, all plots have same ieta range.
   // Comment out	code to	allow each subdetector to have its on range
 
-  int iEtaMax = (iEtaHBMax > iEtaHEMax ? iEtaHBMax : iEtaHEMax);
-  iEtaMax = (iEtaMax > iEtaHFMax ? iEtaMax : iEtaHFMax);
-  iEtaMax = (iEtaMax > iEtaHOMax ? iEtaMax : iEtaHOMax);
+  //int iEtaMax = (iEtaHBMax > iEtaHEMax ? iEtaHBMax : iEtaHEMax);
+  //iEtaMax = (iEtaMax > iEtaHFMax ? iEtaMax : iEtaHFMax);
+  //iEtaMax = (iEtaMax > iEtaHOMax ? iEtaMax : iEtaHOMax);
 
-  iEtaHBMax = iEtaMax;
-  iEtaHEMax = iEtaMax;
-  iEtaHFMax = iEtaMax;
-  iEtaHOMax = iEtaMax;
+  //iEtaHBMax = iEtaMax;
+  //iEtaHEMax = iEtaMax;
+  //iEtaHFMax = iEtaMax;
+  //iEtaHOMax = iEtaMax;
 
   // Give an empty bin around the subdet ieta range to make it clear that all
   // ieta rings have been included float ieta_min_HB = -iEtaHBMax - 1.5; float

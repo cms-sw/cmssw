@@ -17,7 +17,7 @@ namespace Exhume {
         const CLHEP::HepLorentzVector& _p, const CLHEP::HepLorentzVector& _vtx, int _id, int _Colour, int _AntiColour)
         : p(_p), vtx(_vtx), id(_id), Colour(_Colour), AntiColour(_AntiColour) {}
 
-    ~Particle(){};
+    ~Particle() {}
     //should make these private??????
     CLHEP::HepLorentzVector p;
     CLHEP::HepLorentzVector vtx;

@@ -29,8 +29,6 @@ ESIntegrityTask::ESIntegrityTask(const ParameterSet& ps) {
   dccCollections_ = consumes<ESRawDataCollection>(ps.getParameter<InputTag>("ESDCCCollections"));
   kchipCollections_ = consumes<ESLocalRawDataCollection>(ps.getParameter<InputTag>("ESKChipCollections"));
 
-  doLumiAnalysis_ = ps.getParameter<bool>("DoLumiAnalysis");
-
   // read in look-up table
   for (int i = 0; i < 2; ++i)
     for (int j = 0; j < 2; ++j)
@@ -67,29 +65,35 @@ void ESIntegrityTask::dqmEndRun(const Run& r, const EventSetup& c) {
   // TODO: no longer possible, clone histo beforehand if full statisticcs at end of run are required.
 }
 
-std::shared_ptr<ESLSCache> ESIntegrityTask::globalBeginLuminosityBlock(const edm::LuminosityBlock& lumi,
-                                                                       const edm::EventSetup& c) const {
+std::shared_ptr<ESIntLSCache> ESIntegrityTask::globalBeginLuminosityBlock(const edm::LuminosityBlock& lumi,
+                                                                          const edm::EventSetup& c) const {
   LogInfo("ESIntegrityTask") << "analyzed " << ievt_ << " events";
   // In case of Lumi based analysis SoftReset the Integrity histogram
-  auto lumiCache = std::make_shared<ESLSCache>();
+  auto lumiCache = std::make_shared<ESIntLSCache>();
   lumiCache->ievtLS_ = 0;
-  if (doLumiAnalysis_) {
-    for (int iz = 0; iz < 2; ++iz) {
-      for (int ip = 0; ip < 2; ++ip) {
-        for (int ix = 0; ix < 40; ++ix) {
-          for (int iy = 0; iy < 40; ++iy) {
-            (lumiCache->DIErrorsLS_)[iz][ip][ix][iy] = 0;
-          }
+
+  for (int iz = 0; iz < 2; ++iz) {
+    for (int ip = 0; ip < 2; ++ip) {
+      meDIErrorsByLS_[iz][ip]->Reset();
+      for (int ix = 0; ix < 40; ++ix) {
+        for (int iy = 0; iy < 40; ++iy) {
+          (lumiCache->DIErrorsByLS_)[iz][ip][ix][iy] = 0;
         }
       }
     }
   }
+
+  meDCCCRCErrByLS_->Reset();
+  meFiberErrCodeByLS_->Reset();
+  meFiberOffByLS_->Reset();
+  meOptoBCByLS_->Reset();
+  meSLinkCRCErrByLS_->Reset();
+
   return lumiCache;
 }
 
 void ESIntegrityTask::globalEndLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& c) {
-  if (doLumiAnalysis_)
-    calculateDIFraction(lumi, c);
+  calculateDIFraction(lumi, c);
 }
 
 void ESIntegrityTask::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&, edm::EventSetup const&) {
@@ -181,9 +185,44 @@ void ESIntegrityTask::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&
       meDIErrors_[i][j]->setAxisTitle("Si Y", 2);
     }
 
-  if (doLumiAnalysis_) {
-    sprintf(histo, "ES Good Channel Fraction");
-    meDIFraction_ = iBooker.book2D(histo, histo, 3, 1.0, 3.0, 3, 1.0, 3.0);
+  // LS-based histos
+  sprintf(histo, "ES Good Channel Fraction");
+  meDIFraction_ = iBooker.book2D(histo, histo, 3, 1.0, 3.0, 3, 1.0, 3.0);
+
+  iBooker.setCurrentFolder(prefixME_ + "/ByLumiSection");
+
+  sprintf(histo, "ES SLink CRC Errors");
+  meSLinkCRCErrByLS_ = iBooker.book1D(histo, histo, 56, 519.5, 575.5);
+  meSLinkCRCErrByLS_->setAxisTitle("ES FED", 1);
+  meSLinkCRCErrByLS_->setAxisTitle("Num of Events", 2);
+
+  sprintf(histo, "ES DCC CRC Errors");
+  meDCCCRCErrByLS_ = iBooker.book2D(histo, histo, 56, 519.5, 575.5, 3, -0.5, 2.5);
+  meDCCCRCErrByLS_->setAxisTitle("ES FED", 1);
+  meDCCCRCErrByLS_->setAxisTitle("ES OptoRX", 2);
+
+  sprintf(histo, "ES OptoRX BC mismatch");
+  meOptoBCByLS_ = iBooker.book2D(histo, histo, 56, 519.5, 575.5, 3, -0.5, 2.5);
+  meOptoBCByLS_->setAxisTitle("ES FED", 1);
+  meOptoBCByLS_->setAxisTitle("ES OptoRX", 2);
+
+  sprintf(histo, "ES Fiber Error Code");
+  meFiberErrCodeByLS_ = iBooker.book1D(histo, histo, 17, -0.5, 16.5);
+  meFiberErrCodeByLS_->setAxisTitle("Fiber Error Code", 1);
+
+  sprintf(histo, "ES Fiber Off");
+  meFiberOffByLS_ = iBooker.book2D(histo, histo, 56, 519.5, 575.5, 36, 0.5, 36.5);
+  meFiberOffByLS_->setAxisTitle("ES FED", 1);
+  meFiberOffByLS_->setAxisTitle("Fiber Number", 2);
+
+  for (int i = 0; i < 2; ++i) {
+    for (int j = 0; j < 2; ++j) {
+      int iz = (i == 0) ? 1 : -1;
+      sprintf(histo, "ES Integrity Errors Z %d P %d", iz, j + 1);
+      meDIErrorsByLS_[i][j] = iBooker.book2D(histo, histo, 40, 0.5, 40.5, 40, 0.5, 40.5);
+      meDIErrorsByLS_[i][j]->setAxisTitle("Si X", 1);
+      meDIErrorsByLS_[i][j]->setAxisTitle("Si Y", 2);
+    }
   }
 }
 
@@ -200,10 +239,13 @@ void ESIntegrityTask::analyze(const Event& e, const EventSetup& c) {
   // Fill # of events
   meDCCErr_->Fill(575, 2, 1);
   meDCCCRCErr_->Fill(575, 2, 1);
+  meDCCCRCErrByLS_->Fill(575, 2, 1);
   meOptoRX_->Fill(575, 2, 1);
   meOptoBC_->Fill(575, 2, 1);
+  meOptoBCByLS_->Fill(575, 2, 1);
   meFiberBadStatus_->Fill(575, 36, 1);
   meFiberOff_->Fill(575, 36, 1);
+  meFiberOffByLS_->Fill(575, 36, 1);
   meEVDR_->Fill(575, 36, 1);
 
   // # of DI errors
@@ -225,38 +267,48 @@ void ESIntegrityTask::analyze(const Event& e, const EventSetup& c) {
       // SLink CRC error
       if (dcc.getDCCErrors() == 101) {
         meSLinkCRCErr_->Fill(dcc.fedId());
+        meSLinkCRCErrByLS_->Fill(dcc.fedId());
         for (int j = 0; j < 36; ++j)
           nDIErr[dcc.fedId() - 520][j]++;
       }
 
       if (dcc.getOptoRX0() == 129) {
         meOptoRX_->Fill(dcc.fedId(), 0);
-        if (((dcc.getOptoBC0() - 15) & 0x0fff) != dcc.getBX())
+        if (((dcc.getOptoBC0() - 15) & 0x0fff) != dcc.getBX()) {
           meOptoBC_->Fill(dcc.fedId(), 0);
+          meOptoBCByLS_->Fill(dcc.fedId(), 0);
+        }
       }
       if (dcc.getOptoRX1() == 129) {
         meOptoRX_->Fill(dcc.fedId(), 1);
-        if (((dcc.getOptoBC1() - 15) & 0x0fff) != dcc.getBX())
+        if (((dcc.getOptoBC1() - 15) & 0x0fff) != dcc.getBX()) {
           meOptoBC_->Fill(dcc.fedId(), 1);
+          meOptoBCByLS_->Fill(dcc.fedId(), 1);
+        }
       }
       if (dcc.getOptoRX2() == 129) {
         meOptoRX_->Fill(dcc.fedId(), 2);
-        if (((dcc.getOptoBC2() - 15) & 0x0fff) != dcc.getBX())
+        if (((dcc.getOptoBC2() - 15) & 0x0fff) != dcc.getBX()) {
           meOptoBC_->Fill(dcc.fedId(), 2);
+          meOptoBCByLS_->Fill(dcc.fedId(), 2);
+        }
       }
 
       if (dcc.getOptoRX0() == 128) {
         meDCCCRCErr_->Fill(dcc.fedId(), 0);
+        meDCCCRCErrByLS_->Fill(dcc.fedId(), 0);
         for (int j = 0; j < 12; ++j)
           nDIErr[dcc.fedId() - 520][j]++;
       }
       if (dcc.getOptoRX1() == 128) {
         meDCCCRCErr_->Fill(dcc.fedId(), 1);
+        meDCCCRCErrByLS_->Fill(dcc.fedId(), 1);
         for (int j = 12; j < 24; ++j)
           nDIErr[dcc.fedId() - 520][j]++;
       }
       if (dcc.getOptoRX2() == 128) {
         meDCCCRCErr_->Fill(dcc.fedId(), 2);
+        meDCCCRCErrByLS_->Fill(dcc.fedId(), 2);
         for (int j = 24; j < 36; ++j)
           nDIErr[dcc.fedId() - 520][j]++;
       }
@@ -268,12 +320,16 @@ void ESIntegrityTask::analyze(const Event& e, const EventSetup& c) {
             fiberStatus[i] == 12) {
           meFiberBadStatus_->Fill(dcc.fedId(), i + 1, 1);
           meFiberErrCode_->Fill(fiberStatus[i]);
+          meFiberErrCodeByLS_->Fill(fiberStatus[i]);
           nDIErr[dcc.fedId() - 520][i]++;
         }
-        if (fiberStatus[i] == 7)
+        if (fiberStatus[i] == 7) {
           meFiberOff_->Fill(dcc.fedId(), i + 1, 1);
+          meFiberOffByLS_->Fill(dcc.fedId(), i + 1, 1);
+        }
         if (fiberStatus[i] == 6) {
           meFiberErrCode_->Fill(fiberStatus[i]);
+          meFiberErrCodeByLS_->Fill(fiberStatus[i]);
           meEVDR_->Fill(dcc.fedId(), i + 1, 1);
         }
       }
@@ -316,8 +372,8 @@ void ESIntegrityTask::analyze(const Event& e, const EventSetup& c) {
 
           if (nDIErr[fed_[iz][ip][ix][iy] - 520][fiber_[iz][ip][ix][iy]] > 0) {
             meDIErrors_[iz][ip]->Fill(ix + 1, iy + 1, 1);
-            if (doLumiAnalysis_)
-              (lumiCache->DIErrorsLS_)[iz][ip][ix][iy] += 1;
+            (lumiCache->DIErrorsByLS_)[iz][ip][ix][iy] += 1;
+            meDIErrorsByLS_[iz][ip]->Fill(ix + 1, iy + 1, 1);
           }
         }
 }
@@ -336,7 +392,7 @@ void ESIntegrityTask::calculateDIFraction(const edm::LuminosityBlock& lumi, cons
       float reportSummaryES = -1;
       for (int x = 0; x < 40; ++x) {
         for (int y = 0; y < 40; ++y) {
-          float val = 1.0 * ((lumiCache->DIErrorsLS_)[i][j][x][y]);
+          float val = 1.0 * ((lumiCache->DIErrorsByLS_)[i][j][x][y]);
           if (fed_[i][j][x][y] == -1)
             continue;
           if ((lumiCache->ievtLS_) != 0)

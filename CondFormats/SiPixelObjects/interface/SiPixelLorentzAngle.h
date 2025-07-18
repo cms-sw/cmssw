@@ -10,8 +10,8 @@
 
 class SiPixelLorentzAngle {
 public:
-  SiPixelLorentzAngle(){};
-  ~SiPixelLorentzAngle(){};
+  SiPixelLorentzAngle() {}
+  ~SiPixelLorentzAngle() {}
 
   inline void putLorentsAngles(std::map<unsigned int, float>& LA) { m_LA = LA; }
   inline const std::map<unsigned int, float>& getLorentzAngles() const { return m_LA; }

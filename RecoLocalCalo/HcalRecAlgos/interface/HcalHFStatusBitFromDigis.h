@@ -1,12 +1,14 @@
 #ifndef HCALHFSTATUSFROMDIGIS_H
 #define HCALHFSTATUSFROMDIGIS_H 1
 
+#include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
+#include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
 #include "DataFormats/HcalRecHit/interface/HFRecHit.h"
 #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
-#include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 /** \class HcalHFStatusBitFromDigis
     
@@ -28,6 +30,9 @@ public:
   void resetParamsFromDB(
       int firstSample, int samplesToAdd, int expectedPeak, double minthreshold, const std::vector<double>& coef);
   void resetFlagTimeSamples(int firstSample, int samplesToAdd, int expectedPeak);
+
+  static void fillHFDigiTimeParamsDesc(edm::ParameterSetDescription& desc);
+  static void fillHFTimeInWindowParamsDesc(edm::ParameterSetDescription& desc);
 
 private:
   // variables for cfg files

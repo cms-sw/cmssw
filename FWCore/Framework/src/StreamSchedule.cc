@@ -1,14 +1,16 @@
 #include "FWCore/Framework/interface/StreamSchedule.h"
 
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
+#include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
-#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/Framework/src/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/TriggerReport.h"
 #include "FWCore/Framework/src/TriggerTimingReport.h"
-#include "FWCore/Framework/src/Factory.h"
+#include "FWCore/Framework/src/ModuleHolderFactory.h"
 #include "FWCore/Framework/interface/OutputModuleCommunicator.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
 #include "FWCore/Framework/src/PathStatusInserter.h"
@@ -17,15 +19,18 @@
 #include "FWCore/Framework/interface/maker/ModuleHolder.h"
 #include "FWCore/Framework/interface/maker/WorkerT.h"
 #include "FWCore/Framework/interface/ModuleRegistry.h"
+#include "FWCore/Framework/interface/ModuleRegistryUtilities.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ModuleConsumesInfo.h"
 #include "FWCore/ServiceRegistry/interface/PathContext.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
-#include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
-#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
+#include "FWCore/Utilities/interface/RunIndex.h"
 
 #include "LuminosityBlockProcessingStatus.h"
 #include "processEDAliases.h"
@@ -38,7 +43,6 @@
 #include <limits>
 #include <list>
 #include <map>
-#include <exception>
 #include <fmt/format.h>
 
 namespace edm {
@@ -71,19 +75,27 @@ namespace edm {
       }
     }
 
+    class BeginStreamTraits {
+    public:
+      static void preScheduleSignal(ActivityRegistry* activityRegistry, StreamContext const* streamContext) {
+        activityRegistry->preBeginStreamSignal_(*streamContext);
+      }
+      static void postScheduleSignal(ActivityRegistry* activityRegistry, StreamContext const* streamContext) {
+        activityRegistry->postBeginStreamSignal_(*streamContext);
+      }
+    };
+
+    class EndStreamTraits {
+    public:
+      static void preScheduleSignal(ActivityRegistry* activityRegistry, StreamContext const* streamContext) {
+        activityRegistry->preEndStreamSignal_(*streamContext);
+      }
+      static void postScheduleSignal(ActivityRegistry* activityRegistry, StreamContext const* streamContext) {
+        activityRegistry->postEndStreamSignal_(*streamContext);
+      }
+    };
+
     // -----------------------------
-
-    // Here we make the trigger results inserter directly.  This should
-    // probably be a utility in the WorkerRegistry or elsewhere.
-
-    StreamSchedule::WorkerPtr makeInserter(ExceptionToActionTable const& actions,
-                                           std::shared_ptr<ActivityRegistry> areg,
-                                           std::shared_ptr<TriggerResultInserter> inserter) {
-      StreamSchedule::WorkerPtr ptr(
-          new edm::WorkerT<TriggerResultInserter::ModuleType>(inserter, inserter->moduleDescription(), &actions));
-      ptr->setActivityRegistry(areg);
-      return ptr;
-    }
 
     void initializeBranchToReadingWorker(std::vector<std::string> const& branchesToDeleteEarly,
                                          ProductRegistry const& preg,
@@ -133,9 +145,10 @@ namespace edm {
     Worker* getWorker(std::string const& moduleLabel,
                       ParameterSet& proc_pset,
                       WorkerManager& workerManager,
-                      ProductRegistry& preg,
+                      SignallingProductRegistryFiller& preg,
                       PreallocationConfiguration const* prealloc,
-                      std::shared_ptr<ProcessConfiguration const> processConfiguration) {
+                      std::shared_ptr<ProcessConfiguration const> processConfiguration,
+                      bool addToAllWorkers = true) {
       bool isTracked;
       ParameterSet* modpset = proc_pset.getPSetForUpdate(moduleLabel, isTracked);
       if (modpset == nullptr) {
@@ -143,7 +156,7 @@ namespace edm {
       }
       assert(isTracked);
 
-      return workerManager.getWorker(*modpset, preg, prealloc, processConfiguration, moduleLabel);
+      return workerManager.getWorker(*modpset, preg, prealloc, processConfiguration, moduleLabel, addToAllWorkers);
     }
 
     // If ConditionalTask modules exist in the container of module
@@ -162,10 +175,10 @@ namespace edm {
     }
 
     std::optional<std::string> findBestMatchingAlias(
-        std::unordered_multimap<std::string, edm::BranchDescription const*> const& conditionalModuleBranches,
+        std::unordered_multimap<std::string, edm::ProductDescription const*> const& conditionalModuleBranches,
         std::unordered_multimap<std::string, StreamSchedule::AliasInfo> const& aliasMap,
         std::string const& productModuleLabel,
-        ConsumesInfo const& consumesInfo) {
+        ModuleConsumesInfo const& consumesInfo) {
       std::optional<std::string> best;
       int wildcardsInBest = std::numeric_limits<int>::max();
       bool bestIsAmbiguous = false;
@@ -241,10 +254,10 @@ namespace edm {
     using AliasInfo = StreamSchedule::AliasInfo;
 
     ConditionalTaskHelper(ParameterSet& proc_pset,
-                          ProductRegistry& preg,
+                          SignallingProductRegistryFiller& preg,
                           PreallocationConfiguration const* prealloc,
                           std::shared_ptr<ProcessConfiguration const> processConfiguration,
-                          WorkerManager& workerManager,
+                          WorkerManager& workerManagerLumisAndEvents,
                           std::vector<std::string> const& trigPathNames) {
       std::unordered_set<std::string> allConditionalMods;
       for (auto const& pathName : trigPathNames) {
@@ -261,14 +274,16 @@ namespace edm {
 
       for (auto const& cond : allConditionalMods) {
         //force the creation of the conditional modules so alias check can work
-        (void)getWorker(cond, proc_pset, workerManager, preg, prealloc, processConfiguration);
+        // must be sure this is not added to the list of all workers else the system will hang in case the
+        // module is not used.
+        (void)getWorker(cond, proc_pset, workerManagerLumisAndEvents, preg, prealloc, processConfiguration, false);
       }
 
       fillAliasMap(proc_pset, allConditionalMods);
       processSwitchEDAliases(proc_pset, preg, *processConfiguration, allConditionalMods);
 
       //find branches created by the conditional modules
-      for (auto const& prod : preg.productList()) {
+      for (auto const& prod : preg.registry().productList()) {
         if (allConditionalMods.find(prod.first.moduleLabel()) != allConditionalMods.end()) {
           conditionalModsBranches_.emplace(prod.first.moduleLabel(), &prod.second);
         }
@@ -277,9 +292,9 @@ namespace edm {
 
     std::unordered_multimap<std::string, AliasInfo> const& aliasMap() const { return aliasMap_; }
 
-    std::unordered_multimap<std::string, edm::BranchDescription const*> conditionalModuleBranches(
+    std::unordered_multimap<std::string, edm::ProductDescription const*> conditionalModuleBranches(
         std::unordered_set<std::string> const& conditionalmods) const {
-      std::unordered_multimap<std::string, edm::BranchDescription const*> ret;
+      std::unordered_multimap<std::string, edm::ProductDescription const*> ret;
       for (auto const& mod : conditionalmods) {
         auto range = conditionalModsBranches_.equal_range(mod);
         ret.insert(range.first, range.second);
@@ -319,7 +334,7 @@ namespace edm {
     }
 
     void processSwitchEDAliases(ParameterSet const& proc_pset,
-                                ProductRegistry& preg,
+                                SignallingProductRegistryFiller& preg,
                                 ProcessConfiguration const& processConfiguration,
                                 std::unordered_set<std::string> const& allConditionalMods) {
       auto const& all_modules = proc_pset.getParameter<std::vector<std::string>>("@all_modules");
@@ -341,7 +356,7 @@ namespace edm {
     }
 
     std::unordered_multimap<std::string, AliasInfo> aliasMap_;
-    std::unordered_multimap<std::string, edm::BranchDescription const*> conditionalModsBranches_;
+    std::unordered_multimap<std::string, edm::ProductDescription const*> conditionalModsBranches_;
   };
 
   // -----------------------------
@@ -354,13 +369,14 @@ namespace edm {
       ParameterSet& proc_pset,
       service::TriggerNamesService const& tns,
       PreallocationConfiguration const& prealloc,
-      ProductRegistry& preg,
+      SignallingProductRegistryFiller& preg,
       ExceptionToActionTable const& actions,
       std::shared_ptr<ActivityRegistry> areg,
       std::shared_ptr<ProcessConfiguration const> processConfiguration,
       StreamID streamID,
       ProcessContext const* processContext)
-      : workerManager_(modReg, areg, actions),
+      : workerManagerRuns_(modReg, areg, actions),
+        workerManagerLumisAndEvents_(modReg, areg, actions),
         actReg_(areg),
         results_(new HLTGlobalStatus(tns.getTrigPaths().size())),
         results_inserter_(),
@@ -376,7 +392,7 @@ namespace edm {
     std::vector<std::string> const& endPathNames = tns.getEndPaths();
 
     ConditionalTaskHelper conditionalTaskHelper(
-        proc_pset, preg, &prealloc, processConfiguration, workerManager_, pathNames);
+        proc_pset, preg, &prealloc, processConfiguration, workerManagerLumisAndEvents_, pathNames);
     std::unordered_set<std::string> conditionalModules;
 
     int trig_bitpos = 0;
@@ -399,9 +415,7 @@ namespace edm {
     if (hasPath) {
       // the results inserter stands alone
       inserter->setTrigResultForStream(streamID.value(), results());
-
-      results_inserter_ = makeInserter(actions, actReg_, inserter);
-      addToAllWorkers(results_inserter_.get());
+      results_inserter_ = workerManagerLumisAndEvents_.getWorkerForModule(*inserter);
     }
 
     // fill normal endpaths
@@ -424,7 +438,7 @@ namespace edm {
 
     //See if all modules were used
     std::set<std::string> usedWorkerLabels;
-    for (auto const& worker : allWorkers()) {
+    for (auto const& worker : allWorkersLumisAndEvents()) {
       usedWorkerLabels.insert(worker->description()->moduleLabel());
     }
     std::vector<std::string> modulesInConfig(proc_pset.getParameter<std::vector<std::string>>("@all_modules"));
@@ -447,7 +461,7 @@ namespace edm {
         ParameterSet* modulePSet(proc_pset.getPSetForUpdate(label, isTracked));
         assert(isTracked);
         assert(modulePSet != nullptr);
-        workerManager_.addToUnscheduledWorkers(
+        workerManagerLumisAndEvents_.addToUnscheduledWorkers(
             *modulePSet, preg, &prealloc, processConfiguration, label, unscheduledLabels, shouldBeUsedLabels);
       }
       if (!shouldBeUsedLabels.empty()) {
@@ -488,6 +502,17 @@ namespace edm {
         }
       }
     }
+
+    for (auto const& worker : allWorkersLumisAndEvents()) {
+      std::string const& moduleLabel = worker->description()->moduleLabel();
+
+      // The new worker pointers will be null for the TriggerResultsInserter, PathStatusInserter, and
+      // EndPathStatusInserter because there are no ParameterSets for those in the configuration.
+      // We could add special code to create workers for those, but instead we skip them because they
+      // do not have beginStream, endStream, or run/lumi begin/end stream transition functions.
+      (void)getWorker(moduleLabel, proc_pset, workerManagerRuns_, preg, &prealloc, processConfiguration);
+    }
+
   }  // StreamSchedule::StreamSchedule
 
   void StreamSchedule::initializeEarlyDelete(ModuleRegistry& modReg,
@@ -514,7 +539,7 @@ namespace edm {
           // so we should remove it from our list
           SelectedProductsForBranchType const& kept = comm->keptProducts();
           for (auto const& item : kept[InEvent]) {
-            BranchDescription const& desc = *item.first;
+            ProductDescription const& desc = *item.first;
             auto found = branchToReadingWorker.equal_range(desc.branchName());
             if (found.first != found.second) {
               --nUniqueBranchesToDelete;
@@ -530,12 +555,12 @@ namespace edm {
     }
 
     std::unordered_set<std::string> modulesToExclude(modulesToSkip.begin(), modulesToSkip.end());
-    for (auto w : allWorkers()) {
+    for (auto w : allWorkersLumisAndEvents()) {
       if (modulesToExclude.end() != modulesToExclude.find(w->description()->moduleLabel())) {
         continue;
       }
       //determine if this module could read a branch we want to delete early
-      auto consumes = w->consumesInfo();
+      auto consumes = w->moduleConsumesInfos();
       if (not consumes.empty()) {
         bool foundAtLeastOneMatchingBranch = false;
         for (auto const& product : consumes) {
@@ -630,7 +655,7 @@ namespace edm {
           ++it;
         }
       }
-      if (not unusedBranches.empty()) {
+      if (not unusedBranches.empty() and streamID_.value() == 0) {
         LogWarning l("UnusedProductsForCanDeleteEarly");
         l << "The following products in the 'canDeleteEarly' list are not used in this job and will be ignored.\n"
              " If possible, remove the producer from the job.";
@@ -706,14 +731,14 @@ namespace edm {
   std::vector<Worker*> StreamSchedule::tryToPlaceConditionalModules(
       Worker* worker,
       std::unordered_set<std::string>& conditionalModules,
-      std::unordered_multimap<std::string, edm::BranchDescription const*> const& conditionalModuleBranches,
+      std::unordered_multimap<std::string, edm::ProductDescription const*> const& conditionalModuleBranches,
       std::unordered_multimap<std::string, AliasInfo> const& aliasMap,
       ParameterSet& proc_pset,
-      ProductRegistry& preg,
+      SignallingProductRegistryFiller& preg,
       PreallocationConfiguration const* prealloc,
       std::shared_ptr<ProcessConfiguration const> processConfiguration) {
     std::vector<Worker*> returnValue;
-    auto const& consumesInfo = worker->consumesInfo();
+    auto const& consumesInfo = worker->moduleConsumesInfos();
     auto moduleLabel = worker->description()->moduleLabel();
     using namespace productholderindexhelper;
     for (auto const& ci : consumesInfo) {
@@ -757,8 +782,8 @@ namespace edm {
           }
         }
         if (productFromConditionalModule) {
-          auto condWorker =
-              getWorker(productModuleLabel, proc_pset, workerManager_, preg, prealloc, processConfiguration);
+          auto condWorker = getWorker(
+              productModuleLabel, proc_pset, workerManagerLumisAndEvents_, preg, prealloc, processConfiguration);
           assert(condWorker);
 
           conditionalModules.erase(itFound);
@@ -779,16 +804,16 @@ namespace edm {
     return returnValue;
   }
 
-  void StreamSchedule::fillWorkers(ParameterSet& proc_pset,
-                                   ProductRegistry& preg,
-                                   PreallocationConfiguration const* prealloc,
-                                   std::shared_ptr<ProcessConfiguration const> processConfiguration,
-                                   std::string const& pathName,
-                                   bool ignoreFilters,
-                                   PathWorkers& out,
-                                   std::vector<std::string> const& endPathNames,
-                                   ConditionalTaskHelper const& conditionalTaskHelper,
-                                   std::unordered_set<std::string>& allConditionalModules) {
+  StreamSchedule::PathWorkers StreamSchedule::fillWorkers(
+      ParameterSet& proc_pset,
+      SignallingProductRegistryFiller& preg,
+      PreallocationConfiguration const* prealloc,
+      std::shared_ptr<ProcessConfiguration const> processConfiguration,
+      std::string const& pathName,
+      bool ignoreFilters,
+      std::vector<std::string> const& endPathNames,
+      ConditionalTaskHelper const& conditionalTaskHelper,
+      std::unordered_set<std::string>& allConditionalModules) {
     vstring modnames = proc_pset.getParameter<vstring>(pathName);
     PathWorkers tmpworkers;
 
@@ -797,7 +822,7 @@ namespace edm {
 
     std::unordered_set<std::string> conditionalmods;
     //An EDAlias may be redirecting to a module on a ConditionalTask
-    std::unordered_multimap<std::string, edm::BranchDescription const*> conditionalModsBranches;
+    std::unordered_multimap<std::string, edm::ProductDescription const*> conditionalModsBranches;
     std::unordered_map<std::string, unsigned int> conditionalModOrder;
     if (condRange.first != condRange.second) {
       for (auto it = condRange.first; it != condRange.second; ++it) {
@@ -835,7 +860,8 @@ namespace edm {
         moduleLabel.erase(0, 1);
       }
 
-      Worker* worker = getWorker(moduleLabel, proc_pset, workerManager_, preg, prealloc, processConfiguration);
+      Worker* worker =
+          getWorker(moduleLabel, proc_pset, workerManagerLumisAndEvents_, preg, prealloc, processConfiguration);
       if (worker == nullptr) {
         std::string pathType("endpath");
         if (!search_all(endPathNames, pathName)) {
@@ -883,11 +909,11 @@ namespace edm {
       ++placeInPath;
     }
 
-    out.swap(tmpworkers);
+    return tmpworkers;
   }
 
   void StreamSchedule::fillTrigPath(ParameterSet& proc_pset,
-                                    ProductRegistry& preg,
+                                    SignallingProductRegistryFiller& preg,
                                     PreallocationConfiguration const* prealloc,
                                     std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                     int bitpos,
@@ -896,17 +922,15 @@ namespace edm {
                                     std::vector<std::string> const& endPathNames,
                                     ConditionalTaskHelper const& conditionalTaskHelper,
                                     std::unordered_set<std::string>& allConditionalModules) {
-    PathWorkers tmpworkers;
-    fillWorkers(proc_pset,
-                preg,
-                prealloc,
-                processConfiguration,
-                name,
-                false,
-                tmpworkers,
-                endPathNames,
-                conditionalTaskHelper,
-                allConditionalModules);
+    PathWorkers tmpworkers = fillWorkers(proc_pset,
+                                         preg,
+                                         prealloc,
+                                         processConfiguration,
+                                         name,
+                                         false,
+                                         endPathNames,
+                                         conditionalTaskHelper,
+                                         allConditionalModules);
 
     // an empty path will cause an extra bit that is not used
     if (!tmpworkers.empty()) {
@@ -915,13 +939,10 @@ namespace edm {
     } else {
       empty_trig_paths_.push_back(bitpos);
     }
-    for (WorkerInPath const& workerInPath : tmpworkers) {
-      addToAllWorkers(workerInPath.getWorker());
-    }
   }
 
   void StreamSchedule::fillEndPath(ParameterSet& proc_pset,
-                                   ProductRegistry& preg,
+                                   SignallingProductRegistryFiller& preg,
                                    PreallocationConfiguration const* prealloc,
                                    std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                    int bitpos,
@@ -929,17 +950,15 @@ namespace edm {
                                    std::vector<std::string> const& endPathNames,
                                    ConditionalTaskHelper const& conditionalTaskHelper,
                                    std::unordered_set<std::string>& allConditionalModules) {
-    PathWorkers tmpworkers;
-    fillWorkers(proc_pset,
-                preg,
-                prealloc,
-                processConfiguration,
-                name,
-                true,
-                tmpworkers,
-                endPathNames,
-                conditionalTaskHelper,
-                allConditionalModules);
+    PathWorkers tmpworkers = fillWorkers(proc_pset,
+                                         preg,
+                                         prealloc,
+                                         processConfiguration,
+                                         name,
+                                         true,
+                                         endPathNames,
+                                         conditionalTaskHelper,
+                                         allConditionalModules);
 
     if (!tmpworkers.empty()) {
       end_paths_.emplace_back(bitpos,
@@ -953,38 +972,96 @@ namespace edm {
     } else {
       empty_end_paths_.push_back(bitpos);
     }
-    for (WorkerInPath const& workerInPath : tmpworkers) {
-      addToAllWorkers(workerInPath.getWorker());
+  }
+
+  void StreamSchedule::beginStream(ModuleRegistry& iModuleRegistry) {
+    streamContext_.setTransition(StreamContext::Transition::kBeginStream);
+    streamContext_.setEventID(EventID(0, 0, 0));
+    streamContext_.setRunIndex(RunIndex::invalidRunIndex());
+    streamContext_.setLuminosityBlockIndex(LuminosityBlockIndex::invalidLuminosityBlockIndex());
+    streamContext_.setTimestamp(Timestamp());
+
+    std::exception_ptr exceptionInStream;
+    CMS_SA_ALLOW try {
+      preScheduleSignal<BeginStreamTraits>(&streamContext_);
+      runBeginStreamForModules(streamContext_, iModuleRegistry, *actReg_, moduleBeginStreamFailed_);
+    } catch (...) {
+      exceptionInStream = std::current_exception();
+    }
+
+    postScheduleSignal<BeginStreamTraits>(&streamContext_, exceptionInStream);
+
+    if (exceptionInStream) {
+      bool cleaningUpAfterException = false;
+      handleException(streamContext_, cleaningUpAfterException, exceptionInStream);
+    }
+    streamContext_.setTransition(StreamContext::Transition::kInvalid);
+
+    if (exceptionInStream) {
+      std::rethrow_exception(exceptionInStream);
     }
   }
 
-  void StreamSchedule::beginStream() { workerManager_.beginStream(streamID_, streamContext_); }
+  void StreamSchedule::endStream(ModuleRegistry& iModuleRegistry,
+                                 ExceptionCollector& collector,
+                                 std::mutex& collectorMutex) noexcept {
+    streamContext_.setTransition(StreamContext::Transition::kEndStream);
+    streamContext_.setEventID(EventID(0, 0, 0));
+    streamContext_.setRunIndex(RunIndex::invalidRunIndex());
+    streamContext_.setLuminosityBlockIndex(LuminosityBlockIndex::invalidLuminosityBlockIndex());
+    streamContext_.setTimestamp(Timestamp());
 
-  void StreamSchedule::endStream() { workerManager_.endStream(streamID_, streamContext_); }
+    std::exception_ptr exceptionInStream;
+    CMS_SA_ALLOW try {
+      preScheduleSignal<EndStreamTraits>(&streamContext_);
+      runEndStreamForModules(
+          streamContext_, iModuleRegistry, *actReg_, collector, collectorMutex, moduleBeginStreamFailed_);
+    } catch (...) {
+      exceptionInStream = std::current_exception();
+    }
+
+    postScheduleSignal<EndStreamTraits>(&streamContext_, exceptionInStream);
+
+    if (exceptionInStream) {
+      std::lock_guard<std::mutex> collectorLock(collectorMutex);
+      collector.call([&exceptionInStream]() { std::rethrow_exception(exceptionInStream); });
+    }
+    streamContext_.setTransition(StreamContext::Transition::kInvalid);
+  }
 
   void StreamSchedule::replaceModule(maker::ModuleHolder* iMod, std::string const& iLabel) {
-    Worker* found = nullptr;
-    for (auto const& worker : allWorkers()) {
+    for (auto const& worker : allWorkersRuns()) {
       if (worker->description()->moduleLabel() == iLabel) {
-        found = worker;
+        iMod->replaceModuleFor(worker);
+        try {
+          convertException::wrap([&] { iMod->beginStream(streamID_); });
+        } catch (cms::Exception& ex) {
+          moduleBeginStreamFailed_.emplace_back(iMod->moduleDescription().id());
+          ex.addContext("Executing StreamSchedule::replaceModule");
+          throw;
+        }
         break;
       }
     }
-    if (nullptr == found) {
-      return;
-    }
 
-    iMod->replaceModuleFor(found);
-    found->beginStream(streamID_, streamContext_);
+    for (auto const& worker : allWorkersLumisAndEvents()) {
+      if (worker->description()->moduleLabel() == iLabel) {
+        iMod->replaceModuleFor(worker);
+        break;
+      }
+    }
   }
 
-  void StreamSchedule::deleteModule(std::string const& iLabel) { workerManager_.deleteModuleIfExists(iLabel); }
+  void StreamSchedule::deleteModule(std::string const& iLabel) {
+    workerManagerRuns_.deleteModuleIfExists(iLabel);
+    workerManagerLumisAndEvents_.deleteModuleIfExists(iLabel);
+  }
 
   std::vector<ModuleDescription const*> StreamSchedule::getAllModuleDescriptions() const {
     std::vector<ModuleDescription const*> result;
-    result.reserve(allWorkers().size());
+    result.reserve(allWorkersLumisAndEvents().size());
 
-    for (auto const& worker : allWorkers()) {
+    for (auto const& worker : allWorkersLumisAndEvents()) {
       ModuleDescription const* p = worker->description();
       result.push_back(p);
     }
@@ -1012,8 +1089,8 @@ namespace edm {
       // Data dependencies need to be set up before marking empty
       // (End)Paths complete in case something consumes the status of
       // the empty (EndPath)
-      workerManager_.setupResolvers(ep);
-      workerManager_.setupOnDemandSystem(info);
+      workerManagerLumisAndEvents_.setupResolvers(ep);
+      workerManagerLumisAndEvents_.setupOnDemandSystem(info);
 
       HLTPathStatus hltPathStatus(hlt::Pass, 0);
       for (int empty_trig_path : empty_trig_paths_) {
@@ -1070,9 +1147,10 @@ namespace edm {
         ServiceRegistry::Operate operate(weakToken.lock());
 
         if (iPtr) {
-          //this is used to prioritize this error over one
-          // that happens in EndPath or Accumulate
-          pathErrorPtr->store(new std::exception_ptr(*iPtr));
+          // free previous value of pathErrorPtr, if any;
+          // prioritize this error over one that happens in EndPath or Accumulate
+          auto currentPtr = pathErrorPtr->exchange(new std::exception_ptr(*iPtr));
+          assert(currentPtr == nullptr);
         }
         finishedPaths(*pathErrorPtr, std::move(allPathsHolder), transitionInfo);
       });
@@ -1085,15 +1163,15 @@ namespace edm {
       //start end paths first so on single threaded the paths will run first
       WaitingTaskHolder hAllPathsDone(*iTask.group(), allPathsDone);
       for (auto it = end_paths_.rbegin(), itEnd = end_paths_.rend(); it != itEnd; ++it) {
-        it->processOneOccurrenceAsync(hAllPathsDone, info, serviceToken, streamID_, &streamContext_);
+        it->processEventUsingPathAsync(hAllPathsDone, info, serviceToken, streamID_, &streamContext_);
       }
 
       for (auto it = trig_paths_.rbegin(), itEnd = trig_paths_.rend(); it != itEnd; ++it) {
-        it->processOneOccurrenceAsync(taskHolder, info, serviceToken, streamID_, &streamContext_);
+        it->processEventUsingPathAsync(taskHolder, info, serviceToken, streamID_, &streamContext_);
       }
 
       ParentContext parentContext(&streamContext_);
-      workerManager_.processAccumulatorsAsync<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
+      workerManagerLumisAndEvents_.processAccumulatorsAsync<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
           hAllPathsDone, info, serviceToken, streamID_, parentContext, &streamContext_);
     } catch (...) {
       iTask.doneWaiting(std::current_exception());
@@ -1318,7 +1396,7 @@ namespace edm {
 
     fill_summary(trig_paths_, rep.trigPathSummaries, &fillPathSummary);
     fill_summary(end_paths_, rep.endPathSummaries, &fillPathSummary);
-    fill_summary(allWorkers(), rep.workerSummaries, &fillWorkerSummary);
+    fill_summary(allWorkersLumisAndEvents(), rep.workerSummaries, &fillWorkerSummary);
   }
 
   void StreamSchedule::clearCounters() {
@@ -1326,12 +1404,12 @@ namespace edm {
     total_events_ = total_passed_ = 0;
     for_all(trig_paths_, std::bind(&Path::clearCounters, _1));
     for_all(end_paths_, std::bind(&Path::clearCounters, _1));
-    for_all(allWorkers(), std::bind(&Worker::clearCounters, _1));
+    for_all(allWorkersLumisAndEvents(), std::bind(&Worker::clearCounters, _1));
   }
 
   void StreamSchedule::resetAll() { results_->reset(); }
 
-  void StreamSchedule::addToAllWorkers(Worker* w) { workerManager_.addToAllWorkers(w); }
+  void StreamSchedule::addToAllWorkers(Worker* w) { workerManagerLumisAndEvents_.addToAllWorkers(w); }
 
   void StreamSchedule::resetEarlyDelete() {
     //must be sure we have cleared the count first
@@ -1356,19 +1434,15 @@ namespace edm {
     unsigned int indexOfPath = 0;
     for (auto& pathStatusInserter : pathStatusInserters) {
       std::shared_ptr<PathStatusInserter> inserterPtr = get_underlying(pathStatusInserter);
-      WorkerPtr workerPtr(
-          new edm::WorkerT<PathStatusInserter::ModuleType>(inserterPtr, inserterPtr->moduleDescription(), &actions));
+      auto workerPtr = workerManagerLumisAndEvents_.getWorkerForModule(*inserterPtr);
       pathStatusInserterWorkers_.emplace_back(workerPtr);
-      workerPtr->setActivityRegistry(actReg_);
-      addToAllWorkers(workerPtr.get());
-
       // A little complexity here because a C++ Path object is not
       // instantiated and put into end_paths if there are no modules
       // on the configured path.
       if (indexEmpty < empty_trig_paths_.size() && bitpos == empty_trig_paths_.at(indexEmpty)) {
         ++indexEmpty;
       } else {
-        trig_paths_.at(indexOfPath).setPathStatusInserter(inserterPtr.get(), workerPtr.get());
+        trig_paths_.at(indexOfPath).setPathStatusInserter(inserterPtr.get(), workerPtr);
         ++indexOfPath;
       }
       ++bitpos;
@@ -1379,22 +1453,42 @@ namespace edm {
     indexOfPath = 0;
     for (auto& endPathStatusInserter : endPathStatusInserters) {
       std::shared_ptr<EndPathStatusInserter> inserterPtr = get_underlying(endPathStatusInserter);
-      WorkerPtr workerPtr(
-          new edm::WorkerT<EndPathStatusInserter::ModuleType>(inserterPtr, inserterPtr->moduleDescription(), &actions));
+      auto workerPtr = workerManagerLumisAndEvents_.getWorkerForModule(*inserterPtr);
       endPathStatusInserterWorkers_.emplace_back(workerPtr);
-      workerPtr->setActivityRegistry(actReg_);
-      addToAllWorkers(workerPtr.get());
-
       // A little complexity here because a C++ Path object is not
       // instantiated and put into end_paths if there are no modules
       // on the configured path.
       if (indexEmpty < empty_end_paths_.size() && bitpos == empty_end_paths_.at(indexEmpty)) {
         ++indexEmpty;
       } else {
-        end_paths_.at(indexOfPath).setPathStatusInserter(nullptr, workerPtr.get());
+        end_paths_.at(indexOfPath).setPathStatusInserter(nullptr, workerPtr);
         ++indexOfPath;
       }
       ++bitpos;
+    }
+  }
+
+  void StreamSchedule::handleException(StreamContext const& streamContext,
+                                       bool cleaningUpAfterException,
+                                       std::exception_ptr& excpt) const noexcept {
+    //add context information to the exception and print message
+    try {
+      convertException::wrap([&excpt]() { std::rethrow_exception(excpt); });
+    } catch (cms::Exception& ex) {
+      std::ostringstream ost;
+      // In most cases the exception will already have context at this point,
+      // but add some context here in those rare cases where it does not.
+      if (ex.context().empty()) {
+        exceptionContext(ost, streamContext);
+      }
+      addContextAndPrintException(ost.str().c_str(), ex, cleaningUpAfterException);
+      excpt = std::current_exception();
+    }
+    // We are already handling an earlier exception, so ignore it
+    // if this signal results in another exception being thrown.
+    CMS_SA_ALLOW try {
+      actReg_->preStreamEarlyTerminationSignal_(streamContext, TerminationOrigin::ExceptionFromThisContext);
+    } catch (...) {
     }
   }
 }  // namespace edm

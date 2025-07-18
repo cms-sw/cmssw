@@ -10,8 +10,8 @@ namespace approx_math {
   // not c++ compliant (only C compliant)
   // to be c++ compliaint one must use memcpy...
   union binary32 {
-    constexpr binary32() : ui32(0){};
-    constexpr binary32(float ff) : f(ff){};
+    constexpr binary32() : ui32(0) {}
+    constexpr binary32(float ff) : f(ff) {}
     constexpr binary32(int32_t ii) : i32(ii) {}
     constexpr binary32(uint32_t ui) : ui32(ui) {}
 

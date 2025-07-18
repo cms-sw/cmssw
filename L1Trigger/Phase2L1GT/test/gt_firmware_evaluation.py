@@ -3,13 +3,9 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('L1Test')
 
-# import of standard configurations
-process.load('Configuration.StandardSequences.Services_cff')
-
-
 # Input source
 process.source = cms.Source("EmptySource")
-process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(72))
+process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(94))
 
 options = VarParsing.VarParsing()
 options.register ("platform",
@@ -21,10 +17,10 @@ options.parseArguments()
 
 process.l1tGTProducer = cms.EDProducer(
     "L1GTEvaluationProducer",
-    outputFilename=cms.string("inputPattern"),
-    random_seed=cms.uint32(0),
-    maxLines=cms.uint32(1024),
-    platform=cms.string(options.platform)
+    inputFilename=cms.untracked.string("inputPattern"),
+    outputFilename=cms.untracked.string("outputObjectPattern"),
+    random_seed=cms.untracked.uint32(0),
+    maxFrames=cms.untracked.uint32(1024)
 )
 
 process.l1t_GTProducer = cms.Path(process.l1tGTProducer)
@@ -408,13 +404,13 @@ process._doublePUPPITau_52_52_er2p1_drMin0p5 = l1tGTDoubleObjectCond.clone(
 
 process._doublePUPPIJet_112_112_er2p4_dEtaMax1p6 = l1tGTDoubleObjectCond.clone(
     collection1=cms.PSet(
-        tag=cms.InputTag("l1tGTProducer", "CL2Jets"),
+        tag=cms.InputTag("l1tGTProducer", "CL2JetsSC4"),
         minPt=cms.double(112),
         minEta=cms.double(-2.4),
         maxEta=cms.double(2.4),
     ),
     collection2=cms.PSet(
-        tag=cms.InputTag("l1tGTProducer", "CL2Jets"),
+        tag=cms.InputTag("l1tGTProducer", "CL2JetsSC4"),
         minPt=cms.double(112),
         minEta=cms.double(-2.4),
         maxEta=cms.double(2.4),
@@ -563,13 +559,13 @@ process._tkElePUPPIJet_28_40_er2p1_er2p4_dRmin0p3_dzMax1p0 = l1tGTDoubleObjectCo
 
 process._doublePuppiJet_160_35_er5p0_massMin620 = l1tGTDoubleObjectCond.clone(
     collection1=cms.PSet(
-        tag=cms.InputTag("l1tGTProducer", "CL2Jets"),
+        tag=cms.InputTag("l1tGTProducer", "CL2JetsSC4"),
         minPt=cms.double(160),
         minEta=cms.double(-5),
         maxEta=cms.double(5),
     ),
     collection2=cms.PSet(
-        tag=cms.InputTag("l1tGTProducer", "CL2Jets"),
+        tag=cms.InputTag("l1tGTProducer", "CL2JetsSC4"),
         minPt=cms.double(35),
         minEta=cms.double(-5),
         maxEta=cms.double(5),
@@ -654,15 +650,15 @@ process._doubleEG_32_32_er2p5_Mt40 = l1tGTDoubleObjectCond.clone(
 
 process._triplePuppiJet_70_50_35 = l1tGTTripleObjectCond.clone(
     collection1=cms.PSet(
-        tag=cms.InputTag("l1tGTProducer", "CL2Jets"),
+        tag=cms.InputTag("l1tGTProducer", "CL2JetsSC4"),
         minPt=cms.double(70)
     ),
     collection2=cms.PSet(
-        tag=cms.InputTag("l1tGTProducer", "CL2Jets"),
+        tag=cms.InputTag("l1tGTProducer", "CL2JetsSC4"),
         minPt=cms.double(50)
     ),
     collection3=cms.PSet(
-        tag=cms.InputTag("l1tGTProducer", "CL2Jets"),
+        tag=cms.InputTag("l1tGTProducer", "CL2JetsSC4"),
         minPt=cms.double(35)
     )
 )
@@ -681,7 +677,7 @@ process._tripleTkEleTkMuPUPPIJet_30_40_25_er2p4 = l1tGTTripleObjectCond.clone(
         maxEta=cms.double(2.4)
     ),
     collection3=cms.PSet(
-        tag=cms.InputTag("l1tGTProducer", "CL2Jets"),
+        tag=cms.InputTag("l1tGTProducer", "CL2JetsSC4"),
         minPt=cms.double(25),
         minEta=cms.double(-2.4),
         maxEta=cms.double(2.4)
@@ -707,10 +703,10 @@ process._tripleTkMuTkEle_7_5_5_er3p4_SS = l1tGTTripleObjectCond.clone(
         minEta=cms.double(-3.4),
         maxEta=cms.double(3.4)
     ),
-    delta12=cms.PSet(
+    correl12=cms.PSet(
         ss=cms.bool(True)
     ),
-    delta13=cms.PSet(
+    correl13=cms.PSet(
         ss=cms.bool(True)
     )
 )
@@ -740,13 +736,13 @@ process._quadTkMuTkEle_5_5_5_7_er3p4_SS = l1tGTQuadObjectCond.clone(
         minEta=cms.double(-3.4),
         maxEta=cms.double(3.4)
     ),
-    delta12=cms.PSet(
+    correl12=cms.PSet(
         ss=cms.bool(True)
     ),
-    delta13=cms.PSet(
+    correl13=cms.PSet(
         ss=cms.bool(True)
     ),
-    delta14=cms.PSet(
+    correl14=cms.PSet(
         ss=cms.bool(True)
     )
 )
@@ -767,7 +763,7 @@ process._quadTkEleTkMuPUPPIJet_30_40_25_25_er2p4 = l1tGTQuadObjectCond.clone(
         maxEta=cms.double(2.4)
     ),
     collection3=cms.PSet(
-        tag=cms.InputTag("l1tGTProducer", "CL2Jets"),
+        tag=cms.InputTag("l1tGTProducer", "CL2JetsSC4"),
         minPt=cms.double(25),
         minEta=cms.double(-2.4),
         maxEta=cms.double(2.4)
@@ -804,19 +800,36 @@ process.l1tGTAlgoBlockProducer = cms.EDProducer(
 process.pl1tGTAlgoBlockProducer = cms.Path(process.l1tGTAlgoBlockProducer)
 
 if options.platform == "VU13P":
-    channels = cms.vuint32(46, 47)
+    from L1Trigger.Phase2L1GT.l1tGTBoardWriterVU13P_cff import BoardDataInputVU13P as BoardDataInput, BoardDataOutputObjectsVU13P as BoardDataOutputObjects
+    channels = cms.untracked.vuint32(46, 47)
 else:
-    channels = cms.vuint32(32, 33)
+    from L1Trigger.Phase2L1GT.l1tGTBoardWriterVU9P_cff import BoardDataInputVU9P as BoardDataInput, BoardDataOutputObjectsVU9P as BoardDataOutputObjects
+    channels = cms.untracked.vuint32(32, 33)
 
 
-process.BoardData = cms.EDAnalyzer("L1GTBoardWriter",
-  outputFilename = cms.string("outputPattern"),
-  algoBlocksTag = cms.InputTag("l1tGTAlgoBlockProducer"),
-  maxLines = cms.uint32(1024),
+process.l1tGTProducer.InputChannels = BoardDataInput.InputChannels
+process.l1tGTProducer.OutputChannels = BoardDataOutputObjects.OutputChannels
+
+
+process.BoardData = cms.EDAnalyzer("L1GTAlgoBoardWriter",
+  filename = cms.untracked.string("outputPattern"),
+  algoBlocksTag = cms.untracked.InputTag("l1tGTAlgoBlockProducer"),
+  maxFrames = cms.untracked.uint32(1024),
   channels = channels
 )
 
+process.FinOrBoardData = cms.EDAnalyzer("L1GTFinOrBoardWriter",
+  filename = cms.untracked.string("outputFinOrPattern"),
+  algoBlocksTag = cms.untracked.InputTag("l1tGTAlgoBlockProducer"),
+  maxFrames = cms.untracked.uint32(1024),
+  channelsLow = cms.untracked.vuint32(4, 5, 6),
+  channelsMid = cms.untracked.vuint32(40, 41, 42),
+  channelsHigh = cms.untracked.vuint32(52, 53, 54),
+  channelFinOr = cms.untracked.uint32(99)
+)
+
 process.l1t_BoardData = cms.EndPath(process.BoardData)
+process.l1t_FinOrBoardData = cms.EndPath(process.FinOrBoardData)
 
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('file:test_output.root'),

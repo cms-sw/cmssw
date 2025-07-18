@@ -32,6 +32,7 @@ public:
   ~PFDisplacedVertexProducer() override;
 
   void produce(edm::Event&, const edm::EventSetup&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   /// Collection of DisplacedVertex Candidates used as input for
@@ -57,6 +58,92 @@ private:
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PFDisplacedVertexProducer);
+
+void PFDisplacedVertexProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("vertexCandidatesLabel", {"particleFlowDisplacedVertexCandidate"});
+  // verbosity
+  desc.addUntracked<bool>("verbose", false);
+  // Debug flag
+  desc.addUntracked<bool>("debug", false);
+  // maximum transverse distance between two points to be used in Seed
+  desc.add<double>("transvSize", 1.0);
+  // maximum longitudinal distance between two points to be used in Seed
+  desc.add<double>("longSize", 5);
+  // minimal radius below which we do not reconstruct interactions
+  // typically the position of the first Pixel layer or beam pipe
+  desc.add<double>("primaryVertexCut", 1.8);
+  // radius below which we don't want to reconstruct displaced
+  // vertices
+  desc.add<double>("tobCut", 100);
+  // z below which we don't want to reconstruct displaced
+  // vertices
+  desc.add<double>("tecCut", 220);
+  // the minimal accepted weight for the tracks calculated in the
+  // adaptive vertex fitter to be associated to the displaced vertex
+  // this correspond to the sigmacut of 6
+  desc.add<double>("minAdaptWeight", 0.5);
+  // this flag is designed to reduce the timing of the algorithm in the high pile-up conditions. 2 tracks
+  // vertices are the most sensitives to the pile-ups.
+  desc.addUntracked<bool>("switchOff2TrackVertex", true);
+  // ------------ Paramemeters for the track selection ------------
+  // Primary vertex information used for dxy calculation
+  desc.add<edm::InputTag>("mainVertexLabel", {"offlinePrimaryVertices", ""});
+  desc.add<edm::InputTag>("offlineBeamSpotLabel", {"offlineBeamSpot", ""});
+  // Parameters used to apply cuts
+  {
+    edm::ParameterSetDescription pset;
+    pset.add<bool>("bSelectTracks", true);
+    // If a track is high purity it is always kept
+    pset.add<std::string>("quality", "HighPurity");
+    // Following cuts are applyed to non high purity tracks
+    // nChi2_max and pt_min cuts are applyed to the primary and secondary tracks
+    pset.add<double>("nChi2_max", 5.);
+    pset.add<double>("pt_min", 0.2);
+    // nChi2_min applyed only to primary tracks which may be short
+    // remove fake pixel triplets
+    pset.add<double>("nChi2_min", 0.5);
+    // Cuts applyed to the secondary tracks long and displaced
+    pset.add<double>("dxy_min", 0.2);
+    pset.add<int>("nHits_min", 6);
+    pset.add<int>("nOuterHits_max", 9);
+    desc.add<edm::ParameterSetDescription>("tracksSelectorParameters", pset);
+  }
+  // ------------ Paramemeters for the vertex identification ------------
+  {
+    edm::ParameterSetDescription pset;
+    pset.add<bool>("bIdentifyVertices", true);
+    // Minimal sum pt of secondary tracks for displaced vertices.
+    // Below this value we find either loopers splitted in two parts eiter
+    // fake vertices in forward direction
+    pset.add<double>("pt_min", 0.5);
+    // Minimal pT and log10(P_primary/P_secondary) for primary track in kinks (Primary+Secondary)
+    // which are not identifier as K-+ decays
+    pset.add<double>("pt_kink_min", 3.0);
+    pset.add<double>("logPrimSec_min", 0.0);
+    // maximum absoluta value of eta for loopers
+    pset.add<double>("looper_eta_max", 0.1);
+    // Masses cuts for selections
+    //                                       CVmin  K0min  K0max  K-min  K-max  Ldmin  Ldmax  Nuclmin_ee
+    pset.add<std::vector<double>>("masses", {0.050, 0.485, 0.515, 0.480, 0.520, 1.107, 1.125, 0.200});
+    // Angle between the primaryVertex-secondaryVertex direction and secondary tracks direction
+    // this angle means that the final system shall propagate in the same direction than initial system
+    //                                       all_max, CV and V0 max
+    pset.add<std::vector<double>>("angles", {15, 15});
+    desc.add<edm::ParameterSetDescription>("vertexIdentifierParameters", pset);
+  }
+  // Adaptive Vertex Fitter parameters identical to the default ones except sigmacut.
+  // The default value is sigmacut = 3 too tight for displaced vertices
+  // see CMS NOTE-2008/033 for more details
+  {
+    edm::ParameterSetDescription pset;
+    pset.add<double>("sigmacut", 6.);
+    pset.add<double>("Tini", 256.);
+    pset.add<double>("ratio", 0.25);
+    desc.add<edm::ParameterSetDescription>("avfParameters", pset);
+  }
+  descriptions.add("particleFlowDisplacedVertex", desc);
+}
 
 using namespace std;
 using namespace edm;

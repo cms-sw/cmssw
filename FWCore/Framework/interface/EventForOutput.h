@@ -21,6 +21,7 @@
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
 #include "DataFormats/Provenance/interface/RunID.h"
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OccurrenceForOutput.h"
@@ -42,7 +43,6 @@ namespace edmtest {
 
 namespace edm {
 
-  class BranchDescription;
   class ModuleCallingContext;
   class ProductProvenanceRetriever;
   class EDConsumerBase;

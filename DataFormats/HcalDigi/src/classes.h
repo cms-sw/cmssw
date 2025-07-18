@@ -6,6 +6,8 @@
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
 #include "DataFormats/HcalDigi/interface/HcalHistogramDigi.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiHostCollection.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiSoA.h"
 #include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"
 #include "DataFormats/HcalDigi/interface/HcalLaserDigi.h"
 #include "DataFormats/HcalDigi/interface/HcalTTPDigi.h"
@@ -14,7 +16,8 @@
 
 // dummy structs to ensure backward compatibility
 struct HcalUpgradeDataFrame {
-  typedef HcalDetId key_type;
+  using key_type = HcalDetId;
+  HcalDetId id() const { return HcalDetId(); }
 };
 struct HcalUpgradeQIESample {};
 typedef edm::SortedCollection<HcalUpgradeDataFrame> HBHEUpgradeDigiCollection;

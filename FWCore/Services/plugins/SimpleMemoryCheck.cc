@@ -41,6 +41,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
+#include <array>
 #include <cstring>
 #include <iostream>
 #include <memory>
@@ -54,22 +55,40 @@
 
 #include <cstdio>
 #include <atomic>
+#include <optional>
+
+// for jemalloc queries
+#include <dlfcn.h>
+extern "C" {
+typedef int (*mallctl_t)(const char* name, void* oldp, size_t* oldlenp, void* newp, size_t newlen);
+}
 
 namespace edm {
-  class EventID;
-  class Timestamp;
-
   namespace service {
+    enum class SmapsSection {
+      kSharedObject = 0,
+      kPcm = 1,
+      kOtherFile = 2,
+      kStack = 3,
+      kMmap = 4,
+      kOther = 5,
+      kSize = 6
+    };
     struct smapsInfo {
-      smapsInfo() : private_(), pss_() {}
-      smapsInfo(double private_sz, double pss_sz) : private_(private_sz), pss_(pss_sz) {}
+      double private_ = 0;        // in MB
+      double pss_ = 0;            // in MB
+      double anonHugePages_ = 0;  // in MB
 
-      bool operator==(const smapsInfo& p) const { return private_ == p.private_ && pss_ == p.pss_; }
-
-      bool operator>(const smapsInfo& p) const { return private_ > p.private_ || pss_ > p.pss_; }
-
-      double private_;  // in MB
-      double pss_;      // in MB
+      static constexpr auto sectionsSize_ = static_cast<unsigned>(SmapsSection::kSize);
+      std::array<double, sectionsSize_> sectionRss_{};    // in MB
+      std::array<double, sectionsSize_> sectionVSize_{};  // in MB
+    };
+    struct JemallocInfo {
+      double allocated = 0;  // in MB
+      double active = 0;     // in MB
+      double resident = 0;   // in MB
+      double mapped = 0;     // in MB
+      double metadata = 0;   // in MB
     };
 
     class SimpleMemoryCheck {
@@ -93,17 +112,31 @@ namespace edm {
       void preModule(StreamContext const&, ModuleCallingContext const&);
       void postModule(StreamContext const&, ModuleCallingContext const&);
 
+      void earlyTermination();
+
       void postEndJob();
+
+      void startSamplingThread();
+      void stopSamplingThread();
 
     private:
       ProcInfo fetch();
       smapsInfo fetchSmaps();
+      JemallocInfo fetchJemalloc() const;
       double pageSize() const { return pg_size_; }
       double averageGrowthRate(double current, double past, int count);
       void update();
       void updateMax();
+      void andPrintAlways(const std::string& type,
+                          const std::string& mdlabel,
+                          const std::string& mdname,
+                          bool includeSmapsAndJe = false) const;
       void andPrint(const std::string& type, const std::string& mdlabel, const std::string& mdname) const;
       void updateAndPrint(const std::string& type, const std::string& mdlabel, const std::string& mdname);
+
+      // Upon success returns an optional without value
+      // Upon failure returns the name of the file the function attempted to open
+      std::optional<std::string> openFilesNoThrow();
       void openFiles();
 
       char const* smapsLineBuffer() const { return get_underlying_safe(smapsLineBuffer_); }
@@ -122,13 +155,21 @@ namespace edm {
       int num_to_skip_;
       //options
       bool showMallocInfo_;
+      bool showJemallocInfo_;
       bool oncePerEventMode_;
+      bool printEachTime_;
       bool jobReportOutputOnly_;
       bool monitorPssAndPrivate_;
       std::atomic<int> count_;
+      unsigned int sampleEveryNSeconds_;
+      std::optional<std::thread> samplingThread_;
+      std::atomic<bool> stopThread_ = false;
+      std::atomic<edm::EventID> mostRecentlyStartedEvent_;
+
+      mallctl_t je_mallctl = nullptr;
 
       //smaps
-      edm::propagate_const<FILE*> smapsFile_;
+      edm::propagate_const<FILE*> smapsFile_ = nullptr;
       edm::propagate_const<char*> smapsLineBuffer_;
       size_t smapsLineBufferLen_;
 
@@ -138,25 +179,18 @@ namespace edm {
 
       // Event summary statistics 				changeLog 1
       struct SignificantEvent {
-        int count;
-        double vsize;
-        double deltaVsize;
-        double rss;
-        double deltaRss;
-        bool monitorPssAndPrivate;
-        double privateSize;
-        double pss;
         edm::EventID event;
-        SignificantEvent()
-            : count(0),
-              vsize(0),
-              deltaVsize(0),
-              rss(0),
-              deltaRss(0),
-              monitorPssAndPrivate(false),
-              privateSize(0),
-              pss(0),
-              event() {}
+        double vsize = 0;
+        double deltaVsize = 0;
+        double rss = 0;
+        double deltaRss = 0;
+        double privateSize = 0;
+        double pss = 0;
+        double anonHugePages = 0;
+        std::optional<JemallocInfo> jemalloc;
+        int count = 0;
+        bool monitorPssAndPrivate = false;
+        SignificantEvent() = default;
         void set(double deltaV, double deltaR, edm::EventID const& e, SimpleMemoryCheck* t) {
           count = t->count_;
           vsize = t->current_->vsize;
@@ -167,6 +201,10 @@ namespace edm {
           if (monitorPssAndPrivate) {
             privateSize = t->currentSmaps_.private_;
             pss = t->currentSmaps_.pss_;
+            anonHugePages = t->currentSmaps_.anonHugePages_;
+          }
+          if (t->showJemallocInfo_) {
+            jemalloc = t->fetchJemalloc();
           }
           event = e;
         }
@@ -288,11 +326,10 @@ namespace edm {
 
     smapsInfo SimpleMemoryCheck::fetchSmaps() {
       smapsInfo ret;
-      ret.private_ = 0;
-      ret.pss_ = 0;
 #ifdef LINUX
       fseek(smapsFile_, 0, SEEK_SET);
       ssize_t read;
+      SmapsSection section = SmapsSection::kOther;
 
       /*
        The format of the report is
@@ -300,10 +337,40 @@ namespace edm {
        Private_Dirty:       72 kB
        Swap:                 0 kB
        Pss:                 72 kB
+       AnonHugePages:    10240 kB
        */
 
       while ((read = getline(&smapsLineBuffer(), &smapsLineBufferLen_, smapsFile_)) != -1) {
         if (read > 14) {
+          // Are we in a line that defines a mapping?
+          // (a character following ':' is not a space)
+          if (char const* ret = strchr(smapsLineBuffer_, ':'); ret != nullptr and *(ret + 1) != ' ') {
+            ret = strrchr(smapsLineBuffer_, ' ');
+            if (ret == nullptr) {
+              // shouldn't happen, but let's protect anyway
+              section = SmapsSection::kOther;
+            } else if (*(ret + 1) == '\n') {
+              // no "path" element
+              section = SmapsSection::kMmap;
+            } else if (*(ret + 1) == '/') {
+              // "path" starts with '/', assume it's file
+              // differentiate shared object and .pcm files
+              auto len = strlen(ret);
+              if (0 == strncmp(ret + len - 5, ".pcm", 4)) {
+                section = SmapsSection::kPcm;
+              } else if (strstr(ret, ".so") != nullptr) {
+                section = SmapsSection::kSharedObject;
+              } else {
+                section = SmapsSection::kOtherFile;
+              }
+            } else if (0 == strncmp("[stack]", ret + 1, 7)) {
+              section = SmapsSection::kStack;
+            } else {
+              section = SmapsSection::kOther;
+            }
+            continue;
+          }
+
           //Private
           if (0 == strncmp("Private_", smapsLineBuffer_, 8)) {
             unsigned int value = atoi(smapsLineBuffer_ + 14);
@@ -313,6 +380,17 @@ namespace edm {
             unsigned int value = atoi(smapsLineBuffer_ + 4);
             //Convert from kB to MB
             ret.pss_ += static_cast<double>(value) / 1024.;
+          } else if (0 == strncmp("AnonHugePages:", smapsLineBuffer_, 14)) {
+            unsigned int value = atoi(smapsLineBuffer_ + 14);
+            ret.anonHugePages_ += static_cast<double>(value) / 1024.;
+          } else if (0 == strncmp("Rss:", smapsLineBuffer_, 4)) {
+            unsigned int value = atoi(smapsLineBuffer_ + 4);
+            //Convert from kB to MB
+            ret.sectionRss_[static_cast<unsigned>(section)] += static_cast<double>(value) / 1024.;
+          } else if (0 == strncmp("Size:", smapsLineBuffer_, 5)) {
+            unsigned int value = atoi(smapsLineBuffer_ + 5);
+            //Convert from kB to MB
+            ret.sectionVSize_[static_cast<unsigned>(section)] += static_cast<double>(value) / 1024.;
           }
         }
       }
@@ -320,8 +398,45 @@ namespace edm {
       return ret;
     }
 
+    JemallocInfo SimpleMemoryCheck::fetchJemalloc() const {
+      JemallocInfo info;
+      if (je_mallctl) {
+        // refresh stats
+        uint64_t epoch = 1;
+        size_t e_len = sizeof(uint64_t);
+        if (je_mallctl("epoch", &epoch, &e_len, &epoch, e_len) != 0) {
+          return info;
+        }
+
+        // query values
+        size_t allocated, active, resident, mapped, metadata;
+        size_t len = sizeof(size_t);
+        if (je_mallctl("stats.allocated", &allocated, &len, nullptr, 0) != 0) {
+          return info;
+        }
+        if (je_mallctl("stats.active", &active, &len, nullptr, 0) != 0) {
+          return info;
+        }
+        if (je_mallctl("stats.resident", &resident, &len, nullptr, 0) != 0) {
+          return info;
+        }
+        if (je_mallctl("stats.mapped", &mapped, &len, nullptr, 0) != 0) {
+          return info;
+        }
+        if (je_mallctl("stats.metadata", &metadata, &len, nullptr, 0) != 0) {
+          return info;
+        }
+        info.allocated = allocated / 1024.0 / 1024.0;
+        info.active = active / 1024.0 / 1024.0;
+        info.resident = resident / 1024.0 / 1024.0;
+        info.mapped = mapped / 1024.0 / 1024.0;
+        info.metadata = metadata / 1024.0 / 1024.0;
+      }
+      return info;
+    }
+
     double SimpleMemoryCheck::averageGrowthRate(double current, double past, int count) {
-      return (current - past) / (double)count;
+      return (current - past) / (double)std::max(count, 1);
     }
 
     SimpleMemoryCheck::SimpleMemoryCheck(ParameterSet const& iPS, ActivityRegistry& iReg)
@@ -329,14 +444,16 @@ namespace edm {
           b_(),
           current_(&a_),
           previous_(&b_),
-          pg_size_(sysconf(_SC_PAGESIZE))  // getpagesize()
-          ,
+          pg_size_(sysconf(_SC_PAGESIZE)),  // getpagesize()
           num_to_skip_(iPS.getUntrackedParameter<int>("ignoreTotal")),
           showMallocInfo_(iPS.getUntrackedParameter<bool>("showMallocInfo")),
+          showJemallocInfo_(iPS.getUntrackedParameter<bool>("showJemallocInfo")),
           oncePerEventMode_(iPS.getUntrackedParameter<bool>("oncePerEventMode")),
+          printEachTime_(oncePerEventMode_ or iPS.getUntrackedParameter<bool>("printEachSample")),
           jobReportOutputOnly_(iPS.getUntrackedParameter<bool>("jobReportOutputOnly")),
           monitorPssAndPrivate_(iPS.getUntrackedParameter<bool>("monitorPssAndPrivate")),
           count_(),
+          sampleEveryNSeconds_(iPS.getUntrackedParameter<unsigned int>("sampleEveryNSeconds")),
           smapsFile_(nullptr),
           smapsLineBuffer_(nullptr),
           smapsLineBufferLen_(0),
@@ -348,7 +465,33 @@ namespace edm {
       // pg_size = (double)getpagesize();
       std::ostringstream ost;
 
-      openFiles();
+      if (monitorPssAndPrivate_) {
+        openFiles();
+      }
+
+      iReg.watchPostEndJob(this, &SimpleMemoryCheck::postEndJob);
+      // A possible source for early termination is a signal from WM
+      // when the job's memory use exceeds their limit
+      iReg.watchPreSourceEarlyTermination([this](TerminationOrigin) { earlyTermination(); });
+      iReg.watchPreGlobalEarlyTermination([this](GlobalContext const&, TerminationOrigin) { earlyTermination(); });
+      iReg.watchPreStreamEarlyTermination([this](StreamContext const&, TerminationOrigin) { earlyTermination(); });
+
+      if (sampleEveryNSeconds_ > 0) {
+        if (oncePerEventMode_) {
+          throw edm::Exception(edm::errors::Configuration)
+              << "'sampleEventNSeconds' and 'oncePerEventMode' cannot be used together";
+        }
+        if (moduleSummaryRequested_) {
+          throw edm::Exception(edm::errors::Configuration)
+              << "'sampleEventNSeconds' and 'moduleSummaryRequested' cannot be used together";
+        }
+        iReg.watchPostBeginJob(this, &SimpleMemoryCheck::startSamplingThread);
+        iReg.watchPreEndJob(this, &SimpleMemoryCheck::stopSamplingThread);
+        iReg.watchPreEvent([this](auto const& iContext) { mostRecentlyStartedEvent_.store(iContext.eventID()); });
+        return;
+      }
+
+      iReg.watchPostEvent(this, &SimpleMemoryCheck::postEvent);
 
       if (!oncePerEventMode_) {  // default, prints on increases
         iReg.watchPreSourceConstruction(this, &SimpleMemoryCheck::preSourceConstruction);
@@ -356,13 +499,8 @@ namespace edm {
         iReg.watchPostSourceEvent(this, &SimpleMemoryCheck::postSourceEvent);
         iReg.watchPostModuleConstruction(this, &SimpleMemoryCheck::postModuleConstruction);
         iReg.watchPostModuleBeginJob(this, &SimpleMemoryCheck::postModuleBeginJob);
-        iReg.watchPostEvent(this, &SimpleMemoryCheck::postEvent);
         iReg.watchPostModuleEvent(this, &SimpleMemoryCheck::postModule);
         iReg.watchPostBeginJob(this, &SimpleMemoryCheck::postBeginJob);
-        iReg.watchPostEndJob(this, &SimpleMemoryCheck::postEndJob);
-      } else {
-        iReg.watchPostEvent(this, &SimpleMemoryCheck::postEvent);
-        iReg.watchPostEndJob(this, &SimpleMemoryCheck::postEndJob);
       }
       if (moduleSummaryRequested_) {  // changelog 2
         iReg.watchPreModuleEvent(this, &SimpleMemoryCheck::preModule);
@@ -379,6 +517,14 @@ namespace edm {
       //       &SimpleMemoryCheck::preEventProcessing);
       //  iReg.watchPreModule(this,
       //       &SimpleMemoryCheck::preModule);
+
+      if (showJemallocInfo_) {
+        // jemalloc's mallctl(), if we use jemalloc
+        je_mallctl = reinterpret_cast<mallctl_t>(::dlsym(RTLD_DEFAULT, "mallctl"));
+        if (je_mallctl == nullptr) {
+          showJemallocInfo_ = false;
+        }
+      }
     }
 
     SimpleMemoryCheck::~SimpleMemoryCheck() {
@@ -395,26 +541,48 @@ namespace edm {
 
     void SimpleMemoryCheck::fillDescriptions(ConfigurationDescriptions& descriptions) {
       ParameterSetDescription desc;
-      desc.addUntracked<int>("ignoreTotal", 1);
+      desc.addUntracked<int>("ignoreTotal", 1)
+          ->setComment("Number of events/samples to finish before starting measuring and reporting.");
+      desc.addUntracked<unsigned int>("sampleEveryNSeconds", 0)
+          ->setComment(
+              "Use a special thread to sample memory at the set rate. A value of 0 means no sampling. This option "
+              "cannot be used with 'oncePerEventMode' or 'moduleMemorySummary'.");
+      desc.addUntracked<bool>("printEachSample", false)
+          ->setComment("If sampling on, print each sample taken else will print only when sample is the largest seen.");
       desc.addUntracked<bool>("showMallocInfo", false);
-      desc.addUntracked<bool>("oncePerEventMode", false);
+      desc.addUntracked<bool>("showJemallocInfo", true)
+          ->setComment(
+              "If enabled and jemalloc is being used, print high-level jemalloc statistics at the early termination "
+              "and endJob printouts as well as for the peak VSIZE and RSS -using records.");
+      desc.addUntracked<bool>("oncePerEventMode", false)
+          ->setComment(
+              "Only check memory at the end of each event. Not as useful in multi-threaded job as other running events "
+              "contribute.");
       desc.addUntracked<bool>("jobReportOutputOnly", false);
       desc.addUntracked<bool>("monitorPssAndPrivate", false);
-      desc.addUntracked<bool>("moduleMemorySummary", false);
-      desc.addUntracked<bool>("dump", false);
+      desc.addUntracked<bool>("moduleMemorySummary", false)
+          ->setComment(
+              "Track significant memory events for each module. This does not work well in multi-threaded jobs.");
       descriptions.add("SimpleMemoryCheck", desc);
     }
 
-    void SimpleMemoryCheck::openFiles() {
+    std::optional<std::string> SimpleMemoryCheck::openFilesNoThrow() {
 #ifdef LINUX
-      if (monitorPssAndPrivate_) {
-        std::ostringstream smapsNameOst;
-        smapsNameOst << "/proc/" << getpid() << "/smaps";
-        if ((smapsFile_ = fopen(smapsNameOst.str().c_str(), "r")) == nullptr) {
-          throw Exception(errors::Configuration) << "Failed to open smaps file " << smapsNameOst.str() << std::endl;
-        }
+      std::ostringstream smapsNameOst;
+      smapsNameOst << "/proc/" << getpid() << "/smaps";
+      auto smapsName = smapsNameOst.str();
+      if ((smapsFile_ = fopen(smapsName.c_str(), "r")) == nullptr) {
+        return smapsName;
       }
 #endif
+      return {};
+    }
+
+    void SimpleMemoryCheck::openFiles() {
+      auto smapsFileNameIfFailed = openFilesNoThrow();
+      if (smapsFileNameIfFailed.has_value()) {
+        throw Exception(errors::Configuration) << "Failed to open smaps file " << *smapsFileNameIfFailed << std::endl;
+      }
     }
 
     void SimpleMemoryCheck::postBeginJob() {
@@ -467,12 +635,93 @@ namespace edm {
       }
     }
 
+    void SimpleMemoryCheck::earlyTermination() {
+      bool expected = false;
+      while (not measurementUnderway_.compare_exchange_strong(expected, true, std::memory_order_acq_rel)) {
+        expected = false;
+      }
+      std::shared_ptr<void> guard(
+          nullptr, [this](void const*) { measurementUnderway_.store(false, std::memory_order_release); });
+      if (not smapsFile_) {
+        openFilesNoThrow();
+      }
+      if (smapsFile_) {
+        currentSmaps_ = fetchSmaps();
+      }
+      update();
+      andPrintAlways("earlyTermination", "", "", true);
+      updateMax();
+    }
+
+    void SimpleMemoryCheck::startSamplingThread() {
+      samplingThread_ = std::thread{[this]() {
+        while (not stopThread_) {
+          std::this_thread::sleep_for(std::chrono::duration<unsigned int>(sampleEveryNSeconds_));
+          ++count_;
+          update();
+          if (monitorPssAndPrivate_) {
+            currentSmaps_ = fetchSmaps();
+          }
+          auto e = mostRecentlyStartedEvent_.load();
+          andPrint("sampling", "", "");
+          updateEventStats(e);
+          updateMax();
+        }
+      }};
+    }
+    void SimpleMemoryCheck::stopSamplingThread() {
+      stopThread_ = true;
+      samplingThread_->join();
+    }
+
     void SimpleMemoryCheck::postEndJob() {
       if (not jobReportOutputOnly_) {
-        LogAbsolute("MemoryReport")  // changelog 1
-            << "MemoryReport> Peak virtual size " << eventT1_.vsize << " Mbytes"
-            << "\n"
-            << " Key events increasing vsize: \n"
+        LogAbsolute log("MemoryReport");
+
+        update();
+        log << "MemoryReport> EndJob: virtual size " << current_->vsize << " Mbytes, RSS " << current_->rss
+            << " Mbytes";
+        // extract smaps information if file open succeeded
+        if (not smapsFile_) {
+          openFilesNoThrow();
+        }
+        if (smapsFile_) {
+          currentSmaps_ = fetchSmaps();
+          auto soRss = currentSmaps_.sectionRss_[static_cast<unsigned>(SmapsSection::kSharedObject)];
+          auto pcmRss = currentSmaps_.sectionRss_[static_cast<unsigned>(SmapsSection::kPcm)];
+          auto otherFileRss = currentSmaps_.sectionRss_[static_cast<unsigned>(SmapsSection::kOtherFile)];
+          auto mmapRss = currentSmaps_.sectionRss_[static_cast<unsigned>(SmapsSection::kMmap)];
+          auto soVSize = currentSmaps_.sectionVSize_[static_cast<unsigned>(SmapsSection::kSharedObject)];
+          auto pcmVSize = currentSmaps_.sectionVSize_[static_cast<unsigned>(SmapsSection::kPcm)];
+          auto otherFileVSize = currentSmaps_.sectionVSize_[static_cast<unsigned>(SmapsSection::kOtherFile)];
+          auto mmapVSize = currentSmaps_.sectionVSize_[static_cast<unsigned>(SmapsSection::kMmap)];
+          log << ", PSS " << currentSmaps_.pss_ << " MBytes, Private " << currentSmaps_.private_ << "\n AnonHugePages "
+              << currentSmaps_.anonHugePages_ << " Mbytes\n"
+              << " mmapped memory pages " << mmapVSize << " Mbytes (VSize), " << mmapRss << " MBytes (RSS)\n"
+              << " mmapped file pages " << (soVSize + pcmVSize + otherFileVSize) << " Mbytes (VSize), "
+              << (soRss + pcmRss + otherFileRss) << " MBytes (RSS)\n"
+              << "  of which .so's " << soVSize << " Mbytes (VSize), " << soRss << " MBytes (RSS)\n"
+              << "  of which PCM's " << pcmVSize << " Mbytes (VSize), " << pcmRss << " MBytes (RSS)\n"
+              << "  of which other " << otherFileVSize << " Mbytes (VSize), " << otherFileRss << " MBytes (RSS)";
+        }
+        if (showJemallocInfo_) {
+          auto info = fetchJemalloc();
+          log << "\n Jemalloc allocated " << info.allocated << " MBytes, active " << info.active
+              << " MBytes\n  resident " << info.resident << " Mbytes, mapped " << info.mapped << " Mbytes\n  metadata "
+              << info.metadata << " Mbytes";
+        }
+        log << "\n";
+
+        auto logJemalloc = [&log](std::optional<JemallocInfo> const& info) {
+          if (info.has_value()) {
+            log << "\n Jemalloc allocated " << info->allocated << " active " << info->active << " resident "
+                << info->resident << " mapped " << info->mapped << " metadata " << info->metadata;
+          }
+        };
+
+        log << "MemoryReport> Peak virtual size " << eventT1_.vsize << " Mbytes (RSS " << eventT1_.rss << ")";
+        logJemalloc(eventT1_.jemalloc);
+        log << "\n Key events increasing vsize: \n"
             << eventL2_ << "\n"
             << eventL1_ << "\n"
             << eventM_ << "\n"
@@ -480,16 +729,17 @@ namespace edm {
             << eventR2_ << "\n"
             << eventT3_ << "\n"
             << eventT2_ << "\n"
-            << eventT1_ << "\nMemoryReport> Peak rss size " << eventRssT1_.rss
-            << " Mbytes"
-               "\n Key events increasing rss:\n"
+            << eventT1_ << "\nMemoryReport> Peak rss size " << eventRssT1_.rss << " Mbytes (VSIZE " << eventRssT1_.vsize
+            << ")";
+        ;
+        logJemalloc(eventRssT1_.jemalloc);
+        log << "\n Key events increasing rss:\n"
             << eventRssT3_ << "\n"
             << eventRssT2_ << "\n"
             << eventRssT1_ << "\n"
             << eventDeltaRssT3_ << "\n"
             << eventDeltaRssT2_ << "\n"
             << eventDeltaRssT1_;
-        ;
       }
       if (moduleSummaryRequested_ and not jobReportOutputOnly_) {  // changelog 1
         LogAbsolute mmr("ModuleMemoryReport");                     // at end of if block, mmr
@@ -843,38 +1093,49 @@ namespace edm {
       }
     }  // updateEventStats
 
+    void SimpleMemoryCheck::andPrintAlways(std::string const& type,
+                                           std::string const& mdlabel,
+                                           std::string const& mdname,
+                                           bool includeSmapsAndJe) const {
+      double deltaVSIZE = current_->vsize - max_.vsize;
+      double deltaRSS = current_->rss - max_.rss;
+
+      LogWarning log("MemoryCheck");
+      // default
+      log << "MemoryCheck: " << type << " " << mdname << ":" << mdlabel << " VSIZE " << current_->vsize << " "
+          << deltaVSIZE << " RSS " << current_->rss << " " << deltaRSS;
+      if (showMallocInfo_) {
+#ifdef __linux__
+#if (__GLIBC__ > 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 33)
+        struct mallinfo2 minfo = mallinfo2();
+#else
+        struct mallinfo minfo = mallinfo();
+#endif
+        log << " HEAP-ARENA [ SIZE-BYTES " << minfo.arena << " N-UNUSED-CHUNKS " << minfo.ordblks << " TOP-FREE-BYTES "
+            << minfo.keepcost << " ]"
+            << " HEAP-MAPPED [ SIZE-BYTES " << minfo.hblkhd << " N-CHUNKS " << minfo.hblks << " ]"
+            << " HEAP-USED-BYTES " << minfo.uordblks << " HEAP-UNUSED-BYTES " << minfo.fordblks;
+#endif
+      }
+      if (includeSmapsAndJe) {
+        if (smapsFile_) {
+          log << " PSS " << currentSmaps_.pss_ << " PRIVATE " << currentSmaps_.private_ << " ANONHUGEPAGES "
+              << currentSmaps_.anonHugePages_;
+        }
+        if (je_mallctl) {
+          auto info = fetchJemalloc();
+          log << " JeMalloc allocated " << info.allocated << " active " << info.active << " resident " << info.resident
+              << " mapped " << info.mapped << " metadata " << info.metadata;
+        }
+      }
+    }
+
     void SimpleMemoryCheck::andPrint(std::string const& type,
                                      std::string const& mdlabel,
                                      std::string const& mdname) const {
-      if (not jobReportOutputOnly_ && ((*current_ > max_) || oncePerEventMode_)) {
+      if (not jobReportOutputOnly_ && ((*current_ > max_) || printEachTime_)) {
         if (count_ >= num_to_skip_) {
-          double deltaVSIZE = current_->vsize - max_.vsize;
-          double deltaRSS = current_->rss - max_.rss;
-          if (!showMallocInfo_) {  // default
-            LogWarning("MemoryCheck") << "MemoryCheck: " << type << " " << mdname << ":" << mdlabel << " VSIZE "
-                                      << current_->vsize << " " << deltaVSIZE << " RSS " << current_->rss << " "
-                                      << deltaRSS;
-          } else {
-#ifdef __linux__
-#if (__GLIBC__ > 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 33)
-            struct mallinfo2 minfo = mallinfo2();
-#else
-            struct mallinfo minfo = mallinfo();
-#endif
-#endif
-            LogWarning("MemoryCheck") << "MemoryCheck: " << type << " " << mdname << ":" << mdlabel << " VSIZE "
-                                      << current_->vsize << " " << deltaVSIZE << " RSS " << current_->rss << " "
-                                      << deltaRSS
-#ifdef __linux__
-                                      << " HEAP-ARENA [ SIZE-BYTES " << minfo.arena << " N-UNUSED-CHUNKS "
-                                      << minfo.ordblks << " TOP-FREE-BYTES " << minfo.keepcost << " ]"
-                                      << " HEAP-MAPPED [ SIZE-BYTES " << minfo.hblkhd << " N-CHUNKS " << minfo.hblks
-                                      << " ]"
-                                      << " HEAP-USED-BYTES " << minfo.uordblks << " HEAP-UNUSED-BYTES "
-                                      << minfo.fordblks
-#endif
-                ;
-          }
+          andPrintAlways(type, mdlabel, mdname);
         }
       }
     }
@@ -979,6 +1240,9 @@ namespace edm {
 
       if (se.monitorPssAndPrivate) {
         os << " private = " << se.privateSize << " pss = " << se.pss;
+      }
+      if (se.jemalloc.has_value()) {
+        os << " allocated = " << se.jemalloc->allocated << " active = " << se.jemalloc->active;
       }
       return os;
     }

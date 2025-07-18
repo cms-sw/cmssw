@@ -135,7 +135,8 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
     edm::LogVerbatim("HGCalGeom") << "Wafer Parameters: " << phgp->waferSize_ << ":" << phgp->waferR_ << ":"
                                   << phgp->waferThick_ << ":" << phgp->sensorSeparation_ << ":"
                                   << phgp->sensorSizeOffset_ << ":" << phgp->guardRingOffset_ << ":" << phgp->mouseBite_
-                                  << ":" << phgp->useOffset_;
+                                  << ":" << phgp->useOffset_ << ":" << phgp->waferSizeNominal_ << ":"
+                                  << phgp->waferNoGap_;
     myPrint("waferThickness", phgp->waferThickness_, 10);
     edm::LogVerbatim("HGCalGeom") << "nCells_: " << phgp->nCellsFine_ << ":" << phgp->nCellsCoarse_;
     edm::LogVerbatim("HGCalGeom") << "nSectors_: " << phgp->nSectors_;
@@ -169,6 +170,8 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
     myPrint("CalibCellFullLD", phgp->calibCellFullLD_, 12);
     myPrint("CalibCellPartLD", phgp->calibCellPartLD_, 12);
     myPrint("cassetteShift", phgp->cassetteShift_, 8);
+    myPrint("cassetteShiftTile", phgp->cassetteShiftTile_, 8);
+    myPrint("cassetteRetractTile", phgp->cassetteRetractTile_, 8);
 
     edm::LogVerbatim("HGCalGeom") << "MaskMode: " << phgp->waferMaskMode_;
     if (phgp->waferMaskMode_ > 1) {
@@ -274,7 +277,8 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
                                       << HGCalTileIndex::tilePhi(itr->first) << "] (" << (itr->second).type << ", "
                                       << (itr->second).sipm << std::hex << ", " << (itr->second).hex[0] << ", "
                                       << (itr->second).hex[1] << ", " << (itr->second).hex[2] << ", "
-                                      << (itr->second).hex[3] << ")" << std::dec;
+                                      << (itr->second).hex[3] << ", " << (itr->second).hex[4] << ", "
+                                      << (itr->second).hex[5] << ")" << std::dec;
     }
 
     myPrint("slopeTop", phgp->slopeTop_, 10);

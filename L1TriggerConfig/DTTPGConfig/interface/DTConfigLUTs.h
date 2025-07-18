@@ -39,7 +39,7 @@ public:
   DTConfigLUTs(const edm::ParameterSet& ps);
 
   //! Empty Constructor
-  DTConfigLUTs(){};
+  DTConfigLUTs() {}
 
   //! Constructor from string
   DTConfigLUTs(bool debug, unsigned short int* buffer);

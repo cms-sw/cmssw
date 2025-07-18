@@ -12,9 +12,9 @@ public:
   typedef dqm::legacy::MonitorElement MonitorElement;
 
   BaseBTagPlotter(const std::string& tagName, const EtaPtBin& etaPtBin)
-      : etaPtBin_(etaPtBin), tagName_(tagName), theExtensionString("_" + tagName + etaPtBin.getDescriptionString()){};
+      : etaPtBin_(etaPtBin), tagName_(tagName), theExtensionString("_" + tagName + etaPtBin.getDescriptionString()) {}
 
-  virtual ~BaseBTagPlotter(){};
+  virtual ~BaseBTagPlotter() {}
 
   const EtaPtBin& etaPtBin() { return etaPtBin_; }
 

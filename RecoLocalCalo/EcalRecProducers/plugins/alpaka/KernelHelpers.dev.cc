@@ -1,5 +1,6 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "FWCore/Utilities/interface/HostDeviceConstant.h"
 
 #include "KernelHelpers.h"
 
@@ -132,7 +133,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::reconstruction {
     ALPAKA_FN_ACC ALPAKA_FN_INLINE bool positiveZ(uint32_t id) { return id & 0x4000; }
 
     // these constants come from EE Det Id
-    ALPAKA_STATIC_ACC_MEM_CONSTANT const unsigned short kxf[] = {
+    HOST_DEVICE_CONSTANT unsigned short kxf[] = {
         41, 51, 41, 51, 41, 51, 36, 51, 36, 51, 26, 51, 26, 51, 26, 51, 21, 51, 21, 51, 21, 51, 21, 51, 21,
         51, 16, 51, 16, 51, 14, 51, 14, 51, 14, 51, 14, 51, 14, 51, 9,  51, 9,  51, 9,  51, 9,  51, 9,  51,
         6,  51, 6,  51, 6,  51, 6,  51, 6,  51, 6,  51, 6,  51, 6,  51, 6,  51, 6,  51, 4,  51, 4,  51, 4,
@@ -142,7 +143,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::reconstruction {
         9,  51, 9,  51, 9,  51, 9,  51, 9,  51, 14, 51, 14, 51, 14, 51, 14, 51, 14, 51, 16, 51, 16, 51, 21,
         51, 21, 51, 21, 51, 21, 51, 21, 51, 26, 51, 26, 51, 26, 51, 36, 51, 36, 51, 41, 51, 41, 51, 41, 51};
 
-    ALPAKA_STATIC_ACC_MEM_CONSTANT const unsigned short kdi[] = {
+    HOST_DEVICE_CONSTANT unsigned short kdi[] = {
         0,    10,   20,   30,   40,   50,   60,   75,   90,   105,  120,  145,  170,  195,  220,  245,  270,
         300,  330,  360,  390,  420,  450,  480,  510,  540,  570,  605,  640,  675,  710,  747,  784,  821,
         858,  895,  932,  969,  1006, 1043, 1080, 1122, 1164, 1206, 1248, 1290, 1332, 1374, 1416, 1458, 1500,
@@ -270,6 +271,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::reconstruction {
       ilmr += 82;
 
     return ilmr;
+  }
+
+  ALPAKA_FN_ACC int32_t rechitSetMasked(uint32_t value, uint32_t x, uint32_t offset, uint32_t width) {
+    const uint32_t mask = ((1 << width) - 1) << offset;
+    value &= ~mask;
+    value |= (x & ((1U << width) - 1)) << offset;
+    return value;
+  }
+
+  HOST_DEVICE_CONSTANT float p10[] = {1.e-2f, 1.e-1f, 1.f, 1.e1f, 1.e2f, 1.e3f, 1.e4f, 1.e5f, 1.e6f};
+
+  ALPAKA_FN_ACC int32_t rechitGetPower10(float e) {
+    int b = e < p10[4] ? 0 : 5;
+    for (; b < 9; ++b)
+      if (e < p10[b])
+        break;
+    return b;
   }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::reconstruction

@@ -16,7 +16,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class TestAlpakaGlobalProducerNoOutput : public global::EDProducer<> {
   public:
     TestAlpakaGlobalProducerNoOutput(edm::ParameterSet const& config)
-        : getToken_(consumes(config.getParameter<edm::InputTag>("source"))) {}
+        : EDProducer<>(config), getToken_(consumes(config.getParameter<edm::InputTag>("source"))) {}
 
     void produce(edm::StreamID, device::Event& iEvent, device::EventSetup const& iSetup) const override {
       [[maybe_unused]] auto const& input = iEvent.get(getToken_);

@@ -527,7 +527,7 @@ void MuonMCClassifier::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
       }
       edm::LogVerbatim("MuonMCClassifier") << "\t Extended classification code = " << ext[i];
     }  // if (tp.isNonnull())
-  }    // end loop on reco muons
+  }  // end loop on reco muons
 
   writeValueMap(iEvent, muons, classif, "");
   writeValueMap(iEvent, muons, ext, "ext");

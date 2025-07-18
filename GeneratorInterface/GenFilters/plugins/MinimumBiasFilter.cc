@@ -3,12 +3,12 @@
 //         Created:  Fri Sep 29 17:10:41 CEST 2006
 //
 
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandFlat.h"
 

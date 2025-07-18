@@ -908,7 +908,7 @@ namespace  // Unnamed namespace for things only used in this file
         pDecayVertex->pParentTrack = pParentTrackHierarchy;
       } else
         rootVertices_.push_back(pDecayVertex);  // Has no parent so is at the top of the decay chain.
-    }                                           // end of loop over the vertexIdToDecayVertex map
+    }  // end of loop over the vertexIdToDecayVertex map
 
     findBrem(trackCollection, vertexCollection);
 
@@ -1403,7 +1403,7 @@ namespace  // Unnamed namespace for things only used in this file
         addTrackAndParentVertex(pDecayChainTrack, newTrackingParticle, pMergedOutput);
       }
     }  // end of "if( pMergedOutput!=NULL )", i.e. end of "if bremsstrahlung
-       // merging is turned on"
+    // merging is turned on"
 
   }  // end of addTrack function
 

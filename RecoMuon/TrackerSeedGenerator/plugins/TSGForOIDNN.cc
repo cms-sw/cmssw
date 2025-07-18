@@ -208,7 +208,6 @@ TSGForOIDNN::TSGForOIDNN(const edm::ParameterSet& iConfig)
   if (getStrategyFromDNN_) {
     edm::FileInPath dnnMetadataPath(dnnMetadataPath_);
     pt::read_json(dnnMetadataPath.fullPath(), metadata_);
-    tensorflow::setLogging("3");
 
     if (useRegressor_) {
       // use regressor
@@ -676,7 +675,7 @@ void TSGForOIDNN::makeSeedsFromHitDoublets(const GeometricSearchDet& layer,
       if (measurement.recHit()->isValid())
         meas.push_back(measurement);
     }  // end loop over meas
-  }    // end loop over dets
+  }  // end loop over dets
 
   LogTrace("TSGForOIDNN") << "TSGForOIDNN::makeSeedsFromHitDoublets: Update TSOS using TMs after sorting, then create "
                              "Trajectory Seed, number of TM = "
@@ -755,7 +754,7 @@ void TSGForOIDNN::makeSeedsFromHitDoublets(const GeometricSearchDet& layer,
             meas_next.push_back(mea_next);
 
         }  // end loop over mymeas_next
-      }    // end loop over dets_next
+      }  // end loop over dets_next
 
       // sort valid measurements found on this layer
       std::sort(meas_next.begin(), meas_next.end(), TrajMeasLessEstim());

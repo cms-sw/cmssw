@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-from __future__ import print_function
 import os, sys
 
 #====================== check input ==========================
@@ -8,13 +7,13 @@ import os, sys
 VERSION = os.environ.get('CMSSW_VERSION')
 if VERSION is None:
 	print('''No environment CMSSW_VERSION''')
-        sys.exit()
+	sys.exit()
 
 if len(sys.argv) < 5:
 	print('Usage: python run.py PhysList Particle Fhcal VAR')
 	print('Example: python run.py FTFP_BERT pi- 106.5 RR')
 	sys.exit()
-else:	
+else:
 	phys = sys.argv[1]
 	part = sys.argv[2]
 	hcal = sys.argv[3]

@@ -5,10 +5,6 @@
 //#define DEBUG
 #include "RecoTracker/MkFitCore/src/Debug.h"
 
-#ifdef TBB
-#include "oneapi/tbb/parallel_for.h"
-#endif
-
 #include <memory>
 
 namespace {
@@ -409,10 +405,6 @@ namespace mkfit {
       fread(&beamSpot_, sizeof(BeamSpot), 1, fp);
     }
 
-    if (Config::kludgeCmsHitErrors) {
-      kludge_cms_hit_errors();
-    }
-
     if (!Config::silent)
       printf("Read complete, %d simtracks on file.\n", nt);
   }
@@ -472,41 +464,6 @@ namespace mkfit {
   void Event::setInputFromCMSSW(std::vector<HitVec> hits, TrackVec seeds) {
     layerHits_ = std::move(hits);
     seedTracks_ = std::move(seeds);
-  }
-
-  //------------------------------------------------------------------------------
-
-  void Event::kludge_cms_hit_errors() {
-    // Enforce Vxy on all layers, Vz on pixb only.
-
-    const float Exy = 15 * 1e-4, Vxy = Exy * Exy;
-    const float Ez = 30 * 1e-4, Vz = Ez * Ez;
-
-    int nl = layerHits_.size();
-
-    int cnt = 0;
-
-    for (int il = 0; il < nl; il++) {
-      if (layerHits_[il].empty())
-        continue;
-
-      for (Hit &h : layerHits_[il]) {
-        SVector6 &c = h.error_nc();
-
-        float vxy = c[0] + c[2];
-        if (vxy < Vxy) {
-          c[0] *= Vxy / vxy;
-          c[2] *= Vxy / vxy;
-          ++cnt;
-        }
-        if (il < 4 && c[5] < Vz) {
-          c[5] = Vz;
-          ++cnt;
-        }
-      }
-    }
-
-    printf("Event::kludge_cms_hit_errors processed %d layers, kludged %d entries.\n", nl, cnt);
   }
 
   //------------------------------------------------------------------------------

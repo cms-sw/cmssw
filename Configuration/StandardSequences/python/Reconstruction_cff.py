@@ -26,7 +26,7 @@ from RecoMuon.Configuration.RecoMuon_cff import *
 # Higher level objects
 from RecoVertex.Configuration.RecoVertex_cff import *
 from RecoEgamma.Configuration.RecoEgamma_cff import *
-from RecoTracker.Configuration.RecoPixelVertexing_cff import *
+from RecoVertex.Configuration.RecoPixelVertexing_cff import *
 
 
 from RecoJets.Configuration.RecoJetsGlobal_cff import *
@@ -187,13 +187,15 @@ from RecoHI.HiTracking.HILowPtConformalPixelTracks_cfi import *
 from RecoHI.HiCentralityAlgos.HiCentrality_cfi import hiCentrality
 from RecoHI.HiCentralityAlgos.HiClusterCompatibility_cfi import hiClusterCompatibility
 _highlevelreco_HITask = highlevelrecoTask.copy()
-_highlevelreco_HITask.add(hiConformalPixelTracksTaskPhase1)
+_highlevelreco_HITask.add(hiConformalPixelTracksTask)
 _highlevelreco_HITask.add(hiCentrality)
 _highlevelreco_HITask.add(hiClusterCompatibility)
 (pp_on_XeXe_2017 | pp_on_AA | run3_upc).toReplaceWith(highlevelrecoTask, _highlevelreco_HITask)
 pp_on_AA.toReplaceWith(highlevelrecoTask,highlevelrecoTask.copyAndExclude([PFTauTask]))
 from Configuration.Eras.Modifier_ppRef_2024_cff import ppRef_2024
 ppRef_2024.toReplaceWith(highlevelrecoTask, cms.Task(highlevelrecoTask.copy(), hiClusterCompatibility))
+from Configuration.ProcessModifiers.phase2_pp_on_AA_cff import phase2_pp_on_AA
+phase2_pp_on_AA.toReplaceWith(highlevelrecoTask, cms.Task(highlevelrecoTask.copy(), hiClusterCompatibility, hiCentrality))
 
 # not commisoned and not relevant in FastSim (?):
 _fastSim_highlevelrecoTask = highlevelrecoTask.copyAndExclude([muoncosmichighlevelrecoTask])
@@ -302,6 +304,7 @@ modulesToRemove.append(hfreco)
 modulesToRemove.append(horeco)
 modulesToRemove.append(hcalnoise)
 modulesToRemove.append(zdcreco)
+modulesToRemove.append(zdcrecoRun3)
 modulesToRemove.append(castorreco)
 ##it's OK according to Ronny modulesToRemove.append(CSCHaloData)#needs digis
 reconstruction_fromRECO = reconstruction.copyAndExclude(modulesToRemove+noTrackingAndDependent)

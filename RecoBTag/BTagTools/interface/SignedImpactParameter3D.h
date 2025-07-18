@@ -14,7 +14,7 @@ class SignedImpactParameter3D {
 public:
   // construct
 
-  SignedImpactParameter3D(){};
+  SignedImpactParameter3D() {}
 
   std::pair<bool, Measurement1D> apply(const reco::TransientTrack &,
                                        const GlobalVector &direction,

@@ -1,5 +1,3 @@
-from __future__ import print_function
-from __future__ import absolute_import
 from optparse import OptionParser
 import sys,os, re, subprocess, datetime
 
@@ -33,7 +31,7 @@ class logger:
             file = castortools.castorToLFN(file)
             
         if castortools.isLFN( file ):
-            tgzPattern = re.compile('.*\.tgz$')
+            tgzPattern = re.compile('.*\\.tgz$')
             m = tgzPattern.match( file )
             if m:
                 return True

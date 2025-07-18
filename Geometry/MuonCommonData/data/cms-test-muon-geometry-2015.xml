@@ -34,7 +34,6 @@
     <Include ref='Geometry/CMSCommonData/data/extend/cmsextent.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cms.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cmsMother.xml'/>
-    <Include ref='Geometry/CMSCommonData/data/cmsTracker.xml'/>
     <Include ref='Geometry/CMSCommonData/data/caloBase.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cmsCalo.xml'/>
     <Include ref='Geometry/CMSCommonData/data/muonBase.xml'/>

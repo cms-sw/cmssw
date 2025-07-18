@@ -60,8 +60,8 @@ if not useFileInput:
 process.dqmEnv.subSystemFolder = subsystem
 process.dqmSaver.tag = 'PixelGPU'
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = 'PixelGPU'
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = 'PixelGPU'
+# process.dqmSaverPB.runNumber = options.runNumber
 process = customise(process)
 process.DQMStore.verbose = 0
 if not unitTest and not useFileInput :
@@ -87,14 +87,20 @@ cmssw			= os.getenv("CMSSW_VERSION").split("_")
 #	Pixel DQM Tasks and Harvesters import
 #-------------------------------------
 process.load('DQM.SiPixelHeterogeneous.SiPixelHeterogenousDQM_FirstStep_cff')
+process.load('DQM.SiPixelHeterogeneous.SiPixelHeterogenousDQMHarvesting_cff')
+process.siPixelTrackComparisonHarvesterAlpaka.topFolderName = cms.string('SiPixelHeterogeneous/PixelTrackCompareGPUvsCPU')
 
 #-------------------------------------
 #	Some Settings before Finishing up
 #-------------------------------------
 if process.runType.getRunType() == process.runType.hi_run:
-    process.siPixelPhase1RawDataErrorComparator.pixelErrorSrcGPU = 'hltSiPixelDigisFromSoAPPOnAA'
-    process.siPixelPhase1RawDataErrorComparator.pixelErrorSrcCPU = 'hltSiPixelDigisLegacyPPOnAA'
+    process.siPixelPhase1MonitorRawDataASerial.src = 'hltSiPixelDigiErrorsPPOnAASerialSync'
+    process.siPixelPhase1MonitorRawDataADevice.src = 'hltSiPixelDigiErrorsPPOnAA'
+    process.siPixelPhase1RawDataErrorComparator.pixelErrorSrcGPU = 'hltSiPixelDigiErrorsPPOnAA'
+    process.siPixelPhase1RawDataErrorComparator.pixelErrorSrcCPU = 'hltSiPixelDigiErrorsPPOnAASerialSync'
 else:
+    process.siPixelPhase1MonitorRawDataASerial.src = 'hltSiPixelDigiErrorsSerialSync'
+    process.siPixelPhase1MonitorRawDataADevice.src = 'hltSiPixelDigiErrors'
     process.siPixelPhase1RawDataErrorComparator.pixelErrorSrcGPU = 'hltSiPixelDigiErrors'
     process.siPixelPhase1RawDataErrorComparator.pixelErrorSrcCPU = 'hltSiPixelDigiErrorsSerialSync'
 #-------------------------------------
@@ -106,13 +112,17 @@ process.dumpPath = cms.Path(process.dump)
 #-------------------------------------
 #	Hcal DQM Tasks/Clients Sequences Definition
 #-------------------------------------
-process.tasksPath = cms.Path(process.siPixelPhase1RawDataErrorComparator)
+process.tasksPath = cms.Path(process.siPixelPhase1MonitorRawDataASerial *
+                             process.siPixelPhase1MonitorRawDataADevice *
+                             process.siPixelPhase1RawDataErrorComparator *
+                             process.siPixelHeterogeneousDQMComparisonHarvestingAlpaka
+                             )
 
 #-------------------------------------
 #	Paths/Sequences Definitions
 #-------------------------------------
 process.dqmPath = cms.EndPath(process.dqmEnv)
-process.dqmPath1 = cms.EndPath(process.dqmSaver*process.dqmSaverPB)
+process.dqmPath1 = cms.EndPath(process.dqmSaver)#*process.dqmSaverPB)
 process.schedule = cms.Schedule(process.tasksPath,
                                 #process.dumpPath,  # for debug
                                 process.dqmPath,
@@ -132,5 +142,6 @@ process.options.wantSummary = True
 
 # tracer
 #process.Tracer = cms.Service("Tracer")
-print("Final Source settings:", process.source)
 process = customise(process)
+print("Global Tag used:", process.GlobalTag.globaltag.value())
+print("Final Source settings:", process.source)

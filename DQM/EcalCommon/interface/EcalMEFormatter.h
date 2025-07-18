@@ -12,7 +12,7 @@ public:
   typedef dqm::harvesting::DQMStore DQMStore;
 
   EcalMEFormatter(edm::ParameterSet const &);
-  ~EcalMEFormatter() override{};
+  ~EcalMEFormatter() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions &);
 

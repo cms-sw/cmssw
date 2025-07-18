@@ -7,9 +7,10 @@ Wrapper: A template wrapper around EDProducts to hold the product ID.
 
 ----------------------------------------------------------------------*/
 
+#include "DataFormats/Common/interface/Uninitialized.h"
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Common/interface/WrapperDetail.h"
-#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/Utilities/interface/Visibility.h"
 
@@ -25,7 +26,7 @@ namespace edm {
   public:
     typedef T value_type;
     typedef T wrapped_type;  // used with the dictionary to identify Wrappers
-    Wrapper() : WrapperBase(), obj(), present(false) {}
+    Wrapper() : WrapperBase(), obj{construct_()}, present(false) {}
     explicit Wrapper(std::unique_ptr<T> ptr);
     Wrapper(Wrapper<T> const& rh) = delete;             // disallow copy construction
     Wrapper<T>& operator=(Wrapper<T> const&) = delete;  // disallow assignment
@@ -49,6 +50,14 @@ namespace edm {
     CMS_CLASS_VERSION(4)
 
   private:
+    constexpr T construct_() {
+      if constexpr (requires { T(); }) {
+        return T();
+      } else {
+        return T(edm::kUninitialized);
+      }
+    }
+
     bool isPresent_() const override { return present; }
     std::type_info const& dynamicTypeInfo_() const override { return typeid(T); }
     std::type_info const& wrappedTypeInfo_() const override { return typeid(Wrapper<T>); }
@@ -78,7 +87,7 @@ namespace edm {
   };
 
   template <typename T>
-  Wrapper<T>::Wrapper(std::unique_ptr<T> ptr) : WrapperBase(), obj(), present(ptr.get() != nullptr) {
+  Wrapper<T>::Wrapper(std::unique_ptr<T> ptr) : WrapperBase(), obj{construct_()}, present(ptr.get() != nullptr) {
     if (present) {
       obj = std::move(*ptr);
     }
@@ -89,7 +98,7 @@ namespace edm {
   Wrapper<T>::Wrapper(Emplace, Args&&... args) : WrapperBase(), obj(std::forward<Args>(args)...), present(true) {}
 
   template <typename T>
-  Wrapper<T>::Wrapper(T* ptr) : WrapperBase(), present(ptr != 0), obj() {
+  Wrapper<T>::Wrapper(T* ptr) : WrapperBase(), present(ptr != 0), obj{construct_()} {
     std::unique_ptr<T> temp(ptr);
     if (present) {
       obj = std::move(*ptr);
@@ -108,38 +117,55 @@ namespace edm {
 
   template <typename T>
   inline bool Wrapper<T>::isMergeable_() const {
-    return detail::getHasMergeFunction<T>()();
+    if constexpr (requires(T& a, T const& b) { a.mergeProduct(b); }) {
+      return true;
+    }
+    return false;
   }
 
   template <typename T>
   inline bool Wrapper<T>::mergeProduct_(WrapperBase const* newProduct) {
     Wrapper<T> const* wrappedNewProduct = dynamic_cast<Wrapper<T> const*>(newProduct);
     assert(wrappedNewProduct != nullptr);
-    return detail::doMergeProduct<T>()(obj, wrappedNewProduct->obj);
+    if constexpr (requires(T& a, T const& b) { a.mergeProduct(b); }) {
+      return obj.mergeProduct(wrappedNewProduct->obj);
+    }
+    return true;
   }
 
   template <typename T>
   inline bool Wrapper<T>::hasIsProductEqual_() const {
-    return detail::getHasIsProductEqual<T>()();
+    if constexpr (requires(T& a, T const& b) { a.isProductEqual(b); }) {
+      return true;
+    }
+    return false;
   }
 
   template <typename T>
   inline bool Wrapper<T>::isProductEqual_(WrapperBase const* newProduct) const {
     Wrapper<T> const* wrappedNewProduct = dynamic_cast<Wrapper<T> const*>(newProduct);
     assert(wrappedNewProduct != nullptr);
-    return detail::doIsProductEqual<T>()(obj, wrappedNewProduct->obj);
+    if constexpr (requires(T& a, T const& b) { a.isProductEqual(b); }) {
+      return obj.isProductEqual(wrappedNewProduct->obj);
+    }
+    return true;
   }
 
   template <typename T>
   inline bool Wrapper<T>::hasSwap_() const {
-    return detail::getHasSwapFunction<T>()();
+    if constexpr (requires(T& a, T& b) { a.swap(b); }) {
+      return true;
+    }
+    return false;
   }
 
   template <typename T>
   inline void Wrapper<T>::swapProduct_(WrapperBase* newProduct) {
     Wrapper<T>* wrappedNewProduct = dynamic_cast<Wrapper<T>*>(newProduct);
     assert(wrappedNewProduct != nullptr);
-    detail::doSwapProduct<T>()(obj, wrappedNewProduct->obj);
+    if constexpr (requires(T& a, T& b) { a.swap(b); }) {
+      obj.swap(wrappedNewProduct->obj);
+    }
   }
 
   namespace soa {

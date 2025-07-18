@@ -26,7 +26,7 @@ public:
   void simulateNoise(const RPCRoll*, CLHEP::HepRandomEngine*) override;
 
 private:
-  void init() override{};
+  void init() override {}
 
   RPCSynchronizer* _rpcSync;
   int N_hits;

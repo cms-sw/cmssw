@@ -680,8 +680,8 @@ namespace spr {
           if (debug)
             edm::LogVerbatim("IsoTrack") << "Hit " << ihit << ": " << *hit[ihit];
         }  // else condition, i.e. (hit[ihit]->geantTrackId() != (int)matchSimTrk )
-      }    // loop over hits
-    }      // if (trkInfo != SimTk->end())
+      }  // loop over hits
+    }  // if (trkInfo != SimTk->end())
 
     double energyTot = energySum + energyGamma + energyNeutral + energyCharged + energyRest;
     multiplicityVector.push_back(uniqueIds_matched.size());

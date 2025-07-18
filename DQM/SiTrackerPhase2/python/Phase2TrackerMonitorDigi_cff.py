@@ -27,12 +27,12 @@ pixDigiMon = digiMon.clone(
         switch = False
     ),
     PositionOfDigisPH = digiMon.PositionOfDigisPH.clone(
-        Nxbins = 675,
+        Nxbins = 1344,
         xmin = 0.5,
-        xmax = 1350.5,
-        Nybins = 225,
+        xmax = 1344.5,
+        Nybins = 432,
         ymin = 0.5,
-        ymax = 450.5,
+        ymax = 432.5,
         switch = True
     ),
     XYPositionMapH = digiMon.XYPositionMapH.clone(

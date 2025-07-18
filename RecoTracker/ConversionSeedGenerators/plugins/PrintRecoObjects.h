@@ -19,8 +19,8 @@ class TrackerTopology;
 
 class PrintRecoObjects {
 public:
-  PrintRecoObjects(){};
-  ~PrintRecoObjects(){};
+  PrintRecoObjects() {}
+  ~PrintRecoObjects() {}
 
   void print(std::stringstream& ss, const SiStripCluster& clus);
   void print(std::stringstream& ss, const TrajectorySeed& tjS);

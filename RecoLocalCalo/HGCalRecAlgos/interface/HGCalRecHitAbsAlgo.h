@@ -20,12 +20,12 @@ public:
   //HGCalRecHitAbsAlgo() { };
 
   /// Destructor
-  virtual ~HGCalRecHitAbsAlgo(){};
+  virtual ~HGCalRecHitAbsAlgo() {}
 
   inline void set(const CaloGeometry& geom) { rhtools_.setGeometry(geom); }
 
   /// make rechits from dataframes
-  virtual void setLayerWeights(const std::vector<float>& weights){};
+  virtual void setLayerWeights(const std::vector<float>& weights) {}
 
   virtual void setADCToGeVConstant(const float value) = 0;
   virtual HGCRecHit makeRecHit(const HGCUncalibratedRecHit& uncalibRH, const uint32_t& flags) const = 0;

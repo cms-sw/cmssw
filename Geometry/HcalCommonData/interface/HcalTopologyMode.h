@@ -23,7 +23,17 @@ public:
 };
 
 namespace HcalTopologyMode {
-  enum Mode { LHC = 0, H2 = 1, SLHC = 2, H2HE = 3 };
+  enum Mode {
+    LHC = 0,    // Legacy HCAL
+    H2 = 1,     // H2 TB
+    SLHC = 2,   // Attemptf HE to be used for HGCal
+    H2HE = 3,   // H2 TB with includng HE
+    Run3 = 4,   // Run3 with inclusionof ZDC
+    Run4 = 5,   // Post LS3
+    Run2A = 6,  // With extended channels for HF
+    Run2B = 7,  // With extended channels for HE
+    Run2C = 8   // With extended channels for HB
+  };
 
   enum TriggerMode {
     TriggerMode_2009 = 0,        // HF is summed in 3x2 regions

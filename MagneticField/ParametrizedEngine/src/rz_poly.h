@@ -33,7 +33,7 @@ namespace magfieldparam {
     bool *is_off;
 
   public:
-    rz_poly() : data(), max_nr(0), max_nz(0), n_active(0), r_pow(nullptr), z_pow(nullptr), is_off(nullptr){};
+    rz_poly() : data(), max_nr(0), max_nz(0), n_active(0), r_pow(nullptr), z_pow(nullptr), is_off(nullptr) {}
 
     rz_poly(int N);
     rz_poly(const rz_poly &S);

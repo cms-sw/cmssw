@@ -10,7 +10,9 @@
  Description: Used with mayConsume option of ESConsumesCollector
 
  Usage:
-    <usage>
+    This contains a cache of data about all Resolvers which are
+    associated with data produces which are in the Record and which
+    are of the proper type.
 
 */
 //
@@ -61,6 +63,8 @@ namespace edm {
 
     ///Returns true if the Record being searched contains no products of the proper type
     bool hasNothingToGet() const { return lookup_.empty(); }
+
+    std::vector<Info> const& lookup() const { return lookup_; }
 
   private:
     std::vector<Info> lookup_;

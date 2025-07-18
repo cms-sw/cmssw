@@ -5,34 +5,34 @@
 #include "IOPool/Streamer/interface/InitMessage.h"
 
 // ----------------- init -------------------
+namespace edm::streamer {
+  class InitMsgBuilder {
+  public:
+    InitMsgBuilder(void* msg_mem,
+                   uint32 size,
+                   uint32 run,
+                   const Version& v,
+                   const char* release_tag,
+                   const char* process_name,
+                   const char* output_module_label,
+                   uint32 output_module_id,
+                   const Strings& hlt_names,
+                   const Strings& hlt_selections,
+                   const Strings& l1_names,
+                   uint32 adler32_chksum);
 
-class InitMsgBuilder {
-public:
-  InitMsgBuilder(void* msg_mem,
-                 uint32 size,
-                 uint32 run,
-                 const Version& v,
-                 const char* release_tag,
-                 const char* process_name,
-                 const char* output_module_label,
-                 uint32 output_module_id,
-                 const Strings& hlt_names,
-                 const Strings& hlt_selections,
-                 const Strings& l1_names,
-                 uint32 adler32_chksum);
+    uint8* startAddress() const { return buf_; }
+    void setDataLength(uint32 registry_length);
+    uint8* dataAddress() const { return data_addr_; }
+    uint32 headerSize() const { return data_addr_ - buf_; }
+    uint32 size() const;
+    uint32 run() const; /** Required by EOF Record Builder */
+    uint32 bufferSize() const { return size_; }
 
-  uint8* startAddress() const { return buf_; }
-  void setDataLength(uint32 registry_length);
-  uint8* dataAddress() const { return data_addr_; }
-  uint32 headerSize() const { return data_addr_ - buf_; }
-  uint32 size() const;
-  uint32 run() const; /** Required by EOF Record Builder */
-  uint32 bufferSize() const { return size_; }
-
-private:
-  uint8* buf_;
-  uint32 size_;
-  uint8* data_addr_;
-};
-
+  private:
+    uint8* buf_;
+    uint32 size_;
+    uint8* data_addr_;
+  };
+}  // namespace edm::streamer
 #endif

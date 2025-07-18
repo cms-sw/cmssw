@@ -48,9 +48,9 @@ protected:
 
 public:
   /// empty constructor
-  TtEvent(){};
+  TtEvent() {}
   /// default destructor
-  virtual ~TtEvent(){};
+  virtual ~TtEvent() {}
 
   /// get leptonic decay channels
   std::pair<WDecay::LeptonType, WDecay::LeptonType> lepDecays() const { return lepDecays_; }

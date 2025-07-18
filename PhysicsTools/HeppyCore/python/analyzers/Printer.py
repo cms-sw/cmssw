@@ -1,4 +1,3 @@
-from __future__ import print_function
 from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
 
 class Printer(Analyzer):

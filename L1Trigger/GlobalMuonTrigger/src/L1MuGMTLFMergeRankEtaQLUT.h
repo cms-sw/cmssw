@@ -46,7 +46,7 @@ public:
   };
 
   /// destructor
-  ~L1MuGMTLFMergeRankEtaQLUT() override{};
+  ~L1MuGMTLFMergeRankEtaQLUT() override {}
 
   /// specific lookup function for flag
   unsigned SpecificLookup_flag(int idx, unsigned eta, unsigned q) const {

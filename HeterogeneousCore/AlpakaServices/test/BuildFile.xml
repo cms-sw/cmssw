@@ -1,0 +1,18 @@
+<!-- test the AlpakaService for the CPU serial backend -->
+<test name="testAlpakaServiceSerialSync" command="cmsRun ${LOCALTOP}/src/HeterogeneousCore/AlpakaServices/test/testAlpakaServiceSerialSync.py">
+  <use name="HeterogeneousCore/AlpakaServices"/>
+</test>
+
+<!-- test the AlpakaService for the CUDA backend -->
+<test name="testAlpakaServiceCudaAsync" command="cmsRun ${LOCALTOP}/src/HeterogeneousCore/AlpakaServices/test/testAlpakaServiceCudaAsync.py">
+  <!-- dependence only to trigger the unit test when NVIDIA GPU is (expected to be) present -->
+  <use name="cuda"/>
+  <use name="HeterogeneousCore/AlpakaServices"/>
+</test>
+
+<!-- test the AlpakaService for the ROCm backend -->
+<test name="testAlpakaServiceROCmAsync" command="cmsRun ${LOCALTOP}/src/HeterogeneousCore/AlpakaServices/test/testAlpakaServiceROCmAsync.py">
+  <!-- dependence only to trigger the unit test when AMD GPU is (expected to be) present -->
+  <use name="rocm"/>
+  <use name="HeterogeneousCore/AlpakaServices"/>
+</test>

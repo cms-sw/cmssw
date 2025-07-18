@@ -19,7 +19,7 @@ namespace l1s {
 class L1Scalers : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<l1s::Empty>> {
 public:
   L1Scalers(const edm::ParameterSet &ps);
-  ~L1Scalers() override{};
+  ~L1Scalers() override {}
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &e, const edm::EventSetup &c) override;
   /// DQM Client Diagnostic should be performed here:

@@ -1,4 +1,3 @@
-from __future__ import print_function
 import os
 
 import FWCore.ParameterSet.Config as cms
@@ -185,7 +184,6 @@ if options.iterNumber!=0:
     CondDBAlignmentError = CondDB.clone(connect = cms.string('sqlite_file:'+os.environ['CMSSW_BASE']+'/src/Alignment/APEEstimation/hists/'+options.measurementName+'/apeObjects/apeIter'+str(options.iterNumber-1)+'.db'))
     process.myTrackerAlignmentErr = cms.ESSource("PoolDBESSource",
         CondDBAlignmentError,
-        timetype = cms.string("runnumber"),
         toGet = cms.VPSet(
             cms.PSet(
                 record = cms.string('TrackerAlignmentErrorExtendedRcd'),
@@ -201,12 +199,6 @@ if options.iterNumber!=0:
 ##
 if isParticleGun:
     process.load("Alignment.APEEstimation.BeamspotForParticleGun_cff")
-
-
-##
-## Trigger Selection
-##
-process.load("Alignment.APEEstimation.TriggerSelection_cff")
 
 
 ##
@@ -255,7 +247,6 @@ process.TFileService = cms.Service("TFileService",
 
 if not options.cosmics:
     process.p = cms.Path(
-        #process.TriggerSelectionSequence* # You want to use this if you want to select for triggers
         process.RefitterHighPuritySequence*
         process.ApeEstimatorSequence
     )

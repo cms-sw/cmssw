@@ -42,11 +42,11 @@ void HcalSimHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
   // Get Phi segmentation from geometry, use the max phi number so that all iphi
   // values are included.
 
-  int NphiMax = hcons_->getNPhi(0);
+  //int NphiMax = hcons_->getNPhi(0);
 
-  NphiMax = (hcons_->getNPhi(1) > NphiMax ? hcons_->getNPhi(1) : NphiMax);
-  NphiMax = (hcons_->getNPhi(2) > NphiMax ? hcons_->getNPhi(2) : NphiMax);
-  NphiMax = (hcons_->getNPhi(3) > NphiMax ? hcons_->getNPhi(3) : NphiMax);
+  //NphiMax = (hcons_->getNPhi(1) > NphiMax ? hcons_->getNPhi(1) : NphiMax);
+  //NphiMax = (hcons_->getNPhi(2) > NphiMax ? hcons_->getNPhi(2) : NphiMax);
+  //NphiMax = (hcons_->getNPhi(3) > NphiMax ? hcons_->getNPhi(3) : NphiMax);
 
   // Center the iphi bins on the integers
   // float iphi_min = 0.5;

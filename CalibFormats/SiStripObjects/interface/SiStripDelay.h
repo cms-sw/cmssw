@@ -32,8 +32,8 @@
 
 class SiStripDelay {
 public:
-  SiStripDelay(){};
-  virtual ~SiStripDelay(){};
+  SiStripDelay() {}
+  virtual ~SiStripDelay() {}
 
   SiStripDelay(const SiStripDelay &) = delete;
   const SiStripDelay &operator=(const SiStripDelay &) = delete;

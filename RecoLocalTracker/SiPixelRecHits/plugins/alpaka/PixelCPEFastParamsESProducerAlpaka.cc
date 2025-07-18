@@ -1,7 +1,6 @@
 #include <memory>
 #include <string>
 #include <alpaka/alpaka.hpp>
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESProducer.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EventSetup.h"
@@ -113,8 +112,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   }
 
   using PixelCPEFastParamsESProducerAlpakaPhase1 = PixelCPEFastParamsESProducerAlpaka<pixelTopology::Phase1>;
+  using PixelCPEFastParamsESProducerAlpakaHIonPhase1 = PixelCPEFastParamsESProducerAlpaka<pixelTopology::HIonPhase1>;
   using PixelCPEFastParamsESProducerAlpakaPhase2 = PixelCPEFastParamsESProducerAlpaka<pixelTopology::Phase2>;
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
 DEFINE_FWK_EVENTSETUP_ALPAKA_MODULE(PixelCPEFastParamsESProducerAlpakaPhase1);
+DEFINE_FWK_EVENTSETUP_ALPAKA_MODULE(PixelCPEFastParamsESProducerAlpakaHIonPhase1);
 DEFINE_FWK_EVENTSETUP_ALPAKA_MODULE(PixelCPEFastParamsESProducerAlpakaPhase2);

@@ -55,15 +55,15 @@ namespace {
         apd = new TProfile("APDshape", "", APDnbin, 0, APDxmax);
         for (int s = 0; s < EBnbin; s++) {
           double val = EBshape[s];
-          barrel->Fill(s, val);
+          barrel->Fill(s * time, val);
         }
         for (int s = 0; s < EEnbin; s++) {
           double val = EEshape[s];
-          endcap->Fill(s, val);
+          endcap->Fill(s * time, val);
         }
         for (int s = 0; s < APDnbin; s++) {
           double val = APDshape[s];
-          apd->Fill(s, val);
+          apd->Fill(s * time, val);
         }
       }  // if payload.get()
       else

@@ -128,7 +128,7 @@ namespace edm {
         return HCTypeTag(*p.second, p.first);
       }
     }  // namespace heterocontainer
-  }    // namespace eventsetup
+  }  // namespace eventsetup
 }  // namespace edm
 
 #endif

@@ -1,12 +1,14 @@
+
 ###############################################################################
 # Way to use this:
 #   cmsRun dumpHGCalDDD_cfg.py type=V17
 #
-#   Options for type V16, V17, V17n, V17ng, V17Shift, V18, V18n, V18ng
+#   Options for type V16, V17, V17n, V17ng, V17Shift, V18, V18n, V18ng, V19,
+#                    V19n
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
-import os, sys, imp, re
+import os, sys, importlib, re
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 ####################################################################
@@ -16,7 +18,7 @@ options.register('type',
                  "V17",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "type of operations: V16, V17, V17n, V17ng, V17Shift, V18, V18n, V18ng")
+                  "type of operations: V16, V17, V17n, V17ng, V17Shift, V18, V18n, V18ng, V19, V19n")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -41,6 +43,7 @@ if 'MessageLogger' in process.__dict__:
     process.MessageLogger.G4cerr=dict()
     process.MessageLogger.G4cout=dict()
     process.MessageLogger.HGCalGeom=dict()
+    process.MessageLogger.TGeoMgrFromDdd=dict()
 
 process.source = cms.Source("EmptySource")
 

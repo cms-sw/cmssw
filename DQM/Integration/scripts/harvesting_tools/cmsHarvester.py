@@ -31,7 +31,6 @@ see the setup_harvesting_info() and option_handler_list_types()
 methods.
 
 """
-from __future__ import print_function
 
 ###########################################################################
 

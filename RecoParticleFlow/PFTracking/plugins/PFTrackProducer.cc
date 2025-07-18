@@ -30,6 +30,8 @@ public:
   ///Constructor
   explicit PFTrackProducer(const edm::ParameterSet&);
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void endRun(const edm::Run&, const edm::EventSetup&) override;
@@ -56,6 +58,19 @@ private:
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PFTrackProducer);
+
+void PFTrackProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("TrackQuality", "highPurity");
+  desc.add<bool>("UseQuality", true);
+  desc.add<edm::InputTag>("GsfTrackModuleLabel", {"electronGsfTracks"});
+  desc.add<std::vector<edm::InputTag>>("TkColList", {edm::InputTag("generalTracks")});
+  desc.add<edm::InputTag>("PrimaryVertexLabel", {"offlinePrimaryVertices"});
+  desc.add<edm::InputTag>("MuColl", {"muons1stStep"});
+  desc.add<bool>("TrajInEvents", false);
+  desc.add<bool>("GsfTracksInEvents", true);
+  descriptions.add("pfTrack", desc);
+}
 
 using namespace std;
 using namespace edm;

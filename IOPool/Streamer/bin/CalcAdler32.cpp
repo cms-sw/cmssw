@@ -8,6 +8,8 @@
 #include <cstdint>
 
 int main(int argc, char* argv[]) {
+  using namespace edm::streamer;
+
   if (argc < 2) {
     std::cerr << "No command line argument given, expected path/filename.\n";
     return 1;

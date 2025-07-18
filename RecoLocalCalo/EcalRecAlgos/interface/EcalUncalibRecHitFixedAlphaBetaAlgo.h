@@ -102,7 +102,7 @@ public:
     dyn_pedestal = true;
   };
 
-  ~EcalUncalibRecHitFixedAlphaBetaAlgo() override{};
+  ~EcalUncalibRecHitFixedAlphaBetaAlgo() override {}
   EcalUncalibratedRecHit makeRecHit(const C& dataFrame,
                                     const double* pedestals,
                                     const double* gainRatios,

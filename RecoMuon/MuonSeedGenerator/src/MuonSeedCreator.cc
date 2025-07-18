@@ -5,7 +5,7 @@
  *
  */
 
-#include "RecoMuon/MuonSeedGenerator/src/MuonSeedCreator.h"
+#include "RecoMuon/MuonSeedGenerator/interface/MuonSeedCreator.h"
 
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 

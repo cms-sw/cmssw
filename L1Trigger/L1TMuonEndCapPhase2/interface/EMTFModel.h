@@ -95,7 +95,7 @@ namespace emtf::phase2 {
           unsigned int end;
         };
       }  // namespace pattern
-    }    // namespace zones
+    }  // namespace zones
 
     // Define Feature Structs
     struct feature_t {
@@ -118,7 +118,7 @@ namespace emtf::phase2 {
         std::vector<site_id_t> trk_sites;
       };
     }  // namespace reduced_sites
-  }    // namespace model
+  }  // namespace model
 }  // namespace emtf::phase2
 
 #endif  // L1Trigger_L1TMuonEndCapPhase2_EMTFModel_h not defined

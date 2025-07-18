@@ -7,29 +7,42 @@
     <class name="edm::Wrapper<std::vector<l1t::MuonStub > >"/>
     <class name="edm::Ref<l1t::MuonStubCollection>" splitLevel="0"/>
 
-    <class name="l1t::TrackerMuon" ClassVersion="4">
-      <version ClassVersion="4" checksum="3437073036"/>
-      <version ClassVersion="3" checksum="2397458791"/>
-    </class>
-    <class name="std::vector<l1t::TrackerMuon>"/>
-    <class name="edm::Wrapper<std::vector<l1t::TrackerMuon > >"/>
-    <class name="edm::Ref<l1t::TrackerMuonCollection>" splitLevel="0"/>
-    <class name="std::vector<edm::Ref<l1t::TrackerMuonCollection> >"/>
+     <class name="l1t::TrackerMuon" ClassVersion="5">
+       <version ClassVersion="5" checksum="3871400620"/>
+       <version ClassVersion="4" checksum="3437073036"/>
+       <version ClassVersion="3" checksum="2397458791"/>
+     </class>
+     <class name="std::vector<l1t::TrackerMuon>"/>
+     <class name="edm::Wrapper<std::vector<l1t::TrackerMuon > >"/>
+     <class name="edm::Ref<l1t::TrackerMuonCollection>" splitLevel="0"/>
+     <class name="std::vector<edm::Ref<l1t::TrackerMuonCollection> >"/>
+     
+     <class name="l1t::SAMuon" ClassVersion="4">
+       <version ClassVersion="4" checksum="837992405"/>
+       <version ClassVersion="3" checksum="3294978731"/>
+     </class>
+     <class name="std::vector<l1t::SAMuon>"/>
+     <class name="edm::Wrapper<std::vector<l1t::SAMuon > >"/>
+     <class name="edm::Ref<l1t::SAMuonCollection>" splitLevel="0"/>
 
-    <class name="l1t::SAMuon" ClassVersion="3">
-      <version ClassVersion="3" checksum="3294978731"/>
-    </class>
-    <class name="std::vector<l1t::SAMuon>"/>
-    <class name="edm::Wrapper<std::vector<l1t::SAMuon > >"/>
-    <class name="edm::Ref<l1t::SAMuonCollection>" splitLevel="0"/>
+   <class name="l1t::KMTFTrack" ClassVersion="3">
+    <version ClassVersion="3" checksum="502486181"/>
+   </class>
+   <class name="std::vector<l1t::KMTFTrack>"/>
+   <class name="l1t::KMTFTrackCollection"/>
+   <class name="edm::Wrapper<l1t::KMTFTrackCollection >"/>
+   <class name="edm::Wrapper<std::vector<l1t::KMTFTrack > >"/>
+   <class name="edm::Ref<l1t::KMTFTrackCollection>" splitLevel="0"/>
+   <class name="edm::Wrapper<edm::Ref<l1t::KMTFTrackCollection > >"/>
 
     <class name="l1t::phase2::EMTFHit" ClassVersion="3">
       <version ClassVersion="3" checksum="227304470"/>
     </class>
     <class name="l1t::phase2::EMTFHitCollection"/>
     <class name="edm::Wrapper<l1t::phase2::EMTFHitCollection>"/>
-    <class name="l1t::phase2::EMTFTrack" ClassVersion="3">
+    <class name="l1t::phase2::EMTFTrack" ClassVersion="4">
       <version ClassVersion="3" checksum="972508279"/>
+      <version ClassVersion="4" checksum="3868553580"/>
     </class>
     <class name="l1t::phase2::EMTFTrackCollection"/>
     <class name="edm::Wrapper<l1t::phase2::EMTFTrackCollection>"/>

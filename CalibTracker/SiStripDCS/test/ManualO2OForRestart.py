@@ -6,7 +6,6 @@ a result of the query to the database so big that the machine runs out of memory
 By splitting it in smaller intervals of a given DeltaT it is possible to keep
 under control the memory used.
 """
-from __future__ import print_function
 
 import os
 import datetime

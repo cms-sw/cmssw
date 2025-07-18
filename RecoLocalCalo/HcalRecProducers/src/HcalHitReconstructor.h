@@ -10,6 +10,8 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSimpleRecAlgo.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalHFStatusBitFromRecHits.h"
@@ -56,6 +58,8 @@ public:
   void endRun(edm::Run const& r, edm::EventSetup const& es) final;
   void produce(edm::Event& e, const edm::EventSetup& c) override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   typedef void (HcalSimpleRecAlgo::*SetCorrectionFcn)(std::shared_ptr<AbsOOTPileupCorrection>);
 
@@ -70,17 +74,15 @@ private:
   DetId::Detector det_;
   int subdet_;
   HcalOtherSubdetector subdetOther_;
-  edm::InputTag inputLabel_;
+  const edm::InputTag inputLabel_;
   edm::EDGetTokenT<HODigiCollection> tok_ho_;
   edm::EDGetTokenT<HFDigiCollection> tok_hf_;
   edm::EDGetTokenT<HcalCalibDigiCollection> tok_calib_;
   //std::vector<std::string> channelStatusToDrop_;
   bool correctTiming_;        // turn on/off Ken Rossato's algorithm to fix timing
   bool setNoiseFlags_;        // turn on/off basic noise flags
-  bool setHSCPFlags_;         // turn on/off HSCP noise flags
   bool setSaturationFlags_;   // turn on/off flag indicating ADC saturation
   bool setTimingTrustFlags_;  // turn on/off HF timing uncertainty flag
-  bool setPulseShapeFlags_;   //  turn on/off HBHE fit-based noise flags
   bool setNegativeFlags_;     // turn on/off HBHE negative noise flags
   bool dropZSmarkedPassed_;   // turn on/off dropping of zero suppression marked and passed digis
 

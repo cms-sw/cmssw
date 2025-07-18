@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <cstring>   // fix bug #58581
 #include <iostream>  // fix bug #58581
+#include <memory>
 
 // Local include files
 #include "CondCore/CondDB/interface/Logger.h"
@@ -26,6 +27,7 @@ cond::persistency::CoralMsgReporter::CoralMsgReporter()
   // Use a non-default message level?
   if (getenv("CORAL_MSGLEVEL")) {
     // Check only the first char of the environment variable
+    [[clang::suppress]]
     switch (*getenv("CORAL_MSGLEVEL")) {
       case '0':
       case 'n':
@@ -141,7 +143,7 @@ void cond::persistency::CoralMsgReporter::report(int lvl, const std::string&, co
 }
 
 void cond::persistency::CoralMsgReporter::subscribe(Logger& logger) {
-  m_dispatcher.reset(new MsgDispatcher(logger));
+  m_dispatcher = std::make_shared<MsgDispatcher>(logger);
   std::weak_ptr<MsgDispatcher> callBack(m_dispatcher);
   logger.subscribeCoralMessages(callBack);
 }

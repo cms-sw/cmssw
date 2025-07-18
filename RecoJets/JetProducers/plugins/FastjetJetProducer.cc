@@ -241,7 +241,7 @@ void FastjetJetProducer::produceTrackJets(edm::Event& iEvent, const edm::EventSe
             // found the candidate track corresponding to the vertex track, so stop the loop
             break;
           }  // end if match found
-        }    // end loop over input tracks
+        }  // end loop over input tracks
         // give an info message in case no match is found (can happen if candidates are subset of tracks used for clustering)
         if (!found)
           edm::LogInfo("FastjetTrackJetProducer")
@@ -316,7 +316,7 @@ void FastjetJetProducer::produceTrackJets(edm::Event& iEvent, const edm::EventSe
 
     if (useOnlyOnePV_)
       break;  // stop vertex loop if only one vertex asked for
-  }           // end loop over vertices
+  }  // end loop over vertices
 
   // put the jets in the collection
   LogDebug("FastjetTrackJetProducer") << "Put " << jets->size() << " jets in the event.\n";

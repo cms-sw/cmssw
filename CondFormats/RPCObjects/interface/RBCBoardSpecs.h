@@ -21,8 +21,8 @@ public:
 
   class RBCBoardConfig {
   public:
-    RBCBoardConfig(){};
-    virtual ~RBCBoardConfig(){};  ///< Destructor
+    RBCBoardConfig() {}
+    virtual ~RBCBoardConfig() {}  ///< Destructor
 
     int m_Firmware;
     int m_WheelId;

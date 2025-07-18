@@ -33,7 +33,7 @@
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GEMAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GEMAlignmentErrorExtendedRcd.h"
-#include "Geometry/CommonTopologies/interface/GeometryAligner.h"
+#include "Geometry/GeometryAligner/interface/GeometryAligner.h"
 
 #include <memory>
 

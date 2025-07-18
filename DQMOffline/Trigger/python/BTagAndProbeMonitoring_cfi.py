@@ -9,8 +9,7 @@ BTagAndProbeMonitoring = cms.EDProducer('BTagAndProbe',
   elecID = cms.InputTag('egmGsfElectronIDsForDQM', 'cutBasedElectronID-RunIIIWinter22-V1-tight'),
   #jets = cms.InputTag('ak4PFJetsCHS'),
   btagAlgos = cms.VInputTag(
-    'pfDeepCSVJetTags:probb',
-    'pfDeepCSVJetTags:probbb'
+      'pfParticleNetAK4DiscriminatorsJetTagsForRECO:BvsAll',
   ),
   jetSelection = cms.string('pt > 0'),
   eleSelection = cms.string('pt > 0 && abs(eta) < 2.5'),
@@ -22,7 +21,7 @@ BTagAndProbeMonitoring = cms.EDProducer('BTagAndProbe',
   leptJetDeltaRmin = cms.double(0),
   bJetDeltaEtaMax = cms.double(9999),
   nbjets = cms.uint32(0),
-  workingpoint = cms.double(0.4941),
+  workingpoint = cms.double(0.2),
   applyLeptonPVcuts = cms.bool(False),
   debug = cms.bool(False),
   #numGenericTriggerEventPSet = cms.PSet(

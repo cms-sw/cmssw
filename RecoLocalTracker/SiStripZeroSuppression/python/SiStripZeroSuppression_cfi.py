@@ -2,22 +2,21 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoLocalTracker.SiStripZeroSuppression.DefaultAlgorithms_cff import *
 
-siStripZeroSuppression = cms.EDProducer("SiStripZeroSuppression",
-
+from  RecoLocalTracker.SiStripZeroSuppression.siStripZeroSuppression_cfi import siStripZeroSuppression
+siStripZeroSuppression = siStripZeroSuppression.clone(
     Algorithms = DefaultAlgorithms,
-    RawDigiProducersList = cms.VInputTag( cms.InputTag('siStripDigis','VirginRaw'), 
-                                          cms.InputTag('siStripDigis','ProcessedRaw'),
-                                          cms.InputTag('siStripDigis','ScopeMode')),
-                                       #   cms.InputTag('siStripDigis','ZeroSuppressed')),
-
-    storeCM = cms.bool(True), 
-    fixCM= cms.bool(False),                # put -999 into CM collection for "inspected" APV
-
-    produceRawDigis = cms.bool(True),
-    produceCalculatedBaseline = cms.bool(False),
-    produceBaselinePoints = cms.bool(False),
-    storeInZScollBadAPV = cms.bool(True), # it selects if in the ZS collection the bad APVs are written. To be kept for ZS
-    produceHybridFormat = cms.bool(False)
+    RawDigiProducersList = [ ("siStripDigis","VirginRaw"),
+                             ("siStripDigis","ProcessedRaw"),
+                             ("siStripDigis","ScopeMode"),
+                             # ("siStripDigis","ZeroSuppressed")
+                            ],
+    storeCM = True,
+    fixCM = False,                # put -999 into CM collection for "inspected" APV
+    produceRawDigis = True,
+    produceCalculatedBaseline = False,
+    produceBaselinePoints = False,
+    storeInZScollBadAPV = True, # it selects if in the ZS collection the bad APVs are written. To be kept for ZS
+    produceHybridFormat = False
 )
 
 # The SiStripClusters are not used anymore in phase2 tracking

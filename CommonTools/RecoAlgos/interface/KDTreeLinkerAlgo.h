@@ -1,6 +1,8 @@
 #ifndef KDTreeLinkerAlgoTemplated_h
 #define KDTreeLinkerAlgoTemplated_h
 
+#include "DataFormats/Math/interface/logic.h"
+
 #include <cassert>
 #include <vector>
 #include <array>
@@ -63,9 +65,12 @@ struct KDTreeNodes {
   void clear() {
     for (auto &dim : dims) {
       dim.clear();
+      dim.shrink_to_fit();
     }
     right.clear();
+    right.shrink_to_fit();
     data.clear();
+    data.shrink_to_fit();
     poolSize = -1;
     poolPos = -1;
   }
@@ -226,7 +231,7 @@ void KDTreeLinkerAlgo<DATA, DIM>::recSearch(int current, const KDTreeBox<DIM> &t
       bool isInside = true;
       for (unsigned i = 0; i < DIM; ++i) {
         float dimCurr = nodePool_.dims[i][current];
-        isInside &= (dimCurr >= trackBox.dimmin[i]) && (dimCurr <= trackBox.dimmax[i]);
+        isInside &= reco::branchless_and(dimCurr >= trackBox.dimmin[i], dimCurr <= trackBox.dimmax[i]);
       }
       if (isInside) {
         closestNeighbour->push_back(nodePool_.data[current]);

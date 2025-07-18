@@ -5,42 +5,42 @@
   \author   Giovanni Petrucciani
 */
 
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
-#include "DataFormats/Math/interface/deltaR.h"
-
-#include "DataFormats/MuonReco/interface/Muon.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "TrackingTools/GeomPropagators/interface/Propagator.h"
-
-#include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
-#include "TrackingTools/MeasurementDet/interface/MeasurementDet.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-#include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
-#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+#include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
+#include "TrackingTools/MeasurementDet/interface/MeasurementDet.h"
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
 class OutsideInMuonSeeder final : public edm::stream::EDProducer<> {
 public:
   explicit OutsideInMuonSeeder(const edm::ParameterSet &iConfig);
-  ~OutsideInMuonSeeder() override {}
+  ~OutsideInMuonSeeder() override = default;
 
   void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
   /// Labels for input collections
@@ -100,9 +100,10 @@ OutsideInMuonSeeder::OutsideInMuonSeeder(const edm::ParameterSet &iConfig)
       errorRescaling_(iConfig.getParameter<double>("errorRescaleFactor")),
       trackerPropagatorToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("trackerPropagator")))),
       muonPropagatorToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("muonPropagator")))),
-      measurementTrackerTag_(consumes<MeasurementTrackerEvent>(edm::InputTag("MeasurementTrackerEvent"))),
+      measurementTrackerTag_(
+          consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>("measurementTkEvent"))),
       estimatorToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("hitCollector")))),
-      updatorToken_(esConsumes(edm::ESInputTag("", "KFUpdator"))),
+      updatorToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("updatorLabel")))),
       magfieldToken_(esConsumes()),
       geometryToken_(esConsumes()),
       tkGeometryToken_(esConsumes()),
@@ -318,6 +319,25 @@ void OutsideInMuonSeeder::doDebug(const reco::Track &tk) const {
                                       << std::endl;
     }
   }
+}
+
+void OutsideInMuonSeeder::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("src", edm::InputTag("muons"));
+  desc.add<std::string>("cut", {});
+  desc.add<int32_t>("layersToTry", 3);
+  desc.add<int32_t>("hitsToTry", 3);
+  desc.add<bool>("fromVertex", true);
+  desc.add<double>("errorRescaleFactor", 2.0);
+  desc.add<std::string>("trackerPropagator", {});
+  desc.add<std::string>("muonPropagator", {});
+  desc.add<edm::InputTag>("measurementTkEvent", edm::InputTag("MeasurementTrackerEvent"));
+  desc.add<std::string>("hitCollector", {});
+  desc.add<std::string>("updatorLabel", "KFUpdator");
+  desc.add<double>("minEtaForTEC", 0.7);
+  desc.add<double>("maxEtaForTOB", 1.8);
+  desc.addUntracked<bool>("debug", false);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

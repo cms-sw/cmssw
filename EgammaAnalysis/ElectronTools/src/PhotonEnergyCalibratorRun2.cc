@@ -1,7 +1,7 @@
 #include "EgammaAnalysis/ElectronTools/interface/PhotonEnergyCalibratorRun2.h"
 #include <CLHEP/Random/RandGaussQ.h>
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 PhotonEnergyCalibratorRun2::PhotonEnergyCalibratorRun2(bool isMC, bool synchronization, std::string correctionFile)

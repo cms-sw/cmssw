@@ -16,21 +16,27 @@
 #include "JetTracksAssociatorAtVertex.h"
 
 JetTracksAssociatorAtVertex::JetTracksAssociatorAtVertex(const edm::ParameterSet& fConfig)
-    : mAssociator(fConfig.getParameter<double>("coneSize")),
+    : mJets{consumes<edm::View<reco::Jet> >(fConfig.getParameter<edm::InputTag>("jets"))},
+      mTracks{consumes<reco::TrackCollection>(fConfig.getParameter<edm::InputTag>("tracks"))},
+      mAssociator(fConfig.getParameter<double>("coneSize")),
       mAssociatorAssigned(fConfig.getParameter<double>("coneSize")),
-      useAssigned(false),
+      useAssigned(fConfig.getParameter<bool>("useAssigned")),
       pvSrc() {
-  mJets = consumes<edm::View<reco::Jet> >(fConfig.getParameter<edm::InputTag>("jets"));
-  mTracks = consumes<reco::TrackCollection>(fConfig.getParameter<edm::InputTag>("tracks"));
-  if (fConfig.exists("useAssigned")) {
-    useAssigned = fConfig.getParameter<bool>("useAssigned");
+  if (useAssigned) {
     pvSrc = consumes<reco::VertexCollection>(fConfig.getParameter<edm::InputTag>("pvSrc"));
   }
-
   produces<reco::JetTracksAssociation::Container>();
 }
 
-JetTracksAssociatorAtVertex::~JetTracksAssociatorAtVertex() {}
+void JetTracksAssociatorAtVertex::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("jets", edm::InputTag(""));
+  desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
+  desc.add<double>("coneSize", 0.4);
+  desc.add<bool>("useAssigned", false);
+  desc.add<edm::InputTag>("pvSrc", edm::InputTag("offlinePrimaryVertices"));
+  descriptions.addWithDefaultLabel(desc);
+}
 
 void JetTracksAssociatorAtVertex::produce(edm::Event& fEvent, const edm::EventSetup& fSetup) {
   edm::Handle<edm::View<reco::Jet> > jets_h;

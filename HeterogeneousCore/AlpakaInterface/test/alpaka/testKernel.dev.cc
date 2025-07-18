@@ -15,9 +15,9 @@
 using namespace ALPAKA_ACCELERATOR_NAMESPACE;
 
 struct VectorAddKernel {
-  template <typename TAcc, typename T>
+  template <typename T>
   ALPAKA_FN_ACC void operator()(
-      TAcc const& acc, T const* __restrict__ in1, T const* __restrict__ in2, T* __restrict__ out, size_t size) const {
+      Acc1D const& acc, T const* __restrict__ in1, T const* __restrict__ in2, T* __restrict__ out, size_t size) const {
     for (auto index : cms::alpakatools::uniform_elements(acc, size)) {
       out[index] = in1[index] + in2[index];
     }
@@ -25,8 +25,8 @@ struct VectorAddKernel {
 };
 
 struct VectorAddKernelSkip {
-  template <typename TAcc, typename T>
-  ALPAKA_FN_ACC void operator()(TAcc const& acc,
+  template <typename T>
+  ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                 T const* __restrict__ in1,
                                 T const* __restrict__ in2,
                                 T* __restrict__ out,
@@ -39,9 +39,9 @@ struct VectorAddKernelSkip {
 };
 
 struct VectorAddKernel1D {
-  template <typename TAcc, typename T>
+  template <typename T>
   ALPAKA_FN_ACC void operator()(
-      TAcc const& acc, T const* __restrict__ in1, T const* __restrict__ in2, T* __restrict__ out, Vec1D size) const {
+      Acc1D const& acc, T const* __restrict__ in1, T const* __restrict__ in2, T* __restrict__ out, Vec1D size) const {
     for (auto ndindex : cms::alpakatools::uniform_elements_nd(acc, size)) {
       auto index = ndindex[0];
       out[index] = in1[index] + in2[index];
@@ -50,9 +50,9 @@ struct VectorAddKernel1D {
 };
 
 struct VectorAddKernel2D {
-  template <typename TAcc, typename T>
+  template <typename T>
   ALPAKA_FN_ACC void operator()(
-      TAcc const& acc, T const* __restrict__ in1, T const* __restrict__ in2, T* __restrict__ out, Vec2D size) const {
+      Acc2D const& acc, T const* __restrict__ in1, T const* __restrict__ in2, T* __restrict__ out, Vec2D size) const {
     for (auto ndindex : cms::alpakatools::uniform_elements_nd(acc, size)) {
       auto index = ndindex[0] * size[1] + ndindex[1];
       out[index] = in1[index] + in2[index];
@@ -61,9 +61,9 @@ struct VectorAddKernel2D {
 };
 
 struct VectorAddKernel3D {
-  template <typename TAcc, typename T>
+  template <typename T>
   ALPAKA_FN_ACC void operator()(
-      TAcc const& acc, T const* __restrict__ in1, T const* __restrict__ in2, T* __restrict__ out, Vec3D size) const {
+      Acc3D const& acc, T const* __restrict__ in1, T const* __restrict__ in2, T* __restrict__ out, Vec3D size) const {
     for (auto ndindex : cms::alpakatools::uniform_elements_nd(acc, size)) {
       auto index = (ndindex[0] * size[1] + ndindex[1]) * size[2] + ndindex[2];
       out[index] = in1[index] + in2[index];
@@ -76,9 +76,9 @@ struct VectorAddKernel3D {
  */
 
 struct VectorAddBlockKernel {
-  template <typename TAcc, typename T>
+  template <typename T>
   ALPAKA_FN_ACC void operator()(
-      TAcc const& acc, T const* __restrict__ in1, T const* __restrict__ in2, T* __restrict__ out, size_t size) const {
+      Acc1D const& acc, T const* __restrict__ in1, T const* __restrict__ in2, T* __restrict__ out, size_t size) const {
     // block size
     auto const blockSize = alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[0u];
     // get the dynamic shared memory buffer
@@ -119,9 +119,9 @@ struct VectorAddBlockKernel {
  */
 
 struct VectorAddKernelSerial {
-  template <typename TAcc, typename T>
+  template <typename T>
   ALPAKA_FN_ACC void operator()(
-      TAcc const& acc, T const* __restrict__ in1, T const* __restrict__ in2, T* __restrict__ out, size_t size) const {
+      Acc1D const& acc, T const* __restrict__ in1, T const* __restrict__ in2, T* __restrict__ out, size_t size) const {
     // the operations are performed by a single thread
     if (cms::alpakatools::once_per_grid(acc)) {
       for (Idx index = 0; index < size; ++index) {
@@ -137,9 +137,9 @@ struct VectorAddKernelSerial {
  */
 
 struct VectorAddKernelBlockSerial {
-  template <typename TAcc, typename T>
+  template <typename T>
   ALPAKA_FN_ACC void operator()(
-      TAcc const& acc, T const* __restrict__ in1, T const* __restrict__ in2, T* __restrict__ out, size_t size) const {
+      Acc1D const& acc, T const* __restrict__ in1, T const* __restrict__ in2, T* __restrict__ out, size_t size) const {
     // block size
     auto const blockSize = alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[0u];
     // the loop is used to repeat the "block" as many times as needed to cover the whole problem space
@@ -160,8 +160,8 @@ struct VectorAddKernelBlockSerial {
 namespace alpaka::trait {
   // specialize the BlockSharedMemDynSizeBytes trait to specify the amount of
   // block shared dynamic memory for the VectorAddBlockKernel kernel
-  template <typename TAcc>
-  struct BlockSharedMemDynSizeBytes<VectorAddBlockKernel, TAcc> {
+  template <>
+  struct BlockSharedMemDynSizeBytes<VectorAddBlockKernel, Acc1D> {
     // the size in bytes of the shared memory allocated for a block
     template <typename T>
     ALPAKA_FN_HOST_ACC static std::size_t getBlockSharedMemDynSizeBytes(VectorAddBlockKernel const& /* kernel */,

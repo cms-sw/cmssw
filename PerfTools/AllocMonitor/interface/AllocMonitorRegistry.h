@@ -65,8 +65,8 @@ namespace cms::perftools {
     friend void* ::operator new[](std::size_t size);
     friend void* ::operator new(std::size_t count, std::align_val_t al);
     friend void* ::operator new[](std::size_t count, std::align_val_t al);
-    friend void* ::operator new(std::size_t count, const std::nothrow_t& tag) noexcept;
-    friend void* ::operator new[](std::size_t count, const std::nothrow_t& tag) noexcept;
+    friend void* ::operator new(std::size_t count, const std::nothrow_t & tag) noexcept;
+    friend void* ::operator new[](std::size_t count, const std::nothrow_t & tag) noexcept;
     friend void* ::operator new(std::size_t count, std::align_val_t al, const std::nothrow_t&) noexcept;
     friend void* ::operator new[](std::size_t count, std::align_val_t al, const std::nothrow_t&) noexcept;
 
@@ -78,22 +78,27 @@ namespace cms::perftools {
     friend void ::operator delete[](void* ptr, std::size_t sz) noexcept;
     friend void ::operator delete(void* ptr, std::size_t sz, std::align_val_t al) noexcept;
     friend void ::operator delete[](void* ptr, std::size_t sz, std::align_val_t al) noexcept;
-    friend void ::operator delete(void* ptr, const std::nothrow_t& tag) noexcept;
-    friend void ::operator delete[](void* ptr, const std::nothrow_t& tag) noexcept;
-    friend void ::operator delete(void* ptr, std::align_val_t al, const std::nothrow_t& tag) noexcept;
-    friend void ::operator delete[](void* ptr, std::align_val_t al, const std::nothrow_t& tag) noexcept;
+    friend void ::operator delete(void* ptr, const std::nothrow_t & tag) noexcept;
+    friend void ::operator delete[](void* ptr, const std::nothrow_t & tag) noexcept;
+    friend void ::operator delete(void* ptr, std::align_val_t al, const std::nothrow_t & tag) noexcept;
+    friend void ::operator delete[](void* ptr, std::align_val_t al, const std::nothrow_t & tag) noexcept;
 
     friend class AllocTester;
 
     // ---------- member data --------------------------------
     void start();
-    bool& isRunning();
+    bool stopReporting();
+    void startReporting();
 
     struct Guard {
-      explicit Guard(bool& iOriginal) noexcept : address_(&iOriginal), original_(iOriginal) { *address_ = false; }
-      ~Guard() { *address_ = original_; }
+      explicit Guard(AllocMonitorRegistry& iReg) noexcept : reg_(iReg), original_(iReg.stopReporting()) {}
+      ~Guard() {
+        if (original_) {
+          reg_.startReporting();
+        }
+      }
 
-      bool running() const noexcept { return original_; }
+      bool shouldReport() const noexcept { return original_; }
 
       Guard(Guard const&) = delete;
       Guard(Guard&&) = delete;
@@ -101,29 +106,29 @@ namespace cms::perftools {
       Guard& operator=(Guard&&) = delete;
 
     private:
-      bool* address_;
+      AllocMonitorRegistry& reg_;
       bool original_;
     };
 
-    Guard makeGuard() { return Guard(isRunning()); }
+    Guard makeGuard() { return Guard(*this); }
 
-    void allocCalled_(size_t, size_t);
-    void deallocCalled_(size_t);
+    void allocCalled_(size_t, size_t, void const*);
+    void deallocCalled_(size_t, void const*);
 
     template <typename ALLOC, typename ACT>
     auto allocCalled(size_t iRequested, ALLOC iAlloc, ACT iGetActual) {
       [[maybe_unused]] Guard g = makeGuard();
       auto a = iAlloc();
-      if (g.running()) {
-        allocCalled_(iRequested, iGetActual(a));
+      if (g.shouldReport()) {
+        allocCalled_(iRequested, iGetActual(a), a);
       }
       return a;
     }
     template <typename DEALLOC, typename ACT>
     void deallocCalled(void* iPtr, DEALLOC iDealloc, ACT iGetActual) {
       [[maybe_unused]] Guard g = makeGuard();
-      if (g.running() and iPtr != nullptr) {
-        deallocCalled_(iGetActual(iPtr));
+      if (g.shouldReport() and iPtr != nullptr) {
+        deallocCalled_(iGetActual(iPtr), iPtr);
       }
       iDealloc(iPtr);
     }

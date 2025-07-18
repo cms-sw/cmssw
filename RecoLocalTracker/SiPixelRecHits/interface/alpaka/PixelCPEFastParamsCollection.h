@@ -20,6 +20,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                 PixelCPEFastParamsDevice<Device, TrackerTraits>>;
 
   using PixelCPEFastParamsPhase1 = PixelCPEFastParams<pixelTopology::Phase1>;
+  using PixelCPEFastParamsHIonPhase1 = PixelCPEFastParams<pixelTopology::HIonPhase1>;
   using PixelCPEFastParamsPhase2 = PixelCPEFastParams<pixelTopology::Phase2>;
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

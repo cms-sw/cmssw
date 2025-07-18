@@ -5,6 +5,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/HGCDigi/interface/HGCDataFrame.h"
 
@@ -15,6 +17,7 @@ public:
   explicit HGCalUncalibRecHitProducer(const edm::ParameterSet& ps);
   ~HGCalUncalibRecHitProducer() override;
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   const edm::EDGetTokenT<HGCalDigiCollection> eeDigiCollection_;      // collection of HGCEE digis

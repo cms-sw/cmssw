@@ -77,7 +77,7 @@ from Configuration.ProcessModifiers.gpu_cff import gpu
 from Configuration.ProcessModifiers.alpaka_cff import alpaka
 
 scalersRawToDigi.scalersInputTag = 'rawDataCollector'
-siPixelDigis.cpu.InputLabel = 'rawDataCollector'
+siPixelDigis.InputLabel = 'rawDataCollector'
 ecalDigisCPU.InputLabel = 'rawDataCollector'
 gpu.toModify(ecalDigisGPU, InputLabel = 'rawDataCollector')
 alpaka.toModify(ecalDigisPortable, InputLabel = 'rawDataCollector')

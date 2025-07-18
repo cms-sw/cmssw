@@ -998,7 +998,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent, const edm::Ev
           }  // PXB
 
         }  // valid
-      }    // loop rechits
+      }  // loop rechits
 
       // CS extra plots
 
@@ -1052,9 +1052,9 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent, const edm::Ev
               }
 
             }  // three hits
-          }    // is valid
-        }      // rechits loop
-      }        // pt 4
+          }  // is valid
+        }  // rechits loop
+      }  // pt 4
     }
 
   }  //-----Tracks
@@ -1353,7 +1353,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent, const edm::Ev
           }  // end of else
 
         }  // end for (all traj measurements of pixeltrack)
-      }    // end if (is pixeltrack)
+      }  // end if (is pixeltrack)
       else {
         if (debug_)
           std::cout << "no pixeltrack:\n";
@@ -1569,7 +1569,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event &iEvent, const edm::Ev
       }
 
     }  // end if it's a Pixel module
-  }    // end for loop over tracker detector geometry modules
+  }  // end for loop over tracker detector geometry modules
 
   if (trackclusters > 0)
     (meNofClustersOnTrack_)->Fill(0, trackclusters);
@@ -1621,8 +1621,8 @@ void SiPixelTrackResidualSource::getrococcupancy(DetId detId,
 
       float modsign = (float)DBmodule / (abs((float)DBmodule));
       float ladsign = (float)DBladder / (abs((float)DBladder));
-      float rocx = ((float)col / (52. * 8.)) * modsign + ((float)DBmodule - (modsign)*0.5);
-      float rocy = ((float)row / (80. * 2.)) * ladsign + ((float)DBladder - (ladsign)*0.5);
+      float rocx = ((float)col / (52. * 8.)) * modsign + ((float)DBmodule - (modsign) * 0.5);
+      float rocy = ((float)row / (80. * 2.)) * ladsign + ((float)DBladder - (ladsign) * 0.5);
 
       // do the flip where need
       bool flip = false;
@@ -1630,9 +1630,9 @@ void SiPixelTrackResidualSource::getrococcupancy(DetId detId,
         flip = true;
       }
       if ((flip) && (DBladder > 0)) {
-        if ((((float)DBladder - (ladsign)*0.5) <= rocy) && (rocy < (float)DBladder)) {
+        if ((((float)DBladder - (ladsign) * 0.5) <= rocy) && (rocy < (float)DBladder)) {
           rocy = rocy + ladsign * 0.5;
-        } else if ((((float)DBladder) <= rocy) && (rocy < ((float)DBladder + (ladsign)*0.5))) {
+        } else if ((((float)DBladder) <= rocy) && (rocy < ((float)DBladder + (ladsign) * 0.5))) {
           rocy = rocy - ladsign * 0.5;
         }
       }

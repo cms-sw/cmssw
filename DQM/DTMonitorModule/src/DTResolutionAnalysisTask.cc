@@ -197,7 +197,7 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
         fillHistos(wireId.superlayerId(), distSegmToWire, residual);
 
       }  // End of loop over 1D RecHit inside 4D segment
-    }    // End of loop over the rechits of this ChamerId
+    }  // End of loop over the rechits of this ChamerId
   }
   // -----------------------------------------------------------------------------
 }

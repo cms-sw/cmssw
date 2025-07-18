@@ -190,8 +190,8 @@ process.ecalPNDiodeMonitorTask.commonParameters.onlineMode = True
 process.dqmEnv.subSystemFolder = 'EcalCalibration'
 process.dqmSaver.tag = 'EcalCalibration'
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = 'EcalCalibration'
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = 'EcalCalibration'
+# process.dqmSaverPB.runNumber = options.runNumber
 
 ### Sequences ###
 
@@ -206,7 +206,7 @@ process.ecalPedestalPath = cms.Path(process.preScaler+process.ecalPreRecoSequenc
 process.ecalClientPath = cms.Path(process.ecalCalibMonitorClient)
 
 process.dqmEndPath = cms.EndPath(process.dqmEnv)
-process.dqmOutputPath = cms.EndPath(process.dqmSaver + process.dqmSaverPB)
+process.dqmOutputPath = cms.EndPath(process.dqmSaver )#+ process.dqmSaverPB)
 
 ### Schedule ###
 
@@ -214,5 +214,6 @@ process.schedule = cms.Schedule(process.ecalLaserLedPath,process.ecalTestPulsePa
 
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
-print("Final Source settings:", process.source)
 process = customise(process)
+print("Global Tag used:", process.GlobalTag.globaltag.value())
+print("Final Source settings:", process.source)

@@ -46,22 +46,12 @@ public:
     kTypeSize
   };
 
-  enum EBit {
-    k3DBit = 1 << k3D,
-    kRhoPhiBit = 1 << kRhoPhi,
-    kRhoZBit = 1 << kRhoZ,
-    kRhoPhiPFBit = 1 << kRhoPhiPF,
-    kISpyBit = 1 << kISpy,
-    kLegoBit = 1 << kLego,
-    kLegoHFBit = 1 << kLegoHF,
-    kLegoPFECALBit = 1 << kLegoPFECAL,
-    kGlimpseBit = 1 << kGlimpse,
-    kTableBit = 1 << kTable,
-    kTableHLTBit = 1 << kTableHLT,
-    kTableL1Bit = 1 << kTableL1,
-    kGeometryBit = 1 << kGeometryTable,
-    kOverlapBit = 1 << kOverlapTable
-  };
+  static constexpr unsigned int k3DBit = 1 << k3D, kRhoPhiBit = 1 << kRhoPhi, kRhoZBit = 1 << kRhoZ,
+                                kRhoPhiPFBit = 1 << kRhoPhiPF, kISpyBit = 1 << kISpy, kLegoBit = 1 << kLego,
+                                kLegoHFBit = 1 << kLegoHF, kLegoPFECALBit = 1 << kLegoPFECAL,
+                                kGlimpseBit = 1 << kGlimpse, kTableBit = 1 << kTable, kTableHLTBit = 1 << kTableHLT,
+                                kTableL1Bit = 1 << kTableL1, kGeometryBit = 1 << kGeometryTable,
+                                kOverlapBit = 1 << kOverlapTable;
 
   // shortcuts
   static const int kAllRPZBits;

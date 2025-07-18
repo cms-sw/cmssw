@@ -45,7 +45,7 @@ public:
   };
 
   /// destructor
-  ~L1MuGMTLFDisableHotLUT() override{};
+  ~L1MuGMTLFDisableHotLUT() override {}
 
   /// specific lookup function for disable_hot
   unsigned SpecificLookup_disable_hot(int idx, unsigned eta, unsigned phi) const {

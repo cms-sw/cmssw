@@ -15,8 +15,14 @@ TrackletEngineUnit::TrackletEngineUnit(const Settings* const settings,
                                        const TrackletLUT* pttableinnernew,
                                        const TrackletLUT* pttableouternew,
                                        VMStubsTEMemory* outervmstubs)
-    : settings_(settings), pttableinnernew_(pttableinnernew), pttableouternew_(pttableouternew), candpairs_(3) {
-  idle_ = true;
+    : settings_(settings),
+      nearfull_(false),
+      idle_(true),
+      pttableinnernew_(pttableinnernew),
+      pttableouternew_(pttableouternew),
+      goodpair_(false),
+      goodpair__(false),
+      candpairs_(3) {
   nbitsfinephi_ = nbitsfinephi;
   layerdisk2_ = layerdisk2;
   layerdisk1_ = layerdisk1;

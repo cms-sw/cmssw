@@ -73,12 +73,12 @@ void DeepMETSonicProducer::acquire(edm::Event const& iEvent, edm::EventSetup con
     }
 
     // PF keys [b'PF_dxy', b'PF_dz', b'PF_eta', b'PF_mass', b'PF_pt', b'PF_puppiWeight', b'PF_px', b'PF_py']
-    vpfdata.push_back(pf.dxy());
-    vpfdata.push_back(pf.dz());
-    vpfdata.push_back(pf.eta());
-    vpfdata.push_back(pf.mass());
+    vpfdata.push_back(rm_outlier(pf.dxy()));
+    vpfdata.push_back(rm_outlier(pf.dz()));
+    vpfdata.push_back(rm_outlier(pf.eta()));
+    vpfdata.push_back(rm_outlier(pf.mass()));
     vpfdata.push_back(scale_and_rm_outlier(pf.pt(), scale_));
-    vpfdata.push_back(pf.puppiWeight());
+    vpfdata.push_back(rm_outlier(pf.puppiWeight()));
     vpfdata.push_back(scale_and_rm_outlier(pf.px(), scale_));
     vpfdata.push_back(scale_and_rm_outlier(pf.py(), scale_));
 

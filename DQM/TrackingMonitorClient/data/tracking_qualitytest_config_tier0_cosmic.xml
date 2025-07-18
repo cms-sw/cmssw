@@ -31,6 +31,30 @@
      <PARAM name="xmin">-1.1</PARAM> 
      <PARAM name="xmax">1.1</PARAM> 
 </QTEST>
+<QTEST name="MeanWithinExpectedRange:SeedNStrip" activate="true">
+     <TYPE>MeanWithinExpected</TYPE>
+      <PARAM name="error">0.05</PARAM>
+      <PARAM name="warning">0.3</PARAM>
+      <PARAM name="mean">1.0</PARAM>
+      <PARAM name="useRMS">0</PARAM>
+      <PARAM name="useSigma">0</PARAM>
+      <PARAM name="useRange">1</PARAM>
+      <PARAM name="minEntries">0</PARAM>
+      <PARAM name="xmin">0.0</PARAM>
+      <PARAM name="xmax">200.0</PARAM>
+</QTEST>
+<QTEST name="MeanWithinExpectedRange:SeedNPixel" activate="true">
+     <TYPE>MeanWithinExpected</TYPE>
+      <PARAM name="error">0.05</PARAM>
+      <PARAM name="warning">0.3</PARAM>
+      <PARAM name="mean">1.0</PARAM>
+      <PARAM name="useRMS">0</PARAM>
+      <PARAM name="useSigma">0</PARAM>
+      <PARAM name="useRange">1</PARAM>
+      <PARAM name="minEntries">0</PARAM>
+      <PARAM name="xmin">0.0</PARAM>
+      <PARAM name="xmax">800.0</PARAM>
+</QTEST>
 
 <LINK name="*TrackParameters/GeneralProperties/NumberOfTracks_CKFTk">
   <TestName activate="true">MeanWithinExpectedRange:TrkRate</TestName>
@@ -43,5 +67,11 @@
 </LINK>
 <LINK name="*TrackParameters/GeneralProperties/FractionOfGoodTracks_CKFTk">
   <TestName activate="true">XrangeWithin:FractionOfGoodTracks</TestName>
+</LINK>
+<LINK name="SiStrip/MechanicalView/NumberOfClustersInStrip">
+  <TestName activate="true">MeanWithinExpectedRange:SeedNStrip</TestName>
+</LINK>
+<LINK name="SiStrip/MechanicalView/NumberOfClustersInPixel">
+  <TestName activate="true">MeanWithinExpectedRange:SeedNPixel</TestName>
 </LINK>
 </TESTSCONFIGURATION>

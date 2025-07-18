@@ -12,6 +12,7 @@ namespace l1t {
       for (int i = 0; i < 5; ++i) {
         event_.put(std::move(ecalDigisBx_[i]), "EcalDigisBx" + std::to_string(i + 1));
       }
+      event_.put(std::move(cicadaDigis_), "CICADAScore");
     }
   }  // namespace stage2
 }  // namespace l1t

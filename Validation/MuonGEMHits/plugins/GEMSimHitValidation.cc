@@ -39,7 +39,7 @@ void GEMSimHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
       me_tof_others_[key2] = bookHist1D(
           booker, key2, "sim_tof_others", "SimHit TOF (Other Particles)", 20, tof_min, tof_max, tof_xtitle, tof_ytitle);
     }  // station loop
-  }    // region loop
+  }  // region loop
 
   if (detail_plot_) {
     for (const auto& region : gem->regions()) {
@@ -66,10 +66,10 @@ void GEMSimHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
             me_detail_tof_mu_[key3] = bookHist1D(
                 booker, key3, "sim_tof_muon", "SimHit TOF (Muon only)", 40, tof_min, tof_max, tof_xtitle, tof_ytitle);
           }  // chamber loop
-        }    // end else
-      }      // station loop
-    }        // region loop
-  }          // detail plot
+        }  // end else
+      }  // station loop
+    }  // region loop
+  }  // detail plot
 
   // NOTE Energy Loss
   TString eloss_xtitle = "Energy loss [eV]";
@@ -95,7 +95,7 @@ void GEMSimHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
       me_eloss_others_[station_id] =
           booker.book1D(eloss_others_name, eloss_others_title + ";" + eloss_xtitle + ";" + eloss_ytitle, 20, 0.0, 10.0);
     }  // station loop
-  }    // region loop
+  }  // region loop
 
   if (detail_plot_) {
     for (const auto& region : gem->regions()) {
@@ -125,10 +125,10 @@ void GEMSimHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
                                                    eloss_ytitle);
 
           }  // chamber loop
-        }    // end else
-      }      // station loop
-    }        // region loop
-  }          // detail plot
+        }  // end else
+      }  // station loop
+    }  // region loop
+  }  // detail plot
 
   // NOTE Occupancy
   for (const auto& region : gem->regions()) {
@@ -173,9 +173,9 @@ void GEMSimHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
           if (detail_plot_)
             me_detail_occ_xy_[key3] = bookXYOccupancy(booker, key3, "sim_simhit", "SimHit");
         }  // layer loop
-      }    // end else
-    }      // station loop
-  }        // region loop
+      }  // end else
+    }  // station loop
+  }  // region loop
 }
 
 std::tuple<Double_t, Double_t> GEMSimHitValidation::getTOFRange(Int_t station_id) {
@@ -259,5 +259,5 @@ void GEMSimHitValidation::analyze(const edm::Event& event, const edm::EventSetup
       }
 
     }  // detail_plot
-  }    // simhit loop
+  }  // simhit loop
 }

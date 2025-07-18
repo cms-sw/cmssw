@@ -10,7 +10,7 @@ options.register('Redigi'   , 1, VarParsing.VarParsing.multiplicity.singleton, V
 options.register('SLHC'   , 0, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "Run SLHC mode (default false) doesn't do anything yet.")
 
 options.parseArguments()
-print options
+print(options)
 
 ### RANDOM setting (change last digit(s) to make runs different !)
 process.load("Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff")

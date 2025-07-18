@@ -23,6 +23,10 @@ information about the current state of global processing.
 #include <iosfwd>
 #include <string_view>
 
+namespace cms {
+  class Exception;
+}
+
 namespace edm {
 
   class ProcessContext;
@@ -76,6 +80,7 @@ namespace edm {
 
   void exceptionContext(std::ostream&, GlobalContext const&);
   std::ostream& operator<<(std::ostream&, GlobalContext const&);
+  void exceptionContext(cms::Exception&, GlobalContext const&, char const* context);
 
   std::string_view transitionName(GlobalContext::Transition);
 }  // namespace edm

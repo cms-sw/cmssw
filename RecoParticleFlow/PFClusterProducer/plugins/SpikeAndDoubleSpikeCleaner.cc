@@ -268,6 +268,6 @@ void SpikeAndDoubleSpikeCleaner::clean(const edm::Handle<reco::PFRecHitCollectio
           }
         }
       }  // was there an energetic neighbour ?
-    }    // if double spike thresh
-  }      // rechit loop
+    }  // if double spike thresh
+  }  // rechit loop
 }

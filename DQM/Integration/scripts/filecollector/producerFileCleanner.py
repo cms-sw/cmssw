@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import print_function
 import os, time, sys, glob, re, smtplib, socket
 from email.MIMEText import MIMEText
 from traceback import print_exc, format_exc

@@ -253,7 +253,7 @@ LumiProducer::LumiProducer::LumiProducer(const edm::ParameterSet& iConfig)
         servlet = "";
 
       std::string siteconfpath = iConfig.getUntrackedParameter<std::string>("siteconfpath", "");
-      if (siteconfpath.length() == 0) {
+      if (siteconfpath.empty()) {
         std::string url = (std::filesystem::path("SITECONF") / std::filesystem::path("local") /
                            std::filesystem::path("JobConfig") / std::filesystem::path("site-local-config.xml"))
                               .string();

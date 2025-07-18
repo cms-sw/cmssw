@@ -116,7 +116,7 @@ void SiStripLorentzAngleDepESProducer::fillDescriptions(edm::ConfigurationDescri
     desc.add<edm::ParameterSetDescription>("LorentzAngleDeconvMode", deconv);
   }
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(SiStripLorentzAngleDepESProducer);

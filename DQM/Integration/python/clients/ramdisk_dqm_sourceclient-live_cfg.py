@@ -16,8 +16,8 @@ process.load('DQM.Integration.config.environment_cfi')
 process.dqmEnv.subSystemFolder = subsystem
 process.dqmSaver.tag = subsystem
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = subsystem
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = subsystem
+# process.dqmSaverPB.runNumber = options.runNumber
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 process.analyzer = DQMEDAnalyzer('RamdiskMonitor',

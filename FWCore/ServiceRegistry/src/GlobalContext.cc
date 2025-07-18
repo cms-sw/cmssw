@@ -1,7 +1,9 @@
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <ostream>
+#include <sstream>
 
 namespace edm {
 
@@ -104,7 +106,7 @@ namespace edm {
         os << "end ProcessBlock";
         break;
       case GlobalContext::Transition::kEndJob:
-        os << "endJob";
+        os << "end Job";
         break;
       case GlobalContext::Transition::kWriteProcessBlock:
         os << "write ProcessBlock";
@@ -116,6 +118,15 @@ namespace edm {
         os << "write LuminosityBlock " << gc.luminosityBlockID();
         break;
     }
+  }
+
+  void exceptionContext(cms::Exception& ex, GlobalContext const& globalContext, char const* context) {
+    std::ostringstream ost;
+    if (context && *context != '\0') {
+      ex.addContext(context);
+    }
+    exceptionContext(ost, globalContext);
+    ex.addContext(ost.str());
   }
 
   std::string_view transitionName(GlobalContext::Transition iTrans) {

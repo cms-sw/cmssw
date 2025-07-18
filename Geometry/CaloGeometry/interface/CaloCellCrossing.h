@@ -24,7 +24,7 @@ public:
                    double small = 1.e-10,
                    bool onewayonly = false);
 
-  virtual ~CaloCellCrossing(){};
+  virtual ~CaloCellCrossing() {}
 
   const GlobalPoint& gp() const { return m_gp; }
   const GlobalVector& gv() const { return m_gv; }

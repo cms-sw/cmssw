@@ -123,8 +123,10 @@ void ETLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
     const auto& thepixel = topo.pixelIndex(simscaled);
     const uint8_t row = static_cast<uint8_t>(thepixel.first);
     const uint8_t col = static_cast<uint8_t>(thepixel.second);
-    LogDebug("ETLDeviceSim") << "Processing hit in pixel # " << hitidx << " DetId " << etlid.rawId() << " row/col "
-                             << (uint32_t)row << " " << (uint32_t)col << " tof " << toa;
+    LogTrace("ETLDeviceSim") << "Processing hit in pixel # " << hitidx << " DetId " << etlid.rawId() << " row/col "
+                             << (uint32_t)row << " " << (uint32_t)col << " inPixel " << topo.isInPixel(simscaled)
+                             << " tof " << toa << " ene " << hit.energyLoss() << " MIP " << MIPPerMeV_ << " gain "
+                             << gain[0] << " charge " << charge << " MPV " << MPV_charge;
 
     auto simHitIt =
         simHitAccumulator->emplace(mtd_digitizer::MTDCellId(id, row, col), mtd_digitizer::MTDCellInfo()).first;

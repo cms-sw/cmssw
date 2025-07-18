@@ -89,7 +89,7 @@ void GEMDigiReader::analyze(const edm::Event& event, const edm::EventSetup& even
         }
       }
     }  // for digis in layer
-  }    // for layers
+  }  // for layers
 
   for (edm::DetSetVector<StripDigiSimLink>::const_iterator itlink = thelinkDigis->begin();
        itlink != thelinkDigis->end();

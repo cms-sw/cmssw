@@ -1,3 +1,3 @@
 #!/bin/sh -e
 
-yoda2root out.yoda
+yoda2root --unmatch TMP out.yoda

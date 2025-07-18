@@ -1,19 +1,47 @@
-#include "RecoTracker/TrackProducer/plugins/GsfTrackRefitter.h"
+/** \class GsfTrackRefitter
+ *  Refit GSF Tracks. Based on the TrackRefitter.
+ */
+
 // system include files
 #include <memory>
+
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include "TrackingTools/GsfTracking/interface/TrajGsfTrackAssociation.h"
-#include "TrackingTools/GsfTracking/interface/GsfTrackConstraintAssociation.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "RecoTracker/TrackProducer/interface/GsfTrackProducerBase.h"
+#include "RecoTracker/TrackProducer/interface/TrackProducerAlgorithm.h"
+#include "TrackingTools/GsfTracking/interface/GsfTrackConstraintAssociation.h"
+#include "TrackingTools/GsfTracking/interface/TrajGsfTrackAssociation.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+
+class GsfTrackRefitter : public GsfTrackProducerBase, public edm::stream::EDProducer<> {
+public:
+  /// Constructor
+  explicit GsfTrackRefitter(const edm::ParameterSet& iConfig);
+
+  /// Implementation of produce method
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+  /// fillDescriptions
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  TrackProducerAlgorithm<reco::GsfTrack> theAlgo;
+  enum Constraint {
+    none,
+    // 		    momentum,
+    vertex
+  };
+  Constraint constraint_;
+  edm::EDGetTokenT<GsfTrackVtxConstraintAssociationCollection> gsfTrackVtxConstraintTag_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttopoToken_;
+};
 
 GsfTrackRefitter::GsfTrackRefitter(const edm::ParameterSet& iConfig)
     : GsfTrackProducerBase(iConfig.getParameter<bool>("TrajectoryInEvent"),
@@ -47,6 +75,18 @@ GsfTrackRefitter::GsfTrackRefitter(const edm::ParameterSet& iConfig)
   produces<TrajGsfTrackAssociationCollection>();
 
   ttopoToken_ = esConsumes();
+}
+
+void GsfTrackRefitter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("TrajectoryInEvent", false);
+  desc.add<bool>("useHitsSplitting", false);
+  desc.add<edm::InputTag>("src", edm::InputTag(""));
+  desc.add<std::string>("constraint", "");
+  desc.add<edm::InputTag>("srcConstr", edm::InputTag(""));
+  TrackProducerAlgorithm<reco::GsfTrack>::fillPSetDescription(desc);
+  GsfTrackProducerBase::fillPSetDescription(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 void GsfTrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup) {
@@ -153,3 +193,6 @@ void GsfTrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setu
   LogDebug("GsfTrackRefitter") << "end"
                                << "\n";
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(GsfTrackRefitter);

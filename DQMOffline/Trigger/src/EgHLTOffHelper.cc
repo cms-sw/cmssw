@@ -309,7 +309,7 @@ void OffHelper::fillIsolData(const reco::GsfElectron& ele, OffEle::IsolData& iso
   } else
     isolData.hltTrksPho = 0.;
   if (calHLTEmIsol_)
-    isolData.hltEm = ecalIsolAlgoEB.getEtSum(&ele, *thresholds) + ecalIsolAlgoEE.getEtSum(&ele, *thresholds);
+    isolData.hltEm = ecalIsolAlgoEB.getEtSum(&ele, thresholds) + ecalIsolAlgoEE.getEtSum(&ele, thresholds);
   else
     isolData.hltEm = 0.;
 }
@@ -475,7 +475,7 @@ void OffHelper::fillIsolData(const reco::Photon& pho, OffPho::IsolData& isolData
   } else
     isolData.hltTrks = 0.;
   if (calHLTEmIsol_)
-    isolData.hltEm = ecalIsolAlgoEB.getEtSum(&pho, *thresholds) + ecalIsolAlgoEE.getEtSum(&pho, *thresholds);
+    isolData.hltEm = ecalIsolAlgoEB.getEtSum(&pho, thresholds) + ecalIsolAlgoEE.getEtSum(&pho, thresholds);
   else
     isolData.hltEm = 0.;
 }

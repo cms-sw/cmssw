@@ -8,7 +8,6 @@
 <use name="SimDataFormats/CaloAnalysis"/>
 <use name="RecoLocalCalo/HGCalRecAlgos"/>
 <use name="RecoLocalCalo/HGCalRecProducers"/>
-<use name="geant4core"/>
 <use name="clhep"/>
 <use name="hepmc"/>
 <export>

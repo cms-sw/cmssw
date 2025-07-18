@@ -8,7 +8,6 @@
 
 #include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/HostOnlyTask.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   /**

@@ -555,9 +555,6 @@ bool HLTRegionalEcalResonanceFilter::filter(edm::Event &iEvent, const edm::Event
   //Put selected information in the event
   int ee_collsize = selEERecHitCollection->size();
 
-  if (eb_collsize < 2 && ee_collsize < 2)
-    return false;
-
   ////Now put into events selected rechits.
   if (doSelBarrel_) {
     iEvent.put(std::move(selEBRecHitCollection), BarrelHits_);
@@ -569,7 +566,7 @@ bool HLTRegionalEcalResonanceFilter::filter(edm::Event &iEvent, const edm::Event
     }
   }
 
-  return true;
+  return (eb_collsize > 1 or ee_collsize > 1);
 }
 
 void HLTRegionalEcalResonanceFilter::doSelection(

@@ -9,7 +9,6 @@
 #
 ################################################################################
 
-from __future__ import print_function
 import subprocess as sub
 import sys
 from optparse import OptionParser

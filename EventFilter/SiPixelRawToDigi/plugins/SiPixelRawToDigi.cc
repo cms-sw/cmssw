@@ -252,7 +252,7 @@ void SiPixelRawToDigi::produce(edm::Event& ev, const edm::EventSetup& es) {
                                 disabled_channelcollection,
                                 nodeterrors);
     }  // if errors to be included in the event
-  }    // loop on FED data to be unpacked
+  }  // loop on FED data to be unpacked
 
   if (includeErrors_) {
     edm::DetSet<SiPixelRawDataError>& errorDetSet = errorcollection.find_or_insert(dummydetid);

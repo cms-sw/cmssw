@@ -95,7 +95,6 @@ process.particleFlowBlock.useV0 = cms.bool(False)
 
 
 process.particleFlow.usePFNuclearInteractions = cms.bool(True)
-process.particleFlowBlock.useNuclear = cms.bool(True)
 process.particleFlow.iCfgCandConnector.bCalibPrimary = cms.bool(True)
 #process.particleFlow.correctSecondary = cms.bool(True)
 

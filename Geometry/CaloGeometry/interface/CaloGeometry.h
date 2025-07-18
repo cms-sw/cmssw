@@ -3,11 +3,10 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include <memory>
+#include "Geometry/CaloGeometry/interface/CaloCellGeometryMayOwnPtr.h"
 #include <vector>
 
 class CaloSubdetectorGeometry;
-class CaloCellGeometry;
 
 /** \class CaloGeometry
       
@@ -29,7 +28,7 @@ public:
   GlobalPoint getPosition(const DetId& id) const;
 
   /// Get the cell geometry of a given detector id
-  std::shared_ptr<const CaloCellGeometry> getGeometry(const DetId& id) const;
+  CaloCellGeometryMayOwnPtr getGeometry(const DetId& id) const;
 
   /// Get the list of all valid detector ids
   std::vector<DetId> getValidDetIds() const;
@@ -56,14 +55,8 @@ private:
 
   unsigned int makeIndex(DetId::Detector det, int subdet, bool& ok) const;
 
-  enum {
-    kMaxDet = 10,
-    kMinDet = 3,
-    kNDets = kMaxDet - kMinDet + 1,
-    kMaxSub = 6,
-    kNSubDets = kMaxSub + 1,
-    kLength = kNDets * kNSubDets
-  };
+  static constexpr int kMaxDet = 10, kMinDet = 3, kNDets = kMaxDet - kMinDet + 1, kMaxSub = 6, kNSubDets = kMaxSub + 1,
+                       kLength = kNDets * kNSubDets;
 };
 
 #endif

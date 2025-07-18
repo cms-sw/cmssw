@@ -1,4 +1,3 @@
-from __future__ import print_function
 # L1 Trigger DQM sequence (L1T)
 #
 #   authors previous versions - see CVS
@@ -30,8 +29,8 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'L1T'
 process.dqmSaver.tag = 'L1T'
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = 'L1T'
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = 'L1T'
+# process.dqmSaverPB.runNumber = options.runNumber
 
 #
 # references needed
@@ -102,8 +101,8 @@ process.l1tMonitorClientEndPath = cms.EndPath(process.l1tMonitorClientEndPathSeq
 #
 process.dqmEndPath = cms.EndPath(
                                  process.dqmEnv *
-                                 process.dqmSaver *
-                                 process.dqmSaverPB
+                                 process.dqmSaver #*
+                                 # process.dqmSaverPB
                                  )
 
 #
@@ -182,7 +181,7 @@ process.muonCSCDigis.InputObjects = "rawDataCollector"
 process.muonDTDigis.inputLabel = "rawDataCollector"
 process.muonRPCDigis.InputLabel = "rawDataCollector"
 process.scalersRawToDigi.scalersInputTag = "rawDataCollector"
-process.siPixelDigis.cpu.InputLabel = "rawDataCollector"
+process.siPixelDigis.InputLabel = "rawDataCollector"
 process.siStripDigis.ProductLabel = "rawDataCollector"
 process.bxTiming.FedSource = "rawDataCollector"
 process.l1s.fedRawData = "rawDataCollector"
@@ -201,7 +200,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.muonDTDigis.inputLabel = "rawDataRepacker"
     process.muonRPCDigis.InputLabel = "rawDataRepacker"
     process.scalersRawToDigi.scalersInputTag = "rawDataRepacker"
-    process.siPixelDigis.cpu.InputLabel = "rawDataRepacker"
+    process.siPixelDigis.InputLabel = "rawDataRepacker"
     process.siStripDigis.ProductLabel = "rawDataRepacker"
     process.bxTiming.FedSource = "rawDataRepacker"
     process.l1s.fedRawData = "rawDataRepacker"

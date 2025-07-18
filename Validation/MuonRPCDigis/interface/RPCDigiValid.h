@@ -20,70 +20,47 @@
 class RPCDigiValid : public DQMEDAnalyzer {
 public:
   RPCDigiValid(const edm::ParameterSet &ps);
-  ~RPCDigiValid() override;
+  ~RPCDigiValid() override = default;
 
 protected:
   void analyze(const edm::Event &e, const edm::EventSetup &c) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
-  MonitorElement *xyview;
-  MonitorElement *rzview;
-  MonitorElement *Res;
-  MonitorElement *ResWmin2;
-  MonitorElement *ResWmin1;
-  MonitorElement *ResWzer0;
-  MonitorElement *ResWplu1;
-  MonitorElement *ResWplu2;
-  MonitorElement *BxDist;
-  MonitorElement *StripProf;
+  // RZ and XY views
+  MonitorElement *hRZ_;
 
-  // barrel layers residuals
-  MonitorElement *ResLayer1_barrel;
-  MonitorElement *ResLayer2_barrel;
-  MonitorElement *ResLayer3_barrel;
-  MonitorElement *ResLayer4_barrel;
-  MonitorElement *ResLayer5_barrel;
-  MonitorElement *ResLayer6_barrel;
+  MonitorElement *hXY_Barrel_;
+  std::map<int, MonitorElement *> hXY_Endcap_;  // X-Y plots for Endcap, by station
+  std::map<int, MonitorElement *> hZPhi_;       // R-phi plots for Barrel, by layers
 
-  // members for EndCap's disks:
-  MonitorElement *ResDmin1;
-  MonitorElement *ResDmin2;
-  MonitorElement *ResDmin3;
-  MonitorElement *ResDplu1;
-  MonitorElement *ResDplu2;
-  MonitorElement *ResDplu3;
+  // Strip profile
+  MonitorElement *hStripProf_;
+  MonitorElement *hStripProf_RB12_, *hStripProf_RB34_;
+  MonitorElement *hStripProf_Endcap_, *hStripProf_IRPC_;
 
-  // endcap layters residuals
-  MonitorElement *Res_Endcap1_Ring2_A;
-  MonitorElement *Res_Endcap1_Ring2_B;
-  MonitorElement *Res_Endcap1_Ring2_C;
-
-  MonitorElement *Res_Endcap23_Ring2_A;
-  MonitorElement *Res_Endcap23_Ring2_B;
-  MonitorElement *Res_Endcap23_Ring2_C;
-
-  MonitorElement *Res_Endcap123_Ring3_A;
-  MonitorElement *Res_Endcap123_Ring3_B;
-  MonitorElement *Res_Endcap123_Ring3_C;
-
-  // 4 endcap
-  MonitorElement *ResDmin4;
-  MonitorElement *ResDplu4;
-  MonitorElement *BxDisc_4Plus;
-  MonitorElement *BxDisc_4Min;
-  MonitorElement *xyvDplu4;
-  MonitorElement *xyvDmin4;
+  // Bunch crossing distributions
+  MonitorElement *hBxDist_;
+  MonitorElement *hBxDisc_4Plus_;
+  MonitorElement *hBxDisc_4Min_;
 
   // Timing information
-  MonitorElement *hDigiTimeAll, *hDigiTime, *hDigiTimeIRPC, *hDigiTimeNoIRPC;
+  bool isDigiTimeAvailable_;
+  MonitorElement *hDigiTimeAll_, *hDigiTime_, *hDigiTimeIRPC_, *hDigiTimeNoIRPC_;
 
-  std::string outputFile_;
-  std::string digiLabel;
+  // Multiplicity plots
+  MonitorElement *hNSimHitPerRoll_, *hNDigiPerRoll_;
+
+  // Residual plots
+  MonitorElement *hRes_;
+  std::map<int, MonitorElement *> hResBarrelLayers_;
+  std::map<int, MonitorElement *> hResBarrelWheels_;
+  std::map<int, MonitorElement *> hResEndcapDisks_;
+  std::map<int, MonitorElement *> hResEndcapRings_;
 
   // Tokens for accessing run data. Used for passing to edm::Event. - stanislav
-  edm::EDGetTokenT<edm::PSimHitContainer> simHitToken;
-  edm::EDGetTokenT<RPCDigiCollection> rpcDigiToken;
+  edm::EDGetTokenT<edm::PSimHitContainer> simHitToken_;
+  edm::EDGetTokenT<RPCDigiCollection> rpcDigiToken_;
 
   edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeomToken_;
 };

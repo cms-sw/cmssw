@@ -100,38 +100,28 @@ _pageNameMap = {
     "layerClusters": "Layer clusters",
     "tracksters":"Tracksters", 
     "Tracksters":"Tracksters",
-    "Test-TICL":"Tracksters Linking",
-    "TICL-patternRecognition":"Tracksters Pattern Recognition",
-    "ticlMultiClustersFromTrackstersEM": "Electromagnetic multiclusters",
-    "ticlMultiClustersFromTrackstersHAD": "Hadronic multiclusters",
-    "hgcalMultiClusters" : "Old multiclusters",
+    "TICL-Trackster_vs_SimTracksterFromCP_byHits":"Tracksters vs SimTracksters from CPs Associatedby Hits",
+    "TICL-Trackster_vs_SimTracksterFromCP_byLCs":"Tracksters vs SimTracksters from CPs Associatedby LayerClusters",
+    "TICL-Trackster_vs_SimTrackster_byHits":"Tracksters vs SimTracksters Associated by Hits",
+    "TICL-Trackster_vs_SimTrackster_byLCs":"Tracksters vs SimTracksters Associated by LayerClusters",
     "standalone" : "Standalone study on simulated hits, digis, reconstructed hits"   
 }
 
 _sectionNameMapOrder = collections.OrderedDict([
-    # These are for the summary page
-    # Will add later
-    # layerClusters
     ("layerClusters", "Layer clusters"),
-    # ticlMultiClustersFromTrackstersEM
-    ("ticlMultiClustersFromTrackstersEM","Electromagnetic multiclusters"),
-    # ticlMultiClustersFromTrackstersHAD
-    ("ticlMultiClustersFromTrackstersHAD","Hadronic multiclusters"),
     ("tracksters","Tracksters"),
     ("Tracksters","Tracksters"),
-    ("Test-TICL","Tracksters Linking"),
-    ("TICL-patternRecognition","Tracksters Pattern Recognition"),
-    # hgcalMultiClusters
-    ("hgcalMultiClusters","Old multiclusters"),
+    ("TICL-Trackster_vs_SimTracksterFromCP_byHits","Tracksters vs SimTracksters from CPs Associated by Hits"),
+    ("TICL-Trackster_vs_SimTracksterFromCP_byLCs","Tracksters vs SimTracksters from CPs Associated by LayerClusters"),
+    ("TICL-Trackster_vs_SimTrackster_byHits","Tracksters vs SimTracksters Associated by Hits"),
+    ("TICL-Trackster_vs_SimTrackster_byLCs","Tracksters vs SimTracksters Associated by LayerClusters"),
 ])
 
 #This is the summary section, where we define which plots will be shown in the summary page. 
 _summary = {}
 
 #Objects to keep in summary
-#_summobj = ['hitCalibration','hitValidation', 'hgcalLayerClusters','ticlMultiClustersFromTrackstersEM','ticlMultiClustersFromTrackstersHAD']
-_summobj = ['hitCalibration','hitValidation', 'layerClusters','Tracksters','Test-TICL','TICL-patternRecognition']
-#_summobj = ['hitCalibration','hitValidation', 'layerClusters']
+_summobj = ['hitCalibration','hitValidation', 'layerClusters','Tracksters','TICL-Trackster_vs_SimTracksterFromCP_byHits','TICL-Trackster_vs_SimTracksterFromCP_byLCs', 'TICL-Trackster_vs_SimTrackster_byHits', 'TICL-Trackster_vs_SimTrackster_byLCs' ]
 
 #Plots to keep in summary from hitCalibration
 summhitcalib=[
@@ -165,55 +155,6 @@ summlc = [
     #'SelectedCaloParticles_Photons/SelectedCaloParticles_Eta vs Zorigin.png'
     ]
 
-#Plots to keep in summary from Tracksters
-summmcEM = [
-    'ticlTrackstersEM/EtaPhiPtEnergy/trackster_eta.png' ,
-    'ticlTrackstersEM/EtaPhiPtEnergy/trackster_pt.png' ,
-    'ticlTrackstersEM/TotalNumberofTracksters/tottracksternum.png', 
-    'ticlTrackstersEM/NumberofLayerClustersinTrackster/clusternum_in_trackster.png' 
-]
-
-#Plots to keep in summary from ticlMultiClustersFromTrackstersEM
-summmcEM_Link = [
-    'ticlTrackstersEM/Purities_Link/globalEfficiencies.png' ,
-    'ticlTrackstersEM/Duplicates_Link/globalEfficiencies.png' ,
-    'ticlTrackstersEM/FakeRate_Link/globalEfficiencies.png' ,
-    'ticlTrackstersEM/MergeRate_Link/globalEfficiencies.png'
-]
-
-summmcEM_PR = [
-    'ticlTrackstersEM/Purities_PR/globalEfficiencies.png' ,
-    'ticlTrackstersEM/Duplicates_PR/globalEfficiencies.png' ,
-    'ticlTrackstersEM/FakeRate_PR/globalEfficiencies.png' ,
-    'ticlTrackstersEM/MergeRate_PR/globalEfficiencies.png'
-]
-
-#Plots to keep in summary from ticlMultiClustersFromTrackstersHAD
-summmcHAD = [
-    'ticlTrackstersHAD/EtaPhiPtEnergy/trackster_eta.png' ,
-    'ticlTrackstersHAD/EtaPhiPtEnergy/trackster_pt.png' ,
-    'ticlTrackstersHAD/TotalNumberofTracksters/tottracksternum.png',
-    'ticlTrackstersHAD/NumberofLayerClustersinTrackster/clusternum_in_trackster.png'
-]
-
-summmcHAD_Link = [
-    'ticlTrackstersHAD/Purities_Link/globalEfficiencies.png' ,
-    'ticlTrackstersHAD/Duplicates_Link/globalEfficiencies.png' ,
-    'ticlTrackstersHAD/FakeRate_Link/globalEfficiencies.png' ,
-    'ticlTrackstersHAD/MergeRate_Link/globalEfficiencies.png'
-]
-
-summmcHAD_PR = [
-    'ticlTrackstersHAD/Purities_PR/globalEfficiencies.png' ,
-    'ticlTrackstersHAD/Duplicates_PR/globalEfficiencies.png' ,
-    'ticlTrackstersHAD/FakeRate_PR/globalEfficiencies.png' ,
-    'ticlTrackstersHAD/MergeRate_PR/globalEfficiencies.png'
-]
-
-summmcTICL = summmcEM + summmcHAD
-summmcTICL_Link = summmcEM_Link + summmcHAD_Link
-summmcTICL_PR = summmcEM_PR + summmcHAD_PR
-
 #Plots to keep in summary from standalone analysis
 summstandalone = [
     'hgcalSimHitStudy/RZ_AllDetectors.png'                          
@@ -225,13 +166,6 @@ for obj in _summobj:
 _summary['hitCalibration'] = summhitcalib
 _summary['hitValidation'] = summhitvalid
 _summary['layerClusters'] = summlc
-_summary['Tracksters'] = summmcTICL
-_summary['Test-TICL'] = summmcTICL_Link
-_summary['TICL-patternRecognition'] = summmcTICL_PR
-
-#_summary['allTiclMultiClusters'] = summmcTICL
-#_summary['ticlMultiClustersFromTrackstersEM'] = summmcEM
-#_summary['ticlMultiClustersFromTrackstersHAD'] = summmcHAD                          
 
 #Entering the geometry section 
 #_MatBudSections = ["allhgcal","zminus","zplus","indimat","fromvertex"]

@@ -24,7 +24,7 @@ template <class C>
 class TrivialAmplitudeAlgo {
 public:
   explicit TrivialAmplitudeAlgo();
-  virtual ~TrivialAmplitudeAlgo(){};
+  virtual ~TrivialAmplitudeAlgo() {}
 
   double energy(const C &frame);
 

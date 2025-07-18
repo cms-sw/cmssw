@@ -589,7 +589,7 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
         sl3 = 0;
         for (auto SL3metaPrimitive = SL3metaPrimitives.begin(); SL3metaPrimitive != SL3metaPrimitives.end();
              ++SL3metaPrimitive, sl3++) {
-          if (useFitSL3[sl3])
+          [[clang::suppress]] if (useFitSL3[sl3])
             continue;
           if ((at_least_one_correlation == false || clean_chi2_correlation_) &&
               allow_confirmation_) {  //no correlation was found, trying with pairs of two digis in the other SL
@@ -841,7 +841,7 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
             sl1 = 0;
             for (auto SL1metaPrimitive = SL1metaPrimitives.begin(); SL1metaPrimitive != SL1metaPrimitives.end();
                  ++SL1metaPrimitive, sl1++) {
-              if (useFitSL1[sl1])
+              [[clang::suppress]] if (useFitSL1[sl1])
                 continue;
 
               DTSuperLayerId SLId(SL1metaPrimitive->rawId);
@@ -902,7 +902,7 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
             sl3 = 0;
             for (auto SL3metaPrimitive = SL3metaPrimitives.begin(); SL3metaPrimitive != SL3metaPrimitives.end();
                  ++SL3metaPrimitive, sl3++) {
-              if (useFitSL3[sl3])
+              [[clang::suppress]] if (useFitSL3[sl3])
                 continue;
               DTSuperLayerId SLId(SL3metaPrimitive->rawId);
               DTChamberId(SLId.wheel(), SLId.station(), SLId.sector());
@@ -1008,12 +1008,12 @@ void MuonPathAssociator::removeSharingFits(vector<metaPrimitive> &chamberMPaths,
   for (unsigned int i = 0; i < chamberMPaths.size(); i++) {
     if (debug_)
       LogDebug("MuonPathAssociator") << "Looking at prim" << i;
-    if (!useFit[i])
+    [[clang::suppress]] if (!useFit[i])
       continue;
     for (unsigned int j = i + 1; j < chamberMPaths.size(); j++) {
       if (debug_)
         LogDebug("MuonPathAssociator") << "Comparing with prim " << j;
-      if (!useFit[j])
+      [[clang::suppress]] if (!useFit[j])
         continue;
       metaPrimitive first = chamberMPaths[i];
       metaPrimitive second = chamberMPaths[j];

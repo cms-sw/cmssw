@@ -37,7 +37,7 @@ public:
     */
   DCCTCCBlock(DCCDataUnpacker* u, EcalElectronicsMapper* m, DCCEventBlock* e, bool unpack);
 
-  virtual void addTriggerPrimitivesToCollection(){};
+  virtual void addTriggerPrimitivesToCollection() {}
 
   /**
       Unpacks TCC data 

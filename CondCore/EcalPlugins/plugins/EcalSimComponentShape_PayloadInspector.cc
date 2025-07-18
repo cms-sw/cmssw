@@ -46,7 +46,7 @@ namespace {
           profiles.push_back(new TProfile(nameBuffer, "", EBnbins[iShape], 0, EBxmaxs[iShape]));
           for (int s = 0; s < EBnbins[iShape]; s++) {
             double val = EBshape[s];
-            profiles[iShape]->Fill(s, val);
+            profiles[iShape]->Fill(s * time, val);
           }
           ++iShape;
         }

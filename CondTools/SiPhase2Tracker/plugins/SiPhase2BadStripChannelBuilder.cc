@@ -10,6 +10,7 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
@@ -17,7 +18,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -67,9 +67,9 @@ private:
               theOTDets.push_back(pixdet);
             }
           }  // if it's a Strip module
-        }    // if it's OT
-      }      // if it's Tracker
-    }        // loop of geomdets
+        }  // if it's OT
+      }  // if it's Tracker
+    }  // loop of geomdets
   };
 
   void algoAnalyze(const edm::Event& event, const edm::EventSetup& es) override {

@@ -109,7 +109,7 @@ public:
   /**
      @short DTOR
   */
-  virtual ~HGCDigitizerBase(){};
+  virtual ~HGCDigitizerBase() {}
 
 protected:
   //baseline configuration

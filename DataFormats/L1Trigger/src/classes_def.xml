@@ -16,8 +16,10 @@
 
 
   <class name="l1t::P2GTCandidate::Optional<int>"/>
-  <class name="l1t::P2GTCandidate::Optional<double>"/>
-  <class name="l1t::P2GTCandidate"/>
+  <class name="l1t::P2GTCandidate" ClassVersion="11">
+    <version ClassVersion="11" checksum="2947772579"/>
+    <version ClassVersion="10" checksum="2728416623"/>
+  </class>
   <class name="l1t::P2GTCandidateCollection"/>
   <class name="edm::Wrapper<l1t::P2GTCandidateCollection>"/>
   <class name="l1t::P2GTCandidateRef"/>
@@ -27,9 +29,12 @@
   <class name="l1t::P2GTCandidateVectorRef"/>
   <class name="edm::Wrapper<l1t::P2GTCandidateVectorRef>"/>
 
-  <class name="l1t::P2GTAlgoBlock"/>
-  <class name="l1t::P2GTAlgoBlockCollection"/>
-  <class name="edm::Wrapper<l1t::P2GTAlgoBlockCollection>"/>
+  <class name="l1t::P2GTAlgoBlock" ClassVersion="10">
+    <version ClassVersion="10" checksum="892944969"/>
+  </class>
+  <class name="l1t::P2GTAlgoBlockMap"/>
+  <class name="std::pair<const std::string, l1t::P2GTAlgoBlock>" />
+  <class name="edm::Wrapper<l1t::P2GTAlgoBlockMap>"/>
 
 
   <class name="l1t::Jet" ClassVersion="13">
@@ -55,7 +60,6 @@
   </class>
   <class name="std::vector<l1t::TkTripletWord>"/>
   <class name="edm::Wrapper<std::vector<l1t::TkTripletWord> >"/>
-  <class name="edm::Wrapper<l1t::TkTripletWordCollection>"/>
 
   <class name="l1t::EGamma" ClassVersion="14">
    <version ClassVersion="14" checksum="1235149790"/>
@@ -331,6 +335,12 @@
   <class name="edm::Wrapper<l1t::VertexWordCollection>"/>
   <class name="edm::Ref<l1t::VertexWordCollection>" />
 
+  <class name="l1t::DisplacedTrackVertex" ClassVersion="3">
+    <version ClassVersion="3" checksum="698293252"/>
+  </class>
+  <class name="std::vector<l1t::DisplacedTrackVertex>"/>
+  <class name="edm::Wrapper<std::vector<l1t::DisplacedTrackVertex> >"/>
+  
   <class name="l1t::TkJetWord" ClassVersion="4">
     <version ClassVersion="4" checksum="2346039066"/>
     <version ClassVersion="3" checksum="3521396532"/>

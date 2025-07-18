@@ -1,12 +1,12 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun testHGCalScintID_cfg.py geometry=D88
+#   cmsRun testHGCalScintID_cfg.py geometry=D110
 #
-#   Options for geometry D88, D92, D93, D99, D101
+#   Options for geometry D88
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
-import os, sys, imp, re
+import os, sys, importlib, re
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 ####################################################################
@@ -16,7 +16,7 @@ options.register('geometry',
                  "D88",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D88, D92, D93, D99, D101")
+                  "geometry of operations: D88")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -28,7 +28,7 @@ print(options)
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 process = cms.Process('TestHGCalScintID',Phase2C17I13M9)
 
-geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "_cff"
+geomFile = "Configuration.Geometry.GeometryExtendedRun4" + options.geometry + "_cff"
 inputFile = "errorScint" + options.geometry + ".txt"
 
 print("Geometry file: ", geomFile)

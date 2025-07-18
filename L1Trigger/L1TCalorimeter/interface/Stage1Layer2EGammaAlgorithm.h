@@ -34,7 +34,7 @@ namespace l1t {
                               const std::vector<l1t::Jet>* jets,
                               std::vector<l1t::EGamma>* egammas) = 0;
 
-    virtual ~Stage1Layer2EGammaAlgorithm(){};
+    virtual ~Stage1Layer2EGammaAlgorithm() {}
 
   private:
     // double Isolation(int ieta, int iphi,

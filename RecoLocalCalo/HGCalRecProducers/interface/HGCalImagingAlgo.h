@@ -9,6 +9,7 @@
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -54,6 +55,7 @@ public:
   void getEventSetupPerAlgorithm(const edm::EventSetup &es) override;
 
   void populate(const HGCRecHitCollection &hits) override;
+  void populate(const reco::PFRecHitCollection &hits) override {}
   // this is the method that will start the clusterisation (it is possible to invoke this method more than once - but make sure it is with
   // different hit collections (or else use reset)
 
@@ -239,7 +241,7 @@ private:
     const double dx = pt1.x - pt2.x;
     const double dy = pt1.y - pt2.y;
     return (dx * dx + dy * dy);
-  }                                                                   //distance squaredq
+  }  //distance squaredq
   inline double distance(const Hexel &pt1, const Hexel &pt2) const {  //2-d distance on the layer (x-y)
     return std::sqrt(distance2(pt1, pt2));
   }

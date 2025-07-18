@@ -4,25 +4,32 @@
 #include "SimG4Core/CustomPhysics/interface/CustomParticleFactory.h"
 #include "SimG4Core/CustomPhysics/interface/CustomParticle.h"
 #include "SimG4Core/CustomPhysics/interface/DummyChargeFlipProcess.h"
-#include "SimG4Core/CustomPhysics/interface/G4ProcessHelper.h"
+#include "SimG4Core/CustomPhysics/interface/CustomProcessHelper.h"
 #include "SimG4Core/CustomPhysics/interface/CustomPDGParser.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "G4hMultipleScattering.hh"
-#include "G4hIonisation.hh"
-#include "G4ProcessManager.hh"
-
 #include "SimG4Core/CustomPhysics/interface/FullModelHadronicProcess.h"
 #include "SimG4Core/CustomPhysics/interface/CMSDarkPairProductionProcess.h"
 #include "SimG4Core/CustomPhysics/interface/CMSQGSPSIMPBuilder.h"
 #include "SimG4Core/CustomPhysics/interface/CMSSIMPInelasticProcess.h"
 
+#include "SimG4Core/CustomPhysics/interface/CMSSQLoopProcess.h"
+#include "SimG4Core/CustomPhysics/interface/CMSSQLoopProcessDiscr.h"
+#include "SimG4Core/CustomPhysics/interface/CMSSQNeutronAnnih.h"
+#include "SimG4Core/CustomPhysics/interface/CMSSQInelasticCrossSection.h"
+
+#include "G4hMultipleScattering.hh"
+#include "G4hIonisation.hh"
+#include "G4ProcessManager.hh"
+#include "G4HadronicProcess.hh"
+#include "G4AutoDelete.hh"
+
 using namespace CLHEP;
 
-G4ThreadLocal std::unique_ptr<G4ProcessHelper> CustomPhysicsList::myHelper;
+G4ThreadLocal CustomProcessHelper* CustomPhysicsList::myHelper = nullptr;
 
 CustomPhysicsList::CustomPhysicsList(const std::string& name, const edm::ParameterSet& p, bool apinew)
     : G4VPhysicsConstructor(name) {
@@ -38,14 +45,11 @@ CustomPhysicsList::CustomPhysicsList(const std::string& name, const edm::Paramet
   edm::FileInPath fp = p.getParameter<edm::FileInPath>("particlesDef");
   particleDefFilePath = fp.fullPath();
   fParticleFactory = std::make_unique<CustomParticleFactory>();
-  myHelper.reset(nullptr);
 
   edm::LogVerbatim("SimG4CoreCustomPhysics") << "CustomPhysicsList: Path for custom particle definition file: \n"
                                              << particleDefFilePath << "\n"
                                              << "      dark_factor= " << dfactor;
 }
-
-CustomPhysicsList::~CustomPhysicsList() {}
 
 void CustomPhysicsList::ConstructParticle() {
   edm::LogVerbatim("SimG4CoreCustomPhysics") << "===== CustomPhysicsList::ConstructParticle ";
@@ -90,14 +94,31 @@ void CustomPhysicsList::ConstructProcess() {
               << " CloudMass= " << cp->GetCloud()->GetPDGMass() / GeV
               << " GeV; SpectatorMass= " << cp->GetSpectator()->GetPDGMass() / GeV << " GeV.";
 
-          if (!myHelper.get()) {
-            myHelper = std::make_unique<G4ProcessHelper>(myConfig, fParticleFactory.get());
+          if (nullptr == myHelper) {
+            myHelper = new CustomProcessHelper(myConfig, fParticleFactory.get());
+            G4AutoDelete::Register(myHelper);
           }
-          pmanager->AddDiscreteProcess(new FullModelHadronicProcess(myHelper.get()));
+          pmanager->AddDiscreteProcess(new FullModelHadronicProcess(myHelper));
         }
         if (particle->GetParticleType() == "darkpho") {
           CMSDarkPairProductionProcess* darkGamma = new CMSDarkPairProductionProcess(dfactor);
           pmanager->AddDiscreteProcess(darkGamma);
+        }
+        if (particle->GetParticleName() == "anti_sexaq") {
+          // here the different sexaquark interactions get defined
+          G4HadronicProcess* sqInelPr = new G4HadronicProcess();
+          CMSSQNeutronAnnih* sqModel = new CMSSQNeutronAnnih(particle->GetPDGMass() / GeV);
+          sqInelPr->RegisterMe(sqModel);
+          CMSSQInelasticCrossSection* sqInelXS = new CMSSQInelasticCrossSection(particle->GetPDGMass() / GeV);
+          sqInelPr->AddDataSet(sqInelXS);
+          pmanager->AddDiscreteProcess(sqInelPr);
+          // add also the looping needed to simulate flat interaction probability
+          CMSSQLoopProcess* sqLoopPr = new CMSSQLoopProcess();
+          pmanager->AddContinuousProcess(sqLoopPr);
+          CMSSQLoopProcessDiscr* sqLoopPrDiscr = new CMSSQLoopProcessDiscr(particle->GetPDGMass() / GeV);
+          pmanager->AddDiscreteProcess(sqLoopPrDiscr);
+        } else if (particle->GetParticleName() == "sexaq") {
+          edm::LogVerbatim("CustomPhysics") << "   No pmanager implemented for sexaq, only for anti_sexaq";
         }
       }
     }

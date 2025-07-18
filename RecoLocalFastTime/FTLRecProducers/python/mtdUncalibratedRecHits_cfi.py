@@ -22,11 +22,11 @@ _endcapAlgo = cms.PSet(
     adcSaturation = mtdDigitizer.endcapDigitizer.ElectronicsSimulation.adcSaturation_MIP,
     toaLSB_ns     = mtdDigitizer.endcapDigitizer.ElectronicsSimulation.toaLSB_ns,
     tofDelay      = mtdDigitizer.endcapDigitizer.DeviceSimulation.tofDelay,
-    timeResolutionInNs = cms.string("0.039"), # [ns]
-    timeCorr_p0 = cms.double(0.667116),
-    timeCorr_p1 = cms.double(-0.500665),
-    timeCorr_p2 = cms.double(0.141136),
-    timeCorr_p3 = cms.double(-0.0169169)
+    timeResolutionInNs = cms.string("0.0370"), # [ns]
+    timeCorr_p0 = cms.double(0.974683),
+    timeCorr_p1 = cms.double(-0.237274),
+    timeCorr_p2 = cms.double(0.021455),
+    timeCorr_p3 = cms.double(-0.000727429)
 )
 
 

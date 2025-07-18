@@ -30,7 +30,7 @@ public:
   enum ObjectType { kUdscJet, kBJet, kMuon, kElectron, kMet };
 
   /// default constructor
-  CovarianceMatrix(){};
+  CovarianceMatrix() {}
   /// constructor for the fully-hadronic channel
   CovarianceMatrix(const std::vector<edm::ParameterSet>& udscResolutions,
                    const std::vector<edm::ParameterSet>& bResolutions,
@@ -44,7 +44,7 @@ public:
                    const std::vector<double>& jetEnergyResolutionScaleFactors,
                    const std::vector<double>& jetEnergyResolutionEtaBinning);
   // destructor
-  ~CovarianceMatrix(){};
+  ~CovarianceMatrix() {}
 
   /// return covariance matrix for a PAT object
   template <class T>

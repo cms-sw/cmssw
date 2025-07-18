@@ -16,6 +16,33 @@ LD_PRELOAD="libPerfToolsAllocMonitorPreload.so libPerfToolsMaxMemoryPreload.so"
 
 the order is important.
 
+### Pausing the monitoring
+
+It is possible to temporarily pause the monitoring by instrumenting the target application by definining the following functions
+```cpp
+// in some header,
+void pauseMaxMemoryPreload();
+void unpauseMaxMemoryPreload();
+
+// in an implementation source file
+void pauseMaxMemoryPreload() {
+}
+void unpauseMaxMemoryPreload() {
+}
+```
+and then using these in code
+```cpp
+  ...
+  pauseMaxMemoryPreload();
+  // code that should be excluded from the monitoring
+  unpauseMaxMemoryPreload();
+  ...
+```
+
+The trick is that by default these functions are defined in the application, and the functions do nothing. The `libPerfToolsMaxMemoryPreload.so` provides also the same functions that actually pause the data collection, and the LD_PRELOADing makes the application to call the functions within `libPerfToolsMaxMemoryPreload.so`.
+
+It is recommended to not pause the monitoring within a multithreaded section, because that could result in unexpected results, because the pausing setting is global.
+
 ## Reporting
 When the application ends, the monitor will report the following to standard error:
 

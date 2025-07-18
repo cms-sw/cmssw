@@ -20,7 +20,7 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.dumper = cms.EDAnalyzer("GEMPadDigiReader"
+process.dumper = cms.EDAnalyzer("GEMPadDigiReader",
     gemDigiToken = cms.InputTag("simMuonGEMDigis"),
     gemPadToken = cms.InputTag("simMuonGEMPadDigis")
 )

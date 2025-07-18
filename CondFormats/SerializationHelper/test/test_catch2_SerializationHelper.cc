@@ -26,8 +26,8 @@ namespace {
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int version) {
-      ar& a_;
-      ar& b_;
+      ar & a_;
+      ar & b_;
       ++counter_;
     }
 
@@ -50,7 +50,7 @@ namespace {
 
     template <class Archive>
     void serialize(Archive& ar, const unsigned int version) {
-      ar& value_;
+      ar & value_;
     }
     int value_ = 3145;
   };

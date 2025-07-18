@@ -39,7 +39,7 @@ of these methods for the three scenarios available so far are described in the t
 
 * Present detector
 
-| `DetId::subDetId()` | `TrackerGeometry::geomDetSubDetector(subdet)` | `TrackerGeometry::numberOfLayers(subdet)` |
+| `DetId::subdetId()` | `TrackerGeometry::geomDetSubDetector(subdet)` | `TrackerGeometry::numberOfLayers(subdet)` |
 |--------|--------|-------|
 | 1 | `GeomDetEnumerators::PixelBarrel` | 3 |
 | 2 | `GeomDetEnumerators::PixelEndcap` | 2 |
@@ -50,7 +50,7 @@ of these methods for the three scenarios available so far are described in the t
 
 * Phase1 Tracker
 
-| `DetId::subDetId()` | `TrackerGeometry::geomDetSubDetector(subdet)` | `TrackerGeometry::numberOfLayers(subdet)` |
+| `DetId::subdetId()` | `TrackerGeometry::geomDetSubDetector(subdet)` | `TrackerGeometry::numberOfLayers(subdet)` |
 |--------|--------|-------|
 | 1 | `GeomDetEnumerators::P1PXB` | 4 |
 | 2 | `GeomDetEnumerators::P1PXEC` | 3 |
@@ -61,7 +61,7 @@ of these methods for the three scenarios available so far are described in the t
 
 * Phase2 Tracker
  
-| `DetId::subDetId()` | `TrackerGeometry::geomDetSubDetector(subdet)` | `TrackerGeometry::numberOfLayers(subdet)` |
+| `DetId::subdetId()` | `TrackerGeometry::geomDetSubDetector(subdet)` | `TrackerGeometry::numberOfLayers(subdet)` |
 |--------|--------|-------|
 | 1 | `GeomDetEnumerators::P2PXB` | 4 |
 | 2 | `GeomDetEnumerators::P2PXEC` | 12 |

@@ -14,8 +14,8 @@ hltTPClusterProducer = _tpClusterProducer.clone(
 )
 
 def _modifyForPhase2(tpClusterProducer):
-    tpClusterProducer.pixelClusterSrc = "siPixelClusters::HLT"
-    tpClusterProducer.phase2OTClusterSrc = "siPhase2Clusters::HLT"
+    tpClusterProducer.pixelClusterSrc = "hltSiPixelClusters"
+    tpClusterProducer.phase2OTClusterSrc = "hltSiPhase2Clusters"
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(hltTPClusterProducer, _modifyForPhase2)

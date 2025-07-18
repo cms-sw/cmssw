@@ -4,6 +4,7 @@
 #include "RecoTracker/MkFitCore/interface/Config.h"
 #include "RecoTracker/MkFitCore/interface/Hit.h"
 #include "RecoTracker/MkFitCore/interface/Track.h"
+#include "RecoTracker/MkFitCore/interface/DeadRegion.h"
 #include "RecoTracker/MkFitCore/interface/TrackerInfo.h"
 
 namespace mkfit {

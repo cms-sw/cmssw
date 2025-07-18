@@ -5,8 +5,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/RunForOutput.h"
 
 #include <memory>
 #include <string>
@@ -93,7 +92,7 @@ namespace edm {
     }
   }
 
-  std::shared_ptr<int> TestGlobalOutput::globalBeginRun(RunForOutput const&) const {
+  std::shared_ptr<int> TestGlobalOutput::globalBeginRun(RunForOutput const& iRun) const {
     LogAbsolute("TestGlobalOutput") << "global globalBeginRun";
     if (verbose_) {
       BranchIDLists const* theBranchIDLists = branchIDLists();
@@ -103,8 +102,7 @@ namespace edm {
           LogAbsolute("TestGlobalOutput") << "  global branchID " << branchID;
         }
       }
-      edm::Service<edm::ConstProductRegistry> reg;
-      for (auto const& it : reg->productList()) {
+      for (auto const& it : iRun.productRegistry().productList()) {
         LogAbsolute("TestGlobalOutput") << it.second;
       }
     }

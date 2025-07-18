@@ -1,6 +1,5 @@
 #!/bin/env python
 
-from __future__ import print_function
 import os
 
 # Path of the input tables

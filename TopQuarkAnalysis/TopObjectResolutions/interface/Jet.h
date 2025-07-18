@@ -8,8 +8,8 @@ namespace res {
   public:
     enum Flavor { kUds, kB };
 
-    HelperJet(){};
-    ~HelperJet(){};
+    HelperJet() {}
+    ~HelperJet() {}
 
     inline double pt(double pt, double eta, Flavor flav);
     inline double eta(double pt, double eta, Flavor flav);

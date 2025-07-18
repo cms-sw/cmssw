@@ -14,8 +14,9 @@ using namespace edm;
 using namespace reco;
 
 PFClusterComparator::PFClusterComparator(const edm::ParameterSet& iConfig)
-    : inputTagPFClusters_(iConfig.getParameter<InputTag>("PFClusters")),
-      inputTagPFClustersCompare_(iConfig.getParameter<InputTag>("PFClustersCompare")),
+    : inputTokenPFClusters_(consumes<reco::PFClusterCollection>(iConfig.getParameter<InputTag>("PFClusters"))),
+      inputTokenPFClustersCompare_(
+          consumes<reco::PFClusterCollection>(iConfig.getParameter<InputTag>("PFClustersCompare"))),
       verbose_(iConfig.getUntrackedParameter<bool>("verbose", false)),
       printBlocks_(iConfig.getUntrackedParameter<bool>("printBlocks", false)) {
   usesResource("TFileService");
@@ -37,7 +38,7 @@ PFClusterComparator::PFClusterComparator(const edm::ParameterSet& iConfig)
   posZ_new = fs->make<TH1F>("posZ_new", "log10(E cluster)", 50000, 0, 500);
   deltaZ = fs->make<TH1F>("delta_Z", "Z_{old} - Z_{new}", 5000, -5, 5);
 
-  LogDebug("PFClusterComparator") << " input collection : " << inputTagPFClusters_;
+  LogDebug("PFClusterComparator") << " input collection : " << iConfig.getParameter<InputTag>("PFClusters");
 }
 
 void PFClusterComparator::analyze(const Event& iEvent, const EventSetup& iSetup) {
@@ -46,10 +47,10 @@ void PFClusterComparator::analyze(const Event& iEvent, const EventSetup& iSetup)
   // get PFClusters
 
   Handle<PFClusterCollection> pfClusters;
-  fetchCandidateCollection(pfClusters, inputTagPFClusters_, iEvent);
+  fetchCandidateCollection(pfClusters, inputTokenPFClusters_, iEvent);
 
   Handle<PFClusterCollection> pfClustersCompare;
-  fetchCandidateCollection(pfClustersCompare, inputTagPFClustersCompare_, iEvent);
+  fetchCandidateCollection(pfClustersCompare, inputTokenPFClustersCompare_, iEvent);
 
   // get PFClusters for isolation
 
@@ -145,13 +146,13 @@ void PFClusterComparator::analyze(const Event& iEvent, const EventSetup& iSetup)
 }
 
 void PFClusterComparator::fetchCandidateCollection(Handle<reco::PFClusterCollection>& c,
-                                                   const InputTag& tag,
+                                                   const edm::EDGetTokenT<reco::PFClusterCollection>& token,
                                                    const Event& iEvent) const {
-  bool found = iEvent.getByLabel(tag, c);
+  c = iEvent.getHandle(token);
 
-  if (!found) {
+  if (!c.isValid()) {
     ostringstream err;
-    err << " cannot get PFClusters: " << tag << endl;
+    err << " cannot get PFClusters " << endl;
     LogError("PFClusters") << err.str();
     throw cms::Exception("MissingProduct", err.str());
   }

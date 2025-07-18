@@ -5,12 +5,12 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandomEngine.h"
@@ -23,7 +23,7 @@ FileRandomKEThetaGunProducer::FileRandomKEThetaGunProducer(const edm::ParameterS
   edm::ParameterSet pgun_params = pset.getParameter<edm::ParameterSet>("PGunParameters");
 
   edm::FileInPath fp = pgun_params.getParameter<edm::FileInPath>("File");
-  std::string file = fp.fullPath();
+  const std::string& file = fp.fullPath();
   particleN = pgun_params.getParameter<int>("Particles");
   if (particleN <= 0)
     particleN = 1;

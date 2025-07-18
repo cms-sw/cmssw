@@ -500,7 +500,7 @@ void SiPixelStatusHarvester::dqmEndRun(const edm::Run& iRun, const edm::EventSet
               histo[PROMPTBADROC].fill(detId, nullptr, column, row);  //, 1.0/nLumiBlock_);
             }
           }  // if bad
-        }    // loop over all ROCs
+        }  // loop over all ROCs
 
         // errorType 0 means the full module is bad
         if (BadRocListPrompt.size() == sensorSize_[detid])

@@ -18,9 +18,9 @@ private:
   const OMTFConfiguration* omtfConfig;
 
 public:
-  GhostBusterPreferRefDt(OMTFConfiguration* omtfConfig) : omtfConfig(omtfConfig){};
+  GhostBusterPreferRefDt(OMTFConfiguration* omtfConfig) : omtfConfig(omtfConfig) {}
 
-  ~GhostBusterPreferRefDt() override{};
+  ~GhostBusterPreferRefDt() override {}
 
   std::vector<AlgoMuon> select(std::vector<AlgoMuon> refHitCands, int charge = 0) override;
 };

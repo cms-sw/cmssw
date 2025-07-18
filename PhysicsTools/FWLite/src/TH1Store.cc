@@ -24,7 +24,7 @@ TH1Store::~TH1Store() {
     for (STH1PtrMapIter iter = m_ptrMap.begin(); m_ptrMap.end() != iter; ++iter) {
       delete iter->second;
     }  // for iter
-  }    // if destroying pointers
+  }  // if destroying pointers
 }
 
 void TH1Store::add(TH1 *histPtr, const std::string &directory) {
@@ -40,7 +40,7 @@ void TH1Store::add(TH1 *histPtr, const std::string &directory) {
   }
   m_ptrMap[name] = histPtr;
   histPtr->SetDirectory(nullptr);
-  if (directory.length()) {
+  if (!directory.empty()) {
     m_nameDirMap[name] = directory;
   }
 }

@@ -39,7 +39,7 @@ public:
 
 public:
   EcalChannelStatusCode() : status_(0) {}
-  EcalChannelStatusCode(const uint16_t& encodedStatus) : status_(encodedStatus){};
+  EcalChannelStatusCode(const uint16_t& encodedStatus) : status_(encodedStatus) {}
 
   void print(std::ostream& s) const { s << "status is: " << status_; }
 

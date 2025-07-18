@@ -14,7 +14,7 @@
 class CSCPedestalChoice {
 public:
   CSCPedestalChoice() : defaultPed(0.) {}
-  virtual ~CSCPedestalChoice(){};
+  virtual ~CSCPedestalChoice() {}
   /// Return default pedestal (typically zero)
   float getDefault() const { return defaultPed; }
   /// Allow reseting of default pedestal (not currently used)

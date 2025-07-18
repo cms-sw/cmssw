@@ -7,6 +7,7 @@
 
 #include "DataFormats/Portable/interface/PortableHostObject.h"
 #include "DataFormats/Portable/interface/PortableDeviceObject.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/concepts.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToDevice.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToHost.h"
 
@@ -33,8 +34,10 @@ using PortableObject = typename traits::PortableObjectTrait<T, TDev>::ProductTyp
 // define how to copy PortableObject between host and device
 namespace cms::alpakatools {
   template <typename TProduct, typename TDevice>
+    requires alpaka::isDevice<TDevice>
   struct CopyToHost<PortableDeviceObject<TProduct, TDevice>> {
     template <typename TQueue>
+      requires alpaka::isQueue<TQueue>
     static auto copyAsync(TQueue& queue, PortableDeviceObject<TProduct, TDevice> const& srcData) {
       PortableHostObject<TProduct> dstData(queue);
       alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());
@@ -44,7 +47,7 @@ namespace cms::alpakatools {
 
   template <typename TProduct>
   struct CopyToDevice<PortableHostObject<TProduct>> {
-    template <typename TQueue>
+    template <cms::alpakatools::NonCPUQueue TQueue>
     static auto copyAsync(TQueue& queue, PortableHostObject<TProduct> const& srcData) {
       using TDevice = typename alpaka::trait::DevType<TQueue>::type;
       PortableDeviceObject<TProduct, TDevice> dstData(queue);

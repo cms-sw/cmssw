@@ -6,7 +6,6 @@ File       : cms.py
 Author     : Valentin Kuznetsov <vkuznet@gmail.com>
 Description: CMS-related utils
 """
-from __future__ import print_function
 
 # system modules
 from builtins import range

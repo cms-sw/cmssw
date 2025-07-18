@@ -453,7 +453,7 @@ Hydjet2Analyzer::Hydjet2Analyzer(const edm::ParameterSet &iConfig) {
         }
       }
     }  //user histo
-  }    //do histo
+  }  //do histo
 }
 Hydjet2Analyzer::~Hydjet2Analyzer() {}
 
@@ -747,7 +747,7 @@ void Hydjet2Analyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &i
                 dhv2eta_ch->Fill(eta, v2);
                 dheta_ch->Fill(eta);
               }  //ch
-            }    //status 1
+            }  //status 1
 
             //user histos
             if (userHistos_ && ((uStatus_ == 3) || (((*it)->status() < 10) && (uStatus_ == 1)) ||
@@ -913,7 +913,7 @@ void Hydjet2Analyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &i
       dhet_K_sum->Fill(et_K_sum);
       dhet_K_barrel_sum->Fill(et_K_barrel_sum);
 
-    }       //not mixing
+    }  //not mixing
   } else {  // not HepMC
     edm::Handle<reco::GenParticleCollection> parts;
     iEvent.getByLabel(genParticleSrc_, parts);

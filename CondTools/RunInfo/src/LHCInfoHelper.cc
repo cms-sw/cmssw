@@ -5,7 +5,9 @@
 // Returns lumi-type IOV (packed using cond::time::lumiTime) from
 // last LS of last Run of the specified Fill
 //*****************************************************************
-cond::Time_t cond::lhcInfoHelper::getFillLastLumiIOV(const cond::OMSService& oms, unsigned short fillId) {
+
+std::pair<int, unsigned short> cond::lhcInfoHelper::getFillLastRunAndLS(const cond::OMSService& oms,
+                                                                        unsigned short fillId) {
   // Define query
   auto query = oms.query("lumisections");
   query->addOutputVars({"lumisection_number", "run_number"});
@@ -27,5 +29,10 @@ cond::Time_t cond::lhcInfoHelper::getFillLastLumiIOV(const cond::OMSService& oms
   // Return the final IOV
   auto lastRun = queryResult.back().get<int>("run_number");
   auto lastLumi = queryResult.back().get<unsigned short>("lumisection_number");
+  return std::make_pair(lastRun, lastLumi);
+}
+
+cond::Time_t cond::lhcInfoHelper::getFillLastLumiIOV(const cond::OMSService& oms, unsigned short fillId) {
+  auto [lastRun, lastLumi] = getFillLastRunAndLS(oms, fillId);
   return cond::time::lumiTime(lastRun, lastLumi);
 }

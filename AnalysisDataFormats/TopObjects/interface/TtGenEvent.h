@@ -18,11 +18,11 @@
 class TtGenEvent : public TopGenEvent {
 public:
   /// empty constructor
-  TtGenEvent(){};
+  TtGenEvent() {}
   /// default constructor from decaySubset and initSubset
   TtGenEvent(reco::GenParticleRefProd& decaySubset, reco::GenParticleRefProd& initSubset);
   /// default destructor
-  ~TtGenEvent() override{};
+  ~TtGenEvent() override {}
 
   /// check if the event can be classified as ttbar
   bool isTtBar() const { return (top() && topBar()); }

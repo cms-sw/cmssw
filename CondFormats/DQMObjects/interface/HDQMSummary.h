@@ -60,8 +60,8 @@ public:
 
   HDQMSummary(std::vector<std::string>& userDBContent);
   HDQMSummary(const HDQMSummary& input);
-  HDQMSummary(){};
-  ~HDQMSummary(){};
+  HDQMSummary() {}
+  ~HDQMSummary() {}
 
   ContainerIterator getDataVectorBegin() const { return v_sum_.begin(); }
   ContainerIterator getDataVectorEnd() const { return v_sum_.end(); }

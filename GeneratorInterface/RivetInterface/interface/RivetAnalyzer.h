@@ -7,7 +7,7 @@
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMC3Product.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoHeader.h"
@@ -36,7 +36,7 @@ public:
   void endRun(const edm::Run &, const edm::EventSetup &) override;
 
 private:
-  edm::EDGetTokenT<edm::HepMCProduct> _hepmcCollection;
+  edm::EDGetTokenT<edm::HepMC3Product> _hepmcCollection;
   bool _useLHEweights;
   double _weightCap;
   double _NLOSmearing;
@@ -59,6 +59,7 @@ private:
   std::vector<std::string> _weightNames;
   std::vector<std::string> _lheWeightNames;
   std::vector<std::string> _cleanedWeightNames;
+  std::shared_ptr<HepMC3::GenRunInfo> runinfo;
 };
 
 #endif

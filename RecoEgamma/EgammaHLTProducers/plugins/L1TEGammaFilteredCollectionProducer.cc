@@ -92,9 +92,9 @@ void L1TEGammaFilteredCollectionProducer::produce(edm::StreamID sid,
     bool passQuality(false);
     if (applyQual_) {
       if (qualIsMask_)
-        passQuality = ((*iEg).hwQual() & quality_);
+        passQuality = ((*iEg).hwQualityFlags() & quality_);
       else
-        passQuality = ((*iEg).hwQual() == quality_);
+        passQuality = ((*iEg).hwQualityFlags() == quality_);
     } else
       passQuality = true;
 

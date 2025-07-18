@@ -179,7 +179,7 @@ void GtPsbTextToDigi::produce(edm::Event &iEvent, const edm::EventSetup &iSetup)
       }
       data[ifile][cycle] = (uLongBuffer & 0x7fff);
     }  // cycle loop
-  }    // ifile loop
+  }  // ifile loop
 
   /// Fill in digi collections
   unsigned iIsola, iNoIso;

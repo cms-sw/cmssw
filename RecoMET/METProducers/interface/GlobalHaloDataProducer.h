@@ -129,7 +129,9 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -181,6 +183,8 @@ namespace reco {
   public:
     explicit GlobalHaloDataProducer(const edm::ParameterSet&);
     ~GlobalHaloDataProducer() override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
     void produce(edm::Event&, const edm::EventSetup&) override;

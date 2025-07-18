@@ -12,9 +12,10 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMC3Product.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 
+#include "Rivet/Particle.hh"
 #include "Rivet/AnalysisHandler.hh"
 #include "GeneratorInterface/RivetInterface/src/HiggsTemplateCrossSections.cc"
 #include "SimDataFormats/HTXS/interface/HiggsTemplateCrossSections.h"
@@ -32,7 +33,7 @@ using namespace std;
 class HTXSRivetProducer : public edm::one::EDProducer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit HTXSRivetProducer(const edm::ParameterSet& cfg)
-      : _hepmcCollection(consumes<HepMCProduct>(cfg.getParameter<edm::InputTag>("HepMCCollection"))),
+      : _hepmcCollection(consumes<HepMC3Product>(cfg.getParameter<edm::InputTag>("HepMCCollection"))),
         _lheRunInfo(consumes<LHERunInfoProduct, edm::InRun>(cfg.getParameter<edm::InputTag>("LHERunInfo"))) {
     usesResource("Rivet");
     _prodMode = cfg.getParameter<string>("ProductionMode");
@@ -48,7 +49,7 @@ private:
   void beginRun(edm::Run const& iRun, edm::EventSetup const& es) override;
   void endRun(edm::Run const& iRun, edm::EventSetup const& es) override;
 
-  edm::EDGetTokenT<edm::HepMCProduct> _hepmcCollection;
+  edm::EDGetTokenT<edm::HepMC3Product> _hepmcCollection;
   edm::EDGetTokenT<LHERunInfoProduct> _lheRunInfo;
 
   std::unique_ptr<Rivet::AnalysisHandler> _analysisHandler;
@@ -62,12 +63,14 @@ private:
 
 void HTXSRivetProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
   //get the hepmc product from the event
-  edm::Handle<HepMCProduct> evt;
+  edm::Handle<HepMC3Product> evt;
 
   bool product_exists = iEvent.getByToken(_hepmcCollection, evt);
   if (product_exists) {
     // get HepMC GenEvent
-    const HepMC::GenEvent* myGenEvent = evt->GetEvent();
+    const HepMC3::GenEventData* genEventData = evt->GetEvent();
+    std::unique_ptr<HepMC3::GenEvent> myGenEvent = std::make_unique<HepMC3::GenEvent>();
+    myGenEvent->read_data(*genEventData);
 
     if (_prodMode == "AUTO") {
       // for these prod modes, don't change what is set in BeginRun
@@ -78,10 +81,10 @@ void HTXSRivetProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
         unsigned nBs = 0;
         unsigned nHs = 0;
 
-        HepMC::GenVertex* HSvtx = myGenEvent->signal_process_vertex();
+        ConstGenVertexPtr HSvtx = myGenEvent->vertices()[0];
 
         if (HSvtx) {
-          for (auto ptcl : HepMCUtils::particles(HSvtx, HepMC::children)) {
+          for (const auto& ptcl : HepMCUtils::particles(HSvtx, Relatives::CHILDREN)) {
             if (std::abs(ptcl->pdg_id()) == 24)
               ++nWs;
             if (ptcl->pdg_id() == 23)
@@ -153,8 +156,10 @@ void HTXSRivetProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
       _analysisHandler->init(*myGenEvent);
     }
 
+    // Create the Rivet event wrapper
+    const Rivet::Event event(const_cast<GenEvent&>(*myGenEvent));
     // classify the event
-    Rivet::HiggsClassification rivet_cat = _HTXS->classifyEvent(*myGenEvent, m_HiggsProdMode);
+    Rivet::HiggsClassification rivet_cat = _HTXS->classifyEvent(event, m_HiggsProdMode);
     cat_ = HTXS::Rivet2Root(rivet_cat);
 
     unique_ptr<HTXS::HiggsClassification> cat(new HTXS::HiggsClassification(cat_));

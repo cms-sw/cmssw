@@ -5,6 +5,13 @@
 // Root objects
 #include "TTree.h"
 
+#include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+
+#include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
+#include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
+
 #include "DataFormats/HcalCalibObjects/interface/HcalIsoTrkCalibVariables.h"
 #include "DataFormats/HcalCalibObjects/interface/HcalIsoTrkEventVariables.h"
 
@@ -17,27 +24,39 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+
 //#define EDM_ML_DEBUG
 
 class HcalIsoTrackAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit HcalIsoTrackAnalyzer(edm::ParameterSet const&);
-  ~HcalIsoTrackAnalyzer() override {}
+  ~HcalIsoTrackAnalyzer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void analyze(edm::Event const&, edm::EventSetup const&) override;
   void beginJob() override;
-  void beginRun(edm::Run const&, edm::EventSetup const&) override {}
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
   void endRun(edm::Run const&, edm::EventSetup const&) override;
+  double respCorr(const DetId& id);
+  double gainFactor(const HcalDbService* dbserv, const HcalDetId& id);
 
   const double pTrackLow_, pTrackHigh_;
-  const int useRaw_, dataType_;
+  const int useRaw_, dataType_, unCorrect_, runLow_, runHigh_;
+  const bool fillInRange_, fillRunRange_;
   const edm::InputTag labelIsoTkVar_, labelIsoTkEvt_;
   const std::vector<int> debEvents_;
+  const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
+  const edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_respcorr_;
+  const edm::ESGetToken<HcalDbService, HcalDbRecord> tok_dbservice_;
   edm::EDGetTokenT<HcalIsoTrkCalibVariablesCollection> tokIsoTrkVar_;
   edm::EDGetTokenT<HcalIsoTrkEventVariablesCollection> tokIsoTrkEvt_;
+  const HcalTopology* theHBHETopology_;
+  HcalRespCorrs* respCorrs_;
+
   unsigned int nRun_, nRange_, nLow_, nHigh_;
 
   TTree *tree, *tree2;
@@ -69,11 +88,21 @@ HcalIsoTrackAnalyzer::HcalIsoTrackAnalyzer(const edm::ParameterSet& iConfig)
       pTrackHigh_(iConfig.getParameter<double>("momentumHigh")),
       useRaw_(iConfig.getUntrackedParameter<int>("useRaw", 0)),
       dataType_(iConfig.getUntrackedParameter<int>("dataType", 0)),
+      unCorrect_(iConfig.getUntrackedParameter<int>("unCorrect", 0)),
+      runLow_(iConfig.getUntrackedParameter<int>("runLow", 0)),
+      runHigh_(iConfig.getUntrackedParameter<int>("runHigh", -1)),
+      fillInRange_(iConfig.getUntrackedParameter<bool>("fillInRange", false)),
+      fillRunRange_((runLow_ < runHigh_) && (runLow_ > 0)),
       labelIsoTkVar_(iConfig.getParameter<edm::InputTag>("isoTrackVarLabel")),
       labelIsoTkEvt_(iConfig.getParameter<edm::InputTag>("isoTrackEvtLabel")),
       debEvents_(iConfig.getParameter<std::vector<int>>("debugEvents")),
+      tok_htopo_(esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>()),
+      tok_respcorr_(esConsumes<HcalRespCorrs, HcalRespCorrsRcd, edm::Transition::BeginRun>()),
+      tok_dbservice_(esConsumes<HcalDbService, HcalDbRecord>()),
       tokIsoTrkVar_(consumes<HcalIsoTrkCalibVariablesCollection>(labelIsoTkVar_)),
       tokIsoTrkEvt_(consumes<HcalIsoTrkEventVariablesCollection>(labelIsoTkEvt_)),
+      theHBHETopology_(nullptr),
+      respCorrs_(nullptr),
       nRun_(0),
       nRange_(0),
       nLow_(0),
@@ -85,11 +114,19 @@ HcalIsoTrackAnalyzer::HcalIsoTrackAnalyzer(const edm::ParameterSet& iConfig)
 
   edm::LogVerbatim("HcalIsoTrack") << "Parameters read from config file \n\t momentumLow_ " << pTrackLow_
                                    << "\t momentumHigh_ " << pTrackHigh_ << "\t useRaw_ " << useRaw_
-                                   << "\t dataType_      " << dataType_ << " and " << debEvents_.size()
+                                   << "\t dataType_      " << dataType_ << "\t unCorrect " << unCorrect_
+                                   << "\t fillInRange " << fillInRange_ << "\t fillRunRange " << fillRunRange_
+                                   << " for " << runLow_ << ":" << runHigh_ << "\t and " << debEvents_.size()
                                    << " events to be debugged";
 }
 
+HcalIsoTrackAnalyzer::~HcalIsoTrackAnalyzer() {
+  if (respCorrs_)
+    delete respCorrs_;
+}
+
 void HcalIsoTrackAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
+  const HcalDbService* conditions = &iSetup.getData(tok_dbservice_);
   t_Run = iEvent.id().run();
   t_Event = iEvent.id().event();
   t_DataType = dataType_;
@@ -200,17 +237,48 @@ void HcalIsoTrackAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup con
         t_HitEnergies = itr.hitEnergies_;
         t_HitEnergies1 = itr.hitEnergies1_;
         t_HitEnergies3 = itr.hitEnergies3_;
+        if (unCorrect_ > 0) {
+          t_eHcal = t_eHcal10 = t_eHcal30 = 0;
+          for (unsigned int k = 0; k < t_DetIds.size(); ++k) {
+            double corr = (unCorrect_ == 2) ? gainFactor(conditions, HcalDetId(t_DetIds[k])) : respCorr(t_DetIds[k]);
+            if (corr != 0)
+              t_HitEnergies[k] /= corr;
+            t_eHcal += t_HitEnergies[k];
+          }
+          for (unsigned int k = 0; k < t_DetIds1.size(); ++k) {
+            double corr = (unCorrect_ == 2) ? gainFactor(conditions, HcalDetId(t_DetIds1[k])) : respCorr(t_DetIds1[k]);
+            if (corr != 0)
+              t_HitEnergies1[k] /= corr;
+            t_eHcal10 += t_HitEnergies1[k];
+          }
+          for (unsigned int k = 0; k < t_DetIds3.size(); ++k) {
+            double corr = (unCorrect_ == 2) ? gainFactor(conditions, HcalDetId(t_DetIds3[k])) : respCorr(t_DetIds3[k]);
+            if (corr != 0)
+              t_HitEnergies3[k] /= corr;
+            t_eHcal30 += t_HitEnergies3[k];
+          }
+        }
       }
 #ifdef EDM_ML_DEBUG
       if (debug)
         edm::LogVerbatim("HcalIsoTrack") << "eHcal:eHcal10:eHCal30 " << t_eHcal << ":" << t_eHcal10 << t_eHcal30;
 #endif
-      tree->Fill();
-      edm::LogVerbatim("HcalIsoTrackX") << "Run " << t_Run << " Event " << t_Event << " p " << t_p;
-
+      bool select(true);
+      if (fillInRange_) {
+        if ((t_p < pTrackLow_) || (t_p > pTrackHigh_))
+          select = false;
+      }
+      if (select && fillRunRange_) {
+        if ((t_Run < runLow_) || (t_Run > runHigh_))
+          select = false;
+      }
+      if (select) {
+        tree->Fill();
+        edm::LogVerbatim("HcalIsoTrackX") << "Run " << t_Run << " Event " << t_Event << " p " << t_p;
+      }
       if (t_p < pTrackLow_) {
         ++nLow_;
-      } else if (t_p < pTrackHigh_) {
+      } else if (t_p > pTrackHigh_) {
         ++nHigh_;
       } else {
         ++nRange_;
@@ -246,7 +314,13 @@ void HcalIsoTrackAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup con
       t_ietaGood = itr->ietaGood_;
       t_trackType = itr->trackType_;
       t_hltbits = itr->hltbits_;
-      tree2->Fill();
+      bool select(true);
+      if (fillRunRange_) {
+        if ((t_RunNo < static_cast<unsigned int>(runLow_)) || (t_RunNo > static_cast<unsigned int>(runHigh_)))
+          select = false;
+      }
+      if (select)
+        tree2->Fill();
     }
   } else {
     edm::LogVerbatim("HcalIsoTrack") << "Cannot find HcalIsoTrkEventVariablesCollections";
@@ -324,6 +398,13 @@ void HcalIsoTrackAnalyzer::beginJob() {
 }
 
 // ------------ method called when starting to processes a run  ------------
+void HcalIsoTrackAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
+  theHBHETopology_ = &iSetup.getData(tok_htopo_);
+  const HcalRespCorrs* resp = &iSetup.getData(tok_respcorr_);
+  respCorrs_ = new HcalRespCorrs(*resp);
+  respCorrs_->setTopo(theHBHETopology_);
+  edm::LogVerbatim("HcalIsoTrack") << "beginRun " << iRun.run() << " get responseCoorection " << respCorrs_;
+}
 
 // ------------ method called when ending the processing of a run  ------------
 void HcalIsoTrackAnalyzer::endRun(edm::Run const& iRun, edm::EventSetup const&) {
@@ -331,6 +412,10 @@ void HcalIsoTrackAnalyzer::endRun(edm::Run const& iRun, edm::EventSetup const&) 
   edm::LogVerbatim("HcalIsoTrack") << "endRun[" << nRun_ << "] " << iRun.run() << " with " << nLow_
                                    << " events with p < " << pTrackLow_ << ", " << nHigh_ << " events with p > "
                                    << pTrackHigh_ << ", and " << nRange_ << " events in the right momentum range";
+  if (respCorrs_) {
+    delete respCorrs_;
+    respCorrs_ = nullptr;
+  }
 }
 
 void HcalIsoTrackAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -339,11 +424,30 @@ void HcalIsoTrackAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<double>("momentumHigh", 60.0);
   desc.addUntracked<int>("useRaw", 0);
   desc.addUntracked<int>("dataType", 0);
+  desc.addUntracked<int>("unCorrect", 0);
+  desc.addUntracked<bool>("fillInRange", false);
+  desc.addUntracked<int>("runLow", 0);
+  desc.addUntracked<int>("runHigh", -1);
   desc.add<edm::InputTag>("isoTrackVarLabel", edm::InputTag("alcaHcalIsotrkProducer", "HcalIsoTrack"));
   desc.add<edm::InputTag>("isoTrackEvtLabel", edm::InputTag("alcaHcalIsotrkProducer", "HcalIsoTrackEvent"));
   std::vector<int> events;
   desc.add<std::vector<int>>("debugEvents", events);
   descriptions.add("hcalIsoTrackAnalyzer", desc);
+}
+
+double HcalIsoTrackAnalyzer::respCorr(const DetId& id) {
+  double cfac(1.0);
+  if (respCorrs_ != nullptr)
+    cfac = (respCorrs_->getValues(id))->getValue();
+  return cfac;
+}
+
+double HcalIsoTrackAnalyzer::gainFactor(const HcalDbService* conditions, const HcalDetId& id) {
+  double gain(0.0);
+  const HcalCalibrations& calibs = conditions->getHcalCalibrations(id);
+  for (int capid = 0; capid < 4; ++capid)
+    gain += (0.25 * calibs.respcorrgain(capid));
+  return gain;
 }
 
 //define this as a plug-in

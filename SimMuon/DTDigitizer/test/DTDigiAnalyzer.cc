@@ -154,7 +154,7 @@ void DTDigiAnalyzer::analyze(const Event &event, const EventSetup &eventSetup) {
       }
 
     }  // for digis in layer
-  }    // for layers
+  }  // for layers
   cout << "--------------" << endl;
 }
 

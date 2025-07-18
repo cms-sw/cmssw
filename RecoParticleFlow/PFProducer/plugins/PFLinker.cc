@@ -29,6 +29,7 @@ public:
   ~PFLinker() override;
 
   void produce(edm::Event&, const edm::EventSetup&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   template <typename TYPE>
@@ -76,6 +77,22 @@ private:
 };
 
 DEFINE_FWK_MODULE(PFLinker);
+
+void PFLinker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::vector<edm::InputTag>>("PFCandidate", {edm::InputTag("particleFlow")});
+  desc.add<edm::InputTag>("GsfElectrons", {"gedGsfElectrons"});
+  desc.add<edm::InputTag>("Photons", {"gedPhotons"});
+  desc.add<edm::InputTag>("Muons", {"muons", "muons1stStep2muonsMap"});
+  desc.add<bool>("ProducePFCandidates", true);
+  desc.add<bool>("FillMuonRefs", true);
+  desc.add<std::string>("OutputPF", "");
+  desc.add<std::string>("ValueMapElectrons", "electrons");
+  desc.add<std::string>("ValueMapPhotons", "photons");
+  desc.add<std::string>("ValueMapMerged", "all");
+  desc.add<bool>("forceElectronsInHGCAL", false);
+  descriptions.addWithDefaultLabel(desc);
+}
 
 PFLinker::PFLinker(const edm::ParameterSet& iConfig) {
   // vector of InputTag; more than 1 is not for RECO, it is for analysis

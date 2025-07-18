@@ -173,3 +173,9 @@ TEST_CASE("SagittaBiasNtuplizer tests", "[SagittaBiasNtuplizer]") {
   const std::string baseConfig = generateBaseConfig("sagittaBiasNtuplizer", "tesTrackAnalyzer18.root");
   runTestForAnalyzer(baseConfig, "sagittaBiasNtuplizer");
 }
+
+//___________________________________________________________________________________________
+TEST_CASE("TkAlV0sAnalyzer tests", "[TkAlV0sAnalyzer]") {
+  const std::string baseConfig = generateBaseConfig("tkAlV0sAnalyzer", "tesTrackAnalyzer19.root");
+  runTestForAnalyzer(baseConfig, "tkAlV0sAnalyzer");
+}

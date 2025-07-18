@@ -22,7 +22,7 @@
 #include "SimDataFormats/Associations/interface/L1TrackTruthPair.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTTrackAssociationMap.h"
+#include "SimDataFormats/Associations/interface/TTTrackAssociationMap.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"

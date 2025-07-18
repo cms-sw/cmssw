@@ -63,7 +63,7 @@
 #define REGISTER_KEYLIST_PLUGIN(record_, type_, source_)                                             \
   template class ProductResolverWrapper<record_, type_>;                                             \
   struct EDM_PLUGIN_SYM(ProductResolver, record_) : public ProductResolverWrapper<record_, type_> {  \
-    EDM_PLUGIN_SYM(ProductResolver, record_)() : ProductResolverWrapper<record_, type_>(#source_){}; \
+    EDM_PLUGIN_SYM(ProductResolver, record_)() : ProductResolverWrapper<record_, type_>(#source_) {} \
   };                                                                                                 \
   DEFINE_EDM_PLUGIN(cond::ProductResolverFactory, EDM_PLUGIN_SYM(ProductResolver, record_), #record_ "@NewProxy")
 

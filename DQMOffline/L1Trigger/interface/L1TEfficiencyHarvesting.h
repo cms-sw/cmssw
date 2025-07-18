@@ -41,7 +41,7 @@ namespace dqmoffline {
 
       L1TEfficiencyPlotHandler(const L1TEfficiencyPlotHandler &handler);
 
-      ~L1TEfficiencyPlotHandler(){};
+      ~L1TEfficiencyPlotHandler() {}
 
       // book efficiency histo
       void book(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter);

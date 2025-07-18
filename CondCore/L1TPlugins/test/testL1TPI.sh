@@ -86,3 +86,15 @@ getPayloadData.py \
 
 mv *.png $W_DIR/results/L1TUtmTriggerMenu_CompareConditionsTwoTags.png
 
+####################
+# Test L1TMuonGlobalParams input bits
+####################
+getPayloadData.py \
+    --plugin pluginL1TMuonGlobalParams_PayloadInspector \
+    --plot plot_L1TMuonGlobalParamsInputBits \
+    --tag L1TMuonGlobalParams_Stage2v0_2024_mc_v1 \
+    --time_type Run --iovs '{"start_iov": "1", "end_iov" : "1"}' \
+    --db Prod \
+    --test;
+
+mv *.png $W_DIR/results/L1TMuonGlobalParams_InputBits.png

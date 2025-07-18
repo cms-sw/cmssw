@@ -12,6 +12,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
@@ -407,7 +408,9 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::output_t::TSFastFiller& reco
               buffer->channel(fedCh), std::back_inserter(unpDigis), ipair * 256, isNonLite, mode, legacy_, lmode, pCode);
           if (fedchannelunpacker::StatusCode::SUCCESS == st_ch) {
             edm::DetSet<SiStripDigi> suppDigis{id};
-            rawAlgos.suppressHybridData(unpDigis, suppDigis, ipair * 2);
+            unsigned int detId = suppDigis.id;
+            uint16_t maxNStrips = SiStripDetId(detId).numberOfAPVs() * 128;
+            rawAlgos.suppressHybridData(maxNStrips, unpDigis, suppDigis, ipair * 2);
             std::copy(std::begin(suppDigis), std::end(suppDigis), perStripAdder);
           }
         }

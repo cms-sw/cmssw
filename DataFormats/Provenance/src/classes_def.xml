@@ -73,7 +73,8 @@
  <class name="edm::BranchChildren" ClassVersion="10">
   <version ClassVersion="10" checksum="137742168"/>
  </class>
- <class name="edm::ProductProvenance" ClassVersion="11">
+ <class name="edm::ProductProvenance" ClassVersion="12">
+  <version ClassVersion="12" checksum="737844716"/>
   <version ClassVersion="11" checksum="3594205707"/>
   <version ClassVersion="10" checksum="3685381930"/>
  </class>
@@ -162,6 +163,7 @@
  <class name="std::pair<const edm::ParameterSetID,edm::ParameterSetBlob>"/>
  <class name="edm::ProcessConfigurationID"/>
  <class name="std::vector<edm::ProcessConfigurationID>"/>
+ <class name="edm::StoredParentageID"/>
  <class name="edm::ParentageID"/>
  <class name="edm::Parentage" ClassVersion="11">
   <version ClassVersion="11" checksum="3091321815"/>
@@ -257,6 +259,11 @@
  <ioread sourceClass="edm::Parentage" targetClass="edm::Parentage" version="[1-]" source="" target="transient_">
  <![CDATA[
 	newObj->initializeTransients();
+ ]]>
+ </ioread>
+ <ioread sourceClass="edm::Hash<5>" targetClass="edm::CompactHash<5>" version="[1-]" source="std::string hash_" target="hash_">
+ <![CDATA[
+  *newObj = edm::CompactHash<5>(onfile.hash_);
  ]]>
  </ioread>
  

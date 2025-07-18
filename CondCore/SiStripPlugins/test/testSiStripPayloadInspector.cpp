@@ -70,6 +70,14 @@ int main(int argc, char** argv) {
   histo7.process(connectionString, PI::mk_input(tag, start, end));
   edm::LogPrint("testSiStripPayloadInspector") << histo7.data() << std::endl;
 
+  SiStripApvGainCompareByPartitionSingleTag histoGainByPart;
+  histoGainByPart.process(connectionString, PI::mk_input(tag, start, end));
+  edm::LogPrint("testSiStripPayloadInspector") << histoGainByPart.data() << std::endl;
+
+  SiStripApvGainRatioByPartitionSingleTag histoGainRatioByPart;
+  histoGainRatioByPart.process(connectionString, PI::mk_input(tag, start, end));
+  edm::LogPrint("testSiStripPayloadInspector") << histoGainRatioByPart.data() << std::endl;
+
   // Noise
 
   tag = "SiStripNoise_GR10_v1_hlt";
@@ -100,6 +108,10 @@ int main(int argc, char** argv) {
   histoNoiseCorrelationByPartition.process(connectionString, PI::mk_input(tag, start, start));
   edm::LogPrint("testSiStripPayloadInspector") << histoNoiseCorrelationByPartition.data() << std::endl;
 
+  SiStripNoiseDiffByPartitionSingleTag histoNoiseDiffByPart;
+  histoNoiseDiffByPart.process(connectionString, PI::mk_input(tag, start, end));
+  edm::LogPrint("testSiStripPayloadInspector") << histoNoiseDiffByPart.data() << std::endl;
+
   // Pedestals
 
   tag = "SiStripPedestals_v2_prompt";
@@ -126,6 +138,10 @@ int main(int argc, char** argv) {
   SiStripPedestalCorrelationByPartition histoPedestalCorrelationByPartition;
   histoPedestalCorrelationByPartition.process(connectionString, PI::mk_input(tag, start, start));
   edm::LogPrint("testSiStripPayloadInspector") << histoPedestalCorrelationByPartition.data() << std::endl;
+
+  SiStripPedestalDiffByPartitionSingleTag histoPedDiffByPart;
+  histoPedDiffByPart.process(connectionString, PI::mk_input(tag, start, end));
+  edm::LogPrint("testSiStripPayloadInspector") << histoPedDiffByPart.data() << std::endl;
 
   // Latency
 

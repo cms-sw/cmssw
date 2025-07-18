@@ -23,9 +23,9 @@ namespace l1t {
             tbin(-99),
             vp(-99),
             format_errors(0),
-            dataword(-99){};
+            dataword(-99) {}
 
-      virtual ~RPC(){};
+      virtual ~RPC() {}
 
       void set_phi(int bits) { phi = bits; }
       void set_theta(int bits) { theta = bits; }

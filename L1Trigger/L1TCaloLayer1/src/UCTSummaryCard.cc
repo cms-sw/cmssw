@@ -40,13 +40,6 @@ UCTSummaryCard::UCTSummaryCard(const std::vector<std::vector<std::vector<uint32_
   }
 }
 
-UCTSummaryCard::~UCTSummaryCard() {
-  for (uint32_t i = 0; i < regions.size(); i++) {
-    if (regions[i] != nullptr)
-      delete regions[i];
-  }
-}
-
 bool UCTSummaryCard::process() {
   clearEvent();
   UCTGeometry g;
@@ -126,10 +119,10 @@ bool UCTSummaryCard::process() {
   double mhtPhi = (atan2(sumHy, sumHx) * 180. / 3.1415927) + 180.;
   int mhtIPhi = (int)(72. * (mhtPhi / 360.));
 
-  ET = new UCTObject(UCTObject::ET, etValue, 0, metIPhi, pileup, 0, 0);
-  HT = new UCTObject(UCTObject::HT, htValue, 0, mhtIPhi, pileup, 0, 0);
-  MET = new UCTObject(UCTObject::MET, metValue, 0, metIPhi, pileup, 0, 0);
-  MHT = new UCTObject(UCTObject::MHT, mhtValue, 0, mhtIPhi, pileup, 0, 0);
+  ET = std::make_shared<UCTObject>(UCTObject::ET, etValue, 0, metIPhi, pileup, 0, 0);
+  HT = std::make_shared<UCTObject>(UCTObject::HT, htValue, 0, mhtIPhi, pileup, 0, 0);
+  MET = std::make_shared<UCTObject>(UCTObject::MET, metValue, 0, metIPhi, pileup, 0, 0);
+  MHT = std::make_shared<UCTObject>(UCTObject::MHT, mhtValue, 0, mhtIPhi, pileup, 0, 0);
 
   // Then sort the candidates for output usage
   emObjs.sort();
@@ -365,12 +358,16 @@ bool UCTSummaryCard::processRegion(UCTRegionIndex center) {
   if (centralET >= northET && centralET >= nwET && centralET >= westET && centralET >= swET && centralET > southET &&
       centralET > seET && centralET > eastET && centralET > neET && centralET > jetSeed) {
     if (centralRegion)
-      centralJetObjs.push_back(new UCTObject(UCTObject::jet, jetET, hitCaloEta, hitCaloPhi, pu3x3, 0, et3x3));
+      centralJetObjs.push_back(
+          std::make_shared<UCTObject>(UCTObject::jet, jetET, hitCaloEta, hitCaloPhi, pu3x3, 0, et3x3));
     else
-      forwardJetObjs.push_back(new UCTObject(UCTObject::jet, jetET, hitCaloEta, hitCaloPhi, pu3x3, 0, et3x3));
+      forwardJetObjs.push_back(
+          std::make_shared<UCTObject>(UCTObject::jet, jetET, hitCaloEta, hitCaloPhi, pu3x3, 0, et3x3));
   }
 
-  auto boostedJet = new UCTObject(UCTObject::jet, jetET, hitCaloEta, hitCaloPhi, pu3x3, 0, et3x3);
+  //auto boostedJet = new UCTObject(UCTObject::jet, jetET, hitCaloEta, hitCaloPhi, pu3x3, 0, et3x3);
+  std::shared_ptr<UCTObject> boostedJet =
+      std::make_shared<UCTObject>(UCTObject::jet, jetET, hitCaloEta, hitCaloPhi, pu3x3, 0, et3x3);
   boostedJet->setNTaus(nTauLike);
   boostedJet->setBoostedJetRegionET(boostedJetRegionET);
   boostedJet->setBoostedJetRegionTauVeto(boostedJetRegionTauVeto);
@@ -419,13 +416,15 @@ bool UCTSummaryCard::processRegion(UCTRegionIndex center) {
       }
     }
     if (tauET != 0) {
-      tauObjs.push_back(new UCTObject(UCTObject::tau, tauET, hitCaloEta, hitCaloPhi, tauPU, 0xDEADBEEF, et3x3));
+      tauObjs.push_back(
+          std::make_shared<UCTObject>(UCTObject::tau, tauET, hitCaloEta, hitCaloPhi, tauPU, 0xDEADBEEF, et3x3));
       // Subtract footprint
       uint32_t isolation = 0;
       if (et3x3 > tauET)
         isolation = et3x3 - tauET;
       if (isolation < ((uint32_t)(tauIsolationFactor * (double)tauET))) {
-        isoTauObjs.push_back(new UCTObject(UCTObject::isoTau, tauET, hitCaloEta, hitCaloPhi, pu3x3, isolation, et3x3));
+        isoTauObjs.push_back(
+            std::make_shared<UCTObject>(UCTObject::isoTau, tauET, hitCaloEta, hitCaloPhi, pu3x3, isolation, et3x3));
       }
     }
   }
@@ -474,13 +473,14 @@ bool UCTSummaryCard::processRegion(UCTRegionIndex center) {
       }
     }
     if (eGammaET != 0) {
-      emObjs.push_back(new UCTObject(UCTObject::eGamma, eGammaET, hitCaloEta, hitCaloPhi, eGammaPU, 0xDEADBEEF, et3x3));
+      emObjs.push_back(std::make_shared<UCTObject>(
+          UCTObject::eGamma, eGammaET, hitCaloEta, hitCaloPhi, eGammaPU, 0xDEADBEEF, et3x3));
       uint32_t isolation = 0;
       if (et3x3 > eGammaET)
         isolation = et3x3 - eGammaET;
       if (isolation < ((uint32_t)(eGammaIsolationFactor * (double)eGammaET))) {
-        isoEMObjs.push_back(
-            new UCTObject(UCTObject::isoEGamma, eGammaET, hitCaloEta, hitCaloPhi, pu3x3, isolation, et3x3));
+        isoEMObjs.push_back(std::make_shared<UCTObject>(
+            UCTObject::isoEGamma, eGammaET, hitCaloEta, hitCaloPhi, pu3x3, isolation, et3x3));
       }
     }
   }
@@ -528,10 +528,10 @@ const UCTRegion* UCTSummaryCard::getRegion(int regionEtaIndex, uint32_t regionPh
     edm::LogError("L1TCaloSummary") << "UCTSummaryCard: Incorrect region requested -- bailing" << std::endl;
     exit(1);
   }
-  return regions[i];
+  return &regions[i];
 }
 
-bool UCTSummaryCard::setRegionData(std::vector<UCTRegion*> inputRegions) {
+bool UCTSummaryCard::setRegionData(std::vector<UCTRegion> inputRegions) {
   for (long unsigned int i = 0; i < inputRegions.size(); i++) {
     regions.push_back(inputRegions[i]);
   }

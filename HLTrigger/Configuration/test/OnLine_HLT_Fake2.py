@@ -1,13 +1,13 @@
-# hltGetConfiguration /dev/CMSSW_14_0_0/Fake2 --full --data --type Fake2 --unprescale --process HLTFake2 --globaltag auto:run2_hlt_Fake2 --input file:RelVal_Raw_Fake2_DATA.root
+# hltGetConfiguration /dev/CMSSW_15_0_0/Fake2 --full --data --type Fake2 --unprescale --process HLTFake2 --globaltag auto:run2_hlt_Fake2 --input file:RelVal_Raw_Fake2_DATA.root
 
-# /dev/CMSSW_14_0_0/Fake2/V15 (CMSSW_14_0_6)
+# /dev/CMSSW_15_0_0/Fake2/V10 (CMSSW_15_0_4_patch2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFake2" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_14_0_0/Fake2/V15")
+  tableName = cms.string("/dev/CMSSW_15_0_0/Fake2/V10")
 )
 
 process.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -23,25 +23,24 @@ process.GlobalParametersRcdSource = cms.ESSource( "EmptyESSource",
 process.GlobalTag = cms.ESSource( "PoolDBESSource",
     DBParameters = cms.PSet( 
       authenticationPath = cms.untracked.string( "." ),
-      connectionRetrialTimeOut = cms.untracked.int32( 60 ),
-      idleConnectionCleanupPeriod = cms.untracked.int32( 10 ),
-      messageLevel = cms.untracked.int32( 0 ),
-      enablePoolAutomaticCleanUp = cms.untracked.bool( False ),
-      enableConnectionSharing = cms.untracked.bool( True ),
-      enableReadOnlySessionOnUpdateConnection = cms.untracked.bool( False ),
-      connectionTimeOut = cms.untracked.int32( 0 ),
-      connectionRetrialPeriod = cms.untracked.int32( 10 )
+      messageLevel = cms.untracked.int32( 0 )
     ),
     connect = cms.string( "frontier://FrontierProd/CMS_CONDITIONS" ),
     globaltag = cms.string( "80X_dataRun2_HLT_v12" ),
     snapshotTime = cms.string( "" ),
+    frontierKey = cms.untracked.string( "" ),
     toGet = cms.VPSet( 
     ),
+    JsonDumpFileName = cms.untracked.string( "" ),
     DumpStat = cms.untracked.bool( False ),
     ReconnectEachRun = cms.untracked.bool( False ),
     RefreshAlways = cms.untracked.bool( False ),
     RefreshEachRun = cms.untracked.bool( False ),
-    RefreshOpenIOVs = cms.untracked.bool( False )
+    RefreshOpenIOVs = cms.untracked.bool( False ),
+    pfnPostfix = cms.untracked.string( "" ),
+    pfnPrefix = cms.untracked.string( "" ),
+    recordsToDebug = cms.untracked.vstring(  ),
+    appendToDataLabel = cms.string( "" )
 )
 
 process.GlobalParameters = cms.ESProducer( "StableParametersTrivialProducer",
@@ -74,6 +73,8 @@ process.GlobalParameters = cms.ESProducer( "StableParametersTrivialProducer",
   appendToDataLabel = cms.string( "" )
 )
 process.CastorDbProducer = cms.ESProducer( "CastorDbProducer",
+  dump = cms.untracked.vstring(  ),
+  file = cms.untracked.string( "" ),
   appendToDataLabel = cms.string( "" )
 )
 process.HcalTopologyIdealEP = cms.ESProducer( "HcalTopologyIdealEP",
@@ -205,6 +206,7 @@ process.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
     JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
     EtSumZdcInputTag = cms.InputTag( 'hltGtStage2Digis','EtSumZDC' ),
+    CICADAInputTag = cms.InputTag( "" ),
     ExtInputTag = cms.InputTag( "hltGtStage2Digis" ),
     AlgoBlkInputTag = cms.InputTag( "hltGtStage2Digis" ),
     GetPrescaleColumnFromData = cms.bool( False ),
@@ -212,6 +214,7 @@ process.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
     RequireMenuToMatchAlgoBlkInput = cms.bool( True ),
     AlgorithmTriggersUnmasked = cms.bool( True ),
     useMuonShowers = cms.bool( True ),
+    produceAXOL1TLScore = cms.bool( False ),
     resetPSCountersEachLumiSec = cms.bool( True ),
     semiRandomInitialPSCounters = cms.bool( False ),
     ProduceL1GtDaqRecord = cms.bool( True ),
@@ -236,7 +239,10 @@ process.hltOnlineBeamSpot = cms.EDProducer( "BeamSpotOnlineProducer",
     src = cms.InputTag( "hltScalersRawToDigi" ),
     gtEvmLabel = cms.InputTag( "" ),
     maxRadius = cms.double( 2.0 ),
-    useTransientRecord = cms.bool( False )
+    useBSOnlineRecords = cms.bool( False ),
+    timeThreshold = cms.int32( 48 ),
+    sigmaZThreshold = cms.double( 2.0 ),
+    sigmaXYThreshold = cms.double( 4.0 )
 )
 process.hltPrePhysics = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 ),
@@ -352,7 +358,7 @@ process.dqmOutput = cms.OutputModule("DQMRootOutputModule",
     fileName = cms.untracked.string("DQMIO.root")
 )
 
-process.DQMOutput = cms.FinalPath( process.dqmOutput )
+process.DQMOutput = cms.EndPath( process.dqmOutput )
 
 
 

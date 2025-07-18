@@ -1003,8 +1003,6 @@ void L1GtAnalyzer::analyzeTrigger(const edm::Event& iEvent, const edm::EventSetu
   // retrieve L1GlobalTriggerObjectMapRecord and L1GlobalTriggerObjectMaps products
   // the module returns an error code only if both payloads are missing
 
-  int iErrorRecord = 0;
-
   bool validRecord = false;
   bool gtObjectMapRecordValid = false;
 
@@ -1015,7 +1013,6 @@ void L1GtAnalyzer::analyzeTrigger(const edm::Event& iEvent, const edm::EventSetu
     validRecord = true;
 
   } else {
-    iErrorRecord = 10;
     LogDebug("L1GtAnalyzer") << "\nL1GlobalTriggerObjectMaps with \n  " << m_l1GtObjectMapsInputTag
                              << "\nnot found in the event." << std::endl;
   }
@@ -1028,7 +1025,6 @@ void L1GtAnalyzer::analyzeTrigger(const edm::Event& iEvent, const edm::EventSetu
     validRecord = true;
 
   } else {
-    iErrorRecord = iErrorRecord + 100;
     LogDebug("L1GtAnalyzer") << "\nL1GlobalTriggerObjectMapRecord with \n  " << m_l1GtObjectMapTag
                              << "\nnot found in the event." << std::endl;
   }

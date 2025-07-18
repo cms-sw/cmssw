@@ -8,6 +8,7 @@
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 #include "DataFormats/L1TMuonPhase2/interface/Constants.h"
+#include "DataFormats/L1TMuonPhase2/interface/MuonStub.h"
 
 namespace l1t {
 
@@ -30,7 +31,12 @@ namespace l1t {
     const int hwD0() const { return hwD0_; }
     const uint hwBeta() const { return hwBeta_; }
     void setBeta(uint beta) { hwBeta_ = beta; }
+    void setTF(tftype tf) { tf_ = tf; }
+    unsigned int trackID() const { return trackID_; }
 
+    void setTrackID(unsigned int ID) { trackID_ = ID; }
+
+    const tftype tfType() const { return tf_; }
     // For GT, returning ap_ type
     const Phase2L1GMT::valid_sa_t apValid() const { return Phase2L1GMT::valid_sa_t(hwPt() > 0); };
     const Phase2L1GMT::pt_sa_t apPt() const { return Phase2L1GMT::pt_sa_t(hwPt()); };
@@ -39,7 +45,7 @@ namespace l1t {
     const Phase2L1GMT::z0_sa_t apZ0() const { return Phase2L1GMT::z0_sa_t(hwZ0()); };
     const Phase2L1GMT::d0_sa_t apD0() const { return Phase2L1GMT::d0_sa_t(hwD0()); };
     const Phase2L1GMT::q_sa_t apCharge() const { return Phase2L1GMT::q_sa_t(hwCharge()); };
-    const Phase2L1GMT::qual_sa_t apQual() const { return Phase2L1GMT::qual_sa_t(hwQual()); };
+    const Phase2L1GMT::qual_sa_t apQualFlags() const { return Phase2L1GMT::qual_sa_t(hwQual()); };
 
     // For HLT
     const double phZ0() const { return Phase2L1GMT::LSBSAz0 * hwZ0(); }
@@ -66,12 +72,19 @@ namespace l1t {
         return (hwPt() > other.hwPt());
     }
 
+    void addStub(const MuonStubRef& stub) { stubs_.push_back(stub); }
+    void setStubs(const MuonStubRefVector& stubs) { stubs_ = stubs; }
+    const MuonStubRefVector stubs() const { return stubs_; }
+
   private:
     bool hwCharge_;
     int hwZ0_;
     int hwD0_;
     uint hwBeta_;
     uint64_t word_;
+    MuonStubRefVector stubs_;
+    unsigned int trackID_;
+    tftype tf_;
   };
 }  // namespace l1t
 

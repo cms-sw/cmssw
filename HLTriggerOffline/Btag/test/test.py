@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 process = cms.Process("HLTBTAG")
@@ -89,7 +88,7 @@ process.bTagValidation = DQMEDAnalyzer('HLTBTagPerformanceAnalyzer',
 process.bTagPostValidation = DQMEDHarvester("HLTBTagHarvestingAnalyzer",
 	HLTPathNames = fileini.btag_pathes,
 	histoName	= fileini.btag_modules_string,
-	minTag	= cms.double(0.6),
+	minTag	= cms.double(0.2), #Medium WP for 2023, see https://btv-wiki.docs.cern.ch/ScaleFactors/Run3Summer23/
 	# MC stuff
 	mcFlavours = cms.PSet(
 		light = cms.vuint32(1, 2, 3, 21), # udsg

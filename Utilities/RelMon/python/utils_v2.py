@@ -5,8 +5,6 @@ Help functions for ValidationMatrix_v2.py.
 Author:  Albertas Gimbutas,  Vilnius University (LT)
 e-mail:  albertasgim@gmail.com
 '''
-from __future__ import print_function
-from __future__ import absolute_import
 from builtins import range
 import sys
 import re
@@ -31,29 +29,29 @@ except ImportError:
 ##-----------------   Make files pairs:  RelValData utils   --------------------
 def get_relvaldata_id(file):
     """Returns unique relvaldata ID for a given file."""
-    run_id = re.search('R\d{9}', file)
-    run = re.search('_RelVal_([\w\d]*)-v\d__', file)
+    run_id = re.search('R\\d{9}', file)
+    run = re.search('_RelVal_([\\w\\d]*)-v\\d__', file)
     if not run:
-        run = re.search('GR_R_\d*_V\d*C?_([\w\d]*)-v\d__', file)
+        run = re.search('GR_R_\\d*_V\\d*C?_([\\w\\d]*)-v\\d__', file)
     if run_id and run:
         return (run_id.group(), run.group(1))
     return None
 
 def get_relvaldata_cmssw_version(file):
     """Returns tuple (CMSSW release, GR_R version) for specified RelValData file."""
-    cmssw_release = re.findall('(CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?)-', file)
-    gr_r_version = re.findall('-(GR_R_\d*_V\d*\w?)(?:_RelVal)?_', file)
+    cmssw_release = re.findall('(CMSSW_\\d*_\\d*_\\d*(?:_[\\w\\d]*)?)-', file)
+    gr_r_version = re.findall('-(GR_R_\\d*_V\\d*\\w?)(?:_RelVal)?_', file)
     if not gr_r_version:
-        gr_r_version = re.findall('CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?-(\w*)_RelVal_', file)
+        gr_r_version = re.findall('CMSSW_\\d*_\\d*_\\d*(?:_[\\w\\d]*)?-(\\w*)_RelVal_', file)
     if cmssw_release and gr_r_version:
         return (cmssw_release[0], gr_r_version[0])
 
 def get_relvaldata_version(file):
     """Returns tuple (CMSSW version, run version) for specified file."""
-    cmssw_version = re.findall('DQM_V(\d*)_', file)
-    run_version = re.findall('_RelVal_[\w\d]*-v(\d)__', file)
+    cmssw_version = re.findall('DQM_V(\\d*)_', file)
+    run_version = re.findall('_RelVal_[\\w\\d]*-v(\\d)__', file)
     if not run_version:
-        run_version = re.findall('GR_R_\d*_V\d*C?_[\w\d]*-v(\d)__', file)
+        run_version = re.findall('GR_R_\\d*_V\\d*C?_[\\w\\d]*-v(\\d)__', file)
     if cmssw_version and run_version:
         return (int(cmssw_version[0]), int(run_version[0]))
 
@@ -72,8 +70,8 @@ def get_relvaldata_max_version(files):
 ## -------------------   Make files pairs:  RelVal utils   ---------------------
 def get_relval_version(file):
     """Returns tuple (CMSSW version, run version) for specified file."""
-    cmssw_version = re.findall('DQM_V(\d*)_', file)
-    run_version = re.findall('CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?-[\w\d]*_V\d*\w?(?:_[\w\d]*)?-v(\d*)__', file)
+    cmssw_version = re.findall('DQM_V(\\d*)_', file)
+    run_version = re.findall('CMSSW_\\d*_\\d*_\\d*(?:_[\\w\\d]*)?-[\\w\\d]*_V\\d*\\w?(?:_[\\w\\d]*)?-v(\\d*)__', file)
     if cmssw_version and run_version:
         return (int(cmssw_version[0]), int(run_version[0]))
 
@@ -90,14 +88,14 @@ def get_relval_max_version(files):
     return max_file
 
 def get_relval_cmssw_version(file):
-    cmssw_release = re.findall('(CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?)-', file)
-    gr_r_version = re.findall('CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?-([\w\d]*)_V\d*\w?(_[\w\d]*)?-v', file)
+    cmssw_release = re.findall('(CMSSW_\\d*_\\d*_\\d*(?:_[\\w\\d]*)?)-', file)
+    gr_r_version = re.findall('CMSSW_\\d*_\\d*_\\d*(?:_[\\w\\d]*)?-([\\w\\d]*)_V\\d*\\w?(_[\\w\\d]*)?-v', file)
     if cmssw_release and gr_r_version:
         return (cmssw_release[0], gr_r_version[0])
 
 def get_relval_id(file):
     """Returns unique relval ID (dataset name) for a given file."""
-    dataset_name = re.findall('R\d{9}__([\w\d]*)__CMSSW_', file)
+    dataset_name = re.findall('R\\d{9}__([\\w\\d]*)__CMSSW_', file)
     return dataset_name[0]
 
 ## -----------------------  Make file pairs --------------------------

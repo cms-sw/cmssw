@@ -33,7 +33,7 @@ namespace l1t {
 
   public:
     rctDataBase();
-    ~rctDataBase(){};
+    ~rctDataBase() {}
 
     int GetLength(rctObjectType t) { return length[t]; }
 

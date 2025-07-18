@@ -681,7 +681,7 @@ void EcalSelectiveReadoutProducer::printSrFlags(ostream& os,
       os << (srFlag == -1 ? ' ' : srpFlagMarker[srFlag]);
     }
     os << "\n";  //one Y supercystal column per line
-  }              //next supercrystal X-index
+  }  //next supercrystal X-index
 
   //EB
   for (int iEta0 = 0; iEta0 < nEbTtEta; ++iEta0) {
@@ -701,7 +701,7 @@ void EcalSelectiveReadoutProducer::printSrFlags(ostream& os,
       os << (srFlag == -1 ? ' ' : srpFlagMarker[srFlag]);
     }
     os << "\n";  //one Y supercystal column per line
-  }              //next supercrystal X-index
+  }  //next supercrystal X-index
 
   //event trailer:
   os << "\n";

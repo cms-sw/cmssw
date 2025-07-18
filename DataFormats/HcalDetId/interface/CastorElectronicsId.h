@@ -44,7 +44,7 @@ public:
   int htrSlot() const { return (castorElectronicsId_ >> 14) & 0x1F; }
   int htrTopBottom() const { return (castorElectronicsId_ >> 19) & 0x1; }
   int readoutVMECrateId() const { return (castorElectronicsId_ >> 20) & 0x1F; }
-  int linearIndex() const { return (castorElectronicsId_)&0x3FFF; }
+  int linearIndex() const { return (castorElectronicsId_) & 0x3FFF; }
 
   static const int maxLinearIndex = 0x3FFF;
   static const int maxDCCId = 15;

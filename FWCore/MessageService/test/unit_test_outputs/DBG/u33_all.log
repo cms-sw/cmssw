@@ -140,42 +140,42 @@ T1 endProcessBlock debug with identifier 12 event 2
 
 MessageLogger Summary
 
- type     category        sev    module        subroutine        count    total
- ---- -------------------- -- ---------------- ----------------  -----    -----
-    1 cat_A                -d UTC_V1:ssm_1b                          2        2
-    2 cat_BJ               -d UTC_V1:ssm_1b@be                       1        1
-    3 cat_BL               -d UTC_V1:ssm_1b@be                       1        1
-    4 cat_BPB              -d UTC_V1:ssm_1b@be                       1        1
-    5 cat_BR               -d UTC_V1:ssm_1b@be                       1        1
-    6 cat_EPB              -d UTC_V1:ssm_1b@en                       1        1
-    7 cat_A                -i UTC_V1:ssm_1a                          2        2
-    8 cat_A                -i UTC_V1:ssm_1b                          2        2
-    9 cat_A                -i UTC_V2:ssm_2b                          2        2
-   10 cat_BPB              -i UTC_V1:ssm_1a@be                       1        1
-   11 cat_BPB              -i UTC_V1:ssm_1b@be                       1        1
-   12 cat_BR               -i UTC_V1:ssm_1a@be                       1        1
-   13 cat_BR               -i UTC_V1:ssm_1b@be                       1        1
-   14 cat_EPB              -i UTC_V1:ssm_1a@en                       1        1
-   15 cat_EPB              -i UTC_V1:ssm_1b@en                       1        1
-   16 FwkReport            -f AfterSource                            2        2
-   17 cat_A                -w UTC_V1:ssm_1a                          2        2
-   18 cat_A                -w UTC_V1:ssm_1b                          2        2
-   19 cat_A                -w UTC_V2:ssm_2a                          2        2
-   20 cat_A                -w UTC_V2:ssm_2b                          2        2
-   21 cat_BJ               -w UTC_V1:ssm_1a@be                       1        1
-   22 cat_BJ               -w UTC_V1:ssm_1b@be                       1        1
-   23 cat_BL               -w UTC_V1:ssm_1a@be                       1        1
-   24 cat_BL               -w UTC_V1:ssm_1b@be                       1        1
-   25 TestMessageLogger    -e PreBeginProcessB                       1        1
-   26 TestMessageLogger    -e PreEndProcessBlo                       1        1
-   27 TestMessageLogger    -e PreGlobalBeginLu                       1        1
-   28 TestMessageLogger    -e PreGlobalBeginRu                       1        1
-   29 TestMessageLogger    -e PreGlobalEndLumi                       1        1
-   30 TestMessageLogger    -e PreGlobalEndRun                        1        1
-   31 cat_A                -e UTC_V1:ssm_1a                          2        2
-   32 cat_A                -e UTC_V1:ssm_1b                          2        2
-   33 cat_A                -e UTC_V2:ssm_2a                          2        2
-   34 cat_A                -e UTC_V2:ssm_2b                          2        2
+ type     category        sev          module                subroutine         count   total
+ ---- -------------------- -- ------------------------- ---------------------   -----   -----
+    1 cat_A                -d UTC_V1:ssm_1b                                        2        2
+    2 cat_BJ               -d UTC_V1:ssm_1b@beginJob                               1        1
+    3 cat_BL               -d UTC_V1:ssm_1b@beginLumi                              1        1
+    4 cat_BPB              -d UTC_V1:ssm_1b@beginProces                            1        1
+    5 cat_BR               -d UTC_V1:ssm_1b@beginRun                               1        1
+    6 cat_EPB              -d UTC_V1:ssm_1b@endProcessB                            1        1
+    7 cat_A                -i UTC_V1:ssm_1a                                        2        2
+    8 cat_A                -i UTC_V1:ssm_1b                                        2        2
+    9 cat_A                -i UTC_V2:ssm_2b                                        2        2
+   10 cat_BPB              -i UTC_V1:ssm_1a@beginProces                            1        1
+   11 cat_BPB              -i UTC_V1:ssm_1b@beginProces                            1        1
+   12 cat_BR               -i UTC_V1:ssm_1a@beginRun                               1        1
+   13 cat_BR               -i UTC_V1:ssm_1b@beginRun                               1        1
+   14 cat_EPB              -i UTC_V1:ssm_1a@endProcessB                            1        1
+   15 cat_EPB              -i UTC_V1:ssm_1b@endProcessB                            1        1
+   16 FwkReport            -f AfterSource                                          2        2
+   17 cat_A                -w UTC_V1:ssm_1a                                        2        2
+   18 cat_A                -w UTC_V1:ssm_1b                                        2        2
+   19 cat_A                -w UTC_V2:ssm_2a                                        2        2
+   20 cat_A                -w UTC_V2:ssm_2b                                        2        2
+   21 cat_BJ               -w UTC_V1:ssm_1a@beginJob                               1        1
+   22 cat_BJ               -w UTC_V1:ssm_1b@beginJob                               1        1
+   23 cat_BL               -w UTC_V1:ssm_1a@beginLumi                              1        1
+   24 cat_BL               -w UTC_V1:ssm_1b@beginLumi                              1        1
+   25 TestMessageLogger    -e PreBeginProcessBlock                                 1        1
+   26 TestMessageLogger    -e PreEndProcessBlock                                   1        1
+   27 TestMessageLogger    -e PreGlobalBeginLumi                                   1        1
+   28 TestMessageLogger    -e PreGlobalBeginRun                                    1        1
+   29 TestMessageLogger    -e PreGlobalEndLumi                                     1        1
+   30 TestMessageLogger    -e PreGlobalEndRun                                      1        1
+   31 cat_A                -e UTC_V1:ssm_1a                                        2        2
+   32 cat_A                -e UTC_V1:ssm_1b                                        2        2
+   33 cat_A                -e UTC_V2:ssm_2a                                        2        2
+   34 cat_A                -e UTC_V2:ssm_2b                                        2        2
 
  type    category    Examples: run/evt        run/evt          run/evt
  ---- -------------------- ---------------- ---------------- ----------------

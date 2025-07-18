@@ -20,7 +20,7 @@ public:
     // std::cout << "entrylength" << std::endl;
     theDimType = ED_length;
   };
-  ~EntryLength() override{};
+  ~EntryLength() override {}
 
   //----- Return value and sigma dimension factors
   ALIdouble ValueDimensionFactor() const override { return ALIUtils::LengthValueDimensionFactor(); }

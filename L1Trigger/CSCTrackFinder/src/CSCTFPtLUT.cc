@@ -409,8 +409,6 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const {
 
         // First remake the 12-bit dPhi word from the core
         remerged = (address.delta_phi_12 | (address.delta_phi_23 << 8));
-        // Now get 8-bit dPhi12
-        absPhi12 = ((1 << 8) - 1) & remerged;
         // Now get 3-bit dEta
         dEta = ((1 << 3) - 1) & (remerged >> 8);
         // New get CLCT bit. CLCT = true if CLCTPattern = 8, 9, or 10, else 0.
@@ -996,7 +994,7 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const {
           dphi12R = (static_cast<float>(absPhi12)) / (static_cast<float>(1 << 12)) * CSCTFConstants::SECTOR_RAD;
           ptR_rear = ptMethods.Pt2Stn2010(mode, etaR, dphi12R, 0, int(pt_method));
 
-        }               // end fr == 0
+        }  // end fr == 0
         if (fr == 1) {  // 3 station track
           charge12 = 1;
           absPhi12 = address.delta_phi_12;
@@ -1046,8 +1044,8 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const {
     front_pt = trigger_ptscale->getPtScale()->getPacked(ptR_front);
     rear_pt = trigger_ptscale->getPtScale()->getPacked(ptR_rear);
 
-  }                      //end pt_methods greater or equal to 11
-                         //***************************************************//
+  }  //end pt_methods greater or equal to 11
+  //***************************************************//
   if (pt_method <= 5) {  //here we have only pt_methods less or equal to 5
     // mode definition you could find at https://twiki.cern.ch/twiki/pub/Main/PtLUTs/mode_codes.xls
     // it is valid till the end 2010
@@ -1316,7 +1314,7 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const {
     }
 
   }  // end if for pt_method less or equal to 5
-     //***************************************************//
+  //***************************************************//
 
   result.front_rank = front_pt | front_quality << 5;
   result.rear_rank = rear_pt | rear_quality << 5;

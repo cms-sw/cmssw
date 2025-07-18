@@ -46,7 +46,7 @@ namespace pflow {
                   cc.consumes<reco::PFCandidateCollection>(conf.getParameter<edm::InputTag>("vetoSrc"));
               break;
           }  // switch
-        }    // vetoEndcap_
+        }  // vetoEndcap_
       }
 
       void importToBlock(const edm::Event&, ElementList&) const override;
@@ -137,10 +137,10 @@ namespace pflow {
               ++TKs_end;
             }
           }  // daughter track loop ends
-        }    // end of importable check
-      }      // loop on tracking coming from common parent
+        }  // end of importable check
+      }  // loop on tracking coming from common parent
       elems.shrink_to_fit();
     }  // end of importToBlock
-  }    // namespace importers
+  }  // namespace importers
 }  // namespace pflow
 #endif

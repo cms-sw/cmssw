@@ -1,8 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+import Geometry.MTDCommonData.defaultMTDConditionsEra_cff as _mtdgeo
+_mtdgeo.check_mtdgeo()
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_mtdgeo.MTD_DEFAULT_VERSION)
+from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 
-process = cms.Process("GeometryTest",Phase2C17I13M9)
+process = cms.Process("GeometryTest",_PH2_ERA,dd4hep)
 
 process.source = cms.Source("EmptySource")
 
@@ -16,11 +20,17 @@ process.MessageLogger.cerr.threshold = cms.untracked.string('DEBUG')
 process.MessageLogger.cerr.DEBUG = cms.untracked.PSet(
     limit = cms.untracked.int32(0)
 )
-process.MessageLogger.cerr.MTDLayerDump = cms.untracked.PSet(
+process.MessageLogger.cerr.MTDLayerDumpFull = cms.untracked.PSet(
     limit = cms.untracked.int32(-1)
 )
-process.MessageLogger.cerr.MTDDetLayers = cms.untracked.PSet(
+process.MessageLogger.cerr.MTDDetLayersFull = cms.untracked.PSet(
     limit = cms.untracked.int32(-1)
+)
+process.MessageLogger.cerr.MTDLayerDump = cms.untracked.PSet(
+    limit = cms.untracked.int32(0)
+)
+process.MessageLogger.cerr.MTDDetLayers = cms.untracked.PSet(
+    limit = cms.untracked.int32(0)
 )
 process.MessageLogger.files.mtdDetLayerGeometry = cms.untracked.PSet(
     MTDLayerDump = cms.untracked.PSet(
@@ -48,12 +58,13 @@ process.MessageLogger.files.mtdDetLayerGeometry = cms.untracked.PSet(
     threshold = cms.untracked.string('INFO'))
 
 # Choose Tracker Geometry
-process.load("Configuration.Geometry.GeometryExtended2026D98Reco_cff")
+process.load("Geometry.MTDCommonData.GeometryDD4hepExtendedRun4MTDDefaultReco_cff")
 process.load("MagneticField.Engine.volumeBasedMagneticField_160812_cfi")
 
 process.Timing = cms.Service("Timing")
 
 process.prod = cms.EDAnalyzer("MTDRecoGeometryAnalyzer")
-process.prod1 = cms.EDAnalyzer("TestETLNavigation")
+process.prod1 = cms.EDAnalyzer("TestBTLNavigation")
+process.prod2 = cms.EDAnalyzer("TestETLNavigation")
 
-process.p1 = cms.Path(cms.wait(process.prod)+process.prod1)
+process.p1 = cms.Path(cms.wait(process.prod)+cms.wait(process.prod1)+process.prod2)

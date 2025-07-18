@@ -40,7 +40,7 @@ public:
 
   // private:
 protected:
-  void init() override{};
+  void init() override {}
 
   double aveEff;
   double aveCls;

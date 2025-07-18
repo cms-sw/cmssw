@@ -3,7 +3,7 @@
 #
 # cmsRun FWCore/Integration/test/testFrameworkExceptionHandling_cfg.py testNumber=1
 #
-# with the value assigned to testNumber having a value from 1 to 9.
+# with the value assigned to testNumber having a value from 1 to 16.
 # That value specifies which transition to throw an exception in.
 # If the value is not specified, then no exception is thrown.
 
@@ -19,6 +19,9 @@ nLumis = nRuns*nLumisPerRun
 nEvents = nRuns*nEventsPerRun
 
 process = cms.Process("TEST")
+
+process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 from FWCore.ParameterSet.VarParsing import VarParsing
 
@@ -62,7 +65,9 @@ process.options = cms.untracked.PSet(
 
 process.busy1 = cms.EDProducer("BusyWaitIntProducer",ivalue = cms.int32(1), iterations = cms.uint32(10*1000*1000))
 
-process.throwException = cms.EDProducer("ExceptionThrowingProducer")
+process.throwException = cms.EDProducer("ExceptionThrowingProducer",
+    verbose = cms.untracked.bool(False)
+)
 process.doNotThrowException = cms.EDProducer("ExceptionThrowingProducer")
 
 print('testNumber', options.testNumber)
@@ -75,6 +80,11 @@ if options.testNumber == 1:
     process.throwException.eventIDThrowOnEvent = cms.untracked.EventID(3, 1, 5)
 elif options.testNumber == 2:
     process.throwException.eventIDThrowOnGlobalBeginRun = cms.untracked.EventID(4, 0, 0)
+    process.throwException.expectedGlobalBeginRun = cms.untracked.uint32(4)
+    process.throwException.expectedOffsetNoGlobalEndRun = cms.untracked.uint32(1)
+    process.throwException.expectedOffsetNoWriteRun = cms.untracked.uint32(1)
+    process.doNotThrowException.expectedOffsetNoGlobalEndRun = cms.untracked.uint32(1)
+    process.doNotThrowException.expectedOffsetNoWriteRun = cms.untracked.uint32(1)
 elif options.testNumber == 3:
     process.throwException.eventIDThrowOnGlobalBeginLumi = cms.untracked.EventID(4, 1, 0)
     process.throwException.expectedGlobalBeginLumi = cms.untracked.uint32(4)
@@ -84,6 +94,9 @@ elif options.testNumber == 3:
     process.doNotThrowException.expectedOffsetNoWriteLumi = cms.untracked.uint32(1)
 elif options.testNumber == 4:
     process.throwException.eventIDThrowOnGlobalEndRun = cms.untracked.EventID(3, 0, 0)
+    process.throwException.expectedGlobalBeginRun = cms.untracked.uint32(3)
+    process.throwException.expectedOffsetNoWriteRun = cms.untracked.uint32(1)
+    process.doNotThrowException.expectedOffsetNoWriteRun = cms.untracked.uint32(1)
 elif options.testNumber == 5:
     process.throwException.eventIDThrowOnGlobalEndLumi = cms.untracked.EventID(3, 1, 0)
     process.throwException.expectedGlobalBeginLumi = cms.untracked.uint32(3)
@@ -91,6 +104,10 @@ elif options.testNumber == 5:
     process.doNotThrowException.expectedOffsetNoWriteLumi = cms.untracked.uint32(1)
 elif options.testNumber == 6:
     process.throwException.eventIDThrowOnStreamBeginRun = cms.untracked.EventID(4, 0, 0)
+    process.throwException.expectedStreamBeginRun = cms.untracked.uint32(4)
+    process.throwException.expectedOffsetNoStreamEndRun = cms.untracked.uint32(1)
+    process.doNotThrowException.expectedStreamBeginRun = cms.untracked.uint32(4)
+    process.doNotThrowException.expectedOffsetNoStreamEndRun = cms.untracked.uint32(1)
 elif options.testNumber == 7:
     process.throwException.eventIDThrowOnStreamBeginLumi = cms.untracked.EventID(4, 1, 0)
     process.throwException.expectedStreamBeginLumi = cms.untracked.uint32(4)
@@ -101,10 +118,49 @@ elif options.testNumber == 8:
     process.throwException.eventIDThrowOnStreamEndRun = cms.untracked.EventID(3, 0, 0)
 elif options.testNumber == 9:
     process.throwException.eventIDThrowOnStreamEndLumi = cms.untracked.EventID(3, 1, 0)
-    process.throwException.expectedStreamBeginLumi = cms.untracked.uint32(4)
-    process.doNotThrowException.expectedStreamBeginLumi = cms.untracked.uint32(4)
+elif options.testNumber == 10:
+    process.throwException.throwInBeginJob = cms.untracked.bool(True)
+    process.throwException.expectedNEndJob = cms.untracked.uint32(0)
+    process.throwException.expectedOffsetNoEndJob = cms.untracked.uint32(1)
+    process.doNotThrowException.expectedNBeginStream = cms.untracked.uint32(0)
+    process.doNotThrowException.expectedNBeginProcessBlock = cms.untracked.uint32(0)
+    process.doNotThrowException.expectedNEndProcessBlock = cms.untracked.uint32(0)
+    process.doNotThrowException.expectedNEndStream = cms.untracked.uint32(0)
+    process.doNotThrowException.expectNoRunsProcessed = cms.untracked.bool(True)
+    process.doNotThrowException.expectedOffsetNoEndJob = cms.untracked.uint32(1)
+elif options.testNumber == 11:
+    process.throwException.throwInBeginStream = cms.untracked.bool(True)
+    process.throwException.expectedNBeginStream = cms.untracked.uint32(4)
+    process.throwException.expectedNBeginProcessBlock = cms.untracked.uint32(0)
+    process.throwException.expectedNEndProcessBlock = cms.untracked.uint32(0)
+    process.throwException.expectedNEndStream = cms.untracked.uint32(3)
+    process.throwException.expectNoRunsProcessed = cms.untracked.bool(True)
+    process.throwException.expectedOffsetNoEndStream = cms.untracked.uint32(1)
+    process.doNotThrowException.expectedNBeginStream = cms.untracked.uint32(4)
+    process.doNotThrowException.expectedNBeginProcessBlock = cms.untracked.uint32(0)
+    process.doNotThrowException.expectedNEndProcessBlock = cms.untracked.uint32(0)
+    process.doNotThrowException.expectedNEndStream = cms.untracked.uint32(4)
+    process.doNotThrowException.expectNoRunsProcessed = cms.untracked.bool(True)
+    process.doNotThrowException.expectedOffsetNoEndStream = cms.untracked.uint32(1)
+elif options.testNumber == 12:
+    process.throwException.throwInBeginProcessBlock = cms.untracked.bool(True)
+    process.throwException.expectedNEndProcessBlock = cms.untracked.uint32(0)
+    process.throwException.expectNoRunsProcessed = cms.untracked.bool(True)
+    process.throwException.expectedOffsetNoEndProcessBlock = cms.untracked.uint32(1)
+    process.doNotThrowException.expectNoRunsProcessed = cms.untracked.bool(True)
+    process.doNotThrowException.expectedOffsetNoEndProcessBlock = cms.untracked.uint32(1)
+elif options.testNumber == 13:
+    process.throwException.throwInEndProcessBlock = cms.untracked.bool(True)
+elif options.testNumber == 14:
+    process.throwException.throwInEndStream = cms.untracked.bool(True)
+elif options.testNumber == 15:
+    process.throwException.throwInEndJob = cms.untracked.bool(True)
+# This one does not throw. It is not used in the unit test but was useful
+# when manually debugging the test itself and manually debugging other things.
+elif options.testNumber == 16:
+    process.throwException.throwInEndJob = cms.untracked.bool(False)
 else:
-    print("The parameter named testNumber is out of range. An exception will not be thrown. Supported values range from 1 to 9.")
+    print("The parameter named testNumber is out of range. An exception will not be thrown. Supported values range from 1 to 16.")
     print("The proper syntax for setting the parameter is:")
     print("")
     print ("    cmsRun FWCore/Integration/test/testFrameworkExceptionHandling_cfg.py testNumber=1")

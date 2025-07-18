@@ -48,7 +48,7 @@ public:
   DTConfigTSPhi(const edm::ParameterSet& ps);
 
   //! Constructor
-  DTConfigTSPhi(){};
+  DTConfigTSPhi() {}
 
   //! Constructor
   DTConfigTSPhi(bool debug, unsigned short int tss_buffer[7][31], int ntss, unsigned short int tsm_buffer[9]);

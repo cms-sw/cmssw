@@ -9,10 +9,9 @@
 #include "Rivet/Particle.fhh"
 #include "Rivet/Event.hh"
 #include "Rivet/Projections/FastJets.hh"
-#include "Rivet/Projections/JetAlg.hh"
 #include "Rivet/Projections/ChargedLeptons.hh"
 #include "Rivet/Projections/PromptFinalState.hh"
-#include "Rivet/Projections/DressedLeptons.hh"
+#include "Rivet/Projections/LeptonFinder.hh"
 #include "Rivet/Projections/VetoedFinalState.hh"
 #include "Rivet/Projections/IdentifiedFinalState.hh"
 #include "Rivet/Projections/MissingMomentum.hh"
@@ -99,12 +98,8 @@ namespace Rivet {
       prompt_photons.acceptMuonDecays(true);
       prompt_photons.acceptTauDecays(true);
 
-      // useDecayPhotons=true allows for photons with tau ancestor,
-      // photons from hadrons are vetoed by the PromptFinalState;
-      // will be default DressedLeptons behaviour for Rivet >= 2.5.4
-      DressedLeptons prompt_dressed_leptons(
-          prompt_photons, prompt_leptons, _lepConeSize, lepton_cut, /*useDecayPhotons*/ true);
-      DressedLeptons dressed_leptons(photons, charged_leptons, _lepConeSize, lepton_cut, /*useDecayPhotons*/ true);
+      LeptonFinder prompt_dressed_leptons(prompt_leptons, prompt_photons, _lepConeSize, lepton_cut);
+      LeptonFinder dressed_leptons(charged_leptons, photons, _lepConeSize, lepton_cut);
       declare(_usePromptFinalStates ? prompt_dressed_leptons : dressed_leptons, "DressedLeptons");
 
       declare(photons, "Photons");
@@ -113,13 +108,13 @@ namespace Rivet {
       VetoedFinalState fsForJets(fs);
       if (_usePromptFinalStates and _excludePromptLeptonsFromJetClustering)
         fsForJets.addVetoOnThisFinalState(prompt_dressed_leptons);
-      JetAlg::Invisibles invisiblesStrategy = JetAlg::Invisibles::DECAY;
+      JetInvisibles invisiblesStrategy = JetInvisibles::DECAY;
       if (_excludeNeutrinosFromJetClustering)
-        invisiblesStrategy = JetAlg::Invisibles::NONE;
-      declare(FastJets(fsForJets, FastJets::ANTIKT, _jetConeSize, JetAlg::Muons::ALL, invisiblesStrategy), "Jets");
+        invisiblesStrategy = JetInvisibles::NONE;
+      declare(FastJets(fsForJets, JetAlg::ANTIKT, _jetConeSize, JetMuons::ALL, invisiblesStrategy), "Jets");
 
       // FatJets
-      declare(FastJets(fsForJets, FastJets::ANTIKT, _fatJetConeSize), "FatJets");
+      declare(FastJets(fsForJets, JetAlg::ANTIKT, _fatJetConeSize, JetMuons::ALL, invisiblesStrategy), "FatJets");
 
       // Neutrinos
       IdentifiedFinalState neutrinos(fs);
@@ -148,7 +143,7 @@ namespace Rivet {
       Cut jet_cut = (Cuts::abseta < _jetMaxEta) and (Cuts::pT > _jetMinPt * GeV);
       Cut fatjet_cut = (Cuts::abseta < _fatJetMaxEta) and (Cuts::pT > _fatJetMinPt * GeV);
 
-      _leptons = apply<DressedLeptons>(event, "DressedLeptons").particlesByPt();
+      _leptons = apply<LeptonFinder>(event, "DressedLeptons").particlesByPt();
 
       // search tau ancestors
       Particles promptleptons = apply<PromptFinalState>(event, "PromptLeptons").particles();
@@ -158,7 +153,7 @@ namespace Rivet {
           if (cl.momentum() == pl.momentum()) {
             for (auto& p : pl.ancestors()) {
               if (p.abspid() == 15) {
-                p.setMomentum(p.momentum() * 10e-20);
+                p.setMomentum(p.momentum() * 1e-20);
                 lepton.addConstituent(p, false);
               }
             }
@@ -220,7 +215,7 @@ namespace Rivet {
     };
 
     // Do nothing here
-    void finalize() override{};
+    void finalize() override {}
 
     std::string status() const override { return "VALIDATED"; }
   };

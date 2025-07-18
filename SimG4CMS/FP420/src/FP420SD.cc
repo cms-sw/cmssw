@@ -392,7 +392,7 @@ void FP420SD::EndOfEvent(G4HCofThisEvent*) {
 	      aHit->getVz()));  -
       */
     }  //if Tof<1600. if nhits<100
-  }    // for loop on hits
+  }  // for loop on hits
 
   Summarize();
 }

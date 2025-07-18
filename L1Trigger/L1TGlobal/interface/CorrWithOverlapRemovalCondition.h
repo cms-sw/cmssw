@@ -47,9 +47,8 @@ namespace l1t {
                                     const GlobalCondition*,
                                     const GlobalCondition*,
                                     const GlobalCondition*,
-                                    const GlobalBoard*
-
-    );
+                                    const GlobalBoard*,
+                                    const GlobalScales*);
 
     // copy constructor
     CorrWithOverlapRemovalCondition(const CorrWithOverlapRemovalCondition&);
@@ -68,18 +67,16 @@ namespace l1t {
     void print(std::ostream& myCout) const override;
 
   public:
-    ///   get / set the pointer to a Condition
     inline const CorrelationWithOverlapRemovalTemplate* gtCorrelationWithOverlapRemovalTemplate() const {
       return m_gtCorrelationWithOverlapRemovalTemplate;
     }
 
     void setGtCorrelationWithOverlapRemovalTemplate(const CorrelationWithOverlapRemovalTemplate*);
 
-    ///   get / set the pointer to uGt GlobalBoard
     inline const GlobalBoard* getuGtB() const { return m_uGtB; }
-
     void setuGtB(const GlobalBoard*);
 
+    inline const GlobalScales* getScales() const { return m_gtScales; }
     void setScales(const GlobalScales*);
 
     /*   //BLW Comment out for now

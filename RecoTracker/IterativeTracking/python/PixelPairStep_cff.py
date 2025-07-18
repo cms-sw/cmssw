@@ -86,14 +86,14 @@ _region_Phase1 = dict(
 )
 trackingPhase1.toModify(pixelPairStepTrackingRegions, RegionPSet=_region_Phase1)
 trackingPhase2PU140.toModify(pixelPairStepTrackingRegions, RegionPSet=_region_Phase1)
-from Configuration.Eras.Modifier_highBetaStar_2018_cff import highBetaStar_2018
-highBetaStar_2018.toModify(pixelPairStepTrackingRegions,RegionPSet = dict(
+from Configuration.Eras.Modifier_highBetaStar_cff import highBetaStar
+highBetaStar.toModify(pixelPairStepTrackingRegions,RegionPSet = dict(
      ptMin        = 0.05,
      originRadius = 0.2,
      fixedError   = 4.
 ))
 from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
-(highBetaStar_2018 & run3_upc).toModify(pixelPairStepTrackingRegions,RegionPSet = dict(originRadius = 0.015))
+(highBetaStar & run3_upc).toModify(pixelPairStepTrackingRegions,RegionPSet = dict(originRadius = 0.015))
 fastSim.toModify(pixelPairStepTrackingRegions, RegionPSet=dict(VertexCollection = 'firstStepPrimaryVerticesBeforeMixing'))
 
 # SEEDS
@@ -173,7 +173,7 @@ pixelPairStepTrackingRegionsSeedLayersB = _pixelInactiveAreaTrackingRegionsAndSe
     ),
     ignoreSingleFPixPanelModules = True,
 )
-highBetaStar_2018.toModify(pixelPairStepTrackingRegionsSeedLayersB,RegionPSet = dict(
+highBetaStar.toModify(pixelPairStepTrackingRegionsSeedLayersB,RegionPSet = dict(
      ptMin        = 0.05,
      originRadius = 0.2,
 ))
@@ -231,7 +231,7 @@ trackingPhase2PU140.toReplaceWith(pixelPairStepTrajectoryFilterBase, _pixelPairS
     maxLostHitsFraction = 1./10.,
     constantValueForLostHitsFractionFilter = 0.701,
 ))
-highBetaStar_2018.toModify(pixelPairStepTrajectoryFilterBase, minPt = 0.05)
+highBetaStar.toModify(pixelPairStepTrajectoryFilterBase, minPt = 0.05)
 
 import RecoTracker.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi
 pixelPairStepTrajectoryFilterShape = RecoTracker.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi.StripSubClusterShapeTrajectoryFilterTIX12.clone()
@@ -272,7 +272,7 @@ _tracker_apv_vfp30_2016.toModify(pixelPairStepChi2Est,
 trackingLowPU.toModify(pixelPairStepChi2Est,
     clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTiny'),
 )
-highBetaStar_2018.toModify(pixelPairStepChi2Est, MaxChi2 = 30)
+highBetaStar.toModify(pixelPairStepChi2Est, MaxChi2 = 30)
 
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
@@ -383,7 +383,7 @@ trackdnn.toReplaceWith(pixelPairStep, trackTfClassifier.clone(
     qualityCuts=qualityCutDictionary.PixelPairStep.value()
 ))
 
-highBetaStar_2018.toModify(pixelPairStep,qualityCuts = [-0.95,0.0,0.3])
+highBetaStar.toModify(pixelPairStep,qualityCuts = [-0.95,0.0,0.3])
 pp_on_AA.toModify(pixelPairStep, qualityCuts = [0.85, 0.95, 0.98])
 fastSim.toModify(pixelPairStep, vertices = 'firstStepPrimaryVerticesBeforeMixing')
 

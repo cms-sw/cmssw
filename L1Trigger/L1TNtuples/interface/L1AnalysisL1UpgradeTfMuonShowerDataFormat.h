@@ -8,7 +8,7 @@ namespace L1Analysis {
 
   struct L1AnalysisL1UpgradeTfMuonShowerDataFormat {
     L1AnalysisL1UpgradeTfMuonShowerDataFormat() { Reset(); };
-    ~L1AnalysisL1UpgradeTfMuonShowerDataFormat(){};
+    ~L1AnalysisL1UpgradeTfMuonShowerDataFormat() {}
 
     void Reset() {
       nTfMuonShowers = 0;

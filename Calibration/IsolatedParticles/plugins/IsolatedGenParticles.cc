@@ -462,7 +462,7 @@ void IsolatedGenParticles::analyze(const edm::Event &iEvent, const edm::EventSet
       h_L1AlgoNames->GetXaxis()->SetBinLabel(itrig + 1, algoBitToName_[itrig].c_str());
 
     }  // end of for loop
-  }    // end of initL1
+  }  // end of initL1
 
   // save L1 decision for each event
   for (unsigned int iBit = 0; iBit < numberTriggerBits; ++iBit) {

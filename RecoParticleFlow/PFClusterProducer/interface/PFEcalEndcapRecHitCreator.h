@@ -69,15 +69,16 @@ public:
 
       bool hi = (useSrF ? isHighInterest(detid) : true);
 
-      std::shared_ptr<const CaloCellGeometry> thisCell = ecalGeo->getGeometry(detid);
+      {
+        auto thisCell = ecalGeo->getGeometry(detid);
 
-      // find rechit geometry
-      if (!thisCell) {
-        throw cms::Exception("PFEcalEndcapRecHitCreator") << "detid " << detid.rawId() << "not found in geometry";
+        // find rechit geometry
+        if (!thisCell) {
+          throw cms::Exception("PFEcalEndcapRecHitCreator") << "detid " << detid.rawId() << "not found in geometry";
+        }
+
+        out->emplace_back(std::move(thisCell), detid.rawId(), PFLayer::ECAL_ENDCAP, energy);
       }
-
-      out->emplace_back(thisCell, detid.rawId(), PFLayer::ECAL_ENDCAP, energy);
-
       auto& rh = out->back();
 
       bool rcleaned = false;

@@ -20,7 +20,7 @@ public:
   };
 
   HGCalRadiationMap();
-  ~HGCalRadiationMap(){};
+  ~HGCalRadiationMap() {}
 
   typedef std::map<std::pair<int, int>, DoseParameters> doseParametersMap;
 

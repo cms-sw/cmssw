@@ -8,6 +8,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 using namespace std;
@@ -937,10 +938,8 @@ bool TrackletCalculatorDisplaced::DDLSeeding(const Stub* innerFPGAStub,
     edm::LogVerbatim("Tracklet") << "d0approx: " << d0approx << " d0: " << d0 << endl;
     edm::LogVerbatim("Tracklet") << "tapprox: " << tapprox << " t: " << t << endl;
     edm::LogVerbatim("Tracklet") << "z0approx: " << z0approx << " z0: " << z0 << endl;
-  }
 
-  for (unsigned int i = 0; i < toR_.size(); ++i) {
-    if (settings_.debugTracklet()) {
+    for (unsigned int i = 0; i < toR_.size(); ++i) {
       edm::LogVerbatim("Tracklet") << "phiprojapprox[" << i << "]: " << phiprojapprox[i] << " phiproj[" << i
                                    << "]: " << phiproj[i] << endl;
       edm::LogVerbatim("Tracklet") << "zprojapprox[" << i << "]: " << zprojapprox[i] << " zproj[" << i
@@ -950,10 +949,8 @@ bool TrackletCalculatorDisplaced::DDLSeeding(const Stub* innerFPGAStub,
       edm::LogVerbatim("Tracklet") << "zderapprox[" << i << "]: " << zderapprox[i] << " zder[" << i << "]: " << zder[i]
                                    << endl;
     }
-  }
 
-  for (unsigned int i = 0; i < toZ_.size(); ++i) {
-    if (settings_.debugTracklet()) {
+    for (unsigned int i = 0; i < toZ_.size(); ++i) {
       edm::LogVerbatim("Tracklet") << "phiprojdiskapprox[" << i << "]: " << phiprojdiskapprox[i] << " phiprojdisk[" << i
                                    << "]: " << phiprojdisk[i] << endl;
       edm::LogVerbatim("Tracklet") << "rprojdiskapprox[" << i << "]: " << rprojdiskapprox[i] << " rprojdisk[" << i
@@ -991,7 +988,7 @@ bool TrackletCalculatorDisplaced::DDLSeeding(const Stub* innerFPGAStub,
   iz0 = z0approx / kz0;
 
   bool success = true;
-  if (std::abs(rinvapprox) > settings_.rinvcut()) {
+  if ((std::abs(rinvapprox) > settings_.rinvcut()) || (!edm::isFinite(rinvapprox))) {
     if (settings_.debugTracklet())
       edm::LogVerbatim("Tracklet") << "TrackletCalculator::DDL Seeding irinv too large: " << rinvapprox << "(" << irinv
                                    << ")";
@@ -1002,7 +999,7 @@ bool TrackletCalculatorDisplaced::DDLSeeding(const Stub* innerFPGAStub,
       edm::LogVerbatim("Tracklet") << "Failed tracklet z0 cut " << z0approx;
     success = false;
   }
-  if (std::abs(d0approx) > settings_.maxd0()) {
+  if ((std::abs(d0approx) > settings_.maxd0()) || (!edm::isFinite(d0approx))) {
     if (settings_.debugTracklet())
       edm::LogVerbatim("Tracklet") << "Failed tracklet approx d0 cut " << d0approx;
     success = false;
@@ -1210,6 +1207,9 @@ bool TrackletCalculatorDisplaced::LLDSeeding(const Stub* innerFPGAStub,
 
   int take3 = 0;  //L2L3D1
   unsigned ndisks = 1;
+
+  // N.B. The names r1, r2, r3 reflect the fact that confusingly,
+  // innerStub is actually the one furthest from the beamline ...
 
   double r3 = innerStub->r();
   double z3 = innerStub->z();
@@ -1651,7 +1651,7 @@ void TrackletCalculatorDisplaced::exactprojdisk(double zproj,
 
   phiproj = atan2(y, x);
 
-  phiproj = reco::reduceRange(phiproj - phimin_);
+  phiproj = reco::reducePhiRange(phiproj - phimin_);
 
   rproj = sqrt(x * x + y * y);
 
@@ -1731,7 +1731,7 @@ void TrackletCalculatorDisplaced::exacttracklet(double r1,
 
   d0 = -R1 + sqrt(x0 * x0 + y0 * y0);
   //sign of rinv:
-  double dphi = reco::reduceRange(phi3 - atan2(y0, x0));
+  double dphi = reco::reducePhiRange(phi3 - atan2(y0, x0));
   if (dphi < 0) {
     rinv = -rinv;
     d0 = -d0;
@@ -1741,9 +1741,9 @@ void TrackletCalculatorDisplaced::exacttracklet(double r1,
 
   //now in RZ:
   //turning angle
-  double beta1 = reco::reduceRange(atan2(y1 - y0, x1 - x0) - atan2(-y0, -x0));
-  double beta2 = reco::reduceRange(atan2(y2 - y0, x2 - x0) - atan2(-y0, -x0));
-  double beta3 = reco::reduceRange(atan2(y3 - y0, x3 - x0) - atan2(-y0, -x0));
+  double beta1 = reco::reducePhiRange(atan2(y1 - y0, x1 - x0) - atan2(-y0, -x0));
+  double beta2 = reco::reducePhiRange(atan2(y2 - y0, x2 - x0) - atan2(-y0, -x0));
+  double beta3 = reco::reducePhiRange(atan2(y3 - y0, x3 - x0) - atan2(-y0, -x0));
 
   double t12 = (z2 - z1) / std::abs(beta2 - beta1) / R1;
   double z12 = (z1 * beta2 - z2 * beta1) / (beta2 - beta1);

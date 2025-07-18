@@ -14,7 +14,7 @@ namespace Exhume {
   class Weight {
   public:
     Weight() { NPoints = 1000; };
-    virtual ~Weight(){};
+    virtual ~Weight() {}
     inline std::map<double, double> GetFuncMap() { return (FuncMap); };
     inline double GetTotalIntegral() { return (TotalIntegral); };
 

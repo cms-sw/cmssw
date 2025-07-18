@@ -17,6 +17,7 @@
 //
 //
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
@@ -158,8 +159,8 @@ void metsig::SignAlgoResolutions::addResolutions(const edm::ParameterSet &iConfi
 
   //get temporary low pT pfjet resolutions
   for (int ieta = 0; ieta < 10; ieta++) {
-    jdpt[ieta] = iConfig.getParameter<std::vector<double> >(Form("jdpt%d", ieta));
-    jdphi[ieta] = iConfig.getParameter<std::vector<double> >(Form("jdphi%d", ieta));
+    jdpt[ieta] = iConfig.getParameter<std::vector<double>>(Form("jdpt%d", ieta));
+    jdphi[ieta] = iConfig.getParameter<std::vector<double>>(Form("jdphi%d", ieta));
   }
 
   // for now: do this by hand - this can obviously also be done via ESSource etc.
@@ -167,8 +168,8 @@ void metsig::SignAlgoResolutions::addResolutions(const edm::ParameterSet &iConfi
   functionPars phiparameters(1, 0);
   // set the parameters per function:
   // ECAL, BARREL:
-  std::vector<double> ebet = iConfig.getParameter<std::vector<double> >("EB_EtResPar");
-  std::vector<double> ebphi = iConfig.getParameter<std::vector<double> >("EB_PhiResPar");
+  std::vector<double> ebet = iConfig.getParameter<std::vector<double>>("EB_EtResPar");
+  std::vector<double> ebphi = iConfig.getParameter<std::vector<double>>("EB_PhiResPar");
 
   etparameters[0] = ebet[0];
   etparameters[1] = ebet[1];
@@ -177,8 +178,8 @@ void metsig::SignAlgoResolutions::addResolutions(const edm::ParameterSet &iConfi
   addfunction(caloEB, ET, etparameters);
   addfunction(caloEB, PHI, phiparameters);
   // ECAL, ENDCAP:
-  std::vector<double> eeet = iConfig.getParameter<std::vector<double> >("EE_EtResPar");
-  std::vector<double> eephi = iConfig.getParameter<std::vector<double> >("EE_PhiResPar");
+  std::vector<double> eeet = iConfig.getParameter<std::vector<double>>("EE_EtResPar");
+  std::vector<double> eephi = iConfig.getParameter<std::vector<double>>("EE_PhiResPar");
 
   etparameters[0] = eeet[0];
   etparameters[1] = eeet[1];
@@ -187,8 +188,8 @@ void metsig::SignAlgoResolutions::addResolutions(const edm::ParameterSet &iConfi
   addfunction(caloEE, ET, etparameters);
   addfunction(caloEE, PHI, phiparameters);
   // HCAL, BARREL:
-  std::vector<double> hbet = iConfig.getParameter<std::vector<double> >("HB_EtResPar");
-  std::vector<double> hbphi = iConfig.getParameter<std::vector<double> >("HB_PhiResPar");
+  std::vector<double> hbet = iConfig.getParameter<std::vector<double>>("HB_EtResPar");
+  std::vector<double> hbphi = iConfig.getParameter<std::vector<double>>("HB_PhiResPar");
 
   etparameters[0] = hbet[0];
   etparameters[1] = hbet[1];
@@ -197,8 +198,8 @@ void metsig::SignAlgoResolutions::addResolutions(const edm::ParameterSet &iConfi
   addfunction(caloHB, ET, etparameters);
   addfunction(caloHB, PHI, phiparameters);
   // HCAL, ENDCAP:
-  std::vector<double> heet = iConfig.getParameter<std::vector<double> >("HE_EtResPar");
-  std::vector<double> hephi = iConfig.getParameter<std::vector<double> >("HE_PhiResPar");
+  std::vector<double> heet = iConfig.getParameter<std::vector<double>>("HE_EtResPar");
+  std::vector<double> hephi = iConfig.getParameter<std::vector<double>>("HE_PhiResPar");
 
   etparameters[0] = heet[0];
   etparameters[1] = heet[1];
@@ -207,8 +208,8 @@ void metsig::SignAlgoResolutions::addResolutions(const edm::ParameterSet &iConfi
   addfunction(caloHE, ET, etparameters);
   addfunction(caloHE, PHI, phiparameters);
   // HCAL, Outer
-  std::vector<double> hoet = iConfig.getParameter<std::vector<double> >("HO_EtResPar");
-  std::vector<double> hophi = iConfig.getParameter<std::vector<double> >("HO_PhiResPar");
+  std::vector<double> hoet = iConfig.getParameter<std::vector<double>>("HO_EtResPar");
+  std::vector<double> hophi = iConfig.getParameter<std::vector<double>>("HO_PhiResPar");
 
   etparameters[0] = hoet[0];
   etparameters[1] = hoet[1];
@@ -217,8 +218,8 @@ void metsig::SignAlgoResolutions::addResolutions(const edm::ParameterSet &iConfi
   addfunction(caloHO, ET, etparameters);
   addfunction(caloHO, PHI, phiparameters);
   // HCAL, Forward
-  std::vector<double> hfet = iConfig.getParameter<std::vector<double> >("HF_EtResPar");
-  std::vector<double> hfphi = iConfig.getParameter<std::vector<double> >("HF_PhiResPar");
+  std::vector<double> hfet = iConfig.getParameter<std::vector<double>>("HF_EtResPar");
+  std::vector<double> hfphi = iConfig.getParameter<std::vector<double>>("HF_PhiResPar");
 
   etparameters[0] = hfet[0];
   etparameters[1] = hfet[1];
@@ -229,8 +230,8 @@ void metsig::SignAlgoResolutions::addResolutions(const edm::ParameterSet &iConfi
 
   // PF objects:
   // type 1:
-  std::vector<double> pf1et = iConfig.getParameter<std::vector<double> >("PF_EtResType1");
-  std::vector<double> pf1phi = iConfig.getParameter<std::vector<double> >("PF_PhiResType1");
+  std::vector<double> pf1et = iConfig.getParameter<std::vector<double>>("PF_EtResType1");
+  std::vector<double> pf1phi = iConfig.getParameter<std::vector<double>>("PF_PhiResType1");
   etparameters[0] = pf1et[0];
   etparameters[1] = pf1et[1];
   etparameters[2] = pf1et[2];
@@ -240,8 +241,8 @@ void metsig::SignAlgoResolutions::addResolutions(const edm::ParameterSet &iConfi
 
   // PF objects:
   // type 2:
-  std::vector<double> pf2et = iConfig.getParameter<std::vector<double> >("PF_EtResType2");
-  std::vector<double> pf2phi = iConfig.getParameter<std::vector<double> >("PF_PhiResType2");
+  std::vector<double> pf2et = iConfig.getParameter<std::vector<double>>("PF_EtResType2");
+  std::vector<double> pf2phi = iConfig.getParameter<std::vector<double>>("PF_PhiResType2");
   etparameters[0] = pf2et[0];
   etparameters[1] = pf2et[1];
   etparameters[2] = pf2et[2];
@@ -251,8 +252,8 @@ void metsig::SignAlgoResolutions::addResolutions(const edm::ParameterSet &iConfi
 
   // PF objects:
   // type 3:
-  std::vector<double> pf3et = iConfig.getParameter<std::vector<double> >("PF_EtResType3");
-  std::vector<double> pf3phi = iConfig.getParameter<std::vector<double> >("PF_PhiResType3");
+  std::vector<double> pf3et = iConfig.getParameter<std::vector<double>>("PF_EtResType3");
+  std::vector<double> pf3phi = iConfig.getParameter<std::vector<double>>("PF_PhiResType3");
   etparameters[0] = pf3et[0];
   etparameters[1] = pf3et[1];
   etparameters[2] = pf3et[2];
@@ -262,8 +263,8 @@ void metsig::SignAlgoResolutions::addResolutions(const edm::ParameterSet &iConfi
 
   // PF objects:
   // type 4:
-  std::vector<double> pf4et = iConfig.getParameter<std::vector<double> >("PF_EtResType4");
-  std::vector<double> pf4phi = iConfig.getParameter<std::vector<double> >("PF_PhiResType4");
+  std::vector<double> pf4et = iConfig.getParameter<std::vector<double>>("PF_EtResType4");
+  std::vector<double> pf4phi = iConfig.getParameter<std::vector<double>>("PF_PhiResType4");
   etparameters[0] = pf4et[0];
   etparameters[1] = pf4et[1];
   etparameters[2] = pf4et[2];
@@ -273,8 +274,8 @@ void metsig::SignAlgoResolutions::addResolutions(const edm::ParameterSet &iConfi
 
   // PF objects:
   // type 5:
-  std::vector<double> pf5et = iConfig.getParameter<std::vector<double> >("PF_EtResType5");
-  std::vector<double> pf5phi = iConfig.getParameter<std::vector<double> >("PF_PhiResType5");
+  std::vector<double> pf5et = iConfig.getParameter<std::vector<double>>("PF_EtResType5");
+  std::vector<double> pf5phi = iConfig.getParameter<std::vector<double>>("PF_PhiResType5");
   etparameters[0] = pf5et[0];
   etparameters[1] = pf5et[1];
   etparameters[2] = pf5et[2];
@@ -284,8 +285,8 @@ void metsig::SignAlgoResolutions::addResolutions(const edm::ParameterSet &iConfi
 
   // PF objects:
   // type 6:
-  std::vector<double> pf6et = iConfig.getParameter<std::vector<double> >("PF_EtResType6");
-  std::vector<double> pf6phi = iConfig.getParameter<std::vector<double> >("PF_PhiResType6");
+  std::vector<double> pf6et = iConfig.getParameter<std::vector<double>>("PF_EtResType6");
+  std::vector<double> pf6phi = iConfig.getParameter<std::vector<double>>("PF_PhiResType6");
   etparameters[0] = pf6et[0];
   etparameters[1] = pf6et[1];
   etparameters[2] = pf6et[2];
@@ -295,8 +296,8 @@ void metsig::SignAlgoResolutions::addResolutions(const edm::ParameterSet &iConfi
 
   // PF objects:
   // type 7:
-  std::vector<double> pf7et = iConfig.getParameter<std::vector<double> >("PF_EtResType7");
-  std::vector<double> pf7phi = iConfig.getParameter<std::vector<double> >("PF_PhiResType7");
+  std::vector<double> pf7et = iConfig.getParameter<std::vector<double>>("PF_EtResType7");
+  std::vector<double> pf7phi = iConfig.getParameter<std::vector<double>>("PF_PhiResType7");
   etparameters[0] = pf7et[0];
   etparameters[1] = pf7et[1];
   etparameters[2] = pf7et[2];
@@ -384,22 +385,12 @@ void metsig::SignAlgoResolutions::initializeJetResolutions(const edm::ParameterS
   if (ptResol_ == nullptr) {
     string resolutionsAlgo = iConfig.getParameter<std::string>("resolutionsAlgo");
     string resolutionsEra = iConfig.getParameter<std::string>("resolutionsEra");
-
-    string cmssw_base(std::getenv("CMSSW_BASE"));
-    string cmssw_release_base(std::getenv("CMSSW_RELEASE_BASE"));
-    string path = cmssw_base + "/src/CondFormats/JetMETObjects/data";
-    struct stat st;
-    if (stat(path.c_str(), &st) != 0) {
-      path = cmssw_release_base + "/src/CondFormats/JetMETObjects/data";
-    }
-    if (stat(path.c_str(), &st) != 0) {
-      cerr << "ERROR: tried to set path but failed, abort." << endl;
-    }
-    const string &era(resolutionsEra);
-    const string &alg(resolutionsAlgo);
-    string ptFileName = path + "/" + era + "_PtResolution_" + alg + ".txt";
-    string phiFileName = path + "/" + era + "_PhiResolution_" + alg + ".txt";
-
+    string ptFileName = edm::FileInPath("CondFormats/JetMETObjects/data/" + resolutionsEra + "_PtResolution_" +
+                                        resolutionsAlgo + ".txt")
+                            .fullPath();
+    string phiFileName = edm::FileInPath("CondFormats/JetMETObjects/data/" + resolutionsEra + "_PhiResolution_" +
+                                         resolutionsAlgo + ".txt")
+                             .fullPath();
     ptResol_ = new JetResolution(ptFileName, false);
     phiResol_ = new JetResolution(phiFileName, false);
   }
@@ -411,4 +402,49 @@ double metsig::SignAlgoResolutions::ElectronPtResolution(const reco::PFCandidate
   double dEnergy = pfresol_->getEnergyResolutionEm(energy, eta);
 
   return dEnergy / cosh(eta);
+}
+
+void metsig::SignAlgoResolutions::fillPSetDescription(edm::ParameterSetDescription &desc) {
+  // ECAL
+  desc.addOptional<std::vector<double>>("EB_EtResPar", {0.2, 0.03, 0.005});
+  desc.addOptional<std::vector<double>>("EB_PhiResPar", {0.00502});
+  desc.addOptional<std::vector<double>>("EE_EtResPar", {0.2, 0.03, 0.005});
+  desc.addOptional<std::vector<double>>("EE_PhiResPar", {0.02511});
+
+  // HCAL
+  desc.addOptional<std::vector<double>>("HB_EtResPar", {0., 1.22, 0.05});
+  desc.addOptional<std::vector<double>>("HB_PhiResPar", {0.02511});
+  desc.addOptional<std::vector<double>>("HE_EtResPar", {0., 1.3, 0.05});
+  desc.addOptional<std::vector<double>>("HE_PhiResPar", {0.02511});
+  desc.addOptional<std::vector<double>>("HO_EtResPar", {0., 1.3, 0.005});
+  desc.addOptional<std::vector<double>>("HO_PhiResPar", {0.02511});
+  desc.addOptional<std::vector<double>>("HF_EtResPar", {0., 1.82, 0.09});
+  desc.addOptional<std::vector<double>>("HF_PhiResPar", {0.05022});
+
+  // PF
+  desc.addOptional<std::vector<double>>("PF_EtResType1", {0.05, 0, 0});
+  desc.addOptional<std::vector<double>>("PF_PhiResType1", {0.002});
+  desc.addOptional<std::vector<double>>("PF_EtResType2", {0.05, 0, 0});
+  desc.addOptional<std::vector<double>>("PF_PhiResType2", {0.002});
+  desc.addOptional<std::vector<double>>("PF_EtResType3", {0.05, 0, 0});
+  desc.addOptional<std::vector<double>>("PF_PhiResType3", {0.002});
+  desc.addOptional<std::vector<double>>("PF_EtResType4", {0.042, 0.100, 0.});
+  desc.addOptional<std::vector<double>>("PF_PhiResType4", {0.0028, 0.0, 0.0022});
+  desc.addOptional<std::vector<double>>("PF_EtResType5", {0.41, 0.52, 0.25});
+  desc.addOptional<std::vector<double>>("PF_PhiResType5", {0.10, 0.10, 0.13});
+  desc.addOptional<std::vector<double>>("PF_EtResType6", {0., 1.22, 0.05});
+  desc.addOptional<std::vector<double>>("PF_PhiResType6", {0.02511});
+  desc.addOptional<std::vector<double>>("PF_EtResType7", {0., 1.22, 0.05});
+  desc.addOptional<std::vector<double>>("PF_PhiResType7", {0.02511});
+
+  // Jet Resolution
+  desc.addOptional<std::string>("resolutionsEra", "Spring10");
+  desc.addOptional<std::string>("resolutionsAlgo", "AK5PF");
+  desc.addOptional<double>("ptresolthreshold", 10.0);
+
+  // JD parameters
+  for (int i = 0; i < 10; ++i) {
+    desc.add<std::vector<double>>("jdpt" + std::to_string(i), {});
+    desc.add<std::vector<double>>("jdphi" + std::to_string(i), {});
+  }
 }

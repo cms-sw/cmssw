@@ -188,7 +188,7 @@ float MuonCosmicCompatibilityFiller::muonTiming(const edm::Event& iEvent, const 
             }
           }
         }  //track is nonnull
-      }    //double check timing
+      }  //double check timing
     } else {
       //case of a single muon event
       if (muon.time().timeAtIpInOut < offTimeNeg || muon.time().timeAtIpInOut > offTimePos)
@@ -414,7 +414,7 @@ unsigned int MuonCosmicCompatibilityFiller::pvMatches(const edm::Event& iEvent,
         }
       }
     }  //track is nonnull
-  }    //loop over vertices
+  }  //loop over vertices
 
   //special case for non-cosmic large ip muons
   if (result == 0 && multipleMu) {

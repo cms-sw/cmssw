@@ -20,8 +20,21 @@ OutALCARECOTkAlDiMuonAndVertex_noDrop = cms.PSet(
         'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
         'keep *_TriggerResults_*_*',
         'keep DcsStatuss_scalersRawToDigi_*_*',
-        'keep *_offlinePrimaryVertices_*_*')
+        'keep *_offlinePrimaryVertices_*_*',
+        'keep *_offlineBeamSpot_*_*')
 )
+
+# add branches for MC truth evaluation
+from GeneratorInterface.Configuration.GeneratorInterface_EventContent_cff import GeneratorInterfaceAOD
+from SimGeneral.Configuration.SimGeneral_EventContent_cff import SimGeneralAOD
+
+OutALCARECOTkAlDiMuonAndVertex_noDrop.outputCommands.extend(GeneratorInterfaceAOD.outputCommands)
+_modifiedCommandsForGEN =  OutALCARECOTkAlDiMuonAndVertex_noDrop.outputCommands.copy()
+_modifiedCommandsForGEN.remove('keep *_genParticles_*_*')    # full genParticles list is too heavy
+_modifiedCommandsForGEN.append('keep *_TkAlDiMuonAndVertexGenMuonSelector_*_*') # Keep only the filtered gen muons
+OutALCARECOTkAlDiMuonAndVertex_noDrop.outputCommands = _modifiedCommandsForGEN
+
+OutALCARECOTkAlDiMuonAndVertex_noDrop.outputCommands.extend(SimGeneralAOD.outputCommands)
 
 # in Phase2, remove the SiStrip clusters and keep the OT ones instead
 _phase2_common_removedCommands = OutALCARECOTkAlDiMuonAndVertex_noDrop.outputCommands.copy()

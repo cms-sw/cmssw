@@ -32,17 +32,18 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Common/interface/Association.h"
+#include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
@@ -51,6 +52,50 @@
 //
 
 using reco::TrackCollection;
+
+namespace gpVertexAnalyzer {
+  void setBinLog(TAxis *axis) {
+    int bins = axis->GetNbins();
+    float from = axis->GetXmin();
+    float to = axis->GetXmax();
+    float width = (to - from) / bins;
+    std::vector<float> new_bins(bins + 1, 0);
+    for (int i = 0; i <= bins; i++) {
+      new_bins[i] = TMath::Power(10, from + i * width);
+    }
+    axis->Set(bins, new_bins.data());
+  }
+
+  void setBinLogX(TH1 *h) {
+    TAxis *axis = h->GetXaxis();
+    setBinLog(axis);
+  }
+
+  void setBinLogY(TH1 *h) {
+    TAxis *axis = h->GetYaxis();
+    setBinLog(axis);
+  }
+
+  template <typename... Args>
+  TProfile *makeProfileIfLog(const edm::Service<TFileService> &fs, bool logx, bool logy, Args &&...args) {
+    auto prof = fs->make<TProfile>(std::forward<Args>(args)...);
+    if (logx)
+      setBinLogX(prof);
+    if (logy)
+      setBinLogY(prof);
+    return prof;
+  }
+
+  template <typename... Args>
+  TH1D *makeTH1IfLog(const edm::Service<TFileService> &fs, bool logx, bool logy, Args &&...args) {
+    auto h1 = fs->make<TH1D>(std::forward<Args>(args)...);
+    if (logx)
+      setBinLogX(h1);
+    if (logy)
+      setBinLogY(h1);
+    return h1;
+  }
+}  // namespace gpVertexAnalyzer
 
 class GeneralPurposeVertexAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
@@ -73,12 +118,13 @@ private:
   struct IPMonitoring {
     std::string varname_;
     float pTcut_;
-    TH1D *IP_, *IPErr_;
-    TProfile *IPVsPhi_, *IPVsEta_;
-    TProfile *IPErrVsPhi_, *IPErrVsEta_;
+    TH1D *IP_, *IPErr_, *IPPull_;
+    TProfile *IPVsPhi_, *IPVsEta_, *IPVsPt_;
+    TProfile *IPErrVsPhi_, *IPErrVsEta_, *IPErrVsPt_;
     TProfile2D *IPVsEtaVsPhi_, *IPErrVsEtaVsPhi_;
 
     void bookIPMonitor(const edm::ParameterSet &, const edm::Service<TFileService> fs);
+    void fillIPMonitor(const edm::RefToBase<reco::Track> &tk, const math::XYZPoint &pv);
   };
 
   const edm::ParameterSet conf_;
@@ -128,7 +174,7 @@ private:
   TH1D *type[2];
   TH1D *bsX, *bsY, *bsZ, *bsSigmaZ, *bsDxdz, *bsDydz, *bsBeamWidthX, *bsBeamWidthY, *bsType;
 
-  TH1D *sumpt, *ntracks, *weight, *chi2ndf, *chi2prob;
+  TH1D *trackpt, *sumpt, *ntracks, *weight, *chi2ndf, *chi2prob;
   TH1D *dxy2;
   TH1D *phi_pt1, *eta_pt1;
   TH1D *phi_pt10, *eta_pt10;
@@ -143,19 +189,35 @@ private:
 
 void GeneralPurposeVertexAnalyzer::IPMonitoring::bookIPMonitor(const edm::ParameterSet &config,
                                                                const edm::Service<TFileService> fs) {
+  // Lambda for range validation
+  auto checkRange = [](const std::string &name, double min, double max) {
+    if (min >= max) {
+      throw cms::Exception("IPMonitoring")
+          << "Invalid range for " << name << ": min (" << min << ") >= max (" << max << ")";
+    }
+  };
+
   int VarBin = config.getParameter<int>(fmt::format("D{}Bin", varname_));
   double VarMin = config.getParameter<double>(fmt::format("D{}Min", varname_));
   double VarMax = config.getParameter<double>(fmt::format("D{}Max", varname_));
+  checkRange(fmt::format("D{}", varname_), VarMin, VarMax);
 
   int PhiBin = config.getParameter<int>("PhiBin");
   int PhiBin2D = config.getParameter<int>("PhiBin2D");
   double PhiMin = config.getParameter<double>("PhiMin");
   double PhiMax = config.getParameter<double>("PhiMax");
+  checkRange("Phi", PhiMin, PhiMax);
 
   int EtaBin = config.getParameter<int>("EtaBin");
   int EtaBin2D = config.getParameter<int>("EtaBin2D");
   double EtaMin = config.getParameter<double>("EtaMin");
   double EtaMax = config.getParameter<double>("EtaMax");
+  checkRange("Eta", EtaMin, EtaMax);
+
+  int PtBin = config.getParameter<int>("PtBin");
+  double PtMin = config.getParameter<double>("PtMin") * pTcut_;
+  double PtMax = config.getParameter<double>("PtMax") * pTcut_;
+  checkRange("Pt", PtMin, PtMax);
 
   IP_ = fs->make<TH1D>(fmt::format("d{}_pt{}", varname_, pTcut_).c_str(),
                        fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} (#mum)", pTcut_, varname_).c_str(),
@@ -168,6 +230,13 @@ void GeneralPurposeVertexAnalyzer::IPMonitoring::bookIPMonitor(const edm::Parame
                           100,
                           0.,
                           (varname_.find("xy") != std::string::npos) ? 2000. : 10000.);
+
+  IPPull_ = fs->make<TH1D>(
+      fmt::format("d{}Pull_pt{}", varname_, pTcut_).c_str(),
+      fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}}/#sigma_{{d_{{{}}}}}", pTcut_, varname_, varname_).c_str(),
+      100,
+      -5.,
+      5.);
 
   IPVsPhi_ =
       fs->make<TProfile>(fmt::format("d{}VsPhi_pt{}", varname_, pTcut_).c_str(),
@@ -193,6 +262,21 @@ void GeneralPurposeVertexAnalyzer::IPMonitoring::bookIPMonitor(const edm::Parame
   IPVsEta_->SetXTitle("PV track (p_{T} > 1 GeV) #eta");
   IPVsEta_->SetYTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} (#mum)", pTcut_, varname_).c_str());
 
+  IPVsPt_ = gpVertexAnalyzer::makeProfileIfLog(
+      fs,
+      true,  /* x-axis */
+      false, /* y-axis */
+      fmt::format("d{}VsPt_pt{}", varname_, pTcut_).c_str(),
+      fmt::format("PV tracks (p_{{T}} > {}) d_{{{}}} VS track p_{{T}}", pTcut_, varname_).c_str(),
+      PtBin,
+      log10(PtMin),
+      log10(PtMax),
+      VarMin,
+      VarMax,
+      "");
+  IPVsPt_->SetXTitle("PV track (p_{T} > 1 GeV) p_{T} [GeV]");
+  IPVsPt_->SetYTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} (#mum)", pTcut_, varname_).c_str());
+
   IPErrVsPhi_ =
       fs->make<TProfile>(fmt::format("d{}ErrVsPhi_pt{}", varname_, pTcut_).c_str(),
                          fmt::format("PV tracks (p_{{T}} > {}) d_{{{}}} error VS track #phi", pTcut_, varname_).c_str(),
@@ -216,6 +300,21 @@ void GeneralPurposeVertexAnalyzer::IPMonitoring::bookIPMonitor(const edm::Parame
                          (varname_.find("xy") != std::string::npos) ? 100. : 200.);
   IPErrVsEta_->SetXTitle("PV track (p_{T} > 1 GeV) #eta");
   IPErrVsEta_->SetYTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} error (#mum)", pTcut_, varname_).c_str());
+
+  IPErrVsPt_ = gpVertexAnalyzer::makeProfileIfLog(
+      fs,
+      true,  /* x-axis */
+      false, /* y-axis */
+      fmt::format("d{}ErrVsPt_pt{}", varname_, pTcut_).c_str(),
+      fmt::format("PV tracks (p_{{T}} > {}) d_{{{}}} error VS track p_{{T}}", pTcut_, varname_).c_str(),
+      PtBin,
+      log10(PtMin),
+      log10(PtMax),
+      VarMin,
+      VarMax,
+      "");
+  IPErrVsPt_->SetXTitle("PV track (p_{T} > 1 GeV) p_{T} [GeV]");
+  IPErrVsPt_->SetYTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} error (#mum)", pTcut_, varname_).c_str());
 
   IPVsEtaVsPhi_ = fs->make<TProfile2D>(
       fmt::format("d{}VsEtaVsPhi_pt{}", varname_, pTcut_).c_str(),
@@ -249,6 +348,38 @@ void GeneralPurposeVertexAnalyzer::IPMonitoring::bookIPMonitor(const edm::Parame
   IPErrVsEtaVsPhi_->SetYTitle("PV track (p_{T} > 1 GeV) #phi");
   IPErrVsEtaVsPhi_->SetZTitle(
       fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} error (#mum)", pTcut_, varname_).c_str());
+}
+
+void GeneralPurposeVertexAnalyzer::IPMonitoring::fillIPMonitor(const edm::RefToBase<reco::Track> &tk,
+                                                               const math::XYZPoint &pv) {
+  float value = 999.f, error = 9999.f;
+
+  if (varname_ == "xy") {
+    value = tk->dxy(pv) * cmToUm;
+    error = tk->dxyError() * cmToUm;
+  } else if (varname_ == "z") {
+    value = tk->dz(pv) * cmToUm;
+    error = tk->dzError() * cmToUm;
+  } else {
+    throw cms::Exception("IPMonitoring") << "Unknown varname: " << varname_ << ". Expected 'xy' or 'z\'.";
+  }
+
+  const float eta = tk->eta();
+  const float phi = tk->phi();
+  const float pt = tk->pt();
+
+  IP_->Fill(value);
+  IPVsPhi_->Fill(phi, value);
+  IPVsEta_->Fill(eta, value);
+  IPVsPt_->Fill(pt, value);
+  IPVsEtaVsPhi_->Fill(eta, phi, value);
+
+  IPErr_->Fill(error);
+  IPPull_->Fill(value / error);
+  IPErrVsPhi_->Fill(phi, error);
+  IPErrVsEta_->Fill(eta, error);
+  IPErrVsPt_->Fill(pt, error);
+  IPErrVsEtaVsPhi_->Fill(eta, phi, error);
 }
 
 //
@@ -294,6 +425,7 @@ GeneralPurposeVertexAnalyzer::GeneralPurposeVertexAnalyzer(const edm::ParameterS
       bsBeamWidthX(nullptr),
       bsBeamWidthY(nullptr),
       bsType(nullptr),
+      trackpt(nullptr),
       sumpt(nullptr),
       ntracks(nullptr),
       weight(nullptr),
@@ -411,6 +543,8 @@ void GeneralPurposeVertexAnalyzer::pvTracksPlots(const reco::Vertex &v) {
     }
 
     const float pt = t->pt();
+    trackpt->Fill(pt);
+
     if (pt < 1.f) {
       continue;
     }
@@ -422,9 +556,6 @@ void GeneralPurposeVertexAnalyzer::pvTracksPlots(const reco::Vertex &v) {
     const float chi2NDF = t->normalizedChi2();
     const float chi2Prob = TMath::Prob(t->chi2(), static_cast<int>(t->ndof()));
     const float Dxy = t->dxy(myVertex) * cmToUm;
-    const float Dz = t->dz(myVertex) * cmToUm;
-    const float DxyErr = t->dxyError() * cmToUm;
-    const float DzErr = t->dzError() * cmToUm;
 
     sumPT += pt2;
 
@@ -435,49 +566,21 @@ void GeneralPurposeVertexAnalyzer::pvTracksPlots(const reco::Vertex &v) {
     phi_pt1->Fill(phi);
     eta_pt1->Fill(eta);
 
-    dxy_pt1.IP_->Fill(Dxy);
-    dxy_pt1.IPVsPhi_->Fill(phi, Dxy);
-    dxy_pt1.IPVsEta_->Fill(eta, Dxy);
-    dxy_pt1.IPVsEtaVsPhi_->Fill(eta, phi, Dxy);
+    // dxy pT>1
+    dxy_pt1.fillIPMonitor(t, myVertex);
 
-    dxy_pt1.IPErr_->Fill(DxyErr);
-    dxy_pt1.IPErrVsPhi_->Fill(phi, DxyErr);
-    dxy_pt1.IPErrVsEta_->Fill(eta, DxyErr);
-    dxy_pt1.IPErrVsEtaVsPhi_->Fill(eta, phi, DxyErr);
-
-    dz_pt1.IP_->Fill(Dz);
-    dz_pt1.IPVsPhi_->Fill(phi, Dz);
-    dz_pt1.IPVsEta_->Fill(eta, Dz);
-    dz_pt1.IPVsEtaVsPhi_->Fill(eta, phi, Dz);
-
-    dz_pt1.IPErr_->Fill(DzErr);
-    dz_pt1.IPErrVsPhi_->Fill(phi, DzErr);
-    dz_pt1.IPErrVsEta_->Fill(eta, DzErr);
-    dz_pt1.IPErrVsEtaVsPhi_->Fill(eta, phi, DzErr);
+    // dz pT>1
+    dz_pt1.fillIPMonitor(t, myVertex);
 
     if (pt >= 10.f) {
       phi_pt10->Fill(phi);
       eta_pt10->Fill(eta);
 
-      dxy_pt10.IP_->Fill(Dxy);
-      dxy_pt10.IPVsPhi_->Fill(phi, Dxy);
-      dxy_pt10.IPVsEta_->Fill(eta, Dxy);
-      dxy_pt10.IPVsEtaVsPhi_->Fill(eta, phi, Dxy);
+      // dxy pT>10
+      dxy_pt10.fillIPMonitor(t, myVertex);
 
-      dxy_pt10.IPErr_->Fill(DxyErr);
-      dxy_pt10.IPErrVsPhi_->Fill(phi, DxyErr);
-      dxy_pt10.IPErrVsEta_->Fill(eta, DxyErr);
-      dxy_pt10.IPErrVsEtaVsPhi_->Fill(eta, phi, DxyErr);
-
-      dz_pt10.IP_->Fill(Dz);
-      dz_pt10.IPVsPhi_->Fill(phi, Dz);
-      dz_pt10.IPVsEta_->Fill(eta, Dz);
-      dz_pt10.IPVsEtaVsPhi_->Fill(eta, phi, Dz);
-
-      dz_pt10.IPErr_->Fill(DzErr);
-      dz_pt10.IPErrVsPhi_->Fill(phi, DzErr);
-      dz_pt10.IPErrVsEta_->Fill(eta, DzErr);
-      dz_pt10.IPErrVsEtaVsPhi_->Fill(eta, phi, DzErr);
+      // dz pT>10
+      dz_pt10.fillIPMonitor(t, myVertex);
     }
   }
 
@@ -649,6 +752,8 @@ void GeneralPurposeVertexAnalyzer::beginJob() {
 
   dxy2 = book<TH1D>("dxyzoom", fmt::sprintf("%s d_{xy} (#mum)", s_1).c_str(), dxyBin_, dxyMin_ / 5., dxyMax_ / 5.);
 
+  trackpt = gpVertexAnalyzer::makeTH1IfLog(
+      fs_, true, false, "pt_track", "PV tracks p_{T};PV tracks p_{T} [GeV];#tracks", 49, log10(1.), log10(50.));
   phi_pt1 =
       book<TH1D>("phi_pt1", fmt::sprintf("%s #phi; PV tracks #phi;#tracks", s_1).c_str(), phiBin_, phiMin_, phiMax_);
   eta_pt1 =
@@ -701,6 +806,9 @@ void GeneralPurposeVertexAnalyzer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<int>("EtaBin2D", 8);
   desc.add<double>("EtaMin", -2.7);
   desc.add<double>("EtaMax", 2.7);
+  desc.add<int>("PtBin", 49);
+  desc.add<double>("PtMin", 1.);
+  desc.add<double>("PtMax", 50.);
   descriptions.addWithDefaultLabel(desc);
 }
 

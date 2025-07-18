@@ -177,7 +177,6 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
   bool Fired_Signal_Trigger[100] = {false};
   bool Fired_Control_Trigger[100] = {false};
 
-  int N_leptons = 0;
   int N_iso_mu = 0;
   int N_iso_el = 0;
 
@@ -260,8 +259,6 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
   if (!muons.failedToGet()) {
     Nmuons_->Fill(muons->size());
 
-    N_leptons = N_leptons + muons->size();
-
     for (muon = muons->begin(); muon != muons->end(); ++muon) {
       float N_muons = muons->size();
       float Q_muon = muon->charge();
@@ -330,8 +327,6 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 
   if (!elecs.failedToGet()) {
     Nelecs_->Fill(elecs->size());
-
-    N_leptons = N_leptons + elecs->size();
 
     for (elec = elecs->begin(); elec != elecs->end(); ++elec) {
       float N_elecs = elecs->size();

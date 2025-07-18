@@ -57,7 +57,7 @@ void print(UCTLayer1& uct) {
         if (regions[rgn]->et() > 0) {
           int hitEta = regions[rgn]->hitCaloEta();
           int hitPhi = regions[rgn]->hitCaloPhi();
-          vector<UCTTower*> towers = regions[rgn]->getTowers();
+          auto const& towers = regions[rgn]->getTowers();
           for (uint32_t twr = 0; twr < towers.size(); twr++) {
             if (towers[twr]->caloPhi() == hitPhi && towers[twr]->caloEta() == hitEta) {
               std::cout << "*";

@@ -35,11 +35,11 @@ print(options)
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 if (options.type == "DD4hep"):
     from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
-    process = cms.Process('Sim2026',Phase2C17I13M9,dd4hep)
-    geomFile = "Configuration.Geometry.Geometry" + options.type +"Extended2026" + options.geometry + "Reco_cff"
+    process = cms.Process('SimRun4',Phase2C17I13M9,dd4hep)
+    geomFile = "Configuration.Geometry.Geometry" + options.type +"ExtendedRun4" + options.geometry + "Reco_cff"
 else:
-    process = cms.Process('Sim2026',Phase2C17I13M9)
-    geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+    process = cms.Process('SimRun4',Phase2C17I13M9)
+    geomFile = "Configuration.Geometry.GeometryExtendedRun4" + options.geometry + "Reco_cff"
 
 globalTag = "auto:phase2_realistic_T25"
 inFile = "partial" + options.geometry + ".txt"

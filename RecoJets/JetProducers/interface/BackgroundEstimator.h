@@ -2,7 +2,7 @@
 #define __FASTJET_BACKGROUND_EXTRACTOR_HH__
 
 #include <fastjet/ClusterSequenceAreaBase.hh>
-#include <fastjet/RangeDefinition.hh>
+#include <fastjet/Selector.hh>
 #include <iostream>
 
 namespace fastjet {
@@ -43,7 +43,7 @@ namespace fastjet {
     /// default ctor
     /// \param csa      the ClusterSequenceArea to use
     /// \param range    the range over which jets will be considered
-    BackgroundEstimator(const ClusterSequenceAreaBase &csa, const RangeDefinition &range);
+    BackgroundEstimator(const ClusterSequenceAreaBase &csa, const Selector &range);
 
     /// default dtor
     ~BackgroundEstimator();
@@ -146,7 +146,7 @@ namespace fastjet {
 
     // the information needed to do the computation
     const ClusterSequenceAreaBase &_csa;    ///< cluster sequence to get jets and areas from
-    const RangeDefinition &_range;          ///< range to compute the background in
+    const Selector &_range;                 ///< range to compute the background in
     std::vector<PseudoJet> _included_jets;  ///< jets to be used
     std::vector<PseudoJet> _excluded_jets;  ///< jets to be excluded
     bool _all_from_inclusive;               ///< when true, we'll assume that the incl jets are the complete set

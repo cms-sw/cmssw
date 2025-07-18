@@ -31,7 +31,7 @@ typedef unsigned int uInt32;
 #endif
 
 #ifndef S_ISREG
-#define S_ISREG(x) (((x)&S_IFMT) == S_IFREG)
+#define S_ISREG(x) (((x) & S_IFMT) == S_IFREG)
 #endif
 
 #define MAXKEYBYTES 56 /* 448 bits */

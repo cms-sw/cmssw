@@ -1,8 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
+###################################################################
+# Set default phase-2 settings
+###################################################################
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
 
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-process = cms.Process('USER',Phase2C17I13M9)
+process = cms.Process('USER', _PH2_ERA)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -11,7 +15,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 #process.load('SimGeneral.MixingModule.mix_POISSON_average_cfi')
-process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4DefaultReco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Digi_cff')
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
@@ -29,7 +33,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        '/store/relval/CMSSW_12_3_0_pre6/RelValSingleMuPt10/GEN-SIM/123X_mcRun4_realistic_v8_2026D88noPU-v1/10000/a7e6521e-e026-447b-8bf9-38a09e97916f.root'
+        '/store/relval/CMSSW_15_1_0_pre3/RelValSingleMuPt10/GEN-SIM/150X_mcRun4_realistic_v1_STD_RegeneratedGS_Run4D110_noPU-v1/2590000/5542116a-1f27-4e91-9031-c0a274e376f8.root'
     )
 )
 
@@ -95,7 +99,7 @@ process.mix.digitizers = cms.PSet(process.theDigitizersValid)
 # They need pixel RecHits where the charge is stored with high-granularity and large dinamic range
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, _PH2_GLOBAL_TAG, '')
 
 # Path and EndPath definitions
 process.digitisation_step = cms.Path(process.pdigi_valid)

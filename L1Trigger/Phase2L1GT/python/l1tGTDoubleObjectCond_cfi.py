@@ -9,5 +9,6 @@ l1tGTDoubleObjectCond = cms.EDFilter(
     cosh_eta_lut2=COSH_ETA_LUT_2.config(),
     cos_phi_lut=COS_PHI_LUT.config(),
     sanity_checks=cms.untracked.bool(False),
-    inv_mass_checks=cms.untracked.bool(False)
+    inv_mass_checks=cms.untracked.bool(False),
+    primVertTag = cms.InputTag("l1tGTProducer", "GTTPrimaryVert")
 )

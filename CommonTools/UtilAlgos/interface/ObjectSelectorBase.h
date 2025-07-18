@@ -14,7 +14,9 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
 #include <utility>
@@ -38,6 +40,7 @@ public:
         srcToken_(
             this->template consumes<typename Selector::collection>(cfg.template getParameter<edm::InputTag>("src"))),
         filter_(false),
+        throwOnMissing_(cfg.getUntrackedParameter<bool>("throwOnMissing", true)),
         selectorInit_(this->consumesCollector()),
         selector_(cfg, this->consumesCollector()),
         sizeSelector_(reco::modules::make<SizeSelector>(cfg)),
@@ -52,12 +55,27 @@ public:
   /// destructor
   ~ObjectSelectorBase() override {}
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("src", edm::InputTag(""));
+    Selector::fillPSetDescription(desc);
+    desc.add<bool>("filter", false);
+    desc.addUntracked<bool>("throwOnMissing", true);
+    descriptions.addWithDefaultLabel(desc);
+  }
+
 private:
   /// process one event
   bool filter(edm::Event& evt, const edm::EventSetup& es) override {
     selectorInit_.init(selector_, evt, es);
     edm::Handle<typename Selector::collection> source;
     evt.getByToken(srcToken_, source);
+    // if throwOnMissing is false, but the input source is not valid
+    // allow all events to pass
+    if (!throwOnMissing_ && !source.isValid()) {
+      return !filter_;
+    }
+
     StoreManager manager(source);
     selector_.select(source, evt, es);
     manager.cloneAndStore(selector_.begin(), selector_.end(), evt);
@@ -70,6 +88,8 @@ private:
   edm::EDGetTokenT<typename Selector::collection> srcToken_;
   /// filter event
   bool filter_;
+  /// trhow on missing
+  bool throwOnMissing_;
   /// Object collection selector
   Init selectorInit_;
   Selector selector_;

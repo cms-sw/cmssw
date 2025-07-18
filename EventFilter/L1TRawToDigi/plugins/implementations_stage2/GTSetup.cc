@@ -9,6 +9,7 @@
 #include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/ZDCUnpacker.h"
 #include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/JetUnpacker.h"
 #include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/TauUnpacker.h"
+#include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/CaloSummaryUnpacker.h"
 
 #include "GTSetup.h"
 
@@ -31,6 +32,7 @@ namespace l1t {
       desc.addOptional<edm::InputTag>("TauInputTag")->setComment("for stage2");
       desc.addOptional<edm::InputTag>("EtSumInputTag")->setComment("for stage2");
       desc.addOptional<edm::InputTag>("EtSumZDCInputTag")->setComment("for stage2");
+      desc.addOptional<edm::InputTag>("CICADAScoreInputTag")->setComment("for 2024 and beyond");
     }
 
     PackerMap GTSetup::getPackers(int fed, unsigned int fw) {
@@ -43,14 +45,17 @@ namespace l1t {
             static_pointer_cast<l1t::stage2::GTMuonPacker>(PackerFactory::get()->make("stage2::GTMuonPacker"));
         gt_muon_packer->setFed(fed);
         gt_muon_packer->setFwVersion(fw);
-        res[{1, 1}] = {gt_muon_packer,
-                       PackerFactory::get()->make("stage2::GTEGammaPacker"),
-                       PackerFactory::get()->make("stage2::GTEtSumPacker"),
-                       PackerFactory::get()->make("stage2::GTEtSumZDCPacker"),
-                       PackerFactory::get()->make("stage2::GTJetPacker"),
-                       PackerFactory::get()->make("stage2::GTTauPacker"),
-                       PackerFactory::get()->make("stage2::GlobalAlgBlkPacker"),
-                       PackerFactory::get()->make("stage2::GlobalExtBlkPacker")};
+        res[{1, 1}] = {
+            gt_muon_packer,
+            PackerFactory::get()->make("stage2::GTEGammaPacker"),
+            PackerFactory::get()->make("stage2::GTEtSumPacker"),
+            PackerFactory::get()->make("stage2::GTEtSumZDCPacker"),
+            PackerFactory::get()->make("stage2::GTJetPacker"),
+            PackerFactory::get()->make("stage2::GTTauPacker"),
+            PackerFactory::get()->make("stage2::GlobalAlgBlkPacker"),
+            PackerFactory::get()->make("stage2::GlobalExtBlkPacker"),
+            PackerFactory::get()->make("stage2::CaloSummaryPacker"),
+        };
       }
 
       return res;
@@ -64,6 +69,7 @@ namespace l1t {
       prod.produces<EtSumBxCollection>("EtSumZDC");
       prod.produces<JetBxCollection>("Jet");
       prod.produces<TauBxCollection>("Tau");
+      prod.produces<CICADABxCollection>("CICADAScore");
       prod.produces<GlobalAlgBlkBxCollection>();
       prod.produces<GlobalExtBlkBxCollection>();
       for (int i = 2; i < 7; ++i) {  // Collections from boards 2-6
@@ -91,6 +97,8 @@ namespace l1t {
       auto zdc_unp = static_pointer_cast<l1t::stage2::ZDCUnpacker>(UnpackerFactory::get()->make("stage2::ZDCUnpacker"));
       auto jet_unp = static_pointer_cast<l1t::stage2::JetUnpacker>(UnpackerFactory::get()->make("stage2::JetUnpacker"));
       auto tau_unp = static_pointer_cast<l1t::stage2::TauUnpacker>(UnpackerFactory::get()->make("stage2::TauUnpacker"));
+      auto caloSummary_unp = static_pointer_cast<l1t::stage2::CaloSummaryUnpacker>(
+          UnpackerFactory::get()->make("stage2::CaloSummaryUnpacker"));
 
       if (fw >= 0x10f2) {
         etsum_unp = static_pointer_cast<l1t::stage2::EtSumUnpacker>(
@@ -126,6 +134,7 @@ namespace l1t {
         res[16] = tau_unp;
         res[18] = tau_unp;
         res[20] = etsum_unp;
+        res[22] = caloSummary_unp;
 
         if (amc == 1) {  // only unpack first uGT board for the external signal inputs (single copy)
           res[24] = ext_unp;

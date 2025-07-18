@@ -9,13 +9,12 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
 class MTDGeometry;
-class MTDTopology;
 class MTDGeomDetType;
 class PMTDParameters;
 
 class MTDGeomBuilderFromGeometricTimingDet {
 public:
-  MTDGeometry* build(const GeometricTimingDet* gd, const PMTDParameters& ptp, const MTDTopology* tTopo);
+  MTDGeometry* build(const GeometricTimingDet* gd, const PMTDParameters& ptp);
 
 private:
   void buildPixel(std::vector<const GeometricTimingDet*> const&,
@@ -28,7 +27,6 @@ private:
                                                                         double scaleFactor = 1.) const;
 
   std::map<std::string, const MTDGeomDetType*> theMTDDetTypeMap;
-  const MTDTopology* theTopo;
 };
 
 #endif

@@ -44,13 +44,13 @@ def draw_plot( file, tDir,oDir,min,max ) :
   try :
     tlist = d1.GetListOfKeys()
   except :
-    print oDir
+    print(oDir)
     if ( oDir.find("Digi") != -1 ):
       tDir = "DQMData/Run 1/MuonGEMDigisV/Run summary/GEMDigiTask"
       d1 = dqm_file.Get(tDir)
       tlist = d1.GetListOfKeys()
     else :
-      print "error"
+      print("error")
       exit(-1)
   for x in tlist :
     key_list.append(x.GetName())
@@ -66,7 +66,7 @@ if __name__ == '__main__' :
   parser.add_option("--max",dest='range_max',help='Maximum of phi degree',default=15.5)
   options, args = parser.parse_args()
 
-  print options.range_min, options.range_max
+  print(options.range_min, options.range_max)
   min = options.range_min
   max = options.range_max
   if len(sys.argv) ==1 :
@@ -74,12 +74,12 @@ if __name__ == '__main__' :
     exit()
   # If no argument, default name will be used.
   if len(args)==0 :
-    print "Input file name is None."
-    print "Use default name."
+    print("Input file name is None.")
+    print("Use default name.")
     args.append("DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root")
 
   if len(args) != 1 : 
-    print "Can not understand input argument"
+    print("Can not understand input argument")
     parser.print_help()
   
   steps= []

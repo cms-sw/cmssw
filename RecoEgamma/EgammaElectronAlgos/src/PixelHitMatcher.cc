@@ -239,9 +239,9 @@ std::vector<SeedWithInfo> PixelHitMatcher::operator()(const std::vector<const Tr
             result.push_back({seed, hitsMask, subDet2, dRz2, dPhi2, subDet1, dRz1, dPhi1});
           }
         }  // inner loop on hits
-      }    // outer loop on hits
-    }      // loop on seeds
-  }        //loop on vector of seeds
+      }  // outer loop on hits
+    }  // loop on seeds
+  }  //loop on vector of seeds
 
   return result;
 }

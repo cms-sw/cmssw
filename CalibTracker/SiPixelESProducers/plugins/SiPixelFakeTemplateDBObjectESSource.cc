@@ -1,6 +1,40 @@
-#include "CalibTracker/SiPixelESProducers/interface/SiPixelFakeTemplateDBObjectESSource.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+// system includes
+#include <memory>
 #include <fstream>
+
+// framework includes
+#include "CondFormats/DataRecord/interface/SiPixelTemplateDBObjectRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Framework/interface/SourceFactory.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
+class SiPixelFakeTemplateDBObjectESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+public:
+  SiPixelFakeTemplateDBObjectESSource(const edm::ParameterSet&);
+  ~SiPixelFakeTemplateDBObjectESSource() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  typedef std::vector<std::string> vstring;
+
+  virtual std::unique_ptr<SiPixelTemplateDBObject> produce(const SiPixelTemplateDBObjectRcd&);
+
+protected:
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+                      const edm::IOVSyncValue&,
+                      edm::ValidityInterval&) override;
+
+private:
+  vstring templateCalibrations_;
+  float version_;
+};
 
 SiPixelFakeTemplateDBObjectESSource::SiPixelFakeTemplateDBObjectESSource(const edm::ParameterSet& conf_)
     : templateCalibrations_(conf_.getParameter<vstring>("siPixelTemplateCalibrations")),
@@ -40,7 +74,7 @@ std::unique_ptr<SiPixelTemplateDBObject> SiPixelFakeTemplateDBObjectESSource::pr
     std::ifstream in_file(tempfile, std::ios::in);
 
     if (in_file.is_open()) {
-      edm::LogInfo("SiPixelFakeTemplateDBObjectESSource")
+      edm::LogPrint("SiPixelFakeTemplateDBObjectESSource")
           << "Opened Template File: " << file.fullPath().c_str() << std::endl;
 
       // Local variables
@@ -98,3 +132,19 @@ void SiPixelFakeTemplateDBObjectESSource::setIntervalFor(const edm::eventsetup::
   edm::ValidityInterval infinity(iosv.beginOfTime(), iosv.endOfTime());
   oValidity = infinity;
 }
+
+void SiPixelFakeTemplateDBObjectESSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<vstring>(
+      "siPixelTemplateCalibrations",
+      {"CalibTracker/SiPixelESProducers/data/SiPixelTemplateDBObject_0T_phase1_BoR3_v1/template_summary_zp0310.out",
+       "CalibTracker/SiPixelESProducers/data/SiPixelTemplateDBObject_0T_phase1_BoR3_v1/template_summary_zp0311.out",
+       "CalibTracker/SiPixelESProducers/data/SiPixelTemplateDBObject_0T_phase1_BoR3_v1/template_summary_zp0312.out",
+       "CalibTracker/SiPixelESProducers/data/SiPixelTemplateDBObject_0T_phase1_BoR3_v1/template_summary_zp0313.out",
+       "CalibTracker/SiPixelESProducers/data/SiPixelTemplateDBObject_0T_phase1_BoR3_v1/template_summary_zp0314.out",
+       "CalibTracker/SiPixelESProducers/data/SiPixelTemplateDBObject_0T_phase1_BoR3_v1/template_summary_zp0315.out"});
+  desc.add<double>("Version", 1.0);
+  descriptions.addWithDefaultLabel(desc);
+}
+
+DEFINE_FWK_EVENTSETUP_SOURCE(SiPixelFakeTemplateDBObjectESSource);

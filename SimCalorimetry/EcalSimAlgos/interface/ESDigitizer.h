@@ -40,7 +40,7 @@ private:
   public:
     Triplet() : first(0), second(0), third(0) {}
     Triplet(uint32_t a0, uint32_t a1, uint32_t a2) : first(a0), second(a1), third(a2) {}
-    ~Triplet(){};
+    ~Triplet() {}
     uint32_t first;
     uint32_t second;
     uint32_t third;

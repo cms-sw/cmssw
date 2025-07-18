@@ -5,6 +5,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/HGCalDigi/interface/HGCalElectronicsId.h"
 #include <map>
+#include <algorithm>
 
 namespace hgcal {
 
@@ -41,6 +42,9 @@ namespace hgcal {
       float getIntAttr(std::string col, HGCalEntityRow &row) { return atoi(getAttr(col, row).c_str()); }
       const std::vector<HGCalEntityRow> &getEntries() { return entities_; }
       HGCalEntityRow getColumnNames() { return colNames_; }
+      bool hasColumn(std::string_view col) {
+        return std::find(colNames_.begin(), colNames_.end(), col) != colNames_.end();
+      }
 
     private:
       HGCalEntityRow colNames_;
@@ -86,10 +90,12 @@ namespace hgcal {
         uint32_t cellid = 0x3ff & HGCSiliconDetId(det, 0, 0, 0, 0, 0, siid.cellU(), siid.cellV()).rawId();
         for (int j = 0; j < cells.view().metadata().size(); j++) {
           auto jcell = cells.view()[j];
+
           if (jcell.typeidx() != imod.typeidx())
             continue;
           if (jcell.detid() != cellid)
             continue;
+
           key.second = j;
           return key;
         }

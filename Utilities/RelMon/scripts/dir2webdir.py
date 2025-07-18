@@ -13,7 +13,6 @@
 #
 ################################################################################
 
-from __future__ import print_function
 htaccess_content="""
 RewriteEngine on
 

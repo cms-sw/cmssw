@@ -14,6 +14,7 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "CommonTools/UtilAlgos/interface/SelectionAdderTrait.h"
 #include "CommonTools/UtilAlgos/interface/StoreContainerTrait.h"
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
@@ -55,6 +56,8 @@ public:
     for (size_t i = 0; i < maxNumber_ && i < v.size(); ++i)
       addRef_(selected_, c, v[i].second);
   }
+
+  static void fillPSetDescription(edm::ParameterSetDescription &desc) { desc.add<unsigned int>("maxNumber", 1); }
 
 private:
   struct PairComparator {

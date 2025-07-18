@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 def documentSkims():
@@ -50,3 +49,4 @@ from DPGAnalysis.Skims.Skims_DPG_cff import *
 from Configuration.Skimming.Skims_PDWG_cff import *
 from Configuration.Skimming.Skims_PA_cff import *
 from Configuration.Skimming.Skims_PbPb_cff import *
+from Configuration.Skimming.Skims_Ion_cff import *

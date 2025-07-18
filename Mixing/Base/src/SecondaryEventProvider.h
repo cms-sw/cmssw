@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/WorkerManager.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
 
 #include <memory>
 #include <string>
@@ -14,7 +15,7 @@ namespace edm {
   class SecondaryEventProvider {
   public:
     SecondaryEventProvider(std::vector<ParameterSet>& psets,
-                           ProductRegistry& pregistry,
+                           SignallingProductRegistryFiller& pregistry,
                            std::shared_ptr<ProcessConfiguration> processConfiguration);
 
     void beginRun(RunPrincipal& run,
@@ -37,15 +38,20 @@ namespace edm {
 
     void setupPileUpEvent(EventPrincipal& ep, const EventSetupImpl& setup, StreamContext& sContext);
 
-    void beginJob(ProductRegistry const& iRegistry, eventsetup::ESRecordsToProductResolverIndices const&);
-    void endJob() { workerManager_.endJob(); }
+    void beginJob(ProductRegistry const& iRegistry,
+                  eventsetup::ESRecordsToProductResolverIndices const&,
+                  GlobalContext const&);
+    void endJob(ExceptionCollector& exceptionCollector, GlobalContext const& globalContext);
 
-    void beginStream(edm::StreamID iID, StreamContext& sContext);
-    void endStream(edm::StreamID iID, StreamContext& sContext);
+    void beginStream(edm::StreamID, StreamContext const&);
+    void endStream(edm::StreamID, StreamContext const&, ExceptionCollector&);
 
   private:
     std::unique_ptr<ExceptionToActionTable> exceptionToActionTable_;
+    std::shared_ptr<ModuleRegistry> moduleRegistry_;
+    std::shared_ptr<ActivityRegistry> activityRegistry_;
     WorkerManager workerManager_;
+    std::vector<unsigned int> modulesThatFailed_;
   };
 }  // namespace edm
 #endif

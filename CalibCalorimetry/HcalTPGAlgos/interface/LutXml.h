@@ -21,7 +21,8 @@
 #include <vector>
 #include <map>
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLDOMBlock.h"
-#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include <cstdint>
 
 class LutXml : public XMLDOMBlock {
@@ -56,9 +57,9 @@ public:
   //
   //std::vector<unsigned int> getLut( int lut_type, int crate, int slot, int topbottom, int fiber, int fiber_channel );
 
-  HcalSubdetector subdet_from_crate(int crate, int slot, int fiber);
+  DetId detid_from_crate(int crate, int slot, int fiber, int fiberch, bool isTrigger, const HcalElectronicsMap* emap);
   int a_to_i(char* inbuf);
-  int create_lut_map(void);
+  int create_lut_map(const HcalElectronicsMap* emap);
 
   static std::string get_checksum(std::vector<unsigned int>& lut);
 

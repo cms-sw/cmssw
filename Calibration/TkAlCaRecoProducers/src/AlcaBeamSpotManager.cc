@@ -47,8 +47,7 @@ void AlcaBeamSpotManager::readLumi(const LuminosityBlock &iLumi) {
   if (beamSpotHandle.isValid()) {  // check the product
     std::pair<edm::Timestamp, reco::BeamSpot> time_bs(iLumi.beginTime(), *beamSpotHandle);
     beamSpotMap_[iLumi.luminosityBlock()] = time_bs;
-    const BeamSpot *aBeamSpot = &beamSpotMap_[iLumi.luminosityBlock()].second;
-    aBeamSpot = beamSpotHandle.product();
+    const BeamSpot *aBeamSpot = beamSpotHandle.product();
     LogInfo("AlcaBeamSpotManager") << "Lumi: " << iLumi.luminosityBlock() << std::endl;
     LogInfo("AlcaBeamSpotManager") << *aBeamSpot << std::endl;
   } else {
@@ -347,14 +346,14 @@ void AlcaBeamSpotManager::createWeightedPayloads(void) {
 
 //--------------------------------------------------------------------------------------------------
 BeamSpot AlcaBeamSpotManager::weight(const bsMap_iterator &begin, const bsMap_iterator &end) {
-  double x, xError = 0;
-  double y, yError = 0;
-  double z, zError = 0;
-  double sigmaZ, sigmaZError = 0;
-  double dxdz, dxdzError = 0;
-  double dydz, dydzError = 0;
-  double widthX, widthXError = 0;
-  double widthY, widthYError = 0;
+  double x = 0, xError = 0;
+  double y = 0, yError = 0;
+  double z = 0, zError = 0;
+  double sigmaZ = 0, sigmaZError = 0;
+  double dxdz = 0, dxdzError = 0;
+  double dydz = 0, dydzError = 0;
+  double widthX = 0, widthXError = 0;
+  double widthY = 0, widthYError = 0;
   LogInfo("AlcaBeamSpotManager") << "Weighted BeamSpot will span lumi " << begin->first << " to " << end->first << endl;
 
   BeamSpot::BeamType type = BeamSpot::Unknown;

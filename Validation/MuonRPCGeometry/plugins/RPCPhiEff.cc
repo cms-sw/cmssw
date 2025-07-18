@@ -171,8 +171,8 @@ void RPCPhiEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                          << ptCodeRec << " " << qual << " " << ghost << std::endl;
             }
           }  // (ptCode != 0)
-        }    // muon cands iter ends
-      }      // barrell/fwd iter ends
+        }  // muon cands iter ends
+      }  // barrell/fwd iter ends
       firstRunForMuonMatchingCnt = false;
       if (!matched) {
         m_outfileR << etaGen << " " << phiGen << " " << ptGen << " " << 0 << " " << 0 << " " << 0 << " " << 0 << " "

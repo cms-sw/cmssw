@@ -1,11 +1,11 @@
+// -*- C++ -*-
 #ifndef FWCore_Framework_ESRecordsToProductResolverIndices_h
 #define FWCore_Framework_ESRecordsToProductResolverIndices_h
-// -*- C++ -*-
 //
 // Package:     Framework
 // Class  :     ESRecordsToProductResolverIndices
 //
-/**\class ESRecordsToProductResolverIndices ESRecordsToProductResolverIndices.h FWCore/Framework/interface/ESRecordsToProductResolverIndices.h
+/**\class edm::eventsetup::ESRecordsToProductResolverIndices
 
  Description: Key used to identify data within a EventSetupRecord
 
@@ -19,7 +19,7 @@
 //
 
 // system include files
-#include <limits>
+#include <tuple>
 #include <vector>
 
 // user include files
@@ -34,20 +34,21 @@ namespace edm::eventsetup {
 
   class ESRecordsToProductResolverIndices {
   public:
+    ESRecordsToProductResolverIndices() = default;
     ESRecordsToProductResolverIndices(std::vector<EventSetupRecordKey> iRecords);
 
     // ---------- const member functions ---------------------
-    ///If the index is not found, returns missingResolverIndex()
+    ///If the index is not found, returns ESResolverIndex::noResolverConfigured()
     ESResolverIndex indexInRecord(EventSetupRecordKey const& iRK, DataKey const& iDK) const noexcept;
 
     ComponentDescription const* component(EventSetupRecordKey const& iRK, DataKey const& iDK) const noexcept;
 
+    std::tuple<ComponentDescription const*, unsigned int> componentAndProduceMethodID(EventSetupRecordKey const&,
+                                                                                      ESResolverIndex) const noexcept;
+
     ///Returns ESTagGetter for all products matching the type iTT for record iRK
     ESTagGetter makeTagGetter(EventSetupRecordKey const& iRK, TypeTag const& iTT) const;
 
-    static constexpr ESResolverIndex missingResolverIndex() noexcept {
-      return ESResolverIndex{std::numeric_limits<int>::max()};
-    }
     static constexpr ESRecordIndex missingRecordIndex() noexcept {
       return ESRecordIndex{ESRecordIndex::invalidValue()};
     }
@@ -65,7 +66,8 @@ namespace edm::eventsetup {
     unsigned int dataKeysInRecord(unsigned int iRecordIndex,
                                   EventSetupRecordKey const& iRecord,
                                   std::vector<DataKey> const& iDataKeys,
-                                  std::vector<ComponentDescription const*> const& iComponents);
+                                  std::vector<ComponentDescription const*> const& iComponents,
+                                  std::vector<unsigned int> const& iProduceMethodIDs);
 
   private:
     // ---------- member data --------------------------------
@@ -77,6 +79,7 @@ namespace edm::eventsetup {
     std::vector<unsigned int> recordOffsets_;
     std::vector<DataKey> dataKeys_;
     std::vector<ComponentDescription const*> components_;
+    std::vector<unsigned int> produceMethodIDs_;
   };
 
 }  // namespace edm::eventsetup

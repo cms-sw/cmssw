@@ -12,7 +12,7 @@
 
 class EcalTBHodoscopePlaneRawHits {
 public:
-  EcalTBHodoscopePlaneRawHits() : rawChannelHits_(0){};
+  EcalTBHodoscopePlaneRawHits() : rawChannelHits_(0) {}
 
   EcalTBHodoscopePlaneRawHits(unsigned int channels) {
     rawChannelHits_.reserve(channels);

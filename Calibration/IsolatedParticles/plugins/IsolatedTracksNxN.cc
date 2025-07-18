@@ -657,7 +657,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
                                      << (*recVtxs)[ind].tracksSize() << " sumPt " << vtxTrkSumPt;
       }
     }  // if vtx is not Fake
-  }    // loop over PVs
+  }  // loop over PVs
   //===================================================================================
 
   // Get the beamspot
@@ -1650,8 +1650,8 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
         }
 
       }  // if loosely isolated track
-    }    // check p1/eta
-  }      // loop over track collection
+    }  // check p1/eta
+  }  // loop over track collection
 
   if (haveIsoTrack)
     tree_->Fill();

@@ -35,7 +35,7 @@ DTOfflineSummaryClients::~DTOfflineSummaryClients() {
       << "DTOfflineSummaryClients: analyzed " << nevents << " events";
 }
 
-void DTOfflineSummaryClients::beginRun(const edm::Run& r, const edm::EventSetup& c){};
+void DTOfflineSummaryClients::beginRun(const edm::Run& r, const edm::EventSetup& c) {}
 
 void DTOfflineSummaryClients::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
                                                     DQMStore::IGetter& igetter,

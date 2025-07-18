@@ -10,7 +10,7 @@ namespace l1t {
 
   class Unpacker {
   public:
-    Unpacker() : algoVersion_(0){};
+    Unpacker() : algoVersion_(0) {}
     virtual ~Unpacker() = default;
     virtual bool unpack(const Block& block, UnpackerCollections* coll) = 0;
 

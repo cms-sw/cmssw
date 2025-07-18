@@ -5,7 +5,7 @@ namespace l1thgcfirmware {
 
   class SortingTruncationAlgoConfig {
   public:
-    SortingTruncationAlgoConfig(const unsigned maxTCs) : maxTCs_(maxTCs){};
+    SortingTruncationAlgoConfig(const unsigned maxTCs) : maxTCs_(maxTCs) {}
 
     void setParameters(unsigned maxTCs) { maxTCs_ = maxTCs; };
 

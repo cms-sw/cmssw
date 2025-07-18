@@ -58,7 +58,7 @@ public:
   /// Constructor
   explicit CSCSegAlgoSK(const edm::ParameterSet& ps);
   /// Destructor
-  ~CSCSegAlgoSK() override{};
+  ~CSCSegAlgoSK() override {}
 
   /**
      * Build track segments in this chamber (this is where the actual

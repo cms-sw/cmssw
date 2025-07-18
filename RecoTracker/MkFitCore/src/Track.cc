@@ -197,11 +197,11 @@ namespace mkfit {
       // center of helix in x,y plane
       const float x_center = x() - k * py();
       const float y_center = y() + k * px();
-      return std::hypot(x_center - x_bs, y_center - y_bs) - abs_ooc_half;
+      return hipo(x_center - x_bs, y_center - y_bs) - abs_ooc_half;
     }
   }
   float TrackBase::swimPhiToR(const float x0, const float y0) const {
-    const float dR = getHypot(x() - x0, y() - y0);
+    const float dR = hipo(x() - x0, y() - y0);
     // XXX-ASSUMPTION-ERROR can not always reach R, should see what callers expect.
     // For now return PI to signal apex on the ohter side of the helix.
     const float v = dR / 176.f / pT() * charge();
@@ -213,7 +213,7 @@ namespace mkfit {
   bool TrackBase::canReachRadius(float R) const {
     const float k = ((charge() < 0) ? 100.0f : -100.0f) / (Const::sol * Config::Bfield);
     const float ooc = 2.0f * k * pT();
-    return std::abs(ooc) > R - std::hypot(x(), y());
+    return std::abs(ooc) > R - hipo(x(), y());
   }
 
   float TrackBase::maxReachRadius() const {
@@ -222,7 +222,7 @@ namespace mkfit {
     // center of helix in x,y plane
     const float x_center = x() - k * py();
     const float y_center = y() + k * px();
-    return std::hypot(x_center, y_center) + abs_ooc_half;
+    return hipo(x_center, y_center) + abs_ooc_half;
   }
 
   float TrackBase::zAtR(float R, float* r_reached) const {
@@ -240,14 +240,14 @@ namespace mkfit {
     const float lambda = pz() * ipt;
 
     //printf("Track::zAtR to R=%f: k=%e, ipt=%e, c=%e, ooc=%e  -- can hit = %f (if > 1 can)\n",
-    //       R, k, ipt, c, ooc, ooc / (R - std::hypot(xc,yc)));
+    //       R, k, ipt, c, ooc, ooc / (R - hipo(xc,yc)));
 
     float D = 0;
 
     for (int i = 0; i < Config::Niter; ++i) {
       // compute tangental and ideal distance for the current iteration.
       // 3-rd order asin for symmetric incidence (shortest arc lenght).
-      float r0 = std::hypot(xc, yc);
+      float r0 = hipo(xc, yc);
       float td = (R - r0) * c;
       float id = ooc * td * (1.0f + 0.16666666f * td * td);
       // This would be for line approximation:
@@ -270,7 +270,7 @@ namespace mkfit {
     }
 
     if (r_reached)
-      *r_reached = std::hypot(xc, yc);
+      *r_reached = hipo(xc, yc);
 
     return z() + lambda * D;
 
@@ -325,7 +325,7 @@ namespace mkfit {
     // pxc = pxc * cosa  -  pyc * sina;
     // pyc = pyc * cosa  +  pxo * sina;
 
-    return std::hypot(xc, yc);
+    return hipo(xc, yc);
   }
 
   const char* TrackBase::algoint_to_cstr(int algo) {

@@ -14,4 +14,8 @@
   <class name="alpaka_cuda_async::portabletest::TestDeviceMultiCollection3" persistent="false"/>
   <class name="edm::DeviceProduct<alpaka_cuda_async::portabletest::TestDeviceMultiCollection3>" persistent="false"/>
   <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::portabletest::TestDeviceMultiCollection3>>" persistent="false"/>
+
+  <class name="portabletest::TestProductWithPtr<alpaka_cuda_async::Device>"/>
+  <class name="edm::DeviceProduct<portabletest::TestProductWithPtr<alpaka_cuda_async::Device>>"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<portabletest::TestProductWithPtr<alpaka_cuda_async::Device>>>" persistent="false"/>
 </lcgdict>

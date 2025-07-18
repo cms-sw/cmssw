@@ -1,9 +1,11 @@
-#ifndef SiStripZeroSuppression_h
-#define SiStripZeroSuppression_h
+#ifndef RecoLocalTracker_SiStripZeroSuppression_SiStripZeroSuppression_h
+#define RecoLocalTracker_SiStripZeroSuppression_SiStripZeroSuppression_h
+
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -17,6 +19,8 @@ class SiStripZeroSuppression : public edm::stream::EDProducer<> {
 public:
   explicit SiStripZeroSuppression(const edm::ParameterSet&);
   void produce(edm::Event&, const edm::EventSetup&) override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   enum class RawType { Unknown, VirginRaw, ProcessedRaw, ScopeMode };
@@ -36,13 +40,13 @@ private:
 
   std::unique_ptr<SiStripRawProcessingAlgorithms> algorithms;
 
-  bool produceRawDigis;
-  bool storeCM;
-  bool fixCM;
-  bool produceCalculatedBaseline;
-  bool produceBaselinePoints;
-  bool storeInZScollBadAPV;
-  bool produceHybridFormat;
+  const bool produceRawDigis;
+  const bool storeCM;
+  const bool fixCM;
+  const bool produceCalculatedBaseline;
+  const bool produceBaselinePoints;
+  const bool storeInZScollBadAPV;
+  const bool produceHybridFormat;
 
   using rawtoken_t = edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi>>;
   using zstoken_t = edm::EDGetTokenT<edm::DetSetVector<SiStripDigi>>;

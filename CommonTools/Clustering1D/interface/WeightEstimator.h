@@ -14,7 +14,7 @@ public:
   virtual double weight(const std::vector<const T*>&) const = 0;
   virtual WeightEstimator* clone() const = 0;
 
-  virtual ~WeightEstimator(){};
+  virtual ~WeightEstimator() {}
 };
 
 #endif

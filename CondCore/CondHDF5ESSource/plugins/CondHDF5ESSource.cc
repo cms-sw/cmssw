@@ -17,6 +17,7 @@
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/ESProductResolverProvider.h"
+#include "FWCore/Framework/interface/ESModuleProducesInfo.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"
@@ -52,6 +53,7 @@ private:
   bool isConcurrentFinder() const final { return true; }
   void setIntervalFor(EventSetupRecordKey const&, edm::IOVSyncValue const&, edm::ValidityInterval&) final;
   KeyedResolversVector registerResolvers(EventSetupRecordKey const&, unsigned int iovIndex) final;
+  std::vector<edm::eventsetup::ESModuleProducesInfo> producesInfo() const final;
 
   edm::SerialTaskQueue queue_;
   std::mutex mutex_;
@@ -233,6 +235,27 @@ CondHDF5ESSource::KeyedResolversVector CondHDF5ESSource::registerResolvers(Event
         std::make_shared<HDF5ProductResolver>(
             &queue_, std::move(helper), &file_, filename_, compression_, &record, &dataProduct));
   }
+  return returnValue;
+}
+
+std::vector<edm::eventsetup::ESModuleProducesInfo> CondHDF5ESSource::producesInfo() const {
+  std::vector<edm::eventsetup::ESModuleProducesInfo> returnValue;
+  auto size = 0;
+  for (auto const& recInfo : records_) {
+    size += recInfo.dataProducts_.size();
+  }
+  returnValue.reserve(size);
+
+  for (auto const& recInfo : records_) {
+    EventSetupRecordKey rec{edm::eventsetup::heterocontainer::HCTypeTag::findType(recInfo.name_)};
+    for (auto const& dataProduct : recInfo.dataProducts_) {
+      unsigned int index = returnValue.size();
+      edm::eventsetup::DataKey key{edm::eventsetup::heterocontainer::HCTypeTag::findType(dataProduct.type_),
+                                   dataProduct.name_.c_str()};
+      returnValue.emplace_back(rec, key, index);
+    }
+  }
+
   return returnValue;
 }
 

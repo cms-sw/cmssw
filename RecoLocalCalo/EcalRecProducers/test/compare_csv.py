@@ -1,4 +1,3 @@
-from __future__ import print_function
 import sys
 
 def compare(fn1, fn2):

@@ -53,18 +53,6 @@ GenEventInfoProduct3::GenEventInfoProduct3(GenEventInfoProduct3 const &other)
   setPDF(other.pdf());
 }
 
-GenEventInfoProduct3::GenEventInfoProduct3(GenEventInfoProduct3 &&other)
-    : weights_(std::move(other.weights_)),
-      signalProcessID_(other.signalProcessID_),
-      qScale_(other.qScale_),
-      alphaQCD_(other.alphaQCD_),
-      alphaQED_(other.alphaQED_),
-      pdf_(other.pdf_.release()),
-      binningValues_(std::move(other.binningValues_)),
-      DJRValues_(std::move(other.DJRValues_)),
-      nMEPartons_(other.nMEPartons_),
-      nMEPartonsFiltered_(other.nMEPartons_) {}
-
 GenEventInfoProduct3::~GenEventInfoProduct3() {}
 
 GenEventInfoProduct3 &GenEventInfoProduct3::operator=(GenEventInfoProduct3 const &other) {
@@ -79,21 +67,6 @@ GenEventInfoProduct3 &GenEventInfoProduct3::operator=(GenEventInfoProduct3 const
   nMEPartonsFiltered_ = other.nMEPartonsFiltered_;
 
   setPDF(other.pdf());
-
-  return *this;
-}
-
-GenEventInfoProduct3 &GenEventInfoProduct3::operator=(GenEventInfoProduct3 &&other) {
-  weights_ = std::move(other.weights_);
-  signalProcessID_ = other.signalProcessID_;
-  qScale_ = other.qScale_;
-  alphaQCD_ = other.alphaQCD_;
-  alphaQED_ = other.alphaQED_;
-  binningValues_ = std::move(other.binningValues_);
-  DJRValues_ = std::move(other.DJRValues_);
-  nMEPartons_ = other.nMEPartons_;
-  nMEPartonsFiltered_ = other.nMEPartonsFiltered_;
-  pdf_ = std::move(other.pdf_);
 
   return *this;
 }

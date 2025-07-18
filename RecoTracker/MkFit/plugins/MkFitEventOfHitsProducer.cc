@@ -18,7 +18,6 @@
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-#include "RecoTracker/MkFit/interface/MkFitClusterIndexToHit.h"
 #include "RecoTracker/MkFit/interface/MkFitEventOfHits.h"
 #include "RecoTracker/MkFit/interface/MkFitGeometry.h"
 #include "RecoTracker/MkFit/interface/MkFitHitWrapper.h"
@@ -39,15 +38,13 @@ public:
 private:
   void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
-  void fill(const std::vector<const TrackingRecHit*>& hits,
-            mkfit::EventOfHits& eventOfHits,
-            const MkFitGeometry& mkFitGeom) const;
+  void fill(const std::vector<int>& hits, mkfit::EventOfHits& eventOfHits, const MkFitGeometry& mkFitGeom) const;
 
   const edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
   const edm::EDGetTokenT<MkFitHitWrapper> pixelHitsToken_;
   const edm::EDGetTokenT<MkFitHitWrapper> stripHitsToken_;
-  const edm::EDGetTokenT<MkFitClusterIndexToHit> pixelClusterIndexToHitToken_;
-  const edm::EDGetTokenT<MkFitClusterIndexToHit> stripClusterIndexToHitToken_;
+  const edm::EDGetTokenT<std::vector<int>> pixelLayerIndexToHitToken_;
+  const edm::EDGetTokenT<std::vector<int>> stripLayerIndexToHitToken_;
   const edm::ESGetToken<MkFitGeometry, TrackerRecoGeometryRecord> mkFitGeomToken_;
   edm::ESGetToken<SiPixelQuality, SiPixelQualityRcd> pixelQualityToken_;
   edm::ESGetToken<SiStripQuality, SiStripQualityRcd> stripQualityToken_;
@@ -61,8 +58,8 @@ MkFitEventOfHitsProducer::MkFitEventOfHitsProducer(edm::ParameterSet const& iCon
     : beamSpotToken_{consumes(iConfig.getParameter<edm::InputTag>("beamSpot"))},
       pixelHitsToken_{consumes(iConfig.getParameter<edm::InputTag>("pixelHits"))},
       stripHitsToken_{consumes(iConfig.getParameter<edm::InputTag>("stripHits"))},
-      pixelClusterIndexToHitToken_{consumes(iConfig.getParameter<edm::InputTag>("pixelHits"))},
-      stripClusterIndexToHitToken_{consumes(iConfig.getParameter<edm::InputTag>("stripHits"))},
+      pixelLayerIndexToHitToken_{consumes(iConfig.getParameter<edm::InputTag>("pixelHits"))},
+      stripLayerIndexToHitToken_{consumes(iConfig.getParameter<edm::InputTag>("stripHits"))},
       mkFitGeomToken_{esConsumes()},
       putToken_{produces<MkFitEventOfHits>()},
       usePixelQualityDB_{iConfig.getParameter<bool>("usePixelQualityDB")},
@@ -171,8 +168,8 @@ void MkFitEventOfHitsProducer::produce(edm::StreamID iID, edm::Event& iEvent, co
     mkfit::StdSeq::loadDeads(*eventOfHits, deadvectors);
   }
 
-  fill(iEvent.get(pixelClusterIndexToHitToken_).hits(), *eventOfHits, mkFitGeom);
-  fill(iEvent.get(stripClusterIndexToHitToken_).hits(), *eventOfHits, mkFitGeom);
+  fill(iEvent.get(pixelLayerIndexToHitToken_), *eventOfHits, mkFitGeom);
+  fill(iEvent.get(stripLayerIndexToHitToken_), *eventOfHits, mkFitGeom);
 
   mkfit::StdSeq::cmssw_LoadHits_End(*eventOfHits);
 
@@ -183,13 +180,12 @@ void MkFitEventOfHitsProducer::produce(edm::StreamID iID, edm::Event& iEvent, co
   iEvent.emplace(putToken_, std::move(eventOfHits));
 }
 
-void MkFitEventOfHitsProducer::fill(const std::vector<const TrackingRecHit*>& hits,
+void MkFitEventOfHitsProducer::fill(const std::vector<int>& layerToHits,
                                     mkfit::EventOfHits& eventOfHits,
                                     const MkFitGeometry& mkFitGeom) const {
-  for (unsigned int i = 0, end = hits.size(); i < end; ++i) {
-    const auto* hit = hits[i];
-    if (hit != nullptr) {
-      const auto ilay = mkFitGeom.mkFitLayerNumber(hit->geographicalId());
+  for (unsigned int i = 0, end = layerToHits.size(); i < end; ++i) {
+    const auto ilay = layerToHits[i];
+    if (ilay >= 0) {
       eventOfHits[ilay].registerHit(i);
     }
   }

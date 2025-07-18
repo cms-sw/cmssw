@@ -24,6 +24,7 @@ public:
   typedef HcalZDCDetId DetIdType;
 
   static constexpr int k_NumberOfCellsForCorners = HcalZDCDetId::kSizeForDenseIndexing;
+  uint32_t k_NumberOfCellsForCornersN;
 
   static constexpr int k_NumberOfShapes = 3;
 
@@ -63,10 +64,10 @@ public:
                   CaloSubdetectorGeometry::IVec& dins) const override;
 
 protected:
-  unsigned int indexFor(const DetId& id) const override { return HcalZDCDetId(id).denseIndex(); }
+  unsigned int indexFor(const DetId& id) const override { return theTopology->detId2DenseIndex(id); }
 
   // Modify the RawPtr class
-  const CaloCellGeometry* getGeometryRawPtr(uint32_t index) const override;
+  CaloCellGeometryPtr getGeometryRawPtr(uint32_t index) const override;
 
 private:
   const ZdcTopology* theTopology;

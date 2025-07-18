@@ -10,7 +10,7 @@
 
 class DeepTauIdSonicProducer : public DeepTauIdBase<TritonEDProducer<>> {
 public:
-  explicit DeepTauIdSonicProducer(edm::ParameterSet const& cfg) : DeepTauIdBase<TritonEDProducer<>>(cfg){};
+  explicit DeepTauIdSonicProducer(edm::ParameterSet const& cfg) : DeepTauIdBase<TritonEDProducer<>>(cfg) {}
 
   void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, Input& iInput) override;
   void produce(edm::Event& iEvent, edm::EventSetup const& iSetup, Output const& iOutput) override;

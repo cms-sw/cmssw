@@ -2,6 +2,6 @@
 
 #include "SimDataFormats/Associations/interface/LayerClusterToSimTracksterAssociator.h"
 
-hgcal::LayerClusterToSimTracksterAssociator::LayerClusterToSimTracksterAssociator(
-    std::unique_ptr<hgcal::LayerClusterToSimTracksterAssociatorBaseImpl> ptr)
+ticl::LayerClusterToSimTracksterAssociator::LayerClusterToSimTracksterAssociator(
+    std::unique_ptr<ticl::LayerClusterToSimTracksterAssociatorBaseImpl> ptr)
     : m_impl(std::move(ptr)) {}

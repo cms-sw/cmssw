@@ -14,7 +14,7 @@ namespace reco {
       static S make(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC) { return S(cfg, iC); }
       static S make(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC) { return S(cfg, iC); }
 
-      static void fillPSetDescription(edm::ParameterSetDescription& desc) { S::template fillPSetDescription(desc); }
+      static void fillPSetDescription(edm::ParameterSetDescription& desc) { S::fillPSetDescription(desc); }
     };
 
     template <typename S>

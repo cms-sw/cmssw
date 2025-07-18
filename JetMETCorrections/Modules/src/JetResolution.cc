@@ -9,6 +9,8 @@
 #include "JetResolution.h"
 #endif
 
+#include <algorithm>
+
 namespace JME {
 
   JetResolution::JetResolution(const std::string& filename) {

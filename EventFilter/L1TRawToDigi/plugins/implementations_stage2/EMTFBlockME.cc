@@ -24,7 +24,7 @@ namespace l1t {
       // };
 
     }  // namespace emtf
-  }    // namespace stage2
+  }  // namespace stage2
 }  // namespace l1t
 
 namespace l1t {
@@ -370,7 +370,7 @@ namespace l1t {
       // } // End bool MEBlockPacker::pack
 
     }  // End namespace emtf
-  }    // End namespace stage2
+  }  // End namespace stage2
 }  // End namespace l1t
 
 DEFINE_L1T_UNPACKER(l1t::stage2::emtf::MEBlockUnpacker);

@@ -19,7 +19,7 @@ __global__ void kernel_test_hcal_rechits(T *other) {
   other->setTime(rh.time());
 }
 
-__global__ void kernel_test_hcal_hfqie10info() { HFQIE10Info info; }
+__global__ void kernel_test_hcal_hfqie10info() {}
 
 __global__ void kernel_test_hcal_hbhechinfo(HBHEChannelInfo *other) {
   HBHEChannelInfo info{true, true};

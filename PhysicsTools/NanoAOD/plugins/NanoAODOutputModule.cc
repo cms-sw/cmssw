@@ -34,7 +34,7 @@
 #include "FWCore/Utilities/interface/Digest.h"
 #include "IOPool/Provenance/interface/CommonProvenanceFiller.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
 #include "DataFormats/NanoAOD/interface/UniqueString.h"
@@ -273,7 +273,7 @@ void NanoAODOutputModule::writeRun(edm::RunForOutput const& iRun) {
         throw cms::Exception("LogicError", "Inconsistent nanoMetadata " + p.first + " (" + hstring->str() + ")");
     } else {
       auto ostr = std::make_unique<TObjString>(hstring->str().c_str());
-      m_file->WriteTObject(ostr.release(), p.first.c_str());
+      m_file->WriteTObject(ostr.get(), p.first.c_str());
     }
   }
 
@@ -299,13 +299,13 @@ void NanoAODOutputModule::openFile(edm::FileBlock const&) {
                                    std::vector<std::string>());
 
   if (m_compressionAlgorithm == std::string("ZLIB")) {
-    m_file->SetCompressionAlgorithm(ROOT::kZLIB);
+    m_file->SetCompressionAlgorithm(ROOT::RCompressionSetting::EAlgorithm::kZLIB);
   } else if (m_compressionAlgorithm == std::string("LZMA")) {
-    m_file->SetCompressionAlgorithm(ROOT::kLZMA);
+    m_file->SetCompressionAlgorithm(ROOT::RCompressionSetting::EAlgorithm::kLZMA);
   } else if (m_compressionAlgorithm == std::string("ZSTD")) {
-    m_file->SetCompressionAlgorithm(ROOT::kZSTD);
+    m_file->SetCompressionAlgorithm(ROOT::RCompressionSetting::EAlgorithm::kZSTD);
   } else if (m_compressionAlgorithm == std::string("LZ4")) {
-    m_file->SetCompressionAlgorithm(ROOT::kLZ4);
+    m_file->SetCompressionAlgorithm(ROOT::RCompressionSetting::EAlgorithm::kLZ4);
   } else {
     throw cms::Exception("Configuration")
         << "NanoAODOutputModule configured with unknown compression algorithm '" << m_compressionAlgorithm << "'\n"

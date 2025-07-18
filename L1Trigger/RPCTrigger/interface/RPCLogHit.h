@@ -22,7 +22,7 @@ public:
   ///
   ///Default ctor.
   ///
-  RPCLogHit(){};
+  RPCLogHit() {}
 
   RPCLogHit(int m_tower, int m_PAC, int m_logplane, int m_posInCone);
   ///

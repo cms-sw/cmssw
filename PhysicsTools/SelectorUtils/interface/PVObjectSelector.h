@@ -10,6 +10,9 @@
 #include "PhysicsTools/SelectorUtils/interface/Selector.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 #include <vector>
 #include <string>
 
@@ -34,8 +37,9 @@ public:
     indexZ_ = index_type(&bits_, "PV Z");
     indexRho_ = index_type(&bits_, "PV RHO");
 
-    if (params.exists("cutsToIgnore"))
-      setIgnoredCuts(params.getParameter<std::vector<std::string> >("cutsToIgnore"));
+    const auto& cutsToIgnore{params.getParameter<std::vector<std::string> >("cutsToIgnore")};
+    if (!cutsToIgnore.empty())
+      setIgnoredCuts(cutsToIgnore);
 
     retInternal_ = getBitTemplate();
   }
@@ -57,6 +61,15 @@ public:
     setIgnored(ret);
 
     return (bool)ret;
+  }
+
+  static edm::ParameterSetDescription getDescription() {
+    edm::ParameterSetDescription desc;
+    desc.add<double>("minNdof", 4.0);
+    desc.add<double>("maxZ", 24.0);
+    desc.add<double>("maxRho", 2.0);
+    desc.add<std::vector<std::string> >("cutsToIgnore", {});
+    return desc;
   }
 
   using Selector<reco::Vertex>::operator();

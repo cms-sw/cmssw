@@ -3,8 +3,8 @@ autoSkim = {
  # Skim 2023
  'BTagMu' : 'LogError+LogErrorMonitor',
  'DisplacedJet' : 'EXODisplacedJet+EXODelayedJet+EXODTCluster+EXOCSCCluster+EXOLLPJetHCAL+LogError+LogErrorMonitor',
- 'JetMET0' : 'JetHTJetPlusHOFilter+EXOHighMET+EXODelayedJetMET+EXODisappTrk+EXOSoftDisplacedVertices+TeVJet+LogError+LogErrorMonitor',
- 'JetMET1' : 'JetHTJetPlusHOFilter+EXOHighMET+EXODelayedJetMET+EXODisappTrk+EXOSoftDisplacedVertices+TeVJet+LogError+LogErrorMonitor',
+ 'JetMET0' : 'JetHTJetPlusHOFilter+EXOHighMET+EXODelayedJetMET+EXOMONOPOLE+EXODisappTrk+EXOSoftDisplacedVertices+TeVJet+LogError+LogErrorMonitor',
+ 'JetMET1' : 'JetHTJetPlusHOFilter+EXOHighMET+EXODelayedJetMET+EXOMONOPOLE+EXODisappTrk+EXOSoftDisplacedVertices+TeVJet+LogError+LogErrorMonitor',
  'EGamma0':'EGMJME+ZElectron+WElectron+EXOMONOPOLE+EXODisappTrk+IsoPhotonEB+LogError+LogErrorMonitor',
  'EGamma1':'EGMJME+ZElectron+WElectron+EXOMONOPOLE+EXODisappTrk+IsoPhotonEB+LogError+LogErrorMonitor',
  'Tau' : 'EXODisappTrk+LogError+LogErrorMonitor',
@@ -28,11 +28,11 @@ autoSkim = {
 
  # These should be uncommented when 2022 data reprocessing
  # Dedicated skim for 2022
- 'JetMET' : 'JetHTJetPlusHOFilter+EXOHighMET+EXODelayedJetMET+EXODisappTrk+EXOSoftDisplacedVertices+TeVJet+LogError+LogErrorMonitor',
+ 'JetMET' : 'JetHTJetPlusHOFilter+EXOHighMET+EXODelayedJetMET+EXOMONOPOLE+EXODisappTrk+EXOSoftDisplacedVertices+TeVJet+LogError+LogErrorMonitor',
  'EGamma':'EGMJME+ZElectron+WElectron+EXOMONOPOLE+EXODisappTrk+IsoPhotonEB+LogError+LogErrorMonitor',
  'Muon' : 'MUOJME+ZMu+EXODisappTrk+EXODisappMuon+LogError+LogErrorMonitor',
  'JetHT' : 'JetHTJetPlusHOFilter+EXOSoftDisplacedVertices+TeVJet+LogError+LogErrorMonitor',
- 'MET' : 'EXOHighMET+EXODelayedJetMET+EXODisappTrk+EXOSoftDisplacedVertices+TeVJet+LogError+LogErrorMonitor',
+ 'MET' : 'EXOHighMET+EXODelayedJetMET+EXOMONOPOLE+EXODisappTrk+EXOSoftDisplacedVertices+TeVJet+LogError+LogErrorMonitor',
  'SingleMuon' : 'ZMu+EXODisappTrk+EXODisappMuon+LogError+LogErrorMonitor',
  'DoubleMuon' : 'MUOJME+LogError+LogErrorMonitor',
 
@@ -40,9 +40,17 @@ autoSkim = {
  #'SingleMuon': 'LogError+LogErrorMonitor',
 }
 
+# For 2025 Ion skims
+for i_split in range(60):
+    autoSkim[f'IonPhysics{i_split}'] = 'IonHighPtMuon+IonDimuon+LogError+LogErrorMonitor'
+    
+# For 2024 PbPb skims
+for i_split in range(20):
+    autoSkim[f'HIForward{i_split}'] = 'UPCMonopole+LogError+LogErrorMonitor'
+
 # For 2023 PbPb skims
-for i_split in range(32):
-    autoSkim[f'HIPhysicsRawPrime{i_split}'] = 'PbPbEMu+PbPbZEE+PbPbZMM+LogError+LogErrorMonitor'
+for i_split in range(60):
+    autoSkim[f'HIPhysicsRawPrime{i_split}'] = 'PbPbEMu+PbPbZEE+PbPbZMu+PbPbHighPtJets+LogError+LogErrorMonitor'
 
 autoSkimRunII = {
  'BTagCSV' : 'LogError+LogErrorMonitor',

@@ -206,7 +206,7 @@ void DaqScopeModeHistosUsingDb::update(SiStripConfigDb::FedDescriptionsRange fed
                 LogTrace(mlDqmClient_) << ss.str();
               }
             }  // end loop on strips
-          }    // end loop on apvs
+          }  // end loop on apvs
           updated_peds++;
         }
 

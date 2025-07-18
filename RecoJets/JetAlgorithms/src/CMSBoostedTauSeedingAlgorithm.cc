@@ -64,7 +64,7 @@ FASTJET_BEGIN_NAMESPACE  // defined in fastjet/internal/base.hh
     if (!hasSubjets)
       return;
     std::string depth_and_idx_string_subjet1 = depth_and_idx_string;
-    if (depth_and_idx_string_subjet1.length() > 0)
+    if (!depth_and_idx_string_subjet1.empty())
       depth_and_idx_string_subjet1.append(".");
     depth_and_idx_string_subjet1.append("0");
     for (int iSpace = 0; iSpace < depth; ++iSpace) {
@@ -76,7 +76,7 @@ FASTJET_BEGIN_NAMESPACE  // defined in fastjet/internal/base.hh
               << " (constituents = " << subjet1.constituents().size() << ")" << std::endl;
     dumpSubJetStructure(subjet1, depth + 1, maxDepth, depth_and_idx_string_subjet1);
     std::string depth_and_idx_string_subjet2 = depth_and_idx_string;
-    if (depth_and_idx_string_subjet2.length() > 0)
+    if (!depth_and_idx_string_subjet2.empty())
       depth_and_idx_string_subjet2.append(".");
     depth_and_idx_string_subjet2.append("1");
     for (int iSpace = 0; iSpace < depth; ++iSpace) {

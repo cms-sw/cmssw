@@ -74,8 +74,8 @@ protected:
 // will behave like a filter*
 class SFilter {
 public:
-  SFilter(Filter* f, bool i) : filter_(f), inverted_(i){};
-  ~SFilter(){};
+  SFilter(Filter* f, bool i) : filter_(f), inverted_(i) {}
+  ~SFilter() {}
 
   Filter& operator*() { return *filter_; }
   Filter* operator->() { return filter_; }
@@ -390,7 +390,7 @@ public:
         }  //the name is not a simple filter name : either Selection of _OR_.
 
       }  //loop over the strings in "filterOrder"
-    }    //loop over all defined Selection
+    }  //loop over all defined Selection
 
     //finally, configure the Selections
     //loop the selections instanciated

@@ -32,7 +32,7 @@ namespace pat {
 
       float getValue(const edm::ProductID &id, size_t index) const override;
     };  // class IsoDepositIsolator
-  }     // namespace helper
+  }  // namespace helper
 }  // namespace pat
 
 #endif

@@ -45,7 +45,7 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.dqmsave_step = cms.Path(process.DQMSaver)
 
 
-print process.ZDCDigiStudy.Verbose
+print(process.ZDCDigiStudy.Verbose)
 process.p1 = cms.Path(
     process.ZDCDigiStudy
     *process.zdcSimHitStudy)

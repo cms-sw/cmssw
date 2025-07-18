@@ -69,7 +69,7 @@ public:
         continue;
       }
 
-      reco::PFRecHit rh(thisCell, detid.rawId(), Layer, energy);
+      reco::PFRecHit rh(std::move(thisCell), detid.rawId(), Layer, energy);
       rh.setTime(time);  //Mike: This we will use later
       rh.setDepth(depth);
 

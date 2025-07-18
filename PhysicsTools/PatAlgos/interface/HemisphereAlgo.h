@@ -49,7 +49,7 @@ public:
                  const int hemisphere_association_method = 0);
 
   // Destructor
-  ~HemisphereAlgo(){};
+  ~HemisphereAlgo() {}
 
   std::vector<float> getAxis1();  // returns Nx, Ny, Nz, P, E of the axis of group 1
   std::vector<float> getAxis2();  // returns Nx, Ny, Nz, P, E of the axis of group 2

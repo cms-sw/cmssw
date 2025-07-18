@@ -1,5 +1,5 @@
-#ifndef L1GlobalTrigger_L1TGtObjectMapRecord_h
-#define L1GlobalTrigger_L1TGtObjectMapRecord_h
+#ifndef DataFormats_L1TGlobal_GlobalObjectMapRecord_h
+#define DataFormats_L1TGlobal_GlobalObjectMapRecord_h
 
 /**
  * \class GlobalObjectMapRecord
@@ -45,11 +45,13 @@ public:
 
   /// return all the combinations passing the requirements imposed in condition condNameVal
   /// from algorithm with name algoNameVal
-  const CombinationsInCond* getCombinationsInCond(const std::string& algoNameVal, const std::string& condNameVal) const;
+  const CombinationsWithBxInCond* getCombinationsInCond(const std::string& algoNameVal,
+                                                        const std::string& condNameVal) const;
 
   /// return all the combinations passing the requirements imposed in condition condNameVal
   /// from algorithm with bit number algoBitNumberVal
-  const CombinationsInCond* getCombinationsInCond(const int algoBitNumberVal, const std::string& condNameVal) const;
+  const CombinationsWithBxInCond* getCombinationsInCond(const int algoBitNumberVal,
+                                                        const std::string& condNameVal) const;
 
   /// return the result for the condition condNameVal
   /// from algorithm with name algoNameVal
@@ -73,4 +75,4 @@ private:
 
 inline void swap(GlobalObjectMapRecord& lh, GlobalObjectMapRecord& rh) { lh.swap(rh); }
 
-#endif /* L1GlobalTrigger_L1TGtObjectMapRecord_h */
+#endif

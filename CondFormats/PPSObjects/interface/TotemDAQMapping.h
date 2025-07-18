@@ -51,7 +51,7 @@ public:
     int plane;
     int channel;
 
-    TotemTimingPlaneChannelPair(const int& plane = -1, const int& channel = -1) : plane(plane), channel(channel){};
+    TotemTimingPlaneChannelPair(const int& plane = -1, const int& channel = -1) : plane(plane), channel(channel) {}
     COND_SERIALIZABLE;
   };
   std::map<uint8_t, TotemTimingPlaneChannelPair> totemTimingChannelMap;

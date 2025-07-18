@@ -175,7 +175,7 @@ void SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_it
   uint32_t detId = det->geographicalId().rawId();
   // First: loop on the SimHits
   if (CLHEP::RandFlat::shoot(engine) > inefficiency) {
-    AssociationInfoForChannel* pDetIDAssociationInfo;  // I only need this if makeDigiSimLinks_ is true...
+    AssociationInfoForChannel* pDetIDAssociationInfo{nullptr};  // I only need this if makeDigiSimLinks_ is true...
     if (makeDigiSimLinks_)
       pDetIDAssociationInfo = &(associationInfoForDetId_[detId]);  // ...so only search the map if that is the case
     std::vector<float>
@@ -228,10 +228,10 @@ void SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_it
                 associationVector.push_back(AssociationInfo{
                     simHitIter->trackId(), simHitIter->eventId(), signalFromThisSimHit, simHitGlobalIndex, tofBin});
             }  // end of "if( signalFromThisSimHit!=0 )"
-          }    // end of loop over locAmpl strips
-        }      // end of "if( makeDigiSimLinks_ )"
-      }        // end of TOF check
-    }          // end for
+          }  // end of loop over locAmpl strips
+        }  // end of "if( makeDigiSimLinks_ )"
+      }  // end of TOF check
+    }  // end for
   }
   theSiPileUpSignals->add(detID, locAmpl, thisFirstChannelWithSignal, thisLastChannelWithSignal);
 
@@ -513,8 +513,8 @@ void SiStripDigitizerAlgorithm::digitize(edm::DetSet<SiStripDigi>& outdigi,
                                              iAssociationInfo.eventID,
                                              iAssociationInfo.contributionToADC / totalSimADC));
         }  // end of loop over associationInfo
-      }    // end of loop over the digis
-    }      // end of check that iAssociationInfoByChannel is a valid iterator
+      }  // end of loop over the digis
+    }  // end of check that iAssociationInfoByChannel is a valid iterator
     outdigi.data = digis;
   }  //if zeroSuppression
 
@@ -652,8 +652,8 @@ void SiStripDigitizerAlgorithm::digitize(edm::DetSet<SiStripDigi>& outdigi,
                                              iAssociationInfo.eventID,
                                              iAssociationInfo.contributionToADC / totalSimADC));
         }  // end of loop over associationInfo
-      }    // end of loop over the digis
-    }      // end of check that iAssociationInfoByChannel is a valid iterator
+      }  // end of loop over the digis
+    }  // end of check that iAssociationInfoByChannel is a valid iterator
 
     outrawdigi.data = rawdigis;
 

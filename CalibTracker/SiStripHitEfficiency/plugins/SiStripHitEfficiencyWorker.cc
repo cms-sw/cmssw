@@ -532,6 +532,7 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
         unsigned int iidd = theHit->geographicalId().rawId();
         int layer = ::checkLayer(iidd, tTopo);
         int missedLayer = layer + 1;
+        int previousMissedLayer = (layer + 2);
         int diffPreviousLayer = (layer - previous_layer);
         if (doMissingHitsRecovery_) {
           //Layers from TIB + TOB
@@ -561,6 +562,24 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
             missHitPerLayer[14] += 1;
             hasMissingHits = true;
           }
+
+          //####### Consecutive missing hits case #######
+
+          //##### Layers from TIB + TOB
+          if (diffPreviousLayer == -3 && missedLayer > k_LayersStart && missedLayer < k_LayersAtTOBEnd &&
+              previousMissedLayer > k_LayersStart && previousMissedLayer < k_LayersAtTOBEnd) {
+            missHitPerLayer[missedLayer] += 1;
+            missHitPerLayer[previousMissedLayer] += 1;
+            hasMissingHits = true;
+          }
+
+          //##### Layers from TEC
+          else if (diffPreviousLayer == -3 && missedLayer > k_LayersAtTIDEnd && missedLayer <= k_LayersAtTECEnd &&
+                   previousMissedLayer > k_LayersAtTIDEnd && previousMissedLayer <= k_LayersAtTECEnd) {
+            missHitPerLayer[missedLayer] += 1;
+            missHitPerLayer[previousMissedLayer] += 1;
+            hasMissingHits = true;
+          }
         }
         if (theHit->getType() == TrackingRecHit::Type::missing)
           hasMissingHits = true;
@@ -584,6 +603,8 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
         unsigned int iidd = theInHit->geographicalId().rawId();
 
         unsigned int TKlayers = ::checkLayer(iidd, tTopo);
+
+        bool foundConsMissingHits{false};
 
         // do not bother with pixel hits
         if (DetId(iidd).subdetId() < SiStripSubdetector::TIB)
@@ -639,8 +660,9 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
         }
 
         bool missingHitAdded{false};
-        std::vector<TrajectoryMeasurement> tmpTmeas;
+        std::vector<TrajectoryMeasurement> tmpTmeas, prev_tmpTmeas;
         unsigned int misLayer = TKlayers + 1;
+        unsigned int previousMisLayer = TKlayers + 2;
         //Use bool doMissingHitsRecovery to add possible missing hits based on actual/previous hit
         if (doMissingHitsRecovery_) {
           if (int(TKlayers) - int(prev_TKlayers) == -2) {
@@ -724,7 +746,51 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
             }
           }
 
-          if (!tmpTmeas.empty()) {
+          //Test for two consecutive missing hits
+          if (int(TKlayers) - int(prev_TKlayers) == -3) {
+            foundConsMissingHits = true;
+            const DetLayer* detlayer = itm->layer();
+            const LayerMeasurements layerMeasurements{measTracker, *measurementTrackerEvent};
+            const TrajectoryStateOnSurface tsos = itm->updatedState();
+            std::vector<DetLayer::DetWithState> compatDets = detlayer->compatibleDets(tsos, prop, chi2Estimator);
+
+            if (misLayer > k_LayersStart && misLayer <= k_LayersAtTOBEnd && previousMisLayer > k_LayersStart &&
+                previousMisLayer <= k_LayersAtTOBEnd) {  //Barrel case
+              std::vector<BarrelDetLayer const*> barrelTIBLayers = measTracker.geometricSearchTracker()->tibLayers();
+              std::vector<BarrelDetLayer const*> barrelTOBLayers = measTracker.geometricSearchTracker()->tobLayers();
+              if (misLayer > k_LayersStart && misLayer < k_LayersAtTIBEnd) {
+                const DetLayer* tibLayer = barrelTIBLayers[misLayer - k_LayersStart - 1];
+                const DetLayer* prevTibLayer = barrelTIBLayers[previousMisLayer - k_LayersStart - 1];
+
+                tmpTmeas = layerMeasurements.measurements(*tibLayer, tsos, prop, chi2Estimator);
+                prev_tmpTmeas = layerMeasurements.measurements(*prevTibLayer, tsos, prop, chi2Estimator);
+              } else if (misLayer > k_LayersAtTIBEnd && misLayer < k_LayersAtTOBEnd) {
+                const DetLayer* tobLayer = barrelTOBLayers[misLayer - k_LayersAtTIBEnd - 1];
+                const DetLayer* prevTobLayer = barrelTOBLayers[previousMisLayer - k_LayersAtTIBEnd - 1];
+                tmpTmeas = layerMeasurements.measurements(*tobLayer, tsos, prop, chi2Estimator);
+                prev_tmpTmeas = layerMeasurements.measurements(*prevTobLayer, tsos, prop, chi2Estimator);
+              }
+            } else if (misLayer > k_LayersAtTIDEnd && misLayer < k_LayersAtTECEnd &&
+                       previousMisLayer > k_LayersAtTIDEnd && previousMisLayer < k_LayersAtTECEnd) {  //TEC
+              std::vector<ForwardDetLayer const*> negTECLayers = measTracker.geometricSearchTracker()->negTecLayers();
+              std::vector<ForwardDetLayer const*> posTECLayers = measTracker.geometricSearchTracker()->posTecLayers();
+
+              const DetLayer* tecLayerneg = negTECLayers[misLayer - k_LayersAtTIDEnd - 1];
+              const DetLayer* prevTecLayerneg = negTECLayers[previousMisLayer - k_LayersAtTIDEnd - 1];
+
+              const DetLayer* tecLayerpos = posTECLayers[misLayer - k_LayersAtTIDEnd - 1];
+              const DetLayer* prevTecLayerpos = posTECLayers[previousMisLayer - k_LayersAtTIDEnd - 1];
+
+              if (tTopo->tecSide(iidd) == 1) {
+                tmpTmeas = layerMeasurements.measurements(*tecLayerneg, tsos, prop, chi2Estimator);
+                prev_tmpTmeas = layerMeasurements.measurements(*prevTecLayerneg, tsos, prop, chi2Estimator);
+              } else if (tTopo->tecSide(iidd) == 2) {
+                tmpTmeas = layerMeasurements.measurements(*tecLayerpos, tsos, prop, chi2Estimator);
+                prev_tmpTmeas = layerMeasurements.measurements(*prevTecLayerpos, tsos, prop, chi2Estimator);
+              }
+            }
+          }
+          if (!tmpTmeas.empty() && !foundConsMissingHits) {
             TrajectoryMeasurement TM_tmp(tmpTmeas.back());
             unsigned int iidd_tmp = TM_tmp.recHit()->geographicalId().rawId();
             if (iidd_tmp != 0) {
@@ -738,6 +804,59 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
                 TMs.push_back(TrajectoryAtInvalidHit(TM_tmp, tTopo, tkgeom, propagator));
               missingHitAdded = true;
               hitRecoveryCounters[misLayer] += 1;
+            }
+          }
+
+          if (!tmpTmeas.empty() && !prev_tmpTmeas.empty() &&
+              foundConsMissingHits) {  //Found two consecutive missing hits
+            TrajectoryMeasurement TM_tmp1(tmpTmeas.back());
+            TrajectoryMeasurement TM_tmp2(prev_tmpTmeas.back());
+            //Inner and outer hits module IDs
+            unsigned int modIdInner = TM_tmp1.recHit()->geographicalId().rawId();
+            unsigned int modIdOuter = TM_tmp2.recHit()->geographicalId().rawId();
+            bool innerModInactive = false, outerModInactive = false;
+            for (const auto& tm : tmpTmeas) {  //Check if inner module is inactive
+              unsigned int tmModId = tm.recHit()->geographicalId().rawId();
+              if (tmModId == modIdInner && tm.recHit()->getType() == 2) {
+                innerModInactive = true;
+                break;
+              }
+            }
+            for (const auto& tm : prev_tmpTmeas) {  //Check if outer module is inactive
+              unsigned int tmModId = tm.recHit()->geographicalId().rawId();
+              if (tmModId == modIdOuter && tm.recHit()->getType() == 2) {
+                outerModInactive = true;
+                break;  //Found the inactive module
+              }
+            }
+
+            if (outerModInactive) {  //If outer missing hit is in inactive module, recover the inner one
+              if (modIdInner != 0) {
+                LogDebug("SiStripHitEfficiency:HitEff") << " hit actually being added to TM vector";
+                if ((!useAllHitsFromTracksWithMissingHits_ || (!useFirstMeas_ && isFirstMeas)))
+                  TMs.clear();
+                if (::isDoubleSided(modIdInner, tTopo)) {
+                  TMs.push_back(TrajectoryAtInvalidHit(TM_tmp1, tTopo, tkgeom, propagator, 1));
+                  TMs.push_back(TrajectoryAtInvalidHit(TM_tmp1, tTopo, tkgeom, propagator, 2));
+                } else
+                  TMs.push_back(TrajectoryAtInvalidHit(TM_tmp1, tTopo, tkgeom, propagator));
+                missingHitAdded = true;
+                hitRecoveryCounters[misLayer] += 1;
+              }
+            }
+            if (innerModInactive) {  //If inner missing hit is in inactive module, recover the outer one
+              if (modIdOuter != 0) {
+                LogDebug("SiStripHitEfficiency:HitEff") << " hit actually being added to TM vector";
+                if ((!useAllHitsFromTracksWithMissingHits_ || (!useFirstMeas_ && isFirstMeas)))
+                  TMs.clear();
+                if (::isDoubleSided(modIdOuter, tTopo)) {
+                  TMs.push_back(TrajectoryAtInvalidHit(TM_tmp2, tTopo, tkgeom, propagator, 1));
+                  TMs.push_back(TrajectoryAtInvalidHit(TM_tmp2, tTopo, tkgeom, propagator, 2));
+                } else
+                  TMs.push_back(TrajectoryAtInvalidHit(TM_tmp2, tTopo, tkgeom, propagator));
+                missingHitAdded = true;
+                hitRecoveryCounters[previousMisLayer] += 1;
+              }
             }
           }
         }

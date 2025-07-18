@@ -676,7 +676,7 @@ void MuonTestSummary::doResidualsTests(DQMStore::IGetter &igetter, string type, 
         }
 
       }  //have pull histo
-    }    //TkSta muons
+    }  //TkSta muons
   }
 
   //this part for Global Muons:
@@ -982,7 +982,7 @@ void MuonTestSummary::ResidualCheck(DQMStore::IGetter &igetter,
       }  //if gfit? why would we not have gfit?
 
     }  //histogram exists...
-  }    // loop over residuals histos
+  }  // loop over residuals histos
 
   if (numPlot == 0) {  //eg no stats
     Mean_err = 1;

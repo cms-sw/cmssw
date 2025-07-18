@@ -7,6 +7,7 @@
 //Framework
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 //STL
 #include <vector>
@@ -33,6 +34,8 @@ public:
   Tracks select(const Tracks& tracks, const edm::Event& iEvent, const edm::EventSetup& eSetup);
   ///returns if any of the Filters is used.
   bool useThisFilter();
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
 private:
   ///returns [tracks] if there are less than theMaxCount Jets with theMinJetPt and an empty set if not

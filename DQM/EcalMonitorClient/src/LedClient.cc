@@ -159,6 +159,10 @@ namespace ecaldqm {
         meTimingMean.fill(getEcalDQMSetupObjects(), id, tMean);
         meTimingRMSMap.setBinContent(getEcalDQMSetupObjects(), id, tRms);
 
+        //Temporarily disabling all cuts on LED Quality plot.
+        qItr->setBinContent(doMask ? kMGood : kGood);
+
+        /*
         float intensity(aMean / expectedAmplitude_[wlItr->second]);
         if (isForward(id))
           intensity /= forwardFactor_;
@@ -180,7 +184,7 @@ namespace ecaldqm {
             qItr->setBinContent(doMask ? kMBad : kBad);
           else
             qItr->setBinContent(doMask ? kMGood : kGood);
-        }
+        }*/
       }
 
       towerAverage_(meQualitySummary, meQuality, 0.2);

@@ -1,0 +1,20 @@
+# Example of calibration job without phisymmetry correction (depth dependent)
+nohup ./CalibMain.exe 2 d24CE.txt 24CE0.root 1031 hcalIsoTrackAnalyzer 24CE0 -8 0 -1 30 24CE0corr.txt 1 0.5 1 1 0 0 1 0.25 3.0 25 -1 -1 300 0 0 99999999 1 72 0 0 1000 0 1 1 0 40 60 0 > & 24CE0.log &
+
+# Example of calibration job with phisymmetry correction (depth dependent)
+nohup ./CalibMain.exe 2 d24CE.txt 24CE0.root 1031 hcalIsoTrackAnalyzer 24CE0 -8 0 -1 30 24CE0corr.txt 1 0.5 1 1 0 0 1 0.25 3.0 25 -1 -1 304 0 0 99999999 1 72 0 0 1000 0 1 1 0 40 60 0 PhiSym2024_RunC.txt > & 24CE0.log &
+
+# Example of calibration job with phisymmetry correction (restricted depth dependent)
+nohup ./CalibMain.exe 2 d24CE.txt 24CE5.root 1031 hcalIsoTrackAnalyzer 24CE5 -8 5 -1 30 24CE5corr.txt 1 0.5 1 1 0 0 1 0.25 3.0 25 -1 -1 304 0 0 99999999 1 72 0 0 1000 0 1 1 0 40 60 0 PhiSym2024_RunC.txt > & 24CE5.log &
+
+# Example of calibration job with phisymmetry correction (depth independent)
+nohup ./CalibMain.exe 2 d24CE.txt 24CE2.root 1031 hcalIsoTrackAnalyzer 24CE2 -8 2 -1 30 24CE2corr.txt 1 0.5 1 1 0 0 1 0.25 3.0 25 -1 -1 304 0 0 99999999 1 72 0 0 1000 0 1 1 0 40 60 0  > & 24CE2.log &
+
+# Example of a job producing histograms (depth dependent)
+nohup ./CalibMain.exe 0 d24CE.txt 24CEM1.root 41031 hcalIsoTrackAnalyzer 24CE1 -8 0 -1 1 54 0 1 0 0 30 0 99999999 1 72 1 0 1000 0 0 0 1 1 24CE0corr.txt PhiSym2024_RunC.txt  >& 24CEM1.log &
+
+# Example of a job producing histograms (restricted depth dependent)
+nohup ./CalibMain.exe 0 d24CE.txt 24CEM2.root 41031 hcalIsoTrackAnalyzer 24CE2 -8 5 -1 1 54 0 1 0 0 30 0 99999999 1 72 1 0 1000 0 0 0 1 1 24CE5corr.txt PhiSym2024_RunC.txt  >& 24CEM2.log &
+
+# Example of a job producing histograms (depth independent)
+nohup ../d24/CalibMain.exe 0 d24CE.txt 24CEM3.root 41031 hcalIsoTrackAnalyzer 24CE3 -8 2 -1 1 54 0 1 0 0 30 0 99999999 1 72 1 0 1000 0 0 0 1 1 24CE2corr.txt PhiSym2024_RunC.txt  >& 24CEM3.log &

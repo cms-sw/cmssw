@@ -114,7 +114,7 @@ namespace {
                                  kStructureNotifyMask | kFocusChangeMask | kEnterWindowMask | kLeaveWindowMask);
     }
 
-    ~FWGeometryVF() override{};
+    ~FWGeometryVF() override {}
 
     Bool_t HandleKey(Event_t* event) override {
       if (event->fCode == (UInt_t)gVirtualX->KeysymToKeycode(kKey_Escape)) {

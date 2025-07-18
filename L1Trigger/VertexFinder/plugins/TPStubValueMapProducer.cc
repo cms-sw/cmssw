@@ -42,9 +42,9 @@
 #include "L1Trigger/VertexFinder/interface/TP.h"
 #include "L1Trigger/VertexFinder/interface/Stub.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTTrackAssociationMap.h"
+#include "SimDataFormats/Associations/interface/TTClusterAssociationMap.h"
+#include "SimDataFormats/Associations/interface/TTStubAssociationMap.h"
+#include "SimDataFormats/Associations/interface/TTTrackAssociationMap.h"
 
 //
 // class declaration
@@ -191,7 +191,7 @@ void TPStubValueMapProducer::produce(edm::StreamID, edm::Event& iEvent, const ed
 
   // Collections of products
   auto vTrackingParticlesHandle = iEvent.put(std::move(vTrackingParticles));
-  auto vAllMatchedTPsHandle = iEvent.put(std::move(vAllMatchedTPs), outputCollectionNames_[2]);
+  iEvent.put(std::move(vAllMatchedTPs), outputCollectionNames_[2]);
 
   // Value maps to TP/Stub
   auto TPV = std::make_unique<edm::ValueMap<l1tVertexFinder::TP>>();

@@ -27,7 +27,7 @@ public:
   void simulateNoise(const RPCRoll*, CLHEP::HepRandomEngine*) override;
 
 private:
-  void init() override{};
+  void init() override {}
 
 private:
   double aveEff;

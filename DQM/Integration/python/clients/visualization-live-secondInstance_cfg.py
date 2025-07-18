@@ -1,4 +1,3 @@
-from __future__ import print_function
 import re, os, sys
 import FWCore.ParameterSet.Config as cms
 from Configuration.DataProcessing.GetScenario import getScenario
@@ -130,4 +129,6 @@ if dump:
     psetFile.close()
     cmsRun = "cmsRun -e RunVisualizationProcessingCfg.py"
     print("Now do:\n%s" % cmsRun)
+
+print("Global Tag used:", process.GlobalTag.globaltag.value())
 print("Final Source settings:", process.source)

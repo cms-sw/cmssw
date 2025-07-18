@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import print_function
 from builtins import range
 from itertools import groupby
 from operator import attrgetter,itemgetter
@@ -480,11 +479,11 @@ class EDModuleTransitionParser(object):
         return ''
     def text(self, context):
         return f'{self.textPrefix(context)} {self.textSpecial()}{self.textIfTransform()}: {self.textPostfix()}'
-    def _preJson(self, activity, counter, data, mayUseTemp = False):
+    def _preJson(self, activity, counter, data, mayUseTemp = False, isSrc = False):
         index = self.index
         found = False
         if mayUseTemp:
-            compare = lambda x: x['type'] == self.transition and x['id'] == self.index and x['mod'] == self.moduleID and x['call'] == self.callID and (x['act'] == Activity.temporary or x['act'] == Activity.externalWork)
+            compare = lambda x: x['type'] == self.transition and x['id'] == self.index and x['mod'] == self.moduleID and x['call'] == self.callID and ((x.get('isSrc') != None) == isSrc ) and (x['act'] == Activity.temporary or x['act'] == Activity.externalWork)
             if transitionIsGlobal(self.transition):
                 item,slot = data.findLastInModGlobals(index, self.moduleID, compare)
             else:
@@ -502,8 +501,8 @@ class EDModuleTransitionParser(object):
                 slot = data.findOpenSlotInModStreams(index, self.moduleID)
         slot.append(jsonModuleTransition(type=self.transition, id=self.index, modID=self.moduleID, callID=self.callID, activity=activity, start=self.time))
         return slot[-1]
-    def _postJson(self, counter, data, injectAfter = None):
-        compare = lambda x: x['id'] == self.index and x['mod'] == self.moduleID and x['call'] == self.callID and x['type'] == self.transition
+    def _postJson(self, counter, data, injectAfter = None, isSrc = False):
+        compare = lambda x: x['id'] == self.index and x['mod'] == self.moduleID and x['call'] == self.callID and x['type'] == self.transition and ((x.get('isSrc') != None) == isSrc )
         index = self.index
         if transitionIsGlobal(self.transition):
             item,slot = data.findLastInModGlobals(index, self.moduleID, compare)
@@ -583,28 +582,37 @@ class PostEDModuleAcquireParser(EDModuleTransitionParser):
         return self._postJson(counter,data)
 
 class PreEDModuleEventDelayedGetParser(EDModuleTransitionParser):
-    def __init__(self, payload, names):
+    def __init__(self, payload, names, moduleCentric):
         super().__init__(payload, names)
+        self._moduleCentric = moduleCentric
     def textSpecial(self):
         return "starting delayed get"
     def jsonInfo(self, counter, data):
-        return self._preJson(Activity.delayedGet, counter,data)
+        #a pre delayed get is effectively a post transition as the system assumes one state per module per transition instance
+        if self._moduleCentric:
+            #inject a dummy at end of the same slot to guarantee module run is in that slot
+            return self._postJson(counter, data, jsonModuleTransition(type=self.transition, id=self.index, modID=self.moduleID, callID=self.callID, activity=Activity.temporary, start=self.time))
+        return self._postJson(counter,data)
+        #return self._preJson(Activity.delayedGet, counter,data)
 
 class PostEDModuleEventDelayedGetParser(EDModuleTransitionParser):
-    def __init__(self, payload, names):
+    def __init__(self, payload, names, moduleCentric):
         super().__init__(payload, names)
+        self._moduleCentric = moduleCentric
     def textSpecial(self):
         return "finished delayed get"
     def jsonInfo(self, counter, data):
-        return self._postJson(counter,data)
+        return self._preJson(Activity.process, counter,data, mayUseTemp=self._moduleCentric)
+        #return self._postJson(counter,data)
 
 class PreEventReadFromSourceParser(EDModuleTransitionParser):
-    def __init__(self, payload, names):
+    def __init__(self, payload, names, moduleCentric):
         super().__init__(payload, names)
+        self._moduleCentric = moduleCentric
     def textSpecial(self):
         return "starting read from source"
     def jsonInfo(self, counter, data):
-        slot = self._preJson(Activity.process, counter,data)
+        slot = self._preJson(Activity.process, counter,data, mayUseTemp=self._moduleCentric, isSrc=True)
         slot['isSrc'] = True
         return slot
 
@@ -614,7 +622,7 @@ class PostEventReadFromSourceParser(EDModuleTransitionParser):
     def textSpecial(self):
         return "finished read from source"
     def jsonInfo(self, counter, data):
-        return self._postJson(counter,data)
+        return self._postJson(counter,data, isSrc=True)
 
 class ESModuleTransitionParser(object):
     def __init__(self, payload, moduleNames, esModuleNames, recordNames):
@@ -748,11 +756,11 @@ def lineParserFactory (step, payload, moduleNames, esModuleNames, recordNames, f
     if step == 'a':
         return PostEDModuleAcquireParser(payload, moduleNames, moduleCentric)
     if step == 'D':
-        return PreEDModuleEventDelayedGetParser(payload, moduleNames)
+        return PreEDModuleEventDelayedGetParser(payload, moduleNames, moduleCentric)
     if step == 'd':
-        return PostEDModuleEventDelayedGetParser(payload, moduleNames)
+        return PostEDModuleEventDelayedGetParser(payload, moduleNames, moduleCentric)
     if step == 'R':
-        return PreEventReadFromSourceParser(payload, moduleNames)
+        return PreEventReadFromSourceParser(payload, moduleNames, moduleCentric)
     if step == 'r':
         return PostEventReadFromSourceParser(payload, moduleNames)
     if step == 'N':
@@ -1289,8 +1297,7 @@ if __name__=="__main__":
             if args.json:
                 print(j)
             if args.web:
-                j ='export const data = ' + j
-                f=open('data.js', 'w')
+                f=open('data.json', 'w')
                 f.write(j)
                 f.close()
         else:

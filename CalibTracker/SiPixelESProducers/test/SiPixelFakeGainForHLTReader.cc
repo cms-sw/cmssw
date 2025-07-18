@@ -1,13 +1,74 @@
+// -*- C++ -*-
+//
+// Package:    CalibTracker/SiPixelESProducers
+// Class:      SiPixelFakeGainForHLTReader
+//
+/**\class SiPixelFakeGainForHLTReader SiPixelFakeGainForHLTReader.cc SiPixelESProducers/test/SiPixelFakeGainForHLTReader.h
+
+ Description: Test analyzer for fake pixel calibrationForHLT
+
+ Implementation:
+     <Notes on implementation>
+*/
+//
+// Original Author:  Vincenzo CHIOCHIA
+//         Created:  Tue Oct 17 17:40:56 CEST 2006
+//
+//
+
+// system includes
 #include <memory>
 
-#include "CalibTracker/SiPixelESProducers/test/SiPixelFakeGainForHLTReader.h"
-
+// user includes
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationForHLTService.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
+// ROOT file
+#include "TROOT.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TBranch.h"
+#include "TH1F.h"
+
+namespace cms {
+  class SiPixelFakeGainForHLTReader : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
+  public:
+    explicit SiPixelFakeGainForHLTReader(const edm::ParameterSet& iConfig);
+    ~SiPixelFakeGainForHLTReader() override = default;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+    virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+    virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
+    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    virtual void endJob() override;
+
+  private:
+    edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomToken_;
+    edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeomTokenBeginRun_;
+    SiPixelGainCalibrationForHLTService SiPixelGainCalibrationForHLTService_;
+
+    std::map<uint32_t, TH1F*> _TH1F_Pedestals_m;
+    std::map<uint32_t, TH1F*> _TH1F_Gains_m;
+    std::string filename_;
+    TFile* fFile;
+  };
+}  // namespace cms
+
 namespace cms {
   SiPixelFakeGainForHLTReader::SiPixelFakeGainForHLTReader(const edm::ParameterSet& conf)
-      : conf_(conf),
-        trackerGeomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
+      : trackerGeomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
         trackerGeomTokenBeginRun_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
         SiPixelGainCalibrationForHLTService_(conf, consumesCollector()),
         filename_(conf.getParameter<std::string>("fileName")) {}
@@ -118,4 +179,13 @@ namespace cms {
 
   // ------------ method called once each job just after ending the event loop  ------------
   void SiPixelFakeGainForHLTReader::endJob() { std::cout << " ---> End job " << std::endl; }
+
+  void SiPixelFakeGainForHLTReader::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<std::string>("fileName", "out.root");
+    descriptions.addWithDefaultLabel(desc);
+  }
 }  // namespace cms
+
+using cms::SiPixelFakeGainForHLTReader;
+DEFINE_FWK_MODULE(SiPixelFakeGainForHLTReader);

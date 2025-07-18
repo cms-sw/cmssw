@@ -24,7 +24,7 @@ static const std::string NAMEPREFIX("N=");
 static const std::string KEYPREFIX("K=");
 static const std::string OWNERPREFIX("O=");
 
-static const std::string DATEPREFIX("D=");
+//static const std::string DATEPREFIX("D=");
 
 static const std::string SERVICEPREFIX("S=");
 static const std::string CONNECTIONPREFIX("C=");

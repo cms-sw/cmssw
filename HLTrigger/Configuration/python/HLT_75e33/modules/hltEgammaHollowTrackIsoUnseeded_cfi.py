@@ -10,5 +10,5 @@ hltEgammaHollowTrackIsoUnseeded = cms.EDProducer("EgammaHLTPhotonTrackIsolationP
     egTrkIsoVetoConeSize = cms.double(0.06),
     egTrkIsoZSpan = cms.double(999999.0),
     recoEcalCandidateProducer = cms.InputTag("hltEgammaCandidatesUnseeded"),
-    trackProducer = cms.InputTag("generalTracks")
+    trackProducer = cms.InputTag("hltGeneralTracks")
 )

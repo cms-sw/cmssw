@@ -17,6 +17,8 @@
 #include "EventFilter/Utilities/plugins/FRDStreamSource.h"
 #include "EventFilter/Utilities/interface/crc32c.h"
 
+using namespace edm::streamer;
+
 FRDStreamSource::FRDStreamSource(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc)
     : ProducerSourceFromFiles(pset, desc, true),
       verifyAdler32_(pset.getUntrackedParameter<bool>("verifyAdler32", true)),

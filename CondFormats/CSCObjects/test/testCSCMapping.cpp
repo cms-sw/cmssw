@@ -118,8 +118,8 @@ void testCSCMapping::testRead() {
         std::cout << std::endl;
 
       }  // end loop over cfebs
-    }    // end loop over dmbs
-  }      // end loop over vmes
+    }  // end loop over dmbs
+  }  // end loop over vmes
   std::cout << dashedLine << " end" << std::endl;
 }
 

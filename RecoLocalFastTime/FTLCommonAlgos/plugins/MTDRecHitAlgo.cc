@@ -67,7 +67,7 @@ FTLRecHit MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32
     }
     // ETL, BTL tile geometry, BTL bar geometry with only the left SiPM information available
     default: {
-      energy = uRecHit.amplitude().first;
+      energy = uRecHit.amplitude().first;  //for ETL, it is the time_over_threshold
       time = uRecHit.time().first;
 
       break;

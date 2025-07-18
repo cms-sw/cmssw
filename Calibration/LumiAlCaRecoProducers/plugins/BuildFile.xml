@@ -9,22 +9,6 @@
 <use name="DataFormats/Luminosity"/>
 <use name="CondFormats/DataRecord"/>
 <flags EDM_PLUGIN="1"/>
-<library file="AlcaPCCProducer.cc" name="AlcaPCCProducer">
-  <flags EDM_PLUGIN="1"/>
-</library>
-
-<library file="RawPCCProducer.cc" name="RawPCCProducer">
-  <flags EDM_PLUGIN="1"/>
-</library>
-
-<library file="CorrPCCProducer.cc" name="CorrPCCProducer">
-  <flags EDM_PLUGIN="1"/>
-</library>
-
-<library file="AlcaPCCEventProducer.cc" name="AlcaPCCEventProducer">
-  <flags EDM_PLUGIN="1"/>
-</library>
-
-<library file="AlcaPCCIntegrator.cc" name="AlcaPCCIntegrator">
+<library file="*.cc" name="CalibrationLumiAlCaRecoProducersPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>

@@ -261,6 +261,9 @@ void DQMProtobufReader::load(DQMStore* store, std::string filename) {
       } else if (kind == DQMNet::DQM_PROP_TYPE_TH2D) {
         auto value = static_cast<TH2D*>(obj);
         store->book2DD(objname, value);
+      } else if (kind == DQMNet::DQM_PROP_TYPE_TH2Poly) {
+        auto value = static_cast<TH2Poly*>(obj);
+        store->book2DPoly(objname, value);
       } else if (kind == DQMNet::DQM_PROP_TYPE_TH2I) {
         auto value = static_cast<TH2I*>(obj);
         store->book2I(objname, value);
@@ -281,7 +284,7 @@ void DQMProtobufReader::load(DQMStore* store, std::string filename) {
   }
 }
 
-void DQMProtobufReader::readEvent_(edm::EventPrincipal&){};
+void DQMProtobufReader::readEvent_(edm::EventPrincipal&) {}
 
 void DQMProtobufReader::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;

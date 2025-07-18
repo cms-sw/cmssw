@@ -6,10 +6,11 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include "DataFormats/Common/interface/Uninitialized.h"
+#include "DataFormats/Portable/interface/PortableCollectionCommon.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/host.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
-#include "DataFormats/Portable/interface/PortableCollectionCommon.h"
 
 // generic SoA-based product in host memory
 template <typename T>
@@ -18,10 +19,14 @@ public:
   using Layout = T;
   using View = typename Layout::View;
   using ConstView = typename Layout::ConstView;
+  using Descriptor = typename Layout::Descriptor;
+  using ConstDescriptor = typename Layout::ConstDescriptor;
   using Buffer = cms::alpakatools::host_buffer<std::byte[]>;
   using ConstBuffer = cms::alpakatools::const_host_buffer<std::byte[]>;
 
-  PortableHostCollection() = default;
+  PortableHostCollection() = delete;
+
+  explicit PortableHostCollection(edm::Uninitialized) noexcept {};
 
   PortableHostCollection(int32_t elements, alpaka_common::DevHost const& host)
       // allocate pageable host memory
@@ -69,6 +74,16 @@ public:
   ConstBuffer buffer() const { return *buffer_; }
   ConstBuffer const_buffer() const { return *buffer_; }
 
+  // erases the data in the Buffer by writing zeros (bytes containing '\0') to it
+  void zeroInitialise() {
+    std::memset(std::data(*buffer_), 0x00, alpaka::getExtentProduct(*buffer_) * sizeof(std::byte));
+  }
+
+  template <typename TQueue, typename = std::enable_if_t<alpaka::isQueue<TQueue>>>
+  void zeroInitialise(TQueue&& queue) {
+    alpaka::memset(std::forward<TQueue>(queue), *buffer_, 0x00);
+  }
+
   // part of the ROOT read streamer
   static void ROOTReadStreamer(PortableHostCollection* newObj, Layout& layout) {
     // destroy the default-constructed collection
@@ -81,7 +96,33 @@ public:
     layout.ROOTStreamerCleaner();
   }
 
+  // Copy column by column the content of the given view into this PortableHostCollection.
+  // The view must point to data in host memory.
+  void deepCopy(ConstView const& view) { layout_.deepCopy(view); }
+
+  // Copy column by column heterogeneously for device to host data transfer.
+  template <typename TQueue>
+  void deepCopy(ConstView const& view, TQueue& queue) {
+    ConstDescriptor desc{view};
+    Descriptor desc_{view_};
+    _deepCopy<0>(desc_, desc, queue);
+  }
+
 private:
+  // Helper function implementing the recursive deep copy
+  template <int I, typename TQueue>
+  void _deepCopy(Descriptor& dest, ConstDescriptor const& src, TQueue& queue) {
+    if constexpr (I < ConstDescriptor::num_cols) {
+      assert(std::get<I>(dest.buff).size_bytes() == std::get<I>(src.buff).size_bytes());
+      alpaka::memcpy(
+          queue,
+          alpaka::createView(alpaka::getDev(queue), std::get<I>(dest.buff).data(), std::get<I>(dest.buff).size()),
+          alpaka::createView(alpaka::getDev(queue), std::get<I>(src.buff).data(), std::get<I>(src.buff).size()));
+      _deepCopy<I + 1>(dest, src, queue);
+    }
+  }
+
+  // Data members
   std::optional<Buffer> buffer_;  //!
   Layout layout_;                 //
   View view_;                     //!
@@ -144,7 +185,9 @@ private:
   }
 
 public:
-  PortableHostMultiCollection() = default;
+  PortableHostMultiCollection() = delete;
+
+  explicit PortableHostMultiCollection(edm::Uninitialized) noexcept {};
 
   PortableHostMultiCollection(int32_t elements, alpaka_common::DevHost const& host)
       // allocate pageable host memory
@@ -278,12 +321,23 @@ public:
   ConstBuffer buffer() const { return *buffer_; }
   ConstBuffer const_buffer() const { return *buffer_; }
 
-  // Extract the sizes array
+  // erases the data in the Buffer by writing zeros (bytes containing '\0') to it
+  void zeroInitialise() {
+    std::memset(std::data(*buffer_), 0x00, alpaka::getExtentProduct(*buffer_) * sizeof(std::byte));
+  }
+
+  template <typename TQueue, typename = std::enable_if_t<alpaka::isQueue<TQueue>>>
+  void zeroInitialise(TQueue&& queue) {
+    alpaka::memset(std::forward<TQueue>(queue), *buffer_, 0x00);
+  }
+
+  // extract the sizes array
   SizesArray sizes() const {
     SizesArray ret;
     portablecollection::constexpr_for<0, members_>([&](auto i) { ret[i] = get<i>().layout_.metadata().size(); });
     return ret;
   }
+
   // part of the ROOT read streamer
   static void ROOTReadStreamer(PortableHostMultiCollection* newObj, Implementation& onfileImpl) {
     newObj->~PortableHostMultiCollection();

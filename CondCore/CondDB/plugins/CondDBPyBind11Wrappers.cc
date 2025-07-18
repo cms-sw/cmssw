@@ -2,6 +2,7 @@
 #include "CondCore/CondDB/interface/Auth.h"
 //
 #include <cstdlib>
+#include <cassert>
 
 namespace cond {
 
@@ -10,7 +11,9 @@ namespace cond {
                                                                      const std::string& authPath) {
     std::string ap = authPath;
     if (ap.empty()) {
-      ap = std::string(std::getenv(cond::auth::COND_AUTH_PATH));
+      char* auth_path_env = std::getenv(cond::auth::COND_AUTH_PATH);
+      assert(auth_path_env);
+      ap = std::string(auth_path_env);
     }
     auto ret = std::make_tuple(std::string(""), std::string(""), std::string(""));
     if (!ap.empty()) {

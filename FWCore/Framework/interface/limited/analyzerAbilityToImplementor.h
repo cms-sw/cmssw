@@ -67,7 +67,7 @@ namespace edm {
         using Type = edm::limited::impl::WatchProcessBlock<edm::limited::EDAnalyzerBase>;
       };
     }  // namespace analyzer
-  }    // namespace limited
+  }  // namespace limited
 }  // namespace edm
 
 #endif

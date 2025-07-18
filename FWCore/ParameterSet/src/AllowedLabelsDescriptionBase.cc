@@ -28,8 +28,8 @@ namespace edm {
 
   void AllowedLabelsDescriptionBase::validate_(ParameterSet& pset,
                                                std::set<std::string>& validatedLabels,
-                                               bool optional) const {
-    parameterHoldingLabels_.validate(pset, validatedLabels, optional);
+                                               Modifier modifier) const {
+    parameterHoldingLabels_.validate(pset, validatedLabels, modifier);
     if (parameterHoldingLabels_.exists(pset)) {
       std::vector<std::string> allowedLabels;
       if (isTracked()) {
@@ -46,13 +46,17 @@ namespace edm {
     }
   }
 
-  void AllowedLabelsDescriptionBase::writeCfi_(
-      std::ostream& os, bool optional, bool& startWithComma, int indentation, bool& wroteSomething) const {
-    parameterHoldingLabels_.writeCfi(os, optional, startWithComma, indentation, wroteSomething);
+  void AllowedLabelsDescriptionBase::writeCfi_(std::ostream& os,
+                                               Modifier modifier,
+                                               bool& startWithComma,
+                                               int indentation,
+                                               CfiOptions& options,
+                                               bool& wroteSomething) const {
+    parameterHoldingLabels_.writeCfi(os, modifier, startWithComma, indentation, options, wroteSomething);
   }
 
   void AllowedLabelsDescriptionBase::print_(std::ostream& os,
-                                            bool optional,
+                                            Modifier modifier,
                                             bool writeToCfi,
                                             DocFormatHelper& dfh) const {
     if (dfh.pass() == 1) {
@@ -60,8 +64,11 @@ namespace edm {
       os << parameterHoldingLabels_.label() << " (list of allowed labels)";
 
       if (dfh.brief()) {
-        if (optional)
+        if (modifier == Modifier::kOptional)
           os << " optional";
+
+        if (modifier == Modifier::kObsolete)
+          os << " obsolete";
 
         if (!writeToCfi)
           os << " (do not write to cfi)";
@@ -73,11 +80,13 @@ namespace edm {
         os << "\n";
         dfh.indent2(os);
 
-        if (optional)
+        if (modifier == Modifier::kOptional)
           os << "optional";
+        if (modifier == Modifier::kObsolete)
+          os << "obsolete";
         if (!writeToCfi)
           os << " (do not write to cfi)";
-        if (optional || !writeToCfi) {
+        if (modifier == Modifier::kOptional || !writeToCfi) {
           os << "\n";
           dfh.indent2(os);
         }
@@ -121,7 +130,7 @@ namespace edm {
     DocFormatHelper new_dfh(dfh);
     new_dfh.init();
     new_dfh.setPass(1);
-    parameterHoldingLabels_.print(os, optional, true, new_dfh);
+    parameterHoldingLabels_.print(os, modifierIsOptional(optional), true, new_dfh);
     dfh.indent(os);
     os << "type of allowed parameters:";
     if (dfh.brief())

@@ -9,12 +9,12 @@
 #include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-struct ESLSCache {
+struct ESIntLSCache {
   int ievtLS_;
-  int DIErrorsLS_[2][2][40][40];
+  int DIErrorsByLS_[2][2][40][40];
 };
 
-class ESIntegrityTask : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<ESLSCache>> {
+class ESIntegrityTask : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<ESIntLSCache>> {
 public:
   ESIntegrityTask(const edm::ParameterSet& ps);
   ~ESIntegrityTask() override {}
@@ -32,8 +32,8 @@ protected:
   void dqmEndRun(const edm::Run& r, const edm::EventSetup& c) override;
 
   /// Begin Lumi
-  std::shared_ptr<ESLSCache> globalBeginLuminosityBlock(const edm::LuminosityBlock& lumi,
-                                                        const edm::EventSetup& c) const override;
+  std::shared_ptr<ESIntLSCache> globalBeginLuminosityBlock(const edm::LuminosityBlock& lumi,
+                                                           const edm::EventSetup& c) const override;
 
   /// End Lumi
   void globalEndLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& c) override;
@@ -52,20 +52,25 @@ private:
   MonitorElement* meGain_;
   MonitorElement* meFED_;
   MonitorElement* meSLinkCRCErr_;
+  MonitorElement* meSLinkCRCErrByLS_;
   MonitorElement* meDCCErr_;
   MonitorElement* meDCCCRCErr_;
+  MonitorElement* meDCCCRCErrByLS_;
   MonitorElement* meOptoRX_;
   MonitorElement* meOptoBC_;
+  MonitorElement* meOptoBCByLS_;
   MonitorElement* meFiberBadStatus_;
   MonitorElement* meFiberErrCode_;
+  MonitorElement* meFiberErrCodeByLS_;
   MonitorElement* meFiberOff_;
+  MonitorElement* meFiberOffByLS_;
   MonitorElement* meEVDR_;
   MonitorElement* meKF1_;
   MonitorElement* meKF2_;
   MonitorElement* meKBC_;
   MonitorElement* meKEC_;
   MonitorElement* meDIErrors_[2][2];
-  MonitorElement* meDIErrorsLS_[2][2];
+  MonitorElement* meDIErrorsByLS_[2][2];
   MonitorElement* meDIFraction_;
 
   edm::FileInPath lookup_;

@@ -23,10 +23,11 @@
 #include "FWCore/Framework/interface/one/OutputModule.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
-#include "DataFormats/Provenance/interface/BranchChildren.h"
+#include "DataFormats/Provenance/interface/ProductDependencies.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/ParentageID.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 
 class TTree;
 namespace edm {
@@ -90,14 +91,14 @@ namespace edm {
         std::shared_ptr<std::map<std::string, int>> treeMap_;
       };
 
-      explicit OutputItem(BranchDescription const* bd, EDGetToken const& token, int splitLevel, int basketSize);
+      explicit OutputItem(ProductDescription const* bd, EDGetToken const& token, int splitLevel, int basketSize);
 
-      BranchID branchID() const { return branchDescription_->branchID(); }
-      std::string const& branchName() const { return branchDescription_->branchName(); }
+      BranchID branchID() const { return productDescription_->branchID(); }
+      std::string const& branchName() const { return productDescription_->branchName(); }
 
-      bool operator<(OutputItem const& rh) const { return *branchDescription_ < *rh.branchDescription_; }
+      bool operator<(OutputItem const& rh) const { return *productDescription_ < *rh.productDescription_; }
 
-      BranchDescription const* branchDescription() const { return branchDescription_; }
+      ProductDescription const* productDescription() const { return productDescription_; }
       EDGetToken token() const { return token_; }
       void const* const product() const { return product_; }
       void const*& product() { return product_; }
@@ -106,7 +107,7 @@ namespace edm {
       int basketSize() const { return basketSize_; }
 
     private:
-      BranchDescription const* branchDescription_;
+      ProductDescription const* productDescription_;
       EDGetToken token_;
       void const* product_;
       int splitLevel_;
@@ -127,11 +128,24 @@ namespace edm {
       int splitLevel_;
     };
 
+    struct AliasForBranch {
+      AliasForBranch(std::string const& iBranchName, std::string const& iAlias)
+          : branch_{convert(iBranchName)}, alias_{iAlias} {}
+
+      bool match(std::string const& iBranchName) const;
+      std::regex convert(std::string const& iGlobBranchExpression) const;
+
+      std::regex branch_;
+      std::string alias_;
+    };
+
     std::vector<OutputItemList> const& selectedOutputItemList() const { return selectedOutputItemList_; }
 
     std::vector<OutputItemList>& selectedOutputItemList() { return selectedOutputItemList_; }
 
-    BranchChildren const& branchChildren() const { return branchChildren_; }
+    ProductDependencies const& productDependencies() const { return productDependencies_; }
+
+    std::vector<AliasForBranch> const& aliasForBranches() const { return aliasForBranches_; }
 
   protected:
     ///allow inheriting classes to override but still be able to call this method in the overridden version
@@ -156,6 +170,7 @@ namespace edm {
     void reallyOpenFile();
     void reallyCloseFile() override;
     void beginJob() override;
+    void initialRegistry(edm::ProductRegistry const& iReg) override;
 
     void setProcessesWithSelectedMergeableRunProducts(std::set<std::string> const&) override;
 
@@ -190,6 +205,8 @@ namespace edm {
     AuxItemArray auxItems_;
     std::vector<OutputItemList> selectedOutputItemList_;
     std::vector<SpecialSplitLevelForBranch> specialSplitLevelForBranches_;
+    std::vector<AliasForBranch> aliasForBranches_;
+    std::unique_ptr<edm::ProductRegistry const> reg_;
     std::string const fileName_;
     std::string const logicalFileName_;
     std::string const catalog_;
@@ -209,7 +226,7 @@ namespace edm {
     int outputFileCount_;
     int inputFileCount_;
     BranchParents branchParents_;
-    BranchChildren branchChildren_;
+    ProductDependencies productDependencies_;
     std::vector<BranchID> producedBranches_;
     bool overrideInputFileSplitLevels_;
     bool compactEventAuxiliary_;

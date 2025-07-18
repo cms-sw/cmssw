@@ -3,6 +3,7 @@
 
 #include "SimMuon/GEMDigitizer/interface/GEMDigiModule.h"
 
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -13,7 +14,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -84,7 +84,7 @@ void GEMDigiProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<std::string>("mixLabel", "mix");
 
   desc.add<double>("signalPropagationSpeed", 0.66);
-  desc.add<double>("timeResolution", 18.);
+  desc.add<double>("timeResolution", 10.);
   desc.add<double>("timeJitter", 1.0);
   desc.add<double>("averageShapingTime", 50.0);
   desc.add<double>("averageEfficiency", 0.98);

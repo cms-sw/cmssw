@@ -124,7 +124,7 @@ void MTDTrackingRecHitProducer::produce(edm::StreamID, edm::Event& evt, const ed
         // Now save it =================
         recHitsOnDet.push_back(hit);
       }  //  <-- End loop on Clusters
-    }    //    <-- End loop on DetUnits
+    }  //    <-- End loop on DetUnits
     LogDebug("MTDTrackingRecHitProducer") << "outputCollection " << theoutputhits.size();
   }
 

@@ -1,4 +1,3 @@
-from __future__ import print_function
 # official example for PF2PAT
 
 import FWCore.ParameterSet.Config as cms

@@ -115,7 +115,7 @@ protected:
   // This will allow making the HTTTopJetTagInfoCollection
   virtual void addHTTTopJetTagInfoCollection(edm::Event& iEvent,
                                              const edm::EventSetup& iSetup,
-                                             edm::OrphanHandle<reco::BasicJetCollection>& oh){};
+                                             edm::OrphanHandle<reco::BasicJetCollection>& oh) {};
 
   // Do the offset correction.
   // Only runs if "doPUOffsetCorrection_" is true.

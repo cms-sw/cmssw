@@ -216,8 +216,6 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       continue;
   }
 
-  infoSize = serializedInfoLine2.size();
-
   std::sort(serializedInfoLine2.begin(), serializedInfoLine2.end(), sortByBx);
 
   if (m_verbosity) {

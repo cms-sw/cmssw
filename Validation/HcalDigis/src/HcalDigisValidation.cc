@@ -686,7 +686,7 @@ void HcalDigisValidation::reco(const edm::Event& iEvent,
       if (mode_ != "multi" && emax_Sim > 0.)
         seedSimHit = 1;
     }  // end of SimHits
-  }    // end of mc_ == "yes"
+  }  // end of mc_ == "yes"
 
   // CYCLE OVER CELLS ========================================================
   int Ndig = 0;
@@ -1002,7 +1002,7 @@ void HcalDigisValidation::reco(const edm::Event& iEvent,
       if (mode_ != "multi" && emax_Sim > 0.)
         seedSimHit = 1;
     }  // end of SimHits
-  }    // end of mc_ == "yes"
+  }  // end of mc_ == "yes"
 
   // CYCLE OVER CELLS ========================================================
   int Ndig = 0;

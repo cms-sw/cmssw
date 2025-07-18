@@ -1,4 +1,3 @@
-from __future__ import print_function
 # Copyright (C) 2014 Colin Bernet
 # https://github.com/cbernet/heppy/blob/master/LICENSE
 

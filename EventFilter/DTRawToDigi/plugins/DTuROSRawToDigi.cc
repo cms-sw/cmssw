@@ -41,7 +41,12 @@ DTuROSRawToDigi::DTuROSRawToDigi(const edm::ParameterSet& pset) {
   mapping_token_ = esConsumes<DTReadOutMapping, DTReadOutMappingRcd>();
 }
 
-DTuROSRawToDigi::~DTuROSRawToDigi() {}
+void DTuROSRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("inputLabel", edm::InputTag("rawDataCollector"));
+  desc.addUntracked<bool>("debug", false);
+  descriptions.addWithDefaultLabel(desc);
+}
 
 void DTuROSRawToDigi::produce(edm::Event& e, const edm::EventSetup& c) {
   DTDigiCollection digis;
@@ -319,7 +324,7 @@ void DTuROSRawToDigi::process(int DTuROSFED,
 
         if (selector2 == 0) {  // TDC word
 
-          int tdcTime = (dataWord)&0x3FFF;  // positions   0 -> 13
+          int tdcTime = (dataWord) & 0x3FFF;  // positions   0 -> 13
           int tdcChannel = (dataWord >> posTDCChannelSel2Null) & 0x1F;
           int tdcId = (dataWord >> posTDCIdSel2Null) & 0x3;
           int link = (dataWord >> posLinkSel2Null) & 0x7F;  // positions  21 -> 27
@@ -357,7 +362,7 @@ void DTuROSRawToDigi::process(int DTuROSFED,
             edm::LogWarning("dturos_unpacker") << "Error word [" << std::dec << k << "] : " << std::hex << dataWord
                                                << std::dec << " in slot " << slot << " in crate " << crate;
 
-          int error = (dataWord)&0x1FFFFFFF;  // positions   0 -> 28
+          int error = (dataWord) & 0x1FFFFFFF;  // positions   0 -> 28
           rwords.seterror(error);
         }
       }

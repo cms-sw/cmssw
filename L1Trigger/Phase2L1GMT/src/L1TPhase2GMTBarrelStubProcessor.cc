@@ -3,6 +3,8 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <iomanip>
+#include <ap_int.h>
 
 L1TPhase2GMTBarrelStubProcessor::L1TPhase2GMTBarrelStubProcessor() : minPhiQuality_(0), minBX_(-3), maxBX_(3) {}
 
@@ -74,17 +76,18 @@ l1t::MuonStub L1TPhase2GMTBarrelStubProcessor::buildStubNoEta(const L1Phase2MuDT
   int sign = wheel > 0 ? 1 : -1;
   int sector = phiS.scNum();
   int station = phiS.stNum();
-  double globalPhi = (sector * 30) + phiS.phi() * 30. / 65535.;
-  if (globalPhi < -180)
-    globalPhi += 360;
-  if (globalPhi > 180)
-    globalPhi -= 360;
-  globalPhi = globalPhi * M_PI / 180.;
-  int phi = int(globalPhi / phiLSB_) + phiOffset_[station - 1];
-  int phiB = phiS.phiBend() / phiBFactor_;
-  uint tag = phiS.index();
+
+  ap_uint<18> normalization0 = sector * ap_uint<15>(21845);
+  ap_int<18> normalization1 = ap_int<18>(ap_int<17>(phiS.phi()) * ap_ufixed<8, 0>(0.3183));
+  ap_int<18> kmtf_phi = ap_int<18>(normalization0 + normalization1);
+  int phi = int(kmtf_phi);
+  float globalPhi = phi * M_PI / (1 << 17);
+
+  //  double globalPhi = (sector * 30) + phiS.phi() * 30. / 65535.;
+  int tag = phiS.index();
+
   int bx = phiS.bxNum() - 20;
-  int quality = 3;
+  int quality = phiS.quality();
   uint tfLayer = phiS.stNum() - 1;
   int eta = -16384;
   if (station == 1) {
@@ -103,8 +106,9 @@ l1t::MuonStub L1TPhase2GMTBarrelStubProcessor::buildStubNoEta(const L1Phase2MuDT
   //Now full eta
 
   eta = eta * sign;
-  l1t::MuonStub stub(wheel, sector, station, tfLayer, phi, phiB, tag, bx, quality, eta, 0, 0, 1);
-  stub.setOfflineQuantities(globalPhi, float(phiB), eta * etaLSB_, 0.0);
+  l1t::MuonStub stub(wheel, sector, station, tfLayer, phi, phiS.phiBend(), tag, bx, quality, eta, 0, 0, 1);
+
+  stub.setOfflineQuantities(globalPhi, float(phiS.phiBend() * 0.49e-3), eta * etaLSB_, 0.0);
   return stub;
 }
 
@@ -112,6 +116,9 @@ l1t::MuonStubCollection L1TPhase2GMTBarrelStubProcessor::makeStubs(const L1Phase
                                                                    const L1MuDTChambThContainer* etaContainer) {
   l1t::MuonStubCollection out;
   for (int bx = minBX_; bx <= maxBX_; bx++) {
+    ostringstream os;
+    if (verbose_ == 2)
+      os << "PATTERN ";
     for (int wheel = -2; wheel <= 2; wheel++) {
       for (int sector = 0; sector < 12; sector++) {
         for (int station = 1; station < 5; station++) {
@@ -127,6 +134,23 @@ l1t::MuonStubCollection L1TPhase2GMTBarrelStubProcessor::makeStubs(const L1Phase
               continue;
             if (phiDigi.quality() < minPhiQuality_)
               continue;
+
+            if (verbose_ == 2) {
+              ap_uint<64> wphi = ap_uint<17>(phiDigi.phi());
+              ap_uint<64> wphib = ap_uint<13>(phiDigi.phiBend());
+              ap_uint<64> wr1 = ap_uint<21>(0);
+              ap_uint<64> wq = ap_uint<4>(phiDigi.quality());
+              ap_uint<64> wr2 = ap_uint<9>(0);
+              ap_uint<64> sN = 0;
+              sN = sN | wphi;
+              sN = sN | (wphib << 17);
+              sN = sN | (wr1 << 30);
+              sN = sN | (wq << 51);
+              sN = sN | (wr2 << 55);
+              os << std::setw(0) << std::dec << sector << " " << wheel << " " << station << " ";
+              os << std::uppercase << std::setfill('0') << std::setw(16) << std::hex << uint64_t(sN) << " ";
+            }
+
             if (hasEta) {
               out.push_back(buildStub(phiDigi, tseta));
             } else {
@@ -136,29 +160,20 @@ l1t::MuonStubCollection L1TPhase2GMTBarrelStubProcessor::makeStubs(const L1Phase
         }
       }
     }
+    if (verbose_ == 2)
+      edm::LogInfo("BarrelStub") << os.str() << std::endl;
   }
 
   if (verbose_) {
-    printf("Barrel Stubs\n");
+    edm::LogInfo("BarrelStub") << "Barrel Stubs";
     for (const auto& stub : out)
-      printf(
-          "Barrel Stub bx=%d TF=%d etaRegion=%d phiRegion=%d depthRegion=%d  coord1=%f,%d coord2=%f,%d eta1=%f,%d "
-          "eta2=%f,%d quality=%d etaQuality=%d\n",
-          stub.bxNum(),
-          stub.tfLayer(),
-          stub.etaRegion(),
-          stub.phiRegion(),
-          stub.depthRegion(),
-          stub.offline_coord1(),
-          stub.coord1(),
-          stub.offline_coord2(),
-          stub.coord2(),
-          stub.offline_eta1(),
-          stub.eta1(),
-          stub.offline_eta2(),
-          stub.eta2(),
-          stub.quality(),
-          stub.etaQuality());
+      edm::LogInfo("BarrelStub") << "Barrel Stub bx=" << stub.bxNum() << " TF=" << stub.tfLayer()
+                                 << " etaRegion=" << stub.etaRegion() << " phiRegion=" << stub.phiRegion()
+                                 << " depthRegion=" << stub.depthRegion() << "  coord1=" << stub.offline_coord1() << ","
+                                 << stub.coord1() << " coord2=" << stub.offline_coord2() << "," << stub.coord2()
+                                 << " eta1=" << stub.offline_eta1() << "," << stub.eta1()
+                                 << " eta2=" << stub.offline_eta2() << "," << stub.eta2()
+                                 << " quality=" << stub.quality() << " etaQuality=" << stub.etaQuality();
   }
 
   return out;

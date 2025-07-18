@@ -9,6 +9,10 @@
 <bin file="testSerializationSiStripObjects.cpp">
 </bin>
 
-<bin file="test_catch2_*.cpp" name="test_catch2_SiStripBadStrip_Phase2">
+<bin file="test_catch2_main.cpp,test_catch2_SiStripBadStripForPhase2.cpp" name="test_catch2_SiStripBadStrip_Phase2">
+  <use name="catch2"/>
+</bin>
+
+<bin file="test_catch2_main.cpp,test_catch2_SiStripLatency.cpp" name="test_catch2_SiStripLatency">
   <use name="catch2"/>
 </bin>

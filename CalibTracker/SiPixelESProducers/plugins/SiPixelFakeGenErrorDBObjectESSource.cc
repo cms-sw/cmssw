@@ -1,6 +1,40 @@
-#include "CalibTracker/SiPixelESProducers/interface/SiPixelFakeGenErrorDBObjectESSource.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+// system includes
+#include <memory>
 #include <fstream>
+
+// user includes
+#include "CondFormats/DataRecord/interface/SiPixelGenErrorDBObjectRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelGenErrorDBObject.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Framework/interface/SourceFactory.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
+class SiPixelFakeGenErrorDBObjectESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+public:
+  SiPixelFakeGenErrorDBObjectESSource(const edm::ParameterSet&);
+  ~SiPixelFakeGenErrorDBObjectESSource() override = default;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  typedef std::vector<std::string> vstring;
+
+  virtual std::unique_ptr<SiPixelGenErrorDBObject> produce(const SiPixelGenErrorDBObjectRcd&);
+
+protected:
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+                      const edm::IOVSyncValue&,
+                      edm::ValidityInterval&) override;
+
+private:
+  vstring GenErrorCalibrations_;
+  float version_;
+};
 
 SiPixelFakeGenErrorDBObjectESSource::SiPixelFakeGenErrorDBObjectESSource(const edm::ParameterSet& conf_)
     : GenErrorCalibrations_(conf_.getParameter<vstring>("siPixelGenErrorCalibrations")),
@@ -12,8 +46,6 @@ SiPixelFakeGenErrorDBObjectESSource::SiPixelFakeGenErrorDBObjectESSource(const e
   findingRecord<SiPixelGenErrorDBObjectRcd>();
 }
 
-SiPixelFakeGenErrorDBObjectESSource::~SiPixelFakeGenErrorDBObjectESSource() {}
-
 std::unique_ptr<SiPixelGenErrorDBObject> SiPixelFakeGenErrorDBObjectESSource::produce(
     const SiPixelGenErrorDBObjectRcd&) {
   using namespace edm::es;
@@ -23,7 +55,6 @@ std::unique_ptr<SiPixelGenErrorDBObject> SiPixelFakeGenErrorDBObjectESSource::pr
   SiPixelGenErrorDBObject* obj = new SiPixelGenErrorDBObject;
 
   // Local variables
-  const char* tempfile;
   int m;
 
   // Set the number of GenErrors to be passed to the dbobject
@@ -35,12 +66,10 @@ std::unique_ptr<SiPixelGenErrorDBObject> SiPixelFakeGenErrorDBObjectESSource::pr
   //  open the GenError file(s)
   for (m = 0; m < obj->numOfTempl(); ++m) {
     edm::FileInPath file(GenErrorCalibrations_[m].c_str());
-    tempfile = (file.fullPath()).c_str();
-
-    std::ifstream in_file(tempfile, std::ios::in);
+    std::ifstream in_file(file.fullPath(), std::ios::in);
 
     if (in_file.is_open()) {
-      edm::LogInfo("SiPixelFakeGenErrorDBObjectESSource")
+      edm::LogPrint("SiPixelFakeGenErrorDBObjectESSource")
           << "Opened GenError File: " << file.fullPath().c_str() << std::endl;
 
       // Local variables
@@ -84,7 +113,7 @@ std::unique_ptr<SiPixelGenErrorDBObject> SiPixelFakeGenErrorDBObjectESSource::pr
       in_file.close();
     } else {
       // If file didn't open, report this
-      edm::LogError("SiPixeFakelGenErrorDBObjectESSource") << "Error opening File" << tempfile << std::endl;
+      edm::LogError("SiPixeFakelGenErrorDBObjectESSource") << "Error opening File" << file.fullPath() << std::endl;
     }
   }
 
@@ -98,3 +127,19 @@ void SiPixelFakeGenErrorDBObjectESSource::setIntervalFor(const edm::eventsetup::
   edm::ValidityInterval infinity(iosv.beginOfTime(), iosv.endOfTime());
   oValidity = infinity;
 }
+
+void SiPixelFakeGenErrorDBObjectESSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<vstring>(
+      "siPixelGenErrorCalibrations",
+      {"CalibTracker/SiPixelESProducers/data/SiPixelTemplateDBObject_0T_phase1_BoR3_v1/generror_summary_zp0310.out",
+       "CalibTracker/SiPixelESProducers/data/SiPixelTemplateDBObject_0T_phase1_BoR3_v1/generror_summary_zp0311.out",
+       "CalibTracker/SiPixelESProducers/data/SiPixelTemplateDBObject_0T_phase1_BoR3_v1/generror_summary_zp0312.out",
+       "CalibTracker/SiPixelESProducers/data/SiPixelTemplateDBObject_0T_phase1_BoR3_v1/generror_summary_zp0313.out",
+       "CalibTracker/SiPixelESProducers/data/SiPixelTemplateDBObject_0T_phase1_BoR3_v1/generror_summary_zp0314.out",
+       "CalibTracker/SiPixelESProducers/data/SiPixelTemplateDBObject_0T_phase1_BoR3_v1/generror_summary_zp0315.out"});
+  desc.add<double>("Version", 1.0);
+  descriptions.addWithDefaultLabel(desc);
+}
+
+DEFINE_FWK_EVENTSETUP_SOURCE(SiPixelFakeGenErrorDBObjectESSource);

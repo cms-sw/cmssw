@@ -13,7 +13,7 @@
 class HGCalTriggerNtupleHGCDigis : public HGCalTriggerNtupleBase {
 public:
   HGCalTriggerNtupleHGCDigis(const edm::ParameterSet& conf);
-  ~HGCalTriggerNtupleHGCDigis() override{};
+  ~HGCalTriggerNtupleHGCDigis() override {}
   void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
   void fill(const edm::Event& e, const HGCalTriggerNtupleEventSetup& es) final;
 

@@ -27,7 +27,7 @@ public:
   ~L1DEFilter() override;
 
 private:
-  void beginJob(void) override{};
+  void beginJob(void) override {}
   //virtual void beginRun(edm::Run&, const edm::EventSetup&);
   bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   void endJob() override;

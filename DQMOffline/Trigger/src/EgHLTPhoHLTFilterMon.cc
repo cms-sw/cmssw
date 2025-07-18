@@ -145,6 +145,6 @@ void PhoHLTFilterMon::fill(const OffEvt& evt, float weight) {
           }
         }
       }  //end inner pho loop
-    }    //end outer pho loop
-  }      //end check if filter is present
+    }  //end outer pho loop
+  }  //end check if filter is present
 }

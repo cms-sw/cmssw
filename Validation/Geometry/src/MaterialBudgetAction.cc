@@ -224,7 +224,7 @@ void MaterialBudgetAction::update(const BeginOfTrack* trk) {
         aTracknc->SetTrackStatus(fStopAndKill);
         return;
       }
-    }       // particles produced from a decay (type=6) of the main particle (ID=1) with Kinetic Energy [MeV] > Ekin
+    }  // particles produced from a decay (type=6) of the main particle (ID=1) with Kinetic Energy [MeV] > Ekin
   } else {  // kill all the other particles (take only the main one until it disappears) if decay not stored
     if (aTrack->GetParentID() != 0) {
       G4Track* aTracknc = const_cast<G4Track*>(aTrack);

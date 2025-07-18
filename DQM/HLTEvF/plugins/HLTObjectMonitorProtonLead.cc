@@ -549,7 +549,7 @@ void HLTObjectMonitorProtonLead::analyze(const edm::Event& iEvent, const edm::Ev
 
       firedMap[pathName] = true;
     }  //end if trigger accept
-  }    //end loop over plots/paths
+  }  //end loop over plots/paths
 
   //   sleep(1); //sleep for 1s, used to calibrate timing
   double end = get_wall_time();

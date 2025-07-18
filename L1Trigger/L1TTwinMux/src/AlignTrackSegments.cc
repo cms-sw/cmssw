@@ -18,8 +18,8 @@
 using namespace std;
 
 AlignTrackSegments::AlignTrackSegments(L1MuDTChambPhContainer inm_phiDigis)
-    : m_phiDigis(inm_phiDigis){
-          //   m_phiDigis = inm_phiDigis;
+    : m_phiDigis(inm_phiDigis) {
+        //   m_phiDigis = inm_phiDigis;
       };
 
 void AlignTrackSegments::run() {

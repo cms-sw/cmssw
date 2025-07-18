@@ -254,7 +254,7 @@ protected:
 
 private:
   /// private default ctr. to enforce usage of the specialised ones
-  Alignable(){};
+  Alignable() {}
 
   AlignmentParameters* theAlignmentParameters;
 

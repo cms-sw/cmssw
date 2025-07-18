@@ -13,6 +13,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/TypeDemangler.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
@@ -151,7 +152,7 @@ bool PedeReader::readIfSameLine(std::ifstream &aStream, T &outValue) const {
           return true;
         }
     }  // switch
-  }    // while
+  }  // while
 
   edm::LogError("Alignment") << "@SUB=PedeReader::readIfSameLine"
                              << "Should never come here!";
@@ -206,9 +207,9 @@ Alignable *PedeReader::setParameter(unsigned int paramLabel,
           if (!userParams->isFixed(paramNum)) {
             userParams->preSigma()[paramNum] /= cmsToPede;
             if (bufLength == 2) {
-              edm::LogWarning("Alignment")
-                  << "@SUB=PedeReader::setParameter"
-                  << "Param " << paramLabel << " (from " << typeid(*alignable).name() << ") without result!";
+              edm::LogWarning("Alignment") << "@SUB=PedeReader::setParameter"
+                                           << "Param " << paramLabel << " (from "
+                                           << edm::typeDemangle(typeid(*alignable).name()) << ") without result!";
               userParams->isValid()[paramNum] = false;
               params->setValid(false);
             }

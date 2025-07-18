@@ -17,7 +17,7 @@ ScGMTRawToDigi::ScGMTRawToDigi(const edm::ParameterSet& iConfig) {
   rawToken = consumes<SDSRawDataCollection>(srcInputTag);
 }
 
-ScGMTRawToDigi::~ScGMTRawToDigi(){};
+ScGMTRawToDigi::~ScGMTRawToDigi() {}
 
 void ScGMTRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;

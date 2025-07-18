@@ -68,7 +68,7 @@ hltHpsPFTauBasicDiscriminatorsForDeepTau = cms.EDProducer("PFRecoTauDiscriminati
     ),
     isoConeSizeForDeltaBeta = cms.double(0.8),
     minTauPtForNoIso = cms.double(-99.0),
-    particleFlowSrc = cms.InputTag("particleFlowTmp"),
+    particleFlowSrc = cms.InputTag("hltParticleFlowTmp"),
     qualityCuts = cms.PSet(
         isolationQualityCuts = cms.PSet(
             maxDeltaZ = cms.double(0.2),
@@ -111,7 +111,7 @@ hltHpsPFTauBasicDiscriminatorsForDeepTau = cms.EDProducer("PFRecoTauDiscriminati
         )
     ),
     rhoConeSize = cms.double(0.5),
-    rhoProducer = cms.InputTag("hltFixedGridRhoProducerFastjetAllTau"),
+    rhoProducer = cms.InputTag("hltFixedGridRhoFastjetAll"),
     rhoUEOffsetCorrection = cms.double(1.0),
     verbosity = cms.int32(0),
     vertexSrc = cms.InputTag("hltPhase2PixelVertices")

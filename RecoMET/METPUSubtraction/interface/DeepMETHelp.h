@@ -6,6 +6,7 @@
 
 namespace deepmet_helper {
   float scale_and_rm_outlier(float val, float scale);
+  float rm_outlier(float val);
 
   static const std::unordered_map<int, int32_t> charge_embedding{{-1, 0}, {0, 1}, {1, 2}};
   static const std::unordered_map<int, int32_t> pdg_id_embedding{

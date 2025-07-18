@@ -1,8 +1,7 @@
 #!/bin/bash
 
 # defaults
-USEDOCKER=""
-GPU=""
+CONTAINER=apptainer
 VERBOSE=""
 VERBOSE_ARGS="--log-verbose=1 --log-error=1 --log-warning=1 --log-info=1"
 WTIME=600
@@ -24,6 +23,13 @@ IMAGE=fastml/triton-torchgeo:22.07-py3-geometric
 SANDBOX=""
 COMPAT_USR=""
 EXTRAPATH=/cvmfs/oasis.opensciencegrid.org/mis/apptainer/current/bin
+OSVERSION=$(sed -nr 's/[^0-9]*([0-9]+).*/\1/p' /etc/redhat-release)
+if [ "$OSVERSION" -eq 7 ]; then
+	# this is the latest version with guaranteed sl7 support
+	EXTRAPATH=/cvmfs/oasis.opensciencegrid.org/mis/apptainer/1.2.5/bin
+fi
+DEVICE=auto
+THREADCONTROL=""
 
 get_sandbox(){
 	if [ -z "$SANDBOX" ]; then
@@ -41,10 +47,10 @@ usage() {
 	$ECHO "-c          \t don't cleanup temporary dir (for debugging)"
 	$ECHO "-C [dir]    \t directory containing Nvidia compatibility drivers (checks CMSSW_BASE by default if available)"
 	$ECHO "-D          \t dry run: print container commands rather than executing them"
-	$ECHO "-d          \t use Docker instead of Apptainer"
+	$ECHO "-d [exe]    \t container choice: apptainer, docker, podman, podman-hpc (default: ${CONTAINER})"
 	$ECHO "-E [path]   \t include extra path(s) for executables (default: ${EXTRAPATH})"
 	$ECHO "-f          \t force reuse of (possibly) existing container instance"
-	$ECHO "-g          \t use GPU instead of CPU"
+	$ECHO "-g [device] \t device choice: auto (try to detect GPU), CPU, GPU (default: ${DEVICE})"
 	$ECHO "-i [name]   \t server image name (default: ${IMAGE})"
 	$ECHO "-I [num]    \t number of model instances (default: ${INSTANCES} -> means no local editing of config files)"
 	$ECHO "-M [dir]    \t model repository (can be given more than once)"
@@ -53,7 +59,7 @@ usage() {
 	$ECHO "-P [port]   \t base port number for services (-1: automatically find an unused port range) (default: ${BASEPORT})"
 	$ECHO "-p [pid]    \t automatically shut down server when process w/ specified PID ends (-1: use parent process PID)"
 	$ECHO "-r [num]    \t number of retries when starting container (default: ${RETRIES})"
-	$ECHO "-s [dir]    \t Apptainer sandbox directory (default: $(get_sandbox))"
+	$ECHO "-s [dir]    \t apptainer sandbox directory (default: $(get_sandbox))"
 	$ECHO "-t [dir]    \t non-default hidden temporary dir"
 	$ECHO "-v          \t (verbose) start: activate server debugging info; stop: keep server logs"
 	$ECHO "-w [time]   \t maximum time to wait for server to start (default: ${WTIME} seconds)"
@@ -72,7 +78,7 @@ if [ -e /run/shm ]; then
 	SHM=/run/shm
 fi
 
-while getopts "cC:Ddfgi:I:M:m:n:P:p:r:s:t:vw:h" opt; do
+while getopts "cC:Dd:fg:i:I:M:m:n:P:p:r:s:t:vw:h" opt; do
 	case "$opt" in
 		c) CLEANUP=""
 		;;
@@ -80,11 +86,11 @@ while getopts "cC:Ddfgi:I:M:m:n:P:p:r:s:t:vw:h" opt; do
 		;;
 		D) DRYRUN=echo
 		;;
-		d) USEDOCKER=true
+		d) CONTAINER="$OPTARG"
 		;;
 		f) FORCE=true
 		;;
-		g) GPU=true
+		g) DEVICE="$OPTARG"
 		;;
 		i) IMAGE="$OPTARG"
 		;;
@@ -122,6 +128,20 @@ if [ "$OP" != start ] && [ "$OP" != stop ] && [ "$OP" != check ]; then
 	usage 1
 fi
 
+# check acceptable values for device choice
+DEVICE="${DEVICE,,}"
+if [[ ! " auto cpu gpu " =~ " $DEVICE " ]]; then
+	echo "Unsupported device value: $DEVICE"
+	exit 1
+fi
+
+# check acceptable values for container choice
+CONTAINER="${CONTAINER,,}"
+if [[ ! " apptainer docker podman podman-hpc " =~ " $CONTAINER " ]]; then
+	echo "Unsupported container value: $CONTAINER"
+	exit 1
+fi
+
 if [ "$RETRIES" -le 0 ]; then
 	RETRIES=1
 fi
@@ -139,9 +159,17 @@ if [ -n "$EXTRAPATH" ]; then
 fi
 
 # find executables
-if [ -n "$USEDOCKER" ]; then
+if [ "$CONTAINER" == "docker" ]; then
 	if [ -z "$DOCKER" ]; then
-		DOCKER="sudo docker"
+		DOCKER="docker"
+	fi
+elif [ "$CONTAINER" == "podman" ]; then
+	if [ -z "$PODMAN" ]; then
+		PODMAN="podman"
+	fi
+elif [ "$CONTAINER" == "podman-hpc" ]; then
+	if [ -z "$PODMAN" ]; then
+		PODMAN="podman-hpc"
 	fi
 else
 	if [ -z "$APPTAINER" ]; then
@@ -166,9 +194,8 @@ SEGFAULT_INDICATOR="Address already in use"
 EXTRA=""
 COMPAT_SCRIPT=/etc/shinit_v2
 
-THREADCONTROL=""
-# do not apply thread control settings if GPU use is requested
-if [ "$INSTANCES" -gt 0 ] && [ -z "$GPU" ]; then
+# this will be reset later if chosen device is gpu
+if [ "$INSTANCES" -gt 0 ]; then
 	THREADCONTROL=true
 fi
 
@@ -239,6 +266,29 @@ start_docker(){
 		${IMAGE} tritonserver $PORTARGS $REPOARGS $VERBOSE
 }
 
+start_podman(){
+	# mount all model repositories
+	MOUNTARGS=""
+	REPOARGS=""
+	for REPO in ${REPOS[@]}; do
+		MOUNTARGS="$MOUNTARGS --volume $REPO:$REPO"
+		REPOARGS="$REPOARGS --model-repository=${REPO}"
+	done
+
+	# compatibility driver environment
+	if [ -n "$COMPAT" ]; then
+		MOUNTARGS="$MOUNTARGS --volume $COMPAT"
+		if [ -n "$COMPAT_SCRIPT_MOUNT" ]; then
+			MOUNTARGS="$MOUNTARGS --volume $COMPAT_SCRIPT_MOUNT"
+		fi
+	fi
+
+	$DRYRUN $PODMAN run -d --name ${SERVER} \
+		--shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864 \
+		-p${HTTPPORT}:${HTTPPORT} -p${GRPCPORT}:${GRPCPORT} -p${METRPORT}:${METRPORT} $EXTRA $MOUNTARGS \
+		${IMAGE} tritonserver $PORTARGS $REPOARGS $VERBOSE
+}
+
 start_apptainer(){
 	# triton server image may need to modify contents of opt/tritonserver/lib/
 	# but cvmfs is read-only
@@ -263,20 +313,14 @@ start_apptainer(){
 		fi
 	fi
 
-	# workaround for nvidia libs w/ singularity-in-singularity
-	# from https://github.com/hpcng/singularity/issues/5759#issuecomment-919523970
-	if [ -d /.singularity.d/libs ]; then
-		TMPD=`mktemp -d`
-		(echo '#!/bin/bash'; echo 'exec /usr/sbin/ldconfig -C '"$TMPD"'/ld.so.cache "$@"') > $TMPD/ldconfig
-		chmod +x $TMPD/ldconfig
-		PATH=$TMPD:$PATH
-		# this does not work with LD_LIBRARY_PATH from cmsenv
-		ldconfig /.singularity.d/libs
-	fi
+    # workaround for https://github.com/apptainer/apptainer/issues/2164
+    unset DBUS_SESSION_BUS_ADDRESS
 
 	# start instance
 	# need to bind /cvmfs for above symlinks to work inside container
+	# --underlay: workaround for https://github.com/apptainer/apptainer/issues/2167
 	$DRYRUN $APPTAINER instance start \
+		--underlay \
 		-B ${SHM}:/run/shm -B ${LIB}:/opt/tritonserver/lib -B ${SANDBOX} $MOUNTARGS $EXTRA \
 		${SANDBOX} ${SERVER}
 
@@ -307,6 +351,16 @@ stop_docker(){
 	$DRYRUN $DOCKER rm ${SERVER}
 }
 
+stop_podman(){
+	# keep log
+	if [ -z "$DRYRUN" ]; then
+		if [ -n "$VERBOSE" ]; then $PODMAN logs ${SERVER} >& "$LOG"; fi
+	fi
+
+	$DRYRUN $PODMAN stop ${SERVER}
+	$DRYRUN $PODMAN rm ${SERVER}
+}
+
 stop_apptainer(){
 	$DRYRUN $APPTAINER instance stop ${SERVER}
 }
@@ -314,6 +368,11 @@ stop_apptainer(){
 test_docker(){
 	# docker logs print to stderr
 	${DOCKER} logs ${SERVER} |& grep "$1"
+}
+
+test_podman(){
+	# podman logs print to stdout
+	${PODMAN} logs ${SERVER} |& grep "$1"
 }
 
 test_apptainer(){
@@ -464,10 +523,14 @@ driver_docker(){
 	$DOCKER run --rm --entrypoint env ${IMAGE} | grep "CUDA_DRIVER_VERSION="
 }
 
+driver_podman(){
+	$PODMAN run --rm --entrypoint env ${IMAGE} | grep "CUDA_DRIVER_VERSION="
+}
+
 driver_apptainer(){
 	D2S=${SANDBOX}/.singularity.d/env/10-docker2singularity.sh
 	if [ -f "$D2S" ]; then
-		source $D2S && echo $CUDA_DRIVER_VERSION
+		source $D2S && echo "CUDA_DRIVER_VERSION=$CUDA_DRIVER_VERSION"
 	fi
 }
 
@@ -481,9 +544,10 @@ compat_apptainer(){
 
 check_drivers(){
 	# get sandbox env vars in subshell
-	CUDA_DRIVER_VERSION=$($DRIVER_FN)
+	eval "$($DRIVER_FN)"
 	# copied from https://github.com/triton-inference-server/server/blob/v2.11.0/nvidia_entrypoint.sh
-	DRIVER_VERSION=$(sed -n 's/^NVRM.*Kernel Module *\([0-9.]*\).*$/\1/p' /proc/driver/nvidia/version 2>/dev/null || true)
+	# regex generalized to handle SUSE
+	DRIVER_VERSION=$(sed -nr 's/^NVRM.*Kernel Module[^.]* ([0-9.]*).*$/\1/p' /proc/driver/nvidia/version 2>/dev/null || true)
 	if [[ "${DRIVER_VERSION%%.*}" -ge "${CUDA_DRIVER_VERSION%%.*}" ]]; then
 		return 0
 	fi
@@ -533,26 +597,60 @@ check_drivers(){
 	fi
 }
 
-if [ -n "$USEDOCKER" ]; then
-	if [ -n "$GPU" ]; then
+extra_docker(){
+	if [ "$DEVICE" == gpu ]; then
 		EXTRA="--gpus all"
 	fi
+}
+extra_podman(){
+	if [ "$DEVICE" == gpu ]; then
+		EXTRA="--device nvidia.com/gpu=all"
+	fi
+}
+extra_podman_hpc(){
+	if [ "$DEVICE" == gpu ]; then
+		EXTRA="--gpu"
+	fi
+	EXTRA="$EXTRA --cvmfs --log-driver=json-file"
+}
+extra_apptainer(){
+	if [ "$DEVICE" == gpu ]; then
+		EXTRA="--nv"
+	fi
+}
+
+if [ "$CONTAINER" == "docker" ]; then
 	START_FN=start_docker
+	EXTRA_FN=extra_docker
 	TEST_FN=test_docker
 	STOP_FN=stop_docker
 	DRIVER_FN=driver_docker
 	COMPAT_FN=compat_docker
-	PROG_NAME=Docker
+	PROG_NAME=docker
+elif [ "$CONTAINER" == "podman" ]; then
+	START_FN=start_podman
+	EXTRA_FN=extra_podman
+	TEST_FN=test_podman
+	STOP_FN=stop_podman
+	DRIVER_FN=driver_podman
+	COMPAT_FN=compat_podman
+	PROG_NAME=podman
+elif [ "$CONTAINER" == "podman-hpc" ]; then
+	START_FN=start_podman
+	EXTRA_FN=extra_podman_hpc
+	TEST_FN=test_podman
+	STOP_FN=stop_podman
+	DRIVER_FN=driver_podman
+	COMPAT_FN=compat_podman
+	PROG_NAME=podman-hpc
 else
-	if [ -n "$GPU" ]; then
-		EXTRA="--nv"
-	fi
 	START_FN=start_apptainer
+	EXTRA_FN=extra_apptainer
 	TEST_FN=test_apptainer
 	STOP_FN=stop_apptainer
 	DRIVER_FN=driver_apptainer
 	COMPAT_FN=compat_apptainer
-	PROG_NAME=Apptainer
+	PROG_NAME=apptainer
 fi
 
 if [ "$OP" == check ]; then
@@ -565,6 +663,22 @@ elif [ "$OP" == start ]; then
 	elif [ -d "$TMPDIR" ]; then
 		echo "Error: this container may already exist (override with -f)"
 		exit 1
+	fi
+
+	# auto GPU check
+	if [ "$DEVICE" == auto ]; then
+		if nvidia-smi -L >& /dev/null; then
+			DEVICE=gpu
+		else
+			DEVICE=cpu
+		fi
+	fi
+	echo "CMS_TRITON_CHOSEN_DEVICE: $DEVICE"
+	$EXTRA_FN
+
+	# do not apply thread control settings if GPU use is requested
+	if [ "$DEVICE" == gpu ]; then
+		THREADCONTROL=""
 	fi
 
 	handle_ports
@@ -585,7 +699,7 @@ elif [ "$OP" == start ]; then
 		if [ "$counter" -eq 0 ] || [ -n "$THREADCONTROL" ]; then list_models; fi
 
 		# only need to check drivers if using GPU
-		if [ -n "$GPU" ]; then
+		if [ "$DEVICE" == gpu ]; then
 			check_drivers
 			DRIVER_EXIT=$?
 			if [ "$DRIVER_EXIT" -ne 0 ]; then exit $DRIVER_EXIT; fi

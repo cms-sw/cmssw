@@ -13,12 +13,12 @@
 class QGLikelihoodSystematicsDBReader : public edm::one::EDAnalyzer<> {
 public:
   explicit QGLikelihoodSystematicsDBReader(const edm::ParameterSet&);
-  ~QGLikelihoodSystematicsDBReader() override{};
+  ~QGLikelihoodSystematicsDBReader() override {}
 
 private:
-  void beginJob() override{};
+  void beginJob() override {}
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override{};
+  void endJob() override {}
 
   std::string mPayloadName;
   edm::ESGetToken<QGLikelihoodSystematicsObject, QGLikelihoodSystematicsRcd> mPayloadToken;

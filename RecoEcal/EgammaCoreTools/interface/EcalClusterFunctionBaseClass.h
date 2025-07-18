@@ -26,7 +26,7 @@ namespace edm {
 
 class EcalClusterFunctionBaseClass {
 public:
-  virtual ~EcalClusterFunctionBaseClass(){};
+  virtual ~EcalClusterFunctionBaseClass() {}
   virtual void init(const edm::EventSetup &es) = 0;
   virtual float getValue(const reco::BasicCluster &, const EcalRecHitCollection &) const = 0;
   virtual float getValue(const reco::SuperCluster &, const int mode) const = 0;

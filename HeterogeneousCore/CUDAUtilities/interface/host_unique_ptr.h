@@ -56,7 +56,7 @@ namespace cms {
           struct bounded_array {};
         };
       }  // namespace impl
-    }    // namespace host
+    }  // namespace host
 
     // Allocate pageable host memory
     template <typename T>

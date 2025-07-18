@@ -33,7 +33,7 @@ elif arch == 'LNX-S' :
     thvals = ['1','2','4','8','16','32','48','64']
     evvals = ['1','2','4','8','16','32','64']
 else :
-    print arch,"is not a valid architecture! Exiting..."
+    print(arch,"is not a valid architecture! Exiting...")
     sys.exit(0)
 
 # extra text label
@@ -49,7 +49,7 @@ yval0 = array.array('d',[0])
 
 # time    
 for evval in evvals :
-    print arch,sample,build,"nEV:",evval
+    print(arch,sample,build,"nEV:",evval)
     
     # define event float
     ev = float(evval)
@@ -80,7 +80,7 @@ for evval in evvals :
         yval /= nev
 
         # Printout value for good measure
-        print xval,yval
+        print(xval,yval)
 
         # store val
         g_time.SetPoint(point,xval,yval)

@@ -851,7 +851,7 @@ void SiStripCondObjBuilderFromDb::buildFECRelatedObjects(SiStripConfigDb* const 
       }
       apvnr += 2;
     }  //connections
-       // compact Latency Object
+    // compact Latency Object
 
   }  //detids
   latency_->compress();

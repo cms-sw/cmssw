@@ -17,7 +17,7 @@ namespace muonisolation {
 
   class TrackExtractor : public reco::isodeposit::IsoDepositExtractor {
   public:
-    TrackExtractor(){};
+    TrackExtractor() {}
     TrackExtractor(const edm::ParameterSet& par, edm::ConsumesCollector&& iC);
 
     ~TrackExtractor() override {}

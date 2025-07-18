@@ -204,7 +204,7 @@ bool MCMultiParticleFilter::filter(edm::StreamID, edm::Event& iEvent, const edm:
 
     if (acceptMore_ && nFound == numRequired_)
       break;  // stop looking if we don't mind having more
-  }           // loop over particles
+  }  // loop over particles
 
   if (nFound == numRequired_) {
     return true;

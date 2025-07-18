@@ -16,11 +16,11 @@
   set at run-time instead of compile time can be obtained by inheriting from ESProductResolverFactoryProducer instead.)
 
     If only one algorithm is being encapsulated then the user needs to
-      1) add a method name 'produce' to the class.  The 'produce' takes as its argument a const reference
+      1) add a method named 'produce' to the class.  The 'produce' takes as its argument a const reference
          to the record that is to hold the data item being produced.  If only one data item is being produced,
          the 'produce' method must return either an 'std::unique_ptr' or 'std::shared_ptr' to the object being
          produced.  (The choice depends on if the EventSetup or the ESProducer is managing the lifetime of
-         the object).  If multiple items are being Produced they the 'produce' method must return an
+         the object).  If multiple items are being Produced then the 'produce' method must return an
          ESProducts<> object which holds all of the items.
       2) add 'setWhatProduced(this);' to their classes constructor
 
@@ -72,6 +72,7 @@ Example: two algorithms each creating only one objects
 #include <memory>
 #include <string>
 #include <optional>
+#include <vector>
 
 // user include files
 #include "FWCore/Framework/interface/ESConsumesCollector.h"
@@ -87,11 +88,15 @@ Example: two algorithms each creating only one objects
 #include "FWCore/Framework/interface/es_Label.h"
 
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
 
 // forward declarations
 namespace edm {
   namespace eventsetup {
+    struct ComponentDescription;
     class ESRecordsToProductResolverIndices;
+    struct ESModuleConsumesMinimalInfo;
+
     //used by ESProducer to create the proper Decorator based on the
     //  argument type passed.  The default it to just 'pass through'
     //  the argument as the decorator itself
@@ -153,6 +158,14 @@ namespace edm {
     }
 
     SerialTaskQueueChain& queue() { return acquirer_.serialQueueChain(); }
+
+    std::vector<std::vector<ESModuleConsumesInfo>> esModuleConsumesInfos(
+        eventsetup::ESRecordsToProductResolverIndices const&) const;
+
+    /** Returns a vector of ESModuleConsumesMinimalInfo.
+        Each entry contains minimal information about the products that a method consumes.
+    */
+    std::vector<eventsetup::ESModuleConsumesMinimalInfo> esModuleConsumesMinimalInfos() const;
 
   protected:
     /** Specify the names of the shared resources used by this ESProducer */
@@ -226,18 +239,19 @@ namespace edm {
 
     template <typename TReturn, typename TRecord, typename TFunc, typename TDecorator>
     ESConsumesCollectorT<TRecord> setWhatProduced(TFunc&& func, TDecorator&& iDec, const es::Label& iLabel = {}) {
-      const auto id = consumesInfoSize();
+      const auto produceMethodID = consumesInfoSize();
       using DecoratorType = std::decay_t<TDecorator>;
       using CallbackType = eventsetup::Callback<ESProducer, TFunc, TReturn, TRecord, DecoratorType>;
       unsigned int iovIndex = 0;  // Start with 0, but later will cycle through all of them
-      auto temp = std::make_shared<CallbackType>(this, std::forward<TFunc>(func), id, std::forward<TDecorator>(iDec));
+      auto temp = std::make_shared<CallbackType>(
+          this, std::forward<TFunc>(func), produceMethodID, std::forward<TDecorator>(iDec));
       auto callback =
           std::make_shared<std::pair<unsigned int, std::shared_ptr<CallbackType>>>(iovIndex, std::move(temp));
       registerProducts(std::move(callback),
                        static_cast<const typename eventsetup::produce::product_traits<TReturn>::type*>(nullptr),
                        static_cast<const TRecord*>(nullptr),
                        iLabel);
-      return ESConsumesCollectorT<TRecord>(consumesInfoPushBackNew(), id);
+      return ESConsumesCollectorT<TRecord>(consumesInfoPushBackNew(), produceMethodID);
     }
 
     // These next four functions are intended for use in this class and

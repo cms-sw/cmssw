@@ -26,7 +26,7 @@ This method can select by type and branch type.
 There exists a predicate (in ProcessMatch.h)
 to also select on process name.  It is possible
 to write other predicates which will select on
-anything in the BranchDescription. The selection
+anything in the ProductDescription. The selection
 is done during the initialization of the process.
 During this initialization a list of tokens
 is filled with all matching products from the
@@ -78,7 +78,7 @@ There are some variants for special cases
   only tricky part is to use a lambda as follows to register the
   callbacks:
 
-    callWhenNewProductsRegistered([this](edm::BranchDescription const& bd) {
+    callWhenNewProductsRegistered([this](edm::ProductDescription const& bd) {
       getterOfProducts1_(bd);
       getterOfProducts2_(bd);
     });
@@ -88,7 +88,7 @@ There are some variants for special cases
 
   - You can define your own predicate to replace ProcessMatch
   in the above example and select based on anything in the
-  BranchDescription. See ProcessMatch.h for an example of how
+  ProductDescription. See ProcessMatch.h for an example of how
   to write this predicate.
 
 \author W. David Dagenhart, created 6 August, 2012
@@ -96,7 +96,7 @@ There are some variants for special cases
 */
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -157,12 +157,12 @@ namespace edm {
           tokens_(new std::vector<edm::EDGetTokenT<T>>),
           branchType_(branchType) {}
 
-    void operator()(edm::BranchDescription const& branchDescription) {
-      if (branchDescription.dropped())
+    void operator()(edm::ProductDescription const& productDescription) {
+      if (productDescription.dropped())
         return;
-      if (branchDescription.branchType() == branchType_ &&
-          branchDescription.unwrappedTypeID() == edm::TypeID(typeid(T))) {
-        auto const& token = matcher_(branchDescription);
+      if (productDescription.branchType() == branchType_ &&
+          productDescription.unwrappedTypeID() == edm::TypeID(typeid(T))) {
+        auto const& token = matcher_(productDescription);
         if (not token.isUninitialized()) {
           tokens_->push_back(token);
         }
@@ -186,7 +186,7 @@ namespace edm {
     edm::BranchType branchType() const { return branchType_; }
 
   private:
-    std::function<EDGetTokenT<T>(BranchDescription const&)> matcher_;
+    std::function<EDGetTokenT<T>(ProductDescription const&)> matcher_;
     // A shared pointer is needed because objects of this type get assigned
     // to std::function's and we want the copies in those to share the same vector.
     std::shared_ptr<std::vector<edm::EDGetTokenT<T>>> tokens_;

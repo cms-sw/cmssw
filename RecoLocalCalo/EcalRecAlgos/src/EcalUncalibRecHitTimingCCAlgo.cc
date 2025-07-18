@@ -9,13 +9,15 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
                                                     const EcalMGPAGainRatio* aGain,
                                                     const FullSampleVector& fullpulse,
                                                     const float targetTimePrecision,
-                                                    const bool correctForOOT) const {
+                                                    const bool correctForOOT,
+                                                    const bool correctForSlew) const {
   constexpr unsigned int nsample = EcalDataFrame::MAXSAMPLES;
 
   double maxamplitude = -std::numeric_limits<double>::max();
   float pulsenorm = 0.;
 
   std::vector<float> pedSubSamples(nsample);
+  std::vector<float> weights(nsample, 1.f);
   for (unsigned int iSample = 0; iSample < nsample; iSample++) {
     const EcalMGPASample& sample = dataFrame.sample(iSample);
 
@@ -45,10 +47,19 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
 
     pedSubSamples[iSample] = amplitude;
 
+    pulsenorm += fullpulse(iSample);
+
     if (amplitude > maxamplitude) {
       maxamplitude = amplitude;
     }
-    pulsenorm += fullpulse(iSample);
+
+    if (iSample > 0 && correctForSlew) {
+      int GainIdPrev = dataFrame.sample(iSample - 1).gainId();
+      bool GainIdInRange = GainIdPrev >= 1 && GainIdPrev <= 3 && gainId >= 1 && gainId <= 3;
+      bool GainSlew = GainIdPrev < gainId;
+      if (GainIdInRange && GainSlew)
+        weights[iSample - 1] = 0.f;
+    }
   }
 
   if (correctForOOT) {
@@ -61,7 +72,7 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
 
       for (unsigned int isample = firstsamplet; isample < nsample; ++isample) {
         auto const pulse = fullpulse(isample + offset);
-        pedSubSamples[isample] = std::max(0., pedSubSamples[isample] - amplit * pulse / pulsenorm);
+        pedSubSamples[isample] = pedSubSamples[isample] - (amplit * pulse / pulsenorm);
       }
     }
   }
@@ -74,9 +85,9 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
 
   int counter = 0;
 
-  float cc1 = computeCC(pedSubSamples, fullpulse, t1);
+  float cc1 = computeCC(pedSubSamples, weights, fullpulse, t1);
   ++counter;
-  float cc2 = computeCC(pedSubSamples, fullpulse, t2);
+  float cc2 = computeCC(pedSubSamples, weights, fullpulse, t2);
   ++counter;
 
   while (std::abs(t3 - t0) > targetTimePrecision && counter < MAX_NUM_OF_ITERATIONS) {
@@ -85,14 +96,14 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
       t1 = t2;
       t2 = GOLDEN_RATIO * t2 + ONE_MINUS_GOLDEN_RATIO * t3;
       cc1 = cc2;
-      cc2 = computeCC(pedSubSamples, fullpulse, t2);
+      cc2 = computeCC(pedSubSamples, weights, fullpulse, t2);
       ++counter;
     } else {
       t3 = t2;
       t2 = t1;
       t1 = GOLDEN_RATIO * t1 + ONE_MINUS_GOLDEN_RATIO * t0;
       cc2 = cc1;
-      cc1 = computeCC(pedSubSamples, fullpulse, t1);
+      cc1 = computeCC(pedSubSamples, weights, fullpulse, t1);
       ++counter;
     }
   }
@@ -144,6 +155,7 @@ FullSampleVector EcalUncalibRecHitTimingCCAlgo::interpolatePulse(const FullSampl
 }
 
 float EcalUncalibRecHitTimingCCAlgo::computeCC(const std::vector<float>& samples,
+                                               const std::vector<float>& weights,
                                                const FullSampleVector& signalTemplate,
                                                const float time) const {
   constexpr int exclude = 1;
@@ -152,9 +164,9 @@ float EcalUncalibRecHitTimingCCAlgo::computeCC(const std::vector<float>& samples
   float cc = 0.;
   auto interpolated = interpolatePulse(signalTemplate, time);
   for (int i = exclude; i < int(samples.size() - exclude); ++i) {
-    powerSamples += std::pow(samples[i], 2);
-    powerTemplate += std::pow(interpolated[i], 2);
-    cc += interpolated[i] * samples[i];
+    powerSamples += std::pow(samples[i], 2) * weights[i];
+    powerTemplate += std::pow(interpolated[i], 2) * weights[i];
+    cc += interpolated[i] * samples[i] * weights[i];
   }
 
   float denominator = std::sqrt(powerTemplate * powerSamples);

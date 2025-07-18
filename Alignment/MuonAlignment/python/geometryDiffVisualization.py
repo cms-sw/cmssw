@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 import re
 from math import *
 from .svgfig import rgb, SVG, pathtoPath, load as load_svg
@@ -86,7 +85,7 @@ def draw_wheel(geom1, geom2, wheel, filename, length_factor=100., angle_factor=1
             zdiff = length_factor * (geom1.dt[wheel, station, sector].z - geom2.dt[wheel, station, sector].z) * signConventions["DT", wheel, station, sector][2]
             phiydiff = -angle_factor * (geom1.dt[wheel, station, sector].phiy - geom2.dt[wheel, station, sector].phiy) * signConventions["DT", wheel, station, sector][1]
 
-            m = re.search("translate\(([0-9\.\-\+eE]+),\s([0-9\.\-\+eE]+)\)\srotate\(([0-9\.\-\+eE]+)\)",svgitem["transform"])
+            m = re.search("translate\\(([0-9\\.\\-\\+eE]+),\\s([0-9\\.\\-\\+eE]+)\\)\\srotate\\(([0-9\\.\\-\\+eE]+)\\)",svgitem["transform"])
 
             tx = float(m.group(1))
             ty = float(m.group(2))

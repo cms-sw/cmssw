@@ -33,7 +33,7 @@ namespace edm {
       ProcessHistoryID const& oldphID = i->first;
       for (ProcessHistory::const_iterator it = i->second.begin(), et = i->second.end(); it != et; ++it) {
         ParameterSetID const& newPsetID = convertID(it->parameterSetID());
-        newHist.emplace_back(it->processName(), newPsetID, it->releaseVersion(), it->passID());
+        newHist.emplace_back(it->processName(), newPsetID, it->releaseVersion(), it->hardwareResourcesDescription());
       }
       assert(newHist.size() == i->second.size());
       ProcessHistoryID newphID = newHist.id();
@@ -92,13 +92,13 @@ namespace edm {
 
     void fillListsAndIndexes(ProductRegistry& productRegistry,
                              ProcessHistoryMap const& pHistMap,
-                             std::shared_ptr<BranchIDLists const>& branchIDLists,
+                             std::shared_ptr<BranchIDLists>& branchIDLists,
                              std::vector<BranchListIndex>& branchListIndexes) {
       OrderedProducts orderedProducts;
       std::set<std::string> processNamesThatProduced;
       ProductRegistry::ProductList& prodList = productRegistry.productListUpdator();
       for (auto& item : prodList) {
-        BranchDescription& prod = item.second;
+        ProductDescription& prod = item.second;
         if (prod.branchType() == InEvent) {
           prod.init();
           processNamesThatProduced.insert(prod.processName());
@@ -182,7 +182,11 @@ namespace edm {
     return it->second;
   }
 
-  std::shared_ptr<BranchIDLists const> ProvenanceAdaptor::branchIDLists() const { return branchIDLists_; }
+  std::shared_ptr<BranchIDLists> ProvenanceAdaptor::releaseBranchIDLists() {
+    auto ptr = branchIDLists_;
+    branchIDLists_.reset();
+    return ptr;
+  }
 
   void ProvenanceAdaptor::branchListIndexes(BranchListIndexes& indexes) const { indexes = branchListIndexes_; }
 }  // namespace edm

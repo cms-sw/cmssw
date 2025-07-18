@@ -14,9 +14,18 @@
   <use name="FWCore/Framework"/>
 </library>
 
+<library file="AsyncServiceTester.cc" name="AsyncServiceTester">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/Concurrency"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="FWCore/Utilities"/>
+</library>
+
 <test name="TestFWCoreServicesDriver_sitelocalconfig" command="test_sitelocalconfig.sh"/>
 <test name="TestFWCoreServicesDriver_zombiekiller"    command="test_zombiekiller.sh"/>
 <test name="TestFWCoreServicesDriver_cpu"             command="test_cpu.sh"/>
+<test name="TestFWCoreServicesDriver_AsyncService"    command="test_asyncservice.sh"/>
 
 <ifrelease name="!ASAN">
   <test name="TestFWCoreServicesDriver_resource"        command="test_resource.sh"/>
@@ -26,6 +35,7 @@
   <use name="catch2"/>
   <use name="clhep"/>
   <use name="cpu_features"/>
+  <use name="FWCore/Concurrency"/>
   <use name="FWCore/Services"/>
 </bin>
 

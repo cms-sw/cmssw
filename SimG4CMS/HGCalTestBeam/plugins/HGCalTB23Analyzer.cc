@@ -648,7 +648,7 @@ void HGCalTB23Analyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, do
     double time = hits[i].time();
     uint32_t id = hits[i].id();
     entot += energy;
-    int subdet, zside, layer, sector, subsector(0), cell, depth(0), idx(0);
+    int subdet, zside, layer, sector, subsector(0), cell, cell2(0), depth(0), idx(0);
     if (type == 2) {
       subdet = HcalDetId(id).subdet();
       if (subdet != HcalOther)
@@ -668,20 +668,31 @@ void HGCalTB23Analyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, do
       idx = subdet * 1000 + layer;
       layer = idx;
     } else {
-      HGCalTestNumbering::unpackHexagonIndex(id, subdet, zside, layer, sector, subsector, cell);
-      depth = hgcons_[type]->simToReco(cell, layer, sector, true).second;
-      idx = sector * 1000 + cell;
 #ifdef EDM_ML_DEBUG
-      std::pair<float, float> xy = hgcons_[type]->locateCell(cell, layer, sector, false);
-      edm::LogVerbatim("HGCSim") << "HGCalTB23Analyzer::detId " << std::hex << id << std::dec << " Layer:Wafer:Cell "
-                                 << layer << ":" << sector << ":" << cell << " Position " << xy.first << ":"
-                                 << xy.second << ":" << hgcons_[type]->waferZ(layer, false);
+      edm::LogVerbatim("HGCSim") << "ID  " << std::hex << id << std::dec << " " << HGCSiliconDetId(id);
 #endif
+      HGCSiliconDetId(id).unpack(subdet, zside, layer, sector, subsector, cell, cell2);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCSim") << "Unpack ID " << subdet << " " << zside << " " << layer << " " << sector << " "
+                                 << subsector << " " << cell << " " << cell2;
+#endif
+      depth = hgcons_[type]->simToReco(cell, layer, sector, true).second;
+      static constexpr uint32_t mask = 0xFFFFF;
+      static constexpr uint32_t maskcell = 0x3FF;
+      idx = (id & mask);
+#ifdef EDM_ML_DEBUG
+      std::pair<float, float> xy = hgcons_[type]->locateCell(HGCSiliconDetId(id), false);
+      edm::LogVerbatim("HGCSim") << "HGCalTB23Analyzer::detId " << std::hex << id << std::dec << " Layer:Wafer:Cell "
+                                 << layer << ":" << sector << ":" << subsector << ":" << cell << ":" << cell2
+                                 << " Position " << xy.first << ":" << xy.second << ":"
+                                 << hgcons_[type]->waferZ(layer, false);
+#endif
+      cell = (idx & maskcell);
+      sector = (idx >> 10) & maskcell;
     }
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "SimHit:Hit[" << i << "] Id " << subdet << ":" << zside << ":" << layer << ":"
-                               << sector << ":" << subsector << ":" << cell << ":" << depth << " Energy " << energy
-                               << " Time " << time;
+                               << sector << ":" << cell << " Energy " << energy << " Time " << time;
 #endif
     if (map_hits.count(id) != 0) {
       map_hits[id] += energy;

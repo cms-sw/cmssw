@@ -28,7 +28,7 @@ public:
                  const std::string& mapFile,
                  const CaloSubdetectorGeometry* passedGeometry);
 
-  TBPositionCalc(){};
+  TBPositionCalc() {}
 
   ~TBPositionCalc();
 

@@ -26,10 +26,6 @@
 class HcalTopology : public CaloSubdetectorTopology {
 public:
   HcalTopology(const HcalDDDRecConstants* hcons, const bool mergePosition = false);
-  HcalTopology(HcalTopologyMode::Mode mode,
-               int maxDepthHB,
-               int maxDepthHE,
-               HcalTopologyMode::TriggerMode tmode = HcalTopologyMode::TriggerMode_2009);
 
   HcalTopologyMode::Mode mode() const { return mode_; }
   HcalTopologyMode::TriggerMode triggerMode() const { return triggerMode_; }
@@ -48,6 +44,7 @@ public:
   DetId denseId2detId(unsigned int /*denseid*/) const override;
   /// return a count of valid cells (for dense indexing use)
   unsigned int ncells() const override;
+  unsigned int ncells(int subdet) const;
   /// return a version which identifies the given topology
   int topoVersion() const override;
 
@@ -171,6 +168,16 @@ public:
   HcalDetId idBack(const HcalDetId& id) const { return hcons_->idBack(id); }
 
 private:
+  bool phase1() const { return ((mode_ == HcalTopologyMode::LHC) || (mode_ == HcalTopologyMode::H2HE)); }
+  bool phase1A() const {
+    return ((mode_ == HcalTopologyMode::LHC) || (mode_ == HcalTopologyMode::Run2A) || (mode_ == HcalTopologyMode::H2) ||
+            (mode_ == HcalTopologyMode::H2HE));
+  }
+  bool phase1B() const {
+    return ((mode_ == HcalTopologyMode::Run2B) || (mode_ == HcalTopologyMode::Run2C) ||
+            (mode_ == HcalTopologyMode::Run3) || (mode_ == HcalTopologyMode::SLHC));
+  }
+  bool phase2() const { return ((mode_ == HcalTopologyMode::Run4)); }
   /** Get the neighbors of the given cell with higher absolute ieta */
   int incAIEta(const HcalDetId& id, HcalDetId neighbors[2]) const;
   /** Get the neighbors of the given cell with lower absolute ieta */
@@ -178,7 +185,7 @@ private:
 
   /** Is this a valid cell id, ignoring the exclusion list */
   bool validDetIdPreLS1(const HcalDetId& id) const;
-  bool validRaw(const HcalDetId& id) const;
+  bool validRaw(const HcalDetId& id, const bool debug = false) const;
   unsigned int detId2denseIdPreLS1(const DetId& id) const;
   bool isExcluded(const HcalDetId& id) const;
 
@@ -227,7 +234,10 @@ private:
   static constexpr int kHBhalf = 1296, kHEhalf = 1296, kHOhalf = 1080, kHFhalf = 864, kHThalf = 2088, kZDChalf = 11,
                        kCASTORhalf = 224, kCALIBhalf = 693, kHThalfPhase1 = 2520,
                        kHcalhalf = kHBhalf + kHEhalf + kHOhalf + kHFhalf;
+  static constexpr int kHBhalfPostLS2 = 4536, kHEhalfPostLS2 = 3384, kHFhalfPostLS2 = 1728;
+  static constexpr int kHcalhalfPostLS2 = kHBhalfPostLS2 + kHEhalfPostLS2 + kHOhalf + kHFhalfPostLS2;
   static constexpr int kSizeForDenseIndexingPreLS1 = 2 * kHcalhalf;
+  static constexpr int kSizeForDenseIndexingPostLS2 = 2 * kHcalhalfPostLS2;
   static constexpr int kHBSizePreLS1 = 2 * kHBhalf;
   static constexpr int kHESizePreLS1 = 2 * kHEhalf;
   static constexpr int kHOSizePreLS1 = 2 * kHOhalf;
@@ -235,6 +245,9 @@ private:
   static constexpr int kHTSizePreLS1 = 2 * kHThalf;
   static constexpr int kHTSizePhase1 = 2 * kHThalfPhase1;
   static constexpr int kCALIBSizePreLS1 = 2 * kCALIBhalf;
+  static constexpr int kHBSizePostLS2 = 2 * kHBhalfPostLS2;
+  static constexpr int kHESizePostLS2 = 2 * kHEhalfPostLS2;
+  static constexpr int kHFSizePostLS2 = 2 * kHFhalfPostLS2;
   static constexpr int minMaxDepth_ = 4;
   static constexpr unsigned int minPhi_ = 1, maxPhi_ = 72;
   static constexpr unsigned int kOffCalibHB_ = 0;

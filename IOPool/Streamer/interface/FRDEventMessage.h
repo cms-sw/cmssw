@@ -71,102 +71,103 @@
 
 #include <array>
 
-struct FRDEventHeader_V6 {
-  uint16 version_;
-  uint16 flags_;
-  uint32 run_;
-  uint32 lumi_;
-  uint32 event_;
-  uint32 eventSize_;
-  uint32 crc32c_;
-};
+namespace edm::streamer {
+  struct FRDEventHeader_V6 {
+    uint16 version_;
+    uint16 flags_;
+    uint32 run_;
+    uint32 lumi_;
+    uint32 event_;
+    uint32 eventSize_;
+    uint32 crc32c_;
+  };
 
-struct FRDEventHeader_V5 {
-  uint32 version_;
-  uint32 run_;
-  uint32 lumi_;
-  uint32 event_;
-  uint32 eventSize_;
-  uint32 crc32c_;
-};
+  struct FRDEventHeader_V5 {
+    uint32 version_;
+    uint32 run_;
+    uint32 lumi_;
+    uint32 event_;
+    uint32 eventSize_;
+    uint32 crc32c_;
+  };
 
-struct FRDEventHeader_V4 {
-  uint32 version_;
-  uint32 run_;
-  uint32 lumi_;
-  uint32 eventLow_;
-  uint32 eventHigh_;
-  uint32 eventSize_;
-  uint32 paddingSize_;
-  uint32 adler32_;
-};
+  struct FRDEventHeader_V4 {
+    uint32 version_;
+    uint32 run_;
+    uint32 lumi_;
+    uint32 eventLow_;
+    uint32 eventHigh_;
+    uint32 eventSize_;
+    uint32 paddingSize_;
+    uint32 adler32_;
+  };
 
-struct FRDEventHeader_V3 {
-  uint32 version_;
-  uint32 run_;
-  uint32 lumi_;
-  uint32 event_;
-  uint32 eventSize_;
-  uint32 paddingSize_;
-  uint32 adler32_;
-};
+  struct FRDEventHeader_V3 {
+    uint32 version_;
+    uint32 run_;
+    uint32 lumi_;
+    uint32 event_;
+    uint32 eventSize_;
+    uint32 paddingSize_;
+    uint32 adler32_;
+  };
 
-struct FRDEventHeader_V2 {
-  uint32 version_;
-  uint32 run_;
-  uint32 lumi_;
-  uint32 event_;
-};
+  struct FRDEventHeader_V2 {
+    uint32 version_;
+    uint32 run_;
+    uint32 lumi_;
+    uint32 event_;
+  };
 
-struct FRDEventHeader_V1 {
-  uint32 run_;
-  uint32 event_;
-};
+  struct FRDEventHeader_V1 {
+    uint32 run_;
+    uint32 event_;
+  };
 
-const uint16 FRDEVENT_MASK_ISGENDATA = 1;
+  const uint16 FRDEVENT_MASK_ISGENDATA = 1;
 
-constexpr size_t FRDHeaderMaxVersion = 6;
-constexpr std::array<uint32, FRDHeaderMaxVersion + 1> FRDHeaderVersionSize{{0,
-                                                                            2 * sizeof(uint32),
-                                                                            (4 + 1024) * sizeof(uint32),
-                                                                            7 * sizeof(uint32),
-                                                                            8 * sizeof(uint32),
-                                                                            6 * sizeof(uint32),
-                                                                            6 * sizeof(uint32)}};
+  constexpr size_t FRDHeaderMaxVersion = 6;
+  constexpr std::array<uint32, FRDHeaderMaxVersion + 1> FRDHeaderVersionSize{{0,
+                                                                              2 * sizeof(uint32),
+                                                                              (4 + 1024) * sizeof(uint32),
+                                                                              7 * sizeof(uint32),
+                                                                              8 * sizeof(uint32),
+                                                                              6 * sizeof(uint32),
+                                                                              6 * sizeof(uint32)}};
 
-class FRDEventMsgView {
-public:
-  FRDEventMsgView(void* buf);
+  class FRDEventMsgView {
+  public:
+    FRDEventMsgView(void* buf);
 
-  uint8* startAddress() const { return buf_; }
-  void* payload() const { return payload_; }
-  uint32 size() const { return size_; }
+    uint8* startAddress() const { return buf_; }
+    void* payload() const { return payload_; }
+    uint32 size() const { return size_; }
 
-  uint16 version() const { return version_; }
-  uint16 flags() const { return flags_; }
-  uint32 run() const { return run_; }
-  uint32 lumi() const { return lumi_; }
-  uint64 event() const { return event_; }
-  uint32 eventSize() const { return eventSize_; }
-  uint32 paddingSize() const { return paddingSize_; }
-  uint32 adler32() const { return adler32_; }
-  uint32 crc32c() const { return crc32c_; }
+    uint16 version() const { return version_; }
+    uint16 flags() const { return flags_; }
+    uint32 run() const { return run_; }
+    uint32 lumi() const { return lumi_; }
+    uint64 event() const { return event_; }
+    uint32 eventSize() const { return eventSize_; }
+    uint32 paddingSize() const { return paddingSize_; }
+    uint32 adler32() const { return adler32_; }
+    uint32 crc32c() const { return crc32c_; }
 
-  bool isRealData() const { return !(flags_ & FRDEVENT_MASK_ISGENDATA); }
+    bool isRealData() const { return !(flags_ & FRDEVENT_MASK_ISGENDATA); }
 
-private:
-  uint8* buf_;
-  void* payload_;
-  uint32 size_;
-  uint16 version_;
-  uint16 flags_;
-  uint32 run_;
-  uint32 lumi_;
-  uint64 event_;
-  uint32 eventSize_;
-  uint32 paddingSize_;
-  uint32 adler32_;
-  uint32 crc32c_;
-};
-
+  private:
+    uint8* buf_;
+    void* payload_;
+    uint32 size_;
+    uint16 version_;
+    uint16 flags_;
+    uint32 run_;
+    uint32 lumi_;
+    uint64 event_;
+    uint32 eventSize_;
+    uint32 paddingSize_;
+    uint32 adler32_;
+    uint32 crc32c_;
+  };
+}  // namespace edm::streamer
 #endif

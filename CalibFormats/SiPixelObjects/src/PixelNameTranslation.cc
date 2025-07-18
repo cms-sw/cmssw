@@ -71,7 +71,7 @@ PixelNameTranslation::PixelNameTranslation(std::vector<std::vector<std::string> 
       }
     }
   }  //end for
-     /*
+  /*
   for(unsigned int n=0; n<colNames.size(); n++){
     if(colM.find(colNames[n]) == colM.end()){
       std::cerr << __LINE__ << "]\t" << mthn << "Couldn't find in the database the column with name " << colNames[n] << std::endl;

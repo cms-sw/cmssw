@@ -203,9 +203,9 @@ void Hector::add(const HepMC::GenEvent* evt, const edm::EventSetup& iSetup) {
                 << " m_isCharged[line] = " << m_isCharged[line];
           }
         }  // if find line
-      }    // if eta > 8.2
-    }      // if status
-  }        // for loop
+      }  // if eta > 8.2
+    }  // if status
+  }  // for loop
 }
 
 void Hector::filterFP420(TRandom3* rootEngine) {
@@ -296,7 +296,7 @@ void Hector::filterFP420(TRandom3* rootEngine) {
       }
 
     }  // for (it = m_beamPart.begin(); it != m_beamPart.end(); it++ )
-  }    // if ( m_beamPart.size() )
+  }  // if ( m_beamPart.size() )
 }
 
 void Hector::filterZDC(TRandom3* rootEngine) {
@@ -372,7 +372,7 @@ void Hector::filterZDC(TRandom3* rootEngine) {
       }
 
     }  // for (it = m_beamPart.begin(); it != m_beamPart.end(); it++ )
-  }    // if ( m_beamPart.size() )
+  }  // if ( m_beamPart.size() )
 }
 
 void Hector::filterD1(TRandom3* rootEngine) {
@@ -457,7 +457,7 @@ void Hector::filterD1(TRandom3* rootEngine) {
       }
 
     }  // for (it = m_beamPart.begin(); it != m_beamPart.end(); it++ )
-  }    // if ( m_beamPart.size() )
+  }  // if ( m_beamPart.size() )
 }
 
 int Hector::getDirect(unsigned int part_n) const {
@@ -562,8 +562,8 @@ HepMC::GenEvent* Hector::addPartToHepMC(HepMC::GenEvent* evt) {
                 << " status= " << gpart->status();
 
         }  // ddd
-      }    // if gpart
-    }      // if !isStopped
+      }  // if gpart
+    }  // if !isStopped
 
     else {
       gpart = evt->barcode_to_particle(line);

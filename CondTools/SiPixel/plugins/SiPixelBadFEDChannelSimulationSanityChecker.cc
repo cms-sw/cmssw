@@ -96,8 +96,8 @@ void SiPixelBadFEDChannelSimulationSanityChecker::analyze(const edm::Event& e, c
         // }
 
       }  // if prob!=0
-    }    // loop on the scenarios for that PU bin
-  }      // loop on PU bins
+    }  // loop on the scenarios for that PU bin
+  }  // loop on PU bins
 
   std::vector<std::string> notFound;
   std::copy_if(allScenariosInProb.begin(),
@@ -122,9 +122,9 @@ void SiPixelBadFEDChannelSimulationSanityChecker::analyze(const edm::Event& e, c
               edm::LogVerbatim("SiPixelBadFEDChannelSimulationSanityChecker")
                   << " - PU bin " << PUbin << " with probability: " << pair.second << std::endl;
             }  // if the scenario matches
-          }    // loop on scenarios
-        }      // loop on PU
-      }        // if printdebug
+          }  // loop on scenarios
+        }  // loop on PU
+      }  // if printdebug
       edm::LogVerbatim("SiPixelBadFEDChannelSimulationSanityChecker")
           << "==============================================" << std::endl;
     }  // loop on scenarios not found

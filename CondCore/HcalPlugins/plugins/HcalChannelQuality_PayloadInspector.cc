@@ -27,7 +27,7 @@ namespace {
   public:
     HcalChannelStatusContainer(std::shared_ptr<HcalChannelQuality> payload, unsigned int run)
         : HcalObjRepresent::HcalDataContainer<HcalChannelQuality, HcalChannelStatus>(payload, run) {}
-    float getValue(HcalChannelStatus* chan) override { return chan->getValue() / 32770; }
+    float getValue(const HcalChannelStatus* chan) override { return chan->getValue() / 32770; }
   };
 
   /******************************************

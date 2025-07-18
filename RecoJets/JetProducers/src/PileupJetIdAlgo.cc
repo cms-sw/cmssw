@@ -338,6 +338,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
   for (unsigned i = 0; i < jet->numberOfSourceCandidatePtrs(); ++i) {
     reco::CandidatePtr pfJetConstituent = jet->sourceCandidatePtr(i);
     const reco::Candidate* icand = pfJetConstituent.get();
+    assert(icand);
     const pat::PackedCandidate* lPack = dynamic_cast<const pat::PackedCandidate*>(icand);
     const reco::PFCandidate* lPF = dynamic_cast<const reco::PFCandidate*>(icand);
     bool isPacked = true;

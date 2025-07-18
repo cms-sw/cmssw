@@ -124,9 +124,10 @@ stage2L1Trigger.toModify(hltBPHmonitoring,
                          numGenericTriggerEventPSet = dict(stage2 = cms.bool(True),
                                                            l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
                                                            l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),
-                                                           ReadPrescalesFromFile = cms.bool(True)),
+                                                           ReadPrescalesFromFile = cms.bool(False)),
                          denGenericTriggerEventPSet = dict(stage2 = cms.bool(True),
                                                            l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
                                                            l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),
-                                                           ReadPrescalesFromFile = cms.bool(True)))
+                                                           ReadPrescalesFromFile = cms.bool(False))
+                         )
 

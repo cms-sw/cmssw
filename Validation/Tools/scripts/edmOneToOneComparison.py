@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 
-from __future__ import print_function
 if __name__ == "__main__":
     import optparse
     parser = optparse.OptionParser("usage: %prog [options] config.txt file1.root [file2.root]\nVisit https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePhysicsToolsEdmOneToOneComparison\nfor full documentation.")

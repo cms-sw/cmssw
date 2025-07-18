@@ -1,1 +1,2 @@
 <test name="TestPoolOutput" command="TestPoolOutput.sh"/>
+<test name="TestPoolOutputAlias" command="PoolOutputAliasTest.sh"/>

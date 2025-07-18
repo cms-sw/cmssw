@@ -39,7 +39,7 @@
 class TTUEmulator {
 public:
   /// Standard constructor
-  TTUEmulator(){};
+  TTUEmulator() {}
 
   TTUEmulator(int, int);
 

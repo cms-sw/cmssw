@@ -24,12 +24,47 @@
 extern "C" {
 void alloc_monitor_start();
 void alloc_monitor_stop();
+bool alloc_monitor_stop_thread_reporting();
+void alloc_monitor_start_thread_reporting();
 }
 
 namespace {
-  bool& threadRunning() {
+  bool& dummyThreadReportingFcn() {
     static thread_local bool s_running = true;
     return s_running;
+  }
+
+  bool dummyStopThreadReportingFcn() {
+    auto& t = dummyThreadReportingFcn();
+    auto last = t;
+    t = false;
+    return last;
+  }
+
+  void dummyStartThreadReportingFcn() { dummyThreadReportingFcn() = true; }
+
+  bool stopThreadReporting() {
+    static decltype(&::alloc_monitor_stop_thread_reporting) s_fcn = []() {
+      void* fcn = dlsym(RTLD_DEFAULT, "alloc_monitor_stop_thread_reporting");
+      if (fcn != nullptr) {
+        return reinterpret_cast<decltype(&::alloc_monitor_stop_thread_reporting)>(fcn);
+      }
+      //this should only be called for testing;
+      return &::dummyStopThreadReportingFcn;
+    }();
+    return s_fcn();
+  }
+
+  void startThreadReporting() {
+    static decltype(&::alloc_monitor_start_thread_reporting) s_fcn = []() {
+      void* fcn = dlsym(RTLD_DEFAULT, "alloc_monitor_start_thread_reporting");
+      if (fcn != nullptr) {
+        return reinterpret_cast<decltype(&::alloc_monitor_start_thread_reporting)>(fcn);
+      }
+      //this should only be called for testing;
+      return &::dummyStartThreadReportingFcn;
+    }();
+    s_fcn();
   }
 }  // namespace
 
@@ -43,10 +78,10 @@ using namespace cms::perftools;
 // constructors and destructor
 //
 AllocMonitorRegistry::AllocMonitorRegistry() {
-  threadRunning() = true;
   //Cannot start here because statics can cause memory to be allocated in the atexit registration
   // done behind the scenes. If the allocation happens, AllocMonitorRegistry::instance will be called
   // recursively before the static has finished and we well deadlock
+  startReporting();
 }
 
 AllocMonitorRegistry::~AllocMonitorRegistry() {
@@ -55,7 +90,7 @@ AllocMonitorRegistry::~AllocMonitorRegistry() {
     auto s = reinterpret_cast<decltype(&::alloc_monitor_stop)>(stop);
     s();
   }
-  threadRunning() = false;
+  stopReporting();
   monitors_.clear();
 }
 
@@ -78,7 +113,8 @@ void AllocMonitorRegistry::start() {
   }
 }
 
-bool& AllocMonitorRegistry::isRunning() { return threadRunning(); }
+bool AllocMonitorRegistry::stopReporting() { return stopThreadReporting(); }
+void AllocMonitorRegistry::startReporting() { startThreadReporting(); }
 
 void AllocMonitorRegistry::deregisterMonitor(AllocMonitorBase* iMonitor) {
   for (auto it = monitors_.begin(); monitors_.end() != it; ++it) {
@@ -93,14 +129,14 @@ void AllocMonitorRegistry::deregisterMonitor(AllocMonitorBase* iMonitor) {
 //
 // const member functions
 //
-void AllocMonitorRegistry::allocCalled_(size_t iRequested, size_t iActual) {
+void AllocMonitorRegistry::allocCalled_(size_t iRequested, size_t iActual, void const* iPtr) {
   for (auto& m : monitors_) {
-    m->allocCalled(iRequested, iActual);
+    m->allocCalled(iRequested, iActual, iPtr);
   }
 }
-void AllocMonitorRegistry::deallocCalled_(size_t iActual) {
+void AllocMonitorRegistry::deallocCalled_(size_t iActual, void const* iPtr) {
   for (auto& m : monitors_) {
-    m->deallocCalled(iActual);
+    m->deallocCalled(iActual, iPtr);
   }
 }
 

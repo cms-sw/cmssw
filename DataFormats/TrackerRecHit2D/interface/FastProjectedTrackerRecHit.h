@@ -7,9 +7,9 @@
 
 class FastProjectedTrackerRecHit : public FastTrackerRecHit {
 public:
-  FastProjectedTrackerRecHit(){};
+  FastProjectedTrackerRecHit() {}
 
-  ~FastProjectedTrackerRecHit() override{};
+  ~FastProjectedTrackerRecHit() override {}
 
   FastProjectedTrackerRecHit(const LocalPoint& pos,
                              const LocalError& err,

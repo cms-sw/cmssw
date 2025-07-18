@@ -9,9 +9,9 @@
  */
 class RPixSignalPoint {
 public:
-  RPixSignalPoint() : pos_(0, 0), sigma_(0), charge_(0){};
+  RPixSignalPoint() : pos_(0, 0), sigma_(0), charge_(0) {}
 
-  RPixSignalPoint(double x, double y, double s, double charge) : pos_(x, y), sigma_(s), charge_(charge){};
+  RPixSignalPoint(double x, double y, double s, double charge) : pos_(x, y), sigma_(s), charge_(charge) {}
 
   inline const LocalPoint& Position() const { return pos_; }
   inline double Sigma() const { return sigma_; }

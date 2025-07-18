@@ -7,7 +7,6 @@
 # by:              $Author: taroni $
 #-----------------------------------------------------
 
-from __future__ import print_function
 from xml.dom import minidom
 import re
 import json

@@ -12,9 +12,9 @@ $Id: EcalTBTDCRawInfo.h,v 1.2 2006/04/21 09:30:56 meridian Exp $
 
 class EcalTBTDCRawInfo {
 public:
-  EcalTBTDCRawInfo() : data_(0){};
+  EcalTBTDCRawInfo() : data_(0) {}
 
-  EcalTBTDCRawInfo(unsigned int channels) { data_.reserve(channels); };
+  EcalTBTDCRawInfo(unsigned int channels) { data_.reserve(channels); }
 
   /// Get methods
   unsigned int size() const { return data_.size(); }

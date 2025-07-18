@@ -55,7 +55,7 @@ private:
       }
     }
 
-    ~MonitoredDecays(){};
+    ~MonitoredDecays() {}
 
     size_t position(int pid1, int pid2) {
       if (abs(pid1) == 14 || abs(pid1) == 16)

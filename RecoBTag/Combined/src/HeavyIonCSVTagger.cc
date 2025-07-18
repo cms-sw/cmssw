@@ -10,10 +10,7 @@
 
 HeavyIonCSVTagger::Tokens::Tokens(const edm::ParameterSet &configuration, edm::ESConsumesCollector &&cc) {
   if (configuration.getParameter<bool>("useCondDB")) {
-    gbrForest_ = cc.consumes(edm::ESInputTag{"",
-                                             configuration.existsAs<std::string>("gbrForestLabel")
-                                                 ? configuration.getParameter<std::string>("gbrForestLabel")
-                                                 : ""});
+    gbrForest_ = cc.consumes(edm::ESInputTag{"", configuration.getParameter<std::string>("gbrForestLabel")});
   }
 }
 HeavyIonCSVTagger::HeavyIonCSVTagger(const edm::ParameterSet &configuration, Tokens tokens)
@@ -99,4 +96,27 @@ float HeavyIonCSVTagger::discriminator(const TagInfoHelper &tagInfo) const {
   }
 
   return (mvaID_->evaluate(inputs) + 1.) / 2.;
+}
+
+void HeavyIonCSVTagger::fillPSetDescription(edm::ParameterSetDescription &desc) {
+  desc.add<bool>("useCondDB", false);
+  desc.add<bool>("useAdaBoost", false);
+  desc.add<bool>("useGBRForest", true);
+  desc.add<std::string>("mvaName", "");
+  desc.add<std::string>("gbrForestLabel", "");
+  desc.add<edm::FileInPath>("weightFile", edm::FileInPath());
+
+  edm::ParameterSetDescription svComputerCfg;
+  svComputerCfg.setAllowAnything();
+  desc.add<edm::ParameterSetDescription>("sv_cfg", svComputerCfg);
+
+  {
+    std::vector<edm::ParameterSet> temp;
+    edm::ParameterSetDescription variablePSet;
+    variablePSet.add<int>("idx", 0.);
+    variablePSet.add<double>("default", 1.);
+    variablePSet.add<std::string>("name", "");
+    variablePSet.add<std::string>("taggingVarName", "");
+    desc.addVPSet("variables", variablePSet, temp)->setComment("Default empty VPSet, can contain anything");
+  }
 }

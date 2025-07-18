@@ -59,8 +59,10 @@ void configureIt(const edm::ParameterSet& conf, HGCalUncalibRecHitRecWeightsAlgo
   maker.set_tofDelay(conf.getParameter<double>("tofDelay"));
 }
 
-HGCalUncalibRecHitWorkerWeights::HGCalUncalibRecHitWorkerWeights(const edm::ParameterSet& ps, edm::ConsumesCollector iC)
-    : HGCalUncalibRecHitWorkerBaseClass(ps, iC) {
+HGCalUncalibRecHitWorkerWeights::HGCalUncalibRecHitWorkerWeights(const edm::ParameterSet& ps,
+                                                                 edm::ConsumesCollector iC,
+                                                                 bool useTime)
+    : HGCalUncalibRecHitWorkerBaseClass(ps, iC, useTime) {
   const edm::ParameterSet& ee_cfg = ps.getParameterSet("HGCEEConfig");
   const edm::ParameterSet& hef_cfg = ps.getParameterSet("HGCHEFConfig");
   const edm::ParameterSet& heb_cfg = ps.getParameterSet("HGCHEBConfig");
@@ -69,6 +71,7 @@ HGCalUncalibRecHitWorkerWeights::HGCalUncalibRecHitWorkerWeights(const edm::Para
   configureIt(hef_cfg, uncalibMaker_hef_);
   configureIt(heb_cfg, uncalibMaker_heb_);
   configureIt(hfnose_cfg, uncalibMaker_hfnose_);
+  computeLocalTime_ = useTime;
 }
 
 bool HGCalUncalibRecHitWorkerWeights::run(const edm::ESHandle<HGCalGeometry>& geom,
@@ -78,7 +81,7 @@ bool HGCalUncalibRecHitWorkerWeights::run(const edm::ESHandle<HGCalGeometry>& ge
   uncalibMaker.setGeometry(geom);
   result.reserve(result.size() + digis.size());
   for (const auto& digi : digis)
-    result.push_back(uncalibMaker.makeRecHit(digi));
+    result.push_back(uncalibMaker.makeRecHit(digi, computeLocalTime_));
   return true;
 }
 

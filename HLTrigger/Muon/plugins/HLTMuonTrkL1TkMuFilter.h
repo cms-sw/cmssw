@@ -29,7 +29,7 @@ private:
   edm::InputTag m_candsTag;                             // input collection of candidates to be referenced
   edm::EDGetTokenT<reco::RecoChargedCandidateCollection> m_candsToken;  // input collection of candidates to be referenced
   edm::InputTag m_l1GTAlgoBlockTag;
-  edm::EDGetTokenT<std::vector<l1t::P2GTAlgoBlock>> m_algoBlockToken;
+  edm::EDGetTokenT<l1t::P2GTAlgoBlockMap> m_algoBlockToken;
   std::vector<std::string> m_l1GTAlgoNames;
   int m_minTrkHits;
   int m_minMuonHits;

@@ -31,7 +31,7 @@ void MPQualityEnhancerFilterBayes::run(edm::Event &iEvent,
   }
 }
 
-void MPQualityEnhancerFilterBayes::finish(){};
+void MPQualityEnhancerFilterBayes::finish() {}
 
 ///////////////////////////
 ///  OTHER METHODS

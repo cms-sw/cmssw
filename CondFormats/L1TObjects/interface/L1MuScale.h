@@ -138,8 +138,8 @@ public:
   };
 
   /// destructor
-  ~L1MuBinnedScale() override{
-      //    delete m_packing;
+  ~L1MuBinnedScale() override {
+    //    delete m_packing;
   };
 
   /// get the center of bin represented by packed
@@ -276,8 +276,8 @@ public:
   };
 
   /// destructor
-  ~L1MuSymmetricBinnedScale() override{
-      //    delete m_packing;
+  ~L1MuSymmetricBinnedScale() override {
+    //    delete m_packing;
   };
 
   /// get the center of bin represented by packed

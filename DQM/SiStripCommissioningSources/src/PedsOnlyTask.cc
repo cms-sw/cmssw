@@ -119,6 +119,6 @@ void PedsOnlyTask::update() {
       updateTProfile.setBinContent(pedsProf, nAbsBin, 5, lclPedestals[nBin], lclNoises[nBin]);
       updateTProfile.setBinContent(noiseProf, nAbsBin, 5, lclNoises[nBin], 0);
     }  // End loop over BINs
-  }    // End loop over Local Apvs
+  }  // End loop over Local Apvs
 }
 // -----------------------------------------------------------------------------

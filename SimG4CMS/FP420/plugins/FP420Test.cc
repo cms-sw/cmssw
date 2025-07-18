@@ -1256,7 +1256,7 @@ void FP420Test::update(const EndOfEvent* evt) {
             }
           }
         }  // MIonly or noMIonly ENDED
-           //    }
+        //    }
 
         //     !!!!!!!!!!!!!
 
@@ -1350,9 +1350,9 @@ void FP420Test::update(const EndOfEvent* evt) {
               }
               //================================== end of for loops in continuius number iu:
             }  //if(zside!=0
-          }    // for superlayer
-        }      // for zmodule
-      }        // for sector
+          }  // for superlayer
+        }  // for zmodule
+      }  // for sector
 
       if (verbosity > 2) {
         edm::LogVerbatim("FP420Test")
@@ -1440,7 +1440,7 @@ void FP420Test::update(const EndOfEvent* evt) {
     }  // MI or no MI or all  - end
 
   }  // primary end
-     //=========================== thePrim != 0  end   ===
+  //=========================== thePrim != 0  end   ===
   // ==========================================================================
   if (verbosity > 0) {
     edm::LogVerbatim("FP420Test") << "FP420Test:  END OF Event " << (*evt)()->GetEventID();

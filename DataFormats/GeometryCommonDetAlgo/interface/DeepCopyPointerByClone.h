@@ -2,9 +2,10 @@
 #define DeepCopyPointerByClone_H
 
 #include <algorithm>
+#include <cassert>
 
 /** Same as DeepCopyPointer, except that it copies the object
- *  pointed to wsing the clone() virtual copy constructor.
+ *  pointed to using the clone() virtual copy constructor.
  */
 
 template <class T>
@@ -34,17 +35,29 @@ public:
   }
 
   // straight from http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2006/n2027.html
-  DeepCopyPointerByClone(DeepCopyPointerByClone&& other) : theData(other.theData) { other.theData = 0; }
+  DeepCopyPointerByClone(DeepCopyPointerByClone&& other) : theData(other.theData) { other.theData = nullptr; }
   DeepCopyPointerByClone& operator=(DeepCopyPointerByClone&& other) {
     std::swap(theData, other.theData);
     return *this;
   }
 
-  T& operator*() { return *theData; }
-  const T& operator*() const { return *theData; }
+  T& operator*() {
+    assert(theData);
+    return *theData;
+  }
+  const T& operator*() const {
+    assert(theData);
+    return *theData;
+  }
 
-  T* operator->() { return theData; }
-  const T* operator->() const { return theData; }
+  T* operator->() {
+    assert(theData);
+    return theData;
+  }
+  const T* operator->() const {
+    assert(theData);
+    return theData;
+  }
 
   /// to allow test like " if (p) {...}"
   operator bool() const { return theData != 0; }

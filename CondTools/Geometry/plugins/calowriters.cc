@@ -8,6 +8,8 @@
 #include "Geometry/HcalTowerAlgo/interface/CaloGeometryDBHcal.h"
 #include "Geometry/HcalTowerAlgo/interface/CaloGeometryDBCaloTower.h"
 #include "Geometry/ForwardGeometry/interface/ZdcGeometry.h"
+#include "Geometry/ForwardGeometry/interface/ZdcTopology.h"
+#include "Geometry/ForwardGeometry/interface/CaloGeometryDBZdc.h"
 #include "Geometry/ForwardGeometry/interface/CastorGeometry.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
@@ -315,6 +317,114 @@ CaloGeometryDBEP<HGCalGeometry, CaloGeometryDBWriter>::produceAligned(
     }
 
     ptr->newCell(front, back, corners[0], myParm, id);
+  }
+
+  ptr->initializeParms();  // initializations; must happen after cells filled
+
+  return ptr;
+}
+
+template <>
+CaloGeometryDBEP<ZdcGeometry, CaloGeometryDBWriter>::PtrType
+CaloGeometryDBEP<ZdcGeometry, CaloGeometryDBWriter>::produceAligned(const typename ZdcGeometry::AlignedRecord& iRecord) {
+  const auto [alignPtr, globalPtr] = getAlignGlobal(iRecord);
+
+  TrVec tvec;
+  DimVec dvec;
+  IVec ivec;
+  IVec dins;
+
+  const auto& pG = iRecord.get(geometryToken_);
+
+  pG.getSummary(tvec, ivec, dvec, dins);
+
+  CaloGeometryDBWriter::writeIndexed(tvec, dvec, ivec, dins, ZdcGeometry::dbString());
+  //*********************************************************************************************
+
+  const auto& zdcTopology = iRecord.get(additionalTokens_.topology);
+
+  // We know that the numer of shapes chanes with changing depth
+  // so, this check is temporary disabled. We need to implement
+  // a way either to store or calculate the number of shapes or be able
+  // to deal with only max numer of shapes.
+  assert(dvec.size() <= ZdcGeometry::k_NumberOfShapes * ZdcGeometry::k_NumberOfParametersPerShape);
+  ZdcGeometry* zdcGeometry = new ZdcGeometry(&zdcTopology);
+  PtrType ptr(zdcGeometry);
+
+  const unsigned int nTrParm(tvec.size() / zdcTopology.kSizeForDenseIndexing());
+
+  ptr->fillDefaultNamedParameters();
+  ptr->allocateCorners(zdcTopology.kSizeForDenseIndexing());
+  ptr->allocatePar(zdcGeometry->numberOfShapes(), ZdcGeometry::k_NumberOfParametersPerShape);
+
+  for (unsigned int i(0); i < dins.size(); ++i) {
+    const unsigned int nPerShape(ZdcGeometry::k_NumberOfParametersPerShape);
+    DimVec dims;
+    dims.reserve(nPerShape);
+
+    const unsigned int indx(ivec.size() == 1 ? 0 : i);
+
+    DimVec::const_iterator dsrc(dvec.begin() + ivec[indx] * nPerShape);
+
+    for (unsigned int j(0); j != nPerShape; ++j) {
+      dims.push_back(*dsrc);
+      ++dsrc;
+    }
+
+    const CCGFloat* myParm(CaloCellGeometry::getParmPtr(dims, ptr->parMgr(), ptr->parVecVec()));
+
+    const DetId id(zdcTopology.denseId2detId(dins[i]));
+
+    const unsigned int iGlob(nullptr == globalPtr ? 0 : ZdcGeometry::alignmentTransformIndexGlobal(id));
+
+    assert(nullptr == globalPtr || iGlob < globalPtr->m_align.size());
+
+    const AlignTransform* gt(nullptr == globalPtr ? nullptr : &globalPtr->m_align[iGlob]);
+
+    assert(nullptr == gt || iGlob == ZdcGeometry::alignmentTransformIndexGlobal(DetId(gt->rawId())));
+
+    const unsigned int iLoc(nullptr == alignPtr ? 0 : ZdcGeometry::alignmentTransformIndexLocal(id));
+
+    assert(nullptr == alignPtr || iLoc < alignPtr->m_align.size());
+
+    const AlignTransform* at(nullptr == alignPtr ? nullptr : &alignPtr->m_align[iLoc]);
+
+    assert(nullptr == at || (ZdcGeometry::alignmentTransformIndexLocal(DetId(at->rawId())) == iLoc));
+
+    Pt3D lRef;
+    Pt3DVec lc(8, Pt3D(0, 0, 0));
+    zdcGeometry->localCorners(lc, &dims.front(), dins[i], lRef);
+
+    const Pt3D lBck(0.25 * (lc[4] + lc[5] + lc[6] + lc[7]));  // ctr rear  face in local
+    const Pt3D lCor(lc[0]);
+
+    //----------------------------------- create transform from 6 numbers ---
+    const unsigned int jj(i * nTrParm);
+    Tr3D tr;
+    const ROOT::Math::Translation3D tl(tvec[jj], tvec[jj + 1], tvec[jj + 2]);
+    const ROOT::Math::EulerAngles ea(6 == nTrParm ? ROOT::Math::EulerAngles(tvec[jj + 3], tvec[jj + 4], tvec[jj + 5])
+                                                  : ROOT::Math::EulerAngles());
+    const ROOT::Math::Transform3D rt(ea, tl);
+    double xx, xy, xz, dx;
+    double yx, yy, yz, dy;
+    double zx, zy, zz, dz;
+    rt.GetComponents(xx, xy, xz, dx, yx, yy, yz, dy, zx, zy, zz, dz);
+    tr = Tr3D(CLHEP::HepRep3x3(xx, xy, xz, yx, yy, yz, zx, zy, zz), CLHEP::Hep3Vector(dx, dy, dz));
+
+    // now prepend alignment(s) for final transform
+    const Tr3D atr(nullptr == at ? tr
+                                 : (nullptr == gt ? at->transform() * tr : at->transform() * gt->transform() * tr));
+    //--------------------------------- done making transform  ---------------
+
+    const Pt3D gRef(atr * lRef);
+    const GlobalPoint fCtr(gRef.x(), gRef.y(), gRef.z());
+    const Pt3D gBck(atr * lBck);
+    const GlobalPoint fBck(gBck.x(), gBck.y(), gBck.z());
+    const Pt3D gCor(atr * lCor);
+    const GlobalPoint fCor(gCor.x(), gCor.y(), gCor.z());
+
+    assert(zdcTopology.detId2denseId(id) == dins[i]);
+    ptr->newCell(fCtr, fBck, fCor, myParm, id);
   }
 
   ptr->initializeParms();  // initializations; must happen after cells filled

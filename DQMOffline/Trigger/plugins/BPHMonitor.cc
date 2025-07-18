@@ -1180,7 +1180,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
                   }
 
                 }  // for (auto const & t1 : *trHandle)
-              }    // for (auto const & t : *trHandle)
+              }  // for (auto const & t : *trHandle)
 
             break;
         }

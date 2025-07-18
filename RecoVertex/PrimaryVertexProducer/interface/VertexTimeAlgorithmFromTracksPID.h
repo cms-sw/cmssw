@@ -42,6 +42,7 @@ protected:
   double const probProton_;
   double const Tstart_;
   double const coolingFactor_;
+  bool const useMVAVtxTime_;
 
   edm::ValueMap<float> trackMTDTimes_;
   edm::ValueMap<float> trackMTDTimeErrors_;

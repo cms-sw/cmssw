@@ -13,7 +13,7 @@ for testing purposes only.
 #include <tuple>
 #include <vector>
 
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/Framework/interface/CacheHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -54,7 +54,7 @@ namespace edmtest {
             edm::limited::EDAnalyzer<edm::StreamCache<UnsafeCache>>(p),
             trans_(p.getParameter<int>("transitions")),
             nLumis_(p.getUntrackedParameter<unsigned int>("nLumis", 1)) {
-        callWhenNewProductsRegistered([](edm::BranchDescription const& desc) {
+        callWhenNewProductsRegistered([](edm::ProductDescription const& desc) {
           std::cout << "limited::StreamIntAnalyzer " << desc.moduleLabel() << std::endl;
         });
       }

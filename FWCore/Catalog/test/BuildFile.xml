@@ -1,5 +1,5 @@
 <use name="FWCore/Catalog"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="catch2"/>
-<bin name="edmCatalogFileLocator_t" file="FileLocator_t.cpp">
+<bin name="TestFWCoreCatalog" file="FileLocator_t.cpp,InputFileCatalog_t.cpp">
 </bin>

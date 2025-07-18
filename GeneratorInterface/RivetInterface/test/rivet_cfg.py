@@ -62,7 +62,7 @@ process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:mc', '')
 
-process.generator = cms.EDFilter("Pythia8GeneratorFilter",
+process.generator = cms.EDFilter("Pythia8HepMC3GeneratorFilter",
     pythiaPylistVerbosity = cms.untracked.int32(0),
     filterEfficiency = cms.untracked.double(1),
     pythiaHepMCVerbosity = cms.untracked.bool(False),
@@ -86,7 +86,7 @@ process.load("GeneratorInterface.RivetInterface.rivetAnalyzer_cfi")
 process.rivetAnalyzer.AnalysisNames = cms.vstring('MC_GENERIC', 'CMS_2014_I1305624', 'MC_XS')
 
 # Path and EndPath definitions
-process.generation_step = cms.Path(process.pgen*process.rivetAnalyzer)
+process.generation_step = cms.Path(process.generator*process.rivetAnalyzer)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.RAWSIMoutput_step = cms.EndPath(process.RAWSIMoutput)

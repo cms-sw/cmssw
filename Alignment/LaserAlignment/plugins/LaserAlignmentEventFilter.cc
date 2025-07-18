@@ -99,7 +99,7 @@ bool LaserAlignmentEventFilter::filter(edm::StreamID sid, edm::Event& iEvent, co
         }
       }
     }  // channel loop
-  }    // FED loop
+  }  // FED loop
 
   //   LogDebug("LaserAlignmentEventFilter") << det_ctr << " channels were tested for signal\n"
   // 			    <<sig_ctr << " channels have signal\n"

@@ -1,0 +1,13 @@
+<lcgdict>
+  <class name="alpaka_rocm_async::HGCalSoARecHitsDeviceCollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_rocm_async::HGCalSoARecHitsDeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::HGCalSoARecHitsDeviceCollection>>" persistent="false"/>
+
+  <class name="alpaka_rocm_async::HGCalSoARecHitsExtraDeviceCollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_rocm_async::HGCalSoARecHitsExtraDeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::HGCalSoARecHitsExtraDeviceCollection>>" persistent="false"/>
+
+  <class name="alpaka_rocm_async::HGCalSoAClustersDeviceCollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_rocm_async::HGCalSoAClustersDeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::HGCalSoAClustersDeviceCollection>>" persistent="false"/>
+</lcgdict>

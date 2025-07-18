@@ -2,7 +2,6 @@
 
 #this script runs cmsStage multiple times in the case where it failes for some reason
 
-from __future__ import print_function
 from builtins import range
 if __name__ == '__main__':
 

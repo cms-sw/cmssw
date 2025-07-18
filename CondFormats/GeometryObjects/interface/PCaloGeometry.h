@@ -14,7 +14,7 @@ public:
                 std::vector<uint32_t> const &,
                 std::vector<uint32_t> const &);
 
-  ~PCaloGeometry(){};
+  ~PCaloGeometry() {}
 
   std::vector<float> const &getTranslation() const { return m_translation; }
   std::vector<float> const &getDimension() const { return m_dimension; }

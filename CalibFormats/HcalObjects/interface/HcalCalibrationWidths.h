@@ -8,7 +8,7 @@
 */
 class HcalCalibrationWidths {
 public:
-  HcalCalibrationWidths(){};
+  HcalCalibrationWidths() {}
   HcalCalibrationWidths(const float fGain[4], const float fPedestal[4], const float fEffectivePedestal[4]);
   /// get gain width for capid=0..3
   double gain(int fCapId) const { return mGain[fCapId]; }

@@ -18,6 +18,20 @@ _rootBranchType2PythonArray = {
     'O': 'B'
 }
 
+# Convert data type string returned by TLeaf.GetTypeName() to root branch type
+_rootDataType2BranchType ={
+    'UChar_t'   : 'b', 
+    'Char_t'    : 'B',
+    'UShort_t'  : 's',
+    'Short_t'   : 'S',
+    'UInt_t'    : 'i',
+    'Int_t'     : 'I',
+    'Float_t'   : 'F',
+    'Double_t'  : 'D',
+    'ULong64_t' : 'l',
+    'Long64_t'  : 'L',
+    'Bool_t'    : 'O'
+}
 
 class OutputBranch:
     def __init__(
@@ -25,18 +39,23 @@ class OutputBranch:
             lenVar=None, title=None, limitedPrecision=False
     ):
         n = int(n)
-        self.buff = array(
-            _rootBranchType2PythonArray[rootBranchType], n * [0. if rootBranchType in 'FD' else 0])
-        self.lenVar = lenVar
         self.n = n
+        self.lenVar = lenVar
         self.precision = ROOT.MiniFloatConverter.ReduceMantissaToNbitsRounding(
             limitedPrecision) if limitedPrecision and rootBranchType == 'F' else lambda x: x
         # check if a branch was already there
         existingBranch = tree.GetBranch(name)
         if (existingBranch):
+            existingBranchType = _rootDataType2BranchType[existingBranch.FindLeaf(name).GetTypeName()]
+            if rootBranchType != existingBranchType :
+                print(f'Warning: output branch {name} already exists with type {existingBranchType}. Will ignore specified type {rootBranchType}')
+            self.buff = array(
+                _rootBranchType2PythonArray[existingBranchType], n * [0. if existingBranchType in 'FD' else 0])
             self.branch = existingBranch
             self.branch.SetAddress(self.buff)
         else:
+            self.buff = array(
+                _rootBranchType2PythonArray[rootBranchType], n * [0. if rootBranchType in 'FD' else 0])
             if lenVar != None:
                 self.branch = tree.Branch(
                     name, self.buff, "%s[%s]/%s" % (name, lenVar, rootBranchType))
@@ -80,7 +99,7 @@ class OutputTree:
     ):
         # and (not self._tree.GetBranch(lenVar)):
         if (lenVar != None) and (lenVar not in self._branches):
-            self._branches[lenVar] = OutputBranch(self._tree, lenVar, "i")
+            self._branches[lenVar] = OutputBranch(self._tree, lenVar, "I")
         self._branches[name] = OutputBranch(
             self._tree, name, rootBranchType, n=n,
             lenVar=lenVar, title=title, limitedPrecision=limitedPrecision

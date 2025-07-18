@@ -6,8 +6,8 @@
 
 class LinkByRecHit {
 public:
-  LinkByRecHit(){};
-  ~LinkByRecHit(){};
+  LinkByRecHit() {}
+  ~LinkByRecHit() {}
 
   /// computes a chisquare
   static double computeDist(double eta1, double phi1, double eta2, double phi2, bool etaPhi = true);

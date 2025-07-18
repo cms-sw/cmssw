@@ -11,7 +11,7 @@
 class SiPixelDynamicInefficiency {
 public:
   SiPixelDynamicInefficiency();
-  ~SiPixelDynamicInefficiency(){};
+  ~SiPixelDynamicInefficiency() {}
 
   inline void putPixelGeomFactors(std::map<unsigned int, double>& PixelGeomFactors) {
     m_PixelGeomFactors = PixelGeomFactors;

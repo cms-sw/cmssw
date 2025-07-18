@@ -18,3 +18,8 @@ trackingMkFitProd =  cms.ModifierChain(
     trackingMkFitDetachedTripletStep,
     trackingMkFitPixelLessStep,
 )
+
+trackingMkFitProdPhase2 =  cms.ModifierChain(
+    trackingMkFitCommon,
+    trackingMkFitInitialStep,
+)

@@ -17,9 +17,9 @@
 
 class MeasurementDiffEntry : public Measurement {
 public:
-  MeasurementDiffEntry(const ALIint measdim, ALIstring& type, ALIstring& name) : Measurement(measdim, type, name){};
-  MeasurementDiffEntry(){};
-  ~MeasurementDiffEntry() override{};
+  MeasurementDiffEntry(const ALIint measdim, ALIstring& type, ALIstring& name) : Measurement(measdim, type, name) {}
+  MeasurementDiffEntry() {}
+  ~MeasurementDiffEntry() override {}
 
   // separate OptO names and Entry names
   void buildOptONamesList(const std::vector<ALIstring>& wl) override;

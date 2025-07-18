@@ -73,6 +73,7 @@ TEST_CASE("Test clone_ptr", "[clone_ptr]") {
   SECTION("in vector") {
     A::Guard ag;
     std::vector<B> vb(1);
+    vb.reserve(2);
     B b;
     b.a.reset(new A(-2));
     B c;

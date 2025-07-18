@@ -25,7 +25,7 @@ public:
   LMFCorrCoefDatComponent();
   LMFCorrCoefDatComponent(EcalDBConnection *c);
   LMFCorrCoefDatComponent(oracle::occi::Environment *env, oracle::occi::Connection *conn);
-  ~LMFCorrCoefDatComponent() override{};
+  ~LMFCorrCoefDatComponent() override {}
 
   LMFCorrCoefDatComponent &setLMFLmrSubIOV(const LMFLmrSubIOV &iov);
   LMFCorrCoefDatComponent &setP123(const EcalLogicID &id, float p1, float p2, float p3);

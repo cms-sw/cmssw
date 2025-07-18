@@ -26,8 +26,8 @@
 
 class L1TTwinMuxAlgorithm {
 public:
-  L1TTwinMuxAlgorithm(){};
-  ~L1TTwinMuxAlgorithm(){};
+  L1TTwinMuxAlgorithm() {}
+  ~L1TTwinMuxAlgorithm() {}
 
   void run(edm::Handle<L1MuDTChambPhContainer> phiDigis,
            edm::Handle<L1MuDTChambThContainer> thetaDigis,

@@ -1,4 +1,3 @@
-from __future__ import print_function
 # $Id: loadConditions.py,v 1.4 2008/12/19 11:02:21 argiro Exp $
 #
 # Author: Stefano Argiro'

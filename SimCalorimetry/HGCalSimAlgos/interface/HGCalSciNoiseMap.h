@@ -43,7 +43,7 @@ public:
   };
 
   HGCalSciNoiseMap();
-  ~HGCalSciNoiseMap(){};
+  ~HGCalSciNoiseMap() {}
 
   /**
      @short returns the signal scaling and the noise

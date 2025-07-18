@@ -145,6 +145,8 @@ const BeamSpotOnlineObjects* OnlineBeamSpotESProducer::checkSingleBS(const BeamS
   if (diffBStime1 < limitTime && isGoodBS(bs1)) {
     return bs1;
   } else {
+    edm::LogWarning("OnlineBeamSpotESProducer") << "Defaulting to fake (fallback to PCL) because the only payload "
+                                                   "is either too old or does not pass the fit sanity checks";
     return nullptr;
   }
 }
@@ -179,7 +181,7 @@ std::shared_ptr<const BeamSpotObjects> OnlineBeamSpotESProducer::produce(const B
     return std::shared_ptr<const BeamSpotObjects>(best, edm::do_nothing_deleter());
   }
   edm::LogWarning("OnlineBeamSpotESProducer")
-      << "None of the Online BeamSpots in the ES is suitable, \n returning a fake one(fallback to PCL).";
+      << "None of the Online BeamSpots in the ES is suitable, \n returning a fake one (fallback to PCL).";
   return std::shared_ptr<const BeamSpotObjects>(&fakeBS_, edm::do_nothing_deleter());
 }
 

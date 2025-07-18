@@ -1,11 +1,7 @@
 #!/usr/bin/env python
-from __future__ import print_function
 import sys
 
 """
-IMPORTANT NOTE: currently not working for MC-based validation after the updates of the GtRecordDump!
-                Fix needed.
- 
 Description: script used for offline validation of the Global Trigger firmware and emulator agreement                                 
 (Contacts: Richard Cavanaugh, Elisa Fontanesi)                                                                                
 -----------------------------------------------------------------------------------------------------                      
@@ -226,6 +222,7 @@ process.simGtExtFakeProd.setBptxOR    = cms.bool(True)
 # Run the Stage 2 uGT emulator
 # ----------------------------
 process.load('L1Trigger.L1TGlobal.simGtStage2Digis_cfi')
+process.simGtStage2Digis.useMuonShowers = cms.bool(True)
 process.simGtStage2Digis.PrescaleSet = cms.uint32(1)
 process.simGtStage2Digis.ExtInputTag = cms.InputTag("simGtExtFakeProd")
 process.simGtStage2Digis.MuonInputTag = cms.InputTag("gtInput")

@@ -243,8 +243,8 @@ void DTRunConditionVarClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IG
         }
 
       }  // end loop on stations
-    }    // end loop on sectors
-  }      //end loop on wheels
+    }  // end loop on sectors
+  }  //end loop on wheels
 
   return;
 }

@@ -29,7 +29,7 @@ class DumpScObjects : public edm::stream::EDAnalyzer<> {
 public:
   // constructor and destructor
   explicit DumpScObjects(const edm::ParameterSet&);
-  ~DumpScObjects() override{};
+  ~DumpScObjects() override {}
 
   // method for analyzing the events
   void analyze(const edm::Event&, const edm::EventSetup&) override;

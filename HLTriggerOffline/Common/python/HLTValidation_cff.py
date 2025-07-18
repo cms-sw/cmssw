@@ -13,21 +13,29 @@ from HLTriggerOffline.Exotica.ExoticaValidation_cff import *
 from HLTriggerOffline.SMP.SMPValidation_cff import *
 from HLTriggerOffline.Btag.HltBtagValidation_cff import *
 from HLTriggerOffline.Egamma.HLTmultiTrackValidatorGsfTracks_cff import *
-from HLTriggerOffline.Muon.HLTmultiTrackValidatorMuonTracks_cff import *
 # HCAL
 from Validation.HcalDigis.HLTHcalDigisParam_cfi import *
 from Validation.HcalRecHits.HLTHcalRecHitParam_cfi import *
+## SiTracker Phase2
+from Validation.SiTrackerPhase2V.HLTPhase2TrackerValidationFirstStep_cff import *
+# Gen-level Validation
+from Validation.HLTrigger.HLTGenValidation_cff import *
 
 # HGCAL Rechit Calibration
 from Validation.HGCalValidation.hgcalHitCalibrationDefault_cfi import hgcalHitCalibrationDefault as _hgcalHitCalibrationDefault
-hgcalHitCalibrationHLT = _hgcalHitCalibrationDefault.clone()
-hgcalHitCalibrationHLT.folder = "HGCalHitCalibrationHLT"
-hgcalHitCalibrationHLT.recHitsEE = cms.InputTag("HGCalRecHit", "HGCEERecHits", "HLT")
-hgcalHitCalibrationHLT.recHitsFH = cms.InputTag("HGCalRecHit", "HGCHEFRecHits", "HLT")
-hgcalHitCalibrationHLT.recHitsBH = cms.InputTag("HGCalRecHit", "HGCHEBRecHits", "HLT")
-hgcalHitCalibrationHLT.hgcalMultiClusters = cms.InputTag("None")
-hgcalHitCalibrationHLT.electrons = cms.InputTag("None")
-hgcalHitCalibrationHLT.photons = cms.InputTag("None")
+hgcalHitCalibrationHLT = _hgcalHitCalibrationDefault.clone(
+    folder = "HLT/HGCalHitCalibration",
+    recHitsEE = ("hltHGCalRecHit", "HGCEERecHits", "HLT"),
+    recHitsFH = ("hltHGCalRecHit", "HGCHEFRecHits", "HLT"),
+    recHitsBH = ("hltHGCalRecHit", "HGCHEBRecHits", "HLT"),
+    hgcalMultiClusters = "None",
+    electrons = "None",
+    photons = "None"
+)
+
+# HGCAL validation
+from Validation.HGCalValidation.HLTHGCalValidator_cff import *
+from RecoHGCal.TICL.HLTSimTracksters_cff import *
 
 # offline dqm:
 # from DQMOffline.Trigger.DQMOffline_Trigger_cff.py import *
@@ -46,17 +54,26 @@ hltassociation = cms.Sequence(
     +egammaSelectors
     +ExoticaValidationProdSeq
     +hltMultiTrackValidationGsfTracks
-    +hltMultiTrackValidationMuonTracks
     )
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 
 # Temporary Phase-2 config
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
-phase2_common.toReplaceWith(hltassociation, hltassociation.copyAndExclude([egammaSelectors,
-                                                                           ExoticaValidationProdSeq,
-                                                                           hltMultiTrackValidationGsfTracks,
-                                                                           hltMultiTrackValidationMuonTracks])
-)
+
+# Create the modified sequence for phase 2
+_phase2_hltassociation = hltassociation.copyAndExclude([
+    egammaSelectors,
+    ExoticaValidationProdSeq,
+])
+
+# Add hltTrackerphase2ValidationSource to the sequence
+_phase2_hltassociation += hltTrackerphase2ValidationSource
+
+# Add HGCal SimTracksters
+_phase2_hltassociation += hltTiclSimTrackstersSeq
+
+# Apply the modification
+phase2_common.toReplaceWith(hltassociation, _phase2_hltassociation)
 
 # hcal
 from DQMOffline.Trigger.HCALMonitoring_cff import *
@@ -98,6 +115,8 @@ _hltvalidationWithMC_Phase2 = hltvalidationWithMC.copyAndExclude([#HLTMuonVal,
   hltHCALRecoAnalyzer,
   hltHCALNoiseRates])
 _hltvalidationWithMC_Phase2.insert(-1, hgcalHitCalibrationHLT)
+_hltvalidationWithMC_Phase2.insert(-1, hltHgcalValidator)
+_hltvalidationWithMC_Phase2.insert(-1, hltGENValidation)
 phase2_common.toReplaceWith(hltvalidationWithMC, _hltvalidationWithMC_Phase2)
 
 hltvalidationWithData = cms.Sequence(
@@ -116,8 +135,7 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(hltassociation, hltassociation.copyAndExclude([
     hltMultiTrackValidation,
     hltMultiPVValidation,
-    hltMultiTrackValidationGsfTracks,
-    hltMultiTrackValidationMuonTracks,
+    hltMultiTrackValidationGsfTracks
 ]))
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017

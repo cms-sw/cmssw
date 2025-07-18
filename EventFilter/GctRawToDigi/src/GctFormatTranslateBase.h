@@ -96,14 +96,14 @@ protected:
   /* Data member access methods */
   GctUnpackCollections* const colls() const {
     return m_collections;
-  }                                           ///< Protected access to the GCT Unpack Collections.
+  }  ///< Protected access to the GCT Unpack Collections.
   bool hltMode() const { return m_hltMode; }  ///< Protected interface to get HLT optimisation mode flag.
   bool unpackSharedRegions() const {
     return m_unpackSharedRegions;
   }  /// Protected interface to the unpackSharedRegions commissioning option.
   const SourceCardRouting& srcCardRouting() const {
     return m_srcCardRouting;
-  }                                                                   ///< Protected access to SourceCardRouting.
+  }  ///< Protected access to SourceCardRouting.
   const uint32_t packingBxId() const { return m_packingBxId; }        ///< Get the BxId to be used when packing data.
   const uint32_t packingEventId() const { return m_packingEventId; }  ///< Get the EventId to be used when packing data.
 

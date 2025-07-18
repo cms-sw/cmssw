@@ -22,6 +22,8 @@ public:
   ///Destructor
   ~PFConversionProducer() override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void endRun(const edm::Run&, const edm::EventSetup&) override;
@@ -40,6 +42,13 @@ private:
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PFConversionProducer);
+
+void PFConversionProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("conversionCollection", {"allConversions", ""});
+  desc.add<edm::InputTag>("PrimaryVertexLabel", {"offlinePrimaryVertices"});
+  descriptions.add("pfConversions", desc);
+}
 
 typedef std::multimap<unsigned, std::vector<unsigned> > BlockMap;
 using namespace std;
@@ -147,10 +156,10 @@ void PFConversionProducer::produce(Event& iEvent, const EventSetup& iSetup) {
 
         if (greater_prob)
           break;  //if a duplicate track is found in a collection with greater Chi^2 probability for Vertex fit then break out of comparison loop
-      }           //end loop over collection 2 checking
+      }  //end loop over collection 2 checking
       if (greater_prob)
         break;  //if a duplicate track is found in a collection with greater Chi^2 probability for Vertex fit then one does not need to check the other track the collection will not be stored
-    }           //end loop over tracks in collection 1
+    }  //end loop over tracks in collection 1
     if (!greater_prob)
       conv_coll.push_back(icoll1);
   }  //end loop over collection 1

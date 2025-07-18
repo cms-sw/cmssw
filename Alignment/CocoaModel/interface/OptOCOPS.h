@@ -20,10 +20,10 @@ class DeviationsFromFileSensor2D;
 class OptOCOPS : public OpticalObject {
 public:
   //---------- Constructors / Destructor
-  OptOCOPS(){};
+  OptOCOPS() {}
   OptOCOPS(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data)
-      : OpticalObject(parent, type, name, copy_data), fdevi_from_file(false){};
-  ~OptOCOPS() override{};
+      : OpticalObject(parent, type, name, copy_data), fdevi_from_file(false) {}
+  ~OptOCOPS() override {}
 
   //---------- defaultBehaviour: make measurement
   void defaultBehaviour(LightRay& lightray, Measurement& meas) override;

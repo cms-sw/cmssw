@@ -35,10 +35,10 @@
 class L1MuGMTLUTHelpers {
 public:
   /// constructor
-  L1MuGMTLUTHelpers(){};
+  L1MuGMTLUTHelpers() {}
 
   /// destructor
-  virtual ~L1MuGMTLUTHelpers(){};
+  virtual ~L1MuGMTLUTHelpers() {}
 
   /// Lookup Functions
 

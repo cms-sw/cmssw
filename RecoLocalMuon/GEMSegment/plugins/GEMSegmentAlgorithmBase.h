@@ -25,9 +25,9 @@ public:
   typedef std::pair<const GEMSuperChamber*, std::map<uint32_t, const GEMEtaPartition*> > GEMEnsemble;
 
   /// Constructor
-  explicit GEMSegmentAlgorithmBase(const edm::ParameterSet&){};
+  explicit GEMSegmentAlgorithmBase(const edm::ParameterSet&) {}
   /// Destructor
-  virtual ~GEMSegmentAlgorithmBase(){};
+  virtual ~GEMSegmentAlgorithmBase() {}
 
   /** Run the algorithm = build the segments in this chamber
     */

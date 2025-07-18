@@ -51,7 +51,7 @@ public:
   };
 
   /// destructor
-  ~L1MuGMTMIAUPhiPro2LUT() override{};
+  ~L1MuGMTMIAUPhiPro2LUT() override {}
 
   /// specific lookup function for phi_sel
   unsigned SpecificLookup_phi_sel(

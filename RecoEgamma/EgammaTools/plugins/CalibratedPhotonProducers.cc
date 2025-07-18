@@ -34,7 +34,7 @@ template <typename T>
 class CalibratedPhotonProducerT : public edm::stream::EDProducer<> {
 public:
   explicit CalibratedPhotonProducerT(const edm::ParameterSet&);
-  ~CalibratedPhotonProducerT() override{};
+  ~CalibratedPhotonProducerT() override {}
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void produce(edm::Event&, const edm::EventSetup&) override;
 

@@ -87,20 +87,20 @@ void FineDelayTask::fill(const SiStripEventSummary& summary, const edm::DetSet<S
     latencyShift -= 64;  // allow negative values: we cover [-32,32].. should not be needed.
   if ((latencyCode >> 6) == 2)
     latencyShift -= 3;  // layer in deconv, rest in peak
-  if ((latencyCode >> 6) == 1)
+  else if ((latencyCode >> 6) == 1)
     latencyShift += 3;  // layer in peak, rest in deconv
-  float correctedDelay =
+  float correctedDelayBase =
       delay - (latencyShift * 25.);  // shifts the delay so that 0 corresponds to the current settings.
 
   LogDebug("Commissioning") << "[FineDelayTask::fill]; the delay is " << delay;
   // loop on the strips to find the (maybe) non-zero digi
   for (unsigned int strip = 0; strip < digis.data.size(); strip++) {
     if (digis.data[strip].adc() != 0) {
-      // apply the TOF correction
-      float tof = (digis.data[strip].adc() >> 8) / 10.;
-      correctedDelay = delay - (latencyShift * 25.) - tof;
       if ((digis.data[strip].adc() >> 8) == 255)
         continue;  // skip hit if TOF is in overflow
+      // apply the TOF correction
+      float tof = (digis.data[strip].adc() >> 8) / 10.;
+      float correctedDelay = correctedDelayBase - tof;
       // compute the bin
       float nbins = NBINS;
       float lowbin = LOWBIN;

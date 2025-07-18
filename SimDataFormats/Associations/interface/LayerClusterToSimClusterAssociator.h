@@ -11,11 +11,11 @@
 
 // forward declarations
 
-namespace hgcal {
+namespace ticl {
 
   class LayerClusterToSimClusterAssociator {
   public:
-    LayerClusterToSimClusterAssociator(std::unique_ptr<hgcal::LayerClusterToSimClusterAssociatorBaseImpl>);
+    LayerClusterToSimClusterAssociator(std::unique_ptr<ticl::LayerClusterToSimClusterAssociatorBaseImpl>);
     LayerClusterToSimClusterAssociator() = default;
     LayerClusterToSimClusterAssociator(LayerClusterToSimClusterAssociator &&) = default;
     LayerClusterToSimClusterAssociator &operator=(LayerClusterToSimClusterAssociator &&) = default;
@@ -26,14 +26,14 @@ namespace hgcal {
         delete;  // stop default
     // ---------- const member functions ---------------------
     /// Associate a LayerCluster to SimClusters
-    hgcal::RecoToSimCollectionWithSimClusters associateRecoToSim(const edm::Handle<reco::CaloClusterCollection> &cCCH,
-                                                                 const edm::Handle<SimClusterCollection> &sCCH) const {
+    ticl::RecoToSimCollectionWithSimClusters associateRecoToSim(const edm::Handle<reco::CaloClusterCollection> &cCCH,
+                                                                const edm::Handle<SimClusterCollection> &sCCH) const {
       return m_impl->associateRecoToSim(cCCH, sCCH);
     };
 
     /// Associate a SimCluster to LayerClusters
-    hgcal::SimToRecoCollectionWithSimClusters associateSimToReco(const edm::Handle<reco::CaloClusterCollection> &cCCH,
-                                                                 const edm::Handle<SimClusterCollection> &sCCH) const {
+    ticl::SimToRecoCollectionWithSimClusters associateSimToReco(const edm::Handle<reco::CaloClusterCollection> &cCCH,
+                                                                const edm::Handle<SimClusterCollection> &sCCH) const {
       return m_impl->associateSimToReco(cCCH, sCCH);
     }
 
@@ -41,6 +41,6 @@ namespace hgcal {
     // ---------- member data --------------------------------
     std::unique_ptr<LayerClusterToSimClusterAssociatorBaseImpl> m_impl;
   };
-}  // namespace hgcal
+}  // namespace ticl
 
 #endif

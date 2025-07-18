@@ -173,7 +173,7 @@ namespace edm {
     }
 
     using ParameterDescriptionNode::writeCfi_;
-    void writeCfi_(std::ostream& os, int indentation) const override {
+    void writeCfi_(std::ostream& os, int indentation, CfiOptions&) const override {
       writeParameterValue::writeValue(os, indentation, value_, writeParameterValue::CFI);
     }
 
@@ -217,7 +217,7 @@ namespace edm {
     ParameterDescriptionNode* clone() const override { return new ParameterDescription(*this); }
 
   private:
-    void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, bool optional) const override;
+    void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, Modifier modifier) const override;
 
     void printDefault_(std::ostream& os, bool writeToCfi, DocFormatHelper& dfh) const override;
 
@@ -228,7 +228,7 @@ namespace edm {
     bool exists_(ParameterSet const& pset) const override;
 
     using ParameterDescriptionNode::writeCfi_;
-    void writeCfi_(std::ostream& os, int indentation) const override;
+    void writeCfi_(std::ostream& os, int indentation, CfiOptions&) const override;
 
     void writeDoc_(std::ostream& os, int indentation) const override;
 
@@ -274,7 +274,7 @@ namespace edm {
     void setPartOfDefaultOfVPSet(bool value) { partOfDefaultOfVPSet_ = value; }
 
   private:
-    void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, bool optional) const override;
+    void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, Modifier modifier) const override;
 
     void printDefault_(std::ostream& os, bool writeToCfi, DocFormatHelper& dfh) const override;
 
@@ -285,7 +285,7 @@ namespace edm {
     bool exists_(ParameterSet const& pset) const override;
 
     using ParameterDescriptionNode::writeCfi_;
-    void writeCfi_(std::ostream& os, int indentation) const override;
+    void writeCfi_(std::ostream& os, int indentation, CfiOptions&) const override;
 
     void writeDoc_(std::ostream& os, int indentation) const override;
 
@@ -293,10 +293,8 @@ namespace edm {
 
     void insertDefault_(ParameterSet& pset) const override;
 
-    static void writeOneElementToCfi(ParameterSet const& pset,
-                                     std::ostream& os,
-                                     int indentation,
-                                     bool& nextOneStartsWithAComma);
+    static void writeOneElementToCfi(
+        ParameterSet const& pset, std::ostream& os, int indentation, CfiOptions&, bool& nextOneStartsWithAComma);
 
     value_ptr<ParameterSetDescription> psetDesc_;
     std::vector<ParameterSet> vPset_;

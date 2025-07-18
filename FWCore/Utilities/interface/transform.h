@@ -8,8 +8,9 @@ namespace edm {
 
   // helper template function to build a vector applying a transformation to the elements of an input vector
   template <typename InputType, typename Function>
-  auto vector_transform(std::vector<InputType> const& input, Function predicate) -> std::vector<
-      typename std::remove_cv<typename std::remove_reference<decltype(predicate(input.front()))>::type>::type> {
+  auto vector_transform(std::vector<InputType> const& input, Function predicate)
+      -> std::vector<
+          typename std::remove_cv<typename std::remove_reference<decltype(predicate(input.front()))>::type>::type> {
     using ReturnType =
         typename std::remove_cv<typename std::remove_reference<decltype(predicate(input.front()))>::type>::type;
     std::vector<ReturnType> output;

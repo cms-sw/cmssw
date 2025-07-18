@@ -2,6 +2,7 @@
 <use name="fastjet-contrib"/>
 <use name="roothistmatrix"/>
 <use name="tbb"/>
+<use name="tauolapp"/>
 <use name="CommonTools/Egamma"/>
 <use name="CondFormats/BTauObjects"/>
 <use name="CondFormats/DataRecord"/>
@@ -30,14 +31,16 @@
   <use name="CommonTools/Utils"/>
   <use name="CommonTools/UtilAlgos"/>
   <use name="CommonTools/CandAlgos"/>
+  <use name="PhysicsTools/JetMCUtils"/>
   <use name="RecoBTag/FeatureTools"/>
   <use name="RecoJets/JetAlgorithms"/>
   <use name="TrackingTools/Records"/>
   <use name="roottmva"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+<!-- Disable RNuple plugin: https://github.com/cms-sw/cmsdist/pull/9451#issuecomment-2393861542
 <library file="rntuple/*.cc" name="PhysicsToolsNanoAODRNuplePlugins">
   <use name="rootntuple"/>
   <flags EDM_PLUGIN="1"/>
 </library>
-
+-->

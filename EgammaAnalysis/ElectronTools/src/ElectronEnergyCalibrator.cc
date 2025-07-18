@@ -3,8 +3,8 @@
 #include <CLHEP/Random/RandGaussQ.h>
 #include <CLHEP/Random/RandFlat.h>
 #include <CLHEP/Random/Random.h>
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 /****************************************************************************

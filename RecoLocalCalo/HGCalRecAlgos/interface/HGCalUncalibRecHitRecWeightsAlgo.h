@@ -21,7 +21,7 @@ template <class C>
 class HGCalUncalibRecHitRecWeightsAlgo {
 public:
   // destructor
-  virtual ~HGCalUncalibRecHitRecWeightsAlgo(){};
+  virtual ~HGCalUncalibRecHitRecWeightsAlgo() {}
 
   void set_isSiFESim(const bool isSiFE) { isSiFESim_ = isSiFE; }
   bool isSiFESim() const { return isSiFESim_; }
@@ -52,7 +52,7 @@ public:
   }
 
   /// Compute HGCUncalibratedRecHit from DataFrame
-  virtual HGCUncalibratedRecHit makeRecHit(const C& dataFrame) {
+  virtual HGCUncalibratedRecHit makeRecHit(const C& dataFrame, const bool computeLocalTime) {
     double amplitude_(-1.), pedestal_(-1.), jitter_(-99.), chi2_(-1.);
     uint32_t flag = 0;
 
@@ -74,8 +74,8 @@ public:
         amplitude_ = (std::floor(tdcOnsetfC_ / adcLSB_) + 1.0) * adcLSB_ + (double(sample.data()) + 0.5) * tdcLSB_;
       } else {
         amplitude_ = double(sample.data()) * adcLSB_;  // why do we not have +0.5 here ?
-      }                                                //isSiFESim_
-    }                                                  //mode()
+      }  //isSiFESim_
+    }  //mode()
 
     // trivial digitization, i.e. no signal shape
     else {
@@ -84,7 +84,8 @@ public:
 
     if (sample.getToAValid()) {
       const auto& dist2center = geom_ ? geom_->getPosition(dataFrame.id()).mag() : 0;
-      jitter_ = double(sample.toa()) * toaLSBToNS_ - dist2center / c_cm_ns - tofDelay_;
+      jitter_ = computeLocalTime ? double(sample.toa()) * toaLSBToNS_ - tofDelay_
+                                 : double(sample.toa()) * toaLSBToNS_ - dist2center / c_cm_ns - tofDelay_;
     }
 
     int thickness = (ddd_ != nullptr) ? ddd_->waferType(dataFrame.id(), false) : 0;

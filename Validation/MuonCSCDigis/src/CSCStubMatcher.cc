@@ -1,6 +1,7 @@
 #include "Validation/MuonCSCDigis/interface/CSCStubMatcher.h"
 #include "DataFormats/CSCDigi/interface/CSCConstants.h"
 #include <algorithm>
+#include <memory>
 
 using namespace std;
 
@@ -34,8 +35,8 @@ CSCStubMatcher::CSCStubMatcher(const edm::ParameterSet& pSet, edm::ConsumesColle
   minNHitsChamberMPLCT_ = cscMPLCT.getParameter<int>("minNHitsChamber");
 
   if (useGEMs_)
-    gemDigiMatcher_.reset(new GEMDigiMatcher(pSet, std::move(iC)));
-  cscDigiMatcher_.reset(new CSCDigiMatcher(pSet, std::move(iC)));
+    gemDigiMatcher_ = std::make_shared<GEMDigiMatcher>(pSet, std::move(iC));
+  cscDigiMatcher_ = std::make_shared<CSCDigiMatcher>(pSet, std::move(iC));
 
   clctInputTag_ = cscCLCT.getParameter<edm::InputTag>("inputTag");
   alctInputTag_ = cscALCT.getParameter<edm::InputTag>("inputTag");

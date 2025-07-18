@@ -735,7 +735,7 @@ void GlobalHitsProdHist::fillG4MC(edm::Event &iEvent) {
   // should have the information needed
   for (unsigned int i = 0; i < AllHepMCEvt.size(); ++i) {
     HepMCEvt = AllHepMCEvt[i];
-    if ((HepMCEvt.provenance()->branchDescription()).moduleLabel() == "generatorSmeared")
+    if ((HepMCEvt.provenance()->productDescription()).moduleLabel() == "generatorSmeared")
       break;
   }
 
@@ -744,7 +744,7 @@ void GlobalHitsProdHist::fillG4MC(edm::Event &iEvent) {
     return;
   } else {
     eventout += "\n          Using HepMCProduct: ";
-    eventout += (HepMCEvt.provenance()->branchDescription()).moduleLabel();
+    eventout += (HepMCEvt.provenance()->productDescription()).moduleLabel();
   }
   const HepMC::GenEvent *MCEvt = HepMCEvt->GetEvent();
   nRawGenPart = MCEvt->particles_size();
@@ -933,7 +933,7 @@ void GlobalHitsProdHist::fillTrk(edm::Event &iEvent, const edm::EventSetup &iSet
                                     << sdPxlBrl << "); value returned is: (" << detector << "," << subdetector << ")";
       continue;
     }  // end detector type check
-  }    // end loop through PxlBrl Hits
+  }  // end loop through PxlBrl Hits
 
   if (verbosity > 1) {
     eventout += "\n          Number of Pixel Barrel Hits collected:..... ";
@@ -1005,7 +1005,7 @@ void GlobalHitsProdHist::fillTrk(edm::Event &iEvent, const edm::EventSetup &iSet
                                     << sdPxlFwd << "); value returned is: (" << detector << "," << subdetector << ")";
       continue;
     }  // end detector type check
-  }    // end loop through PxlFwd Hits
+  }  // end loop through PxlFwd Hits
 
   if (verbosity > 1) {
     eventout += "\n          Number of Pixel Forward Hits collected:.... ";
@@ -1099,7 +1099,7 @@ void GlobalHitsProdHist::fillTrk(edm::Event &iEvent, const edm::EventSetup &iSet
                                     << subdetector << ")";
       continue;
     }  // end detector type check
-  }    // end loop through SiBrl Hits
+  }  // end loop through SiBrl Hits
 
   if (verbosity > 1) {
     eventout += "\n          Number of Silicon Barrel Hits collected:... ";
@@ -1187,7 +1187,7 @@ void GlobalHitsProdHist::fillTrk(edm::Event &iEvent, const edm::EventSetup &iSet
                                     << subdetector << ")";
       continue;
     }  // end check detector type
-  }    // end loop through SiFwd Hits
+  }  // end loop through SiFwd Hits
 
   if (verbosity > 1) {
     eventout += "\n          Number of Silicon Forward Hits collected:.. ";
@@ -1278,7 +1278,7 @@ void GlobalHitsProdHist::fillMuon(edm::Event &iEvent, const edm::EventSetup &iSe
                                     << sdMuonCSC << "); value returned is: (" << detector << "," << subdetector << ")";
       continue;
     }  // end detector type check
-  }    // end loop through CSC Hits
+  }  // end loop through CSC Hits
 
   if (verbosity > 1) {
     eventout += "\n          Number of CSC muon Hits collected:......... ";
@@ -1351,7 +1351,7 @@ void GlobalHitsProdHist::fillMuon(edm::Event &iEvent, const edm::EventSetup &iSe
                                     << sdMuonDT << "); value returned is: (" << detector << "," << subdetector << ")";
       continue;
     }  // end detector type check
-  }    // end loop through DT Hits
+  }  // end loop through DT Hits
 
   if (verbosity > 1) {
     eventout += "\n          Number of DT muon Hits collected:.......... ";
@@ -1450,7 +1450,7 @@ void GlobalHitsProdHist::fillMuon(edm::Event &iEvent, const edm::EventSetup &iSe
                                     << sdMuonRPC << "); value returned is: (" << detector << "," << subdetector << ")";
       continue;
     }  // end detector type check
-  }    // end loop through RPC Hits
+  }  // end loop through RPC Hits
 
   if (verbosity > 1) {
     eventout += "\n          Number of RPC muon Hits collected:......... ";
@@ -1558,7 +1558,7 @@ void GlobalHitsProdHist::fillECal(edm::Event &iEvent, const edm::EventSetup &iSe
                                     << subdetector << ")";
       continue;
     }  // end detector type check
-  }    // end loop through ECal Hits
+  }  // end loop through ECal Hits
 
   if (verbosity > 1) {
     eventout += "\n          Number of ECal Hits collected:............. ";
@@ -1624,7 +1624,7 @@ void GlobalHitsProdHist::fillECal(edm::Event &iEvent, const edm::EventSetup &iSe
                                     << sdEcalPS << "); value returned is: (" << detector << "," << subdetector << ")";
       continue;
     }  // end detector type check
-  }    // end loop through PreShower Hits
+  }  // end loop through PreShower Hits
 
   if (verbosity > 1) {
     eventout += "\n          Number of PreSh Hits collected:............ ";
@@ -1716,7 +1716,7 @@ void GlobalHitsProdHist::fillHCal(edm::Event &iEvent, const edm::EventSetup &iSe
                                     << "); value returned is: (" << detector << "," << subdetector << ")";
       continue;
     }  // end detector type check
-  }    // end loop through HCal Hits
+  }  // end loop through HCal Hits
 
   if (verbosity > 1) {
     eventout += "\n          Number of HCal Hits collected:............. ";

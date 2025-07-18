@@ -179,7 +179,7 @@ std::vector<CSCSegment> CSCSegAlgoSK::buildSegments(const ChamberHitContainer& u
         if (segok)
           break;
       }  //  i2
-    }    //  i1
+    }  //  i1
 
     if (segments.size() > 1)
       break;  // only change window if no segments found
@@ -231,7 +231,7 @@ void CSCSegAlgoSK::tryAddingHitsToSegment(const ChamberHitContainer& rechits,
       } else
         increaseProtoSegment(h, layer);
     }  // h & seg close
-  }    // i
+  }  // i
 }
 
 bool CSCSegAlgoSK::areHitsCloseInLocalX(const CSCRecHit2D* h1, const CSCRecHit2D* h2) const {

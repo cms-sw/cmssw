@@ -8,8 +8,8 @@
 #include "TLorentzVector.h"
 
 #include "CLHEP/Random/RandomEngine.h"
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/RandomEngineSentry.h"
 
@@ -50,8 +50,8 @@ TauSpinnerCMS::TauSpinnerCMS(const ParameterSet &pset)
   }
 }
 
-void TauSpinnerCMS::beginJob(){};
-void TauSpinnerCMS::endJob(){};
+void TauSpinnerCMS::beginJob() {}
+void TauSpinnerCMS::endJob() {}
 
 void TauSpinnerCMS::initialize() {
   // Now for Tauola and TauSpinner

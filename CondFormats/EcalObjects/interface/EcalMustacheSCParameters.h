@@ -12,7 +12,7 @@ namespace reco {
 
 class EcalMustacheSCParameters {
 public:
-  EcalMustacheSCParameters(){};
+  EcalMustacheSCParameters() {}
   virtual ~EcalMustacheSCParameters() = default;
 
   struct ParabolaParameters {

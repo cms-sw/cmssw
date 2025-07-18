@@ -1,0 +1,31 @@
+#!/bin/sh
+#CMSSDT_DAS_CLIENT_SIGN:12345678901234567890ABCDEFABCDEF
+#CMSTMP_DAS_CLIENT_SIGN:01234567890123456789ZYXWVUTZYXWVUT
+# do not change the above two magic lines. they are signatures for the SDT wrapper and this default wrapper
+# both are included here so that the STD wrapper will not find this wrapper
+
+# modify PATH for ibeos option
+if [ "$CMSSW_USE_IBEOS" = "true" ]; then
+  CMSSW_PATH=src/Utilities/General/ibeos
+  for CMSSW_VAR in CMSSW_BASE CMSSW_RELEASE_BASE; do
+    if [ -n ${!CMSSW_VAR} ] && [ -e ${!CMSSW_VAR}/${CMSSW_PATH} ]; then
+      export PATH=${!CMSSW_VAR}/${CMSSW_PATH}:${PATH}
+      break
+    fi
+  done
+fi
+
+# find actual client
+CMD_NAME=$(basename $0)
+ORIG_DAS_CLIENT=""
+for DAS_CLIENT in $(echo $PATH | tr ':' '\n' | sed "s|\$|/${CMD_NAME}|") ; do
+  [ -e ${DAS_CLIENT} ] || continue
+  if [ $(head -3 ${DAS_CLIENT} | grep 'CMSTMP_DAS_CLIENT_SIGN' | wc -l) -eq 0 ] ; then ORIG_DAS_CLIENT=${DAS_CLIENT}; break; fi
+done
+
+if [ "X${ORIG_DAS_CLIENT}" = "X" ] ; then
+  echo "${CMD_NAME}: Command not found." 1>&2
+  exit 1
+fi
+
+${ORIG_DAS_CLIENT} "$@"

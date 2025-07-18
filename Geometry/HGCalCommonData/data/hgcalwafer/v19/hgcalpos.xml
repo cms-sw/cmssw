@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+<PosPartSection label="hgcalpos.xml">
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalEEWafer00HD120HD1"/>
+    <Translation x="0.0*cm" y="0.0*cm" z="10.0*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalEEWafer00HD120HD2"/>
+    <Translation x="0.0*cm" y="20*cm" z="10.0*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalEEWafer01HD120HD1"/>
+    <Translation x="0.0*cm" y="40.0*cm" z="10.0*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalEEWafer01HD120HD2"/>
+    <Translation x="0.0*cm" y="60*cm" z="10.0*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalEEWafer02HD120HD1"/>
+    <Translation x="0.0*cm" y="80.0*cm" z="10.0*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalEEWafer02HD120HD2"/>
+    <Translation x="0.0*cm" y="100*cm" z="10.0*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalEEWafer03HD120HD1"/>
+    <Translation x="0.0*cm" y="120.0*cm" z="10.0*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalEEWafer03HD120HD2"/>
+    <Translation x="0.0*cm" y="140*cm" z="10.0*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalEEWafer04HD120HD1"/>
+    <Translation x="0.0*cm" y="-160.0*cm" z="10.0*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalEEWafer04HD120HD2"/>
+    <Translation x="0.0*cm" y="-20*cm" z="10.0*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalEEWafer05HD120HD1"/>
+    <Translation x="0.0*cm" y="-40.0*cm" z="10.0*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalEEWafer05HD120HD2"/>
+    <Translation x="0.0*cm" y="-60*cm" z="10.0*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalEEWafer06HD120HD1"/>
+    <Translation x="0.0*cm" y="-80.0*cm" z="10.0*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalEEWafer06HD120HD2"/>
+    <Translation x="0.0*cm" y="-100*cm" z="10.0*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalEEWafer07HD120HD1"/>
+    <Translation x="0.0*cm" y="-120.0*cm" z="10.0*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcalwafer:HGCalEEWafer07HD120HD2"/>
+    <Translation x="0.0*cm" y="-140*cm" z="10.0*mm"/>
+  </PosPart>
+</PosPartSection>
+
+</DDDefinition>

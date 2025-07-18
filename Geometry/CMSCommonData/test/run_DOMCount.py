@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 
-from __future__ import print_function
 from FWCore.ParameterSet.pfnInPath import pfnInPath
 import FWCore.ParameterSet.Config as cms
 import sys

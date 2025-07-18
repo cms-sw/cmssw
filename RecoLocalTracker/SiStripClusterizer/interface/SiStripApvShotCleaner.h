@@ -12,7 +12,7 @@ class SiStripApvShotCleaner {
 public:
   SiStripApvShotCleaner();
 
-  ~SiStripApvShotCleaner(){};
+  ~SiStripApvShotCleaner() {}
 
   bool noShots() { return !shots_; }
 

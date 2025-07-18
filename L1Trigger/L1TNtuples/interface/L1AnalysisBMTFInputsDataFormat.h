@@ -6,7 +6,7 @@
 namespace L1Analysis {
   struct L1AnalysisBMTFInputsDataFormat {
     L1AnalysisBMTFInputsDataFormat() { Reset(); };
-    ~L1AnalysisBMTFInputsDataFormat(){};
+    ~L1AnalysisBMTFInputsDataFormat() {}
 
     void Reset() {
       phSize = 0;

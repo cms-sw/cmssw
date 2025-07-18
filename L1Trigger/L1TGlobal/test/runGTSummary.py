@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Run2_2016_cff import Run2_2016

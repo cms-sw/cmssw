@@ -119,12 +119,12 @@ void HLTJetCollectionsForBoostedLeptonPlusJets<jetType>::produce(edm::Event& iEv
               usedCands.push_back(candNr);
               break;
             }  //if constituent matched
-          }    //for constituents
-        }      //if dR<min
-      }        //for cands
+          }  //for constituents
+        }  //if dR<min
+      }  //for cands
       allSelections->push_back(cleanedJet);
     }  //for jets
-  }    //if cands
+  }  //if cands
 
   if (!eleCands.empty()) {  // electrons
     for (jet = theJetCollectionHandle->begin(); jet != theJetCollectionHandle->end(); jet++) {
@@ -143,12 +143,12 @@ void HLTJetCollectionsForBoostedLeptonPlusJets<jetType>::produce(edm::Event& iEv
               usedCands.push_back(candNr);
               break;
             }  //if constituent matched
-          }    //for constituents
-        }      //if dR<min
-      }        //for cands
+          }  //for constituents
+        }  //if dR<min
+      }  //for cands
       allSelections->push_back(cleanedJet);
     }  //for jets
-  }    //if cands
+  }  //if cands
 
   if (!photonCands.empty()) {  // photons
     for (jet = theJetCollectionHandle->begin(); jet != theJetCollectionHandle->end(); jet++) {
@@ -167,12 +167,12 @@ void HLTJetCollectionsForBoostedLeptonPlusJets<jetType>::produce(edm::Event& iEv
               usedCands.push_back(candNr);
               break;
             }  //if constituent matched
-          }    //for constituents
-        }      //if dR<min
-      }        //for cands
+          }  //for constituents
+        }  //if dR<min
+      }  //for cands
       allSelections->push_back(cleanedJet);
     }  //for jets
-  }    //if cands
+  }  //if cands
 
   if (!clusCands.empty()) {  // trigger clusters
     for (jet = theJetCollectionHandle->begin(); jet != theJetCollectionHandle->end(); jet++) {
@@ -191,12 +191,12 @@ void HLTJetCollectionsForBoostedLeptonPlusJets<jetType>::produce(edm::Event& iEv
               usedCands.push_back(candNr);
               break;
             }  //if constituent matched
-          }    //for constituents
-        }      //if dR<min
-      }        //for cands
+          }  //for constituents
+        }  //if dR<min
+      }  //for cands
       allSelections->push_back(cleanedJet);
     }  //for jets
-  }    //if cands
+  }  //if cands
 
   NumericSafeGreaterByPt<jetType> compJets;
   // reorder cleaned jets

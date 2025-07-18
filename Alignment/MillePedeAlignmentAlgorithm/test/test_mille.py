@@ -26,6 +26,7 @@ setupCollection = "ALCARECOTkAlZMuMu"
 setupCosmicsDecoMode  = False
 setupCosmicsZeroTesla = False
 setupPrimaryWidth     = -1.0
+setupRecoGeometry     = "" # empty string defaults to DB
 setupJson = ""
 setupRunStartGeometry = 362350
 
@@ -53,7 +54,7 @@ readFiles.extend([
 # General setup
 # ------------------------------------------------------------------------------
 import Alignment.MillePedeAlignmentAlgorithm.alignmentsetup.GeneralSetup as generalSetup
-generalSetup.setup(process, setupGlobaltag, setupCosmicsZeroTesla)
+generalSetup.setup(process, setupGlobaltag, setupCosmicsZeroTesla, setupRecoGeometry)
 
 ################################################################################
 # setup alignment producer
@@ -67,6 +68,20 @@ confAliProducer.setConfiguration(process,
     binaryFile   = setupBinaryFile,
     primaryWidth = setupPrimaryWidth,
     cosmicsZeroTesla = setupCosmicsZeroTesla)
+
+################################################################################
+# Configure the MessageLogger service to dump information to cout (instead of alignment.log)
+# see https://github.com/cms-sw/cmssw/issues/47963 for more information
+# ------------------------------------------------------------------------------
+process.MessageLogger.destinations = cms.untracked.vstring('cout')
+process.MessageLogger.statistics = cms.untracked.vstring('cout')
+# Copy all parameters from the existing 'alignment' PSet to a new 'cout' PSet
+if hasattr(process.MessageLogger, 'alignment'):
+    alignment_pset = process.MessageLogger.alignment
+    process.MessageLogger.cout = alignment_pset
+
+    # Optionally delete the old 'alignment' PSet
+    delattr(process.MessageLogger, 'alignment')
 
 ################################################################################
 # Overwrite some conditions in global tag

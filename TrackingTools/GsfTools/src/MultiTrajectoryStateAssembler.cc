@@ -190,6 +190,15 @@ void MultiTrajectoryStateAssembler::removeWrongPz() {
   for (auto const &is : theStates)
     meanPz += is.weight() * is.localParameters().pzSign();
   meanPz /= theValidWeightSum;
+
+  // When meanPz=0 it is not possible to check which are the states non agreeing with the average pZ sign
+  if (meanPz == 0.) {
+    edm::LogError("MultiTrajectoryStateAssembler")
+        << " input multistate has average pZ sign == 0. Rejecting!" << std::endl;
+    theStates.clear();
+    return;
+  }
+
   //
   // Now keep only states compatible with the average pz
   //
@@ -197,7 +206,7 @@ void MultiTrajectoryStateAssembler::removeWrongPz() {
   MultiTSOS oldStates(theStates);
   theStates.clear();
   for (auto const &is : oldStates) {
-    if (meanPz * is.localParameters().pzSign() >= 0.) {
+    if (meanPz * is.localParameters().pzSign() > 0.) {
       theValidWeightSum += is.weight();
       theStates.push_back(is);
     } else {

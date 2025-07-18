@@ -7,7 +7,7 @@ from PhysicsTools.NanoAOD.simplePATMuonFlatTableProducer_cfi import simplePATMuo
 
 from PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi import *
 
-muonFlatTableProducer = simplePATMuonFlatTableProducer.clone(
+muonFlatTable = simplePATMuonFlatTableProducer.clone(
     src = cms.InputTag("patMuons"),
     name = cms.string("muon"),
     doc  = cms.string("RECO muon information"),
@@ -50,17 +50,22 @@ muonFlatTableProducer = simplePATMuonFlatTableProducer.clone(
 
 from DPGAnalysis.MuonTools.muDTMuonExtTableProducer_cfi import muDTMuonExtTableProducer
 
+muDTMuonExtTable = muDTMuonExtTableProducer.clone()
+
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import MuonServiceProxy
 
 from DPGAnalysis.MuonTools.muGEMMuonExtTableProducer_cfi import muGEMMuonExtTableProducer
-muGEMMuonExtTableProducer.ServiceParameters = MuonServiceProxy.ServiceParameters
+
+muGEMMuonExtTable = muGEMMuonExtTableProducer.clone()
+muGEMMuonExtTable.ServiceParameters = MuonServiceProxy.ServiceParameters
 
 from DPGAnalysis.MuonTools.muCSCTnPFlatTableProducer_cfi import muCSCTnPFlatTableProducer
-muCSCTnPFlatTableProducer.ServiceParameters = MuonServiceProxy.ServiceParameters
+muCSCTnPFlatTable = muCSCTnPFlatTableProducer.clone()
+muCSCTnPFlatTable.ServiceParameters = MuonServiceProxy.ServiceParameters
 
-muRecoProducers = cms.Sequence(patMuons
-                               + muonFlatTableProducer
-                               + muDTMuonExtTableProducer
-                               + muGEMMuonExtTableProducer
-                               + muCSCTnPFlatTableProducer
-                              )
+muRecoTables = cms.Sequence(patMuons
+                            + muonFlatTable
+                            + muDTMuonExtTable
+                            + muGEMMuonExtTable
+                            + muCSCTnPFlatTable
+                            )

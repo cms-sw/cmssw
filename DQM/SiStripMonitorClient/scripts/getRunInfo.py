@@ -10,7 +10,6 @@
 #  Questions and comments to: volker.adler@cern.ch
 
 
-from __future__ import print_function
 import sys
 import os
 import string

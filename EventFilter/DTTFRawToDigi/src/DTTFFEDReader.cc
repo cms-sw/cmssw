@@ -232,7 +232,7 @@ void DTTFFEDReader::process(edm::Event &e) {
       }
 
       if (stationID != 3) {
-        ts2tag = (bitsID)&0x1;
+        ts2tag = (bitsID) & 0x1;
         tsqual = (~(*DTTFiterator) & 0x07) - 1;
         ba = (~(*DTTFiterator) & 0x1FF8) >> 3;
         if (ba > 0x1FF)
@@ -241,7 +241,7 @@ void DTTFFEDReader::process(edm::Event &e) {
         if (ra > 0x7FF)
           ra -= 0x1000;
       } else {
-        ts2tag = (bitsID)&0x1;
+        ts2tag = (bitsID) & 0x1;
         tsqual = (~(*DTTFiterator) & 0x07) - 1;
         ra = (~(*DTTFiterator) & 0x7FF8) >> 3;
         if (ra > 0x7FF)

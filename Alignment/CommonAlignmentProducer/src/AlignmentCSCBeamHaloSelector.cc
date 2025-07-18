@@ -19,6 +19,11 @@ AlignmentCSCBeamHaloSelector::AlignmentCSCBeamHaloSelector(const edm::ParameterS
       << " different CSC stations." << std::endl;
 }
 
+void AlignmentCSCBeamHaloSelector::fillPSetDescription(edm::ParameterSetDescription &desc) {
+  desc.add<unsigned int>("minStations", 0);
+  desc.add<unsigned int>("minHitsPerStation", 1);
+}
+
 // destructor -----------------------------------------------------------------
 
 AlignmentCSCBeamHaloSelector::~AlignmentCSCBeamHaloSelector() {}
@@ -44,7 +49,7 @@ AlignmentCSCBeamHaloSelector::Tracks AlignmentCSCBeamHaloSelector::select(const 
         }
         station_map[station]++;
       }  // end if it's a CSC hit
-    }    // end loop over hits
+    }  // end loop over hits
 
     unsigned int stations = 0;
     for (std::map<int, unsigned int>::const_iterator station_iter = station_map.begin();

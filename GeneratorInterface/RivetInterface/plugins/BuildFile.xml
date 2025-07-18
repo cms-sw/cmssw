@@ -14,3 +14,4 @@
 <library file="*.cc" name="GeneratorInterfaceRivetInterface_plugins">
   <flags EDM_PLUGIN="1"/>
 </library>
+<flags CXXFLAGS="-Wno-error=missing-braces -Wno-missing-braces -Wno-non-virtual-dtor"/>

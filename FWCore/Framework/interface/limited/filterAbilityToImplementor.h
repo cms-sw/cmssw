@@ -127,7 +127,7 @@ namespace edm {
         using Type = edm::limited::impl::EmptyType;
       };
     }  // namespace filter
-  }    // namespace limited
+  }  // namespace limited
 }  // namespace edm
 
 #endif

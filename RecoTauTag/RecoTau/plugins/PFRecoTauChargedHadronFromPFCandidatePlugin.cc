@@ -43,7 +43,7 @@ namespace reco {
     class PFRecoTauChargedHadronFromPFCandidatePlugin : public PFRecoTauChargedHadronBuilderPlugin {
     public:
       explicit PFRecoTauChargedHadronFromPFCandidatePlugin(const edm::ParameterSet&, edm::ConsumesCollector&& iC);
-      ~PFRecoTauChargedHadronFromPFCandidatePlugin() override{};
+      ~PFRecoTauChargedHadronFromPFCandidatePlugin() override {}
       // Return type is unique_ptr<ChargedHadronVector>
       return_type operator()(const reco::Jet&) const override;
       // Hook to update PV information

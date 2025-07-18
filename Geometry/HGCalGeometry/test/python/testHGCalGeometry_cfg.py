@@ -1,12 +1,12 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun testHGCalHGCalGeometry_cfg.py geometry=V17
+#   cmsRun testHGCalGeometry_cfg.py geometry=V17
 #
-#   Options for geometry V16, V17
+#   Options for geometry V16, V17, V18, V19
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
-import os, sys, imp, re
+import os, sys, importlib, re
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 ####################################################################
@@ -16,7 +16,7 @@ options.register('geometry',
                  "V17",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: V16, V17")
+                  "geometry of operations: V16, V17, V18, V19")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -26,19 +26,16 @@ print(options)
 ####################################################################
 # Use the options
 
-if (options.geometry == "V16"):
-    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-    process = cms.Process('HGCHGCalGeometry',Phase2C17I13M9)
-    process.load("Geometry.HGCalCommonData.testHGCalV16XML_cfi")
-    process.load("Geometry.HGCalCommonData.hgcalV15ParametersInitialization_cfi")
-else:
-    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-    process = cms.Process('HGCHGCalGeometry',Phase2C17I13M9)
-    process.load("Geometry.HGCalCommonData.testHGCalV17XML_cfi")
-    process.load("Geometry.HGCalCommonData.hgcalV15ParametersInitialization_cfi")
+from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+process = cms.Process('HGCalGeometry',Phase2C17I13M9)
 
-process.load("SimGeneral.HepPDTESSource.pdt_cfi")
+geomFile = "Geometry.HGCalCommonData.testHGCal" + options.geometry + "XML_cfi"
+print("Geometry file: ", geomFile)
+
+process.load(geomFile)
+process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
 process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
+process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 process.load("Geometry.CaloEventSetup.HGCalTopology_cfi")
 process.load("Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')

@@ -1,5 +1,3 @@
-from __future__ import print_function
-from __future__ import absolute_import
 ################################################################################
 # RelMon: a tool for automatic Release Comparison                              
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
@@ -15,6 +13,7 @@ from array import array
 from copy import deepcopy
 from os import chdir,getcwd,listdir,makedirs,rmdir
 from os.path import exists,join
+import random
 
 import sys
 argv=sys.argv
@@ -167,19 +166,45 @@ class Directory(Weighted):
       subdirnames.append(subdir.name)
     return subdirnames
 
-  def get_summary_chart_ajax(self,w=400,h=300):
-    """Emit the ajax to build a pie chart using google apis...
-    """
-    url = "https://chart.googleapis.com/chart?"
-    url+= "cht=p3" # Select the 3d chart
-    #url+= "&chl=Success|Null|Fail" # give labels
-    url+= "&chco=00FF00|FFFF00|FF0000|7A7A7A" # give colours to labels
-    url+= "&chs=%sx%s" %(w,h)
-    #url+= "&chtt=%s" %self.name
-    url+= "&chd=t:%.2f,%.2f,%.2f,%.2f"%(self.get_success_rate(),self.get_null_rate(),self.get_fail_rate(),self.get_skiped_rate())
-    
-    return url
+  def get_piechart_js(self,w=400,link=None):
 
+    """
+    Build the HTML snippet to render a piechart with chart.js
+    """
+    if self.get_success_rate()>=99.9: # if the success rate is very high let's make the page lighter 
+      img_link = "https://raw.githubusercontent.com/cms-PdmV/RelMonService2/5ee98db210c0898fd34b4deac3653fa2bdff269b/report_website/lime_circle.png"
+      html ='<img src="%s" height=%d width=%d>' %(img_link,w,w)
+      if link is not None:
+        html = '<a href="%s"> %s </a>' %(link,html) 
+      return html
+
+    name = random.getrandbits(64) # just a random has for the canvas
+    html = "" 
+    html += '<canvas id="%s" height=%d width=%d></canvas>'%(name,w,w)
+    # piechart
+    html += '<script> new Chart("%s",'%(name) 
+    html += '{ type: "pie",'
+
+    # data
+    html += 'data: {'
+    html += 'labels: ["Success", "Null" , "Failure", "Skipped"],'
+    html += 'datasets: [{ backgroundColor: ["lime","yellow","red","grey"],'
+    html += 'data: [%.2f,%.2f,%.2f,%.2f]}] },'%(self.get_success_rate(),self.get_null_rate(),self.get_fail_rate(),self.get_skiped_rate())
+    
+    #display options
+    html += 'options: { '
+
+    if link is not None:
+      html += 'onClick : function(event) { window.open("%s", "_blank");},'%(link)
+  
+
+    html +='legend: { display: false }, responsive : false, hover: {mode: null}, tooltips: {enabled: false}' 
+    #tooltips: {enabled: false}, hover: {mode: null},'
+
+    html += '}}); </script>'
+
+    return html
+  
   def print_report(self,indent="",verbose=False):
     if len(indent)==0:
       self.calcStats(make_pie=False)

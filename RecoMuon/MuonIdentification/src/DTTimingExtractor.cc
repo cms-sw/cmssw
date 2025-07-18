@@ -214,7 +214,7 @@ void DTTimingExtractor::fillTiming(TimeMeasurementSequence& tmSequence,
         tms.push_back(thisHit);
       }
     }  // phi = (0,1)
-  }    // rechit
+  }  // rechit
 
   bool modified = false;
   std::vector<double> dstnc, local_t0, hitWeightTimeVtx, hitWeightInvbeta, left;

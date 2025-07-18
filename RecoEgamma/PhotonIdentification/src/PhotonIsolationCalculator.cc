@@ -26,12 +26,12 @@
 
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
-void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf,
-                                      std::vector<int> const& flagsEB,
-                                      std::vector<int> const& flagsEE,
-                                      std::vector<int> const& severitiesEB,
-                                      std::vector<int> const& severitiesEE,
-                                      edm::ConsumesCollector&& iC) {
+PhotonIsolationCalculator::PhotonIsolationCalculator(const edm::ParameterSet& conf,
+                                                     std::vector<int> const& flagsEB,
+                                                     std::vector<int> const& flagsEE,
+                                                     std::vector<int> const& severitiesEB,
+                                                     std::vector<int> const& severitiesEE,
+                                                     edm::ConsumesCollector&& iC) {
   trackInputTag_ = iC.consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("trackProducer"));
   beamSpotProducerTag_ = iC.consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpotProducer"));
   barrelecalCollection_ =
@@ -515,7 +515,7 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
   phoIsoEB.setUseNumCrystals(useNumXtals);
   phoIsoEB.doSeverityChecks(ecalhitsCollEB.product(), severityExclEB_);
   phoIsoEB.doFlagChecks(flagsEB_);
-  double ecalIsolEB = phoIsoEB.getEtSum(photon, thresholds);
+  double ecalIsolEB = phoIsoEB.getEtSum(photon, &thresholds);
 
   EgammaRecHitIsolation phoIsoEE(
       RCone, RConeInner, etaSlice, etMin, eMin, geoHandle, *rechitsCollectionEE_, sevLevel, DetId::Ecal);
@@ -525,7 +525,7 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
   phoIsoEE.doSeverityChecks(ecalhitsCollEE.product(), severityExclEE_);
   phoIsoEE.doFlagChecks(flagsEE_);
 
-  double ecalIsolEE = phoIsoEE.getEtSum(photon, thresholds);
+  double ecalIsolEE = phoIsoEE.getEtSum(photon, &thresholds);
   //  delete phoIso;
   double ecalIsol = ecalIsolEB + ecalIsolEE;
 

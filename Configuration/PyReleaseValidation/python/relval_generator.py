@@ -38,8 +38,3 @@ workflows[541]=['',['BuToKstarJPsiToMuMu_forSTEAM_13TeV','HARVESTGEN']]
 #workflows[543]=['',['Upsilon4sBaBarExample_BpBm_Dstarpipi_D0Kpi_nonres_forSTEAM_13TeV_TuneCUETP8M1','HARVESTGEN']]
 #workflows[544]=['',['LambdaBToLambdaMuMuToPPiMuMu_forSTEAM_13TeV_TuneCUETP8M1','HARVESTGEN']]
 workflows[545]=['',['BsToMuMu_forSTEAM_13TeV','HARVESTGEN']]
-
-# Miscellaneous
-workflows[546]=['',['DYToLL_M-50_13TeV_pythia8','NANOGENFromGen']]
-workflows[547]=['',['DYToll01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV','Hadronizer_TuneCP5_13TeV_MLM_5f_max4j_LHE_pythia8','NANOGENFromGen']]
-workflows[548]=['',['TTbar_Pow_LHE_13TeV','Hadronizer_TuneCP5_13TeV_powhegEmissionVeto2p_pythia8','NANOGENFromGen']] 

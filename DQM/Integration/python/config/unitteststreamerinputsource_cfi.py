@@ -1,5 +1,3 @@
-from __future__ import print_function
-from __future__ import absolute_import
 from builtins import range
 import os, sys
 import FWCore.ParameterSet.Config as cms
@@ -128,5 +126,6 @@ source = cms.Source("DQMStreamerReader",
     skipFirstLumis = cms.untracked.bool(options.skipFirstLumis),
     deleteDatFiles = cms.untracked.bool(False),
     endOfRunKills  = cms.untracked.bool(False),
-    inputFileTransitionsEachEvent = cms.untracked.bool(False)
+    inputFileTransitionsEachEvent = cms.untracked.bool(False),
+    unitTest = cms.untracked.bool(True) # stop processing if the input data cannot be deserialized
 )

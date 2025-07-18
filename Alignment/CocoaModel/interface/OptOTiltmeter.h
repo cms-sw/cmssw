@@ -18,10 +18,10 @@ class LightRay;
 class OptOTiltmeter : public OpticalObject {
 public:
   //---------- Constructors / Destructor
-  OptOTiltmeter(){};
+  OptOTiltmeter() {}
   OptOTiltmeter(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data)
-      : OpticalObject(parent, type, name, copy_data){};
-  ~OptOTiltmeter() override{};
+      : OpticalObject(parent, type, name, copy_data) {}
+  ~OptOTiltmeter() override {}
 
   //---------- defaultBehaviour: make measurement
   void defaultBehaviour(LightRay& lightray, Measurement& meas) override;

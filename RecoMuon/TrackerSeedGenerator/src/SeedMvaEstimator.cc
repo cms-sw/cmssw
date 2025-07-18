@@ -20,24 +20,6 @@ SeedMvaEstimator::SeedMvaEstimator(const edm::FileInPath& weightsfile,
 
 SeedMvaEstimator::~SeedMvaEstimator() {}
 
-namespace {
-  enum inputIndexes {
-    kTsosErr0,       // 0
-    kTsosErr2,       // 1
-    kTsosErr5,       // 2
-    kTsosDxdz,       // 3
-    kTsosDydz,       // 4
-    kTsosQbp,        // 5
-    kDRdRL1SeedP,    // 6
-    kDPhidRL1SeedP,  // 7
-    kLastL1,         // 8
-
-    kDRdRL2SeedP = 8,  // 8
-    kDPhidRL2SeedP,    // 9
-    kLastL2,           // 10
-  };
-}  // namespace
-
 void SeedMvaEstimator::getL1MuonVariables(const GlobalVector& global_p,
                                           const l1t::MuonBxCollection& l1Muons,
                                           float& dR2dRL1SeedP,

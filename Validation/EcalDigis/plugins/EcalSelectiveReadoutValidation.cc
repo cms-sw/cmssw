@@ -2183,14 +2183,11 @@ void EcalSelectiveReadoutValidation::configFirWeights(const vector<double>& weig
     log << weightsForZsFIR[i] << "\t";
   }
 
-  double s2 = 0.;
   log << "\nActual FIR weights: ";
   for (unsigned i = 0; i < firWeights_.size(); ++i) {
     log << firWeights_[i] << "\t";
-    s2 += firWeights_[i] * firWeights_[i];
   }
 
-  s2 = sqrt(s2);
   log << "\nNormalized FIR weights after hw representation rounding: ";
   for (unsigned i = 0; i < firWeights_.size(); ++i) {
     log << firWeights_[i] / (double)(1 << 10) << "\t";

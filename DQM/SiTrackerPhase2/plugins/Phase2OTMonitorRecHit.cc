@@ -183,7 +183,7 @@ void Phase2OTMonitorRecHit::analyze(const edm::Event& iEvent, const edm::EventSe
         layerMEs_[key].localPosXY_S->Fill(lp.x(), lp.y());
       }
     }  //end loop over rechits of a detId
-  }    //End loop over DetSetVector
+  }  //End loop over DetSetVector
 
   //fill nRecHits per event
   numberRecHits_->Fill(nTotrechitsinevt);

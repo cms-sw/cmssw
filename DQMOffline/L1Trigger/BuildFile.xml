@@ -16,5 +16,6 @@
 <use name="HLTrigger/HLTcore"/>
 <use name="DQM/L1TMonitor"/>
 <use name="MuonAnalysis/MuonAssociators"/>
+<use name="SimDataFormats/Associations"/>
 <use name="SimDataFormats/TrackingAnalysis"/>
 <flags EDM_PLUGIN="1"/>

@@ -2,7 +2,8 @@
 #include <tuple>
 
 #define CATCH_CONFIG_MAIN
-#include "catch.hpp"
+#include <catch.hpp>
+
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 
 // clang-format off
@@ -16,11 +17,16 @@ GENERATE_SOA_LAYOUT(SimpleLayoutTemplate,
 using SimpleLayout = SimpleLayoutTemplate<>;
 
 TEST_CASE("SoATemplate") {
+  // number of elements
   const std::size_t slSize = 10;
+  // size in bytes
   const std::size_t slBufferSize = SimpleLayout::computeDataSize(slSize);
+  // memory buffer aligned according to the layout requirements
   std::unique_ptr<std::byte, decltype(std::free) *> slBuffer{
       reinterpret_cast<std::byte *>(aligned_alloc(SimpleLayout::alignment, slBufferSize)), std::free};
+  // SoA layout
   SimpleLayout sl{slBuffer.get(), slSize};
+
   SECTION("Row wide copies, row") {
     SimpleLayout::View slv{sl};
     SimpleLayout::ConstView slcv{sl};
@@ -99,5 +105,34 @@ TEST_CASE("SoATemplate") {
       z += t;
       t += tx;
     }
+  }
+
+  SECTION("Range checking View") {
+    // Enable range checking
+    using View = SimpleLayout::ViewTemplate<cms::soa::RestrictQualify::Default, cms::soa::RangeChecking::enabled>;
+    View slv{sl};
+    int underflow = -1;
+    int overflow = slv.metadata().size();
+    // Check for under-and overflow in the row accessor
+    REQUIRE_THROWS_AS(slv[underflow], std::out_of_range);
+    REQUIRE_THROWS_AS(slv[overflow], std::out_of_range);
+    // Check for under-and overflow in the element accessors
+    REQUIRE_THROWS_AS(slv.x(underflow), std::out_of_range);
+    REQUIRE_THROWS_AS(slv.x(overflow), std::out_of_range);
+  }
+
+  SECTION("Range checking ConstView") {
+    // Enable range checking
+    using ConstView =
+        SimpleLayout::ConstViewTemplate<cms::soa::RestrictQualify::Default, cms::soa::RangeChecking::enabled>;
+    ConstView slcv{sl};
+    int underflow = -1;
+    int overflow = slcv.metadata().size();
+    // Check for under-and overflow in the row accessor
+    REQUIRE_THROWS_AS(slcv[underflow], std::out_of_range);
+    REQUIRE_THROWS_AS(slcv[overflow], std::out_of_range);
+    // Check for under-and overflow in the element accessors
+    REQUIRE_THROWS_AS(slcv.x(underflow), std::out_of_range);
+    REQUIRE_THROWS_AS(slcv.x(overflow), std::out_of_range);
   }
 }

@@ -1,4 +1,3 @@
-from __future__ import print_function
 # Auto generated configuration file
 # using:
 # Revision: 1.19

@@ -40,6 +40,7 @@
     <Parameter name="UseSimWt"            value="0"/>
     <Parameter name="WaferMaskMode"       value="2"/>
     <Parameter name="WaferZside"          value="-1"/>
+    <Parameter name="WaferNoGap"          value="0"/>
     <Parameter name="LayerRotation"       value="[hgcal:LayerRotation]"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P0]"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P1]"/>
@@ -103,6 +104,7 @@
     <Parameter name="UseSimWt"            value="0"/>
     <Parameter name="WaferMaskMode"       value="3"/>
     <Parameter name="WaferZside"          value="-1"/>
+    <Parameter name="WaferNoGap"          value="0"/>
     <Parameter name="LayerRotation"       value="[hgcal:LayerRotation]"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P0]"/>
     <Parameter name="Radius100to200"      value="[hgcal:rad100200P1]"/>
@@ -161,10 +163,11 @@
     <Parameter name="UseSimWt"            value="0"/>
     <Parameter name="WaferMaskMode"       value="4"/>
     <Parameter name="WaferZside"          value="1"/>
+    <Parameter name="WaferNoGap"          value="0"/>
     <Parameter name="WaferThickness"      value="[hgcal:ScintillatorThickness]"/>
     <Parameter name="MinimumTileSize"     value="[MinimumTileSize]"/>
-    <Parameter name="NPhiBinBH"           value="360"/>
-    <Parameter name="NPhiBinBH"           value="288"/>
+    <Parameter name="NPhiBinBH"           value="[hgcal:NPhiBinBH]"/>
+    <Parameter name="NPhiBinBH"           value="[hgcal:NPhiBinBHFine]"/>
     <Parameter name="LayerFrontBH"        value="[hgcal:FirstMixedLayer]"/>
     <Parameter name="LayerFrontBH"        value="[hgcal:FirstMixedLayer]"/>
     <Parameter name="RMinLayerBH"         value="[hgcal:radMixL3]"/>
@@ -200,6 +203,7 @@
     <Parameter name="OnlyForHGCalNumbering" value="HGCal" eval="false"/>
     <Parameter name="WaferMode" value="HGCalGeometryMode::ExtrudedPolygon" eval="false"/>
     <Parameter name="WaferSize"           value="[hgcal:WaferSize]"/>
+    <Parameter name="WaferSizeNominal"    value="[hgcal:WaferSizeNominal]"/>
     <Parameter name="WaferThickness"      value="[hgcal:WaferThickness]"/>
     <Parameter name="SensorSeparation"    value="[hgcal:SensorSeparation]"/>
     <Parameter name="SensorSizeOffset"    value="[hgcal:SensorSizeOffset]"/>

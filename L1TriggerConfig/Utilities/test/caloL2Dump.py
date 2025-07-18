@@ -1,4 +1,3 @@
-from __future__ import print_function
 # select CALOL2_KEY from CMS_TRG_L1_CONF.L1_TRG_CONF_KEYS where ID='collisions2016_TSC/v206' ;
 import re
 import os, sys, shutil

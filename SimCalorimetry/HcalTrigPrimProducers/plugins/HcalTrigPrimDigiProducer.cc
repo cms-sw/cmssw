@@ -179,7 +179,7 @@ void HcalTrigPrimDigiProducer::beginRun(const edm::Run& run, const edm::EventSet
     if (hcalTTDetId.null())
       continue;
 
-    int aieta = abs(hcalTTDetId.ieta());
+    int aieta = std::abs(hcalTTDetId.ieta());
     // Do not let ieta 29 in the map
     if (aieta >= lastHERing)
       continue;
@@ -376,7 +376,7 @@ void HcalTrigPrimDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup
   if (runZS_)
     theAlgo_.runZS(*result);
 
-  //  edm::LogInfo("HcalTrigPrimDigiProducer") << "HcalTrigPrims: " << result->size();
+  edm::LogInfo("HcalTrigPrimDigiProducer") << "HcalTrigPrims: " << result->size();
 
   // Step D: Put outputs into event
   iEvent.put(std::move(result));

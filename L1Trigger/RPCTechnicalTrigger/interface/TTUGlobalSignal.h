@@ -16,13 +16,13 @@
 class TTUGlobalSignal : public RPCInputSignal {
 public:
   /// Standard constructor
-  TTUGlobalSignal(){};
+  TTUGlobalSignal() {}
 
   TTUGlobalSignal(std::map<int, TTUInput*>*);
 
   ~TTUGlobalSignal() override;  ///< Destructor
 
-  void clear() override{};
+  void clear() override {}
 
   std::map<int, TTUInput*>* m_wheelmap;
 

@@ -29,12 +29,10 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.poolDBESSource = cms.ESSource("PoolDBESSource",
-   BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
    DBParameters = cms.PSet(
         messageLevel = cms.untracked.int32(2),
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
-    timetype = cms.untracked.string('runnumber'),
     connect = cms.string('frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS'),
     # connect = cms.string('oracle://cms_orcoff_prod/CMS_COND_31X_PHYSICSTOOLS'),
     # connect = cms.string('sqlite_file:MuScleFit_Scale_Z_36_invPb_innerTrack_Dec22_v1.db'),

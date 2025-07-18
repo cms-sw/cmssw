@@ -59,8 +59,8 @@ public:
     columns.back().insert(R.begin(), R.end());
     return *this;
   }
-  friend poly<T> operator+<>(const poly<T>&, const char*);
-  friend poly<T> operator+<>(const char*, const poly<T>&);
+  friend poly<T> operator+ <>(const poly<T>&, const char*);
+  friend poly<T> operator+ <>(const char*, const poly<T>&);
 
   const_iterator begin() const { return const_iterator(*this); }
   const_iterator end() const { return const_iterator::end_of(*this); }

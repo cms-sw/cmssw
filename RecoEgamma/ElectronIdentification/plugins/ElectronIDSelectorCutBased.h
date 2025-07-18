@@ -7,6 +7,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
 #include "ClassBasedElectronID.h"
@@ -23,6 +24,8 @@ public:
 
   void newEvent(const edm::Event&, const edm::EventSetup&);
   double operator()(const reco::GsfElectron&, const edm::Event&, const edm::EventSetup&);
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
 private:
   ElectronIDAlgo* electronIDAlgo_;

@@ -21,7 +21,7 @@ public:
   GctBlockHeader(uint32_t blockId, uint32_t blockLength, uint32_t nSamples, uint32_t bxId, uint32_t eventId, bool valid);
 
   /// Destructor.
-  ~GctBlockHeader(){};
+  ~GctBlockHeader() {}
 
   /// Get the block ID
   uint32_t blockId() const { return m_blockId; }

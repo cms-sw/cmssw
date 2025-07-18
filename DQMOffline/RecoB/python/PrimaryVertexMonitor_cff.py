@@ -26,7 +26,8 @@ pvMonitor = DQMEDAnalyzer('PrimaryVertexMonitor',
    EtaBin         = cms.int32(26),
    EtaBin2D       = cms.int32(8),
    EtaMax         = cms.double(2.5),
-   EtaMin         = cms.double(-2.5)
+   EtaMin         = cms.double(-2.5),
+   PUMax          = cms.double(80.0),
 )
 
 # same as above, should be in sync with cut used in Vertex finder...
@@ -34,6 +35,6 @@ from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase1Pixel.toModify(pvMonitor, EtaBin=28, EtaMin=-2.7, EtaMax=2.7)
-run3_common.toModify(pvMonitor, Xpos = 0.15, Ypos=-0.15)  #recentering since initial Run3 beamspot is at (0.17,-0.18) cm
-phase2_tracker.toModify(pvMonitor, EtaBin=41, EtaBin2D=9, EtaMin=-4.0, EtaMax=4.0)
+run3_common.toModify(pvMonitor, Xpos = 0.15, Ypos=-0.15, PUMax = 150 )  #recentering since initial Run3 beamspot is at (0.17,-0.18) cm
+phase2_tracker.toModify(pvMonitor, EtaBin=41, EtaBin2D=9, EtaMin=-4.0, EtaMax=4.0, PUMax = 250)
 

@@ -48,7 +48,7 @@ public:
 
 public:
   HGCalTriggerClusterIdentificationBDT();
-  ~HGCalTriggerClusterIdentificationBDT() override{};
+  ~HGCalTriggerClusterIdentificationBDT() override {}
   void initialize(const edm::ParameterSet& conf) final;
   float value(const l1t::HGCalMulticluster& cluster) const final;
   bool decision(const l1t::HGCalMulticluster& cluster, unsigned wp = 0) const final;

@@ -23,8 +23,8 @@ public:
 
   using MEMap = std::set<HarvestedMonitorElement*>;
 
-  LegacyIOHelper(DQMStore* dqmstore) : dbe_(dqmstore){};
-  LegacyIOHelper(HarvestedDQMStore* hdqmstore) : dbe_(hdqmstore){};
+  LegacyIOHelper(DQMStore* dqmstore) : dbe_(dqmstore) {}
+  LegacyIOHelper(HarvestedDQMStore* hdqmstore) : dbe_(hdqmstore) {}
   // Replace or append to `filename`, a TDirectory ROOT file. If a run number
   // is passed, the paths are rewritten to the "Run Summary" format used by
   // DQMGUI. The run number does not affect which MEs are saved; this code only

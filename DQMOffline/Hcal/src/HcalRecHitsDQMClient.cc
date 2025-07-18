@@ -220,7 +220,7 @@ int HcalRecHitsDQMClient::HcalRecHitsEndjob(const std::vector<MonitorElement *> 
   }
 
   // mean energies and occupancies evaluation
-
+  assert(Nhf);                        // Avoid LLVM analyzer warning
   double nevtot = Nhf->getEntries();  // Use the number of entries in the Nhf histogram to
                                       // give the total number of events
 
@@ -261,10 +261,10 @@ int HcalRecHitsDQMClient::HcalRecHitsEndjob(const std::vector<MonitorElement *> 
     float cnorm;
     float enorm;
 
-    unsigned int vsIetaIdx = occupancy_vs_ieta.size();
+    unsigned int vsIetaIdx = 0;
     omatched = false;
 
-    for (vsIetaIdx = 0; vsIetaIdx < occupancy_vs_ieta.size(); vsIetaIdx++) {
+    for (; vsIetaIdx < occupancy_vs_ieta.size(); vsIetaIdx++) {
       if (occupancyID[occupancyIdx] == occupancy_vs_ietaID[vsIetaIdx]) {
         omatched = true;
         break;
@@ -315,7 +315,7 @@ int HcalRecHitsDQMClient::HcalRecHitsEndjob(const std::vector<MonitorElement *> 
         occupancy_vs_ieta[vsIetaIdx]->setBinError(ietabin, enorm);
 
       }  // Fill occupancy_vs_ieta
-    }    // if omatched
+    }  // if omatched
   }
 
   // Status Word

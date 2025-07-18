@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 hltPhase2L3OISeedsFromL2Muons = cms.EDProducer("TSGForOIFromL2",
-    MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent"),
+    MeasurementTrackerEvent = cms.InputTag("hltMeasurementTrackerEvent"),
     SF1 = cms.double(3.0),
     SF2 = cms.double(4.0),
     SF3 = cms.double(5.0),
@@ -35,7 +35,13 @@ hltPhase2L3OISeedsFromL2Muons = cms.EDProducer("TSGForOIFromL2",
     pT2 = cms.double(30.0),
     pT3 = cms.double(70.0),
     propagatorName = cms.string('PropagatorWithMaterialParabolicMf'),
-    src = cms.InputTag("hltL2MuonsFromL1TkMuon","UpdatedAtVtx"),
+    src = cms.InputTag("hltPhase2L3MuonFilter:L2MuToReuse"),
     tsosDiff1 = cms.double(0.2),
     tsosDiff2 = cms.double(0.02)
+)
+
+from Configuration.ProcessModifiers.phase2L3MuonsOIFirst_cff import phase2L3MuonsOIFirst
+phase2L3MuonsOIFirst.toModify(
+    hltPhase2L3OISeedsFromL2Muons,
+    src ="hltL2MuonsFromL1TkMuon:UpdatedAtVtx"
 )

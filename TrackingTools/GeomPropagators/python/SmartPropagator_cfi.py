@@ -1,11 +1,4 @@
 import FWCore.ParameterSet.Config as cms
 
-SmartPropagator = cms.ESProducer("SmartPropagatorESProducer",
-                                 ComponentName = cms.string('SmartPropagator'),
-                                 TrackerPropagator = cms.string('PropagatorWithMaterial'),
-                                 MuonPropagator = cms.string('SteppingHelixPropagatorAlong'),
-                                 PropagationDirection = cms.string('alongMomentum'),
-                                 Epsilon = cms.double(5.0)
-                                 )
-
-
+from TrackingTools.Producers.smartPropagatorESProducer_cfi import smartPropagatorESProducer as _smartPropagatorESProducer
+SmartPropagator = _smartPropagatorESProducer.clone()

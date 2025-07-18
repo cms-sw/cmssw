@@ -6,15 +6,14 @@ from ..sequences.HLTElePixelMatchUnseededSequence_cfi import *
 from ..sequences.HLTFastJetForEgammaSequence_cfi import *
 from ..sequences.HLTGsfElectronUnseededSequence_cfi import *
 from ..sequences.HLTHgcalTiclPFClusteringForEgammaUnseededSequence_cfi import *
-from ..sequences.HLTL1Sequence_cfi import *
 from ..sequences.HLTPFClusteringForEgammaUnseededSequence_cfi import *
 from ..sequences.HLTPFHcalClusteringForEgammaSequence_cfi import *
-from ..sequences.HLTTrackingV61Sequence_cfi import *
+from ..sequences.HLTTrackingSequence_cfi import *
 
 from ..modules.hltEgammaCandidatesUnseeded_cfi import *
 from ..modules.hltEgammaClusterShapeUnseeded_cfi import *
 from ..modules.hltEgammaEcalPFClusterIsoUnseeded_cfi import *
-from ..modules.hltEgammaEleGsfTrackIsoV6Unseeded_cfi import *
+from ..modules.hltEgammaEleGsfTrackIsoUnseeded_cfi import *
 from ..modules.hltEgammaEleL1TrkIsoUnseeded_cfi import *
 from ..modules.hltEgammaHcalPFClusterIsoUnseeded_cfi import *
 from ..modules.hltEgammaHGCALIDVarsUnseeded_cfi import *
@@ -41,9 +40,10 @@ from ..modules.hltEle32WPTightHgcalIsoUnseededFilter_cfi import *
 from ..modules.hltEle32WPTightPixelMatchUnseededFilter_cfi import *
 from ..modules.hltEle32WPTightPMS2UnseededFilter_cfi import *
 
-HLTEle32WPTightUnseededSequence = cms.Sequence(HLTL1Sequence
-    +hltEGL1SeedsForSingleEleIsolatedFilter
+HLTEle32WPTightUnseededSequence = cms.Sequence(
+    hltEGL1SeedsForSingleEleIsolatedFilter
     +HLTDoFullUnpackingEgammaEcalSequence
+    +HLTEGammaDoLocalHcalSequence
     +HLTPFClusteringForEgammaUnseededSequence
     +HLTHgcalTiclPFClusteringForEgammaUnseededSequence
     +hltEgammaCandidatesUnseeded
@@ -55,7 +55,6 @@ HLTEle32WPTightUnseededSequence = cms.Sequence(HLTL1Sequence
     +hltEle32WPTightClusterShapeSigmavvUnseededFilter
     +hltEle32WPTightClusterShapeSigmawwUnseededFilter
     +hltEle32WPTightHgcalHEUnseededFilter
-    +HLTEGammaDoLocalHcalSequence
     +HLTFastJetForEgammaSequence
     +hltEgammaHoverEUnseeded                                            
     +hltEle32WPTightHEUnseededFilter
@@ -77,7 +76,7 @@ HLTEle32WPTightUnseededSequence = cms.Sequence(HLTL1Sequence
     +hltEle32WPTightBestGsfChi2UnseededFilter
     +hltEgammaEleL1TrkIsoUnseeded
     +hltEle32WPTightGsfTrackIsoFromL1TracksUnseededFilter
-    +HLTTrackingV61Sequence
-    +hltEgammaEleGsfTrackIsoV6Unseeded
+    +HLTTrackingSequence
+    +hltEgammaEleGsfTrackIsoUnseeded
     +hltEle32WPTightGsfTrackIsoUnseededFilter
 )

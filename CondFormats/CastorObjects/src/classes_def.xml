@@ -44,7 +44,31 @@
  <class name="std::vector<CastorSaturationCorr>"/>
  <class name="CastorSaturationCorrs"/>
 
- <class pattern="*CastorCondObjectContainer*">
+ <class name="CastorCondObjectContainer<CastorCalibrationQIECoder>">
+  <field name="CASTORcontainer" mapping="blob" />
+ </class>
+ <class name="CastorCondObjectContainer<CastorChannelStatus>">
+  <field name="CASTORcontainer" mapping="blob" />
+ </class>
+ <class name="CastorCondObjectContainer<CastorGain>">
+  <field name="CASTORcontainer" mapping="blob" />
+ </class>
+ <class name="CastorCondObjectContainer<CastorGainWidth>">
+  <field name="CASTORcontainer" mapping="blob" />
+ </class>
+ <class name="CastorCondObjectContainer<CastorPedestal>">
+  <field name="CASTORcontainer" mapping="blob" />
+ </class>
+ <class name="CastorCondObjectContainer<CastorPedestalWidth>">
+  <field name="CASTORcontainer" mapping="blob" />
+ </class>
+ <class name="CastorCondObjectContainer<CastorQIECoder>">
+  <field name="CASTORcontainer" mapping="blob" />
+ </class>
+ <class name="CastorCondObjectContainer<CastorRecoParam>">
+  <field name="CASTORcontainer" mapping="blob" />
+ </class>
+ <class name="CastorCondObjectContainer<CastorSaturationCorr>">
   <field name="CASTORcontainer" mapping="blob" />
  </class>
 </lcgdict>   

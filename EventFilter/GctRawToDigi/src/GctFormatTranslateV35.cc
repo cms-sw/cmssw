@@ -822,7 +822,7 @@ void GctFormatTranslateV35::blockToRctEmCand(const unsigned char* d, const GctBl
       for (unsigned short cyc = 0; cyc < 2; ++cyc) {
         if (iSfp == 0) {
           sfp[cyc][iSfp] = 0;
-        }       // muon bits
+        }  // muon bits
         else {  // EM candidate
           sfp[cyc][iSfp] = *p;
           ++p;

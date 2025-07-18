@@ -211,13 +211,13 @@ namespace edm {
 
     //  **** Check this out.... ****
 
-    // See FWCore/Framework/interface/BranchDescription.h
-    // BranchDescription contains all the information for the product.
+    // See FWCore/Framework/interface/ProductDescription.h
+    // ProductDescription contains all the information for the product.
 
     // This section not very backwards-compatible in terms of digi-merging.  Need
     // to be able to specify here which data format to look at...
 
-    //      edm::BranchDescription desc = it->second;
+    //      edm::ProductDescription desc = it->second;
     // if (!desc.friendlyClassName_.compare(0,9,"EBRecHitC")) {
     //	Subdetectors_.push_back(desc.productInstanceName_);
     // LogInfo("DataMixingModule") <<"Adding container

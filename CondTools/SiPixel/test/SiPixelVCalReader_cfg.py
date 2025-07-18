@@ -1,6 +1,5 @@
 #! /usr/bin/env cmsRun
 # Author: Izaak Neutelings (March 2020)
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 

@@ -26,7 +26,7 @@ public:
   RPCRecHitProducer(const edm::ParameterSet& config);
 
   /// Destructor
-  ~RPCRecHitProducer() override{};
+  ~RPCRecHitProducer() override {}
 
   // Method that access the EventSetup for each run
   void beginRun(const edm::Run&, const edm::EventSetup&) override;

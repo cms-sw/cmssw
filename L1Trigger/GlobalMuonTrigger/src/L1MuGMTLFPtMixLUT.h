@@ -45,7 +45,7 @@ public:
   };
 
   /// destructor
-  ~L1MuGMTLFPtMixLUT() override{};
+  ~L1MuGMTLFPtMixLUT() override {}
 
   /// specific lookup function for pt_mixed
   unsigned SpecificLookup_pt_mixed(int idx, unsigned pt_dtcsc, unsigned pt_rpc) const {

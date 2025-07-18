@@ -36,6 +36,5 @@ beamhaloTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone
     TTRHBuilder         = 'WithTrackAngle',
     NavigationSchool    = 'BeamHaloNavigationSchool',
     AlgorithmName       = 'beamhalo',
-    alias               = 'beamhaloTracks',
     GeometricInnerState = True
 )

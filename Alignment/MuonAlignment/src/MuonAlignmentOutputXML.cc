@@ -230,7 +230,7 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
           }
 
         }  // end if not rawId
-      }    // end if DT
+      }  // end if DT
 
       if (doDet == doCSC) {  // CSC
         if (m_rawIds && rawId != 0) {
@@ -263,7 +263,7 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
           }
 
         }  // end if not rawId
-      }    // end if CSC
+      }  // end if CSC
 
       if (doDet == doGEM) {  // GEM
         if (m_rawIds && rawId != 0) {
@@ -296,7 +296,7 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
           }
 
         }  // end if not rawId
-      }    // end if GEM
+      }  // end if GEM
 
       align::PositionType pos = (*alignable)->globalPosition();
       align::RotationType rot = (*alignable)->globalRotation();

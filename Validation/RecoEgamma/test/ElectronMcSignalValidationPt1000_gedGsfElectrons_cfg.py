@@ -1,4 +1,3 @@
-from __future__ import print_function
 
 import sys
 import os
@@ -76,10 +75,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 from Configuration.AlCa.autoCond import autoCond
 #process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']#+'::All'
-process.GlobalTag.globaltag = '122X_mcRun4_realistic_v1'
-#process.GlobalTag.globaltag = '93X_upgrade2023_realistic_v2'
-#process.GlobalTag.globaltag = '93X_upgrade2023_realistic_v0'
-#process.GlobalTag.globaltag = '93X_mc2017_realistic_v1'
+#process.GlobalTag.globaltag = '122X_mcRun4_realistic_v1'
 
 # FOR DATA REDONE FROM RAW, ONE MUST HIDE IsoFromDeps
 # CONFIGURATION

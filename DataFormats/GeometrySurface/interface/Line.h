@@ -17,7 +17,7 @@ public:
   //Line( const PositionType& pos, const  DirectionType& dir) :
   Line(PositionType& pos, DirectionType& dir) : thePos(pos), theDir(dir.unit()) {}
 
-  ~Line(){};
+  ~Line() {}
 
   //const PositionType& position()   const { return thePos;}
   //const DirectionType& direction() const { return theDir;}

@@ -17,7 +17,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.hcalDigitizerTest = cms.EDAnalyzer("HcalDigitizerTest".,
+process.hcalDigitizerTest = cms.EDAnalyzer("HcalDigitizerTest",
     useHBUpgrade = ref_hardcode.useHBUpgrade,
     useHEUpgrade = ref_hardcode.useHEUpgrade,
     useHFUpgrade = ref_hardcode.useHFUpgrade,

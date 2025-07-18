@@ -5,6 +5,7 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryParametrization/interface/PerigeeTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryParametrization/interface/PerigeeTrajectoryError.h"
+#include <optional>
 
 class TrajectoryStateClosestToPoint;
 
@@ -16,11 +17,11 @@ namespace PerigeeConversions {
   typedef FreeTrajectoryState FTS;
   /**
    *  calculates the perigee parameters from a given FTS
-   * and a reference point.
+   * and a reference point. Returns nullopt if pt == 0.
    */
-  PerigeeTrajectoryParameters ftsToPerigeeParameters(const FTS& originalFTS,
-                                                     const GlobalPoint& referencePoint,
-                                                     double& pt);
+  std::optional<PerigeeTrajectoryParameters> ftsToPerigeeParameters(const FTS& originalFTS,
+                                                                    const GlobalPoint& referencePoint,
+                                                                    double& pt);
 
   PerigeeTrajectoryError ftsToPerigeeError(const FTS& originalFTS);
 

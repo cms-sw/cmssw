@@ -29,7 +29,7 @@ namespace l1tp2 {
           l1egTrkIso_(0),
           l1egStandaloneSS_(0),
           l1egStandaloneIso_(0),
-          isBarrel_(false){};
+          isBarrel_(false) {}
 
   public:
     inline float ecalTowerEt() const { return ecalTowerEt_; };

@@ -56,7 +56,7 @@ def summary(args, is_ok, logfile):
     debugLabel = '[TEST] ' if args.debug else ''
     with open(logfile, 'rb') as log:
         helper.send_mail(subject='%sDCS O2O Failure: %s' % (debugLabel, args.jobname),
-                 message=log.read(),
+                 message=str(log.read()),
                  send_to=args.mail_log_to,
                  send_from=args.mail_from)
 

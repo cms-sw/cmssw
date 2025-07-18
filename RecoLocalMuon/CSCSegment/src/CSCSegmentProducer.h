@@ -16,6 +16,9 @@
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 class CSCSegmentBuilder;
 
@@ -27,6 +30,8 @@ public:
   ~CSCSegmentProducer() override;
   /// Produce the CSCSegment collection
   void produce(edm::Event&, const edm::EventSetup&) override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   int iev;  // events through

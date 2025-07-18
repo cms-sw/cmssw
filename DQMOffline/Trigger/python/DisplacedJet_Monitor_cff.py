@@ -6,9 +6,9 @@ from DQMOffline.Trigger.JetMonitor_cfi import hltJetMETmonitoring
 from DQMOffline.Trigger.TrackingMonitoring_cff import * 
 
 DisplacedJetIter2TracksMonitoringHLT = trackingMonHLT.clone(
-    FolderName       = 'HLT/EXO/DisplacedJet/Tracking/iter2MergedForBTag',
-    TrackProducer    = 'hltIter2MergedForBTag',
-    allTrackProducer = 'hltIter2MergedForBTag',
+    FolderName       = 'HLT/EXO/DisplacedJet/Tracking/iter2ForDisplaced',
+    TrackProducer    = 'hltIter2MergedForDisplaced',
+    allTrackProducer = 'hltIter2MergedForDisplaced',
     doEffFromHitPatternVsPU   = False,
     doEffFromHitPatternVsBX   = False,
     doEffFromHitPatternVsLUMI = False

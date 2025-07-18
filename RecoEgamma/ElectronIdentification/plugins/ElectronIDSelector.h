@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
@@ -17,7 +18,7 @@ public:
   explicit ElectronIDSelector(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC)
       : select_(iConfig, iC), threshold_(iConfig.getParameter<double>("threshold")) {}
 
-  virtual ~ElectronIDSelector(){};
+  virtual ~ElectronIDSelector() {}
 
   // Collections to be selected
   typedef reco::GsfElectronCollection collection;
@@ -44,6 +45,11 @@ public:
       //selected_.push_back ( & * eleIt) ;
       ++i;
     }
+  }
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc) {
+    desc.add<double>("threshold", -1.0);
+    algo::fillPSetDescription(desc);
   }
 
 private:

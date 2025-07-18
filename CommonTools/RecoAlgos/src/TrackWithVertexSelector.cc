@@ -128,3 +128,27 @@ bool TrackWithVertexSelector::operator()(const reco::TrackRef &tref) const {
     return true;
   return testVertices(tref, *vcoll_);
 }
+
+void TrackWithVertexSelector::fillPSetDescription(edm::ParameterSetDescription &desc) {
+  desc.add<uint32_t>("numberOfValidHits", 0);
+  desc.add<uint32_t>("numberOfValidPixelHits", 0);
+  desc.add<uint32_t>("numberOfLostHits", 999)->setComment("at most 999 lost hits");
+  desc.add<double>("normalizedChi2", 999999.);
+  desc.add<double>("ptMin", 0.3)->setComment("in GeV");
+  desc.add<double>("ptMax", 500.0)->setComment("in GeV");
+  desc.add<double>("etaMin", 0.0);
+  desc.add<double>("etaMax", 50.0);
+  desc.add<double>("dzMax", 999.)->setComment("in cm");
+  desc.add<double>("d0Max", 999.)->setComment("in cm");
+  desc.add<double>("ptErrorCut", 0.2)->setComment("[pTError/pT]*max(1,normChi2) <= ptErrorCut");
+  desc.add<std::string>("quality", "highPurity")->setComment(" quality cut as defined in reco::TrackBase");
+  desc.add<bool>("useVtx", true)->setComment("compatibility with a vertex");
+  desc.add<uint32_t>("nVertices", 0)->setComment(" how many vertices to look at before dropping the track");
+  desc.add<edm::InputTag>("vertexTag", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<edm::InputTag>("timesTag", edm::InputTag(""));
+  desc.add<edm::InputTag>("timeResosTag", edm::InputTag(""));
+  desc.add<bool>("vtxFallback", true)->setComment("falback to beam spot if there are no vertices");
+  desc.add<double>("zetaVtx", 1.0);
+  desc.add<double>("rhoVtx", 0.2)->setComment("tags used by b-tagging folks");
+  desc.add<double>("nSigmaDtVertex", 0);
+}

@@ -138,8 +138,8 @@ int main(int argc, char* argv[]) {
           COL << id.sc().zside() << " ";
           COL << "\n";
         }  //next iy
-      }    //next ix
-    }      //next iz
+      }  //next ix
+    }  //next iz
   } catch (exception& e) {
     cerr << e.what();
   }

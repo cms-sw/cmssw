@@ -14,14 +14,14 @@
 class EmptySimHits : public edm::one::EDProducer<> {
 public:
   explicit EmptySimHits(const edm::ParameterSet&);
-  ~EmptySimHits() override{};
+  ~EmptySimHits() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginJob() override{};
+  void beginJob() override {}
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override{};
+  void endJob() override {}
 
   const std::vector<std::string> pSimHitInstanceLabels;
   const std::vector<std::string> pCaloHitInstanceLabels;

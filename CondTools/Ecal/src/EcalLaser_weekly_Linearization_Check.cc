@@ -158,7 +158,7 @@ void popcon::EcalLaser_weekly_Linearization_Check::getNewObjects() {
       std::cout << " shift1 file " << fDB << " " << shift1EB[ich] << " file " << fname << " " << shift[2] << "\n";
       exit(-1);
     }
-  }                      // end loop over EB channels
+  }  // end loop over EB channels
   getline(fWeek, line);  // comment before EE crystals
   std::cout << " comment line " << line << std::endl;
   int chm12 = 0, chm6 = 0, chm1 = 0, chs12 = 0, chs6 = 0, chs1 = 0;

@@ -29,10 +29,15 @@ TrackWithHistory::TrackWithHistory(const G4Track* g4trk, int pID) {
   TrackInformation* trkinfo = static_cast<TrackInformation*>(g4trk->GetUserInformation());
   storeTrack_ = trkinfo->storeTrack();
   auto vgprimary = g4trk->GetDynamicParticle()->GetPrimaryParticle();
+  // GetPrimaryParticle() returns the pointer to the corresponding G4PrimaryParticle object
+  // if this particle is a primary particle OR is defined as a
+  // pre-assigned decay product. Otherwise return nullptr.
+  // Therefore here the genParticleID_ is -1 for not primary particles
   if (vgprimary != nullptr) {
     auto priminfo = static_cast<GenParticleInfo*>(vgprimary->GetUserInformation());
     if (nullptr != priminfo) {
       genParticleID_ = priminfo->id();
+      isPrimary_ = true;
     }
   }
   // V.I. weight is computed in the same way as before
@@ -53,6 +58,7 @@ TrackWithHistory::TrackWithHistory(const G4PrimaryParticle* ptr, int trackID, co
   auto priminfo = static_cast<GenParticleInfo*>(ptr->GetUserInformation());
   if (nullptr != priminfo) {
     genParticleID_ = priminfo->id();
+    isPrimary_ = true;
   }
   weight_ = 10000. * genParticleID_;
 }

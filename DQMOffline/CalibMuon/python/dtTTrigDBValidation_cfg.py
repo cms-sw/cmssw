@@ -52,7 +52,6 @@ process.ttrigRef = cms.ESSource("PoolDBESSource",
         messageLevel = cms.untracked.int32(0),
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
-    timetype = cms.string('runnumber'),
     connect = cms.string('oracle://cms_orcoff_prod/CMS_COND_31X_DT'),
     #connect = cms.string(''),
     toGet = cms.VPSet(
@@ -68,7 +67,6 @@ process.ttrigRef = cms.ESSource("PoolDBESSource",
             label = cms.untracked.string('ttrigToValidate')
         )
     ),
-    siteLocalConfig = cms.untracked.bool(False)
 )
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer

@@ -1,5 +1,7 @@
 #ifndef CommonTools_UtilAlgos_OverlapExclusionSelector_h
 #define CommonTools_UtilAlgos_OverlapExclusionSelector_h
+
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -14,10 +16,14 @@ template <typename C, typename T, typename O>
 class OverlapExclusionSelector {
 public:
   OverlapExclusionSelector(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC)
-      : OverlapExclusionSelector(cfg, iC){};
+      : OverlapExclusionSelector(cfg, iC) {}
   OverlapExclusionSelector(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
   void newEvent(const edm::Event&, const edm::EventSetup&) const;
   bool operator()(const T&) const;
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc) {
+    desc.add<edm::InputTag>("overlap", edm::InputTag(""));
+  }
 
 private:
   edm::EDGetTokenT<C> srcToken_;

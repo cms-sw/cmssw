@@ -24,7 +24,7 @@ namespace edm {
 class MCPdgIndexFilter : public edm::global::EDFilter<> {
 public:
   explicit MCPdgIndexFilter(const edm::ParameterSet&);
-  ~MCPdgIndexFilter() override{};
+  ~MCPdgIndexFilter() override {}
 
   bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 

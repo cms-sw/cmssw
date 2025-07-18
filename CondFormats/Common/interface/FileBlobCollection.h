@@ -16,8 +16,8 @@
 
 class FileBlobCollection {
 public:
-  FileBlobCollection(){};
-  ~FileBlobCollection(){};
+  FileBlobCollection() {}
+  ~FileBlobCollection() {}
   void addFileBlob(FileBlob &fileBlob);
   int size() const;
   std::vector<FileBlob>::const_iterator begin() const;

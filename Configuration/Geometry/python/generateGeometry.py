@@ -1,4 +1,3 @@
-from __future__ import print_function
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter, RawTextHelpFormatter, RawDescriptionHelpFormatter
 import sys, os, operator
 from pprint import pprint
@@ -203,7 +202,7 @@ class GeometryGenerator(object):
             if not 'Extended'+self.detectorYear+detectorVersion in GeometryConf.keys():
                 print("Please add this line in Configuration/StandardSequences/python/GeometryConf.py:")
                 print("    'Extended"+self.detectorYear+detectorVersion+"' : 'Extended"+self.detectorYear+detectorVersion+",Extended"+self.detectorYear+detectorVersion+"Reco',")
-                if self.detectorYear == "2026" and int(args.v_detector) > self.dd4hepDetectorVersion:
+                if self.detectorYear == "Run4" and int(args.v_detector) > self.dd4hepDetectorVersion:
                     print("    'DD4hepExtended"+self.detectorYear+detectorVersion+"' : 'DD4hepExtended"+self.detectorYear+detectorVersion+",DD4hepExtended"+self.detectorYear+detectorVersion+"Reco',")
 
         errorList = []

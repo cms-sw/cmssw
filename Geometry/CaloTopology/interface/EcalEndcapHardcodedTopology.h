@@ -10,9 +10,9 @@
 class EcalEndcapHardcodedTopology final : public CaloSubdetectorTopology {
 public:
   /// create a new Topology
-  EcalEndcapHardcodedTopology(){};
+  EcalEndcapHardcodedTopology() {}
 
-  ~EcalEndcapHardcodedTopology() override{};
+  ~EcalEndcapHardcodedTopology() override {}
 
   /// move the Topology north (increment iy)
   DetId goNorth(const DetId& id) const override { return incrementIy(EEDetId(id)); }

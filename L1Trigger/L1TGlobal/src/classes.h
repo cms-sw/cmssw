@@ -10,5 +10,6 @@ namespace L1Trigger_L1TGlobal {
     std::vector<CorrelationWithOverlapRemovalTemplate> dummy5;
     std::vector<MuonShowerTemplate> dummy6;
     std::vector<AXOL1TLTemplate> dummy7;
+    std::vector<CICADATemplate> dummy8;
   };
 }  // namespace L1Trigger_L1TGlobal

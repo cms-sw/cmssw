@@ -2,7 +2,6 @@
 
 # For documentation of the RR XML-RPC handler, look into https://twiki.cern.ch/twiki//bin/view/CMS/DqmRrApi
 
-from __future__ import print_function
 import sys
 import xmlrpclib
 

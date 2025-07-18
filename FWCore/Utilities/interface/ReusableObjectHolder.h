@@ -88,7 +88,7 @@ namespace edm {
         : m_availableQueue(std::move(iOther.m_availableQueue)), m_outstandingObjects(0) {
       assert(0 == iOther.m_outstandingObjects);
     }
-    ~ReusableObjectHolder() {
+    ~ReusableObjectHolder() noexcept {
       assert(0 == m_outstandingObjects);
       std::unique_ptr<T, Deleter> item;
       while (m_availableQueue.try_pop(item)) {
@@ -143,9 +143,8 @@ namespace edm {
     std::shared_ptr<T> wrapCustomDeleter(std::unique_ptr<T, Deleter> item) {
       auto deleter = item.get_deleter();
       ++m_outstandingObjects;
-      return std::shared_ptr<T>{item.release(), [this, deleter](T* iItem) {
-                                  this->addBack(std::unique_ptr<T, Deleter>{iItem, deleter});
-                                }};
+      return std::shared_ptr<T>{
+          item.release(), [this, deleter](T* iItem) { this->addBack(std::unique_ptr<T, Deleter>{iItem, deleter}); }};
     }
 
     std::unique_ptr<T> makeUnique(T* ptr) {

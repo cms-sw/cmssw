@@ -11,7 +11,11 @@ namespace clangcms {
 
   bool CmsException::reportGeneral(clang::ento::PathDiagnosticLocation const& path,
                                    clang::ento::BugReporter& BR) const {
-    const char* sfile = BR.getSourceManager().getPresumedLoc(path.asLocation()).getFilename();
+    const auto Loc = path.asLocation();
+    if (!Loc.isValid()) {
+      return false;
+    }
+    const char* sfile = BR.getSourceManager().getPresumedLoc(Loc).getFilename();
     if ((!sfile) || (!support::isCmsLocalFile(sfile)))
       return false;
     return true;
@@ -37,7 +41,7 @@ namespace clangcms {
     return reportGeneral(path, BR);
   }
 
-  bool CmsException::reportMutableMember(clang::QualType const& t,
+  bool CmsException::reportMutableMember(/*clang::QualType const& t,*/
                                          clang::ento::PathDiagnosticLocation const& path,
                                          clang::ento::BugReporter& BR) const {
     return reportGeneral(path, BR);

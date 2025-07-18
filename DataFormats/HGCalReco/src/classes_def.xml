@@ -1,6 +1,7 @@
 
 <lcgdict>
-  <class name="ticl::Trackster" ClassVersion="10">
+  <class name="ticl::Trackster" ClassVersion="11">
+    <version ClassVersion="11" checksum="2111726404"/>
     <version ClassVersion="10" checksum="556627704"/>
     <version ClassVersion="9" checksum="1001808235"/>
     <version ClassVersion="8" checksum="749412802"/>
@@ -28,6 +29,20 @@
   </class>
   <class name="edm::Wrapper<TICLGenericTile<ticl::TracksterTiles>>" persistent="false"/>
 
+  <class name="ticl::TICLLayerTileBarrel" persistent="false">
+    <field name="tile_" transient="true"/>
+  </class>
+
+  <class name="TICLGenericTile<ticl::TilesBarrel>" persistent="false">
+    <field name="tiles_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<TICLGenericTile<ticl::TilesBarrel>>" persistent="false"/>
+  
+  <class name="TICLGenericTile<ticl::TracksterTilesBarrel>" persistent="false">
+    <field name="tiles_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<TICLGenericTile<ticl::TracksterTilesBarrel>>" persistent="false"/>
+
   <class name="ticl::TICLLayerTileHFNose" persistent="false">
     <field name="tile_" transient="true"/>
   </class>
@@ -49,10 +64,32 @@
   <class name="edm::Wrapper<TICLSeedingRegion>" />
   <class name="edm::Wrapper<std::vector<TICLSeedingRegion> >" />
 
-  <class name="TICLCandidate" ClassVersion="3">
+  <class name="TICLCandidate" ClassVersion="4">
+   <version ClassVersion="4" checksum="2260471800"/>
    <version ClassVersion="3" checksum="450468662"/>
   </class>
   <class name="std::vector<TICLCandidate>" />
   <class name="edm::Wrapper<TICLCandidate>" />
   <class name="edm::Wrapper<std::vector<TICLCandidate> >" />
+
+  <class name="MtdSoA"/>
+  <class name="MtdSoA::View"/>
+
+  <class name="MtdHostCollection"/>
+  <class name="edm::Wrapper<MtdHostCollection>" splitLevel="0"/>
+
+  <class name="HGCalSoARecHits"/>
+  <class name="HGCalSoARecHitsHostCollection" ClassVersion="3">
+    <version ClassVersion="3" checksum="1452864040"/>
+  </class>
+  <class name="edm::Wrapper<HGCalSoARecHitsHostCollection>" splitLevel="0"/>
+
+  <class name="HGCalSoARecHitsExtra"/>
+  <class name="HGCalSoARecHitsExtraHostCollection"/>
+  <class name="edm::Wrapper<HGCalSoARecHitsExtraHostCollection>" splitLevel="0"/>
+
+  <class name="HGCalSoAClusters"/>
+  <class name="HGCalSoAClustersHostCollection"/>
+  <class name="edm::Wrapper<HGCalSoAClustersHostCollection>" splitLevel="0"/>
+
 </lcgdict>

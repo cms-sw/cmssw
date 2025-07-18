@@ -8,9 +8,9 @@
 
 #include "Alignment/LaserAlignmentSimulation/interface/LaserBeamsTEC1.h"
 
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include <CLHEP/Random/RandGaussQ.h>
 #include <CLHEP/Units/SystemOfUnits.h>
@@ -154,9 +154,9 @@ void LaserBeamsTEC1::GeneratePrimaries(G4Event *myEvent) {
             theParticleGun->GeneratePrimaryVertex(myEvent);
           }
         }  // end loop over both beam directions
-      }    // end loop over particles in beam
-    }      // end loop over beams
-  }        // end loop over rings
+      }  // end loop over particles in beam
+    }  // end loop over beams
+  }  // end loop over rings
 }
 
 void LaserBeamsTEC1::setOptPhotonPolar(G4double Angle) {

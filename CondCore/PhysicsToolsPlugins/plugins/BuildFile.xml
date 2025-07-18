@@ -8,3 +8,8 @@
   <use name="CondCore/CondDB"/>
   <use name="CondFormats/PhysicsToolsObjects"/>
 </library>
+
+<library file="DeDxCalibration_PayloadInspector.cc" name="DeDxCalibration_PayloadInspector">
+  <use name="CondCore/Utilities"/>
+  <use name="CondCore/CondDB"/>
+</library>

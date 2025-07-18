@@ -1,0 +1,13 @@
+<library file="*.cc" name="RecoMuonCosmicMuonProducerPlugins">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="DataFormats/MuonReco"/>
+  <use name="DataFormats/TrackReco"/>
+  <use name="DataFormats/TrajectorySeed"/>
+  <use name="RecoMuon/CosmicMuonProducer"/>
+  <use name="RecoMuon/TrackingTools"/>
+  <use name="TrackingTools/PatternTools"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

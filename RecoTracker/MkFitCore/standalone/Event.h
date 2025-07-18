@@ -1,9 +1,10 @@
 #ifndef RecoTracker_MkFitCore_standalone_Event_h
 #define RecoTracker_MkFitCore_standalone_Event_h
 
-#include "RecoTracker/MkFitCore/interface/Track.h"
-#include "Validation.h"
 #include "RecoTracker/MkFitCore/interface/Config.h"
+#include "RecoTracker/MkFitCore/interface/Track.h"
+#include "RecoTracker/MkFitCore/interface/BeamSpot.h"
+#include "Validation.h"
 
 #include <mutex>
 
@@ -29,8 +30,6 @@ namespace mkfit {
     int read_tracks(FILE *fp, TrackVec &tracks, bool skip_reading = false);
 
     void setInputFromCMSSW(std::vector<HitVec> hits, TrackVec seeds);
-
-    void kludge_cms_hit_errors();
 
     int use_seeds_from_cmsswtracks();  //special mode --> use only seeds which generated cmssw reco track
     int clean_cms_simtracks();

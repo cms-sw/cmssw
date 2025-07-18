@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_stage2L1Trigger_2024_cff import stage2L1Trigger_2024
 
 bmtfKalmanTrackingSettings = cms.PSet(
     verbose = cms.bool(False),  # 
@@ -46,10 +47,15 @@ bmtfKalmanTrackingSettings = cms.PSet(
     pointResolutionPhiB = cms.double(500.),
     pointResolutionPhiBH = cms.vdouble(151., 173., 155., 153.),
     pointResolutionPhiBL = cms.vdouble(17866., 19306., 23984., 23746.),
-    pointResolutionVertex = cms.double(1.)
+    pointResolutionVertex = cms.double(1.),
+
+    useNewQualityCalculation = cms.bool(False),
 )
 
-
+stage2L1Trigger_2024.toModify(
+    bmtfKalmanTrackingSettings,
+    useNewQualityCalculation = True,
+)
 
 simKBmtfDigis = cms.EDProducer("L1TMuonBarrelKalmanTrackProducer",
     src = cms.InputTag("simKBmtfStubs"),

@@ -1,6 +1,11 @@
 #ifndef EventFilter_Utilities_DAQSourceModels_h
 #define EventFilter_Utilities_DAQSourceModels_h
 
+/*
+ * Base class defining modular interface for DAQSource data models
+ * See doc/README-DTH.md for interface description
+ */
+
 #include <condition_variable>
 #include <cstdio>
 #include <filesystem>
@@ -24,8 +29,10 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 
 //import InputChunk
-#include "EventFilter/Utilities/interface/FedRawDataInputSource.h"
+#include "EventFilter/Utilities/interface/SourceRawFile.h"
 
+class RawInputFile;
+class UnpackedRawEventWrapper;
 class DAQSource;
 
 //evf?
@@ -40,18 +47,16 @@ public:
   virtual uint32_t headerSize() const = 0;
   virtual bool versionCheck() const = 0;
   virtual uint64_t dataBlockSize() const = 0;
-  virtual void makeDataBlockView(unsigned char* addr,
-                                 size_t maxSize,
-                                 std::vector<uint64_t> const& fileSizes,
-                                 size_t fileHeaderSize) = 0;
-  virtual bool nextEventView() = 0;
+  virtual void makeDataBlockView(unsigned char* addr, RawInputFile* rawFile) = 0;
+  virtual bool nextEventView(RawInputFile*) = 0;
+  virtual bool blockChecksumValid() = 0;
   virtual bool checksumValid() = 0;
   virtual std::string getChecksumError() const = 0;
-  virtual bool isRealData() const = 0;
   virtual uint32_t run() const = 0;
   virtual bool dataBlockCompleted() const = 0;
   virtual bool requireHeader() const = 0;
   virtual bool fitToBuffer() const = 0;
+  virtual void unpackFile(RawInputFile* file) = 0;
 
   virtual bool dataBlockInitialized() const = 0;
   virtual void setDataBlockInitialized(bool) = 0;
@@ -60,15 +65,26 @@ public:
   virtual std::pair<bool, std::vector<std::string>> defineAdditionalFiles(std::string const& primaryName,
                                                                           bool fileListMode) const = 0;
 
-  virtual bool isMultiDir() { return false; }
+  virtual bool isMultiDir() const { return false; }
   virtual void makeDirectoryEntries(std::vector<std::string> const& baseDirs,
                                     std::vector<int> const& numSources,
+                                    std::vector<int> const& sourceIDs,
+                                    std::string const& sourceIdentifier,
                                     std::string const& runDir) = 0;
   void setTesting(bool testing) { testing_ = testing; }
+
+  bool errorDetected() { return errorDetected_; }
+
+  //pre-parse file to count events
+  virtual bool hasEventCounterCallback() const { return false; }
+  virtual int eventCounterCallback(std::string const& name, int& fd, int64_t& fsize, uint32_t sLS, bool& found) const {
+    return -1;
+  }
 
 protected:
   DAQSource* daqSource_;
   bool testing_ = false;
+  bool errorDetected_ = false;
 };
 
 #endif  // EventFilter_Utilities_DAQSourceModels_h

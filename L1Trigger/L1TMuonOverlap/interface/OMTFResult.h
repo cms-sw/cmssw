@@ -11,7 +11,7 @@ public:
   typedef std::vector<unsigned int> vector1D;
   typedef std::vector<vector1D> vector2D;
 
-  OMTFResult(){};
+  OMTFResult() {}
 
   void configure(const OMTFConfiguration *omtfConfig);
 

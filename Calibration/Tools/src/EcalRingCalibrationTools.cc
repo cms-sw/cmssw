@@ -172,8 +172,8 @@ std::vector<DetId> EcalRingCalibrationTools::getDetIdsInModule(short moduleIndex
         //	      std::cout<<"Putting Xtal with ieta: "<<ieta<<" iphi "<<iphi<<" of SM "<<sm<<" into Module "<<moduleIndex<<std::endl;
 
       }  //close loop on phi
-    }    //close loop on eta
-  }      //close if ( moduleInstallationNumber < 144)
+    }  //close loop on eta
+  }  //close if ( moduleInstallationNumber < 144)
 
   return ringIds;
 }

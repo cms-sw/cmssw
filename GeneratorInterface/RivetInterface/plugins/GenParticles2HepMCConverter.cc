@@ -14,10 +14,14 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMC3Product.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+
+#include "HepMC3/GenParticle.h"
+#include "HepMC3/GenVertex.h"
+#include "HepMC3/Print.h"
 
 #include <iostream>
 #include <map>
@@ -27,7 +31,7 @@ using namespace std;
 class GenParticles2HepMCConverter : public edm::stream::EDProducer<> {
 public:
   explicit GenParticles2HepMCConverter(const edm::ParameterSet& pset);
-  ~GenParticles2HepMCConverter() override{};
+  ~GenParticles2HepMCConverter() override {}
 
   void beginRun(edm::Run const& iRun, edm::EventSetup const&) override;
   void produce(edm::Event& event, const edm::EventSetup& eventSetup) override;
@@ -38,18 +42,17 @@ private:
   edm::EDGetTokenT<GenRunInfoProduct> genRunInfoToken_;
   edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> pTable_;
 
-  std::vector<int> signalParticlePdgIds_;
   const double cmEnergy_;
-  HepMC::GenCrossSection xsec_;
+  HepMC3::GenCrossSectionPtr xsec_;
 
 private:
-  inline HepMC::FourVector FourVector(const reco::Candidate::Point& point) {
-    return HepMC::FourVector(10 * point.x(), 10 * point.y(), 10 * point.z(), 0);
+  inline HepMC3::FourVector FourVector(const reco::Candidate::Point& point) {
+    return HepMC3::FourVector(10 * point.x(), 10 * point.y(), 10 * point.z(), 0);
   };
 
-  inline HepMC::FourVector FourVector(const reco::Candidate::LorentzVector& lvec) {
+  inline HepMC3::FourVector FourVector(const reco::Candidate::LorentzVector& lvec) {
     // Avoid negative mass, set minimum m^2 = 0
-    return HepMC::FourVector(lvec.px(), lvec.py(), lvec.pz(), std::hypot(lvec.P(), std::max(0., lvec.mass())));
+    return HepMC3::FourVector(lvec.px(), lvec.py(), lvec.pz(), std::hypot(lvec.P(), std::max(0., lvec.mass())));
   };
 };
 
@@ -60,16 +63,21 @@ GenParticles2HepMCConverter::GenParticles2HepMCConverter(const edm::ParameterSet
   genEventInfoToken_ = consumes<GenEventInfoProduct>(pset.getParameter<edm::InputTag>("genEventInfo"));
   genRunInfoToken_ = consumes<GenRunInfoProduct, edm::InRun>(pset.getParameter<edm::InputTag>("genEventInfo"));
   pTable_ = esConsumes<HepPDT::ParticleDataTable, PDTRecord>();
-  signalParticlePdgIds_ = pset.getParameter<std::vector<int>>("signalParticlePdgIds");
 
-  produces<edm::HepMCProduct>("unsmeared");
+  produces<edm::HepMC3Product>("unsmeared");
 }
 
 void GenParticles2HepMCConverter::beginRun(edm::Run const& iRun, edm::EventSetup const&) {
   edm::Handle<GenRunInfoProduct> genRunInfoHandle;
   iRun.getByToken(genRunInfoToken_, genRunInfoHandle);
 
-  xsec_.set_cross_section(genRunInfoHandle->internalXSec().value(), genRunInfoHandle->internalXSec().error());
+  xsec_ = make_shared<HepMC3::GenCrossSection>();
+  if (genRunInfoHandle.isValid()) {
+    xsec_->set_cross_section(genRunInfoHandle->internalXSec().value(), genRunInfoHandle->internalXSec().error());
+  } else {
+    // dummy cross section
+    xsec_->set_cross_section(1., 0.);
+  }
 }
 
 void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSetup& eventSetup) {
@@ -81,16 +89,26 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
 
   auto const& pTableData = eventSetup.getData(pTable_);
 
-  HepMC::GenEvent* hepmc_event = new HepMC::GenEvent();
-  hepmc_event->set_event_number(event.id().event());
-  hepmc_event->set_signal_process_id(genEventInfoHandle->signalProcessID());
-  hepmc_event->set_event_scale(genEventInfoHandle->qScale());
-  hepmc_event->set_alphaQED(genEventInfoHandle->alphaQED());
-  hepmc_event->set_alphaQCD(genEventInfoHandle->alphaQCD());
+  HepMC3::GenEvent hepmc_event;
+  hepmc_event.set_event_number(event.id().event());
+  hepmc_event.add_attribute("signal_process_id",
+                            std::make_shared<HepMC3::IntAttribute>(genEventInfoHandle->signalProcessID()));
+  hepmc_event.add_attribute("event_scale", std::make_shared<HepMC3::DoubleAttribute>(genEventInfoHandle->qScale()));
+  hepmc_event.add_attribute("alphaQCD", std::make_shared<HepMC3::DoubleAttribute>(genEventInfoHandle->alphaQCD()));
+  hepmc_event.add_attribute("alphaQED", std::make_shared<HepMC3::DoubleAttribute>(genEventInfoHandle->alphaQED()));
 
-  hepmc_event->weights() = genEventInfoHandle->weights();
+  hepmc_event.weights() = genEventInfoHandle->weights();
+  // add dummy weight if necessary
+  if (hepmc_event.weights().empty()) {
+    hepmc_event.weights().push_back(1.);
+  }
 
-  hepmc_event->set_cross_section(xsec_);
+  // resize cross section to number of weights
+  if (xsec_->xsecs().size() < hepmc_event.weights().size()) {
+    xsec_->set_cross_section(std::vector<double>(hepmc_event.weights().size(), xsec_->xsec(0)),
+                             std::vector<double>(hepmc_event.weights().size(), xsec_->xsec_err(0)));
+  }
+  hepmc_event.set_cross_section(xsec_);
 
   // Set PDF
   const gen::PdfInfo* pdf = genEventInfoHandle->pdf();
@@ -99,19 +117,20 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
     const double pdf_x1 = pdf->x.first, pdf_x2 = pdf->x.second;
     const double pdf_scalePDF = pdf->scalePDF;
     const double pdf_xPDF1 = pdf->xPDF.first, pdf_xPDF2 = pdf->xPDF.second;
-    HepMC::PdfInfo hepmc_pdfInfo(pdf_id1, pdf_id2, pdf_x1, pdf_x2, pdf_scalePDF, pdf_xPDF1, pdf_xPDF2);
-    hepmc_event->set_pdf_info(hepmc_pdfInfo);
+    HepMC3::GenPdfInfoPtr hepmc_pdfInfo = make_shared<HepMC3::GenPdfInfo>();
+    hepmc_pdfInfo->set(pdf_id1, pdf_id2, pdf_x1, pdf_x2, pdf_scalePDF, pdf_xPDF1, pdf_xPDF2);
+    hepmc_event.set_pdf_info(hepmc_pdfInfo);
   }
 
-  // Prepare list of HepMC::GenParticles
-  std::map<const reco::Candidate*, HepMC::GenParticle*> genCandToHepMCMap;
-  HepMC::GenParticle *hepmc_parton1 = nullptr, *hepmc_parton2 = nullptr;
-  std::vector<HepMC::GenParticle*> hepmc_particles;
+  // Prepare list of HepMC3::GenParticles
+  std::map<const reco::Candidate*, HepMC3::GenParticlePtr> genCandToHepMCMap;
+  HepMC3::GenParticlePtr hepmc_parton1, hepmc_parton2;
+  std::vector<HepMC3::GenParticlePtr> hepmc_particles;
   const reco::Candidate *parton1 = nullptr, *parton2 = nullptr;
   for (unsigned int i = 0, n = genParticlesHandle->size(); i < n; ++i) {
     const reco::Candidate* p = &genParticlesHandle->at(i);
-    HepMC::GenParticle* hepmc_particle = new HepMC::GenParticle(FourVector(p->p4()), p->pdgId(), p->status());
-    hepmc_particle->suggest_barcode(i + 1);
+    HepMC3::GenParticlePtr hepmc_particle =
+        std::make_shared<HepMC3::GenParticle>(FourVector(p->p4()), p->pdgId(), p->status());
 
     // Assign particle's generated mass from the standard particle data table
     double particleMass;
@@ -137,30 +156,30 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
     }
   }
 
-  HepMC::GenVertex* vertex1 = nullptr;
-  HepMC::GenVertex* vertex2 = nullptr;
+  HepMC3::GenVertexPtr vertex1;
+  HepMC3::GenVertexPtr vertex2;
   if (parton1 == nullptr || parton2 == nullptr) {
     // Particle gun samples do not have incident partons. Put dummy incident particle and prod vertex
     // Note: leave parton1 and parton2 as nullptr since it is not used anymore after creating hepmc_parton1 and 2
     const reco::Candidate::LorentzVector nullP4(0, 0, 0, 0);
     const reco::Candidate::LorentzVector beamP4(0, 0, cmEnergy_ / 2, cmEnergy_ / 2);
-    vertex1 = new HepMC::GenVertex(FourVector(nullP4));
-    vertex2 = new HepMC::GenVertex(FourVector(nullP4));
-    hepmc_parton1 = new HepMC::GenParticle(FourVector(+beamP4), 2212, 4);
-    hepmc_parton2 = new HepMC::GenParticle(FourVector(-beamP4), 2212, 4);
+    vertex1 = make_shared<HepMC3::GenVertex>(FourVector(nullP4));
+    vertex2 = make_shared<HepMC3::GenVertex>(FourVector(nullP4));
+    hepmc_parton1 = make_shared<HepMC3::GenParticle>(FourVector(+beamP4), 2212, 4);
+    hepmc_parton2 = make_shared<HepMC3::GenParticle>(FourVector(-beamP4), 2212, 4);
   } else {
     // Put incident beam particles : proton -> parton vertex
-    vertex1 = new HepMC::GenVertex(FourVector(parton1->vertex()));
-    vertex2 = new HepMC::GenVertex(FourVector(parton2->vertex()));
+    vertex1 = make_shared<HepMC3::GenVertex>(FourVector(parton1->vertex()));
+    vertex2 = make_shared<HepMC3::GenVertex>(FourVector(parton2->vertex()));
   }
-  hepmc_event->add_vertex(vertex1);
-  hepmc_event->add_vertex(vertex2);
+  hepmc_event.add_vertex(vertex1);
+  hepmc_event.add_vertex(vertex2);
   vertex1->add_particle_in(hepmc_parton1);
   vertex2->add_particle_in(hepmc_parton2);
-  //hepmc_event->set_beam_particles(hepmc_parton1, hepmc_parton2);
+  //hepmc_event.set_beam_particles(hepmc_parton1, hepmc_parton2);
 
   // Prepare vertex list
-  typedef std::map<const reco::Candidate*, HepMC::GenVertex*> ParticleToVertexMap;
+  typedef std::map<const reco::Candidate*, HepMC3::GenVertexPtr> ParticleToVertexMap;
   ParticleToVertexMap particleToVertexMap;
   particleToVertexMap[parton1] = vertex1;
   particleToVertexMap[parton2] = vertex2;
@@ -173,10 +192,10 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
     for (unsigned int j = 0, nMothers = p->numberOfMothers(); j < nMothers; ++j) {
       // Mother-daughter hierarchy defines vertex
       const reco::Candidate* elder = p->mother(j)->daughter(0);
-      HepMC::GenVertex* vertex;
+      HepMC3::GenVertexPtr vertex;
       if (particleToVertexMap.find(elder) == particleToVertexMap.end()) {
-        vertex = new HepMC::GenVertex(FourVector(elder->vertex()));
-        hepmc_event->add_vertex(vertex);
+        vertex = make_shared<HepMC3::GenVertex>(FourVector(elder->vertex()));
+        hepmc_event.add_vertex(vertex);
         particleToVertexMap[elder] = vertex;
       } else {
         vertex = particleToVertexMap[elder];
@@ -190,29 +209,7 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
   }
 
   // Finalize HepMC event record
-  bool hasSignalVertex = false;
-  if (!signalParticlePdgIds_.empty()) {
-    // Loop over all vertices to assign the signal vertex, decaying to a signal particle
-    for (auto v = hepmc_event->vertices_begin(); v != hepmc_event->vertices_end(); ++v) {
-      for (auto p = (*v)->particles_begin(HepMC::children); p != (*v)->particles_end(HepMC::children); ++p) {
-        const int pdgId = (*p)->pdg_id();
-        if (std::find(signalParticlePdgIds_.begin(), signalParticlePdgIds_.end(), pdgId) !=
-            signalParticlePdgIds_.end()) {
-          hepmc_event->set_signal_process_vertex(*v);
-          hasSignalVertex = true;
-          break;
-        }
-      }
-      if (hasSignalVertex)
-        break;
-    }
-  }
-  // Set the default signal vertex if still not set
-  if (!hasSignalVertex)
-    hepmc_event->set_signal_process_vertex(*(vertex1->vertices_begin()));
-
-  std::unique_ptr<edm::HepMCProduct> hepmc_product(new edm::HepMCProduct());
-  hepmc_product->addHepMCData(hepmc_event);
+  auto hepmc_product = std::make_unique<edm::HepMC3Product>(&hepmc_event);
   event.put(std::move(hepmc_product), "unsmeared");
 }
 

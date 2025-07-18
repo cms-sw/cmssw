@@ -36,7 +36,7 @@ public:
   /// get the channel id
   int channelId() const { return (EcalTriggerElectronicsId_ & 0x7); }
   /// get a fast, compact, unique index for linear lookups (maximum value = 1048575)
-  int linearIndex() const { return (EcalTriggerElectronicsId_)&0xFFFFF; }
+  int linearIndex() const { return (EcalTriggerElectronicsId_) & 0xFFFFF; }
 
   /// get the zside() +1 / -1
   int zside() const;

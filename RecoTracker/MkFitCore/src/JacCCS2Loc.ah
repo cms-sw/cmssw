@@ -1,0 +1,136 @@
+#ifdef MPLEX_INTRINSICS
+
+for (int n = 0; n < N; n += MPLEX_INTRINSICS_WIDTH_BYTES / sizeof(T)) {
+#ifdef AVX512_INTRINSICS
+  IntrVec_t all_zeros = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+#else
+  IntrVec_t all_zeros = {0, 0, 0, 0, 0, 0, 0, 0};
+#endif
+
+  IntrVec_t b_3 = LD(b, 3);
+  IntrVec_t c_3 = b_3;
+  IntrVec_t b_5 = LD(b, 5);
+  IntrVec_t c_5 = b_5;
+
+  ST(c, 0, all_zeros);
+  ST(c, 1, all_zeros);
+  ST(c, 2, all_zeros);
+  ST(c, 4, all_zeros);
+
+  IntrVec_t a_6 = LD(a, 6);
+  IntrVec_t b_11 = LD(b, 11);
+  IntrVec_t c_11 = MUL(a_6, b_11);
+
+  IntrVec_t a_7 = LD(a, 7);
+  IntrVec_t c_10 = a_7;
+  ST(c, 3, c_3);
+  ST(c, 5, c_5);
+
+  IntrVec_t a_8 = LD(a, 8);
+  IntrVec_t b_18 = LD(b, 18);
+  IntrVec_t c_6 = MUL(a_8, b_18);
+  IntrVec_t b_19 = LD(b, 19);
+  IntrVec_t c_7 = MUL(a_8, b_19);
+
+  IntrVec_t a_9 = LD(a, 9);
+  IntrVec_t b_24 = LD(b, 24);
+  c_6 = FMA(a_9, b_24, c_6);
+  IntrVec_t b_25 = LD(b, 25);
+  c_7 = FMA(a_9, b_25, c_7);
+  IntrVec_t b_26 = LD(b, 26);
+  IntrVec_t c_8 = MUL(a_9, b_26);
+  ST(c, 6, c_6);
+  ST(c, 9, all_zeros);
+
+  IntrVec_t a_11 = LD(a, 11);
+  IntrVec_t c_17 = MUL(a_11, b_11);
+  ST(c, 7, c_7);
+  ST(c, 8, c_8);
+  ST(c, 10, c_10);
+  ST(c, 11, c_11);
+
+  IntrVec_t a_12 = LD(a, 12);
+  IntrVec_t c_16 = a_12;
+
+  IntrVec_t a_13 = LD(a, 13);
+  IntrVec_t c_12 = MUL(a_13, b_18);
+  IntrVec_t c_13 = MUL(a_13, b_19);
+
+  IntrVec_t a_14 = LD(a, 14);
+  c_12 = FMA(a_14, b_24, c_12);
+  c_13 = FMA(a_14, b_25, c_13);
+  IntrVec_t c_14 = MUL(a_14, b_26);
+  ST(c, 15, all_zeros);
+
+  IntrVec_t a_18 = LD(a, 18);
+  IntrVec_t c_18 = MUL(a_18, b_18);
+  ST(c, 12, c_12);
+  ST(c, 13, c_13);
+  ST(c, 14, c_14);
+  ST(c, 16, c_16);
+  ST(c, 17, c_17);
+  IntrVec_t c_19 = MUL(a_18, b_19);
+
+  IntrVec_t a_19 = LD(a, 19);
+  c_18 = FMA(a_19, b_24, c_18);
+  c_19 = FMA(a_19, b_25, c_19);
+  IntrVec_t c_20 = MUL(a_19, b_26);
+  ST(c, 21, all_zeros);
+  ST(c, 22, all_zeros);
+  ST(c, 23, all_zeros);
+
+  IntrVec_t a_23 = LD(a, 23);
+  IntrVec_t c_24 = MUL(a_23, b_18);
+  ST(c, 18, c_18);
+  ST(c, 19, c_19);
+  ST(c, 20, c_20);
+  IntrVec_t c_25 = MUL(a_23, b_19);
+
+  IntrVec_t a_24 = LD(a, 24);
+  c_24 = FMA(a_24, b_24, c_24);
+  c_25 = FMA(a_24, b_25, c_25);
+  IntrVec_t c_26 = MUL(a_24, b_26);
+  ST(c, 27, all_zeros);
+  ST(c, 28, all_zeros);
+  ST(c, 29, all_zeros);
+  ST(c, 24, c_24);
+  ST(c, 25, c_25);
+  ST(c, 26, c_26);
+}
+
+#else
+
+#pragma omp simd
+for (int n = 0; n < N; ++n) {
+  c[0 * N + n] = 0;
+  c[1 * N + n] = 0;
+  c[2 * N + n] = 0;
+  c[3 * N + n] = b[3 * N + n];
+  c[4 * N + n] = 0;
+  c[5 * N + n] = b[5 * N + n];
+  c[6 * N + n] = a[8 * N + n] * b[18 * N + n] + a[9 * N + n] * b[24 * N + n];
+  c[7 * N + n] = a[8 * N + n] * b[19 * N + n] + a[9 * N + n] * b[25 * N + n];
+  c[8 * N + n] = a[9 * N + n] * b[26 * N + n];
+  c[9 * N + n] = 0;
+  c[10 * N + n] = a[7 * N + n];
+  c[11 * N + n] = a[6 * N + n] * b[11 * N + n];
+  c[12 * N + n] = a[13 * N + n] * b[18 * N + n] + a[14 * N + n] * b[24 * N + n];
+  c[13 * N + n] = a[13 * N + n] * b[19 * N + n] + a[14 * N + n] * b[25 * N + n];
+  c[14 * N + n] = a[14 * N + n] * b[26 * N + n];
+  c[15 * N + n] = 0;
+  c[16 * N + n] = a[12 * N + n];
+  c[17 * N + n] = a[11 * N + n] * b[11 * N + n];
+  c[18 * N + n] = a[18 * N + n] * b[18 * N + n] + a[19 * N + n] * b[24 * N + n];
+  c[19 * N + n] = a[18 * N + n] * b[19 * N + n] + a[19 * N + n] * b[25 * N + n];
+  c[20 * N + n] = a[19 * N + n] * b[26 * N + n];
+  c[21 * N + n] = 0;
+  c[22 * N + n] = 0;
+  c[23 * N + n] = 0;
+  c[24 * N + n] = a[23 * N + n] * b[18 * N + n] + a[24 * N + n] * b[24 * N + n];
+  c[25 * N + n] = a[23 * N + n] * b[19 * N + n] + a[24 * N + n] * b[25 * N + n];
+  c[26 * N + n] = a[24 * N + n] * b[26 * N + n];
+  c[27 * N + n] = 0;
+  c[28 * N + n] = 0;
+  c[29 * N + n] = 0;
+}
+#endif

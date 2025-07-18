@@ -69,7 +69,7 @@ public:
   inline int closestDaughterId() { return theClosestChargedDaughterId; }
 
   /// Used by  NuclearInteractionSimulator to save last sampled event
-  virtual void save(){};
+  virtual void save() {}
 
 private:
   /// Overloaded in all material effects updtators

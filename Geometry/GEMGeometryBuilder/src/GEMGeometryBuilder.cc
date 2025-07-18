@@ -371,7 +371,7 @@ void GEMGeometryBuilder::build(GEMGeometry& theGeometry,
     }
   }
 
-  bool demonstratorGeometry = nGE21 % 2 == 1;
+  bool demonstratorGeometry = (nGE21 < 8);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("Geometry") << "Found " << nGE21 << " GE2/1 chambers. Demonstrator geometry on? "
                                << demonstratorGeometry;
@@ -608,7 +608,8 @@ void GEMGeometryBuilder::buildRegions(GEMGeometry& theGeometry,
         if (foundSuperChamber) {
           station->add(ring);
           theGeometry.add(ring);
-        }
+        } else
+          delete ring;
       }
       if (!foundSuperChamber) {
 #ifdef EDM_ML_DEBUG

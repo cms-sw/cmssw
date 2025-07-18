@@ -1,3 +1,7 @@
 <test name="TestEdmFastMerge" command="TestEdmFastMerge.sh"/>
 <test name="TestEdmConfigDump" command="run_TestEdmConfigDump.sh"/>
 <test name="testIOPoolCommonLumiOverlap" command="test_overlap_lumi_fast_copy.sh"/>
+<bin file="test_catch2_*.cc" name="TestIOPoolCommonTP">
+  <use name="FWCore/TestProcessor"/>
+  <use name="catch2"/>
+</bin>

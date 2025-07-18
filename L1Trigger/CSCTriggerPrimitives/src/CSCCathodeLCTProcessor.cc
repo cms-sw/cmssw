@@ -966,7 +966,7 @@ bool CSCCathodeLCTProcessor::patternFinding(
             }
           }
         }  // end loop over strips in pretrigger pattern
-      }    // end loop over layers
+      }  // end loop over layers
 
       // save the pattern information when a trigger was formed!
       if (layers_hit >= nplanes_hit_pattern) {
@@ -983,7 +983,7 @@ bool CSCCathodeLCTProcessor::patternFinding(
           break;
       }
     }  // end loop over pid
-  }    // end loop over candidate key strips
+  }  // end loop over candidate key strips
 
   // At this point there exists at least one halfstrip for which at least one pattern
   // has at least 3 layers --> definition of a pre-trigger

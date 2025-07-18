@@ -41,7 +41,24 @@ namespace {
       int layerOffset = 3;
       if (seed.subDet(hitNr) == PixelSubdetector::PixelEndcap)
         layerOffset += 4;
-      int layerBit = 0x1 << layerOffset << seed.layerOrDiskNr(hitNr);
+
+      int layerOrDiskNr = seed.layerOrDiskNr(hitNr);
+      if (layerOrDiskNr == 0 || layerOrDiskNr > 4) {
+        if (layerOrDiskNr == std::numeric_limits<int>::max()) {
+          throw cms::Exception("LogicError")
+              << "The layerOrDiskNr of hitnr " << hitNr << " is " << layerOrDiskNr
+              << " which is equal to numeric_limits::max which implies it was not filled correctly.\nWhile this is "
+                 "valid for the matching variables as it can signal the failure to find a postive or negative seed "
+                 "trajectory,\nit is not valid for the layer number as that is always known.\nThus there is a logic "
+                 "error in the code or possible corrupt data";
+        } else {
+          throw cms::Exception("InvalidData") << "The layerOrDiskNr of hitnr " << hitNr << " is " << layerOrDiskNr
+                                              << " and is not in the range of 1<=x<=4 which implies a new pixel "
+                                                 "detector\nthis code does not support as the current one has only 4 "
+                                                 "layers numbered 1-4 or corrupt data\n";
+        }
+      }
+      int layerBit = 0x1 << layerOffset << layerOrDiskNr;
       info |= layerBit;
 
       int nrLayersAlongTrajShifted = seed.nrLayersAlongTraj() << 12;

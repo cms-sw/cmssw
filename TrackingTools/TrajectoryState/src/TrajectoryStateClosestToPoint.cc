@@ -4,23 +4,19 @@
 // Private constructor
 
 TrajectoryStateClosestToPoint::TrajectoryStateClosestToPoint(const FTS& originalFTS, const GlobalPoint& referencePoint)
-    : theFTS(originalFTS), theRefPoint(referencePoint), valid(true), theFTSavailable(true) {
-  try {
-    theParameters = PerigeeConversions::ftsToPerigeeParameters(originalFTS, referencePoint, thePt);
-    if (theFTS.hasError()) {
-      thePerigeeError = PerigeeConversions::ftsToPerigeeError(originalFTS);
-      errorIsAvailable = true;
-    } else {
-      errorIsAvailable = false;
-    }
-    theField = &(originalFTS.parameters().magneticField());
-  } catch (const cms::Exception& ex) {
-    if (ex.category() != "PerigeeConversions")
-      throw;
-    edm::LogInfo("TrajectoryStateClosestToPoint_PerigeeConversions")
-        << "Caught exception " << ex.explainSelf() << ".\n";
+    : theFTS(originalFTS), theRefPoint(referencePoint), valid(true), theFTSavailable(true), errorIsAvailable(false) {
+  auto params = PerigeeConversions::ftsToPerigeeParameters(originalFTS, referencePoint, thePt);
+  if (not params) {
     valid = false;
+    edm::LogInfo("TrajectoryStateClosestToPoint_PerigeeConversions") << "Track had pt == 0.";
+    return;
   }
+  theParameters = *params;
+  if (theFTS.hasError()) {
+    thePerigeeError = PerigeeConversions::ftsToPerigeeError(originalFTS);
+    errorIsAvailable = true;
+  }
+  theField = &(originalFTS.parameters().magneticField());
 }
 
 void TrajectoryStateClosestToPoint::calculateFTS() const {

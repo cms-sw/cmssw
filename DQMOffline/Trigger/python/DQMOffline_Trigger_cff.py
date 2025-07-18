@@ -106,12 +106,13 @@ from DQMOffline.Trigger.HLTInclusiveVBFSource_cfi import *
 
 import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvHLT = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone(
-    subSystemFolder = 'HLT'
-)
+    subSystemFolder = 'HLT',
+    showHLTGlobalTag = True)
+
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 dqmInfoHLTMon = DQMEDAnalyzer('DQMEventInfo',
-    subSystemFolder = cms.untracked.string('HLT')
-)
+                              subSystemFolder = cms.untracked.string('HLT'),
+                              showHLTGlobalTag =  cms.untracked.bool(True))
 ###################################################################################################
 #### SEQUENCES TO BE RUN depending on the input DATAFORMAT
 ## on MiniAOD

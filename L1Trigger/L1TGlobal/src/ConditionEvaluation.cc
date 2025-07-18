@@ -12,21 +12,9 @@
  *
  */
 
-// this class header
 #include "L1Trigger/L1TGlobal/interface/ConditionEvaluation.h"
 
-// system include files
-#include <iostream>
-#include <iomanip>
-#include <iterator>
-
-// user include files
-
-//   base class
-
-//
-
-// methods
+#include <ostream>
 
 /// print condition
 void l1t::ConditionEvaluation::print(std::ostream& myCout) const {
@@ -34,14 +22,12 @@ void l1t::ConditionEvaluation::print(std::ostream& myCout) const {
   myCout << "  Maximum number of objects in condition: " << m_condMaxNumberObjects << std::endl;
   myCout << "  Condition result:                       " << m_condLastResult << std::endl;
 
-  CombinationsInCond::const_iterator itVV;
   std::ostringstream myCout1;
-
-  for (itVV = (m_combinationsInCond).begin(); itVV != (m_combinationsInCond).end(); itVV++) {
+  for (size_t i1 = 0; i1 < m_combinationsInCond.size(); ++i1) {
     myCout1 << "( ";
-
-    std::copy((*itVV).begin(), (*itVV).end(), std::ostream_iterator<int>(myCout1, " "));
-
+    for (size_t i2 = 0; i2 < m_combinationsInCond[i1].size(); ++i2) {
+      myCout1 << m_combinationsInCond[i1][i2].first << ":" << m_combinationsInCond[i1][i2].second << " ";
+    }
     myCout1 << "); ";
   }
 

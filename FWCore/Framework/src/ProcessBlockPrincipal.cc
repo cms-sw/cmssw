@@ -9,9 +9,9 @@
 namespace edm {
 
   ProcessBlockPrincipal::ProcessBlockPrincipal(std::shared_ptr<ProductRegistry const> reg,
-                                               ProcessConfiguration const& pc,
-                                               bool isForPrimaryProcess)
-      : Principal(reg, reg->productLookup(InProcess), pc, InProcess, nullptr, isForPrimaryProcess) {}
+                                               std::vector<std::shared_ptr<ProductResolverBase>>&& resolvers,
+                                               ProcessConfiguration const& pc)
+      : Principal(reg, std::move(resolvers), pc, InProcess, nullptr) {}
 
   void ProcessBlockPrincipal::fillProcessBlockPrincipal(std::string const& processNameOfBlock, DelayedReader* reader) {
     processName_ = processNameOfBlock;

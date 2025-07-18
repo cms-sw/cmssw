@@ -24,7 +24,8 @@ public:
                        const EcalMGPAGainRatio* aGain,
                        const FullSampleVector& fullpulse,
                        const float targetTimePrecision,
-                       const bool correctForOOT = true) const;
+                       const bool correctForOOT = true,
+                       const bool correctForSlew = true) const;
 
 private:
   const float startTime_;
@@ -38,7 +39,10 @@ private:
   static constexpr float ONE_MINUS_GOLDEN_RATIO = 1.0 - GOLDEN_RATIO;
 
   FullSampleVector interpolatePulse(const FullSampleVector& fullpulse, const float t = 0) const;
-  float computeCC(const std::vector<float>& samples, const FullSampleVector& sigmalTemplate, const float t) const;
+  float computeCC(const std::vector<float>& samples,
+                  const std::vector<float>& weights,
+                  const FullSampleVector& sigmalTemplate,
+                  const float t) const;
 };
 
 #endif

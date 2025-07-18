@@ -43,6 +43,7 @@ from Validation.SiPixelPhase1ConfigV.SiPixelPhase1OfflineDQM_sourceV_cff import 
 from DQMOffline.RecoB.dqmAnalyzer_cff import *
 from Validation.RecoB.BDHadronTrackValidation_cff import *
 from Validation.Configuration.hgcalSimValid_cff import *
+from Validation.Configuration.barrelSimValid_cff import *
 from Validation.Configuration.mtdSimValid_cff import *
 from Validation.Configuration.ecalSimValid_cff import *
 from Validation.SiTrackerPhase2V.Phase2TrackerValidationFirstStep_cff import *
@@ -196,9 +197,21 @@ globalValidationHCALOnly = cms.Sequence(
     + hcalRecHitsOnlyValidationSequence
     + pfClusterCaloOnlyValidationSequence
 )
+globalPrevalidationHGCal = cms.Sequence(hgcalAssociators, ticlSimTrackstersTask)
 
 globalValidationHGCal = cms.Sequence(hgcalValidation)
-globalPrevalidationHGCal = cms.Sequence(hgcalAssociators, ticlSimTrackstersTask)
+
+globalPrevalidationBarrel = cms.Sequence()
+_globalPrevalidationBarrel = globalPrevalidationBarrel.copy()
+_globalPrevalidationBarrel += cms.Sequence(barrelAssociators)
+
+globalValidationBarrel = cms.Sequence()
+_globalValidationBarrel = globalValidationBarrel.copy()
+_globalValidationBarrel += barrelValidation
+
+from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
+ticl_barrel.toReplaceWith(globalPrevalidationBarrel, _globalPrevalidationBarrel)
+ticl_barrel.toReplaceWith(globalValidationBarrel, _globalValidationBarrel)
 
 globalValidationMTD = cms.Sequence()
 

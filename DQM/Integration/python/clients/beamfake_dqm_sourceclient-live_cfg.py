@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import time 
 
@@ -61,8 +60,8 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'FakeBeamMonitorLegacy'
 process.dqmSaver.tag           = 'FakeBeamMonitorLegacy'
 process.dqmSaver.runNumber     = options.runNumber
-process.dqmSaverPB.tag         = 'FakeBeamMonitorLegacy'
-process.dqmSaverPB.runNumber   = options.runNumber
+# process.dqmSaverPB.tag         = 'FakeBeamMonitorLegacy'
+# process.dqmSaverPB.runNumber   = options.runNumber
 
 # Configure tag and jobName if running Playback system
 if process.isDqmPlayback.value :
@@ -100,7 +99,7 @@ process.load("DQM.BeamMonitor.FakeBeamMonitor_cff")
 #-----------------
 
 process.dqmcommon = cms.Sequence(process.dqmEnv
-                               * process.dqmSaver * process.dqmSaverPB)
+                               * process.dqmSaver )#* process.dqmSaverPB)
 
 #
 process.monitor = cms.Sequence(process.dqmFakeBeamMonitor

@@ -22,6 +22,7 @@ is the DataBlock.
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Framework/interface/Principal.h"
+#include "FWCore/Framework/interface/ProductResolversFactory.h"
 
 namespace edm {
 
@@ -36,12 +37,19 @@ namespace edm {
     typedef RunAuxiliary Auxiliary;
     typedef Principal Base;
 
+    template <ProductResolversFactory FACTORY>
     RunPrincipal(std::shared_ptr<ProductRegistry const> reg,
+                 FACTORY&& iFactory,
                  ProcessConfiguration const& pc,
                  HistoryAppender* historyAppender,
                  unsigned int iRunIndex,
-                 bool isForPrimaryProcess = true,
-                 MergeableRunProductProcesses const* mergeableRunProductProcesses = nullptr);
+                 MergeableRunProductProcesses const* mergeableRunProductProcesses = nullptr)
+        : RunPrincipal(reg,
+                       iFactory(InRun, pc.processName(), *reg),
+                       pc,
+                       historyAppender,
+                       iRunIndex,
+                       mergeableRunProductProcesses) {}
     ~RunPrincipal() override;
 
     void fillRunPrincipal(ProcessHistoryRegistry const& processHistoryRegistry, DelayedReader* reader = nullptr);
@@ -72,11 +80,11 @@ namespace edm {
 
     void mergeAuxiliary(RunAuxiliary const& aux) { return aux_.mergeAuxiliary(aux); }
 
-    void put(BranchDescription const& bd, std::unique_ptr<WrapperBase> edp) const;
+    void put(ProductDescription const& bd, std::unique_ptr<WrapperBase> edp) const;
 
     void put(ProductResolverIndex index, std::unique_ptr<WrapperBase> edp) const;
 
-    void putOrMerge(BranchDescription const& bd, std::unique_ptr<WrapperBase> edp) const;
+    void putOrMerge(ProductDescription const& bd, std::unique_ptr<WrapperBase> edp) const;
 
     MergeableRunProductMetadata* mergeableRunProductMetadata() { return mergeableRunProductMetadataPtr_.get(); }
 
@@ -87,6 +95,12 @@ namespace edm {
     void setShouldWriteRun(ShouldWriteRun value) { shouldWriteRun_ = value; }
 
   private:
+    RunPrincipal(std::shared_ptr<ProductRegistry const> reg,
+                 std::vector<std::shared_ptr<ProductResolverBase>>&& resolvers,
+                 ProcessConfiguration const& pc,
+                 HistoryAppender* historyAppender,
+                 unsigned int iRunIndex,
+                 MergeableRunProductProcesses const* mergeableRunProductProcesses);
     unsigned int transitionIndex_() const override;
 
     RunAuxiliary aux_;

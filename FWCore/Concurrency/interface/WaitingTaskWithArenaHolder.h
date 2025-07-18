@@ -40,9 +40,8 @@ namespace edm {
     // eventually intend for the task to be spawned.
     explicit WaitingTaskWithArenaHolder(oneapi::tbb::task_group&, WaitingTask* iTask);
 
-    // Takes ownership of the underlying task and uses the current
-    // arena.
-    explicit WaitingTaskWithArenaHolder(WaitingTaskHolder&& iTask);
+    // Captures the current arena.
+    explicit WaitingTaskWithArenaHolder(WaitingTaskHolder iTask);
 
     ~WaitingTaskWithArenaHolder();
 
@@ -59,6 +58,12 @@ namespace edm {
     // to be called from a thread outside the arena of threads that will manage
     // the task. doneWaiting can be called from a non-TBB thread.
     void doneWaiting(std::exception_ptr iExcept);
+
+    // Use in the case where you need to inform the parent task of a
+    // failure before some other child task which may be run later
+    // reports a different, but related failure. You must later call
+    // doneWaiting in the same thread passing the same exception.
+    void presetTaskAsFailed(std::exception_ptr iExcept) noexcept;
 
     // This next function is useful if you know from the context that
     // m_arena (which is set when the constructor was executes) is the

@@ -33,6 +33,7 @@
 
 //#include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMC3Product.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoHeader.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoProduct.h"
@@ -125,8 +126,8 @@ namespace edm {
       produces<edm::HepMCProduct>("unsmeared");
       produces<GenEventInfoProduct>();
     } else if (ivhepmc == 3) {
-      //produces<edm::HepMC3Product>("unsmeared");
-      //produces<GenEventInfoProduct3>();
+      produces<edm::HepMC3Product>("unsmeared");
+      produces<GenEventInfoProduct3>();
     }
     produces<GenLumiInfoHeader, edm::Transition::BeginLuminosityBlock>();
     produces<GenLumiInfoProduct, edm::Transition::EndLuminosityBlock>();
@@ -182,10 +183,18 @@ namespace edm {
       // The external decay driver is being added to the system,
       // it should be called here
       //
-      if (decayer_) {  // handle only HepMC2 for the moment
-        auto t = decayer_->decay(event.get());
-        if (t != event.get()) {
-          event.reset(t);
+      if (decayer_) {
+        if (ivhepmc == 2) {  // handle HepMC2
+          auto t = decayer_->decay(event.get());
+          if (t != event.get()) {
+            event.reset(t);
+          }
+        }
+        if (ivhepmc == 3) {  // handle HepMC3
+          auto t = decayer_->decay(event3.get());
+          if (t != event3.get()) {
+            event3.reset(t);
+          }
         }
       }
       if (ivhepmc == 2 && !event.get())
@@ -249,11 +258,11 @@ namespace edm {
         genEventInfo3.reset(new GenEventInfoProduct3(event3.get()));
       }
 
-      //ev.put(std::move(genEventInfo3));
+      ev.put(std::move(genEventInfo3));
 
-      //std::unique_ptr<HepMCProduct3> bare_product(new HepMCProduct3());
-      //bare_product->addHepMCData(event3.release());
-      //ev.put(std::move(bare_product), "unsmeared");
+      std::unique_ptr<HepMC3Product> bare_product(new HepMC3Product());
+      bare_product->addHepMCData(event3.release());
+      ev.put(std::move(bare_product), "unsmeared");
     }
 
     nEventsInLumiBlock_++;

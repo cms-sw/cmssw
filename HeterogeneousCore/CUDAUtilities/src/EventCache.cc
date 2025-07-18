@@ -46,7 +46,9 @@ namespace cms::cuda {
     return cache_[dev].makeOrGet([dev]() {
       cudaEvent_t event;
       // it should be a bit faster to ignore timings
-      cudaCheck(cudaEventCreateWithFlags(&event, cudaEventDisableTiming));
+      // cudaEventBlockingSync is needed to let the thread calling
+      // cudaEventSynchronize() to sleep instead of spinning the CPU
+      cudaCheck(cudaEventCreateWithFlags(&event, cudaEventDisableTiming | cudaEventBlockingSync));
       return std::unique_ptr<BareEvent, Deleter>(event, Deleter{dev});
     });
   }

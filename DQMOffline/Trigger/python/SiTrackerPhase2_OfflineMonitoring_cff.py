@@ -4,11 +4,11 @@ from DQM.SiTrackerPhase2.Phase2OTMonitorCluster_cff import *
 
 HLTclusterMonitorIT = clusterMonitorIT.clone(
     TopFolderName = cms.string('HLT/TrackerPhase2ITCluster'),
-    InnerPixelClusterSource = cms.InputTag('siPixelClusters','','HLT'),
+    InnerPixelClusterSource = cms.InputTag('hltSiPixelClusters'),
 )
 HLTclusterMonitorOT = clusterMonitorOT.clone(
     TopFolderName = cms.string('HLT/TrackerPhase2OTCluster'),
-    clusterSrc = cms.InputTag('siPhase2Clusters','','HLT'),
+    clusterSrc = cms.InputTag('hltSiPhase2Clusters'),
 )
 
 HLTtrackerphase2DQMSource = cms.Sequence(HLTclusterMonitorIT +

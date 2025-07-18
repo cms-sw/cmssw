@@ -6,7 +6,6 @@ Test wrapper to generate a harvesting config and push it into cmsRun for
 testing with a few input files etc from the command line
 
 """
-from __future__ import print_function
 
 import sys
 import getopt
@@ -140,7 +139,7 @@ if __name__ == '__main__':
         if opt == "--dataset" :
             harvester.dataset = arg
         if opt == "--workflows":
-            harvester.workflows = [ x for x in arg.split(',') if len(x) > 0 ]
+            harvester.workflows = [ x for x in arg.split('+') if len(x) > 0 ]
         if opt == "--alcapromptdataset":
             harvester.alcapromptdataset = arg
 

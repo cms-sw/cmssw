@@ -16,53 +16,45 @@ class MergeClusterProducer : public edm::stream::EDProducer<> {
 public:
   /**
    * @brief Constructor with parameter settings - which can be changed in  ...todo.
-   * Constructor will set all variables by input param ps. 
-   * 
+   * Constructor will set all variables by input param ps.
+   *
    * @param[in] ps parametr set to set variables
   */
   MergeClusterProducer(const edm::ParameterSet &);
   ~MergeClusterProducer() override {}
   /**
    * @brief Method fill description which will be used in pyhton file.
-   * 
+   *
    * @param[out] description to be fill
   */
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
   /**
    * @brief Method will merge the producers and put them back to event
-   * 
+   *
    * @param[in, out] evt from get info and put result
    * @param[in] es to get event setup info
   */
   void produce(edm::Event &, const edm::EventSetup &) override;
 
 private:
-  edm::EDGetTokenT<std::vector<reco::CaloCluster>> EEclusters_token_;
-  edm::EDGetTokenT<std::vector<reco::CaloCluster>> HSiclusters_token_;
-  edm::EDGetTokenT<std::vector<reco::CaloCluster>> HSciclusters_token_;
+  std::vector<edm::EDGetTokenT<std::vector<reco::CaloCluster>>> tokens_;
 
+  std::vector<edm::EDGetTokenT<edm::ValueMap<std::pair<float, float>>>> time_tokens_;
   std::string timeClname_;
-  const edm::EDGetTokenT<edm::ValueMap<std::pair<float, float>>> clustersTimeEE_token_;
-  const edm::EDGetTokenT<edm::ValueMap<std::pair<float, float>>> clustersTimeHSi_token_;
-  const edm::EDGetTokenT<edm::ValueMap<std::pair<float, float>>> clustersTimeHSci_token_;
-
   /**
    * @brief method merge three vectors of reco::CaloCluster to one
-   * 
+   *
    * @param[out] merge the vector into which others vectors will be merge
    * @param[in] EE vector for Electromagnetic silicon
    * @param[in] HSi vector for Hardon silicon
    * @param[in] ESci vector for hadron scintillator
   */
-  void mergeTogether(std::vector<reco::CaloCluster> &merge,
-                     const std::vector<reco::CaloCluster> &EE,
-                     const std::vector<reco::CaloCluster> &HSi,
-                     const std::vector<reco::CaloCluster> &HSci);
+  void mergeTogether(std::vector<reco::CaloCluster> &merge, std::vector<std::vector<reco::CaloCluster>> &clusters);
 
   /**
    * @brief copy all values from vm to to
-   * 
+   *
    * @param[in] vm Value map with values
    * @param[out] to vector to will be copy value map
   */
@@ -74,28 +66,29 @@ private:
   }
   /**
    * @brief Merge value map of time for all parts of detector together  to vector times
-   * 
+   *
    * @param[in] evt Event to get time value maps
    * @param[in] size of all 3 value maps
    * @param[out] times vector of merged time vectors
   */
   void mergeTime(edm::Event &evt, size_t size, std::vector<std::pair<float, float>> &times) {
-    edm::Handle<edm::ValueMap<std::pair<float, float>>> EE, HSi, HSci;
     // get values from all three part of detectors
-    evt.getByToken(clustersTimeEE_token_, EE);
-    evt.getByToken(clustersTimeHSi_token_, HSi);
-    evt.getByToken(clustersTimeHSci_token_, HSci);
-
+    std::vector<edm::ValueMap<std::pair<float, float>>> time_maps;
+    for (auto token : time_tokens_) {
+      edm::Handle<edm::ValueMap<std::pair<float, float>>> handle;
+      evt.getByToken(token, handle);
+      time_maps.push_back(*handle);
+    }
     times.reserve(size);
-    addTo(times, *EE);
-    addTo(times, *HSi);
-    addTo(times, *HSci);
+    for (const auto &vm : time_maps) {
+      addTo(times, vm);
+    }
   }
   /**
    * @brief get info form event and then call merge
-   * 
+   *
    * it is used for merge and clusters and time
-   * 
+   *
    * @param[in] evt Event
    * @param[in] EE_token token for Electromagnetic silicon
    * @param[in] HSi_token token for Hardon silicon
@@ -103,31 +96,27 @@ private:
    * @return merged result
   */
   template <typename T>
-  void createMerge(edm::Event &evt,
-                   const edm::EDGetTokenT<T> &EE_token,
-                   const edm::EDGetTokenT<T> &HSi_token,
-                   const edm::EDGetTokenT<T> &HSci_token,
-                   T &merge) {
-    edm::Handle<T> EE, HSi, HSci;
-    // get values from all three part of detectors
-    evt.getByToken(EE_token, EE);
-    evt.getByToken(HSi_token, HSi);
-    evt.getByToken(HSci_token, HSci);
-    mergeTogether(merge, *EE, *HSi, *HSci);
+  void createMerge(edm::Event &evt, std::vector<edm::EDGetTokenT<T>> &tokens, T &merge) {
+    std::vector<T> handles;
+    for (auto token : tokens) {
+      edm::Handle<T> handle;
+      evt.getByToken(token, handle);
+      handles.push_back(*handle);
+    }
+    mergeTogether(merge, handles);
   }
 };
 
 MergeClusterProducer::MergeClusterProducer(const edm::ParameterSet &ps)
-    : timeClname_(ps.getParameter<std::string>("timeClname")),
-      clustersTimeEE_token_(
-          consumes<edm::ValueMap<std::pair<float, float>>>(ps.getParameter<edm::InputTag>("time_layerclustersEE"))),
-      clustersTimeHSi_token_(
-          consumes<edm::ValueMap<std::pair<float, float>>>(ps.getParameter<edm::InputTag>("time_layerclustersHSi"))),
-      clustersTimeHSci_token_(
-          consumes<edm::ValueMap<std::pair<float, float>>>(ps.getParameter<edm::InputTag>("time_layerclustersHSci"))) {
-  EEclusters_token_ = consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layerClustersEE"));
-  HSiclusters_token_ = consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layerClustersHSi"));
-  HSciclusters_token_ = consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layerClustersHSci"));
+    : timeClname_(ps.getParameter<std::string>("timeClname")) {
+  std::vector<edm::InputTag> tags = ps.getParameter<std::vector<edm::InputTag>>("layerClusters");
+  for (auto &tag : tags) {
+    tokens_.push_back(consumes<std::vector<reco::CaloCluster>>(tag));
+  }
+  std::vector<edm::InputTag> time_tags = ps.getParameter<std::vector<edm::InputTag>>("time_layerclusters");
+  for (auto &tag : time_tags) {
+    time_tokens_.push_back(consumes<edm::ValueMap<std::pair<float, float>>>(tag));
+  }
 
   produces<std::vector<float>>("InitialLayerClustersMask");
   produces<std::vector<reco::BasicCluster>>();
@@ -140,15 +129,15 @@ void MergeClusterProducer::fillDescriptions(edm::ConfigurationDescriptions &desc
   // hgcalMergeLayerClusters
   edm::ParameterSetDescription desc;
   //layer clusters
-  desc.add<edm::InputTag>("layerClustersEE", edm::InputTag("hgcalLayerClustersEE"));
-  desc.add<edm::InputTag>("layerClustersHSi", edm::InputTag("hgcalLayerClustersHSi"));
-  desc.add<edm::InputTag>("layerClustersHSci", edm::InputTag("hgcalLayerClustersHSci"));
-
+  desc.add<std::vector<edm::InputTag>>("layerClusters",
+                                       {edm::InputTag("hgcalLayerClustersEE"),
+                                        edm::InputTag("hgcalLayerClustersHSi"),
+                                        edm::InputTag("hgcalLayerClustersHSci")});
   //time
-  desc.add<edm::InputTag>("time_layerclustersEE", edm::InputTag("hgcalLayerClustersEE", "timeLayerCluster"));
-  desc.add<edm::InputTag>("time_layerclustersHSi", edm::InputTag("hgcalLayerClustersHSi", "timeLayerCluster"));
-  desc.add<edm::InputTag>("time_layerclustersHSci", edm::InputTag("hgcalLayerClustersHSci", "timeLayerCluster"));
-
+  desc.add<std::vector<edm::InputTag>>("time_layerclusters",
+                                       {edm::InputTag("hgcalLayerClustersEE:timeLayerCluster"),
+                                        edm::InputTag("hgcalLayerClustersHSi:timeLayerCluster"),
+                                        edm::InputTag("hgcalLayerClustersHSci:timeLayerCluster")});
   desc.add<std::string>("timeClname", "timeLayerCluster");
   descriptions.add("hgcalMergeLayerClusters", desc);
 }
@@ -156,7 +145,7 @@ void MergeClusterProducer::fillDescriptions(edm::ConfigurationDescriptions &desc
 void MergeClusterProducer::produce(edm::Event &evt, const edm::EventSetup &es) {
   //merge clusters
   std::unique_ptr<std::vector<reco::BasicCluster>> clusters(new std::vector<reco::BasicCluster>);
-  createMerge(evt, EEclusters_token_, HSiclusters_token_, HSciclusters_token_, *clusters);
+  createMerge(evt, tokens_, *clusters);
   //put new clusters to event
   auto clusterHandle = evt.put(std::move(clusters));
 
@@ -178,15 +167,16 @@ void MergeClusterProducer::produce(edm::Event &evt, const edm::EventSetup &es) {
 }
 
 void MergeClusterProducer::mergeTogether(std::vector<reco::CaloCluster> &merge,
-                                         const std::vector<reco::CaloCluster> &EE,
-                                         const std::vector<reco::CaloCluster> &HSi,
-                                         const std::vector<reco::CaloCluster> &HSci) {
-  auto clusterSize = EE.size() + HSi.size() + HSci.size();
+                                         std::vector<std::vector<reco::CaloCluster>> &clusters) {
+  size_t clusterSize = 0;
+  for (auto &cl : clusters) {
+    clusterSize += cl.size();
+  }
   merge.reserve(clusterSize);
 
-  merge.insert(merge.end(), EE.begin(), EE.end());
-  merge.insert(merge.end(), HSi.begin(), HSi.end());
-  merge.insert(merge.end(), HSci.begin(), HSci.end());
+  for (auto &cl : clusters) {
+    merge.insert(merge.end(), cl.begin(), cl.end());
+  }
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

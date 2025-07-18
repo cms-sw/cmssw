@@ -29,15 +29,15 @@ MillePedeDQMModule ::MillePedeDQMModule(const edm::ParameterSet& config)
     : tTopoToken_(esConsumes<edm::Transition::BeginRun>()),
       gDetToken_(esConsumes<edm::Transition::BeginRun>()),
       ptpToken_(esConsumes<edm::Transition::BeginRun>()),
+      ptitpToken_(esConsumes<edm::Transition::BeginRun>()),
       aliThrToken_(esConsumes<edm::Transition::BeginRun>()),
+      siPixelQualityToken_(esConsumes<edm::Transition::BeginRun>()),
       geomToken_(esConsumes<edm::Transition::BeginRun>()),
       outputFolder_(config.getParameter<std::string>("outputFolder")),
       mpReaderConfig_(config.getParameter<edm::ParameterSet>("MillePedeFileReader")),
       isHG_(mpReaderConfig_.getParameter<bool>("isHG")) {
   consumes<AlignmentToken, edm::InProcess>(config.getParameter<edm::InputTag>("alignmentTokenSrc"));
 }
-
-MillePedeDQMModule ::~MillePedeDQMModule() {}
 
 //=============================================================================
 //===   INTERFACE IMPLEMENTATION                                            ===
@@ -159,8 +159,8 @@ void MillePedeDQMModule ::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter
       } else {
         vetoStr = "N/A";
       }  // if the alignment exceeds the cutoffs
-    }    // LG case
-  }      // if the alignment was not stored
+    }  // LG case
+  }  // if the alignment was not stored
 
   exitCode->Fill(exitCodeStr);
   isVetoed->Fill(vetoStr);
@@ -177,7 +177,13 @@ void MillePedeDQMModule ::beginRun(const edm::Run&, const edm::EventSetup& setup
   const TrackerTopology* const tTopo = &setup.getData(tTopoToken_);
   const GeometricDet* geometricDet = &setup.getData(gDetToken_);
   const PTrackerParameters* ptp = &setup.getData(ptpToken_);
+  const PTrackerAdditionalParametersPerDet* ptitp = &setup.getData(ptitpToken_);
   const TrackerGeometry* geom = &setup.getData(geomToken_);
+
+  // Retrieve the SiPixelQuality object from setup
+  const SiPixelQuality& qual = setup.getData(siPixelQualityToken_);
+  // Create a new SiPixelQuality object on the heap using the copy constructor
+  pixelQuality_ = std::make_shared<SiPixelQuality>(qual);
 
   pixelTopologyMap_ = std::make_shared<PixelTopologyMap>(geom, tTopo);
 
@@ -190,7 +196,7 @@ void MillePedeDQMModule ::beginRun(const edm::Run&, const edm::EventSetup& setup
 
   TrackerGeomBuilderFromGeometricDet builder;
 
-  const auto trackerGeometry = builder.build(geometricDet, *ptp, tTopo);
+  const auto trackerGeometry = builder.build(geometricDet, ptitp, *ptp, tTopo);
   tracker_ = std::make_unique<AlignableTracker>(trackerGeometry, tTopo);
 
   const std::string labelerPlugin{"PedeLabeler"};
@@ -201,8 +207,11 @@ void MillePedeDQMModule ::beginRun(const edm::Run&, const edm::EventSetup& setup
   std::shared_ptr<PedeLabelerBase> pedeLabeler{PedeLabelerPluginFactory::get()->create(
       labelerPlugin, PedeLabelerBase::TopLevelAlignables(tracker_.get(), nullptr, nullptr), labelerConfig)};
 
-  mpReader_ = std::make_unique<MillePedeFileReader>(
-      mpReaderConfig_, pedeLabeler, std::shared_ptr<const AlignPCLThresholdsHG>(myThresholds), pixelTopologyMap_);
+  mpReader_ = std::make_unique<MillePedeFileReader>(mpReaderConfig_,
+                                                    pedeLabeler,
+                                                    std::shared_ptr<const AlignPCLThresholdsHG>(myThresholds),
+                                                    pixelTopologyMap_,
+                                                    pixelQuality_);
 }
 
 void MillePedeDQMModule ::fillStatusHisto(MonitorElement* statusHisto) {
@@ -528,4 +537,16 @@ int MillePedeDQMModule ::getIndexFromString(const std::string& alignableId) {
     throw cms::Exception("LogicError") << "@SUB=MillePedeDQMModule::getIndexFromString\n"
                                        << "Retrieving conversion for not supported Alignable partition" << alignableId;
   }
+}
+
+void MillePedeDQMModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("outputFolder", "AlCaReco/SiPixelAli");
+  {
+    edm::ParameterSetDescription mpFileReaderPSet;
+    MillePedeFileReader::fillPSetDescription(mpFileReaderPSet);
+    desc.add<edm::ParameterSetDescription>("MillePedeFileReader", mpFileReaderPSet);
+  }
+  desc.add<edm::InputTag>("alignmentTokenSrc", edm::InputTag("SiPixelAliPedeAlignmentProducer"));
+  descriptions.addWithDefaultLabel(desc);
 }

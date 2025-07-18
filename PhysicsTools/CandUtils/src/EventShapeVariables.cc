@@ -266,7 +266,7 @@ void EventShapeVariables::computeFWmoments() {
       }
 
     }  // j
-  }    // i
+  }  // i
 
   fwmom_computed_ = true;
 

@@ -27,5 +27,5 @@ namespace edm {
       template class BeginLuminosityBlockProducer<edm::limited::EDProducerBase>;
       template class EndLuminosityBlockProducer<edm::limited::EDProducerBase>;
     }  // namespace impl
-  }    // namespace limited
+  }  // namespace limited
 }  // namespace edm

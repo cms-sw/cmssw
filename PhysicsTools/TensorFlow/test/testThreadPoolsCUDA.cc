@@ -60,7 +60,6 @@ process.add_(cms.Service('CUDAService'))
 
   // load the graph
   std::string pbFile = dataPath_ + "/constantgraph.pb";
-  tensorflow::setLogging();
   tensorflow::GraphDef* graphDef = tensorflow::loadGraphDef(pbFile);
   CPPUNIT_ASSERT(graphDef != nullptr);
 

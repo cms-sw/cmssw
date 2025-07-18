@@ -19,6 +19,7 @@
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/PTrackerAdditionalParametersPerDetRcd.h"
 #include "Geometry/Records/interface/PTrackerParametersRcd.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
@@ -34,11 +35,11 @@ class TrackerGeometryAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns>
   //========================== PUBLIC METHODS =================================
 public:  //===================================================================
   TrackerGeometryAnalyzer(const edm::ParameterSet&);
-  virtual ~TrackerGeometryAnalyzer(){};
+  virtual ~TrackerGeometryAnalyzer() {}
 
   virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override{};
-  virtual void endRun(const edm::Run&, const edm::EventSetup&) override{};
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override {}
+  virtual void endRun(const edm::Run&, const edm::EventSetup&) override {}
 
   //========================= PRIVATE METHODS =================================
 private:  //==================================================================
@@ -73,6 +74,7 @@ private:  //==================================================================
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
   const edm::ESGetToken<GeometricDet, IdealGeometryRecord> geomDetToken_;
   const edm::ESGetToken<PTrackerParameters, PTrackerParametersRcd> ptpToken_;
+  const edm::ESGetToken<PTrackerAdditionalParametersPerDet, PTrackerAdditionalParametersPerDetRcd> ptapToken_;
 
   // config-file parameters
   const bool analyzeAlignables_;

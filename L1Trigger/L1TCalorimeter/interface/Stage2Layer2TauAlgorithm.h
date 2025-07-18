@@ -28,7 +28,7 @@ namespace l1t {
                               const std::vector<l1t::CaloTower>& towers,
                               std::vector<l1t::Tau>& taus) = 0;
 
-    virtual ~Stage2Layer2TauAlgorithm(){};
+    virtual ~Stage2Layer2TauAlgorithm() {}
   };
 
 }  // namespace l1t

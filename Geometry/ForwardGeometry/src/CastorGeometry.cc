@@ -10,18 +10,10 @@ typedef CaloCellGeometry::Pt3D Pt3D;
 typedef CaloCellGeometry::Pt3DVec Pt3DVec;
 
 CastorGeometry::CastorGeometry()
-    : theTopology(new CastorTopology),
-      lastReqDet_(DetId::Detector(0)),
-      lastReqSubdet_(0),
-      m_ownsTopology(true),
-      m_cellVec(k_NumberOfCellsForCorners) {}
+    : theTopology(new CastorTopology), m_ownsTopology(true), m_cellVec(k_NumberOfCellsForCorners) {}
 
 CastorGeometry::CastorGeometry(const CastorTopology* topology)
-    : theTopology(topology),
-      lastReqDet_(DetId::Detector(0)),
-      lastReqSubdet_(0),
-      m_ownsTopology(false),
-      m_cellVec(k_NumberOfCellsForCorners) {}
+    : theTopology(topology), m_ownsTopology(false), m_cellVec(k_NumberOfCellsForCorners) {}
 
 CastorGeometry::~CastorGeometry() {
   if (m_ownsTopology)
@@ -72,8 +64,8 @@ void CastorGeometry::newCell(const GlobalPoint& f1,
   addValidID(detId);
 }
 
-const CaloCellGeometry* CastorGeometry::getGeometryRawPtr(uint32_t index) const {
+CaloCellGeometryPtr CastorGeometry::getGeometryRawPtr(uint32_t index) const {
   // Modify the RawPtr class
-  const CaloCellGeometry* cell(&m_cellVec[index]);
-  return (m_cellVec.size() < index || nullptr == cell->param() ? nullptr : cell);
+  return CaloCellGeometryPtr(m_cellVec.size() <= index || nullptr == m_cellVec[index].param() ? nullptr
+                                                                                              : &m_cellVec[index]);
 }

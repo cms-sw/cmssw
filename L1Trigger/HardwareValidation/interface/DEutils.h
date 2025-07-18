@@ -484,7 +484,7 @@ inline L1DataEmulDigi DEutils<CSCCorrelatedLCTDigiCollection_>::DEDigi(col_cit i
   dw += (itd->getBend() & ((1 << kBendBitWidth) - 1)) << (shift += kHalfstripBitWidth);
   dw += (itd->getBX() & ((1 << kBxBitWidth) - 1)) << (shift += kBendBitWidth);
   dw += (itd->getMPCLink() & ((1 << kMPCLinkBitWidth) - 1)) << (shift += kBxBitWidth);
-  dw += (itd->getCSCID() & ((1 << kCSCIdBitWidth) - 1)) << (shift += kMPCLinkBitWidth);
+  dw += (itd->getCSCID() & ((1 << kCSCIdBitWidth) - 1)) << (shift + kMPCLinkBitWidth);
   shift = 0;
   ew = itm->isValid() & ((1 << kValidBitWidth) - 1);
   ew += (itm->getQuality() & ((1 << kQualityBitWidth) - 1)) << (shift += kValidBitWidth);
@@ -494,7 +494,7 @@ inline L1DataEmulDigi DEutils<CSCCorrelatedLCTDigiCollection_>::DEDigi(col_cit i
   ew += (itm->getBend() & ((1 << kBendBitWidth) - 1)) << (shift += kHalfstripBitWidth);
   ew += (itm->getBX() & ((1 << kBxBitWidth) - 1)) << (shift += kBendBitWidth);
   ew += (itm->getMPCLink() & ((1 << kMPCLinkBitWidth) - 1)) << (shift += kBxBitWidth);
-  ew += (itm->getCSCID() & ((1 << kCSCIdBitWidth) - 1)) << (shift += kMPCLinkBitWidth);
+  ew += (itm->getCSCID() & ((1 << kCSCIdBitWidth) - 1)) << (shift + kMPCLinkBitWidth);
   digi.setData(dw, ew);
   return digi;
 }
@@ -523,14 +523,14 @@ inline L1DataEmulDigi DEutils<CSCALCTDigiCollection_>::DEDigi(col_cit itd, col_c
   dw += (itd->getAccelerator() & ((1 << kAccelBitWidth) - 1)) << (shift += kQualityBitWidth);
   dw += (itd->getCollisionB() & ((1 << kPatternBBitWidth) - 1)) << (shift += kAccelBitWidth);
   dw += (itd->getKeyWG() & ((1 << kWireGroupBitWidth) - 1)) << (shift += kPatternBBitWidth);
-  dw += (itd->getBX() & ((1 << kBxBitWidth) - 1)) << (shift += kWireGroupBitWidth);
+  dw += (itd->getBX() & ((1 << kBxBitWidth) - 1)) << (shift + kWireGroupBitWidth);
   shift = 0;
   ew = itm->isValid() & ((1 << kValidBitWidth) - 1);
   ew += (itm->getQuality() & ((1 << kQualityBitWidth) - 1)) << (shift += kValidBitWidth);
   ew += (itm->getAccelerator() & ((1 << kAccelBitWidth) - 1)) << (shift += kQualityBitWidth);
   ew += (itm->getCollisionB() & ((1 << kPatternBBitWidth) - 1)) << (shift += kAccelBitWidth);
   ew += (itm->getKeyWG() & ((1 << kWireGroupBitWidth) - 1)) << (shift += kPatternBBitWidth);
-  ew += (itm->getBX() & ((1 << kBxBitWidth) - 1)) << (shift += kWireGroupBitWidth);
+  ew += (itm->getBX() & ((1 << kBxBitWidth) - 1)) << (shift + kWireGroupBitWidth);
   digi.setData(dw, ew);
   return digi;
 }
@@ -560,7 +560,7 @@ inline L1DataEmulDigi DEutils<CSCCLCTDigiCollection_>::DEDigi(col_cit itd, col_c
   dw += (itd->getBend() & ((1 << kBendBitWidth) - 1)) << (shift += kPatternBitWidth);
   dw += (itd->getStrip() & ((1 << kHalfstripBitWidth) - 1)) << (shift += kBendBitWidth);
   dw += (itd->getCFEB() & ((1 << kCFEBBitWidth) - 1)) << (shift += kHalfstripBitWidth);
-  dw += (itd->getBX() & ((1 << kBxBitWidth) - 1)) << (shift += kCFEBBitWidth);
+  dw += (itd->getBX() & ((1 << kBxBitWidth) - 1)) << (shift + kCFEBBitWidth);
   shift = 0;
   ew = itm->isValid() & ((1 << kValidBitWidth) - 1);
   ew += (itm->getQuality() & ((1 << kQualityBitWidth) - 1)) << (shift += kValidBitWidth);
@@ -568,7 +568,7 @@ inline L1DataEmulDigi DEutils<CSCCLCTDigiCollection_>::DEDigi(col_cit itd, col_c
   ew += (itm->getBend() & ((1 << kBendBitWidth) - 1)) << (shift += kPatternBitWidth);
   ew += (itm->getStrip() & ((1 << kHalfstripBitWidth) - 1)) << (shift += kBendBitWidth);
   ew += (itm->getCFEB() & ((1 << kCFEBBitWidth) - 1)) << (shift += kHalfstripBitWidth);
-  ew += (itm->getBX() & ((1 << kBxBitWidth) - 1)) << (shift += kCFEBBitWidth);
+  ew += (itm->getBX() & ((1 << kBxBitWidth) - 1)) << (shift + kCFEBBitWidth);
   digi.setData(dw, ew);
   return digi;
 }

@@ -38,7 +38,7 @@ namespace dqm {
     static const int STATUS_OK = 100;  //< Test was succesful.
     static const int WARNING = 200;    //< Test had some problems.
     static const int ERROR = 300;      //< Test has failed.
-  }                                    // namespace qstatus
+  }  // namespace qstatus
 }  // namespace dqm
 
 //////////////////////////////////////////////////////////////////////
@@ -325,6 +325,10 @@ DQMNet::reinstateObject(DQMStore *store, Object &o)
 
  case DQM_PROP_TYPE_TH2I:
     obj = store->book2I(name, dynamic_cast<TH2I *>(o.object));
+    break;
+
+  case DQM_PROP_TYPE_TH2Poly:
+    obj = store->book2DPoly(name, dynamic_cast<TH2Poly *>(o.object));
     break;
 
   case DQM_PROP_TYPE_TH3F:
@@ -860,9 +864,8 @@ bool DQMNet::onPeerConnect(IOSelectEvent *ev) {
 bool DQMNet::onLocalNotify(IOSelectEvent *ev) {
   // Discard the data in the pipe, we care only about the wakeup.
   try {
-    IOSize sz;
     unsigned char buf[1024];
-    while ((sz = ev->source->read(buf, sizeof(buf))))
+    while ((ev->source->read(buf, sizeof(buf))))
       ;
   } catch (Error &e) {
     auto *next = dynamic_cast<SystemError *>(e.next());

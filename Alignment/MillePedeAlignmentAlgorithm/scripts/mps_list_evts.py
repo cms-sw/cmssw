@@ -14,7 +14,6 @@ Usage:
 
 M. Schroeder, DESY Hamburg      26-May-2014
 """
-from __future__ import print_function
 
 import sys
 

@@ -20,8 +20,9 @@ namespace detailsBasic3DVector {
     double t(z / std::sqrt(x * x + y * y));
     return ::asinh(t);
   }
-  inline long double __attribute__((always_inline)) __attribute__((pure))
-  eta(long double x, long double y, long double z) {
+  inline long double __attribute__((always_inline)) __attribute__((pure)) eta(long double x,
+                                                                              long double y,
+                                                                              long double z) {
     long double t(z / std::sqrt(x * x + y * y));
     return ::asinhl(t);
   }

@@ -16,7 +16,7 @@ public:
 
   MTDTransientTrackingRecHitBuilder(edm::ESHandle<GlobalTrackingGeometry> trackingGeometry = nullptr);
 
-  ~MTDTransientTrackingRecHitBuilder() override{};
+  ~MTDTransientTrackingRecHitBuilder() override {}
 
   using TransientTrackingRecHitBuilder::build;
   /// Call the MTDTransientTrackingRecHit::specificBuild

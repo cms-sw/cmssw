@@ -205,7 +205,7 @@ void TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
         }
       }
     }  // has vertex
-  }    //for loop
+  }  //for loop
 
   // simtrack parameters are in now tsim
   // loop over tracks and try to match them to simulated tracks

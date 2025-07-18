@@ -4,6 +4,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
@@ -43,6 +46,7 @@ public:
   HITrackClusterRemover(const edm::ParameterSet &iConfig);
   ~HITrackClusterRemover() override;
   void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> const tTrackerGeom_;
@@ -50,18 +54,27 @@ private:
     ParamBlock() : isSet_(false), usesCharge_(false) {}
     ParamBlock(const edm::ParameterSet &iConfig)
         : isSet_(true),
-          usesCharge_(iConfig.exists("maxCharge")),
-          usesSize_(iConfig.exists("maxSize")),
-          cutOnPixelCharge_(iConfig.exists("minGoodPixelCharge")),
-          cutOnStripCharge_(iConfig.exists("minGoodStripCharge")),
           maxChi2_(iConfig.getParameter<double>("maxChi2")),
-          maxCharge_(usesCharge_ ? iConfig.getParameter<double>("maxCharge") : 0),
-          minGoodPixelCharge_(cutOnPixelCharge_ ? iConfig.getParameter<double>("minGoodPixelCharge") : 0),
-          minGoodStripCharge_(cutOnStripCharge_ ? iConfig.getParameter<double>("minGoodStripCharge") : 0),
-          maxSize_(usesSize_ ? iConfig.getParameter<uint32_t>("maxSize") : 0) {}
-    bool isSet_, usesCharge_, usesSize_, cutOnPixelCharge_, cutOnStripCharge_;
+          maxCharge_(iConfig.getParameter<double>("maxCharge")),
+          minGoodPixelCharge_(iConfig.getParameter<double>("minGoodPixelCharge")),
+          minGoodStripCharge_(iConfig.getParameter<double>("minGoodStripCharge")),
+          maxSize_(iConfig.getParameter<uint32_t>("maxSize")),
+          usesCharge_(maxCharge_ > 0.),
+          usesSize_(maxSize_ > 0.),
+          cutOnPixelCharge_(minGoodPixelCharge_ > 0.),
+          cutOnStripCharge_(minGoodStripCharge_ > 0.) {}
+    bool isSet_;
     float maxChi2_, maxCharge_, minGoodPixelCharge_, minGoodStripCharge_;
     size_t maxSize_;
+    bool usesCharge_, usesSize_, cutOnPixelCharge_, cutOnStripCharge_;
+
+    static void fillPSetDescription(edm::ParameterSetDescription &desc) {
+      desc.addOptional<double>("maxChi2");
+      desc.add<double>("maxCharge", 0.);
+      desc.add<double>("minGoodPixelCharge", 0.);
+      desc.add<double>("minGoodStripCharge", 0.);
+      desc.add<uint32_t>("maxSize", 0.);
+    }
   };
   static const unsigned int NumberOfParamBlocks = 6;
 
@@ -144,24 +157,21 @@ void HITrackClusterRemover::readPSet(
 
 HITrackClusterRemover::HITrackClusterRemover(const ParameterSet &iConfig)
     : tTrackerGeom_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
-      doTracks_(iConfig.exists("trajectories")),
-      doStrip_(iConfig.existsAs<bool>("doStrip") ? iConfig.getParameter<bool>("doStrip") : true),
-      doPixel_(iConfig.existsAs<bool>("doPixel") ? iConfig.getParameter<bool>("doPixel") : true),
-      mergeOld_(iConfig.exists("oldClusterRemovalInfo")),
+      doTracks_(!iConfig.getParameter<edm::InputTag>("trajectories").label().empty()),
+      doStrip_(iConfig.getParameter<bool>("doStrip")),
+      doPixel_(iConfig.getParameter<bool>("doPixel")),
+      mergeOld_(!iConfig.getParameter<edm::InputTag>("oldClusterRemovalInfo").label().empty()),
       clusterWasteSolution_(true),
-      doStripChargeCheck_(
-          iConfig.existsAs<bool>("doStripChargeCheck") ? iConfig.getParameter<bool>("doStripChargeCheck") : false),
-      doPixelChargeCheck_(
-          iConfig.existsAs<bool>("doPixelChargeCheck") ? iConfig.getParameter<bool>("doPixelChargeCheck") : false),
+      doStripChargeCheck_(iConfig.getParameter<bool>("doStripChargeCheck")),
+      doPixelChargeCheck_(iConfig.getParameter<bool>("doPixelChargeCheck")),
       stripRecHits_(doStripChargeCheck_ ? iConfig.getParameter<std::string>("stripRecHits")
                                         : std::string("siStripMatchedRecHits")),
       pixelRecHits_(doPixelChargeCheck_ ? iConfig.getParameter<std::string>("pixelRecHits")
                                         : std::string("siPixelRecHits")) {
   mergeOld_ = mergeOld_ && !iConfig.getParameter<InputTag>("oldClusterRemovalInfo").label().empty();
-  if (iConfig.exists("overrideTrkQuals"))
+  if (!iConfig.getParameter<edm::InputTag>("overrideTrkQuals").label().empty())
     overrideTrkQuals_.push_back(consumes<edm::ValueMap<int> >(iConfig.getParameter<InputTag>("overrideTrkQuals")));
-  if (iConfig.exists("clusterLessSolution"))
-    clusterWasteSolution_ = !iConfig.getParameter<bool>("clusterLessSolution");
+  clusterWasteSolution_ = !iConfig.getParameter<bool>("clusterLessSolution");
   if ((doPixelChargeCheck_ && !doPixel_) || (doStripChargeCheck_ && !doStrip_))
     throw cms::Exception("Configuration Error")
         << "HITrackClusterRemover: Charge check asked without cluster collection ";
@@ -212,13 +222,10 @@ HITrackClusterRemover::HITrackClusterRemover(const ParameterSet &iConfig)
   }
   trackQuality_ = reco::TrackBase::undefQuality;
   filterTracks_ = false;
-  if (iConfig.exists("TrackQuality")) {
+  if (!iConfig.getParameter<std::string>("TrackQuality").empty()) {
     filterTracks_ = true;
     trackQuality_ = reco::TrackBase::qualityByName(iConfig.getParameter<std::string>("TrackQuality"));
-    minNumberOfLayersWithMeasBeforeFiltering_ =
-        iConfig.existsAs<int>("minNumberOfLayersWithMeasBeforeFiltering")
-            ? iConfig.getParameter<int>("minNumberOfLayersWithMeasBeforeFiltering")
-            : 0;
+    minNumberOfLayersWithMeasBeforeFiltering_ = iConfig.getParameter<int>("minNumberOfLayersWithMeasBeforeFiltering");
   }
 
   if (doTracks_)
@@ -590,6 +597,43 @@ void HITrackClusterRemover::produce(Event &iEvent, const EventSetup &iSetup) {
   }
   collectedStrips_.clear();
   collectedPixels_.clear();
+}
+
+void HITrackClusterRemover::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+
+  // Define the structure for optional ParameterSets like Common, Pixel, Strip, etc.
+  edm::ParameterSetDescription paramBlockDesc;
+  ParamBlock::fillPSetDescription(paramBlockDesc);
+
+  // Add all possible ParameterSets (optional) using the above structure
+  desc.addOptional<edm::ParameterSetDescription>("Common", paramBlockDesc);
+  desc.addOptional<edm::ParameterSetDescription>("Pixel", paramBlockDesc);
+  desc.addOptional<edm::ParameterSetDescription>("Strip", paramBlockDesc);
+  desc.addOptional<edm::ParameterSetDescription>("PXB", paramBlockDesc);
+  desc.addOptional<edm::ParameterSetDescription>("PXE", paramBlockDesc);
+  desc.addOptional<edm::ParameterSetDescription>("StripInner", paramBlockDesc);
+  desc.addOptional<edm::ParameterSetDescription>("StripOuter", paramBlockDesc);
+  desc.addOptional<edm::ParameterSetDescription>("TIB", paramBlockDesc);
+  desc.addOptional<edm::ParameterSetDescription>("TID", paramBlockDesc);
+  desc.addOptional<edm::ParameterSetDescription>("TOB", paramBlockDesc);
+  desc.addOptional<edm::ParameterSetDescription>("TEC", paramBlockDesc);
+
+  desc.add<bool>("doStrip", true);
+  desc.add<bool>("doPixel", true);
+  desc.add<bool>("doStripChargeCheck", false);
+  desc.add<bool>("doPixelChargeCheck", false);
+  desc.add<std::string>("stripRecHits");
+  desc.add<std::string>("pixelRecHits");
+  desc.add<InputTag>("oldClusterRemovalInfo", edm::InputTag(""));
+  desc.add<InputTag>("overrideTrkQuals", edm::InputTag(""));
+  desc.add<bool>("clusterLessSolution", false);
+  desc.add<std::string>("TrackQuality", "");
+  desc.add<int>("minNumberOfLayersWithMeasBeforeFiltering", 0);
+  desc.add<InputTag>("trajectories", edm::InputTag(""));
+  desc.add<InputTag>("pixelClusters");
+  desc.add<InputTag>("stripClusters");
+  descriptions.addDefault(desc);
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

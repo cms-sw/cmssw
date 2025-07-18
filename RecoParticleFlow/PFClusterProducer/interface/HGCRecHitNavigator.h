@@ -43,18 +43,21 @@ public:
   }
 
   HGCRecHitNavigator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc) {
-    if (iConfig.exists("hgcee")) {
-      eeNav_ = new hgcee(iConfig.getParameter<edm::ParameterSet>("hgcee"), cc);
+    const auto& pset_hgcee = iConfig.getParameter<edm::ParameterSet>("hgcee");
+    if (!pset_hgcee.empty() && !pset_hgcee.getParameter<std::string>("name").empty()) {
+      eeNav_ = new hgcee(pset_hgcee, cc);
     } else {
       eeNav_ = nullptr;
     }
-    if (iConfig.exists("hgchef")) {
-      hefNav_ = new hgchef(iConfig.getParameter<edm::ParameterSet>("hgchef"), cc);
+    const auto& pset_hgchef = iConfig.getParameter<edm::ParameterSet>("hgchef");
+    if (!pset_hgchef.empty() && !pset_hgchef.getParameter<std::string>("name").empty()) {
+      hefNav_ = new hgchef(pset_hgchef, cc);
     } else {
       hefNav_ = nullptr;
     }
-    if (iConfig.exists("hgcheb")) {
-      hebNav_ = new hgcheb(iConfig.getParameter<edm::ParameterSet>("hgcheb"), cc);
+    const auto& pset_hgcheb = iConfig.getParameter<edm::ParameterSet>("hgcheb");
+    if (!pset_hgcheb.empty() && !pset_hgcheb.getParameter<std::string>("name").empty()) {
+      hebNav_ = new hgcheb(pset_hgcheb, cc);
     } else {
       hebNav_ = nullptr;
     }

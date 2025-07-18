@@ -291,5 +291,5 @@ void CSCGeometryBuilder::buildChamber(CSCGeometry& theGeometry,         // the g
       }
 
     }  // layer construction within chamber
-  }    // chamber construction
+  }  // chamber construction
 }

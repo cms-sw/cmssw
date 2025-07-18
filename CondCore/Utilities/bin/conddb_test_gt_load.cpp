@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include <chrono>
+#include <memory>
 
 // ================================================================================
 
@@ -156,7 +157,7 @@ namespace cond {
 }  // namespace cond
 
 cond::UntypedPayloadProxy::UntypedPayloadProxy(Session& session) : m_session(session) {
-  m_data.reset(new pimpl);
+  m_data = std::make_shared<pimpl>();
   m_data->current.clear();
 }
 
@@ -249,7 +250,6 @@ cond::TestGTLoad::TestGTLoad() : Utilities("conddb_test_gt_load") {
 
 int cond::TestGTLoad::execute() {
   std::string gtag = getOptionValue<std::string>("globaltag");
-  bool debug = hasDebug();
   std::string connect = getOptionValue<std::string>("connect");
   bool verbose = hasOptionValue("verbose");
   size_t n = 1;

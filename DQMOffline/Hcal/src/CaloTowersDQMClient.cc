@@ -53,6 +53,13 @@ int CaloTowersDQMClient::CaloTowersEndjob(const std::vector<MonitorElement *> &h
       occupancy_vs_ieta = hcalMEs[ih];
     }
   }
+
+  // Avoid LLVM analyzer warnings
+  assert(Ntowers_vs_ieta);
+  assert(mapEnergy_N);
+  assert(occupancy_map);
+  assert(occupancy_vs_ieta);
+
   if (useAllHistos != 0 && useAllHistos != 3)
     return 0;
 

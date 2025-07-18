@@ -20,6 +20,8 @@ CkfTrajectoryBuilder = cms.PSet(
     propagatorOpposite = cms.string('PropagatorWithMaterialOpposite'),
 #    propagatorOpposite = cms.string('PropagatorWithMaterialParabolicMfOpposite'),
     lostHitPenalty = cms.double(30.0),
+    foundHitBonus = cms.double(0.0),
+    minHitForDoubleBonus = cms.int32(8888),
     #SharedSeedCheck = cms.bool(False),
     seedAs5DHit  = cms.bool(False)
 )

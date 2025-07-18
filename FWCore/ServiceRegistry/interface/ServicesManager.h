@@ -63,10 +63,7 @@ namespace edm {
              Conflicts over Services provided by both the iToken and iConfiguration
              are resolved based on the value of iLegacy
          */
-      ServicesManager(ServiceToken iToken,
-                      ServiceLegacy iLegacy,
-                      std::vector<ParameterSet>& iConfiguration,
-                      bool associate = true);
+      ServicesManager(ServiceToken iToken, ServiceLegacy iLegacy, std::vector<ParameterSet>& iConfiguration);
 
       ServicesManager(ServicesManager const&) = delete;                   // stop default
       ServicesManager const& operator=(ServicesManager const&) = delete;  // stop default
@@ -83,7 +80,7 @@ namespace edm {
               type2Maker_->end() == (itFoundMaker = type2Maker_->find(TypeIDBase(typeid(T))))) {
             auto demangled = typeDemangle(typeid(T).name());
             Exception::throwThis(errors::NotFound,
-                                 "Service Request unable to find requested service with compiler type name '",
+                                 "Service Request unable to find requested service with C++ type '",
                                  demangled.c_str(),
                                  "'.\n");
           } else {

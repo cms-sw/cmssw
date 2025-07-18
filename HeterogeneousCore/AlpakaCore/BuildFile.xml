@@ -1,4 +1,6 @@
+<use name="FWCore/Concurrency"/>
 <use name="FWCore/Framework"/>
+<use name="FWCore/ServiceRegistry"/>
 <use name="HeterogeneousCore/AlpakaInterface"/>
 <flags ALPAKA_BACKENDS="1"/>
 <export>

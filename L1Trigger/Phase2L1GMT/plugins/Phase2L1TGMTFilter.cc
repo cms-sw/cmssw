@@ -9,7 +9,6 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "DataFormats/L1TMuonPhase2/interface/TrackerMuon.h"
 #include "DataFormats/L1TMuonPhase2/interface/SAMuon.h"
-#include "Node.h"
 
 //
 // class declaration

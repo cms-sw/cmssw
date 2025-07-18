@@ -20,11 +20,7 @@
 using namespace std;
 
 DTRPCBxCorrection::DTRPCBxCorrection(L1MuDTChambPhContainer inphiDTDigis, L1MuDTChambPhContainer inphiRPCDigis)
-    : m_phiDTDigis(inphiDTDigis),
-      m_phiRPCDigis(inphiRPCDigis){
-          //  m_phiDTDigis=inphiDTDigis;
-          //  m_phiRPCDigis=inphiRPCDigis;
-      };
+    : m_phiDTDigis(inphiDTDigis), m_phiRPCDigis(inphiRPCDigis) {}
 
 void DTRPCBxCorrection::run(const L1TTwinMuxParams& tmParams) {
   m_QualityLimit = tmParams.get_USERPCBXFORDTBELOWQUALITY();
@@ -185,8 +181,8 @@ void DTRPCBxCorrection::BxCorrection(int track_seg) {
         }
 
       }  //end of station
-    }    //end of sc
-  }      //end of wheel
+    }  //end of sc
+  }  //end of wheel
 }
 
 int DTRPCBxCorrection::deltaPhi(int dt_phi, int rpc2dt_phi) {

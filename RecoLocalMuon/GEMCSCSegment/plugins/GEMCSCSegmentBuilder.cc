@@ -213,8 +213,8 @@ void GEMCSCSegmentBuilder::build(const GEMRecHitCollection* recHits,
                 << "] added to CSC segment found in " << CSCId << " [" << CSCId.rawId() << "]" << std::endl;
           }
         }  // end Loop over GEM Rolls
-      }    // end Loop over GEM RecHits
-    }      // end requirement of CSC segment in ME1/1 or ME2/1
+      }  // end Loop over GEM RecHits
+    }  // end requirement of CSC segment in ME1/1 or ME2/1
 
     // Case B :: all other CSC Chambers have no GEM Chamber associated
     // ===============================================================

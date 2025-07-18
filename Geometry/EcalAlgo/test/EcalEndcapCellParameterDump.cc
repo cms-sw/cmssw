@@ -41,7 +41,7 @@ void EcalEndcapCellParameterDump::analyze(const edm::Event& /*iEvent*/, const ed
   int nall(0);
   for (auto id : ids) {
     ++nall;
-    std::shared_ptr<const CaloCellGeometry> geom = ecalGeom->getGeometry(id);
+    auto geom = ecalGeom->getGeometry(id);
     EEDetId ebid(id.rawId());
 
     std::ostringstream st1;

@@ -512,12 +512,6 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event &iEvent, const edm::Ev
         float lymatch = 9999.0;
         if (!expTrajMeasurements.empty()) {
           if (glmatch < 9999.) {  // if there is any propagated trajectory for this hit
-            const DetId &matchhit_detId = expTrajMeasurements[imatch].recHit()->geographicalId();
-
-            int matchhit_ladder = PXBDetId(matchhit_detId).ladder();
-            int dladder = abs(matchhit_ladder - hit_ladder);
-            if (dladder > 10)
-              dladder = 20 - dladder;
             LocalPoint lp = expTrajMeasurements[imatch].updatedState().localPosition();
             lxmatch = fabs(lp.x() - chklp.x());
             lymatch = fabs(lp.y() - chklp.y());
@@ -760,7 +754,7 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event &iEvent, const edm::Ev
                       dy_cl[1] = lp.y();
                     }
                   }  // loop on clusterSets
-                }    // loop on clusterCollection
+                }  // loop on clusterCollection
                 for (size_t i = 0; i < 2; i++) {
                   if (minD[i] < 9999.) {
                     dx_cl[i] = fabs(dx_cl[i] - lx);
@@ -768,8 +762,8 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event &iEvent, const edm::Ev
                   }
                 }
               }  // valid clusterCollectionHandle
-            }    // valid tracker
-          }      // valid cpEstimator
+            }  // valid tracker
+          }  // valid cpEstimator
           // distance of hit from closest cluster!
           float d_cl[2];
           d_cl[0] = d_cl[1] = -9999.;
@@ -807,7 +801,7 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event &iEvent, const edm::Ev
         }  // end of else
 
       }  // end for (all traj measurements of pixeltrack)
-    }    // end if (is pixeltrack)
+    }  // end if (is pixeltrack)
     else if (debug_)
       std::cout << "no pixeltrack:\n";
 

@@ -4,8 +4,26 @@ from RecoBTag.FeatureTools.pfParticleTransformerAK4TagInfos_cfi import pfParticl
 
 from RecoBTag.ONNXRuntime.pfParticleTransformerAK4JetTags_cfi import pfParticleTransformerAK4JetTags
 from RecoBTag.ONNXRuntime.pfParticleTransformerAK4DiscriminatorsJetTags_cfi import pfParticleTransformerAK4DiscriminatorsJetTags
+from RecoBTag.ONNXRuntime.pfParticleTransformerAK4SonicJetTags_cfi import pfParticleTransformerAK4SonicJetTags as _pfParticleTransformerAK4SonicJetTags
 from CommonTools.PileupAlgos.Puppi_cff import puppi
 from CommonTools.RecoAlgos.primaryVertexAssociation_cfi import primaryVertexAssociation
+from Configuration.ProcessModifiers.particleTransformerAK4SonicTriton_cff import particleTransformerAK4SonicTriton
+
+
+particleTransformerAK4SonicTriton.toReplaceWith(pfParticleTransformerAK4JetTags, _pfParticleTransformerAK4SonicJetTags.clone(
+    Client = cms.PSet(
+        timeout = cms.untracked.uint32(300),
+        mode = cms.string("Async"),
+        modelName = cms.string("particletransformer_AK4"),
+        modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/models/particletransformer_AK4/config.pbtxt"),
+        modelVersion = cms.string(""),
+        verbose = cms.untracked.bool(False),
+        allowedTries = cms.untracked.uint32(0),
+        useSharedMemory = cms.untracked.bool(True),
+        compression = cms.untracked.string(""),
+    ),
+    flav_names = pfParticleTransformerAK4JetTags.flav_names,
+))
 
 # declare all the discriminators
 # probs

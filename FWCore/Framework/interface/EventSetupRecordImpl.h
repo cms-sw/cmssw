@@ -1,6 +1,6 @@
+// -*- C++ -*-
 #ifndef FWCore_Framework_EventSetupRecordImpl_h
 #define FWCore_Framework_EventSetupRecordImpl_h
-// -*- C++ -*-
 //
 // Package:     Framework
 // Class  :     EventSetupRecordImpl
@@ -10,17 +10,17 @@
  Description: Base class for all Records in an EventSetup.  Holds data with the same lifetime.
 
  Usage:
-This class contains the Proxies that make up a given Record.  It
+This class contains the Resolvers that make up a given Record.  It
 is designed to be reused time after time, rather than it being
 destroyed and a new one created every time a new Record is
-required.  Proxies can only be added by the EventSetupRecordProvider class which
+required.  Resolvers can only be added by the EventSetupRecordProvider class which
 uses the 'add' function to do this.
 
-When the set of  Proxies for a Records changes, i.e. a
+When the set of  Resolvers for a Records changes, i.e. a
 ESProductResolverProvider is added of removed from the system, then the
-Proxies in a Record need to be changed as appropriate.
+Resolvers in a Record need to be changed as appropriate.
 In this design it was decided the easiest way to achieve this was
-to erase all Proxies in a Record.
+to erase all Resolvers in a Record.
 
 It is important for the management of the Records that each Record
 know the ValidityInterval that represents the time over which its data is valid.
@@ -37,7 +37,6 @@ through the 'validityInterval' method.
 // user include files
 #include "FWCore/Framework/interface/FunctorESHandleExceptionFactory.h"
 #include "FWCore/Framework/interface/DataKey.h"
-#include "FWCore/Framework/interface/NoProductResolverException.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
@@ -46,8 +45,6 @@ through the 'validityInterval' method.
 #include "FWCore/Utilities/interface/ESIndices.h"
 
 // system include files
-#include <exception>
-#include <limits>
 #include <memory>
 #include <vector>
 #include <atomic>
@@ -116,14 +113,16 @@ namespace edm {
 
       unsigned int iovIndex() const { return iovIndex_; }
 
-      ///clears the oToFill vector and then fills it with the keys for all registered data keys
-      void fillRegisteredDataKeys(std::vector<DataKey>& oToFill) const;
+      ///keys for all registered data keys
+      std::vector<DataKey> const& registeredDataKeys() const;
       ///there is a 1-to-1 correspondence between elements returned and the elements returned from fillRegisteredDataKey.
       std::vector<ComponentDescription const*> componentsForRegisteredDataKeys() const;
 
+      std::vector<unsigned int> produceMethodIDsForRegisteredDataKeys() const;
+
       // The following member functions should only be used by EventSetupRecordProvider
       bool add(DataKey const& iKey, ESProductResolver* iResolver);
-      void clearProxies();
+      void clearResolvers();
 
       ///Set the cache identifier and validity interval when starting a new IOV
       ///In addition, also notify the ESProductResolver's a new IOV is starting.
@@ -150,8 +149,8 @@ namespace edm {
                                       ComponentDescription const*,
                                       DataKey const&) const;
 
-      void invalidateProxies();
-      void resetIfTransientInProxies();
+      void invalidateResolvers();
+      void resetIfTransientInResolvers();
 
     private:
       void const* getFromResolverAfterPrefetch(ESResolverIndex iResolverIndex,
@@ -166,23 +165,9 @@ namespace edm {
                              ComponentDescription const*& oDesc,
                              std::shared_ptr<ESHandleExceptionFactory>& whyFailedFactory) const {
         DataKey const* dataKey = nullptr;
-        if (iResolverIndex.value() == std::numeric_limits<int>::max()) {
-          whyFailedFactory = makeESHandleExceptionFactory([this] {
-            NoProductResolverException<DataT> ex(this->key(), {});
-            return std::make_exception_ptr(ex);
-          });
-          iData = nullptr;
-          return;
-        }
         assert(iResolverIndex.value() > -1 and
-               iResolverIndex.value() < static_cast<ESResolverIndex::Value_t>(keysForProxies_.size()));
+               iResolverIndex.value() < static_cast<ESResolverIndex::Value_t>(keysForResolvers_.size()));
         void const* pValue = this->getFromResolverAfterPrefetch(iResolverIndex, iTransientAccessOnly, oDesc, dataKey);
-        if (nullptr == pValue) {
-          whyFailedFactory = makeESHandleExceptionFactory([this, dataKey] {
-            NoProductResolverException<DataT> ex(this->key(), *dataKey);
-            return std::make_exception_ptr(ex);
-          });
-        }
         iData = reinterpret_cast<DataT const*>(pValue);
       }
 
@@ -198,8 +183,8 @@ namespace edm {
       CMS_THREAD_SAFE mutable ValidityInterval validity_;
 
       EventSetupRecordKey key_;
-      std::vector<DataKey> keysForProxies_;
-      std::vector<edm::propagate_const<ESProductResolver*>> proxies_;
+      std::vector<DataKey> keysForResolvers_;
+      std::vector<edm::propagate_const<ESProductResolver*>> resolvers_;
       ActivityRegistry const* activityRegistry_;
       unsigned long long cacheIdentifier_;
       unsigned int iovIndex_;

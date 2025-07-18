@@ -38,6 +38,7 @@
 #include "L1Trigger/L1TGlobal/interface/EnergySumTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/EnergySumZdcTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/AXOL1TLTemplate.h"
+#include "L1Trigger/L1TGlobal/interface/CICADATemplate.h"
 #include "L1Trigger/L1TGlobal/interface/ExternalTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationThreeBodyTemplate.h"
@@ -55,6 +56,7 @@
 #include "L1Trigger/L1TGlobal/interface/EnergySumCondition.h"
 #include "L1Trigger/L1TGlobal/interface/EnergySumZdcCondition.h"
 #include "L1Trigger/L1TGlobal/interface/AXOL1TLCondition.h"
+#include "L1Trigger/L1TGlobal/interface/CICADACondition.h"
 #include "L1Trigger/L1TGlobal/interface/ExternalCondition.h"
 #include "L1Trigger/L1TGlobal/interface/CorrCondition.h"
 #include "L1Trigger/L1TGlobal/interface/CorrThreeBodyCondition.h"
@@ -73,6 +75,7 @@ l1t::GlobalBoard::GlobalBoard()
       m_candL1EtSum(new BXVector<const l1t::EtSum*>),
       m_candL1EtSumZdc(new BXVector<const l1t::EtSum*>),
       m_candL1External(new BXVector<const GlobalExtBlk*>),
+      m_candL1CICADAScore(new BXVector<float>),
       m_currentLumi(0),
       m_isDebugEnabled(edm::isDebugEnabled()) {
   m_uGtAlgBlk.reset();
@@ -82,17 +85,8 @@ l1t::GlobalBoard::GlobalBoard()
 
   m_prescaleCounterAlgoTrig.clear();
 
-  // Initialize cached IDs
-  m_l1GtMenuCacheID = 0ULL;
-  m_l1CaloGeometryCacheID = 0ULL;
-  m_l1MuTriggerScalesCacheID = 0ULL;
-
-  // Counter for number of events board sees
-  m_boardEventCount = 0;
-
-  // A single uGT GlobalBoard is taken into account in the emulator
-  m_uGtBoardNumber = 0;
-  m_uGtFinalBoard = true;
+  m_uGtAXOScore.reset();
+  m_axoScoreConditionName = "";
 }
 
 // Destructor
@@ -105,6 +99,7 @@ l1t::GlobalBoard::~GlobalBoard() {
   delete m_candL1EtSum;
   delete m_candL1EtSumZdc;
   delete m_candL1External;
+  delete m_candL1CICADAScore;
 }
 
 // Operations
@@ -131,6 +126,7 @@ void l1t::GlobalBoard::init(const int numberPhysTriggers,
   m_candL1EtSum->setBXRange(m_bxFirst_, m_bxLast_);
   m_candL1EtSumZdc->setBXRange(m_bxFirst_, m_bxLast_);
   m_candL1External->setBXRange(m_bxFirst_, m_bxLast_);
+  m_candL1CICADAScore->setBXRange(m_bxFirst_, m_bxLast_);
 
   m_uGtAlgBlk.reset();
 
@@ -144,6 +140,7 @@ void l1t::GlobalBoard::receiveCaloObjectData(const edm::Event& iEvent,
                                              const edm::EDGetTokenT<BXVector<l1t::Jet>>& jetInputToken,
                                              const edm::EDGetTokenT<BXVector<l1t::EtSum>>& sumInputToken,
                                              const edm::EDGetTokenT<BXVector<l1t::EtSum>>& sumZdcInputToken,
+                                             const edm::EDGetTokenT<BXVector<float>>& CICADAInputToken,
                                              const bool receiveEG,
                                              const int nrL1EG,
                                              const bool receiveTau,
@@ -151,7 +148,8 @@ void l1t::GlobalBoard::receiveCaloObjectData(const edm::Event& iEvent,
                                              const bool receiveJet,
                                              const int nrL1Jet,
                                              const bool receiveEtSums,
-                                             const bool receiveEtSumsZdc) {
+                                             const bool receiveEtSumsZdc,
+                                             const bool receiveCICADA) {
   if (m_verbosity) {
     LogDebug("L1TGlobal") << "\n**** Board receiving Calo Data ";
   }
@@ -188,9 +186,9 @@ void l1t::GlobalBoard::receiveCaloObjectData(const edm::Event& iEvent,
 
           nObj++;
         }  //end loop over EG in bx
-      }    //end loop over bx
-    }      //end if over valid EG data
-  }        //end if ReceiveEG data
+      }  //end loop over bx
+    }  //end if over valid EG data
+  }  //end if ReceiveEG data
 
   if (receiveTau) {
     edm::Handle<BXVector<l1t::Tau>> tauData;
@@ -222,9 +220,9 @@ void l1t::GlobalBoard::receiveCaloObjectData(const edm::Event& iEvent,
           nObj++;
 
         }  //end loop over tau in bx
-      }    //end loop over bx
-    }      //end if over valid tau data
-  }        //end if ReceiveTau data
+      }  //end loop over bx
+    }  //end if over valid tau data
+  }  //end if ReceiveTau data
 
   if (receiveJet) {
     edm::Handle<BXVector<l1t::Jet>> jetData;
@@ -255,9 +253,9 @@ void l1t::GlobalBoard::receiveCaloObjectData(const edm::Event& iEvent,
                                 << "  Qual " << jet->hwQual() << "  Iso " << jet->hwIso();
           nObj++;
         }  //end loop over jet in bx
-      }    //end loop over bx
-    }      //end if over valid jet data
-  }        //end if ReceiveJet data
+      }  //end loop over bx
+    }  //end if over valid jet data
+  }  //end if ReceiveJet data
 
   if (receiveEtSums) {
     edm::Handle<BXVector<l1t::EtSum>> etSumData;
@@ -317,7 +315,7 @@ void l1t::GlobalBoard::receiveCaloObjectData(const edm::Event& iEvent,
 */
 
         }  //end loop over EtSum objects in bx
-      }    //end loop over Bx
+      }  //end loop over Bx
     }
   }
 
@@ -338,6 +336,29 @@ void l1t::GlobalBoard::receiveCaloObjectData(const edm::Event& iEvent,
 
         for (std::vector<l1t::EtSum>::const_iterator etsum = etSumData->begin(i); etsum != etSumData->end(i); ++etsum) {
           (*m_candL1EtSumZdc).push_back(i, &(*etsum));
+        }
+      }  //end loop over Bx
+    }
+  }
+  if (receiveCICADA) {
+    edm::Handle<BXVector<float>> cicadaScoreData;
+    iEvent.getByToken(CICADAInputToken, cicadaScoreData);
+
+    if (!cicadaScoreData.isValid()) {
+      if (m_verbosity) {
+        edm::LogWarning("L1TGlobal") << "\nWarning: Input tag for the CICADA-score collection"
+                                     << "\nrequested in configuration, but not found in the event.\n";
+      }
+    } else {
+      for (int i = cicadaScoreData->getFirstBX(); i <= cicadaScoreData->getLastBX(); ++i) {
+        // Prevent from pushing back bx that is outside of allowed range
+        if (i < m_bxFirst_ || i > m_bxLast_)
+          continue;
+
+        for (std::vector<float>::const_iterator cicadaScore = cicadaScoreData->begin(i);
+             cicadaScore != cicadaScoreData->end(i);
+             ++cicadaScore) {
+          m_candL1CICADAScore->push_back(i, *cicadaScore);
         }
       }  //end loop over Bx
     }
@@ -386,9 +407,9 @@ void l1t::GlobalBoard::receiveMuonObjectData(const edm::Event& iEvent,
                                 << mu->hwPhiAtVtx() << "  Qual " << mu->hwQual() << "  Iso " << mu->hwIso();
           nObj++;
         }  //end loop over muons in bx
-      }    //end loop over bx
-    }      //end if over valid muon data
-  }        //end if ReceiveMuon data
+      }  //end loop over bx
+    }  //end if over valid muon data
+  }  //end if ReceiveMuon data
 }
 
 // receive muon shower data from Global Muon Trigger
@@ -450,9 +471,9 @@ void l1t::GlobalBoard::receiveMuonShowerObjectData(const edm::Event& iEvent,
           }
           nObj++;
         }  //end loop over muon showers in bx
-      }    //end loop over bx
-    }      //end if over valid muon shower data
-  }        //end if ReceiveMuonShower data
+      }  //end loop over bx
+    }  //end if over valid muon shower data
+  }  //end if ReceiveMuonShower data
 }
 
 // receive data from Global External Conditions
@@ -487,37 +508,39 @@ void l1t::GlobalBoard::receiveExternalData(const edm::Event& iEvent,
         for (std::vector<GlobalExtBlk>::const_iterator ext = extData->begin(i); ext != extData->end(i); ++ext) {
           (*m_candL1External).push_back(i, &(*ext));
         }  //end loop over ext in bx
-      }    //end loop over bx
-    }      //end if over valid ext data
-  }        //end if ReceiveExt data
+      }  //end loop over bx
+    }  //end if over valid ext data
+  }  //end if ReceiveExt data
 }
 
-// run GTL
-void l1t::GlobalBoard::runGTL(const edm::Event&,
-                              const edm::EventSetup& evSetup,
-                              const TriggerMenu* m_l1GtMenu,
-                              const bool produceL1GtObjectMapRecord,
-                              const int iBxInEvent,
-                              std::unique_ptr<GlobalObjectMapRecord>& gtObjectMapRecord,
-                              const unsigned int numberPhysTriggers,
-                              const int nrL1Mu,
-                              const int nrL1MuShower,
-                              const int nrL1EG,
-                              const int nrL1Tau,
-                              const int nrL1Jet) {
+// fill axo score value per bx in event
+void l1t::GlobalBoard::fillAXOScore(int iBxInEvent, std::unique_ptr<AXOL1TLScoreBxCollection>& AxoScoreRecord) {
+  m_uGtAXOScore.reset();
+  m_uGtAXOScore.setbxInEventNr((iBxInEvent & 0xF));
+
+  //save stored condition score if Bx is zero, else set to 0
+  float scorevalue = 0.0;
+  if (iBxInEvent == 0) {
+    scorevalue = m_storedAXOScore;
+  }
+
+  //set dataformat value
+  m_uGtAXOScore.setAXOScore(scorevalue);
+  AxoScoreRecord->push_back(iBxInEvent, m_uGtAXOScore);
+}
+
+// Initialise Trigger Conditions
+void l1t::GlobalBoard::initTriggerConditions(const edm::EventSetup& evSetup,
+                                             const TriggerMenu* m_l1GtMenu,
+                                             const int nrL1Mu,
+                                             const int nrL1MuShower,
+                                             const int nrL1EG,
+                                             const int nrL1Tau,
+                                             const int nrL1Jet) {
   const std::vector<ConditionMap>& conditionMap = m_l1GtMenu->gtConditionMap();
-  const AlgorithmMap& algorithmMap = m_l1GtMenu->gtAlgorithmMap();
   const GlobalScales& gtScales = m_l1GtMenu->gtScales();
   const std::string scaleSetName = gtScales.getScalesName();
   LogDebug("L1TGlobal") << " L1 Menu Scales -- Set Name: " << scaleSetName;
-
-  // Reset AlgBlk for this bx
-  m_uGtAlgBlk.reset();
-  m_algInitialOr = false;
-  m_algPrescaledOr = false;
-  m_algIntermOr = false;
-  m_algFinalOr = false;
-  m_algFinalOrVeto = false;
 
   const std::vector<std::vector<MuonTemplate>>& corrMuon = m_l1GtMenu->corMuonTemplate();
 
@@ -533,158 +556,132 @@ void l1t::GlobalBoard::runGTL(const edm::Event&,
   // then loop over conditions in the map and
   // save the results in temporary maps
   // -----------------------------------------------------
-  // never happens in production but at first event...
-  if (m_conditionResultMaps.size() != conditionMap.size()) {
-    m_conditionResultMaps.clear();
-    m_conditionResultMaps.resize(conditionMap.size());
-  }
+  m_conditionResultMaps.clear();
+  m_conditionResultMaps.resize(conditionMap.size());
 
   int iChip = -1;
 
-  for (std::vector<ConditionMap>::const_iterator itCondOnChip = conditionMap.begin();
-       itCondOnChip != conditionMap.end();
-       itCondOnChip++) {
-    iChip++;
+  for (auto const& itCondOnChip : conditionMap) {
+    ++iChip;
 
-    AlgorithmEvaluation::ConditionEvaluationMap& cMapResults = m_conditionResultMaps[iChip];
+    auto& cMapResults = m_conditionResultMaps[iChip];
 
-    for (CItCond itCond = itCondOnChip->begin(); itCond != itCondOnChip->end(); itCond++) {
+    for (auto const& itCond : itCondOnChip) {
+      cMapResults[itCond.first] = nullptr;
+      auto& theCondition = cMapResults[itCond.first];
+
       // evaluate condition
-      switch ((itCond->second)->condCategory()) {
+      switch ((itCond.second)->condCategory()) {
         case CondMuon: {
           // BLW Not sure what to do with this for now
           const int ifMuEtaNumberBits = 0;
 
-          MuCondition* muCondition = new MuCondition(itCond->second, this, nrL1Mu, ifMuEtaNumberBits);
-
-          muCondition->setVerbosity(m_verbosity);
-
-          muCondition->evaluateConditionStoreResult(iBxInEvent);
-
-          cMapResults[itCond->first] = muCondition;
+          theCondition = std::make_unique<MuCondition>(itCond.second, this, nrL1Mu, ifMuEtaNumberBits);
+          theCondition->setVerbosity(m_verbosity);
 
           if (m_verbosity && m_isDebugEnabled) {
             std::ostringstream myCout;
-            muCondition->print(myCout);
+            theCondition->print(myCout);
 
             LogTrace("L1TGlobal") << myCout.str();
           }
-          //delete muCondition;
-
         } break;
+
         case CondMuonShower: {
-          MuonShowerCondition* muShowerCondition = new MuonShowerCondition(itCond->second, this, nrL1MuShower);
-
-          muShowerCondition->setVerbosity(m_verbosity);
-
-          muShowerCondition->evaluateConditionStoreResult(iBxInEvent);
-
-          cMapResults[itCond->first] = muShowerCondition;
+          theCondition = std::make_unique<MuonShowerCondition>(itCond.second, this, nrL1MuShower);
+          theCondition->setVerbosity(m_verbosity);
 
           if (m_verbosity && m_isDebugEnabled) {
             std::ostringstream myCout;
-            muShowerCondition->print(myCout);
+            theCondition->print(myCout);
 
-            edm::LogWarning("L1TGlobal") << "MuonShowerCondition " << myCout.str();
+            LogTrace("L1TGlobal") << myCout.str();
           }
-          //delete muShowerCondition;
-
         } break;
+
         case CondCalo: {
           // BLW Not sure w hat to do with this for now
           const int ifCaloEtaNumberBits = 0;
 
-          CaloCondition* caloCondition =
-              new CaloCondition(itCond->second, this, nrL1EG, nrL1Jet, nrL1Tau, ifCaloEtaNumberBits);
-
-          caloCondition->setVerbosity(m_verbosity);
-
-          caloCondition->evaluateConditionStoreResult(iBxInEvent);
-
-          cMapResults[itCond->first] = caloCondition;
+          theCondition =
+              std::make_unique<CaloCondition>(itCond.second, this, nrL1EG, nrL1Jet, nrL1Tau, ifCaloEtaNumberBits);
+          theCondition->setVerbosity(m_verbosity);
 
           if (m_verbosity && m_isDebugEnabled) {
             std::ostringstream myCout;
-            caloCondition->print(myCout);
+            theCondition->print(myCout);
 
             LogTrace("L1TGlobal") << myCout.str();
           }
-          //                    delete caloCondition;
-
         } break;
+
         case CondEnergySum: {
-          EnergySumCondition* eSumCondition = new EnergySumCondition(itCond->second, this);
-
-          eSumCondition->setVerbosity(m_verbosity);
-          eSumCondition->evaluateConditionStoreResult(iBxInEvent);
-
-          cMapResults[itCond->first] = eSumCondition;
+          theCondition = std::make_unique<EnergySumCondition>(itCond.second, this);
+          theCondition->setVerbosity(m_verbosity);
 
           if (m_verbosity && m_isDebugEnabled) {
             std::ostringstream myCout;
-            eSumCondition->print(myCout);
+            theCondition->print(myCout);
 
             LogTrace("L1TGlobal") << myCout.str();
           }
-          //                    delete eSumCondition;
-
         } break;
+
         case CondEnergySumZdc: {
-          EnergySumZdcCondition* eSumZdcCondition = new EnergySumZdcCondition(itCond->second, this);
-
-          eSumZdcCondition->setVerbosity(m_verbosity);
-          eSumZdcCondition->evaluateConditionStoreResult(iBxInEvent);
-
-          cMapResults[itCond->first] = eSumZdcCondition;
+          theCondition = std::make_unique<EnergySumZdcCondition>(itCond.second, this);
+          theCondition->setVerbosity(m_verbosity);
 
           if (m_verbosity && m_isDebugEnabled) {
             std::ostringstream myCout;
-            eSumZdcCondition->print(myCout);
+            theCondition->print(myCout);
 
             LogTrace("L1TGlobal") << myCout.str();
           }
-          //                    delete eSumZdcCondition;
-
         } break;
+
         case CondAXOL1TL: {
-          AXOL1TLCondition* axol1tlCondition = new AXOL1TLCondition(itCond->second, this);
+          theCondition = std::make_unique<AXOL1TLCondition>(itCond.second, this);
+          theCondition->setVerbosity(m_verbosity);
 
-          axol1tlCondition->setVerbosity(m_verbosity);
-
-          axol1tlCondition->evaluateConditionStoreResult(iBxInEvent);
-
-          cMapResults[itCond->first] = axol1tlCondition;
+          if (m_saveAXOScore and not m_axoScoreConditionName.empty()) {
+            m_axoScoreConditionName = itCond.first;
+          }
 
           if (m_verbosity && m_isDebugEnabled) {
             std::ostringstream myCout;
-            axol1tlCondition->print(myCout);
+            theCondition->print(myCout);
 
-            edm::LogWarning("L1TGlobal") << "axol1tlCondition " << myCout.str();
+            LogTrace("L1TGlobal") << myCout.str();
           }
-          //delete axol1tlCCondition;
+        } break;
 
+        case CondCICADA: {
+          theCondition = std::make_unique<CICADACondition>(itCond.second, this);
+          theCondition->setVerbosity(m_verbosity);
+
+          if (m_verbosity && m_isDebugEnabled) {
+            std::ostringstream myCout;
+            theCondition->print(myCout);
+
+            LogTrace("L1TGlobal") << myCout.str();
+          }
         } break;
 
         case CondExternal: {
-          ExternalCondition* extCondition = new ExternalCondition(itCond->second, this);
-
-          extCondition->setVerbosity(m_verbosity);
-          extCondition->evaluateConditionStoreResult(iBxInEvent);
-
-          cMapResults[itCond->first] = extCondition;
+          theCondition = std::make_unique<ExternalCondition>(itCond.second, this);
+          theCondition->setVerbosity(m_verbosity);
 
           if (m_verbosity && m_isDebugEnabled) {
             std::ostringstream myCout;
-            extCondition->print(myCout);
+            theCondition->print(myCout);
 
             LogTrace("L1TGlobal") << myCout.str();
           }
-          //                    delete extCondition;
-
         } break;
+
         case CondCorrelation: {
           // get first the subconditions
-          const CorrelationTemplate* corrTemplate = static_cast<const CorrelationTemplate*>(itCond->second);
+          const CorrelationTemplate* corrTemplate = static_cast<const CorrelationTemplate*>(itCond.second);
           const GtConditionCategory cond0Categ = corrTemplate->cond0Category();
           const GtConditionCategory cond1Categ = corrTemplate->cond1Category();
           const int cond0Ind = corrTemplate->cond0Index();
@@ -729,28 +726,22 @@ void l1t::GlobalBoard::runGTL(const edm::Event&,
             } break;
           }
 
-          CorrCondition* correlationCond = new CorrCondition(itCond->second, cond0Condition, cond1Condition, this);
-
-          correlationCond->setVerbosity(m_verbosity);
-          correlationCond->setScales(&gtScales);
-          correlationCond->evaluateConditionStoreResult(iBxInEvent);
-
-          cMapResults[itCond->first] = correlationCond;
+          theCondition =
+              std::make_unique<CorrCondition>(itCond.second, cond0Condition, cond1Condition, this, &gtScales);
+          theCondition->setVerbosity(m_verbosity);
 
           if (m_verbosity && m_isDebugEnabled) {
             std::ostringstream myCout;
-            correlationCond->print(myCout);
+            theCondition->print(myCout);
 
             LogTrace("L1TGlobal") << myCout.str();
           }
-
-          //  		delete correlationCond;
-
         } break;
+
         case CondCorrelationThreeBody: {
           // get first the subconditions
           const CorrelationThreeBodyTemplate* corrTemplate =
-              static_cast<const CorrelationThreeBodyTemplate*>(itCond->second);
+              static_cast<const CorrelationThreeBodyTemplate*>(itCond.second);
           const GtConditionCategory cond0Categ = corrTemplate->cond0Category();
           const GtConditionCategory cond1Categ = corrTemplate->cond1Category();
           const GtConditionCategory cond2Categ = corrTemplate->cond2Category();
@@ -784,27 +775,22 @@ void l1t::GlobalBoard::runGTL(const edm::Event&,
             LogDebug("L1TGlobal") << "No muon2 to evaluate three-body correlation condition";
           }
 
-          CorrThreeBodyCondition* correlationThreeBodyCond =
-              new CorrThreeBodyCondition(itCond->second, cond0Condition, cond1Condition, cond2Condition, this);
-
-          correlationThreeBodyCond->setVerbosity(m_verbosity);
-          correlationThreeBodyCond->setScales(&gtScales);
-          correlationThreeBodyCond->evaluateConditionStoreResult(iBxInEvent);
-          cMapResults[itCond->first] = correlationThreeBodyCond;
+          theCondition = std::make_unique<CorrThreeBodyCondition>(
+              itCond.second, cond0Condition, cond1Condition, cond2Condition, this, &gtScales);
+          theCondition->setVerbosity(m_verbosity);
 
           if (m_verbosity && m_isDebugEnabled) {
             std::ostringstream myCout;
-            correlationThreeBodyCond->print(myCout);
+            theCondition->print(myCout);
 
             LogTrace("L1TGlobal") << myCout.str();
           }
-          //              delete correlationThreeBodyCond;
         } break;
 
         case CondCorrelationWithOverlapRemoval: {
           // get first the subconditions
           const CorrelationWithOverlapRemovalTemplate* corrTemplate =
-              static_cast<const CorrelationWithOverlapRemovalTemplate*>(itCond->second);
+              static_cast<const CorrelationWithOverlapRemovalTemplate*>(itCond.second);
           const GtConditionCategory cond0Categ = corrTemplate->cond0Category();
           const GtConditionCategory cond1Categ = corrTemplate->cond1Category();
           const GtConditionCategory cond2Categ = corrTemplate->cond2Category();
@@ -868,33 +854,64 @@ void l1t::GlobalBoard::runGTL(const edm::Event&,
             } break;
           }
 
-          CorrWithOverlapRemovalCondition* correlationCondWOR =
-              new CorrWithOverlapRemovalCondition(itCond->second, cond0Condition, cond1Condition, cond2Condition, this);
-
-          correlationCondWOR->setVerbosity(m_verbosity);
-          correlationCondWOR->setScales(&gtScales);
-          correlationCondWOR->evaluateConditionStoreResult(iBxInEvent);
-
-          cMapResults[itCond->first] = correlationCondWOR;
+          theCondition = std::make_unique<CorrWithOverlapRemovalCondition>(
+              itCond.second, cond0Condition, cond1Condition, cond2Condition, this, &gtScales);
+          theCondition->setVerbosity(m_verbosity);
 
           if (m_verbosity && m_isDebugEnabled) {
             std::ostringstream myCout;
-            correlationCondWOR->print(myCout);
+            theCondition->print(myCout);
 
             LogTrace("L1TGlobal") << myCout.str();
           }
-
-          //  		delete correlationCondWOR;
-
         } break;
+
         case CondNull: {
           // do nothing
-
         } break;
+
         default: {
           // do nothing
-
         } break;
+      }
+    }
+  }
+}
+
+// -------
+// Run GTL
+// -------
+void l1t::GlobalBoard::runGTL(const edm::Event&,
+                              const edm::EventSetup& evSetup,
+                              const TriggerMenu* m_l1GtMenu,
+                              const bool produceL1GtObjectMapRecord,
+                              const int iBxInEvent,
+                              std::unique_ptr<GlobalObjectMapRecord>& gtObjectMapRecord,
+                              const unsigned int numberPhysTriggers) {
+  const std::vector<ConditionMap>& conditionMap = m_l1GtMenu->gtConditionMap();
+  const AlgorithmMap& algorithmMap = m_l1GtMenu->gtAlgorithmMap();
+
+  // Reset AlgBlk for this bx
+  m_uGtAlgBlk.reset();
+  m_algInitialOr = false;
+  m_algPrescaledOr = false;
+  m_algIntermOr = false;
+  m_algFinalOr = false;
+  m_algFinalOrVeto = false;
+
+  // -------------------------------
+  // Evaluate conditions for this bx
+  // -------------------------------
+  for (auto& condMap : m_conditionResultMaps) {
+    for (auto& cond : condMap) {
+      cond.second->evaluateConditionStoreResult(iBxInEvent);
+
+      // for optional software-only saving of axol1tl score
+      // m_storedAXOScore < 0.0 ensures this gets set only once per condition if score not default of -999
+      if (m_saveAXOScore and m_storedAXOScore < 0 and cond.first == m_axoScoreConditionName and
+          not m_axoScoreConditionName.empty()) {
+        auto const* theCondition = dynamic_cast<AXOL1TLCondition*>(cond.second.get());
+        m_storedAXOScore = theCondition->getScore();
       }
     }
   }
@@ -907,25 +924,24 @@ void l1t::GlobalBoard::runGTL(const edm::Event&,
   if (produceL1GtObjectMapRecord && (iBxInEvent == 0))
     objMapVec.reserve(numberPhysTriggers);
 
-  for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
-    AlgorithmEvaluation gtAlg(itAlgo->second);
-    gtAlg.evaluateAlgorithm((itAlgo->second).algoChipNumber(), m_conditionResultMaps);
+  for (auto const& itAlgo : algorithmMap) {
+    AlgorithmEvaluation gtAlg(itAlgo.second);
+    gtAlg.evaluateAlgorithm(itAlgo.second.algoChipNumber(), m_conditionResultMaps);
 
-    int algBitNumber = (itAlgo->second).algoBitNumber();
-    bool algResult = gtAlg.gtAlgoResult();
+    int const algBitNumber = (itAlgo.second).algoBitNumber();
+    bool const algResult = gtAlg.gtAlgoResult();
 
-    LogDebug("L1TGlobal") << " ===> for iBxInEvent = " << iBxInEvent << ":\t algBitName = " << itAlgo->first
+    LogDebug("L1TGlobal") << " ===> for iBxInEvent = " << iBxInEvent << ":\t algBitName = " << itAlgo.first
                           << ",\t algBitNumber = " << algBitNumber << ",\t algResult = " << algResult;
 
     if (algResult) {
-      //            m_gtlAlgorithmOR.set(algBitNumber);
       m_uGtAlgBlk.setAlgoDecisionInitial(algBitNumber, algResult);
       m_algInitialOr = true;
     }
 
     if (m_verbosity && m_isDebugEnabled) {
       std::ostringstream myCout;
-      (itAlgo->second).print(myCout);
+      itAlgo.second.print(myCout);
       gtAlg.print(myCout);
 
       LogTrace("L1TGlobal") << myCout.str();
@@ -952,6 +968,7 @@ void l1t::GlobalBoard::runGTL(const edm::Event&,
             }
           }
         }
+
         if (!found) {
           edm::LogWarning("L1TGlobal") << "\n Failed to find match for operand token " << iop->tokenName << "\n";
         } else {
@@ -961,8 +978,7 @@ void l1t::GlobalBoard::runGTL(const edm::Event&,
 
       // set object map
       GlobalObjectMap objMap;
-
-      objMap.setAlgoName(itAlgo->first);
+      objMap.setAlgoName(itAlgo.first);
       objMap.setAlgoBitNumber(algBitNumber);
       objMap.setAlgoGtlResult(algResult);
       objMap.swapOperandTokenVector(gtAlg.operandTokenVector());
@@ -971,10 +987,10 @@ void l1t::GlobalBoard::runGTL(const edm::Event&,
       objMap.swapObjectTypeVector(otypes);
 
       if (m_verbosity && m_isDebugEnabled) {
-        std::ostringstream myCout1;
-        objMap.print(myCout1);
+        std::ostringstream myCout;
+        objMap.print(myCout);
 
-        LogTrace("L1TGlobal") << myCout1.str();
+        LogTrace("L1TGlobal") << myCout.str();
       }
 
       objMapVec.push_back(objMap);
@@ -985,22 +1001,10 @@ void l1t::GlobalBoard::runGTL(const edm::Event&,
   if (produceL1GtObjectMapRecord && (iBxInEvent == 0)) {
     gtObjectMapRecord->swapGtObjectMap(objMapVec);
   }
-
-  // loop over condition maps (one map per condition chip)
-  // then loop over conditions in the map
-  // delete the conditions created with new, zero pointer, do not clear map, keep the vector as is...
-  for (std::vector<AlgorithmEvaluation::ConditionEvaluationMap>::iterator itCondOnChip = m_conditionResultMaps.begin();
-       itCondOnChip != m_conditionResultMaps.end();
-       itCondOnChip++) {
-    for (AlgorithmEvaluation::ItEvalMap itCond = itCondOnChip->begin(); itCond != itCondOnChip->end(); itCond++) {
-      delete itCond->second;
-      itCond->second = nullptr;
-    }
-  }
 }
 
 // -------
-// Run GTL
+// Run FDL
 // -------
 void l1t::GlobalBoard::runFDL(const edm::Event& iEvent,
                               const int iBxInEvent,
@@ -1056,7 +1060,7 @@ void l1t::GlobalBoard::runFDL(const edm::Event& iEvent,
               // change bit to false in prescaled word and final decision word
               m_uGtAlgBlk.setAlgoDecisionInterm(iBit, false);
             }  //if Prescale counter reached zero
-          }    //if prescale factor is not 1 (ie. no prescale)
+          }  //if prescale factor is not 1 (ie. no prescale)
           else {
             temp_algPrescaledOr = true;
           }
@@ -1066,7 +1070,7 @@ void l1t::GlobalBoard::runFDL(const edm::Event& iEvent,
           edm::LogWarning("L1TGlobal") << "\nWarning: algoBit >= prescaleFactorsAlgoTrig.size() in bx " << iBxInEvent;
         }
       }  //if algo bit is set true
-    }    //loop over alg bits
+    }  //loop over alg bits
 
     m_algPrescaledOr = temp_algPrescaledOr;  //temp
 
@@ -1154,6 +1158,11 @@ void l1t::GlobalBoard::reset() {
 
   m_uGtAlgBlk.reset();
 
+  //reset AXO score
+  m_storedAXOScore = -999.f;
+  m_uGtAXOScore.reset();
+  m_axoScoreConditionName = "";
+
   m_gtlDecisionWord.reset();
   m_gtlAlgorithmOR.reset();
 }
@@ -1177,12 +1186,14 @@ void l1t::GlobalBoard::resetCalo() {
   m_candL1Jet->clear();
   m_candL1EtSum->clear();
   m_candL1EtSumZdc->clear();
+  m_candL1CICADAScore->clear();
 
   m_candL1EG->setBXRange(m_bxFirst_, m_bxLast_);
   m_candL1Tau->setBXRange(m_bxFirst_, m_bxLast_);
   m_candL1Jet->setBXRange(m_bxFirst_, m_bxLast_);
   m_candL1EtSum->setBXRange(m_bxFirst_, m_bxLast_);
   m_candL1EtSumZdc->setBXRange(m_bxFirst_, m_bxLast_);
+  m_candL1CICADAScore->setBXRange(m_bxFirst_, m_bxLast_);
 }
 
 void l1t::GlobalBoard::resetExternal() {

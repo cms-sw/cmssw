@@ -436,7 +436,7 @@ namespace {
           edm::LogPrint("SiPixelDynamicInefficiencyTest") << "  theInstLumiScaleFactor = " << theInstLumiScaleFactor_db;
 
         }  // payload
-      }    // iovs
+      }  // iovs
       return true;
     }  // fill
   };

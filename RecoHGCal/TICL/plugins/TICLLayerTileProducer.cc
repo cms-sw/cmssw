@@ -17,7 +17,7 @@
 class TICLLayerTileProducer : public edm::stream::EDProducer<> {
 public:
   explicit TICLLayerTileProducer(const edm::ParameterSet &ps);
-  ~TICLLayerTileProducer() override{};
+  ~TICLLayerTileProducer() override {}
   void beginRun(edm::Run const &, edm::EventSetup const &) override;
   void produce(edm::Event &, const edm::EventSetup &) override;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
@@ -44,6 +44,7 @@ TICLLayerTileProducer::TICLLayerTileProducer(const edm::ParameterSet &ps)
   } else {
     clusters_token_ = consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"));
     produces<TICLLayerTiles>();
+    produces<TICLLayerTilesBarrel>("ticlLayerTilesBarrel");
   }
 }
 
@@ -55,9 +56,11 @@ void TICLLayerTileProducer::beginRun(edm::Run const &, edm::EventSetup const &es
 void TICLLayerTileProducer::produce(edm::Event &evt, const edm::EventSetup &) {
   std::unique_ptr<TICLLayerTilesHFNose> resultHFNose;
   std::unique_ptr<TICLLayerTiles> result;
+  std::unique_ptr<TICLLayerTilesBarrel> resultBarrel;
   if (doNose_) {
     resultHFNose = std::make_unique<TICLLayerTilesHFNose>();
   } else {
+    resultBarrel = std::make_unique<TICLLayerTilesBarrel>();
     result = std::make_unique<TICLLayerTiles>();
   }
 
@@ -71,25 +74,31 @@ void TICLLayerTileProducer::produce(edm::Event &evt, const edm::EventSetup &) {
   int lcId = 0;
   for (auto const &lc : layerClusters) {
     const auto firstHitDetId = lc.hitsAndFractions()[0].first;
-    int layer = rhtools_.getLayerWithOffset(firstHitDetId) +
-                rhtools_.lastLayer(doNose_) * ((rhtools_.zside(firstHitDetId) + 1) >> 1) - 1;
-
+    int layer = rhtools_.getLayerWithOffset(firstHitDetId);
+    bool isBarrelLC = rhtools_.isBarrel(firstHitDetId);
+    if (!isBarrelLC) {
+      layer += rhtools_.lastLayer(doNose_) * ((rhtools_.zside(firstHitDetId) + 1) >> 1) - 1;
+    }
     assert(layer >= 0);
 
     if (doNose_) {
       resultHFNose->fill(layer, lc.eta(), lc.phi(), lcId);
+    } else if (isBarrelLC) {
+      resultBarrel->fill(layer, lc.eta(), lc.phi(), lcId);
     } else {
       result->fill(layer, lc.eta(), lc.phi(), lcId);
-      LogDebug("TICLLayerTileProducer") << "Adding layerClusterId: " << lcId << " into bin [eta,phi]: [ "
-                                        << (*result)[layer].etaBin(lc.eta()) << ", "
-                                        << (*result)[layer].phiBin(lc.phi()) << "] for layer: " << layer << std::endl;
     }
+    LogDebug("TICLLayerTileProducer") << "Adding layerClusterId: " << lcId << " into bin [eta,phi]: [ "
+                                      << (*result)[layer].etaBin(lc.eta()) << ", " << (*result)[layer].phiBin(lc.phi())
+                                      << "] for layer: " << layer << std::endl;
     lcId++;
   }
   if (doNose_)
     evt.put(std::move(resultHFNose));
-  else
+  else {
+    evt.put(std::move(resultBarrel), "ticlLayerTilesBarrel");
     evt.put(std::move(result));
+  }
 }
 
 void TICLLayerTileProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {

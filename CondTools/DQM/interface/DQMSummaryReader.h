@@ -3,9 +3,8 @@
 
 #include "CondFormats/DQMObjects/interface/DQMSummary.h"
 #include "CondTools/DQM/interface/TestBase.h"
-//#include "CondTools/DQM/interface/ReadBase.h"
 
-class DQMSummaryReader : virtual public TestBase /*ReadBase*/ {
+class DQMSummaryReader : virtual public TestBase {
 public:
   DQMSummaryReader(const std::string& connectionString, const std::string& user, const std::string& pass);
   ~DQMSummaryReader() override;

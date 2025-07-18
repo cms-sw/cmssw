@@ -12,8 +12,8 @@
 
 namespace L1Analysis {
   struct L1AnalysisRecoVertexDataFormat {
-    L1AnalysisRecoVertexDataFormat(){};
-    ~L1AnalysisRecoVertexDataFormat(){};
+    L1AnalysisRecoVertexDataFormat() {}
+    ~L1AnalysisRecoVertexDataFormat() {}
 
     void Reset() {
       nVtx = 0;

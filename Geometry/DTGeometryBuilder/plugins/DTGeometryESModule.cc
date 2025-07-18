@@ -26,7 +26,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/ReusableObjectHolder.h"
-#include "Geometry/CommonTopologies/interface/GeometryAligner.h"
+#include "Geometry/GeometryAligner/interface/GeometryAligner.h"
 #include "Geometry/Records/interface/DTRecoGeometryRcd.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryNumbering.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"

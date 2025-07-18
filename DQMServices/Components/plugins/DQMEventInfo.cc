@@ -5,13 +5,15 @@
  *
 */
 #include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Version/interface/GetReleaseVersion.h"
 
 #include <algorithm>
 #include <iostream>
@@ -37,12 +39,19 @@ public:
   /// Destructor
   ~DQMEventInfo() override = default;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 protected:
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void analyzeProvInfo(const edm::Event& e);
 
 private:
+  std::string globalTag_;
+  bool globalTagRetrieved_;
+  bool showHLTGlobalTag_;
+
   std::string eventInfoFolder_;
   std::string subsystemname_;
 
@@ -76,6 +85,7 @@ private:
   MonitorElement* processName_;            ///DQM "name" of the job (eg, Hcal or DT)
   MonitorElement* workingDir_;             ///Current working directory of the job
   MonitorElement* cmsswVer_;               ///CMSSW version run for this job
+  MonitorElement* versGlobaltag_;          ///GlobalTag name
   MonitorElement* dqmPatch_;               ///DQM patch version for this job
   MonitorElement* errSummary_;             ///Subdetector-specific error summary (float)
   MonitorElement* errSummaryEtaPhi_;       ///Subdetector-specific etaPhi summary (float)
@@ -97,6 +107,7 @@ DQMEventInfo::DQMEventInfo(const edm::ParameterSet& ps) {
   lastAvgTime_ = currentTime_ = stampToReal(now);
 
   // read config parms
+  showHLTGlobalTag_ = ps.getUntrackedParameter<bool>("showHLTGlobalTag", false);
   std::string folder = ps.getUntrackedParameter<std::string>("eventInfoFolder", "EventInfo");
   subsystemname_ = ps.getUntrackedParameter<std::string>("subSystemFolder", "YourSubsystem");
 
@@ -104,6 +115,10 @@ DQMEventInfo::DQMEventInfo(const edm::ParameterSet& ps) {
   evtRateWindow_ = ps.getUntrackedParameter<double>("eventRateWindow", 0.5);
   if (evtRateWindow_ <= 0.15)
     evtRateWindow_ = 0.15;
+
+  // Initialization of the global tag
+  globalTag_ = "MODULE::DEFAULT";  // default
+  globalTagRetrieved_ = false;     // set as soon as retrieved from first event
 }
 
 void DQMEventInfo::bookHistograms(DQMStore::IBooker& ibooker,
@@ -149,6 +164,9 @@ void DQMEventInfo::bookHistograms(DQMStore::IBooker& ibooker,
   workingDir_ = ibooker.bookString("workingDir", pwd);
   free(pwd);
   cmsswVer_ = ibooker.bookString("CMSSW_Version", edm::getReleaseVersion());
+
+  // Element: Globaltag
+  versGlobaltag_ = ibooker.bookString("Globaltag", globalTag_);
 
   // Folder to be populated by sub-systems' code
   std::string subfolder = eventInfoFolder_ + "/reportSummaryContents";
@@ -207,7 +225,71 @@ void DQMEventInfo::analyze(const edm::Event& e, const edm::EventSetup& c) {
     lastAvgTime_ = currentTime_;
   }
 
+  analyzeProvInfo(e);
+
   return;
+}
+
+void DQMEventInfo::analyzeProvInfo(const edm::Event& event) {
+  // Only trying to retrieve the global tag for the first event we ever
+  // encounter.
+  if (!globalTagRetrieved_) {
+    // Initialize processName to an empty string
+    std::string processName;
+
+    if (showHLTGlobalTag_) {
+      // Getting all process names
+      std::vector<std::string> pnames;
+      for (const auto& p : event.processHistory()) {
+        pnames.push_back(p.processName());
+      }
+
+      // Iterate through the process names in reverse to find the last one that contains "HLT"
+      for (auto it = pnames.rbegin(); it != pnames.rend(); ++it) {
+        if (it->find("HLT") != std::string::npos) {
+          processName = *it;
+          break;  // Exit the loop once the last matching process name is found
+        }
+      }
+
+      // Print the process name containing "HLT"
+      if (processName.empty()) {
+        edm::LogError("DQMEventInfo") << "Could not find any processName containing 'HLT' even if 'showHLTGlobalTag' "
+                                         "was chosen.\n Falling back to current processing!"
+                                      << std::endl;
+        processName = event.processHistory()[event.processHistory().size() - 1].processName();
+      }
+    } else {
+      processName = event.processHistory()[event.processHistory().size() - 1].processName();
+    }
+
+    // Getting parameters for that process
+    edm::ParameterSet ps;
+    event.getProcessParameterSet(processName, ps);
+
+    // Check if the 'PoolDBESSource@GlobalTag' ParameterSet exists
+    if (ps.exists("PoolDBESSource@GlobalTag")) {
+      // Getting the global tag
+      globalTag_ = ps.getParameterSet("PoolDBESSource@GlobalTag").getParameter<std::string>("globaltag");
+    } else {
+      // Handle the case where 'PoolDBESSource@GlobalTag' is missing
+      // You can set a default value or take some other action
+      edm::LogInfo("Configuration") << "ParameterSet 'PoolDBESSource@GlobalTag' not found. Using default global tag.";
+    }
+
+    versGlobaltag_->Fill(globalTag_);
+    // Finaly: Setting globalTagRetrieved_ to true, since we got it now
+    globalTagRetrieved_ = true;
+  }
+}
+
+void DQMEventInfo::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<bool>("showHLTGlobalTag", false);
+  desc.addUntracked<std::string>("eventInfoFolder", "EventInfo");
+  desc.addUntracked<std::string>("subSystemFolder", "YourSubsystem");
+  desc.addUntracked<double>("eventRateWindow", 0.5);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

@@ -23,7 +23,7 @@ public:
   typedef reco::JetFloatAssociation::Container JetBCEnergyRatioCollection;
 
   explicit printGenJetRatio(const edm::ParameterSet&);
-  ~printGenJetRatio(){};
+  ~printGenJetRatio() {}
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
 private:

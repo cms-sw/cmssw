@@ -23,6 +23,12 @@ from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 (pp_on_AA | run3_upc).toModify( RecoTrackerAOD.outputCommands,
                    func=lambda outputCommands: outputCommands.extend(['keep recoTracks_hiConformalPixelTracks_*_*'])
 )
+run3_upc.toModify( RecoTrackerAOD.outputCommands,
+        func=lambda outputCommands: outputCommands.extend([
+            'keep *_dedxPixelLikelihood_*_*',
+            'keep *_dedxStripLikelihood_*_*',
+            'keep *_dedxAllLikelihood_*_*'
+        ]))
 #RECO content
 RecoTrackerRECO = cms.PSet(
     outputCommands = cms.untracked.vstring(

@@ -157,10 +157,10 @@ void SiStripApvGainsDQM::fillMEsForLayer(
     }
 
     for (int iapv = 0; iapv < nApv; ++iapv) {
-      meanApvGain = meanApvGain + condObj_->getApvGain(iapv, gainRange);
+      // meanApvGain = meanApvGain + condObj_->getApvGain(iapv, gainRange);
       selME_.SummaryDistr->Fill(iBin, condObj_->getApvGain(iapv, gainRange));
     }  // iapv
-    meanApvGain = meanApvGain / nApv;
+    // meanApvGain = meanApvGain / nApv;
 
     // Fill the TkHistoMap with meanApvgain:
     //    if(HistoMaps_On_ ) Tk_HM_->setBinContent(selDetId_, meanApvGain);

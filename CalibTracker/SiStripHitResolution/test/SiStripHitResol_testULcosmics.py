@@ -11,13 +11,13 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 UL = 1
 
 if UL == 0:
-        InputTagName = "ALCARECOSiStripCalCosmics"
+	InputTagName = "ALCARECOSiStripCalCosmics"
 	
-  	OutputRootFile = "hitresol_ALCARECO.root"
+	OutputRootFile = "hitresol_ALCARECO.root"
 
 	fileNames=cms.untracked.vstring("file:/eos/cms/store/data/Run2018C/Cosmics/ALCARECO/SiStripCalCosmics-UL18-v1/40000/C88E7B45-E0DA-0742-B622-25C2C9E0AC58.root",
 					"file:/eos/cms/store/data/Run2018C/Cosmics/ALCARECO/SiStripCalCosmics-UL18-v1/40000/08894276-BD9E-454E-96A9-8E30BE93C0C7.root",
-				 	"file:/eos/cms/store/data/Run2018C/Cosmics/ALCARECO/SiStripCalCosmics-UL18-v1/40000/FEA63E84-13F5-3246-BF7D-D7F4C257D419.root",
+					"file:/eos/cms/store/data/Run2018C/Cosmics/ALCARECO/SiStripCalCosmics-UL18-v1/40000/FEA63E84-13F5-3246-BF7D-D7F4C257D419.root",
 					"file:/eos/cms/store/data/Run2018C/Cosmics/ALCARECO/SiStripCalCosmics-UL18-v1/230000/09A05CD3-7D70-B141-870D-DE3BA2E58D96.root",
 					"file:/eos/cms/store/data/Run2018C/Cosmics/ALCARECO/SiStripCalCosmics-UL18-v1/230000/47887C90-18C4-4B4D-86A3-70E6004E2076.root",
 					"file:/eos/cms/store/data/Run2018C/Cosmics/ALCARECO/SiStripCalCosmics-UL18-v1/230000/B481DEBC-037D-1D4D-A767-38FE8A49F8E6.root",
@@ -56,35 +56,35 @@ else:
 	OutputRootFile = "hitresol_ALCARECO_UL.root"
 
 	fileNames=cms.untracked.vstring("file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/F3F28561-1B7E-0444-810D-A119929B4896.root",
-    				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/80508514-FC4F-5E48-84BD-A84EF28EEAE3.root",
-    				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/86DB491C-55E8-9C45-A748-632065719E7B.root",
-    				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/7D9F8691-6521-5247-88A8-97A9FD11EBB6.root",
-    				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280002/2185F94D-CE60-4541-A174-281FEC1217F6.root",
-    				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/5196D8AE-F413-4344-B14D-40CEB7B57736.root",
-   				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/478C4A87-9779-4043-8EF1-5F0938FC9715.root",
-    				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280002/77E53E14-7349-7C4D-926E-0F7151278A53.root",
-    				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280002/5425331D-22AC-AC4D-A057-F031396B712B.root",
-    			     	        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/F05C07EA-AFA7-184C-8E88-7D1D0B6754FA.root",
-    				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/B559B4C1-A0EE-3444-B54E-0B6BD74E9C81.root",
-    				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/8DCD5AED-9053-0649-AF55-6FC644C84A26.root",
-    				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/232BDB85-A055-0641-BF22-28FF482621F5.root",
-    				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/76328DC5-3778-5E4B-BEC1-B1FCD8305D3C.root",
-    				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280001/A26F1C97-DF47-0248-8176-5EA46DC7083F.root",
-    				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/9831870B-57EF-4745-A70A-488A5E2D16FD.root",
-    			  	        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/BC20D7BE-13C7-CD46-9748-09D79AEED760.root",
-    				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/EE51D346-A691-8744-8541-9B028E4BE5C0.root",
-    				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280002/001B8CC6-BBE5-174A-9D83-4126F609020F.root",
-    				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/9393F683-B456-414C-9494-A54BB8E60963.root",
-    				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/F3D0305D-CBB9-4946-8B86-CD0E97B947DC.root",
-    				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/4091B173-B4B9-6648-8474-B10500EB15F4.root",
-    				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/03F44D76-2079-C34C-8E5B-5214B22FE2DC.root",
-    				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280002/4688663E-2C2A-5D43-A0A6-7B1F3FDE7352.root",
-    				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/98DAF8BF-CA7D-1C4D-A6CD-7ACF1441F03D.root",
-    				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/9F86DA7C-1650-214B-A07E-1081DC1A3229.root",
-    			 	        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280002/1D650158-4FD2-7345-9BC5-5995B61D9E95.root",
-    				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/3FEA0EC7-0301-364A-A356-D5223D970579.root",
-    				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/2CB86DCB-22E4-8245-9477-886B8C553D5E.root",
-    				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/F5BBBBCF-2EC7-F54D-8A9C-A557B12F77C1.root")
+				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/80508514-FC4F-5E48-84BD-A84EF28EEAE3.root",
+				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/86DB491C-55E8-9C45-A748-632065719E7B.root",
+				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/7D9F8691-6521-5247-88A8-97A9FD11EBB6.root",
+				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280002/2185F94D-CE60-4541-A174-281FEC1217F6.root",
+				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/5196D8AE-F413-4344-B14D-40CEB7B57736.root",
+				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/478C4A87-9779-4043-8EF1-5F0938FC9715.root",
+				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280002/77E53E14-7349-7C4D-926E-0F7151278A53.root",
+				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280002/5425331D-22AC-AC4D-A057-F031396B712B.root",
+				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/F05C07EA-AFA7-184C-8E88-7D1D0B6754FA.root",
+				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/B559B4C1-A0EE-3444-B54E-0B6BD74E9C81.root",
+				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/8DCD5AED-9053-0649-AF55-6FC644C84A26.root",
+				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/232BDB85-A055-0641-BF22-28FF482621F5.root",
+				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/76328DC5-3778-5E4B-BEC1-B1FCD8305D3C.root",
+				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280001/A26F1C97-DF47-0248-8176-5EA46DC7083F.root",
+				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/9831870B-57EF-4745-A70A-488A5E2D16FD.root",
+				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/BC20D7BE-13C7-CD46-9748-09D79AEED760.root",
+				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/EE51D346-A691-8744-8541-9B028E4BE5C0.root",
+				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280002/001B8CC6-BBE5-174A-9D83-4126F609020F.root",
+				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/9393F683-B456-414C-9494-A54BB8E60963.root",
+				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/F3D0305D-CBB9-4946-8B86-CD0E97B947DC.root",
+				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/4091B173-B4B9-6648-8474-B10500EB15F4.root",
+				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/03F44D76-2079-C34C-8E5B-5214B22FE2DC.root",
+				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280002/4688663E-2C2A-5D43-A0A6-7B1F3FDE7352.root",
+				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/98DAF8BF-CA7D-1C4D-A6CD-7ACF1441F03D.root",
+				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/9F86DA7C-1650-214B-A07E-1081DC1A3229.root",
+				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280002/1D650158-4FD2-7345-9BC5-5995B61D9E95.root",
+				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/3FEA0EC7-0301-364A-A356-D5223D970579.root",
+				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/2CB86DCB-22E4-8245-9477-886B8C553D5E.root",
+				        "file:/eos/cms/store/data/Run2018D/ZeroBias/ALCARECO/SiStripCalMinBias-12Nov2019_UL2018-v3/280000/F5BBBBCF-2EC7-F54D-8A9C-A557B12F77C1.root")
 
 
 process.source = cms.Source("PoolSource", fileNames=fileNames)
@@ -102,7 +102,7 @@ process.anResol.combinatorialTracks = cms.InputTag("refitTracks")
 process.anResol.trajectories = cms.InputTag("refitTracks")
 
 process.TFileService = cms.Service("TFileService",
-        fileName = cms.string(OutputRootFile)  
+	fileName = cms.string(OutputRootFile)
 )
 
 process.allPath = cms.Path(process.MeasurementTrackerEvent*process.offlineBeamSpot*process.refitTracks*process.hitresol)

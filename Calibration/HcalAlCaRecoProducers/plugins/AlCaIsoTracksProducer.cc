@@ -278,7 +278,7 @@ void AlCaIsoTracksProducer::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<double>("minimumTrackP", 20.0);
   // signal zone in ECAL and MIP energy cutoff
   desc.add<double>("coneRadiusMIP", 14.0);
-  desc.add<double>("maximumEcalEnergy", 2.0);
+  desc.add<double>("maximumEcalEnergy", 10.0);
   // following 3 parameters are for isolation cuts and described in the code
   desc.add<double>("maxTrackP", 8.0);
   desc.add<double>("slopeTrackP", 0.05090504066);

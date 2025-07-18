@@ -963,7 +963,7 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::calculateCorr(const P4& jet,
         }
         if (is_pion) {
           outer *= response_.value(ieta, ipt);
-        }                     //@@ Scale by pion response
+        }  //@@ Scale by pion response
         correction -= outer;  //@@ Subtract
 
         // Calculate the sum of responses
@@ -994,7 +994,7 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::calculateCorr(const P4& jet,
       }
 
     }  // loop through tracks
-  }    // ntracks != 0
+  }  // ntracks != 0
 
   if (in_cone_at_vertex) {
     theResponseOfChargedWithEff += theSumResp;
@@ -1124,25 +1124,26 @@ bool JetPlusTrackCorrector::matchMuons(TrackRefs::const_iterator& itrk,
 // -----------------------------------------------------------------------------
 //
 bool JetPlusTrackCorrector::matchElectrons(TrackRefs::const_iterator& itrk,
-                                           const edm::Handle<RecoElectrons>& elecs,
-                                           const edm::Handle<RecoElectronIds>& elec_ids) const {
-  if (elecs->empty()) {
+                                           const edm::Handle<RecoElectrons>& gsfEles,
+                                           const edm::Handle<RecoElectronIds>& idDecisionMap) const {
+  if (!gsfEles.isValid()) {
     return false;
   }
 
   double deltaRMIN = 999.;
 
-  uint32_t electron_index = 0;
-  for (auto const& ielec : *elecs) {
-    edm::Ref<RecoElectrons> electron_ref(elecs, electron_index);
-    electron_index++;
+  for (auto ele = gsfEles->begin(); ele != gsfEles->end(); ++ele) {
+    const edm::Ptr<reco::GsfElectron> elePtr(gsfEles, ele - gsfEles->begin());
+    bool passID = false;
+    if (idDecisionMap.isValid())
+      passID = (*idDecisionMap)[elePtr];
 
-    if ((*elec_ids)[electron_ref] < 1.e-6) {
+    if (!passID) {
       continue;
-    }  //@@ Check for null value
+    }  //@@ Check for electronID
 
     // DR matching b/w electron and track
-    auto dR2 = deltaR2(ielec, **itrk);
+    auto dR2 = deltaR2(*ele, **itrk);
     if (dR2 < deltaRMIN) {
       deltaRMIN = dR2;
     }

@@ -122,8 +122,8 @@ void PFMatchedCandidateRefExtractor::produce(edm::StreamID iID, edm::Event& iEve
         }  //pfcand loop
 
       }  //matching
-    }    //col2
-  }      //col1
+    }  //col2
+  }  //col1
 
   iEvent.put(std::move(outcol1), "col1");
   iEvent.put(std::move(outcol2), "col2");

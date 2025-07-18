@@ -265,14 +265,14 @@ void HFPreReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetu
 void HFPreReconstructor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
-  desc.add<edm::InputTag>("digiLabel");
+  desc.add<edm::InputTag>("digiLabel", edm::InputTag("hcalDigis"));
   desc.add<int>("forceSOI", -1);
   desc.add<int>("soiShift", 0);
-  desc.add<bool>("dropZSmarkedPassed");
-  desc.add<bool>("tsFromDB");
-  desc.add<bool>("sumAllTimeSlices");
+  desc.add<bool>("dropZSmarkedPassed", false);
+  desc.add<bool>("tsFromDB", false);
+  desc.add<bool>("sumAllTimeSlices", false);
 
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

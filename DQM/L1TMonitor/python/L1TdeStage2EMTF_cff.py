@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from DQM.L1TMonitor.L1TdeStage2EMTF_cfi import *
 from DQM.L1TMonitor.L1TdeStage2RegionalShower_cfi import *
+from Configuration.Eras.Modifier_stage2L1Trigger_2024_cff import stage2L1Trigger_2024
 
 # List of bins to ignore
 ignoreBinsDeStage2Emtf = [1]
@@ -20,6 +21,12 @@ l1tdeStage2EmtfComp = DQMEDAnalyzer(
     ignoreBadTrackAddress = cms.untracked.bool(True),
     ignoreBin = cms.untracked.vint32(ignoreBinsDeStage2Emtf),
     verbose = cms.untracked.bool(False),
+    hasDisplacementInfo = cms.untracked.bool(False),
+)
+
+stage2L1Trigger_2024.toModify(
+    l1tdeStage2EmtfComp,
+    hasDisplacementInfo = cms.untracked.bool(True) # Linden Burack 7/26/2024
 )
 
 # sequences

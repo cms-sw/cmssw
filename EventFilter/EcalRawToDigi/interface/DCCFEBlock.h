@@ -39,7 +39,7 @@ public:
 
 protected:
   virtual int unpackXtalData(unsigned int stripID, unsigned int xtalID) { return BLOCK_UNPACKED; };
-  virtual void fillEcalElectronicsError(std::unique_ptr<EcalElectronicsIdCollection>*){};
+  virtual void fillEcalElectronicsError(std::unique_ptr<EcalElectronicsIdCollection>*) {}
 
   bool zs_;
   bool checkFeId_;

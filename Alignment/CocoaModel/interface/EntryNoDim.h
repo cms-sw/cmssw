@@ -19,7 +19,7 @@ public:
     theDimType = ED_nodim;
     //std::cout << "entryNoDim" << std::endl;
   };
-  ~EntryNoDim() override{};
+  ~EntryNoDim() override {}
 
   // Access DATA MEMBERS
   //----------- Return value and sigma dimension factors (1. as object of this class have no dimension)

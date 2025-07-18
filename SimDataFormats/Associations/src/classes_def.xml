@@ -10,26 +10,87 @@
   <class name="reco::VertexToTrackingVertexAssociator" persistent="false"/>
   <class name="edm::Wrapper<reco::VertexToTrackingVertexAssociator>" persistent="false"/>
 
-  <class name="hgcal::LayerClusterToCaloParticleAssociator" persistent="false"/>
-  <class name="edm::Wrapper<hgcal::LayerClusterToCaloParticleAssociator>" persistent="false"/>
+  <class name="ticl::LayerClusterToCaloParticleAssociator" persistent="false"/>
+  <class name="edm::Wrapper<ticl::LayerClusterToCaloParticleAssociator>" persistent="false"/>
 
-  <class name="hgcal::LayerClusterToSimClusterAssociator" persistent="false"/>
-  <class name="edm::Wrapper<hgcal::LayerClusterToSimClusterAssociator>" persistent="false"/>
+  <class name="ticl::LayerClusterToSimClusterAssociator" persistent="false"/>
+  <class name="edm::Wrapper<ticl::LayerClusterToSimClusterAssociator>" persistent="false"/>
 
-  <class name="hgcal::TracksterToSimClusterAssociator" persistent="false"/>
-  <class name="edm::Wrapper<hgcal::TracksterToSimClusterAssociator>" persistent="false"/>
+  <class name="ticl::TracksterToSimClusterAssociator" persistent="false"/>
+  <class name="edm::Wrapper<ticl::TracksterToSimClusterAssociator>" persistent="false"/>
 
   <class name="hgcal::MultiClusterToCaloParticleAssociator" persistent="false"/>
   <class name="edm::Wrapper<hgcal::MultiClusterToCaloParticleAssociator>" persistent="false"/>
 
-  <class name="hgcal::TracksterToSimTracksterAssociator" persistent="false"/>
-  <class name="edm::Wrapper<hgcal::TracksterToSimTracksterAssociator>" persistent="false"/>
+  <class name="ticl::TracksterToSimTracksterAssociator" persistent="false"/>
+  <class name="edm::Wrapper<ticl::TracksterToSimTracksterAssociator>" persistent="false"/>
 
-  <class name="hgcal::TracksterToSimTracksterHitLCAssociator" persistent="false"/>
-  <class name="edm::Wrapper<hgcal::TracksterToSimTracksterHitLCAssociator>" persistent="false"/>
+  <class name="ticl::TracksterToSimTracksterHitLCAssociator" persistent="false"/>
+  <class name="edm::Wrapper<ticl::TracksterToSimTracksterHitLCAssociator>" persistent="false"/>
 
-  <class name="hgcal::LayerClusterToSimTracksterAssociator" persistent="false"/>
-  <class name="edm::Wrapper<hgcal::LayerClusterToSimTracksterAssociator>" persistent="false"/>
+  <class name="ticl::LayerClusterToSimTracksterAssociator" persistent="false"/>
+  <class name="edm::Wrapper<ticl::LayerClusterToSimTracksterAssociator>" persistent="false"/>
+  
+  <class name="ticl::SharedEnergyType"/>
+  <class name="std::pair<ticl::SharedEnergyType, float>"/>
+  <class name="ticl::FractionType"/>
+  <class name="std::pair<ticl::FractionType, float>"/>
+  
+  <class name="ticl::AssociationElement<ticl::FractionType>"/>
+  <class name="std::vector<ticl::AssociationElement<ticl::FractionType> >"/>
+  <class name="std::vector<std::vector<ticl::AssociationElement<ticl::FractionType> > >"/>
+  
+  <class name="ticl::AssociationElement<std::pair<ticl::FractionType, float> >"/>
+  <class name="std::vector<ticl::AssociationElement<std::pair<ticl::FractionType, float> > >"/>
+  <class name="std::vector<std::vector<ticl::AssociationElement<std::pair<ticl::FractionType, float> > > >"/>
+  
+  <class name="ticl::AssociationElement<ticl::SharedEnergyType>"/>
+  <class name="std::vector<ticl::AssociationElement<ticl::SharedEnergyType> >"/>
+  <class name="std::vector<std::vector<ticl::AssociationElement<ticl::SharedEnergyType> > >"/>
+  
+  <class name="ticl::AssociationElement<std::pair<ticl::SharedEnergyType, float> >"/>
+  <class name="std::vector<ticl::AssociationElement<std::pair<ticl::SharedEnergyType, float> > >"/>
+  <class name="std::vector<std::vector<ticl::AssociationElement<std::pair<ticl::SharedEnergyType, float> > > >"/>
+  
+  <class name="std::monostate"/>
+  <class name="edm::RefProd<std::vector<ticl::Trackster> >"/>
+  <class name="std::pair<edm::RefProd<std::vector<ticl::Trackster> >, edm::RefProd<std::vector<ticl::Trackster> > >"/>
+  <class name="std::pair<edm::RefProd<std::vector<SimCluster> >, edm::RefProd<std::vector<CaloParticle> > >"/>
+
+  <!-- For one-to-many map with FractionType -->
+  <class name="ticl::AssociationMap<ticl::mapWithFraction, std::vector<reco::CaloCluster>, std::vector<ticl::Trackster> >"/>
+  <class name="edm::Wrapper<ticl::AssociationMap<ticl::mapWithFraction, std::vector<reco::CaloCluster>, std::vector<ticl::Trackster> > >"/>
+  <class name="ticl::AssociationMap<ticl::mapWithFraction, void, void >"/>
+  <class name="edm::Wrapper<ticl::AssociationMap<ticl::mapWithFraction, void, void > >"/>
+  <!-- For one-to-many map with FractionType and Score -->
+  <class name="ticl::AssociationMap<ticl::mapWithFractionAndScore, std::vector<ticl::Trackster>, std::vector<ticl::Trackster> >"/>
+  <class name="edm::Wrapper<ticl::AssociationMap<ticl::mapWithFractionAndScore, std::vector<ticl::Trackster>, std::vector<ticl::Trackster> > >"/>
+  <class name="ticl::AssociationMap<ticl::mapWithFractionAndScore, void, void >"/>
+  <class name="edm::Wrapper<ticl::AssociationMap<ticl::mapWithFractionAndScore, void, void > >"/>
+  <!-- For one-to-one map with FractionType -->
+  <class name="ticl::AssociationMap<ticl::oneToOneMapWithFraction, std::vector<SimCluster>, std::vector<CaloParticle> >"/>
+  <class name="edm::Wrapper<ticl::AssociationMap<ticl::oneToOneMapWithFraction, std::vector<SimCluster>, std::vector<CaloParticle> > >"/>
+  <class name="ticl::AssociationMap<ticl::oneToOneMapWithFraction, void, void >"/>
+  <class name="edm::Wrapper<ticl::AssociationMap<ticl::oneToOneMapWithFraction, void, void > >"/>
+
+  <!-- For one-to-many map with SharedEnergyType -->
+  <class name="ticl::AssociationMap<ticl::mapWithSharedEnergy, std::vector<reco::CaloCluster>, std::vector<ticl::Trackster> >"/>
+  <class name="edm::Wrapper<ticl::AssociationMap<ticl::mapWithSharedEnergy, std::vector<reco::CaloCluster>, std::vector<ticl::Trackster> > >"/>
+  <class name="ticl::AssociationMap<ticl::mapWithSharedEnergy, void, void >"/>
+  <class name="edm::Wrapper<ticl::AssociationMap<ticl::mapWithSharedEnergy, void, void > >"/>
+
+  <!-- For one-to-many map with SharedEnergyType and Score -->
+  <class name="ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore, std::vector<ticl::Trackster>, std::vector<ticl::Trackster> >"/>
+  <class name="edm::Wrapper<ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore, std::vector<ticl::Trackster>, std::vector<ticl::Trackster> > >"/>
+  <class name="ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore, void, void >"/>
+  <class name="edm::Wrapper<ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore, void, void > >"/>
+
+  <!-- For one-to-one map with SharedEnergyType -->
+  <class name="ticl::AssociationMap<ticl::oneToOneMapWithSharedEnergy, std::vector<SimCluster>, std::vector<CaloParticle> >"/>
+  <class name="edm::Wrapper<ticl::AssociationMap<ticl::oneToOneMapWithSharedEnergy, std::vector<SimCluster>, std::vector<CaloParticle> > >"/>
+  <class name="ticl::AssociationMap<ticl::oneToOneMapWithSharedEnergy, void, void >"/>
+  <class name="edm::Wrapper<ticl::AssociationMap<ticl::oneToOneMapWithSharedEnergy, void, void > >"/>
+
 
   <class name="reco::VertexSimToRecoCollection" >
     <field name="transientMap_" transient="true"/>
@@ -41,14 +102,14 @@
   <class name="edm::Wrapper<reco::VertexRecoToSimCollection>" />
 
 
-  <class name="hgcal::SimToRecoCollection" >
+  <class name="ticl::SimToRecoCollection" >
     <field name="transientMap_" transient="true"/>
   </class>
-  <class name="edm::Wrapper<hgcal::SimToRecoCollection>" />
-  <class name="hgcal::RecoToSimCollection" >
+  <class name="edm::Wrapper<ticl::SimToRecoCollection>" />
+  <class name="ticl::RecoToSimCollection" >
     <field name="transientMap_" transient="true"/>
   </class>
-  <class name="edm::Wrapper<hgcal::RecoToSimCollection>" />
+  <class name="edm::Wrapper<ticl::RecoToSimCollection>" />
 
   <class name="edm::helpers::KeyVal<edm::RefProd<vector<CaloParticle> >,edm::RefProd<vector<reco::CaloCluster> > >" />
   <class name="edm::helpers::KeyVal<edm::RefProd<vector<reco::CaloCluster> >,edm::RefProd<vector<CaloParticle> > >" />
@@ -56,28 +117,28 @@
   <class name="vector<pair<unsigned int,pair<float,float> > >" />
 
 
-  <class name="hgcal::SimToRecoCollectionWithSimClusters" >
+  <class name="ticl::SimToRecoCollectionWithSimClusters" >
    <field name="transientMap_" transient="true"/>
   </class>
-  <class name="edm::Wrapper<hgcal::SimToRecoCollectionWithSimClusters>" />
-  <class name="hgcal::RecoToSimCollectionWithSimClusters" >
+  <class name="edm::Wrapper<ticl::SimToRecoCollectionWithSimClusters>" />
+  <class name="ticl::RecoToSimCollectionWithSimClusters" >
    <field name="transientMap_" transient="true"/>
   </class>
-  <class name="edm::Wrapper<hgcal::RecoToSimCollectionWithSimClusters>" />
+  <class name="edm::Wrapper<ticl::RecoToSimCollectionWithSimClusters>" />
 
   <class name="edm::RefProd<vector<ticl::Trackster> >" />
   <class name="edm::helpers::KeyVal<edm::RefProd<vector<SimCluster> >, edm::RefProd<vector<ticl::Trackster> > >" />
   <class name="edm::helpers::KeyVal<edm::RefProd<vector<ticl::Trackster> >, edm::RefProd<vector<SimCluster> > >" />
 
 
-  <class name="hgcal::SimToRecoCollectionTracksters" >
+  <class name="ticl::SimToRecoCollectionTracksters" >
    <field name="transientMap_" transient="true"/>
   </class>
-  <class name="edm::Wrapper<hgcal::SimToRecoCollectionTracksters>" />
-  <class name="hgcal::RecoToSimCollectionTracksters" >
+  <class name="edm::Wrapper<ticl::SimToRecoCollectionTracksters>" />
+  <class name="ticl::RecoToSimCollectionTracksters" >
    <field name="transientMap_" transient="true"/>
   </class>
-  <class name="edm::Wrapper<hgcal::RecoToSimCollectionTracksters>" />
+  <class name="edm::Wrapper<ticl::RecoToSimCollectionTracksters>" />
 
   <class name="edm::helpers::KeyVal<edm::RefProd<vector<SimCluster> >,edm::RefProd<vector<reco::CaloCluster> > >" />
   <class name="edm::helpers::KeyVal<edm::RefProd<vector<reco::CaloCluster> >,edm::RefProd<vector<SimCluster> > >" />
@@ -96,6 +157,9 @@
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToManyWithQualityGeneric<edm::View<reco::Track>,vector<TrackingParticle>,double,unsigned int,edm::RefToBaseProd<reco::Track>,edm::RefProd<vector<TrackingParticle> >,edm::RefToBase<reco::Track>,edm::Ref<vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<vector<TrackingParticle>,TrackingParticle> > > > >" />
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToManyWithQualityGeneric<vector<TrackingParticle>,edm::View<reco::Track>,double,unsigned int,edm::RefProd<vector<TrackingParticle> >,edm::RefToBaseProd<reco::Track>,edm::Ref<vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<vector<TrackingParticle>,TrackingParticle> >,edm::RefToBase<reco::Track> > > >" />
 
+  <class name="std::pair<TrackingParticleRef, TrackPSimHitRef>"/>
+  <class name="std::vector<std::pair<TrackingParticleRef, TrackPSimHitRef> >"/>
+  <class name="edm::Wrapper<std::vector<std::pair<TrackingParticleRef, TrackPSimHitRef> > >" />
 
   <class name="hgcal::SimToRecoCollectionWithMultiClusters" >
     <field name="transientMap_" transient="true"/>
@@ -111,26 +175,26 @@
   <class name="edm::helpers::KeyVal<edm::RefProd<vector<reco::HGCalMultiCluster> >,edm::RefProd<vector<CaloParticle> > >" />
 
 
-  <class name="hgcal::SimToRecoCollectionSimTracksters" >
+  <class name="ticl::SimToRecoCollectionSimTracksters" >
     <field name="transientMap_" transient="true"/>
   </class>
-  <class name="edm::Wrapper<hgcal::SimToRecoCollectionSimTracksters>" />
-  <class name="hgcal::RecoToSimCollectionSimTracksters" >
+  <class name="edm::Wrapper<ticl::SimToRecoCollectionSimTracksters>" />
+  <class name="ticl::RecoToSimCollectionSimTracksters" >
     <field name="transientMap_" transient="true"/>
   </class>
-  <class name="edm::Wrapper<hgcal::RecoToSimCollectionSimTracksters>" />
+  <class name="edm::Wrapper<ticl::RecoToSimCollectionSimTracksters>" />
 
   <class name="edm::helpers::KeyVal<edm::RefProd<vector<ticl::Trackster> >,edm::RefProd<vector<ticl::Trackster> > >" />
 
 
-  <class name="hgcal::SimTracksterToRecoCollection" >
+  <class name="ticl::SimTracksterToRecoCollection" >
    <field name="transientMap_" transient="true"/>
   </class>
-  <class name="edm::Wrapper<hgcal::SimTracksterToRecoCollection>" />
-  <class name="hgcal::RecoToSimTracksterCollection" >
+  <class name="edm::Wrapper<ticl::SimTracksterToRecoCollection>" />
+  <class name="ticl::RecoToSimTracksterCollection" >
    <field name="transientMap_" transient="true"/>
   </class>
-  <class name="edm::Wrapper<hgcal::RecoToSimTracksterCollection>" />
+  <class name="edm::Wrapper<ticl::RecoToSimTracksterCollection>" />
 
   <class name="edm::helpers::KeyVal<edm::RefProd<vector<reco::CaloCluster> >,edm::RefProd<vector<ticl::Trackster> > >" />
   <class name="edm::helpers::KeyVal<edm::RefProd<vector<ticl::Trackster> >,edm::RefProd<vector<reco::CaloCluster> > >" />
@@ -176,7 +240,54 @@
 
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<MtdSimLayerCluster> >, edm::RefProd<std::vector<TrackingParticle> > >" />
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<TrackingParticle> >, edm::RefProd<std::vector<MtdSimLayerCluster> > >" />
-  
 
+
+  <class name="edm::RefProd<TTClusterAssociationMap<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >" />
+
+  <class name="edm::RefProd<TTStubAssociationMap<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >" />
+
+
+  <class name="edm::Wrapper<TTClusterAssociationMap<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >" />
+
+  <class name="edm::Wrapper<TTStubAssociationMap<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >" />
+
+
+  <class name="edm::RefProd<TTTrackAssociationMap<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >" />
+
+  <class name="edm::Wrapper<TTTrackAssociationMap<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >" />
   
+  <class name="std::map<edm::Ref<edmNew::DetSetVector<TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >, TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >, edmNew::DetSetVector<TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >::FindForDetSetVector>, std::vector<edm::Ptr<TrackingParticle>, std::allocator<edm::Ptr<TrackingParticle> > >,std::less<edm::Ref<edmNew::DetSetVector<TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >, TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >, edmNew::DetSetVector<TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >::FindForDetSetVector> >, std::allocator<std::pair<const edm::Ref<edmNew::DetSetVector<TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >, TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >, edmNew::DetSetVector<TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >::FindForDetSetVector>, std::vector<edm::Ptr<TrackingParticle>,std::allocator<edm::Ptr<TrackingParticle> > > > > >" />
+
+  <class name="std::map<edm::Ptr<TrackingParticle>, std::vector<edm::Ref<edmNew::DetSetVector<TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >, TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >, edmNew::DetSetVector<TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >::FindForDetSetVector>, std::allocator<edm::Ref<edmNew::DetSetVector<TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >, TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >, edmNew::DetSetVector<TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >::FindForDetSetVector> > >, std::less<edm::Ptr<TrackingParticle> >, std::allocator<std::pair<const edm::Ptr<TrackingParticle>, std::vector<edm::Ref<edmNew::DetSetVector<TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >, TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >, edmNew::DetSetVector<TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >::FindForDetSetVector>, std::allocator<edm::Ref<edmNew::DetSetVector<TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >, TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >, edmNew::DetSetVector<TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >::FindForDetSetVector> > > > > >" />
+
+  <class name="std::map<edm::Ref<edmNew::DetSetVector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >, TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >, edmNew::DetSetVector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >::FindForDetSetVector>, edm::Ptr<TrackingParticle>, std::less<edm::Ref<edmNew::DetSetVector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >, TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >, edmNew::DetSetVector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >::FindForDetSetVector> >, std::allocator<std::pair<const edm::Ref<edmNew::DetSetVector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >, TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >, edmNew::DetSetVector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >::FindForDetSetVector>, edm::Ptr<TrackingParticle> > > >" />
+
+  <class name="std::map<edm::Ptr<TrackingParticle>, std::vector<edm::Ref<edmNew::DetSetVector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >, TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >, edmNew::DetSetVector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >::FindForDetSetVector>, std::allocator<edm::Ref<edmNew::DetSetVector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >, TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >, edmNew::DetSetVector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >::FindForDetSetVector> > >, std::less<edm::Ptr<TrackingParticle> >, std::allocator<std::pair<const edm::Ptr<TrackingParticle>, std::vector<edm::Ref<edmNew::DetSetVector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >, TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >, edmNew::DetSetVector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >::FindForDetSetVector>, std::allocator<edm::Ref<edmNew::DetSetVector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >, TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >, edmNew::DetSetVector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >::FindForDetSetVector> > > > > >" />
+
+  <class name="std::map<edm::Ptr<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >, edm::Ptr<TrackingParticle>, std::less<edm::Ptr<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > > >, std::allocator<std::pair<const edm::Ptr<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >, edm::Ptr<TrackingParticle> > > >" />
+
+  <class name="std::map<edm::Ptr<TrackingParticle>, std::vector<edm::Ptr<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >, std::allocator<edm::Ptr<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > > > >, std::less<edm::Ptr<TrackingParticle> >, std::allocator<std::pair<const edm::Ptr<TrackingParticle>, std::vector<edm::Ptr<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >, std::allocator<edm::Ptr<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > > > > > > >" />
+
+  <class name="TTClusterAssociationMap<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >" />
+
+  <class name="TTStubAssociationMap<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >" />
+
+  <class name="TTTrackAssociationMap<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >" />
+
+  <class name="std::pair<const edm::Ref<edmNew::DetSetVector<TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >, TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >, edmNew::DetSetVector<TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >::FindForDetSetVector>, std::vector<edm::Ptr<TrackingParticle>, std::allocator<edm::Ptr<TrackingParticle> > > >" />
+
+  <class name="std::pair<const edm::Ptr<TrackingParticle>, std::vector<edm::Ref<edmNew::DetSetVector<TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >, TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >, edmNew::DetSetVector<TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >::FindForDetSetVector>, std::allocator<edm::Ref<edmNew::DetSetVector<TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >, TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >, edmNew::DetSetVector<TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >::FindForDetSetVector> > > >" />
+
+  <class name="std::pair<const edm::Ref<edmNew::DetSetVector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >, TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >, edmNew::DetSetVector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >::FindForDetSetVector>, edm::Ptr<TrackingParticle> >" />
+
+
+  <class name="std::pair<const edm::Ptr<TrackingParticle>, std::vector<edm::Ref<edmNew::DetSetVector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >, TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >, edmNew::DetSetVector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >::FindForDetSetVector>, std::allocator<edm::Ref<edmNew::DetSetVector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >, TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >, edmNew::DetSetVector<TTStub<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >::FindForDetSetVector> > > >" />
+
+  <class name="std::pair< edm::Ptr< TTTrack< edm::Ref< edm::DetSetVector< Phase2TrackerDigi >, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector< Phase2TrackerDigi > > > >, edm::Ptr< TrackingParticle > >" />
+  <class name="std::pair< edm::Ptr< TrackingParticle >, vector< edm::Ptr< TTTrack< edm::Ref< edm::DetSetVector< Phase2TrackerDigi >, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector< Phase2TrackerDigi > > > >, allocator< edm::Ptr< TTTrack< edm::Ref< edm::DetSetVector< Phase2TrackerDigi >, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector< Phase2TrackerDigi > > > > > > >" />
+
+  <class name="std::pair<const edm::Ptr<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >, edm::Ptr<TrackingParticle> >" />
+  
+  <class name="std::pair<const edm::Ptr<TrackingParticle>, std::vector<edm::Ptr<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >, std::allocator<edm::Ptr<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > > > > >" />
+
 </lcgdict>

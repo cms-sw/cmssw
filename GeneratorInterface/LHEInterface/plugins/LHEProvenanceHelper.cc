@@ -10,10 +10,10 @@
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
 
-#include "FWCore/Utilities/interface/GetPassID.h"
-
+#include "FWCore/AbstractServices/interface/ResourceInformation.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Reflection/interface/TypeWithDict.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
 namespace edm {
@@ -21,39 +21,35 @@ namespace edm {
                                            TypeID const& runProductType,
                                            ProductRegistry& productRegistry,
                                            BranchIDListHelper& branchIDListHelper)
-      : eventProductBranchDescription_(BranchDescription(InEvent,
+      : eventProductProductDescription_(ProductDescription(InEvent,
+                                                           "source",
+                                                           "LHEFile"
+                                                           // , "LHE"
+                                                           ,
+                                                           "LHEEventProduct",
+                                                           "LHEEventProduct",
+                                                           "",
+                                                           TypeWithDict(eventProductType.typeInfo()),
+                                                           false)),
+        runProductProductDescription_(ProductDescription(InRun,
                                                          "source",
                                                          "LHEFile"
                                                          // , "LHE"
                                                          ,
-                                                         "LHEEventProduct",
-                                                         "LHEEventProduct",
+                                                         "LHERunInfoProduct",
+                                                         "LHERunInfoProduct",
                                                          "",
-                                                         "LHESource",
-                                                         ParameterSetID(),
-                                                         TypeWithDict(eventProductType.typeInfo()),
+                                                         TypeWithDict(runProductType.typeInfo()),
                                                          false)),
-        runProductBranchDescription_(BranchDescription(InRun,
-                                                       "source",
-                                                       "LHEFile"
-                                                       // , "LHE"
-                                                       ,
-                                                       "LHERunInfoProduct",
-                                                       "LHERunInfoProduct",
-                                                       "",
-                                                       "LHESource",
-                                                       ParameterSetID(),
-                                                       TypeWithDict(runProductType.typeInfo()),
-                                                       false)),
-        eventProductProvenance_(eventProductBranchDescription_.branchID()),
+        eventProductProvenance_(eventProductProductDescription_.branchID()),
         commonProcessParameterSet_(fillCommonProcessParameterSet()),
         processParameterSet_(),
         branchListIndexes_(1, 0) {
     // Add the products to the product registry
-    auto ep = eventProductBranchDescription_;
+    auto ep = eventProductProductDescription_;
     ep.setIsProvenanceSetOnRead();
     productRegistry.copyProduct(ep);
-    auto rp = runProductBranchDescription_;
+    auto rp = runProductProductDescription_;
     rp.setIsProvenanceSetOnRead();
     productRegistry.copyProduct(rp);
     BranchIDList bli(1UL, ep.branchID().id());
@@ -65,9 +61,9 @@ namespace edm {
     // This function only fills parameters whose values are independent of the LHE input files.
     // We don't currently use the untracked parameters, However, we make them available, just in case.
     ParameterSet pset;
-    std::string const& moduleLabel = eventProductBranchDescription_.moduleLabel();
-    std::string const& processName = eventProductBranchDescription_.processName();
-    std::string const& moduleName = eventProductBranchDescription_.moduleName();
+    std::string const& moduleLabel = eventProductProductDescription_.moduleLabel();
+    std::string const& processName = eventProductProductDescription_.processName();
+    std::string const moduleName = "LHESource";
     typedef std::vector<std::string> vstring;
     vstring empty;
 
@@ -127,8 +123,13 @@ namespace edm {
 
     // Insert an entry for this process in the process history registry
     ProcessHistory ph;
+    edm::Service<edm::ResourceInformation> resourceInformationService;
+    edm::HardwareResourcesDescription hwResources;
+    if (resourceInformationService.isAvailable()) {
+      hwResources = resourceInformationService->hardwareResourcesDescription();
+    }
     ph.emplace_back(
-        eventProductBranchDescription_.processName(), processParameterSet_.id(), getReleaseVersion(), getPassID());
+        eventProductProductDescription_.processName(), processParameterSet_.id(), getReleaseVersion(), hwResources);
     processHistoryRegistry.registerProcessHistory(ph);
 
     // Save the process history ID for use every event.

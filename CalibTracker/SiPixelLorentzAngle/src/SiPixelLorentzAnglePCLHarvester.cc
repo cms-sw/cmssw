@@ -731,7 +731,7 @@ SiPixelLAHarvest::fitResults SiPixelLorentzAnglePCLHarvester::fitAndStore(
       }
       cov00 = result->CovMatrix(0, 0);
     }  // if the covariance matrix is valid
-  }    // compute the error on the drift-at-half width only for the regular polynomial fit
+  }  // compute the error on the drift-at-half width only for the regular polynomial fit
 
   res.dSq = dSq;
 

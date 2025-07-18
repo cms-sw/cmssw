@@ -2682,7 +2682,7 @@ void CSCValidation::doGasGain(const CSCWireDigiCollection& wirecltn,
         if (m_single_wire_layer.find(idlayer) == m_single_wire_layer.end())
           m_single_wire_layer[idlayer] = wire;
       }  // end of if(mult==1)
-    }    // end of cycle on detUnit
+    }  // end of cycle on detUnit
 
     // Looping thru rechit collection
     CSCRecHit2DCollection::const_iterator recIt;
@@ -2750,11 +2750,11 @@ void CSCValidation::doGasGain(const CSCWireDigiCollection& wirecltn,
                    location<<"   "<<adc_3_3_sum<<std::endl;
                  */
             }  // end of if flag==0
-          }    // end if(adcsum>0.0 && adcsum<2000.0)
-        }      // end of if if(m_strip.size()==3
-      }        // end of if single wire
-    }          // end of looping thru rechit collection
-  }            // end of if wire and strip and rechit present
+          }  // end if(adcsum>0.0 && adcsum<2000.0)
+        }  // end of if if(m_strip.size()==3
+      }  // end of if single wire
+    }  // end of looping thru rechit collection
+  }  // end of if wire and strip and rechit present
 }
 
 //---------------------------------------------------------------------------
@@ -2820,8 +2820,8 @@ void CSCValidation::doAFEBTiming(const CSCWireDigiCollection& wirecltn) {
         histos->fill2DHist(x, y, name, title, 42, 1., 43., 16, 0., 16., "AFEBTiming");
 
       }  // end of digis loop in layer
-    }    // end of wire collection loop
-  }      // end of      if(wirecltn.begin() != wirecltn.end())
+    }  // end of wire collection loop
+  }  // end of      if(wirecltn.begin() != wirecltn.end())
 }
 
 //---------------------------------------------------------------------------
@@ -2881,8 +2881,8 @@ void CSCValidation::doCompTiming(const CSCComparatorDigiCollection& compars) {
         histos->fill2DHist(x, y, name, title, 5, 1., 6., 16, 0., 16., "CompTiming");
 
       }  // end of digis loop in layer
-    }    // end of collection loop
-  }      // end of      if(compars.begin() !=compars.end())
+    }  // end of collection loop
+  }  // end of      if(compars.begin() !=compars.end())
 }
 
 //---------------------------------------------------------------------------
@@ -2969,10 +2969,10 @@ void CSCValidation::doADCTiming(const CSCRecHit2DCollection& rechitcltn) {
             y = adc_3_3_wtbin;
             histos->fill2DHist(x, y, name, title, 5, 1., 6., 80, -8., 8., "ADCTiming");
           }  // end of if flag==0
-        }    // end of if (adc_3_3_sum > 100.0)
-      }      // end of if if(m_strip.size()==3
-    }        // end of the  pass thru CSCRecHit2DCollection
-  }          // end of if (rechitcltn.begin() != rechitcltn.end())
+        }  // end of if (adc_3_3_sum > 100.0)
+      }  // end of if if(m_strip.size()==3
+    }  // end of the  pass thru CSCRecHit2DCollection
+  }  // end of if (rechitcltn.begin() != rechitcltn.end())
 }
 
 //---------------------------------------------------------------------------------------
@@ -3134,7 +3134,7 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
       }
 
     }  //end inner loop of segment pairs
-  }    //end outer loop of segment pairs
+  }  //end outer loop of segment pairs
 
   //if the digis, return here
   if (!useDigis)
@@ -3638,12 +3638,12 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
             }
 
           }  // end CSCData loop
-        }    // end ddu data loop
-      }      // end if goodEvent
+        }  // end ddu data loop
+      }  // end if goodEvent
       if (examiner != nullptr)
         delete examiner;
     }  // end if non-zero fed data
-  }    // end DCC loop for NON-REFERENCE
+  }  // end DCC loop for NON-REFERENCE
 }
 
 void CSCValidation::beginJob() { std::cout << "CSCValidation starting..." << std::endl; }

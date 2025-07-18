@@ -32,8 +32,8 @@ from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
 from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 process = cms.Process('PROD',Phase2C17I13M9,phase2_hfnose,dd4hep)
 
-geomFile = "Configuration.Geometry.GeometryDD4hepExtended2026D94Reco_cff"
-baseName = "cms2026D94DD4hep"
+geomFile = "Configuration.Geometry.GeometryDD4hepExtendedRun4D115Reco_cff"
+baseName = "cmsRun4D115DD4hep"
 
 print("Geometry file Name: ", geomFile)
 print("Base file Name:     ", baseName)

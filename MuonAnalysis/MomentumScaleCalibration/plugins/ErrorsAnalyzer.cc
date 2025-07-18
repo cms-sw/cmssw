@@ -55,7 +55,7 @@ private:
                       const TProfile* histoMinusErr,
                       const TString& type);
   void fillValueError();
-  void endJob() override{};
+  void endJob() override {}
 
   TString treeFileName_;
   int resolFitType_;

@@ -7,6 +7,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -16,7 +17,6 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "Geometry/EcalTestBeam/interface/EcalTBCrystalMap.h"
 #include "SimDataFormats/EcalTestBeam/interface/PEcalTBInfo.h"

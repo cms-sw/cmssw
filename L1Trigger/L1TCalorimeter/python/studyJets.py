@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-from __future__ import print_function
 import os
 import sys
 import math
@@ -52,7 +51,7 @@ def getJetProperties(jetSeed,etaFwd,etaCen):
 
 def printJetProperties(etaRange):
 
-    print("Size  \  eta\t", end=' ')
+    print("Size  \\  eta\t", end=' ')
     for seedEta in etaRange:
         if(seedEta<29):
             print(str(seedEta)+"\t\t", end=' ')

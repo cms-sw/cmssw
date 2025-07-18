@@ -310,7 +310,10 @@ GlobalTrajectoryParameters RKPropagatorInS::gtpFromLocal(const Basic3DVector<flo
   return GlobalTrajectoryParameters(surf.toGlobal(LocalPoint(lpos)), surf.toGlobal(LocalVector(lmom)), ch, theVolume);
 }
 
-RKLocalFieldProvider RKPropagatorInS::fieldProvider() const { return RKLocalFieldProvider(*theVolume); }
+RKLocalFieldProvider RKPropagatorInS::fieldProvider() const {
+  assert(theVolume);
+  return RKLocalFieldProvider(*theVolume);
+}
 
 RKLocalFieldProvider RKPropagatorInS::fieldProvider(const Cylinder& cyl) const {
   return RKLocalFieldProvider(*theVolume, cyl);

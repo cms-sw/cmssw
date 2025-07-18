@@ -1,4 +1,3 @@
-from __future__ import print_function
 def GetDbsInfo(toFind, requirements):
     "Interface with the DBS API to get the whatever you want of a requirements. ALWAYS RETURN A LIST OF STRINGS"
     from xml.dom.minidom import parseString

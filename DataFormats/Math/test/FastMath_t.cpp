@@ -43,7 +43,7 @@ namespace {
     amax = std::max(amax, std::abs(d));
   }
 
-  volatile double dummy;
+  double dummy;
   template <typename T>
   inline T eta(T x, T y, T z) {
     x = z / std::sqrt(x * x + y * y);

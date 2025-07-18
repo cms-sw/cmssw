@@ -167,6 +167,21 @@ for train in full_106x_UL16APV_chs.trainings:
     train.tmvaWeights = train.tmvaWeights.value().replace("UL17", "UL16APV")
 
 ####################################################################################################################
+full_133x_Winter24_puppi_v18_wp = full_106x_UL17_chs.clone(
+    JetIdParams = full_133x_Winter24_puppiv18_wp,
+    trainings = {0: dict(tmvaWeights   = "RecoJets/JetProducers/data/pileupJetId_133X_Winter24_Eta0p0To2p5_puppiV18_BDT.weights.xml.gz",
+                         tmvaVariables = trainingVariables_102X_Eta0To3),
+                 1: dict(tmvaWeights   = "RecoJets/JetProducers/data/pileupJetId_133X_Winter24_Eta2p5To2p75_puppiV18_BDT.weights.xml.gz",
+                         tmvaVariables = trainingVariables_102X_Eta0To3),
+                 2: dict(tmvaWeights   = "RecoJets/JetProducers/data/pileupJetId_133X_Winter24_Eta2p75To3p0_puppiV18_BDT.weights.xml.gz",
+                         tmvaVariables = trainingVariables_102X_Eta0To3),
+                 3: dict(tmvaWeights   = "RecoJets/JetProducers/data/pileupJetId_133X_Winter24_Eta3p0To5p0_puppiV18_BDT.weights.xml.gz",
+                         tmvaVariables = trainingVariables_102X_Eta3To5)
+    }
+)
+
+
+####################################################################################################################
 cutbased = cms.PSet(
     impactParTkThreshold = cms.double(1.),
     cutBased = cms.bool(True),

@@ -45,7 +45,7 @@ CSCFileDumper::CSCFileDumper(edm::ParameterSet const &pset) {
       }
    */
 
-  if (events.length()) {
+  if (!events.empty()) {
     for (size_t pos1 = 0, pos2 = events.find(',');; pos1 = pos2 + 1, pos2 = events.find(',', pos2 + 1)) {
       if (pos2 != std::string::npos) {
         long event = 0;

@@ -386,9 +386,9 @@ void L1TScalersSCAL::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
             lostPhysRateBeamActive->setBinContent(lumisection + 1, triggerRates->triggersPhysicsLostBeamActiveRate());
             deadTimePercent->setBinContent(lumisection + 1, triggerRates->deadtimePercent());
           }  // bufferLumi test
-        }    // triggerRates
-      }      // lumisection
-    }        // triggerScalers->size()
+        }  // triggerRates
+      }  // lumisection
+    }  // triggerScalers->size()
 
     LumiScalersCollection::const_iterator it3 = lumiScalers->begin();
     if (!lumiScalers->empty()) {

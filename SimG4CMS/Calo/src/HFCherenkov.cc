@@ -184,12 +184,12 @@ int HFCherenkov::computeNPE(const G4Step* aStep,
               momZ.push_back(w_ph);
               wl.push_back(lambda);
               wlqeff.push_back(lambda);
-            }          // made pe
-          }            // passed HEM
-        }              // passed fiber
-      }                // end of  if(w_ph < w_aperture), trapped inside fiber
-    }                  // end of ++NbOfPhotons
-  }                    // end of if(NbOfPhotons)}
+            }  // made pe
+          }  // passed HEM
+        }  // passed fiber
+      }  // end of  if(w_ph < w_aperture), trapped inside fiber
+    }  // end of ++NbOfPhotons
+  }  // end of if(NbOfPhotons)}
   int npe = npe_Dose;  // Nb of photoelectrons
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFShower") << "HFCherenkov::computeNPE: npe " << npe;
@@ -263,10 +263,10 @@ int HFCherenkov::computeNPEinPMT(
             wl.push_back(lambda);
             wlqeff.push_back(lambda);
           }  // made pe
-        }    // accepted all Cherenkov photons
-      }      // end of  if(w_ph < w_aperture), trapped inside glass
-    }        // end of ++NbOfPhotons
-  }          // end of if(NbOfPhotons)}
+        }  // accepted all Cherenkov photons
+      }  // end of  if(w_ph < w_aperture), trapped inside glass
+    }  // end of ++NbOfPhotons
+  }  // end of if(NbOfPhotons)}
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFShower") << "HFCherenkov::computeNPEinPMT: npe " << npe_;
 #endif

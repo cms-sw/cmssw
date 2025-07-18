@@ -94,9 +94,6 @@ for e in [pp_on_XeXe_2017, pp_on_AA]:
                                                pt_min_prim = 999999.0,
                                                dxy = 999999.0)
                )
-
-    e.toModify(particleFlowBlock, useNuclear = cms.bool(False))
-
     e.toModify(pfNoPileUpIso, enable = False)
     e.toModify(pfPileUpIso, enable = False)
     e.toModify(pfNoPileUp, enable = False)

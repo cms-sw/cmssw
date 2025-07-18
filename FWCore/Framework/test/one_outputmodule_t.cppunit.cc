@@ -16,6 +16,8 @@
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/maker/WorkerT.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
+#include "FWCore/Framework/interface/ProductResolversFactory.h"
+#include "FWCore/Framework/interface/maker/ModuleHolder.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
@@ -23,6 +25,7 @@
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
@@ -263,15 +266,18 @@ testOneOutputModule::testOneOutputModule()
 
   std::string uuid = edm::createGlobalIdentifier();
   edm::Timestamp now(1234567UL);
-  m_rp.reset(new edm::RunPrincipal(m_prodReg, m_procConfig, &historyAppender_, 0));
+  m_rp.reset(
+      new edm::RunPrincipal(m_prodReg, edm::productResolversFactory::makePrimary, m_procConfig, &historyAppender_, 0));
   m_rp->setAux(edm::RunAuxiliary(eventID.run(), now, now));
   edm::LuminosityBlockAuxiliary lumiAux(m_rp->run(), 1, now, now);
-  m_lbp.reset(new edm::LuminosityBlockPrincipal(m_prodReg, m_procConfig, &historyAppender_, 0));
+  m_lbp.reset(new edm::LuminosityBlockPrincipal(
+      m_prodReg, edm::productResolversFactory::makePrimary, m_procConfig, &historyAppender_, 0));
   m_lbp->setAux(lumiAux);
   m_lbp->setRunPrincipal(m_rp);
   edm::EventAuxiliary eventAux(eventID, uuid, now, true);
 
-  m_ep.reset(new edm::EventPrincipal(m_prodReg, m_idHelper, m_associationsHelper, m_procConfig, nullptr));
+  m_ep.reset(new edm::EventPrincipal(
+      m_prodReg, edm::productResolversFactory::makePrimary, m_idHelper, m_associationsHelper, m_procConfig, nullptr));
   m_ep->fillEventPrincipal(eventAux, nullptr);
   m_ep->setLuminosityBlockPrincipal(m_lbp.get());
   m_actReg.reset(new edm::ActivityRegistry);
@@ -390,7 +396,8 @@ void testOneOutputModule::testTransitions(std::shared_ptr<T> iMod, Expectations 
 
   iMod->doPreallocate(m_preallocConfig);
   edm::WorkerT<edm::one::OutputModuleBase> w{iMod, m_desc, m_params.actions_};
-  w.beginJob();
+  edm::maker::ModuleHolderT<edm::one::OutputModuleBase> h(iMod);
+  h.beginJob();
   edm::OutputModuleCommunicatorT<edm::one::OutputModuleBase> comm(iMod.get());
   for (auto& keyVal : m_transToFunc) {
     testTransition(iMod, &w, &comm, keyVal.first, iExpect, keyVal.second);

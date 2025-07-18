@@ -12,7 +12,7 @@ namespace susybsm {
 
   class MuonSegment {
   public:
-    MuonSegment(){};
+    MuonSegment() {}
     //bool isDT()  const { return DT;}
     //bool isCSC() const { return CSC;}
 

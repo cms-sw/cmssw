@@ -18,6 +18,7 @@
 class ElectronSeedMerger : public edm::global::EDProducer<> {
 public:
   explicit ElectronSeedMerger(const edm::ParameterSet&);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
@@ -29,6 +30,13 @@ private:
 using namespace edm;
 using namespace std;
 using namespace reco;
+
+void ElectronSeedMerger::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("EcalBasedSeeds", edm::InputTag("ecalDrivenElectronSeeds"));
+  desc.add<edm::InputTag>("TkBasedSeeds", edm::InputTag("trackerDrivenElectronSeeds:SeedsForGsf"));
+  descriptions.addWithDefaultLabel(desc);
+}
 
 ElectronSeedMerger::ElectronSeedMerger(const ParameterSet& iConfig)
     : ecalSeedToken_{consumes<ElectronSeedCollection>(iConfig.getParameter<InputTag>("EcalBasedSeeds"))} {

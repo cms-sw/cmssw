@@ -16,6 +16,8 @@ public:
   ///Destructor
   ~PFDisplacedTrackerVertexProducer() override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void endRun(const edm::Run&, const edm::EventSetup&) override;
@@ -33,6 +35,13 @@ private:
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PFDisplacedTrackerVertexProducer);
+
+void PFDisplacedTrackerVertexProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("displacedTrackerVertexColl", {"particleFlowDisplacedVertex"});
+  desc.add<edm::InputTag>("trackColl", {"generalTracks"});
+  descriptions.add("pfDisplacedTrackerVertex", desc);
+}
 
 using namespace std;
 using namespace edm;

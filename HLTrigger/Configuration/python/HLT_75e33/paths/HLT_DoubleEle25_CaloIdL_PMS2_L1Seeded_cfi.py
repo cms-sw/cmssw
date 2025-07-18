@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from ..modules.hltPreDoubleEle25CaloIdLPMS2L1Seeded_cfi import *
 from ..sequences.HLTBeginSequence_cfi import *
 from ..sequences.HLTDoubleEle25CaloIdLPMS2L1SeededSequence_cfi import *
 from ..sequences.HLTEndSequence_cfi import *

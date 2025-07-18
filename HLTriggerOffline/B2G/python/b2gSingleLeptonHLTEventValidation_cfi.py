@@ -22,7 +22,7 @@ b2gSingleMuonHLTValidation = DQMEDAnalyzer('B2GSingleLeptonHLTValidation',
         etaJets      = cms.untracked.double(2.4),
         minJets      = cms.untracked.uint32(2),
         # Trigger
-        sTrigger     = cms.untracked.string("TriggerResults"),
+        triggerResults     = cms.InputTag("TriggerResults", "", "HLT"),
         vsPaths      = cms.untracked.vstring(['HLT_Mu40_eta2p1_PFJet200_PFJet50',
 		'HLT_Mu30_eta2p1_PFJet150_PFJet50']),
 )
@@ -48,7 +48,7 @@ b2gSingleElectronHLTValidation = DQMEDAnalyzer('B2GSingleLeptonHLTValidation',
         etaJets      = cms.untracked.double(2.4),
         minJets      = cms.untracked.uint32(2),
         # Trigger
-        sTrigger     = cms.untracked.string("TriggerResults"),
+        triggerResults     = cms.InputTag("TriggerResults", "", "HLT"),
         vsPaths      = cms.untracked.vstring(['HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50',
 		'HLT_Ele35_CaloIdVT_GsfTrkIdT_PFJet150_PFJet50']),
 )
@@ -73,7 +73,7 @@ b2gElePlusSingleJetHLTValidation  = DQMEDAnalyzer('B2GSingleLeptonHLTValidation'
         etaJets      = cms.untracked.double(2.4),
         minJets      = cms.untracked.uint32(1),
         # Trigger
-        sTrigger     = cms.untracked.string("TriggerResults"),
+        triggerResults     = cms.InputTag("TriggerResults", "", "HLT"),
         vsPaths      = cms.untracked.vstring(['HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet140',
                                               'HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165']),
 )

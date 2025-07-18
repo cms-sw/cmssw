@@ -85,9 +85,11 @@ namespace edm {
     static void writeCfiForLabel(std::pair<std::string, ParameterSetDescription> const& labelAndDesc,
                                  std::string const& baseType,
                                  std::string const& pluginName,
+                                 bool isSameAsDefault,
+                                 CfiOptions& options,
                                  std::set<std::string>& usedCfiFileNames);
 
-    void writeClassFile(ParameterSetDescription const&) const;
+    cfi::Paths writeClassFile(ParameterSetDescription const&, bool willUseWithCfis) const;
 
     void printForLabel(std::pair<std::string, ParameterSetDescription> const& labelAndDesc,
                        std::ostream& os,

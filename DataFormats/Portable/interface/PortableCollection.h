@@ -5,6 +5,7 @@
 
 #include "DataFormats/Portable/interface/PortableHostCollection.h"
 #include "DataFormats/Portable/interface/PortableDeviceCollection.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/concepts.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToDevice.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToHost.h"
 
@@ -47,8 +48,10 @@ using PortableMultiCollection = typename traits::PortableMultiCollectionTrait<TD
 // define how to copy PortableCollection between host and device
 namespace cms::alpakatools {
   template <typename TLayout, typename TDevice>
+    requires alpaka::isDevice<TDevice>
   struct CopyToHost<PortableDeviceCollection<TLayout, TDevice>> {
     template <typename TQueue>
+      requires alpaka::isQueue<TQueue>
     static auto copyAsync(TQueue& queue, PortableDeviceCollection<TLayout, TDevice> const& srcData) {
       PortableHostCollection<TLayout> dstData(srcData->metadata().size(), queue);
       alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());
@@ -57,8 +60,10 @@ namespace cms::alpakatools {
   };
 
   template <typename TDev, typename T0, typename... Args>
+    requires alpaka::isDevice<TDev>
   struct CopyToHost<PortableDeviceMultiCollection<TDev, T0, Args...>> {
     template <typename TQueue>
+      requires alpaka::isQueue<TQueue>
     static auto copyAsync(TQueue& queue, PortableDeviceMultiCollection<TDev, T0, Args...> const& srcData) {
       PortableHostMultiCollection<T0, Args...> dstData(srcData.sizes(), queue);
       alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());
@@ -68,7 +73,7 @@ namespace cms::alpakatools {
 
   template <typename TLayout>
   struct CopyToDevice<PortableHostCollection<TLayout>> {
-    template <typename TQueue>
+    template <cms::alpakatools::NonCPUQueue TQueue>
     static auto copyAsync(TQueue& queue, PortableHostCollection<TLayout> const& srcData) {
       using TDevice = typename alpaka::trait::DevType<TQueue>::type;
       PortableDeviceCollection<TLayout, TDevice> dstData(srcData->metadata().size(), queue);
@@ -77,12 +82,12 @@ namespace cms::alpakatools {
     }
   };
 
-  template <typename TDev, typename T0, typename... Args>
-  struct CopyToDevice<PortableHostMultiCollection<TDev, T0, Args...>> {
-    template <typename TQueue>
-    static auto copyAsync(TQueue& queue, PortableHostMultiCollection<TDev, T0, Args...> const& srcData) {
+  template <typename T0, typename... Args>
+  struct CopyToDevice<PortableHostMultiCollection<T0, Args...>> {
+    template <cms::alpakatools::NonCPUQueue TQueue>
+    static auto copyAsync(TQueue& queue, PortableHostMultiCollection<T0, Args...> const& srcData) {
       using TDevice = typename alpaka::trait::DevType<TQueue>::type;
-      PortableDeviceMultiCollection<TDev, T0, Args...> dstData(srcData.sizes(), queue);
+      PortableDeviceMultiCollection<TDevice, T0, Args...> dstData(srcData.sizes(), queue);
       alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());
       return dstData;
     }

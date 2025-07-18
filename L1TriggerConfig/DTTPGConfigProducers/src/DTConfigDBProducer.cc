@@ -293,7 +293,7 @@ int DTConfigDBProducer::checkDTCCBConfig(DTConfigManager &dttpgConfig) {
         // << endl;
         //}
       }  // end st loop
-    }    // end sec loop
+    }  // end sec loop
 
     // SV MB4 has two more chambers
     for (int ise = 13; ise <= 14; ise++) {
@@ -613,7 +613,7 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd &iRecord, DTCon
         }
 
       }  // end string iteration
-    }    // end brick iteration
+    }  // end brick iteration
 
     // TSS + TSM configurations are set in DTConfigTSPhi constructor
     if (flagDBTSM && flagDBTSS) {

@@ -22,7 +22,7 @@ static loadFWLite lfw;
 #include "DataFormats/TestObjects/interface/ThingCollection.h"
 #endif
 
-void event_looping_consumes_cint() {
+int event_looping_consumes_cint() {
   TFile f("good_a.root");
   fwlite::Event e(&f);
 
@@ -43,5 +43,5 @@ void event_looping_consumes_cint() {
     cout << "First loop failed!" << endl;
     returnValue = 1;
   }
-  exit(returnValue);
+  return returnValue;
 }

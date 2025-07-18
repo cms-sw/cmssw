@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 
-from __future__ import print_function
 import os
 import shutil
 import sys
@@ -46,7 +45,7 @@ def GetLabel(params):
     label += '-' + params['Version']
    
     if (params['PileUp']!='no'):
-   	label = 'PU' + params['PileUp']+ '_' + label
+        label = 'PU' + params['PileUp']+ '_' + label
 
     return label
 
@@ -95,13 +94,13 @@ def downloadfile(url):
     output=stream.readlines()
     if output[0]=='200':
         print('   + OK!')
-	return True
+        return True
     else:
         print('   + ERROR! ' + str(output[0]))
-	print("Skipping " + url)
-	print("Please check the name of the file in the repository: "+GetGuiRepository(userparams.NewParams))
+        print("Skipping " + url)
+        print("Please check the name of the file in the repository: "+GetGuiRepository(userparams.NewParams))
         sys.exit('Exiting...');
-	# return False
+        # return False
 
 def GetSamplePath(params, sample):
     return params['Release']+'/'+GetTag(params)+'/'+sample
@@ -175,8 +174,8 @@ def getSampleFiles(params, sample):
         #os.system('wget --ca-directory $X509_CERT_DIR/ --certificate=$X509_USER_PROXY --private-key=$X509_USER_PROXY '+GetGuiRepository(params)+guiFileName)
         #os.system('/usr/bin/curl -O -L --capath $X509_CERT_DIR --key $X509_USER_PROXY --cert $X509_USER_PROXY '+ guiFullURL)
         if (downloadfile(guiFullURL)==True):
-		print('   + Moving ' + guiFileName + ' to ' + localsample)
-        	shutil.move(guiFileName,localsample)
+            print('   + Moving ' + guiFileName + ' to ' + localsample)
+            shutil.move(guiFileName,localsample)
 
     elif (params['GetFilesFrom']=='CASTOR'):
         print('   + Getting new file from castor')

@@ -37,6 +37,6 @@ namespace lumi {
       std::unique_ptr<lumi::DBConfig> m_dbconfig;
       std::mutex m_mutex;
     };  //cl DBService
-  }     // namespace service
+  }  // namespace service
 }  // namespace lumi
 #endif

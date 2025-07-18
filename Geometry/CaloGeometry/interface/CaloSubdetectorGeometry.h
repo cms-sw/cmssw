@@ -11,6 +11,8 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometryPtr.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometryMayOwnPtr.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 /** \class CaloSubdetectorGeometry
@@ -35,6 +37,9 @@ public:
   typedef std::vector<unsigned int> IVec;
   typedef std::vector<CCGFloat> DimVec;
 
+  using CellPtr = CaloCellGeometryPtr;
+  using CellMayOwnPtr = CaloCellGeometryMayOwnPtr;
+
   CaloSubdetectorGeometry();
 
   /// The base class DOES assume that it owns the CaloCellGeometry objects
@@ -54,7 +59,7 @@ public:
   virtual bool present(const DetId& id) const;
 
   /// Get the cell geometry of a given detector id.  Should return false if not found.
-  virtual std::shared_ptr<const CaloCellGeometry> getGeometry(const DetId& id) const;
+  virtual CellMayOwnPtr getGeometry(const DetId& id) const;
 
   /** \brief Get a list of valid detector ids (for the given subdetector)
       \note The implementation in this class is relevant for SubdetectorGeometries which handle only
@@ -108,8 +113,8 @@ protected:
   virtual unsigned int indexFor(const DetId& id) const;
   virtual unsigned int sizeForDenseIndex(const DetId& id) const;
 
-  virtual const CaloCellGeometry* getGeometryRawPtr(uint32_t index) const = 0;
-  virtual std::shared_ptr<const CaloCellGeometry> cellGeomPtr(uint32_t index) const;
+  virtual CellPtr getGeometryRawPtr(uint32_t index) const = 0;
+  virtual CellPtr cellGeomPtr(uint32_t index) const;
 
   ParVecVec m_parVecVec;
 

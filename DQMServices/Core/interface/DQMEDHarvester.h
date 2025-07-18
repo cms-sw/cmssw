@@ -26,9 +26,9 @@ namespace edm {
       }
     }
 
-    bool operator()(edm::BranchDescription const &branchDescription) {
+    bool operator()(edm::ProductDescription const &productDescription) {
       for (auto &m : matchers_) {
-        if (m(branchDescription)) {
+        if (m(productDescription)) {
           return true;
         }
       }
@@ -88,16 +88,16 @@ public:
     jobmegetter_ = edm::GetterOfProducts<DQMToken>(edm::VInputTagMatch(inputtags), this, edm::InProcess);
     runmegetter_ = edm::GetterOfProducts<DQMToken>(edm::VInputTagMatch(inputtags), this, edm::InRun);
     lumimegetter_ = edm::GetterOfProducts<DQMToken>(edm::VInputTagMatch(inputtags), this, edm::InLumi);
-    callWhenNewProductsRegistered([this](edm::BranchDescription const &bd) {
+    callWhenNewProductsRegistered([this](edm::ProductDescription const &bd) {
       jobmegetter_(bd);
       runmegetter_(bd);
       lumimegetter_(bd);
     });
   };
 
-  DQMEDHarvester() : DQMEDHarvester(edm::ParameterSet()){};
+  DQMEDHarvester() : DQMEDHarvester(edm::ParameterSet()) {}
 
-  void beginJob() override{};
+  void beginJob() override {}
 
   void beginRun(edm::Run const &run, edm::EventSetup const &) override {
     // According to edm experts, it is never save to look at run products
@@ -129,7 +129,7 @@ public:
     lumi.put(lumiToken_, std::make_unique<DQMToken>());
   }
 
-  void endLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) final{};
+  void endLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) final {}
 
   void endRunProduce(edm::Run &run, edm::EventSetup const &es) final {
     dqmstore_->meBookerGetter([this, &run, &es](DQMStore::IBooker &b, DQMStore::IGetter &g) {
@@ -140,7 +140,7 @@ public:
     run.put(runToken_, std::make_unique<DQMToken>());
   }
 
-  void endRun(edm::Run const &, edm::EventSetup const &) override{};
+  void endRun(edm::Run const &, edm::EventSetup const &) override {}
 
   void endProcessBlockProduce(edm::ProcessBlock &) final {
     dqmstore_->meBookerGetter([this](DQMStore::IBooker &b, DQMStore::IGetter &g) {
@@ -154,15 +154,15 @@ public:
   // DQM_EXPERIMENTAL
   // Could be used for niche workflows like commissioning.
   // Real harvesting jobs have no events and will never call this.
-  virtual void dqmAnalyze(DQMStore::IBooker &, DQMStore::IGetter &, edm::Event const &, edm::EventSetup const &){};
+  virtual void dqmAnalyze(DQMStore::IBooker &, DQMStore::IGetter &, edm::Event const &, edm::EventSetup const &) {}
   virtual void dqmEndLuminosityBlock(DQMStore::IBooker &,
                                      DQMStore::IGetter &,
                                      edm::LuminosityBlock const &,
-                                     edm::EventSetup const &){};
+                                     edm::EventSetup const &) {};
   // HARVESTING should happen in endJob (or endLumi, for online), but there can
   // be applications for end-run harvesting. Better to have a callback than
   // have unprotected DQMStore access.
-  virtual void dqmEndRun(DQMStore::IBooker &, DQMStore::IGetter &, edm::Run const &, edm::EventSetup const &){};
+  virtual void dqmEndRun(DQMStore::IBooker &, DQMStore::IGetter &, edm::Run const &, edm::EventSetup const &) {}
   virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) = 0;
 };
 

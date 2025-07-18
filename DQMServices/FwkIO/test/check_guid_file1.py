@@ -1,4 +1,3 @@
-from __future__ import print_function
 import re
 import sys
 import ROOT
@@ -9,7 +8,8 @@ fname_report = "dqm_file1_jobreport.xml"
 kCmsGuid = "cms::edm::GUID"
 
 f = ROOT.TFile.Open(fname_root)
-guid_file = getattr(f, kCmsGuid)
+guid_file = f[kCmsGuid]
+
 f.Close()
 
 guid_report = None

@@ -1,4 +1,4 @@
-mport FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Write2DB")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")

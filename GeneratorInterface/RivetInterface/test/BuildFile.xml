@@ -1,6 +1,6 @@
 <test name="test-rivet-list" command="test-rivet-list.sh"/>
 <test name="test-rivet-run" command="test-rivet-run.sh"/>
-<test name="test-rivet-nan" command="test-rivet-nan.sh">
+<test name="test-rivet-plot" command="rivet-mkhtml out.yoda">
   <flags PRE_TEST="test-rivet-run"/>
 </test>
 <test name="test-yoda-merge" command="test-yoda-merge.sh">
@@ -9,3 +9,8 @@
 <test name="test-yoda-root" command="test-yoda-root.sh">
   <flags PRE_TEST="test-rivet-run"/>
 </test>
+<test name="test-particleLevel_fromHepMC3" command="cmsRun ${LOCALTOP}/src/GeneratorInterface/RivetInterface/test/particleLevel_fromHepMC3_cfg.py"/>
+<test name="test-particleLevel_fromGenParticles" command="cmsRun ${LOCALTOP}/src/GeneratorInterface/RivetInterface/test/particleLevel_fromGenParticles_cfg.py"/>
+<test name="test-particleLevel_fromMiniAod" command="cmsRun ${LOCALTOP}/src/GeneratorInterface/RivetInterface/test/particleLevel_cfg.py"/>
+<test name="test-particleLevel_fromPtGun" command="cmsRun ${LOCALTOP}/src/GeneratorInterface/RivetInterface/test/particleLevel_fromPtGun_cfg.py"/>
+<test name="test-HTXS" command="cmsRun ${LOCALTOP}/src/GeneratorInterface/RivetInterface/test/runRivetHTXS_cfg.py"/>

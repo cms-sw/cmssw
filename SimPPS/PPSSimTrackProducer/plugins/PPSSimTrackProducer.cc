@@ -20,6 +20,7 @@
 #include <memory>
 
 // user include files
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -33,7 +34,6 @@
 #include "SimDataFormats/Forward/interface/LHCTransportLinkContainer.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"

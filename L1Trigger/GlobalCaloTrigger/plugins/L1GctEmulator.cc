@@ -80,7 +80,7 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps)
   for (unsigned ieta = 0; ieta < L1GctJetFinderParams::NUMBER_ETA_VALUES; ieta++) {
     nextLut->setEtaBin(ieta);
     m_jetEtCalibLuts.push_back(nextLut);
-    nextLut.reset(new L1GctJetEtCalibrationLut());
+    nextLut = std::make_shared<L1GctJetEtCalibrationLut>();
   }
 
   // Setup the tau algorithm parameters

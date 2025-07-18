@@ -1,14 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("ICALIB")
+###################################################################
+# Set default phase-2 settings
+###################################################################
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
+
+process = cms.Process("ICALIB",_PH2_ERA)
 process.load("Configuration.StandardSequences.Services_cff")
-process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4DefaultReco_cff')
 
 process.trackerGeometry.applyAlignment = cms.bool(False)
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, _PH2_GLOBAL_TAG, '')
 
 process.source = cms.Source("EmptyIOVSource",
     firstValue = cms.uint64(1),
@@ -28,7 +34,7 @@ process.prodstrip = cms.EDAnalyzer("SiStripDetInfoFileWriter",
 )
 
 process.prodpixel = cms.EDAnalyzer("SiPixelDetInfoFileWriter",
-    FilePath = cms.untracked.string('PixelSkimmedGeometry_GeometryExtended2026Tilted_D49.txt'),
+    FilePath = cms.untracked.string('PixelSkimmedGeometry_GeometryExtended2026Tilted_Default.txt'),
     WriteROCInfo = cms.untracked.bool(True)
 )
 

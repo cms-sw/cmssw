@@ -10,18 +10,20 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("NORUNLUMISORT")
 
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
+from IOPool.Input.modules import PoolSource
+process.source = PoolSource(
+    fileNames = [
         'file:testRunMergeMERGE6.root', 
         'file:testRunMergeMERGE6.root'
-    ),
-    duplicateCheckMode = cms.untracked.string('checkEachRealDataFile'),
-    noRunLumiSort = cms.untracked.bool(True)
+    ],
+    duplicateCheckMode = 'checkEachRealDataFile',
+    noRunLumiSort = True
 )
 
-process.test2 = cms.EDAnalyzer('RunLumiEventAnalyzer',
-    verbose = cms.untracked.bool(True),
-    expectedRunLumiEvents = cms.untracked.vuint32(
+from FWCore.Framework.modules import RunLumiEventAnalyzer
+process.test2 = RunLumiEventAnalyzer(
+    verbose = True,
+    expectedRunLumiEvents = [
 1, 0, 0,
 1, 1, 0,
 1, 1, 11,
@@ -62,7 +64,7 @@ process.test2 = cms.EDAnalyzer('RunLumiEventAnalyzer',
 1, 1, 8,
 1, 1, 9,
 1, 1, 10
-)
+]
 )
 process.test2.expectedRunLumiEvents.extend([
 1, 1, 11,
@@ -107,9 +109,8 @@ process.test2.expectedRunLumiEvents.extend([
 1, 0, 0,
 ])
 
-process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('testRunMergeNoRunLumiSort.root')
-)
+from IOPool.Output.modules import PoolOutputModule
+process.out = PoolOutputModule(fileName = 'testRunMergeNoRunLumiSort.root')
 
 process.path1 = cms.Path(process.test2)
 

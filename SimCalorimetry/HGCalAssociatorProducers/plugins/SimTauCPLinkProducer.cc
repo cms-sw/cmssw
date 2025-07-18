@@ -69,8 +69,9 @@ void SimTauProducer::buildSimTau(SimTauCPLink& t,
   bool is_leaf = (daughters.empty());
 
   if (is_leaf) {
-    LogDebug("SimTauProducer").format(" TO BE SAVED {} ", resonance_idx);
     auto const& gen_particle_barcode = gen_particle_barcodes[gen_particle_key];
+    LogDebug("SimTauProducer")
+        .format(" TO BE SAVED {}, key {}, barcode {}", resonance_idx, gen_particle_key, gen_particle_barcode);
     auto const& found_in_caloparticles = std::find_if(caloPartVec.begin(), caloPartVec.end(), [&](const auto& p) {
       return p.g4Tracks()[0].genpartIndex() == gen_particle_barcode;
     });
@@ -79,7 +80,7 @@ void SimTauProducer::buildSimTau(SimTauCPLink& t,
       t.calo_particle_leaves.push_back(CaloParticleRef(calo_particle_h, calo_particle_idx));
       t.leaves.push_back(
           {gen_particle.pdgId(), resonance_idx, (int)t.calo_particle_leaves.size() - 1, gen_particle_key});
-      LogDebug("SimTauProducer").format(" CP {} {}", calo_particle_idx, caloPartVec[calo_particle_idx]);
+      LogDebug("SimTauProducer").format(" CP {} {}", calo_particle_idx, caloPartVec[calo_particle_idx].pdgId());
     } else {
       t.leaves.push_back({gen_particle.pdgId(), resonance_idx, -1, gen_particle_key});
     }
@@ -87,13 +88,13 @@ void SimTauProducer::buildSimTau(SimTauCPLink& t,
   } else if (generation != 0) {
     t.resonances.push_back({gen_particle.pdgId(), resonance_idx});
     resonance_idx = t.resonances.size() - 1;
-    LogDebug("SimTauProducer").format(" RESONANCE/INTERMEDIATE {} ", resonance_idx);
+    LogDebug("SimTauProducer").format(" RESONANCE/INTERMEDIATE {}", resonance_idx);
   }
 
   ++generation;
   for (auto daughter = daughters.begin(); daughter != daughters.end(); ++daughter) {
     int gen_particle_key = (*daughter).key();
-    LogDebug("SimTauProducer").format(" gen {} {} {} ", generation, gen_particle_key, (*daughter)->pdgId());
+    LogDebug("SimTauProducer").format(" gen {} {} {}", generation, gen_particle_key, (*daughter)->pdgId());
     buildSimTau(t, generation, resonance_idx, *(*daughter), gen_particle_key, calo_particle_h, gen_particle_barcodes);
   }
 }

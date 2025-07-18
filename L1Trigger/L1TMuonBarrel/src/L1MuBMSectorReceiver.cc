@@ -29,7 +29,7 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTFConfig.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTFConfig.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMSectorProcessor.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMDataBuffer.h"
 #include "DataFormats/L1TMuon/interface/BMTF/L1MuBMTrackSegLoc.h"
@@ -52,7 +52,7 @@ using namespace std;
 L1MuBMSectorReceiver::L1MuBMSectorReceiver(L1MuBMSectorProcessor& sp, edm::ConsumesCollector&& iC)
     : m_sp(sp),
       m_bmtfParamsToken(iC.esConsumes()),
-      m_DTDigiToken(iC.consumes<L1MuDTChambPhContainer>(L1MuBMTFConfig::getBMDigiInputTag())) {}
+      m_DTDigiToken(iC.consumes<L1MuDTChambPhContainer>(m_sp.config().getBMDigiInputTag())) {}
 
 //--------------
 // Destructor --
@@ -89,7 +89,7 @@ void L1MuBMSectorReceiver::reset() {}
 //
 void L1MuBMSectorReceiver::receiveBBMXData(int bx, const edm::Event& e) {
   edm::Handle<L1MuDTChambPhContainer> dttrig;
-  //e.getByLabel(L1MuBMTFConfig::getBMDigiInputTag(),dttrig);
+  //e.getByLabel(m_sp.config().getBMDigiInputTag(),dttrig);
   e.getByToken(m_DTDigiToken, dttrig);
   L1MuDTChambPhDigi const* ts = nullptr;
 
@@ -163,9 +163,9 @@ void L1MuBMSectorReceiver::receiveBBMXData(int bx, const edm::Event& e) {
         bool skipTS = false;
 
         bool nbx_del = pars.get_soc_nbx_del(m_sp.id().wheel(), m_sp.id().sector());
-        if (L1MuBMTFConfig::getTSOutOfTimeFilter() || nbx_del) {
-          int sh_phi = 12 - L1MuBMTFConfig::getNbitsExtPhi();
-          int tolerance = L1MuBMTFConfig::getTSOutOfTimeWindow();
+        if (m_sp.config().getTSOutOfTimeFilter() || nbx_del) {
+          int sh_phi = 12 - m_sp.config().getNbitsExtPhi();
+          int tolerance = m_sp.config().getTSOutOfTimeWindow();
 
           L1MuDTChambPhDigi const* tsPreviousBX_1 = dttrig->chPhiSegm1(wheel, station, sector, bx - 1);
           if (tsPreviousBX_1) {
@@ -215,7 +215,7 @@ void L1MuBMSectorReceiver::receiveBBMXData(int bx, const edm::Event& e) {
             }*/
           L1MuBMTrackSegPhi tmpts(
               wheel, sector, station, phi, phib, static_cast<L1MuBMTrackSegPhi::TSQuality>(qual), tag, bx - bx_offset);
-          m_sp.data()->addTSphi(address - 1, tmpts);
+          m_sp.data().addTSphi(address - 1, tmpts);
         }
       }
     }

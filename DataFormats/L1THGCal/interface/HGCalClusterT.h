@@ -44,7 +44,7 @@ namespace l1t {
       addConstituent(c, true, fraction);
     }
 
-    ~HGCalClusterT() override{};
+    ~HGCalClusterT() override {}
 
     const std::unordered_map<uint32_t, edm::Ptr<C>>& constituents() const { return constituents_; }
     const_iterator constituents_begin() const { return constituents_.begin(); }

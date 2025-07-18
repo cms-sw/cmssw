@@ -30,10 +30,10 @@ import FWCore.ParameterSet.Config as cms
 # so these missing (required!) inputs are presently ignored by downstream modules.
 #
 
-from L1Trigger.Configuration.SimL1TechnicalTriggers_cff import *
-
 from L1Trigger.L1TCalorimeter.simDigis_cff import *
 from L1Trigger.L1TMuon.simDigis_cff import *
+from L1Trigger.Configuration.SimL1TechnicalTriggers_cff import *
+from L1Trigger.L1TZDC.L1TZDCEmulation_cff import *
 from L1Trigger.L1TGlobal.simDigis_cff import *
 
 # define a core which can be extented in customizations:
@@ -41,6 +41,7 @@ SimL1EmulatorCoreTask = cms.Task(
     SimL1TCalorimeterTask,
     SimL1TMuonTask,
     SimL1TechnicalTriggersTask,
+    L1TZDCEmulationTask,
     SimL1TGlobalTask
 )
 SimL1EmulatorCore = cms.Sequence(SimL1EmulatorCoreTask)
@@ -76,6 +77,8 @@ CalibratedDigis.dtDigiTag = "simMuonDTDigis"
 _phase2_siml1emulator.add(CalibratedDigis)
 from L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi import *
 _phase2_siml1emulator.add(dtTriggerPhase2PrimitiveDigis)
+from L1Trigger.DTTriggerPhase2.dtTriggerPhase2Showers_cfi import *
+_phase2_siml1emulator.add(dtTriggerPhase2Shower)
 
 # HGCAL TP 
 # ########################################################################
@@ -93,6 +96,15 @@ _phase2_siml1emulator.add(l1tEGammaClusterEmuProducer)
 
 from L1Trigger.L1CaloTrigger.l1tPhase2L1CaloEGammaEmulator_cfi import *
 _phase2_siml1emulator.add(l1tPhase2L1CaloEGammaEmulator)
+
+from L1Trigger.L1CaloTrigger.l1tPhase2L1CaloEGammaEmulator_cfi import *
+_phase2_siml1emulator.add(l1tPhase2L1CaloEGammaEmulator)
+
+from L1Trigger.L1CaloTrigger.l1tPhase2CaloPFClusterEmulator_cfi import *
+_phase2_siml1emulator.add(l1tPhase2CaloPFClusterEmulator)
+
+from L1Trigger.L1CaloTrigger.l1tPhase2GCTBarrelToCorrelatorLayer1Emulator_cfi import *
+_phase2_siml1emulator.add(l1tPhase2GCTBarrelToCorrelatorLayer1Emulator)
 
 # Barrel and EndCap CaloJet/HT/NNCaloTau
 # ########################################################################
@@ -128,6 +140,18 @@ _phase2_siml1emulator.add(l1tCaloJet)
 _phase2_siml1emulator.add(l1tCaloJetHTT)
 _phase2_siml1emulator.add(l1tCaloJetsTausTask)
 
+# Overlap and EndCap Muon Track Finder
+# ########################################################################
+from L1Trigger.L1TMuonOverlapPhase2.simOmtfPhase2Digis_cfi import *
+_phase2_siml1emulator.add(simOmtfPhase2Digis)
+
+from L1Trigger.L1TMuonEndCapPhase2.simCscTriggerPrimitiveDigisForEMTF_cfi import *
+from L1Trigger.L1TMuonEndCapPhase2.rpcRecHitsForEMTF_cfi import *
+from L1Trigger.L1TMuonEndCapPhase2.simEmtfDigisPhase2_cfi import *
+
+_phase2_siml1emulator.add(simCscTriggerPrimitiveDigisForEMTF)
+_phase2_siml1emulator.add(rpcRecHitsForEMTF)
+_phase2_siml1emulator.add(simEmtfDigisPhase2)
 
 # ########################################################################
 # Phase-2 L1T - TrackTrigger dependent modules
@@ -137,6 +161,7 @@ from L1Trigger.L1TTrackMatch.l1tGTTInputProducer_cfi import *
 from L1Trigger.L1TTrackMatch.l1tTrackSelectionProducer_cfi import *
 from L1Trigger.L1TTrackMatch.l1tTrackVertexAssociationProducer_cfi import *
 from L1Trigger.VertexFinder.l1tVertexProducer_cfi import *
+from L1Trigger.L1TTrackMatch.DisplacedVertexProducer_cfi import *
 
 # Track Conversion, Track Selection, Vertex Finding
 _phase2_siml1emulator.add(l1tGTTInputProducer)
@@ -146,23 +171,32 @@ _phase2_siml1emulator.add(l1tTrackSelectionProducerExtended)
 _phase2_siml1emulator.add(l1tVertexFinder)
 _phase2_siml1emulator.add(l1tVertexProducer)
 _phase2_siml1emulator.add(l1tVertexFinderEmulator)
+_phase2_siml1emulator.add(DisplacedVertexProducer) #Should rename to l1tDisplacedVertexProducer
 
 # Emulated GMT Muons (Tk + Stub, Tk + MuonTFT, StandaloneMuon)
 # ########################################################################
 from L1Trigger.Phase2L1GMT.gmt_cfi  import *
-l1tTkStubsGmt = l1tGMTStubs.clone()
-l1tTkMuonsGmt = l1tGMTMuons.clone(
-    srcStubs  = 'l1tTkStubsGmt'
+l1tStubsGmt = gmtStubs.clone()
+l1tKMTFMuonsGmt = gmtKMTFMuons.clone(
+  stubs      = cms.InputTag('l1tStubsGmt','kmtf'),
 )
-l1tSAMuonsGmt = l1tStandaloneMuons.clone()
-_phase2_siml1emulator.add( l1tTkStubsGmt )
-_phase2_siml1emulator.add( l1tTkMuonsGmt )
+l1tFwdMuonsGmt = gmtFwdMuons.clone(
+    stubs  = 'l1tStubsGmt:tps'
+)
+l1tSAMuonsGmt = gmtSAMuons.clone(
+  barrelPrompt      = cms.InputTag('l1tKMTFMuonsGmt:prompt'),
+  barrelDisp        = cms.InputTag('l1tKMTFMuonsGmt:displaced'),
+  forwardPrompt     = cms.InputTag('l1tFwdMuonsGmt:prompt'),
+  forwardDisp     = cms.InputTag('l1tFwdMuonsGmt:displaced')
+)
+l1tTkMuonsGmt = gmtTkMuons.clone(
+    srcStubs  = 'l1tStubsGmt:tps'
+)
+_phase2_siml1emulator.add( l1tStubsGmt )
+_phase2_siml1emulator.add( l1tKMTFMuonsGmt )
+_phase2_siml1emulator.add( l1tFwdMuonsGmt )
 _phase2_siml1emulator.add( l1tSAMuonsGmt )
-
-## fix for low-pt muons, this collection is a copy of the l1tTkMuonsGmt collection 
-## in which we only keep those low pt muons with an SA muon associated to it. 
-l1tTkMuonsGmtLowPtFix = l1tGMTFilteredMuons.clone()
-_phase2_siml1emulator.add( l1tTkMuonsGmtLowPtFix )
+_phase2_siml1emulator.add( l1tTkMuonsGmt )
 
 # Tracker Objects
 # ########################################################################
@@ -230,6 +264,7 @@ _phase2_siml1emulator.add(l1tHPSPFTauProducer)
 # PF MET
 # ########################################################################
 from L1Trigger.Phase2L1ParticleFlow.l1pfJetMet_cff import *
+_phase2_siml1emulator.add(L1TPFJetsTask)
 _phase2_siml1emulator.add(L1TPFJetsEmulationTask)
 
 from L1Trigger.Phase2L1ParticleFlow.l1tMETPFProducer_cfi import *
@@ -242,6 +277,10 @@ _phase2_siml1emulator.add(l1tMETMLProducer)
 from L1Trigger.Phase2L1ParticleFlow.L1NNTauProducer_cff import *
 _phase2_siml1emulator.add(l1tNNTauProducerPuppi)
 
+# SC4NGJets
+# ########################################################################
+from L1Trigger.Phase2L1ParticleFlow.l1tSC4NGJetProducer_cfi import *
+_phase2_siml1emulator.add(l1tSC4NGJetProducer)
 
 # BJets
 # ########################################################################

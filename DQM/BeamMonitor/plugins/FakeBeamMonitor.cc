@@ -559,7 +559,7 @@ void FakeBeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const
       mapBeginBSTime[countLumi_] = ftmptime;
       mapBeginPVTime[countLumi_] = ftmptime;
     }  //processed fails for last lumi
-  }    //nthLumi > nextlumi
+  }  //nthLumi > nextlumi
 
   if (StartAverage_) {
     //Just Make sure it get rest
@@ -1059,7 +1059,7 @@ void FakeBeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, 
       h_PVz[1]->getTH1()->Fit(fgaus.get(), "QLM");
     }
   }  //check if found min Vertices
-     //  }    //do PVfit
+  //  }    //do PVfit
 
   if ((resetPVNLumi_ > 0 && countLumi_ == resetPVNLumi_) || StartAverage_) {
     beginLumiOfPVFit_ = 0;

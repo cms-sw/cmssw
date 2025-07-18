@@ -73,7 +73,7 @@ public:
   size_t idx_block;
   size_t idx_elem;
   ElementWithIndex(const reco::PFBlockElement& _orig, size_t _idx_block, size_t _idx_elem)
-      : orig(_orig), idx_block(_idx_block), idx_elem(_idx_elem){};
+      : orig(_orig), idx_block(_idx_block), idx_elem(_idx_elem) {}
 };
 
 vector<int> find_element_ref(const vector<ElementWithIndex>& vec, const edm::RefToBase<reco::Track>& r) {
@@ -749,14 +749,14 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
             break;
           }
         }  //trackingParticles
-      }    //simcluster tracks
+      }  //simcluster tracks
 
       simcluster_detids_.push_back(detid_energy);
       simcluster_idx_trackingparticle_.push_back(simcluster_to_trackingparticle);
 
       idx_simcluster += 1;
     }  //simclusters
-  }    //caloParticles
+  }  //caloParticles
 
   associateClusterToSimCluster(all_elements);
 

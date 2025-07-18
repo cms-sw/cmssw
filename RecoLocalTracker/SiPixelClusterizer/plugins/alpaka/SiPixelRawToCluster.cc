@@ -1,4 +1,5 @@
 #include <memory>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -73,13 +74,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     const bool includeErrors_;
     const bool useQuality_;
+    const bool verbose_;
     uint32_t nDigis_;
     const SiPixelClusterThresholds clusterThresholds_;
   };
 
   template <typename TrackerTraits>
   SiPixelRawToCluster<TrackerTraits>::SiPixelRawToCluster(const edm::ParameterSet& iConfig)
-      : rawGetToken_(consumes(iConfig.getParameter<edm::InputTag>("InputLabel"))),
+      : SynchronizingEDProducer(iConfig),
+        rawGetToken_(consumes(iConfig.getParameter<edm::InputTag>("InputLabel"))),
         digiPutToken_(produces()),
         clusterPutToken_(produces()),
         mapToken_(esConsumes()),
@@ -88,19 +91,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             edm::ESInputTag("", iConfig.getParameter<std::string>("CablingMapLabel")))),
         includeErrors_(iConfig.getParameter<bool>("IncludeErrors")),
         useQuality_(iConfig.getParameter<bool>("UseQualityInfo")),
+        verbose_(iConfig.getParameter<bool>("verbose")),
         clusterThresholds_{iConfig.getParameter<int32_t>("clusterThreshold_layer1"),
                            iConfig.getParameter<int32_t>("clusterThreshold_otherLayers"),
                            static_cast<float>(iConfig.getParameter<double>("VCaltoElectronGain")),
                            static_cast<float>(iConfig.getParameter<double>("VCaltoElectronGain_L1")),
                            static_cast<float>(iConfig.getParameter<double>("VCaltoElectronOffset")),
                            static_cast<float>(iConfig.getParameter<double>("VCaltoElectronOffset_L1"))} {
-    // Workaround until the ProductID problem in issue https://github.com/cms-sw/cmssw/issues/44643 is fixed
-#ifdef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
-    producesTemporarily("edm::DeviceProduct<alpaka_cuda_async::SiPixelDigisSoACollection>");
-    producesTemporarily("edm::DeviceProduct<alpaka_cuda_async::SiPixelDigiErrorsSoACollection>");
-    producesTemporarily("edm::DeviceProduct<alpaka_cuda_async::SiPixelClustersSoACollection>");
-#endif
-
     if (includeErrors_) {
       digiErrorPutToken_ = produces();
       fmtErrorToken_ = produces();
@@ -117,6 +114,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     edm::ParameterSetDescription desc;
     desc.add<bool>("IncludeErrors", true);
     desc.add<bool>("UseQualityInfo", false);
+    desc.add<bool>("verbose", false)->setComment("verbose FED / ROC errors output");
     // Note: this parameter is obsolete: it is ignored and will have no effect.
     // It is kept to avoid breaking older configurations, and will not be printed in the generated cfi.py file.
     desc.addOptionalNode(edm::ParameterDescription<uint32_t>("MaxFEDWords", 0, true), false)
@@ -257,7 +255,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   fedCounter,
                                   useQuality_,
                                   includeErrors_,
-                                  edm::MessageDrop::instance()->debugEnabled);
+                                  verbose_);
   }
 
   template <typename TrackerTraits>
@@ -269,10 +267,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // are no valid pointers to clusters' Collection columns, instantiation
       // of TrackingRecHits fail. Example: workflow 11604.0
 
-      iEvent.emplace(digiPutToken_, nDigis_, iEvent.queue());
+      iEvent.emplace(digiPutToken_, 0, iEvent.queue());
       iEvent.emplace(clusterPutToken_, pixelTopology::Phase1::numberOfModules, iEvent.queue());
       if (includeErrors_) {
-        iEvent.emplace(digiErrorPutToken_);
+        iEvent.emplace(digiErrorPutToken_, 0, iEvent.queue());
         iEvent.emplace(fmtErrorToken_);
       }
       return;

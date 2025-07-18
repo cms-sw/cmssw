@@ -1,4 +1,3 @@
-from __future__ import print_function
 ################################################################################
 # RelMon: a tool for automatic Release Comparison                              
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon

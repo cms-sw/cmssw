@@ -98,7 +98,7 @@ namespace edm {
       };
 
     }  // namespace produce
-  }    // namespace eventsetup
+  }  // namespace eventsetup
   struct ESFillDirectly {};
 
   template <typename... TArgs>

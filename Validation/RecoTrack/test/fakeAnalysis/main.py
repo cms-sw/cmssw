@@ -67,7 +67,7 @@ def main():
     #PlotTracks3D(FindUntrackedParticles(event))
     #EfficiencyRate(ntuple, 100)
     #for track in an.FindFakes(event):
-#	pl.DrawTrackTest(track)
+#        pl.DrawTrackTest(track)
 
     #pl.PlotEvent3DHits(event)
 
@@ -77,12 +77,12 @@ def main():
     pl.Draw()
     
     for track in tracks:
-	if track.hits():
-	    #pl.PlotTrack3D(track)
-	    pl.Plot3DHelixes([track])
-	    pl.Plot3DHits(track)
-	    #pl.Plot3DHelixes(an.FindFakes(event))
-	    pl.Draw()
+        if track.hits():
+            #pl.PlotTrack3D(track)
+            pl.Plot3DHelixes([track])
+            pl.Plot3DHits(track)
+            #pl.Plot3DHelixes(an.FindFakes(event))
+            pl.Draw()
     '''
     #pl.ParticleTest(event.trackingParticles(),True)
     #pl.PlotFakes(event,1,1,None)#[])
@@ -106,7 +106,7 @@ def PlotFakes(ntuple):
     pl = gr.EventPlotter()
     for event in ntuple:
         # Fill the filters with corresponding class indexes or detector layers to filter everything else from the plotting
-	pl.PlotFakes(event, True, fake_filter = [], end_filter = [], last_filter = "", particle_end_filter = "")
+        pl.PlotFakes(event, True, fake_filter = [], end_filter = [], last_filter = "", particle_end_filter = "")
 
 def Create_PtHistograms(ntuple):
     ''' Creates pt histograms for fake and true tracks. '''
@@ -179,13 +179,13 @@ def Create_EndOfTrackingHistograms(ntuple):
     #end_list = Load_File("End_list_file_real_invalid.dmp")
     '''
     for end in end_list:
-	if end.end_class == 0 and end.last_str == end.particle_end_str and end.last_str == "BPix3":
-	    print end.last
-	    print end.particle_end
-	    print end.fake_end
-	    print end.last_str, end.particle_end_str, end.fake_end_str
-	    print end.end_class
-	    print "*****"
+        if end.end_class == 0 and end.last_str == end.particle_end_str and end.last_str == "BPix3":
+            print end.last
+            print end.particle_end
+            print end.fake_end
+            print end.last_str, end.particle_end_str, end.fake_end_str
+            print end.end_class
+            print "*****"
     '''
     an.Analyse_EOT_ParticleDoubleHit(end_list)
     pl.EndOfTrackingHistogram(end_list, "end_class",[],[], False, False) #last false will adjust the bpix3 filter
@@ -220,13 +220,13 @@ def Create_EndOfTrackingHistogramsReal(ntuple):
 
     '''
     for end in end_list:
-	if end.end_class == 0 and end.last_str == end.particle_end_str and end.last_str == "BPix3":
-	    print end.last
-	    print end.particle_end
-	    print end.fake_end
-	    print end.last_str, end.particle_end_str, end.fake_end_str
-	    print end.end_class
-	    print "*****"
+        if end.end_class == 0 and end.last_str == end.particle_end_str and end.last_str == "BPix3":
+            print end.last
+            print end.particle_end
+            print end.fake_end
+            print end.last_str, end.particle_end_str, end.fake_end_str
+            print end.end_class
+            print "*****"
     '''
     pl.EndOfTrackingHistogram(end_list, "end_class",[],[])
     pl.EndOfTrackingHistogram(end_list, "last_layer",[0],[],False)
@@ -250,11 +250,11 @@ def Create_EndOfTrackingPointsPlot(ntuple):
     end_list = an.Get_EndOfTrackingPoints(ntuple, 100, [])
     last = [], fake_ends = [], particle_ends = [], end_classes = [], fake_classes = []
     for end in end_list:
-	last.append(end.last)
-	fake_ends.append(end.fake_end)
-	particle_ends.append(end.particle_end)
-	end_classes.append(end.end_class)
-	fake_classes.append(end.fake_class)
+        last.append(end.last)
+        fake_ends.append(end.fake_end)
+        particle_ends.append(end.particle_end)
+        end_classes.append(end.end_class)
+        fake_classes.append(end.fake_class)
 
     '''
     pl.PlotEndOfTrackingPoints3D(last,[])#, fail)

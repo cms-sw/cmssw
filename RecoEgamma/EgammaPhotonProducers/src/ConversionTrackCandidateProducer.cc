@@ -406,7 +406,7 @@ void ConversionTrackCandidateProducer::buildCollections(bool isBarrel,
       ecalIso.doSeverityChecks(&ecalRecHits, severitiesexclEE_);
     }
 
-    double ecalIsolation = ecalIso.getEtSum(sc, *thresholds);
+    double ecalIsolation = ecalIso.getEtSum(sc, thresholds);
     if (ecalIsolation > ecalIsoCut_offset_ + ecalIsoCut_slope_ * scEt)
       continue;
 

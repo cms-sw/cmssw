@@ -24,7 +24,7 @@ namespace trigger {
 
     /// enum start value shifted to 81 so as to avoid clashes with PDG codes
 
-    /// L1 - using cases as defined in enum L1GtObject, file:
+    /// L1 - using cases as defined in enum L1GtObject, legacy and stage 1 file:
     /// DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 
     TriggerL1Mu = -81,
@@ -72,11 +72,13 @@ namespace trigger {
     TriggerL1PFMHT = -122,
     TriggerL1PFTrack = -123,
     TriggerL1Vertex = -124,
-    // Phase-1: MuonShower
-    TriggerL1MuShower = -125,  // stage2 (introduced in Run 3)
-    // Phase-1: ZDC+ and ZDC-
-    TriggerL1ZDCP = -126,  // stage2 (introduced in 2023 during Run 3)
-    TriggerL1ZDCM = -127,  // stage2 (introduced in 2023 during Run 3)
+    // Phase-1: MuonShower triggers (Run 3 - 2022)
+    TriggerL1MuShower = -125,  // stage2
+    // Phase-1: ZDC+ and ZDC- triggers for HI (Run 3 - 2023)
+    TriggerL1ZDCP = -126,  // stage2
+    TriggerL1ZDCM = -127,  // stage2
+    // Phase-1: MHTHF triggers
+    TriggerL1HTMHF = -128,  // stage2
 
     /// HLT
     TriggerPhoton = +81,

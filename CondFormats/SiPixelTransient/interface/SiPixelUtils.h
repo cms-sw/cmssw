@@ -11,8 +11,8 @@ namespace siPixelUtils {
                                  float theThickness,          //detector thickness
                                  float cot_angle,             //!< cot of alpha_ or beta_
                                  float pitch,                 //!< thePitchX or thePitchY
-                                 bool first_is_big,           //!< true if the first is big
-                                 bool last_is_big,            //!< true if the last is big
+                                 float pitchfraction_first,   //!< true if the first is big
+                                 float pitchfraction_last,    //!< true if the last is big
                                  float eff_charge_cut_low,    //!< Use edge if > W_eff (in pix) &&&
                                  float eff_charge_cut_high,   //!< Use edge if < W_eff (in pix) &&&
                                  float size_cut               //!< Use edge when size == cuts

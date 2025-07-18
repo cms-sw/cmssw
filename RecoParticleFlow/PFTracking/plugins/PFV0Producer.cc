@@ -18,6 +18,8 @@ public:
   ///Destructor
   ~PFV0Producer() override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void endRun(const edm::Run&, const edm::EventSetup&) override;
@@ -27,13 +29,20 @@ private:
 
   ///PFTrackTransformer
   PFTrackTransformer* pfTransformer_;
-  std::vector<edm::EDGetTokenT<reco::VertexCompositeCandidateCollection> > V0list_;
+  std::vector<edm::EDGetTokenT<reco::VertexCompositeCandidateCollection>> V0list_;
 
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PFV0Producer);
+
+void PFV0Producer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::vector<edm::InputTag>>(
+      "V0List", {edm::InputTag("generalV0Candidates", "Kshort"), edm::InputTag("generalV0Candidates", "Lambda")});
+  descriptions.add("pfV0", desc);
+}
 
 using namespace std;
 using namespace edm;
@@ -43,7 +52,7 @@ PFV0Producer::PFV0Producer(const ParameterSet& iConfig)
   produces<reco::PFV0Collection>();
   produces<reco::PFRecTrackCollection>();
 
-  std::vector<edm::InputTag> tags = iConfig.getParameter<vector<InputTag> >("V0List");
+  std::vector<edm::InputTag> tags = iConfig.getParameter<vector<InputTag>>("V0List");
 
   for (unsigned int i = 0; i < tags.size(); ++i)
     V0list_.push_back(consumes<reco::VertexCompositeCandidateCollection>(tags[i]));

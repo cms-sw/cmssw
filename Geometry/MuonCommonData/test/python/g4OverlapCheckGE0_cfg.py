@@ -38,9 +38,9 @@ process = cms.Process('OverlapCheck',Phase2C17I13M9)
 if (options.geometry == "Test"):
     geomFile = "Geometry.MuonCommonData.testGE0XML_cfi"
 else:
-    geomFile = "Geometry.MuonCommonData.cmsExtendedGeometry2026D99XML_cfi"
+    geomFile = "Geometry.MuonCommonData.cmsExtendedGeometryRun4D110XML_cfi"
 
-baseName = "cms2026" + options.geometry + "DDD"
+baseName = "cmsRun4" + options.geometry + "DDD"
 
 print("Geometry file Name: ", geomFile)
 print("Base file Name:     ", baseName)

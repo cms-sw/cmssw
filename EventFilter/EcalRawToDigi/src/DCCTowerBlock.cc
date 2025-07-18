@@ -135,7 +135,7 @@ int DCCTowerBlock::unpackXtalData(unsigned int expStripID, unsigned int expXtalI
       lastStripId_ = stripId;
       lastXtalId_ = xtalId;
     }  //end else
-  }    // end if (zs_)
+  }  // end if (zs_)
 
   bool addedFrame = false;
 
@@ -215,7 +215,7 @@ int DCCTowerBlock::unpackXtalData(unsigned int expStripID, unsigned int expXtalI
       //make special collection for gain0 data frames when due to saturation
       return BLOCK_UNPACKED;
       errorOnXtal = true;  //keep it here in case the return is to be dropped
-    }                      //end isSaturation
+    }  //end isSaturation
     else {
       data_ += numbDWInXtalBlock_;
       return BLOCK_UNPACKED;

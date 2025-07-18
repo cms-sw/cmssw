@@ -1,11 +1,11 @@
+// -*- C++ -*-
 #ifndef FWCore_ServiceRegistry_ActivityRegistry_h
 #define FWCore_ServiceRegistry_ActivityRegistry_h
-// -*- C++ -*-
 //
 // Package:     ServiceRegistry
 // Class  :     ActivityRegistry
 //
-/**\class ActivityRegistry ActivityRegistry.h FWCore/ServiceRegistry/interface/ActivityRegistry.h
+/**\class edm::ActivityRegistry
 
  Description: Registry holding the signals that Services can subscribe to
 
@@ -14,11 +14,7 @@
 
 There are unit tests for the signals that use the Tracer
 to print out the transitions as they occur and then
-compare to a reference file. One test does this for
-a SubProcess test and the other for a test using
-unscheduled execution. The tests are in FWCore/Integration/test:
-  run_SubProcess.sh
-  testSubProcess_cfg.py
+compare to a reference file. The tests are in FWCore/Integration/test:
   run_TestGetBy.sh
   testGetBy1_cfg.py
   testGetBy2_cfg.py
@@ -28,18 +24,28 @@ to this file that go beyond the obvious cut and paste type of edits.
   1. The number at the end of the AR_WATCH_USING_METHOD_X macro definition
   is the number of function arguments. It will not compile if you use the
   wrong number there.
-  2. Use connect or connect_front depending on whether the callback function
+  2. Inside the watch function definition, choose either connect or
+  connect_front depending on whether the callback function
   should be called for different services in the order the Services were
-  constructed or in reverse order. Begin signals are usually forward and
-  End signals in reverse, but if the service does not depend on other services
-  and vice versa this does not matter.
-  3. The signal needs to be added to either connectGlobals or connectLocals
-  in the ActivityRegistry.cc file, depending on whether a signal is seen
-  by children or parents when there are SubProcesses. For example, source
-  signals are only generated in the top level process and should be seen
-  by all child SubProcesses so they are in connectGlobals. Most signals
-  however belong in connectLocals. It does not really matter in jobs
-  without at least one SubProcess.
+  constructed or in reverse order (actually the code base allows establishing
+  an order different from construction order, but in practice it is
+  usually the construction order). This only matters for services that
+  both depend on one another and where this dependence relies on the order
+  the services execute a particular transition. If a service does not
+  depend on another service, this choice does not matter (most services
+  fall in this category). Most transition signals are implemented with
+  the Pre signals forward and the Post signals in reverse order.
+  The transition level signals for BeginJob and EndJob are implemented with
+  the Begin signals forward and End signals in reverse order. As far as I
+  know, no one has ever carefully surveyed existing services to determine
+  which services depend on this ordering. My suspicion is that for most services
+  and most transitions it does not matter which ordering has been implemented.
+  If you are implementing a new transition, then the choice could only matter
+  for the services that start watching that transition. Unless there is some
+  reason to do otherwise, the recommended choice is following the pattern of
+  Pre transitions forward and Post transitions in reverse. If you make another
+  choice, please document your reasoning with comments in the code.
+  3. Each signal needs to be added to the connect function.
   4. Each signal also needs to be added in copySlotsFrom in
   ActivityRegistry.cc. Whether it uses copySlotsToFrom or
   copySlotsToFromReverse depends on the same ordering issue as the connect
@@ -155,12 +161,12 @@ namespace edm {
     }
     AR_WATCH_USING_METHOD_2(watchEventSetupConfiguration)
 
-    typedef signalslot::Signal<void(PathsAndConsumesOfModulesBase const&, ProcessContext const&)> PreBeginJob;
+    typedef signalslot::Signal<void(ProcessContext const&)> PreBeginJob;
     ///signal is emitted before all modules have gotten their beginJob called
     PreBeginJob preBeginJobSignal_;
     ///convenience function for attaching to signal
     void watchPreBeginJob(PreBeginJob::slot_type const& iSlot) { preBeginJobSignal_.connect(iSlot); }
-    AR_WATCH_USING_METHOD_2(watchPreBeginJob)
+    AR_WATCH_USING_METHOD_1(watchPreBeginJob)
 
     typedef signalslot::Signal<void()> PostBeginJob;
     ///signal is emitted after all modules have gotten their beginJob called
@@ -180,6 +186,36 @@ namespace edm {
     PostEndJob postEndJobSignal_;
     void watchPostEndJob(PostEndJob::slot_type const& iSlot) { postEndJobSignal_.connect_front(iSlot); }
     AR_WATCH_USING_METHOD_0(watchPostEndJob)
+
+    typedef signalslot::Signal<void(PathsAndConsumesOfModulesBase const&, ProcessContext const&)>
+        LookupInitializationComplete;
+    ///signal is emitted after all lookup objects have been initialized
+    LookupInitializationComplete lookupInitializationCompleteSignal_;
+    ///convenience function for attaching to signal
+    void watchLookupInitializationComplete(LookupInitializationComplete::slot_type const& iSlot) {
+      lookupInitializationCompleteSignal_.connect(iSlot);
+    }
+    AR_WATCH_USING_METHOD_2(watchLookupInitializationComplete)
+
+    typedef signalslot::Signal<void(StreamContext const&)> PreBeginStream;
+    PreBeginStream preBeginStreamSignal_;
+    void watchPreBeginStream(PreBeginStream::slot_type const& iSlot) { preBeginStreamSignal_.connect(iSlot); }
+    AR_WATCH_USING_METHOD_1(watchPreBeginStream)
+
+    typedef signalslot::Signal<void(StreamContext const&)> PostBeginStream;
+    PostBeginStream postBeginStreamSignal_;
+    void watchPostBeginStream(PostBeginStream::slot_type const& iSlot) { postBeginStreamSignal_.connect_front(iSlot); }
+    AR_WATCH_USING_METHOD_1(watchPostBeginStream)
+
+    typedef signalslot::Signal<void(StreamContext const&)> PreEndStream;
+    PreEndStream preEndStreamSignal_;
+    void watchPreEndStream(PreEndStream::slot_type const& iSlot) { preEndStreamSignal_.connect(iSlot); }
+    AR_WATCH_USING_METHOD_1(watchPreEndStream)
+
+    typedef signalslot::Signal<void(StreamContext const&)> PostEndStream;
+    PostEndStream postEndStreamSignal_;
+    void watchPostEndStream(PostEndStream::slot_type const& iSlot) { postEndStreamSignal_.connect_front(iSlot); }
+    AR_WATCH_USING_METHOD_1(watchPostEndStream)
 
     typedef signalslot::Signal<void()> JobFailure;
     /// signal is emitted if event processing or end-of-job
@@ -649,9 +685,9 @@ namespace edm {
 	       Unlike the case in the Run, Lumi, and Event loops,
 	       the Module descriptor (often passed by pointer or reference
 	       as an argument named desc) in the construction phase is NOT
-	       at some permanent fixed address during the construction phase.  
-	       Therefore, any optimization of caching the module name keying 
-	       off of address of the descriptor will NOT be valid during 
+	       at some permanent fixed address during the construction phase.
+	       Therefore, any optimization of caching the module name keying
+	       off of address of the descriptor will NOT be valid during
                such functions.  mf / cj 9/11/09
 	*/
 
@@ -1093,23 +1129,12 @@ namespace edm {
     ///forwards our signals to slots connected to iOther
     void connect(ActivityRegistry& iOther);
 
-    ///forwards our subprocess independent signals to slots connected to iOther
-    ///forwards iOther's subprocess dependent signals to slots connected to this
-    void connectToSubProcess(ActivityRegistry& iOther);
-
     ///copy the slots from iOther and connect them directly to our own
     /// this allows us to 'forward' signals more efficiently,
     /// BUT if iOther gains new slots after this call, we will not see them
     /// This is also careful to keep the order of the slots proper
     /// for services.
     void copySlotsFrom(ActivityRegistry& iOther);
-
-  private:
-    // forwards subprocess independent signals to slots connected to iOther
-    void connectGlobals(ActivityRegistry& iOther);
-
-    // forwards subprocess dependent signals to slots connected to iOther
-    void connectLocals(ActivityRegistry& iOther);
   };
 }  // namespace edm
 #undef AR_WATCH_USING_METHOD

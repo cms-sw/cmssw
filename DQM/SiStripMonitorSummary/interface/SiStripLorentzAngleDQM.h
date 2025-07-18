@@ -19,8 +19,8 @@ public:
 
   void getActiveDetIds(const edm::EventSetup &eSetup) override;
 
-  void fillModMEs(const std::vector<uint32_t> &selectedDetIds) override{};
-  void fillMEsForDet(const ModMEs &selModME_, uint32_t selDetId_) override{};
+  void fillModMEs(const std::vector<uint32_t> &selectedDetIds) override {}
+  void fillMEsForDet(const ModMEs &selModME_, uint32_t selDetId_) override {}
 
   void fillSummaryMEs(const std::vector<uint32_t> &selectedDetIds) override;
   void fillMEsForLayer(

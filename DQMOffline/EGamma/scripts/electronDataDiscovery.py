@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from __future__ import print_function
 import os, sys
 if len(sys.argv) > 1:
   os.environ['DD_SOURCE'] = sys.argv[1]

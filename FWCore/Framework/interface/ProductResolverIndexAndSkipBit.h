@@ -35,7 +35,7 @@ namespace edm {
     }
     bool skipCurrentProcess() const { return (value_ & s_skipMask) != 0; }
 
-    bool operator==(ProductResolverIndexAndSkipBit const& r) { return value_ == r.value_; }
+    bool operator==(ProductResolverIndexAndSkipBit const& r) const { return value_ == r.value_; }
 
   private:
     static const unsigned int s_skipMask = 1U << 31;

@@ -8,9 +8,9 @@
 
 #include "Alignment/LaserAlignmentSimulation/interface/LaserBeamsBarrel.h"
 
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include <CLHEP/Random/RandGaussQ.h>
 #include "G4ParticleDefinition.hh"
@@ -152,8 +152,8 @@ void LaserBeamsBarrel::GeneratePrimaries(G4Event *myEvent) {
           theParticleGun->GeneratePrimaryVertex(myEvent);
         }
       }  // end looop over both beam directions
-    }    // end looop over particles in beam
-  }      // end loop over beams
+    }  // end looop over particles in beam
+  }  // end loop over beams
 }
 
 void LaserBeamsBarrel::setOptPhotonPolar(G4double Angle) {

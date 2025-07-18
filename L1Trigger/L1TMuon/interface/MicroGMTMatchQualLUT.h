@@ -22,9 +22,9 @@ namespace l1t {
 
   class MicroGMTMatchQualLUT : public MicroGMTLUT {
   public:
-    MicroGMTMatchQualLUT() : MicroGMTLUT(){};
-    explicit MicroGMTMatchQualLUT(l1t::LUT* lut) : MicroGMTLUT(lut){};
-    ~MicroGMTMatchQualLUT() override{};
+    MicroGMTMatchQualLUT() : MicroGMTLUT() {}
+    explicit MicroGMTMatchQualLUT(l1t::LUT* lut) : MicroGMTLUT(lut) {}
+    ~MicroGMTMatchQualLUT() override {}
 
     virtual int lookup(int etaFine, int dEta, int dPhi) const = 0;
 
@@ -50,11 +50,11 @@ namespace l1t {
   // LUT class for LUTs without eta fine bit, the eta fine bit in the lookup function is ignored
   class MicroGMTMatchQualSimpleLUT : public MicroGMTMatchQualLUT {
   public:
-    MicroGMTMatchQualSimpleLUT(){};
+    MicroGMTMatchQualSimpleLUT() {}
     explicit MicroGMTMatchQualSimpleLUT(
         const std::string&, const double maxDR, const double fEta, const double fPhi, cancel_t cancelType);
     explicit MicroGMTMatchQualSimpleLUT(l1t::LUT* lut, cancel_t cancelType);
-    ~MicroGMTMatchQualSimpleLUT() override{};
+    ~MicroGMTMatchQualSimpleLUT() override {}
 
     int lookup(int etaFine, int dEta, int dPhi) const override;
     int lookupPacked(int in) const override;
@@ -65,7 +65,7 @@ namespace l1t {
   // LUT class for LUTs with eta fine bit
   class MicroGMTMatchQualFineLUT : public MicroGMTMatchQualLUT {
   public:
-    MicroGMTMatchQualFineLUT(){};
+    MicroGMTMatchQualFineLUT() {}
     explicit MicroGMTMatchQualFineLUT(const std::string&,
                                       const double maxDR,
                                       const double fEta,
@@ -73,7 +73,7 @@ namespace l1t {
                                       const double fPhi,
                                       cancel_t cancelType);
     explicit MicroGMTMatchQualFineLUT(l1t::LUT* lut, cancel_t cancelType);
-    ~MicroGMTMatchQualFineLUT() override{};
+    ~MicroGMTMatchQualFineLUT() override {}
 
     int lookup(int etaFine, int dEta, int dPhi) const override;
     int lookupPacked(int in) const override;

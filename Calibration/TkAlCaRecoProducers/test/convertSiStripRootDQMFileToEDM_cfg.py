@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 """ This python cfg converts a plain DQM root file in a EDM file that can be used to run the SiStrip bad channel calibration as done @ Tier0"""

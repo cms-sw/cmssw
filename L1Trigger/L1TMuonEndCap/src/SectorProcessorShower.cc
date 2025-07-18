@@ -106,7 +106,7 @@ int SectorProcessorShower::get_index_shower(
     if (tp_station == 1) {  // ME1: 0 - 8, 9 - 17
       selected = (tp_subsector - 1) * 9 + (tp_csc_ID - 1);
     } else {  // ME2,3,4: 18 - 26, 27 - 35, 36 - 44
-      selected = (tp_station)*9 + (tp_csc_ID - 1);
+      selected = (tp_station) * 9 + (tp_csc_ID - 1);
     }
   }
 

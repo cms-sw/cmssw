@@ -190,9 +190,9 @@ void BPhysicsOniaDQM::analyze(const Event &iEvent, const EventSetup &iSetup) {
             }
           }
         }  // end of 2nd MuonCollection
-      }    // end of GLB,STA,TRK muon check
-    }      // end of 1st MuonCollection
-  }        // Is this MuonCollection vaild?
+      }  // end of GLB,STA,TRK muon check
+    }  // end of 1st MuonCollection
+  }  // Is this MuonCollection vaild?
 }
 
 float BPhysicsOniaDQM::computeMass(const math::XYZVector &vec1, const math::XYZVector &vec2) {

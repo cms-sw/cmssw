@@ -11,7 +11,8 @@ process.testReadVectorDetId = cms.EDAnalyzer("TestReadVectorDetId",
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('testVectorDetId2.root')
+    fileName = cms.untracked.string('testVectorDetId2.root'),
+    fastCloning = cms.untracked.bool(False)
 )
 
 process.path = cms.Path(process.testReadVectorDetId)

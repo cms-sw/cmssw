@@ -158,7 +158,7 @@ private:
     std::set<unsigned int> planesWithDigisSet;
     std::set<unsigned int> planesWithTimeSet;
 
-    PotPlots(){};
+    PotPlots() {}
     PotPlots(DQMStore::IBooker &ibooker, unsigned int id);
   };
 

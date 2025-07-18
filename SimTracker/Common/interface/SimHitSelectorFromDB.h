@@ -11,7 +11,7 @@
 class SimHitSelectorFromDB {
 public:
   SimHitSelectorFromDB();
-  ~SimHitSelectorFromDB(){};
+  ~SimHitSelectorFromDB() {}
 
   //  std::vector<PSimHit> getSimHit(std::unique_ptr<MixCollection<PSimHit>
   //  >&,std::map<uint32_t, std::vector<int> >& );

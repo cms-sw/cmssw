@@ -76,6 +76,9 @@ namespace reco {
     TrajParams const& trajParams() const { return m_trajParams; }
     Chi2sFive const& chi2sX5() const { return m_chi2sX5; }
 
+    // Check validity of track rechits
+    bool recHitsOk() const { return m_hitCollection.isNonnull() && m_hitCollection.isAvailable(); }
+
   private:
     edm::RefCore m_hitCollection;
     unsigned int m_firstHit;

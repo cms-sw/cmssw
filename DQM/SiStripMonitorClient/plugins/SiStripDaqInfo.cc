@@ -40,7 +40,7 @@ public:
 private:
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
   void analyze(edm::Event const&, edm::EventSetup const&) override;
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override{};
+  void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override {}
 
   void readFedIds(const SiStripFedCabling* fedcabling, edm::EventSetup const& iSetup);
   void readSubdetFedFractions(DQMStore& dqm_store, std::vector<int> const& fed_ids, edm::EventSetup const& iSetup);

@@ -76,7 +76,7 @@ namespace l1t {
             meN_all(-99),
             me_all(-99),
             format_errors(0),
-            dataword(-99){};
+            dataword(-99) {}
 
       Counters(int int_me1a_all,
                int int_me1b_all,
@@ -92,9 +92,9 @@ namespace l1t {
             me4_all(int_me4_all),
             meN_all(int_meN_all),
             me_all(int_me_all),
-            dataword(-99){};
+            dataword(-99) {}
 
-      virtual ~Counters(){};
+      virtual ~Counters() {}
 
       void set_me1a_1(int bits) { me1a_1 = bits; }
       void set_me1a_2(int bits) { me1a_2 = bits; }

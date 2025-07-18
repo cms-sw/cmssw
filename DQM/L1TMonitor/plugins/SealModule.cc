@@ -27,6 +27,9 @@ DEFINE_FWK_MODULE(L1TGMT);
 #include "DQM/L1TMonitor/interface/L1TStage2CaloLayer1.h"
 DEFINE_FWK_MODULE(L1TStage2CaloLayer1);
 
+#include "DQM/L1TMonitor/interface/L1TCaloLayer1Summary.h"
+DEFINE_FWK_MODULE(L1TCaloLayer1Summary);
+
 #include "DQM/L1TMonitor/interface/L1TStage2CaloLayer2.h"
 DEFINE_FWK_MODULE(L1TStage2CaloLayer2);
 

@@ -24,7 +24,7 @@ public:
         missingHitPenalty_(iConfig.getParameter<double>("MissingHitPenalty")),
         allowSharedFirstHit(iConfig.getParameter<bool>("allowSharedFirstHit")) {}
 
-  ~TrajectoryCleanerBySharedHits() override{};
+  ~TrajectoryCleanerBySharedHits() override {}
 
   using TrajectoryCleaner::clean;
   void clean(TrajectoryPointerContainer&) const override;

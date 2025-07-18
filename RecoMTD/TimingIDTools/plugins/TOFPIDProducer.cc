@@ -277,6 +277,7 @@ void TOFPIDProducer::produce(edm::Event& ev, const edm::EventSetup& es) {
         //reliable match, revert to raw mtd time uncertainty + tof uncertainty for pion hp
         if (dtsignom < maxDtSignificance_) {
           sigmat0safe = 1. / rsigmat[0];
+          sigmat0 = sigmat0safe;
         }
 
         double tmtd = tmtdIn[trackref];
@@ -327,12 +328,14 @@ void TOFPIDProducer::produce(edm::Event& ev, const edm::EventSetup& es) {
             t0_best = t0_k;
             t0safe = t0_k;
             sigmat0safe = 1. / rsigmat[1];
+            sigmat0 = sigmat0safe;
           }
           if (dtsig_p < maxDtSignificance_ && chisq_p < chisqmin) {
             chisqmin = chisq_p;
             t0_best = t0_p;
             t0safe = t0_p;
             sigmat0safe = 1. / rsigmat[2];
+            sigmat0 = sigmat0safe;
           }
         }
 

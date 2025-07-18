@@ -1,17 +1,43 @@
-#include "RecoTracker/TrackProducer/plugins/TrackRefitter.h"
+/** \class TrackRefitter
+ *  Refit Tracks: Produce Tracks from TrackCollection. It performs a new final fit on a TrackCollection.
+ *
+ *  \author cerati
+ */
+
 // system include files
 #include <memory>
+
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "RecoTracker/TrackProducer/interface/KfTrackProducerBase.h"
+#include "RecoTracker/TrackProducer/interface/TrackProducerAlgorithm.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+
+class TrackRefitter : public KfTrackProducerBase, public edm::stream::EDProducer<> {
+public:
+  /// Constructor
+  explicit TrackRefitter(const edm::ParameterSet &iConfig);
+
+  /// Implementation of produce method
+  void produce(edm::Event &, const edm::EventSetup &) override;
+
+  /// fillDescriptions
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+
+private:
+  TrackProducerAlgorithm<reco::Track> theAlgo;
+  enum Constraint { none, momentum, vertex, trackParameters };
+  Constraint constraint_;
+  edm::EDGetToken trkconstrcoll_;
+
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttopoToken_;
+};
 
 TrackRefitter::TrackRefitter(const edm::ParameterSet &iConfig)
     : KfTrackProducerBase(iConfig.getParameter<bool>("TrajectoryInEvent"),
@@ -50,6 +76,18 @@ TrackRefitter::TrackRefitter(const edm::ParameterSet &iConfig)
   produces<std::vector<Trajectory>>();
   produces<std::vector<int>>();
   produces<TrajTrackAssociationCollection>();
+}
+
+void TrackRefitter::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("TrajectoryInEvent", false);
+  desc.add<bool>("useHitsSplitting", false);
+  desc.add<edm::InputTag>("src", edm::InputTag(""));
+  desc.add<std::string>("constraint", "");
+  desc.add<edm::InputTag>("srcConstr", edm::InputTag(""));
+  TrackProducerAlgorithm<reco::Track>::fillPSetDescription(desc);
+  KfTrackProducerBase::fillPSetDescription(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 void TrackRefitter::produce(edm::Event &theEvent, const edm::EventSetup &setup) {
@@ -230,3 +268,6 @@ void TrackRefitter::produce(edm::Event &theEvent, const edm::EventSetup &setup) 
   LogDebug("TrackRefitter") << "end"
                             << "\n";
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(TrackRefitter);

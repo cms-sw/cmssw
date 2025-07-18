@@ -20,6 +20,24 @@ namespace edm {
   class FileInPath;
 }
 
+namespace {
+  enum inputIndexes {
+    kTsosErr0,       // 0
+    kTsosErr2,       // 1
+    kTsosErr5,       // 2
+    kTsosDxdz,       // 3
+    kTsosDydz,       // 4
+    kTsosQbp,        // 5
+    kDRdRL1SeedP,    // 6
+    kDPhidRL1SeedP,  // 7
+    kLastL1,         // 8
+
+    kDRdRL2SeedP = 8,  // 8
+    kDPhidRL2SeedP,    // 9
+    kLastL2,           // 10
+  };
+}  // namespace
+
 class SeedMvaEstimator {
 public:
   SeedMvaEstimator(const edm::FileInPath& weightsfile,

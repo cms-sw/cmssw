@@ -62,12 +62,12 @@ private:
   inline void save(Archive& ar, const unsigned /* version */) const {
     if (!validate())
       throw cms::Exception("In HBHEChannelGroups::save: invalid data");
-    ar& group_;
+    ar & group_;
   }
 
   template <class Archive>
   inline void load(Archive& ar, const unsigned /* version */) {
-    ar& group_;
+    ar & group_;
     if (!validate())
       throw cms::Exception("In HBHEChannelGroups::load: invalid data");
   }

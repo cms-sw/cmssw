@@ -42,6 +42,7 @@ namespace sistriptools::algorithm {
     ClusterSummary::CMSTracker m_subdetenum;
     ClusterSummary::VariablePlacement m_varenum;
     edm::EDGetTokenT<ClusterSummary> m_collection;
+    bool m_warn;
   };
 
   template <class T>

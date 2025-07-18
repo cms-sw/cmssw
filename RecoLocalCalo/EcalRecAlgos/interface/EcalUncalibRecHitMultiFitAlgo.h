@@ -20,7 +20,7 @@
 class EcalUncalibRecHitMultiFitAlgo {
 public:
   EcalUncalibRecHitMultiFitAlgo();
-  ~EcalUncalibRecHitMultiFitAlgo(){};
+  ~EcalUncalibRecHitMultiFitAlgo() {}
   EcalUncalibratedRecHit makeRecHit(const EcalDataFrame &dataFrame,
                                     const EcalPedestals::Item *aped,
                                     const EcalMGPAGainRatio *aGain,

@@ -18,6 +18,11 @@ namespace ticl {
                         std::vector<Trackster>& result,
                         std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) override;
 
+    void filter(std::vector<Trackster>& output,
+                const std::vector<Trackster>& inTracksters,
+                const typename PatternRecognitionAlgoBaseT<TILES>::Inputs& input,
+                std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) override;
+
     void energyRegressionAndID(const std::vector<reco::CaloCluster>& layerClusters,
                                const tensorflow::Session*,
                                std::vector<Trackster>& result);
@@ -34,6 +39,7 @@ namespace ticl {
       std::vector<float> eta;
       std::vector<float> phi;
       std::vector<int> cells;
+      std::vector<int> algoId;  // hgcal_em = 6, hgcal_had = 7, hgcal_scintillator = 8, hfnose = 9
       std::vector<uint8_t> isSilicon;
 
       std::vector<float> energy;
@@ -56,6 +62,7 @@ namespace ticl {
         eta.clear();
         phi.clear();
         cells.clear();
+        algoId.clear();
         isSilicon.clear();
         energy.clear();
         rho.clear();
@@ -77,6 +84,7 @@ namespace ticl {
         eta.shrink_to_fit();
         phi.shrink_to_fit();
         cells.shrink_to_fit();
+        algoId.shrink_to_fit();
         isSilicon.shrink_to_fit();
         energy.shrink_to_fit();
         rho.shrink_to_fit();
@@ -109,36 +117,32 @@ namespace ticl {
 
     std::vector<ClustersOnLayer> clusters_;
     std::vector<float> layersPosZ_;
+    std::vector<int> tracksterSeedAlgoId_;
 
     edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
-    const double criticalDensity_;
-    const double criticalSelfDensity_;
-    const int densitySiblingLayers_;
-    const double densityEtaPhiDistanceSqr_;
-    const double densityXYDistanceSqr_;
-    const double kernelDensityFactor_;
+    const std::vector<double> criticalDensity_;
+    const std::vector<double> criticalSelfDensity_;
+    const std::vector<int> densitySiblingLayers_;
+    const std::vector<double> densityEtaPhiDistanceSqr_;
+    const std::vector<double> densityXYDistanceSqr_;
+    const std::vector<double> kernelDensityFactor_;
     const bool densityOnSameLayer_;
     const bool nearestHigherOnSameLayer_;
     const bool useAbsoluteProjectiveScale_;
     const bool useClusterDimensionXY_;
     const bool rescaleDensityByZ_;
-    const double criticalEtaPhiDistance_;
-    const double criticalXYDistance_;
-    const int criticalZDistanceLyr_;
-    const double outlierMultiplier_;
-    const int minNumLayerCluster_;
+    const std::vector<double> criticalEtaPhiDistance_;
+    const std::vector<double> criticalXYDistance_;
+    const std::vector<int> criticalZDistanceLyr_;
+    const std::vector<double> outlierMultiplier_;
+    const std::vector<int> minNumLayerCluster_;
+    const bool doPidCut_;
+    const float cutHadProb_;
     const std::vector<int> filter_on_categories_;
-    const std::string eidInputName_;
-    const std::string eidOutputNameEnergy_;
-    const std::string eidOutputNameId_;
-    const float eidMinClusterEnergy_;
-    const int eidNLayers_;
-    const int eidNClusters_;
+    const bool computeLocalTime_;
+    const bool usePCACleaning_;
 
     hgcal::RecHitTools rhtools_;
-    tensorflow::Session* eidSession_;
-
-    static const int eidNFeatures_ = 3;
   };
 
 }  // namespace ticl

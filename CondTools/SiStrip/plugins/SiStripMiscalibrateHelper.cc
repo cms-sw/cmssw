@@ -101,8 +101,8 @@ std::pair<float, float> SiStripMiscalibrate::getTruncatedRange(const TrackerMap*
           info_per_detid[key] = mod->value;
         }
       }  // loop on modules
-    }    // loop on ring
-  }      // loop on layers
+    }  // loop on ring
+  }  // loop on layers
 
   auto range = SiStripPI::getTheRange(info_per_detid, 2);
   return range;

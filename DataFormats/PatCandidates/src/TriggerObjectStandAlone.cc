@@ -99,7 +99,7 @@ bool TriggerObjectStandAlone::hasAnyName(const std::string &name, const std::vec
       // Empty parts due to
       // - wild-card at beginning/end or
       // - multiple wild-cards (should be supressed by 'boost::token_compress_on')
-      if (iName->length() == 0)
+      if (iName->empty())
         continue;
       // Search from current index and
       // set index to found occurence
@@ -115,7 +115,7 @@ bool TriggerObjectStandAlone::hasAnyName(const std::string &name, const std::vec
       index += iName->length();
     }
     // Failed, if end of name not reached
-    if (index < iVec->length() && namePartsVec.back().length() != 0)
+    if (index < iVec->length() && !namePartsVec.back().empty())
       failed = true;
     // Match found!
     if (!failed)

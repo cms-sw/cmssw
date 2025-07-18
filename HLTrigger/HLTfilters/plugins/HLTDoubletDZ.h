@@ -57,7 +57,7 @@ private:
   const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> inputToken2_;
   const edm::EDGetTokenT<reco::ElectronCollection> electronToken_;
   const edm::InputTag l1GTAlgoBlockTag_;
-  const edm::EDGetTokenT<std::vector<l1t::P2GTAlgoBlock>> algoBlockToken_;
+  const edm::EDGetTokenT<l1t::P2GTAlgoBlockMap> algoBlockToken_;
   const std::string l1GTAlgoName1_;
   const std::string l1GTAlgoName2_;
   const int triggerType1_;

@@ -33,7 +33,7 @@ namespace egHLT {
     const TrigCodes& trigCodes;
 
   public:
-    MonElemFuncs(DQMStore::IBooker& i, const TrigCodes& c) : iBooker(i), trigCodes(c){};
+    MonElemFuncs(DQMStore::IBooker& i, const TrigCodes& c) : iBooker(i), trigCodes(c) {}
     ~MonElemFuncs() = default;
     ;
     DQMStore::IBooker& getIB() { return iBooker; };

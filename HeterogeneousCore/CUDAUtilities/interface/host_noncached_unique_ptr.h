@@ -36,8 +36,8 @@ namespace cms {
             struct bounded_array {};
           };
         }  // namespace impl
-      }    // namespace noncached
-    }      // namespace host
+      }  // namespace noncached
+    }  // namespace host
 
     /**
    * The difference wrt. make_host_unique is that these

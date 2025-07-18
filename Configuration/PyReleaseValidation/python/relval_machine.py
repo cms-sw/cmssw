@@ -1,4 +1,3 @@
-from __future__ import print_function
 from  Configuration.PyReleaseValidation.relval_steps import Matrix, InputInfo, Steps
 import os
 import json

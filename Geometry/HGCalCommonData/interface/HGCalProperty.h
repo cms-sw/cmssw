@@ -48,6 +48,7 @@ namespace HGCalProperty {
   constexpr int32_t kHGCalTilePhis = 288;
   constexpr int32_t kHGCalFineTilePhis = 432;
   constexpr int32_t kHGCalTilePhisWord = 24;
+  constexpr int32_t kHGCalFineTilePhisWord = 36;
   constexpr int32_t kHGCalTilePhisBy2 = kHGCalTilePhis / 2;
   constexpr int32_t kHGCalTilePhisBy3 = kHGCalTilePhis / 3;
   constexpr int32_t kHGCalFineTilePhisBy2 = kHGCalFineTilePhis / 2;

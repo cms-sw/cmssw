@@ -1,4 +1,3 @@
-from __future__ import print_function
 
 import cStringIO,operator
 from functools import reduce

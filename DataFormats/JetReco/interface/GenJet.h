@@ -81,7 +81,7 @@ namespace reco {
     /** backward compatible, vertex=(0,0,0) */
     GenJet(const LorentzVector& fP4, const Specific& fSpecific, const Jet::Constituents& fConstituents);
 
-    ~GenJet() override{};
+    ~GenJet() override {}
     /** Returns energy of electromagnetic particles*/
     float emEnergy() const { return m_specific.m_EmEnergy; };
     /** Returns energy of hadronic particles*/

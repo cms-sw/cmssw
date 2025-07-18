@@ -261,6 +261,7 @@ namespace clangcms {
         MD = llvm::dyn_cast<clang::CXXMethodDecl>(AD);
       if (llvm::isa<clang::CXXNewExpr>(RE))
         return;
+      assert(MD);
       clang::QualType RQT = MD->getCallResultType();
       clang::QualType RTy = Ctx.getCanonicalType(RQT);
       if ((RTy->isPointerType() || RTy->isReferenceType())) {
@@ -467,6 +468,7 @@ namespace clangcms {
           const clang::MemberExpr *AME = llvm::dyn_cast_or_null<clang::MemberExpr>(E);
           if (AME && AME->isImplicitAccess()) {
             clang::ParmVarDecl *PVD = llvm::dyn_cast_or_null<clang::ParmVarDecl>(MD->getParamDecl(i));
+            assert(PVD);
             clang::QualType QT = PVD->getOriginalType();
             const clang::Type *T = QT.getTypePtr();
             if (!support::isConst(QT) && T->isReferenceType() && ME && ME->isImplicitAccess())
@@ -575,9 +577,12 @@ namespace clangcms {
     LangOpts.CPlusPlus = true;
     clang::PrintingPolicy Policy(LangOpts);
 
+    assert(llvm::dyn_cast<clang::CXXMemberCallExpr>(CE));
     clang::CXXMethodDecl *CMD = llvm::dyn_cast<clang::CXXMemberCallExpr>(CE)->getMethodDecl();
     const clang::MemberExpr *E = llvm::dyn_cast<clang::MemberExpr>(CE->getArg(i));
+    assert(E);
     clang::ValueDecl *VD = llvm::dyn_cast<clang::ValueDecl>(E->getMemberDecl());
+    assert(VD);
     os << "Member data '" << VD->getQualifiedNameAsString();
     os << "' is passed to a non-const reference parameter";
     os << " of CXX method '" << CMD->getQualifiedNameAsString() << "' in const function";

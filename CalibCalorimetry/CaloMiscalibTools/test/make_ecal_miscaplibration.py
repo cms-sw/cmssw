@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import print_function
 import string,time,thread,random,math,sys
 
 #global variables
@@ -152,11 +151,11 @@ for zindex in (-1,1):
             miscal_fac=miscalib(lumi,endcap,zindex,etaindex,phiindex,1)
             # create line:
             if endcap==0:
-	       if zindex==-1:
+               if zindex==-1:
                   line='        <Cell eta_index="'+str(-etaindex)+'" phi_index="'+str(phiindex)+'" scale_factor="'+str(miscal_fac)+'"/>\n'
                   xmlfile.write(line)
                   count=count+1
-	       else:
+               else:
                   line='        <Cell eta_index="'+str(+etaindex)+'" phi_index="'+str(phiindex)+'" scale_factor="'+str(miscal_fac)+'"/>\n'
                   xmlfile.write(line)
                   count=count+1

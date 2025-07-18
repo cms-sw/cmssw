@@ -8,30 +8,22 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "DataFormats/Common/interface/Handle.h"
 #include "RecoMuon/MuonIdentification/plugins/MuonLinksProducerForHLT.h"
 
-//#include <algorithm>
-
-MuonLinksProducerForHLT::MuonLinksProducerForHLT(const edm::ParameterSet& iConfig) {
+MuonLinksProducerForHLT::MuonLinksProducerForHLT(const edm::ParameterSet& iConfig)
+    : theLinkCollectionInInput_{iConfig.getParameter<edm::InputTag>("LinkCollection")},
+      theInclusiveTrackCollectionInInput_{iConfig.getParameter<edm::InputTag>("InclusiveTrackerTrackCollection")},
+      linkToken_{consumes<reco::MuonTrackLinksCollection>(theLinkCollectionInInput_)},
+      trackToken_{consumes<reco::TrackCollection>(theInclusiveTrackCollectionInInput_)},
+      ptMin_{iConfig.getParameter<double>("ptMin")},
+      pMin_{iConfig.getParameter<double>("pMin")},
+      shareHitFraction_{iConfig.getParameter<double>("shareHitFraction")} {
   produces<reco::MuonTrackLinksCollection>();
-  theLinkCollectionInInput = iConfig.getParameter<edm::InputTag>("LinkCollection");
-  theInclusiveTrackCollectionInInput = iConfig.getParameter<edm::InputTag>("InclusiveTrackerTrackCollection");
-  ptMin = iConfig.getParameter<double>("ptMin");
-  pMin = iConfig.getParameter<double>("pMin");
-  shareHitFraction = iConfig.getParameter<double>("shareHitFraction");
-
-  linkToken_ = consumes<reco::MuonTrackLinksCollection>(theLinkCollectionInInput);
-  trackToken_ = consumes<reco::TrackCollection>(theInclusiveTrackCollectionInInput);
 }
-
-MuonLinksProducerForHLT::~MuonLinksProducerForHLT() {}
 
 void MuonLinksProducerForHLT::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   auto output = std::make_unique<reco::MuonTrackLinksCollection>();
@@ -48,9 +40,9 @@ void MuonLinksProducerForHLT::produce(edm::StreamID, edm::Event& iEvent, const e
     unsigned int muonTrackHits = link->trackerTrack()->extra()->recHitsSize();
     for (reco::TrackCollection::const_iterator track = incTracks->begin(); track != incTracks->end();
          ++track, ++trackIndex) {
-      if (track->pt() < ptMin)
+      if (track->pt() < ptMin_)
         continue;
-      if (track->p() < pMin)
+      if (track->p() < pMin_)
         continue;
       //std::cout << "pt (muon/track) " << link->trackerTrack()->pt() << " " << track->pt() << std::endl;
       unsigned trackHits = track->extra()->recHitsSize();
@@ -70,7 +62,7 @@ void MuonLinksProducerForHLT::produce(edm::StreamID, edm::Event& iEvent, const e
       }
       double fraction = (double)numberOfCommonDetIds / smallestNumberOfHits;
       // std::cout << "Overlap/Smallest/fraction = " << numberOfCommonDetIds << " " << smallestNumberOfHits << " " << fraction << std::endl;
-      if (fraction > shareHitFraction) {
+      if (fraction > shareHitFraction_) {
         output->push_back(
             reco::MuonTrackLinks(reco::TrackRef(incTracks, trackIndex), link->standAloneTrack(), link->globalTrack()));
         found = true;
@@ -81,4 +73,14 @@ void MuonLinksProducerForHLT::produce(edm::StreamID, edm::Event& iEvent, const e
       output->push_back(reco::MuonTrackLinks(link->trackerTrack(), link->standAloneTrack(), link->globalTrack()));
   }
   iEvent.put(std::move(output));
+}
+
+void MuonLinksProducerForHLT::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("LinkCollection", edm::InputTag("hltPFMuonMerging"));
+  desc.add<edm::InputTag>("InclusiveTrackerTrackCollection", edm::InputTag("hltL3MuonsLinksCombination"));
+  desc.add<double>("ptMin", 2.5);
+  desc.add<double>("pMin", 2.5);
+  desc.add<double>("shareHitFraction", 0.80);
+  descriptions.addWithDefaultLabel(desc);
 }

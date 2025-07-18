@@ -18,7 +18,7 @@ class SiStripDeDxMipBuilder : public edm::one::EDAnalyzer<> {
 public:
   explicit SiStripDeDxMipBuilder(const edm::ParameterSet& iConfig);
 
-  ~SiStripDeDxMipBuilder(){};
+  ~SiStripDeDxMipBuilder() {}
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 

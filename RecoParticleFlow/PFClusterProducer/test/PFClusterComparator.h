@@ -36,15 +36,15 @@ public:
 
 private:
   void fetchCandidateCollection(edm::Handle<reco::PFClusterCollection> &c,
-                                const edm::InputTag &tag,
+                                const edm::EDGetTokenT<reco::PFClusterCollection> &token,
                                 const edm::Event &iSetup) const;
 
   /*   void printElementsInBlocks(const reco::PFCluster& cluster, */
   /* 			     std::ostream& out=std::cout) const; */
 
   /// PFClusters in which we'll look for pile up particles
-  const edm::InputTag inputTagPFClusters_;
-  const edm::InputTag inputTagPFClustersCompare_;
+  const edm::EDGetTokenT<reco::PFClusterCollection> inputTokenPFClusters_;
+  const edm::EDGetTokenT<reco::PFClusterCollection> inputTokenPFClustersCompare_;
 
   /// verbose ?
   const bool verbose_;

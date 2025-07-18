@@ -192,8 +192,7 @@ namespace edm {
   void LuminosityBlock::putImpl(EDPutToken::value_type index, std::unique_ptr<PROD> product) {
     // The following will call post_insert if T has such a function,
     // and do nothing if T has no such function.
-    std::conditional_t<detail::has_postinsert<PROD>::value, DoPostInsert<PROD>, DoNotPostInsert<PROD>> maybe_inserter;
-    maybe_inserter(product.get());
+    detail::do_post_insert_if_available(*product.get());
 
     assert(index < putProducts().size());
 
@@ -271,8 +270,7 @@ namespace edm {
 
     // The following will call post_insert if T has such a function,
     // and do nothing if T has no such function.
-    std::conditional_t<detail::has_postinsert<PROD>::value, DoPostInsert<PROD>, DoNotPostInsert<PROD>> maybe_inserter;
-    maybe_inserter(&(wp->bareProduct()));
+    detail::do_post_insert_if_available(wp->bareProduct());
 
     putProducts()[index] = std::move(wp);
   }

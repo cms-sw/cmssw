@@ -1,0 +1,1 @@
+cmsDriver.py btvNanoMC --mc --eventcontent NANOAODSIM --datatier NANOAODSIM --conditions auto:phase1_2023_realistic --step NANO:@BTV --nThreads 4 --era Run3,run3_nanoAOD_pre142X --filein /store/mc/Run3Summer23MiniAODv4/TTtoLNu2Q_TuneCP5_13p6TeV_powheg-pythia8/MINIAODSIM/130X_mcRun3_2023_realistic_v14-v2/2520000/0092e4e1-8cb2-4c2f-b57a-4fa2f42a517f.root -n 100

@@ -23,6 +23,11 @@ AlignmentCSCOverlapSelector::AlignmentCSCOverlapSelector(const edm::ParameterSet
   }
 }
 
+void AlignmentCSCOverlapSelector::fillPSetDescription(edm::ParameterSetDescription &desc) {
+  desc.add<int>("station", 1);
+  desc.add<unsigned int>("minHitsPerChamber", 0);
+}
+
 // destructor -----------------------------------------------------------------
 
 AlignmentCSCOverlapSelector::~AlignmentCSCOverlapSelector() {}
@@ -103,7 +108,7 @@ AlignmentCSCOverlapSelector::Tracks AlignmentCSCOverlapSelector::select(const Tr
         }
 
       }  // end if it's a CSC hit
-    }    // end loop over hits
+    }  // end loop over hits
 
     if ((m_station == 0 || m_station == -4) && (MEminus4_even >= m_minHitsPerChamber) &&
         (MEminus4_odd >= m_minHitsPerChamber))

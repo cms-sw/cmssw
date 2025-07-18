@@ -1,10 +1,15 @@
 #! /usr/bin/env cmsRun
 # Author: Marco Musich (May 2020)
-from __future__ import print_function
 import os, shlex, shutil, getpass
 
+###################################################################
+# Set default phase-2 settings
+###################################################################
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
+
 import FWCore.ParameterSet.Config as cms
-process = cms.Process("TEST")
+process = cms.Process("TEST", _PH2_ERA)
 
 ###################################################################
 # Messages
@@ -25,7 +30,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
   SiPhase2OuterTrackerLorentzAngle = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
 )
 
-tag = 'SiPhase2OuterTrackerLorentzAngle_T21'
+tag = 'SiPhase2OuterTrackerLorentzAngle_T33'
 suffix = 'v0'
 outfile = tag+'_'+suffix+'.db'
 outdb = 'sqlite_file:'+outfile
@@ -38,12 +43,12 @@ if os.path.exists(outfile):
 process.load("CondCore.CondDB.CondDB_cfi")
 process.CondDB.connect = cms.string(outdb)
 
-process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D88_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4DefaultReco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4Default_cff')
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21')
+process.GlobalTag = GlobalTag(process.GlobalTag, _PH2_GLOBAL_TAG)
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
 process.source = cms.Source("EmptyIOVSource",

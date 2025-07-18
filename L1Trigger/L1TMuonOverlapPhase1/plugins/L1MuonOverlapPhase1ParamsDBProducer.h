@@ -17,11 +17,11 @@ class L1MuonOverlapPhase1ParamsDBProducer : public edm::one::EDAnalyzer<edm::one
 public:
   L1MuonOverlapPhase1ParamsDBProducer(const edm::ParameterSet& cfg);
   ~L1MuonOverlapPhase1ParamsDBProducer() override {}
-  void beginJob() override{};
+  void beginJob() override {}
   void beginRun(const edm::Run&, const edm::EventSetup& es) override;
-  void endRun(edm::Run const& run, edm::EventSetup const& iSetup) override{};
+  void endRun(edm::Run const& run, edm::EventSetup const& iSetup) override {}
   void analyze(const edm::Event&, const edm::EventSetup& es) override;
-  void endJob() override{};
+  void endJob() override {}
 
 private:
   edm::ESGetToken<L1TMuonOverlapParams, L1TMuonOverlapParamsRcd> omtfParamsEsToken;

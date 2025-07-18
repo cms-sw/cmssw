@@ -102,7 +102,7 @@ public:
   template <class M, class K>
   class MEMapInfT {
   public:
-    MEMapInfT() : bOperating_(false), bIsNoUnderOverflowBin_(false){};
+    MEMapInfT() : bOperating_(false), bIsNoUnderOverflowBin_(false) {}
 
     MEMapInfT(
         GEMDQMBase *pDQMBase, TString strName, TString strTitle, TString strTitleX = "", TString strTitleY = "Entries")
@@ -111,7 +111,7 @@ public:
           strTitle_(strTitle),
           strTitleX_(strTitleX),
           strTitleY_(strTitleY),
-          log_category_own_(pDQMBase->log_category_){};
+          log_category_own_(pDQMBase->log_category_) {}
 
     MEMapInfT(GEMDQMBase *pDQMBase,
               TString strName,
@@ -133,7 +133,7 @@ public:
           dXL_(dXL),
           dXH_(dXH),
           nBinsY_(-1),
-          log_category_own_(pDQMBase->log_category_){};
+          log_category_own_(pDQMBase->log_category_) {}
 
     MEMapInfT(GEMDQMBase *pDQMBase,
               TString strName,
@@ -183,7 +183,7 @@ public:
           dYH_(dYH),
           dZL_(0),
           dZH_(1024),
-          log_category_own_(pDQMBase->log_category_){};
+          log_category_own_(pDQMBase->log_category_) {}
 
     MEMapInfT(GEMDQMBase *pDQMBase,  // For TProfile2D
               TString strName,
@@ -214,7 +214,7 @@ public:
           dYH_(dYH),
           dZL_(dZL),
           dZH_(dZH),
-          log_category_own_(pDQMBase->log_category_){};
+          log_category_own_(pDQMBase->log_category_) {}
 
     //MEMapInfT(GEMDQMBase *pDQMBase,
     //          TString strName,
@@ -238,7 +238,7 @@ public:
     //      dYH_(dYH),
     //      log_category_own_(pDQMBase->log_category_){};
 
-    ~MEMapInfT(){};
+    ~MEMapInfT() {}
 
     Bool_t isOperating() { return bOperating_; };
     void SetOperating(Bool_t bOperating) { bOperating_ = bOperating; };
@@ -477,7 +477,7 @@ public:
 
   class MEStationInfo {
   public:
-    MEStationInfo() : nNumChambers_(-1){};
+    MEStationInfo() : nNumChambers_(-1) {}
     MEStationInfo(Int_t nRegion,
                   Int_t nStation,
                   Int_t nLayer,
@@ -500,7 +500,7 @@ public:
           nNumDigi_(nNumDigi),
           nMinIdxChamber_(nMinIdxChamber),
           nMaxIdxChamber_(nMaxIdxChamber),
-          fMinPhi_(0){};
+          fMinPhi_(0) {}
 
     bool operator==(const MEStationInfo &other) const {
       return (nRegion_ == other.nRegion_ && nStation_ == other.nStation_ && nLayer_ == other.nLayer_ &&
@@ -532,7 +532,7 @@ public:
 
 public:
   explicit GEMDQMBase(const edm::ParameterSet &cfg);
-  ~GEMDQMBase() override{};
+  ~GEMDQMBase() override {}
 
   enum {
     GEMDQM_RUNTYPE_ONLINE,
@@ -557,8 +557,15 @@ protected:
   virtual int ProcessWithMEMap3(BookingHelper &bh, ME3IdsKey key) { return 0; };              // must be overrided
   virtual int ProcessWithMEMap4(BookingHelper &bh, ME4IdsKey key) { return 0; };              // must be overrided
   virtual int ProcessWithMEMap5(BookingHelper &bh, ME5IdsKey key) { return 0; };              // must be overrided
-  virtual int ProcessWithMEMap4WithChamber(BookingHelper &bh, ME4IdsKey key) { return 0; };   // must be overrided
-  virtual int ProcessWithMEMap5WithChamber(BookingHelper &bh, ME5IdsKey key) { return 0; };   // must be overrided
+  /********************/
+  virtual int ProcessWithMEMap2WithChamber(BookingHelper &bh, ME3IdsKey key) { return 0; };
+  /*********************/
+  /********************/
+  virtual int ProcessWithMEMap2WithEtaCh(BookingHelper &bh, ME4IdsKey key) { return 0; };
+  /*********************/
+
+  virtual int ProcessWithMEMap4WithChamber(BookingHelper &bh, ME4IdsKey key) { return 0; };  // must be overrided
+  virtual int ProcessWithMEMap5WithChamber(BookingHelper &bh, ME5IdsKey key) { return 0; };  // must be overrided
 
   int keyToRegion(ME2IdsKey key) { return std::get<0>(key); };
   int keyToRegion(ME3IdsKey key) { return std::get<0>(key); };
@@ -575,6 +582,9 @@ protected:
   int keyToModule(ME5IdsKey key) { return std::get<3>(key); };
   int keyToChamber(ME4IdsKey key) { return std::get<3>(key); };
   int keyToChamber(ME5IdsKey key) { return std::get<4>(key); };
+  /**********/
+  int keyToChamber(ME3IdsKey key) { return std::get<2>(key); };
+  /*************/
   int keyToIEta(ME4IdsKey key) { return std::get<3>(key); };
   int keyToIEta(ME5IdsKey key) { return std::get<4>(key); };
 
@@ -614,6 +624,7 @@ protected:
   inline Float_t restrictAngle(const Float_t fTheta, const Float_t fStart);
   inline std::string getNameDirLayer(ME3IdsKey key3);
   inline std::string getNameDirLayer(ME4IdsKey key4);
+  inline std::string getNameDirChamber(ME4IdsKey key4);
 
   const GEMGeometry *GEMGeometry_;
   edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomToken_;
@@ -624,6 +635,12 @@ protected:
   std::map<ME2IdsKey, bool> MEMap2Check_;
   std::map<ME3IdsKey, bool> MEMap2WithEtaCheck_;
   std::map<ME3IdsKey, bool> MEMap2AbsReWithEtaCheck_;
+  /************/
+  std::map<ME3IdsKey, bool> MEMap2WithChCheck_;
+  /************/
+  /************/
+  std::map<ME4IdsKey, bool> MEMap2WithEtaChCheck_;
+  /************/
   std::map<ME3IdsKey, bool> MEMap3Check_;
   std::map<ME4IdsKey, bool> MEMap4Check_;
   std::map<ME4IdsKey, bool> MEMap4WithChCheck_;
@@ -744,4 +761,10 @@ inline std::string GEMDQMBase::getNameDirLayer(ME4IdsKey key4) {
   return std::string(Form("GE%i1-%c-L%i", nStation, cRegion, nLayer));
 }
 
+inline std::string GEMDQMBase::getNameDirChamber(ME4IdsKey key4) {
+  auto nStation = keyToStation(key4);
+  char cRegion = (keyToRegion(key4) > 0 ? 'P' : 'M');
+  auto nChamber = keyToChamber(key4);
+  return std::string(Form("GE%i1-%c-Ch%i", nStation, cRegion, nChamber));
+}
 #endif  // DQM_GEM_INTERFACE_GEMDQMBase_h

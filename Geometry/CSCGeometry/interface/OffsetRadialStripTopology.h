@@ -27,7 +27,7 @@ public:
                             float stripOffset,
                             float yCentre);
 
-  ~OffsetRadialStripTopology() override{};
+  ~OffsetRadialStripTopology() override {}
 
   /** Fraction of a strip offset of layer relative to
    *  symmetry axis (local y). (This is an _angular_ value)

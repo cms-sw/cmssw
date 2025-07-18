@@ -58,20 +58,38 @@ namespace edm {
                                     std::set<ParameterTypes>& parameterTypes,
                                     std::set<ParameterTypes>& wildcardTypes) const override;
 
-    void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, bool optional) const override;
+    void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, Modifier modifier) const override;
 
-    void writeCfi_(
-        std::ostream& os, bool optional, bool& startWithComma, int indentation, bool& wroteSomething) const override;
+    void writeCfi_(std::ostream& os,
+                   Modifier modifier,
+                   bool& startWithComma,
+                   int indentation,
+                   CfiOptions&,
+                   bool& wroteSomething) const override;
+
+    void writeLabelValueCfi(std::ostream& os,
+                            bool optional,
+                            bool& startWithComma,
+                            int indentation,
+                            CfiOptions&,
+                            bool& wroteSomething) const;
+
+    void writeFullCfi(std::ostream& os,
+                      Modifier modifier,
+                      bool& startWithComma,
+                      int indentation,
+                      CfiOptions&,
+                      bool& wroteSomething) const;
 
     bool partiallyExists_(ParameterSet const& pset) const override;
 
     int howManyXORSubNodesExist_(ParameterSet const& pset) const override;
 
-    virtual void writeCfi_(std::ostream& os, int indentation) const = 0;
+    virtual void writeCfi_(std::ostream& os, int indentation, CfiOptions&) const = 0;
 
     virtual void writeDoc_(std::ostream& os, int indentation) const = 0;
 
-    void print_(std::ostream& os, bool optional, bool writeToCfi, DocFormatHelper& dfh) const override;
+    void print_(std::ostream& os, Modifier modifier, bool writeToCfi, DocFormatHelper& dfh) const override;
 
     virtual void printDefault_(std::ostream& os, bool writeToCfi, DocFormatHelper& dfh) const;
 

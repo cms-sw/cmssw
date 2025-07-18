@@ -687,7 +687,7 @@ void EcnaAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
             return;
         }
       }  // end of if( fFedTcc >= 1 && fFedTcc <= MaxSMAndDS )
-    }    // end of if( fAnalysisName == "AdcPeg12"  || fAnalysisName == "AdcSPeg12"
+    }  // end of if( fAnalysisName == "AdcPeg12"  || fAnalysisName == "AdcSPeg12"
     // ...)
 
     //.................. Increment FedId counters
@@ -860,22 +860,22 @@ void EcnaAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
                         << "EcnaAnalyzer::analyze(...)> NbOfSamplesFromDigis out of bounds = " << NbOfSamplesFromDigis;
                   }
                 }  // end of if( (fStexNumber > 0 && i0SM == fStexNumber-1) ||
-                   // (fStexNumber == 0) )
-              }    // end of if( fStexNbOfTreatedEvents[i0SM] >= 1 &&
-                   // fStexNbOfTreatedEvents[i0SM] <= fReqNbOfEvts )
-            }      // end of if( fStexStatus[i0SM] < 2 )
-          }        // end of if( i0SM >= 0 && i0SM<fMaxTreatedStexCounter  )
-        }          // end of for (EBDigiCollection::const_iterator digiItr =
-                   // digisEB->begin();
-                   //             digiItr != digisEB->end(); ++digiItr)
+                // (fStexNumber == 0) )
+              }  // end of if( fStexNbOfTreatedEvents[i0SM] >= 1 &&
+              // fStexNbOfTreatedEvents[i0SM] <= fReqNbOfEvts )
+            }  // end of if( fStexStatus[i0SM] < 2 )
+          }  // end of if( i0SM >= 0 && i0SM<fMaxTreatedStexCounter  )
+        }  // end of for (EBDigiCollection::const_iterator digiItr =
+        // digisEB->begin();
+        //             digiItr != digisEB->end(); ++digiItr)
 
         for (Int_t i0SM = 0; i0SM < fMaxTreatedStexCounter; i0SM++) {
           fStexDigiOK[i0SM] = 0;  // reset fStexDigiOK[i0SM] after loop on digis
         }
 
       }  // end of if( Int_t(digisEB->end()-digisEB->begin()) >= 0 &&
-         // Int_t(digisEB->end()-digisEB->begin()) <=  Int_t(digisEB->size()) )
-    }    // end of if( fStexName == "SM" && fSMIndexBegin < fSMIndexStop )
+      // Int_t(digisEB->end()-digisEB->begin()) <=  Int_t(digisEB->size()) )
+    }  // end of if( fStexName == "SM" && fSMIndexBegin < fSMIndexStop )
 
     //=============================================================== Record
     // type EE (Dee)
@@ -1014,8 +1014,8 @@ void EcnaAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
                     }
                   }
                 }  // end of if( fFedTcc >= 1 && fFedTcc <= MaxSMAndDS )
-              }    // end of if( fAnalysisName == "AdcPeg12"  || fAnalysisName ==
-                   // "AdcSPeg12" .... )
+              }  // end of if( fAnalysisName == "AdcPeg12"  || fAnalysisName ==
+              // "AdcSPeg12" .... )
               else {
                 fStexDigiOK[i0Dee]++;
                 if (fStexDigiOK[i0Dee] == 1) {
@@ -1100,16 +1100,16 @@ void EcnaAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
                         << "EcnaAnalyzer::analyze(...)> NbOfSamplesFromDigis out of bounds = " << NbOfSamplesFromDigis;
                   }
                 }  // end of if( (fStexNumber > 0 && i0Dee == fStexNumber-1) ||
-                   // (fStexNumber == 0) )
-              }    // end of if( fFedNbOfTreatedEvents[fESFromFedTcc[fFedTcc-1]-1]
-                   // >= 1 &&
+                // (fStexNumber == 0) )
+              }  // end of if( fFedNbOfTreatedEvents[fESFromFedTcc[fFedTcc-1]-1]
+              // >= 1 &&
               // fFedNbOfTreatedEvents[fESFromFedTcc[fFedTcc-1]-1] <=
               // fReqNbOfEvts )
             }  // end of if( fStexStatus[i0Dee] < 2 )
-          }    // end of if( i0Dee >= 0 && i0Dee<fMaxTreatedStexCounter )
-        }      // end of for (EBDigiCollection::const_iterator digiItr =
-               // digisEB->begin();
-               //             digiItr != digisEB->end(); ++digiItr)
+          }  // end of if( i0Dee >= 0 && i0Dee<fMaxTreatedStexCounter )
+        }  // end of for (EBDigiCollection::const_iterator digiItr =
+        // digisEB->begin();
+        //             digiItr != digisEB->end(); ++digiItr)
 
         // reset fStexDigiOK[i0Dee] or fFedDigiOK[i0Dee] to zero after loop on
         // digis
@@ -1130,10 +1130,10 @@ void EcnaAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
         }
 
       }  // end of if( Int_t(digisEB->end()-digisEB->begin()) >= 0 &&
-         // Int_t(digisEB->end()-digisEB->begin()) <=  Int_t(digisEB->size()) )
+      // Int_t(digisEB->end()-digisEB->begin()) <=  Int_t(digisEB->size()) )
 
     }  // end of if( fStexName == "Dee" && fDeeIndexBegin < fDeeIndexStop )
-  }    // end of if( (fStexNumber > 0 && fNbOfTreatedStexs == 0) || (fStexNumber ==
+  }  // end of if( (fStexNumber > 0 && fNbOfTreatedStexs == 0) || (fStexNumber ==
   // 0 && fNbOfTreatedStexs < MaxNbOfStex) )
 
   //=============================================================================================
@@ -1325,7 +1325,7 @@ void EcnaAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
       edm::LogVerbatim("ecnaAnal") << "*---------------------------------------------------------------------------- ";
 
     }  // end of if( fStexStatus[i0Stex] == 1 )
-  }    // end of for(Int_t i0Stex=fStexIndexBegin; i0Stex<fStexIndexStop; i0Stex++)
+  }  // end of for(Int_t i0Stex=fStexIndexBegin; i0Stex<fStexIndexStop; i0Stex++)
 }
 // end of EcnaAnalyzer::analyse(...)
 

@@ -24,7 +24,7 @@ public:
   // Make a light ray out of the centre_glob points of two OptO:'source' and 'pointLens'
   LightRay(OpticalObject* p1, OpticalObject* p2);
   LightRay(CLHEP::Hep3Vector& vec1, CLHEP::Hep3Vector& vec2);
-  ~LightRay(){};
+  ~LightRay() {}
 
   //@@@@@@@@@@@@@@@@@@@@ Methods for each OptO
   //----- Make a light ray out of the centre_glob and Z direction of one OptO: 'laser' or 'source'

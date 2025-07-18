@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoTracker.DeDx.dedxEstimators_cff import *
 
+from RecoTracker.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
+
 dedxHitInfoCTF     = dedxHitInfo.clone( tracks = "ctfWithMaterialTracksP5")
 
 dedxTruncated40CTF = dedxTruncated40.clone( tracks = "ctfWithMaterialTracksP5")

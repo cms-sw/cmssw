@@ -8,6 +8,7 @@ from L1Trigger.L1TNtuples.l1UpgradeTfMuonShowerTree_cfi import *
 from L1Trigger.L1TNtuples.l1UpgradeTree_cfi import *
 from L1Trigger.L1TNtuples.l1EventTree_cfi import *
 from L1Trigger.L1TNtuples.l1uGTTree_cfi import *
+from L1Trigger.L1TNtuples.l1AXOTree_cfi import *
 
 l1UpgradeTfMuonEmuTree = l1UpgradeTfMuonTree.clone()
 l1UpgradeTfMuonEmuTree.bmtfMuonToken = cms.untracked.InputTag("simBmtfDigis","BMTF")
@@ -18,7 +19,7 @@ l1UpgradeTfMuonEmuTree.isEMU = cms.bool(True)
 
 l1UpgradeEmuTree = l1UpgradeTree.clone()
 # We have only output of the ZDC emulator available, no info from unpacker: l1UpgradeEmuTree clones from the l1UpgradeTree
-l1UpgradeEmuTree.sumZDCToken = cms.untracked.InputTag("etSumZdcProducer")
+l1UpgradeEmuTree.sumZDCToken = cms.untracked.InputTag("l1tZDCEtSums")
 
 l1CaloTowerEmuTree = l1CaloTowerTree.clone()
 l1CaloTowerEmuTree.ecalToken = cms.untracked.InputTag("simEcalTriggerPrimitiveDigis")
@@ -50,6 +51,9 @@ stage2L1Trigger.toModify(l1UpgradeEmuTree,
 l1uGTEmuTree = l1uGTTree.clone()
 l1uGTEmuTree.ugtToken = cms.InputTag("simGtStage2Digis")
 
+l1AXOEmuTree =  l1AXOTree.clone()
+l1AXOEmuTree.axoscoreToken = cms.untracked.InputTag("simGtStage2Digis","AXOScore")
+
 L1NtupleEMU = cms.Sequence(
   l1EventTree
   +l1UpgradeTfMuonEmuTree
@@ -58,4 +62,5 @@ L1NtupleEMU = cms.Sequence(
   +l1UpgradeEmuTree
 #  +l1MuonEmuTree
   +l1uGTEmuTree
+  +l1AXOEmuTree
 )

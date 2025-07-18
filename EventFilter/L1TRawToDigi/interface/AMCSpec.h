@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <cstdint>
+#include <span>
 
 namespace amc {
   static const unsigned int split_block_size = 0x1000;
@@ -12,8 +13,8 @@ namespace amc {
   // be used when packing/unpacking AMC payloads into AMC13 blocks.
   class BlockHeader {
   public:
-    BlockHeader() : data_(0){};
-    BlockHeader(const uint64_t *data) : data_(data[0]){};
+    BlockHeader() : data_(0) {}
+    BlockHeader(const uint64_t *data) : data_(data[0]) {}
     // size is the total size of the AMC payload, not just of the
     // block
     BlockHeader(unsigned int amc_no, unsigned int board_id, unsigned int size, unsigned int block = 0);
@@ -58,8 +59,8 @@ namespace amc {
   // AMC payload of an AMC13 packet/block.
   class Header {
   public:
-    Header() : data0_(0), data1_(0){};
-    Header(const uint64_t *data) : data0_(data[0]), data1_(data[1]){};
+    Header() : data0_(0), data1_(0) {}
+    Header(const uint64_t *data) : data0_(data[0]), data1_(data[1]) {}
     Header(unsigned int amc_no,
            unsigned int lv1_id,
            unsigned int bx_id,
@@ -101,8 +102,8 @@ namespace amc {
 
   class Trailer {
   public:
-    Trailer() : data_(0){};
-    Trailer(const uint64_t *data) : data_(data[0]){};
+    Trailer() : data_(0) {}
+    Trailer(const uint64_t *data) : data_(data[0]) {}
     Trailer(unsigned int crc, unsigned int lv1_id, unsigned int size);
 
     inline unsigned int getCRC() const { return (data_ >> CRC_shift) & CRC_mask; };
@@ -127,7 +128,7 @@ namespace amc {
 
   class Packet {
   public:
-    Packet(const uint64_t *d) : block_header_(d){};
+    Packet(const uint64_t *d) : block_header_(d) {}
     Packet(unsigned int amc,
            unsigned int board,
            unsigned int lv1id,
@@ -143,8 +144,11 @@ namespace amc {
     // cross-checks for data consistency.
     void finalize(unsigned int lv1, unsigned int bx, bool legacy_mc = false, bool mtf7_mode = false);
 
-    std::vector<uint64_t> block(unsigned int id) const;
-    std::unique_ptr<uint64_t[]> data();
+    std::span<const uint64_t> block(unsigned int id) const;
+    std::span<const uint64_t> data() const {
+      // Remove 3 words: 2 for the header, 1 for the trailer
+      return payload_.empty() ? std::span<const uint64_t>() : std::span<const uint64_t>(payload_).subspan(2, size());
+    };
     BlockHeader blockHeader(unsigned int block = 0) const { return block_header_; };
     Header header() const { return header_; };
     Trailer trailer() const { return trailer_; };

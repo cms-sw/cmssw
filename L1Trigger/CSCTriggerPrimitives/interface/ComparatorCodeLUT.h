@@ -45,7 +45,7 @@ private:
   CSCPatternBank::LCTPatterns clct_pattern_ = {};
 
   // verbosity level
-  unsigned infoV_;
+  unsigned infoV_ = 0;
 };
 
 #endif

@@ -18,18 +18,10 @@
 // forward declarations
 
 namespace edm {
-
   namespace impl {
 
-    // check if a type T has a subscript operator T[N]
-    template <typename, typename = void>
-    struct has_subscript_operator : std::false_type {};
-
     template <typename T>
-    struct has_subscript_operator<T, std::void_t<decltype(std::declval<T&>()[0])>> : std::true_type {};
-
-    template <typename T>
-    constexpr auto has_subscript_operator_v = has_subscript_operator<T>::value;
+    concept ArrayAddressable = requires(T& a) { a[0]; } or std::is_array_v<T>;
 
     // for a type T, return the type of the return value of the subscript operator T[N]
     template <typename T, typename = void, typename = void>
@@ -48,7 +40,11 @@ namespace edm {
 
     // for non-array types that implement the subscript operator[], a complete type is needed
     template <typename T>
-    struct subscript_type<T, std::enable_if_t<not std::is_array_v<T>>, std::enable_if_t<has_subscript_operator_v<T>>> {
+      requires requires {
+        requires not std::is_array_v<T>;
+        requires ArrayAddressable<T>;
+      }
+    struct subscript_type<T> {
       using type = typename std::remove_reference<decltype(std::declval<T&>()[0])>::type;
     };
 
@@ -57,7 +53,7 @@ namespace edm {
 
   }  // namespace impl
 
-  template <typename T>
+  template <impl::ArrayAddressable T>
   class propagate_const_array;
 
   template <typename T>
@@ -65,13 +61,13 @@ namespace edm {
   template <typename T>
   constexpr std::decay_t<T> const& get_underlying(propagate_const_array<T> const&);
 
-  template <typename T>
+  template <impl::ArrayAddressable T>
   class propagate_const_array {
   public:
     friend constexpr std::decay_t<T>& get_underlying<T>(propagate_const_array<T>&);
     friend constexpr std::decay_t<T> const& get_underlying<T>(propagate_const_array<T> const&);
 
-    template <typename U>
+    template <impl::ArrayAddressable U>
     friend class propagate_const_array;
 
     using element_type = typename impl::subscript_type_t<T>;

@@ -31,15 +31,15 @@ namespace {
     static constexpr double mmToCm = 0.1;
 
     ConvertParticle()
-        : abortOnUnknownPDGCode_(true), initialized_(false), chargeP_(PDGCacheMax, 0), chargeM_(PDGCacheMax, 0){};
+        : abortOnUnknownPDGCode_(true), initialized_(false), chargeP_(PDGCacheMax, 0), chargeM_(PDGCacheMax, 0) {}
 
     ConvertParticle(bool abortOnUnknownPDGCode)
         : abortOnUnknownPDGCode_(abortOnUnknownPDGCode),
           initialized_(false),
           chargeP_(PDGCacheMax, 0),
-          chargeM_(PDGCacheMax, 0){};
+          chargeM_(PDGCacheMax, 0) {}
 
-    ~ConvertParticle(){};
+    ~ConvertParticle() {}
 
     bool initialized() const { return initialized_; }
 
@@ -138,7 +138,7 @@ public:
 
   void produce(edm::StreamID, edm::Event& e, const edm::EventSetup&) const override;
   std::shared_ptr<ConvertParticle> globalBeginRun(const edm::Run&, const edm::EventSetup&) const override;
-  void globalEndRun(edm::Run const&, edm::EventSetup const&) const override{};
+  void globalEndRun(edm::Run const&, edm::EventSetup const&) const override {}
 
 private:
   edm::EDGetTokenT<CrossingFrame<edm::HepMCProduct> > mixToken_;
@@ -223,8 +223,6 @@ void GenPUProtonProducer::produce(StreamID, Event& evt, const EventSetup& es) co
     if (find(bunchList_.begin(), bunchList_.end(), bunch) != bunchList_.end()) {
       auto event = (*mixHepMC_itr).GetEvent();
 
-      size_t num_particles = event->particles_size();
-
       // Fill output collection
       unsigned int number_of_protons = 0;
       for (auto p = event->particles_begin(); p != event->particles_end(); ++p) {
@@ -237,7 +235,7 @@ void GenPUProtonProducer::produce(StreamID, Event& evt, const EventSetup& es) co
         }
       }
       LogDebug("GenPUProtonProducer") << "Idx : " << idx_mix << " Bunch : " << bunch
-                                      << " Number of particles : " << num_particles
+                                      << " Number of particles : " << event->particles_size()
                                       << " Number of protons : " << number_of_protons << endl;
 
       total_number_of_protons += number_of_protons;

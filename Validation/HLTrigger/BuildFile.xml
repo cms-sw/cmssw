@@ -4,6 +4,7 @@
 <use name="DataFormats/HLTReco"/>
 <use name="HLTrigger/HLTcore"/>
 <use name="DQMServices/Core"/>
+<use name="PhysicsTools/JetMCUtils"/>
 <use name="root"/>
 <export>
   <lib name="1"/>

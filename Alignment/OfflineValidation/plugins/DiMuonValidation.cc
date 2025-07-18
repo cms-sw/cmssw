@@ -172,9 +172,20 @@ private:
 
   TH1F* th1f_mass;
   TH2D* th2d_mass_variables_[Variable::VarNumber];  // actual histograms
+  TH3D* th3d_mass_vs_eta_phi_plus_;                 // 3D histogram for scatter plot vs eta / phi (mu+)
+  TH3D* th3d_mass_vs_eta_phi_minus_;                // 3D histogram for scatter plot vs eta / phi (mu-)
 
   std::string variables_name_[Variable::VarNumber] = {
       "CosThetaCS", "DeltaEta", "EtaMinus", "EtaPlus", "PhiCS", "PhiMinus", "PhiPlus", "Pt"};
+
+  std::string variables_title_[Variable::VarNumber] = {"Cos#theta_{CS}",
+                                                       "#Delta#eta(#mu^{-},#mu^{+})",
+                                                       "#mu^{-} #eta",
+                                                       "#mu^{+} #eta",
+                                                       "#phi_{CS} [rad]",
+                                                       "#mu^{-} #phi [rad]",
+                                                       "#mu^{+} #phi [rad]",
+                                                       "p_{T} [GeV]"};
 
   int variables_bins_number_[Variable::VarNumber];  // = {20, 20, 12, 12, 20, 16, 16, 100};
   double variables_min_[Variable::VarNumber];       // = {-1, -4.8, -2.4, -2.4, -M_PI / 2, -M_PI, -M_PI, 0};
@@ -282,6 +293,9 @@ void DiMuonValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         th2d_mass_variables_[Variable::PhiMinus]->Fill(mother_mass, phiMu2, 1);
         th2d_mass_variables_[Variable::PhiPlus]->Fill(mother_mass, phiMu1, 1);
         th2d_mass_variables_[Variable::Pt]->Fill(mother_mass, mother_pt, 1);
+
+        th3d_mass_vs_eta_phi_plus_->Fill(mother_mass, etaMu1, phiMu1);
+        th3d_mass_vs_eta_phi_minus_->Fill(mother_mass, etaMu2, phiMu2);
       }
     }
   }
@@ -298,15 +312,44 @@ void DiMuonValidation::beginJob() {
 
   for (int i = 0; i < Variable::VarNumber; i++) {
     std::string th2d_name = fmt::sprintf("th2d_mass_%s", variables_name_[i].c_str());
-    th2d_mass_variables_[i] = fs->make<TH2D>(th2d_name.c_str(),
-                                             th2d_name.c_str(),
-                                             pair_mass_nbins_,
-                                             pair_mass_min_,
-                                             pair_mass_max_,
-                                             variables_bins_number_[i],
-                                             variables_min_[i],
-                                             variables_max_[i]);
+    th2d_mass_variables_[i] =
+        fs->make<TH2D>(th2d_name.c_str(),
+                       fmt::format("{};M_{{#mu^{{-}}#mu^{{+}}}} [GeV];{}", th2d_name, variables_title_[i]).c_str(),
+                       pair_mass_nbins_,
+                       pair_mass_min_,
+                       pair_mass_max_,
+                       variables_bins_number_[i],
+                       variables_min_[i],
+                       variables_max_[i]);
   }
+
+  // 3D histogram for eta/phi map (mu+)
+  th3d_mass_vs_eta_phi_plus_ =
+      fs->make<TH3D>("th3d_mass_vs_eta_phi_plus",
+                     "th3d_mass_vs_eta_phi_plus;M_{#mu^{-}#mu^{+}} [GeV];#mu^{+} #eta;#mu^{+} #phi [rad]",
+                     pair_mass_nbins_,
+                     pair_mass_min_,
+                     pair_mass_max_,
+                     variables_bins_number_[Variable::EtaPlus],
+                     variables_min_[Variable::EtaPlus],
+                     variables_max_[Variable::EtaPlus],
+                     variables_bins_number_[Variable::PhiPlus],
+                     variables_min_[Variable::PhiPlus],
+                     variables_max_[Variable::PhiPlus]);
+
+  // 3D histogram for eta/phi map (mu+)
+  th3d_mass_vs_eta_phi_minus_ =
+      fs->make<TH3D>("th3d_mass_vs_eta_phi_minus",
+                     "th3d_mass_vs_eta_phi_minus;M_{#mu^{-}#mu^{+}} [GeV];#mu^{-} #eta;#mu^{-} #phi [rad]",
+                     pair_mass_nbins_,
+                     pair_mass_min_,
+                     pair_mass_max_,
+                     variables_bins_number_[Variable::EtaMinus],
+                     variables_min_[Variable::EtaMinus],
+                     variables_max_[Variable::EtaMinus],
+                     variables_bins_number_[Variable::PhiMinus],
+                     variables_min_[Variable::PhiMinus],
+                     variables_max_[Variable::PhiMinus]);
 
   // Z-> mm mass in eta bins
   TFileDirectory dirResMassEta = fs->mkdir("TkTkMassInEtaBins");
@@ -334,8 +377,8 @@ void DiMuonValidation::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<double>("eBeam", 3500.)->setComment("beam energy in GeV");
   desc.add<std::string>("TkTag", "ALCARECOTkAlZMuMu");
 
-  desc.add<double>("Pair_mass_min", 60);
-  desc.add<double>("Pair_mass_max", 120);
+  desc.add<double>("Pair_mass_min", 60.);
+  desc.add<double>("Pair_mass_max", 120.);
   desc.add<int>("Pair_mass_nbins", 120);
   desc.add<double>("Pair_etaminpos", -2.4);
   desc.add<double>("Pair_etamaxpos", 2.4);

@@ -7,29 +7,21 @@ import FWCore.ParameterSet.Config as cms
 import sys
 
 process = cms.Process("READMERGE")
-
-process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.MessageLogger.cerr.threshold = cms.untracked.string('ERROR')
 
 process.load("FWCore.Framework.test.cmsExceptionsFatal_cff")
 
-process.AdaptorConfig = cms.Service("AdaptorConfig",
-    stats = cms.untracked.bool(False)
-)
+from IOPool.TFileAdaptor.modules import AdaptorConfig
+process.add_(AdaptorConfig(stats = False))
 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
-)
+process.maxEvents.input = -1
 
-process.output = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string(
-      'file:reduced_test.root'
-    )
-)
+from IOPool.Output.modules import PoolOutputModule
+process.output = PoolOutputModule(fileName = 'reduced_test.root')
 
-process.testmerge = cms.EDAnalyzer("TestMergeResults",
-                            
+from FWCore.Framework.modules import TestMergeResults, RunLumiEventAnalyzer
+process.testmerge = TestMergeResults(
     #   Check to see that the value we read matches what we know
     #   was written. Expected values listed below come in sets of three
     #      value expected in Thing
@@ -42,7 +34,7 @@ process.testmerge = cms.EDAnalyzer("TestMergeResults",
     #   When the sequence of parameter values is exhausted it stops checking
     #   0's are just placeholders, if the value is a "0" the check is not made.
 
-    expectedBeginRunNew = cms.untracked.vint32(
+    expectedBeginRunNew = [
         10001,   20004,  10003,   # end run 100
         10001,   20004,  10003,   # end run 1
         10001,   20004,  10003,   # end run 1
@@ -56,9 +48,9 @@ process.testmerge = cms.EDAnalyzer("TestMergeResults",
         10001,   20004,  10003,   # end run 2000
         10001,   20004,  10003,   # end run 2001
         10001,   20004,  10003    # end run 2002
-    ),
+    ],
 
-    expectedEndRunNew = cms.untracked.vint32(
+    expectedEndRunNew = [
         100001,   200004,  100003,   # end run 100
         100001,   200004,  100003,   # end run 1
         100001,   200004,  100003,   # end run 1
@@ -72,18 +64,18 @@ process.testmerge = cms.EDAnalyzer("TestMergeResults",
         100001,   200004,  100003,   # end run 2000
         100001,   200004,  100003,   # end run 2001
         100001,   200004,  100003    # end run 2002
-    ),
+    ],
 
-    expectedBeginLumiNew = cms.untracked.vint32(
+    expectedBeginLumiNew = [
         101,       204,    103    # end run 100 lumi 100
 # There are more, but all with the same pattern as the first        
-    ),
+    ],
 
-    expectedEndLumiNew = cms.untracked.vint32(
+    expectedEndLumiNew = [
         1001,     2004,   1003,   # end run 100 lumi 100
-    ),
+    ],
 
-    expectedProcessHistoryInRuns = cms.untracked.vstring(
+    expectedProcessHistoryInRuns = [
         'PROD',            # Run 100
         'MERGE',
         'MERGETWOFILES',
@@ -131,18 +123,19 @@ process.testmerge = cms.EDAnalyzer("TestMergeResults",
         'EXTRA',
         'MERGE',
         'MERGETWOFILES'
-    ),
-    verbose = cms.untracked.bool(True)
+    ],
+    verbose = True
 )
 
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring("file:"+sys.argv[1]),
-    duplicateCheckMode = cms.untracked.string("noDuplicateCheck")
+from IOPool.Input.modules import PoolSource
+process.source = PoolSource(
+    fileNames = [f"file:{sys.argv[1]}"],
+    duplicateCheckMode = "noDuplicateCheck"
 )
 
-process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
-    verbose = cms.untracked.bool(True),
-    expectedRunLumiEvents = cms.untracked.vuint32(
+process.test = RunLumiEventAnalyzer(
+    verbose = True,
+    expectedRunLumiEvents = [
 100,   0,   0,
 100, 100,   0,
 100, 100, 100,
@@ -225,7 +218,7 @@ process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
   2,   1,   5,
   2,   1,   0,
   2,   0,   0
-)
+]
 )
 
 process.test.expectedRunLumiEvents.extend([

@@ -1,0 +1,14 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+if [[ $1 == "--libs" ]]; then
+    echo "-L$DIR -lrooutil"
+elif [[ $1 == "--include" ]]; then
+    echo "-I$DIR"
+elif [[ $1 == "--rooutil-path" ]]; then
+    echo "$DIR"
+else
+    echo -I$DIR -L$DIR -lrooutil
+fi
+

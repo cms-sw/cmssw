@@ -18,10 +18,10 @@ class LightRay;
 class OptOPlateSplitter : public OpticalObject {
 public:
   //---------- Constructors / Destructor
-  OptOPlateSplitter(){};
+  OptOPlateSplitter() {}
   OptOPlateSplitter(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data)
-      : OpticalObject(parent, type, name, copy_data){};
-  ~OptOPlateSplitter() override{};
+      : OpticalObject(parent, type, name, copy_data) {}
+  ~OptOPlateSplitter() override {}
 
   //---------- Detailed simulation of deviation of the light ray (reflection, shift, ...)
   void detailedDeviatesLightRay(LightRay& lightray) override;

@@ -115,7 +115,7 @@ bool HLTElectronEoverpFilterRegional::hltFilter(edm::Event& iEvent,
           }
         }
       }  //end of the if checking the matching of the SC from RecoCandidate and the one from Electrons
-    }    //end of loop over electrons
+    }  //end of loop over electrons
 
     if (!doIsolated_) {
       //loop over the electrons to find the matching one
@@ -144,7 +144,7 @@ bool HLTElectronEoverpFilterRegional::hltFilter(edm::Event& iEvent,
             }
           }
         }  //end of the if checking the matching of the SC from RecoCandidate and the one from Electrons
-      }    //end of loop over electrons
+      }  //end of loop over electrons
     }
   }  //end of loop ober candidates
 

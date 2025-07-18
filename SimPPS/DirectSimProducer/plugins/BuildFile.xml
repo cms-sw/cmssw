@@ -1,5 +1,6 @@
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/RunInfo"/>
+<use name="FWCore/AbstractServices"/>
 <use name="Geometry/VeryForwardGeometryBuilder"/>
 <use name="Geometry/VeryForwardRPTopology"/>
 <use name="SimDataFormats/GeneratorProducts"/>

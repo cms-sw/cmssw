@@ -330,7 +330,7 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
       }
 
     }  // end if neutral bkg
-  }    // end loop over strips (= pseudo rolls)
+  }  // end loop over strips (= pseudo rolls)
 }
 
 double ME0PreRecoGaussianModel::correctSigmaU(const ME0EtaPartition* roll, double y) {

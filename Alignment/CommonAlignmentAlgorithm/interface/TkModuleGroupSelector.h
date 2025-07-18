@@ -40,7 +40,7 @@ public:
                                  const std::vector<int> &sdets);
 
   /// Destructor
-  virtual ~TkModuleGroupSelector(){};
+  virtual ~TkModuleGroupSelector() {}
 
   // Returns the number of parameters.
   unsigned int getNumberOfParameters() const;

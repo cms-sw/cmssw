@@ -18,7 +18,7 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load("GeneratorInterface.RivetInterface.genParticles2HepMC_cfi")
 process.load("GeneratorInterface.RivetInterface.rivetAnalyzer_cfi")
 
-process.rivetAnalyzer.AnalysisNames = cms.vstring('MC_GENERIC', 'CMS_2013_I1224539_DIJET')
+process.rivetAnalyzer.AnalysisNames = cms.vstring('MC_GENERIC', 'CMS_2013_I1224539')
 process.rivetAnalyzer.HepMCCollection = 'genParticles2HepMC:unsmeared'
 
 process.p = cms.Path(process.genParticles2HepMC*process.rivetAnalyzer)

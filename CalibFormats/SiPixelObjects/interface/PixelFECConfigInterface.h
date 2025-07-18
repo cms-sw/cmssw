@@ -22,9 +22,9 @@ namespace pos {
 */
   class PixelFECConfigInterface {
   public:
-    PixelFECConfigInterface(){};
+    PixelFECConfigInterface() {}
 
-    virtual ~PixelFECConfigInterface(){};
+    virtual ~PixelFECConfigInterface() {}
 
     //Generate the commands needed to set the trim and mask bits that
     //are specified by the vector allPixels.

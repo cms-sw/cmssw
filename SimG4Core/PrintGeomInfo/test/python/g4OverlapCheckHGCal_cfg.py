@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun g4OverlapCheckHGCal_cfg.py geometry=D88 tol=0.1
 #
-#   Options for geometry D102, D103, D104, D108, D109, D110
+#   Options for geometry D102, D103, D105, D107, D108, D110, D114
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('geometry',
                  "D110",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D102, D103, D104, D108, D109, D110")
+                  "geometry of operations: D102, D103, D105, D107, D108, D110, D114")
 options.register('tol',
                  0.01,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -32,13 +32,18 @@ print(options)
 ####################################################################
 # Use the options
 
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
-geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
-baseName = "HGCal2026" + options.geometry
+geomName = "Run4" + options.geometry
+geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
+baseName = "HGCalRun4" + options.geometry
+print("Geometry Name:   ", geomName)
+print("Geom file Name:  ", geomFile)
+print("Global Tag Name: ", GLOBAL_TAG)
+print("Era Name:        ", ERA)
+print("Base file Name:  ", baseName)
 
-print("Geometry file Name: ", geomFile)
-print("Base file Name:     ", baseName)
+process = cms.Process('G4PrintGeometry',ERA)
 
 process.load(geomFile)
 from SimG4Core.PrintGeomInfo.g4TestGeometry_cfi import *
@@ -69,5 +74,3 @@ process.g4SimHits.FileNameField   = ''
 process.g4SimHits.FileNameGDML    = ''
 process.g4SimHits.FileNameRegions = ''
 #
-
-#process.load('Geometry.HGCalCommonData.testHGCalV10XML_cfi')

@@ -4,7 +4,7 @@ from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
 process = cms.Process("HcalRecNumberingTest",Run3_DDD)
 
 process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D41Reco_cff')
+#process.load('Configuration.Geometry.GeometryExtendedRun4D41Reco_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if 'MessageLogger' in process.__dict__:

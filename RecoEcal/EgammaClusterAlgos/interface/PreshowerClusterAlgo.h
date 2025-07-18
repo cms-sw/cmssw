@@ -31,7 +31,7 @@ public:
   PreshowerClusterAlgo(double stripEnergyCut, double clusterEnergyCut, int nStripCut)
       : preshStripEnergyCut_(stripEnergyCut), preshClusterEnergyCut_(clusterEnergyCut), preshSeededNstr_(nStripCut) {}
 
-  ~PreshowerClusterAlgo(){};
+  ~PreshowerClusterAlgo() {}
 
   reco::PreshowerCluster makeOneCluster(ESDetId strip,
                                         HitsID *used_strips,

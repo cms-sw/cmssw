@@ -7,7 +7,11 @@
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
 <use name="HeterogeneousCore/AlpakaInterface"/>
-<use name="HeterogeneousCore/CUDACore"/>
+<iftool name="cuda">
+  <use name="HeterogeneousCore/CUDACore"/>
+<else/>
+  <flags SKIP_FILES="T_EventSetup_HeterogeneousHGCalHEFCellPositionsConditions.cc"/>
+</iftool>
 <flags ALPAKA_BACKENDS="1"/>
 <export>
   <lib name="1"/>

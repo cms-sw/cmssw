@@ -76,6 +76,7 @@ public:
   }
 
   static void globalEndJob(goodseedhelpers::HeavyObjectCache const*) {}
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void beginRun(const edm::Run& run, const edm::EventSetup&) override;
@@ -186,6 +187,57 @@ private:
 using namespace edm;
 using namespace std;
 using namespace reco;
+
+void GoodSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<double>("MaxEOverP", 3.0);
+  desc.add<std::string>("Smoother", "GsfTrajectorySmoother_forPreId");
+  desc.add<bool>("UseQuality", true);
+  desc.add<edm::InputTag>("PFPSClusterLabel", {"particleFlowClusterPS"});
+  desc.add<std::string>("ThresholdFile", "RecoParticleFlow/PFTracking/data/Threshold.dat");
+  desc.add<std::string>("TMVAMethod", "BDT");
+  desc.add<double>("MaxEta", 2.4);
+  desc.add<std::string>("EtaMap", "RecoParticleFlow/PFBlockProducer/data/resmap_ECAL_eta.dat");
+  desc.add<std::string>("PhiMap", "RecoParticleFlow/PFBlockProducer/data/resmap_ECAL_phi.dat");
+  desc.add<std::string>("PreCkfLabel", "SeedsForCkf");
+  desc.add<int>("NHitsInSeed", 3);
+  desc.add<std::string>("Fitter", "GsfTrajectoryFitter_forPreId");
+  desc.add<std::string>("TTRHBuilder", "WithAngleAndTemplate");
+  desc.add<std::string>("PreGsfLabel", "SeedsForGsf");
+  desc.add<double>("MinEOverP", 0.3);
+  desc.add<std::string>("Weights1", "RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat1.xml");
+  desc.add<std::string>("Weights2", "RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat2.xml");
+  desc.add<std::string>("Weights3", "RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat3.xml");
+  desc.add<std::string>("Weights4", "RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat4.xml");
+  desc.add<std::string>("Weights5", "RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat5.xml");
+  desc.add<std::string>("Weights6", "RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat6.xml");
+  desc.add<std::string>("Weights7", "RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat7.xml");
+  desc.add<std::string>("Weights8", "RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat8.xml");
+  desc.add<std::string>("Weights9", "RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat9.xml");
+  desc.add<edm::InputTag>("PFEcalClusterLabel", {"particleFlowClusterECAL"});
+  desc.add<edm::InputTag>("PFHcalClusterLabel", {"particleFlowClusterHCAL"}),
+      desc.add<std::string>("PSThresholdFile", "RecoParticleFlow/PFTracking/data/PSThreshold.dat");
+  desc.add<double>("MinPt", 2.0);
+  desc.add<std::vector<edm::InputTag>>("TkColList", {edm::InputTag("generalTracks")});
+  desc.addUntracked<bool>("UseTMVA", true);
+  desc.add<std::string>("TrackQuality", "highPurity");
+  desc.add<double>("MaxPt", 50.0);
+  desc.add<bool>("ApplyIsolation", false);
+  desc.add<double>("EcalStripSumE_deltaPhiOverQ_minValue", -0.1);
+  desc.add<double>("EcalStripSumE_minClusEnergy", 0.1);
+  desc.add<double>("EcalStripSumE_deltaEta", 0.03);
+  desc.add<double>("EcalStripSumE_deltaPhiOverQ_maxValue", 0.5);
+  desc.add<double>("EOverPLead_minValue", 0.95);
+  desc.add<double>("HOverPLead_maxValue", 0.05);
+  desc.add<double>("HcalWindow", 0.184);
+  desc.add<double>("ClusterThreshold", 0.5);
+  desc.add<bool>("UsePreShower", false);
+  desc.add<std::string>("PreIdLabel", "preid");
+  desc.addUntracked<bool>("ProducePreId", true);
+  desc.addUntracked<double>("PtThresholdSavePreId", 1.0);
+  desc.add<double>("Min_dr", 0.2);
+  descriptions.addWithDefaultLabel(desc);
+}
 
 GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig, const goodseedhelpers::HeavyObjectCache*)
     : pfTransformer_(nullptr),
@@ -567,7 +619,7 @@ void GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup) {
         output_preidinfo->push_back(myPreId);
       }
     }  //end loop on track collection
-  }    //end loop on the vector of track collections
+  }  //end loop on the vector of track collections
 
   // no disablePreId_ switch, it is simpler to have an empty collection rather than no collection
   iEvent.put(std::move(output_preid), preidgsf_);

@@ -6,7 +6,7 @@
 //      ratMax, ietaMax, ietaTrack, sysmode, puCorr, applyL1Cut, l1Cut,
 //      truncateFlag, maxIter, corForm, useGen, runlo, runhi, phimin, phimax,
 //      zside, nvxlo, nvxhi, rbxFile, exclude, higheta, fraction,
-//      writeDebugHisto, pmin, pmax, debug, nmax);
+//      badRunFile, writeDebugHisto, pmin, pmax, nmax);
 //
 //  where:
 //
@@ -54,13 +54,17 @@
 //                              The digit *r* is used to treat depth values:
 //                              (0) treat each depth independently; (1) all
 //                              depths of ieta 15, 16 of HB as depth 1; (2)
-//                              all depths in HB and HE as depth 1; (3) all
-//                              depths in HE with values > 1 as depth 2; (4)
-//                              all depths in HB with values > 1 as depth 2;
+//                              all depths in HB and HE as depth 1; (3) ignore
+//                              depth index in HE (depth index set to 1); (4)
+//                              ignore depth index in HB (depth index set 1);
 //                              (5) all depths in HB and HE with values > 1
-//                              as depth 2.
-//                              The digit *d* is used if zside is to be
-//                              ignored (1) or not (0)
+//                              as depth 2; (6) for depth = 1 and 2, depth =
+//                              1, else depth = 2; (7) in case of HB, depths
+//                              1 and 2 are set to 1, else depth = 2; for HE
+//                              ignore depth index; (8) Assign all depths > 4
+//                              as depth = 5; (9) Assign all depth = 1 as
+//                              depth = 2. The digit *d* is used if zside is
+//                              to be ignored (1) or not (0)
 //                              (Default 0)
 //  maxIter         (int)     = number of iterations (30)
 //  drForm          (int)     = type of threshold/dupFileName/rcorFileName (hdr)
@@ -68,14 +72,18 @@
 //                              (1) for depth dependent corrections; (2) for
 //                              RespCorr corrections; (3) use machine learning
 //                              method for pileup correction; (4) use results
-//                              from phi-symmetry.
+//                              from phi-symmetry; (5) use reults from several
+//                              phi-symmetry studies drive by run numeber.
 //                              For dupFileName d: (0) contains list of
 //                              duplicate entries; (1) depth dependent weights;
 //                              (2) list of  (ieta, iphi) of channels to be
-//                              selected.
+//                              selected; (3) list of run ranges and for each
+//                              range, ieta, depth where gain has changed.
 //                              For threshold h: the format for threshold
 //                              application, 0: no threshold; 1: 2022 prompt
-//                              data; 2: 2022 reco data; 3: 2023 prompt data.
+//                              data; 2: 2022 reco data; 3: 2023 prompt data;
+//                              4: 2025 Begin of Year; 5: Derived from the file
+//                              PFCuts_IOV_362975.txt.
 //                              (Default 0)
 //  useGen          (bool)    = use generator level momentum information (false)
 //  runlo           (int)     = lower value of run number to be included (+ve)
@@ -98,14 +106,14 @@
 //                              as 1 (0) or of ieta = ietamax with same sign
 //                              and depth 1 (1) (default 1)
 //  fraction        (double)  = fraction of events to be done (1.0)
+//  badRunFile      (char *)  = Name of the file containing a list of runs
+//                              to be excluded
 //  writeDebugHisto (bool)    = Flag to check writing intermediate histograms
 //                              in o/p file (false)
 //  pmin            (double)  = minimum momentum of tracks to be used in
 //                              estimating the correction factor
 //  pmax            (double)  = maximum momentum of tracks to be used in
 //                              estimating the correction factor
-//  debug           (bool)    = To produce more debug printing on screen
-//                              (false)
 //  nmax            (Long64_t)= maximum number of entries to be processed,
 //                              if -1, all entries to be processed; -2 take
 //                              all odd entries; -3 take all even entries (-1)
@@ -171,10 +179,10 @@ void Run(const char *inFileName = "Silver.root",
          bool exclude = true,
          int higheta = 1,
          double fraction = 1.0,
+         const char *badRunFile = "",
          bool writeDebugHisto = false,
          double pmin = 40.0,
          double pmax = 60.0,
-         bool debug = false,
          Long64_t nmax = -1);
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
@@ -211,6 +219,7 @@ public:
             bool useGen,
             bool exclude,
             int higheta,
+            const char *badRunFile,
             double pmin,
             double pmax,
             TChain *tree);
@@ -337,6 +346,8 @@ private:
   CalibCorr *cFactor_;
   CalibSelectRBX *cSelect_;
   CalibDuplicate *cDuplicate_;
+  CalibThreshold *cThr_;
+  CalibExcludeRuns *cRunEx_;
   const int truncateFlag_;
   const bool useIter_;
   const bool useMean_;
@@ -401,10 +412,10 @@ void doIt(const char *infile, const char *dup) {
         true,
         1,
         lumi,
+        "",
         false,
         40.0,
         60.0,
-        false,
         -1);
   }
 }
@@ -444,11 +455,12 @@ void Run(const char *inFileName,
          bool exclude,
          int higheta,
          double fraction,
+         const char *badRunFile,
          bool writeHisto,
          double pmin,
          double pmax,
-         bool debug,
          Long64_t nmax) {
+  bool debug(false);
   char name[500];
   sprintf(name, "%s/%s", dirName, treeName);
   TChain *chain = new TChain(name);
@@ -486,6 +498,7 @@ void Run(const char *inFileName,
                 useGen,
                 exclude,
                 higheta,
+                badRunFile,
                 pmin,
                 pmax,
                 chain);
@@ -561,6 +574,7 @@ CalibTree::CalibTree(const char *dupFileName,
                      bool gen,
                      bool excl,
                      int heta,
+                     const char *badRunFile,
                      double pmin,
                      double pmax,
                      TChain *tree)
@@ -568,6 +582,8 @@ CalibTree::CalibTree(const char *dupFileName,
       cFactor_(nullptr),
       cSelect_(nullptr),
       cDuplicate_(nullptr),
+      cThr_(nullptr),
+      cRunEx_(nullptr),
       truncateFlag_(flag),
       useIter_(useIter),
       useMean_(useMean),
@@ -606,23 +622,36 @@ CalibTree::CalibTree(const char *dupFileName,
             << " RadDam Corrections read from " << rcorFileName << " rcorFormat " << rcorForm_ << " Treat RBX "
             << rbxFile_ << " with exclusion mode " << exclude_ << std::endl;
   Init(tree);
-  if (std::string(dupFileName) != "")
+  if (std::string(dupFileName) != "") {
+    std::cout << "dupFileName: " << dupFileName << std::endl;
     cDuplicate_ = new CalibDuplicate(dupFileName, duplicate_, false);
+  }
   if (std::string(rcorFileName) != "") {
+    std::cout << "rcorFileName: " << rcorFileName << std::endl;
     cFactor_ = new CalibCorr(rcorFileName, rcorForm_, false);
     if (cFactor_->absent())
       rcorForm_ = -1;
   } else {
     rcorForm_ = -1;
   }
-  if (std::string(rbxFile) != "")
+  if (std::string(rbxFile) != "") {
+    std::cout << "RBX File: " << rbxFile << std::endl;
     cSelect_ = new CalibSelectRBX(rbxFile, false);
+  }
+  if (thrForm_ > 0)
+    cThr_ = new CalibThreshold(thrForm_);
+  if (std::string(badRunFile) != "") {
+    std::cout << "File with list of excluded runs: " << badRunFile << std::endl;
+    cRunEx_ = new CalibExcludeRuns(badRunFile, false);
+  }
 }
 
 CalibTree::~CalibTree() {
   delete cFactor_;
   delete cSelect_;
   delete cDuplicate_;
+  delete cThr_;
+  delete cRunEx_;
   if (!fChain)
     return;
   delete fChain->GetCurrentFile();
@@ -781,8 +810,9 @@ Double_t CalibTree::Loop(int loop,
       else if ((oddEven > 0) && (jentry % 2 != 0))
         continue;
     }
-    bool select = ((cDuplicate_ != nullptr) && (duplicate_ == 0)) ? (cDuplicate_->isDuplicate(jentry)) : true;
-    if (!select)
+    bool select = ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(0))) ? (cDuplicate_->isDuplicate(jentry)) : true;
+    bool reject = (cRunEx_ != nullptr) ? cRunEx_->exclude(t_Run) : false;
+    if ((!select) || reject)
       continue;
     bool selRun = (includeRun_ ? ((t_Run >= runlo_) && (t_Run <= runhi_)) : ((t_Run < runlo_) || (t_Run > runhi_)));
     if (!selRun)
@@ -798,7 +828,7 @@ Double_t CalibTree::Loop(int loop,
           continue;
       }
     }
-    if (cDuplicate_ != nullptr) {
+    if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(2))) {
       if (cDuplicate_->select(t_ieta, t_iphi))
         continue;
     }
@@ -837,7 +867,7 @@ Double_t CalibTree::Loop(int loop,
         if ((rmin >= 0 && ratio > rmin) && (rmax >= 0 && ratio < rmax) && l1c) {
           for (unsigned int idet = 0; idet < (*t_DetIds).size(); idet++) {
             // Apply thresholds if necessary
-            bool okcell = (thrForm_ == 0) || ((*t_HitEnergies)[idet] > threshold((*t_DetIds)[idet], thrForm_));
+            bool okcell = (thrForm_ == 0) || ((*t_HitEnergies)[idet] > (cThr_->threshold((*t_DetIds)[idet])));
             if (okcell && selectPhi((*t_DetIds)[idet])) {
               unsigned int id = (*t_DetIds)[idet];
               unsigned int detid = truncateId(id, truncateFlag_, false);
@@ -852,8 +882,13 @@ Double_t CalibTree::Loop(int loop,
                 hitEn = (*t_HitEnergies)[idet];
               if ((rcorForm_ != 3) && (rcorForm_ >= 0) && (cFactor_))
                 hitEn *= cFactor_->getCorr(t_Run, id);
-              if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
+              if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(1)))
                 hitEn *= cDuplicate_->getWeight(id);
+              if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(3))) {
+                int subdet, zside, ieta, iphi, depth;
+                unpackDetId((*t_DetIds)[idet], subdet, zside, ieta, iphi, depth);
+                hitEn *= cDuplicate_->getCorr(t_Run, ieta, depth);
+              }
               double Wi = evWt * hitEn / en.Etot;
               double Fac = (inverse) ? (en.ehcal / (pmom - t_eMipDR)) : ((pmom - t_eMipDR) / en.ehcal);
               double Fac2 = Wi * Fac * Fac;
@@ -1082,7 +1117,7 @@ void CalibTree::getDetId(double fraction, int ietaTrack, bool debug, Long64_t nm
         else if ((oddEven > 0) && (jentry % 2 != 0))
           continue;
       }
-      bool select = ((cDuplicate_ != nullptr) && (duplicate_ == 0)) ? (cDuplicate_->isDuplicate(jentry)) : true;
+      bool select = ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(0))) ? (cDuplicate_->isDuplicate(jentry)) : true;
       if (!select)
         continue;
       // Find DetIds contributing to the track
@@ -1097,7 +1132,7 @@ void CalibTree::getDetId(double fraction, int ietaTrack, bool debug, Long64_t nm
           else
             isItRBX = !(temp);
         }
-        if ((cDuplicate_ != nullptr) && (!isItRBX))
+        if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(2)) && (!isItRBX))
           isItRBX = (cDuplicate_->select(t_ieta, t_iphi));
         ++kprint;
         if (!(isItRBX)) {
@@ -1225,10 +1260,11 @@ void CalibTree::writeCorrFactor(const char *corrFileName, int ietaMax) {
       int subdet, depth, zside, ieta, iphi;
       unpackDetId(detId, subdet, zside, ieta, iphi, depth);
       if (ieta <= ietaMax) {
+        double corrf = ((itr->second.first > 0.1) && (itr->second.first < 4.0)) ? itr->second.first : 1.0;
+        double dcorr = ((itr->second.first > 0.1) && (itr->second.first < 4.0)) ? itr->second.second : 0.0;
         myfile << std::setw(10) << std::hex << detId << std::setw(10) << std::dec << zside * ieta << std::setw(10)
-               << depth << std::setw(10) << itr->second.first << " " << std::setw(10) << itr->second.second
-               << std::endl;
-        std::cout << itr->second.first << ",";
+               << depth << std::setw(10) << corrf << " " << std::setw(10) << dcorr << std::endl;
+        std::cout << corrf << ",";
       }
     }
     myfile.close();
@@ -1336,10 +1372,10 @@ void CalibTree::makeplots(
       else if ((oddEven > 0) && (jentry % 2 != 0))
         continue;
     }
-    bool select = ((cDuplicate_ != nullptr) && (duplicate_ == 0)) ? (cDuplicate_->isDuplicate(jentry)) : true;
+    bool select = ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(0))) ? (cDuplicate_->isDuplicate(jentry)) : true;
     if (!select)
       continue;
-    if (cDuplicate_ != nullptr) {
+    if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(2))) {
       select = !(cDuplicate_->select(t_ieta, t_iphi));
       if (!select)
         continue;
@@ -1463,7 +1499,7 @@ CalibTree::energyCalor CalibTree::energyHcal(double pmom, const Long64_t &entry,
     etot = etot2 = 0;
     for (unsigned int idet = 0; idet < (*t_DetIds).size(); idet++) {
       // Apply thresholds if necessary
-      bool okcell = (thrForm_ == 0) || ((*t_HitEnergies)[idet] > threshold((*t_DetIds)[idet], thrForm_));
+      bool okcell = (thrForm_ == 0) || ((*t_HitEnergies)[idet] > (cThr_->threshold((*t_DetIds)[idet])));
       if (okcell && selectPhi((*t_DetIds)[idet])) {
         unsigned int id = (*t_DetIds)[idet];
         double hitEn(0);
@@ -1474,8 +1510,13 @@ CalibTree::energyCalor CalibTree::energyHcal(double pmom, const Long64_t &entry,
           hitEn = (*t_HitEnergies)[idet];
         if ((rcorForm_ != 3) && (rcorForm_ >= 0) && (cFactor_))
           hitEn *= cFactor_->getCorr(t_Run, id);
-        if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
+        if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(1)))
           hitEn *= cDuplicate_->getWeight(id);
+        if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(3))) {
+          int subdet, zside, ieta, iphi, depth;
+          unpackDetId((*t_DetIds)[idet], subdet, zside, ieta, iphi, depth);
+          hitEn *= cDuplicate_->getCorr(t_Run, ieta, depth);
+        }
         etot += hitEn;
         etot2 += ((*t_HitEnergies)[idet]);
       }
@@ -1485,7 +1526,7 @@ CalibTree::energyCalor CalibTree::energyHcal(double pmom, const Long64_t &entry,
     if (t_DetIds1 != 0 && t_DetIds3 != 0) {
       for (unsigned int idet = 0; idet < (*t_DetIds1).size(); idet++) {
         // Apply thresholds if necessary
-        bool okcell = (thrForm_ == 0) || ((*t_HitEnergies1)[idet] > threshold((*t_DetIds1)[idet], thrForm_));
+        bool okcell = (thrForm_ == 0) || ((*t_HitEnergies1)[idet] > (cThr_->threshold((*t_DetIds1)[idet])));
         if (okcell && selectPhi((*t_DetIds1)[idet])) {
           unsigned int id = (*t_DetIds1)[idet];
           unsigned int detid = truncateId(id, truncateFlag_, false);
@@ -1496,14 +1537,19 @@ CalibTree::energyCalor CalibTree::energyHcal(double pmom, const Long64_t &entry,
             hitEn = (*t_HitEnergies1)[idet];
           if ((rcorForm_ != 3) && (rcorForm_ >= 0) && (cFactor_))
             hitEn *= cFactor_->getCorr(t_Run, id);
-          if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
+          if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(1)))
             hitEn *= cDuplicate_->getWeight(id);
+          if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(3))) {
+            int subdet, zside, ieta, iphi, depth;
+            unpackDetId((*t_DetIds1)[idet], subdet, zside, ieta, iphi, depth);
+            hitEn *= cDuplicate_->getCorr(t_Run, ieta, depth);
+          }
           etot1 += hitEn;
         }
       }
       for (unsigned int idet = 0; idet < (*t_DetIds3).size(); idet++) {
         // Apply thresholds if necessary
-        bool okcell = (thrForm_ == 0) || ((*t_HitEnergies3)[idet] > threshold((*t_DetIds3)[idet], thrForm_));
+        bool okcell = (thrForm_ == 0) || ((*t_HitEnergies3)[idet] > (cThr_->threshold((*t_DetIds3)[idet])));
         if (okcell && selectPhi((*t_DetIds3)[idet])) {
           unsigned int id = (*t_DetIds3)[idet];
           unsigned int detid = truncateId(id, truncateFlag_, false);
@@ -1514,8 +1560,13 @@ CalibTree::energyCalor CalibTree::energyHcal(double pmom, const Long64_t &entry,
             hitEn = (*t_HitEnergies3)[idet];
           if ((rcorForm_ != 3) && (rcorForm_ >= 0) && (cFactor_))
             hitEn *= cFactor_->getCorr(t_Run, id);
-          if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
+          if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(1)))
             hitEn *= cDuplicate_->getWeight(id);
+          if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr(3))) {
+            int subdet, zside, ieta, iphi, depth;
+            unpackDetId((*t_DetIds3)[idet], subdet, zside, ieta, iphi, depth);
+            hitEn *= cDuplicate_->getCorr(t_Run, ieta, depth);
+          }
           etot3 += hitEn;
         }
       }

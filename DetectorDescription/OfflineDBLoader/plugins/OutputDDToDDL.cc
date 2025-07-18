@@ -168,8 +168,8 @@ void OutputDDToDDL::beginRun(const edm::Run&, edm::EventSetup const& es) {
         rotStore.insert(gra.edgeData(cit->second)->ddrot());
         out.position(ddLP, ddcurLP, gra.edgeData(cit->second), m_rotNumSeed, *m_xos);
       }  // iterate over children
-    }    // if (children)
-  }      // iterate over graph nodes
+    }  // if (children)
+  }  // iterate over graph nodes
 
   (*m_xos) << "</PosPartSection>" << std::endl;
 

@@ -1,19 +1,53 @@
-#include "RecoTracker/TrackProducer/plugins/TrackProducer.h"
+/** \class TrackProducer
+ *  Produce Tracks from TrackCandidates
+ *
+ *  \author cerati
+ */
+
 // system include files
 #include <memory>
+
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "RecoTracker/TrackProducer/interface/KfTrackProducerBase.h"
+#include "RecoTracker/TrackProducer/interface/TrackProducerAlgorithm.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+
+class TrackProducer : public KfTrackProducerBase, public edm::stream::EDProducer<> {
+public:
+  /// Constructor
+  explicit TrackProducer(const edm::ParameterSet& iConfig);
+
+  /// Implementation of produce method
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+  /// Get Transient Tracks
+  std::vector<reco::TransientTrack> getTransient(edm::Event&, const edm::EventSetup&);
+
+  //   /// Put produced collections in the event
+  //   virtual void putInEvt(edm::Event&,
+  // 			std::unique_ptr<TrackingRecHitCollection>&,
+  // 			std::unique_ptr<TrackCollection>&,
+  // 			std::unique_ptr<reco::TrackExtraCollection>&,
+  // 			std::unique_ptr<std::vector<Trajectory> >&,
+  // 			AlgoProductCollection&);
+
+  /// fillDescriptions
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  TrackProducerAlgorithm<reco::Track> theAlgo;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> theTTopoToken;
+};
 
 TrackProducer::TrackProducer(const edm::ParameterSet& iConfig)
     : KfTrackProducerBase(iConfig.getParameter<bool>("TrajectoryInEvent"),
@@ -24,11 +58,9 @@ TrackProducer::TrackProducer(const edm::ParameterSet& iConfig)
       iConfig, consumesCollector(), consumes<TrackCandidateCollection>(iConfig.getParameter<edm::InputTag>("src")));
   setAlias(iConfig.getParameter<std::string>("@module_label"));
 
-  if (iConfig.exists("clusterRemovalInfo")) {
-    edm::InputTag tag = iConfig.getParameter<edm::InputTag>("clusterRemovalInfo");
-    if (!(tag == edm::InputTag())) {
-      setClusterRemovalInfo(tag);
-    }
+  edm::InputTag tag = iConfig.getParameter<edm::InputTag>("clusterRemovalInfo");
+  if (!(tag == edm::InputTag())) {
+    setClusterRemovalInfo(tag);
   }
 
   //register your products
@@ -41,6 +73,17 @@ TrackProducer::TrackProducer(const edm::ParameterSet& iConfig)
   produces<std::vector<Trajectory> >();
   produces<std::vector<int> >();
   produces<TrajTrackAssociationCollection>();
+}
+
+void TrackProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("TrajectoryInEvent", false);
+  desc.add<bool>("useHitsSplitting", false);
+  desc.add<edm::InputTag>("src", edm::InputTag("ckfTrackCandidates"));
+  desc.add<edm::InputTag>("clusterRemovalInfo", edm::InputTag(""));
+  TrackProducerAlgorithm<reco::Track>::fillPSetDescription(desc);
+  KfTrackProducerBase::fillPSetDescription(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup) {
@@ -170,3 +213,6 @@ std::vector<reco::TransientTrack> TrackProducer::getTransient(edm::Event& theEve
 
   return ttks;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(TrackProducer);

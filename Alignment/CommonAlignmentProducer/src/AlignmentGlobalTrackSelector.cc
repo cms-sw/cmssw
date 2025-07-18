@@ -61,6 +61,27 @@ AlignmentGlobalTrackSelector::AlignmentGlobalTrackSelector(const edm::ParameterS
   }
 }
 
+void AlignmentGlobalTrackSelector::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  // Global muon finding
+  desc.add<bool>("applyGlobalMuonFilter", false);
+  desc.add<edm::InputTag>("muonSource", edm::InputTag("muons"));
+  desc.add<double>("maxTrackDeltaR", 0.001);
+  desc.add<int>("minGlobalMuonCount", 1);
+
+  // Isolation tests
+  desc.add<bool>("applyIsolationtest", false);
+  desc.add<edm::InputTag>("jetIsoSource", edm::InputTag("kt6CaloJets"));
+  desc.add<double>("maxJetPt", 40.0);  // GeV
+  desc.add<double>("minJetDeltaR", 0.2);
+  desc.add<int>("minIsolatedCount", 0);
+
+  // Jet count filter
+  desc.add<bool>("applyJetCountFilter", false);
+  desc.add<edm::InputTag>("jetCountSource", edm::InputTag("kt6CaloJets"));
+  desc.add<double>("minJetPt", 40.0);  // GeV
+  desc.add<int>("maxJetCount", 3);
+}
+
 // destructor -----------------------------------------------------------------
 AlignmentGlobalTrackSelector::~AlignmentGlobalTrackSelector() {}
 

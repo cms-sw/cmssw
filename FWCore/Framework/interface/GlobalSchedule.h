@@ -1,9 +1,6 @@
 #ifndef FWCore_Framework_GlobalSchedule_h
 #define FWCore_Framework_GlobalSchedule_h
 
-/*
-*/
-
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -16,10 +13,11 @@
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/WorkerManager.h"
 #include "FWCore/Framework/interface/maker/Worker.h"
-#include "FWCore/Framework/interface/WorkerRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/BranchType.h"
@@ -41,9 +39,7 @@
 
 namespace edm {
 
-  class ActivityRegistry;
   class ExceptionCollector;
-  class ProcessContext;
   class PreallocationConfiguration;
   class ModuleRegistry;
   class TriggerResultInserter;
@@ -63,7 +59,7 @@ namespace edm {
                    std::shared_ptr<ModuleRegistry> modReg,
                    std::vector<std::string> const& modulesToUse,
                    ParameterSet& proc_pset,
-                   ProductRegistry& pregistry,
+                   SignallingProductRegistryFiller& pregistry,
                    PreallocationConfiguration const& prealloc,
                    ExceptionToActionTable const& actions,
                    std::shared_ptr<ActivityRegistry> areg,
@@ -77,10 +73,8 @@ namespace edm {
                                ServiceToken const& token,
                                bool cleaningUpAfterException = false);
 
-    void beginJob(ProductRegistry const&,
-                  eventsetup::ESRecordsToProductResolverIndices const&,
-                  ProcessBlockHelperBase const&);
-    void endJob(ExceptionCollector& collector);
+    void beginJob(ModuleRegistry&);
+    void endJob(ExceptionCollector& collector, ModuleRegistry&);
 
     /// Return a vector allowing const access to all the
     /// ModuleDescriptions for this GlobalSchedule.
@@ -103,6 +97,9 @@ namespace edm {
     AllWorkers const& allWorkers() const { return workerManagers_[0].allWorkers(); }
 
   private:
+    /// returns the action table
+    ExceptionToActionTable const& actionTable() const { return workerManagers_[0].actionTable(); }
+
     template <typename T>
     void preScheduleSignal(GlobalContext const*, ServiceToken const&);
 
@@ -114,14 +111,18 @@ namespace edm {
                          bool cleaningUpAfterException,
                          std::exception_ptr&);
 
-    /// returns the action table
-    ExceptionToActionTable const& actionTable() const { return workerManagers_[0].actionTable(); }
-
     std::vector<WorkerManager> workerManagers_;
+    std::vector<unsigned int> beginJobFailedForModule_;
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
     std::vector<edm::propagate_const<WorkerPtr>> extraWorkers_;
     ProcessContext const* processContext_;
+
+    // The next 3 variables use the same naming convention, even though we have no intention
+    // to ever have concurrent ProcessBlocks. They are all related to the number of
+    // WorkerManagers needed for global transitions.
     unsigned int numberOfConcurrentLumis_;
+    unsigned int numberOfConcurrentRuns_;
+    static constexpr unsigned int numberOfConcurrentProcessBlocks_ = 1;
   };
 
   template <typename T>
@@ -158,6 +159,8 @@ namespace edm {
         unsigned int managerIndex = principal.index();
         if constexpr (T::branchType_ == InRun) {
           managerIndex += numberOfConcurrentLumis_;
+        } else if constexpr (T::branchType_ == InProcess) {
+          managerIndex += (numberOfConcurrentLumis_ + numberOfConcurrentRuns_);
         }
         WorkerManager& workerManager = workerManagers_[managerIndex];
         workerManager.resetAll();
@@ -187,10 +190,7 @@ namespace edm {
         ServiceRegistry::Operate op(token);
         convertException::wrap([this, globalContext]() { T::preScheduleSignal(actReg_.get(), globalContext); });
       } catch (cms::Exception& ex) {
-        std::ostringstream ost;
-        ex.addContext("Handling pre signal, likely in a service function");
-        exceptionContext(ost, *globalContext);
-        ex.addContext(ost.str());
+        exceptionContext(ex, *globalContext, "Handling pre signal, likely in a service function");
         throw;
       }
     }
@@ -208,10 +208,7 @@ namespace edm {
         });
       } catch (cms::Exception& ex) {
         if (not excpt) {
-          std::ostringstream ost;
-          ex.addContext("Handling post signal, likely in a service function");
-          exceptionContext(ost, *globalContext);
-          ex.addContext(ost.str());
+          exceptionContext(ex, *globalContext, "Handling post signal, likely in a service function");
           excpt = std::current_exception();
         }
       }

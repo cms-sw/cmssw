@@ -9,7 +9,7 @@ using namespace magfieldparam;
 
 //_______________________________________________________________________________
 void BFit3D::SetCoeff_Linear(const double B) {
-  unsigned jj, kk = 1;
+  unsigned jj;
   double w_0, w_1, B_mod = fabs(B);
   if (B_mod <= B_nom[0]) {
     w_0 = B / B_nom[0];
@@ -22,6 +22,8 @@ void BFit3D::SetCoeff_Linear(const double B) {
       C[jj] = w_0 * C0[jj][3];
     }
   } else {
+    unsigned kk = 1;
+    [[clang::suppress]]
     while (B_nom[kk] < B_mod)
       ++kk;  //Simple linear search
     w_1 = (B_mod - B_nom[kk - 1]) / (B_nom[kk] - B_nom[kk - 1]);
@@ -38,7 +40,7 @@ void BFit3D::SetCoeff_Linear(const double B) {
 
 //_______________________________________________________________________________
 void BFit3D::SetCoeff_Spline(const double B) {
-  int jc, k0 = 0, k1 = 1;
+  int jc;
   double dB2, dB = fabs(B);
   if (dB >= B_nom[3]) {  //Linear extrapolation for a large field
     dB -= B_nom[3];
@@ -50,9 +52,11 @@ void BFit3D::SetCoeff_Spline(const double B) {
       for (jc = 0; jc < 360; ++jc)
         C[jc] = (C2[jc][0] * dB2 + C1[jc][0]) * dB;
     } else {
+      int k1 = 1;
+      [[clang::suppress]]
       while (B_nom[k1] < dB)
         ++k1;  //Simple linear search
-      k0 = k1 - 1;
+      int k0 = k1 - 1;
       dB2 = (dB -= B_nom[k0]) / (3. * (B_nom[k1] - B_nom[k0]));
       if (k1 < 3) {  //"Regular" interval
         for (jc = 0; jc < 360; ++jc)

@@ -92,7 +92,7 @@ compare_files $TABLES_AREA/online_Circulating.txt  $TABLES_AREA/Special.txt  || 
 compare_files $TABLES_AREA/online_PPS.txt $TABLES_AREA/Special.txt  || die "Failure comparing online_PPS and Special" $?
 compare_files $TABLES_AREA/online_LumiScan.txt $TABLES_AREA/Special.txt  || die "Failure comparing online_LumiScan and Special" $?
 compare_files $TABLES_AREA/online_FirstCollisions.txt $TABLES_AREA/Special.txt  || die "Failure comparing online_FirstCollisions and Special" $?
-compare_files $TABLES_AREA/online_ECALTiming.txt $TABLES_AREA/Special.txt  || die "Failure comparing online_ECALTiming and Special" $?
+compare_files $TABLES_AREA/online_ECAL.txt $TABLES_AREA/Special.txt  || die "Failure comparing online_ECAL and Special" $?
 compare_files $TABLES_AREA/online_Cosmics.txt $TABLES_AREA/Special.txt  || die "Failure comparing online_Cosmics and Special" $?
 compare_files $TABLES_AREA/online_TrackerVR.txt $TABLES_AREA/Special.txt  || die "Failure comparing online_TrackerVR and Special" $?
 compare_files $TABLES_AREA/online_Splashes.txt $TABLES_AREA/Special.txt  || die "Failure comparing online_Splashes and Special" $?

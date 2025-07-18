@@ -11,21 +11,19 @@
 //
 
 // system include files
-#include <array>
 #include <algorithm>
-#include <cassert>
 #include <cstring>
 #include <set>
-#include <utility>
+#include <string_view>
 
 // user include files
+#include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
-#include "FWCore/Framework/interface/ModuleProcessName.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/BranchType.h"
+#include "FWCore/ServiceRegistry/interface/ModuleConsumesInfo.h"
 #include "FWCore/Utilities/interface/Likely.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
@@ -38,7 +36,10 @@ namespace {
 }  // namespace
 
 EDConsumerBase::EDConsumerBase()
-    : m_tokenLabels{makeEmptyTokenLabels()}, frozen_(false), containsCurrentProcessAlias_(false) {}
+    : m_tokenLabels{makeEmptyTokenLabels()},
+      esDataThatCanBeDeletedEarly_(std::make_unique<ESDataThatCanBeDeletedEarly>()),
+      frozen_(false),
+      containsCurrentProcessAlias_(false) {}
 
 EDConsumerBase::~EDConsumerBase() noexcept(false) {}
 
@@ -151,30 +152,34 @@ void EDConsumerBase::updateLookup(eventsetup::ESRecordsToProductResolverIndices 
   frozen_ = true;
 
   unsigned int index = 0;
-  for (auto it = m_esTokenInfo.begin<kESLookupInfo>(); it != m_esTokenInfo.end<kESLookupInfo>(); ++it, ++index) {
+  for (auto it = esTokenLookupInfoContainer().begin<kESLookupInfo>();
+       it != esTokenLookupInfoContainer().end<kESLookupInfo>();
+       ++it, ++index) {
     auto indexInRecord = iPI.indexInRecord(it->m_record, it->m_key);
-    if (indexInRecord != eventsetup::ESRecordsToProductResolverIndices::missingResolverIndex()) {
+    if (indexInRecord != ESResolverIndex::noResolverConfigured()) {
       const char* componentName = &(m_tokenLabels[it->m_startOfComponentName]);
       if (*componentName) {
         auto component = iPI.component(it->m_record, it->m_key);
         if (component->label_.empty()) {
           if (component->type_ != componentName) {
-            indexInRecord = eventsetup::ESRecordsToProductResolverIndices::missingResolverIndex();
+            indexInRecord = ESResolverIndex::moduleLabelDoesNotMatch();
           }
         } else if (component->label_ != componentName) {
-          indexInRecord = eventsetup::ESRecordsToProductResolverIndices::missingResolverIndex();
+          indexInRecord = ESResolverIndex::moduleLabelDoesNotMatch();
         }
       }
     }
-    m_esTokenInfo.get<kESResolverIndex>(index) = indexInRecord;
+    esDataThatCanBeDeletedEarly_->esTokenLookupInfoContainer_.get<kESResolverIndex>(index) = indexInRecord;
 
     int negIndex = -1 * (index + 1);
     for (auto& items : esItemsToGetFromTransition_) {
       for (auto& itemIndex : items) {
         if (itemIndex.value() == negIndex) {
           itemIndex = indexInRecord;
-          esRecordsToGetFromTransition_[&items - &esItemsToGetFromTransition_.front()][&itemIndex - &items.front()] =
-              iPI.recordIndexFor(it->m_record);
+          ESResolverIndexContainer::size_type transitionIndex = &items - &esItemsToGetFromTransition_.front();
+          std::vector<ESResolverIndex>::size_type indexToItemInTransition = &itemIndex - &items.front();
+          esRecordsToGetFromTransition_[transitionIndex][indexToItemInTransition] = iPI.recordIndexFor(it->m_record);
+          esDataThatCanBeDeletedEarly_->consumesIndexConverter_.emplace_back(transitionIndex, indexToItemInTransition);
           negIndex = 1;
           break;
         }
@@ -186,10 +191,13 @@ void EDConsumerBase::updateLookup(eventsetup::ESRecordsToProductResolverIndices 
   }
 }
 
-ESTokenIndex EDConsumerBase::recordESConsumes(Transition iTrans,
-                                              eventsetup::EventSetupRecordKey const& iRecord,
-                                              eventsetup::heterocontainer::HCTypeTag const& iDataType,
-                                              edm::ESInputTag const& iTag) {
+void EDConsumerBase::releaseMemoryPostLookupSignal() { esDataThatCanBeDeletedEarly_.reset(); }
+
+std::tuple<ESTokenIndex, char const*> EDConsumerBase::recordESConsumes(
+    Transition iTrans,
+    eventsetup::EventSetupRecordKey const& iRecord,
+    eventsetup::heterocontainer::HCTypeTag const& iDataType,
+    edm::ESInputTag const& iTag) {
   if (frozen_) {
     throwESConsumesCallAfterFrozen(iRecord, iDataType, iTag);
   }
@@ -208,8 +216,8 @@ ESTokenIndex EDConsumerBase::recordESConsumes(Transition iTrans,
     }
   }
 
-  auto index = static_cast<ESResolverIndex::Value_t>(m_esTokenInfo.size());
-  m_esTokenInfo.emplace_back(
+  auto index = static_cast<ESResolverIndex::Value_t>(esTokenLookupInfoContainer().size());
+  esDataThatCanBeDeletedEarly_->esTokenLookupInfoContainer_.emplace_back(
       ESTokenLookupInfo{iRecord, eventsetup::DataKey{iDataType, iTag.data().c_str()}, startOfComponentName},
       ESResolverIndex{-1});
   if (iTrans >= edm::Transition::NumberOfEventSetupTransitions) {
@@ -218,7 +226,8 @@ ESTokenIndex EDConsumerBase::recordESConsumes(Transition iTrans,
   auto indexForToken = esItemsToGetFromTransition_[static_cast<unsigned int>(iTrans)].size();
   esItemsToGetFromTransition_[static_cast<unsigned int>(iTrans)].emplace_back(-1 * (index + 1));
   esRecordsToGetFromTransition_[static_cast<unsigned int>(iTrans)].emplace_back();
-  return ESTokenIndex{static_cast<ESTokenIndex::Value_t>(indexForToken)};
+  return {ESTokenIndex{static_cast<ESTokenIndex::Value_t>(indexForToken)},
+          esTokenLookupInfoContainer().get<kESLookupInfo>(index).m_key.name().value()};
 }
 
 //
@@ -383,141 +392,6 @@ void EDConsumerBase::throwESConsumesInProcessBlock() const {
 
 void EDConsumerBase::doSelectInputProcessBlocks(ProductRegistry const&, ProcessBlockHelperBase const&) {}
 
-namespace {
-  struct CharStarComp {
-    bool operator()(const char* iLHS, const char* iRHS) const { return strcmp(iLHS, iRHS) < 0; }
-  };
-}  // namespace
-
-namespace {
-  void insertFoundModuleLabel(edm::KindOfType consumedTypeKind,
-                              edm::TypeID consumedType,
-                              const char* consumedModuleLabel,
-                              const char* consumedProductInstance,
-                              std::vector<ModuleDescription const*>& modules,
-                              std::set<std::string>& alreadyFound,
-                              std::map<std::string, ModuleDescription const*> const& labelsToDesc,
-                              ProductRegistry const& preg) {
-    // Convert from label string to module description, eliminate duplicates,
-    // then insert into the vector of modules
-    if (auto it = labelsToDesc.find(consumedModuleLabel); it != labelsToDesc.end()) {
-      if (alreadyFound.insert(consumedModuleLabel).second) {
-        modules.push_back(it->second);
-      }
-      return;
-    }
-    // Deal with EDAlias's by converting to the original module label first
-    if (auto aliasToModuleLabels =
-            preg.aliasToModules(consumedTypeKind, consumedType, consumedModuleLabel, consumedProductInstance);
-        not aliasToModuleLabels.empty()) {
-      bool foundInLabelsToDesc = false;
-      for (auto const& label : aliasToModuleLabels) {
-        if (auto it = labelsToDesc.find(label); it != labelsToDesc.end()) {
-          if (alreadyFound.insert(label).second) {
-            modules.push_back(it->second);
-          }
-          foundInLabelsToDesc = true;
-        } else {
-          if (label == "source") {
-            foundInLabelsToDesc = true;
-          }
-        }
-      }
-      if (foundInLabelsToDesc) {
-        return;
-      }
-    }
-    // Ignore the source products, we are only interested in module products.
-    // As far as I know, it should never be anything else so throw if something
-    // unknown gets passed in.
-    if (std::string_view(consumedModuleLabel) != "source") {
-      throw cms::Exception("EDConsumerBase", "insertFoundModuleLabel")
-          << "Couldn't find ModuleDescription for the consumed product type: '" << consumedType.className()
-          << "' module label: '" << consumedModuleLabel << "' product instance name: '" << consumedProductInstance
-          << "'";
-    }
-  }
-}  // namespace
-
-void EDConsumerBase::modulesWhoseProductsAreConsumed(
-    std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modulesAll,
-    std::vector<ModuleProcessName>& modulesInPreviousProcesses,
-    ProductRegistry const& preg,
-    std::map<std::string, ModuleDescription const*> const& labelsToDesc,
-    std::string const& processName) const {
-  std::set<std::string> alreadyFound;
-
-  auto modulesInPreviousProcessesEmplace = [&modulesInPreviousProcesses](std::string_view module,
-                                                                         std::string_view process) {
-    auto it = std::lower_bound(
-        modulesInPreviousProcesses.begin(), modulesInPreviousProcesses.end(), ModuleProcessName(module, process));
-    modulesInPreviousProcesses.emplace(it, module, process);
-  };
-
-  auto itKind = m_tokenInfo.begin<kKind>();
-  auto itLabels = m_tokenInfo.begin<kLabels>();
-  for (auto itInfo = m_tokenInfo.begin<kLookupInfo>(), itEnd = m_tokenInfo.end<kLookupInfo>(); itInfo != itEnd;
-       ++itInfo, ++itKind, ++itLabels) {
-    ProductResolverIndexHelper const& helper = *preg.productLookup(itInfo->m_branchType);
-    std::vector<ModuleDescription const*>& modules = *modulesAll[itInfo->m_branchType];
-
-    const unsigned int labelStart = itLabels->m_startOfModuleLabel;
-    const char* const consumedModuleLabel = &(m_tokenLabels[labelStart]);
-    const char* const consumedProductInstance = consumedModuleLabel + itLabels->m_deltaToProductInstance;
-    const char* const consumedProcessName = consumedModuleLabel + itLabels->m_deltaToProcessName;
-
-    if (not itInfo->m_index.skipCurrentProcess()) {
-      assert(*consumedModuleLabel != '\0');  // consumesMany used to create empty labels before we removed consumesMany
-      if (*consumedProcessName != '\0') {    // process name is specified in consumes call
-        if (helper.index(*itKind, itInfo->m_type, consumedModuleLabel, consumedProductInstance, consumedProcessName) !=
-            ProductResolverIndexInvalid) {
-          if (processName == consumedProcessName) {
-            insertFoundModuleLabel(*itKind,
-                                   itInfo->m_type,
-                                   consumedModuleLabel,
-                                   consumedProductInstance,
-                                   modules,
-                                   alreadyFound,
-                                   labelsToDesc,
-                                   preg);
-          } else {
-            // Product explicitly from different process than the current process, so must refer to an earlier process (unless it ends up "not found")
-            modulesInPreviousProcessesEmplace(consumedModuleLabel, consumedProcessName);
-          }
-        }
-      } else {  // process name was empty
-        auto matches = helper.relatedIndexes(*itKind, itInfo->m_type, consumedModuleLabel, consumedProductInstance);
-        for (unsigned int j = 0; j < matches.numberOfMatches(); ++j) {
-          if (processName == matches.processName(j)) {
-            insertFoundModuleLabel(*itKind,
-                                   itInfo->m_type,
-                                   consumedModuleLabel,
-                                   consumedProductInstance,
-                                   modules,
-                                   alreadyFound,
-                                   labelsToDesc,
-                                   preg);
-          } else {
-            // Product did not match to current process, so must refer to an earlier process (unless it ends up "not found")
-            // Recall that empty process name means "in the latest process" that can change event-by-event
-            modulesInPreviousProcessesEmplace(consumedModuleLabel, matches.processName(j));
-          }
-        }
-      }
-    } else {
-      // The skipCurrentProcess means the same as empty process name,
-      // except the current process is skipped. Therefore need to do
-      // the same matching as above.
-      auto matches = helper.relatedIndexes(*itKind, itInfo->m_type, consumedModuleLabel, consumedProductInstance);
-      for (unsigned int j = 0; j < matches.numberOfMatches(); ++j) {
-        if (processName != matches.processName(j)) {
-          modulesInPreviousProcessesEmplace(matches.moduleLabel(j), matches.processName(j));
-        }
-      }
-    }
-  }
-}
-
 void EDConsumerBase::convertCurrentProcessAlias(std::string const& processName) {
   frozen_ = true;
 
@@ -564,33 +438,19 @@ void EDConsumerBase::convertCurrentProcessAlias(std::string const& processName) 
   }
 }
 
-std::vector<ConsumesInfo> EDConsumerBase::consumesInfo() const {
-  std::vector<ConsumesInfo> result;
-  auto itAlways = m_tokenInfo.begin<kAlwaysGets>();
-  auto itKind = m_tokenInfo.begin<kKind>();
-  auto itLabels = m_tokenInfo.begin<kLabels>();
-  for (auto itInfo = m_tokenInfo.begin<kLookupInfo>(), itEnd = m_tokenInfo.end<kLookupInfo>(); itInfo != itEnd;
-       ++itInfo, ++itKind, ++itLabels, ++itAlways) {
-    const unsigned int labelStart = itLabels->m_startOfModuleLabel;
-    const char* consumedModuleLabel = &(m_tokenLabels[labelStart]);
-    const char* consumedInstance = consumedModuleLabel + itLabels->m_deltaToProductInstance;
-    const char* consumedProcessName = consumedModuleLabel + itLabels->m_deltaToProcessName;
-
-    assert(*consumedModuleLabel != '\0');
-
-    // Just copy the information into the ConsumesInfo data structure
-    result.emplace_back(itInfo->m_type,
-                        consumedModuleLabel,
-                        consumedInstance,
-                        consumedProcessName,
-                        itInfo->m_branchType,
-                        *itKind,
-                        *itAlways,
-                        itInfo->m_index.skipCurrentProcess());
-  }
+std::vector<ModuleConsumesInfo> EDConsumerBase::moduleConsumesInfos() const {
+  std::vector<ModuleConsumesInfo> result;
+  result.reserve(m_tokenInfo.size());
+  consumedProducts([&](ModuleConsumesInfo const& info) {
+    assert(not info.label().empty());
+    result.push_back(info);
+  });
   return result;
 }
 
-const char* EDConsumerBase::labelFor(ESTokenIndex iIndex) const {
-  return m_esTokenInfo.get<kESLookupInfo>(iIndex.value()).m_key.name().value();
+std::vector<ModuleConsumesMinimalESInfo> EDConsumerBase::moduleConsumesMinimalESInfos() const {
+  std::vector<ModuleConsumesMinimalESInfo> result;
+  result.reserve(esTokenLookupInfoContainer().size());
+  consumedESProducts([&](ModuleConsumesMinimalESInfo&& minInfo) mutable { result.emplace_back(std::move(minInfo)); });
+  return result;
 }

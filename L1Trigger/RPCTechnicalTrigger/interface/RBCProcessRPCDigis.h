@@ -55,8 +55,8 @@ public:
 
   RPCInputSignal *retrievedata() override { return m_lbin.get(); };
 
-  void rewind(){};
-  void showfirst(){};
+  void rewind() {}
+  void showfirst() {}
 
 protected:
 private:

@@ -3,7 +3,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
@@ -17,6 +19,8 @@ public:
   ///Destructor
   ~LightPFTrackProducer() override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void endRun(const edm::Run&, const edm::EventSetup&) override;
@@ -26,7 +30,7 @@ private:
 
   ///PFTrackTransformer
   PFTrackTransformer* pfTransformer_;
-  std::vector<edm::EDGetTokenT<reco::TrackCollection> > tracksContainers_;
+  std::vector<edm::EDGetTokenT<reco::TrackCollection>> tracksContainers_;
 
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
   ///TRACK QUALITY
@@ -37,13 +41,22 @@ private:
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(LightPFTrackProducer);
 
+void LightPFTrackProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("TrackQuality", "highPurity");
+  desc.add<bool>("UseQuality", true);
+  desc.add<std::vector<edm::InputTag>>(
+      "TkColList", {edm::InputTag("generalTracks"), edm::InputTag("secStep"), edm::InputTag("thStep")});
+  descriptions.add("lightpftrack", desc);
+}
+
 using namespace std;
 using namespace edm;
 LightPFTrackProducer::LightPFTrackProducer(const ParameterSet& iConfig)
     : pfTransformer_(nullptr), magneticFieldToken_(esConsumes<edm::Transition::BeginRun>()) {
   produces<reco::PFRecTrackCollection>();
 
-  std::vector<InputTag> tags = iConfig.getParameter<vector<InputTag> >("TkColList");
+  std::vector<InputTag> tags = iConfig.getParameter<vector<InputTag>>("TkColList");
 
   for (unsigned int i = 0; i < tags.size(); ++i)
     tracksContainers_.push_back(consumes<reco::TrackCollection>(tags[i]));

@@ -22,6 +22,7 @@
 #include "CondCore/ESSources/interface/ProductResolver.h"
 
 #include "CondCore/CondDB/interface/PayloadProxy.h"
+#include "FWCore/Framework/interface/ESModuleProducesInfo.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -29,6 +30,7 @@
 #include <exception>
 
 #include <iomanip>
+#include <limits>
 
 #include <nlohmann/json.hpp>
 
@@ -123,8 +125,11 @@ namespace {
 CondDBESSource::CondDBESSource(const edm::ParameterSet& iConfig)
     : m_jsonDumpFilename(iConfig.getUntrackedParameter<std::string>("JsonDumpFileName", "")),
       m_connection(),
-      m_connectionString(""),
-      m_frontierKey(""),
+      m_connectionString(iConfig.getParameter<std::string>("connect")),
+      m_globalTag(iConfig.getParameter<std::string>("globaltag")),
+      m_frontierKey(iConfig.getUntrackedParameter<std::string>("frontierKey", "")),
+      m_recordsToDebug(
+          iConfig.getUntrackedParameter<std::vector<std::string>>("recordsToDebug", std::vector<std::string>())),
       m_lastRun(0),   // for the stat
       m_lastLumi(0),  // for the stat
       m_policy(NOREFRESH),
@@ -147,69 +152,65 @@ CondDBESSource::CondDBESSource(const edm::ParameterSet& iConfig)
 
   /*parameter set parsing
    */
-  std::string globaltag("");
-  if (iConfig.exists("globaltag")) {
-    globaltag = iConfig.getParameter<std::string>("globaltag");
-    // the global tag _requires_ a connection string
-    m_connectionString = iConfig.getParameter<std::string>("connect");
-
-    if (!globaltag.empty()) {
-      edm::Service<edm::SiteLocalConfig> siteLocalConfig;
-      if (siteLocalConfig.isAvailable()) {
-        if (siteLocalConfig->useLocalConnectString()) {
-          std::string const& localConnectPrefix = siteLocalConfig->localConnectPrefix();
-          std::string const& localConnectSuffix = siteLocalConfig->localConnectSuffix();
-          m_connectionString = localConnectPrefix + globaltag + localConnectSuffix;
-        }
+  if (!m_globalTag.empty()) {
+    edm::Service<edm::SiteLocalConfig> siteLocalConfig;
+    if (siteLocalConfig.isAvailable()) {
+      if (siteLocalConfig->useLocalConnectString()) {
+        std::string const& localConnectPrefix = siteLocalConfig->localConnectPrefix();
+        std::string const& localConnectSuffix = siteLocalConfig->localConnectSuffix();
+        m_connectionString = localConnectPrefix + m_globalTag + localConnectSuffix;
       }
     }
-  } else if (iConfig.exists("connect"))  // default connection string
-    m_connectionString = iConfig.getParameter<std::string>("connect");
-
-  // frontier key
-  m_frontierKey = iConfig.getUntrackedParameter<std::string>("frontierKey", "");
+  }
 
   // snapshot
   boost::posix_time::ptime snapshotTime;
-  if (iConfig.exists("snapshotTime")) {
-    std::string snapshotTimeString = iConfig.getParameter<std::string>("snapshotTime");
-    if (!snapshotTimeString.empty())
-      snapshotTime = boost::posix_time::time_from_string(snapshotTimeString);
+  std::string snapshotTimeString = iConfig.getParameter<std::string>("snapshotTime");
+  if (!snapshotTimeString.empty()) {
+    snapshotTime = boost::posix_time::time_from_string(snapshotTimeString);
   }
 
   // connection configuration
-  if (iConfig.exists("DBParameters")) {
-    edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>("DBParameters");
-    m_connection.setParameters(connectionPset);
-  }
+  edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>("DBParameters");
+  m_connection.setParameters(connectionPset);
   m_connection.configure();
 
   // load specific record/tag info - it will overwrite the global tag ( if any )
   std::map<std::string, cond::GTEntry_t> replacements;
   std::map<std::string, boost::posix_time::ptime> specialSnapshots;
-  if (iConfig.exists("toGet")) {
-    typedef std::vector<edm::ParameterSet> Parameters;
-    Parameters toGet = iConfig.getParameter<Parameters>("toGet");
+
+  typedef std::vector<edm::ParameterSet> Parameters;
+  Parameters toGet = iConfig.getParameter<Parameters>("toGet");
+  if (!toGet.empty()) {
     for (Parameters::iterator itToGet = toGet.begin(); itToGet != toGet.end(); ++itToGet) {
       std::string recordname = itToGet->getParameter<std::string>("record");
       if (recordname.empty())
         throw cond::Exception("ESSource: The record name has not been provided in a \"toGet\" entry.");
+
       std::string labelname = itToGet->getUntrackedParameter<std::string>("label", "");
       std::string pfn("");
-      if (m_connectionString.empty() || itToGet->exists("connect"))
-        pfn = itToGet->getParameter<std::string>("connect");
-      std::string tag("");
+      const auto& recordConnection = itToGet->getParameter<std::string>("connect");
+      if (m_connectionString.empty() || !recordConnection.empty()) {
+        pfn = recordConnection;
+      }
+      std::string tag = itToGet->getParameter<std::string>("tag");
       std::string fqTag("");
-      if (itToGet->exists("tag")) {
-        tag = itToGet->getParameter<std::string>("tag");
+
+      if (!tag.empty()) {
         fqTag = cond::persistency::fullyQualifiedTag(tag, pfn);
       }
+
       boost::posix_time::ptime tagSnapshotTime =
           boost::posix_time::time_from_string(std::string(cond::time::MAX_TIMESTAMP));
-      if (itToGet->exists("snapshotTime"))
-        tagSnapshotTime = boost::posix_time::time_from_string(itToGet->getParameter<std::string>("snapshotTime"));
-      if (itToGet->exists("refreshTime")) {
-        cond::Time_t refreshTime = itToGet->getParameter<unsigned long long>("refreshTime");
+
+      const auto& snapshotTimeTagString = itToGet->getParameter<std::string>("snapshotTime");
+      if (!snapshotTimeTagString.empty()) {
+        tagSnapshotTime = boost::posix_time::time_from_string(snapshotTimeTagString);
+      }
+
+      const auto& refreshTimeTag = itToGet->getParameter<unsigned long long>("refreshTime");
+      if (refreshTimeTag != std::numeric_limits<unsigned long long>::max()) {
+        cond::Time_t refreshTime = refreshTimeTag;
         m_refreshTimeForRecord.insert(std::make_pair(recordname, std::make_pair(refreshTime, true)));
       }
 
@@ -225,10 +226,10 @@ CondDBESSource::CondDBESSource(const edm::ParameterSet& iConfig)
   std::vector<std::string> connectList;
   std::vector<std::string> pfnPrefixList;
   std::vector<std::string> pfnPostfixList;
-  if (!globaltag.empty()) {
+  if (!m_globalTag.empty()) {
     std::string pfnPrefix(iConfig.getUntrackedParameter<std::string>("pfnPrefix", ""));
     std::string pfnPostfix(iConfig.getUntrackedParameter<std::string>("pfnPostfix", ""));
-    boost::split(globaltagList, globaltag, boost::is_any_of("|"), boost::token_compress_off);
+    boost::split(globaltagList, m_globalTag, boost::is_any_of("|"), boost::token_compress_off);
     fillList(m_connectionString, connectList, globaltagList.size(), "connection");
     fillList(pfnPrefix, pfnPrefixList, globaltagList.size(), "pfnPrefix");
     fillList(pfnPostfix, pfnPostfixList, globaltagList.size(), "pfnPostfix");
@@ -256,11 +257,20 @@ CondDBESSource::CondDBESSource(const edm::ParameterSet& iConfig)
    */
   std::vector<std::unique_ptr<cond::ProductResolverWrapperBase>> resolverWrappers(m_tagCollection.size());
   size_t ipb = 0;
+
   for (it = itBeg; it != itEnd; ++it) {
     size_t ind = ipb++;
     resolverWrappers[ind] = std::unique_ptr<cond::ProductResolverWrapperBase>{
         cond::ProductResolverFactory::get()->tryToCreate(buildName(it->second.recordName()))};
-    if (!resolverWrappers[ind].get()) {
+
+    if (resolverWrappers[ind].get()) {
+      // Enable debug if the record name is in m_recordsToDebug or if "*" is present, meaning debug for all records.
+      bool printDebug = std::find(m_recordsToDebug.begin(), m_recordsToDebug.end(), "*") != m_recordsToDebug.end() ||
+                        std::find(m_recordsToDebug.begin(), m_recordsToDebug.end(), it->second.recordName()) !=
+                            m_recordsToDebug.end();
+
+      resolverWrappers[ind]->setPrintDebug(printDebug);
+    } else {
       edm::LogWarning("CondDBESSource") << "Plugin for Record " << it->second.recordName() << " has not been found.";
     }
   }
@@ -320,10 +330,13 @@ CondDBESSource::CondDBESSource(const edm::ParameterSet& iConfig)
     (*b).second->proxy(0)->loadMore(visitor);
 
     /// required by eventsetup
-    EventSetupRecordKey recordKey(EventSetupRecordKey::TypeTag::findType((*b).first));
+    EventSetupRecordKey recordKey = b->second->recordKey();
     if (recordKey.type() != EventSetupRecordKey::TypeTag()) {
       findingRecordWithKey(recordKey);
       usingRecordWithKey(recordKey);
+    } else {
+      edm::LogWarning("CondDBESSource") << "Failed to load key for record " << b->first
+                                        << ". No data from this record will be available.";
     }
   }
 
@@ -636,6 +649,23 @@ edm::eventsetup::ESProductResolverProvider::KeyedResolversVector CondDBESSource:
   return keyedResolversVector;
 }
 
+std::vector<edm::eventsetup::ESModuleProducesInfo> CondDBESSource::producesInfo() const {
+  std::vector<edm::eventsetup::ESModuleProducesInfo> returnValue;
+  returnValue.reserve(m_resolvers.size());
+
+  for (auto const& recToResolver : m_resolvers) {
+    unsigned int index = returnValue.size();
+
+    EventSetupRecordKey rec{edm::eventsetup::TypeTag::findType(recToResolver.first)};
+
+    edm::eventsetup::TypeTag type = recToResolver.second->type();
+    DataKey key(type, edm::eventsetup::IdTags(recToResolver.second->label().c_str()));
+    returnValue.emplace_back(rec, key, index);
+  }
+
+  return returnValue;
+}
+
 void CondDBESSource::initConcurrentIOVs(const EventSetupRecordKey& key, unsigned int nConcurrentIOVs) {
   std::string recordname = key.name();
   ResolverMap::const_iterator b = m_resolvers.lower_bound(recordname);
@@ -736,6 +766,46 @@ void CondDBESSource::fillTagCollectionFromDB(const std::vector<std::string>& con
     }
     m_tagCollection.insert(*replacementIter);
   }
+}
+
+void CondDBESSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+
+  edm::ParameterSetDescription dbParams;
+  dbParams.addUntracked<std::string>("authenticationPath", "");
+  dbParams.addUntracked<int>("authenticationSystem", 0);
+  dbParams.addUntracked<std::string>("security", "");
+  dbParams.addUntracked<int>("messageLevel", 0);
+  dbParams.addUntracked<int>("connectionTimeout", 0);
+  desc.add("DBParameters", dbParams);
+
+  desc.add<std::string>("connect", std::string("frontier://FrontierProd/CMS_CONDITIONS"));
+  desc.add<std::string>("globaltag", "");
+  desc.add<std::string>("snapshotTime", "");
+  desc.addUntracked<std::string>("frontierKey", "");
+
+  edm::ParameterSetDescription toGetDesc;
+  toGetDesc.add<std::string>("record", "");
+  toGetDesc.add<std::string>("tag", "");
+  toGetDesc.add<std::string>("snapshotTime", "");
+  toGetDesc.add<std::string>("connect", "");
+  toGetDesc.add<unsigned long long>("refreshTime", std::numeric_limits<unsigned long long>::max());
+  toGetDesc.addUntracked<std::string>("label", "");
+
+  std::vector<edm::ParameterSet> default_toGet;
+  desc.addVPSet("toGet", toGetDesc, default_toGet);
+
+  desc.addUntracked<std::string>("JsonDumpFileName", "");
+  desc.addUntracked<bool>("DumpStat", false);
+  desc.addUntracked<bool>("ReconnectEachRun", false);
+  desc.addUntracked<bool>("RefreshAlways", false);
+  desc.addUntracked<bool>("RefreshEachRun", false);
+  desc.addUntracked<bool>("RefreshOpenIOVs", false);
+  desc.addUntracked<std::string>("pfnPostfix", "");
+  desc.addUntracked<std::string>("pfnPrefix", "");
+  desc.addUntracked<std::vector<std::string>>("recordsToDebug", {});
+
+  descriptions.add("default_CondDBESource", desc);
 }
 
 // backward compatibility for configuration files

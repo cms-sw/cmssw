@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 #Quick and dirty script to "analyze" the log of the CheckAllIOVs.py to validate
 #plotting macro ExtractTrends.C
-from __future__ import print_function
 import sys
 #print "Opening logfile %s"%sys.argv[1]
 log=open(sys.argv[1])

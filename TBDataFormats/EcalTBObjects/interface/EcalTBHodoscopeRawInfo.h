@@ -12,7 +12,7 @@
 
 class EcalTBHodoscopeRawInfo {
 public:
-  EcalTBHodoscopeRawInfo() : planeHits_(0){};
+  EcalTBHodoscopeRawInfo() : planeHits_(0) {}
 
   EcalTBHodoscopeRawInfo(unsigned int planes) {
     planeHits_.reserve(planes);

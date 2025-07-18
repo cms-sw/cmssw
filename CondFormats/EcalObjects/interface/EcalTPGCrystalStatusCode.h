@@ -15,7 +15,7 @@ class EcalTPGCrystalStatusCode {
 public:
   EcalTPGCrystalStatusCode();
   EcalTPGCrystalStatusCode(const EcalTPGCrystalStatusCode& codeStatus);
-  EcalTPGCrystalStatusCode(const uint16_t& encodedStatus) : status_(encodedStatus){};
+  EcalTPGCrystalStatusCode(const uint16_t& encodedStatus) : status_(encodedStatus) {}
   ~EcalTPGCrystalStatusCode();
 
   //get Methods to be defined according to the final definition

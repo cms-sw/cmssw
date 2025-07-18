@@ -66,7 +66,7 @@ def main(rf, rt):
       for t in ["pedestal","LED","laser"]:
         if re.search(t, r[3], flags=re.IGNORECASE) != None:
           d = get_single(TIME, { "p.run": int(r[0])}) 
-          print r[0], t, "\"" + d + "\"", r[2]
+          print(r[0], t, "\"" + d + "\"", r[2])
           break
   
 

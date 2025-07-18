@@ -12,6 +12,7 @@ from Calibration.TkAlCaRecoProducers.AlcaSiPixelLorentzAngleHarvesterMCS_cff imp
 from Alignment.CommonAlignmentProducer.AlcaSiPixelAliHarvester_cff import *
 from Alignment.CommonAlignmentProducer.AlcaSiPixelAliHarvesterHG_cff import *
 from Alignment.CommonAlignmentProducer.AlcaSiPixelAliHarvesterHGCombined_cff import *
+from Alignment.CommonAlignmentProducer.AlcaSiPixelAliHarvesterHLTHGCombined_cff import *
 from Calibration.EcalCalibAlgos.AlcaEcalPedestalsHarvester_cff import *
 from Calibration.LumiAlCaRecoProducers.AlcaLumiPCCHarvester_cff import *
 from CalibTracker.SiPixelQuality.SiPixelStatusHarvester_cfi import *
@@ -196,6 +197,15 @@ ALCAHARVESTSiPixelAliHGCombined_dbOutput = cms.PSet(record = cms.string('Tracker
                                                     tag = cms.string('SiPixelAliHGCombined_pcl'),
                                                     timetype   = cms.untracked.string('runnumber')
                                                     )
+# --------------------------------------------------------------------------------------
+# SiPixel Alignment HG combined for HLT Calibration
+ALCAHARVESTSiPixelAliHLTHGCombined_metadata = cms.PSet(record = cms.untracked.string('TrackerAlignmentHLTHGCombinedRcd'))
+
+ALCAHARVESTSiPixelAliHLTHGCombined_dbOutput = cms.PSet(record = cms.string('TrackerAlignmentHLTHGCombinedRcd'),
+                                                       tag = cms.string('SiPixelAliHLTHGCombined_pcl'),
+                                                       timetype   = cms.untracked.string('runnumber')
+                                                       )
+
 
 # --------------------------------------------------------------------------------------
 # SiPixel Lorentz Angle
@@ -307,6 +317,7 @@ SiStripLA      = cms.Path(ALCAHARVESTSiStripLorentzAngle)
 SiPixelAli     = cms.Path(ALCAHARVESTSiPixelAli)
 SiPixelAliHG     = cms.Path(ALCAHARVESTSiPixelAliHG)
 SiPixelAliHGCombined = cms.Path(ALCAHARVESTSiPixelAliHGCombined)
+SiPixelAliHLTHGCombined = cms.Path(ALCAHARVESTSiPixelAliHLTHGCombined)
 SiPixelLA      = cms.Path(ALCAHARVESTSiPixelLorentzAngle)
 SiPixelLAMCS      = cms.Path(ALCAHARVESTSiPixelLorentzAngleMCS)
 EcalPedestals  = cms.Path(ALCAHARVESTEcalPedestals)

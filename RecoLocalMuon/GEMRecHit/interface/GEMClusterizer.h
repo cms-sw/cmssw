@@ -11,8 +11,8 @@
 
 class GEMClusterizer {
 public:
-  GEMClusterizer(){};
-  ~GEMClusterizer(){};
+  GEMClusterizer() {}
+  ~GEMClusterizer() {}
   GEMClusterContainer doAction(const GEMDigiCollection::Range& digiRange, const EtaPartitionMask& mask);
 };
 #endif

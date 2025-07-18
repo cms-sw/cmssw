@@ -14,7 +14,7 @@ class G4PrimaryParticle;
 
 class TrackWithHistory {
 public:
-  /** The constructor is called at time, 
+  /** The constructor is called at time,
      *  when some of the information may not available yet.
      */
   TrackWithHistory(const G4Track *g4track, int pID);
@@ -27,7 +27,7 @@ public:
   int trackID() const { return trackID_; }
   int particleID() const { return pdgID_; }
   int parentID() const { return parentID_; }
-  int genParticleID() const { return genParticleID_; }
+  int genParticleID() const { return isPrimary_ ? genParticleID_ : -1; }
   int vertexID() const { return vertexID_; }
   int processType() const { return procType_; }
   int getIDAtBoundary() const { return idAtBoundary_; }
@@ -67,6 +67,11 @@ public:
     tkSurfacePosition_ = pos;
     tkSurfaceMomentum_ = mom;
   }
+  bool isFromBackScattering() const { return isFromBackScattering_; }
+  void setFromBackScattering() { isFromBackScattering_ = true; }
+  bool isPrimary() const { return isPrimary_; }
+  void setIsPrimary() { isPrimary_ = true; }
+  int getPrimaryID() const { return genParticleID_; }
 
 private:
   int trackID_;
@@ -88,6 +93,8 @@ private:
   bool storeTrack_{false};
   bool saved_{false};
   bool crossedBoundary_{false};
+  bool isFromBackScattering_{false};
+  bool isPrimary_{false};
 };
 
 extern G4ThreadLocal G4Allocator<TrackWithHistory> *fpTrackWithHistoryAllocator;

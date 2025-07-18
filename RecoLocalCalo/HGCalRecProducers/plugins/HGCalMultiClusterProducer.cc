@@ -72,6 +72,7 @@ void HGCalMultiClusterProducer::fillDescriptions(edm::ConfigurationDescriptions&
                                     5.0,
                                 });
   desc.add<edm::InputTag>("HGCBHInput", edm::InputTag("HGCalRecHit", "HGCHEBRecHits"));
+  desc.add<edm::InputTag>("hgcalHitMap", {"recHitMapProducer", "hgcalRecHitMap"});
   desc.add<edm::InputTag>("HGCLayerClustersSharing", edm::InputTag("hgcalMergeLayerClusters", "sharing"));
   desc.add<unsigned int>("minClusters", 3);
   descriptions.add("hgcalMultiClusters", desc);

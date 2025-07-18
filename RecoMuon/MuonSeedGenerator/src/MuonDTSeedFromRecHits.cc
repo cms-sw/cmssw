@@ -6,8 +6,8 @@
  *  \author porting  R. Bellan
  *
  */
-#include "RecoMuon/MuonSeedGenerator/src/MuonDTSeedFromRecHits.h"
-#include "RecoMuon/MuonSeedGenerator/src/MuonSeedPtExtractor.h"
+#include "RecoMuon/MuonSeedGenerator/interface/MuonDTSeedFromRecHits.h"
+#include "RecoMuon/MuonSeedGenerator/interface/MuonSeedPtExtractor.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"

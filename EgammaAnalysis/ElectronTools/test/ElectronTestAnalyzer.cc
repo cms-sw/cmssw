@@ -445,8 +445,8 @@ void ElectronTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
                       << " MyMVA Method-2 " << mvaTrigMthd2 << std::endl;
         }
       }  // End Loop on RECO electrons
-    }    // End if MC electrons selection
-  }      //End Loop Generator Particles
+    }  // End if MC electrons selection
+  }  //End Loop Generator Particles
 }
 // ------------ method called once each job just before starting event loop  ------------
 void ElectronTestAnalyzer::myVar(const reco::GsfElectron& ele,

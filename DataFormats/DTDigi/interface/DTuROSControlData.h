@@ -28,7 +28,7 @@ public:
   }
 
   /// Destructor
-  ~DTuROSROSData(){};
+  ~DTuROSROSData() {}
 
   void setslot(int slot) { slot_ = slot; }
 
@@ -109,7 +109,7 @@ public:
   }
 
   /// Destructor
-  ~DTuROSFEDData(){};
+  ~DTuROSFEDData() {}
 
   void setfed(int fed) { fed_ = fed; }
 

@@ -121,7 +121,7 @@ double TrackAndHCALLinker::testLink(const reco::PFBlockElement* elem1, const rec
               hcalreppos.Eta(), hcalreppos.Phi(), tkreppos.Eta() + 0.1 * dHEta, tkreppos.Phi() + 0.1 * dHPhi);
         }
       }  // checkExit_
-    }    // multilinks
+    }  // multilinks
 
   } else {  // Old algorithm
     if (tkAtHCALEnt.isValid())

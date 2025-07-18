@@ -1,4 +1,3 @@
-from __future__ import print_function
 
 import sys
 import os
@@ -29,11 +28,10 @@ else:
     from Configuration.Eras.Era_Phase2_cff import Phase2
     process = cms.Process('electronValidation',Phase2)
 
-#process.options = cms.untracked.PSet( )
-
 process.DQMStore = cms.Service("DQMStore")
 process.load("DQMServices.Components.DQMStoreStats_cfi")
 from DQMServices.Components.DQMStoreStats_cfi import *
+
 dqmStoreStats.runOnEndJob = cms.untracked.bool(True)
 
 print("reading files ...")
@@ -43,7 +41,9 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(max_number))
 data = os.environ['data']
 flist = dd.getCMSdata(data)
 print(flist)
-process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(*flist))
+process.source = cms.Source("PoolSource",
+    #eventsToProcess = cms.untracked.VEventRange('1:38-1:40'),
+    fileNames = cms.untracked.vstring(*flist))
 
 #process.source = cms.Source ("PoolSource",
 #eventsToProcess = cms.untracked.VEventRange('1:2682-1:2682'),
@@ -76,9 +76,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 from Configuration.AlCa.autoCond import autoCond
 #process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']#+'::All'
-process.GlobalTag.globaltag = '122X_mcRun4_realistic_v1'
-#process.GlobalTag.globaltag = '113X_mcRun4_realistic_v4'
-#process.GlobalTag.globaltag = '93X_mc2017_realistic_v1'
+#process.GlobalTag.globaltag = '122X_mcRun4_realistic_v1'
 
 # FOR DATA REDONE FROM RAW, ONE MUST HIDE IsoFromDeps
 # CONFIGURATION
@@ -109,6 +107,7 @@ process.electronMcSignalValidatorMiniAOD.OutputFolderName = cms.string("EgammaV/
 #process.p = cms.Path(process.ElectronIsolation * process.electronMcSignalValidatorMiniAOD * process.MEtoEDMConverter ) # * process.dqmStoreStats
 #process.p = cms.Path(process.electronMcSignalValidatorMiniAOD * process.MEtoEDMConverter * process.dqmStoreStats)
 process.p = cms.Path( process.miniAODElectronIsolation * process.ElectronIsolation * process.electronMcSignalValidatorMiniAOD * process.MEtoEDMConverter ) #  process.printContent *
+
 process.outpath = cms.EndPath(
 process.EDM,
 )

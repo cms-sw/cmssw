@@ -30,7 +30,7 @@ using namespace edm;
 class printPartonJet : public edm::one::EDAnalyzer<> {
 public:
   explicit printPartonJet(const edm::ParameterSet&);
-  ~printPartonJet(){};
+  ~printPartonJet() {}
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
 private:

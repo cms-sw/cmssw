@@ -32,8 +32,8 @@
 class EcalUncalibRecHitWorkerFixedAlphaBetaFit : public EcalUncalibRecHitWorkerRunOneDigiBase {
 public:
   EcalUncalibRecHitWorkerFixedAlphaBetaFit(const edm::ParameterSet& ps, edm::ConsumesCollector&);
-  EcalUncalibRecHitWorkerFixedAlphaBetaFit(){};
-  ~EcalUncalibRecHitWorkerFixedAlphaBetaFit() override{};
+  EcalUncalibRecHitWorkerFixedAlphaBetaFit() {}
+  ~EcalUncalibRecHitWorkerFixedAlphaBetaFit() override {}
 
   void set(const edm::EventSetup& es) override;
   bool run(const edm::Event& evt,

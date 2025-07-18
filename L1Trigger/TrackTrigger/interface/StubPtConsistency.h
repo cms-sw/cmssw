@@ -8,7 +8,6 @@
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyBuilder.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 

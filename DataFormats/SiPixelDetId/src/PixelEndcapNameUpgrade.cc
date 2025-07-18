@@ -38,7 +38,7 @@ PixelEndcapNameUpgrade::PixelEndcapNameUpgrade(const DetId& id) : PixelModuleNam
     theBlade = 38 - tmpBlade;  //18...31-->20...7
   } else if (tmpBlade >= 49 && tmpBlade <= 56) {
     theBlade = 77 - tmpBlade;  //49...56-->28...21
-  }                            //  iasonas2-end
+  }  //  iasonas2-end
 
   if (side == 1 && outer)
     thePart = mO;
@@ -173,13 +173,8 @@ PixelModuleName::ModuleType PixelEndcapNameUpgrade::moduleType() const {
   return type;
 }
 
-bool PixelEndcapNameUpgrade::operator==(const PixelModuleName& o) const {
-  if (!o.isBarrel()) {
-    const PixelEndcapNameUpgrade* other = dynamic_cast<const PixelEndcapNameUpgrade*>(&o);
-    return (other && thePart == other->thePart && theDisk == other->theDisk && theBlade == other->theBlade &&
-            thePannel == other->thePannel && thePlaquette == other->thePlaquette);
-  } else
-    return false;
+bool PixelEndcapNameUpgrade::operator==(const PixelModuleName& other) const {
+  return other.isBarrel() ? false : (dynamic_cast<const PixelEndcapNameUpgrade&>(other) == *this);
 }
 
 string PixelEndcapNameUpgrade::name() const {

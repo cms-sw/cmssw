@@ -94,7 +94,7 @@ CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet& pset) : edm::stream::EDPro
 
   // As we use standard CSC digi containers, we have to initialize mapping:
   std::string mappingFile = pset.getParameter<std::string>("mappingFile");
-  if (mappingFile.length()) {
+  if (!mappingFile.empty()) {
     LogDebug("CSCTFUnpacker|ctor") << "Define ``mapping'' only if you want to screw up real geometry";
     mapping = new CSCTriggerMappingFromFile(mappingFile);
   } else {

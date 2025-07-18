@@ -9,7 +9,6 @@ using namespace mtd;
 ETLElectronicsSim::ETLElectronicsSim(const edm::ParameterSet& pset, edm::ConsumesCollector iC)
     : geomToken_(iC.esConsumes()),
       geom_(nullptr),
-      debug_(pset.getUntrackedParameter<bool>("debug", false)),
       bxTime_(pset.getParameter<double>("bxTime")),
       integratedLum_(pset.getParameter<double>("IntegratedLuminosity")),
       adcNbits_(pset.getParameter<uint32_t>("adcNbits")),
@@ -132,14 +131,18 @@ void ETLElectronicsSim::runTrivialShaper(ETLDataFrame& dataFrame,
                                          const mtd::MTDSimHitData& tot,
                                          const uint8_t row,
                                          const uint8_t col) const {
-  bool debug = debug_;
 #ifdef EDM_ML_DEBUG
-  for (int it = 0; it < (int)(chargeColl.size()); it++)
-    debug |= (chargeColl[it] > adcThreshold_MIP_);
+  bool dumpInfo(false);
+  for (int it = 0; it < (int)(chargeColl.size()); it++) {
+    if (chargeColl[it] > adcThreshold_MIP_) {
+      dumpInfo = true;
+      break;
+    }
+  }
+  if (dumpInfo) {
+    LogTrace("ETLElectronicsSim") << "[runTrivialShaper]";
+  }
 #endif
-
-  if (debug)
-    edm::LogVerbatim("ETLElectronicsSim") << "[runTrivialShaper]" << std::endl;
 
   //set new ADCs. Notice that we are only interested in the first element of the array for the ETL
   for (int it = 0; it < (int)(chargeColl.size()); it++) {
@@ -158,15 +161,20 @@ void ETLElectronicsSim::runTrivialShaper(ETLDataFrame& dataFrame,
     //ETLSample newSample;
     dataFrame.setSample(it, newSample);
 
-    if (debug)
-      edm::LogVerbatim("ETLElectronicsSim") << adc << " (" << chargeColl[it] << "/" << adcLSB_MIP_ << ") ";
+#ifdef EDM_ML_DEBUG
+    if (dumpInfo) {
+      LogTrace("ETLElectronicsSim") << adc << " (" << chargeColl[it] << "/" << adcLSB_MIP_ << ") ";
+    }
+#endif
   }
 
-  if (debug) {
+#ifdef EDM_ML_DEBUG
+  if (dumpInfo) {
     std::ostringstream msg;
     dataFrame.print(msg);
-    edm::LogVerbatim("ETLElectronicsSim") << msg.str() << std::endl;
+    LogTrace("ETLElectronicsSim") << msg.str();
   }
+#endif
 }
 
 void ETLElectronicsSim::updateOutput(ETLDigiCollection& coll, const ETLDataFrame& rawDataFrame) const {

@@ -239,3 +239,86 @@ TaggingVariableList CombinedSVComputer::operator()(const CandIPTagInfo &ipInfo,
   vars.finalize();
   return vars;
 }
+
+void CombinedSVComputer::fillPSetDescription(edm::ParameterSetDescription &desc) {
+  {
+    edm::ParameterSetDescription trackPseudoSelection;
+    trackPseudoSelection.add<double>("max_pT_dRcut", 0.1);
+    trackPseudoSelection.add<double>("b_dR", 0.6263);
+    trackPseudoSelection.add<double>("min_pT", 120.0);
+    trackPseudoSelection.add<double>("b_pT", 0.3684);
+    trackPseudoSelection.add<double>("ptMin", 0.0);
+    trackPseudoSelection.add<double>("max_pT_trackPTcut", 3.0);
+    trackPseudoSelection.add<double>("max_pT", 500.0);
+    trackPseudoSelection.add<bool>("useVariableJTA", false);
+    trackPseudoSelection.add<double>("maxDecayLen", 5.0);
+    trackPseudoSelection.add<std::string>("qualityClass", "any");
+    trackPseudoSelection.add<double>("normChi2Max", 99999.9);
+    trackPseudoSelection.add<double>("sip2dValMin", -99999.9);
+    trackPseudoSelection.add<double>("sip3dValMin", -99999.9);
+    trackPseudoSelection.add<double>("a_dR", -0.001053);
+    trackPseudoSelection.add<double>("maxDistToAxis", 0.07);
+    trackPseudoSelection.add<uint32_t>("totalHitsMin", 3);
+    trackPseudoSelection.add<double>("a_pT", 0.005263);
+    trackPseudoSelection.add<double>("sip2dSigMax", 99999.9);
+    trackPseudoSelection.add<double>("sip2dValMax", 99999.9);
+    trackPseudoSelection.add<double>("sip3dSigMax", 99999.9);
+    trackPseudoSelection.add<double>("sip3dValMax", 99999.9);
+    trackPseudoSelection.add<double>("min_pT_dRcut", 0.5);
+    trackPseudoSelection.add<double>("jetDeltaRMax", 0.3);
+    trackPseudoSelection.add<uint32_t>("pixelHitsMin", 0);
+    trackPseudoSelection.add<double>("sip3dSigMin", -99999.9);
+    trackPseudoSelection.add<double>("sip2dSigMin", 2.0);
+    desc.add("trackPseudoSelection", trackPseudoSelection);
+  }
+
+  {
+    edm::ParameterSetDescription trackSelection;
+    trackSelection.add<double>("max_pT_dRcut", 0.1);
+    trackSelection.add<double>("b_dR", 0.6263);
+    trackSelection.add<double>("min_pT", 120.0);
+    trackSelection.add<double>("b_pT", 0.3684);
+    trackSelection.add<double>("ptMin", 0.0);
+    trackSelection.add<double>("max_pT_trackPTcut", 3.0);
+    trackSelection.add<double>("max_pT", 500.0);
+    trackSelection.add<bool>("useVariableJTA", false);
+    trackSelection.add<double>("maxDecayLen", 5.0);
+    trackSelection.add<std::string>("qualityClass", "any");
+    trackSelection.add<double>("normChi2Max", 99999.9);
+    trackSelection.add<double>("sip2dValMin", -99999.9);
+    trackSelection.add<double>("sip3dValMin", -99999.9);
+    trackSelection.add<double>("a_dR", -0.001053);
+    trackSelection.add<double>("maxDistToAxis", 0.07);
+    trackSelection.add<uint32_t>("totalHitsMin", 3);
+    trackSelection.add<double>("a_pT", 0.005263);
+    trackSelection.add<double>("sip2dSigMax", 99999.9);
+    trackSelection.add<double>("sip2dValMax", 99999.9);
+    trackSelection.add<double>("sip3dSigMax", 99999.9);
+    trackSelection.add<double>("sip3dValMax", 99999.9);
+    trackSelection.add<double>("min_pT_dRcut", 0.5);
+    trackSelection.add<double>("jetDeltaRMax", 0.3);
+    trackSelection.add<uint32_t>("pixelHitsMin", 2);
+    trackSelection.add<double>("sip3dSigMin", -99999.9);
+    trackSelection.add<double>("sip2dSigMin", -99999.9);
+    desc.add("trackSelection", trackSelection);
+  }
+
+  edm::ParameterSetDescription trackPairV0Filter;
+  trackPairV0Filter.add<double>("k0sMassWindow", 0.03);
+  desc.add("trackPairV0Filter", trackPairV0Filter);
+
+  edm::ParameterSetDescription pseudoVertexV0Filter;
+  pseudoVertexV0Filter.add<double>("k0sMassWindow", 0.05);
+  desc.add("pseudoVertexV0Filter", pseudoVertexV0Filter);
+
+  desc.add<bool>("trackFlip", false);
+  desc.add<bool>("useTrackWeights", true);
+  desc.add<bool>("SoftLeptonFlip", false);
+  desc.add<uint32_t>("pseudoMultiplicityMin", 2);
+  desc.add<bool>("correctVertexMass", true);
+  desc.add<double>("minimumTrackWeight", 0.5);
+  desc.add<double>("charmCut", 1.5);
+  desc.add<std::string>("trackSort", "sip2dSig");
+  desc.add<uint32_t>("trackMultiplicityMin", 2);
+  desc.add<bool>("vertexFlip", false);
+}

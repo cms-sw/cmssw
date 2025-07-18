@@ -80,7 +80,7 @@ bool DDLParser::isParsed(const std::string& filename) {
 bool DDLParser::parseOneFile(const std::string& fullname) {
   std::string filename = extractFileName(fullname);
   edm::FileInPath fp(fullname);
-  std::string absoluteFileName = fp.fullPath();
+  const std::string& absoluteFileName = fp.fullPath();
   size_t foundFile = isFound(filename);
   if (!foundFile) {
     pair<std::string, std::string> pss;

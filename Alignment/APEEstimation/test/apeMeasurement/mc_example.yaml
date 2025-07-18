@@ -1,0 +1,52 @@
+datasets:
+    realistic:
+        iovs:
+        - 1
+        dataset: /WJetsToLNu_TuneCP5_13p6TeV-madgraphMLM-pythia8/Run3Summer23DR-TkAlMuonIsolated-ALCARECO_130X_mcRun3_2023_realistic_v14-v2/ALCARECO
+        #json:
+        redo: False # if data set files already exist, redo skim?
+        
+        targetPath: /eos/cms/store/caf/user/mteroerd/testskim/realistic # where to transfer the files
+        
+        isCosmics: False
+        maxEvents: 100000
+        trackSelection: SingleMu # Or SingleMuon, DoubleMuon, etc
+        maxFileSize: 350000
+
+        globalTag: 140X_mcRun3_2023_realistic_v1
+ 
+                
+    design:
+        iovs: 
+        - 1
+        dataset: /WJetsToLNu_TuneCP5_13p6TeV-madgraphMLM-pythia8/Run3Summer23DR-TkAlMuonIsolated-ALCARECOTkAlMuonIsolatedIDEAL_TRKdesign_130X_mcRun3_2023_design_v9-v2/ALCARECO
+        redo: False # if data set files already exist, redo skim?
+        targetPath: /eos/cms/store/caf/user/mteroerd/testskim/design
+        trackSelection: SingleMu # Or SingleMu, DoubleMuon, etc
+        globalTag: 130X_mcRun3_2023_design_v9
+        maxEvents: -1
+
+baselines:
+    Design:
+        dataset: design
+        globalTag: 130X_mcRun3_2023_design_v9
+        complete: True
+
+
+measurements:
+    realistic2:
+        maxIterations: 1
+        baseline: Design
+        dataset: realistic
+    
+        globalTag: 140X_mcRun3_2023_realistic_v1
+        conditions:
+            TrackerAlignmentRcd:
+                source: mp3896
+                tag: Alignments
+            TrackerSurfaceDeformationRcd:
+                source: mp3896
+                tag: Deformations
+
+
+

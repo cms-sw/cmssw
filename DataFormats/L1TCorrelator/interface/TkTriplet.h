@@ -32,7 +32,7 @@ namespace l1t {
               double pair_dz_min,
               std::vector<edm::Ptr<L1TTTrackType>> trkPtrList);
 
-    ~TkTriplet() override{};
+    ~TkTriplet() override {}
 
     int getTripletCharge() const { return charge_; }
     double getPairMassMax() const { return pair_mass_max_; }

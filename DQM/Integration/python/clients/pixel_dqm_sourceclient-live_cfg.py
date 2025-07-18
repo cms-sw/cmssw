@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 import sys
@@ -6,8 +5,8 @@ if 'runkey=hi_run' in sys.argv:
   from Configuration.Eras.Era_Run3_pp_on_PbPb_approxSiStripClusters_cff import Run3_pp_on_PbPb_approxSiStripClusters
   process = cms.Process("PIXELDQMLIVE", Run3_pp_on_PbPb_approxSiStripClusters)
 else:
-  from Configuration.Eras.Era_Run3_cff import Run3
-  process = cms.Process("PIXELDQMLIVE", Run3)
+  from Configuration.Eras.Era_Run3_2025_cff import Run3_2025
+  process = cms.Process("PIXELDQMLIVE", Run3_2025)
 
 live=True
 unitTest = False
@@ -62,8 +61,8 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = TAG
 process.dqmSaver.tag = TAG
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = TAG
-process.dqmSaverPB.runNumber = options.runNumber
+# process.dqmSaverPB.tag = TAG
+# process.dqmSaverPB.runNumber = options.runNumber
 
 
 #-----------------------------
@@ -90,7 +89,7 @@ if (live):
 elif(offlineTesting):
     process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
     from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
-    process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run3_data', '')
+    process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:hltonline', '')
 
 #-----------------------
 #  Reconstruction Modules
@@ -106,18 +105,21 @@ process.load("DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1tsDB_cfi")
 
 # PixelPhase1 Real data raw to digi
 process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
-process.siPixelDigis.cpu.IncludeErrors = True
+process.siPixelDigis.IncludeErrors = True
 
-if (process.runType.getRunType() == process.runType.hi_run):    
-    #--------------------------------
-    # Heavy Ion Configuration Changes
-    #--------------------------------
-    process.siPixelDigis.cpu.InputLabel = "rawDataRepacker"
-    process.siStripDigis.ProductLabel   = "rawDataRepacker"
-    process.scalersRawToDigi.scalersInputTag = "rawDataRepacker"
+if (process.runType.getRunType() == process.runType.hi_run):
+  rawDataRepackerLabel = 'rawDataRepacker'
+  #--------------------------------
+  # Heavy Ion Configuration Changes
+  #--------------------------------
+  process.siPixelDigis.InputLabel = rawDataRepackerLabel
+  process.siStripDigis.ProductLabel   = rawDataRepackerLabel
+  process.scalersRawToDigi.scalersInputTag = rawDataRepackerLabel
+  process.tcdsDigis.InputLabel = rawDataRepackerLabel
 else :
-    process.siPixelDigis.cpu.InputLabel = "rawDataCollector"
-    process.siStripDigis.ProductLabel     = cms.InputTag("rawDataCollector") 
+  rawDataCollectorLabel = 'rawDataCollector'
+  process.siPixelDigis.InputLabel = rawDataCollectorLabel
+  process.siStripDigis.ProductLabel = rawDataCollectorLabel
 
 ## Collision Reconstruction
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
@@ -129,13 +131,6 @@ if (process.runType.getRunType() == process.runType.cosmic_run or process.runTyp
     process.load("RecoTracker.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi")
 else:
     process.load("Configuration.StandardSequences.Reconstruction_cff")
-
-import RecoVertex.BeamSpotProducer.onlineBeamSpotESProducer_cfi as _mod
-process.BeamSpotESProducer = _mod.onlineBeamSpotESProducer.clone()
-
-# for running offline enhance the time validity of the online beamspot in DB
-if ((not live) or process.isDqmPlayback.value): 
-  process.BeamSpotESProducer.timeThreshold = cms.int32(int(1e6))
 
 import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
 process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
@@ -174,9 +169,16 @@ process.hltHighLevel.throw =  False
 # Scheduling
 #--------------------------
 
-process.DQMmodules = cms.Sequence(process.dqmEnv* process.dqmSaver*process.dqmSaverPB)
+process.DQMmodules = cms.Sequence(process.dqmEnv* process.dqmSaver)#*process.dqmSaverPB)
 
 process.RecoForDQM_LocalReco = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.gtDigis*process.trackerlocalreco)
+
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+# Replace gtDigis with gtStage2Digis when stage2L1Trigger is active
+stage2L1Trigger.toReplaceWith(
+  process.RecoForDQM_LocalReco,
+  cms.Sequence(process.siPixelDigis * process.siStripDigis * process.gtStage2Digis * process.trackerlocalreco)
+)
 
 ### COSMIC RUN SETTING
 if (process.runType.getRunType() == process.runType.cosmic_run or process.runType.getRunType() == process.runType.cosmic_run_stage1):
@@ -220,7 +222,8 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.InitialStepPreSplittingTask.remove(process.siPixelClusterShapeCache)
 
     # Redefinition of siPixelClusters: has to be after RecoTracker.IterativeTracking.InitialStepPreSplitting_cff 
-    process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
+    from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi import siPixelClusters as _siPixelClusters
+    process.siPixelClusters = _siPixelClusters.clone()
 
     from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
     process.PixelLayerTriplets.BPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
@@ -261,4 +264,5 @@ process = customise(process)
 #--------------------------------------------------
 
 print("Running with run type = ", process.runType.getRunType())
+print("Global Tag used:", process.GlobalTag.globaltag.value())
 print("Final Source settings:", process.source)

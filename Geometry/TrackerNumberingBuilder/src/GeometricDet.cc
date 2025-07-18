@@ -93,11 +93,15 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type)
     pixROCCols_ = getDouble("PixelROCCols", *fv);
     pixROCx_ = getDouble("PixelROC_X", *fv);
     pixROCy_ = getDouble("PixelROC_Y", *fv);
+    bigPixelsx_ = getDouble("BigPixels_X", *fv);
+    bigPixelsy_ = getDouble("BigPixels_Y", *fv);
+    bigPixelsPitchx_ = getDouble("BigPixels_Pitch_X", *fv);
+    bigPixelsPitchy_ = getDouble("BigPixels_Pitch_Y", *fv);
+    isFirstSensor_ = (getString("TrackerFirstDetectors", *fv) == strue);
+    isSecondSensor_ = (getString("TrackerSecondDetectors", *fv) == strue);
     stereo_ = (getString("TrackerStereoDetectors", *fv) == strue);
     isLowerSensor_ = (getString("TrackerLowerDetectors", *fv) == strue);
     isUpperSensor_ = (getString("TrackerUpperDetectors", *fv) == strue);
-    isFirstSensor_ = (getString("TrackerFirstDetectors", *fv) == strue);
-    isSecondSensor_ = (getString("TrackerSecondDetectors", *fv) == strue);
     siliconAPVNum_ = getDouble("SiliconAPVNumber", *fv);
   }
 }
@@ -129,6 +133,14 @@ GeometricDet::GeometricDet(cms::DDFilteredView* fv, GeometricEnumType type)
     pixROCCols_ = fv->get<double>("PixelROCCols");
     pixROCx_ = fv->get<double>("PixelROC_X");
     pixROCy_ = fv->get<double>("PixelROC_Y");
+    bigPixelsx_ = fv->get<double>("BigPixels_X");
+    bigPixelsy_ = fv->get<double>("BigPixels_Y");
+    bigPixelsPitchx_ = fv->get<double>("BigPixels_Pitch_X");
+    bigPixelsPitchy_ = fv->get<double>("BigPixels_Pitch_Y");
+
+    // Phase 2 IT 3D sensors only
+    isFirstSensor_ = (fv->get<std::string_view>("TrackerFirstDetectors") == strue);
+    isSecondSensor_ = (fv->get<std::string_view>("TrackerSecondDetectors") == strue);
 
     // Phase 1 OT sensors only (NB: hence could add a branch here, but not a critical part on perf)
     stereo_ = (fv->get<std::string_view>("TrackerStereoDetectors") == strue);
@@ -137,8 +149,6 @@ GeometricDet::GeometricDet(cms::DDFilteredView* fv, GeometricEnumType type)
     // Phase 2 OT sensors only (NB: hence could add a branch here, but not a critical part on perf)
     isLowerSensor_ = (fv->get<std::string_view>("TrackerLowerDetectors") == strue);
     isUpperSensor_ = (fv->get<std::string_view>("TrackerUpperDetectors") == strue);
-    isFirstSensor_ = (fv->get<std::string_view>("TrackerFirstDetectors") == strue);
-    isSecondSensor_ = (fv->get<std::string_view>("TrackerSecondDetectors") == strue);
 
     // All sensors: IT or OT, Phase 1 or Phase 2 (NB: critical part on perf)
     fv->findSpecPar("TrackerRadLength", "TrackerXi");

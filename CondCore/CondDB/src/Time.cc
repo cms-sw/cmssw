@@ -63,7 +63,11 @@ namespace cond {
       }
     }
 
-    Time_t lumiTime(unsigned int run, unsigned int lumiId) { return cond::time::pack(std::make_pair(run, lumiId)); }
+    Time_t lumiTime(unsigned int run, unsigned int lumiNr) { return cond::time::pack(std::make_pair(run, lumiNr)); }
+
+    Time_t lumiIdToRun(Time_t lumiId) { return cond::time::unpack(lumiId).first; }
+
+    Time_t lumiIdToLumiNr(Time_t lumiId) { return cond::time::unpack(lumiId).second; }
 
     Time_t sinceGroupSize(TimeType tp) {
       if (tp == TIMESTAMP)
@@ -114,7 +118,8 @@ namespace cond {
       switch (timetype) {
         case RUNNUMBER:
           // last lumi and event of this run
-          return edm::IOVSyncValue(edm::EventID(time, edm::EventID::maxEventNumber(), edm::EventID::maxEventNumber()));
+          return edm::IOVSyncValue(
+              edm::EventID(time, edm::LuminosityBlockID::maxLuminosityBlockNumber(), edm::EventID::maxEventNumber()));
         case LUMIID: {
           // the same lumiblock
           edm::LuminosityBlockID l(time);
@@ -132,8 +137,9 @@ namespace cond {
       switch (timetype) {
         case RUNNUMBER:
           // last event of this run
-          return edm::IOVSyncValue(
-              edm::EventID(time.eventID().run(), edm::EventID::maxEventNumber(), edm::EventID::maxEventNumber()));
+          return edm::IOVSyncValue(edm::EventID(time.eventID().run(),
+                                                edm::LuminosityBlockID::maxLuminosityBlockNumber(),
+                                                edm::EventID::maxEventNumber()));
         case LUMIID:
           // the same lumiblock
           return edm::IOVSyncValue(

@@ -39,12 +39,13 @@
 class HGCalTrackCollectionProducer : public edm::stream::EDProducer<> {
 public:
   HGCalTrackCollectionProducer(const edm::ParameterSet&);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
   void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
 
-  edm::EDGetTokenT<edm::View<reco::PFRecTrack> > src_;
+  edm::EDGetTokenT<edm::View<reco::PFRecTrack>> src_;
 
   // variables needed for copied goodPtResolution function
   // need to go back and figure out sensible values
@@ -64,7 +65,7 @@ private:
   std::array<edm::ESGetToken<HGCalGeometry, IdealGeometryRecord>, 1>
       hgcGeometryTokens_;                              // 3 --> 1; extrapolate to hgcee only
   std::array<const HGCalGeometry*, 1> hgcGeometries_;  // 3 --> 1; extrapolate to hgcee only
-  std::array<std::vector<ReferenceCountingPointer<BoundDisk> >, 1> plusSurface_,
+  std::array<std::vector<ReferenceCountingPointer<BoundDisk>>, 1> plusSurface_,
       minusSurface_;  // 3 --> 1; extrapolate to hgcee only
   std::unique_ptr<PropagatorWithMaterial> mat_prop_;
 
@@ -72,13 +73,24 @@ private:
   float diskInnerRadius_;
 };
 
+void HGCalTrackCollectionProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("src", {"pfTrack"});
+  desc.add<std::string>("trackQuality", "highPurity");
+  desc.add<bool>("useIterativeTracking", true);
+  desc.add<std::vector<double>>("DPtOverPtCuts_byTrackAlgo", {10.0, 10.0, 10.0, 10.0, 10.0, 5.0});
+  desc.add<std::vector<uint32_t>>("NHitCuts_byTrackAlgo", {3, 3, 3, 3, 3, 3});
+  edm::ParameterSetDescription pset;
+  pset.add<std::string>("HGC_ECAL", "HGCalEESensitive");
+  desc.add<edm::ParameterSetDescription>("hgcalGeometryNames", pset);
+  descriptions.add("hgcalTrackCollection", desc);
+}
+
 HGCalTrackCollectionProducer::HGCalTrackCollectionProducer(const edm::ParameterSet& iConfig)
-    : src_(consumes<edm::View<reco::PFRecTrack> >(iConfig.getParameter<edm::InputTag>("src"))),
-      trackQuality_((iConfig.existsAs<std::string>("trackQuality"))
-                        ? reco::TrackBase::qualityByName(iConfig.getParameter<std::string>("trackQuality"))
-                        : reco::TrackBase::highPurity),
-      DPtovPtCut_(iConfig.getParameter<std::vector<double> >("DPtOverPtCuts_byTrackAlgo")),
-      NHitCut_(iConfig.getParameter<std::vector<unsigned> >("NHitCuts_byTrackAlgo")),
+    : src_(consumes<edm::View<reco::PFRecTrack>>(iConfig.getParameter<edm::InputTag>("src"))),
+      trackQuality_(reco::TrackBase::qualityByName(iConfig.getParameter<std::string>("trackQuality"))),
+      DPtovPtCut_(iConfig.getParameter<std::vector<double>>("DPtOverPtCuts_byTrackAlgo")),
+      NHitCut_(iConfig.getParameter<std::vector<unsigned>>("NHitCuts_byTrackAlgo")),
       useIterTracking_(iConfig.getParameter<bool>("useIterativeTracking")),
       magneticFieldToken_(esConsumes<edm::Transition::BeginLuminosityBlock>()),
       tkerGeomToken_(esConsumes<edm::Transition::BeginLuminosityBlock>()) {
@@ -133,7 +145,7 @@ void HGCalTrackCollectionProducer::beginLuminosityBlock(const edm::LuminosityBlo
 }
 
 void HGCalTrackCollectionProducer::produce(edm::Event& evt, const edm::EventSetup& iSetup) {
-  edm::Handle<edm::View<reco::PFRecTrack> > trackHandle;
+  edm::Handle<edm::View<reco::PFRecTrack>> trackHandle;
   evt.getByToken(src_, trackHandle);
   const auto& tracks = *trackHandle;
 

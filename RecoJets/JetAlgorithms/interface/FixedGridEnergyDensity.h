@@ -6,7 +6,7 @@
 class FixedGridEnergyDensity {
 public:
   FixedGridEnergyDensity(const reco::PFCandidateCollection* input) { pfCandidates = input; }
-  ~FixedGridEnergyDensity(){};
+  ~FixedGridEnergyDensity() {}
   enum EtaRegion { Central, Forward, All };
   float fixedGridRho(EtaRegion etaRegion = Central);
   float fixedGridRho(std::vector<float>& etabins, std::vector<float>& phibins);

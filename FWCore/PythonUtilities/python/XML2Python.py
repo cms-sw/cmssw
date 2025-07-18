@@ -1,4 +1,3 @@
-from __future__ import print_function
 ## Original version of code heavily based on recipe written by Wai Yip
 ## Tung, released under PSF license.
 ## http://code.activestate.com/recipes/534109/

@@ -360,7 +360,7 @@ void EcalHitMaker::setTrackParameters(const XYZNormal& normal, double X0depthoff
         //  regionOfInterest_[ic].setX0Back(9999);
         //}
       }  //EMSHOWER
-    }    // ndir
+    }  // ndir
     //      myHistos->fill("h6000",segments_[ecalFirstSegment_].entrance().eta(),maxX0_);
   }
   //  std::cout << "Leaving setTrackParameters" << std::endl

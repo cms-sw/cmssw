@@ -53,7 +53,7 @@ using namespace ticl;
 class TrackstersMergeProducer : public edm::stream::EDProducer<> {
 public:
   explicit TrackstersMergeProducer(const edm::ParameterSet &ps);
-  ~TrackstersMergeProducer() override{};
+  ~TrackstersMergeProducer() override {}
   void produce(edm::Event &, const edm::EventSetup &) override;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
@@ -68,7 +68,7 @@ public:
 
 private:
   typedef ticl::Trackster::IterationIndex TracksterIterIndex;
-  typedef math::XYZVector Vector;
+  typedef ticl::Vector Vector;
 
   void fillTile(TICLTracksterTiles &, const std::vector<Trackster> &, TracksterIterIndex);
 
@@ -85,9 +85,9 @@ private:
   const edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
   const edm::EDGetTokenT<edm::ValueMap<std::pair<float, float>>> clustersTime_token_;
   const edm::EDGetTokenT<std::vector<reco::Track>> tracks_token_;
-  const edm::EDGetTokenT<edm::ValueMap<float>> tracks_time_token_;
-  const edm::EDGetTokenT<edm::ValueMap<float>> tracks_time_quality_token_;
-  const edm::EDGetTokenT<edm::ValueMap<float>> tracks_time_err_token_;
+  edm::EDGetTokenT<edm::ValueMap<float>> tracks_time_token_;
+  edm::EDGetTokenT<edm::ValueMap<float>> tracks_time_quality_token_;
+  edm::EDGetTokenT<edm::ValueMap<float>> tracks_time_err_token_;
   const edm::EDGetTokenT<std::vector<reco::Muon>> muons_token_;
   const std::string tfDnnLabel_;
   const edm::ESGetToken<TfGraphDefWrapper, TfGraphRecord> tfDnnToken_;
@@ -143,9 +143,6 @@ TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps)
       clustersTime_token_(
           consumes<edm::ValueMap<std::pair<float, float>>>(ps.getParameter<edm::InputTag>("layer_clustersTime"))),
       tracks_token_(consumes<std::vector<reco::Track>>(ps.getParameter<edm::InputTag>("tracks"))),
-      tracks_time_token_(consumes<edm::ValueMap<float>>(ps.getParameter<edm::InputTag>("tracksTime"))),
-      tracks_time_quality_token_(consumes<edm::ValueMap<float>>(ps.getParameter<edm::InputTag>("tracksTimeQual"))),
-      tracks_time_err_token_(consumes<edm::ValueMap<float>>(ps.getParameter<edm::InputTag>("tracksTimeErr"))),
       muons_token_(consumes<std::vector<reco::Muon>>(ps.getParameter<edm::InputTag>("muons"))),
       tfDnnLabel_(ps.getParameter<std::string>("tfDnnLabel")),
       tfDnnToken_(esConsumes(edm::ESInputTag("", tfDnnLabel_))),
@@ -184,6 +181,12 @@ TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps)
   produces<std::vector<Trackster>>();
   produces<std::vector<TICLCandidate>>();
 
+  if (useMTDTiming_) {
+    tracks_time_token_ = consumes<edm::ValueMap<float>>(ps.getParameter<edm::InputTag>("tracksTime"));
+    tracks_time_quality_token_ = consumes<edm::ValueMap<float>>(ps.getParameter<edm::InputTag>("tracksTimeQual"));
+    tracks_time_err_token_ = consumes<edm::ValueMap<float>>(ps.getParameter<edm::InputTag>("tracksTimeErr"));
+  }
+
   std::string detectorName_ = (detector_ == "HFNose") ? "HGCalHFNoseSensitive" : "HGCalEESensitive";
   hdc_token_ =
       esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", detectorName_));
@@ -195,7 +198,7 @@ TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps)
 
 void TrackstersMergeProducer::beginJob() {}
 
-void TrackstersMergeProducer::endJob(){};
+void TrackstersMergeProducer::endJob() {}
 
 void TrackstersMergeProducer::beginRun(edm::Run const &iEvent, edm::EventSetup const &es) {
   edm::ESHandle<HGCalDDDConstants> hdc = es.getHandle(hdc_token_);
@@ -358,7 +361,8 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
   assignPCAtoTracksters(*resultTrackstersMerged,
                         layerClusters,
                         layerClustersTimes,
-                        rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z());
+                        rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z(),
+                        rhtools_);
   energyRegressionAndID(layerClusters, tfSession_, *resultTrackstersMerged);
 
   //filling the TICLCandidates information
@@ -556,8 +560,7 @@ void TrackstersMergeProducer::assignTimeToCandidates(std::vector<TICLCandidate> 
         }
       }
       if (invTimeErr > 0) {
-        cand.setTime(time / invTimeErr);
-        cand.setTimeError(sqrt(1.f / invTimeErr));
+        cand.setTime(time / invTimeErr, sqrt(1.f / invTimeErr));
       }
     }
   }

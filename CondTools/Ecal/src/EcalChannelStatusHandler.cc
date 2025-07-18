@@ -2154,8 +2154,8 @@ void popcon::EcalChannelStatusHandler::getNewObjects() {
         }  // cosmics analysis
 
       }  // subruns
-    }    // runs loop
-  }      // we have the DQM info
+    }  // runs loop
+  }  // we have the DQM info
 
   delete econn;
   std::cout << "Ecal - > end of getNewObjects -----------\n";

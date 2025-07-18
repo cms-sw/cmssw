@@ -35,25 +35,7 @@ def customiseHcalCalib(process):
     process.raw2digi_step = cms.Path(process.hcalCalibDigiSequence, process.RawToDigiTask)
 
     # Insert the HLT filter at start of user path and nanoaod endpath
-    process.user_step.insert(0, process.hcalCalibHLTFilter)
-    process.NANOAODoutput_step.insert(0, process.hcalCalibHLTFilter)
-
-
-    #process.raw2digi_step = cms.Path(process.hcalCalibHLTFilter + process.RawToDigi)
-    #process.raw2digi_step.replace(process.hcalDigis, process.hcalCalibDigis)
-    #process.hcalDigiSortedTableTask.add(process.hcalCalibDigis)
-    #process.hcalDigiSortedTableSeq.add(process.hcalCalibDigis)
-
-    #process.options.SkipEvent.append('ProductNotFound')
-
-    #process.hcalDigiSortedTable.tagQIE11 = cms.untracked.InputTag("hcalCalibDigis")
-    #process.hcalDigiSortedTable.tagQIE10 = cms.untracked.InputTag("hcalCalibDigis")
-    #process.hcalDigiSortedTable.tagHO    = cms.untracked.InputTag("hcalCalibDigis")
-
-    process.load("FWCore.MessageService.MessageLogger_cfi")
-    process.MessageLogger.cout.threshold = "DEBUG"
-    process.MessageLogger.cerr.threshold = "DEBUG"
-    # enable LogDebug messages only for specific modules
-    process.MessageLogger.debugModules = ["*"]
+    for path in process.paths.values()+process.endpaths.values():
+        path.insert(0, process.hcalCalibHLTFilter)
 
     return process

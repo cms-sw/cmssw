@@ -16,7 +16,7 @@
 // This Class's Header --
 //-----------------------
 
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMMuonSorter.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMMuonSorter.h"
 
 //---------------
 // C++ Headers --
@@ -29,7 +29,7 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include "L1Trigger/L1TMuonBarrel/src/L1MuBMTFConfig.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTFConfig.h"
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMWedgeSorter.h"
 #include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTrackFinder.h"
 
@@ -77,7 +77,7 @@ void L1MuBMMuonSorter::run() {
   }
 
   // print input data
-  if (L1MuBMTFConfig::Debug(4)) {
+  if (m_tf.config().Debug(4)) {
     cout << "BM Muon Sorter input: " << mycands.size() << endl;
     vector<L1MuBMTrack*>::const_iterator iter;
     for (iter = mycands.begin(); iter != mycands.end(); iter++) {
@@ -229,14 +229,14 @@ void L1MuBMMuonSorter::runCOL(vector<L1MuBMTrack*>& cands) const {
       }
       if (countTS > 0) {
         if (qual1 < qual2) {
-          if (L1MuBMTFConfig::Debug(5)) {
+          if (m_tf.config().Debug(5)) {
             cout << "Muon Sorter cancel : ";
             (*iter1)->print();
           }
           (*iter1)->disable();
           break;
         } else {
-          if (L1MuBMTFConfig::Debug(5)) {
+          if (m_tf.config().Debug(5)) {
             cout << "Muon Sorter cancel : ";
             (*iter2)->print();
           }
@@ -277,7 +277,7 @@ void L1MuBMMuonSorter::runCOL(vector<L1MuBMTrack*>& cands) const {
       if (abs(phidiff) < 2 && (w1 == w2)) {
         int rank1 = 10 * pt1 + qual1;
         int rank2 = 10 * pt2 + qual2;
-        if (L1MuBMTFConfig::Debug(5)) {
+        if (m_tf.config().Debug(5)) {
           cout << "========================================" << endl;
           cout << " special cancellation : " << endl;
           (*iter1)->print();

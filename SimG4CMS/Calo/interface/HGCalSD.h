@@ -9,13 +9,12 @@
 #include "SimG4CMS/Calo/interface/CaloSD.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4CMS/Calo/interface/HGCalNumberingScheme.h"
-#include "SimG4CMS/Calo/interface/HGCGuardRing.h"
 #include "SimG4CMS/Calo/interface/HGCMouseBite.h"
-#include "SimG4CMS/Calo/interface/HGCGuardRingPartial.h"
 #include "Geometry/HGCalCommonData/interface/HGCalCellOffset.h"
+#include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
+#include "Geometry/HGCalCommonData/interface/HGCGuardRing.h"
 #include <string>
 
-class HGCalDDDConstants;
 class G4LogicalVolume;
 class G4Step;
 
@@ -48,14 +47,13 @@ private:
   edm::ParameterSet const &ps_;
   std::unique_ptr<HGCalNumberingScheme> numberingScheme_;
   std::unique_ptr<HGCGuardRing> guardRing_;
-  std::unique_ptr<HGCGuardRingPartial> guardRingPartial_;
   std::unique_ptr<HGCMouseBite> mouseBite_;
   std::unique_ptr<HGCalCellOffset> cellOffset_;
   DetId::Detector mydet_;
   std::string nameX_;
   HGCalGeometryMode::GeometryMode geom_mode_;
   double eminHit_, slopeMin_, distanceFromEdge_;
-  double waferSize_, mouseBiteCut_, guardRingOffset_, weight_;
+  double waferSize_, mouseBiteCut_, guardRingOffset_, sensorSizeOffset_, weight_;
   int levelT1_, levelT2_, cornerMinMask_;
   bool storeAllG4Hits_;
   bool fiducialCut_, rejectMB_, waferRot_, checkID_;

@@ -1,5 +1,4 @@
 #!/bin/python
-from __future__ import print_function
 import sys
 
 # Parse the output of dump_l1t_configs.py, printing the nonempty records and hash values

@@ -23,7 +23,7 @@ namespace edm {
   class TimeoutPoolOutputModule : public PoolOutputModule {
   public:
     explicit TimeoutPoolOutputModule(ParameterSet const& ps);
-    ~TimeoutPoolOutputModule() override{};
+    ~TimeoutPoolOutputModule() override {}
     TimeoutPoolOutputModule(TimeoutPoolOutputModule const&) = delete;             // Disallow copying and moving
     TimeoutPoolOutputModule& operator=(TimeoutPoolOutputModule const&) = delete;  // Disallow copying and moving
 

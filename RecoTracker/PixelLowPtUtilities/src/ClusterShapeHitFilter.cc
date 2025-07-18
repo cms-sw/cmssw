@@ -15,9 +15,6 @@
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
-#include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
-
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"

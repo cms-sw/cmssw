@@ -1,4 +1,4 @@
-<flags CXXFLAGS="-g -O3 -Wall -lASImage -lMultiProc" />
+<flags CXXFLAGS="-g -O3 -lASImage -lMultiProc" />
 <use name="Alignment/OfflineValidation"/>
 <use name="boost" />
 <use name="boost_filesystem"/>
@@ -18,6 +18,7 @@
 <bin name="SplitVmerge" file="SplitVmerge.cc,Options.cc" />
 <bin name="Zmumumerge" file="Zmumumerge.cc,Options.cc" />
 <bin name="DiMuonVmerge" file="DiMuonVmerge.cc,Options.cc" />
+<bin name="GenericVmerge" file="GenericVmerge.cc,Options.cc" />
 <bin name="MTSmerge" file="MTSmerge.cc,Options.cc" />
 <bin name="haddws" file="haddws.C" />
 <bin name="jetHtPlotter" file="jetHtPlotter.cc,JetHtPlotConfiguration.cc,Options.cc" />

@@ -50,6 +50,7 @@ TrackCandidate TrackMerger::merge(const reco::Track &inner,
   for (auto it = inner.recHitsBegin(), ed = inner.recHitsEnd(); it != ed; ++it) {
     hits.push_back(&**it);
     if (debug_) {
+      [[clang::suppress]]
       DetId id(hits.back()->geographicalId());
       PRINT << "   subdet " << id.subdetId() << "  layer " << theTrkTopo->layer(id) << " valid "
             << hits.back()->isValid() << "   detid: " << id() << std::endl;

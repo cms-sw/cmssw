@@ -11,18 +11,18 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:myout.root')
-)
+from IOPool.Input.modules import PoolSource
+process.source = PoolSource(fileNames = 'file:myout.root')
 
 process.a1 = cms.EDAnalyzer("StreamThingAnalyzer",
     product_to_get = cms.string('m1'),
     inChecksum = cms.untracked.string('out')
 )
 
-process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
-    verbose = cms.untracked.bool(False),
-    expectedRunLumiEvents = cms.untracked.vuint64(
+from FWCore.Framework.modules import RunLumiEventAnalyzer
+process.test = RunLumiEventAnalyzer(
+    verbose = False,
+    expectedRunLumiEvents = [
       1, 0, 0,
       1, 1, 0,
       1, 1, 10123456789,
@@ -77,19 +77,19 @@ process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
       1, 1, 10123456838,
       1, 1, 0,
       1, 0, 0
-    ),
-    expectedEndingIndex = cms.untracked.int32(162)
+    ],
+    expectedEndingIndex = 162
 )
 
-process.out = cms.OutputModule("EventStreamFileWriter",
-    fileName = cms.untracked.string('teststreamfile_copy.dat'),
-    compression_level = cms.untracked.int32(1),
-    use_compression = cms.untracked.bool(True),
-    max_event_size = cms.untracked.int32(7000000)
+from IOPool.Streamer.modules import EventStreamFileWriter
+process.out = EventStreamFileWriter(
+    fileName = 'teststreamfile_copy.dat',
+    compression_level = 1,
+    use_compression = True,
+    max_event_size = 7000000
 )
 
-process.outp = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('myout2.root')
-)
+from IOPool.Output.modules import PoolOutputModule
+process.outp = PoolOutputModule(fileName = cms.untracked.string('myout2.root'))
 
 process.e = cms.EndPath(process.test*process.a1*process.out*process.outp)

@@ -5,7 +5,6 @@ from array import array
 from ROOT import gDirectory
 import sys
 import os
-from __future__ import print_function
 
 def getGTfromDQMFile(DQMfile, RunNumber, globalTagVar):
     if not os.path.isfile(DQMfile):#    print "Error: file", DQMfile, "not found, exit" 

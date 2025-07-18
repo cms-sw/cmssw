@@ -21,7 +21,7 @@ public:
       declare(ss.str(), iC);
     }
   }
-  ~L1BitComputer() override{};
+  ~L1BitComputer() override {}
 
   void compute(const edm::Event& iEvent) const override {
     edm::Handle<L1GlobalTriggerReadoutRecord> l1Handle;

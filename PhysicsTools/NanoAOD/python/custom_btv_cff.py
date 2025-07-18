@@ -1,12 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import Var
+from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.jetsAK4_Puppi_cff import jetPuppiTable, jetPuppiCorrFactorsNano, updatedJetsPuppi, updatedJetsPuppiWithUserData
 from PhysicsTools.NanoAOD.jetsAK8_cff import fatJetTable, subJetTable
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 from PhysicsTools.PatAlgos.tools.helpers import addToProcessAndTask, getPatAlgosToolsTask
 from PhysicsTools.NanoAOD.common_cff import Var, CandVars
 from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
-from PhysicsTools.NanoAOD.btvMC_cff import allPFPFCandsMCSequence,ak4ak8PFCandsMCSequence,ak8onlyPFCandsMCSequence,ak4onlyPFCandsMCSequence
+from PhysicsTools.NanoAOD.btvMC_cff import addGenCands
 ## Move PFNano (https://github.com/cms-jet/PFNano/) to NanoAOD
 
 ## From: https://github.com/cms-jet/PFNano/blob/13_0_7_from124MiniAOD/python/addBTV.py
@@ -17,10 +18,15 @@ def update_jets_AK4(process):
     # https://github.com/cms-sw/cmssw/blob/master/RecoBTag/ONNXRuntime/plugins/DeepFlavourONNXJetTagsProducer.cc#L86
     # and https://twiki.cern.ch/twiki/bin/view/CMS/DeepJet
     from RecoBTag.ONNXRuntime.pfParticleTransformerAK4_cff import _pfParticleTransformerAK4JetTagsAll as pfParticleTransformerAK4JetTagsAll
+    from RecoBTag.ONNXRuntime.pfUnifiedParticleTransformerAK4_cff import _pfUnifiedParticleTransformerAK4JetTagsAll as pfUnifiedParticleTransformerAK4JetTagsAll
     from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4PuppiCentralJetTagsAll as pfParticleNetFromMiniAODAK4PuppiCentralJetTagsAll
     from RecoBTag.ONNXRuntime.pfParticleTransformerAK4_cff import _pfNegativeParticleTransformerAK4JetTagsProbs as pfNegativeParticleTransformerAK4JetTagsProbs
+    
+    from RecoBTag.ONNXRuntime.pfUnifiedParticleTransformerAK4_cff import _pfUnifiedParticleTransformerAK4JetTagsProbs as pfUnifiedParticleTransformerAK4JetTagsProbs 
     from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfNegativeParticleNetFromMiniAODAK4PuppiCentralJetTagsProbs as pfNegativeParticleNetFromMiniAODAK4PuppiCentralJetTagsProbs
-
+    from RecoBTag.ONNXRuntime.pfParticleTransformerAK4_cff import _pfNegativeParticleTransformerAK4JetTagsProbs as pfNegativeParticleTransformerAK4JetTagsProbs
+    from RecoBTag.ONNXRuntime.pfUnifiedParticleTransformerAK4_cff import _pfNegativeUnifiedParticleTransformerAK4JetTagsProbs as pfNegativeUnifiedParticleTransformerAK4JetTagsProbs
+    
     _btagDiscriminators = [
         'pfJetProbabilityBJetTags',
         'pfJetBProbabilityBJetTags',
@@ -38,7 +44,7 @@ def update_jets_AK4(process):
         'pfNegativeDeepFlavourJetTags:probc',
         'pfNegativeDeepFlavourJetTags:probuds',
         'pfNegativeDeepFlavourJetTags:probg',
-    ]        + pfParticleNetFromMiniAODAK4PuppiCentralJetTagsAll + pfNegativeParticleNetFromMiniAODAK4PuppiCentralJetTagsProbs
+    ]        + pfParticleNetFromMiniAODAK4PuppiCentralJetTagsAll + pfNegativeParticleNetFromMiniAODAK4PuppiCentralJetTagsProbs + pfUnifiedParticleTransformerAK4JetTagsAll + pfNegativeUnifiedParticleTransformerAK4JetTagsProbs
     # \ #+ pfParticleTransformerAK4JetTagsAll + pfNegativeParticleTransformerAK4JetTagsProbs \
     updateJetCollection(
         process,
@@ -49,6 +55,7 @@ def update_jets_AK4(process):
                              'L2L3Residual']), 'None'),
         btagDiscriminators=_btagDiscriminators,
         postfix='PuppiWithDeepInfo',
+        btagInfos=["pfUnifiedParticleTransformerAK4TagInfos"],
     )
     process.load("Configuration.StandardSequences.MagneticField_cff")
     process.jetPuppiCorrFactorsNano.src = "selectedUpdatedPatJetsPuppiWithDeepInfo"
@@ -56,10 +63,15 @@ def update_jets_AK4(process):
     
     
     process.updatedPatJetsTransientCorrectedPuppiWithDeepInfo.tagInfoSources.append(cms.InputTag("pfDeepFlavourTagInfosPuppiWithDeepInfo"))
+    process.updatedPatJetsTransientCorrectedPuppiWithDeepInfo.tagInfoSources.append(cms.InputTag("pfUnifiedParticleTransformerAK4TagInfosPuppiWithDeepInfo"))
     process.updatedPatJetsTransientCorrectedPuppiWithDeepInfo.addTagInfos = cms.bool(True)
 
-    
-    
+    # Fix ParticleNetFromMiniAOD input when slimmedTaus is updated
+    from PhysicsTools.NanoAOD.nano_cff import _fixPNetInputCollection
+    (run2_nanoAOD_106Xv2 | run3_nanoAOD_pre142X | nanoAOD_rePuppi).toModify(
+        process, lambda p: _fixPNetInputCollection(p)
+    )
+
     return process
 
 def update_jets_AK8(process):
@@ -291,14 +303,6 @@ def get_DeepJet_outputs():
                             float,
                             doc="Negative DeepJet lepb tag probability",
                             precision=10),
-        btagNegDeepFlavC = Var("bDiscriminator('pfNegativeDeepFlavourJetTags:probc')",
-                            float,
-                            doc="Negative DeepJet c tag probability",
-                            precision=10),
-        btagNegDeepFlavUDS = Var("bDiscriminator('pfNegativeDeepFlavourJetTags:probuds')",
-                            float,
-                            doc="Negative DeepJet uds tag probability",
-                            precision=10),
         btagNegDeepFlavG = Var("bDiscriminator('pfNegativeDeepFlavourJetTags:probg')",
                             float,
                             doc="Negative DeepJet gluon tag probability",
@@ -340,14 +344,6 @@ def get_ParticleNetAK4_outputs():
                             float,
                             doc="Negative ParticleNet c vs. b",
                             precision=10),
-        btagNegPNetProbB = Var("?bDiscriminator('pfNegativeParticleNetFromMiniAODAK4PuppiCentralJetTags:probb')>0?bDiscriminator('pfNegativeParticleNetFromMiniAODAK4PuppiCentralJetTags:probb'):-1",
-                            float,
-                            doc="Negative ParticleNet b tag probability",
-                            precision=10),
-        btagNegPNetProbC = Var("?bDiscriminator('pfNegativeParticleNetFromMiniAODAK4PuppiCentralJetTags:probc')>0?bDiscriminator('pfNegativeParticleNetFromMiniAODAK4PuppiCentralJetTags:probc'):-1",
-                            float,
-                            doc="Negative ParticleNet c tag probability",
-                            precision=10),
         btagNegPNetProbUDS = Var("?bDiscriminator('pfNegativeParticleNetFromMiniAODAK4PuppiCentralJetTags:probuds')>0?bDiscriminator('pfNegativeParticleNetFromMiniAODAK4PuppiCentralJetTags:probuds'):-1",
                             float,
                             doc="Negative ParticleNet uds tag probability",
@@ -373,10 +369,6 @@ def get_ParticleTransformerAK4_outputs():
         btagRobustParTAK4B_lepb=Var("bDiscriminator('pfParticleTransformerAK4JetTags:problepb')",
                             float,
                             doc="RobustParTAK4 lepb tag probability",
-                            precision=10),
-        btagRobustParTAK4C=Var("bDiscriminator('pfParticleTransformerAK4JetTags:probc')",
-                            float,
-                            doc="RobustParTAK4 c tag probability",
                             precision=10),
         btagRobustParTAK4UDS=Var("bDiscriminator('pfParticleTransformerAK4JetTags:probuds')",
                             float,
@@ -416,14 +408,6 @@ def get_ParticleTransformerAK4_outputs():
                             float,
                             doc="Negative RobustParTAK4 lepb tag probability",
                             precision=10),
-        btagNegRobustParTAK4C = Var("bDiscriminator('pfNegativeParticleTransformerAK4JetTags:probc')",
-                            float,
-                            doc="Negative RobustParTAK4 c tag probability",
-                            precision=10),
-        btagNegRobustParTAK4UDS = Var("bDiscriminator('pfNegativeParticleTransformerAK4JetTags:probuds')",
-                            float,
-                            doc="Negative RobustParTAK4 uds tag probability",
-                            precision=10),
         btagNegRobustParTAK4G = Var("bDiscriminator('pfNegativeParticleTransformerAK4JetTags:probg')",
                             float,
                             doc="Negative RobustParTAK4 gluon tag probability",
@@ -431,6 +415,68 @@ def get_ParticleTransformerAK4_outputs():
     )
 
     return ParticleTransformerAK4OutputVars
+
+def get_UnifiedParticleTransformerAK4_outputs():
+    UnifiedParticleTransformerAK4OutputVars = cms.PSet(       
+        btagUParTAK4B_b=Var("bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:probb')",
+                            float,
+                            doc="UnifiedParT b tag probability",
+                            precision=10),
+        btagUParTAK4B_bb=Var("bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:probbb')",
+                            float,
+                            doc="UnifiedParT bb tag probability",
+                            precision=10),
+        btagUParTAK4B_lepb=Var("bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:problepb')",
+                            float,
+                            doc="UnifiedParT lepb tag probability",
+                            precision=10),
+        btagUParTAK4UDS=Var("bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:probuds')",
+                            float,
+                            doc="UnifiedParT uds tag probability",
+                            precision=10),
+        btagUParTAK4G=Var("bDiscriminator('pfUnifiedParticleTransformerAK4JetTags:probg')",
+                            float,
+                            doc="UnifiedParT gluon tag probability",
+                            precision=10),
+
+        # negative taggers
+        btagNegUParTAK4B = Var("bDiscriminator('pfNegativeUnifiedParticleTransformerAK4JetTags:probb')+bDiscriminator('pfNegativeUnifiedParticleTransformerAK4JetTags:probbb')+bDiscriminator('pfNegativeUnifiedParticleTransformerAK4JetTags:problepb')",
+                            float,
+                            doc="Negative UnifiedParT b+bb+lepb tag discriminator",
+                            precision=10),
+        btagNegUParTAK4CvL = Var("?(bDiscriminator('pfNegativeUnifiedParticleTransformerAK4JetTags:probc')+bDiscriminator('pfNegativeUnifiedParticleTransformerAK4JetTags:probuds')+bDiscriminator('pfNegativeUnifiedParticleTransformerAK4JetTags:probg'))>0?bDiscriminator('pfNegativeUnifiedParticleTransformerAK4JetTags:probc')/(bDiscriminator('pfNegativeUnifiedParticleTransformerAK4JetTags:probc')+bDiscriminator('pfNegativeUnifiedParticleTransformerAK4JetTags:probuds')+bDiscriminator('pfNegativeUnifiedParticleTransformerAK4JetTags:probg')):-1",
+                            float,
+                            doc="Negative UnifiedParT c vs uds+g discriminator",
+                            precision=10),
+        btagNegUParTAK4CvB = Var("?(bDiscriminator('pfNegativeUnifiedParticleTransformerAK4JetTags:probc')+bDiscriminator('pfNegativeUnifiedParticleTransformerAK4JetTags:probb')+bDiscriminator('pfNegativeUnifiedParticleTransformerAK4JetTags:probbb')+bDiscriminator('pfNegativeUnifiedParticleTransformerAK4JetTags:problepb'))>0?bDiscriminator('pfNegativeUnifiedParticleTransformerAK4JetTags:probc')/(bDiscriminator('pfNegativeUnifiedParticleTransformerAK4JetTags:probc')+bDiscriminator('pfNegativeUnifiedParticleTransformerAK4JetTags:probb')+bDiscriminator('pfNegativeUnifiedParticleTransformerAK4JetTags:probbb')+bDiscriminator('pfNegativeUnifiedParticleTransformerAK4JetTags:problepb')):-1",
+                            float,
+                            doc="Negative UnifiedParT c vs b+bb+lepb discriminator",
+                            precision=10),
+        btagNegUParTAK4QG = Var("?(bDiscriminator('pfNegativeUnifiedParticleTransformerAK4JetTags:probg')+bDiscriminator('pfNegativeUnifiedParticleTransformerAK4JetTags:probuds'))>0?bDiscriminator('pfNegativeUnifiedParticleTransformerAK4JetTags:probg')/(bDiscriminator('pfNegativeUnifiedParticleTransformerAK4JetTags:probg')+bDiscriminator('pfNegativeUnifiedParticleTransformerAK4JetTags:probuds')):-1",
+                            float,
+                            doc="Negative UnifiedParT g vs uds discriminator",
+                            precision=10),
+        btagNegUParTAK4B_b = Var("bDiscriminator('pfNegativeUnifiedParticleTransformerAK4JetTags:probb')",
+                            float,
+                            doc="Negative UnifiedParT b tag probability",
+                            precision=10),
+        btagNegUParTAK4B_bb = Var("bDiscriminator('pfNegativeUnifiedParticleTransformerAK4JetTags:probbb')",
+                            float,
+                            doc="Negative UnifiedParT bb tag probability",
+                            precision=10),
+        btagNegUParTAK4B_lepb = Var("bDiscriminator('pfNegativeUnifiedParticleTransformerAK4JetTags:problepb')",
+                            float,
+                            doc="Negative UnifiedParT lepb tag probability",
+                            precision=10),
+        btagNegUParTAK4G = Var("bDiscriminator('pfNegativeUnifiedParticleTransformerAK4JetTags:probg')",
+                            float,
+                            doc="Negative UnifiedParT gluon tag probability",
+                            precision=10),
+    )
+
+    return UnifiedParticleTransformerAK4OutputVars
+
+
 
 def add_BTV(process,  addAK4=False, addAK8=False, scheme="btvSF"):
     process.customizeJetTask = cms.Task()
@@ -468,9 +514,9 @@ def add_BTV(process,  addAK4=False, addAK8=False, scheme="btvSF"):
     # AK4
     if addAK4:
         if scheme == "btvSF":
-            _n_cpf = 3 
-            _n_npf = 3
-            _n_sv = 4
+            _n_cpf = 2
+            _n_npf = 2
+            _n_sv = 2
         elif scheme == "DeepJet":
             _n_cpf = 25 
             _n_npf = 25
@@ -494,29 +540,19 @@ def add_BTV(process,  addAK4=False, addAK8=False, scheme="btvSF"):
                 get_DeepCSV_vars(),
                 get_DeepJet_outputs(),  # outputs are added in any case, inputs only if requested
                 get_ParticleNetAK4_outputs(),
-                #get_ParticleTransformerAK4_outputs(),# removed in 2024
+                get_UnifiedParticleTransformerAK4_outputs(),
+                get_ParticleTransformerAK4_outputs(),# removed in 2024
             ))
-
-        # disable the ParT branches in default jetPuppi table
-        from PhysicsTools.NanoAOD.nano_eras_cff import run3_nanoAOD_122, run3_nanoAOD_124
-        (run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
-            process.jetPuppiTable.variables,
-            btagRobustParTAK4B = None,
-            btagRobustParTAK4CvL = None,
-            btagRobustParTAK4CvB = None,
-            btagRobustParTAK4QG = None,
-        )
-    
     
          # from Run3 onwards, always set storeAK4Truth to True for MC
-        process.customAK4ConstituentsForDeepJetTable = cms.EDProducer("PatJetDeepJetTableProducer",
+        process.customAK4ConstituentsForJetTaggerTable = cms.EDProducer("PatJetTaggerTableProducer",
                                                                         jets = cms.InputTag("linkedObjects","jets"),
                                                                         n_cpf=cms.uint32(_n_cpf),
                                                                         n_npf=cms.uint32(_n_npf),
                                                                         n_sv=cms.uint32(_n_sv)
                                                                       )
         process.customizeJetTask.add(process.customJetExtTable)
-        process.customizeJetTask.add(process.customAK4ConstituentsForDeepJetTable)
+        process.customizeJetTask.add(process.customAK4ConstituentsForJetTaggerTable)
     # AK8
     if addAK8:
         process = update_jets_AK8(process)
@@ -532,7 +568,7 @@ def add_BTV(process,  addAK4=False, addAK8=False, scheme="btvSF"):
             variables=cms.PSet(
                 CommonVars,
                 #HadronCountingVars if runOnMC else cms.PSet(), # only necessary before 106x
-                get_DDX_vars() ,
+                # get_DDX_vars() , #FIXME: no method or data member named "features" found for type "const reco::BaseTagInfo*"
             ))
 
 
@@ -617,6 +653,12 @@ def addPFCands(process, allPF = False, addAK4=False, addAK8=False):
                                                             trkPhi = Var("?hasTrackDetails()?pseudoTrack().phi():-1", float, doc="track phi", precision=12),
                                                          )
                                     )
+    kwargs = { }
+    import os
+    sv_sort = os.getenv('CMSSW_NANOAOD_SV_SORT')
+    if sv_sort is not None: kwargs['sv_sort'] = cms.untracked.string(sv_sort)
+    pf_sort = os.getenv('CMSSW_NANOAOD_PF_SORT')
+    if pf_sort is not None: kwargs['pf_sort'] = cms.untracked.string(pf_sort)
     process.customAK8ConstituentsTable = cms.EDProducer("PatJetConstituentTableProducer",
                                                         candidates = candInput,
                                                         jets = cms.InputTag("finalJetsAK8"),
@@ -625,6 +667,7 @@ def addPFCands(process, allPF = False, addAK4=False, addAK8=False):
                                                         idx_name = cms.string("pFCandsIdx"),
                                                         nameSV = cms.string("FatJetSVs"),
                                                         idx_nameSV = cms.string("sVIdx"),
+                                                        **kwargs,
                                                         )
     process.customAK4ConstituentsTable = cms.EDProducer("PatJetConstituentTableProducer",
                                                         candidates = candInput,
@@ -634,6 +677,7 @@ def addPFCands(process, allPF = False, addAK4=False, addAK8=False):
                                                         idx_name = cms.string("pFCandsIdx"),
                                                         nameSV = cms.string("JetSVs"),
                                                         idx_nameSV = cms.string("sVIdx"),
+                                                        **kwargs,
                                                         )
     process.customizedPFCandsTask.add(process.customConstituentsExtTable)
 
@@ -648,30 +692,54 @@ def addPFCands(process, allPF = False, addAK4=False, addAK8=False):
         
     return process
 
-## Switches for BTV nano
-# Default(store SFs PFCands+TaggerInputs) for both AK4 & AK8 jets
-# btvNano_addAK4_switch, btvNano_addAK8_switch True, btvNano_addPF_switch  False, TaggerInput = "btvSF"
-
-btvNano_switch = cms.PSet(
-    btvNano_addAK4_switch = cms.untracked.bool(True),
-    btvNano_addAK8_switch = cms.untracked.bool(False),
-    btvNano_addallPF_switch = cms.untracked.bool(False),
-    TaggerInput = cms.string("btvSF")
-  )
-
-def BTVCustomNanoAOD(process):
+def BTVCustomNanoAOD_base(process, btvNano_switch):
     addPFCands(process,btvNano_switch.btvNano_addallPF_switch,btvNano_switch.btvNano_addAK4_switch,btvNano_switch.btvNano_addAK8_switch)
     add_BTV(process, btvNano_switch.btvNano_addAK4_switch,btvNano_switch.btvNano_addAK8_switch,btvNano_switch.TaggerInput)
-    process.load("PhysicsTools.NanoAOD.btvMC_cff")
-    ### for MC
-    if btvNano_switch.btvNano_addallPF_switch:
-        process.nanoSequenceMC+=allPFPFCandsMCSequence
-    else:
-        if btvNano_switch.btvNano_addAK4_switch and btvNano_switch.btvNano_addAK8_switch :
-            process.nanoSequenceMC+=ak4ak8PFCandsMCSequence
-        elif btvNano_switch.btvNano_addAK4_switch and not btvNano_switch.btvNano_addAK8_switch :
-            process.nanoSequenceMC+=ak4onlyPFCandsMCSequence
-        elif not btvNano_switch.btvNano_addAK4_switch and btvNano_switch.btvNano_addAK8_switch:
-            process.nanoSequenceMC+=ak8onlyPFCandsMCSequence
-    
+    if hasattr(process, "nanoSequenceMC") and process.schedule.contains(process.nanoSequenceMC):
+        addGenCands(process,btvNano_switch.btvNano_addallPF_switch,btvNano_switch.btvNano_addAK4_switch,btvNano_switch.btvNano_addAK8_switch)
+    return process
+
+def BTVCustomNanoAOD(process):
+    # Default: store PFCands + tagger inputs/outputs for AK4+AK8 jets
+    BTVCustomNanoAOD_AK4AK8(process)
+    return process
+
+def BTVCustomNanoAOD_AK4(process):
+    btvNano_switch = cms.PSet(
+        btvNano_addAK4_switch = cms.untracked.bool(True),
+        btvNano_addAK8_switch = cms.untracked.bool(False),
+        btvNano_addallPF_switch = cms.untracked.bool(False),
+        TaggerInput = cms.string("btvSF")
+    )
+    BTVCustomNanoAOD_base(process, btvNano_switch)
+    return process
+
+def BTVCustomNanoAOD_AK8(process):
+    btvNano_switch = cms.PSet(
+        btvNano_addAK4_switch = cms.untracked.bool(False),
+        btvNano_addAK8_switch = cms.untracked.bool(True),
+        btvNano_addallPF_switch = cms.untracked.bool(False),
+        TaggerInput = cms.string("btvSF")
+    )
+    BTVCustomNanoAOD_base(process, btvNano_switch)
+    return process
+
+def BTVCustomNanoAOD_AK4AK8(process):
+    btvNano_switch = cms.PSet(
+        btvNano_addAK4_switch = cms.untracked.bool(True),
+        btvNano_addAK8_switch = cms.untracked.bool(True),
+        btvNano_addallPF_switch = cms.untracked.bool(False),
+        TaggerInput = cms.string("btvSF")
+    )
+    BTVCustomNanoAOD_base(process, btvNano_switch)
+    return process
+
+def BTVCustomNanoAOD_allPF(process):
+    btvNano_switch = cms.PSet(
+        btvNano_addAK4_switch = cms.untracked.bool(True),
+        btvNano_addAK8_switch = cms.untracked.bool(True),
+        btvNano_addallPF_switch = cms.untracked.bool(True),
+        TaggerInput = cms.string("btvSF")
+    )
+    BTVCustomNanoAOD_base(process, btvNano_switch)
     return process

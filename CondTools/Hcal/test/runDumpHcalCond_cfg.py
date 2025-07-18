@@ -1,4 +1,3 @@
-from __future__ import print_function
 import sys
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
@@ -137,9 +136,7 @@ process.source = cms.Source("EmptySource",
 
 if options.dbfile and options.dblist:
     process.es_dbfile = cms.ESSource("PoolDBESSource",
-        timetype = cms.string('runnumber'),
         connect = cms.string(options.dbfile),
-        authenticationMethod = cms.untracked.uint32(0),
         toGet = cms.VPSet()
     )
     for rcd in options.dblist:
@@ -150,9 +147,7 @@ if options.dbfile and options.dblist:
 
 if options.frontierloc and options.frontierlist:
     process.es_frontier = cms.ESSource("PoolDBESSource",
-        timetype = cms.string('runnumber'),
         connect = cms.string(options.frontierloc),
-        authenticationMethod = cms.untracked.uint32(0),
         toGet = cms.VPSet()
     )
     for rcd in options.frontierlist:

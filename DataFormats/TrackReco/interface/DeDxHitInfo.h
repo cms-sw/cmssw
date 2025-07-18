@@ -16,13 +16,15 @@ namespace reco {
     class DeDxHitInfoContainer {
     public:
       DeDxHitInfoContainer() : charge_(0.0f), pathlength_(0.0f) {}
-      DeDxHitInfoContainer(const float charge, const float pathlength, const DetId& detId, const LocalPoint& pos)
-          : charge_(charge), pathlength_(pathlength), detId_(detId), pos_(pos) {}
+      DeDxHitInfoContainer(
+          const float charge, const float pathlength, const DetId& detId, const LocalPoint& pos, const uint8_t& type)
+          : charge_(charge), pathlength_(pathlength), detId_(detId), pos_(pos), type_(type) {}
 
       float charge() const { return charge_; }
       float pathlength() const { return pathlength_; }
       const DetId& detId() const { return detId_; }
       const LocalPoint& pos() const { return pos_; }
+      const uint8_t& type() const { return type_; }
 
     private:
       //! total cluster charge
@@ -32,8 +34,10 @@ namespace reco {
       DetId detId_;
       //! hit position
       LocalPoint pos_;
+      uint8_t type_;
     };
 
+    static constexpr int Complete = 0, Compatible = 1, Calibration = 2;
     typedef std::vector<DeDxHitInfo::DeDxHitInfoContainer> DeDxHitInfoContainerCollection;
 
   public:
@@ -43,6 +47,7 @@ namespace reco {
     float pathlength(size_t i) const { return infos_[i].pathlength(); }
     DetId detId(size_t i) const { return infos_[i].detId(); }
     const LocalPoint pos(size_t i) const { return infos_[i].pos(); }
+    const uint8_t type(size_t i) const { return infos_[i].type(); }
     const SiPixelCluster* pixelCluster(size_t i) const {
       size_t P = 0;
       bool isPixel = false;
@@ -90,16 +95,18 @@ namespace reco {
                 const float pathlength,
                 const DetId& detId,
                 const LocalPoint& pos,
+                const uint8_t& type,
                 const SiStripCluster& stripCluster) {
-      infos_.push_back(DeDxHitInfoContainer(charge, pathlength, detId, pos));
+      infos_.push_back(DeDxHitInfoContainer(charge, pathlength, detId, pos, type));
       stripClusters_.push_back(stripCluster);
     }
     void addHit(const float charge,
                 const float pathlength,
                 const DetId& detId,
                 const LocalPoint& pos,
+                const uint8_t& type,
                 const SiPixelCluster& pixelCluster) {
-      infos_.push_back(DeDxHitInfoContainer(charge, pathlength, detId, pos));
+      infos_.push_back(DeDxHitInfoContainer(charge, pathlength, detId, pos, type));
       pixelClusters_.push_back(pixelCluster);
     }
 

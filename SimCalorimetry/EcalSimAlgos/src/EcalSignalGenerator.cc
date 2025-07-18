@@ -86,7 +86,7 @@ CaloSamples EcalSignalGenerator<EBDigitizerTraits>::samplesInPE(const DIGI &digi
       result[isample] =
           float(digi[isample].adc()) * LSB[gainId - 1] * icalconst / peToA *
           correction_factor_for_premixed_sample_transparency;  // bet that no pileup hit has an energy over Emax/2
-    }                                                          // gain = 0
+    }  // gain = 0
     else {
       result[isample] =
           float(digi[isample].adc()) * LSB[gainId] * icalconst / peToA *

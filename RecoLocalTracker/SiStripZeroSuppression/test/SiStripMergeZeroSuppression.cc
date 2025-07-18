@@ -143,8 +143,8 @@ void SiStripMergeZeroSuppression::produce(edm::Event& event, const edm::EventSet
           LogTrace("SiStripMergeZeroSuppression::produce") << "exiting suppressing the raw digis"
                                                            << "\n";
         }  //if new ZS digis size
-      }    //if module restored
-    }      //loop over raw data collection
+      }  //if module restored
+    }  //loop over raw data collection
 
     uint32_t oldid = 0;
     for (const auto& dg : outputdigi) {

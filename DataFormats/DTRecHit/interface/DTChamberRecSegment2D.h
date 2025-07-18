@@ -45,7 +45,7 @@ public:
                         std::vector<DTRecHit1D> &hits1D);
 
   /// Destructor
-  ~DTChamberRecSegment2D() override{};
+  ~DTChamberRecSegment2D() override {}
 
   /* Operations */
 

@@ -113,7 +113,7 @@ void testChannel::analyze(edm::Event const &event, edm::EventSetup const &eventS
           m_singlePedVSDAC_3.Fill(df.sample(iSample).adc(), DACvalues[smId]);
       }
     }  // loop over the samples
-  }    // loop over the digis
+  }  // loop over the digis
 }
 
 //! perform the minimiation and write results

@@ -44,7 +44,7 @@ namespace pat {
       float cut_;
       mutable std::atomic<uint64_t> try_, fail_;
     };  // class BaseIsolator
-  }     // namespace helper
+  }  // namespace helper
 }  // namespace pat
 
 inline std::ostream &operator<<(std::ostream &stream, const pat::helper::BaseIsolator &iso) {

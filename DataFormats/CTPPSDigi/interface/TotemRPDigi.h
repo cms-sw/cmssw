@@ -15,7 +15,7 @@
 **/
 class TotemRPDigi {
 public:
-  TotemRPDigi(unsigned short strip_no = 0) : strip_no_(strip_no){};
+  TotemRPDigi(unsigned short strip_no = 0) : strip_no_(strip_no) {}
 
   unsigned short stripNumber() const { return strip_no_; }
 

@@ -749,7 +749,7 @@ namespace dqm::implementation {
     }
     std::vector<std::string> out;
     for (const auto& dir : subdirs) {
-      if (dir.length() == 0)
+      if (dir.empty())
         continue;
       out.push_back(this->cwd_ + dir);
     }

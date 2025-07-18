@@ -29,7 +29,7 @@ public:
     produces<nanoaod::FlatTable>();
   }
 
-  ~BTVMCFlavourTableProducer() override{};
+  ~BTVMCFlavourTableProducer() override {}
   int jet_flavour(const pat::Jet& jet,
                   const std::vector<reco::GenParticle>& gToBB,
                   const std::vector<reco::GenParticle>& gToCC,

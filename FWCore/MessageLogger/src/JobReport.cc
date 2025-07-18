@@ -351,6 +351,19 @@ namespace edm {
     temporarilyCloseXML();
   }
 
+  void JobReport::reportProcess(std::string_view processName,
+                                ProcessConfigurationID const& reducedProcessID,
+                                ParameterSetID const& psetID) {
+    if (impl_->ost_) {
+      *(impl_->ost_) << "\n<Process>\n";
+      *(impl_->ost_) << "  <Name>" << processName << "</Name>\n";
+      *(impl_->ost_) << "  <ReducedConfigurationID>" << reducedProcessID << "</ReducedConfigurationID>\n";
+      *(impl_->ost_) << "  <ParameterSetID>" << psetID << "</ParameterSetID>\n";
+      *(impl_->ost_) << "</Process>\n";
+    }
+    temporarilyCloseXML();
+  }
+
   JobReport::Token JobReport::inputFileOpened(std::string const& physicalFileName,
                                               std::string const& logicalFileName,
                                               std::string const& catalog,

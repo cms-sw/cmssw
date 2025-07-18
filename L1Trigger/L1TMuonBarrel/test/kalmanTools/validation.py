@@ -1,4 +1,3 @@
-from __future__ import print_function
 import ROOT,itertools,math      #
 from array import array         #
 from DataFormats.FWLite import Events, Handle

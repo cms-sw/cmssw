@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # configuration to model pileup for initial physics phase
 # Now, import base configuration instead of specfiying all parameters
 from SimGeneral.MixingModule.mix_probFunction_25ns_PoissonOOTPU_cfi import *
-mix.input.nbPileupEvents.probFunctionVariable = cms.vint32(0,1,2,3,4,5,6,7,8,9,10,11,12),
+mix.input.nbPileupEvents.probFunctionVariable = cms.vint32(0,1,2,3,4,5,6,7,8,9,10,11,12)
 mix.input.nbPileupEvents.probValue = cms.vdouble(
                    0.862811884308912,
                    0.122649088500652,

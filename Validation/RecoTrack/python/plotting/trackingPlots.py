@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from builtins import range
 import os
 import copy
@@ -1444,11 +1443,11 @@ class Iteration:
         return self._other
 
     def modules(self):
-        return [("ClusterMask", self.clusterMasking()),
-                ("Seeding", self.seeding()),
-                ("Building", self.building()),
+        return [("Cluster Mask", self.clusterMasking()),
+                ("Seed", self.seeding()),
+                ("Build", self.building()),
                 ("Fit", self.fit()),
-                ("Selection", self.selection()),
+                ("Select", self.selection()),
                 ("Other", self.other())]
 
 
@@ -1650,11 +1649,11 @@ def _stepModuleMap():
         return ret
 
     return collections.OrderedDict([
-        ("ClusterMask", getProp("clusterMasking")),
-        ("Seeding", getProp("seeding")),
-        ("Building", getProp("building")),
-        ("Fitting", getProp("fit")),
-        ("Selection", getProp("selection")),
+        ("Cluster Mask", getProp("clusterMasking")),
+        ("Seed", getProp("seeding")),
+        ("Build", getProp("building")),
+        ("Fit", getProp("fit")),
+        ("Select", getProp("selection")),
         ("Other", getProp("other"))
     ])
 
@@ -1877,6 +1876,9 @@ _iteration_reorder = TrackingIterationOrder()
 _time_per_iter_cpu = AggregateBins("iteration", _time_per_event_cpu, _iterModuleMap(), ignoreMissingBins=True, reorder=_iteration_reorder)
 _time_per_iter_real = AggregateBins("iteration", _time_per_event_real, _iterModuleMap(), ignoreMissingBins=True, reorder=_iteration_reorder)
 
+_timing_common = _common.copy()
+_timing_common["xbinlabelsize"] = 17
+_timing_common["xbinlabeloption"] = "d"
 _timing_summaryCPU = PlotGroup("summaryCPU", [
     Plot(_time_per_iter_cpu,
          ytitle="Average CPU time (ms)", title="Average CPU time / event", legendDx=-0.4, **_common),
@@ -1884,9 +1886,9 @@ _timing_summaryCPU = PlotGroup("summaryCPU", [
          ytitle="Fraction", title="", normalizeToUnitArea=True, **_common),
     #
     Plot(AggregateBins("step", _time_per_event_cpu, _stepModuleMap(), ignoreMissingBins=True),
-         ytitle="Average CPU time (ms)", title="Average CPU time / event", **_common),
+         ytitle="Average CPU time (ms)", title="Average CPU time / event", **_timing_common),
     Plot(AggregateBins("step_fraction", _time_per_event_cpu, _stepModuleMap(), ignoreMissingBins=True),
-         ytitle="Fraction", title="", normalizeToUnitArea=True, **_common),
+         ytitle="Fraction", title="", normalizeToUnitArea=True, **_timing_common),
     #
     Plot(TimePerTrackPlot("iteration_track", _time_per_iter_cpu, selectedTracks=False),
          ytitle="Average CPU time / built track (ms)", title="Average CPU time / built track", **_common),
@@ -1901,9 +1903,9 @@ _timing_summaryReal = PlotGroup("summaryReal", [
          ytitle="Fraction", title="", normalizeToUnitArea=True, **_common),
     #
     Plot(AggregateBins("step", _time_per_event_real, _stepModuleMap(), ignoreMissingBins=True),
-         ytitle="Average real time (ms)", title="Average real time / event", **_common),
+         ytitle="Average real time (ms)", title="Average real time / event", **_timing_common),
     Plot(AggregateBins("step_fraction", _time_per_event_real, _stepModuleMap(), ignoreMissingBins=True),
-         ytitle="Fraction", title="", normalizeToUnitArea=True, **_common),
+         ytitle="Fraction", title="", normalizeToUnitArea=True, **_timing_common),
     #
     Plot(TimePerTrackPlot("iteration_track", _time_per_iter_real, selectedTracks=False),
          ytitle="Average real time / built track (ms)", title="Average real time / built track", **_common),
@@ -1911,17 +1913,16 @@ _timing_summaryReal = PlotGroup("summaryReal", [
          ytitle="Average real time / selected track (ms)", title="Average real time / selected HP track by algoMask", **_common),
     ],
 )
-
 _timing_iterationsCPU = PlotGroup("iterationsCPU", [
     Plot(AggregateBins(i.name(), _time_per_event_cpu, collections.OrderedDict(i.modules()), ignoreMissingBins=True),
-         ytitle="Average CPU time (ms)", title=i.name(), **_common)
+         ytitle="Average CPU time (ms)", title=i.name(), **_timing_common)
     for i in _iterations
 ],
                                ncols=4, legend=False
 )
 _timing_iterationsReal = PlotGroup("iterationsReal", [
     Plot(AggregateBins(i.name(), _time_per_event_real, collections.OrderedDict(i.modules()), ignoreMissingBins=True),
-         ytitle="Average real time (ms)", title=i.name(), **_common)
+         ytitle="Average real time (ms)", title=i.name(), **_timing_common)
     for i in _iterations
 ],
                                ncols=4, legend=False

@@ -14,6 +14,8 @@
 #include "DataFormats/GeometrySurface/interface/SOARotation.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 
+// #define ONLY_TRIPLETS_IN_HOLE
+
 namespace pixelCPEforDevice {
 
   // From https://cmssdt.cern.ch/dxr/CMSSW/source/CondFormats/SiPixelTransient/src/SiPixelGenError.cc#485-486
@@ -61,11 +63,6 @@ namespace pixelCPEforDevice {
   struct CommonParams {
     float theThicknessB;
     float theThicknessE;
-    float thePitchX;
-    float thePitchY;
-
-    uint16_t maxModuleStride;
-    uint8_t numberOfLaddersInBarrel;
   };
 
   struct DetParams {
@@ -77,6 +74,8 @@ namespace pixelCPEforDevice {
 
     float shiftX;
     float shiftY;
+    float thePitchX;
+    float thePitchY;
     float chargeWidthX;
     float chargeWidthY;
     uint16_t pixmx;  // max pix charge
@@ -98,13 +97,6 @@ namespace pixelCPEforDevice {
     int minCh[kGenErrorQBins];
 
     Frame frame;
-  };
-
-  template <typename TrackerTopology>
-  struct LayerGeometryT {
-    uint32_t layerStart[TrackerTopology::numberOfLayers + 1];
-    uint8_t layer[pixelTopology::layerIndexSize<TrackerTopology>];
-    uint16_t maxModuleStride;
   };
 
   constexpr int32_t MaxHitsInIter = pixelClustering::maxHitsInIter();
@@ -234,17 +226,16 @@ namespace pixelCPEforDevice {
     if (cp.minCol[ic] == 0 || cp.maxCol[ic] == uint32_t(detParams.nCols - 1))
       cp.ysize[ic] = -cp.ysize[ic];
 
-    // apply the lorentz offset correction
-    float xoff = 0.5f * float(detParams.nRows) * comParams.thePitchX;
-    float yoff = 0.5f * float(detParams.nCols) * comParams.thePitchY;
-
-    //correction for bigpixels for phase1
-    xoff = xoff + TrackerTraits::bigPixXCorrection * comParams.thePitchX;
-    yoff = yoff + TrackerTraits::bigPixYCorrection * comParams.thePitchY;
-
-    // apply the lorentz offset correction
-    auto xPos = detParams.shiftX + (comParams.thePitchX * 0.5f * float(mx)) - xoff;
-    auto yPos = detParams.shiftY + (comParams.thePitchY * 0.5f * float(my)) - yoff;
+    // Compute the position relative to the center of the module, taking into account the corrections for
+    // the Phase 1 big pixels, the module pitch, and the Lorentz shift.
+    // Use an explicit FMA instruction instead of simply (position * pitch + shift) to make sure that
+    // different compiler optimizations do not produce different code on different architectures.
+    float xPos = std::fmaf(0.5f * ((float)mx - (float)detParams.nRows) - TrackerTraits::bigPixXCorrection,
+                           detParams.thePitchX,
+                           detParams.shiftX);
+    float yPos = std::fmaf(0.5f * ((float)my - (float)detParams.nCols) - TrackerTraits::bigPixYCorrection,
+                           detParams.thePitchY,
+                           detParams.shiftY);
 
     float cotalpha = 0, cotbeta = 0;
 
@@ -252,7 +243,7 @@ namespace pixelCPEforDevice {
 
     auto thickness = detParams.isBarrel ? comParams.theThicknessB : comParams.theThicknessE;
 
-    auto xcorr = correction(cp.maxRow[ic] - cp.minRow[ic],
+    auto xCorr = correction(cp.maxRow[ic] - cp.minRow[ic],
                             cp.q_f_X[ic],
                             cp.q_l_X[ic],
                             llxl,
@@ -260,11 +251,11 @@ namespace pixelCPEforDevice {
                             detParams.chargeWidthX,  // lorentz shift in cm
                             thickness,
                             cotalpha,
-                            comParams.thePitchX,
+                            detParams.thePitchX,
                             TrackerTraits::isBigPixX(cp.minRow[ic]),
                             TrackerTraits::isBigPixX(cp.maxRow[ic]));
 
-    auto ycorr = correction(cp.maxCol[ic] - cp.minCol[ic],
+    auto yCorr = correction(cp.maxCol[ic] - cp.minCol[ic],
                             cp.q_f_Y[ic],
                             cp.q_l_Y[ic],
                             llyl,
@@ -272,12 +263,12 @@ namespace pixelCPEforDevice {
                             detParams.chargeWidthY,  // lorentz shift in cm
                             thickness,
                             cotbeta,
-                            comParams.thePitchY,
+                            detParams.thePitchY,
                             TrackerTraits::isBigPixY(cp.minCol[ic]),
                             TrackerTraits::isBigPixY(cp.maxCol[ic]));
 
-    cp.xpos[ic] = xPos + xcorr;
-    cp.ypos[ic] = yPos + ycorr;
+    cp.xpos[ic] = xPos + xCorr;
+    cp.ypos[ic] = yPos + yCorr;
   }
 
   template <typename TrackerTraits>
@@ -375,12 +366,16 @@ namespace pixelCPEforDevice {
     cp.status[ic].isOneY = isOneY;
     cp.status[ic].isBigY = (isOneY & isBigY) | isEdgeY;
 
-    auto xoff = -float(TrackerTraits::xOffset) * comParams.thePitchX;
+    auto xoff = -float(TrackerTraits::xOffset) * detParams.thePitchX;
     int low_value = 0;
     int high_value = kNumErrorBins - 1;
     int bin_value = float(kNumErrorBins) * (cp.xpos[ic] + xoff) / (2 * xoff);
     // return estimated bin value truncated to [0, 15]
-    int jx = std::clamp(bin_value, low_value, high_value);
+    // Equivalent of jx = std::clamp(bin_value, low_value, high_value)
+    // which doesn't compile with gcc14 due to reference to __glibcxx_assert
+    // See https://github.com/llvm/llvm-project/issues/95183
+    int tmp_max = std::max<int>(bin_value, low_value);
+    int jx = std::min<int>(tmp_max, high_value);
 
     auto toCM = [](uint8_t x) { return float(x) * 1.e-4f; };
 
@@ -406,26 +401,23 @@ namespace pixelCPEforDevice {
 
   template <typename TrackerTopology>
   struct ParamsOnDeviceT {
-    using LayerGeometry = LayerGeometryT<TrackerTopology>;
-    using AverageGeometry = pixelTopology::AverageGeometryT<TrackerTopology>;
-
     CommonParams m_commonParams;
     // Will contain an array of DetParams instances
     DetParams m_detParams[TrackerTopology::numberOfModules];
-    LayerGeometry m_layerGeometry;
-    AverageGeometry m_averageGeometry;
 
     constexpr CommonParams const& __restrict__ commonParams() const { return m_commonParams; }
     constexpr DetParams const& __restrict__ detParams(int i) const { return m_detParams[i]; }
-    constexpr LayerGeometry const& __restrict__ layerGeometry() const { return m_layerGeometry; }
-    constexpr AverageGeometry const& __restrict__ averageGeometry() const { return m_averageGeometry; }
 
     CommonParams& commonParams() { return m_commonParams; }
     DetParams& detParams(int i) { return m_detParams[i]; }
-    LayerGeometry& layerGeometry() { return m_layerGeometry; }
-    AverageGeometry& averageGeometry() { return m_averageGeometry; }
 
-    constexpr uint8_t layer(uint16_t id) const { return m_layerGeometry.layer[id / TrackerTopology::maxModuleStride]; };
+#ifdef ONLY_TRIPLETS_IN_HOLE
+    using AverageGeometry = pixelTopology::AverageGeometryT<TrackerTopology>;
+
+    AverageGeometry m_averageGeometry;
+    constexpr AverageGeometry const& __restrict__ averageGeometry() const { return m_averageGeometry; }
+    AverageGeometry& averageGeometry() { return m_averageGeometry; }
+#endif  // ONLY_TRIPLETS_IN_HOLE
   };
 
 }  // namespace pixelCPEforDevice

@@ -161,6 +161,7 @@ void PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
         jecCor_->setJetPt(jet.pt());
       }
       jecCor_->setJetEta(jet.eta());
+      jecCor_->setJetPhi(jet.phi());
       jecCor_->setJetA(jet.jetArea());
       jecCor_->setRho(rho);
       jec = jecCor_->getCorrection();

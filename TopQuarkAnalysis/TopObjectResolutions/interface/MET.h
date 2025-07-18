@@ -6,8 +6,8 @@
 namespace res {
   class HelperMET {
   public:
-    HelperMET(){};
-    ~HelperMET(){};
+    HelperMET() {}
+    ~HelperMET() {}
 
     inline double met(double met);
     inline double a(double pt);

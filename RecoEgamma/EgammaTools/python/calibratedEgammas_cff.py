@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 _correctionFile2016Legacy    = "EgammaAnalysis/ElectronTools/data/ScalesSmearings/Legacy2016_07Aug2017_FineEtaR9_v3_ele_unc"
 _correctionFile2017Nov17     = "EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2017_17Nov2017_v1_ele_unc"
-_correctionFile2016ULpreVFP  = "EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2016_UltraLegacy_preVFP_RunFineEtaR9Gain"
-_correctionFile2016ULpostVFP = "EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2016_UltraLegacy_postVFP_RunFineEtaR9Gain"
+_correctionFile2016ULpreVFP  = "EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2016_UltraLegacy_preVFP_RunFineEtaR9Gain_v3"
+_correctionFile2016ULpostVFP = "EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2016_UltraLegacy_postVFP_RunFineEtaR9Gain_v1"
 _correctionFile2017UL        = "EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2017_24Feb2020_runEtaR9Gain_v2"
 _correctionFile2018UL        = "EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2018_29Sep2020_RunFineEtaR9Gain"
 
@@ -25,12 +25,6 @@ run2_egamma_2017.toModify(calibratedEgammaSettings,correctionFile = _correctionF
 
 from Configuration.Eras.Modifier_run2_egamma_2018_cff import run2_egamma_2018
 run2_egamma_2018.toModify(calibratedEgammaSettings,correctionFile = _correctionFile2018UL)
-
-from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-run2_miniAOD_80XLegacy.toModify(calibratedEgammaSettings,correctionFile = _correctionFile2016Legacy)
-
-from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
-run2_miniAOD_94XFall17.toModify(calibratedEgammaSettings,correctionFile = _correctionFile2017Nov17)
 
 calibratedEgammaPatSettings = calibratedEgammaSettings.clone(
     recHitCollectionEB = 'reducedEgamma:reducedEBRecHits',

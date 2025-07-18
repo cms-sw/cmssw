@@ -18,7 +18,7 @@ typedef std::map<ALIstring, ALIdouble, std::less<ALIstring> > msd;
 
 class ErrorCorrelationMgr {
 private:
-  ErrorCorrelationMgr(){};
+  ErrorCorrelationMgr() {}
 
 public:
   static ErrorCorrelationMgr* getInstance();

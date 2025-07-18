@@ -101,7 +101,7 @@ private:
                                        "Number of " + name);
     }
 
-    ~ParticleMonitor(){};
+    ~ParticleMonitor() {}
 
     bool Fill(const HepMC::GenParticle *p, double weight) {
       if (p->pdg_id() == pdgid) {

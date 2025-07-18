@@ -14,7 +14,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "Geometry/Records/interface/MTDTopologyRcd.h"
-#include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
+#include "Geometry/MTDGeometryBuilder/interface/MTDTopology.h"
 #include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
 
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
@@ -35,10 +35,12 @@
 
 #include "CLHEP/Random/RandFlat.h"
 #include "DataFormats/Math/interface/angle.h"
+#include "DataFormats/Math/interface/Rounding.h"
 
 using namespace std;
 using namespace edm;
 using namespace angle_units;
+using namespace cms_rounding;
 
 class MTDRecoGeometryAnalyzer : public global::EDAnalyzer<> {
 public:
@@ -53,6 +55,24 @@ public:
 
 private:
   std::unique_ptr<MeasurementEstimator> theEstimator;
+
+  inline std::string fround(const double in, const size_t prec) const {
+    std::stringstream ss;
+    ss << std::setprecision(prec) << std::fixed << std::setw(14) << roundIfNear0(in);
+    return ss.str();
+  }
+
+  inline std::string fvecround(const GlobalPoint vecin, const size_t prec) const {
+    std::stringstream ss;
+    ss << std::setprecision(prec) << std::fixed << std::setw(14) << roundVecIfNear0(vecin);
+    return ss.str();
+  }
+
+  inline std::string fvecround(const GlobalVector vecin, const size_t prec) const {
+    std::stringstream ss;
+    ss << std::setprecision(prec) << std::fixed << std::setw(14) << roundVecIfNear0(vecin);
+    return ss.str();
+  }
 
   const edm::ESInputTag tag_;
   edm::ESGetToken<MTDDetLayerGeometry, MTDRecoGeometryRecord> geomToken_;
@@ -79,30 +99,44 @@ void MTDRecoGeometryAnalyzer::analyze(edm::StreamID, edm::Event const&, edm::Eve
 
   LogVerbatim("MTDLayerDump") << "\n*** allBTLLayers(): " << std::fixed << std::setw(14) << geo->allBTLLayers().size();
   for (auto dl = geo->allBTLLayers().begin(); dl != geo->allBTLLayers().end(); ++dl) {
+    LogVerbatim("MTDLayerDumpFull") << "  " << static_cast<int>(dl - geo->allBTLLayers().begin()) << " "
+                                    << dumpLayer(*dl);
     LogVerbatim("MTDLayerDump") << "  " << static_cast<int>(dl - geo->allBTLLayers().begin()) << " " << dumpLayer(*dl);
   }
 
   LogVerbatim("MTDLayerDump") << "\n*** allETLLayers(): " << std::fixed << std::setw(14) << geo->allETLLayers().size();
   for (auto dl = geo->allETLLayers().begin(); dl != geo->allETLLayers().end(); ++dl) {
+    LogVerbatim("MTDLayerDumpFull") << "  " << static_cast<int>(dl - geo->allETLLayers().begin()) << " "
+                                    << dumpLayer(*dl);
     LogVerbatim("MTDLayerDump") << "  " << static_cast<int>(dl - geo->allETLLayers().begin()) << " " << dumpLayer(*dl);
   }
 
+  LogVerbatim("MTDLayerDumpFull") << "\n*** allForwardLayers(): " << std::fixed << std::setw(14)
+                                  << geo->allForwardLayers().size();
   LogVerbatim("MTDLayerDump") << "\n*** allForwardLayers(): " << std::fixed << std::setw(14)
                               << geo->allForwardLayers().size();
   for (auto dl = geo->allForwardLayers().begin(); dl != geo->allForwardLayers().end(); ++dl) {
+    LogVerbatim("MTDLayerDumpFull") << "  " << static_cast<int>(dl - geo->allForwardLayers().begin()) << " "
+                                    << dumpLayer(*dl);
     LogVerbatim("MTDLayerDump") << "  " << static_cast<int>(dl - geo->allForwardLayers().begin()) << " "
                                 << dumpLayer(*dl);
   }
 
+  LogVerbatim("MTDLayerDumpFull") << "\n*** allBackwardLayers(): " << std::fixed << std::setw(14)
+                                  << geo->allBackwardLayers().size();
   LogVerbatim("MTDLayerDump") << "\n*** allBackwardLayers(): " << std::fixed << std::setw(14)
                               << geo->allBackwardLayers().size();
   for (auto dl = geo->allBackwardLayers().begin(); dl != geo->allBackwardLayers().end(); ++dl) {
+    LogVerbatim("MTDLayerDumpFull") << "  " << static_cast<int>(dl - geo->allBackwardLayers().begin()) << " "
+                                    << dumpLayer(*dl);
     LogVerbatim("MTDLayerDump") << "  " << static_cast<int>(dl - geo->allBackwardLayers().begin()) << " "
                                 << dumpLayer(*dl);
   }
 
+  LogVerbatim("MTDLayerDumpFull") << "\n*** allLayers(): " << std::fixed << std::setw(14) << geo->allLayers().size();
   LogVerbatim("MTDLayerDump") << "\n*** allLayers(): " << std::fixed << std::setw(14) << geo->allLayers().size();
   for (auto dl = geo->allLayers().begin(); dl != geo->allLayers().end(); ++dl) {
+    LogVerbatim("MTDLayerDumpFull") << "  " << static_cast<int>(dl - geo->allLayers().begin()) << " " << dumpLayer(*dl);
     LogVerbatim("MTDLayerDump") << "  " << static_cast<int>(dl - geo->allLayers().begin()) << " " << dumpLayer(*dl);
   }
 
@@ -116,6 +150,9 @@ void MTDRecoGeometryAnalyzer::testBTLLayers(const MTDDetLayerGeometry* geo, cons
   for (const auto& ilay : layers) {
     const MTDTrayBarrelLayer* layer = static_cast<const MTDTrayBarrelLayer*>(ilay);
 
+    LogVerbatim("MTDLayerDumpFull") << std::fixed << "\nBTL layer " << std::setw(4) << layer->subDetector()
+                                    << " rods = " << std::setw(14) << layer->rods().size()
+                                    << " dets = " << std::setw(14) << layer->basicComponents().size();
     LogVerbatim("MTDLayerDump") << std::fixed << "\nBTL layer " << std::setw(4) << layer->subDetector()
                                 << " rods = " << std::setw(14) << layer->rods().size() << " dets = " << std::setw(14)
                                 << layer->basicComponents().size();
@@ -123,17 +160,26 @@ void MTDRecoGeometryAnalyzer::testBTLLayers(const MTDDetLayerGeometry* geo, cons
     unsigned int irodInd(0);
     for (const auto& irod : layer->rods()) {
       irodInd++;
+      LogVerbatim("MTDLayerDumpFull") << std::fixed << "\nRod " << irodInd
+                                      << " dets = " << irod->basicComponents().size() << "\n";
       LogVerbatim("MTDLayerDump") << std::fixed << "\nRod " << irodInd << " dets = " << irod->basicComponents().size()
                                   << "\n";
       for (const auto& imod : irod->basicComponents()) {
         BTLDetId modId(imod->geographicalId().rawId());
+        LogVerbatim("MTDLayerDumpFull") << std::fixed << "BTLDetId " << modId.rawId() << " side = " << std::setw(4)
+                                        << modId.mtdSide() << " rod = " << modId.mtdRR()
+                                        << " type/RU/mod = " << std::setw(1) << modId.modType() << "/" << std::setw(1)
+                                        << modId.runit() << "/" << std::setw(2) << modId.module()
+                                        << " R = " << fround(imod->position().perp(), 4)
+                                        << " phi = " << fround(imod->position().phi(), 4)
+                                        << " Z = " << fround(imod->position().z(), 4);
         LogVerbatim("MTDLayerDump") << std::fixed << "BTLDetId " << modId.rawId() << " side = " << std::setw(4)
                                     << modId.mtdSide() << " rod = " << modId.mtdRR()
                                     << " type/RU/mod = " << std::setw(1) << modId.modType() << "/" << std::setw(1)
-                                    << modId.runit() << "/" << std::setw(2) << modId.module() << std::setw(14)
-                                    << " R = " << std::setprecision(4) << imod->position().perp() << std::setw(14)
-                                    << " phi = " << imod->position().phi() << std::setw(14)
-                                    << " Z = " << imod->position().z();
+                                    << modId.runit() << "/" << std::setw(2) << modId.module()
+                                    << " R = " << fround(imod->position().perp(), 2)
+                                    << " phi = " << fround(imod->position().phi(), 2)
+                                    << " Z = " << fround(imod->position().z(), 2);
       }
     }
 
@@ -154,36 +200,57 @@ void MTDRecoGeometryAnalyzer::testBTLLayers(const MTDDetLayerGeometry* geo, cons
 
     GlobalTrajectoryParameters gtp(gp, gv, charge, field);
     TrajectoryStateOnSurface tsos(gtp, cyl);
-    LogVerbatim("MTDLayerDump") << "\ntestBTLLayers: at " << std::fixed << std::setw(14) << tsos.globalPosition()
-                                << " R=" << std::setw(14) << tsos.globalPosition().perp() << " phi=" << std::setw(14)
-                                << tsos.globalPosition().phi() << " Z=" << std::setw(14) << tsos.globalPosition().z()
-                                << " p = " << std::setw(14) << tsos.globalMomentum();
+    LogVerbatim("MTDLayerDumpFull") << "\ntestBTLLayers: at " << fvecround(tsos.globalPosition(), 4)
+                                    << " R=" << fround(tsos.globalPosition().perp(), 4)
+                                    << " phi=" << fround(tsos.globalPosition().phi(), 4)
+                                    << " Z=" << fround(tsos.globalPosition().z(), 4)
+                                    << " p = " << fvecround(tsos.globalMomentum(), 4);
+    LogVerbatim("MTDLayerDump") << "\ntestBTLLayers: at " << fvecround(tsos.globalPosition(), 2)
+                                << " R=" << fround(tsos.globalPosition().perp(), 2)
+                                << " phi=" << fround(tsos.globalPosition().phi(), 2)
+                                << " Z=" << fround(tsos.globalPosition().z(), 2)
+                                << " p = " << fvecround(tsos.globalMomentum(), 2);
 
     SteppingHelixPropagator prop(field, anyDirection);
 
     pair<bool, TrajectoryStateOnSurface> comp = layer->compatible(tsos, prop, *theEstimator);
-    LogVerbatim("MTDLayerDump") << "is compatible: " << comp.first << " at: R=" << std::setw(14) << std::setprecision(4)
-                                << comp.second.globalPosition().perp() << " phi=" << std::setw(14)
-                                << comp.second.globalPosition().phi() << " Z=" << std::setw(14)
-                                << comp.second.globalPosition().z();
+    LogVerbatim("MTDLayerDumpFull") << "is compatible: " << comp.first
+                                    << " at: R=" << fround(comp.second.globalPosition().perp(), 4)
+                                    << " phi=" << fround(comp.second.globalPosition().phi(), 4)
+                                    << " Z=" << fround(comp.second.globalPosition().z(), 4);
+    LogVerbatim("MTDLayerDump") << "is compatible: " << comp.first
+                                << " at: R=" << fround(comp.second.globalPosition().perp(), 2)
+                                << " phi=" << fround(comp.second.globalPosition().phi(), 2)
+                                << " Z=" << fround(comp.second.globalPosition().z(), 2);
 
     vector<DetLayer::DetWithState> compDets = layer->compatibleDets(tsos, prop, *theEstimator);
     if (!compDets.empty()) {
+      LogVerbatim("MTDLayerDumpFull") << "compatibleDets: " << std::setw(14) << compDets.size() << "\n"
+                                      << "  final state pos: " << fvecround(compDets.front().second.globalPosition(), 4)
+                                      << "\n"
+                                      << "  det         pos: " << fvecround(compDets.front().first->position(), 4)
+                                      << " id: " << std::hex
+                                      << BTLDetId(compDets.front().first->geographicalId().rawId()).rawId() << std::dec
+                                      << "\n"
+                                      << "  distance "
+                                      << fround((tsos.globalPosition() - compDets.front().first->position()).mag(), 2);
       LogVerbatim("MTDLayerDump") << "compatibleDets: " << std::setw(14) << compDets.size() << "\n"
-                                  << "  final state pos: " << std::setw(14) << compDets.front().second.globalPosition()
+                                  << "  final state pos: " << fvecround(compDets.front().second.globalPosition(), 2)
                                   << "\n"
-                                  << "  det         pos: " << std::setw(14) << compDets.front().first->position()
+                                  << "  det         pos: " << fvecround(compDets.front().first->position(), 2)
                                   << " id: " << std::hex
                                   << BTLDetId(compDets.front().first->geographicalId().rawId()).rawId() << std::dec
                                   << "\n"
-                                  << "  distance " << std::setw(14) << std::setprecision(4)
-                                  << (tsos.globalPosition() - compDets.front().first->position()).mag();
+                                  << "  distance "
+                                  << fround((tsos.globalPosition() - compDets.front().first->position()).mag(), 2);
     } else {
+      LogVerbatim("MTDLayerDumpFull") << " ERROR : no compatible det found";
       LogVerbatim("MTDLayerDump") << " ERROR : no compatible det found";
     }
 
     // scan in phi at the given z
-    LogVerbatim("MTDLayerDump") << "\nBTL phi scan at Z = " << aZ << "\n";
+    LogVerbatim("MTDLayerDumpFull") << "\nBTL phi scan at Z = " << fround(aZ, 4) << "\n";
+    LogVerbatim("MTDLayerDump") << "\nBTL phi scan at Z = " << fround(aZ, 2) << "\n";
     aPhi = (int)(-piRadians * 1000) / 1000.;
     double dPhi = 0.005;
     uint32_t nTot(0);
@@ -203,10 +270,14 @@ void MTDRecoGeometryAnalyzer::testBTLLayers(const MTDDetLayerGeometry* geo, cons
           ss << " " << BTLDetId(dets.first->geographicalId().rawId()).rawId();
         }
       }
+      LogVerbatim("MTDLayerDumpFull") << "BTL scan at phi = " << std::fixed << std::setw(5) << aPhi
+                                      << " compatible dets = " << std::setw(14) << compDets.size() << ss.str();
       LogVerbatim("MTDLayerDump") << "BTL scan at phi = " << std::fixed << std::setw(5) << aPhi
                                   << " compatible dets = " << std::setw(14) << compDets.size() << ss.str();
       aPhi += dPhi;
     }
+    LogVerbatim("MTDLayerDumpFull") << "\nBTL scan total points = " << nTot << " compatible = " << nComp
+                                    << " fraction = " << double(nComp) / double(nTot);
     LogVerbatim("MTDLayerDump") << "\nBTL scan total points = " << nTot << " compatible = " << nComp
                                 << " fraction = " << double(nComp) / double(nTot);
   }
@@ -220,25 +291,38 @@ void MTDRecoGeometryAnalyzer::testETLLayersNew(const MTDDetLayerGeometry* geo, c
   for (const auto& ilay : layers) {
     const MTDSectorForwardDoubleLayer* layer = static_cast<const MTDSectorForwardDoubleLayer*>(ilay);
 
+    LogVerbatim("MTDLayerDumpFull") << std::fixed << "\nETL layer " << std::setw(4) << layer->subDetector()
+                                    << " at z = " << fround(layer->surface().position().z(), 4)
+                                    << " sectors = " << std::setw(14) << layer->sectors().size()
+                                    << " dets = " << std::setw(14) << layer->basicComponents().size()
+                                    << " front dets = " << std::setw(14)
+                                    << layer->frontLayer()->basicComponents().size() << " back dets = " << std::setw(14)
+                                    << layer->backLayer()->basicComponents().size();
     LogVerbatim("MTDLayerDump") << std::fixed << "\nETL layer " << std::setw(4) << layer->subDetector()
-                                << " at z = " << std::setw(14) << std::setprecision(4)
-                                << layer->surface().position().z() << " sectors = " << std::setw(14)
-                                << layer->sectors().size() << " dets = " << std::setw(14)
-                                << layer->basicComponents().size() << " front dets = " << std::setw(14)
-                                << layer->frontLayer()->basicComponents().size() << " back dets = " << std::setw(14)
-                                << layer->backLayer()->basicComponents().size();
+                                << " at z = " << fround(layer->surface().position().z(), 2)
+                                << " sectors = " << std::setw(14) << layer->sectors().size()
+                                << " dets = " << std::setw(14) << layer->basicComponents().size()
+                                << " front dets = " << std::setw(14) << layer->frontLayer()->basicComponents().size()
+                                << " back dets = " << std::setw(14) << layer->backLayer()->basicComponents().size();
 
     unsigned int isectInd(0);
     for (const auto& isector : layer->sectors()) {
       isectInd++;
+      LogVerbatim("MTDLayerDumpFull") << std::fixed << "\nSector " << std::setw(4) << isectInd << "\n" << (*isector);
       LogVerbatim("MTDLayerDump") << std::fixed << "\nSector " << std::setw(4) << isectInd << "\n" << (*isector);
       for (const auto& imod : isector->basicComponents()) {
         ETLDetId modId(imod->geographicalId().rawId());
+        LogVerbatim("MTDLayerDumpFull") << std::fixed << "ETLDetId " << modId.rawId() << " side = " << std::setw(4)
+                                        << modId.mtdSide() << " Disc/Side/Sector = " << std::setw(4) << modId.nDisc()
+                                        << " " << std::setw(4) << modId.discSide() << " " << std::setw(4)
+                                        << modId.sector() << " mod/type = " << std::setw(4) << modId.module() << " "
+                                        << std::setw(4) << modId.modType()
+                                        << " pos = " << fvecround(imod->position(), 4);
         LogVerbatim("MTDLayerDump") << std::fixed << "ETLDetId " << modId.rawId() << " side = " << std::setw(4)
                                     << modId.mtdSide() << " Disc/Side/Sector = " << std::setw(4) << modId.nDisc() << " "
                                     << std::setw(4) << modId.discSide() << " " << std::setw(4) << modId.sector()
                                     << " mod/type = " << std::setw(4) << modId.module() << " " << std::setw(4)
-                                    << modId.modType() << " pos = " << std::setprecision(4) << imod->position();
+                                    << modId.modType() << " pos = " << fvecround(imod->position(), 2);
       }
     }
   }
@@ -263,36 +347,56 @@ void MTDRecoGeometryAnalyzer::testETLLayersNew(const MTDDetLayerGeometry* geo, c
 
     GlobalTrajectoryParameters gtp(gp, gv, charge, field);
     TrajectoryStateOnSurface tsos(gtp, disk);
-    LogVerbatim("MTDLayerDump") << "\ntestETLLayers: at " << std::setprecision(4) << std::fixed << tsos.globalPosition()
-                                << " R=" << std::setw(14) << tsos.globalPosition().perp() << " phi=" << std::setw(14)
-                                << tsos.globalPosition().phi() << " Z=" << std::setw(14) << tsos.globalPosition().z()
-                                << " p = " << tsos.globalMomentum();
+    LogVerbatim("MTDLayerDumpFull") << "\ntestETLLayers: at " << fvecround(tsos.globalPosition(), 4)
+                                    << " R=" << fround(tsos.globalPosition().perp(), 4)
+                                    << " phi=" << fround(tsos.globalPosition().phi(), 4)
+                                    << " Z=" << fround(tsos.globalPosition().z(), 4)
+                                    << " p = " << fvecround(tsos.globalMomentum(), 4);
+    LogVerbatim("MTDLayerDump") << "\ntestETLLayers: at " << fvecround(tsos.globalPosition(), 2)
+                                << " R=" << fround(tsos.globalPosition().perp(), 2)
+                                << " phi=" << fround(tsos.globalPosition().phi(), 2)
+                                << " Z=" << fround(tsos.globalPosition().z(), 2)
+                                << " p = " << fvecround(tsos.globalMomentum(), 2);
 
     SteppingHelixPropagator prop(field, anyDirection);
 
     pair<bool, TrajectoryStateOnSurface> comp = layer->compatible(tsos, prop, *theEstimator);
-    LogVerbatim("MTDLayerDump") << std::fixed << "is compatible: " << comp.first << " at: R=" << std::setw(14)
-                                << std::setprecision(4) << comp.second.globalPosition().perp()
-                                << " phi=" << std::setw(14) << comp.second.globalPosition().phi()
-                                << " Z=" << std::setw(14) << comp.second.globalPosition().z();
+    LogVerbatim("MTDLayerDumpFull") << std::fixed << "is compatible: " << comp.first
+                                    << " at: R=" << fround(comp.second.globalPosition().perp(), 4)
+                                    << " phi=" << fround(comp.second.globalPosition().phi(), 4)
+                                    << " Z=" << fround(comp.second.globalPosition().z(), 4);
+    LogVerbatim("MTDLayerDump") << std::fixed << "is compatible: " << comp.first
+                                << " at: R=" << fround(comp.second.globalPosition().perp(), 2)
+                                << " phi=" << fround(comp.second.globalPosition().phi(), 2)
+                                << " Z=" << fround(comp.second.globalPosition().z(), 2);
 
     vector<DetLayer::DetWithState> compDets = layer->compatibleDets(tsos, prop, *theEstimator);
     if (!compDets.empty()) {
+      LogVerbatim("MTDLayerDumpFull")
+          << std::fixed << "compatibleDets: " << std::setw(14) << compDets.size() << "\n"
+          << "  final state pos: " << fvecround(compDets.front().second.globalPosition(), 4) << "\n"
+          << "  det         pos: " << fvecround(compDets.front().first->position(), 4) << " id: " << std::hex
+          << ETLDetId(compDets.front().first->geographicalId().rawId()).rawId() << std::dec << "\n"
+          << "  distance "
+          << fround((compDets.front().second.globalPosition() - compDets.front().first->position()).mag(), 4);
       LogVerbatim("MTDLayerDump")
           << std::fixed << "compatibleDets: " << std::setw(14) << compDets.size() << "\n"
-          << "  final state pos: " << std::setprecision(4) << compDets.front().second.globalPosition() << "\n"
-          << "  det         pos: " << compDets.front().first->position() << " id: " << std::hex
+          << "  final state pos: " << fvecround(compDets.front().second.globalPosition(), 2) << "\n"
+          << "  det         pos: " << fvecround(compDets.front().first->position(), 2) << " id: " << std::hex
           << ETLDetId(compDets.front().first->geographicalId().rawId()).rawId() << std::dec << "\n"
-          << "  distance " << std::setw(14)
-          << (compDets.front().second.globalPosition() - compDets.front().first->position()).mag();
+          << "  distance "
+          << fround((compDets.front().second.globalPosition() - compDets.front().first->position()).mag(), 2);
     } else {
       if (layer->isCrack(gp)) {
+        LogVerbatim("MTDLayerDumpFull") << " MTD crack found ";
         LogVerbatim("MTDLayerDump") << " MTD crack found ";
       } else {
+        LogVerbatim("MTDLayerDumpFull") << " ERROR : no compatible det found in MTD"
+                                        << " at: R=" << fround(gp.perp(), 4)
+                                        << " phi= " << fround(gp.phi().degrees(), 4) << " Z= " << fround(gp.z(), 4);
         LogVerbatim("MTDLayerDump") << " ERROR : no compatible det found in MTD"
-                                    << " at: R=" << std::setw(14) << std::setprecision(4) << gp.perp()
-                                    << " phi= " << std::setw(14) << gp.phi().degrees() << " Z= " << std::setw(14)
-                                    << gp.z();
+                                    << " at: R=" << fround(gp.perp(), 4) << " phi= " << fround(gp.phi().degrees(), 2)
+                                    << " Z= " << fround(gp.z(), 2);
       }
     }
   }
@@ -308,12 +412,10 @@ string MTDRecoGeometryAnalyzer::dumpLayer(const DetLayer* layer) const {
   sur = &(layer->surface());
   if ((bc = dynamic_cast<const BoundCylinder*>(sur))) {
     output << std::fixed << " subdet = " << std::setw(4) << layer->subDetector() << " Barrel = " << layer->isBarrel()
-           << " Forward = " << layer->isForward() << "  Cylinder of radius: " << std::setw(14) << std::setprecision(4)
-           << bc->radius();
+           << " Forward = " << layer->isForward() << "  Cylinder of radius: " << fround(bc->radius(), 4);
   } else if ((bd = dynamic_cast<const BoundDisk*>(sur))) {
     output << std::fixed << " subdet = " << std::setw(4) << layer->subDetector() << " Barrel = " << layer->isBarrel()
-           << " Forward = " << layer->isForward() << "  Disk at: " << std::setw(14) << std::setprecision(4)
-           << bd->position().z();
+           << " Forward = " << layer->isForward() << "  Disk at: " << fround(bd->position().z(), 4);
   }
   return output.str();
 }

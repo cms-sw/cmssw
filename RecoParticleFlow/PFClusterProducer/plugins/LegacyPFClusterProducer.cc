@@ -30,7 +30,6 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitHostCollection.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterHostCollection.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFractionHostCollection.h"
-#include "HeterogeneousCore/CUDACore/interface/JobConfigurationGPURecord.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorBase.h"
 
 class LegacyPFClusterProducer : public edm::stream::EDProducer<> {
@@ -48,16 +47,18 @@ public:
     //setup pf cluster builder if requested
     const edm::ParameterSet& pfcConf = config.getParameterSet("pfClusterBuilder");
     if (!pfcConf.empty()) {
-      if (pfcConf.exists("positionCalc")) {
-        const edm::ParameterSet& acConf = pfcConf.getParameterSet("positionCalc");
+      const auto& acConf = pfcConf.getParameterSet("positionCalc");
+      if (!acConf.empty()) {
         const std::string& algoac = acConf.getParameter<std::string>("algoName");
-        positionCalc_ = PFCPositionCalculatorFactory::get()->create(algoac, acConf, cc);
+        if (!algoac.empty())
+          positionCalc_ = PFCPositionCalculatorFactory::get()->create(algoac, acConf, cc);
       }
 
-      if (pfcConf.exists("allCellsPositionCalc")) {
-        const edm::ParameterSet& acConf = pfcConf.getParameterSet("allCellsPositionCalc");
-        const std::string& algoac = acConf.getParameter<std::string>("algoName");
-        allCellsPositionCalc_ = PFCPositionCalculatorFactory::get()->create(algoac, acConf, cc);
+      const auto& acConf2 = pfcConf.getParameterSet("allCellsPositionCalc");
+      if (!acConf2.empty()) {
+        const std::string& algoac = acConf2.getParameter<std::string>("algoName");
+        if (!algoac.empty())
+          allCellsPositionCalc_ = PFCPositionCalculatorFactory::get()->create(algoac, acConf2, cc);
       }
     }
   }
@@ -82,6 +83,7 @@ public:
       pfClusterBuilder.add<double>("minChi2Prob", 0.);
       pfClusterBuilder.add<bool>("clusterTimeResFromSeed", false);
       pfClusterBuilder.add<std::string>("algoName", "");
+      pfClusterBuilder.add<edm::ParameterSetDescription>("positionCalcForConvergence", {});
       {
         edm::ParameterSetDescription validator;
         validator.add<std::string>("detector", "");
@@ -116,6 +118,8 @@ public:
           bar.addVPSet("logWeightDenominatorByDetector", validator, vDefaults);
         }
         bar.add<double>("minAllowedNormalization", 1e-9);
+        bar.add<edm::ParameterSetDescription>("timeResolutionCalcBarrel", {});
+        bar.add<edm::ParameterSetDescription>("timeResolutionCalcEndcap", {});
         pfClusterBuilder.add("positionCalc", bar);
       }
       {
@@ -138,6 +142,8 @@ public:
           bar.addVPSet("logWeightDenominatorByDetector", validator, vDefaults);
         }
         bar.add<double>("minAllowedNormalization", 1e-9);
+        bar.add<edm::ParameterSetDescription>("timeResolutionCalcBarrel", {});
+        bar.add<edm::ParameterSetDescription>("timeResolutionCalcEndcap", {});
         pfClusterBuilder.add("allCellsPositionCalc", bar);
       }
       {

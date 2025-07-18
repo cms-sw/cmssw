@@ -10,6 +10,7 @@
 #include "DataFormats/SiPixelClusterSoA/interface/SiPixelClustersSoA.h"
 #include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigisSoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/prefixScan.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/warpsize.h"
 #include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelClusterThresholds.h"
 
 //#define GPU_DEBUG
@@ -38,6 +39,7 @@ namespace pixelClustering {
                  digi_view[i].pdigi(),
                  digi_view[i].adc());
       }
+      alpaka::syncBlockThreads(acc);
 #endif
 
       auto& charge = alpaka::declareSharedVar<int32_t[maxNumClustersPerModules], __COUNTER__>(acc);
@@ -142,21 +144,34 @@ namespace pixelClustering {
           continue;
 
         // renumber
-        auto& ws = alpaka::declareSharedVar<uint16_t[32], __COUNTER__>(acc);
-        // FIXME this value should come from cms::alpakatools::blockPrefixScan itself
-        constexpr uint32_t maxThreads = 1024;
-        auto minClust = std::min(nclus, maxThreads);
+        // FIXME move this logic inside a single prefixscan() function ?
+        if constexpr (cms::alpakatools::requires_single_thread_per_block_v<TAcc>) {
+          // for a single-threaded accelerator, use a simple loop
+          for (uint32_t i = 1; i < nclus; ++i) {
+            newclusId[i] += newclusId[i - 1];
+          }
+        } else {
+          // for a multi-threaded accelerator, use an iterative block-based prefix scan
+          constexpr int warpSize = cms::alpakatools::warpSize;
+          // FIXME this value should come from cms::alpakatools::blockPrefixScan itself
+          constexpr uint32_t maxThreads = warpSize * warpSize;
 
-        cms::alpakatools::blockPrefixScan(acc, newclusId, minClust, ws);
-        if constexpr (maxNumClustersPerModules > maxThreads)  //only if needed
-        {
-          for (uint32_t offset = maxThreads; offset < nclus; offset += maxThreads) {
-            cms::alpakatools::blockPrefixScan(acc, newclusId + offset, nclus - offset, ws);
-            for (uint32_t i : cms::alpakatools::independent_group_elements(acc, offset, nclus)) {
-              uint32_t prevBlockEnd = (i / maxThreads) * maxThreads - 1;
-              newclusId[i] += newclusId[prevBlockEnd];
+          auto& ws = alpaka::declareSharedVar<uint16_t[warpSize], __COUNTER__>(acc);
+          auto minClust = std::min(nclus, maxThreads);
+
+          // process the first maxThreads elements
+          cms::alpakatools::blockPrefixScan(acc, newclusId, minClust, ws);
+
+          // if there may be more than maxThreads elements, repeat the prefix scan and update the intermediat sums
+          if constexpr (maxNumClustersPerModules > maxThreads) {
+            for (uint32_t offset = maxThreads; offset < nclus; offset += maxThreads) {
+              cms::alpakatools::blockPrefixScan(acc, newclusId + offset, nclus - offset, ws);
+              for (uint32_t i : cms::alpakatools::independent_group_elements(acc, offset, nclus)) {
+                uint32_t prevBlockEnd = (i / maxThreads) * maxThreads - 1;
+                newclusId[i] += newclusId[prevBlockEnd];
+              }
+              alpaka::syncBlockThreads(acc);
             }
-            alpaka::syncBlockThreads(acc);
           }
         }
 

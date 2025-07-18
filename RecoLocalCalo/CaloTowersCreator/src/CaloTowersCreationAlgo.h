@@ -30,6 +30,8 @@
 #include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
 #include "CondTools/Hcal/interface/HcalPFCutsHandler.h"
 
+#include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
+
 class CaloTowerTopology;
 class HcalTopology;
 class CaloGeometry;
@@ -162,7 +164,7 @@ public:
                    const HcalTopology* htopo,
                    const CaloGeometry* geo);
 
-  void setThresFromDB(const HcalPFCuts* cuts);
+  void setThresFromDB(const EcalPFRecHitThresholds* EcalCuts, const HcalPFCuts* HcalCuts);
   // pass the containers of channels status from the event record (stored in DB)
   // these are called in  CaloTowersCreator
   void setHcalChStatusFromDB(const HcalChannelQuality* s) { theHcalChStatus = s; }
@@ -322,6 +324,7 @@ private:
   double theHOEScale;
   double theHF1EScale;
   double theHF2EScale;
+  const EcalPFRecHitThresholds* ecalCuts;
   const HcalPFCuts* hcalCuts;
   const CaloTowerTopology* theTowerTopology;
   const HcalTopology* theHcalTopology;

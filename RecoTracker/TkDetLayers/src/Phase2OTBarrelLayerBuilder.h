@@ -13,7 +13,7 @@
 #pragma GCC visibility push(hidden)
 class Phase2OTBarrelLayerBuilder {
 public:
-  Phase2OTBarrelLayerBuilder(){};
+  Phase2OTBarrelLayerBuilder() {}
   Phase2OTBarrelLayer* build(const GeometricDet* aPhase2OTBarrelLayer,
                              const TrackerGeometry* theGeomDetGeometry,
                              const bool useBrothers = true) __attribute__((cold));

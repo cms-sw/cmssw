@@ -16,7 +16,8 @@ import FWCore.ParameterSet.Config as cms
 #
 # cleans and merges ctf and rs Track lists and put new list back in Event
 
-trackListMerger = cms.EDProducer("TrackListMerger",
+from RecoTracker.FinalTrackSelectors.default_trackListMerger_cfi import default_trackListMerger as _trackListMerger
+trackListMerger = _trackListMerger.clone(
     # minimum shared fraction to be called duplicate for tracks between collections
     ShareFrac = cms.double(0.19),
     # best track chosen by chi2 modified by parameters below:

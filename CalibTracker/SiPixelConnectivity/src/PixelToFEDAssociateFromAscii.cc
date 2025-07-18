@@ -14,8 +14,8 @@ PixelToFEDAssociateFromAscii::PixelToFEDAssociateFromAscii(const string& fn) { i
 std::string PixelToFEDAssociateFromAscii::version() const { return theVersion; }
 
 int PixelToFEDAssociateFromAscii::operator()(const PixelModuleName& id) const {
-  return id.isBarrel() ? operator()(dynamic_cast<const PixelBarrelName&>(id)) :
-                       operator()(dynamic_cast<const PixelEndcapName&>(id));
+  return id.isBarrel() ? operator()(dynamic_cast<const PixelBarrelName&>(id))
+                       : operator()(dynamic_cast<const PixelEndcapName&>(id));
 }
 
 int PixelToFEDAssociateFromAscii::operator()(const PixelBarrelName& id) const {

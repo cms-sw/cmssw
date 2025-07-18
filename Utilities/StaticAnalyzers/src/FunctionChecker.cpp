@@ -66,7 +66,9 @@ namespace clangcms {
 
   void FWalker::ReportDeclRef(const clang::DeclRefExpr *DRE) {
     const clang::VarDecl *D = llvm::dyn_cast_or_null<clang::VarDecl>(DRE->getDecl());
-    if (D && (D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>()) || D->hasAttr<CMSSaAllowAttr>())
+    if (!D)
+      return;
+    if ((D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>()) || D->hasAttr<CMSSaAllowAttr>())
       return;
     if (support::isSafeClassName(D->getCanonicalDecl()->getQualifiedNameAsString()))
       return;

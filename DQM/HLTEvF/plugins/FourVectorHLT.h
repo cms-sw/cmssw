@@ -81,7 +81,7 @@ private:
 
   // helper class to store the data
   class PathInfo {
-    PathInfo() : pathIndex_(-1), pathName_("unset"), objectType_(-1){};
+    PathInfo() : pathIndex_(-1), pathName_("unset"), objectType_(-1) {}
 
   public:
     void setHistos(MonitorElement* const et,
@@ -98,7 +98,7 @@ private:
     MonitorElement* getPhiHisto() { return phi_; }
     MonitorElement* getEtaVsPhiHisto() { return etavsphi_; }
     const std::string getName(void) const { return pathName_; }
-    ~PathInfo(){};
+    ~PathInfo() {}
     PathInfo(std::string pathName, size_t type, float ptmin, float ptmax)
         : pathName_(pathName),
           objectType_(type),
@@ -107,7 +107,7 @@ private:
           phi_(nullptr),
           etavsphi_(nullptr),
           ptmin_(ptmin),
-          ptmax_(ptmax){};
+          ptmax_(ptmax) {}
     PathInfo(std::string pathName,
              size_t type,
              MonitorElement* et,
@@ -123,7 +123,7 @@ private:
           phi_(phi),
           etavsphi_(etavsphi),
           ptmin_(ptmin),
-          ptmax_(ptmax){};
+          ptmax_(ptmax) {}
     bool operator==(const std::string v) { return v == pathName_; }
 
   private:
@@ -147,7 +147,7 @@ private:
   // simple collection - just
   class PathInfoCollection : public std::vector<PathInfo> {
   public:
-    PathInfoCollection() : std::vector<PathInfo>(){};
+    PathInfoCollection() : std::vector<PathInfo>() {}
     std::vector<PathInfo>::iterator find(std::string pathName) { return std::find(begin(), end(), pathName); }
   };
   PathInfoCollection hltPaths_;

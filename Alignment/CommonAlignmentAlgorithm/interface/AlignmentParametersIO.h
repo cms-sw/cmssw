@@ -13,7 +13,7 @@
 
 class AlignmentParametersIO {
 protected:
-  virtual ~AlignmentParametersIO(){};
+  virtual ~AlignmentParametersIO() {}
 
   /// open IO
   virtual int open(const char* filename, int iteration, bool writemode) = 0;

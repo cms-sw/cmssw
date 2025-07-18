@@ -72,8 +72,11 @@ void TkAlCaRecoMonitor::bookHistograms(DQMStore::IBooker &iBooker, edm::Run cons
   TrackPtNegative_->setAxisTitle("p_{T} of tracks charge < 0");
 
   histname = "TrackQuality_";
-  TrackQuality_ = iBooker.book1D(
-      histname + AlgoName, histname + AlgoName, reco::TrackBase::qualitySize, -0.5, reco::TrackBase::qualitySize - 0.5);
+  TrackQuality_ = iBooker.book1D(histname + AlgoName,
+                                 histname + AlgoName,
+                                 reco::TrackBase::qualitySize,
+                                 -0.5,
+                                 static_cast<double>(reco::TrackBase::qualitySize) - 0.5);
   TrackQuality_->setAxisTitle("quality");
   for (int i = 0; i < reco::TrackBase::qualitySize; ++i) {
     TrackQuality_->getTH1()->GetXaxis()->SetBinLabel(

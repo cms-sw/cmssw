@@ -161,9 +161,9 @@ void NanoAODRNTupleOutputModule::openFile(edm::FileBlock const&) {
                                    std::vector<std::string>());
 
   if (m_compressionAlgorithm == "ZLIB") {
-    m_file->SetCompressionAlgorithm(ROOT::kZLIB);
+    m_file->SetCompressionAlgorithm(ROOT::RCompressionSetting::EAlgorithm::kZLIB);
   } else if (m_compressionAlgorithm == "LZMA") {
-    m_file->SetCompressionAlgorithm(ROOT::kLZMA);
+    m_file->SetCompressionAlgorithm(ROOT::RCompressionSetting::EAlgorithm::kLZMA);
   } else {
     throw cms::Exception("Configuration")
         << "NanoAODOutputModule configured with unknown compression algorithm '" << m_compressionAlgorithm << "'\n"

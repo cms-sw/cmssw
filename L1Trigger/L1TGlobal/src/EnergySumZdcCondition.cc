@@ -96,7 +96,7 @@ const bool l1t::EnergySumZdcCondition::evaluateCondition(const int bxEval) const
 
   // store the indices of the calorimeter objects
   // from the combination evaluated in the condition
-  SingleCombInCond objectsInComb;
+  SingleCombWithBxInCond objectsInComb;
 
   // clear the m_combinationsInCond vector
   (combinationsInCond()).clear();
@@ -107,7 +107,7 @@ const bool l1t::EnergySumZdcCondition::evaluateCondition(const int bxEval) const
   const BXVector<const l1t::EtSum*>* candVecZdc = m_uGtB->getCandL1EtSumZdc();
 
   // Look at objects in bx = bx + relativeBx
-  int useBx = bxEval + m_gtEnergySumZdcTemplate->condRelativeBx();
+  L1TObjBxIndexType const useBx = bxEval + m_gtEnergySumZdcTemplate->condRelativeBx();
 
   // Fail condition if attempting to get Bx outside of range
   if ((useBx < candVecZdc->getFirstBX()) || (useBx > candVecZdc->getLastBX())) {
@@ -116,7 +116,6 @@ const bool l1t::EnergySumZdcCondition::evaluateCondition(const int bxEval) const
 
   // If no candidates, no use looking any further
   int numberObjectsZdc = candVecZdc->size(useBx);
-
   if (numberObjectsZdc < 1) {
     return false;
   }
@@ -150,7 +149,7 @@ const bool l1t::EnergySumZdcCondition::evaluateCondition(const int bxEval) const
   bool myres = false;
 
   for (int iEtSum = 0; iEtSum < numberObjectsZdc; ++iEtSum) {
-    l1t::EtSum candZdc = *(candVecZdc->at(useBx, iEtSum));
+    auto const& candZdc = *(candVecZdc->at(useBx, iEtSum));
 
     if (candZdc.getType() != type)
       continue;
@@ -182,9 +181,7 @@ const bool l1t::EnergySumZdcCondition::evaluateCondition(const int bxEval) const
     return false;
 
   // index is always zero, as they are global quantities (there is only one object)
-  int indexObj = 0;
-
-  objectsInComb.push_back(indexObj);
+  objectsInComb.emplace_back(useBx, 0);
   (combinationsInCond()).push_back(objectsInComb);
 
   // if we get here all checks were successful for this combination

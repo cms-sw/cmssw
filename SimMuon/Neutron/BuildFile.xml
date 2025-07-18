@@ -1,6 +1,7 @@
 <export>
   <lib name="1"/>
 </export>
+<use name="FWCore/AbstractServices"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/MessageLogger"/>

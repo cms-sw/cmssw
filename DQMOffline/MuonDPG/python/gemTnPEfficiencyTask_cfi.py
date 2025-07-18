@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 gemTnPEfficiencyMonitor = DQMEDAnalyzer('GEMTnPEfficiencyTask',
@@ -16,8 +17,13 @@ gemTnPEfficiencyMonitor = DQMEDAnalyzer('GEMTnPEfficiencyTask',
                                        #  CutBasedIdMedium = 1UL << 1
                                        #  CutBasedIdMediumPrompt = 1UL << 2 
 				       #  CutBasedIdTight = 1UL << 3
+                                       maskChamberWithError=cms.untracked.bool(True),
+                                       ServiceParameters = MuonServiceProxy.ServiceParameters.clone(),
+                                       ohStatusTag=cms.untracked.InputTag("muonGEMDigis", "OHStatus"),
+                                       vfatStatusTag=cms.untracked.InputTag("muonGEMDigis","VFATStatus"),
+                                       amcStatusTag=cms.untracked.InputTag("muonGEMDigis","AMCStatus"),
                                        tagCut = cms.untracked.string('(selectors & 8) && ((isolationR03.sumPt)/(pt) < 0.05) && pt>24.'),
-                                       borderCut = cms.untracked.double(-10.),
+                                       borderCut = cms.untracked.double(-2.),
                                        lowPairMassCut = cms.untracked.double (80.),
                                        highPairMassCut = cms.untracked.double (100.),
                                        trigName = cms.untracked.string("HLT_IsoMu*"),

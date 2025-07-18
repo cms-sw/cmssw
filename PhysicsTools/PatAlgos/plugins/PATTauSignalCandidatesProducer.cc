@@ -11,7 +11,7 @@
 class PATTauSignalCandidatesProducer : public edm::stream::EDProducer<> {
 public:
   explicit PATTauSignalCandidatesProducer(const edm::ParameterSet&);
-  ~PATTauSignalCandidatesProducer() override{};
+  ~PATTauSignalCandidatesProducer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void produce(edm::Event&, const edm::EventSetup&) override;

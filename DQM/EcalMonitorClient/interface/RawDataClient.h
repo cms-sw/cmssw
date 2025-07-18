@@ -14,7 +14,7 @@ namespace ecaldqm {
 
   private:
     void setParams(edm::ParameterSet const&) override;
-
+    int minEvents_;
     float synchErrThresholdFactor_;
   };
 

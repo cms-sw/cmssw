@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 ## L1REPACK FullMC : Re-Emulate all of L1 and repack into RAW
@@ -89,6 +88,9 @@ simEmtfDigis.RPCInput            = 'unpackRPC'
 # CALO Layer1
 simCaloStage2Layer1Digis.ecalToken = 'unpackEcal:EcalTriggerPrimitives'
 simCaloStage2Layer1Digis.hcalToken = 'simHcalTriggerPrimitiveDigis'
+
+# ZDC EtSums
+l1tZDCEtSums.hcalTPDigis = 'unpackHcal'
 
 # Finally, pack the new L1T output back into RAW
 from EventFilter.L1TRawToDigi.caloStage2Raw_cfi import caloStage2Raw as packCaloStage2

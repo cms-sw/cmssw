@@ -662,7 +662,7 @@ void HGCalMTRecoStudy::analyze(const edm::Event &iEvent, const edm::EventSetup &
         if (rhtools_.isSilicon(detId)) {
           HGCSiliconDetId id(it.id());
 
-          if (id.type() == HGCSiliconDetId::HGCalFine) {
+          if (id.type() == HGCSiliconDetId::HGCalHD120) {
             hEF->Fill(energy);
 
             if (ilyr != layerList.cend()) {
@@ -682,7 +682,7 @@ void HGCalMTRecoStudy::analyze(const edm::Event &iEvent, const edm::EventSetup &
               }
             }  //isvalid layer
           }
-          if (id.type() == HGCSiliconDetId::HGCalCoarseThin) {
+          if (id.type() == HGCSiliconDetId::HGCalLD200) {
             hECN->Fill(energy);
 
             if (ilyr != layerList.cend()) {
@@ -702,7 +702,7 @@ void HGCalMTRecoStudy::analyze(const edm::Event &iEvent, const edm::EventSetup &
               }
             }  //isvalid layer
           }
-          if (id.type() == HGCSiliconDetId::HGCalCoarseThick) {  //case 2 :
+          if (id.type() == HGCSiliconDetId::HGCalLD300) {  //case 2 :
             hECK->Fill(energy);
 
             if (ilyr != layerList.cend()) {
@@ -771,7 +771,7 @@ void HGCalMTRecoStudy::analyze(const edm::Event &iEvent, const edm::EventSetup &
         if (rhtools_.isSilicon(detId)) {
           HGCSiliconDetId id(it.id());
           //int il = rhtools_.getLayerWithOffset(detId);
-          if (id.type() == HGCSiliconDetId::HGCalFine) {
+          if (id.type() == HGCSiliconDetId::HGCalHD120) {
             if (ilyr != layerList.cend()) {
               int il = std::distance(layerList.begin(), ilyr);
               if (global1.z() < 0.0) {
@@ -783,7 +783,7 @@ void HGCalMTRecoStudy::analyze(const edm::Event &iEvent, const edm::EventSetup &
               }
             }  //isvalid layer
           }
-          if (id.type() == HGCSiliconDetId::HGCalCoarseThin) {
+          if (id.type() == HGCSiliconDetId::HGCalLD200) {
             if (ilyr != layerList.cend()) {
               int il = std::distance(layerList.begin(), ilyr);
               if (global1.z() < 0.0) {
@@ -795,7 +795,7 @@ void HGCalMTRecoStudy::analyze(const edm::Event &iEvent, const edm::EventSetup &
               }
             }  //isvalid layer
           }
-          if (id.type() == HGCSiliconDetId::HGCalCoarseThick) {  //case 2 :
+          if (id.type() == HGCSiliconDetId::HGCalLD300) {  //case 2 :
 
             if (ilyr != layerList.cend()) {
               int il = std::distance(layerList.begin(), ilyr);
@@ -824,8 +824,8 @@ void HGCalMTRecoStudy::analyze(const edm::Event &iEvent, const edm::EventSetup &
         }  //Silicon or scintillator
 
       }  //invalid topology
-    }    //loop over iterator
-  }      //is Valid container
+    }  //loop over iterator
+  }  //is Valid container
 
   for (int i = 0; i < 47; i++) {
     if (ElossLayer0[i] > 0.0)

@@ -15,5 +15,6 @@ const GenParticleInfo &GenParticleInfoExtractor::operator()(const G4PrimaryParti
                 FatalException,
                 "GenParticleInfoExtractor: user information in G4PrimaryParticle is not of GenParticleInfo type");
   }
-  return *gpi;
+  // Silence Clang analyzer warning: G4Exception will be thrown if gpi is null
+  [[clang::suppress]] return *gpi;
 }

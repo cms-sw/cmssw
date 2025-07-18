@@ -1,0 +1,250 @@
+#!/bin/bash
+
+##############################################################################
+#
+#
+# Line Segment Tracking Standalone Code Make Script
+#
+#
+##############################################################################
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Help
+usage()
+{
+  echo "ERROR - Usage:"
+  echo
+  echo "      sh $(basename $0) OPTIONSTRINGS ..."
+  echo
+  echo "Options:"
+  echo "  -h    Help                      (Display this message)"
+  echo "  -s    show log                  (Full compilation script to stdout)"
+  echo "  -m    make clean binaries       (Make clean binaries before remake. e.g. when header files changed in LST/*.h)"
+  echo "  -d    cut value ntuple          (With extra variables in a debug ntuple file)"
+  echo "  -p    primitive object ntuple   (With extra variables related to primitive objects)"
+  echo "  -N    neural networks           (Toggle LST neural networks)"
+  echo "  -C    CPU serial backend        (Compile for CPU)"
+  echo "  -G    GPU (CUDA) backend        (Compile for CUDA)"
+  echo "  -R    ROCm backend              (Compile for ROCm)"
+  echo "  -A    All backends              (Compile for all backends, including ROCm)"
+  echo "  -w    Warning mode              (Print extra warning outputs)"
+  echo
+  exit
+}
+
+# Parsing command-line opts
+while getopts ":cxgsmdp3NCGRA2ehwP:" OPTION; do
+  case $OPTION in
+    c) MAKECACHE=true;;
+    s) SHOWLOG=true;;
+    m) MAKECLEANBINARIES=true;;
+    d) MAKECUTVALUES=true;;
+    p) PRIMITIVE=true;;
+    G) CUDABACKEND=true;;
+    C) CPUBACKEND=true;;
+    R) ROCMBACKEND=true;;
+    A) ALLBACKENDS=true;;
+    w) PRINTWARNINGS=true;;
+    h) usage;;
+    :) usage;;
+  esac
+done
+
+# If the command line options are not provided set it to default value of false
+if [ -z ${MAKECACHE} ]; then MAKECACHE=false; fi
+if [ -z ${SHOWLOG} ]; then SHOWLOG=false; fi
+if [ -z ${MAKECLEANBINARIES} ]; then MAKECLEANBINARIES=false; fi
+if [ -z ${MAKECUTVALUES} ]; then MAKECUTVALUES=false; fi
+if [ -z ${PRIMITIVE} ]; then PRIMITIVE=false; fi
+if [ -z ${CPUBACKEND} ]; then CPUBACKEND=false; fi
+if [ -z ${CUDABACKEND} ]; then CUDABACKEND=false; fi
+if [ -z ${ROCMBACKEND} ]; then ROCMBACKEND=false; fi
+if [ -z ${ALLBACKENDS} ]; then ALLBACKENDS=false; fi
+if [ -z ${PRINTWARNINGS} ]; then PRINTWARNINGS=false; fi
+
+# Default to only CPU and CUDA backends
+if [ "${CPUBACKEND}" == false ] && [ "${CUDABACKEND}" == false ] && [ "${ROCMBACKEND}" == false ]; then
+  CPUBACKEND=true
+  CUDABACKEND=true
+fi
+if [ "${ALLBACKENDS}" == true ]; then
+  CPUBACKEND=true
+  CUDABACKEND=true
+  ROCMBACKEND=true
+fi
+
+# Shift away the parsed options
+shift $(($OPTIND - 1))
+
+# Move to the TRACKLOOPERDIR
+pushd ${TRACKLOOPERDIR}
+
+# create log file
+LOG=${TRACKLOOPERDIR}/.make.log.$(date +%s)
+
+# Verbose
+date | tee -a ${LOG}
+echo "====================================================="  | tee -a ${LOG}
+echo "Line Segment Tracking Compilation Script             "  | tee -a ${LOG}
+echo "====================================================="  | tee -a ${LOG}
+echo "Compilation options set to..."                          | tee -a ${LOG}
+echo ""                                                       | tee -a ${LOG}
+echo "  SHOWLOG           : ${SHOWLOG}"                       | tee -a ${LOG}
+echo "  MAKECLEANBINARIES : ${MAKECLEANBINARIES}"             | tee -a ${LOG}
+echo "  MAKECUTVALUES     : ${MAKECUTVALUES}"                 | tee -a ${LOG}
+echo "  PRIMITIVE         : ${PRIMITIVE}"                     | tee -a ${LOG}
+echo "  CPUBACKEND        : ${CPUBACKEND}"                    | tee -a ${LOG}
+echo "  CUDABACKEND       : ${CUDABACKEND}"                   | tee -a ${LOG}
+echo "  ROCMBACKEND       : ${ROCMBACKEND}"                   | tee -a ${LOG}
+echo "  PRINTWARNINGS     : ${PRINTWARNINGS}"                 | tee -a ${LOG}
+echo ""                                                       | tee -a ${LOG}
+echo "  (cf. Run > sh $(basename $0) -h to see all options)"  | tee -a ${LOG}
+echo ""                                                       | tee -a ${LOG}
+
+
+TRACKLOOPERTARGET=
+# If make explicit is true then make library with explicit memory on GPU
+MAKETARGET=explicit;
+
+# Show deprecation warning for cache flag
+if $MAKECACHE; then echo "Warning: the -c flag is deprecated"; fi
+
+# If make clean binaries are called then first make clean before making
+if $MAKECLEANBINARIES; then
+    echo "First make cleaning all of TrackLooper objects and liblst*.so" | tee -a ${LOG}
+    cd LST;make clean >>${LOG} 2>&1;cd -;
+    make clean >> ${LOG} 2>&1
+fi
+#if make cut value is called then cut value ntuple making is done
+if $MAKECUTVALUES; then
+    echo " Making cut value ntuple" | tee -a ${LOG}
+    MAKETARGET=${MAKETARGET}_cutvalue;
+    TRACKLOOPERTARGET=cutvalue 
+    echo "debug : MAKETARGET=${MAKETARGET}"
+fi
+#if make cut value is called then cut value ntuple making is done
+if $PRIMITIVE; then
+    echo " Making cut value ntuple" | tee -a ${LOG}
+    TRACKLOOPERTARGET=primitive 
+    echo "debug : MAKETARGET=${MAKETARGET}"
+fi
+
+BACKENDOPT="BACKEND="
+EXES=
+if [ "${ALLBACKENDS}" == true ]; then
+  BACKENDOPT="BACKEND=all"
+  EXES="bin/lst_cpu bin/lst_cuda bin/lst_rocm"
+else
+  if [ "${CPUBACKEND}" == true ]; then
+    BACKENDOPT=$BACKENDOPT"cpu,"
+    EXES="$EXES bin/lst_cpu"
+  fi
+  if [ "${CUDABACKEND}" == true ]; then
+    BACKENDOPT=$BACKENDOPT"cuda,"
+    EXES="$EXES bin/lst_cuda"
+  fi
+  if [ "${ROCMBACKEND}" == true ]; then
+    BACKENDOPT=$BACKENDOPT"rocm,"
+    EXES="$EXES bin/lst_rocm"
+  fi
+fi
+
+PRINTWARNINGSOPT=
+if $PRINTWARNINGS; then
+    PRINTWARNINGSOPT="LSTWARNINGSFLAG=-DWARNINGS"
+fi
+
+if [ -z "${MAXMAKETHREADS}" ]; then
+    MAXMAKETHREADS=32
+fi
+
+###
+###
+### Making Line Segment Tracking Library
+###
+###
+
+echo "Line Segment Tracking GPU library with MAKETARGET=${MAKETARGET} is being compiled...." | tee -a ${LOG}
+
+echo "---------------------------------------------------------------------------------------------" >> ${LOG} 2>&1 
+echo "---------------------------------------------------------------------------------------------" >> ${LOG} 2>&1 
+echo "---------------------------------------------------------------------------------------------" >> ${LOG} 2>&1 
+if $SHOWLOG; then
+    (cd LST && make clean && make ${BACKENDOPT} ${PRINTWARNINGSOPT} -j ${MAXMAKETHREADS} ${MAKETARGET} && cd -) 2>&1 | tee -a ${LOG}
+else
+    (cd LST && make clean && make ${BACKENDOPT} ${PRINTWARNINGSOPT} -j ${MAXMAKETHREADS} ${MAKETARGET} && cd -) >> ${LOG} 2>&1
+fi
+
+if ([[ "$BACKENDOPT" == *"all"* ]] || [[ "$BACKENDOPT" == *"cpu"* ]]) && [ ! -f LST/liblst_cpu.so ]; then
+  echo "ERROR: liblst_cpu.so failed to compile!" | tee -a ${LOG}
+  echo "See ${LOG} file for more detail..." | tee -a ${LOG}
+  exit 1
+elif ([[ "$BACKENDOPT" == *"all"* ]] || [[ "$BACKENDOPT" == *"cuda"* ]]) && [ ! -f LST/liblst_cuda.so ]; then
+  echo "ERROR: liblst_cuda.so failed to compile!" | tee -a ${LOG}
+  echo "See ${LOG} file for more detail..." | tee -a ${LOG}
+  exit 1
+elif ([[ "$BACKENDOPT" == *"all"* ]] || [[ "$BACKENDOPT" == *"rocm"* ]]) && [ ! -f LST/liblst_rocm.so ]; then
+  echo "ERROR: liblst_rocm.so failed to compile!" | tee -a ${LOG}
+  echo "See ${LOG} file for more detail..." | tee -a ${LOG}
+  exit 1
+fi
+
+echo "" >> ${LOG}
+echo "" >> ${LOG}
+echo "" >> ${LOG}
+echo "Line Segment Tracking GPU library compilation with MAKETARGET=${MAKETARGET} successful!" | tee -a ${LOG}
+echo "" | tee -a ${LOG}
+
+###
+###
+### Making Line Segment Tracking Binaries
+###
+###
+
+echo "Line Segment Tracking binaries are being compiled...." | tee -a ${LOG}
+
+echo "---------------------------------------------------------------------------------------------" >> ${LOG} 2>&1 
+echo "---------------------------------------------------------------------------------------------" >> ${LOG} 2>&1 
+echo "---------------------------------------------------------------------------------------------" >> ${LOG} 2>&1 
+if $SHOWLOG; then
+    make EXES="${EXES}" ${TRACKLOOPERTARGET} -j ${MAXMAKETHREADS} 2>&1 | tee -a ${LOG}
+else
+    make EXES="${EXES}" ${TRACKLOOPERTARGET} -j ${MAXMAKETHREADS} >> ${LOG} 2>&1
+fi
+
+if ([[ "$BACKENDOPT" == *"all"* ]] || [[ "$BACKENDOPT" == *"cpu"* ]]) && [ ! -f bin/lst_cpu ]; then
+  echo "ERROR: bin/lst_cpu failed to compile!" | tee -a ${LOG}
+  echo "See ${LOG} file for more detail..." | tee -a ${LOG}
+  exit 1
+elif ([[ "$BACKENDOPT" == *"all"* ]] || [[ "$BACKENDOPT" == *"cuda"* ]]) && [ ! -f bin/lst_cuda ]; then
+  echo "ERROR: bin/lst_cuda failed to compile!" | tee -a ${LOG}
+  echo "See ${LOG} file for more detail..." | tee -a ${LOG}
+  exit 1
+elif ([[ "$BACKENDOPT" == *"all"* ]] || [[ "$BACKENDOPT" == *"rocm"* ]]) && [ ! -f bin/lst_rocm ]; then
+  echo "ERROR: bin/lst_rocm failed to compile!" | tee -a ${LOG}
+  echo "See ${LOG} file for more detail..." | tee -a ${LOG}
+  exit 1
+fi
+
+# Make a symlink with priority CUDA > CPU > ROCM
+if [ "${CUDABACKEND}" == true ]; then
+    ln -sfr bin/lst_cuda bin/lst
+elif [ "${CPUBACKEND}" == true ]; then
+    ln -sfr bin/lst_cpu bin/lst
+elif [ "${ROCMBACKEND}" == true ]; then
+    ln -sfr bin/lst_rocm bin/lst
+fi
+
+echo "" >> ${LOG}
+echo "" >> ${LOG}
+echo "" >> ${LOG}
+echo "Line Segment Tracking binaries compilation successful!" | tee -a ${LOG}
+echo "" | tee -a ${LOG}
+
+echo "Compilation is logged at .make.log" | tee -a ${LOG}
+echo "Compilation log is backed up at ${LOG}" | tee -a ${LOG}
+cp ${LOG} .make.log
+
+# Go back to where I was
+popd

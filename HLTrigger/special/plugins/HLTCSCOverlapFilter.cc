@@ -73,7 +73,7 @@ bool HLTCSCOverlapFilter::hltFilter(edm::Event& iEvent,
       }
       chamber_tohit[chamber_id].push_back(&hit);
     }  // end if this ring is selected
-  }    // end loop over hits
+  }  // end loop over hits
 
   bool keep = false;
   unsigned int minHitsSquared = m_minHits * m_minHits;
@@ -125,15 +125,15 @@ bool HLTCSCOverlapFilter::hltFilter(edm::Event& iEvent,
                 return true;
             }
           }  // end loop over hits in chamber 2
-        }    // end loop over hits in chamber 1
+        }  // end loop over hits in chamber 1
 
         if (m_fillHists) {
           m_pairsWithWindowCut->Fill(pairs_in_window);
         }
 
       }  // end if chamber 2 has enough hits
-    }    // end if chamber 1 has enough hits
-  }      // end loop over chambers
+    }  // end if chamber 1 has enough hits
+  }  // end loop over chambers
 
   return keep;
 }

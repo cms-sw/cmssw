@@ -13,7 +13,10 @@
 #include <iomanip>
 #include <vector>
 
+#include "DataFormats/Math/interface/Rounding.h"
+
 using namespace std;
+using namespace cms_rounding;
 
 MTDDetSector::MTDDetSector(vector<const GeomDet*>::const_iterator first,
                            vector<const GeomDet*>::const_iterator last,
@@ -84,9 +87,12 @@ vector<GeometricSearchDet::DetWithState> MTDDetSector::compatibleDets(const Traj
 
   TrajectoryStateOnSurface& tsos = compat.second;
   GlobalPoint startPos = tsos.globalPosition();
+  LocalTrajectoryError startLocalErr = tsos.localError();
 
   LogTrace("MTDDetLayers") << "Starting position: " << startPos << " starting p/pT: " << tsos.globalMomentum().mag()
-                           << " / " << tsos.globalMomentum().perp();
+                           << " / " << tsos.globalMomentum().perp() << " local error x/y "
+                           << std::sqrt(startLocalErr.positionError().xx()) << " "
+                           << std::sqrt(startLocalErr.positionError().yy());
 
   // determine distance of det center from extrapolation on the surface, sort dets accordingly
 
@@ -113,9 +119,12 @@ vector<GeometricSearchDet::DetWithState> MTDDetSector::compatibleDets(const Traj
       bool isCompatible(true);
       size_t idetNew(idetMin);
       size_t closest = theDets.size();
+      LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets, maximum size available " << closest;
 
       while (isCompatible) {
         idetNew = vshift(theDets[idetNew]->geographicalId().rawId(), iside, closest);
+        LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets, vshift iside " << iside << " idetNew " << idetNew
+                                 << " closest " << closest;
         if (idetNew >= theDets.size()) {
           if (closest < theDets.size()) {
             idetNew = closest;
@@ -128,6 +137,7 @@ vector<GeometricSearchDet::DetWithState> MTDDetSector::compatibleDets(const Traj
           compatibleDetsLine(idetNew, result, tsos, prop, est);
         }
       }
+      LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets, exiting loop on vshift iside " << iside;
     }
   }
 
@@ -168,24 +178,35 @@ bool MTDDetSector::add(size_t idet,
 
   if (compat.first) {
     result.push_back(DetWithState(theDets[idet], compat.second));
-    LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets found compatible det idetMin " << idet
+    LogTrace("MTDDetLayers") << "MTDDetSector::compatibleDets found compatible det idetMin " << idet + 1
                              << " detId = " << theDets[idet]->geographicalId().rawId() << " at "
                              << theDets[idet]->position()
                              << " dist = " << std::sqrt((tsos.globalPosition() - theDets[idet]->position()).mag2());
+  }
+  if (result.size() > basicComponents().size()) {
+    throw cms::Exception("MTDDetLayersFailure")
+        << "ETL compatibleDets in sector in excess of collection size: " << basicComponents().size();
   }
 
   return compat.first;
 }
 
 std::ostream& operator<<(std::ostream& os, const MTDDetSector& id) {
-  os << " MTDDetSector at " << std::fixed << id.specificSurface().position() << std::endl
-     << " L/W/T   : " << std::setw(14) << id.specificSurface().bounds().length() << " / " << std::setw(14)
-     << id.specificSurface().bounds().width() << " / " << std::setw(14) << id.specificSurface().bounds().thickness()
+  auto fround = [&](double in) {
+    std::stringstream ss;
+    ss << std::fixed << std::setprecision(3) << std::setw(14) << roundIfNear0(in);
+    return ss.str();
+  };
+
+  os << " MTDDetSector at " << std::fixed << std::setprecision(3) << roundVecIfNear0(id.specificSurface().position())
      << std::endl
-     << " rmin    : " << std::setw(14) << id.specificSurface().innerRadius() << std::endl
-     << " rmax    : " << std::setw(14) << id.specificSurface().outerRadius() << std::endl
-     << " phi ref : " << std::setw(14) << id.specificSurface().position().phi() << std::endl
-     << " phi w/2 : " << std::setw(14) << id.specificSurface().phiHalfExtension() << std::endl;
+     << " L/W/T   : " << fround(id.specificSurface().bounds().length()) << " / "
+     << fround(id.specificSurface().bounds().width()) << " / " << fround(id.specificSurface().bounds().thickness())
+     << std::endl
+     << " rmin    : " << fround(id.specificSurface().innerRadius()) << std::endl
+     << " rmax    : " << fround(id.specificSurface().outerRadius()) << std::endl
+     << " phi ref : " << fround(id.specificSurface().position().phi()) << std::endl
+     << " phi w/2 : " << fround(id.specificSurface().phiHalfExtension()) << std::endl;
   return os;
 }
 

@@ -110,7 +110,7 @@ namespace edm {
       };
 
     }  // namespace producer
-  }    // namespace one
+  }  // namespace one
 }  // namespace edm
 
 #endif

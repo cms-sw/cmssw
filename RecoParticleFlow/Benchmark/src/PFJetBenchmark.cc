@@ -746,7 +746,7 @@ void PFJetBenchmark::gettrue(const reco::GenJet* truth,
       default:
         break;
     }  // end PDG switch
-  }    // end loop on constituents.
+  }  // end loop on constituents.
 }
 
 void PFJetBenchmark::printPFJet(const reco::PFJet* pfj) {

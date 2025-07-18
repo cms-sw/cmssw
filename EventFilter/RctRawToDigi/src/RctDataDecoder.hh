@@ -122,7 +122,7 @@ public:
       crateNumber = 0xFF;
 
     //if linkNumber not valid set to 0xFF
-    linkNumber = (inputValue)&0xFF;
+    linkNumber = (inputValue) & 0xFF;
 
     if (linkNumber > 12)
       linkNumber = 0xFF;

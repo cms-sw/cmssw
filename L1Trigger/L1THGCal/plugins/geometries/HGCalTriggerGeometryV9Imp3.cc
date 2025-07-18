@@ -437,7 +437,7 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp3::getTriggerCellsFr
     DetId::Detector det = (subdet == HGCalTriggerSubdetector::HGCalEETrigger ? DetId::HGCalEE : DetId::HGCalHSi);
 
     unsigned wafer_type = detIdWaferType(det, layer, moduleU, moduleV);
-    int nroc = (wafer_type == HGCSiliconDetId::HGCalFine ? 6 : 3);
+    int nroc = (((wafer_type == HGCSiliconDetId::HGCalHD120) || (wafer_type == HGCSiliconDetId::HGCalHD200)) ? 6 : 3);
     // Loop on ROCs in wafer
     for (int roc = 1; roc <= nroc; roc++) {
       // loop on TCs in ROC
@@ -515,7 +515,7 @@ HGCalTriggerGeometryBase::geom_ordered_set HGCalTriggerGeometryV9Imp3::getOrdere
     DetId::Detector det = (subdet == HGCalTriggerSubdetector::HGCalEETrigger ? DetId::HGCalEE : DetId::HGCalHSi);
 
     unsigned wafer_type = detIdWaferType(det, layer, moduleU, moduleV);
-    int nroc = (wafer_type == HGCSiliconDetId::HGCalFine ? 6 : 3);
+    int nroc = (((wafer_type == HGCSiliconDetId::HGCalHD120) || (wafer_type == HGCSiliconDetId::HGCalHD200)) ? 6 : 3);
     // Loop on ROCs in wafer
     for (int roc = 1; roc <= nroc; roc++) {
       // loop on TCs in ROC

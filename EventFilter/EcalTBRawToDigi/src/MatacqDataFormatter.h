@@ -13,7 +13,7 @@ class FEDRawData;
 
 class MatacqTBDataFormatter {
 public:
-  MatacqTBDataFormatter(){};
+  MatacqTBDataFormatter() {}
   virtual ~MatacqTBDataFormatter() {
     LogDebug("EcalTBRawToDigi") << "@SUB=MatacqTBDataFormatter"
                                 << "\n";

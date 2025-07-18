@@ -69,7 +69,7 @@ namespace reco {
     IsoDeposit(const Direction& candDirection);
 
     //! Destructor
-    virtual ~IsoDeposit(){};
+    virtual ~IsoDeposit() {}
 
     //! Get direction of isolation cone
     const Direction& direction() const { return theDirection; }

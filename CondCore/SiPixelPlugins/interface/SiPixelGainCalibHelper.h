@@ -101,8 +101,8 @@ namespace gainCalibHelper {
             v_diffs.push_back(diff);
             v_ratios.push_back(ratio);
           }  // loop on rows
-        }    // loop on cols
-      }      // loop on detids
+        }  // loop on cols
+      }  // loop on detids
 
       std::sort(v_diffs.begin(), v_diffs.end());
       std::sort(v_ratios.begin(), v_ratios.end());
@@ -177,9 +177,9 @@ namespace gainCalibHelper {
             }
             h1->Fill(quid);
           }  // loop on rows
-        }    // loop on cols
-      }      // loop on detids
-    }        // fillTheHisto
+        }  // loop on cols
+      }  // loop on detids
+    }  // fillTheHisto
 
     //============================================================================
     // helper method to fill the gain / pedestal averages per module maps
@@ -220,12 +220,12 @@ namespace gainCalibHelper {
                 edm::LogError("gainCalibPI::fillThePerModuleMap") << "Unrecognized type " << theType << std::endl;
                 break;
             }  // switch on the type
-          }    // rows
-        }      // columns
+          }  // rows
+        }  // columns
         // fill the return value map
         map[d] = sumOfX / nPixels;
       }  // loop on the detId
-    }    // fillThePerModuleMap
+    }  // fillThePerModuleMap
 
     //============================================================================
     // helper method to fill the gain / pedestals distributions
@@ -279,11 +279,11 @@ namespace gainCalibHelper {
                 edm::LogError("gainCalibPI::fillTheHistos") << d << " is not a Pixel DetId" << std::endl;
                 break;
             }  // switch on subid
-          }    // row loop
-        }      // column loop
-      }        // detid loop
-    }          // filltheHistos
-  }            // namespace gainCalibPI
+          }  // row loop
+        }  // column loop
+      }  // detid loop
+    }  // filltheHistos
+  }  // namespace gainCalibPI
 
   constexpr char const* TypeName[2] = {"Gains", "Pedestals"};
 

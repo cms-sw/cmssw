@@ -1,4 +1,6 @@
 <use name="L1Trigger/TrackTrigger"/>
+<use name="L1Trigger/TrackerTFP"/>
+<use name="SimTracker/TrackTriggerAssociation"/>
 <export>
   <lib name="1"/>
 </export>

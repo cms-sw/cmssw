@@ -10,7 +10,7 @@ See comments in the file GetterOfProducts.h for a description.
 
 */
 
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 
 #include <string>
 
@@ -20,8 +20,8 @@ namespace edm {
   public:
     ModuleLabelMatch(std::string const& moduleLabel) : moduleLabel_(moduleLabel) {}
 
-    bool operator()(edm::BranchDescription const& branchDescription) {
-      return branchDescription.moduleLabel() == moduleLabel_;
+    bool operator()(edm::ProductDescription const& productDescription) {
+      return productDescription.moduleLabel() == moduleLabel_;
     }
 
   private:

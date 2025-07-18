@@ -31,17 +31,18 @@ public:
   ~PFElectronTranslator() override;
 
   void produce(edm::Event&, const edm::EventSetup&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   typedef std::vector<edm::Handle<edm::ValueMap<double>>> IsolationValueMaps;
 
 private:
   // to retrieve the collection from the event
   bool fetchCandidateCollection(edm::Handle<reco::PFCandidateCollection>& c,
-                                const edm::InputTag& tag,
+                                const edm::EDGetTokenT<reco::PFCandidateCollection>& token,
                                 const edm::Event& iEvent) const;
   // to retrieve the collection from the event
   void fetchGsfCollection(edm::Handle<reco::GsfTrackCollection>& c,
-                          const edm::InputTag& tag,
+                          const edm::EDGetTokenT<reco::GsfTrackCollection>& token,
                           const edm::Event& iEvent) const;
 
   // makes a basic cluster from PFBlockElement and add it to the collection ; the corrected energy is taken
@@ -88,10 +89,10 @@ private:
                                                           const reco::PFBlockElement& pfbe) const;
 
 private:
-  edm::InputTag inputTagPFCandidates_;
-  edm::InputTag inputTagPFCandidateElectrons_;
-  edm::InputTag inputTagGSFTracks_;
-  std::vector<edm::InputTag> inputTagIsoVals_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> inputTokenPFCandidates_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> inputTokenPFCandidateElectrons_;
+  edm::EDGetTokenT<reco::GsfTrackCollection> inputTokenGSFTracks_;
+  std::vector<edm::EDGetTokenT<edm::ValueMap<double>>> inputTokenIsoVals_;
   std::string PFBasicClusterCollection_;
   std::string PFPreshowerClusterCollection_;
   std::string PFSuperClusterCollection_;
@@ -140,21 +141,52 @@ private:
 
 DEFINE_FWK_MODULE(PFElectronTranslator);
 
+void PFElectronTranslator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("PFCandidate", {"pfSelectedElectrons"});
+  desc.add<edm::InputTag>("PFCandidateElectron", {"particleFlowTmp:electrons"});
+  desc.add<edm::InputTag>("GSFTracks", {"electronGsfTracks"});
+  desc.add<std::string>("PFBasicClusters", "pf");
+  desc.add<std::string>("PFPreshowerClusters", "pf");
+  desc.add<std::string>("PFSuperClusters", "pf");
+  desc.add<std::string>("ElectronMVA", "pf");
+  desc.add<std::string>("ElectronSC", "pf");
+  desc.add<std::string>("PFGsfElectron", "pf");
+  desc.add<std::string>("PFGsfElectronCore", "pf");
+  desc.add<edm::ParameterSetDescription>("MVACutBlock", {});
+  desc.add<bool>("CheckStatusFlag", true);
+  desc.add<bool>("useIsolationValues", false);
+  {
+    edm::ParameterSetDescription pset;
+    pset.add<edm::InputTag>("pfSumChargedHadronPt", {"elPFIsoValueCharged04PFId"});
+    pset.add<edm::InputTag>("pfSumPhotonEt", {"elPFIsoValueGamma04PFId"});
+    pset.add<edm::InputTag>("pfSumNeutralHadronEt", {"elPFIsoValueNeutral04PFId"});
+    pset.add<edm::InputTag>("pfSumPUPt", {"elPFIsoValuePU04PFId"});
+    desc.add<edm::ParameterSetDescription>("isolationValues", pset);
+  }
+  desc.add<bool>("emptyIsOk", false);
+  descriptions.addWithDefaultLabel(desc);
+}
+
 PFElectronTranslator::PFElectronTranslator(const edm::ParameterSet& iConfig) {
-  inputTagPFCandidates_ = iConfig.getParameter<edm::InputTag>("PFCandidate");
-  inputTagPFCandidateElectrons_ = iConfig.getParameter<edm::InputTag>("PFCandidateElectron");
-  inputTagGSFTracks_ = iConfig.getParameter<edm::InputTag>("GSFTracks");
+  inputTokenPFCandidates_ = consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("PFCandidate"));
+  inputTokenPFCandidateElectrons_ =
+      consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("PFCandidateElectron"));
+  inputTokenGSFTracks_ = consumes<reco::GsfTrackCollection>(iConfig.getParameter<edm::InputTag>("GSFTracks"));
 
   bool useIsolationValues = iConfig.getParameter<bool>("useIsolationValues");
   if (useIsolationValues) {
-    if (!iConfig.exists("isolationValues"))
+    const auto& isoVals = iConfig.getParameter<edm::ParameterSet>("isolationValues");
+    if (isoVals.empty())
       throw cms::Exception("PFElectronTranslator|InternalError") << "Missing ParameterSet isolationValues";
     else {
-      edm::ParameterSet isoVals = iConfig.getParameter<edm::ParameterSet>("isolationValues");
-      inputTagIsoVals_.push_back(isoVals.getParameter<edm::InputTag>("pfSumChargedHadronPt"));
-      inputTagIsoVals_.push_back(isoVals.getParameter<edm::InputTag>("pfSumPhotonEt"));
-      inputTagIsoVals_.push_back(isoVals.getParameter<edm::InputTag>("pfSumNeutralHadronEt"));
-      inputTagIsoVals_.push_back(isoVals.getParameter<edm::InputTag>("pfSumPUPt"));
+      inputTokenIsoVals_.push_back(
+          consumes<edm::ValueMap<double>>(isoVals.getParameter<edm::InputTag>("pfSumChargedHadronPt")));
+      inputTokenIsoVals_.push_back(
+          consumes<edm::ValueMap<double>>(isoVals.getParameter<edm::InputTag>("pfSumPhotonEt")));
+      inputTokenIsoVals_.push_back(
+          consumes<edm::ValueMap<double>>(isoVals.getParameter<edm::InputTag>("pfSumNeutralHadronEt")));
+      inputTokenIsoVals_.push_back(consumes<edm::ValueMap<double>>(isoVals.getParameter<edm::InputTag>("pfSumPUPt")));
     }
   }
 
@@ -168,11 +200,7 @@ PFElectronTranslator::PFElectronTranslator(const edm::ParameterSet& iConfig) {
   PFSCValueMap_ = iConfig.getParameter<std::string>("ElectronSC");
   MVACut_ = (iConfig.getParameter<edm::ParameterSet>("MVACutBlock")).getParameter<double>("MVACut");
   checkStatusFlag_ = iConfig.getParameter<bool>("CheckStatusFlag");
-
-  if (iConfig.exists("emptyIsOk"))
-    emptyIsOk_ = iConfig.getParameter<bool>("emptyIsOk");
-  else
-    emptyIsOk_ = false;
+  emptyIsOk_ = iConfig.getParameter<bool>("emptyIsOk");
 
   ecalMustacheSCParametersToken_ = esConsumes<EcalMustacheSCParameters, EcalMustacheSCParametersRcd>();
 
@@ -207,11 +235,11 @@ void PFElectronTranslator::produce(edm::Event& iEvent, const edm::EventSetup& iS
   edm::ValueMap<reco::SuperClusterRef>::Filler scRefFiller(*scMap_p);
 
   edm::Handle<reco::PFCandidateCollection> pfCandidates;
-  bool status = fetchCandidateCollection(pfCandidates, inputTagPFCandidates_, iEvent);
+  bool status = fetchCandidateCollection(pfCandidates, inputTokenPFCandidates_, iEvent);
 
-  IsolationValueMaps isolationValues(inputTagIsoVals_.size());
-  for (size_t j = 0; j < inputTagIsoVals_.size(); ++j) {
-    iEvent.getByLabel(inputTagIsoVals_[j], isolationValues[j]);
+  IsolationValueMaps isolationValues(inputTokenIsoVals_.size());
+  for (size_t j = 0; j < inputTokenIsoVals_.size(); ++j) {
+    isolationValues[j] = iEvent.getHandle(inputTokenIsoVals_[j]);
   }
 
   // clear the vectors
@@ -356,26 +384,26 @@ void PFElectronTranslator::produce(edm::Event& iEvent, const edm::EventSetup& iS
 }
 
 bool PFElectronTranslator::fetchCandidateCollection(edm::Handle<reco::PFCandidateCollection>& c,
-                                                    const edm::InputTag& tag,
+                                                    const edm::EDGetTokenT<reco::PFCandidateCollection>& token,
                                                     const edm::Event& iEvent) const {
-  bool found = iEvent.getByLabel(tag, c);
+  c = iEvent.getHandle(token);
 
-  if (!found && !emptyIsOk_) {
+  if (!c.isValid() && !emptyIsOk_) {
     std::ostringstream err;
-    err << " cannot get PFCandidates: " << tag << std::endl;
+    err << " cannot get PFCandidates " << std::endl;
     edm::LogError("PFElectronTranslator") << err.str();
   }
-  return found;
+  return c.isValid();
 }
 
 void PFElectronTranslator::fetchGsfCollection(edm::Handle<reco::GsfTrackCollection>& c,
-                                              const edm::InputTag& tag,
+                                              const edm::EDGetTokenT<reco::GsfTrackCollection>& token,
                                               const edm::Event& iEvent) const {
-  bool found = iEvent.getByLabel(tag, c);
+  c = iEvent.getHandle(token);
 
-  if (!found) {
+  if (!c.isValid()) {
     std::ostringstream err;
-    err << " cannot get GSFTracks: " << tag << std::endl;
+    err << " cannot get GSFTracks " << std::endl;
     edm::LogError("PFElectronTranslator") << err.str();
     throw cms::Exception("MissingProduct", err.str());
   }
@@ -468,7 +496,7 @@ void PFElectronTranslator::createSuperClusterGsfMapRefs(
 void PFElectronTranslator::fillMVAValueMap(edm::Event& iEvent, edm::ValueMap<float>::Filler& filler) {
   gsfMvaMap_.clear();
   edm::Handle<reco::PFCandidateCollection> pfCandidates;
-  bool status = fetchCandidateCollection(pfCandidates, inputTagPFCandidateElectrons_, iEvent);
+  bool status = fetchCandidateCollection(pfCandidates, inputTokenPFCandidateElectrons_, iEvent);
 
   unsigned ncand = (status) ? pfCandidates->size() : 0;
   for (unsigned i = 0; i < ncand; ++i) {
@@ -482,7 +510,7 @@ void PFElectronTranslator::fillMVAValueMap(edm::Event& iEvent, edm::ValueMap<flo
   }
 
   edm::Handle<reco::GsfTrackCollection> gsfTracks;
-  fetchGsfCollection(gsfTracks, inputTagGSFTracks_, iEvent);
+  fetchGsfCollection(gsfTracks, inputTokenGSFTracks_, iEvent);
   unsigned ngsf = gsfTracks->size();
   std::vector<float> values;
   for (unsigned igsf = 0; igsf < ngsf; ++igsf) {
@@ -503,7 +531,7 @@ void PFElectronTranslator::fillMVAValueMap(edm::Event& iEvent, edm::ValueMap<flo
 void PFElectronTranslator::fillSCRefValueMap(edm::Event& iEvent,
                                              edm::ValueMap<reco::SuperClusterRef>::Filler& filler) const {
   edm::Handle<reco::GsfTrackCollection> gsfTracks;
-  fetchGsfCollection(gsfTracks, inputTagGSFTracks_, iEvent);
+  fetchGsfCollection(gsfTracks, inputTokenGSFTracks_, iEvent);
   unsigned ngsf = gsfTracks->size();
   std::vector<reco::SuperClusterRef> values;
   for (unsigned igsf = 0; igsf < ngsf; ++igsf) {

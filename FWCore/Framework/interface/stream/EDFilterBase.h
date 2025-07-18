@@ -33,7 +33,6 @@ namespace edm {
 
   class ProductRegistry;
   class ThinnedAssociationsHelper;
-  class WaitingTaskWithArenaHolder;
 
   namespace stream {
     class EDFilterAdaptorBase;
@@ -71,7 +70,7 @@ namespace edm {
 
       virtual void registerThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) {}
 
-      virtual void doAcquire_(Event const&, EventSetup const&, WaitingTaskWithArenaHolder&) = 0;
+      virtual void doAcquire_(Event const&, EventSetup const&, WaitingTaskHolder&&) = 0;
 
       void setModuleDescriptionPtr(ModuleDescription const* iDesc) { moduleDescriptionPtr_ = iDesc; }
       // ---------- member data --------------------------------

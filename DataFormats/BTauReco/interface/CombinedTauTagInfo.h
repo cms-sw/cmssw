@@ -52,7 +52,7 @@ namespace reco {
       theECALEt_o_leadTkPt = NAN;
       theHCALEt_o_leadTkPt = NAN;
     }
-    ~CombinedTauTagInfo() override{};
+    ~CombinedTauTagInfo() override {}
 
     // float discriminator() returns 0.        if candidate did not pass tracker selection,
     //                               1.        if candidate passed tracker selection and did not contain neutral ECAL clus.,

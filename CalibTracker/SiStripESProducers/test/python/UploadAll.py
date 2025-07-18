@@ -5,7 +5,6 @@
 # The tagList needs: tag name, tag type (e.g. Ideal, StartUp, ...) and possible additional
 # sed commands where the " are escaped as \".
 
-from __future__ import print_function
 import os
 import sys
 

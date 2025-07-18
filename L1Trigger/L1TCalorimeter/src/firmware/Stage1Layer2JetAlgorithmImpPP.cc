@@ -17,7 +17,7 @@
 using namespace std;
 using namespace l1t;
 
-Stage1Layer2JetAlgorithmImpPP::Stage1Layer2JetAlgorithmImpPP(CaloParamsHelper const* params) : params_(params){};
+Stage1Layer2JetAlgorithmImpPP::Stage1Layer2JetAlgorithmImpPP(CaloParamsHelper const* params) : params_(params) {}
 
 void Stage1Layer2JetAlgorithmImpPP::processEvent(const std::vector<l1t::CaloRegion>& regions,
                                                  const std::vector<l1t::CaloEmCand>& EMCands,

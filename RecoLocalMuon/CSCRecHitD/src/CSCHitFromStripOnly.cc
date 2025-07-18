@@ -528,7 +528,7 @@ void CSCHitFromStripOnly::findMaxima(const CSCDetId& id) {
         theConsecutiveStrips.push_back(numberOfConsecutiveStrips);
       }
     }  //if maximafound
-  }    //all pulses
+  }  //all pulses
 }  //find maxima procedure
 
 bool CSCHitFromStripOnly::isPeakOK(int iStrip, float heightCluster) {

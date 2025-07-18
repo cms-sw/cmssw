@@ -1,22 +1,23 @@
 #include <memory>
 #include <set>
 
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
-#include "RecoVertex/VertexTools/interface/SharedTracks.h"
-#include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
+#include "RecoVertex/VertexTools/interface/SharedTracks.h"
+#include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
 
 template <class VTX>
 class TemplatedVertexMerger : public edm::stream::EDProducer<> {
@@ -24,6 +25,7 @@ public:
   typedef std::vector<VTX> Product;
   TemplatedVertexMerger(const edm::ParameterSet &params);
 
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
   void produce(edm::Event &event, const edm::EventSetup &es) override;
 
 private:
@@ -75,6 +77,15 @@ void TemplatedVertexMerger<VTX>::produce(edm::Event &event, const edm::EventSetu
   }
 
   event.put(std::move(recoVertices));
+}
+
+template <class VTX>
+void TemplatedVertexMerger<VTX>::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<double>("maxFraction", 0.7);
+  desc.add<double>("minSignificance", 2);
+  desc.add<edm::InputTag>("secondaryVertices", edm::InputTag("inclusiveVertexFinder"));
+  descriptions.addWithDefaultLabel(desc);
 }
 
 typedef TemplatedVertexMerger<reco::Vertex> VertexMerger;

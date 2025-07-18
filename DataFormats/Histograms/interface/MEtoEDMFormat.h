@@ -9,6 +9,7 @@
  *  \author M. Strang SUNY-Buffalo
  */
 
+#include <TClass.h>
 #include <TObject.h>
 #include <TH1F.h>
 #include <TH1S.h>
@@ -16,6 +17,7 @@
 #include <TH2F.h>
 #include <TH2S.h>
 #include <TH2D.h>
+#include <TH2Poly.h>
 #include <TH3F.h>
 #include <TProfile.h>
 #include <TProfile2D.h>
@@ -137,7 +139,7 @@ public:
                            (TAxis *)newMEtoEDMObject[i].object.GetYaxis()) &&
             CheckBinLabels((TAxis *)MEtoEdmObject[j].object.GetZaxis(),
                            (TAxis *)newMEtoEDMObject[i].object.GetZaxis())) {
-          MEtoEdmObject[j].object.Add(&newMEtoEDMObject[i].object);
+          MEtoEdmObject[j].object.Add(&newMEtoEDMObject[i].object, 1.);
         } else {
           std::cout
               << "ERROR MEtoEDM::mergeProducts(): found histograms with different axis limits or different labels, '"

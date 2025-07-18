@@ -128,8 +128,8 @@ public:
 
 private:
   struct PositionAndError2 {
-    PositionAndError2() : posX(-999.F), posY(-999.F), errX2(-999.F), errY2(-999.F){};
-    PositionAndError2(float x, float y, float eX, float eY) : posX(x), posY(y), errX2(eX), errY2(eY){};
+    PositionAndError2() : posX(-999.F), posY(-999.F), errX2(-999.F), errY2(-999.F) {}
+    PositionAndError2(float x, float y, float eX, float eY) : posX(x), posY(y), errX2(eX), errY2(eY) {}
     float posX;
     float posY;
     float errX2;

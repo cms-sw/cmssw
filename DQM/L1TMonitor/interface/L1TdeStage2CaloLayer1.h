@@ -56,7 +56,7 @@ private:
     int data_;
     bool compareLeft_;
     SimpleTower(int ieta, int iphi, int data, bool compareLeft = true)
-        : ieta_(ieta), iphi_(iphi), data_(data), compareLeft_(compareLeft){};
+        : ieta_(ieta), iphi_(iphi), data_(data), compareLeft_(compareLeft) {}
     inline int et() const { return (data_ & 0x01ff) >> 0; };   // ET bits 0-8
     inline int er() const { return (data_ & 0x0e00) >> 9; };   // ET ratio bits 9-11
     inline int fb() const { return (data_ & 0xf000) >> 12; };  // Feature bits 12-15

@@ -457,7 +457,7 @@ bool HcalHTRData::unpack_per_channel_header(
   flav = (header >> 12) & 0x7;
   error_flags = (header >> 10) & 0x3;
   capid0 = (header >> 8) & 0x3;
-  channelid = (header)&0xFF;
+  channelid = (header) & 0xFF;
   return (header & 0x8000) != 0;
 }
 

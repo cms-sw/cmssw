@@ -33,6 +33,15 @@ void PATPrimaryVertexSelector::select(const edm::Handle<collection>& handle,
   sort(selected_.begin(), selected_.end(), *this);
 }
 
+void PATPrimaryVertexSelector::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  desc.add<unsigned int>("minMultiplicity", 1);
+  desc.add<double>("minPtSum", 0.);
+  desc.add<double>("maxTrackEta", 9999.);
+  desc.add<double>("maxNormChi2", 9999.);
+  desc.add<double>("maxDeltaR", 9999.);
+  desc.add<double>("maxDeltaZ", 9999.);
+}
+
 bool PATPrimaryVertexSelector::operator()(const reco::Vertex* v1, const reco::Vertex* v2) const {
   unsigned int mult1;
   double ptSum1;

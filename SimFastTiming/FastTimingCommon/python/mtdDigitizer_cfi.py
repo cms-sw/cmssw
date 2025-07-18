@@ -88,14 +88,14 @@ _endcap_MTDDigitizer = cms.PSet(
         # n bits for the TDC
         tdcNbits             = cms.uint32(11),
         # ADC saturation
-        adcSaturation_MIP  = cms.double(25),
+        adcSaturation_MIP  = cms.double(100),
         # for different thickness
         adcThreshold_MIP   = cms.double(0.025),
         iThreshold_MIP     = cms.double(0.9525),
         # LSB for time of arrival estimate from TDC in ns
         toaLSB_ns          = cms.double(0.013),
         referenceChargeColl = cms.double(1.0),
-        noiseLevel          = cms.double(0.3554),
+        noiseLevel          = cms.double(0.1750),
         sigmaDistorsion     = cms.double(0.0),
         sigmaTDC            = cms.double(0.010),
         formulaLandauNoise  = cms.string("TMath::Max(0.020, 0.020 * (0.35 * (x - 1.0) + 1.0))") 

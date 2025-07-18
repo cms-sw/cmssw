@@ -19,9 +19,9 @@
 
 class PhotonMCTruth {
 public:
-  PhotonMCTruth() : isAConversion_(0), thePhoton_(0., 0., 0.), theConvVertex_(0., 0., 0.){};
+  PhotonMCTruth() : isAConversion_(0), thePhoton_(0., 0., 0.), theConvVertex_(0., 0., 0.) {}
 
-  PhotonMCTruth(CLHEP::HepLorentzVector v) : thePhoton_(v){};
+  PhotonMCTruth(CLHEP::HepLorentzVector v) : thePhoton_(v) {}
 
   PhotonMCTruth(int isAConversion,
                 CLHEP::HepLorentzVector v,

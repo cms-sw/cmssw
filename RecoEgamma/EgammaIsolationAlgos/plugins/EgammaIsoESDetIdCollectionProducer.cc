@@ -114,7 +114,8 @@ void EgammaIsoESDetIdCollectionProducer::produce(edm::StreamID, edm::Event& iEve
 
   //unify the vector
   std::sort(indexToStore.begin(), indexToStore.end());
-  std::unique(indexToStore.begin(), indexToStore.end());
+  auto last = std::unique(indexToStore.begin(), indexToStore.end());
+  indexToStore.erase(last, indexToStore.end());
 
   auto detIdCollection = std::make_unique<DetIdCollection>(indexToStore);
 
@@ -151,5 +152,5 @@ void EgammaIsoESDetIdCollectionProducer::addDetIds(const reco::SuperCluster& sup
       }
 
     }  //end of endcap & dR check
-  }    //end of cluster loop
+  }  //end of cluster loop
 }

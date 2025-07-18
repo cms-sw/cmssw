@@ -5,7 +5,6 @@
 Produce a custom number of identical ROOT files and check that their
 final merged output matches what is expected.
 """
-from __future__ import print_function
 
 from builtins import range
 from optparse import OptionParser

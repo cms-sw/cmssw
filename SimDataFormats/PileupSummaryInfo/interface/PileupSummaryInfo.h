@@ -21,7 +21,7 @@ Usage: purely descriptive
 
 class PileupSummaryInfo {
 public:
-  PileupSummaryInfo(){};
+  PileupSummaryInfo() {}
 
   PileupSummaryInfo(const int num_PU_vertices,
                     const std::vector<float>& zpositions,

@@ -25,7 +25,7 @@ namespace edm {
     m_task->increment_ref_count();
   }
 
-  WaitingTaskWithArenaHolder::WaitingTaskWithArenaHolder(WaitingTaskHolder&& iTask)
+  WaitingTaskWithArenaHolder::WaitingTaskWithArenaHolder(WaitingTaskHolder iTask)
       : m_task(iTask.release_no_decrement()),
         m_group(iTask.group()),
         m_arena(std::make_shared<oneapi::tbb::task_arena>(oneapi::tbb::task_arena::attach())) {}
@@ -87,6 +87,12 @@ namespace edm {
           task->execute();
         });
       });
+    }
+  }
+
+  void WaitingTaskWithArenaHolder::presetTaskAsFailed(std::exception_ptr iExcept) noexcept {
+    if (iExcept) {
+      m_task->dependentTaskFailed(iExcept);
     }
   }
 

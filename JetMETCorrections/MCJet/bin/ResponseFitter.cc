@@ -148,8 +148,8 @@ int main(int argc, char **argv) {
         CalculateCorrection(UseRatioForResponse, mRefPtEtaBin, eRefPtEtaBin, mR, eR, c, e);
         CorrectionVsEta_RefPt[j]->SetBinContent(etabin + 1, c);
         CorrectionVsEta_RefPt[j]->SetBinError(etabin + 1, e);
-      }   //end of EtaBin loop
-    }     // end of Pt loop
+      }  //end of EtaBin loop
+    }  // end of Pt loop
   } else  //single eta bin: used for L3 correction calculation
   {
     std::cout << "************* Fitting Response Histograms in single eta bin. ************" << std::endl;

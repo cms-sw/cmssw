@@ -1,11 +1,59 @@
+###############################################################################
+# Way to use this:
+#   cmsRun testHGCalGuardRing_cfg.py geometry=D110 type=DDD
+#
+#   Options for geometry: D104, D110, D116, D120
+#               type: DDD, DD4hep
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+import os, sys, importlib, re, random
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-process = cms.Process("HGCalGuardRingTest",Phase2C17I13M9)
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('geometry',
+                 "D110",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: D104, D110, D116, D120")
+options.register('type',
+                 "DDD",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "type of operations: DDD, DD4hep")
+
+### get and parse the command line arguments
+options.parseArguments()
+
+print(options)
+
+####################################################################
+# Use the options
+
+geomName = "Run4" + options.geometry
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
+
+if (options.type == "DD4hep"):
+    from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
+    process = cms.Process('GuardRing',ERA,dd4hep)
+    geomFile = "Configuration.Geometry.Geometry" + options.type +"Extended" + geomName + "Reco_cff"
+else:
+    process = cms.Process('GuardRing',ERA)
+    geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
+
+print("Geometry file:   ", geomFile)
+print("Global Tag Name: ", GLOBAL_TAG)
+print("Era Name:        ", ERA)
 
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-process.load("Configuration.Geometry.GeometryExtended2026D92Reco_cff")
+process.load(geomFile)
 process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, GLOBAL_TAG, '')
 
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.HGCSim=dict()

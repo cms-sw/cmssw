@@ -16,6 +16,10 @@ def makeStepName(key,frag,step,suffix):
 
 #just define all of them
 
+## ... but we don't need all the flavors for the GenOnly
+def notForGenOnly(key,specialType):
+    return "GenOnly" in key and specialType != 'baseline'
+
 for year in upgradeKeys:
     for i,key in enumerate(upgradeKeys[year]):
         numWF=numWFAll[year][i]
@@ -26,11 +30,13 @@ for year in upgradeKeys:
                 continue
             stepList={}
             for specialType in upgradeWFs.keys():
+                if notForGenOnly(key,specialType):
+                    continue
                 stepList[specialType] = []
             hasHarvest = False
             for step in upgradeProperties[year][key]['ScenToRun']:
                 stepMaker = makeStepName
-                if 'Sim' in step and 'Fast' not in step:
+                if 'Sim' in step and 'Fast' not in step and step != "Sim":
                     if 'HLBeamSpot' in step:
                         if '14TeV' in frag:
                             step = 'GenSimHLBeamSpot14'
@@ -38,11 +44,18 @@ for year in upgradeKeys:
                             step = 'GenSimHLBeamSpotHGCALCloseBy'
                     stepMaker = makeStepNameSim
                 elif 'Gen' in step:
+                    if 'HLBeamSpot' in step:
+                        if '14TeV' in frag:
+                            step = 'GenHLBeamSpot14'
                     stepMaker = makeStepNameSim
                 
                 if 'HARVEST' in step: hasHarvest = True
 
                 for specialType,specialWF in upgradeWFs.items():
+
+                    if notForGenOnly(key,specialType): ## we don't need all the flavors for the GEN
+                        continue 
+
                     if (specialType != 'baseline') and ( ('PU' in step and step.replace('PU','') in specialWF.PU) or (step in specialWF.steps) ):
                         stepList[specialType].append(stepMaker(key,frag[:-4],step,specialWF.suffix))
                         # hack to add an extra step
@@ -58,8 +71,8 @@ for year in upgradeKeys:
                                 stepList[specialType].append(stepMaker(key,frag[:-4],step.replace('RecoGlobal','HLT75e33'),specialWF.suffix))
                         # similar hacks for premixing
                         if 'PMX' in specialType:
-                            if 'GenSim' in step:
-                                s = step.replace('GenSim','Premix')+'PU' # later processing requires to have PU here
+                            if 'GenSim' in step or 'Gen' in step:
+                                s = step.replace('GenSim','Premix').replace('Gen','Premix')+'PU' # later processing requires to have PU here
                                 if step in specialWF.PU:
                                     stepMade = stepMaker(key,'PREMIX',s,specialWF.suffix)
                                     # append for combined
@@ -71,6 +84,8 @@ for year in upgradeKeys:
 
             for specialType,specialWF in upgradeWFs.items():
                 # remove other steps for premixS1
+                if notForGenOnly(key,specialType):
+                    continue
                 if specialType=="PMXS1":
                     stepList[specialType] = stepList[specialType][:1]
                 specialWF.workflow(workflows, numWF, info.dataset, stepList[specialType], key, hasHarvest)

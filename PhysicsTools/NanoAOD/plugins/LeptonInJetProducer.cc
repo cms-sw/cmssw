@@ -38,7 +38,7 @@ public:
     produces<edm::ValueMap<int>>("muIdx3SJ");
     produces<edm::ValueMap<int>>("eleIdx3SJ");
   }
-  ~LeptonInJetProducer() override{};
+  ~LeptonInJetProducer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 

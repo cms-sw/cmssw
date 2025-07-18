@@ -1,10 +1,10 @@
-// ----------------------------------------------------------------------------------------------------------------
-// Basic example ROOT script for making tracking performance plots using the ntuples produced by L1TrackNtupleMaker.cc
+// --------------------------------------------------------------------------------------------------------
+// ROOT script for making tracking performance plots using the ntuples produced by L1TrackNtupleMaker.cc
 //
 // e.g. in ROOT do: .L L1TrackNtuplePlot.C++, L1TrackNtuplePlot("L1TrkNtuple")
 //
 // By Louise Skinnari, June 2013
-// ----------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------
 
 #include "TROOT.h"
 #include "TStyle.h"
@@ -54,7 +54,7 @@ void L1TrackNtuplePlot(TString type,
                        float TP_minPt = 2.0,
                        float TP_maxPt = 100.0,
                        float TP_maxEta = 2.4,
-                       float TP_maxDxy = 1.0,
+                       float TP_maxLxy = 1.0,
                        float TP_maxD0 = 1.0,
                        bool doDetailedPlots = false) {
   // type:              this is the name of the input file you want to process (minus ".root" extension)
@@ -68,7 +68,7 @@ void L1TrackNtuplePlot(TString type,
 
   // TP_select_injet: only look at TPs that are within a jet with pt > 30 GeV (==1) or within a jet with pt > 100 GeV (==2), >200 GeV (==3) or all TPs (==0)
 
-  //--  N.B. For standard displaced tracking plots, set TP_minPt=3.0, TP_maxEta=2.0, TP_maxDxy=10.0,
+  //--  N.B. For standard displaced tracking plots, set TP_minPt=3.0, TP_maxEta=2.0, TP_maxLxy=10.0,
   //--  TO_maxD0=10.0, doDetailedPlots=true. (Efficiency plots vs eta also usually made for d0 < 5).
 
   gROOT->SetBatch();
@@ -128,7 +128,8 @@ void L1TrackNtuplePlot(TString type,
   int ntp_pt2 = 0;
   int ntp_pt3 = 0;
   int ntp_pt10 = 0;
-
+  int ntrk_genuine_pt2 = 0;
+  int ntp_nmatch = 0;
   // ----------------------------------------------------------------------------------------------------------------
   // read ntuples
   TChain* tree = new TChain("L1TrackNtuple" + treeName + "/eventTree");
@@ -147,7 +148,7 @@ void L1TrackNtuplePlot(TString type,
   vector<float>* tp_pt;
   vector<float>* tp_eta;
   vector<float>* tp_phi;
-  vector<float>* tp_dxy;
+  vector<float>* tp_lxy;
   vector<float>* tp_z0;
   vector<float>* tp_d0;
   vector<int>* tp_pdgid;
@@ -205,7 +206,7 @@ void L1TrackNtuplePlot(TString type,
   TBranch* b_tp_pt;
   TBranch* b_tp_eta;
   TBranch* b_tp_phi;
-  TBranch* b_tp_dxy;
+  TBranch* b_tp_lxy;
   TBranch* b_tp_z0;
   TBranch* b_tp_d0;
   TBranch* b_tp_pdgid;
@@ -261,7 +262,7 @@ void L1TrackNtuplePlot(TString type,
   tp_pt = 0;
   tp_eta = 0;
   tp_phi = 0;
-  tp_dxy = 0;
+  tp_lxy = 0;
   tp_z0 = 0;
   tp_d0 = 0;
   tp_pdgid = 0;
@@ -317,7 +318,7 @@ void L1TrackNtuplePlot(TString type,
   tree->SetBranchAddress("tp_pt", &tp_pt, &b_tp_pt);
   tree->SetBranchAddress("tp_eta", &tp_eta, &b_tp_eta);
   tree->SetBranchAddress("tp_phi", &tp_phi, &b_tp_phi);
-  tree->SetBranchAddress("tp_dxy", &tp_dxy, &b_tp_dxy);
+  tree->SetBranchAddress("tp_lxy", &tp_lxy, &b_tp_lxy);
   tree->SetBranchAddress("tp_z0", &tp_z0, &b_tp_z0);
   tree->SetBranchAddress("tp_d0", &tp_d0, &b_tp_d0);
   tree->SetBranchAddress("tp_pdgid", &tp_pdgid, &b_tp_pdgid);
@@ -1070,7 +1071,7 @@ void L1TrackNtuplePlot(TString type,
     vector<unsigned int> nTrksPerSector_pt3(9, 0);
     vector<unsigned int> nTrksPerSector_pt4(9, 0);
 
-    for (int it = 0; it < (int)trk_pt->size(); it++) {
+    for (int it = 0; it < (int)trk_pt->size(); it++) {  // Loop reco tracks
       // ----------------------------------------------------------------------------------------------------------------
       // track properties
 
@@ -1157,6 +1158,7 @@ void L1TrackNtuplePlot(TString type,
         ntrkevt_pt2++;
         h_trk_all_vspt->Fill(trk_pt->at(it));
         if (trk_genuine->at(it) == 1) {
+          ntrk_genuine_pt2++;
           ntrkevt_genuine_pt2++;
           h_trk_genuine_vspt->Fill(trk_pt->at(it));
         } else
@@ -1203,7 +1205,7 @@ void L1TrackNtuplePlot(TString type,
           h_trk_tracklet_hits->Fill(std::abs(trk_eta->at(it)), layer);  // ...fill this bin with the layer of the track.
         }
       }
-    }
+    }  // End loop reco tracks
 
     h_ntrk_pt2->Fill(ntrkevt_pt2);
     h_ntrk_pt3->Fill(ntrkevt_pt3);
@@ -1219,7 +1221,7 @@ void L1TrackNtuplePlot(TString type,
     h_ntrkPerSector_pt4->Fill(*std::max_element(nTrksPerSector_pt4.begin(), nTrksPerSector_pt4.end()));
 
     // ----------------------------------------------------------------------------------------------------------------
-    // tracking particle loop
+    // Loop tracking particles
     for (int it = 0; it < (int)tp_pt->size(); it++) {
       // only look at TPs in (ttbar) jets ?
       if (TP_select_injet > 0) {
@@ -1238,7 +1240,7 @@ void L1TrackNtuplePlot(TString type,
       }
 
       // kinematic cuts
-      if (std::abs(tp_dxy->at(it)) > TP_maxDxy)
+      if (std::abs(tp_lxy->at(it)) > TP_maxLxy)
         continue;
       if (std::abs(tp_d0->at(it)) > TP_maxD0)
         continue;
@@ -1256,8 +1258,10 @@ void L1TrackNtuplePlot(TString type,
           h_tp_vspt->Fill(tp_pt->at(it));
           // duplicate rate
           if (tp_nmatch->at(it) > 1) {
-            for (int inm = 1; inm < tp_nmatch->at(it); inm++)
+            for (int inm = 1; inm < tp_nmatch->at(it); inm++) {  // N.B. Loop doesn't start at zero.
+              ntp_nmatch++;
               h_trk_duplicate_vspt->Fill(matchtrk_pt->at(it));
+            }
           }
         }
         if (tp_pt->at(it) > 3.0)
@@ -3702,6 +3706,15 @@ void L1TrackNtuplePlot(TString type,
   cout << "# tracks/event (pt > " << std::max(TP_minPt, 2.0f) << ") = " << (float)ntrk_pt2 / nevt << endl;
   cout << "# tracks/event (pt > 3.0) = " << (float)ntrk_pt3 / nevt << endl;
   cout << "# tracks/event (pt > 10.0) = " << (float)ntrk_pt10 / nevt << endl << endl;
+
+  // fake track rate
+  if (ntrk_genuine_pt2 > 0) {
+    cout << "Percentage fake tracks (pt > " << std::max(TP_minPt, 2.0f)
+         << ") = " << 100. * (1. - float(ntrk_genuine_pt2) / float(ntrk_pt2)) << "%" << endl;
+    cout << "Percentage duplicate tracks (pt > " << std::max(TP_minPt, 2.0f)
+         << ")= " << 100. * float(ntp_nmatch) / float(ntrk_pt2) << "%" << endl
+         << endl;
+  }
 
   // z0 resolution
   cout << "z0 resolution = " << z0ResSample1 << "cm at |eta| = " << etaSample1 << endl;

@@ -69,7 +69,11 @@ namespace cms::alpakatools {
 
   private:
     std::shared_ptr<Event> makeOrGet(Device dev) {
-      return cache_[alpaka::getNativeHandle(dev)].makeOrGet([dev]() { return std::make_unique<Event>(dev); });
+      return cache_[alpaka::getNativeHandle(dev)].makeOrGet([dev]() {
+        // We want non-busy waits
+        bool constexpr busyWait = false;
+        return std::make_unique<Event>(dev, busyWait);
+      });
     }
 
     // not thread safe, intended to be called only from AlpakaService

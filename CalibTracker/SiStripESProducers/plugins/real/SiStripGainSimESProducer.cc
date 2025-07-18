@@ -20,7 +20,7 @@
 class SiStripGainSimESProducer : public edm::ESProducer {
 public:
   SiStripGainSimESProducer(const edm::ParameterSet&);
-  ~SiStripGainSimESProducer() override{};
+  ~SiStripGainSimESProducer() override {}
 
   std::unique_ptr<SiStripGain> produce(const SiStripGainSimRcd&);
 

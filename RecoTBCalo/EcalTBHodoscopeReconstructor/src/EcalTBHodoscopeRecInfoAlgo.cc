@@ -93,11 +93,11 @@ void EcalTBHodoscopeRecInfoAlgo::fitLine(float& x,
 
 EcalTBHodoscopeRecInfo EcalTBHodoscopeRecInfoAlgo::reconstruct(const EcalTBHodoscopeRawInfo& hodoscopeRawInfo) const {
   // Reset Hodo data
-  float x, y = -100.0;
-  float xSlope, ySlope = 0.0;
-  float xQuality, yQuality = -100.0;
+  float x = -100.0, y = -100.0;
+  float xSlope = 0.0, ySlope = 0.0;
+  float xQuality = -100.0, yQuality = -100.0;
 
-  int nclus[4];
+  int nclus[4] = {0};
   std::vector<int> xclus[4];
   std::vector<int> wclus[4];
 
@@ -118,7 +118,7 @@ EcalTBHodoscopeRecInfo EcalTBHodoscopeRecInfoAlgo::reconstruct(const EcalTBHodos
           while (last < myGeometry_.getNFibres() && hodoscopeRawInfo[ipl][last]) {
             last++;
             nh--;
-          }                                                                              //end
+          }  //end
           if (last + 1 < myGeometry_.getNFibres() && hodoscopeRawInfo[ipl][last + 1]) {  //Skip 1 fibre hole
             last += 2;
             nh--;

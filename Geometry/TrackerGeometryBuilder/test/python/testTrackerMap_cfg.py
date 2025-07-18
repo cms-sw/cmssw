@@ -8,6 +8,7 @@ process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerTopology_cfi")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 process.load("Geometry.TrackerGeometryBuilder.trackerParameters_cfi")
+process.load("Geometry.TrackerGeometryBuilder.TrackerAdditionalParametersPerDet_cfi")
 process.load("Geometry.TrackerSimData.trackerSimGeometryXML_cfi")
 
 process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")

@@ -19,7 +19,7 @@ using namespace reco;
 using namespace Rivet;
 
 ParticleLevelProducer::ParticleLevelProducer(const edm::ParameterSet& pset)
-    : srcToken_(consumes<edm::HepMCProduct>(pset.getParameter<edm::InputTag>("src"))), pset_(pset) {
+    : srcToken_(consumes<edm::HepMC3Product>(pset.getParameter<edm::InputTag>("src"))), pset_(pset) {
   usesResource("Rivet");
   genVertex_ = reco::Particle::Point(0, 0, 0);
 
@@ -119,20 +119,22 @@ void ParticleLevelProducer::produce(edm::Event& event, const edm::EventSetup& ev
   auto constsRefHandle = event.getRefBeforePut<reco::GenParticleCollection>("consts");
   auto tagsRefHandle = event.getRefBeforePut<reco::GenParticleCollection>("tags");
 
-  edm::Handle<HepMCProduct> srcHandle;
+  edm::Handle<HepMC3Product> srcHandle;
   event.getByToken(srcToken_, srcHandle);
 
-  const HepMC::GenEvent* genEvent = srcHandle->GetEvent();
+  const HepMC3::GenEventData* genEventData = srcHandle->GetEvent();
+  std::unique_ptr<HepMC3::GenEvent> genEvent = std::make_unique<HepMC3::GenEvent>();
+  genEvent->read_data(*genEventData);
 
   if (!rivetAnalysis_ || !rivetAnalysis_->hasProjection("FS")) {
     rivetAnalysis_ = new Rivet::RivetAnalysis(pset_);
     analysisHandler_ = std::make_unique<Rivet::AnalysisHandler>();
 
-    analysisHandler_->setIgnoreBeams(true);
+    analysisHandler_->setCheckBeams(false);
     analysisHandler_->addAnalysis(rivetAnalysis_);
   }
 
-  analysisHandler_->analyze(*genEvent);
+  analysisHandler_->analyze(const_cast<GenEvent&>(*genEvent));
 
   // Convert into edm objects
   // Prompt neutrinos
@@ -158,7 +160,7 @@ void ParticleLevelProducer::produce(edm::Event& event, const edm::EventSetup& ev
     lepJet.setCharge(lepton.charge());
 
     for (auto const& p : lepton.constituents()) {
-      // ghost taus (momentum scaled with 10e-20 in RivetAnalysis.h already)
+      // ghost taus (momentum scaled with 1e-20 in RivetAnalysis.h already)
       if (p.abspid() == 15) {
         tags->push_back(reco::GenParticle(p.charge(), p4(p), genVertex_, p.pid(), 2, true));
         lepJet.addDaughter(edm::refToPtr(reco::GenParticleRef(tagsRefHandle, ++iTag)));

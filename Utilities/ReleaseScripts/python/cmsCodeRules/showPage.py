@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from __future__ import print_function
 from builtins import range
 __author__="Aurelija"
 __date__ ="$2010-08-12 10.50.40$"

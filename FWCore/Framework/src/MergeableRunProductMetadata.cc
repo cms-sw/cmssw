@@ -113,7 +113,7 @@ namespace edm {
       }
       ++processIndex;
     }  // end of loop over processes
-  }    // end of readRun function
+  }  // end of readRun function
 
   void MergeableRunProductMetadata::writeLumi(LuminosityBlockNumber_t lumi) {
     if (metadataForProcesses_.empty()) {
@@ -183,7 +183,6 @@ namespace edm {
       // only has processes which created mergeable run products that were
       // read from the input data files. Note storedProcesses may be
       // missing processes because the output module dropped products.
-      // The other vector may be missing processes because of SubProcesses.
       for (unsigned int transientProcessIndex = 0; transientProcessIndex < processesWithMergeableRunProducts.size();
            ++transientProcessIndex) {
         // This string comparison could be optimized away by storing an index mapping in
@@ -290,7 +289,7 @@ namespace edm {
     unsigned int processIndex = 0;
     for (auto const& metadataForProcess : metadataForProcesses_) {
       // This string comparison could be optimized away by storing an index in
-      // BranchDescription as a transient calculated once early in a job.
+      // ProductDescription as a transient calculated once early in a job.
       if (getProcessName(processIndex) == processName) {
         return &metadataForProcess;
       }

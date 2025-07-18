@@ -4,7 +4,7 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/L1TrackTrigger/interface/TTStub.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
+#include "SimDataFormats/Associations/interface/TTStubAssociationMap.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -68,6 +68,19 @@ namespace tmtt {
          const TrackerModule* trackerModule,
          const DegradeBend* degradeBend,
          const StubKiller* stubKiller);
+
+    // KF emualtor: stub constructor
+    Stub(const TTStubRef& ttStubRef,
+         double r,
+         double phi,
+         double z,
+         int layerId,
+         int layerIdReduced,
+         double stripPitch,
+         double stripLength,
+         bool psModule,
+         bool barrel,
+         bool tiltedBarrel);
 
     bool operator==(const Stub& stubOther) { return (this->index() == stubOther.index()); }
 

@@ -70,15 +70,12 @@ namespace edm {
     explicit FileInPath(const std::string& r);
     explicit FileInPath(const char* r);
 
-    FileInPath(FileInPath const& other);
-    FileInPath& operator=(FileInPath const& other);
-    ~FileInPath();
     void swap(FileInPath& other);
 
     /// Return a string containing the canonical form of the
     /// *relative* path. DO NOT USE THIS AS THE FILENAME for any file
     /// operations; use fullPath() for that purpose.
-    std::string relativePath() const;
+    const std::string& relativePath() const;
 
     /// Where was the file found?
     LocationCode location() const;
@@ -91,7 +88,7 @@ namespace edm {
     /// filesystem is global; other threads, processes, etc., may have
     /// removed the file since we checked on its existence at the time
     /// of construction of the FileInPath object.
-    std::string fullPath() const;
+    const std::string& fullPath() const;
 
     /// Write contents to the given ostream.
     /// Writing errors are reflected in the state of the stream.

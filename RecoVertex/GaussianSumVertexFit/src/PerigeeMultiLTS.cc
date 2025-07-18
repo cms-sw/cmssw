@@ -110,7 +110,7 @@ AlgebraicSymMatrix33 PerigeeMultiLTS::predictedStateMomentumError() const {
   return collapsedStateLT->predictedStateMomentumError();
 }
 
-bool PerigeeMultiLTS::operator==(LinearizedTrackState<5>& other) const {
+bool PerigeeMultiLTS::operator==(const LinearizedTrackState<5>& other) const {
   const PerigeeMultiLTS* otherP = dynamic_cast<const PerigeeMultiLTS*>(&other);
   if (otherP == nullptr) {
     throw VertexException("PerigeeMultiLTS: don't know how to compare myself to non-perigee track state");

@@ -59,20 +59,25 @@ MuonTrackProducer::MuonTrackProducer(const edm::ParameterSet &parset)
 
 void MuonTrackProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
   edm::Handle<reco::MuonCollection> muonCollectionH = iEvent.getHandle(muonsToken);
-  if (ignoreMissingMuonCollection && !muonCollectionH.isValid())
+
+  std::unique_ptr<reco::TrackCollection> selectedTracks(new reco::TrackCollection);
+  std::unique_ptr<reco::TrackExtraCollection> selectedTrackExtras(new reco::TrackExtraCollection());
+  std::unique_ptr<TrackingRecHitCollection> selectedTrackHits(new TrackingRecHitCollection());
+
+  if (ignoreMissingMuonCollection && !muonCollectionH.isValid()) {
     edm::LogVerbatim("MuonTrackProducer") << "\n ignoring missing muon collection.";
 
-  else {
+    iEvent.put(std::move(selectedTracks));
+    iEvent.put(std::move(selectedTrackExtras));
+    iEvent.put(std::move(selectedTrackHits));
+
+  } else {
     const DTRecSegment4DCollection &dtSegmentCollection = iEvent.get(inputDTRecSegment4DToken_);
     const CSCSegmentCollection &cscSegmentCollection = iEvent.get(inputCSCSegmentToken_);
 
     const TrackerTopology &ttopo = iSetup.getData(ttopoToken_);
 
-    std::unique_ptr<reco::TrackCollection> selectedTracks(new reco::TrackCollection);
-    std::unique_ptr<reco::TrackExtraCollection> selectedTrackExtras(new reco::TrackExtraCollection());
-    std::unique_ptr<TrackingRecHitCollection> selectedTrackHits(new TrackingRecHitCollection());
-
-    reco::TrackRefProd rTracks = iEvent.getRefBeforePut<reco::TrackCollection>();
+    //reco::TrackRefProd rTracks = iEvent.getRefBeforePut<reco::TrackCollection>();
     reco::TrackExtraRefProd rTrackExtras = iEvent.getRefBeforePut<reco::TrackExtraCollection>();
     TrackingRecHitRefProd rHits = iEvent.getRefBeforePut<TrackingRecHitCollection>();
 
@@ -473,8 +478,8 @@ void MuonTrackProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::Ev
               }  //  else if (subdet == MuonSubdetId::CSC)
 
             }  // loop on vector<MuonSegmentMatch>
-          }    // loop on vector<MuonChamberMatch>
-        }      // if (trackType == "innerTrackPlusSegments")
+          }  // loop on vector<MuonChamberMatch>
+        }  // if (trackType == "innerTrackPlusSegments")
 
         //      edm::LogVerbatim("MuonTrackProducer")<<"\n printing final
         //      hit_pattern"; newTrk->hitPattern().print();
@@ -486,7 +491,7 @@ void MuonTrackProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::Ev
         selectedTrackExtras->push_back(*newExtra);
 
       }  // if (isGoodResult)
-    }    // loop on reco::MuonCollection
+    }  // loop on reco::MuonCollection
 
     iEvent.put(std::move(selectedTracks));
     iEvent.put(std::move(selectedTrackExtras));

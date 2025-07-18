@@ -228,7 +228,7 @@ void PedsFullNoiseHistosUsingDb::update(SiStripConfigDb::FedDescriptionsRange fe
               LogTrace(mlDqmClient_) << ss.str();
             }
           }  // end loop on strips
-        }    // end loop on apvs
+        }  // end loop on apvs
         updated++;
       } else {  // device not found in the analysis
         if (deviceIsPresent(fec_key)) {

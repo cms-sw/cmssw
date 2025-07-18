@@ -12,6 +12,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -59,6 +60,14 @@ namespace pf2pat {
         isBitMap_ = false;
         value_ = cfg.getParameter<double>("electronIdCut");
       }
+    }
+
+    static void fillPSetDescription(edm::ParameterSetDescription& desc) {
+      desc.add<edm::InputTag>("recoGsfElectrons", edm::InputTag(""));
+      desc.add<edm::InputTag>("electronIdMap", edm::InputTag(""));
+      //desc.add<std::vector<std::string> >("bitsToCheck");
+      //desc.add<uint32_t>("bitsToCheck");
+      desc.add<double>("electronIdCut", 0.);
     }
 
     void select(const HandleToCollection& hc, const edm::Event& e, const edm::EventSetup& s) {

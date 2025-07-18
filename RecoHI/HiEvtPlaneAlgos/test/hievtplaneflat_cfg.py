@@ -56,7 +56,7 @@ process.GlobalTag.toGet.extend([
 
 process.GlobalTag.toGet.extend([
         cms.PSet(record = cms.string("HeavyIonRPRcd"),
-                 tag = cms.string('HeavyIonRPRcd_Hydjet_74x_v02_mc')
+                 tag = cms.string('HeavyIonRPRcd_Hydjet_74x_v02_mc'),
                  connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_PAT_000")
                  )
         ])

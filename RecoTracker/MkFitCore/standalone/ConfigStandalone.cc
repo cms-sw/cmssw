@@ -53,7 +53,6 @@ namespace mkfit {
     int cmsSelMinLayers = 12;
     int nMinFoundHits = 10;
 
-    bool kludgeCmsHitErrors = false;
     bool backwardFit = false;
     bool backwardSearch = true;
 
@@ -110,6 +109,7 @@ namespace mkfit {
         void *h = dlopen(sopath.c_str(), RTLD_LAZY);
         if (!h) {
           perror("dlopen failed");
+          fprintf(stderr, "dlerror:\n%s\n", dlerror());
           exit(2);
         }
 
@@ -130,6 +130,9 @@ namespace mkfit {
         TrackerInfoCreator_foo foo = (TrackerInfoCreator_foo)(*p2f);
         foo(ti, ii, verbose);
 
+        // level 2: print shapes and modules, precision 8
+        // ti.print_tracker(2, 8);
+
         return;
       }
 
@@ -138,6 +141,10 @@ namespace mkfit {
 
     fprintf(stderr, "TrackerInfo plugin '%s' not found in search path.\n", soname.c_str());
     exit(2);
+  }
+
+  namespace internal {
+    std::vector<DeadVec> deadvectors;
   }
 
 }  // namespace mkfit

@@ -1,52 +1,7 @@
 //
-// ********************************************************************
-// * DISCLAIMER                                                       *
-// *                                                                  *
-// * The following disclaimer summarizes all the specific disclaimers *
-// * of contributors to this software. The specific disclaimers,which *
-// * govern, are listed with their locations in:                      *
-// *   http://cern.ch/geant4/license                                  *
-// *                                                                  *
-// * Neither the authors of this software system, nor their employing *
-// * institutes,nor the agencies providing financial support for this *
-// * work  make  any representation or  warranty, express or implied, *
-// * regarding  this  software system or assume any liability for its *
-// * use.                                                             *
-// *                                                                  *
-// * This  code  implementation is the  intellectual property  of the *
-// * GEANT4 collaboration.                                            *
-// * By copying,  distributing  or modifying the Program (or any work *
-// * based  on  the Program)  you indicate  your  acceptance of  this *
-// * statement, and all its terms.                                    *
-// ********************************************************************
-//
-//
-//
 // Hadronic Process: Reaction Dynamics
-// original by H.P. Wellisch
-// modified by J.L. Chuma, TRIUMF, 19-Nov-1996
-// Last modified: 27-Mar-1997
-// modified by H.P. Wellisch, 24-Apr-97
-// H.P. Wellisch, 25.Apr-97: Side of current and target particle taken into account
-// H.P. Wellisch, 29.Apr-97: Bug fix in NuclearReaction. (pseudo1 was without energy)
-// J.L. Chuma, 30-Apr-97:  Changed return value for GenerateXandPt.  It seems possible
-//                         that GenerateXandPt could eliminate some secondaries, but
-//                         still finish its calculations, thus we would not want to
-//                         then use TwoCluster to again calculate the momenta if vecLen
-//                         was less than 6.
-// J.L. Chuma, 10-Jun-97:  Modified NuclearReaction.  Was not creating ReactionProduct's
-//                         with the new operator, thus they would be meaningless when
-//                         going out of scope.
-// J.L. Chuma, 20-Jun-97:  Modified GenerateXandPt and TwoCluster to fix units problems
-// J.L. Chuma, 23-Jun-97:  Modified ProduceStrangeParticlePairs to fix units problems
-// J.L. Chuma, 26-Jun-97:  Modified ProduceStrangeParticlePairs to fix array indices
-//                         which were sometimes going out of bounds
-// J.L. Chuma, 04-Jul-97:  Many minor modifications to GenerateXandPt and TwoCluster
-// J.L. Chuma, 06-Aug-97:  Added original incident particle, before Fermi motion and
-//                         evaporation effects are included, needed for self absorption
-//                         and corrections for single particle spectra (shower particles)
-// logging stopped 1997
-// J. Allison, 17-Jun-99:  Replaced a min function to get correct behaviour on DEC.
+// original by H.P. Wellisch 1997 from GHEISHA code
+//
 
 #include "SimG4Core/CustomPhysics/interface/FullModelReactionDynamics.h"
 #include "G4AntiProton.hh"
@@ -276,9 +231,9 @@ G4bool FullModelReactionDynamics::GenerateXandPt(
           if (--vecLen == 0)
             return false;  // all the secondaries have been eliminated
           break;           // --+
-        }                  //   |
-      }                    //   |
-    }                      // break goes down to here
+        }  //   |
+      }  //   |
+    }  // break goes down to here
     // DEBUGGING --> DumpFrames::DumpFrame(vec, vecLen);
     if (forwardParticlesLeft == 0) {
       forwardEnergy += currentParticle.GetMass() / GeV;
@@ -2281,10 +2236,9 @@ G4double FullModelReactionDynamics::GenerateNBodyEvent(const G4double totalEnerg
     wtmax = std::log(std::pow(kineticEnergy, vecLen - 2) * ffq[vecLen - 1] / totalE);
   }
   lzero = true;
-  G4double pd[50];
+  G4double pd[50] = {0.0};
   //G4double *pd = new G4double [vecLen-1];
   for (i = 0; i < vecLen - 1; ++i) {
-    pd[i] = 0.0;
     if (emm[i + 1] * emm[i + 1] > 0.0) {
       G4double arg = emm[i + 1] * emm[i + 1] +
                      (emm[i] * emm[i] - mass[i + 1] * mass[i + 1]) * (emm[i] * emm[i] - mass[i + 1] * mass[i + 1]) /

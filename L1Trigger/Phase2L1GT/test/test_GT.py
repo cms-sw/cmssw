@@ -15,7 +15,7 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D110Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.L1TrackTrigger_cff')
@@ -25,26 +25,30 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.source = cms.Source("PoolSource",
                             fileNames=cms.untracked.vstring(
-'/store/mc/Phase2Fall22DRMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_125X_mcRun4_realistic_v2_ext1-v1/30001/9ac14ec7-19fe-4933-a6c6-bc873f473f67.root',
-'/store/mc/Phase2Fall22DRMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_125X_mcRun4_realistic_v2_ext1-v1/30001/cf19f554-5b35-4074-b297-937986db7743.root',
-'/store/mc/Phase2Fall22DRMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_125X_mcRun4_realistic_v2_ext1-v1/30001/2215647c-cacd-4c9d-a84f-646a4c11c347.root',
-'/store/mc/Phase2Fall22DRMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_125X_mcRun4_realistic_v2_ext1-v1/30000/bec8fe62-c75f-459d-ba69-366fff94d3e5.root',
-'/store/mc/Phase2Fall22DRMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_125X_mcRun4_realistic_v2_ext1-v1/30001/0d870582-78fd-4c25-b476-2ccd2129edc7.root',
-'/store/mc/Phase2Fall22DRMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_125X_mcRun4_realistic_v2_ext1-v1/30001/b7256d6c-d4b1-4ca4-bbf1-bf0853220641.root',
-'/store/mc/Phase2Fall22DRMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_125X_mcRun4_realistic_v2_ext1-v1/30000/3eaace9c-7465-4f52-94e8-b07e3b2630e8.root',
-'/store/mc/Phase2Fall22DRMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_125X_mcRun4_realistic_v2_ext1-v1/30000/0f2c534d-5292-4bd3-9948-e8003583d2f6.root',
-'/store/mc/Phase2Fall22DRMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_125X_mcRun4_realistic_v2_ext1-v1/30001/70c30283-78fd-44b4-8a30-60db56b3c0f9.root',
-'/store/mc/Phase2Fall22DRMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_125X_mcRun4_realistic_v2_ext1-v1/30001/90196109-a57c-4df8-931d-7b42bc7b6a3e.root',
-                            ),
+"/store/mc/Phase2Spring24DIGIRECOMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_Trk1GeV_140X_mcRun4_realistic_v4-v2/130000/00c7f40e-b44e-4eea-a86b-def8f7d82b0e.root",
+"/store/mc/Phase2Spring24DIGIRECOMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_Trk1GeV_140X_mcRun4_realistic_v4-v2/130000/02504470-83bc-49bf-adc4-b74306efbd0d.root",
+"/store/mc/Phase2Spring24DIGIRECOMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_Trk1GeV_140X_mcRun4_realistic_v4-v2/130000/033d49d4-2f2d-44d4-9b27-9f3edd36cef3.root",
+"/store/mc/Phase2Spring24DIGIRECOMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_Trk1GeV_140X_mcRun4_realistic_v4-v2/130000/039e692f-3423-4290-b9ce-5c55d00de1f1.root",
+"/store/mc/Phase2Spring24DIGIRECOMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_Trk1GeV_140X_mcRun4_realistic_v4-v2/130000/04c30a1a-dc16-4711-bde4-bdbd1d919b8c.root",
+"/store/mc/Phase2Spring24DIGIRECOMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_Trk1GeV_140X_mcRun4_realistic_v4-v2/130000/0e1e8cf8-d4ac-4402-aed3-dc3464acfaaf.root",
+"/store/mc/Phase2Spring24DIGIRECOMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_Trk1GeV_140X_mcRun4_realistic_v4-v2/130000/0f1f8047-b0c9-4360-9b83-2f74b9ce4acf.root",
+"/store/mc/Phase2Spring24DIGIRECOMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_Trk1GeV_140X_mcRun4_realistic_v4-v2/130000/11d0767a-8328-427b-ba64-87e63b2f76e7.root",
+"/store/mc/Phase2Spring24DIGIRECOMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_Trk1GeV_140X_mcRun4_realistic_v4-v2/130000/16a7dad1-a5ab-41a3-8689-f2adae908172.root",
+"/store/mc/Phase2Spring24DIGIRECOMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_Trk1GeV_140X_mcRun4_realistic_v4-v2/130000/19fb47dd-a610-49f9-9b8f-369c5519a6d4.root",
+"/store/mc/Phase2Spring24DIGIRECOMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_Trk1GeV_140X_mcRun4_realistic_v4-v2/130000/1b03b34d-1807-4aaf-818a-0bf548de10ef.root",
+"/store/mc/Phase2Spring24DIGIRECOMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_Trk1GeV_140X_mcRun4_realistic_v4-v2/130000/23c66f66-4daa-411b-958e-41ec2111d927.root",
+"/store/mc/Phase2Spring24DIGIRECOMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_Trk1GeV_140X_mcRun4_realistic_v4-v2/130000/27437ae0-e9b6-40ee-9dca-a6bb81a2d133.root",
+"/store/mc/Phase2Spring24DIGIRECOMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_Trk1GeV_140X_mcRun4_realistic_v4-v2/130000/27718d3a-01f6-41f1-a0f4-09f39e3461c5.root",
+"/store/mc/Phase2Spring24DIGIRECOMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_Trk1GeV_140X_mcRun4_realistic_v4-v2/130000/2910f2cc-44a6-489d-b913-b98fe4577678.root",                          
+),
 )
 
-process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(500))
+process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(94))
 
 
 process.options = cms.untracked.PSet(
     IgnoreCompletely = cms.untracked.vstring(),
     Rethrow = cms.untracked.vstring(),
-    TryToContinue = cms.untracked.vstring(),
     accelerators = cms.untracked.vstring('*'),
     allowUnscheduled = cms.obsolete.untracked.bool,
     canDeleteEarly = cms.untracked.vstring(),
@@ -107,7 +111,7 @@ process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 process.load('L1Trigger.Configuration.GTemulator_cff')
 process.GTemulation_step = cms.Path(process.GTemulator)
 
-process.load('L1Trigger.Phase2L1GT.l1tGTMenu_cff')
+process.load('L1Trigger.Configuration.Phase2GTMenus.SeedDefinitions.step1_2024.l1tGTMenu_cff')
 from L1Trigger.Phase2L1GT.l1tGTAlgoBlockProducer_cff import collectAlgorithmPaths
 
 
@@ -123,14 +127,20 @@ process.GToutput = cms.OutputModule("PoolOutputModule",
 
 process.pGToutput = cms.EndPath(process.GToutput) 
 
+process.load('L1Trigger.Phase2L1GT.l1tGTBoardWriterVU13P_cff')
+
+process.pBoardDataInputVU13P = cms.EndPath(process.BoardDataInputVU13P)
+process.pBoardDataOutputObjectsVU13P = cms.EndPath(process.BoardDataOutputObjectsVU13P)
+
 
 # Schedule definition
-process.schedule = cms.Schedule(process.raw2digi_step,process.L1simulation_step,process.GTemulation_step, *collectAlgorithmPaths(process), process.pGToutput, process.endjob_step)
+process.schedule = cms.Schedule(process.raw2digi_step,process.L1simulation_step,process.GTemulation_step, *collectAlgorithmPaths(process), process.pGToutput,
+                                process.pBoardDataInputVU13P, process.pBoardDataOutputObjectsVU13P, process.endjob_step)
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
 
 #Setup FWK for multithreaded
-process.options.numberOfThreads = 8
+process.options.numberOfThreads = 4
 process.options.numberOfStreams = 0
 
 # customisation of the process.

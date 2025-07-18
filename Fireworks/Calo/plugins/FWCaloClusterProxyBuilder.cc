@@ -115,13 +115,13 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData,
 
     // HGCal
     if (iData.algo() == reco::CaloCluster::hgcal_em || iData.algo() == reco::CaloCluster::hgcal_had ||
-        (type >= 8 && type <= 10)) {
+        iData.algo() == reco::CaloCluster::hgcal_scintillator || (type >= 8 && type <= 10)) {
       if (heatmap && hitmap->find(it->first) == hitmap->end())
         continue;
 
       const bool z = (it->first >> 25) & 0x1;
 
-      // discard everything thats not at the side that we are intersted in
+      // discard everything thats not at the side that we are interested in
       if (((z_plus & z_minus) != 1) && (((z_plus | z_minus) == 0) || !(z == z_minus || z == !z_plus)))
         continue;
 

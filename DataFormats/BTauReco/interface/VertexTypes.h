@@ -24,7 +24,7 @@ namespace reco {
       std::string name(VertexType);
       VertexType type(const std::string&);
     }  // namespace Vertices
-  }    // namespace btag
+  }  // namespace btag
 }  // namespace reco
 
 #endif

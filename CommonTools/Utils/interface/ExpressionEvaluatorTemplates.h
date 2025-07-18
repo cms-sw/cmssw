@@ -12,19 +12,19 @@ namespace reco {
   template <typename Ret, typename... Args>
   struct genericExpression {
     virtual Ret operator()(Args...) const = 0;
-    virtual ~genericExpression(){};
+    virtual ~genericExpression() {}
   };
 
   template <typename Object>
   struct CutOnObject {
     virtual bool eval(Object const&) const = 0;
-    virtual ~CutOnObject(){};
+    virtual ~CutOnObject() {}
   };
 
   template <typename Object>
   struct ValueOnObject {
     virtual double eval(Object const&) const = 0;
-    virtual ~ValueOnObject(){};
+    virtual ~ValueOnObject() {}
   };
 
   template <typename Object>
@@ -38,7 +38,7 @@ namespace reco {
           cands.begin(), cands.end(), mask.begin(), [&](typename Collection::value_type const& c) { return f(*c); });
     }
     virtual void eval(Collection const&, Mask&) const = 0;
-    virtual ~MaskCollection(){};
+    virtual ~MaskCollection() {}
   };
 
   template <typename Object>
@@ -51,7 +51,7 @@ namespace reco {
           cands.end());
     }
     virtual void eval(Collection&) const = 0;
-    virtual ~SelectInCollection(){};
+    virtual ~SelectInCollection() {}
   };
 
   template <typename Object>
@@ -68,7 +68,7 @@ namespace reco {
       }
     }
     virtual void eval(Collection const&, Indices&) const = 0;
-    virtual ~SelectIndecesInCollection(){};
+    virtual ~SelectIndecesInCollection() {}
   };
 
 }  // namespace reco

@@ -13,11 +13,15 @@ orig['resources'].append({'time_real_abs': 'real time abs'})
 orig['resources'].append({'time_thread_abs': 'cpu time abs'})
 
 for k in orig['modules']:
-    if k['events'] > 0 and k['label'] != "other":
-        k['time_real_abs'] = k['time_real']/k['events']*events
-        k['time_thread_abs'] = k['time_thread']/k['events']*events
-        time_real_abs += k['time_real_abs']
-        time_thread_abs += k['time_thread_abs']
+    if k['events'] > 0:
+        if k['label'] != "other":
+            k['time_real_abs'] = k['time_real']/k['events']*events
+            k['time_thread_abs'] = k['time_thread']/k['events']*events
+        else:
+            k['time_real_abs'] = k['time_real']
+            k['time_thread_abs'] = k['time_thread']
+        time_real_abs += k['time_real']
+        time_thread_abs += k['time_thread']
     else:
         k['time_real_abs'] = 0
         k['time_thread_abs'] = 0

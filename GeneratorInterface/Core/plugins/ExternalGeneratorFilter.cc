@@ -1,9 +1,9 @@
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
@@ -71,8 +71,9 @@ namespace externalgen {
     }
 
     template <typename SERIAL>
-    auto doTransition(SERIAL& iDeserializer, edm::Transition iTrans, unsigned long long iTransitionID)
-        -> decltype(iDeserializer.deserialize()) {
+    auto doTransition(SERIAL& iDeserializer,
+                      edm::Transition iTrans,
+                      unsigned long long iTransitionID) -> decltype(iDeserializer.deserialize()) {
       decltype(iDeserializer.deserialize()) value;
       if (not channel_.doTransition(
               [&value, &iDeserializer]() { value = iDeserializer.deserialize(); }, iTrans, iTransitionID)) {

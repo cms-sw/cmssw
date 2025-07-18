@@ -12,6 +12,8 @@ namespace l1t {
 
   class L1GTSingleInOutLUT {
   public:
+    static constexpr uint32_t DETA_LUT_SPLIT = 1 << 13;  // hw 2pi
+
     L1GTSingleInOutLUT(const edm::ParameterSet& lutConfig)
         : data_(lutConfig.getParameter<std::vector<int>>("lut")),
           unused_lsbs_(lutConfig.getParameter<uint32_t>("unused_lsbs")),

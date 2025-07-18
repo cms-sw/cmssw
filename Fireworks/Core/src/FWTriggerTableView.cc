@@ -33,7 +33,7 @@
 #include "DataFormats/FWLite/interface/Event.h"
 
 // configuration keys
-static const std::string kColumns = "columns";
+//static const std::string kColumns = "columns";
 static const std::string kSortColumn = "sortColumn";
 static const std::string kDescendingSort = "descendingSort";
 

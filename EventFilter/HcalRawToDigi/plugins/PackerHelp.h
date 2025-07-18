@@ -291,7 +291,7 @@ public:
         fedData.push_back((uhtrs[iAMC][amcWord] >> 0) & 0xFF);  // split 16-bit words into 8-bit
         fedData.push_back((uhtrs[iAMC][amcWord] >> 8) & 0xFF);
       }  // end loop over uhtr words
-    }    // end loop over uhtrs
+    }  // end loop over uhtrs
 
     // fedData should be a integer number of 64 bit words
     while (fedData.size() % 8 != 0)

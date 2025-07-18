@@ -13,7 +13,7 @@
 namespace L1Analysis {
   struct L1AnalysisL1CaloTowerDataFormat {
     L1AnalysisL1CaloTowerDataFormat() { Reset(); };
-    ~L1AnalysisL1CaloTowerDataFormat(){};
+    ~L1AnalysisL1CaloTowerDataFormat() {}
 
     void Reset() {
       nTower = 0;

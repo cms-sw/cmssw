@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
@@ -8,7 +9,6 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
@@ -105,8 +105,7 @@ void HIPixelClusterVtxAnalyzer::analyze(const edm::Event &ev, const edm::EventSe
         continue;
       const PixelGeomDetUnit *pgdu = static_cast<const PixelGeomDetUnit *>(tgeo->idToDet(id));
       if (1) {
-        const RectangularPixelTopology *pixTopo =
-            static_cast<const RectangularPixelTopology *>(&(pgdu->specificTopology()));
+        const PixelTopology *pixTopo = static_cast<const PixelTopology *>(&(pgdu->specificTopology()));
         std::vector<SiPixelCluster::Pixel> pixels(hit.cluster()->pixels());
         bool pixelOnEdge = false;
         for (std::vector<SiPixelCluster::Pixel>::const_iterator pixel = pixels.begin(); pixel != pixels.end();

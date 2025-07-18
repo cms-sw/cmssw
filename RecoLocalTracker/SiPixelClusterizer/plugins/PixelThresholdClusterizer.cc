@@ -246,7 +246,8 @@ void PixelThresholdClusterizer::copy_to_buffer(DigiIterator begin, DigiIterator 
       // the 2nd occurrence (duplicate pixel: reset the buffer to 0 and remove from the list of seed pixels)
       case 2:
         theBuffer.set_adc(row, col, 0);
-        std::remove(theSeeds.begin(), theSeeds.end(), SiPixelCluster::PixelPos(row, col));
+        auto last = std::remove(theSeeds.begin(), theSeeds.end(), SiPixelCluster::PixelPos(row, col));
+        theSeeds.erase(last, theSeeds.end());
         break;
 
         // in case a pixel appears more than twice, nothing needs to be done because it was already removed at the 2nd occurrence
@@ -390,7 +391,9 @@ SiPixelCluster PixelThresholdClusterizer::make_cluster(const SiPixelCluster::Pix
 
   AccretionCluster acluster, cldata;
   acluster.add(pix, seed_adc);
-  cldata.add(pix, seed_adc);
+  if (!theFakePixels[pix.row() * theNumOfCols + pix.col()]) {
+    cldata.add(pix, seed_adc);
+  }
 
   //Here we search all pixels adjacent to all pixels in the cluster.
   bool dead_flag = false;

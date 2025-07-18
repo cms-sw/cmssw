@@ -14,6 +14,11 @@ jetCoreClusterSplitter = cms.EDProducer("JetCoreClusterSplitter",
            fractionalWidth  = cms.double(0.4),
            chargePerUnit  = cms.double(2000),
            centralMIPCharge  = cms.double(26000),
+           expSizeXAtLorentzAngleIncidence = cms.double(1.5),
+           expSizeXDeltaPerTanAlpha = cms.double(0.0),
+           expSizeYAtNormalIncidence = cms.double(1.3),
+           tanLorentzAngle = cms.double(0.0), # doesn't really matter if expSizeXDeltaPerTanAlpha == 0
+           tanLorentzAngleBarrelLayer1 = cms.double(0.0),
 	
 
     )

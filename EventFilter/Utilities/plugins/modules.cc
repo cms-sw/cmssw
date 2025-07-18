@@ -3,6 +3,9 @@
 #include "EventFilter/Utilities/interface/FedRawDataInputSource.h"
 #include "EventFilter/Utilities/interface/DAQSource.h"
 #include "EventFilter/Utilities/plugins/DaqFakeReader.h"
+#include "EventFilter/Utilities/plugins/DTHFakeReader.h"
+#include "EventFilter/Utilities/plugins/RawCollectionToBuffer.h"
+#include "EventFilter/Utilities/plugins/RawBufferToCollection.h"
 #include "EventFilter/Utilities/plugins/EvFBuildingThrottle.h"
 #include "EventFilter/Utilities/plugins/EvFFEDSelector.h"
 #include "EventFilter/Utilities/plugins/EvFFEDExcluder.h"
@@ -17,17 +20,18 @@
 using namespace edm::serviceregistry;
 using namespace evf;
 
-typedef edm::serviceregistry::AllArgsMaker<MicroStateService, FastMonitoringService> FastMonitoringServiceMaker;
-DEFINE_FWK_SERVICE_MAKER(FastMonitoringService, FastMonitoringServiceMaker);
-
 typedef RawEventOutputModuleForBU<RawEventFileWriterForBU> RawStreamFileWriterForBU;
 DEFINE_FWK_MODULE(RawStreamFileWriterForBU);
 DEFINE_FWK_MODULE(FRDOutputModule);
 DEFINE_FWK_SERVICE(EvFBuildingThrottle);
 DEFINE_FWK_SERVICE(EvFDaqDirector);
+DEFINE_FWK_SERVICE(FastMonitoringService);
 DEFINE_FWK_MODULE(ExceptionGenerator);
 DEFINE_FWK_MODULE(EvFFEDSelector);
 DEFINE_FWK_MODULE(EvFFEDExcluder);
 DEFINE_FWK_MODULE(DaqFakeReader);
+DEFINE_FWK_MODULE(RawCollectionToBuffer);
+DEFINE_FWK_MODULE(RawBufferToCollection);
+DEFINE_FWK_MODULE(DTHFakeReader);
 DEFINE_FWK_INPUT_SOURCE(FedRawDataInputSource);
 DEFINE_FWK_INPUT_SOURCE(DAQSource);

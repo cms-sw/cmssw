@@ -2,12 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 hltIter2Phase2L3FromL1TkMuonPixelLayerTriplets = cms.EDProducer("SeedingLayersEDProducer",
     BPix = cms.PSet(
-        HitProducer = cms.string('siPixelRecHits'),
+        HitProducer = cms.string('hltSiPixelRecHits'),
         TTRHBuilder = cms.string('WithTrackAngle'),
         skipClusters = cms.InputTag("hltIter2Phase2L3FromL1TkMuonClustersRefRemoval")
     ),
     FPix = cms.PSet(
-        HitProducer = cms.string('siPixelRecHits'),
+        HitProducer = cms.string('hltSiPixelRecHits'),
         TTRHBuilder = cms.string('WithTrackAngle'),
         skipClusters = cms.InputTag("hltIter2Phase2L3FromL1TkMuonClustersRefRemoval")
     ),

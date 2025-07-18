@@ -1,5 +1,3 @@
-from __future__ import print_function
-from __future__ import absolute_import
 ################################################################################
 # RelMon: a tool for automatic Release Comparison                              
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
@@ -248,16 +246,20 @@ class Chi2(StatisticalTest):
     StatisticalTest.__init__(self,threshold)
     self.name="Chi2"     
 
-  def check_filled_bins(self,min_filled):
-    nbins=self.h1.GetNbinsX()
-    n_filled_l=[]
-    for h in self.h1,self.h2:
-      nfilled=0.
-      for ibin in range(0,nbins+2):
-        if h.GetBinContent(ibin)>0:
-          nfilled+=1
+  def check_filled_bins(self, min_filled=1):
+    nbinsX = self.h1.GetNbinsX()
+    nbinsY = self.h1.GetNbinsY()
+    n_filled_l = []
+    for h in self.h1, self.h2:
+      nfilled = 0
+      for ibinX in range(1, nbinsX+1):
+        for ibinY in range(1, nbinsY+1):
+          if h.GetBinContent(ibinX, ibinY) > 0:
+            nfilled += 1
       n_filled_l.append(nfilled)
-    return len([x for x in n_filled_l if x>=min_filled] )>0
+    is_filled = len([x for x in n_filled_l if x >= min_filled]) > 0
+    single_bin_filled = len([x for x in n_filled_l if x == 1]) == len(n_filled_l)
+    return is_filled, single_bin_filled
 
   def absval(self):
     nbins=getNbins(self.h1)
@@ -272,20 +274,34 @@ class Chi2(StatisticalTest):
           h.SetBinContent(i,0)
 
   def check_histograms(self, histogram):
-      if histogram.InheritsFrom("TProfile") or  (histogram.GetEntries()!=histogram.GetSumOfWeights()):
-          return 'W'
-      else:
-          return 'U'
+    if histogram.InheritsFrom("TProfile") or (histogram.GetEntries()!=histogram.GetSumOfWeights()):
+      return 'W'
+    else:
+      return 'U'
+
+  def compare_filled_bin(self):
+    nbinsX = self.h1.GetNbinsX()
+    nbinsY = self.h1.GetNbinsY()
+    for ibinX in range(1, nbinsX+1):
+      for ibinY in range(1, nbinsY+1):
+        if self.h1.GetBinContent(ibinX, ibinY) >= 1 and self.h2.GetBinContent(ibinX, ibinY) >= 1:
+          return 1
+    return 0
 
   def do_test(self):
     self.absval()
-    if self.check_filled_bins(3):
+    is_filled, single_bin_filled = self.check_filled_bins()
+    if is_filled:
+      if single_bin_filled:
+         return self.compare_filled_bin()
+      #print(self.h1.GetName())
       #if self.h1.InheritsFrom("TProfile") or  (self.h1.GetEntries()!=self.h1.GetSumOfWeights()):
       #  chi2=self.h1.Chi2Test(self.h2,'WW')
       #  #if chi2==0: print "DEBUG",self.h1.GetName(),"Chi2 is:", chi2
       #  return chi2
       #else:
       #  return self.h1.Chi2Test(self.h2,'UU')
+      #
       hist1 = self.check_histograms(self.h1)
       hist2 = self.check_histograms(self.h2)
       if hist1 =='W' and hist2 =='W': ##in case 
@@ -483,29 +499,29 @@ def wget(url):
 
 def get_relvaldata_id(file):
     """Returns unique relvaldata ID for a given file."""
-    run_id = re.search('R\d{9}', file)
-    run = re.search('_RelVal_([\w\d]*)-v\d__', file)
+    run_id = re.search('R\\d{9}', file)
+    run = re.search('_RelVal_([\\w\\d]*)-v\\d__', file)
     if not run:
-        run = re.search('GR_R_\d*_V\d*C?_([\w\d]*)-v\d__', file)
+        run = re.search('GR_R_\\d*_V\\d*C?_([\\w\\d]*)-v\\d__', file)
     if run_id and run:
         return (run_id.group(), run.group(1))
     return None
 
 def get_relvaldata_cmssw_version(file):
     """Returns tuple (CMSSW release, GR_R version) for specified RelValData file."""
-    cmssw_release = re.findall('(CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?)-', file)
-    gr_r_version = re.findall('-(GR_R_\d*_V\d*\w?)(?:_RelVal)?_', file)
+    cmssw_release = re.findall('(CMSSW_\\d*_\\d*_\\d*(?:_[\\w\\d]*)?)-', file)
+    gr_r_version = re.findall('-(GR_R_\\d*_V\\d*\\w?)(?:_RelVal)?_', file)
     if not gr_r_version:
-        gr_r_version = re.findall('CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?-(\w*)_RelVal_', file)
+        gr_r_version = re.findall('CMSSW_\\d*_\\d*_\\d*(?:_[\\w\\d]*)?-(\\w*)_RelVal_', file)
     if cmssw_release and gr_r_version:
         return (cmssw_release[0], gr_r_version[0])
 
 def get_relvaldata_version(file):
     """Returns tuple (CMSSW version, run version) for specified file."""
-    cmssw_version = re.findall('DQM_V(\d*)_', file)
-    run_version = re.findall('_RelVal_[\w\d]*-v(\d)__', file)
+    cmssw_version = re.findall('DQM_V(\\d*)_', file)
+    run_version = re.findall('_RelVal_[\\w\\d]*-v(\\d)__', file)
     if not run_version:
-        run_version = re.findall('GR_R_\d*_V\d*C?_[\w\d]*-v(\d)__', file)
+        run_version = re.findall('GR_R_\\d*_V\\d*C?_[\\w\\d]*-v(\\d)__', file)
     if cmssw_version and run_version:
         return (int(cmssw_version[0]), int(run_version[0]))
 
@@ -524,8 +540,8 @@ def get_relvaldata_max_version(files):
 ##-------------------   Make files pairs:  RelVal utils   ---------------------
 def get_relval_version(file):
     """Returns tuple (CMSSW version, run version) for specified file."""
-    cmssw_version = re.findall('DQM_V(\d*)_', file)
-    run_version = re.findall('CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?-[\w\d]*_V\d*\w?(?:_[\w\d]*)?-v(\d*)__', file)
+    cmssw_version = re.findall('DQM_V(\\d*)_', file)
+    run_version = re.findall('CMSSW_\\d*_\\d*_\\d*(?:_[\\w\\d]*)?-[\\w\\d]*_V\\d*\\w?(?:_[\\w\\d]*)?-v(\\d*)__', file)
     if cmssw_version and run_version:
         return (int(cmssw_version[0]), int(run_version[0]))
 
@@ -542,8 +558,8 @@ def get_relval_max_version(files):
     return max_file
 
 def get_relval_cmssw_version(file):
-    cmssw_release = re.findall('(CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?)-', file)
-    gr_r_version = re.findall('CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?-([\w\d]*)_V\d*\w?(_[\w\d]*)?-v', file)
+    cmssw_release = re.findall('(CMSSW_\\d*_\\d*_\\d*(?:_[\\w\\d]*)?)-', file)
+    gr_r_version = re.findall('CMSSW_\\d*_\\d*_\\d*(?:_[\\w\\d]*)?-([\\w\\d]*)_V\\d*\\w?(_[\\w\\d]*)?-v', file)
     if cmssw_release and gr_r_version:
         if "PU" in gr_r_version[0][0] and not "FastSim" in file:
             __gt = re.sub('^[^_]*_', "", gr_r_version[0][0])
@@ -555,8 +571,8 @@ def get_relval_cmssw_version(file):
 
 def get_relval_id(file):
     """Returns unique relval ID (dataset name) for a given file."""
-    dataset_name = re.findall('R\d{9}__([\w\D]*)__CMSSW_', file)
-    __process_string = re.search('CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?-([\w\d]*)_V\d*\w?(_[\w\d]*)?-v', file)
+    dataset_name = re.findall('R\\d{9}__([\\w\\D]*)__CMSSW_', file)
+    __process_string = re.search('CMSSW_\\d*_\\d*_\\d*(?:_[\\w\\d]*)?-([\\w\\d]*)_V\\d*\\w?(_[\\w\\d]*)?-v', file)
     _ps = ""
     if __process_string:
         if "PU" in __process_string.group(1) and not "FastSim" in file:

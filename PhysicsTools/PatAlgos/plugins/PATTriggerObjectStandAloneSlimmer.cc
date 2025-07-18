@@ -25,7 +25,7 @@ namespace pat {
   class PATTriggerObjectStandAloneSlimmer : public edm::global::EDProducer<> {
   public:
     explicit PATTriggerObjectStandAloneSlimmer(const edm::ParameterSet& iConfig);
-    ~PATTriggerObjectStandAloneSlimmer() override{};
+    ~PATTriggerObjectStandAloneSlimmer() override {}
 
   private:
     void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;

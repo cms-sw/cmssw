@@ -14,7 +14,7 @@ namespace edm {
 class MixingInputConfig {
 public:
   MixingInputConfig();
-  virtual ~MixingInputConfig(){};
+  virtual ~MixingInputConfig() {}
 
   const int itype() const { return t_; }
   std::string type() const {
@@ -71,7 +71,7 @@ private:
 class MixingModuleConfig {
 public:
   MixingModuleConfig();
-  virtual ~MixingModuleConfig(){};
+  virtual ~MixingModuleConfig() {}
 
   const MixingInputConfig& config(unsigned int i = 0) const { return configs_[i]; }
 

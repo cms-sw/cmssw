@@ -92,6 +92,12 @@ public:
 
   Output operator()(const reco::TrackBase& electronTrack);
 
+protected:
+  using TrackTable = edm::soa::Table<edm::soa::col::Pt, edm::soa::col::Eta, edm::soa::col::Phi, edm::soa::col::Vz>;
+  TrackTable const& getPreselectedTracks(bool isBarrel);
+
+  Configuration const& cfg_;
+
 private:
   // For each electron, we want to try out which tracks are in a cone around
   // it. However, this will get expensive if there are many electrons and
@@ -102,8 +108,6 @@ private:
   // preselected by the cuts that can already be applied without considering
   // the electron. Note that this has to be done twice, because the required
   // preselection is different for barrel and endcap electrons.
-
-  using TrackTable = edm::soa::Table<edm::soa::col::Pt, edm::soa::col::Eta, edm::soa::col::Phi, edm::soa::col::Vz>;
 
   static bool passPIDVeto(const int pdgId, const EleTkIsolFromCands::PIDVeto pidVeto);
 
@@ -117,10 +121,6 @@ private:
   //no qualities specified, accept all, ORed
   static bool passQual(const reco::TrackBase& trk, const std::vector<reco::TrackBase::TrackQuality>& quals);
   static bool passAlgo(const reco::TrackBase& trk, const std::vector<reco::TrackBase::TrackAlgorithm>& algosToRej);
-
-  TrackTable const& getPreselectedTracks(bool isBarrel);
-
-  Configuration const& cfg_;
 
   // All of these member variables are related to the caching of preselected tracks
   reco::TrackCollection const* tracks_ = nullptr;

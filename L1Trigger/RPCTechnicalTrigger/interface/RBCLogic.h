@@ -19,7 +19,7 @@
 
 class RBCLogic {
 public:
-  virtual ~RBCLogic(){};
+  virtual ~RBCLogic() {}
 
   virtual void process(const RBCInput&, std::bitset<2>&) = 0;
 

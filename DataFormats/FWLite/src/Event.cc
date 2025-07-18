@@ -108,9 +108,9 @@ namespace fwlite {
       Event const* event_;
     };
   }  // namespace internal
-     //
-     // constructors and destructor
-     //
+  //
+  // constructors and destructor
+  //
   Event::Event(TFile* iFile, bool useCache, std::function<void(TBranch const&)> baFunc)
       : file_(iFile),
         //  eventTree_(nullptr),

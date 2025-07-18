@@ -84,8 +84,8 @@ namespace {
             // fill the Histogram2D here
             fillWithValue((EBDetId(rawid)).iphi(), (EBDetId(rawid)).ieta(), weight);
           }  // loop over cellid
-        }    // if payload.get()
-      }      // loop over IOV's (1 in this case)
+        }  // if payload.get()
+      }  // loop over IOV's (1 in this case)
 
       return true;
 
@@ -143,10 +143,10 @@ namespace {
               else
                 fillWithValue(myEEId.ix() + IX_MAX + EEhistSplit, myEEId.iy(), weight);
             }  // validDetId
-          }    // loop over cellid
+          }  // loop over cellid
 
         }  // payload
-      }    // loop over IOV's (1 in this case)
+      }  // loop over IOV's (1 in this case)
       return true;
     }  // fill method
   };
@@ -271,7 +271,7 @@ namespace {
           fillEEMap_TwoIOVs<EcalTimeCalibErrors>(payload, endc_m, endc_p, irun, pEE, pEEmin, pEEmax, method);
 
         }  // payload
-      }    // loop over IOVs
+      }  // loop over IOVs
 
       gStyle->SetPalette(1);
       gStyle->SetOptStat(0);
@@ -320,7 +320,7 @@ namespace {
       canvas.SaveAs(ImageName.c_str());
       return true;
     }  // fill method
-  };   // class EcalTimeCalibErrorsDiffBase
+  };  // class EcalTimeCalibErrorsDiffBase
   using EcalTimeCalibErrorsDiffOneTag = EcalTimeCalibErrorsBase<cond::payloadInspector::SINGLE_IOV, 1, 0>;
   using EcalTimeCalibErrorsDiffTwoTags = EcalTimeCalibErrorsBase<cond::payloadInspector::SINGLE_IOV, 2, 0>;
   using EcalTimeCalibErrorsRatioOneTag = EcalTimeCalibErrorsBase<cond::payloadInspector::SINGLE_IOV, 1, 1>;

@@ -3,8 +3,11 @@
 #include "SimG4Core/Application/interface/SimRunInterface.h"
 #include "SimG4Core/Application/interface/RunAction.h"
 #include "SimG4Core/Application/interface/EventAction.h"
+#include "SimG4Core/Application/interface/Phase2EventAction.h"
 #include "SimG4Core/Application/interface/StackingAction.h"
+#include "SimG4Core/Application/interface/Phase2StackingAction.h"
 #include "SimG4Core/Application/interface/TrackingAction.h"
+#include "SimG4Core/Application/interface/Phase2TrackingAction.h"
 #include "SimG4Core/Application/interface/SteppingAction.h"
 #include "SimG4Core/Application/interface/Phase2SteppingAction.h"
 #include "SimG4Core/Application/interface/CMSSimEventManager.h"
@@ -13,6 +16,7 @@
 #include "SimG4Core/Application/interface/ExceptionHandler.h"
 #include "SimG4Core/Application/interface/CMSGDMLWriteStructure.h"
 
+#include "SimG4Core/Physics/interface/CMSG4TrackInterface.h"
 #include "SimG4Core/Geometry/interface/CustomUIsession.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -35,9 +39,12 @@
 #include "SimG4Core/MagneticField/interface/CMSFieldManager.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMC3Product.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "HepMC3/Print.h"
 
 #include "SimG4Core/Physics/interface/PhysicsList.h"
+#include "SimG4Core/Physics/interface/CMSG4TrackInterface.h"
 
 #include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
@@ -55,6 +62,8 @@
 #include "G4WorkerRunManagerKernel.hh"
 #include "G4StateManager.hh"
 #include "G4TransportationManager.hh"
+#include "G4LossTableManager.hh"
+#include "G4PhysListUtil.hh"
 #include "G4Field.hh"
 #include "G4FieldManager.hh"
 #include "G4ScoringManager.hh"
@@ -150,7 +159,10 @@ struct RunManagerMTWorker::TLSData {
 
 RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& p, edm::ConsumesCollector&& iC)
     : m_generator(p.getParameter<edm::ParameterSet>("Generator")),
+      m_generator3(p.getParameter<edm::ParameterSet>("Generator")),
       m_InToken(iC.consumes<edm::HepMCProduct>(
+          p.getParameter<edm::ParameterSet>("Generator").getParameter<edm::InputTag>("HepMCProductLabel"))),
+      m_InToken3(iC.consumes<edm::HepMC3Product>(
           p.getParameter<edm::ParameterSet>("Generator").getParameter<edm::InputTag>("HepMCProductLabel"))),
       m_theLHCTlinkToken(iC.consumes<edm::LHCTransportLinkContainer>(p.getParameter<edm::InputTag>("theLHCTlinkTag"))),
       m_nonBeam(p.getParameter<bool>("NonBeamEvent")),
@@ -171,6 +183,7 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& p, edm::Consumes
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker for the thread " << id;
 
   // Initialize per-thread output
+  CMSG4TrackInterface::instance()->setThreadID(id);
   G4Threading::G4SetThreadId(id);
   G4UImanager::GetUIpointer()->SetUpForAThread(id);
   auto iPset = p.getUntrackedParameter<edm::ParameterSet>("CustomUIsession");
@@ -300,13 +313,16 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   G4TransportationManager* tM = G4TransportationManager::GetTransportationManager();
   tM->SetWorldForTracking(worldPV);
 
+  // flag of Phase2
+  m_isPhase2 = runManagerMaster->isPhase2();
+
   // we need the track manager now
   int verbose = m_p.getParameter<int>("EventVerbose");
   m_tls->trackManager = std::make_unique<SimTrackManager>(&m_simEvent, verbose);
 
   // setup the magnetic field
   if (m_pUseMagneticField) {
-    const GlobalPoint g(0.f, 0.f, 0.f);
+    const GlobalPoint gg(0.f, 0.f, 0.f);
 
     sim::FieldBuilder fieldBuilder(m_pMagField, m_pField);
 
@@ -363,7 +379,6 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
 
   // Set the physics list for the worker, share from master
   PhysicsList* physicsList = runManagerMaster->physicsListForWorker();
-  m_isPhase2 = runManagerMaster->isPhase2();
 
   edm::LogVerbatim("SimG4CoreApplication")
       << "RunManagerMTWorker::InitializeG4: start initialisation of PhysicsList for the thread " << thisID;
@@ -422,21 +437,29 @@ void RunManagerMTWorker::initializeUserActions() {
   G4EventManager* eventManager = m_tls->kernel->GetEventManager();
   eventManager->SetVerboseLevel(ver);
 
-  auto userEventAction =
-      new EventAction(m_pEventAction, m_tls->runInterface.get(), m_tls->trackManager.get(), m_sVerbose.get());
-  Connect(userEventAction);
-  if (m_UseG4EventManager) {
-    eventManager->SetUserAction(userEventAction);
+  // different event actions for Run2,3 and Phase2
+  G4UserEventAction* userEventAction;
+  if (m_isPhase2) {
+    auto ptr =
+        new Phase2EventAction(m_pEventAction, m_tls->runInterface.get(), m_tls->trackManager.get(), m_sVerbose.get());
+    Connect(ptr);
+    userEventAction = (G4UserEventAction*)ptr;
   } else {
-    m_evtManager->SetUserAction(userEventAction);
+    auto ptr = new EventAction(m_pEventAction, m_tls->runInterface.get(), m_tls->trackManager.get(), m_sVerbose.get());
+    Connect(ptr);
+    userEventAction = (G4UserEventAction*)ptr;
   }
 
-  auto userTrackingAction = new TrackingAction(m_tls->trackManager.get(), m_sVerbose.get(), m_pTrackingAction);
-  Connect(userTrackingAction);
-  if (m_UseG4EventManager) {
-    eventManager->SetUserAction(userTrackingAction);
+  // different tracking actions for Run2,3 and Phase2
+  G4UserTrackingAction* userTrackingAction;
+  if (m_isPhase2) {
+    auto ptr = new Phase2TrackingAction(m_tls->trackManager.get(), m_sVerbose.get(), m_pTrackingAction);
+    Connect(ptr);
+    userTrackingAction = (G4UserTrackingAction*)ptr;
   } else {
-    m_evtManager->SetUserAction(userTrackingAction);
+    auto ptr = new TrackingAction(m_tls->trackManager.get(), m_sVerbose.get(), m_pTrackingAction);
+    Connect(ptr);
+    userTrackingAction = (G4UserTrackingAction*)ptr;
   }
 
   // different stepping actions for Run2,3 and Phase2
@@ -451,16 +474,23 @@ void RunManagerMTWorker::initializeUserActions() {
     Connect(ptr);
     userSteppingAction = (G4UserSteppingAction*)ptr;
   }
-  if (m_UseG4EventManager) {
-    eventManager->SetUserAction(userSteppingAction);
-  } else {
-    m_evtManager->SetUserAction(userSteppingAction);
-  }
 
-  auto userStackingAction = new StackingAction(userTrackingAction, m_pStackingAction, m_sVerbose.get());
+  // stacking actions and event manager
+  G4UserStackingAction* userStackingAction;
+  if (m_isPhase2) {
+    userStackingAction = new Phase2StackingAction(m_pStackingAction, m_sVerbose.get());
+  } else {
+    userStackingAction = new StackingAction(m_pStackingAction, m_sVerbose.get());
+  }
   if (m_UseG4EventManager) {
+    eventManager->SetUserAction(userEventAction);
+    eventManager->SetUserAction(userTrackingAction);
+    eventManager->SetUserAction(userSteppingAction);
     eventManager->SetUserAction(userStackingAction);
   } else {
+    m_evtManager->SetUserAction(userEventAction);
+    m_evtManager->SetUserAction(userTrackingAction);
+    m_evtManager->SetUserAction(userSteppingAction);
     m_evtManager->SetUserAction(userStackingAction);
   }
 }
@@ -475,7 +505,17 @@ void RunManagerMTWorker::Connect(EventAction* eventAction) {
   eventAction->m_endOfEventSignal.connect(m_tls->registry->endOfEventSignal_);
 }
 
+void RunManagerMTWorker::Connect(Phase2EventAction* eventAction) {
+  eventAction->m_beginOfEventSignal.connect(m_tls->registry->beginOfEventSignal_);
+  eventAction->m_endOfEventSignal.connect(m_tls->registry->endOfEventSignal_);
+}
+
 void RunManagerMTWorker::Connect(TrackingAction* trackingAction) {
+  trackingAction->m_beginOfTrackSignal.connect(m_tls->registry->beginOfTrackSignal_);
+  trackingAction->m_endOfTrackSignal.connect(m_tls->registry->endOfTrackSignal_);
+}
+
+void RunManagerMTWorker::Connect(Phase2TrackingAction* trackingAction) {
   trackingAction->m_beginOfTrackSignal.connect(m_tls->registry->beginOfTrackSignal_);
   trackingAction->m_endOfTrackSignal.connect(m_tls->registry->endOfTrackSignal_);
 }
@@ -568,6 +608,7 @@ TmpSimEvent* RunManagerMTWorker::produce(const edm::Event& inpevt,
   }
 
   // event and primary
+
   m_tls->currentEvent.reset(generateEvent(inpevt));
   m_simEvent.clear();
   m_simEvent.setHepEvent(m_generator.genEvent());
@@ -641,26 +682,48 @@ G4Event* RunManagerMTWorker::generateEvent(const edm::Event& inpevt) {
   G4int evtid = (G4int)inpevt.id().event();
   G4Event* evt = new G4Event(evtid);
 
-  edm::Handle<edm::HepMCProduct> HepMCEvt;
-  inpevt.getByToken(m_InToken, HepMCEvt);
-
-  m_generator.setGenEvent(HepMCEvt->GetEvent());
-
   // required to reset the GenParticle Id for particles transported
   // along the beam pipe to their original value for SimTrack creation
   resetGenParticleId(inpevt);
 
-  if (!m_nonBeam) {
-    m_generator.HepMC2G4(HepMCEvt->GetEvent(), evt);
-    if (m_LHCTransport) {
-      edm::Handle<edm::HepMCProduct> LHCMCEvt;
-      inpevt.getByToken(m_LHCToken, LHCMCEvt);
-      m_generator.nonCentralEvent2G4(LHCMCEvt->GetEvent(), evt);
-    }
-  } else {
-    m_generator.nonCentralEvent2G4(HepMCEvt->GetEvent(), evt);
-  }
+  edm::Handle<edm::HepMCProduct> HepMCEvt;
+  bool found = inpevt.getByToken(m_InToken, HepMCEvt);
 
+  if (found) {  // HepMC event exists
+
+    m_generator.setGenEvent(HepMCEvt->GetEvent());
+
+    if (!m_nonBeam) {
+      m_generator.HepMC2G4(HepMCEvt->GetEvent(), evt);
+      if (m_LHCTransport) {
+        edm::Handle<edm::HepMCProduct> LHCMCEvt;
+        inpevt.getByToken(m_LHCToken, LHCMCEvt);
+        m_generator.nonCentralEvent2G4(LHCMCEvt->GetEvent(), evt);
+      }
+    } else {
+      m_generator.nonCentralEvent2G4(HepMCEvt->GetEvent(), evt);
+    }
+
+  } else {  // no HepMC event, try to get HepMC3 event
+
+    edm::Handle<edm::HepMC3Product> HepMCEvt3;
+    inpevt.getByToken(m_InToken3, HepMCEvt3);
+
+    HepMC3::GenEvent* genevt3 = new HepMC3::GenEvent();
+    genevt3->read_data(*HepMCEvt3->GetEvent());
+    m_generator3.setGenEvent(genevt3);
+
+    if (!m_nonBeam) {
+      m_generator3.HepMC2G4(genevt3, evt);
+      if (m_LHCTransport) {
+        edm::Handle<edm::HepMC3Product> LHCMCEvt;
+        inpevt.getByToken(m_LHCToken, LHCMCEvt);
+        //m_generator3.nonCentralEvent2G4(LHCMCEvt->GetEvent(), evt);
+      }
+    } else {
+      //m_generator3.nonCentralEvent2G4(HepMCEvt->GetEvent(), evt);
+    }
+  }
   return evt;
 }
 
@@ -681,41 +744,46 @@ void RunManagerMTWorker::DumpMagneticField(const G4Field* field, const std::stri
     // CMS magnetic field volume
     double rmax = 9000 * CLHEP::mm;
     double zmax = 24000 * CLHEP::mm;
+    double phimax = CLHEP::twopi;
 
-    double dr = 1 * CLHEP::cm;
-    double dz = 5 * CLHEP::cm;
+    double dr = 2 * CLHEP::cm;
+    double dz = 10 * CLHEP::cm;
+    double dphi = phimax / 32.;
 
-    int nr = (int)(rmax / dr);
-    int nz = 2 * (int)(zmax / dz);
-
-    double r = 0.0;
-    double z0 = -zmax;
-    double z;
-
-    double phi = 0.0;
-    double cosf = cos(phi);
-    double sinf = sin(phi);
+    int nr = G4lrint(rmax / dr);
+    int nz = G4lrint(2 * zmax / dz);
+    int nphi = G4lrint(phimax / dphi);
 
     double point[4] = {0.0, 0.0, 0.0, 0.0};
     double bfield[3] = {0.0, 0.0, 0.0};
 
-    fout << std::setprecision(6);
-    for (int i = 0; i <= nr; ++i) {
-      z = z0;
-      for (int j = 0; j <= nz; ++j) {
-        point[0] = r * cosf;
-        point[1] = r * sinf;
-        point[2] = z;
-        field->GetFieldValue(point, bfield);
-        fout << "R(mm)= " << r / CLHEP::mm << " phi(deg)= " << phi / CLHEP::degree << " Z(mm)= " << z / CLHEP::mm
-             << "   Bz(tesla)= " << bfield[2] / CLHEP::tesla
-             << " Br(tesla)= " << (bfield[0] * cosf + bfield[1] * sinf) / CLHEP::tesla
-             << " Bphi(tesla)= " << (bfield[0] * sinf - bfield[1] * cosf) / CLHEP::tesla << G4endl;
-        z += dz;
-      }
-      r += dr;
-    }
+    double z;
+    double d1 = 1. / CLHEP::rad;
+    double d2 = 1. / CLHEP::mm;
+    double d3 = 1. / CLHEP::tesla;
 
+    fout << std::setprecision(6);
+    fout << "### " << file << " CMS magnetic field: phi(rad) R(mm) Z(mm) Bx(tesla) By(tesla) Bz(tesla)  ###" << G4endl;
+    for (int k = 0; k <= nphi; ++k) {
+      double phi = k * dphi;
+      double cosf = cos(phi);
+      double sinf = sin(phi);
+      double r = 0.0;
+      double z0 = -zmax;
+      for (int i = 0; i <= nr; ++i) {
+        z = z0;
+        for (int j = 0; j <= nz; ++j) {
+          point[0] = r * cosf;
+          point[1] = r * sinf;
+          point[2] = z;
+          field->GetFieldValue(point, bfield);
+          fout << phi * d1 << " " << r * d2 << " " << z * d2 << " " << bfield[0] * d3 << " " << bfield[1] * d3 << " "
+               << bfield[2] * d3 << G4endl;
+          z += dz;
+        }
+        r += dr;
+      }
+    }
     fout.close();
   }
 }
