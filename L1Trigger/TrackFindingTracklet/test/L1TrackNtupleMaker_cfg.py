@@ -22,6 +22,8 @@ GEOMETRY = "D98"
 # 'HYBRID' (baseline, 4par fit) or 'HYBRID_DISPLACED' (extended, 5par fit).
 # 'HYBRID_NEWKF' (baseline, 4par fit, with bit-accurate KF emulation),
 # 'HYBRID_REDUCED' to use the "L5L6" seeding only reduced configuration.
+# 'HYBRID_DISPLACED_NEWKF_KILL' displaced tracklet followed by DR emulation and 5 param fit sim
+# 'HYBRID_DISPLACED_NEWKF_MERGE' displaced tracklet followed by DR simulation and 5 param fit sim
 # (Or legacy algos 'TMTT' or 'TRACKLET').
 L1TRKALGO = 'HYBRID'
 
@@ -193,6 +195,27 @@ elif (L1TRKALGO == 'HYBRID_NEWKF' or L1TRKALGO == 'HYBRID_REDUCED'):
         reducedConfig( process )
     # Needed by L1TrackNtupleMaker
     process.HitPatternHelperSetup.useNewKF = True
+
+# HYBRID: extended tracking followd by 5 param fit sim
+elif (L1TRKALGO == 'HYBRID_DISPLACED_NEWKF_KILL' or L1TRKALGO == 'HYBRID_DISPLACED_NEWKF_MERGE'):
+    process.load( 'L1Trigger.TrackFindingTracklet.Producer_cff' )
+    process.load( 'L1Trigger.TrackFindingTracklet.Analyzer_cff' )
+    process.load( 'SimTracker.TrackTriggerAssociation.StubAssociator_cff' )
+    from L1Trigger.TrackFindingTracklet.Customize_cff import *
+    NHELIXPAR = 5
+    L1TRK_NAME  = process.TrackFindingTrackletAnalyzer_params.OutputLabelTFP.value()
+    L1TRK_LABEL = process.TrackFindingTrackletProducer_params.BranchTTTracks.value()
+    L1TRUTH_NAME = "TTTrackAssociatorFromPixelDigisExtended"
+    process.TTTrackAssociatorFromPixelDigisExtended.TTTracks = cms.VInputTag( cms.InputTag(L1TRK_NAME, L1TRK_LABEL) )
+    if (L1TRKALGO == 'HYBRID_DISPLACED_NEWKF_MERGE'):
+        displacedNewKFMergeConfig( process )
+        process.HybridNewKF = cms.Sequence(process.L1TExtendedHybridTracks + process.ProducerFakeDR + process.ProducerKF + process.ProducerTQ + process.ProducerTFP)
+        process.TTTracksEmulationWithTruth = cms.Path(process.HybridNewKF + process.L1TExtendedHybridTracksWithAssociators + process.StubAssociator +  process.AnalyzerTracklet + process.AnalyzerDR + process.AnalyzerKF + process.AnalyzerTQ + process.AnalyzerTFP)
+    elif(L1TRKALGO == 'HYBRID_DISPLACED_NEWKF_KILL'):
+        displacedNewKFKillConfig( process )
+        process.HybridNewKF = cms.Sequence(process.L1TExtendedHybridTracks + process.ProducerFakeTM + process.ProducerDR + process.ProducerKF + process.ProducerTQ + process.ProducerTFP)
+        process.TTTracksEmulationWithTruth = cms.Path(process.HybridNewKF + process.L1TExtendedHybridTracksWithAssociators + process.StubAssociator +  process.AnalyzerTracklet + process.AnalyzerTM + process.AnalyzerDR + process.AnalyzerKF + process.AnalyzerTQ + process.AnalyzerTFP)
+    process.TTTracksEmulation = cms.Path(process.HybridNewKF)
 
 # LEGACY ALGORITHM (EXPERTS ONLY): TRACKLET
 elif (L1TRKALGO == 'TRACKLET'):

@@ -33,6 +33,7 @@ namespace trklet {
     ~ProducerKF() override = default;
 
   private:
+    void beginRun(const edm::Run&, const edm::EventSetup&) override;
     void produce(edm::Event&, const edm::EventSetup&) override;
     void endStream() override {
       std::stringstream ss;
@@ -54,6 +55,8 @@ namespace trklet {
     edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
     // DataFormats token
     edm::ESGetToken<DataFormats, ChannelAssignmentRcd> esGetTokenDataFormats_;
+    // helper class to extract structured data from tt::Frames
+    const DataFormats* dataFormats_;
     // provides dataformats of Kalman filter internals
     KalmanFilterFormats kalmanFilterFormats_;
     //
@@ -131,7 +134,13 @@ namespace trklet {
     edPutTokenNumStatesTruncated_ = produces<int>(branchTruncated);
     // book ES products
     esGetTokenSetup_ = esConsumes();
-    esGetTokenDataFormats_ = esConsumes();
+    esGetTokenDataFormats_ = esConsumes<edm::Transition::BeginRun>();
+  }
+
+  void ProducerKF::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+    // helper class to extract structured data from tt::Frames
+    dataFormats_ = &iSetup.getData(esGetTokenDataFormats_);
+    kalmanFilterFormats_.consume(dataFormats_, iConfig_);
   }
 
   void ProducerKF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -139,8 +148,6 @@ namespace trklet {
     const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
     settings_.setMagneticField(setup->bField());
     // helper class to extract structured data from tt::Frames
-    const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
-    kalmanFilterFormats_.consume(dataFormats, iConfig_);
     auto valid = [](int sum, const tt::FrameTrack& f) { return sum + (f.first.isNull() ? 0 : 1); };
     // empty KF products
     tt::StreamsStub streamsStub(setup->numRegions() * setup->numLayers());
@@ -167,7 +174,7 @@ namespace trklet {
     }
     for (int region = 0; region < setup->numRegions(); region++) {
       // object to fit tracks in a processing region
-      KalmanFilter kf(setup, dataFormats, &kalmanFilterFormats_, &settings_, tmtt_, region, ttTracks);
+      KalmanFilter kf(setup, dataFormats_, &kalmanFilterFormats_, &settings_, tmtt_, region, ttTracks);
       // read in and organize input tracks and stubs
       kf.consume(tracks, stubs);
       // fill output products

@@ -27,6 +27,54 @@ def reducedConfig(process):
   process.l1tTTTracksFromTrackletEmulation.processingModulesFile = 'L1Trigger/TrackFindingTracklet/data/processingmodules_reduced.dat'
   process.l1tTTTracksFromTrackletEmulation.wiresFile = 'L1Trigger/TrackFindingTracklet/data/wires_reduced.dat'
 
+# configures displaced tracking using duplicate removal sim followed by 5 param fit sim
+def displacedNewKFMergeConfig(process):
+  process.TrackTriggerSetup.KalmanFilter.Use5ParameterFit = True
+  process.l1tTTTracksFromTrackletEmulation.Fakefit = True
+  process.l1tTTTracksFromTrackletEmulation.DoMultipleMatches = False
+  process.l1tTTTracksFromTrackletEmulation.RemovalType = "merge"
+  process.AnalyzerDR.OutputLabelDR = "ProducerFakeDR"
+  process.ProducerKF.InputLabelKF = "ProducerFakeDR"
+
+# configures displaced tracking using duplicate removal emulation followed by 5 param fit sim
+def displacedNewKFKillConfig(process):
+  process.TrackTriggerSetup.KalmanFilter.Use5ParameterFit = True
+  process.l1tTTTracksFromTrackletEmulation.Fakefit = True
+  process.l1tTTTracksFromTrackletEmulation.DoMultipleMatches = False
+  process.ChannelAssignment.SeedTypes = ( "L1L2", "L2L3", "L3L4", "L5L6", "D1D2", "D3D4", "L1D1", "L2D1", "L2L3L4", "L4L5L6", "L2L3D1", "D1D2L2" )
+  process.ChannelAssignment.TM.MuxOrder = ( "L1L2", "L2L3", "L1D1", "D1D2", "D3D4", "L2D1", "L2L3D1", "D1D2L2", "L3L4", "L2L3L4", "L5L6", "L4L5L6" )
+  process.ChannelAssignment.SeedTypesSeedLayers = cms.PSet (
+      L1L2   = cms.vint32(  1,  2     ),
+      L2L3   = cms.vint32(  2,  3     ),
+      L3L4   = cms.vint32(  3,  4     ),
+      L5L6   = cms.vint32(  5,  6     ),
+      D1D2   = cms.vint32( 11, 12     ),
+      D3D4   = cms.vint32( 13, 14     ),
+      L1D1   = cms.vint32(  1, 11     ),
+      L2D1   = cms.vint32(  2, 11     ),
+      L2L3L4 = cms.vint32(  2,  3,  4 ),
+      L4L5L6 = cms.vint32(  4,  5,  6 ),
+      L2L3D1 = cms.vint32(  2,  3, 11 ),
+      D1D2L2 = cms.vint32( 11, 12,  2 )
+  )
+  process.ChannelAssignment.SeedTypesProjectionLayers = cms.PSet (
+      L1L2   = cms.vint32(  3,  4,  5,  6, 11, 12, 13, 14 ),
+      L2L3   = cms.vint32(  1,  4,  5,  6, 11, 12, 13, 14 ),
+      L3L4   = cms.vint32(  1,  2,  5,  6, 11, 12 ),
+      L5L6   = cms.vint32(  1,  2,  3,  4 ),
+      D1D2   = cms.vint32(  1,  2, 13, 14, 15 ),
+      D3D4   = cms.vint32(  1, 11, 12, 15 ),
+      L1D1   = cms.vint32( 12, 13, 14, 15 ),
+      L2D1   = cms.vint32(  1, 12, 13, 14 ),
+      L2L3L4 = cms.vint32(  1,  5,  6, 11, 12, 13 ),
+      L4L5L6 = cms.vint32(  1,  2,  3 ),
+      L2L3D1 = cms.vint32(  1, 12, 13, 14 ),
+      D1D2L2 = cms.vint32(  1, 13, 14 )
+  )
+  process.l1tTTTracksFromTrackletEmulation.RemovalType = ""
+  process.AnalyzerTM.OutputLabelTM = "ProducerFakeTM"
+  process.ProducerDR.InputLabelDR = "ProducerFakeTM"
+
 # configures pure tracklet algorithm (as opposed to Hybrid algorithm)
 def trackletConfig(process):
   process.l1tTTTracksFromTrackletEmulation.fitPatternFile = cms.FileInPath('L1Trigger/TrackFindingTracklet/data/fitpattern.txt') 

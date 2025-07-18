@@ -17,3 +17,6 @@ ProducerDR = cms.EDProducer( 'trklet::ProducerDR', TrackFindingTrackletProducer_
 ProducerKF = cms.EDProducer( 'trklet::ProducerKF', TrackFindingTrackletProducer_params, HybridKalmanFilterFormats_params, TMTrackProducer_params )
 ProducerTQ = cms.EDProducer( 'trackerTFP::ProducerTQ', TrackFindingTrackletProducer_params )
 ProducerTFP = cms.EDProducer( 'trklet::ProducerTFP', TrackFindingTrackletProducer_params )
+
+ProducerFakeTM = cms.EDProducer( 'trklet::ProducerFakeTM', TrackFindingTrackletProducer_params )
+ProducerFakeDR = cms.EDProducer( 'trklet::ProducerFakeDR', TrackFindingTrackletProducer_params )

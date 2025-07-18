@@ -81,7 +81,7 @@ namespace trklet {
     // returns false if data format would oferflow for this double value
     bool inRange(double d, bool digi = true) const {
       const double range = digi ? base_ * pow(2, width_) : range_;
-      return d >= -range / 2. && d < range / 2.;
+      return twos_ ? d >= -range / 2. && d < range / 2. : d <= range_;
     }
     // returns false if data format would oferflow for this int value
     bool inRange(int i) const { return inRange(floating(i)); }
@@ -135,10 +135,11 @@ namespace trklet {
   DataFormat makeDataFormat<Variable::phi, Process::tm>(const ChannelAssignment* ca);
   template <>
   DataFormat makeDataFormat<Variable::z, Process::tm>(const ChannelAssignment* ca);
+
   template <>
-  DataFormat makeDataFormat<Variable::dPhi, Process::tm>(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::dPhi, Process::dr>(const ChannelAssignment* ca);
   template <>
-  DataFormat makeDataFormat<Variable::dZ, Process::tm>(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::dZ, Process::dr>(const ChannelAssignment* ca);
 
   template <>
   DataFormat makeDataFormat<Variable::inv2R, Process::kf>(const ChannelAssignment* ca);
@@ -163,8 +164,8 @@ namespace trklet {
         {{Process::tm, Process::tm, Process::tm, Process::x}},    // Variable::r
         {{Process::tm, Process::tm, Process::tm, Process::x}},    // Variable::phi
         {{Process::tm, Process::tm, Process::tm, Process::x}},    // Variable::z
-        {{Process::tm, Process::tm, Process::tm, Process::x}},    // Variable::dPhi
-        {{Process::tm, Process::tm, Process::tm, Process::x}},    // Variable::dZ
+        {{Process::x, Process::dr, Process::dr, Process::x}},     // Variable::dPhi
+        {{Process::x, Process::dr, Process::dr, Process::x}},     // Variable::dZ
         {{Process::tm, Process::tm, Process::kf, Process::tfp}},  // Variable::inv2R
         {{Process::tm, Process::tm, Process::kf, Process::tfp}},  // Variable::phiT
         {{Process::tm, Process::tm, Process::kf, Process::tfp}},  // Variable::cot
@@ -350,6 +351,9 @@ namespace trklet {
     // construct StubDR from StubTM
     StubDR(const StubTM& stub, double r, double phi, double z, double dPhi, double dZ)
         : Stub(stub, r, phi, z, dPhi, dZ) {}
+    // construct StubTM from TTStubRef
+    StubDR(const TTStubRef& ttStubRef, const DataFormats* df, double r, double phi, double z, double dPhi, double dZ)
+        : Stub(ttStubRef, df, Process::dr, r, phi, z, dPhi, dZ) {}
     ~StubDR() override = default;
     // stub radius wrt chosenRofPhi
     double r() const { return std::get<0>(data_); }
@@ -449,6 +453,9 @@ namespace trklet {
     TrackDR(const tt::FrameTrack& ft, const DataFormats* df) : Track(ft, df, Process::dr) {}
     // construct TrackDR from TrackTM
     TrackDR(const TrackTM& track) : Track(track, track.inv2R(), track.phiT(), track.zT()) {}
+    // construct TrackTM from TTTrack
+    TrackDR(const TTTrackRef& tTTrackRef, const DataFormats* df, double inv2R, double phiT, double zT)
+        : Track(tTTrackRef, df, Process::dr, inv2R, phiT, zT) {}
     ~TrackDR() override = default;
     // track qOver pt
     double inv2R() const { return std::get<0>(data_); }

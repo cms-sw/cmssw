@@ -80,7 +80,7 @@ namespace trackerTFP {
     // returns false if data format would oferflow for this double value
     bool inRange(double d, bool digi = true) const {
       const double range = digi ? base_ * pow(2, width_) : range_;
-      return d >= -range / 2. && d < range / 2.;
+      return twos_ ? d >= -range / 2. && d < range / 2. : d <= range_;
     }
     // returns false if data format would oferflow for this int value
     bool inRange(int i) const { return inRange(floating(i)); }

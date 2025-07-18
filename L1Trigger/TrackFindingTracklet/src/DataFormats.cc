@@ -182,8 +182,9 @@ namespace trklet {
     const int width = std::ceil(std::log2(range / base));
     return DataFormat(true, width, base, range);
   }
+
   template <>
-  DataFormat makeDataFormat<Variable::dPhi, Process::tm>(const ChannelAssignment* ca) {
+  DataFormat makeDataFormat<Variable::dPhi, Process::dr>(const ChannelAssignment* ca) {
     const tt::Setup* s = ca->setup();
     const DataFormat phi = makeDataFormat<Variable::phi, Process::tm>(ca);
     const DataFormat inv2R = makeDataFormat<Variable::inv2R, Process::tm>(ca);
@@ -194,7 +195,7 @@ namespace trklet {
     return DataFormat(false, width, base, range);
   }
   template <>
-  DataFormat makeDataFormat<Variable::dZ, Process::tm>(const ChannelAssignment* ca) {
+  DataFormat makeDataFormat<Variable::dZ, Process::dr>(const ChannelAssignment* ca) {
     const tt::Setup* s = ca->setup();
     const DataFormat z = makeDataFormat<Variable::z, Process::tm>(ca);
     const double range = .5 * s->pitchCol2S() * std::sinh(s->maxEta());

@@ -163,7 +163,7 @@ namespace trklet {
 
   template <>
   DataFormatKF makeDataFormat<VariableKF::v0>(const DataFormats* dataFormats, const ConfigKF& iConfig) {
-    const DataFormat& dPhi = dataFormats->format(Variable::dPhi, Process::tm);
+    const DataFormat& dPhi = dataFormats->format(Variable::dPhi, Process::dr);
     const DataFormatKF S01 = makeDataFormat<VariableKF::S01>(dataFormats, iConfig);
     const double range = 4. * dPhi.range() * dPhi.range();
     const double base = S01.base();
@@ -173,7 +173,7 @@ namespace trklet {
 
   template <>
   DataFormatKF makeDataFormat<VariableKF::v1>(const DataFormats* dataFormats, const ConfigKF& iConfig) {
-    const DataFormat& dZ = dataFormats->format(Variable::dZ, Process::tm);
+    const DataFormat& dZ = dataFormats->format(Variable::dZ, Process::dr);
     const DataFormatKF S13 = makeDataFormat<VariableKF::S13>(dataFormats, iConfig);
     const double range = 4. * dZ.range() * dZ.range();
     const double base = S13.base();
