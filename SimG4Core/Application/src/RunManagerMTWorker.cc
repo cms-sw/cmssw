@@ -32,6 +32,7 @@
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
 #include "SimG4Core/Notification/interface/SimTrackManager.h"
+#include "SimG4Core/Notification/interface/CurrentG4Track.h"
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
@@ -180,6 +181,7 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& p, edm::Consumes
       m_G4CommandsEndRun(p.getParameter<std::vector<std::string>>("G4CommandsEndRun")),
       m_p(p) {
   int id = getThreadIndex();
+  if (id > CurrentG4Track::NumberOfThreads()) { CurrentG4Track::setNumberOfThreads(id); } 
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker for the thread " << id;
 
   // Initialize per-thread output
@@ -744,44 +746,35 @@ void RunManagerMTWorker::DumpMagneticField(const G4Field* field, const std::stri
     // CMS magnetic field volume
     double rmax = 9000 * CLHEP::mm;
     double zmax = 24000 * CLHEP::mm;
-    double phimax = CLHEP::twopi;
 
-    double dr = 2 * CLHEP::cm;
+    double dx = 10 * CLHEP::cm;
     double dz = 10 * CLHEP::cm;
-    double dphi = phimax / 32.;
 
-    int nr = G4lrint(rmax / dr);
+    int nx = G4lrint(2 * rmax / dx);
     int nz = G4lrint(2 * zmax / dz);
-    int nphi = G4lrint(phimax / dphi);
 
     double point[4] = {0.0, 0.0, 0.0, 0.0};
     double bfield[3] = {0.0, 0.0, 0.0};
 
-    double z;
-    double d1 = 1. / CLHEP::rad;
     double d2 = 1. / CLHEP::mm;
     double d3 = 1. / CLHEP::tesla;
 
     fout << std::setprecision(6);
-    fout << "### " << file << " CMS magnetic field: phi(rad) R(mm) Z(mm) Bx(tesla) By(tesla) Bz(tesla)  ###" << G4endl;
-    for (int k = 0; k <= nphi; ++k) {
-      double phi = k * dphi;
-      double cosf = cos(phi);
-      double sinf = sin(phi);
-      double r = 0.0;
-      double z0 = -zmax;
-      for (int i = 0; i <= nr; ++i) {
-        z = z0;
+    fout << "### " << file << " CMS magnetic field: X(mm) Y(mm) Z(mm) Bx(tesla) By(tesla) Bz(tesla)  ###" << G4endl;
+    for (int k = 0; k <= nx; ++k) {
+      double x = k * dx - rmax;
+      for (int i = 0; i <= nx; ++i) {
+	double y = i * dx - rmax;
         for (int j = 0; j <= nz; ++j) {
-          point[0] = r * cosf;
-          point[1] = r * sinf;
+	  double z = j * dz - zmax;
+          point[0] = x;
+          point[1] = y;
           point[2] = z;
           field->GetFieldValue(point, bfield);
-          fout << phi * d1 << " " << r * d2 << " " << z * d2 << " " << bfield[0] * d3 << " " << bfield[1] * d3 << " "
+          fout << x * d2 << " " << y * d2 << " " << z * d2 << " "
+	       << bfield[0] * d3 << " " << bfield[1] * d3 << " "
                << bfield[2] * d3 << G4endl;
-          z += dz;
         }
-        r += dr;
       }
     }
     fout.close();
