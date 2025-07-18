@@ -15,6 +15,8 @@
 #include "DataFormats/Scouting/interface/Run3ScoutingEERecHit.h"
 #include "DataFormats/Scouting/interface/Run3ScoutingHBHERecHit.h"
 
+namespace {}
+
 class HLTScoutingRecHitProducer : public edm::global::EDProducer<> {
 public:
   explicit HLTScoutingRecHitProducer(const edm::ParameterSet&);
@@ -24,10 +26,29 @@ public:
 
 private:
   void produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const final;
+  static void produceEcal(edm::Event& iEvent,
+                          const reco::PFRecHitCollection& inputRecHits,
+                          double minEnergyEB,
+                          double minEnergyEE,
+                          int mantrissaPrecision,
+                          const std::string tag = "");
+  static void produceHcal(edm::Event& iEvent,
+                          const reco::PFRecHitCollection& inputRecHits,
+                          double minEnergyHBHE,
+                          int mantrissaPrecision,
+                          const std::string tag = "");
 
-  const edm::EDGetTokenT<reco::PFRecHitCollection> recoPFRecHitsTokenECAL_;
-  const edm::EDGetTokenT<reco::PFRecHitCollection> recoPFRecHitsTokenECALCleaned_;
-  const edm::EDGetTokenT<reco::PFRecHitCollection> recoPFRecHitsTokenHBHE_;
+  template <typename T>
+  void setToken(edm::EDGetTokenT<T>& token, const edm::ParameterSet& iConfig, std::string name) {
+    const auto inputTag = iConfig.getParameter<edm::InputTag>(name);
+    if (!inputTag.encode().empty()) {
+      token = consumes(iConfig.getParameter<edm::InputTag>(name));
+    }
+  }
+
+  edm::EDGetTokenT<reco::PFRecHitCollection> recoPFRecHitsTokenECAL_;
+  edm::EDGetTokenT<reco::PFRecHitCollection> recoPFRecHitsTokenECALCleaned_;
+  edm::EDGetTokenT<reco::PFRecHitCollection> recoPFRecHitsTokenHBHE_;
   const double minEnergyEB_;
   const double minEnergyEE_;
   const double minEnergyCleanedEB_;
@@ -37,15 +58,17 @@ private:
 };
 
 HLTScoutingRecHitProducer::HLTScoutingRecHitProducer(const edm::ParameterSet& iConfig)
-    : recoPFRecHitsTokenECAL_(consumes(iConfig.getParameter<edm::InputTag>("pfRecHitsECAL"))),
-      recoPFRecHitsTokenECALCleaned_(consumes(iConfig.getParameter<edm::InputTag>("pfRecHitsECALCleaned"))),      
-      recoPFRecHitsTokenHBHE_(consumes(iConfig.getParameter<edm::InputTag>("pfRecHitsHBHE"))),
-      minEnergyEB_(iConfig.getParameter<double>("minEnergyEB")),
+    : minEnergyEB_(iConfig.getParameter<double>("minEnergyEB")),
       minEnergyEE_(iConfig.getParameter<double>("minEnergyEE")),
       minEnergyCleanedEB_(iConfig.getParameter<double>("minEnergyCleanedEB")),
       minEnergyCleanedEE_(iConfig.getParameter<double>("minEnergyCleanedEE")),
       minEnergyHBHE_(iConfig.getParameter<double>("minEnergyHBHE")),
       mantissaPrecision_(iConfig.getParameter<int>("mantissaPrecision")) {
+  //this is done this way so that if an empty InputTag is provided, the token will be set to an uninitialized state and we'll skip processing that product
+  //this protects against types pfRecItsHBHE  is a type and we dont want to slightly pass
+  setToken(recoPFRecHitsTokenECAL_, iConfig, "pfRecHitsECAL");
+  setToken(recoPFRecHitsTokenECALCleaned_, iConfig, "pfRecHitsECALCleaned");
+  setToken(recoPFRecHitsTokenHBHE_, iConfig, "pfRecHitsHBHE");
   produces<Run3ScoutingEBRecHitCollection>("EB");
   produces<Run3ScoutingEERecHitCollection>("EE");
   produces<Run3ScoutingEBRecHitCollection>("EBCleaned");
@@ -53,90 +76,84 @@ HLTScoutingRecHitProducer::HLTScoutingRecHitProducer(const edm::ParameterSet& iC
   produces<Run3ScoutingHBHERecHitCollection>("HBHE");
 }
 
-void HLTScoutingRecHitProducer::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const {
-  // ECAL
-  auto const& recoPFRecHitsECAL = iEvent.get(recoPFRecHitsTokenECAL_);
-
+void HLTScoutingRecHitProducer::produceEcal(edm::Event& iEvent,
+                                            const reco::PFRecHitCollection& inputRecHits,
+                                            double minEnergyEB,
+                                            double minEnergyEE,
+                                            int mantissaPrecision,
+                                            const std::string tag) {
   auto run3ScoutEBRecHits = std::make_unique<Run3ScoutingEBRecHitCollection>();
-  run3ScoutEBRecHits->reserve(recoPFRecHitsECAL.size());
+  run3ScoutEBRecHits->reserve(inputRecHits.size());
 
   auto run3ScoutEERecHits = std::make_unique<Run3ScoutingEERecHitCollection>();
-  run3ScoutEERecHits->reserve(recoPFRecHitsECAL.size());
+  run3ScoutEERecHits->reserve(inputRecHits.size());
 
-  for (auto const& rh : recoPFRecHitsECAL) {
+  for (auto const& rh : inputRecHits) {
     if (rh.layer() == PFLayer::ECAL_BARREL) {
-      if (rh.energy() < minEnergyEB_) {
+      if (rh.energy() < minEnergyEB) {
         continue;
       }
 
       run3ScoutEBRecHits->emplace_back(
-          MiniFloatConverter::reduceMantissaToNbitsRounding(rh.energy(), mantissaPrecision_),
-          MiniFloatConverter::reduceMantissaToNbitsRounding(rh.time(), mantissaPrecision_),
+          MiniFloatConverter::reduceMantissaToNbitsRounding(rh.energy(), mantissaPrecision),
+          MiniFloatConverter::reduceMantissaToNbitsRounding(rh.time(), mantissaPrecision),
           rh.detId(),
           rh.flags());
     } else if (rh.layer() == PFLayer::ECAL_ENDCAP) {
-      if (rh.energy() < minEnergyEE_) {
+      if (rh.energy() < minEnergyEE) {
         continue;
       }
 
       run3ScoutEERecHits->emplace_back(
-          MiniFloatConverter::reduceMantissaToNbitsRounding(rh.energy(), mantissaPrecision_),
-          MiniFloatConverter::reduceMantissaToNbitsRounding(rh.time(), mantissaPrecision_),
+          MiniFloatConverter::reduceMantissaToNbitsRounding(rh.energy(), mantissaPrecision),
+          MiniFloatConverter::reduceMantissaToNbitsRounding(rh.time(), mantissaPrecision),
           rh.detId());
     } else {
       edm::LogWarning("HLTScoutingRecHitProducer")
           << "Skipping PFRecHit because of unexpected PFLayer value (" << rh.layer() << ").";
     }
   }
+  iEvent.put(std::move(run3ScoutEBRecHits), "EB" + tag);
+  iEvent.put(std::move(run3ScoutEERecHits), "EE" + tag);
+}
 
-  iEvent.put(std::move(run3ScoutEBRecHits), "EB");
-  iEvent.put(std::move(run3ScoutEERecHits), "EE");
-
-  // Cleaned ECAL
-  auto const& recoPFRecHitsECALCleaned = iEvent.get(recoPFRecHitsTokenECALCleaned_);
-  auto run3ScoutEBRecHitsCleaned = std::make_unique<Run3ScoutingEBRecHitCollection>();
-  run3ScoutEBRecHitsCleaned->reserve(recoPFRecHitsECALCleaned.size());
-  auto run3ScoutEERecHitsCleaned = std::make_unique<Run3ScoutingEERecHitCollection>();
-  run3ScoutEERecHitsCleaned->reserve(recoPFRecHitsECALCleaned.size());
-  for (auto const& rh : recoPFRecHitsECALCleaned) {
-    if (rh.layer() == PFLayer::ECAL_BARREL) {
-      if (rh.energy() < minEnergyCleanedEB_) {
-        continue;
-      }
-      run3ScoutEBRecHitsCleaned->emplace_back(
-          MiniFloatConverter::reduceMantissaToNbitsRounding(rh.energy(), mantissaPrecision_),
-          MiniFloatConverter::reduceMantissaToNbitsRounding(rh.time(), mantissaPrecision_),
-          rh.detId(),
-          rh.flags());
-    } else if (rh.layer() == PFLayer::ECAL_ENDCAP) {
-      if (rh.energy() < minEnergyCleanedEE_) {
-        continue;
-      }
-      run3ScoutEERecHitsCleaned->emplace_back(
-          MiniFloatConverter::reduceMantissaToNbitsRounding(rh.energy(), mantissaPrecision_),
-          MiniFloatConverter::reduceMantissaToNbitsRounding(rh.time(), mantissaPrecision_),
-          rh.detId());
-    }
-  }
-  iEvent.put(std::move(run3ScoutEBRecHitsCleaned), "EBCleaned");
-  iEvent.put(std::move(run3ScoutEERecHitsCleaned), "EECleaned");
-
-  // HBHE
-  auto const& recoPFRecHitsHBHE = iEvent.get(recoPFRecHitsTokenHBHE_);
-
+void HLTScoutingRecHitProducer::produceHcal(edm::Event& iEvent,
+                                            const reco::PFRecHitCollection& inputRecHits,
+                                            double minEnergyHBHE,
+                                            int mantissaPrecision,
+                                            const std::string tag) {
   auto run3ScoutHBHERecHits = std::make_unique<Run3ScoutingHBHERecHitCollection>();
-  run3ScoutHBHERecHits->reserve(recoPFRecHitsHBHE.size());
+  run3ScoutHBHERecHits->reserve(inputRecHits.size());
 
-  for (auto const& rh : recoPFRecHitsHBHE) {
-    if (rh.energy() < minEnergyHBHE_) {
+  for (auto const& rh : inputRecHits) {
+    if (rh.energy() < minEnergyHBHE) {
       continue;
     }
 
     run3ScoutHBHERecHits->emplace_back(
-        MiniFloatConverter::reduceMantissaToNbitsRounding(rh.energy(), mantissaPrecision_), rh.detId());
+        MiniFloatConverter::reduceMantissaToNbitsRounding(rh.energy(), mantissaPrecision), rh.detId());
   }
 
-  iEvent.put(std::move(run3ScoutHBHERecHits), "HBHE");
+  iEvent.put(std::move(run3ScoutHBHERecHits), "HBHE" + tag);
+}
+
+void HLTScoutingRecHitProducer::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const {
+  // ECAL
+  if (!recoPFRecHitsTokenECAL_.isUninitialized()) {
+    auto const& recoPFRecHitsECAL = iEvent.get(recoPFRecHitsTokenECAL_);
+    produceEcal(iEvent, recoPFRecHitsECAL, minEnergyEB_, minEnergyEE_, mantissaPrecision_);
+  }
+  // Cleaned ECAL
+  if (!recoPFRecHitsTokenECALCleaned_.isUninitialized()) {
+    auto const& recoPFRecHitsECALCleaned = iEvent.get(recoPFRecHitsTokenECALCleaned_);
+    produceEcal(
+        iEvent, recoPFRecHitsECALCleaned, minEnergyCleanedEB_, minEnergyCleanedEE_, mantissaPrecision_, "Cleaned");
+  }
+  // HBHE
+  if (!recoPFRecHitsTokenHBHE_.isUninitialized()) {
+    auto const& recoPFRecHitsHBHE = iEvent.get(recoPFRecHitsTokenHBHE_);
+    produceHcal(iEvent, recoPFRecHitsHBHE, minEnergyHBHE_, mantissaPrecision_);
+  }
 }
 
 void HLTScoutingRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
