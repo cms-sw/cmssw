@@ -34,6 +34,7 @@
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
@@ -60,6 +61,7 @@ private:
   const DTGeometry* dtGeom;
   const CSCGeometry* cscGeom;
   const RPCGeometry* rpcGeom;
+  const GEMGeometry* gemGeom;
   const Propagator* propagatorWithMaterial;
   std::unique_ptr<Propagator> propagatorWithoutMaterial;
 
@@ -98,6 +100,7 @@ private:
   const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeometryESToken_;
   const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeometryESToken_;
   const edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeometryESToken_;
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemGeometryESToken_;
   const edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> particleDataTableESToken_;
 };
 
@@ -114,6 +117,7 @@ MuonSimHitProducer::MuonSimHitProducer(const edm::ParameterSet& iConfig)
       dtGeometryESToken_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "MisAligned"))),
       cscGeometryESToken_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "MisAligned"))),
       rpcGeometryESToken_(esConsumes<edm::Transition::BeginRun>()),
+      gemGeometryESToken_(esConsumes<edm::Transition::BeginRun>()),
       particleDataTableESToken_(esConsumes()) {
   // Read relevant parameters
   readParameters(iConfig.getParameter<edm::ParameterSet>("MUONS"),
@@ -126,6 +130,7 @@ MuonSimHitProducer::MuonSimHitProducer(const edm::ParameterSet& iConfig)
   produces<edm::PSimHitContainer>("MuonCSCHits");
   produces<edm::PSimHitContainer>("MuonDTHits");
   produces<edm::PSimHitContainer>("MuonRPCHits");
+  produces<edm::PSimHitContainer>("MuonGEMHits");
 
   edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters, consumesCollector(), MuonServiceProxy::UseEventSetupIn::Run);
@@ -142,6 +147,7 @@ void MuonSimHitProducer::beginRun(edm::Run const& run, const edm::EventSetup& es
   dtGeom = &es.getData(dtGeometryESToken_);
   cscGeom = &es.getData(cscGeometryESToken_);
   rpcGeom = &es.getData(rpcGeometryESToken_);
+  gemGeom = &es.getData(gemGeometryESToken_);
 
   bool duringEvent = false;
   theService->update(es, duringEvent);
@@ -172,6 +178,7 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   std::vector<PSimHit> theCSCHits;
   std::vector<PSimHit> theDTHits;
   std::vector<PSimHit> theRPCHits;
+  std::vector<PSimHit> theGEMHits;
 
   DirectMuonNavigation navigation(theService->detLayerGeometry());
   iEvent.getByToken(simMuonToken, simMuons);
@@ -483,6 +490,44 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
                 entry, exit, lmom.mag(), tof + dtof, eloss, pid, id, trkid, lmom.theta(), lmom.phi(), processType);
             theRPCHits.push_back(hit);
           }
+        } else if (gd->subDetector() == GeomDetEnumerators::GEM) {
+          GEMDetId id(gd->geographicalId());
+          const GEMChamber* chamber = gemGeom->chamber(id);
+          std::vector<const GEMEtaPartition*> etaPart = chamber->etaPartitions();
+          for (unsigned int ieta = 0; ieta < etaPart.size(); ieta++) {
+            GEMDetId rid = etaPart[ieta]->id();
+
+#ifdef FAMOS_DEBUG
+            std::cout << "    Extrapolated to GEM (" << rid.ring() << "," << rid.station() << "," << rid.chamber()
+                      << "," << rid.layer() << "," << rid.ieta() << ")" << std::endl;
+#endif
+
+            const GeomDetUnit* det = gemGeom->idToDetUnit(rid);
+            HelixArbitraryPlaneCrossing crossing(propagatedState.globalPosition().basicVector(),
+                                                 propagatedState.globalMomentum().basicVector(),
+                                                 propagatedState.transverseCurvature(),
+                                                 anyDirection);
+            std::pair<bool, double> path = crossing.pathLength(det->surface());
+            if (!path.first)
+              continue;
+            LocalPoint lpos = det->toLocal(GlobalPoint(crossing.position(path.second)));
+            if (!det->surface().bounds().inside(lpos))
+              continue;
+            double thickness = det->surface().bounds().thickness();
+            LocalVector lmom = det->toLocal(GlobalVector(crossing.direction(path.second)));
+            lmom = lmom.unit() * propagatedState.localMomentum().mag();
+            double eloss = 0;
+            double pz = fabs(lmom.z());
+            LocalPoint entry = lpos - 0.5 * thickness * lmom / pz;
+            LocalPoint exit = lpos + 0.5 * thickness * lmom / pz;
+            double dtof = path.second * rbeta;
+            int trkid = mySimTrack.trackId();
+            unsigned int id = rid.rawId();
+            short unsigned int processType = 2;
+            PSimHit hit(
+                entry, exit, lmom.mag(), tof + dtof, eloss, pid, id, trkid, lmom.theta(), lmom.phi(), processType);
+            theGEMHits.push_back(hit);
+          }
         } else {
           std::cout << "Extrapolated to unknown subdetector '" << gd->subDetector() << "'..." << std::endl;
         }
@@ -507,6 +552,12 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     prpc->push_back(*i);
   }
   iEvent.put(std::move(prpc), "MuonRPCHits");
+
+  std::unique_ptr<edm::PSimHitContainer> pgem(new edm::PSimHitContainer);
+  for (std::vector<PSimHit>::const_iterator i = theGEMHits.begin(); i != theGEMHits.end(); i++) {
+    pgem->push_back(*i);
+  }
+  iEvent.put(std::move(pgem), "MuonGEMHits");
 }
 
 void MuonSimHitProducer::readParameters(const edm::ParameterSet& fastMuons,
