@@ -1154,4 +1154,3 @@ HLLHCVtxSmearingParameters = cms.PSet(
     CrabbingAngleCrossingInurad = cms.double(380.0),
     CrabbingAngleSeparationInurad = cms.double(0.0)
 )
-
