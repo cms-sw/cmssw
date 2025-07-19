@@ -109,10 +109,10 @@ struct mykernel {
       auto vm = int(v[j]) - DELTA;
       auto vp = int(v[j]) + DELTA;
       constexpr int vmax = NBINS != 128 ? NBINS * 2 - 1 : std::numeric_limits<T>::max();
-      vm = std::max(vm, 0);
-      vm = std::min(vm, vmax);
-      vp = std::min(vp, vmax);
-      vp = std::max(vp, 0);
+      vm = alpaka::math::max(vm, 0);
+      vm = alpaka::math::min(vm, vmax);
+      vp = alpaka::math::min(vp, vmax);
+      vp = alpaka::math::max(vp, 0);
       ALPAKA_ASSERT_ACC(vp >= vm);
       forEachInWindow(hist, vm, vp, ftest);
 #ifndef NDEBUG
