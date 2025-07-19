@@ -99,6 +99,9 @@ autoNANO = {
     # Custom BTV Nano for SF measurements or tagger training
     'BTV': {'sequence': '@PHYS',
             'customize': '@PHYS+PhysicsTools/NanoAOD/custom_btv_cff.BTVCustomNanoAOD'},
+    # Custom EXO Nano for EXO analyses 
+    'EXO': {'sequence': '@PHYS',
+            'customize': '@PHYS+PhysicsTools/NanoAOD/custom_exo_cff.add_exonanoTables'},
     # NANOGEN (from LHE/GEN/AOD)
     'GEN': {'sequence': 'PhysicsTools/NanoAOD/nanogen_cff.nanogenSequence',
             'customize': 'PhysicsTools/NanoAOD/nanogen_cff.customizeNanoGEN'},
