@@ -573,21 +573,6 @@ namespace edm {
   }
 
   template <typename T>
-  inline void WorkerT<T>::implRespondToOpenInputFile(FileBlock const& fb) {
-    module_->doRespondToOpenInputFile(fb);
-  }
-
-  template <typename T>
-  inline void WorkerT<T>::implRespondToCloseInputFile(FileBlock const& fb) {
-    module_->doRespondToCloseInputFile(fb);
-  }
-
-  template <typename T>
-  void WorkerT<T>::implRespondToCloseOutputFile() {
-    module_->doRespondToCloseOutputFile();
-  }
-
-  template <typename T>
   inline Worker::TaskQueueAdaptor WorkerT<T>::serializeRunModule() {
     return Worker::TaskQueueAdaptor{};
   }
@@ -750,11 +735,6 @@ namespace edm {
   template <>
   Worker::ConcurrencyTypes WorkerT<edm::stream::EDAnalyzerAdaptorBase>::moduleConcurrencyType() const {
     return Worker::kStream;
-  }
-
-  template <typename T>
-  std::vector<ModuleConsumesInfo> WorkerT<T>::moduleConsumesInfos() const {
-    return module_->moduleConsumesInfos();
   }
 
   //Explicitly instantiate our needed templates to avoid having the compiler
