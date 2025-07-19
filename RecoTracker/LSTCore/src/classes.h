@@ -3,5 +3,6 @@
 
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "RecoTracker/LSTCore/interface/LSTInputHostCollection.h"
+#include "RecoTracker/LSTCore/interface/TrackCandidatesHostCollection.h"
 
 #endif
