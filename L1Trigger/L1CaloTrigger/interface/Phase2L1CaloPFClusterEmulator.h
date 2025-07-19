@@ -288,16 +288,21 @@ namespace gctpf {
     GCTint_t regionMax = getPeakPosition(region);
 
     float pfcluster_et = getEt(temporary, regionMax.eta, regionMax.phi);
+    float pfcluster_eta = regionMax.eta - 2 + etaoffset;
+    float pfcluster_phi = regionMax.phi - 2 + phioffset;
 
     RemoveTmp(temporary, regionMax.eta, regionMax.phi);
 
     if (!(regionMax.eta >= 2 && regionMax.eta < (nTowerEtaSLR - 2) && regionMax.phi >= 2 &&
-          regionMax.phi < (nTowerPhiSLR - 2)))
-      pfcluster_et = 0;
+          regionMax.phi < (nTowerPhiSLR - 2))) {
+      pfcluster_et = 0;   // set energy to be zero if maximum energy tower is not within the unique region
+      pfcluster_eta = 2;  // choose the default to be at one corner of the unique region
+      pfcluster_phi = 2;  // choose the default to be at one corner of the unique region
+    }
 
     pfclusterReturn.et = pfcluster_et;
-    pfclusterReturn.eta = regionMax.eta - 2 + etaoffset;
-    pfclusterReturn.phi = regionMax.phi - 2 + phioffset;
+    pfclusterReturn.eta = pfcluster_eta;
+    pfclusterReturn.phi = pfcluster_phi;
 
     return pfclusterReturn;
   }
