@@ -26,7 +26,7 @@ private:
   static const std::map<int, int> kSplit_;
   static const std::map<int, int> kSplit_Scin_;
   static constexpr int kSTCidMaskInv_ = ~0xf;
-  static constexpr int kNThicknesses_ = 4;
+  static constexpr int kNThicknesses_ = 5;  // 4 silicon types + 1 for scintillator
   static constexpr int kNHGCalLayersMax_ = 52;
 
   static constexpr int kSplit_Coarse_ = 0;
