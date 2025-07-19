@@ -4,6 +4,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <boost/algorithm/string.hpp>
 
 #include "CalibTracker/Records/interface/SiPixelGainCalibrationForHLTSoARcd.h"
 #include "CalibTracker/Records/interface/SiPixelMappingSoARecord.h"
@@ -35,8 +36,18 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/SynchronizingEDProducer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelClusterThresholds.h"
+#include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelImageSoA.h"
+#include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelImageDevice.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "DataFormats/DetId/interface/DetId.h"
 
 #include "SiPixelRawToClusterKernel.h"
+#include "SiPixelMorphingConfig.h"
+
+typedef std::pair<uint32_t, uint32_t> range;
+typedef std::vector<range> region;
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
@@ -52,6 +63,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   private:
     void acquire(device::Event const& iEvent, device::EventSetup const& iSetup) override;
     void produce(device::Event& iEvent, device::EventSetup const& iSetup) override;
+    void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
+    std::vector<region> parseRegions(const std::vector<std::string>& regionStrings, size_t size);
+    bool skipDetId(const TrackerTopology* tTopo,
+                   const DetId& detId,
+                   const std::vector<region>& theBarrelRegions,
+                   const std::vector<region>& theEndcapRegions) const;
 
     edm::EDGetTokenT<FEDRawDataCollection> rawGetToken_;
     edm::EDPutTokenT<SiPixelFormatterErrors> fmtErrorToken_;
@@ -63,6 +80,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const device::ESGetToken<SiPixelMappingDevice, SiPixelMappingSoARecord> mapToken_;
     const device::ESGetToken<SiPixelGainCalibrationForHLTDevice, SiPixelGainCalibrationForHLTSoARcd> gainsToken_;
     const edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> cablingMapToken_;
+    const edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> cablingMapTokenBeginRun_;
 
     std::unique_ptr<SiPixelFedCablingTree> cabling_;
     std::vector<unsigned int> fedIds_;
@@ -74,9 +92,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     const bool includeErrors_;
     const bool useQuality_;
+    const bool doDigiMorphing_;
     const bool verbose_;
     uint32_t nDigis_;
     const SiPixelClusterThresholds clusterThresholds_;
+    SiPixelMorphingConfig digiMorphingConfig_;
+    edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
+
+    const std::vector<region> theBarrelRegions_;
+    const std::vector<region> theEndcapRegions_;
   };
 
   template <typename TrackerTraits>
@@ -89,15 +113,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         gainsToken_(esConsumes()),
         cablingMapToken_(esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd>(
             edm::ESInputTag("", iConfig.getParameter<std::string>("CablingMapLabel")))),
+        cablingMapTokenBeginRun_(esConsumes<SiPixelFedCablingMap, SiPixelFedCablingMapRcd, edm::Transition::BeginRun>(
+            edm::ESInputTag("", iConfig.getParameter<std::string>("CablingMapLabel")))),
         includeErrors_(iConfig.getParameter<bool>("IncludeErrors")),
         useQuality_(iConfig.getParameter<bool>("UseQualityInfo")),
+        doDigiMorphing_(iConfig.getParameter<bool>("DoDigiMorphing")),
         verbose_(iConfig.getParameter<bool>("verbose")),
         clusterThresholds_{iConfig.getParameter<int32_t>("clusterThreshold_layer1"),
                            iConfig.getParameter<int32_t>("clusterThreshold_otherLayers"),
                            static_cast<float>(iConfig.getParameter<double>("VCaltoElectronGain")),
                            static_cast<float>(iConfig.getParameter<double>("VCaltoElectronGain_L1")),
                            static_cast<float>(iConfig.getParameter<double>("VCaltoElectronOffset")),
-                           static_cast<float>(iConfig.getParameter<double>("VCaltoElectronOffset_L1"))} {
+                           static_cast<float>(iConfig.getParameter<double>("VCaltoElectronOffset_L1"))},
+        trackerTopologyToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()),
+        theBarrelRegions_(parseRegions(iConfig.getParameter<std::vector<std::string>>("barrelRegions"), 3)),
+        theEndcapRegions_(parseRegions(iConfig.getParameter<std::vector<std::string>>("endcapRegions"), 4)) {
     if (includeErrors_) {
       digiErrorPutToken_ = produces();
       fmtErrorToken_ = produces();
@@ -107,8 +137,109 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     if (!iConfig.getParameter<edm::ParameterSet>("Regions").getParameterNames().empty()) {
       regions_ = std::make_unique<PixelUnpackingRegions>(iConfig, consumesCollector());
     }
+    if (doDigiMorphing_) {
+      edm::ParameterSet digiPSet = iConfig.getParameter<edm::ParameterSet>("DigiMorphing");
+      digiMorphingConfig_.kernel1 = digiPSet.getParameter<std::array<int32_t, 9>>("kernel1");
+      digiMorphingConfig_.kernel2 = digiPSet.getParameter<std::array<int32_t, 9>>("kernel2");
+    }
   }
 
+  template <typename TrackerTraits>
+  std::vector<region> SiPixelRawToCluster<TrackerTraits>::parseRegions(const std::vector<std::string>& regionStrings,
+                                                                       size_t size) {
+    std::vector<region> regions;
+
+    for (auto const& str : regionStrings) {
+      region reg;
+
+      std::vector<std::string> ranges;
+      boost::split(ranges, str, boost::is_any_of(","));
+
+      if (ranges.size() != size) {
+        throw cms::Exception("Configuration") << "[SiPixelDigiMorphing]:"
+                                              << " invalid number of coordinates provided in " << str << " (" << size
+                                              << " expected, " << ranges.size() << " provided)\n";
+      }
+
+      for (auto const& r : ranges) {
+        std::vector<std::string> limits;
+        boost::split(limits, r, boost::is_any_of("-"));
+
+        try {
+          // if range specified
+          if (limits.size() > 1) {
+            reg.push_back(std::make_pair(std::stoi(limits.at(0)), std::stoi(limits.at(1))));
+            // otherwise store single value as a range
+          } else {
+            reg.push_back(std::make_pair(std::stoi(limits.at(0)), std::stoi(limits.at(0))));
+          }
+        } catch (...) {
+          throw cms::Exception("Configuration") << "[SiPixelDigiMorphing]:"
+                                                << " invalid coordinate value provided in " << str << "\n";
+        }
+      }
+      regions.push_back(reg);
+    }
+
+    return regions;
+  }
+
+  // apply regional digi morphing logic
+  template <typename TrackerTraits>
+  bool SiPixelRawToCluster<TrackerTraits>::skipDetId(const TrackerTopology* tTopo,
+                                                     const DetId& detId,
+                                                     const std::vector<region>& theBarrelRegions,
+                                                     const std::vector<region>& theEndcapRegions) const {
+    // barrel
+    if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
+      // no barrel region specified
+      if (theBarrelRegions.empty()) {
+        return true;
+      } else {
+        uint32_t layer = tTopo->pxbLayer(detId.rawId());
+        uint32_t ladder = tTopo->pxbLadder(detId.rawId());
+        uint32_t module = tTopo->pxbModule(detId.rawId());
+
+        bool inRegion = false;
+
+        for (auto const& reg : theBarrelRegions) {
+          if ((layer >= reg.at(0).first && layer <= reg.at(0).second) &&
+              (ladder >= reg.at(1).first && ladder <= reg.at(1).second) &&
+              (module >= reg.at(2).first && module <= reg.at(2).second)) {
+            inRegion = true;
+            break;
+          }
+        }
+
+        return !inRegion;
+      }
+      // endcap
+    } else {
+      // no endcap region specified
+      if (theEndcapRegions.empty()) {
+        return true;
+      } else {
+        uint32_t disk = tTopo->pxfDisk(detId.rawId());
+        uint32_t blade = tTopo->pxfBlade(detId.rawId());
+        uint32_t side = tTopo->pxfSide(detId.rawId());
+        uint32_t panel = tTopo->pxfPanel(detId.rawId());
+
+        bool inRegion = false;
+
+        for (auto const& reg : theEndcapRegions) {
+          if ((disk >= reg.at(0).first && disk <= reg.at(0).second) &&
+              (blade >= reg.at(1).first && blade <= reg.at(1).second) &&
+              (side >= reg.at(2).first && side <= reg.at(2).second) &&
+              (panel >= reg.at(3).first && panel <= reg.at(3).second)) {
+            inRegion = true;
+            break;
+          }
+        }
+
+        return !inRegion;
+      }
+    }
+  }
   template <typename TrackerTraits>
   void SiPixelRawToCluster<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -125,6 +256,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     desc.add<double>("VCaltoElectronGain_L1", 50.f);
     desc.add<double>("VCaltoElectronOffset", -60.f);
     desc.add<double>("VCaltoElectronOffset_L1", -670.f);
+    desc.add<bool>("DoDigiMorphing", false);
 
     desc.add<edm::InputTag>("InputLabel", edm::InputTag("rawDataCollector"));
     {
@@ -136,8 +268,40 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       desc.add<edm::ParameterSetDescription>("Regions", psd0)
           ->setComment("## Empty Regions PSet means complete unpacking");
     }
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.addOptional<std::vector<int32_t>>("kernel1");
+      psd1.addOptional<std::vector<int32_t>>("kernel2");
+      desc.add<edm::ParameterSetDescription>("DigiMorphing", psd1)
+          ->setComment("## Parameter settings for digi morphing to heal split clusters");
+    }
+
+    // LAYER,LADDER,MODULE (coordinates can also be specified as a range FIRST-LAST where appropriate)
+    desc.add<std::vector<std::string>>("barrelRegions", {"1,1-12,1-2", "1,1-12,7-8", "2,1-28,1", "1,1-28,8"});
+    // DISK,BLADE,SIDE,PANEL (coordinates can also be specified as a range FIRST-LAST where appropriate)
+    desc.add<std::vector<std::string>>("endcapRegions", {});
+
     desc.add<std::string>("CablingMapLabel", "")->setComment("CablingMap label");  //Tav
     descriptions.addWithDefaultLabel(desc);
+  }
+  template <typename TrackerTraits>
+  void SiPixelRawToCluster<TrackerTraits>::beginRun(edm::Run const&, edm::EventSetup const& iSetup) {
+    // TODO: update the morphingModules only if the eventsetup configuration has changed, instead of for every run, using an ESWatcher:
+    // https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideHowToGetDataFromES#Getting_data_each_time_a_Record
+    const SiPixelFedCablingMap& cablingMapBeginRun_ = iSetup.getData(cablingMapTokenBeginRun_);
+    const TrackerTopology* tTopo = &iSetup.getData(trackerTopologyToken_);
+
+    digiMorphingConfig_.morphingModules.clear();
+    for (const auto& connection : cablingMapBeginRun_.det2fedMap()) {
+      auto rawId = connection.first;
+      if (rawId == 0)
+        continue;
+
+      DetId detId(rawId);
+      if (!skipDetId(tTopo, detId, theBarrelRegions_, theEndcapRegions_)) {
+        digiMorphingConfig_.morphingModules.push_back(rawId);
+      }
+    }
   }
 
   template <typename TrackerTraits>
@@ -153,6 +317,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       cabling_ = cablingMap_->cablingTree();
       LogDebug("map version:") << cablingMap_->version();
     }
+#if 0
+    if(!digiMorphingConfig_.morphingModules)
+    {
+	    for (const auto& connection : cablingMap_->det2fedMap()) {
+		    auto rawId = connection.first;
+		    if (rawId == 0) continue;
+
+		    DetId detId(rawId);
+		    if (!skipDetId(tTopo, detId, theBarrelRegions_, theEndcapRegions_)) {
+			    digiMorphingConfig_.morphingModules.push_back(rawId);
+		    }
+	    }
+    }
+#endif
 
     // if used, the buffer is guaranteed to stay alive until the after the execution of makePhase1ClustersAsync completes
     std::optional<cms::alpakatools::device_buffer<Device, unsigned char[]>> modulesToUnpackRegional;
@@ -245,17 +423,37 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     for (uint32_t i = 0; i < fedIds_.size(); ++i) {
       wordFedAppender.initializeWordFed(fedIds_[i], index[i], start[i], words[i]);
     }
-    Algo_.makePhase1ClustersAsync(iEvent.queue(),
-                                  clusterThresholds_,
-                                  hMap.const_view(),
-                                  modulesToUnpack,
-                                  dGains.const_view(),
-                                  wordFedAppender,
-                                  wordCounter,
-                                  fedCounter,
-                                  useQuality_,
-                                  includeErrors_,
-                                  verbose_);
+    if (doDigiMorphing_) {
+      Algo_.template makePhase1ClustersAsync<SiPixelImageMorphDevice>(
+          iEvent.queue(),
+          clusterThresholds_,
+          doDigiMorphing_,
+          &digiMorphingConfig_,  // TODO it may be more efficient to pass these to the kernel by value
+          hMap.const_view(),
+          modulesToUnpack,
+          dGains.const_view(),
+          wordFedAppender,
+          wordCounter,
+          fedCounter,
+          useQuality_,
+          includeErrors_,
+          verbose_);
+    } else {
+      Algo_.template makePhase1ClustersAsync<SiPixelImageDevice>(
+          iEvent.queue(),
+          clusterThresholds_,
+          doDigiMorphing_,
+          &digiMorphingConfig_,  // TODO it may be more efficient to pass these to the kernel by value
+          hMap.const_view(),
+          modulesToUnpack,
+          dGains.const_view(),
+          wordFedAppender,
+          wordCounter,
+          fedCounter,
+          useQuality_,
+          includeErrors_,
+          verbose_);
+    }
   }
 
   template <typename TrackerTraits>
