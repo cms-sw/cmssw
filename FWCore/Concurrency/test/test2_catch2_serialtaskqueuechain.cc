@@ -14,6 +14,8 @@
 #include <iostream>
 #include "oneapi/tbb/task.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueueChain.h"
+#include "FWCore/Concurrency/interface/FinalWaitingTask.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
 using namespace std::chrono_literals;
 
@@ -33,25 +35,24 @@ TEST_CASE("SerialTaskQueueChain", "[SerialTaskQueueChain]") {
     edm::SerialTaskQueueChain chain(queues);
     {
       oneapi::tbb::task_group group;
-      std::atomic<int> waiting{3};
-      chain.push(group, [&count, &waiting] {
-        REQUIRE(count++ == 0u);
-        std::this_thread::sleep_for(10us);
-        --waiting;
-      });
-      chain.push(group, [&count, &waiting] {
-        REQUIRE(count++ == 1u);
-        std::this_thread::sleep_for(10us);
-        --waiting;
-      });
-      chain.push(group, [&count, &waiting] {
-        REQUIRE(count++ == 2u);
-        std::this_thread::sleep_for(10us);
-        --waiting;
-      });
-      do {
-        group.wait();
-      } while (0 != waiting.load());
+      edm::FinalWaitingTask lastTask(group);
+      {
+        edm::WaitingTaskHolder lastHolder(group, &lastTask);
+
+        chain.push(group, [&count, lastHolder] {
+          REQUIRE(count++ == 0u);
+          std::this_thread::sleep_for(10us);
+        });
+        chain.push(group, [&count, lastHolder] {
+          REQUIRE(count++ == 1u);
+          std::this_thread::sleep_for(10us);
+        });
+        chain.push(group, [&count, lastHolder] {
+          REQUIRE(count++ == 2u);
+          std::this_thread::sleep_for(10us);
+        });
+      }
+      lastTask.wait();
       REQUIRE(count == 3u);
       while (chain.outstandingTasks() != 0)
         ;
@@ -64,25 +65,24 @@ TEST_CASE("SerialTaskQueueChain", "[SerialTaskQueueChain]") {
     edm::SerialTaskQueueChain chain(queues);
     {
       oneapi::tbb::task_group group;
-      std::atomic<int> waiting{3};
-      chain.push(group, [&count, &waiting] {
-        REQUIRE(count++ == 0u);
-        std::this_thread::sleep_for(10us);
-        --waiting;
-      });
-      chain.push(group, [&count, &waiting] {
-        REQUIRE(count++ == 1u);
-        std::this_thread::sleep_for(10us);
-        --waiting;
-      });
-      chain.push(group, [&count, &waiting] {
-        REQUIRE(count++ == 2u);
-        std::this_thread::sleep_for(10us);
-        --waiting;
-      });
-      do {
-        group.wait();
-      } while (0 != waiting.load());
+      edm::FinalWaitingTask lastTask(group);
+
+      {
+        edm::WaitingTaskHolder lastHolder(group, &lastTask);
+        chain.push(group, [&count, lastHolder] {
+          REQUIRE(count++ == 0u);
+          std::this_thread::sleep_for(10us);
+        });
+        chain.push(group, [&count, lastHolder] {
+          REQUIRE(count++ == 1u);
+          std::this_thread::sleep_for(10us);
+        });
+        chain.push(group, [&count, lastHolder] {
+          REQUIRE(count++ == 2u);
+          std::this_thread::sleep_for(10us);
+        });
+      }
+      lastTask.wait();
       REQUIRE(count == 3u);
       while (chain.outstandingTasks() != 0)
         ;
@@ -97,36 +97,26 @@ TEST_CASE("SerialTaskQueueChain", "[SerialTaskQueueChain]") {
     const unsigned int nTasks = 1000;
     while (0 != --index) {
       oneapi::tbb::task_group group;
-      std::atomic<int> waiting{2};
+      edm::FinalWaitingTask lastTask(group);
       std::atomic<unsigned int> count{0};
       std::atomic<bool> waitToStart{true};
       {
-        std::thread pushThread([&chain, &waitToStart, &waiting, &group, &count] {
+        edm::WaitingTaskHolder lastHolder(group, &lastTask);
+        std::thread pushThread([&chain, &waitToStart, &group, &count, lastHolder] {
           while (waitToStart.load()) {
           };
           for (unsigned int i = 0; i < nTasks; ++i) {
-            ++waiting;
-            chain.push(group, [&count, &waiting] {
-              ++count;
-              --waiting;
-            });
+            chain.push(group, [&count, lastHolder] { ++count; });
           }
-          --waiting;
         });
         waitToStart = false;
         for (unsigned int i = 0; i < nTasks; ++i) {
-          ++waiting;
-          chain.push(group, [&count, &waiting] {
-            ++count;
-            --waiting;
-          });
+          chain.push(group, [&count, lastHolder] { ++count; });
         }
-        --waiting;
+        lastHolder.doneWaiting(std::exception_ptr());
         std::shared_ptr<std::thread>(&pushThread, join_thread);
       }
-      do {
-        group.wait();
-      } while (0 != waiting.load());
+      lastTask.wait();
       REQUIRE(2 * nTasks == count);
     }
     while (chain.outstandingTasks() != 0)

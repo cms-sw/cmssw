@@ -15,6 +15,8 @@
 #include <thread>
 #include "oneapi/tbb/task_arena.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
+#include "FWCore/Concurrency/interface/FinalWaitingTask.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 #include "FWCore/Concurrency/interface/FunctorTask.h"
 
@@ -25,26 +27,24 @@ TEST_CASE("SerialTaskQueue", "[SerialTaskQueue]") {
     std::atomic<unsigned int> count{0};
     edm::SerialTaskQueue queue;
     {
-      std::atomic<unsigned int> waitingTasks{3};
       oneapi::tbb::task_group group;
-      queue.push(group, [&count, &waitingTasks] {
-        REQUIRE(count++ == 0u);
-        std::this_thread::sleep_for(10us);
-        --waitingTasks;
-      });
-      queue.push(group, [&count, &waitingTasks] {
-        REQUIRE(count++ == 1u);
-        std::this_thread::sleep_for(10us);
-        --waitingTasks;
-      });
-      queue.push(group, [&count, &waitingTasks] {
-        REQUIRE(count++ == 2u);
-        std::this_thread::sleep_for(10us);
-        --waitingTasks;
-      });
-      do {
-        group.wait();
-      } while (0 != waitingTasks.load());
+      edm::FinalWaitingTask lastTask(group);
+      {
+        edm::WaitingTaskHolder waitingTask(group, &lastTask);
+        queue.push(group, [&count, waitingTask] {
+          REQUIRE(count++ == 0u);
+          std::this_thread::sleep_for(10us);
+        });
+        queue.push(group, [&count, waitingTask] {
+          REQUIRE(count++ == 1u);
+          std::this_thread::sleep_for(10us);
+        });
+        queue.push(group, [&count, waitingTask] {
+          REQUIRE(count++ == 2u);
+          std::this_thread::sleep_for(10us);
+        });
+      }
+      lastTask.wait();
       REQUIRE(count == 3u);
     }
   }
@@ -55,42 +55,32 @@ TEST_CASE("SerialTaskQueue", "[SerialTaskQueue]") {
     {
       queue.pause();
       {
-        std::atomic<unsigned int> waitingTasks{1};
         oneapi::tbb::task_group group;
-        queue.push(group, [&count, &waitingTasks] {
-          REQUIRE(count++ == 0u);
-          --waitingTasks;
-        });
+        edm::FinalWaitingTask lastTask(group);
+
+        queue.push(group, [&count, waitingTask = edm::WaitingTaskHolder(group, &lastTask)] { REQUIRE(count++ == 0u); });
         std::this_thread::sleep_for(1000us);
         REQUIRE(count == 0u);
         queue.resume();
-        do {
-          group.wait();
-        } while (0 != waitingTasks.load());
+        lastTask.wait();
         REQUIRE(count == 1u);
       }
       {
-        std::atomic<unsigned int> waitingTasks{3};
         oneapi::tbb::task_group group;
-        queue.push(group, [&count, &queue, &waitingTasks] {
-          queue.pause();
-          REQUIRE(count++ == 1u);
-          --waitingTasks;
-        });
-        queue.push(group, [&count, &waitingTasks] {
-          REQUIRE(count++ == 2u);
-          --waitingTasks;
-        });
-        queue.push(group, [&count, &waitingTasks] {
-          REQUIRE(count++ == 3u);
-          --waitingTasks;
-        });
+        edm::FinalWaitingTask lastTask(group);
+        {
+          edm::WaitingTaskHolder waitingTask(group, &lastTask);
+          queue.push(group, [&count, &queue, waitingTask] {
+            queue.pause();
+            REQUIRE(count++ == 1u);
+          });
+          queue.push(group, [&count, waitingTask] { REQUIRE(count++ == 2u); });
+          queue.push(group, [&count, waitingTask] { REQUIRE(count++ == 3u); });
+        }
         std::this_thread::sleep_for(100us);
         REQUIRE(2u >= count);
         queue.resume();
-        do {
-          group.wait();
-        } while (0 != waitingTasks.load());
+        lastTask.wait();
         REQUIRE(count == 4u);
       }
     }
@@ -102,37 +92,26 @@ TEST_CASE("SerialTaskQueue", "[SerialTaskQueue]") {
     unsigned int index = 100;
     const unsigned int nTasks = 1000;
     while (0 != --index) {
-      std::atomic<unsigned int> waitingTasks{2};
+      edm::FinalWaitingTask lastTask(group);
       std::atomic<unsigned int> count{0};
       std::atomic<bool> waitToStart{true};
       {
-        group.run([&queue, &waitToStart, &waitingTasks, &count, &group] {
+        edm::WaitingTaskHolder waitingTask(group, &lastTask);
+        group.run([&queue, &waitToStart, waitingTask, &count, &group] {
           while (waitToStart.load()) {
           }
           for (unsigned int i = 0; i < nTasks; ++i) {
-            ++waitingTasks;
-            queue.push(group, [&count, &waitingTasks] {
-              ++count;
-              --waitingTasks;
-            });
+            queue.push(group, [&count, waitingTask] { ++count; });
           }
-          --waitingTasks;
         });
-        group.run([&queue, &waitToStart, &waitingTasks, &count, &group] {
+        group.run([&queue, &waitToStart, waitingTask, &count, &group] {
           waitToStart = false;
           for (unsigned int i = 0; i < nTasks; ++i) {
-            ++waitingTasks;
-            queue.push(group, [&count, &waitingTasks] {
-              ++count;
-              --waitingTasks;
-            });
+            queue.push(group, [&count, waitingTask] { ++count; });
           }
-          --waitingTasks;
         });
       }
-      do {
-        group.wait();
-      } while (0 != waitingTasks.load());
+      lastTask.wait();
       REQUIRE(2 * nTasks == count);
     }
   }
