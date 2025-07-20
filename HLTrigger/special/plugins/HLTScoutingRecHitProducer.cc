@@ -15,8 +15,6 @@
 #include "DataFormats/Scouting/interface/Run3ScoutingEERecHit.h"
 #include "DataFormats/Scouting/interface/Run3ScoutingHBHERecHit.h"
 
-namespace {}
-
 class HLTScoutingRecHitProducer : public edm::global::EDProducer<> {
 public:
   explicit HLTScoutingRecHitProducer(const edm::ParameterSet&);
