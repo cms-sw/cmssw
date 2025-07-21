@@ -1,3 +1,4 @@
+
 // -*- C++ -*-
 //
 // Package:    Phase2TrackerMonitorDigi
@@ -646,7 +647,13 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
 
       // For standalone clusteriser
       if (clsFlag_) {
-        Parameters = config_.getParameter<edm::ParameterSet>("ClusterPositionSH");
+        // Choose the correct PSet by module type
+        if (isPtypeSensor) {
+          Parameters = config_.getParameter<edm::ParameterSet>("ClusterPositionSHPS");
+        } else {
+          Parameters = config_.getParameter<edm::ParameterSet>("ClusterPositionSH2S");
+        }
+
         HistoName.str("");
         HistoName << "ClusterPositionS";
         if (Parameters.getParameter<bool>("switch"))
