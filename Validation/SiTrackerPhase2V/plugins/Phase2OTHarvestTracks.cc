@@ -1,4 +1,5 @@
 
+
 // Package:    Validation/SiTrackerPhase2V
 // Class:      Phase2OTHarvestTracks
 
@@ -24,6 +25,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "Validation/SiTrackerPhase2V/interface/TrackerPhase2HistUtil.h"
 #include <algorithm>
 
 class Phase2OTHarvestTracks : public DQMEDHarvester {
@@ -194,12 +196,7 @@ void Phase2OTHarvestTracks::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGet
                                                   numerator->GetXaxis()->GetXmax());
 
     // Calculate the efficiency
-    me_effic_eta->getTH1F()->Divide(numerator, denominator, 1., 1., "B");
-    me_effic_eta->setAxisTitle("tracking particle #eta");
-    me_effic_eta->getTH1F()->GetYaxis()->SetTitle("Efficiency");
-    me_effic_eta->getTH1F()->SetMaximum(1.0);
-    me_effic_eta->getTH1F()->SetMinimum(0.0);
-    me_effic_eta->getTH1F()->SetStats(false);
+    phase2tkutil::makeEfficiencyME(numerator, denominator, me_effic_eta, "tracking particle #eta");
   }  // if ME found
   else {
     edm::LogWarning("DataNotFound") << "Monitor elements for eta efficiency cannot be found!\n";
@@ -226,12 +223,7 @@ void Phase2OTHarvestTracks::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGet
                                                   numerator->GetXaxis()->GetXmax());
 
     // Calculate the efficiency
-    me_effic_eta->getTH1F()->Divide(numerator, denominator, 1., 1., "B");
-    me_effic_eta->setAxisTitle("tracking particle #eta");
-    me_effic_eta->getTH1F()->GetYaxis()->SetTitle("Efficiency");
-    me_effic_eta->getTH1F()->SetMaximum(1.0);
-    me_effic_eta->getTH1F()->SetMinimum(0.0);
-    me_effic_eta->getTH1F()->SetStats(false);
+    phase2tkutil::makeEfficiencyME(numerator, denominator, me_effic_eta, "tracking particle #eta");
   }  // if ME found
   else {
     edm::LogWarning("DataNotFound") << "Monitor elements for extended prompt eta efficiency cannot be found!\n";
@@ -255,12 +247,7 @@ void Phase2OTHarvestTracks::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGet
                                                   numerator->GetXaxis()->GetXmax());
 
     // Calculate the efficiency
-    me_effic_eta->getTH1F()->Divide(numerator, denominator, 1., 1., "B");
-    me_effic_eta->setAxisTitle("tracking particle #eta");
-    me_effic_eta->getTH1F()->GetYaxis()->SetTitle("Efficiency");
-    me_effic_eta->getTH1F()->SetMaximum(1.0);
-    me_effic_eta->getTH1F()->SetMinimum(0.0);
-    me_effic_eta->getTH1F()->SetStats(false);
+    phase2tkutil::makeEfficiencyME(numerator, denominator, me_effic_eta, "tracking particle #eta");
   }  // if ME found
   else {
     edm::LogWarning("DataNotFound") << "Monitor elements for extended displaced eta efficiency cannot be found!\n";
@@ -285,12 +272,7 @@ void Phase2OTHarvestTracks::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGet
                                                  numerator->GetXaxis()->GetXmax());
 
     // Calculate the efficiency
-    me_effic_pt->getTH1F()->Divide(numerator, denominator, 1., 1., "B");
-    me_effic_pt->setAxisTitle("Tracking particle p_{T} [GeV]");
-    me_effic_pt->getTH1F()->GetYaxis()->SetTitle("Efficiency");
-    me_effic_pt->getTH1F()->SetMaximum(1.0);
-    me_effic_pt->getTH1F()->SetMinimum(0.0);
-    me_effic_pt->getTH1F()->SetStats(false);
+    phase2tkutil::makeEfficiencyME(numerator, denominator, me_effic_pt, "Tracking particle p_{T} [GeV]");
   }  // if ME found
   else {
     edm::LogWarning("DataNotFound") << "Monitor elements for pT efficiency cannot be found!\n";
@@ -317,12 +299,7 @@ void Phase2OTHarvestTracks::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGet
                                                  numerator->GetXaxis()->GetXmax());
 
     // Calculate the efficiency
-    me_effic_pt->getTH1F()->Divide(numerator, denominator, 1., 1., "B");
-    me_effic_pt->setAxisTitle("Tracking particle p_{T} [GeV]");
-    me_effic_pt->getTH1F()->GetYaxis()->SetTitle("Efficiency");
-    me_effic_pt->getTH1F()->SetMaximum(1.0);
-    me_effic_pt->getTH1F()->SetMinimum(0.0);
-    me_effic_pt->getTH1F()->SetStats(false);
+    phase2tkutil::makeEfficiencyME(numerator, denominator, me_effic_pt, "Tracking particle p_{T} [GeV]");
   }  // if ME found
   else {
     edm::LogWarning("DataNotFound") << "Monitor elements for extended prompt pT efficiency cannot be found!\n";
@@ -346,12 +323,7 @@ void Phase2OTHarvestTracks::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGet
                                                  numerator->GetXaxis()->GetXmax());
 
     // Calculate the efficiency
-    me_effic_pt->getTH1F()->Divide(numerator, denominator, 1., 1., "B");
-    me_effic_pt->setAxisTitle("Tracking particle p_{T} [GeV]");
-    me_effic_pt->getTH1F()->GetYaxis()->SetTitle("Efficiency");
-    me_effic_pt->getTH1F()->SetMaximum(1.0);
-    me_effic_pt->getTH1F()->SetMinimum(0.0);
-    me_effic_pt->getTH1F()->SetStats(false);
+    phase2tkutil::makeEfficiencyME(numerator, denominator, me_effic_pt, "Tracking particle p_{T} [GeV]");
   }  // if ME found
   else {
     edm::LogWarning("DataNotFound") << "Monitor elements for extended displaced pT efficiency cannot be found!\n";
@@ -376,12 +348,7 @@ void Phase2OTHarvestTracks::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGet
                                                       numerator_zoom->GetXaxis()->GetXmax());
 
     // Calculate the efficiency
-    me_effic_pt_zoom->getTH1F()->Divide(numerator_zoom, denominator_zoom, 1., 1., "B");
-    me_effic_pt_zoom->setAxisTitle("Tracking particle p_{T} [GeV]");
-    me_effic_pt_zoom->getTH1F()->GetYaxis()->SetTitle("Efficiency");
-    me_effic_pt_zoom->getTH1F()->SetMaximum(1.0);
-    me_effic_pt_zoom->getTH1F()->SetMinimum(0.0);
-    me_effic_pt_zoom->getTH1F()->SetStats(false);
+    phase2tkutil::makeEfficiencyME(numerator_zoom, denominator_zoom, me_effic_pt_zoom, "Tracking particle p_{T} [GeV]");
   }  // if ME found
   else {
     edm::LogWarning("DataNotFound") << "Monitor elements for zoom pT efficiency cannot be found!\n";
@@ -408,12 +375,7 @@ void Phase2OTHarvestTracks::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGet
                                                       numerator_zoom->GetXaxis()->GetXmax());
 
     // Calculate the efficiency
-    me_effic_pt_zoom->getTH1F()->Divide(numerator_zoom, denominator_zoom, 1., 1., "B");
-    me_effic_pt_zoom->setAxisTitle("Tracking particle p_{T} [GeV]");
-    me_effic_pt_zoom->getTH1F()->GetYaxis()->SetTitle("Efficiency");
-    me_effic_pt_zoom->getTH1F()->SetMaximum(1.0);
-    me_effic_pt_zoom->getTH1F()->SetMinimum(0.0);
-    me_effic_pt_zoom->getTH1F()->SetStats(false);
+    phase2tkutil::makeEfficiencyME(numerator_zoom, denominator_zoom, me_effic_pt_zoom, "Tracking particle p_{T} [GeV]");
   }  // if ME found
   else {
     edm::LogWarning("DataNotFound") << "Monitor elements for extended prompt zoom pT efficiency cannot be found!\n";
@@ -437,12 +399,7 @@ void Phase2OTHarvestTracks::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGet
                                                       numerator_zoom->GetXaxis()->GetXmax());
 
     // Calculate the efficiency
-    me_effic_pt_zoom->getTH1F()->Divide(numerator_zoom, denominator_zoom, 1., 1., "B");
-    me_effic_pt_zoom->setAxisTitle("Tracking particle p_{T} [GeV]");
-    me_effic_pt_zoom->getTH1F()->GetYaxis()->SetTitle("Efficiency");
-    me_effic_pt_zoom->getTH1F()->SetMaximum(1.0);
-    me_effic_pt_zoom->getTH1F()->SetMinimum(0.0);
-    me_effic_pt_zoom->getTH1F()->SetStats(false);
+    phase2tkutil::makeEfficiencyME(numerator_zoom, denominator_zoom, me_effic_pt_zoom, "Tracking particle p_{T} [GeV]");
   }  // if ME found
   else {
     edm::LogWarning("DataNotFound") << "Monitor elements for extended displaced zoom pT efficiency cannot be found!\n";
@@ -467,12 +424,7 @@ void Phase2OTHarvestTracks::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGet
                                                  numerator->GetXaxis()->GetXmax());
 
     // Calculate the efficiency
-    me_effic_d0->getTH1F()->Divide(numerator, denominator, 1., 1., "B");
-    me_effic_d0->setAxisTitle("Tracking particle d_{0} [cm]");
-    me_effic_d0->getTH1F()->GetYaxis()->SetTitle("Efficiency");
-    me_effic_d0->getTH1F()->SetMaximum(1.0);
-    me_effic_d0->getTH1F()->SetMinimum(0.0);
-    me_effic_d0->getTH1F()->SetStats(false);
+    phase2tkutil::makeEfficiencyME(numerator, denominator, me_effic_d0, "Tracking particle d_{0} [cm]");
   }  // if ME found
   else {
     edm::LogWarning("DataNotFound") << "Monitor elements for d0 efficiency cannot be found!\n";
@@ -499,12 +451,7 @@ void Phase2OTHarvestTracks::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGet
                                                  numerator->GetXaxis()->GetXmax());
 
     // Calculate the efficiency
-    me_effic_d0->getTH1F()->Divide(numerator, denominator, 1., 1., "B");
-    me_effic_d0->setAxisTitle("Tracking particle d_{0} [cm]");
-    me_effic_d0->getTH1F()->GetYaxis()->SetTitle("Efficiency");
-    me_effic_d0->getTH1F()->SetMaximum(1.0);
-    me_effic_d0->getTH1F()->SetMinimum(0.0);
-    me_effic_d0->getTH1F()->SetStats(false);
+    phase2tkutil::makeEfficiencyME(numerator, denominator, me_effic_d0, "Tracking particle d_{0} [cm]");
   }  // if ME found
   else {
     edm::LogWarning("DataNotFound") << "Monitor elements for extended prompt d0 efficiency cannot be found!\n";
@@ -528,12 +475,7 @@ void Phase2OTHarvestTracks::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGet
                                                  numerator->GetXaxis()->GetXmax());
 
     // Calculate the efficiency
-    me_effic_d0->getTH1F()->Divide(numerator, denominator, 1., 1., "B");
-    me_effic_d0->setAxisTitle("Tracking particle d_{0} [cm]");
-    me_effic_d0->getTH1F()->GetYaxis()->SetTitle("Efficiency");
-    me_effic_d0->getTH1F()->SetMaximum(1.0);
-    me_effic_d0->getTH1F()->SetMinimum(0.0);
-    me_effic_d0->getTH1F()->SetStats(false);
+    phase2tkutil::makeEfficiencyME(numerator, denominator, me_effic_d0, "Tracking particle d_{0} [cm]");
   }  // if ME found
   else {
     edm::LogWarning("DataNotFound") << "Monitor elements for extended displaced d0 efficiency cannot be found!\n";
@@ -558,12 +500,7 @@ void Phase2OTHarvestTracks::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGet
                                                   numerator->GetXaxis()->GetXmax());
 
     // Calculate the efficiency
-    me_effic_Lxy->getTH1F()->Divide(numerator, denominator, 1., 1., "B");
-    me_effic_Lxy->setAxisTitle("Tracking particle Lxy [cm]");
-    me_effic_Lxy->getTH1F()->GetYaxis()->SetTitle("Efficiency");
-    me_effic_Lxy->getTH1F()->SetMaximum(1.0);
-    me_effic_Lxy->getTH1F()->SetMinimum(0.0);
-    me_effic_Lxy->getTH1F()->SetStats(false);
+    phase2tkutil::makeEfficiencyME(numerator, denominator, me_effic_Lxy, "Tracking particle Lxy [cm]");
   }  // if ME found
   else {
     edm::LogWarning("DataNotFound") << "Monitor elements for Lxy efficiency cannot be found!\n";
@@ -590,12 +527,7 @@ void Phase2OTHarvestTracks::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGet
                                                   numerator->GetXaxis()->GetXmax());
 
     // Calculate the efficiency
-    me_effic_Lxy->getTH1F()->Divide(numerator, denominator, 1., 1., "B");
-    me_effic_Lxy->setAxisTitle("Tracking particle Lxy [cm]");
-    me_effic_Lxy->getTH1F()->GetYaxis()->SetTitle("Efficiency");
-    me_effic_Lxy->getTH1F()->SetMaximum(1.0);
-    me_effic_Lxy->getTH1F()->SetMinimum(0.0);
-    me_effic_Lxy->getTH1F()->SetStats(false);
+    phase2tkutil::makeEfficiencyME(numerator, denominator, me_effic_Lxy, "Tracking particle Lxy [cm]");
   }  // if ME found
   else {
     edm::LogWarning("DataNotFound") << "Monitor elements for extended prompt Lxy efficiency cannot be found!\n";
@@ -621,12 +553,7 @@ void Phase2OTHarvestTracks::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGet
                                                   numerator->GetXaxis()->GetXmax());
 
     // Calculate the efficiency
-    me_effic_Lxy->getTH1F()->Divide(numerator, denominator, 1., 1., "B");
-    me_effic_Lxy->setAxisTitle("Tracking particle Lxy [cm]");
-    me_effic_Lxy->getTH1F()->GetYaxis()->SetTitle("Efficiency");
-    me_effic_Lxy->getTH1F()->SetMaximum(1.0);
-    me_effic_Lxy->getTH1F()->SetMinimum(0.0);
-    me_effic_Lxy->getTH1F()->SetStats(false);
+    phase2tkutil::makeEfficiencyME(numerator, denominator, me_effic_Lxy, "Tracking particle Lxy [cm]");
   }  // if ME found
   else {
     edm::LogWarning("DataNotFound") << "Monitor elements for extended displaced Lxy efficiency cannot be found!\n";
@@ -651,12 +578,7 @@ void Phase2OTHarvestTracks::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGet
                                                  numerator->GetXaxis()->GetXmax());
 
     // Calculate the efficiency
-    me_effic_z0->getTH1F()->Divide(numerator, denominator, 1., 1., "B");
-    me_effic_z0->setAxisTitle("Tracking particle z0 [cm]");
-    me_effic_z0->getTH1F()->GetYaxis()->SetTitle("Efficiency");
-    me_effic_z0->getTH1F()->SetMaximum(1.0);
-    me_effic_z0->getTH1F()->SetMinimum(0.0);
-    me_effic_z0->getTH1F()->SetStats(false);
+    phase2tkutil::makeEfficiencyME(numerator, denominator, me_effic_z0, "Tracking particle z0 [cm]");
   }  // if ME found
   else {
     edm::LogWarning("DataNotFound") << "Monitor elements for z0 efficiency cannot be found!\n";
@@ -683,12 +605,7 @@ void Phase2OTHarvestTracks::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGet
                                                  numerator->GetXaxis()->GetXmax());
 
     // Calculate the efficiency
-    me_effic_z0->getTH1F()->Divide(numerator, denominator, 1., 1., "B");
-    me_effic_z0->setAxisTitle("Tracking particle z0 [cm]");
-    me_effic_z0->getTH1F()->GetYaxis()->SetTitle("Efficiency");
-    me_effic_z0->getTH1F()->SetMaximum(1.0);
-    me_effic_z0->getTH1F()->SetMinimum(0.0);
-    me_effic_z0->getTH1F()->SetStats(false);
+    phase2tkutil::makeEfficiencyME(numerator, denominator, me_effic_z0, "Tracking particle z0 [cm]");
   }  // if ME found
   else {
     edm::LogWarning("DataNotFound") << "Monitor elements for extended prompt d0 efficiency cannot be found!\n";
@@ -712,12 +629,7 @@ void Phase2OTHarvestTracks::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGet
                                                  numerator->GetXaxis()->GetXmax());
 
     // Calculate the efficiency
-    me_effic_z0->getTH1F()->Divide(numerator, denominator, 1., 1., "B");
-    me_effic_z0->setAxisTitle("Tracking particle z0 [cm]");
-    me_effic_z0->getTH1F()->GetYaxis()->SetTitle("Efficiency");
-    me_effic_z0->getTH1F()->SetMaximum(1.0);
-    me_effic_z0->getTH1F()->SetMinimum(0.0);
-    me_effic_z0->getTH1F()->SetStats(false);
+    phase2tkutil::makeEfficiencyME(numerator, denominator, me_effic_z0, "Tracking particle z0 [cm]");
   }  // if ME found
   else {
     edm::LogWarning("DataNotFound") << "Monitor elements for extended displaced z0 efficiency cannot be found!\n";
