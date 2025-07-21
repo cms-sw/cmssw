@@ -11,12 +11,26 @@
 #include <memory>
 #include <atomic>
 #include <thread>
+#include <mutex>
 #include "oneapi/tbb/task_arena.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
+#include "FWCore/Concurrency/interface/FinalWaitingTask.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Concurrency/interface/LimitedTaskQueue.h"
 #include "FWCore/Concurrency/interface/FunctorTask.h"
 
 using namespace std::chrono_literals;
+
+namespace {
+  std::mutex g_requiresMutex;
+
+}
+//catch2 REQUIRE is not thread safe
+#define SAFE_REQUIRE(__var__)           \
+  {                                     \
+    std::lock_guard g{g_requiresMutex}; \
+    REQUIRE(__var__);                   \
+  }
 
 TEST_CASE("LimitedTaskQueue", "[LimitedTaskQueue]") {
   SECTION("push") {
@@ -24,26 +38,22 @@ TEST_CASE("LimitedTaskQueue", "[LimitedTaskQueue]") {
       std::atomic<unsigned int> count{0};
       edm::LimitedTaskQueue queue{1};
       {
-        std::atomic<int> waitingTasks{3};
         oneapi::tbb::task_group group;
-        queue.push(group, [&count, &waitingTasks] {
+        edm::FinalWaitingTask lastTask(group);
+        edm::WaitingTaskHolder waitingTask(group, &lastTask);
+        queue.push(group, [&count, waitingTask] {
           REQUIRE(count++ == 0u);
           std::this_thread::sleep_for(10us);
-          --waitingTasks;
         });
-        queue.push(group, [&count, &waitingTasks] {
+        queue.push(group, [&count, waitingTask] {
           REQUIRE(count++ == 1u);
           std::this_thread::sleep_for(10us);
-          --waitingTasks;
         });
-        queue.push(group, [&count, &waitingTasks] {
+        queue.push(group, [&count, lastTask = std::move(waitingTask)] {
           REQUIRE(count++ == 2u);
           std::this_thread::sleep_for(10us);
-          --waitingTasks;
         });
-        do {
-          group.wait();
-        } while (0 != waitingTasks.load());
+        lastTask.wait();
         REQUIRE(count == 3u);
       }
     }
@@ -52,29 +62,25 @@ TEST_CASE("LimitedTaskQueue", "[LimitedTaskQueue]") {
       constexpr unsigned int kMax = 2;
       edm::LimitedTaskQueue queue{kMax};
       {
-        std::atomic<int> waitingTasks{3};
         oneapi::tbb::task_group group;
-        queue.push(group, [&count, &waitingTasks, kMax] {
-          REQUIRE(count++ < kMax);
+        edm::FinalWaitingTask lastTask(group);
+        edm::WaitingTaskHolder waitingTask(group, &lastTask);
+        queue.push(group, [&count, waitingTask, kMax] {
+          SAFE_REQUIRE(count++ < kMax);
           std::this_thread::sleep_for(10us);
           --count;
-          --waitingTasks;
         });
-        queue.push(group, [&count, &waitingTasks, kMax] {
-          REQUIRE(count++ < kMax);
+        queue.push(group, [&count, waitingTask, kMax] {
+          SAFE_REQUIRE(count++ < kMax);
           std::this_thread::sleep_for(10us);
           --count;
-          --waitingTasks;
         });
-        queue.push(group, [&count, &waitingTasks, kMax] {
-          REQUIRE(count++ < kMax);
+        queue.push(group, [&count, lastTask = std::move(waitingTask), kMax] {
+          SAFE_REQUIRE(count++ < kMax);
           std::this_thread::sleep_for(10us);
           --count;
-          --waitingTasks;
         });
-        do {
-          group.wait();
-        } while (0 != waitingTasks);
+        lastTask.wait();
         REQUIRE(count == 0u);
       }
     }
@@ -85,48 +91,45 @@ TEST_CASE("LimitedTaskQueue", "[LimitedTaskQueue]") {
     edm::LimitedTaskQueue queue{1};
     {
       {
-        std::atomic<int> waitingTasks{3};
         oneapi::tbb::task_group group;
+        edm::FinalWaitingTask lastTask(group);
+        edm::WaitingTaskHolder waitingTask(group, &lastTask);
+
         edm::LimitedTaskQueue::Resumer resumer;
         std::atomic<bool> resumerSet{false};
         std::exception_ptr e1;
-        queue.pushAndPause(
-            group, [&resumer, &resumerSet, &count, &waitingTasks, &e1](edm::LimitedTaskQueue::Resumer iResumer) {
-              resumer = std::move(iResumer);
-              resumerSet = true;
-              try {
-                REQUIRE(++count == 1u);
-              } catch (...) {
-                e1 = std::current_exception();
-              }
-              --waitingTasks;
-            });
+        queue.pushAndPause(group,
+                           [&resumer, &resumerSet, &count, waitingTask, &e1](edm::LimitedTaskQueue::Resumer iResumer) {
+                             resumer = std::move(iResumer);
+                             resumerSet = true;
+                             try {
+                               SAFE_REQUIRE(++count == 1u);
+                             } catch (...) {
+                               e1 = std::current_exception();
+                             }
+                           });
         std::exception_ptr e2;
-        queue.push(group, [&count, &waitingTasks, &e2] {
+        queue.push(group, [&count, waitingTask, &e2] {
           try {
-            REQUIRE(++count == 2u);
+            SAFE_REQUIRE(++count == 2u);
           } catch (...) {
             e2 = std::current_exception();
           }
-          --waitingTasks;
         });
         std::exception_ptr e3;
-        queue.push(group, [&count, &waitingTasks, &e3] {
+        queue.push(group, [&count, lastTask = std::move(waitingTask), &e3] {
           try {
-            REQUIRE(++count == 3u);
+            SAFE_REQUIRE(++count == 3u);
           } catch (...) {
             e3 = std::current_exception();
           }
-          --waitingTasks;
         });
         std::this_thread::sleep_for(100us);
         REQUIRE(2u >= count);
         while (not resumerSet) {
         }
-        REQUIRE(resumer.resume());
-        do {
-          group.wait();
-        } while (0 != waitingTasks.load());
+        SAFE_REQUIRE(resumer.resume());
+        lastTask.wait();
         REQUIRE(count == 3u);
         if (e1) {
           std::rethrow_exception(e1);
@@ -147,54 +150,46 @@ TEST_CASE("LimitedTaskQueue", "[LimitedTaskQueue]") {
     edm::LimitedTaskQueue queue{kMax};
     unsigned int index = 100;
     const unsigned int nTasks = 1000;
-    //catch2 REQUIRE is not thread safe
-    std::mutex mutex;
     while (0 != --index) {
-      std::atomic<int> waiting{1};
+      edm::FinalWaitingTask lastTask(group);
+
       std::atomic<unsigned int> count{0};
       std::atomic<unsigned int> nRunningTasks{0};
       std::atomic<bool> waitToStart{true};
       {
-        group.run([&queue, &waitToStart, &group, &waiting, &count, &nRunningTasks, &mutex, kMax] {
+        edm::WaitingTaskHolder waitingTask(group, &lastTask);
+
+        group.run([&queue, &waitToStart, &group, waitingTask, &count, &nRunningTasks, kMax] {
           while (waitToStart) {
           }
           for (unsigned int i = 0; i < nTasks; ++i) {
-            ++waiting;
-            queue.push(group, [&count, &waiting, &nRunningTasks, &mutex, kMax] {
-              std::shared_ptr<std::atomic<int>> guardAgain{&waiting, [](auto* v) { --(*v); }};
+            queue.push(group, [&count, waitingTask, &nRunningTasks, kMax] {
               auto nrt = nRunningTasks++;
               if (nrt >= kMax) {
                 std::cout << "ERROR " << nRunningTasks << " >= " << kMax << std::endl;
-                std::lock_guard lock{mutex};
-                REQUIRE(nrt < kMax);
+                SAFE_REQUIRE(nrt < kMax);
               }
               ++count;
               --nRunningTasks;
             });
           }
         });
-        group.run([&queue, &waitToStart, &group, &waiting, &count, &nRunningTasks, &mutex, kMax] {
+        group.run([&queue, &waitToStart, &group, waitingTask, &count, &nRunningTasks, kMax] {
           waitToStart = false;
           for (unsigned int i = 0; i < nTasks; ++i) {
-            ++waiting;
-            queue.push(group, [&count, &waiting, &nRunningTasks, &mutex, kMax] {
-              std::shared_ptr<std::atomic<int>> guardAgain{&waiting, [](auto* v) { --(*v); }};
+            queue.push(group, [&count, waitingTask, &nRunningTasks, kMax] {
               auto nrt = nRunningTasks++;
               if (nrt >= kMax) {
                 std::cout << "ERROR " << nRunningTasks << " >= " << kMax << std::endl;
-                std::lock_guard lock{mutex};
-                REQUIRE(nrt < kMax);
+                SAFE_REQUIRE(nrt < kMax);
               }
               ++count;
               --nRunningTasks;
             });
           }
-          --waiting;
         });
       }
-      do {
-        group.wait();
-      } while (0 != waiting.load());
+      lastTask.wait();
       REQUIRE(nRunningTasks == 0u);
       REQUIRE(2 * nTasks == count);
     }
