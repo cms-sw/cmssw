@@ -258,7 +258,7 @@ public:
   // constructor
   SimDoublets(TrackingParticleRef const trackingParticleRef, reco::BeamSpot const& beamSpot)
       : trackingParticleRef_(trackingParticleRef), beamSpotPosition_(beamSpot.x0(), beamSpot.y0(), beamSpot.z0()) {}
-  SimDoublets(reco::TrackRef const trackRef, reco::BeamSpot const& beamSpot)
+  SimDoublets(reco::TrackBaseRef const trackRef, reco::BeamSpot const& beamSpot)
       : trackRef_(trackRef), beamSpotPosition_(beamSpot.x0(), beamSpot.y0(), beamSpot.z0()) {}
   SimDoublets(reco::BeamSpot const& beamSpot) : beamSpotPosition_(beamSpot.x0(), beamSpot.y0(), beamSpot.z0()) {}
 
@@ -272,7 +272,7 @@ public:
   // method to get the reference to the TrackingParticle
   TrackingParticleRef trackingParticle() const { return trackingParticleRef_; }
   // method to get the reference to the track
-  reco::TrackRef track() const { return trackRef_; }
+  reco::TrackBaseRef track() const { return trackRef_; }
 
   // method to get the detector id vector
   std::vector<unsigned int> detIds() const { return detIdVector_; }
@@ -371,7 +371,7 @@ private:
 
   // class members
   TrackingParticleRef trackingParticleRef_;  // reference to the TrackingParticle (if SimPixelTrack is based on a TP)
-  reco::TrackRef trackRef_;                  // referency to the track (if SimPixelTrack is based on a track)
+  reco::TrackBaseRef trackRef_;                  // referency to the track (if SimPixelTrack is based on a track)
   std::vector<unsigned int> detIdVector_;    // vector of the detector Ids of the RecHits associated to the TP
   std::vector<int> moduleIdVector_;          // vector of the module Ids of the RecHits
   std::vector<GlobalPoint> globalPositionVector_;  // vector of the global positions of the RecHits
