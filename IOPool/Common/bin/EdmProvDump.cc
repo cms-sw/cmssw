@@ -83,6 +83,8 @@ namespace {
 
   class HistoryChain {
   public:
+    explicit HistoryChain(edm::ProcessHistoryID id) : historyId_(id) {}
+
     void addChild(HistoryNode const& child) { children_.push_back(child); }
 
     void reserve(std::size_t s) { children_.reserve(s); }
@@ -98,10 +100,11 @@ namespace {
     const_iterator begin() const { return children_.begin(); }
     const_iterator end() const { return children_.end(); }
 
-    void printHistory() const;
+    void printHistory(bool showHistoryID) const;
 
   private:
     std::vector<HistoryNode> children_;
+    edm::ProcessHistoryID historyId_;
   };
 
   std::ostream& operator<<(std::ostream& os, HistoryNode const& node) {
@@ -115,11 +118,17 @@ namespace {
   }
 }  // namespace
 
-void HistoryChain::printHistory() const {
+void HistoryChain::printHistory(bool showHistoryID) const {
   constexpr std::string_view indent = "  ";
   std::cout << "History: {" << std::endl;
+  if (showHistoryID) {
+    std::cout << indent << "History id: " << historyId_ << std::endl;
+  }
   for (auto const& item : children_) {
     std::cout << indent << item << std::endl;
+    if (showHistoryID) {
+      std::cout << indent << indent << "Configuration id: " << item.configurationID() << std::endl;
+    }
   }
   std::cout << "}" << std::endl;
 }
@@ -282,6 +291,7 @@ public:
                    bool excludeESModules,
                    bool showAllModules,
                    bool showTopLevelPSets,
+                   bool showHistoryID,
                    std::vector<std::string> const& findMatch,
                    bool dontPrintProducts,
                    std::string const& dumpPSetID,
@@ -324,6 +334,7 @@ private:
   bool showOtherModules_;
   bool productRegistryPresent_;
   bool showTopLevelPSets_;
+  bool showHistoryID_;
   std::vector<std::string> findMatch_;
   bool dontPrintProducts_;
   std::string dumpPSetID_;
@@ -368,6 +379,7 @@ ProvenanceDumper::ProvenanceDumper(std::string const& filename,
                                    bool excludeESModules,
                                    bool showOtherModules,
                                    bool showTopLevelPSets,
+                                   bool showHistoryID,
                                    std::vector<std::string> const& findMatch,
                                    bool dontPrintProducts,
                                    std::string const& dumpPSetID,
@@ -385,6 +397,7 @@ ProvenanceDumper::ProvenanceDumper(std::string const& filename,
       showOtherModules_(showOtherModules),
       productRegistryPresent_(true),
       showTopLevelPSets_(showTopLevelPSets),
+      showHistoryID_(showHistoryID),
       findMatch_(findMatch),
       dontPrintProducts_(dontPrintProducts),
       dumpPSetID_(dumpPSetID),
@@ -484,7 +497,7 @@ ProvenanceDumper::ProcessSimpleIDsType ProvenanceDumper::dumpProcessHistory_() {
   for (auto const& ph : phv_) {
     // loop over the history entries to find ProcessConfigurations that are the same
     // use a simple count ID for each process that have the same name, but different ProcessConfigurationID
-    histories_.emplace_back();
+    histories_.emplace_back(ph.id());
     HistoryChain& chain = histories_.back();
     chain.reserve(ph.size());
 
@@ -506,7 +519,7 @@ ProvenanceDumper::ProcessSimpleIDsType ProvenanceDumper::dumpProcessHistory_() {
 
       chain.addChild(HistoryNode(pc, id));
     }
-    chain.printHistory();
+    chain.printHistory(showHistoryID_);
   }
 
   std::cout << formatHeader("Processes") << std::endl;
@@ -1147,6 +1160,7 @@ static char const* const kDontPrintProductsOpt = "dontPrintProducts";
 static char const* const kDontPrintProductsCommandOpt = "dontPrintProducts,p";
 static char const* const kShowTopLevelPSetsOpt = "showTopLevelPSets";
 static char const* const kShowTopLevelPSetsCommandOpt = "showTopLevelPSets,t";
+static char const* const kShowHistoryIDOpt = "showHistoryID";
 static char const* const kHelpOpt = "help";
 static char const* const kHelpCommandOpt = "help,h";
 static char const* const kFileNameOpt = "input-file";
@@ -1170,7 +1184,8 @@ int main(int argc, char* argv[]) {
       "print what data depends on the data each EDProducer produces including indirect dependences")(
       kExcludeESModulesCommandOpt, "do not print ES module information")(
       kShowAllModulesCommandOpt, "show all modules (not just those that created data in the file)")(
-      kShowTopLevelPSetsCommandOpt, "show all top level PSets")(
+      kShowTopLevelPSetsCommandOpt, "show all top level PSets")
+    (kShowHistoryIDOpt, "show process history and configuration IDs")(
       kFindMatchCommandOpt,
       boost::program_options::value<std::vector<std::string>>(),
       "show only modules whose information contains the matching string (or all the matching strings, this option can "
@@ -1200,7 +1215,7 @@ int main(int argc, char* argv[]) {
     store(command_line_parser(argc, argv).options(cmdline_options).positional(p).run(), vm);
     notify(vm);
   } catch (error const& iException) {
-    std::cerr << iException.what();
+    std::cerr << iException.what() << std::endl;
     return 1;
   }
 
@@ -1242,6 +1257,11 @@ int main(int argc, char* argv[]) {
   bool showTopLevelPSets = false;
   if (vm.count(kShowTopLevelPSetsOpt)) {
     showTopLevelPSets = true;
+  }
+
+  bool showHistoryID = false;
+  if (vm.count(kShowHistoryIDOpt)) {
+    showHistoryID = true;
   }
 
   std::string fileName;
@@ -1303,6 +1323,7 @@ int main(int argc, char* argv[]) {
                           excludeESModules,
                           showAllModules,
                           showTopLevelPSets,
+                          showHistoryID,
                           findMatch,
                           dontPrintProducts,
                           dumpPSetID,
