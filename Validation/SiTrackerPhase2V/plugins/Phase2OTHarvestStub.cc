@@ -1,3 +1,4 @@
+
 // Package:    Validation/SiTrackerPhase2V
 // Class:      Phase2OTHarvestStub
 
@@ -23,6 +24,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "Validation/SiTrackerPhase2V/interface/TrackerPhase2HistUtil.h"
 #include <algorithm>
 
 class Phase2OTHarvestStub : public DQMEDHarvester {
@@ -80,12 +82,7 @@ void Phase2OTHarvestStub::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGette
                                                           numerator->GetXaxis()->GetXmax());
 
     // Calculate the efficiency
-    me_effic_clus_barrel->getTH1F()->Divide(numerator, denominator, 1., 1., "B");
-    me_effic_clus_barrel->setAxisTitle("tracking particle pT [GeV]");
-    me_effic_clus_barrel->getTH1F()->GetYaxis()->SetTitle("Efficiency");
-    me_effic_clus_barrel->getTH1F()->SetMaximum(1.1);
-    me_effic_clus_barrel->getTH1F()->SetMinimum(0.0);
-    me_effic_clus_barrel->getTH1F()->SetStats(false);
+    phase2tkutil::makeEfficiencyME(numerator, denominator, me_effic_clus_barrel, "tracking particle pT [GeV]");
   }  // if ME found
   else {
     edm::LogWarning("DataNotFound") << "Monitor elements for stub efficiency barrel cannot be found!\n";
@@ -109,12 +106,8 @@ void Phase2OTHarvestStub::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGette
                                                                numerator_zoom->GetXaxis()->GetXmax());
 
     // Calculate the efficiency
-    me_effic_clus_zoom_barrel->getTH1F()->Divide(numerator_zoom, denominator_zoom, 1., 1., "B");
-    me_effic_clus_zoom_barrel->setAxisTitle("tracking particle pT [GeV]");
-    me_effic_clus_zoom_barrel->getTH1F()->GetYaxis()->SetTitle("Efficiency");
-    me_effic_clus_zoom_barrel->getTH1F()->SetMaximum(1.1);
-    me_effic_clus_zoom_barrel->getTH1F()->SetMinimum(0.0);
-    me_effic_clus_zoom_barrel->getTH1F()->SetStats(false);
+    phase2tkutil::makeEfficiencyME(
+        numerator_zoom, denominator_zoom, me_effic_clus_zoom_barrel, "tracking particle pT [GeV]");
   }  // if ME found
   else {
     edm::LogWarning("DataNotFound") << "Monitor elements for stub zoom barrel efficiency cannot be found!\n";
@@ -138,12 +131,7 @@ void Phase2OTHarvestStub::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGette
                                                            numerator->GetXaxis()->GetXmax());
 
     // Calculate the efficiency
-    me_effic_clus_endcaps->getTH1F()->Divide(numerator, denominator, 1., 1., "B");
-    me_effic_clus_endcaps->setAxisTitle("tracking particle pT [GeV]");
-    me_effic_clus_endcaps->getTH1F()->GetYaxis()->SetTitle("Efficiency");
-    me_effic_clus_endcaps->getTH1F()->SetMaximum(1.1);
-    me_effic_clus_endcaps->getTH1F()->SetMinimum(0.0);
-    me_effic_clus_endcaps->getTH1F()->SetStats(false);
+    phase2tkutil::makeEfficiencyME(numerator, denominator, me_effic_clus_endcaps, "tracking particle pT [GeV]");
   }  // if ME found
   else {
     edm::LogWarning("DataNotFound") << "Monitor elements for stub efficiency endcaps cannot be found!\n";
@@ -167,12 +155,8 @@ void Phase2OTHarvestStub::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGette
                                                                 numerator_zoom->GetXaxis()->GetXmax());
 
     // Calculate the efficiency
-    me_effic_clus_zoom_endcaps->getTH1F()->Divide(numerator_zoom, denominator_zoom, 1., 1., "B");
-    me_effic_clus_zoom_endcaps->setAxisTitle("tracking particle pT [GeV]");
-    me_effic_clus_zoom_endcaps->getTH1F()->GetYaxis()->SetTitle("Efficiency");
-    me_effic_clus_zoom_endcaps->getTH1F()->SetMaximum(1.1);
-    me_effic_clus_zoom_endcaps->getTH1F()->SetMinimum(0.0);
-    me_effic_clus_zoom_endcaps->getTH1F()->SetStats(false);
+    phase2tkutil::makeEfficiencyME(
+        numerator_zoom, denominator_zoom, me_effic_clus_zoom_endcaps, "tracking particle pT [GeV]");
   }  // if ME found
   else {
     edm::LogWarning("DataNotFound") << "Monitor elements for stub zoom endcaps efficiency cannot be found!\n";
