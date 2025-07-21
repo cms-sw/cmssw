@@ -870,8 +870,8 @@ namespace cms::alpakatools {
       ALPAKA_FN_ACC inline UniformGroupElementsAlong(TAcc const& acc, Idx block, Idx extent)
           : first_{block * alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[Dim]},
             local_{min(extent - first_,
-                            alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[Dim] *
-                                alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[Dim])},
+                       alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[Dim] *
+                           alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[Dim])},
             range_{min(extent - first_, local_ + alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[Dim])} {}
 
       class const_iterator;

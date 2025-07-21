@@ -113,7 +113,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
       cms::alpakatools::forEachInBins(acc, hist, izt[i], 1, [&](uint32_t j) {
         if (i == j)
           return;
-        auto dist = alpaka::math::abs(acc,zt[i] - zt[j]);
+        auto dist = alpaka::math::abs(acc, zt[i] - zt[j]);
         if (dist > eps)
           return;
         if (dist * dist > chi2max * (ezt2[i] + ezt2[j]))

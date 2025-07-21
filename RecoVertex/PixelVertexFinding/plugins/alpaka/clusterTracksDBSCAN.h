@@ -129,7 +129,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
             return;
           if (nn[j] < minT)
             return;  // DBSCAN core rule
-          auto dist = alpaka::math::abs(acc,zt[i] - zt[j]);
+          auto dist = alpaka::math::abs(acc, zt[i] - zt[j]);
           if (dist > eps)
             return;
           mz = zt[j];
