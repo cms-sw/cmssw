@@ -264,11 +264,11 @@ private:
 
   // cutting parameters
   CAGeometryParams cellCuts_;
-  const int cellMinYSizeB1_;
-  const int cellMinYSizeB2_;
-  const int cellMaxDYSize12_;
-  const int cellMaxDYSize_;
-  const int cellMaxDYPred_;
+  const int minYsizeB1_;
+  const int minYsizeB2_;
+  const int maxDYsize12_;
+  const int maxDYsize_;
+  const int maxDYPred_;
   const double cellZ0Cut_;
   const double cellPtCut_;
   const double hardCurvCut_;
@@ -280,21 +280,23 @@ private:
   bool inputIsRecoTracks_;
 
   // monitor elements
+  // TO = TrackingParticle or Track
   // profiles to be filled
-  MonitorElement* h_effSimDoubletsPerTPVsPt_;
-  MonitorElement* h_effSimDoubletsPerTPVsEta_;
+  MonitorElement* h_effSimDoubletsPerTOVsPt_;
+  MonitorElement* h_effSimDoubletsPerTOVsEta_;
   MonitorElement* h_numLayersVsEtaPt_;
   MonitorElement* h_effConfigLimitVsEta_;
   MonitorElement* h_effConfigLimitVsPt_;
   // histograms of TrackingParticles
-  CoupledMonitorElement h_numTPVsPt_;
-  CoupledMonitorElement h_numTPVsEta_;
-  CoupledMonitorElement h_numTPVsPhi_;
-  CoupledMonitorElement h_numTPVsDxy_;
-  CoupledMonitorElement h_numTPVsDz_;
-  CoupledMonitorElement h_numTPVsEtaPt_;
-  CoupledMonitorElement h_numTPVsEtaPhi_;
-  CoupledMonitorElement h_numTPVsPhiPt_;
+  CoupledMonitorElement h_numTOVsPt_;
+  CoupledMonitorElement h_numTOVsEta_;
+  CoupledMonitorElement h_numTOVsPhi_;
+  CoupledMonitorElement h_numTOVsDxy_;
+  CoupledMonitorElement h_numTOVsDz_;
+  CoupledMonitorElement h_numTOVsChi2_;
+  CoupledMonitorElement h_numTOVsEtaPt_;
+  CoupledMonitorElement h_numTOVsEtaPhi_;
+  CoupledMonitorElement h_numTOVsPhiPt_;
   CoupledMonitorElement h_numSimDoubletsPerTrackingObject_;
   CoupledMonitorElement h_numSkippedLayersPerTrackingObject_;
   CoupledMonitorElement h_numRecHitsPerTrackingObject_;
@@ -307,7 +309,7 @@ private:
   CoupledMonitorElement h_numSkippedLayersVsNumRecHits_;
   CoupledMonitorElement h_numRecHitsVsPt_;
   CoupledMonitorElement h_numLayersVsPt_;
-  CoupledMonitorElement h_numTPVsPdgId_;
+  CoupledMonitorElement h_numTOVsPdgId_;
   CoupledMonitorElement h_numRecHitsPerLayer_;
   // histograms of SimDoublets
   CoupledMonitorElement h_layerPairs_;
@@ -337,8 +339,9 @@ private:
   // histograms of doublet connections
   CoupledMonitorElement h_hardCurvCut_;
   // vectors of historgrams (one per layer)
-  std::vector<CoupledMonitorElement> hVector_CAThetaCut_;
-  std::vector<CoupledMonitorElement> hVector_dcaCut_;
+  std::vector<CoupledMonitorElement> hVector_caThetaCut_;
+  std::vector<CoupledMonitorElement> hVector_caDCACut_;
+  std::vector<CoupledMonitorElement> hVector_firstHitR_;
   // histograms of the most alive Ntuplet per TP
   CoupledMonitorElement h_bestNtuplet_numRecHits_;
   CoupledMonitorElement h_bestNtuplet_firstLayerId_;
