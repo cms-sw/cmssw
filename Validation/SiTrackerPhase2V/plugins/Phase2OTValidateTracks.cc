@@ -1,3 +1,4 @@
+
 // Package:    Validation/SiTrackerPhase2V
 // Class:      Phase2OTValidateTracks
 
@@ -552,8 +553,7 @@ void Phase2OTValidateTracks::analyze(const edm::Event &iEvent, const edm::EventS
     int tmp_tp_pdgid = iterTP.pdgId();
 
     float tmp_tp_z0, tmp_tp_Lxy, tmp_tp_d0;
-    std::tie(tmp_tp_z0, tmp_tp_Lxy, tmp_tp_d0) =
-        phase2tkutil::computeZ0LxyD0(*tp_ptr, tmp_tp_pt, tmp_tp_eta, tmp_tp_phi);
+    std::tie(tmp_tp_z0, tmp_tp_Lxy, tmp_tp_d0) = phase2tkutil::computeZ0LxyD0(*tp_ptr);
 
     if (std::fabs(tmp_tp_z0) > TP_maxZ0)
       continue;
