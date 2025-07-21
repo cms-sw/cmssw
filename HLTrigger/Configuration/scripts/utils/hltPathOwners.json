@@ -381,6 +381,13 @@
       "SMP"
     ]
   },
+  "DST_PFScouting_ZeroBiasVdM_v": {
+    "online?": true,
+    "owners": [
+      "BRIL",
+      "HLT-Scouting"
+    ]
+  },
   "DST_PFScouting_ZeroBias_v": {
     "online?": true,
     "owners": [
@@ -929,6 +936,12 @@
       "BTV"
     ]
   },
+  "HLT_Beamspot_PixelClusters_WP2_v": {
+    "online?": true,
+    "owners": [
+      "TRK"
+    ]
+  },
   "HLT_BptxOR_v": {
     "online?": true,
     "owners": [
@@ -1367,6 +1380,12 @@
     ]
   },
   "HLT_Dimuon0_Upsilon_NoVertexing_v": {
+    "online?": true,
+    "owners": [
+      "BPH"
+    ]
+  },
+  "HLT_Dimuon0_Upsilon_v": {
     "online?": true,
     "owners": [
       "BPH"
@@ -2421,6 +2440,13 @@
       "HIN"
     ]
   },
+  "HLT_HICentrality50100MinimumBiasHF1AND_Beamspot_v": {
+    "online?": true,
+    "owners": [
+      "HIN",
+      "TRK"
+    ]
+  },
   "HLT_HICsAK4PFJet100Eta1p5_Beamspot_v": {
     "online?": true,
     "owners": [
@@ -2672,6 +2698,13 @@
     "online?": true,
     "owners": [
       "HIN"
+    ]
+  },
+  "HLT_HIHT80_Beamspot_Oxy5TeV_v": {
+    "online?": true,
+    "owners": [
+      "HIN",
+      "TRK"
     ]
   },
   "HLT_HIHT80_Beamspot_ppRef5TeV_v": {
@@ -3216,6 +3249,18 @@
     ]
   },
   "HLT_HIUPC_DoubleEG2_NotMBHF2AND_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_DoubleEG3_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_DoubleEG3_NotMBHF2AND_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -5114,6 +5159,12 @@
       "EXO"
     ]
   },
+  "HLT_L1MinimumBiasHF0ANDBptxAND_v": {
+    "online?": true,
+    "owners": [
+      "TSG"
+    ]
+  },
   "HLT_L1Mu6HT240_v": {
     "online?": true,
     "owners": [
@@ -5548,6 +5599,48 @@
     "online?": true,
     "owners": [
       "EXO"
+    ]
+  },
+  "HLT_MinimumBiasHF_AND_BptxAND_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_MinimumBiasHF_OR_BptxAND_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_MinimumBiasZDC1n_OR_BptxAND_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_MinimumBiasZDC1n_OR_MinimumBiasHF_AND_BptxAND_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_MinimumBiasZDC1n_OR_MinimumBiasHF_OR_BptxAND_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_MinimumBiasZDC1n_OR_OR_MinimumBiasHF_OR_BptxAND_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_MinimumBiasZDC_Asym_MinimumBiasHF_OR_BptxAND_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
     ]
   },
   "HLT_MinimumBias_HF_v": {
@@ -6377,6 +6470,264 @@
     "online?": true,
     "owners": [
       "BPH"
+    ]
+  },
+  "HLT_OxyDoubleEG2_NotMBHF2AND_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxyDoubleEG5_NotMBHF2AND_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxyL1CentralityGate_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxyL1DoubleMu0_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxyL1DoubleMuOpen_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxyL1SingleEG10_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxyL1SingleEG15_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxyL1SingleEG15er2p1_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxyL1SingleEG15er2p5_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxyL1SingleEG21_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxyL1SingleJet20_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxyL1SingleJet28_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxyL1SingleJet35_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxyL1SingleJet44_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxyL1SingleJet60_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxyL1SingleMu0_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxyL1SingleMu3_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxyL1SingleMu5_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxyL1SingleMu7_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxyL1SingleMuOpen_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxyNotMBHF2_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxySingleEG2_NotMBHF2AND_ZDC1nOR_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxySingleEG3_NotMBHF2AND_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxySingleEG3_NotMBHF2OR_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxySingleEG5_NotMBHF2AND_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxySingleJet16_ZDC1nAsymXOR_NotPreBptx_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxySingleJet16_ZDC1nAsymXOR_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxySingleJet16_ZDC1nXOR_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxySingleJet24_ZDC1nAsymXOR_NotPreBptx_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxySingleJet24_ZDC1nAsymXOR_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxySingleJet24_ZDC1nXOR_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxySingleJet8_ZDC1nAsymXOR_NotPreBptx_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxySingleJet8_ZDC1nAsymXOR_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxySingleJet8_ZDC1nXOR_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxySingleMuCosmic_NotMBHF2AND_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxySingleMuOpen_NotMBHF2AND_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxySingleMuOpen_NotMBHF2OR_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxySingleMuOpen_OR_SingleMuCosmic_EMTF_BptxAND_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxySingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxyZDC1nOR_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxyZeroBias_MinPixelCluster400_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxyZeroBias_SinglePixelTrackLowPt_MaxPixelCluster400_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_OxyZeroBias_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
     ]
   },
   "HLT_PFHT1050_v": {
@@ -7421,6 +7772,12 @@
       "HIN"
     ]
   },
+  "HLT_PPRefZeroBias_FirstCollisionInTrain_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_PPRefZeroBias_v": {
     "online?": true,
     "owners": [
@@ -7773,6 +8130,12 @@
       "TRK"
     ]
   },
+  "HLT_PixelClusters_WP2_HighRate_v": {
+    "online?": true,
+    "owners": [
+      "TRK"
+    ]
+  },
   "HLT_PixelClusters_WP2_v": {
     "online?": true,
     "owners": [
@@ -8015,6 +8378,13 @@
   "HLT_TriggersForScoutingPFMonitor_PS500_v": {
     "online?": true,
     "owners": [
+      "HLT-Scouting"
+    ]
+  },
+  "HLT_TriggersForScoutingPFMonitor_SingleMuon_v": {
+    "online?": true,
+    "owners": [
+      "BRIL",
       "HLT-Scouting"
     ]
   },

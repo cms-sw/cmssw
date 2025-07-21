@@ -24,6 +24,29 @@ vtxTable = cms.EDProducer(
      )
  )
 
+#### GTT Displaced Vertex
+dispVtxTable = cms.EDProducer(
+    "SimpleL1DisplacedVtxCandidateFlatTableProducer",
+    src = cms.InputTag('DisplacedVertexProducer','dispVertices'),
+    cut = cms.string(""),
+    name = cms.string("L1DispVertex"),
+    doc = cms.string("GTT Displaced Vertices"),
+    singleton = cms.bool(False), # the number of entries is variable
+    variables = cms.PSet(
+        d_T = Var("d_T()",float, doc = "impact parameter of parent particle"),
+        R_T = Var("R_T()",float, doc = "transverse distance of vertex from origin"),
+        cos_T = Var("cos_T()", float, doc = "cosine of angle between parent particle momentum and position vector of vertex"),
+        x = Var("x()", float, doc = "x position of vertex"),
+        y = Var("y()", float, doc = "y position of vertex"),
+        z = Var("z()", float, doc = "z position of vertex"),
+        openingAngle = Var("openingAngle()", float, doc = "angle between the two tracks forming the vertex"),
+        parentPt = Var("parentPt()", float, doc = "transverse momentum of parent particle"),
+        del_Z = Var("del_Z()", float, doc = "delta z of vertex from origin"),
+        isReal = Var("isReal()", bool, doc = "is real"),
+        score = Var("score()", float, doc = "BDT score"),
+     )
+ )
+ 
 gttTrackJetsTable = cms.EDProducer(
     "SimpleL1TkJetWordCandidateFlatTableProducer",
     src = cms.InputTag("l1tTrackJetsEmulation","L1TrackJets"),
@@ -373,7 +396,11 @@ sc4JetTable = pfJetTable.clone(
 sc8JetTable = pfJetTable.clone(
     src = 'l1tSC8PFL1PuppiCorrectedEmulator',
     name = "L1puppiJetSC8",
-    doc = "SeededCone 0.8 Puppi jet,  origin: Correlator"
+    doc = "SeededCone 0.8 Puppi jet,  origin: Correlator",
+    variables = cms.PSet(
+        pfJetTable.variables.clone(),
+        mass = Var("mass", float)
+    )
 )
 
 sc4ExtJetTable = pfJetTable.clone(
@@ -569,6 +596,7 @@ p2L1TablesTask = cms.Task(
     hpsTauTable,
     # GTT
     vtxTable,
+    dispVtxTable,
     pvtxTable,
     gttTrackJetsTable,
     gttExtTrackJetsTable,

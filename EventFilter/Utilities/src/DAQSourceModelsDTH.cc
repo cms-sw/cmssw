@@ -15,6 +15,8 @@
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/RawDataBuffer.h"
+#include "DataFormats/FEDRawData/interface/SLinkRocketHeaders.h"
 
 #include "DataFormats/TCDS/interface/TCDSRaw.h"
 
@@ -33,18 +35,34 @@
 using namespace evf;
 
 void DataModeDTH::readEvent(edm::EventPrincipal& eventPrincipal) {
-  std::unique_ptr<FEDRawDataCollection> rawData(new FEDRawDataCollection);
-  edm::Timestamp tstamp = fillFEDRawDataCollection(*rawData);
-
   edm::EventID eventID = edm::EventID(daqSource_->eventRunNumber(), daqSource_->currentLumiSection(), nextEventID_);
-  edm::EventAuxiliary aux(
-      eventID, daqSource_->processGUID(), tstamp, isRealData(), edm::EventAuxiliary::PhysicsTrigger);
-  aux.setProcessHistoryID(daqSource_->processHistoryID());
-  daqSource_->makeEventWrapper(eventPrincipal, aux);
 
-  std::unique_ptr<edm::WrapperBase> edp(new edm::Wrapper<FEDRawDataCollection>(std::move(rawData)));
-  eventPrincipal.put(
-      daqProvenanceHelpers_[0]->productDescription(), std::move(edp), daqProvenanceHelpers_[0]->dummyProvenance());
+  if (legacyFRDCollection_) {
+    std::unique_ptr<FEDRawDataCollection> rawData(new FEDRawDataCollection);
+    edm::Timestamp tstamp = fillFEDRawDataCollection(*rawData);
+
+    edm::EventAuxiliary aux(
+        eventID, daqSource_->processGUID(), tstamp, isRealData(), edm::EventAuxiliary::PhysicsTrigger);
+    aux.setProcessHistoryID(daqSource_->processHistoryID());
+    daqSource_->makeEventWrapper(eventPrincipal, aux);
+
+    std::unique_ptr<edm::WrapperBase> edp(new edm::Wrapper<FEDRawDataCollection>(std::move(rawData)));
+    eventPrincipal.put(
+        daqProvenanceHelpers_[0]->productDescription(), std::move(edp), daqProvenanceHelpers_[0]->dummyProvenance());
+  } else {
+    std::unique_ptr<RawDataBuffer> rawData(new RawDataBuffer(totalEventSize_));
+    edm::Timestamp tstamp = fillFEDRawData(*rawData);
+
+    edm::EventAuxiliary aux(
+        eventID, daqSource_->processGUID(), tstamp, isRealData(), edm::EventAuxiliary::PhysicsTrigger);
+    aux.setProcessHistoryID(daqSource_->processHistoryID());
+    daqSource_->makeEventWrapper(eventPrincipal, aux);
+
+    std::unique_ptr<edm::WrapperBase> edp(new edm::Wrapper<RawDataBuffer>(std::move(rawData)));
+    eventPrincipal.put(
+        daqProvenanceHelpers_[0]->productDescription(), std::move(edp), daqProvenanceHelpers_[0]->dummyProvenance());
+  }
+
   eventCached_ = false;
 }
 
@@ -61,14 +79,6 @@ edm::Timestamp DataModeDTH::fillFEDRawDataCollection(FEDRawDataCollection& rawDa
     auto fragTrailer = eventFragments_[i];
     uint8_t* payload = (uint8_t*)fragTrailer->payload();
     auto fragSize = fragTrailer->payloadSizeBytes();
-    /*
-    //Slink header and trailer
-    assert(fragSize >= (FEDTrailer::length + FEDHeader::length));
-    const FEDHeader fedHeader(payload);
-    const FEDTrailer fedTrailer((uint8_t*)fragTrailer - FEDTrailer::length);
-    const uint32_t fedSize = fedTrailer.fragmentLength() << 3;  //trailer length counts in 8 bytes
-    const uint16_t fedId = fedHeader.sourceID();
-*/
 
     //SLinkRocket header and trailer
     if (fragSize < sizeof(SLinkRocketTrailer_v3) + sizeof(SLinkRocketHeader_v3))
@@ -107,11 +117,66 @@ edm::Timestamp DataModeDTH::fillFEDRawDataCollection(FEDRawDataCollection& rawDa
   return tstamp;
 }
 
+edm::Timestamp DataModeDTH::fillFEDRawData(RawDataBuffer& rawData) {
+  //generate timestamp for this event until parsing of TCDS2 data is available
+  edm::TimeValue_t time;
+  timeval stv;
+  gettimeofday(&stv, nullptr);
+  time = stv.tv_sec;
+  time = (time << 32) + stv.tv_usec;
+  edm::Timestamp tstamp(time);
+
+  for (size_t i = 0; i < eventFragments_.size(); i++) {
+    auto fragTrailer = eventFragments_[i];
+    uint8_t* payload = (uint8_t*)fragTrailer->payload();
+    auto fragSize = fragTrailer->payloadSizeBytes();
+
+    //SLinkRocket header and trailer
+    if (fragSize < sizeof(SLinkRocketTrailer_v3) + sizeof(SLinkRocketHeader_v3))
+      throw cms::Exception("DAQSource::DAQSourceModelsDTH") << "Invalid fragment size: " << fragSize;
+
+    const SLinkRocketHeader_v3* fedHeader = (const SLinkRocketHeader_v3*)payload;
+    const SLinkRocketTrailer_v3* fedTrailer =
+        (const SLinkRocketTrailer_v3*)((uint8_t*)fragTrailer - sizeof(SLinkRocketTrailer_v3));
+
+    //check SLR trailer first as it comes just before fragmen trailer
+    if (!fedTrailer->verifyMarker())
+      throw cms::Exception("DAQSource::DAQSourceModelsDTH") << "Invalid SLinkRocket trailer";
+    if (!fedHeader->verifyMarker())
+      throw cms::Exception("DAQSource::DAQSourceModelsDTH") << "Invalid SLinkRocket header";
+
+    const uint32_t slrFragSize = fedTrailer->eventLenBytes();
+
+    /*
+     *  @SM: CRC16 in trailer was not checked up to Run3, no need to do production check
+     *  if we already check orbit CRC32. If CRC16 check is to be added,
+     *  in phase1 crc16 was calculated on sequential 64-byte little-endian words
+     *  (see FWCore/Utilities/interface/CRC16.h).
+     *  See also optimized pclmulqdq implementation in XDAQ.
+     *  Note: check if for phase-2 crc16 is still based on 8-byte words
+    */
+    //const uint32_t crc16 = fedTrailer->crc();
+
+    if (slrFragSize != fragSize)
+      throw cms::Exception("DAQSource::DAQSourceModelsDTH") << "Fragment size mismatch. From DTHTrailer: " << fragSize
+                                                            << " and from SLinkRocket trailer: " << slrFragSize;
+
+    rawData.addSource(fedHeader->sourceID(), payload, fragSize);
+  }
+  return tstamp;
+}
+
 std::vector<std::shared_ptr<const edm::DaqProvenanceHelper>>& DataModeDTH::makeDaqProvenanceHelpers() {
   //use also FRD data collection
   daqProvenanceHelpers_.clear();
-  daqProvenanceHelpers_.emplace_back(std::make_shared<const edm::DaqProvenanceHelper>(
-      edm::TypeID(typeid(FEDRawDataCollection)), "FEDRawDataCollection", "FEDRawDataCollection", "DAQSource"));
+
+  if (legacyFRDCollection_)
+    daqProvenanceHelpers_.emplace_back(std::make_shared<const edm::DaqProvenanceHelper>(
+        edm::TypeID(typeid(FEDRawDataCollection)), "FEDRawDataCollection", "FEDRawDataCollection", "DAQSource"));
+  else
+    daqProvenanceHelpers_.emplace_back(std::make_shared<const edm::DaqProvenanceHelper>(
+        edm::TypeID(typeid(RawDataBuffer)), "RawDataBuffer", "RawDataBuffer", "DAQSource"));
+
   return daqProvenanceHelpers_;
 }
 
@@ -249,6 +314,7 @@ bool DataModeDTH::nextEventView(RawInputFile*) {
   bool blockCompletedAny = false;
   eventFragments_.clear();
   size_t last_eID = 0;
+  totalEventSize_ = 0;
 
   for (size_t i = 0; i < addrsEnd_.size(); i++) {
     if (addrsEnd_[i] == addrsStart_[i]) {
@@ -272,6 +338,7 @@ bool DataModeDTH::nextEventView(RawInputFile*) {
     uint64_t eID = trailer->eventID();
     eventFragments_.push_back(trailer);
     auto payload_size = trailer->payloadSizeBytes();
+    totalEventSize_ += payload_size;
     if (payload_size > evf::SLR_MAX_EVENT_LEN)  //max possible by by SlinkRocket (1 MB)
       throw cms::Exception("DAQSource::DAQSourceModelsDTH")
           << "DTHFragment size " << payload_size << " larger than the SLinkRocket limit of " << evf::SLR_MAX_EVENT_LEN;

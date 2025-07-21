@@ -66,11 +66,7 @@ void TnPEfficiencyClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGette
   ibooker.setCurrentFolder(topFolder() + outFolder + "/");
   std::string baseFolder = topFolder() + outFolder + "/";
 
-  TH1::SetDefaultSumw2(kTRUE);
-
   for (const auto& s : passNfailHistoNames) {
-    TH1::SetDefaultSumw2(kTRUE);
-
     std::string passHistoName = s.substr(0, s.find(':'));
     std::string failHistoName = s.substr(s.find(':') + 1, s.length());
 
@@ -110,16 +106,20 @@ void TnPEfficiencyClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGette
         return;
       }
 
-      TH1F* h1_den = (TH1F*)h1_pass->Clone();
-      TH1F* h1_num = (TH1F*)h1_pass->Clone();
-      h1_den->Sumw2();
-      h1_num->Sumw2();
+      std::unique_ptr<TH1F> h1_den{(TH1F*)h1_pass->Clone()};
+      std::unique_ptr<TH1F> h1_num{(TH1F*)h1_pass->Clone()};
+      //If we call Sumw2 on a histogram which already has it set, we get an exception
+      if (h1_den->GetSumw2N() == 0) {
+        h1_den->Sumw2();
+      }
+      if (h1_num->GetSumw2N() == 0) {
+        h1_num->Sumw2();
+      }
       h1_den->Add(h1_fail);
 
-      h1_num->Divide(h1_den);
-      TH1F* h1_ratio = (TH1F*)h1_num->Clone();
+      h1_num->Divide(h1_den.get());
 
-      effHistos[effHistoName] = ibooker.book1D(effHistoName, h1_ratio);
+      effHistos[effHistoName] = ibooker.book1D(effHistoName, h1_num.get());
       effHistos[effHistoName]->setTitle(effHistoName);
       effHistos[effHistoName]->setAxisTitle("Efficiency", 2);
     }
@@ -146,16 +146,19 @@ void TnPEfficiencyClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGette
         return;
       }
 
-      TH2F* h2_den = (TH2F*)h2_pass->Clone();
-      TH2F* h2_num = (TH2F*)h2_pass->Clone();
-      h2_den->Sumw2();
-      h2_num->Sumw2();
+      std::unique_ptr<TH2F> h2_den{(TH2F*)h2_pass->Clone()};
+      std::unique_ptr<TH2F> h2_num{(TH2F*)h2_pass->Clone()};
+      if (h2_den->GetSumw2N() == 0) {
+        h2_den->Sumw2();
+      }
+      if (h2_num->GetSumw2N() == 0) {
+        h2_num->Sumw2();
+      }
       h2_den->Add(h2_fail);
 
-      h2_num->Divide(h2_den);
-      TH2F* h2_ratio = (TH2F*)h2_num->Clone();
+      h2_num->Divide(h2_den.get());
 
-      effHistos[effHistoName] = ibooker.book2D(effHistoName, h2_ratio);
+      effHistos[effHistoName] = ibooker.book2D(effHistoName, h2_num.get());
       effHistos[effHistoName]->setTitle(effHistoName);
       effHistos[effHistoName]->setAxisTitle("Efficiency", 3);
     }

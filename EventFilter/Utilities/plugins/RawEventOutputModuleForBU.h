@@ -6,8 +6,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/RawDataBuffer.h"
 #include "EventFilter/Utilities/interface/EvFDaqDirector.h"
 #include "EventFilter/Utilities/interface/crc32c.h"
 #include "EventFilter/Utilities/plugins/EvFBuildingThrottle.h"
@@ -48,9 +47,12 @@ private:
   void endLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
 
   std::unique_ptr<Consumer> templateConsumer_;
-  const edm::EDGetTokenT<FEDRawDataCollection> token_;
+  const edm::EDGetTokenT<FEDRawDataCollection> tokenFRD_;
+  const edm::EDGetTokenT<RawDataBuffer> token_;
   const unsigned int numEventsPerFile_;
   const unsigned int frdVersion_;
+  std::string rawProductName_;
+  unsigned int rawProductType_ = 0;
   std::vector<unsigned int> sourceIdList_;
   unsigned int totevents_ = 0;
   unsigned int index_ = 0;
@@ -61,10 +63,18 @@ RawEventOutputModuleForBU<Consumer>::RawEventOutputModuleForBU(edm::ParameterSet
     : edm::one::OutputModuleBase::OutputModuleBase(ps),
       edm::one::OutputModule<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks>(ps),
       templateConsumer_(new Consumer(ps)),
-      token_(consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("source"))),
+      tokenFRD_(consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("source"))),
+      token_(consumes<RawDataBuffer>(ps.getParameter<edm::InputTag>("source"))),
       numEventsPerFile_(ps.getParameter<unsigned int>("numEventsPerFile")),
       frdVersion_(ps.getParameter<unsigned int>("frdVersion")),
+      rawProductName_(ps.getUntrackedParameter<std::string>("rawProductName")),
       sourceIdList_(ps.getUntrackedParameter<std::vector<unsigned int>>("sourceIdList", std::vector<unsigned int>())) {
+  if (rawProductName_ == "FEDRawDataCollection")
+    rawProductType_ = 1;
+  else if (rawProductName_ == "RawDataBuffer")
+    rawProductType_ = 2;
+  else
+    throw cms::Exception("RawEventOutputModuleForBU") << "Unknown raw product specified";
   if (frdVersion_ > 0 && frdVersion_ < 5)
     throw cms::Exception("RawEventOutputModuleForBU")
         << "Generating data with FRD version " << frdVersion_ << " is no longer supported";
@@ -91,22 +101,48 @@ void RawEventOutputModuleForBU<Consumer>::write(edm::EventForOutput const& e) {
   // serialize the FEDRawDataCollection into the format that we expect for
   // FRDEventMsgView objects (may be better ways to do this)
   edm::Handle<FEDRawDataCollection> fedBuffers;
-  e.getByToken(token_, fedBuffers);
+  edm::Handle<RawDataBuffer> fedBuffer;
+
+  unsigned int usedRawType = 0;
+  if (rawProductType_ == 1) {
+    e.getByToken(tokenFRD_, fedBuffers);
+    usedRawType = 1;
+  } else if (rawProductType_ == 2) {
+    e.getByToken(token_, fedBuffer);
+    usedRawType = 2;
+  }
+  assert(usedRawType);
 
   // determine the expected size of the FRDEvent IN bytes
   int headerSize = edm::streamer::FRDHeaderVersionSize[frdVersion_];
   int expectedSize = headerSize;
+  //for FEDRawDataCollection
   int nFeds = FEDNumbering::lastFEDId() + 1;
 
-  if (sourceIdList_.size()) {
-    for (int idx : sourceIdList_) {
-      FEDRawData singleFED = fedBuffers->FEDData(idx);
-      expectedSize += singleFED.size();
+  if (usedRawType == 1) {
+    if (!sourceIdList_.empty()) {
+      for (int idx : sourceIdList_) {
+        auto singleFED = fedBuffers->FEDData(idx);
+        expectedSize += singleFED.size();
+      }
+    } else {
+      for (int idx = 0; idx < nFeds; ++idx) {
+        auto singleFED = fedBuffers->FEDData(idx);
+        expectedSize += singleFED.size();
+      }
     }
-  } else {
-    for (int idx = 0; idx < nFeds; ++idx) {
-      FEDRawData singleFED = fedBuffers->FEDData(idx);
-      expectedSize += singleFED.size();
+  } else if (usedRawType == 2) {
+    if (!sourceIdList_.empty()) {
+      for (int idx : sourceIdList_) {
+        auto singleFED = fedBuffer->fragmentData(idx);
+        expectedSize += singleFED.size();
+      }
+    } else {
+      //for (int idx = 0; idx < nFeds; ++idx) {
+      for (auto it = fedBuffer->map().begin(); it != fedBuffer->map().end(); it++) {
+        auto singleFED = fedBuffer->fragmentData(it);
+        expectedSize += singleFED.size();
+      }
     }
   }
 
@@ -135,22 +171,39 @@ void RawEventOutputModuleForBU<Consumer>::write(edm::EventForOutput const& e) {
     *bufPtr++ = 0;
   }
   uint32_t* payloadPtr = bufPtr;
-  if (sourceIdList_.size())
-    for (int idx : sourceIdList_) {
-      FEDRawData singleFED = fedBuffers->FEDData(idx);
-      if (singleFED.size() > 0) {
-        memcpy(bufPtr, singleFED.data(), singleFED.size());
+  if (usedRawType == 1) {
+    if (!sourceIdList_.empty()) {
+      for (int idx : sourceIdList_) {
+        FEDRawData singleFED = fedBuffers->FEDData(idx);
+        if (singleFED.size() > 0) {
+          memcpy(bufPtr, singleFED.data(), singleFED.size());
+          bufPtr += singleFED.size() / 4;
+        }
+      }
+    } else {
+      for (int idx = 0; idx < nFeds; ++idx) {
+        FEDRawData singleFED = fedBuffers->FEDData(idx);
+        if (singleFED.size() > 0) {
+          memcpy(bufPtr, singleFED.data(), singleFED.size());
+          bufPtr += singleFED.size() / 4;
+        }
+      }
+    }
+  } else if (usedRawType == 2) {
+    if (!sourceIdList_.empty()) {
+      for (int idx : sourceIdList_) {
+        auto singleFED = fedBuffer->fragmentData(idx);
+        memcpy(bufPtr, &singleFED.data()[0], singleFED.size());
+        bufPtr += singleFED.size() / 4;
+      }
+    } else {
+      for (auto it = fedBuffer->map().begin(); it != fedBuffer->map().end(); it++) {
+        auto singleFED = fedBuffer->fragmentData(it);
+        memcpy(bufPtr, &singleFED.data()[0], singleFED.size());
         bufPtr += singleFED.size() / 4;
       }
     }
-  else
-    for (int idx = 0; idx < nFeds; ++idx) {
-      FEDRawData singleFED = fedBuffers->FEDData(idx);
-      if (singleFED.size() > 0) {
-        memcpy(bufPtr, singleFED.data(), singleFED.size());
-        bufPtr += singleFED.size() / 4;
-      }
-    }
+  }
   if (frdVersion_) {
     //crc32c checksum
     uint32_t crc = 0;
@@ -199,6 +252,8 @@ void RawEventOutputModuleForBU<Consumer>::fillDescriptions(edm::ConfigurationDes
   desc.add<edm::InputTag>("source", edm::InputTag("rawDataCollector"));
   desc.add<unsigned int>("numEventsPerFile", 100);
   desc.add<unsigned int>("frdVersion", 6);
+  desc.addUntracked<std::string>("rawProductName", "FEDRawDataCollection")
+      ->setComment("FEDRawDataCollection or RawDataBuffer");
   desc.addUntracked<std::vector<unsigned int>>("sourceIdList", std::vector<unsigned int>());
   Consumer::extendDescription(desc);
 

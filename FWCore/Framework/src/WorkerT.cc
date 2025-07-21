@@ -561,50 +561,15 @@ namespace edm {
   }
 
   template <typename T>
-  inline std::string WorkerT<T>::workerType() const {
-    return module_->workerType();
-  }
-
-  template <typename T>
-  inline void WorkerT<T>::implBeginJob() {
-    module_->doBeginJob();
-  }
-
-  template <typename T>
-  inline void WorkerT<T>::implEndJob() {
-    module_->doEndJob();
-  }
-
-  template <typename T>
   template <typename D>
   void WorkerT<T>::callWorkerBeginStream(D, StreamID id) {
     module_->doBeginStream(id);
   }
 
   template <typename T>
-  inline void WorkerT<T>::implBeginStream(StreamID id) {
-    std::conditional_t<workerimpl::has_stream_functions<T>::value or
-                           workerimpl::has_only_stream_transition_functions<T>::value,
-                       workerimpl::DoBeginStream<T>,
-                       workerimpl::DoNothing>
-        might_call;
-    might_call(this, id);
-  }
-
-  template <typename T>
   template <typename D>
   void WorkerT<T>::callWorkerEndStream(D, StreamID id) {
     module_->doEndStream(id);
-  }
-
-  template <typename T>
-  inline void WorkerT<T>::implEndStream(StreamID id) {
-    std::conditional_t<workerimpl::has_stream_functions<T>::value or
-                           workerimpl::has_only_stream_transition_functions<T>::value,
-                       workerimpl::DoEndStream<T>,
-                       workerimpl::DoNothing>
-        might_call;
-    might_call(this, id);
   }
 
   template <typename T>
@@ -620,12 +585,6 @@ namespace edm {
   template <typename T>
   void WorkerT<T>::implRespondToCloseOutputFile() {
     module_->doRespondToCloseOutputFile();
-  }
-
-  template <typename T>
-  inline void WorkerT<T>::implRegisterThinnedAssociations(ProductRegistry const& registry,
-                                                          ThinnedAssociationsHelper& helper) {
-    module_->doRegisterThinnedAssociations(registry, helper);
   }
 
   template <typename T>
@@ -663,137 +622,6 @@ namespace edm {
   template <>
   Worker::TaskQueueAdaptor WorkerT<limited::OutputModuleBase>::serializeRunModule() {
     return &(module_->queue());
-  }
-
-  namespace {
-    template <typename T>
-    bool mustPrefetchMayGet();
-
-    template <>
-    bool mustPrefetchMayGet<edm::one::EDProducerBase>() {
-      return true;
-    }
-    template <>
-    bool mustPrefetchMayGet<edm::one::EDFilterBase>() {
-      return true;
-    }
-    template <>
-    bool mustPrefetchMayGet<edm::one::EDAnalyzerBase>() {
-      return true;
-    }
-    template <>
-    bool mustPrefetchMayGet<edm::one::OutputModuleBase>() {
-      return true;
-    }
-
-    template <>
-    bool mustPrefetchMayGet<edm::global::EDProducerBase>() {
-      return true;
-    }
-    template <>
-    bool mustPrefetchMayGet<edm::global::EDFilterBase>() {
-      return true;
-    }
-    template <>
-    bool mustPrefetchMayGet<edm::global::EDAnalyzerBase>() {
-      return true;
-    }
-    template <>
-    bool mustPrefetchMayGet<edm::global::OutputModuleBase>() {
-      return true;
-    }
-
-    template <>
-    bool mustPrefetchMayGet<edm::limited::EDProducerBase>() {
-      return true;
-    }
-    template <>
-    bool mustPrefetchMayGet<edm::limited::EDFilterBase>() {
-      return true;
-    }
-    template <>
-    bool mustPrefetchMayGet<edm::limited::EDAnalyzerBase>() {
-      return true;
-    }
-    template <>
-    bool mustPrefetchMayGet<edm::limited::OutputModuleBase>() {
-      return true;
-    }
-
-    template <>
-    bool mustPrefetchMayGet<edm::stream::EDProducerAdaptorBase>() {
-      return true;
-    }
-    template <>
-    bool mustPrefetchMayGet<edm::stream::EDFilterAdaptorBase>() {
-      return true;
-    }
-    template <>
-    bool mustPrefetchMayGet<edm::stream::EDAnalyzerAdaptorBase>() {
-      return true;
-    }
-
-  }  // namespace
-
-  template <typename T>
-  void WorkerT<T>::updateLookup(BranchType iBranchType, ProductResolverIndexHelper const& iHelper) {
-    module_->updateLookup(iBranchType, iHelper, mustPrefetchMayGet<T>());
-  }
-
-  template <typename T>
-  void WorkerT<T>::updateLookup(eventsetup::ESRecordsToProductResolverIndices const& iPI) {
-    module_->updateLookup(iPI);
-  }
-
-  template <typename T>
-  void WorkerT<T>::releaseMemoryPostLookupSignal() {
-    module_->releaseMemoryPostLookupSignal();
-  }
-
-  template <typename T>
-  void WorkerT<T>::selectInputProcessBlocks(ProductRegistry const& productRegistry,
-                                            ProcessBlockHelperBase const& processBlockHelperBase) {
-    module_->selectInputProcessBlocks(productRegistry, processBlockHelperBase);
-  }
-
-  namespace {
-    using ModuleToResolverIndicies =
-        std::unordered_multimap<std::string, std::tuple<edm::TypeID const*, const char*, edm::ProductResolverIndex>>;
-    void resolvePutIndiciesImpl(void*,
-                                BranchType iBranchType,
-                                ModuleToResolverIndicies const& iIndicies,
-                                std::string const& iModuleLabel) {
-      //Do nothing
-    }
-
-    void resolvePutIndiciesImpl(ProducerBase* iProd,
-                                BranchType iBranchType,
-                                ModuleToResolverIndicies const& iIndicies,
-                                std::string const& iModuleLabel) {
-      iProd->resolvePutIndicies(iBranchType, iIndicies, iModuleLabel);
-    }
-
-    void resolvePutIndiciesImpl(edm::stream::EDProducerAdaptorBase* iProd,
-                                BranchType iBranchType,
-                                ModuleToResolverIndicies const& iIndicies,
-                                std::string const& iModuleLabel) {
-      iProd->resolvePutIndicies(iBranchType, iIndicies, iModuleLabel);
-    }
-    void resolvePutIndiciesImpl(edm::stream::EDFilterAdaptorBase* iProd,
-                                BranchType iBranchType,
-                                ModuleToResolverIndicies const& iIndicies,
-                                std::string const& iModuleLabel) {
-      iProd->resolvePutIndicies(iBranchType, iIndicies, iModuleLabel);
-    }
-
-  }  // namespace
-
-  template <typename T>
-  void WorkerT<T>::resolvePutIndicies(
-      BranchType iBranchType,
-      std::unordered_multimap<std::string, std::tuple<TypeID const*, const char*, edm::ProductResolverIndex>> const&
-          iIndicies) {
-    resolvePutIndiciesImpl(&module(), iBranchType, iIndicies, description()->moduleLabel());
   }
 
   template <>

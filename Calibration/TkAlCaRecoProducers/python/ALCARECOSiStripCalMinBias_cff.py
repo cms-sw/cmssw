@@ -46,6 +46,7 @@ pp_on_XeXe_2017.toModify(ALCARECOSiStripCalMinBiasHLT,
                          eventSetupPathsKey='SiStripCalMinBiasHI')
 
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+from Configuration.Eras.Modifier_run3_oxygen_cff import run3_oxygen
 import HLTrigger.HLTfilters.triggerResultsFilterFromDB_cfi
 ALCARECOSiStripCalMinBiasTriggerResultsHI = HLTrigger.HLTfilters.triggerResultsFilterFromDB_cfi.triggerResultsFilterFromDB.clone(
     eventSetupPathsKey = 'SiStripCalMinBiasHI',
@@ -56,4 +57,4 @@ ALCARECOSiStripCalMinBiasTriggerResultsHI = HLTrigger.HLTfilters.triggerResultsF
 )
 
 seqALCARECOSiStripCalMinBiasHI = cms.Sequence(ALCARECOSiStripCalMinBiasTriggerResultsHI*DCSStatusForSiStripCalMinBias*ALCARECOSiStripCalMinBias)
-pp_on_AA.toReplaceWith(seqALCARECOSiStripCalMinBias,seqALCARECOSiStripCalMinBiasHI)
+(pp_on_AA | run3_oxygen).toReplaceWith(seqALCARECOSiStripCalMinBias,seqALCARECOSiStripCalMinBiasHI)

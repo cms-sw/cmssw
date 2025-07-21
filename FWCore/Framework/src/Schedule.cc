@@ -16,10 +16,11 @@
 #include "FWCore/Framework/src/TriggerReport.h"
 #include "FWCore/Framework/src/TriggerTimingReport.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
-#include "FWCore/Framework/src/Factory.h"
+#include "FWCore/Framework/src/ModuleHolderFactory.h"
 #include "FWCore/Framework/interface/OutputModuleCommunicator.h"
 #include "FWCore/Framework/interface/maker/ModuleHolder.h"
 #include "FWCore/Framework/interface/ModuleRegistry.h"
+#include "FWCore/Framework/interface/ModuleRegistryUtilities.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
 #include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/Framework/src/PathStatusInserter.h"
@@ -56,7 +57,7 @@
 
 namespace edm {
 
-  class Maker;
+  class ModuleMakerBase;
 
   namespace {
     using std::placeholders::_1;
@@ -68,13 +69,13 @@ namespace edm {
     // Here we make the trigger results inserter directly.  This should
     // probably be a utility in the WorkerRegistry or elsewhere.
 
-    std::shared_ptr<TriggerResultInserter> makeInserter(
-        ParameterSet& proc_pset,
-        PreallocationConfiguration const& iPrealloc,
-        SignallingProductRegistryFiller& preg,
-        ExceptionToActionTable const& actions,
-        std::shared_ptr<ActivityRegistry> areg,
-        std::shared_ptr<ProcessConfiguration const> processConfiguration) {
+    std::shared_ptr<TriggerResultInserter> makeInserter(ParameterSet& proc_pset,
+                                                        PreallocationConfiguration const& iPrealloc,
+                                                        SignallingProductRegistryFiller& preg,
+                                                        ExceptionToActionTable const& actions,
+                                                        std::shared_ptr<ActivityRegistry> areg,
+                                                        std::shared_ptr<ProcessConfiguration const> processConfiguration,
+                                                        ModuleRegistry& moduleRegistry) {
       ParameterSet* trig_pset = proc_pset.getPSetForUpdate("@trigger_paths");
       trig_pset->registerIt();
 
@@ -85,29 +86,13 @@ namespace edm {
                            processConfiguration.get(),
                            ModuleDescription::getUniqueID());
 
-      areg->preModuleConstructionSignal_(md);
-      bool postCalled = false;
-      std::shared_ptr<TriggerResultInserter> returnValue;
-      // Caught exception is rethrown
-      CMS_SA_ALLOW try {
-        maker::ModuleHolderT<TriggerResultInserter> holder(
-            make_shared_noexcept_false<TriggerResultInserter>(*trig_pset, iPrealloc.numberOfStreams()),
-            static_cast<Maker const*>(nullptr));
-        holder.setModuleDescription(md);
-        holder.registerProductsAndCallbacks(&preg);
-        returnValue = holder.module();
-        postCalled = true;
-        // if exception then post will be called in the catch block
-        areg->postModuleConstructionSignal_(md);
-      } catch (...) {
-        if (!postCalled) {
-          CMS_SA_ALLOW try { areg->postModuleConstructionSignal_(md); } catch (...) {
-            // If post throws an exception ignore it because we are already handling another exception
-          }
-        }
-        throw;
-      }
-      return returnValue;
+      return moduleRegistry.makeExplicitModule<TriggerResultInserter>(md,
+                                                                      iPrealloc,
+                                                                      &preg,
+                                                                      areg->preModuleConstructionSignal_,
+                                                                      areg->postModuleConstructionSignal_,
+                                                                      *trig_pset,
+                                                                      iPrealloc.numberOfStreams());
     }
 
     template <typename T>
@@ -117,6 +102,7 @@ namespace edm {
                                  SignallingProductRegistryFiller& preg,
                                  std::shared_ptr<ActivityRegistry> areg,
                                  std::shared_ptr<ProcessConfiguration const> processConfiguration,
+                                 ModuleRegistry& moduleRegistry,
                                  std::string const& moduleTypeName) {
       ParameterSet pset;
       pset.addParameter<std::string>("@module_type", moduleTypeName);
@@ -128,27 +114,13 @@ namespace edm {
       for (auto const& pathName : pathNames) {
         ModuleDescription md(
             pset.id(), moduleTypeName, pathName, processConfiguration.get(), ModuleDescription::getUniqueID());
-
-        areg->preModuleConstructionSignal_(md);
-        bool postCalled = false;
-        // Caught exception is rethrown
-        CMS_SA_ALLOW try {
-          maker::ModuleHolderT<T> holder(make_shared_noexcept_false<T>(iPrealloc.numberOfStreams()),
-                                         static_cast<Maker const*>(nullptr));
-          holder.setModuleDescription(md);
-          holder.registerProductsAndCallbacks(&preg);
-          pathStatusInserters.emplace_back(holder.module());
-          postCalled = true;
-          // if exception then post will be called in the catch block
-          areg->postModuleConstructionSignal_(md);
-        } catch (...) {
-          if (!postCalled) {
-            CMS_SA_ALLOW try { areg->postModuleConstructionSignal_(md); } catch (...) {
-              // If post throws an exception ignore it because we are already handling another exception
-            }
-          }
-          throw;
-        }
+        auto module = moduleRegistry.makeExplicitModule<T>(md,
+                                                           iPrealloc,
+                                                           &preg,
+                                                           areg->preModuleConstructionSignal_,
+                                                           areg->postModuleConstructionSignal_,
+                                                           iPrealloc.numberOfStreams());
+        pathStatusInserters.emplace_back(std::move(module));
       }
     }
 
@@ -498,10 +470,11 @@ namespace edm {
                      ProcessContext const* processContext,
                      ModuleTypeResolverMaker const* resolverMaker)
       :  //Only create a resultsInserter if there is a trigger path
-        resultsInserter_{tns.getTrigPaths().empty()
-                             ? std::shared_ptr<TriggerResultInserter>{}
-                             : makeInserter(proc_pset, prealloc, preg, actions, areg, processConfiguration)},
         moduleRegistry_(std::make_shared<ModuleRegistry>(resolverMaker)),
+        resultsInserter_{
+            tns.getTrigPaths().empty()
+                ? std::shared_ptr<TriggerResultInserter>{}
+                : makeInserter(proc_pset, prealloc, preg, actions, areg, processConfiguration, *moduleRegistry_)},
         all_output_communicators_(),
         preallocConfig_(prealloc),
         pathNames_(&tns.getTrigPaths()),
@@ -513,6 +486,7 @@ namespace edm {
                             preg,
                             areg,
                             processConfiguration,
+                            *moduleRegistry_,
                             std::string("PathStatusInserter"));
 
     if (endPathNames_->size() > 1) {
@@ -522,6 +496,7 @@ namespace edm {
                               preg,
                               areg,
                               processConfiguration,
+                              *moduleRegistry_,
                               std::string("EndPathStatusInserter"));
     }
 
@@ -543,8 +518,6 @@ namespace edm {
                                                                                processContext));
     }
 
-    //TriggerResults are injected automatically by StreamSchedules and are
-    // unknown to the ModuleRegistry
     const std::string kTriggerResults("TriggerResults");
     std::vector<std::string> modulesToUse;
     modulesToUse.reserve(streamSchedules_[0]->allWorkersLumisAndEvents().size());
@@ -645,9 +618,9 @@ namespace edm {
 
     branchIDListHelper.updateFromRegistry(preg.registry());
 
-    for (auto const& worker : streamSchedules_[0]->allWorkersLumisAndEvents()) {
-      worker->registerThinnedAssociations(preg.registry(), thinnedAssociationsHelper);
-    }
+    moduleRegistry_->forAllModuleHolders([&preg, &thinnedAssociationsHelper](auto& iHolder) {
+      iHolder->registerThinnedAssociations(preg.registry(), thinnedAssociationsHelper);
+    });
 
     processBlockHelper.updateForNewProcess(preg.registry(), processConfiguration->processName());
 
@@ -777,7 +750,7 @@ namespace edm {
   }
 
   void Schedule::endJob(ExceptionCollector& collector) {
-    globalSchedule_->endJob(collector);
+    globalSchedule_->endJob(collector, *moduleRegistry_);
     if (collector.hasThrown()) {
       return;
     }
@@ -1180,18 +1153,19 @@ namespace edm {
   void Schedule::beginJob(ProductRegistry const& iRegistry,
                           eventsetup::ESRecordsToProductResolverIndices const& iESIndices,
                           ProcessBlockHelperBase const& processBlockHelperBase,
-                          ProcessContext const& processContext) {
-    globalSchedule_->beginJob(iRegistry, iESIndices, processBlockHelperBase, processContext);
+                          std::string const& iProcessName) {
+    finishModulesInitialization(*moduleRegistry_, iRegistry, iESIndices, processBlockHelperBase, iProcessName);
+    globalSchedule_->beginJob(*moduleRegistry_);
   }
 
   void Schedule::beginStream(unsigned int streamID) {
     assert(streamID < streamSchedules_.size());
-    streamSchedules_[streamID]->beginStream();
+    streamSchedules_[streamID]->beginStream(*moduleRegistry_);
   }
 
   void Schedule::endStream(unsigned int streamID, ExceptionCollector& collector, std::mutex& collectorMutex) noexcept {
     assert(streamID < streamSchedules_.size());
-    streamSchedules_[streamID]->endStream(collector, collectorMutex);
+    streamSchedules_[streamID]->endStream(*moduleRegistry_, collector, collectorMutex);
   }
 
   void Schedule::processOneEventAsync(WaitingTaskHolder iTask,
@@ -1231,21 +1205,21 @@ namespace edm {
       auto const runLookup = iRegistry.registry().productLookup(InRun);
       auto const lumiLookup = iRegistry.registry().productLookup(InLumi);
       auto const eventLookup = iRegistry.registry().productLookup(InEvent);
-      found->updateLookup(InProcess, *runLookup);
-      found->updateLookup(InRun, *runLookup);
-      found->updateLookup(InLumi, *lumiLookup);
-      found->updateLookup(InEvent, *eventLookup);
-      found->updateLookup(iIndices);
+      newMod->updateLookup(InProcess, *runLookup);
+      newMod->updateLookup(InRun, *runLookup);
+      newMod->updateLookup(InLumi, *lumiLookup);
+      newMod->updateLookup(InEvent, *eventLookup);
+      newMod->updateLookup(iIndices);
 
       auto const& processName = newMod->moduleDescription().processName();
       auto const& processBlockModuleToIndicies = processBlockLookup->indiciesForModulesInProcess(processName);
       auto const& runModuleToIndicies = runLookup->indiciesForModulesInProcess(processName);
       auto const& lumiModuleToIndicies = lumiLookup->indiciesForModulesInProcess(processName);
       auto const& eventModuleToIndicies = eventLookup->indiciesForModulesInProcess(processName);
-      found->resolvePutIndicies(InProcess, processBlockModuleToIndicies);
-      found->resolvePutIndicies(InRun, runModuleToIndicies);
-      found->resolvePutIndicies(InLumi, lumiModuleToIndicies);
-      found->resolvePutIndicies(InEvent, eventModuleToIndicies);
+      newMod->resolvePutIndicies(InProcess, processBlockModuleToIndicies);
+      newMod->resolvePutIndicies(InRun, runModuleToIndicies);
+      newMod->resolvePutIndicies(InLumi, lumiModuleToIndicies);
+      newMod->resolvePutIndicies(InEvent, eventModuleToIndicies);
     }
 
     return true;
@@ -1283,12 +1257,12 @@ namespace edm {
   Schedule::AllWorkers const& Schedule::allWorkers() const { return globalSchedule_->allWorkers(); }
 
   void Schedule::convertCurrentProcessAlias(std::string const& processName) {
-    for (auto const& worker : allWorkers()) {
-      worker->convertCurrentProcessAlias(processName);
-    }
+    moduleRegistry_->forAllModuleHolders([&](auto& iHolder) { iHolder->convertCurrentProcessAlias(processName); });
   }
 
-  void Schedule::releaseMemoryPostLookupSignal() { globalSchedule_->releaseMemoryPostLookupSignal(); }
+  void Schedule::releaseMemoryPostLookupSignal() {
+    moduleRegistry_->forAllModuleHolders([&](auto& iHolder) { iHolder->releaseMemoryPostLookupSignal(); });
+  }
 
   void Schedule::availablePaths(std::vector<std::string>& oLabelsToFill) const {
     streamSchedules_[0]->availablePaths(oLabelsToFill);

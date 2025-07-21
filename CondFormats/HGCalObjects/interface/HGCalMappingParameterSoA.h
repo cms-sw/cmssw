@@ -3,7 +3,6 @@
 
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
-#include "DataFormats/SoATemplate/interface/SoAView.h"
 
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
@@ -19,7 +18,7 @@ namespace hgcal {
                       SOA_COLUMN(int, i1),
                       SOA_COLUMN(int, i2),
                       SOA_COLUMN(uint8_t, irot),
-                      SOA_COLUMN(int, celltype),
+                      SOA_COLUMN(int8_t, celltype),
                       SOA_COLUMN(uint16_t, typeidx),
                       SOA_COLUMN(uint16_t, fedid),
                       SOA_COLUMN(uint16_t, slinkidx),
@@ -35,6 +34,7 @@ namespace hgcal {
                       SOA_COLUMN(bool, valid),
                       SOA_COLUMN(bool, isHD),
                       SOA_COLUMN(bool, iscalib),
+                      SOA_COLUMN(int, caliboffset),
                       SOA_COLUMN(bool, isSiPM),
                       SOA_COLUMN(uint16_t, typeidx),
                       SOA_COLUMN(uint16_t, chip),

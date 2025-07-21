@@ -32,9 +32,6 @@ namespace edm {
   public:
     typedef std::vector<Worker*> AllWorkers;
 
-    WorkerManager(std::shared_ptr<ActivityRegistry> actReg,
-                  ExceptionToActionTable const& actions,
-                  ModuleTypeResolverMaker const* typeResolverMaker);
     WorkerManager(WorkerManager&&) = default;
 
     WorkerManager(std::shared_ptr<ModuleRegistry> modReg,
@@ -70,15 +67,6 @@ namespace edm {
     void setupResolvers(Principal& principal);
     void setupOnDemandSystem(EventTransitionInfo const&);
 
-    void beginJob(ProductRegistry const& iRegistry,
-                  eventsetup::ESRecordsToProductResolverIndices const&,
-                  ProcessBlockHelperBase const&,
-                  GlobalContext const&);
-    void endJob(ExceptionCollector&, GlobalContext const&);
-
-    void beginStream(StreamID, StreamContext const&);
-    void endStream(StreamID, StreamContext const&, ExceptionCollector&, std::mutex& collectorMutex) noexcept;
-
     AllWorkers const& allWorkers() const { return allWorkers_; }
     AllWorkers const& unscheduledWorkers() const { return unscheduled_.workers(); }
 
@@ -90,13 +78,21 @@ namespace edm {
                       SignallingProductRegistryFiller& preg,
                       PreallocationConfiguration const* prealloc,
                       std::shared_ptr<ProcessConfiguration const> processConfiguration,
-                      std::string const& label);
+                      std::string const& label,
+                      bool addToAllWorkers = true);
 
+    template <typename T>
+    Worker* getWorkerForModule(T const& module) {
+      auto* worker = getWorkerForExistingModule(module.moduleDescription().moduleLabel());
+      assert(worker != nullptr);
+      assert(worker->matchesBaseClassPointer(static_cast<typename T::ModuleType const*>(&module)));
+      return worker;
+    }
     void resetAll();
 
-    void releaseMemoryPostLookupSignal();
-
   private:
+    Worker* getWorkerForExistingModule(std::string const& label);
+
     WorkerRegistry workerReg_;
     ExceptionToActionTable const* actionTable_;
     AllWorkers allWorkers_;

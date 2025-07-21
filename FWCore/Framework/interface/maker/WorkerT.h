@@ -59,16 +59,6 @@ namespace edm {
     SerialTaskQueue* globalRunsQueue() final;
     SerialTaskQueue* globalLuminosityBlocksQueue() final;
 
-    void updateLookup(BranchType iBranchType, ProductResolverIndexHelper const&) final;
-    void updateLookup(eventsetup::ESRecordsToProductResolverIndices const&) final;
-    void releaseMemoryPostLookupSignal() final;
-    void selectInputProcessBlocks(ProductRegistry const&, ProcessBlockHelperBase const&) final;
-
-    void resolvePutIndicies(
-        BranchType iBranchType,
-        std::unordered_multimap<std::string, std::tuple<TypeID const*, const char*, edm::ProductResolverIndex>> const&
-            iIndicies) final;
-
     template <typename D>
     void callWorkerBeginStream(D, StreamID);
     template <typename D>
@@ -81,6 +71,8 @@ namespace edm {
     void callWorkerStreamBegin(D, StreamID, LumiTransitionInfo const&, ModuleCallingContext const*);
     template <typename D>
     void callWorkerStreamEnd(D, StreamID, LumiTransitionInfo const&, ModuleCallingContext const*);
+
+    bool matchesBaseClassPointer(void const* iPtr) const noexcept final { return &(*module_) == iPtr; }
 
   protected:
     T& module() { return *module_; }
@@ -116,20 +108,10 @@ namespace edm {
     bool implDoStreamBegin(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) override;
     bool implDoStreamEnd(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) override;
     bool implDoEnd(LumiTransitionInfo const&, ModuleCallingContext const*) override;
-    void implBeginJob() override;
-    void implEndJob() override;
-    void implBeginStream(StreamID) override;
-    void implEndStream(StreamID) override;
     void implRespondToOpenInputFile(FileBlock const& fb) override;
     void implRespondToCloseInputFile(FileBlock const& fb) override;
     void implRespondToCloseOutputFile() override;
-    void implRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) override;
-    std::string workerType() const override;
     TaskQueueAdaptor serializeRunModule() override;
-
-    void convertCurrentProcessAlias(std::string const& processName) override {
-      module_->convertCurrentProcessAlias(processName);
-    }
 
     std::vector<ModuleConsumesInfo> moduleConsumesInfos() const override;
     std::vector<ModuleConsumesMinimalESInfo> moduleConsumesMinimalESInfos() const final {

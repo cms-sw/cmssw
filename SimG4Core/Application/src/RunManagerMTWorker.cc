@@ -5,6 +5,7 @@
 #include "SimG4Core/Application/interface/EventAction.h"
 #include "SimG4Core/Application/interface/Phase2EventAction.h"
 #include "SimG4Core/Application/interface/StackingAction.h"
+#include "SimG4Core/Application/interface/Phase2StackingAction.h"
 #include "SimG4Core/Application/interface/TrackingAction.h"
 #include "SimG4Core/Application/interface/Phase2TrackingAction.h"
 #include "SimG4Core/Application/interface/SteppingAction.h"
@@ -31,6 +32,7 @@
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
 #include "SimG4Core/Notification/interface/SimTrackManager.h"
+#include "SimG4Core/Notification/interface/CurrentG4Track.h"
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
@@ -179,6 +181,9 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& p, edm::Consumes
       m_G4CommandsEndRun(p.getParameter<std::vector<std::string>>("G4CommandsEndRun")),
       m_p(p) {
   int id = getThreadIndex();
+  if (id > CurrentG4Track::NumberOfThreads()) {
+    CurrentG4Track::setNumberOfThreads(id);
+  }
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker for the thread " << id;
 
   // Initialize per-thread output
@@ -474,8 +479,13 @@ void RunManagerMTWorker::initializeUserActions() {
     userSteppingAction = (G4UserSteppingAction*)ptr;
   }
 
-  // staking actions and event manager
-  auto userStackingAction = new StackingAction(m_pStackingAction, m_sVerbose.get());
+  // stacking actions and event manager
+  G4UserStackingAction* userStackingAction;
+  if (m_isPhase2) {
+    userStackingAction = new Phase2StackingAction(m_pStackingAction, m_sVerbose.get());
+  } else {
+    userStackingAction = new StackingAction(m_pStackingAction, m_sVerbose.get());
+  }
   if (m_UseG4EventManager) {
     eventManager->SetUserAction(userEventAction);
     eventManager->SetUserAction(userTrackingAction);
@@ -739,40 +749,35 @@ void RunManagerMTWorker::DumpMagneticField(const G4Field* field, const std::stri
     double rmax = 9000 * CLHEP::mm;
     double zmax = 24000 * CLHEP::mm;
 
-    double dr = 1 * CLHEP::cm;
-    double dz = 5 * CLHEP::cm;
+    double dx = 10 * CLHEP::cm;
+    double dz = 10 * CLHEP::cm;
 
-    int nr = (int)(rmax / dr);
-    int nz = 2 * (int)(zmax / dz);
-
-    double r = 0.0;
-    double z0 = -zmax;
-    double z;
-
-    double phi = 0.0;
-    double cosf = cos(phi);
-    double sinf = sin(phi);
+    int nx = G4lrint(2 * rmax / dx);
+    int nz = G4lrint(2 * zmax / dz);
 
     double point[4] = {0.0, 0.0, 0.0, 0.0};
     double bfield[3] = {0.0, 0.0, 0.0};
 
-    fout << std::setprecision(6);
-    for (int i = 0; i <= nr; ++i) {
-      z = z0;
-      for (int j = 0; j <= nz; ++j) {
-        point[0] = r * cosf;
-        point[1] = r * sinf;
-        point[2] = z;
-        field->GetFieldValue(point, bfield);
-        fout << "R(mm)= " << r / CLHEP::mm << " phi(deg)= " << phi / CLHEP::degree << " Z(mm)= " << z / CLHEP::mm
-             << "   Bz(tesla)= " << bfield[2] / CLHEP::tesla
-             << " Br(tesla)= " << (bfield[0] * cosf + bfield[1] * sinf) / CLHEP::tesla
-             << " Bphi(tesla)= " << (bfield[0] * sinf - bfield[1] * cosf) / CLHEP::tesla << G4endl;
-        z += dz;
-      }
-      r += dr;
-    }
+    double d2 = 1. / CLHEP::mm;
+    double d3 = 1. / CLHEP::tesla;
 
+    fout << std::setprecision(6);
+    fout << "### " << file << " CMS magnetic field: X(mm) Y(mm) Z(mm) Bx(tesla) By(tesla) Bz(tesla)  ###" << G4endl;
+    for (int k = 0; k <= nx; ++k) {
+      double x = k * dx - rmax;
+      for (int i = 0; i <= nx; ++i) {
+        double y = i * dx - rmax;
+        for (int j = 0; j <= nz; ++j) {
+          double z = j * dz - zmax;
+          point[0] = x;
+          point[1] = y;
+          point[2] = z;
+          field->GetFieldValue(point, bfield);
+          fout << x * d2 << " " << y * d2 << " " << z * d2 << " " << bfield[0] * d3 << " " << bfield[1] * d3 << " "
+               << bfield[2] * d3 << G4endl;
+        }
+      }
+    }
     fout.close();
   }
 }

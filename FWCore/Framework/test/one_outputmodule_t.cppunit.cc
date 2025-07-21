@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/maker/WorkerT.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/ProductResolversFactory.h"
+#include "FWCore/Framework/interface/maker/ModuleHolder.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
@@ -395,8 +396,8 @@ void testOneOutputModule::testTransitions(std::shared_ptr<T> iMod, Expectations 
 
   iMod->doPreallocate(m_preallocConfig);
   edm::WorkerT<edm::one::OutputModuleBase> w{iMod, m_desc, m_params.actions_};
-  edm::GlobalContext globalContext(edm::GlobalContext::Transition::kBeginJob, nullptr);
-  w.beginJob(globalContext);
+  edm::maker::ModuleHolderT<edm::one::OutputModuleBase> h(iMod);
+  h.beginJob();
   edm::OutputModuleCommunicatorT<edm::one::OutputModuleBase> comm(iMod.get());
   for (auto& keyVal : m_transToFunc) {
     testTransition(iMod, &w, &comm, keyVal.first, iExpect, keyVal.second);

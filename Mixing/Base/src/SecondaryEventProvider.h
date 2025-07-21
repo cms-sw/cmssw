@@ -41,16 +41,17 @@ namespace edm {
     void beginJob(ProductRegistry const& iRegistry,
                   eventsetup::ESRecordsToProductResolverIndices const&,
                   GlobalContext const&);
-    void endJob(ExceptionCollector& exceptionCollector, GlobalContext const& globalContext) {
-      workerManager_.endJob(exceptionCollector, globalContext);
-    }
+    void endJob(ExceptionCollector& exceptionCollector, GlobalContext const& globalContext);
 
     void beginStream(edm::StreamID, StreamContext const&);
     void endStream(edm::StreamID, StreamContext const&, ExceptionCollector&);
 
   private:
     std::unique_ptr<ExceptionToActionTable> exceptionToActionTable_;
+    std::shared_ptr<ModuleRegistry> moduleRegistry_;
+    std::shared_ptr<ActivityRegistry> activityRegistry_;
     WorkerManager workerManager_;
+    std::vector<unsigned int> modulesThatFailed_;
   };
 }  // namespace edm
 #endif

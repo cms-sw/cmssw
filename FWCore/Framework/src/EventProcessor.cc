@@ -428,7 +428,7 @@ namespace edm {
 
     //initialize the services
     auto& serviceSets = processDesc->getServicesPSets();
-    ServiceToken token = items.initServices(serviceSets, *parameterSet, iToken, iLegacy, true);
+    ServiceToken token = items.initServices(serviceSets, *parameterSet, iToken, iLegacy);
     serviceToken_ = items.addTNS(*parameterSet, token);
 
     //make the services available
@@ -693,7 +693,8 @@ namespace edm {
     // after they all complete.
     std::exception_ptr firstException;
     CMS_SA_ALLOW try {
-      schedule_->beginJob(*preg_, esRecordsToProductResolverIndices, *processBlockHelper_, processContext_);
+      schedule_->beginJob(
+          *preg_, esRecordsToProductResolverIndices, *processBlockHelper_, processContext_.processName());
     } catch (...) {
       firstException = std::current_exception();
     }
@@ -1203,13 +1204,16 @@ namespace edm {
                           return;
                         }
 
-                        status->setRunPrincipal(readRun());
-
-                        RunPrincipal& runPrincipal = *status->runPrincipal();
                         {
-                          SendSourceTerminationSignalIfException sentry(actReg_.get());
-                          input_->doBeginRun(runPrincipal, &processContext_);
-                          sentry.completedSuccessfully();
+                          std::lock_guard<std::recursive_mutex> guard(*(sourceMutex_.get()));
+                          status->setRunPrincipal(readRun());
+
+                          RunPrincipal& runPrincipal = *status->runPrincipal();
+                          {
+                            SendSourceTerminationSignalIfException sentry(actReg_.get());
+                            input_->doBeginRun(runPrincipal, &processContext_);
+                            sentry.completedSuccessfully();
+                          }
                         }
 
                         EventSetupImpl const& es = status->eventSetupImpl(esp_->subProcessIndex());
@@ -1638,15 +1642,18 @@ namespace edm {
                           return;
                         }
 
-                        status->setLumiPrincipal(readLuminosityBlock(iRunStatus->runPrincipal()));
-
-                        LuminosityBlockPrincipal& lumiPrincipal = *status->lumiPrincipal();
                         {
-                          SendSourceTerminationSignalIfException sentry(actReg_.get());
-                          input_->doBeginLumi(lumiPrincipal, &processContext_);
-                          sentry.completedSuccessfully();
-                        }
+                          std::lock_guard<std::recursive_mutex> guard(*(sourceMutex_.get()));
+                          status->setLumiPrincipal(readLuminosityBlock(iRunStatus->runPrincipal()));
 
+                          LuminosityBlockPrincipal& lumiPrincipal = *status->lumiPrincipal();
+                          {
+                            SendSourceTerminationSignalIfException sentry(actReg_.get());
+                            input_->doBeginLumi(lumiPrincipal, &processContext_);
+                            sentry.completedSuccessfully();
+                          }
+                        }
+                        LuminosityBlockPrincipal& lumiPrincipal = *status->lumiPrincipal();
                         Service<RandomNumberGenerator> rng;
                         if (rng.isAvailable()) {
                           LuminosityBlock lb(lumiPrincipal, ModuleDescription(), nullptr, false);

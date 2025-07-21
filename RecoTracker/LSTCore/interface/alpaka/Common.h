@@ -58,34 +58,44 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   namespace dnn {
 
     // Common constants for both DNNs
-    HOST_DEVICE_CONSTANT float kEta_norm = 2.5f;
     HOST_DEVICE_CONSTANT float kPhi_norm = kPi;
     HOST_DEVICE_CONSTANT float kEtaSize = 0.25f;  // Bin size in eta.
     constexpr unsigned int kPtBins = 2;
     constexpr unsigned int kEtaBins = 10;
 
+    namespace plsembdnn {
+      HOST_DEVICE_CONSTANT float kEta_norm = 4.0f;
+      HOST_DEVICE_CONSTANT float kEtaErr_norm = 0.00139f;
+      HOST_DEVICE_CONSTANT float kWP[kEtaBins] = {
+          0.9235f, 0.8974f, 0.9061f, 0.9431f, 0.8262f, 0.7998f, 0.7714f, 0.7017f, 0.6749f, 0.6624f};
+    }  // namespace plsembdnn
+
     namespace t3dnn {
+      HOST_DEVICE_CONSTANT float kEta_norm = 2.5f;
       HOST_DEVICE_CONSTANT float kZ_max = 224.149505f;
       HOST_DEVICE_CONSTANT float kR_max = 98.932365f;
+      HOST_DEVICE_CONSTANT unsigned int kOutputFeatures = 3;
       HOST_DEVICE_CONSTANT float kWp_prompt[kPtBins][kEtaBins] = {
-          {0.4957, 0.5052, 0.5201, 0.5340, 0.4275, 0.4708, 0.4890, 0.4932, 0.5400, 0.5449},
-          {0.0302, 0.0415, 0.0994, 0.1791, 0.1960, 0.2467, 0.3227, 0.3242, 0.2367, 0.2187}};
+          {0.4957f, 0.5052f, 0.5201f, 0.5340f, 0.4275f, 0.4708f, 0.4890f, 0.4932f, 0.5400f, 0.5449f},
+          {0.0302f, 0.0415f, 0.0994f, 0.1791f, 0.1960f, 0.2467f, 0.3227f, 0.3242f, 0.2367f, 0.2187f}};
       HOST_DEVICE_CONSTANT float kWp_displaced[kPtBins][kEtaBins] = {
-          {0.0334, 0.0504, 0.0748, 0.0994, 0.1128, 0.1123, 0.1118, 0.1525, 0.1867, 0.1847},
-          {0.0091, 0.0075, 0.0350, 0.0213, 0.0435, 0.0676, 0.1957, 0.1649, 0.1080, 0.1046}};
+          {0.0334f, 0.0504f, 0.0748f, 0.0994f, 0.1128f, 0.1123f, 0.1118f, 0.1525f, 0.1867f, 0.1847f},
+          {0.0091f, 0.0075f, 0.0350f, 0.0213f, 0.0435f, 0.0676f, 0.1957f, 0.1649f, 0.1080f, 0.1046f}};
     }  // namespace t3dnn
 
     namespace t5dnn {
+      HOST_DEVICE_CONSTANT float kEta_norm = 2.5f;
       HOST_DEVICE_CONSTANT float kZ_max = 267.2349854f;
       HOST_DEVICE_CONSTANT float kR_max = 110.1099396f;
       HOST_DEVICE_CONSTANT float kWp[kPtBins][kEtaBins] = {
-          {0.4493, 0.4939, 0.5715, 0.6488, 0.5709, 0.5938, 0.7164, 0.7565, 0.8103, 0.8593},
-          {0.4488, 0.4448, 0.5067, 0.5929, 0.4836, 0.4112, 0.4968, 0.4403, 0.5597, 0.5067}};
+          {0.4493f, 0.4939f, 0.5715f, 0.6488f, 0.5709f, 0.5938f, 0.7164f, 0.7565f, 0.8103f, 0.8593f},
+          {0.4488f, 0.4448f, 0.5067f, 0.5929f, 0.4836f, 0.4112f, 0.4968f, 0.4403f, 0.5597f, 0.5067f}};
     }  // namespace t5dnn
 
     namespace pt3dnn {
+      HOST_DEVICE_CONSTANT float kEta_norm = 2.5f;
       HOST_DEVICE_CONSTANT float kWp[kEtaBins] = {
-          0.189, 0.1805, 0.2267, 0.3104, 0.4719, 0.3159, 0.1372, 0.1571, 0.3198, 0.186};
+          0.189f, 0.1805f, 0.2267f, 0.3104f, 0.4719f, 0.3159f, 0.1372f, 0.1571f, 0.3198f, 0.186f};
       HOST_DEVICE_CONSTANT float kWpHigh = 0.0473f;
     }  // namespace pt3dnn
 

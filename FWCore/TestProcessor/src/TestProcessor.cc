@@ -86,7 +86,7 @@ namespace edm {
 
       //initialize the services
       auto& serviceSets = procDesc->getServicesPSets();
-      ServiceToken token = items.initServices(serviceSets, *psetPtr, iToken, serviceregistry::kOverlapIsError, true);
+      ServiceToken token = items.initServices(serviceSets, *psetPtr, iToken, serviceregistry::kOverlapIsError);
       serviceToken_ = items.addTNS(*psetPtr, token);
 
       //make the services available
@@ -432,7 +432,8 @@ namespace edm {
       espController_->finishConfiguration();
       actReg_->eventSetupConfigurationSignal_(esp_->recordsToResolverIndices(), processContext_);
 
-      schedule_->beginJob(*preg_, esp_->recordsToResolverIndices(), *processBlockHelper_, processContext_);
+      schedule_->beginJob(
+          *preg_, esp_->recordsToResolverIndices(), *processBlockHelper_, processContext_.processName());
 
       for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
         schedule_->beginStream(i);

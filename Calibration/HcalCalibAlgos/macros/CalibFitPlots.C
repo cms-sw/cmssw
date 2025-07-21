@@ -265,6 +265,7 @@
 #include "CalibCorr.C"
 
 const double fitrangeFactor = 1.5;
+const double fitrangeFactor1 = 1.2;
 
 struct cfactors {
   int ieta, depth;
@@ -445,7 +446,7 @@ results fitTwoGauss(TH1D* hist, bool debug) {
   std::pair<double, double> mrms = GetMean(hist, 0.2, 2.0, rms);
   double mean = mrms.first;
   double LowEdge = mean - fitrangeFactor * rms;
-  double HighEdge = mean + fitrangeFactor * rms;
+  double HighEdge = mean + fitrangeFactor1 * rms;
   if (LowEdge < 0.15)
     LowEdge = 0.15;
   std::string option = (hist->GetEntries() > 100) ? "QRS" : "QRWLS";
@@ -482,7 +483,7 @@ results fitTwoGauss(TH1D* hist, bool debug) {
   highValue[5] = 100. * startvalues[5];
   //fitrange[0] = mean - 2.0*rms; fitrange[1] = mean + 2.0*rms;
   fitrange[0] = Fit->Value(1) - fitrangeFactor * Fit->Value(2);
-  fitrange[1] = Fit->Value(1) + fitrangeFactor * Fit->Value(2);
+  fitrange[1] = Fit->Value(1) + fitrangeFactor1 * Fit->Value(2);
   TFitResultPtr Fitfun = functionFit(hist, fitrange, startvalues, lowValue, highValue);
   double wt1 = (Fitfun->Value(0)) * (Fitfun->Value(2));
   double value1 = Fitfun->Value(1);
@@ -514,7 +515,8 @@ results fitOneGauss(TH1D* hist, bool fitTwice, bool debug) {
   std::pair<double, double> mrms = GetMean(hist, 0.2, 2.0, rms);
   double mean = mrms.first;
   double LowEdge = ((mean - fitrangeFactor * rms) < 0.5) ? 0.5 : (mean - fitrangeFactor * rms);
-  double HighEdge = (mean + fitrangeFactor * rms);
+  double diff = mean - LowEdge;
+  double HighEdge = (diff > fitrangeFactor1 * rms) ? (mean + fitrangeFactor1 * rms) : (mean + diff);
   if (debug)
     std::cout << hist->GetName() << " Mean " << mean << " RMS " << rms << " Range " << LowEdge << ":" << HighEdge
               << "\n";
@@ -531,9 +533,11 @@ results fitOneGauss(TH1D* hist, bool fitTwice, bool debug) {
   double werror = Fit1->FitResult::Error(2);
   if (fitTwice) {
     LowEdge = Fit1->Value(1) - fitrangeFactor * Fit1->Value(2);
-    HighEdge = Fit1->Value(1) + fitrangeFactor * Fit1->Value(2);
     if (LowEdge < 0.5)
       LowEdge = 0.5;
+    diff = Fit1->Value(1) - LowEdge;
+    HighEdge =
+        (diff > fitrangeFactor1 * rms) ? (Fit1->Value(1) + fitrangeFactor1 * Fit1->Value(2)) : (Fit1->Value(1) + diff);
     if (HighEdge > 5.0)
       HighEdge = 5.0;
     if (debug)
@@ -549,6 +553,94 @@ results fitOneGauss(TH1D* hist, bool fitTwice, bool debug) {
   std::pair<double, double> rmserr = GetWidth(hist, 0.2, 2.0);
   if (debug) {
     std::cout << "Fit " << value << ":" << error << ":" << hist->GetMeanError() << " Mean " << meaner.first << ":"
+              << meaner.second << " Width " << rmserr.first << ":" << rmserr.second;
+  }
+  double minvalue(0.30);
+  if (value < minvalue || value > 2.0 || error > 0.5) {
+    value = meaner.first;
+    error = meaner.second;
+    width = rmserr.first;
+    werror = rmserr.second;
+  }
+  if (debug) {
+    std::cout << " Final " << value << "+-" << error << ":" << width << "+-" << werror << std::endl;
+  }
+  return results(value, error, width, werror);
+}
+
+double DoubleSidedCrystalballFunction(double* x, double* par) {
+  double alpha_l = par[0];
+  double alpha_h = par[1];
+  double n_l = par[2];
+  double n_h = par[3];
+  double mean = par[4];
+  double sigma = par[5];
+  double N = par[6];
+  float t = (x[0] - mean) / sigma;
+  double result;
+  double fact1TLessMinosAlphaL = alpha_l / n_l;
+  double fact2TLessMinosAlphaL = (n_l / alpha_l) - alpha_l - t;
+  double fact1THihgerAlphaH = alpha_h / n_h;
+  //  double fact2THigherAlphaH = (n_h/alpha_h) - alpha_h + t;
+
+  if (-alpha_l <= t && alpha_h >= t) {
+    result = exp(-0.5 * t * t);
+  } else if (t < -alpha_l) {
+    result = exp(-0.5 * alpha_l * alpha_l) * pow(fact1TLessMinosAlphaL * fact2TLessMinosAlphaL, -n_l);
+  } else if (t > alpha_h) {
+    result = exp(-0.5 * alpha_l * alpha_l) * pow(fact1THihgerAlphaH * fact1THihgerAlphaH, -n_h);
+  }
+  return N * result;
+}
+
+results fitDoubleSidedCrystalball(TH1D* hist, bool /* fitTwice */, bool debug) {
+  double rms;
+  std::pair<double, double> mrms = GetMean(hist, 0.2, 2.0, rms);
+  double mean = mrms.first;
+  double LowEdge = ((mean - fitrangeFactor * rms) < 0.5) ? 0.5 : (mean - fitrangeFactor * rms);
+  double diff = mean - LowEdge;
+  double HighEdge = (diff > fitrangeFactor1 * rms) ? (mean + fitrangeFactor1 * rms) : (mean + diff);
+  if (debug)
+    std::cout << hist->GetName() << " Mean " << mean << " RMS " << rms << " Range " << LowEdge << ":" << HighEdge
+              << "\n";
+  std::string option = (hist->GetEntries() > 100) ? "QRS" : "QRWLS";
+  TObject* ob = gROOT->FindObject("g1");
+  if (ob)
+    ob->Delete();
+  TF1* g1 = new TF1("g1", "gaus", LowEdge, HighEdge);
+  g1->SetLineColor(kGreen);
+  TFitResultPtr Fit1 = hist->Fit(g1, option.c_str(), "");
+  double value = Fit1->Value(1);
+  double error = Fit1->FitResult::Error(1);
+  double width = Fit1->Value(2);
+  double werror = Fit1->FitResult::Error(2);
+
+  LowEdge = Fit1->Value(1) - fitrangeFactor * Fit1->Value(2);
+  if (LowEdge < 0.5)
+    LowEdge = 0.5;
+  diff = Fit1->Value(1) - LowEdge;
+  HighEdge = (diff > fitrangeFactor1 * rms) ? (Fit1->Value(1) + fitrangeFactor1 * Fit1->Value(2))
+                                            : (Fit1->Value(1) + 1.5 * diff);
+  if (HighEdge > 5.0)
+    HighEdge = 5.0;
+  if (debug)
+    std::cout << " Range for second Fit " << LowEdge << ":" << HighEdge << std::endl;
+  TObject* ob2 = gROOT->FindObject("fitDSCB");
+  if (ob2 != nullptr)
+    ob2->Delete();
+  TF1* fitDSCB = new TF1("fitDSCB", DoubleSidedCrystalballFunction, LowEdge, HighEdge, 7);
+  fitDSCB->SetParameters(1, 2, 2, 1, value, width, hist->Integral(LowEdge, HighEdge));
+  fitDSCB->SetParNames("alpha_{low}", "alpha_{high}", "n_{low}", "n_{high}", "mean", "sigma", "Norm");
+  TFitResultPtr Fit = hist->Fit(fitDSCB, option.c_str(), "", LowEdge, HighEdge);
+  value = Fit->Value(4);
+  error = Fit->FitResult::Error(4);
+  width = Fit->Value(5);
+  werror = Fit->FitResult::Error(5);
+
+  std::pair<double, double> meaner = GetMean(hist, 0.2, 2.0, rms);
+  std::pair<double, double> rmserr = GetWidth(hist, 0.2, 2.0);
+  if (debug) {
+    std::cout << "FitDSCB " << value << ":" << error << ":" << hist->GetMeanError() << " Mean " << meaner.first << ":"
               << meaner.second << " Width " << rmserr.first << ":" << rmserr.second;
   }
   double minvalue(0.30);
@@ -636,7 +728,7 @@ void FitHistStandard(std::string infile,
   std::string xname[4] = {"i#eta", "i#eta", "d_{L1}", "# Vertex"};
   int numb[4] = {10, 8, 8, 5};
 
-  if (type == 0) {
+  if ((type % 10) == 0) {
     numb[0] = 8;
     for (int i = 0; i < 9; ++i)
       xbins[i] = xbin0[i];
@@ -679,7 +771,8 @@ void FitHistStandard(std::string infile,
             }
             if (hist->GetEntries() > 4) {
               bool flag = (j == 0) ? true : false;
-              results meaner = fitOneGauss(hist, flag, debug);
+              results meaner = (((type / 10) % 10) == 0) ? fitOneGauss(hist, flag, debug)
+                                                         : fitDoubleSidedCrystalball(hist, flag, debug);
               value = meaner.mean;
               error = meaner.errmean;
               width = meaner.width;
@@ -752,11 +845,11 @@ void FitHistExtended(const char* infile,
   double xbins[99];
   double xbin[23] = {-23.0, -21.0, -19.0, -17.0, -15.0, -13.0, -11.0, -9.0, -7.0, -5.0, -3.0, 0.0,
                      3.0,   5.0,   7.0,   9.0,   11.0,  13.0,  15.0,  17.0, 19.0, 21.0, 23.0};
-  if (type == 2) {
+  if ((type % 10) == 2) {
     numb = 22;
     for (int k = 0; k <= numb; ++k)
       xbins[k] = xbin[k];
-  } else if (type == 1) {
+  } else if ((type % 10) == 1) {
     numb = 1;
     xbins[0] = -25;
     xbins[1] = 25;
@@ -798,7 +891,8 @@ void FitHistExtended(const char* infile,
       }
       if (hist0->GetEntries() > 10) {
         double rms;
-        results meaner0 = fitOneGauss(hist0, true, debug);
+        results meaner0 =
+            (((type / 10) % 10) == 0) ? fitOneGauss(hist0, true, debug) : fitDoubleSidedCrystalball(hist0, true, debug);
         std::pair<double, double> meaner1 = GetMean(hist0, 0.2, 2.0, rms);
         std::pair<double, double> meaner2 = GetWidth(hist0, 0.2, 2.0);
         if (debug) {
@@ -842,13 +936,15 @@ void FitHistExtended(const char* infile,
               TH1D* hist2 = (TH1D*)hist1->Clone(name);
               fitOneGauss(hist2, true, debug);
               hists.push_back(hist2);
-              results meaner = fitOneGauss(hist, true, debug);
+              results meaner = (((type / 10) % 10) == 0) ? fitOneGauss(hist, true, debug)
+                                                         : fitDoubleSidedCrystalball(hist, true, debug);
               value = meaner.mean;
               error = meaner.errmean;
               width = meaner.width;
               werror = meaner.errwidth;
             } else {
-              results meaner = fitOneGauss(hist, true, debug);
+              results meaner = (((type / 10) % 10) == 0) ? fitOneGauss(hist, true, debug)
+                                                         : fitDoubleSidedCrystalball(hist, true, debug);
               value = meaner.mean;
               error = meaner.errmean;
               width = meaner.width;
@@ -919,7 +1015,8 @@ void FitHistExtended(const char* infile,
           if (total > 4) {
             sprintf(name, "%sOne", hist1->GetName());
             TH1D* hist2 = (TH1D*)hist1->Clone(name);
-            results meanerr = fitOneGauss(hist2, true, debug);
+            results meanerr = (((type / 10) % 10) == 0) ? fitOneGauss(hist2, true, debug)
+                                                        : fitDoubleSidedCrystalball(hist2, true, debug);
             value = meanerr.mean;
             error = meanerr.errmean;
             width = meanerr.width;
@@ -936,7 +1033,8 @@ void FitHistExtended(const char* infile,
               hists.push_back(hist3);
             }
             //            results meaner0 = fitTwoGauss(hist, debug);
-            results meaner0 = fitOneGauss(hist, true, debug);
+            results meaner0 = (((type / 10) % 10) == 0) ? fitOneGauss(hist, true, debug)
+                                                        : fitDoubleSidedCrystalball(hist, true, debug);
             value = meaner0.mean;
             error = meaner0.errmean;
             double rms;
@@ -980,6 +1078,7 @@ void FitHistExtended2(const char* infile,
                       const char* outfile,
                       std::string prefix,
                       int numb = 50,
+                      int type = 0,
                       bool append = true,
                       int iname = 3,
                       bool debug = false) {
@@ -1053,13 +1152,15 @@ void FitHistExtended2(const char* infile,
               TH1D* hist2 = (TH1D*)hist1->Clone(name);
               fitOneGauss(hist2, true, debug);
               hists.push_back(hist2);
-              results meaner = fitOneGauss(hist, true, debug);
+              results meaner = (((type / 10) % 10) == 0) ? fitOneGauss(hist, true, debug)
+                                                         : fitDoubleSidedCrystalball(hist, true, debug);
               value = meaner.mean;
               error = meaner.errmean;
               width = meaner.width;
               werror = meaner.errwidth;
             } else {
-              results meaner = fitOneGauss(hist, true, debug);
+              results meaner = (((type / 10) % 10) == 0) ? fitOneGauss(hist, true, debug)
+                                                         : fitDoubleSidedCrystalball(hist, true, debug);
               value = meaner.mean;
               error = meaner.errmean;
               width = meaner.width;
@@ -1135,7 +1236,8 @@ void FitHistExtended2(const char* infile,
           if (total > 4) {
             sprintf(name, "%sOne", hist1->GetName());
             TH1D* hist2 = (TH1D*)hist1->Clone(name);
-            results meanerr = fitOneGauss(hist2, true, debug);
+            results meanerr = (((type / 10) % 10) == 0) ? fitOneGauss(hist2, true, debug)
+                                                        : fitDoubleSidedCrystalball(hist2, true, debug);
             value = meanerr.mean;
             error = meanerr.errmean;
             width = meanerr.width;
@@ -1145,7 +1247,8 @@ void FitHistExtended2(const char* infile,
             std::cout << hist2->GetName() << " MPV " << value << " +- " << error << " Width " << width << " +- "
                       << werror << " W/M " << wbyv << " +- " << wverr << std::endl;
             hists.push_back(hist2);
-            results meaner0 = fitOneGauss(hist, true, debug);
+            results meaner0 = (((type / 10) % 10) == 0) ? fitOneGauss(hist, true, debug)
+                                                        : fitDoubleSidedCrystalball(hist, true, debug);
             value = meaner0.mean;
             error = meaner0.errmean;
             double rms;
@@ -2220,6 +2323,7 @@ void PlotHistCorrFactor(char* infile,
   int nbin = etamax - etamin + 1;
   std::vector<TH1D*> hists;
   std::vector<int> entries;
+  std::vector<int> depths;
   char name[100];
   double dy(0);
   int fits(0);
@@ -2254,17 +2358,20 @@ void PlotHistCorrFactor(char* infile,
       TF1* func = new TF1(name, "pol0", etamin, etamax);
       h->Fit(func, "+QWLR", "");
     }
-    h->SetLineColor(colors[j]);
-    h->SetMarkerColor(colors[j]);
-    h->SetMarkerStyle(mtype[j]);
-    h->GetXaxis()->SetTitle("i#eta");
-    h->GetYaxis()->SetTitle("Correction Factor");
-    h->GetYaxis()->SetLabelOffset(0.005);
-    h->GetYaxis()->SetTitleOffset(1.20);
-    h->GetYaxis()->SetRangeUser(0.0, 2.0);
-    hists.push_back(h);
-    entries.push_back(nent);
-    dy += 0.025;
+    if (nent > 0) {
+      h->SetLineColor(colors[j]);
+      h->SetMarkerColor(colors[j]);
+      h->SetMarkerStyle(mtype[j]);
+      h->GetXaxis()->SetTitle("i#eta");
+      h->GetYaxis()->SetTitle("Correction Factor");
+      h->GetYaxis()->SetLabelOffset(0.005);
+      h->GetYaxis()->SetTitleOffset(1.20);
+      h->GetYaxis()->SetRangeUser(0.0, 2.5);
+      hists.push_back(h);
+      entries.push_back(nent);
+      depths.push_back(j + 1);
+      dy += 0.025;
+    }
   }
   sprintf(name, "c_%sCorrFactor", prefixF.c_str());
   TCanvas* pad = new TCanvas(name, name, 700, 500);
@@ -2292,7 +2399,7 @@ void PlotHistCorrFactor(char* infile,
       st1->SetX2NDC(0.90);
       yh -= dy;
     }
-    sprintf(name, "Depth %d (%s)", k + 1, text.c_str());
+    sprintf(name, "Depth %d (%s)", depths[k], text.c_str());
     legend->AddEntry(hists[k], name, "lp");
   }
   legend->Draw("same");
@@ -2493,7 +2600,7 @@ void PlotHistCorrAsymmetry(
   std::vector<int> entries;
   char name[100];
   double dy(0);
-  int maxd = (depth < 0) ? maxdepth : 1;
+  int maxd = (depth <= 0) ? maxdepth : 1;
   for (int j = 0; j < maxd; ++j) {
     int dep = (depth <= 0) ? (j + 1) : depth;
     sprintf(name, "hd%d", dep);
@@ -4330,7 +4437,7 @@ void PlotMeanError(const std::string infilest, int reg = 3, bool resol = false, 
   } else {
     ok = true;
     fInput >> nEner >> nType >> nPts;
-    int nmax = nEner * nType;
+    const int nmax = nEner * nType;
     int type, elow, ehigh;
     double v1[4], e1[4], v2[4], e2[4];
     for (int n = 0; n < nmax; ++n) {
@@ -4406,7 +4513,7 @@ void PlotMeanError(const std::string infilest, int reg = 3, bool resol = false, 
     legend->SetFillColor(kWhite);
     std::string nameg[ntypmx] = {"MAHI", "M0", "M2"};
     for (int n = 0; n < nType; ++n) {
-      unsigned int nmax0 = energy[n].size();
+      const unsigned int nmax0 = energy[n].size();
       double mom[nmax0], dmom[nmax0], mean[nmax0], dmean[nmax0];
       for (unsigned int k = 0; k < nmax0; ++k) {
         mom[k] = energy[n][k];

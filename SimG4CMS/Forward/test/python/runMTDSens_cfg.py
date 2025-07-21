@@ -1,12 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
 import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
-_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
+import Geometry.MTDCommonData.defaultMTDConditionsEra_cff as _mtdgeo
+_mtdgeo.check_mtdgeo()
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_mtdgeo.MTD_DEFAULT_VERSION)
 
 process = cms.Process('G4PrintGeometry', _PH2_ERA)
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('Configuration.Geometry.GeometryExtendedRun4DefaultReco_cff')
+process.load('Geometry.MTDCommonData.GeometryExtendedRun4MTDDefaultReco_cff')
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = cms.untracked.string('INFO')

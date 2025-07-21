@@ -2,13 +2,14 @@
 # Way to use this:
 #   cmsRun testHGCalRecHitTool_cfg.py geometry=D110
 #
-#   Options for type D95, D96, D98, D99, D100, D101, D102, D103, D104, D105,
-#                    D106, D107, D108, D109, D110, D111, D112, D113, D114,
-#                    D115, D116, D120
+#   Options for geometry D95, D96, D98, D99, D100, D101, D102, D103, D104,
+#                        D105, D106, D107, D108, D109, D110, D111, D112, D113,
+#                        D114, D115, D116, D117, D118, D119, D120, D121, D122,
+#                        D123
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
-import os, sys, imp, re
+import os, sys, importlib, re
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 ####################################################################
@@ -18,7 +19,7 @@ options.register('geometry',
                  "D110",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "type of operations: D95, D96, D98, D99, D100, D101, D102, D103, D104, D105, D106, D107, D108, D109, D110, D111, D112, D113, D114, D115, D116, D120")
+                  "type of operations: D95, D96, D98, D99, D100, D101, D102, D103, D104, D105, D106, D107, D108, D109, D110, D111, D112, D113, D114, D115, D116, D117, D118, D119, D120")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -71,8 +72,8 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.prodTest = cms.EDAnalyzer("HGCalTestRecHitTool",
-                                  Mode = cms.int32(0),
-#                                 Mode = cms.int32(1),
+#                                 Mode = cms.int32(0),
+                                  Mode = cms.int32(1),
                                   )
 
 process.p1 = cms.Path(process.generator*process.prodTest)

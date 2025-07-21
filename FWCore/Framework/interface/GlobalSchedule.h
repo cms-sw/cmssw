@@ -13,7 +13,6 @@
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/WorkerManager.h"
 #include "FWCore/Framework/interface/maker/Worker.h"
-#include "FWCore/Framework/interface/WorkerRegistry.h"
 #include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
@@ -74,11 +73,8 @@ namespace edm {
                                ServiceToken const& token,
                                bool cleaningUpAfterException = false);
 
-    void beginJob(ProductRegistry const&,
-                  eventsetup::ESRecordsToProductResolverIndices const&,
-                  ProcessBlockHelperBase const&,
-                  ProcessContext const&);
-    void endJob(ExceptionCollector& collector);
+    void beginJob(ModuleRegistry&);
+    void endJob(ExceptionCollector& collector, ModuleRegistry&);
 
     /// Return a vector allowing const access to all the
     /// ModuleDescriptions for this GlobalSchedule.
@@ -100,8 +96,6 @@ namespace edm {
     /// returns the collection of pointers to workers
     AllWorkers const& allWorkers() const { return workerManagers_[0].allWorkers(); }
 
-    void releaseMemoryPostLookupSignal();
-
   private:
     /// returns the action table
     ExceptionToActionTable const& actionTable() const { return workerManagers_[0].actionTable(); }
@@ -118,17 +112,17 @@ namespace edm {
                          std::exception_ptr&);
 
     std::vector<WorkerManager> workerManagers_;
+    std::vector<unsigned int> beginJobFailedForModule_;
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
     std::vector<edm::propagate_const<WorkerPtr>> extraWorkers_;
     ProcessContext const* processContext_;
 
-    // The next 4 variables use the same naming convention, even though we have no intention
-    // to ever have concurrent ProcessBlocks or Jobs. They are all related to the number of
+    // The next 3 variables use the same naming convention, even though we have no intention
+    // to ever have concurrent ProcessBlocks. They are all related to the number of
     // WorkerManagers needed for global transitions.
     unsigned int numberOfConcurrentLumis_;
     unsigned int numberOfConcurrentRuns_;
     static constexpr unsigned int numberOfConcurrentProcessBlocks_ = 1;
-    static constexpr unsigned int numberOfConcurrentJobs_ = 1;
   };
 
   template <typename T>

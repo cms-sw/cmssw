@@ -7,6 +7,7 @@ class SiTrackerMultiRecHitUpdator;
 
 class MRHChi2MeasurementEstimator final : public Chi2MeasurementEstimatorBase {
 public:
+  using Chi2MeasurementEstimatorBase::estimate;
   /** Construct with cuts on chi2 and nSigma.
    *  The cut on Chi2 is used to define the acceptance of RecHits.
    *  The errors of the trajectory state are multiplied by nSigma 

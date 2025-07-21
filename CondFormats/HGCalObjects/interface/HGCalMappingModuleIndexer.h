@@ -13,27 +13,26 @@
 #include "CondFormats/HGCalObjects/interface/HGCalDenseIndexerBase.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 /**
-   @short this structure holds the indices and types in the readout sequence
-   as the 12 capture blocks may not all be used and the each capture block may also be under-utilized
-   a lookup table is used to hold the compact index
+ * @short this structure holds the indices and types in the readout sequence
+ * as the 12 capture blocks may not all be used and the each capture block may also be under-utilized
+ * a lookup table is used to hold the compact index
  */
 struct HGCalFEDReadoutSequence {
   uint32_t id;
-  ///>look-up table (capture block, econd idx) -> internal dense index
+  /// look-up table (capture block, econd idx) -> internal dense index
   std::vector<int> moduleLUT_;
-  ///>dense sequence of modules in the readout: the type is the one in use in the cell mapping
+  /// dense sequence of modules in the readout: the type is the one in use in the cell mapping
   std::vector<int> readoutTypes_;
-  ///>dense sequence of offsets for modules, e-Rx and channel data
+  /// dense sequence of offsets for modules, e-Rx and channel data
   std::vector<uint32_t> modOffsets_, erxOffsets_, chDataOffsets_, enabledErx_;
   COND_SERIALIZABLE;
 };
 
 /**
-   @short utility class to assign dense readout module indexing
-   the class holds the information on the expected readout sequence (module types) per FED and their offset in the SoAs of data
+ * @short utility class to assign dense readout module indexing
+ * the class holds the information on the expected readout sequence (module types) per FED and their offset in the SoAs of data
  */
 class HGCalMappingModuleIndexer {
 public:
@@ -42,10 +41,10 @@ public:
   ~HGCalMappingModuleIndexer() = default;
 
   /**
-     @short for a new module it adds it's type to the readaout sequence vector
-     if the fed id is not yet existing in the mapping it's added
-     a dense indexer is used to create the necessary indices for the new module
-     unused indices will be set with -1
+   * @short for a new module it adds it's type to the readaout sequence vector
+   * if the fed id is not yet existing in the mapping it's added
+   * a dense indexer is used to create the necessary indices for the new module
+   * unused indices will be set with -1
    */
   void processNewModule(uint32_t fedid,
                         uint16_t captureblockIdx,
@@ -56,31 +55,20 @@ public:
                         std::string const &typecode);
 
   /**
-     @short to be called after all the modules have been processed
+   * @short to be called after all the modules have been processed
    */
   void finalize();
 
   /**
-     @short decodes silicon or sipm type and cell type for the detector id 
-     from the typecode string
+   * @short decode silicon or sipm type and cell type for the detector id 
+   * from the typecode string: "M[LH]-X[123]X-*" for Si, "T[LH]-L*S*[PN]" for SiPm
    */
-  static std::pair<bool, int> convertTypeCode(std::string_view typecode) {
-    if (typecode.size() < 5)
-      throw cms::Exception("InvalidHGCALTypeCode") << typecode << " is invalid for decoding readout cell type";
-    bool isSiPM = {typecode.find("TM") != std::string::npos ? true : false};
-    int celltype;
-    if (isSiPM) {
-      celltype = 0;  // Assign SiPM type coarse or molded with next version of modulelocator
-    } else {
-      celltype = {typecode[4] == '1' ? 0 : typecode[4] == '2' ? 1 : 2};
-    }
-    return std::pair<bool, bool>(isSiPM, celltype);
-  }
+  static std::pair<bool, int8_t> getCellType(std::string_view typecode);
 
   /**
-     @short returns the index for the n-th module in the readout sequence of a FED
-     if the index in the readout sequence is unknown alternative methods which take the (capture block, econd idx) are provided
-     which will find first what should be the internal dense index (index in the readout sequence)
+   * @short returns the index for the n-th module in the readout sequence of a FED
+   * if the index in the readout sequence is unknown alternative methods which take the (capture block, econd idx) are provided
+   * which will find first what should be the internal dense index (index in the readout sequence)
    */
   uint32_t getIndexForModule(uint32_t fedid, uint32_t modid) const {
     return fedReadoutSequences_[fedid].modOffsets_[modid];
@@ -93,8 +81,8 @@ public:
   //  return getIndexForModule(id.localFEDId(),id.captureBlock(),id.econdIdx());
   //};
   uint32_t getIndexForModule(std::string const &typecode) const {
-    const auto &[fedid, modId] = getIndexForFedAndModule(typecode);  // (fedId,modId)
-    return getIndexForModule(fedid, modId);
+    const auto &[fedid, modid] = getIndexForFedAndModule(typecode);  // (fedId,modId)
+    return getIndexForModule(fedid, modid);
   };
   uint32_t getIndexForModuleErx(uint32_t fedid, uint32_t modid, uint32_t erxidx) const {
     return fedReadoutSequences_[fedid].erxOffsets_[modid] + erxidx;
@@ -116,40 +104,53 @@ public:
                      : getIndexForModuleData(
                            id.localFEDId(), id.captureBlock(), id.econdIdx(), id.econdeRx(), id.halfrocChannel());
   };
-  uint32_t getIndexForModuleData(std::string typecode) const {
+  uint32_t getIndexForModuleData(std::string const &typecode) const {
     const auto &[fedid, modid] = getIndexForFedAndModule(typecode);
     return getIndexForModuleData(fedid, modid, 0, 0);
   };
   std::pair<uint32_t, uint32_t> getIndexForFedAndModule(std::string const &typecode) const;
 
   /**
-     @short return number maximum index of FED, ECON-D Module, eRx ROC
+   * @short return number maximum index of FED, ECON-D Module, eRx ROC
    */
-  uint32_t getNFED() const {  // return total number of FEDs that actually exist
+  uint32_t getNumFEDs() const {
     return count_if(fedReadoutSequences_.begin(), fedReadoutSequences_.end(), [](auto fedrs) {
       return fedrs.readoutTypes_.size() != 0;
     });
-  }
-  uint32_t getMaxFEDSize() const { return fedReadoutSequences_.size(); }
+  }  ///< return total number of FEDs that actually exist
+  uint32_t getMaxFEDSize() const {
+    return fedReadoutSequences_.size();
+  }  ///< maximum FED index (fedReadoutSequences_ includes non existing FED IDs)
   uint32_t getMaxModuleSize() const {
     return maxModulesIdx_;
-  }  // total number of ECON-Ds (useful for setting ECON-D SoA size)
-  uint32_t getMaxModuleSize(uint32_t fedid) const {  // number of ECON-Ds for given FED id
+  }  ///< total number of ECON-Ds (useful for setting ECON-D SoA size)
+  uint32_t getNumModules(uint32_t fedid) const {
     return fedReadoutSequences_[fedid].readoutTypes_.size();
-  }
+  }  ///< number of ECON-Ds for given FED id
   uint32_t getMaxERxSize() const {
     return maxErxIdx_;
-  }  // total number of eRx half-ROCs (useful for setting config SoA size)
-  uint32_t getMaxERxSize(uint32_t fedid, uint32_t modid) const {  // number of eRx half-ROCs for given FED & ECON-D ids
+  }  ///< total number of eRx half-ROCs (useful for setting config SoA size)
+  uint32_t getNumERxs(uint32_t fedid, uint32_t modid) const {
     auto modtype_val = fedReadoutSequences_[fedid].readoutTypes_[modid];
     return globalTypesNErx_[modtype_val];
-  }
+  }  ///< number of eRx half-ROCs for given FED & ECON-D ids
+  uint32_t getNumERxs(std::string const &typecode) const {
+    const auto &[fedid, modid] = getIndexForFedAndModule(typecode);
+    return getNumERxs(fedid, modid);
+  }  ///< number of eRx half-ROCs for a given ECON-D typecode
   uint32_t getMaxDataSize() const {
     return maxDataIdx_;
-  }  // total number of channels (useful for setting calib SoA size)
+  }  ///< total number of channels (useful for setting calib SoA size)
+  uint32_t getNumChannels(uint32_t fedid, uint32_t modid) const {
+    return HGCalMappingCellIndexer::maxChPerErx_ * getNumERxs(fedid, modid);
+  }  ///< total number of channels for given FED & ECON-D ids
+  uint32_t getNumChannels(std::string const &typecode) const {
+    const auto &[fedid, modid] = getIndexForFedAndModule(typecode);
+    return getNumChannels(fedid, modid);
+  }  ///< total number of channels for a given ECON-D typecode
 
   /**
-     @short return type ECON-D Module
+   * @short return type ECON-D Module
    */
   int getTypeForModule(uint32_t fedid, uint32_t modid) const {
     return fedReadoutSequences_[fedid].readoutTypes_[modid];
@@ -160,7 +161,7 @@ public:
   }
 
   /**
-     @short getters for private members
+   * @short getters for private members
    */
   HGCalDenseIndexerBase const &getFEDIndexer() const { return modFedIndexer_; }
   std::vector<HGCalFEDReadoutSequence> const &getFEDReadoutSequences() const { return fedReadoutSequences_; }
@@ -176,27 +177,27 @@ public:
   uint32_t maxModulesIndex() const { return maxModulesIdx_; }
   std::map<std::string, std::pair<uint32_t, uint32_t>> const &getTypecodeMap() const { return typecodeMap_; }
 
-  ///< max number of main buffers/capture blocks per FED
+  /// max number of main buffers/capture blocks per FED
   constexpr static uint32_t maxCBperFED_ = 10;
-  ///< max number of ECON-Ds processed by a main buffer/capture block
+  /// max number of ECON-Ds processed by a main buffer/capture block
   constexpr static uint32_t maxECONDperCB_ = 12;
 
 private:
-  ///< internal indexer
+  /// internal indexer
   HGCalDenseIndexerBase modFedIndexer_;
-  ///< the sequence of FED readout sequence descriptors
+  /// the sequence of FED readout sequence descriptors
   std::vector<HGCalFEDReadoutSequence> fedReadoutSequences_;
-  ///< global counters for types of modules, number of e-Rx and words
+  /// global counters for types of modules, number of e-Rx and words
   std::vector<uint32_t> globalTypesCounter_, globalTypesNErx_, globalTypesNWords_;
-  ///< base offsets to apply per module type with different granularity : module, e-Rx, channel data
+  /// base offsets to apply per module type with different granularity : module, e-Rx, channel data
   std::vector<uint32_t> moduleOffsets_, erxOffsets_, dataOffsets_;
-  ///< global counters (sizes of vectors)
+  /// global counters (sizes of vectors)
   uint32_t nfeds_, maxDataIdx_, maxErxIdx_, maxModulesIdx_;
-  ///< map from module type code string to (fedIdx,modIdx) pair (implemented to retrieve dense index offset)
+  /// map from module type code string to (fedIdx,modIdx) pair (implemented to retrieve dense index offset)
   std::map<std::string, std::pair<uint32_t, uint32_t>> typecodeMap_;
 
   /**
-     @short given capture block and econd indices returns the dense indexer
+   * @short given capture block and econd indices returns the dense indexer
    */
   uint32_t denseIndexingFor(uint32_t fedid, uint16_t captureblockIdx, uint16_t econdIdx) const {
     if (fedid > nfeds_)
@@ -211,12 +212,11 @@ private:
   }
 
   /**
-     @short when finalize is called, empty entries are removed and they may need to be re-assigned for the real final number of modules
+   * @short when finalize is called, empty entries are removed and they may need to be re-assigned for the real final number of modules
    */
   void reassignTypecodeLocation(uint32_t fedid, uint32_t cur_modIdx, uint32_t new_modIx) {
     std::pair<uint32_t, uint32_t> val(fedid, cur_modIdx), newval(fedid, new_modIx);
-
-    for (auto it : typecodeMap_) {
+    for (const auto &it : typecodeMap_) {
       if (it.second != val)
         continue;
       typecodeMap_[it.first] = newval;

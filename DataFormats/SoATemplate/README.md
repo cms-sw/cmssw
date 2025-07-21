@@ -36,7 +36,7 @@ interface where scalar elements are accessed with an `operator()`: `soa.scalar()
 accessed via a array of structure (AoS) -like syntax: `soa[index].x()`. The "struct" object returned by `operator[]`
 can be used as a shortcut: `auto si = soa[index]; si.z() = si.x() + zi.y();`
 
-A view can be instanciated by being passed the layout(s) and view(s) it is defined against, or column by column.
+A view can be instanciated by being passed the corresponding layout.
 
 Layout classes also define a `View` and `ConstView` subclass that provide access to each column and
 scalar of the layout. In addition to those fully parametrized templates, two others levels of parametrization are
@@ -44,8 +44,18 @@ provided: `ViewTemplate`, `ViewViewTemplateFreeParams` and respectively `ConstVi
 `ConstViewTemplateFreeParams`. The parametrization of those templates is explained in the [Template
 parameters section](#template-parameters).
 
-It is also possible to build a generic `View` or `ConstView` passing from the [Metarecords sublass](#metarecords-subclass). This
-view can point to data belonging to different SoAs and thus not contiguous in memory.
+It is also possible to build a generic `View` or `ConstView` passing from the [Metarecords sublass](#metarecords-subclass). 
+This view can point to data belonging to different SoAs and thus not contiguous in memory.
+
+## Descriptor
+
+The nested class `ConstDescriptor` can only be instantiated passing a `View` or a `ConstView` and provides access to
+each column through a `std::tuple<std::span<T>...>`. This class should be considered an internal implementation detail,
+used solely by the SoA and EDM frameworks for performing heterogeneous memory operations. It is used to implement the
+`deepCopy` from a `View` referencing different memory buffers, as shown in 
+[`PortableHostCollection<T>`](../../DataFormats/Portable/README.md#portablehostCollection)
+and [`PortableDeviceCollection<T, TDev>`](../../DataFormats/Portable/README.md#portabledeviceCollection) sections.
+It should likely not be used for other purposes.
 
 ## Metadata subclass
 
@@ -64,7 +74,9 @@ and to build a generic `View` as described in [View](#view).
 
 ## Customized methods
 
-It is possible to generate methods inside the `element` and `const_element` nested structs using the `SOA_ELEMENT_METHODS` and `SOA_CONST_ELEMENT_METHODS` macros. Each of these macros can be called only once, and can define multiple methods. [An example is showed below.](#examples)
+It is possible to generate methods inside the `element` and `const_element` nested structs using the `SOA_ELEMENT_METHODS`
+and `SOA_CONST_ELEMENT_METHODS` macros. Each of these macros can be called only once, and can define multiple methods. 
+[An example is showed below.](#examples)
 
 ## ROOT serialization and de-serialization
 
@@ -154,14 +166,14 @@ GENERATE_SOA_LAYOUT(SoATemplate,
   SOA_COLUMN(double, z),
   
   // methods operating on const_element
-  SOA_CONST_METHODS(
+  SOA_CONST_ELEMENT_METHODS(
     auto norm() const {
       return sqrt(x()*x() + y()+y() + z()*z());
     }
   ),
 
   // methods operating on element
-  SOA_METHODS(
+  SOA_ELEMENT_METHODS(
     void scale(float arg) {
       x() *= arg;
       y() *= arg;

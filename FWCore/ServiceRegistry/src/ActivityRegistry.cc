@@ -53,7 +53,7 @@ namespace edm {
     }
   }  // namespace signalslot
 
-  void ActivityRegistry::connectGlobals(ActivityRegistry& iOther) {
+  void ActivityRegistry::connect(ActivityRegistry& iOther) {
     preallocateSignal_.connect(std::cref(iOther.preallocateSignal_));
     eventSetupConfigurationSignal_.connect(std::cref(iOther.eventSetupConfigurationSignal_));
     beginProcessingSignal_.connect(std::cref(iOther.beginProcessingSignal_));
@@ -95,9 +95,7 @@ namespace edm {
     esSyncIOVQueuingSignal_.connect(std::cref(iOther.esSyncIOVQueuingSignal_));
     preESSyncIOVSignal_.connect(std::cref(iOther.preESSyncIOVSignal_));
     postESSyncIOVSignal_.connect(std::cref(iOther.postESSyncIOVSignal_));
-  }
 
-  void ActivityRegistry::connectLocals(ActivityRegistry& iOther) {
     preBeginJobSignal_.connect(std::cref(iOther.preBeginJobSignal_));
     lookupInitializationCompleteSignal_.connect(std::cref(iOther.lookupInitializationCompleteSignal_));
 
@@ -258,16 +256,6 @@ namespace edm {
     postESModuleAcquireSignal_.connect(std::cref(iOther.postESModuleAcquireSignal_));
 
     postESModuleRegistrationSignal_.connect(std::cref(iOther.postESModuleRegistrationSignal_));
-  }
-
-  void ActivityRegistry::connect(ActivityRegistry& iOther) {
-    connectGlobals(iOther);
-    connectLocals(iOther);
-  }
-
-  void ActivityRegistry::connectToSubProcess(ActivityRegistry& iOther) {
-    connectGlobals(iOther);       // child sees parents global signals
-    iOther.connectLocals(*this);  // parent see childs global signals
   }
 
   void ActivityRegistry::copySlotsFrom(ActivityRegistry& iOther) {

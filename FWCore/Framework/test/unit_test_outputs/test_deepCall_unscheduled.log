@@ -18,24 +18,26 @@ Module type=IntProducer, Module label=one, Parameter Set ID=dd3aecb8f6531b74585c
 ++++ finished: constructing module with label 'result4' id = 7
 ++ preallocate: 1 concurrent runs, 1 concurrent luminosity sections, 1 streams
 ++ starting: begin job
+++++ starting: begin job for module with label 'TriggerResults' id = 1
+++++ finished: begin job for module with label 'TriggerResults' id = 1
+++++ starting: begin job for module with label 'get' id = 3
+++++ finished: begin job for module with label 'get' id = 3
 ++++ starting: begin job for module with label 'one' id = 4
 Module type=IntProducer, Module label=one, Parameter Set ID=dd3aecb8f6531b74585c9fe89286679e
 ++++ finished: begin job for module with label 'one' id = 4
 Module type=IntProducer, Module label=one, Parameter Set ID=dd3aecb8f6531b74585c9fe89286679e
+++++ starting: begin job for module with label 'p' id = 2
+++++ finished: begin job for module with label 'p' id = 2
 ++++ starting: begin job for module with label 'result1' id = 5
 ++++ finished: begin job for module with label 'result1' id = 5
 ++++ starting: begin job for module with label 'result2' id = 6
 ++++ finished: begin job for module with label 'result2' id = 6
 ++++ starting: begin job for module with label 'result4' id = 7
 ++++ finished: begin job for module with label 'result4' id = 7
-++++ starting: begin job for module with label 'get' id = 3
-++++ finished: begin job for module with label 'get' id = 3
-++++ starting: begin job for module with label 'TriggerResults' id = 1
-++++ finished: begin job for module with label 'TriggerResults' id = 1
-++++ starting: begin job for module with label 'p' id = 2
-++++ finished: begin job for module with label 'p' id = 2
 ++ finished: begin job
 ++ starting: begin stream 0
+++++ starting: begin stream for module: stream = 0 label = 'TriggerResults' id = 1
+++++ finished: begin stream for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ starting: begin stream for module: stream = 0 label = 'get' id = 3
 ++++ finished: begin stream for module: stream = 0 label = 'get' id = 3
 ++++ starting: begin stream for module: stream = 0 label = 'one' id = 4
@@ -62,6 +64,8 @@ ModuleCallingContext state = Running
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
     ProcessContext: TEST cf65ff121f7d0ed0d094247b80407269
 
+++++ starting: begin stream for module: stream = 0 label = 'p' id = 2
+++++ finished: begin stream for module: stream = 0 label = 'p' id = 2
 ++++ starting: begin stream for module: stream = 0 label = 'result1' id = 5
 ++++ finished: begin stream for module: stream = 0 label = 'result1' id = 5
 ++++ starting: begin stream for module: stream = 0 label = 'result2' id = 6
@@ -547,6 +551,8 @@ ModuleCallingContext state = Running
 ++++ starting: write process block
 ++++ finished: write process block
 ++ starting: end stream 0
+++++ starting: end stream for module: stream = 0 label = 'TriggerResults' id = 1
+++++ finished: end stream for module: stream = 0 label = 'TriggerResults' id = 1
 ++++ starting: end stream for module: stream = 0 label = 'get' id = 3
 ++++ finished: end stream for module: stream = 0 label = 'get' id = 3
 ++++ starting: end stream for module: stream = 0 label = 'one' id = 4
@@ -573,6 +579,8 @@ ModuleCallingContext state = Running
     runIndex = 4294967295  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 0
     ProcessContext: TEST cf65ff121f7d0ed0d094247b80407269
 
+++++ starting: end stream for module: stream = 0 label = 'p' id = 2
+++++ finished: end stream for module: stream = 0 label = 'p' id = 2
 ++++ starting: end stream for module: stream = 0 label = 'result1' id = 5
 ++++ finished: end stream for module: stream = 0 label = 'result1' id = 5
 ++++ starting: end stream for module: stream = 0 label = 'result2' id = 6
@@ -581,20 +589,20 @@ ModuleCallingContext state = Running
 ++++ finished: end stream for module: stream = 0 label = 'result4' id = 7
 ++ finished: end stream 0
 ++ starting: end job
+++++ starting: end job for module with label 'TriggerResults' id = 1
+++++ finished: end job for module with label 'TriggerResults' id = 1
+++++ starting: end job for module with label 'get' id = 3
+++++ finished: end job for module with label 'get' id = 3
 ++++ starting: end job for module with label 'one' id = 4
 Module type=IntProducer, Module label=one, Parameter Set ID=dd3aecb8f6531b74585c9fe89286679e
 ++++ finished: end job for module with label 'one' id = 4
 Module type=IntProducer, Module label=one, Parameter Set ID=dd3aecb8f6531b74585c9fe89286679e
+++++ starting: end job for module with label 'p' id = 2
+++++ finished: end job for module with label 'p' id = 2
 ++++ starting: end job for module with label 'result1' id = 5
 ++++ finished: end job for module with label 'result1' id = 5
 ++++ starting: end job for module with label 'result2' id = 6
 ++++ finished: end job for module with label 'result2' id = 6
 ++++ starting: end job for module with label 'result4' id = 7
 ++++ finished: end job for module with label 'result4' id = 7
-++++ starting: end job for module with label 'get' id = 3
-++++ finished: end job for module with label 'get' id = 3
-++++ starting: end job for module with label 'TriggerResults' id = 1
-++++ finished: end job for module with label 'TriggerResults' id = 1
-++++ starting: end job for module with label 'p' id = 2
-++++ finished: end job for module with label 'p' id = 2
 ++ finished: end job

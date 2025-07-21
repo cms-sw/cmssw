@@ -1392,10 +1392,6 @@ def RecomputePuppiWeightsMETAK8(proc):
     )
   )
 
-  run3_nanoAOD_pre142X.toModify(btagDiscriminatorsAK8Subjets,
-    names = cms.vstring('pfDeepCSVJetTags:probb','pfDeepCSVJetTags:probbb')
-  )
-
   from PhysicsTools.PatAlgos.tools.puppiJetMETReclusteringFromMiniAOD_cff import setupPuppiAK4AK8METReclustering
   proc = setupPuppiAK4AK8METReclustering(proc, runOnMC=runOnMC, useExistingWeights=False,
     reclusterAK4MET=False, # Already setup to recluster AK4 Puppi jets and PuppiMET
@@ -1511,6 +1507,14 @@ def PrepJMECustomNanoAOD(process):
   process = addAK4JetTasks(process,
     addAK4CHSJetTasks = jmeNano_addAK4JetTasks_switch.addAK4CHS_switch,
     addAK4PuppiJetTasks = jmeNano_addAK4JetTasks_switch.addAK4Puppi_switch,
+  )
+
+  ###########################################################################
+  # Fix ParticleNetFromMiniAOD input when slimmedTaus is updated
+  ###########################################################################
+  from PhysicsTools.NanoAOD.nano_cff import _fixPNetInputCollection
+  (run2_nanoAOD_106Xv2 | run3_nanoAOD_pre142X | nanoAOD_rePuppi).toModify(
+      process, lambda p: _fixPNetInputCollection(p)
   )
 
   ###########################################################################
