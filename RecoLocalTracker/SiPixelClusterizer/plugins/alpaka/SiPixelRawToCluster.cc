@@ -277,7 +277,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
     // LAYER,LADDER,MODULE (coordinates can also be specified as a range FIRST-LAST where appropriate)
-    desc.add<std::vector<std::string>>("barrelRegions", {"1,1-12,1-2", "1,1-12,7-8", "2,1-28,1", "1,1-28,8"});
+    desc.add<std::vector<std::string>>("barrelRegions", {"1,1-12,1-2", "1,1-12,7-8", "2,1-28,1", "2,1-28,8"});
     // DISK,BLADE,SIDE,PANEL (coordinates can also be specified as a range FIRST-LAST where appropriate)
     desc.add<std::vector<std::string>>("endcapRegions", {});
 
