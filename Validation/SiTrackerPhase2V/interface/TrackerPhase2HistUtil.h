@@ -15,17 +15,18 @@
 #include <cmath>
 
 namespace phase2tkutil {
-	inline void makeEfficiencyME(TH1* numerator, TH1* denominator, dqm::legacy::MonitorElement* me, 
-								 const std::string& xAxisTitle)
-	{
-	  TH1* efficiency = me->getTH1();                                 
-	  efficiency->Divide(numerator, denominator, 1., 1., "B"); 
-	  efficiency->SetMinimum(0.0);
-	  efficiency->SetMaximum(1.1);
-	  efficiency->SetStats(false);
-	  efficiency->GetXaxis()->SetTitle(xAxisTitle.c_str());
-	  efficiency->GetYaxis()->SetTitle("Efficiency");
-	}
+  inline void makeEfficiencyME(TH1* numerator,
+                               TH1* denominator,
+                               dqm::legacy::MonitorElement* me,
+                               const std::string& xAxisTitle) {
+    TH1* efficiency = me->getTH1();
+    efficiency->Divide(numerator, denominator, 1., 1., "B");
+    efficiency->SetMinimum(0.0);
+    efficiency->SetMaximum(1.1);
+    efficiency->SetStats(false);
+    efficiency->GetXaxis()->SetTitle(xAxisTitle.c_str());
+    efficiency->GetYaxis()->SetTitle("Efficiency");
+  }
 
 }  // namespace phase2tkutil
 #endif
