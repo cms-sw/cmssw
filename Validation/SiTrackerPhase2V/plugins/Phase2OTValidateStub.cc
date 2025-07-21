@@ -1,3 +1,4 @@
+
 // -*- C++ -*-
 //
 // Package:   Validation/SiTrackerPhase2V
@@ -533,7 +534,6 @@ void Phase2OTValidateStub::analyze(const edm::Event& iEvent, const edm::EventSet
         theStubRefs = MCTruthTTStubHandle->findTTStubRefs(tp_ptr);
 
     float tmp_tp_pt = tp_ptr->pt();
-    float tmp_tp_phi = tp_ptr->phi();
     float tmp_tp_eta = tp_ptr->eta();
 
     int hasStubInLayer[11] = {0};
@@ -570,15 +570,14 @@ void Phase2OTValidateStub::analyze(const edm::Event& iEvent, const edm::EventSet
       continue;
 
     float tmp_tp_z0, tmp_tp_Lxy, unused_d0;
-    std::tie(tmp_tp_z0, tmp_tp_Lxy, unused_d0) =
-        phase2tkutil::computeZ0LxyD0(*tp_ptr, tmp_tp_pt, tmp_tp_eta, tmp_tp_phi);
+    std::tie(tmp_tp_z0, tmp_tp_Lxy, unused_d0) = phase2tkutil::computeZ0LxyD0(*tp_ptr);
     (void)unused_d0;  // suppress unused variable warning
 
     if (std::fabs(tmp_tp_z0) > TP_maxVtxZ)
       continue;
     if (tmp_tp_pt < TP_minPt)
       continue;
-    if (tmp_tp_Lxy > 1.0)
+    if (tmp_tp_Lxy > TP_maxLxy)
       continue;
     if (nStubTP < TP_minNStub || nStubLayerTP < TP_minNLayersStub)
       continue;
