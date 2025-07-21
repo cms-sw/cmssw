@@ -2,10 +2,15 @@
 #define DataFormats_Scouting_Run3ScoutingEBRecHit_h
 
 #include <vector>
+#include <stdint.h>
 
-// Run-3 HLT-Scouting data format for EBRecHits
+// Updated Run 3 HLT-Scouting data format to include calo recHits information:
+// - EBRecHits collection (ECAL Barrel);
+// - EERecHits collection (ECAL Endcap);
+// - HBHERecHits collection (HCAL Barrel and Endcap).
+// Saved information is specific to each hit type: energy, time, flags, and detId are available for EB recHits.
 //
-// IMPORTANT: any changes to Run3ScoutingEBRecHit must be backward-compatible !
+// IMPORTANT: any changes to Run3ScoutingEBRecHit must be backward-compatible!
 
 class Run3ScoutingEBRecHit {
 public:

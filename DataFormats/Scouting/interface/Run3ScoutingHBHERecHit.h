@@ -3,9 +3,13 @@
 
 #include <vector>
 
-// Run-3 HLT-Scouting data format for HBHERecHits
+// Updated Run 3 HLT-Scouting data format to include calo recHits information:
+// - HBHERecHits collection (HCAL Barrel and Endcap);
+// - EBRecHits collection (ECAL Barrel);
+// - EERecHits collection (ECAL Endcap).
+// Saved information is specific to each hit type: energy and detId are available for HCAL recHits.
 //
-// IMPORTANT: any changes to Run3ScoutingHBHERecHit must be backward-compatible !
+// -- IMPORTANT: any changes to Run3ScoutingHBHERecHit must be backward-compatible!
 
 class Run3ScoutingHBHERecHit {
 public:
