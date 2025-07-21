@@ -330,7 +330,7 @@ void SimPixelTrackFromRecoTrackProducer<TrackerTraits>::produce(edm::Event& even
       continue;
 
     // create SimPixelTrack
-    simPixelTrackCollection.emplace_back(SimDoublets(*beamSpot));
+    simPixelTrackCollection.emplace_back(SimDoublets(track, *beamSpot));
 
     // loop over the RecHits of that Track
     for (auto const& recHit : track->recHits()) {
