@@ -2,7 +2,7 @@
 // Author: Theo Cuisset - theo.cuisset@cern.ch
 // Date: 11/2023
 
-// Modified by Gamze Sokmen 
+// Modified by Gamze Sokmen - gamze.sokmen@cern.ch 
 // Changes: Implementation of the delta time feature under a new DNN input version (v3) for the superclustering DNN and correcting the seed pT calculation.
 // Date: 07/2025
 
@@ -123,8 +123,8 @@ namespace ticl {
 
     float explVar_denominator = std::accumulate(
         std::begin(ts_toCluster.eigenvalues()), std::end(ts_toCluster.eigenvalues()), 0.f, std::plus<float>());
-    float explVarRatio = 0.;
-    if (explVar_denominator != 0.) {
+    float explVarRatio = 0.f;
+    if (explVar_denominator != 0.f) {
       explVarRatio = ts_toCluster.eigenvalues()[0] / explVar_denominator;
     } else {
       edm::LogWarning("HGCalTICLSuperclustering")
@@ -134,8 +134,7 @@ namespace ticl {
 
     // modified deltaTime: set the default values <-50 or >50 to -5
     float raw_dt       = ts_toCluster.time() - ts_base.time();
-    float mod_deltaTime = (raw_dt < -50.f || raw_dt > 50.f) ? -5.f : raw_dt;
-
+    float mod_deltaTime = ( raw_dt < -kDeltaTimeDefault || raw_dt > kDeltaTimeDefault ) ? kBadDeltaTime : raw_dt;
 
     return {{
       std::abs(ts_toCluster.barycenter().Eta()) - std::abs(ts_base.barycenter().Eta()),  // DeltaEtaBaryc

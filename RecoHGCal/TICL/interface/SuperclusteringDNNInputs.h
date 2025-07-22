@@ -2,7 +2,7 @@
 // Author: Theo Cuisset - theo.cuisset@cern.ch
 // Date: 11/2023
 
-// Modified by Gamze Sokmen 
+// Modified by Gamze Sokmen - gamze.sokmen@cern.ch
 // Changes: Implementation of the delta time feature under a new DNN input version (v3) for the superclustering DNN and correcting the seed pT calculation.
 // Date: 07/2025
 
@@ -14,6 +14,11 @@
 #include <memory>
 
 namespace ticl {
+
+  // any raw_dt outside +/- kDeltaTimeDefault is considered bad
+  static constexpr float kDeltaTimeDefault = 50.f;
+  static constexpr float kBadDeltaTime = -5.f;
+
   class Trackster;
 
   // Abstract base class for DNN input preparation.
@@ -91,7 +96,7 @@ namespace ticl {
     }
   };
 
-  /* Third version of DNN by Gamze Sokmen, making use of time information as new variables.
+  /* Third version of DNN by Gamze Sokmen and Shamik Ghosh, making use of time information as new variables.
   Uses features : ['DeltaEta', 'DeltaPhi', 'multi_en', 'multi_eta', 'multi_pt', 'seedEta','seedPhi','seedEn', 'seedPt',   theta', 'theta_xz_seedFrame', 'theta_yz_seedFrame', 'theta_xy_cmsFrame', 'theta_yz_cmsFrame', 'theta_xz_cmsFrame', 'explVar', 'explVarRatio', 'mod_deltaTime']
   */
  
