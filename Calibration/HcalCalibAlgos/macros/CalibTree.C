@@ -626,8 +626,8 @@ CalibTree::CalibTree(const char *dupFileName,
             << useGen_ << " High Eta " << higheta_ << " Threshold Flag " << thrForm_ << std::endl;
   std::cout << "Duplicate events read from " << dupFileName << " duplicateFormat " << duplicate_
             << " RadDam Corrections read from " << rcorFileName << " rcorFormat " << rcorForm_ << " Treat RBX "
-            << rbxFile_ << " with exclusion mode " << exclude_ << " Use MIP cut " << mipCut_ << " p Range"
-	    << pmin_ << ":" << pmax_ << std::endl;
+            << rbxFile_ << " with exclusion mode " << exclude_ << " Use MIP cut " << mipCut_ << " p Range" << pmin_
+            << ":" << pmax_ << std::endl;
   Init(tree);
   if (std::string(dupFileName) != "") {
     std::cout << "dupFileName: " << dupFileName << std::endl;

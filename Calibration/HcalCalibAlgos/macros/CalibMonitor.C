@@ -106,10 +106,10 @@
 //                               2022 reco data; 3: 2023 prompt data; 4: 2025
 //                               Begin of Year; 5: Derived from the file
 //                               PFCuts_IOV_362975.txt.
-//                               h: for MIPCut to be used on ECAL energy; 
+//                               h: for MIPCut to be used on ECAL energy;
 //                               0 -> 1 GeV; 1 -> 0.5 GeV; 2 -> 0.75 GeV;
 //                               3 -> 1.25 GeV; 4 -> 1.5 GeV; 5 -> 1.75 GeV;
-//                               6 -> 2.0 GeV 
+//                               6 -> 2.0 GeV
 //                               (default = 0)
 //   etalo/etahi (int,int)     = |eta| ranges (default = 0:30)
 //   runlo  (int)              = lower value of run number to be included (+ve)
@@ -439,7 +439,7 @@ CalibMonitor::CalibMonitor(const char *fname,
             << selRBX_ << " Vertex Range " << nvxlo_ << ":" << nvxhi_ << "\n corrFileName: " << corrFileName
             << " useScale " << useScale << ":" << scale << ":" << etam << "\n rcorFileName: " << rcorFileName
             << " flag " << ifDepth_ << ":" << cutL1T_ << ":" << marina << " Threshold Flag " << thrForm_ << " MIP Cut "
-	    << mipCut_ << std::endl;
+            << mipCut_ << std::endl;
   if (!fillChain(chain, fname)) {
     std::cout << "*****No valid tree chain can be obtained*****" << std::endl;
   } else {
