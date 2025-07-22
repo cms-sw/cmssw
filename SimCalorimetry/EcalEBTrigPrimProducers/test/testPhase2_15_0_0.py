@@ -36,11 +36,11 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 
-#process.MessageLogger = cms.Service("MessageLogger",
-#    destinations = cms.untracked.vstring('messages'),
-#    messages          = cms.untracked.PSet(threshold =  cms.untracked.string('DEBUG')),
-#    debugModules   = cms.untracked.vstring('*')
-#)
+process.MessageLogger = cms.Service("MessageLogger",
+    destinations = cms.untracked.vstring('messages'),
+    messages          = cms.untracked.PSet(threshold =  cms.untracked.string('DEBUG')),
+    debugModules   = cms.untracked.vstring('*')
+)
 
 
 
