@@ -103,8 +103,8 @@
 //                               or reconstruction level momentum (def false)
 //   scale (double)            = energy scale if correction factor to be used
 //                               (default = 1.0)
-//   useScale (int)            = two digit number (do) with o: as the flag for
-//                               application of scale factor (0: nowehere,
+//   useScale (int)            = three digit number (hdo) with o: as the flag 
+//                               for application of scale factor (0: nowehere,
 //                               1: barrel; 2: endcap, 3: everywhere)
 //                               barrel => |ieta| < 16; endcap => |ieta| > 15;
 //                               d: as the format for threshold application,
@@ -112,6 +112,10 @@
 //                               2022 reco data; 3: 2023 prompt data; 4: 2025
 //                               Begin of Year; 5: Derived from the file
 //                               PFCuts_IOV_362975.txt.
+//                               h: for MIPCut to be used on ECAL energy; 
+//                               0 -> 1 GeV; 1 -> 0.5 GeV; 2 -> 0.75 GeV;
+//                               3 -> 1.25 GeV; 4 -> 1.5 GeV; 5 -> 1.75 GeV;
+//                               6 -> 2.0 GeV 
 //                               (default = 0)
 //   etalo/etahi (int,int)     = |eta| ranges (0:30)
 //   runlo  (int)              = lower value of run number to be included (+ve)
@@ -356,6 +360,7 @@ private:
   int flexibleSelect_, ifDepth_, duplicate_, thrForm_;
   bool plotBasic_, plotEnergy_, plotHists_;
   double log2by18_;
+  double mipCut_;
   std::ofstream fileout_;
   std::vector<std::pair<int, int> > events_;
   TH1D *h_p[CalibPlots::ntitles];
@@ -446,8 +451,9 @@ CalibPlotProperties::CalibPlotProperties(const char *fname,
     runhi_ = std::abs(runhi_);
     includeRun_ = false;
   }
-  int useScale0 = useScale % 10;
-  thrForm_ = useScale / 10;
+  int useScale0 = (useScale % 10);
+  thrForm_ = ((useScale / 10) % 10);
+  mipCut_ = eMipCut((useScale / 100) % 10);
   char treeName[400];
   sprintf(treeName, "%s/CalibTree", dirnm.c_str());
   TChain *chain = new TChain(treeName);
@@ -455,7 +461,8 @@ CalibPlotProperties::CalibPlotProperties(const char *fname,
             << "|" << plotBasic_ << "|"
             << "|" << plotEnergy_ << "|" << plotHists_ << "|" << corrPU_ << " cons " << log2by18_ << " eta range "
             << etalo_ << ":" << etahi_ << " run range " << runlo_ << ":" << runhi_ << " (inclusion flag " << includeRun_
-            << ") Vertex Range " << nvxlo_ << ":" << nvxhi_ << " Threshold Flag " << thrForm_ << std::endl;
+            << ") Vertex Range " << nvxlo_ << ":" << nvxhi_ << " Threshold Flag " << thrForm_  << " MIP Cut "
+	    << mipCut_ << std::endl;
   corrFactor_ = new CalibCorrFactor(corrFileName, useScale0, scl, etam, marina, false);
   if (!fillChain(chain, fname)) {
     std::cout << "*****No valid tree chain can be obtained*****" << std::endl;
@@ -1061,7 +1068,7 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
     if (debug)
       std::cout << "Entry " << jentry << " p|eHcal|ratio " << pmom << "|" << t_eHcal << "|" << eHcal << "|" << rat
                 << "|" << kp << " Cuts " << t_qltyFlag << "|" << t_selectTk << "|" << (t_hmaxNearP < cut) << "|"
-                << (t_eMipDR < 1.0) << "|" << goodTk << "|" << (rat > rcut) << " Select Phi " << selPhi << std::endl;
+                << (t_eMipDR < mipCut_) << "|" << goodTk << "|" << (rat > rcut) << " Select Phi " << selPhi << std::endl;
     std::vector<double> eDepth = rawEnergy(debug);
     if (plotEnergy_) {
       if ((je1 > 0) && (je1 < CalibPlots::netabin)) {
@@ -1090,7 +1097,7 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
             h_eta[3]->Fill(t_ieta, t_EventWeight);
             if (kp < CalibPlots::npbin0)
               h_eta3[kp]->Fill(t_ieta, t_EventWeight);
-            if (t_eMipDR < 1.0) {
+            if (t_eMipDR < mipCut_) {
               h_p[4]->Fill(pmom, t_EventWeight);
               h_eta[4]->Fill(t_ieta, t_EventWeight);
               if (kp < CalibPlots::npbin0) {
@@ -1104,7 +1111,7 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
       }
     }
 
-    bool final = (t_qltyFlag && t_selectTk && (t_hmaxNearP < cut) && (t_eMipDR < 1.0)) ? true : false;
+    bool final = (t_qltyFlag && t_selectTk && (t_hmaxNearP < cut) && (t_eMipDR < mipCut_)) ? true : false;
     if (goodTk && kp != CalibPlots::npbin0 && selPhi) {
       if (rat > rcut) {
         if (plotEnergy_) {
@@ -1232,7 +1239,7 @@ bool CalibPlotProperties::goodTrack(double &eHcal, double &cuti, bool debug) {
     cut = 8.0 * exp(eta * log2by18_);
   }
   correctEnergy(eHcal);
-  select = ((t_qltyFlag) && (t_selectTk) && (t_hmaxNearP < cut) && (t_eMipDR < 100.0));
+  select = ((t_qltyFlag) && (t_selectTk) && (t_hmaxNearP < cut) && (t_eMipDR < mipCut_));
   if (debug) {
     std::cout << " output " << eHcal << ":" << cut << ":" << select << std::endl;
   }

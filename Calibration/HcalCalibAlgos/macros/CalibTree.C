@@ -67,7 +67,8 @@
 //                              to be ignored (1) or not (0)
 //                              (Default 0)
 //  maxIter         (int)     = number of iterations (30)
-//  drForm          (int)     = type of threshold/dupFileName/rcorFileName (hdr)
+//  drForm          (int)     = type of MIPCut/PFCut/dupFileName/rcorFileName
+//                              (thdr)
 //                              For rccorFileName r: (0) for Raddam correction,
 //                              (1) for depth dependent corrections; (2) for
 //                              RespCorr corrections; (3) use machine learning
@@ -79,12 +80,15 @@
 //                              (2) list of  (ieta, iphi) of channels to be
 //                              selected; (3) list of run ranges and for each
 //                              range, ieta, depth where gain has changed.
-//                              For threshold h: the format for threshold
+//                              For PFCut h: the format for threshold
 //                              application, 0: no threshold; 1: 2022 prompt
 //                              data; 2: 2022 reco data; 3: 2023 prompt data;
 //                              4: 2025 Begin of Year; 5: Derived from the file
 //                              PFCuts_IOV_362975.txt.
-//                              (Default 0)
+//                              For MIPCut t: The cut value to be used on ECAL
+//                              energy; 0 -> 1 GeV; 1 -> 0.5 GeV; 2 -> 0.75 GeV;
+//                              3 -> 1.25 GeV; 4 -> 1.5 GeV; 5 -> 1.75 GeV;
+//                              6 -> 2.0 GeV (Default 0)
 //  useGen          (bool)    = use generator level momentum information (false)
 //  runlo           (int)     = lower value of run number to be included (+ve)
 //                              or excluded (-ve) (default 0)
@@ -111,9 +115,9 @@
 //  writeDebugHisto (bool)    = Flag to check writing intermediate histograms
 //                              in o/p file (false)
 //  pmin            (double)  = minimum momentum of tracks to be used in
-//                              estimating the correction factor
+//                              estimating the correction factor (40.0)
 //  pmax            (double)  = maximum momentum of tracks to be used in
-//                              estimating the correction factor
+//                              estimating the correction factor (60.0)
 //  nmax            (Long64_t)= maximum number of entries to be processed,
 //                              if -1, all entries to be processed; -2 take
 //                              all odd entries; -3 take all even entries (-1)
@@ -248,7 +252,7 @@ public:
   virtual void Show(Long64_t entry = -1);
   void getDetId(double fraction, int ietaTrack, bool debug, Long64_t nmax);
   void bookHistos(int loop, bool debug);
-  bool goodTrack();
+  bool goodTrack(double mipCut);
   void writeCorrFactor(const char *corrFileName, int ietaMax);
   bool selectPhi(unsigned int detId);
   std::pair<double, double> fitMean(TH1D *, int);
@@ -361,6 +365,7 @@ private:
   const bool useGen_, exclude_;
   const int higheta_;
   const double pmin_, pmax_;
+  double mipCut_;
   bool includeRun_;
   double log2by18_, eHcalDelta_;
   int thrForm_;
@@ -612,15 +617,17 @@ CalibTree::CalibTree(const char *dupFileName,
   log2by18_ = std::log(2.5) / 18.0;
   duplicate_ = (drForm_ / 10) % 10;
   rcorForm_ = (drForm_ % 10);
-  thrForm_ = (drForm_ / 100);
+  thrForm_ = (drForm_ / 100) % 10;
   eHcalDelta_ = 0;
+  mipCut_ = eMipCut((drForm_ / 1000) % 10);
   std::cout << "Initialize CalibTree with TruncateFlag " << truncateFlag_ << " UseMean " << useMean_ << " Run Range "
             << runlo_ << ":" << runhi_ << " Phi Range " << phimin_ << ":" << phimax_ << ":" << zside_
             << " Vertex Range " << nvxlo_ << ":" << nvxhi_ << " Mode " << sysmode_ << " PU " << puCorr_ << " Gen "
             << useGen_ << " High Eta " << higheta_ << " Threshold Flag " << thrForm_ << std::endl;
   std::cout << "Duplicate events read from " << dupFileName << " duplicateFormat " << duplicate_
             << " RadDam Corrections read from " << rcorFileName << " rcorFormat " << rcorForm_ << " Treat RBX "
-            << rbxFile_ << " with exclusion mode " << exclude_ << std::endl;
+            << rbxFile_ << " with exclusion mode " << exclude_ << " Use MIP cut " << mipCut_ << " p Range"
+	    << pmin_ << ":" << pmax_ << std::endl;
   Init(tree);
   if (std::string(dupFileName) != "") {
     std::cout << "dupFileName: " << dupFileName << std::endl;
@@ -844,7 +851,7 @@ Double_t CalibTree::Loop(int loop,
                 << std::endl;
     }
     double pmom = (useGen_ && (t_gentrackP > 0)) ? t_gentrackP : t_p;
-    if (goodTrack()) {
+    if (goodTrack(mipCut_)) {
       ++ntkgood;
       CalibTree::energyCalor en = energyHcal(pmom, jentry, true);
       double evWt = (useweight) ? t_EventWeight : 1.0;
@@ -1207,21 +1214,21 @@ void CalibTree::bookHistos(int loop, bool debug) {
   std::cout << "Total of " << detIds_.size() << " detIds and " << histos_.size() << std::endl;
 }
 
-bool CalibTree::goodTrack() {
+bool CalibTree::goodTrack(double mipCut) {
   bool ok(true);
   double cut(2.0);
   double pmom = (useGen_ && (t_gentrackP > 0)) ? t_gentrackP : t_p;
   if (sysmode_ == 1) {
-    ok = ((t_qltyFlag) && (t_hmaxNearP < cut) && (t_eMipDR < 1.0) && (t_mindR1 > 1.0) && (pmom > pmin_) &&
+    ok = ((t_qltyFlag) && (t_hmaxNearP < cut) && (t_eMipDR < mipCut) && (t_mindR1 > 1.0) && (pmom > pmin_) &&
           (pmom < pmax_));
   } else if (sysmode_ == 2) {
-    ok = ((t_qltyFlag) && (t_qltyPVFlag) && (t_hmaxNearP < cut) && (t_eMipDR < 1.0) && (t_mindR1 > 1.0) &&
+    ok = ((t_qltyFlag) && (t_qltyPVFlag) && (t_hmaxNearP < cut) && (t_eMipDR < mipCut) && (t_mindR1 > 1.0) &&
           (pmom > pmin_) && (pmom < pmax_));
   } else if (sysmode_ == 3) {
-    ok = ((t_selectTk) && (t_hmaxNearP < cut) && (t_eMipDR < 1.0) && (t_mindR1 > 1.0) && (pmom > pmin_) &&
+    ok = ((t_selectTk) && (t_hmaxNearP < cut) && (t_eMipDR < mipCut) && (t_mindR1 > 1.0) && (pmom > pmin_) &&
           (pmom < pmax_));
   } else if (sysmode_ == 4) {
-    ok = ((t_selectTk) && (t_qltyMissFlag) && (t_hmaxNearP < 0.0) && (t_eMipDR < 1.0) && (t_mindR1 > 1.0) &&
+    ok = ((t_selectTk) && (t_qltyMissFlag) && (t_hmaxNearP < 0.0) && (t_eMipDR < mipCut) && (t_mindR1 > 1.0) &&
           (pmom > pmin_) && (pmom < pmax_));
   } else if (sysmode_ == 5) {
     ok = ((t_selectTk) && (t_qltyMissFlag) && (t_hmaxNearP < cut) && (t_eMipDR < 0.5) && (t_mindR1 > 1.0) &&
@@ -1230,7 +1237,7 @@ bool CalibTree::goodTrack() {
     ok = ((t_selectTk) && (t_qltyMissFlag) && (t_hmaxNearP < cut) && (t_eMipDR < 2.0) && (t_mindR1 > 1.0) &&
           (pmom > pmin_) && (pmom < pmax_));
   } else if (sysmode_ == 7) {
-    ok = ((t_selectTk) && (t_qltyMissFlag) && (t_hmaxNearP < cut) && (t_eMipDR < 1.0) && (t_mindR1 > 0.5) &&
+    ok = ((t_selectTk) && (t_qltyMissFlag) && (t_hmaxNearP < cut) && (t_eMipDR < mipCut) && (t_mindR1 > 0.5) &&
           (pmom > pmin_) && (pmom < pmax_));
   } else {
     if (sysmode_ < 0) {
@@ -1240,7 +1247,7 @@ bool CalibTree::goodTrack() {
       else
         cut = 10.0;
     }
-    ok = ((t_selectTk) && (t_qltyMissFlag) && (t_hmaxNearP < cut) && (t_eMipDR < 1.0) && (t_mindR1 > 1.0) &&
+    ok = ((t_selectTk) && (t_qltyMissFlag) && (t_hmaxNearP < cut) && (t_eMipDR < mipCut) && (t_mindR1 > 1.0) &&
           (pmom > pmin_) && (pmom < pmax_));
   }
   return ok;
@@ -1380,7 +1387,7 @@ void CalibTree::makeplots(
       if (!select)
         continue;
     }
-    if (goodTrack()) {
+    if (goodTrack(mipCut_)) {
       double pmom = (useGen_ && (t_gentrackP > 0)) ? t_gentrackP : t_p;
       CalibTree::energyCalor en1 = energyHcal(pmom, jentry, false);
       CalibTree::energyCalor en2 = energyHcal(pmom, jentry, true);

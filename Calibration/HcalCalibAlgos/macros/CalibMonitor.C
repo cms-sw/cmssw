@@ -97,8 +97,8 @@
 //                               (default = false)
 //   scale (double)            = energy scale if correction factor to be used
 //                               (default = 1.0)
-//   useScale (int)            = two digit number (do) with o: as the flag for
-//                               application of scale factor (0: nowehere,
+//   useScale (int)            = three digit number (hdo) with o: as the flag
+//                               for application of scale factor (0: nowehere,
 //                               1: barrel; 2: endcap, 3: everywhere)
 //                               barrel => |ieta| < 16; endcap => |ieta| > 15;
 //                               d: as the format for threshold application,
@@ -106,6 +106,10 @@
 //                               2022 reco data; 3: 2023 prompt data; 4: 2025
 //                               Begin of Year; 5: Derived from the file
 //                               PFCuts_IOV_362975.txt.
+//                               h: for MIPCut to be used on ECAL energy; 
+//                               0 -> 1 GeV; 1 -> 0.5 GeV; 2 -> 0.75 GeV;
+//                               3 -> 1.25 GeV; 4 -> 1.5 GeV; 5 -> 1.75 GeV;
+//                               6 -> 2.0 GeV 
 //                               (default = 0)
 //   etalo/etahi (int,int)     = |eta| ranges (default = 0:30)
 //   runlo  (int)              = lower value of run number to be included (+ve)
@@ -333,6 +337,7 @@ private:
   int coarseBin_, plotType_;
   int flexibleSelect_, ifDepth_, duplicate_, thrForm_;
   double log2by18_;
+  double mipCut_;
   std::ofstream fileout_;
   std::vector<std::pair<int, int> > events_;
   std::vector<double> etas_, ps_, dl1_;
@@ -421,8 +426,10 @@ CalibMonitor::CalibMonitor(const char *fname,
     runhi_ = std::abs(runhi_);
     includeRun_ = false;
   }
-  int useScale0 = useScale % 10;
-  thrForm_ = useScale / 10;
+  int useScale0 = (useScale % 10);
+  thrForm_ = ((useScale / 10) % 10);
+  mipCut_ = eMipCut((useScale / 100) % 10);
+
   char treeName[400];
   sprintf(treeName, "%s/CalibTree", dirnm_.c_str());
   TChain *chain = new TChain(treeName);
@@ -431,7 +438,8 @@ CalibMonitor::CalibMonitor(const char *fname,
             << " run range " << runlo_ << ":" << runhi_ << " (inclusion flag " << includeRun_ << ")\n Selection of RBX "
             << selRBX_ << " Vertex Range " << nvxlo_ << ":" << nvxhi_ << "\n corrFileName: " << corrFileName
             << " useScale " << useScale << ":" << scale << ":" << etam << "\n rcorFileName: " << rcorFileName
-            << " flag " << ifDepth_ << ":" << cutL1T_ << ":" << marina << " Threshold Flag " << thrForm_ << std::endl;
+            << " flag " << ifDepth_ << ":" << cutL1T_ << ":" << marina << " Threshold Flag " << thrForm_ << " MIP Cut "
+	    << mipCut_ << std::endl;
   if (!fillChain(chain, fname)) {
     std::cout << "*****No valid tree chain can be obtained*****" << std::endl;
   } else {
@@ -1250,7 +1258,7 @@ void CalibMonitor::Loop(Long64_t nmax, bool debug) {
           } else if (kp == 5) {
             ++kount5[9];
           }
-          if (t_eMipDR < 1.0) {
+          if (t_eMipDR < mipCut_) {
             if (p4060)
               ++kount50[10];
             if (kp == 0) {
@@ -1309,7 +1317,7 @@ void CalibMonitor::Loop(Long64_t nmax, bool debug) {
     if (debug) {
       std::cout << "Entry " << jentry << " p|eHcal|ratio " << pmom << "|" << t_eHcal << "|" << eHcal << "|" << rat
                 << "|" << kp << "|" << kv << "|" << jp << " Cuts " << t_qltyFlag << "|" << t_selectTk << "|"
-                << (t_hmaxNearP < cut) << "|" << (t_eMipDR < 1.0) << "|" << goodTk << "|" << (rat > rcut)
+                << (t_hmaxNearP < cut) << "|" << (t_eMipDR < mipCut_) << "|" << goodTk << "|" << (rat > rcut)
                 << " Select Phi " << selPhi << " hmaxNearP " << t_hmaxNearP << " eMipDR " << t_eMipDR << std::endl;
       std::cout << "D1 : " << kp << ":" << kp1 << ":" << kv << ":" << kv1 << ":" << kd << ":" << kd1 << ":" << jp
                 << std::endl;
@@ -1580,7 +1588,7 @@ bool CalibMonitor::goodTrack(double &eHcal, double &cuti, const Long64_t &entry,
     cut = 8.0 * exp(eta * log2by18_);
   }
   correctEnergy(eHcal, entry);
-  select = ((t_qltyFlag) && (t_selectTk) && (t_hmaxNearP < cut) && (t_eMipDR < 1.0) && (eHcal > 0.001));
+  select = ((t_qltyFlag) && (t_selectTk) && (t_hmaxNearP < cut) && (t_eMipDR < mipCut_) && (eHcal > 0.001));
   if (debug) {
     std::cout << " output " << select << " Based on " << t_qltyFlag << ":" << t_selectTk << ":" << t_hmaxNearP << ":"
               << cut << ":" << t_eMipDR << ":" << eHcal << std::endl;
