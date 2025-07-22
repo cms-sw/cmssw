@@ -19,8 +19,8 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2026D110Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D110_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D110Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D110_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedHLLHC14TeV_cfi')
@@ -31,18 +31,16 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-        input = cms.untracked.int32(1),
+        input = cms.untracked.int32(100),
         output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
 
 
-process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('messages'),
-    messages          = cms.untracked.PSet(threshold =  cms.untracked.string('DEBUG')),
-    debugModules   = cms.untracked.vstring('*')
-
-
-)
+#process.MessageLogger = cms.Service("MessageLogger",
+#    destinations = cms.untracked.vstring('messages'),
+#    messages          = cms.untracked.PSet(threshold =  cms.untracked.string('DEBUG')),
+#    debugModules   = cms.untracked.vstring('*')
+#)
 
 
 
@@ -50,10 +48,8 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.source = cms.Source("EmptySource")
 
 process.options = cms.untracked.PSet(
-    FailPath = cms.untracked.vstring(),
     IgnoreCompletely = cms.untracked.vstring(),
     Rethrow = cms.untracked.vstring(),
-    SkipEvent = cms.untracked.vstring(),
     allowUnscheduled = cms.obsolete.untracked.bool,
     canDeleteEarly = cms.untracked.vstring(),
     emptyRunLumiMode = cms.obsolete.untracked.string,
@@ -95,7 +91,7 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
         dataTier = cms.untracked.string('GEN-SIM-DIGI'),
         filterName = cms.untracked.string('')
     ),
-    fileName = cms.untracked.string('file:/tmp/nancy/testGamma_Nancy.root'),
+    fileName = cms.untracked.string('file:TEST.root'),
     outputCommands = process.FEVTDEBUGEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )
