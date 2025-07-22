@@ -47,6 +47,7 @@ Muon system:
 * M14: Same as M10 with modified DTShield
 * M15: Same as M11 with modified DTShield
 * M16: Same as M12 with unmounted GE11 for 2025
+* M17: Same as M16 where the list of unmounted GE11 is correctd
 
 PPS:
 * P7: 2021 baseline (after removing overlaps and using common materials whenever possible)
@@ -82,7 +83,7 @@ Several detector combinations have been generated:
 * 2024FlatMinus10Percent = T6+C2+M11+P7+O5+F2
 * 2024FlatPlus05Percent = T7+C2+M11+P7+O5+F2
 * 2024FlatPlus10Percent = T8+C2+M11+P7+O5+F2
-* 2025 = T3+C2+M16+P8+O7+F3
+* 2025 = T3+C2+M17+P8+O7+F3
 * 2025ZeroMaterial = T4+C2+M12+P8+O8+F3
 * 2025FlatMinus05Percent = T5+C2+M12+P8+O9+F3
 * 2025FlatMinus10Percent = T6+C2+M12+P8+O9+F3
