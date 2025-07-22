@@ -28,19 +28,19 @@ private:
                           const reco::PFRecHitCollection& inputRecHits,
                           double minEnergyEB,
                           double minEnergyEE,
-                          int mantrissaPrecision,
-                          const std::string tag = "");
+                          int mantissaPrecision,
+                          const std::string& tag = "");
   static void produceHcal(edm::Event& iEvent,
                           const reco::PFRecHitCollection& inputRecHits,
                           double minEnergyHBHE,
-                          int mantrissaPrecision,
-                          const std::string tag = "");
+                          int mantissaPrecision,
+                          const std::string& tag = "");
 
   template <typename T>
   void setToken(edm::EDGetTokenT<T>& token, const edm::ParameterSet& iConfig, std::string name) {
     const auto inputTag = iConfig.getParameter<edm::InputTag>(name);
     if (!inputTag.encode().empty()) {
-      token = consumes(iConfig.getParameter<edm::InputTag>(name));
+      token = consumes(inputTag);
     }
   }
 
@@ -79,7 +79,7 @@ void HLTScoutingRecHitProducer::produceEcal(edm::Event& iEvent,
                                             double minEnergyEB,
                                             double minEnergyEE,
                                             int mantissaPrecision,
-                                            const std::string tag) {
+                                            const std::string& tag) {
   auto run3ScoutEBRecHits = std::make_unique<Run3ScoutingEBRecHitCollection>();
   run3ScoutEBRecHits->reserve(inputRecHits.size());
 
@@ -119,7 +119,7 @@ void HLTScoutingRecHitProducer::produceHcal(edm::Event& iEvent,
                                             const reco::PFRecHitCollection& inputRecHits,
                                             double minEnergyHBHE,
                                             int mantissaPrecision,
-                                            const std::string tag) {
+                                            const std::string& tag) {
   auto run3ScoutHBHERecHits = std::make_unique<Run3ScoutingHBHERecHitCollection>();
   run3ScoutHBHERecHits->reserve(inputRecHits.size());
 
