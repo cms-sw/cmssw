@@ -272,10 +272,6 @@ int main(int argc, const char* argv[]) {
         context = "Calling beginJob";
         proc->beginJob();
 
-        // EventSetupsController uses pointers to the ParameterSet
-        // owned by ProcessDesc while it is dealing with sharing of
-        // ESProducers. Therefore the ProcessDesc needs to be kept
-        // alive until the beginJob transition has finished.
         processDesc.reset();
 
         context =
