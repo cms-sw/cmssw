@@ -41,7 +41,8 @@ namespace edm {
   class ProductResolverIndexAndSkipBit;
   class ProductRegistry;
   class ThinnedAssociationsHelper;
-
+  class ModuleConsumesInfo;
+  struct ModuleConsumesMinimalESInfo;
   namespace maker {
     class ModuleHolder {
     public:
@@ -50,6 +51,15 @@ namespace edm {
       virtual std::unique_ptr<Worker> makeWorker(ExceptionToActionTable const* actions) const = 0;
 
       virtual ModuleDescription const& moduleDescription() const = 0;
+      virtual std::vector<ModuleConsumesInfo> moduleConsumesInfos() const = 0;
+      virtual std::vector<ModuleConsumesMinimalESInfo> moduleConsumesMinimalESInfos() const = 0;
+
+      enum class Type { kAnalyzer, kFilter, kProducer, kOutputModule };
+      enum class Concurrency { kGlobal, kLimited, kOne, kStream };
+
+      virtual Type moduleType() const = 0;
+      virtual Concurrency moduleConcurrencyType() const = 0;
+
       virtual void finishModuleInitialization(ModuleDescription const& iDesc,
                                               PreallocationConfiguration const& iPrealloc,
                                               SignallingProductRegistryFiller* iReg) = 0;
@@ -59,6 +69,10 @@ namespace edm {
       virtual void endJob() = 0;
       virtual void beginStream(StreamID) = 0;
       virtual void endStream(StreamID) = 0;
+
+      void respondToOpenInputFile(FileBlock const& fb) { implRespondToOpenInputFile(fb); }
+      void respondToCloseInputFile(FileBlock const& fb) { implRespondToCloseInputFile(fb); }
+      void respondToCloseOutputFile() { implRespondToCloseOutputFile(); }
 
       virtual std::unique_ptr<OutputModuleCommunicator> createOutputModuleCommunicator() = 0;
 
@@ -77,6 +91,9 @@ namespace edm {
     private:
       virtual void implRegisterThinnedAssociations(ProductRegistry const& registry,
                                                    ThinnedAssociationsHelper& helper) = 0;
+      virtual void implRespondToOpenInputFile(FileBlock const& fb) = 0;
+      virtual void implRespondToCloseInputFile(FileBlock const& fb) = 0;
+      virtual void implRespondToCloseOutputFile() = 0;
     };
 
     template <typename T>
@@ -105,6 +122,10 @@ namespace edm {
         }
       };
       ModuleDescription const& moduleDescription() const final { return m_mod->moduleDescription(); }
+      std::vector<ModuleConsumesInfo> moduleConsumesInfos() const final;
+      std::vector<ModuleConsumesMinimalESInfo> moduleConsumesMinimalESInfos() const final;
+      Type moduleType() const final;
+      Concurrency moduleConcurrencyType() const final;
 
       void finishModuleInitialization(ModuleDescription const& iDesc,
                                       PreallocationConfiguration const& iPrealloc,
@@ -132,6 +153,10 @@ namespace edm {
 
     private:
       void implRegisterThinnedAssociations(ProductRegistry const& registry, ThinnedAssociationsHelper& helper) final;
+
+      void implRespondToOpenInputFile(FileBlock const& fb) final;
+      void implRespondToCloseInputFile(FileBlock const& fb) final;
+      void implRespondToCloseOutputFile() final;
 
       std::shared_ptr<T> m_mod;
     };
