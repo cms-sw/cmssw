@@ -5,7 +5,7 @@ The simulation GEN step must be carried out beforehand.
 To use this config fragment, a cmsDriver command like the following can be used:
 ```
 cmsDriver.py \
-	--step HLT:TauAnalysis/MCEmbeddingTools/Simulation_HLT_customiser_cff.embeddingHLTCustomiser.Fake2 \
+	--step HLT:Fake2+TauAnalysis/MCEmbeddingTools/Simulation_HLT_customiser_cff.embeddingHLTCustomiser \
 	--processName SIMembeddingHLT \
 	--mc \
 	--beamspot DBrealistic \
@@ -27,13 +27,9 @@ def embeddingHLTCustomiser(process):
     """
     # Replace the online beam spot producer with the embedding version
     process.hltOnlineBeamSpot = cms.EDProducer('EmbeddingBeamSpotOnlineProducer', src = cms.InputTag('offlineBeamSpot'))
-    process.hltPixelVertices  = cms.EDProducer('EmbeddingHltPixelVerticesProducer')
     # Replace HLT vertexing with vertex taken from LHE step
-    process.embeddingHltPixelVertices = cms.EDProducer('EmbeddingHltPixelVerticesProducer')
     process.hltPixelVertices = cms.EDProducer('EmbeddingHltPixelVerticesProducer')
-    process.offlinePrimaryVertices = cms.EDProducer('EmbeddingHltPixelVerticesProducer')
-    process.firstStepPrimaryVerticesUnsorted = cms.EDProducer('EmbeddingHltPixelVerticesProducer')
-    process.firstStepPrimaryVerticesPreSplitting = cms.EDProducer('EmbeddingHltPixelVerticesProducer')
+    process.hltFirstStepPrimaryVerticesUnsorted = cms.EDProducer('EmbeddingHltPixelVerticesProducer')
     
     # Disable the original detector state filters in the HLT step.
     # This is done by replacing them with one that always passes (100% efficiency).
@@ -41,7 +37,6 @@ def embeddingHLTCustomiser(process):
     # that the simulation of the tau decay happens in an empty detector.
     # For more info see https://github.com/cms-sw/cmssw/pull/47299#discussion_r1949023230
     process.hltPixelTrackerHVOn = cms.EDFilter("HLTBool", result = cms.bool(True))
-
     process.hltStripTrackerHVOn = cms.EDFilter("HLTBool", result = cms.bool(True))
 
     return process
