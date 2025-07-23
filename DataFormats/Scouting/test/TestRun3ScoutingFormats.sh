@@ -34,10 +34,27 @@ cmsRun ${LOCAL_TEST_DIR}/test_readRun3Scouting_cfg.py || die "Failure using test
 # Run the create_Run3Scouting_test_file_cfg.py configuration and
 # rename the file it creates.
 #
-# The versions of the classes are encoded in the filenames in
-# alphabetical order. This order is also the order the Run 3
-# Scouting classes appear in classes_def.xml (in the master branch
-# of CMSSW).
+# The versions of the classes are encoded in the filenames
+# following the order in which the Run3Scouting classes appear in classes_def.xml.
+# That order is as follows.
+#
+#  Run3ScoutingCaloJet
+#  Run3ScoutingElectron
+#  Run3ScoutingHitPatternPOD
+#  Run3ScoutingMuon
+#  Run3ScoutingParticle
+#  Run3ScoutingPFJet
+#  Run3ScoutingPhoton
+#  Run3ScoutingTrack
+#  Run3ScoutingVertex
+#  Run3ScoutingEBRecHit
+#  Run3ScoutingEERecHit
+#  Run3ScoutingHBHERecHit
+#
+# The first 9 classes are the ones introduced since the start of Run 3 (listed in alphabetical order),
+# while the last 3 classes were introduced in 2025.
+# For files produced before the introduction of the latter 3 classes,
+# only the class versions of the former 9 classes are included in the name of the file.
 #
 # By default, split level 99 is used (maximum possible splitting).
 # If the suffix "_split_0" is near the end of the filename, the
@@ -68,17 +85,20 @@ cmsRun ${LOCAL_TEST_DIR}/test_readRun3Scouting_cfg.py || die "Failure using test
 file=testRun3Scouting_v3_v5_v3_v4_v5_v3_v5_v3_v3_CMSSW_12_4_0_split_99.root
 inputfile=$(edmFileInPath DataFormats/Scouting/data/$file) || die "Failure edmFileInPath DataFormats/Scouting/data/$file" $?
 argsPassedToPython="--inputFile $inputfile --outputFileName testRun3Scouting2_CMSSW_12_4_0.root --electronVersion 5 --photonVersion 5 --vertexVersion 3"
+argsPassedToPython+=" --ebRecHitVersion -1 --eeRecHitVersion -1 --hbheRecHitVersion -1"
 cmsRun ${LOCAL_TEST_DIR}/test_readRun3Scouting_cfg.py $argsPassedToPython || die "Failed to read old file $file" $?
 
 file=testRun3Scouting_v3_v5_v3_v4_v5_v3_v5_v3_v3_CMSSW_12_4_0_split_0.root
 inputfile=$(edmFileInPath DataFormats/Scouting/data/$file) || die "Failure edmFileInPath DataFormats/Scouting/data/$file" $?
 argsPassedToPython="--inputFile $inputfile --outputFileName testRun3Scouting2_CMSSW_12_4_0.root --electronVersion 5 --photonVersion 5 --vertexVersion 3 --fixStreamerInfo"
+argsPassedToPython+=" --ebRecHitVersion -1 --eeRecHitVersion -1 --hbheRecHitVersion -1"
 cmsRun ${LOCAL_TEST_DIR}/test_readRun3Scouting_cfg.py $argsPassedToPython || die "Failed to read old file $file" $?
 
 oldFiles="testRun3Scouting_v3_v6_v3_v4_v5_v3_v5_v3_v3_CMSSW_13_0_3_split_99.root testRun3Scouting_v3_v6_v3_v4_v5_v3_v5_v3_v3_CMSSW_13_0_3_split_0.root"
 for file in $oldFiles; do
   inputfile=$(edmFileInPath DataFormats/Scouting/data/$file) || die "Failure edmFileInPath DataFormats/Scouting/data/$file" $?
   argsPassedToPython="--inputFile $inputfile --outputFileName testRun3Scouting2_CMSSW_13_0_3.root --electronVersion 6 --photonVersion 5 --vertexVersion 3"
+  argsPassedToPython+=" --ebRecHitVersion -1 --eeRecHitVersion -1 --hbheRecHitVersion -1"
   cmsRun ${LOCAL_TEST_DIR}/test_readRun3Scouting_cfg.py $argsPassedToPython || die "Failed to read old file $file" $?
 done
 
@@ -86,6 +106,7 @@ oldFiles="testRun3Scouting_v3_v7_v3_v4_v5_v3_v6_v3_v4_CMSSW_14_0_0_pre3_split_99
 for file in $oldFiles; do
   inputfile=$(edmFileInPath DataFormats/Scouting/data/$file) || die "Failure edmFileInPath DataFormats/Scouting/data/$file" $?
   argsPassedToPython="--inputFile $inputfile --outputFileName testRun3Scouting2_CMSSW_14_0_0_pre3.root --electronVersion 7 --photonVersion 6 --vertexVersion 4"
+  argsPassedToPython+=" --ebRecHitVersion -1 --eeRecHitVersion -1 --hbheRecHitVersion -1"
   cmsRun ${LOCAL_TEST_DIR}/test_readRun3Scouting_cfg.py $argsPassedToPython || die "Failed to read old file $file" $?
 done
 

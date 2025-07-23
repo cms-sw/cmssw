@@ -11,14 +11,10 @@ namespace edm {
   class ParameterSet;
   namespace eventsetup {
     class EventSetupProvider;
-    class EventSetupsController;
 
-    std::unique_ptr<EventSetupProvider> makeEventSetupProvider(ParameterSet const& params,
-                                                               unsigned subProcessIndex,
-                                                               ActivityRegistry*);
+    std::unique_ptr<EventSetupProvider> makeEventSetupProvider(ParameterSet const& params, ActivityRegistry*);
 
     void fillEventSetupProvider(ModuleTypeResolverMaker const* resolverMaker,
-                                EventSetupsController& esController,
                                 EventSetupProvider& cp,
                                 ParameterSet& params);
   }  // namespace eventsetup

@@ -1,17 +1,31 @@
+// -*- C++ -*-
 #ifndef FWCore_Framework_LooperFactory_h
 #define FWCore_Framework_LooperFactory_h
-// -*- C++ -*-
 //
 // Package:     Framework
-// Class  :     LooperFactory
 //
-/**\class LooperFactory LooperFactory.h FWCore/Framework/interface/LooperFactory.h
+/*
+ Description:
+    A LooperFactory is a ComponentFactory used to construct
+    a looper which might be used by the EventSetup system.
 
- Description: PluginManager factory for creating EDLoopers
+    The addTo function will both construct a looper and
+    might then pass a shared pointer to it to the EventSetupProvider.
+    The LooperFactory uses a Maker to accomplish this.
+    There is one Maker associated with each type of
+    looper. The ComponentFactory stores the Maker.
+    When the ComponentFactory needs a Maker it does not
+    already have, it uses the plugin system to create it.
 
  Usage:
-    <usage>
-
+    addTo is called during EventProcessor construction
+    for the looper if one is configured. The call stack
+    looks similar to this:
+        ...
+        fillLooper
+        ComponentFactory::addTo
+        ComponentMaker::addTo
+        LooperMakerTraits::addTo
 */
 //
 // Author:      Chris Jones
@@ -23,6 +37,7 @@
 #include <string>
 
 // user include files
+#include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Framework/interface/ComponentFactory.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerPluginFactory.h"
@@ -31,12 +46,10 @@
 namespace edm {
   class EDLooperBase;
   class EventSetupRecordIntervalFinder;
-  class ParameterSet;
 
   namespace eventsetup {
 
     class ESProductResolverProvider;
-    class EventSetupsController;
 
     namespace looper {
       template <class T>
@@ -86,19 +99,11 @@ namespace edm {
       static std::string name();
       static std::string const& baseType();
       template <class T>
-      static void addTo(EventSetupProvider& iProvider, std::shared_ptr<T> iComponent, ParameterSet const&, bool) {
+      static void addTo(EventSetupProvider& iProvider, std::shared_ptr<T> iComponent) {
         //a looper does not always have to be a provider or a finder
         looper::addProviderTo(iProvider, iComponent, static_cast<const T*>(nullptr));
         looper::addFinderTo(iProvider, iComponent, static_cast<const T*>(nullptr));
       }
-
-      static void replaceExisting(EventSetupProvider& iProvider, std::shared_ptr<EDLooperBase> iComponent);
-
-      static std::shared_ptr<base_type> getComponentAndRegisterProcess(EventSetupsController& esController,
-                                                                       ParameterSet const& iConfiguration);
-      static void putComponent(EventSetupsController& esController,
-                               ParameterSet const& iConfiguration,
-                               std::shared_ptr<base_type> const& component);
     };
     template <class TType>
     struct LooperMaker : public ComponentMaker<edm::eventsetup::LooperMakerTraits, TType> {};
