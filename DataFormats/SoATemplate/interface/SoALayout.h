@@ -170,7 +170,7 @@ namespace cms::soa {
  */
 // clang-format off
 #define _DECLARE_CONST_DESCRIPTOR_SPANS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                        \
-  (typename cms::soa::getConstSpanType<typename Metadata::BOOST_PP_CAT(ParametersTypeOf_, NAME)>::type)
+  (typename cms::soa::GetConstSpanType<typename Metadata::BOOST_PP_CAT(ParametersTypeOf_, NAME)>::type)
 // clang-format on
 
 #define _DECLARE_CONST_DESCRIPTOR_SPANS(R, DATA, TYPE_NAME)                                 \
@@ -183,7 +183,7 @@ namespace cms::soa {
  */
 // clang-format off
 #define _DECLARE_DESCRIPTOR_SPANS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                              \
-  (typename cms::soa::getSpanType<typename Metadata::BOOST_PP_CAT(ParametersTypeOf_, NAME)>::type)
+  (typename cms::soa::GetSpanType<typename Metadata::BOOST_PP_CAT(ParametersTypeOf_, NAME)>::type)
 // clang-format on
 
 #define _DECLARE_DESCRIPTOR_SPANS(R, DATA, TYPE_NAME)                                       \

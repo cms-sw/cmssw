@@ -907,69 +907,69 @@ namespace cms::soa {
 
   // Helper type trait for obtaining a span type for a column
   template <typename ColumnType>
-  struct getSpanType;
+  struct GetSpanType;
 
   template <typename T>
-  struct getSpanType<cms::soa::SoAConstParametersImpl<cms::soa::SoAColumnType::scalar, T>> {
+  struct GetSpanType<cms::soa::SoAConstParametersImpl<cms::soa::SoAColumnType::scalar, T>> {
     using type = std::span<T, 1>;
   };
 
   template <typename T>
-  struct getSpanType<cms::soa::SoAConstParametersImpl<cms::soa::SoAColumnType::column, T>> {
+  struct GetSpanType<cms::soa::SoAConstParametersImpl<cms::soa::SoAColumnType::column, T>> {
     using type = std::span<T>;
   };
 
   template <typename T>
-  struct getSpanType<cms::soa::SoAConstParametersImpl<cms::soa::SoAColumnType::eigen, T>> {
+  struct GetSpanType<cms::soa::SoAConstParametersImpl<cms::soa::SoAColumnType::eigen, T>> {
     using type = std::span<typename T::Scalar>;
   };
 
   template <typename T>
-  struct getSpanType<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::scalar, T>> {
+  struct GetSpanType<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::scalar, T>> {
     using type = std::span<T, 1>;
   };
 
   template <typename T>
-  struct getSpanType<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::column, T>> {
+  struct GetSpanType<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::column, T>> {
     using type = std::span<T>;
   };
 
   template <typename T>
-  struct getSpanType<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::eigen, T>> {
+  struct GetSpanType<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::eigen, T>> {
     using type = std::span<typename T::Scalar>;
   };
 
   // Helper type trait for obtaining a const-span type for a column
   template <typename ColumnType>
-  struct getConstSpanType;
+  struct GetConstSpanType;
 
   template <typename T>
-  struct getConstSpanType<cms::soa::SoAConstParametersImpl<cms::soa::SoAColumnType::scalar, T>> {
+  struct GetConstSpanType<cms::soa::SoAConstParametersImpl<cms::soa::SoAColumnType::scalar, T>> {
     using type = std::span<std::add_const_t<T>, 1>;
   };
 
   template <typename T>
-  struct getConstSpanType<cms::soa::SoAConstParametersImpl<cms::soa::SoAColumnType::column, T>> {
+  struct GetConstSpanType<cms::soa::SoAConstParametersImpl<cms::soa::SoAColumnType::column, T>> {
     using type = std::span<std::add_const_t<T>>;
   };
 
   template <typename T>
-  struct getConstSpanType<cms::soa::SoAConstParametersImpl<cms::soa::SoAColumnType::eigen, T>> {
+  struct GetConstSpanType<cms::soa::SoAConstParametersImpl<cms::soa::SoAColumnType::eigen, T>> {
     using type = std::span<std::add_const_t<typename T::Scalar>>;
   };
 
   template <typename T>
-  struct getConstSpanType<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::scalar, T>> {
+  struct GetConstSpanType<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::scalar, T>> {
     using type = std::span<std::add_const_t<T>, 1>;
   };
 
   template <typename T>
-  struct getConstSpanType<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::column, T>> {
+  struct GetConstSpanType<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::column, T>> {
     using type = std::span<std::add_const_t<T>>;
   };
 
   template <typename T>
-  struct getConstSpanType<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::eigen, T>> {
+  struct GetConstSpanType<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::eigen, T>> {
     using type = std::span<std::add_const_t<typename T::Scalar>>;
   };
 
