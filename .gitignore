@@ -21,3 +21,9 @@ __init__.py
 
 #ignore mac specific file
 .DS_Store
+
+**/run383631/**
+
+HeterogeneousCore/MPICore/test/test_results_thesis/
+HeterogeneousCore/MPICore/test/test_results/
+HeterogeneousCore/MPICore/test/plotters/figures/

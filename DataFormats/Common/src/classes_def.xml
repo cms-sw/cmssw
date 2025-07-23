@@ -208,4 +208,6 @@
  <class name="edm::StdArray<short, 4>"/>
  <class name="edm::StdArray<unsigned short, 11>"/>
  <class name="edm::StdArray<unsigned int, 4>"/>
+ <class name="edm::FixedSizeDummy" />
+ <class name="edm::Wrapper<edm::FixedSizeDummy>" />
 </lcgdict>

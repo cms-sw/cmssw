@@ -238,6 +238,7 @@ int main(int argc, char *argv[]) {
   if (help) {
     printHelp();
     MPI_Finalize();
+    MPI_Finalize();
     exit(0);
   }
   setupMPIAndVectors(mpiData, user);
