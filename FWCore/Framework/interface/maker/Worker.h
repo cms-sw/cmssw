@@ -31,7 +31,6 @@ the worker is reset().
 #include "FWCore/Framework/interface/ModuleContextSentry.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/ProductResolverIndexAndSkipBit.h"
-#include "FWCore/Framework/interface/ModuleConsumesMinimalESInfo.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
@@ -41,8 +40,6 @@ the worker is reset().
 #include "FWCore/ServiceRegistry/interface/InternalContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
-#include "FWCore/ServiceRegistry/interface/PathContext.h"
-#include "FWCore/ServiceRegistry/interface/PlaceInPathContext.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueueChain.h"
@@ -75,10 +72,7 @@ namespace edm {
   class EventPrincipal;
   class EventSetupImpl;
   class EarlyDeleteHelper;
-  class ProductResolverIndexHelper;
   class ProductResolverIndexAndSkipBit;
-  class ProductRegistry;
-  class ThinnedAssociationsHelper;
 
   namespace workerhelper {
     template <typename O>
@@ -184,10 +178,6 @@ namespace edm {
     // Called if filter earlier in the path has failed.
     void skipOnPath(EventPrincipal const& iEvent);
 
-    void respondToOpenInputFile(FileBlock const& fb) { implRespondToOpenInputFile(fb); }
-    void respondToCloseInputFile(FileBlock const& fb) { implRespondToCloseInputFile(fb); }
-    void respondToCloseOutputFile() { implRespondToCloseOutputFile(); }
-
     void reset() {
       cached_exception_ = std::exception_ptr();
       state_ = Ready;
@@ -209,9 +199,6 @@ namespace edm {
     void setActivityRegistry(std::shared_ptr<ActivityRegistry> areg);
 
     void setEarlyDeleteHelper(EarlyDeleteHelper* iHelper);
-
-    virtual std::vector<ModuleConsumesInfo> moduleConsumesInfos() const = 0;
-    virtual std::vector<ModuleConsumesMinimalESInfo> moduleConsumesMinimalESInfos() const = 0;
 
     virtual Types moduleType() const = 0;
     virtual ConcurrencyTypes moduleConcurrencyType() const = 0;
@@ -293,10 +280,6 @@ namespace edm {
     virtual void preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
                                               ModuleCallingContext const& moduleCallingContext,
                                               Principal const& iPrincipal) const noexcept = 0;
-
-    virtual void implRespondToOpenInputFile(FileBlock const& fb) = 0;
-    virtual void implRespondToCloseInputFile(FileBlock const& fb) = 0;
-    virtual void implRespondToCloseOutputFile() = 0;
 
     virtual TaskQueueAdaptor serializeRunModule() = 0;
 

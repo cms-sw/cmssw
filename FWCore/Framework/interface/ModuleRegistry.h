@@ -36,6 +36,7 @@ namespace edm {
   struct MakeModuleParams;
   class ModuleDescription;
   class PreallocationConfiguration;
+  class SignallingProductRegistryFiller;
 
   class ModuleRegistry {
   public:
@@ -100,6 +101,14 @@ namespace edm {
     void forAllModuleHolders(F iFunc) {
       for (auto& labelMod : labelToModule_) {
         maker::ModuleHolder* t = labelMod.second.get();
+        iFunc(t);
+      }
+    }
+
+    template <typename F>
+    void forAllModuleHolders(F iFunc) const {
+      for (auto& labelMod : labelToModule_) {
+        maker::ModuleHolder const* t = labelMod.second.get();
         iFunc(t);
       }
     }
