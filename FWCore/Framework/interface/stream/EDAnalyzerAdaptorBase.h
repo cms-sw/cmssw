@@ -163,10 +163,7 @@ namespace edm {
       virtual void doBeginLuminosityBlock(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
       virtual void doEndLuminosityBlock(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
 
-      void doRespondToOpenInputFile(FileBlock const&) {}
-      void doRespondToCloseInputFile(FileBlock const&) {}
       virtual void doRespondToCloseOutputFile() = 0;
-      void doRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) {}
 
       bool hasAcquire() const noexcept { return false; }
       bool hasAccumulator() const noexcept { return false; }

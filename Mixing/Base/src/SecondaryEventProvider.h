@@ -11,6 +11,7 @@
 
 namespace edm {
   class ModuleCallingContext;
+  class ExceptionCollector;
 
   class SecondaryEventProvider {
   public:
