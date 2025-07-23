@@ -42,7 +42,6 @@ process.MPIService.pmix_server_uri = "file:server.uri"
 process.source = cms.Source("MPISource",
   firstRun = cms.untracked.uint32(383631)
 )
-process.source.run_local = cms.untracked.bool(True)
 
 process.maxEvents.input = -1
 

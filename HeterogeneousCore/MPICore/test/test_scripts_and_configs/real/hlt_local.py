@@ -33,7 +33,6 @@ process.MPIService.pmix_server_uri = "file:server.uri"
 
 from HeterogeneousCore.MPICore.mpiController_cfi import mpiController as mpiController_
 process.mpiController = mpiController_.clone()
-process.mpiController.run_local = cms.untracked.bool(True)
 
 # send the raw data over MPI
 process.mpiSenderRawData = cms.EDProducer("MPISender",
