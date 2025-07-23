@@ -726,8 +726,7 @@ namespace edm {
 
     // Then add TriggerResults, and all Paths and EndPaths themselves
     // to the set of "consumers" (even if they don't depend on any
-    // data products, they must not be deleted). Also add anything
-    // consumed by child SubProcesses to the set of "consumers".
+    // data products, they must not be deleted).
     auto const& allModules = iPnC.allModules();
     for (auto const& description : allModules) {
       if (description->moduleLabel() == kTriggerResults or

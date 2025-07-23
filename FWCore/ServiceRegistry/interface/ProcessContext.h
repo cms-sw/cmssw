@@ -3,13 +3,9 @@
 
 /**\class edm::ProcessContext
 
- Description: Holds pointer to ProcessConfiguration and
-if this is a SubProcess also a pointer to the parent
-ProcessContext. This is intended primarily to be passed
-to Services as an argument to their callback functions.
-
- Usage:
-
+ Description: Holds pointer to ProcessConfiguration.
+ This is intended primarily to be passed to Services
+ as an argument to their callback functions.
 
 */
 //

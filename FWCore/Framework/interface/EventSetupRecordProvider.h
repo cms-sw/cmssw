@@ -45,7 +45,6 @@ namespace edm {
     class ESRecordsToProductResolverIndices;
     class EventSetupProvider;
     class EventSetupRecordImpl;
-    class ParameterSetIDHolder;
 
     class EventSetupRecordProvider {
     public:
@@ -89,11 +88,6 @@ namespace edm {
       ///returns the first matching ESProductResolverProvider or a 'null' if not found
       std::shared_ptr<ESProductResolverProvider> resolverProvider(ComponentDescription const&);
 
-      ///returns the first matching ESProductResolverProvider or a 'null' if not found
-      std::shared_ptr<ESProductResolverProvider> resolverProvider(ParameterSetIDHolder const&);
-
-      void resetProductResolverProvider(ParameterSetIDHolder const&, std::shared_ptr<ESProductResolverProvider> const&);
-
       void add(std::shared_ptr<ESProductResolverProvider>);
       ///For now, only use one finder
       void addFinder(std::shared_ptr<EventSetupRecordIntervalFinder>);
@@ -135,8 +129,8 @@ namespace edm {
        */
       bool setValidityIntervalFor(IOVSyncValue const&);
 
-      bool newIntervalForAnySubProcess() const { return newIntervalForAnySubProcess_; }
-      void setNewIntervalForAnySubProcess(bool value) { newIntervalForAnySubProcess_ = value; }
+      bool newInterval() const { return newInterval_; }
+      void setNewInterval(bool value) { newInterval_ = value; }
 
       ///If the provided Record depends on other Records, here are the dependent Providers
       void setDependentProviders(std::vector<std::shared_ptr<EventSetupRecordProvider>> const&);
@@ -153,10 +147,6 @@ namespace edm {
 
       void getReferencedESProducers(
           std::map<EventSetupRecordKey, std::vector<ComponentDescription const*>>& referencedESProducers) const;
-
-      void fillReferencedDataKeys(std::map<DataKey, ComponentDescription const*>& referencedDataKeys) const;
-
-      void resetRecordToResolverPointers(DataToPreferredProviderMap const& iMap);
 
       void setEventSetupImpl(EventSetupImpl* value) { eventSetupImpl_ = value; }
 
@@ -200,7 +190,7 @@ namespace edm {
 
       const unsigned int nConcurrentIOVs_;
       IntervalStatus intervalStatus_ = IntervalStatus::NotInitializedForSyncValue;
-      bool newIntervalForAnySubProcess_ = false;
+      bool newInterval_ = false;
       bool hasNonconcurrentFinder_ = false;
     };
   }  // namespace eventsetup
