@@ -21,18 +21,6 @@ public:
   VariableNTupler(const edm::ParameterSet& iConfig) {
     ownTheTree_ = false;
     edm::ParameterSet variablePSet = iConfig.getParameter<edm::ParameterSet>("variablesPSet");
-    if (variablePSet.getParameter<bool>("allVariables")) {
-      VariableHelper::iterator v = edm::Service<VariableHelperService>()->get().begin();
-      VariableHelper::iterator v_end = edm::Service<VariableHelperService>()->get().end();
-      for (; v != v_end; ++v) {
-        leaves_[v->second->name()] = v->second;
-      }
-    } else {
-      std::vector<std::string> leaves = variablePSet.getParameter<std::vector<std::string> >("leaves");
-      for (uint i = 0; i != leaves.size(); ++i) {
-        leaves_[leaves[i]] = edm::Service<VariableHelperService>()->get().variable(leaves[i]);
-      }
-    }
     if (variablePSet.exists("useTFileService"))
       useTFileService_ = variablePSet.getParameter<bool>("useTFileService");
     else

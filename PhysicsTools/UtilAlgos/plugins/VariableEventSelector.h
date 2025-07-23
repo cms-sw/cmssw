@@ -3,7 +3,6 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "CommonTools/UtilAlgos/interface/EventSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/VariableHelper.h"
 #include "TFormula.h"
 #include "TString.h"
 
@@ -39,22 +38,6 @@ public:
     threshold_ = pset.getParameter<double>("threshold");
   }
 
-  bool select(const edm::Event& e) const override {
-    unsigned int v_i;
-    std::set<std::string>::iterator v_it;
-
-    for (v_i = 0, v_it = vars_.begin(); v_i != vars_.size(); ++v_i, ++v_it) {
-      const CachingVariable* var = edm::Service<VariableHelperService>()->get().variable(*v_it);
-      if (!var->compute(e))
-        return false;
-      double v = (*var)(e);
-      formula_->SetParameter(v_i, v);
-    }
-
-    //should be valuated 0. or 1. in double
-    return (formula_->Eval(0.) >= threshold_);
-  }
-
 private:
   //std::string formula_;
   TFormula* formula_;
@@ -88,20 +71,6 @@ public:
       description_.push_back(ss.str());
       ss.str("");
     }
-  }
-  bool select(const edm::Event& e) const override {
-    const CachingVariable* var = edm::Service<VariableHelperService>()->get().variable(var_);
-    if (!var->compute(e))
-      return false;
-
-    double v = (*var)(e);
-
-    if (doMin_ && v < min_)
-      return false;
-    else if (doMax_ && v > max_)
-      return false;
-    else
-      return true;
   }
 
 private:
