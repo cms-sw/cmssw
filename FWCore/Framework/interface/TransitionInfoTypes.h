@@ -14,7 +14,6 @@
 //         Created:  26 June 2020
 
 #include <memory>
-#include <vector>
 
 namespace edm {
   class EventPrincipal;
@@ -43,50 +42,32 @@ namespace edm {
   public:
     LumiTransitionInfo() {}
 
-    LumiTransitionInfo(LuminosityBlockPrincipal& iPrincipal,
-                       EventSetupImpl const& iEventSetupImpl,
-                       std::vector<std::shared_ptr<const EventSetupImpl>> const* iEventSetupImpls = nullptr)
-        : luminosityBlockPrincipal_(&iPrincipal),
-          eventSetupImpl_(&iEventSetupImpl),
-          eventSetupImpls_(iEventSetupImpls) {}
+    LumiTransitionInfo(LuminosityBlockPrincipal& iPrincipal, EventSetupImpl const& iEventSetupImpl)
+        : luminosityBlockPrincipal_(&iPrincipal), eventSetupImpl_(&iEventSetupImpl) {}
 
     LuminosityBlockPrincipal& principal() { return *luminosityBlockPrincipal_; }
     LuminosityBlockPrincipal const& principal() const { return *luminosityBlockPrincipal_; }
     EventSetupImpl const& eventSetupImpl() const { return *eventSetupImpl_; }
-    std::vector<std::shared_ptr<const EventSetupImpl>> const* eventSetupImpls() const { return eventSetupImpls_; }
 
   private:
     LuminosityBlockPrincipal* luminosityBlockPrincipal_ = nullptr;
     EventSetupImpl const* eventSetupImpl_ = nullptr;
-    // The first element of this vector refers to the top level process.
-    // If there are SubProcesses, then each additional element refers to
-    // one SubProcess. The previous data member refers to the same EventSetupImpl
-    // object as one element of this vector (the one currently being handled).
-    std::vector<std::shared_ptr<const EventSetupImpl>> const* eventSetupImpls_ = nullptr;
   };
 
   class RunTransitionInfo {
   public:
     RunTransitionInfo() {}
 
-    RunTransitionInfo(RunPrincipal& iPrincipal,
-                      EventSetupImpl const& iEventSetupImpl,
-                      std::vector<std::shared_ptr<const EventSetupImpl>> const* iEventSetupImpls = nullptr)
-        : runPrincipal_(&iPrincipal), eventSetupImpl_(&iEventSetupImpl), eventSetupImpls_(iEventSetupImpls) {}
+    RunTransitionInfo(RunPrincipal& iPrincipal, EventSetupImpl const& iEventSetupImpl)
+        : runPrincipal_(&iPrincipal), eventSetupImpl_(&iEventSetupImpl) {}
 
     RunPrincipal& principal() { return *runPrincipal_; }
     RunPrincipal const& principal() const { return *runPrincipal_; }
     EventSetupImpl const& eventSetupImpl() const { return *eventSetupImpl_; }
-    std::vector<std::shared_ptr<const EventSetupImpl>> const* eventSetupImpls() const { return eventSetupImpls_; }
 
   private:
     RunPrincipal* runPrincipal_ = nullptr;
     EventSetupImpl const* eventSetupImpl_ = nullptr;
-    // The first element of this vector refers to the top level process.
-    // If there are SubProcesses, then each additional element refers to
-    // one SubProcess. The previous data member refers to the same EventSetupImpl
-    // object as one element of this vector (the one currently being handled).
-    std::vector<std::shared_ptr<const EventSetupImpl>> const* eventSetupImpls_ = nullptr;
   };
 
   class ProcessBlockTransitionInfo {
