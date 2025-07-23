@@ -14,6 +14,7 @@
 // system include files
 #include <iostream>
 #include <iomanip>
+#include <fstream>
 
 #include <string>
 #include <vector>
@@ -115,6 +116,14 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
                                        << m_model_loader.model_name() << "\".";
   }
 
+  // overwrite model for now using local path
+  std::cout << "Overwriting topo model loading..." << m_model_loader.model_name() <<std::endl;
+  std::string TOPOmodelversion = "/eos/user/l/lebeling/AXO_v5/test_TOPO/topo_v1";
+  hls4mlEmulator::ModelLoader loader(TOPOmodelversion);
+  std::shared_ptr<hls4mlEmulator::Model> m_model;
+  m_model = loader.load_model();
+  std::cout << "loading model... " << TOPOmodelversion << std::endl;
+  
   std::cout << "#### evaluate topo condition ####" << std::endl;
 
   bool condResult = false;
@@ -140,14 +149,14 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
   const int MuVecSize = NMuons * 3;      //so 6
   const int JVecSize = NJets * 3;        //so 12
   const int EGVecSize = NEgammas * 3;    //so 0
-  const int EtSumVecSize = NEtSums * 3;    //so 3
+  const int EtSumVecSize = NEtSums * 2;    //no eta
 
-  //total # inputs in vector is (4+10+4+1)*3 = 57
-  const int NInputs = MuVecSize + JVecSize + EGVecSize + EtSumVecSize;  //so 21
+  //total # inputs in vector
+  const int NInputs = MuVecSize + JVecSize + EGVecSize + EtSumVecSize;  //so 20
 
-  //types of inputs and outputs
-  typedef ap_fixed<18, 13> inputtype;
-  typedef ap_ufixed<18, 14> losstype;
+  //types of inputs and outputs modified for topo
+  typedef ap_fixed<16, 6> inputtype;
+  typedef ap_fixed<16, 6> losstype;
 
   //define zero
   inputtype fillzero = 0.0;
@@ -186,10 +195,8 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
   if (NCandEtSum > 0) {  //check if not empty
     for (int iEtSum = 0; iEtSum < NCandEtSum; iEtSum++) {
       if ((candEtSumVec->at(useBx, iEtSum))->getType() == l1t::EtSum::EtSumType::kMissingEt) {
-        EtSumInput[0] =
-            ((candEtSumVec->at(useBx, iEtSum))->hwPt()) / 2;  //have to do hwPt/2 in order to match original et inputs
-        // EtSumInput[1] = (candEtSumVec->at(useBx, iEtSum))->hwEta(); //this one is zero, so leave it zero
-        EtSumInput[2] = (candEtSumVec->at(useBx, iEtSum))->hwPhi();
+        EtSumInput[0] = (candEtSumVec->at(useBx, iEtSum))->hwPt();
+        EtSumInput[1] = (candEtSumVec->at(useBx, iEtSum))->hwPhi();
       }
     }
   }
@@ -210,8 +217,8 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
     for (int iMu = 0; iMu < NCandMu; iMu++) {
       if (iMu < NMuons) {  //stop if fill the Nobjects we need
         MuInput[0 + (3 * iMu)] = (candMuVec->at(useBx, iMu))->hwPt();        //index 0,3,6,9
-        MuInput[1 + (3 * iMu)] = (candMuVec->at(useBx, iMu))->hwEtaAtVtx();  //index 1,4,7,10
-        MuInput[2 + (3 * iMu)] = (candMuVec->at(useBx, iMu))->hwPhiAtVtx();  //index 2,5,8,11
+        MuInput[1 + (3 * iMu)] = (candMuVec->at(useBx, iMu))->hwEta();  //index 1,4,7,10
+        MuInput[2 + (3 * iMu)] = (candMuVec->at(useBx, iMu))->hwPhi();  //index 2,5,8,11
       }
     }
   }
@@ -245,21 +252,36 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
   //now run the inference
   m_model->prepare_input(ADModelInput);  //scaling internal here
   m_model->predict();
-  // m_model->read_result(&ADModelResult);  // this should be the square sum model result
-  if ((m_model_loader.model_name() == "GTADModel_v3") ||
-      (m_model_loader.model_name() == "GTADModel_v4")) {  //v3/v4 overwrite
-    using resulttype = std::array<ap_fixed<10, 7, AP_RND_CONV, AP_SAT>, 8>;
-    loss = readResult<resulttype, losstype>(*m_model);
-  } else {  //v5 default
-    using resulttype = ap_fixed<18, 14, AP_RND_CONV, AP_SAT>;
-    loss = readResult<resulttype, losstype>(*m_model);
-  }
-
-  // result = ADModelResult.first;
-  // loss = ADModelResult.second;
+  m_model->read_result(&loss); //store result as loss variable
+    
+  //CHECK: I'm not sure if topo needs this or not
   score = ((loss).to_float()) * 16.0;  //scaling to match threshold
   //save score to class variable in case score saving needed
   setScore(score);
+
+  // Write ADModelInput to text file (append mode)
+  std::ofstream inputFile("features.txt", std::ios::app);
+  if (inputFile.is_open()) {
+    for (int i = 0; i < NInputs; i++) {
+      inputFile << ADModelInput[i].to_float();
+      if (i < NInputs - 1) {
+        inputFile << ", ";
+      }
+    }
+    inputFile << std::endl;
+    inputFile.close();
+  } else {
+    std::cout << "Error: Could not open ADModelInput.txt for writing" << std::endl;
+  }
+  
+  // Write score to text file (append mode)
+  std::ofstream scoreFile("scores.txt", std::ios::app);
+  if (scoreFile.is_open()) {
+    scoreFile << score << std::endl;
+    scoreFile.close();
+  } else {
+    std::cout << "Error: Could not open scores.txt for writing" << std::endl;
+  }
 
   //number of objects/thrsholds to check
   int iCondition = 0;  // number of conditions: there is only one
@@ -278,7 +300,9 @@ const bool l1t::TOPOCondition::evaluateCondition(const int bxEval) const {
   passCondition = checkCut(objPar.minTOPOThreshold, score, condGEqVal);
 
   condResult |= passCondition;  //condresult true if passCondition true else it is false
-
+  
+  std::cout << "score (loss*16) :" << score << std::endl;
+  
   //return result
   return condResult;
 }
