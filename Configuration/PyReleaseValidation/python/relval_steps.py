@@ -776,7 +776,7 @@ mcTE_2024 = {'--conditions': 'auto:phase1_2024_realistic', '--scenario': 'pp', '
 embedding_selection = {'-s': 'RAW2DIGI,L1Reco,RECO,PAT,FILTER:TauAnalysis/MCEmbeddingTools/Selection_FILTER_cff.makePatMuonsZmumuSelection', '--processName': 'SELECT', '--datatier': 'FEVT', '--eventcontent': 'TauEmbeddingSelection', '--data': ''}
 embedding_cleaning = {'-s': 'USER:TauAnalysis/MCEmbeddingTools/LHE_USER_cff.embeddingLHEProducerTask,RAW2DIGI,RECO:TauAnalysis/MCEmbeddingTools/Cleaning_RECO_cff.reconstruction', '--processName': 'LHEembeddingCLEAN', '--data': '', '--eventcontent': 'TauEmbeddingCleaning', '--datatier': 'RAWRECO'}
 embedding_genpreHLT = {'cfg': 'TauAnalysis/MCEmbeddingTools/python/Simulation_GEN_cfi.py', '-s': 'GEN,SIM,DIGI,L1,DIGI2RAW,RAW2DIGI', '--processName': 'SIMembeddingpreHLT', '--mc': '', '--eventcontent': 'TauEmbeddingSimGen', '--datatier': 'RAWSIM', '--geometry': 'DB:Extended', '--procModifiers': 'tau_embedding_mutauh'}
-embedding_genHLT = {'-s': 'HLT:TauAnalysis/MCEmbeddingTools/Simulation_HLT_customiser_cff.embeddingHLTCustomiser.Fake2', '--processName': 'SIMembeddingHLT', '--mc': '','--eventcontent': 'TauEmbeddingSimHLT', '--datatier': 'RAWSIM','--geometry': 'DB:Extended'}
+embedding_genHLT = {'-s': 'HLT:Fake2+TauAnalysis/MCEmbeddingTools/Simulation_HLT_customiser_cff.embeddingHLTCustomiser', '--processName': 'SIMembeddingHLT', '--mc': '','--eventcontent': 'TauEmbeddingSimHLT', '--datatier': 'RAWSIM','--geometry': 'DB:Extended'}
 embedding_genpostHLT = {'-s': 'RAW2DIGI,L1Reco,RECO:TauAnalysis/MCEmbeddingTools/Simulation_RECO_cff.reconstruction,RECOSIM', '--processName': 'SIMembedding', '--mc': '', '--eventcontent': 'TauEmbeddingSimReco', '--datatier': 'RAW-RECO-SIM', '--geometry': 'DB:Extended'}
 embedding_merge = {'-s': 'USER:TauAnalysis/MCEmbeddingTools/Merging_USER_cff.merge_step,PAT', '--processName': 'MERGE', '--data': '', '--eventcontent': 'TauEmbeddingMerge', '--datatier': 'MINIAODSIM'}
 
@@ -821,7 +821,7 @@ steps['TauEmbedding_GenPostHLT_2022'] = merge([mcTE_2022, embedding_genpostHLT])
 steps['TauEmbedding_Merging_2022'] = merge([dataTE_2022, embedding_merge])
 
 ### Tau Embedding 2022 post EE ###
-steps['TauEmbedding_Selection_2022_EE'] = merge([dataTE_2022_EE, embedding_selection])
+steps['TauEmbedding_Selection_2022_EE'] = merge([dataTE_2022_EE, embedding_selection, {'-n': '200'}])
 steps['TauEmbedding_Cleaning_2022_EE'] = merge([dataTE_2022_EE, embedding_cleaning])
 steps['TauEmbedding_GenPreHLT_2022_EE'] = merge([mcTE_2022_EE, embedding_genpreHLT])
 steps['TauEmbedding_GenHLT_2022_EE'] = merge([mcTE_2022_EE, embedding_genHLT])
