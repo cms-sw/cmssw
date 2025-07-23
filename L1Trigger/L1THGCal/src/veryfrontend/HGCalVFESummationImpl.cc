@@ -3,14 +3,9 @@
 
 HGCalVFESummationImpl::HGCalVFESummationImpl(const edm::ParameterSet& conf)
     : lsb_silicon_fC_(conf.getParameter<double>("siliconCellLSB_fC")),
-      lsb_scintillator_MIP_(conf.getParameter<double>("scintillatorCellLSB_MIP")),
-      nThickness_(conf.getParameter<uint32_t>("numberOfThicknesses")) {
+      lsb_scintillator_MIP_(conf.getParameter<double>("scintillatorCellLSB_MIP")) {
   thresholds_silicon_ =
       conf.getParameter<edm::ParameterSet>("noiseSilicon").getParameter<std::vector<double>>("values");
-  if (thresholds_silicon_.size() != nThickness_) {
-    throw cms::Exception("Configuration") << thresholds_silicon_.size() << " silicon thresholds are given instead of "
-                                          << nThickness_ << " (the number of sensor thicknesses)";
-  }
   threshold_scintillator_ = conf.getParameter<edm::ParameterSet>("noiseScintillator").getParameter<double>("noise_MIP");
   const auto threshold = conf.getParameter<double>("noiseThreshold");
   std::transform(
@@ -18,6 +13,14 @@ HGCalVFESummationImpl::HGCalVFESummationImpl(const edm::ParameterSet& conf)
         return noise * threshold;
       });
   threshold_scintillator_ *= threshold;
+}
+
+void HGCalVFESummationImpl::checkSizeValidity() const {
+  unsigned nThickness = triggerTools_.nSiWaferTypes();
+  if (thresholds_silicon_.size() != nThickness) {
+    throw cms::Exception("Configuration") << thresholds_silicon_.size() << " silicon thresholds are given instead of "
+                                          << nThickness << " (the number of sensor thicknesses)";
+  }
 }
 
 void HGCalVFESummationImpl::triggerCellSums(const std::vector<std::pair<DetId, uint32_t>>& input_dataframes,

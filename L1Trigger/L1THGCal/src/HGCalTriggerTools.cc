@@ -46,6 +46,7 @@ void HGCalTriggerTools::setGeometry(const HGCalTriggerGeometryBase* const geom) 
 
   bhLayers_ = geom_->hscTopology().dddConstants().layers(true);
   totalLayers_ = eeLayers_ + fhLayers_;
+  scintillatorPseudoThicknessIndex_ = nSiWaferTypes() + 1;
 }
 
 GlobalPoint HGCalTriggerTools::getTCPosition(const DetId& id) const {
@@ -104,6 +105,8 @@ unsigned HGCalTriggerTools::layers(DetId::Detector type) const {
   }
   return layers;
 }
+
+unsigned HGCalTriggerTools::nSiWaferTypes() const { return geom_->eeTopology().dddConstants().waferTypes(); }
 
 unsigned HGCalTriggerTools::layer(const DetId& id) const {
   unsigned int layer = std::numeric_limits<unsigned int>::max();
@@ -266,7 +269,7 @@ int HGCalTriggerTools::zside(const DetId& id) const {
 
 int HGCalTriggerTools::thicknessIndex(const DetId& id) const {
   if (isScintillator(id)) {
-    return kScintillatorPseudoThicknessIndex_;
+    return scintillatorPseudoThicknessIndex_;
   }
   unsigned det = id.det();
   int thickness = 0;

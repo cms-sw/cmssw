@@ -42,6 +42,7 @@ public:
   GlobalPoint getTCPosition(const DetId& id) const;
   unsigned layers(ForwardSubdetector type) const;
   unsigned layers(DetId::Detector type) const;
+  unsigned nSiWaferTypes() const;
   unsigned layer(const DetId&) const;
   unsigned layerWithOffset(const DetId&) const;
   bool isEm(const DetId&) const;
@@ -86,8 +87,6 @@ public:
   DetId simToReco(const DetId&, const HGCalTopology&) const;
   unsigned triggerLayer(const unsigned id) const { return geom_->triggerLayer(id); }
 
-  static constexpr unsigned kScintillatorPseudoThicknessIndex_ = 4;
-
   enum SubDetectorType {
     hgcal_silicon_CEE,
     hgcal_silicon_CEH,
@@ -102,6 +101,7 @@ private:
   unsigned bhLayers_;
   unsigned noseLayers_;
   unsigned totalLayers_;
+  unsigned scintillatorPseudoThicknessIndex_;
 };
 
 #endif
