@@ -65,7 +65,7 @@ cmsDriver.py TauAnalysis/MCEmbeddingTools/python/Simulation_GEN_cfi.py \
 # Simulation (Trigger)
 echo "################ Simulation (Trigger) ################"
 cmsDriver.py \
-    --step HLT:TauAnalysis/MCEmbeddingTools/Simulation_HLT_customiser_cff.embeddingHLTCustomiser.Fake2 \
+    --step HLT:Fake2+TauAnalysis/MCEmbeddingTools/Simulation_HLT_customiser_cff.embeddingHLTCustomiser \
     --processName SIMembeddingHLT \
     --mc \
     --beamspot Realistic25ns13TeV2016Collision \
