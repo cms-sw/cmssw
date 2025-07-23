@@ -159,6 +159,7 @@ TauEmbSimReco = cms.PSet(
         'keep *_hbhereco_*_SIMembedding',
         'keep *_horeco_*_SIMembedding',
         'keep *_hfreco_*_SIMembedding',
+        'keep *_offlinePrimaryVertices_*_SIMembedding',
         'keep *_*_unsmeared_SIMembeddingpreHLT',
         'keep *_hltScalersRawToDigi_*_SIMembeddingHLT'
     )
