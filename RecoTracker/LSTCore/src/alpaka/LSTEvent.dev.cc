@@ -437,12 +437,10 @@ void LSTEvent::createTriplets() {
 void LSTEvent::createTrackCandidates(bool no_pls_dupclean, bool tc_pls_triplets) {
   if (!trackCandidatesBaseDC_) {
     trackCandidatesBaseDC_.emplace(n_max_nonpixel_track_candidates + n_max_pixel_track_candidates, queue_);
-    auto buf = trackCandidatesBaseDC_->buffer();
-    alpaka::memset(queue_, buf, 0u);
+    trackCandidatesBaseDC_->zeroInitialise(queue_);
 
     trackCandidatesExtendedDC_.emplace(n_max_nonpixel_track_candidates + n_max_pixel_track_candidates, queue_);
-    buf = trackCandidatesExtendedDC_->buffer();
-    alpaka::memset(queue_, buf, 0u);
+    trackCandidatesExtendedDC_->zeroInitialise(queue_);
   }
 
   auto const crossCleanpT3_workDiv = cms::alpakatools::make_workdiv<Acc2D>({20, 4}, {64, 16});
@@ -830,12 +828,10 @@ void LSTEvent::createPixelQuintuplets() {
   }
   if (!trackCandidatesBaseDC_) {
     trackCandidatesBaseDC_.emplace(n_max_nonpixel_track_candidates + n_max_pixel_track_candidates, queue_);
-    auto buf = trackCandidatesBaseDC_->buffer();
-    alpaka::memset(queue_, buf, 0u);
+    trackCandidatesBaseDC_->zeroInitialise(queue_);
 
     trackCandidatesExtendedDC_.emplace(n_max_nonpixel_track_candidates + n_max_pixel_track_candidates, queue_);
-    buf = trackCandidatesExtendedDC_->buffer();
-    alpaka::memset(queue_, buf, 0u);
+    trackCandidatesExtendedDC_->zeroInitialise(queue_);
   }
   SegmentsOccupancy segmentsOccupancy = segmentsDC_->view<SegmentsOccupancySoA>();
   PixelSeedsConst pixelSeeds = lstInputDC_->const_view<PixelSeedsSoA>();
