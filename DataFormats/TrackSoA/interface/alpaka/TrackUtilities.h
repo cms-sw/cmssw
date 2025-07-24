@@ -45,7 +45,7 @@ namespace pixelTrack {
              (std::abs(reco::zip(tracks, it)) < region.maxZip);
     }
 
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE bool strictCut(const TrackSoAConstView &tracks, int it) const {
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE bool strictCut(const TrackSoAConstView &tracks, int nHits, int it) const {
       auto roughLog = [](float x) {
         // max diff [0.5,12] at 1.25 0.16143
         // average diff  0.0662998
@@ -85,6 +85,8 @@ namespace pixelTrack {
     using TrackSoAConstView = reco::TrackSoAConstView;
 
     float maxChi2;
+    float maxChi2Quadruplets;
+    float maxChi2Quintuplets;
     float minPt;
     float maxTip;
     float maxZip;
@@ -93,7 +95,13 @@ namespace pixelTrack {
       return (std::abs(reco::tip(tracks, it)) < maxTip) and (tracks.pt(it) > minPt) and
              (std::abs(reco::zip(tracks, it)) < maxZip);
     }
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE bool strictCut(const TrackSoAConstView &tracks, int it) const {
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE bool strictCut(const TrackSoAConstView &tracks, int nHits, int it) const {
+      if (nHits <= 4) {
+        return tracks.chi2(it) >= maxChi2Quadruplets;
+      }
+      if (nHits == 5) {
+        return tracks.chi2(it) >= maxChi2Quintuplets;
+      }
       return tracks.chi2(it) >= maxChi2;
     }
   };

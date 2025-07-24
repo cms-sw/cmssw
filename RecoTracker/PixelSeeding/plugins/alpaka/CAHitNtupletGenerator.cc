@@ -173,6 +173,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       static constexpr ::pixelTrack::QualityCutsT<TrackerTraits> makeQualityCuts(edm::ParameterSet const& pset) {
         return ::pixelTrack::QualityCutsT<TrackerTraits>{
             static_cast<float>(pset.getParameter<double>("maxChi2")),
+            static_cast<float>(pset.getParameter<double>("maxChi2Quadruplets")),
+            static_cast<float>(pset.getParameter<double>("maxChi2Quintuplets")),
             static_cast<float>(pset.getParameter<double>("minPt")),
             static_cast<float>(pset.getParameter<double>("maxTip")),
             static_cast<float>(pset.getParameter<double>("maxZip")),
@@ -416,7 +418,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     fillDescriptionsCommon(desc);
 
     edm::ParameterSetDescription trackQualityCuts;
-    trackQualityCuts.add<double>("maxChi2", 5.)->setComment("Max normalized chi2");
+    trackQualityCuts.add<double>("maxChi2", 5.)->setComment("Max normalized chi2 for tracks with 6 or more hits");
+    trackQualityCuts.add<double>("maxChi2Quadruplets", 5.)->setComment("Max normalized chi2 for tracks with 4 or less hits");
+    trackQualityCuts.add<double>("maxChi2Quintuplets", 5.)->setComment("Max normalized chi2 for tracks with 5 hits");
     trackQualityCuts.add<double>("minPt", 0.5)->setComment("Min pT in GeV");
     trackQualityCuts.add<double>("maxTip", 0.3)->setComment("Max |Tip| in cm");
     trackQualityCuts.add<double>("maxZip", 12.)->setComment("Max |Zip|, in cm");
@@ -487,7 +491,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     fillDescriptionsCommon(desc);
 
     edm::ParameterSetDescription trackQualityCuts;
-    trackQualityCuts.add<double>("maxChi2", 5.)->setComment("Max normalized chi2");
+    trackQualityCuts.add<double>("maxChi2", 5.)->setComment("Max normalized chi2 for tracks with 6 or more hits");
+    trackQualityCuts.add<double>("maxChi2Quadruplets", 5.)->setComment("Max normalized chi2 for tracks with 4 or less hits");
+    trackQualityCuts.add<double>("maxChi2Quintuplets", 5.)->setComment("Max normalized chi2 for tracks with 5 hits");
     trackQualityCuts.add<double>("minPt", 0.9)->setComment("Min pT in GeV");
     trackQualityCuts.add<double>("maxTip", 0.3)->setComment("Max |Tip| in cm");
     trackQualityCuts.add<double>("maxZip", 12.)->setComment("Max |Zip|, in cm");

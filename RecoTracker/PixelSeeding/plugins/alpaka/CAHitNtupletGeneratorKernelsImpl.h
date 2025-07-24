@@ -142,17 +142,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                apc->get().second,
                nHits);
         if (apc->get().first < tracks_view.metadata().size()) {
-          ALPAKA_ASSERT_ACC(foundNtuplets->size(apc->get().first) == 0);
-          ALPAKA_ASSERT_ACC(foundNtuplets->size() == apc->get().second);
+        ALPAKA_ASSERT_ACC(foundNtuplets->size(apc->get().first) == 0);
+        ALPAKA_ASSERT_ACC(foundNtuplets->size() == apc->get().second);
         }
       }
 
       for (auto idx : cms::alpakatools::uniform_elements(acc, foundNtuplets->nOnes())) {
-        if (foundNtuplets->size(idx) > TrackerTraits::maxHitsOnTrack)  // current real limit
-          printf("ERROR %d, %d\n", idx, foundNtuplets->size(idx));
-        ALPAKA_ASSERT_ACC(foundNtuplets->size(idx) <= TrackerTraits::maxHitsOnTrack);
-        for (auto ih = foundNtuplets->begin(idx); ih != foundNtuplets->end(idx); ++ih)
-          ALPAKA_ASSERT_ACC(int(*ih) < nHits);
+      if (foundNtuplets->size(idx) > TrackerTraits::maxHitsOnTrack)  // current real limit
+      printf("ERROR %d, %d\n", idx, foundNtuplets->size(idx));
+      ALPAKA_ASSERT_ACC(foundNtuplets->size(idx) <= TrackerTraits::maxHitsOnTrack);
+      for (auto ih = foundNtuplets->begin(idx); ih != foundNtuplets->end(idx); ++ih)
+      ALPAKA_ASSERT_ACC(int(*ih) < nHits);
       }
 #endif
 
@@ -635,7 +635,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
 
         tracks_view[it].quality() = Quality::strict;
 
-        if (cuts.strictCut(tracks_view, it))
+        if (cuts.strictCut(tracks_view, nhits, it))
           continue;
 
         tracks_view[it].quality() = Quality::tight;
