@@ -21,7 +21,7 @@
 #include "SimDataFormats/Associations/interface/LayerClusterToSimClusterAssociator.h"
 
 //
-// class decleration
+// class declaration
 //
 
 class LCToSCAssociatorEDProducer : public edm::global::EDProducer<> {
