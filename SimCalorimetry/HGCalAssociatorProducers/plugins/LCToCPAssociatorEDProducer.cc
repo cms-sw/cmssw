@@ -10,17 +10,13 @@
 
 // user include files
 #include "FWCore/Framework/interface/global/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "SimDataFormats/Associations/interface/LayerClusterToCaloParticleAssociator.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticleFwd.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
@@ -29,7 +25,6 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
-
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 //
@@ -44,6 +39,8 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  
 private:
   void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
 
@@ -125,12 +122,11 @@ void LCToCPAssociatorEDProducerT<CLUSTER>::produce(edm::StreamID,
   iEvent.put(std::move(str));
 }
 
-template <typename CLUSTER>
 void LCToCPAssociatorEDProducerT<CLUSTER>::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("label_cp", edm::InputTag("cpAssocByEnergyScoreProducer"));
-  desc.add<edm::InputTag>("label_lc", edm::InputTag("mix", "MergedCaloTruth"));
-  desc.add<edm::InputTag>("associator", edm::InputTag("hgcalMergeLayerClusters"));
+  desc.add<edm::InputTag>("label_cp", edm::InputTag("mix", "MergedCaloTruth"));
+  desc.add<edm::InputTag>("label_lc", edm::InputTag("hgcalMergeLayerClusters"));
+  desc.add<edm::InputTag>("associator", edm::InputTag("lcAssocByEnergyScoreProducer"));
   descriptions.addWithDefaultLabel(desc);
 }
 
