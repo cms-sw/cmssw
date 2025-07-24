@@ -1,23 +1,32 @@
 ---------Processing histories---------
 History: {
+  History id: 62d7ad608bf7e1ef5a3a942bc3e7c2fd
   PROD1 [1]
+    Configuration id: 033a102932a1352d00bb155075bbb8b3
   MERGE [1]
+    Configuration id: f090a04b051ab1c8783e603d40752f41
 }
 History: {
+  History id: 7bc9ed8b340c8101471ed11c9c1c0d06
   PROD1 [2]
+    Configuration id: f6db41e482f2ac499ff7bcbafc2e1ce8
   MERGE [1]
+    Configuration id: f090a04b051ab1c8783e603d40752f41
 }
 ---------Processes---------
 Process: PROD1 [1]
   PSet id: 6c63e586d4f6517ea1ec649e9eecf4b6
+  version: 'CMSSW_15_1_0'
   accelerators: test-one
 
 Process: PROD1 [2]
   PSet id: b6a0b924ba604501a5436d5102a43418
+  version: 'CMSSW_15_1_0'
   accelerators: cpu
 
 Process: MERGE [1]
   PSet id: df290421e5db9b54108985d98d780a9f
+  version: 'CMSSW_15_1_0'
   accelerators: cpu
 
 ---------Event filtering---------

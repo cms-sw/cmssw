@@ -1,10 +1,13 @@
 ---------Processing histories---------
 History: {
+  History id: d84279ca3b828cc7464e6bd23c2dae24
   PROD1 [1]
+    Configuration id: f6db41e482f2ac499ff7bcbafc2e1ce8
 }
 ---------Processes---------
 Process: PROD1 [1]
   PSet id: b6a0b924ba604501a5436d5102a43418
+  version: 'CMSSW_15_1_0'
   accelerators: cpu
 
 ---------Event filtering---------

@@ -1,47 +1,69 @@
 ---------Processing histories---------
 History: {
+  History id: 0eb4d4839f4ed9fb62761ab156da17e9
   PROD1 [1]
+    Configuration id: f6db41e482f2ac499ff7bcbafc2e1ce8
   MERGE [1]
+    Configuration id: 61d3a3dd4f6e773c4c622b4a54283528
   INTERMEDIATE [1]
+    Configuration id: 4594b241354de0c102dbebebea9741bd
 }
 History: {
+  History id: 404998e7b3865fc95f070821eb66adde
   PROD1 [2]
+    Configuration id: 033a102932a1352d00bb155075bbb8b3
   MERGE [2]
+    Configuration id: f090a04b051ab1c8783e603d40752f41
   INTERMEDIATE [1]
+    Configuration id: 4594b241354de0c102dbebebea9741bd
 }
 History: {
+  History id: 46288198c39fc7eb62358c64a03865b5
   PROD1 [3]
+    Configuration id: 8486bafc2e006c36e912ad680231c4b4
   MERGE [1]
+    Configuration id: 61d3a3dd4f6e773c4c622b4a54283528
   INTERMEDIATE [1]
+    Configuration id: 4594b241354de0c102dbebebea9741bd
 }
 History: {
+  History id: 590de28b96bd3bee443a2b6374aef099
   PROD1 [1]
+    Configuration id: f6db41e482f2ac499ff7bcbafc2e1ce8
   MERGE [2]
+    Configuration id: f090a04b051ab1c8783e603d40752f41
   INTERMEDIATE [1]
+    Configuration id: 4594b241354de0c102dbebebea9741bd
 }
 ---------Processes---------
 Process: PROD1 [1]
   PSet id: b6a0b924ba604501a5436d5102a43418
+  version: 'CMSSW_15_1_0'
   accelerators: cpu
 
 Process: PROD1 [2]
   PSet id: 6c63e586d4f6517ea1ec649e9eecf4b6
+  version: 'CMSSW_15_1_0'
   accelerators: test-one
 
 Process: PROD1 [3]
   PSet id: 6c63e586d4f6517ea1ec649e9eecf4b6
+  version: 'CMSSW_15_1_0'
   accelerators: test-two
 
 Process: MERGE [1]
   PSet id: cbaeb7a2de5d7cab57c899cc270bc5e0
+  version: 'CMSSW_15_1_0'
   accelerators: cpu
 
 Process: MERGE [2]
   PSet id: df290421e5db9b54108985d98d780a9f
+  version: 'CMSSW_15_1_0'
   accelerators: cpu
 
 Process: INTERMEDIATE [1]
   PSet id: 78ab4ebc3b62f905cf875c3d2f3e697b
+  version: 'CMSSW_15_1_0'
   accelerators: cpu
 
 ---------Event filtering---------

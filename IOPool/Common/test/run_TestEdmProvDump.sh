@@ -3,7 +3,7 @@
 function die { echo Failure $1: status $2 ; exit $2 ; }
 
 LOCAL_TEST_DIR=$SCRAM_TEST_PATH
-CHANGINGPARTS="(version|microarchitecture|CPU models):"
+CHANGINGPARTS="(microarchitecture|CPU models):"
 
 # Need to mock the CMSSW VERSION in order to keep the process configuration ID the same
 VERSION="CMSSW_15_1_0"
@@ -18,7 +18,7 @@ function compareProv {
     OPTIONS=$1
     FILE=$2
     LOG=$3
-    edmProvDump $OPTIONS $FILE | grep -v -E "$CHANGINGPARTS" > $LOG || die "edmProvDump $OPTIONS $FILE" $?
+    edmProvDump --showHistoryID $OPTIONS $FILE | grep -v -E "$CHANGINGPARTS" > $LOG || die "edmProvDump $OPTIONS $FILE" $?
     diff ${LOCAL_TEST_DIR}/unit_test_outputs/$LOG $LOG  || die "comparing $LOG" $?
 }
 
