@@ -2,6 +2,7 @@
 #include "FWCore/Concurrency/interface/chain_first.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -194,6 +195,7 @@ namespace edmtest {
           std::move(holder),
           [this, testService]() {
             auto callGuard = globalCache()->makeRunCallGuard(0);
+            edm::LogPrint("AsyncServiceWaitingTester") << "Running async function for stream " << *streamId_;
             if (testService and waitStreamEndRun_) {
               testService->wait();
             }
