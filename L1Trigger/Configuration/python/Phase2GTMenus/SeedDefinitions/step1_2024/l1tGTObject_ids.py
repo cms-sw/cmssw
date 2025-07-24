@@ -22,10 +22,10 @@ objectIDs = {
     },
     "CL2Electrons":{
         "Iso": {
-            # "qual": {
-            #     "barrel": 0b0010,
-            #     "endcap": 0b0010,
-            # },
+            "qual": {
+                "barrel": 0b0010,
+                "endcap": 0b0010,
+            },
             "iso": {
                 "barrel": 0.13,
                 "endcap": 0.28,
