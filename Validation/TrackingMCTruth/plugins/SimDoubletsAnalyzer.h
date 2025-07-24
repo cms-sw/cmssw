@@ -294,6 +294,11 @@ private:
   CoupledMonitorElement h_numTOVsDxy_;
   CoupledMonitorElement h_numTOVsDz_;
   CoupledMonitorElement h_numTOVsChi2_;
+  CoupledMonitorElement h_numRecHitsVsPt_;
+  CoupledMonitorElement h_numRecHitsVsEta_;
+  CoupledMonitorElement h_numRecHitsVsDxy_;
+  CoupledMonitorElement h_numRecHitsVsDz_;
+  CoupledMonitorElement h_numRecHitsVsChi2_;
   CoupledMonitorElement h_numTOVsEtaPt_;
   CoupledMonitorElement h_numTOVsEtaPhi_;
   CoupledMonitorElement h_numTOVsPhiPt_;
@@ -302,12 +307,10 @@ private:
   CoupledMonitorElement h_numRecHitsPerTrackingObject_;
   CoupledMonitorElement h_numLayersPerTrackingObject_;
   CoupledMonitorElement h_numSkippedLayersVsEta_;
-  CoupledMonitorElement h_numRecHitsVsEta_;
   CoupledMonitorElement h_numLayersVsEta_;
   CoupledMonitorElement h_numSkippedLayersVsPt_;
   CoupledMonitorElement h_numSkippedLayersVsNumLayers_;
   CoupledMonitorElement h_numSkippedLayersVsNumRecHits_;
-  CoupledMonitorElement h_numRecHitsVsPt_;
   CoupledMonitorElement h_numLayersVsPt_;
   CoupledMonitorElement h_numTOVsPdgId_;
   CoupledMonitorElement h_numRecHitsPerLayer_;

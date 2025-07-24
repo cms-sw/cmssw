@@ -761,6 +761,7 @@ void SimDoubletsAnalyzer<TrackerTraits>::fillGeneralHistograms(SimDoublets const
     true_dz = track->dz(beamSpotPoint);
 
     h_numTOVsChi2_.fill(passed, track->normalizedChi2());
+    h_numRecHitsVsChi2_.fill(passed, track->normalizedChi2(), simDoublets.numRecHits());
   } else {
     auto trackingParticle = simDoublets.trackingParticle();
     true_phi = trackingParticle->phi();
@@ -798,6 +799,8 @@ void SimDoubletsAnalyzer<TrackerTraits>::fillGeneralHistograms(SimDoublets const
   h_numTOVsPhi_.fill(passed, true_phi);
   h_numTOVsDxy_.fill(passed, true_dxy);
   h_numTOVsDz_.fill(passed, true_dz);
+  h_numRecHitsVsDxy_.fill(passed, true_dxy, simDoublets.numRecHits());
+  h_numRecHitsVsDz_.fill(passed, true_dz, simDoublets.numRecHits());
   h_numTOVsEtaPhi_.fill(passed, true_eta, true_phi);
   h_numTOVsEtaPt_.fill(passed, true_eta, true_pT);
   h_numTOVsPhiPt_.fill(passed, true_phi, true_pT);
@@ -1081,6 +1084,13 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                             26,
                             -1.5,
                             24.5);
+
+  h_numRecHitsVsDxy_.book2D(
+      ibook, "numRecHits_vs_dxy", "Number of Tracks", "dxy [cm]", "Number of RecHits", 200, -5, 5, 26, -1.5, 24.5);
+
+  h_numRecHitsVsDz_.book2D(
+      ibook, "numRecHits_vs_dz", "Number of Tracks", "dz [cm]", "Number of RecHits", 20, -20, 20, 26, -1.5, 24.5);
+
   h_numLayersVsEta_.book2D(ibook,
                            "numLayers_vs_eta",
                            "Number of layers hit by Tracking Particle vs #eta",
@@ -1161,9 +1171,9 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                        phimin,
                        phimax);
   h_numTOVsDxy_.book1D(
-      ibook, "num_vs_dxy", "Number of TrackingParticles", "True dxy [cm]", "Number of TrackingParticles", 200, -5, 5);
+      ibook, "num_vs_dxy", "Number of TrackingParticles", "dxy [cm]", "Number of TrackingParticles", 200, -5, 5);
   h_numTOVsDz_.book1D(
-      ibook, "num_vs_dz", "Number of TrackingParticles", "True dz [cm]", "Number of TrackingParticles", 20, -20, 20);
+      ibook, "num_vs_dz", "Number of TrackingParticles", "dz [cm]", "Number of TrackingParticles", 20, -20, 20);
   h_numTOVsEtaPhi_.book2D(ibook,
                           "num_vs_etaPhi",
                           "Number of TrackingParticles",
@@ -1252,6 +1262,8 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
 
   if (inputIsRecoTracks_) {
     h_numTOVsChi2_.book1D(ibook, "num_vs_chi2", "Number of Tracks", "#chi^2 / ndof", "Number of Tracks", 70, 0, 7);
+    h_numRecHitsVsChi2_.book2D(
+        ibook, "numRecHits_vs_chi2", "Number of Tracks", "#chi^2 / ndof", "Number of RecHits", 70, 0, 7, 26, -1.5, 24.5);
   }
 
   // ----------------------------------------------------------
@@ -1579,15 +1591,15 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
 
     // histogram for r of first hit
     hVector_firstHitR_.at(id).book1D(ibook,
-                                         "firstHitR",
-                                         "r coordinate of first hit of "
-                                         "" + trackingObject +
-                                             "s starting in layer " + idStr,
-                                         "r coordinate [cm]",
-                                         "Number of " + trackingObject + "s",
-                                         600,
-                                         0,
-                                         60);
+                                     "firstHitR",
+                                     "r coordinate of first hit of "
+                                     "" + trackingObject +
+                                         "s starting in layer " + idStr,
+                                     "r coordinate [cm]",
+                                     "Number of " + trackingObject + "s",
+                                     600,
+                                     0,
+                                     60);
   }
 
   // ------------------------------------------------------------------------
