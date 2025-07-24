@@ -420,6 +420,7 @@ trackingPhase2PU140.toModify(lowPtTripletStepSelector,
         ), #end of vpset
 ) #end of clone
 
+fastSim.toModify(lowPtTripletStepSelector, vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 from Configuration.ProcessModifiers.vectorHits_cff import vectorHits
 vectorHits.toModify(lowPtTripletStepSelector.trackSelectors[2], minNumberLayers = 3, minNumber3DLayers = 3)
@@ -455,5 +456,5 @@ fastSim.toReplaceWith(LowPtTripletStepTask,
                                    ,lowPtTripletStepSeeds
                                    ,lowPtTripletStepTrackCandidates
                                    ,lowPtTripletStepTracks  
-                                   ,lowPtTripletStep   
+                                   ,lowPtTripletStepSelector
                                    ))

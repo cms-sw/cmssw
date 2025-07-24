@@ -303,6 +303,7 @@ lowPtQuadStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.m
     ] #end of vpset
 ) #end of clone
 
+fastSim.toModify(lowPtQuadStepSelector,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 # Final sequence
 LowPtQuadStepTask = cms.Task(lowPtQuadStepClusters,
@@ -333,5 +334,5 @@ fastSim.toReplaceWith(LowPtQuadStepTask,
                                ,lowPtQuadStepSeeds
                                ,lowPtQuadStepTrackCandidates
                                ,lowPtQuadStepTracks
-                               ,lowPtQuadStep
+                               ,lowPtQuadStepSelector
                                ) )

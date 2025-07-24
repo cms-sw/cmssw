@@ -458,6 +458,8 @@ trackingPhase2PU140.toModify(pixelPairStepSelector,
     vertices = 'firstStepPrimaryVertices'
 ) #end of clone
 
+fastSim.toModify(pixelPairStepSelector, vertices = "firstStepPrimaryVerticesBeforeMixing")
+
 from Configuration.ProcessModifiers.vectorHits_cff import vectorHits
 vectorHits.toModify(pixelPairStepSelector.trackSelectors[2], minNumberLayers = 3, minNumber3DLayers = 3)
 
@@ -501,6 +503,6 @@ fastSim.toReplaceWith(PixelPairStepTask,
                                    ,pixelPairStepSeeds
                                    ,pixelPairStepTrackCandidates
                                    ,pixelPairStepTracks
-                                   ,pixelPairStep 
+                                   ,pixelPairStepSelector
                                    )
 )
