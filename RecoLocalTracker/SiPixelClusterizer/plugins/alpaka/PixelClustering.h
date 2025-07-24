@@ -238,11 +238,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
         constexpr bool isPhase2 = std::is_base_of<pixelTopology::Phase2, TrackerTraits>::value;
         if constexpr (not isPhase2) {
           // packed words array used to store the pixelStatus of each pixel
-          auto& status = alpaka::declareSharedVar<uint32_t[pixelStatus::size], __COUNTER__>(acc);
+          auto& image = alpaka::declareSharedVar<uint32_t[pixelStatus::size], __COUNTER__>(acc);
 
           if (lastPixel > 1) {
             for (uint32_t i : cms::alpakatools::independent_group_elements(acc, pixelStatus::size)) {
-              status[i] = 0;
+              image[i] = 0;
             }
             alpaka::syncBlockThreads(acc);
 
@@ -250,7 +250,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
               // skip invalid pixels
               if (digi_view[i].moduleId() == ::pixelClustering::invalidModuleId)
                 continue;
-              pixelStatus::promote(acc, status, digi_view[i].xx(), digi_view[i].yy());
+              pixelStatus::promote(acc, image, digi_view[i].xx(), digi_view[i].yy());
             }
             alpaka::syncBlockThreads(acc);
 
@@ -258,7 +258,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
               // skip invalid pixels
               if (digi_view[i].moduleId() == ::pixelClustering::invalidModuleId)
                 continue;
-              if (pixelStatus::isDuplicate(status, digi_view[i].xx(), digi_view[i].yy())) {
+              if (pixelStatus::isDuplicate(image, digi_view[i].xx(), digi_view[i].yy())) {
                 digi_view[i].moduleId() = ::pixelClustering::invalidModuleId;
                 digi_view[i].rawIdArr() = 0;
               }
