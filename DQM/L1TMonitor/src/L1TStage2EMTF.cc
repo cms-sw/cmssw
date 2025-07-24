@@ -11,23 +11,32 @@ L1TStage2EMTF::L1TStage2EMTF(const edm::ParameterSet& ps)
       trackToken(consumes<l1t::EMTFTrackCollection>(ps.getParameter<edm::InputTag>("emtfSource"))),
       muonToken(consumes<l1t::RegionalMuonCandBxCollection>(ps.getParameter<edm::InputTag>("emtfSource"))),
       monitorDir(ps.getUntrackedParameter<std::string>("monitorDir", "")),
-      verbose(ps.getUntrackedParameter<bool>("verbose", false)) {}
-
+      verbose(ps.getUntrackedParameter<bool>("verbose", false)),
+      isRun3(ps.getUntrackedParameter<bool>("isRun3", false)) {}
+      
 void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) {
   // Monitor Dir
   ibooker.setCurrentFolder(monitorDir);
 
-  const std::array<std::string, 6> binNamesErrors{
-      {"Corruptions", "Synch. Err.", "Synch. Mod.", "BX Mismatch", "Time Misalign", "FMM != Ready"}};
-
-  // DAQ Output Monitor Elements
-  emtfErrors = ibooker.book1D("emtfErrors", "EMTF Errors", 6, 0, 6);
+  emtfErrors = ibooker.book1D("emtfErrors", "EMTF Errors", 5, 0, 5);
   emtfErrors->setAxisTitle("Error Type (Corruptions Not Implemented)", 1);
   emtfErrors->setAxisTitle("Number of Errors", 2);
-  for (unsigned int bin = 0; bin < binNamesErrors.size(); ++bin) {
-    emtfErrors->setBinLabel(bin + 1, binNamesErrors[bin], 1);
+  if (isRun3 == true) {
+    const std::array<std::string, 10> binNamesErrors{
+      {"Corruptions", "FMM != Ready", "BSY", "OSY", "WOF"}};
+    for (unsigned int bin = 0; bin < binNamesErrors.size(); ++bin) {
+      emtfErrors->setBinLabel(bin + 1, binNamesErrors[bin], 1);
+    }
   }
-
+  if (isRun3 == false) {
+    const std::array<std::string, 10> binNamesErrors{
+      {"Corruptions", "Synch. Err.", "Synch. Mod.", "BX Mismatch", "Time Misalign"}};
+    for (unsigned int bin = 0; bin < binNamesErrors.size(); ++bin) {
+      emtfErrors->setBinLabel(bin + 1, binNamesErrors[bin], 1);
+    }
+  }
+  
+  
   // CSC LCT Monitor Elements
   int nChambs, nWires, nStrips;  // Number of chambers, wiregroups, and halfstrips in each station/ring pair
   std::string name, label;
@@ -805,8 +814,11 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
   edm::Handle<l1t::EMTFDaqOutCollection> DaqOutCollection;
   e.getByToken(daqToken, DaqOutCollection);
 
+  
   for (auto DaqOut = DaqOutCollection->begin(); DaqOut != DaqOutCollection->end(); ++DaqOut) {
     const l1t::emtf::MECollection* MECollection = DaqOut->PtrMECollection();
+    const l1t::emtf::EventHeader* EventHeader = DaqOut->PtrEventHeader();
+    if (isRun3==false){
     for (auto ME = MECollection->begin(); ME != MECollection->end(); ++ME) {
       if (ME->SE())
         emtfErrors->Fill(1);
@@ -816,12 +828,18 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
         emtfErrors->Fill(3);
       if (ME->AF())
         emtfErrors->Fill(4);
-    }
-
-    const l1t::emtf::EventHeader* EventHeader = DaqOut->PtrEventHeader();
+    }};
+    
+    if (isRun3==true){
     if (!EventHeader->Rdy())
-      emtfErrors->Fill(5);
-
+      emtfErrors->Fill(1);
+    if (EventHeader->BSY())
+      emtfErrors->Fill(2);
+    if (EventHeader->OSY())
+      emtfErrors->Fill(3);
+    if (EventHeader->WOF())
+      emtfErrors->Fill(4);
+    };
     // Fill MPC input link errors
     int offset = (EventHeader->Sector() - 1) * 9;
     int endcap = EventHeader->Endcap();
