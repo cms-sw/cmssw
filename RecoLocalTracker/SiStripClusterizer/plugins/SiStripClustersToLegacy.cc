@@ -57,7 +57,12 @@ namespace sistrip {
 
       using out_t = edmNew::DetSetVector<SiStripCluster>;
       auto output = std::make_unique<out_t>(edmNew::DetSetVector<SiStripCluster>());
-      output->reserve(nModulesWithClustersGuess, goodClustersNb);
+      // output->reserve(nModulesWithClustersGuess, goodClustersNb);
+
+      // Debugging
+      // output->reserve(nModulesWithClustersGuess, 10);
+      // iEvent.put(siStripClustersSetVecPutToken_, std::move(output));
+      // return ;
 
       // std::vector<uint8_t> adcs;
       uint32_t clusterN = 0;
