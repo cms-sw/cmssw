@@ -29,14 +29,16 @@ void LCToCPAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::produce(edm::StreamID
   rhtools_->setGeometry(*geom);
 
   std::vector<const HIT *> hits;
-  for (auto &token : hits_token_) {
-	edm::Handle<std::vector<HIT>> hits_handle;
-	iEvent.getByToken(token, hits_handle);
+  edm::Handle<std::vector<HIT>> hits_handle;
+  
+  for (unsigned i=0; i<hits_token_.size(); ++i) {
+	iEvent.getByToken(hits_token_[i], hits_handle);
 
 	// Check handle validity
 	if (!hits_handle.isValid()) {
 	  edm::LogWarning("LCToCPAssociatorByEnergyScoreProducer")
-		<< "Hit collection not available for token. Skipping this collection.";
+		<< "Hit collection not available for token \n    "
+		<< hits_label_[i] << "\nSkipping this collection.";
 	  continue;  // Skip invalid handle
 	}
 
