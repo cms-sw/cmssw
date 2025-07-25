@@ -42,6 +42,7 @@ process.MPIService.pmix_server_uri = "file:server.uri"
 process.source = cms.Source("MPISource",
   firstRun = cms.untracked.uint32(383631)
 )
+
 process.maxEvents.input = -1
 
 # receive the raw data over MPI
@@ -51,17 +52,8 @@ process.rawDataCollector = cms.EDProducer("MPIReceiver",
     products = cms.VPSet(cms.PSet(
         type = cms.string("FEDRawDataCollection"),
         label = cms.string("")
-        ),
-        cms.PSet(
-            type = cms.string("edm::PathActivityToken"),
-            label = cms.string("")
-        )
-    )
+    ))
 )
-
-process.activityFilterRawData = cms.EDFilter("PathActivityFilter",
-    producer = cms.InputTag("rawDataCollector")
-    )
 
 process.hltGetRaw = _process.hltGetRaw.clone()
 
@@ -79,7 +71,6 @@ process.mpiSenderHbheRecoSoA = cms.EDProducer("MPISender",
     products = cms.vstring(
         "128falsehcalHcalRecHitSoALayoutPortableHostCollection_hltHbheRecoSoA__*",
         "ushort_hltHbheRecoSoA_backend_*",
-        "*_HBHEActivity__*",
     ) 
 )
 
@@ -90,7 +81,6 @@ process.mpiSenderParticleFlowRecHitHBHESoA = cms.EDProducer("MPISender",
     products = cms.vstring(
         "128falserecoPFRecHitSoALayoutPortableHostCollection_hltParticleFlowRecHitHBHESoA__*",
         "ushort_hltParticleFlowRecHitHBHESoA_backend_*",
-        "*_HBHEActivity__*",
     )
 )
 
@@ -102,26 +92,21 @@ process.mpiSenderParticleFlowClusterHBHESoA = cms.EDProducer("MPISender",
         "128falserecoPFClusterSoALayoutPortableHostCollection_hltParticleFlowClusterHBHESoA__*",
         "128falserecoPFRecHitFractionSoALayoutPortableHostCollection_hltParticleFlowClusterHBHESoA__*",
         "ushort_hltParticleFlowClusterHBHESoA_backend_*",
-        "*_HBHEActivity__*",
     )
 )
 
-process.HBHEActivity = cms.EDProducer("PathActivityProducer")
-
 # run the HBHE local reconstruction
 process.HLTLocalHBHE = cms.Path(
-    # process.rawDataCollector +
-    process.activityFilterRawData +
+    process.rawDataCollector +
     process.hltGetRaw +
     process.hltHcalDigis +
     process.hltHcalDigisSoA +
     process.hltHbheRecoSoA +
-    # process.mpiSenderHbheRecoSoA +
+    process.mpiSenderHbheRecoSoA +
     process.hltParticleFlowRecHitHBHESoA +
-    # process.mpiSenderParticleFlowRecHitHBHESoA +
+    process.mpiSenderParticleFlowRecHitHBHESoA +
     process.hltParticleFlowClusterHBHESoA +
-    # process.mpiSenderParticleFlowClusterHBHESoA
-    process.HBHEActivity
+    process.mpiSenderParticleFlowClusterHBHESoA
 )
 
 # ECAL local reconstruction from the HLT menu
@@ -136,7 +121,6 @@ process.mpiSenderEcalDigisSoA = cms.EDProducer("MPISender",
         "128falseEcalDigiSoALayoutPortableHostCollection_hltEcalDigisSoA_ebDigis_*",
         "128falseEcalDigiSoALayoutPortableHostCollection_hltEcalDigisSoA_eeDigis_*",
         "ushort_hltEcalDigisSoA_backend_*",
-        "*_ECALActivity__*",
     ) 
 )
 
@@ -148,38 +132,23 @@ process.mpiSenderEcalUncalibRecHitSoA = cms.EDProducer("MPISender",
         "128falseEcalUncalibratedRecHitSoALayoutPortableHostCollection_hltEcalUncalibRecHitSoA_EcalUncalibRecHitsEB_*",
         "128falseEcalUncalibratedRecHitSoALayoutPortableHostCollection_hltEcalUncalibRecHitSoA_EcalUncalibRecHitsEE_*",
         "ushort_hltEcalUncalibRecHitSoA_backend_*",
-        "*_ECALActivity__*",
     ) 
 )
 
-process.ECALActivity = cms.EDProducer("PathActivityProducer")
-
 # run the ECAL local reconstruction
 process.HLTLocalECAL = cms.Path(
-    # process.rawDataCollector +
-    process.activityFilterRawData +
+    process.rawDataCollector +
     process.hltGetRaw +
     process.hltEcalDigisSoA +
-    # process.mpiSenderEcalDigisSoA +
-    process.hltEcalUncalibRecHitSoA +
-    process.ECALActivity
-    # process.mpiSenderEcalUncalibRecHitSoA
-)
-
-process.MPIPath = cms.Path(
-    process.rawDataCollector +
     process.mpiSenderEcalDigisSoA +
-    process.mpiSenderEcalUncalibRecHitSoA +
-    process.mpiSenderHbheRecoSoA +
-    process.mpiSenderParticleFlowRecHitHBHESoA +
-    process.mpiSenderParticleFlowClusterHBHESoA
+    process.hltEcalUncalibRecHitSoA +
+    process.mpiSenderEcalUncalibRecHitSoA
 )
 
 # schedule the reconstruction
 process.schedule = cms.Schedule(
     process.HLTLocalHBHE,
-    process.HLTLocalECAL,
-    process.MPIPath
+    process.HLTLocalECAL
 )
 
 #process.Tracer = cms.Service("Tracer")

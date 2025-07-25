@@ -56,7 +56,7 @@ public:
       throw cms::Exception("InvalidValue") << "Invalid MPISender instance value, please use a value between 1 and 255";
     }
 
-    products_.reserve(patterns_.size());
+    products_.resize(patterns_.size());
 
     callWhenNewProductsRegistered([this](edm::ProductDescription const& product) {
       static const std::string_view kPathStatus("edm::PathStatus");
@@ -66,8 +66,8 @@ public:
         case edm::InEvent:
           if (product.className() == kPathStatus or product.className() == kEndPathStatus)
             return;
-          for (auto const& pattern : patterns_) {
-            if (pattern.match(product)) {
+          for (size_t pattern_index = 0; pattern_index < patterns_.size(); pattern_index++) {
+            if (patterns_[pattern_index].match(product)) {
               Entry entry;
               entry.type = product.unwrappedType();
               entry.wrappedType = product.wrappedType();
@@ -81,23 +81,7 @@ public:
                   << product.productInstanceName() << '_' << product.processName() << "\" of type \""
                   << entry.type.name() << "\" over MPI channel instance " << instance_;
 
-              // edm::Handle<edm::WrapperBase> handle(entry.type.typeInfo());
-
-              // edm::WrapperBase const* wrapper = handle.product();
-
-              // parameter getting does not work in constructor, i suppose wee need an event for this
-
-              // if (wrapper->hasTrivialCopyTraits()) {
-              //   metadata_size_ += 9;
-              // } else {
-              // parameter getting does not work in constructor, i suppose wee need an event for this
-
-              // edm::AnyBuffer buffer = wrapper->trivialCopyParameters();
-              // metadata_size_ += buffer.size_bytes();
-              //   metadata_size_ += 9;
-              //   metadata_size_ += 24;
-              // }
-              products_.emplace_back(std::move(entry));
+              products_[pattern_index] = std::move(entry);
               break;
             }
           }

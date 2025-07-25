@@ -83,7 +83,7 @@ public:
   void produce(edm::Event& event, edm::EventSetup const&) final {
     // read the MPIToken used to establish the communication channel
     MPIToken token = event.get(upstream_);
-    // received_meta_->debugPrintMetadataSummary();
+    received_meta_->debugPrintMetadataSummary();
 
     char* buf_ptr = nullptr;
     size_t full_buffer_size = 0;
@@ -99,6 +99,7 @@ public:
     }
 
     for (auto const& entry : products_) {
+      std::cerr << "inside receiver loop" << std::endl;
       std::unique_ptr<edm::WrapperBase> wrapper(
           reinterpret_cast<edm::WrapperBase*>(entry.wrappedType.getClass()->New()));
 

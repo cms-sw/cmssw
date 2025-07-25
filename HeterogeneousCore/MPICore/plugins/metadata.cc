@@ -152,13 +152,30 @@ void ProductMetadataBuilder::appendBytes(const std::byte* src, size_t size) {
 }
 
 void ProductMetadataBuilder::debugPrintMetadataSummary() const {
-  size_t offset = 0;
+  if (size_ < 9) {
+    std::cerr << "ERROR: Buffer too small to contain header\n";
+    return;
+  }
+
+  size_t offset = 9;  // Skip the header
   size_t count = 0;
   size_t numMissing = 0;
   size_t numSerialized = 0;
   size_t numTrivial = 0;
 
+  uint64_t headerCount = 0;
+  std::memcpy(&headerCount, buffer_, sizeof(uint64_t));
+  uint8_t flags = buffer_[8];
+
   std::cerr << "---- ProductMetadata Debug Summary ----\n";
+  std::cerr << "Header:\n";
+  std::cerr << "  Product count:  " << headerCount << "\n";
+  std::cerr << "  Flags: "
+            << ((flags & HasMissing) ? "Missing " : "")
+            << ((flags & HasSerialized) ? "Serialized " : "")
+            << ((flags & HasTrivialCopy) ? "TrivialCopy " : "")
+            << "\n\n";
+
   while (offset < size_) {
     uint8_t kindVal = buffer_[offset];
     auto kind = static_cast<ProductMetadata::Kind>(kindVal);
@@ -175,7 +192,7 @@ void ProductMetadataBuilder::debugPrintMetadataSummary() const {
 
       case ProductMetadata::Kind::Serialized: {
         if (offset + sizeof(size_t) > size_) {
-          std::cerr << "ERROR: corrupted serialized metadata\n";
+          std::cerr << "ERROR: Corrupted serialized metadata\n";
           return;
         }
         size_t sz;
@@ -188,14 +205,14 @@ void ProductMetadataBuilder::debugPrintMetadataSummary() const {
 
       case ProductMetadata::Kind::TrivialCopy: {
         if (offset + sizeof(size_t) > size_) {
-          std::cerr << "ERROR: corrupted trivial copy metadata\n";
+          std::cerr << "ERROR: Corrupted trivial copy metadata\n";
           return;
         }
         size_t sz;
         std::memcpy(&sz, buffer_ + offset, sizeof(size_t));
         offset += sizeof(size_t);
         if (offset + sz > size_) {
-          std::cerr << "ERROR: trivial copy data overflows buffer\n";
+          std::cerr << "ERROR: Trivial copy data overflows buffer\n";
           return;
         }
         offset += sz;
@@ -211,9 +228,9 @@ void ProductMetadataBuilder::debugPrintMetadataSummary() const {
   }
 
   std::cerr << "----------------------------------------\n";
-  std::cerr << "Total entries:   " << count << "\n";
-  std::cerr << "  Missing:       " << numMissing << "\n";
-  std::cerr << "  Serialized:    " << numSerialized << "\n";
-  std::cerr << "  TrivialCopy:   " << numTrivial << "\n";
-  std::cerr << "Total buffer size: " << size_ << " bytes\n";
+  std::cerr << "Total entries parsed:   " << count << "\n";
+  std::cerr << "  Missing:              " << numMissing << "\n";
+  std::cerr << "  Serialized:           " << numSerialized << "\n";
+  std::cerr << "  TrivialCopy:          " << numTrivial << "\n";
+  std::cerr << "Total buffer size:      " << size_ << " bytes\n";
 }

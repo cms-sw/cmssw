@@ -258,6 +258,7 @@ void MPIController::produce(edm::Event& event, edm::EventSetup const& setup) {
     log << "\nprocessHistoryID " << event.eventAuxiliary().processHistoryID();
     log << "\nprocessGUID " << edm::Guid(event.eventAuxiliary().processGUID(), true).toString();
   }
+  std::cerr << "processing" << std::endl;
 
   // signal a new event, and transmit the EventAuxiliary
   channel_.sendEvent(event.eventAuxiliary());
