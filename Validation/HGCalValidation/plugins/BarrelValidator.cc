@@ -513,12 +513,6 @@ void BarrelValidator::fillDescriptions(edm::ConfigurationDescriptions& descripti
     psd1.add<int>("nintZ", 1100);
     desc.add<edm::ParameterSetDescription>("histoProducerAlgoBlock", psd1);
   }
-  desc.add<std::vector<edm::InputTag>>("hgcal_hits",
-                                       {
-                                           edm::InputTag("HGCalRecHit", "HGCEERecHits"),
-                                           edm::InputTag("HGCalRecHit", "HGCHEFRecHits"),
-                                           edm::InputTag("HGCalRecHit", "HGCHEBRecHits"),
-                                       });
   desc.add<std::vector<edm::InputTag>>("barrel_hits",
                                        {
                                            edm::InputTag("particleFlowRecHitECAL"),

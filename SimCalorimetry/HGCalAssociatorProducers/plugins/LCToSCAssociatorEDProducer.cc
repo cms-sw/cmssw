@@ -37,7 +37,7 @@ private:
   void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
 
   edm::InputTag label_lcl;
-  
+
   edm::EDGetTokenT<SimClusterCollection> SCCollectionToken_;
   edm::EDGetTokenT<CLUSTER> LCCollectionToken_;
   edm::EDGetTokenT<ticl::LayerClusterToSimClusterAssociatorT<CLUSTER>> associatorToken_;
@@ -49,7 +49,7 @@ LCToSCAssociatorEDProducerT<CLUSTER>::LCToSCAssociatorEDProducerT(const edm::Par
   produces<ticl::RecoToSimCollectionWithSimClustersT<CLUSTER>>();
 
   label_lcl = pset.getParameter<edm::InputTag>("label_lcl");
-  
+
   SCCollectionToken_ = consumes<SimClusterCollection>(pset.getParameter<edm::InputTag>("label_scl"));
   LCCollectionToken_ = consumes<CLUSTER>(label_lcl);
   associatorToken_ = consumes<ticl::LayerClusterToSimClusterAssociatorT<CLUSTER>>(pset.getParameter<edm::InputTag>("associator"));
@@ -90,9 +90,9 @@ void LCToSCAssociatorEDProducerT<CLUSTER>::produce(edm::StreamID,
   // Protection against missing cluster collection
   if (!LCCollection.isValid()) {
     edm::LogWarning("LCToSCAssociatorEDProducerT")
-        << "CaloCluster collection with label "
-		<< label_lcl
-		<< " is unavailable. Producing empty associations.";
+      << "CaloCluster collection with label "
+      << label_lcl
+      << " is unavailable. Producing empty associations.";
 
     // Return empty collections
     auto emptyRecSimColl = std::make_unique<ticl::RecoToSimCollectionWithSimClustersT<CLUSTER>>();

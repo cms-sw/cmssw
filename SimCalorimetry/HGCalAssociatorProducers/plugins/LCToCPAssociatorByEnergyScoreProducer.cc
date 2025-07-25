@@ -9,7 +9,7 @@ LCToCPAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::LCToCPAssociatorByEnergySc
       hardScatterOnly_(ps.getParameter<bool>("hardScatterOnly")),
       hits_label_(ps.getParameter<std::vector<edm::InputTag>>("hits")) {
   for (auto &label : hits_label_) {
-	hits_token_.push_back(consumes<std::vector<HIT>>(label));
+    hits_token_.push_back(consumes<std::vector<HIT>>(label));
   }
 
   rhtools_ = std::make_shared<hgcal::RecHitTools>();
@@ -30,21 +30,20 @@ void LCToCPAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::produce(edm::StreamID
 
   std::vector<const HIT *> hits;
   edm::Handle<std::vector<HIT>> hits_handle;
-  
-  for (unsigned i=0; i<hits_token_.size(); ++i) {
-	iEvent.getByToken(hits_token_[i], hits_handle);
 
-	// Check handle validity
-	if (!hits_handle.isValid()) {
-	  edm::LogWarning("LCToCPAssociatorByEnergyScoreProducer")
-		<< "Hit collection not available for token \n    "
-		<< hits_label_[i] << "\nSkipping this collection.";
-	  continue;  // Skip invalid handle
-	}
+  for (unsigned i = 0; i < hits_token_.size(); ++i) {
+    iEvent.getByToken(hits_token_[i], hits_handle);
 
-	for (const auto &hit : *hits_handle) {
-	  hits.push_back(&hit);
-	}
+    // Check handle validity
+    if (!hits_handle.isValid()) {
+      edm::LogWarning("LCToCPAssociatorByEnergyScoreProducer")
+          << "Hit collection not available for token \n    " << hits_label_[i] << "\nSkipping this collection.";
+      continue;  // Skip invalid handle
+    }
+
+    for (const auto &hit : *hits_handle) {
+      hits.push_back(&hit);
+    }
   }
 
   if (hits.empty()) {
