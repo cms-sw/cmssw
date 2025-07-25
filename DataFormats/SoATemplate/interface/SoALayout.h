@@ -157,7 +157,7 @@ namespace cms::soa {
   SOA_HOST_DEVICE SOA_INLINE byte_size_type BOOST_PP_CAT(NAME, Pitch()) const {                                        \
 	return cms::soa::computePitch(parent_.metadata().BOOST_PP_CAT(parametersOf_, NAME)(),							   \
 						ParentClass::alignment, parent_.elements_);													   \
-  } 																												   \
+  } \
   // clang-format on
 
 #define _DEFINE_METADATA_MEMBERS(R, DATA, TYPE_NAME)                                        \
