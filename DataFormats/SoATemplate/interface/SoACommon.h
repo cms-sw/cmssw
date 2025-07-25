@@ -884,23 +884,26 @@ namespace cms::soa {
 
   // Helper functions for computing the pitch of each column
   template <typename T>
-  cms::soa::byte_size_type computePitch(const cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::scalar, T>& column,
-                                        cms::soa::byte_size_type alignment,
-                                        cms::soa::size_type elements) {
+  constexpr cms::soa::byte_size_type computePitch(
+      const cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::scalar, T>& column,
+      cms::soa::byte_size_type alignment,
+      cms::soa::size_type elements) {
     return cms::soa::alignSize(sizeof(T), alignment);
   }
 
   template <typename T>
-  cms::soa::byte_size_type computePitch(const cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::column, T>& column,
-                                        cms::soa::byte_size_type alignment,
-                                        cms::soa::size_type elements) {
+  constexpr cms::soa::byte_size_type computePitch(
+      const cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::column, T>& column,
+      cms::soa::byte_size_type alignment,
+      cms::soa::size_type elements) {
     return cms::soa::alignSize(elements * sizeof(T), alignment);
   }
 
   template <typename T>
-  cms::soa::byte_size_type computePitch(const cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::eigen, T>& column,
-                                        cms::soa::byte_size_type alignment,
-                                        cms::soa::size_type elements) {
+  constexpr cms::soa::byte_size_type computePitch(
+      const cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::eigen, T>& column,
+      cms::soa::byte_size_type alignment,
+      cms::soa::size_type elements) {
     return cms::soa::alignSize(elements * sizeof(typename T::Scalar), alignment) * T::RowsAtCompileTime *
            T::ColsAtCompileTime;
   }
