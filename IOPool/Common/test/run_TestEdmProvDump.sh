@@ -18,8 +18,16 @@ function compareProv {
     OPTIONS=$1
     FILE=$2
     LOG=$3
-    edmProvDump --showHistoryID $OPTIONS $FILE | grep -v -E "$CHANGINGPARTS" > $LOG || die "edmProvDump $OPTIONS $FILE" $?
-    diff ${LOCAL_TEST_DIR}/unit_test_outputs/$LOG $LOG  || die "comparing $LOG" $?
+    edmProvDump --showHistoryID $OPTIONS $FILE > ${LOG}_full || die "edmProvDump $OPTIONS $FILE" $?
+    grep -v -E "$CHANGINGPARTS" ${LOG}_full > ${LOG}
+    diff ${LOCAL_TEST_DIR}/unit_test_outputs/$LOG $LOG
+    RET=$?
+    if [ "x${RET}" != "x0" ]; then
+        echo "**********"
+        head -n 20 ${LOG}_full
+        echo "**********"
+        die "comparing $LOG" $RET
+    fi
 }
 
 ## Simple case
