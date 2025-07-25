@@ -71,5 +71,5 @@ def _modifyForNGTScouting(trackvalidator):
 (ngtScouting & ~trackingLST).toModify(hltTrackValidator, _modifyForNGTScouting)
 
 def _modifyForNGTScoutingLST(trackvalidator):
-    trackvalidator.label = ["hltGeneralTracks", "hltPhase2PixelTracks", "hltInitialStepTracksT5TCLST", "hltPixelLessTracks", "hltWithPixelTracks"]
+    trackvalidator.label = ["hltGeneralTracks", "hltPhase2PixelTracks", "hltInitialStepTracksT4T5TCLST", "hltPixelLessTracks", "hltWithPixelTracks"]
 (ngtScouting & trackingLST).toModify(hltTrackValidator, _modifyForNGTScoutingLST)

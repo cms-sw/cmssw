@@ -1,6 +1,6 @@
 #include "performance.h"
 
-enum { pT5 = 7, pT3 = 5, T5 = 4, pLS = 8 };
+enum { pT5 = 7, pT3 = 5, T5 = 4, pLS = 8, T4 = 9 };
 
 //__________________________________________________________________________________________________________________________________________________________________________
 int main(int argc, char** argv) {
@@ -94,6 +94,18 @@ int main(int argc, char** argv) {
               auto& lstEff_sim_tcIdx = lstEff.getVI("sim_tcIdx");
               auto& lstEff_tc_type = lstEff.getVI("tc_type");
               return lstEff_sim_tcIdx.at(isim) >= 0 ? lstEff_tc_type.at(lstEff_sim_tcIdx.at(isim)) == pLS : false;
+            },
+            /* sel   */ sels[isel]));
+        list_effSetDef.push_back(SimTrackSetDefinition(
+            /* name  */
+            TString("T4_") + selnames[isel],
+            /* pdgid */ pdgid,
+            /* q     */ charge,
+            /* pass  */
+            [&](unsigned int isim) {
+              auto& lstEff_sim_tcIdx = lstEff.getVI("sim_tcIdx");
+              auto& lstEff_tc_type = lstEff.getVI("tc_type");
+              return lstEff_sim_tcIdx.at(isim) >= 0 ? lstEff_tc_type.at(lstEff_sim_tcIdx.at(isim)) == T4 : false;
             },
             /* sel   */ sels[isel]));
 
@@ -222,6 +234,17 @@ int main(int argc, char** argv) {
                              /* eta   */ [&]() { return lstEff.getVF("tc_eta"); },
                              /* phi   */ [&]() { return lstEff.getVF("tc_phi"); },
                              /* type  */ [&]() { return lstEff.getVI("tc_type"); }));
+  list_FRSetDef.push_back(
+      RecoTrackSetDefinition(/* name  */
+                             "T4",
+                             /* pass  */
+                             [&](unsigned int itc) { return lstEff.getVI("tc_isFake").at(itc) > 0; },
+                             /* sel   */
+                             [&](unsigned int itc) { return lstEff.getVI("tc_type").at(itc) == T4; },
+                             /* pt    */ [&]() { return lstEff.getVF("tc_pt"); },
+                             /* eta   */ [&]() { return lstEff.getVF("tc_eta"); },
+                             /* phi   */ [&]() { return lstEff.getVF("tc_phi"); },
+                             /* type  */ [&]() { return lstEff.getVI("tc_type"); }));
 
   if (ana.do_lower_level) {
     list_FRSetDef.push_back(RecoTrackSetDefinition(
@@ -316,6 +339,17 @@ int main(int argc, char** argv) {
                              [&](unsigned int itc) { return lstEff.getVI("tc_isDuplicate").at(itc) > 0; },
                              /* sel   */
                              [&](unsigned int itc) { return lstEff.getVI("tc_type").at(itc) == pLS; },
+                             /* pt    */ [&]() { return lstEff.getVF("tc_pt"); },
+                             /* eta   */ [&]() { return lstEff.getVF("tc_eta"); },
+                             /* phi   */ [&]() { return lstEff.getVF("tc_phi"); },
+                             /* type  */ [&]() { return lstEff.getVI("tc_type"); }));
+  list_DRSetDef.push_back(
+      RecoTrackSetDefinition(/* name  */
+                             "T4",
+                             /* pass  */
+                             [&](unsigned int itc) { return lstEff.getVI("tc_isDuplicate").at(itc) > 0; },
+                             /* sel   */
+                             [&](unsigned int itc) { return lstEff.getVI("tc_type").at(itc) == T4; },
                              /* pt    */ [&]() { return lstEff.getVF("tc_pt"); },
                              /* eta   */ [&]() { return lstEff.getVF("tc_eta"); },
                              /* phi   */ [&]() { return lstEff.getVF("tc_phi"); },
@@ -428,6 +462,20 @@ int main(int argc, char** argv) {
                              },
                              /* sel   */
                              [&](unsigned int itc) { return lstEff.getVI("tc_type").at(itc) == pLS; },
+                             /* pt    */ [&]() { return lstEff.getVF("tc_pt"); },
+                             /* eta   */ [&]() { return lstEff.getVF("tc_eta"); },
+                             /* phi   */ [&]() { return lstEff.getVF("tc_phi"); },
+                             /* type  */ [&]() { return lstEff.getVI("tc_type"); }));
+  list_FDRSetDef.push_back(
+      RecoTrackSetDefinition(/* name  */
+                             "T4",
+                             /* pass  */
+                             [&](unsigned int itc) {
+                               return (lstEff.getVI("tc_isDuplicate").at(itc) > 0) or
+                                      (lstEff.getVI("tc_isFake").at(itc) > 0);
+                             },
+                             /* sel   */
+                             [&](unsigned int itc) { return lstEff.getVI("tc_type").at(itc) == T4; },
                              /* pt    */ [&]() { return lstEff.getVF("tc_pt"); },
                              /* eta   */ [&]() { return lstEff.getVF("tc_eta"); },
                              /* phi   */ [&]() { return lstEff.getVF("tc_phi"); },

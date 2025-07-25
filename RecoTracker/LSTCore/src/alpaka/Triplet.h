@@ -29,7 +29,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                          float circleCenterX,
                                                          float circleCenterY,
                                                          unsigned int tripletIndex,
-                                                         float (&t3Scores)[dnn::t3dnn::kOutputFeatures]) {
+                                                         float (&t3Scores)[dnn::t3dnn::kOutputFeatures],
+                                                         short charge) {
     triplets.segmentIndices()[tripletIndex][0] = innerSegmentIndex;
     triplets.segmentIndices()[tripletIndex][1] = outerSegmentIndex;
     triplets.lowerModuleIndices()[tripletIndex][0] = innerInnerLowerModuleIndex;
@@ -57,6 +58,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     triplets.hitIndices()[tripletIndex][3] = mds.outerHitIndices()[secondMDIndex];
     triplets.hitIndices()[tripletIndex][4] = mds.anchorHitIndices()[thirdMDIndex];
     triplets.hitIndices()[tripletIndex][5] = mds.outerHitIndices()[thirdMDIndex];
+
+    triplets.charge()[tripletIndex] = charge;
 #ifdef CUT_VALUE_DEBUG
     triplets.betaInCut()[tripletIndex] = betaInCut;
 #endif
@@ -78,7 +81,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                        unsigned int thirdMDIndex,
                                                        float circleRadius,
                                                        float circleCenterX,
-                                                       float circleCenterY) {
+                                                       float circleCenterY,
+                                                       short& charge) {
     // Using lst_layer numbering convention defined in ModuleMethods.h
     const short layer1 = modules.lstLayers()[innerInnerLowerModuleIndex];
     const short layer2 = modules.lstLayers()[middleLowerModuleIndex];
@@ -96,6 +100,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     //use linear approximation for regions 9 and 20-24 because it works better (see https://github.com/SegmentLinking/cmssw/pull/92)
     float residual = alpaka::math::abs(acc, z2 - ((z3 - z1) / (r3 - r1) * (r2 - r1) + z1));
+
+    //get the x,y position of each MD
+    const float x1 = mds.anchorX()[firstMDIndex] / 100;
+    const float x2 = mds.anchorX()[secondMDIndex] / 100;
+    const float x3 = mds.anchorX()[thirdMDIndex] / 100;
+
+    const float y1 = mds.anchorY()[firstMDIndex] / 100;
+    const float y2 = mds.anchorY()[secondMDIndex] / 100;
+    const float y3 = mds.anchorY()[thirdMDIndex] / 100;
+
+    float cross = (x2 - x1) * (y3 - y1) - (y2 - y1) * (x3 - x1);
+    charge = -1 * ((int)copysignf(1.0f, cross));
 
     //region definitions: https://github.com/user-attachments/assets/2b3c1425-66eb-4524-83de-deb6f3b31f71
     if (layer1 == 1 && layer2 == 7) {
@@ -120,15 +136,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     //get the type of module: 0 is ps, 1 is 2s
     const bool moduleType3 = modules.moduleType()[outerOuterLowerModuleIndex];
-
-    //get the x,y position of each MD
-    const float x1 = mds.anchorX()[firstMDIndex] / 100;
-    const float x2 = mds.anchorX()[secondMDIndex] / 100;
-    const float x3 = mds.anchorX()[thirdMDIndex] / 100;
-
-    const float y1 = mds.anchorY()[firstMDIndex] / 100;
-    const float y2 = mds.anchorY()[secondMDIndex] / 100;
-    const float y3 = mds.anchorY()[thirdMDIndex] / 100;
 
     //set initial and target points
     float x_init = x2;
@@ -164,9 +171,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float x_center = circleCenterX / 100;
     float y_center = circleCenterY / 100;
     float pt = 2 * k2Rinv1GeVf * circleRadius;  //k2Rinv1GeVf is already in cm^(-1)
-
-    float cross = (x2 - x1) * (y3 - y1) - (y2 - y1) * (x3 - x1);
-    short charge = -1 * ((int)copysignf(1.0f, cross));
 
     //get the px and py at the initial point
     float px = 2 * charge * k2Rinv1GeVf * (y_init - y_center) * 100;
@@ -400,7 +404,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                    float& circleCenterX,
                                                                    float& circleCenterY,
                                                                    const float ptCut,
-                                                                   float (&t3Scores)[dnn::t3dnn::kOutputFeatures]) {
+                                                                   float (&t3Scores)[dnn::t3dnn::kOutputFeatures],
+                                                                   short& charge) {
     const unsigned int firstMDIndex = segments.mdIndices()[innerSegmentIndex][0];
     const unsigned int secondMDIndex = segments.mdIndices()[outerSegmentIndex][0];
     const unsigned int thirdMDIndex = segments.mdIndices()[outerSegmentIndex][1];
@@ -426,7 +431,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                              thirdMDIndex,
                              circleRadius,
                              circleCenterX,
-                             circleCenterY))
+                             circleCenterY,
+                             charge))
       return false;
 
     const float rt_InLo = mds.anchorRt()[firstMDIndex];
@@ -574,6 +580,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           uint16_t outerOuterLowerModuleIndex = segments.outerLowerModuleIndices()[outerSegmentIndex];
 
           float betaIn, betaInCut, circleRadius, circleCenterX, circleCenterY;
+          short charge;
 
           float t3Scores[dnn::t3dnn::kOutputFeatures] = {0.f};
 
@@ -592,8 +599,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                       circleCenterX,
                                                       circleCenterY,
                                                       ptCut,
-                                                      t3Scores);
-
+                                                      t3Scores,
+                                                      charge);
           if (success) {
             unsigned int totOccupancyTriplets =
                 alpaka::atomicAdd(acc,
@@ -627,7 +634,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                  circleCenterX,
                                  circleCenterY,
                                  tripletIndex,
-                                 t3Scores);
+                                 t3Scores,
+                                 charge);
             }
           }
         }
