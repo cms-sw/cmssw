@@ -17,12 +17,14 @@ _hltPhase2PixelTracks = cms.EDProducer("PixelTrackProducerFromSoAAlpakaPhase2",
     pixelRecHitLegacySrc = cms.InputTag("hltSiPixelRecHits"),
     trackSrc = cms.InputTag("hltPhase2PixelTracksSoA"),
     outerTrackerRecHitSrc = cms.InputTag(""),
-    useOTExtension = cms.bool(False)
+    useOTExtension = cms.bool(False),
+    requireQuadsFromConsecutiveLayers = cms.bool(False)
 )
 alpaka.toReplaceWith(hltPhase2PixelTracks, _hltPhase2PixelTracks)
 
 from Configuration.ProcessModifiers.phase2CAExtension_cff import phase2CAExtension
 phase2CAExtension.toModify(hltPhase2PixelTracks,
     outerTrackerRecHitSrc = "hltSiPhase2RecHits",
-    useOTExtension = True
+    useOTExtension = True,
+    requireQuadsFromConsecutiveLayers = True
 )
