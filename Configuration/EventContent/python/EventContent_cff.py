@@ -100,8 +100,6 @@ from HLTrigger.Configuration.HLTScouting_EventContent_cff import HLTScoutingAll
 HLTriggerMINIAOD.outputCommands.extend(HLTScoutingAll.outputCommands)
 HLTriggerAOD.outputCommands.extend(HLTScoutingAll.outputCommands)
 HLTriggerRECO.outputCommands.extend(HLTScoutingAll.outputCommands)
-HLTriggerRAW.outputCommands.extend(HLTScoutingAll.outputCommands)
-HLTDebugRAW.outputCommands.extend(HLTScoutingAll.outputCommands)
 HLTDebugFEVT.outputCommands.extend(HLTScoutingAll.outputCommands)
 #
 # DQM
