@@ -306,6 +306,8 @@ int main(void) {
   }
 
   // Validation of range checking in a kernel
+  // Disable this test until ROCm provides a non-fatal way to assert in device code
+#if 0
   // Get a view like the default one, except for range checking
   RangeCheckingHostDeviceView soa1viewRangeChecking(d_soahdLayout);
 
@@ -320,6 +322,7 @@ int main(void) {
   } catch (const std::runtime_error&) {
     std::cout << "Pass: expected range-check exception caught while executing the kernel." << std::endl;
   }
+#endif
 
   std::cout << "OK" << std::endl;
 }
