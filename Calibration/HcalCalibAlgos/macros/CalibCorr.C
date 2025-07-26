@@ -24,6 +24,16 @@
 //      Prepares a Tchain by chaining several ROOT files specified
 // std::vector<std::string> splitString (fLine)
 //      Splits a string into several items which are separated by blank in i/p
+// double eMipCut(int form)
+//      Provides the MIP threshold fr energy in Ecal
+//        form: 0 gives the default cut value of 1.0 GEV
+//              1..6 sets the cut value of 0.5, 0.75, 1.25, 1.50, 1.75 2.0 GeV
+// CalibThreshold(form)
+//      A class which prvides threshold for HCAL RecHts to conform with PFCuts
+//        double threshold(unsigned int detId): proides the threshold
+//        form: 1-4 some depth dependnt cutoffs
+//              5-6 reads cutoffs from files "PFCuts2025.txt" (2025 defaults)
+//                  and "PFCuts362975.txt" (2023-2024 vakues(
 // CalibCorrFactor(infile, useScale, scale, etamax, debug)
 //      A class which reads a file with correction factors and provides
 //        bool   doCorr() : flag saying if correction is available
@@ -547,6 +557,11 @@ std::vector<std::string> splitString(const std::string& fLine) {
     }
   }
   return result;
+}
+
+double eMipCut(int form) {
+  const double cuts[7] = {1.0, 0.5, 0.75, 1.25, 1.5, 1.75, 2.0};
+  return (((form >= 0) && (form < 7)) ? cuts[form] : 1.0);
 }
 
 class CalibThreshold {
