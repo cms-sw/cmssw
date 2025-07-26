@@ -29,7 +29,7 @@ process = customise_hgcalmapper(process,
                                 offsetfile=options.offsetfile)
 
 #Geometry
-process.load('Configuration.Geometry.GeometryExtended2026D99Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D109Reco_cff')
 
 #tester
 process.tester = cms.EDAnalyzer('HGCalMappingESSourceTester')
