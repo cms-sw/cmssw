@@ -3,6 +3,7 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include "HeterogeneousCore/AlpakaInterface/interface/CachingAllocator.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/getDeviceCachingAllocator.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/getHostCachingAllocator.h"
 
@@ -22,15 +23,57 @@ namespace cms::alpakatools {
       static_assert(alpaka::meta::DependentFalseType<TDev>::value, "This device does not support a caching allocator");
     };
 
-    //! The caching memory allocator implementation for the CPU device
-    template <typename TElem, typename TDim, typename TIdx, typename TQueue>
-    struct CachedBufAlloc<TElem, TDim, TIdx, alpaka::DevCpu, TQueue, void> {
+    //! The caching memory allocator implementation for the CPU device, with a blocking queue
+    template <typename TElem, typename TDim, typename TIdx>
+    struct CachedBufAlloc<TElem, TDim, TIdx, alpaka::DevCpu, alpaka::QueueCpuBlocking, void> {
       template <typename TExtent>
       ALPAKA_FN_HOST static auto allocCachedBuf(alpaka::DevCpu const& dev,
-                                                TQueue queue,
+                                                alpaka::QueueCpuBlocking queue,
                                                 TExtent const& extent) -> alpaka::BufCpu<TElem, TDim, TIdx> {
-        // non-cached, queue-ordered asynchronous host-only memory
-        return alpaka::allocAsyncBuf<TElem, TIdx>(queue, extent);
+        ALPAKA_DEBUG_MINIMAL_LOG_SCOPE;
+
+        auto& allocator = getHostCachingAllocator<alpaka::QueueCpuBlocking>();
+
+        // FIXME the BufCpu does not support a pitch ?
+        size_t size = alpaka::getExtentProduct(extent);
+        size_t sizeBytes = size * sizeof(TElem);
+        auto* block = allocator.allocate(sizeBytes, queue);
+        void* memPtr = block->buffer->data();
+
+        // use a custom deleter to return the buffer to the CachingAllocator
+        auto deleter = [&allocator, block](TElem* ptr) mutable {
+          assert(ptr == reinterpret_cast<void*>(block->buffer->data()));
+          allocator.free(block);
+        };
+
+        return alpaka::BufCpu<TElem, TDim, TIdx>(dev, reinterpret_cast<TElem*>(memPtr), std::move(deleter), extent);
+      }
+    };
+
+    //! The caching memory allocator implementation for the CPU device, with a non-blocking queue
+    template <typename TElem, typename TDim, typename TIdx>
+    struct CachedBufAlloc<TElem, TDim, TIdx, alpaka::DevCpu, alpaka::QueueCpuNonBlocking, void> {
+      template <typename TExtent>
+      ALPAKA_FN_HOST static auto allocCachedBuf(alpaka::DevCpu const& dev,
+                                                alpaka::QueueCpuNonBlocking queue,
+                                                TExtent const& extent) -> alpaka::BufCpu<TElem, TDim, TIdx> {
+        ALPAKA_DEBUG_MINIMAL_LOG_SCOPE;
+
+        auto& allocator = getHostCachingAllocator<alpaka::QueueCpuNonBlocking>();
+
+        // FIXME the BufCpu does not support a pitch ?
+        size_t size = alpaka::getExtentProduct(extent);
+        size_t sizeBytes = size * sizeof(TElem);
+        auto* block = allocator.allocate(sizeBytes, queue);
+        void* memPtr = block->buffer->data();
+
+        // use a custom deleter to return the buffer to the CachingAllocator
+        auto deleter = [&allocator, block](TElem* ptr) mutable {
+          assert(ptr == reinterpret_cast<void*>(block->buffer->data()));
+          allocator.free(block);
+        };
+
+        return alpaka::BufCpu<TElem, TDim, TIdx>(dev, reinterpret_cast<TElem*>(memPtr), std::move(deleter), extent);
       }
     };
 
@@ -50,10 +93,14 @@ namespace cms::alpakatools {
         // FIXME the BufCpu does not support a pitch ?
         size_t size = alpaka::getExtentProduct(extent);
         size_t sizeBytes = size * sizeof(TElem);
-        void* memPtr = allocator.allocate(sizeBytes, queue);
+        auto* block = allocator.allocate(sizeBytes, queue);
+        void* memPtr = block->buffer->data();
 
         // use a custom deleter to return the buffer to the CachingAllocator
-        auto deleter = [alloc = &allocator](TElem* ptr) { alloc->free(ptr); };
+        auto deleter = [&allocator, block](TElem* ptr) mutable {
+          assert(ptr == reinterpret_cast<void*>(block->buffer->data()));
+          allocator.free(block);
+        };
 
         return alpaka::BufCpu<TElem, TDim, TIdx>(dev, reinterpret_cast<TElem*>(memPtr), std::move(deleter), extent);
       }
@@ -73,10 +120,14 @@ namespace cms::alpakatools {
         // FIXME the BufCpu does not support a pitch ?
         size_t size = alpaka::getExtentProduct(extent);
         size_t sizeBytes = size * sizeof(TElem);
-        void* memPtr = allocator.allocate(sizeBytes, queue);
+        auto* block = allocator.allocate(sizeBytes, queue);
+        void* memPtr = block->buffer->data();
 
         // use a custom deleter to return the buffer to the CachingAllocator
-        auto deleter = [alloc = &allocator](TElem* ptr) { alloc->free(ptr); };
+        auto deleter = [&allocator, block](TElem* ptr) mutable {
+          assert(ptr == reinterpret_cast<void*>(block->buffer->data()));
+          allocator.free(block);
+        };
 
         return alpaka::BufCpu<TElem, TDim, TIdx>(dev, reinterpret_cast<TElem*>(memPtr), std::move(deleter), extent);
       }
@@ -99,10 +150,14 @@ namespace cms::alpakatools {
         size_t pitchBytes = widthBytes;
         size_t size = alpaka::getExtentProduct(extent);
         size_t sizeBytes = size * sizeof(TElem);
-        void* memPtr = allocator.allocate(sizeBytes, queue);
+        auto* block = allocator.allocate(sizeBytes, queue);
+        void* memPtr = block->buffer->data();
 
         // use a custom deleter to return the buffer to the CachingAllocator
-        auto deleter = [alloc = &allocator](TElem* ptr) { alloc->free(ptr); };
+        auto deleter = [&allocator, block](TElem* ptr) mutable {
+          assert(ptr == reinterpret_cast<void*>(block->buffer->data()));
+          allocator.free(block);
+        };
 
         return alpaka::BufCudaRt<TElem, TDim, TIdx>(
             dev, reinterpret_cast<TElem*>(memPtr), std::move(deleter), extent, pitchBytes);
@@ -127,10 +182,14 @@ namespace cms::alpakatools {
         // FIXME the BufCpu does not support a pitch ?
         size_t size = alpaka::getExtentProduct(extent);
         size_t sizeBytes = size * sizeof(TElem);
-        void* memPtr = allocator.allocate(sizeBytes, queue);
+        auto* block = allocator.allocate(sizeBytes, queue);
+        void* memPtr = block->buffer->data();
 
         // use a custom deleter to return the buffer to the CachingAllocator
-        auto deleter = [alloc = &allocator](TElem* ptr) { alloc->free(ptr); };
+        auto deleter = [&allocator, block](TElem* ptr) mutable {
+          assert(ptr == reinterpret_cast<void*>(block->buffer->data()));
+          allocator.free(block);
+        };
 
         return alpaka::BufCpu<TElem, TDim, TIdx>(dev, reinterpret_cast<TElem*>(memPtr), std::move(deleter), extent);
       }
@@ -150,10 +209,14 @@ namespace cms::alpakatools {
         // FIXME the BufCpu does not support a pitch ?
         size_t size = alpaka::getExtentProduct(extent);
         size_t sizeBytes = size * sizeof(TElem);
-        void* memPtr = allocator.allocate(sizeBytes, queue);
+        auto* block = allocator.allocate(sizeBytes, queue);
+        void* memPtr = block->buffer->data();
 
         // use a custom deleter to return the buffer to the CachingAllocator
-        auto deleter = [alloc = &allocator](TElem* ptr) { alloc->free(ptr); };
+        auto deleter = [&allocator, block](TElem* ptr) mutable {
+          assert(ptr == reinterpret_cast<void*>(block->buffer->data()));
+          allocator.free(block);
+        };
 
         return alpaka::BufCpu<TElem, TDim, TIdx>(dev, reinterpret_cast<TElem*>(memPtr), std::move(deleter), extent);
       }
@@ -176,10 +239,14 @@ namespace cms::alpakatools {
         size_t pitchBytes = widthBytes;
         size_t size = alpaka::getExtentProduct(extent);
         size_t sizeBytes = size * sizeof(TElem);
-        void* memPtr = allocator.allocate(sizeBytes, queue);
+        auto* block = allocator.allocate(sizeBytes, queue);
+        void* memPtr = block->buffer->data();
 
         // use a custom deleter to return the buffer to the CachingAllocator
-        auto deleter = [alloc = &allocator](TElem* ptr) { alloc->free(ptr); };
+        auto deleter = [&allocator, block](TElem* ptr) mutable {
+          assert(ptr == reinterpret_cast<void*>(block->buffer->data()));
+          allocator.free(block);
+        };
 
         return alpaka::BufHipRt<TElem, TDim, TIdx>(
             dev, reinterpret_cast<TElem*>(memPtr), std::move(deleter), extent, pitchBytes);
