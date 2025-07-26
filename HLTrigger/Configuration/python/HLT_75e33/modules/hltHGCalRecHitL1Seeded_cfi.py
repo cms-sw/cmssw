@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from ..psets.hgcal_reco_constants_cfi import HGCAL_reco_constants as HGCAL_reco_constants
+from Configuration.Eras.Modifier_phase2_hgcalV19_cff import phase2_hgcalV19
 
 
 hltHGCalRecHitL1Seeded = cms.EDProducer("HGCalRecHitProducer",
@@ -60,3 +61,9 @@ hltHGCalRecHitL1Seeded = cms.EDProducer("HGCalRecHitProducer",
     thicknessCorrection = HGCAL_reco_constants.thicknessCorrection,
     thicknessNoseCorrection = cms.vdouble(1.132, 1.092, 1.084)
 )
+
+phase2_hgcalV19.toModify(hltHGCalRecHitL1Seeded, 
+                         HGCEE_fCPerMIP = cms.vdouble(HGCAL_reco_constants.fcPerMip[0:4]),
+                         HGCHEF_fCPerMIP = cms.vdouble(HGCAL_reco_constants.fcPerMip[4:8]),
+                         HGCHFNose_fCPerMIP = cms.vdouble(1.25, 2.57, 3.88, 2.57),
+                         )
