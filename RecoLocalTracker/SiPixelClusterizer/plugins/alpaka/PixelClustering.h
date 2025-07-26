@@ -82,6 +82,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
       return Status{(status[index] >> shift) & mask};
     }
 
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE constexpr bool isDuplicate(uint32_t const* __restrict__ status,
+                                                              uint16_t x,
+                                                              uint16_t y) {
+      return getStatus(status, x, y) == kDuplicate;
+    }
+
     // Record a pixel at the given coordinates and return the updated status.
     ALPAKA_FN_ACC ALPAKA_FN_INLINE Status promote(Acc1D const& acc,
                                                   uint32_t* status,
@@ -244,9 +250,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
               // skip invalid pixels
               if (digi_view[i].moduleId() == ::pixelClustering::invalidModuleId)
                 continue;
-              auto status = pixelStatus::promote(acc, image, digi_view[i].xx(), digi_view[i].yy());
-              if (pixelStatus::kDuplicate == status) {
-                // mark the duplicate pixel as invalid
+              pixelStatus::promote(acc, image, digi_view[i].xx(), digi_view[i].yy());
+            }
+            alpaka::syncBlockThreads(acc);
+
+            for (uint32_t i : cms::alpakatools::independent_group_elements(acc, firstPixel, lastPixel)) {
+              // skip invalid pixels
+              if (digi_view[i].moduleId() == ::pixelClustering::invalidModuleId)
+                continue;
+              if (pixelStatus::isDuplicate(image, digi_view[i].xx(), digi_view[i].yy())) {
                 digi_view[i].moduleId() = ::pixelClustering::invalidModuleId;
                 digi_view[i].rawIdArr() = 0;
               }
