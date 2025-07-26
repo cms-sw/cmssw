@@ -13,6 +13,8 @@
 
 #include <algorithm>
 
+using ROOT::RNTupleModel;
+
 namespace {
 
   void trimVersionSuffix(std::string& trigger_name) {
@@ -121,13 +123,9 @@ void TriggerOutputFields::updateTriggerFields(const edm::TriggerResults& trigger
   }
 }
 
-void TriggerOutputFields::makeUniqueFieldName(RNTupleModel& model, std::string& name) {
-  // Could also use a cache of names in a higher-level object, don't ask the RNTupleModel each time
-#if ROOT_VERSION_CODE < ROOT_VERSION(6, 31, 0)
-  auto existing_field = model.Get<bool>(name);
-#else
+void TriggerOutputFields::makeUniqueFieldName(const RNTupleModel& model, std::string& name) {
   auto existing_field = model.GetDefaultEntry().GetPtr<bool>(name);
-#endif
+
   if (!existing_field) {
     return;
   }
