@@ -8,10 +8,13 @@
 #include <cstdint>
 #include <cassert>
 #include <ostream>
+#include <sstream>
 #include <tuple>
 #include <type_traits>
 
 #include <boost/preprocessor.hpp>
+
+#include <fmt/format.h>
 
 #include "FWCore/Utilities/interface/typedefs.h"
 
@@ -30,20 +33,20 @@
 
 // Exception throwing (or willful crash in kernels)
 #if defined(__CUDACC__) && defined(__CUDA_ARCH__)
-#define SOA_THROW_OUT_OF_RANGE(A) \
-  {                               \
-    printf("%s\n", (A));          \
-    __trap();                     \
+#define SOA_THROW_OUT_OF_RANGE(A, I, R)                      \
+  {                                                          \
+    printf("%s: index %d out of range %d\n", (A), (I), (R)); \
+    __trap();                                                \
   }
 #elif defined(__HIPCC__) && defined(__HIP_DEVICE_COMPILE__)
-#define SOA_THROW_OUT_OF_RANGE(A) \
-  {                               \
-    printf("%s\n", (A));          \
-    abort();                      \
+#define SOA_THROW_OUT_OF_RANGE(A, I, R)                      \
+  {                                                          \
+    printf("%s: index %d out of range %d\n", (A), (I), (R)); \
+    abort();                                                 \
   }
 #else
-#define SOA_THROW_OUT_OF_RANGE(A) \
-  { throw std::out_of_range(A); }
+#define SOA_THROW_OUT_OF_RANGE(A, I, R) \
+  { throw std::out_of_range(fmt::format("{}: index {} out of range {}", (A), (I), (R))); }
 #endif
 
 /* declare "scalars" (one value shared across the whole SoA) and "columns" (one value per element) */

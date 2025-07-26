@@ -400,7 +400,8 @@ namespace cms::soa {
   LOCAL_NAME(size_type _soa_impl_index) {                                                                              \
     if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                                 \
       if (_soa_impl_index >= base_type::elements_ or _soa_impl_index < 0)                                              \
-        SOA_THROW_OUT_OF_RANGE("Out of range index in mutable " #LOCAL_NAME "(size_type index)")                       \
+        SOA_THROW_OUT_OF_RANGE("Out of range index in mutable " #LOCAL_NAME "(size_type index)",                       \
+          _soa_impl_index, base_type::elements_)                                                                       \
     }                                                                                                                  \
     return typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, LOCAL_NAME)>::                     \
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, LOCAL_NAME)>::template AccessType<                   \
@@ -438,7 +439,8 @@ namespace cms::soa {
   LOCAL_NAME(size_type _soa_impl_index) const {                                                                        \
     if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                                 \
       if (_soa_impl_index >= elements_ or _soa_impl_index < 0)                                                         \
-        SOA_THROW_OUT_OF_RANGE("Out of range index in const " #LOCAL_NAME "(size_type index)")                         \
+        SOA_THROW_OUT_OF_RANGE("Out of range index in const " #LOCAL_NAME "(size_type index)",                         \
+          _soa_impl_index, elements_)                                                                                  \
     }                                                                                                                  \
     return typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, LOCAL_NAME)>::                     \
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, LOCAL_NAME)>::template AccessType<                   \
@@ -650,7 +652,7 @@ namespace cms::soa {
     element operator[](size_type _soa_impl_index) {                                                                    \
       if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                               \
         if (_soa_impl_index >= base_type::elements_ or _soa_impl_index < 0)                                            \
-          SOA_THROW_OUT_OF_RANGE("Out of range index in " #VIEW "::operator[]")                                        \
+          SOA_THROW_OUT_OF_RANGE("Out of range index in " #VIEW "::operator[]", _soa_impl_index, base_type::elements_) \
       }                                                                                                                \
       return element{_soa_impl_index, _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_ELEMENT_CONSTR_CALL, ~, VALUE_LIST)};        \
     }                                                                                                                  \
@@ -811,7 +813,7 @@ namespace cms::soa {
     const_element operator[](size_type _soa_impl_index) const {                                                        \
       if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                               \
         if (_soa_impl_index >= elements_ or _soa_impl_index < 0)                                                       \
-          SOA_THROW_OUT_OF_RANGE("Out of range index in " #CONST_VIEW "::operator[]")                                  \
+          SOA_THROW_OUT_OF_RANGE("Out of range index in " #CONST_VIEW "::operator[]", _soa_impl_index, elements_)      \
       }                                                                                                                \
       return const_element{                                                                                            \
         _soa_impl_index, _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_CONST_ELEMENT_CONSTR_CALL, ~, VALUE_LIST)                 \
