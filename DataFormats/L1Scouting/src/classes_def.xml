@@ -46,5 +46,10 @@
   <class name="edm::Wrapper<l1ScoutingRun3::JetOrbitCollection>"/>
   <class name="edm::Wrapper<l1ScoutingRun3::MuonOrbitCollection>"/>
   <class name="edm::Wrapper<l1ScoutingRun3::TauOrbitCollection>"/>
+
+  <class name="l1ScoutingRun3::OrbitFlatTable" ClassVersion="3">
+    <version ClassVersion="3" checksum="1910072015"/>
+  </class>
+  <class name="edm::Wrapper<l1ScoutingRun3::OrbitFlatTable>"/>
   
 </lcgdict>
