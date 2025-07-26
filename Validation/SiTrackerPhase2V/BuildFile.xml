@@ -6,6 +6,8 @@
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="SimDataFormats/Track"/>
 <use name="SimDataFormats/TrackingHit"/>
+<use name="SimDataFormats/TrackingAnalysis"/>
+<use name="HepMC"/>
 <export>
   <lib name="1"/>
 </export>
