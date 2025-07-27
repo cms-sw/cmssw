@@ -209,10 +209,10 @@
  <class name="edm::StdArray<unsigned short, 11>"/>
  <class name="edm::StdArray<unsigned int, 4>"/>
 
- <class name="edm::PathActivityToken" ClassVersion="3">
-   <version ClassVersion="3" checksum="4071377827"/>
- </class>
- <class name="edm::Wrapper<edm::PathActivityToken>"/>
  <class name="edm::FixedSizeDummy" />
  <class name="edm::Wrapper<edm::FixedSizeDummy>" />
+ <class name="edm::PathStateToken" ClassVersion="3">
+   <version ClassVersion="3" checksum="2219165191"/>
+ </class>
+ <class name="edm::Wrapper<edm::PathStateToken>"/>
 </lcgdict>

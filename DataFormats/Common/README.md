@@ -18,10 +18,10 @@ update the `TestTriggerResultsFormat` unit test to read the newly created file. 
 or pre-release with which it was written.`
 
 
-## `edm::PathActivityToken`
+## `edm::PathStateToken`
 
-The type `edm::PathActivityToken` is an empty struct; it is used to communicate the status (active or not) of an
-`edm::Path` at a given point where an `edm::PathActivityProducer` module is scheduled: if the path is active, the module
+The type `edm::PathStateToken` is an empty struct; it is used to communicate the status (active or not) of an
+`edm::Path` at a given point where an `edm::PathStateCapture` module is scheduled: if the path is active, the module
 runs and produces the token; if the path is not active the module does not run and does not produce the token. While any
-product would work, the use of a dedicated empty type is more explicit. An `edm::PathActivityToken` may be consumed by
-an `edm::PathActivityFilter`, an `EDFilter` with a result of `true` if the token is present, `false` otherwise.
+product would work, the use of a dedicated empty type is more explicit. An `edm::PathStateToken` may be consumed by
+an `edm::PathStateRelease`, an `EDFilter` with a result of `true` if the token is present, `false` otherwise.
