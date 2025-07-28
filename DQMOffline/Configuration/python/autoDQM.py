@@ -202,6 +202,10 @@ autoDQM = { 'DQMMessageLogger': ['DQMMessageLoggerSeq',
                            'PostDQMOfflineMiniAOD',
                            'DQMHarvestMiniAOD'],
 
+            'miniAODDQMBTagOnly': ['DQMOfflineMiniAODBTagOnly',
+                            'PostDQMOfflineMiniAOD',
+                           'DQMHarvestMiniAODBTagOnly'],  
+
             'nanoAODDQM': ['DQMOfflineNanoAOD',
                            'PostDQMOffline',
                            'DQMHarvestNanoAOD'],
