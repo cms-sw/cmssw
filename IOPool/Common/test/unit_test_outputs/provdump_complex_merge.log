@@ -9,12 +9,12 @@ History: {
 }
 ---------Processes---------
 Process: PROD1 [1]
-  PSet id: 6c63e586d4f6517ea1ec649e9eecf4b6
-  accelerators: test-one
-
-Process: PROD1 [2]
   PSet id: b6a0b924ba604501a5436d5102a43418
   accelerators: cpu
+
+Process: PROD1 [2]
+  PSet id: 6c63e586d4f6517ea1ec649e9eecf4b6
+  accelerators: test-one
 
 Process: MERGE [1]
   PSet id: df290421e5db9b54108985d98d780a9f
@@ -132,7 +132,7 @@ Module: intProducerU PROD1
  }
 
 Module: intVectorProducer PROD1
- Process: PROD1 [2]
+ Process: PROD1 [1]
  PSet id:069ebcaafc2423e72b81399666f0fa6f
  products: {
   ints_intVectorProducer__PROD1. BranchID 315054627
@@ -145,7 +145,7 @@ Module: intVectorProducer PROD1
   delta: int32 tracked  = 0
   ivalue: int32 tracked  = 11
  }
- Process: PROD1 [1]
+ Process: PROD1 [2]
  PSet id:df9967266015a84cb07cb6490005dc1e
  products: {
   ints_intVectorProducer__PROD1. BranchID 315054627

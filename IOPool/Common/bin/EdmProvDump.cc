@@ -793,6 +793,14 @@ void ProvenanceDumper::work_() {
   }
 
   if (!phv_.empty()) {
+    // (Re-)Sort according to reduced history ID in order to have a
+    // stable order with respect to hardware differences
+    std::ranges::stable_sort(phv_, {}, [](auto const& history) {
+      auto copy = history;
+      copy.reduce();
+      return copy.id();
+    });
+
     for (auto const& history : phv_) {
       for (auto const& process : history) {
         phc_.push_back(process);
