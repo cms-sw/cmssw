@@ -151,6 +151,7 @@ if __name__ == '__main__':
         'jetmc': [5.1, 13, 15, 25, 38, 39], #MC
         'metmc' : [5.1, 15, 25, 37, 38, 39], #MC
         'muonmc' : [5.1, 124.4, 124.5, 20, 21, 22, 23, 25, 30], #MC
+        'newlist': [5.1, 124.4, 124.5, 20, 21, 22, 23, 25, 30],
 
         'ph2_hlt' : [29634.75,    # HLT phase-2 timing menu
                      29634.751,   # HLT phase-2 timing menu Alpaka variant
