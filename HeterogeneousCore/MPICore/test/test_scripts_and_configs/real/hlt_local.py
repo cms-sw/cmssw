@@ -4,6 +4,8 @@ import os
 # run over HLTPhysics data from run 383363
 from hlt import process
 
+from HLTrigger.Configuration.common import *
+
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 # run with 32 threads, 24 concurrent events, 1 concurrent lumisection, over 10k events
@@ -34,6 +36,8 @@ process.MPIService.pmix_server_uri = "file:server.uri"
 from HeterogeneousCore.MPICore.mpiController_cfi import mpiController as mpiController_
 process.mpiController = mpiController_.clone()
 
+# process.load("FWCore/Services/Tracer_cfi")
+
 # send the raw data over MPI
 process.mpiSenderRawData = cms.EDProducer("MPISender",
     upstream = cms.InputTag("mpiController"),
@@ -41,7 +45,7 @@ process.mpiSenderRawData = cms.EDProducer("MPISender",
     products = cms.vstring("rawDataCollector", "rawDataCollectorActivity")
 )
 
-process.rawDataCollectorActivity = cms.EDProducer("PathActivityProducer")
+process.rawDataCollectorActivity = cms.EDProducer("PathStateCapture")
 
 
 # schedule the communication before the ECAL local reconstruction
@@ -52,12 +56,14 @@ process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence.insert(0, process.r
 # process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence.insert(1, process.rawDataCollectorActivity)
 # process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence.insert(2, process.mpiSenderRawData)
 
-process.hltEcalDigisSoA = cms.EDFilter("PathActivityFilter",
-    producer = cms.InputTag("hltEcalDigisSoAReceiver")
-    )
+# process.hltEcalDigisSoA = cms.EDFilter("PathStateRelease",
+#     producer = cms.InputTag("hltEcalDigisSoAReceiver")
+#     )
+
+del process.hltEcalDigisSoA
 
 # receive the ECAL digis SoA over MPI
-process.hltEcalDigisSoAReceiver = cms.EDProducer("MPIReceiver",
+process.hltEcalDigisSoA = cms.EDProducer("MPIReceiver",
     upstream = cms.InputTag("mpiSenderRawData"),
     instance = cms.int32(20),
     products = cms.VPSet(cms.PSet(
@@ -71,10 +77,12 @@ process.hltEcalDigisSoAReceiver = cms.EDProducer("MPIReceiver",
        label = cms.string("backend")
     ),
     cms.PSet(
-        type = cms.string("edm::PathActivityToken"),
+        type = cms.string("edm::PathStateToken"),
         label = cms.string("")
     ))
 )
+
+del process.hltEcalUncalibRecHitSoA
 
 # receive the ECAL uncalibrated rechits SoA over MPI
 process.hltEcalUncalibRecHitSoA = cms.EDProducer("MPIReceiver",
@@ -91,7 +99,7 @@ process.hltEcalUncalibRecHitSoA = cms.EDProducer("MPIReceiver",
        label = cms.string("backend")
     ),
     cms.PSet(
-        type = cms.string("edm::PathActivityToken"),
+        type = cms.string("edm::PathStateToken"),
         label = cms.string("")
     ))
 )
@@ -99,12 +107,14 @@ process.hltEcalUncalibRecHitSoA = cms.EDProducer("MPIReceiver",
 # delete the modules runnig remotely
 # del process.hltHcalDigisSoA
 
-process.hltHbheRecoSoA = cms.EDFilter("PathActivityFilter",
-    producer = cms.InputTag("hltHbheRecoSoAReceiver")
-    )
+# process.hltHbheRecoSoA = cms.EDFilter("PathStateRelease",
+#     producer = cms.InputTag("hltHbheRecoSoAReceiver")
+#     )
+
+del process.hltHbheRecoSoA
 
 # receive the HBHE rechits SoA over MPI
-process.hltHbheRecoSoAReceiver = cms.EDProducer("MPIReceiver",
+process.hltHbheRecoSoA = cms.EDProducer("MPIReceiver",
     upstream = cms.InputTag("mpiSenderRawData"),
     instance = cms.int32(11),
     products = cms.VPSet(cms.PSet(
@@ -115,10 +125,12 @@ process.hltHbheRecoSoAReceiver = cms.EDProducer("MPIReceiver",
        label = cms.string("backend")
     ),
     cms.PSet(
-        type = cms.string("edm::PathActivityToken"),
+        type = cms.string("edm::PathStateToken"),
         label = cms.string("")
     ))
 )
+
+del process.hltParticleFlowRecHitHBHESoA
 
 # receive the HBHE PF rechits SoA over MPI
 process.hltParticleFlowRecHitHBHESoA = cms.EDProducer("MPIReceiver",
@@ -132,10 +144,12 @@ process.hltParticleFlowRecHitHBHESoA = cms.EDProducer("MPIReceiver",
        label = cms.string("backend")
     ),
     cms.PSet(
-        type = cms.string("edm::PathActivityToken"),
+        type = cms.string("edm::PathStateToken"),
         label = cms.string("")
     ))
 )
+
+del process.hltParticleFlowClusterHBHESoA
 
 # receive the HBHE PF clusters SoA over MPI
 process.hltParticleFlowClusterHBHESoA = cms.EDProducer("MPIReceiver",
@@ -152,7 +166,7 @@ process.hltParticleFlowClusterHBHESoA = cms.EDProducer("MPIReceiver",
        label = cms.string("backend")
     ),
     cms.PSet(
-        type = cms.string("edm::PathActivityToken"),
+        type = cms.string("edm::PathStateToken"),
         label = cms.string("")
     ))
 )
@@ -187,10 +201,10 @@ process.HLTPFHcalClustering.insert(0, process.rawDataCollectorActivity)
 process.Offload = cms.Path(
     process.mpiController +
     process.mpiSenderRawData +
-    process.hltHbheRecoSoAReceiver +
+    process.hltHbheRecoSoA +
     process.hltParticleFlowRecHitHBHESoA +
     process.hltParticleFlowClusterHBHESoA +
-    process.hltEcalDigisSoAReceiver +
+    process.hltEcalDigisSoA +
     process.hltEcalUncalibRecHitSoA
 )
 

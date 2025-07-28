@@ -85,7 +85,7 @@ void ProductMetadataBuilder::receiveMetadata(MPI_Message message, size_t size) {
   productCount_ = consume<size_t>();
   assert(productCount_ > 0 && "no products sent or product number not set");
   productFlags_ = consume<ProductFlags>();
-  size_ += size;
+  size_ = size;
 }
 
 ProductMetadata ProductMetadataBuilder::getNext() {

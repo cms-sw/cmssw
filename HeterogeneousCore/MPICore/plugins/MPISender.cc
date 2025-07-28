@@ -50,6 +50,9 @@ public:
         buffer_(std::make_unique<TBufferFile>(TBuffer::kWrite)),
         buffer_offset_(0),
         metadata_size_(0) {
+
+    std::cerr << "sender constructor start " << std::endl;
+
     // instance 0 is reserved for the MPIController / MPISource pair
     // instance values greater than 255 may not fit in the MPI tag
     if (instance_ < 1 or instance_ > 255) {
@@ -99,10 +102,14 @@ public:
       }
     });
 
+    std::cerr << "sender constructor finish " << std::endl;
+
     // TODO add an error if a pattern does not match any branches? how?
   }
 
   void acquire(edm::Event const& event, edm::EventSetup const&, edm::WaitingTaskWithArenaHolder holder) final {
+    std::cerr << "sender acquire " << std::endl;
+
     MPIToken token = event.get(upstream_);
     // we need 1 byte for type, 8 bytes for size and at least 8 bytes for trivial copy parameters buffer
     auto meta = std::make_shared<ProductMetadataBuilder>(products_.size() * 24);
@@ -120,6 +127,8 @@ public:
       // Get the product
       edm::Handle<edm::WrapperBase> handle(entry.type.typeInfo());
       event.getByToken(entry.token, handle);
+
+      std::cerr << "forming metadata for " << entry.type.name() << " with handle " << handle.isValid() << std::endl;
 
       if (handle.isValid()) {
         edm::WrapperBase const* wrapper = handle.product();
@@ -142,6 +151,11 @@ public:
       }
       index++;
     }
+
+    std::cerr << "\n debug from sender \n" << std::endl;
+    meta->debugPrintMetadataSummary();
+    std::cerr << "\n " << std::endl;
+
 
     // Submit sending of all products to run in the additional asynchronous threadpool
     edm::Service<edm::Async> as;

@@ -82,6 +82,8 @@ MPIController::MPIController(edm::ParameterSet const& config)
     : token_(produces<MPIToken>()),
       mode_(parseMode(config.getUntrackedParameter<std::string>("mode")))  //
 {
+    std::cerr << "controller constructor start " << std::endl;
+
   // make sure that MPI is initialised
   MPIService::required();
 
@@ -141,6 +143,8 @@ MPIController::MPIController(edm::ParameterSet const& config)
     throw edm::Exception(edm::errors::Configuration)
         << "Invalid mode \"" << config.getUntrackedParameter<std::string>("mode") << "\"";
   }
+    std::cerr << "controller constructor finish " << std::endl;
+
 }
 
 MPIController::~MPIController() {
@@ -258,7 +262,7 @@ void MPIController::produce(edm::Event& event, edm::EventSetup const& setup) {
     log << "\nprocessHistoryID " << event.eventAuxiliary().processHistoryID();
     log << "\nprocessGUID " << edm::Guid(event.eventAuxiliary().processGUID(), true).toString();
   }
-  std::cerr << "processing" << std::endl;
+  std::cerr << "inside controller produce" << std::endl;
 
   // signal a new event, and transmit the EventAuxiliary
   channel_.sendEvent(event.eventAuxiliary());
@@ -269,6 +273,8 @@ void MPIController::produce(edm::Event& event, edm::EventSetup const& setup) {
     delete ptr;
   });
   event.emplace(token_, std::move(link));
+
+  std::cerr << "controller produce finish" << std::endl;
 }
 
 void MPIController::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

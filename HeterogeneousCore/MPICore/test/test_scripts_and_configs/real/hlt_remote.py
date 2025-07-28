@@ -34,6 +34,7 @@ process.FastTimerService.jsonFileName=cms.untracked.string(f"{output_dir}/remote
 
 process.ThroughputService = _process.ThroughputService.clone()
 # process.ThroughputService.printEventSummary = True
+# process.load("FWCore/Services/Tracer_cfi")
 
 # set up the MPI communication channel
 process.load("HeterogeneousCore.MPIServices.MPIService_cfi")
@@ -53,14 +54,14 @@ process.rawDataCollector = cms.EDProducer("MPIReceiver",
         label = cms.string("")
         ),
         cms.PSet(
-            type = cms.string("edm::PathActivityToken"),
+            type = cms.string("edm::PathStateToken"),
             label = cms.string("")
         )
     )
 )
 
-process.activityFilterRawData = cms.EDFilter("PathActivityFilter",
-    producer = cms.InputTag("rawDataCollector")
+process.activityFilterRawData = cms.EDFilter("PathStateRelease",
+    state = cms.InputTag("rawDataCollector")
     )
 
 process.hltGetRaw = _process.hltGetRaw.clone()
@@ -106,7 +107,7 @@ process.mpiSenderParticleFlowClusterHBHESoA = cms.EDProducer("MPISender",
     )
 )
 
-process.HBHEActivity = cms.EDProducer("PathActivityProducer")
+process.HBHEActivity = cms.EDProducer("PathStateCapture")
 
 # run the HBHE local reconstruction
 process.HLTLocalHBHE = cms.Path(
@@ -152,7 +153,7 @@ process.mpiSenderEcalUncalibRecHitSoA = cms.EDProducer("MPISender",
     ) 
 )
 
-process.ECALActivity = cms.EDProducer("PathActivityProducer")
+process.ECALActivity = cms.EDProducer("PathStateCapture")
 
 # run the ECAL local reconstruction
 process.HLTLocalECAL = cms.Path(

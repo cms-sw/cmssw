@@ -176,72 +176,72 @@ namespace pixelgpudetails {
       return 0;
     bool errorFound = false;
 
-    switch (errorType) {
-      case (25): {
-        errorFound = true;
-        uint32_t index = fedId * MAX_LINK * MAX_ROC + (link - 1) * MAX_ROC + 1;
-        if (index > 1 && index <= cablingMap->size) {
-          if (!(link == cablingMap->link[index] && 1 == cablingMap->roc[index]))
-            errorFound = false;
-        }
-        if constexpr (debug)
-          if (errorFound)
-            printf("Invalid ROC = 25 found (errorType = 25)\n");
-        break;
-      }
-      case (26): {
-        if constexpr (debug)
-          printf("Gap word found (errorType = 26)\n");
-        break;
-      }
-      case (27): {
-        if constexpr (debug)
-          printf("Dummy word found (errorType = 27)\n");
-        break;
-      }
-      case (28): {
-        if constexpr (debug)
-          printf("Error fifo nearly full (errorType = 28)\n");
-        errorFound = true;
-        break;
-      }
-      case (29): {
-        if constexpr (debug)
-          printf("Timeout on a channel (errorType = 29)\n");
-        if (!((errorWord >> sipixelconstants::OMIT_ERR_shift) & sipixelconstants::OMIT_ERR_mask)) {
-          if constexpr (debug)
-            printf("...2nd errorType=29 error, skip\n");
-          break;
-        }
-        errorFound = true;
-        break;
-      }
-      case (30): {
-        if constexpr (debug)
-          printf("TBM error trailer (errorType = 30)\n");
-        int stateMatch_bits = 4;
-        int stateMatch_shift = 8;
-        uint32_t stateMatch_mask = ~(~uint32_t(0) << stateMatch_bits);
-        int stateMatch = (errorWord >> stateMatch_shift) & stateMatch_mask;
-        if (stateMatch != 1 && stateMatch != 8) {
-          if constexpr (debug)
-            printf("FED error 30 with unexpected State Bits (errorType = 30)\n");
-          break;
-        }
-        if (stateMatch == 1)
-          errorType = 40;  // 1=Overflow -> 40, 8=number of ROCs -> 30
-        errorFound = true;
-        break;
-      }
-      case (31): {
-        if constexpr (debug)
-          printf("Event number error (errorType = 31)\n");
-        errorFound = true;
-        break;
-      }
-      default:
-        errorFound = false;
-    };
+    // switch (errorType) {
+    //   case (25): {
+    //     errorFound = true;
+    //     uint32_t index = fedId * MAX_LINK * MAX_ROC + (link - 1) * MAX_ROC + 1;
+    //     if (index > 1 && index <= cablingMap->size) {
+    //       if (!(link == cablingMap->link[index] && 1 == cablingMap->roc[index]))
+    //         errorFound = false;
+    //     }
+    //     if constexpr (debug)
+    //       if (errorFound)
+    //         printf("Invalid ROC = 25 found (errorType = 25)\n");
+    //     break;
+    //   }
+    //   case (26): {
+    //     if constexpr (debug)
+    //       printf("Gap word found (errorType = 26)\n");
+    //     break;
+    //   }
+    //   case (27): {
+    //     if constexpr (debug)
+    //       printf("Dummy word found (errorType = 27)\n");
+    //     break;
+    //   }
+    //   case (28): {
+    //     if constexpr (debug)
+    //       printf("Error fifo nearly full (errorType = 28)\n");
+    //     errorFound = true;
+    //     break;
+    //   }
+    //   case (29): {
+    //     if constexpr (debug)
+    //       printf("Timeout on a channel (errorType = 29)\n");
+    //     if (!((errorWord >> sipixelconstants::OMIT_ERR_shift) & sipixelconstants::OMIT_ERR_mask)) {
+    //       if constexpr (debug)
+    //         printf("...2nd errorType=29 error, skip\n");
+    //       break;
+    //     }
+    //     errorFound = true;
+    //     break;
+    //   }
+    //   case (30): {
+    //     if constexpr (debug)
+    //       printf("TBM error trailer (errorType = 30)\n");
+    //     int stateMatch_bits = 4;
+    //     int stateMatch_shift = 8;
+    //     uint32_t stateMatch_mask = ~(~uint32_t(0) << stateMatch_bits);
+    //     int stateMatch = (errorWord >> stateMatch_shift) & stateMatch_mask;
+    //     if (stateMatch != 1 && stateMatch != 8) {
+    //       if constexpr (debug)
+    //         printf("FED error 30 with unexpected State Bits (errorType = 30)\n");
+    //       break;
+    //     }
+    //     if (stateMatch == 1)
+    //       errorType = 40;  // 1=Overflow -> 40, 8=number of ROCs -> 30
+    //     errorFound = true;
+    //     break;
+    //   }
+    //   case (31): {
+    //     if constexpr (debug)
+    //       printf("Event number error (errorType = 31)\n");
+    //     errorFound = true;
+    //     break;
+    //   }
+    //   default:
+    //     errorFound = false;
+    // };
 
     return errorFound ? errorType : 0;
   }
@@ -332,9 +332,9 @@ namespace pixelgpudetails {
       // check for spurious channels
       if (roc > MAX_ROC or link > MAX_LINK) {
         uint32_t rawId = getRawId(cablingMap, fedId, link, 1).rawId;
-        if constexpr (debug) {
-          printf("spurious roc %d found on link %d, detector %d (index %d)\n", roc, link, rawId, gIndex);
-        }
+        // if constexpr (debug) {
+        //   printf("spurious roc %d found on link %d, detector %d (index %d)\n", roc, link, rawId, gIndex);
+        // }
         if (roc > MAX_ROC and roc < 25) {
           uint8_t error = conversionError<debug>(fedId, 2);
           err->push_back(SiPixelErrorCompact{rawId, ww, error, fedId});

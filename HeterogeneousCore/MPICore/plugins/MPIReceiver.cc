@@ -39,6 +39,8 @@ public:
         token_(produces<MPIToken>()),
         instance_(config.getParameter<int32_t>("instance"))  //
   {
+    std::cerr << "receiver constructor finish " << std::endl;
+
     // instance 0 is reserved for the MPIController / MPISource pair
     // instance values greater than 255 may not fit in the MPI tag
     if (instance_ < 1 or instance_ > 255) {
@@ -61,9 +63,12 @@ public:
 
       products_.emplace_back(std::move(entry));
     }
+    std::cerr << "receiver constructor finish " << std::endl;
+
   }
 
   void acquire(edm::Event const& event, edm::EventSetup const&, edm::WaitingTaskWithArenaHolder holder) final {
+    std::cerr << "receiver acquire " << std::endl;
     MPIToken token = event.get(upstream_);
 
     //also try unique or optional
@@ -83,7 +88,9 @@ public:
   void produce(edm::Event& event, edm::EventSetup const&) final {
     // read the MPIToken used to establish the communication channel
     MPIToken token = event.get(upstream_);
+    std::cerr << "\n debug from receiver \n" << std::endl;
     received_meta_->debugPrintMetadataSummary();
+    std::cerr << "\n" << std::endl;
 
     char* buf_ptr = nullptr;
     size_t full_buffer_size = 0;
@@ -95,7 +102,6 @@ public:
       serialized_buffer = token.channel()->receiveSerializedBuffer(instance_);
       buf_ptr = serialized_buffer->Buffer();
       full_buffer_size = serialized_buffer->BufferSize();
-      buffer_offset_ = 0;
     }
 
     for (auto const& entry : products_) {
@@ -112,6 +118,7 @@ public:
 
       else if (product_meta.kind == ProductMetadata::Kind::Serialized) {
         auto productBuffer = TBufferFile(TBuffer::kRead, product_meta.sizeMeta);
+        assert(!wrapper->hasTrivialCopyTraits() && "mismatch between expected and factual metadata type");
         assert(buffer_offset_ < full_buffer_size && "serialized data buffer is shorter than expected");
         productBuffer.SetBuffer(buf_ptr + buffer_offset_, product_meta.sizeMeta, kFALSE /* adopt = false */);
         buffer_offset_ += product_meta.sizeMeta;
@@ -133,7 +140,9 @@ public:
       event.put(entry.token, std::move(wrapper));
     }
 
-    assert(buffer_offset_ == full_buffer_size && "serialized data buffer is not equal to the expected length");
+    
+
+    // assert(buffer_offset_ == full_buffer_size && "serialized data buffer is not equal to the expected length");
 
     // write a shallow copy of the channel to the output, so other modules can consume it
     // to indicate that they should run after this

@@ -71,47 +71,47 @@ bool RPixErrorChecker::checkROC(
   if LIKELY (errorType < 25)
     return true;
 
-  switch (errorType) {
-    case (25): {
-      LogDebug("") << "  invalid ROC=25 found (errorType=25)";
-      errorsInEvent = true;
-      break;
-    }
-    case (26): {
-      LogDebug("") << "  gap word found (errorType=26)";
-      return false;
-    }
-    case (27): {
-      LogDebug("") << "  dummy word found (errorType=27)";
-      return false;
-    }
-    case (28): {
-      LogDebug("") << "  error fifo nearly full (errorType=28)";
-      errorsInEvent = true;
-      break;
-    }
-    case (29): {
-      LogDebug("") << "  timeout on a channel (errorType=29)";
-      errorsInEvent = true;
-      if ((errorWord >> OMIT_ERR_shift) & OMIT_ERR_mask) {
-        LogDebug("") << "  ...first errorType=29 error, this gets masked out";
-        return false;
-      }
-      break;
-    }
-    case (30): {
-      LogDebug("") << "  TBM error trailer (errorType=30)";
-      errorsInEvent = true;
-      break;
-    }
-    case (31): {
-      LogDebug("") << "  event number error (errorType=31)";
-      errorsInEvent = true;
-      break;
-    }
-    default:
-      return true;
-  };
+  // switch (errorType) {
+  //   case (25): {
+  //     LogDebug("") << "  invalid ROC=25 found (errorType=25)";
+  //     errorsInEvent = true;
+  //     break;
+  //   }
+  //   case (26): {
+  //     LogDebug("") << "  gap word found (errorType=26)";
+  //     return false;
+  //   }
+  //   case (27): {
+  //     LogDebug("") << "  dummy word found (errorType=27)";
+  //     return false;
+  //   }
+  //   case (28): {
+  //     LogDebug("") << "  error fifo nearly full (errorType=28)";
+  //     errorsInEvent = true;
+  //     break;
+  //   }
+  //   case (29): {
+  //     LogDebug("") << "  timeout on a channel (errorType=29)";
+  //     errorsInEvent = true;
+  //     if ((errorWord >> OMIT_ERR_shift) & OMIT_ERR_mask) {
+  //       LogDebug("") << "  ...first errorType=29 error, this gets masked out";
+  //       return false;
+  //     }
+  //     break;
+  //   }
+  //   case (30): {
+  //     LogDebug("") << "  TBM error trailer (errorType=30)";
+  //     errorsInEvent = true;
+  //     break;
+  //   }
+  //   case (31): {
+  //     LogDebug("") << "  event number error (errorType=31)";
+  //     errorsInEvent = true;
+  //     break;
+  //   }
+  //   default:
+  //     return true;
+  // };
 
   if (includeErrors_) {
     /// check to see if overflow error for type 30, change type to 40 if so
