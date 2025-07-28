@@ -47,7 +47,7 @@ namespace sistrip {
 
       // Educated guess for the total number of detector IDs,
       // based on Run: 386593 Event: 536278171 with 13883 detectors.
-      const uint32_t nModulesWithClustersGuess = 15000;
+      // const uint32_t nModulesWithClustersGuess = 15000;
       // The number of clusters from x->nClusterCandidates() is an upper limit,
       // the flag trueCluster then mask the real clusters.
       // From Run: 386593 Event: 536278171 there are nClusterCandidates=112735 with
