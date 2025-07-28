@@ -14,7 +14,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoTracker/LSTCore/interface/LSTInputHostCollection.h"
-#include "RecoTracker/LST/interface/LSTOutput.h"
+#include "RecoTracker/LSTCore/interface/TrackCandidatesHostCollection.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 
 #include "RecoTracker/TkSeedGenerator/interface/SeedCreator.h"
@@ -35,7 +35,7 @@ public:
 private:
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-  const edm::EDGetTokenT<LSTOutput> lstOutputToken_;
+  const edm::EDGetTokenT<lst::TrackCandidatesBaseHostCollection> lstOutputToken_;
   const edm::EDGetTokenT<lst::LSTInputHostCollection> lstInputToken_;
   const edm::EDGetTokenT<TrajectorySeedCollection> lstPixelSeedToken_;
   const bool includeT5s_;
@@ -120,41 +120,55 @@ void LSTOutputConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   auto const& propOppo = iSetup.getData(propagatorOppositeToken_);
   auto const& tracker = iSetup.getData(tGeomToken_);
 
-  // Vector definitions
-  std::vector<std::vector<unsigned int>> const& lstTC_hitIdx = lstOutput.hitIdx();
-  std::vector<unsigned int> const& lstTC_len = lstOutput.len();
-  std::vector<int> const& lstTC_seedIdx = lstOutput.seedIdx();
-  std::vector<short> const& lstTC_trackCandidateType = lstOutput.trackCandidateType();
+  auto lstOutput_view = lstOutput.const_view();
+  unsigned int nTrackCandidates = lstOutput_view.nTrackCandidates();
 
   TrajectorySeedCollection outputTS, outputpLSTS;
-  outputTS.reserve(lstTC_len.size());
-  outputpLSTS.reserve(lstTC_len.size());
+  outputTS.reserve(nTrackCandidates);
+  outputpLSTS.reserve(nTrackCandidates);
   TrackCandidateCollection outputTC, outputpTC, outputT5TC, outputNopLSTC, outputpTTC, outputpLSTC;
-  outputTC.reserve(lstTC_len.size());
-  outputpTC.reserve(lstTC_len.size());
-  outputT5TC.reserve(lstTC_len.size());
-  outputNopLSTC.reserve(lstTC_len.size());
-  outputpTTC.reserve(lstTC_len.size());
-  outputpLSTC.reserve(lstTC_len.size());
+  outputTC.reserve(nTrackCandidates);
+  outputpTC.reserve(nTrackCandidates);
+  outputT5TC.reserve(nTrackCandidates);
+  outputNopLSTC.reserve(nTrackCandidates);
+  outputpTTC.reserve(nTrackCandidates);
+  outputpLSTC.reserve(nTrackCandidates);
 
   auto OTHits = lstInputHC.const_view<lst::HitsBaseSoA>().hits();
 
-  LogDebug("LSTOutputConverter") << "lstTC size " << lstTC_len.size();
-  for (unsigned int i = 0; i < lstTC_len.size(); i++) {
-    LogDebug("LSTOutputConverter") << " cand " << i << " " << lstTC_len[i] << " " << lstTC_seedIdx[i];
+  LogDebug("LSTOutputConverter") << "nTrackCandidates " << nTrackCandidates;
+  for (unsigned int i = 0; i < nTrackCandidates; i++) {
+    LogDebug("LSTOutputConverter") << " cand " << i << " " << lstOutput_view.trackCandidateType()[i] << " "
+                                   << lstOutput_view.pixelSeedIndex()[i];
     TrajectorySeed seed;
-    if (lstTC_trackCandidateType[i] != LSTOutput::LSTTCType::T5)
-      seed = pixelSeeds[lstTC_seedIdx[i]];
+    if (lstOutput_view.trackCandidateType()[i] != lst::LSTObjType::T5)
+      seed = pixelSeeds[lstOutput_view.pixelSeedIndex()[i]];
 
     edm::OwnVector<TrackingRecHit> recHits;
-    if (lstTC_trackCandidateType[i] != LSTOutput::LSTTCType::T5) {
+    if (lstOutput_view.trackCandidateType()[i] != lst::LSTObjType::T5) {
       for (auto const& hit : seed.recHits())
         recHits.push_back(hit.clone());
     }
 
-    unsigned int const nPixelHits = lstTC_trackCandidateType[i] == LSTOutput::LSTTCType::T5 ? 0 : recHits.size();
-    for (unsigned int j = nPixelHits; j < lstTC_hitIdx[i].size(); j++)
-      recHits.push_back(OTHits[lstTC_hitIdx[i][j]]->clone());
+    // pixel-seeded TCs from LST always have 4 pixel hits
+    unsigned int const nPixelHits = lstOutput_view.trackCandidateType()[i] == lst::LSTObjType::T5 ? 0 : 4;
+    unsigned int nHits = 0;
+    switch (lstOutput_view.trackCandidateType()[i]) {
+      case lst::LSTObjType::T5:
+        nHits = lst::Params_T5::kHits;
+        break;
+      case lst::LSTObjType::pT3:
+        nHits = lst::Params_pT3::kHits;
+        break;
+      case lst::LSTObjType::pT5:
+        nHits = lst::Params_pT5::kHits;
+        break;
+      case lst::LSTObjType::pLS:
+        nHits = lst::Params_pLS::kHits;
+        break;
+    }
+    for (unsigned int j = nPixelHits; j < nHits; j++)
+      recHits.push_back(OTHits[lstOutput_view.hitIndices()[i][j]]->clone());
 
     recHits.sort([](const auto& a, const auto& b) {
       const auto asub = a.det()->subDetector();
@@ -177,33 +191,34 @@ void LSTOutputConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     });
 
     TrajectorySeedCollection seeds;
-    if (lstTC_trackCandidateType[i] != LSTOutput::LSTTCType::pLS) {
+    if (lstOutput_view.trackCandidateType()[i] != lst::LSTObjType::pLS) {
       // Construct a full-length TrajectorySeed always for T5s,
       // only when required by a flag for other pT objects.
-      if (includeNonpLSTSs_ || lstTC_trackCandidateType[i] == LSTOutput::LSTTCType::T5) {
+      if (includeNonpLSTSs_ || lstOutput_view.trackCandidateType()[i] == lst::LSTObjType::T5) {
         using Hit = SeedingHitSet::ConstRecHitPointer;
         std::vector<Hit> hitsForSeed;
-        hitsForSeed.reserve(lstTC_len[i]);
-        int nHits = 0;
+        hitsForSeed.reserve(nHits);
+        int n = 0;
         for (auto const& hit : recHits) {
-          if (lstTC_trackCandidateType[i] == LSTOutput::LSTTCType::T5) {
+          if (lstOutput_view.trackCandidateType()[i] == lst::LSTObjType::T5) {
             auto hType = tracker.getDetectorType(hit.geographicalId());
-            if (hType != TrackerGeometry::ModuleType::Ph2PSP && nHits < 2)
+            if (hType != TrackerGeometry::ModuleType::Ph2PSP && n < 2)
               continue;  // the first two should be P
           }
           hitsForSeed.emplace_back(dynamic_cast<Hit>(&hit));
-          nHits++;
+          n++;
         }
         GlobalTrackingRegion region;
         seedCreator_->init(region, iSetup, nullptr);
         seedCreator_->makeSeed(seeds, hitsForSeed);
         if (seeds.empty()) {
           edm::LogInfo("LSTOutputConverter")
-              << "failed to convert a LST object to a seed" << i << " " << lstTC_len[i] << " " << lstTC_seedIdx[i];
-          if (lstTC_trackCandidateType[i] == LSTOutput::LSTTCType::T5)
+              << "failed to convert a LST object to a seed" << i << " " << lstOutput_view.trackCandidateType()[i] << " "
+              << lstOutput_view.pixelSeedIndex()[i];
+          if (lstOutput_view.trackCandidateType()[i] == lst::LSTObjType::T5)
             continue;
         }
-        if (lstTC_trackCandidateType[i] == LSTOutput::LSTTCType::T5)
+        if (lstOutput_view.trackCandidateType()[i] == lst::LSTObjType::T5)
           seed = seeds[0];
 
         auto trajectorySeed = (seeds.empty() ? seed : seeds[0]);
@@ -229,7 +244,7 @@ void LSTOutputConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       PTrajectoryStateOnDet st =
           trajectoryStateTransform::persistentState(tsosPair.first, recHits[0].det()->geographicalId().rawId());
 
-      if (lstTC_trackCandidateType[i] == LSTOutput::LSTTCType::T5) {
+      if (lstOutput_view.trackCandidateType()[i] == lst::LSTObjType::T5) {
         if (!includeT5s_) {
           continue;
         } else {
@@ -242,7 +257,7 @@ void LSTOutputConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
         auto tc = TrackCandidate(recHits, seed, st);
         outputTC.emplace_back(tc);
         outputpTC.emplace_back(tc);
-        if (lstTC_trackCandidateType[i] != LSTOutput::LSTTCType::pLS) {
+        if (lstOutput_view.trackCandidateType()[i] != lst::LSTObjType::pLS) {
           outputNopLSTC.emplace_back(tc);
           outputpTTC.emplace_back(tc);
         } else {
@@ -251,8 +266,9 @@ void LSTOutputConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       }
     } else {
       edm::LogInfo("LSTOutputConverter") << "Failed to make a candidate initial state. Seed state is " << tsos
-                                         << " TC cand " << i << " " << lstTC_len[i] << " " << lstTC_seedIdx[i]
-                                         << " first hit " << recHits.front().globalPosition() << " last hit "
+                                         << " TC cand " << i << " " << lstOutput_view.pixelSeedIndex()[i] << " "
+                                         << lstOutput_view.pixelSeedIndex()[i] << " first hit "
+                                         << recHits.front().globalPosition() << " last hit "
                                          << recHits.back().globalPosition();
     }
   }
