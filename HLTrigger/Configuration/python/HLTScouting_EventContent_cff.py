@@ -26,6 +26,3 @@ HLTScoutingAll = cms.PSet(
         'keep *_hltScoutingPrimaryVertexPackerCaloMuon_*_*', # added  w/ PR#20739, removed w/  PR#37114
     ) )
 )
-
-
-
