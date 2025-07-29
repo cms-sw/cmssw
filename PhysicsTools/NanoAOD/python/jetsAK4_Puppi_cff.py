@@ -215,14 +215,8 @@ jetPuppiTable.variables.muonSubtrDeltaEta = Var("userFloat('muonSubtrRawEta') - 
 jetPuppiTable.variables.muonSubtrDeltaPhi = Var("userFloat('muonSubtrRawPhi') - phi()",float,doc="muon-subtracted raw phi - phi",precision=10)
 
 jetPuppiForMETTask =  cms.Task(basicJetsPuppiForMetForT1METNano,corrT1METJetPuppiTable)
-
-#before cross linking
 jetPuppiUserDataTask = cms.Task(hfJetPuppiShowerShapeforNanoAOD)
-
-#before cross linking
 jetPuppiTask = cms.Task(jetPuppiCorrFactorsNano,updatedJetsPuppi,jetPuppiUserDataTask,updatedJetsPuppiWithUserData,finalJetsPuppi)
-
-#after cross linkining
 jetPuppiTablesTask = cms.Task(jetPuppiTable)
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
@@ -261,12 +255,9 @@ def nanoAOD_refineFastSim_puppiJet(process):
         outputFormulas   = cms.vstring([f"at({i})" for i in range(9)]),
     )
 
-    # schedule it in the jet-building chain
     fastSim.toModify(process.jetPuppiTask, process.jetPuppiTask.add(process.puppiJetRefineNN))
 
-    #
-    # 1) now stuff those 9 refined scalars into the existing PATJetUserDataEmbedder
-    #
+    # 1) now stuff the 9 refined scalars into the existing PATJetUserDataEmbedder
     fastSim.toModify(process.updatedJetsPuppiWithUserData.userFloats,
         ptRefined              = cms.InputTag("puppiJetRefineNN","ptrefined"),
         btagDeepFlavBrefined   = cms.InputTag("puppiJetRefineNN","btagDeepFlavBrefined"),
@@ -279,9 +270,7 @@ def nanoAOD_refineFastSim_puppiJet(process):
         btagUParTAK4QvGrefined = cms.InputTag("puppiJetRefineNN","btagUParTAK4QvGrefined"),
     )
 
-    #
     # 2) backup all 9 originals in the NanoAOD table as *_unrefined
-    #
     fastSim.toModify(process.jetPuppiTable.variables,
         pt_unrefined               = process.jetPuppiTable.variables.pt.clone(),
         btagDeepFlavB_unrefined    = process.jetPuppiTable.variables.btagDeepFlavB.clone(),
@@ -301,9 +290,7 @@ def nanoAOD_refineFastSim_puppiJet(process):
         btagUParTAK4CvL=None, btagUParTAK4QvG=None,
     )
 
-    #
     # 3) re‑define each branch with a FastSim‑only mask ternary
-    #
     mask = "(bDiscriminator('pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll')>0)"
 
     fastSim.toModify(process.jetPuppiTable.variables,
