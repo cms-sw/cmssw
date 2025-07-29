@@ -114,6 +114,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
       return new_status;
     }
 
+  ALPAKA_FN_ACC
+  bool isMorphingModule(uint32_t moduleId, const uint32_t* morphingModules, uint32_t nMorphingModules) {
+    for (uint32_t i = 0; i < nMorphingModules; ++i) {
+      if (morphingModules[i] == moduleId)
+        return true;
+    }
+    return false;
+  }
   }  // namespace pixelStatus
 
   template <typename TrackerTraits>
@@ -170,9 +178,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   SiPixelDigisSoAView digi_view,
                                   SiPixelDigisSoAView fakes_view,
+                                  bool applyDigiMorphing,
+                                  uint32_t* morphingModules,
+                                  uint32_t nMorphingModules,
                                   SiPixelClustersSoAView clus_view,
                                   const unsigned int numElements) const {
-      bool applyDigiMorphing = true;
       static_assert(TrackerTraits::numberOfModules < ::pixelClustering::maxNumModules);
 
       auto& lastPixel = alpaka::declareSharedVar<unsigned int, __COUNTER__>(acc);
@@ -187,6 +197,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
 
         auto firstPixel = clus_view[1 + module].moduleStart();
         uint32_t thisModuleId = digi_view[firstPixel].moduleId();
+        uint32_t rawModuleId = digi_view[firstPixel].rawIdArr();
+        applyDigiMorphing = applyDigiMorphing && pixelStatus::isMorphingModule(rawModuleId, morphingModules, nMorphingModules);
+        //applyDigiMorphing = applyDigiMorphing && isMorphingModule;
         ALPAKA_ASSERT_ACC(thisModuleId < TrackerTraits::numberOfModules);
 
 #ifdef GPU_DEBUG
