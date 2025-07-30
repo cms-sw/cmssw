@@ -6,30 +6,15 @@
  *
  */
 
-#include <cppunit/extensions/HelperMacros.h>
+#include <catch.hpp>
 #include <iostream>
 #include "FWCore/Utilities/interface/FriendlyName.h"
+#include <map>
+#include <string>
 
 using namespace edm;
 
-class testfriendlyName : public CppUnit::TestFixture {
-  CPPUNIT_TEST_SUITE(testfriendlyName);
-
-  CPPUNIT_TEST(test);
-
-  CPPUNIT_TEST_SUITE_END();
-
-public:
-  void setUp() {}
-  void tearDown() {}
-
-  void test();
-};
-
-///registration of the test so that the runner can find it
-CPPUNIT_TEST_SUITE_REGISTRATION(testfriendlyName);
-
-void testfriendlyName::test() {
+TEST_CASE("friendlyName produces expected results", "[friendlyName]") {
   typedef std::pair<std::string, std::string> Values;
   std::map<std::string, std::string> classToFriendly;
   classToFriendly.insert(Values("Foo", "Foo"));
@@ -246,7 +231,7 @@ void testfriendlyName::test() {
       std::cout << "class name: '" << itInfo->first << "' has wrong friendly name \n"
                 << "expect: '" << itInfo->second << "' got: '" << edm::friendlyname::friendlyName(itInfo->first) << "'"
                 << std::endl;
-      CPPUNIT_ASSERT(0 && "expected friendly name does not match actual friendly name");
     }
+    REQUIRE(itInfo->second == edm::friendlyname::friendlyName(itInfo->first));
   }
 }
