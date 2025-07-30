@@ -124,14 +124,13 @@ void TriggerOutputFields::updateTriggerFields(const edm::TriggerResults& trigger
 }
 
 void TriggerOutputFields::makeUniqueFieldName(const RNTupleModel& model, std::string& name) {
-  auto existing_field = model.GetDefaultEntry().GetPtr<bool>(name);
+  bool already_exists = model.GetFieldNames().contains(name);
 
-  if (!existing_field) {
+  if (!already_exists) {
     return;
   }
-  edm::LogWarning("TriggerOutputFields") << "Found a branch with name " << name
-                                         << " already present. Will add suffix _p" << m_processName
-                                         << " to the new branch.\n";
+  edm::LogWarning("TriggerOutputFields") << "Found a field with name " << name << " already present. Will add suffix _p"
+                                         << m_processName << " to the new field.\n";
   name += std::string("_p") + m_processName;
 }
 
