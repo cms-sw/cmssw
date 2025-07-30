@@ -47,6 +47,8 @@ namespace edm {
         return PdtEntry(e.getInt32());
       else if (e.typeCode() == 'S')
         return PdtEntry(e.getString());
+      else if (e.typeCode() == 'Z')
+        return PdtEntry(e.getString());
       else
         throw Exception(errors::Configuration, "EntryError")
             << "can not convert representation of " << name << " to value of type PdtEntry. "
@@ -61,6 +63,11 @@ namespace edm {
           ret.push_back(PdtEntry(*i));
         return ret;
       } else if (e.typeCode() == 's') {
+        std::vector<std::string> v(e.getVString());
+        for (std::vector<std::string>::const_iterator i = v.begin(); i != v.end(); ++i)
+          ret.push_back(PdtEntry(*i));
+        return ret;
+      } else if (e.typeCode() == 'z') {
         std::vector<std::string> v(e.getVString());
         for (std::vector<std::string>::const_iterator i = v.begin(); i != v.end(); ++i)
           ret.push_back(PdtEntry(*i));
