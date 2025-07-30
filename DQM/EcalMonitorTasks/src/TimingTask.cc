@@ -21,7 +21,14 @@ namespace ecaldqm {
         energyThresholdEEFwd_(0.),
         timingVsBXThreshold_(0.),
         timeErrorThreshold_(0.),
-        meTimeMapByLS(nullptr) {}
+        meTimeMapByLS(nullptr),
+        meTimeAmp_nonCorr(nullptr),
+        meTimeAmpAll_nonCorr(nullptr),
+        meTimingVsBX_nonCorr(nullptr),
+        meTimeAll_nonCorr(nullptr),
+        meTimeAllMap_nonCorr(nullptr),
+        meTimeMap_nonCorr(nullptr),
+        meTime1D_nonCorr(nullptr) {}
 
   void TimingTask::setParams(edm::ParameterSet const& _params) {
     bxBinEdges_ = onlineMode_ ? _params.getUntrackedParameter<std::vector<int> >("bxBins")
@@ -34,8 +41,18 @@ namespace ecaldqm {
     timingVsBXThreshold_ = _params.getUntrackedParameter<double>("timingVsBXThreshold");
     timeErrorThreshold_ = _params.getUntrackedParameter<double>("timeErrorThreshold");
     splashSwitch_ = _params.getUntrackedParameter<bool>("splashSwitch", false);
-  }
 
+    if (onlineMode_) {
+      MEs_.erase(std::string("TimeAmp_nonCorr"));
+      MEs_.erase(std::string("TimeAmpAll_nonCorr"));
+      MEs_.erase(std::string("BarrelTimingVsBXFineBinned_nonCorr"));
+      MEs_.erase(std::string("TimeAll_nonCorr"));
+      MEs_.erase(std::string("TimeAllMap_nonCorr"));
+      MEs_.erase(std::string("TimeMap_nonCorr"));
+      MEs_.erase(std::string("Time1D_nonCorr"));
+      MEs_.erase(std::string("TimeMapByLS_nonCorr"));
+    }
+  }
   bool TimingTask::filterRunType(short const* _runType) {
     for (int iFED(0); iFED < nDCC; iFED++) {
       if (_runType[iFED] == EcalDCCHeaderBlock::COSMIC || _runType[iFED] == EcalDCCHeaderBlock::MTCC ||
@@ -54,10 +71,13 @@ namespace ecaldqm {
     bxBin_ = static_cast<int>(pBin - bxBinEdges_.begin()) - 0.5;
     if (ByLumiResetSwitch) {
       meTimeMapByLS = &MEs_.at("TimeMapByLS");
-      meTimeMapByLS_nonCorr = &MEs_.at("TimeMapByLS_nonCorr");
+      if (!onlineMode_)
+        meTimeMapByLS_nonCorr = &MEs_.at("TimeMapByLS_nonCorr");
+
       if (timestamp_.iLumi % 10 == 0) {
         meTimeMapByLS->reset(GetElectronicsMap());
-        meTimeMapByLS_nonCorr->reset(GetElectronicsMap());
+        if (!onlineMode_)
+          meTimeMapByLS_nonCorr->reset(GetElectronicsMap());
       }
     }
   }
@@ -73,16 +93,15 @@ namespace ecaldqm {
     MESet& meTime1D(MEs_.at("Time1D"));
     MESet& meChi2(MEs_.at("Chi2"));
 
-    // timing with cross-correlation (cc) algo
-    MESet& meTimeAmp_nonCorr(MEs_.at("TimeAmp_nonCorr"));
-    MESet& meTimeAmpAll_nonCorr(MEs_.at("TimeAmpAll_nonCorr"));
-    MESet& meTimingVsBX_nonCorr(onlineMode_ ? MEs_.at("BarrelTimingVsBX_nonCorr")
-                                            : MEs_.at("BarrelTimingVsBXFineBinned_nonCorr"));
-    MESet& meTimeAll_nonCorr(MEs_.at("TimeAll_nonCorr"));
-    MESet& meTimeAllMap_nonCorr(MEs_.at("TimeAllMap_nonCorr"));
-    MESet& meTimeMap_nonCorr(
-        MEs_.at("TimeMap_nonCorr"));  // contains cumulative run stats => not suitable for Trend plots
-    MESet& meTime1D_nonCorr(MEs_.at("Time1D_nonCorr"));
+    if (!onlineMode_) {
+      meTimeAmp_nonCorr = &MEs_.at("TimeAmp_nonCorr");
+      meTimeAmpAll_nonCorr = &MEs_.at("TimeAmpAll_nonCorr");
+      meTimingVsBX_nonCorr = &MEs_.at("BarrelTimingVsBXFineBinned_nonCorr");
+      meTimeAll_nonCorr = &MEs_.at("TimeAll_nonCorr");
+      meTimeAllMap_nonCorr = &MEs_.at("TimeAllMap_nonCorr");
+      meTimeMap_nonCorr = &MEs_.at("TimeMap_nonCorr");
+      meTime1D_nonCorr = &MEs_.at("Time1D_nonCorr");
+    }
 
     uint32_t goodOROOTBits(0x1 << EcalRecHit::kGood | 0x1 << EcalRecHit::kOutOfTime);
     int signedSubdet;
@@ -132,12 +151,15 @@ namespace ecaldqm {
       meTimeAmp.fill(getEcalDQMSetupObjects(), id, energy, time);
       meTimeAmpAll.fill(getEcalDQMSetupObjects(), id, energy, time);
 
-      meTimeAmp_nonCorr.fill(getEcalDQMSetupObjects(), id, energy, time_nonCorr);
-      meTimeAmpAll_nonCorr.fill(getEcalDQMSetupObjects(), id, energy, time_nonCorr);
+      if (!onlineMode_) {
+        meTimeAmp_nonCorr->fill(getEcalDQMSetupObjects(), id, energy, time_nonCorr);
+        meTimeAmpAll_nonCorr->fill(getEcalDQMSetupObjects(), id, energy, time_nonCorr);
+      }
 
       if (energy > timingVsBXThreshold_ && signedSubdet == EcalBarrel) {
         meTimingVsBX.fill(getEcalDQMSetupObjects(), bxBin_, time);
-        meTimingVsBX_nonCorr.fill(getEcalDQMSetupObjects(), bxBin_, time);
+        if (!onlineMode_)
+          meTimingVsBX_nonCorr->fill(getEcalDQMSetupObjects(), bxBin_, time);
       }
 
       if (energy > energyThreshold) {
@@ -147,11 +169,13 @@ namespace ecaldqm {
         meTime1D.fill(getEcalDQMSetupObjects(), id, time);
         meTimeAllMap.fill(getEcalDQMSetupObjects(), id, time);
 
-        meTimeAll_nonCorr.fill(getEcalDQMSetupObjects(), id, time_nonCorr);
-        meTimeMap_nonCorr.fill(getEcalDQMSetupObjects(), id, time_nonCorr);
-        meTimeMapByLS_nonCorr->fill(getEcalDQMSetupObjects(), id, time_nonCorr);
-        meTime1D_nonCorr.fill(getEcalDQMSetupObjects(), id, time_nonCorr);
-        meTimeAllMap_nonCorr.fill(getEcalDQMSetupObjects(), id, time_nonCorr);
+        if (!onlineMode_) {
+          meTimeAll_nonCorr->fill(getEcalDQMSetupObjects(), id, time_nonCorr);
+          meTimeMap_nonCorr->fill(getEcalDQMSetupObjects(), id, time_nonCorr);
+          meTimeMapByLS_nonCorr->fill(getEcalDQMSetupObjects(), id, time_nonCorr);
+          meTime1D_nonCorr->fill(getEcalDQMSetupObjects(), id, time_nonCorr);
+          meTimeAllMap_nonCorr->fill(getEcalDQMSetupObjects(), id, time_nonCorr);
+        }
       }
     });
   }
