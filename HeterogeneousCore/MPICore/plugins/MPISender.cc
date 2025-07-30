@@ -51,7 +51,6 @@ public:
         buffer_offset_(0),
         metadata_size_(0) {
 
-    std::cerr << "sender constructor start " << std::endl;
 
     // instance 0 is reserved for the MPIController / MPISource pair
     // instance values greater than 255 may not fit in the MPI tag
@@ -102,13 +101,10 @@ public:
       }
     });
 
-    std::cerr << "sender constructor finish " << std::endl;
-
     // TODO add an error if a pattern does not match any branches? how?
   }
 
   void acquire(edm::Event const& event, edm::EventSetup const&, edm::WaitingTaskWithArenaHolder holder) final {
-    std::cerr << "sender acquire " << std::endl;
 
     MPIToken token = event.get(upstream_);
     // we need 1 byte for type, 8 bytes for size and at least 8 bytes for trivial copy parameters buffer
@@ -120,6 +116,7 @@ public:
     buffer_offset_ = 0;
     meta->setProductCount(products_.size());
     has_serialized_ = false;
+    is_active_=true;
 
     // estimate buffer size in the constructor
 
@@ -127,8 +124,19 @@ public:
       // Get the product
       edm::Handle<edm::WrapperBase> handle(entry.type.typeInfo());
       event.getByToken(entry.token, handle);
+      //   std::cerr << "failed to get " << entry.type.name() << std::endl;
+      //   meta->setProductCount(-1);
+      //   is_active_=false;
+      //   // std::cerr << "\n!!! no path state token \n" << std::endl;
+      //   break;
+      // }
 
-      std::cerr << "forming metadata for " << entry.type.name() << " with handle " << handle.isValid() << std::endl;
+      if (!handle.isValid() && entry.type.name() == "edm::PathStateToken"){
+        meta->setProductCount(-1);
+        is_active_ = false;
+        std::cerr << "\n!!! no path state token \n" << std::endl;
+        break;
+      }
 
       if (handle.isValid()) {
         edm::WrapperBase const* wrapper = handle.product();
@@ -152,11 +160,6 @@ public:
       index++;
     }
 
-    std::cerr << "\n debug from sender \n" << std::endl;
-    meta->debugPrintMetadataSummary();
-    std::cerr << "\n " << std::endl;
-
-
     // Submit sending of all products to run in the additional asynchronous threadpool
     edm::Service<edm::Async> as;
     as->runAsync(
@@ -167,6 +170,11 @@ public:
 
   void produce(edm::Event& event, edm::EventSetup const&) final {
     MPIToken token = event.get(upstream_);
+
+    if (!is_active_) {
+      event.emplace(token_, token);
+      return;
+    }
 
     if (has_serialized_) {
       token.channel()->sendBuffer(buffer_->Buffer(), buffer_->Length(), instance_, EDM_MPI_SendSerializedProduct);
@@ -213,6 +221,7 @@ private:
   size_t buffer_offset_;
   size_t metadata_size_;
   bool has_serialized_ = false;
+  bool is_active_ = true;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"

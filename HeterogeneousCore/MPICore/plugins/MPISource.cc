@@ -85,7 +85,6 @@ MPISource::MPISource(edm::ParameterSet const& config, edm::InputSourceDescriptio
       mode_(parseMode(config.getUntrackedParameter<std::string>("mode")))  //
 {
   // make sure that MPI is initialised
-    std::cerr << "source constructor start " << std::endl;
 
   MPIService::required();
 
@@ -147,16 +146,12 @@ MPISource::MPISource(edm::ParameterSet const& config, edm::InputSourceDescriptio
     throw edm::Exception(edm::errors::Configuration)
         << "Invalid mode \"" << config.getUntrackedParameter<std::string>("mode") << "\"";
   }
-    std::cerr << "source constructor before connect " << std::endl;
-
 
   // Wait for a client to connect.
   MPI_Status status;
   EDM_MPI_Empty_t buffer;
   MPI_Recv(&buffer, 1, EDM_MPI_Empty, MPI_ANY_SOURCE, EDM_MPI_Connect, comm_, &status);
   edm::LogAbsolute("MPI") << "connected from " << status.MPI_SOURCE;
-    std::cerr << "source constructor finish " << std::endl;
-
 }
 
 MPISource::~MPISource() {
@@ -310,7 +305,6 @@ bool MPISource::setRunAndEventInfo(edm::EventID& event,
 
 void MPISource::produce(edm::Event& event) {
   // duplicate the MPIChannel and put the copy into the Event
-  std::cerr << "inside mpi source produce" << std::endl;
   std::shared_ptr<MPIChannel> channel(new MPIChannel(channel_.duplicate()), [](MPIChannel* ptr) {
     ptr->reset();
     delete ptr;

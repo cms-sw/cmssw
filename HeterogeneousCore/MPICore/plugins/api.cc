@@ -194,7 +194,6 @@ std::unique_ptr<TBufferFile> MPIChannel::receiveSerializedBuffer(int instance) {
   MPI_Mprobe(dest_, tag, comm_, &message, &status);
   int size;
   MPI_Get_count(&status, MPI_BYTE, &size);
-  std::cerr << " received serialized buf size " << size << std::endl;
 
   auto buffer = std::make_unique<TBufferFile>(TBuffer::kRead, size);
   MPI_Mrecv(buffer->Buffer(), size, MPI_BYTE, &message, &status);

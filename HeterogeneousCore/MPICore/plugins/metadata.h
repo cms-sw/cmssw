@@ -64,7 +64,7 @@ public:
   // Please make sure that ProductMetadataBuilder lives longer than returned ProductMetadata
   ProductMetadata getNext();
 
-  uint64_t productCount() const { return productCount_; }
+  int64_t productCount() const { return productCount_; }
   bool hasMissing() const { return productFlags_ & HasMissing; }
   bool hasSerialized() const { return productFlags_ & HasSerialized; }
   bool hasTrivialCopy() const { return productFlags_ & HasTrivialCopy; }
@@ -77,7 +77,7 @@ private:
   size_t size_;
   size_t readOffset_;
   uint8_t productFlags_ = 0;
-  uint64_t productCount_ = 0;
+  int64_t productCount_ = 0;
 
   void resizeBuffer(size_t newCap);
   void ensureCapacity(size_t needed);

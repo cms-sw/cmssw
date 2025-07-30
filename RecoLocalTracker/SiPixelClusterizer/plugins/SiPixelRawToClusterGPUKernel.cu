@@ -127,35 +127,35 @@ namespace pixelgpudetails {
   __device__ uint8_t conversionError(uint8_t fedId, uint8_t status) {
     uint8_t errorType = 0;
 
-    switch (status) {
-      case (1): {
-        if constexpr (debug)
-          printf("Error in Fed: %i, invalid channel Id (errorType = 35\n)", fedId);
-        errorType = 35;
-        break;
-      }
-      case (2): {
-        if constexpr (debug)
-          printf("Error in Fed: %i, invalid ROC Id (errorType = 36)\n", fedId);
-        errorType = 36;
-        break;
-      }
-      case (3): {
-        if constexpr (debug)
-          printf("Error in Fed: %i, invalid dcol/pixel value (errorType = 37)\n", fedId);
-        errorType = 37;
-        break;
-      }
-      case (4): {
-        if constexpr (debug)
-          printf("Error in Fed: %i, dcol/pixel read out of order (errorType = 38)\n", fedId);
-        errorType = 38;
-        break;
-      }
-      default:
-        if constexpr (debug)
-          printf("Cabling check returned unexpected result, status = %i\n", status);
-    };
+    // switch (status) {
+    //   case (1): {
+    //     if constexpr (debug)
+    //       printf("Error in Fed: %i, invalid channel Id (errorType = 35\n)", fedId);
+    //     errorType = 35;
+    //     break;
+    //   }
+    //   case (2): {
+    //     if constexpr (debug)
+    //       printf("Error in Fed: %i, invalid ROC Id (errorType = 36)\n", fedId);
+    //     errorType = 36;
+    //     break;
+    //   }
+    //   case (3): {
+    //     if constexpr (debug)
+    //       printf("Error in Fed: %i, invalid dcol/pixel value (errorType = 37)\n", fedId);
+    //     errorType = 37;
+    //     break;
+    //   }
+    //   case (4): {
+    //     if constexpr (debug)
+    //       printf("Error in Fed: %i, dcol/pixel read out of order (errorType = 38)\n", fedId);
+    //     errorType = 38;
+    //     break;
+    //   }
+    //   default:
+    //     if constexpr (debug)
+    //       printf("Cabling check returned unexpected result, status = %i\n", status);
+    // };
 
     return errorType;
   }

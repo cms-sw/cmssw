@@ -177,10 +177,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
       alpaka::syncBlockThreads(acc);  // all threads call sync
 
-      if constexpr (debug) {
-        if (once_per_block(acc))
-          printf("Computing cluster position for topoId %d\n", topoId);
-      }
+      // if constexpr (debug) {
+      //   if (once_per_block(acc))
+      //     printf("Computing cluster position for topoId %d\n", topoId);
+      // }
 
       if (once_per_block(acc)) {
         // Reset cluster position and energy

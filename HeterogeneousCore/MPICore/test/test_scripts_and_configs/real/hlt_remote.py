@@ -50,14 +50,12 @@ process.rawDataCollector = cms.EDProducer("MPIReceiver",
     upstream = cms.InputTag("source"),
     instance = cms.int32(1),
     products = cms.VPSet(cms.PSet(
-        type = cms.string("FEDRawDataCollection"),
+    type = cms.string("FEDRawDataCollection"),
+    label = cms.string("")
+    ), cms.PSet(
+        type = cms.string("edm::PathStateToken"),
         label = cms.string("")
-        ),
-        cms.PSet(
-            type = cms.string("edm::PathStateToken"),
-            label = cms.string("")
-        )
-    )
+    ))
 )
 
 process.activityFilterRawData = cms.EDFilter("PathStateRelease",

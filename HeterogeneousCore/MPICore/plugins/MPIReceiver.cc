@@ -39,7 +39,6 @@ public:
         token_(produces<MPIToken>()),
         instance_(config.getParameter<int32_t>("instance"))  //
   {
-    std::cerr << "receiver constructor finish " << std::endl;
 
     // instance 0 is reserved for the MPIController / MPISource pair
     // instance values greater than 255 may not fit in the MPI tag
@@ -63,12 +62,9 @@ public:
 
       products_.emplace_back(std::move(entry));
     }
-    std::cerr << "receiver constructor finish " << std::endl;
-
   }
 
   void acquire(edm::Event const& event, edm::EventSetup const&, edm::WaitingTaskWithArenaHolder holder) final {
-    std::cerr << "receiver acquire " << std::endl;
     MPIToken token = event.get(upstream_);
 
     //also try unique or optional
@@ -88,9 +84,12 @@ public:
   void produce(edm::Event& event, edm::EventSetup const&) final {
     // read the MPIToken used to establish the communication channel
     MPIToken token = event.get(upstream_);
-    std::cerr << "\n debug from receiver \n" << std::endl;
-    received_meta_->debugPrintMetadataSummary();
-    std::cerr << "\n" << std::endl;
+    // received_meta_->debugPrintMetadataSummary();
+
+    if (received_meta_->productCount() == -1){
+      event.emplace(token_, token);
+      return;
+    }
 
     char* buf_ptr = nullptr;
     size_t full_buffer_size = 0;
@@ -105,7 +104,6 @@ public:
     }
 
     for (auto const& entry : products_) {
-      std::cerr << "inside receiver loop" << std::endl;
       std::unique_ptr<edm::WrapperBase> wrapper(
           reinterpret_cast<edm::WrapperBase*>(entry.wrappedType.getClass()->New()));
 

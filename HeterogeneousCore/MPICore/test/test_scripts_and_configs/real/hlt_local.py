@@ -13,12 +13,25 @@ process.options.numberOfThreads = int(os.environ.get("EXPERIMENT_THREADS", 32))
 process.options.numberOfStreams = int(os.environ.get("EXPERIMENT_STREAMS", 24))
 
 process.options.numberOfConcurrentLuminosityBlocks = 1  # MPIController does not support concurrent lumisections
-process.maxEvents.input = 1000 # 10300
+process.maxEvents.input = 10300
 
 # do not print a final summary
-process.options.wantSummary = False
+# process.options.wantSummary = True
 process.MessageLogger.cerr.enableStatistics = cms.untracked.bool(False)
 
+process.writeResults = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "results.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
+    compressionLevel = cms.untracked.int32( 3 ),
+    outputCommands = cms.untracked.vstring( 'keep edmTriggerResults_*_*_*' )
+)
+
+process.WriteResults = cms.EndPath( process.writeResults )
+
+process.schedule.append( process.WriteResults )
+
+# Optional: Suppress FwkSummary messages from being printed to cerr or cout
+process.MessageLogger.cerr.FwkSummary = cms.untracked.PSet(limit = cms.untracked.int32(0))
 
 # FastTimer output
 experiment_name = os.environ.get("EXPERIMENT_NAME", "unnamed")
@@ -27,7 +40,7 @@ output_dir = os.environ.get("EXPERIMENT_OUTPUT_DIR", "../../test_results/one_tim
 process.FastTimerService.writeJSONSummary = True
 process.FastTimerService.jsonFileName=cms.untracked.string(f"{output_dir}/local_{experiment_name}.json")
 
-# process.ThroughputService.printEventSummary = True
+process.ThroughputService.printEventSummary = False
 
 # set up the MPI communication channel
 process.load("HeterogeneousCore.MPIServices.MPIService_cfi")
@@ -36,6 +49,9 @@ process.MPIService.pmix_server_uri = "file:server.uri"
 from HeterogeneousCore.MPICore.mpiController_cfi import mpiController as mpiController_
 process.mpiController = mpiController_.clone()
 
+# process.options = cms.untracked.PSet(
+#     TryToContinue = cms.untracked.vstring('ProductNotFound')
+# )
 # process.load("FWCore/Services/Tracer_cfi")
 
 # send the raw data over MPI

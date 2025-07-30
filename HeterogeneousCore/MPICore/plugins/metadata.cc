@@ -48,7 +48,7 @@ void ProductMetadataBuilder::reserve(size_t bytes) {
 
 void ProductMetadataBuilder::setHeader() {
   assert(size_ >= 9 && "Buffer must reserve space for header");
-  std::memcpy(buffer_, &productCount_, sizeof(uint64_t));  // first 8 bytes
+  std::memcpy(buffer_, &productCount_, sizeof(int64_t));  // first 8 bytes
   buffer_[8] = productFlags_;                              // 9th byte
 }
 
@@ -83,7 +83,6 @@ void ProductMetadataBuilder::receiveMetadata(MPI_Message message, size_t size) {
   if (size < 9)
     throw std::runtime_error("Metadata message too short");
   productCount_ = consume<size_t>();
-  assert(productCount_ > 0 && "no products sent or product number not set");
   productFlags_ = consume<ProductFlags>();
   size_ = size;
 }

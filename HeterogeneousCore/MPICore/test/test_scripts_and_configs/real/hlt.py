@@ -31,8 +31,19 @@ process.PrescaleService.lvl1DefaultLabel = '2p0E34'
 process.PrescaleService.forceDefault = True
 
 # do not print a final summary
-process.options.wantSummary = False
+# process.options.wantSummary = True
 process.MessageLogger.cerr.enableStatistics = cms.untracked.bool(False)
+
+process.writeResults = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "results_reference3.root" ),
+    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
+    compressionLevel = cms.untracked.int32( 3 ),
+    outputCommands = cms.untracked.vstring( 'keep edmTriggerResults_*_*_*' )
+)
+
+process.WriteResults = cms.EndPath( process.writeResults )
+
+process.schedule.append( process.WriteResults )
 
 # write a JSON file with the timing information
 process.FastTimerService.writeJSONSummary = True
