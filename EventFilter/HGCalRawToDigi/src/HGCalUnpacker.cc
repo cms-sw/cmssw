@@ -84,7 +84,7 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
   auto slink_header = *(ptr + 1);
   if (((slink_header >> (BACKEND_FRAME::SLINK_BOE_POS + 32)) & BACKEND_FRAME::SLINK_BOE_MASK) !=
       fedConfig.slinkHeaderMarker) {
-    uint32_t ECONDdenseIdx = moduleIndexer.getIndexForModule(fedId, 0);
+    uint32_t ECONDdenseIdx = moduleIndexer.getIndexForModule(fedId, 0);    
     econdPacketInfo.view()[ECONDdenseIdx].exception() = 1;
     econdPacketInfo.view()[ECONDdenseIdx].location() = 0;
     edm::LogWarning("[HGCalUnpacker]") << "Expected a S-Link header (BOE: 0x" << std::hex << fedConfig.slinkHeaderMarker
@@ -117,7 +117,7 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
         fedConfig.cbHeaderMarker) {
       //if word is a 0x0 it probably means that it's a 64b padding word: check that we are ending
       //the s-link may have less capture blocks than the maxCBperFED_ so for now this is considered normal
-      uint32_t ECONDdenseIdx = moduleIndexer.getIndexForModule(fedId, 0);
+      uint32_t ECONDdenseIdx = moduleIndexer.getIndexForModule(fedId, 0);      
       econdPacketInfo.view()[ECONDdenseIdx].location() = (uint32_t)(ptr - header);
       if (cb_header == 0x0) {
         auto nToEnd = (fed_data.size() / 8 - 2) - std::distance(header, ptr);
@@ -158,6 +158,13 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
       if (econd_pkt_status != backend::ECONDPacketStatus::InactiveECOND) {
         // always increment the global ECON-D index (unless inactive/unconnected)
         globalECONDIdx++;
+
+	//if for some reason we get more than expected there is something funny with the data
+	//for now raise a payload error
+	if(globalECONDIdx >= fedReadoutSequence.readoutTypes_.size()) {
+	  return (0x1 << hgcaldigi::FEDUnpackingFlags::ErrorPayload);
+	}
+	  
       }
       LogDebug("[HGCalUnpacker]") << "fedId = " << fedId << ", captureblockIdx = " << captureblockIdx
                                   << ", econdIdx = " << econdIdx << ", globalECONDIdx = " << (int)globalECONDIdx
