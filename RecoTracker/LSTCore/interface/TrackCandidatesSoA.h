@@ -8,25 +8,32 @@
 #include "RecoTracker/LSTCore/interface/Common.h"
 
 namespace lst {
-  GENERATE_SOA_LAYOUT(TrackCandidatesSoALayout,
-                      SOA_COLUMN(short, trackCandidateType),                  // 4-T5 5-pT3 7-pT5 8-pLS
-                      SOA_COLUMN(unsigned int, directObjectIndices),          // direct indices to each type containers
-                      SOA_COLUMN(ArrayUx2, objectIndices),                    // tracklet and  triplet indices
-                      SOA_COLUMN(Params_pT5::ArrayU8xLayers, logicalLayers),  //
-                      SOA_COLUMN(Params_pT5::ArrayUxHits, hitIndices),        //
-                      SOA_COLUMN(int, pixelSeedIndex),                        //
-                      SOA_COLUMN(Params_pT5::ArrayU16xLayers, lowerModuleIndices),  //
-                      SOA_COLUMN(FPX, centerX),                                     //
-                      SOA_COLUMN(FPX, centerY),                                     //
-                      SOA_COLUMN(FPX, radius),                                      //
-                      SOA_SCALAR(unsigned int, nTrackCandidates),                   //
-                      SOA_SCALAR(unsigned int, nTrackCandidatespT3),                //
-                      SOA_SCALAR(unsigned int, nTrackCandidatespT5),                //
-                      SOA_SCALAR(unsigned int, nTrackCandidatespLS),                //
-                      SOA_SCALAR(unsigned int, nTrackCandidatesT5))                 //
+  // Minimal data content needed for running tracking downstream
+  GENERATE_SOA_LAYOUT(TrackCandidatesBaseSoALayout,
+                      SOA_COLUMN(Params_TC::ArrayUxHits, hitIndices),
+                      SOA_COLUMN(unsigned int, pixelSeedIndex),
+                      SOA_COLUMN(LSTObjType, trackCandidateType),
+                      SOA_SCALAR(unsigned int, nTrackCandidates))
 
-  using TrackCandidatesSoA = TrackCandidatesSoALayout<>;
-  using TrackCandidates = TrackCandidatesSoA::View;
-  using TrackCandidatesConst = TrackCandidatesSoA::ConstView;
+  GENERATE_SOA_LAYOUT(TrackCandidatesExtendedSoALayout,
+                      SOA_COLUMN(unsigned int, directObjectIndices),  // direct indices to each type containers
+                      SOA_COLUMN(ArrayUx2, objectIndices),            // tracklet and  triplet indices
+                      SOA_COLUMN(Params_TC::ArrayU8xLayers, logicalLayers),
+                      SOA_COLUMN(Params_TC::ArrayU16xLayers, lowerModuleIndices),
+                      SOA_COLUMN(FPX, centerX),
+                      SOA_COLUMN(FPX, centerY),
+                      SOA_COLUMN(FPX, radius),
+                      SOA_SCALAR(unsigned int, nTrackCandidatespT3),
+                      SOA_SCALAR(unsigned int, nTrackCandidatespT5),
+                      SOA_SCALAR(unsigned int, nTrackCandidatespLS),
+                      SOA_SCALAR(unsigned int, nTrackCandidatesT5))
+
+  using TrackCandidatesBaseSoA = TrackCandidatesBaseSoALayout<>;
+  using TrackCandidatesExtendedSoA = TrackCandidatesExtendedSoALayout<>;
+
+  using TrackCandidatesBase = TrackCandidatesBaseSoA::View;
+  using TrackCandidatesBaseConst = TrackCandidatesBaseSoA::ConstView;
+  using TrackCandidatesExtended = TrackCandidatesExtendedSoA::View;
+  using TrackCandidatesExtendedConst = TrackCandidatesExtendedSoA::ConstView;
 }  // namespace lst
 #endif
