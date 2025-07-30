@@ -233,24 +233,7 @@ ecalTimingTask = cms.untracked.PSet(
             btype = cms.untracked.string('User'),
             description = cms.untracked.string('Average hit timing in EB as a function of BX number. BX ids start at 1. Only events with energy above 2.02 GeV and chi2 less than 16 are used.')
         ),
-        BarrelTimingVsBX_nonCorr = cms.untracked.PSet(
-            path = cms.untracked.string('EcalBarrel/EBTimingTask/nonCorrectedTime/EBTMT Timing vs BX'),
-            kind = cms.untracked.string('TProfile'),
-            otype = cms.untracked.string('EB'),
-            xaxis = cms.untracked.PSet(
-                high = cms.untracked.double(1.0*nBXBins),
-                nbins = cms.untracked.int32(nBXBins),
-                low = cms.untracked.double(0.0),
-                title = cms.untracked.string('BX Id'),
-                labels = cms.untracked.vstring(bxBinLabels)
-            ),
-            yaxis = cms.untracked.PSet(
-                title = cms.untracked.string('Timing (ns)')
-            ),
-            btype = cms.untracked.string('User'),
-            description = cms.untracked.string('Average hit non-corrected timing in EB as a function of BX number. BX ids start at 1. Only events with energy above 2.02 GeV and chi2 less than 16 are used.')
-        ),
-         BarrelTimingVsBXFineBinned = cms.untracked.PSet(
+        BarrelTimingVsBXFineBinned = cms.untracked.PSet(
             path = cms.untracked.string('EcalBarrel/EBTimingTask/EBTMT Timing vs Finely Binned BX'),
             kind = cms.untracked.string('TProfile'),
             otype = cms.untracked.string('EB'),
