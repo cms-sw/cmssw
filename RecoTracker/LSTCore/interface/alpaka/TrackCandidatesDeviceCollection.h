@@ -7,6 +7,7 @@
 #include "RecoTracker/LSTCore/interface/TrackCandidatesSoA.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
-  using TrackCandidatesDeviceCollection = PortableCollection<TrackCandidatesSoA>;
+  using TrackCandidatesBaseDeviceCollection = PortableCollection<TrackCandidatesBaseSoA>;
+  using TrackCandidatesExtendedDeviceCollection = PortableCollection<TrackCandidatesExtendedSoA>;
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::lst
 #endif
