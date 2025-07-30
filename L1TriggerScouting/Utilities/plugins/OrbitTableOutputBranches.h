@@ -5,7 +5,7 @@
 #include <vector>
 #include <TTree.h>
 #include "FWCore/Framework/interface/OccurrenceForOutput.h"
-#include "DataFormats/L1Scouting/interface/OrbitFlatTable.h"
+#include "DataFormats/NanoAOD/interface/OrbitFlatTable.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 

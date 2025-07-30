@@ -17,7 +17,7 @@
 #include "PhysicsTools/NanoAOD/interface/SimpleFlatTableProducer.h"
 
 #include "DataFormats/L1Scouting/interface/OrbitCollection.h"
-#include "DataFormats/L1Scouting/interface/OrbitFlatTable.h"
+#include "DataFormats/NanoAOD/interface/OrbitFlatTable.h"
 
 template <typename T>
 class SimpleOrbitFlatTableProducer : public edm::stream::EDProducer<> {

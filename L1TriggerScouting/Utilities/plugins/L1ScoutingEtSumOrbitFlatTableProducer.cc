@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/L1Scouting/interface/OrbitCollection.h"
-#include "DataFormats/L1Scouting/interface/OrbitFlatTable.h"
+#include "DataFormats/NanoAOD/interface/OrbitFlatTable.h"
 #include "DataFormats/L1Scouting/interface/L1ScoutingCalo.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 #include "L1TriggerScouting/Utilities/interface/conversion.h"
