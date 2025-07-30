@@ -21,6 +21,7 @@ scouting muon triggers (selected in python/ScoutingMuonTriggerAnalyzer_cfi.py)
 #include <vector>
 
 // user includes
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -36,17 +37,18 @@ scouting muon triggers (selected in python/ScoutingMuonTriggerAnalyzer_cfi.py)
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionData.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionEvaluator.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionParser.h"
 #include "L1Trigger/L1TGlobal/interface/L1TGlobalUtil.h"
-#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 // Classes to be declared
 class ScoutingMuonTriggerAnalyzer : public DQMEDAnalyzer {
 public:
   explicit ScoutingMuonTriggerAnalyzer(const edm::ParameterSet& conf);
   ~ScoutingMuonTriggerAnalyzer() override = default;
+  void dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
@@ -61,12 +63,18 @@ private:
   const edm::EDGetTokenT<std::vector<pat::Muon>> muonCollection_;
   const edm::EDGetTokenT<std::vector<Run3ScoutingMuon>> scoutingMuonCollection_;
 
+  // to clear the list of menus to use
+  HLTConfigProvider hltConfig_;
+  const std::string hltProcessName_;
+  bool isSpecial_;
+  const std::vector<std::string> special_HLT_Menus_;
+
   std::vector<triggerExpression::Evaluator*> vtriggerSelector_;
   edm::EDGetToken algToken_;
   std::shared_ptr<l1t::L1TGlobalUtil> l1GtUtils_;
   std::vector<std::string> l1Seeds_;
   TString l1Names[100] = {""};
-  Bool_t l1Result[100] = {false};
+  bool l1Result[100] = {false};
   StringCutObjectSelector<Run3ScoutingMuon, false> muonsCut_;
 
   // Histogram declaration
@@ -100,6 +108,9 @@ ScoutingMuonTriggerAnalyzer::ScoutingMuonTriggerAnalyzer(const edm::ParameterSet
       vtriggerSelection_{iConfig.getParameter<vector<string>>("triggerSelection")},
       scoutingMuonCollection_{
           consumes<std::vector<Run3ScoutingMuon>>(iConfig.getParameter<edm::InputTag>("ScoutingMuonCollection"))},
+      hltProcessName_(iConfig.getParameter<std::string>("hltProcessName")),
+      isSpecial_{false},
+      special_HLT_Menus_{iConfig.getParameter<std::vector<std::string>>("special_HLT_Menus")},
       algToken_{consumes<BXVector<GlobalAlgBlk>>(iConfig.getParameter<edm::InputTag>("AlgInputTag"))},
       muonsCut_{iConfig.getParameter<std::string>("muonSelection")} {
   vtriggerSelector_.reserve(vtriggerSelection_.size());
@@ -111,6 +122,24 @@ ScoutingMuonTriggerAnalyzer::ScoutingMuonTriggerAnalyzer(const edm::ParameterSet
     const auto& l1seed(l1Seeds_.at(i));
     l1Names[i] = TString(l1seed);
   }
+}
+
+void ScoutingMuonTriggerAnalyzer::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
+  bool changed{false};
+  hltConfig_.init(iRun, iSetup, hltProcessName_, changed);
+  for (const auto& menu : special_HLT_Menus_) {
+    std::size_t found = hltConfig_.tableName().find(menu);
+    if (found != std::string::npos) {
+      isSpecial_ = true;
+      edm::LogWarning("ScoutingMuonTriggerAnalyzer")
+          << "Detected " << menu << " in HLT Config tableName(): " << hltConfig_.tableName()
+          << "; the list of trigger expressions is going to be overriden!" << std::endl;
+      break;
+    }
+  }
+  vtriggerSelector_.clear();
+  vtriggerSelector_.resize(1);
+  vtriggerSelector_.push_back(triggerExpression::parse("DST_PFScouting_ZeroBias*"));
 }
 
 // Core of the implementation
@@ -249,7 +278,10 @@ void ScoutingMuonTriggerAnalyzer::fillDescriptions(edm::ConfigurationDescription
   edm::ParameterSetDescription desc;
 
   desc.add<std::string>("OutputInternalPath", "MY_FOLDER");
-  desc.add<vector<string>>("triggerSelection", {});
+  desc.add<std::vector<string>>("triggerSelection", {});
+  desc.add<std::string>("hltProcessName", "HLT");
+  desc.add<std::vector<std::string>>("special_HLT_Menus", {})
+      ->setComment("list of HLT menus to use to clear the trigger selection");
   desc.add<edm::InputTag>("ScoutingMuonCollection", edm::InputTag("hltScoutingMuonPackerVtx"));
   desc.add<edm::InputTag>("AlgInputTag", edm::InputTag("gtStage2Digis"));
   desc.add<std::vector<std::string>>("l1Seeds", {});
