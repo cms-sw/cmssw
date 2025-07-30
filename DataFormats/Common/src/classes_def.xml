@@ -208,6 +208,7 @@
  <class name="edm::StdArray<short, 4>"/>
  <class name="edm::StdArray<unsigned short, 11>"/>
  <class name="edm::StdArray<unsigned int, 4>"/>
+ <class name="edm::StdArray<unsigned int, 14>"/>
 
  <class name="edm::PathStateToken" ClassVersion="3">
    <version ClassVersion="3" checksum="2219165191"/>

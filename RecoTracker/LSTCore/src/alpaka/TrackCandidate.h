@@ -3,7 +3,9 @@
 
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "FWCore/Utilities/interface/CMSUnrollLoop.h"
+#include "HeterogeneousCore/AlpakaMath/interface/deltaPhi.h"
 
+#include "LSTEvent.h"
 #include "RecoTracker/LSTCore/interface/alpaka/Common.h"
 #include "RecoTracker/LSTCore/interface/ModulesSoA.h"
 #include "RecoTracker/LSTCore/interface/HitsSoA.h"
@@ -19,27 +21,29 @@
 #include "NeuralNetwork.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE void addpLSTrackCandidateToMemory(TrackCandidates& cands,
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void addpLSTrackCandidateToMemory(TrackCandidatesBase& candsBase,
+                                                                   TrackCandidatesExtended& candsExtended,
                                                                    unsigned int trackletIndex,
                                                                    unsigned int trackCandidateIndex,
                                                                    const Params_pLS::ArrayUxHits& hitIndices,
                                                                    int pixelSeedIndex) {
-    cands.trackCandidateType()[trackCandidateIndex] = LSTObjType::pLS;
-    cands.directObjectIndices()[trackCandidateIndex] = trackletIndex;
-    cands.pixelSeedIndex()[trackCandidateIndex] = pixelSeedIndex;
+    candsBase.trackCandidateType()[trackCandidateIndex] = LSTObjType::pLS;
+    candsExtended.directObjectIndices()[trackCandidateIndex] = trackletIndex;
+    candsBase.pixelSeedIndex()[trackCandidateIndex] = pixelSeedIndex;
 
-    cands.objectIndices()[trackCandidateIndex][0] = trackletIndex;
-    cands.objectIndices()[trackCandidateIndex][1] = trackletIndex;
+    candsExtended.objectIndices()[trackCandidateIndex][0] = trackletIndex;
+    candsExtended.objectIndices()[trackCandidateIndex][1] = trackletIndex;
 
     // Order explanation in https://github.com/SegmentLinking/TrackLooper/issues/267
-    cands.hitIndices()[trackCandidateIndex][0] = hitIndices[0];
-    cands.hitIndices()[trackCandidateIndex][1] = hitIndices[2];
-    cands.hitIndices()[trackCandidateIndex][2] = hitIndices[1];
-    cands.hitIndices()[trackCandidateIndex][3] = hitIndices[3];
+    candsBase.hitIndices()[trackCandidateIndex][0] = hitIndices[0];
+    candsBase.hitIndices()[trackCandidateIndex][1] = hitIndices[2];
+    candsBase.hitIndices()[trackCandidateIndex][2] = hitIndices[1];
+    candsBase.hitIndices()[trackCandidateIndex][3] = hitIndices[3];
   }
 
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE void addTrackCandidateToMemory(TrackCandidates& cands,
-                                                                short trackCandidateType,
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void addTrackCandidateToMemory(TrackCandidatesBase& candsBase,
+                                                                TrackCandidatesExtended& candsExtended,
+                                                                LSTObjType trackCandidateType,
                                                                 unsigned int innerTrackletIndex,
                                                                 unsigned int outerTrackletIndex,
                                                                 const uint8_t* logicalLayerIndices,
@@ -51,26 +55,26 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                 float radius,
                                                                 unsigned int trackCandidateIndex,
                                                                 unsigned int directObjectIndex) {
-    cands.trackCandidateType()[trackCandidateIndex] = trackCandidateType;
-    cands.directObjectIndices()[trackCandidateIndex] = directObjectIndex;
-    cands.pixelSeedIndex()[trackCandidateIndex] = pixelSeedIndex;
+    candsBase.trackCandidateType()[trackCandidateIndex] = trackCandidateType;
+    candsExtended.directObjectIndices()[trackCandidateIndex] = directObjectIndex;
+    candsBase.pixelSeedIndex()[trackCandidateIndex] = pixelSeedIndex;
 
-    cands.objectIndices()[trackCandidateIndex][0] = innerTrackletIndex;
-    cands.objectIndices()[trackCandidateIndex][1] = outerTrackletIndex;
+    candsExtended.objectIndices()[trackCandidateIndex][0] = innerTrackletIndex;
+    candsExtended.objectIndices()[trackCandidateIndex][1] = outerTrackletIndex;
 
     size_t limits = trackCandidateType == LSTObjType::pT5 ? Params_pT5::kLayers : Params_pT3::kLayers;
 
     //send the starting pointer to the logicalLayer and hitIndices
     for (size_t i = 0; i < limits; i++) {
-      cands.logicalLayers()[trackCandidateIndex][i] = logicalLayerIndices[i];
-      cands.lowerModuleIndices()[trackCandidateIndex][i] = lowerModuleIndices[i];
+      candsExtended.logicalLayers()[trackCandidateIndex][i] = logicalLayerIndices[i];
+      candsExtended.lowerModuleIndices()[trackCandidateIndex][i] = lowerModuleIndices[i];
     }
     for (size_t i = 0; i < 2 * limits; i++) {
-      cands.hitIndices()[trackCandidateIndex][i] = hitIndices[i];
+      candsBase.hitIndices()[trackCandidateIndex][i] = hitIndices[i];
     }
-    cands.centerX()[trackCandidateIndex] = __F2H(centerX);
-    cands.centerY()[trackCandidateIndex] = __F2H(centerY);
-    cands.radius()[trackCandidateIndex] = __F2H(radius);
+    candsExtended.centerX()[trackCandidateIndex] = __F2H(centerX);
+    candsExtended.centerY()[trackCandidateIndex] = __F2H(centerY);
+    candsExtended.radius()[trackCandidateIndex] = __F2H(radius);
   }
 
   ALPAKA_FN_ACC ALPAKA_FN_INLINE int checkPixelHits(
@@ -219,7 +223,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   ModulesConst modules,
                                   ObjectRangesConst ranges,
                                   PixelTripletsConst pixelTriplets,
-                                  TrackCandidates cands,
+                                  TrackCandidatesBase candsBase,
+                                  TrackCandidatesExtended candsExtended,
                                   SegmentsConst segments,
                                   SegmentsOccupancyConst segmentsOccupancy,
                                   PixelSeedsConst pixelSeeds,
@@ -248,10 +253,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         uint8_t bin_idx = (absEta1 > 2.5f) ? (dnn::kEtaBins - 1) : static_cast<uint8_t>(absEta1 / dnn::kEtaSize);
         const float threshold = dnn::plsembdnn::kWP[bin_idx];
 
-        unsigned int nTrackCandidates = cands.nTrackCandidates();
+        unsigned int nTrackCandidates = candsBase.nTrackCandidates();
         for (unsigned int trackCandidateIndex : cms::alpakatools::uniform_elements_x(acc, nTrackCandidates)) {
-          short type = cands.trackCandidateType()[trackCandidateIndex];
-          unsigned int innerTrackletIdx = cands.objectIndices()[trackCandidateIndex][0];
+          LSTObjType type = candsBase.trackCandidateType()[trackCandidateIndex];
+          unsigned int innerTrackletIdx = candsExtended.objectIndices()[trackCandidateIndex][0];
           if (type == LSTObjType::T5) {
             unsigned int quintupletIndex = innerTrackletIdx;  // T5 index
             float eta2 = __H2F(quintuplets.eta()[quintupletIndex]);
@@ -313,7 +318,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   uint16_t nLowerModules,
                                   PixelTripletsConst pixelTriplets,
-                                  TrackCandidates cands,
+                                  TrackCandidatesBase candsBase,
+                                  TrackCandidatesExtended candsExtended,
                                   PixelSeedsConst pixelSeeds,
                                   ObjectRangesConst ranges) const {
       // implementation is 1D with a single block
@@ -326,22 +332,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           continue;
 
         unsigned int trackCandidateIdx =
-            alpaka::atomicAdd(acc, &cands.nTrackCandidates(), 1u, alpaka::hierarchy::Threads{});
+            alpaka::atomicAdd(acc, &candsBase.nTrackCandidates(), 1u, alpaka::hierarchy::Threads{});
         if (trackCandidateIdx >= n_max_pixel_track_candidates)  // This is done before any non-pixel TCs are added
         {
 #ifdef WARNINGS
           printf("Track Candidate excess alert! Type = pT3");
 #endif
-          alpaka::atomicSub(acc, &cands.nTrackCandidates(), 1u, alpaka::hierarchy::Threads{});
+          alpaka::atomicSub(acc, &candsBase.nTrackCandidates(), 1u, alpaka::hierarchy::Threads{});
           break;
 
         } else {
-          alpaka::atomicAdd(acc, &cands.nTrackCandidatespT3(), 1u, alpaka::hierarchy::Threads{});
+          alpaka::atomicAdd(acc, &candsExtended.nTrackCandidatespT3(), 1u, alpaka::hierarchy::Threads{});
 
           float radius = 0.5f * (__H2F(pixelTriplets.pixelRadius()[pixelTripletIndex]) +
                                  __H2F(pixelTriplets.tripletRadius()[pixelTripletIndex]));
           unsigned int pT3PixelIndex = pixelTriplets.pixelSegmentIndices()[pixelTripletIndex];
-          addTrackCandidateToMemory(cands,
+          addTrackCandidateToMemory(candsBase,
+                                    candsExtended,
                                     LSTObjType::pT3,
                                     pixelTripletIndex,
                                     pixelTripletIndex,
@@ -364,7 +371,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   uint16_t nLowerModules,
                                   QuintupletsConst quintuplets,
                                   QuintupletsOccupancyConst quintupletsOccupancy,
-                                  TrackCandidates cands,
+                                  TrackCandidatesBase candsBase,
+                                  TrackCandidatesExtended candsExtended,
                                   ObjectRangesConst ranges) const {
       for (int idx : cms::alpakatools::uniform_elements_y(acc, nLowerModules)) {
         if (ranges.quintupletModuleIndices()[idx] == -1)
@@ -379,18 +387,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
             continue;
 
           unsigned int trackCandidateIdx =
-              alpaka::atomicAdd(acc, &cands.nTrackCandidates(), 1u, alpaka::hierarchy::Threads{});
-          if (trackCandidateIdx - cands.nTrackCandidatespT5() - cands.nTrackCandidatespT3() >=
+              alpaka::atomicAdd(acc, &candsBase.nTrackCandidates(), 1u, alpaka::hierarchy::Threads{});
+          if (trackCandidateIdx - candsExtended.nTrackCandidatespT5() - candsExtended.nTrackCandidatespT3() >=
               n_max_nonpixel_track_candidates)  // pT5 and pT3 TCs have been added, but not pLS TCs
           {
 #ifdef WARNINGS
             printf("Track Candidate excess alert! Type = T5");
 #endif
-            alpaka::atomicSub(acc, &cands.nTrackCandidates(), 1u, alpaka::hierarchy::Threads{});
+            alpaka::atomicSub(acc, &candsBase.nTrackCandidates(), 1u, alpaka::hierarchy::Threads{});
             break;
           } else {
-            alpaka::atomicAdd(acc, &cands.nTrackCandidatesT5(), 1u, alpaka::hierarchy::Threads{});
-            addTrackCandidateToMemory(cands,
+            alpaka::atomicAdd(acc, &candsExtended.nTrackCandidatesT5(), 1u, alpaka::hierarchy::Threads{});
+            addTrackCandidateToMemory(candsBase,
+                                      candsExtended,
                                       LSTObjType::T5,
                                       quintupletIndex,
                                       quintupletIndex,
@@ -412,7 +421,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   struct AddpLSasTrackCandidate {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   uint16_t nLowerModules,
-                                  TrackCandidates cands,
+                                  TrackCandidatesBase candsBase,
+                                  TrackCandidatesExtended candsExtended,
                                   SegmentsOccupancyConst segmentsOccupancy,
                                   PixelSeedsConst pixelSeeds,
                                   PixelSegmentsConst pixelSegments,
@@ -423,19 +433,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           continue;
 
         unsigned int trackCandidateIdx =
-            alpaka::atomicAdd(acc, &cands.nTrackCandidates(), 1u, alpaka::hierarchy::Threads{});
-        if (trackCandidateIdx - cands.nTrackCandidatesT5() >=
+            alpaka::atomicAdd(acc, &candsBase.nTrackCandidates(), 1u, alpaka::hierarchy::Threads{});
+        if (trackCandidateIdx - candsExtended.nTrackCandidatesT5() >=
             n_max_pixel_track_candidates)  // T5 TCs have already been added
         {
 #ifdef WARNINGS
           printf("Track Candidate excess alert! Type = pLS");
 #endif
-          alpaka::atomicSub(acc, &cands.nTrackCandidates(), 1u, alpaka::hierarchy::Threads{});
+          alpaka::atomicSub(acc, &candsBase.nTrackCandidates(), 1u, alpaka::hierarchy::Threads{});
           break;
 
         } else {
-          alpaka::atomicAdd(acc, &cands.nTrackCandidatespLS(), 1u, alpaka::hierarchy::Threads{});
-          addpLSTrackCandidateToMemory(cands,
+          alpaka::atomicAdd(acc, &candsExtended.nTrackCandidatespLS(), 1u, alpaka::hierarchy::Threads{});
+          addpLSTrackCandidateToMemory(candsBase,
+                                       candsExtended,
                                        pixelArrayIndex,
                                        trackCandidateIdx,
                                        pixelSegments.pLSHitsIdxs()[pixelArrayIndex],
@@ -449,7 +460,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   uint16_t nLowerModules,
                                   PixelQuintupletsConst pixelQuintuplets,
-                                  TrackCandidates cands,
+                                  TrackCandidatesBase candsBase,
+                                  TrackCandidatesExtended candsExtended,
                                   PixelSeedsConst pixelSeeds,
                                   ObjectRangesConst ranges) const {
       // implementation is 1D with a single block
@@ -462,22 +474,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           continue;
 
         unsigned int trackCandidateIdx =
-            alpaka::atomicAdd(acc, &cands.nTrackCandidates(), 1u, alpaka::hierarchy::Threads{});
+            alpaka::atomicAdd(acc, &candsBase.nTrackCandidates(), 1u, alpaka::hierarchy::Threads{});
         if (trackCandidateIdx >= n_max_pixel_track_candidates)  // No other TCs have been added yet
         {
 #ifdef WARNINGS
           printf("Track Candidate excess alert! Type = pT5");
 #endif
-          alpaka::atomicSub(acc, &cands.nTrackCandidates(), 1u, alpaka::hierarchy::Threads{});
+          alpaka::atomicSub(acc, &candsBase.nTrackCandidates(), 1u, alpaka::hierarchy::Threads{});
           break;
 
         } else {
-          alpaka::atomicAdd(acc, &cands.nTrackCandidatespT5(), 1u, alpaka::hierarchy::Threads{});
+          alpaka::atomicAdd(acc, &candsExtended.nTrackCandidatespT5(), 1u, alpaka::hierarchy::Threads{});
 
           float radius = 0.5f * (__H2F(pixelQuintuplets.pixelRadius()[pixelQuintupletIndex]) +
                                  __H2F(pixelQuintuplets.quintupletRadius()[pixelQuintupletIndex]));
           unsigned int pT5PixelIndex = pixelQuintuplets.pixelSegmentIndices()[pixelQuintupletIndex];
-          addTrackCandidateToMemory(cands,
+          addTrackCandidateToMemory(candsBase,
+                                    candsExtended,
                                     LSTObjType::pT5,
                                     pT5PixelIndex,
                                     pixelQuintuplets.quintupletIndices()[pixelQuintupletIndex],
@@ -496,6 +509,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   };
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::lst
 
-ASSERT_DEVICE_MATCHES_HOST_COLLECTION(lst::TrackCandidatesDeviceCollection, lst::TrackCandidatesHostCollection);
+ASSERT_DEVICE_MATCHES_HOST_COLLECTION(lst::TrackCandidatesBaseDeviceCollection, lst::TrackCandidatesBaseHostCollection);
+ASSERT_DEVICE_MATCHES_HOST_COLLECTION(lst::TrackCandidatesExtendedDeviceCollection,
+                                      lst::TrackCandidatesExtendedHostCollection);
 
 #endif

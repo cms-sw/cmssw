@@ -424,9 +424,10 @@ std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> getHitIdxsAndHi
 //____________________________________________________________________________________________
 std::vector<unsigned int> getLSsFromTC(LSTEvent* event, unsigned int iTC) {
   // Get the type of the track candidate
-  auto const& trackCandidates = event->getTrackCandidates();
-  short type = trackCandidates.trackCandidateType()[iTC];
-  unsigned int objidx = trackCandidates.directObjectIndices()[iTC];
+  auto const& trackCandidatesBase = event->getTrackCandidatesBase();
+  auto const& trackCandidatesExtended = event->getTrackCandidatesExtended();
+  short type = trackCandidatesBase.trackCandidateType()[iTC];
+  unsigned int objidx = trackCandidatesExtended.directObjectIndices()[iTC];
   switch (type) {
     case lst::LSTObjType::pT5:
       return getLSsFrompT5(event, objidx);
@@ -447,9 +448,10 @@ std::vector<unsigned int> getLSsFromTC(LSTEvent* event, unsigned int iTC) {
 std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> getHitIdxsAndHitTypesFromTC(LSTEvent* event,
                                                                                              unsigned iTC) {
   // Get the type of the track candidate
-  auto const& trackCandidates = event->getTrackCandidates();
-  short type = trackCandidates.trackCandidateType()[iTC];
-  unsigned int objidx = trackCandidates.directObjectIndices()[iTC];
+  auto const& trackCandidatesBase = event->getTrackCandidatesBase();
+  auto const& trackCandidatesExtended = event->getTrackCandidatesExtended();
+  short type = trackCandidatesBase.trackCandidateType()[iTC];
+  unsigned int objidx = trackCandidatesExtended.directObjectIndices()[iTC];
   switch (type) {
     case lst::LSTObjType::pT5:
       return getHitIdxsAndHitTypesFrompT5(event, objidx);
