@@ -96,7 +96,9 @@ RNTupleCollection::RNTupleCollection(const std::string& name,
   auto collection_field = RVectorField::CreateUntyped(name, std::move(record_field));
   collection_field->SetDescription(desc);
   model.AddField(std::move(collection_field));
+}
 
+void RNTupleCollection::bindBuffer(RNTupleModel& model) {
   auto& default_entry = model.GetDefaultEntry();
   default_entry.BindRawPtr<void>(m_name, &m_buffer);
 }

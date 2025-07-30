@@ -17,6 +17,7 @@ public:
 
   const std::string& getFieldName() const { return m_name; }
 
+  void bindBuffer(ROOT::RNTupleModel& model);
   void fill(std::vector<edm::Handle<nanoaod::FlatTable>>& tables);
 
 private:

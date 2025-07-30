@@ -104,6 +104,7 @@ public:
   // * m_main not null
   // * m_collectionName not empty
   void createFields(const edm::EventForOutput& event, RNTupleModel& eventModel);
+  void bindBuffer(RNTupleModel& eventModel);
   void fill(const edm::EventForOutput& event);
   void print() const;
   bool hasMainTable();
@@ -120,6 +121,7 @@ class TableCollectionSet {
 public:
   void add(const edm::EDGetToken& table_token, const nanoaod::FlatTable& table);
   void createFields(const edm::EventForOutput& event, RNTupleModel& eventModel);
+  void bindBuffers(RNTupleModel& eventModel);
   void fill(const edm::EventForOutput& event);
   void print() const;
 

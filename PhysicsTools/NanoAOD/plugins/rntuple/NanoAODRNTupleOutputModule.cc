@@ -201,6 +201,11 @@ void NanoAODRNTupleOutputModule::initializeNTuple(edm::EventForOutput const& iEv
   }
   m_evstrings.createFields(*model);
 
+  // Model needs to be frozen before we bind buffers
+  model->Freeze();
+
+  m_tables.bindBuffers(*model);
+
   RNTupleWriteOptions options;
   options.SetCompression(m_file->GetCompressionSettings());
   m_ntuple = RNTupleWriter::Append(std::move(model), "Events", *m_file, options);

@@ -174,6 +174,8 @@ void TableCollection::createFields(const edm::EventForOutput& event, RNTupleMode
   m_collection = std::make_unique<RNTupleCollection>(m_collectionName, field_desc, tables, eventModel);
 }
 
+void TableCollection::bindBuffer(RNTupleModel& eventModel) { m_collection->bindBuffer(eventModel); }
+
 void TableCollection::fill(const edm::EventForOutput& event) {
   std::vector<edm::Handle<nanoaod::FlatTable>> tables;
 
@@ -260,6 +262,12 @@ void TableCollectionSet::createFields(const edm::EventForOutput& event, RNTupleM
   }
   for (auto& table : m_vectorFields) {
     table.createFields(event, eventModel);
+  }
+}
+
+void TableCollectionSet::bindBuffers(RNTupleModel& eventModel) {
+  for (auto& collection : m_collections) {
+    collection.bindBuffer(eventModel);
   }
 }
 
