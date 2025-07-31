@@ -8,6 +8,15 @@
     <field name="di_" mapping="blob"/>
   </class>
 
+  <class name="HGCalMappingCellIndexerTrigger" class_version="0">
+    <field name="typeCodeIndexer_" mapping="blob"/>
+    <field name="maxROC_" mapping="blob"/>
+    <field name="maxTrLink_" mapping="blob"/>
+    <field name="maxTCPerLink_" mapping="blob"/>
+    <field name="offsets_" mapping="blob"/>
+    <field name="di_" mapping="blob"/>
+  </class>
+  
   <class name="HGCalFEDReadoutSequence" class_version="0">
     <field name="readoutTypes_" mapping="blob"/>
     <field name="modOffsets_" mapping="blob"/>
@@ -15,10 +24,24 @@
     <field name="chDataOffsets_" mapping="blob"/>
   </class>
 
+  <class name="HGCalTriggerFEDReadoutSequence" class_version="0">
+    <field name="readoutTypes_" mapping="blob"/>
+    <field name="modOffsets_" mapping="blob"/>
+    <field name="TrLinkOffsets_" mapping="blob"/>
+    <field name="TCOffsets_" mapping="blob"/>
+  </class>
+
   <class name="HGCalMappingModuleIndexer" class_version="0">
     <field name="fedReadoutSequences_" mapping="blob"/>
     <field name="globalTypesCounter_" mapping="blob"/>
     <field name="globalTypesNWords_" mapping="blob"/>
+    <field name="globalTypesOffsets_" mapping="blob"/>
+  </class>
+
+  <class name="HGCalMappingModuleIndexerTrigger" class_version="0">
+    <field name="fedReadoutSequences_" mapping="blob"/>
+    <field name="globalTypesCounter_" mapping="blob"/>
+    <field name="globalTypesNTCs_" mapping="blob"/>
     <field name="globalTypesOffsets_" mapping="blob"/>
   </class>
 
