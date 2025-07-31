@@ -110,18 +110,18 @@ void testProductRegistry::setUp() {
       std::make_shared<edm::ProductDescription>(edm::InEvent,
                                                 "labelovsimple",
                                                 "PROD",
-                                                "edm::OwnVector<edmtest::Simple>",
+                                                edm::TypeID(typeid(edm::OwnVector<edmtest::Simple>)).userClassName(),
                                                 "edmtestSimplesOwned",
                                                 "ovsimple",
                                                 edm::TypeWithDict(typeid(edm::OwnVector<edmtest::Simple>)));
-  simpleDerivedVecBranch_ =
-      std::make_shared<edm::ProductDescription>(edm::InEvent,
-                                                "labelovsimplederived",
-                                                "PROD",
-                                                "edm::OwnVector<edmtest::SimpleDerived>",
-                                                "edmtestSimpleDerivedsOwned",
-                                                "ovsimplederived",
-                                                edm::TypeWithDict(typeid(edm::OwnVector<edmtest::SimpleDerived>)));
+  simpleDerivedVecBranch_ = std::make_shared<edm::ProductDescription>(
+      edm::InEvent,
+      "labelovsimplederived",
+      "PROD",
+      edm::TypeID(typeid(edm::OwnVector<edmtest::SimpleDerived>)).userClassName(),
+      "edmtestSimpleDerivedsOwned",
+      "ovsimplederived",
+      edm::TypeWithDict(typeid(edm::OwnVector<edmtest::SimpleDerived>)));
 }
 
 namespace {
