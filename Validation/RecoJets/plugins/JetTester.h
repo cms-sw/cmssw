@@ -70,140 +70,122 @@ private:
   edm::EDGetTokenT<pat::JetCollection> patJetsToken_;
   edm::EDGetTokenT<reco::JetCorrector> jetCorrectorToken_;
 
+  std::vector<double> ptBins_;
+  int n_bins_pt;
+  double minJetPt;
+  double medJetPt;
+
   // Event variables
   MonitorElement *mNvtx;
 
   // Jet parameters
-  MonitorElement *mEta;
-  MonitorElement *mPhi;
-  MonitorElement *mPt;
-  MonitorElement *mP;
-  MonitorElement *mEnergy;
-  MonitorElement *mMass;
-  MonitorElement *mConstituents;
+  MonitorElement *mJetEta;
+  MonitorElement *mJetPhi;
+  MonitorElement *mJetPt;
+  MonitorElement *mJetEnergy;
+  MonitorElement *mJetMass;
+  MonitorElement *mJetConstituents;
   MonitorElement *mJetArea;
-  //  MonitorElement* mRho;
 
-  // Corrected jets
-  MonitorElement *mCorrJetPt;
+  // Corrected jet parameters
   MonitorElement *mCorrJetEta;
   MonitorElement *mCorrJetPhi;
-  MonitorElement *mCorrJetEta_Pt40;
-  MonitorElement *mCorrJetPhi_Pt40;
-  // Corrected jets profiles
-  MonitorElement *mPtCorrOverReco_Pt_B;
-  MonitorElement *mPtCorrOverReco_Pt_E;
-  MonitorElement *mPtCorrOverReco_Pt_F;
-  MonitorElement *mPtCorrOverReco_Eta_20_40;
-  MonitorElement *mPtCorrOverReco_Eta_40_200;
-  MonitorElement *mPtCorrOverReco_Eta_200_600;
-  MonitorElement *mPtCorrOverReco_Eta_600_1500;
-  MonitorElement *mPtCorrOverReco_Eta_1500_3500;
-  MonitorElement *mPtCorrOverReco_Eta_3500_5000;
-  MonitorElement *mPtCorrOverReco_Eta_5000_6500;
-  MonitorElement *mPtCorrOverReco_Eta_3500;
-  MonitorElement *mPtCorrOverGen_GenPt_B;
-  MonitorElement *mPtCorrOverGen_GenPt_E;
-  MonitorElement *mPtCorrOverGen_GenPt_F;
-  MonitorElement *mPtCorrOverGen_GenEta_20_40;
-  MonitorElement *mPtCorrOverGen_GenEta_40_200;
-  MonitorElement *mPtCorrOverGen_GenEta_200_600;
-  MonitorElement *mPtCorrOverGen_GenEta_600_1500;
-  MonitorElement *mPtCorrOverGen_GenEta_1500_3500;
-  MonitorElement *mPtCorrOverGen_GenEta_3500_5000;
-  MonitorElement *mPtCorrOverGen_GenEta_5000_6500;
-  MonitorElement *mPtCorrOverGen_GenEta_3500;
+  MonitorElement *mCorrJetPt;
 
-  // Generation
+  // Gen jet parameters
   MonitorElement *mGenEta;
   MonitorElement *mGenPhi;
   MonitorElement *mGenPt;
+
+  // Jet response vs gen histograms
+  MonitorElement *h_JetPtRecoOverGen_B;
+  MonitorElement *h_JetPtRecoOverGen_E;
+  MonitorElement *h_JetPtRecoOverGen_F;
+  std::vector<MonitorElement*> hVector_JetPtRecoOverGen_B_ptBins;
+  std::vector<MonitorElement*> hVector_JetPtRecoOverGen_E_ptBins;
+  std::vector<MonitorElement*> hVector_JetPtRecoOverGen_F_ptBins;
+
+  // Corrected jet response vs gen histograms
+  MonitorElement *h_JetPtCorrOverGen_B;
+  MonitorElement *h_JetPtCorrOverGen_E;
+  MonitorElement *h_JetPtCorrOverGen_F;
+  std::vector<MonitorElement*> hVector_JetPtCorrOverGen_B_ptBins;
+  std::vector<MonitorElement*> hVector_JetPtCorrOverGen_E_ptBins;
+  std::vector<MonitorElement*> hVector_JetPtCorrOverGen_F_ptBins;
+
+  // Corrected jet response vs reco histograms
+  MonitorElement *h_JetPtCorrOverReco_B;
+  MonitorElement *h_JetPtCorrOverReco_E;
+  MonitorElement *h_JetPtCorrOverReco_F;
+  std::vector<MonitorElement*> hVector_JetPtCorrOverReco_B_ptBins;
+  std::vector<MonitorElement*> hVector_JetPtCorrOverReco_E_ptBins;
+  std::vector<MonitorElement*> hVector_JetPtCorrOverReco_F_ptBins;
+
+  // Jet response vs gen profiled in gen variable
+  MonitorElement *p_JetPtRecoOverGen_vs_GenEta;
+  MonitorElement *p_JetPtRecoOverGen_vs_GenPhi_B;
+  MonitorElement *p_JetPtRecoOverGen_vs_GenPhi_E;
+  MonitorElement *p_JetPtRecoOverGen_vs_GenPhi_F;
+  MonitorElement *p_JetPtRecoOverGen_vs_GenPt_B;
+  MonitorElement *p_JetPtRecoOverGen_vs_GenPt_E;
+  MonitorElement *p_JetPtRecoOverGen_vs_GenPt_F;
+
+  MonitorElement *h2d_JetPtRecoOverGen_vs_GenEta;
+  MonitorElement *h2d_JetPtRecoOverGen_vs_GenPhi_B;
+  MonitorElement *h2d_JetPtRecoOverGen_vs_GenPhi_E;
+  MonitorElement *h2d_JetPtRecoOverGen_vs_GenPhi_F;
+  MonitorElement *h2d_JetPtRecoOverGen_vs_GenPt_B;
+  MonitorElement *h2d_JetPtRecoOverGen_vs_GenPt_E;
+  MonitorElement *h2d_JetPtRecoOverGen_vs_GenPt_F;
+
+  // Corrected jet response vs gen profiled in gen variable
+  MonitorElement *p_JetPtCorrOverGen_vs_GenEta;
+  MonitorElement *p_JetPtCorrOverGen_vs_GenPhi_B;
+  MonitorElement *p_JetPtCorrOverGen_vs_GenPhi_E;
+  MonitorElement *p_JetPtCorrOverGen_vs_GenPhi_F;
+  MonitorElement *p_JetPtCorrOverGen_vs_GenPt_B;
+  MonitorElement *p_JetPtCorrOverGen_vs_GenPt_E;
+  MonitorElement *p_JetPtCorrOverGen_vs_GenPt_F;
+
+  MonitorElement *h2d_JetPtCorrOverGen_vs_GenEta;
+  MonitorElement *h2d_JetPtCorrOverGen_vs_GenPhi_B;
+  MonitorElement *h2d_JetPtCorrOverGen_vs_GenPhi_E;
+  MonitorElement *h2d_JetPtCorrOverGen_vs_GenPhi_F;
+  MonitorElement *h2d_JetPtCorrOverGen_vs_GenPt_B;
+  MonitorElement *h2d_JetPtCorrOverGen_vs_GenPt_E;
+  MonitorElement *h2d_JetPtCorrOverGen_vs_GenPt_F;
+
+  // Corrected jet response vs reco profiled in reco variable
+  MonitorElement *p_JetPtCorrOverReco_vs_Eta;
+  MonitorElement *p_JetPtCorrOverReco_vs_Phi_B;
+  MonitorElement *p_JetPtCorrOverReco_vs_Phi_E;
+  MonitorElement *p_JetPtCorrOverReco_vs_Phi_F;
+  MonitorElement *p_JetPtCorrOverReco_vs_Pt_B;
+  MonitorElement *p_JetPtCorrOverReco_vs_Pt_E;
+  MonitorElement *p_JetPtCorrOverReco_vs_Pt_F;
+
+  MonitorElement *h2d_JetPtCorrOverReco_vs_Eta;
+  MonitorElement *h2d_JetPtCorrOverReco_vs_Phi_B;
+  MonitorElement *h2d_JetPtCorrOverReco_vs_Phi_E;
+  MonitorElement *h2d_JetPtCorrOverReco_vs_Phi_F;
+  MonitorElement *h2d_JetPtCorrOverReco_vs_Pt_B;
+  MonitorElement *h2d_JetPtCorrOverReco_vs_Pt_E;
+  MonitorElement *h2d_JetPtCorrOverReco_vs_Pt_F;
+
+  // Generation
+  MonitorElement *mJetEtaFirst;
+  MonitorElement *mJetPhiFirst;
+  MonitorElement *mJetPtFirst;
   MonitorElement *mGenEtaFirst;
   MonitorElement *mGenPhiFirst;
-  MonitorElement *mPtHat;
+  MonitorElement *mGenPtFirst;
+
+  MonitorElement *mMjj;
+  MonitorElement *mNJets1;
+  MonitorElement *mNJets2;
   MonitorElement *mDeltaEta;
   MonitorElement *mDeltaPhi;
   MonitorElement *mDeltaPt;
-
-  MonitorElement *mPtRecoOverGen_B_20_40;
-  MonitorElement *mPtRecoOverGen_E_20_40;
-  MonitorElement *mPtRecoOverGen_F_20_40;
-  MonitorElement *mPtRecoOverGen_B_40_200;
-  MonitorElement *mPtRecoOverGen_E_40_200;
-  MonitorElement *mPtRecoOverGen_F_40_200;
-  MonitorElement *mPtRecoOverGen_B_200_600;
-  MonitorElement *mPtRecoOverGen_E_200_600;
-  MonitorElement *mPtRecoOverGen_F_200_600;
-  MonitorElement *mPtRecoOverGen_B_600_1500;
-  MonitorElement *mPtRecoOverGen_E_600_1500;
-  MonitorElement *mPtRecoOverGen_F_600_1500;
-  MonitorElement *mPtRecoOverGen_B_1500_3500;
-  MonitorElement *mPtRecoOverGen_E_1500_3500;
-  MonitorElement *mPtRecoOverGen_F_1500_3500;
-  MonitorElement *mPtRecoOverGen_B_3500_5000;
-  MonitorElement *mPtRecoOverGen_E_3500_5000;
-  MonitorElement *mPtRecoOverGen_B_5000_6500;
-  MonitorElement *mPtRecoOverGen_E_5000_6500;
-
-  // jet mass resolution as function of gen-pt
-  MonitorElement *mMassRecoOverGen_B_20_40;
-  MonitorElement *mMassRecoOverGen_E_20_40;
-  MonitorElement *mMassRecoOverGen_F_20_40;
-  MonitorElement *mMassRecoOverGen_B_40_200;
-  MonitorElement *mMassRecoOverGen_E_40_200;
-  MonitorElement *mMassRecoOverGen_F_40_200;
-  MonitorElement *mMassRecoOverGen_B_200_500;
-  MonitorElement *mMassRecoOverGen_E_200_500;
-  MonitorElement *mMassRecoOverGen_F_200_500;
-  MonitorElement *mMassRecoOverGen_B_500_750;
-  MonitorElement *mMassRecoOverGen_E_500_750;
-  MonitorElement *mMassRecoOverGen_F_500_750;
-  MonitorElement *mMassRecoOverGen_B_750_1000;
-  MonitorElement *mMassRecoOverGen_E_750_1000;
-  MonitorElement *mMassRecoOverGen_F_750_1000;
-  MonitorElement *mMassRecoOverGen_B_1000_1500;
-  MonitorElement *mMassRecoOverGen_E_1000_1500;
-  MonitorElement *mMassRecoOverGen_F_1000_1500;
-  MonitorElement *mMassRecoOverGen_B_1500_3500;
-  MonitorElement *mMassRecoOverGen_E_1500_3500;
-  MonitorElement *mMassRecoOverGen_F_1500;
-  MonitorElement *mMassRecoOverGen_B_3500_5000;
-  MonitorElement *mMassRecoOverGen_E_3500_5000;
-  MonitorElement *mMassRecoOverGen_B_5000;
-  MonitorElement *mMassRecoOverGen_E_5000;
-
-  MonitorElement *mPtRecoOverGen_B_3500;
-  MonitorElement *mPtRecoOverGen_E_3500;
-  MonitorElement *mPtRecoOverGen_F_3500;
-
-  // Generation profiles
-  MonitorElement *mPtRecoOverGen_GenPt_B;
-  MonitorElement *mPtRecoOverGen_GenPt_E;
-  MonitorElement *mPtRecoOverGen_GenPt_F;
-  MonitorElement *mPtRecoOverGen_GenPhi_B;
-  MonitorElement *mPtRecoOverGen_GenPhi_E;
-  MonitorElement *mPtRecoOverGen_GenPhi_F;
-  MonitorElement *mPtRecoOverGen_GenEta_20_40;
-  MonitorElement *mPtRecoOverGen_GenEta_40_200;
-  MonitorElement *mPtRecoOverGen_GenEta_200_600;
-  MonitorElement *mPtRecoOverGen_GenEta_600_1500;
-  MonitorElement *mPtRecoOverGen_GenEta_1500_3500;
-  MonitorElement *mPtRecoOverGen_GenEta_3500_5000;
-  MonitorElement *mPtRecoOverGen_GenEta_5000_6500;
-  MonitorElement *mPtRecoOverGen_GenEta_3500;
-
-  // Some jet algebra
-  MonitorElement *mEtaFirst;
-  MonitorElement *mPhiFirst;
-  MonitorElement *mPtFirst;
-  MonitorElement *mMjj;
-  MonitorElement *mNJetsEta_B_20_40;
-  MonitorElement *mNJetsEta_E_20_40;
-  MonitorElement *mNJetsEta_B_40;
-  MonitorElement *mNJetsEta_E_40;
-  MonitorElement *mNJets_40;
-  MonitorElement *mNJets1;
-  MonitorElement *mNJets2;
 
   // ---- Calo Jet specific information ----
   MonitorElement *maxEInEmTowers;
