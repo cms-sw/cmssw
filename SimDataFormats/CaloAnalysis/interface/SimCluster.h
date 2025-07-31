@@ -198,7 +198,7 @@ public:
     std::vector<std::pair<uint32_t, float>> result;
     for (size_t i = 0; i < hits_.size(); ++i) {
       DetId detid(hits_[i]);
-      if (detid.subdetId() != EcalBarrel && detid.subdetId() != HcalBarrel && detid.subdetId() != HcalOuter)
+	  if ( ! (detid.det() == DetId::Ecal && detid.subdetId() == EcalBarrel) || (detid.det() == DetId::Hcal && detid.subdetId() == HcalBarrel) || (detid.det() == DetId::Hcal && detid.subdetId() == HcalOuter) )
         continue;
       result.emplace_back(hits_[i], fractions_[i]);
     }
