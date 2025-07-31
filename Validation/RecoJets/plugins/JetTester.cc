@@ -22,6 +22,9 @@ JetTester::JetTester(const edm::ParameterSet &iConfig)
   isCaloJet = (std::string("calo") == JetType);
   isPFJet = (std::string("pf") == JetType);
   isMiniAODJet = (std::string("miniaod") == JetType);
+  if (!isCaloJet && !isPFJet && !isMiniAODJet) {
+    throw cms::Exception("Configuration") << "Unknown jet type: " << JetType << "\nPlease use 'calo', 'pf', or 'miniaod'.";
+  }
   if (!isMiniAODJet) {
     mJetCorrector = iConfig.getParameter<edm::InputTag>("JetCorrections");
   }
