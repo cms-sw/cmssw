@@ -73,10 +73,10 @@ ticl::association LCToCPAssociatorByEnergyScoreImplT<HIT, CLUSTER>::makeConnecti
     for (const auto& it_sc : simClusterRefVector) {
       const SimCluster& simCluster = (*(it_sc));
       std::vector<std::pair<uint32_t, float>> hits_and_fractions;
-      if constexpr (std::is_same_v<HIT, HGCRecHit>)
-        hits_and_fractions = simCluster.endcap_hits_and_fractions();
-      else
-        hits_and_fractions = simCluster.barrel_hits_and_fractions();
+	  if constexpr (std::is_same_v<HIT, HGCRecHit>)
+		hits_and_fractions = simCluster.filtered_hits_and_fractions( [this](const DetId& detid) {return !recHitTools_->isBarrel(detid);} );
+	  else
+		hits_and_fractions = simCluster.filtered_hits_and_fractions( [this](const DetId& detid) {return recHitTools_->isBarrel(detid);} );
       for (const auto& it_haf : hits_and_fractions) {
         const auto hitid = (it_haf.first);
         unsigned int cpLayerId = recHitTools_->getLayerWithOffset(hitid);
