@@ -74,7 +74,7 @@ BarrelValidator::BarrelValidator(const edm::ParameterSet& pset)
       label_SimClustersPlots_(pset.getParameter<edm::InputTag>("label_SimClusters")),
       label_SimClustersLevel_(pset.getParameter<edm::InputTag>("label_SimClustersLevel")),
       doLayerClustersPlots_(pset.getUntrackedParameter<bool>("doLayerClustersPlots")),
-      label_layerClustersPlots_(pset.getParameter<edm::InputTag>("label_layerClusterPlots")),
+      label_layerClustersPlots_(pset.getParameter<edm::InputTag>("label_layerClustersPlots")),
       label_LCToCPLinking_(pset.getParameter<edm::InputTag>("label_LCToCPLinking")),
       barrel_hits_label_(pset.getParameter<std::vector<edm::InputTag>>("barrel_hits")),
       scToCpMapToken_(
@@ -516,12 +516,6 @@ void BarrelValidator::fillDescriptions(edm::ConfigurationDescriptions& descripti
     psd1.add<int>("nintZ", 1100);
     desc.add<edm::ParameterSetDescription>("histoProducerAlgoBlock", psd1);
   }
-  desc.add<std::vector<edm::InputTag>>("hgcal_hits",
-                                       {
-                                           edm::InputTag("HGCalRecHit", "HGCEERecHits"),
-                                           edm::InputTag("HGCalRecHit", "HGCHEFRecHits"),
-                                           edm::InputTag("HGCalRecHit", "HGCHEBRecHits"),
-                                       });
   desc.add<std::vector<edm::InputTag>>("barrel_hits",
                                        {
                                            edm::InputTag("particleFlowRecHitECAL"),
@@ -549,7 +543,7 @@ void BarrelValidator::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<edm::InputTag>("label_SimClusters", edm::InputTag("SimClusters"));
   desc.add<edm::InputTag>("label_SimClustersLevel", edm::InputTag("ClusterLevel"));
   desc.addUntracked<bool>("doLayerClustersPlots", true);
-  desc.add<edm::InputTag>("label_layerClusterPlots", edm::InputTag("hgcalMergeLayerClusters"));
+  desc.add<edm::InputTag>("label_layerClustersPlots", edm::InputTag("LayerClusters"));
   desc.add<edm::InputTag>("label_LCToCPLinking", edm::InputTag("LCToCP_association"));
   desc.add<edm::InputTag>("simClustersToCaloParticlesMap",
                           edm::InputTag("SimClusterToCaloParticleAssociation", "simClusterToCaloParticleMap"));
