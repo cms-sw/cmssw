@@ -789,21 +789,19 @@ void BarrelVHistoProducerAlgo::fill_caloparticle_histos(
 void BarrelVHistoProducerAlgo::BarrelVHistoProducerAlgo::fill_simCluster_histos(
     const Histograms& histograms, std::vector<SimCluster> const& simClusters, unsigned int layers) const {
   //To keep track of total num of simClusters per layer
-  //tnscpl[layerid]
-  std::vector<int> tnscpl(1000, 0);  //tnscpl.clear(); tnscpl.reserve(1000);
+  std::vector<int> tnscpl(layers, 0);
 
   //loop through simClusters
   for (const auto& sc : simClusters) {
     //To keep track if we added the simCluster in a specific layer
-    std::vector<int> occurenceSCinlayer(1000, 0);  //[layerid][0 if not added]
+    std::vector<int> occurenceSCinlayer(layers, 0);
 
     //loop through hits of the simCluster
     for (const auto& hAndF : sc.filtered_hits_and_fractions( [this](const DetId& x) {return recHitTools_->isBarrel(x);} )) {
       const DetId sh_detid = hAndF.first;
 
-	  //The layer the cluster belongs to. As mentioned in the mapping above, it takes into account -z and +z.
+	  //The layer the cluster belongs to
 	  int layerid = recHitTools_->getLayerWithOffset(sh_detid);
-	  //zside that the current cluster belongs to.
 	  if (occurenceSCinlayer[layerid] == 0) {
 		tnscpl[layerid]++;
 	  }
@@ -1341,8 +1339,7 @@ void BarrelVHistoProducerAlgo::fill_generic_cluster_histos(
     const ticl::SimToRecoCollectionT<reco::CaloClusterCollection>& cPOnLayerMap,
     edm::MultiSpan<reco::PFRecHit> const& barrelHits) const {
   //To keep track of total num of layer clusters per layer
-  //tnlcpl[layerid]
-  std::vector<int> tnlcpl(1000, 0);  //tnlcpl.clear(); tnlcpl.reserve(1000);
+  std::vector<int> tnlcpl(layers, 0);
 
   layerClusters_to_CaloParticles(histograms,
                                  clusterHandle,
@@ -1357,7 +1354,7 @@ void BarrelVHistoProducerAlgo::fill_generic_cluster_histos(
                                  cPOnLayerMap,
                                  barrelHits);
 
-  std::vector<double> tecpl(1000, 0.0);  //tecpl.clear(); tecpl.reserve(1000);
+  std::vector<double> tecpl(layers, 0.0);
 
   // loop through clusters of the event
   for (const auto& lcId : clusters) {
@@ -1368,8 +1365,8 @@ void BarrelVHistoProducerAlgo::fill_generic_cluster_histos(
     const float lc_en = lcId.energy();
     int layerid = recHitTools_->getLayerWithOffset(seedid);
     //Energy clustered per layer
-    tecpl[layerid] = tecpl[layerid] + lc_en;
-    tnlcpl[layerid] = tnlcpl[layerid] + 1;
+    tecpl[layerid] += lc_en;
+    tnlcpl[layerid] += 1;
 
   }  //end of loop through clusters of the event
 
