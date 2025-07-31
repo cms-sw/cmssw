@@ -1,6 +1,7 @@
 /*
-Track Quality Header file
-C.Brown 28/07/20
+Calculate BDT Track Quality.
+This can be floating point (used with HYBRID) or digitized (used with HYBRID_NEWKF).
+C.Brown 28/07/20 + updates by others
 */
 
 #ifndef L1Trigger_TrackerTFP_TrackQuality_h
@@ -10,6 +11,7 @@ C.Brown 28/07/20
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
+#include "conifer.h"
 
 #include <vector>
 #include <string>
@@ -84,11 +86,12 @@ namespace trackerTFP {
    */
   class TrackQuality {
   public:
-    TrackQuality() {}
     TrackQuality(const ConfigTQ& iConfig, const DataFormats* dataFormats);
     ~TrackQuality() = default;
+
     // object to represent tracks
     struct Track {
+      // Conctructor calculates the digitized BDT (used by HYBRID_NEWKF)
       Track(const tt::FrameTrack& frameTrack, const tt::StreamStub& streamStub, const TrackQuality* tq);
       // track frame
       tt::FrameTrack frameTrack_;
@@ -97,12 +100,16 @@ namespace trackerTFP {
       // collection of stubs forming track
       tt::StreamStub streamStub_;
     };
+
+    // Type of digitized BDT output variable
+    typedef ap_fixed<10, 5> AP_FIXED_BDT;
+
     // provides dataformats
     const DataFormats* dataFormats() const { return dataFormats_; }
     // Controls the conversion between TTTrack features and ML model training features
     std::vector<float> featureTransform(TTTrack<Ref_Phase2TrackerDigi_>& aTrack,
                                         const std::vector<std::string>& featureNames) const;
-    // Passed by reference a track without MVA filled, method fills the track's MVA field
+    // Calculate the floating point BDT (used by HYBRID)
     void setL1TrackQuality(TTTrack<Ref_Phase2TrackerDigi_>& aTrack) const;
     // Helper function to convert mvaPreSig to bin
     int toBinMVA(double mva) const;
@@ -123,6 +130,10 @@ namespace trackerTFP {
     //
     double range(VariableTQ v) const { return dataFormatsTQ_[+v].range(); }
     //
+    // Floating point and digitized TQ BDT calculators.
+    const conifer::BDT<float, float>& bdt_float() const { return bdt_float_; }
+    const conifer::BDT<AP_FIXED_BDT, AP_FIXED_BDT>& bdt_digi() const { return bdt_digi_; }
+
     const edm::FileInPath& model() const { return model_; }
 
   private:
@@ -146,6 +157,9 @@ namespace trackerTFP {
     ConfigTQ iConfig_;
     //
     edm::FileInPath model_;
+    // Floating point and digitized TQ BDT calculators.
+    conifer::BDT<float, float> bdt_float_;
+    conifer::BDT<AP_FIXED_BDT, AP_FIXED_BDT> bdt_digi_;
     //
     std::vector<std::string> featureNames_;
     //

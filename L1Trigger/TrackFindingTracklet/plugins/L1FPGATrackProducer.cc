@@ -358,8 +358,9 @@ void L1FPGATrackProducer::beginRun(const edm::Run& run, const edm::EventSetup& i
   setup_ = &iSetup.getData(esGetTokenSetup_);
   // helper class to store Tracklet spezific configuration
   channelAssignment_ = &iSetup.getData(esGetTokenChannelAssignment_);
-  // helper class to determine track quality
-  trackQuality_ = &iSetup.getData(esGetTokenTrackQuality_);
+  // helper class to determine track quality. (TQ only meaningful if track fit is run)
+  if (not settings_.fakefit())
+    trackQuality_ = &iSetup.getData(esGetTokenTrackQuality_);
 
   settings_.passSetup(setup_);
 

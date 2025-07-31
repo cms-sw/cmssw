@@ -9,7 +9,6 @@ C.Brown & C.Savard 07/2020
 #include <vector>
 #include <map>
 #include <string>
-#include "conifer.h"
 #include "ap_fixed.h"
 
 namespace trackerTFP {
@@ -17,6 +16,8 @@ namespace trackerTFP {
   TrackQuality::TrackQuality(const ConfigTQ& iConfig, const DataFormats* dataFormats)
       : dataFormats_(dataFormats),
         model_(iConfig.model_),
+        bdt_float_(model_.fullPath()),  // load floating point BDT calculator
+        bdt_digi_(model_.fullPath()),   // load digitized BDT calculator
         featureNames_(iConfig.featureNames_),
         baseShiftCot_(iConfig.baseShiftCot_),
         baseShiftZ0_(iConfig.baseShiftZ0_),
@@ -83,6 +84,7 @@ namespace trackerTFP {
     return toBin(bins, chi2);
   }
 
+  // Calculate the digitized BDT (used by HYBRID_NEWKF)
   TrackQuality::Track::Track(const tt::FrameTrack& frameTrack, const tt::StreamStub& streamStub, const TrackQuality* tq)
       : frameTrack_(frameTrack), streamStub_(streamStub) {
     static const DataFormats* df = tq->dataFormats();
@@ -100,6 +102,7 @@ namespace trackerTFP {
       const StubKF stub(frameStub, df);
       hitPattern.set(layer);
       ttStubRefs.push_back(frameStub.first);
+
       const double m20 = tq->format(VariableTQ::m20).digi(std::pow(stub.phi(), 2));
       const double m21 = tq->format(VariableTQ::m21).digi(std::pow(stub.z(), 2));
       const double invV0 = tq->format(VariableTQ::invV0).digi(1. / std::pow(2. * stub.dPhi(), 2));
@@ -144,11 +147,11 @@ namespace trackerTFP {
     const int chi2B = tq->toBinChi2B(ttTrack.chi2Bend());
     const int chi2rphi = tq->toBinchi2rphi(trackchi2rphi);
     const int chi2rz = tq->toBinchi2rz(trackchi2rz);
-    // load in bdt
-    conifer::BDT<ap_fixed<10, 5>, ap_fixed<10, 5>> bdt(tq->model().fullPath());
+
     // collect features and classify using bdt
-    const std::vector<ap_fixed<10, 5>>& output =
-        bdt.decision_function({cot, z0, chi2B, nstub, n_missint, chi2rphi, chi2rz});
+    const std::vector<TrackQuality::AP_FIXED_BDT>& output =
+        tq->bdt_digi().decision_function({cot, z0, chi2B, nstub, n_missint, chi2rphi, chi2rz});
+
     const float mva = output[0].to_float();
     // fill frame
     std::string hits = hitPattern.str();
@@ -270,13 +273,11 @@ namespace trackerTFP {
     return transformedFeatures;
   }
 
-  // Passed by reference a track without MVA filled, method fills the track's MVA field
+  // Calculate the floating point BDT (used by HYBRID)
   void TrackQuality::setL1TrackQuality(TTTrack<Ref_Phase2TrackerDigi_>& aTrack) const {
-    // load in bdt
-    conifer::BDT<float, float> bdt(this->model_.fullPath());
     // collect features and classify using bdt
     std::vector<float> inputs = featureTransform(aTrack, this->featureNames_);
-    std::vector<float> output = bdt.decision_function(inputs);
+    std::vector<float> output = this->bdt_float().decision_function(inputs);
     aTrack.settrkMVA1(1. / (1. + exp(-output.at(0))));
   }
 

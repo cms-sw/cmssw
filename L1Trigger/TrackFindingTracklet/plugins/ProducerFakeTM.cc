@@ -132,7 +132,7 @@ namespace trklet {
         const std::set<TTStubRef>& stubIds = ttStubRefs[offset + iLayer];
         tt::SensorModule* sm = setup->sensorModule(ttStubRef);
         const GlobalPoint gp = setup->stubPos(ttStubRef);
-        const int stubId = std::distance(stubIds.begin(), std::find(stubIds.begin(), stubIds.end(), ttStubRef));
+        const int stubId = std::distance(stubIds.begin(), stubIds.find(ttStubRef));
         const bool pst = (sm->barrel() && sm->tilt()) || (!sm->barrel() && sm->psModule());
         const double r = gp.perp() - setup->chosenRofPhi();
         const double rZ = gp.perp() - setup->chosenRofZ();
