@@ -49,9 +49,6 @@ process.MPIService.pmix_server_uri = "file:server.uri"
 from HeterogeneousCore.MPICore.mpiController_cfi import mpiController as mpiController_
 process.mpiController = mpiController_.clone()
 
-# process.options = cms.untracked.PSet(
-#     TryToContinue = cms.untracked.vstring('ProductNotFound')
-# )
 # process.load("FWCore/Services/Tracer_cfi")
 
 # send the raw data over MPI
@@ -72,9 +69,11 @@ process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence.insert(0, process.r
 # process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence.insert(1, process.rawDataCollectorActivity)
 # process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence.insert(2, process.mpiSenderRawData)
 
-# process.hltEcalDigisSoA = cms.EDFilter("PathStateRelease",
-#     producer = cms.InputTag("hltEcalDigisSoAReceiver")
-#     )
+process.hltEcalDigisSoAFilter = cms.EDFilter("PathStateRelease",
+    state = cms.InputTag("hltEcalDigisSoA")
+    )
+
+insert_modules_before(process, process.hltEcalDigisSoA, process.hltEcalDigisSoAFilter)
 
 del process.hltEcalDigisSoA
 
@@ -97,6 +96,12 @@ process.hltEcalDigisSoA = cms.EDProducer("MPIReceiver",
         label = cms.string("")
     ))
 )
+
+process.hltEcalUncalibRecHitSoAFilter = cms.EDFilter("PathStateRelease",
+    state = cms.InputTag("hltEcalUncalibRecHitSoA")
+    )
+
+insert_modules_before(process, process.hltEcalUncalibRecHitSoA, process.hltEcalUncalibRecHitSoAFilter)
 
 del process.hltEcalUncalibRecHitSoA
 
@@ -127,6 +132,12 @@ process.hltEcalUncalibRecHitSoA = cms.EDProducer("MPIReceiver",
 #     producer = cms.InputTag("hltHbheRecoSoAReceiver")
 #     )
 
+process.hltHbheRecoSoAFilter = cms.EDFilter("PathStateRelease",
+    state = cms.InputTag("hltHbheRecoSoA")
+    )
+
+insert_modules_before(process, process.hltHbheRecoSoA, process.hltHbheRecoSoAFilter)
+
 del process.hltHbheRecoSoA
 
 # receive the HBHE rechits SoA over MPI
@@ -146,6 +157,12 @@ process.hltHbheRecoSoA = cms.EDProducer("MPIReceiver",
     ))
 )
 
+process.hltParticleFlowRecHitHBHESoAFilter = cms.EDFilter("PathStateRelease",
+    state = cms.InputTag("hltParticleFlowRecHitHBHESoA")
+    )
+
+insert_modules_before(process, process.hltParticleFlowRecHitHBHESoA, process.hltParticleFlowRecHitHBHESoAFilter)
+
 del process.hltParticleFlowRecHitHBHESoA
 
 # receive the HBHE PF rechits SoA over MPI
@@ -164,6 +181,12 @@ process.hltParticleFlowRecHitHBHESoA = cms.EDProducer("MPIReceiver",
         label = cms.string("")
     ))
 )
+
+process.hltParticleFlowClusterHBHESoAFilter = cms.EDFilter("PathStateRelease",
+    state = cms.InputTag("hltParticleFlowClusterHBHESoA")
+    )
+
+insert_modules_before(process, process.hltParticleFlowClusterHBHESoA, process.hltParticleFlowClusterHBHESoAFilter)
 
 del process.hltParticleFlowClusterHBHESoA
 
