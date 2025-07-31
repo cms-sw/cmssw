@@ -426,7 +426,8 @@
   </class>
   <class name="std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,std::vector<reco::DeDxHit> >" />
      <!--   <class name="reco::DeDxDataCollection"/> -->
-     <class name="reco::DeDxData" ClassVersion="10">
+     <class name="reco::DeDxData" ClassVersion="11">
+      <version ClassVersion="11" checksum="30657010"/>
       <version ClassVersion="10" checksum="204721063"/>
      </class>
      <class name="reco::DeDxDataCollection"/>
