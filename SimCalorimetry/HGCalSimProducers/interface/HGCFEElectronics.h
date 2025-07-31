@@ -198,7 +198,7 @@ private:
   float adcSaturation_fC_, adcLSB_fC_, tdcLSB_fC_, tdcSaturation_fC_, adcThreshold_fC_, tdcOnset_fC_, toaLSB_ns_,
       tdcResolutionInNs_;
   uint32_t targetMIPvalue_ADC_;
-  std::array<float, 3> jitterNoise_ns_, jitterConstant_ns_, eventTimeOffset_ns_;
+  std::vector<float> jitterNoise_ns_, jitterConstant_ns_, eventTimeOffset_ns_;
   std::vector<float> noise_fC_;
   uint32_t toaMode_;
   uint32_t tdcNbits_;

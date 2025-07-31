@@ -95,18 +95,29 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet& ps)
 
   if (ps.exists("jitterNoise_ns")) {
     auto temp = ps.getParameter<std::vector<double> >("jitterNoise_ns");
+    jitterNoise_ns_.resize(temp.size());
     if (temp.size() == jitterNoise_ns_.size()) {
       std::copy_n(temp.begin(), temp.size(), jitterNoise_ns_.begin());
     } else {
-      throw cms::Exception("BadConfiguration") << " HGCFEElectronics wrong size for ToA jitterNoise ";
+      throw cms::Exception("BadConfiguration") << " HGCFEElectronics wrong size for ToA jitterNoise";
     }
   }
   if (ps.exists("jitterConstant_ns")) {
     auto temp = ps.getParameter<std::vector<double> >("jitterConstant_ns");
+    jitterConstant_ns_.resize(temp.size());
     if (temp.size() == jitterConstant_ns_.size()) {
       std::copy_n(temp.begin(), temp.size(), jitterConstant_ns_.begin());
     } else {
       throw cms::Exception("BadConfiguration") << " HGCFEElectronics wrong size for ToA jitterConstant ";
+    }
+  }
+  if (ps.exists("eventTimeOffset_ns")) {
+    auto temp = ps.getParameter<std::vector<double> >("eventTimeOffset_ns");
+    eventTimeOffset_ns_.resize(temp.size());
+    if (temp.size() == eventTimeOffset_ns_.size()) {
+      std::copy_n(temp.begin(), temp.size(), eventTimeOffset_ns_.begin());
+    } else {
+      throw cms::Exception("BadConfiguration") << " HGCFEElectronics wrong size for event time offset";
     }
   }
 }
