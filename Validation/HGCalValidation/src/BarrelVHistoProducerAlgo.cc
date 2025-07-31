@@ -798,18 +798,16 @@ void BarrelVHistoProducerAlgo::BarrelVHistoProducerAlgo::fill_simCluster_histos(
     std::vector<int> occurenceSCinlayer(1000, 0);  //[layerid][0 if not added]
 
     //loop through hits of the simCluster
-    for (const auto& hAndF : sc.hits_and_fractions()) {
+    for (const auto& hAndF : sc.barrel_hits_and_fractions()) {
       const DetId sh_detid = hAndF.first;
 
-      if (recHitTools_->isBarrel(sh_detid)) {
-        //The layer the cluster belongs to. As mentioned in the mapping above, it takes into account -z and +z.
-        int layerid = recHitTools_->getLayerWithOffset(sh_detid);
-        //zside that the current cluster belongs to.
-        if (occurenceSCinlayer[layerid] == 0) {
-          tnscpl[layerid]++;
-        }
-        occurenceSCinlayer[layerid]++;
-      }
+	  //The layer the cluster belongs to. As mentioned in the mapping above, it takes into account -z and +z.
+	  int layerid = recHitTools_->getLayerWithOffset(sh_detid);
+	  //zside that the current cluster belongs to.
+	  if (occurenceSCinlayer[layerid] == 0) {
+		tnscpl[layerid]++;
+	  }
+	  occurenceSCinlayer[layerid]++;
     }  //end of loop through hits
   }  //end of loop through SimClusters of the event
 
