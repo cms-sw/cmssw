@@ -899,48 +899,48 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   PF_trk_phi_n13_hist = ibook.book1DD("trk_phi_n13", "PF #mu^{-} Track #phi;Track #phi;Entries", 100, -3.2, 3.2);
 
   ibook.setCurrentFolder(topfoldername_ + "/Photon");
-  pt_pho_hist = ibook.book1D("pt_pho", "Photon pT; p_{T} (GeV); Entries", 100, 0.0, 100.0);
-  eta_pho_hist = ibook.book1D("eta_pho", "photon #eta; #eta; Entries", 100, -2.7, 2.7);
-  phi_pho_hist = ibook.book1D("phi_pho", "Photon #phi; #phi (rad); Entries", 100, -3.14, 3.14);
-  rawEnergy_pho_hist = ibook.book1D("rawEnergy_pho", "Raw Energy Photon; Energy (GeV); Entries", 100, 0.0, 250.0);
+  pt_pho_hist = ibook.book1DD("pt_pho", "Photon pT; p_{T} (GeV); Entries", 100, 0.0, 100.0);
+  eta_pho_hist = ibook.book1DD("eta_pho", "photon #eta; #eta; Entries", 100, -2.7, 2.7);
+  phi_pho_hist = ibook.book1DD("phi_pho", "Photon #phi; #phi (rad); Entries", 100, -3.14, 3.14);
+  rawEnergy_pho_hist = ibook.book1DD("rawEnergy_pho", "Raw Energy Photon; Energy (GeV); Entries", 100, 0.0, 250.0);
   preshowerEnergy_pho_hist =
-      ibook.book1D("preshowerEnergy_pho", "Preshower Energy Photon; Energy (GeV); Entries", 100, 0.0, 8.0);
-  corrEcalEnergyError_pho_hist = ibook.book1D(
+      ibook.book1DD("preshowerEnergy_pho", "Preshower Energy Photon; Energy (GeV); Entries", 100, 0.0, 8.0);
+  corrEcalEnergyError_pho_hist = ibook.book1DD(
       "corrEcalEnergyError_pho", "Corrected ECAL Energy Error Photon; Energy Error (GeV); Entries", 100, 0.0, 20.0);
   sigmaIetaIeta_pho_hist =
-      ibook.book1D("sigmaIetaIeta_pho", "Sigma iEta iEta Photon; #sigma_{i#eta i#eta}; Entries", 100, 0.0, 0.5);
-  hOverE_pho_hist = ibook.book1D("hOverE_pho", "H/E Photon; H/E; Entries", 100, 0.0, 1.5);
-  ecalIso_pho_hist = ibook.book1D("ecalIso_pho", "ECAL Isolation Photon; Isolation (GeV); Entries", 100, 0.0, 100.0);
-  hcalIso_pho_hist = ibook.book1D("hcalIso_pho", "HCAL Isolation Photon; Isolation (GeV); Entries", 100, 0.0, 100.0);
-  trackIso_pho_hist = ibook.book1D("trackIso_pho", "Track Isolation Photon; Isolation (GeV); Entries", 100, 0.0, 0.05);
-  r9_pho_hist = ibook.book1D("r9_pho", "R9; R9; Entries", 100, 0.0, 5);
-  sMin_pho_hist = ibook.book1D("sMin_pho", "sMin Photon; sMin; Entries", 100, 0.0, 3);
-  sMaj_pho_hist = ibook.book1D("sMaj_pho", "sMaj Photon; sMaj; Entries", 100, 0.0, 3);
+      ibook.book1DD("sigmaIetaIeta_pho", "Sigma iEta iEta Photon; #sigma_{i#eta i#eta}; Entries", 100, 0.0, 0.5);
+  hOverE_pho_hist = ibook.book1DD("hOverE_pho", "H/E Photon; H/E; Entries", 100, 0.0, 1.5);
+  ecalIso_pho_hist = ibook.book1DD("ecalIso_pho", "ECAL Isolation Photon; Isolation (GeV); Entries", 100, 0.0, 100.0);
+  hcalIso_pho_hist = ibook.book1DD("hcalIso_pho", "HCAL Isolation Photon; Isolation (GeV); Entries", 100, 0.0, 100.0);
+  trackIso_pho_hist = ibook.book1DD("trackIso_pho", "Track Isolation Photon; Isolation (GeV); Entries", 100, 0.0, 0.05);
+  r9_pho_hist = ibook.book1DD("r9_pho", "R9; R9; Entries", 100, 0.0, 5);
+  sMin_pho_hist = ibook.book1DD("sMin_pho", "sMin Photon; sMin; Entries", 100, 0.0, 3);
+  sMaj_pho_hist = ibook.book1DD("sMaj_pho", "sMaj Photon; sMaj; Entries", 100, 0.0, 3);
 
   ibook.setCurrentFolder(topfoldername_ + "/Electron");
-  pt_ele_hist = ibook.book1D("pt_ele", "Electron pT; p_{T} (GeV); Entries", 100, 0.0, 100.0);
-  eta_ele_hist = ibook.book1D("eta_ele", "Electron #eta; #eta; Entries", 100, -2.7, 2.7);
-  phi_ele_hist = ibook.book1D("phi_ele", "Electron #phi; #phi (rad); Entries", 100, -3.14, 3.14);
-  rawEnergy_ele_hist = ibook.book1D("rawEnergy_ele", "Raw Energy Electron; Energy (GeV); Entries", 100, 0.0, 250.0);
+  pt_ele_hist = ibook.book1DD("pt_ele", "Electron pT; p_{T} (GeV); Entries", 100, 0.0, 100.0);
+  eta_ele_hist = ibook.book1DD("eta_ele", "Electron #eta; #eta; Entries", 100, -2.7, 2.7);
+  phi_ele_hist = ibook.book1DD("phi_ele", "Electron #phi; #phi (rad); Entries", 100, -3.14, 3.14);
+  rawEnergy_ele_hist = ibook.book1DD("rawEnergy_ele", "Raw Energy Electron; Energy (GeV); Entries", 100, 0.0, 250.0);
   preshowerEnergy_ele_hist =
-      ibook.book1D("preshowerEnergy_ele", "Preshower Energy Electron; Energy (GeV); Entries", 100, 0.0, 10.0);
-  corrEcalEnergyError_ele_hist = ibook.book1D(
+      ibook.book1DD("preshowerEnergy_ele", "Preshower Energy Electron; Energy (GeV); Entries", 100, 0.0, 10.0);
+  corrEcalEnergyError_ele_hist = ibook.book1DD(
       "corrEcalEnergyError_ele", "Corrected ECAL Energy Error Electron; Energy Error (GeV); Entries", 100, 0.0, 20.0);
-  dEtaIn_ele_hist = ibook.book1D("dEtaIn_ele", "dEtaIn Electron; dEtaIn; Entries", 100, -0.05, 0.05);
-  dPhiIn_ele_hist = ibook.book1D("dPhiIn_ele", "dPhiIn Electron; dPhiIn; Entries", 100, -0.5, 0.5);
+  dEtaIn_ele_hist = ibook.book1DD("dEtaIn_ele", "dEtaIn Electron; dEtaIn; Entries", 100, -0.05, 0.05);
+  dPhiIn_ele_hist = ibook.book1DD("dPhiIn_ele", "dPhiIn Electron; dPhiIn; Entries", 100, -0.5, 0.5);
   sigmaIetaIeta_ele_hist =
-      ibook.book1D("sigmaIetaIeta_ele", "Sigma iEta iEta Electron; #sigma_{i#eta i#eta}; Entries", 100, 0.0, 0.05);
-  hOverE_ele_hist = ibook.book1D("hOverE_ele", "H/E Electron; H/E; Entries", 100, 0.0, 0.3);
-  ooEMOop_ele_hist = ibook.book1D("ooEMOop_ele", "1/E - 1/p Electron; 1/E - 1/p; Entries", 100, -0.3, 0.3);
-  missingHits_ele_hist = ibook.book1D("missingHits_ele", "Missing Hits Electron; Count; Entries", 10, 0, 5);
-  trackfbrem_ele_hist = ibook.book1D("trackfbrem_ele", "Track fbrem Electron; fbrem; Entries", 100, -1.5, 1.0);
-  ecalIso_ele_hist = ibook.book1D("ecalIso_ele", "ECAL Isolation Electron; Isolation (GeV); Entries", 100, 0.0, 70.0);
-  hcalIso_ele_hist = ibook.book1D("hcalIso_ele", "HCAL Isolation Electron; Isolation (GeV); Entries", 100, 0.0, 60.0);
+      ibook.book1DD("sigmaIetaIeta_ele", "Sigma iEta iEta Electron; #sigma_{i#eta i#eta}; Entries", 100, 0.0, 0.05);
+  hOverE_ele_hist = ibook.book1DD("hOverE_ele", "H/E Electron; H/E; Entries", 100, 0.0, 0.3);
+  ooEMOop_ele_hist = ibook.book1DD("ooEMOop_ele", "1/E - 1/p Electron; 1/E - 1/p; Entries", 100, -0.3, 0.3);
+  missingHits_ele_hist = ibook.book1DD("missingHits_ele", "Missing Hits Electron; Count; Entries", 10, 0, 5);
+  trackfbrem_ele_hist = ibook.book1DD("trackfbrem_ele", "Track fbrem Electron; fbrem; Entries", 100, -1.5, 1.0);
+  ecalIso_ele_hist = ibook.book1DD("ecalIso_ele", "ECAL Isolation Electron; Isolation (GeV); Entries", 100, 0.0, 70.0);
+  hcalIso_ele_hist = ibook.book1DD("hcalIso_ele", "HCAL Isolation Electron; Isolation (GeV); Entries", 100, 0.0, 60.0);
   trackIso_ele_hist =
-      ibook.book1D("trackIso_ele", "Track Isolation Electron; Isolation (GeV); Entries", 100, 0.0, 0.05);
-  r9_ele_hist = ibook.book1D("r9_ele", "R9 Electron; R9; Entries", 100, 0.0, 5);
-  sMin_ele_hist = ibook.book1D("sMin_ele", "sMin Electron; sMin; Entries", 100, 0.0, 3);
-  sMaj_ele_hist = ibook.book1D("sMaj_ele", "sMaj Electron; sMaj; Entries", 100, 0.0, 3);
+      ibook.book1DD("trackIso_ele", "Track Isolation Electron; Isolation (GeV); Entries", 100, 0.0, 0.05);
+  r9_ele_hist = ibook.book1DD("r9_ele", "R9 Electron; R9; Entries", 100, 0.0, 5);
+  sMin_ele_hist = ibook.book1DD("sMin_ele", "sMin Electron; sMin; Entries", 100, 0.0, 3);
+  sMaj_ele_hist = ibook.book1DD("sMaj_ele", "sMaj Electron; sMaj; Entries", 100, 0.0, 3);
 
   // book the muon histograms (noVtx and Vtx collections)
   const std::array<std::string, 2> muonLabels = {{"muonsNoVtx", "muonsVtx"}};
@@ -951,190 +951,193 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
     const std::string& sfx = suffixes[i];
     const std::string& lbl = muonLabels[i];
 
-    pt_mu_hist[i] = ibook.book1D("pt_mu" + sfx, "Muon pT (" + lbl + "); p_{T} (GeV); Entries", 100, 0.0, 200.0);
-    eta_mu_hist[i] = ibook.book1D("eta_mu" + sfx, "Muon #eta (" + lbl + "); #eta; Entries", 100, -2.7, 2.7);
-    phi_mu_hist[i] = ibook.book1D("phi_mu" + sfx, "Muon #phi (" + lbl + "); #phi (rad); Entries", 100, -3.14, 3.14);
-    type_mu_hist[i] = ibook.book1D("type_mu" + sfx, "Muon Type (" + lbl + "); Type; Entries", 10, 0, 10);
-    charge_mu_hist[i] = ibook.book1D("charge_mu" + sfx, "Muon Charge (" + lbl + "); Charge; Entries", 3, -1, 2);
+    pt_mu_hist[i] = ibook.book1DD("pt_mu" + sfx, "Muon pT (" + lbl + "); p_{T} (GeV); Entries", 100, 0.0, 200.0);
+    eta_mu_hist[i] = ibook.book1DD("eta_mu" + sfx, "Muon #eta (" + lbl + "); #eta; Entries", 100, -2.7, 2.7);
+    phi_mu_hist[i] = ibook.book1DD("phi_mu" + sfx, "Muon #phi (" + lbl + "); #phi (rad); Entries", 100, -3.14, 3.14);
+    type_mu_hist[i] = ibook.book1DD("type_mu" + sfx, "Muon Type (" + lbl + "); Type; Entries", 10, 0, 10);
+    charge_mu_hist[i] = ibook.book1DD("charge_mu" + sfx, "Muon Charge (" + lbl + "); Charge; Entries", 3, -1, 2);
     normalizedChi2_mu_hist[i] =
-        ibook.book1D("normalizedChi2_mu" + sfx, "Normalized chi2 (" + lbl + "); chi2; Entries", 100, 0.0, 10.0);
-    ecalIso_mu_hist[i] = ibook.book1D(
+        ibook.book1DD("normalizedChi2_mu" + sfx, "Normalized chi2 (" + lbl + "); chi2; Entries", 100, 0.0, 10.0);
+    ecalIso_mu_hist[i] = ibook.book1DD(
         "ecalIso_mu" + sfx, "ECAL Isolation Muon (" + lbl + "); Isolation (GeV); Entries", 100, 0.0, 100.0);
-    hcalIso_mu_hist[i] = ibook.book1D(
+    hcalIso_mu_hist[i] = ibook.book1DD(
         "hcalIso_mu" + sfx, "HCAL Isolation Muon (" + lbl + "); Isolation (GeV); Entries", 100, 0.0, 100.0);
-    trackIso_mu_hist[i] = ibook.book1D(
+    trackIso_mu_hist[i] = ibook.book1DD(
         "trackIso_mu" + sfx, "Track Isolation Muon (" + lbl + "); Isolation (GeV); Entries", 100, 0.0, 10.0);
-    nValidStandAloneMuonHits_mu_hist[i] = ibook.book1D(
+    nValidStandAloneMuonHits_mu_hist[i] = ibook.book1DD(
         "nValidStandAloneMuonHits_mu" + sfx, "Valid Standalone Muon Hits (" + lbl + "); Hits; Entries", 50, 0, 50);
     nStandAloneMuonMatchedStations_mu_hist[i] =
-        ibook.book1D("nStandAloneMuonMatchedStations_mu" + sfx,
-                     "Standalone Muon Matched Stations (" + lbl + "); Stations; Entries",
-                     10,
-                     0,
-                     10);
+        ibook.book1DD("nStandAloneMuonMatchedStations_mu" + sfx,
+                      "Standalone Muon Matched Stations (" + lbl + "); Stations; Entries",
+                      10,
+                      0,
+                      10);
     nValidRecoMuonHits_mu_hist[i] =
-        ibook.book1D("nValidRecoMuonHits_mu" + sfx, "Valid Reco Muon Hits (" + lbl + "); Hits; Entries", 50, 0, 50);
+        ibook.book1DD("nValidRecoMuonHits_mu" + sfx, "Valid Reco Muon Hits (" + lbl + "); Hits; Entries", 50, 0, 50);
     nRecoMuonChambers_mu_hist[i] =
-        ibook.book1D("nRecoMuonChambers_mu" + sfx, "Reco Muon Chambers (" + lbl + "); Chambers; Entries", 10, 0, 20);
+        ibook.book1DD("nRecoMuonChambers_mu" + sfx, "Reco Muon Chambers (" + lbl + "); Chambers; Entries", 10, 0, 20);
     nRecoMuonChambersCSCorDT_mu_hist[i] =
-        ibook.book1D("nRecoMuonChambersCSCorDT_mu" + sfx,
-                     "Reco Muon Chambers (CSC or DT) (" + lbl + "); Chambers; Entries",
-                     10,
-                     0,
-                     14);
+        ibook.book1DD("nRecoMuonChambersCSCorDT_mu" + sfx,
+                      "Reco Muon Chambers (CSC or DT) (" + lbl + "); Chambers; Entries",
+                      10,
+                      0,
+                      14);
     nRecoMuonMatches_mu_hist[i] =
-        ibook.book1D("nRecoMuonMatches_mu" + sfx, "Reco Muon Matches (" + lbl + "); Matches; Entries", 10, 0, 10);
-    nRecoMuonMatchedStations_mu_hist[i] = ibook.book1D(
+        ibook.book1DD("nRecoMuonMatches_mu" + sfx, "Reco Muon Matches (" + lbl + "); Matches; Entries", 10, 0, 10);
+    nRecoMuonMatchedStations_mu_hist[i] = ibook.book1DD(
         "nRecoMuonMatchedStations_mu" + sfx, "Reco Muon Matched Stations (" + lbl + "); Stations; Entries", 10, 0, 10);
     nRecoMuonExpectedMatchedStations_mu_hist[i] =
-        ibook.book1D("nRecoMuonExpectedMatchedStations_mu" + sfx,
-                     "Reco Muon Expected Matched Stations (" + lbl + "); Stations; Entries",
-                     10,
-                     0,
-                     10);
+        ibook.book1DD("nRecoMuonExpectedMatchedStations_mu" + sfx,
+                      "Reco Muon Expected Matched Stations (" + lbl + "); Stations; Entries",
+                      10,
+                      0,
+                      10);
     recoMuonStationMask_mu_hist[i] =
-        ibook.book1D("recoMuonStationMask_mu" + sfx, "Reco Muon Station Mask (" + lbl + "); Mask; Entries", 20, 0, 20);
-    nRecoMuonMatchedRPCLayers_mu_hist[i] = ibook.book1D(
+        ibook.book1DD("recoMuonStationMask_mu" + sfx, "Reco Muon Station Mask (" + lbl + "); Mask; Entries", 20, 0, 20);
+    nRecoMuonMatchedRPCLayers_mu_hist[i] = ibook.book1DD(
         "nRecoMuonMatchedRPCLayers_mu" + sfx, "Reco Muon Matched RPC Layers (" + lbl + "); Layers; Entries", 10, 0, 2);
-    recoMuonRPClayerMask_mu_hist[i] = ibook.book1D(
+    recoMuonRPClayerMask_mu_hist[i] = ibook.book1DD(
         "recoMuonRPClayerMask_mu" + sfx, "Reco Muon RPC Layer Mask (" + lbl + "); Mask; Entries", 20, 0, 5);
     nValidPixelHits_mu_hist[i] =
-        ibook.book1D("nValidPixelHits_mu" + sfx, "Valid Pixel Hits (" + lbl + "); Hits; Entries", 20, 0, 20);
+        ibook.book1DD("nValidPixelHits_mu" + sfx, "Valid Pixel Hits (" + lbl + "); Hits; Entries", 20, 0, 20);
     nValidStripHits_mu_hist[i] =
-        ibook.book1D("nValidStripHits_mu" + sfx, "Valid Strip Hits (" + lbl + "); Hits; Entries", 50, 0, 50);
+        ibook.book1DD("nValidStripHits_mu" + sfx, "Valid Strip Hits (" + lbl + "); Hits; Entries", 50, 0, 50);
     nPixelLayersWithMeasurement_mu_hist[i] =
-        ibook.book1D("nPixelLayersWithMeasurement_mu" + sfx,
-                     "Pixel Layers with Measurement (" + lbl + "); Layers; Entries",
-                     10,
-                     0,
-                     10);
+        ibook.book1DD("nPixelLayersWithMeasurement_mu" + sfx,
+                      "Pixel Layers with Measurement (" + lbl + "); Layers; Entries",
+                      10,
+                      0,
+                      10);
     nTrackerLayersWithMeasurement_mu_hist[i] =
-        ibook.book1D("nTrackerLayersWithMeasurement_mu" + sfx,
-                     "Tracker Layers with Measurement (" + lbl + "); Layers; Entries",
-                     20,
-                     0,
-                     20);
+        ibook.book1DD("nTrackerLayersWithMeasurement_mu" + sfx,
+                      "Tracker Layers with Measurement (" + lbl + "); Layers; Entries",
+                      20,
+                      0,
+                      20);
     trk_chi2_mu_hist[i] =
-        ibook.book1D("trk_chi2_mu" + sfx, "Muon Tracker chi2 (" + lbl + "); #chi^{2}; Entries", 100, 0.0, 100.0);
+        ibook.book1DD("trk_chi2_mu" + sfx, "Muon Tracker chi2 (" + lbl + "); #chi^{2}; Entries", 100, 0.0, 100.0);
     trk_ndof_mu_hist[i] =
-        ibook.book1D("trk_ndof_mu" + sfx, "Muon Tracker Ndof (" + lbl + "); Ndof; Entries", 100, 0, 100);
+        ibook.book1DD("trk_ndof_mu" + sfx, "Muon Tracker Ndof (" + lbl + "); Ndof; Entries", 100, 0, 100);
     trk_dxy_mu_hist[i] =
-        ibook.book1D("trk_dxy_mu" + sfx, "Muon Tracker dxy (" + lbl + "); dxy (cm); Entries", 100, -0.5, 0.5);
+        ibook.book1DD("trk_dxy_mu" + sfx, "Muon Tracker dxy (" + lbl + "); dxy (cm); Entries", 100, -0.5, 0.5);
     trk_dz_mu_hist[i] =
-        ibook.book1D("trk_dz_mu" + sfx, "Muon Tracker dz (" + lbl + "); dz (cm); Entries", 100, -20.0, 20.0);
-    trk_qoverp_mu_hist[i] = ibook.book1D("trk_qoverp_mu" + sfx, "Muon q/p (" + lbl + "); q/p; Entries", 100, -1, 1);
+        ibook.book1DD("trk_dz_mu" + sfx, "Muon Tracker dz (" + lbl + "); dz (cm); Entries", 100, -20.0, 20.0);
+    trk_qoverp_mu_hist[i] = ibook.book1DD("trk_qoverp_mu" + sfx, "Muon q/p (" + lbl + "); q/p; Entries", 100, -1, 1);
     trk_lambda_mu_hist[i] =
-        ibook.book1D("trk_lambda_mu" + sfx, "Muon Lambda (" + lbl + "); #lambda; Entries", 100, -2, 2);
+        ibook.book1DD("trk_lambda_mu" + sfx, "Muon Lambda (" + lbl + "); #lambda; Entries", 100, -2, 2);
     trk_pt_mu_hist[i] =
-        ibook.book1D("trk_pt_mu" + sfx, "Muon Tracker pT (" + lbl + "); p_{T} (GeV); Entries", 100, 0.0, 200.0);
+        ibook.book1DD("trk_pt_mu" + sfx, "Muon Tracker pT (" + lbl + "); p_{T} (GeV); Entries", 100, 0.0, 200.0);
     trk_phi_mu_hist[i] =
-        ibook.book1D("trk_phi_mu" + sfx, "Muon Tracker #phi (" + lbl + "); #phi (rad); Entries", 100, -3.14, 3.14);
+        ibook.book1DD("trk_phi_mu" + sfx, "Muon Tracker #phi (" + lbl + "); #phi (rad); Entries", 100, -3.14, 3.14);
     trk_eta_mu_hist[i] =
-        ibook.book1D("trk_eta_mu" + sfx, "Muon Tracker #eta (" + lbl + "); #eta; Entries", 100, -2.7, 2.7);
+        ibook.book1DD("trk_eta_mu" + sfx, "Muon Tracker #eta (" + lbl + "); #eta; Entries", 100, -2.7, 2.7);
     trk_dxyError_mu_hist[i] =
-        ibook.book1D("trk_dxyError_mu" + sfx, "Muon dxy Error (" + lbl + "); dxy Error (cm); Entries", 100, 0.0, 0.05);
+        ibook.book1DD("trk_dxyError_mu" + sfx, "Muon dxy Error (" + lbl + "); dxy Error (cm); Entries", 100, 0.0, 0.05);
     trk_dzError_mu_hist[i] =
-        ibook.book1D("trk_dzError_mu" + sfx, "Muon dz Error (" + lbl + "); dz Error (cm); Entries", 100, 0.0, 0.05);
+        ibook.book1DD("trk_dzError_mu" + sfx, "Muon dz Error (" + lbl + "); dz Error (cm); Entries", 100, 0.0, 0.05);
     trk_qoverpError_mu_hist[i] =
-        ibook.book1D("trk_qoverpError_mu" + sfx, "Muon q/p Error (" + lbl + "); q/p Error; Entries", 100, 0.0, 0.01);
-    trk_lambdaError_mu_hist[i] = ibook.book1D(
+        ibook.book1DD("trk_qoverpError_mu" + sfx, "Muon q/p Error (" + lbl + "); q/p Error; Entries", 100, 0.0, 0.01);
+    trk_lambdaError_mu_hist[i] = ibook.book1DD(
         "trk_lambdaError_mu" + sfx, "Muon Lambda Error (" + lbl + "); #lambda Error; Entries", 100, 0.0, 0.1);
-    trk_phiError_mu_hist[i] = ibook.book1D(
+    trk_phiError_mu_hist[i] = ibook.book1DD(
         "trk_phiError_mu" + sfx, "Muon Phi Error (" + lbl + "); #phi Error (rad); Entries", 100, 0.0, 0.01);
-    trk_dsz_mu_hist[i] = ibook.book1D("trk_dsz_mu" + sfx, "Muon dsz (" + lbl + "); dsz (cm); Entries", 100, -2, 2);
+    trk_dsz_mu_hist[i] = ibook.book1DD("trk_dsz_mu" + sfx, "Muon dsz (" + lbl + "); dsz (cm); Entries", 100, -2, 2);
     trk_dszError_mu_hist[i] =
-        ibook.book1D("trk_dszError_mu" + sfx, "Muon dsz Error (" + lbl + "); dsz Error (cm); Entries", 100, 0.0, 0.05);
-    trk_qoverp_lambda_cov_mu_hist[i] = ibook.book1D("trk_qoverp_lambda_cov_mu" + sfx,
-                                                    "Muon q/p-#lambda Covariance (" + lbl + "); Covariance; Entries",
-                                                    100,
-                                                    -0.001,
-                                                    0.001);
-    trk_qoverp_phi_cov_mu_hist[i] = ibook.book1D("trk_qoverp_phi_cov_mu" + sfx,
-                                                 "Muon q/p-#phi Covariance (" + lbl + "); Covariance; Entries",
-                                                 100,
-                                                 -0.001,
-                                                 0.001);
-    trk_qoverp_dxy_cov_mu_hist[i] = ibook.book1D(
+        ibook.book1DD("trk_dszError_mu" + sfx, "Muon dsz Error (" + lbl + "); dsz Error (cm); Entries", 100, 0.0, 0.05);
+    trk_qoverp_lambda_cov_mu_hist[i] = ibook.book1DD("trk_qoverp_lambda_cov_mu" + sfx,
+                                                     "Muon q/p-#lambda Covariance (" + lbl + "); Covariance; Entries",
+                                                     100,
+                                                     -0.001,
+                                                     0.001);
+    trk_qoverp_phi_cov_mu_hist[i] = ibook.book1DD("trk_qoverp_phi_cov_mu" + sfx,
+                                                  "Muon q/p-#phi Covariance (" + lbl + "); Covariance; Entries",
+                                                  100,
+                                                  -0.001,
+                                                  0.001);
+    trk_qoverp_dxy_cov_mu_hist[i] = ibook.book1DD(
         "trk_qoverp_dxy_cov_mu" + sfx, "Muon q/p-dxy Covariance (" + lbl + "); Covariance; Entries", 100, -0.001, 0.001);
-    trk_qoverp_dsz_cov_mu_hist[i] = ibook.book1D(
+    trk_qoverp_dsz_cov_mu_hist[i] = ibook.book1DD(
         "trk_qoverp_dsz_cov_mu" + sfx, "Muon q/p-dsz Covariance (" + lbl + "); Covariance; Entries", 100, -0.001, 0.001);
-    trk_lambda_phi_cov_mu_hist[i] = ibook.book1D("trk_lambda_phi_cov_mu" + sfx,
-                                                 "Muon Lambda-#phi Covariance (" + lbl + "); Covariance; Entries",
-                                                 100,
-                                                 -0.001,
-                                                 0.001);
-    trk_lambda_dxy_cov_mu_hist[i] = ibook.book1D("trk_lambda_dxy_cov_mu" + sfx,
-                                                 "Muon Lambda-dxy Covariance (" + lbl + "); Covariance; Entries",
-                                                 100,
-                                                 -0.001,
-                                                 0.001);
-    trk_lambda_dsz_cov_mu_hist[i] = ibook.book1D("trk_lambda_dsz_cov_mu" + sfx,
-                                                 "Muon Lambda-dsz Covariance (" + lbl + "); Covariance; Entries",
-                                                 100,
-                                                 -0.001,
-                                                 0.001);
-    trk_phi_dxy_cov_mu_hist[i] = ibook.book1D(
+    trk_lambda_phi_cov_mu_hist[i] = ibook.book1DD("trk_lambda_phi_cov_mu" + sfx,
+                                                  "Muon Lambda-#phi Covariance (" + lbl + "); Covariance; Entries",
+                                                  100,
+                                                  -0.001,
+                                                  0.001);
+    trk_lambda_dxy_cov_mu_hist[i] = ibook.book1DD("trk_lambda_dxy_cov_mu" + sfx,
+                                                  "Muon Lambda-dxy Covariance (" + lbl + "); Covariance; Entries",
+                                                  100,
+                                                  -0.001,
+                                                  0.001);
+    trk_lambda_dsz_cov_mu_hist[i] = ibook.book1DD("trk_lambda_dsz_cov_mu" + sfx,
+                                                  "Muon Lambda-dsz Covariance (" + lbl + "); Covariance; Entries",
+                                                  100,
+                                                  -0.001,
+                                                  0.001);
+    trk_phi_dxy_cov_mu_hist[i] = ibook.book1DD(
         "trk_phi_dxy_cov_mu" + sfx, "Muon Phi-dxy Covariance (" + lbl + "); Covariance; Entries", 100, -0.001, 0.001);
-    trk_phi_dsz_cov_mu_hist[i] = ibook.book1D(
+    trk_phi_dsz_cov_mu_hist[i] = ibook.book1DD(
         "trk_phi_dsz_cov_mu" + sfx, "Muon Phi-dsz Covariance (" + lbl + "); Covariance; Entries", 100, -0.001, 0.001);
-    trk_dxy_dsz_cov_mu_hist[i] = ibook.book1D(
+    trk_dxy_dsz_cov_mu_hist[i] = ibook.book1DD(
         "trk_dxy_dsz_cov_mu" + sfx, "Muon dxy-dsz Covariance (" + lbl + "); Covariance; Entries", 100, -0.001, 0.001);
     trk_vx_mu_hist[i] =
-        ibook.book1D("trk_vx_mu" + sfx, "Muon Tracker Vertex X (" + lbl + "); x (cm); Entries", 100, -0.5, 0.5);
+        ibook.book1DD("trk_vx_mu" + sfx, "Muon Tracker Vertex X (" + lbl + "); x (cm); Entries", 100, -0.5, 0.5);
     trk_vy_mu_hist[i] =
-        ibook.book1D("trk_vy_mu" + sfx, "Muon Tracker Vertex Y (" + lbl + "); y (cm); Entries", 100, -0.5, 0.5);
+        ibook.book1DD("trk_vy_mu" + sfx, "Muon Tracker Vertex Y (" + lbl + "); y (cm); Entries", 100, -0.5, 0.5);
     trk_vz_mu_hist[i] =
-        ibook.book1D("trk_vz_mu" + sfx, "Muon Tracker Vertex Z (" + lbl + "); z (cm); Entries", 100, -20.0, 20.0);
+        ibook.book1DD("trk_vz_mu" + sfx, "Muon Tracker Vertex Z (" + lbl + "); z (cm); Entries", 100, -20.0, 20.0);
   }
 
   ibook.setCurrentFolder(topfoldername_ + "/PFJet");
-  pt_pfj_hist = ibook.book1D("pt_pfj", "PF Jet pT; p_{T} (GeV); Entries", 100, 0.0, 150.0);
-  eta_pfj_hist = ibook.book1D("eta_pfj", "PF Jet #eta; #eta; Entries", 100, -5.0, 5.0);
-  phi_pfj_hist = ibook.book1D("phi_pfj", "PF Jet #phi; #phi (rad); Entries", 100, -3.14, 3.14);
-  m_pfj_hist = ibook.book1D("m_pfj", "PF Jet Mass; Mass (GeV); Entries", 100, 0.0, 40.0);
-  jetArea_pfj_hist = ibook.book1D("jetArea_pfj", "PF Jet Area; Area; Entries", 100, 0.0, 0.8);
+  pt_pfj_hist = ibook.book1DD("pt_pfj", "PF Jet pT; p_{T} (GeV); Entries", 100, 0.0, 150.0);
+  eta_pfj_hist = ibook.book1DD("eta_pfj", "PF Jet #eta; #eta; Entries", 100, -5.0, 5.0);
+  phi_pfj_hist = ibook.book1DD("phi_pfj", "PF Jet #phi; #phi (rad); Entries", 100, -3.14, 3.14);
+  m_pfj_hist = ibook.book1DD("m_pfj", "PF Jet Mass; Mass (GeV); Entries", 100, 0.0, 40.0);
+  jetArea_pfj_hist = ibook.book1DD("jetArea_pfj", "PF Jet Area; Area; Entries", 100, 0.0, 0.8);
   chargedHadronEnergy_pfj_hist =
-      ibook.book1D("chargedHadronEnergy_pfj", "Charged Hadron Energy; Energy (GeV); Entries", 100, 0.0, 150.0);
+      ibook.book1DD("chargedHadronEnergy_pfj", "Charged Hadron Energy; Energy (GeV); Entries", 100, 0.0, 150.0);
   neutralHadronEnergy_pfj_hist =
-      ibook.book1D("neutralHadronEnergy_pfj", "Neutral Hadron Energy; Energy (GeV); Entries", 100, 0.0, 600.0);
-  photonEnergy_pfj_hist = ibook.book1D("photonEnergy_pfj", "Photon Energy; Energy (GeV); Entries", 100, 0.0, 90.0);
-  electronEnergy_pfj_hist = ibook.book1D("electronEnergy_pfj", "Electron Energy; Energy (GeV); Entries", 100, 0.0, 3.0);
-  muonEnergy_pfj_hist = ibook.book1D("muonEnergy_pfj", "Muon Energy; Energy (GeV); Entries", 100, 0.0, 3.0);
+      ibook.book1DD("neutralHadronEnergy_pfj", "Neutral Hadron Energy; Energy (GeV); Entries", 100, 0.0, 600.0);
+  photonEnergy_pfj_hist = ibook.book1DD("photonEnergy_pfj", "Photon Energy; Energy (GeV); Entries", 100, 0.0, 90.0);
+  electronEnergy_pfj_hist =
+      ibook.book1DD("electronEnergy_pfj", "Electron Energy; Energy (GeV); Entries", 100, 0.0, 3.0);
+  muonEnergy_pfj_hist = ibook.book1DD("muonEnergy_pfj", "Muon Energy; Energy (GeV); Entries", 100, 0.0, 3.0);
   HFHadronEnergy_pfj_hist =
-      ibook.book1D("HFHadronEnergy_pfj", "HF Hadron Energy; Energy (GeV); Entries", 100, 0.0, 300.0);
-  HFEMEnergy_pfj_hist = ibook.book1D("HFEMEnergy_pfj", "HF EM Energy; Energy (GeV); Entries", 100, 0.0, 300.0);
+      ibook.book1DD("HFHadronEnergy_pfj", "HF Hadron Energy; Energy (GeV); Entries", 100, 0.0, 300.0);
+  HFEMEnergy_pfj_hist = ibook.book1DD("HFEMEnergy_pfj", "HF EM Energy; Energy (GeV); Entries", 100, 0.0, 300.0);
   chargedHadronMultiplicity_pfj_hist =
-      ibook.book1D("chargedHadronMultiplicity_pfj", "Charged Hadron Multiplicity; Multiplicity; Entries", 50, 0, 25);
+      ibook.book1DD("chargedHadronMultiplicity_pfj", "Charged Hadron Multiplicity; Multiplicity; Entries", 50, 0, 25);
   neutralHadronMultiplicity_pfj_hist =
-      ibook.book1D("neutralHadronMultiplicity_pfj", "Neutral Hadron Multiplicity; Multiplicity; Entries", 50, 0, 10);
+      ibook.book1DD("neutralHadronMultiplicity_pfj", "Neutral Hadron Multiplicity; Multiplicity; Entries", 50, 0, 10);
   photonMultiplicity_pfj_hist =
-      ibook.book1D("photonMultiplicity_pfj", "Photon Multiplicity; Multiplicity; Entries", 50, 0, 22);
+      ibook.book1DD("photonMultiplicity_pfj", "Photon Multiplicity; Multiplicity; Entries", 50, 0, 22);
   electronMultiplicity_pfj_hist =
-      ibook.book1D("electronMultiplicity_pfj", "Electron Multiplicity; Multiplicity; Entries", 20, 0, 5);
+      ibook.book1DD("electronMultiplicity_pfj", "Electron Multiplicity; Multiplicity; Entries", 20, 0, 5);
   muonMultiplicity_pfj_hist =
-      ibook.book1D("muonMultiplicity_pfj", "Muon Multiplicity; Multiplicity; Entries", 20, 0, 5);
+      ibook.book1DD("muonMultiplicity_pfj", "Muon Multiplicity; Multiplicity; Entries", 20, 0, 5);
   HFHadronMultiplicity_pfj_hist =
-      ibook.book1D("HFHadronMultiplicity_pfj", "HF Hadron Multiplicity; Multiplicity; Entries", 20, 0, 20);
+      ibook.book1DD("HFHadronMultiplicity_pfj", "HF Hadron Multiplicity; Multiplicity; Entries", 20, 0, 20);
   HFEMMultiplicity_pfj_hist =
-      ibook.book1D("HFEMMultiplicity_pfj", "HF EM Multiplicity; Multiplicity; Entries", 20, 0, 20);
-  HOEnergy_pfj_hist = ibook.book1D("HOEnergy_pfj", "HO Energy; Energy (GeV); Entries", 100, 0.0, 5.0);
-  mvaDiscriminator_pfj_hist = ibook.book1D("mvaDiscriminator_pfj", "MVA Discriminator; Score; Entries", 100, -1.0, 1.0);
+      ibook.book1DD("HFEMMultiplicity_pfj", "HF EM Multiplicity; Multiplicity; Entries", 20, 0, 20);
+  HOEnergy_pfj_hist = ibook.book1DD("HOEnergy_pfj", "HO Energy; Energy (GeV); Entries", 100, 0.0, 5.0);
+  mvaDiscriminator_pfj_hist =
+      ibook.book1DD("mvaDiscriminator_pfj", "MVA Discriminator; Score; Entries", 100, -1.0, 1.0);
 
   ibook.setCurrentFolder(topfoldername_ + "/PrimaryVertex");
-  x_pv_hist = ibook.book1D("x_pv", "Primary Vertex X Position; x (cm); Entries", 100, -0.5, 0.5);
-  y_pv_hist = ibook.book1D("y_pv", "Primary Vertex Y Position; y (cm); Entries", 100, -0.5, 0.5);
-  z_pv_hist = ibook.book1D("z_pv", "Primary Vertex Z Position; z (cm); Entries", 100, -20.0, 20.0);
-  zError_pv_hist = ibook.book1D("zError_pv", "Primary Vertex Z Error; z Error (cm); Entries", 100, 0.0, 0.05);
-  xError_pv_hist = ibook.book1D("xError_pv", "Primary Vertex X Error; x Error (cm); Entries", 100, 0.0, 0.05);
-  yError_pv_hist = ibook.book1D("yError_pv", "Primary Vertex Y Error; y Error (cm); Entries", 100, 0.0, 0.05);
+  x_pv_hist = ibook.book1DD("x_pv", "Primary Vertex X Position; x (cm); Entries", 100, -0.5, 0.5);
+  y_pv_hist = ibook.book1DD("y_pv", "Primary Vertex Y Position; y (cm); Entries", 100, -0.5, 0.5);
+  z_pv_hist = ibook.book1DD("z_pv", "Primary Vertex Z Position; z (cm); Entries", 100, -20.0, 20.0);
+  zError_pv_hist = ibook.book1DD("zError_pv", "Primary Vertex Z Error; z Error (cm); Entries", 100, 0.0, 0.05);
+  xError_pv_hist = ibook.book1DD("xError_pv", "Primary Vertex X Error; x Error (cm); Entries", 100, 0.0, 0.05);
+  yError_pv_hist = ibook.book1DD("yError_pv", "Primary Vertex Y Error; y Error (cm); Entries", 100, 0.0, 0.05);
   tracksSize_pv_hist =
-      ibook.book1D("tracksSize_pv", "Number of Tracks at Primary Vertex; Tracks; Entries", 100, 0, 100);
-  chi2_pv_hist = ibook.book1D("chi2_pv", "Primary Vertex chi2; #chi^{2}; Entries", 100, 0.0, 50.0);
-  ndof_pv_hist = ibook.book1D("ndof_pv", "Primary Vertex Ndof; Ndof; Entries", 100, 0, 100);
-  isValidVtx_pv_hist = ibook.book1D("isValidVtx_pv", "Is Valid Primary Vertex?; 0 = False, 1 = True; Entries", 2, 0, 2);
-  xyCov_pv_hist = ibook.book1D("xyCov_pv", "Primary Vertex XY Covariance; Cov(x,y); Entries", 100, -0.01, 0.01);
-  xzCov_pv_hist = ibook.book1D("xzCov_pv", "Primary Vertex XZ Covariance; Cov(x,z); Entries", 100, -0.01, 0.01);
-  yzCov_pv_hist = ibook.book1D("yzCov_pv", "Primary Vertex YZ Covariance; Cov(y,z); Entries", 100, -0.01, 0.01);
+      ibook.book1DD("tracksSize_pv", "Number of Tracks at Primary Vertex; Tracks; Entries", 100, 0, 100);
+  chi2_pv_hist = ibook.book1DD("chi2_pv", "Primary Vertex chi2; #chi^{2}; Entries", 100, 0.0, 50.0);
+  ndof_pv_hist = ibook.book1DD("ndof_pv", "Primary Vertex Ndof; Ndof; Entries", 100, 0, 100);
+  isValidVtx_pv_hist =
+      ibook.book1DD("isValidVtx_pv", "Is Valid Primary Vertex?; 0 = False, 1 = True; Entries", 2, 0, 2);
+  xyCov_pv_hist = ibook.book1DD("xyCov_pv", "Primary Vertex XY Covariance; Cov(x,y); Entries", 100, -0.01, 0.01);
+  xzCov_pv_hist = ibook.book1DD("xzCov_pv", "Primary Vertex XZ Covariance; Cov(x,z); Entries", 100, -0.01, 0.01);
+  yzCov_pv_hist = ibook.book1DD("yzCov_pv", "Primary Vertex YZ Covariance; Cov(y,z); Entries", 100, -0.01, 0.01);
 
   // book the displaced vertex histograms (Vtx and noVtx collections)
   const std::array<std::string, 2> vertexLabels = {{"displacedVertices", "displacedVerticesNoVtx"}};
@@ -1146,60 +1149,60 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
 
     ibook.setCurrentFolder(topfoldername_ + "/" + vertexLabels[i]);
 
-    x_vtx_hist[i] = ibook.book1D("x_vtx" + sfx, "Vertex X Position (" + lbl + "); x (cm); Entries", 100, -0.5, 0.5);
-    y_vtx_hist[i] = ibook.book1D("y_vtx" + sfx, "Vertex Y Position (" + lbl + "); y (cm); Entries", 100, -0.5, 0.5);
-    z_vtx_hist[i] = ibook.book1D("z_vtx" + sfx, "Vertex Z Position (" + lbl + "); z (cm); Entries", 100, -20.0, 20.0);
+    x_vtx_hist[i] = ibook.book1DD("x_vtx" + sfx, "Vertex X Position (" + lbl + "); x (cm); Entries", 100, -0.5, 0.5);
+    y_vtx_hist[i] = ibook.book1DD("y_vtx" + sfx, "Vertex Y Position (" + lbl + "); y (cm); Entries", 100, -0.5, 0.5);
+    z_vtx_hist[i] = ibook.book1DD("z_vtx" + sfx, "Vertex Z Position (" + lbl + "); z (cm); Entries", 100, -20.0, 20.0);
     xError_vtx_hist[i] =
-        ibook.book1D("xError_vtx" + sfx, "Vertex X Error (" + lbl + "); x Error (cm); Entries", 100, 0.0, 0.2);
+        ibook.book1DD("xError_vtx" + sfx, "Vertex X Error (" + lbl + "); x Error (cm); Entries", 100, 0.0, 0.2);
     yError_vtx_hist[i] =
-        ibook.book1D("yError_vtx" + sfx, "Vertex Y Error (" + lbl + "); y Error (cm); Entries", 100, 0.0, 0.2);
+        ibook.book1DD("yError_vtx" + sfx, "Vertex Y Error (" + lbl + "); y Error (cm); Entries", 100, 0.0, 0.2);
     zError_vtx_hist[i] =
-        ibook.book1D("zError_vtx" + sfx, "Vertex Z Error (" + lbl + "); z Error (cm); Entries", 100, 0.0, 0.2);
+        ibook.book1DD("zError_vtx" + sfx, "Vertex Z Error (" + lbl + "); z Error (cm); Entries", 100, 0.0, 0.2);
     tracksSize_vtx_hist[i] =
-        ibook.book1D("tracksSize_vtx" + sfx, "Number of Tracks at Vertex (" + lbl + "); Tracks; Entries", 100, 0, 100);
+        ibook.book1DD("tracksSize_vtx" + sfx, "Number of Tracks at Vertex (" + lbl + "); Tracks; Entries", 100, 0, 100);
     chi2_vtx_hist[i] =
-        ibook.book1D("chi2_vtx" + sfx, "Vertex #chi^{2} (" + lbl + "); #chi^{2}; Entries", 100, 0.0, 5.0);
-    ndof_vtx_hist[i] = ibook.book1D("ndof_vtx" + sfx, "Vertex Ndof (" + lbl + "); Ndof; Entries", 100, 0, 5);
+        ibook.book1DD("chi2_vtx" + sfx, "Vertex #chi^{2} (" + lbl + "); #chi^{2}; Entries", 100, 0.0, 5.0);
+    ndof_vtx_hist[i] = ibook.book1DD("ndof_vtx" + sfx, "Vertex Ndof (" + lbl + "); Ndof; Entries", 100, 0, 5);
     isValidVtx_vtx_hist[i] =
-        ibook.book1D("isValidVtx_vtx" + sfx, "Is Valid Vertex? (" + lbl + "); 0 = False, 1 = True; Entries", 2, 0, 2);
+        ibook.book1DD("isValidVtx_vtx" + sfx, "Is Valid Vertex? (" + lbl + "); 0 = False, 1 = True; Entries", 2, 0, 2);
     xyCov_vtx_hist[i] =
-        ibook.book1D("xyCov_vtx" + sfx, "Vertex XY Covariance (" + lbl + "); Cov(x,y); Entries", 100, -0.01, 0.01);
+        ibook.book1DD("xyCov_vtx" + sfx, "Vertex XY Covariance (" + lbl + "); Cov(x,y); Entries", 100, -0.01, 0.01);
     xzCov_vtx_hist[i] =
-        ibook.book1D("xzCov_vtx" + sfx, "Vertex XZ Covariance (" + lbl + "); Cov(x,z); Entries", 100, -0.01, 0.01);
+        ibook.book1DD("xzCov_vtx" + sfx, "Vertex XZ Covariance (" + lbl + "); Cov(x,z); Entries", 100, -0.01, 0.01);
     yzCov_vtx_hist[i] =
-        ibook.book1D("yzCov_vtx" + sfx, "Vertex YZ Covariance (" + lbl + "); Cov(y,z); Entries", 100, -0.01, 0.01);
+        ibook.book1DD("yzCov_vtx" + sfx, "Vertex YZ Covariance (" + lbl + "); Cov(y,z); Entries", 100, -0.01, 0.01);
   }
 
   ibook.setCurrentFolder(topfoldername_ + "/Tracking");
-  tk_pt_tk_hist = ibook.book1D("tk_pt_tk", "Track pT; p_{T} (GeV); Entries", 100, 0.0, 30.0);
-  tk_eta_tk_hist = ibook.book1D("tk_eta_tk", "Track #eta; #eta; Entries", 100, -2.7, 2.7);
-  tk_phi_tk_hist = ibook.book1D("tk_phi_tk", "Track #phi; #phi (rad); Entries", 100, -3.14, 3.14);
-  tk_chi2_tk_hist = ibook.book1D("tk_chi2_tk", "Track #chi^{2}; #chi^{2}; Entries", 100, 0.0, 50.0);
-  tk_ndof_tk_hist = ibook.book1D("tk_ndof_tk", "Track Ndof; Ndof; Entries", 100, 0, 10);
-  tk_charge_tk_hist = ibook.book1D("tk_charge_tk", "Track Charge; Charge; Entries", 3, -1, 2);
-  tk_dxy_tk_hist = ibook.book1D("tk_dxy_tk", "Track dxy; dxy (cm); Entries", 100, -0.5, 0.5);
-  tk_dz_tk_hist = ibook.book1D("tk_dz_tk", "Track dz; dz (cm); Entries", 100, -20.0, 20.0);
-  tk_nValidPixelHits_tk_hist = ibook.book1D("tk_nValidPixelHits_tk", "Valid Pixel Hits; Hits; Entries", 20, 0, 20);
-  tk_nTrackerLayersWithMeasurement_tk_hist = ibook.book1D(
+  tk_pt_tk_hist = ibook.book1DD("tk_pt_tk", "Track pT; p_{T} (GeV); Entries", 100, 0.0, 30.0);
+  tk_eta_tk_hist = ibook.book1DD("tk_eta_tk", "Track #eta; #eta; Entries", 100, -2.7, 2.7);
+  tk_phi_tk_hist = ibook.book1DD("tk_phi_tk", "Track #phi; #phi (rad); Entries", 100, -3.14, 3.14);
+  tk_chi2_tk_hist = ibook.book1DD("tk_chi2_tk", "Track #chi^{2}; #chi^{2}; Entries", 100, 0.0, 50.0);
+  tk_ndof_tk_hist = ibook.book1DD("tk_ndof_tk", "Track Ndof; Ndof; Entries", 100, 0, 10);
+  tk_charge_tk_hist = ibook.book1DD("tk_charge_tk", "Track Charge; Charge; Entries", 3, -1, 2);
+  tk_dxy_tk_hist = ibook.book1DD("tk_dxy_tk", "Track dxy; dxy (cm); Entries", 100, -0.5, 0.5);
+  tk_dz_tk_hist = ibook.book1DD("tk_dz_tk", "Track dz; dz (cm); Entries", 100, -20.0, 20.0);
+  tk_nValidPixelHits_tk_hist = ibook.book1DD("tk_nValidPixelHits_tk", "Valid Pixel Hits; Hits; Entries", 20, 0, 20);
+  tk_nTrackerLayersWithMeasurement_tk_hist = ibook.book1DD(
       "tk_nTrackerLayersWithMeasurement_tk", "Tracker Layers with Measurement; Layers; Entries", 20, 0, 20);
-  tk_nValidStripHits_tk_hist = ibook.book1D("tk_nValidStripHits_tk", "Valid Strip Hits; Hits; Entries", 50, 0, 50);
-  tk_qoverp_tk_hist = ibook.book1D("tk_qoverp_tk", "q/p; q/p; Entries", 100, -1.0, 1.0);
-  tk_lambda_tk_hist = ibook.book1D("tk_lambda_tk", "Lambda; #lambda; Entries", 100, -2, 2);
-  tk_dxy_Error_tk_hist = ibook.book1D("tk_dxy_Error_tk", "dxy Error; dxy Error (cm); Entries", 100, 0.0, 0.05);
-  tk_dz_Error_tk_hist = ibook.book1D("tk_dz_Error_tk", "dz Error; dz Error (cm); Entries", 100, 0.0, 0.05);
-  tk_qoverp_Error_tk_hist = ibook.book1D("tk_qoverp_Error_tk", "q/p Error; q/p Error; Entries", 100, 0.0, 0.05);
-  tk_lambda_Error_tk_hist = ibook.book1D("tk_lambda_Error_tk", "Lambda Error; #lambda Error; Entries", 100, 0.0, 0.1);
-  tk_phi_Error_tk_hist = ibook.book1D("tk_phi_Error_tk", "Phi Error; #phi Error (rad); Entries", 100, 0.0, 0.01);
-  tk_dsz_tk_hist = ibook.book1D("tk_dsz_tk", "dsz; dsz (cm); Entries", 100, -2, 2);
-  tk_dsz_Error_tk_hist = ibook.book1D("tk_dsz_Error_tk", "dsz Error; dsz Error (cm); Entries", 100, 0.0, 0.05);
-  tk_vtxInd_tk_hist = ibook.book1D("tk_vtxInd_tk", "Vertex Index; Index; Entries", 50, 0, 50);
-  tk_vx_tk_hist = ibook.book1D("tk_vx_tk", "Tracker Vertex X; x (cm); Entries", 100, -0.5, 0.5);
-  tk_vy_tk_hist = ibook.book1D("tk_vy_tk", "Tracker Vertex Y; y (cm); Entries", 100, -0.5, 0.5);
-  tk_vz_tk_hist = ibook.book1D("tk_vz_tk", "Tracker Vertex Z; z (cm); Entries", 100, -20.0, 20.0);
-  tk_chi2_ndof_tk_hist = ibook.book1D("tk_chi2_ndof_tk", "Reduced #chi^{2}; #chi^{2}/NDOF; Entries", 100, 0, 50);
-  tk_chi2_prob_hist = ibook.book1D("tk_chi2_prob_hist", "p(#chi^{2}, NDOF); p(#chi^{2}, NDOF); Entries", 100, 0, 1);
-  tk_PV_dz_hist = ibook.book1D("tk_PV_dz", "Track dz w.r.t. PV; Track dz w.r.t. PV; Entries", 100, -0.35, 0.35);
-  tk_PV_dxy_hist = ibook.book1D("tk_PV_dxy", "Track dxy w.r.t. PV; Track dxy w.r.t. PV; Entries", 100, -0.15, 0.15);
+  tk_nValidStripHits_tk_hist = ibook.book1DD("tk_nValidStripHits_tk", "Valid Strip Hits; Hits; Entries", 50, 0, 50);
+  tk_qoverp_tk_hist = ibook.book1DD("tk_qoverp_tk", "q/p; q/p; Entries", 100, -1.0, 1.0);
+  tk_lambda_tk_hist = ibook.book1DD("tk_lambda_tk", "Lambda; #lambda; Entries", 100, -2, 2);
+  tk_dxy_Error_tk_hist = ibook.book1DD("tk_dxy_Error_tk", "dxy Error; dxy Error (cm); Entries", 100, 0.0, 0.05);
+  tk_dz_Error_tk_hist = ibook.book1DD("tk_dz_Error_tk", "dz Error; dz Error (cm); Entries", 100, 0.0, 0.05);
+  tk_qoverp_Error_tk_hist = ibook.book1DD("tk_qoverp_Error_tk", "q/p Error; q/p Error; Entries", 100, 0.0, 0.05);
+  tk_lambda_Error_tk_hist = ibook.book1DD("tk_lambda_Error_tk", "Lambda Error; #lambda Error; Entries", 100, 0.0, 0.1);
+  tk_phi_Error_tk_hist = ibook.book1DD("tk_phi_Error_tk", "Phi Error; #phi Error (rad); Entries", 100, 0.0, 0.01);
+  tk_dsz_tk_hist = ibook.book1DD("tk_dsz_tk", "dsz; dsz (cm); Entries", 100, -2, 2);
+  tk_dsz_Error_tk_hist = ibook.book1DD("tk_dsz_Error_tk", "dsz Error; dsz Error (cm); Entries", 100, 0.0, 0.05);
+  tk_vtxInd_tk_hist = ibook.book1DD("tk_vtxInd_tk", "Vertex Index; Index; Entries", 50, 0, 50);
+  tk_vx_tk_hist = ibook.book1DD("tk_vx_tk", "Tracker Vertex X; x (cm); Entries", 100, -0.5, 0.5);
+  tk_vy_tk_hist = ibook.book1DD("tk_vy_tk", "Tracker Vertex Y; y (cm); Entries", 100, -0.5, 0.5);
+  tk_vz_tk_hist = ibook.book1DD("tk_vz_tk", "Tracker Vertex Z; z (cm); Entries", 100, -20.0, 20.0);
+  tk_chi2_ndof_tk_hist = ibook.book1DD("tk_chi2_ndof_tk", "Reduced #chi^{2}; #chi^{2}/NDOF; Entries", 100, 0, 50);
+  tk_chi2_prob_hist = ibook.book1DD("tk_chi2_prob_hist", "p(#chi^{2}, NDOF); p(#chi^{2}, NDOF); Entries", 100, 0, 1);
+  tk_PV_dz_hist = ibook.book1DD("tk_PV_dz", "Track dz w.r.t. PV; Track dz w.r.t. PV; Entries", 100, -0.35, 0.35);
+  tk_PV_dxy_hist = ibook.book1DD("tk_PV_dxy", "Track dxy w.r.t. PV; Track dxy w.r.t. PV; Entries", 100, -0.15, 0.15);
 }
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 

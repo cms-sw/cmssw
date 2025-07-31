@@ -44,7 +44,8 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 ### for pp collisions
 process.load("DQM.HLTEvF.ScoutingCollectionMonitor_cfi")
 process.scoutingCollectionMonitor.topfoldername = "HLT/ScoutingOnline/Miscellaneous"
-process.scoutingCollectionMonitor.onlyScouting = True
+process.scoutingCollectionMonitor.onlyScouting = False # this can flipped due to https://its.cern.ch/jira/browse/CMSHLT-3585
+process.scoutingCollectionMonitor.onlineMetaDataDigis = "hltOnlineMetaDataDigis"
 process.scoutingCollectionMonitor.rho = ["hltScoutingPFPacker", "rho"]
 process.dqmcommon = cms.Sequence(process.dqmEnv
                                * process.dqmSaver)#*process.dqmSaverPB)
