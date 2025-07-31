@@ -47,6 +47,28 @@ public:
     assert(reinterpret_cast<uintptr_t>(buffer_->data()) % Layout::alignment == 0);
   }
 
+  template <typename L = Layout>
+    requires requires { L::blocksNumber; }
+  PortableHostCollection(std::array<int32_t, L::blocksNumber> const& elements, alpaka_common::DevHost const& host)
+      // allocate pageable host memory
+      : buffer_{cms::alpakatools::make_host_buffer<std::byte[]>(L::computeDataSize(elements))},
+        layout_{buffer_->data(), elements},
+        view_{layout_} {
+    // Alpaka set to a default alignment of 128 bytes defining ALPAKA_DEFAULT_HOST_MEMORY_ALIGNMENT=128
+    assert(reinterpret_cast<uintptr_t>(buffer_->data()) % L::alignment == 0);
+  }
+
+  template <typename TQueue, typename L = Layout, typename = std::enable_if_t<alpaka::isQueue<TQueue>>>
+    requires requires { L::blocksNumber; }
+  PortableHostCollection(std::array<int32_t, L::blocksNumber> const& elements, TQueue const& queue)
+      // allocate pinned host memory associated to the given work queue, accessible by the queue's device
+      : buffer_{cms::alpakatools::make_host_buffer<std::byte[]>(queue, L::computeDataSize(elements))},
+        layout_{buffer_->data(), elements},
+        view_{layout_} {
+    // Alpaka set to a default alignment of 128 bytes defining ALPAKA_DEFAULT_HOST_MEMORY_ALIGNMENT=128
+    assert(reinterpret_cast<uintptr_t>(buffer_->data()) % L::alignment == 0);
+  }
+
   // non-copyable
   PortableHostCollection(PortableHostCollection const&) = delete;
   PortableHostCollection& operator=(PortableHostCollection const&) = delete;
@@ -96,12 +118,14 @@ public:
     layout.ROOTStreamerCleaner();
   }
 
-  // Copy column by column the content of the given view into this PortableHostCollection.
+  // Copy column by column the content of the given ConstView into this PortableHostCollection.
   // The view must point to data in host memory.
   void deepCopy(ConstView const& view) { layout_.deepCopy(view); }
 
   // Copy column by column heterogeneously for device to host data transfer.
-  template <typename TQueue>
+  // TODO: implement heterogeneous deepCopy for SoA blocks
+  template <typename TQueue, typename L = Layout>
+    requires(!requires { L::blocksNumber; })
   void deepCopy(ConstView const& view, TQueue& queue) {
     ConstDescriptor desc{view};
     Descriptor desc_{view_};
