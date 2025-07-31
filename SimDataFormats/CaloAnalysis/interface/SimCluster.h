@@ -195,17 +195,18 @@ public:
   }
 
   /** @brief Returns filtered list of rechit IDs and fractions for this SimCluster based on a predicate */
-  std::vector<std::pair<uint32_t, float>> filtered_hits_and_fractions(const std::function<bool(const DetId&)>& predicate) const {
+  std::vector<std::pair<uint32_t, float>> filtered_hits_and_fractions(
+      const std::function<bool(const DetId &)> &predicate) const {
     std::vector<std::pair<uint32_t, float>> result;
     for (size_t i = 0; i < hits_.size(); ++i) {
-	  DetId detid(hits_[i]);
-	  if (predicate(detid)) {
-		result.emplace_back(hits_[i], fractions_[i]);
-	  }
+      DetId detid(hits_[i]);
+      if (predicate(detid)) {
+        result.emplace_back(hits_[i], fractions_[i]);
+      }
     }
     return result;
   }
-  
+
   /** @brief Returns list of rechit IDs and energies for this SimCluster */
   std::vector<std::pair<uint32_t, float>> hits_and_energies() const {
     assert(hits_.size() == energies_.size());

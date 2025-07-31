@@ -1493,7 +1493,8 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
       LogDebug("HGCalValidator") << " This sim cluster has " << sc->hits_and_fractions().size() << " simHits and "
                                  << sc->energy() << " energy. " << std::endl;
 
-	  auto endcap_hf = sc->filtered_hits_and_fractions( [this](const DetId& detid) {return recHitTools_->isBarrel(detid);} );
+      auto endcap_hf =
+          sc->filtered_hits_and_fractions([this](const DetId& detid) { return recHitTools_->isBarrel(detid); });
       simHits += endcap_hf.size();
       for (auto const& h_and_f : endcap_hf) {
         const auto hitDetId = h_and_f.first;
