@@ -519,7 +519,11 @@ bool RecHitTools::isScintillatorFine(const DetId& id) const {
     return false;
   }
 }
-bool RecHitTools::isBarrel(const DetId& id) const { return (id.det() == DetId::Ecal && id.subdetId() == EcalBarrel) || (id.det() == DetId::Hcal && id.subdetId() == HcalBarrel) || (id.det() == DetId::Hcal && id.subdetId() == HcalOuter); }
+bool RecHitTools::isBarrel(const DetId& id) const {
+  return (id.det() == DetId::Ecal && id.subdetId() == EcalBarrel) ||
+         (id.det() == DetId::Hcal && id.subdetId() == HcalBarrel) ||
+         (id.det() == DetId::Hcal && id.subdetId() == HcalOuter);
+}
 
 bool RecHitTools::isOnlySilicon(const unsigned int layer) const {
   // HFnose TODO

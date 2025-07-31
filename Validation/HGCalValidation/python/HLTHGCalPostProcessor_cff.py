@@ -14,7 +14,7 @@ hltTracksterLabels.extend(['hltTiclSimTracksters', 'hltTiclSimTracksters_fromCPs
 
 hltLcToCP_linking = _hltHgcalValidator.label_LCToCPLinking._InputTag__moduleLabel
 hltPostProcessorHGCALlayerclusters = _postProcessorHGCALlayerclusters.clone(
-    subDirs = cms.untracked.vstring(hltPrefix + _hltHgcalValidator.label_layerClusterPlots._InputTag__moduleLabel + '/' + hltLcToCP_linking),
+    subDirs = cms.untracked.vstring(hltPrefix + _hltHgcalValidator.label_layerClustersPlots._InputTag__moduleLabel + '/' + hltLcToCP_linking),
 )
 
 hltSubdirsSim = [hltPrefix + _hltHgcalValidator.label_SimClusters._InputTag__moduleLabel + '/'+iteration+'/' for iteration in hltTracksterLabels]

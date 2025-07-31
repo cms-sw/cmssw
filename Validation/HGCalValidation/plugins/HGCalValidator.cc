@@ -84,7 +84,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
       label_SimClustersPlots_(pset.getParameter<edm::InputTag>("label_SimClusters")),
       label_SimClustersLevel_(pset.getParameter<edm::InputTag>("label_SimClustersLevel")),
       doLayerClustersPlots_(pset.getUntrackedParameter<bool>("doLayerClustersPlots")),
-      label_layerClustersPlots_(pset.getParameter<edm::InputTag>("label_layerClusterPlots")),
+      label_layerClustersPlots_(pset.getParameter<edm::InputTag>("label_layerClustersPlots")),
       label_LCToCPLinking_(pset.getParameter<edm::InputTag>("label_LCToCPLinking")),
       doTrackstersPlots_(pset.getUntrackedParameter<bool>("doTrackstersPlots")),
       label_TS_(pset.getParameter<std::string>("label_TS")),
@@ -805,7 +805,7 @@ void HGCalValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<edm::InputTag>("label_SimClusters", edm::InputTag("SimClusters"));
   desc.add<edm::InputTag>("label_SimClustersLevel", edm::InputTag("ClusterLevel"));
   desc.addUntracked<bool>("doLayerClustersPlots", true);
-  desc.add<edm::InputTag>("label_layerClusterPlots", edm::InputTag("hgcalMergeLayerClusters"));
+  desc.add<edm::InputTag>("label_layerClustersPlots", edm::InputTag("hgcalMergeLayerClusters"));
   desc.add<edm::InputTag>("label_LCToCPLinking", edm::InputTag("LCToCP_association"));
   desc.addUntracked<bool>("doTrackstersPlots", true);
   desc.add<std::string>("label_TS", "Morphology");
