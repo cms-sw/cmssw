@@ -235,12 +235,12 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
     nOTHits = otRecHitsDSV->dataSize();
   }
 
-  size_t nHits = nPixelHits + nOTHits;
+  size_t nTotalHits = nPixelHits + nOTHits;
 
   // hitmap to go from a unique RecHit identifier to the RecHit in the legacy collection
   // (unique hit identifier is equivalent to the position of the hit in the RecHit SoA)
   std::vector<TrackingRecHit const *> hitmap;
-  hitmap.resize(nHits, nullptr);
+  hitmap.resize(nTotalHits, nullptr);
 
   // loop over pixel RecHits to fill the hitmap
   for (auto const &pixelHit : pixelRecHits) {
@@ -336,7 +336,7 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
       return (o - i - 25);
 
     else if (outerInOTExtension)
-        return (o - 28);
+      return (o - 28);
 
     else if (innerInBarrel && outerInBackward)
       return (o - 16);
@@ -397,9 +397,19 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
     hits.resize(nHits);
     auto start = (it == 0) ? 0 : hitOffs[it - 1];
     auto end = hitOffs[it];
+    int nRemovedHits{0};
 
-    for (auto iHit = start; iHit < end; ++iHit)
-      hits[iHit - start] = hitmap[hitIdxs[iHit]];
+    for (auto iHit = start; iHit < end; ++iHit) {
+      // if hit in hitmap: true for pixel hits, true for OT hits if useOTExtension_
+      auto hitIdx = hitIdxs[iHit];
+      if (hitIdx < nTotalHits)
+        hits[iHit - start] = hitmap[hitIdx];
+      // else remove the OT hit from the track
+      else
+        nRemovedHits++;
+    }
+    hits.resize(nHits - nRemovedHits);
+    end = end - nRemovedHits;
 
     // implement custome requirement for quadruplets coming from consecutive layers
     if (requireQuadsFromConsecutiveLayers_ && (nHits == 4)) {
