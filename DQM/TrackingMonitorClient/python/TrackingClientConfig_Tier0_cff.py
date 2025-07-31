@@ -92,7 +92,17 @@ TrackEffClient.AlgoName   = 'CKFTk'
 
 from DQM.TrackingMonitor.TrackFoldedOccupancyClient_cfi import *
 
-TrackingOfflineDQMClient = cms.Sequence(trackingQTester*trackingOfflineAnalyser*trackingEffFromHitPattern*voMonitoringClientSequence*primaryVertexResolutionClient*TrackEffClient*foldedMapClientSeq)
+from DQMOffline.Trigger.TrackingMonitoring_Client_cff import TrackToTrackEfficiencies as _t2t
+highPtTripletStepTrackToTrackSerialSyncAnalyzer = _t2t.clone(
+    subDirs = ["Tracking/TrackBuilding/ValidationWRTSerialSync/highPtTripletStep"])
+trackToTrackCPUAnalyzer = cms.Sequence()
+_trackToTrackCPUAnalyzer_trackingLST = cms.Sequence(highPtTripletStepTrackToTrackSerialSyncAnalyzer)
+from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
+from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
+(trackingPhase2PU140 & trackingLST).toReplaceWith(trackToTrackCPUAnalyzer, _trackToTrackCPUAnalyzer_trackingLST)
+
+
+TrackingOfflineDQMClient = cms.Sequence(trackingQTester*trackingOfflineAnalyser*trackingEffFromHitPattern*voMonitoringClientSequence*primaryVertexResolutionClient*TrackEffClient*foldedMapClientSeq*trackToTrackCPUAnalyzer)
 
 TrackingOfflineDQMClientZeroBias = cms.Sequence(trackingQTester*trackingOfflineAnalyser*trackingEffFromHitPatternZeroBias*voMonitoringClientSequence*primaryVertexResolutionClient*TrackEffClient*foldedMapClientSeq)
 
