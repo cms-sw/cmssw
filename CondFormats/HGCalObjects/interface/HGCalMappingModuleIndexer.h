@@ -21,6 +21,8 @@
  */
 struct HGCalFEDReadoutSequence {
   uint32_t id;
+  //overall counters for total number of ECONs and Capture Blocks (useful to steer the unpacker behavior)
+  size_t totalECONs_, totalCBs_;
   /// look-up table (capture block, econd idx) -> internal dense index
   std::vector<int> moduleLUT_;
   /// dense sequence of modules in the readout: the type is the one in use in the cell mapping
