@@ -1,4 +1,5 @@
 #include "Validation/HLTrigger/interface/HLTGenResHistColl.h"
+#include <optional>
 
 namespace {
   // function to get the trigger objects of a specific collection
@@ -141,20 +142,20 @@ void HLTGenResHistColl::bookHists(DQMStore::IBooker& iBooker) {
 void HLTGenResHistColl::fillHists(const HLTGenValObject& obj, edm::Handle<trigger::TriggerEvent>& triggerEvent) {
   // get the trigger objects of the collection
   auto keyRange = getTrigObjIndicesOfCollection(*triggerEvent, collectionName_, hltProcessName_);
-  const trigger::TriggerObject* bestMatch = nullptr;
+  std::optional<trigger::TriggerObject> bestMatch;
   float bestDR2 = dR2limit_;
   for (trigger::size_type key = keyRange.first; key < keyRange.second; ++key) {
     if (passFilterSelection(key, *triggerEvent)) {
       const trigger::TriggerObject objTrig = triggerEvent->getObjects().at(key);
       if (isEventLevelVariable_) {
         bestDR2 = 0;
-        bestMatch = &objTrig;
+        bestMatch = objTrig;
         break;
       } else {
         float dR2 = reco::deltaR2(obj, objTrig);
         if (dR2 < bestDR2) {
           bestDR2 = dR2;
-          bestMatch = &objTrig;
+          bestMatch = objTrig;
         }
       }
     }
