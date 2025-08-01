@@ -788,13 +788,34 @@ void ProvenanceDumper::work_() {
   }
 
   if (!phv_.empty()) {
-    // (Re-)Sort according to reduced history ID in order to have a
-    // stable order with respect to hardware differences
-    std::ranges::sort(phv_, {}, [](auto const& history) {
-      auto copy = history;
-      copy.reduce();
-      return history.id();
-    });
+    // (Re-)Sort according to reduced history ID and
+    // ProcessConfiguration::operator<() in order to have a stable
+    // order with respect to hardware differences
+    std::ranges::sort(
+        phv_,
+        [](auto const& a, auto const& b) {
+          if (a.first != b.first) {
+            return a.first < b.first;
+          }
+          // history ID are the same, so only difference is in the hardware
+          auto const& ap = *a.second;
+          auto const& bp = *b.second;
+          assert(ap.size() == bp.size());
+          for (edm::ProcessHistory::size_type i = 0; i < ap.size(); ++i) {
+            if (ap[i] < bp[i]) {
+              return true;
+            } else if (not(bp[i] < ap[i])) {
+              return false;
+            }
+          }
+          // Reaching here a and b are equal
+          return false;
+        },
+        [](auto const& history) {
+          auto copy = history;
+          copy.reduce();
+          return std::pair(history.id(), &history);
+        });
 
     for (auto const& history : phv_) {
       for (auto const& process : history) {
