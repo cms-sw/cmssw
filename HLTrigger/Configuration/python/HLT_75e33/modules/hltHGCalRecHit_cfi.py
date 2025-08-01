@@ -62,7 +62,7 @@ hltHGCalRecHit = cms.EDProducer("HGCalRecHitProducer",
 )
 
 phase2_hgcalV19.toModify(hltHGCalRecHit, 
-                         HGCEE_fCPerMIP = cms.vdouble(HGCAL_reco_constants.fcPerMip[0:4]),
-                         HGCHEF_fCPerMIP = cms.vdouble(HGCAL_reco_constants.fcPerMip[4:8]),
-                         HGCHFNose_fCPerMIP = cms.vdouble(1.25, 2.57, 3.88, 2.57),
+                         HGCEE_fCPerMIP = HGCAL_reco_constants.fcPerMip[0:4],
+                         HGCHEF_fCPerMIP = HGCAL_reco_constants.fcPerMip[4:8],
+                         HGCHFNose_fCPerMIP = [1.25, 2.57, 3.88, 2.57],
                          )

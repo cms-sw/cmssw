@@ -5,4 +5,4 @@ HGCAL_chargeCollectionEfficiencies = cms.PSet(
     values = cms.vdouble(1.0, 1.0, 1.0)
 )
 
-phase2_hgcalV19.toModify(HGCAL_chargeCollectionEfficiencies, values =  cms.vdouble(1.0, 1.0,1.0,1.0))
+phase2_hgcalV19.toModify(HGCAL_chargeCollectionEfficiencies, values =  [1.0, 1.0,1.0,1.0])

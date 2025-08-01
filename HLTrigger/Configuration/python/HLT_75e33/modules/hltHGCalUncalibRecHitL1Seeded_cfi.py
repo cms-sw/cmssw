@@ -63,13 +63,13 @@ from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
 ticl_v5.toModify(hltHGCalUncalibRecHitL1Seeded, computeLocalTime = cms.bool(True))
 
 _modifiedHGCEEConfig_v19 = hltHGCalUncalibRecHitL1Seeded.HGCEEConfig.clone(
-    fCPerMIP = cms.vdouble(HGCAL_reco_constants.fcPerMip[0:4])
+    fCPerMIP = HGCAL_reco_constants.fcPerMip[0:4]
 )
 _modifiedHGCHEFConfig_v19 = hltHGCalUncalibRecHitL1Seeded.HGCHEFConfig.clone(
-    fCPerMIP = cms.vdouble(HGCAL_reco_constants.fcPerMip[4:8])
+    fCPerMIP = HGCAL_reco_constants.fcPerMip[4:8]
 )
 _modifiedHGCHFNoseConfig_v19 = hltHGCalUncalibRecHitL1Seeded.HGCHFNoseConfig.clone(
-    fCPerMIP = cms.vdouble(1.25, 2.57, 3.88, 2.57)
+    fCPerMIP = [1.25, 2.57, 3.88, 2.57]
 )
 
 phase2_hgcalV19.toModify(

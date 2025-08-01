@@ -329,10 +329,10 @@ def HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=0,byDoseMap=doseMap
     process.HGCAL_noises = cms.PSet(
         values = cms.vdouble([x for x in endOfLifeNoises])  
         )
-    phase2_hgcalV19.toModify(HGCAL_noise_fC, values = cms.vdouble( [x*fC_per_ele for x in endOfLifeNoises_v19] )) #100,200,300 um, to be deprecated
-    phase2_hgcalV19.toModify(HGCAL_noise_fC, values = cms.vdouble( [x*fC_per_ele for x in endOfLifeNoises_v19] )) #100,200,300 um, to be deprecated
-    phase2_hgcalV19.toModify(HGCAL_chargeCollectionEfficiencies, values = cms.vdouble(endOfLifeNoises_v19))
-    phase2_hgcalV19.toModify(HGCAL_noise, values = cms.vdouble([x for x in endOfLifeNoises_v19]))
+    phase2_hgcalV19.toModify(HGCAL_noise_fC, values = [x*fC_per_ele for x in endOfLifeNoises_v19] ) #100,200,300 um, to be deprecated
+    phase2_hgcalV19.toModify(HGCAL_noise_fC, values = [x*fC_per_ele for x in endOfLifeNoises_v19] ) #100,200,300 um, to be deprecated
+    phase2_hgcalV19.toModify(HGCAL_chargeCollectionEfficiencies, values = endOfLifeNoises_v19)
+    phase2_hgcalV19.toModify(HGCAL_noise, values = [x for x in endOfLifeNoises_v19])
 
     return process
 
@@ -346,7 +346,7 @@ def HFNose_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=0,byDoseMap=doseMa
         values = cms.vdouble( [x*fC_per_ele for x in endOfLifeNoises] ), #100,200,300 um
         )
 
-    phase2_hgcalV19.toModify(HFNose_noise_fC, values = cms.vdouble( [x*fC_per_ele for x in endOfLifeNoises_v19] )) #100,200,300 um, to be deprecated
+    phase2_hgcalV19.toModify(HFNose_noise_fC, values = [x*fC_per_ele for x in endOfLifeNoises_v19]) #100,200,300 um, to be deprecated
     return process
 
 
@@ -391,8 +391,8 @@ def HGCal_disableNoise(process):
         values = cms.vdouble(0,0,0,0) #HD 120, LD 200, LD 300, HD 200
     )
 
-    phase2_hgcalV19.toModify(HGCAL_noise_fC, values = cms.vdouble(0.,0.,0.,0.))
-    phase2_hgcalV19.toModify(HGCAL_noises, values = cms.vdouble(0.,0.,0.,0.))
+    phase2_hgcalV19.toModify(HGCAL_noise_fC, values = [0.,0.,0.,0.])
+    phase2_hgcalV19.toModify(HGCAL_noises, values = [0.,0.,0.,0.])
     return process
 
 from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10
@@ -403,7 +403,7 @@ phase2_hgcalV10.toModify(HGCAL_noises, values = [x for x in nonAgedNoises_v9])
 
 phase2_hgcalV19.toModify(HGCAL_noise_fC, values = [x*fC_per_ele for x in nonAgedNoises_v9_v19])
 phase2_hgcalV19.toModify(HFNose_noise_fC, values = [x*fC_per_ele for x in nonAgedNoises_v9_v19])
-phase2_hgcalV19.toModify(hgchebackDigitizer.digiCfg.feCfg, tdcForToAOnset_fC = cms.vdouble(12.,12.,12.,12.))
+phase2_hgcalV19.toModify(hgchebackDigitizer.digiCfg.feCfg, tdcForToAOnset_fC = [12.,12.,12.,12.])
 
 
 

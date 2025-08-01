@@ -64,4 +64,4 @@ hgchebackDigitizer = cms.PSet(
     verbosity = cms.untracked.uint32(0)
 )
 
-phase2_hgcalV19.toModify(hgchebackDigitizer.digiCfg.feCfg, tdcForToAOnset_fC = cms.vdouble(12.,12.,12.,12.)) 
+phase2_hgcalV19.toModify(hgchebackDigitizer.digiCfg.feCfg, tdcForToAOnset_fC = [12.,12.,12.,12.]) 
