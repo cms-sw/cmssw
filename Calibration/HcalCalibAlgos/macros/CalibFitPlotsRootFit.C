@@ -281,7 +281,7 @@
 #include "RooDataHist.h"
 #include "RooFitResult.h"
 #include "RooPlot.h"
-#include "RooFit.h"   
+#include "RooFit.h"
 #include "RooWorkspace.h"
 #include "RooAbsPdf.h"
 #include "RooGaussian.h"
@@ -410,203 +410,224 @@ Double_t langaufun(Double_t* x, Double_t* par) {
   return (par[1] * step * sum * invsq2pi / par[2]);
 }
 
-
 class RooDoubleCBFast : public RooAbsPdf {
 public:
   RooDoubleCBFast();
-  RooDoubleCBFast(const char *name, const char *title,
-		  RooAbsReal& _x,
-		  RooAbsReal& _mean,
-		  RooAbsReal& _width,
-		  RooAbsReal& _alpha1,
-		  RooAbsReal& _n1,
-		  RooAbsReal& _alpha2,
-		  RooAbsReal& _n2
-		  );
+  RooDoubleCBFast(const char* name,
+                  const char* title,
+                  RooAbsReal& _x,
+                  RooAbsReal& _mean,
+                  RooAbsReal& _width,
+                  RooAbsReal& _alpha1,
+                  RooAbsReal& _n1,
+                  RooAbsReal& _alpha2,
+                  RooAbsReal& _n2);
 
-  RooDoubleCBFast(const RooDoubleCBFast& other, const char* name=0) ;
-  virtual TObject* clone(const char* newname) const { return new RooDoubleCBFast(*this,newname); }
-  inline virtual ~RooDoubleCBFast() { }
-  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const ;
-  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const ;
+  RooDoubleCBFast(const RooDoubleCBFast& other, const char* name = 0);
+  virtual TObject* clone(const char* newname) const { return new RooDoubleCBFast(*this, newname); }
+  inline virtual ~RooDoubleCBFast() {}
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName = 0) const;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName = 0) const;
 
 protected:
-  RooRealProxy x ;
+  RooRealProxy x;
   RooRealProxy mean;
   RooRealProxy width;
   RooRealProxy alpha1;
   RooRealProxy n1;
   RooRealProxy alpha2;
   RooRealProxy n2;
-  
-  Double_t evaluate() const ;
+
+  Double_t evaluate() const;
 
 private:
-  ClassDef(RooDoubleCBFast,1)
+  ClassDef(RooDoubleCBFast, 1)
 };
-
 
 RooDoubleCBFast::RooDoubleCBFast() { TRACE_CREATE };
 
-RooDoubleCBFast::RooDoubleCBFast(const char *name, const char *title, 
-				 RooAbsReal& _x,
-				 RooAbsReal& _mean,
-				 RooAbsReal& _width,
-				 RooAbsReal& _alpha1,
-				 RooAbsReal& _n1,
-				 RooAbsReal& _alpha2,
-				 RooAbsReal& _n2) :
-  RooAbsPdf(name,title), 
-  x("x","x",this,_x),
-  mean("mean","mean",this,_mean),
-  width("width","width",this,_width),
-  alpha1("alpha1","alpha1",this,_alpha1),
-  n1("n1","n1",this,_n1),
-  alpha2("alpha2","alpha2",this,_alpha2),
-  n2("n2","n2",this,_n2) { } 
+RooDoubleCBFast::RooDoubleCBFast(const char* name,
+                                 const char* title,
+                                 RooAbsReal& _x,
+                                 RooAbsReal& _mean,
+                                 RooAbsReal& _width,
+                                 RooAbsReal& _alpha1,
+                                 RooAbsReal& _n1,
+                                 RooAbsReal& _alpha2,
+                                 RooAbsReal& _n2)
+    : RooAbsPdf(name, title),
+      x("x", "x", this, _x),
+      mean("mean", "mean", this, _mean),
+      width("width", "width", this, _width),
+      alpha1("alpha1", "alpha1", this, _alpha1),
+      n1("n1", "n1", this, _n1),
+      alpha2("alpha2", "alpha2", this, _alpha2),
+      n2("n2", "n2", this, _n2) {}
 
+RooDoubleCBFast::RooDoubleCBFast(const RooDoubleCBFast& other, const char* name)
+    : RooAbsPdf(other, name),
+      x("x", this, other.x),
+      mean("mean", this, other.mean),
+      width("width", this, other.width),
+      alpha1("alpha1", this, other.alpha1),
+      n1("n1", this, other.n1),
+      alpha2("alpha2", this, other.alpha2),
+      n2("n2", this, other.n2) {}
 
-RooDoubleCBFast::RooDoubleCBFast(const RooDoubleCBFast& other, const char* name) : RooAbsPdf(other, name), x("x", this, other.x), mean("mean", this, other.mean), width("width", this, other.width), alpha1("alpha1", this, other.alpha1), n1("n1", this, other.n1), alpha2("alpha2", this, other.alpha2), n2("n2", this, other.n2) { } 
- 
-double RooDoubleCBFast::evaluate() const { 
-  double t = (x-mean)*vdt::fast_inv(width);
+double RooDoubleCBFast::evaluate() const {
+  double t = (x - mean) * vdt::fast_inv(width);
   double val = -99.;
-  if (t>-alpha1 && t<alpha2) {
-    val = vdt::fast_exp(-0.5*t*t);
-  } else if (t<=-alpha1) {
+  if (t > -alpha1 && t < alpha2) {
+    val = vdt::fast_exp(-0.5 * t * t);
+  } else if (t <= -alpha1) {
     double alpha1invn1 = alpha1 * vdt::fast_inv(n1);
-    val = vdt::fast_exp(-0.5 * alpha1 * alpha1) * gbrmath::fast_pow(1. - alpha1invn1*(alpha1+t), -n1);
-  } else if (t>=alpha2) {
+    val = vdt::fast_exp(-0.5 * alpha1 * alpha1) * gbrmath::fast_pow(1. - alpha1invn1 * (alpha1 + t), -n1);
+  } else if (t >= alpha2) {
     double alpha2invn2 = alpha2 * vdt::fast_inv(n2);
-    val = vdt::fast_exp(-0.5 * alpha2 * alpha2) * gbrmath::fast_pow(1. - alpha2invn2*(alpha2-t), -n2);     
-     
-  }     
-  if (!std::isnormal(val)) {
-    printf("bad val: x = %5f, t = %5f, mean = %5f, sigma = %5f, alpha1 = %5f, n1 = %5f, alpha2 = %5f, n2 = %5f\n",double(x), t, double(mean),double(width),double(alpha1),double(n1),double(alpha2), double(n2));
-    printf("val = %5f\n",val);
+    val = vdt::fast_exp(-0.5 * alpha2 * alpha2) * gbrmath::fast_pow(1. - alpha2invn2 * (alpha2 - t), -n2);
   }
-     
+  if (!std::isnormal(val)) {
+    printf("bad val: x = %5f, t = %5f, mean = %5f, sigma = %5f, alpha1 = %5f, n1 = %5f, alpha2 = %5f, n2 = %5f\n",
+           double(x),
+           t,
+           double(mean),
+           double(width),
+           double(alpha1),
+           double(n1),
+           double(alpha2),
+           double(n2));
+    printf("val = %5f\n", val);
+  }
+
   return val;
-} 
+}
 
 Int_t RooDoubleCBFast::getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* range) const {
-  if (matchArgs(allVars,analVars,x)) return 1;
+  if (matchArgs(allVars, analVars, x))
+    return 1;
   return 0;
 }
 
 Double_t RooDoubleCBFast::analyticalIntegral(Int_t code, const char* rangeName) const {
-  assert(code==1) ;
- 
-  double central=0;
-  double left=0;
-  double right=0;
-   
+  assert(code == 1);
+
+  double central = 0;
+  double left = 0;
+  double right = 0;
+
   double xmin = x.min(rangeName);
   double xmax = x.max(rangeName);
-   
-  static const double rootPiBy2 = sqrt(atan2(0.0,-1.0)/2.0);
-  static const double invRoot2 = 1.0/sqrt(2);   
-   
+
+  static const double rootPiBy2 = sqrt(atan2(0.0, -1.0) / 2.0);
+  static const double invRoot2 = 1.0 / sqrt(2);
+
   double invwidth = vdt::fast_inv(width);
-   
-  double tmin = (xmin-mean)*invwidth;
-  double tmax = (xmax-mean)*invwidth;
-   
-  bool isfullrange = (tmin<-1000. && tmax>1000.);
-  
+
+  double tmin = (xmin - mean) * invwidth;
+  double tmax = (xmax - mean) * invwidth;
+
+  bool isfullrange = (tmin < -1000. && tmax > 1000.);
+
   //compute gaussian contribution
-  double central_low =std::max(xmin,mean - alpha1*width );
-  double central_high=std::min(xmax,mean + alpha2*width );
-  
-  double tcentral_low = (central_low-mean)*invwidth;
-  double tcentral_high = (central_high-mean)*invwidth;
-  if (central_low < central_high)  {// is the gaussian part in range?
-    central = rootPiBy2*width*(TMath::Erf(tcentral_high*invRoot2)-TMath::Erf(tcentral_low*invRoot2));
+  double central_low = std::max(xmin, mean - alpha1 * width);
+  double central_high = std::min(xmax, mean + alpha2 * width);
+
+  double tcentral_low = (central_low - mean) * invwidth;
+  double tcentral_high = (central_high - mean) * invwidth;
+  if (central_low < central_high) {  // is the gaussian part in range?
+    central = rootPiBy2 * width * (TMath::Erf(tcentral_high * invRoot2) - TMath::Erf(tcentral_low * invRoot2));
   }
   //compute left tail;
-  if (isfullrange  && (n1-1.0)>1.e-5) {
-    left = width*vdt::fast_exp(-0.5*alpha1*alpha1)*n1*vdt::fast_inv(alpha1*(n1-1.)); 
+  if (isfullrange && (n1 - 1.0) > 1.e-5) {
+    left = width * vdt::fast_exp(-0.5 * alpha1 * alpha1) * n1 * vdt::fast_inv(alpha1 * (n1 - 1.));
   } else {
-  
-    double left_low=xmin;
-    double left_high=std::min(xmax,mean - alpha1*width);
-    double thigh = (left_high-mean)*invwidth;
-    
-    if (left_low < left_high) { //is the left tail in range?
-      double n1invalpha1 = n1*vdt::fast_inv(fabs(alpha1));
-      if (fabs(n1-1.0)>1.e-5) {
-	double invn1m1 = vdt::fast_inv(n1-1.);
-	double leftpow = gbrmath::fast_pow(n1invalpha1, - n1 * invn1m1);
-	double left0 = width*vdt::fast_exp(-0.5 * alpha1 * alpha1) * invn1m1;
-	double left1, left2;
-	
-	if (xmax > (mean - alpha1 * width))
-	  left1 = n1invalpha1;
-	else 
-	  left1 = gbrmath::fast_pow(leftpow * (n1invalpha1 - alpha1 - thigh), 1. - n1);
-	
-	if (tmin < -1000.)
-	  left2 = 0.;
-	else 
-	  left2 = gbrmath::fast_pow(leftpow * (n1invalpha1 - alpha1 - tmin ), 1. - n1);
-	
-	left = left0*(left1-left2);
-	
+    double left_low = xmin;
+    double left_high = std::min(xmax, mean - alpha1 * width);
+    double thigh = (left_high - mean) * invwidth;
+
+    if (left_low < left_high) {  //is the left tail in range?
+      double n1invalpha1 = n1 * vdt::fast_inv(fabs(alpha1));
+      if (fabs(n1 - 1.0) > 1.e-5) {
+        double invn1m1 = vdt::fast_inv(n1 - 1.);
+        double leftpow = gbrmath::fast_pow(n1invalpha1, -n1 * invn1m1);
+        double left0 = width * vdt::fast_exp(-0.5 * alpha1 * alpha1) * invn1m1;
+        double left1, left2;
+
+        if (xmax > (mean - alpha1 * width))
+          left1 = n1invalpha1;
+        else
+          left1 = gbrmath::fast_pow(leftpow * (n1invalpha1 - alpha1 - thigh), 1. - n1);
+
+        if (tmin < -1000.)
+          left2 = 0.;
+        else
+          left2 = gbrmath::fast_pow(leftpow * (n1invalpha1 - alpha1 - tmin), 1. - n1);
+
+        left = left0 * (left1 - left2);
+
       } else {
-	double A1 = gbrmath::fast_pow(n1invalpha1, n1) * vdt::fast_exp(-0.5 * alpha1 * alpha1);
-	double B1 = n1invalpha1 - fabs(alpha1);	
-	left = A1*width*(vdt::fast_log(B1 -(left_low - mean) * invwidth) - vdt::fast_log(B1 - (left_high - mean) * invwidth) );
+        double A1 = gbrmath::fast_pow(n1invalpha1, n1) * vdt::fast_exp(-0.5 * alpha1 * alpha1);
+        double B1 = n1invalpha1 - fabs(alpha1);
+        left = A1 * width *
+               (vdt::fast_log(B1 - (left_low - mean) * invwidth) - vdt::fast_log(B1 - (left_high - mean) * invwidth));
       }
     }
   }
- 
+
   //compute right tail;
   if (isfullrange && (n2 - 1.0) > 1.e-5) {
-    right = width * vdt::fast_exp(-0.5 * alpha2 * alpha2) * n2*vdt::fast_inv(alpha2 * (n2 - 1.));
-  } else {    
-    double right_low = std::max(xmin,mean + alpha2*width);
+    right = width * vdt::fast_exp(-0.5 * alpha2 * alpha2) * n2 * vdt::fast_inv(alpha2 * (n2 - 1.));
+  } else {
+    double right_low = std::max(xmin, mean + alpha2 * width);
     double right_high = xmax;
     double tlow = (right_low - mean) * invwidth;
-    
-    if (right_low < right_high){ //is the right tail in range?
-      double n2invalpha2 = n2*vdt::fast_inv(fabs(alpha2)); 
+
+    if (right_low < right_high) {  //is the right tail in range?
+      double n2invalpha2 = n2 * vdt::fast_inv(fabs(alpha2));
       if (fabs(n2 - 1.0) > 1.e-5) {
-	double invn2m2 = vdt::fast_inv(n2 - 1.);
-	double rightpow = gbrmath::fast_pow(n2invalpha2, -n2 * invn2m2);
-	double right0 = width*vdt::fast_exp(-0.5 * alpha2 * alpha2) * invn2m2;
-	double right1, right2;
-	
-	if (xmin < (mean + alpha2 * width))
-	  right1 = n2invalpha2;
-	else 
-	  right1 = gbrmath::fast_pow( rightpow*(n2invalpha2 - alpha2 + tlow), 1. - n2);
-	
-	if (tmax > 1000.)
-	  right2 = 0.;
-	else
-	  right2 = gbrmath::fast_pow( rightpow*(n2invalpha2 - alpha2 + tmax), 1. - n2);
-	
-	right = right0*(right1-right2);	
-	
+        double invn2m2 = vdt::fast_inv(n2 - 1.);
+        double rightpow = gbrmath::fast_pow(n2invalpha2, -n2 * invn2m2);
+        double right0 = width * vdt::fast_exp(-0.5 * alpha2 * alpha2) * invn2m2;
+        double right1, right2;
+
+        if (xmin < (mean + alpha2 * width))
+          right1 = n2invalpha2;
+        else
+          right1 = gbrmath::fast_pow(rightpow * (n2invalpha2 - alpha2 + tlow), 1. - n2);
+
+        if (tmax > 1000.)
+          right2 = 0.;
+        else
+          right2 = gbrmath::fast_pow(rightpow * (n2invalpha2 - alpha2 + tmax), 1. - n2);
+
+        right = right0 * (right1 - right2);
+
       } else {
-	double A2 = gbrmath::fast_pow(n2invalpha2, n2) * vdt::fast_exp(-0.5 * alpha2 * alpha2);
-	double B2 = n2invalpha2 - fabs(alpha2);
-	right = A2 * width * (vdt::fast_log(B2 + (right_high - mean) * invwidth) - vdt::fast_log(B2 + (right_low - mean) * invwidth) );
+        double A2 = gbrmath::fast_pow(n2invalpha2, n2) * vdt::fast_exp(-0.5 * alpha2 * alpha2);
+        double B2 = n2invalpha2 - fabs(alpha2);
+        right =
+            A2 * width *
+            (vdt::fast_log(B2 + (right_high - mean) * invwidth) - vdt::fast_log(B2 + (right_low - mean) * invwidth));
       }
     }
-   }
-   
-  double sum = left + central + right;
-   
-  if (!std::isnormal(sum)) {
-    printf("bad int: mean = %5f, sigma = %5f, alpha1 = %5f, n1 = %5f, alpha2 = %5f, n2 = %5f\n", double(mean), double(width), double(alpha1), double(n1), double(alpha2), double(n2));
-    printf("left = %5f, central = %5f, right = %5f, integral = %5f\n", left, central,  right, sum);
   }
-     
+
+  double sum = left + central + right;
+
+  if (!std::isnormal(sum)) {
+    printf("bad int: mean = %5f, sigma = %5f, alpha1 = %5f, n1 = %5f, alpha2 = %5f, n2 = %5f\n",
+           double(mean),
+           double(width),
+           double(alpha1),
+           double(n1),
+           double(alpha2),
+           double(n2));
+    printf("left = %5f, central = %5f, right = %5f, integral = %5f\n", left, central, right, sum);
+  }
+
   return sum;
- 
 }
- 
+
 Double_t doubleGauss(Double_t* x, Double_t* par) {
   double x1 = x[0] - par[1];
   double sig1 = par[2];
@@ -889,51 +910,43 @@ results fitDoubleSidedCrystalball(TH1D* hist, bool /* fitTwice */, bool debug) {
 }
 
 results fitDoubleSidedCrystalball_RooFit(TH1D* hist, bool debug, RooWorkspace* ws) {
-  const double fitrangeFactor  = 2.0;
+  const double fitrangeFactor = 2.0;
   const double fitrangeFactor1 = 1.5;
 
   double rms0;
   auto meanPair = GetMean(hist, 0.2, 2.0, rms0);
   double mean0 = meanPair.first;
-  
-  double LowEdge  = std::max(0.5, mean0 - fitrangeFactor * rms0);
-  double diff     = mean0 - LowEdge;
+
+  double LowEdge = std::max(0.5, mean0 - fitrangeFactor * rms0);
+  double diff = mean0 - LowEdge;
   double HighEdge = mean0 + std::min(fitrangeFactor1 * rms0, diff);
   HighEdge = std::min(HighEdge, hist->GetXaxis()->GetXmax());
 
   if (debug) {
-    std::cout << hist->GetName()
-              << " initial Mean=" << mean0
-              << " RMS=" << rms0
-              << " Range=[" << LowEdge << "," << HighEdge << "]\n";
+    std::cout << hist->GetName() << " initial Mean=" << mean0 << " RMS=" << rms0 << " Range=[" << LowEdge << ","
+              << HighEdge << "]\n";
   }
 
   RooRealVar x("x", "x", hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
   RooDataHist data("data", "dataset from TH1", x, Import(*hist));
-  
-  RooRealVar alpha1("alpha1", "alpha low tail", 1.0, 0.1, 5.0);
-  RooRealVar n1    ("n1",     "power low tail",   2.0, 0.1, 5.0);
-  RooRealVar alpha2("alpha2", "alpha high tail", 1.5, 0.1, 5.0);
-  RooRealVar n2    ("n2",     "power high tail",  3.0, 0.1, 5.0);
-  RooRealVar mean ("mean",   "peak position",
-                   mean0, hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
-  RooRealVar sigma("sigma", "Gaussian sigma",
-                   rms0, 0.01, (hist->GetXaxis()->GetXmax()-hist->GetXaxis()->GetXmin())/2.);
-  RooRealVar norm ("norm",   "signal yield",
-                   hist->Integral(), 0.0, hist->GetEntries()*2);
 
-  RooDoubleCBFast pdf("dblCB", "double-sided Crystal Ball (fast)",
-                      x, mean, sigma, alpha1, n1, alpha2, n2);
+  RooRealVar alpha1("alpha1", "alpha low tail", 1.0, 0.1, 5.0);
+  RooRealVar n1("n1", "power low tail", 2.0, 0.1, 5.0);
+  RooRealVar alpha2("alpha2", "alpha high tail", 1.5, 0.1, 5.0);
+  RooRealVar n2("n2", "power high tail", 3.0, 0.1, 5.0);
+  RooRealVar mean("mean", "peak position", mean0, hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
+  RooRealVar sigma(
+      "sigma", "Gaussian sigma", rms0, 0.01, (hist->GetXaxis()->GetXmax() - hist->GetXaxis()->GetXmin()) / 2.);
+  RooRealVar norm("norm", "signal yield", hist->Integral(), 0.0, hist->GetEntries() * 2);
+
+  RooDoubleCBFast pdf("dblCB", "double-sided Crystal Ball (fast)", x, mean, sigma, alpha1, n1, alpha2, n2);
 
   if (!debug) {
     RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
     RooMsgService::instance().setSilentMode(true);
   }
-  
-  RooFitResult* fitRes = pdf.fitTo(data,
-                                   Save(true),
-                                   PrintLevel(debug ? 1 : -1),
-                                   Range(LowEdge, HighEdge));
+
+  RooFitResult* fitRes = pdf.fitTo(data, Save(true), PrintLevel(debug ? 1 : -1), Range(LowEdge, HighEdge));
 
   if (ws) {
     std::string dataName = std::string(hist->GetName()) + "_data";
@@ -952,19 +965,18 @@ results fitDoubleSidedCrystalball_RooFit(TH1D* hist, bool debug, RooWorkspace* w
     ws->import(pdf);
   }
 
-  double mean_val  = mean.getValV();
-  double mean_err  = mean.getError();
+  double mean_val = mean.getValV();
+  double mean_err = mean.getError();
   double sigma_val = sigma.getValV();
   double sigma_err = sigma.getError();
 
-  if (mean_val < hist->GetXaxis()->GetXmin() ||
-      mean_val > hist->GetXaxis()->GetXmax() ||
-      mean_err > fabs(mean_val)*0.5) {
+  if (mean_val < hist->GetXaxis()->GetXmin() || mean_val > hist->GetXaxis()->GetXmax() ||
+      mean_err > fabs(mean_val) * 0.5) {
     double rms_fallback;
     auto mm = GetMean(hist, 0.2, 2.0, rms_fallback);
-    auto ww = GetWidth(hist,0.2,2.0);
-    mean_val  = mm.first;
-    mean_err  = mm.second;
+    auto ww = GetWidth(hist, 0.2, 2.0);
+    mean_val = mm.first;
+    mean_err = mm.second;
     sigma_val = ww.first;
     sigma_err = ww.second;
   }
@@ -972,49 +984,49 @@ results fitDoubleSidedCrystalball_RooFit(TH1D* hist, bool debug, RooWorkspace* w
   return results(mean_val, mean_err, sigma_val, sigma_err);
 }
 
-
 // Landau-Gauss convolution fit
-std::pair<double,double> fitLanGau_RooFit(TH1D* hist, bool debug, RooWorkspace* ws) {
-    double rms0;
-    auto mm = GetMean(hist, 0.005, 2.5, rms0);
-    double mean0 = mm.first;
+std::pair<double, double> fitLanGau_RooFit(TH1D* hist, bool debug, RooWorkspace* ws) {
+  double rms0;
+  auto mm = GetMean(hist, 0.005, 2.5, rms0);
+  double mean0 = mm.first;
 
-    RooRealVar x("x","x", hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
-    RooDataHist data("data","dataset from TH1", x, Import(*hist));
+  RooRealVar x("x", "x", hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
+  RooDataHist data("data", "dataset from TH1", x, Import(*hist));
 
-    RooRealVar lanMPV("lanMPV","Landau MPV", mean0, 0.0, hist->GetXaxis()->GetXmax());
-    RooRealVar lanSigma("lanSigma","Landau width", rms0, 0.001, hist->GetXaxis()->GetXmax());
-    RooLandau landau("landau","Landau component", x, lanMPV, lanSigma);
+  RooRealVar lanMPV("lanMPV", "Landau MPV", mean0, 0.0, hist->GetXaxis()->GetXmax());
+  RooRealVar lanSigma("lanSigma", "Landau width", rms0, 0.001, hist->GetXaxis()->GetXmax());
+  RooLandau landau("landau", "Landau component", x, lanMPV, lanSigma);
 
-    RooRealVar gaussSigma("gaussSigma","Gaussian sigma", rms0, 0.001, hist->GetXaxis()->GetXmax());
-    RooGaussian gauss("gauss","Gaussian component", x, lanMPV, gaussSigma);
+  RooRealVar gaussSigma("gaussSigma", "Gaussian sigma", rms0, 0.001, hist->GetXaxis()->GetXmax());
+  RooGaussian gauss("gauss", "Gaussian component", x, lanMPV, gaussSigma);
 
-    RooFFTConvPdf convPdf("langau","Landau ↔ Gaussian Convolution", x, landau, gauss);
+  RooFFTConvPdf convPdf("langau", "Landau ↔ Gaussian Convolution", x, landau, gauss);
 
-    double LowEdge = 0.005;
-    double HighEdge = mean0 + 3*rms0;
+  double LowEdge = 0.005;
+  double HighEdge = mean0 + 3 * rms0;
 
-    if (!debug) {
-      RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
-      RooMsgService::instance().setSilentMode(true);
-    }
-    
-    RooFitResult* fitRes = convPdf.fitTo(data, Save(true), PrintLevel(debug?1:-1), Range(LowEdge, HighEdge));
+  if (!debug) {
+    RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
+    RooMsgService::instance().setSilentMode(true);
+  }
 
-    if(ws) {
-        data.SetName((std::string(hist->GetName())+"_data").c_str());
-        convPdf.SetName((std::string(hist->GetName())+"_pdf").c_str());
-        ws->import(data);
-        ws->import(convPdf);
-	RooRealVar lowRangeVar(Form("%s_low", hist->GetName()), "fit lower edge", LowEdge);
-	RooRealVar highRangeVar(Form("%s_high", hist->GetName()), "fit upper edge", HighEdge);
-	ws->import(lowRangeVar);
-	ws->import(highRangeVar);
-	std::string fitResName = std::string(hist->GetName()) + "_fitRes";
-	fitRes->SetName(fitResName.c_str());                                                                                     ws->import(*fitRes);
-    }
+  RooFitResult* fitRes = convPdf.fitTo(data, Save(true), PrintLevel(debug ? 1 : -1), Range(LowEdge, HighEdge));
 
-    return { lanMPV.getValV(), lanMPV.getError() };
+  if (ws) {
+    data.SetName((std::string(hist->GetName()) + "_data").c_str());
+    convPdf.SetName((std::string(hist->GetName()) + "_pdf").c_str());
+    ws->import(data);
+    ws->import(convPdf);
+    RooRealVar lowRangeVar(Form("%s_low", hist->GetName()), "fit lower edge", LowEdge);
+    RooRealVar highRangeVar(Form("%s_high", hist->GetName()), "fit upper edge", HighEdge);
+    ws->import(lowRangeVar);
+    ws->import(highRangeVar);
+    std::string fitResName = std::string(hist->GetName()) + "_fitRes";
+    fitRes->SetName(fitResName.c_str());
+    ws->import(*fitRes);
+  }
+
+  return {lanMPV.getValV(), lanMPV.getError()};
 }
 
 // 2) Two-Gaussian mixture fit
@@ -1026,32 +1038,32 @@ results fitTwoGauss_RooFit(TH1D* hist, bool debug, RooWorkspace* ws) {
   double HighEdge = mean + fitrangeFactor1 * rms;
   if (LowEdge < 0.15)
     LowEdge = 0.15;
-    
-  RooRealVar x("x","x", hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
-  RooDataHist data("data","dataset from TH1", x, Import(*hist));
 
-  RooRealVar mean1("mean1","mean1", mean, hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
-  RooRealVar sigma1("sigma1","sigma1", rms, 0.001, hist->GetXaxis()->GetXmax());
-  RooGaussian gauss1("gauss1","gauss1", x, mean1, sigma1);
-  RooRealVar norm1("norm1","norm1", hist->GetEntries()*0.8, 0, hist->GetEntries());
-  
-  RooRealVar mean2("mean2","mean2", mean, hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
-  RooRealVar sigma2("sigma2","sigma2", 2*rms, 0.001, hist->GetXaxis()->GetXmax());
-  RooGaussian gauss2("gauss2","gauss2", x, mean2, sigma2);
-  RooRealVar norm2("norm2","norm2", hist->GetEntries()*0.2, 0, hist->GetEntries());
+  RooRealVar x("x", "x", hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
+  RooDataHist data("data", "dataset from TH1", x, Import(*hist));
 
-  RooAddPdf model("model","g1+g2", RooArgList(gauss1,gauss2), RooArgList(norm1,norm2));
+  RooRealVar mean1("mean1", "mean1", mean, hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
+  RooRealVar sigma1("sigma1", "sigma1", rms, 0.001, hist->GetXaxis()->GetXmax());
+  RooGaussian gauss1("gauss1", "gauss1", x, mean1, sigma1);
+  RooRealVar norm1("norm1", "norm1", hist->GetEntries() * 0.8, 0, hist->GetEntries());
+
+  RooRealVar mean2("mean2", "mean2", mean, hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
+  RooRealVar sigma2("sigma2", "sigma2", 2 * rms, 0.001, hist->GetXaxis()->GetXmax());
+  RooGaussian gauss2("gauss2", "gauss2", x, mean2, sigma2);
+  RooRealVar norm2("norm2", "norm2", hist->GetEntries() * 0.2, 0, hist->GetEntries());
+
+  RooAddPdf model("model", "g1+g2", RooArgList(gauss1, gauss2), RooArgList(norm1, norm2));
 
   if (!debug) {
     RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
     RooMsgService::instance().setSilentMode(true);
   }
-    
-  RooFitResult* fitRes = model.fitTo(data, Save(true), PrintLevel(debug?1:-1), Range(LowEdge, HighEdge));
+
+  RooFitResult* fitRes = model.fitTo(data, Save(true), PrintLevel(debug ? 1 : -1), Range(LowEdge, HighEdge));
 
   if (ws) {
-    data.SetName((std::string(hist->GetName())+"_data").c_str());
-    model.SetName((std::string(hist->GetName())+"_pdf").c_str());
+    data.SetName((std::string(hist->GetName()) + "_data").c_str());
+    model.SetName((std::string(hist->GetName()) + "_pdf").c_str());
     ws->import(data);
     ws->import(model);
     RooRealVar lowRangeVar(Form("%s_low", hist->GetName()), "fit lower edge", LowEdge);
@@ -1067,8 +1079,8 @@ results fitTwoGauss_RooFit(TH1D* hist, bool debug, RooWorkspace* ws) {
   double v1 = mean1.getValV(), v2 = mean2.getValV();
   double s1v = sigma1.getValV(), s2v = sigma2.getValV();
   double total = w1 + w2;
-  double val = (w1*v1 + w2*v2)/total;
-  double width = (w1*s1v + w2*s2v)/total;
+  double val = (w1 * v1 + w2 * v2) / total;
+  double width = (w1 * s1v + w2 * s2v) / total;
   double err = std::sqrt(pow(norm1.getError() * v1 / total, 2) + pow(norm2.getError() * v2 / total, 2));
   double werr = std::sqrt(pow(norm1.getError() * s1v / total, 2) + pow(norm2.getError() * s2v / total, 2));
 
@@ -1077,21 +1089,20 @@ results fitTwoGauss_RooFit(TH1D* hist, bool debug, RooWorkspace* ws) {
 
 // Single-Gaussian fit
 results fitOneGauss_RooFit(TH1D* hist, /*bool fitTwice,*/ bool debug, RooWorkspace* ws) {
-
-  const double fitrangeFactor  = 2.0;
+  const double fitrangeFactor = 2.0;
   const double fitrangeFactor1 = 1.5;
 
   double rms0;
   auto meanPair = GetMean(hist, 0.2, 2.0, rms0);
   double mean0 = meanPair.first;
-  
-  double LowEdge  = std::max(0.5, mean0 - fitrangeFactor * rms0);
-  double diff     = mean0 - LowEdge;
+
+  double LowEdge = std::max(0.5, mean0 - fitrangeFactor * rms0);
+  double diff = mean0 - LowEdge;
   double HighEdge = mean0 + std::min(fitrangeFactor1 * rms0, diff);
   HighEdge = std::min(HighEdge, hist->GetXaxis()->GetXmax());
 
   RooRealVar x("x", "x", hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
-  RooDataHist data("data","dataset from TH1", x, Import(*hist));
+  RooDataHist data("data", "dataset from TH1", x, Import(*hist));
 
   RooRealVar meanVar("mean", "mean", mean0, hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
   RooRealVar sigmaVar("sigma", "sigma", rms0, 0.001, hist->GetXaxis()->GetXmax());
@@ -1102,8 +1113,8 @@ results fitOneGauss_RooFit(TH1D* hist, /*bool fitTwice,*/ bool debug, RooWorkspa
     RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
     RooMsgService::instance().setSilentMode(true);
   }
-  
-  RooFitResult* fitRes = gauss.fitTo(data, Save(true), PrintLevel(debug?1:-1), Range(LowEdge, HighEdge));
+
+  RooFitResult* fitRes = gauss.fitTo(data, Save(true), PrintLevel(debug ? 1 : -1), Range(LowEdge, HighEdge));
 
   /*if(fitTwice) {
         double m1 = meanVar.getValV(), s1 = sigmaVar.getValV();
@@ -1114,9 +1125,9 @@ results fitOneGauss_RooFit(TH1D* hist, /*bool fitTwice,*/ bool debug, RooWorkspa
         fitRes2->covarianceMatrix().Print();
 	}*/
 
-  if(ws) {
-    data.SetName((std::string(hist->GetName())+"_data").c_str());
-    gauss.SetName((std::string(hist->GetName())+"_pdf").c_str());
+  if (ws) {
+    data.SetName((std::string(hist->GetName()) + "_data").c_str());
+    gauss.SetName((std::string(hist->GetName()) + "_pdf").c_str());
     ws->import(data);
     ws->import(gauss);
     RooRealVar lowRangeVar(Form("%s_low", hist->GetName()), "fit lower edge", LowEdge);
@@ -1132,13 +1143,12 @@ results fitOneGauss_RooFit(TH1D* hist, /*bool fitTwice,*/ bool debug, RooWorkspa
   double meanErr = meanVar.getError();
   double sigmaVal = sigmaVar.getValV();
   double sigmaErr = sigmaVar.getError();
-  
+
   return results(meanVal, meanErr, sigmaVal, sigmaErr);
 }
 
 // 4) Constant (pol0) fit via RooFit
-void fitConstPol0_RooFit(TH1D* histo,  double LowEdge, double HighEdge, bool debug, RooWorkspace* ws) {
-
+void fitConstPol0_RooFit(TH1D* histo, double LowEdge, double HighEdge, bool debug, RooWorkspace* ws) {
   RooRealVar x("x", "x", LowEdge, HighEdge);
   RooDataHist dataHist("dataHist", "dataHist from TH1", RooArgList(x), Import(*histo));
 
@@ -1155,13 +1165,11 @@ void fitConstPol0_RooFit(TH1D* histo,  double LowEdge, double HighEdge, bool deb
     const RooArgSet* row = dataHist.get();
     double binCenter = ((RooRealVar*)row->find("x"))->getVal();
     double binContent = dataHist.weight();
-    
- }
- 
-  if(debug) {
-        std::cout << "Fit to Pol0: " << c0.getValV() << " +- " << c0.getError()
-                  << " in range " << LowEdge << ":" << HighEdge 
-                  << std::endl;
+  }
+
+  if (debug) {
+    std::cout << "Fit to Pol0: " << c0.getValV() << " +- " << c0.getError() << " in range " << LowEdge << ":"
+              << HighEdge << std::endl;
   }
 
   // Axis titles & ranges
@@ -1170,9 +1178,9 @@ void fitConstPol0_RooFit(TH1D* histo,  double LowEdge, double HighEdge, bool deb
   histo->GetYaxis()->SetRangeUser(0.4, 1.6);
 
   // Optionally import to workspace
-  if(ws) {
-    dataHist.SetName((std::string(histo->GetName())+"_data").c_str());
-    poly0.SetName((std::string(histo->GetName())+"_pdf").c_str());
+  if (ws) {
+    dataHist.SetName((std::string(histo->GetName()) + "_data").c_str());
+    poly0.SetName((std::string(histo->GetName()) + "_pdf").c_str());
     ws->import(dataHist);
     ws->import(poly0);
     RooRealVar lowRangeVar(Form("%s_low", histo->GetName()), "fit lower edge", LowEdge);
@@ -1327,10 +1335,10 @@ void FitHistStandard(std::string infile,
             }
           }
           if (histo->GetEntries() > 2) {
-	    if (!debug) {
-	      RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
+            if (!debug) {
+              RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
               RooMsgService::instance().setSilentMode(true);
-	    }
+            }
             double LowEdge = histo->GetBinLowEdge(jmin);
             double HighEdge = histo->GetBinLowEdge(jmax) + histo->GetBinWidth(jmax);
             TFitResultPtr Fit = histo->Fit("pol0", "+QRWLS", "", LowEdge, HighEdge);
@@ -1609,19 +1617,18 @@ void FitHistExtended(const char* infile,
 }
 
 void FitHistExtended_RootFit(const char* infile,
-			     const char* outfile,
-			     std::string prefix,
-			     int numb = 54,
-			     int type = 13,
-			     bool append = true,
-			     bool fiteta = true,
-			     int iname = 3,
-			     bool debug = false) {
-
+                             const char* outfile,
+                             std::string prefix,
+                             int numb = 54,
+                             int type = 13,
+                             bool append = true,
+                             bool fiteta = true,
+                             int iname = 3,
+                             bool debug = false) {
   std::string sname("ratio"), lname("Z"), wname("W"), ename("etaB");
   double xbins[99];
   double xbin[23] = {-23.0, -21.0, -19.0, -17.0, -15.0, -13.0, -11.0, -9.0, -7.0, -5.0, -3.0, 0.0,
-    3.0,   5.0,   7.0,   9.0,   11.0,  13.0,  15.0,  17.0, 19.0, 21.0, 23.0};
+                     3.0,   5.0,   7.0,   9.0,   11.0,  13.0,  15.0,  17.0, 19.0, 21.0, 23.0};
   if ((type % 10) == 2) {
     numb = 22;
     for (int k = 0; k <= numb; ++k)
@@ -1660,23 +1667,22 @@ void FitHistExtended_RootFit(const char* infile,
     }
     if (ok) {
       TH1D *histo(0), *histw(0);
-      RooWorkspace *wso(0);
+      RooWorkspace* wso(0);
       if (numb > 0) {
         sprintf(name, "%s%s%d", prefix.c_str(), lname.c_str(), iname);
         histo = new TH1D(name, hist0->GetTitle(), numb, xbins);
         sprintf(name, "%s%s%d", prefix.c_str(), wname.c_str(), iname);
         histw = new TH1D(name, hist0->GetTitle(), numb, xbins);
-	std::string wsName = Form("%s_ws", histo->GetName());
-	wso = new RooWorkspace(wsName.c_str(), histo->GetTitle());
+        std::string wsName = Form("%s_ws", histo->GetName());
+        wso = new RooWorkspace(wsName.c_str(), histo->GetTitle());
         if (debug)
           std::cout << name << " " << histo->GetNbinsX() << std::endl;
       }
       if (hist0->GetEntries() > 10) {
         double rms;
-        results meaner0 =
-            (((type / 10) % 10) == 0) ? fitOneGauss_RooFit(hist0, debug, ws0) 
-                                      : fitDoubleSidedCrystalball_RooFit(hist0, debug, ws0);
-	
+        results meaner0 = (((type / 10) % 10) == 0) ? fitOneGauss_RooFit(hist0, debug, ws0)
+                                                    : fitDoubleSidedCrystalball_RooFit(hist0, debug, ws0);
+
         std::pair<double, double> meaner1 = GetMean(hist0, 0.2, 2.0, rms);
         std::pair<double, double> meaner2 = GetWidth(hist0, 0.2, 2.0);
         if (debug) {
@@ -1698,8 +1704,8 @@ void FitHistExtended_RootFit(const char* infile,
           value = 1.0;
         } else {
           TH1D* hist = (TH1D*)hist1->Clone();
-	  std::string wsName = Form("%s_ws", hist->GetName());
-	  RooWorkspace* ws = new RooWorkspace(wsName.c_str(), hist->GetTitle());
+          std::string wsName = Form("%s_ws", hist->GetName());
+          RooWorkspace* ws = new RooWorkspace(wsName.c_str(), hist->GetTitle());
           if (debug)
             std::cout << "Histogram " << name << ":" << (hist->GetName()) << " with " << (hist->GetEntries())
                       << " entries" << std::endl;
@@ -1717,14 +1723,14 @@ void FitHistExtended_RootFit(const char* infile,
               nv1 = j;
             if (nv2 < j)
               nv2 = j;
-	    if (j == 0) {
+            if (j == 0) {
               sprintf(name, "%sOne", hist1->GetName());
               TH1D* hist2 = (TH1D*)hist1->Clone(name);
-	      std::string wsName = Form("%s_ws", hist2->GetName());
-	      RooWorkspace* ws2 = new RooWorkspace(wsName.c_str(), hist2->GetTitle());
+              std::string wsName = Form("%s_ws", hist2->GetName());
+              RooWorkspace* ws2 = new RooWorkspace(wsName.c_str(), hist2->GetTitle());
               fitOneGauss_RooFit(hist2, debug, ws2);
               hists.push_back(hist2);
-	      Workspace.push_back(ws2);
+              Workspace.push_back(ws2);
               results meaner = (((type / 10) % 10) == 0) ? fitOneGauss_RooFit(hist, debug, ws)
                                                          : fitDoubleSidedCrystalball_RooFit(hist, debug, ws);
               value = meaner.mean;
@@ -1747,7 +1753,7 @@ void FitHistExtended_RootFit(const char* infile,
             }
           }
           hists.push_back(hist);
-	  Workspace.push_back(ws);
+          Workspace.push_back(ws);
         }
         if (debug) {
           std::cout << "Hist************** " << j << " Value " << value << " +- " << error << std::endl;
@@ -1769,17 +1775,17 @@ void FitHistExtended_RootFit(const char* infile,
           double LowEdge = histo->GetBinLowEdge(jmin);
           double HighEdge = histo->GetBinLowEdge(jmax) + histo->GetBinWidth(jmax);
 
-	  fitConstPol0_RooFit(histo, LowEdge, HighEdge, debug, wso);
+          fitConstPol0_RooFit(histo, LowEdge, HighEdge, debug, wso);
           histw->GetXaxis()->SetTitle("i#eta");
           histw->GetYaxis()->SetTitle("MPV/Width(E_{HCAL}/(p-E_{ECAL}))");
           histw->GetYaxis()->SetRangeUser(0.0, 0.5);
         }
         hists.push_back(histo);
         hists.push_back(histw);
-	Workspace.push_back(wso);
+        Workspace.push_back(wso);
       } else {
         hists.push_back(hist0);
-	Workspace.push_back(ws0);
+        Workspace.push_back(ws0);
       }
 
       // Barrel,Endcap
@@ -1791,8 +1797,8 @@ void FitHistExtended_RootFit(const char* infile,
         }
         if (hist1 != nullptr) {
           TH1D* hist = (TH1D*)hist1->Clone();
-	  std::string wsName = Form("%s_ws", hist->GetName());
-	  RooWorkspace* ws = new RooWorkspace(wsName.c_str(), hist->GetTitle());
+          std::string wsName = Form("%s_ws", hist->GetName());
+          RooWorkspace* ws = new RooWorkspace(wsName.c_str(), hist->GetTitle());
           double value(0), error(0), total(0), width(0), werror(0);
           if (hist->GetEntries() > 0) {
             value = hist->GetMean();
@@ -1801,10 +1807,10 @@ void FitHistExtended_RootFit(const char* infile,
               total += hist->GetBinContent(i);
           }
           if (total > 4) {
-	    sprintf(name, "%sOne", hist1->GetName());
+            sprintf(name, "%sOne", hist1->GetName());
             TH1D* hist2 = (TH1D*)hist1->Clone(name);
-	    std::string wsName = Form("%s_ws", hist2->GetName());
-	    RooWorkspace* ws2 = new RooWorkspace(wsName.c_str(), hist2->GetTitle());
+            std::string wsName = Form("%s_ws", hist2->GetName());
+            RooWorkspace* ws2 = new RooWorkspace(wsName.c_str(), hist2->GetTitle());
             results meanerr = (((type / 10) % 10) == 0) ? fitOneGauss_RooFit(hist2, debug, ws2)
                                                         : fitDoubleSidedCrystalball_RooFit(hist2, debug, ws2);
             value = meanerr.mean;
@@ -1816,16 +1822,16 @@ void FitHistExtended_RootFit(const char* infile,
             std::cout << hist2->GetName() << " MPV " << value << " +- " << error << " Width " << width << " +- "
                       << werror << " W/M " << wbyv << " +- " << wverr << std::endl;
             hists.push_back(hist2);
-	    Workspace.push_back(ws2);
+            Workspace.push_back(ws2);
 
             if (hist1->GetBinLowEdge(1) < 0.1) {
               sprintf(name, "%sTwo", hist1->GetName());
               TH1D* hist3 = (TH1D*)hist1->Clone(name);
-	      std::string wsName = Form("%s_ws", hist3->GetName());
-	      RooWorkspace* ws3 = new RooWorkspace(wsName.c_str(), hist3->GetTitle());
+              std::string wsName = Form("%s_ws", hist3->GetName());
+              RooWorkspace* ws3 = new RooWorkspace(wsName.c_str(), hist3->GetTitle());
               fitLanGau_RooFit(hist3, debug, ws3);
               hists.push_back(hist3);
-	      Workspace.push_back(ws3);
+              Workspace.push_back(ws3);
             }
             results meaner0 = (((type / 10) % 10) == 0) ? fitOneGauss_RooFit(hist, debug, ws)
                                                         : fitDoubleSidedCrystalball_RooFit(hist, debug, ws);
@@ -1839,7 +1845,7 @@ void FitHistExtended_RootFit(const char* infile,
             }
           }
           hists.push_back(hist);
-	  Workspace.push_back(ws);
+          Workspace.push_back(ws);
         }
       }
     }
@@ -2158,16 +2164,16 @@ void PlotHist(const char* infile,
 }
 
 void PlotHist_RooFit(const char* infile,
-		     std::string prefix,
-		     std::string text,
-		     int mode = 4,
-		     int kopt = 100,
-		     double lumi = 0,
-		     double ener = 13.0,
-		     bool isRealData = false,
-		     bool drawStatBox = true,
-		     int save = 0,
-		     bool debug = false) {
+                     std::string prefix,
+                     std::string text,
+                     int mode = 4,
+                     int kopt = 100,
+                     double lumi = 0,
+                     double ener = 13.0,
+                     bool isRealData = false,
+                     bool drawStatBox = true,
+                     int save = 0,
+                     bool debug = false) {
   // Define histogram and title arrays (unchanged)
   std::string name0[6] = {"ratio00", "ratio10", "ratio20", "ratio30", "ratio40", "ratio50"};
   std::string name1[5] = {"Z0", "Z1", "Z2", "Z3", "Z4"};
@@ -2194,9 +2200,8 @@ void PlotHist_RooFit(const char* infile,
                             "Tracks with p = 10:20 GeV (Barrel)",  "Tracks with p = 10:20 GeV (Transition)",
                             "Tracks with p = 10:20 GeV (Endcap)",  "Tracks with p = 10:20 GeV"};
   std::string xtitl[5] = {"E_{HCAL}/(p-E_{ECAL})", "i#eta", "d_{L1}", "# Vertex", "E_{HCAL}/(p-E_{ECAL})"};
-  std::string ytitl[5] = {"Tracks", "MPV(E_{HCAL}/(p-E_{ECAL}))", "MPV(E_{HCAL}/(p-E_{ECAL}))", 
-                          "MPV(E_{HCAL}/(p-E_{ECAL}))", "Tracks"};
-
+  std::string ytitl[5] = {
+      "Tracks", "MPV(E_{HCAL}/(p-E_{ECAL}))", "MPV(E_{HCAL}/(p-E_{ECAL}))", "MPV(E_{HCAL}/(p-E_{ECAL}))", "Tracks"};
 
   // Style settings
   gStyle->SetCanvasBorderMode(0);
@@ -2204,7 +2209,8 @@ void PlotHist_RooFit(const char* infile,
   gStyle->SetPadColor(kWhite);
   gStyle->SetFillColor(kWhite);
   gStyle->SetOptTitle(0);
-  if (mode < 0 || mode > 5) mode = 0;
+  if (mode < 0 || mode > 5)
+    mode = 0;
   if (drawStatBox) {
     int iopt = (mode != 0 ? 10 : 1110);
     gStyle->SetOptStat(iopt);
@@ -2250,22 +2256,23 @@ void PlotHist_RooFit(const char* infile,
     file->GetObject((std::string(name) + "_ws").c_str(), w);
     if (w == nullptr)
       continue;
-    
+
     // Get RooDataHist and RooAbsPdf from workspace
     std::string dataName = std::string(name) + "_data";
     std::string pdfName = std::string(name) + "_pdf";
-    std::string rngLowName  = std::string(name)+"_low";
-    std::string rngHighName = std::string(name)+"_high";
-    
+    std::string rngLowName = std::string(name) + "_low";
+    std::string rngHighName = std::string(name) + "_high";
+
     RooDataHist* dataHist = (RooDataHist*)w->data(dataName.c_str());
     RooAbsPdf* pdf = (RooAbsPdf*)w->pdf(pdfName.c_str());
-    
+
     RooRealVar* lowEdgeVar = w->var(rngLowName.c_str());
     RooRealVar* highEdgeVar = w->var(rngHighName.c_str());
-    
+
     if (!dataHist || !pdf || !lowEdgeVar || !highEdgeVar) {
       if (debug)
-	std::cout << "Warning: Could not find data (" << dataName << "), PDF (" << pdfName << "), low edge (" << rngLowName << "), or high edge (" << rngHighName  << ") for " << name << std::endl;
+        std::cout << "Warning: Could not find data (" << dataName << "), PDF (" << pdfName << "), low edge ("
+                  << rngLowName << "), or high edge (" << rngHighName << ") for " << name << std::endl;
       continue;
     }
     double lowEdge = lowEdgeVar->getVal();
@@ -2275,8 +2282,8 @@ void PlotHist_RooFit(const char* infile,
       // Get the observable
       RooRealVar* x = w->var("x");
       if (!x) {
-	if (debug)
-	  std::cout << "Error: Variable 'x' not found in workspace" << std::endl;
+        if (debug)
+          std::cout << "Error: Variable 'x' not found in workspace" << std::endl;
         continue;
       }
       // Create a canvas
@@ -2285,8 +2292,8 @@ void PlotHist_RooFit(const char* infile,
       pad->SetRightMargin(0.10);
       pad->SetTopMargin(0.10);
       if ((kopt / 10) % 10 > 0)
-	gPad->SetGrid();
-    
+        gPad->SetGrid();
+
       // Create a RooPlot
       RooPlot* frame = x->frame();
       frame->SetTitle("");
@@ -2297,28 +2304,32 @@ void PlotHist_RooFit(const char* infile,
       frame->GetYaxis()->SetTitleSize(0.04);
       frame->GetYaxis()->SetLabelSize(0.035);
       frame->GetYaxis()->SetTitleOffset(1.10);
-    
+
       // Set X-axis range based on mode
       if (mode == 0 || mode == 4) {
-	if ((kopt / 100) % 10 == 2) {
-	  x->setRange(0.0, 0.30);
-	  frame->GetXaxis()->SetRangeUser(0.0, 0.3);
-	} else {
-	  x->setRange(0.25, 2.25);
-	  frame->GetXaxis()->SetRangeUser(0.25, 2.25);
-	}
+        if ((kopt / 100) % 10 == 2) {
+          x->setRange(0.0, 0.30);
+          frame->GetXaxis()->SetRangeUser(0.0, 0.3);
+        } else {
+          x->setRange(0.25, 2.25);
+          frame->GetXaxis()->SetRangeUser(0.25, 2.25);
+        }
       } else if (mode == 5) {
-	frame->SetMinimum(0.1);
-	frame->SetMaximum(0.50);
+        frame->SetMinimum(0.1);
+        frame->SetMaximum(0.50);
       } else if (isRealData) {
-	frame->SetMinimum(0.5);
-	frame->SetMaximum(1.50);
+        frame->SetMinimum(0.5);
+        frame->SetMaximum(1.50);
       } else {
-	frame->SetMinimum(0.8);
-	frame->SetMaximum(1.20);
+        frame->SetMinimum(0.8);
+        frame->SetMaximum(1.20);
       }
-    
-      dataHist->plotOn(frame, RooFit::MarkerStyle(20), RooFit::MarkerColor(2), RooFit::LineColor(2), RooFit::DataError(RooAbsData::None));
+
+      dataHist->plotOn(frame,
+                       RooFit::MarkerStyle(20),
+                       RooFit::MarkerColor(2),
+                       RooFit::LineColor(2),
+                       RooFit::DataError(RooAbsData::None));
       pdf->plotOn(frame, RooFit::LineColor(4), RooFit::LineWidth(2));
 
       // Draw the frame
@@ -2326,62 +2337,62 @@ void PlotHist_RooFit(const char* infile,
 
       // Adjust stats box if enabled
       if (drawStatBox) {
-	double ymin = (mode == 0 || mode == 4) ? 0.70 : 0.80;
-	TPaveStats* st1 = (TPaveStats*)pad->GetPrimitive("stats");
-	if (st1) {
-	  st1->SetY1NDC(ymin);
-	  st1->SetY2NDC(0.90);
-	  st1->SetX1NDC(0.65);
-	  st1->SetX2NDC(0.90);
-	}
+        double ymin = (mode == 0 || mode == 4) ? 0.70 : 0.80;
+        TPaveStats* st1 = (TPaveStats*)pad->GetPrimitive("stats");
+        if (st1) {
+          st1->SetY1NDC(ymin);
+          st1->SetY2NDC(0.90);
+          st1->SetX1NDC(0.65);
+          st1->SetX2NDC(0.90);
+        }
       }
 
       // Add line for modes other than 0 and 4 if kopt % 10 > 0
       TLine* line = nullptr;
       if (mode != 0 && mode != 4 && kopt % 10 > 0) {
-	TH1* hist = dataHist->createHistogram("hist", *x);
-	double p0 = 0.0;
-	if (kopt % 10 > 0) {
-	  int nbin = hist->GetNbinsX();
-	  double LowEdge = (kopt % 10 == 1) ? hist->GetBinLowEdge(1) : -20;
-	  double HighEdge = (kopt % 10 == 1) ? hist->GetBinLowEdge(nbin) + hist->GetBinWidth(nbin) : 20;
-	  TFitResultPtr Fit = hist->Fit("pol0", "+QRWLS", "", LowEdge, HighEdge);
-	  p0 = Fit->Value(0);
-	}
-	double xmin = x->getMin();
-	double xmax = x->getMax();
-	line = new TLine(xmin, p0, xmax, p0);
-	line->SetLineWidth(2);
-	line->SetLineStyle(2);
-	line->Draw("same");
-	delete hist; // Clean up
+        TH1* hist = dataHist->createHistogram("hist", *x);
+        double p0 = 0.0;
+        if (kopt % 10 > 0) {
+          int nbin = hist->GetNbinsX();
+          double LowEdge = (kopt % 10 == 1) ? hist->GetBinLowEdge(1) : -20;
+          double HighEdge = (kopt % 10 == 1) ? hist->GetBinLowEdge(nbin) + hist->GetBinWidth(nbin) : 20;
+          TFitResultPtr Fit = hist->Fit("pol0", "+QRWLS", "", LowEdge, HighEdge);
+          p0 = Fit->Value(0);
+        }
+        double xmin = x->getMin();
+        double xmax = x->getMax();
+        line = new TLine(xmin, p0, xmax, p0);
+        line->SetLineWidth(2);
+        line->SetLineStyle(2);
+        line->Draw("same");
+        delete hist;  // Clean up
       }
-    
+
       // Add text labels (unchanged)
       double ymx = 0.96, xmi = 0.25, xmx = 0.90;
       char txt[100];
       if (lumi > 0.1) {
-	ymx = (mode == 0 || mode == 4) ? 0.70 - 0.005 : 0.80 - 0.005;
-	xmi = 0.45;
-	TPaveText* txt0 = new TPaveText(0.65, 0.91, 0.90, 0.96, "blNDC");
-	txt0->SetFillColor(0);
-	sprintf(txt, "%4.1f TeV %5.1f fb^{-1}", ener, lumi);
-	txt0->AddText(txt);
-	txt0->Draw("same");
+        ymx = (mode == 0 || mode == 4) ? 0.70 - 0.005 : 0.80 - 0.005;
+        xmi = 0.45;
+        TPaveText* txt0 = new TPaveText(0.65, 0.91, 0.90, 0.96, "blNDC");
+        txt0->SetFillColor(0);
+        sprintf(txt, "%4.1f TeV %5.1f fb^{-1}", ener, lumi);
+        txt0->AddText(txt);
+        txt0->Draw("same");
       }
       double ymi = ymx - 0.05;
       TPaveText* txt1 = new TPaveText(xmi, ymi, xmx, ymx, "blNDC");
       txt1->SetFillColor(0);
       if (text == "") {
-	if (mode == 4)
-	  sprintf(txt, "%s", title1[k].c_str());
-	else
-	  sprintf(txt, "%s", title[k].c_str());
+        if (mode == 4)
+          sprintf(txt, "%s", title1[k].c_str());
+        else
+          sprintf(txt, "%s", title[k].c_str());
       } else {
-	if (mode == 4)
-	  sprintf(txt, "%s (%s)", title1[k].c_str(), text.c_str());
-	else
-	  sprintf(txt, "%s (%s)", title[k].c_str(), text.c_str());
+        if (mode == 4)
+          sprintf(txt, "%s (%s)", title1[k].c_str(), text.c_str());
+        else
+          sprintf(txt, "%s (%s)", title[k].c_str(), text.c_str());
       }
       txt1->AddText(txt);
       txt1->Draw("same");
@@ -2391,26 +2402,27 @@ void PlotHist_RooFit(const char* infile,
       TPaveText* txt2 = new TPaveText(0.11, ymi, xmax, ymx, "blNDC");
       txt2->SetFillColor(0);
       if (isRealData)
-	sprintf(txt, "CMS Preliminary");
+        sprintf(txt, "CMS Preliminary");
       else
-	sprintf(txt, "CMS Simulation Preliminary");
+        sprintf(txt, "CMS Simulation Preliminary");
       txt2->AddText(txt);
       txt2->Draw("same");
-      
+
       // Update and save canvas
       pad->Modified();
       pad->Update();
       if (save > 0) {
-	sprintf(name, "%s.pdf", pad->GetName());
-	pad->Print(name);
+        sprintf(name, "%s.pdf", pad->GetName());
+        pad->Print(name);
       } else if (save < 0) {
-	sprintf(name, "%s.C", pad->GetName());
-	pad->Print(name);
+        sprintf(name, "%s.C", pad->GetName());
+        pad->Print(name);
       }
       delete frame;
     } else {
       if (debug)
-	std::cout << "Warning: Could not find data (" << dataName << ") or PDF (" << pdfName << ") for " << name << std::endl;
+        std::cout << "Warning: Could not find data (" << dataName << ") or PDF (" << pdfName << ") for " << name
+                  << std::endl;
     }
   }
   file->Close();
@@ -3628,8 +3640,11 @@ void PlotHistCorrFactors(char* infile1,
               int ieta = (itr->second).ieta;
               int bin = ieta - etamin + 1;
               float val = (itr->second).corrf / (ktr->second).corrf;
-              float dvl = val *	std::sqrt((((itr->second).dcorr * (itr->second).dcorr) / ((itr->second).corrf * (itr->second).corrf)) +
-					  (((ktr->second).dcorr * (ktr->second).dcorr) / ((ktr->second).corrf * (ktr->second).corrf)));
+              float dvl =
+                  val *
+                  std::sqrt(
+                      (((itr->second).dcorr * (itr->second).dcorr) / ((itr->second).corrf * (itr->second).corrf)) +
+                      (((ktr->second).dcorr * (ktr->second).dcorr) / ((ktr->second).corrf * (ktr->second).corrf)));
               h->SetBinContent(bin, val);
               h->SetBinError(bin, dvl);
               sumNum += (val / (dvl * dvl));
@@ -3859,8 +3874,10 @@ void PlotHistCorr2Factors(char* infile1,
             int ieta = (itr->second).ieta;
             int bin = ieta - etamin + 1;
             float val = (itr->second).corrf / (ktr->second).corrf;
-            float dvl = val * std::sqrt((((itr->second).dcorr * (itr->second).dcorr) / ((itr->second).corrf * (itr->second).corrf)) +
-					(((ktr->second).dcorr * (ktr->second).dcorr) / ((ktr->second).corrf * (ktr->second).corrf)));
+            float dvl =
+                val *
+                std::sqrt((((itr->second).dcorr * (itr->second).dcorr) / ((itr->second).corrf * (itr->second).corrf)) +
+                          (((ktr->second).dcorr * (ktr->second).dcorr) / ((ktr->second).corrf * (ktr->second).corrf)));
             h->SetBinContent(bin, val);
             h->SetBinError(bin, dvl);
             sumNum += (val / (dvl * dvl));
@@ -4101,8 +4118,10 @@ void PlotHistCorrDFactors(char* infile1,
             int ieta = (itr->second).ieta;
             int bin = ieta - etamin + 1;
             float val = (itr->second).corrf / (ktr->second).corrf;
-            float dvl = val * std::sqrt((((itr->second).dcorr * (itr->second).dcorr) / ((itr->second).corrf * (itr->second).corrf)) +
-					(((ktr->second).dcorr * (ktr->second).dcorr) / ((ktr->second).corrf * (ktr->second).corrf)));
+            float dvl =
+                val *
+                std::sqrt((((itr->second).dcorr * (itr->second).dcorr) / ((itr->second).corrf * (itr->second).corrf)) +
+                          (((ktr->second).dcorr * (ktr->second).dcorr) / ((ktr->second).corrf * (ktr->second).corrf)));
             h->SetBinContent(bin, val);
             h->SetBinError(bin, dvl);
             sumNum += (val / (dvl * dvl));
