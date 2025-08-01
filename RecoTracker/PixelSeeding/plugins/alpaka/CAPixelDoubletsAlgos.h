@@ -232,29 +232,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
       */
 
       auto zi = hh[i].zGlobal();
-
-      // cut on inner z
-      if (zi < cc.minInnerZ()[pairLayerId] || zi > cc.maxInnerZ()[pairLayerId]) {
-#ifdef DOUBLETS_DEBUG
-        printf("Killed here 2 --> zi: %f [index: %d], minInnerZ: %f, maxInnerZ: %f\n",
-               zi,
-               hh[i].detectorIndex(),
-               cc.minInnerZ()[pairLayerId],
-               cc.maxInnerZ()[pairLayerId]);
-#endif
-        continue;
-      }
-
       auto ri = hh[i].rGlobal();
 
-      // cut on inner r
-      if (ri < cc.minInnerR()[pairLayerId] || ri > cc.maxInnerR()[pairLayerId]) {
+      // cut on inner coordinate (z or r depending on layer)
+      auto valInner = ll.isBarrel()[inner] ? zi : ri;
+      if (valInner < cc.minInner()[pairLayerId] || valInner > cc.maxInner()[pairLayerId]) {
 #ifdef DOUBLETS_DEBUG
-        printf("Killed here 3 --> ri: %f [index: %d], minInnerR: %f, maxInnerR: %f\n",
-               zi,
+        printf("Killed here 2 --> valInner: %f [index: %d], minInner: %f, maxInner: %f\n",
+               valInner,
                hh[i].detectorIndex(),
-               cc.minInnerR()[pairLayerId],
-               cc.maxInnerR()[pairLayerId]);
+               cc.minInner()[pairLayerId],
+               cc.maxInner()[pairLayerId]);
 #endif
         continue;
       }
@@ -342,36 +330,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
           }
 
           auto zo = hh[oi].zGlobal();
-
-          // cut on outer z
-          if (zo < cc.minOuterZ()[pairLayerId] || zo > cc.maxOuterZ()[pairLayerId]) {
-#ifdef DOUBLETS_DEBUG
-            printf("Killed here 5 --> zo: %f [index: %d], minOuterZ: %f, maxOuterZ: %f\n",
-                   zo,
-                   mo,
-                   cc.minOuterZ()[pairLayerId],
-                   cc.maxOuterZ()[pairLayerId]);
-#endif
-            continue;
-          }
-
           auto ro = hh[oi].rGlobal();
 
-          // cut on outer r
-          if (ro < cc.minOuterR()[pairLayerId] || ri > cc.maxOuterR()[pairLayerId]) {
+          // cut on outer coordinate (z or r depending on layer)
+          auto valOuter = ll.isBarrel()[outer] ? zo : ro;
+          if (valOuter < cc.minOuter()[pairLayerId] || valOuter > cc.maxOuter()[pairLayerId]) {
 #ifdef DOUBLETS_DEBUG
-            printf("Killed here 6 --> ro: %f [index: %d], minOuterR: %f, maxOuterR: %f\n",
-                   zo,
+            printf("Killed here 5 --> valOuter: %f [index: %d], minOuter: %f, maxOuter: %f\n",
+                   valOuter,
                    mo,
-                   cc.minOuterR()[pairLayerId],
-                   cc.maxOuterR()[pairLayerId]);
+                   cc.minOuter()[pairLayerId],
+                   cc.maxOuter()[pairLayerId]);
 #endif
             continue;
           }
           
           auto dz = zo-zi;
 
-          // cut on outer z
+          // cut on signed dz
           if (dz < cc.minDZ()[pairLayerId] || dz > cc.maxDZ()[pairLayerId]) {
 #ifdef DOUBLETS_DEBUG
             printf("Killed here 5 --> dz: %f [index: %d], minDZ: %f, maxDZ: %f\n",
