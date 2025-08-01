@@ -35,6 +35,9 @@ It is based on the preexisting work of the scouting group and can be found at gi
 #include "DataFormats/Scouting/interface/Run3ScoutingPhoton.h"
 #include "DataFormats/Scouting/interface/Run3ScoutingTrack.h"
 #include "DataFormats/Scouting/interface/Run3ScoutingVertex.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingEBRecHit.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingEERecHit.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingHBHERecHit.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -61,6 +64,14 @@ public:
 private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+
+  template <typename T>
+  void setToken(edm::EDGetTokenT<T>& token, const edm::ParameterSet& iConfig, std::string name) {
+    const auto inputTag = iConfig.getParameter<edm::InputTag>(name);
+    if (!inputTag.encode().empty()) {
+      token = consumes(inputTag);
+    }
+  }
 
   template <typename T>
   bool getValidHandle(const edm::Event& iEvent,
@@ -104,6 +115,11 @@ private:
   const edm::EDGetTokenT<std::vector<Run3ScoutingTrack>> tracksToken_;
   const edm::EDGetTokenT<OnlineLuminosityRecord> onlineMetaDataDigisToken_;
   const std::string topfoldername_;
+
+  // calo rechits (only 2025 V1.3 onwards, see  )
+  edm::EDGetTokenT<std::vector<Run3ScoutingEBRecHitCollection>> ebRecHitsToken_;
+  edm::EDGetTokenT<std::vector<Run3ScoutingEERecHitCollection>> eeRecHitsToken_;
+  edm::EDGetTokenT<std::vector<Run3ScoutingHBHERecHitCollection>> hbheRecHitsToken_;
 
   // pv vs PU and rho vs PU plots
   int primaryVertex_counter = 0;
@@ -384,6 +400,11 @@ private:
   dqm::reco::MonitorElement* tk_chi2_prob_hist;
   dqm::reco::MonitorElement* tk_PV_dxy_hist;
   dqm::reco::MonitorElement* tk_PV_dz_hist;
+
+  // calo rechits histrograms
+  dqm::reco::MonitorElement* ebRecHitsNumber;
+  dqm::reco::MonitorElement* eeRecHitsNumber;
+  dqm::reco::MonitorElement* hbheRecHitsNumber;
 };
 
 //
@@ -408,7 +429,11 @@ ScoutingCollectionMonitor::ScoutingCollectionMonitor(const edm::ParameterSet& iC
       pfjetsToken_(consumes<std::vector<Run3ScoutingPFJet>>(iConfig.getParameter<edm::InputTag>("pfjets"))),
       tracksToken_(consumes<std::vector<Run3ScoutingTrack>>(iConfig.getParameter<edm::InputTag>("tracks"))),
       onlineMetaDataDigisToken_(consumes(iConfig.getParameter<edm::InputTag>("onlineMetaDataDigis"))),
-      topfoldername_(iConfig.getParameter<std::string>("topfoldername")) {}
+      topfoldername_(iConfig.getParameter<std::string>("topfoldername")) {
+  setToken(ebRecHitsToken_, iConfig, "pfRecHitsEB");
+  setToken(eeRecHitsToken_, iConfig, "pfRecHitsEE");
+  setToken(hbheRecHitsToken_, iConfig, "pfRecHitsHBHE");
+}
 
 //
 // member functions
@@ -796,6 +821,21 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
 
     tk_PV_dxy_hist->Fill(best_offset.first);
     tk_PV_dz_hist->Fill(best_offset.second);
+  }
+
+  if (!ebRecHitsToken_.isUninitialized()) {
+    auto const& ebRecHits = iEvent.get(ebRecHitsToken_);
+    ebRecHitsNumber->Fill(ebRecHits.size());
+  }
+
+  if (!eeRecHitsToken_.isUninitialized()) {
+    auto const& eeRecHits = iEvent.get(eeRecHitsToken_);
+    eeRecHitsNumber->Fill(eeRecHits.size());
+  }
+
+  if (!hbheRecHitsToken_.isUninitialized()) {
+    auto const& hbheRecHits = iEvent.get(hbheRecHitsToken_);
+    hbheRecHitsNumber->Fill(hbheRecHits.size());
   }
 }
 
@@ -1203,6 +1243,12 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   tk_chi2_prob_hist = ibook.book1DD("tk_chi2_prob_hist", "p(#chi^{2}, NDOF); p(#chi^{2}, NDOF); Entries", 100, 0, 1);
   tk_PV_dz_hist = ibook.book1DD("tk_PV_dz", "Track dz w.r.t. PV; Track dz w.r.t. PV; Entries", 100, -0.35, 0.35);
   tk_PV_dxy_hist = ibook.book1DD("tk_PV_dxy", "Track dxy w.r.t. PV; Track dxy w.r.t. PV; Entries", 100, -0.15, 0.15);
+
+  ibook.setCurrentFolder(topfoldername_ + "/CaloRecHits");
+  ebRecHitsNumber = ibook.book1D("ebRechitsN", "number of eb RecHits; number of EB recHits; events", 100, 0.0, 1000.0);
+  eeRecHitsNumber = ibook.book1D("eeRechitsN", "number of ee RecHits; number of EE recHits; events", 100, 0.0, 1000.0);
+  hbheRecHitsNumber =
+      ibook.book1D("hbheRechitsN", "number of hbhe RecHits; number of HBHE recHits; events", 100, 0.0, 1000.0);
 }
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 
@@ -1223,6 +1269,9 @@ void ScoutingCollectionMonitor::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<edm::InputTag>("pfMetPhi", edm::InputTag("hltScoutingPFPacker", "pfMetPhi"));
   desc.add<edm::InputTag>("rho", edm::InputTag("hltScoutingPFPacker", "rho"));
   desc.add<edm::InputTag>("onlineMetaDataDigis", edm::InputTag("onlineMetaDataDigis"));
+  desc.add<edm::InputTag>("pfRecHitsEB", edm::InputTag(""));
+  desc.add<edm::InputTag>("pfRecHitsEE", edm::InputTag(""));
+  desc.add<edm::InputTag>("pfRecHitsHBHE", edm::InputTag(""));
   desc.add<std::string>("topfoldername", "HLT/ScoutingOffline/Miscellaneous");
   descriptions.addWithDefaultLabel(desc);
 }
