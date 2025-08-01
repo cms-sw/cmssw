@@ -58,9 +58,55 @@ process.rawDataCollector = cms.EDProducer("MPIReceiver",
     ))
 )
 
+
 process.activityFilterRawData = cms.EDFilter("PathStateRelease",
     state = cms.InputTag("rawDataCollector")
     )
+
+process.mpiReceiverEcalDigisActivity = cms.EDProducer("MPIReceiver",
+    upstream = cms.InputTag("source"),
+    instance = cms.int32(2),
+    products = cms.VPSet(cms.PSet(
+        type = cms.string("edm::PathStateToken"),
+        label = cms.string("")
+    ))
+)
+
+process.activityFilterEcalDigis = cms.EDFilter("PathStateRelease",
+    state = cms.InputTag("mpiReceiverEcalDigisActivity")
+    )
+
+# process.mpiReceiverhltHbheRecoSoAActivity = cms.EDProducer("MPIReceiver",
+#     upstream = cms.InputTag("source"),
+#     instance = cms.int32(3),
+#     products = cms.VPSet(cms.PSet(
+#         type = cms.string("edm::PathStateToken"),
+#         label = cms.string("")
+#     ))
+# )
+
+# process.mpiReceiverParticleFlowActivity = cms.EDProducer("MPIReceiver",
+#     upstream = cms.InputTag("source"),
+#     instance = cms.int32(4),
+#     products = cms.VPSet(cms.PSet(
+#         type = cms.string("edm::PathStateToken"),
+#         label = cms.string("")
+#     ))
+# )
+
+process.mpiReceiverhltHbheRecoSoAAParticleFlowActivity = cms.EDProducer("MPIReceiver",
+    upstream = cms.InputTag("source"),
+    instance = cms.int32(3),
+    products = cms.VPSet(cms.PSet(
+        type = cms.string("edm::PathStateToken"),
+        label = cms.string("")
+    ))
+)
+
+process.activityFilterRecoParticleFlow = cms.EDFilter("PathStateRelease",
+    state = cms.InputTag("mpiReceiverhltHbheRecoSoAAParticleFlowActivity")
+    )
+
 
 process.hltGetRaw = _process.hltGetRaw.clone()
 
@@ -111,6 +157,7 @@ process.HBHEActivity = cms.EDProducer("PathStateCapture")
 process.HLTLocalHBHE = cms.Path(
     # process.rawDataCollector +
     process.activityFilterRawData +
+    process.activityFilterRecoParticleFlow +
     process.hltGetRaw +
     process.hltHcalDigis +
     process.hltHcalDigisSoA +
@@ -157,6 +204,7 @@ process.ECALActivity = cms.EDProducer("PathStateCapture")
 process.HLTLocalECAL = cms.Path(
     # process.rawDataCollector +
     process.activityFilterRawData +
+    process.activityFilterEcalDigis +
     process.hltGetRaw +
     process.hltEcalDigisSoA +
     # process.mpiSenderEcalDigisSoA +
@@ -167,6 +215,8 @@ process.HLTLocalECAL = cms.Path(
 
 process.MPIPath = cms.Path(
     process.rawDataCollector +
+    process.mpiReceiverEcalDigisActivity +
+    process.mpiReceiverhltHbheRecoSoAAParticleFlowActivity +
     process.mpiSenderEcalDigisSoA +
     process.mpiSenderEcalUncalibRecHitSoA +
     process.mpiSenderHbheRecoSoA +

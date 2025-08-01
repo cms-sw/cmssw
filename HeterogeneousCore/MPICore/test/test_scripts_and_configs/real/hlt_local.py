@@ -58,16 +58,6 @@ process.mpiSenderRawData = cms.EDProducer("MPISender",
     products = cms.vstring("rawDataCollector", "rawDataCollectorActivity")
 )
 
-process.rawDataCollectorActivity = cms.EDProducer("PathStateCapture")
-
-
-# schedule the communication before the ECAL local reconstruction
-process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence.insert(0, process.rawDataCollectorActivity)
-
-
-# process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence.insert(0, process.mpiController)
-# process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence.insert(1, process.rawDataCollectorActivity)
-# process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence.insert(2, process.mpiSenderRawData)
 
 process.hltEcalDigisSoAFilter = cms.EDFilter("PathStateRelease",
     state = cms.InputTag("hltEcalDigisSoA")
@@ -125,12 +115,6 @@ process.hltEcalUncalibRecHitSoA = cms.EDProducer("MPIReceiver",
     ))
 )
 
-# delete the modules runnig remotely
-# del process.hltHcalDigisSoA
-
-# process.hltHbheRecoSoA = cms.EDFilter("PathStateRelease",
-#     producer = cms.InputTag("hltHbheRecoSoAReceiver")
-#     )
 
 process.hltHbheRecoSoAFilter = cms.EDFilter("PathStateRelease",
     state = cms.InputTag("hltHbheRecoSoA")
@@ -210,36 +194,64 @@ process.hltParticleFlowClusterHBHESoA = cms.EDProducer("MPIReceiver",
     ))
 )
 
+process.rawDataCollectorActivity = cms.EDProducer("PathStateCapture")
+
+
+process.EcalDigisAndRecoActivity = cms.EDProducer("PathStateCapture")
+# process.hltHbheRecoSoAActivity = cms.EDProducer("PathStateCapture")
+# process.ParticleFlowActivity = cms.EDProducer("PathStateCapture")
+process.hltHbheRecoSoAAParticleFlowActivity = cms.EDProducer("PathStateCapture")
+
+
+# schedule the communication before the ECAL local reconstruction
+process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence.insert(0, process.rawDataCollectorActivity) # hltEcalDigisSoA hltEcalUncalibRecHitSoA
+process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence.insert(1, process.EcalDigisAndRecoActivity)
 
 # schedule the communication before the HBHE local reconstruction
 # process.HLTDoLocalHcalSequence.insert(0, process.mpiController)
-process.HLTDoLocalHcalSequence.insert(0, process.rawDataCollectorActivity)
+process.HLTDoLocalHcalSequence.insert(0, process.rawDataCollectorActivity) # hltHbheRecoSoA
+process.HLTDoLocalHcalSequence.insert(1, process.hltHbheRecoSoAAParticleFlowActivity)
 
 # process.HLTStoppedHSCPLocalHcalReco.insert(0, process.mpiController)
-process.HLTStoppedHSCPLocalHcalReco.insert(0, process.rawDataCollectorActivity)
+process.HLTStoppedHSCPLocalHcalReco.insert(0, process.rawDataCollectorActivity) # hltHbheRecoSoA
+process.HLTStoppedHSCPLocalHcalReco.insert(1, process.hltHbheRecoSoAAParticleFlowActivity)
 
 # schedule the communication before the HBHE PF reconstruction
 # process.HLTPFHcalClustering.insert(0, process.mpiController)
-process.HLTPFHcalClustering.insert(0, process.rawDataCollectorActivity)
+process.HLTPFHcalClustering.insert(0, process.rawDataCollectorActivity) # hltParticleFlowRecHitHBHESoA hltParticleFlowClusterHBHESoA
+process.HLTPFHcalClustering.insert(1, process.hltHbheRecoSoAAParticleFlowActivity)
 
+process.mpiSenderEcalDigisAndRecoActivity = cms.EDProducer("MPISender",
+    upstream = cms.InputTag("mpiController"),
+    instance = cms.int32(2),
+    products = cms.vstring("EcalDigisAndRecoActivity")
+)
 
+# process.mpiSenderhltHbheRecoSoAActivity = cms.EDProducer("MPISender",
+#     upstream = cms.InputTag("mpiController"),
+#     instance = cms.int32(3),
+#     products = cms.vstring("hltHbheRecoSoAActivity")
+# )
 
-# process.HLTStoppedHSCPLocalHcalReco.insert(0, process.mpiController)
-# process.HLTDoLocalHcalSequence.insert(1, process.rawDataCollectorActivity)
-# process.HLTStoppedHSCPLocalHcalReco.insert(2, process.mpiSenderRawData)
+# process.mpiSenderParticleFlowActivity = cms.EDProducer("MPISender",
+#     upstream = cms.InputTag("mpiController"),
+#     instance = cms.int32(4),
+#     products = cms.vstring("ParticleFlowActivity")
+# )
 
-# process.HLTStoppedHSCPLocalHcalReco.insert(0, process.mpiController)
-# process.HLTStoppedHSCPLocalHcalReco.insert(1, process.rawDataCollectorActivity)
-# process.HLTStoppedHSCPLocalHcalReco.insert(2, process.mpiSenderRawData)
+process.mpiSenderhltHbheRecoSoAAParticleFlowActivity = cms.EDProducer("MPISender",
+    upstream = cms.InputTag("mpiController"),
+    instance = cms.int32(3),
+    products = cms.vstring("hltHbheRecoSoAAParticleFlowActivity")
+)
 
-# process.HLTPFHcalClustering.insert(0, process.mpiController)
-# process.HLTPFHcalClustering.insert(1, process.rawDataCollectorActivity)
-# process.HLTPFHcalClustering.insert(2, process.mpiSenderRawData)
 
 # schedule the communication for every event
 process.Offload = cms.Path(
     process.mpiController +
     process.mpiSenderRawData +
+    process.mpiSenderEcalDigisAndRecoActivity +
+    process.mpiSenderhltHbheRecoSoAAParticleFlowActivity +
     process.hltHbheRecoSoA +
     process.hltParticleFlowRecHitHBHESoA +
     process.hltParticleFlowClusterHBHESoA +
