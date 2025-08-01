@@ -360,10 +360,7 @@ void MuDTSegmentExtTableProducer::fillTable(edm::Event& ev) {
               "ExpSuperLayer",
               seg4D_hitsExpSuperLayer,
               "expected superlayer of an extrapolated segment - [1:3] range");
-    addColumn(tabExtr,
-              "ExpLayer",
-              seg4D_hitsExpLayer,
-              "expected layer of an extrapolated segment - [1:4] range");
+    addColumn(tabExtr, "ExpLayer", seg4D_hitsExpLayer, "expected layer of an extrapolated segment - [1:4] range");
     addColumn(tabExtr,
               "ExpPos",
               seg4D_hitsExpPos,
