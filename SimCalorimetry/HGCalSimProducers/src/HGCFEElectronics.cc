@@ -74,6 +74,7 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet& ps)
     tdcOnset_fC_ = ps.getParameter<double>("tdcOnset_fC");
   if (ps.exists("tdcForToAOnset_fC")) {
     auto temp = ps.getParameter<std::vector<double> >("tdcForToAOnset_fC");
+    tdcForToAOnset_fC_.resize(temp.size());
     if (temp.size() == tdcForToAOnset_fC_.size()) {
       std::copy_n(temp.begin(), temp.size(), tdcForToAOnset_fC_.begin());
     } else {
@@ -94,18 +95,29 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet& ps)
 
   if (ps.exists("jitterNoise_ns")) {
     auto temp = ps.getParameter<std::vector<double> >("jitterNoise_ns");
+    jitterNoise_ns_.resize(temp.size());
     if (temp.size() == jitterNoise_ns_.size()) {
       std::copy_n(temp.begin(), temp.size(), jitterNoise_ns_.begin());
     } else {
-      throw cms::Exception("BadConfiguration") << " HGCFEElectronics wrong size for ToA jitterNoise ";
+      throw cms::Exception("BadConfiguration") << " HGCFEElectronics wrong size for ToA jitterNoise";
     }
   }
   if (ps.exists("jitterConstant_ns")) {
     auto temp = ps.getParameter<std::vector<double> >("jitterConstant_ns");
+    jitterConstant_ns_.resize(temp.size());
     if (temp.size() == jitterConstant_ns_.size()) {
       std::copy_n(temp.begin(), temp.size(), jitterConstant_ns_.begin());
     } else {
       throw cms::Exception("BadConfiguration") << " HGCFEElectronics wrong size for ToA jitterConstant ";
+    }
+  }
+  if (ps.exists("eventTimeOffset_ns")) {
+    auto temp = ps.getParameter<std::vector<double> >("eventTimeOffset_ns");
+    eventTimeOffset_ns_.resize(temp.size());
+    if (temp.size() == eventTimeOffset_ns_.size()) {
+      std::copy_n(temp.begin(), temp.size(), eventTimeOffset_ns_.begin());
+    } else {
+      throw cms::Exception("BadConfiguration") << " HGCFEElectronics wrong size for event time offset";
     }
   }
 }
@@ -398,15 +410,19 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
                                 << " (raw=" << finalToA << ") ns ";
 
     //last fC (tdcOnset) are dissipated trough pulse
-    if (it + busyBxs < (int)(newCharge_.size())) {
-      const float deltaT2nextBx((busyBxs * 25 - integTime));
-      const float tdcOnsetLeakage(tdcOnset * vdt::fast_expf(-deltaT2nextBx / tdcChargeDrainParameterisation_[11]));
+    int ft = it + busyBxs;
+    constexpr size_t tdcLeakageTauIdx_ = 11;
+    if (ft > it && ft < static_cast<int>(newCharge_.size()) &&
+        tdcChargeDrainParameterisation_.size() > tdcLeakageTauIdx_) {
+      const float deltaT2nextBx((busyBxs * 25.0f - integTime));
+      const float tdcOnsetLeakage(tdcOnset *
+                                  vdt::fast_expf(-deltaT2nextBx / tdcChargeDrainParameterisation_[tdcLeakageTauIdx_]));
       if (debug)
         edm::LogVerbatim("HGCFE") << "\t Leaking remainder of TDC onset " << tdcOnset << " fC, to be dissipated in "
                                   << deltaT2nextBx << " DeltaT/tau=" << deltaT2nextBx << " / "
-                                  << tdcChargeDrainParameterisation_[11] << " ns, adds " << tdcOnsetLeakage << " fC @ "
-                                  << it + busyBxs << " bx (first free bx)";
-      newCharge_[it + busyBxs] += tdcOnsetLeakage;
+                                  << tdcChargeDrainParameterisation_[tdcLeakageTauIdx_] << " ns, adds "
+                                  << tdcOnsetLeakage << " fC @ " << it + busyBxs << " bx (first free bx)";
+      newCharge_[ft] += tdcOnsetLeakage;
     }
   }
 
