@@ -61,14 +61,16 @@ premix_stage1.toModify(mixSimHits,
 # fastsim customs
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify(mixSimHits,
-    input = ["MuonSimHits:MuonCSCHits", 
-             "MuonSimHits:MuonDTHits", 
-             "MuonSimHits:MuonRPCHits", 
-             "fastSimProducer:TrackerHits"],
-    subdets = ['MuonCSCHits', 
-               'MuonDTHits', 
-               'MuonRPCHits', 
-               'TrackerHits']
+        input = cms.VInputTag(  
+        cms.InputTag("MuonSimHits","MuonCSCHits"),
+        cms.InputTag("MuonSimHits","MuonDTHits"),
+        cms.InputTag("MuonSimHits","MuonRPCHits"),
+        cms.InputTag("fastSimProducer", "TrackerHits")
+    ),
+    subdets = cms.vstring('MuonCSCHits', 
+                'MuonDTHits', 
+                'MuonRPCHits', 
+               'TrackerHits')
 )
 
 mixCaloHits = cms.PSet(
