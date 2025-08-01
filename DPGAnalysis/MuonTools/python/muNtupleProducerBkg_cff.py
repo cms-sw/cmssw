@@ -4,9 +4,12 @@ from PhysicsTools.NanoAOD.common_cff import *
 
 from DPGAnalysis.MuonTools.nano_mu_global_cff import *
 from DPGAnalysis.MuonTools.nano_mu_digi_cff import *
+from DPGAnalysis.MuonTools.nano_mu_local_reco_cff import *
+from DPGAnalysis.MuonTools.nano_mu_reco_cff import *
 
 muDPGNanoProducerBkg = cms.Sequence(globalTables
-                                   + muDigiTablesBkg)
+                                   + muDigiTablesBkg
+                                   + muLocalRecoTablesBkg)
 
 def muDPGNanoBkgCustomize(process) :
 
