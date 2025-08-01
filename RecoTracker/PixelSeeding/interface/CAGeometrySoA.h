@@ -32,20 +32,17 @@ namespace reco {
   GENERATE_SOA_LAYOUT(CALayersLayout,
                       SOA_COLUMN(uint32_t, layerStarts),
                       SOA_COLUMN(float, caThetaCut),
-                      SOA_COLUMN(float, caDCACut))
+                      SOA_COLUMN(float, caDCACut),
+                      SOA_COLUMN(bool, isBarrel))
 
   GENERATE_SOA_LAYOUT(CAGraphLayout,
                       SOA_COLUMN(GraphNode, graph),
                       SOA_COLUMN(bool, startingPair),
                       SOA_COLUMN(int16_t, phiCuts),
-                      SOA_COLUMN(float, minInnerZ),
-                      SOA_COLUMN(float, maxInnerZ),
-                      SOA_COLUMN(float, minOuterZ),
-                      SOA_COLUMN(float, maxOuterZ),
-                      SOA_COLUMN(float, minInnerR),
-                      SOA_COLUMN(float, maxInnerR),
-                      SOA_COLUMN(float, minOuterR),
-                      SOA_COLUMN(float, maxOuterR),
+                      SOA_COLUMN(float, minInner),
+                      SOA_COLUMN(float, maxInner),
+                      SOA_COLUMN(float, minOuter),
+                      SOA_COLUMN(float, maxOuter),
                       SOA_COLUMN(float, maxDZ),
                       SOA_COLUMN(float, minDZ),
                       SOA_COLUMN(float, maxDR))

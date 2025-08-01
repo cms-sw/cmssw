@@ -45,17 +45,14 @@ namespace reco {
     CAGeometryParams(edm::ParameterSet const& iConfig)
         : caThetaCuts_(iConfig.getParameter<std::vector<double>>("caThetaCuts")),
           caDCACuts_(iConfig.getParameter<std::vector<double>>("caDCACuts")),
+          isBarrel_(iConfig.getParameter<std::vector<int>>("isBarrel")),
           pairGraph_(iConfig.getParameter<std::vector<unsigned int>>("pairGraph")),
           startingPairs_(iConfig.getParameter<std::vector<unsigned int>>("startingPairs")),
           phiCuts_(iConfig.getParameter<std::vector<int>>("phiCuts")),
-          minInnerZ_(iConfig.getParameter<std::vector<double>>("minInnerZ")),
-          maxInnerZ_(iConfig.getParameter<std::vector<double>>("maxInnerZ")),
-          minOuterZ_(iConfig.getParameter<std::vector<double>>("minOuterZ")),
-          maxOuterZ_(iConfig.getParameter<std::vector<double>>("maxOuterZ")),
-          minInnerR_(iConfig.getParameter<std::vector<double>>("minInnerR")),
-          maxInnerR_(iConfig.getParameter<std::vector<double>>("maxInnerR")),
-          minOuterR_(iConfig.getParameter<std::vector<double>>("minOuterR")),
-          maxOuterR_(iConfig.getParameter<std::vector<double>>("maxOuterR")),
+          minInner_(iConfig.getParameter<std::vector<double>>("minInner")),
+          maxInner_(iConfig.getParameter<std::vector<double>>("maxInner")),
+          minOuter_(iConfig.getParameter<std::vector<double>>("minOuter")),
+          maxOuter_(iConfig.getParameter<std::vector<double>>("maxOuter")),
           maxDZ_(iConfig.getParameter<std::vector<double>>("maxDZ")),
           minDZ_(iConfig.getParameter<std::vector<double>>("minDZ")),
           maxDR_(iConfig.getParameter<std::vector<double>>("maxDR")){}
@@ -63,19 +60,16 @@ namespace reco {
     // Layers params
     const std::vector<double> caThetaCuts_;
     const std::vector<double> caDCACuts_;
+    const std::vector<int> isBarrel_;
 
     // Cells params
     const std::vector<unsigned int> pairGraph_;
     const std::vector<unsigned int> startingPairs_;
     const std::vector<int> phiCuts_;
-    const std::vector<double> minInnerZ_;
-    const std::vector<double> maxInnerZ_;
-    const std::vector<double> minOuterZ_;
-    const std::vector<double> maxOuterZ_;
-    const std::vector<double> minInnerR_;
-    const std::vector<double> maxInnerR_;
-    const std::vector<double> minOuterR_;
-    const std::vector<double> maxOuterR_;
+    const std::vector<double> minInner_;
+    const std::vector<double> maxInner_;
+    const std::vector<double> minOuter_;
+    const std::vector<double> maxOuter_;
     const std::vector<double> maxDZ_;
     const std::vector<double> minDZ_;
     const std::vector<double> maxDR_;
@@ -121,19 +115,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     static std::shared_ptr<CAGeometryCache> globalBeginRun(edm::Run const& iRun,
                                                            edm::EventSetup const& iSetup,
                                                            GlobalCache const* iCache) {
-      assert(iCache->maxDR_.size() == iCache->minInnerZ_.size());
-      assert(iCache->maxDR_.size() == iCache->maxInnerZ_.size());
-      assert(iCache->maxDR_.size() == iCache->minOuterZ_.size());
-      assert(iCache->maxDR_.size() == iCache->maxOuterZ_.size());
-      assert(iCache->maxDR_.size() == iCache->minInnerR_.size());
-      assert(iCache->maxDR_.size() == iCache->maxInnerR_.size());
-      assert(iCache->maxDR_.size() == iCache->minOuterR_.size());
-      assert(iCache->maxDR_.size() == iCache->maxOuterR_.size());
+      assert(iCache->maxDR_.size() == iCache->minInner_.size());
+      assert(iCache->maxDR_.size() == iCache->maxInner_.size());
+      assert(iCache->maxDR_.size() == iCache->minOuter_.size());
+      assert(iCache->maxDR_.size() == iCache->maxOuter_.size());
       assert(iCache->maxDR_.size() == iCache->maxDZ_.size());
       assert(iCache->maxDR_.size() == iCache->minDZ_.size());
       assert(iCache->maxDR_.size() == iCache->phiCuts_.size());
 
       assert(iCache->caThetaCuts_.size() == iCache->caDCACuts_.size());
+      assert(iCache->caThetaCuts_.size() == iCache->isBarrel_.size());
 
       int n_layers = iCache->caThetaCuts_.size();
       int n_pairs = iCache->pairGraph_.size() / 2;
@@ -308,6 +299,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           layerSoA.layerStarts()[i] = layerStarts[i];
           layerSoA.caThetaCut()[i] = iCache->caThetaCuts_[i];
           layerSoA.caDCACut()[i] = iCache->caDCACuts_[i];
+          layerSoA.isBarrel()[i] = (bool) iCache->isBarrel_[i];
         }
       } else {
         for (int i = 0; i < n_modules; ++i) {
@@ -321,6 +313,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           layerSoA.layerStarts()[i] = layerStarts[i];
           layerSoA.caThetaCut()[i] = iCache->caThetaCuts_[i];
           layerSoA.caDCACut()[i] = iCache->caDCACuts_[i];
+          layerSoA.isBarrel()[i] = (bool) iCache->isBarrel_[i];
         }
       }
 
@@ -329,14 +322,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       for (int i = 0; i < n_pairs; ++i) {
         cellSoA.graph()[i] = {{uint32_t(iCache->pairGraph_[2 * i]), uint32_t(iCache->pairGraph_[2 * i + 1])}};
         cellSoA.phiCuts()[i] = iCache->phiCuts_[i];
-        cellSoA.minInnerZ()[i] = iCache->minInnerZ_[i];
-        cellSoA.maxInnerZ()[i] = iCache->maxInnerZ_[i];
-        cellSoA.minOuterZ()[i] = iCache->minOuterZ_[i];
-        cellSoA.maxOuterZ()[i] = iCache->maxOuterZ_[i];
-        cellSoA.minInnerR()[i] = iCache->minInnerR_[i];
-        cellSoA.maxInnerR()[i] = iCache->maxInnerR_[i];
-        cellSoA.minOuterR()[i] = iCache->minOuterR_[i];
-        cellSoA.maxOuterR()[i] = iCache->maxOuterR_[i];
+        cellSoA.minInner()[i] = iCache->minInner_[i];
+        cellSoA.maxInner()[i] = iCache->maxInner_[i];
+        cellSoA.minOuter()[i] = iCache->minOuter_[i];
+        cellSoA.maxOuter()[i] = iCache->maxOuter_[i];
         cellSoA.maxDZ()[i] = iCache->maxDZ_[i];
         cellSoA.minDZ()[i] = iCache->minDZ_[i];
         cellSoA.maxDR()[i] = iCache->maxDR_[i];
