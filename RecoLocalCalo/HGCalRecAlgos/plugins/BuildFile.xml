@@ -17,7 +17,6 @@
   <use name="alpaka"/>
   <use name="json"/>
   <use name="DataFormats/HGCalDigi"/>
-  <use name="DataFormats/HGCalRecHit"/>
   <use name="DataFormats/Math"/>
   <use name="HeterogeneousCore/AlpakaCore"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
