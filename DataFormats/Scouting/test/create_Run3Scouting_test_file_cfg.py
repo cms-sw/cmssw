@@ -113,8 +113,9 @@ process.run3ScoutingProducer = cms.EDProducer("TestWriteRun3Scouting",
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('testRun3Scouting.root')
-)
+                               fileName = cms.untracked.string('testRun3Scouting.root'),
+                               #splitLevel = cms.untracked.int32(0) # default is 99, uncomment for split level 0
+                               )
 
 process.path = cms.Path(process.run3ScoutingProducer)
 process.endPath = cms.EndPath(process.out)
