@@ -22,7 +22,7 @@ public:
 #if G4VERSION_NUMBER >= 1132
   G4StepperType StepperType() const override { return kTDormandPrince45; };
 #endif
-  
+
 private:
   void selectStepper(const std::string &);
 
