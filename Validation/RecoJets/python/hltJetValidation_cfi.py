@@ -8,8 +8,8 @@ hltJetAnalyzerAk4PFPuppi = DQMEDAnalyzer('JetTester',
                             srcGen = cms.InputTag("ak4GenJetsNoNu"),
                             JetCorrections = cms.InputTag("hltAK4PFPuppiJetCorrector"),
                             primVertex = cms.InputTag("hltGoodOfflinePrimaryVertices"),
-                            recoJetPtThreshold = cms.double(40),
+                            recoJetPtThreshold = cms.double(30), # defines the "lowPt" jets between 20 and 40 GeV
                             matchGenPtThreshold = cms.double(20.0),
-                            RThreshold = cms.double(0.3),
+                            RThreshold = cms.double(0.2),
 )
 
