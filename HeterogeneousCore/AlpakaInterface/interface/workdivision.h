@@ -19,6 +19,9 @@ namespace cms::alpakatools {
   // Return the integer division of the first argument by the second argument, rounded up to the next integer
   inline constexpr Idx divide_up_by(Idx value, Idx divisor) { return (value + divisor - 1) / divisor; }
 
+  // Return the minimum of two values:
+  inline constexpr Idx idx_min(Idx const x, Idx const y) { return (y > x) ? x : y; }
+
   // Trait describing whether or not the accelerator expects the threads-per-block and elements-per-thread to be swapped
   template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
   struct requires_single_thread_per_block : public std::true_type {};
@@ -186,9 +189,9 @@ namespace cms::alpakatools {
             : elements_{elements},
               stride_{stride},
               extent_{extent},
-              first_{std::min(first, extent)},
+              first_{idx_min(first, extent)},
               index_{first_},
-              range_{std::min(first + elements, extent)} {}
+              range_{idx_min(first + elements, extent)} {}
 
       public:
         ALPAKA_FN_ACC inline Idx operator*() const { return index_; }
@@ -205,7 +208,7 @@ namespace cms::alpakatools {
           // increment the thread index with the grid stride
           first_ += stride_;
           index_ = first_;
-          range_ = std::min(first_ + elements_, extent_);
+          range_ = idx_min(first_ + elements_, extent_);
           if (index_ < extent_)
             return *this;
 
@@ -506,7 +509,7 @@ namespace cms::alpakatools {
             overflow = true;
           }
           index_[I] = first_[I];
-          range_[I] = std::min(first_[I] + loop_->elements_[I], loop_->extent_[I]);
+          range_[I] = idx_min(first_[I] + loop_->elements_[I], loop_->extent_[I]);
           return overflow;
         }
 
@@ -662,7 +665,7 @@ namespace cms::alpakatools {
         friend class UniformGroupsAlong;
 
         ALPAKA_FN_ACC inline const_iterator(Idx stride, Idx extent, Idx first)
-            : stride_{stride}, extent_{extent}, first_{std::min(first, extent)} {}
+            : stride_{stride}, extent_{extent}, first_{idx_min(first, extent)} {}
 
       public:
         ALPAKA_FN_ACC inline Idx operator*() const { return first_; }
@@ -866,10 +869,10 @@ namespace cms::alpakatools {
 
       ALPAKA_FN_ACC inline UniformGroupElementsAlong(TAcc const& acc, Idx block, Idx extent)
           : first_{block * alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[Dim]},
-            local_{std::min(extent - first_,
-                            alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[Dim] *
-                                alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[Dim])},
-            range_{std::min(extent - first_, local_ + alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[Dim])} {}
+            local_{idx_min(extent - first_,
+                           alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[Dim] *
+                               alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[Dim])},
+            range_{idx_min(extent - first_, local_ + alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[Dim])} {}
 
       class const_iterator;
       using iterator = const_iterator;
@@ -1086,7 +1089,7 @@ namespace cms::alpakatools {
         friend class IndependentGroupsAlong;
 
         ALPAKA_FN_ACC inline const_iterator(Idx stride, Idx extent, Idx first)
-            : stride_{stride}, extent_{extent}, first_{std::min(first, extent)} {}
+            : stride_{stride}, extent_{extent}, first_{idx_min(first, extent)} {}
 
       public:
         ALPAKA_FN_ACC inline Idx operator*() const { return first_; }
@@ -1257,9 +1260,9 @@ namespace cms::alpakatools {
             : elements_{elements},
               stride_{stride},
               extent_{extent},
-              first_{std::min(first, extent)},
+              first_{idx_min(first, extent)},
               index_{first_},
-              range_{std::min(first + elements, extent)} {}
+              range_{idx_min(first + elements, extent)} {}
 
       public:
         ALPAKA_FN_ACC inline Idx operator*() const { return index_; }
@@ -1276,7 +1279,7 @@ namespace cms::alpakatools {
           // increment the thread index with the block stride
           first_ += stride_;
           index_ = first_;
-          range_ = std::min(first_ + elements_, extent_);
+          range_ = idx_min(first_ + elements_, extent_);
           if (index_ < extent_)
             return *this;
 
