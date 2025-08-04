@@ -3,6 +3,10 @@
 
 #include "G4MagIntegratorStepper.hh"
 
+#if G4VERSION_NUMBER >= 1132
+#include "G4FieldParameters.hh"
+#endif
+
 class G4Mag_UsualEqRhs;
 
 class FieldStepper : public G4MagIntegratorStepper {
@@ -15,6 +19,10 @@ public:
   G4double DistChord() const override;
   G4int IntegratorOrder() const override;
 
+#if G4VERSION_NUMBER >= 1132
+  G4StepperType StepperType() const override { return kTDormandPrince45; };
+#endif
+  
 private:
   void selectStepper(const std::string &);
 
