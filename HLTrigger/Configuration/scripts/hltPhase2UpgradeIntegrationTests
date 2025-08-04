@@ -18,27 +18,6 @@ _PH2_GEOMETRY = f"Extended{_settings.DEFAULT_VERSION}"
 # Get the actual era name from the version key
 _PH2_ERA_NAME = _settings.properties['Run4'][_settings.DEFAULT_VERSION]['Era']
 
-# Function to display help information
-def print_help():
-    help_text = """
-    This script runs HLT test configurations for the CMS Phase2 upgrade.
-
-    Arguments:
-    --globaltag       : GlobalTag for the CMS conditions (required)
-    --geometry        : Geometry setting for the CMS process (required)
-    --events          : Number of events to process (default: 1)
-    --threads         : Number of threads to use (default: 1)
-    --parallelJobs    : Number of parallel cmsRun and hltDiff executions (default: 4)
-    --restrictPathsTo : Restrict paths to be run to a user defined subset (e.g. "HLT_Ele*")
-    --procModifiers   : Optionally use one (or more) cmssw processModifier
-    --cachedInput     : Optionally use an existing RAW data file (do not regenerate it from scratch)
-    --dryRun          : Optionally do not run any of the configuration created
-
-    Example usage:
-    hltPhase2UpgradeIntegrationTests --globaltag auto:phase2_realistic_T33 --geometry Extended2026D110 --events 10 --threads 4
-    """
-    print(help_text)
-
 # Function to run a shell command and handle errors
 def run_command(command, log_file=None, workdir=None):
     try:
@@ -74,7 +53,10 @@ def compare_single_file(root_file, base_root_file, num_events, output_dir):
     return None  # Return None if no issues are found
 
 # Argument Parser for command-line configuration
+from Configuration.HLT.autoHLT import autoHLT
 parser = argparse.ArgumentParser(description="Run HLT Test Configurations")
+parser.add_argument("--menu", default="75e33_timing",
+                    choices=[v for k, v in autoHLT.items() if "Run4" in k], help="HLT menu to test")
 parser.add_argument("--globaltag", default=_PH2_GLOBAL_TAG, help="GlobalTag for the CMS conditions")
 parser.add_argument("--geometry", default=_PH2_GEOMETRY, help="Geometry setting for the CMS process")  # Auto-generated geometry default
 parser.add_argument("--era", default=_PH2_ERA_NAME, help="Era setting for the CMS process")  # Convert _PH2_ERA to string
@@ -94,12 +76,9 @@ print(f"Script started at {start_timestamp}")
 print("------------------------------------------------------------")
 
 # Parse arguments
-try:
-    args = parser.parse_args()
-except SystemExit:
-    print_help()
-    sys.exit(0)
+args = parser.parse_args()
 
+menu = args.menu
 global_tag = args.globaltag
 era = args.era
 geometry = args.geometry
@@ -112,6 +91,7 @@ proc_modifiers = args.procModifiers  # Store the procModifiers option
 # Print the values in a nice formatted manner
 print(f"{'Configuration Summary':^40}")
 print("=" * 40)
+print(f"HLT Menu:             {menu}")
 print(f"Global Tag:           {global_tag}")
 print(f"Geometry:             {geometry}")
 print(f"Era:                  {era}")
@@ -143,7 +123,7 @@ os.makedirs(output_dir)
 # If cachedInput is provided, use it as the input for the base cmsDriver command
 if args.cachedInput:
     base_cmsdriver_command = (
-        f"cmsDriver.py Phase2 -s L1P2GT,HLT:75e33_timing "
+        f"cmsDriver.py Phase2 -s L1P2GT,HLT:{menu} "
         f"--conditions {global_tag} -n {num_events} --eventcontent FEVTDEBUGHLT "
         f"--geometry {geometry} --era {era} --filein {args.cachedInput} --fileout {output_dir}/hlt.root --no_exec "
         f"--mc --nThreads {num_threads} "
@@ -154,7 +134,7 @@ if args.cachedInput:
     )
 else:
     base_cmsdriver_command = (
-        f"cmsDriver.py Phase2 -s L1P2GT,HLT:75e33_timing "
+        f"cmsDriver.py Phase2 -s L1P2GT,HLT:{menu} "
         f"--conditions {global_tag} -n {num_events} --eventcontent FEVTDEBUGHLT "
         f"--geometry {geometry} --era {era} --filein file:{output_dir}/step1.root --fileout {output_dir}/hlt.root --no_exec "
         f"--nThreads {num_threads} "
