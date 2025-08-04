@@ -113,7 +113,7 @@ protected:
   edm::EDGetTokenT<ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>> associatorMapSimtR;
   edm::EDGetTokenT<ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection>> associatorMapRtSim;
   std::unique_ptr<HGVHistoProducerAlgo> histoProducerAlgo_;
-  std::vector<edm::InputTag> hits_label_;
+  std::vector<edm::InputTag> hits_labels_;
   std::vector<edm::EDGetTokenT<HGCRecHitCollection>> hits_tokens_;
   std::unique_ptr<TICLCandidateValidator> candidateVal_;
   std::vector<edm::EDGetTokenT<TracksterToTracksterMap>> tracksterToTracksterAssociatorsTokens_;

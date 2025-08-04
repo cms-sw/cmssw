@@ -97,7 +97,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
       label_candidates_(pset.getParameter<std::string>("ticlCandidates")),
       cummatbudinxo_(pset.getParameter<edm::FileInPath>("cummatbudinxo")),
       isTICLv5_(pset.getUntrackedParameter<bool>("isticlv5")),
-      hits_label_(pset.getParameter<std::vector<edm::InputTag>>("hits")),
+      hits_labels_(pset.getParameter<std::vector<edm::InputTag>>("hits")),
       scToCpMapToken_(
           consumes<SimClusterToCaloParticleMap>(pset.getParameter<edm::InputTag>("simClustersToCaloParticlesMap"))),
       cutTk_(pset.getParameter<std::string>("cutTk")) {
@@ -105,7 +105,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
   const edm::InputTag& label_cp_effic_tag = pset.getParameter<edm::InputTag>("label_cp_effic");
   const edm::InputTag& label_cp_fake_tag = pset.getParameter<edm::InputTag>("label_cp_fake");
 
-  for (auto& label : hits_label_) {
+  for (auto& label : hits_labels_) {
     hits_tokens_.push_back(consumes<HGCRecHitCollection>(label));
   }
   label_cp_effic = consumes<std::vector<CaloParticle>>(label_cp_effic_tag);
@@ -421,8 +421,12 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   for (const auto& token : hits_tokens_) {
     Handle<HGCRecHitCollection> hitsHandle;
     event.getByToken(token, hitsHandle);
-    if (!hitsHandle.isValid())
-      continue;
+
+    if (!hitsHandle.isValid()) {
+      edm::LogWarning("MissingInput") << "Missing " << hits_labels_[i] << " handle.";
+      return;
+    }
+
     rechitSpan.add(*hitsHandle);
   }
 
@@ -577,7 +581,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
       event.getByToken(label_tstTokens[wml], tracksterHandle);
 
       if (!tracksterHandle.isValid()) {
-        edm::LogWarning("MissinInput") << "Failed to retrieve tracksters for wml index: " << wml;
+        edm::LogWarning("MissingInput") << "Failed to retrieve tracksters for wml index: " << wml;
         continue;  // Or handle the error as needed
       }
 

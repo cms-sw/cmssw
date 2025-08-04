@@ -94,8 +94,8 @@ protected:
   std::vector<edm::EDGetTokenT<ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection>>>
       associatorMapRtSim;
   std::unique_ptr<BarrelVHistoProducerAlgo> histoProducerAlgo_;
-  std::vector<edm::InputTag> barrel_hits_label_;
-  std::vector<edm::EDGetTokenT<std::vector<reco::PFRecHit>>> barrel_hits_tokens_;
+  std::vector<edm::InputTag> hits_labels_;
+  std::vector<edm::EDGetTokenT<std::vector<reco::PFRecHit>>> hits_tokens_;
   edm::EDGetTokenT<SimClusterToCaloParticleMap> scToCpMapToken_;
 
 private:

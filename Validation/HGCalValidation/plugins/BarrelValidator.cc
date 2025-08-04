@@ -76,15 +76,15 @@ BarrelValidator::BarrelValidator(const edm::ParameterSet& pset)
       doLayerClustersPlots_(pset.getUntrackedParameter<bool>("doLayerClustersPlots")),
       label_layerClustersPlots_(pset.getParameter<edm::InputTag>("label_layerClustersPlots")),
       label_LCToCPLinking_(pset.getParameter<edm::InputTag>("label_LCToCPLinking")),
-      barrel_hits_label_(pset.getParameter<std::vector<edm::InputTag>>("barrel_hits")),
+      hits_labels_(pset.getParameter<std::vector<edm::InputTag>>("hits")),
       scToCpMapToken_(
           consumes<SimClusterToCaloParticleMap>(pset.getParameter<edm::InputTag>("simClustersToCaloParticlesMap"))) {
   //In this way we can easily generalize to associations between other objects also.
   const edm::InputTag& label_cp_effic_tag = pset.getParameter<edm::InputTag>("label_cp_effic");
   const edm::InputTag& label_cp_fake_tag = pset.getParameter<edm::InputTag>("label_cp_fake");
 
-  for (auto& label : barrel_hits_label_) {
-    barrel_hits_tokens_.push_back(consumes<std::vector<reco::PFRecHit>>(label));
+  for (auto& label : hits_labels_) {
+    hits_tokens_.push_back(consumes<std::vector<reco::PFRecHit>>(label));
   }
 
   label_cp_effic = consumes<std::vector<CaloParticle>>(label_cp_effic_tag);
@@ -281,9 +281,15 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
   const std::unordered_map<DetId, const unsigned int>& barrelHitMap = *barrelHitMapHandle;
 
   edm::MultiSpan<reco::PFRecHit> barrelRechitSpan;
-  for (const auto& token : barrel_hits_tokens_) {
+  for (const auto& token : hits_tokens_) {
     Handle<std::vector<reco::PFRecHit>> hitsHandle;
     event.getByToken(token, hitsHandle);
+
+    if (!hitsHandle.isValid()) {
+      edm::LogWarning("MissingInput") << "Missing " << hits_labels_[i] << " handle.";
+      return;
+    }
+
     barrelRechitSpan.add(*hitsHandle);
   }
 
@@ -513,7 +519,7 @@ void BarrelValidator::fillDescriptions(edm::ConfigurationDescriptions& descripti
     psd1.add<int>("nintZ", 1100);
     desc.add<edm::ParameterSetDescription>("histoProducerAlgoBlock", psd1);
   }
-  desc.add<std::vector<edm::InputTag>>("barrel_hits",
+  desc.add<std::vector<edm::InputTag>>("hits",
                                        {
                                            edm::InputTag("particleFlowRecHitECAL"),
                                            edm::InputTag("particleFlowRecHitHBHE"),
