@@ -77,6 +77,9 @@ namespace edm {
 
     bool AllMu;  //Accepting All Muons regardeless of direction
 
+    /// depth of the surface where upgoing muon is generated relative to bottom of CMS
+    double SurfaceDepthToCMS;
+
     // external cross section and filter efficiency
     double extCrossSect;
     double extFilterEff;
