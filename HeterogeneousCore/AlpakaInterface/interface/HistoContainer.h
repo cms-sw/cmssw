@@ -97,11 +97,11 @@ namespace cms::alpakatools {
   }
 
   // iteratate over N bins left and right of the one containing "v"
-  template <typename Hist, typename V, typename Func>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE void forEachInBins(Hist const &hist, V value, int n, Func func) {
+  template <typename TAcc, typename Hist, typename V, typename Func>
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void forEachInBins(const TAcc &acc, Hist const &hist, V value, int n, Func func) {
     int bs = Hist::bin(value);
-    int be = std::min(int(Hist::nbins() - 1), bs + n);
-    bs = std::max(0, bs - n);
+    int be = alpaka::math::min(acc, int(Hist::nbins() - 1), bs + n);
+    bs = alpaka::math::max(acc, 0, bs - n);
     ALPAKA_ASSERT_ACC(be >= bs);
     for (auto pj = hist.begin(bs); pj < hist.end(be); ++pj) {
       func(*pj);

@@ -31,6 +31,10 @@ cmsRun ${LOCAL_TEST_DIR}/test_readRun3Scouting_cfg.py || die "Failure using test
 #     Check out the 14_0_0_pre3 pre-release, no additional commits
 #     will be neeeded.
 #
+#     testRun3Scouting_v3_v7_v3_v4_v5_v3_v6_v3_v4_v3_v3_v3_CMSSW_15_1_0_pre5_split_99.root:
+#     Check out the 15_1_0_pre5 pre-release, no additional commits
+#     will be neeeded.
+#
 # Run the create_Run3Scouting_test_file_cfg.py configuration and
 # rename the file it creates.
 #
@@ -107,6 +111,14 @@ for file in $oldFiles; do
   inputfile=$(edmFileInPath DataFormats/Scouting/data/$file) || die "Failure edmFileInPath DataFormats/Scouting/data/$file" $?
   argsPassedToPython="--inputFile $inputfile --outputFileName testRun3Scouting2_CMSSW_14_0_0_pre3.root --electronVersion 7 --photonVersion 6 --vertexVersion 4"
   argsPassedToPython+=" --ebRecHitVersion -1 --eeRecHitVersion -1 --hbheRecHitVersion -1"
+  cmsRun ${LOCAL_TEST_DIR}/test_readRun3Scouting_cfg.py $argsPassedToPython || die "Failed to read old file $file" $?
+done
+
+oldFiles="testRun3Scouting_v3_v7_v3_v4_v5_v3_v6_v3_v4_v3_v3_v3_CMSSW_15_1_0_pre5_split_99.root testRun3Scouting_v3_v7_v3_v4_v5_v3_v6_v3_v4_v3_v3_v3_CMSSW_15_1_0_pre5_split_0.root"
+for file in $oldFiles; do
+  inputfile=$(edmFileInPath DataFormats/Scouting/data/$file) || die "Failure edmFileInPath DataFormats/Scouting/data/$file" $?
+  argsPassedToPython="--inputFile $inputfile --outputFileName testRun3Scouting2_CMSSW_15_1_0_pre5.root --electronVersion 7 --photonVersion 6 --vertexVersion 4"
+  argsPassedToPython+=" --ebRecHitVersion 3 --eeRecHitVersion 3 --hbheRecHitVersion 3"
   cmsRun ${LOCAL_TEST_DIR}/test_readRun3Scouting_cfg.py $argsPassedToPython || die "Failed to read old file $file" $?
 done
 
