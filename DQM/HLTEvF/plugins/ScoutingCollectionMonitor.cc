@@ -117,9 +117,10 @@ private:
   const std::string topfoldername_;
 
   // calo rechits (only 2025 V1.3 onwards, see  )
-  edm::EDGetTokenT<std::vector<Run3ScoutingEBRecHitCollection>> ebRecHitsToken_;
-  edm::EDGetTokenT<std::vector<Run3ScoutingEERecHitCollection>> eeRecHitsToken_;
-  edm::EDGetTokenT<std::vector<Run3ScoutingHBHERecHitCollection>> hbheRecHitsToken_;
+  //edm::EDGetTokenT<std::vector<Run3ScoutingEBRecHitCollection>> ebRecHitsToken_;
+  edm::EDGetTokenT<Run3ScoutingEBRecHitCollection> ebRecHitsToken_;
+  edm::EDGetTokenT<Run3ScoutingEERecHitCollection> eeRecHitsToken_;
+  edm::EDGetTokenT<Run3ScoutingHBHERecHitCollection> hbheRecHitsToken_;
 
   // pv vs PU and rho vs PU plots
   int primaryVertex_counter = 0;
@@ -403,8 +404,14 @@ private:
 
   // calo rechits histrograms
   dqm::reco::MonitorElement* ebRecHitsNumber;
+  dqm::reco::MonitorElement* ebRecHits_energy_hist;
+  dqm::reco::MonitorElement* ebRecHits_time_hist;
   dqm::reco::MonitorElement* eeRecHitsNumber;
+  dqm::reco::MonitorElement* eeRecHits_energy_hist;
+  dqm::reco::MonitorElement* eeRecHits_time_hist;
   dqm::reco::MonitorElement* hbheRecHitsNumber;
+  dqm::reco::MonitorElement* hbheRecHits_energy_hist;
+
 };
 
 //
@@ -472,6 +479,7 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
   edm::Handle<std::vector<Run3ScoutingVertex>> primaryVerticesH;
   edm::Handle<std::vector<Run3ScoutingTrack>> tracksH;
   edm::Handle<OnlineLuminosityRecord> onlineMetaDataDigisHandle;
+
 
   if (!getValidHandle(iEvent, rhoToken_, rhoH, "rho") ||
       !getValidHandle(iEvent, pfMetPhiToken_, pfMetPhiH, "MET phi") ||
@@ -823,20 +831,34 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
     tk_PV_dz_hist->Fill(best_offset.second);
   }
 
-  if (!ebRecHitsToken_.isUninitialized()) {
-    auto const& ebRecHits = iEvent.get(ebRecHitsToken_);
-    ebRecHitsNumber->Fill(ebRecHits.size());
+
+  edm::Handle<Run3ScoutingEBRecHitCollection> ebRecHitsH;
+  if (!ebRecHitsToken_.isUninitialized() && getValidHandle(iEvent, ebRecHitsToken_, ebRecHitsH, "pfRecHitsEB")) {
+  	ebRecHitsNumber->Fill(ebRecHitsH->size());
+  for (const auto& ebRecHit : *ebRecHitsH) {
+    	ebRecHits_energy_hist->Fill(ebRecHit.energy());
+    	ebRecHits_time_hist->Fill(ebRecHit.time());
+  	}
   }
 
-  if (!eeRecHitsToken_.isUninitialized()) {
-    auto const& eeRecHits = iEvent.get(eeRecHitsToken_);
-    eeRecHitsNumber->Fill(eeRecHits.size());
-  }
+edm::Handle<Run3ScoutingEERecHitCollection> eeRecHitsH;
+if (!eeRecHitsToken_.isUninitialized() && getValidHandle(iEvent, eeRecHitsToken_, eeRecHitsH, "pfRecHitsEE")) {
+    eeRecHitsNumber->Fill(eeRecHitsH->size());
+    for (const auto& eeRecHit : *eeRecHitsH) {
+        eeRecHits_energy_hist->Fill(eeRecHit.energy());
+        eeRecHits_time_hist->Fill(eeRecHit.time());
+    }
+}
 
-  if (!hbheRecHitsToken_.isUninitialized()) {
-    auto const& hbheRecHits = iEvent.get(hbheRecHitsToken_);
-    hbheRecHitsNumber->Fill(hbheRecHits.size());
-  }
+edm::Handle<Run3ScoutingHBHERecHitCollection> hbheRecHitsH;
+if (!hbheRecHitsToken_.isUninitialized() && getValidHandle(iEvent, hbheRecHitsToken_, hbheRecHitsH, "pfRecHitsHBHE")) {
+    hbheRecHitsNumber->Fill(hbheRecHitsH->size());
+    for (const auto& hbheRecHit : *hbheRecHitsH) {
+        hbheRecHits_energy_hist->Fill(hbheRecHit.energy());
+    }
+}
+
+
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -1246,9 +1268,14 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
 
   ibook.setCurrentFolder(topfoldername_ + "/CaloRecHits");
   ebRecHitsNumber = ibook.book1D("ebRechitsN", "number of eb RecHits; number of EB recHits; events", 100, 0.0, 1000.0);
+  ebRecHits_energy_hist = ibook.book1D("ebRechits_energy", "Energy spectrum of eb RecHits; Energy of EB recHits; events", 100, 0.0, 1000.0);
+  ebRecHits_time_hist = ibook.book1D("ebRechits_time", "Time of eb RecHits; Energy of EB recHits; events", 100, 0.0, 1000.0);
   eeRecHitsNumber = ibook.book1D("eeRechitsN", "number of ee RecHits; number of EE recHits; events", 100, 0.0, 1000.0);
+  eeRecHits_energy_hist = ibook.book1D("eeRechits_energy", "Energy spectrum of ee RecHits; Energy of EE recHits; events", 100, 0.0, 1000.0);
+  eeRecHits_time_hist = ibook.book1D("eeRechits_time", "Time of ee RecHits; Energy of EE recHits; events", 100, 0.0, 1000.0);
   hbheRecHitsNumber =
       ibook.book1D("hbheRechitsN", "number of hbhe RecHits; number of HBHE recHits; events", 100, 0.0, 1000.0);
+  hbheRecHits_energy_hist = ibook.book1D("hbheRechits_energy", "Energy spectrum of hbhe RecHits; Energy of HBHE recHits; events", 100, 0.0, 1000.0);
 }
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 
