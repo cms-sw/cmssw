@@ -298,24 +298,6 @@ reco::Muon MuonIdProducer::makeMuon(edm::Event& iEvent,
   return aMuon;
 }
 
-bool MuonIdProducer::checkBounds(const GeomDet* geomDet,
-                                       const GlobalPoint& global_position,
-                                       const float bordercut) {
-  const TrapezoidalPlaneBounds* bounds = dynamic_cast<const TrapezoidalPlaneBounds*>(&geomDet->surface().bounds());
-  LocalPoint localPoint = geomDet->surface().toLocal(global_position);
-  float wideWidth = bounds->width();
-  float narrowWidth = 2.f * bounds->widthAtHalfLength() - wideWidth;
-  float length = bounds->length();
-  float tangent = (wideWidth - narrowWidth) / (2.f * length);
-  float halfWidthAtY = tangent * localPoint.y() + 0.25f * (narrowWidth + wideWidth);
-  float distanceY = std::abs(localPoint.y()) - 0.5f * length;
-  float distanceX = std::abs(localPoint.x()) - halfWidthAtY;
-  if (distanceX < bordercut && distanceY < bordercut) {
-    return true;
-  }
-  return false;
-}
-
 reco::CaloMuon MuonIdProducer::makeCaloMuon(const reco::Muon& muon) {
   LogTrace("MuonIdentification") << "Creating a CaloMuon from a Muon";
 
@@ -1148,9 +1130,20 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent,
         int ieta = 0;
         if (const GEMChamber* gemChamber = dynamic_cast<const GEMChamber*>(geomDet)) {
           for (const GEMEtaPartition* eta_partition : gemChamber->etaPartitions()) {
+            bool bounds = false;
             ieta = eta_partition->id().ieta();
             if (ieta == gemRecHit.gemId().ieta()) {
-              if (checkBounds(eta_partition, global_position, 2)) {
+              float bordercut = 2;
+              const TrapezoidalPlaneBounds* bounds = dynamic_cast<const TrapezoidalPlaneBounds*>(&eta_partition->surface().bounds());
+              LocalPoint localPoint = eta_partition->surface().toLocal(global_position);
+              float wideWidth = bounds->width();
+              float narrowWidth = 2.f * bounds->widthAtHalfLength() - wideWidth;
+              float length = bounds->length();
+              float tangent = (wideWidth - narrowWidth) / (2.f * length);
+              float halfWidthAtY = tangent * localPoint.y() + 0.25f * (narrowWidth + wideWidth);
+              float distanceY = std::abs(localPoint.y()) - 0.5f * length;
+              float distanceX = std::abs(localPoint.x()) - halfWidthAtY;
+              if (distanceX < bordercut && distanceY < bordercut) {
                 GEMmatched = true;
               }
             }

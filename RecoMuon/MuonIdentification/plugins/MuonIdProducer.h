@@ -80,8 +80,6 @@ public:
   static double sectorPhi(const DetId& id);
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  
-  bool checkBounds(const GeomDet* geomDet, const GlobalPoint& global_position, const float bordercut);
 
 private:
   void fillMuonId(edm::Event&,
