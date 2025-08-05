@@ -130,6 +130,14 @@ private:
   MonitorElement *p_JetPtRecoOverGen_vs_GenPt_E;
   MonitorElement *p_JetPtRecoOverGen_vs_GenPt_F;
 
+  MonitorElement *h2d_JetPtRecoOverGen_vs_GenEta;
+  MonitorElement *h2d_JetPtRecoOverGen_vs_GenPhi_B;
+  MonitorElement *h2d_JetPtRecoOverGen_vs_GenPhi_E;
+  MonitorElement *h2d_JetPtRecoOverGen_vs_GenPhi_F;
+  MonitorElement *h2d_JetPtRecoOverGen_vs_GenPt_B;
+  MonitorElement *h2d_JetPtRecoOverGen_vs_GenPt_E;
+  MonitorElement *h2d_JetPtRecoOverGen_vs_GenPt_F;
+
   // Corrected jet response vs gen profiled in gen variable
   MonitorElement *p_JetPtCorrOverGen_vs_GenEta;
   MonitorElement *p_JetPtCorrOverGen_vs_GenPhi_B;
@@ -139,6 +147,14 @@ private:
   MonitorElement *p_JetPtCorrOverGen_vs_GenPt_E;
   MonitorElement *p_JetPtCorrOverGen_vs_GenPt_F;
 
+  MonitorElement *h2d_JetPtCorrOverGen_vs_GenEta;
+  MonitorElement *h2d_JetPtCorrOverGen_vs_GenPhi_B;
+  MonitorElement *h2d_JetPtCorrOverGen_vs_GenPhi_E;
+  MonitorElement *h2d_JetPtCorrOverGen_vs_GenPhi_F;
+  MonitorElement *h2d_JetPtCorrOverGen_vs_GenPt_B;
+  MonitorElement *h2d_JetPtCorrOverGen_vs_GenPt_E;
+  MonitorElement *h2d_JetPtCorrOverGen_vs_GenPt_F;
+
   // Corrected jet response vs reco profiled in reco variable
   MonitorElement *p_JetPtCorrOverReco_vs_Eta;
   MonitorElement *p_JetPtCorrOverReco_vs_Phi_B;
@@ -147,6 +163,14 @@ private:
   MonitorElement *p_JetPtCorrOverReco_vs_Pt_B;
   MonitorElement *p_JetPtCorrOverReco_vs_Pt_E;
   MonitorElement *p_JetPtCorrOverReco_vs_Pt_F;
+
+  MonitorElement *h2d_JetPtCorrOverReco_vs_Eta;
+  MonitorElement *h2d_JetPtCorrOverReco_vs_Phi_B;
+  MonitorElement *h2d_JetPtCorrOverReco_vs_Phi_E;
+  MonitorElement *h2d_JetPtCorrOverReco_vs_Phi_F;
+  MonitorElement *h2d_JetPtCorrOverReco_vs_Pt_B;
+  MonitorElement *h2d_JetPtCorrOverReco_vs_Pt_E;
+  MonitorElement *h2d_JetPtCorrOverReco_vs_Pt_F;
 
   // Generation
   MonitorElement *mJetEtaFirst;
