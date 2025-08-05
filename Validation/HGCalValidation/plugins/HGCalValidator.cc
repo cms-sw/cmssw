@@ -417,14 +417,14 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   const std::unordered_map<DetId, const unsigned int>& hitMap = *hitMapHandle;
 
   MultiVectorManager<HGCRecHit> rechitManager;
-  for (size_t i=0; i<hits_tokens_.size(); ++i) {
+  for (size_t i = 0; i < hits_tokens_.size(); ++i) {
     Handle<HGCRecHitCollection> hitsHandle;
     event.getByToken(hits_tokens_[i], hitsHandle);
 
-	if (!hitsHandle.isValid()) {
-	  edm::LogWarning("MissingInput") << "Missing " << hits_labels_[i] << " handle.";
-	  return;
-	}
+    if (!hitsHandle.isValid()) {
+      edm::LogWarning("MissingInput") << "Missing " << hits_labels_[i] << " handle.";
+      return;
+    }
 
     rechitManager.addVector(*hitsHandle);
   }

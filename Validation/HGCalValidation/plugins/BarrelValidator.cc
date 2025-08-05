@@ -279,15 +279,15 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
   const std::unordered_map<DetId, const unsigned int>& barrelHitMap = *barrelHitMapHandle;
 
   MultiVectorManager<reco::PFRecHit> barrelRechitManager;
-  for (size_t i=0; i<hits_tokens_.size(); ++i) {
+  for (size_t i = 0; i < hits_tokens_.size(); ++i) {
     Handle<std::vector<reco::PFRecHit>> hitsHandle;
     event.getByToken(hits_tokens_[i], hitsHandle);
 
-	if (!hitsHandle.isValid()) {
-	  edm::LogWarning("MissingInput") << "Missing " << hits_labels_[i] << " handle.";
-	  return;
-	}
-	
+    if (!hitsHandle.isValid()) {
+      edm::LogWarning("MissingInput") << "Missing " << hits_labels_[i] << " handle.";
+      return;
+    }
+
     barrelRechitManager.addVector(*hitsHandle);
   }
 
