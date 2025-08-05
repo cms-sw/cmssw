@@ -2,6 +2,7 @@
 #define SimG4Core_MagneticField_FieldStepper_H
 
 #include "G4MagIntegratorStepper.hh"
+#include "G4Version.hh"
 
 #if G4VERSION_NUMBER >= 1132
 #include "G4FieldParameters.hh"
