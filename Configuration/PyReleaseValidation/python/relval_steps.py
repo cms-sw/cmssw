@@ -3570,6 +3570,7 @@ steps['REMINIAODHI2022PPRECOMB']=merge([{'-s':'PAT,VALIDATION:@miniAODValidation
                                          '-n':100,
                                          '--era':'Run3_pp_on_PbPb',
                                          '--procModifiers':'genJetSubEvent',
+                                         '--customise':'IOPool/Input/fixReading_12_4_X_Files.fixReading_12_4_X_Files'
                                      },hiDefaults2022_ppReco,step3Up2015Defaults])
 
 steps['ALCARECOHI2022PPRECO']=merge([hiDefaults2022_ppReco,{'-s':'ALCA:TkAlMinBias+SiStripCalMinBias',
