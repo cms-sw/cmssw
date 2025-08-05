@@ -23,7 +23,8 @@ from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 (pp_on_AA | run3_upc).toModify( RecoTrackerAOD.outputCommands,
                    func=lambda outputCommands: outputCommands.extend(['keep recoTracks_hiConformalPixelTracks_*_*'])
 )
-run3_upc.toModify( RecoTrackerAOD.outputCommands,
+from Configuration.Eras.Modifier_dedx_lfit_cff import dedx_lfit
+dedx_lfit.toModify( RecoTrackerAOD.outputCommands,
         func=lambda outputCommands: outputCommands.extend([
             'keep *_dedxPixelLikelihood_*_*',
             'keep *_dedxStripLikelihood_*_*',
