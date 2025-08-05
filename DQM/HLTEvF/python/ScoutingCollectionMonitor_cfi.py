@@ -18,7 +18,7 @@ scoutingCollectionMonitor = DQMEDAnalyzer('ScoutingCollectionMonitor',
                                           pfMetPhi               = cms.InputTag("hltScoutingPFPacker","pfMetPhi"),
                                           rho                    = cms.InputTag("hltScoutingPFPacker","rho"),
                                           topfoldername          = cms.string("HLT/ScoutingOffline/Miscellaneous"),
-                                          pfRecHitsEB            = cms.InputTag(""),
-                                          pfRecHitsEE            = cms.InputTag(""),
-                                          pfRecHitsHBHE          = cms.InputTag(""))
+                                          pfRecHitsEB            = cms.InputTag("hltScoutingRecHitPacker", "EB"),
+                                          pfRecHitsEE            = cms.InputTag("hltScoutingRecHitPacker", "EE"),
+                                          pfRecHitsHBHE          = cms.InputTag("hltScoutingRecHitPacker", "HBHE"))
 
