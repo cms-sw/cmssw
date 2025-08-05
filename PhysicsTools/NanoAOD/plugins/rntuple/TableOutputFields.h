@@ -2,6 +2,7 @@
 #define PhysicsTools_NanoAOD_TableOutputFields_h
 
 #include "RNTupleFieldPtr.h"
+#include "RNTupleCollection.h"
 
 #include "FWCore/Framework/interface/EventForOutput.h"
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
@@ -11,14 +12,8 @@
 
 #include <ROOT/RNTuple.hxx>
 #include <ROOT/RNTupleModel.hxx>
-#if ROOT_VERSION_CODE < ROOT_VERSION(6, 31, 0)
-using ROOT::Experimental::RCollectionNTupleWriter;
-#else
-#include <ROOT/RNTupleCollectionWriter.hxx>
-using ROOT::Experimental::RNTupleCollectionWriter;
-#endif
-using ROOT::Experimental::RNTupleModel;
-using ROOT::Experimental::RNTupleWriter;
+using ROOT::RNTupleModel;
+using ROOT::RNTupleWriter;
 
 template <typename T>
 class FlatTableField {
@@ -73,6 +68,7 @@ public:
   void createFields(const edm::EventForOutput& event, RNTupleModel& model);
   void fillEntry(const nanoaod::FlatTable& table, std::size_t i);
   const edm::EDGetToken& getToken() const;
+  const edm::Handle<nanoaod::FlatTable> getTable(const edm::EventForOutput& event) const;
 
 private:
   edm::EDGetToken m_token;
@@ -108,6 +104,7 @@ public:
   // * m_main not null
   // * m_collectionName not empty
   void createFields(const edm::EventForOutput& event, RNTupleModel& eventModel);
+  void bindBuffer(RNTupleModel& eventModel);
   void fill(const edm::EventForOutput& event);
   void print() const;
   bool hasMainTable();
@@ -115,11 +112,7 @@ public:
 
 private:
   std::string m_collectionName;
-#if ROOT_VERSION_CODE < ROOT_VERSION(6, 31, 0)
-  std::shared_ptr<RCollectionNTupleWriter> m_collection;
-#else
-  std::shared_ptr<RNTupleCollectionWriter> m_collection;
-#endif
+  std::unique_ptr<RNTupleCollection> m_collection;
   TableOutputFields m_main;
   std::vector<TableOutputFields> m_extensions;
 };
@@ -128,6 +121,7 @@ class TableCollectionSet {
 public:
   void add(const edm::EDGetToken& table_token, const nanoaod::FlatTable& table);
   void createFields(const edm::EventForOutput& event, RNTupleModel& eventModel);
+  void bindBuffers(RNTupleModel& eventModel);
   void fill(const edm::EventForOutput& event);
   void print() const;
 

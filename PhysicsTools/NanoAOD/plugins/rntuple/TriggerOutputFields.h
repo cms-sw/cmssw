@@ -13,7 +13,7 @@ namespace edm {
 class TriggerFieldPtr {
 public:
   TriggerFieldPtr() = default;
-  TriggerFieldPtr(std::string name, int index, std::string fieldName, std::string fieldDesc, RNTupleModel& model);
+  TriggerFieldPtr(std::string name, int index, std::string fieldName, std::string fieldDesc, ROOT::RNTupleModel& model);
   void fill(const edm::TriggerResults& triggers);
   const std::string& getTriggerName() const { return m_triggerName; }
   void setIndex(int newIndex) { m_triggerIndex = newIndex; }
@@ -30,14 +30,14 @@ public:
   TriggerOutputFields() = default;
   explicit TriggerOutputFields(const std::string& processName, const edm::EDGetToken& token)
       : m_token(token), m_lastRun(-1), m_processName(processName) {}
-  void createFields(const edm::EventForOutput& event, RNTupleModel& model);
+  void createFields(const edm::EventForOutput& event, ROOT::RNTupleModel& model);
   void fill(const edm::EventForOutput& event);
 
 private:
   static std::vector<std::string> getTriggerNames(const edm::TriggerResults& triggerResults);
   // Update trigger field information on run boundaries
   void updateTriggerFields(const edm::TriggerResults& triggerResults);
-  void makeUniqueFieldName(/*const*/ RNTupleModel& model, std::string& name);
+  void makeUniqueFieldName(const ROOT::RNTupleModel& model, std::string& name);
 
   edm::EDGetToken m_token;
   long m_lastRun;

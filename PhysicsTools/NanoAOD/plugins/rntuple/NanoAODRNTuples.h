@@ -12,14 +12,8 @@
 
 #include "TFile.h"
 #include <ROOT/RNTuple.hxx>
-#if ROOT_VERSION_CODE < ROOT_VERSION(6, 31, 0)
-using ROOT::Experimental::RCollectionNTupleWriter;
-#else
 #include <ROOT/RNTupleWriter.hxx>
-#include <ROOT/RNTupleCollectionWriter.hxx>
-using ROOT::Experimental::RNTupleCollectionWriter;
-#endif
-using ROOT::Experimental::RNTupleWriter;
+using ROOT::RNTupleWriter;
 
 #include "EventStringOutputFields.h"
 #include "RNTupleFieldPtr.h"
@@ -62,21 +56,9 @@ public:
   void finalizeWrite();
 
 private:
-  // TODO blocked on RNTuple std::pair support
-  // using PSetType = std::pair<edm::ParameterSetID, edm::ParameterSetBlob>;
-  // RNTupleFieldPtr<PSetType> m_pset;
+  using PSetType = std::pair<edm::ParameterSetID, edm::ParameterSetBlob>;
+  RNTupleFieldPtr<PSetType> m_pset;
   void createFields(TFile& file);
-  // TODO blocked on RNTuple typedef member field support:
-  // https://github.com/root-project/root/issues/7861
-  // RNTupleFieldPtr<edm::ParameterSetID> m_psetId;
-  // RNTupleFieldPtr<edm::ParameterSetBlob> m_psetBlob;
-#if ROOT_VERSION_CODE < ROOT_VERSION(6, 31, 0)
-  std::shared_ptr<RCollectionNTupleWriter> m_collection;
-#else
-  std::shared_ptr<RNTupleCollectionWriter> m_collection;
-#endif
-  RNTupleFieldPtr<std::string> m_psetId;
-  RNTupleFieldPtr<std::string> m_psetBlob;
   std::unique_ptr<RNTupleWriter> m_ntuple;
 };
 
@@ -88,13 +70,7 @@ public:
 
 private:
   void createFields(TFile& file);
-#if ROOT_VERSION_CODE < ROOT_VERSION(6, 31, 0)
-  std::shared_ptr<RCollectionNTupleWriter> m_procHist;
-#else
-  std::shared_ptr<RNTupleCollectionWriter> m_procHist;
-#endif
-
-  RNTupleFieldPtr<std::string> m_phId;
+  RNTupleFieldPtr<edm::ProcessHistory> m_procHist;
   std::unique_ptr<RNTupleWriter> m_ntuple;
 };
 
