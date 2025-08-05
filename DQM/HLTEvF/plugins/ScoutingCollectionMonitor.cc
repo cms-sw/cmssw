@@ -1267,15 +1267,15 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   tk_PV_dxy_hist = ibook.book1DD("tk_PV_dxy", "Track dxy w.r.t. PV; Track dxy w.r.t. PV; Entries", 100, -0.15, 0.15);
 
   ibook.setCurrentFolder(topfoldername_ + "/CaloRecHits");
-  ebRecHitsNumber = ibook.book1D("ebRechitsN", "number of eb RecHits; number of EB recHits; events", 100, 0.0, 1000.0);
-  ebRecHits_energy_hist = ibook.book1D("ebRechits_energy", "Energy spectrum of eb RecHits; Energy of EB recHits; events", 100, 0.0, 1000.0);
-  ebRecHits_time_hist = ibook.book1D("ebRechits_time", "Time of eb RecHits; Energy of EB recHits; events", 100, 0.0, 1000.0);
-  eeRecHitsNumber = ibook.book1D("eeRechitsN", "number of ee RecHits; number of EE recHits; events", 100, 0.0, 1000.0);
-  eeRecHits_energy_hist = ibook.book1D("eeRechits_energy", "Energy spectrum of ee RecHits; Energy of EE recHits; events", 100, 0.0, 1000.0);
-  eeRecHits_time_hist = ibook.book1D("eeRechits_time", "Time of ee RecHits; Energy of EE recHits; events", 100, 0.0, 1000.0);
+  ebRecHitsNumber = ibook.book1D("ebRechitsN", "Number of eb RecHits; number of EB recHits; Entries", 100, 0.0, 1000.0);
+  ebRecHits_energy_hist = ibook.book1D("ebRechits_energy", "Energy spectrum of eb RecHits; Energy of EB recHits (Gev); Entries", 100, 0.0, 500.0);
+  ebRecHits_time_hist = ibook.book1D("ebRechits_time", "Time of eb RecHits; Energy of EB recHits (ps); Entries", 100, 0.0, 1000.0);
+  eeRecHitsNumber = ibook.book1D("eeRechitsN", "Number of ee RecHits; number of EE recHits; Entries", 100, 0.0, 1000.0);
+  eeRecHits_energy_hist = ibook.book1D("eeRechits_energy", "Energy spectrum of ee RecHits; Energy of EE recHits (GeV); Entries", 100, 0.0, 1000.0);
+  eeRecHits_time_hist = ibook.book1D("eeRechits_time", "Time of ee RecHits; Time of EE recHits (ps); Entries", 100, 0.0, 1000.0);
   hbheRecHitsNumber =
-      ibook.book1D("hbheRechitsN", "number of hbhe RecHits; number of HBHE recHits; events", 100, 0.0, 1000.0);
-  hbheRecHits_energy_hist = ibook.book1D("hbheRechits_energy", "Energy spectrum of hbhe RecHits; Energy of HBHE recHits; events", 100, 0.0, 1000.0);
+      ibook.book1D("hbheRechitsN", "number of hbhe RecHits; Number of HBHE recHits; Entries", 100, 0.0, 2000.0);
+  hbheRecHits_energy_hist = ibook.book1D("hbheRechits_energy", "Energy spectrum of hbhe RecHits; Energy of HBHE recHits (GeV); Entries", 100, 0.0, 200.0);
 }
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 
