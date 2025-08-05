@@ -1296,9 +1296,9 @@ void ScoutingCollectionMonitor::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<edm::InputTag>("pfMetPhi", edm::InputTag("hltScoutingPFPacker", "pfMetPhi"));
   desc.add<edm::InputTag>("rho", edm::InputTag("hltScoutingPFPacker", "rho"));
   desc.add<edm::InputTag>("onlineMetaDataDigis", edm::InputTag("onlineMetaDataDigis"));
-  desc.add<edm::InputTag>("pfRecHitsEB", edm::InputTag(""));
-  desc.add<edm::InputTag>("pfRecHitsEE", edm::InputTag(""));
-  desc.add<edm::InputTag>("pfRecHitsHBHE", edm::InputTag(""));
+  desc.add<edm::InputTag>("pfRecHitsEB", edm::InputTag("hltScoutingRecHitPacker","EB"));
+  desc.add<edm::InputTag>("pfRecHitsEE", edm::InputTag("hltScoutingRecHitPacker","EE"));
+  desc.add<edm::InputTag>("pfRecHitsHBHE", edm::InputTag("hltScoutingRecHitPacker","HBHE"));
   desc.add<std::string>("topfoldername", "HLT/ScoutingOffline/Miscellaneous");
   descriptions.addWithDefaultLabel(desc);
 }
