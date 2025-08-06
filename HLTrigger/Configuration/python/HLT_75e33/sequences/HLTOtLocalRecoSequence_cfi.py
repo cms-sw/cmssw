@@ -3,12 +3,12 @@ import FWCore.ParameterSet.Config as cms
 from ..modules.hltMeasurementTrackerEvent_cfi import *
 from ..modules.hltSiPhase2RecHits_cfi import *
 
-from Configuration.ProcessModifiers.alpaka_cff import alpaka
-
 HLTOtLocalRecoSequence = cms.Sequence(hltMeasurementTrackerEvent)
 
-HLTOtLocalRecoSequenceWithHits_ = cms.Sequence(hltMeasurementTrackerEvent
+_HLTOtLocalRecoSequenceWithHits = cms.Sequence(hltMeasurementTrackerEvent
                                                +hltSiPhase2RecHits
                                                )
 
-alpaka.toReplaceWith(HLTOtLocalRecoSequence, HLTOtLocalRecoSequenceWithHits_)
+from Configuration.ProcessModifiers.alpaka_cff import alpaka
+from Configuration.ProcessModifiers.phase2CAExtension_cff import phase2CAExtension
+(alpaka & phase2CAExtension).toReplaceWith(HLTOtLocalRecoSequence, _HLTOtLocalRecoSequenceWithHits)
