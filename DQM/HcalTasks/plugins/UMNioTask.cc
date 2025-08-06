@@ -27,6 +27,9 @@ UMNioTask::UMNioTask(edm::ParameterSet const& ps)
   for (uint32_t type = constants::tNull; type < constants::nOrbitGapType; type++) {
     _eventtypes.push_back(type);
   }
+  for (uint32_t type = constants::uUnknown; type < constants::nHTRType; type++) {
+    _uHTRtypes.push_back(type);
+  }
 }
 
 /* virtual */ void UMNioTask::bookHistograms(DQMStore::IBooker& ib, edm::Run const& r, edm::EventSetup const& es) {
@@ -46,6 +49,14 @@ UMNioTask::UMNioTask(edm::ParameterSet const& ps)
                          new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                          0);
 
+  // Initialize _cUHTRType analogous to _cEventType
+  _cUHTRType.initialize(_name + "/EventType",
+                        "UHTRType",
+                        new hcaldqm::quantity::LumiSection(_maxLS),
+                        new hcaldqm::quantity::uHTRType(_uHTRtypes),
+                        new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
+                        0);
+
   _cTotalCharge.initialize(_name,
                            "TotalCharge",
                            new hcaldqm::quantity::LumiSection(_maxLS),
@@ -58,13 +69,13 @@ UMNioTask::UMNioTask(edm::ParameterSet const& ps)
                                   new hcaldqm::quantity::DetectorQuantity(quantity::fSubdetPM),
                                   new hcaldqm::quantity::ValueQuantity(quantity::ffC_10000, true),
                                   0);
-  _cEventType_uMNio.initialize(_name,
-                               "EventType_uMNio",
+  _cEventType_uMNio.initialize(_name + "/EventType",
+                               "uMNio",
                                new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fNbins),
                                new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                                0);
-  _cEventType_uHTR.initialize(_name,
-                              "EventType_uHTR",
+  _cEventType_uHTR.initialize(_name + "/EventType",
+                              "uHTR",
                               new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fNbins),
                               new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                               0);
@@ -73,6 +84,7 @@ UMNioTask::UMNioTask(edm::ParameterSet const& ps)
   _cTotalChargeProfile.book(ib, _subsystem);
   _cEventType_uMNio.book(ib, _subsystem);
   _cEventType_uHTR.book(ib, _subsystem);
+  _cUHTRType.book(ib, _subsystem);
 }
 
 int UMNioTask::getOrbitGapIndex(uint8_t eventType, uint32_t laserType) {
@@ -119,6 +131,22 @@ int UMNioTask::getOrbitGapIndex(uint8_t eventType, uint32_t laserType) {
   return (int)(std::find(_eventtypes.begin(), _eventtypes.end(), orbitGapType) - _eventtypes.begin());
 }
 
+int UMNioTask::getUHTRType(uint8_t eventType) {
+  constants::uHTRType uHTRType = uUnknown;
+  if (eventType == constants::EVENTTYPE_PHYSICS) {
+    uHTRType = uPhysics;
+  } else if (eventType == constants::EVENTTYPE_PEDESTAL) {
+    uHTRType = uPedestal;
+  } else if (eventType == constants::EVENTTYPE_LED) {
+    uHTRType = uLED;
+  } else if (eventType == constants::EVENTTYPE_HFRADDAM) {
+    uHTRType = uHFRaddam;
+  } else if (eventType == constants::EVENTTYPE_LASER) {
+    uHTRType = uLaser;
+  }
+  return (int)(std::find(_uHTRtypes.begin(), _uHTRtypes.end(), uHTRType) - _uHTRtypes.begin());
+}
+
 /* virtual */ void UMNioTask::_process(edm::Event const& e, edm::EventSetup const& es) {
   auto lumiCache = luminosityBlockCache(e.getLuminosityBlock().index());
   _currentLS = lumiCache->currentLS;
@@ -162,6 +190,8 @@ int UMNioTask::getOrbitGapIndex(uint8_t eventType, uint32_t laserType) {
   uint32_t laserType = cumn->valueUserWord(0);
   _cEventType.fill(_currentLS, getOrbitGapIndex(eventType, laserType));
   _cEventType_uMNio.fill(static_cast<int>(eventType));
+  // Fill _cUHTRType analogous to _cEventType
+  _cUHTRType.fill(_currentLS, getUHTRType(static_cast<uint8_t>(eventflag_uHTR)));
 
   //	Compute the Total Charge in the Detector...
   auto const chbhe = e.getHandle(tokHBHE_);
