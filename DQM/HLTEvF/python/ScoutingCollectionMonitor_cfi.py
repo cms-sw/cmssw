@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 
 scoutingCollectionMonitor = DQMEDAnalyzer('ScoutingCollectionMonitor',
-                                          onlyScouting = cms.bool(False),
+                                          topfoldername          = cms.string("HLT/ScoutingOffline/Miscellaneous"),
+                                          onlyScouting           = cms.bool(False),
                                           onlineMetaDataDigis    = cms.InputTag("onlineMetaDataDigis"),
                                           muons                  = cms.InputTag("hltScoutingMuonPackerNoVtx"),
                                           muonsVtx               = cms.InputTag("hltScoutingMuonPackerVtx"),
@@ -17,8 +18,9 @@ scoutingCollectionMonitor = DQMEDAnalyzer('ScoutingCollectionMonitor',
                                           pfMetPt                = cms.InputTag("hltScoutingPFPacker","pfMetPt"),
                                           pfMetPhi               = cms.InputTag("hltScoutingPFPacker","pfMetPhi"),
                                           rho                    = cms.InputTag("hltScoutingPFPacker","rho"),
-                                          topfoldername          = cms.string("HLT/ScoutingOffline/Miscellaneous"),
                                           pfRecHitsEB            = cms.InputTag("hltScoutingRecHitPacker", "EB"),
                                           pfRecHitsEE            = cms.InputTag("hltScoutingRecHitPacker", "EE"),
+                                          pfCleanedRecHitsEB     = cms.InputTag("hltScoutingRecHitPacker", "EBCleaned"),
+                                          pfCleanedRecHitsEE     = cms.InputTag("hltScoutingRecHitPacker", "EECleaned"),
                                           pfRecHitsHBHE          = cms.InputTag("hltScoutingRecHitPacker", "HBHE"))
 
