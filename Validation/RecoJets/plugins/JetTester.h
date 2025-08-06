@@ -45,6 +45,7 @@ public:
 
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void fillMatchHists(const double GenEta,
@@ -82,121 +83,86 @@ private:
   MonitorElement *mJetEta;
   MonitorElement *mJetPhi;
   MonitorElement *mJetPt;
-  MonitorElement *mJetPt_B;
-  MonitorElement *mJetPt_E;
-  MonitorElement *mJetPt_F;
   MonitorElement *mJetEnergy;
   MonitorElement *mJetMass;
   MonitorElement *mJetConstituents;
   MonitorElement *mJetArea;
+  std::vector<MonitorElement*> mJetPt_EtaBins;
 
   // Corrected jet parameters
   MonitorElement *mCorrJetEta;
   MonitorElement *mCorrJetPhi;
   MonitorElement *mCorrJetPt;
-  MonitorElement *mCorrJetPt_B;
-  MonitorElement *mCorrJetPt_E;
-  MonitorElement *mCorrJetPt_F;
+  std::vector<MonitorElement*> mCorrJetPt_EtaBins;
 
   // Gen jet parameters
   MonitorElement *mGenEta;
   MonitorElement *mGenPhi;
   MonitorElement *mGenPt;
-  MonitorElement *mGenPt_B;
-  MonitorElement *mGenPt_E;
-  MonitorElement *mGenPt_F;
+  std::vector<MonitorElement*> mGenPt_EtaBins;
 
   // Matched jet parameters
   MonitorElement *mMatchedJetEta;
   MonitorElement *mMatchedJetPhi;
-  MonitorElement *mMatchedJetPt_B;
-  MonitorElement *mMatchedJetPt_E;
-  MonitorElement *mMatchedJetPt_F;
-  MonitorElement *mMatchedCorrPt_B;
-  MonitorElement *mMatchedCorrPt_E;
-  MonitorElement *mMatchedCorrPt_F;
+  std::vector<MonitorElement*> mMatchedJetPt_EtaBins;
+  std::vector<MonitorElement*> mMatchedCorrPt_EtaBins;
 
   // Matched gen jet parameters
   MonitorElement *mMatchedGenEta;
   MonitorElement *mMatchedGenPhi;
-  MonitorElement *mMatchedGenPt_B;
-  MonitorElement *mMatchedGenPt_E;
-  MonitorElement *mMatchedGenPt_F;
+  std::vector<MonitorElement*> mMatchedGenPt_EtaBins;
 
   // Jet response vs gen histograms
-  MonitorElement *h_JetPtRecoOverGen_B;
-  MonitorElement *h_JetPtRecoOverGen_E;
-  MonitorElement *h_JetPtRecoOverGen_F;
-  std::vector<MonitorElement*> hVector_JetPtRecoOverGen_B_ptBins;
-  std::vector<MonitorElement*> hVector_JetPtRecoOverGen_E_ptBins;
-  std::vector<MonitorElement*> hVector_JetPtRecoOverGen_F_ptBins;
+  std::vector<MonitorElement*> h_JetPtRecoOverGen;
+  std::vector<std::vector<MonitorElement*>> hVector_JetPtRecoOverGen_ptBins;
 
   // Corrected jet response vs gen histograms
-  MonitorElement *h_JetPtCorrOverGen_B;
-  MonitorElement *h_JetPtCorrOverGen_E;
-  MonitorElement *h_JetPtCorrOverGen_F;
-  std::vector<MonitorElement*> hVector_JetPtCorrOverGen_B_ptBins;
-  std::vector<MonitorElement*> hVector_JetPtCorrOverGen_E_ptBins;
-  std::vector<MonitorElement*> hVector_JetPtCorrOverGen_F_ptBins;
+  std::vector<MonitorElement*> h_JetPtCorrOverGen;
+  std::vector<std::vector<MonitorElement*>> hVector_JetPtCorrOverGen_ptBins;
 
   // Corrected jet response vs reco histograms
-  MonitorElement *h_JetPtCorrOverReco_B;
-  MonitorElement *h_JetPtCorrOverReco_E;
-  MonitorElement *h_JetPtCorrOverReco_F;
-  std::vector<MonitorElement*> hVector_JetPtCorrOverReco_B_ptBins;
-  std::vector<MonitorElement*> hVector_JetPtCorrOverReco_E_ptBins;
-  std::vector<MonitorElement*> hVector_JetPtCorrOverReco_F_ptBins;
+  std::vector<MonitorElement*> h_JetPtCorrOverReco;
+  std::vector<std::vector<MonitorElement*>> hVector_JetPtCorrOverReco_ptBins;
 
   // Jet response vs gen profiled in gen variable
-  MonitorElement *p_JetPtRecoOverGen_vs_GenEta;
-  MonitorElement *p_JetPtRecoOverGen_vs_GenPhi_B;
-  MonitorElement *p_JetPtRecoOverGen_vs_GenPhi_E;
-  MonitorElement *p_JetPtRecoOverGen_vs_GenPhi_F;
-  MonitorElement *p_JetPtRecoOverGen_vs_GenPt_B;
-  MonitorElement *p_JetPtRecoOverGen_vs_GenPt_E;
-  MonitorElement *p_JetPtRecoOverGen_vs_GenPt_F;
+  std::vector<MonitorElement*> p_JetPtRecoOverGen_vs_GenEta;
+  std::vector<MonitorElement*> p_JetPtRecoOverGen_vs_GenPhi;
+  std::vector<MonitorElement*> p_JetPtRecoOverGen_vs_GenPt;
 
-  MonitorElement *h2d_JetPtRecoOverGen_vs_GenEta;
-  MonitorElement *h2d_JetPtRecoOverGen_vs_GenPhi_B;
-  MonitorElement *h2d_JetPtRecoOverGen_vs_GenPhi_E;
-  MonitorElement *h2d_JetPtRecoOverGen_vs_GenPhi_F;
-  MonitorElement *h2d_JetPtRecoOverGen_vs_GenPt_B;
-  MonitorElement *h2d_JetPtRecoOverGen_vs_GenPt_E;
-  MonitorElement *h2d_JetPtRecoOverGen_vs_GenPt_F;
+  std::vector<MonitorElement*> h2d_JetPtRecoOverGen_vs_GenEta;
+  std::vector<MonitorElement*> h2d_JetPtRecoOverGen_vs_GenPhi;
+  std::vector<MonitorElement*> h2d_JetPtRecoOverGen_vs_GenPt;
 
   // Corrected jet response vs gen profiled in gen variable
-  MonitorElement *p_JetPtCorrOverGen_vs_GenEta;
-  MonitorElement *p_JetPtCorrOverGen_vs_GenPhi_B;
-  MonitorElement *p_JetPtCorrOverGen_vs_GenPhi_E;
-  MonitorElement *p_JetPtCorrOverGen_vs_GenPhi_F;
-  MonitorElement *p_JetPtCorrOverGen_vs_GenPt_B;
-  MonitorElement *p_JetPtCorrOverGen_vs_GenPt_E;
-  MonitorElement *p_JetPtCorrOverGen_vs_GenPt_F;
+  std::vector<MonitorElement*> p_JetPtCorrOverGen_vs_GenEta;
+  std::vector<MonitorElement*> p_JetPtCorrOverGen_vs_GenPhi;
+  std::vector<MonitorElement*> p_JetPtCorrOverGen_vs_GenPt;
 
-  MonitorElement *h2d_JetPtCorrOverGen_vs_GenEta;
-  MonitorElement *h2d_JetPtCorrOverGen_vs_GenPhi_B;
-  MonitorElement *h2d_JetPtCorrOverGen_vs_GenPhi_E;
-  MonitorElement *h2d_JetPtCorrOverGen_vs_GenPhi_F;
-  MonitorElement *h2d_JetPtCorrOverGen_vs_GenPt_B;
-  MonitorElement *h2d_JetPtCorrOverGen_vs_GenPt_E;
-  MonitorElement *h2d_JetPtCorrOverGen_vs_GenPt_F;
+  std::vector<MonitorElement*> h2d_JetPtCorrOverGen_vs_GenEta;
+  std::vector<MonitorElement*> h2d_JetPtCorrOverGen_vs_GenPhi;
+  std::vector<MonitorElement*> h2d_JetPtCorrOverGen_vs_GenPt;
 
   // Corrected jet response vs reco profiled in reco variable
-  MonitorElement *p_JetPtCorrOverReco_vs_Eta;
-  MonitorElement *p_JetPtCorrOverReco_vs_Phi_B;
-  MonitorElement *p_JetPtCorrOverReco_vs_Phi_E;
-  MonitorElement *p_JetPtCorrOverReco_vs_Phi_F;
-  MonitorElement *p_JetPtCorrOverReco_vs_Pt_B;
-  MonitorElement *p_JetPtCorrOverReco_vs_Pt_E;
-  MonitorElement *p_JetPtCorrOverReco_vs_Pt_F;
+  std::vector<MonitorElement*> p_JetPtCorrOverReco_vs_Eta;
+  std::vector<MonitorElement*> p_JetPtCorrOverReco_vs_Phi;
+  std::vector<MonitorElement*> p_JetPtCorrOverReco_vs_Pt;
 
-  MonitorElement *h2d_JetPtCorrOverReco_vs_Eta;
-  MonitorElement *h2d_JetPtCorrOverReco_vs_Phi_B;
-  MonitorElement *h2d_JetPtCorrOverReco_vs_Phi_E;
-  MonitorElement *h2d_JetPtCorrOverReco_vs_Phi_F;
-  MonitorElement *h2d_JetPtCorrOverReco_vs_Pt_B;
-  MonitorElement *h2d_JetPtCorrOverReco_vs_Pt_E;
-  MonitorElement *h2d_JetPtCorrOverReco_vs_Pt_F;
+  std::vector<MonitorElement*> h2d_JetPtCorrOverReco_vs_Eta;
+  std::vector<MonitorElement*> h2d_JetPtCorrOverReco_vs_Phi;
+  std::vector<MonitorElement*> h2d_JetPtCorrOverReco_vs_Pt;
+
+  // Jet em/had fractions profiled in pt
+  std::vector<MonitorElement*> p_chHad_vs_pt;
+  std::vector<MonitorElement*> p_neHad_vs_pt;
+  std::vector<MonitorElement*> p_chEm_vs_pt;
+  std::vector<MonitorElement*> p_neEm_vs_pt;
+
+  // Jet response vs gen profiled in em/had fractions
+  std::vector<MonitorElement*> h2d_JetPtRecoOverGen_vs_chHad;
+  std::vector<MonitorElement*> h2d_JetPtRecoOverGen_vs_neHad;
+  std::vector<MonitorElement*> h2d_JetPtRecoOverGen_vs_chEm;
+  std::vector<MonitorElement*> h2d_JetPtRecoOverGen_vs_neEm;
+  std::vector<MonitorElement*> h2d_JetPtRecoOverGen_vs_nCost;
 
   // Generation
   MonitorElement *mJetEtaFirst;
@@ -207,11 +173,13 @@ private:
   MonitorElement *mGenPtFirst;
 
   MonitorElement *mMjj;
-  MonitorElement *mNJets1;
-  MonitorElement *mNJets2;
+  MonitorElement *mNJets;
+  MonitorElement *mNJetsPt1;
+  MonitorElement *mNJetsPt2;
   MonitorElement *mDeltaEta;
   MonitorElement *mDeltaPhi;
   MonitorElement *mDeltaPt;
+  std::vector<MonitorElement*> mNJets_EtaBins;
 
   // ---- Calo Jet specific information ----
   MonitorElement *maxEInEmTowers;
@@ -276,6 +244,9 @@ private:
   bool isCaloJet;
   bool isPFJet;
   bool isMiniAODJet;
+  bool isHLT_;
+
+  std::vector<std::tuple<std::string, std::string, double, double>> etaInfo;
 };
 
 #endif
