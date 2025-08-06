@@ -72,7 +72,7 @@ public:
     if (cluster_.id() == other.cluster_.id())
       return (cluster_ == other.cluster_);
     else {
-      const bool sameDetId = sameDetModule(other);
+      const bool sameDetId = (geographicalId() == other.geographicalId());
       return (sameDetId) ? other.cluster_.stripOverlap(cluster_) : false;
     }
   }
