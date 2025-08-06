@@ -18,19 +18,19 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   // Monitor Dir
   ibooker.setCurrentFolder(monitorDir);
 
-  emtfErrors = ibooker.book1D("emtfErrors", "EMTF Errors", 5, 0, 5);
+  emtfErrors = ibooker.book1D("emtfErrors", "EMTF Errors", 6, 0, 6);
   emtfErrors->setAxisTitle("Error Type (Corruptions Not Implemented)", 1);
   emtfErrors->setAxisTitle("Number of Errors", 2);
   if (isRun3 == true) {
-    const std::array<std::string, 10> binNamesErrors{
+    const std::array<std::string, 5> binNamesErrors{
       {"Corruptions", "FMM != Ready", "BSY", "OSY", "WOF"}};
     for (unsigned int bin = 0; bin < binNamesErrors.size(); ++bin) {
       emtfErrors->setBinLabel(bin + 1, binNamesErrors[bin], 1);
     }
   }
   if (isRun3 == false) {
-    const std::array<std::string, 10> binNamesErrors{
-      {"Corruptions", "Synch. Err.", "Synch. Mod.", "BX Mismatch", "Time Misalign"}};
+    const std::array<std::string, 6> binNamesErrors{
+      {"Corruptions", "Synch. Err.", "Synch. Mod.", "BX Mismatch", "Time Misalign", "FMM != Ready"}};
     for (unsigned int bin = 0; bin < binNamesErrors.size(); ++bin) {
       emtfErrors->setBinLabel(bin + 1, binNamesErrors[bin], 1);
     }
@@ -813,7 +813,6 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
   // DAQ Output
   edm::Handle<l1t::EMTFDaqOutCollection> DaqOutCollection;
   e.getByToken(daqToken, DaqOutCollection);
-
   
   for (auto DaqOut = DaqOutCollection->begin(); DaqOut != DaqOutCollection->end(); ++DaqOut) {
     const l1t::emtf::MECollection* MECollection = DaqOut->PtrMECollection();
@@ -828,18 +827,21 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
         emtfErrors->Fill(3);
       if (ME->AF())
         emtfErrors->Fill(4);
+      if (!EventHeader->Rdy())
+        emtfErrors->Fill(5);
     }};
-    
+      
     if (isRun3==true){
-    if (!EventHeader->Rdy())
-      emtfErrors->Fill(1);
-    if (EventHeader->BSY())
-      emtfErrors->Fill(2);
-    if (EventHeader->OSY())
-      emtfErrors->Fill(3);
-    if (EventHeader->WOF())
-      emtfErrors->Fill(4);
+      if (!EventHeader->Rdy())
+        emtfErrors->Fill(1);
+      if (EventHeader->BSY())
+        emtfErrors->Fill(2);
+      if (EventHeader->OSY())
+        emtfErrors->Fill(3);
+      if (EventHeader->WOF())
+        emtfErrors->Fill(4);
     };
+
     // Fill MPC input link errors
     int offset = (EventHeader->Sector() - 1) * 9;
     int endcap = EventHeader->Endcap();
