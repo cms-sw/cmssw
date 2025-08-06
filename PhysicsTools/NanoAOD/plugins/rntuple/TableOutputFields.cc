@@ -24,7 +24,9 @@ namespace {
           std::cout << "bool,";
           break;
         default:
-          throw cms::Exception("LogicError", "Unsupported type");
+          std::cout << "other,";
+          break;
+          //throw cms::Exception("LogicError", "Unsupported type");
       }
       std::cout << "\n";
     }
@@ -66,7 +68,9 @@ void TableOutputFields::createFields(const edm::EventForOutput& event, RNTupleMo
         m_boolFields.emplace_back(FlatTableField<bool>(table, i, model));
         break;
       default:
-        throw cms::Exception("LogicError", "Unsupported type");
+        std::cout << "Unsupported type in TableOutputFields"
+                  << "\n";
+        //throw cms::Exception("LogicError", "Unsupported type");
     }
   }
 }
@@ -87,6 +91,12 @@ void TableOutputFields::fillEntry(const nanoaod::FlatTable& table, std::size_t i
 }
 
 const edm::EDGetToken& TableOutputFields::getToken() const { return m_token; }
+
+const edm::Handle<nanoaod::FlatTable> TableOutputFields::getTable(const edm::EventForOutput& event) const {
+  edm::Handle<nanoaod::FlatTable> handle;
+  event.getByToken(m_token, handle);
+  return handle;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -109,7 +119,9 @@ void TableOutputVectorFields::createFields(const edm::EventForOutput& event, RNT
         m_vboolFields.emplace_back(FlatTableField<std::vector<bool>>(table, i, model));
         break;
       default:
-        throw cms::Exception("LogicError", "Unsupported type");
+        std::cout << "Unsupported type in TableOutputVectorFields"
+                  << "\n";
+        //throw cms::Exception("LogicError", "Unsupported type");
     }
   }
 }
@@ -148,37 +160,36 @@ void TableCollection::add(const edm::EDGetToken& table_token, const nanoaod::Fla
 }
 
 void TableCollection::createFields(const edm::EventForOutput& event, RNTupleModel& eventModel) {
-  auto collectionModel = RNTupleModel::Create();
-  m_main.createFields(event, *collectionModel);
+  std::vector<edm::Handle<nanoaod::FlatTable>> tables;
+
+  auto main_table = m_main.getTable(event);
+  std::string field_desc = main_table->doc();
+
+  tables.emplace_back(main_table);
+
   for (auto& extension : m_extensions) {
-    extension.createFields(event, *collectionModel);
+    auto ext_table = extension.getTable(event);
+    tables.emplace_back(ext_table);
   }
-  edm::Handle<nanoaod::FlatTable> handle;
-  event.getByToken(m_main.getToken(), handle);
-  const nanoaod::FlatTable& table = *handle;
-  collectionModel->SetDescription(table.doc());
-  m_collection = eventModel.MakeCollection(m_collectionName, std::move(collectionModel));
+  m_collection = std::make_unique<RNTupleCollection>(m_collectionName, field_desc, tables, eventModel);
 }
 
+void TableCollection::bindBuffer(RNTupleModel& eventModel) { m_collection->bindBuffer(eventModel); }
+
 void TableCollection::fill(const edm::EventForOutput& event) {
-  edm::Handle<nanoaod::FlatTable> handle;
-  event.getByToken(m_main.getToken(), handle);
-  const auto& main_table = *handle;
-  auto table_size = main_table.size();
-  for (std::size_t i = 0; i < table_size; i++) {
-    m_main.fillEntry(main_table, i);
-    for (auto& ext : m_extensions) {
-      edm::Handle<nanoaod::FlatTable> handle;
-      event.getByToken(ext.getToken(), handle);
-      const auto& ext_table = *handle;
-      if (ext_table.size() != table_size) {
-        throw cms::Exception("LogicError",
-                             "Mismatch in number of entries between extension and main table for " + m_collectionName);
-      }
-      ext.fillEntry(ext_table, i);
-    }
-    m_collection->Fill();
+  std::vector<edm::Handle<nanoaod::FlatTable>> tables;
+
+  auto main_table = m_main.getTable(event);
+  std::string field_desc = main_table->doc();
+
+  tables.emplace_back(main_table);
+
+  for (auto& extension : m_extensions) {
+    auto ext_table = extension.getTable(event);
+    tables.emplace_back(ext_table);
   }
+
+  m_collection->fill(tables);
 }
 
 void TableCollection::print() const {
@@ -251,6 +262,12 @@ void TableCollectionSet::createFields(const edm::EventForOutput& event, RNTupleM
   }
   for (auto& table : m_vectorFields) {
     table.createFields(event, eventModel);
+  }
+}
+
+void TableCollectionSet::bindBuffers(RNTupleModel& eventModel) {
+  for (auto& collection : m_collections) {
+    collection.bindBuffer(eventModel);
   }
 }
 
