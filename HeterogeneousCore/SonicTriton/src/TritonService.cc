@@ -128,7 +128,7 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
     TRITON_THROW_IF_ERROR(
         tc::InferenceServerGrpcClient::Create(&client, server.url, false, server.useSsl, server.sslOptions),
         "TritonService(): unable to create inference context for " + serverName + " (" + server.url + ")",
-        false);
+        nullptr);
 
     if (verbose_) {
       inference::ServerMetadataResponse serverMetaResponse;

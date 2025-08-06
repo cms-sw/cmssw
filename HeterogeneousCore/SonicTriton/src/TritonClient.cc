@@ -84,7 +84,7 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
   TRITON_THROW_IF_ERROR(
       tc::InferenceServerGrpcClient::Create(&client_, server.url, false, server.useSsl, server.sslOptions),
       "TritonClient(): unable to create inference context",
-      isLocal_);
+      localToken());
 
   //set options
   options_[0].model_version_ = params.getParameter<std::string>("modelVersion");
@@ -131,7 +131,7 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
   inference::ModelConfigResponse modelConfigResponse;
   TRITON_THROW_IF_ERROR(client_->ModelConfig(&modelConfigResponse, options_[0].model_name_, options_[0].model_version_),
                         "TritonClient(): unable to get model config",
-                        isLocal_);
+                        localToken());
   inference::ModelConfig remoteModelConfig(modelConfigResponse.config());
 
   std::map<std::string, std::array<std::string, 2>> checksums;
@@ -162,7 +162,7 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
   inference::ModelMetadataResponse modelMetadata;
   TRITON_THROW_IF_ERROR(client_->ModelMetadata(&modelMetadata, options_[0].model_name_, options_[0].model_version_),
                         "TritonClient(): unable to get model metadata",
-                        isLocal_);
+                        localToken());
 
   //get input and output (which know their sizes)
   const auto& nicInputs = modelMetadata.inputs();
@@ -344,6 +344,8 @@ bool TritonClient::handle_exception(F&& call) {
   }
 }
 
+const edm::ServiceToken* TritonClient::localToken() const { return isLocal_ ? &token_ : nullptr; }
+
 void TritonClient::getResults(const std::vector<std::shared_ptr<tc::InferResult>>& results) {
   for (unsigned i = 0; i < results.size(); ++i) {
     const auto& result = results[i];
@@ -351,8 +353,8 @@ void TritonClient::getResults(const std::vector<std::shared_ptr<tc::InferResult>
       //set shape here before output becomes const
       if (output.variableDims()) {
         std::vector<int64_t> tmp_shape;
-        TRITON_THROW_IF_ERROR(
-            result->Shape(oname, &tmp_shape), "getResults(): unable to get output shape for " + oname, false);
+        TRITON_THROW_IF_ERROR(result->Shape(oname, &tmp_shape),
+                              "getResults(): unable to get output shape for " + oname);
         if (!noOuterDim_)
           tmp_shape.erase(tmp_shape.begin());
         output.setShape(tmp_shape, i);
@@ -439,7 +441,7 @@ void TritonClient::evaluate() {
                                   for (auto ptr : results) {
                                     auto success = handle_exception([&]() {
                                       TRITON_THROW_IF_ERROR(
-                                          ptr->RequestStatus(), "evaluate(): unable to get result(s)", isLocal_);
+                                          ptr->RequestStatus(), "evaluate(): unable to get result(s)", localToken());
                                     });
                                     if (!success)
                                       return;
@@ -469,7 +471,7 @@ void TritonClient::evaluate() {
                                 headers_,
                                 compressionAlgo_),
                             "evaluate(): unable to launch async run",
-                            isLocal_);
+                            localToken());
     });
     if (!success)
       return;
@@ -480,7 +482,7 @@ void TritonClient::evaluate() {
       TRITON_THROW_IF_ERROR(
           client_->InferMulti(&resultsTmp, options_, inputsTriton, outputsTriton, headers_, compressionAlgo_),
           "evaluate(): unable to run and/or get result",
-          isLocal_);
+          localToken());
     });
     //immediately convert to shared_ptr
     const auto& results = convertToShared(resultsTmp);
@@ -568,7 +570,7 @@ inference::ModelStatistics TritonClient::getServerSideStatus() const {
     inference::ModelStatisticsResponse resp;
     TRITON_THROW_IF_ERROR(client_->ModelInferenceStatistics(&resp, options_[0].model_name_, options_[0].model_version_),
                           "getServerSideStatus(): unable to get model statistics",
-                          isLocal_);
+                          localToken());
     return *(resp.model_stats().begin());
   }
   return inference::ModelStatistics{};

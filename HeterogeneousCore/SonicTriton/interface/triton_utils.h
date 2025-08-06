@@ -75,11 +75,12 @@ inline bool triton_utils::checkType<double>(inference::DataType dtype) {
 
 //helper to turn triton error into exception
 //implemented as a macro to avoid constructing the MSG string for successful function calls
-#define TRITON_THROW_IF_ERROR(X, MSG, NOTIFY)                                                                         \
-  {                                                                                                                   \
-    triton::client::Error err = (X);                                                                                  \
-    if (!err.IsOk())                                                                                                  \
-      throw TritonException("TritonFailure", NOTIFY) << (MSG) << (err.Message().empty() ? "" : ": " + err.Message()); \
+#define TRITON_THROW_IF_ERROR(X, MSG, ...)                                 \
+  {                                                                        \
+    triton::client::Error err = (X);                                       \
+    if (!err.IsOk())                                                       \
+      throw TritonException("TritonFailure", ##__VA_ARGS__)                \
+          << (MSG) << (err.Message().empty() ? "" : ": " + err.Message()); \
   }
 
 extern template std::string triton_utils::printColl(const std::span<const int64_t>& coll, const std::string& delim);

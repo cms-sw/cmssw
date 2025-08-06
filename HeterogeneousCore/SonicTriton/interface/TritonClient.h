@@ -50,6 +50,8 @@ public:
   void reset() override;
   TritonServerType serverType() const { return serverType_; }
   bool isLocal() const { return isLocal_; }
+  const edm::ServiceToken* token() const { return &token_; }
+  const edm::ServiceToken* localToken() const;
 
   //for fillDescriptions
   static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
