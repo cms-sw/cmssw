@@ -139,6 +139,23 @@ JetTester::JetTester(const edm::ParameterSet &iConfig)
   h2d_JetPtRecoOverGen_vs_GenPt_E = nullptr;
   h2d_JetPtRecoOverGen_vs_GenPt_F = nullptr;
   
+  // Jet response vs gen profiled in em/had fractions
+  h2d_JetPtRecoOverGen_vs_chHad_B = nullptr;
+  h2d_JetPtRecoOverGen_vs_chHad_E = nullptr;
+  h2d_JetPtRecoOverGen_vs_chHad_F = nullptr;
+  h2d_JetPtRecoOverGen_vs_neHad_B = nullptr;
+  h2d_JetPtRecoOverGen_vs_neHad_E = nullptr;
+  h2d_JetPtRecoOverGen_vs_neHad_F = nullptr;
+  h2d_JetPtRecoOverGen_vs_chEm_B = nullptr;
+  h2d_JetPtRecoOverGen_vs_chEm_E = nullptr;
+  h2d_JetPtRecoOverGen_vs_chEm_F = nullptr;
+  h2d_JetPtRecoOverGen_vs_neEm_B = nullptr;
+  h2d_JetPtRecoOverGen_vs_neEm_E = nullptr;
+  h2d_JetPtRecoOverGen_vs_neEm_F = nullptr;
+  h2d_JetPtRecoOverGen_vs_nCost_B = nullptr;
+  h2d_JetPtRecoOverGen_vs_nCost_E = nullptr;
+  h2d_JetPtRecoOverGen_vs_nCost_F = nullptr;
+
   // Corrected jet response vs gen profiled in gen variable
   p_JetPtCorrOverGen_vs_GenEta = nullptr;
   p_JetPtCorrOverGen_vs_GenPhi_B = nullptr;
@@ -410,26 +427,72 @@ void JetTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
     n_PtBins_Profile, PtRange[0], PtRange[1], RespRange[0], RespRange[1], " ");
 
   h2d_JetPtRecoOverGen_vs_GenEta = ibooker.book2D("h2d_PtRecoOverGen_GenEta", 
-    "Profiled Response Reco Jets;#eta^{gen};p_{T}^{reco}/p_{T}^{gen}",
+    "Response Reco Jets;#eta^{gen};p_{T}^{reco}/p_{T}^{gen}",
     n_EtaBins_Profile, EtaRange[0], EtaRange[1], n_RespBins, RespRange[0], RespRange[1]);
   h2d_JetPtRecoOverGen_vs_GenPhi_B = ibooker.book2D("h2d_PtRecoOverGen_GenPhi_B", 
-    "Profiled Response Reco Jets - 0<|#eta|<1.5;#phi^{gen};p_{T}^{reco}/p_{T}^{gen}",
+    "Response Reco Jets - 0<|#eta|<1.5;#phi^{gen};p_{T}^{reco}/p_{T}^{gen}",
     n_PhiBins_Profile, PhiRange[0], PhiRange[1], n_RespBins, RespRange[0], RespRange[1]);
   h2d_JetPtRecoOverGen_vs_GenPhi_E = ibooker.book2D("h2d_PtRecoOverGen_GenPhi_E", 
-    "Profiled Response Reco Jets - 1.5<|#eta|<3;#phi^{gen};p_{T}^{reco}/p_{T}^{gen}",
+    "Response Reco Jets - 1.5<|#eta|<3;#phi^{gen};p_{T}^{reco}/p_{T}^{gen}",
     n_PhiBins_Profile, PhiRange[0], PhiRange[1], n_RespBins, RespRange[0], RespRange[1]);
   h2d_JetPtRecoOverGen_vs_GenPhi_F = ibooker.book2D("h2d_PtRecoOverGen_GenPhi_F", 
-    "Profiled Response Reco Jets - 3<|#eta|<6;#phi^{gen};p_{T}^{reco}/p_{T}^{gen}",
+    "Response Reco Jets - 3<|#eta|<6;#phi^{gen};p_{T}^{reco}/p_{T}^{gen}",
     n_PhiBins_Profile, PhiRange[0], PhiRange[1], n_RespBins, RespRange[0], RespRange[1]);
   h2d_JetPtRecoOverGen_vs_GenPt_B = ibooker.book2D("h2d_PtRecoOverGen_GenPt_B", 
-    "Profiled Response Reco Jets - 0<|#eta|<1.5;p_{T}^{gen};p_{T}^{reco}/p_{T}^{gen}",  
+    "Response Reco Jets - 0<|#eta|<1.5;p_{T}^{gen};p_{T}^{reco}/p_{T}^{gen}",  
     n_PtBins_Profile, PtRange[0], PtRange[1], n_RespBins, RespRange[0], RespRange[1]);
   h2d_JetPtRecoOverGen_vs_GenPt_E = ibooker.book2D("h2d_PtRecoOverGen_GenPt_E", 
-    "Profiled Response Reco Jets - 1.5<|#eta|<3;p_{T}^{gen};p_{T}^{reco}/p_{T}^{gen}",  
+    "Response Reco Jets - 1.5<|#eta|<3;p_{T}^{gen};p_{T}^{reco}/p_{T}^{gen}",  
     n_PtBins_Profile, PtRange[0], PtRange[1], n_RespBins, RespRange[0], RespRange[1]);
   h2d_JetPtRecoOverGen_vs_GenPt_F = ibooker.book2D("h2d_PtRecoOverGen_GenPt_F", 
-    "Profiled Response Reco Jets - 3<|#eta|<6;p_{T}^{gen};p_{T}^{reco}/p_{T}^{gen}",  
+    "Response Reco Jets - 3<|#eta|<6;p_{T}^{gen};p_{T}^{reco}/p_{T}^{gen}",  
     n_PtBins_Profile, PtRange[0], PtRange[1], n_RespBins, RespRange[0], RespRange[1]);
+
+  h2d_JetPtRecoOverGen_vs_chHad_B = ibooker.book2D("h2d_PtRecoOverGen_chHad_B",
+    "Response Reco Jets - 0<|#eta|<1.5;charged Hadronic Fraction;p_{T}^{reco}/p_{T}^{gen}",
+    30, 0, 1, n_RespBins, RespRange[0], RespRange[1]);
+  h2d_JetPtRecoOverGen_vs_chHad_E = ibooker.book2D("h2d_PtRecoOverGen_chHad_E",
+    "Response Reco Jets - 1.5<|#eta|<3;charged Hadronic Fraction;p_{T}^{reco}/p_{T}^{gen}",
+    30, 0, 1, n_RespBins, RespRange[0], RespRange[1]);
+  h2d_JetPtRecoOverGen_vs_chHad_F = ibooker.book2D("h2d_PtRecoOverGen_chHad_F",
+    "Response Reco Jets - 3<|#eta|<6;charged Hadronic Fraction;p_{T}^{reco}/p_{T}^{gen}",
+    30, 0, 1, n_RespBins, RespRange[0], RespRange[1]);
+  h2d_JetPtRecoOverGen_vs_neHad_B = ibooker.book2D("h2d_PtRecoOverGen_neHad_B",
+    "Response Reco Jets - 0<|#eta|<1.5;neutral Hadronic Fraction;p_{T}^{reco}/p_{T}^{gen}",
+    30, 0, 1, n_RespBins, RespRange[0], RespRange[1]);
+  h2d_JetPtRecoOverGen_vs_neHad_E = ibooker.book2D("h2d_PtRecoOverGen_neHad_E",
+    "Response Reco Jets - 1.5<|#eta|<3;neutral Hadronic Fraction;p_{T}^{reco}/p_{T}^{gen}",
+    30, 0, 1, n_RespBins, RespRange[0], RespRange[1]);
+  h2d_JetPtRecoOverGen_vs_neHad_F = ibooker.book2D("h2d_PtRecoOverGen_neHad_F",
+    "Response Reco Jets - 3<|#eta|<6;neutral Hadronic Fraction;p_{T}^{reco}/p_{T}^{gen}",
+    30, 0, 1, n_RespBins, RespRange[0], RespRange[1]);
+  h2d_JetPtRecoOverGen_vs_chEm_B = ibooker.book2D("h2d_PtRecoOverGen_chEm_B",
+    "Response Reco Jets - 0<|#eta|<1.5;charged Electromagnetic Fraction;p_{T}^{reco}/p_{T}^{gen}",
+    30, 0, 1, n_RespBins, RespRange[0], RespRange[1]);
+  h2d_JetPtRecoOverGen_vs_chEm_E = ibooker.book2D("h2d_PtRecoOverGen_chEm_E",
+    "Response Reco Jets - 1.5<|#eta|<3;charged Electromagnetic Fraction;p_{T}^{reco}/p_{T}^{gen}",
+    30, 0, 1, n_RespBins, RespRange[0], RespRange[1]);
+  h2d_JetPtRecoOverGen_vs_chEm_F = ibooker.book2D("h2d_PtRecoOverGen_chEm_F",
+    "Response Reco Jets - 3<|#eta|<6;charged Electromagnetic Fraction;p_{T}^{reco}/p_{T}^{gen}",
+    30, 0, 1, n_RespBins, RespRange[0], RespRange[1]);
+  h2d_JetPtRecoOverGen_vs_neEm_B = ibooker.book2D("h2d_PtRecoOverGen_neEm_B",
+    "Response Reco Jets - 0<|#eta|<1.5;neutral Electromagnetic Fraction;p_{T}^{reco}/p_{T}^{gen}",
+    30, 0, 1, n_RespBins, RespRange[0], RespRange[1]);
+  h2d_JetPtRecoOverGen_vs_neEm_E = ibooker.book2D("h2d_PtRecoOverGen_neEm_E",
+    "Response Reco Jets - 1.5<|#eta|<3;neutral Electromagnetic Fraction;p_{T}^{reco}/p_{T}^{gen}",
+    30, 0, 1, n_RespBins, RespRange[0], RespRange[1]);
+  h2d_JetPtRecoOverGen_vs_neEm_F = ibooker.book2D("h2d_PtRecoOverGen_neEm_F",
+    "Response Reco Jets - 3<|#eta|<6;neutral Electromagnetic Fraction;p_{T}^{reco}/p_{T}^{gen}",
+    30, 0, 1, n_RespBins, RespRange[0], RespRange[1]);
+  h2d_JetPtRecoOverGen_vs_nCost_B = ibooker.book2D("h2d_PtRecoOverGen_nCost_B",
+    "Response Reco Jets - 0<|#eta|<1.5;number of constituents;p_{T}^{reco}/p_{T}^{gen}",
+    50, 0, 100, n_RespBins, RespRange[0], RespRange[1]);
+  h2d_JetPtRecoOverGen_vs_nCost_E = ibooker.book2D("h2d_PtRecoOverGen_nCost_E",
+    "Response Reco Jets - 1.5<|#eta|<3;number of constituents;p_{T}^{reco}/p_{T}^{gen}",
+    50, 0, 100, n_RespBins, RespRange[0], RespRange[1]);
+  h2d_JetPtRecoOverGen_vs_nCost_F = ibooker.book2D("h2d_PtRecoOverGen_nCost_E",
+    "Response Reco Jets - 3<|#eta|<6;number of constituents;p_{T}^{reco}/p_{T}^{gen}",
+    50, 0, 100, n_RespBins, RespRange[0], RespRange[1]);
 
   // Jet flavors contained in MiniAOD
   if (isMiniAODJet) {
@@ -518,25 +581,25 @@ void JetTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
       n_PtBins_Profile, PtRange[0], PtRange[1], RespRange[0], RespRange[1], " ");
 
     h2d_JetPtCorrOverGen_vs_GenEta = ibooker.book2D("h2d_PtCorrOverGen_GenEta", 
-      "Profiled Response Corr Jets;#eta^{gen};p_{T}^{corr}/p_{T}^{gen}",
+      "Response Corr Jets;#eta^{gen};p_{T}^{corr}/p_{T}^{gen}",
       n_EtaBins_Profile, EtaRange[0], EtaRange[1], n_RespBins, RespRange[0], RespRange[1]);
     h2d_JetPtCorrOverGen_vs_GenPhi_B = ibooker.book2D("h2d_PtCorrOverGen_GenPhi_B", 
-      "Profiled Response Corr Jets - 0<|#eta|<1.5;#phi^{gen};p_{T}^{corr}/p_{T}^{gen}",
+      "Response Corr Jets - 0<|#eta|<1.5;#phi^{gen};p_{T}^{corr}/p_{T}^{gen}",
       n_PhiBins_Profile, PhiRange[0], PhiRange[1], n_RespBins, RespRange[0], RespRange[1]);
     h2d_JetPtCorrOverGen_vs_GenPhi_E = ibooker.book2D("h2d_PtCorrOverGen_GenPhi_E", 
-      "Profiled Response Corr Jets - 1.5<|#eta|<3;#phi^{gen};p_{T}^{corr}/p_{T}^{gen}",
+      "Response Corr Jets - 1.5<|#eta|<3;#phi^{gen};p_{T}^{corr}/p_{T}^{gen}",
       n_PhiBins_Profile, PhiRange[0], PhiRange[1], n_RespBins, RespRange[0], RespRange[1]);
     h2d_JetPtCorrOverGen_vs_GenPhi_F = ibooker.book2D("h2d_PtCorrOverGen_GenPhi_F", 
-      "Profiled Response Corr Jets - 3<|#eta|<6;#phi^{gen};p_{T}^{corr}/p_{T}^{gen}",
+      "Response Corr Jets - 3<|#eta|<6;#phi^{gen};p_{T}^{corr}/p_{T}^{gen}",
       n_PhiBins_Profile, PhiRange[0], PhiRange[1], n_RespBins, RespRange[0], RespRange[1]);
     h2d_JetPtCorrOverGen_vs_GenPt_B = ibooker.book2D("h2d_PtCorrOverGen_GenPt_B", 
-      "Profiled Response Corr Jets - 0<|#eta|<1.5;p_{T}^{gen};p_{T}^{corr}/p_{T}^{gen}",  
+      "Response Corr Jets - 0<|#eta|<1.5;p_{T}^{gen};p_{T}^{corr}/p_{T}^{gen}",  
       n_PtBins_Profile, PtRange[0], PtRange[1], n_RespBins, RespRange[0], RespRange[1]);
     h2d_JetPtCorrOverGen_vs_GenPt_E = ibooker.book2D("h2d_PtCorrOverGen_GenPt_E", 
-      "Profiled Response Corr Jets - 1.5<|#eta|<3;p_{T}^{gen};p_{T}^{corr}/p_{T}^{gen}",  
+      "Response Corr Jets - 1.5<|#eta|<3;p_{T}^{gen};p_{T}^{corr}/p_{T}^{gen}",  
       n_PtBins_Profile, PtRange[0], PtRange[1], n_RespBins, RespRange[0], RespRange[1]);
     h2d_JetPtCorrOverGen_vs_GenPt_F = ibooker.book2D("h2d_PtCorrOverGen_GenPt_F", 
-      "Profiled Response Corr Jets - 3<|#eta|<6;p_{T}^{gen};p_{T}^{corr}/p_{T}^{gen}",  
+      "Response Corr Jets - 3<|#eta|<6;p_{T}^{gen};p_{T}^{corr}/p_{T}^{gen}",  
       n_PtBins_Profile, PtRange[0], PtRange[1], n_RespBins, RespRange[0], RespRange[1]);
     
     // Corrected jet response vs reco profiled in reco variable
@@ -563,25 +626,25 @@ void JetTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
       n_PtBins_Profile, PtRange[0], PtRange[1], RespRange[0], RespRange[1], " ");
 
     h2d_JetPtCorrOverReco_vs_Eta = ibooker.book2D("h2d_PtCorrOverReco_Eta", 
-      "Profiled Response Corr Jets;#eta^{reco};p_{T}^{corr}/p_{T}^{reco}",
+      "Response Corr Jets;#eta^{reco};p_{T}^{corr}/p_{T}^{reco}",
       n_EtaBins_Profile, EtaRange[0], EtaRange[1], n_RespBins, RespRange[0], RespRange[1]);
     h2d_JetPtCorrOverReco_vs_Phi_B = ibooker.book2D("h2d_PtCorrOverReco_Phi_B", 
-      "Profiled Response Corr Jets - 0<|#eta|<1.5;#phi^{reco};p_{T}^{corr}/p_{T}^{reco}",
+      "Response Corr Jets - 0<|#eta|<1.5;#phi^{reco};p_{T}^{corr}/p_{T}^{reco}",
       n_PhiBins_Profile, PhiRange[0], PhiRange[1], n_RespBins, RespRange[0], RespRange[1]);
     h2d_JetPtCorrOverReco_vs_Phi_E = ibooker.book2D("h2d_PtCorrOverReco_Phi_E", 
-      "Profiled Response Corr Jets - 1.5<|#eta|<3;#phi^{reco};p_{T}^{corr}/p_{T}^{reco}",
+      "Response Corr Jets - 1.5<|#eta|<3;#phi^{reco};p_{T}^{corr}/p_{T}^{reco}",
       n_PhiBins_Profile, PhiRange[0], PhiRange[1], n_RespBins, RespRange[0], RespRange[1]);
     h2d_JetPtCorrOverReco_vs_Phi_F = ibooker.book2D("h2d_PtCorrOverReco_Phi_F", 
-      "Profiled Response Corr Jets - 3<|#eta|<6;#phi^{reco};p_{T}^{corr}/p_{T}^{reco}",
+      "Response Corr Jets - 3<|#eta|<6;#phi^{reco};p_{T}^{corr}/p_{T}^{reco}",
       n_PhiBins_Profile, PhiRange[0], PhiRange[1], n_RespBins, RespRange[0], RespRange[1]);
     h2d_JetPtCorrOverReco_vs_Pt_B = ibooker.book2D("h2d_PtCorrOverReco_Pt_B", 
-      "Profiled Response Corr Jets - 0<|#eta|<1.5;p_{T}^{reco};p_{T}^{corr}/p_{T}^{reco}",  
+      "Response Corr Jets - 0<|#eta|<1.5;p_{T}^{reco};p_{T}^{corr}/p_{T}^{reco}",  
       n_PtBins_Profile, PtRange[0], PtRange[1], n_RespBins, RespRange[0], RespRange[1]);
     h2d_JetPtCorrOverReco_vs_Pt_E = ibooker.book2D("h2d_PtCorrOverReco_Pt_E", 
-      "Profiled Response Corr Jets - 1.5<|#eta|<3;p_{T}^{reco};p_{T}^{corr}/p_{T}^{reco}",  
+      "Response Corr Jets - 1.5<|#eta|<3;p_{T}^{reco};p_{T}^{corr}/p_{T}^{reco}",  
       n_PtBins_Profile, PtRange[0], PtRange[1], n_RespBins, RespRange[0], RespRange[1]);
     h2d_JetPtCorrOverReco_vs_Pt_F = ibooker.book2D("h2d_PtCorrOverReco_Pt_F", 
-      "Profiled Response Corr Jets - 3<|#eta|<6;p_{T}^{reco};p_{T}^{corr}/p_{T}^{reco}",  
+      "Response Corr Jets - 3<|#eta|<6;p_{T}^{reco};p_{T}^{corr}/p_{T}^{reco}",  
       n_PtBins_Profile, PtRange[0], PtRange[1], n_RespBins, RespRange[0], RespRange[1]);
 
   }
@@ -778,6 +841,7 @@ void JetTester::analyze(const edm::Event &mEvent, const edm::EventSetup &mSetup)
 
   for (unsigned ijet = 0; ijet < recoJets.size(); ijet++) {
 
+    // PT CUT
     if (recoJets[ijet].pt() < medJetPt) continue;
 
     mJetEta->Fill(recoJets[ijet].eta());
@@ -911,6 +975,34 @@ void JetTester::analyze(const edm::Event &mEvent, const edm::EventSetup &mSetup)
       HOEnergy->Fill((*patJets)[ijet].hoEnergy());
       HOEnergyFraction->Fill((*patJets)[ijet].hoEnergyFraction());
     }
+
+    //----------------------------------------------------------------------------
+    // Match reco jets to gen jets
+    //----------------------------------------------------------------------------
+
+    if (!mEvent.isRealData()) {
+    
+      int iMatchGen = -1;
+      double deltaRBestGen = 999;
+      for (unsigned gjet = 0; gjet < genJets.size(); gjet++) {
+        double dR = deltaR(genJets[gjet].eta(), genJets[gjet].phi(), recoJets[ijet].eta(), recoJets[ijet].phi());
+        if (dR < deltaRBestGen) {
+          iMatchGen = gjet;
+          deltaRBestGen = dR;
+        }
+      }
+
+      if ((iMatchGen >= 0) && (deltaRBestGen < mRThreshold)) {
+        mMatchedJetEta->Fill(recoJets[ijet].eta());
+        mMatchedJetPhi->Fill(recoJets[ijet].phi());
+        if (std::abs(recoJets[ijet].eta()) < 1.5)
+          mMatchedJetPt_B->Fill(recoJets[ijet].pt());
+        else if (std::abs(recoJets[ijet].eta()) < 3)
+          mMatchedJetPt_E->Fill(recoJets[ijet].pt());
+        else if (std::abs(recoJets[ijet].eta()) < 6)
+          mMatchedJetPt_F->Fill(recoJets[ijet].pt());
+      }
+    }
   }
 
   if (!isMiniAODJet) {
@@ -970,62 +1062,80 @@ void JetTester::analyze(const edm::Event &mEvent, const edm::EventSetup &mSetup)
 
     for (unsigned ijet = 0; ijet < recoJets.size(); ijet++) {
 
-      double ijetEta = recoJets[ijet].eta();
-      double ijetPhi = recoJets[ijet].phi();
-      double ijetPt = recoJets[ijet].pt();
-      double ijetPtCorr = corrJets[ijet].pt();
-
       // PT CUT
-      if (ijetPtCorr < medJetPt) continue;
+      if (corrJets[ijet].pt() < medJetPt) continue;
 
-      mCorrJetEta->Fill(ijetEta);
-      mCorrJetPhi->Fill(ijetPhi);
-      mCorrJetPt->Fill(ijetPtCorr);
+      mCorrJetEta->Fill(corrJets[ijet].eta());
+      mCorrJetPhi->Fill(corrJets[ijet].phi());
+      mCorrJetPt->Fill(corrJets[ijet].pt());
 
-      if (std::abs(ijetEta) < 1.5) 
-        mCorrJetPt_B->Fill(ijetPtCorr);
-      else if (std::abs(ijetEta) < 3) 
-        mCorrJetPt_E->Fill(ijetPtCorr);
-      else if (std::abs(ijetEta) < 6) 
-        mCorrJetPt_F->Fill(ijetPtCorr);
+      if (std::abs(corrJets[ijet].eta()) < 1.5) 
+        mCorrJetPt_B->Fill(corrJets[ijet].pt());
+      else if (std::abs(corrJets[ijet].eta()) < 3) 
+        mCorrJetPt_E->Fill(corrJets[ijet].pt());
+      else if (std::abs(corrJets[ijet].eta()) < 6) 
+        mCorrJetPt_F->Fill(corrJets[ijet].pt());
 
-      double ratio = ijetPtCorr / ijetPt;
-      if (isMiniAODJet) {
-        ijetPt = recoJets[ijet].pt() * (*patJets)[ijet].jecFactor("Uncorrected");
-        ratio = 1. / (*patJets)[ijet].jecFactor("Uncorrected");
-      }
+      double ratio = corrJets[ijet].pt() / recoJets[ijet].pt();
 
-      p_JetPtCorrOverReco_vs_Eta->Fill(ijetEta, ratio);
-      h2d_JetPtCorrOverReco_vs_Eta->Fill(ijetEta, ratio);
-      if (std::abs(ijetEta) < 1.5) {
+      p_JetPtCorrOverReco_vs_Eta->Fill(corrJets[ijet].eta(), ratio);
+      h2d_JetPtCorrOverReco_vs_Eta->Fill(corrJets[ijet].eta(), ratio);
+      if (std::abs(corrJets[ijet].eta()) < 1.5) {
         h_JetPtCorrOverReco_B->Fill(ratio);
-        p_JetPtCorrOverReco_vs_Phi_B->Fill(ijetPhi, ratio);
-        h2d_JetPtCorrOverReco_vs_Phi_B->Fill(ijetPhi, ratio);
-        p_JetPtCorrOverReco_vs_Pt_B->Fill(ijetPt, ratio);
-        h2d_JetPtCorrOverReco_vs_Pt_B->Fill(ijetPt, ratio);
+        p_JetPtCorrOverReco_vs_Phi_B->Fill(corrJets[ijet].phi(), ratio);
+        h2d_JetPtCorrOverReco_vs_Phi_B->Fill(corrJets[ijet].phi(), ratio);
+        p_JetPtCorrOverReco_vs_Pt_B->Fill(recoJets[ijet].pt(), ratio);
+        h2d_JetPtCorrOverReco_vs_Pt_B->Fill(recoJets[ijet].pt(), ratio);
         for (int i = 0; i < n_bins_pt; ++i) {
-          if ((ijetPt > ptBins_[i]) && (ijetPt < ptBins_[i + 1]))
+          if ((recoJets[ijet].pt() > ptBins_[i]) && (recoJets[ijet].pt() < ptBins_[i + 1]))
             hVector_JetPtCorrOverReco_B_ptBins[i]->Fill(ratio);
         }
-      } else if (std::abs(ijetEta) < 3.0) {
+      } else if (std::abs(corrJets[ijet].eta()) < 3.0) {
         h_JetPtCorrOverReco_E->Fill(ratio);
-        p_JetPtCorrOverReco_vs_Phi_E->Fill(ijetPhi, ratio);
-        h2d_JetPtCorrOverReco_vs_Phi_E->Fill(ijetPhi, ratio);
-        p_JetPtCorrOverReco_vs_Pt_E->Fill(ijetPt, ratio);
-        h2d_JetPtCorrOverReco_vs_Pt_E->Fill(ijetPt, ratio);
+        p_JetPtCorrOverReco_vs_Phi_E->Fill(corrJets[ijet].phi(), ratio);
+        h2d_JetPtCorrOverReco_vs_Phi_E->Fill(corrJets[ijet].phi(), ratio);
+        p_JetPtCorrOverReco_vs_Pt_E->Fill(recoJets[ijet].pt(), ratio);
+        h2d_JetPtCorrOverReco_vs_Pt_E->Fill(recoJets[ijet].pt(), ratio);
         for (int i = 0; i < n_bins_pt; ++i) {
-          if ((ijetPt > ptBins_[i]) && (ijetPt < ptBins_[i + 1]))
+          if ((recoJets[ijet].pt() > ptBins_[i]) && (recoJets[ijet].pt() < ptBins_[i + 1]))
             hVector_JetPtCorrOverReco_E_ptBins[i]->Fill(ratio);
         }
-      } else if (std::abs(ijetEta) < 6.0) {
+      } else if (std::abs(corrJets[ijet].eta()) < 6.0) {
         h_JetPtCorrOverReco_F->Fill(ratio);
-        p_JetPtCorrOverReco_vs_Phi_F->Fill(ijetPhi, ratio);
-        h2d_JetPtCorrOverReco_vs_Phi_F->Fill(ijetPhi, ratio);
-        p_JetPtCorrOverReco_vs_Pt_F->Fill(ijetPt, ratio);
-        h2d_JetPtCorrOverReco_vs_Pt_F->Fill(ijetPt, ratio);
+        p_JetPtCorrOverReco_vs_Phi_F->Fill(corrJets[ijet].phi(), ratio);
+        h2d_JetPtCorrOverReco_vs_Phi_F->Fill(corrJets[ijet].phi(), ratio);
+        p_JetPtCorrOverReco_vs_Pt_F->Fill(recoJets[ijet].pt(), ratio);
+        h2d_JetPtCorrOverReco_vs_Pt_F->Fill(recoJets[ijet].pt(), ratio);
         for (int i = 0; i < n_bins_pt; ++i) {
-          if ((ijetPt > ptBins_[i]) && (ijetPt < ptBins_[i + 1]))
+          if ((recoJets[ijet].pt() > ptBins_[i]) && (recoJets[ijet].pt() < ptBins_[i + 1]))
             hVector_JetPtCorrOverReco_F_ptBins[i]->Fill(ratio);
+        }
+      }
+
+      //----------------------------------------------------------------------------
+      // Match reco jets to gen jets
+      //----------------------------------------------------------------------------
+      if (!mEvent.isRealData()) {
+      
+        int iMatchGen = -1;
+        double deltaRBestGen = 999;
+        for (unsigned gjet = 0; gjet < genJets.size(); gjet++) {
+          double dR = deltaR(genJets[gjet].eta(), genJets[gjet].phi(), corrJets[ijet].eta(), corrJets[ijet].phi());
+          if (dR < deltaRBestGen) {
+            iMatchGen = gjet;
+            deltaRBestGen = dR;
+          }
+        }
+
+        if ((iMatchGen >= 0) && (deltaRBestGen < mRThreshold)) {
+          if (corrJets[ijet].pt() > minJetPt) {
+            if (std::abs(corrJets[ijet].eta()) < 1.5)
+              mMatchedCorrPt_B->Fill(corrJets[ijet].pt());
+            else if (std::abs(corrJets[ijet].eta()) < 3) 
+              mMatchedCorrPt_E->Fill(corrJets[ijet].pt());
+            else if (std::abs(corrJets[ijet].eta()) < 6)
+              mMatchedCorrPt_F->Fill(corrJets[ijet].pt());
+          }
         }
       }
     }
@@ -1042,7 +1152,6 @@ void JetTester::analyze(const edm::Event &mEvent, const edm::EventSetup &mSetup)
       // MiniAOD has intrinsic thresholds, introduce threshold for RECO too
       // PT CUT
       if (genJets[gjet].pt() < mMatchGenPtThreshold) continue;
-      // Out of the detector
       if (std::abs(genJets[gjet].eta()) > 6.) continue;
 
       mGenEta->Fill(genJets[gjet].eta());
@@ -1067,14 +1176,20 @@ void JetTester::analyze(const edm::Event &mEvent, const edm::EventSetup &mSetup)
       // Match gen jets to reco jets
       //----------------------------------------------------------------------------
 
+      // std::cout << "\nGen Jet " << gjet << " : pt=" << genJets[gjet].pt() << " eta=" << genJets[gjet].eta() << " phi=" << genJets[gjet].phi()  << std::endl;
       int iMatchReco = -1;
       double deltaRBestReco = 999;
       for (unsigned ijet = 0; ijet < recoJets.size(); ++ijet) {
 
-        // PT CUT
-        if (recoJets[ijet].pt() < minJetPt) continue;
-
         double dR = deltaR(genJets[gjet].eta(), genJets[gjet].phi(), recoJets[ijet].eta(), recoJets[ijet].phi());
+        // if (dR < 0.4) {
+        //   std::cout << "HLT Jet " << ijet << " : pt=" << recoJets[ijet].pt() << " eta=" << recoJets[ijet].eta() << " phi=" << recoJets[ijet].phi() << " dR=" << dR << " Resp=" << recoJets[ijet].pt()/genJets[gjet].pt();
+        //   std::cout << " chH=" << (*pfJets)[ijet].chargedHadronEnergyFraction() << " nH=" << (*pfJets)[ijet].neutralHadronEnergyFraction() << " chE=" << (*pfJets)[ijet].chargedEmEnergyFraction() << " nE=" << (*pfJets)[ijet].neutralEmEnergyFraction() << std::endl;
+        // }
+
+        // PT CUT
+        if (recoJets[ijet].pt() < medJetPt) continue;
+
         if (dR < deltaRBestReco) {
           iMatchReco = ijet;
           deltaRBestReco = dR;
@@ -1082,6 +1197,8 @@ void JetTester::analyze(const edm::Event &mEvent, const edm::EventSetup &mSetup)
 
       }
       
+      // std::cout << "Matched Jet " << iMatchReco << " with deltaR " << deltaRBestReco << std::endl;
+
       if ((iMatchReco >= 0) && (deltaRBestReco < mRThreshold)) {
 
         //----------------------------------------------------------------------------
@@ -1102,6 +1219,13 @@ void JetTester::analyze(const edm::Event &mEvent, const edm::EventSetup &mSetup)
           h2d_JetPtRecoOverGen_vs_GenPt_B->Fill(genJets[gjet].pt(), response);
           p_JetPtRecoOverGen_vs_GenPhi_B->Fill(genJets[gjet].phi(), response);
           h2d_JetPtRecoOverGen_vs_GenPhi_B->Fill(genJets[gjet].phi(), response);
+          if (isPFJet) {
+            h2d_JetPtRecoOverGen_vs_chHad_B->Fill((*pfJets)[iMatchReco].chargedHadronEnergyFraction(), response);
+            h2d_JetPtRecoOverGen_vs_neHad_B->Fill((*pfJets)[iMatchReco].neutralHadronEnergyFraction(), response);
+            h2d_JetPtRecoOverGen_vs_chEm_B->Fill((*pfJets)[iMatchReco].chargedEmEnergyFraction(), response);
+            h2d_JetPtRecoOverGen_vs_neEm_B->Fill((*pfJets)[iMatchReco].neutralEmEnergyFraction(), response);
+            h2d_JetPtRecoOverGen_vs_nCost_B->Fill(recoJets[iMatchReco].nConstituents(), response);
+          }
           for (int i = 0; i < n_bins_pt; ++i) {
             if ((genJets[gjet].pt() > ptBins_[i]) && (genJets[gjet].pt() < ptBins_[i + 1]))
               hVector_JetPtRecoOverGen_B_ptBins[i]->Fill(response);
@@ -1113,6 +1237,13 @@ void JetTester::analyze(const edm::Event &mEvent, const edm::EventSetup &mSetup)
           h2d_JetPtRecoOverGen_vs_GenPt_E->Fill(genJets[gjet].pt(), response);
           p_JetPtRecoOverGen_vs_GenPhi_E->Fill(genJets[gjet].phi(), response);
           h2d_JetPtRecoOverGen_vs_GenPhi_E->Fill(genJets[gjet].phi(), response);
+          if (isPFJet) {
+            h2d_JetPtRecoOverGen_vs_chHad_E->Fill((*pfJets)[iMatchReco].chargedHadronEnergyFraction(), response);
+            h2d_JetPtRecoOverGen_vs_neHad_E->Fill((*pfJets)[iMatchReco].neutralHadronEnergyFraction(), response);
+            h2d_JetPtRecoOverGen_vs_chEm_E->Fill((*pfJets)[iMatchReco].chargedEmEnergyFraction(), response);
+            h2d_JetPtRecoOverGen_vs_neEm_E->Fill((*pfJets)[iMatchReco].neutralEmEnergyFraction(), response);
+            h2d_JetPtRecoOverGen_vs_nCost_E->Fill(recoJets[iMatchReco].nConstituents(), response);
+          }
           for (int i = 0; i < n_bins_pt; ++i) {
             if ((genJets[gjet].pt() > ptBins_[i]) && (genJets[gjet].pt() < ptBins_[i + 1]))
               hVector_JetPtRecoOverGen_E_ptBins[i]->Fill(response);
@@ -1124,6 +1255,13 @@ void JetTester::analyze(const edm::Event &mEvent, const edm::EventSetup &mSetup)
           h2d_JetPtRecoOverGen_vs_GenPt_F->Fill(genJets[gjet].pt(), response);
           p_JetPtRecoOverGen_vs_GenPhi_F->Fill(genJets[gjet].phi(), response);
           h2d_JetPtRecoOverGen_vs_GenPhi_F->Fill(genJets[gjet].phi(), response);
+          if (isPFJet) {
+            h2d_JetPtRecoOverGen_vs_chHad_F->Fill((*pfJets)[iMatchReco].chargedHadronEnergyFraction(), response);
+            h2d_JetPtRecoOverGen_vs_neHad_F->Fill((*pfJets)[iMatchReco].neutralHadronEnergyFraction(), response);
+            h2d_JetPtRecoOverGen_vs_chEm_F->Fill((*pfJets)[iMatchReco].chargedEmEnergyFraction(), response);
+            h2d_JetPtRecoOverGen_vs_neEm_F->Fill((*pfJets)[iMatchReco].neutralEmEnergyFraction(), response);
+            h2d_JetPtRecoOverGen_vs_nCost_F->Fill(recoJets[iMatchReco].nConstituents(), response);
+          }
           for (int i = 0; i < n_bins_pt; ++i) {
             if ((genJets[gjet].pt() > ptBins_[i]) && (genJets[gjet].pt() < ptBins_[i + 1]))
               hVector_JetPtRecoOverGen_F_ptBins[i]->Fill(response);
@@ -1134,89 +1272,47 @@ void JetTester::analyze(const edm::Event &mEvent, const edm::EventSetup &mSetup)
         // Fill gen jets to corrected jets histograms
         //----------------------------------------------------------------------------
 
-        double responseCorr = corrJets[iMatchReco].pt() / genJets[gjet].pt();
+        if (correctionIsValid) {
+        
+          double responseCorr = corrJets[iMatchReco].pt() / genJets[gjet].pt();
 
-        p_JetPtCorrOverGen_vs_GenEta->Fill(genJets[gjet].eta(), responseCorr);
-        h2d_JetPtCorrOverGen_vs_GenEta->Fill(genJets[gjet].eta(), responseCorr);
-        if (std::abs(genJets[gjet].eta()) < 1.5) {
-          h_JetPtCorrOverGen_B->Fill(responseCorr);
-          p_JetPtCorrOverGen_vs_GenPt_B->Fill(genJets[gjet].pt(), responseCorr);
-          h2d_JetPtCorrOverGen_vs_GenPt_B->Fill(genJets[gjet].pt(), responseCorr);
-          p_JetPtCorrOverGen_vs_GenPhi_B->Fill(genJets[gjet].phi(), responseCorr);
-          h2d_JetPtCorrOverGen_vs_GenPhi_B->Fill(genJets[gjet].phi(), responseCorr);
-          for (int i = 0; i < n_bins_pt; ++i) {
-            if ((genJets[gjet].pt() > ptBins_[i]) && (genJets[gjet].pt() < ptBins_[i + 1]))
-              hVector_JetPtCorrOverGen_B_ptBins[i]->Fill(responseCorr);
+          p_JetPtCorrOverGen_vs_GenEta->Fill(genJets[gjet].eta(), responseCorr);
+          h2d_JetPtCorrOverGen_vs_GenEta->Fill(genJets[gjet].eta(), responseCorr);
+          if (std::abs(genJets[gjet].eta()) < 1.5) {
+            h_JetPtCorrOverGen_B->Fill(responseCorr);
+            p_JetPtCorrOverGen_vs_GenPt_B->Fill(genJets[gjet].pt(), responseCorr);
+            h2d_JetPtCorrOverGen_vs_GenPt_B->Fill(genJets[gjet].pt(), responseCorr);
+            p_JetPtCorrOverGen_vs_GenPhi_B->Fill(genJets[gjet].phi(), responseCorr);
+            h2d_JetPtCorrOverGen_vs_GenPhi_B->Fill(genJets[gjet].phi(), responseCorr);
+            for (int i = 0; i < n_bins_pt; ++i) {
+              if ((genJets[gjet].pt() > ptBins_[i]) && (genJets[gjet].pt() < ptBins_[i + 1]))
+                hVector_JetPtCorrOverGen_B_ptBins[i]->Fill(responseCorr);
+            }
+          } else if (std::abs(genJets[gjet].eta()) < 3.0) {
+            h_JetPtCorrOverGen_E->Fill(responseCorr);
+            p_JetPtCorrOverGen_vs_GenPt_E->Fill(genJets[gjet].pt(), responseCorr);
+            h2d_JetPtCorrOverGen_vs_GenPt_E->Fill(genJets[gjet].pt(), responseCorr);
+            p_JetPtCorrOverGen_vs_GenPhi_E->Fill(genJets[gjet].phi(), responseCorr);
+            h2d_JetPtCorrOverGen_vs_GenPhi_E->Fill(genJets[gjet].phi(), responseCorr);
+            for (int i = 0; i < n_bins_pt; ++i) {
+              if ((genJets[gjet].pt() > ptBins_[i]) && (genJets[gjet].pt() < ptBins_[i + 1]))
+                hVector_JetPtCorrOverGen_E_ptBins[i]->Fill(responseCorr);
+            }
+          } else if (std::abs(genJets[gjet].eta()) < 6.0) {
+            h_JetPtCorrOverGen_F->Fill(responseCorr);
+            p_JetPtCorrOverGen_vs_GenPt_F->Fill(genJets[gjet].pt(), responseCorr);
+            h2d_JetPtCorrOverGen_vs_GenPt_F->Fill(genJets[gjet].pt(), responseCorr);
+            p_JetPtCorrOverGen_vs_GenPhi_F->Fill(genJets[gjet].phi(), responseCorr);
+            h2d_JetPtCorrOverGen_vs_GenPhi_F->Fill(genJets[gjet].phi(), responseCorr);
+            for (int i = 0; i < n_bins_pt; ++i) {
+              if ((genJets[gjet].pt() > ptBins_[i]) && (genJets[gjet].pt() < ptBins_[i + 1]))
+                hVector_JetPtCorrOverGen_F_ptBins[i]->Fill(responseCorr);
+            }
           }
-        } else if (std::abs(genJets[gjet].eta()) < 3.0) {
-          h_JetPtCorrOverGen_E->Fill(responseCorr);
-          p_JetPtCorrOverGen_vs_GenPt_E->Fill(genJets[gjet].pt(), responseCorr);
-          h2d_JetPtCorrOverGen_vs_GenPt_E->Fill(genJets[gjet].pt(), responseCorr);
-          p_JetPtCorrOverGen_vs_GenPhi_E->Fill(genJets[gjet].phi(), responseCorr);
-          h2d_JetPtCorrOverGen_vs_GenPhi_E->Fill(genJets[gjet].phi(), responseCorr);
-          for (int i = 0; i < n_bins_pt; ++i) {
-            if ((genJets[gjet].pt() > ptBins_[i]) && (genJets[gjet].pt() < ptBins_[i + 1]))
-              hVector_JetPtCorrOverGen_E_ptBins[i]->Fill(responseCorr);
-          }
-        } else if (std::abs(genJets[gjet].eta()) < 6.0) {
-          h_JetPtCorrOverGen_F->Fill(responseCorr);
-          p_JetPtCorrOverGen_vs_GenPt_F->Fill(genJets[gjet].pt(), responseCorr);
-          h2d_JetPtCorrOverGen_vs_GenPt_F->Fill(genJets[gjet].pt(), responseCorr);
-          p_JetPtCorrOverGen_vs_GenPhi_F->Fill(genJets[gjet].phi(), responseCorr);
-          h2d_JetPtCorrOverGen_vs_GenPhi_F->Fill(genJets[gjet].phi(), responseCorr);
-          for (int i = 0; i < n_bins_pt; ++i) {
-            if ((genJets[gjet].pt() > ptBins_[i]) && (genJets[gjet].pt() < ptBins_[i + 1]))
-              hVector_JetPtCorrOverGen_F_ptBins[i]->Fill(responseCorr);
-          }
-        }
 
-        mDeltaEta->Fill(genJets[gjet].eta() - recoJets[iMatchReco].eta());
-        mDeltaPhi->Fill(genJets[gjet].phi() - recoJets[iMatchReco].phi());
-        mDeltaPt->Fill((genJets[gjet].pt() - corrJets[iMatchReco].pt()) / genJets[gjet].pt());
-
-      }
-    }
-
-    //----------------------------------------------------------------------------
-    // Match reco jets to gen jets
-    //----------------------------------------------------------------------------
-
-    for (unsigned ijet = 0; ijet < recoJets.size(); ijet++) {
-    
-      int iMatchGen = -1;
-      double deltaRBestGen = 999;
-
-      for (unsigned gjet = 0; gjet < genJets.size(); gjet++) {
-        double dR = deltaR(genJets[gjet].eta(), genJets[gjet].phi(), recoJets[ijet].eta(), recoJets[ijet].phi());
-        if (dR < deltaRBestGen) {
-          iMatchGen = gjet;
-          deltaRBestGen = dR;
-        }
-      }
-
-      if ((iMatchGen >= 0) && (deltaRBestGen < mRThreshold)) {
-
-        mMatchedJetEta->Fill(recoJets[ijet].eta());
-        mMatchedJetPhi->Fill(recoJets[ijet].phi());
-
-        // PT CUT
-        if (recoJets[ijet].pt() > minJetPt) {
-          if (std::abs(recoJets[ijet].eta()) < 1.5)
-            mMatchedJetPt_B->Fill(recoJets[ijet].pt());
-          else if (std::abs(recoJets[ijet].eta()) < 3)
-            mMatchedJetPt_E->Fill(recoJets[ijet].pt());
-          else if (std::abs(recoJets[ijet].eta()) < 6)
-            mMatchedJetPt_F->Fill(recoJets[ijet].pt());
-        }
-
-        // PT CUT
-        if (recoJets[ijet].pt() > minJetPt) {
-          if (std::abs(recoJets[ijet].eta()) < 1.5)
-            mMatchedCorrPt_B->Fill(corrJets[ijet].pt());
-          else if (std::abs(recoJets[ijet].eta()) < 3) 
-            mMatchedCorrPt_E->Fill(corrJets[ijet].pt());
-          else if (std::abs(recoJets[ijet].eta()) < 6)
-            mMatchedCorrPt_F->Fill(corrJets[ijet].pt());
+          mDeltaEta->Fill(genJets[gjet].eta() - recoJets[iMatchReco].eta());
+          mDeltaPhi->Fill(genJets[gjet].phi() - recoJets[iMatchReco].phi());
+          mDeltaPt->Fill((genJets[gjet].pt() - corrJets[iMatchReco].pt()) / genJets[gjet].pt());
         }
       }
     }
