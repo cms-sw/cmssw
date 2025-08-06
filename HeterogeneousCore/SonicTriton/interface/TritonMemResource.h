@@ -86,6 +86,7 @@ public:
   void copyOutput() override {}
 
 protected:
+  size_t sizeOrig_;
   int deviceId_;
   std::shared_ptr<cudaIpcMemHandle_t> handle_;
 };
