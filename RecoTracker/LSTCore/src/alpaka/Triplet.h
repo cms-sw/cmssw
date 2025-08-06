@@ -818,90 +818,81 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
   };
 
+  struct CountSegmentConnections {
+    ALPAKA_FN_ACC void operator()(Acc3D const& acc,
+                                  ModulesConst modules,
+                                  Segments segments,
+                                  SegmentsOccupancyConst segOcc,
+                                  ObjectRangesConst ranges) const {
+      const auto& mdIndices = segments.mdIndices();
+      const auto& outerLowerModuleIndices = segments.outerLowerModuleIndices();
+      const auto& segmentRanges = ranges.segmentRanges();
+
+      for (uint16_t innerLowerModuleArrayIdx : cms::alpakatools::uniform_elements_z(acc, modules.nLowerModules())) {
+        const unsigned int nInnerSegments = segOcc.nSegments()[innerLowerModuleArrayIdx];
+        if (nInnerSegments == 0)
+          continue;
+
+        for (unsigned int innerSegmentArrayIndex : cms::alpakatools::uniform_elements_y(acc, nInnerSegments)) {
+          const unsigned int innerSegmentIndex = segmentRanges[innerLowerModuleArrayIdx][0] + innerSegmentArrayIndex;
+          const uint16_t middleLowerModuleIndex = outerLowerModuleIndices[innerSegmentIndex];
+          const unsigned int mdShared = mdIndices[innerSegmentIndex][1];
+
+          const unsigned int nOuterSegments = segOcc.nSegments()[middleLowerModuleIndex];
+          if (nOuterSegments == 0)
+            continue;
+
+          for (unsigned int outerSegmentArrayIndex : cms::alpakatools::uniform_elements_x(acc, nOuterSegments)) {
+            const unsigned int outerSegmentIndex = segmentRanges[middleLowerModuleIndex][0] + outerSegmentArrayIndex;
+
+            // Increment the count of connected segments for this segment.
+            if (mdIndices[outerSegmentIndex][0] == mdShared) {
+              alpaka::atomicAdd(acc, &segments.connectedMax()[innerSegmentIndex], 1u, alpaka::hierarchy::Threads{});
+            }
+          }
+        }
+      }
+    }
+  };
+
   struct CreateTripletArrayRanges {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   ModulesConst modules,
                                   ObjectRanges ranges,
                                   SegmentsConst segments,
-                                  SegmentsOccupancyConst segmentsOccupancy,
-                                  const float ptCut) const {
-      // implementation is 1D with a single block
+                                  SegmentsOccupancyConst segOcc) const {
+      // 1-block kernel
       ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0] == 1));
 
-      // Initialize variables in shared memory and set to 0
       int& nTotalTriplets = alpaka::declareSharedVar<int, __COUNTER__>(acc);
-      if (cms::alpakatools::once_per_block(acc)) {
+      if (cms::alpakatools::once_per_block(acc))
         nTotalTriplets = 0;
-      }
       alpaka::syncBlockThreads(acc);
 
-      // Occupancy matrix for 0.8 GeV pT Cut
-      constexpr int p08_occupancy_matrix[4][4] = {
-          {543, 235, 88, 46},  // category 0
-          {755, 347, 0, 0},    // category 1
-          {0, 0, 0, 0},        // category 2
-          {0, 38, 46, 39}      // category 3
-      };
-
-      // Occupancy matrix for 0.6 GeV pT Cut, 99.9%
-      constexpr int p06_occupancy_matrix[4][4] = {
-          {1146, 544, 216, 83},  // category 0
-          {1032, 275, 0, 0},     // category 1
-          {0, 0, 0, 0},          // category 2
-          {0, 115, 110, 76}      // category 3
-      };
-
-      // Select the appropriate occupancy matrix based on ptCut
-      const auto& occupancy_matrix = (ptCut < 0.8f) ? p06_occupancy_matrix : p08_occupancy_matrix;
-
-      for (uint16_t i : cms::alpakatools::uniform_elements(acc, modules.nLowerModules())) {
-        if (segmentsOccupancy.nSegments()[i] == 0) {
-          ranges.tripletModuleIndices()[i] = nTotalTriplets;
-          ranges.tripletModuleOccupancy()[i] = 0;
+      for (uint16_t innerLowerModuleArrayIdx : cms::alpakatools::uniform_elements(acc, modules.nLowerModules())) {
+        const unsigned int nInnerSegments = segOcc.nSegments()[innerLowerModuleArrayIdx];
+        if (nInnerSegments == 0) {
+          ranges.tripletModuleIndices()[innerLowerModuleArrayIdx] = nTotalTriplets;
+          ranges.tripletModuleOccupancy()[innerLowerModuleArrayIdx] = 0;
           continue;
         }
 
-        short module_rings = modules.rings()[i];
-        short module_layers = modules.layers()[i];
-        short module_subdets = modules.subdets()[i];
-        float module_eta = alpaka::math::abs(acc, modules.eta()[i]);
-
-        int category_number = getCategoryNumber(module_layers, module_subdets, module_rings);
-        int eta_number = getEtaBin(module_eta);
-
-        int dynamic_count = 0;
-        // How many segments are in module i?
-        int nSegments_i = segmentsOccupancy.nSegments()[i];
-        int firstSegmentIdx = ranges.segmentRanges()[i][0];
-        // Loop over all segments that live in module i
-        for (int s = 0; s < nSegments_i; ++s) {
-          int segIndex = firstSegmentIdx + s;
-          uint16_t midModule = segments.outerLowerModuleIndices()[segIndex];
-          dynamic_count += segmentsOccupancy.nSegments()[midModule];
+        // Sum the connected counts of all segments in this module.
+        const unsigned int firstSegIdx = ranges.segmentRanges()[innerLowerModuleArrayIdx][0];
+        int dynamicCount = 0;
+        for (unsigned int s = 0; s < nInnerSegments; ++s) {
+          dynamicCount += segments.connectedMax()[firstSegIdx + s];
         }
 
-#ifdef WARNINGS
-        if (category_number == -1 || eta_number == -1) {
-          printf("Unhandled case in createTripletArrayRanges! Module index = %i\n", i);
-        }
-#endif
-        // Get matrix-based cap
-        int matrix_cap =
-            (category_number != -1 && eta_number != -1) ? occupancy_matrix[category_number][eta_number] : 0;
-
-        // Cap occupancy at minimum of dynamic count and matrix value
-        int occupancy = alpaka::math::min(acc, dynamic_count, matrix_cap);
-
-        ranges.tripletModuleOccupancy()[i] = occupancy;
-        unsigned int nTotT = alpaka::atomicAdd(acc, &nTotalTriplets, occupancy, alpaka::hierarchy::Threads{});
-        ranges.tripletModuleIndices()[i] = nTotT;
+        ranges.tripletModuleOccupancy()[innerLowerModuleArrayIdx] = dynamicCount;
+        unsigned int nTotT = alpaka::atomicAdd(acc, &nTotalTriplets, dynamicCount, alpaka::hierarchy::Threads{});
+        ranges.tripletModuleIndices()[innerLowerModuleArrayIdx] = nTotT;
       }
 
       // Wait for all threads to finish before reporting final values
       alpaka::syncBlockThreads(acc);
-      if (cms::alpakatools::once_per_block(acc)) {
+      if (cms::alpakatools::once_per_block(acc))
         ranges.nTotalTrips() = nTotalTriplets;
-      }
     }
   };
 

@@ -1819,17 +1819,67 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
   };
 
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool isValidQuintRegion(ModulesConst modules, uint16_t lowerModule) {
+    const short layer = modules.layers()[lowerModule];
+    const short subdet = modules.subdets()[lowerModule];
+    // Quintuplets starting outside these regions are not built.
+    return (subdet == Barrel && layer < 3) || (subdet == Endcap && layer <= 1);
+  }
+
+  struct CountTripletConnections {
+    ALPAKA_FN_ACC void operator()(Acc3D const& acc,
+                                  ModulesConst modules,
+                                  SegmentsConst segments,
+                                  Triplets triplets,
+                                  TripletsOccupancyConst tripletsOcc,
+                                  ObjectRangesConst ranges) const {
+      const auto& mdIndices = segments.mdIndices();
+      const auto& segIdx = triplets.segmentIndices();
+      const auto& lmIdx = triplets.lowerModuleIndices();
+      const auto& tripIdx = ranges.tripletModuleIndices();
+
+      for (uint16_t lowerModule1 : cms::alpakatools::uniform_elements_z(acc, modules.nLowerModules())) {
+        if (!isValidQuintRegion(modules, lowerModule1))
+          continue;
+
+        const unsigned int nInnerTriplets = tripletsOcc.nTriplets()[lowerModule1];
+        if (nInnerTriplets == 0)
+          continue;
+
+        for (unsigned int innerTripletArrayIndex : cms::alpakatools::uniform_elements_y(acc, nInnerTriplets)) {
+          const unsigned int innerTripletIndex = tripIdx[lowerModule1] + innerTripletArrayIndex;
+
+          const uint16_t lowerModule3 = lmIdx[innerTripletIndex][2];
+          const unsigned int nOuterTriplets = tripletsOcc.nTriplets()[lowerModule3];
+          if (nOuterTriplets == 0)
+            continue;
+
+          const unsigned int secondSegIdx = segIdx[innerTripletIndex][1];
+          const unsigned int secondMDOuter = mdIndices[secondSegIdx][1];
+
+          for (unsigned int outerTripletArrayIndex : cms::alpakatools::uniform_elements_x(acc, nOuterTriplets)) {
+            const unsigned int outerTripletIndex = tripIdx[lowerModule3] + outerTripletArrayIndex;
+            const unsigned int thirdSegIdx = segIdx[outerTripletIndex][0];
+            const unsigned int thirdMDInner = mdIndices[thirdSegIdx][0];
+
+            if (secondMDOuter == thirdMDInner) {
+              alpaka::atomicAdd(acc, &triplets.connectedMax()[innerTripletIndex], 1u, alpaka::hierarchy::Threads{});
+            }
+          }
+        }
+      }
+    }
+  };
+
   struct CreateEligibleModulesListForQuintuplets {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   ModulesConst modules,
-                                  TripletsOccupancyConst tripletsOccupancy,
+                                  TripletsOccupancyConst tripletsOcc,
                                   ObjectRanges ranges,
-                                  Triplets triplets,
-                                  const float ptCut) const {
-      // implementation is 1D with a single block
+                                  TripletsConst triplets) const {
+      // Single-block kernel
       ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0] == 1));
 
-      // Initialize variables in shared memory and set to 0
       int& nEligibleT5Modulesx = alpaka::declareSharedVar<int, __COUNTER__>(acc);
       int& nTotalQuintupletsx = alpaka::declareSharedVar<int, __COUNTER__>(acc);
       if (cms::alpakatools::once_per_block(acc)) {
@@ -1838,75 +1888,31 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       }
       alpaka::syncBlockThreads(acc);
 
-      // Occupancy matrix for 0.8 GeV pT Cut
-      constexpr int p08_occupancy_matrix[4][4] = {
-          {336, 414, 231, 146},  // category 0
-          {0, 0, 0, 0},          // category 1
-          {0, 0, 0, 0},          // category 2
-          {0, 0, 191, 106}       // category 3
-      };
-
-      // Occupancy matrix for 0.6 GeV pT Cut, 99.99%
-      constexpr int p06_occupancy_matrix[4][4] = {
-          {325, 237, 217, 176},  // category 0
-          {0, 0, 0, 0},          // category 1
-          {0, 0, 0, 0},          // category 2
-          {0, 0, 129, 180}       // category 3
-      };
-
-      // Select the appropriate occupancy matrix based on ptCut
-      const auto& occupancy_matrix = (ptCut < 0.8f) ? p06_occupancy_matrix : p08_occupancy_matrix;
-
-      for (int i : cms::alpakatools::uniform_elements(acc, modules.nLowerModules())) {
-        // Condition for a quintuple to exist for a module
-        // TCs don't exist for layers 5 and 6 barrel, and layers 2,3,4,5 endcap
-        short module_rings = modules.rings()[i];
-        short module_layers = modules.layers()[i];
-        short module_subdets = modules.subdets()[i];
-        float module_eta = alpaka::math::abs(acc, modules.eta()[i]);
-
-        if (tripletsOccupancy.nTriplets()[i] == 0)
-          continue;
-        if (module_subdets == Barrel && module_layers >= 3)
-          continue;
-        if (module_subdets == Endcap && module_layers > 1)
+      for (uint16_t lowerModule : cms::alpakatools::uniform_elements(acc, modules.nLowerModules())) {
+        if (!isValidQuintRegion(modules, lowerModule))
           continue;
 
+        unsigned int nInnerTriplets = tripletsOcc.nTriplets()[lowerModule];
+        if (nInnerTriplets == 0)
+          continue;
+
+        // Sum the real connectivity for triplets in this module
         int dynamic_count = 0;
-
-        // How many triplets are in module i?
-        int nTriplets_i = tripletsOccupancy.nTriplets()[i];
-        int firstTripletIdx = ranges.tripletModuleIndices()[i];
-
-        // Loop over all triplets that live in module i
-        for (int t = 0; t < nTriplets_i; t++) {
-          int tripletIndex = firstTripletIdx + t;
-          uint16_t outerModule = triplets.lowerModuleIndices()[tripletIndex][2];
-          dynamic_count += tripletsOccupancy.nTriplets()[outerModule];
+        const unsigned int firstTripletIdx = ranges.tripletModuleIndices()[lowerModule];
+        for (unsigned int t = 0; t < nInnerTriplets; ++t) {
+          unsigned int tripletIndex = firstTripletIdx + t;
+          dynamic_count += triplets.connectedMax()[tripletIndex];
         }
 
-        int category_number = getCategoryNumber(module_layers, module_subdets, module_rings);
-        int eta_number = getEtaBin(module_eta);
-
-#ifdef WARNINGS
-        if (category_number == -1 || eta_number == -1) {
-          printf("Unhandled case in createEligibleModulesListForQuintupletsGPU! Module index = %i\n", i);
-        }
-#endif
-
-        // Get matrix-based cap (use dynamic_count as fallback)
-        int matrix_cap =
-            (category_number != -1 && eta_number != -1) ? occupancy_matrix[category_number][eta_number] : 0;
-
-        // Cap occupancy at minimum of dynamic count and matrix value
-        int occupancy = alpaka::math::min(acc, dynamic_count, matrix_cap);
+        if (dynamic_count == 0)
+          continue;
 
         int nEligibleT5Modules = alpaka::atomicAdd(acc, &nEligibleT5Modulesx, 1, alpaka::hierarchy::Threads{});
-        int nTotQ = alpaka::atomicAdd(acc, &nTotalQuintupletsx, occupancy, alpaka::hierarchy::Threads{});
+        int nTotQ = alpaka::atomicAdd(acc, &nTotalQuintupletsx, dynamic_count, alpaka::hierarchy::Threads{});
 
-        ranges.quintupletModuleIndices()[i] = nTotQ;
-        ranges.indicesOfEligibleT5Modules()[nEligibleT5Modules] = i;
-        ranges.quintupletModuleOccupancy()[i] = occupancy;
+        ranges.quintupletModuleIndices()[lowerModule] = nTotQ;
+        ranges.indicesOfEligibleT5Modules()[nEligibleT5Modules] = lowerModule;
+        ranges.quintupletModuleOccupancy()[lowerModule] = dynamic_count;
       }
 
       // Wait for all threads to finish before reporting final values
