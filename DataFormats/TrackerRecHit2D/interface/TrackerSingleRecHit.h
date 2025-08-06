@@ -69,11 +69,10 @@ public:
   bool sharesInput(const TrackingRecHit* other, SharedInputType what) const final;
 
   bool sharesInput(TrackerSingleRecHit const& other) const {
-    //auto const& otherClus = reinterpret_cast<const BaseTrackerRecHit*>(other)->firstClusterRef();
     if (cluster_.id() == other.cluster_.id())
       return (cluster_ == other.cluster_);
     else {
-      const bool sameDetId = (geographicalId() == other.geographicalId());
+      const bool sameDetId = sameDetModule(other);
       return (sameDetId) ? other.cluster_.stripOverlap(cluster_) : false;
     }
   }

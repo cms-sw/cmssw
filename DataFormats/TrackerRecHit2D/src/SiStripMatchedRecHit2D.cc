@@ -22,7 +22,7 @@ bool SiStripMatchedRecHit2D::sharesInput(const TrackingRecHit* other, SharedInpu
   if (monoClusterRef().id() == otherClus.id() || stereoClusterRef().id() == otherClus.id())
     return (otherClus == stereoClusterRef()) || (otherClus == monoClusterRef());
   else {
-    const bool sameDetId = (geographicalId() == other->geographicalId());
+    const bool sameDetId = sameDetModule(*other);
     bool stereoOverlap = (sameDetId) ? otherClus.stripOverlap(stereoClusterRef()) : false;
     bool monoOverlap = (sameDetId) ? otherClus.stripOverlap(monoClusterRef()) : false;
     return (stereoOverlap || monoOverlap);
@@ -34,7 +34,7 @@ bool SiStripMatchedRecHit2D::sharesInput(TrackerSingleRecHit const& other) const
   if (monoClusterRef().id() == otherClus.id() || stereoClusterRef().id() == otherClus.id())
     return (otherClus == stereoClusterRef()) || (otherClus == monoClusterRef());
   else {
-    const bool sameDetId = (geographicalId() == other.geographicalId());
+    const bool sameDetId = sameDetModule(other);
     bool stereoOverlap = (sameDetId) ? otherClus.stripOverlap(stereoClusterRef()) : false;
     bool monoOverlap = (sameDetId) ? otherClus.stripOverlap(monoClusterRef()) : false;
     return (stereoOverlap || monoOverlap);
