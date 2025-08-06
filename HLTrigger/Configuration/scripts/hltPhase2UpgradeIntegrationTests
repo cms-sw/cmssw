@@ -111,7 +111,7 @@ else:
 print("=" * 40)
 
 # Directory where all test configurations will be stored
-output_dir = "hlt_test_configs"
+output_dir = "hlt_test_configs_HLTMENU_" + menu
 # If the directory exists, remove it first
 if os.path.exists(output_dir):
     shutil.rmtree(output_dir)
