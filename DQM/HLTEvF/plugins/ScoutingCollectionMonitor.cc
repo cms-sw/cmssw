@@ -24,20 +24,23 @@ It is based on the preexisting work of the scouting group and can be found at gi
 
 // user include files
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 #include "DataFormats/OnlineMetaData/interface/OnlineLuminosityRecord.h"
 #include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingEBRecHit.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingEERecHit.h"
 #include "DataFormats/Scouting/interface/Run3ScoutingElectron.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingHBHERecHit.h"
 #include "DataFormats/Scouting/interface/Run3ScoutingMuon.h"
 #include "DataFormats/Scouting/interface/Run3ScoutingPFJet.h"
 #include "DataFormats/Scouting/interface/Run3ScoutingParticle.h"
 #include "DataFormats/Scouting/interface/Run3ScoutingPhoton.h"
 #include "DataFormats/Scouting/interface/Run3ScoutingTrack.h"
 #include "DataFormats/Scouting/interface/Run3ScoutingVertex.h"
-#include "DataFormats/Scouting/interface/Run3ScoutingEBRecHit.h"
-#include "DataFormats/Scouting/interface/Run3ScoutingEERecHit.h"
-#include "DataFormats/Scouting/interface/Run3ScoutingHBHERecHit.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -116,10 +119,11 @@ private:
   const edm::EDGetTokenT<OnlineLuminosityRecord> onlineMetaDataDigisToken_;
   const std::string topfoldername_;
 
-  // calo rechits (only 2025 V1.3 onwards, see  )
-  //edm::EDGetTokenT<std::vector<Run3ScoutingEBRecHitCollection>> ebRecHitsToken_;
+  // calo rechits (only 2025 V1.3 onwards, see https://its.cern.ch/jira/browse/CMSHLT-3607)
   edm::EDGetTokenT<Run3ScoutingEBRecHitCollection> ebRecHitsToken_;
   edm::EDGetTokenT<Run3ScoutingEERecHitCollection> eeRecHitsToken_;
+  edm::EDGetTokenT<Run3ScoutingEBRecHitCollection> ebCleanedRecHitsToken_;
+  edm::EDGetTokenT<Run3ScoutingEERecHitCollection> eeCleanedRecHitsToken_;
   edm::EDGetTokenT<Run3ScoutingHBHERecHitCollection> hbheRecHitsToken_;
 
   // pv vs PU and rho vs PU plots
@@ -402,16 +406,19 @@ private:
   dqm::reco::MonitorElement* tk_PV_dxy_hist;
   dqm::reco::MonitorElement* tk_PV_dz_hist;
 
-  // calo rechits histrograms
-  dqm::reco::MonitorElement* ebRecHitsNumber;
-  dqm::reco::MonitorElement* ebRecHits_energy_hist;
-  dqm::reco::MonitorElement* ebRecHits_time_hist;
-  dqm::reco::MonitorElement* eeRecHitsNumber;
-  dqm::reco::MonitorElement* eeRecHits_energy_hist;
-  dqm::reco::MonitorElement* eeRecHits_time_hist;
-  dqm::reco::MonitorElement* hbheRecHitsNumber;
+  // calo rechits histrograms (ECAL has two version, cleaned and unclean)
+  dqm::reco::MonitorElement* ebRecHitsNumber_hist[2];
+  dqm::reco::MonitorElement* ebRecHits_energy_hist[2];
+  dqm::reco::MonitorElement* ebRecHits_time_hist[2];
+  dqm::reco::MonitorElement* ebRecHitsEtaPhiMap[2];
+  dqm::reco::MonitorElement* eeRecHitsNumber_hist[2];
+  dqm::reco::MonitorElement* eeRecHits_energy_hist[2];
+  dqm::reco::MonitorElement* eeRecHits_time_hist[2];
+  dqm::reco::MonitorElement* eePlusRecHitsXYMap[2];
+  dqm::reco::MonitorElement* eeMinusRecHitsXYMap[2];
+  dqm::reco::MonitorElement* hbheRecHitsNumber_hist;
   dqm::reco::MonitorElement* hbheRecHits_energy_hist;
-
+  dqm::reco::MonitorElement* hbheRecHitsEtaPhiMap;
 };
 
 //
@@ -439,6 +446,8 @@ ScoutingCollectionMonitor::ScoutingCollectionMonitor(const edm::ParameterSet& iC
       topfoldername_(iConfig.getParameter<std::string>("topfoldername")) {
   setToken(ebRecHitsToken_, iConfig, "pfRecHitsEB");
   setToken(eeRecHitsToken_, iConfig, "pfRecHitsEE");
+  setToken(ebCleanedRecHitsToken_, iConfig, "pfCleanedRecHitsEB");
+  setToken(eeCleanedRecHitsToken_, iConfig, "pfCleanedRecHitsEE");
   setToken(hbheRecHitsToken_, iConfig, "pfRecHitsHBHE");
 }
 
@@ -479,7 +488,6 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
   edm::Handle<std::vector<Run3ScoutingVertex>> primaryVerticesH;
   edm::Handle<std::vector<Run3ScoutingTrack>> tracksH;
   edm::Handle<OnlineLuminosityRecord> onlineMetaDataDigisHandle;
-
 
   if (!getValidHandle(iEvent, rhoToken_, rhoH, "rho") ||
       !getValidHandle(iEvent, pfMetPhiToken_, pfMetPhiH, "MET phi") ||
@@ -831,34 +839,72 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
     tk_PV_dz_hist->Fill(best_offset.second);
   }
 
-
+  //  uncleaned calo rechits histograms
   edm::Handle<Run3ScoutingEBRecHitCollection> ebRecHitsH;
   if (!ebRecHitsToken_.isUninitialized() && getValidHandle(iEvent, ebRecHitsToken_, ebRecHitsH, "pfRecHitsEB")) {
-  	ebRecHitsNumber->Fill(ebRecHitsH->size());
-  for (const auto& ebRecHit : *ebRecHitsH) {
-    	ebRecHits_energy_hist->Fill(ebRecHit.energy());
-    	ebRecHits_time_hist->Fill(ebRecHit.time());
-  	}
+    ebRecHitsNumber_hist[0]->Fill(ebRecHitsH->size());
+    for (const auto& ebRecHit : *ebRecHitsH) {
+      EBDetId ebid(ebRecHit.detId());
+      ebRecHitsEtaPhiMap[0]->Fill(ebid.ieta(), ebid.iphi());
+      ebRecHits_energy_hist[0]->Fill(ebRecHit.energy());
+      ebRecHits_time_hist[0]->Fill(ebRecHit.time());
+    }
   }
 
-edm::Handle<Run3ScoutingEERecHitCollection> eeRecHitsH;
-if (!eeRecHitsToken_.isUninitialized() && getValidHandle(iEvent, eeRecHitsToken_, eeRecHitsH, "pfRecHitsEE")) {
-    eeRecHitsNumber->Fill(eeRecHitsH->size());
+  edm::Handle<Run3ScoutingEERecHitCollection> eeRecHitsH;
+  if (!eeRecHitsToken_.isUninitialized() && getValidHandle(iEvent, eeRecHitsToken_, eeRecHitsH, "pfRecHitsEE")) {
+    eeRecHitsNumber_hist[0]->Fill(eeRecHitsH->size());
     for (const auto& eeRecHit : *eeRecHitsH) {
-        eeRecHits_energy_hist->Fill(eeRecHit.energy());
-        eeRecHits_time_hist->Fill(eeRecHit.time());
+      EEDetId eeid(eeRecHit.detId());
+      if (eeid.zside() > 0) {
+        eePlusRecHitsXYMap[0]->Fill(eeid.ix(), eeid.iy());
+      } else {
+        eeMinusRecHitsXYMap[0]->Fill(eeid.ix(), eeid.iy());
+      }
+      eeRecHits_energy_hist[0]->Fill(eeRecHit.energy());
+      eeRecHits_time_hist[0]->Fill(eeRecHit.time());
     }
-}
+  }
 
-edm::Handle<Run3ScoutingHBHERecHitCollection> hbheRecHitsH;
-if (!hbheRecHitsToken_.isUninitialized() && getValidHandle(iEvent, hbheRecHitsToken_, hbheRecHitsH, "pfRecHitsHBHE")) {
-    hbheRecHitsNumber->Fill(hbheRecHitsH->size());
+  // cleaned calo rechits histograms
+  edm::Handle<Run3ScoutingEBRecHitCollection> ebRecHitsCleanedH;
+  if (!ebCleanedRecHitsToken_.isUninitialized() &&
+      getValidHandle(iEvent, ebCleanedRecHitsToken_, ebRecHitsCleanedH, "pfCleanedRecHitsEB")) {
+    ebRecHitsNumber_hist[1]->Fill(ebRecHitsCleanedH->size());
+    for (const auto& ebRecHit : *ebRecHitsCleanedH) {
+      EBDetId ebid(ebRecHit.detId());
+      ebRecHitsEtaPhiMap[1]->Fill(ebid.ieta(), ebid.iphi());
+      ebRecHits_energy_hist[1]->Fill(ebRecHit.energy());
+      ebRecHits_time_hist[1]->Fill(ebRecHit.time());
+    }
+  }
+
+  edm::Handle<Run3ScoutingEERecHitCollection> eeRecHitsCleanedH;
+  if (!eeCleanedRecHitsToken_.isUninitialized() &&
+      getValidHandle(iEvent, eeCleanedRecHitsToken_, eeRecHitsCleanedH, "pfCleanedRecHitsEE")) {
+    eeRecHitsNumber_hist[1]->Fill(eeRecHitsCleanedH->size());
+    for (const auto& eeRecHit : *eeRecHitsCleanedH) {
+      EEDetId eeid(eeRecHit.detId());
+      if (eeid.zside() > 0) {
+        eePlusRecHitsXYMap[1]->Fill(eeid.ix(), eeid.iy());
+      } else {
+        eeMinusRecHitsXYMap[1]->Fill(eeid.ix(), eeid.iy());
+      }
+      eeRecHits_energy_hist[1]->Fill(eeRecHit.energy());
+      eeRecHits_time_hist[1]->Fill(eeRecHit.time());
+    }
+  }
+
+  edm::Handle<Run3ScoutingHBHERecHitCollection> hbheRecHitsH;
+  if (!hbheRecHitsToken_.isUninitialized() &&
+      getValidHandle(iEvent, hbheRecHitsToken_, hbheRecHitsH, "pfRecHitsHBHE")) {
+    hbheRecHitsNumber_hist->Fill(hbheRecHitsH->size());
     for (const auto& hbheRecHit : *hbheRecHitsH) {
-        hbheRecHits_energy_hist->Fill(hbheRecHit.energy());
+      hbheRecHits_energy_hist->Fill(hbheRecHit.energy());
+      HcalDetId hcalid(hbheRecHit.detId());
+      hbheRecHitsEtaPhiMap->Fill(hcalid.ieta(), hcalid.iphi());
     }
-}
-
-
+  }
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -1266,16 +1312,84 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   tk_PV_dz_hist = ibook.book1DD("tk_PV_dz", "Track dz w.r.t. PV; Track dz w.r.t. PV; Entries", 100, -0.35, 0.35);
   tk_PV_dxy_hist = ibook.book1DD("tk_PV_dxy", "Track dxy w.r.t. PV; Track dxy w.r.t. PV; Entries", 100, -0.15, 0.15);
 
-  ibook.setCurrentFolder(topfoldername_ + "/CaloRecHits");
-  ebRecHitsNumber = ibook.book1D("ebRechitsN", "Number of eb RecHits; number of EB recHits; Entries", 100, 0.0, 1000.0);
-  ebRecHits_energy_hist = ibook.book1D("ebRechits_energy", "Energy spectrum of eb RecHits; Energy of EB recHits (Gev); Entries", 100, 0.0, 500.0);
-  ebRecHits_time_hist = ibook.book1D("ebRechits_time", "Time of eb RecHits; Energy of EB recHits (ps); Entries", 100, 0.0, 1000.0);
-  eeRecHitsNumber = ibook.book1D("eeRechitsN", "Number of ee RecHits; number of EE recHits; Entries", 100, 0.0, 1000.0);
-  eeRecHits_energy_hist = ibook.book1D("eeRechits_energy", "Energy spectrum of ee RecHits; Energy of EE recHits (GeV); Entries", 100, 0.0, 1000.0);
-  eeRecHits_time_hist = ibook.book1D("eeRechits_time", "Time of ee RecHits; Time of EE recHits (ps); Entries", 100, 0.0, 1000.0);
-  hbheRecHitsNumber =
+  // book the calo rechits histograms
+  const std::array<std::string, 2> caloLabels = {{"All", "Cleaned"}};
+  const std::array<std::string, 2> caloSuffixes = {{"", "_clean"}};
+  for (int i = 0; i < 2; ++i) {
+    ibook.setCurrentFolder(topfoldername_ + "/CaloRecHits" + caloLabels[i]);
+
+    const std::string& lbl = caloLabels[i];
+    const std::string& sfx = caloSuffixes[i];
+
+    ebRecHitsNumber_hist[i] = ibook.book1D(
+        "ebRechitsN" + sfx, "Number of EB RecHits (" + lbl + "); number of EB recHits; Entries", 100, 0.0, 1000.0);
+
+    ebRecHits_energy_hist[i] =
+        ibook.book1D("ebRechits_energy" + sfx,
+                     "Energy spectrum of EB RecHits (" + lbl + "); Energy of EB recHits (Gev); Entries",
+                     100,
+                     0.0,
+                     500.0);
+
+    ebRecHits_time_hist[i] = ibook.book1D("ebRechits_time" + sfx,
+                                          "Time of EB RecHits (" + lbl + "); Energy of EB recHits (ps); Entries",
+                                          100,
+                                          0.0,
+                                          1000.0);
+    eeRecHitsNumber_hist[i] = ibook.book1D(
+        "eeRechitsN" + sfx, "Number of EE RecHits (" + lbl + "); number of EE recHits; Entries", 100, 0.0, 1000.0);
+    eeRecHits_energy_hist[i] =
+        ibook.book1D("eeRechits_energy" + sfx,
+                     "Energy spectrum of EE RecHits (" + lbl + "); Energy of EE recHits (GeV); Entries",
+                     100,
+                     0.0,
+                     1000.0);
+    eeRecHits_time_hist[i] = ibook.book1D(
+        "eeRechits_time" + sfx, "Time of EE RecHits (" + lbl + "); Time of EE recHits (ps); Entries", 100, 0.0, 1000.0);
+
+    ebRecHitsEtaPhiMap[i] = ibook.book2D("ebRecHitsEtaPhitMap" + sfx,
+                                         "Occupancy map of EB rechit (" + lbl + ");ieta;iphi;Entries",
+                                         171,
+                                         -85.5,
+                                         85.5,
+                                         361,
+                                         0.,
+                                         361);
+
+    ebRecHitsEtaPhiMap[i]->setOption("colz");
+
+    eePlusRecHitsXYMap[i] = ibook.book2D("eePlusRecHitsEtaPhitMap" + sfx,
+                                         "Occupancy map of EE+ rechit (" + lbl + ");ix;iy;Entries",
+                                         100,
+                                         1,
+                                         101,
+                                         100,
+                                         1,
+                                         101);
+
+    eePlusRecHitsXYMap[i]->setOption("colz");
+
+    eeMinusRecHitsXYMap[i] = ibook.book2D("eeMinusRecHitsEtaPhitMap" + sfx,
+                                          "Occupancy map of EE- rechit (" + lbl + ");ix;iy;Entries",
+                                          100,
+                                          1,
+                                          101,
+                                          100,
+                                          1,
+                                          101);
+
+    eeMinusRecHitsXYMap[i]->setOption("colz");
+  }
+
+  ibook.setCurrentFolder(topfoldername_ + "/CaloRecHitsAll");
+  hbheRecHitsNumber_hist =
       ibook.book1D("hbheRechitsN", "number of hbhe RecHits; Number of HBHE recHits; Entries", 100, 0.0, 2000.0);
-  hbheRecHits_energy_hist = ibook.book1D("hbheRechits_energy", "Energy spectrum of hbhe RecHits; Energy of HBHE recHits (GeV); Entries", 100, 0.0, 200.0);
+  hbheRecHits_energy_hist = ibook.book1D(
+      "hbheRechits_energy", "Energy spectrum of hbhe RecHits; Energy of HBHE recHits (GeV); Entries", 100, 0.0, 200.0);
+
+  hbheRecHitsEtaPhiMap = ibook.book2D(
+      "hbheRecHitsEtaPhitMap", "Occupancy map of HBHE rechit;ieta;iphi;Entries", 61, -30.5, 30.5, 74, -0.5, 73.5);
+  hbheRecHitsEtaPhiMap->setOption("colz");
 }
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 
@@ -1296,9 +1410,11 @@ void ScoutingCollectionMonitor::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<edm::InputTag>("pfMetPhi", edm::InputTag("hltScoutingPFPacker", "pfMetPhi"));
   desc.add<edm::InputTag>("rho", edm::InputTag("hltScoutingPFPacker", "rho"));
   desc.add<edm::InputTag>("onlineMetaDataDigis", edm::InputTag("onlineMetaDataDigis"));
-  desc.add<edm::InputTag>("pfRecHitsEB", edm::InputTag("hltScoutingRecHitPacker","EB"));
-  desc.add<edm::InputTag>("pfRecHitsEE", edm::InputTag("hltScoutingRecHitPacker","EE"));
-  desc.add<edm::InputTag>("pfRecHitsHBHE", edm::InputTag("hltScoutingRecHitPacker","HBHE"));
+  desc.add<edm::InputTag>("pfRecHitsEB", edm::InputTag("hltScoutingRecHitPacker", "EB"));
+  desc.add<edm::InputTag>("pfRecHitsEE", edm::InputTag("hltScoutingRecHitPacker", "EE"));
+  desc.add<edm::InputTag>("pfRecHitsHBHE", edm::InputTag("hltScoutingRecHitPacker", "HBHE"));
+  desc.add<edm::InputTag>("pfCleanedRecHitsEB", edm::InputTag("hltScoutingRecHitPacker", "EBCleaned"));
+  desc.add<edm::InputTag>("pfCleanedRecHitsEE", edm::InputTag("hltScoutingRecHitPacker", "EECleaned"));
   desc.add<std::string>("topfoldername", "HLT/ScoutingOffline/Miscellaneous");
   descriptions.addWithDefaultLabel(desc);
 }
