@@ -82,6 +82,9 @@ private:
   MonitorElement *mJetEta;
   MonitorElement *mJetPhi;
   MonitorElement *mJetPt;
+  MonitorElement *mJetPt_B;
+  MonitorElement *mJetPt_E;
+  MonitorElement *mJetPt_F;
   MonitorElement *mJetEnergy;
   MonitorElement *mJetMass;
   MonitorElement *mJetConstituents;
@@ -91,11 +94,34 @@ private:
   MonitorElement *mCorrJetEta;
   MonitorElement *mCorrJetPhi;
   MonitorElement *mCorrJetPt;
+  MonitorElement *mCorrJetPt_B;
+  MonitorElement *mCorrJetPt_E;
+  MonitorElement *mCorrJetPt_F;
 
   // Gen jet parameters
   MonitorElement *mGenEta;
   MonitorElement *mGenPhi;
   MonitorElement *mGenPt;
+  MonitorElement *mGenPt_B;
+  MonitorElement *mGenPt_E;
+  MonitorElement *mGenPt_F;
+
+  // Matched jet parameters
+  MonitorElement *mMatchedJetEta;
+  MonitorElement *mMatchedJetPhi;
+  MonitorElement *mMatchedJetPt_B;
+  MonitorElement *mMatchedJetPt_E;
+  MonitorElement *mMatchedJetPt_F;
+  MonitorElement *mMatchedCorrPt_B;
+  MonitorElement *mMatchedCorrPt_E;
+  MonitorElement *mMatchedCorrPt_F;
+
+  // Matched gen jet parameters
+  MonitorElement *mMatchedGenEta;
+  MonitorElement *mMatchedGenPhi;
+  MonitorElement *mMatchedGenPt_B;
+  MonitorElement *mMatchedGenPt_E;
+  MonitorElement *mMatchedGenPt_F;
 
   // Jet response vs gen histograms
   MonitorElement *h_JetPtRecoOverGen_B;
