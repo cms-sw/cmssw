@@ -256,6 +256,44 @@ ProductResolverIndexAndSkipBit EDConsumerBase::uncheckedIndexFrom(EDGetToken iTo
   return m_tokenInfo.get<kLookupInfo>(iToken.index()).m_index;
 }
 
+ProductResolverIndexAndSkipBit EDConsumerBase::indexFromIfExactMatch(EDGetToken iToken,
+                                                                     BranchType iBranch,
+                                                                     TypeID const& iType) const {
+  if (UNLIKELY(iToken.index() >= m_tokenInfo.size())) {
+    throwBadToken(iType, iToken);
+  }
+  const auto& info = m_tokenInfo.get<kLookupInfo>(iToken.index());
+  if (LIKELY(iBranch == info.m_branchType)) {
+    if (LIKELY(iType == info.m_type)) {
+      return info.m_index;
+    }
+  }
+  return ProductResolverIndexAndSkipBit(edm::ProductResolverIndexInvalid, false);
+}
+
+EDGetToken EDConsumerBase::getRegisteredToken(TypeID const& typeID,
+                                              std::string const& label,
+                                              std::string const& instance,
+                                              std::string const& processName,
+                                              BranchType branchType,
+                                              bool skipCurrentProcess) const {
+  auto const itBegin = m_tokenInfo.begin<kLookupInfo>();
+  for (auto it = itBegin, itEnd = m_tokenInfo.end<kLookupInfo>(); it != itEnd; ++it) {
+    if (it->m_type == typeID && it->m_branchType == branchType &&
+        it->m_index.skipCurrentProcess() == skipCurrentProcess) {
+      auto index = it - itBegin;
+      auto const& labels = m_tokenInfo.get<kLabels>(index);
+      unsigned int labelStart = labels.m_startOfModuleLabel;
+      const char* moduleLabel = &(m_tokenLabels[labelStart]);
+      if (label == moduleLabel && instance == (moduleLabel + labels.m_deltaToProductInstance) &&
+          (skipCurrentProcess or (processName == (moduleLabel + labels.m_deltaToProcessName)))) {
+        return EDGetToken{static_cast<unsigned int>(index)};
+      }
+    }
+  }
+  return EDGetToken{EDGetToken::s_uninitializedValue};
+}
+
 void EDConsumerBase::itemsToGet(BranchType iBranch, std::vector<ProductResolverIndexAndSkipBit>& oIndices) const {
   //how many are we adding?
   unsigned int count = 0;
@@ -363,7 +401,8 @@ void EDConsumerBase::throwBadToken(edm::TypeID const& iType, EDGetToken iToken) 
   throw cms::Exception("BadToken")
       << "A get using a EDGetToken with the C++ type '" << iType.className() << "' was made using a token with a value "
       << iToken.index()
-      << " which is beyond the range used by this module.\n Please check that the variable is being initialized from a "
+      << " which is beyond the range used by this module.\n Please check that the variable is being initialized from "
+         "a "
          "'consumes' call from this module.\n You can not share EDGetToken values between modules.";
 }
 
