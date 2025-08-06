@@ -49,7 +49,8 @@ public:
     enum class Status : uint8_t { undef, alive, killedByCuts, killedByMissingLayerPair };
 
     struct Neighbor {
-      Neighbor(size_t index) : index_(index), status_(Status::undef) {}
+      Neighbor(size_t index, size_t nInnerNeighbors)
+          : index_(index), status_(Status::undef), tripletConnectionIsKilled_(nInnerNeighbors, false) {}
 
       size_t index() const { return index_; }
 
@@ -63,8 +64,17 @@ public:
       bool isAlive() const { return status_ == Status::alive; }
       bool isKilled() const { return status_ == Status::killedByCuts; }
 
-      size_t index_;   // index of the neighboring doublet
-      Status status_;  // status of the connection to the neighboring doublet
+      void setCurvature(double const curvature) { curvature_ = curvature; }
+      double curvature() const { return curvature_; }
+
+      void setKilledTripletConnection(int i) { tripletConnectionIsKilled_.at(i) = true; }
+      bool isKilledTripletConnection(int i) { return tripletConnectionIsKilled_.at(i); }
+      std::vector<bool> const& tripletConnections() const { return tripletConnectionIsKilled_; }
+
+      size_t index_;                                   // index of the neighboring doublet
+      Status status_;                                  // status of the connection to the neighboring doublet
+      double curvature_{-99999};                       // curvature of the neighboring pair of doublets (=triplet)
+      std::vector<bool> tripletConnectionIsKilled_{};  // status of the triplet connection to the neighbor's neighbors
     };
 
     // default constructor
@@ -150,8 +160,9 @@ public:
       hasUndefDoubletCuts = 1 << 2,
       hasKilledDoublets = 1 << 3,
       hasUndefDoubletConnectionCuts = 1 << 4,
-      hasKilledConnections = 1 << 5,
-      firstDoubletNotInStartingLayerPairs = 1 << 6
+      hasKilledDoubletConnections = 1 << 5,
+      hasKilledTripletConnections = 1 << 6,
+      firstDoubletNotInStartingLayerPairs = 1 << 7
     };
 
     // default constructor
@@ -185,7 +196,8 @@ public:
                                 bool const hasMissingLayerPair,
                                 bool const hasKilledDoublets,
                                 bool const hasUndefDoubletConnectionCuts,
-                                bool const hasKilledConnections,
+                                bool const hasKilledDoubletConnections,
+                                bool const hasKilledTripletConnections,
                                 bool const isTooShort = false,
                                 bool const firstDoubletNotInStartingLayerPairs = false) {
       return status |
@@ -193,7 +205,8 @@ public:
               uint8_t(hasMissingLayerPair) * uint8_t(StatusBit::hasMissingLayerPair) +
               uint8_t(hasKilledDoublets) * uint8_t(StatusBit::hasKilledDoublets) +
               uint8_t(hasUndefDoubletConnectionCuts) * uint8_t(StatusBit::hasUndefDoubletConnectionCuts) +
-              uint8_t(hasKilledConnections) * uint8_t(StatusBit::hasKilledConnections) +
+              uint8_t(hasKilledDoubletConnections) * uint8_t(StatusBit::hasKilledDoubletConnections) +
+              uint8_t(hasKilledTripletConnections) * uint8_t(StatusBit::hasKilledTripletConnections) +
               uint8_t(isTooShort) * uint8_t(StatusBit::isTooShort) +
               uint8_t(firstDoubletNotInStartingLayerPairs) * uint8_t(StatusBit::firstDoubletNotInStartingLayerPairs));
     }
@@ -203,7 +216,8 @@ public:
     void setUndefDoubletConnectionCuts() { status_ |= uint8_t(StatusBit::hasUndefDoubletConnectionCuts); }
     void setMissingLayerPair() { status_ |= uint8_t(StatusBit::hasMissingLayerPair); }
     void setKilledDoublets() { status_ |= uint8_t(StatusBit::hasKilledDoublets); }
-    void setKilledConnections() { status_ |= uint8_t(StatusBit::hasKilledConnections); }
+    void setKilledDoubletConnections() { status_ |= uint8_t(StatusBit::hasKilledDoubletConnections); }
+    void setKilledTripletConnections() { status_ |= uint8_t(StatusBit::hasKilledTripletConnections); }
     void setTooShort() { status_ |= uint8_t(StatusBit::isTooShort); }
     void setFirstDoubletNotInStartingLayerPairs() {
       status_ |= uint8_t(StatusBit::firstDoubletNotInStartingLayerPairs);
@@ -215,8 +229,12 @@ public:
     bool hasUndef() const { return hasUndefDoubletCuts() || hasUndefDoubletConnectionCuts(); }
     bool hasMissingLayerPair() const { return status_ & uint8_t(StatusBit::hasMissingLayerPair); }
     bool hasKilledDoublets() const { return status_ & uint8_t(StatusBit::hasKilledDoublets); }
-    bool hasKilledConnections() const { return status_ & uint8_t(StatusBit::hasKilledConnections); }
-    bool isKilled() const { return hasMissingLayerPair() || hasKilledDoublets() || hasKilledConnections(); }
+    bool hasKilledDoubletConnections() const { return status_ & uint8_t(StatusBit::hasKilledDoubletConnections); }
+    bool hasKilledTripletConnections() const { return status_ & uint8_t(StatusBit::hasKilledTripletConnections); }
+    bool isKilled() const {
+      return hasMissingLayerPair() || hasKilledDoublets() || hasKilledDoubletConnections() ||
+             hasKilledTripletConnections();
+    }
     bool isTooShort() const { return status_ & uint8_t(StatusBit::isTooShort); }
     bool firstDoubletNotInStartingLayerPairs() const {
       return status_ & uint8_t(StatusBit::firstDoubletNotInStartingLayerPairs);
@@ -362,6 +380,7 @@ public:
 private:
   // function for recursive building of Ntuplets
   void buildSimNtuplets(Doublet const& doublet,
+                        std::vector<bool> const& tripletConnections,
                         size_t numSimDoublets,
                         size_t const lastLayerId,
                         uint8_t const status,
@@ -371,7 +390,7 @@ private:
 
   // class members
   TrackingParticleRef trackingParticleRef_;  // reference to the TrackingParticle (if SimPixelTrack is based on a TP)
-  reco::TrackBaseRef trackRef_;                  // referency to the track (if SimPixelTrack is based on a track)
+  reco::TrackBaseRef trackRef_;              // referency to the track (if SimPixelTrack is based on a track)
   std::vector<unsigned int> detIdVector_;    // vector of the detector Ids of the RecHits associated to the TP
   std::vector<int> moduleIdVector_;          // vector of the module Ids of the RecHits
   std::vector<GlobalPoint> globalPositionVector_;  // vector of the global positions of the RecHits
