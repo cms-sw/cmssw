@@ -90,7 +90,8 @@ SimDoublets::Doublet::Doublet(SimDoublets const& simDoublets,
 
   // fill the inner neighbors
   for (size_t const index : innerNeighborsIndices) {
-    innerNeighbors_.emplace_back(SimDoublets::Doublet::Neighbor(index));
+    innerNeighbors_.emplace_back(
+        SimDoublets::Doublet::Neighbor(index, simDoublets.getSimDoublet(index).numInnerNeighbors()));
   }
 
   // if there are neighbors, get their inner layerId
@@ -134,9 +135,7 @@ void SimDoublets::sortRecHits() {
 // method to sort the RecHits according to the position relative to a given reference
 void SimDoublets::sortRecHits(float const x, float const y, float const z) {
   // get the production vertex of the TrackingParticle (corrected for beamspot)
-  const GlobalVector vertex(x - beamSpotPosition_.x(),
-                            y - beamSpotPosition_.y(),
-                            z - beamSpotPosition_.z());
+  const GlobalVector vertex(x - beamSpotPosition_.x(), y - beamSpotPosition_.y(), z - beamSpotPosition_.z());
 
   // get the vector of squared magnitudes of the global RecHit positions relative to vertex
   std::vector<double> recHitMag2;
@@ -241,6 +240,7 @@ void SimDoublets::buildSimDoublets(const TrackerTopology* trackerTopology) const
 // (the building starts from the outside and ends inside)
 // at each addition of a SimDoublet, a new SimNtuplet is stored
 void SimDoublets::buildSimNtuplets(SimDoublets::Doublet const& doublet,
+                                   std::vector<bool> const& tripletConnections,
                                    size_t numSimDoublets,
                                    size_t const lastLayerId,
                                    uint8_t const status,
@@ -251,18 +251,19 @@ void SimDoublets::buildSimNtuplets(SimDoublets::Doublet const& doublet,
   numSimDoublets++;
 
   // loop over the inner neighboring doublets of the current doublet
-  for (auto const& neighbor : doublet.innerNeighborsView()) {
+  for (size_t i{0}; auto const& neighbor : doublet.innerNeighborsView()) {
     // get the inner neighboring doublet and the status of this connection
     auto const& neighborDoublet = doublets_.at(neighbor.index());
 
     // update the status of the current SimNtuplet by adding the information from the new doublet
     uint8_t updatedStatus = SimDoublets::Ntuplet::updateStatus(
-        status,                                        // current status
-        neighborDoublet.isUndef(),                     // doublet has undefined cuts
-        neighborDoublet.isKilledByMissingLayerPair(),  // doublet is not built due to missing layer pair
-        neighborDoublet.isKilledByCuts(),              // doublet is killed by cuts
-        neighbor.isUndef(),                            // connection has undefined cuts
-        neighbor.isKilled()                            // connection is killed by cuts
+        status,                                                  // current status
+        neighborDoublet.isUndef(),                               // doublet has undefined cuts
+        neighborDoublet.isKilledByMissingLayerPair(),            // doublet is not built due to missing layer pair
+        neighborDoublet.isKilledByCuts(),                        // doublet is killed by cuts
+        neighbor.isUndef(),                                      // doublet connection has undefined cuts
+        neighbor.isKilled(),                                     // doublet connection is killed by cuts
+        (numSimDoublets > 2) ? tripletConnections.at(i) : false  // triplet connection is killed by cuts
     );
 
     // update number of skipped layers
@@ -295,8 +296,9 @@ void SimDoublets::buildSimNtuplets(SimDoublets::Doublet const& doublet,
     //        1. Ntuplet is long enough
     //        2. no missing layer pairs
     //        3. all doublets survive
-    //        4. all connections survive
-    //        5. first doublet from starting layer pair
+    //        4. all doublet connections survive
+    //        5. all triplet connections survive
+    //        6. first doublet from starting layer pair
     if ((longestNtupletIndex_ == -1) || (numSimDoublets > ntuplets_.at(longestNtupletIndex_).numDoublets())) {
       // case A)
       longestNtupletIndex_ = ntuplets_.size() - 1;
@@ -327,10 +329,11 @@ void SimDoublets::buildSimNtuplets(SimDoublets::Doublet const& doublet,
     //        1. Ntuplet is long enough
     //        2. no missing layer pairs
     //        3. all doublets survive
-    //        4. all connections survive
-    //        5. first doublet from starting layer pair
-    if ((bestNtupletIndex_ == -1) || ntuplets_.back().getsFartherInRecoChainThanReference(
-                   ntuplets_.at(bestNtupletIndex_))) {
+    //        4. all doublet connections survive
+    //        5. all triplet connections survive
+    //        6. first doublet from starting layer pair
+    if ((bestNtupletIndex_ == -1) ||
+        ntuplets_.back().getsFartherInRecoChainThanReference(ntuplets_.at(bestNtupletIndex_))) {
       // case A)
       bestNtupletIndex_ = ntuplets_.size() - 1;
     } else if ((numSimDoublets >= ntuplets_.at(bestNtupletIndex_).numDoublets()) &&  // is at least as long
@@ -343,6 +346,7 @@ void SimDoublets::buildSimNtuplets(SimDoublets::Doublet const& doublet,
     // call this function recursively
     // this will get the further neighboring doublets and build the next Ntuplet
     buildSimNtuplets(neighborDoublet,
+                     neighbor.tripletConnections(),
                      numSimDoublets,
                      lastLayerId,
                      updatedStatus,
@@ -354,13 +358,12 @@ void SimDoublets::buildSimNtuplets(SimDoublets::Doublet const& doublet,
 
 // method to produce the SimNtuplets
 // (collection of all possible Ntuplets you can build from the SimDoublets)
-void SimDoublets::buildSimNtuplets(std::set<int> const& startingPairs,
-                                   size_t const minNumDoubletsToPass) const {
+void SimDoublets::buildSimNtuplets(std::set<int> const& startingPairs, size_t const minNumDoubletsToPass) const {
   // clear the Ntuplet collection and reset longest Ntuplet indices
   ntuplets_.clear();
   longestNtupletIndex_ = -1;
   longestAliveNtupletIndex_ = -1;
-  bestNtupletIndex_=-1;
+  bestNtupletIndex_ = -1;
 
   // check if there are at least two doublets
   if (numDoublets() < 2) {
@@ -375,18 +378,14 @@ void SimDoublets::buildSimNtuplets(std::set<int> const& startingPairs,
         doublet.isUndef(),                     // doublet has undefined cuts
         doublet.isKilledByMissingLayerPair(),  // doublet is not built due to missing layer pair
         doublet.isKilledByCuts(),              // doublet is killed by cuts
-        false,                                 // connection has undefined cuts
-        false                                  // connection is killed by cuts
+        false,                                 // doublet connection has undefined cuts
+        false,                                 // doublet connection is killed by cuts
+        false                                  // triplet connection is killed by cuts
     );
     // initialize number of skipped layers
     uint8_t numSkippedLayers = doublet.numSkippedLayers();
     // build the Ntuplets recursively
-    buildSimNtuplets(doublet,
-                     1,
-                     doublet.outerLayerId(),
-                     status,
-                     numSkippedLayers,
-                     startingPairs,
-                     minNumDoubletsToPass);
+    buildSimNtuplets(
+        doublet, {}, 1, doublet.outerLayerId(), status, numSkippedLayers, startingPairs, minNumDoubletsToPass);
   }
 }
