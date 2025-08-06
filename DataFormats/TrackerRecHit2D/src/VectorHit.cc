@@ -76,12 +76,8 @@ bool VectorHit::sharesInput(const TrackingRecHit* other, SharedInputType what) c
   if (lowerClusterRef().id() == otherClus.id() || upperClusterRef().id() == otherClus.id())
     return (otherClus == lowerClusterRef()) || (otherClus == upperClusterRef());
   else {
-    bool lowerOverlap = false;
-    bool upperOverlap = false;
-    if (sameDetModule(*other)) {
-      lowerOverlap = otherClus.stripOverlap(lowerClusterRef());
-      upperOverlap = otherClus.stripOverlap(upperClusterRef());
-    }
+    bool lowerOverlap = otherClus.stripOverlap(lowerClusterRef());
+    bool upperOverlap = otherClus.stripOverlap(upperClusterRef());
     return (lowerOverlap || upperOverlap);
   }
 }
