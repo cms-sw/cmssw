@@ -177,6 +177,39 @@ namespace edm {
       U f_;
     };
 
+    template <typename U>
+    struct WaitingTaskChain<Conditional<U>> {
+      constexpr explicit WaitingTaskChain(bool iValue, U&& iU) : f_{std::forward<U>(iU)}, conditional_(iValue) {}
+
+      [[nodiscard]] WaitingTaskHolder lastTask(WaitingTaskHolder iV) {
+        if (conditional_) {
+          return WaitingTaskHolder(
+              *iV.group(),
+              make_waiting_task([f = std::move(f_), v = std::move(iV)](const std::exception_ptr* iPtr) mutable {
+                f(iPtr, std::move(v));
+              }));
+        }
+        return iV;
+      }
+
+      void runLast(WaitingTaskHolder iH) {
+        if (conditional_) {
+          f_(nullptr, std::move(iH));
+        } else {
+          iH.doneWaiting(std::exception_ptr{});
+        }
+      }
+
+      template <typename V>
+      friend auto operator|(WaitingTaskChain<Conditional<U>> iChain, V&& iV) {
+        return iV.pipe(std::move(iChain));
+      }
+
+    private:
+      U f_;
+      bool conditional_;
+    };
+
     template <typename U, typename... T>
     struct WaitingTaskChain<U, T...> {
       explicit constexpr WaitingTaskChain(U&& iU, WaitingTaskChain<T...> iL)
@@ -263,6 +296,20 @@ namespace edm {
         return WaitingTaskChain<F>(std::forward<F>(iF));
       } else {
         return WaitingTaskChain<AutoExceptionHandler<F>>(AutoExceptionHandler<F>(std::forward<F>(iF)));
+      }
+    }
+
+    /** Sets the first task to be run as part of the task chain, if the value is true, else the following task will be first. The functor is expected to take either
+   a single argument of type edm::WaitingTaskHolder or two arguments of type std::exception_ptr const* and WaitingTaskHolder. In the latter case, the pointer is only non-null if a previous task in the chain threw an exception.
+   */
+    template <typename F>
+    [[nodiscard]] constexpr auto firstIf(bool iValue, F&& iF) {
+      using namespace detail;
+      if constexpr (has_exception_handling<F>::value) {
+        return WaitingTaskChain<Conditional<F>>(iValue, std::forward<F>(iF));
+      } else {
+        return WaitingTaskChain<Conditional<AutoExceptionHandler<F>>>(iValue,
+                                                                      AutoExceptionHandler<F>(std::forward<F>(iF)));
       }
     }
 

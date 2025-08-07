@@ -131,6 +131,9 @@ public:
 
   // Boolean to disable pLS duplicate cleaning
   bool no_pls_dupclean;
+
+  // Boolean to enable jet branches
+  bool jet_branches;
 };
 
 extern AnalysisConfig ana;
