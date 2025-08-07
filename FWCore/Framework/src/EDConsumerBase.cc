@@ -402,8 +402,7 @@ void EDConsumerBase::throwBadToken(edm::TypeID const& iType, EDGetToken iToken) 
       << "A get using a EDGetToken with the C++ type '" << iType.className() << "' was made using a token with a value "
       << iToken.index()
       << " which is beyond the range used by this module.\n Please check that the variable is being initialized from "
-         "a "
-         "'consumes' call from this module.\n You can not share EDGetToken values between modules.";
+         "a 'consumes' call from this module.\n You can not share EDGetToken values between modules.";
 }
 
 void EDConsumerBase::throwConsumesCallAfterFrozen(TypeToGet const& typeToGet, InputTag const& inputTag) const {

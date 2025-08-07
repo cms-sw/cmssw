@@ -452,6 +452,8 @@ namespace edm {
 
     auto token = inputTag.cachedToken();
 
+    // a null consumer can happen for tests and RandomNumberGeneratorService which calls getByLabel
+    // without setting a EDConsumerBase
     if (token.isUninitialized() and consumer) {
       std::string const* processName = &inputTag.process();
       if (inputTag.process() == InputTag::kCurrentProcess) {
