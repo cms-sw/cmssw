@@ -42,7 +42,7 @@
 
 <ifarchitecture name="el8_amd64">
   <!-- Run this test for production arch of CMSSW_13_2_14 release only -->
-  <test name="test_MC_PbPb_23_setup" command="${CMSSW_BASE}/src/Configuration/PyReleaseValidation/test/test_mc_setup/test_MC_setup.sh auto:phase1_2023_realistic_hi Run3_pp_on_PbPb_2023 HIon CMSSW_13_2_14 132X_mcRun3_2023_realistic_HI_v10 Realistic2023PbPbCollision Pythia8_GammaNucleus_5p36TeV_cfi Run3_2023_UPC" />
+  <test name="test_MC_PbPb_23_setup" command="CMSSW_MC_SETUP_TEST_CATCH_HLT=0 ${CMSSW_BASE}/src/Configuration/PyReleaseValidation/test/test_mc_setup/test_MC_setup.sh auto:phase1_2023_realistic_hi Run3_pp_on_PbPb_2023 HIon CMSSW_13_2_15_HLT 132X_mcRun3_2023_realistic_HI_v10 Realistic2023PbPbCollision Pythia8_GammaNucleus_5p36TeV_cfi Run3_2023_UPC" />
 </ifarchitecture>
 
 <!--
