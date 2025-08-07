@@ -41,7 +41,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                      inputs.dim1(),
                                      inputs.dim2(),
                                      inputs.layer(),
-                                     inputs.weight(),
+                                     inputs.energy(),
                                      inputs.sigmaNoise(),
                                      inputs.detid(),
                                      outputs.rho(),
