@@ -54,6 +54,7 @@
   
   <class name="std::monostate"/>
   <class name="edm::RefProd<std::vector<ticl::Trackster> >"/>
+  <class name="std::pair<edm::RefProd<std::vector<reco::CaloCluster> >,edm::RefProd<std::vector<ticl::Trackster> > >"/>
   <class name="std::pair<edm::RefProd<std::vector<ticl::Trackster> >, edm::RefProd<std::vector<ticl::Trackster> > >"/>
   <class name="std::pair<edm::RefProd<std::vector<SimCluster> >, edm::RefProd<std::vector<CaloParticle> > >"/>
 
