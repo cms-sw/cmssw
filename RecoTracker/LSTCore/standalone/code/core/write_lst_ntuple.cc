@@ -28,6 +28,15 @@ void fillOutputBranches(LSTEvent* event) {
 //________________________________________________________________________________________________________________________________
 void createRequiredOutputBranches() {
   // Setup output TTree
+
+  if (ana.jet_branches) {
+    ana.tx->createBranch<std::vector<float>>("sim_deltaEta");
+    ana.tx->createBranch<std::vector<float>>("sim_deltaPhi");
+    ana.tx->createBranch<std::vector<float>>("sim_deltaR");
+    ana.tx->createBranch<std::vector<float>>("sim_jet_eta");
+    ana.tx->createBranch<std::vector<float>>("sim_jet_phi");
+    ana.tx->createBranch<std::vector<float>>("sim_jet_pt");
+  }
   ana.tx->createBranch<std::vector<float>>("sim_pt");
   ana.tx->createBranch<std::vector<float>>("sim_eta");
   ana.tx->createBranch<std::vector<float>>("sim_phi");
@@ -310,35 +319,83 @@ void setOutputBranches(LSTEvent* event) {
   auto const& trk_simhit_simTrkIdx = trk.getVI("simhit_simTrkIdx");
   auto const& trk_ph2_simHitIdx = trk.getVVI("ph2_simHitIdx");
   auto const& trk_pix_simHitIdx = trk.getVVI("pix_simHitIdx");
-  for (unsigned int isimtrk = 0; isimtrk < trk_sim_pt.size(); ++isimtrk) {
-    // Skip out-of-time pileup
-    if (trk_sim_bunchCrossing[isimtrk] != 0)
-      continue;
 
-    // Skip non-hard-scatter
-    if (trk_sim_event[isimtrk] != 0)
-      continue;
+  if (ana.jet_branches) {
+    auto const& trk_sim_deltaEta = trk.getVF("sim_deltaEta");
+    auto const& trk_sim_deltaPhi = trk.getVF("sim_deltaPhi");
+    auto const& trk_sim_deltaR = trk.getVF("sim_deltaR");
+    auto const& trk_sim_jet_eta = trk.getVF("sim_jet_eta");
+    auto const& trk_sim_jet_phi = trk.getVF("sim_jet_phi");
+    auto const& trk_sim_jet_pt = trk.getVF("sim_jet_pt");
 
-    ana.tx->pushbackToBranch<float>("sim_pt", trk_sim_pt[isimtrk]);
-    ana.tx->pushbackToBranch<float>("sim_eta", trk_sim_eta[isimtrk]);
-    ana.tx->pushbackToBranch<float>("sim_phi", trk_sim_phi[isimtrk]);
-    ana.tx->pushbackToBranch<float>("sim_pca_dxy", trk_sim_pca_dxy[isimtrk]);
-    ana.tx->pushbackToBranch<float>("sim_pca_dz", trk_sim_pca_dz[isimtrk]);
-    ana.tx->pushbackToBranch<int>("sim_q", trk_sim_q[isimtrk]);
-    ana.tx->pushbackToBranch<int>("sim_event", trk_sim_event[isimtrk]);
-    ana.tx->pushbackToBranch<int>("sim_pdgId", trk_sim_pdgId[isimtrk]);
+    for (unsigned int isimtrk = 0; isimtrk < trk_sim_pt.size(); ++isimtrk) {
+      // Skip out-of-time pileup
+      if (trk_sim_bunchCrossing[isimtrk] != 0)
+        continue;
 
-    // For vertex we need to look it up from simvtx info
-    int vtxidx = trk_sim_parentVtxIdx[isimtrk];
-    ana.tx->pushbackToBranch<float>("sim_vx", trk_simvtx_x[vtxidx]);
-    ana.tx->pushbackToBranch<float>("sim_vy", trk_simvtx_y[vtxidx]);
-    ana.tx->pushbackToBranch<float>("sim_vz", trk_simvtx_z[vtxidx]);
+      // Skip non-hard-scatter
+      if (trk_sim_event[isimtrk] != 0)
+        continue;
 
-    // The trkNtupIdx is the idx in the trackingNtuple
-    ana.tx->pushbackToBranch<float>("sim_trkNtupIdx", isimtrk);
+      ana.tx->pushbackToBranch<float>("sim_deltaEta", trk_sim_deltaEta[isimtrk]);
+      ana.tx->pushbackToBranch<float>("sim_deltaPhi", trk_sim_deltaPhi[isimtrk]);
+      ana.tx->pushbackToBranch<float>("sim_deltaR", trk_sim_deltaR[isimtrk]);
+      ana.tx->pushbackToBranch<float>("sim_jet_eta", trk_sim_jet_eta[isimtrk]);
+      ana.tx->pushbackToBranch<float>("sim_jet_phi", trk_sim_jet_phi[isimtrk]);
+      ana.tx->pushbackToBranch<float>("sim_jet_pt", trk_sim_jet_pt[isimtrk]);
 
-    // Increase the counter for accepted simtrk
-    n_accepted_simtrk++;
+      ana.tx->pushbackToBranch<float>("sim_pt", trk_sim_pt[isimtrk]);
+      ana.tx->pushbackToBranch<float>("sim_eta", trk_sim_eta[isimtrk]);
+      ana.tx->pushbackToBranch<float>("sim_phi", trk_sim_phi[isimtrk]);
+      ana.tx->pushbackToBranch<float>("sim_pca_dxy", trk_sim_pca_dxy[isimtrk]);
+      ana.tx->pushbackToBranch<float>("sim_pca_dz", trk_sim_pca_dz[isimtrk]);
+      ana.tx->pushbackToBranch<int>("sim_q", trk_sim_q[isimtrk]);
+      ana.tx->pushbackToBranch<int>("sim_event", trk_sim_event[isimtrk]);
+      ana.tx->pushbackToBranch<int>("sim_pdgId", trk_sim_pdgId[isimtrk]);
+
+      // For vertex we need to look it up from simvtx info
+      int vtxidx = trk_sim_parentVtxIdx[isimtrk];
+      ana.tx->pushbackToBranch<float>("sim_vx", trk_simvtx_x[vtxidx]);
+      ana.tx->pushbackToBranch<float>("sim_vy", trk_simvtx_y[vtxidx]);
+      ana.tx->pushbackToBranch<float>("sim_vz", trk_simvtx_z[vtxidx]);
+
+      // The trkNtupIdx is the idx in the trackingNtuple
+      ana.tx->pushbackToBranch<float>("sim_trkNtupIdx", isimtrk);
+
+      // Increase the counter for accepted simtrk
+      n_accepted_simtrk++;
+    }
+  } else {
+    for (unsigned int isimtrk = 0; isimtrk < trk_sim_pt.size(); ++isimtrk) {
+      // Skip out-of-time pileup
+      if (trk_sim_bunchCrossing[isimtrk] != 0)
+        continue;
+
+      // Skip non-hard-scatter
+      if (trk_sim_event[isimtrk] != 0)
+        continue;
+
+      ana.tx->pushbackToBranch<float>("sim_pt", trk_sim_pt[isimtrk]);
+      ana.tx->pushbackToBranch<float>("sim_eta", trk_sim_eta[isimtrk]);
+      ana.tx->pushbackToBranch<float>("sim_phi", trk_sim_phi[isimtrk]);
+      ana.tx->pushbackToBranch<float>("sim_pca_dxy", trk_sim_pca_dxy[isimtrk]);
+      ana.tx->pushbackToBranch<float>("sim_pca_dz", trk_sim_pca_dz[isimtrk]);
+      ana.tx->pushbackToBranch<int>("sim_q", trk_sim_q[isimtrk]);
+      ana.tx->pushbackToBranch<int>("sim_event", trk_sim_event[isimtrk]);
+      ana.tx->pushbackToBranch<int>("sim_pdgId", trk_sim_pdgId[isimtrk]);
+
+      // For vertex we need to look it up from simvtx info
+      int vtxidx = trk_sim_parentVtxIdx[isimtrk];
+      ana.tx->pushbackToBranch<float>("sim_vx", trk_simvtx_x[vtxidx]);
+      ana.tx->pushbackToBranch<float>("sim_vy", trk_simvtx_y[vtxidx]);
+      ana.tx->pushbackToBranch<float>("sim_vz", trk_simvtx_z[vtxidx]);
+
+      // The trkNtupIdx is the idx in the trackingNtuple
+      ana.tx->pushbackToBranch<float>("sim_trkNtupIdx", isimtrk);
+
+      // Increase the counter for accepted simtrk
+      n_accepted_simtrk++;
+    }
   }
 
   // Intermediate variables to keep track of matched track candidates for a given sim track
