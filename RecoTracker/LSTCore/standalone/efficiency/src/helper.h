@@ -62,6 +62,9 @@ public:
   // do lower level
   bool do_lower_level;
 
+  // Boolean to enable jet branches
+  bool jet_branches;
+
   AnalysisConfig();
 };
 
