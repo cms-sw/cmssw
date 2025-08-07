@@ -164,23 +164,6 @@ private:
   MonitorElement *h2d_JetPtRecoOverGen_vs_GenPt_E;
   MonitorElement *h2d_JetPtRecoOverGen_vs_GenPt_F;
 
-  // Jet response vs gen profiled in em/had fractions
-  MonitorElement *h2d_JetPtRecoOverGen_vs_chHad_B;
-  MonitorElement *h2d_JetPtRecoOverGen_vs_chHad_E;
-  MonitorElement *h2d_JetPtRecoOverGen_vs_chHad_F;
-  MonitorElement *h2d_JetPtRecoOverGen_vs_neHad_B;
-  MonitorElement *h2d_JetPtRecoOverGen_vs_neHad_E;
-  MonitorElement *h2d_JetPtRecoOverGen_vs_neHad_F;
-  MonitorElement *h2d_JetPtRecoOverGen_vs_chEm_B;
-  MonitorElement *h2d_JetPtRecoOverGen_vs_chEm_E;
-  MonitorElement *h2d_JetPtRecoOverGen_vs_chEm_F;
-  MonitorElement *h2d_JetPtRecoOverGen_vs_neEm_B;
-  MonitorElement *h2d_JetPtRecoOverGen_vs_neEm_E;
-  MonitorElement *h2d_JetPtRecoOverGen_vs_neEm_F;
-  MonitorElement *h2d_JetPtRecoOverGen_vs_nCost_B;
-  MonitorElement *h2d_JetPtRecoOverGen_vs_nCost_E;
-  MonitorElement *h2d_JetPtRecoOverGen_vs_nCost_F;
-
   // Corrected jet response vs gen profiled in gen variable
   MonitorElement *p_JetPtCorrOverGen_vs_GenEta;
   MonitorElement *p_JetPtCorrOverGen_vs_GenPhi_B;
@@ -214,6 +197,37 @@ private:
   MonitorElement *h2d_JetPtCorrOverReco_vs_Pt_B;
   MonitorElement *h2d_JetPtCorrOverReco_vs_Pt_E;
   MonitorElement *h2d_JetPtCorrOverReco_vs_Pt_F;
+
+  // Jet em/had fractions profiled in pt
+  MonitorElement *p_chHad_vs_pt_B;
+  MonitorElement *p_chHad_vs_pt_E;
+  MonitorElement *p_chHad_vs_pt_F;
+  MonitorElement *p_neHad_vs_pt_B;
+  MonitorElement *p_neHad_vs_pt_E;
+  MonitorElement *p_neHad_vs_pt_F;
+  MonitorElement *p_chEm_vs_pt_B;
+  MonitorElement *p_chEm_vs_pt_E;
+  MonitorElement *p_chEm_vs_pt_F;
+  MonitorElement *p_neEm_vs_pt_B;
+  MonitorElement *p_neEm_vs_pt_E;
+  MonitorElement *p_neEm_vs_pt_F;
+
+  // Jet response vs gen profiled in em/had fractions
+  MonitorElement *h2d_JetPtRecoOverGen_vs_chHad_B;
+  MonitorElement *h2d_JetPtRecoOverGen_vs_chHad_E;
+  MonitorElement *h2d_JetPtRecoOverGen_vs_chHad_F;
+  MonitorElement *h2d_JetPtRecoOverGen_vs_neHad_B;
+  MonitorElement *h2d_JetPtRecoOverGen_vs_neHad_E;
+  MonitorElement *h2d_JetPtRecoOverGen_vs_neHad_F;
+  MonitorElement *h2d_JetPtRecoOverGen_vs_chEm_B;
+  MonitorElement *h2d_JetPtRecoOverGen_vs_chEm_E;
+  MonitorElement *h2d_JetPtRecoOverGen_vs_chEm_F;
+  MonitorElement *h2d_JetPtRecoOverGen_vs_neEm_B;
+  MonitorElement *h2d_JetPtRecoOverGen_vs_neEm_E;
+  MonitorElement *h2d_JetPtRecoOverGen_vs_neEm_F;
+  MonitorElement *h2d_JetPtRecoOverGen_vs_nCost_B;
+  MonitorElement *h2d_JetPtRecoOverGen_vs_nCost_E;
+  MonitorElement *h2d_JetPtRecoOverGen_vs_nCost_F;
 
   // Generation
   MonitorElement *mJetEtaFirst;

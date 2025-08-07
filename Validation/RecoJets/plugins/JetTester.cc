@@ -138,23 +138,6 @@ JetTester::JetTester(const edm::ParameterSet &iConfig)
   h2d_JetPtRecoOverGen_vs_GenPt_B = nullptr;
   h2d_JetPtRecoOverGen_vs_GenPt_E = nullptr;
   h2d_JetPtRecoOverGen_vs_GenPt_F = nullptr;
-  
-  // Jet response vs gen profiled in em/had fractions
-  h2d_JetPtRecoOverGen_vs_chHad_B = nullptr;
-  h2d_JetPtRecoOverGen_vs_chHad_E = nullptr;
-  h2d_JetPtRecoOverGen_vs_chHad_F = nullptr;
-  h2d_JetPtRecoOverGen_vs_neHad_B = nullptr;
-  h2d_JetPtRecoOverGen_vs_neHad_E = nullptr;
-  h2d_JetPtRecoOverGen_vs_neHad_F = nullptr;
-  h2d_JetPtRecoOverGen_vs_chEm_B = nullptr;
-  h2d_JetPtRecoOverGen_vs_chEm_E = nullptr;
-  h2d_JetPtRecoOverGen_vs_chEm_F = nullptr;
-  h2d_JetPtRecoOverGen_vs_neEm_B = nullptr;
-  h2d_JetPtRecoOverGen_vs_neEm_E = nullptr;
-  h2d_JetPtRecoOverGen_vs_neEm_F = nullptr;
-  h2d_JetPtRecoOverGen_vs_nCost_B = nullptr;
-  h2d_JetPtRecoOverGen_vs_nCost_E = nullptr;
-  h2d_JetPtRecoOverGen_vs_nCost_F = nullptr;
 
   // Corrected jet response vs gen profiled in gen variable
   p_JetPtCorrOverGen_vs_GenEta = nullptr;
@@ -189,7 +172,7 @@ JetTester::JetTester(const edm::ParameterSet &iConfig)
   h2d_JetPtCorrOverReco_vs_Pt_B = nullptr;
   h2d_JetPtCorrOverReco_vs_Pt_E = nullptr;
   h2d_JetPtCorrOverReco_vs_Pt_F = nullptr;
-  
+
   // First jet parameters
   mJetEtaFirst = nullptr;
   mJetPhiFirst = nullptr;
@@ -205,6 +188,37 @@ JetTester::JetTester(const edm::ParameterSet &iConfig)
   mDeltaEta = nullptr;
   mDeltaPhi = nullptr;
   mDeltaPt = nullptr;
+
+  // Jet em/had fractions profiled in pt
+  p_chHad_vs_pt_B = nullptr;
+  p_chHad_vs_pt_E = nullptr;
+  p_chHad_vs_pt_F = nullptr;
+  p_neHad_vs_pt_B = nullptr;
+  p_neHad_vs_pt_E = nullptr;
+  p_neHad_vs_pt_F = nullptr;
+  p_chEm_vs_pt_B = nullptr;
+  p_chEm_vs_pt_E = nullptr;
+  p_chEm_vs_pt_F = nullptr;
+  p_neEm_vs_pt_B = nullptr;
+  p_neEm_vs_pt_E = nullptr;
+  p_neEm_vs_pt_F = nullptr;
+
+  // Jet response vs gen profiled in em/had fractions
+  h2d_JetPtRecoOverGen_vs_chHad_B = nullptr;
+  h2d_JetPtRecoOverGen_vs_chHad_E = nullptr;
+  h2d_JetPtRecoOverGen_vs_chHad_F = nullptr;
+  h2d_JetPtRecoOverGen_vs_neHad_B = nullptr;
+  h2d_JetPtRecoOverGen_vs_neHad_E = nullptr;
+  h2d_JetPtRecoOverGen_vs_neHad_F = nullptr;
+  h2d_JetPtRecoOverGen_vs_chEm_B = nullptr;
+  h2d_JetPtRecoOverGen_vs_chEm_E = nullptr;
+  h2d_JetPtRecoOverGen_vs_chEm_F = nullptr;
+  h2d_JetPtRecoOverGen_vs_neEm_B = nullptr;
+  h2d_JetPtRecoOverGen_vs_neEm_E = nullptr;
+  h2d_JetPtRecoOverGen_vs_neEm_F = nullptr;
+  h2d_JetPtRecoOverGen_vs_nCost_B = nullptr;
+  h2d_JetPtRecoOverGen_vs_nCost_E = nullptr;
+  h2d_JetPtRecoOverGen_vs_nCost_F = nullptr;
 
   // ---- Calo Jet specific information ----
   /// returns the maximum energy deposited in ECAL towers
@@ -448,6 +462,43 @@ void JetTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
     "Response Reco Jets - 3<|#eta|<6;p_{T}^{gen};p_{T}^{reco}/p_{T}^{gen}",  
     n_PtBins_Profile, PtRange[0], PtRange[1], n_RespBins, RespRange[0], RespRange[1]);
 
+  p_chHad_vs_pt_B = ibooker.bookProfile("pr_chHad_pt_B", 
+    "Profiled charged HAD energy fraction - 0<|#eta|<1.5;p_{T}^{reco};charged HAD energy fraction",  
+    n_PtBins_Profile, PtRange[0], PtRange[1], 0, 1, " ");
+  p_chHad_vs_pt_E = ibooker.bookProfile("pr_chHad_pt_E", 
+    "Profiled charged HAD energy fraction - 1.5<|#eta|<3;p_{T}^{reco};charged HAD energy fraction",  
+    n_PtBins_Profile, PtRange[0], PtRange[1], 0, 1, " ");
+  p_chHad_vs_pt_F = ibooker.bookProfile("pr_chHad_pt_F", 
+    "Profiled charged HAD energy fraction - 3<|#eta|<6;p_{T}^{reco};charged HAD energy fraction",  
+    n_PtBins_Profile, PtRange[0], PtRange[1], 0, 1, " ");
+  p_neHad_vs_pt_B = ibooker.bookProfile("pr_neHad_pt_B", 
+    "Profiled neutral HAD energy fraction - 0<|#eta|<1.5;p_{T}^{reco};neutral HAD energy fraction",  
+    n_PtBins_Profile, PtRange[0], PtRange[1], 0, 1, " ");
+  p_neHad_vs_pt_E = ibooker.bookProfile("pr_neHad_pt_E", 
+    "Profiled neutral HAD energy fraction - 1.5<|#eta|<3;p_{T}^{reco};neutral HAD energy fraction",  
+    n_PtBins_Profile, PtRange[0], PtRange[1], 0, 1, " ");
+  p_neHad_vs_pt_F = ibooker.bookProfile("pr_neHad_pt_F", 
+    "Profiled neutral HAD energy fraction - 3<|#eta|<6;p_{T}^{reco};neutral HAD energy fraction",  
+    n_PtBins_Profile, PtRange[0], PtRange[1], 0, 1, " ");
+  p_chEm_vs_pt_B = ibooker.bookProfile("pr_chEm_pt_B", 
+    "Profiled charged EM energy fraction - 0<|#eta|<1.5;p_{T}^{reco};charged EM energy fraction",  
+    n_PtBins_Profile, PtRange[0], PtRange[1], 0, 1, " ");
+  p_chEm_vs_pt_E = ibooker.bookProfile("pr_chEm_pt_E", 
+    "Profiled charged EM energy fraction - 1.5<|#eta|<3;p_{T}^{reco};charged EM energy fraction",  
+    n_PtBins_Profile, PtRange[0], PtRange[1], 0, 1, " ");
+  p_chEm_vs_pt_F = ibooker.bookProfile("pr_chEm_pt_F", 
+    "Profiled charged EM energy fraction - 3<|#eta|<6;p_{T}^{reco};charged EM energy fraction",  
+    n_PtBins_Profile, PtRange[0], PtRange[1], 0, 1, " ");
+  p_neEm_vs_pt_B = ibooker.bookProfile("pr_neEm_pt_B", 
+    "Profiled neutral EM energy fraction - 0<|#eta|<1.5;p_{T}^{reco};neutral EM energy fraction",  
+    n_PtBins_Profile, PtRange[0], PtRange[1], 0, 1, " ");
+  p_neEm_vs_pt_E = ibooker.bookProfile("pr_neEm_pt_E", 
+    "Profiled neutral EM energy fraction - 1.5<|#eta|<3;p_{T}^{reco};neutral EM energy fraction",  
+    n_PtBins_Profile, PtRange[0], PtRange[1], 0, 1, " ");
+  p_neEm_vs_pt_F = ibooker.bookProfile("pr_neEm_pt_F", 
+    "Profiled neutral EM energy fraction - 3<|#eta|<6;p_{T}^{reco};neutral EM energy fraction",  
+    n_PtBins_Profile, PtRange[0], PtRange[1], 0, 1, " ");
+
   h2d_JetPtRecoOverGen_vs_chHad_B = ibooker.book2D("h2d_PtRecoOverGen_chHad_B",
     "Response Reco Jets - 0<|#eta|<1.5;charged Hadronic Fraction;p_{T}^{reco}/p_{T}^{gen}",
     30, 0, 1, n_RespBins, RespRange[0], RespRange[1]);
@@ -490,7 +541,7 @@ void JetTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
   h2d_JetPtRecoOverGen_vs_nCost_E = ibooker.book2D("h2d_PtRecoOverGen_nCost_E",
     "Response Reco Jets - 1.5<|#eta|<3;number of constituents;p_{T}^{reco}/p_{T}^{gen}",
     50, 0, 100, n_RespBins, RespRange[0], RespRange[1]);
-  h2d_JetPtRecoOverGen_vs_nCost_F = ibooker.book2D("h2d_PtRecoOverGen_nCost_E",
+  h2d_JetPtRecoOverGen_vs_nCost_F = ibooker.book2D("h2d_PtRecoOverGen_nCost_F",
     "Response Reco Jets - 3<|#eta|<6;number of constituents;p_{T}^{reco}/p_{T}^{gen}",
     50, 0, 100, n_RespBins, RespRange[0], RespRange[1]);
 
@@ -502,8 +553,7 @@ void JetTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
   }
 
   // Corrected jet parameters
-  if (isMiniAODJet || !mJetCorrector.label().empty()) {  // if correction label is filled, but
-                                                         // fill also for MiniAOD though
+  if (correctionIsValid) {
     mCorrJetEta = ibooker.book1D("CorrJetEta", "Corr Jets p_{T}>"+std::to_string(int(medJetPt))+" GeV;#eta;# jets", n_EtaBins, EtaRange[0], EtaRange[1]);
     mCorrJetPhi = ibooker.book1D("CorrJetPhi", "Corr Jets p_{T}>"+std::to_string(int(medJetPt))+" GeV;#phi;# jets", n_PhiBins, PhiRange[0], PhiRange[1]);
     mCorrJetPt = ibooker.book1D("CorrJetPt", "Corr Jets p_{T}>"+std::to_string(int(medJetPt))+" GeV;p_{T};# jets", n_PtBins, PtRange[0], PtRange[1]);
@@ -516,6 +566,10 @@ void JetTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
     mMatchedCorrPt_E = ibooker.book1D("MatchedCorrPt_E", "Matched Corr Jets - 1.5<|#eta|<3;p_{T};# jets", n_PtBins, PtRange[0], PtRange[1]);
     mMatchedCorrPt_F = ibooker.book1D("MatchedCorrPt_F", "Matched Corr Jets - 3<|#eta|<6;p_{T};# jets", n_PtBins, PtRange[0], PtRange[1]);
 
+    mDeltaEta = ibooker.book1D("DeltaEta", ";#eta^{gen}-#eta^{corr};# matched jets", 100, -0.5, 0.5);
+    mDeltaPhi = ibooker.book1D("DeltaPhi", ";#phi^{gen}-#phi^{corr};# matched jets", 100, -0.5, 0.5);
+    mDeltaPt = ibooker.book1D("DeltaPt", ";(p_{T}^{gen}-p_{T}^{corr})/p_{T}^{gen};# matched jets", 100, -1.0, 1.0);
+
     // Corrected jet response vs gen histograms
     h_JetPtCorrOverGen_B = ibooker.book1D("h_PtCorrOverGen_B", "Response Corr Jets - 0<|#eta|<1.5;p_{T}^{corr}/p_{T}^{gen};# jets", n_RespBins, RespRange[0], RespRange[1]);
     h_JetPtCorrOverGen_E = ibooker.book1D("h_PtCorrOverGen_E", "Response Corr Jets - 1.5<|#eta|<3;p_{T}^{corr}/p_{T}^{gen};# jets", n_RespBins, RespRange[0], RespRange[1]);
@@ -525,6 +579,7 @@ void JetTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
     h_JetPtCorrOverReco_B = ibooker.book1D("h_PtCorrOverReco_B", "Response Corr Jets over Reco - 0<|#eta|<1.5;p_{T}^{corr}/p_{T}^{reco};# jets", n_RespBins, RespRange[0], RespRange[1]);
     h_JetPtCorrOverReco_E = ibooker.book1D("h_PtCorrOverReco_E", "Response Corr Jets over Reco - 1.5<|#eta|<3;p_{T}^{corr}/p_{T}^{reco};# jets", n_RespBins, RespRange[0], RespRange[1]);
     h_JetPtCorrOverReco_F = ibooker.book1D("h_PtCorrOverReco_F", "Response Corr Jets over Reco - 3<|#eta|<6;p_{T}^{corr}/p_{T}^{reco};# jets", n_RespBins, RespRange[0], RespRange[1]);
+
 
     for (int i = 0; i < n_bins_pt; ++i) {
       double ptMin = ptBins_[i];
@@ -661,9 +716,6 @@ void JetTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
   mMjj = ibooker.book1D("Mjj", "Mjj", 100, 0, 2000);
   mNJets1 = ibooker.bookProfile("NJets1", "Number of jets above Pt threshold", 100, 0, 200, 100, 0, 50, "s");
   mNJets2 = ibooker.bookProfile("NJets2", "Number of jets above Pt threshold", 100, 0, 4000, 100, 0, 50, "s");
-  mDeltaEta = ibooker.book1D("DeltaEta", ";#eta^{gen}-#eta^{corr};# matched jets", 100, -0.5, 0.5);
-  mDeltaPhi = ibooker.book1D("DeltaPhi", ";#phi^{gen}-#phi^{corr};# matched jets", 100, -0.5, 0.5);
-  mDeltaPt = ibooker.book1D("DeltaPt", ";(p_{T}^{gen}-p_{T}^{corr})/p_{T}^{gen};# matched jets", 100, -1.0, 1.0);
   
   //------------------------------------------------------------------------
   if (isCaloJet) {
@@ -791,6 +843,10 @@ void JetTester::analyze(const edm::Event &mEvent, const edm::EventSetup &mSetup)
     mEvent.getByToken(pfJetsToken_, pfJets);
     if (!pfJets.isValid()) return;
     for (unsigned ijet = 0; ijet < pfJets->size(); ijet++) {
+      // LEPTON CLEANING 
+      if (((*pfJets)[ijet].chargedMuEnergyFraction() > 0.8) ||
+          ((*pfJets)[ijet].electronEnergyFraction() > 0.8) ||
+          ((*pfJets)[ijet].photonEnergyFraction() > 0.9)) continue;
       recoJets.push_back((*pfJets)[ijet]);
       if (correctionIsValid) {
         auto jetCorrected = (*pfJets)[ijet];
@@ -803,6 +859,11 @@ void JetTester::analyze(const edm::Event &mEvent, const edm::EventSetup &mSetup)
     mEvent.getByToken(patJetsToken_, patJets);
     if (!patJets.isValid()) return;
     for (unsigned ijet = 0; ijet < patJets->size(); ijet++) {
+      // LEPTON CLEANING 
+      if ((*patJets)[ijet].isPFJet() && 
+          (((*patJets)[ijet].chargedMuEnergyFraction() > 0.8) ||
+          ((*patJets)[ijet].electronEnergyFraction() > 0.8) ||
+          ((*patJets)[ijet].photonEnergyFraction() > 0.9))) continue;
       if (correctionIsValid) {
         corrJets.push_back((*patJets)[ijet]);
       }
@@ -941,6 +1002,25 @@ void JetTester::analyze(const edm::Event &mEvent, const edm::EventSetup &mSetup)
       neutralMultiplicity->Fill((*pfJets)[ijet].neutralMultiplicity());
       HOEnergy->Fill((*pfJets)[ijet].hoEnergy());
       HOEnergyFraction->Fill((*pfJets)[ijet].hoEnergyFraction());
+
+      if (std::abs(recoJets[ijet].eta()) < 1.5) {
+        p_chHad_vs_pt_B->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].chargedHadronEnergyFraction());
+        p_neHad_vs_pt_B->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].neutralHadronEnergyFraction());
+        p_chEm_vs_pt_B->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].chargedEmEnergyFraction());
+        p_neEm_vs_pt_B->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].neutralEmEnergyFraction());
+      }
+      else if (std::abs(recoJets[ijet].eta()) < 3) {
+        p_chHad_vs_pt_E->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].chargedHadronEnergyFraction());
+        p_neHad_vs_pt_E->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].neutralHadronEnergyFraction());
+        p_chEm_vs_pt_E->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].chargedEmEnergyFraction());
+        p_neEm_vs_pt_E->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].neutralEmEnergyFraction());
+      }
+      else if (std::abs(recoJets[ijet].eta()) < 6) {
+        p_chHad_vs_pt_F->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].chargedHadronEnergyFraction());
+        p_neHad_vs_pt_F->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].neutralHadronEnergyFraction());
+        p_chEm_vs_pt_F->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].chargedEmEnergyFraction());
+        p_neEm_vs_pt_F->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].neutralEmEnergyFraction());
+      }
     }
     if (isMiniAODJet && (*patJets)[ijet].isPFJet()) {
       muonMultiplicity->Fill((*patJets)[ijet].muonMultiplicity());
@@ -1160,6 +1240,7 @@ void JetTester::analyze(const edm::Event &mEvent, const edm::EventSetup &mSetup)
       if (gjet == 0) {
         mGenEtaFirst->Fill(genJets[gjet].eta());
         mGenPhiFirst->Fill(genJets[gjet].phi());
+        mGenPtFirst->Fill(genJets[gjet].pt());
       }
 
       if (std::abs(genJets[gjet].eta()) < 1.5) 
