@@ -52,7 +52,6 @@
   <class name="std::vector<ticl::AssociationElement<std::pair<ticl::SharedEnergyType, float> > >"/>
   <class name="std::vector<std::vector<ticl::AssociationElement<std::pair<ticl::SharedEnergyType, float> > > >"/>
   
-  <class name="std::monostate"/>
   <class name="edm::RefProd<std::vector<ticl::Trackster> >"/>
   <class name="std::pair<edm::RefProd<std::vector<reco::CaloCluster> >,edm::RefProd<std::vector<ticl::Trackster> > >"/>
   <class name="std::pair<edm::RefProd<std::vector<ticl::Trackster> >, edm::RefProd<std::vector<ticl::Trackster> > >"/>
