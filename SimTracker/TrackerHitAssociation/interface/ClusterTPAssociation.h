@@ -4,7 +4,6 @@
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/HandleBase.h"
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
-#include "FWCore/Utilities/interface/VecArray.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 
