@@ -121,8 +121,8 @@ void HGCalMappingESProducer::prepareModuleMapperIndexer() {
       if (matched) {
         wtypecode = sipm_typecode_match[0].str();  // assign sipm typecode as wafer type
       } else {
-        edm::LogWarning("HGCalMappingIndexESSource")
-            << "Could not match module type code to expected pattern: " << typecode;
+        throw cms::Exception("HGCalMappingIndexESSource")
+        << "Could not match module type code to expected pattern: " << typecode;
       }
     }
 
