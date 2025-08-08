@@ -841,62 +841,83 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
     tk_PV_dz_hist->Fill(best_offset.second);
   }
 
-  //  uncleaned calo rechits histograms
+  // Define helper lambdas for EB and EE rechits
+  auto fillEBHistograms = [](const auto& rechits,
+                             int index,
+                             dqm::reco::MonitorElement* numberHist[2],
+                             dqm::reco::MonitorElement* etaPhiMap[2],
+                             dqm::reco::MonitorElement* energyHist[2],
+                             dqm::reco::MonitorElement* timeHist[2]) {
+    numberHist[index]->Fill(rechits.size());
+    for (const auto& hit : rechits) {
+      EBDetId id(hit.detId());
+      etaPhiMap[index]->Fill(id.ieta(), id.iphi());
+      energyHist[index]->Fill(hit.energy());
+      timeHist[index]->Fill(hit.time());
+    }
+  };
+
+  auto fillEEHistograms = [](const auto& rechits,
+                             int index,
+                             dqm::reco::MonitorElement* numberHist[2],
+                             dqm::reco::MonitorElement* plusXYMap[2],
+                             dqm::reco::MonitorElement* minusXYMap[2],
+                             dqm::reco::MonitorElement* energyHist[2],
+                             dqm::reco::MonitorElement* timeHist[2]) {
+    numberHist[index]->Fill(rechits.size());
+    for (const auto& hit : rechits) {
+      EEDetId id(hit.detId());
+      if (id.zside() > 0) {
+        plusXYMap[index]->Fill(id.ix(), id.iy());
+      } else {
+        minusXYMap[index]->Fill(id.ix(), id.iy());
+      }
+      energyHist[index]->Fill(hit.energy());
+      timeHist[index]->Fill(hit.time());
+    }
+  };
+
+  // Process uncleaned EB rechits
   edm::Handle<Run3ScoutingEBRecHitCollection> ebRecHitsH;
   if (!ebRecHitsToken_.isUninitialized() && getValidHandle(iEvent, ebRecHitsToken_, ebRecHitsH, "pfRecHitsEB")) {
-    ebRecHitsNumber_hist[0]->Fill(ebRecHitsH->size());
-    for (const auto& ebRecHit : *ebRecHitsH) {
-      EBDetId ebid(ebRecHit.detId());
-      ebRecHitsEtaPhiMap[0]->Fill(ebid.ieta(), ebid.iphi());
-      ebRecHits_energy_hist[0]->Fill(ebRecHit.energy());
-      ebRecHits_time_hist[0]->Fill(ebRecHit.time());
-    }
+    fillEBHistograms(
+        *ebRecHitsH, 0, ebRecHitsNumber_hist, ebRecHitsEtaPhiMap, ebRecHits_energy_hist, ebRecHits_time_hist);
   }
 
+  // Process uncleaned EE rechits
   edm::Handle<Run3ScoutingEERecHitCollection> eeRecHitsH;
   if (!eeRecHitsToken_.isUninitialized() && getValidHandle(iEvent, eeRecHitsToken_, eeRecHitsH, "pfRecHitsEE")) {
-    eeRecHitsNumber_hist[0]->Fill(eeRecHitsH->size());
-    for (const auto& eeRecHit : *eeRecHitsH) {
-      EEDetId eeid(eeRecHit.detId());
-      if (eeid.zside() > 0) {
-        eePlusRecHitsXYMap[0]->Fill(eeid.ix(), eeid.iy());
-      } else {
-        eeMinusRecHitsXYMap[0]->Fill(eeid.ix(), eeid.iy());
-      }
-      eeRecHits_energy_hist[0]->Fill(eeRecHit.energy());
-      eeRecHits_time_hist[0]->Fill(eeRecHit.time());
-    }
+    fillEEHistograms(*eeRecHitsH,
+                     0,
+                     eeRecHitsNumber_hist,
+                     eePlusRecHitsXYMap,
+                     eeMinusRecHitsXYMap,
+                     eeRecHits_energy_hist,
+                     eeRecHits_time_hist);
   }
 
-  // cleaned calo rechits histograms
+  // Process cleaned EB rechits
   edm::Handle<Run3ScoutingEBRecHitCollection> ebRecHitsCleanedH;
   if (!ebCleanedRecHitsToken_.isUninitialized() &&
       getValidHandle(iEvent, ebCleanedRecHitsToken_, ebRecHitsCleanedH, "pfCleanedRecHitsEB")) {
-    ebRecHitsNumber_hist[1]->Fill(ebRecHitsCleanedH->size());
-    for (const auto& ebRecHit : *ebRecHitsCleanedH) {
-      EBDetId ebid(ebRecHit.detId());
-      ebRecHitsEtaPhiMap[1]->Fill(ebid.ieta(), ebid.iphi());
-      ebRecHits_energy_hist[1]->Fill(ebRecHit.energy());
-      ebRecHits_time_hist[1]->Fill(ebRecHit.time());
-    }
+    fillEBHistograms(
+        *ebRecHitsCleanedH, 1, ebRecHitsNumber_hist, ebRecHitsEtaPhiMap, ebRecHits_energy_hist, ebRecHits_time_hist);
   }
 
+  // Process cleaned EE rechits
   edm::Handle<Run3ScoutingEERecHitCollection> eeRecHitsCleanedH;
   if (!eeCleanedRecHitsToken_.isUninitialized() &&
       getValidHandle(iEvent, eeCleanedRecHitsToken_, eeRecHitsCleanedH, "pfCleanedRecHitsEE")) {
-    eeRecHitsNumber_hist[1]->Fill(eeRecHitsCleanedH->size());
-    for (const auto& eeRecHit : *eeRecHitsCleanedH) {
-      EEDetId eeid(eeRecHit.detId());
-      if (eeid.zside() > 0) {
-        eePlusRecHitsXYMap[1]->Fill(eeid.ix(), eeid.iy());
-      } else {
-        eeMinusRecHitsXYMap[1]->Fill(eeid.ix(), eeid.iy());
-      }
-      eeRecHits_energy_hist[1]->Fill(eeRecHit.energy());
-      eeRecHits_time_hist[1]->Fill(eeRecHit.time());
-    }
+    fillEEHistograms(*eeRecHitsCleanedH,
+                     1,
+                     eeRecHitsNumber_hist,
+                     eePlusRecHitsXYMap,
+                     eeMinusRecHitsXYMap,
+                     eeRecHits_energy_hist,
+                     eeRecHits_time_hist);
   }
 
+  // process the HBHE rechits
   edm::Handle<Run3ScoutingHBHERecHitCollection> hbheRecHitsH;
   if (!hbheRecHitsToken_.isUninitialized() &&
       getValidHandle(iEvent, hbheRecHitsToken_, hbheRecHitsH, "pfRecHitsHBHE")) {
