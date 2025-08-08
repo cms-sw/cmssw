@@ -67,7 +67,7 @@ process.dqmSaver.runNumber = options.runNumber
 # process.dqmSaverPB.runNumber = options.runNumber
 process = customise(process)
 process.DQMStore.verbose = 0
-if not unitTest and not useFileInput:
+if (not unitTest) and (not useFileInput) and (not options.inputFiles):
   if not options.BeamSplashRun :
     process.source.minEventsPerLumi = 5
 
