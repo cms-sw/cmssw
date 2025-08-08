@@ -13,9 +13,9 @@ from RecoLocalCalo.EcalRecProducers.ecalRecHitTPGConditions_cff import *
 from RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalRecHit_cff import *
-ecalRecHit.cpu.EBuncalibRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
-ecalRecHit.cpu.EEuncalibRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEE'
-ecalRecHit.cpu.ChannelStatusToBeExcluded = [
+ecalRecHit.EBuncalibRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
+ecalRecHit.EEuncalibRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEE'
+ecalRecHit.ChannelStatusToBeExcluded = [
     'kDAC',
     'kNoLaser',
     'kNoisy',

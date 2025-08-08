@@ -53,8 +53,8 @@ ecalDQMCollectionTags = cms.PSet(
     EECpuUncalibRecHit = cms.untracked.InputTag("ecalMultiFitUncalibRecHitLegacy", "EcalUncalibRecHitsEE"),
     EBGpuUncalibRecHit = cms.untracked.InputTag("ecalMultiFitUncalibRecHit", "EcalUncalibRecHitsEB"),
     EEGpuUncalibRecHit = cms.untracked.InputTag("ecalMultiFitUncalibRecHit", "EcalUncalibRecHitsEE"),
-    EBCpuRecHit = cms.untracked.InputTag("ecalRecHit@cpu", "EcalRecHitsEB"),
-    EECpuRecHit = cms.untracked.InputTag("ecalRecHit@cpu", "EcalRecHitsEE"),
-    EBGpuRecHit = cms.untracked.InputTag("ecalRecHit@cuda", "EcalRecHitsEB"),
-    EEGpuRecHit = cms.untracked.InputTag("ecalRecHit@cuda", "EcalRecHitsEE")
+    EBCpuRecHit = cms.untracked.InputTag("ecalRecHitLegacy", "EcalRecHitsEB"),
+    EECpuRecHit = cms.untracked.InputTag("ecalRecHitLegacy", "EcalRecHitsEE"),
+    EBGpuRecHit = cms.untracked.InputTag("ecalRecHit", "EcalRecHitsEB"),
+    EEGpuRecHit = cms.untracked.InputTag("ecalRecHit", "EcalRecHitsEE")
 )

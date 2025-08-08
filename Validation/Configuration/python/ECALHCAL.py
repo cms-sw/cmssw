@@ -48,10 +48,10 @@ def customise(process):
     process.hbhereco.digiLabelQIE11 = cms.InputTag("simHcalUnsuppressedDigis","HBHEQIE11DigiCollection")
     process.horeco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
     process.hfreco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
-    process.ecalRecHit.cpu.recoverEBIsolatedChannels = cms.bool(False)
-    process.ecalRecHit.cpu.recoverEEIsolatedChannels = cms.bool(False)
-    process.ecalRecHit.cpu.recoverEBFE = cms.bool(False)
-    process.ecalRecHit.cpu.recoverEEFE = cms.bool(False)
+    process.ecalRecHit.recoverEBIsolatedChannels = cms.bool(False)
+    process.ecalRecHit.recoverEEIsolatedChannels = cms.bool(False)
+    process.ecalRecHit.recoverEBFE = cms.bool(False)
+    process.ecalRecHit.recoverEEFE = cms.bool(False)
 
 #    process.local_digireco = cms.Path(process.mix * process.calDigi * process.ecalLocalRecoSequence * process.hbhereco * process.hfreco * process.horeco * (process.ecalClusters+process.caloTowersRec) * process.reducedEcalRecHitsSequence )
 
