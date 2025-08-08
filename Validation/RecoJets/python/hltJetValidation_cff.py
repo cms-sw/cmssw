@@ -16,38 +16,24 @@ _hltJetTester = _jetTester.clone(
     isHLT = cms.untracked.bool(True),
     recoJetPtThreshold = cms.double(30),
     matchGenPtThreshold = cms.double(20.0),
-    RThreshold = cms.double(0.2)
+    RThreshold = cms.double(0.2),
+    srcGen = cms.InputTag("ak4GenJetsNoNu"),
+    JetType = cms.untracked.string('pf'), # requires "pf", "calo", or "miniaod"
+    primVertex = cms.InputTag("hltGoodOfflinePrimaryVertices"),
 )
 
-hltJetAnalyzerAk4PFPuppi = _hltJetTester.clone(
-    JetType = cms.untracked.string('pf'), # requires "pf", "calo", or "miniaod"
+hltJetAnalyzerAK4PFPuppi = _hltJetTester.clone(
     src = cms.InputTag("hltAK4PFPuppiJets"),
-    srcGen = cms.InputTag("ak4GenJetsNoNu"),
     JetCorrections = cms.InputTag("hltAK4PFPuppiJetCorrector"),
-    primVertex = cms.InputTag("hltGoodOfflinePrimaryVertices"),
 )
 
-hltJetAnalyzerAk4PFCluster = _hltJetTester.clone(
-    JetType = cms.untracked.string('pf'), # requires "pf", "calo", or "miniaod"
-    src = cms.InputTag("hltAK4PFClusterJets"),
-    srcGen = cms.InputTag("ak4GenJetsNoNu"),
-    JetCorrections = cms.InputTag(""),
-    primVertex = cms.InputTag("hltGoodOfflinePrimaryVertices"),
-)
-
-hltJetAnalyzerAk4PF = _hltJetTester.clone(
-    JetType = cms.untracked.string('pf'), # requires "pf", "calo", or "miniaod"
+hltJetAnalyzerAK4PF = _hltJetTester.clone(
     src = cms.InputTag("hltAK4PFJets"),
-    srcGen = cms.InputTag("ak4GenJetsNoNu"),
     JetCorrections = cms.InputTag("hltAK4PFJetCorrector"),
-    primVertex = cms.InputTag("hltGoodOfflinePrimaryVertices"),
 )
 
-hltJetAnalyzerAk4PFCHS = _hltJetTester.clone(
-    JetType = cms.untracked.string('pf'), # requires "pf", "calo", or "miniaod"
+hltJetAnalyzerAK4PFCHS = _hltJetTester.clone(
     src = cms.InputTag("hltAK4PFCHSJets"),
-    srcGen = cms.InputTag("ak4GenJetsNoNu"),
     JetCorrections = cms.InputTag("hltAK4PFCHSJetCorrector"),
-    primVertex = cms.InputTag("hltGoodOfflinePrimaryVertices"),
 )
 
