@@ -53,13 +53,13 @@ process.load("DQM.EcalMonitorClient.EcalMonitorClient_cfi")
 ### Individual module setups ###
 
 # Use the ratio timing method for the online DQM
-process.ecalMultiFitUncalibRecHitCPU.algoPSet.timealgo = "RatioMethod"
-process.ecalMultiFitUncalibRecHitCPU.algoPSet.outOfTimeThresholdGain12pEB = 5.
-process.ecalMultiFitUncalibRecHitCPU.algoPSet.outOfTimeThresholdGain12mEB = 5.
-process.ecalMultiFitUncalibRecHitCPU.algoPSet.outOfTimeThresholdGain61pEB = 5.
-process.ecalMultiFitUncalibRecHitCPU.algoPSet.outOfTimeThresholdGain61mEB = 5.
-process.ecalMultiFitUncalibRecHitCPU.algoPSet.timeCalibTag = ':'
-process.ecalMultiFitUncalibRecHitCPU.algoPSet.timeOffsetTag = ':'
+process.ecalMultiFitUncalibRecHit.algoPSet.timealgo = "RatioMethod"
+process.ecalMultiFitUncalibRecHit.algoPSet.outOfTimeThresholdGain12pEB = 5.
+process.ecalMultiFitUncalibRecHit.algoPSet.outOfTimeThresholdGain12mEB = 5.
+process.ecalMultiFitUncalibRecHit.algoPSet.outOfTimeThresholdGain61pEB = 5.
+process.ecalMultiFitUncalibRecHit.algoPSet.outOfTimeThresholdGain61mEB = 5.
+process.ecalMultiFitUncalibRecHit.algoPSet.timeCalibTag = ':'
+process.ecalMultiFitUncalibRecHit.algoPSet.timeOffsetTag = ':'
 process.ecalRecHit.cpu.timeCalibTag = ':'
 process.ecalRecHit.cpu.timeOffsetTag = ':'
 
