@@ -338,7 +338,8 @@ bool HGCalDDDConstants::cassetteShiftScintillator(int zside, int layer, int iphi
 
 double HGCalDDDConstants::cellArea(const HGCSiliconDetId& id, bool reco) const {
   double area(0);
-  int32_t indx = HGCalWaferIndex::waferIndex(id.layer(), id.waferU(), id.waferV());
+  int waferU = (id.zside() > 0) ? -id.waferU() : id.waferU();
+  int32_t indx = HGCalWaferIndex::waferIndex(id.layer(), waferU, id.waferV());
   auto ktr = hgpar_->waferInfoMap_.find(indx);
   if (ktr != hgpar_->waferInfoMap_.end()) {
     if (ktr->second.part == HGCalTypes::WaferFull) {
@@ -1150,7 +1151,7 @@ bool HGCalDDDConstants::maskCell(const DetId& detId, int corners) const {
         HFNoseDetId id(detId);
         N = getUVMax(id.type());
         layer = id.layer();
-        waferU = id.waferU();
+        waferU = (id.zside() > 0) ? -id.waferU() : id.waferU();
         waferV = id.waferV();
         u = id.cellU();
         v = id.cellV();
@@ -1158,7 +1159,7 @@ bool HGCalDDDConstants::maskCell(const DetId& detId, int corners) const {
         HGCSiliconDetId id(detId);
         N = getUVMax(id.type());
         layer = id.layer();
-        waferU = id.waferU();
+        waferU = (id.zside() > 0) ? -id.waferU() : id.waferU();
         waferV = id.waferV();
         u = id.cellU();
         v = id.cellV();
@@ -1373,7 +1374,8 @@ int32_t HGCalDDDConstants::placementIndex(const HGCSiliconDetId& id) const {
   int32_t place(0);
   int32_t layer = id.layer();
   int32_t layertype = layerType(layer);
-  int32_t indx = HGCalWaferIndex::waferIndex(layer, id.waferU(), id.waferV());
+  int32_t waferU = (id.zside() > 0) ? -id.waferU() : id.waferU();
+  int32_t indx = HGCalWaferIndex::waferIndex(layer, waferU, id.waferV());
   auto ktr = hgpar_->waferInfoMap_.find(indx);
   if (ktr != hgpar_->waferInfoMap_.end()) {
     place = HGCalCell::cellPlacementIndex(id.zside(), layertype, (ktr->second).orient);
@@ -1788,7 +1790,7 @@ void HGCalDDDConstants::waferFromPosition(const double x,
       if ((dx - rmax) <= tolc && (dy - hexside) <= tolc) {
         if (((dy - 0.5 * hexside) <= tolc) || ((dx * tan30deg_ - (hexside - dy)) <= tolc)) {
           if (waferHexagon8File()) {
-            int index = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
+            int index = (zside > 0) ? HGCalWaferIndex::waferIndex(layer, -waferU, waferV) : HGCalWaferIndex::waferIndex(layer, waferU, waferV);
             celltype = HGCalWaferType::getType(index, hgpar_->waferInfoMap_);
             if (debug)
               edm::LogVerbatim("HGCalGeom")
@@ -1835,7 +1837,7 @@ void HGCalDDDConstants::waferFromPosition(const double x,
           }
         }
         if (waferHexagon8File()) {
-          int index = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
+	  int index = (zside > 0) ? HGCalWaferIndex::waferIndex(layer, -waferU, waferV) : HGCalWaferIndex::waferIndex(layer, waferU, waferV);
           celltype = HGCalWaferType::getType(index, hgpar_->waferInfoMap_);
           if (debug)
             edm::LogVerbatim("HGCalGeom") << "Position (" << x << ", " << y << ") Wafer type:partial:orient:cassette "
@@ -1853,6 +1855,8 @@ void HGCalDDDConstants::waferFromPosition(const double x,
       }
     }
   }
+  if (debug)
+    edm::LogVerbatim("HGCalGeomX") << "waferFromPosition: waferu " << waferU << ":" << hgpar_->waferUVMax_ << ":" << (std::abs(waferU) <= hgpar_->waferUVMax_) << " celltype " << celltype;
   if ((std::abs(waferU) <= hgpar_->waferUVMax_) && (celltype >= 0)) {
     int place(HGCalCell::cellPlacementOld), part(HGCalTypes::WaferFull);
     if (cassetteMode()) {
@@ -1870,9 +1874,18 @@ void HGCalDDDConstants::waferFromPosition(const double x,
     bool fineCoarse =
         ((celltype == HGCSiliconDetId::HGCalHD120) || (celltype == HGCSiliconDetId::HGCalHD200)) ? false : true;
     cellHex(xx, yy, fineCoarse, place, part, cellU, cellV, extend, debug);
+    auto info = (zside > 0) ? waferInfo(layer, -waferU, waferV) : waferInfo(layer, waferU, waferV);
+    celltype = info.type;
     wt = (((celltype == HGCSiliconDetId::HGCalHD120) && (hgpar_->useSimWt_ > 0))
               ? (hgpar_->cellThickness_[celltype] / hgpar_->waferThick_)
               : 1.0);
+    if (debug) {
+      std::ostringstream st1;
+      st1 << hgpar_->cellThickness_.size() << " CellThickneses";
+      for (unsigned j = 0; j < hgpar_->cellThickness_.size(); ++j)
+	st1 << ": " << hgpar_->cellThickness_[j];
+      edm::LogVerbatim("HGCalGeomX") << "waferfFromPosition: celltype " << celltype << " Layer " << layer << " Wafer " << waferU << ":" << waferV << " having " << st1.str() << " SimWt " << hgpar_->useSimWt_ << " waferThick "<< hgpar_->waferThick_ << " wt " << wt;
+    }
   } else {
     cellU = cellV = 2 * hgpar_->nCellsFine_;
     wt = 1.0;
@@ -2058,12 +2071,12 @@ int HGCalDDDConstants::waferType(DetId const& id, bool fromFile) const {
       if (id.det() != DetId::Forward) {
         HGCSiliconDetId hid(id);
         layer = hid.layer();
-        waferU = hid.waferU();
+        waferU = (hid.zside() > 0) ? -hid.waferU() : hid.waferU();
         waferV = hid.waferV();
       } else {
         HFNoseDetId hid(id);
         layer = hid.layer();
-        waferU = hid.waferU();
+        waferU = (hid.zside() > 0) ? -hid.waferU() : hid.waferU();
         waferV = hid.waferV();
       }
       auto itr = hgpar_->waferInfoMap_.find(HGCalWaferIndex::waferIndex(layer, waferU, waferV));
@@ -2098,7 +2111,8 @@ int HGCalDDDConstants::waferType(int layer, int waferU, int waferV, bool fromFil
 }
 
 std::tuple<int, int, int> HGCalDDDConstants::waferType(HGCSiliconDetId const& id, bool fromFile) const {
-  const auto& index = HGCalWaferIndex::waferIndex(id.layer(), id.waferU(), id.waferV());
+  int waferU = (id.zside() > 0) ? -id.waferU() : id.waferU();
+  const auto& index = HGCalWaferIndex::waferIndex(id.layer(), waferU, id.waferV());
   int type(-1), part(-1), orient(-1);
   if (fromFile && (waferFileSize() > 0)) {
     auto itr = hgpar_->waferInfoMap_.find(index);
