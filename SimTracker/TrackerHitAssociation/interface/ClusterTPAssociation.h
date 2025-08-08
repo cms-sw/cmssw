@@ -86,7 +86,7 @@ private:
   }
 
   map_type map_;
-  edm::VecArray<edm::ProductID, 2> keyProductIDs_;
+  std::vector<edm::ProductID> keyProductIDs_;
   edm::ProductID mappedProductId_;
 };
 
