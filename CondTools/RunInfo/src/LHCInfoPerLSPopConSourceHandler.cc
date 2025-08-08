@@ -130,9 +130,11 @@ LHCInfoPerLSPopConSourceHandler::LHCInfoPerLSPopConSourceHandler(edm::ParameterS
       m_maxBetaStar(pset.getUntrackedParameter<double>("maxBetaStar", 100.)),
       m_minCrossingAngle(pset.getUntrackedParameter<double>("minCrossingAngle", 10.)),
       m_maxCrossingAngle(pset.getUntrackedParameter<double>("maxCrossingAngle", 500.)),
+      m_throwOnInvalid(pset.getUntrackedParameter<bool>("throwOnInvalid", false)),
       m_fillPayload(),
       m_prevPayload(),
-      m_tmpBuffer() {
+      m_tmpBuffer(),
+      m_lastPayloadEmpty(false) {
   if (!pset.getUntrackedParameter<std::string>("startTime").empty()) {
     m_startTime = boost::posix_time::time_from_string(pset.getUntrackedParameter<std::string>("startTime"));
   }
@@ -153,11 +155,11 @@ LHCInfoPerLSPopConSourceHandler::~LHCInfoPerLSPopConSourceHandler() = default;
 void LHCInfoPerLSPopConSourceHandler::getNewObjects() {
   populateIovs();
   if (!m_endFillMode) {  // duringFill mode
-    filterInvalidPayloads();
+    handleInvalidPayloads();
   }
 }
 
-void LHCInfoPerLSPopConSourceHandler::filterInvalidPayloads() {
+void LHCInfoPerLSPopConSourceHandler::handleInvalidPayloads() {
   // note: at the moment used only in duringFill mode so the m_iovs is quaranteed to have size() <= 1
   // but iterating through the whole map is implemented just in case the way it's used changes
   auto it = m_iovs.begin();
@@ -169,7 +171,12 @@ void LHCInfoPerLSPopConSourceHandler::filterInvalidPayloads() {
                 << "beta*X = " << it->second->betaStarX() << " m, "
                 << "beta*Y = " << it->second->betaStarY() << " m";
     if (!isPayloadValid(*(it->second))) {
-      edm::LogWarning(m_name) << "Skipping upload of payload with invalid values: " << payloadData.str();
+      std::string msg = "Skipping upload of payload with invalid values: " + payloadData.str();
+      if (m_throwOnInvalid) {
+        throw cms::Exception("LHCInfoPerLSPopConSourceHandler") << msg;
+      } else {
+        edm::LogWarning(m_name) << msg;
+      }
       m_iovs.erase(it++);  // note: post-increment necessary to avoid using invalidated iterators
     } else {
       edm::LogInfo(m_name) << "Payload to be uploaded: " << payloadData.str();

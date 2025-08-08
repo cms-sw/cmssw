@@ -107,6 +107,13 @@ namespace theLHCInfoPerFillImpl {
       targetPayload->setEndTime(beamDumpTime);
       targetPayload->setInjectionScheme(injectionScheme);
       ret = true;
+
+      if (energy <= 0) {
+        // only log an error, do not fail the payload creation, the logic of skipping payloads with invalid energy is handled elsewhere
+        edm::LogError("LHCInfoPerFillPopConSourceHandler")
+            << "Received non-positive energy from OMS for fill " << currentFill << ": " << energy
+            << " GeV, string value: '" << row.get<std::string>("energy") << "'.";
+      }
     }
     return ret;
   }
@@ -204,6 +211,9 @@ LHCInfoPerFillPopConSourceHandler::LHCInfoPerFillPopConSourceHandler(edm::Parame
       m_ecalConnectionString(pset.getUntrackedParameter<std::string>("ecalConnectionString", "")),
       m_authpath(pset.getUntrackedParameter<std::string>("authenticationPath", "")),
       m_omsBaseUrl(pset.getUntrackedParameter<std::string>("omsBaseUrl", "")),
+      m_minEnergy(pset.getUntrackedParameter<double>("minEnergy", 450.)),
+      m_maxEnergy(pset.getUntrackedParameter<double>("maxEnergy", 8000.)),
+      m_throwOnInvalid(pset.getUntrackedParameter<bool>("throwOnInvalid", false)),
       m_fillPayload(),
       m_prevPayload(),
       m_tmpBuffer() {
@@ -220,7 +230,66 @@ LHCInfoPerFillPopConSourceHandler::LHCInfoPerFillPopConSourceHandler(edm::Parame
 }
 
 void LHCInfoPerFillPopConSourceHandler::getNewObjects() {
-  //if a new tag is created, transfer fake fill from 1 to the first fill for the first time
+  populateIovs();
+  if (!m_endFillMode) {  // duringFill mode
+    handleInvalidPayloads();
+  }
+}
+
+void LHCInfoPerFillPopConSourceHandler::handleInvalidPayloads() {
+  // note: at the moment used only in duringFill mode so the m_iovs is quaranteed to have size() <= 1
+  // but iterating through the whole map is implemented just in case the way it's used changes
+  auto it = m_iovs.begin();
+  while (it != m_iovs.end()) {
+    std::stringstream payloadData;
+    payloadData << "Fill = " << it->second->fillNumber() << ", Energy = " << it->second->energy();
+    if (!isPayloadValid(*(it->second))) {
+      // define the message and then either throw or print log and filter out
+      std::string msg = "Skipping upload of payload with invalid values: " + payloadData.str();
+      if (m_throwOnInvalid) {
+        throw cms::Exception("LHCInfoPerFillPopConSourceHandler") << msg;
+      } else {
+        edm::LogWarning(m_name) << msg;
+      }
+      // filter out (erase) invalid payloads
+      m_iovs.erase(it++);  // note: post-increment necessary to avoid using invalidated iterators
+    } else {
+      edm::LogInfo(m_name) << "Payload to be uploaded: " << payloadData.str();
+      ++it;
+    }
+  }
+}
+
+bool LHCInfoPerFillPopConSourceHandler::isPayloadValid(const LHCInfoPerFill& payload) const {
+  return (m_minEnergy <= payload.energy() && payload.energy() <= m_maxEnergy);
+}
+
+std::tuple<cond::persistency::Session, cond::persistency::Session>
+LHCInfoPerFillPopConSourceHandler::createSubsystemDbSessions() const {
+  cond::persistency::ConnectionPool connection;
+  //configure the connection
+  if (m_debug) {
+    connection.setMessageVerbosity(coral::Debug);
+  } else {
+    connection.setMessageVerbosity(coral::Error);
+  }
+  connection.setAuthenticationPath(m_authpath);
+  connection.configure();
+  //create the sessions
+  cond::persistency::Session cttpsSession = connection.createSession(m_connectionString, false);
+  cond::persistency::Session ecalSession = connection.createSession(m_ecalConnectionString, false);
+  return std::make_tuple(std::move(cttpsSession), std::move(ecalSession));
+}
+
+cond::Time_t LHCInfoPerFillPopConSourceHandler::getNextFillSearchTimestamp(cond::Time_t lastSince) const {
+  cond::Time_t startTimestamp = m_startTime.is_not_a_date_time() ? 0 : cond::time::from_boost(m_startTime);
+  cond::Time_t nextFillSearchTimestamp =
+      std::max(startTimestamp, m_endFillMode ? lastSince : (m_prevPayload ? m_prevPayload->createTime() : 0));
+  return nextFillSearchTimestamp;
+}
+
+cond::Time_t LHCInfoPerFillPopConSourceHandler::handleIfNewTagAndGetLastSince() {
+  //print tag info
   if (tagInfo().size == 0) {
     edm::LogInfo(m_name) << "New tag " << tagInfo().name << "; from " << m_name << "::getNewObjects";
   } else {
@@ -234,48 +303,45 @@ void LHCInfoPerFillPopConSourceHandler::getNewObjects() {
 
   cond::Time_t lastSince = tagInfo().lastInterval.since;
   if (tagInfo().isEmpty()) {
-    // for a new or empty tag in endFill mode, an empty payload should be added on top with since=1
-    addEmptyPayload(1);
-    lastSince = 1;
-    if (!m_endFillMode) {
-      edm::LogInfo(m_name) << "Empty or new tag: uploading a default payload and ending the job";
-      return;
+    if (m_endFillMode) {
+      // for a new or empty tag in endFill mode, an empty payload should be added on top with since=1
+      addEmptyPayload(1);
+      lastSince = 1;
+    } else {
+      // in duringFill mode, we don't upload empty payloads to the empty tag
+      lastSince = 0;  // in duringFill mode, this value is not used when the tag is empty
     }
   } else {
     edm::LogInfo(m_name) << "The last Iov in tag " << tagInfo().name << " valid since " << lastSince << "from "
                          << m_name << "::getNewObjects";
   }
 
-  //retrieve the data from the relational database source
-  cond::persistency::ConnectionPool connection;
-  //configure the connection
-  if (m_debug) {
-    connection.setMessageVerbosity(coral::Debug);
-  } else {
-    connection.setMessageVerbosity(coral::Error);
-  }
-  connection.setAuthenticationPath(m_authpath);
-  connection.configure();
-  //create the sessions
-  cond::persistency::Session session = connection.createSession(m_connectionString, false);
-  cond::persistency::Session session2 = connection.createSession(m_ecalConnectionString, false);
-  // fetch last payload when available
+  return lastSince;
+}
+
+void LHCInfoPerFillPopConSourceHandler::fetchLastPayload() {
   if (!tagInfo().lastInterval.payloadId.empty()) {
     cond::persistency::Session session3 = dbSession();
     session3.transaction().start(true);
     m_prevPayload = session3.fetchPayload<LHCInfoPerFill>(tagInfo().lastInterval.payloadId);
     session3.transaction().commit();
   }
+}
 
-  boost::posix_time::ptime executionTime = boost::posix_time::second_clock::local_time();
-  cond::Time_t executionTimeIov = cond::time::from_boost(executionTime);
+boost::posix_time::ptime LHCInfoPerFillPopConSourceHandler::getExecutionTime() const {
+  return boost::posix_time::second_clock::local_time();
+}
 
-  cond::Time_t startTimestamp = m_startTime.is_not_a_date_time() ? 0 : cond::time::from_boost(m_startTime);
-  cond::Time_t nextFillSearchTimestamp =
-      std::max(startTimestamp, m_endFillMode ? lastSince : m_prevPayload->createTime());
-
+void LHCInfoPerFillPopConSourceHandler::populateIovs() {
+  cond::Time_t lastSince = handleIfNewTagAndGetLastSince();
+  fetchLastPayload();
+  cond::Time_t nextFillSearchTimestamp = getNextFillSearchTimestamp(lastSince);
   edm::LogInfo(m_name) << "Starting sampling at "
                        << boost::posix_time::to_simple_string(cond::time::to_boost(nextFillSearchTimestamp));
+
+  auto [cttpsSession, ecalSession] = createSubsystemDbSessions();
+  boost::posix_time::ptime executionTime = getExecutionTime();
+  cond::Time_t executionTimeIov = cond::time::from_boost(executionTime);
 
   while (true) {
     if (nextFillSearchTimestamp >= executionTimeIov) {
@@ -289,26 +355,12 @@ void LHCInfoPerFillPopConSourceHandler::getNewObjects() {
 
     cond::OMSService oms;
     oms.connect(m_omsBaseUrl);
-    auto query = oms.query("fills");
 
-    edm::LogInfo(m_name) << "Searching new fill after " << boost::posix_time::to_simple_string(nextFillSearchTime);
-    query->filterNotNull("start_stable_beam").filterNotNull("fill_number");
-    if (nextFillSearchTime > cond::time::to_boost(m_prevPayload->createTime())) {
-      query->filterGE("start_time", nextFillSearchTime);
-    } else {
-      query->filterGT("start_time", nextFillSearchTime);
-    }
+    bool inclusiveSearchTime =
+        nextFillSearchTime > cond::time::to_boost(m_prevPayload ? m_prevPayload->createTime() : 0);
+    m_fillPayload = findFillToProcess(oms, nextFillSearchTime, inclusiveSearchTime);
 
-    query->filterLT("start_time", m_endTime);
-    if (m_endFillMode)
-      query->filterNotNull("end_time");
-    else
-      query->filterEQ("end_time", cond::OMSServiceQuery::SNULL);
-
-    bool foundFill = query->execute();
-    if (foundFill)
-      foundFill = theLHCInfoPerFillImpl::makeFillPayload(m_fillPayload, query->result());
-    if (!foundFill) {
+    if (!m_fillPayload) {
       edm::LogInfo(m_name) << "No fill found - END of job.";
       break;
     }
@@ -335,12 +387,8 @@ void LHCInfoPerFillPopConSourceHandler::getNewObjects() {
         boost::posix_time::ptime flumiStart = cond::time::to_boost(m_tmpBuffer.front().first);
         boost::posix_time::ptime flumiStop = cond::time::to_boost(m_tmpBuffer.back().first);
         edm::LogInfo(m_name) << "First lumi starts at " << flumiStart << " last lumi starts at " << flumiStop;
-        session.transaction().start(true);
-        getCTPPSData(session, startSampleTime, endSampleTime);
-        session.transaction().commit();
-        session2.transaction().start(true);
-        getEcalData(session2, startSampleTime, endSampleTime);
-        session2.transaction().commit();
+        getCTPPSData(cttpsSession, startSampleTime, endSampleTime);
+        getEcalData(ecalSession, startSampleTime, endSampleTime);
       }
     }
 
@@ -350,14 +398,11 @@ void LHCInfoPerFillPopConSourceHandler::getNewObjects() {
             << "More than 1 payload buffered for writing in duringFill mode.\
           In this mode only up to 1 payload can be written";
       } else if (m_tmpBuffer.size() == 1) {
-        if (theLHCInfoPerFillImpl::comparePayloads(*(m_tmpBuffer.begin()->second), *m_prevPayload)) {
+        if (m_prevPayload && theLHCInfoPerFillImpl::comparePayloads(*(m_tmpBuffer.begin()->second), *m_prevPayload)) {
           m_tmpBuffer.clear();
           edm::LogInfo(m_name)
               << "The buffered payload has the same data as the previous payload in the tag. It will not be written.";
         }
-      } else if (m_tmpBuffer.empty()) {
-        addEmptyPayload(
-            cond::lhcInfoHelper::getFillLastLumiIOV(oms, lhcFill));  //the IOV doesn't matter when using OnlinePopCon
       }
       // In duringFill mode, convert the timestamp-type IOVs to lumiid-type IOVs
       // before transferring the payloads from the buffer to the final collection
@@ -377,14 +422,38 @@ void LHCInfoPerFillPopConSourceHandler::getNewObjects() {
     if (m_prevPayload->fillNumber() and !ongoingFill) {
       if (m_endFillMode) {
         addEmptyPayload(endFillTime);
-      } else {
-        addEmptyPayload(cond::lhcInfoHelper::getFillLastLumiIOV(oms, lhcFill));
       }
     }
   }
 }
 
 std::string LHCInfoPerFillPopConSourceHandler::id() const { return m_name; }
+
+std::unique_ptr<LHCInfoPerFill> LHCInfoPerFillPopConSourceHandler::findFillToProcess(
+    cond::OMSService& oms, const boost::posix_time::ptime& nextFillSearchTime, bool inclusiveSearchTime) {
+  oms.connect(m_omsBaseUrl);
+  auto query = oms.query("fills");
+
+  edm::LogInfo(m_name) << "Searching new fill after " << boost::posix_time::to_simple_string(nextFillSearchTime);
+  query->filterNotNull("start_stable_beam").filterNotNull("fill_number");
+  if (inclusiveSearchTime) {
+    query->filterGE("start_time", nextFillSearchTime);
+  } else {
+    query->filterGT("start_time", nextFillSearchTime);
+  }
+
+  query->filterLT("start_time", m_endTime);
+  if (m_endFillMode)
+    query->filterNotNull("end_time");
+  else
+    query->filterEQ("end_time", cond::OMSServiceQuery::SNULL);
+
+  bool foundFill = query->execute();
+  std::unique_ptr<LHCInfoPerFill> fillToBeProcessedPayload;
+  if (foundFill)
+    foundFill = theLHCInfoPerFillImpl::makeFillPayload(fillToBeProcessedPayload, query->result());
+  return fillToBeProcessedPayload;
+}
 
 void LHCInfoPerFillPopConSourceHandler::addEmptyPayload(cond::Time_t iov) {
   bool add = false;
@@ -438,10 +507,11 @@ void LHCInfoPerFillPopConSourceHandler::convertBufferedIovsToLumiid(
   }
 }
 
-size_t LHCInfoPerFillPopConSourceHandler::getLumiData(const cond::OMSService& oms,
-                                                      unsigned short fillId,
-                                                      const boost::posix_time::ptime& beginFillTime,
-                                                      const boost::posix_time::ptime& endFillTime) {
+std::tuple<cond::OMSServiceResult, bool, std::unique_ptr<cond::OMSServiceQuery>>
+LHCInfoPerFillPopConSourceHandler::executeLumiQuery(const cond::OMSService& oms,
+                                                    unsigned short fillId,
+                                                    const boost::posix_time::ptime& beginFillTime,
+                                                    const boost::posix_time::ptime& endFillTime) const {
   auto query = oms.query("lumisections");
   query->addOutputVars(
       {"start_time", "delivered_lumi", "recorded_lumi", "beams_stable", "run_number", "lumisection_number"});
@@ -449,22 +519,38 @@ size_t LHCInfoPerFillPopConSourceHandler::getLumiData(const cond::OMSService& om
   query->filterGT("start_time", beginFillTime).filterLT("start_time", endFillTime);
   query->filterEQ("beams_stable", "true");
   query->limit(cond::lhcInfoHelper::kLumisectionsQueryLimit);
-  if (query->execute()) {
-    auto queryResult = query->result();
-    edm::LogInfo(m_name) << "Found " << queryResult.size() << " lumisections with STABLE BEAM during the fill "
-                         << fillId;
 
-    if (!queryResult.empty()) {
-      if (m_endFillMode) {
-        auto firstRow = queryResult.front();
-        addPayloadToBuffer(firstRow);
-      }
+  bool success = query->execute();
+  return {(success ? query->result() : cond::OMSServiceResult()), success, std::move(query)};
+}
 
-      auto lastRow = queryResult.back();
-      addPayloadToBuffer(lastRow);
-    }
+void LHCInfoPerFillPopConSourceHandler::getLumiData(const cond::OMSService& oms,
+                                                    unsigned short fillId,
+                                                    const boost::posix_time::ptime& beginFillTime,
+                                                    const boost::posix_time::ptime& endFillTime) {
+  // keeping the query ownerObject in scope is necessary as the lifetime of the queryResult resources is tied to it
+  auto [queryResult, success, ownerObject] = executeLumiQuery(oms, fillId, beginFillTime, endFillTime);
+  if (!success) {
+    edm::LogError(m_name) << "Failed to execute luminosity query.";
+    return;
   }
-  return 0;
+  edm::LogInfo(m_name) << "Found " << queryResult.size() << " lumisections with STABLE BEAM during the fill " << fillId;
+
+  if (queryResult.empty()) {
+    edm::LogWarning(m_name) << "No lumisections with STABLE BEAM found during the fill " << fillId
+                            << ". No payload will be added to buffer for writing.";
+    return;
+  }
+
+  if (m_endFillMode) {
+    auto firstRow = queryResult.front();
+    addPayloadToBuffer(firstRow);
+  }
+
+  auto lastRow = queryResult.back();
+  addPayloadToBuffer(lastRow);
+
+  return;
 }
 
 void LHCInfoPerFillPopConSourceHandler::getDipData(const cond::OMSService& oms,
@@ -529,12 +615,21 @@ void LHCInfoPerFillPopConSourceHandler::getDipData(const cond::OMSService& oms,
   }
 }
 
-bool LHCInfoPerFillPopConSourceHandler::getCTPPSData(cond::persistency::Session& session,
+bool LHCInfoPerFillPopConSourceHandler::getCTPPSData(cond::persistency::Session& cttpsSession,
                                                      const boost::posix_time::ptime& beginFillTime,
                                                      const boost::posix_time::ptime& endFillTime) {
+  cttpsSession.transaction().start(true);
+  auto ret = getCTPPSDataImpl(cttpsSession, beginFillTime, endFillTime);
+  cttpsSession.transaction().commit();
+  return ret;
+}
+
+bool LHCInfoPerFillPopConSourceHandler::getCTPPSDataImpl(cond::persistency::Session& cttpsSession,
+                                                         const boost::posix_time::ptime& beginFillTime,
+                                                         const boost::posix_time::ptime& endFillTime) {
   //run the fifth query against the CTPPS schema
   //Initializing the CMS_CTP_CTPPS_COND schema.
-  coral::ISchema& CTPPS = session.coralSession().schema("CMS_PPS_SPECT_COND");
+  coral::ISchema& CTPPS = cttpsSession.coralSession().schema("CMS_PPS_SPECT_COND");
   //execute query for CTPPS Data
   std::unique_ptr<coral::IQuery> CTPPSDataQuery(CTPPS.newQuery());
   //FROM clause
@@ -636,12 +731,21 @@ bool LHCInfoPerFillPopConSourceHandler::getCTPPSData(cond::persistency::Session&
   return ret;
 }
 
-bool LHCInfoPerFillPopConSourceHandler::getEcalData(cond::persistency::Session& session,
+bool LHCInfoPerFillPopConSourceHandler::getEcalData(cond::persistency::Session& ecalSession,
                                                     const boost::posix_time::ptime& lowerTime,
                                                     const boost::posix_time::ptime& upperTime) {
+  ecalSession.transaction().start(true);
+  auto ret = getEcalDataImpl(ecalSession, lowerTime, upperTime);
+  ecalSession.transaction().commit();
+  return ret;
+}
+
+bool LHCInfoPerFillPopConSourceHandler::getEcalDataImpl(cond::persistency::Session& ecalSession,
+                                                        const boost::posix_time::ptime& lowerTime,
+                                                        const boost::posix_time::ptime& upperTime) {
   //run the sixth query against the CMS_DCS_ENV_PVSS_COND schema
   //Initializing the CMS_DCS_ENV_PVSS_COND schema.
-  coral::ISchema& ECAL = session.nominalSchema();
+  coral::ISchema& ECAL = ecalSession.nominalSchema();
   //start the transaction against the fill logging schema
   //execute query for ECAL Data
   std::unique_ptr<coral::IQuery> ECALDataQuery(ECAL.newQuery());
