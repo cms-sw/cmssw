@@ -11,6 +11,7 @@ hltJetAnalyzerAk4PFPuppi = DQMEDAnalyzer('JetTester',
                             recoJetPtThreshold = cms.double(30), # defines the "lowPt" jets between 20 and 40 GeV
                             matchGenPtThreshold = cms.double(20.0),
                             RThreshold = cms.double(0.2),
+                            isHLT = cms.untracked.bool(True),
 )
 
 hltJetAnalyzerAk4PFCluster = DQMEDAnalyzer('JetTester',
@@ -22,6 +23,7 @@ hltJetAnalyzerAk4PFCluster = DQMEDAnalyzer('JetTester',
                             recoJetPtThreshold = cms.double(30), # defines the "lowPt" jets between 20 and 40 GeV
                             matchGenPtThreshold = cms.double(20.0),
                             RThreshold = cms.double(0.2),
+                            isHLT = cms.untracked.bool(True),
 )
 
 hltJetAnalyzerAk4PF = DQMEDAnalyzer('JetTester',
@@ -33,6 +35,7 @@ hltJetAnalyzerAk4PF = DQMEDAnalyzer('JetTester',
                             recoJetPtThreshold = cms.double(30), # defines the "lowPt" jets between 20 and 40 GeV
                             matchGenPtThreshold = cms.double(20.0),
                             RThreshold = cms.double(0.2),
+                            isHLT = cms.untracked.bool(True),
 )
 
 hltJetAnalyzerAk4PFCHS = DQMEDAnalyzer('JetTester',
@@ -44,4 +47,5 @@ hltJetAnalyzerAk4PFCHS = DQMEDAnalyzer('JetTester',
                             recoJetPtThreshold = cms.double(30), # defines the "lowPt" jets between 20 and 40 GeV
                             matchGenPtThreshold = cms.double(20.0),
                             RThreshold = cms.double(0.2),
+                            isHLT = cms.untracked.bool(True),
 )
