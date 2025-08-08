@@ -155,8 +155,8 @@ def customise(process):
     """
     
     # Change input collection for the /AlCaPhiSym/*/RAW stream dataformat
-    process.ecalMultiFitUncalibRecHitCPU.EBdigiCollection = "hltEcalPhiSymFilter:phiSymEcalDigisEB"
-    process.ecalMultiFitUncalibRecHitCPU.EEdigiCollection = "hltEcalPhiSymFilter:phiSymEcalDigisEE"
+    process.ecalMultiFitUncalibRecHit.EBdigiCollection = "hltEcalPhiSymFilter:phiSymEcalDigisEB"
+    process.ecalMultiFitUncalibRecHit.EEdigiCollection = "hltEcalPhiSymFilter:phiSymEcalDigisEE"
     process.ecalRecHit.cpu.killDeadChannels = cms.bool( False )
     process.ecalRecHit.cpu.recoverEBVFE = cms.bool( False )
     process.ecalRecHit.cpu.recoverEEVFE = cms.bool( False )
