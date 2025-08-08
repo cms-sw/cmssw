@@ -93,6 +93,19 @@ options.register( 'frontierKey'
                   )
 
 
+options.register('minEnergy',  450  
+                , VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.float
+                , """duringFill only: [GeV] min value of the range of valid values (inclusive).
+                     If the value is outside of this range the payload is not uploaded""")
+options.register('maxEnergy',  8000.
+                , VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.float
+                , """duringFill only: [GeV] max value of the range of valid values (inclusive).
+                     If the value is outside of this range the payload is not uploaded""")
+options.register('throwOnInvalid', False,
+                VarParsing.VarParsing.multiplicity.singleton,
+                VarParsing.VarParsing.varType.bool,
+                "duringFill only: If true, throw on invalid payloads; if false, filter them out.")
+
 # so far there was no need to use option, added just in case
 options.register( 'authenticationPath'
                 , ""
@@ -173,7 +186,10 @@ process.Test1 = cms.EDAnalyzer("LHCInfoPerFillPopConAnalyzer" if options.mode ==
                                    ecalConnectionString = cms.untracked.string(options.ecalConnection),
                                    omsBaseUrl = cms.untracked.string(options.oms),
                                    authenticationPath = cms.untracked.string(options.authenticationPath),
-                                   debug=cms.untracked.bool(False)
+                                   debug=cms.untracked.bool(False),
+                                   minEnergy = cms.untracked.double(options.minEnergy),
+                                   maxEnergy = cms.untracked.double(options.maxEnergy),
+                                   throwOnInvalid = cms.untracked.bool(options.throwOnInvalid)
                                ),
                                loggingOn = cms.untracked.bool(True),
                                IsDestDbCheckedInQueryLog = cms.untracked.bool(False)
