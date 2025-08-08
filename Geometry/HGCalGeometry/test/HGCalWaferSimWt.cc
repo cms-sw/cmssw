@@ -29,8 +29,7 @@ private:
 };
 
 HGCalWaferSimWt::HGCalWaferSimWt(const edm::ParameterSet& iC)
-  : names_(iC.getParameter<std::vector<std::string>>("detectorNames")),
-    debug_(iC.getParameter<bool>("debug")) {
+    : names_(iC.getParameter<std::vector<std::string>>("detectorNames")), debug_(iC.getParameter<bool>("debug")) {
   for (unsigned int k = 0; k < names_.size(); ++k) {
     edm::LogVerbatim("HGCalGeomX") << "Study detector [" << k << "] " << names_[k] << std::endl;
     geomTokens_.emplace_back(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", names_[k]}));
@@ -73,8 +72,8 @@ void HGCalWaferSimWt::analyze(const edm::Event& /*iEvent*/, const edm::EventSetu
         double ypos = 10.0 * (cell.y());
         int waferU, waferV, cellU, cellV, cellType;
         double wt;
-	if (debug_)
-	  edm::LogVerbatim("HGCalGeomX") << hid << " at (" << xpos << ", " << ypos << ")";
+        if (debug_)
+          edm::LogVerbatim("HGCalGeomX") << hid << " at (" << xpos << ", " << ypos << ")";
         geom->topology().dddConstants().waferFromPosition(
             xpos, ypos, hid.zside(), hid.layer(), waferU, waferV, cellU, cellV, cellType, wt, false, true);
         std::string stype = (type >= 0 && type <= 3) ? detType[type] : ("JK" + std::to_string(type));
