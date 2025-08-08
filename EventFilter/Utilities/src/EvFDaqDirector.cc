@@ -1138,7 +1138,7 @@ namespace evf {
     if (rawFd == -1) {
       if ((rawFd = ::open(rawPath.c_str(), O_RDONLY)) < 0) {
         edm::LogWarning("EvFDaqDirector")
-            << "parseFRDFileHeader - failed to open input file -: " << rawPath << " : " << strerror(errno);
+            << "hasFRDFileHeader - failed to open input file -: " << rawPath << " : " << strerror(errno);
         return retErr();
       }
     }
@@ -1930,6 +1930,8 @@ namespace evf {
               continue;
             }
             auto lumi = extractLumiSectionNumber(fname);
+            if (lumi > 0 && lumi < minDiscoveryLS_)
+              continue;
             if (fname.find("_EoLS.jsn") != std::string::npos) {
               if (lumi > (int)maxClosedLS)
                 maxClosedLS = lumi;
@@ -1957,7 +1959,7 @@ namespace evf {
             if (fname.size() < 4 || fname.substr(fname.size() - 4) != std::string(".raw"))
               continue;
             if (lumi >= (int)lastFileIdx_.first) {
-              if (extractIndexNumber(fname) >= lastFileIdx_.second) {
+              if (extractIndexNumber(fname) > lastFileIdx_.second) {
                 filenames.push_back(entry.path().filename().string());
               }
             }
@@ -2037,9 +2039,14 @@ namespace evf {
             fmt::format("{}{}{}{}", bu_run_dir_, fileprefix, p.stem().string(), p.extension().string());
         try {
           //grab file if possible
-          std::filesystem::rename(rawpath, nextFileRawTmp);
-          //apply changes
-          nextFileRaw = nextFileRawTmp;
+          if (!discoveryReadOnly_) {
+            //read-only mode allows only one client in file discovery option
+            std::filesystem::rename(rawpath, nextFileRawTmp);
+            //apply changes
+            nextFileRaw = nextFileRawTmp;
+          } else
+            nextFileRaw = rawpath;
+
           serverLS = nextLS;  //if changed
           closedServerLS = nextLS - 1;
 
