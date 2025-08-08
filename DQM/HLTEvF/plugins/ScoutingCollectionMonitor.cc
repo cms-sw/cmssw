@@ -419,6 +419,8 @@ private:
   dqm::reco::MonitorElement* hbheRecHitsNumber_hist;
   dqm::reco::MonitorElement* hbheRecHits_energy_hist;
   dqm::reco::MonitorElement* hbheRecHitsEtaPhiMap;
+  dqm::reco::MonitorElement* hbRecHitsEtaPhiMap;
+  dqm::reco::MonitorElement* heRecHitsEtaPhiMap;
 };
 
 //
@@ -903,6 +905,12 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
       hbheRecHits_energy_hist->Fill(hbheRecHit.energy());
       HcalDetId hcalid(hbheRecHit.detId());
       hbheRecHitsEtaPhiMap->Fill(hcalid.ieta(), hcalid.iphi());
+      const auto& subdet = hcalid.subdetId();
+      if (subdet == 1) {  // HB
+        hbRecHitsEtaPhiMap->Fill(hcalid.ieta(), hcalid.iphi());
+      } else {  // HE
+        heRecHitsEtaPhiMap->Fill(hcalid.ieta(), hcalid.iphi());
+      }
     }
   }
 }
@@ -1348,7 +1356,7 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
         "eeRechits_time" + sfx, "Time of EE RecHits (" + lbl + "); Time of EE recHits (ps); Entries", 100, 0.0, 1000.0);
 
     ebRecHitsEtaPhiMap[i] = ibook.book2D("ebRecHitsEtaPhitMap" + sfx,
-                                         "Occupancy map of EB rechit (" + lbl + ");ieta;iphi;Entries",
+                                         "Occupancy map of EB rechits (" + lbl + ");ieta;iphi;Entries",
                                          171,
                                          -85.5,
                                          85.5,
@@ -1359,7 +1367,7 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
     ebRecHitsEtaPhiMap[i]->setOption("colz");
 
     eePlusRecHitsXYMap[i] = ibook.book2D("eePlusRecHitsEtaPhitMap" + sfx,
-                                         "Occupancy map of EE+ rechit (" + lbl + ");ix;iy;Entries",
+                                         "Occupancy map of EE+ rechits (" + lbl + ");ix;iy;Entries",
                                          100,
                                          1,
                                          101,
@@ -1370,7 +1378,7 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
     eePlusRecHitsXYMap[i]->setOption("colz");
 
     eeMinusRecHitsXYMap[i] = ibook.book2D("eeMinusRecHitsEtaPhitMap" + sfx,
-                                          "Occupancy map of EE- rechit (" + lbl + ");ix;iy;Entries",
+                                          "Occupancy map of EE- rechits (" + lbl + ");ix;iy;Entries",
                                           100,
                                           1,
                                           101,
@@ -1388,8 +1396,16 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
       "hbheRechits_energy", "Energy spectrum of hbhe RecHits; Energy of HBHE recHits (GeV); Entries", 100, 0.0, 200.0);
 
   hbheRecHitsEtaPhiMap = ibook.book2D(
-      "hbheRecHitsEtaPhitMap", "Occupancy map of HBHE rechit;ieta;iphi;Entries", 61, -30.5, 30.5, 74, -0.5, 73.5);
+      "hbheRecHitsEtaPhitMap", "Occupancy map of HBHE rechits;ieta;iphi;Entries", 61, -30.5, 30.5, 74, -0.5, 73.5);
   hbheRecHitsEtaPhiMap->setOption("colz");
+
+  hbRecHitsEtaPhiMap = ibook.book2D(
+      "hbRecHitsEtaPhitMap", "Occupancy map of HB rechits;ieta;iphi;Entries", 83, -41.5, 41.5, 72, 0.5, 72.5);
+  hbRecHitsEtaPhiMap->setOption("colz");
+
+  heRecHitsEtaPhiMap = ibook.book2D(
+      "heRecHitsEtaPhitMap", "Occupancy map of HE rechits;ieta;iphi;Entries", 83, -41.5, 41.5, 72, 0.5, 72.5);
+  heRecHitsEtaPhiMap->setOption("colz");
 }
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 
