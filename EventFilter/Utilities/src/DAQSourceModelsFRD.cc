@@ -143,8 +143,8 @@ edm::Timestamp DataModeFRD::fillFEDRawDataCollection(FEDRawDataCollection& rawDa
 std::vector<std::shared_ptr<const edm::DaqProvenanceHelper>>& DataModeFRD::makeDaqProvenanceHelpers() {
   //set FRD data collection
   daqProvenanceHelpers_.clear();
-  daqProvenanceHelpers_.emplace_back(std::make_shared<const edm::DaqProvenanceHelper>(
-      edm::TypeID(typeid(FEDRawDataCollection)), "FEDRawDataCollection", "FEDRawDataCollection", "DAQSource"));
+  daqProvenanceHelpers_.emplace_back(
+      std::make_shared<const edm::DaqProvenanceHelper>(edm::TypeID(typeid(FEDRawDataCollection)), "DAQSource"));
   return daqProvenanceHelpers_;
 }
 
@@ -371,8 +371,8 @@ edm::Timestamp DataModeFRDPreUnpack::fillFEDRawDataCollection(edm::streamer::FRD
 std::vector<std::shared_ptr<const edm::DaqProvenanceHelper>>& DataModeFRDPreUnpack::makeDaqProvenanceHelpers() {
   //set FRD data collection
   daqProvenanceHelpers_.clear();
-  daqProvenanceHelpers_.emplace_back(std::make_shared<const edm::DaqProvenanceHelper>(
-      edm::TypeID(typeid(FEDRawDataCollection)), "FEDRawDataCollection", "FEDRawDataCollection", "DAQSource"));
+  daqProvenanceHelpers_.emplace_back(
+      std::make_shared<const edm::DaqProvenanceHelper>(edm::TypeID(typeid(FEDRawDataCollection)), "DAQSource"));
   return daqProvenanceHelpers_;
 }
 
@@ -542,8 +542,8 @@ edm::Timestamp DataModeFRDStriped::fillFRDCollection(FEDRawDataCollection& rawDa
 std::vector<std::shared_ptr<const edm::DaqProvenanceHelper>>& DataModeFRDStriped::makeDaqProvenanceHelpers() {
   //set FRD data collection
   daqProvenanceHelpers_.clear();
-  daqProvenanceHelpers_.emplace_back(std::make_shared<const edm::DaqProvenanceHelper>(
-      edm::TypeID(typeid(FEDRawDataCollection)), "FEDRawDataCollection", "FEDRawDataCollection", "DAQSource"));
+  daqProvenanceHelpers_.emplace_back(
+      std::make_shared<const edm::DaqProvenanceHelper>(edm::TypeID(typeid(FEDRawDataCollection)), "DAQSource"));
   return daqProvenanceHelpers_;
 }
 

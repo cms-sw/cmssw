@@ -73,10 +73,8 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
       edm::ProductDescription prod1(edm::InRun,
                                     "label",
                                     "PROD",
-                                    "edmtest::Thing",
-                                    "edmtestThing",
                                     "instance",
-                                    edm::TypeWithDict::byName("edmtest::Thing"),
+                                    edm::TypeID(edm::TypeWithDict::byName("edmtest::Thing").typeInfo()),
                                     false);
       inputRegistry.copyProduct(prod1);
 
@@ -84,10 +82,8 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
       edm::ProductDescription prod2(edm::InRun,
                                     "aLabel",
                                     "APROD",
-                                    "edmtest::ThingWithMerge",
-                                    "edmtestThingWithMerge",
                                     "instance",
-                                    edm::TypeWithDict::byName("edmtest::ThingWithMerge"),
+                                    edm::TypeID(edm::TypeWithDict::byName("edmtest::ThingWithMerge").typeInfo()),
                                     false);
       inputRegistry.copyProduct(prod2);
 
@@ -95,10 +91,8 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
       edm::ProductDescription prod3(edm::InLumi,
                                     "bLabel",
                                     "BPROD",
-                                    "edmtest::ThingWithMerge",
-                                    "edmtestThingWithMerge",
                                     "instance",
-                                    edm::TypeWithDict::byName("edmtest::ThingWithMerge"),
+                                    edm::TypeID(edm::TypeWithDict::byName("edmtest::ThingWithMerge").typeInfo()),
                                     false);
       inputRegistry.copyProduct(prod3);
       productRegistry.addFromInput(inputRegistry);
@@ -108,10 +102,8 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
     edm::ProductDescription prod4(edm::InRun,
                                   "cLabel",
                                   "CPROD",
-                                  "edmtest::ThingWithMerge",
-                                  "edmtestThingWithMerge",
                                   "instance",
-                                  edm::TypeWithDict::byName("edmtest::ThingWithMerge"),
+                                  edm::TypeID(edm::TypeWithDict::byName("edmtest::ThingWithMerge").typeInfo()),
                                   true);
     productRegistry.addProduct(prod4);
 
@@ -121,10 +113,8 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
       edm::ProductDescription prod5(edm::InRun,
                                     "dLabel",
                                     "DPROD",
-                                    "edmtest::ThingWithMerge",
-                                    "edmtestThingWithMerge",
                                     "instance",
-                                    edm::TypeWithDict::byName("edmtest::ThingWithMerge"),
+                                    edm::TypeID(edm::TypeWithDict::byName("edmtest::ThingWithMerge").typeInfo()),
                                     false);
       prod5.setDropped(true);
       inputRegistry.copyProduct(prod5);
@@ -133,10 +123,8 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
       edm::ProductDescription prod6(edm::InRun,
                                     "eLabel",
                                     "APROD",
-                                    "edmtest::ThingWithMerge",
-                                    "edmtestThingWithMerge",
                                     "instance",
-                                    edm::TypeWithDict::byName("edmtest::ThingWithMerge"),
+                                    edm::TypeID(edm::TypeWithDict::byName("edmtest::ThingWithMerge").typeInfo()),
                                     false);
       inputRegistry.copyProduct(prod6);
 
@@ -144,10 +132,8 @@ TEST_CASE("test MergeableRunProductMetadata", "[MergeableRunProductMetadata]") {
       edm::ProductDescription prod7(edm::InRun,
                                     "fLabel",
                                     "AAPROD",
-                                    "edmtest::ThingWithMerge",
-                                    "edmtestThingWithMerge",
                                     "instance",
-                                    edm::TypeWithDict::byName("edmtest::ThingWithMerge"),
+                                    edm::TypeID(edm::TypeWithDict::byName("edmtest::ThingWithMerge").typeInfo()),
                                     false);
       inputRegistry.copyProduct(prod7);
 

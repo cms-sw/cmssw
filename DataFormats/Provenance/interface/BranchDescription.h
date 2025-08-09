@@ -42,10 +42,8 @@ namespace edm {
     BranchDescription(BranchType const& branchType,
                       std::string const& moduleLabel,
                       std::string const& processName,
-                      std::string const& className,
-                      std::string const& friendlyClassName,
                       std::string const& productInstanceName,
-                      TypeWithDict const& theTypeWithDict,
+                      edm::TypeID const& theType,
                       bool produced = true,
                       bool availableOnlyAtEndTransition = false,
                       std::set<std::string> const& aliases = std::set<std::string>());
