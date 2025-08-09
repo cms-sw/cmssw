@@ -265,7 +265,7 @@ steps['scoutingNANO_withPrompt_data14.0'] = merge([{'-s': 'NANO:@Prompt+@ScoutMo
 steps['muDPGNANO_data14.0'] = merge([{'-s': 'RAW2DIGI,NANO:@MUDPG', '-n': '100'},
                                      steps['NANO_data14.0']])
 
-steps['muDPGNANOBkg_data14.0'] = merge([{'-s': 'RAW2DIGI,NANO:@MUDPGBKG', '-n': '100'},
+steps['muDPGNANOBkg_data14.0'] = merge([{'-s': 'RAW2DIGI,RECO:localreco,NANO:@MUDPGBKG', '-n': '100'},
                                         steps['NANO_data14.0']])
 
 steps['hcalDPGNANO_data14.0'] = merge([{'-s': 'RAW2DIGI,RECO,NANO:@HCAL', '-n': '100',
