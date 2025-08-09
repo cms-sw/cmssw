@@ -104,19 +104,25 @@ def ageSiPM(process,turnon,lumi):
             "rec": [1.25, 2.5, 2.5, 2.5],
         },
     }
-    ctmodules = ['calotowermaker','caloTowerForTrk','caloTowerForTrkPreSplitting','towerMaker','towerMakerWithHO']
+    ctmodules = ['calotowermaker','caloTowerForTrk','caloTowerForTrkPreSplitting','towerMaker','towerMakerWithHO','hltPhase2TowerMakerForAll',' hltTowerMaker']
     for ilumi, hcal_lumi in enumerate(hcal_lumis[:-1]):
         if lumi >= hcal_lumi and lumi < hcal_lumis[ilumi+1]:
-            if hasattr(process,'particleFlowClusterHBHE'):
-                process.particleFlowClusterHBHE.seedFinder.thresholdsByDetector[0].seedingThreshold              = hcal_thresholds[hcal_lumi]["seed"]
-                process.particleFlowClusterHBHE.initialClusteringStep.thresholdsByDetector[0].gatheringThreshold = hcal_thresholds[hcal_lumi]["rec"]
-                process.particleFlowClusterHBHE.pfClusterBuilder.recHitEnergyNorms[0].recHitEnergyNorm           = hcal_thresholds[hcal_lumi]["rec"]
-                process.particleFlowClusterHBHE.pfClusterBuilder.positionCalc.logWeightDenominatorByDetector[0].logWeightDenominator = hcal_thresholds[hcal_lumi]["rec"]
-                process.particleFlowClusterHBHE.pfClusterBuilder.allCellsPositionCalc.logWeightDenominatorByDetector[0].logWeightDenominator = hcal_thresholds[hcal_lumi]["rec"]
-            if hasattr(process,'particleFlowClusterHCAL'):
-                process.particleFlowClusterHCAL.pfClusterBuilder.allCellsPositionCalc.logWeightDenominatorByDetector[0].logWeightDenominator = hcal_thresholds[hcal_lumi]["rec"]
-            if hasattr(process,'particleFlowRecHitHBHE'):
-                process.particleFlowRecHitHBHE.producers[0].qualityTests[0].cuts[0].threshold = hcal_thresholds[hcal_lumi]["rec"]
+            pfclushbhemodules = ['particleFlowClusterHBHE','hltParticleFlowClusterHBHE']
+            for pfhbhemod in pfclushbhemodules:
+                if hasattr(process,pfhbhemod):
+                    getattr(process,pfhbhemod).seedFinder.thresholdsByDetector[0].seedingThreshold              = hcal_thresholds[hcal_lumi]["seed"]
+                    getattr(process,pfhbhemod).initialClusteringStep.thresholdsByDetector[0].gatheringThreshold = hcal_thresholds[hcal_lumi]["rec"]
+                    getattr(process,pfhbhemod).pfClusterBuilder.recHitEnergyNorms[0].recHitEnergyNorm           = hcal_thresholds[hcal_lumi]["rec"]
+                    getattr(process,pfhbhemod).pfClusterBuilder.positionCalc.logWeightDenominatorByDetector[0].logWeightDenominator = hcal_thresholds[hcal_lumi]["rec"]
+                    getattr(process,pfhbhemod).pfClusterBuilder.allCellsPositionCalc.logWeightDenominatorByDetector[0].logWeightDenominator = hcal_thresholds[hcal_lumi]["rec"]
+            pfclushcalmodules = ['particleFlowClusterHCAL','hltParticleFlowClusterHCAL']
+            for pfhcalmod in  pfclushcalmodules:
+                if hasattr(process,pfhcalmod):
+                    getattr(process,pfhcalmod).pfClusterBuilder.allCellsPositionCalc.logWeightDenominatorByDetector[0].logWeightDenominator = hcal_thresholds[hcal_lumi]["rec"]
+            pfrechithbhemodules = ['particleFlowRecHitHBHE', 'hltParticleFlowRecHitHBHE']
+            for pfrechitmod in pfrechithbhemodules:
+                if hasattr(process,pfrechitmod):
+                    getattr(process,pfrechitmod).producers[0].qualityTests[0].cuts[0].threshold = hcal_thresholds[hcal_lumi]["rec"]
             for ctmod in ctmodules:
                 if hasattr(process,ctmod):
                     getattr(process,ctmod).HBThreshold1 = hcal_thresholds[hcal_lumi]["rec"][0]
@@ -218,15 +224,17 @@ def ageEcal(process,lumi,instLumi):
                 connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
                 )
             )
-        if hasattr(process,"particleFlowClusterECALUncorrected"):
-            _seeds = process.particleFlowClusterECALUncorrected.seedFinder.thresholdsByDetector
-            for iseed in range(0,len(_seeds)):
-                if _seeds[iseed].detector.value()=="ECAL_BARREL":
-                    _seeds[iseed].seedingThreshold = cms.double(ecal_thresholds[int(lumi)]*ecal_seed_multiplier)
-            _clusters = process.particleFlowClusterECALUncorrected.initialClusteringStep.thresholdsByDetector
-            for icluster in range(0,len(_clusters)):
-                if _clusters[icluster].detector.value()=="ECAL_BARREL":
-                    _clusters[icluster].gatheringThreshold = cms.double(ecal_thresholds[int(lumi)])
+        pfclusecaluncorrmodules = ['particleFlowClusterECALUncorrected','hltParticleFlowClusterECALUncorrected','hltParticleFlowClusterECALUncorrectedL1Seeded',' hltParticleFlowClusterECALUncorrectedUnseeded']
+        for pfclusecaluncorrmod in pfclusecaluncorrmodules:
+            if hasattr(process,pfclusecaluncorrmod):
+                _seeds = getattr(process,pfclusecaluncorrmod).seedFinder.thresholdsByDetector
+                for iseed in range(0,len(_seeds)):
+                    if _seeds[iseed].detector.value()=="ECAL_BARREL":
+                        _seeds[iseed].seedingThreshold = cms.double(ecal_thresholds[int(lumi)]*ecal_seed_multiplier)
+                _clusters = getattr(process,pfclusecaluncorrmod).initialClusteringStep.thresholdsByDetector
+                for icluster in range(0,len(_clusters)):
+                    if _clusters[icluster].detector.value()=="ECAL_BARREL":
+                        _clusters[icluster].gatheringThreshold = cms.double(ecal_thresholds[int(lumi)])
 
     return process
 
