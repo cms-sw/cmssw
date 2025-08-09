@@ -45,7 +45,7 @@ step1Up2024HiProdDefaults = merge ([{'--conditions':'auto:phase1_2024_realistic_
 # step1 gensim: for 2024 UPC prod
 step1Up2024UPCProdDefaults = merge ([{'--era':'Run3_2024_UPC'},step1Up2024HiProdDefaults])
 # step1 gensim: for 2025 HI prod
-step1Up2025HiProdDefaults = merge ([{'--conditions':'auto:phase1_2024_realistic_hi','--era':'Run3_pp_on_PbPb_2025','--beamspot':'DBrealistic'},step1Up2024HiProdDefaults])
+step1Up2025HiProdDefaults = merge ([{'--conditions':'auto:phase1_2025_realistic_hi','--era':'Run3_pp_on_PbPb_2025','--beamspot':'DBrealistic'},step1Up2024HiProdDefaults])
 # step1 gensim: for 2025 UPC prod
 step1Up2025UPCProdDefaults = merge ([{'--era':'Run3_2025_UPC'},step1Up2025HiProdDefaults])
 
@@ -1337,9 +1337,9 @@ upcDefaults2023 = {'--conditions':'auto:phase1_2023_realistic_hi', '--era':'Run3
 hiDefaults2024 = {'--conditions':'auto:phase1_2024_realistic_hi', '--era':'Run3_pp_on_PbPb_2024'}
 hiDefaults2024_approxClusters = {'--conditions':'auto:phase1_2024_realistic_hi', '--era':'Run3_pp_on_PbPb_approxSiStripClusters_2024'}
 upcDefaults2024 = {'--conditions':'auto:phase1_2024_realistic_hi', '--era':'Run3_2024_UPC'}
-hiDefaults2025 = {'--conditions':'auto:phase1_2024_realistic_hi', '--era':'Run3_pp_on_PbPb_2025'}
-hiDefaults2025_approxClusters = {'--conditions':'auto:phase1_2024_realistic_hi', '--era':'Run3_pp_on_PbPb_approxSiStripClusters_2025'}
-upcDefaults2025 = {'--conditions':'auto:phase1_2024_realistic_hi', '--era':'Run3_2025_UPC'}
+hiDefaults2025 = {'--conditions':'auto:phase1_2025_realistic_hi', '--era':'Run3_pp_on_PbPb_2025'}
+hiDefaults2025_approxClusters = {'--conditions':'auto:phase1_2025_realistic_hi', '--era':'Run3_pp_on_PbPb_approxSiStripClusters_2025'}
+upcDefaults2025 = {'--conditions':'auto:phase1_2025_realistic_hi', '--era':'Run3_2025_UPC'}
 oxyDefaults2025 = {'--conditions':'auto:phase1_2024_realistic_hi', '--era':'Run3_2025_OXY'}
 upcOxyDefaults2025 = {'--conditions':'auto:phase1_2024_realistic_hi', '--era':'Run3_2025_UPC_OXY'}
 
@@ -2129,9 +2129,9 @@ steps['RESIM']=merge([{'-s':'reGEN,reSIM','-n':10},steps['DIGI']])
 #steps['RESIMDIGI']=merge([{'-s':'reGEN,reSIM,DIGI,L1,DIGI2RAW,HLT:@fake,RAW2DIGI,L1Reco','-n':10,'--restoreRNDSeeds':'','--process':'HLT'},steps['DIGI']])
 
 
-steps['DIGIHI2025APPROXCLUSTERS']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:HIon'}, hiDefaults2025_approxClusters, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
-steps['DIGIHI2025']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:HIon'}, hiDefaults2025, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
-steps['DIGIUPC2025']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:HIon'}, upcDefaults2025, step2Upg2015Defaults])
+steps['DIGIHI2025APPROXCLUSTERS']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2025_approxClusters, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
+steps['DIGIHI2025']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2025, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
+steps['DIGIUPC2025']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@fake2'}, upcDefaults2025, step2Upg2015Defaults])
 steps['DIGIUPC2024']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:HIon'}, upcDefaults2024, step2Upg2015Defaults])
 steps['DIGIHI2024APPROXCLUSTERS']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:HIon'}, hiDefaults2024_approxClusters, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
 steps['DIGIHI2024']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:HIon'}, hiDefaults2024, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
