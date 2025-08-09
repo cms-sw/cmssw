@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  <open_geometry/>
+  <close_geometry/>
+
+  <IncludeSection>
+    <Include ref='Geometry/CMSCommonData/data/materials/2021/v1/materials.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/trackermaterial/2021/v2/trackermaterial.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/rotations.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/extend/v2/cmsextent.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/cavernData/2021/v1/cavernData.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/cms/2030/v5/cms.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/cmsMother.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/eta3/etaMax.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/cmsTracker.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/PhaseII/TFPXTEPXReordered/trackerParameters.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/trackermaterial.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/CRack_PhaseII/tracker.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/CRack_PhaseII/tob.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/CRack_PhaseII/trackersens.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/CRack_PhaseII/trackerStructureTopology.xml'/>
+  </IncludeSection>
+</DDDefinition>
