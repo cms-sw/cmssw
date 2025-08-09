@@ -151,9 +151,16 @@ protected:
   hcaldqm::ContainerProf2D _cTimingDiffLS_SubdetPM;
   hcaldqm::ContainerProf2D _cTimingDiffEvent_SubdetPM;
 
+  hcaldqm::ContainerSingle2D _cLaserMonADC_TS;
+
   //	Summaries
   hcaldqm::Container2D _cSummaryvsLS_FED;
   hcaldqm::ContainerSingle2D _cSummaryvsLS;
+
+  // For monitoring CU laser firing: ADC vs TS
+  std::map<HcalSubdetector, std::vector<HcalDetId>> _laserCalibrationChannels;
+  hcaldqm::Container2D _Laser_ADCvsTS_Subdet;   // Pin diode amplitude vs TS for online DQM
+  hcaldqm::Container2D _Laser_ADCvsEvn_Subdet;  // Pin diode amplitude vs Evn for local DQM
 };
 
 #endif
