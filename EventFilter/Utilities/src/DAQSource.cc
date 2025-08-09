@@ -50,6 +50,9 @@ DAQSource::DAQSource(edm::ParameterSet const& pset, edm::InputSourceDescription 
       fileListMode_(pset.getUntrackedParameter<bool>("fileListMode")),
       fileDiscoveryMode_(pset.getUntrackedParameter<bool>("fileDiscoveryMode", false)),
       fileListLoopMode_(pset.getUntrackedParameter<bool>("fileListLoopMode", false)),
+      overrideRangeLS_(
+          pset.getUntrackedParameter<std::vector<unsigned int>>("overrideRangeLS", std::vector<unsigned int>())),
+      keepRawFiles_(pset.getUntrackedParameter<bool>("keepRawFiles", false)),
       runNumber_(edm::Service<evf::EvFDaqDirector>()->getRunNumber()),
       processHistoryID_(),
       currentLumiSection_(0),
@@ -719,6 +722,8 @@ void DAQSource::readSupervisor() {
   uint64_t sumLockWaitTimeUs = 0.;
 
   bool requireHeader = dataMode_->requireHeader();
+  int minDiscoveryLS = !overrideRangeLS_.empty() ? overrideRangeLS_.at(0) : -1;
+  daqDirector_->setDiscoveryRange(minDiscoveryLS, keepRawFiles_);
 
   while (!stop) {
     //wait for at least one free thread and chunk
@@ -855,6 +860,7 @@ void DAQSource::readSupervisor() {
             [&](std::string const& name, int& fd, int64_t& fsize, uint32_t sLS, bool& found) -> unsigned int {
           return dataMode_->eventCounterCallback(name, fd, fsize, sLS, found);
         };
+        nextFile = std::string();
 
         status = daqDirector_->getNextFromFileBroker(currentLumiSection,
                                                      ls,
@@ -904,9 +910,22 @@ void DAQSource::readSupervisor() {
       if (ls > currentLumiSection) {
         //new file service
         if (currentLumiSection == 0 && !alwaysStartFromFirstLS_) {
-          if (daqDirector_->getStartLumisectionFromEnv() > 1) {
+          auto lsFromEnv = daqDirector_->getStartLumisectionFromEnv();
+          unsigned int lsFromEnvMax = 0;
+          //override if parameter is specified
+          if (!overrideRangeLS_.empty()) {
+            lsFromEnv = overrideRangeLS_.at(0);
+            if (overrideRangeLS_.size() > 1) {
+              lsFromEnvMax = overrideRangeLS_.at(1);
+            }
+            if (overrideRangeLS_.size() > 2)
+              edm::LogError("DAQSource") << "More than two parameters in overrideRangeLS, they will be ignored.";
+          }
+          if (lsFromEnv > 1) {
             //start transitions from LS specified by env, continue if not reached
-            if (ls < daqDirector_->getStartLumisectionFromEnv()) {
+            //not currently compatible with fileListMode
+            //note that this should not be higher LS than daqDirector has already handled (if daqDirector is used)
+            if (ls < lsFromEnv) {
               //skip file if from earlier LS than specified by env
               if (rawFd != -1) {
                 close(rawFd);
@@ -914,6 +933,16 @@ void DAQSource::readSupervisor() {
               }
               status = evf::EvFDaqDirector::noFile;
               continue;
+            } else if (lsFromEnvMax && lsFromEnvMax < ls) {
+              //finished specified LS window
+              if (rawFd != -1) {
+                close(rawFd);
+                rawFd = -1;
+              }
+              status = evf::EvFDaqDirector::runEnded;
+              fileQueue_.push(std::make_unique<RawInputFile>(evf::EvFDaqDirector::runEnded));
+              stop = true;
+              break;
             } else {
               fileQueue_.push(std::make_unique<RawInputFile>(evf::EvFDaqDirector::newLumi, ls));
             }
@@ -930,6 +959,16 @@ void DAQSource::readSupervisor() {
           }
         } else {
           //queue all lumisections after last one seen to avoid gaps
+          unsigned lsFromEnvMax = overrideRangeLS_.size() > 1 ? overrideRangeLS_[1] : 0;
+          if (lsFromEnvMax && lsFromEnvMax < ls) {
+            for (unsigned int nextLS = currentLumiSection + 1; nextLS <= lsFromEnvMax; nextLS++)
+              fileQueue_.push(std::make_unique<RawInputFile>(evf::EvFDaqDirector::newLumi, nextLS));
+            status = evf::EvFDaqDirector::runEnded;
+            fileQueue_.push(std::make_unique<RawInputFile>(evf::EvFDaqDirector::runEnded));
+            stop = true;
+            break;
+          }
+
           for (unsigned int nextLS = currentLumiSection + 1; nextLS <= ls; nextLS++) {
             fileQueue_.push(std::make_unique<RawInputFile>(evf::EvFDaqDirector::newLumi, nextLS));
           }
@@ -1024,6 +1063,10 @@ void DAQSource::readSupervisor() {
                                                                   0,
                                                                   eventsInNewFile,
                                                                   this));
+      if (keepRawFiles_) {
+        edm::LogWarning("DAQSource") << "Disabling raw file deletion for " << rawFile;
+        newInputFile->unsetDeleteFile();
+      }
 
       uint64_t neededSize = fileSize;
       for (const auto& addFile : additionalFiles.second) {

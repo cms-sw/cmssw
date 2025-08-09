@@ -710,6 +710,20 @@ namespace edm {
         firstException = std::current_exception();
       }
     }
+    if (!firstException) {
+      CMS_SA_ALLOW try {
+        edm::Service<edm::RandomNumberGenerator> rng;
+        if (rng.isAvailable()) {
+          auto consumer = rng->consumer();
+          if (consumer) {
+            consumer->updateLookup(InLumi, *preg_->productLookup(InLumi), true);
+            consumer->updateLookup(InEvent, *preg_->productLookup(InEvent), true);
+          }
+        }
+      } catch (...) {
+        firstException = std::current_exception();
+      }
+    }
     if (firstException) {
       std::rethrow_exception(firstException);
     }
@@ -1649,6 +1663,7 @@ namespace edm {
                         Service<RandomNumberGenerator> rng;
                         if (rng.isAvailable()) {
                           LuminosityBlock lb(lumiPrincipal, ModuleDescription(), nullptr, false);
+                          lb.setConsumer(rng->consumer());
                           rng->preBeginLumi(lb);
                         }
 
@@ -2274,6 +2289,7 @@ namespace edm {
     Service<RandomNumberGenerator> rng;
     if (rng.isAvailable()) {
       Event ev(*pep, ModuleDescription(), nullptr);
+      ev.setConsumer(rng->consumer());
       rng->postEventRead(ev);
     }
 

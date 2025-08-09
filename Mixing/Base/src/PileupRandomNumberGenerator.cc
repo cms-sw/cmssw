@@ -67,7 +67,7 @@ std::vector<RandomEngineState> const& PileupRandomNumberGenerator::getLumiCache(
   return s_dummy;
 }
 
-void PileupRandomNumberGenerator::consumes(edm::ConsumesCollector&& iC) const {}
+edm::EDConsumerBase* PileupRandomNumberGenerator::consumer() { return nullptr; }
 
 void PileupRandomNumberGenerator::print(std::ostream& os) const {}
 
