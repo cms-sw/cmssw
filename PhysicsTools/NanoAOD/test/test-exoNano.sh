@@ -1,0 +1,1 @@
+cmsDriver.py exoNanoMC --mc --eventcontent NANOAODSIM --datatier NANOAODSIM --conditions auto:phase1_2025_realistic --step PAT,NANO:@EXO --nThreads 4 --era Run3,Run3_2025 --filein /store/mc/Run3Winter25Reco/TTToLNu2Q_TuneCP5_13p6TeV_powheg-pythia8/AODSIM/142X_mcRun3_2025_realistic_v7-v2/100000/0075ce27-6a4a-46b3-af61-8e84da460208.root -n 100
