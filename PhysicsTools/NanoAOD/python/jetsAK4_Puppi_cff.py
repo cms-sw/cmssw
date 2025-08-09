@@ -269,7 +269,7 @@ def nanoAOD_refineFastSim_puppiJet(process):
         batch_eval          = cms.bool(True),
         disableONNXGraphOpt = cms.bool(True),
         src                 = cms.InputTag("updatedJetsPuppi"),  # <<< HERE
-        weightFile = cms.FileInPath("PhysicsTools/NanoAOD/data/model_fastsimrefine_puppi_31July2025.onnx"),
+        weightFile = cms.FileInPath("PhysicsTools/NanoAOD/data/model_refinement_regression_31July_long_opset11.onnx"),
         name                = cms.string("puppiJetRefineNN"),
         variables = cms.VPSet(
             cms.PSet(name=cms.string("GenJet_pt"),            expr=cms.string("?genJetFwdRef().backRef().isNonnull()?genJetFwdRef().backRef().pt():pt")),
