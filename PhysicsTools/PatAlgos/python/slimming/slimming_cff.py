@@ -125,9 +125,11 @@ from Configuration.Eras.Modifier_dedx_lfit_cff import dedx_lfit
 from PhysicsTools.PatAlgos.modules import DeDxEstimatorRekeyer
 dedxEstimator = DeDxEstimatorRekeyer()
 dedx_lfit.toModify(dedxEstimator, dedxEstimators = ["dedxPixelLikelihood", "dedxStripLikelihood", "dedxAllLikelihood"])
+dedx_lfit.toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), dedxEstimator))
 
 from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
-run3_upc.toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), hiPixelTracks, packedPFCandidateTrackChi2, lostTrackChi2, dedxEstimator))
+run3_upc.toModify(dedxEstimator, dedxHits  = "dedxHitInfo", dedxMomentum = "dedxHitInfo:momentumAtHit")
+run3_upc.toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), hiPixelTracks, packedPFCandidateTrackChi2, lostTrackChi2))
 
 from Configuration.Eras.Modifier_run3_oxygen_cff import run3_oxygen
 run3_oxygen.toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), hiPixelTracks, hiEvtPlane, hiEvtPlaneFlat, packedPFCandidateTrackChi2, lostTrackChi2, centralityBin))
