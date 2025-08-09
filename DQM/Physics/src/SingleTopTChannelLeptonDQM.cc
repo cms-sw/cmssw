@@ -67,7 +67,8 @@ namespace SingleTopTChannelLepton {
       }
 
       if (elecExtras.existsAs<std::string>("rho")) {
-        rhoTag = elecExtras.getParameter<edm::InputTag>("rho");
+        auto rhoTag = elecExtras.getParameter<edm::InputTag>("rho");
+        rhoToken_ = iC.consumes(rhoTag);
       }
       // electronId is optional; in case it's not found the
       // InputTag will remain empty
@@ -356,7 +357,9 @@ namespace SingleTopTChannelLepton {
     edm::Handle<edm::View<reco::GsfElectron>> elecs;
     reco::GsfElectron e;
     edm::Handle<double> _rhoHandle;
-    event.getByLabel(rhoTag, _rhoHandle);
+    if (!rhoToken_.isUninitialized()) {
+      _rhoHandle = event.getHandle(rhoToken_);
+    }
     if (!event.getByToken(elecs_, elecs))
       return;
 

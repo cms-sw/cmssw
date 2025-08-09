@@ -450,8 +450,29 @@ namespace edm {
                                                    ModuleCallingContext const* mcc) const {
     bool skipCurrentProcess = inputTag.willSkipCurrentProcess();
 
-    ProductResolverIndex index = inputTag.indexFor(typeID, branchType(), &productRegistry());
+    auto token = inputTag.cachedToken();
 
+    // a null consumer can happen for tests and RandomNumberGeneratorService which calls getByLabel
+    // without setting a EDConsumerBase
+    if (token.isUninitialized() and consumer) {
+      std::string const* processName = &inputTag.process();
+      if (inputTag.process() == InputTag::kCurrentProcess) {
+        processName = &processConfiguration_->processName();
+      }
+      token = consumer->getRegisteredToken(
+          typeID, inputTag.label(), inputTag.instance(), *processName, branchType(), skipCurrentProcess);
+      if (token.isUninitialized()) {
+        failedToRegisterConsumes(kindOfType,
+                                 typeID,
+                                 inputTag.label(),
+                                 inputTag.instance(),
+                                 appendCurrentProcessIfAlias(inputTag.process(), processConfiguration_->processName()));
+      }
+      inputTag.cacheToken(token);
+    }
+    //check that the InputTag is not being used for a different type/Principal than the first call
+    auto index = consumer ? consumer->indexFromIfExactMatch(token, branchType(), typeID).productResolverIndex()
+                          : ProductResolverIndexInvalid;
     if (index == ProductResolverIndexInvalid) {
       char const* processName = inputTag.process().c_str();
       if (skipCurrentProcess) {
@@ -459,7 +480,6 @@ namespace edm {
       } else if (inputTag.process() == InputTag::kCurrentProcess) {
         processName = processConfiguration_->processName().c_str();
       }
-
       index =
           productLookup().index(kindOfType, typeID, inputTag.label().c_str(), inputTag.instance().c_str(), processName);
 
@@ -490,14 +510,6 @@ namespace edm {
         }
         return nullptr;
       }
-      inputTag.tryToCacheIndex(index, typeID, branchType(), &productRegistry());
-    }
-    if (UNLIKELY(consumer and (not consumer->registeredToConsume(index, skipCurrentProcess, branchType())))) {
-      failedToRegisterConsumes(kindOfType,
-                               typeID,
-                               inputTag.label(),
-                               inputTag.instance(),
-                               appendCurrentProcessIfAlias(inputTag.process(), processConfiguration_->processName()));
     }
 
     auto const& productResolver = productResolvers_[index];
