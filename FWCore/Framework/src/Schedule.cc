@@ -372,19 +372,6 @@ namespace edm {
       proc_pset.addParameter<vstring>(std::string("@end_paths"), scheduledEndPaths);
     }
 
-    class RngEDConsumer : public EDConsumerBase {
-    public:
-      explicit RngEDConsumer(std::set<TypeID>& typesConsumed) {
-        Service<RandomNumberGenerator> rng;
-        if (rng.isAvailable()) {
-          rng->consumes(consumesCollector());
-          for (auto const& consumesInfo : this->moduleConsumesInfos()) {
-            typesConsumed.emplace(consumesInfo.type());
-          }
-        }
-      }
-    };
-
     template <typename F>
     auto doCleanup(F&& iF) {
       auto wrapped = [f = std::move(iF)](std::exception_ptr const* iPtr, edm::WaitingTaskHolder iTask) {
@@ -571,7 +558,18 @@ namespace edm {
             }
           });
       // The RandomNumberGeneratorService is not a module, yet it consumes.
-      { RngEDConsumer rngConsumer = RngEDConsumer(productTypesConsumed); }
+      {
+        Service<RandomNumberGenerator> rng;
+        if (rng.isAvailable()) {
+          //if the service doesn't consume anything, the consumer will be nullptr
+          auto consumer = rng->consumer();
+          if (consumer) {
+            for (auto const& consumesInfo : consumer->moduleConsumesInfos()) {
+              productTypesConsumed.emplace(consumesInfo.type());
+            }
+          }
+        }
+      }
       preg.setFrozen(productTypesConsumed, elementTypesConsumed, processConfiguration->processName());
     }
 
