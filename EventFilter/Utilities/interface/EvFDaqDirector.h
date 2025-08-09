@@ -187,6 +187,11 @@ namespace evf {
     bool fileListMode() const { return fileListMode_; }
     unsigned int lsWithFilesOpen(unsigned int ls) const;
 
+    void setDiscoveryRange(int minDiscoveryLS, bool readOnly) {
+      minDiscoveryLS_ = minDiscoveryLS;
+      discoveryReadOnly_ = readOnly;
+    }
+
   private:
     void createLumiSectionFiles(const uint32_t lumiSection,
                                 const uint32_t currentLumiSection,
@@ -314,6 +319,9 @@ namespace evf {
     std::string discard_ls_filestem_;
     bool fileListMode_ = false;
     std::pair<unsigned, int> lastFileIdx_ = std::make_pair<unsigned, int>(0, -1);
+
+    int minDiscoveryLS_ = -1;
+    bool discoveryReadOnly_ = false;
   };
 }  // namespace evf
 
