@@ -129,7 +129,7 @@ private:
 
   // Corrected jet response vs reco histograms
   std::array<MonitorElement*, etaSize> h_JetPtCorrOverReco;
-  std::array<std::vector<MonitorElement*, ptSize>, etaSize> hVector_JetPtCorrOverReco_ptBins;
+  std::array<std::array<MonitorElement*, ptSize>, etaSize> hVector_JetPtCorrOverReco_ptBins;
 
   // Jet response vs gen profiled in gen variable
   std::array<MonitorElement*, ptSize> p_JetPtRecoOverGen_vs_GenEta;
