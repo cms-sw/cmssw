@@ -51,10 +51,6 @@ JetTester::JetTester(const edm::ParameterSet &iConfig)
     jetCorrectorToken_ = consumes<reco::JetCorrector>(mJetCorrector);
   }
   
-  // etaInfo = { {"B", "0<|#eta|<1.5", 0.0, 1.5},  // barrel
-  //             {"E", "1.5<|#eta|<3", 1.5, 3.0},  // endcap
-  //             {"F", "3<|#eta|<6",   3.0, 6.0}}; // forward
-
   // Events variables
   mNvtx = nullptr;
   

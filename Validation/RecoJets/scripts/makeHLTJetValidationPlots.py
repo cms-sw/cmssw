@@ -221,6 +221,8 @@ if __name__ == '__main__':
                            y="# Jets",
                            legend_title=r"Jet $p_T$ range ")
 
+            plotter.save( os.path.join(args.odir, f"Response{ResType}_{EtaRegion}") )
+
     
     #####################################
     # Response vs pt from profile
