@@ -8,7 +8,6 @@ import array
 import ROOT
 import argparse
 import os
-import sys
 import mplhep as hep
 hep.style.use("CMS")
 
@@ -28,7 +27,7 @@ if __name__ == '__main__':
     file = ROOT.TFile.Open(args.file)
     dqm_dir = f"DQMData/Run 1/HLT/Run summary/JetMET/JetValidation/{args.jet}"
     if not file.Get(dqm_dir):
-        sys.exit(f"Directory '{dqm_dir}' not found in {args.file}")
+        raise RuntimeError(f"Directory '{dqm_dir}' not found in {args.file}")
 
     fontsize = 18
     colors = ['black', 'red', 'blue']
