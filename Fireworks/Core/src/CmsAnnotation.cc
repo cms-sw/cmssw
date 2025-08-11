@@ -262,16 +262,15 @@ Bool_t CmsAnnotation::Handle(TGLRnrCtx& rnrCtx, TGLOvlSelectRecord& selRec, Even
           else if (fPosY > 1.0f)
             fPosY = 1.0f;
         } else {
-          using namespace std;
           Float_t oovpw = 1.0f / vp.Width(), oovph = 1.0f / vp.Height();
 
-          Float_t xw = oovpw * min(max(0, event->fX), vp.Width());
-          Float_t yw = oovph * min(max(0, vp.Height() - event->fY), vp.Height());
+          Float_t xw = oovpw * std::min(std::max(0, event->fX), vp.Width());
+          Float_t yw = oovph * std::min(std::max(0, vp.Height() - event->fY), vp.Height());
 
-          Float_t rx = max((xw - fPosX) / (oovpw * fMouseX - fPosX), 0.0f);
-          Float_t ry = max((yw - fPosY) / (oovph * (vp.Height() - fMouseY) - fPosY), 0.0f);
+          Float_t rx = std::max((xw - fPosX) / (oovpw * fMouseX - fPosX), 0.0f);
+          Float_t ry = std::max((yw - fPosY) / (oovph * (vp.Height() - fMouseY) - fPosY), 0.0f);
 
-          fSize = max(fSizeDrag * min(rx, ry), 0.01f);
+          fSize = std::max(fSizeDrag * std::min(rx, ry), 0.01f);
         }
       }
       return kTRUE;
