@@ -16,7 +16,6 @@
   * [Analyzer with CUDA input](#analyzer-with-cuda-input)
   * [Configuration](#configuration)
     * [GPU-only configuration](#gpu-only-configuration)
-    * [Automatic switching between CPU and GPU modules](#automatic-switching-between-cpu-and-gpu-modules)
 * [More details](#more-details)
   * [Device choice](#device-choice)
   * [Data model](#data-model)
@@ -355,10 +354,9 @@ void ProducerInputOutputCUDA::produce(edm::StreamID streamID, edm::Event& iEvent
 
 Analyzer with CUDA input is similar to [producer with CUDA
 input](#producer-with-cuda-input). Note that currently we do not have
-a mechanism for portable configurations with analyzers (like
-[`SwitchProducer`](#automatic-switching-between-cpu-and-gpu-modules)
-for producers). This means that a configuration with a CUDA analyzer
-can only run on a machine with CUDA device(s).
+a mechanism for portable configurations with analyzers. This means
+that a configuration with a CUDA analyzer can only run on a machine
+with CUDA device(s).
 
 ```cpp
 class AnalyzerInputCUDA: public edm::global::EDAnalyzer<> {
@@ -408,53 +406,9 @@ void AnalyzerInputCUDA::analyze(edm::Event const& iEvent, edm::EventSetup& iSetu
 For a GPU-only configuration there is nothing special to be done, just
 construct the Paths/Sequences/Tasks from the GPU modules.
 
-#### Automatic switching between CPU and GPU modules
-
-The `SwitchProducer` mechanism can be used to switch automatically
-between CPU and GPU modules based on the availability of GPUs on the
-machine where the configuration is done. Framework decides at the
-beginning of the job which of the modules to run for a given module
-label.
-
-Framework requires that the modules in the switch must produce the
-same types of output products (the closer the actual results are the
-better, but the framework can not enforce that). This means that for a
-chain of GPU modules, it is the module that transforms the SoA data
-format back to the legacy data formats (possibly, but not necessarily,
-transferring the SoA data from GPU to CPU) that should be switched
-between the legacy CPU module. The rest of the GPU modules should be
-placed to a `Task`, in which case framework runs them only if their
-output is needed by another module.
-
-```python
-from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
-process.foo = SwitchProducerCUDA(
-    cpu = cms.EDProducer("FooProducer"), # legacy CPU
-    cuda = cms.EDProducer("FooProducerFromCUDA",
-        src="fooCUDA"
-    )
-)
-process.fooCUDA = cms.EDProducer("FooProducerCUDA")
-
-process.fooTaskCUDA = cms.Task(process.fooCUDA)
-process.fooTask = cms.Task(
-    process.foo,
-    process.fooTaskCUDA
-)
-```
-
-For a more complete example, see [here](../CUDATest/test/testCUDASwitch_cfg.py).
-
-
-
-
-
 ## More details
 
 ### Device choice
-
-As discussed above, with `SwitchProducer` the choice between CPU and
-GPU modules is done at the beginning of the job.
 
 For multi-GPU setup the device is chosen in the first CUDA module in a
 chain of modules by one of the constructors of
