@@ -66,7 +66,8 @@ class Plotter:
         
         hep.cms.text(' Phase-2 Simulation Preliminary', ax=self._ax, fontsize=fontsize)
         hep.cms.lumitext(label + " | 14 TeV", ax=self._ax, fontsize=fontsize)
-        self._ax.grid(which='major', color=grid_color)
+        if grid_color:
+            self._ax.grid(which='major', color=grid_color)
         
         self.extensions = ('png', 'pdf')
 
@@ -323,7 +324,7 @@ if __name__ == '__main__':
             eff_errors = np.array([h_ratio.GetBinError(i+1) for i in range(nbins)])
             label = root_hist.GetXaxis().GetTitle().replace('#', '\\')
 
-            plotter = Plotter(args.sample_label)
+            plotter = Plotter(args.sample_label, grid_color=None)
             
             plotter.ax.step(bin_edges[:-1], denominator_vals, where="post", label=den_label[i_type], linewidth=2, color="black")
             plotter.ax.step(bin_edges[:-1], numerator_vals, where="post", label=num_label[i_type], linewidth=2, color="#9c9ca1", linestyle='-.')
@@ -418,7 +419,7 @@ if __name__ == '__main__':
         pcm = plotter.ax.pcolormesh(x_edges, y_edges, values, cmap='viridis', shading='auto')
 
         # Axis labels and style
-        plotter.labels(x="${x_label}$", y=f"${y_label}$", legend_title='')
+        plotter.labels(x=f"${x_label}$", y=f"${y_label}$", legend_title='')
         plotter.fig.colorbar(pcm, ax=plotter.ax, label=root_hist.GetZaxis().GetTitle())
 
         plotter.save( os.path.join(args.odir, Title + '_' + Var2D) )
