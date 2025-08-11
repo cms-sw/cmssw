@@ -158,7 +158,7 @@ subprocess.run(base_cmsdriver_command, shell=True, cwd=output_dir)
 # Step 2: Use edmConfigDump to dump the full configuration
 print(f"Dumping the full configuration using edmConfigDump to {dumped_config_file}")
 with open(dumped_config_file, "w") as dump_file, open(log_file, "w") as log:
-    subprocess.run(f"edmConfigDump {base_config_file}", shell=True, stdout=dump_file, stderr=log)
+    subprocess.run(f"edmConfigDump --prune {base_config_file}", shell=True, stdout=dump_file, stderr=log)
 
 # Step 3: Extract the list of HLT paths from the dumped configuration
 print(f"Extracting HLT paths from {dumped_config_file}...")
@@ -168,7 +168,7 @@ with open(dumped_config_file, "r") as f:
     config_content = f.read()
 
 # Use regex to find all HLT and L1T paths defined in process.schedule
-unsorted_hlt_paths = re.findall(r"process\.(HLT_[A-Za-z0-9_]+|L1T_[A-Za-z0-9_]+|DST_[A-Za-z0-9_]+)", config_content)
+unsorted_hlt_paths = re.findall(r"process\.(HLT_[A-Za-z0-9_]+|L1T_[A-Za-z0-9_]+|DST_[A-Za-z0-9_]+|MC_[A-Za-z0-9_]+)", config_content)
 
 # Remove duplicates and sort alphabetically
 hlt_paths = sorted(set(unsorted_hlt_paths))
@@ -228,7 +228,7 @@ for path_name in hlt_paths:
     def replace_hlt_paths(match):
         all_paths = match.group(2).split(", ")
         # Keep non-HLT/L1T paths and include only the current HLT or L1T path
-        filtered_paths = [path for path in all_paths if not re.match(r"process\.(HLT_|L1T_)", path) or f"process.{path_name}" in path]
+        filtered_paths = [path for path in all_paths if not re.match(r"process\.(HLT_|L1T_|DST_|MC_)", path) or f"process.{path_name}" in path]
         return match.group(1) + ", ".join(filtered_paths) + match.group(3)
 
     # Apply the regex to remove all HLT and L1T paths except the current one
@@ -332,7 +332,10 @@ print("All cmsRun jobs submitted.")
 # Step 9: Compare all HLT root files using hltDiff
 def compare_hlt_results(input_dir, num_events, max_workers=4):
     # List all root files starting with "HLT_" or "L1T_" in the output directory
-    root_files = [f for f in os.listdir(input_dir) if f.endswith(".root") and (f.startswith("HLT_") or f.startswith("L1T_"))]
+    root_files = [f for f in os.listdir(input_dir) if f.endswith(".root") and (f.startswith("HLT_") \
+                                                                               or f.startswith("L1T_") \
+                                                                               or f.startswith("DST_") \
+                                                                               or f.startswith("MC_"))]
 
     # Base file (hltrun output) to compare against
     base_root_file = os.path.join(input_dir, "hlt.root")
