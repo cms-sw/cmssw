@@ -79,13 +79,13 @@ class Plotter:
     def ax(self):
         return self._ax
 
-    def labels(self, x, y, legend_title=None):
+    def labels(self, x, y, legend_title=None, legend_loc='upper right'):
         self._ax.set_xlabel(x)
         self._ax.set_ylabel(y)
-        if legend_title:
+        if legend_title is not None:
             self._ax.legend(title=legend_title,
                             title_fontsize=self.fontsize, fontsize=self.fontsize,
-                            loc='upper right')
+                            loc=legend_loc)
 
     def limits(self, x=None, y=None):
         if x:
@@ -229,8 +229,8 @@ if __name__ == '__main__':
     # Response vs pt from profile
     #####################################
 
-    x_axis_titles = ("$p_{T}^{gen}\;$", "$p_{T}^{gen}\;$", "$p_{T}^{reco}\;$")
-    y_axis_titles = ("$p_{T}^{reco}/p_{T}^{gen}\;$", "$p_{T}^{corr}/p_{T}^{gen}\;$", "$p_{T}^{corr}/p_{T}^{reco}\;$")
+    x_axis_titles = ("$p_{T}^{gen}\,$", "$p_{T}^{gen}\,$", "$p_{T}^{reco}\,$")
+    y_axis_titles = ("$p_{T}^{reco}/p_{T}^{gen}\,$", "$p_{T}^{corr}/p_{T}^{gen}\,$", "$p_{T}^{corr}/p_{T}^{reco}\,$")
     for i_res, ResType in enumerate(('PtRecoOverGen_GenPt', 'PtCorrOverGen_GenPt', 'PtCorrOverReco_Pt')):
 
         plotter = Plotter(args.sample_label)
@@ -296,9 +296,9 @@ if __name__ == '__main__':
         plotter.limits(y=(0,0.8))
         plotter.save( os.path.join(args.odir, 'Resolution_' + ResType) )
 
-    # #####################################
-    # # Jet-Finding Efficiency
-    # #####################################
+    #####################################
+    # Jet-Finding Efficiency
+    #####################################
 
     den_label = ('HLT Jets $p_T > 30$ GeV', 'Gen Jets $p_T > 20$ GeV')
     num_label = ('HLT Jets $p_T > 30$ GeV matched to gen jets', 'Gen Jets $p_T > 20$ GeV matched to HLT jets')
@@ -330,7 +330,7 @@ if __name__ == '__main__':
             plotter.ax.step(bin_edges[:-1], numerator_vals, where="post", label=num_label[i_type], linewidth=2, color="#9c9ca1", linestyle='-.')
             plotter.ax.fill_between(bin_edges[:-1], numerator_vals, step="post", alpha=0.3, color="#9c9ca1")
 
-            plotter.labels(x=f"${label}$", y="# Jets", legend_title='')
+            plotter.labels(x=f"${label}$", y="# Jets", legend_title='', legend_loc='upper left')
             plotter.limits(y=(0, 1.2*max(denominator_vals)))
 
             if 'Pt' in Var:
@@ -341,8 +341,8 @@ if __name__ == '__main__':
             ax2.errorbar(bin_centers, eff_values, xerr=0.5 * bin_widths, yerr=eff_errors, linestyle='', fmt='o', color=eff_color, label='Efficiency')
             ax2.set_ylabel(y_title[i_type], color=eff_color)
             ax2.set_ylim(0,1.2)
-            ax2.grid(color=eff_color, axis='both')
-            ax2.tick_params(axis='y', labelcolor=eff_color)
+            ax2.grid(color=eff_color, axis='y')
+            plotter.ax.grid(color=eff_color, axis='x')
 
             plotter.save( os.path.join(args.odir, Title + '_' + Var) )
 
@@ -504,7 +504,7 @@ if __name__ == '__main__':
     # Legend for response types (line styles)
     res_legend_elements = [
         Line2D([0], [0], color='grey', linestyle='-', label='Reco'),
-        Line2D([0], [0], color='grey', linestyle='-', label='Corrected')
+        Line2D([0], [0], color='grey', linestyle='--', label='Corrected')
     ]
 
     legend_eta = plotter.ax.legend(handles=eta_legend_elements, loc='upper right', fontsize=fontsize)
