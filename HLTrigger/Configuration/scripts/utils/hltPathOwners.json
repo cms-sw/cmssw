@@ -320,6 +320,20 @@
       "HLT-Scouting"
     ]
   },
+  "DST_PFScouting_DoubleEGMonitorJPsi_v": {
+    "online?": true,
+    "owners": [
+      "HLT-Scouting",
+      "EGM"
+    ]
+  },
+  "DST_PFScouting_DoubleEGMonitorZ_v": {
+    "online?": true,
+    "owners": [
+      "HLT-Scouting",
+      "EGM"
+    ]
+  },
   "DST_PFScouting_DoubleEG_v": {
     "online?": true,
     "owners": [
@@ -370,6 +384,20 @@
     "owners": [
       "BPH",
       "HLT-Scouting"
+    ]
+  },
+  "DST_PFScouting_SinglePhotonEBMonitorJPsi_v": {
+    "online?": true,
+    "owners": [
+      "HLT-Scouting",
+      "EGM"
+    ]
+  },
+  "DST_PFScouting_SinglePhotonEBMonitorZ_v": {
+    "online?": true,
+    "owners": [
+      "HLT-Scouting",
+      "EGM"
     ]
   },
   "DST_PFScouting_SinglePhotonEB_v": {
@@ -5368,6 +5396,12 @@
     "online?": true,
     "owners": [
       "TSG"
+    ]
+  },
+  "HLT_L1SingleMuShower_v": {
+    "online?": true,
+    "owners": [
+      "EXO"
     ]
   },
   "HLT_L1Tau_DelayedJet40_DoubleDelay0p5nsTrackless_v": {
