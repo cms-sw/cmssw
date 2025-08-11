@@ -7,7 +7,6 @@ from Validation.RecoJets.hltJetValidation_cff import *
 HLTJetMETValSeq    = cms.Sequence(
     SingleJetValidation
     + hltJetAnalyzerAK4PFPuppi
-    + hltJetAnalyzerAK4PFCluster
     + hltJetAnalyzerAK4PF
     + hltJetAnalyzerAK4PFCHS
 )

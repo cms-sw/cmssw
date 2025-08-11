@@ -27,11 +27,6 @@ hltJetAnalyzerAK4PFPuppi = _hltJetTester.clone(
     JetCorrections = cms.InputTag("hltAK4PFPuppiJetCorrector"),
 )
 
-hltJetAnalyzerAK4PFCluster = _hltJetTester.clone(
-    src = cms.InputTag("hltAK4PFClusterJets"),
-    JetCorrections = cms.InputTag(""),
-)
-
 hltJetAnalyzerAK4PF = _hltJetTester.clone(
     src = cms.InputTag("hltAK4PFJets"),
     JetCorrections = cms.InputTag("hltAK4PFJetCorrector"),
