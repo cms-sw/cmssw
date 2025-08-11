@@ -1897,10 +1897,6 @@ if __name__=="__main__":
             p6.visit(namesVisitor)
             self.assertEqual(l,['!&','a','b','@'])
 
-        def testTaskConstructor(self):
-            a = DummyModule("a")
-            self.assertRaises(RuntimeError, lambda : Task(ConditionalTask(a)) )
-
         def testDumpPython(self):
             a = DummyModule("a")
             b = DummyModule('b')
@@ -1949,19 +1945,6 @@ if __name__=="__main__":
             s = Sequence(e, t4)
             p12 = Path(a+b+s+c,t1)
             self.assertEqual(p12.dumpPython(),"cms.Path(process.a+process.b+cms.Sequence(process.e, cms.Task(process.d, process.f))+process.c, cms.Task(process.a))\n")
-            ct1 = ConditionalTask(a)
-            ct2 = ConditionalTask(c, b)
-            ct3 = ConditionalTask()
-            p13 = Path((a+b)*c, ct1)
-            self.assertEqual(p13.dumpPython(),"cms.Path(process.a+process.b+process.c, cms.ConditionalTask(process.a))\n")
-            p14 = Path((a+b)*c, ct2, ct1)
-            self.assertEqual(p14.dumpPython(),"cms.Path(process.a+process.b+process.c, cms.ConditionalTask(process.a), cms.ConditionalTask(process.b, process.c))\n")
-            p15 = Path(ct1, ct2, ct3)
-            self.assertEqual(p15.dumpPython(),"cms.Path(cms.ConditionalTask(), cms.ConditionalTask(process.a), cms.ConditionalTask(process.b, process.c))\n")
-            ct4 = ConditionalTask(d, Task(f))
-            s = Sequence(e, ct4)
-            p16 = Path(a+b+s+c,ct1)
-            self.assertEqual(p16.dumpPython(),"cms.Path(process.a+process.b+cms.Sequence(process.e, cms.ConditionalTask(process.d, process.f))+process.c, cms.ConditionalTask(process.a))\n")
 
             n = 260
             mods = []
@@ -1973,8 +1956,6 @@ if __name__=="__main__":
             labels.sort()
             task = Task(*mods)
             self.assertEqual(task.dumpPython(), "cms.Task(*[" + ", ".join(labels) + "])\n")
-            conditionalTask = ConditionalTask(*mods)
-            self.assertEqual(conditionalTask.dumpPython(), "cms.ConditionalTask(*[" + ", ".join(labels) + "])\n")
 
             l = list()
             namesVisitor = DecoratedNodeNameVisitor(l)
@@ -2002,9 +1983,6 @@ if __name__=="__main__":
             p12.visit(namesVisitor)
             self.assertEqual(l, ['a', 'b', 'e', 'c'])
             l[:] = []
-            p16.visit(namesVisitor)
-            self.assertEqual(l, ['a', 'b', 'e', 'c'])
-            l[:] = []
             moduleVisitor = ModuleNodeVisitor(l)
             p8.visit(moduleVisitor)
             names = [m.label_() for m in l]
@@ -2013,8 +1991,6 @@ if __name__=="__main__":
             self.assertEqual(tph.dumpPython(), 'cms.TaskPlaceholder("process.a")\n')
             sph = SequencePlaceholder('a')
             self.assertEqual(sph.dumpPython(), 'cms.SequencePlaceholder("process.a")\n')
-            ctph = ConditionalTaskPlaceholder('a')
-            self.assertEqual(ctph.dumpPython(), 'cms.ConditionalTaskPlaceholder("process.a")\n')
 
         def testDumpConfig(self):
             a = DummyModule("a")
@@ -2077,18 +2053,6 @@ if __name__=="__main__":
             e=DummyModule("e")
             f=DummyModule("f")
             g=DummyModule("g")
-            ct1 = ConditionalTask(d)
-            ct2 = ConditionalTask(e, ct1)
-            ct3 = ConditionalTask(f, g, ct2)
-            s=Sequence(plusAB, ct3, ct2)
-            multSC = s*c
-            p=Path(multSC, ct1, ct2)
-            l = []
-            v = ModuleNodeVisitor(l)
-            p.visit(v)
-            expected = [a,b,f,g,e,d,e,d,c,d,e,d]
-            self.assertEqual(expected,l)
-
 
             t1 = Task(d)
             t2 = Task(e, t1)
@@ -2285,63 +2249,6 @@ if __name__=="__main__":
             t2.replace(m2,t3)
             self.assertTrue(t2.dumpPython() == "cms.Task(process.m1, process.m3, process.m5)\n")
 
-            #ConditionalTask
-            ct6 = ConditionalTask(m6)
-            ct7 = ConditionalTask(m7)
-            ct89 = ConditionalTask(m8, m9)
-
-            cs1 = Sequence(m1+m2, ct6)
-            cs2 = Sequence(m3+m4, ct7)
-            cs3 = Sequence(cs1+cs2, ct89)
-            cs3.replace(m3,m5)
-            l[:] = []
-            cs3.visit(namesVisitor)
-            self.assertEqual(l,['m1','m2','m5','m4'])
-
-            cs3.replace(m8,m1)
-            self.assertEqual(cs3.dumpPython(), "cms.Sequence(cms.Sequence(process.m1+process.m2, cms.ConditionalTask(process.m6))+process.m5+process.m4, cms.ConditionalTask(process.m1, process.m9), cms.ConditionalTask(process.m7))\n")
-
-            cs3.replace(m1,m7)
-            self.assertEqual(cs3.dumpPython(), "cms.Sequence(process.m7+process.m2+process.m5+process.m4, cms.ConditionalTask(process.m6), cms.ConditionalTask(process.m7), cms.ConditionalTask(process.m7, process.m9))\n")
-            result = cs3.replace(ct7, ct89)
-            self.assertEqual(cs3.dumpPython(), "cms.Sequence(process.m7+process.m2+process.m5+process.m4, cms.ConditionalTask(process.m6), cms.ConditionalTask(process.m7, process.m9), cms.ConditionalTask(process.m8, process.m9))\n")
-            self.assertTrue(result)
-            result = cs3.replace(ct7, ct89)
-            self.assertFalse(result)
-
-            ct1 = ConditionalTask()
-            ct1.replace(m1,m2)
-            self.assertEqual(ct1.dumpPython(), "cms.ConditionalTask()\n")
-
-            ct1 = ConditionalTask(m1)
-            ct1.replace(m1,m2)
-            self.assertEqual(ct1.dumpPython(), "cms.ConditionalTask(process.m2)\n")
-
-            ct1 = ConditionalTask(m1,m2, m2)
-            ct1.replace(m2,m3)
-            self.assertEqual(ct1.dumpPython(), "cms.ConditionalTask(process.m1, process.m3)\n")
-
-            ct1 = ConditionalTask(m1,m2)
-            ct2 = ConditionalTask(m1,m3,ct1)
-            ct2.replace(m1,m4)
-            self.assertEqual(ct2.dumpPython(), "cms.ConditionalTask(process.m2, process.m3, process.m4)\n")
-
-            ct1 = ConditionalTask(m2)
-            ct2 = ConditionalTask(m1,m3,ct1)
-            ct2.replace(m1,m4)
-            self.assertEqual(ct2.dumpPython(), "cms.ConditionalTask(process.m2, process.m3, process.m4)\n")
-
-            ct1 = ConditionalTask(m2)
-            ct2 = ConditionalTask(m1,m3,ct1)
-            ct2.replace(ct1,m4)
-            self.assertEqual(ct2.dumpPython(), "cms.ConditionalTask(process.m1, process.m3, process.m4)\n")
-
-            ct1 = ConditionalTask(m2)
-            ct2 = ConditionalTask(m1,m3,ct1)
-            ct3 = ConditionalTask(m5)
-            ct2.replace(m2,ct3)
-            self.assertEqual(ct2.dumpPython(), "cms.ConditionalTask(process.m1, process.m3, process.m5)\n")
-
         def testReplaceIfHeldDirectly(self):
             m1 = DummyModule("m1")
             m2 = DummyModule("m2")
@@ -2382,23 +2289,6 @@ if __name__=="__main__":
             s1._replaceIfHeldDirectly(t6,t7)
             self.assertEqual(s1.dumpPython()[:-1],"cms.Sequence(cms.Task(process.m7))")
 
-            #ConditionalTask
-            ct6 = ConditionalTask(m6)
-            ct7 = ConditionalTask(m7)
-            ct89 = ConditionalTask(m8, m9)
-
-            s1 = Sequence(m1+m2, ct6)
-            s2 = Sequence(m3+m4, ct7)
-            s3 = Sequence(s1+s2, ct89)
-            s3._replaceIfHeldDirectly(m3,m5)
-            self.assertEqual(s3.dumpPython()[:-1], "cms.Sequence(cms.Sequence(process.m1+process.m2, cms.ConditionalTask(process.m6))+cms.Sequence(process.m3+process.m4, cms.ConditionalTask(process.m7)), cms.ConditionalTask(process.m8, process.m9))")
-            s2._replaceIfHeldDirectly(m3,m5)
-            self.assertEqual(s2.dumpPython()[:-1],"cms.Sequence(process.m5+process.m4, cms.ConditionalTask(process.m7))")
-            self.assertEqual(s3.dumpPython()[:-1], "cms.Sequence(cms.Sequence(process.m1+process.m2, cms.ConditionalTask(process.m6))+cms.Sequence(process.m5+process.m4, cms.ConditionalTask(process.m7)), cms.ConditionalTask(process.m8, process.m9))")
-
-            s1 = Sequence(ct6)
-            s1._replaceIfHeldDirectly(ct6,ct7)
-            self.assertEqual(s1.dumpPython()[:-1],"cms.Sequence(cms.ConditionalTask(process.m7))")
         def testIndex(self):
             m1 = DummyModule("a")
             m2 = DummyModule("b")
@@ -2483,43 +2373,6 @@ if __name__=="__main__":
             t4 = Task()
             t5 = t4.expandAndClone()
             self.assertTrue(t5.dumpPython() == "cms.Task()\n")
-            #ConditionalTask
-            s1 = Sequence(m1*~m2*m1*m2*ignore(m2))
-            s2 = Sequence(m1*m2)
-            s3 = Sequence(~m1*s2)
-            p = Path(s1+s3, ConditionalTask(m6))
-            p2 = p.expandAndClone()
-            l[:] = []
-            p2.visit(namesVisitor)
-            self.assertEqual(l, ['m1', '!m2', 'm1', 'm2', '-m2', '!m1', 'm1', 'm2'])
-            self.assertEqual(p2.dumpPython(), "cms.Path(process.m1+~process.m2+process.m1+process.m2+cms.ignore(process.m2)+~process.m1+process.m1+process.m2, cms.ConditionalTask(process.m6))\n")
-
-            s2 = Sequence(m1*m2, ConditionalTask(m9))
-            s3 = Sequence(~m1*s2)
-            ct8 = ConditionalTask(m8)
-            ct8.setLabel("ct8")
-            p = Path(s1+s3, ConditionalTask(m6, ConditionalTask(m7, ct8)))
-            p2 = p.expandAndClone()
-            l[:] = []
-            p2.visit(namesVisitor)
-            self.assertEqual(l, ['m1', '!m2', 'm1', 'm2', '-m2', '!m1', 'm1', 'm2'])
-            self.assertEqual(p2.dumpPython(), "cms.Path(process.m1+~process.m2+process.m1+process.m2+cms.ignore(process.m2)+~process.m1+process.m1+process.m2, cms.ConditionalTask(process.m6, process.m7, process.m8, process.m9))\n")
-
-            t1 = ConditionalTask(m1,m2,m3)
-            s1 = Sequence(t1)
-            s2 = s1.expandAndClone()
-            l[:] = []
-            s2.visit(namesVisitor)
-            self.assertEqual(l, [])
-            self.assertEqual(s2.dumpPython(), "cms.Sequence(cms.ConditionalTask(process.m1, process.m2, process.m3))\n")
-
-            t1 = ConditionalTask(m1,m2)
-            t2 = ConditionalTask(m1,m3,t1)
-            t3 = t2.expandAndClone()
-            self.assertEqual(t3.dumpPython(), "cms.ConditionalTask(process.m1, process.m2, process.m3)\n")
-            t4 = ConditionalTask()
-            t5 = t4.expandAndClone()
-            self.assertTrue(t5.dumpPython() == "cms.ConditionalTask()\n")
 
         def testAdd(self):
             m1 = DummyModule("m1")
@@ -2625,26 +2478,6 @@ if __name__=="__main__":
             self.assertTrue(t3.dumpPython() == "cms.Task(process.m2)\n")
             t3.remove(m2)
             self.assertTrue(t3.dumpPython() == "cms.Task()\n")
-            #ConditionalTask
-            s1 = Sequence(m1+m2, ConditionalTask(m3), ConditionalTask(m4))
-            s1.remove(m4)
-            self.assertEqual(s1.dumpPython(), "cms.Sequence(process.m1+process.m2, cms.ConditionalTask(process.m3))\n")
-            s1 = Sequence(m1+m2+Sequence(ConditionalTask(m3,m4), ConditionalTask(m3), ConditionalTask(m4)))
-            s1.remove(m4)
-            self.assertEqual(s1.dumpPython(), "cms.Sequence(process.m1+process.m2, cms.ConditionalTask(process.m3), cms.ConditionalTask(process.m4))\n")
-            t1 = ConditionalTask(m1)
-            t1.setLabel("t1")
-            t2 = ConditionalTask(m2,t1)
-            t2.setLabel("t2")
-            t3 = ConditionalTask(t1,t2,m1)
-            t3.remove(m1)
-            self.assertEqual(t3.dumpPython(), "cms.ConditionalTask(process.m1, process.t2)\n")
-            t3.remove(m1)
-            self.assertEqual(t3.dumpPython(), "cms.ConditionalTask(process.m1, process.m2)\n")
-            t3.remove(m1)
-            self.assertEqual(t3.dumpPython(), "cms.ConditionalTask(process.m2)\n")
-            t3.remove(m2)
-            self.assertEqual(t3.dumpPython(), "cms.ConditionalTask()\n")
 
         def testCopyAndExclude(self):
             a = DummyModule("a")
@@ -2782,39 +2615,6 @@ if __name__=="__main__":
             self.assertTrue(t3.dumpPython() == "cms.Task(process.f, process.g, process.t11)\n")
             t4 = t2.copyAndExclude([e,f,g,h,a])
             self.assertTrue(t4.dumpPython() == "cms.Task()\n")
-            #ConditionalTask
-            t1 = ConditionalTask(h)
-            s = Sequence(a+b+c+~d, ConditionalTask(e,f,ConditionalTask(g,t1)))
-            self.assertEqual(s.copyAndExclude([a,h]).dumpPython(),"cms.Sequence(process.b+process.c+~process.d, cms.ConditionalTask(process.e, process.f, process.g))\n")
-            self.assertEqual(s.copyAndExclude([a,h]).dumpPython(),"cms.Sequence(process.b+process.c+~process.d, cms.ConditionalTask(process.e, process.f, process.g))\n")
-            self.assertEqual(s.copyAndExclude([a,e,h]).dumpPython(),"cms.Sequence(process.b+process.c+~process.d, cms.ConditionalTask(process.f, process.g))\n")
-            self.assertEqual(s.copyAndExclude([a,e,f,g,h]).dumpPython(),"cms.Sequence(process.b+process.c+~process.d)\n")
-            self.assertEqual(s.copyAndExclude([a,b,c,d]).dumpPython(),"cms.Sequence(cms.ConditionalTask(process.e, process.f, process.g, process.h))\n")
-            self.assertEqual(s.copyAndExclude([t1]).dumpPython(),"cms.Sequence(process.a+process.b+process.c+~process.d, cms.ConditionalTask(process.e, process.f, process.g))\n")
-            taskList = []
-            taskVisitor = ConditionalTaskVisitor(taskList)
-            s.visit(taskVisitor)
-            self.assertEqual(len(taskList),3)
-            s2 = s.copyAndExclude([g,h])
-            taskList[:] = []
-            s2.visit(taskVisitor)
-            self.assertEqual(len(taskList),1)
-            t2 = ConditionalTask(t1)
-            taskList[:] = []
-            t2.visit(taskVisitor)
-            self.assertEqual(taskList[0],t1)
-            s3 = Sequence(s)
-            self.assertEqual(s3.copyAndExclude([a,h]).dumpPython(),"cms.Sequence(process.b+process.c+~process.d, cms.ConditionalTask(process.e, process.f, process.g))\n")
-            s4 = Sequence(s)
-            self.assertEqual(s4.copyAndExclude([a,b,c,d,e,f,g,h]).dumpPython(),"cms.Sequence()\n")
-            t1 = ConditionalTask(e,f)
-            t11 = ConditionalTask(a)
-            t11.setLabel("t11")
-            t2 = ConditionalTask(g,t1,h,t11)
-            t3 = t2.copyAndExclude([e,h])
-            self.assertEqual(t3.dumpPython(), "cms.ConditionalTask(process.f, process.g, process.t11)\n")
-            t4 = t2.copyAndExclude([e,f,g,h,a])
-            self.assertEqual(t4.dumpPython(), "cms.ConditionalTask()\n")
 
         def testSequenceTypeChecks(self):
             m1 = DummyModule("m1")
@@ -2850,15 +2650,6 @@ if __name__=="__main__":
             self.assertTrue(id(t1Contents[0]) == id(t2Contents[0]))
             self.assertTrue(id(t1Contents[1]) == id(t2Contents[1]))
             self.assertTrue(id(t1._collection) != id(t2._collection))
-            #ConditionalTask
-            t1 = ConditionalTask(a, b)
-            t2 = t1.copy()
-            self.assertTrue(t1.dumpPython() == t2.dumpPython())
-            t1Contents = list(t1._collection)
-            t2Contents = list(t2._collection)
-            self.assertTrue(id(t1Contents[0]) == id(t2Contents[0]))
-            self.assertTrue(id(t1Contents[1]) == id(t2Contents[1]))
-            self.assertTrue(id(t1._collection) != id(t2._collection))
 
         def testCopyAndAdd(self):
             a = DummyModule("a")
@@ -2882,22 +2673,6 @@ if __name__=="__main__":
             self.assertEqual(t5.dumpPython(), "cms.Task(process.a, process.c, process.d, process.e)\n")
             t6 = t4.copyAndAdd(Task(b))
             self.assertEqual(t6.dumpPython(), "cms.Task(process.a, process.b, process.c, process.d)\n")
-            #ConditionalTask
-            t1 = ConditionalTask(a, b, c)
-            self.assertEqual(t1.dumpPython(), "cms.ConditionalTask(process.a, process.b, process.c)\n")
-            t2 = t1.copyAndAdd(d, e)
-            self.assertEqual(t1.dumpPython(), "cms.ConditionalTask(process.a, process.b, process.c)\n")
-            self.assertEqual(t2.dumpPython(), "cms.ConditionalTask(process.a, process.b, process.c, process.d, process.e)\n")
-            t3 = t2.copyAndExclude([b])
-            self.assertEqual(t1.dumpPython(), "cms.ConditionalTask(process.a, process.b, process.c)\n")
-            self.assertEqual(t2.dumpPython(), "cms.ConditionalTask(process.a, process.b, process.c, process.d, process.e)\n")
-            self.assertEqual(t3.dumpPython(), "cms.ConditionalTask(process.a, process.c, process.d, process.e)\n")
-            t4 = t1.copyAndExclude([b]).copyAndAdd(d)
-            self.assertEqual(t4.dumpPython(), "cms.ConditionalTask(process.a, process.c, process.d)\n")
-            t5 = t2.copyAndExclude([b]).copyAndAdd(d)
-            self.assertEqual(t5.dumpPython(), "cms.ConditionalTask(process.a, process.c, process.d, process.e)\n")
-            t6 = t4.copyAndAdd(Task(b))
-            self.assertEqual(t6.dumpPython(), "cms.ConditionalTask(process.a, process.b, process.c, process.d)\n")
 
         def testInsertInto(self):
             from FWCore.ParameterSet.Types import vstring
