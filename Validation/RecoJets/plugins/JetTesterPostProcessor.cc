@@ -75,8 +75,10 @@ void JetTesterPostProcessor::dqmEndJob(DQMStore::IBooker &ibook_, DQMStore::IGet
     */
     MonitorElement *mPtCorrOverReco_Eta_20_40_Reco = iget_.get(rundir_reco + "/" + "pr_PtCorrOverReco_Eta_Pt20_40");
     MonitorElement *mPtCorrOverReco_Eta_200_600_Reco = iget_.get(rundir_reco + "/" + "pr_PtCorrOverReco_Eta_Pt200_600");
-    MonitorElement *mPtCorrOverReco_Eta_1500_3500_Reco = iget_.get(rundir_reco + "/" + "pr_PtCorrOverReco_Eta_Pt1500_3500");
-    MonitorElement *mPtCorrOverGen_GenEta_40_200_Reco = iget_.get(rundir_reco + "/" + "pr_PtCorrOverGen_GenEta_Pt40_200");
+    MonitorElement *mPtCorrOverReco_Eta_1500_3500_Reco =
+        iget_.get(rundir_reco + "/" + "pr_PtCorrOverReco_Eta_Pt1500_3500");
+    MonitorElement *mPtCorrOverGen_GenEta_40_200_Reco =
+        iget_.get(rundir_reco + "/" + "pr_PtCorrOverGen_GenEta_Pt40_200");
     MonitorElement *mPtCorrOverGen_GenEta_600_1500_Reco =
         iget_.get(rundir_reco + "/" + "pr_PtCorrOverGen_GenEta_Pt600_1500");
     MonitorElement *mDeltaEta_Reco = iget_.get(rundir_reco + "/" + "DeltaEta");
@@ -127,7 +129,8 @@ void JetTesterPostProcessor::dqmEndJob(DQMStore::IBooker &ibook_, DQMStore::IGet
     MonitorElement *mCorrJetPt_MiniAOD = iget_.get(rundir_miniaod + "/" + "CorrJetPt");
     MonitorElement *mCorrJetPhi_MiniAOD = iget_.get(rundir_miniaod + "/" + "CorrJetPhi");
     MonitorElement *mCorrJetEta_MiniAOD = iget_.get(rundir_miniaod + "/" + "CorrJetEta");
-    MonitorElement *mPtCorrOverReco_Eta_20_40_MiniAOD = iget_.get(rundir_miniaod + "/" + "pr_PtCorrOverReco_Eta_Pt20_40");
+    MonitorElement *mPtCorrOverReco_Eta_20_40_MiniAOD =
+        iget_.get(rundir_miniaod + "/" + "pr_PtCorrOverReco_Eta_Pt20_40");
     MonitorElement *mPtCorrOverReco_Eta_200_600_MiniAOD =
         iget_.get(rundir_miniaod + "/" + "pr_PtCorrOverReco_Eta_Pt200_600");
     MonitorElement *mPtCorrOverReco_Eta_1500_3500_MiniAOD =
