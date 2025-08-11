@@ -216,7 +216,7 @@ if __name__ == '__main__':
                 stacked_histo.plot(ax=plotter.ax, linewidth=2, label=PtLabels[i])
                 
             plotter.ax.text(0.03, 0.97, f"{JetType}\n{EtaInfo.label(EtaRegion)}", transform=plotter.ax.transAxes, fontsize=fontsize,
-                verticalalignment='top', horizontalalignment='left')
+                            verticalalignment='top', horizontalalignment='left')
 
             plotter.labels(x="${}$".format(v_stacked_histo[0].axes[0].label),
                            y="# Jets",
@@ -384,7 +384,7 @@ if __name__ == '__main__':
         plotter = Plotter(args.sample_label)
         root_hist = CheckRootFile(f"{dqm_dir}/{Var}")
 
-        nbins, bin_edges, bin_centers, bin_widths = define_bins(h_ratio)
+        nbins, bin_edges, bin_centers, bin_widths = define_bins(root_hist)
 
         values = histo_values(root_hist)
         errors = histo_values(root_hist, errors=True)
@@ -392,7 +392,7 @@ if __name__ == '__main__':
         plt.errorbar(bin_centers, values, xerr=0.5 * bin_widths, yerr=errors, linestyle='', fmt='s', color='red', linewidth=2)
         plt.step(bin_edges[:-1], values, where="post", color='red')
 
-        plotter.labels(x="$p_T\;$ [GeV]", y=f"# Jets", legend_title='')
+        plotter.labels(x="$p_T\,$ [GeV]", y=f"# Jets")
         plotter.save( os.path.join(args.odir, Var) )
 
     #####################################
@@ -419,10 +419,10 @@ if __name__ == '__main__':
         pcm = plotter.ax.pcolormesh(x_edges, y_edges, values, cmap='viridis', shading='auto')
 
         # Axis labels and style
-        plotter.labels(x=f"${x_label}$", y=f"${y_label}$", legend_title='')
+        plotter.labels(x=f"${x_label}$", y=f"${y_label}$")
         plotter.fig.colorbar(pcm, ax=plotter.ax, label=root_hist.GetZaxis().GetTitle())
 
-        plotter.save( os.path.join(args.odir, Title + '_' + Var2D) )
+        plotter.save( os.path.join(args.odir, Var2D) )
 
     #####################################
     # Plot grouped variables
@@ -435,25 +435,26 @@ if __name__ == '__main__':
         'GenPt_EtaRegions': ('GenPt_B', 'GenPt_E', 'GenPt_F'),
         'JetTypes_Pt': ('GenPt', 'JetPt', 'CorrJetPt'),
     }
-
+    legend_labels = {'JetPt_B': "Barrel",  'GenPt_B': "Barrel",
+                     'JetPt_E': "Endcap",  'GenPt_E': "Endcap",
+                     'JetPt_F': "Forward", 'GenPt_F': "Forward",
+                     'GenPt': 'GenPt', 'JetPt': 'JetPt', 'CorrJetPt': 'CorrJetPt'}
+    
     for key, GroupedVar in GroupedVarList.items():
         plotter = Plotter(args.sample_label)
         
         for i_var, Var in enumerate(GroupedVar):
             root_hist = CheckRootFile(f"{dqm_dir}/{Var}")
 
-            nbins, bin_edges, bin_centers, bin_widths = define_bins(h_ratio)
+            nbins, bin_edges, bin_centers, bin_widths = define_bins(root_hist)
             
             values = histo_values(root_hist)
             errors = histo_values(root_hist, errors=True)
             
-            x_label = root_hist.GetXaxis().GetTitle().replace('#', '\\')
-            y_label = root_hist.GetYaxis().GetTitle()
-
-            plt.errorbar(bin_centers, values, xerr=0.5 * bin_widths, yerr=errors, linestyle='', label=Var, color=colors[i_var], fmt=markers[i_var])
+            plt.errorbar(bin_centers, values, xerr=0.5 * bin_widths, yerr=errors, linestyle='', label=legend_labels[Var], color=colors[i_var], fmt=markers[i_var])
             plt.step(bin_edges[:-1], values, where="post", color=colors[i_var], linewidth=2)
 
-        plotter.labels(x=f"${x_label}$", y=f"{y_label}", legend_title='')
+        plotter.labels(x="$p_T\,$ [GeV]", y=f"# Jets", legend_title='')
         plotter.save( os.path.join(args.odir, key) )
 
     #####################################
