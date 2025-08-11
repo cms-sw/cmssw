@@ -29,7 +29,7 @@ def define_bins(h):
     edges = np.array([h.GetBinLowEdge(i+1) for i in range(N)])
     edges = np.append(edges, h.GetBinLowEdge(N+1))
     return N, edges, 0.5*(edges[:-1]+edges[1:]), np.diff(edges)
-
+            
 def define_bins_2D(h):
     Nx = h.GetNbinsX()
     Ny = h.GetNbinsY()
@@ -104,8 +104,8 @@ class EtaInfo:
     """
     info = {
         'B': ('black', 'o', r'$|\eta|<1.5$'),
-        'E': ('red',   's', r'$1.5<|\eta|<3$'),
-        'F': ('blue',  's', r'$3<|\eta|<6$')
+        'E': ('red',   's', r'$1.5\leq|\eta|<3$'),
+        'F': ('blue',  's', r'$3\leq|\eta|<6$')
     }
 
     @staticmethod
@@ -143,7 +143,6 @@ if __name__ == '__main__':
 
     fontsize = 16       
 
-            
     ResLabels = ('PtRecoOverGen', 'PtCorrOverGen', 'PtCorrOverReco')
     PtLabels = ("20 < $p_T$ < 40 GeV", "40 < $p_T$ < 100 GeV", "100 < $p_T$ < 300 GeV", "300 < $p_T$ < 600 GeV", "600 < $p_T$ < 5000 GeV")
 
@@ -238,14 +237,11 @@ if __name__ == '__main__':
 
             bin_edges_c = array.array('d', tprofile_rebinning[EtaRegion])
             tprofile = tprofile.Rebin(len(tprofile_rebinning[EtaRegion]) - 1, "tprofile", bin_edges_c)
-            nbins = tprofile.GetNbinsX()
-            bin_edges = np.array([tprofile.GetBinLowEdge(i+1) for i in range(nbins)])
-            bin_edges = np.append(bin_edges, tprofile.GetBinLowEdge(nbins+1))
-            bin_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
-            bin_widths = np.diff(bin_edges)
 
-            means = np.array([tprofile.GetBinContent(i+1) for i in range(nbins)])
-            mean_errors = np.array([tprofile.GetBinError(i+1) for i in range(nbins)])
+            nbins, bin_edges, bin_centers, bin_widths = define_bins(tprofile)
+
+            means = histo_values(tprofile)
+            mean_errors = histo_values(tprofile, errors=True)
 
             plotter.ax.errorbar(bin_centers, means, xerr=0.5 * bin_widths, yerr=mean_errors, linestyle='',
                                 fmt=EtaInfo.marker(EtaRegion), color=EtaInfo.color(EtaRegion), label=EtaInfo.label(EtaRegion))
@@ -276,15 +272,11 @@ if __name__ == '__main__':
 
             bin_edges_c = array.array('d', tprofile_rebinning[EtaRegion][::2]) # [FIXME] due to low statistics
             tprofile = tprofile.Rebin(len(tprofile_rebinning[EtaRegion][::2]) - 1, "tprofile", bin_edges_c)
-            nbins = tprofile.GetNbinsX()
-            bin_edges = np.array([tprofile.GetBinLowEdge(i+1) for i in range(nbins)])
-            bin_edges = np.append(bin_edges, tprofile.GetBinLowEdge(nbins+1))
-            bin_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
-            bin_widths = np.diff(bin_edges)
+            nbins, bin_edges, bin_centers, bin_widths = define_bins(tprofile)
 
-            means = np.array([tprofile.GetBinContent(i+1) for i in range(nbins)])
+            means = histo_values(tprofile)
             sigmas = np.array([tprofile.GetBinError(i+1) * np.sqrt(tprofile.GetBinEntries(i+1)) for i in range(nbins)])
-            sigma_errors = np.array([tprofile.GetBinError(i+1) * np.sqrt(2)  for i in range(nbins)])
+            sigma_errors = np.array([tprofile.GetBinError(i+1) * np.sqrt(2) for i in range(nbins)])
             resolution = [s / m if m != 0 else np.nan for s, m in zip(sigmas, means)]
 
             plt.errorbar(bin_centers, resolution, xerr=0.5 * bin_widths, yerr=sigma_errors, linestyle='',
