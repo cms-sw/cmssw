@@ -226,8 +226,8 @@ if __name__ == '__main__':
     # Response vs pt from profile
     #####################################
 
-    x_axis_titles = ("$p_{T}^{gen}$", "$p_{T}^{gen}$", "$p_{T}^{reco}$")
-    y_axis_titles = ("$p_{T}^{reco}/p_{T}^{gen}$", "$p_{T}^{corr}/p_{T}^{gen}$", "$p_{T}^{corr}/p_{T}^{reco}$")
+    x_axis_titles = ("$p_{T}^{gen}\;$", "$p_{T}^{gen}\;$", "$p_{T}^{reco}\;$")
+    y_axis_titles = ("$p_{T}^{reco}/p_{T}^{gen}\;$", "$p_{T}^{corr}/p_{T}^{gen}\;$", "$p_{T}^{corr}/p_{T}^{reco}\;$")
     for i_res, ResType in enumerate(('PtRecoOverGen_GenPt', 'PtCorrOverGen_GenPt', 'PtCorrOverReco_Pt')):
 
         plotter = Plotter(args.sample_label)
@@ -389,9 +389,7 @@ if __name__ == '__main__':
         plt.errorbar(bin_centers, values, xerr=0.5 * bin_widths, yerr=errors, linestyle='', fmt='s', color='red', linewidth=2)
         plt.step(bin_edges[:-1], values, where="post", color='red')
 
-        x_label = root_hist.GetXaxis().GetTitle().replace('#', '\\')
-        y_label = root_hist.GetYaxis().GetTitle()
-        plotter.labels(x=f"${x_label}$", y=f"{y_label}", legend_title='')
+        plotter.labels(x="$p_T\;$ [GeV]", y=f"# Jets", legend_title='')
         plotter.save( os.path.join(args.odir, Var) )
 
     #####################################

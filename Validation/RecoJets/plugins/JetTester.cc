@@ -96,7 +96,7 @@ JetTester::JetTester(const edm::ParameterSet &iConfig)
   
   // Jet response vs gen histograms
   h_JetPtRecoOverGen.resize(etaInfo.size());
-  hVector_JetPtRecoOverGen_ptBins.resize(etaInfo.size());
+  hVector_JetPtRecoOverGen_ptBins.resize(etaInfosize());
   for (auto& vec : hVector_JetPtRecoOverGen_ptBins) {
       vec.resize(n_bins_pt);
   }
