@@ -1930,13 +1930,6 @@ class ProcessForProcessAccelerator(object):
             raise TypeError("ProcessAccelerator.apply() can only add Services. Tried to set {} with label {}".format(str(type(value)), label))
         self.__process.add_(value)
 
-# Need to be a module-level function for the configuration with a
-# SwitchProducer to be pickleable.
-def _switchproducer_test2_case1(accelerators):
-    return ("test1" in accelerators, -10)
-def _switchproducer_test2_case2(accelerators):
-    return ("test2" in accelerators, -9)
-
 if __name__=="__main__":
     import unittest
     import copy
@@ -2026,26 +2019,6 @@ if __name__=="__main__":
             self.__insertValue(tracked,label,value)
         def newPSet(self):
             return TestMakePSet()
-
-    class SwitchProducerTest(SwitchProducer):
-        def __init__(self, **kargs):
-            super(SwitchProducerTest,self).__init__(
-                dict(
-                    test1 = lambda accelerators: (True, -10),
-                    test2 = lambda accelerators: (True, -9),
-                    test3 = lambda accelerators: (True, -8),
-                    test4 = lambda accelerators: (True, -7)
-                ), **kargs)
-    specialImportRegistry.registerSpecialImportForType(SwitchProducerTest, "from test import SwitchProducerTest")
-
-    class SwitchProducerTest2(SwitchProducer):
-        def __init__(self, **kargs):
-            super(SwitchProducerTest2,self).__init__(
-                dict(
-                    test1 = _switchproducer_test2_case1,
-                    test2 = _switchproducer_test2_case2,
-                ), **kargs)
-    specialImportRegistry.registerSpecialImportForType(SwitchProducerTest2, "from test import SwitchProducerTest2")
 
     class TestModuleTypeResolver:
         def __init__(self, accelerators):
@@ -3512,113 +3485,6 @@ process.prefer("juicer",
             self.assertEqual((True,1),p.values["ref2"][1].values["b"][1].values["a"])
             self.assertEqual((True,1),p.values["ref4"][1][0].values["a"])
             self.assertEqual((True,1),p.values["ref4"][1][1].values["a"])
-        def testSwitchProducer(self):
-            proc = Process("test")
-            proc.sp = SwitchProducerTest(test2 = EDProducer("Foo",
-                                                            a = int32(1),
-                                                            b = PSet(c = int32(2))),
-                                         test1 = EDProducer("Bar",
-                                                            aa = int32(11),
-                                                            bb = PSet(cc = int32(12))))
-            self.assertEqual(proc.sp.label_(), "sp")
-            self.assertEqual(proc.sp.test1.label_(), "sp@test1")
-            self.assertEqual(proc.sp.test2.label_(), "sp@test2")
-
-            proc.a = EDProducer("A")
-            proc.s = Sequence(proc.a + proc.sp)
-            proc.t = Task(proc.a, proc.sp)
-            proc.p = Path()
-            proc.p.associate(proc.t)
-            p = TestMakePSet()
-            proc.fillProcessDesc(p)
-            self.assertEqual((True,"EDProducer"), p.values["sp"][1].values["@module_edm_type"])
-            self.assertEqual((True, "SwitchProducer"), p.values["sp"][1].values["@module_type"])
-            self.assertEqual((True, "sp"), p.values["sp"][1].values["@module_label"])
-            all_cases = copy.deepcopy(p.values["sp"][1].values["@all_cases"])
-            all_cases[1].sort() # names of all cases come via dict, i.e. their order is undefined
-            self.assertEqual((True, ["sp@test1", "sp@test2"]), all_cases)
-            self.assertEqual((False, "sp@test2"), p.values["sp"][1].values["@chosen_case"])
-            self.assertEqual(["a", "sp", "sp@test1", "sp@test2"], p.values["@all_modules"][1])
-            self.assertEqual((True,"EDProducer"), p.values["sp@test1"][1].values["@module_edm_type"])
-            self.assertEqual((True,"Bar"), p.values["sp@test1"][1].values["@module_type"])
-            self.assertEqual((True,"EDProducer"), p.values["sp@test2"][1].values["@module_edm_type"])
-            self.assertEqual((True,"Foo"), p.values["sp@test2"][1].values["@module_type"])
-            dump = proc.dumpPython()
-            self.assertEqual(dump.find('@'), -1)
-            self.assertEqual(specialImportRegistry.getSpecialImports(), ["from test import SwitchProducerTest"])
-            self.assertTrue(dump.find("\nfrom test import SwitchProducerTest\n") != -1)
-
-            # EDAlias as non-chosen case
-            proc = Process("test")
-            proc.sp = SwitchProducerTest(test2 = EDProducer("Foo",
-                                                            a = int32(1),
-                                                            b = PSet(c = int32(2))),
-                                         test1 = EDAlias(a = VPSet(PSet(type = string("Bar")))))
-            proc.a = EDProducer("A")
-            proc.s = Sequence(proc.a + proc.sp)
-            proc.t = Task(proc.a, proc.sp)
-            proc.p = Path()
-            proc.p.associate(proc.t)
-            p = TestMakePSet()
-            proc.fillProcessDesc(p)
-            self.assertEqual((True,"EDProducer"), p.values["sp"][1].values["@module_edm_type"])
-            self.assertEqual((True, "SwitchProducer"), p.values["sp"][1].values["@module_type"])
-            self.assertEqual((True, "sp"), p.values["sp"][1].values["@module_label"])
-            all_cases = copy.deepcopy(p.values["sp"][1].values["@all_cases"])
-            all_cases[1].sort()
-            self.assertEqual((True, ["sp@test1", "sp@test2"]), all_cases)
-            self.assertEqual((False, "sp@test2"), p.values["sp"][1].values["@chosen_case"])
-            self.assertEqual(["a", "sp", "sp@test2"], p.values["@all_modules"][1])
-            self.assertEqual(["sp@test1"], p.values["@all_aliases"][1])
-            self.assertEqual((True,"EDProducer"), p.values["sp@test2"][1].values["@module_edm_type"])
-            self.assertEqual((True,"Foo"), p.values["sp@test2"][1].values["@module_type"])
-            self.assertEqual((True,"EDAlias"), p.values["sp@test1"][1].values["@module_edm_type"])
-            self.assertEqual((True,"Bar"), p.values["sp@test1"][1].values["a"][1][0].values["type"])
-
-            # EDAlias as chosen case
-            proc = Process("test")
-            proc.sp = SwitchProducerTest(test1 = EDProducer("Foo",
-                                                            a = int32(1),
-                                                            b = PSet(c = int32(2))),
-                                         test2 = EDAlias(a = VPSet(PSet(type = string("Bar")))))
-            proc.a = EDProducer("A")
-            proc.s = Sequence(proc.a + proc.sp)
-            proc.t = Task(proc.a, proc.sp)
-            proc.p = Path()
-            proc.p.associate(proc.t)
-            p = TestMakePSet()
-            proc.fillProcessDesc(p)
-            self.assertEqual((True,"EDProducer"), p.values["sp"][1].values["@module_edm_type"])
-            self.assertEqual((True, "SwitchProducer"), p.values["sp"][1].values["@module_type"])
-            self.assertEqual((True, "sp"), p.values["sp"][1].values["@module_label"])
-            self.assertEqual((True, ["sp@test1", "sp@test2"]), p.values["sp"][1].values["@all_cases"])
-            self.assertEqual((False, "sp@test2"), p.values["sp"][1].values["@chosen_case"])
-            self.assertEqual(["a", "sp", "sp@test1"], p.values["@all_modules"][1])
-            self.assertEqual(["sp@test2"], p.values["@all_aliases"][1])
-            self.assertEqual((True,"EDProducer"), p.values["sp@test1"][1].values["@module_edm_type"])
-            self.assertEqual((True,"Foo"), p.values["sp@test1"][1].values["@module_type"])
-            self.assertEqual((True,"EDAlias"), p.values["sp@test2"][1].values["@module_edm_type"])
-            self.assertEqual((True,"Bar"), p.values["sp@test2"][1].values["a"][1][0].values["type"])
-
-            # ConditionalTask
-            proc = Process("test")
-            proc.spct = SwitchProducerTest(test2 = EDProducer("Foo",
-                                                              a = int32(1),
-                                                              b = PSet(c = int32(2))),
-                                           test1 = EDProducer("Bar",
-                                                              aa = int32(11),
-                                                              bb = PSet(cc = int32(12))),
-                                           test3 = EDAlias(a = VPSet(PSet(type = string("Bar")))))
-            proc.spp = proc.spct.clone()
-            proc.a = EDProducer("A")
-            proc.ct = ConditionalTask(proc.spct)
-            proc.p = Path(proc.a, proc.ct)
-            proc.pp = Path(proc.a + proc.spp)
-            p = TestMakePSet()
-            proc.fillProcessDesc(p)
-            self.assertEqual(["a", "spct", "spct@test1", "spct@test2", "spp", "spp@test1", "spp@test2"], p.values["@all_modules"][1])
-            self.assertEqual(["a", "#", "spct", "spct@test1", "spct@test2", "@"], p.values["p"][1])
-            self.assertEqual(["a", "spp", "#", "spp@test1", "spp@test2", "@"], p.values["pp"][1])
 
         def testPrune(self):
             p = Process("test")
@@ -3921,15 +3787,11 @@ process.schedule = cms.Schedule(*[ process.path1, process.path2 ])""")
             p.f = EDAnalyzer("OurAnalyzer")
             p.g = EDProducer("OurProducer")
             p.h = EDProducer("YourProducer")
-            p.i = SwitchProducerTest(
-                test1 = EDProducer("OneProducer"),
-                test2 = EDProducer("TwoProducer")
-            )
-            p.t1 = Task(p.g, p.h, p.i)
-            t2 = Task(p.g, p.h, p.i)
+            p.t1 = Task(p.g, p.h)
+            t2 = Task(p.g, p.h)
             t3 = Task(p.g, p.h)
             p.t4 = Task(p.h)
-            p.ct1 = ConditionalTask(p.g, p.h, p.i)
+            p.ct1 = ConditionalTask(p.g, p.h)
             ct2 = ConditionalTask(p.g, p.h)
             ct3 = ConditionalTask(p.g, p.h)
             p.ct4 = ConditionalTask(p.h)
@@ -3942,11 +3804,9 @@ process.schedule = cms.Schedule(*[ process.path1, process.path2 ])""")
             p.schedule = Schedule(p.path2, p.path3, p.endpath2, tasks=[t3, p.t4])
             self.assertTrue(hasattr(p, 'f'))
             self.assertTrue(hasattr(p, 'g'))
-            self.assertTrue(hasattr(p, 'i'))
             del p.e
             del p.f
             del p.g
-            del p.i
             self.assertFalse(hasattr(p, 'f'))
             self.assertFalse(hasattr(p, 'g'))
             self.assertEqual(p.t1.dumpPython(), 'cms.Task(process.h)\n')
@@ -4321,54 +4181,6 @@ process.schedule = cms.Schedule(*[ process.path1, process.path2 ])""")
             self.assertTrue(hasattr(a, "bar"))
             self.assertEqual(a.bar[0].type, "Bar")
 
-            # SwitchProducer
-            sp = SwitchProducerTest(test1 = EDProducer("Foo",
-                                                       a = int32(1),
-                                                       b = PSet(c = int32(2))),
-                                    test2 = EDProducer("Bar",
-                                                       aa = int32(11),
-                                                       bb = PSet(cc = int32(12))))
-            m = Modifier()
-            m._setChosen()
-            # Modify parameters
-            m.toModify(sp,
-                       test1 = dict(a = 4, b = dict(c = None)),
-                       test2 = dict(aa = 15, bb = dict(cc = 45, dd = string("foo"))))
-            self.assertEqual(sp.test1.a.value(), 4)
-            self.assertEqual(sp.test1.b.hasParameter("c"), False)
-            self.assertEqual(sp.test2.aa.value(), 15)
-            self.assertEqual(sp.test2.bb.cc.value(), 45)
-            self.assertEqual(sp.test2.bb.dd.value(), "foo")
-            # Replace a producer
-            m.toReplaceWith(sp.test1, EDProducer("Fred", x = int32(42)))
-            self.assertEqual(sp.test1.type_(), "Fred")
-            self.assertEqual(sp.test1.x.value(), 42)
-            self.assertRaises(TypeError, lambda: m.toReplaceWith(sp.test1, EDAnalyzer("Foo")))
-            # Alternative way (only to be allow same syntax to be used as for adding)
-            m.toModify(sp, test2 = EDProducer("Xyzzy", x = int32(24)))
-            self.assertEqual(sp.test2.type_(), "Xyzzy")
-            self.assertEqual(sp.test2.x.value(), 24)
-            self.assertRaises(TypeError, lambda: m.toModify(sp, test2 = EDAnalyzer("Foo")))
-            # Add a producer
-            m.toModify(sp, test3 = EDProducer("Wilma", y = int32(24)))
-            self.assertEqual(sp.test3.type_(), "Wilma")
-            self.assertEqual(sp.test3.y.value(), 24)
-            self.assertRaises(TypeError, lambda: m.toModify(sp, test4 = EDAnalyzer("Foo")))
-            # Remove a producer
-            m.toModify(sp, test2 = None)
-            self.assertEqual(hasattr(sp, "test2"), False)
-            # Add an alias
-            m.toModify(sp, test2 = EDAlias(foo = VPSet(PSet(type = string("int")))))
-            self.assertTrue(hasattr(sp.test2, "foo"))
-            # Replace an alias
-            m.toReplaceWith(sp.test2, EDAlias(bar = VPSet(PSet(type = string("int")))))
-            self.assertTrue(hasattr(sp.test2, "bar"))
-            # Alternative way
-            m.toModify(sp, test2 = EDAlias(xyzzy = VPSet(PSet(type = string("int")))))
-            self.assertTrue(hasattr(sp.test2, "xyzzy"))
-            # Replace an alias with EDProducer
-            self.assertRaises(TypeError, lambda: m.toReplaceWith(sp.test2, EDProducer("Foo")))
-            m.toModify(sp, test2 = EDProducer("Foo"))
         def testProcessFragment(self):
             #check defaults are not overwritten
             f = ProcessFragment('Fragment')
@@ -4556,73 +4368,6 @@ process.ProcessAcceleratorTest = ProcessAcceleratorTest(
             self.assertEqual(["anothertest3", "anothertest4", "cpu", "test1", "test2"], p.values["@available_accelerators"][1])
 
             proc = Process("TEST")
-            proc.ProcessAcceleratorTest = ProcessAcceleratorTest()
-            proc.sp = SwitchProducerTest2(test2 = EDProducer("Foo",
-                                                             a = int32(1),
-                                                             b = PSet(c = int32(2))),
-                                          test1 = EDProducer("Bar",
-                                                             aa = int32(11),
-                                                             bb = PSet(cc = int32(12))))
-            proc.p = Path(proc.sp)
-            p = TestMakePSet()
-            proc.fillProcessDesc(p)
-            self.assertEqual((False, "sp@test2"), p.values["sp"][1].values["@chosen_case"])
-
-            proc = Process("TEST")
-            proc.ProcessAcceleratorTest = ProcessAcceleratorTest(enabled=["test1"])
-            proc.sp = SwitchProducerTest2(test2 = EDProducer("Foo",
-                                                             a = int32(1),
-                                                             b = PSet(c = int32(2))),
-                                          test1 = EDProducer("Bar",
-                                                             aa = int32(11),
-                                                             bb = PSet(cc = int32(12))))
-            proc.p = Path(proc.sp)
-            p = TestMakePSet()
-            proc.fillProcessDesc(p)
-            self.assertEqual((False, "sp@test1"), p.values["sp"][1].values["@chosen_case"])
-
-            proc = Process("TEST")
-            proc.ProcessAcceleratorTest = ProcessAcceleratorTest()
-            proc.options.accelerators = ["test1"]
-            proc.sp = SwitchProducerTest2(test2 = EDProducer("Foo",
-                                                             a = int32(1),
-                                                             b = PSet(c = int32(2))),
-                                          test1 = EDProducer("Bar",
-                                                             aa = int32(11),
-                                                             bb = PSet(cc = int32(12))))
-            proc.p = Path(proc.sp)
-            p = TestMakePSet()
-            proc.fillProcessDesc(p)
-            self.assertEqual((False, "sp@test1"), p.values["sp"][1].values["@chosen_case"])
-
-            proc = Process("TEST")
-            proc.ProcessAcceleratorTest = ProcessAcceleratorTest()
-            proc.options.accelerators = ["test*"]
-            proc.sp = SwitchProducerTest2(test2 = EDProducer("Foo",
-                                                             a = int32(1),
-                                                             b = PSet(c = int32(2))),
-                                          test1 = EDProducer("Bar",
-                                                             aa = int32(11),
-                                                             bb = PSet(cc = int32(12))))
-            proc.p = Path(proc.sp)
-            p = TestMakePSet()
-            proc.fillProcessDesc(p)
-            self.assertEqual((False, "sp@test2"), p.values["sp"][1].values["@chosen_case"])
-
-            proc = Process("TEST")
-            proc.ProcessAcceleratorTest = ProcessAcceleratorTest()
-            proc.options.accelerators = ["anothertest3"]
-            proc.sp = SwitchProducerTest2(test2 = EDProducer("Foo",
-                                                             a = int32(1),
-                                                             b = PSet(c = int32(2))),
-                                          test1 = EDProducer("Bar",
-                                                             aa = int32(11),
-                                                             bb = PSet(cc = int32(12))))
-            proc.p = Path(proc.sp)
-            p = TestMakePSet()
-            self.assertRaises(RuntimeError, proc.fillProcessDesc, p)
-
-            proc = Process("TEST")
             proc.ProcessAcceleratorTest = ProcessAcceleratorTest(
                 moduleTypeResolverMaker=lambda accelerators: TestModuleTypeResolver(accelerators))
             proc.ProcessAcceleratorTest2 = ProcessAcceleratorTest2()
@@ -4677,29 +4422,6 @@ process.ProcessAcceleratorTest = ProcessAcceleratorTest(
                 moduleTypeResolverMaker=lambda accelerators: TestModuleTypeResolver(accelerators))
             p = TestMakePSet()
             self.assertRaises(RuntimeError, proc.fillProcessDesc, p)
-
-            import pickle
-            proc = Process("TEST")
-            proc.ProcessAcceleratorTest = ProcessAcceleratorTest()
-            proc.sp = SwitchProducerTest2(test2 = EDProducer("Foo",
-                                                             a = int32(1),
-                                                             b = PSet(c = int32(2))),
-                                          test1 = EDProducer("Bar",
-                                                             aa = int32(11),
-                                                             bb = PSet(cc = int32(12))))
-            proc.p = Path(proc.sp)
-            pkl = pickle.dumps(proc)
-            unpkl = pickle.loads(pkl)
-            p = TestMakePSet()
-            unpkl.fillProcessDesc(p)
-            self.assertEqual((False, "sp@test2"), p.values["sp"][1].values["@chosen_case"])
-            self.assertEqual(["anothertest3", "cpu", "test1", "test2"], p.values["@available_accelerators"][1])
-            unpkl = pickle.loads(pkl)
-            unpkl.ProcessAcceleratorTest.setEnabled(["test1"])
-            p = TestMakePSet()
-            unpkl.fillProcessDesc(p)
-            self.assertEqual((False, "sp@test1"), p.values["sp"][1].values["@chosen_case"])
-            self.assertEqual(["cpu", "test1"], p.values["@available_accelerators"][1])
 
         def testProcessSpecialOverrideReleaseVersion(self):
             proc = Process("TEST")

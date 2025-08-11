@@ -33,9 +33,7 @@
   <test name="TestIntegrationRefMerge" command="run_RefMerge.sh"/>
   <test name="TestIntegrationRefAlias" command="run_RefAlias.sh"/>
   <test name="TestIntegrationParameterSet" command="run_ParameterSet.sh"/>
-  <test name="TestIntegrationSwitchProducer" command="run_TestSwitchProducer.sh"/>
   <test name="TestIntegration_TestEDAlias" command="run_TestEDAlias.sh"/>
-  <test name="TestIntegrationProcessAccelerator" command="run_TestProcessAccelerator.sh"/>
   <test name="TestFWCoreIntegrationModuleTypeResolver" command="run_TestModuleTypeResolver.sh"/>
   <test name="CatchStdExceptiontest" command="CatchStdExceptiontest.sh"/>
   <test name="CatchCmsExceptiontest" command="CatchCmsExceptiontest.sh"/>
@@ -49,15 +47,6 @@
     <use name="FWCore/ParameterSet"/>
     <use name="DataFormats/Provenance"/>
     <use name="FWCore/Version"/>
-    <use name="catch2"/>
-  </bin>
-
-  <bin file="SwitchProducer_t.cpp">
-    <use name="FWCore/Framework"/>
-    <use name="FWCore/ParameterSet"/>
-    <use name="FWCore/ParameterSetReader"/>
-    <use name="FWCore/TestProcessor"/>
-    <use name="DataFormats/Provenance"/>
     <use name="catch2"/>
   </bin>
 
