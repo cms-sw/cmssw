@@ -51,12 +51,9 @@ JetTester::JetTester(const edm::ParameterSet &iConfig)
     jetCorrectorToken_ = consumes<reco::JetCorrector>(mJetCorrector);
   }
   
-  ptBins_ = {20., 30., 40., 100., 200., 300., 600., 2000., 5000., 6500., 1e6};
-  n_bins_pt = ptBins_.size() - 1;
-
-  etaInfo = { {"B", "0<|#eta|<1.5", 0.0, 1.5},  // barrel
-              {"E", "1.5<|#eta|<3", 1.5, 3.0},  // endcap
-              {"F", "3<|#eta|<6",   3.0, 6.0}}; // forward
+  // etaInfo = { {"B", "0<|#eta|<1.5", 0.0, 1.5},  // barrel
+  //             {"E", "1.5<|#eta|<3", 1.5, 3.0},  // endcap
+  //             {"F", "3<|#eta|<6",   3.0, 6.0}}; // forward
 
   // Events variables
   mNvtx = nullptr;
@@ -69,79 +66,25 @@ JetTester::JetTester(const edm::ParameterSet &iConfig)
   mJetMass = nullptr;
   mJetConstituents = nullptr;
   mJetArea = nullptr;
-  mJetPt_EtaBins.resize(etaInfo.size());
 
   // Corrected jet parameters
   mCorrJetEta = nullptr;
   mCorrJetPhi = nullptr;
   mCorrJetPt = nullptr;
-  mCorrJetPt_EtaBins.resize(etaInfo.size());
   
   // Gen jet parameters
   mGenEta = nullptr;
   mGenPhi = nullptr;
   mGenPt = nullptr;
-  mGenPt_EtaBins.resize(etaInfo.size());
 
   // Matched jet parameters
   mMatchedJetEta = nullptr;
   mMatchedJetPhi = nullptr;
-  mMatchedJetPt_EtaBins.resize(etaInfo.size());
-  mMatchedCorrPt_EtaBins.resize(etaInfo.size());
   
   // Matched gen jet parameters
   mMatchedGenEta = nullptr;
   mMatchedGenPhi = nullptr;
-  mMatchedGenPt_EtaBins.resize(etaInfo.size());
-  
-  // Jet response vs gen histograms
-  h_JetPtRecoOverGen.resize(etaInfo.size());
-  hVector_JetPtRecoOverGen_ptBins.resize(etaInfosize());
-  for (auto& vec : hVector_JetPtRecoOverGen_ptBins) {
-      vec.resize(n_bins_pt);
-  }
-
-  // Corrected jet response vs gen histograms
-  h_JetPtCorrOverGen.resize(etaInfo.size());
-  hVector_JetPtCorrOverGen_ptBins.resize(etaInfo.size());
-  for (auto& vec : hVector_JetPtCorrOverGen_ptBins) {
-      vec.resize(n_bins_pt);
-  }
-
-  // Corrected jet response vs reco histograms
-  h_JetPtCorrOverReco.resize(etaInfo.size());
-  hVector_JetPtCorrOverReco_ptBins.resize(etaInfo.size());
-  for (auto& vec : hVector_JetPtCorrOverReco_ptBins) {
-      vec.resize(n_bins_pt);
-  }
-  
-  // Jet response vs gen profiled in gen variable
-  p_JetPtRecoOverGen_vs_GenEta.resize(n_bins_pt);
-  p_JetPtRecoOverGen_vs_GenPhi.resize(etaInfo.size());
-  p_JetPtRecoOverGen_vs_GenPt.resize(etaInfo.size());
-
-  h2d_JetPtRecoOverGen_vs_GenEta.resize(n_bins_pt);
-  h2d_JetPtRecoOverGen_vs_GenPhi.resize(etaInfo.size());
-  h2d_JetPtRecoOverGen_vs_GenPt.resize(etaInfo.size());
-
-  // Corrected jet response vs gen profiled in gen variable
-  p_JetPtCorrOverGen_vs_GenEta.resize(n_bins_pt);
-  p_JetPtCorrOverGen_vs_GenPhi.resize(etaInfo.size());
-  p_JetPtCorrOverGen_vs_GenPt.resize(etaInfo.size());
-
-  h2d_JetPtCorrOverGen_vs_GenEta.resize(n_bins_pt);
-  h2d_JetPtCorrOverGen_vs_GenPhi.resize(etaInfo.size());
-  h2d_JetPtCorrOverGen_vs_GenPt.resize(etaInfo.size());
-
-  // Corrected jet response vs reco profiled in reco variable
-  p_JetPtCorrOverReco_vs_Eta.resize(n_bins_pt);
-  p_JetPtCorrOverReco_vs_Phi.resize(etaInfo.size());
-  p_JetPtCorrOverReco_vs_Pt.resize(etaInfo.size());
-
-  h2d_JetPtCorrOverReco_vs_Eta.resize(n_bins_pt);
-  h2d_JetPtCorrOverReco_vs_Phi.resize(etaInfo.size());
-  h2d_JetPtCorrOverReco_vs_Pt.resize(etaInfo.size());
-
+    
   // First jet parameters
   mJetEtaFirst = nullptr;
   mJetPhiFirst = nullptr;
@@ -158,20 +101,6 @@ JetTester::JetTester(const edm::ParameterSet &iConfig)
   mDeltaEta = nullptr;
   mDeltaPhi = nullptr;
   mDeltaPt = nullptr;
-  mNJets_EtaBins.resize(etaInfo.size());
-
-  // Jet em/had fractions profiled in pt
-  p_chHad_vs_pt.resize(etaInfo.size());
-  p_neHad_vs_pt.resize(etaInfo.size());
-  p_chEm_vs_pt.resize(etaInfo.size());
-  p_neEm_vs_pt.resize(etaInfo.size());
-
-  // Jet response vs gen profiled in em/had fractions
-  h2d_JetPtRecoOverGen_vs_chHad.resize(etaInfo.size());
-  h2d_JetPtRecoOverGen_vs_neHad.resize(etaInfo.size());
-  h2d_JetPtRecoOverGen_vs_chEm.resize(etaInfo.size());
-  h2d_JetPtRecoOverGen_vs_neEm.resize(etaInfo.size());
-  h2d_JetPtRecoOverGen_vs_nCost.resize(etaInfo.size());
 
   // ---- Calo Jet specific information ----
   /// returns the maximum energy deposited in ECAL towers
@@ -392,7 +321,7 @@ void JetTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
       fmt::format("Response Reco Jets - {};# constituents;p_{{T}}^{{reco}}/p_{{T}}^{{gen}}", etaLabel), 
       100, 0, 100, n_RespBins, RespRange[0], RespRange[1]);
 
-    for (int i = 0; i < n_bins_pt; ++i) {
+    for (int i = 0; i < ptSize; ++i) {
       int ptMin = int(ptBins_[i]);
       int ptMax = int(ptBins_[i + 1]);
       auto h_name_RoG = fmt::format("h_PtRecoOverGen_{}_Pt{}_{}", etaRegion, ptMin, ptMax);
@@ -401,7 +330,7 @@ void JetTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
     }
   }
 
-  for (int i = 0; i < n_bins_pt; ++i) {
+  for (int i = 0; i < ptSize; ++i) {
     int ptMin = int(ptBins_[i]);
     int ptMax = int(ptBins_[i + 1]);
     p_JetPtRecoOverGen_vs_GenEta[i] = ibooker.bookProfile(fmt::format("pr_PtRecoOverGen_GenEta_Pt{}_{}", ptMin, ptMax), 
@@ -466,7 +395,7 @@ void JetTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
         n_PtBins_Profile, PtRange[0], PtRange[1], n_RespBins, RespRange[0], RespRange[1]);
       
 
-      for (int i = 0; i < n_bins_pt; ++i) {
+      for (int i = 0; i < ptSize; ++i) {
         double ptMin = ptBins_[i];
         double ptMax = ptBins_[i + 1];
         auto h_name_CoG = fmt::format("h_PtCorrOverGen_{}_Pt{}_{}", etaRegion, ptMin, ptMax);
@@ -479,7 +408,7 @@ void JetTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
       }
     }
 
-    for (int i = 0; i < n_bins_pt; ++i) {
+    for (int i = 0; i < ptSize; ++i) {
       int ptMin = int(ptBins_[i]);
       int ptMax = int(ptBins_[i + 1]);
       p_JetPtCorrOverGen_vs_GenEta[i] = ibooker.bookProfile(fmt::format("pr_PtCorrOverGen_GenEta_Pt{}_{}", ptMin, ptMax), 
@@ -949,14 +878,14 @@ void JetTester::analyze(const edm::Event &mEvent, const edm::EventSetup &mSetup)
           p_JetPtCorrOverReco_vs_Pt[j]->Fill(corrJets[ijet].pt(), ratio);
           h2d_JetPtCorrOverReco_vs_Phi[j]->Fill(corrJets[ijet].phi(), ratio);
           h2d_JetPtCorrOverReco_vs_Pt[j]->Fill(corrJets[ijet].pt(), ratio);
-          for (int i = 0; i < n_bins_pt; ++i) {
+          for (int i = 0; i < ptSize; ++i) {
             if ((recoJets[ijet].pt() > ptBins_[i]) && (recoJets[ijet].pt() < ptBins_[i + 1]))
               hVector_JetPtCorrOverReco_ptBins[j][i]->Fill(ratio);
           }
         }
       }
 
-      for (int i = 0; i < n_bins_pt; ++i) {
+      for (int i = 0; i < ptSize; ++i) {
         if ((recoJets[ijet].pt() > ptBins_[i]) && (recoJets[ijet].pt() < ptBins_[i + 1])) {
           p_JetPtCorrOverReco_vs_Eta[i]->Fill(corrJets[ijet].eta(), ratio);
           h2d_JetPtCorrOverReco_vs_Eta[i]->Fill(corrJets[ijet].eta(), ratio);
@@ -1078,7 +1007,7 @@ void JetTester::analyze(const edm::Event &mEvent, const edm::EventSetup &mSetup)
               h2d_JetPtRecoOverGen_vs_neEm[j]->Fill((*pfJets)[iMatchReco].neutralEmEnergyFraction(), response);
               h2d_JetPtRecoOverGen_vs_nCost[j]->Fill(recoJets[iMatchReco].nConstituents(), response);
             }
-            for (int i = 0; i < n_bins_pt; ++i) {
+            for (int i = 0; i < ptSize; ++i) {
               if ((genJets[gjet].pt() > ptBins_[i]) && (genJets[gjet].pt() < ptBins_[i + 1])) {
                 hVector_JetPtRecoOverGen_ptBins[j][i]->Fill(response);
               }
@@ -1086,7 +1015,7 @@ void JetTester::analyze(const edm::Event &mEvent, const edm::EventSetup &mSetup)
           }
         }
 
-        for (int i = 0; i < n_bins_pt; ++i) {
+        for (int i = 0; i < ptSize; ++i) {
           if ((genJets[gjet].pt() > ptBins_[i]) && (genJets[gjet].pt() < ptBins_[i + 1])) {
             p_JetPtRecoOverGen_vs_GenEta[i]->Fill(genJets[gjet].eta(), response);
             h2d_JetPtRecoOverGen_vs_GenEta[i]->Fill(genJets[gjet].eta(), response);
@@ -1109,14 +1038,14 @@ void JetTester::analyze(const edm::Event &mEvent, const edm::EventSetup &mSetup)
               h2d_JetPtCorrOverGen_vs_GenPt[j]->Fill(genJets[gjet].pt(), responseCorr);
               p_JetPtCorrOverGen_vs_GenPhi[j]->Fill(genJets[gjet].phi(), responseCorr);
               h2d_JetPtCorrOverGen_vs_GenPhi[j]->Fill(genJets[gjet].phi(), responseCorr);
-              for (int i = 0; i < n_bins_pt; ++i) {
+              for (int i = 0; i < ptSize; ++i) {
                 if ((genJets[gjet].pt() > ptBins_[i]) && (genJets[gjet].pt() < ptBins_[i + 1]))
                   hVector_JetPtCorrOverGen_ptBins[j][i]->Fill(responseCorr);
               }
             }
           }
 
-          for (int i = 0; i < n_bins_pt; ++i) {
+          for (int i = 0; i < ptSize; ++i) {
             if ((genJets[gjet].pt() > ptBins_[i]) && (genJets[gjet].pt() < ptBins_[i + 1])) {
               p_JetPtCorrOverGen_vs_GenEta[i]->Fill(genJets[gjet].eta(), responseCorr);
               h2d_JetPtCorrOverGen_vs_GenEta[i]->Fill(genJets[gjet].eta(), responseCorr);
