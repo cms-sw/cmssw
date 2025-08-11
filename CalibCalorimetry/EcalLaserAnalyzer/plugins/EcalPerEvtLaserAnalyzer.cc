@@ -7,6 +7,7 @@
 
 #include "TFile.h"
 #include "TTree.h"
+#include "TMath.h"
 
 #include "EcalPerEvtLaserAnalyzer.h"
 
