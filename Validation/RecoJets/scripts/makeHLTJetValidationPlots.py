@@ -19,12 +19,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Make HLT Jet validation plots.')
     parser.add_argument('--file', type=str, required=True,               help='Paths to the DQM ROOT file.')
     parser.add_argument('--jet',  type=str, default='hltAK4PFPuppiJets', help='Name of the jet collection')
-    parser.add_argument('--odir', type=str, required=False,              help='Path to the output directory (if not specified, save to current directory).')
+    parser.add_argument('--odir', type=str, required=False,              help='Path to the output directory.', default="./")
     args = parser.parse_args()
 
-    if args.odir:   OutDir = args.odir + '/'
-    else:           OutDir = './'
-    os.system(f'mkdir -p {OutDir}')
+    if not os.path.exists(args.odir):
+        os.makedirs(args.odir)
 
     file = ROOT.TFile.Open(args.file)
     dqm_dir = f"DQMData/Run 1/HLT/Run summary/JetMET/JetValidation/{args.jet}"
