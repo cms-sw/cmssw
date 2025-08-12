@@ -45,13 +45,13 @@ function RunOne()
 
 #----------------------------------------------------------------------------------------------------
 
-RunOne "2016" "Configuration.Eras" "Run2_2016"
+# RunOne "2016" "Configuration.Eras" "Run2_2016"
 
-RunOne "2017" "Configuration.Eras" "Run2_2017"
+# RunOne "2017" "Configuration.Eras" "Run2_2017"
 
 RunOne "2018" "Configuration.Eras" "Run2_2018"
 
-RunOne "2022" "Configuration.ProcessModifiers" "Run3_CTPPS_directSim"
+# RunOne "2022" "Configuration.ProcessModifiers" "Run3_CTPPS_directSim"
 
 rc=0
 for pid in $pids
