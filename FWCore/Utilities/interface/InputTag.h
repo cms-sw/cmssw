@@ -44,6 +44,8 @@ namespace edm {
 
     void cacheToken(EDGetToken) const;
 
+    bool isUninitialized() const;
+
     static const std::string kSkipCurrentProcess;
     static const std::string kCurrentProcess;
 
