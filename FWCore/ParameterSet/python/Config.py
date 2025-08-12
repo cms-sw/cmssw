@@ -122,7 +122,6 @@ class Process(object):
             raise RuntimeError("Error: The process name is an empty string or contains non-alphanumeric characters")
         self.__dict__['_Process__filters'] = {}
         self.__dict__['_Process__producers'] = {}
-        self.__dict__['_Process__switchproducers'] = {}
         self.__dict__['_Process__source'] = None
         self.__dict__['_Process__looper'] = None
         self.__dict__['_Process__schedule'] = None
@@ -174,9 +173,6 @@ class Process(object):
     def producerNames(self):
         """Returns a string containing all the EDProducer labels separated by a blank"""
         return ' '.join(self.producers_().keys())
-    def switchProducerNames(self):
-        """Returns a string containing all the SwitchProducer labels separated by a blank"""
-        return ' '.join(self.switchProducers_().keys())
     def analyzerNames(self):
         """Returns a string containing all the EDAnalyzer labels separated by a blank"""
         return ' '.join(self.analyzers_().keys())
@@ -219,10 +215,6 @@ class Process(object):
         """returns a dict of the producers that have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__producers)
     producers = property(producers_,doc="dictionary containing the producers for the process")
-    def switchProducers_(self):
-        """returns a dict of the SwitchProducers that have been added to the Process"""
-        return DictTypes.FixedKeysDict(self.__switchproducers)
-    switchProducers = property(switchProducers_,doc="dictionary containing the SwitchProducers for the process")
     def source_(self):
         """returns the source that has been added to the Process or None if none have been added"""
         return self.__source
@@ -666,8 +658,6 @@ class Process(object):
         self._place(name, mod, self.__outputmodules)
     def _placeProducer(self,name:str,mod):
         self._place(name, mod, self.__producers)
-    def _placeSwitchProducer(self,name:str,mod):
-        self._place(name, mod, self.__switchproducers)
     def _placeFilter(self,name:str,mod):
         self._place(name, mod, self.__filters)
     def _placeAnalyzer(self,name:str,mod):
@@ -819,9 +809,6 @@ class Process(object):
         if self.looper_():
             config += options.indentation()+"looper = "+self.looper_().dumpConfig(options)
         config+=self._dumpConfigNamedList(self.producers_().items(),
-                                  'module',
-                                  options)
-        config+=self._dumpConfigNamedList(self.switchProducers_().items(),
                                   'module',
                                   options)
         config+=self._dumpConfigNamedList(self.filters_().items(),
@@ -1025,7 +1012,6 @@ class Process(object):
         result+=self._dumpPythonList(self.psets, options)
         result+=self._dumpPythonList(self.vpsets, options)
         result+=self._dumpPythonList(self.producers_(), options)
-        result+=self._dumpPythonList(self.switchProducers_(), options)
         result+=self._dumpPythonList(self.filters_() , options)
         result+=self._dumpPythonList(self.analyzers_(), options)
         result+=self._dumpPythonList(self.outputModules_(), options)
@@ -1069,7 +1055,6 @@ class Process(object):
         parts.update(self._splitPythonList('psets', self.psets, options))
         parts.update(self._splitPythonList('psets', self.vpsets, options))
         parts.update(self._splitPythonList('modules', self.producers_(), options))
-        parts.update(self._splitPythonList('modules', self.switchProducers_(), options))
         parts.update(self._splitPythonList('modules', self.filters_() , options))
         parts.update(self._splitPythonList('modules', self.analyzers_(), options))
         parts.update(self._splitPythonList('modules', self.outputModules_(), options))
@@ -1171,17 +1156,6 @@ class Process(object):
         # alphabetical order is easier to compare with old language
         l.sort()
         parameterSet.addVString(tracked, label, l)
-    def _insertSwitchProducersInto(self, parameterSet, labelModules, labelAliases, itemDict, tracked:bool):
-        modules = parameterSet.getVString(tracked, labelModules)
-        aliases = parameterSet.getVString(tracked, labelAliases)
-        accelerators = parameterSet.getVString(False, "@selected_accelerators")
-        for name,value in itemDict.items():
-            value.appendToProcessDescLists_(modules, aliases, name)
-            value.insertInto(parameterSet, name, accelerators)
-        modules.sort()
-        aliases.sort()
-        parameterSet.addVString(tracked, labelModules, modules)
-        parameterSet.addVString(tracked, labelAliases, aliases)
     def _insertPaths(self, processPSet, nodeVisitor):
         scheduledPaths = []
         triggerPaths = []
@@ -1293,7 +1267,6 @@ class Process(object):
             temp = Schedule(*pths)
             usedModules=set(temp.moduleNames())
         unneededModules = self._pruneModules(self.producers_(), usedModules)
-        unneededModules.update(self._pruneModules(self.switchProducers_(), usedModules))
         unneededModules.update(self._pruneModules(self.filters_(), usedModules))
         unneededModules.update(self._pruneModules(self.analyzers_(), usedModules))
         #remove sequences and tasks that do not appear in remaining paths and endpaths
@@ -1392,9 +1365,6 @@ class Process(object):
         self._insertPaths(adaptor, nodeVisitor)
         all_modules_onTasksOrScheduled = { key:value for key, value in all_modules.items() if value in nodeVisitor.modules }
         self._insertManyInto(adaptor, "@all_modules", all_modules_onTasksOrScheduled, True)
-        all_switches = self.switchProducers_().copy()
-        all_switches_onTasksOrScheduled = {key:value for key, value in all_switches.items() if value in nodeVisitor.modules }
-        self._insertSwitchProducersInto(adaptor, "@all_modules", "@all_aliases", all_switches_onTasksOrScheduled, True)
         # Same as nodeVisitor except this one visits all the Tasks attached
         # to the process.
         processNodeVisitor = NodeVisitor()

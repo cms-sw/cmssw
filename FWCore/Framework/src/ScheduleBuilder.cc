@@ -207,7 +207,6 @@ namespace edm {
         }
 
         fillAliasMap(ioProcessPSet, allConditionalMods);
-        processSwitchEDAliases(ioProcessPSet, ioProductRegistry, *iProcessConfiguration, allConditionalMods);
 
         //find branches created by the conditional modules
         for (auto const& prod : ioProductRegistry.registry().productList()) {
@@ -259,31 +258,6 @@ namespace edm {
             }
           }
         }
-      }
-
-      void processSwitchEDAliases(ParameterSet const& ioProcessPSet,
-                                  SignallingProductRegistryFiller& ioProductRegistry,
-                                  ProcessConfiguration const& iProcessConfiguration,
-                                  std::unordered_set<std::string> const& iAllConditionalModules) {
-        auto const& all_modules = ioProcessPSet.getParameter<std::vector<std::string>>("@all_modules");
-        std::vector<std::string> switchEDAliases;
-        for (auto const& module : all_modules) {
-          auto const& mod_pset = ioProcessPSet.getParameter<edm::ParameterSet>(module);
-          if (mod_pset.getParameter<std::string>("@module_type") == "SwitchProducer") {
-            auto const& all_cases = mod_pset.getParameter<std::vector<std::string>>("@all_cases");
-            for (auto const& case_label : all_cases) {
-              auto range = aliasMap_.equal_range(case_label);
-              if (range.first != range.second) {
-                switchEDAliases.push_back(case_label);
-              }
-            }
-          }
-        }
-        detail::processEDAliases(switchEDAliases,
-                                 iAllConditionalModules,
-                                 ioProcessPSet,
-                                 iProcessConfiguration.processName(),
-                                 ioProductRegistry);
       }
 
       std::unordered_multimap<std::string, AliasInfo> aliasMap_;

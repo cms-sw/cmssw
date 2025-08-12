@@ -18,7 +18,7 @@ namespace edm {
   class TypeMatch {
   public:
     bool operator()(edm::ProductDescription const& productDescription) const {
-      return not productDescription.isAnyAlias();
+      return not productDescription.isAlias();
     }
   };
 }  // namespace edm

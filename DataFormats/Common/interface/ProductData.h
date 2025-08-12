@@ -45,7 +45,7 @@ namespace edm {
 
     //Not const thread-safe update
     void unsafe_setWrapper(std::unique_ptr<WrapperBase> iValue) const;
-    void unsafe_setWrapper(std::shared_ptr<WrapperBase const> iValue) const;  // for SwitchProducer
+    void unsafe_setWrapper(std::shared_ptr<WrapperBase const> iValue) const;  // for RepeatingCachedRootSource
 
     void resetProductDescription(std::shared_ptr<ProductDescription const> bd);
 
