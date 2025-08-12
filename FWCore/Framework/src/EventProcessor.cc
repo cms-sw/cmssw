@@ -1600,6 +1600,28 @@ namespace edm {
     }
   }
 
+  namespace {
+    void prefetchForRandomNumberGeneratorAsync(edm::WaitingTaskHolder const& iTask,
+                                               edm::Principal const& iPrincipal,
+                                               edm::ServiceToken const& iServiceToken) {
+      edm::ServiceRegistry::Operate operate(iServiceToken);
+      Service<edm::RandomNumberGenerator> rng;
+      if (rng.isAvailable()) {
+        auto consumer = rng->consumer();
+        if (consumer) {
+          // Prefetch products the module declares it consumes
+          std::vector<ProductResolverIndexAndSkipBit> const& items = consumer->itemsToGetFrom(iPrincipal.branchType());
+
+          for (auto const& item : items) {
+            ProductResolverIndex productResolverIndex = item.productResolverIndex();
+            bool skipCurrentProcess = item.skipCurrentProcess();
+            iPrincipal.prefetchAsync(iTask, productResolverIndex, skipCurrentProcess, iServiceToken, nullptr);
+          }
+        }
+      }
+    }
+  }  // namespace
+
   void EventProcessor::beginLumiAsync(IOVSyncValue const& iSync,
                                       std::shared_ptr<RunProcessingStatus> iRunStatus,
                                       edm::WaitingTaskHolder iHolder) {
@@ -1661,78 +1683,100 @@ namespace edm {
                         }
                         LuminosityBlockPrincipal& lumiPrincipal = *status->lumiPrincipal();
                         Service<RandomNumberGenerator> rng;
-                        if (rng.isAvailable()) {
-                          LuminosityBlock lb(lumiPrincipal, ModuleDescription(), nullptr, false);
-                          lb.setConsumer(rng->consumer());
-                          rng->preBeginLumi(lb);
-                        }
 
                         EventSetupImpl const& es = status->eventSetupImpl();
 
                         using namespace edm::waiting_task::chain;
-                        chain::first([this, status](auto nextTask) mutable {
-                          if (lastTransitionType().itemPosition() != InputSource::ItemPosition::LastItemToBeMerged) {
-                            readAndMergeLumiEntriesAsync(std::move(status), std::move(nextTask));
-                          } else {
-                            setNeedToCallNext(true);
-                          }
-                        }) | then([this, status, &es, &lumiPrincipal](auto nextTask) {
-                          LumiTransitionInfo transitionInfo(lumiPrincipal, es);
-                          using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin>;
-                          schedule_->processOneGlobalAsync<Traits>(nextTask, transitionInfo, serviceToken_);
-                        }) | ifThen(looper_, [this, status, &es](auto nextTask) {
-                          looper_->prefetchAsync(
-                              nextTask, serviceToken_, Transition::BeginLuminosityBlock, *(status->lumiPrincipal()), es);
-                        }) | ifThen(looper_, [this, status, &es](auto nextTask) {
-                          ServiceRegistry::Operate operateLooper(serviceToken_);
-                          looper_->doBeginLuminosityBlock(*(status->lumiPrincipal()), es, &processContext_);
-                        }) | then([this, status, iRunStatus](std::exception_ptr const* iException, auto holder) mutable {
-                          status->setGlobalEndRunHolder(iRunStatus->globalEndRunHolder());
+                        chain::firstIf(rng.isAvailable() and rng->consumer() != nullptr,
+                                       [this, &lumiPrincipal](auto nextTask) {
+                                         //handle RandomNumberGenerator prefetching and preBeginLumi
+                                         chain::first([this, &lumiPrincipal](auto nextTask) {
+                                           prefetchForRandomNumberGeneratorAsync(
+                                               std::move(nextTask), lumiPrincipal, serviceToken_);
+                                         }) | then([this, &lumiPrincipal](auto nextTask) {
+                                           ServiceRegistry::Operate operate(serviceToken_);
+                                           Service<RandomNumberGenerator> rng;
+                                           if (rng.isAvailable()) {
+                                             LuminosityBlock lb(lumiPrincipal, ModuleDescription(), nullptr, false);
+                                             lb.setConsumer(rng->consumer());
+                                             rng->preBeginLumi(lb);
+                                           }
+                                         }) | runLast(nextTask);
+                                       }) |
+                            then([this, status](auto nextTask) mutable {
+                              if (lastTransitionType().itemPosition() !=
+                                  InputSource::ItemPosition::LastItemToBeMerged) {
+                                readAndMergeLumiEntriesAsync(std::move(status), std::move(nextTask));
+                              } else {
+                                setNeedToCallNext(true);
+                              }
+                            }) |
+                            then([this, status, &es, &lumiPrincipal](auto nextTask) {
+                              LumiTransitionInfo transitionInfo(lumiPrincipal, es);
+                              using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin>;
+                              schedule_->processOneGlobalAsync<Traits>(nextTask, transitionInfo, serviceToken_);
+                            }) |
+                            ifThen(looper_,
+                                   [this, status, &es](auto nextTask) {
+                                     looper_->prefetchAsync(nextTask,
+                                                            serviceToken_,
+                                                            Transition::BeginLuminosityBlock,
+                                                            *(status->lumiPrincipal()),
+                                                            es);
+                                   }) |
+                            ifThen(looper_,
+                                   [this, status, &es](auto nextTask) {
+                                     ServiceRegistry::Operate operateLooper(serviceToken_);
+                                     looper_->doBeginLuminosityBlock(*(status->lumiPrincipal()), es, &processContext_);
+                                   }) |
+                            then([this, status, iRunStatus](std::exception_ptr const* iException, auto holder) mutable {
+                              status->setGlobalEndRunHolder(iRunStatus->globalEndRunHolder());
 
-                          if (iException) {
-                            WaitingTaskHolder copyHolder(holder);
-                            copyHolder.doneWaiting(*iException);
-                            globalEndLumiAsync(holder, status);
-                            endRunAsync(iRunStatus, holder);
-                          } else {
-                            status->globalBeginDidSucceed();
+                              if (iException) {
+                                WaitingTaskHolder copyHolder(holder);
+                                copyHolder.doneWaiting(*iException);
+                                globalEndLumiAsync(holder, status);
+                                endRunAsync(iRunStatus, holder);
+                              } else {
+                                status->globalBeginDidSucceed();
 
-                            EventSetupImpl const& es = status->eventSetupImpl();
-                            using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>;
+                                EventSetupImpl const& es = status->eventSetupImpl();
+                                using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>;
 
-                            streamQueuesInserter_.push(*holder.group(), [this, status, holder, &es]() mutable {
-                              for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
-                                streamQueues_[i].push(*holder.group(), [this, i, status, holder, &es]() mutable {
-                                  if (!status->shouldStreamStartLumi()) {
-                                    return;
-                                  }
-                                  streamQueues_[i].pause();
+                                streamQueuesInserter_.push(*holder.group(), [this, status, holder, &es]() mutable {
+                                  for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
+                                    streamQueues_[i].push(*holder.group(), [this, i, status, holder, &es]() mutable {
+                                      if (!status->shouldStreamStartLumi()) {
+                                        return;
+                                      }
+                                      streamQueues_[i].pause();
 
-                                  auto& event = principalCache_.eventPrincipal(i);
-                                  auto lp = status->lumiPrincipal().get();
-                                  streamLumiStatus_[i] = std::move(status);
-                                  ++streamLumiActive_;
-                                  event.setLuminosityBlockPrincipal(lp);
-                                  LumiTransitionInfo transitionInfo(*lp, es);
-                                  using namespace edm::waiting_task::chain;
-                                  chain::first([this, i, &transitionInfo](auto nextTask) {
-                                    schedule_->processOneStreamAsync<Traits>(
-                                        std::move(nextTask), i, transitionInfo, serviceToken_);
-                                  }) |
-                                      then([this, i](std::exception_ptr const* exceptionFromBeginStreamLumi,
-                                                     auto nextTask) {
-                                        if (exceptionFromBeginStreamLumi) {
-                                          WaitingTaskHolder copyHolder(nextTask);
-                                          copyHolder.doneWaiting(*exceptionFromBeginStreamLumi);
-                                        }
-                                        handleNextEventForStreamAsync(std::move(nextTask), i);
+                                      auto& event = principalCache_.eventPrincipal(i);
+                                      auto lp = status->lumiPrincipal().get();
+                                      streamLumiStatus_[i] = std::move(status);
+                                      ++streamLumiActive_;
+                                      event.setLuminosityBlockPrincipal(lp);
+                                      LumiTransitionInfo transitionInfo(*lp, es);
+                                      using namespace edm::waiting_task::chain;
+                                      chain::first([this, i, &transitionInfo](auto nextTask) {
+                                        schedule_->processOneStreamAsync<Traits>(
+                                            std::move(nextTask), i, transitionInfo, serviceToken_);
                                       }) |
-                                      runLast(std::move(holder));
+                                          then([this, i](std::exception_ptr const* exceptionFromBeginStreamLumi,
+                                                         auto nextTask) {
+                                            if (exceptionFromBeginStreamLumi) {
+                                              WaitingTaskHolder copyHolder(nextTask);
+                                              copyHolder.doneWaiting(*exceptionFromBeginStreamLumi);
+                                            }
+                                            handleNextEventForStreamAsync(std::move(nextTask), i);
+                                          }) |
+                                          runLast(std::move(holder));
+                                    });
+                                  }  // end for loop over streams
                                 });
-                              }  // end for loop over streams
-                            });
-                          }
-                        }) | runLast(postSourceTask);
+                              }
+                            }) |
+                            runLast(postSourceTask);
                       } catch (...) {
                         status->resetResources();
                         queueWhichWaitsForIOVsToFinish_.resume();
@@ -2295,7 +2339,20 @@ namespace edm {
 
     EventSetupImpl const& es = streamLumiStatus_[iStreamIndex]->eventSetupImpl();
     using namespace edm::waiting_task::chain;
-    chain::first([this, &es, pep, iStreamIndex](auto nextTask) {
+    chain::firstIf(rng.isAvailable() and rng->consumer() != nullptr, [this, pep](auto nextTask) {
+      //handle RandomNumberGenerator prefetching and postEventRead
+      chain::first([this, pep](auto nextTask) {
+        prefetchForRandomNumberGeneratorAsync(std::move(nextTask), *pep, serviceToken_);
+      }) | then([this, pep](auto nextTask) {
+        ServiceRegistry::Operate operate(serviceToken_);
+        Service<RandomNumberGenerator> rng;
+        if (rng.isAvailable()) {
+          Event ev(*pep, ModuleDescription(), nullptr);
+          ev.setConsumer(rng->consumer());
+          rng->postEventRead(ev);
+        }
+      }) | runLast(nextTask);
+    }) | then([this, &es, pep, iStreamIndex](auto nextTask) {
       EventTransitionInfo info(*pep, es);
       schedule_->processOneEventAsync(std::move(nextTask), iStreamIndex, info, serviceToken_);
     }) | ifThen(looper_, [this, iStreamIndex, pep](auto nextTask) {
