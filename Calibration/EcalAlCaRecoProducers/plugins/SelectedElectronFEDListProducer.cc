@@ -115,7 +115,7 @@ SelectedElectronFEDListProducer<TEle, TCand>::SelectedElectronFEDListProducer(co
   else
     beamSpotTag_ = edm::InputTag("hltOnlineBeamSpot");
 
-  if (!(beamSpotTag_ == edm::InputTag("")))
+  if (!beamSpotTag_.isUninitialized())
     beamSpotToken_ = consumes<reco::BeamSpot>(beamSpotTag_);
 
   LogDebug("SelectedElectronFEDListProducer") << " Beam Spot Tag " << beamSpotTag_ << std::endl;
@@ -126,7 +126,7 @@ SelectedElectronFEDListProducer<TEle, TCand>::SelectedElectronFEDListProducer(co
   else
     HBHERecHitTag_ = edm::InputTag("hltHbhereco");
 
-  if (!(HBHERecHitTag_ == edm::InputTag("")))
+  if (!HBHERecHitTag_.isUninitialized())
     hbheRecHitToken_ = consumes<HBHERecHitCollection>(HBHERecHitTag_);
 
   // raw data collector label
@@ -135,7 +135,7 @@ SelectedElectronFEDListProducer<TEle, TCand>::SelectedElectronFEDListProducer(co
   else
     rawDataTag_ = edm::InputTag("rawDataCollector");
 
-  if (!(rawDataTag_ == edm::InputTag("")))
+  if (!rawDataTag_.isUninitialized())
     rawDataToken_ = consumes<FEDRawDataCollection>(rawDataTag_);
 
   LogDebug("SelectedElectronFEDListProducer") << " RawDataInput " << rawDataTag_ << std::endl;
@@ -347,12 +347,12 @@ void SelectedElectronFEDListProducer<TEle, TCand>::produce(edm::Event& iEvent, c
   // event by event analysis
   // Get event raw data
   edm::Handle<FEDRawDataCollection> rawdata;
-  if (!(rawDataTag_ == edm::InputTag("")))
+  if (!rawDataTag_.isUninitialized())
     iEvent.getByToken(rawDataToken_, rawdata);
 
   // take the beam spot position
   edm::Handle<reco::BeamSpot> beamSpot;
-  if (!(beamSpotTag_ == edm::InputTag("")))
+  if (!beamSpotTag_.isUninitialized())
     iEvent.getByToken(beamSpotToken_, beamSpot);
   if (!beamSpot.failedToGet())
     beamSpotPosition_ = beamSpot->position();
@@ -361,7 +361,7 @@ void SelectedElectronFEDListProducer<TEle, TCand>::produce(edm::Event& iEvent, c
 
   // take the calo tower collection
   edm::Handle<HBHERecHitCollection> hbheRecHitHandle;
-  if (!(HBHERecHitTag_ == edm::InputTag("")))
+  if (!HBHERecHitTag_.isUninitialized())
     iEvent.getByToken(hbheRecHitToken_, hbheRecHitHandle);
   const HBHERecHitCollection* hcalRecHitCollection = nullptr;
   if (!hbheRecHitHandle.failedToGet())

@@ -35,7 +35,7 @@ MeasurementTrackerEventProducer::MeasurementTrackerEventProducer(const edm::Para
 
   //the measurement tracking is set to skip clusters, the other option is set from outside
   edm::InputTag skip = iConfig.getParameter<edm::InputTag>("skipClusters");
-  selfUpdateSkipClusters_ = !(skip == edm::InputTag(""));
+  selfUpdateSkipClusters_ = !skip.isUninitialized();
   LogDebug("MeasurementTracker") << "skipping clusters: " << selfUpdateSkipClusters_;
   isPhase2_ = false;
   useVectorHits_ = false;
@@ -59,8 +59,8 @@ MeasurementTrackerEventProducer::MeasurementTrackerEventProducer(const edm::Para
         edm::InputTag(iConfig.getParameter<std::string>("Phase2TrackerCluster1DProducer")));
     isPhase2_ = true;
   }
-  if (!(iConfig.getParameter<edm::InputTag>("vectorHits") == edm::InputTag("") ||
-        iConfig.getParameter<edm::InputTag>("vectorHitsRej") == edm::InputTag(""))) {
+  if (!iConfig.getParameter<edm::InputTag>("vectorHits").isUninitialized() ||
+       iConfig.getParameter<edm::InputTag>("vectorHitsRej").isUninitialized()) {
     thePh2OTVectorHitsLabel = consumes<VectorHitCollection>(iConfig.getParameter<edm::InputTag>("vectorHits"));
     thePh2OTVectorHitsRejLabel = consumes<VectorHitCollection>(iConfig.getParameter<edm::InputTag>("vectorHitsRej"));
     isPhase2_ = true;
