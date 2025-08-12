@@ -60,7 +60,7 @@ MeasurementTrackerEventProducer::MeasurementTrackerEventProducer(const edm::Para
     isPhase2_ = true;
   }
   if (!iConfig.getParameter<edm::InputTag>("vectorHits").isUninitialized() ||
-       iConfig.getParameter<edm::InputTag>("vectorHitsRej").isUninitialized()) {
+      iConfig.getParameter<edm::InputTag>("vectorHitsRej").isUninitialized()) {
     thePh2OTVectorHitsLabel = consumes<VectorHitCollection>(iConfig.getParameter<edm::InputTag>("vectorHits"));
     thePh2OTVectorHitsRejLabel = consumes<VectorHitCollection>(iConfig.getParameter<edm::InputTag>("vectorHitsRej"));
     isPhase2_ = true;
