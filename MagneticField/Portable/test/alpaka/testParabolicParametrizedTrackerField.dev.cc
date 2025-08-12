@@ -11,21 +11,21 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
-#include "MagneticField/ParametrizedEngine/interface/ParabolicParametrizedMagneticField.h"
+#include "MagneticField/Portable/interface/ParabolicMagneticField.h"
 
 using namespace edm;
 using namespace std;
 using namespace ALPAKA_ACCELERATOR_NAMESPACE;
-using namespace magneticFieldParabolicPortable;
+using namespace portableParabolicMagneticField;
 using Vector3f = Eigen::Matrix<float, 3, 1>;
 
-struct MagneticFieldKernel {
+struct TrackerMagneticFieldKernel {
   template <typename T>
   ALPAKA_FN_ACC void operator()(Acc1D const& acc, T const* __restrict__ in, T* __restrict__ out, size_t size) const {
     for (auto index : cms::alpakatools::uniform_elements(acc, size)) {
       out[index](0) = 0;
       out[index](1) = 0;
-      out[index](2) = magneticFieldAtPoint(in[index]);
+      out[index](2) = parabolicMagneticFieldAtPoint(in[index]);
     }
   }
 };
@@ -77,7 +77,8 @@ int main() {
     field_host[i] = Vector3f::Zero();
   }
 
-  float resolution = 0.2;
+  const float resolution = 0.2;
+
   float maxdelta = 0.;
   int fail = 0;
 
@@ -94,7 +95,7 @@ int main() {
     alpaka::memset(queue, field_dev, 0.);
 
     auto workDiv = cms::alpakatools::make_workdiv<Acc1D>(1, size);
-    alpaka::exec<Acc1D>(queue, workDiv, MagneticFieldKernel{}, points_dev.data(), field_dev.data(), size);
+    alpaka::exec<Acc1D>(queue, workDiv, TrackerMagneticFieldKernel{}, points_dev.data(), field_dev.data(), size);
 
     // copy the results from the device to the host
     alpaka::memcpy(queue, field_host, field_dev);
@@ -107,7 +108,7 @@ int main() {
       const auto& point = points[i];
       const auto& referenceB = referenceB_vec[i];
       GlobalVector parametricB(field_host[i](0), field_host[i](1), field_host[i](2));
-      float delta = (referenceB - parametricB).mag();
+      const float delta = (referenceB - parametricB).mag();
       if (delta > resolution) {
         ++fail;
         if (delta > maxdelta)
