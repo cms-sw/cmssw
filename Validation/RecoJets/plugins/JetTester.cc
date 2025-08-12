@@ -879,7 +879,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
   math::XYZTLorentzVector p4tmJetP[2];
 
   //------------------------------------------------------------------------------
-  // Fill jet parameters for pass_mediumjet
+  // Fill jet parameters
   //------------------------------------------------------------------------------
 
   for (unsigned ijet = 0; ijet < recoJets.size(); ijet++) {
@@ -1149,20 +1149,18 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
       }
 
       //----------------------------------------------------------------------------
-      // Match reco jets to gen jets
+      // Match reco jets to gen jets for efficiency, fake rate and duplicate rate
       //----------------------------------------------------------------------------
       if (!mEvent.isRealData()) {
-        int iMatchGen = -1;
-        double deltaRBestGen = 999;
+        double deltaRBestGen = 99999;
         for (unsigned gjet = 0; gjet < genJets.size(); gjet++) {
           double dR = deltaR(genJets[gjet].eta(), genJets[gjet].phi(), corrJets[ijet].eta(), corrJets[ijet].phi());
           if (dR < deltaRBestGen) {
-            iMatchGen = gjet;
             deltaRBestGen = dR;
           }
         }
 
-        if ((iMatchGen >= 0) && (deltaRBestGen < mRThreshold)) {
+        if (deltaRBestGen < mRThreshold) {
           if (corrJets[ijet].pt() > minJetPt) {
             for (size_t j = 0; j < etaInfo.size(); ++j) {
               const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
@@ -1213,16 +1211,12 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
       // Match gen jets to reco jets
       //----------------------------------------------------------------------------
 
-      // std::cout << "\nGen Jet " << gjet << " : pt=" << genJets[gjet].pt() << " eta=" << genJets[gjet].eta() << " phi=" << genJets[gjet].phi()  << std::endl;
+  
       int iMatchReco = -1;
       double deltaRBestReco = 999;
       for (unsigned ijet = 0; ijet < recoJets.size(); ++ijet) {
         double dR = deltaR(genJets[gjet].eta(), genJets[gjet].phi(), recoJets[ijet].eta(), recoJets[ijet].phi());
-        // if (dR < 0.4) {
-        //   std::cout << "HLT Jet " << ijet << " : pt=" << recoJets[ijet].pt() << " eta=" << recoJets[ijet].eta() << " phi=" << recoJets[ijet].phi() << " dR=" << dR << " Resp=" << recoJets[ijet].pt()/genJets[gjet].pt();
-        //   std::cout << " chH=" << (*pfJets)[ijet].chargedHadronEnergyFraction() << " nH=" << (*pfJets)[ijet].neutralHadronEnergyFraction() << " chE=" << (*pfJets)[ijet].chargedEmEnergyFraction() << " nE=" << (*pfJets)[ijet].neutralEmEnergyFraction() << std::endl;
-        // }
-
+   
         // PT CUT
         if (recoJets[ijet].pt() < mRecoJetPtThreshold)
           continue;
@@ -1232,8 +1226,6 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
           deltaRBestReco = dR;
         }
       }
-
-      // std::cout << "Matched Jet " << iMatchReco << " with deltaR " << deltaRBestReco << std::endl;
 
       if ((iMatchReco >= 0) && (deltaRBestReco < mRThreshold)) {
         //----------------------------------------------------------------------------
