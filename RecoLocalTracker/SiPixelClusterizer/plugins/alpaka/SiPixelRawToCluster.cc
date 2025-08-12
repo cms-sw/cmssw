@@ -199,14 +199,7 @@ bool skipDetId(const TrackerTopology* tTopo, const DetId& detId, const std::vect
       fmtErrorToken_ = produces();
     }
     digiMorphingConfig_.applyDigiMorphing = doDigiMorphing_;
-    if(maxFakesInModule_ == 0)
-    {
-      digiMorphingConfig_.maxFakesInModule = TrackerTraits::maxPixInModule * 2 / 5;
-    }
-    else
-    {
-      digiMorphingConfig_.maxFakesInModule = maxFakesInModule_;
-    }
+    digiMorphingConfig_.maxFakesInModule = maxFakesInModule_;
 
 
     // regions
@@ -233,7 +226,7 @@ bool skipDetId(const TrackerTopology* tTopo, const DetId& detId, const std::vect
     desc.add<double>("VCaltoElectronOffset", -60.f);
     desc.add<double>("VCaltoElectronOffset_L1", -670.f);
     desc.add<bool>("DoDigiMorphing", false);
-    desc.add<uint32_t>("MaxFakesInModule", 0u);
+    desc.add<uint32_t>("MaxFakesInModule", TrackerTraits::maxPixInModule * 2 / 5);
 
     desc.add<edm::InputTag>("InputLabel", edm::InputTag("rawDataCollector"));
     {
