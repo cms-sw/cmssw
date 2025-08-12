@@ -573,7 +573,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           const auto workDivMaxNumModules = cms::alpakatools::make_workdiv<Acc1D>(blocks, elementsPerBlockFindClus);
 
           // allocate a transient collection for the fake pixels recovered by the digi morphing algorithm
-          auto fakes_d = SiPixelDigisSoACollection(blocks * FindClus<TrackerTraits>::maxFakesInModule, queue);
+          auto fakes_d = SiPixelDigisSoACollection(blocks * digiMorphingConfig.maxFakesInModule, queue);
 
 #ifdef GPU_DEBUG
           std::cout << " FindClus kernel launch with " << numberOfModules << " blocks of " << elementsPerBlockFindClus
@@ -589,9 +589,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                               FindClus<TrackerTraits>{},
                               digis_d->view(),
                               fakes_d.view(),
-                              static_cast<bool>(digiMorphingConfig.applyDigiMorphing),
+                              digiMorphingConfig.applyDigiMorphing,
                               morphingModules_d.data(),
-                              static_cast<uint32_t>(digiMorphingConfig.morphingModules.size()),
+                              digiMorphingConfig.morphingModules.size(),
+                              digiMorphingConfig.maxFakesInModule,
                               clusters_d->view(),
                               wordCounter);
 #ifdef GPU_DEBUG

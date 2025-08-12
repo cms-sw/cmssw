@@ -173,7 +173,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
         cms::alpakatools::round_up_by(TrackerTraits::maxPixInModule / maxIterGPU, 128);
 
     // FIXME: this is just an estimate, to be studied and optimised
-    static constexpr uint32_t maxFakesInModule = TrackerTraits::maxPixInModule * 2 / 5;
+    //static constexpr uint32_t maxFakesInModule = TrackerTraits::maxPixInModule * 2 / 5;
 
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   SiPixelDigisSoAView digi_view,
@@ -181,6 +181,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
                                   bool applyDigiMorphing,
                                   uint32_t* morphingModules,
                                   uint32_t nMorphingModules,
+                                  uint32_t maxFakesInModule,
                                   SiPixelClustersSoAView clus_view,
                                   const unsigned int numElements) const {
       static_assert(TrackerTraits::numberOfModules < ::pixelClustering::maxNumModules);

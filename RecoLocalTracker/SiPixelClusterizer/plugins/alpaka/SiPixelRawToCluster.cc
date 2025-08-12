@@ -94,6 +94,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const std::vector<region> theEndcapRegions_;
     const bool doDigiMorphing_;
     const TrackerTopology* tTopo_ = nullptr;
+    const uint32_t maxFakesInModule_;
 
   };
 
@@ -191,12 +192,22 @@ bool skipDetId(const TrackerTopology* tTopo, const DetId& detId, const std::vect
                            static_cast<float>(iConfig.getParameter<double>("VCaltoElectronOffset_L1"))},
         theBarrelRegions_(parseRegions(iConfig.getParameter<std::vector<std::string>>("barrelRegions"), 3)),
         theEndcapRegions_(parseRegions(iConfig.getParameter<std::vector<std::string>>("endcapRegions"), 4)),
-        doDigiMorphing_(iConfig.getParameter<bool>("DoDigiMorphing")) {
+        doDigiMorphing_(iConfig.getParameter<bool>("DoDigiMorphing")),
+        maxFakesInModule_(iConfig.getParameter<uint32_t>("MaxFakesInModule")) {
     if (includeErrors_) {
       digiErrorPutToken_ = produces();
       fmtErrorToken_ = produces();
     }
     digiMorphingConfig_.applyDigiMorphing = doDigiMorphing_;
+    if(maxFakesInModule_ == 0)
+    {
+      digiMorphingConfig_.maxFakesInModule = TrackerTraits::maxPixInModule * 2 / 5;
+    }
+    else
+    {
+      digiMorphingConfig_.maxFakesInModule = maxFakesInModule_;
+    }
+
 
     // regions
     if (!iConfig.getParameter<edm::ParameterSet>("Regions").getParameterNames().empty()) {
@@ -222,6 +233,7 @@ bool skipDetId(const TrackerTopology* tTopo, const DetId& detId, const std::vect
     desc.add<double>("VCaltoElectronOffset", -60.f);
     desc.add<double>("VCaltoElectronOffset_L1", -670.f);
     desc.add<bool>("DoDigiMorphing", false);
+    desc.add<uint32_t>("MaxFakesInModule", 0u);
 
     desc.add<edm::InputTag>("InputLabel", edm::InputTag("rawDataCollector"));
     {
