@@ -17,7 +17,6 @@ using SoAPositionView = SoAPosition::View;
 using SoAPositionConstView = SoAPosition::ConstView;
 
 GENERATE_SOA_LAYOUT(SoAPCATemplate,
-                    SOA_COLUMN(float, eigenvalues),
                     SOA_COLUMN(float, eigenvector_1),
                     SOA_COLUMN(float, eigenvector_2),
                     SOA_COLUMN(float, eigenvector_3),
