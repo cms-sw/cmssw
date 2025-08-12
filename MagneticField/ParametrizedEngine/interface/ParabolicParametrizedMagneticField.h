@@ -19,8 +19,9 @@
      static constexpr float b0 = -3.94991e-06;
      static constexpr float b1 = 7.53701e-06;
      static constexpr float a = 2.43878e-11;
-     static constexpr float max_radius2 = 10 *13225.f;  // tracker radius
-     static constexpr float max_z = 400.5f; //280.f;          // tracker z
+     static constexpr float max_radius2 = 13225.f;  // tracker radius
+     static constexpr float max_z = 280.f;          // tracker z
+
    };
 
    template <typename Vec3>
