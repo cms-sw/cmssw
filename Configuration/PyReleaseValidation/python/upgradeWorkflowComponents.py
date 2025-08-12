@@ -1830,7 +1830,13 @@ class UpgradeWorkflow_HLT75e33Timing(UpgradeWorkflow):
         if ('ALCA' in step) or ('Reco' in step) or ('HLT' in step):
             stepDict[stepName][k] = None
         elif 'DigiTrigger' in step:
-            stepDict[stepName][k] = merge([self.step2, stepDict[step][k]])
+            # Add the aging customization
+            mergedStep = merge([self.step2, stepDict[step][k]])
+            if '--customise' in mergedStep:
+                mergedStep['--customise'] += ',SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000'
+            else:
+                mergedStep['--customise'] = 'SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000'
+            stepDict[stepName][k] = mergedStep
         elif 'HARVEST' in step:
             stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
         else:
@@ -2004,13 +2010,19 @@ class UpgradeWorkflow_HLTPhase2_WithNano(UpgradeWorkflow):
         if ('ALCA' in step) or ('Reco' in step) or ('HLT' in step) or ('HARVEST' in step):
             stepDict[stepName][k] = None
         elif 'DigiTrigger' in step:
-            stepDict[stepName][k] = merge([self.step2, stepDict[step][k]])
+            # Add the aging customization
+            mergedStep = merge([self.step2, stepDict[step][k]])
+            if '--customise' in mergedStep:
+                mergedStep['--customise'] += ',SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000'
+            else:
+                mergedStep['--customise'] = 'SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000'
+            stepDict[stepName][k] = mergedStep
         else:
             stepDict[stepName][k] = merge([stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         return fragment=="TTbar_14TeV" and 'Run4' in key
     
-upgradeWFs['HLTPhaseWithNano'] = UpgradeWorkflow_HLTPhase2_WithNano(
+upgradeWFs['HLTPhase2WithNano'] = UpgradeWorkflow_HLTPhase2_WithNano(
     steps = [
         'Reco',
         'RecoGlobal',
@@ -2035,16 +2047,16 @@ upgradeWFs['HLTPhaseWithNano'] = UpgradeWorkflow_HLTPhase2_WithNano(
         'HARVESTGlobal',
         'HARVESTGlobalFakeHLT',
     ],
-    suffix = '_HLTPhaseWithNano',
+    suffix = '_HLTPhase2WithNano',
     offset = 0.759,
 )
-upgradeWFs['HLTPhaseWithNano'].step2 = {
+upgradeWFs['HLTPhase2WithNano'].step2 = {
     '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33,NANO:@Phase2HLT',
     '--datatier':'GEN-SIM-DIGI-RAW,NANOAODSIM',
     '--eventcontent':'FEVTDEBUGHLT,NANOAODSIM'
 }
 
-upgradeWFs['NGTScoutingWithNano'] = deepcopy(upgradeWFs['HLTPhaseWithNano'])
+upgradeWFs['NGTScoutingWithNano'] = deepcopy(upgradeWFs['HLTPhase2WithNano'])
 upgradeWFs['NGTScoutingWithNano'].suffix = '_NGTScoutingWithNano'
 upgradeWFs['NGTScoutingWithNano'].offset = 0.771
 upgradeWFs['NGTScoutingWithNano'].step2 = {
@@ -2054,7 +2066,7 @@ upgradeWFs['NGTScoutingWithNano'].step2 = {
     '--eventcontent':'FEVTDEBUGHLT,NANOAODSIM'
 }
 
-upgradeWFs['NGTScoutingWithNanoValid'] = deepcopy(upgradeWFs['HLTPhaseWithNano'])
+upgradeWFs['NGTScoutingWithNanoValid'] = deepcopy(upgradeWFs['HLTPhase2WithNano'])
 upgradeWFs['NGTScoutingWithNanoValid'].suffix = '_NGTScoutingWithNanoVal'
 upgradeWFs['NGTScoutingWithNanoValid'].offset = 0.772
 upgradeWFs['NGTScoutingWithNanoValid'].step2 = {
@@ -2087,7 +2099,13 @@ class UpgradeWorkflow_NGTScouting(UpgradeWorkflow):
         if ('ALCA' in step) or ('Reco' in step) or ('HLT' in step):
             stepDict[stepName][k] = None
         elif 'DigiTrigger' in step:
-            stepDict[stepName][k] = merge([self.step2, stepDict[step][k]])
+            # Add the aging customization
+            mergedStep = merge([self.step2, stepDict[step][k]])
+            if '--customise' in mergedStep:
+                mergedStep['--customise'] += ',SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000'
+            else:
+                mergedStep['--customise'] = 'SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000'
+            stepDict[stepName][k] = mergedStep
         elif 'HARVEST' in step:
             stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
         else:
