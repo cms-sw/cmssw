@@ -228,7 +228,8 @@ PhysicsVRRandom7Output
 
 RPCMONOutput
 
-ScoutingPFOutput # CMSHLT-548, CMSHLT-2231, CMSHLT-3579
+ScoutingPF0Output              # CMSHLT-548, CMSHLT-2231, CMSHLT-3579, CMSHLT-3607
+ScoutingPF1Output              # CMSHLT-548, CMSHLT-2231, CMSHLT-3579, CMSHLT-3607
 
 ######## paths that are different between Special and online_special ################################
 
