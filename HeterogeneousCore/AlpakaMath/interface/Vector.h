@@ -15,12 +15,12 @@
 namespace cms::alpakatools::math {
 
   template <typename T>
-  constexpr std::enable_if_t<std::is_arithmetic_v<T>, T> zero() {
+  constexpr std::enable_if_t<std::is_arithmetic_v<T>, T> zero_() {
     return static_cast<T>(0);
   }
 
   template <typename T, typename U>
-  constexpr std::enable_if_t<std::is_arithmetic_v<T> and std::is_arithmetic_v<U>, T> set(U x) {
+  constexpr std::enable_if_t<std::is_arithmetic_v<T> and std::is_arithmetic_v<U>, T> set_(U x) {
     return static_cast<T>(x);
   }
 
@@ -130,7 +130,7 @@ namespace cms::alpakatools::math {
     constexpr void zero() {
       CMS_UNROLL_LOOP
       for (int i = 0; i < maxSize; i++)
-        m_data[i] = zero<T>();
+        m_data[i] = zero_<T>();
     }
 
     constexpr T norm2() const {
@@ -186,7 +186,7 @@ namespace cms::alpakatools::math {
     }
 
     template <typename TAcc>
-    ALPAKA_FN_ACC void normalize( const TAcc &acc) const {
+    ALPAKA_FN_ACC void normalize( const TAcc &acc) {
 
       const T nrm = norm(acc);
 
@@ -230,7 +230,7 @@ namespace cms::alpakatools::math {
     VectorN res;
 
     CMS_UNROLL_LOOP
-    for (int i = 0; i < x.size(); i++) {
+    for (int i = 0; i < VectorN::N; i++) {
       res[i] = a*x[i];
     }
 
@@ -242,7 +242,7 @@ namespace cms::alpakatools::math {
     VectorN res;
 
     CMS_UNROLL_LOOP
-    for (int i = 0; i < x.size(); i++) {
+    for (int i = 0; i < VectorN::N; i++) {
       res[i] = x[i] + y[i];
     }
 
@@ -254,7 +254,7 @@ namespace cms::alpakatools::math {
     VectorN res;
 
     CMS_UNROLL_LOOP
-    for (int i = 0; i < x.size(); i++) {
+    for (int i = 0; i < VectorN::N; i++) {
       res[i] = x[i] - y[i];
     }
 
@@ -266,7 +266,7 @@ namespace cms::alpakatools::math {
     VectorN res;
 
     CMS_UNROLL_LOOP
-    for (int i = 0; i < x.size(); i++) {
+    for (int i = 0; i < VectorN::N; i++) {
       res[i] = a * x[i] + y[i];
     }
 
@@ -278,7 +278,7 @@ namespace cms::alpakatools::math {
     typename VectorN::value_type res{0};
 
     CMS_UNROLL_LOOP
-    for (int i = 0; i < x.size(); i++) {
+    for (int i = 0; i < VectorN::N; i++) {
       res += x[i] * y[i];
     }
 
@@ -290,7 +290,7 @@ namespace cms::alpakatools::math {
     typename VectorN::value_type res{0};
 
     CMS_UNROLL_LOOP
-    for (int i = 0; i < x.size(); i++) {
+    for (int i = 0; i < VectorN::N; i++) {
       const typename VectorN::value_type tmp = x[i] - y[i];
       res += tmp*tmp;
     }
