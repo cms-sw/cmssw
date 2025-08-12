@@ -218,7 +218,7 @@ int main() {
       if (std::abs(r) > epsilon) fails++;
     }   
   
-    assert(fails);
+    assert(fails == 0);
 
     alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workDiv, xpyKernel(), x_d.data(), y_d.data(), z_d.data()));
     alpaka::wait(queue);
@@ -233,7 +233,7 @@ int main() {
       if (std::abs(r) > epsilon) fails++;
     }  
 
-    assert(fails);
+    assert(fails == 0);
 
     alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workDiv, xmyKernel(), x_d.data(), y_d.data(), z_d.data()));
     alpaka::wait(queue);
@@ -248,7 +248,7 @@ int main() {
       if (std::abs(r) > epsilon) fails++;
     }
 
-    assert(fails);
+    assert(fails == 0);
 
     alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workDiv, axpyKernel(), x_d.data(), y_d.data(), z_d.data()));
     alpaka::wait(queue);
@@ -263,7 +263,7 @@ int main() {
       if (std::abs(r) > epsilon) fails++;
     }
 
-    assert(fails);
+    assert(fails == 0);
   }
   std::cout << "TEST PASSED" << std::endl;
   return 0;
