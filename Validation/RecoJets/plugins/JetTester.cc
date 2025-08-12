@@ -286,6 +286,15 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
   mMatchedGenEta = ibooker.book1D("MatchedGenEta", "Matched Gen Jets;#eta;# jets", n_EtaBins, EtaRange[0], EtaRange[1]);
   mMatchedGenPhi = ibooker.book1D("MatchedGenPhi", "Matched Gen Jets;#phi;# jets", n_PhiBins, PhiRange[0], PhiRange[1]);
 
+  for (unsigned ilevel=0; ilevel<nLevelsDuplicates; ++ilevel) {
+	mGenRepeat["pt"][ilevel] = ibooker.book1D(fmt::format("GenDuplicatesPt_Level{}", ilevel), "Matched Gen Jets;p_{{T}};# jets", n_PtBins, PtRange[0], PtRange[1]);
+	mGenRepeat["eta"][ilevel] = ibooker.book1D(fmt::format("GenDuplicatesEta_Level{}", ilevel), "Matched Gen Jets;#eta;# jets", n_EtaBins, EtaRange[0], EtaRange[1]);
+	mGenRepeat["phi"][ilevel] = ibooker.book1D(fmt::format("GenDuplicatesPhi_Level{}", ilevel), "Matched Gen Jets;#phi;# jets", n_PhiBins, PhiRange[0], PhiRange[1]);
+	mRecoRepeat["pt"][ilevel] = ibooker.book1D(fmt::format("RecoDuplicatesPt_Level{}", ilevel), "Matched Reco Jets;p_{{T}};# jets", n_PtBins, PtRange[0], PtRange[1]);
+	mRecoRepeat["eta"][ilevel] = ibooker.book1D(fmt::format("RecoDuplicatesEta_Level{}", ilevel), "Matched Reco Jets;#eta;# jets", n_EtaBins, EtaRange[0], EtaRange[1]);
+	mRecoRepeat["phi"][ilevel] = ibooker.book1D(fmt::format("RecoDuplicatesPhi_Level{}", ilevel), "Matched Reco Jets;#phi;# jets", n_PhiBins, PhiRange[0], PhiRange[1]);
+  }
+  
   for (size_t j = 0; j < etaInfo.size(); ++j) {
     const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
 
@@ -318,6 +327,31 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
                                               PtRange[0],
                                               PtRange[1]);
 
+	for (unsigned ilevel=0; ilevel<nLevelsDuplicates; ++ilevel) {
+	  auto title = fmt::format("GenDuplicates_Level{}", ilevel);
+	  mGenRepeat_EtaBins["pt"][ilevel][j] =
+		ibooker.book1D(title, fmt::format("GenDuplicates_Level{} - {};p_{{T}} [GeV];# Duplicates", ilevel, etaLabel),
+					   n_PtBins, PtRange[0], PtRange[1]);
+	  mGenRepeat_EtaBins["eta"][ilevel][j] =
+		ibooker.book1D(title, fmt::format("GenDuplicates_Level{} - {};#eta;# Duplicates", ilevel, etaLabel),
+					   n_EtaBins, EtaRange[0], EtaRange[1]);
+	  mGenRepeat_EtaBins["phi"][ilevel][j] =
+		ibooker.book1D(title, fmt::format("GenDuplicates_Level{} - {};#phi;# Duplicates", ilevel, etaLabel),
+					   n_PhiBins, PhiRange[0], PhiRange[1]);
+	}
+	for (unsigned ilevel=0; ilevel<nLevelsDuplicates; ++ilevel) {
+	  auto title = fmt::format("RecoDuplicates_Level{}", ilevel);
+	  mRecoRepeat_EtaBins["pt"][ilevel][j] =
+		ibooker.book1D(title, fmt::format("RecoDuplicates_Level{} - {};p_{{T}} [GeV];# Duplicates", ilevel, etaLabel),
+					   n_PtBins, PtRange[0], PtRange[1]);
+	  mRecoRepeat_EtaBins["eta"][ilevel][j] =
+		ibooker.book1D(title, fmt::format("RecoDuplicates_Level{} - {};#eta;# Duplicates", ilevel, etaLabel),
+					   n_EtaBins, EtaRange[0], EtaRange[1]);
+	  mRecoRepeat_EtaBins["phi"][ilevel][j] =
+		ibooker.book1D(title, fmt::format("RecoDuplicates_Level{} - {};#phi;# Duplicates", ilevel, etaLabel),
+					   n_PhiBins, PhiRange[0], PhiRange[1]);
+	}
+	
     h_JetPtRecoOverGen[j] =
         ibooker.book1D(fmt::format("h_PtRecoOverGen_{}", etaRegion),
                        fmt::format("Response Reco Jets - {};p_{{T}}^{{reco}}/p_{{T}}^{{gen}};# jets", etaLabel),
@@ -1152,13 +1186,38 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
       // Match reco jets to gen jets for efficiency, fake rate and duplicate rate
       //----------------------------------------------------------------------------
       if (!mEvent.isRealData()) {
+		unsigned duplicateGenCounter = 0;
         double deltaRBestGen = 99999;
         for (unsigned gjet = 0; gjet < genJets.size(); gjet++) {
+		  // PT CUT
+		  if (genJets[gjet].pt() < mMatchGenPtThreshold)
+			continue;
+
           double dR = deltaR(genJets[gjet].eta(), genJets[gjet].phi(), corrJets[ijet].eta(), corrJets[ijet].phi());
+		  if (dR < mRThreshold) {
+            duplicateGenCounter++;
+          }
           if (dR < deltaRBestGen) {
             deltaRBestGen = dR;
           }
         }
+
+		// measure gen duplicates: many gens to one reco
+		for (unsigned i=0; i<nLevelsDuplicates; ++i) {
+		  if (duplicateGenCounter>i+1) {
+			mGenRepeat["pt"][i]->Fill(corrJets[ijet].pt());
+			mGenRepeat["eta"][i]->Fill(corrJets[ijet].eta());
+			mGenRepeat["phi"][i]->Fill(corrJets[ijet].phi());
+			for (size_t j = 0; j < etaInfo.size(); ++j) {
+              const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
+			  if ((std::abs(corrJets[ijet].eta()) >= etaMin) && (std::abs(corrJets[ijet].eta()) < etaMax)) {
+				mGenRepeat_EtaBins["pt"][i][j]->Fill(corrJets[ijet].pt());
+				mGenRepeat_EtaBins["eta"][i][j]->Fill(corrJets[ijet].eta());
+				mGenRepeat_EtaBins["phi"][i][j]->Fill(corrJets[ijet].phi());
+			  }
+			}
+		  }
+		}
 
         if (deltaRBestGen < mRThreshold) {
           if (corrJets[ijet].pt() > minJetPt) {
@@ -1206,26 +1265,46 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
 
       if (recoJets.empty())
         continue;
-
+	
       //----------------------------------------------------------------------------
       // Match gen jets to reco jets
       //----------------------------------------------------------------------------
-
-  
       int iMatchReco = -1;
+	  unsigned duplicateRecoCounter = 0;
       double deltaRBestReco = 999;
-      for (unsigned ijet = 0; ijet < recoJets.size(); ++ijet) {
-        double dR = deltaR(genJets[gjet].eta(), genJets[gjet].phi(), recoJets[ijet].eta(), recoJets[ijet].phi());
-   
+      for (unsigned ijet = 0; ijet < recoJets.size(); ++ijet) { 
         // PT CUT
         if (recoJets[ijet].pt() < mRecoJetPtThreshold)
           continue;
+
+		double dR = deltaR(genJets[gjet].eta(), genJets[gjet].phi(), recoJets[ijet].eta(), recoJets[ijet].phi());
+		
+		if (dR < mRThreshold) {
+		  duplicateRecoCounter++;
+		}
 
         if (dR < deltaRBestReco) {
           iMatchReco = ijet;
           deltaRBestReco = dR;
         }
       }
+
+	  // measure reco duplicates: many recos to one gen
+	  for (unsigned i=0; i<nLevelsDuplicates; ++i) {
+		if (duplicateRecoCounter>i+1) {
+		  mRecoRepeat["pt"][i]->Fill(genJets[gjet].pt());
+		  mRecoRepeat["eta"][i]->Fill(genJets[gjet].eta());
+		  mRecoRepeat["phi"][i]->Fill(genJets[gjet].phi());
+		  for (size_t j = 0; j < etaInfo.size(); ++j) {
+			const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
+			if ((std::abs(genJets[gjet].eta()) >= etaMin) && (std::abs(genJets[gjet].eta()) < etaMax)) {
+			  mRecoRepeat_EtaBins["pt"][i][j]->Fill(genJets[gjet].pt());
+			  mRecoRepeat_EtaBins["eta"][i][j]->Fill(genJets[gjet].eta());
+			  mRecoRepeat_EtaBins["phi"][i][j]->Fill(genJets[gjet].phi());
+			}
+		  }
+		}
+	  }
 
       if ((iMatchReco >= 0) && (deltaRBestReco < mRThreshold)) {
         //----------------------------------------------------------------------------

@@ -296,19 +296,63 @@ if __name__ == '__main__':
         plotter.limits(y=(0,0.8))
         plotter.save( os.path.join(args.odir, 'Resolution_' + ResType) )
 
-    #####################################
-    # Jet-Finding Efficiency
-    #####################################
+    ########################################
+    # Jet efficiency, fakes and duplicates
+    ########################################
 
     den_label = ('HLT Jets $p_T > 30$ GeV', 'Gen Jets $p_T > 20$ GeV')
     num_label = ('HLT Jets $p_T > 30$ GeV matched to gen jets', 'Gen Jets $p_T > 20$ GeV matched to HLT jets')
-    y_title = ('Jet Mistag Rate', 'Jet Efficiency')
+    y_title = ('Jet Mistag Rate', )
     eff_color = '#bd1f01'
 
-    for i_type, Type in enumerate(('Jet', 'Gen')):
-        for Var in ('Pt_B', 'Pt_E', 'Pt_F', 'Eta', 'Phi'):
-            root_hist = CheckRootFile(f"{dqm_dir}/{Type}{Var}")
-            root_hist_matched = CheckRootFile(f"{dqm_dir}/Matched{Type}{Var}")
+    class HLabels:
+        def __init__(self, atype):
+            types = ('Efficiency', 'Fake Rate', 'Gen Duplicates', 'Reco Duplicates')
+            assert atype in types
+            self.mytype = atype
+
+        @staticmethod
+        def types():
+            return ('Efficiency', 'Fake Rate', 'Gen Duplicates', 'Reco Duplicates')
+        
+        @property
+        def ytitle(self):
+            if self.mytype == 'Efficiency':
+                return 'Jet Efficiency'
+            elif self.mytype == 'Fake Rate':
+                return 'Jet Fake Rate'
+            elif self.mytype == 'Jet Gen Duplicates':
+                return 'Jet Gen Duplicates'
+            elif self.mytype == 'Jet Reco Duplicates':
+                return 'Jet Reco Duplicates'
+
+        @property
+        def xvars(self):
+            if 'Duplicates' in self.mytype:
+                return ('Pt_B', 'Pt_E', 'Pt_F',
+                        'Phi_B', 'Phi_E', 'Phi_F',
+                        'Eta', 'Phi', 'Pt')
+            else:
+                return ('Pt_B', 'Pt_E', 'Pt_F',
+                        'Eta', 'Phi', 'Pt'):
+
+        def hname(self, var, basename, isNum):
+            name = basename
+            if self.mytype == 'Efficiency':
+                name += 'JetEfficiency' + var if isNum else ""
+            elif self.mytype == 'Fake Rate':
+                name += 'JetMistagRate' + var
+            elif self.mytype == 'Gen Duplicates':
+                name += 'JetMistagRate' + var
+
+    for Type in HLabels.types:
+        hlabel = HLabel(Type)
+        for Var in hlabel.xvars:
+            root_hist = CheckRootFile( hlabel.hname(Var, dqm_dir, False) )
+            root_hist_matched = CheckRootFile( hlabel.hname(Var, dqm_dir, True) )
+
+            # root_hist = CheckRootFile(f"{dqm_dir}/{Type}{Var}")
+            # root_hist_matched = CheckRootFile(f"{dqm_dir}/Matched{Type}{Var}")
 
             h_ratio = root_hist.Clone("h_ratio")
             h_ratio.Divide(root_hist_matched, root_hist, 1.0, 1.0, "B")
@@ -317,9 +361,9 @@ if __name__ == '__main__':
             numerator_vals = histo_values(root_hist_matched)
             denominator_vals = histo_values(root_hist)
 
-            if i_type == 0: # JetMistagRate = 1 - Matched / Total
+            if Type == "fake": 
                 eff_values = np.array([1 - h_ratio.GetBinContent(i+1) if h_ratio.GetBinContent(i+1) != 0 else 0 for i in range(nbins)])
-            elif i_type == 1:
+            elif Type == "eff":
                 eff_values = np.array([h_ratio.GetBinContent(i+1) for i in range(nbins)])
             eff_errors = np.array([h_ratio.GetBinError(i+1) for i in range(nbins)])
             label = root_hist.GetXaxis().GetTitle().replace('#', '\\')
@@ -339,7 +383,7 @@ if __name__ == '__main__':
 
             ax2 = plotter.ax.twinx()
             ax2.errorbar(bin_centers, eff_values, xerr=0.5 * bin_widths, yerr=eff_errors, linestyle='', fmt='o', color=eff_color, label='Efficiency')
-            ax2.set_ylabel(y_title[i_type], color=eff_color)
+            ax2.set_ylabel(hlabels[Type]['y_title'], color=eff_color)
             ax2.set_ylim(0,1.2)
             ax2.grid(color=eff_color, axis='y')
             plotter.ax.grid(color=eff_color, axis='x')
