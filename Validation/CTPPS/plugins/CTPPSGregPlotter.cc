@@ -23,11 +23,16 @@
 #include "DataFormats/ProtonReco/interface/ForwardProton.h" 
 #include "DataFormats/ProtonReco/interface/ForwardProtonFwd.h" 
 
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h" //Protons
+//Protons
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h" 
 
 //Beam
 #include "CondFormats/PPSObjects/interface/CTPPSBeamParameters.h" 
 #include "CondFormats/DataRecord/interface/CTPPSBeamParametersRcd.h" 
+
+//Duplicating Collection
+// #include "HepMC/GenEvent.h" 
+// #include "HepMC/GenParticle.h" 
 
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
@@ -72,12 +77,19 @@ private:
     bool debug = 0;
 };
 
+
+//----------------------------------------------------------------------------------------------------
+
+
 void CTPPSGregPlotter::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("outputFile", "simu_2018_Greg.root")->setComment("name of the ouput file");
   desc.add<edm::InputTag>("hepMCTag", edm::InputTag("generator", "unsmeared"))->setComment("Input tag for HepMCProduct"); //Protons
   descriptions.add("ctppsGregPlotter", desc);
 }
+
+//----------------------------------------------------------------------------------------------------
+
 
 // Constructor definition 
 CTPPSGregPlotter::CTPPSGregPlotter(const edm::ParameterSet &ps):
@@ -95,6 +107,8 @@ CTPPSGregPlotter::CTPPSGregPlotter(const edm::ParameterSet &ps):
     {}
 
 
+//----------------------------------------------------------------------------------------------------
+
 void CTPPSGregPlotter::analyze(const edm::Event &event, const edm::EventSetup &iSetup) {
 
   //Protons
@@ -106,13 +120,15 @@ void CTPPSGregPlotter::analyze(const edm::Event &event, const edm::EventSetup &i
   if (hepmc_prod.isValid()) {
     auto evt = hepmc_prod->GetEvent();
     if (evt) {
+
       // Loop over generated particles in the HepMC event
       for (auto it_part = evt->particles_begin(); it_part != evt->particles_end(); ++it_part) {
         const HepMC::GenParticle* part = *it_part;
 
+
         // Extract momentum information from the GenParticle
         const HepMC::FourVector& momentum = part->momentum();
-        if (part->pdg_id() != 2212) continue;
+
         if(debug){
           std::cout << "  Particle PDG ID: " << part->pdg_id()
                     << ", Status: " << part->status()
@@ -138,6 +154,11 @@ void CTPPSGregPlotter::analyze(const edm::Event &event, const edm::EventSetup &i
         //from PPSDirectProtonSimulation.cc
         h_xi->Fill(1.- momentum.rho()/ beamParameters.getBeamMom56());
       }
+
+
+
+
+
     } else {
       std::cerr << "Error: HepMC::GenEvent is null." << std::endl;
     }
@@ -148,8 +169,8 @@ void CTPPSGregPlotter::analyze(const edm::Event &event, const edm::EventSetup &i
 
 }
 
-//----------------------------------------------------------------------------------------------------
 
+//----------------------------------------------------------------------------------------------------
 
 void CTPPSGregPlotter::endJob() {
 
@@ -162,7 +183,8 @@ void CTPPSGregPlotter::endJob() {
   h_pt->Write();
   h_xi->Write();
 
-  std::cout << "GregPlotter worked" << std::endl;
+  std::cout << "GregPlotter worked" 
+            << std::endl;
 
 }
 
