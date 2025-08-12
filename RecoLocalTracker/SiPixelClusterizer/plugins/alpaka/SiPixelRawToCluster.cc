@@ -221,7 +221,7 @@ bool skipDetId(const TrackerTopology* tTopo, const DetId& detId, const std::vect
     desc.add<double>("VCaltoElectronGain_L1", 50.f);
     desc.add<double>("VCaltoElectronOffset", -60.f);
     desc.add<double>("VCaltoElectronOffset_L1", -670.f);
-    desc.add<bool>("DoDigiMorphing", true);
+    desc.add<bool>("DoDigiMorphing", false);
 
     desc.add<edm::InputTag>("InputLabel", edm::InputTag("rawDataCollector"));
     {
