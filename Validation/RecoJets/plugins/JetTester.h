@@ -75,7 +75,6 @@ private:
   static constexpr std::array<double, ptSize + 1> ptBins_ = {
       {20., 30., 40., 100., 200., 300., 600., 2000., 5000., 6500., 1e6}};
   double minJetPt;
-  double medJetPt;
 
   static constexpr std::array<std::tuple<std::string, std::string, double, double>, 3> etaInfo = {{
       std::make_tuple("B", "0<|#eta|<1.5", 0.0, 1.5),     // barrel

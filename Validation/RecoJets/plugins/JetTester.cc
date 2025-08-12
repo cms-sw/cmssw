@@ -216,7 +216,6 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
 
   // Discard all reco and corrected jets below this min threshold
   minJetPt = 20.;
-  medJetPt = mRecoJetPtThreshold;
 
   int n_EtaBins = 60;
   int n_EtaBins_Profile = 20;
@@ -243,17 +242,17 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
 
   // Jet parameters
   mJetEta = ibooker.book1D("JetEta",
-                           "Reco Jets p_{T}>" + std::to_string(int(medJetPt)) + " GeV;#eta;# jets",
+                           "Reco Jets p_{T}>" + std::to_string(int(mRecoJetPtThreshold)) + " GeV;#eta;# jets",
                            n_EtaBins,
                            EtaRange[0],
                            EtaRange[1]);
   mJetPhi = ibooker.book1D("JetPhi",
-                           "Reco Jets p_{T}>" + std::to_string(int(medJetPt)) + " GeV;#phi;# jets",
+                           "Reco Jets p_{T}>" + std::to_string(int(mRecoJetPtThreshold)) + " GeV;#phi;# jets",
                            n_PhiBins,
                            PhiRange[0],
                            PhiRange[1]);
   mJetPt = ibooker.book1D("JetPt",
-                          "Reco Jets p_{T}>" + std::to_string(int(medJetPt)) + " GeV;p_{T} [GeV];# jets",
+                          "Reco Jets p_{T}>" + std::to_string(int(mRecoJetPtThreshold)) + " GeV;p_{T} [GeV];# jets",
                           n_PtBins,
                           PtRange[0],
                           PtRange[1]);
@@ -292,7 +291,7 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
 
     mNJets_EtaBins[j] =
         ibooker.book1D(fmt::format("NJets_{}", etaRegion),
-                       fmt::format("Number of jets p_{{T}}>{} GeV - {};# jets;# events", medJetPt, etaLabel),
+                       fmt::format("Number of jets p_{{T}}>{} GeV - {};# jets;# events", mRecoJetPtThreshold, etaLabel),
                        15,
                        0,
                        15);
@@ -304,7 +303,7 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
         PtRange[1]);
     mJetPt_EtaBins[j] =
         ibooker.book1D(fmt::format("JetPt_{}", etaRegion),
-                       fmt::format("Reco Jets p_{{T}}>{} GeV - {};p_{{T}} [GeV];# jets", int(medJetPt), etaLabel),
+                       fmt::format("Reco Jets p_{{T}}>{} GeV - {};p_{{T}} [GeV];# jets", int(mRecoJetPtThreshold), etaLabel),
                        n_PtBins,
                        PtRange[0],
                        PtRange[1]);
@@ -493,17 +492,17 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
   // Corrected jet parameters
   if (isMiniAODJet || !mJetCorrector.label().empty()) {
     mCorrJetEta = ibooker.book1D("CorrJetEta",
-                                 "Corr Jets p_{T}>" + std::to_string(int(medJetPt)) + " GeV;#eta;# jets",
+                                 "Corr Jets p_{T}>" + std::to_string(int(mRecoJetPtThreshold)) + " GeV;#eta;# jets",
                                  n_EtaBins,
                                  EtaRange[0],
                                  EtaRange[1]);
     mCorrJetPhi = ibooker.book1D("CorrJetPhi",
-                                 "Corr Jets p_{T}>" + std::to_string(int(medJetPt)) + " GeV;#phi;# jets",
+                                 "Corr Jets p_{T}>" + std::to_string(int(mRecoJetPtThreshold)) + " GeV;#phi;# jets",
                                  n_PhiBins,
                                  PhiRange[0],
                                  PhiRange[1]);
     mCorrJetPt = ibooker.book1D("CorrJetPt",
-                                "Corr Jets p_{T}>" + std::to_string(int(medJetPt)) + " GeV;p_{T};# jets",
+                                "Corr Jets p_{T}>" + std::to_string(int(mRecoJetPtThreshold)) + " GeV;p_{T};# jets",
                                 n_PtBins,
                                 PtRange[0],
                                 PtRange[1]);
@@ -517,7 +516,7 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
 
       mCorrJetPt_EtaBins[j] =
           ibooker.book1D(fmt::format("CorrJetPt_{}", etaRegion),
-                         fmt::format("Corr Jets p_{{T}}>{} GeV - {};p_{{T}} [GeV];# jets", int(medJetPt), etaLabel),
+                         fmt::format("Corr Jets p_{{T}}>{} GeV - {};p_{{T}} [GeV];# jets", int(mRecoJetPtThreshold), etaLabel),
                          n_PtBins,
                          PtRange[0],
                          PtRange[1]);
@@ -697,7 +696,7 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
 
   // Some jet algebra
   mMjj = ibooker.book1D("Mjj", "Mjj", 100, 0, 2000);
-  mNJets = ibooker.book1D("NJets", fmt::format("Number of jets p_{{T}}>{} GeV;# jets;# events", medJetPt), 15, 0, 15);
+  mNJets = ibooker.book1D("NJets", fmt::format("Number of jets p_{{T}}>{} GeV;# jets;# events", mRecoJetPtThreshold), 15, 0, 15);
   mNJetsPt1 = ibooker.bookProfile(
       "NJetsPt1", "Number of jets above Pt threshold;p_{T} [GeV];# jets", 100, 0, 200, 100, 0, 50, "s");
   mNJetsPt2 = ibooker.bookProfile(
@@ -811,7 +810,6 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
   edm::Handle<CaloJetCollection> caloJets;
   edm::Handle<PFJetCollection> pfJets;
   edm::Handle<pat::JetCollection> patJets;
-  //  edm::Handle<JPTJetCollection>  jptJets;
 
   if (isCaloJet) {
     mEvent.getByToken(caloJetsToken_, caloJets);
@@ -826,7 +824,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
       }
     }
   }
-  if (isPFJet) {
+  else if (isPFJet) {
     mEvent.getByToken(pfJetsToken_, pfJets);
     if (!pfJets.isValid())
       return;
@@ -843,7 +841,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
       }
     }
   }
-  if (isMiniAODJet) {
+  else if (isMiniAODJet) {
     mEvent.getByToken(patJetsToken_, patJets);
     if (!patJets.isValid())
       return;
@@ -861,12 +859,6 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
       recoJets.push_back(jet);
     }
   }
-  // if (isJPTJet) {
-  //   mEvent.getByToken(jptJetsToken_, jptJets);
-  //   if (!jptJets.isValid()) return;
-  //     for (unsigned ijet=0; ijet<jptJets->size(); ijet++)
-  //       recoJets.push_back((*jptJets)[ijet]);
-  // }
 
   edm::Handle<GenJetCollection> genColl;
   if (!mEvent.isRealData()) {
@@ -892,7 +884,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
 
   for (unsigned ijet = 0; ijet < recoJets.size(); ijet++) {
     // PT CUT
-    if (recoJets[ijet].pt() < medJetPt)
+    if (recoJets[ijet].pt() < mRecoJetPtThreshold)
       continue;
 
     nJets++;
@@ -959,6 +951,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
       n90->Fill((*caloJets)[ijet].n90());
       n60->Fill((*caloJets)[ijet].n60());
     }
+
     // ---- PF Jet specific information ----
     if (isPFJet) {
       muonMultiplicity->Fill((*pfJets)[ijet].muonMultiplicity());
@@ -1123,7 +1116,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
   if (correctionIsValid) {
     for (unsigned ijet = 0; ijet < recoJets.size(); ijet++) {
       // PT CUT
-      if (corrJets[ijet].pt() < medJetPt)
+      if (corrJets[ijet].pt() < mRecoJetPtThreshold)
         continue;
 
       mCorrJetEta->Fill(corrJets[ijet].eta());
@@ -1179,7 +1172,8 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
             }
           }
         }
-      }
+      } // if (!mEvent.isRealData()) {
+
     }
   }
 
@@ -1230,7 +1224,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
         // }
 
         // PT CUT
-        if (recoJets[ijet].pt() < medJetPt)
+        if (recoJets[ijet].pt() < mRecoJetPtThreshold)
           continue;
 
         if (dR < deltaRBestReco) {
