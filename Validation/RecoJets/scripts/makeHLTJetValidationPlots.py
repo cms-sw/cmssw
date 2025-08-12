@@ -305,7 +305,7 @@ if __name__ == '__main__':
     y_title = ('Jet Mistag Rate', 'Jet Efficiency')
     eff_color = '#bd1f01'
 
-    for i_type, (Type, Title) in enumerate(zip(['Jet', 'Gen'], ['JetMistagRate', 'JetEfficiency'])):
+    for i_type, Type in enumerate(('Jet', 'Gen')):
         for Var in ('Pt_B', 'Pt_E', 'Pt_F', 'Eta', 'Phi'):
             root_hist = CheckRootFile(f"{dqm_dir}/{Type}{Var}")
             root_hist_matched = CheckRootFile(f"{dqm_dir}/Matched{Type}{Var}")
@@ -344,9 +344,8 @@ if __name__ == '__main__':
             ax2.grid(color=eff_color, axis='y')
             plotter.ax.grid(color=eff_color, axis='x')
 
-            plotter.save( os.path.join(args.odir, Title + '_' + Var) )
+            plotter.save( os.path.join(args.odir,  + '_' + Var) )
 
-            
         plotter = Plotter(args.sample_label)
         for EtaRegion in EtaInfo.regions():
             root_hist = CheckRootFile(f"{dqm_dir}/{Type}Pt_{EtaRegion}")
@@ -374,7 +373,7 @@ if __name__ == '__main__':
         plotter.labels(x=f"${label}$", y=y_title[i_type], legend_title='')
         plotter.limits(y=(0,1.25))
 
-        plotter.save( os.path.join(args.odir, Title + '_Pt') )
+        plotter.save( os.path.join(args.odir, y_title[i_type].replace(' ', '') + '_Pt') )
 
     #####################################
     # Plot 1D single variables
