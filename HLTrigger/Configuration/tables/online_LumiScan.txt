@@ -31,6 +31,11 @@ HLT_ZeroBias_Gated_v*
 HLT_ZeroBias_HighRate_v*
 HLT_L1SingleMuCosmics_EMTF_v*
 HLT_Physics_v*	# CMSHLT-3210
+
+DQM_EcalReconstruction_v*    # CMSHLT-3597
+DQM_HcalReconstruction_v*    # CMSHLT-3597
+DQM_PixelReconstruction_v*   # CMSHLT-3597
+
 HLTriggerFinalPath
 
 ## EndPaths ##
@@ -51,6 +56,7 @@ CalibrationOutput
 DQMOutput
 DQMCalibrationOutput
 DQMEventDisplayOutput
+DQMGPUvsCPUOutput       # CMSHLT-3597
 DQMOnlineBeamspotOutput
 DQMOnlineScoutingOutput # CMSHLT-3579
 DQMPPSRandomOutput
@@ -95,7 +101,8 @@ PhysicsSpecialZeroBias31Output
 
 RPCMONOutput
 
-ScoutingPFOutput # CMSHLT-548, CMSHLT-2231, CMSHLT-3579
+ScoutingPF0Output              # CMSHLT-548, CMSHLT-2231, CMSHLT-3579, CMSHLT-3607
+ScoutingPF1Output              # CMSHLT-548, CMSHLT-2231, CMSHLT-3579, CMSHLT-3607
 
 ######## Paths that are different between online and offline ########
 
