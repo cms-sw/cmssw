@@ -37,7 +37,7 @@ namespace cms::alpakatools::math {
         m_data[m_size] = element;
         m_size += 1;
         return prev_size;
-      } 
+      }
       return -1;
     }
 
@@ -48,7 +48,7 @@ namespace cms::alpakatools::math {
         m_data[m_size] = T(std::forward<Ts>(args)...);
         m_size += 1;
         return prev_size;
-      } 
+      }
       return -1;
     }
 
@@ -95,7 +95,7 @@ namespace cms::alpakatools::math {
         return T();
     }
 
-    constexpr Vector() : m_data{}, m_size(maxSize) { };
+    constexpr Vector() : m_data{}, m_size(maxSize) {};
 
     constexpr explicit Vector(const T &value) : m_data{}, m_size(maxSize) {
       CMS_UNROLL_LOOP
@@ -104,8 +104,9 @@ namespace cms::alpakatools::math {
       }
     }
 
-    template<typename... U, typename = std::enable_if_t<(sizeof...(U) == maxSize) and (std::conjunction_v<std::is_same<T, U>...>)>>
-    constexpr Vector(U... args) : m_data{ args... }, m_size(sizeof...(U)) {}
+    template <typename... U,
+              typename = std::enable_if_t<(sizeof...(U) == maxSize) and (std::conjunction_v<std::is_same<T, U>...>)>>
+    constexpr Vector(U... args) : m_data{args...}, m_size(sizeof...(U)) {}
 
     Vector(const Vector<T, maxSize> &) = default;
     Vector(Vector<T, maxSize> &&) = default;
@@ -134,29 +135,28 @@ namespace cms::alpakatools::math {
     }
 
     constexpr T norm2() const {
-      T res{0};	    
+      T res{0};
       CMS_UNROLL_LOOP
       for (int i = 0; i < maxSize; i++) {
-        res += m_data[i]*m_data[i];
+        res += m_data[i] * m_data[i];
       }
       return res;
     }
 
-
-    template<unsigned int n>
+    template <unsigned int n>
     constexpr T partial_norm2() const {
       constexpr int reduced_size = n > maxSize ? maxSize : n;
 
       T res{0};
       CMS_UNROLL_LOOP
       for (int i = 0; i < reduced_size; i++) {
-        res += m_data[i]*m_data[i];
+        res += m_data[i] * m_data[i];
       }
 
       return res;
     }
-    
-    constexpr Vector<T, maxSize>& operator*=(const T& scale) {
+
+    constexpr Vector<T, maxSize> &operator*=(const T &scale) {
       CMS_UNROLL_LOOP
       for (int i = 0; i < maxSize; ++i) {
         m_data[i] *= scale;
@@ -164,33 +164,32 @@ namespace cms::alpakatools::math {
       return *this;
     }
 
-    constexpr Vector<T, maxSize>& operator+=(const Vector<T, maxSize>& rhs) {
+    constexpr Vector<T, maxSize> &operator+=(const Vector<T, maxSize> &rhs) {
       CMS_UNROLL_LOOP
       for (int i = 0; i < maxSize; ++i) {
         m_data[i] += rhs[i];
       }
       return *this;
-    }    
+    }
 
-    template <typename TAcc >
-    ALPAKA_FN_ACC T norm( const TAcc &acc ) const {
+    template <typename TAcc>
+    ALPAKA_FN_ACC T norm(const TAcc &acc) const {
       const T nrm2 = norm2();
       return alpaka::math::sqrt(acc, nrm2);
-    }    
+    }
 
-    template <typename TAcc, unsigned int n >
-    ALPAKA_FN_ACC T partial_norm( const TAcc &acc) const {
-
+    template <typename TAcc, unsigned int n>
+    ALPAKA_FN_ACC T partial_norm(const TAcc &acc) const {
       const T partial_nrm2 = partial_norm2<n>();
       return alpaka::math::sqrt(acc, partial_nrm2);
     }
 
     template <typename TAcc>
-    ALPAKA_FN_ACC void normalize( const TAcc &acc) {
-
+    ALPAKA_FN_ACC void normalize(const TAcc &acc) {
       const T nrm = norm(acc);
 
-      if (nrm == static_cast<T>(0)) return;
+      if (nrm == static_cast<T>(0))
+        return;
 
       CMS_UNROLL_LOOP
       for (int i = 0; i < maxSize; i++) {
@@ -214,7 +213,7 @@ namespace cms::alpakatools::math {
   inline constexpr bool is_Vector_v = is_Vector<T>::value;
 
   template <typename VectorN, std::enable_if_t<is_Vector_v<VectorN>, int> = 0>
-  inline constexpr VectorN zero(){
+  inline constexpr VectorN zero() {
     VectorN res;
 
     CMS_UNROLL_LOOP
@@ -223,22 +222,22 @@ namespace cms::alpakatools::math {
     }
 
     return res;
-  } 
+  }
 
   template <typename VectorN, std::enable_if_t<is_Vector_v<VectorN>, int> = 0>
-  inline constexpr VectorN ax(const typename VectorN::value_type a, const VectorN& x){
+  inline constexpr VectorN ax(const typename VectorN::value_type a, const VectorN &x) {
     VectorN res;
 
     CMS_UNROLL_LOOP
     for (int i = 0; i < VectorN::N; i++) {
-      res[i] = a*x[i];
+      res[i] = a * x[i];
     }
 
     return res;
-  }  
+  }
 
   template <typename VectorN, std::enable_if_t<is_Vector_v<VectorN>, int> = 0>
-  inline constexpr VectorN xpy( const VectorN& x, const VectorN& y ){
+  inline constexpr VectorN xpy(const VectorN &x, const VectorN &y) {
     VectorN res;
 
     CMS_UNROLL_LOOP
@@ -250,7 +249,7 @@ namespace cms::alpakatools::math {
   }
 
   template <typename VectorN, std::enable_if_t<is_Vector_v<VectorN>, int> = 0>
-  inline constexpr VectorN xmy( const VectorN& x, const VectorN& y ){
+  inline constexpr VectorN xmy(const VectorN &x, const VectorN &y) {
     VectorN res;
 
     CMS_UNROLL_LOOP
@@ -262,7 +261,7 @@ namespace cms::alpakatools::math {
   }
 
   template <typename VectorN, std::enable_if_t<is_Vector_v<VectorN>, int> = 0>
-  inline constexpr VectorN axpy( const typename VectorN::value_type a, const VectorN& x, const VectorN& y ){
+  inline constexpr VectorN axpy(const typename VectorN::value_type a, const VectorN &x, const VectorN &y) {
     VectorN res;
 
     CMS_UNROLL_LOOP
@@ -274,7 +273,7 @@ namespace cms::alpakatools::math {
   }
 
   template <typename VectorN, std::enable_if_t<is_Vector_v<VectorN>, int> = 0>
-  inline constexpr VectorN::value_type dot( const VectorN& x, const VectorN& y ){
+  inline constexpr VectorN::value_type dot(const VectorN &x, const VectorN &y) {
     typename VectorN::value_type res{0};
 
     CMS_UNROLL_LOOP
@@ -283,16 +282,16 @@ namespace cms::alpakatools::math {
     }
 
     return res;
-  }  
+  }
 
   template <typename VectorN, std::enable_if_t<is_Vector_v<VectorN>, int> = 0>
-  inline constexpr VectorN::value_type diff2( const VectorN& x, const VectorN& y ){
+  inline constexpr VectorN::value_type diff2(const VectorN &x, const VectorN &y) {
     typename VectorN::value_type res{0};
 
     CMS_UNROLL_LOOP
     for (int i = 0; i < VectorN::N; i++) {
       const typename VectorN::value_type tmp = x[i] - y[i];
-      res += tmp*tmp;
+      res += tmp * tmp;
     }
     return res;
   }
