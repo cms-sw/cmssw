@@ -380,7 +380,6 @@ if __name__ == '__main__':
     for atype in HLabels.types():
         hlabel = HLabels(atype)
         for avar in hlabel.xvars:
-            print(hlabel.hname(avar, dqm_dir, False), hlabel.hname(avar, dqm_dir, True))
             root_hist = CheckRootFile( hlabel.hname(avar, dqm_dir, False) )
             root_hist_matched = CheckRootFile( hlabel.hname(avar, dqm_dir, True) )
 

@@ -5,8 +5,6 @@
 // Modified by E. Vernazza, Aug. 1, 2025
 
 #include "JetTester.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include <vector>
 
 using namespace edm;
@@ -956,7 +954,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
 
     for (size_t j = 0; j < etaInfo.size(); ++j) {
       const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
-      if ((std::abs(recoJets[ijet].eta()) >= etaMin) && (std::abs(recoJets[ijet].eta()) < etaMax)) {
+	  if (mInEtaBin(recoJets[ijet], etaMin, etaMax)) {
         nJets_EtaBins[j]++;
         mJet_EtaBins["pt"][j]->Fill(recoJets[ijet].pt());
 		mJet_EtaBins["eta"][j]->Fill(recoJets[ijet].eta());
@@ -1047,7 +1045,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
       HOEnergyFraction->Fill((*pfJets)[ijet].hoEnergyFraction());
       for (size_t j = 0; j < etaInfo.size(); ++j) {
         const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
-        if ((std::abs(recoJets[ijet].eta()) >= etaMin) && (std::abs(recoJets[ijet].eta()) < etaMax)) {
+		if (mInEtaBin(recoJets[ijet], etaMin, etaMax)) {
           p_chHad_vs_pt[j]->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].chargedHadronEnergyFraction());
           p_neHad_vs_pt[j]->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].neutralHadronEnergyFraction());
           p_chEm_vs_pt[j]->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].chargedEmEnergyFraction());
@@ -1109,7 +1107,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
         mMatchedJetPhi->Fill(recoJets[ijet].phi());
         for (size_t j = 0; j < etaInfo.size(); ++j) {
           const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
-          if ((std::abs(recoJets[ijet].eta()) >= etaMin) && (std::abs(recoJets[ijet].eta()) < etaMax)) {
+		  if (mInEtaBin(recoJets[ijet], etaMin, etaMax)) {
             mMatchedJetPt_EtaBins[j]->Fill(recoJets[ijet].pt());
           }
         }
@@ -1187,7 +1185,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
 
       for (size_t j = 0; j < etaInfo.size(); ++j) {
         const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
-        if ((std::abs(corrJets[ijet].eta()) >= etaMin) && (std::abs(corrJets[ijet].eta()) < etaMax)) {
+		if (mInEtaBin(corrJets[ijet], etaMin, etaMax)) {
           mCorrJetPt_EtaBins[j]->Fill(corrJets[ijet].pt());
           h_JetPtCorrOverReco[j]->Fill(ratio);
           p_JetPtCorrOverReco_vs_Phi[j]->Fill(corrJets[ijet].phi(), ratio);
@@ -1236,7 +1234,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
 			mGenRepeat["phi"][i]->Fill(corrJets[ijet].phi());
 			for (size_t j = 0; j < etaInfo.size(); ++j) {
               const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
-			  if ((std::abs(corrJets[ijet].eta()) >= etaMin) && (std::abs(corrJets[ijet].eta()) < etaMax)) {
+			  if (mInEtaBin(corrJets[ijet], etaMin, etaMax)) {
 				mGenRepeat_EtaBins["pt"][i][j]->Fill(corrJets[ijet].pt());
 				mGenRepeat_EtaBins["eta"][i][j]->Fill(corrJets[ijet].eta());
 				mGenRepeat_EtaBins["phi"][i][j]->Fill(corrJets[ijet].phi());
@@ -1249,7 +1247,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
           if (corrJets[ijet].pt() > minJetPt) {
             for (size_t j = 0; j < etaInfo.size(); ++j) {
               const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
-              if ((std::abs(corrJets[ijet].eta()) >= etaMin) && (std::abs(corrJets[ijet].eta()) < etaMax)) {
+			  if (mInEtaBin(corrJets[ijet], etaMin, etaMax)) {
                 mMatchedCorrPt_EtaBins[j]->Fill(corrJets[ijet].pt());
               }
             }
@@ -1284,7 +1282,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
 
       for (size_t j = 0; j < etaInfo.size(); ++j) {
         const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
-        if ((std::abs(genJets[gjet].eta()) >= etaMin) && (std::abs(genJets[gjet].eta()) < etaMax)) {
+		if (mInEtaBin(genJets[gjet], etaMin, etaMax)) {
           mGen_EtaBins["pt"][j]->Fill(genJets[gjet].pt());
 		  mGen_EtaBins["eta"][j]->Fill(genJets[gjet].eta());
 		  mGen_EtaBins["phi"][j]->Fill(genJets[gjet].phi());
@@ -1325,7 +1323,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
 		  mRecoRepeat["phi"][i]->Fill(genJets[gjet].phi());
 		  for (size_t j = 0; j < etaInfo.size(); ++j) {
 			const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
-			if ((std::abs(genJets[gjet].eta()) >= etaMin) && (std::abs(genJets[gjet].eta()) < etaMax)) {
+			if (mInEtaBin(genJets[gjet], etaMin, etaMax)) {
 			  mRecoRepeat_EtaBins["pt"][i][j]->Fill(genJets[gjet].pt());
 			  mRecoRepeat_EtaBins["eta"][i][j]->Fill(genJets[gjet].eta());
 			  mRecoRepeat_EtaBins["phi"][i][j]->Fill(genJets[gjet].phi());
@@ -1346,7 +1344,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
 
         for (size_t j = 0; j < etaInfo.size(); ++j) {
           const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
-          if ((std::abs(genJets[gjet].eta()) >= etaMin) && (std::abs(genJets[gjet].eta()) < etaMax)) {
+		  if (mInEtaBin(genJets[gjet], etaMin, etaMax)) {
             mMatchedGenPt_EtaBins[j]->Fill(genJets[gjet].pt());
             h_JetPtRecoOverGen[j]->Fill(response);
             p_JetPtRecoOverGen_vs_GenPhi[j]->Fill(genJets[gjet].phi(), response);
@@ -1384,7 +1382,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
 
           for (size_t j = 0; j < etaInfo.size(); ++j) {
             const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
-            if ((std::abs(genJets[gjet].eta()) >= etaMin) && (std::abs(genJets[gjet].eta()) < etaMax)) {
+			if (mInEtaBin(genJets[gjet], etaMin, etaMax)) {
               h_JetPtCorrOverGen[j]->Fill(responseCorr);
               p_JetPtCorrOverGen_vs_GenPt[j]->Fill(genJets[gjet].pt(), responseCorr);
               h2d_JetPtCorrOverGen_vs_GenPt[j]->Fill(genJets[gjet].pt(), responseCorr);
