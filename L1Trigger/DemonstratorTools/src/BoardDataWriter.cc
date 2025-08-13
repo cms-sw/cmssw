@@ -47,8 +47,10 @@ namespace l1t::demo {
                                  "]: Number of channel indices specified, " + std::to_string(indices.size()) +
                                  ", does not match link:board TMUX ratio, " + std::to_string(tmuxRatio));
 
-      maxEventsPerFile_ = std::min(maxEventsPerFile_,
-                                   ((maxFramesPerFile_ - spec.offset) / (framesPerBX_ * boardTMUX_)) - (staggerTmuxSlices ? tmuxRatio - 1 : 0));
+      const size_t maxEventsPerFileStaggered = ((maxFramesPerFile_ - spec.offset) / (framesPerBX_ * boardTMUX_)) - (tmuxRatio - 1);
+      const size_t maxEventsPerFileUnstaggered = tmuxRatio * ((maxFramesPerFile_ - spec.offset) / (framesPerBX_ * boardTMUX_ * tmuxRatio));
+      maxEventsPerFile_ = std::min(maxEventsPerFile_, staggerTmuxSlices ? maxEventsPerFileStaggered : maxEventsPerFileUnstaggered);
+      //TODO: maxEventsPerFile_ can in principle be different for different channels, but we assume that all channels have the same maxEventsPerFile_ and only use the value from the last channel in this loop.
     }
 
     resetBoardData();
