@@ -65,6 +65,7 @@ METTester::METTester(const edm::ParameterSet &iConfig) {
   mMET = nullptr;
   mMETFine = nullptr;
   mMET_Nvtx = nullptr;
+  mMETEta = nullptr;
   mMETPhi = nullptr;
   mSumET = nullptr;
   mMETDifference_GenMETTrue = nullptr;
@@ -121,6 +122,7 @@ void METTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
   mMET = ibooker.book1D("MET", "MET (20 GeV binning)", 100, 0, 2000);
   mMETFine = ibooker.book1D("METFine", "MET (2 GeV binning)", 1000, 0, 2000);
   mMET_Nvtx = ibooker.bookProfile("MET_Nvtx", "MET vs. nvtx", 60, 0., 60., 0., 2000., " ");
+  mMETEta = ibooker.book1D("METEta", "METEta", 80, -6, 6);
   mMETPhi = ibooker.book1D("METPhi", "METPhi", 80, -4, 4);
   mSumET = ibooker.book1D("SumET", "SumET", 200, 0, 4000);  // 10GeV
   mMETDifference_GenMETTrue = ibooker.book1D("METDifference_GenMETTrue", "METDifference_GenMETTrue", 500, -500, 500);
@@ -150,6 +152,16 @@ void METTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
 	for (unsigned metIdx=0; metIdx<mNMETBins-1; ++metIdx) {
 	  std::string met_title = "METResolution_GenMETTrue_MET" + std::to_string((int)mMETBins[metIdx]) + "to" + std::to_string((int)mMETBins[metIdx+1]);
 	  mMETDifference_GenMETTrue_METBins[metIdx] = ibooker.book1D(met_title.c_str(), met_title.c_str(), 500, -500, 500);
+	}
+
+	for (unsigned metIdx=0; metIdx<mNEtaBins-1; ++metIdx) {
+	  std::string met_title = "METResolution_GenMETTrue_Eta" + std::to_string((int)mEtaBins[metIdx]) + "to" + std::to_string((int)mEtaBins[metIdx+1]);
+	  mMETDifference_GenMETTrue_EtaBins[metIdx] = ibooker.book1D(met_title.c_str(), met_title.c_str(), 500, -500, 500);
+	}
+
+	for (unsigned metIdx=0; metIdx<mNPhiBins-1; ++metIdx) {
+	  std::string met_title = "METResolution_GenMETTrue_Phi" + std::to_string((int)mPhiBins[metIdx]) + "to" + std::to_string((int)mPhiBins[metIdx+1]);
+	  mMETDifference_GenMETTrue_PhiBins[metIdx] = ibooker.book1D(met_title.c_str(), met_title.c_str(), 500, -500, 500);
 	}
   }
   if (isCaloMET) {
@@ -252,12 +264,14 @@ void METTester::analyze(const edm::Event &iEvent,
   const double MET = met.pt();
   const double MEx = met.px();
   const double MEy = met.py();
+  const double METEta = met.eta();
   const double METPhi = met.phi();
   mMEx->Fill(MEx);
   mMEy->Fill(MEy);
   mMET->Fill(MET);
   mMETFine->Fill(MET);
   mMET_Nvtx->Fill((double)nvtx, MET);
+  mMETEta->Fill(METEta);
   mMETPhi->Fill(METPhi);
   mSumET->Fill(SumET);
   mMETSig->Fill(METSig);
@@ -287,10 +301,20 @@ void METTester::analyze(const edm::Event &iEvent,
     mMETDeltaPhi_GenMETTrue->Fill(TMath::ACos(TMath::Cos(METPhi - genMETPhi)));
 
     if (!isGenMET) {
-      // pfMET resolution in pfMET bins
+      // MET resolution in MET bins
 	  for (unsigned metIdx=0; metIdx<mMETBins.size()-1; ++metIdx) {
 		if (MET > mMETBins[metIdx] && MET < mMETBins[metIdx+1])
 		  mMETDifference_GenMETTrue_METBins[metIdx]->Fill(MET - genMET);
+	  }
+      // MET resolution in Eta bins
+	  for (unsigned metIdx=0; metIdx<mEtaBins.size()-1; ++metIdx) {
+		if (METEta > mEtaBins[metIdx] && METEta < mEtaBins[metIdx+1])
+		  mMETDifference_GenMETTrue_EtaBins[metIdx]->Fill(MET - genMET);
+	  }
+	  // MET resolution in Phi bins
+	  for (unsigned metIdx=0; metIdx<mPhiBins.size()-1; ++metIdx) {
+		if (METPhi > mPhiBins[metIdx] && METPhi < mPhiBins[metIdx+1])
+		  mMETDifference_GenMETTrue_PhiBins[metIdx]->Fill(MET - genMET);
 	  }
     } else {
       edm::LogInfo("OutputInfo") << " failed to retrieve data required by MET Task:  genMetTrue";

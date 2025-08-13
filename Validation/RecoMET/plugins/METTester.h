@@ -83,6 +83,7 @@ private:
   MonitorElement *mMET;
   MonitorElement *mMETFine;
   MonitorElement *mMET_Nvtx;
+  MonitorElement *mMETEta;
   MonitorElement *mMETPhi;
   MonitorElement *mSumET;
   MonitorElement *mMETDifference_GenMETTrue;
@@ -107,7 +108,6 @@ private:
   MonitorElement *mMETUnc_PhotonEnDown;
 
   // CaloMET variables
-
   MonitorElement *mCaloMaxEtInEmTowers;
   MonitorElement *mCaloMaxEtInHadTowers;
   MonitorElement *mCaloEtFractionHadronic;
@@ -153,6 +153,14 @@ private:
   static const int mNMETBins = 11;
   static constexpr std::array<double, mNMETBins+1> mMETBins = {{0., 20., 40., 60., 80., 100., 150., 200., 300., 400., 500., 10000.}};
   std::array<MonitorElement *, mNMETBins> mMETDifference_GenMETTrue_METBins;
+
+  static const int mNEtaBins = 39;
+  static constexpr std::array<double, mNEtaBins+1> mEtaBins = {{-6., -5.5, -4., -4.5, -4, -3.5, -3., -2.75, -2.5, -2.25, -2., -1.75, -1.5, -1.25, -1., -0.8, -0.6, -0.4, -0.2, 0., 0.2, 0.4, 0.6, 0.8, 1., 1.25, 1.5, 1.75, 2., 2.25, 2.5, 2.75, 3., 3.5, 4., 4.5, 5., 5.5, 6.}};
+  std::array<MonitorElement *, mNEtaBins> mMETDifference_GenMETTrue_EtaBins;
+
+  static const int mNPhiBins = 14;
+  static constexpr std::array<double, mNPhiBins+1> mPhiBins = {{-3.15, -3., -2.5, -2., -1.5, -1., -0.5, -0., 0.5, 1., 1.5, 2., 2.5, 3., 3.15}};
+  std::array<MonitorElement *, mNPhiBins> mMETDifference_GenMETTrue_PhiBins;
 
   bool isCaloMET;
   //  bool isCorMET;
