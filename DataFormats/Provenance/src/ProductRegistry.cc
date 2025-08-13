@@ -435,8 +435,9 @@ namespace edm {
       throwMissingDictionariesException(missingDictionaries, context, producedTypes, branchNamesForMissing);
     }
 
+    std::string_view processNameSV(processName ? *processName : "");
     for (auto& iterProductLookup : new_productLookups) {
-      iterProductLookup->setFrozen();
+      iterProductLookup->setFrozen(processNameSV);
     }
     for (size_t i = 0; i < new_productLookups.size(); ++i) {
       transient_.productLookups_[i] = std::move(new_productLookups[i]);

@@ -303,7 +303,7 @@ namespace edm {
     return insert(typeID, moduleLabel, instance, process, containedTypeID, baseTypesOfContainedType);
   }
 
-  void ProductResolverIndexHelper::setFrozen() {
+  void ProductResolverIndexHelper::setFrozen(std::string_view processName) {
     if (!items_)
       return;
 
@@ -360,6 +360,9 @@ namespace edm {
       }
       processNames_.push_back('\0');
       lookupProcessNames_.push_back(processItem);
+      if (processItem == processName) {
+        producesInCurrentProcess_ = true;
+      }
     }
 
     // Reserve memory in the vectors

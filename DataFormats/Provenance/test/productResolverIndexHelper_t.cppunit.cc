@@ -47,7 +47,7 @@ void TestProductResolverIndexHelper::setUp() {
 
 void TestProductResolverIndexHelper::testCreateEmpty() {
   edm::ProductResolverIndexHelper helper;
-  helper.setFrozen();
+  helper.setFrozen("processA");
 
   CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", "processA") ==
                  ProductResolverIndexInvalid);
@@ -87,7 +87,7 @@ void TestProductResolverIndexHelper::testOneEntry() {
   matches = helper.relatedIndexes(PRODUCT_TYPE, typeID_ProductID);
   CPPUNIT_ASSERT(matches.numberOfMatches() == 0);
 
-  helper.setFrozen();
+  helper.setFrozen("processA");
 
   matches = helper.relatedIndexes(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA");
   CPPUNIT_ASSERT(matches.numberOfMatches() == 2);
@@ -179,7 +179,7 @@ void TestProductResolverIndexHelper::testManyEntries() {
   helper.insert(typeIDVSimpleDerived, "labelC", "instanceC", "processC");  // 27, 28, 29, 30
 
   // helper.print(std::cout);
-  helper.setFrozen();
+  helper.setFrozen("processC");
   // helper.print(std::cout);
 
   TypeID typeID_int(typeid(int));
