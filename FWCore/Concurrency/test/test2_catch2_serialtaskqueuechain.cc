@@ -6,26 +6,20 @@
 //
 
 #include <iostream>
+#include <sstream>
 #include <catch.hpp>
 #include <chrono>
 #include <memory>
 #include <atomic>
-#include <thread>
 #include <iostream>
 #include "oneapi/tbb/task.h"
+#include "oneapi/tbb/global_control.h"
+#include "oneapi/tbb/task_arena.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueueChain.h"
 #include "FWCore/Concurrency/interface/FinalWaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
 using namespace std::chrono_literals;
-
-namespace {
-  void join_thread(std::thread* iThread) {
-    if (iThread->joinable()) {
-      iThread->join();
-    }
-  }
-}  // namespace
 
 TEST_CASE("SerialTaskQueueChain", "[SerialTaskQueueChain]") {
   SECTION("push") {
@@ -92,34 +86,56 @@ TEST_CASE("SerialTaskQueueChain", "[SerialTaskQueueChain]") {
   SECTION("stress test") {
     std::vector<std::shared_ptr<edm::SerialTaskQueue>> queues = {std::make_shared<edm::SerialTaskQueue>(),
                                                                  std::make_shared<edm::SerialTaskQueue>()};
-    edm::SerialTaskQueueChain chain(queues);
-    unsigned int index = 100;
-    const unsigned int nTasks = 1000;
-    while (0 != --index) {
-      oneapi::tbb::task_group group;
-      edm::FinalWaitingTask lastTask(group);
-      std::atomic<unsigned int> count{0};
-      std::atomic<bool> waitToStart{true};
-      {
-        edm::WaitingTaskHolder lastHolder(group, &lastTask);
-        std::thread pushThread([&chain, &waitToStart, &group, &count, lastHolder] {
-          while (waitToStart.load()) {
-          };
-          for (unsigned int i = 0; i < nTasks; ++i) {
-            chain.push(group, [&count, lastHolder] { ++count; });
-          }
-        });
-        waitToStart = false;
-        for (unsigned int i = 0; i < nTasks; ++i) {
-          chain.push(group, [&count, lastHolder] { ++count; });
+    REQUIRE(2 <= oneapi::tbb::this_task_arena::max_concurrency());
+    oneapi::tbb::task_arena arena(2);
+    arena.execute([&]() {
+      edm::SerialTaskQueueChain chain(queues);
+      unsigned int index = 100;
+      const unsigned int nTasks = 1000;
+      while (0 != --index) {
+        oneapi::tbb::task_group group;
+        edm::FinalWaitingTask lastTask(group);
+        std::atomic<unsigned int> count{0};
+        std::atomic<unsigned int> waitToStart{2};
+        {
+          edm::WaitingTaskHolder lastHolder(group, &lastTask);
+
+          group.run([&chain, &waitToStart, &group, &count, lastHolder, index] {
+            --waitToStart;
+            while (waitToStart.load() != 0)
+              ;
+            std::ostringstream ss;
+            ss << "start task 1, index: " << index << "\n";
+            std::cout << ss.str() << std::flush;
+            for (unsigned int i = 0; i < nTasks; ++i) {
+              chain.push(group, [&count, lastHolder] { ++count; });
+            }
+            ss.str(std::string());
+            ss << "stop task 1, index: " << index << "\n";
+            std::cout << ss.str() << std::flush;
+          });
+          group.run([&chain, &waitToStart, &group, &count, lastHolder, index] {
+            --waitToStart;
+            while (waitToStart.load() != 0)
+              ;
+            std::ostringstream ss;
+            ss << "start task 2, index: " << index << "\n";
+            std::cout << ss.str() << std::flush;
+            for (unsigned int i = 0; i < nTasks; ++i) {
+              chain.push(group, [&count, lastHolder] { ++count; });
+            }
+            ss.str(std::string());
+            ss << "stop task 2, index: " << index << "\n";
+            std::cout << ss.str() << std::flush;
+          });
         }
-        lastHolder.doneWaiting(std::exception_ptr());
-        std::shared_ptr<std::thread>(&pushThread, join_thread);
+        std::cout << "Waiting for tasks to finish, index: " << index << "\n" << std::flush;
+        lastTask.wait();
+        REQUIRE(2 * nTasks == count);
       }
-      lastTask.wait();
-      REQUIRE(2 * nTasks == count);
-    }
-    while (chain.outstandingTasks() != 0)
-      ;
+      CHECK(0 == chain.outstandingTasks());
+      while (chain.outstandingTasks() != 0)
+        ;
+    });
   }
 }
