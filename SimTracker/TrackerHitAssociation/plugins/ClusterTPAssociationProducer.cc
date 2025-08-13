@@ -2,14 +2,15 @@
 #include <vector>
 #include <utility>
 
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Utilities/interface/EDGetToken.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -195,10 +196,10 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
          ++iter) {
       uint32_t detid = iter->id();
       DetId detId(detid);
-      edmNew::DetSet<SiPixelCluster> link_pixel = (*iter);
-      for (edmNew::DetSet<SiPixelCluster>::const_iterator di = link_pixel.begin(); di != link_pixel.end(); ++di) {
-        const SiPixelCluster& cluster = (*di);
-        edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> c_ref = edmNew::makeRefTo(pixelClusters, di);
+      const auto& link_pixel = (*iter);
+      for (const auto& cluster : link_pixel) {
+        auto di = &cluster - &*link_pixel.begin();
+        auto c_ref = edmNew::makeRefTo(pixelClusters, link_pixel.begin() + di);
 
         simTkIds.clear();
         for (int irow = cluster.minPixelRow(); irow <= cluster.maxPixelRow(); ++irow) {
@@ -209,10 +210,13 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
             simTkIds.insert(trkid.begin(), trkid.end());
           }
         }
-        for (auto iset = simTkIds.begin(); iset != simTkIds.end(); iset++) {
-          auto ipos = mapping.find(*iset);
+
+        for (const auto& simTkId : simTkIds) {
+          auto ipos = mapping.find(simTkId);
           if (ipos != mapping.end()) {
-            //std::cout << "cluster in detid: " << detid << " from tp: " << ipos->second.key() << " " << iset->first << std::endl;
+            LogDebug("ClusterTPAssociationProducer")
+                << "cluster in detid: " << detid << " from tp: " << ipos->second.key() << " " << simTkId.first
+                << std::endl;
             clusterTPList->emplace_back(OmniClusterRef(c_ref), ipos->second);
           }
         }
@@ -231,10 +235,10 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
         continue;
       uint32_t detid = iter->id();
       DetId detId(detid);
-      edmNew::DetSet<SiStripCluster> link_strip = (*iter);
-      for (edmNew::DetSet<SiStripCluster>::const_iterator di = link_strip.begin(); di != link_strip.end(); di++) {
-        const SiStripCluster& cluster = (*di);
-        edm::Ref<edmNew::DetSetVector<SiStripCluster>, SiStripCluster> c_ref = edmNew::makeRefTo(stripClusters, di);
+      const auto& link_strip = (*iter);
+      for (const auto& cluster : link_strip) {
+        auto di = &cluster - &*link_strip.begin();
+        auto c_ref = edmNew::makeRefTo(stripClusters, link_strip.begin() + di);
 
         simTkIds.clear();
         int first = cluster.firstStrip();
@@ -245,10 +249,13 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
           getSimTrackId<StripDigiSimLink>(trkid, sistripSimLinks, detId, istr);
           simTkIds.insert(trkid.begin(), trkid.end());
         }
-        for (auto iset = simTkIds.begin(); iset != simTkIds.end(); iset++) {
-          auto ipos = mapping.find(*iset);
+
+        for (const auto& simTkId : simTkIds) {
+          const auto& ipos = mapping.find(simTkId);
           if (ipos != mapping.end()) {
-            //std::cout << "cluster in detid: " << detid << " from tp: " << ipos->second.key() << " " << iset->first << std::endl;
+            LogDebug("ClusterTPAssociationProducer")
+                << "cluster in detid: " << detid << " from tp: " << ipos->second.key() << " " << simTkId.first
+                << std::endl;
             clusterTPList->emplace_back(OmniClusterRef(c_ref), ipos->second);
           }
         }
