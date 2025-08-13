@@ -90,6 +90,15 @@ namespace edm {
     // ---------- const member functions ---------------------
     ProductResolverIndexAndSkipBit indexFrom(EDGetToken, BranchType, TypeID const&) const;
     ProductResolverIndexAndSkipBit uncheckedIndexFrom(EDGetToken) const;
+    /**returns edm::ProductResolverIndexInvalid if type and branch do not match the index
+     this can happen if the same InputTag is used for different products */
+    ProductResolverIndexAndSkipBit indexFromIfExactMatch(EDGetToken, BranchType, TypeID const&) const;
+    EDGetToken getRegisteredToken(TypeID const& typeID,
+                                  std::string const& label,
+                                  std::string const& instance,
+                                  std::string const& processName,
+                                  BranchType branchType,
+                                  bool skipCurrentProcess) const;
 
     void itemsToGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
     void itemsMayGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
