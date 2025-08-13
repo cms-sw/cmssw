@@ -287,12 +287,24 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
   mMatchedGenPhi = ibooker.book1D("MatchedGenPhi", "Matched Gen Jets;#phi;# jets", n_PhiBins, PhiRange[0], PhiRange[1]);
 
   for (unsigned ilevel=0; ilevel<nLevelsDuplicates; ++ilevel) {
-	mGenRepeat["pt"][ilevel] = ibooker.book1D(fmt::format("GenDuplicatesPt_Level{}", ilevel), "Matched Gen Jets;p_{{T}};# jets", n_PtBins, PtRange[0], PtRange[1]);
-	mGenRepeat["eta"][ilevel] = ibooker.book1D(fmt::format("GenDuplicatesEta_Level{}", ilevel), "Matched Gen Jets;#eta;# jets", n_EtaBins, EtaRange[0], EtaRange[1]);
-	mGenRepeat["phi"][ilevel] = ibooker.book1D(fmt::format("GenDuplicatesPhi_Level{}", ilevel), "Matched Gen Jets;#phi;# jets", n_PhiBins, PhiRange[0], PhiRange[1]);
-	mRecoRepeat["pt"][ilevel] = ibooker.book1D(fmt::format("RecoDuplicatesPt_Level{}", ilevel), "Matched Reco Jets;p_{{T}};# jets", n_PtBins, PtRange[0], PtRange[1]);
-	mRecoRepeat["eta"][ilevel] = ibooker.book1D(fmt::format("RecoDuplicatesEta_Level{}", ilevel), "Matched Reco Jets;#eta;# jets", n_EtaBins, EtaRange[0], EtaRange[1]);
-	mRecoRepeat["phi"][ilevel] = ibooker.book1D(fmt::format("RecoDuplicatesPhi_Level{}", ilevel), "Matched Reco Jets;#phi;# jets", n_PhiBins, PhiRange[0], PhiRange[1]);
+	mGenRepeat["pt"][ilevel] = ibooker.book1D(fmt::format("GenDuplicatesPt_Level{}", ilevel),
+											  fmt::format("Matched Gen Jets;p_{{T}} [GeV];# jets"),
+											  n_PtBins, PtRange[0], PtRange[1]);
+	mGenRepeat["eta"][ilevel] = ibooker.book1D(fmt::format("GenDuplicatesEta_Level{}", ilevel),
+											   "Matched Gen Jets;#eta;# jets",
+											   n_EtaBins, EtaRange[0], EtaRange[1]);
+	mGenRepeat["phi"][ilevel] = ibooker.book1D(fmt::format("GenDuplicatesPhi_Level{}", ilevel),
+											   "Matched Gen Jets;#phi;# jets",
+											   n_PhiBins, PhiRange[0], PhiRange[1]);
+	mRecoRepeat["pt"][ilevel] = ibooker.book1D(fmt::format("RecoDuplicatesPt_Level{}", ilevel),
+											   fmt::format("Matched Reco Jets;p_{{T}} [GeV];# jets"),
+											   n_PtBins, PtRange[0], PtRange[1]);
+	mRecoRepeat["eta"][ilevel] = ibooker.book1D(fmt::format("RecoDuplicatesEta_Level{}", ilevel),
+												"Matched Reco Jets;#eta;# jets",
+												n_EtaBins, EtaRange[0], EtaRange[1]);
+	mRecoRepeat["phi"][ilevel] = ibooker.book1D(fmt::format("RecoDuplicatesPhi_Level{}", ilevel),
+												"Matched Reco Jets;#phi;# jets",
+												n_PhiBins, PhiRange[0], PhiRange[1]);
   }
   
   for (size_t j = 0; j < etaInfo.size(); ++j) {
@@ -304,51 +316,63 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
                        15,
                        0,
                        15);
-    mGenPt_EtaBins[j] = ibooker.book1D(
-        fmt::format("GenPt_{}", etaRegion),
-        fmt::format("Gen Jets p_{{T}}>{} GeV - {};p_{{T}} [GeV];# jets", int(mMatchGenPtThreshold), etaLabel),
-        n_PtBins,
-        PtRange[0],
-        PtRange[1]);
-    mJetPt_EtaBins[j] =
-        ibooker.book1D(fmt::format("JetPt_{}", etaRegion),
-                       fmt::format("Reco Jets p_{{T}}>{} GeV - {};p_{{T}} [GeV];# jets", int(mRecoJetPtThreshold), etaLabel),
-                       n_PtBins,
-                       PtRange[0],
-                       PtRange[1]);
+    mGen_EtaBins["pt"][j] = ibooker.book1D(fmt::format("GenPt_{}", etaRegion),
+										   fmt::format("Gen Jets p_{{T}}>{} GeV - {};p_{{T}} [GeV];# jets", int(mMatchGenPtThreshold), etaLabel),
+										   n_PtBins, PtRange[0], PtRange[1]);
+    mGen_EtaBins["eta"][j] = ibooker.book1D(fmt::format("GenEta_{}", etaRegion),
+											fmt::format("Gen Jets p_{{T}}>{} GeV - {};#eta;# jets", int(mMatchGenPtThreshold), etaLabel),
+											n_EtaBins, EtaRange[0], EtaRange[1]);
+    mGen_EtaBins["phi"][j] = ibooker.book1D(fmt::format("GenPhi_{}", etaRegion),
+											fmt::format("Gen Jets p_{{T}}>{} GeV - {};#phi;# jets", int(mMatchGenPtThreshold), etaLabel),
+											n_PhiBins, PhiRange[0], PhiRange[1]);
+
+    mJet_EtaBins["pt"][j] = ibooker.book1D(fmt::format("JetPt_{}", etaRegion),
+										   fmt::format("Reco Jets p_{{T}}>{} GeV - {};p_{{T}} [GeV];# jets", int(mRecoJetPtThreshold), etaLabel),
+										   n_PtBins, PtRange[0], PtRange[1]);
+    mJet_EtaBins["eta"][j] = ibooker.book1D(fmt::format("JetEta_{}", etaRegion),
+											fmt::format("Reco Jets p_{{T}}>{} GeV - {};#eta;# jets", int(mRecoJetPtThreshold), etaLabel),
+											n_EtaBins, EtaRange[0], EtaRange[1]);
+    mJet_EtaBins["phi"][j] = ibooker.book1D(fmt::format("JetPhi_{}", etaRegion),
+											fmt::format("Reco Jets p_{{T}}>{} GeV - {};#phi;# jets", int(mRecoJetPtThreshold), etaLabel),
+											n_PhiBins, PhiRange[0], PhiRange[1]);
+	
     mMatchedJetPt_EtaBins[j] = ibooker.book1D(fmt::format("MatchedJetPt_{}", etaRegion),
-                                              fmt::format("Matched Jets - {};p_{{T}};# jets", etaLabel),
+                                              fmt::format("Matched Jets - {};p_{{T}} [GeV];# jets", etaLabel),
                                               n_PtBins,
                                               PtRange[0],
                                               PtRange[1]);
     mMatchedGenPt_EtaBins[j] = ibooker.book1D(fmt::format("MatchedGenPt_{}", etaRegion),
-                                              fmt::format("Matched Gen Jets - {};p_{{T}};# jets", etaLabel),
+                                              fmt::format("Matched Gen Jets - {};p_{{T}} [GeV];# jets", etaLabel),
                                               n_PtBins,
                                               PtRange[0],
                                               PtRange[1]);
 
 	for (unsigned ilevel=0; ilevel<nLevelsDuplicates; ++ilevel) {
-	  auto title = fmt::format("GenDuplicates_Level{}", ilevel);
 	  mGenRepeat_EtaBins["pt"][ilevel][j] =
-		ibooker.book1D(title, fmt::format("GenDuplicates_Level{} - {};p_{{T}} [GeV];# Duplicates", ilevel, etaLabel),
+		ibooker.book1D(fmt::format("GenDuplicatesPt_{}_Level{}", etaRegion, ilevel),
+					   fmt::format("GenDuplicates_Level{} [{}];p_{{T}} [GeV];# Duplicates", ilevel, etaLabel),
 					   n_PtBins, PtRange[0], PtRange[1]);
 	  mGenRepeat_EtaBins["eta"][ilevel][j] =
-		ibooker.book1D(title, fmt::format("GenDuplicates_Level{} - {};#eta;# Duplicates", ilevel, etaLabel),
+		ibooker.book1D(fmt::format("GenDuplicatesEta_{}_Level{}", etaRegion, ilevel),
+					   fmt::format("GenDuplicates_Level{} [{}];#eta;# Duplicates", ilevel, etaLabel),
 					   n_EtaBins, EtaRange[0], EtaRange[1]);
 	  mGenRepeat_EtaBins["phi"][ilevel][j] =
-		ibooker.book1D(title, fmt::format("GenDuplicates_Level{} - {};#phi;# Duplicates", ilevel, etaLabel),
+		ibooker.book1D(fmt::format("GenDuplicatesPhi_{}_Level{}", etaRegion, ilevel),
+					   fmt::format("GenDuplicates_Level{} [{}];#phi;# Duplicates", ilevel, etaLabel),
 					   n_PhiBins, PhiRange[0], PhiRange[1]);
 	}
 	for (unsigned ilevel=0; ilevel<nLevelsDuplicates; ++ilevel) {
-	  auto title = fmt::format("RecoDuplicates_Level{}", ilevel);
 	  mRecoRepeat_EtaBins["pt"][ilevel][j] =
-		ibooker.book1D(title, fmt::format("RecoDuplicates_Level{} - {};p_{{T}} [GeV];# Duplicates", ilevel, etaLabel),
+		ibooker.book1D(fmt::format("RecoDuplicatesPt_{}_Level{}", etaRegion, ilevel),
+					   fmt::format("RecoDuplicates_Level{} [{}];p_{{T}} [GeV];# Duplicates", ilevel, etaLabel),
 					   n_PtBins, PtRange[0], PtRange[1]);
 	  mRecoRepeat_EtaBins["eta"][ilevel][j] =
-		ibooker.book1D(title, fmt::format("RecoDuplicates_Level{} - {};#eta;# Duplicates", ilevel, etaLabel),
+		ibooker.book1D(fmt::format("RecoDuplicatesEta_{}_Level{}", etaRegion, ilevel),
+					   fmt::format("RecoDuplicates_Level{} [{}];#eta;# Duplicates", ilevel, etaLabel),
 					   n_EtaBins, EtaRange[0], EtaRange[1]);
 	  mRecoRepeat_EtaBins["phi"][ilevel][j] =
-		ibooker.book1D(title, fmt::format("RecoDuplicates_Level{} - {};#phi;# Duplicates", ilevel, etaLabel),
+		ibooker.book1D(fmt::format("RecoDuplicatesPhi_{}_Level{}", etaRegion, ilevel),
+					   fmt::format("RecoDuplicates_Level{} [{}];#phi;# Duplicates", ilevel, etaLabel),
 					   n_PhiBins, PhiRange[0], PhiRange[1]);
 	}
 	
@@ -555,7 +579,7 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
                          PtRange[0],
                          PtRange[1]);
       mMatchedCorrPt_EtaBins[j] = ibooker.book1D(fmt::format("MatchedCorrPt_{}", etaRegion),
-                                                 fmt::format("Matched Corr Jets - {};p_{{T}};# jets", etaLabel),
+                                                 fmt::format("Matched Corr Jets - {};p_{{T}} [GeV];# jets", etaLabel),
                                                  n_PtBins,
                                                  PtRange[0],
                                                  PtRange[1]);
@@ -934,7 +958,9 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
       const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
       if ((std::abs(recoJets[ijet].eta()) >= etaMin) && (std::abs(recoJets[ijet].eta()) < etaMax)) {
         nJets_EtaBins[j]++;
-        mJetPt_EtaBins[j]->Fill(recoJets[ijet].pt());
+        mJet_EtaBins["pt"][j]->Fill(recoJets[ijet].pt());
+		mJet_EtaBins["eta"][j]->Fill(recoJets[ijet].eta());
+		mJet_EtaBins["phi"][j]->Fill(recoJets[ijet].phi());
       }
     }
 
@@ -1259,7 +1285,9 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
       for (size_t j = 0; j < etaInfo.size(); ++j) {
         const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
         if ((std::abs(genJets[gjet].eta()) >= etaMin) && (std::abs(genJets[gjet].eta()) < etaMax)) {
-          mGenPt_EtaBins[j]->Fill(genJets[gjet].pt());
+          mGen_EtaBins["pt"][j]->Fill(genJets[gjet].pt());
+		  mGen_EtaBins["eta"][j]->Fill(genJets[gjet].eta());
+		  mGen_EtaBins["phi"][j]->Fill(genJets[gjet].phi());
         }
       }
 

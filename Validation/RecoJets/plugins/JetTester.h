@@ -94,7 +94,7 @@ private:
   MonitorElement *mJetMass;
   MonitorElement *mJetConstituents;
   MonitorElement *mJetArea;
-  std::array<MonitorElement *, etaSize> mJetPt_EtaBins;
+  std::unordered_map<std::string, std::array<MonitorElement *, etaSize>> mJet_EtaBins;
 
   // Corrected jet parameters
   MonitorElement *mCorrJetEta;
@@ -106,7 +106,7 @@ private:
   MonitorElement *mGenEta;
   MonitorElement *mGenPhi;
   MonitorElement *mGenPt;
-  std::array<MonitorElement *, etaSize> mGenPt_EtaBins;
+  std::unordered_map<std::string, std::array<MonitorElement *, etaSize>> mGen_EtaBins;
 
   // Matched jet parameters
   MonitorElement *mMatchedJetEta;
