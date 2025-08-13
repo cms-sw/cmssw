@@ -7,7 +7,8 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('Validation.CTPPS.ctppsLHCInfoPlotter_cfi')
 process.load('Configuration.Generator.randomXiThetaGunProducer_cfi')
 process.load("CondCore.CondDB.CondDB_cfi")
-process.load('SimPPS.DirectSimProducer.ppsDirectProtonSimulation_cfi') 
+# process.load('SimPPS.DirectSimProducer.ppsDirectProtonSimulation_cfi') 
+process.load('SimPPS.DirectSimProducer.ctppsGregDucer_cfi')
 
 # minimal logger settings
 process.MessageLogger = cms.Service("MessageLogger",
@@ -74,7 +75,14 @@ process.ctppsGregPlotter = cms.EDAnalyzer("CTPPSGregPlotter",
     outputFile = cms.string("simu_2018_Greg.root")#,
 )
 
+# Greg producer
+process.ctppsGregDucer = cms.EDProducer("CTPPSGregDucer",
+
+
+)
+
 process.generation = cms.Path(process.generator)
+
 
 process.validation = cms.Path(
     process.ctppsLHCInfoPlotter
@@ -82,6 +90,8 @@ process.validation = cms.Path(
     * process.ctppsProtonReconstructionPlotter
     * process.ctppsGregPlotter 
 )
+
+process.cut = cms.Path(process.ctppsGregDucer)
 
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string("data_output.root"),
@@ -100,6 +110,7 @@ process.end_path = cms.EndPath(
 process.schedule = cms.Schedule(
     process.generation,
     process.validation,
+    process.cut,
     process.end_path
 )
 

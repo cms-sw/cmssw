@@ -139,6 +139,9 @@ void CTPPSGregPlotter::analyze(const edm::Event &event, const edm::EventSetup &i
                     << std::endl;
 
           std::cout << beamParameters.getBeamMom45() << std::endl;
+          double debug_variable = 0;
+          debug_variable = sin(momentum.theta()) * (sqrt(momentum.px()*momentum.px()+momentum.py()*momentum.py()+momentum.pz()*momentum.pz())) / momentum.perp(); //.mag() didn't work
+          std::cout<<1 - debug_variable<<std::endl; 
         }
 
         h_example->Fill(momentum.e());
@@ -148,9 +151,13 @@ void CTPPSGregPlotter::analyze(const edm::Event &event, const edm::EventSetup &i
         if (theta_deg > 90) theta_deg -= 180; 
 
         if (theta_deg != 200) h_theta->Fill(theta_deg);
+
+
+
         h_phi->Fill(momentum.phi());
         h_energy->Fill(momentum.e());
-        h_pt->Fill(sqrt(pow(momentum.px(),2)+ pow(momentum.py(),2)));
+        // h_pt->Fill(sqrt(pow(momentum.px(),2)+ pow(momentum.py(),2)));
+        h_pt->Fill(momentum.perp());
         //from PPSDirectProtonSimulation.cc
         h_xi->Fill(1.- momentum.rho()/ beamParameters.getBeamMom56());
       }
