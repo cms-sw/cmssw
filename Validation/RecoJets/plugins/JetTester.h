@@ -34,6 +34,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
@@ -71,6 +73,10 @@ private:
   edm::EDGetTokenT<pat::JetCollection> patJetsToken_;
   edm::EDGetTokenT<reco::JetCorrector> jetCorrectorToken_;
 
+  bool mInEtaBin(reco::Jet jet, double etaMin, double etaMax) {
+	return ((std::abs(jet.eta()) >= etaMin) && (std::abs(jet.eta()) < etaMax));
+  }
+  
   static const int ptSize = 10;
   static constexpr std::array<double, ptSize + 1> ptBins_ = {
       {20., 30., 40., 100., 200., 300., 600., 2000., 5000., 6500., 1e6}};
@@ -120,9 +126,14 @@ private:
   std::array<MonitorElement *, etaSize> mMatchedGenPt_EtaBins;
 
   // Duplicates (gen and reco)
-  static constexpr size_t nLevelsDuplicates = 3;
-  std::unordered_map<std::string, std::array<MonitorElement *, nLevelsDuplicates>> mGenRepeat, mRecoRepeat;
-  std::unordered_map<std::string, std::array<std::array<MonitorElement *, etaSize>, nLevelsDuplicates>> mGenRepeat_EtaBins, mRecoRepeat_EtaBins;
+  MonitorElement *mGenRepeatEta;
+  MonitorElement *mGenRepeatPhi;
+  MonitorElement *mGenRepeatPt;
+  MonitorElement *mRecoRepeatEta;
+  MonitorElement *mRecoRepeatPhi;
+  MonitorElement *mRecoRepeatPt;
+  std::array<MonitorElement *, etaSize> mGenRepeatPt_EtaBins;
+  std::array<MonitorElement *, etaSize> mRecoRepeatPt_EtaBins;
   
   // Jet response vs gen histograms
   std::array<MonitorElement *, etaSize> h_JetPtRecoOverGen;
