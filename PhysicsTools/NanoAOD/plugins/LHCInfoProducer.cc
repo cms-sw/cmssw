@@ -70,6 +70,7 @@ public:
     out->addFloat("crossingAngle", "LHC crossing angle", lhcInfoCombined.crossingAngle());
     out->addFloat("betaStar", "LHC beta star", lhcInfoCombined.betaStarX);
     out->addFloat("energy", "LHC beam energy", lhcInfoCombined.energy);
+    out->addInt("fill", "LHC fill number", lhcInfoCombined.fillNumber);
     iLumi.put(std::move(out));
   }
 
