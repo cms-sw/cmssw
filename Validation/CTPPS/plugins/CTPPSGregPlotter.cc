@@ -62,6 +62,8 @@ private:
     void analyze(const edm::Event &, const edm::EventSetup &) override;
     void endJob() override;
     
+    edm::EDGetTokenT<CTPPSLocalTrackLiteCollection> tokenTracks_;
+
     std::string outputFile_;
     std::unique_ptr<TH1D> h_example;
     std::unique_ptr<TH1D> h_theta;
@@ -72,7 +74,9 @@ private:
 
 
     edm::EDGetTokenT<edm::HepMCProduct> hepMCToken_; //Protons
-    edm::ESGetToken<CTPPSBeamParameters, CTPPSBeamParametersRcd> tokenBeamParameters_; //Beam
+    //Beam
+    edm::ESGetToken<CTPPSBeamParameters, CTPPSBeamParametersRcd> tokenBeamParameters_; 
+    
 
     bool debug = 0;
 };
@@ -83,6 +87,7 @@ private:
 
 void CTPPSGregPlotter::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("tagTracks", edm::InputTag("ctppsLocalTrackLiteProducer"))->setComment("Input tag for CTPPSLocalTrackLiteCollection");
   desc.add<std::string>("outputFile", "simu_2018_Greg.root")->setComment("name of the ouput file");
   desc.add<edm::InputTag>("hepMCTag", edm::InputTag("generator", "unsmeared"))->setComment("Input tag for HepMCProduct"); //Protons
   descriptions.add("ctppsGregPlotter", desc);
@@ -93,6 +98,7 @@ void CTPPSGregPlotter::fillDescriptions(edm::ConfigurationDescriptions &descript
 
 // Constructor definition 
 CTPPSGregPlotter::CTPPSGregPlotter(const edm::ParameterSet &ps):
+    tokenTracks_(consumes<CTPPSLocalTrackLiteCollection>(ps.getParameter<edm::InputTag>("tagTracks"))),
     outputFile_(ps.getParameter<std::string>("outputFile")),
     h_example (new TH1D("Example Histogram", "Energy", 2001, 3000., 7000.)),
     h_theta (new TH1D("Theta Degrees", "Theta", 1000, -0.025, 0.025)),
@@ -110,6 +116,9 @@ CTPPSGregPlotter::CTPPSGregPlotter(const edm::ParameterSet &ps):
 //----------------------------------------------------------------------------------------------------
 
 void CTPPSGregPlotter::analyze(const edm::Event &event, const edm::EventSetup &iSetup) {
+
+  edm::Handle<CTPPSLocalTrackLiteCollection> hTracks;
+  event.getByToken(tokenTracks_, hTracks);
 
   //Protons
   edm::Handle<edm::HepMCProduct> hepmc_prod; 

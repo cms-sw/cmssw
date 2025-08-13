@@ -26,6 +26,7 @@
 #include "DataFormats/CTPPSReco/interface/CTPPSDiamondRecHit.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelRecHit.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
+#include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLiteFwd.h" //Fix for not recognising the header
 
 #include "CondFormats/DataRecord/interface/CTPPSInterpolatedOpticsRcd.h"
 #include "CondFormats/PPSObjects/interface/LHCInterpolatedOpticalFunctionsSetCollection.h"
@@ -73,37 +74,41 @@ public:
 private:
   void produce(edm::Event &, const edm::EventSetup &) override;
 
-  void processProton() const;
+  void applyCut() const;
 
-
+  edm::EDGetTokenT<CTPPSLocalTrackLiteCollection> tokenTracks_;
 
 };
 //----------------------------------------------------------------------------------------------------
 
-CTPPSGregDucer::CTPPSGregDucer(const edm::ParameterSet &iConfig){
+CTPPSGregDucer::CTPPSGregDucer(const edm::ParameterSet &ps):
+  tokenTracks_(consumes<CTPPSLocalTrackLiteCollection>(ps.getParameter<edm::InputTag>("tagTracks")))
 
-}
+  {}
 
 
 //----------------------------------------------------------------------------------------------------
 
 void CTPPSGregDucer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("tagTracks", edm::InputTag("ctppsLocalTrackLiteProducer"))->setComment("Input tag for CTPPSLocalTrackLiteCollection");
+  descriptions.add("ctppsGregDucer", desc);
 
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSGregDucer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  
-    processProton();
+void CTPPSGregDucer::produce(edm::Event &event, const edm::EventSetup &iSetup) {
+  edm::Handle<CTPPSLocalTrackLiteCollection> hTracks;
+  event.getByToken(tokenTracks_, hTracks);
+  applyCut();
     
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSGregDucer::processProton() const {
-  //std::cout << "Greg Produced" << std::endl; //It works
+void CTPPSGregDucer::applyCut() const {
+  // std::cout << "Greg Produced" << std::endl; //It works
 }
 
 //----------------------------------------------------------------------------------------------------

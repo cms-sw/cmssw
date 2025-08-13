@@ -69,16 +69,22 @@ process.ctppsProtonReconstructionPlotter = cms.EDAnalyzer("CTPPSProtonReconstruc
 
 
 
-# Greg reconstruction plotter
+# Greg plotter 1
 process.ctppsGregPlotter = cms.EDAnalyzer("CTPPSGregPlotter",
-
+    tagTracks = cms.InputTag("GenParticles"),
     outputFile = cms.string("simu_2018_Greg.root")#,
 )
 
 # Greg producer
 process.ctppsGregDucer = cms.EDProducer("CTPPSGregDucer",
+    tagTracks = cms.InputTag("GenParticlesNew")
 
+)
 
+# Greg plotter 2
+process.ctppsGregPlotter2 = cms.EDAnalyzer("CTPPSGregPlotter",
+    tagTracks = cms.InputTag("GenParticlesNew"),
+    outputFile = cms.string("simu_2018_GregCut.root")
 )
 
 process.generation = cms.Path(process.generator)
@@ -92,6 +98,10 @@ process.validation = cms.Path(
 )
 
 process.cut = cms.Path(process.ctppsGregDucer)
+
+process.validation2 = cms.Path(
+    process.ctppsGregPlotter2
+)
 
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string("data_output.root"),
@@ -111,6 +121,7 @@ process.schedule = cms.Schedule(
     process.generation,
     process.validation,
     process.cut,
+    process.validation2,
     process.end_path
 )
 
