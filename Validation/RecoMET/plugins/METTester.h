@@ -41,6 +41,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "TMath.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
@@ -51,7 +53,8 @@ public:
 
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  
 private:
   std::map<std::string, MonitorElement *> me;
 

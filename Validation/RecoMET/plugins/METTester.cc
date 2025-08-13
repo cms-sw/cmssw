@@ -432,3 +432,17 @@ void METTester::analyze(const edm::Event &iEvent,
     }
   }
 }
+
+//------------------------------------------------------------------------------
+// fill description
+//------------------------------------------------------------------------------
+void METTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  // Default MET validation offline
+  desc.add<edm::InputTag>("InputMETLabel", edm::InputTag("pfMet"));
+  desc.addUntracked<std::string>("METType", "pf");
+  desc.add<edm::InputTag>("PrimaryVertices", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<edm::InputTag>("genMetTrue", edm::InputTag(""));
+  desc.add<edm::InputTag>("genMetCalo", edm::InputTag(""));
+  descriptions.addWithDefaultLabel(desc);
+}
