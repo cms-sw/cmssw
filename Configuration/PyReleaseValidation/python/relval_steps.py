@@ -2914,12 +2914,12 @@ steps['RECOCOSDRUN3']=merge([{'--conditions':'auto:run3_data','--era':'Run3'},st
 
 steps['RECOCOSDPROMPTRUN3']=merge([{'--conditions':'auto:run3_data_prompt',
                                     '--era':'Run3',
-                                    '--customise':'Configuration/DataProcessing/RecoTLR.customisePrompt,Configuration/DataProcessing/RecoTLR.customiseCosmicData'
+                                    '--customise':'Configuration/DataProcessing/RecoTLR.customisePrompt,Configuration/DataProcessing/RecoTLR.customiseCosmicData,IOPool/Input/fixReading_12_4_X_Files.fixReading_12_4_X_Files'
                                 },steps['RECOCOSD']])
 
 steps['RECOCOSDEXPRUN3']=merge([{'--conditions':'auto:run3_data_express',
                                  '--era':'Run3',
-                                 '--customise':'Configuration/DataProcessing/RecoTLR.customiseExpress,Configuration/DataProcessing/RecoTLR.customiseCosmicData'
+                                 '--customise':'Configuration/DataProcessing/RecoTLR.customiseExpress,Configuration/DataProcessing/RecoTLR.customiseCosmicData,IOPool/Input/fixReading_12_4_X_Files.fixReading_12_4_X_Files'
                              },steps['RECOCOSD']])
 
 steps['RECOALCAECALPHISYMDR3']=merge([{'--scenario':'pp',
