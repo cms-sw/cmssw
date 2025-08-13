@@ -150,19 +150,9 @@ private:
   MonitorElement *mPFHFEMEtFraction;
   MonitorElement *mPFHFEMEt;
 
-  MonitorElement *mMETDifference_GenMETTrue_MET0to20;
-  MonitorElement *mMETDifference_GenMETTrue_MET20to40;
-  MonitorElement *mMETDifference_GenMETTrue_MET40to60;
-  MonitorElement *mMETDifference_GenMETTrue_MET60to80;
-  MonitorElement *mMETDifference_GenMETTrue_MET80to100;
-  MonitorElement *mMETDifference_GenMETTrue_MET100to150;
-  MonitorElement *mMETDifference_GenMETTrue_MET150to200;
-  MonitorElement *mMETDifference_GenMETTrue_MET200to300;
-  MonitorElement *mMETDifference_GenMETTrue_MET300to400;
-  MonitorElement *mMETDifference_GenMETTrue_MET400to500;
-  MonitorElement *mMETDifference_GenMETTrue_MET500;
-  // moved into postprocessor
-  // MonitorElement* mMETDifference_GenMETTrue_METResolution;
+  static const int mNMETBins = 11;
+  static constexpr std::array<double, mNMETBins+1> mMETBins = {{0., 20., 40., 60., 80., 100., 150., 200., 300., 400., 500., 10000.}};
+  std::array<MonitorElement *, mNMETBins> mMETDifference_GenMETTrue_METBins;
 
   bool isCaloMET;
   //  bool isCorMET;

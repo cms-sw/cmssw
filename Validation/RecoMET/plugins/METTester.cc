@@ -110,21 +110,6 @@ METTester::METTester(const edm::ParameterSet &iConfig) {
   mChargedHadEtFraction = nullptr;
   mMuonEtFraction = nullptr;
   mInvisibleEtFraction = nullptr;
-
-  // MET variables
-
-  // PFMET variables
-  mMETDifference_GenMETTrue_MET0to20 = nullptr;
-  mMETDifference_GenMETTrue_MET20to40 = nullptr;
-  mMETDifference_GenMETTrue_MET40to60 = nullptr;
-  mMETDifference_GenMETTrue_MET60to80 = nullptr;
-  mMETDifference_GenMETTrue_MET80to100 = nullptr;
-  mMETDifference_GenMETTrue_MET100to150 = nullptr;
-  mMETDifference_GenMETTrue_MET150to200 = nullptr;
-  mMETDifference_GenMETTrue_MET200to300 = nullptr;
-  mMETDifference_GenMETTrue_MET300to400 = nullptr;
-  mMETDifference_GenMETTrue_MET400to500 = nullptr;
-  mMETDifference_GenMETTrue_MET500 = nullptr;
 }
 void METTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun, edm::EventSetup const & /* iSetup */) {
   ibooker.setCurrentFolder("JetMET/METValidation/" + inputMETLabel_.label());
@@ -162,28 +147,10 @@ void METTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
     mMETDeltaPhi_GenMETCalo = ibooker.book1D("METDeltaPhi_GenMETCalo", "METDeltaPhi_GenMETCalo", 80, 0, 4);
   }
   if (!isGenMET) {
-    mMETDifference_GenMETTrue_MET0to20 =
-        ibooker.book1D("METResolution_GenMETTrue_MET0to20", "METResolution_GenMETTrue_MET0to20", 500, -500, 500);
-    mMETDifference_GenMETTrue_MET20to40 =
-        ibooker.book1D("METResolution_GenMETTrue_MET20to40", "METResolution_GenMETTrue_MET20to40", 500, -500, 500);
-    mMETDifference_GenMETTrue_MET40to60 =
-        ibooker.book1D("METResolution_GenMETTrue_MET40to60", "METResolution_GenMETTrue_MET40to60", 500, -500, 500);
-    mMETDifference_GenMETTrue_MET60to80 =
-        ibooker.book1D("METResolution_GenMETTrue_MET60to80", "METResolution_GenMETTrue_MET60to80", 500, -500, 500);
-    mMETDifference_GenMETTrue_MET80to100 =
-        ibooker.book1D("METResolution_GenMETTrue_MET80to100", "METResolution_GenMETTrue_MET80to100", 500, -500, 500);
-    mMETDifference_GenMETTrue_MET100to150 =
-        ibooker.book1D("METResolution_GenMETTrue_MET100to150", "METResolution_GenMETTrue_MET100to150", 500, -500, 500);
-    mMETDifference_GenMETTrue_MET150to200 =
-        ibooker.book1D("METResolution_GenMETTrue_MET150to200", "METResolution_GenMETTrue_MET150to200", 500, -500, 500);
-    mMETDifference_GenMETTrue_MET200to300 =
-        ibooker.book1D("METResolution_GenMETTrue_MET200to300", "METResolution_GenMETTrue_MET200to300", 500, -500, 500);
-    mMETDifference_GenMETTrue_MET300to400 =
-        ibooker.book1D("METResolution_GenMETTrue_MET300to400", "METResolution_GenMETTrue_MET300to400", 500, -500, 500);
-    mMETDifference_GenMETTrue_MET400to500 =
-        ibooker.book1D("METResolution_GenMETTrue_MET400to500", "METResolution_GenMETTrue_MET400to500", 500, -500, 500);
-    mMETDifference_GenMETTrue_MET500 =
-        ibooker.book1D("METResolution_GenMETTrue_MET500", "METResolution_GenMETTrue_MET500", 500, -500, 500);
+	for (unsigned metIdx=0; metIdx<mNMETBins-1; ++metIdx) {
+	  std::string met_title = "METResolution_GenMETTrue_MET" + std::to_string((int)mMETBins[metIdx]) + "to" + std::to_string((int)mMETBins[metIdx+1]);
+	  mMETDifference_GenMETTrue_METBins[metIdx] = ibooker.book1D(met_title.c_str(), met_title.c_str(), 500, -500, 500);
+	}
   }
   if (isCaloMET) {
     mCaloMaxEtInEmTowers = ibooker.book1D("CaloMaxEtInEmTowers", "CaloMaxEtInEmTowers", 300, 0, 1500);     // 5GeV
@@ -320,30 +287,11 @@ void METTester::analyze(const edm::Event &iEvent,
     mMETDeltaPhi_GenMETTrue->Fill(TMath::ACos(TMath::Cos(METPhi - genMETPhi)));
 
     if (!isGenMET) {
-      // pfMET resolution in pfMET bins : Sam, Feb, 2012
-      if (MET > 0 && MET < 20)
-        mMETDifference_GenMETTrue_MET0to20->Fill(MET - genMET);
-      else if (MET > 20 && MET < 40)
-        mMETDifference_GenMETTrue_MET20to40->Fill(MET - genMET);
-      else if (MET > 40 && MET < 60)
-        mMETDifference_GenMETTrue_MET40to60->Fill(MET - genMET);
-      else if (MET > 60 && MET < 80)
-        mMETDifference_GenMETTrue_MET60to80->Fill(MET - genMET);
-      else if (MET > 80 && MET < 100)
-        mMETDifference_GenMETTrue_MET80to100->Fill(MET - genMET);
-      else if (MET > 100 && MET < 150)
-        mMETDifference_GenMETTrue_MET100to150->Fill(MET - genMET);
-      else if (MET > 150 && MET < 200)
-        mMETDifference_GenMETTrue_MET150to200->Fill(MET - genMET);
-      else if (MET > 200 && MET < 300)
-        mMETDifference_GenMETTrue_MET200to300->Fill(MET - genMET);
-      else if (MET > 300 && MET < 400)
-        mMETDifference_GenMETTrue_MET300to400->Fill(MET - genMET);
-      else if (MET > 400 && MET < 500)
-        mMETDifference_GenMETTrue_MET400to500->Fill(MET - genMET);
-      else if (MET > 500)
-        mMETDifference_GenMETTrue_MET500->Fill(MET - genMET);
-
+      // pfMET resolution in pfMET bins
+	  for (unsigned metIdx=0; metIdx<mMETBins.size()-1; ++metIdx) {
+		if (MET > mMETBins[metIdx] && MET < mMETBins[metIdx+1])
+		  mMETDifference_GenMETTrue_METBins[metIdx]->Fill(MET - genMET);
+	  }
     } else {
       edm::LogInfo("OutputInfo") << " failed to retrieve data required by MET Task:  genMetTrue";
     }
