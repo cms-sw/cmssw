@@ -128,7 +128,7 @@ private:
   // Duplicates (gen and reco)
   static constexpr size_t nLevelsDuplicates = 3;
   std::unordered_map<std::string, std::array<MonitorElement *, nLevelsDuplicates>> mGenRepeat, mRecoRepeat;
-  std::unordered_map<std::string, std::array<std::array<MonitorElement *, etaSize>, nLevelsDuplicates>> mGenRepeat_EtaBins, mRecoRepeat_EtaBins;
+  std::unordered_map<std::string, std::array<std::array<MonitorElement *, etaSize - 1>, nLevelsDuplicates>> mGenRepeat_EtaBins, mRecoRepeat_EtaBins;
   
   // Jet response vs gen histograms
   std::array<MonitorElement *, etaSize> h_JetPtRecoOverGen;

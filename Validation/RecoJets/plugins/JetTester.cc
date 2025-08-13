@@ -350,10 +350,6 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
 		ibooker.book1D(fmt::format("GenDuplicatesPt_{}_Level{}", etaRegion, ilevel),
 					   fmt::format("GenDuplicates_Level{} [{}];p_{{T}} [GeV];# Duplicates", ilevel, etaLabel),
 					   n_PtBins, PtRange[0], PtRange[1]);
-	  mGenRepeat_EtaBins["eta"][ilevel][j] =
-		ibooker.book1D(fmt::format("GenDuplicatesEta_{}_Level{}", etaRegion, ilevel),
-					   fmt::format("GenDuplicates_Level{} [{}];#eta;# Duplicates", ilevel, etaLabel),
-					   n_EtaBins, EtaRange[0], EtaRange[1]);
 	  mGenRepeat_EtaBins["phi"][ilevel][j] =
 		ibooker.book1D(fmt::format("GenDuplicatesPhi_{}_Level{}", etaRegion, ilevel),
 					   fmt::format("GenDuplicates_Level{} [{}];#phi;# Duplicates", ilevel, etaLabel),
@@ -364,10 +360,6 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
 		ibooker.book1D(fmt::format("RecoDuplicatesPt_{}_Level{}", etaRegion, ilevel),
 					   fmt::format("RecoDuplicates_Level{} [{}];p_{{T}} [GeV];# Duplicates", ilevel, etaLabel),
 					   n_PtBins, PtRange[0], PtRange[1]);
-	  mRecoRepeat_EtaBins["eta"][ilevel][j] =
-		ibooker.book1D(fmt::format("RecoDuplicatesEta_{}_Level{}", etaRegion, ilevel),
-					   fmt::format("RecoDuplicates_Level{} [{}];#eta;# Duplicates", ilevel, etaLabel),
-					   n_EtaBins, EtaRange[0], EtaRange[1]);
 	  mRecoRepeat_EtaBins["phi"][ilevel][j] =
 		ibooker.book1D(fmt::format("RecoDuplicatesPhi_{}_Level{}", etaRegion, ilevel),
 					   fmt::format("RecoDuplicates_Level{} [{}];#phi;# Duplicates", ilevel, etaLabel),
@@ -1236,7 +1228,6 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
               const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
 			  if (mInEtaBin(corrJets[ijet], etaMin, etaMax)) {
 				mGenRepeat_EtaBins["pt"][i][j]->Fill(corrJets[ijet].pt());
-				mGenRepeat_EtaBins["eta"][i][j]->Fill(corrJets[ijet].eta());
 				mGenRepeat_EtaBins["phi"][i][j]->Fill(corrJets[ijet].phi());
 			  }
 			}
@@ -1325,7 +1316,6 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
 			const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
 			if (mInEtaBin(genJets[gjet], etaMin, etaMax)) {
 			  mRecoRepeat_EtaBins["pt"][i][j]->Fill(genJets[gjet].pt());
-			  mRecoRepeat_EtaBins["eta"][i][j]->Fill(genJets[gjet].eta());
 			  mRecoRepeat_EtaBins["phi"][i][j]->Fill(genJets[gjet].phi());
 			}
 		  }
