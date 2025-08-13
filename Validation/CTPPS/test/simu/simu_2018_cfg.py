@@ -77,13 +77,15 @@ process.ctppsGregPlotter = cms.EDAnalyzer("CTPPSGregPlotter",
 
 # Greg producer
 process.ctppsGregDucer = cms.EDProducer("CTPPSGregDucer",
-    tagTracks = cms.InputTag("GenParticlesNew")
+    tagTracks = cms.InputTag("GenParticlesNew"),
+    hepMCTag = cms.InputTag("generator", "unsmeared")
 
 )
 
 # Greg plotter 2
 process.ctppsGregPlotter2 = cms.EDAnalyzer("CTPPSGregPlotter",
-    tagTracks = cms.InputTag("GenParticlesNew"),
+    tagTracks = cms.InputTag("ctppsGregDucer", "selectedProtons"),
+    hepMCTag = cms.InputTag("ctppsGregDucer", "selectedProtons"),
     outputFile = cms.string("simu_2018_GregCut.root")
 )
 
@@ -97,10 +99,8 @@ process.validation = cms.Path(
     * process.ctppsGregPlotter 
 )
 
-process.cut = cms.Path(process.ctppsGregDucer)
-
-process.validation2 = cms.Path(
-    process.ctppsGregPlotter2
+process.cutAndValidate = cms.Path(
+    process.ctppsGregDucer * process.ctppsGregPlotter2
 )
 
 process.output = cms.OutputModule("PoolOutputModule",
@@ -120,8 +120,7 @@ process.end_path = cms.EndPath(
 process.schedule = cms.Schedule(
     process.generation,
     process.validation,
-    process.cut,
-    process.validation2,
+    process.cutAndValidate,
     process.end_path
 )
 

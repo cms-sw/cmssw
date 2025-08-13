@@ -30,10 +30,6 @@
 #include "CondFormats/PPSObjects/interface/CTPPSBeamParameters.h" 
 #include "CondFormats/DataRecord/interface/CTPPSBeamParametersRcd.h" 
 
-//Duplicating Collection
-// #include "HepMC/GenEvent.h" 
-// #include "HepMC/GenParticle.h" 
-
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 #include "CondFormats/DataRecord/interface/PPSAssociationCutsRcd.h"

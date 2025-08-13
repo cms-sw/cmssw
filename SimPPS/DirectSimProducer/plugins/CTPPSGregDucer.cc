@@ -74,17 +74,26 @@ public:
 private:
   void produce(edm::Event &, const edm::EventSetup &) override;
 
-  void applyCut() const;
+  bool applyCut(const HepMC::GenParticle *part) const;
+
 
   edm::EDGetTokenT<CTPPSLocalTrackLiteCollection> tokenTracks_;
+
+  edm::EDGetTokenT<edm::HepMCProduct> hepMCToken_;
+  edm::ESGetToken<CTPPSBeamParameters, CTPPSBeamParametersRcd> tokenBeamParameters_; 
+
 
 };
 //----------------------------------------------------------------------------------------------------
 
 CTPPSGregDucer::CTPPSGregDucer(const edm::ParameterSet &ps):
-  tokenTracks_(consumes<CTPPSLocalTrackLiteCollection>(ps.getParameter<edm::InputTag>("tagTracks")))
-
-  {}
+  tokenTracks_(consumes<CTPPSLocalTrackLiteCollection>(ps.getParameter<edm::InputTag>("tagTracks"))),
+  hepMCToken_(consumes<edm::HepMCProduct>(ps.getParameter<edm::InputTag>("hepMCTag"))), //Protons
+  tokenBeamParameters_(esConsumes())
+  {
+    produces<CTPPSLocalTrackLiteCollection>(); 
+    produces<edm::HepMCProduct>("selectedProtons");
+  }
 
 
 //----------------------------------------------------------------------------------------------------
@@ -92,6 +101,7 @@ CTPPSGregDucer::CTPPSGregDucer(const edm::ParameterSet &ps):
 void CTPPSGregDucer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("tagTracks", edm::InputTag("ctppsLocalTrackLiteProducer"))->setComment("Input tag for CTPPSLocalTrackLiteCollection");
+  desc.add<edm::InputTag>("hepMCTag", edm::InputTag("generator", "unsmeared"))->setComment("Input tag for HepMCProduct"); //Protons
   descriptions.add("ctppsGregDucer", desc);
 
 }
@@ -101,14 +111,51 @@ void CTPPSGregDucer::fillDescriptions(edm::ConfigurationDescriptions &descriptio
 void CTPPSGregDucer::produce(edm::Event &event, const edm::EventSetup &iSetup) {
   edm::Handle<CTPPSLocalTrackLiteCollection> hTracks;
   event.getByToken(tokenTracks_, hTracks);
-  applyCut();
-    
+
+  //Protons
+  edm::Handle<edm::HepMCProduct> hepmc_prod; 
+  event.getByToken(hepMCToken_, hepmc_prod); 
+  
+  //Beam
+  // auto const &beamParameters = iSetup.getData(tokenBeamParameters_);
+
+  // loop over event vertices
+  auto evt = hepmc_prod->GetEvent();
+  auto filteredEvent = std::make_unique<HepMC::GenEvent>(evt->signal_process_id(), evt->event_number());
+
+  for (auto it_vtx = evt->vertices_begin(); it_vtx != evt->vertices_end(); ++it_vtx) {
+  auto vtx = new HepMC::GenVertex((*it_vtx)->position());
+
+  for (auto it_part = (*it_vtx)->particles_out_const_begin(); it_part != (*it_vtx)->particles_out_const_end(); ++it_part) {
+    auto part = *it_part;
+    if (applyCut(part)) {
+      auto newPart = new HepMC::GenParticle(*part); // clone
+      vtx->add_particle_out(newPart);
+    }
+  }
+
+    if (vtx->particles_out_size() > 0) {
+      filteredEvent->add_vertex(vtx);
+    } else {
+      delete vtx;
+      }
+  }
+
+  auto output = std::make_unique<edm::HepMCProduct>();
+  output->addHepMCData(filteredEvent.release()); // HepMCProduct takes ownership
+  event.put(std::move(output), "selectedProtons");
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSGregDucer::applyCut() const {
-  // std::cout << "Greg Produced" << std::endl; //It works
+bool CTPPSGregDucer::applyCut(const HepMC::GenParticle *part) const {
+    // std::cout << "Greg Produced" << std::endl; //It works
+    // accept only stable protons
+    if (part->pdg_id() != 2212) return false;
+    if (part->status() != 1 && part->status() < 83) return false;
+    if (part->momentum().perp()< 0.5) return false;
+
+    return true;
 }
 
 //----------------------------------------------------------------------------------------------------
