@@ -389,4 +389,76 @@ void METTester::analyze(const edm::Event &iEvent,
 
     const double NeutralEMEtFraction = genmet->NeutralEMEtFraction();
     const double NeutralHadEtFraction = genmet->NeutralHadEtFraction();
-    const double ChargedEMEtFract
+    const double ChargedEMEtFraction = genmet->ChargedEMEtFraction();
+    const double ChargedHadEtFraction = genmet->ChargedHadEtFraction();
+    const double MuonEtFraction = genmet->MuonEtFraction();
+    const double InvisibleEtFraction = genmet->InvisibleEtFraction();
+
+    mNeutralEMEtFraction->Fill(NeutralEMEtFraction);
+    mNeutralHadEtFraction->Fill(NeutralHadEtFraction);
+    mChargedEMEtFraction->Fill(ChargedEMEtFraction);
+    mChargedHadEtFraction->Fill(ChargedHadEtFraction);
+    mMuonEtFraction->Fill(MuonEtFraction);
+    mInvisibleEtFraction->Fill(InvisibleEtFraction);
+  }
+  if (isPFMET) {
+    const reco::PFMET *pfmet = &(pfMETs->front());
+    mPFphotonEtFraction->Fill(pfmet->photonEtFraction());
+    mPFphotonEt->Fill(pfmet->photonEt());
+    mPFneutralHadronEtFraction->Fill(pfmet->neutralHadronEtFraction());
+    mPFneutralHadronEt->Fill(pfmet->neutralHadronEt());
+    mPFelectronEtFraction->Fill(pfmet->electronEtFraction());
+    mPFelectronEt->Fill(pfmet->electronEt());
+    mPFchargedHadronEtFraction->Fill(pfmet->chargedHadronEtFraction());
+    mPFchargedHadronEt->Fill(pfmet->chargedHadronEt());
+    mPFmuonEtFraction->Fill(pfmet->muonEtFraction());
+    mPFmuonEt->Fill(pfmet->muonEt());
+    mPFHFHadronEtFraction->Fill(pfmet->HFHadronEtFraction());
+    mPFHFHadronEt->Fill(pfmet->HFHadronEt());
+    mPFHFEMEtFraction->Fill(pfmet->HFEMEtFraction());
+    mPFHFEMEt->Fill(pfmet->HFEMEt());
+    // Reconstructed MET Information
+  }
+  if (isMiniAODMET) {
+    const pat::MET *patmet = &(patMET->front());
+    mMETUnc_JetResUp->Fill(MET - patmet->shiftedPt(pat::MET::JetResUp));
+    mMETUnc_JetResDown->Fill(MET - patmet->shiftedPt(pat::MET::JetResDown));
+    mMETUnc_JetEnUp->Fill(MET - patmet->shiftedPt(pat::MET::JetEnUp));
+    mMETUnc_JetEnDown->Fill(MET - patmet->shiftedPt(pat::MET::JetEnDown));
+    mMETUnc_MuonEnUp->Fill(MET - patmet->shiftedPt(pat::MET::MuonEnUp));
+    mMETUnc_MuonEnDown->Fill(MET - patmet->shiftedPt(pat::MET::MuonEnDown));
+    mMETUnc_ElectronEnUp->Fill(MET - patmet->shiftedPt(pat::MET::ElectronEnUp));
+    mMETUnc_ElectronEnDown->Fill(MET - patmet->shiftedPt(pat::MET::ElectronEnDown));
+    mMETUnc_TauEnUp->Fill(MET - patmet->shiftedPt(pat::MET::TauEnUp));
+    mMETUnc_TauEnDown->Fill(MET - patmet->shiftedPt(pat::MET::TauEnDown));
+    mMETUnc_UnclusteredEnUp->Fill(MET - patmet->shiftedPt(pat::MET::UnclusteredEnUp));
+    mMETUnc_UnclusteredEnDown->Fill(MET - patmet->shiftedPt(pat::MET::UnclusteredEnDown));
+    mMETUnc_PhotonEnUp->Fill(MET - patmet->shiftedPt(pat::MET::PhotonEnUp));
+    mMETUnc_PhotonEnDown->Fill(MET - patmet->shiftedPt(pat::MET::PhotonEnDown));
+
+    if (patmet->isPFMET()) {
+      mPFphotonEtFraction->Fill(patmet->NeutralEMFraction());
+      mPFneutralHadronEtFraction->Fill(patmet->NeutralHadEtFraction());
+      mPFelectronEtFraction->Fill(patmet->ChargedEMEtFraction());
+      mPFchargedHadronEtFraction->Fill(patmet->ChargedHadEtFraction());
+      mPFmuonEtFraction->Fill(patmet->MuonEtFraction());
+      mPFHFHadronEtFraction->Fill(patmet->Type6EtFraction());  // HFHadrons
+      mPFHFEMEtFraction->Fill(patmet->Type7EtFraction());      // HFEMEt
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+// fill description
+//------------------------------------------------------------------------------
+void METTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  // Default MET validation offline
+  desc.add<edm::InputTag>("InputMETLabel", edm::InputTag("pfMet"));
+  desc.addUntracked<std::string>("METType", "pf");
+  desc.add<edm::InputTag>("PrimaryVertices", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<edm::InputTag>("genMetTrue", edm::InputTag(""));
+  desc.add<edm::InputTag>("genMetCalo", edm::InputTag(""));
+  descriptions.addWithDefaultLabel(desc);
+}
+>>>>>>> dd18d35bef9 (Add fillDescriptions to the MET validation.)
