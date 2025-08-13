@@ -14,6 +14,7 @@
 #include "FWCore/ServiceRegistry/interface/CurrentModuleOnThread.h"
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
+#include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 #include "FWCore/Concurrency/interface/FunctorTask.h"
@@ -980,8 +981,10 @@ namespace edm {
       skippingWaitingTasks_.add(waitTask);
       bool expected = false;
       if (skippingPrefetchRequested_.compare_exchange_strong(expected, true)) {
+        bool producesInCurrentProcess = principal.productLookup().producesInCurrentProcess() and skipCurrentProcess;
+        bool startIndex = producesInCurrentProcess ? 1 : 0;
         //we are the first thread to request
-        tryPrefetchResolverAsync(0, principal, true, sra, mcc, token, waitTask.group());
+        tryPrefetchResolverAsync(startIndex, principal, true, sra, mcc, token, waitTask.group());
       }
     }
   }
@@ -1066,6 +1069,7 @@ namespace edm {
     return false;
   }
 
+  //CDJ this is the function to change
   void NoProcessProductResolver::tryPrefetchResolverAsync(unsigned int iProcessingIndex,
                                                           Principal const& principal,
                                                           bool skipCurrentProcess,
