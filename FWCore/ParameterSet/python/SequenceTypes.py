@@ -242,14 +242,8 @@ def findDirectDependencies(element, collection,sortByType:bool=True):
                 dependencies += item.directDependencies(sortByType)
                 continue
             t = 'tasks'
-        # cms.ConditionalTask
-        elif isinstance(item, ConditionalTask):
-            if not item.hasLabel_():
-                dependencies += item.directDependencies(sortByType)
-                continue
-            t = 'conditionaltasks'
         # SequencePlaceholder and TaskPlaceholder do not add an explicit dependency
-        elif isinstance(item, (SequencePlaceholder, TaskPlaceholder, ConditionalTaskPlaceholder)):
+        elif isinstance(item, (SequencePlaceholder, TaskPlaceholder)):
             continue
         # unsupported elements
         else:
@@ -451,8 +445,6 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
 
         if (isinstance(original,Task) != isinstance(replacement,Task)):
                raise TypeError("replace only works if both arguments are Tasks or neither")
-        if (isinstance(original,ConditionalTask) != isinstance(replacement,ConditionalTask)):
-               raise TypeError("replace only works if both arguments are ConditionalTasks or neither")
         v = _CopyAndReplaceSequenceVisitor(original,replacement)
         self.visit(v)
         if v.didReplace():
@@ -856,18 +848,6 @@ class TaskVisitor(object):
     def leave(self,visitee):
         pass
 
-# Fills a list of all ConditionalTasks visited
-# Can visit a ConditionalTask, Sequence, Path, or EndPath
-class ConditionalTaskVisitor(object):
-    def __init__(self,d):
-        self.deps = d
-    def enter(self,visitee):
-        if isinstance(visitee,ConditionalTask):
-            self.deps.append(visitee)
-        pass
-    def leave(self,visitee):
-        pass
-
 # Fills a list of all modules visited.
 # Can visit a Sequence, Path, EndPath, or Task
 # For purposes of this visitor, a module is considered
@@ -906,29 +886,6 @@ class ModuleNodeOnTaskVisitor(object):
     def leave(self,visitee):
         if self._levelInTasks > 0:
             if isinstance(visitee, Task):
-                self._levelInTasks -= 1
-
-class ModuleNodeOnConditionalTaskVisitor(object):
-    def __init__(self,l):
-        self.l = l
-        self._levelInTasks = 0
-    def enter(self,visitee):
-        if isinstance(visitee, ConditionalTask):
-            self._levelInTasks += 1
-        # This block gets the modules contained by SwitchProducer. It
-        # needs to be before the "levelInTasks == 0" check because the
-        # contained modules need to be treated like in ConditionalTask
-        # also when the SwitchProducer itself is in the Path.
-        if hasattr(visitee, "modulesForConditionalTask_"):
-            self.l.extend(visitee.modulesForConditionalTask_())
-        if self._levelInTasks == 0:
-            return
-        if visitee.isLeaf():
-            self.l.append(visitee)
-        pass
-    def leave(self,visitee):
-        if self._levelInTasks > 0:
-            if isinstance(visitee, ConditionalTask):
                 self._levelInTasks -= 1
 
 # Should not be used on Tasks.
@@ -1007,25 +964,16 @@ class ExpandVisitor(object):
         self._type = type
         self.l = []
         self.taskLeaves = []
-        self.taskLeavesInConditionalTasks = []
         self.presentTaskLeaves = self.taskLeaves
         self._levelInTasks = 0
-        self.conditionaltaskLeaves = []
-        self._levelInConditionalTasks = 0
 
     def enter(self,visitee):
         if isinstance(visitee, Task):
             self._levelInTasks += 1
             return
-        if isinstance(visitee, ConditionalTask):
-            self.presentTaskLeaves = self.taskLeavesInConditionalTasks
-            self._levelInConditionalTasks += 1
-            return
         if visitee.isLeaf():
             if self._levelInTasks > 0:
                 self.presentTaskLeaves.append(visitee)
-            elif self._levelInConditionalTasks > 0:
-                self.conditionaltaskLeaves.append(visitee)
             else:
                 self.l.append(visitee)
     def leave(self, visitee):
@@ -1033,23 +981,12 @@ class ExpandVisitor(object):
             if isinstance(visitee, Task):
                 self._levelInTasks -= 1
             return
-        if self._levelInConditionalTasks > 0:
-            if isinstance(visitee, ConditionalTask):
-                self._levelInConditionalTasks -= 1
-                if 0 == self._levelInConditionalTasks:
-                  self.presentTaskLeaves = self.taskLeaves
-            return
         if isinstance(visitee,_UnarySequenceOperator):
             self.l[-1] = visitee
     def result(self):
         tsks = []
         if self.taskLeaves:
           tsks.append(Task(*self.taskLeaves))
-        if self.conditionaltaskLeaves:
-          ct = ConditionalTask(*self.conditionaltaskLeaves)
-          if self.taskLeavesInConditionalTasks:
-            ct.append(*self.taskLeavesInConditionalTasks)
-          tsks.append(ct)
         if len(self.l) > 0:
             # why doesn't (sum(self.l) work?
             seq = self.l[0]
@@ -1713,7 +1650,7 @@ class _TaskBasePlaceholder(object):
 
 class Task(_TaskBase) :
     """Holds EDProducers, EDFilters, ESProducers, ESSources, Services, and Tasks.
-    A Task can be associated with Sequences, Paths, EndPaths, ConditionalTasks and the Schedule.
+    A Task can be associated with Sequences, Paths, EndPaths, and the Schedule.
     An EDProducer or EDFilter will be enabled to run unscheduled if it is on
     a task associated with the Schedule or any scheduled Path or EndPath (directly
     or indirectly through Sequences) and not be on any scheduled Path or EndPath.
@@ -1754,50 +1691,6 @@ class TaskPlaceholder(_TaskBasePlaceholder):
     @staticmethod
     def _taskClass():
       return Task
-
-
-class ConditionalTask(_TaskBase) :
-    """Holds EDProducers, EDFilters, ESProducers, ESSources, Services, Tasks and ConditionalTasks.
-    A ConditionalTask can be associated with Sequences, Paths, and EndPaths.
-    An EDProducer or EDFilter will be added to a Path or EndPath based on which other
-    modules on the Path consumes its data products. If that ConditionalTask assigned module
-    is placed after an EDFilter, the module will only run if the EDFilter passes. If no module
-    on the Path needs the module's data products, the module will be treated as if it were on a Task.
-    """
-    @staticmethod
-    def _taskType():
-      return "ConditionalTask"
-    def _place(self, name:str, proc):
-        proc._placeConditionalTask(name,self)
-    def _isTaskComponent(self) -> bool:
-        return False
-    @staticmethod
-    def _makeInstance(*items):
-      return ConditionalTask(*items)
-    @staticmethod
-    def _allowedInTask(item) -> bool:
-      return isinstance(item, ConditionalTask) or isinstance(item, ConditionalTaskPlaceholder) or Task._allowedInTask(item)
-    @staticmethod
-    def _mustResolve(item) -> bool:
-        return Task._mustResolve(item) or isinstance(item, ConditionalTask) or isinstance(item, ConditionalTaskPlaceholder)
-
-
-class ConditionalTaskPlaceholder(_TaskBasePlaceholder):
-    def _isTaskComponent(self) -> bool:
-        return False
-    @staticmethod
-    def _typeName() -> str:
-      return "ConditionalTaskPlaceholder"
-    @staticmethod
-    def _makeInstance(name):
-      return ConditionalTaskPlaceholder(name)
-    @staticmethod
-    def _allowedInTask(obj) -> bool:
-      return Task._allowedInTask(obj) or ConditionalTask._allowedInTask(obj)
-    @staticmethod
-    def _taskClass():
-      return ConditionalTask
-
 
 if __name__=="__main__":
     import unittest

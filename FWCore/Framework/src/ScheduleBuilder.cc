@@ -85,185 +85,6 @@ namespace edm {
       std::string originalModuleLabel;
     };
 
-    // If ConditionalTask modules exist in the container of module
-    // names, returns the range (std::pair) for the modules. The range
-    // excludes the special markers '#' (right before the
-    // ConditionalTask modules) and '@' (last element).
-    // If the module name container does not contain ConditionalTask
-    // modules, returns std::pair of end iterators.
-    template <typename T>
-    auto findConditionalTaskModulesRange(T const& modnames) {
-      auto beg = std::find(modnames.begin(), modnames.end(), "#");
-      if (beg == modnames.end()) {
-        return std::pair(modnames.end(), modnames.end());
-      }
-      return std::pair(beg + 1, std::prev(modnames.end()));
-    }
-
-    std::optional<std::string> findBestMatchingAlias(
-        std::unordered_multimap<std::string, edm::ProductDescription const*> const& conditionalModuleBranches,
-        std::unordered_multimap<std::string, AliasInfo> const& aliasMap,
-        std::string const& productModuleLabel,
-        ModuleConsumesInfo const& consumesInfo) {
-      std::optional<std::string> best;
-      int wildcardsInBest = std::numeric_limits<int>::max();
-      bool bestIsAmbiguous = false;
-
-      auto updateBest = [&best, &wildcardsInBest, &bestIsAmbiguous](
-                            std::string const& label, bool instanceIsWildcard, bool typeIsWildcard) {
-        int const wildcards = static_cast<int>(instanceIsWildcard) + static_cast<int>(typeIsWildcard);
-        if (wildcards == 0) {
-          bestIsAmbiguous = false;
-          return true;
-        }
-        if (not best or wildcards < wildcardsInBest) {
-          best = label;
-          wildcardsInBest = wildcards;
-          bestIsAmbiguous = false;
-        } else if (best and *best != label and wildcardsInBest == wildcards) {
-          bestIsAmbiguous = true;
-        }
-        return false;
-      };
-
-      auto findAlias = aliasMap.equal_range(productModuleLabel);
-      for (auto it = findAlias.first; it != findAlias.second; ++it) {
-        std::string const& aliasInstanceLabel =
-            it->second.instanceLabel != "*" ? it->second.instanceLabel : it->second.originalInstanceLabel;
-        bool const instanceIsWildcard = (aliasInstanceLabel == "*");
-        if (instanceIsWildcard or consumesInfo.instance() == aliasInstanceLabel) {
-          bool const typeIsWildcard = it->second.friendlyClassName == "*";
-          if (typeIsWildcard or (consumesInfo.type().friendlyClassName() == it->second.friendlyClassName)) {
-            if (updateBest(it->second.originalModuleLabel, instanceIsWildcard, typeIsWildcard)) {
-              return it->second.originalModuleLabel;
-            }
-          } else if (consumesInfo.kindOfType() == ELEMENT_TYPE) {
-            //consume is a View so need to do more intrusive search
-            //find matching branches in module
-            auto branches = conditionalModuleBranches.equal_range(productModuleLabel);
-            for (auto itBranch = branches.first; itBranch != branches.second; ++it) {
-              if (typeIsWildcard or itBranch->second->productInstanceName() == it->second.originalInstanceLabel) {
-                if (productholderindexhelper::typeIsViewCompatible(consumesInfo.type(),
-                                                                   TypeID(itBranch->second->wrappedType().typeInfo()),
-                                                                   itBranch->second->className())) {
-                  if (updateBest(it->second.originalModuleLabel, instanceIsWildcard, typeIsWildcard)) {
-                    return it->second.originalModuleLabel;
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-      if (bestIsAmbiguous) {
-        throw Exception(errors::UnimplementedFeature)
-            << "Encountered ambiguity when trying to find a best-matching alias for\n"
-            << " friendly class name " << consumesInfo.type().friendlyClassName() << "\n"
-            << " module label " << productModuleLabel << "\n"
-            << " product instance name " << consumesInfo.instance() << "\n"
-            << "when processing EDAliases for modules in ConditionalTasks. Two aliases have the same number of "
-               "wildcards ("
-            << wildcardsInBest << ")";
-      }
-      return best;
-    }
-
-    class ConditionalTaskHelper {
-    public:
-      ConditionalTaskHelper(ParameterSet& ioProcessPSet,
-                            SignallingProductRegistryFiller& ioProductRegistry,
-                            PreallocationConfiguration const* iPrealloc,
-                            std::shared_ptr<ProcessConfiguration const> iProcessConfiguration,
-                            ModuleRegistry& ioModuleRegistry,
-                            ActivityRegistry& iActivityRegistry,
-                            std::vector<std::string> const& iTrigPathNames) {
-        std::unordered_set<std::string> allConditionalMods;
-        for (auto const& pathName : iTrigPathNames) {
-          auto const modnames = ioProcessPSet.getParameter<std::vector<std::string>>(pathName);
-
-          //Pull out ConditionalTask modules
-          auto condRange = findConditionalTaskModulesRange(modnames);
-          if (condRange.first == condRange.second)
-            continue;
-
-          //the last entry should be ignored since it is required to be "@"
-          allConditionalMods.insert(condRange.first, condRange.second);
-        }
-
-        for (auto const& cond : allConditionalMods) {
-          //force the creation of the conditional modules so alias check can work
-          // must be sure this is not added to the list of all workers else the system will hang in case the
-          // module is not used.
-          bool isTracked = false;
-          ParameterSet* modpset = ioProcessPSet.getPSetForUpdate(cond, isTracked);
-          assert(modpset != nullptr);
-          assert(isTracked);
-
-          MakeModuleParams params(modpset, ioProductRegistry, iPrealloc, iProcessConfiguration);
-          (void)ioModuleRegistry.getModule(params,
-                                           cond,
-                                           iActivityRegistry.preModuleConstructionSignal_,
-                                           iActivityRegistry.postModuleConstructionSignal_);
-        }
-
-        fillAliasMap(ioProcessPSet, allConditionalMods);
-
-        //find branches created by the conditional modules
-        for (auto const& prod : ioProductRegistry.registry().productList()) {
-          if (allConditionalMods.find(prod.first.moduleLabel()) != allConditionalMods.end()) {
-            conditionalModsBranches_.emplace(prod.first.moduleLabel(), &prod.second);
-          }
-        }
-      }
-
-      std::unordered_multimap<std::string, AliasInfo> const& aliasMap() const { return aliasMap_; }
-
-      std::unordered_multimap<std::string, edm::ProductDescription const*> conditionalModuleBranches(
-          std::unordered_set<std::string> const& conditionalmods) const {
-        std::unordered_multimap<std::string, edm::ProductDescription const*> ret;
-        for (auto const& mod : conditionalmods) {
-          auto range = conditionalModsBranches_.equal_range(mod);
-          ret.insert(range.first, range.second);
-        }
-        return ret;
-      }
-
-    private:
-      void fillAliasMap(ParameterSet const& ioProcessPSet,
-                        std::unordered_set<std::string> const& iAllConditionalModules) {
-        auto aliases = ioProcessPSet.getParameter<std::vector<std::string>>("@all_aliases");
-        std::string const star("*");
-        for (auto const& alias : aliases) {
-          auto info = ioProcessPSet.getParameter<edm::ParameterSet>(alias);
-          auto aliasedToModuleLabels = info.getParameterNames();
-          for (auto const& mod : aliasedToModuleLabels) {
-            if (not mod.empty() and mod[0] != '@' and
-                iAllConditionalModules.find(mod) != iAllConditionalModules.end()) {
-              auto aliasVPSet = info.getParameter<std::vector<edm::ParameterSet>>(mod);
-              for (auto const& aliasPSet : aliasVPSet) {
-                std::string type = star;
-                std::string instance = star;
-                std::string originalInstance = star;
-                if (aliasPSet.exists("type")) {
-                  type = aliasPSet.getParameter<std::string>("type");
-                }
-                if (aliasPSet.exists("toProductInstance")) {
-                  instance = aliasPSet.getParameter<std::string>("toProductInstance");
-                }
-                if (aliasPSet.exists("fromProductInstance")) {
-                  originalInstance = aliasPSet.getParameter<std::string>("fromProductInstance");
-                }
-                aliasMap_.emplace(alias, AliasInfo{type, instance, originalInstance, mod});
-              }
-            }
-          }
-        }
-      }
-
-      std::unordered_multimap<std::string, AliasInfo> aliasMap_;
-      std::unordered_multimap<std::string, edm::ProductDescription const*> conditionalModsBranches_;
-    };
-
     std::shared_ptr<edm::maker::ModuleHolder const> getModule(
         ParameterSet& ioProcessPSet,
         std::string const& iModuleLabel,
@@ -284,92 +105,6 @@ namespace edm {
                                         iActivityRegistry.postModuleConstructionSignal_);
     }
 
-    std::vector<ModuleDescription const*> tryToPlaceConditionalModules(
-        maker::ModuleHolder const* iModule,
-        ModuleRegistry& iModuleRegistry,
-        std::unordered_set<std::string>& ioConditionalModules,
-        std::unordered_multimap<std::string, edm::ProductDescription const*> const& iConditionalModuleProducts,
-        std::unordered_multimap<std::string, AliasInfo> const& iAliasMap,
-        ParameterSet& ioProcessPSet,
-        SignallingProductRegistryFiller& ioProductRegistry,
-        ActivityRegistry& iActivityRegistry,
-        PreallocationConfiguration const* iPrealloc,
-        std::shared_ptr<ProcessConfiguration const> iProcessConfiguration) {
-      std::vector<ModuleDescription const*> returnValue;
-      //auto const& consumesInfo = worker->moduleConsumesInfos();
-      auto const& consumesInfo = iModule->moduleConsumesInfos();
-      using namespace productholderindexhelper;
-      for (auto const& ci : consumesInfo) {
-        if (not ci.skipCurrentProcess() and
-            (ci.process().empty() or ci.process() == iProcessConfiguration->processName())) {
-          auto productModuleLabel = std::string(ci.label());
-          bool productFromConditionalModule = false;
-          auto itFound = ioConditionalModules.find(productModuleLabel);
-          if (itFound == ioConditionalModules.end()) {
-            //Check to see if this was an alias
-            //note that aliasMap was previously filtered so only the conditional modules remain there
-            auto foundAlias = findBestMatchingAlias(iConditionalModuleProducts, iAliasMap, productModuleLabel, ci);
-            if (foundAlias) {
-              productModuleLabel = *foundAlias;
-              productFromConditionalModule = true;
-              itFound = ioConditionalModules.find(productModuleLabel);
-              //check that the alias-for conditional module has not been used
-              if (itFound == ioConditionalModules.end()) {
-                continue;
-              }
-            }
-          } else {
-            //need to check the rest of the data product info
-            auto findBranches = iConditionalModuleProducts.equal_range(productModuleLabel);
-            for (auto itBranch = findBranches.first; itBranch != findBranches.second; ++itBranch) {
-              if (itBranch->second->productInstanceName() == ci.instance()) {
-                if (ci.kindOfType() == PRODUCT_TYPE) {
-                  if (ci.type() == itBranch->second->unwrappedTypeID()) {
-                    productFromConditionalModule = true;
-                    break;
-                  }
-                } else {
-                  //this is a view
-                  if (typeIsViewCompatible(ci.type(),
-                                           TypeID(itBranch->second->wrappedType().typeInfo()),
-                                           itBranch->second->className())) {
-                    productFromConditionalModule = true;
-                    break;
-                  }
-                }
-              }
-            }
-          }
-          if (productFromConditionalModule) {
-            auto condModule = getModule(ioProcessPSet,
-                                        productModuleLabel,
-                                        iModuleRegistry,
-                                        ioProductRegistry,
-                                        iActivityRegistry,
-                                        iPrealloc,
-                                        iProcessConfiguration);
-            assert(condModule);
-
-            ioConditionalModules.erase(itFound);
-
-            auto dependents = tryToPlaceConditionalModules(condModule.get(),
-                                                           iModuleRegistry,
-                                                           ioConditionalModules,
-                                                           iConditionalModuleProducts,
-                                                           iAliasMap,
-                                                           ioProcessPSet,
-                                                           ioProductRegistry,
-                                                           iActivityRegistry,
-                                                           iPrealloc,
-                                                           iProcessConfiguration);
-            returnValue.insert(returnValue.end(), dependents.begin(), dependents.end());
-            returnValue.emplace_back(&condModule->moduleDescription());
-          }
-        }
-      }
-      return returnValue;
-    }
-
     std::vector<ModuleInPath> fillModulesInPath(ParameterSet& ioProcessPSet,
                                                 ModuleRegistry& ioModuleRegistry,
                                                 SignallingProductRegistryFiller& ioProductRegistry,
@@ -378,34 +113,9 @@ namespace edm {
                                                 std::shared_ptr<ProcessConfiguration const> iProcessConfiguration,
                                                 std::string const& iPathName,
                                                 bool iIgnoreFilters,
-                                                std::vector<std::string> const& iEndPathNames,
-                                                ConditionalTaskHelper const& iConditionalTaskHelper,
-                                                std::unordered_set<std::string>& oAllConditionalModules) {
+                                                std::vector<std::string> const& iEndPathNames) {
       auto modnames = ioProcessPSet.getParameter<std::vector<std::string>>(iPathName);
       std::vector<ModuleInPath> tmpworkers;
-
-      //Pull out ConditionalTask modules
-      auto condRange = findConditionalTaskModulesRange(modnames);
-
-      std::unordered_set<std::string> conditionalmods;
-      //An EDAlias may be redirecting to a module on a ConditionalTask
-      std::unordered_multimap<std::string, edm::ProductDescription const*> conditionalModsBranches;
-      std::unordered_map<std::string, unsigned int> conditionalModOrder;
-      if (condRange.first != condRange.second) {
-        for (auto it = condRange.first; it != condRange.second; ++it) {
-          // ordering needs to skip the # token in the path list
-          conditionalModOrder.emplace(*it, it - modnames.begin() - 1);
-        }
-        //the last entry should be ignored since it is required to be "@"
-        conditionalmods = std::unordered_set<std::string>(std::make_move_iterator(condRange.first),
-                                                          std::make_move_iterator(condRange.second));
-
-        conditionalModsBranches = iConditionalTaskHelper.conditionalModuleBranches(conditionalmods);
-        modnames.erase(std::prev(condRange.first), modnames.end());
-
-        // Make a union of all conditional modules from all Paths
-        oAllConditionalModules.insert(conditionalmods.begin(), conditionalmods.end());
-      }
 
       unsigned int placeInPath = 0;
       for (auto const& name : modnames) {
@@ -468,20 +178,6 @@ namespace edm {
           runConcurrently = false;
         }
 
-        auto condModules = tryToPlaceConditionalModules(module.get(),
-                                                        ioModuleRegistry,
-                                                        conditionalmods,
-                                                        conditionalModsBranches,
-                                                        iConditionalTaskHelper.aliasMap(),
-                                                        ioProcessPSet,
-                                                        ioProductRegistry,
-                                                        iActivityRegistry,
-                                                        iPrealloc,
-                                                        iProcessConfiguration);
-        for (auto condMod : condModules) {
-          tmpworkers.emplace_back(condMod, WorkerInPath::Ignore, conditionalModOrder[condMod->moduleLabel()], true);
-        }
-
         tmpworkers.emplace_back(&module->moduleDescription(), filterAction, placeInPath, runConcurrently);
         ++placeInPath;
       }
@@ -496,9 +192,7 @@ namespace edm {
                                            PreallocationConfiguration const* iPrealloc,
                                            std::shared_ptr<ProcessConfiguration const> iProcessConfiguration,
                                            std::string const& iName,
-                                           std::vector<std::string> const& iEndPathNames,
-                                           ConditionalTaskHelper const& iConditionalTaskHelper,
-                                           std::unordered_set<std::string>& oAllConditionalModules) {
+                                           std::vector<std::string> const& iEndPathNames) {
       return fillModulesInPath(ioProcessPSet,
                                ioModuleRegistry,
                                ioProductRegistry,
@@ -507,9 +201,7 @@ namespace edm {
                                iProcessConfiguration,
                                iName,
                                false,
-                               iEndPathNames,
-                               iConditionalTaskHelper,
-                               oAllConditionalModules);
+                               iEndPathNames);
     }
 
     std::vector<ModuleInPath> fillEndPath(ParameterSet& ioProcessPSet,
@@ -519,9 +211,7 @@ namespace edm {
                                           PreallocationConfiguration const* iPrealloc,
                                           std::shared_ptr<ProcessConfiguration const> iProcessConfiguration,
                                           std::string const& iName,
-                                          std::vector<std::string> const& iEndPathNames,
-                                          ConditionalTaskHelper const& iConditionalTaskHelper,
-                                          std::unordered_set<std::string>& oAllConditionalModules) {
+                                          std::vector<std::string> const& iEndPathNames) {
       return fillModulesInPath(ioProcessPSet,
                                ioModuleRegistry,
                                ioProductRegistry,
@@ -530,9 +220,7 @@ namespace edm {
                                iProcessConfiguration,
                                iName,
                                true,
-                               iEndPathNames,
-                               iConditionalTaskHelper,
-                               oAllConditionalModules);
+                               iEndPathNames);
     }
 
     const std::string kFilterType("EDFilter");
@@ -577,15 +265,6 @@ namespace edm {
     iModuleRegistry.forAllModuleHolders(
         [&](auto const* holder) { modulesInPaths.insert(holder->moduleDescription().moduleLabel()); });
 
-    ConditionalTaskHelper conditionalTaskHelper(ioProcessPSet,
-                                                ioProductRegistry,
-                                                &iPrealloc,
-                                                iProcessConfiguration,
-                                                iModuleRegistry,
-                                                iActivityRegistry,
-                                                iPathNames);
-    std::unordered_set<std::string> conditionalModules;
-
     pathNameAndModules_.reserve(iPathNames.size());
     for (auto const& trig_name : iPathNames) {
       pathNameAndModules_.emplace_back(trig_name,
@@ -596,9 +275,7 @@ namespace edm {
                                                     &iPrealloc,
                                                     iProcessConfiguration,
                                                     trig_name,
-                                                    iEndPathNames,
-                                                    conditionalTaskHelper,
-                                                    conditionalModules));
+                                                    iEndPathNames));
       for (auto const& path : pathNameAndModules_.back().second) {
         modulesInPaths.insert(path.description_->moduleLabel());
       }
@@ -615,9 +292,7 @@ namespace edm {
                                                       &iPrealloc,
                                                       iProcessConfiguration,
                                                       end_path_name,
-                                                      iEndPathNames,
-                                                      conditionalTaskHelper,
-                                                      conditionalModules));
+                                                      iEndPathNames));
       for (auto const& path : endpathNameAndModules_.back().second) {
         modulesInPaths.insert(path.description_->moduleLabel());
       }
