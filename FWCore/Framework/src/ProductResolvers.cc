@@ -982,7 +982,7 @@ namespace edm {
       bool expected = false;
       if (skippingPrefetchRequested_.compare_exchange_strong(expected, true)) {
         bool producesInCurrentProcess = principal.productLookup().producesInCurrentProcess() and skipCurrentProcess;
-        bool startIndex = producesInCurrentProcess ? 1 : 0;
+        bool startIndex = producesInCurrentProcess ? true : false;
         //we are the first thread to request
         tryPrefetchResolverAsync(startIndex, principal, true, sra, mcc, token, waitTask.group());
       }
