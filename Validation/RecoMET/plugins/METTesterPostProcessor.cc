@@ -6,9 +6,6 @@
 // Original Author:  "Matthias Weber"
 //         Created:  Sun Feb 22 14:35:25 CET 2015
 //
-
-#include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Framework/interface/Run.h"
 #include "Validation/RecoMET/plugins/METTesterPostProcessor.h"
 
 // Some switches
@@ -25,71 +22,57 @@ void METTesterPostProcessor::dqmEndJob(DQMStore::IBooker &ibook_, DQMStore::IGet
   std::string RunDir = "JetMET/METValidation/";
   iget_.setCurrentFolder(RunDir);
   met_dirs = iget_.getSubdirs();
-  // bin definition for resolution plot -> last bin contains overflow too, but
-  // for plotting purposes show up to 1 TeV only
-  int nBins = 11;
-  float bins[] = {0., 20., 40., 60., 80., 100., 150., 200., 300., 400., 500., 1000};
+
   // loop over met subdirectories
-  for (int i = 0; i < int(met_dirs.size()); i++) {
+  for (size_t i=0; i<met_dirs.size(); i++) {
     ibook_.setCurrentFolder(met_dirs[i]);
-    mMETDifference_GenMETTrue_METResolution =
-        ibook_.book1D("METResolution_GenMETTrue_InMETBins", "METResolution_GenMETTrue_InMETBins", nBins, bins);
+    mMETDiffAggr_METBins =
+	  ibook_.book1D("mMETDiffAggr_METBins", "mMETDiffAggr_METBins",	mNMETBins, mMETBins.data());
+    mMETDiffAggr_EtaBins =
+	  ibook_.book1D("mMETDiffAggr_EtaBins", "mMETDiffAggr_EtaBins",	mNEtaBins, mEtaBins.data());
+    mMETDiffAggr_PhiBins =
+	  ibook_.book1D("mMETDiffAggr_PhiBins", "mMETDiffAggr_PhiBins",	mNPhiBins, mPhiBins.data());
     FillMETRes(met_dirs[i], iget_);
   }
 }
 
 void METTesterPostProcessor::FillMETRes(std::string metdir, DQMStore::IGetter &iget) {
-  mMETDifference_GenMETTrue_MET0to20 = nullptr;
-  mMETDifference_GenMETTrue_MET20to40 = nullptr;
-  mMETDifference_GenMETTrue_MET40to60 = nullptr;
-  mMETDifference_GenMETTrue_MET60to80 = nullptr;
-  mMETDifference_GenMETTrue_MET80to100 = nullptr;
-  mMETDifference_GenMETTrue_MET100to150 = nullptr;
-  mMETDifference_GenMETTrue_MET150to200 = nullptr;
-  mMETDifference_GenMETTrue_MET200to300 = nullptr;
-  mMETDifference_GenMETTrue_MET300to400 = nullptr;
-  mMETDifference_GenMETTrue_MET400to500 = nullptr;
-  mMETDifference_GenMETTrue_MET500 = nullptr;
-
-  mMETDifference_GenMETTrue_MET0to20 = iget.get(metdir + "/METResolution_GenMETTrue_MET0to20");
-  mMETDifference_GenMETTrue_MET20to40 = iget.get(metdir + "/METResolution_GenMETTrue_MET20to40");
-  mMETDifference_GenMETTrue_MET40to60 = iget.get(metdir + "/METResolution_GenMETTrue_MET40to60");
-  mMETDifference_GenMETTrue_MET60to80 = iget.get(metdir + "/METResolution_GenMETTrue_MET60to80");
-  mMETDifference_GenMETTrue_MET80to100 = iget.get(metdir + "/METResolution_GenMETTrue_MET80to100");
-  mMETDifference_GenMETTrue_MET100to150 = iget.get(metdir + "/METResolution_GenMETTrue_MET100to150");
-  mMETDifference_GenMETTrue_MET150to200 = iget.get(metdir + "/METResolution_GenMETTrue_MET150to200");
-  mMETDifference_GenMETTrue_MET200to300 = iget.get(metdir + "/METResolution_GenMETTrue_MET200to300");
-  mMETDifference_GenMETTrue_MET300to400 = iget.get(metdir + "/METResolution_GenMETTrue_MET300to400");
-  mMETDifference_GenMETTrue_MET400to500 = iget.get(metdir + "/METResolution_GenMETTrue_MET400to500");
-  mMETDifference_GenMETTrue_MET500 = iget.get(metdir + "/METResolution_GenMETTrue_MET500");
-  if (mMETDifference_GenMETTrue_MET0to20 &&
-      mMETDifference_GenMETTrue_MET0to20->getRootObject()) {  // check one object, if existing, then the
-                                                              // remaining ME's exist too
-    // for genmet none of these ME's are filled
-    mMETDifference_GenMETTrue_METResolution->setBinContent(1, mMETDifference_GenMETTrue_MET0to20->getMean());
-    mMETDifference_GenMETTrue_METResolution->setBinContent(2, mMETDifference_GenMETTrue_MET20to40->getMean());
-    mMETDifference_GenMETTrue_METResolution->setBinContent(3, mMETDifference_GenMETTrue_MET40to60->getMean());
-    mMETDifference_GenMETTrue_METResolution->setBinContent(4, mMETDifference_GenMETTrue_MET60to80->getMean());
-    mMETDifference_GenMETTrue_METResolution->setBinContent(5, mMETDifference_GenMETTrue_MET80to100->getMean());
-    mMETDifference_GenMETTrue_METResolution->setBinContent(6, mMETDifference_GenMETTrue_MET100to150->getMean());
-    mMETDifference_GenMETTrue_METResolution->setBinContent(7, mMETDifference_GenMETTrue_MET150to200->getMean());
-    mMETDifference_GenMETTrue_METResolution->setBinContent(8, mMETDifference_GenMETTrue_MET200to300->getMean());
-    mMETDifference_GenMETTrue_METResolution->setBinContent(9, mMETDifference_GenMETTrue_MET300to400->getMean());
-    mMETDifference_GenMETTrue_METResolution->setBinContent(10, mMETDifference_GenMETTrue_MET400to500->getMean());
-    mMETDifference_GenMETTrue_METResolution->setBinContent(11, mMETDifference_GenMETTrue_MET500->getMean());
-
-    // the error computation should be done in a postProcessor in the harvesting
-    // step otherwise the histograms will be just summed
-    mMETDifference_GenMETTrue_METResolution->setBinError(1, mMETDifference_GenMETTrue_MET0to20->getRMS());
-    mMETDifference_GenMETTrue_METResolution->setBinError(2, mMETDifference_GenMETTrue_MET20to40->getRMS());
-    mMETDifference_GenMETTrue_METResolution->setBinError(3, mMETDifference_GenMETTrue_MET40to60->getRMS());
-    mMETDifference_GenMETTrue_METResolution->setBinError(4, mMETDifference_GenMETTrue_MET60to80->getRMS());
-    mMETDifference_GenMETTrue_METResolution->setBinError(5, mMETDifference_GenMETTrue_MET80to100->getRMS());
-    mMETDifference_GenMETTrue_METResolution->setBinError(6, mMETDifference_GenMETTrue_MET100to150->getRMS());
-    mMETDifference_GenMETTrue_METResolution->setBinError(7, mMETDifference_GenMETTrue_MET150to200->getRMS());
-    mMETDifference_GenMETTrue_METResolution->setBinError(8, mMETDifference_GenMETTrue_MET200to300->getRMS());
-    mMETDifference_GenMETTrue_METResolution->setBinError(9, mMETDifference_GenMETTrue_MET300to400->getRMS());
-    mMETDifference_GenMETTrue_METResolution->setBinError(10, mMETDifference_GenMETTrue_MET400to500->getRMS());
-    mMETDifference_GenMETTrue_METResolution->setBinError(11, mMETDifference_GenMETTrue_MET500->getRMS());
+  for (unsigned metIdx=0; metIdx<mNMETBins-1; ++metIdx) {
+	std::string met_folder = "/METDifference_GenMETTrue_MET" + std::to_string((int)mMETBins[metIdx]) + "to" + std::to_string((int)mMETBins[metIdx+1]);
+	mMETDifference_GenMETTrue_METBins[metIdx] = iget.get(metdir + met_folder);
   }
+  for (unsigned metIdx=0; metIdx<mNEtaBins-1; ++metIdx) {
+	std::string met_folder = "/METDifference_GenMETTrue_Eta" + std::to_string((int)mEtaBins[metIdx]) + "to" + std::to_string((int)mEtaBins[metIdx+1]);
+	mMETDifference_GenMETTrue_EtaBins[metIdx] = iget.get(metdir + met_folder);
+  }
+  for (unsigned metIdx=0; metIdx<mNPhiBins-1; ++metIdx) {
+	std::string met_folder = "/METDifference_GenMETTrue_Phi" + std::to_string((int)mPhiBins[metIdx]) + "to" + std::to_string((int)mPhiBins[metIdx+1]);
+	mMETDifference_GenMETTrue_PhiBins[metIdx] = iget.get(metdir + met_folder);
+  }
+
+  // check one object, if existing, then the remaining ME's exist too
+  if (mMETDifference_GenMETTrue_METBins[0] && mMETDifference_GenMETTrue_METBins[0]->getRootObject()) {
+    // for genmet none of these ME's are filled
+	for (unsigned metIdx=0; metIdx<mNMETBins-1; ++metIdx) {
+	  mMETDiffAggr_METBins->setBinContent(metIdx+1, mMETDifference_GenMETTrue_METBins[metIdx]->getMean());
+	  mMETDiffAggr_METBins->setBinError(metIdx+1, mMETDifference_GenMETTrue_METBins[metIdx]->getRMS());
+	}
+  }
+
+  if (mMETDifference_GenMETTrue_EtaBins[0] && mMETDifference_GenMETTrue_EtaBins[0]->getRootObject()) {
+    // for genmet none of these ME's are filled
+	for (unsigned metIdx=0; metIdx<mNEtaBins-1; ++metIdx) {
+	  mMETDiffAggr_EtaBins->setBinContent(metIdx+1, mMETDifference_GenMETTrue_EtaBins[metIdx]->getMean());
+	  mMETDiffAggr_EtaBins->setBinError(metIdx+1, mMETDifference_GenMETTrue_EtaBins[metIdx]->getRMS());
+	}
+  }
+
+  if (mMETDifference_GenMETTrue_PhiBins[0] && mMETDifference_GenMETTrue_PhiBins[0]->getRootObject()) {
+    // for genmet none of these ME's are filled
+	for (unsigned metIdx=0; metIdx<mNPhiBins-1; ++metIdx) {
+	  mMETDiffAggr_PhiBins->setBinContent(metIdx+1, mMETDifference_GenMETTrue_PhiBins[metIdx]->getMean());
+	  mMETDiffAggr_PhiBins->setBinError(metIdx+1, mMETDifference_GenMETTrue_PhiBins[metIdx]->getRMS());
+	}
+  }
+
 }
