@@ -34,9 +34,9 @@ private:
   static constexpr auto mPhiBins = METTester::mPhiBins;
   std::array<MonitorElement *, mNPhiBins> mMETDifference_GenMETTrue_PhiBins;
   
-  MonitorElement *mMETResolution_GenMETTrue_METBins;
-  MonitorElement *mMETResolution_GenMETTrue_EtaBins;
-  MonitorElement *mMETResolution_GenMETTrue_PhiBins;
+  MonitorElement *mMETDiffAggr_METBins;
+  MonitorElement *mMETDiffAggr_EtaBins;
+  MonitorElement *mMETDiffAggr_PhiBins;
 };
 
 #endif
