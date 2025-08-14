@@ -195,7 +195,7 @@ void CMSG4CheckOverlap::makeReportForGivenRegion(std::ofstream& fout, const std:
   }
   unsigned int numRootLV = reg->GetNumberOfRootVolumes();
   fout << "Number of Root Logical Volumes: " << numRootLV << "\n";
-  for (auto const & lv : *lvs) {
+  for (auto const& lv : *lvs) {
     if (reg == lv->GetRegion()) {
       fout << lv->GetName() << "   isRoot: " << lv->IsRootRegion() << "\n";
     }
