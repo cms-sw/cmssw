@@ -32,14 +32,12 @@ using namespace edm;
 
 METTester::METTester(const edm::ParameterSet &iConfig) {
   inputMETLabel_ = iConfig.getParameter<edm::InputTag>("InputMETLabel");
+
   METType_ = iConfig.getUntrackedParameter<std::string>("METType");
-
-  std::string inputMETCollectionLabel(inputMETLabel_.label());
-
-  isCaloMET = (std::string("calo") == METType_);
-  isPFMET = (std::string("pf") == METType_);
-  isGenMET = (std::string("gen") == METType_);
-  isMiniAODMET = (std::string("miniaod") == METType_);
+  isCaloMET    = std::string("calo") == METType_;
+  isPFMET      = std::string("pf") == METType_;
+  isGenMET     = std::string("gen") == METType_;
+  isMiniAODMET = std::string("miniaod") == METType_;
 
   pvToken_ = consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("PrimaryVertices"));
   if (isCaloMET)
