@@ -580,8 +580,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                     << " threadsPerBlockOrElementsPerThread\n";
 #endif
 
-          auto morphingModules_d = cms::alpakatools::make_device_buffer<uint32_t[]>(queue, digiMorphingConfig.morphingModules.size());
-          auto morphingModules_h = cms::alpakatools::make_host_view(digiMorphingConfig.morphingModules.data(), digiMorphingConfig.morphingModules.size());
+          auto morphingModules_d =
+              cms::alpakatools::make_device_buffer<uint32_t[]>(queue, digiMorphingConfig.morphingModules.size());
+          auto morphingModules_h = cms::alpakatools::make_host_view(digiMorphingConfig.morphingModules.data(),
+                                                                    digiMorphingConfig.morphingModules.size());
           alpaka::memcpy(queue, morphingModules_d, morphingModules_h);
 
           alpaka::exec<Acc1D>(queue,
