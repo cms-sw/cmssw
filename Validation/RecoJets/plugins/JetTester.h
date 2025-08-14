@@ -74,9 +74,9 @@ private:
   edm::EDGetTokenT<reco::JetCorrector> jetCorrectorToken_;
 
   bool mInEtaBin(reco::Jet jet, double etaMin, double etaMax) {
-	return ((std::abs(jet.eta()) >= etaMin) && (std::abs(jet.eta()) < etaMax));
+    return ((std::abs(jet.eta()) >= etaMin) && (std::abs(jet.eta()) < etaMax));
   }
-  
+
   static const int ptSize = 10;
   static constexpr std::array<double, ptSize + 1> ptBins_ = {
       {20., 30., 40., 100., 200., 300., 600., 2000., 5000., 6500., 1e6}};
@@ -96,6 +96,8 @@ private:
   MonitorElement *mJetEta;
   MonitorElement *mJetPhi;
   MonitorElement *mJetPt;
+  MonitorElement *mJetEtaPt;
+  MonitorElement *mJetPhiPt;
   MonitorElement *mJetEnergy;
   MonitorElement *mJetMass;
   MonitorElement *mJetConstituents;
@@ -106,35 +108,55 @@ private:
   MonitorElement *mCorrJetEta;
   MonitorElement *mCorrJetPhi;
   MonitorElement *mCorrJetPt;
+  MonitorElement *mCorrJetEtaPt;
+  MonitorElement *mCorrJetPhiPt;
   std::array<MonitorElement *, etaSize> mCorrJetPt_EtaBins;
 
   // Gen jet parameters
   MonitorElement *mGenEta;
   MonitorElement *mGenPhi;
   MonitorElement *mGenPt;
+  MonitorElement *mGenEtaPt;
+  MonitorElement *mGenPhiPt;
   std::array<MonitorElement *, etaSize> mGenPt_EtaBins;
 
   // Matched jet parameters
   MonitorElement *mMatchedJetEta;
   MonitorElement *mMatchedJetPhi;
+  MonitorElement *mMatchedJetPt;
+  MonitorElement *mMatchedJetEtaPt;
+  MonitorElement *mMatchedJetPhiPt;
   std::array<MonitorElement *, etaSize> mMatchedJetPt_EtaBins;
   std::array<MonitorElement *, etaSize> mMatchedCorrPt_EtaBins;
+  MonitorElement *h2d_DeltaR_vs_Eta;
+  MonitorElement *h2d_DeltaR_vs_Phi;
+  MonitorElement *h2d_DeltaR_vs_Pt;
 
   // Matched gen jet parameters
   MonitorElement *mMatchedGenEta;
   MonitorElement *mMatchedGenPhi;
+  MonitorElement *mMatchedGenPt;
+  MonitorElement *mMatchedGenEtaPt;
+  MonitorElement *mMatchedGenPhiPt;
   std::array<MonitorElement *, etaSize> mMatchedGenPt_EtaBins;
+  MonitorElement *h2d_DeltaR_vs_GenEta;
+  MonitorElement *h2d_DeltaR_vs_GenPhi;
+  MonitorElement *h2d_DeltaR_vs_GenPt;
 
   // Duplicates (gen and reco)
-  MonitorElement *mGenRepeatEta;
-  MonitorElement *mGenRepeatPhi;
-  MonitorElement *mGenRepeatPt;
-  MonitorElement *mRecoRepeatEta;
-  MonitorElement *mRecoRepeatPhi;
-  MonitorElement *mRecoRepeatPt;
-  std::array<MonitorElement *, etaSize> mGenRepeatPt_EtaBins;
-  std::array<MonitorElement *, etaSize> mRecoRepeatPt_EtaBins;
-  
+  MonitorElement *mDuplicatesGenEta;
+  MonitorElement *mDuplicatesGenPhi;
+  MonitorElement *mDuplicatesGenPt;
+  MonitorElement *mDuplicatesGenEtaPt;
+  MonitorElement *mDuplicatesGenPhiPt;
+  MonitorElement *mDuplicatesJetEta;
+  MonitorElement *mDuplicatesJetPhi;
+  MonitorElement *mDuplicatesJetPt;
+  MonitorElement *mDuplicatesJetEtaPt;
+  MonitorElement *mDuplicatesJetPhiPt;
+  std::array<MonitorElement *, etaSize> mDuplicatesGenPt_EtaBins;
+  std::array<MonitorElement *, etaSize> mDuplicatesJetPt_EtaBins;
+
   // Jet response vs gen histograms
   std::array<MonitorElement *, etaSize> h_JetPtRecoOverGen;
   std::array<std::array<MonitorElement *, ptSize>, etaSize> hVector_JetPtRecoOverGen_ptBins;
@@ -148,37 +170,34 @@ private:
   std::array<std::array<MonitorElement *, ptSize>, etaSize> hVector_JetPtCorrOverReco_ptBins;
 
   // Jet response vs gen profiled in gen variable
-  std::array<MonitorElement *, ptSize> p_JetPtRecoOverGen_vs_GenEta;
-  std::array<MonitorElement *, etaSize> p_JetPtRecoOverGen_vs_GenPhi;
-  std::array<MonitorElement *, etaSize> p_JetPtRecoOverGen_vs_GenPt;
-
-  std::array<MonitorElement *, ptSize> h2d_JetPtRecoOverGen_vs_GenEta;
-  std::array<MonitorElement *, etaSize> h2d_JetPtRecoOverGen_vs_GenPhi;
-  std::array<MonitorElement *, etaSize> h2d_JetPtRecoOverGen_vs_GenPt;
+  MonitorElement *h2d_JetPtRecoOverGen_vs_GenEta;
+  MonitorElement *h2d_JetPtRecoOverGen_vs_GenPhi;
+  MonitorElement *h2d_JetPtRecoOverGen_vs_GenPt;
+  std::array<MonitorElement *, ptSize> h2d_JetPtRecoOverGen_vs_GenEta_ptBins;
+  std::array<MonitorElement *, etaSize> h2d_JetPtRecoOverGen_vs_GenPhi_EtaBins;
+  std::array<MonitorElement *, etaSize> h2d_JetPtRecoOverGen_vs_GenPt_EtaBins;
 
   // Corrected jet response vs gen profiled in gen variable
-  std::array<MonitorElement *, ptSize> p_JetPtCorrOverGen_vs_GenEta;
-  std::array<MonitorElement *, etaSize> p_JetPtCorrOverGen_vs_GenPhi;
-  std::array<MonitorElement *, etaSize> p_JetPtCorrOverGen_vs_GenPt;
-
-  std::array<MonitorElement *, ptSize> h2d_JetPtCorrOverGen_vs_GenEta;
-  std::array<MonitorElement *, etaSize> h2d_JetPtCorrOverGen_vs_GenPhi;
-  std::array<MonitorElement *, etaSize> h2d_JetPtCorrOverGen_vs_GenPt;
+  MonitorElement *h2d_JetPtCorrOverGen_vs_GenEta;
+  MonitorElement *h2d_JetPtCorrOverGen_vs_GenPhi;
+  MonitorElement *h2d_JetPtCorrOverGen_vs_GenPt;
+  std::array<MonitorElement *, ptSize> h2d_JetPtCorrOverGen_vs_GenEta_ptBins;
+  std::array<MonitorElement *, etaSize> h2d_JetPtCorrOverGen_vs_GenPhi_EtaBins;
+  std::array<MonitorElement *, etaSize> h2d_JetPtCorrOverGen_vs_GenPt_EtaBins;
 
   // Corrected jet response vs reco profiled in reco variable
-  std::array<MonitorElement *, ptSize> p_JetPtCorrOverReco_vs_Eta;
-  std::array<MonitorElement *, etaSize> p_JetPtCorrOverReco_vs_Phi;
-  std::array<MonitorElement *, etaSize> p_JetPtCorrOverReco_vs_Pt;
-
-  std::array<MonitorElement *, ptSize> h2d_JetPtCorrOverReco_vs_Eta;
-  std::array<MonitorElement *, etaSize> h2d_JetPtCorrOverReco_vs_Phi;
-  std::array<MonitorElement *, etaSize> h2d_JetPtCorrOverReco_vs_Pt;
+  MonitorElement *h2d_JetPtCorrOverReco_vs_Eta;
+  MonitorElement *h2d_JetPtCorrOverReco_vs_Phi;
+  MonitorElement *h2d_JetPtCorrOverReco_vs_Pt;
+  std::array<MonitorElement *, ptSize> h2d_JetPtCorrOverReco_vs_Eta_ptBins;
+  std::array<MonitorElement *, etaSize> h2d_JetPtCorrOverReco_vs_Phi_EtaBins;
+  std::array<MonitorElement *, etaSize> h2d_JetPtCorrOverReco_vs_Pt_EtaBins;
 
   // Jet em/had fractions profiled in pt
-  std::array<MonitorElement *, etaSize> p_chHad_vs_pt;
-  std::array<MonitorElement *, etaSize> p_neHad_vs_pt;
-  std::array<MonitorElement *, etaSize> p_chEm_vs_pt;
-  std::array<MonitorElement *, etaSize> p_neEm_vs_pt;
+  std::array<MonitorElement *, etaSize> h2d_chHad_vs_pt;
+  std::array<MonitorElement *, etaSize> h2d_neHad_vs_pt;
+  std::array<MonitorElement *, etaSize> h2d_chEm_vs_pt;
+  std::array<MonitorElement *, etaSize> h2d_neEm_vs_pt;
 
   // Jet response vs gen profiled in em/had fractions
   std::array<MonitorElement *, etaSize> h2d_JetPtRecoOverGen_vs_chHad;
