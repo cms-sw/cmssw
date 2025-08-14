@@ -32,7 +32,7 @@ namespace cms::alpakatools::math {
 
     template <typename... U,
               typename = std::enable_if_t<(sizeof...(U) == maxSize) and (std::conjunction_v<std::is_same<T, U>...>)>>
-    constexpr Vector(U... args) : m_data{args...}{}
+    constexpr Vector(U... args) : m_data{args...} {}
 
     Vector(const Vector<T, maxSize> &) = default;
     Vector(Vector<T, maxSize> &&) = default;
@@ -135,7 +135,7 @@ namespace cms::alpakatools::math {
   }
 
   template <typename U, typename T, int N>
-  requires std::convertible_to<U, typename Vector<T, N>::value_type>
+    requires std::convertible_to<U, typename Vector<T, N>::value_type>
   inline constexpr Vector<T, N> scale(const U a, const Vector<T, N> &x) {
     Vector<T, N> res;
 
@@ -159,7 +159,7 @@ namespace cms::alpakatools::math {
     return res;
   }
 
-  template <typename T, int N>	  
+  template <typename T, int N>
   inline constexpr Vector<T, N> sub(const Vector<T, N> &x, const Vector<T, N> &y) {
     Vector<T, N> res;
 
@@ -172,7 +172,7 @@ namespace cms::alpakatools::math {
   }
 
   template <typename U, typename T, int N>
-  requires std::convertible_to<U, typename Vector<T, N>::value_type>	  
+    requires std::convertible_to<U, typename Vector<T, N>::value_type>
   inline constexpr Vector<T, N> axpy(const U a, const Vector<T, N> &x, const Vector<T, N> &y) {
     Vector<T, N> res;
 
