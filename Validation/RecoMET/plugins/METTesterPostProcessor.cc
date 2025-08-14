@@ -57,7 +57,7 @@ void METTesterPostProcessor::FillMETRes(std::string metdir, DQMStore::IGetter &i
   if (mMETDifference_GenMETTrue_METBins[0] && mMETDifference_GenMETTrue_METBins[0]->getRootObject()) {
     // for genmet none of these ME's are filled
 	for (unsigned metIdx=0; metIdx<mNMETBins-1; ++metIdx) {
-	  mMETResolution_GenMETTrue_METBins->setBinError(metIdx+1, mMETDifference_GenMETTrue_METBins[metIdx]->getMean());
+	  mMETResolution_GenMETTrue_METBins->setBinContent(metIdx+1, mMETDifference_GenMETTrue_METBins[metIdx]->getMean());
 	  mMETResolution_GenMETTrue_METBins->setBinError(metIdx+1, mMETDifference_GenMETTrue_METBins[metIdx]->getRMS());
 	}
   }
@@ -65,7 +65,7 @@ void METTesterPostProcessor::FillMETRes(std::string metdir, DQMStore::IGetter &i
   if (mMETDifference_GenMETTrue_EtaBins[0] && mMETDifference_GenMETTrue_EtaBins[0]->getRootObject()) {
     // for genmet none of these ME's are filled
 	for (unsigned metIdx=0; metIdx<mNEtaBins-1; ++metIdx) {
-	  mMETResolution_GenMETTrue_EtaBins->setBinError(metIdx+1, mMETDifference_GenMETTrue_EtaBins[metIdx]->getMean());
+	  mMETResolution_GenMETTrue_EtaBins->setBinContent(metIdx+1, mMETDifference_GenMETTrue_EtaBins[metIdx]->getMean());
 	  mMETResolution_GenMETTrue_EtaBins->setBinError(metIdx+1, mMETDifference_GenMETTrue_EtaBins[metIdx]->getRMS());
 	}
   }
@@ -73,7 +73,7 @@ void METTesterPostProcessor::FillMETRes(std::string metdir, DQMStore::IGetter &i
   if (mMETDifference_GenMETTrue_PhiBins[0] && mMETDifference_GenMETTrue_PhiBins[0]->getRootObject()) {
     // for genmet none of these ME's are filled
 	for (unsigned metIdx=0; metIdx<mNPhiBins-1; ++metIdx) {
-	  mMETResolution_GenMETTrue_PhiBins->setBinError(metIdx+1, mMETDifference_GenMETTrue_PhiBins[metIdx]->getMean());
+	  mMETResolution_GenMETTrue_PhiBins->setBinContent(metIdx+1, mMETDifference_GenMETTrue_PhiBins[metIdx]->getMean());
 	  mMETResolution_GenMETTrue_PhiBins->setBinError(metIdx+1, mMETDifference_GenMETTrue_PhiBins[metIdx]->getRMS());
 	}
   }
