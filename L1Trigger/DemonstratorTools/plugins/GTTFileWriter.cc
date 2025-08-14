@@ -252,29 +252,26 @@ void GTTFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 // ------------ method called once each job before the event loop  ------------
 void GTTFileWriter::beginJob() {
   // Create a vector of pointers to all file writers
-  const std::vector<l1t::demo::BoardDataWriter*> fileWriters = {
-      &fileWriterInputTracks_,
-      &fileWriterConvertedTracks_,
-      &fileWriterSelectedTracks_,
-      &fileWriterVertexAssociatedTracks_,
-      &fileWriterOutputToCorrelator_,
-      &fileWriterOutputToGlobalTrigger_};
+  const std::vector<l1t::demo::BoardDataWriter*> fileWriters = {&fileWriterInputTracks_,
+                                                                &fileWriterConvertedTracks_,
+                                                                &fileWriterSelectedTracks_,
+                                                                &fileWriterVertexAssociatedTracks_,
+                                                                &fileWriterOutputToCorrelator_,
+                                                                &fileWriterOutputToGlobalTrigger_};
 
   // Check that all file writers have the same maxEventsPerFile_
   checkNumEventsPerFile(fileWriters);
-
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void GTTFileWriter::endJob() {
   // Create a vector of pointers to all file writers
-  const std::vector<l1t::demo::BoardDataWriter*> fileWriters = {
-      &fileWriterInputTracks_,
-      &fileWriterConvertedTracks_,
-      &fileWriterSelectedTracks_,
-      &fileWriterVertexAssociatedTracks_,
-      &fileWriterOutputToCorrelator_,
-      &fileWriterOutputToGlobalTrigger_};
+  const std::vector<l1t::demo::BoardDataWriter*> fileWriters = {&fileWriterInputTracks_,
+                                                                &fileWriterConvertedTracks_,
+                                                                &fileWriterSelectedTracks_,
+                                                                &fileWriterVertexAssociatedTracks_,
+                                                                &fileWriterOutputToCorrelator_,
+                                                                &fileWriterOutputToGlobalTrigger_};
 
   // Writing pending events to file before exiting
   for (auto& fileWriter : fileWriters) {
@@ -330,28 +327,29 @@ void GTTFileWriter::checkNumFiles(const std::vector<l1t::demo::BoardDataWriter*>
     }
   }
 
-  const size_t numFiles = fileWritersUnstaggered.size() > 0 ? fileWritersUnstaggered.front()->fileNames_.size() : fileWriters.front()->fileNames_.size();
+  const size_t numFiles = fileWritersUnstaggered.size() > 0 ? fileWritersUnstaggered.front()->fileNames_.size()
+                                                            : fileWriters.front()->fileNames_.size();
 
   // print a warning if a staggered file writer has a different number of files
   for (const auto& fileWriter : fileWriters) {
     if (fileWriter->staggerTmuxSlices_ && fileWriter->fileNames_.size() != numFiles) {
       std::cerr << "GTTFileWriter: Warning: A staggered BoardDataWriter has a different number of files. "
                 << "The first file writer has number of files = " << numFiles
-                << ", but a staggered file writer has number of files = "
-                << fileWriter->fileNames_.size() << "." << std::endl;
+                << ", but a staggered file writer has number of files = " << fileWriter->fileNames_.size() << "."
+                << std::endl;
     }
   }
 
   // throw an error if the number of files is not the same for all unstaggered file writers
   for (const auto& fileWriter : fileWritersUnstaggered) {
     if (fileWriter->fileNames_.size() != numFiles) {
-      throw std::runtime_error("GTTFileWriter: All unstaggered BoardDataWriters must write the same number of files."
-                               " The first file writer wrote " +
-                               std::to_string(numFiles) + " files, but another file writer wrote " +
-                               std::to_string(fileWriter->fileNames_.size()) + " files.");
+      throw std::runtime_error(
+          "GTTFileWriter: All unstaggered BoardDataWriters must write the same number of files."
+          " The first file writer wrote " +
+          std::to_string(numFiles) + " files, but another file writer wrote " +
+          std::to_string(fileWriter->fileNames_.size()) + " files.");
     }
   }
-
 }
 
 // ------------ method checks the number of events per files is the same for all instances of BoardDataWriter ------------
@@ -368,31 +366,31 @@ void GTTFileWriter::checkNumEventsPerFile(const std::vector<l1t::demo::BoardData
     }
   }
 
-  const size_t maxEventsPerFile = fileWritersUnstaggered.size() > 0 ? fileWritersUnstaggered.front()->maxEventsPerFile_ : fileWriters.front()->maxEventsPerFile_;
+  const size_t maxEventsPerFile = fileWritersUnstaggered.size() > 0 ? fileWritersUnstaggered.front()->maxEventsPerFile_
+                                                                    : fileWriters.front()->maxEventsPerFile_;
 
   // print a warning if a staggered file writer has a different maxEventsPerFile_
   for (const auto& fileWriter : fileWriters) {
     if (fileWriter->staggerTmuxSlices_ && fileWriter->maxEventsPerFile_ != maxEventsPerFile) {
       std::cerr << "GTTFileWriter: Warning: A staggered BoardDataWriter has a different maxEventsPerFile_. "
                 << "The first file writer has maxEventsPerFile_ = " << maxEventsPerFile
-                << ", but a staggered file writer has maxEventsPerFile_ = "
-                << fileWriter->maxEventsPerFile_ << "." << std::endl;
+                << ", but a staggered file writer has maxEventsPerFile_ = " << fileWriter->maxEventsPerFile_ << "."
+                << std::endl;
     }
   }
 
   // throw an error if the maxEventsPerFile_ is not the same for all unstaggered file writers
   for (const auto& fileWriter : fileWritersUnstaggered) {
     if (fileWriter->maxEventsPerFile_ != maxEventsPerFile) {
-      throw std::runtime_error("GTTFileWriter: All unstaggered BoardDataWriters must have the same maxEventsPerFile_."
-                               " The first file writer has maxEventsPerFile_ = " +
-                               std::to_string(maxEventsPerFile) + ", but another file writer has maxEventsPerFile_ = " +
-                               std::to_string(fileWriter->maxEventsPerFile_) + "."
-                               " Please set the maxFramesPerFile parameter to use a multiple of the link TMUX.");
+      throw std::runtime_error(
+          "GTTFileWriter: All unstaggered BoardDataWriters must have the same maxEventsPerFile_."
+          " The first file writer has maxEventsPerFile_ = " +
+          std::to_string(maxEventsPerFile) +
+          ", but another file writer has maxEventsPerFile_ = " + std::to_string(fileWriter->maxEventsPerFile_) +
+          ". Please set the maxFramesPerFile parameter to use a multiple of the link TMUX.");
     }
   }
-
 }
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(GTTFileWriter);

@@ -47,9 +47,12 @@ namespace l1t::demo {
                                  "]: Number of channel indices specified, " + std::to_string(indices.size()) +
                                  ", does not match link:board TMUX ratio, " + std::to_string(tmuxRatio));
 
-      const size_t maxEventsPerFileStaggered = ((maxFramesPerFile_ - spec.offset) / (framesPerBX_ * boardTMUX_)) - (tmuxRatio - 1);
-      const size_t maxEventsPerFileUnstaggered = tmuxRatio * ((maxFramesPerFile_ - spec.offset) / (framesPerBX_ * boardTMUX_ * tmuxRatio));
-      maxEventsPerFile_ = std::min(maxEventsPerFile_, staggerTmuxSlices ? maxEventsPerFileStaggered : maxEventsPerFileUnstaggered);
+      const size_t maxEventsPerFileStaggered =
+          ((maxFramesPerFile_ - spec.offset) / (framesPerBX_ * boardTMUX_)) - (tmuxRatio - 1);
+      const size_t maxEventsPerFileUnstaggered =
+          tmuxRatio * ((maxFramesPerFile_ - spec.offset) / (framesPerBX_ * boardTMUX_ * tmuxRatio));
+      maxEventsPerFile_ =
+          std::min(maxEventsPerFile_, staggerTmuxSlices ? maxEventsPerFileStaggered : maxEventsPerFileUnstaggered);
       //TODO: maxEventsPerFile_ can in principle be different for different channels, but we assume that all channels have the same maxEventsPerFile_ and only use the value from the last channel in this loop.
       // staggerTmuxSlices_ = tmuxRatio == 1 ? false : staggerTmuxSlices_;  // This is to ensure staggerTmuxSlices_ is set to false if the link:board TMUX ratio is 1, as staggering has no effect in this case.
       // tmuxRatio_ = tmuxRatio; // alternatively, we could store the tmuxRatio and treat channels with tmuxRatio=1 as unstaggered.
@@ -67,17 +70,27 @@ namespace l1t::demo {
                                    const std::map<LinkId, std::vector<size_t>>& channelMap,
                                    const std::map<std::string, ChannelSpec>& channelSpecs,
                                    const bool staggerTmuxSlices)
-      : BoardDataWriter(
-            format, path, fileExt, framesPerBX, tmux, maxFramesPerFile, mergeMaps(channelMap, channelSpecs), staggerTmuxSlices) {}
+      : BoardDataWriter(format,
+                        path,
+                        fileExt,
+                        framesPerBX,
+                        tmux,
+                        maxFramesPerFile,
+                        mergeMaps(channelMap, channelSpecs),
+                        staggerTmuxSlices) {}
 
   BoardDataWriter::~BoardDataWriter() {
     // Print a warning if there are events that have been processed but not written to file.
     // Note we don't call flush() in the destructor because any exceptions would not be properly handled.
     // BoardDataWriter::flush() should be called in the endJob() function, e.g. GTTFileWriter::endJob().
     if (pendingEvents_ > 0) {
-      std::cerr << "BoardDataWriter: Warning: The last " << pendingEvents_ << " events were not written to file. Please remember to flush() in the endJob() function of your file writer." << std::endl;
+      std::cerr << "BoardDataWriter: Warning: The last " << pendingEvents_
+                << " events were not written to file. Please remember to flush() in the endJob() function of your file "
+                   "writer."
+                << std::endl;
       if (!fileNames_.empty()) {
-        std::cerr << "BoardDataWriter: The name of the last complete output buffer file was " << fileNames_.back() << std::endl;
+        std::cerr << "BoardDataWriter: The name of the last complete output buffer file was " << fileNames_.back()
+                  << std::endl;
       }
     }
   }
