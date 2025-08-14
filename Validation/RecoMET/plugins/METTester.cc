@@ -254,15 +254,15 @@ void METTester::analyze(const edm::Event &iEvent,
   const double MEy = met.py();
   const double METEta = met.eta();
   const double METPhi = met.phi();
-  mMEx->Fill(MEx);
-  mMEy->Fill(MEy);
+  mSumET->Fill(SumET);
+  mMETSig->Fill(METSig);
   mMET->Fill(MET);
   mMETFine->Fill(MET);
   mMET_Nvtx->Fill((double)nvtx, MET);
+  mMEx->Fill(MEx);
+  mMEy->Fill(MEy);
   mMETEta->Fill(METEta);
   mMETPhi->Fill(METPhi);
-  mSumET->Fill(SumET);
-  mMETSig->Fill(METSig);
 
   // Get Generated MET for Resolution plots
   const reco::GenMET *genMetTrue = nullptr;
