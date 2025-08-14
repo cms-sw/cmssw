@@ -114,7 +114,21 @@ namespace edm {
     if (iToIndexAndNames == std::numeric_limits<unsigned int>::max()) {
       return ProductResolverIndexInvalid;
     }
-    return indexAndNames_[iToIndexAndNames].index();
+
+    auto checkForSingleProcess = [this](unsigned int index) {
+      //0 is for blank process name. If not zero, we have a match
+      if (indexAndNames_[index].startInProcessNames() != 0U) {
+        return index;
+      }
+      //Now check to see if only one process has this type/module/instance name
+      auto nextIndex = index + 1;
+      while (indexAndNames_.size() > nextIndex && indexAndNames_[nextIndex].startInProcessNames() != 0U) {
+        ++nextIndex;
+      }
+      return (nextIndex == index + 2) ? index + 1 : index;
+    };
+
+    return indexAndNames_[checkForSingleProcess(iToIndexAndNames)].index();
   }
 
   ProductResolverIndexHelper::Matches::Matches(ProductResolverIndexHelper const* productResolverIndexHelper,

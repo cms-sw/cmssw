@@ -1194,6 +1194,7 @@ namespace edm {
       bool skipCurrentProcess,
       SharedResourcesAcquirer* sra,
       ModuleCallingContext const* mcc) const {
+    assert(false);
     //NOTE: Have to lookup the other ProductResolver each time rather than cache
     // it's pointer since it appears the pointer can change at some later stage
     return principal.getProductResolverByIndex(realResolverIndex_)
@@ -1206,6 +1207,7 @@ namespace edm {
                                                             ServiceToken const& token,
                                                             SharedResourcesAcquirer* sra,
                                                             ModuleCallingContext const* mcc) const noexcept {
+    assert(false);
     principal.getProductResolverByIndex(realResolverIndex_)
         ->prefetchAsync(waitTask, principal, skipCurrentProcess, token, sra, mcc);
   }
