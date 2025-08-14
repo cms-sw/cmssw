@@ -124,6 +124,7 @@ l1ct::HadCaloObjEmu l1ct::HgcalClusterDecoderEmulator::decode(const l1ct::PFRegi
     out.hwSrrTot = w_sigmarrtot * l1ct::srrtot_t(l1ct::Scales::SRRTOT_LSB);
     // We just downscale precision and round to the nearest integer
     out.hwMeanZ = l1ct::meanz_t(std::min(w_meanz.to_int() + 1, (1 << 12) - 1) >> 1);
+
     // Compute an H/E value: 1/emf - 1 as needed by Composite ID
     // NOTE: this uses the total cluster energy, which is not the case for the eot shower shape!
     // FIXME: could drop once we move the model to the eot fraction
@@ -169,6 +170,10 @@ l1ct::HadCaloObjEmu l1ct::HgcalClusterDecoderEmulator::decode(const l1ct::PFRegi
 
   // evaluate multiclass model
   valid = notPU && out.hwPt > 0;
+
+  if (!valid) {
+    out.clear();
+  }
 
   return out;
 }
