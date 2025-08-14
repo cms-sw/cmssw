@@ -27,7 +27,7 @@ hltMetPreValidSeq = cms.Sequence(
 
 from Validation.RecoJets.metTester_cfi import metTester as _metTester
 _hltmetTester = _metTester.clone(
-    primVertex = cms.InputTag("hltGoodOfflinePrimaryVertices"), # hltOfflinePrimaryVertices
+    primVertex = cms.InputTag("hltPixelVertices"), # hltGoodOfflinePrimaryVertices, hltOfflinePrimaryVertices
     genMetTrue = cms.InputTag("genMetTrue"),
     genMetCalo = cms.InputTag("genMetCalo"),
 )
