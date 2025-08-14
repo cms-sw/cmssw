@@ -22,7 +22,7 @@
 // date: 01.30.2012
 // note: Added few hists for various nvtx ranges to study PU effects.
 //       Cleaned up the code by making it readable and const'ing the
-//       variables that should be changed.
+//       variables that should be changedc.
 //       Changed the number of bins from odd to even. Odd number of bins
 //       makes it impossible to rebin a hist.
 #include "METTester.h"
@@ -232,7 +232,6 @@ void METTester::analyze(const edm::Event &iEvent,
   }
   const int nvtx = pvHandle->size();
   mNvertex->Fill(nvtx);
-  // Collections for all MET collections
 
   edm::Handle<CaloMETCollection> caloMETs;
   edm::Handle<PFMETCollection> pfMETs;
@@ -444,7 +443,7 @@ void METTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // Default MET validation offline
   desc.add<edm::InputTag>("InputMETLabel", edm::InputTag("pfMet"));
   desc.addUntracked<std::string>("METType", "pf");
-  desc.add<edm::InputTag>("PrimaryVertices", edm::InputTag("offlinePrimaryVertices"));
+
   desc.add<edm::InputTag>("genMetTrue", edm::InputTag(""));
   desc.add<edm::InputTag>("genMetCalo", edm::InputTag(""));
   descriptions.addWithDefaultLabel(desc);
