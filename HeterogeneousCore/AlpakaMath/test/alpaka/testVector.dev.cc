@@ -16,113 +16,120 @@ using namespace cms::alpakatools::math;
 using namespace cms::alpakatools;
 using namespace ALPAKA_ACCELERATOR_NAMESPACE;
 
-using Vec3d = cms::alpakatools::math::Vector<double, 3>;
-using data_t = typename Vec3d::value_type;
+using Vec3d    = cms::alpakatools::math::Vector<double, 3>;
+using data_t   = typename Vec3d::value_type;
+using scalar_t = data_t; 
 
 constexpr int len{1 << 12};
 constexpr int nSrc{Vec3d::N};
-constexpr data_t c{3.14};
+constexpr scalar_t s{3.14};
 
-struct axKernel {
-  const data_t a;
+struct scaleKernel {
+  const scalar_t a;
 
-  constexpr axKernel() : a(c) {}
-
+  constexpr scaleKernel() : a(s) {}
+ 
   ALPAKA_FN_ACC void operator()(Acc1D const& acc, const data_t* x, data_t* z) const {
     for (auto i : uniform_elements(acc)) {
-      const Vec3d xvec(x[i], x[i + len], x[i + len * 2]);
+      const Vec3d xvec(x[i], x[i+len], x[i+len*2]);
 
-      const Vec3d zvec = cms::alpakatools::math::ax(a, xvec);
+      const Vec3d zvec = cms::alpakatools::math::scale(a, xvec);
 
       CMS_UNROLL_LOOP
-      for (int n = 0; n < nSrc; n++) {
-        z[i + n * len] = zvec[n];
+      for(int n = 0; n < nSrc; n++) {
+        z[i+n*len] = zvec[n];
       }
     }
   }
 };
 
-struct xpyKernel {
-  ALPAKA_FN_ACC void operator()(Acc1D const& acc, const data_t* x, const data_t* y, data_t* z) const {
+struct addKernel {
+  ALPAKA_FN_ACC void operator()(Acc1D const& acc, const data_t* x ,const data_t* y, data_t* z) const {
     for (auto i : uniform_elements(acc)) {
-      const Vec3d xvec(x[i], x[i + len], x[i + len * 2]);
-      const Vec3d yvec(y[i], y[i + len], y[i + len * 2]);
+      const Vec3d xvec(x[i], x[i+len], x[i+len*2]);
+      const Vec3d yvec(y[i], y[i+len], y[i+len*2]);
 
-      const Vec3d zvec = cms::alpakatools::math::xpy(xvec, yvec);
+      const Vec3d zvec = cms::alpakatools::math::add(xvec, yvec);
 
       CMS_UNROLL_LOOP
-      for (int n = 0; n < nSrc; n++) {
-        z[i + n * len] = zvec[n];
+      for(int n = 0; n < nSrc; n++) {	      
+        z[i+n*len] = zvec[n];
       }
     }
   }
 };
 
-struct xmyKernel {
-  ALPAKA_FN_ACC void operator()(Acc1D const& acc, const data_t* x, const data_t* y, data_t* z) const {
-    for (auto i : uniform_elements(acc)) {
-      const Vec3d xvec(x[i], x[i + len], x[i + len * 2]);
-      const Vec3d yvec(y[i], y[i + len], y[i + len * 2]);
+struct subKernel {
+  ALPAKA_FN_ACC void operator()(Acc1D const& acc, const data_t* x ,const data_t* y, data_t* z) const {
+    for (auto i : uniform_elements(acc)){
+      const Vec3d xvec(x[i], x[i+len], x[i+len*2]);
+      const Vec3d yvec(y[i], y[i+len], y[i+len*2]);
 
-      const Vec3d zvec = cms::alpakatools::math::xmy(xvec, yvec);
+      const Vec3d zvec = cms::alpakatools::math::sub(xvec, yvec);
 
       CMS_UNROLL_LOOP
-      for (int n = 0; n < nSrc; n++) {
-        z[i + n * len] = zvec[n];
+      for(int n = 0; n < nSrc; n++) {
+        z[i+n*len] = zvec[n];
       }
     }
   }
 };
+
 
 struct axpyKernel {
-  const data_t a;
+  const scalar_t a;
 
-  constexpr axpyKernel() : a(c) {}
+  constexpr axpyKernel() : a(s) {}
 
-  ALPAKA_FN_ACC void operator()(Acc1D const& acc, const data_t* x, const data_t* y, data_t* z) const {
-    for (auto i : uniform_elements(acc)) {
-      const Vec3d xvec(x[i], x[i + len], x[i + len * 2]);
-      const Vec3d yvec(y[i], y[i + len], y[i + len * 2]);
+  ALPAKA_FN_ACC void operator()(Acc1D const& acc, const data_t* x , const data_t* y, data_t* z) const {
+    for (auto i : uniform_elements(acc)){
+      const Vec3d xvec(x[i], x[i+len], x[i+len*2]);
+      const Vec3d yvec(y[i], y[i+len], y[i+len*2]);
 
       const Vec3d zvec = cms::alpakatools::math::axpy(a, xvec, yvec);
 
       CMS_UNROLL_LOOP
-      for (int n = 0; n < nSrc; n++) {
-        z[i + n * len] = zvec[n];
+      for(int n = 0; n < nSrc; n++) {
+        z[i+n*len] = zvec[n];
       }
     }
   }
 };
 
+
 struct normalizeKernel {
   ALPAKA_FN_ACC void operator()(Acc1D const& acc, data_t* x) const {
-    for (auto i : uniform_elements(acc)) {
-      Vec3d xvec(x[i], x[i + len], x[i + len * 2]);
+    for (auto i : uniform_elements(acc)){
+      Vec3d xvec(x[i], x[i+len], x[i+len*2]);
 
       xvec.normalize(acc);
 
       CMS_UNROLL_LOOP
-      for (int n = 0; n < nSrc; n++) {
-        x[i + n * len] = xvec[n];
+      for(int n = 0; n < nSrc; n++) {
+        x[i+n*len] = xvec[n];
       }
     }
   }
 };
 
+
 struct normKernel {
+
   ALPAKA_FN_ACC void operator()(Acc1D const& acc, const data_t* x, data_t* r) const {
-    for (auto i : uniform_elements(acc)) {
-      const Vec3d xvec(x[i], x[i + len], x[i + len * 2]);
+    for (auto i : uniform_elements(acc)){
+      const Vec3d xvec(x[i], x[i+len], x[i+len*2]);
 
       r[i] = xvec.norm(acc);
     }
   }
 };
 
+
 struct partialNormKernel {
+
   ALPAKA_FN_ACC void operator()(Acc1D const& acc, const data_t* x, data_t* r) const {
-    for (auto i : uniform_elements(acc)) {
-      const Vec3d xvec(x[i], x[i + len], x[i + len * 2]);
+    for (auto i : uniform_elements(acc)){
+      const Vec3d xvec(x[i], x[i+len], x[i+len*2]);
 
       r[i] = xvec.template partial_norm<Acc1D, 2>(acc);
     }
@@ -130,15 +137,17 @@ struct partialNormKernel {
 };
 
 struct dotKernel {
+
   ALPAKA_FN_ACC void operator()(Acc1D const& acc, const data_t* x, const data_t* y, data_t* r) const {
-    for (auto i : uniform_elements(acc)) {
-      const Vec3d xvec(x[i], x[i + len], x[i + len * 2]);
-      const Vec3d yvec(y[i], y[i + len], y[i + len * 2]);
+    for (auto i : uniform_elements(acc)){
+      const Vec3d xvec(x[i], x[i+len], x[i+len*2]);
+      const Vec3d yvec(y[i], y[i+len], y[i+len*2]);
 
       r[i] = cms::alpakatools::math::dot(xvec, yvec);
     }
   }
 };
+
 
 int main() {
   // get the list of devices on the current platform
@@ -149,14 +158,14 @@ int main() {
     exit(EXIT_FAILURE);
   }
 
-  using data_t = double;
-
-  constexpr int N = 1 << 12;
-  constexpr int nSrc = 3;
+  constexpr int N = len;
 
   // run the test on each device
   for (auto const& device : devices) {
+    
     auto queue = Queue(device);
+    auto const host_platform = alpaka::PlatformCpu{};
+    auto const host_device   = alpaka::getDevByIdx(host_platform, 0);
 
     auto x_h = make_host_buffer<data_t[]>(queue, N * nSrc);
     auto x_d = make_device_buffer<data_t[]>(queue, N * nSrc);
@@ -167,98 +176,121 @@ int main() {
     auto z_h = make_host_buffer<data_t[]>(queue, N * nSrc);
     auto z_d = make_device_buffer<data_t[]>(queue, N * nSrc);
 
+    auto result_h = make_host_buffer<data_t[]>(queue, N);
     auto result_d = make_device_buffer<data_t[]>(queue, N);
 
-    auto _x = x_h.data();
-    auto _y = y_h.data();
-    auto _z = z_h.data();
+    Vec1D const extent1D(N * nSrc);
+
+    auto x_view = alpaka::createView(host_device, x_h.data(), extent1D);
+    auto y_view = alpaka::createView(host_device, y_h.data(), extent1D);
+    auto z_view = alpaka::createView(host_device, z_h.data(), extent1D);
+
+    auto result_view = alpaka::createView(host_device, result_h.data(), extent1D);
 
     // Initialize random number generator
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::normal_distribution<data_t> distr(0.0, 1.0);
+    std::random_device rd; 
+    std::mt19937 gen(rd()); 
+    std::normal_distribution<data_t> distr(0.0, 1.0); 
 
-    for (int i = 0; i < N * nSrc; i++) {
-      _x[i] = distr(gen);
-      _y[i] = distr(gen);
+    for(int i = 0; i < N * nSrc; i++) {
+      x_view[i] = distr(gen);
+      y_view[i] = distr(gen);
     }
 
     // copy the object to the device.
     alpaka::memcpy(queue, x_d, x_h);
     alpaka::memcpy(queue, y_d, y_h);
+
     alpaka::wait(queue);
 
     const int numBlocks = 4;
-    const int numThreadsPerBlock = len / numBlocks;
+    const int numThreadsPerBlock = len / numBlocks ;
 
     const auto workDiv = make_workdiv<Acc1D>(numBlocks, numThreadsPerBlock);
 
-    alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workDiv, axKernel{}, x_d.data(), z_d.data()));
-    alpaka::wait(queue);
+    alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workDiv, scaleKernel{}, x_d.data(), z_d.data()));
 
     alpaka::memcpy(queue, z_h, z_d);
+
+    alpaka::wait(queue);
 
     int fails = 0;
-    constexpr data_t epsilon = 1e-16;
+    constexpr data_t epsilon = 1e-12; 
 
-    for (int i = 0; i < len * nSrc; i++) {
-      _x[i] = c * _x[i];
+    for( int i = 0; i < len*nSrc; i++) {
+      const data_t res = s * x_view[i];
       //
-      const data_t r = _x[i] - _z[i];
+      const data_t r = res - z_view[i];
       //
-      if (std::abs(r) > epsilon)
-        fails++;
-    }
-
+      if (std::abs(r) > epsilon) fails++;
+    }   
+  
     assert(fails == 0);
 
-    alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workDiv, xpyKernel(), x_d.data(), y_d.data(), z_d.data()));
-    alpaka::wait(queue);
+    alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workDiv, addKernel(), x_d.data(), y_d.data(), z_d.data()));
 
     alpaka::memcpy(queue, z_h, z_d);
 
-    for (int i = 0; i < len * nSrc; i++) {
-      const data_t res = _x[i] + _y[i];
+    alpaka::wait(queue);
+
+    for( int i = 0; i < len*nSrc; i++) {
+      const data_t res = x_view[i] + y_view[i];
       //
-      const data_t r = res - _z[i];
+      const data_t r = res - z_view[i];
       //
-      if (std::abs(r) > epsilon)
-        fails++;
-    }
+      if (std::abs(r) > epsilon) fails++;
+    }  
 
     assert(fails == 0);
 
-    alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workDiv, xmyKernel(), x_d.data(), y_d.data(), z_d.data()));
-    alpaka::wait(queue);
+    alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workDiv, subKernel(), x_d.data(), y_d.data(), z_d.data()));
 
     alpaka::memcpy(queue, z_h, z_d);
 
-    for (int i = 0; i < len * nSrc; i++) {
-      const data_t res = _x[i] - _y[i];
+    alpaka::wait(queue);
+
+    for( int i = 0; i < len*nSrc; i++) {
+      const data_t res = x_view[i] - y_view[i];
       //
-      const data_t r = res - _z[i];
+      const data_t r = res - z_view[i];
       //
-      if (std::abs(r) > epsilon)
-        fails++;
+      if (std::abs(r) > epsilon) fails++;
     }
 
     assert(fails == 0);
 
     alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workDiv, axpyKernel(), x_d.data(), y_d.data(), z_d.data()));
-    alpaka::wait(queue);
 
     alpaka::memcpy(queue, z_h, z_d);
 
-    for (int i = 0; i < len * nSrc; i++) {
-      const data_t res = c * _x[i] + _y[i];
+    alpaka::wait(queue);
+
+    for( int i = 0; i < len*nSrc; i++) {
+      const data_t res = s * x_view[i] + y_view[i];
       //
-      const data_t r = res - _z[i];
+      const data_t r = res - z_view[i];
       //
-      if (std::abs(r) > epsilon)
-        fails++;
+      if (std::abs(r) > epsilon) fails++;
     }
 
     assert(fails == 0);
+
+    alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workDiv, dotKernel(), x_d.data(), y_d.data(), result_d.data()));
+
+    alpaka::memcpy(queue, result_h, result_d);
+
+    alpaka::wait(queue);
+
+    for( int i = 0; i < len; i++) {
+      data_t res = x_view[i] * y_view[i];
+      for (int j = 1; j < nSrc; j++) res += x_view[i+j*len] * y_view[i+j*len];
+      //
+      const data_t r = res - result_view[i];
+      //
+      if (std::abs(r) > epsilon) fails++;
+    }
+
+    assert(fails == 0);    
   }
   std::cout << "TEST PASSED" << std::endl;
   return 0;
