@@ -21,7 +21,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 //
-// class decleration
+// class declaration
 //
 
 class METTesterPostProcessorHarvesting : public DQMEDHarvester {
