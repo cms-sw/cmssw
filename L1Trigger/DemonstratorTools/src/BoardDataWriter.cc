@@ -15,17 +15,17 @@ namespace l1t::demo {
                                    const size_t maxFramesPerFile,
                                    const ChannelMap_t& channelSpecs,
                                    const bool staggerTmuxSlices)
-      : fileFormat_(format),
+      : maxEventsPerFile_(maxFramesPerFile),
+        staggerTmuxSlices_(staggerTmuxSlices),
+        fileFormat_(format),
         boardDataFileID_("CMSSW"),
         filePathGen_([=](const size_t i) { return path + "_" + std::to_string(i) + "." + fileExt; }),
         framesPerBX_(framesPerBX),
         boardTMUX_(tmux),
         maxFramesPerFile_(maxFramesPerFile),
-        maxEventsPerFile_(maxFramesPerFile_),
         eventIndex_(0),
         pendingEvents_(0),
-        channelMap_(channelSpecs),
-        staggerTmuxSlices_(staggerTmuxSlices) {
+        channelMap_(channelSpecs) {
     if (channelMap_.empty())
       throw std::runtime_error("BoardDataWriter channel map cannnot be empty");
     if (fileExt != "txt" && fileExt != "txt.gz" && fileExt != "txt.xz")
@@ -51,6 +51,8 @@ namespace l1t::demo {
       const size_t maxEventsPerFileUnstaggered = tmuxRatio * ((maxFramesPerFile_ - spec.offset) / (framesPerBX_ * boardTMUX_ * tmuxRatio));
       maxEventsPerFile_ = std::min(maxEventsPerFile_, staggerTmuxSlices ? maxEventsPerFileStaggered : maxEventsPerFileUnstaggered);
       //TODO: maxEventsPerFile_ can in principle be different for different channels, but we assume that all channels have the same maxEventsPerFile_ and only use the value from the last channel in this loop.
+      // staggerTmuxSlices_ = tmuxRatio == 1 ? false : staggerTmuxSlices_;  // This is to ensure staggerTmuxSlices_ is set to false if the link:board TMUX ratio is 1, as staggering has no effect in this case.
+      // tmuxRatio_ = tmuxRatio; // alternatively, we could store the tmuxRatio and treat channels with tmuxRatio=1 as unstaggered.
     }
 
     resetBoardData();

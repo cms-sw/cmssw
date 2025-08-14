@@ -53,6 +53,12 @@ namespace l1t::demo {
 
     std::vector<std::string> fileNames_;
 
+    size_t maxEventsPerFile_;
+
+    // Flag that controls whether channels of different TMUX slices are offset from each other by
+    // framesPerBX_ x relative BX ID (via invalid words at start of file)
+    bool staggerTmuxSlices_;
+
   private:
     static ChannelMap_t mergeMaps(const std::map<LinkId, std::vector<size_t>>&,
                                   const std::map<std::string, ChannelSpec>&);
@@ -72,8 +78,6 @@ namespace l1t::demo {
 
     size_t maxFramesPerFile_;
 
-    size_t maxEventsPerFile_;
-
     size_t eventIndex_;
 
     // Number of events stored in boardData_
@@ -83,10 +87,6 @@ namespace l1t::demo {
 
     // map of logical channel ID -> [TMUX period, interpacket-gap & offset; channel indices]
     ChannelMap_t channelMap_;
-
-    // Flag that controls whether channels of different TMUX slices are offset from each other by
-    // framesPerBX_ x relative BX ID (via invalid words at start of file)
-    bool staggerTmuxSlices_;
   };
 
 }  // namespace l1t::demo
