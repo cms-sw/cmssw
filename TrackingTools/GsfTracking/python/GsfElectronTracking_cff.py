@@ -7,8 +7,6 @@ from RecoParticleFlow.PFTracking.mergedElectronSeeds_cfi import *
 electronSeedsTask = cms.Task(trackerDrivenElectronSeeds,ecalDrivenElectronSeeds,electronMergedSeeds) 
 electronSeeds = cms.Sequence(electronSeedsTask)
 
-from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
-pp_on_AA.toReplaceWith(electronSeedsTask, electronSeedsTask.copyAndExclude([trackerDrivenElectronSeeds]))
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 _fastSim_electronSeedsTask = electronSeedsTask.copy()
