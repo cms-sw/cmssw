@@ -131,7 +131,6 @@ class Process(object):
         self.__dict__['_Process__endpaths'] = DictTypes.SortedKeysDict() # of definition
         self.__dict__['_Process__sequences'] = {}
         self.__dict__['_Process__tasks'] = {}
-        self.__dict__['_Process__conditionaltasks'] = {}
         self.__dict__['_Process__services'] = {}
         self.__dict__['_Process__essources'] = {}
         self.__dict__['_Process__esproducers'] = {}
@@ -308,10 +307,6 @@ class Process(object):
         """returns a dict of the tasks that have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__tasks)
     tasks = property(tasks_,doc="dictionary containing the tasks for the process")
-    def conditionaltasks_(self):
-        """returns a dict of the conditionaltasks that have been added to the Process"""
-        return DictTypes.FixedKeysDict(self.__conditionaltasks)
-    conditionaltasks = property(conditionaltasks_,doc="dictionary containing the conditionatasks for the process")
     def schedule_(self):
         """returns the schedule that has been added to the Process or None if none have been added"""
         return self.__schedule
@@ -420,7 +415,6 @@ class Process(object):
             if name == value.type_():
                 if hasattr(self,name) and (getattr(self,name)!=value):
                     self._replaceInTasks(name, value)
-                    self._replaceInConditionalTasks(name, value)
                 # Only Services get handled here
                 self.add_(value)
                 return
@@ -457,7 +451,6 @@ class Process(object):
             if newValue._isTaskComponent():
                 if not self.__InExtendCall:
                     self._replaceInTasks(name, newValue)
-                    self._replaceInConditionalTasks(name, newValue)
                     self._replaceInSchedule(name, newValue)
                 else:
                     if not isinstance(newValue, Task):
@@ -476,10 +469,8 @@ class Process(object):
                         if s is not None:
                             raise ValueError(msg1+s.label_()+msg2)
 
-            if isinstance(newValue, _Sequenceable) or newValue._isTaskComponent() or isinstance(newValue, ConditionalTask):
+            if isinstance(newValue, _Sequenceable) or newValue._isTaskComponent():
                 if not self.__InExtendCall:
-                    if isinstance(newValue, ConditionalTask):
-                        self._replaceInConditionalTasks(name, newValue)
                     self._replaceInSequences(name, newValue)
                 else:
                     #should check to see if used in sequence before complaining
@@ -578,7 +569,7 @@ class Process(object):
         self._delHelper(name)
         obj = getattr(self,name)
         if not obj is None:
-            if not isinstance(obj, Sequence) and not isinstance(obj, Task) and not isinstance(obj,ConditionalTask):
+            if not isinstance(obj, Sequence) and not isinstance(obj, Task):
                 # For modules, ES modules and services we can also remove
                 # the deleted object from Sequences, Paths, EndPaths, and
                 # Tasks. Note that for Sequences and Tasks that cannot be done
@@ -590,7 +581,6 @@ class Process(object):
                 # has been checked that the deleted Sequence is not used).
                 if obj._isTaskComponent():
                     self._replaceInTasks(name, None)
-                    self._replaceInConditionalTasks(name, None)
                     self._replaceInSchedule(name, None)
                 if isinstance(obj, _Sequenceable) or obj._isTaskComponent():
                     self._replaceInSequences(name, None)
@@ -688,9 +678,6 @@ class Process(object):
     def _placeTask(self,name:str,task):
         self._validateTask(task, name)
         self._place(name, task, self.__tasks)
-    def _placeConditionalTask(self,name:str,task):
-        self._validateConditionalTask(task, name)
-        self._place(name, task, self.__conditionaltasks)
     def _placeAlias(self,name:str,mod):
         self._place(name, mod, self.__aliases)
     def _placePSet(self,name:str,mod):
@@ -741,7 +728,7 @@ class Process(object):
                     self.__setattr__(name,item)
             elif isinstance(item,_ModuleSequenceType):
                 seqs[name]=item
-            elif isinstance(item,Task) or isinstance(item, ConditionalTask):
+            elif isinstance(item,Task):
                 tasksToAttach[name] = item
             elif isinstance(item,_Labelable):
                 self.__setattr__(name,item)
@@ -913,14 +900,6 @@ class Process(object):
             task.visit(visitor)
         except:
             raise RuntimeError("An entry in task " + label + ' has not been attached to the process')
-    def _validateConditionalTask(self, task, label:str):
-        # See if every module and service has been inserted into the process
-        try:
-            l = set()
-            visitor = NodeNameVisitor(l)
-            task.visit(visitor)
-        except:
-            raise RuntimeError("An entry in task " + label + ' has not been attached to the process')
 
     def _itemsInDependencyOrder(self, processDictionaryOfItems):
         # The items can be Sequences or Tasks and the input
@@ -936,8 +915,6 @@ class Process(object):
             containedItems = []
             if isinstance(item, Task):
                 v = TaskVisitor(containedItems)
-            elif isinstance(item, ConditionalTask):
-                v = ConditionalTaskVisitor(containedItems)
             else:
                 v = SequenceVisitor(containedItems)
             try:
@@ -946,9 +923,6 @@ class Process(object):
                 if isinstance(item, Task):
                     raise RuntimeError("Failed in a Task visitor. Probably " \
                                        "a circular dependency discovered in Task with label " + label)
-                elif isinstance(item, ConditionalTask):
-                    raise RuntimeError("Failed in a ConditionalTask visitor. Probably " \
-                                       "a circular dependency discovered in ConditionalTask with label " + label)
                 else:
                     raise RuntimeError("Failed in a Sequence visitor. Probably a " \
                                        "circular dependency discovered in Sequence with label " + label)
@@ -963,10 +937,6 @@ class Process(object):
                     if testItem is None or containedItem != testItem:
                         if isinstance(item, Task):
                             raise RuntimeError("Task has a label, but using its label to get an attribute" \
-                                               " from the process yields a different object or None\n"+
-                                               "label = " + containedItem.label_())
-                        if isinstance(item, ConditionalTask):
-                            raise RuntimeError("ConditionalTask has a label, but using its label to get an attribute" \
                                                " from the process yields a different object or None\n"+
                                                "label = " + containedItem.label_())
                         else:
@@ -1021,7 +991,6 @@ class Process(object):
         result+=self._dumpPythonList(self.es_sources_(), options)
         result+=self._dumpPython(self.es_prefers_(), options)
         result+=self._dumpPythonList(self._itemsInDependencyOrder(self.tasks), options)
-        result+=self._dumpPythonList(self._itemsInDependencyOrder(self.conditionaltasks), options)
         result+=self._dumpPythonList(self._itemsInDependencyOrder(self.sequences), options)
         result+=self._dumpPythonList(self.paths_(), options)
         result+=self._dumpPythonList(self.endpaths_(), options)
@@ -1118,10 +1087,6 @@ class Process(object):
         old = getattr(self,label)
         for task in self.tasks.values():
             task.replace(old, new)
-    def _replaceInConditionalTasks(self, label:str, new):
-        old = getattr(self,label)
-        for task in self.conditionaltasks.values():
-            task.replace(old, new)
     def _replaceInSchedule(self, label:str, new):
         if self.schedule_() == None:
             return
@@ -1194,8 +1159,7 @@ class Process(object):
         decoratedList = []
         lister = DecoratedNodeNameVisitor(decoratedList)
         condTaskModules = []
-        condTaskVistor = ModuleNodeOnConditionalTaskVisitor(condTaskModules)
-        pathCompositeVisitor = CompositeVisitor(pathValidator, nodeVisitor, lister, condTaskVistor)
+        pathCompositeVisitor = CompositeVisitor(pathValidator, nodeVisitor, lister)
         endpathCompositeVisitor = CompositeVisitor(endpathValidator, nodeVisitor, lister)
         for triggername in triggerPaths:
             iPath = self.paths_()[triggername]
@@ -1705,8 +1669,6 @@ class Modifier(object):
             toObj._seq = fromObj._seq
             toObj._tasks = fromObj._tasks
         elif isinstance(fromObj,Task):
-            toObj._collection = fromObj._collection
-        elif isinstance(fromObj,ConditionalTask):
             toObj._collection = fromObj._collection
         elif isinstance(fromObj,_Parameterizable):
             #clear old items just incase fromObj is not a complete superset of toObj
