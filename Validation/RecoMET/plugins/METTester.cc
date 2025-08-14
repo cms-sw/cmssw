@@ -34,25 +34,23 @@ METTester::METTester(const edm::ParameterSet &iConfig) {
   inputMETLabel_ = iConfig.getParameter<edm::InputTag>("InputMETLabel");
 
   METType_ = iConfig.getUntrackedParameter<std::string>("METType");
-  isCaloMET    = std::string("calo") == METType_;
-  isPFMET      = std::string("pf") == METType_;
-  isGenMET     = std::string("gen") == METType_;
+  isCaloMET    = std::string("calo")    == METType_;
+  isPFMET      = std::string("pf")      == METType_;
+  isGenMET     = std::string("gen")     == METType_;
   isMiniAODMET = std::string("miniaod") == METType_;
 
-  pvToken_ = consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("PrimaryVertices"));
-  if (isCaloMET)
-    caloMETsToken_ = consumes<reco::CaloMETCollection>(inputMETLabel_);
-  if (isPFMET)
-    pfMETsToken_ = consumes<reco::PFMETCollection>(inputMETLabel_);
-  if (isMiniAODMET)
-    patMETToken_ = consumes<pat::METCollection>(inputMETLabel_);
-  if (isGenMET)
-    genMETsToken_ = consumes<reco::GenMETCollection>(inputMETLabel_);
+  if (isCaloMET)         caloMETsToken_ = consumes<reco::CaloMETCollection>(inputMETLabel_);
+  else if (isPFMET)      pfMETsToken_   = consumes<reco::PFMETCollection>(inputMETLabel_);
+  else if (isMiniAODMET) patMETToken_   = consumes<pat::METCollection>(inputMETLabel_);
+  else if (isGenMET)     genMETsToken_  = consumes<reco::GenMETCollection>(inputMETLabel_);
+
   if (!isMiniAODMET) {
     genMETsTrueToken_ = consumes<reco::GenMETCollection>(edm::InputTag("genMetTrue"));
     genMETsCaloToken_ = consumes<reco::GenMETCollection>(edm::InputTag("genMetCalo"));
   }
 
+  pvToken_ = consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("PrimaryVertices"));
+  
   // Events variables
   mNvertex = nullptr;
 
@@ -226,36 +224,28 @@ void METTester::analyze(const edm::Event &iEvent,
   edm::Handle<GenMETCollection> genMETs;
   edm::Handle<pat::METCollection> patMET;
 
-  if (isCaloMET)
-    iEvent.getByToken(caloMETsToken_, caloMETs);
-  if (isPFMET)
-    iEvent.getByToken(pfMETsToken_, pfMETs);
-  if (isGenMET)
-    iEvent.getByToken(genMETsToken_, genMETs);
-  if (isMiniAODMET)
-    iEvent.getByToken(patMETToken_, patMET);
-  if ((isCaloMET) and !caloMETs.isValid())
-    return;
-  if ((isPFMET) and !pfMETs.isValid())
-    return;
-  if ((isGenMET) and !genMETs.isValid())
-    return;
-  if ((isMiniAODMET) and !patMET.isValid())
-    return;
+  if (isCaloMET) {
+	iEvent.getByToken(caloMETsToken_, caloMETs);
+	if (!caloMETs.isValid()) return;
+  }
+  else if (isPFMET) {
+	iEvent.getByToken(pfMETsToken_, pfMETs);
+	if (!pfMETs.isValid()) return;
+  }
+  else if (isGenMET) {
+	iEvent.getByToken(genMETsToken_, genMETs);
+	if (!genMETs.isValid()) return;
+  }
+  else if (isMiniAODMET) {
+	iEvent.getByToken(patMETToken_, patMET);
+	if (!patMET.isValid()) return;
+  }
 
   reco::MET met;
-  if (isCaloMET) {
-    met = caloMETs->front();
-  }
-  if (isPFMET) {
-    met = pfMETs->front();
-  }
-  if (isGenMET) {
-    met = genMETs->front();
-  }
-  if (isMiniAODMET) {
-    met = patMET->front();
-  }
+  if (isCaloMET)         met = caloMETs->front();
+  else if (isPFMET)      met = pfMETs->front();
+  else if (isGenMET)     met = genMETs->front();
+  else if (isMiniAODMET) met = patMET->front();
 
   const double SumET = met.sumEt();
   const double METSig = met.mEtSig();
