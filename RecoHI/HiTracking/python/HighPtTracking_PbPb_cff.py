@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import * #also includes global tracking geometry
 from RecoTracker.TransientTrackingRecHit.TTRHBuilders_cff import *
 from RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff import * #cluster parameter estimator producer
+from RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi import SiPixelTemplateStoreESProducer
 from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
 
 ### pixel primary vertices

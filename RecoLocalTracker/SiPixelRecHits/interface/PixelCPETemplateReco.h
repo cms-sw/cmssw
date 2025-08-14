@@ -56,6 +56,7 @@ public:
                        const TrackerGeometry &,
                        const TrackerTopology &,
                        const SiPixelLorentzAngle *,
+                       const std::vector<SiPixelTemplateStore> *,
                        const SiPixelTemplateDBObject *);
 
   ~PixelCPETemplateReco() override;
@@ -74,7 +75,8 @@ private:
   LocalError localError(DetParam const &theDetParam, ClusterParam &theClusterParam) const override;
 
   // Template storage
-  std::vector<SiPixelTemplateStore> thePixelTemp_;
+  std::vector<SiPixelTemplateStore> thePixelTempCache_;
+  const std::vector<SiPixelTemplateStore> *thePixelTemp_;
 
   int speed_;
 

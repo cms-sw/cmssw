@@ -11,3 +11,4 @@ from RecoLocalTracker.SiPixelRecHits.PixelCPETemplateReco_cfi import *
 from RecoLocalTracker.SiPixelRecHits.PixelCPEClusterRepair_cfi import *
 from RecoTracker.TransientTrackingRecHit.TTRHBuilderWithTemplate_cfi import *
 
+from RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi import *
