@@ -20,8 +20,11 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "Validation/RecoMET/plugins/METTester.h"
+
 //
-// class decleration
+// class declaration
 //
 
 class METTesterPostProcessor : public DQMEDHarvester {
@@ -34,18 +37,22 @@ private:
   std::vector<std::string> met_dirs;
 
   void FillMETRes(std::string metdir, DQMStore::IGetter &);
-  MonitorElement *mMETDifference_GenMETTrue_MET0to20;
-  MonitorElement *mMETDifference_GenMETTrue_MET20to40;
-  MonitorElement *mMETDifference_GenMETTrue_MET40to60;
-  MonitorElement *mMETDifference_GenMETTrue_MET60to80;
-  MonitorElement *mMETDifference_GenMETTrue_MET80to100;
-  MonitorElement *mMETDifference_GenMETTrue_MET100to150;
-  MonitorElement *mMETDifference_GenMETTrue_MET150to200;
-  MonitorElement *mMETDifference_GenMETTrue_MET200to300;
-  MonitorElement *mMETDifference_GenMETTrue_MET300to400;
-  MonitorElement *mMETDifference_GenMETTrue_MET400to500;
-  MonitorElement *mMETDifference_GenMETTrue_MET500;
-  MonitorElement *mMETDifference_GenMETTrue_METResolution;
+
+  static constexpr int mNMETBins = METTester::mNMETBins;
+  static constexpr auto mMETBins = METTester::mMETBins;
+  std::array<MonitorElement *, mNMETBins> mMETDifference_GenMETTrue_METBins;
+
+  static constexpr int mNEtaBins = METTester::mNEtaBins;
+  static constexpr auto mEtaBins = METTester::mEtaBins;
+  std::array<MonitorElement *, mNEtaBins> mMETDifference_GenMETTrue_EtaBins;
+  
+  static constexpr int mNPhiBins = METTester::mNPhiBins;
+  static constexpr auto mPhiBins = METTester::mPhiBins;
+  std::array<MonitorElement *, mNPhiBins> mMETDifference_GenMETTrue_PhiBins;
+  
+  MonitorElement *mMETResolution_GenMETTrue_METBins;
+  MonitorElement *mMETResolution_GenMETTrue_EtaBins;
+  MonitorElement *mMETResolution_GenMETTrue_PhiBins;
 };
 
 #endif
