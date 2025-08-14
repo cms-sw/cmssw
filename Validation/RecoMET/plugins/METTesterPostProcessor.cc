@@ -26,30 +26,27 @@ void METTesterPostProcessor::dqmEndJob(DQMStore::IBooker &ibook_, DQMStore::IGet
   // loop over met subdirectories
   for (size_t i=0; i<met_dirs.size(); i++) {
     ibook_.setCurrentFolder(met_dirs[i]);
-    mMETResolution_GenMETTrue_METBins =
-	  ibook_.book1D("METResolution_GenMETTrue_METBins", "METResolution_GenMETTrue_METBins",
-					mNMETBins, mMETBins.data());
-    mMETResolution_GenMETTrue_EtaBins =
-	  ibook_.book1D("METResolution_GenMETTrue_EtaBins", "METResolution_GenMETTrue_EtaBins",
-					mNEtaBins, mEtaBins.data());
-    mMETResolution_GenMETTrue_EtaBins =
-	  ibook_.book1D("METResolution_GenMETTrue_PhiBins", "METResolution_GenMETTrue_PhiBins",
-					mNPhiBins, mPhiBins.data());
+    mMETDiffAggr_METBins =
+	  ibook_.book1D("mMETDiffAggr_METBins", "mMETDiffAggr_METBins",	mNMETBins, mMETBins.data());
+    mMETDiffAggr_EtaBins =
+	  ibook_.book1D("mMETDiffAggr_EtaBins", "mMETDiffAggr_EtaBins",	mNEtaBins, mEtaBins.data());
+    mMETDiffAggr_PhiBins =
+	  ibook_.book1D("mMETDiffAggr_PhiBins", "mMETDiffAggr_PhiBins",	mNPhiBins, mPhiBins.data());
     FillMETRes(met_dirs[i], iget_);
   }
 }
 
 void METTesterPostProcessor::FillMETRes(std::string metdir, DQMStore::IGetter &iget) {
   for (unsigned metIdx=0; metIdx<mNMETBins-1; ++metIdx) {
-	std::string met_folder = "/METResolution_GenMETTrue_MET" + std::to_string((int)mMETBins[metIdx]) + "to" + std::to_string((int)mMETBins[metIdx+1]);
+	std::string met_folder = "/METDifference_GenMETTrue_MET" + std::to_string((int)mMETBins[metIdx]) + "to" + std::to_string((int)mMETBins[metIdx+1]);
 	mMETDifference_GenMETTrue_METBins[metIdx] = iget.get(metdir + met_folder);
   }
   for (unsigned metIdx=0; metIdx<mNEtaBins-1; ++metIdx) {
-	std::string met_folder = "/METResolution_GenMETTrue_Eta" + std::to_string((int)mEtaBins[metIdx]) + "to" + std::to_string((int)mEtaBins[metIdx+1]);
+	std::string met_folder = "/METDifference_GenMETTrue_Eta" + std::to_string((int)mEtaBins[metIdx]) + "to" + std::to_string((int)mEtaBins[metIdx+1]);
 	mMETDifference_GenMETTrue_EtaBins[metIdx] = iget.get(metdir + met_folder);
   }
   for (unsigned metIdx=0; metIdx<mNPhiBins-1; ++metIdx) {
-	std::string met_folder = "/METResolution_GenMETTrue_Phi" + std::to_string((int)mPhiBins[metIdx]) + "to" + std::to_string((int)mPhiBins[metIdx+1]);
+	std::string met_folder = "/METDifference_GenMETTrue_Phi" + std::to_string((int)mPhiBins[metIdx]) + "to" + std::to_string((int)mPhiBins[metIdx+1]);
 	mMETDifference_GenMETTrue_PhiBins[metIdx] = iget.get(metdir + met_folder);
   }
 
@@ -57,24 +54,24 @@ void METTesterPostProcessor::FillMETRes(std::string metdir, DQMStore::IGetter &i
   if (mMETDifference_GenMETTrue_METBins[0] && mMETDifference_GenMETTrue_METBins[0]->getRootObject()) {
     // for genmet none of these ME's are filled
 	for (unsigned metIdx=0; metIdx<mNMETBins-1; ++metIdx) {
-	  mMETResolution_GenMETTrue_METBins->setBinContent(metIdx+1, mMETDifference_GenMETTrue_METBins[metIdx]->getMean());
-	  mMETResolution_GenMETTrue_METBins->setBinError(metIdx+1, mMETDifference_GenMETTrue_METBins[metIdx]->getRMS());
+	  mMETDiffAggr_METBins->setBinContent(metIdx+1, mMETDifference_GenMETTrue_METBins[metIdx]->getMean());
+	  mMETDiffAggr_METBins->setBinError(metIdx+1, mMETDifference_GenMETTrue_METBins[metIdx]->getRMS());
 	}
   }
 
   if (mMETDifference_GenMETTrue_EtaBins[0] && mMETDifference_GenMETTrue_EtaBins[0]->getRootObject()) {
     // for genmet none of these ME's are filled
 	for (unsigned metIdx=0; metIdx<mNEtaBins-1; ++metIdx) {
-	  mMETResolution_GenMETTrue_EtaBins->setBinContent(metIdx+1, mMETDifference_GenMETTrue_EtaBins[metIdx]->getMean());
-	  mMETResolution_GenMETTrue_EtaBins->setBinError(metIdx+1, mMETDifference_GenMETTrue_EtaBins[metIdx]->getRMS());
+	  mMETDiffAggr_EtaBins->setBinContent(metIdx+1, mMETDifference_GenMETTrue_EtaBins[metIdx]->getMean());
+	  mMETDiffAggr_EtaBins->setBinError(metIdx+1, mMETDifference_GenMETTrue_EtaBins[metIdx]->getRMS());
 	}
   }
 
   if (mMETDifference_GenMETTrue_PhiBins[0] && mMETDifference_GenMETTrue_PhiBins[0]->getRootObject()) {
     // for genmet none of these ME's are filled
 	for (unsigned metIdx=0; metIdx<mNPhiBins-1; ++metIdx) {
-	  mMETResolution_GenMETTrue_PhiBins->setBinContent(metIdx+1, mMETDifference_GenMETTrue_PhiBins[metIdx]->getMean());
-	  mMETResolution_GenMETTrue_PhiBins->setBinError(metIdx+1, mMETDifference_GenMETTrue_PhiBins[metIdx]->getRMS());
+	  mMETDiffAggr_PhiBins->setBinContent(metIdx+1, mMETDifference_GenMETTrue_PhiBins[metIdx]->getMean());
+	  mMETDiffAggr_PhiBins->setBinError(metIdx+1, mMETDifference_GenMETTrue_PhiBins[metIdx]->getRMS());
 	}
   }
 

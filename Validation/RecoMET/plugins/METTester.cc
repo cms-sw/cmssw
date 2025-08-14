@@ -161,17 +161,17 @@ void METTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
   }
   if (!isGenMET) {
 	for (unsigned metIdx=0; metIdx<mNMETBins-1; ++metIdx) {
-	  std::string met_title = "METResolution_GenMETTrue_MET" + std::to_string((int)mMETBins[metIdx]) + "to" + std::to_string((int)mMETBins[metIdx+1]);
+	  std::string met_title = "METDifference_GenMETTrue_MET" + std::to_string((int)mMETBins[metIdx]) + "to" + std::to_string((int)mMETBins[metIdx+1]);
 	  mMETDifference_GenMETTrue_METBins[metIdx] = ibooker.book1D(met_title.c_str(), met_title.c_str(), 500, -500, 500);
 	}
 
 	for (unsigned metIdx=0; metIdx<mNEtaBins-1; ++metIdx) {
-	  std::string met_title = "METResolution_GenMETTrue_Eta" + std::to_string((int)mEtaBins[metIdx]) + "to" + std::to_string((int)mEtaBins[metIdx+1]);
+	  std::string met_title = "METDifference_GenMETTrue_Eta" + std::to_string((int)mEtaBins[metIdx]) + "to" + std::to_string((int)mEtaBins[metIdx+1]);
 	  mMETDifference_GenMETTrue_EtaBins[metIdx] = ibooker.book1D(met_title.c_str(), met_title.c_str(), 500, -500, 500);
 	}
 
 	for (unsigned metIdx=0; metIdx<mNPhiBins-1; ++metIdx) {
-	  std::string met_title = "METResolution_GenMETTrue_Phi" + std::to_string((int)mPhiBins[metIdx]) + "to" + std::to_string((int)mPhiBins[metIdx+1]);
+	  std::string met_title = "METDifference_GenMETTrue_Phi" + std::to_string((int)mPhiBins[metIdx]) + "to" + std::to_string((int)mPhiBins[metIdx+1]);
 	  mMETDifference_GenMETTrue_PhiBins[metIdx] = ibooker.book1D(met_title.c_str(), met_title.c_str(), 500, -500, 500);
 	}
   }
