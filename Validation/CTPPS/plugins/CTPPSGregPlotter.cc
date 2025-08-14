@@ -147,8 +147,9 @@ void CTPPSGregPlotter::analyze(const edm::Event &event, const edm::EventSetup &i
           double debug_variable = 0;
           debug_variable = sin(momentum.theta()) * (sqrt(momentum.px()*momentum.px()+momentum.py()*momentum.py()+momentum.pz()*momentum.pz())) / momentum.perp(); //.mag() didn't work
           std::cout<<1 - debug_variable<<std::endl; 
-        }
+          if(part->pdg_id() != 2212) std::cout << "it exists" << std::endl;
 
+        }
         h_example->Fill(momentum.e());
         // Theta Transformation
         double theta_deg = 200;

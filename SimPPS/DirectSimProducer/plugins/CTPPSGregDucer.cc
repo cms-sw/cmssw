@@ -62,6 +62,12 @@
 #include "TFile.h"
 #include "CLHEP/Random/RandFlat.h"
 
+#include <map>
+#include <utility>
+#include <iostream>
+#include <fstream>
+#include <string>
+
 //----------------------------------------------------------------------------------------------------
 
 class CTPPSGregDucer : public edm::stream::EDProducer<> {
@@ -72,9 +78,14 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
+
   void produce(edm::Event &, const edm::EventSetup &) override;
 
-  bool applyCut(const HepMC::GenParticle *part) const;
+  void getCut();
+
+  bool applyCut(const HepMC::GenParticle *part,
+                const CTPPSBeamParameters &beamParameters) const;
+
 
 
   edm::EDGetTokenT<CTPPSLocalTrackLiteCollection> tokenTracks_;
@@ -82,7 +93,9 @@ private:
   edm::EDGetTokenT<edm::HepMCProduct> hepMCToken_;
   edm::ESGetToken<CTPPSBeamParameters, CTPPSBeamParametersRcd> tokenBeamParameters_; 
 
-
+  bool debug = 0;
+  std::string filename1_;
+  std::map<double, std::map<double, std::pair<double, double>>> cutMap1_;
 };
 //----------------------------------------------------------------------------------------------------
 
@@ -93,6 +106,8 @@ CTPPSGregDucer::CTPPSGregDucer(const edm::ParameterSet &ps):
   {
     produces<CTPPSLocalTrackLiteCollection>(); 
     produces<edm::HepMCProduct>("selectedProtons");
+    filename1_ = ps.getParameter<std::string>("filename");
+    getCut();
   }
 
 
@@ -102,11 +117,13 @@ void CTPPSGregDucer::fillDescriptions(edm::ConfigurationDescriptions &descriptio
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("tagTracks", edm::InputTag("ctppsLocalTrackLiteProducer"))->setComment("Input tag for CTPPSLocalTrackLiteCollection");
   desc.add<edm::InputTag>("hepMCTag", edm::InputTag("generator", "unsmeared"))->setComment("Input tag for HepMCProduct"); //Protons
+  desc.add<std::string>("filename", "default_file.txt")->setComment("File with cut definitions"); 
   descriptions.add("ctppsGregDucer", desc);
 
 }
 
 //----------------------------------------------------------------------------------------------------
+
 
 void CTPPSGregDucer::produce(edm::Event &event, const edm::EventSetup &iSetup) {
   edm::Handle<CTPPSLocalTrackLiteCollection> hTracks;
@@ -117,7 +134,11 @@ void CTPPSGregDucer::produce(edm::Event &event, const edm::EventSetup &iSetup) {
   event.getByToken(hepMCToken_, hepmc_prod); 
   
   //Beam
-  // auto const &beamParameters = iSetup.getData(tokenBeamParameters_);
+  auto const &beamParameters = iSetup.getData(tokenBeamParameters_);
+
+
+  // Reference cutMap1
+
 
   // loop over event vertices
   auto evt = hepmc_prod->GetEvent();
@@ -128,7 +149,7 @@ void CTPPSGregDucer::produce(edm::Event &event, const edm::EventSetup &iSetup) {
 
   for (auto it_part = (*it_vtx)->particles_out_const_begin(); it_part != (*it_vtx)->particles_out_const_end(); ++it_part) {
     auto part = *it_part;
-    if (applyCut(part)) {
+    if (applyCut(part, beamParameters)) {
       auto newPart = new HepMC::GenParticle(*part); // clone
       vtx->add_particle_out(newPart);
     }
@@ -145,15 +166,71 @@ void CTPPSGregDucer::produce(edm::Event &event, const edm::EventSetup &iSetup) {
   output->addHepMCData(filteredEvent.release()); // HepMCProduct takes ownership
   event.put(std::move(output), "selectedProtons");
 }
+//----------------------------------------------------------------------------------------------------
+
+
+  void CTPPSGregDucer::getCut() {
+    std::ifstream inputFile1(filename1_);
+
+    if (!inputFile1.is_open()) {
+        throw cms::Exception("IOError") << "Could not open file " << filename1_;
+    }
+
+    // 1st value specifies no of phi-s
+    unsigned int n_phis = 0;
+    inputFile1 >> n_phis;
+
+    if(debug) std::cout << n_phis << std::endl; //Works
+
+    std::vector<double> phis(n_phis);
+    double temp_phi;
+
+    for (unsigned int i = 0; i < n_phis; ++i) {
+        inputFile1 >> phis[i] >> temp_phi; // Read the pair, store the first one
+        if(debug) std::cout << temp_phi << std::endl;
+
+    }
+
+
+
+    double xi, theta_min, theta_max;
+
+    while (inputFile1 >> xi) {
+      for (unsigned int i = 0; i < n_phis; ++i) {
+            inputFile1 >> theta_min >> theta_max;
+            if(debug) std::cout << xi << " " << theta_min << " " << theta_max << std::endl;
+            cutMap1_[xi][phis[i]] = {theta_min, theta_max};
+        }
+    }
+
+    inputFile1.close();
+   
+  }
+
 
 //----------------------------------------------------------------------------------------------------
 
-bool CTPPSGregDucer::applyCut(const HepMC::GenParticle *part) const {
-    // std::cout << "Greg Produced" << std::endl; //It works
+bool CTPPSGregDucer::applyCut(const HepMC::GenParticle *part,
+                              const CTPPSBeamParameters &beamParameters) const {
+    if(debug) if (part->pdg_id() != 2212) std::cout << "non proton" << std::endl;
+    // double xi = 0;
+    // xi = 1.- part->momentum().rho()/ beamParameters.getBeamMom56();
+    double xi_cutTest, phi_cutTest;
+    xi_cutTest =  0.039000;
+    phi_cutTest = 2.356194;
+    std::pair<double, double> thetas_cutTest = cutMap1_.at(xi_cutTest).at(phi_cutTest);   
+    double theta_min = thetas_cutTest.first;
+    double theta_max = thetas_cutTest.second;
+
+
     // accept only stable protons
-    if (part->pdg_id() != 2212) return false;
-    if (part->status() != 1 && part->status() < 83) return false;
-    if (part->momentum().perp()< 0.5) return false;
+    if (part->pdg_id() == 2212){
+      if (part->status() != 1 && part->status() < 83) return false;
+      // if (part->momentum().perp()< 0.5) return false;
+      // if (xi < 0.1) return false;
+      if(part->momentum().theta() > theta_max || part->momentum().theta() < theta_min ) return false; 
+      
+    }
 
     return true;
 }

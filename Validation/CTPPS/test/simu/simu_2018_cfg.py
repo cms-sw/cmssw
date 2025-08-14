@@ -78,8 +78,8 @@ process.ctppsGregPlotter = cms.EDAnalyzer("CTPPSGregPlotter",
 # Greg producer
 process.ctppsGregDucer = cms.EDProducer("CTPPSGregDucer",
     tagTracks = cms.InputTag("GenParticlesNew"),
-    hepMCTag = cms.InputTag("generator", "unsmeared")
-
+    hepMCTag = cms.InputTag("generator", "unsmeared"),
+    filename = cms.string("/afs/cern.ch/user/g/gjedrzej/private/mainTask/CMSSW_15_0_11/src/SimPPS/DirectSimProducer/cutFiles/thetaphilimits_-160urad_18cm_60cm_calib-nodet-xrphd.out") 
 )
 
 # Greg plotter 2
