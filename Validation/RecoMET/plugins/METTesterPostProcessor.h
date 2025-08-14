@@ -1,32 +1,16 @@
 #ifndef METTESTERPOSTPROCESSOR_H
 #define METTESTERPOSTPROCESSOR_H
-
 // author: Matthias Weber, Feb 2015
 
-// system include files
-#include <cmath>
-#include <cstdio>
-#include <memory>
-#include <sstream>
-
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
 #include "Validation/RecoMET/plugins/METTester.h"
 
 //
 // class declaration
 //
-
 class METTesterPostProcessor : public DQMEDHarvester {
 public:
   explicit METTesterPostProcessor(const edm::ParameterSet &);

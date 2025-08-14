@@ -6,9 +6,6 @@
 // Original Author:  "Matthias Weber"
 //         Created:  Sun Feb 22 14:35:25 CET 2015
 //
-
-#include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Framework/interface/Run.h"
 #include "Validation/RecoMET/plugins/METTesterPostProcessor.h"
 
 // Some switches
@@ -27,7 +24,7 @@ void METTesterPostProcessor::dqmEndJob(DQMStore::IBooker &ibook_, DQMStore::IGet
   met_dirs = iget_.getSubdirs();
 
   // loop over met subdirectories
-  for (int i = 0; i < int(met_dirs.size()); i++) {
+  for (size_t i=0; i<met_dirs.size(); i++) {
     ibook_.setCurrentFolder(met_dirs[i]);
     mMETResolution_GenMETTrue_METBins =
 	  ibook_.book1D("METResolution_GenMETTrue_METBins", "METResolution_GenMETTrue_METBins",
