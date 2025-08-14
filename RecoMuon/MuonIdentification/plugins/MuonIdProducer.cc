@@ -275,7 +275,8 @@ void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     iEvent.getByToken(glbQualToken_, glbQualHandle_);
   if (selectHighPurity_)
     iEvent.getByToken(pvToken_, pvHandle_);
-  gemgeom = &iSetup.getData(gemgeomToken_);
+  if (gemHitHandle_.isValid())
+    gemgeom = &iSetup.getData(gemgeomToken_);
 }
 
 reco::Muon MuonIdProducer::makeMuon(edm::Event& iEvent,
@@ -1123,14 +1124,15 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent,
         gemHitMatch.x = gemRecHit.localPosition().x();
         gemHitMatch.mask = 0;
         gemHitMatch.bx = gemRecHit.BunchX();
-        
+
         const GeomDet* geomDet = gemgeom->idToDetUnit(chamber.id);
         const GlobalPoint& global_position = geomDet->toGlobal(lPos);
         if (const GEMChamber* gemChamber = dynamic_cast<const GEMChamber*>(geomDet)) {
           const GeomDet* eta_geomdet = gemChamber->component(gemRecHit.gemId());
           const GEMEtaPartition* eta_partition = dynamic_cast<const GEMEtaPartition*>(eta_geomdet);
           float bordercut = 2;
-          const TrapezoidalPlaneBounds* bounds = dynamic_cast<const TrapezoidalPlaneBounds*>(&eta_partition->surface().bounds());
+          const TrapezoidalPlaneBounds* bounds =
+              dynamic_cast<const TrapezoidalPlaneBounds*>(&eta_partition->surface().bounds());
           LocalPoint localPoint = eta_partition->surface().toLocal(global_position);
           float wideWidth = bounds->width();
           float narrowWidth = 2.f * bounds->widthAtHalfLength() - wideWidth;
@@ -1242,8 +1244,8 @@ void MuonIdProducer::fillArbitrationInfo(reco::MuonCollection* pOutputMuons, uns
                     arbitrationPairs.push_back(std::make_pair(&chamber2, &segment2));
                   }
                 }  // segmentIter2
-              }    // chamberIter2
-            }      // muonIndex2
+              }  // chamberIter2
+            }  // muonIndex2
           }
 
           // arbitration segment sort
