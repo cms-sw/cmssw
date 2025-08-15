@@ -191,14 +191,12 @@ void CTPPSGregDucer::produce(edm::Event &event, const edm::EventSetup &iSetup) {
     unsigned int n_phis = 0;
     inputFile1 >> n_phis;
 
-    if(debug) std::cout << n_phis << std::endl; //Works
 
     std::vector<double> phis(n_phis);
     double temp_phi;
 
     for (unsigned int i = 0; i < n_phis; ++i) {
         inputFile1 >> phis[i] >> temp_phi; // Read the pair, store the first one
-        if(debug) std::cout << temp_phi << std::endl;
 
     }
 
@@ -209,7 +207,6 @@ void CTPPSGregDucer::produce(edm::Event &event, const edm::EventSetup &iSetup) {
     while (inputFile1 >> xi) {
       for (unsigned int i = 0; i < n_phis; ++i) {
             inputFile1 >> theta_min >> theta_max;
-            if(debug) std::cout << xi << " " << theta_min << " " << theta_max << std::endl;
             cutMap1_[xi][phis[i]] = {theta_min, theta_max};
         }
     }
@@ -275,7 +272,6 @@ void CTPPSGregDucer::interpolate(double xi,
         xi1 = it_xi_lower->first;
         xi2 = it_xi_upper->first;
     }
-    if(debug) std::cout << xi1 << " " << xi2 << std::endl; //the xi1 is always smaller than xi2 
 
 
     auto& innerMap = cutMap1_[xi1];
@@ -301,7 +297,6 @@ void CTPPSGregDucer::interpolate(double xi,
         phi2 = it_phi_upper->first;
     }
 
-    if(debug) std::cout << phi1 << " " << phi2 << std::endl; // phi1 not always smaller than phi2
 
     // Access the pair for (xi1, phi1) and assign its components
     std::pair<double, double> thetaPair11 = cutMap1_[xi1][phi1];
@@ -337,7 +332,7 @@ void CTPPSGregDucer::interpolate(double xi,
     theta_min = interpolate_step(xi, xi1, xi2, theta_interm_m1, theta_interm_m2);
     theta_max = interpolate_step(xi, xi1, xi2, theta_interm_p1, theta_interm_p2);
 
-     std::cout << "Xi: " << xi << " Phi:" << phi << " Theta_min thata_max: " << theta_min << " " << theta_max << std::endl;
+    if(debug) std::cout << "Xi: " << xi << " Phi:" << phi << " Theta_min thata_max: " << theta_min << " " << theta_max << std::endl;
 
 }
 

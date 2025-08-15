@@ -75,19 +75,37 @@ process.ctppsGregPlotter = cms.EDAnalyzer("CTPPSGregPlotter",
     outputFile = cms.string("simu_2018_Greg.root")#,
 )
 
-# Greg producer
+# Greg producer 1
 process.ctppsGregDucer = cms.EDProducer("CTPPSGregDucer",
     tagTracks = cms.InputTag("GenParticlesNew"),
     hepMCTag = cms.InputTag("generator", "unsmeared"),
-    filename = cms.string("/afs/cern.ch/user/g/gjedrzej/private/mainTask/CMSSW_15_0_11/src/SimPPS/DirectSimProducer/cutFiles/thetaphilimits_-160urad_18cm_60cm_calib-nodet-xrphd.out") 
+    # filename = cms.string("/afs/cern.ch/user/g/gjedrzej/private/mainTask/CMSSW_15_0_11/src/SimPPS/DirectSimProducer/cutFiles/thetaphibottleneck_-160urad_18cm_60cm_calib-nodet-xrphd-64bins.out")
+    filename = cms.string("/afs/cern.ch/user/g/gjedrzej/private/mainTask/CMSSW_15_0_11/src/SimPPS/DirectSimProducer/cutFiles/thetaphibottleneck_-160urad_18cm_60cm_phys-nodet-xrphd-64bins.out")
 )
+
+# # Greg producer 2
+# process.ctppsGregDucer = cms.EDProducer("CTPPSGregDucer",
+#     tagTracks = cms.InputTag("GenParticlesNew"),
+#     hepMCTag = cms.InputTag("generator", "unsmeared"),
+#     #filename = cms.string("/afs/cern.ch/user/g/gjedrzej/private/mainTask/CMSSW_15_0_11/src/SimPPS/DirectSimProducer/cutFiles/thetaphilimits_-160urad_18cm_60cm_calib-nodet-xrphd.out") 
+#     filename = cms.string("/afs/cern.ch/user/g/gjedrzej/private/mainTask/CMSSW_15_0_11/src/SimPPS/DirectSimProducer/cutFiles/thetaphilimits_-160urad_18cm_60cm_phys-nodet-xrphd.out")
+# )
 
 # Greg plotter 2
 process.ctppsGregPlotter2 = cms.EDAnalyzer("CTPPSGregPlotter",
     tagTracks = cms.InputTag("ctppsGregDucer", "selectedProtons"),
     hepMCTag = cms.InputTag("ctppsGregDucer", "selectedProtons"),
-    outputFile = cms.string("simu_2018_GregCut.root")
+    # outputFile = cms.string("simu_2018_GregCut.root")
+    # outputFile = cms.string("simu_2018_64binsCalib.root")
+    outputFile = cms.string("simu_2018_64binsPhys.root")
+
 )
+# # Greg plotter 3
+# process.ctppsGregPlotter3 = cms.EDAnalyzer("CTPPSGregPlotter",
+#     tagTracks = cms.InputTag("ctppsGregDucer", "selectedProtons"),
+#     hepMCTag = cms.InputTag("ctppsGregDucer", "selectedProtons"),
+#     outputFile = cms.string("simu_2018_GregCut.root")
+# )
 
 process.generation = cms.Path(process.generator)
 
