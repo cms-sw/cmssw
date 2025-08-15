@@ -181,8 +181,8 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& p, edm::Consumes
       m_G4CommandsEndRun(p.getParameter<std::vector<std::string>>("G4CommandsEndRun")),
       m_p(p) {
   int id = getThreadIndex();
-  if (id > CurrentG4Track::NumberOfThreads()) {
-    CurrentG4Track::setNumberOfThreads(id);
+  if (id + 1 > CurrentG4Track::numberOfWorkers()) {
+    CurrentG4Track::setNumberOfWorkers(id + 1);
   }
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker for the thread " << id;
 
