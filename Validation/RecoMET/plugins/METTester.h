@@ -96,9 +96,11 @@ private:
   MonitorElement *mMETEta;
   MonitorElement *mMETPhi;
   MonitorElement *mSumET;
-  MonitorElement *mMETDifference_GenMETTrue;
+  MonitorElement *mMETDiff_GenMETTrue;
+  MonitorElement *mMETRatio_GenMETTrue;
   MonitorElement *mMETDeltaPhi_GenMETTrue;
-  MonitorElement *mMETDifference_GenMETCalo;
+  MonitorElement *mMETDiff_GenMETCalo;
+  MonitorElement *mMETRatio_GenMETCalo;
   MonitorElement *mMETDeltaPhi_GenMETCalo;
 
   // MET Uncertainity Variables
@@ -160,13 +162,21 @@ private:
   MonitorElement *mPFHFEMEtFraction;
   MonitorElement *mPFHFEMEt;
 
-  std::array<MonitorElement *, mNMETBins> mMETDifference_GenMETTrue_METBins;
-  std::array<MonitorElement *, mNEtaBins> mMETDifference_GenMETTrue_EtaBins;
-  std::array<MonitorElement *, mNPhiBins> mMETDifference_GenMETTrue_PhiBins;
+  std::array<MonitorElement *, mNMETBins> mMET_METBins;
+  std::array<MonitorElement *, mNEtaBins> mMET_EtaBins;
+  std::array<MonitorElement *, mNPhiBins> mMET_PhiBins;
+  
+  std::array<MonitorElement *, mNMETBins> mMETDiff_GenMETTrue_METBins;
+  std::array<MonitorElement *, mNEtaBins> mMETDiff_GenMETTrue_EtaBins;
+  std::array<MonitorElement *, mNPhiBins> mMETDiff_GenMETTrue_PhiBins;
+  std::array<MonitorElement *, mNMETBins> mMETRatio_GenMETTrue_METBins;
+  std::array<MonitorElement *, mNEtaBins> mMETRatio_GenMETTrue_EtaBins;
+  std::array<MonitorElement *, mNPhiBins> mMETRatio_GenMETTrue_PhiBins;
+  std::array<MonitorElement *, mNMETBins> mMETDeltaPhi_GenMETTrue_METBins;
+  std::array<MonitorElement *, mNEtaBins> mMETDeltaPhi_GenMETTrue_EtaBins;
+  std::array<MonitorElement *, mNPhiBins> mMETDeltaPhi_GenMETTrue_PhiBins;
 
   bool isCaloMET;
-  //  bool isCorMET;
-  //  bool isTcMET;
   bool isPFMET;
   bool isGenMET;
   bool isMiniAODMET;
