@@ -66,18 +66,15 @@ private:
   std::map<std::string, MonitorElement *> me;
 
   // Inputs from Configuration File
-
   edm::InputTag mInputCollection_;
   edm::InputTag inputMETLabel_;
   std::string METType_;
-
   edm::InputTag inputCaloMETLabel_;
 
   // Tokens
   edm::EDGetTokenT<std::vector<reco::Vertex>> pvToken_;
   edm::EDGetTokenT<reco::CaloMETCollection> caloMETsToken_;
   edm::EDGetTokenT<reco::PFMETCollection> pfMETsToken_;
-  // edm::EDGetTokenT<reco::METCollection> tcMETsToken_;
   edm::EDGetTokenT<reco::GenMETCollection> genMETsToken_;
   edm::EDGetTokenT<reco::GenMETCollection> genMETsTrueToken_;
   edm::EDGetTokenT<reco::GenMETCollection> genMETsCaloToken_;
@@ -89,7 +86,8 @@ private:
   // Common variables
   MonitorElement *mMEx;
   MonitorElement *mMEy;
-  MonitorElement *mMETSig;
+  MonitorElement *mMETPseudoSign;
+  MonitorElement *mMETRealSign;
   MonitorElement *mMET;
   MonitorElement *mMETFine;
   MonitorElement *mMET_Nvtx;
@@ -143,8 +141,6 @@ private:
   MonitorElement *mChargedHadEtFraction;
   MonitorElement *mMuonEtFraction;
   MonitorElement *mInvisibleEtFraction;
-
-  // MET variables
 
   // PFMET variables
   MonitorElement *mPFphotonEtFraction;
