@@ -20,7 +20,8 @@ private:
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
   std::vector<std::string> met_dirs;
 
-  void FillAggrHistograms(std::string, DQMStore::IGetter&);
+  std::string mBinStr(float, float) const;
+  void mFillAggrHistograms(std::string, DQMStore::IGetter&);
 
   template <int S>
   using ElemArr = std::array<MonitorElement*, S>;
