@@ -57,7 +57,8 @@ METTester::METTester(const edm::ParameterSet &iConfig) {
   // Common variables
   mMEx = nullptr;
   mMEy = nullptr;
-  mMETSig = nullptr;
+  mMETPseudoSign = nullptr;
+  mMETRealSign = nullptr;
   mMET = nullptr;
   mMETFine = nullptr;
   mMET_Nvtx = nullptr;
@@ -118,7 +119,8 @@ void METTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
   mNvertex = ibooker.book1D("Nvertex", "Nvertex", 80, 0, 80);
   mMEx = ibooker.book1D("MEx", "MEx", 160, -800, 800);
   mMEy = ibooker.book1D("MEy", "MEy", 160, -800, 800);
-  mMETSig = ibooker.book1D("METSig", "METSig", 25, 0, 24.5);
+  mMETPseudoSign = ibooker.book1D("METPseudoSign", "METPseudoSign", 25, 0, 24.5);
+  mMETRealSign = ibooker.book1D("METRealSign", "METRealSign", 25, 0, 24.5);
   mMET = ibooker.book1D("MET", "MET (20 GeV binning)", 100, 0, 2000);
   mMETFine = ibooker.book1D("METFine", "MET (2 GeV binning)", 1000, 0, 2000);
   mMET_Nvtx = ibooker.bookProfile("MET_Nvtx", "MET vs. nvtx", 60, 0., 60., 0., 2000., " ");
@@ -281,14 +283,16 @@ void METTester::analyze(const edm::Event &iEvent,
   else if (isMiniAODMET) met = patMET->front();
 
   const double SumET = met.sumEt();
-  const double METSig = met.mEtSig();
+  const double METPseudoSign = met.mEtSig();
+  const double METRealSign = met.significance();
   const double MET = met.pt();
   const double MEx = met.px();
   const double MEy = met.py();
   const double METEta = met.eta();
   const double METPhi = met.phi();
   mSumET->Fill(SumET);
-  mMETSig->Fill(METSig);
+  mMETPseudoSign->Fill(METPseudoSign);
+  mMETRealSign->Fill(METRealSign);
   mMET->Fill(MET);
   mMETFine->Fill(MET);
   mMET_Nvtx->Fill((double)nvtx, MET);
