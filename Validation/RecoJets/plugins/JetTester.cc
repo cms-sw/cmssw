@@ -284,27 +284,39 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
   mMatchedGenEta = ibooker.book1D("MatchedGenEta", "Matched Gen Jets;#eta;# jets", n_EtaBins, EtaRange[0], EtaRange[1]);
   mMatchedGenPhi = ibooker.book1D("MatchedGenPhi", "Matched Gen Jets;#phi;# jets", n_PhiBins, PhiRange[0], PhiRange[1]);
 
-  for (unsigned ilevel=0; ilevel<nLevelsDuplicates; ++ilevel) {
-	mGenRepeat["pt"][ilevel] = ibooker.book1D(fmt::format("GenDuplicatesPt_Level{}", ilevel),
-											  fmt::format("Matched Gen Jets;p_{{T}} [GeV];# jets"),
-											  n_PtBins, PtRange[0], PtRange[1]);
-	mGenRepeat["eta"][ilevel] = ibooker.book1D(fmt::format("GenDuplicatesEta_Level{}", ilevel),
-											   "Matched Gen Jets;#eta;# jets",
-											   n_EtaBins, EtaRange[0], EtaRange[1]);
-	mGenRepeat["phi"][ilevel] = ibooker.book1D(fmt::format("GenDuplicatesPhi_Level{}", ilevel),
-											   "Matched Gen Jets;#phi;# jets",
-											   n_PhiBins, PhiRange[0], PhiRange[1]);
-	mRecoRepeat["pt"][ilevel] = ibooker.book1D(fmt::format("RecoDuplicatesPt_Level{}", ilevel),
-											   fmt::format("Matched Reco Jets;p_{{T}} [GeV];# jets"),
-											   n_PtBins, PtRange[0], PtRange[1]);
-	mRecoRepeat["eta"][ilevel] = ibooker.book1D(fmt::format("RecoDuplicatesEta_Level{}", ilevel),
-												"Matched Reco Jets;#eta;# jets",
-												n_EtaBins, EtaRange[0], EtaRange[1]);
-	mRecoRepeat["phi"][ilevel] = ibooker.book1D(fmt::format("RecoDuplicatesPhi_Level{}", ilevel),
-												"Matched Reco Jets;#phi;# jets",
-												n_PhiBins, PhiRange[0], PhiRange[1]);
+  for (unsigned ilevel = 0; ilevel < nLevelsDuplicates; ++ilevel) {
+    mGenRepeat["pt"][ilevel] = ibooker.book1D(fmt::format("GenDuplicatesPt_Level{}", ilevel),
+                                              fmt::format("Matched Gen Jets;p_{{T}} [GeV];# jets"),
+                                              n_PtBins,
+                                              PtRange[0],
+                                              PtRange[1]);
+    mGenRepeat["eta"][ilevel] = ibooker.book1D(fmt::format("GenDuplicatesEta_Level{}", ilevel),
+                                               "Matched Gen Jets;#eta;# jets",
+                                               n_EtaBins,
+                                               EtaRange[0],
+                                               EtaRange[1]);
+    mGenRepeat["phi"][ilevel] = ibooker.book1D(fmt::format("GenDuplicatesPhi_Level{}", ilevel),
+                                               "Matched Gen Jets;#phi;# jets",
+                                               n_PhiBins,
+                                               PhiRange[0],
+                                               PhiRange[1]);
+    mRecoRepeat["pt"][ilevel] = ibooker.book1D(fmt::format("RecoDuplicatesPt_Level{}", ilevel),
+                                               fmt::format("Matched Reco Jets;p_{{T}} [GeV];# jets"),
+                                               n_PtBins,
+                                               PtRange[0],
+                                               PtRange[1]);
+    mRecoRepeat["eta"][ilevel] = ibooker.book1D(fmt::format("RecoDuplicatesEta_Level{}", ilevel),
+                                                "Matched Reco Jets;#eta;# jets",
+                                                n_EtaBins,
+                                                EtaRange[0],
+                                                EtaRange[1]);
+    mRecoRepeat["phi"][ilevel] = ibooker.book1D(fmt::format("RecoDuplicatesPhi_Level{}", ilevel),
+                                                "Matched Reco Jets;#phi;# jets",
+                                                n_PhiBins,
+                                                PhiRange[0],
+                                                PhiRange[1]);
   }
-  
+
   for (size_t j = 0; j < etaInfo.size(); ++j) {
     const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
 
@@ -314,26 +326,44 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
                        15,
                        0,
                        15);
-    mGen_EtaBins["pt"][j] = ibooker.book1D(fmt::format("GenPt_{}", etaRegion),
-										   fmt::format("Gen Jets p_{{T}}>{} GeV - {};p_{{T}} [GeV];# jets", int(mMatchGenPtThreshold), etaLabel),
-										   n_PtBins, PtRange[0], PtRange[1]);
-    mGen_EtaBins["eta"][j] = ibooker.book1D(fmt::format("GenEta_{}", etaRegion),
-											fmt::format("Gen Jets p_{{T}}>{} GeV - {};#eta;# jets", int(mMatchGenPtThreshold), etaLabel),
-											n_EtaBins, EtaRange[0], EtaRange[1]);
-    mGen_EtaBins["phi"][j] = ibooker.book1D(fmt::format("GenPhi_{}", etaRegion),
-											fmt::format("Gen Jets p_{{T}}>{} GeV - {};#phi;# jets", int(mMatchGenPtThreshold), etaLabel),
-											n_PhiBins, PhiRange[0], PhiRange[1]);
+    mGen_EtaBins["pt"][j] = ibooker.book1D(
+        fmt::format("GenPt_{}", etaRegion),
+        fmt::format("Gen Jets p_{{T}}>{} GeV - {};p_{{T}} [GeV];# jets", int(mMatchGenPtThreshold), etaLabel),
+        n_PtBins,
+        PtRange[0],
+        PtRange[1]);
+    mGen_EtaBins["eta"][j] =
+        ibooker.book1D(fmt::format("GenEta_{}", etaRegion),
+                       fmt::format("Gen Jets p_{{T}}>{} GeV - {};#eta;# jets", int(mMatchGenPtThreshold), etaLabel),
+                       n_EtaBins,
+                       EtaRange[0],
+                       EtaRange[1]);
+    mGen_EtaBins["phi"][j] =
+        ibooker.book1D(fmt::format("GenPhi_{}", etaRegion),
+                       fmt::format("Gen Jets p_{{T}}>{} GeV - {};#phi;# jets", int(mMatchGenPtThreshold), etaLabel),
+                       n_PhiBins,
+                       PhiRange[0],
+                       PhiRange[1]);
 
-    mJet_EtaBins["pt"][j] = ibooker.book1D(fmt::format("JetPt_{}", etaRegion),
-										   fmt::format("Reco Jets p_{{T}}>{} GeV - {};p_{{T}} [GeV];# jets", int(mRecoJetPtThreshold), etaLabel),
-										   n_PtBins, PtRange[0], PtRange[1]);
-    mJet_EtaBins["eta"][j] = ibooker.book1D(fmt::format("JetEta_{}", etaRegion),
-											fmt::format("Reco Jets p_{{T}}>{} GeV - {};#eta;# jets", int(mRecoJetPtThreshold), etaLabel),
-											n_EtaBins, EtaRange[0], EtaRange[1]);
-    mJet_EtaBins["phi"][j] = ibooker.book1D(fmt::format("JetPhi_{}", etaRegion),
-											fmt::format("Reco Jets p_{{T}}>{} GeV - {};#phi;# jets", int(mRecoJetPtThreshold), etaLabel),
-											n_PhiBins, PhiRange[0], PhiRange[1]);
-	
+    mJet_EtaBins["pt"][j] = ibooker.book1D(
+        fmt::format("JetPt_{}", etaRegion),
+        fmt::format("Reco Jets p_{{T}}>{} GeV - {};p_{{T}} [GeV];# jets", int(mRecoJetPtThreshold), etaLabel),
+        n_PtBins,
+        PtRange[0],
+        PtRange[1]);
+    mJet_EtaBins["eta"][j] =
+        ibooker.book1D(fmt::format("JetEta_{}", etaRegion),
+                       fmt::format("Reco Jets p_{{T}}>{} GeV - {};#eta;# jets", int(mRecoJetPtThreshold), etaLabel),
+                       n_EtaBins,
+                       EtaRange[0],
+                       EtaRange[1]);
+    mJet_EtaBins["phi"][j] =
+        ibooker.book1D(fmt::format("JetPhi_{}", etaRegion),
+                       fmt::format("Reco Jets p_{{T}}>{} GeV - {};#phi;# jets", int(mRecoJetPtThreshold), etaLabel),
+                       n_PhiBins,
+                       PhiRange[0],
+                       PhiRange[1]);
+
     mMatchedJetPt_EtaBins[j] = ibooker.book1D(fmt::format("MatchedJetPt_{}", etaRegion),
                                               fmt::format("Matched Jets - {};p_{{T}} [GeV];# jets", etaLabel),
                                               n_PtBins,
@@ -345,27 +375,35 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
                                               PtRange[0],
                                               PtRange[1]);
 
-	for (unsigned ilevel=0; ilevel<nLevelsDuplicates; ++ilevel) {
-	  mGenRepeat_EtaBins["pt"][ilevel][j] =
-		ibooker.book1D(fmt::format("GenDuplicatesPt_{}_Level{}", etaRegion, ilevel),
-					   fmt::format("GenDuplicates_Level{} [{}];p_{{T}} [GeV];# Duplicates", ilevel, etaLabel),
-					   n_PtBins, PtRange[0], PtRange[1]);
-	  mGenRepeat_EtaBins["phi"][ilevel][j] =
-		ibooker.book1D(fmt::format("GenDuplicatesPhi_{}_Level{}", etaRegion, ilevel),
-					   fmt::format("GenDuplicates_Level{} [{}];#phi;# Duplicates", ilevel, etaLabel),
-					   n_PhiBins, PhiRange[0], PhiRange[1]);
-	}
-	for (unsigned ilevel=0; ilevel<nLevelsDuplicates; ++ilevel) {
-	  mRecoRepeat_EtaBins["pt"][ilevel][j] =
-		ibooker.book1D(fmt::format("RecoDuplicatesPt_{}_Level{}", etaRegion, ilevel),
-					   fmt::format("RecoDuplicates_Level{} [{}];p_{{T}} [GeV];# Duplicates", ilevel, etaLabel),
-					   n_PtBins, PtRange[0], PtRange[1]);
-	  mRecoRepeat_EtaBins["phi"][ilevel][j] =
-		ibooker.book1D(fmt::format("RecoDuplicatesPhi_{}_Level{}", etaRegion, ilevel),
-					   fmt::format("RecoDuplicates_Level{} [{}];#phi;# Duplicates", ilevel, etaLabel),
-					   n_PhiBins, PhiRange[0], PhiRange[1]);
-	}
-	
+    for (unsigned ilevel = 0; ilevel < nLevelsDuplicates; ++ilevel) {
+      mGenRepeat_EtaBins["pt"][ilevel][j] =
+          ibooker.book1D(fmt::format("GenDuplicatesPt_{}_Level{}", etaRegion, ilevel),
+                         fmt::format("GenDuplicates_Level{} [{}];p_{{T}} [GeV];# Duplicates", ilevel, etaLabel),
+                         n_PtBins,
+                         PtRange[0],
+                         PtRange[1]);
+      mGenRepeat_EtaBins["phi"][ilevel][j] =
+          ibooker.book1D(fmt::format("GenDuplicatesPhi_{}_Level{}", etaRegion, ilevel),
+                         fmt::format("GenDuplicates_Level{} [{}];#phi;# Duplicates", ilevel, etaLabel),
+                         n_PhiBins,
+                         PhiRange[0],
+                         PhiRange[1]);
+    }
+    for (unsigned ilevel = 0; ilevel < nLevelsDuplicates; ++ilevel) {
+      mRecoRepeat_EtaBins["pt"][ilevel][j] =
+          ibooker.book1D(fmt::format("RecoDuplicatesPt_{}_Level{}", etaRegion, ilevel),
+                         fmt::format("RecoDuplicates_Level{} [{}];p_{{T}} [GeV];# Duplicates", ilevel, etaLabel),
+                         n_PtBins,
+                         PtRange[0],
+                         PtRange[1]);
+      mRecoRepeat_EtaBins["phi"][ilevel][j] =
+          ibooker.book1D(fmt::format("RecoDuplicatesPhi_{}_Level{}", etaRegion, ilevel),
+                         fmt::format("RecoDuplicates_Level{} [{}];#phi;# Duplicates", ilevel, etaLabel),
+                         n_PhiBins,
+                         PhiRange[0],
+                         PhiRange[1]);
+    }
+
     h_JetPtRecoOverGen[j] =
         ibooker.book1D(fmt::format("h_PtRecoOverGen_{}", etaRegion),
                        fmt::format("Response Reco Jets - {};p_{{T}}^{{reco}}/p_{{T}}^{{gen}};# jets", etaLabel),
@@ -562,12 +600,12 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
     for (size_t j = 0; j < etaInfo.size(); ++j) {
       const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
 
-      mCorrJetPt_EtaBins[j] =
-          ibooker.book1D(fmt::format("CorrJetPt_{}", etaRegion),
-                         fmt::format("Corr Jets p_{{T}}>{} GeV - {};p_{{T}} [GeV];# jets", int(mRecoJetPtThreshold), etaLabel),
-                         n_PtBins,
-                         PtRange[0],
-                         PtRange[1]);
+      mCorrJetPt_EtaBins[j] = ibooker.book1D(
+          fmt::format("CorrJetPt_{}", etaRegion),
+          fmt::format("Corr Jets p_{{T}}>{} GeV - {};p_{{T}} [GeV];# jets", int(mRecoJetPtThreshold), etaLabel),
+          n_PtBins,
+          PtRange[0],
+          PtRange[1]);
       mMatchedCorrPt_EtaBins[j] = ibooker.book1D(fmt::format("MatchedCorrPt_{}", etaRegion),
                                                  fmt::format("Matched Corr Jets - {};p_{{T}} [GeV];# jets", etaLabel),
                                                  n_PtBins,
@@ -744,7 +782,8 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
 
   // Some jet algebra
   mMjj = ibooker.book1D("Mjj", "Mjj", 100, 0, 2000);
-  mNJets = ibooker.book1D("NJets", fmt::format("Number of jets p_{{T}}>{} GeV;# jets;# events", mRecoJetPtThreshold), 15, 0, 15);
+  mNJets = ibooker.book1D(
+      "NJets", fmt::format("Number of jets p_{{T}}>{} GeV;# jets;# events", mRecoJetPtThreshold), 15, 0, 15);
   mNJetsPt1 = ibooker.bookProfile(
       "NJetsPt1", "Number of jets above Pt threshold;p_{T} [GeV];# jets", 100, 0, 200, 100, 0, 50, "s");
   mNJetsPt2 = ibooker.bookProfile(
@@ -871,8 +910,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
         corrJets.push_back(jetCorrected);
       }
     }
-  }
-  else if (isPFJet) {
+  } else if (isPFJet) {
     mEvent.getByToken(pfJetsToken_, pfJets);
     if (!pfJets.isValid())
       return;
@@ -888,8 +926,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
         corrJets.push_back(jetCorrected);
       }
     }
-  }
-  else if (isMiniAODJet) {
+  } else if (isMiniAODJet) {
     mEvent.getByToken(patJetsToken_, patJets);
     if (!patJets.isValid())
       return;
@@ -946,11 +983,11 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
 
     for (size_t j = 0; j < etaInfo.size(); ++j) {
       const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
-	  if (mInEtaBin(recoJets[ijet], etaMin, etaMax)) {
+      if (mInEtaBin(recoJets[ijet], etaMin, etaMax)) {
         nJets_EtaBins[j]++;
         mJet_EtaBins["pt"][j]->Fill(recoJets[ijet].pt());
-		mJet_EtaBins["eta"][j]->Fill(recoJets[ijet].eta());
-		mJet_EtaBins["phi"][j]->Fill(recoJets[ijet].phi());
+        mJet_EtaBins["eta"][j]->Fill(recoJets[ijet].eta());
+        mJet_EtaBins["phi"][j]->Fill(recoJets[ijet].phi());
       }
     }
 
@@ -1037,7 +1074,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
       HOEnergyFraction->Fill((*pfJets)[ijet].hoEnergyFraction());
       for (size_t j = 0; j < etaInfo.size(); ++j) {
         const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
-		if (mInEtaBin(recoJets[ijet], etaMin, etaMax)) {
+        if (mInEtaBin(recoJets[ijet], etaMin, etaMax)) {
           p_chHad_vs_pt[j]->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].chargedHadronEnergyFraction());
           p_neHad_vs_pt[j]->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].neutralHadronEnergyFraction());
           p_chEm_vs_pt[j]->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].chargedEmEnergyFraction());
@@ -1099,7 +1136,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
         mMatchedJetPhi->Fill(recoJets[ijet].phi());
         for (size_t j = 0; j < etaInfo.size(); ++j) {
           const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
-		  if (mInEtaBin(recoJets[ijet], etaMin, etaMax)) {
+          if (mInEtaBin(recoJets[ijet], etaMin, etaMax)) {
             mMatchedJetPt_EtaBins[j]->Fill(recoJets[ijet].pt());
           }
         }
@@ -1177,7 +1214,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
 
       for (size_t j = 0; j < etaInfo.size(); ++j) {
         const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
-		if (mInEtaBin(corrJets[ijet], etaMin, etaMax)) {
+        if (mInEtaBin(corrJets[ijet], etaMin, etaMax)) {
           mCorrJetPt_EtaBins[j]->Fill(corrJets[ijet].pt());
           h_JetPtCorrOverReco[j]->Fill(ratio);
           p_JetPtCorrOverReco_vs_Phi[j]->Fill(corrJets[ijet].phi(), ratio);
@@ -1202,15 +1239,15 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
       // Match reco jets to gen jets for efficiency, fake rate and duplicate rate
       //----------------------------------------------------------------------------
       if (!mEvent.isRealData()) {
-		unsigned duplicateGenCounter = 0;
+        unsigned duplicateGenCounter = 0;
         double deltaRBestGen = 99999;
         for (unsigned gjet = 0; gjet < genJets.size(); gjet++) {
-		  // PT CUT
-		  if (genJets[gjet].pt() < mMatchGenPtThreshold)
-			continue;
+          // PT CUT
+          if (genJets[gjet].pt() < mMatchGenPtThreshold)
+            continue;
 
           double dR = deltaR(genJets[gjet].eta(), genJets[gjet].phi(), corrJets[ijet].eta(), corrJets[ijet].phi());
-		  if (dR < mRThreshold) {
+          if (dR < mRThreshold) {
             duplicateGenCounter++;
           }
           if (dR < deltaRBestGen) {
@@ -1218,34 +1255,33 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
           }
         }
 
-		// measure gen duplicates: many gens to one reco
-		for (unsigned i=0; i<nLevelsDuplicates; ++i) {
-		  if (duplicateGenCounter>i+1) {
-			mGenRepeat["pt"][i]->Fill(corrJets[ijet].pt());
-			mGenRepeat["eta"][i]->Fill(corrJets[ijet].eta());
-			mGenRepeat["phi"][i]->Fill(corrJets[ijet].phi());
-			for (size_t j = 0; j < etaInfo.size(); ++j) {
+        // measure gen duplicates: many gens to one reco
+        for (unsigned i = 0; i < nLevelsDuplicates; ++i) {
+          if (duplicateGenCounter > i + 1) {
+            mGenRepeat["pt"][i]->Fill(corrJets[ijet].pt());
+            mGenRepeat["eta"][i]->Fill(corrJets[ijet].eta());
+            mGenRepeat["phi"][i]->Fill(corrJets[ijet].phi());
+            for (size_t j = 0; j < etaInfo.size(); ++j) {
               const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
-			  if (mInEtaBin(corrJets[ijet], etaMin, etaMax)) {
-				mGenRepeat_EtaBins["pt"][i][j]->Fill(corrJets[ijet].pt());
-				mGenRepeat_EtaBins["phi"][i][j]->Fill(corrJets[ijet].phi());
-			  }
-			}
-		  }
-		}
+              if (mInEtaBin(corrJets[ijet], etaMin, etaMax)) {
+                mGenRepeat_EtaBins["pt"][i][j]->Fill(corrJets[ijet].pt());
+                mGenRepeat_EtaBins["phi"][i][j]->Fill(corrJets[ijet].phi());
+              }
+            }
+          }
+        }
 
         if (deltaRBestGen < mRThreshold) {
           if (corrJets[ijet].pt() > minJetPt) {
             for (size_t j = 0; j < etaInfo.size(); ++j) {
               const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
-			  if (mInEtaBin(corrJets[ijet], etaMin, etaMax)) {
+              if (mInEtaBin(corrJets[ijet], etaMin, etaMax)) {
                 mMatchedCorrPt_EtaBins[j]->Fill(corrJets[ijet].pt());
               }
             }
           }
         }
-      } // if (!mEvent.isRealData()) {
-
+      }  // if (!mEvent.isRealData()) {
     }
   }
 
@@ -1273,32 +1309,32 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
 
       for (size_t j = 0; j < etaInfo.size(); ++j) {
         const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
-		if (mInEtaBin(genJets[gjet], etaMin, etaMax)) {
+        if (mInEtaBin(genJets[gjet], etaMin, etaMax)) {
           mGen_EtaBins["pt"][j]->Fill(genJets[gjet].pt());
-		  mGen_EtaBins["eta"][j]->Fill(genJets[gjet].eta());
-		  mGen_EtaBins["phi"][j]->Fill(genJets[gjet].phi());
+          mGen_EtaBins["eta"][j]->Fill(genJets[gjet].eta());
+          mGen_EtaBins["phi"][j]->Fill(genJets[gjet].phi());
         }
       }
 
       if (recoJets.empty())
         continue;
-	
+
       //----------------------------------------------------------------------------
       // Match gen jets to reco jets
       //----------------------------------------------------------------------------
       int iMatchReco = -1;
-	  unsigned duplicateRecoCounter = 0;
+      unsigned duplicateRecoCounter = 0;
       double deltaRBestReco = 999;
-      for (unsigned ijet = 0; ijet < recoJets.size(); ++ijet) { 
+      for (unsigned ijet = 0; ijet < recoJets.size(); ++ijet) {
         // PT CUT
         if (recoJets[ijet].pt() < mRecoJetPtThreshold)
           continue;
 
-		double dR = deltaR(genJets[gjet].eta(), genJets[gjet].phi(), recoJets[ijet].eta(), recoJets[ijet].phi());
-		
-		if (dR < mRThreshold) {
-		  duplicateRecoCounter++;
-		}
+        double dR = deltaR(genJets[gjet].eta(), genJets[gjet].phi(), recoJets[ijet].eta(), recoJets[ijet].phi());
+
+        if (dR < mRThreshold) {
+          duplicateRecoCounter++;
+        }
 
         if (dR < deltaRBestReco) {
           iMatchReco = ijet;
@@ -1306,21 +1342,21 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
         }
       }
 
-	  // measure reco duplicates: many recos to one gen
-	  for (unsigned i=0; i<nLevelsDuplicates; ++i) {
-		if (duplicateRecoCounter>i+1) {
-		  mRecoRepeat["pt"][i]->Fill(genJets[gjet].pt());
-		  mRecoRepeat["eta"][i]->Fill(genJets[gjet].eta());
-		  mRecoRepeat["phi"][i]->Fill(genJets[gjet].phi());
-		  for (size_t j = 0; j < etaInfo.size(); ++j) {
-			const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
-			if (mInEtaBin(genJets[gjet], etaMin, etaMax)) {
-			  mRecoRepeat_EtaBins["pt"][i][j]->Fill(genJets[gjet].pt());
-			  mRecoRepeat_EtaBins["phi"][i][j]->Fill(genJets[gjet].phi());
-			}
-		  }
-		}
-	  }
+      // measure reco duplicates: many recos to one gen
+      for (unsigned i = 0; i < nLevelsDuplicates; ++i) {
+        if (duplicateRecoCounter > i + 1) {
+          mRecoRepeat["pt"][i]->Fill(genJets[gjet].pt());
+          mRecoRepeat["eta"][i]->Fill(genJets[gjet].eta());
+          mRecoRepeat["phi"][i]->Fill(genJets[gjet].phi());
+          for (size_t j = 0; j < etaInfo.size(); ++j) {
+            const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
+            if (mInEtaBin(genJets[gjet], etaMin, etaMax)) {
+              mRecoRepeat_EtaBins["pt"][i][j]->Fill(genJets[gjet].pt());
+              mRecoRepeat_EtaBins["phi"][i][j]->Fill(genJets[gjet].phi());
+            }
+          }
+        }
+      }
 
       if ((iMatchReco >= 0) && (deltaRBestReco < mRThreshold)) {
         //----------------------------------------------------------------------------
@@ -1334,7 +1370,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
 
         for (size_t j = 0; j < etaInfo.size(); ++j) {
           const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
-		  if (mInEtaBin(genJets[gjet], etaMin, etaMax)) {
+          if (mInEtaBin(genJets[gjet], etaMin, etaMax)) {
             mMatchedGenPt_EtaBins[j]->Fill(genJets[gjet].pt());
             h_JetPtRecoOverGen[j]->Fill(response);
             p_JetPtRecoOverGen_vs_GenPhi[j]->Fill(genJets[gjet].phi(), response);
@@ -1372,7 +1408,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
 
           for (size_t j = 0; j < etaInfo.size(); ++j) {
             const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
-			if (mInEtaBin(genJets[gjet], etaMin, etaMax)) {
+            if (mInEtaBin(genJets[gjet], etaMin, etaMax)) {
               h_JetPtCorrOverGen[j]->Fill(responseCorr);
               p_JetPtCorrOverGen_vs_GenPt[j]->Fill(genJets[gjet].pt(), responseCorr);
               h2d_JetPtCorrOverGen_vs_GenPt[j]->Fill(genJets[gjet].pt(), responseCorr);

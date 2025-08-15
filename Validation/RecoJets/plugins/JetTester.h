@@ -74,9 +74,9 @@ private:
   edm::EDGetTokenT<reco::JetCorrector> jetCorrectorToken_;
 
   bool mInEtaBin(reco::Jet jet, double etaMin, double etaMax) {
-	return ((std::abs(jet.eta()) >= etaMin) && (std::abs(jet.eta()) < etaMax));
+    return ((std::abs(jet.eta()) >= etaMin) && (std::abs(jet.eta()) < etaMax));
   }
-  
+
   static const int ptSize = 10;
   static constexpr std::array<double, ptSize + 1> ptBins_ = {
       {20., 30., 40., 100., 200., 300., 600., 2000., 5000., 6500., 1e6}};
@@ -128,8 +128,9 @@ private:
   // Duplicates (gen and reco)
   static constexpr size_t nLevelsDuplicates = 3;
   std::unordered_map<std::string, std::array<MonitorElement *, nLevelsDuplicates>> mGenRepeat, mRecoRepeat;
-  std::unordered_map<std::string, std::array<std::array<MonitorElement *, etaSize - 1>, nLevelsDuplicates>> mGenRepeat_EtaBins, mRecoRepeat_EtaBins;
-  
+  std::unordered_map<std::string, std::array<std::array<MonitorElement *, etaSize - 1>, nLevelsDuplicates>>
+      mGenRepeat_EtaBins, mRecoRepeat_EtaBins;
+
   // Jet response vs gen histograms
   std::array<MonitorElement *, etaSize> h_JetPtRecoOverGen;
   std::array<std::array<MonitorElement *, ptSize>, etaSize> hVector_JetPtRecoOverGen_ptBins;
