@@ -4,6 +4,6 @@ from Validation.RecoJets.hltJetPostProcessor_cff import *
 from HLTriggerOffline.JetMET.Validation.JetMETPostProcessor_cff import *
 
 HLTJetMETPostVal = cms.Sequence(
-    recoJetPostProcessorHLT +
+    hltRecoJetPostProcessor +
     hltJetMETPostProcessor
 )
