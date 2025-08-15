@@ -126,6 +126,11 @@ private:
   MonitorElement *mMatchedJetPt;
   MonitorElement *mMatchedJetEtaPt;
   MonitorElement *mMatchedJetPhiPt;
+  MonitorElement *mMatchedJetchHad;
+  MonitorElement *mMatchedJetneHad;
+  MonitorElement *mMatchedJetchEm;
+  MonitorElement *mMatchedJetneEm;
+  MonitorElement *mMatchedJetnCost;
   std::array<MonitorElement *, etaSize> mMatchedJetPt_EtaBins;
   std::array<MonitorElement *, etaSize> mMatchedCorrPt_EtaBins;
   MonitorElement *h2d_DeltaR_vs_Eta;

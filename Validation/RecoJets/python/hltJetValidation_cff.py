@@ -13,13 +13,13 @@ hltJetPreValidSeq = cms.Sequence(
 
 from Validation.RecoJets.jetTester_cfi import jetTester as _jetTester
 _hltJetTester = _jetTester.clone(
-    isHLT = cms.untracked.bool(True),
-    recoJetPtThreshold = cms.double(30),
-    matchGenPtThreshold = cms.double(20.0),
-    RThreshold = cms.double(0.4),
-    srcGen = cms.InputTag("ak4GenJetsNoNu"),
-    JetType = cms.untracked.string('pf'), # requires "pf", "calo", or "miniaod"
-    primVertex = cms.InputTag("hltGoodOfflinePrimaryVertices"),
+    isHLT=True,
+    recoJetPtThreshold=30.0,
+    matchGenPtThreshold=20.0,
+    RThreshold=0.4,
+    srcGen="ak4GenJetsNoNu",
+    JetType='pf',  # requires "pf", "calo", or "miniaod"
+    primVertex="hltGoodOfflinePrimaryVertices",
 )
 
 hltJetAnalyzerAK4PFPuppi = _hltJetTester.clone(

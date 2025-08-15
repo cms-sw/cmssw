@@ -84,6 +84,11 @@ JetTester::JetTester(const edm::ParameterSet& iConfig)
   mMatchedJetPt = nullptr;
   mMatchedJetEtaPt = nullptr;
   mMatchedJetPhiPt = nullptr;
+  mMatchedJetchHad = nullptr;
+  mMatchedJetneHad = nullptr;
+  mMatchedJetchEm = nullptr;
+  mMatchedJetneEm = nullptr;
+  mMatchedJetnCost = nullptr;
 
   // Matched gen jet parameters
   mMatchedGenEta = nullptr;
@@ -236,14 +241,6 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
   int n_RespBins = 60;
   std::vector<double> RespRange = {0, 3};
 
-  // if eta range changed here need change in JetTesterPostProcessor as well
-  // double etaBins[91] = {-6.0, -5.8, -5.6, -5.4, -5.2, -5.0, -4.8, -4.6, -4.4, -4.2, -4.0, -3.8, -3.6, -3.4, -3.2, -3.0,
-  //                       -2.9, -2.8, -2.7, -2.6, -2.5, -2.4, -2.3, -2.2, -2.1, -2.0, -1.9, -1.8, -1.7, -1.6, -1.5, -1.4,
-  //                       -1.3, -1.2, -1.1, -1.0, -0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0.0,  0.1,  0.2,
-  //                       0.3,  0.4,  0.5,  0.6,  0.7,  0.8,  0.9,  1.0,  1.1,  1.2,  1.3,  1.4,  1.5,  1.6,  1.7,  1.8,
-  //                       1.9,  2.0,  2.1,  2.2,  2.3,  2.4,  2.5,  2.6,  2.7,  2.8,  2.9,  3.0,  3.2,  3.4,  3.6,  3.8,
-  //                       4.0,  4.2,  4.4,  4.6,  4.8,  5.0,  5.2,  5.4,  5.6,  5.8,  6.0};
-
   // Event variables
   mNvtx = ibooker.book1D("Nvtx", "number of vertices", 60, 0, 60);
 
@@ -321,6 +318,11 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
   mMatchedJetEta = ibooker.book1D("MatchedJetEta", "Matched Jets;#eta;# jets", n_EtaBins, EtaRange[0], EtaRange[1]);
   mMatchedJetPhi = ibooker.book1D("MatchedJetPhi", "Matched Jets;#phi;# jets", n_PhiBins, PhiRange[0], PhiRange[1]);
   mMatchedJetPt = ibooker.book1D("MatchedJetPt", "Matched Jets;p_{T};# jets", n_PtBins, PtRange[0], PtRange[1]);
+  mMatchedJetchHad = ibooker.book1D("MatchedJetchHad", "Matched Jets;charged HAD energy fraction;# jets", 40, 0, 1);
+  mMatchedJetneHad = ibooker.book1D("MatchedJetneHad", "Matched Jets;neutral HAD energy fraction;# jets", 40, 0, 1);
+  mMatchedJetchEm = ibooker.book1D("MatchedJetchEm", "Matched Jets;charged EM energy fraction;# jets", 40, 0, 1);
+  mMatchedJetneEm = ibooker.book1D("MatchedJetneEm", "Matched Jets;neutral EM energy fraction;# jets", 40, 0, 1);
+  mMatchedJetnCost = ibooker.book1D("MatchedJetnCost", "Matched Jets;# constituents;# jets", 100, 0, 100);
   mMatchedJetEtaPt = ibooker.book2D("MatchedJetEtaPt",
                                     "Matched Jets;#eta;p_{T}",
                                     n_EtaBins,
@@ -395,22 +397,10 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
                                     PtRange[1]);
 
   // DeltaR distance gen jet
-  h2d_DeltaR_vs_GenEta = ibooker.book2D("h2d_DeltaR_GenEta",
-                                        "#Delta R Gen Jets;#eta^{{gen}};#Delta R",
-                                        n_EtaBins,
-                                        EtaRange[0],
-                                        EtaRange[1],
-                                        50,
-                                        0.0,
-                                        0.5);
-  h2d_DeltaR_vs_GenPhi = ibooker.book2D("h2d_DeltaR_GenPhi",
-                                        "#Delta R Gen Jets;#phi^{{gen}};#Delta R",
-                                        n_PhiBins,
-                                        PhiRange[0],
-                                        PhiRange[1],
-                                        50,
-                                        0.0,
-                                        0.5);
+  h2d_DeltaR_vs_GenEta = ibooker.book2D(
+      "h2d_DeltaR_GenEta", "#Delta R Gen Jets;#eta^{{gen}};#Delta R", n_EtaBins, EtaRange[0], EtaRange[1], 50, 0.0, 0.5);
+  h2d_DeltaR_vs_GenPhi = ibooker.book2D(
+      "h2d_DeltaR_GenPhi", "#Delta R Gen Jets;#phi^{{gen}};#Delta R", n_PhiBins, PhiRange[0], PhiRange[1], 50, 0.0, 0.5);
   h2d_DeltaR_vs_GenPt = ibooker.book2D(
       "h2d_DeltaR_GenPt", "#Delta R Gen Jets;p_{T}^{{gen}};#Delta R", n_PtBins, PtRange[0], PtRange[1], 50, 0.0, 0.5);
 
@@ -1215,11 +1205,11 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
         // PT CUT
         if (genJets[gjet].pt() < mMatchGenPtThreshold)
           continue;
-        double dR = deltaR(genJets[gjet].eta(), genJets[gjet].phi(), recoJets[ijet].eta(), recoJets[ijet].phi());
-        if (dR < mRThreshold)
+        double dR2 = deltaR2(genJets[gjet].eta(), genJets[gjet].phi(), recoJets[ijet].eta(), recoJets[ijet].phi());
+        if (dR2 < mRThreshold * mRThreshold)
           duplicateGenCounter++;
-        if (dR < deltaRBestGen)
-          deltaRBestGen = dR;
+        if (dR2 < deltaRBestGen * deltaRBestGen)
+          deltaRBestGen = std::sqrt(dR2);
       }
 
       if (deltaRBestGen < mRThreshold) {
@@ -1231,6 +1221,15 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
         h2d_DeltaR_vs_Eta->Fill(recoJets[ijet].eta(), deltaRBestGen);
         h2d_DeltaR_vs_Phi->Fill(recoJets[ijet].phi(), deltaRBestGen);
         h2d_DeltaR_vs_Pt->Fill(recoJets[ijet].pt(), deltaRBestGen);
+
+        if (isPFJet) {
+          mMatchedJetchHad->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
+          mMatchedJetneHad->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
+          mMatchedJetchEm->Fill((*pfJets)[ijet].chargedEmEnergyFraction());
+          mMatchedJetneEm->Fill((*pfJets)[ijet].neutralEmEnergyFraction());
+          mMatchedJetnCost->Fill((*pfJets)[ijet].nConstituents());
+        }
+
         for (size_t j = 0; j < etaInfo.size(); ++j) {
           const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
           if (mInEtaBin(recoJets[ijet], etaMin, etaMax)) {
@@ -1324,7 +1323,11 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
       mCorrJetEtaPt->Fill(corrJets[ijet].eta(), corrJets[ijet].pt());
       mCorrJetPhiPt->Fill(corrJets[ijet].phi(), corrJets[ijet].pt());
 
-      double ratio = corrJets[ijet].pt() / recoJets[ijet].pt();
+      double ratio;
+      if (recoJets[ijet].pt() != 0)
+        ratio = corrJets[ijet].pt() / recoJets[ijet].pt();
+      else
+        continue;
 
       h2d_JetPtCorrOverReco_vs_Eta->Fill(corrJets[ijet].eta(), ratio);
       h2d_JetPtCorrOverReco_vs_Phi->Fill(corrJets[ijet].phi(), ratio);
@@ -1354,17 +1357,17 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
       // Match reco jets to gen jets for efficiency
       //----------------------------------------------------------------------------
       if (!mEvent.isRealData()) {
-        double deltaRBestGen = 99999;
+        double deltaR2BestGen = 99999;
         for (unsigned gjet = 0; gjet < genJets.size(); gjet++) {
-          double dR = deltaR(genJets[gjet].eta(), genJets[gjet].phi(), corrJets[ijet].eta(), corrJets[ijet].phi());
+          double dR2 = deltaR2(genJets[gjet].eta(), genJets[gjet].phi(), corrJets[ijet].eta(), corrJets[ijet].phi());
           // PT CUT
           if (genJets[gjet].pt() < mMatchGenPtThreshold)
             continue;
-          if (dR < deltaRBestGen)
-            deltaRBestGen = dR;
+          if (dR2 < deltaR2BestGen * deltaR2BestGen)
+            deltaR2BestGen = dR2;
         }
 
-        if (deltaRBestGen < mRThreshold) {
+        if (deltaR2BestGen < mRThreshold * mRThreshold) {
           if (corrJets[ijet].pt() > minJetPt) {
             for (size_t j = 0; j < etaInfo.size(); ++j) {
               const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
@@ -1422,12 +1425,12 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
         // PT CUT
         if (recoJets[ijet].pt() < mRecoJetPtThreshold)
           continue;
-        double dR = deltaR(genJets[gjet].eta(), genJets[gjet].phi(), recoJets[ijet].eta(), recoJets[ijet].phi());
-        if (dR < mRThreshold)
+        double dR2 = deltaR2(genJets[gjet].eta(), genJets[gjet].phi(), recoJets[ijet].eta(), recoJets[ijet].phi());
+        if (dR2 < mRThreshold * mRThreshold)
           duplicateRecoCounter++;
-        if (dR < deltaRBestReco) {
+        if (dR2 < deltaRBestReco * deltaRBestReco) {
           iMatchReco = ijet;
-          deltaRBestReco = dR;
+          deltaRBestReco = std::sqrt(dR2);
         }
       }
 
@@ -1460,7 +1463,11 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
         h2d_DeltaR_vs_GenPhi->Fill(genJets[gjet].phi(), deltaRBestReco);
         h2d_DeltaR_vs_GenPt->Fill(genJets[gjet].pt(), deltaRBestReco);
 
-        double response = (recoJets[iMatchReco].pt()) / genJets[gjet].pt();
+        double response;
+        if (genJets[gjet].pt() != 0)
+          response = (recoJets[iMatchReco].pt()) / genJets[gjet].pt();
+        else
+          continue;
 
         h2d_JetPtRecoOverGen_vs_GenEta->Fill(genJets[gjet].eta(), response);
         h2d_JetPtRecoOverGen_vs_GenPhi->Fill(genJets[gjet].phi(), response);
@@ -1499,7 +1506,11 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
         //----------------------------------------------------------------------------
 
         if (correctionIsValid) {
-          double responseCorr = corrJets[iMatchReco].pt() / genJets[gjet].pt();
+          double responseCorr;
+          if (genJets[gjet].pt() != 0)
+            responseCorr = corrJets[iMatchReco].pt() / genJets[gjet].pt();
+          else
+            continue;
 
           h2d_JetPtCorrOverGen_vs_GenEta->Fill(genJets[gjet].eta(), responseCorr);
           h2d_JetPtCorrOverGen_vs_GenPhi->Fill(genJets[gjet].phi(), responseCorr);

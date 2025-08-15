@@ -13,6 +13,12 @@ hep.style.use("CMS")
 import warnings
 warnings.filterwarnings("ignore", message="The value of the smallest subnormal")
 
+class dotdict(dict):
+    """dot.notation access to dictionary attributes"""
+    __getattr__ = dict.get
+    __setattr__ = dict.__setitem__
+    __delattr__ = dict.__delitem__
+    
 def CheckRootFile(hname, rebin=None):
     hist_orig = file.Get(hname)
     if not hist_orig:
@@ -125,69 +131,82 @@ class HLabels:
     @staticmethod
     def eff_types():
         return HLabels._eff_types
+
     @staticmethod
     def resol_types():
         return HLabels._resol_types
-    
-    @property
-    def ytitle(self):
-        if self.mytype == 'Efficiency':
-            return 'Jet Efficiency'
-        elif self.mytype == 'Fake Rate':
-            return 'Jet Fake Rate'
-        elif self.mytype == 'Gen Duplicates Rate':
-            return 'Jet Gen Duplicate Rate'
-        elif self.mytype == 'Reco Duplicates Rate':
-            return 'Jet Reco Duplicate Rate'
-        elif self.mytype == 'RecoOverGen':
-            return "$p_{T}^{reco}/p_{T}^{gen}\,$"
-        elif self.mytype == 'CorrOverGen':
-            return "$p_{T}^{corr}/p_{T}^{gen}\,$"
-        elif self.mytype == 'CorrOverReco':
-            return "$p_{T}^{corr}/p_{T}^{reco}\,$"
+
+    @staticmethod
+    def fraction_label(labtype):
+        return {
+            'neHad': 'Neutral Hadron Energy Fraction',
+            'chEm':  'Charged EM Energy Fraction',
+            'chHad': 'Charged Hadron Energy Fraction',
+            'neEm':  'Neutral EM Energy Fraction',
+            'nCost': '# Jet Constituents',
+        }[labtype]
+
+    @staticmethod
+    def pt_label(labtype, average=False):
+        labels = {
+            "pt"        : "$p_{T}\,$ [GeV]",
+            "gen"       : "$p_{T}^{gen}\,$ [GeV]",
+            "reco"      : "$p_{T}^{reco}\,$ [GeV]",
+            "pt/gen"    : "$p_{T}/p_{T}^{gen}\,$",
+            "reco/gen"  : "$p_{T}^{reco}/p_{T}^{gen}\,$",
+            "corr/gen"  : "$p_{T}^{corr}/p_{T}^{gen}\,$",
+            "corr/reco" : "$p_{T}^{corr}/p_{T}^{reco}\,$",
+        }
+        if average:
+            return f'<' + labels[labtype] + '>'
+        else:
+            return labels[labtype]
+
+    @staticmethod
+    def resol_label(labtype):
+        return f"$\sigma$({HLabels.pt_label(labtype)}) / {HLabels.pt_label(labtype, average=True)}"
+
+    def ytitle(self, resol=False):
+        return {'Efficiency'           : 'Jet Efficiency',
+                'Fake Rate'            : 'Jet Fake Rate',
+                'Gen Duplicates Rate'  : 'Jet Gen Duplicate Rate',
+                'Reco Duplicates Rate' : 'Jet Reco Duplicate Rate',
+                'RecoOverGen'          : HLabels.resol_label('reco/gen') if resol else HLabels.pt_label('reco/gen', average=True),
+                'CorrOverGen'          : HLabels.resol_label('corr/gen') if resol else HLabels.pt_label('corr/gen', average=True),
+                'CorrOverReco'         : HLabels.resol_label('corr/reco') if resol else HLabels.pt_label('corr/reco', average=True),
+                }[self.mytype]
  
     @property
     def savename(self):
-        return self.ytitle.replace(' ', '_')
+        return self.ytitle().replace(' ', '_')
     
     @property
     def xvars(self):
         return ('Eta', 'Phi', 'Pt')
 
-    def nhisto(self, var, basedir): # numerator
-        if self.mytype == 'Efficiency':
-            name = basedir + '/MatchedGen' + var
-        elif self.mytype == 'Fake Rate':
-            name = basedir + '/MatchedJet' + var
-        elif self.mytype == 'Gen Duplicates Rate':
-            name = basedir + '/DuplicatesGen' + var
-        elif self.mytype == 'Reco Duplicates Rate':
-            name = basedir + '/DuplicatesJet' + var
-        else:
-            raise ValueError(f"Unavailable HLabels.nhisto for {self.mytype}")
-        return name
+    def nhisto(self, var, basedir):
+        """Numerator"""
+        return {'Efficiency'           : basedir + '/MatchedGen' + var,
+                'Fake Rate'            : basedir + '/MatchedJet' + var,
+                'Gen Duplicates Rate'  : basedir + '/DuplicatesGen' + var,
+                'Reco Duplicates Rate' : basedir + '/DuplicatesJet' + var
+                }[self.mytype]
 
-    def dhisto(self, var, basedir): # denominator
-        if self.mytype == 'Efficiency' or self.mytype == 'Gen Duplicates Rate':
-            name = basedir + '/Gen' + var
-        elif self.mytype == 'Fake Rate' or self.mytype == 'Reco Duplicates Rate':
-            name = basedir + '/Jet' + var
-        else:
-            raise ValueError(f"Unavailable HLabels.nhisto for {self.mytype}")
-        return name
-
-    def rhisto(self, var, basedir): # ratio
-        if self.mytype == 'Efficiency':
-            name = basedir + '/Eff_vs_' + var
-        elif self.mytype == 'Fake Rate':
-            name = basedir + '/Fake_vs_' + var
-        elif self.mytype == 'Gen Duplicates Rate':
-            name = basedir + '/DupGen_vs_' + var
-        elif self.mytype == 'Reco Duplicates Rate':
-            name = basedir + '/Dup_vs_' + var
-        else:
-            raise ValueError(f"Unavailable HLabels.nhisto for {self.mytype}")
-        return name
+    def dhisto(self, var, basedir):
+        """Denominator"""
+        return {'Efficiency'           : basedir + '/Gen' + var,
+                'Fake Rate'            : basedir + '/Jet' + var,
+                'Gen Duplicates Rate'  : basedir + '/Gen' + var,
+                'Reco Duplicates Rate' : basedir + '/Jet' + var
+                }[self.mytype]
+                
+    def rhisto(self, var, basedir):
+        """Ratio"""
+        return {'Efficiency': basedir + '/Eff_vs_' + var,
+                'Fake Rate': basedir + '/Fake_vs_' + var,
+                'Gen Duplicates Rate': basedir + '/DupGen_vs_' + var,
+                'Reco Duplicates Rate': basedir + '/Dup_vs_' + var
+                }[self.mytype]
     
     def mhisto(self, var, basedir): # mean
         if self.mytype in self._resol_types:
@@ -280,12 +299,12 @@ if __name__ == '__main__':
     # Plot 1D single variables
     #####################################
 
-    # >>> Configurable
     Var1DList = {
         'HLT Jets':             'JetPt',
         'HLT Corrected Jets':   'CorrJetPt',
         'Gen-level Jets':       'GenPt',
     }
+    
     for Label, Var in Var1DList.items():
         plotter = Plotter(args.sample_label)
         root_hist = CheckRootFile(f"{dqm_dir}/{Var}", rebin=None)
@@ -298,14 +317,13 @@ if __name__ == '__main__':
                         verticalalignment='top', horizontalalignment='left')
 
         plotter.limits(y=(0, 1.2*max(values)))
-        plotter.labels(x="$p_T\,$ [GeV]", y=f"# Jets", legend_title='')
+        plotter.labels(x=HLabels.pt_label('pt'), y=f"# Jets", legend_title='')
         plotter.save( os.path.join(args.odir, Var) )
 
     #####################################
     # Plot 2D single variables
     #####################################
 
-    # >>> Configurable
     Var2DList = ('h2d_PtRecoOverGen_nCost_B', 'h2d_PtRecoOverGen_nCost_E', 'h2d_PtRecoOverGen_nCost_F', 
                  'h2d_PtRecoOverGen_chHad_B', 'h2d_PtRecoOverGen_chHad_E', 'h2d_PtRecoOverGen_chHad_F',
                  'h2d_PtRecoOverGen_neHad_B', 'h2d_PtRecoOverGen_neHad_E', 'h2d_PtRecoOverGen_neHad_F',
@@ -319,14 +337,28 @@ if __name__ == '__main__':
         nbins_x, nbins_y, x_edges, y_edges = define_bins_2D(root_hist)
         values = histo_values_2D(root_hist)
 
-        x_label = root_hist.GetXaxis().GetTitle().replace('#', '\\')
         y_label = root_hist.GetYaxis().GetTitle().replace('#', '\\')
 
         # Plot with mplhep's hist2d (preserves ROOT bin edges, color bar included)
-        pcm = plotter.ax.pcolormesh(x_edges, y_edges, values, cmap='viridis', shading='auto')
+        # empty bins will be invisible (background color)
+        pcm = plotter.ax.pcolormesh(x_edges, y_edges, np.where(values==0, np.nan, values),
+                                    cmap='viridis', shading='auto')
 
-        plotter.labels(x=f"${x_label}$", y=f"${y_label}$")
-        plotter.fig.colorbar(pcm, ax=plotter.ax, label=root_hist.GetZaxis().GetTitle())
+        if '_nCost_' in Var2D:
+            xlabel = HLabels.fraction_label('nCost')
+        elif '_chHad_' in Var2D:
+            xlabel = HLabels.fraction_label('chHad')
+        elif '_neHad_' in Var2D:
+            xlabel = HLabels.fraction_label('neHad')
+        elif '_chEm_' in Var2D:
+            xlabel = HLabels.fraction_label('chEm')
+        elif '_neEm_' in Var2D:
+            xlabel = HLabels.fraction_label('neEm')
+        else:
+            raise RuntimeError(f'Label for variable {Var2D} is not supported.')
+
+        plotter.labels(x=xlabel, y=f"${y_label}$")
+        plotter.fig.colorbar(pcm, ax=plotter.ax, label='# Jets')
 
         plotter.save( os.path.join(args.odir, Var2D) )
 
@@ -334,24 +366,45 @@ if __name__ == '__main__':
     # Plot grouped variables
     #####################################
     
-    # >>> Configurable
-    GroupedVarList = {
-        'JetPt_EtaRegions': {
-            'Barrel':   'JetPt_B', 
-            'Endcap':   'JetPt_E', 
-            'Forward':  'JetPt_F',
-        },
-        'GenPt_EtaRegions': {
-            'Barrel':   'GenPt_B', 
-            'Endcap':   'GenPt_E', 
-            'Forward':  'GenPt_F',
-        },
-        'JetTypes_Pt':  {
-            'Gen-level Jets':       'GenPt', 
-            'HLT Jets':             'JetPt', 
-            'HLT Corrected Jets':   'CorrJetPt',
-        },
-    }
+    GroupedVarList = dotdict({
+        'JetPt_EtaRegions': dotdict(
+            histos={'Barrel': 'JetPt_B', 'Endcap': 'JetPt_E', 'Forward': 'JetPt_F'},
+            xlabel=HLabels.pt_label('pt'),
+        ),
+        'GenPt_EtaRegions': dotdict(
+            histos={'Barrel': 'GenPt_B', 'Endcap': 'GenPt_E', 'Forward': 'GenPt_F'},
+            xlabel=HLabels.pt_label('gen'),
+        ),
+        'JetTypes_Pt': dotdict(
+            histos={'Gen-level Jets': 'GenPt', 'HLT Jets': 'JetPt', 'HLT Corrected Jets': 'CorrJetPt'},
+            xlabel=HLabels.pt_label('pt'),
+        ),
+        'JetChargedHadFrac': dotdict(
+            histos={'HLT jets': 'chargedHadronEnergyFraction',
+                    'HLT jets matched': 'MatchedJetchHad'},
+            xlabel=HLabels.fraction_label('chHad'),
+        ),
+        'JetNeutralHadFrac': dotdict(
+            histos={'HLT jets':         'neutralHadronEnergyFraction',
+                    'HLT jets matched': 'MatchedJetneHad'},
+            xlabel=HLabels.fraction_label('neHad')
+        ),
+        'JetChargedEmFrac': dotdict(
+            histos={'HLT jets':         'chargedEmEnergyFraction',
+                    'HLT jets matched': 'MatchedJetchEm'},
+            xlabel=HLabels.fraction_label('chEm')
+        ),
+        'JetNeutralEmFrac': dotdict(
+            histos={'HLT jets': 'neutralEmEnergyFraction',
+                    'HLT jets matched': 'MatchedJetneEm',},
+            xlabel=HLabels.fraction_label('neHad')
+        ),
+        'JetnConst': dotdict(
+            histos={'HLT jets':         'JetConstituents',
+                    'HLT jets matched': 'MatchedJetnCost'},
+            xlabel=HLabels.fraction_label('nCost')
+        ),
+    })
 
     colors = hep.style.CMS['axes.prop_cycle'].by_key()['color']
     markers = ('o', 's', 'd')
@@ -359,17 +412,15 @@ if __name__ == '__main__':
     for GroupedVar in GroupedVarList:
         plotter = Plotter(args.sample_label)
         
-        for i_var, (Label, Var) in enumerate(GroupedVarList[GroupedVar].items()):
+        for i_var, (Label, Var) in enumerate(GroupedVarList[GroupedVar]['histos'].items()):
             root_hist = CheckRootFile(f"{dqm_dir}/{Var}", rebin=None)
             nbins, bin_edges, bin_centers, bin_widths = define_bins(root_hist)
             values, errors = histo_values_errors(root_hist)
-            x_label = root_hist.GetXaxis().GetTitle().replace('#', '\\')
-            y_label = root_hist.GetYaxis().GetTitle()
 
             plt.errorbar(bin_centers, values, xerr=0.5 * bin_widths, yerr=errors, linestyle='', label=Label, color=colors[i_var], fmt=markers[i_var])
             plt.step(bin_edges[:-1], values, where="post", color=colors[i_var], linewidth=2)
 
-        plotter.labels(x=f"${x_label}$", y=y_label, legend_title='')
+        plotter.labels(x=GroupedVarList[GroupedVar].xlabel, y='# Jets', legend_title='')
         plotter.save( os.path.join(args.odir, GroupedVar) )
 
     #####################################
@@ -436,7 +487,7 @@ if __name__ == '__main__':
                             verticalalignment='top', horizontalalignment='left')
 
             plotter.labels(x="${}$".format(v_stacked_histo[0].axes[0].label),
-                           y="# Jets",
+                           y="[a.u.]",
                            legend_title=r"Jet $p_T$ range")
 
             plotter.save( os.path.join(args.odir, f"Response_{ResType}_{EtaRegion}") )
@@ -463,12 +514,12 @@ if __name__ == '__main__':
                 sigmas, sigma_errors = histo_values_errors(tprofile_sigma)
                 if key == 'Scale':
                     y, y_errors = means, mean_errors
-                    ylabel = f"<{myResolLabel.ytitle}>"
+                    ylabel = myResolLabel.ytitle(resol=False)
                 else:
                     y = [s / m if m != 0 else np.nan for s, m in zip(sigmas, means)]
                     y_errors = [np.sqrt((ds / m)**2 + ((s / m) * (dm / m))**2) if m != 0 else np.nan
                         for s, ds, m, dm in zip(sigmas, sigma_errors, means, mean_errors)]
-                    ylabel = f"$\sigma$({myResolLabel.ytitle}) / <{myResolLabel.ytitle}>"
+                    ylabel = myResolLabel.ytitle(resol=True) 
 
                 plotter.ax.errorbar(bin_centers, y, xerr=0.5 * bin_widths, yerr=y_errors, linestyle='',
                                     fmt='o', color=ResolOptions[key][2], label=f'{key} {resol_type}')
@@ -476,7 +527,7 @@ if __name__ == '__main__':
                 if 'Pt' not in myXvar:
                     xlabel = fr'$\{myXvar.lower()}$'
                 else: 
-                    xlabel = "$p_{T}^{gen}\,$ [GeV]" if 'Gen' in resol_type else "$p_{T}^{reco}\,$ [GeV]"
+                    xlabel = HLabels.pt_label('gen') if 'Gen' in resol_type else HLabels.pt_label('reco')
                 
                 plotter.labels(x=xlabel, y=ylabel, legend_title='')
                 plotter.limits(y=(ResolOptions[key][0], ResolOptions[key][1]))
@@ -498,18 +549,18 @@ if __name__ == '__main__':
                 sigmas, sigma_errors = histo_values_errors(tprofile_sigma)
                 if key == 'Scale':
                     y, y_errors = means, mean_errors
-                    ylabel = f"<{myResolLabel.ytitle}>"
+                    ylabel = myResolLabel.ytitle(resol=False)
                 else:
                     y = [s / m if m != 0 else np.nan for s, m in zip(sigmas, means)]
                     y_errors = [np.sqrt((ds / m)**2 + ((s / m) * (dm / m))**2) if m != 0 else np.nan
                         for s, ds, m, dm in zip(sigmas, sigma_errors, means, mean_errors)]
-                    ylabel = f"$\sigma$({myResolLabel.ytitle}) / <{myResolLabel.ytitle}>"
+                    ylabel = myResolLabel.ytitle(resol=True)
                 
                 plt.errorbar(bin_centers, y, xerr=0.5 * bin_widths, yerr=y_errors, linestyle='',
                             fmt=EtaInfo.marker(etareg), color=EtaInfo.color(etareg), label=EtaInfo.label(etareg))
                 plt.step(bin_edges[:-1], y, where="post", color=EtaInfo.color(etareg))
 
-            xlabel = "$p_{T}^{gen}\,$ [GeV]" if 'Gen' in resol_type else "$p_{T}^{reco}\,$ [GeV]"
+            xlabel = HLabels.pt_label('gen') if 'Gen' in resol_type else HLabels.pt_label('reco')
             plotter.labels(x=xlabel, y=ylabel, legend_title='')
             plotter.limits(y=(ResolOptions[key][0], ResolOptions[key][1]))
             plotter.ax.text(0.03, 0.97, f"{JetType}", transform=plotter.ax.transAxes,
@@ -532,20 +583,22 @@ if __name__ == '__main__':
                 sigmas, sigma_errors = histo_values_errors(tprofile_sigma)
                 if key == 'Scale':
                     y, y_errors = means, mean_errors
-                    ylabel = f"<{myResolLabel.ytitle}>"
                 else:
                     y = [s / m if m != 0 else np.nan for s, m in zip(sigmas, means)]
                     y_errors = [np.sqrt((ds / m)**2 + ((s / m) * (dm / m))**2) if m != 0 else np.nan
                         for s, ds, m, dm in zip(sigmas, sigma_errors, means, mean_errors)]
-                    ylabel = f"$\sigma$({myResolLabel.ytitle}) / <{myResolLabel.ytitle}>"
+
                 
                 mfc = 'white' if i_res == 1 else EtaInfo.color(etareg)
                 eb = plotter.ax.errorbar(bin_centers, y, xerr=0.5 * bin_widths, yerr=y_errors, linestyle='',
                             fmt=EtaInfo.marker(etareg), color=EtaInfo.color(etareg), label=EtaInfo.label(etareg), mfc=mfc)
                 eb[-1][0].set_linestyle('-' if i_res==0 else '--')
 
-        xlabel = "$p_{T}^{gen}\,$ [GeV]"
-        plotter.labels(x=xlabel, y=ylabel)
+        if key == 'Scale':
+            ylabel = HLabels.pt_label('pt/gen', average=True)
+        else:
+            ylabel = HLabels.resol_label('pt/gen')
+        plotter.labels(x=HLabels.pt_label('gen'), y=ylabel)
         plotter.limits(y=(ResolOptions[key][0], ResolOptions[key][1]))
         plotter.ax.text(0.03, 0.97, f"{JetType}", transform=plotter.ax.transAxes,
                         fontsize=fontsize, verticalalignment='top', horizontalalignment='left')
@@ -601,9 +654,27 @@ if __name__ == '__main__':
                             fontsize=fontsize, verticalalignment='top', horizontalalignment='right')
 
             ax2 = plotter.ax.twinx()
-            ax2.errorbar(bin_centers, eff_values, xerr=0.5 * bin_widths, yerr=eff_errors, linestyle='', fmt='o', color=eff_color, label=eff_type)
-            ax2.set_ylabel(myEffLabel.ytitle, color=eff_color)
-            ax2.set_ylim(0,1.2)
+            ax2.set_ylabel(myEffLabel.ytitle(), color=eff_color)
+            common_kwargs = dict(linestyle='', color=eff_color, label=eff_type)
+            if any(x in myEffLabel.ytitle() for x in ('Fake', 'Duplicate')):
+                axmin = 5E-2
+                ax2.set_yscale('log')
+                ax2.set_ylim(axmin, 1.9)
+
+                # replace points below y axis by uper errors bars
+                # ( avoid cluttering the plot)
+                eff_filt = np.where(eff_values<=axmin, np.nan, eff_values)
+                err_filt = np.where(eff_values<=axmin, np.nan, eff_errors)
+                
+                eff_filt_inv = np.where(eff_values>axmin, np.nan, eff_values)
+                err_filt_inv = np.where(eff_values>axmin, np.nan, eff_errors)
+
+                ax2.errorbar(bin_centers, eff_filt, xerr=0.5 * bin_widths, yerr=err_filt/2, fmt='o',
+                             capthick=2, linewidth=1, capsize=2, **common_kwargs)
+                ax2.plot(bin_centers, eff_filt_inv + err_filt_inv/2, 'v', **common_kwargs)
+            else:
+                ax2.errorbar(bin_centers, eff_values, xerr=0.5 * bin_widths, yerr=eff_errors/2, fmt='o', **common_kwargs)
+                ax2.set_ylim(0, 1.2)
             ax2.grid(color=eff_color, axis='y')
             ax2.tick_params(axis='y', labelcolor=eff_color)
             plotter.ax.grid(color=eff_color, axis='x')
@@ -623,10 +694,10 @@ if __name__ == '__main__':
         plotter.ax.text(0.03, 0.97, f"{JetType}", transform=plotter.ax.transAxes,
                         fontsize=fontsize, verticalalignment='top', horizontalalignment='left')
         label = root_ratio.GetXaxis().GetTitle()
-        plotter.labels(x=f"${label}$", y=myEffLabel.ytitle, legend_title='')
+        plotter.labels(x=f"${label}$", y=myEffLabel.ytitle(), legend_title='')
         if "Duplicates" in eff_type: 
             plotter.limits(y=(0.001,2), logY=True)
         else:
             plotter.limits(y=(0,1.25))
 
-        plotter.save( os.path.join(args.odir, myEffLabel.ytitle.replace(' ', '_') + '_Pt_EtaBins') )
+        plotter.save( os.path.join(args.odir, myEffLabel.ytitle().replace(' ', '_') + '_Pt_EtaBins') )
