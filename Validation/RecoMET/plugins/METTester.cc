@@ -32,6 +32,7 @@ using namespace edm;
 
 METTester::METTester(const edm::ParameterSet &iConfig) {
   inputMETLabel_ = iConfig.getParameter<edm::InputTag>("inputMETLabel");
+  isHLT = iConfig.getUntrackedParameter<bool>("isHLT", false);
 
   METType_ = iConfig.getUntrackedParameter<std::string>("METType");
   isCaloMET    = std::string("calo")    == METType_;
@@ -128,9 +129,24 @@ METTester::METTester(const edm::ParameterSet &iConfig) {
   mMETDifference_GenMETTrue_MET400to500 = nullptr;
   mMETDifference_GenMETTrue_MET500 = nullptr;
 }
-void METTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun, edm::EventSetup const & /* iSetup */) {
-  ibooker.setCurrentFolder("JetMET/METValidation/" + inputMETLabel_.label());
 
+std::string METTester::binStr(float left, float right, bool rountInt) {
+  std::string out;
+  if (rountInt) {
+	out = std::to_string((int)left) + "to" + std::to_string((int)right);
+  } else {
+	out = fmt::format("{:.2f}", left) + "to" + fmt::format("{:.2f}", right);
+	std::replace(out.begin(), out.end(), '.', 'p');
+  }
+  return out;
+}
+	
+void METTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun, edm::EventSetup const & /* iSetup */) {
+  if (isHLT)
+	ibooker.setCurrentFolder("HLT/JetMET/METValidation/" + inputMETLabel_.label());
+  else
+	ibooker.setCurrentFolder("JetMET/METValidation/" + inputMETLabel_.label());
+  
   mNvertex = ibooker.book1D("Nvertex", "Nvertex", 80, 0, 80);
   mMEx = ibooker.book1D("MEx", "MEx", 160, -800, 800);
   mMEy = ibooker.book1D("MEy", "MEy", 160, -800, 800);
@@ -147,15 +163,15 @@ void METTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
   mMETDeltaPhi_GenMETTrue = ibooker.book1D("METDeltaPhi_GenMETTrue", "METDeltaPhi_GenMETTrue", 80, 0, 4);
 
   for (unsigned metIdx=0; metIdx<mNMETBins; ++metIdx) {
-	std::string title = "MET_MET" + std::to_string((int)mMETBins[metIdx]) + "to" + std::to_string((int)mMETBins[metIdx+1]);
+	std::string title = "MET_MET" + binStr(mMETBins[metIdx], mMETBins[metIdx+1], true);
 	mMET_METBins[metIdx] = ibooker.book1D(title.c_str(), title.c_str(), 30, mMETBins[metIdx], mMETBins[metIdx+1]);
   }
   for (unsigned metIdx=0; metIdx<mNEtaBins; ++metIdx) {
-	std::string title = "MET_Eta" + std::to_string((int)mEtaBins[metIdx]) + "to" + std::to_string((int)mEtaBins[metIdx+1]);
+	std::string title = "MET_Eta" + binStr(mEtaBins[metIdx], mEtaBins[metIdx+1], false);
 	mMET_EtaBins[metIdx] = ibooker.book1D(title.c_str(), title.c_str(), 20, mEtaBins[metIdx], mEtaBins[metIdx+1]);
   }
   for (unsigned metIdx=0; metIdx<mNPhiBins; ++metIdx) {
-	std::string title = "MET_Phi" + std::to_string((int)mPhiBins[metIdx]) + "to" + std::to_string((int)mPhiBins[metIdx+1]);
+	std::string title = "MET_Phi" + binStr(mPhiBins[metIdx], mPhiBins[metIdx+1], false);
 	mMET_PhiBins[metIdx] = ibooker.book1D(title.c_str(), title.c_str(), 20, mPhiBins[metIdx], mPhiBins[metIdx+1]);
   }
   
@@ -182,7 +198,7 @@ void METTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
   }
   if (!isGenMET) {
 	for (unsigned metIdx=0; metIdx<mNMETBins; ++metIdx) {
-	  const std::string title = "GenMETTrue_MET" + std::to_string((int)mMETBins[metIdx]) + "to" + std::to_string((int)mMETBins[metIdx+1]);
+	  const std::string title = "_GenMETTrue_MET" + binStr(mMETBins[metIdx], mMETBins[metIdx+1], true);
 	  mMETDiff_GenMETTrue_METBins[metIdx] =
 		ibooker.book1D(("METDiff" + title).c_str(), ("METDiff" + title).c_str(), 500, -500, 500);
 	  mMETRatio_GenMETTrue_METBins[metIdx] =
@@ -192,7 +208,7 @@ void METTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
 	}
 
 	for (unsigned metIdx=0; metIdx<mNEtaBins; ++metIdx) {
-	  const std::string title = "GenMETTrue_Eta" + std::to_string((int)mEtaBins[metIdx]) + "to" + std::to_string((int)mEtaBins[metIdx+1]);
+	  const std::string title = "_GenMETTrue_Eta" + binStr(mEtaBins[metIdx], mEtaBins[metIdx+1]);
 	  mMETDiff_GenMETTrue_EtaBins[metIdx] =
 		ibooker.book1D(("METDiff" + title).c_str(), ("METDiff" + title).c_str(), 500, -500, 500);
 	  mMETRatio_GenMETTrue_EtaBins[metIdx] =
@@ -202,7 +218,7 @@ void METTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
 	}
 
 	for (unsigned metIdx=0; metIdx<mNPhiBins; ++metIdx) {
-	  const std::string title = "GenMETTrue_Phi" + std::to_string((int)mPhiBins[metIdx]) + "to" + std::to_string((int)mPhiBins[metIdx+1]);
+	  const std::string title = "_GenMETTrue_Phi" + binStr(mPhiBins[metIdx], mPhiBins[metIdx+1]);
 	  mMETDiff_GenMETTrue_PhiBins[metIdx] =
 		ibooker.book1D(("METDiff" + title).c_str(), ("METDiff" + title).c_str(), 500, -500, 500);
 	  mMETRatio_GenMETTrue_PhiBins[metIdx] =
@@ -298,12 +314,13 @@ void METTester::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
 
   const double SumET = met.sumEt();
   const double METPseudoSign = met.mEtSig();
-  const double METRealSign = met.significance();
+  const double METRealSign = met.significance(); // https://github.com/cms-sw/cmssw/blob/e6f90ca623ceed749b1a529b01c7a8b0ec1c6b8b/DataFormats/METReco/src/MET.cc#L142
   const double MET = met.pt();
   const double MEx = met.px();
   const double MEy = met.py();
   const double METEta = met.eta();
   const double METPhi = met.phi();
+
   mSumET->Fill(SumET);
   mMETPseudoSign->Fill(METPseudoSign);
   mMETRealSign->Fill(METRealSign);
@@ -505,6 +522,7 @@ void METTester::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
 void METTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   // Default MET validation offline
+  desc.addUntracked<bool>("isHLT", false);
   desc.add<edm::InputTag>("primaryVertices", edm::InputTag("PixelVertices"));
   desc.add<edm::InputTag>("inputMETLabel", edm::InputTag("pfMet"));
   desc.addUntracked<std::string>("METType", "pf");
