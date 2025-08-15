@@ -43,7 +43,7 @@ protected:
 
   //	flag vector
   std::vector<hcaldqm::flag::Flag> _vflags;
-    enum RawFlag { fEvnMsm = 0, fBcnMsm = 1, fOrnMsm = 2, fBadQ = 3, fUnknownIds = 4, nRawFlag = 5 };
+  enum RawFlag { fEvnMsm = 0, fBcnMsm = 1, fOrnMsm = 2, fBadQ = 3, fUnknownIds = 4, nRawFlag = 5 };
 
   //	emap
   hcaldqm::electronicsmap::ElectronicsMap _ehashmap;

@@ -436,7 +436,8 @@ std::shared_ptr<hcaldqm::Cache> RawTask::globalBeginLuminosityBlock(edm::Luminos
     }
 
     //	FED is @cDAQ
-    if (hcaldqm::utilities::isFEDHBHE(eid) || hcaldqm::utilities::isFEDHF(eid) || hcaldqm::utilities::isFEDHO(eid) || hcaldqm::utilities::isFEDZDC(eid)) {
+    if (hcaldqm::utilities::isFEDHBHE(eid) || hcaldqm::utilities::isFEDHF(eid) || hcaldqm::utilities::isFEDHO(eid) ||
+        hcaldqm::utilities::isFEDZDC(eid)) {
       if (_xEvnMsmLS.get(eid) > 0)
         _vflags[fEvnMsm]._state = flag::fBAD;
       else
@@ -458,10 +459,10 @@ std::shared_ptr<hcaldqm::Cache> RawTask::globalBeginLuminosityBlock(edm::Luminos
     }
     _unknownIdsPresent = false;
     if (_unknownIdsPresent)
-	_vflags[fUnknownIds]._state = hcaldqm::flag::fBAD;
+      _vflags[fUnknownIds]._state = hcaldqm::flag::fBAD;
     else
-	_vflags[fUnknownIds]._state = hcaldqm::flag::fGOOD;
-    
+      _vflags[fUnknownIds]._state = hcaldqm::flag::fGOOD;
+
     int iflag = 0;
     //	iterate over all flags:
     //	- sum them all up in summary flag for this FED
@@ -483,7 +484,8 @@ std::shared_ptr<hcaldqm::Cache> RawTask::globalBeginLuminosityBlock(edm::Luminos
       //	each one of them after using
       ft->reset();
     }
-    if (fed == 1136) edm::LogWarning(" fSum._state =") << fSum._state << std::endl;     
+    if (fed == 1136)
+      edm::LogWarning(" fSum._state =") << fSum._state << std::endl;
     _cSummaryvsLS.setBinContent(eid, _currentLS, fSum._state);
   }
 
