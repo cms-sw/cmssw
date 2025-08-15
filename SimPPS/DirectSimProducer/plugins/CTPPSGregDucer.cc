@@ -323,22 +323,21 @@ void CTPPSGregDucer::interpolate(double xi,
     double theta_m22 = thetaPair22.first;
     double theta_p22 = thetaPair22.second;
 
-    double theta_interm11, theta_interm12, theta_interm21, theta_interm22;
+    double theta_interm_m1, theta_interm_p1, theta_interm_m2, theta_interm_p2;
 
     // xi1 
-    theta_interm11 = interpolate_step(phi, phi1, phi2, theta_m11, theta_m12);
-    theta_interm12 = interpolate_step(phi, phi1, phi2, theta_p11, theta_p12);
+    theta_interm_m1 = interpolate_step(phi, phi1, phi2, theta_m11, theta_m12);
+    theta_interm_p1 = interpolate_step(phi, phi1, phi2, theta_p11, theta_p12);
 
     // xi2
-    theta_interm21 = interpolate_step(phi, phi1, phi2, theta_m21, theta_m22);
-    theta_interm22 = interpolate_step(phi, phi1, phi2, theta_p21, theta_p22);
+    theta_interm_m2 = interpolate_step(phi, phi1, phi2, theta_m21, theta_m22);
+    theta_interm_p2 = interpolate_step(phi, phi1, phi2, theta_p21, theta_p22);
 
     // Result
-    theta_min = interpolate_step(xi, xi1, xi2, theta_interm11, theta_interm12);
-    theta_max = interpolate_step(xi, xi1, xi2, theta_interm21, theta_interm22);
+    theta_min = interpolate_step(xi, xi1, xi2, theta_interm_m1, theta_interm_m2);
+    theta_max = interpolate_step(xi, xi1, xi2, theta_interm_p1, theta_interm_p2);
 
-    if(debug) std::cout << "Xi: " << xi << " Phi:" << phi << " Theta_min thata_max: " << theta_min << " " << theta_max << std::endl;
-    //I think there is an error in theta interpolation execution not logic
+     std::cout << "Xi: " << xi << " Phi:" << phi << " Theta_min thata_max: " << theta_min << " " << theta_max << std::endl;
 
 }
 
