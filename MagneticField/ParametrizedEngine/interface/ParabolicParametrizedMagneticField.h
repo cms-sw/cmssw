@@ -12,7 +12,6 @@ namespace magneticFieldParabolicPortable {
   struct Parameters {
     // These parameters are the best fit of 3.8T to the OAEParametrizedMagneticField parametrization.
     // See MagneticField/ParametrizedEngine/src/ParabolicParametrizedMagneticField.cc
-    // Hard-wired numbers defining the surfaces on which the crystal front faces lie
 
     static constexpr float c1 = 3.8114;
     static constexpr float b0 = -3.94991e-06;
