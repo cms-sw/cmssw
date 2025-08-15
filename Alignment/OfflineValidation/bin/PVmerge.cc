@@ -78,6 +78,7 @@ int merge(int argc, char* argv[]) {
   std::string rlabel = validation.count("customrighttitle") ? validation.get<std::string>("customrighttitle") : "";
   rlabel = merge_style.count("Rlabel") ? merge_style.get<std::string>("Rlabel") : rlabel;
   std::string cmslabel = merge_style.count("CMSlabel") ? merge_style.get<std::string>("CMSlabel") : "INTERNAL";
+  std::string outdir = main_tree.count("output") ? main_tree.get<std::string>("output") : "";
   if (TkAlStyle::toStatus(cmslabel) == CUSTOM)
     TkAlStyle::set(CUSTOM, NONE, cmslabel, rlabel);
   else
@@ -141,7 +142,7 @@ int merge(int argc, char* argv[]) {
   }
 
   //And finally fit
-  FitPVResiduals("", stdResiduals, doMaps, "", autoLimits, cmslabel, rlabel);
+  FitPVResiduals("", stdResiduals, doMaps, "", autoLimits, cmslabel, rlabel, outdir);
 
   return EXIT_SUCCESS;
 }
