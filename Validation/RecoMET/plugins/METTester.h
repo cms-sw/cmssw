@@ -53,7 +53,7 @@ public:
 
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   static const int mNMETBins = 11;
   static constexpr std::array<float, mNMETBins+1> mMETBins = {{0., 20., 40., 60., 80., 100., 150., 200., 300., 400., 500., 10000.}};
