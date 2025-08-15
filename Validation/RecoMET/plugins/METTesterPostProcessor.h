@@ -16,6 +16,8 @@ public:
   explicit METTesterPostProcessor(const edm::ParameterSet &);
   ~METTesterPostProcessor() override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
+
 private:
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
   std::vector<std::string> met_dirs;
@@ -50,6 +52,8 @@ private:
   MonitorElement *mMETRespAggr_METBins, *mMETRespAggr_EtaBins, *mMETRespAggr_PhiBins;
   MonitorElement *mMETResolAggr_METBins, *mMETResolAggr_EtaBins, *mMETResolAggr_PhiBins;
   MonitorElement *mMETSignAggr_METBins, *mMETSignAggr_EtaBins, *mMETSignAggr_PhiBins;
+
+  bool isHLT;
 };
 
 #endif

@@ -8,13 +8,18 @@
 //
 #include "Validation/RecoMET/plugins/METTesterPostProcessor.h"
 
-METTesterPostProcessor::METTesterPostProcessor(const edm::ParameterSet &iConfig) {}
+METTesterPostProcessor::METTesterPostProcessor(const edm::ParameterSet &iConfig) {
+  isHLT = iConfig.getUntrackedParameter<bool>("isHLT", false);
+}
 METTesterPostProcessor::~METTesterPostProcessor() {}
 
 // ------------ method called right after a run ends ------------
 void METTesterPostProcessor::dqmEndJob(DQMStore::IBooker &ibook_, DQMStore::IGetter &iget_) {
   std::vector<std::string> subDirVec;
-  std::string RunDir = "JetMET/METValidation/";
+  std::string RunDir;
+  if (isHLT) RunDir = "HLT/JetMET/METValidation/";
+  else RunDir = "JetMET/METValidation/";
+ 
   iget_.setCurrentFolder(RunDir);
   met_dirs = iget_.getSubdirs();
 
@@ -131,4 +136,10 @@ void METTesterPostProcessor::mFillAggrHistograms(std::string metdir, DQMStore::I
 	}
   }
 
+}
+
+void METTesterPostProcessor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<bool>("isHLT", false);
+  descriptions.addWithDefaultLabel(desc);
 }

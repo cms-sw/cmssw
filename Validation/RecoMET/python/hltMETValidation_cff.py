@@ -5,6 +5,11 @@ from RecoJets.Configuration.RecoGenJets_cff import *
 
 hltMetPreValidSeq = cms.Sequence()
 
+from Validation.RecoMET.metTesterPostProcessor_cfi import metTesterPostProcessor as _metTesterPostProcessor
+hltMetPostProcessor = _metTesterPostProcessor.clone(
+    isHLT = cms.untracked.bool(True),
+)
+
 from Validation.RecoMET.metTester_cfi import metTester as _metTester
 _hltMetTester = _metTester.clone(
     isHLT = cms.untracked.bool(True),
