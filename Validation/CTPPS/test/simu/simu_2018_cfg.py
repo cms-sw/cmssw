@@ -69,43 +69,42 @@ process.ctppsProtonReconstructionPlotter = cms.EDAnalyzer("CTPPSProtonReconstruc
 
 
 
-# Greg plotter 1
+# Greg plotter 1 - Unfiltered
 process.ctppsGregPlotter = cms.EDAnalyzer("CTPPSGregPlotter",
     tagTracks = cms.InputTag("GenParticles"),
     outputFile = cms.string("simu_2018_Greg.root")#,
 )
 
-# Greg producer 1
-process.ctppsGregDucer = cms.EDProducer("CTPPSGregDucer",
+# Greg producer 1 - Calibration
+process.ctppsGregDucer1 = cms.EDProducer("CTPPSGregDucer",
     tagTracks = cms.InputTag("GenParticlesNew"),
     hepMCTag = cms.InputTag("generator", "unsmeared"),
-    # filename = cms.string("/afs/cern.ch/user/g/gjedrzej/private/mainTask/CMSSW_15_0_11/src/SimPPS/DirectSimProducer/cutFiles/thetaphibottleneck_-160urad_18cm_60cm_calib-nodet-xrphd-64bins.out")
-    filename = cms.string("/afs/cern.ch/user/g/gjedrzej/private/mainTask/CMSSW_15_0_11/src/SimPPS/DirectSimProducer/cutFiles/thetaphibottleneck_-160urad_18cm_60cm_phys-nodet-xrphd-64bins.out")
+    filename = cms.string("/afs/cern.ch/user/g/gjedrzej/private/mainTask/CMSSW_15_0_11/src/SimPPS/DirectSimProducer/cutFiles/thetaphibottleneck_-160urad_18cm_60cm_calib-nodet-xrphd-64bins.out")
 )
 
-# # Greg producer 2
-# process.ctppsGregDucer = cms.EDProducer("CTPPSGregDucer",
-#     tagTracks = cms.InputTag("GenParticlesNew"),
-#     hepMCTag = cms.InputTag("generator", "unsmeared"),
-#     #filename = cms.string("/afs/cern.ch/user/g/gjedrzej/private/mainTask/CMSSW_15_0_11/src/SimPPS/DirectSimProducer/cutFiles/thetaphilimits_-160urad_18cm_60cm_calib-nodet-xrphd.out") 
-#     filename = cms.string("/afs/cern.ch/user/g/gjedrzej/private/mainTask/CMSSW_15_0_11/src/SimPPS/DirectSimProducer/cutFiles/thetaphilimits_-160urad_18cm_60cm_phys-nodet-xrphd.out")
-# )
-
-# Greg plotter 2
+# Greg plotter 2 - Calibration
 process.ctppsGregPlotter2 = cms.EDAnalyzer("CTPPSGregPlotter",
-    tagTracks = cms.InputTag("ctppsGregDucer", "selectedProtons"),
-    hepMCTag = cms.InputTag("ctppsGregDucer", "selectedProtons"),
-    # outputFile = cms.string("simu_2018_GregCut.root")
-    # outputFile = cms.string("simu_2018_64binsCalib.root")
-    outputFile = cms.string("simu_2018_64binsPhys.root")
+    tagTracks = cms.InputTag("ctppsGregDucer1", "selectedProtons"),
+    hepMCTag = cms.InputTag("ctppsGregDucer1", "selectedProtons"),
+    outputFile = cms.string("simu_2018_64binsCalib.root")
 
 )
-# # Greg plotter 3
-# process.ctppsGregPlotter3 = cms.EDAnalyzer("CTPPSGregPlotter",
-#     tagTracks = cms.InputTag("ctppsGregDucer", "selectedProtons"),
-#     hepMCTag = cms.InputTag("ctppsGregDucer", "selectedProtons"),
-#     outputFile = cms.string("simu_2018_GregCut.root")
-# )
+
+# Greg producer 2 - Physics
+process.ctppsGregDucer2 = cms.EDProducer("CTPPSGregDucer",
+    tagTracks = cms.InputTag("GenParticlesNew"),
+    hepMCTag = cms.InputTag("generator", "unsmeared"),
+    filename = cms.string("/afs/cern.ch/user/g/gjedrzej/private/mainTask/CMSSW_15_0_11/src/SimPPS/DirectSimProducer/cutFiles/thetaphibottleneck_-160urad_18cm_60cm_phys-nodet-xrphd-64bins.out")
+
+)
+
+
+# Greg plotter 3 - Physics
+process.ctppsGregPlotter3 = cms.EDAnalyzer("CTPPSGregPlotter",
+    tagTracks = cms.InputTag("ctppsGregDucer2", "selectedProtons"),
+    hepMCTag = cms.InputTag("ctppsGregDucer2", "selectedProtons"),
+    outputFile = cms.string("simu_2018_64binsPhys.root")
+)
 
 process.generation = cms.Path(process.generator)
 
@@ -117,9 +116,14 @@ process.validation = cms.Path(
     * process.ctppsGregPlotter 
 )
 
+# Calibration
 process.cutAndValidate = cms.Path(
-    process.ctppsGregDucer * process.ctppsGregPlotter2
+    process.ctppsGregDucer1 * process.ctppsGregPlotter2
 )
+
+# Physics
+process.cutAndValidate2 = cms.Path(
+    process.ctppsGregDucer2 * process.ctppsGregPlotter3)
 
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string("data_output.root"),
@@ -139,6 +143,7 @@ process.schedule = cms.Schedule(
     process.generation,
     process.validation,
     process.cutAndValidate,
+    process.cutAndValidate2,
     process.end_path
 )
 

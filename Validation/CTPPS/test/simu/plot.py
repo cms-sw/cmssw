@@ -8,16 +8,16 @@ file_paths = ['/afs/cern.ch/user/g/gjedrzej/private/mainTask/CMSSW_15_0_11/src/V
 
 file_labels = ['Unfiltered', 'Calibration', 'Physics']
 
-# List of all histogram names you want to plot
+#histogram names
 histogram_names = ['Example Histogram', 'Theta Degrees', 'Phi', 'Energy', 'Pt', 'Xi']
 
-# --- Directory and filename setup ---
+#setup
 output_directory = './plots/'
 if not os.path.exists(output_directory):
     os.makedirs(output_directory)
     print(f"Created directory: {output_directory}")
 
-# --- Plotting Logic (Now in a loop) ---
+#Plotting 
 for hist_name in histogram_names:
     print(f"Processing histogram: {hist_name}")
 
