@@ -31,7 +31,7 @@ using namespace std;
 using namespace edm;
 
 METTester::METTester(const edm::ParameterSet &iConfig) {
-  inputMETLabel_ = iConfig.getParameter<edm::InputTag>("InputMETLabel");
+  inputMETLabel_ = iConfig.getParameter<edm::InputTag>("inputMETLabel");
 
   METType_ = iConfig.getUntrackedParameter<std::string>("METType");
   isCaloMET    = std::string("calo")    == METType_;
@@ -49,7 +49,7 @@ METTester::METTester(const edm::ParameterSet &iConfig) {
     genMETsCaloToken_ = consumes<reco::GenMETCollection>(edm::InputTag("genMetCalo"));
   }
 
-  pvToken_ = consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("PrimaryVertices"));
+  pvToken_ = consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("primaryVertices"));
   
   // Events variables
   mNvertex = nullptr;
@@ -64,9 +64,13 @@ METTester::METTester(const edm::ParameterSet &iConfig) {
   mMETEta = nullptr;
   mMETPhi = nullptr;
   mSumET = nullptr;
-  mMETDifference_GenMETTrue = nullptr;
+  
+  mMETDiff_GenMETTrue	  = nullptr;
+  mMETRatio_GenMETTrue	  = nullptr;
   mMETDeltaPhi_GenMETTrue = nullptr;
-  mMETDifference_GenMETCalo = nullptr;
+
+  mMETDiff_GenMETCalo	  = nullptr;
+  mMETRatio_GenMETCalo    = nullptr;
   mMETDeltaPhi_GenMETCalo = nullptr;
 
   // MET Uncertainities: Only for MiniAOD
@@ -136,9 +140,23 @@ void METTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
   mMETEta = ibooker.book1D("METEta", "METEta", 80, -6, 6);
   mMETPhi = ibooker.book1D("METPhi", "METPhi", 80, -4, 4);
   mSumET = ibooker.book1D("SumET", "SumET", 200, 0, 4000);  // 10GeV
-  mMETDifference_GenMETTrue = ibooker.book1D("METDifference_GenMETTrue", "METDifference_GenMETTrue", 500, -500, 500);
+  mMETDiff_GenMETTrue = ibooker.book1D("METDiff_GenMETTrue", "METDiff_GenMETTrue", 500, -500, 500);
+  mMETRatio_GenMETTrue = ibooker.book1D("METRatio_GenMETTrue", "METRatio_GenMETTrue", 500, -500, 500);
   mMETDeltaPhi_GenMETTrue = ibooker.book1D("METDeltaPhi_GenMETTrue", "METDeltaPhi_GenMETTrue", 80, 0, 4);
 
+  for (unsigned metIdx=0; metIdx<mNMETBins-1; ++metIdx) {
+	std::string title = "MET_MET" + std::to_string((int)mMETBins[metIdx]) + "to" + std::to_string((int)mMETBins[metIdx+1]);
+	mMET_METBins[metIdx] = ibooker.book1D(title.c_str(), title.c_str(), 30, mMETBins[metIdx], mMETBins[metIdx+1]);
+  }
+  for (unsigned metIdx=0; metIdx<mNEtaBins-1; ++metIdx) {
+	std::string title = "MET_Eta" + std::to_string((int)mEtaBins[metIdx]) + "to" + std::to_string((int)mEtaBins[metIdx+1]);
+	mMET_EtaBins[metIdx] = ibooker.book1D(title.c_str(), title.c_str(), 20, mEtaBins[metIdx], mEtaBins[metIdx+1]);
+  }
+  for (unsigned metIdx=0; metIdx<mNPhiBins-1; ++metIdx) {
+	std::string title = "MET_Phi" + std::to_string((int)mPhiBins[metIdx]) + "to" + std::to_string((int)mPhiBins[metIdx+1]);
+	mMET_PhiBins[metIdx] = ibooker.book1D(title.c_str(), title.c_str(), 20, mPhiBins[metIdx], mPhiBins[metIdx+1]);
+  }
+  
   if (isMiniAODMET) {
     mMETUnc_JetResUp = ibooker.book1D("METUnc_JetResUp", "METUnc_JetResUp", 200, -10, 10);
     mMETUnc_JetResDown = ibooker.book1D("METUnc_JetResDown", "METUnc_JetResDown", 200, -10, 10);
@@ -156,23 +174,39 @@ void METTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
     mMETUnc_PhotonEnDown = ibooker.book1D("METUnc_PhotonEnDown", "METUnc_PhotonEnDown", 200, -10, 10);
   }
   if (!isMiniAODMET) {
-    mMETDifference_GenMETCalo = ibooker.book1D("METDifference_GenMETCalo", "METDifference_GenMETCalo", 500, -500, 500);
+    mMETDiff_GenMETCalo = ibooker.book1D("METDiff_GenMETCalo", "METDiff_GenMETCalo", 500, -500, 500);
+	mMETRatio_GenMETCalo = ibooker.book1D("METRatio_GenMETCalo", "METRatio_GenMETCalo", 500, -500, 500);
     mMETDeltaPhi_GenMETCalo = ibooker.book1D("METDeltaPhi_GenMETCalo", "METDeltaPhi_GenMETCalo", 80, 0, 4);
   }
   if (!isGenMET) {
 	for (unsigned metIdx=0; metIdx<mNMETBins-1; ++metIdx) {
-	  std::string met_title = "METDifference_GenMETTrue_MET" + std::to_string((int)mMETBins[metIdx]) + "to" + std::to_string((int)mMETBins[metIdx+1]);
-	  mMETDifference_GenMETTrue_METBins[metIdx] = ibooker.book1D(met_title.c_str(), met_title.c_str(), 500, -500, 500);
+	  const std::string title = "GenMETTrue_MET" + std::to_string((int)mMETBins[metIdx]) + "to" + std::to_string((int)mMETBins[metIdx+1]);
+	  mMETDiff_GenMETTrue_METBins[metIdx] =
+		ibooker.book1D(("METDiff" + title).c_str(), ("METDiff" + title).c_str(), 500, -500, 500);
+	  mMETRatio_GenMETTrue_METBins[metIdx] =
+		ibooker.book1D(("METRatio" + title).c_str(), ("METRatio" + title).c_str(), 500, -500, 500);
+	  mMETDeltaPhi_GenMETTrue_METBins[metIdx] =
+		ibooker.book1D(("METDeltaPhi" + title).c_str(), ("METDeltaPhi" + title).c_str(), 80, 0, 4);
 	}
 
 	for (unsigned metIdx=0; metIdx<mNEtaBins-1; ++metIdx) {
-	  std::string met_title = "METDifference_GenMETTrue_Eta" + std::to_string((int)mEtaBins[metIdx]) + "to" + std::to_string((int)mEtaBins[metIdx+1]);
-	  mMETDifference_GenMETTrue_EtaBins[metIdx] = ibooker.book1D(met_title.c_str(), met_title.c_str(), 500, -500, 500);
+	  const std::string title = "GenMETTrue_Eta" + std::to_string((int)mEtaBins[metIdx]) + "to" + std::to_string((int)mEtaBins[metIdx+1]);
+	  mMETDiff_GenMETTrue_EtaBins[metIdx] =
+		ibooker.book1D(("METDiff" + title).c_str(), ("METDiff" + title).c_str(), 500, -500, 500);
+	  mMETRatio_GenMETTrue_EtaBins[metIdx] =
+		ibooker.book1D(("METRatio" + title).c_str(), ("METRatio" + title).c_str(), 500, -500, 500);
+	  mMETDeltaPhi_GenMETTrue_EtaBins[metIdx] =
+		ibooker.book1D(("METDeltaPhi" + title).c_str(), ("METDeltaPhi" + title).c_str(), 500, -500, 500);
 	}
 
 	for (unsigned metIdx=0; metIdx<mNPhiBins-1; ++metIdx) {
-	  std::string met_title = "METDifference_GenMETTrue_Phi" + std::to_string((int)mPhiBins[metIdx]) + "to" + std::to_string((int)mPhiBins[metIdx+1]);
-	  mMETDifference_GenMETTrue_PhiBins[metIdx] = ibooker.book1D(met_title.c_str(), met_title.c_str(), 500, -500, 500);
+	  const std::string title = "GenMETTrue_Phi" + std::to_string((int)mPhiBins[metIdx]) + "to" + std::to_string((int)mPhiBins[metIdx+1]);
+	  mMETDiff_GenMETTrue_PhiBins[metIdx] =
+		ibooker.book1D(("METDiff" + title).c_str(), ("METDiff" + title).c_str(), 500, -500, 500);
+	  mMETRatio_GenMETTrue_PhiBins[metIdx] =
+		ibooker.book1D(("METRatio" + title).c_str(), ("METRatio" + title).c_str(), 500, -500, 500);
+	  mMETDeltaPhi_GenMETTrue_PhiBins[metIdx] =
+		ibooker.book1D(("METDeltaPhi" + title).c_str(), ("METDeltaPhi" + title).c_str(), 500, -500, 500);
 	}
   }
   if (isCaloMET) {
@@ -278,6 +312,19 @@ void METTester::analyze(const edm::Event &iEvent,
   mMETEta->Fill(METEta);
   mMETPhi->Fill(METPhi);
 
+  for (unsigned metIdx=0; metIdx<mMETBins.size()-1; ++metIdx) {
+	if (MET > mMETBins[metIdx] && MET < mMETBins[metIdx+1])
+	  mMET_METBins[metIdx]->Fill(MET);
+  }
+  for (unsigned metIdx=0; metIdx<mEtaBins.size()-1; ++metIdx) {
+	if (MET > mEtaBins[metIdx] && MET < mEtaBins[metIdx+1])
+	  mMET_EtaBins[metIdx]->Fill(MET);
+  }
+  for (unsigned metIdx=0; metIdx<mPhiBins.size()-1; ++metIdx) {
+	if (MET > mPhiBins[metIdx] && MET < mPhiBins[metIdx+1])
+	  mMET_PhiBins[metIdx]->Fill(MET);
+  }
+	
   // Get Generated MET for Resolution plots
   const reco::GenMET *genMetTrue = nullptr;
   bool isvalidgenmet = false;
@@ -298,25 +345,38 @@ void METTester::analyze(const edm::Event &iEvent,
   if (isvalidgenmet) {
     double genMET = genMetTrue->pt();
     double genMETPhi = genMetTrue->phi();
-
-    mMETDifference_GenMETTrue->Fill(MET - genMET);
-    mMETDeltaPhi_GenMETTrue->Fill(TMath::ACos(TMath::Cos(METPhi - genMETPhi)));
+	double metDiff = MET - genMET;
+	double metRatio = MET / genMET;
+	double metDeltaPhi = TMath::ACos(TMath::Cos(METPhi - genMETPhi));
+	
+    mMETDiff_GenMETTrue->Fill(metDiff);
+	mMETRatio_GenMETTrue->Fill(metRatio);
+    mMETDeltaPhi_GenMETTrue->Fill(metDeltaPhi);
 
     if (!isGenMET) {
-      // MET resolution in MET bins
+      // MET difference in MET bins
 	  for (unsigned metIdx=0; metIdx<mMETBins.size()-1; ++metIdx) {
-		if (MET > mMETBins[metIdx] && MET < mMETBins[metIdx+1])
-		  mMETDifference_GenMETTrue_METBins[metIdx]->Fill(MET - genMET);
+		if (MET > mMETBins[metIdx] && MET < mMETBins[metIdx+1]) {
+		  mMETDiff_GenMETTrue_METBins[metIdx]->Fill(metDiff);
+		  mMETRatio_GenMETTrue_METBins[metIdx]->Fill(metRatio);
+		  mMETDeltaPhi_GenMETTrue_METBins[metIdx]->Fill(metDeltaPhi);
+		}
 	  }
-      // MET resolution in Eta bins
+      // MET difference in Eta bins
 	  for (unsigned metIdx=0; metIdx<mEtaBins.size()-1; ++metIdx) {
-		if (METEta > mEtaBins[metIdx] && METEta < mEtaBins[metIdx+1])
-		  mMETDifference_GenMETTrue_EtaBins[metIdx]->Fill(MET - genMET);
+		if (METEta > mEtaBins[metIdx] && METEta < mEtaBins[metIdx+1]) {
+		  mMETDiff_GenMETTrue_EtaBins[metIdx]->Fill(metDiff);
+		  mMETRatio_GenMETTrue_EtaBins[metIdx]->Fill(metRatio);
+		  mMETDeltaPhi_GenMETTrue_EtaBins[metIdx]->Fill(metDeltaPhi);
+		}
 	  }
-	  // MET resolution in Phi bins
+	  // MET difference in Phi bins
 	  for (unsigned metIdx=0; metIdx<mPhiBins.size()-1; ++metIdx) {
-		if (METPhi > mPhiBins[metIdx] && METPhi < mPhiBins[metIdx+1])
-		  mMETDifference_GenMETTrue_PhiBins[metIdx]->Fill(MET - genMET);
+		if (METPhi > mPhiBins[metIdx] && METPhi < mPhiBins[metIdx+1]) {
+		  mMETDiff_GenMETTrue_PhiBins[metIdx]->Fill(metDiff);
+		  mMETRatio_GenMETTrue_PhiBins[metIdx]->Fill(metRatio);
+		  mMETDeltaPhi_GenMETTrue_PhiBins[metIdx]->Fill(metDeltaPhi);
+		}
 	  }
     } else {
       edm::LogInfo("OutputInfo") << " failed to retrieve data required by MET Task:  genMetTrue";
@@ -331,10 +391,11 @@ void METTester::analyze(const edm::Event &iEvent,
       const double genMET = genMetCalo->pt();
       const double genMETPhi = genMetCalo->phi();
 
-      mMETDifference_GenMETCalo->Fill(MET - genMET);
+      mMETDiff_GenMETCalo->Fill(MET - genMET);
+	  mMETRatio_GenMETCalo->Fill(MET / genMET);
       mMETDeltaPhi_GenMETCalo->Fill(TMath::ACos(TMath::Cos(METPhi - genMETPhi)));
     } else {
-      edm::LogInfo("OutputInfo") << " failed to retrieve data required by MET Task:  genMetCalo";
+      edm::LogInfo("OutputInfo") << " failed to retrieve data required by MET Task: genMetCalo";
     }
   }
   if (isCaloMET) {
@@ -441,11 +502,11 @@ void METTester::analyze(const edm::Event &iEvent,
 void METTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   // Default MET validation offline
-  desc.add<edm::InputTag>("InputMETLabel", edm::InputTag("pfMet"));
+  desc.add<edm::InputTag>("primaryVertices", edm::InputTag("PixelVertices"));
+  desc.add<edm::InputTag>("inputMETLabel", edm::InputTag("pfMet"));
   desc.addUntracked<std::string>("METType", "pf");
-
-  desc.add<edm::InputTag>("genMetTrue", edm::InputTag(""));
-  desc.add<edm::InputTag>("genMetCalo", edm::InputTag(""));
+  desc.add<edm::InputTag>("genMetTrue", edm::InputTag("genMetTrue"));
+  desc.add<edm::InputTag>("genMetCalo", edm::InputTag("genMetCalo"));
   descriptions.addWithDefaultLabel(desc);
 }
 >>>>>>> dd18d35bef9 (Add fillDescriptions to the MET validation.)

@@ -20,23 +20,37 @@ private:
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
   std::vector<std::string> met_dirs;
 
-  void FillMETRes(std::string metdir, DQMStore::IGetter &);
+  std::string mBinStr(float, float) const;
+  void mFillAggrHistograms(std::string, DQMStore::IGetter&);
 
+  template <int S>
+  using ElemArr = std::array<MonitorElement*, S>;
+	
   static constexpr int mNMETBins = METTester::mNMETBins;
   static constexpr auto mMETBins = METTester::mMETBins;
-  std::array<MonitorElement *, mNMETBins> mMETDifference_GenMETTrue_METBins;
+  ElemArr<mNMETBins> mMET_METBins;
+  ElemArr<mNMETBins> mMETDiff_GenMETTrue_METBins;
+  ElemArr<mNMETBins> mMETRatio_GenMETTrue_METBins;
+  ElemArr<mNMETBins> mMETDeltaPhi_GenMETTrue_METBins;
 
   static constexpr int mNEtaBins = METTester::mNEtaBins;
   static constexpr auto mEtaBins = METTester::mEtaBins;
-  std::array<MonitorElement *, mNEtaBins> mMETDifference_GenMETTrue_EtaBins;
+  ElemArr<mNEtaBins> mMET_EtaBins;
+  ElemArr<mNEtaBins> mMETDiff_GenMETTrue_EtaBins;
+  ElemArr<mNEtaBins> mMETRatio_GenMETTrue_EtaBins;
+  ElemArr<mNEtaBins> mMETDeltaPhi_GenMETTrue_EtaBins;
   
   static constexpr int mNPhiBins = METTester::mNPhiBins;
   static constexpr auto mPhiBins = METTester::mPhiBins;
-  std::array<MonitorElement *, mNPhiBins> mMETDifference_GenMETTrue_PhiBins;
+  ElemArr<mNPhiBins> mMET_PhiBins;
+  ElemArr<mNPhiBins> mMETDiff_GenMETTrue_PhiBins;
+  ElemArr<mNPhiBins> mMETRatio_GenMETTrue_PhiBins;
+  ElemArr<mNPhiBins> mMETDeltaPhi_GenMETTrue_PhiBins;
   
-  MonitorElement *mMETDiffAggr_METBins;
-  MonitorElement *mMETDiffAggr_EtaBins;
-  MonitorElement *mMETDiffAggr_PhiBins;
+  MonitorElement *mMETDiffAggr_METBins, *mMETDiffAggr_EtaBins, *mMETDiffAggr_PhiBins;
+  MonitorElement *mMETRespAggr_METBins, *mMETRespAggr_EtaBins, *mMETRespAggr_PhiBins;
+  MonitorElement *mMETResolAggr_METBins, *mMETResolAggr_EtaBins, *mMETResolAggr_PhiBins;
+  MonitorElement *mMETSignAggr_METBins, *mMETSignAggr_EtaBins, *mMETSignAggr_PhiBins;
 };
 
 #endif
