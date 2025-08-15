@@ -31,7 +31,7 @@ using namespace std;
 using namespace edm;
 
 METTester::METTester(const edm::ParameterSet &iConfig) {
-  inputMETLabel_ = iConfig.getParameter<edm::InputTag>("InputMETLabel");
+  inputMETLabel_ = iConfig.getParameter<edm::InputTag>("inputMETLabel");
 
   METType_ = iConfig.getUntrackedParameter<std::string>("METType");
   isCaloMET    = std::string("calo")    == METType_;
@@ -49,7 +49,7 @@ METTester::METTester(const edm::ParameterSet &iConfig) {
     genMETsCaloToken_ = consumes<reco::GenMETCollection>(edm::InputTag("genMetCalo"));
   }
 
-  pvToken_ = consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("PrimaryVertices"));
+  pvToken_ = consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("primaryVertices"));
   
   // Events variables
   mNvertex = nullptr;
@@ -487,10 +487,10 @@ void METTester::analyze(const edm::Event &iEvent,
 void METTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   // Default MET validation offline
-  desc.add<edm::InputTag>("InputMETLabel", edm::InputTag("pfMet"));
+  desc.add<edm::InputTag>("primaryVertices", edm::InputTag("PixelVertices"));
+  desc.add<edm::InputTag>("inputMETLabel", edm::InputTag("pfMet"));
   desc.addUntracked<std::string>("METType", "pf");
-
-  desc.add<edm::InputTag>("genMetTrue", edm::InputTag(""));
-  desc.add<edm::InputTag>("genMetCalo", edm::InputTag(""));
+  desc.add<edm::InputTag>("genMetTrue", edm::InputTag("genMetTrue"));
+  desc.add<edm::InputTag>("genMetCalo", edm::InputTag("genMetCalo"));
   descriptions.addWithDefaultLabel(desc);
 }

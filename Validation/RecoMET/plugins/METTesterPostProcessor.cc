@@ -33,31 +33,31 @@ void METTesterPostProcessor::dqmEndJob(DQMStore::IBooker &ibook_, DQMStore::IGet
     mMETSignAggr_METBins = ibook_.book1D("mMETSignAggr_METBins", "mMETSignAggr_METBins", mNMETBins, mMETBins.data());
     mMETSignAggr_EtaBins = ibook_.book1D("mMETSignAggr_EtaBins", "mMETSignAggr_EtaBins", mNEtaBins, mEtaBins.data());
     mMETSignAggr_PhiBins = ibook_.book1D("mMETSignAggr_PhiBins", "mMETSignAggr_PhiBins", mNPhiBins, mPhiBins.data());
-    FillAggrHistograms(met_dirs[i], iget_);
+    mFillAggrHistograms(met_dirs[i], iget_);
   }
 }
 
-std::string bin_str(float left, float right) const {
+std::string METTesterPostProcessor::mBinStr(float left, float right) const {
   return std::to_string((int)left) + "to" + std::to_string((int)right);
 }
 
-void METTesterPostProcessor::FillAggrHistograms(std::string metdir, DQMStore::IGetter &iget) {
+void METTesterPostProcessor::mFillAggrHistograms(std::string metdir, DQMStore::IGetter &iget) {
   for (unsigned metIdx=0; metIdx<mNMETBins-1; ++metIdx) {
-	std::string edges = bin_str(mMETBins[metIdx], mMETBins[metIdx+1]);
+	std::string edges = mBinStr(mMETBins[metIdx], mMETBins[metIdx+1]);
 	mMET_METBins[metIdx] = iget.get(metdir + "/MET_MET" + edges);
 	mMETDiff_GenMETTrue_METBins[metIdx] = iget.get(metdir + "/METDiff_GenMETTrue_MET" + edges);
 	mMETRatio_GenMETTrue_METBins[metIdx] = iget.get(metdir + "/METRatio_GenMETTrue_MET" + edges);
 	mMETDeltaPhi_GenMETTrue_METBins[metIdx] = iget.get(metdir + "/METDeltaPhi_GenMETTrue_MET" + edges);
   }
   for (unsigned metIdx=0; metIdx<mNEtaBins-1; ++metIdx) {
-	std::string edges = bin_str(mEtaBins[metIdx], mEtaBins[metIdx+1]);
+	std::string edges = mBinStr(mEtaBins[metIdx], mEtaBins[metIdx+1]);
 	mMET_EtaBins[metIdx] = iget.get(metdir + "/MET_Eta" + edges);
 	mMETDiff_GenMETTrue_EtaBins[metIdx] = iget.get(metdir + "/METDiff_GenMETTrue_Eta" + edges);
 	mMETRatio_GenMETTrue_EtaBins[metIdx] = iget.get(metdir + "/METRatio_GenMETTrue_Eta" + edges);
 	mMETDeltaPhi_GenMETTrue_EtaBins[metIdx] = iget.get(metdir + "/METDeltaPhi_GenMETTrue_Eta" + edges);
   }
   for (unsigned metIdx=0; metIdx<mNPhiBins-1; ++metIdx) {
-	std::string edges = bin_str(mPhiBins[metIdx], mPhiBins[metIdx+1]);
+	std::string edges = mBinStr(mPhiBins[metIdx], mPhiBins[metIdx+1]);
 	mMET_PhiBins[metIdx] = iget.get(metdir + "/MET_Phi" + edges);
 	mMETDiff_GenMETTrue_PhiBins[metIdx] = iget.get(metdir + "/METDiff_GenMETTrue_Phi" + edges);
 	mMETRatio_GenMETTrue_PhiBins[metIdx] = iget.get(metdir + "/METRatio_GenMETTrue_Phi" + edges);
