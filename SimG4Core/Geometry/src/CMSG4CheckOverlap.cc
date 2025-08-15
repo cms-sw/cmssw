@@ -78,6 +78,22 @@ CMSG4CheckOverlap::CMSG4CheckOverlap(const edm::ParameterSet& p,
     }
   }
 
+  const std::string& rname = p.getParameter<std::string>("NodeName");
+  if (!rname.empty()) {
+    const std::string qqq = p.getParameter<std::string>("LVname") + ".txt";
+    std::ofstream fout(qqq.c_str(), std::ios::out);
+    if (fout.fail()) {
+      edm::LogWarning("SimG4CoreGeometry")
+          << "CMSG4CheckOverlap: file <" << qqq << "> is not opened - no report provided";
+    } else {
+      edm::LogVerbatim("SimG4CoreGeometry") << "CMSG4CheckOverlap: output file <" << qqq << "> is opened";
+      session->sendToFile(&fout);
+      makeReportForGivenRegion(fout, rname);
+      session->stopSendToFile();
+      fout.close();
+    }
+  }
+
   bool gdmlFlag = p.getParameter<bool>("gdmlFlag");
   if (gdmlFlag) {
     std::string PVname = p.getParameter<std::string>("PVname");
@@ -162,6 +178,28 @@ void CMSG4CheckOverlap::makeReportForMaterials(std::ofstream& fout) {
   }
   fout << "======================================================================"
        << "\n";
+}
+
+void CMSG4CheckOverlap::makeReportForGivenRegion(std::ofstream& fout, const std::string& rname) {
+  const G4RegionStore* regs = G4RegionStore::GetInstance();
+  const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
+  fout << "====================================================================="
+       << "\n";
+  fout << "Logical volumes in the region " << rname << "\n";
+  fout << "====================================================================="
+       << "\n";
+  auto reg = regs->GetRegion((G4String)rname);
+  if (nullptr == reg) {
+    fout << "G4Region " << rname << "does not exist \n";
+    return;
+  }
+  unsigned int numRootLV = reg->GetNumberOfRootVolumes();
+  fout << "Number of Root Logical Volumes: " << numRootLV << "\n";
+  for (auto const& lv : *lvs) {
+    if (reg == lv->GetRegion()) {
+      fout << lv->GetName() << "   isRoot: " << lv->IsRootRegion() << "\n";
+    }
+  }
 }
 
 void CMSG4CheckOverlap::makeReportForGeometry(std::ofstream& fout, G4VPhysicalVolume* world) {
