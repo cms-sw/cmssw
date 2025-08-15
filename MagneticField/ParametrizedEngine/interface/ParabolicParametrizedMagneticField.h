@@ -5,7 +5,6 @@
 #ifndef MagneticField_ParametrizedEngine_interface_ParabolicParametrizedMagneticField_h
 #define MagneticField_ParametrizedEngine_interface_ParabolicParametrizedMagneticField_h
 
-#include <Eigen/Core>
 #include <alpaka/alpaka.hpp>
 
 namespace magneticFieldParabolicPortable {
