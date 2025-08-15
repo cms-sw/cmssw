@@ -7,6 +7,7 @@ hltMetPreValidSeq = cms.Sequence()
 
 from Validation.RecoMET.metTester_cfi import metTester as _metTester
 _hltMetTester = _metTester.clone(
+    isHLT = cms.untracked.bool(True),
     primaryVertices = cms.InputTag("hltPhase2PixelVertices"),
     genMetTrue = cms.InputTag("genMetTrue"),
     genMetCalo = cms.InputTag("genMetCalo"),

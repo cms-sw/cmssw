@@ -57,11 +57,13 @@ public:
 
   static const int mNMETBins = 11;
   static constexpr std::array<float, mNMETBins+1> mMETBins = {{0., 20., 40., 60., 80., 100., 150., 200., 300., 400., 500., 10000.}};
-  static const int mNEtaBins = 39;
-  static constexpr std::array<float, mNEtaBins+1> mEtaBins = {{-6., -5.5, -4., -4.5, -4, -3.5, -3., -2.75, -2.5, -2.25, -2., -1.75, -1.5, -1.25, -1., -0.8, -0.6, -0.4, -0.2, 0., 0.2, 0.4, 0.6, 0.8, 1., 1.25, 1.5, 1.75, 2., 2.25, 2.5, 2.75, 3., 3.5, 4., 4.5, 5., 5.5, 6.}};
+  static const int mNEtaBins = 24;
+  static constexpr std::array<float, mNEtaBins+1> mEtaBins = {{-6., -5, -4., -3., -2.5, -2., -1.5, -1.25, -1., -0.75, -0.5, -0.25, 0., 0.25, 0.5, 0.75, 1., 1.25, 1.5, 2., 2.5, 3., 4., 5., 6.}};
   static const int mNPhiBins = 14;
   static constexpr std::array<float, mNPhiBins+1> mPhiBins = {{-3.15, -3., -2.5, -2., -1.5, -1., -0.5, -0., 0.5, 1., 1.5, 2., 2.5, 3., 3.15}};
 
+  static std::string binStr(float left, float right, bool rountInt = true);
+  
 private:
   std::map<std::string, MonitorElement *> me;
 
@@ -179,6 +181,7 @@ private:
   bool isPFMET;
   bool isGenMET;
   bool isMiniAODMET;
+  bool isHLT;
 };
 
 #endif  // METTESTER_H
