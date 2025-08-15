@@ -158,19 +158,22 @@ private:
   MonitorElement *mPFHFEMEtFraction;
   MonitorElement *mPFHFEMEt;
 
-  std::array<MonitorElement *, mNMETBins> mMET_METBins;
-  std::array<MonitorElement *, mNEtaBins> mMET_EtaBins;
-  std::array<MonitorElement *, mNPhiBins> mMET_PhiBins;
+  template <size_t S>
+  using ElemArr = std::array<MonitorElement *, S>;
   
-  std::array<MonitorElement *, mNMETBins> mMETDiff_GenMETTrue_METBins;
-  std::array<MonitorElement *, mNEtaBins> mMETDiff_GenMETTrue_EtaBins;
-  std::array<MonitorElement *, mNPhiBins> mMETDiff_GenMETTrue_PhiBins;
-  std::array<MonitorElement *, mNMETBins> mMETRatio_GenMETTrue_METBins;
-  std::array<MonitorElement *, mNEtaBins> mMETRatio_GenMETTrue_EtaBins;
-  std::array<MonitorElement *, mNPhiBins> mMETRatio_GenMETTrue_PhiBins;
-  std::array<MonitorElement *, mNMETBins> mMETDeltaPhi_GenMETTrue_METBins;
-  std::array<MonitorElement *, mNEtaBins> mMETDeltaPhi_GenMETTrue_EtaBins;
-  std::array<MonitorElement *, mNPhiBins> mMETDeltaPhi_GenMETTrue_PhiBins;
+  ElemArr<mNMETBins> mMET_METBins;
+  ElemArr<mNEtaBins> mMET_EtaBins;
+  ElemArr<mNPhiBins> mMET_PhiBins;
+  
+  ElemArr<mNMETBins> mMETDiff_GenMETTrue_METBins;
+  ElemArr<mNEtaBins> mMETDiff_GenMETTrue_EtaBins;
+  ElemArr<mNPhiBins> mMETDiff_GenMETTrue_PhiBins;
+  ElemArr<mNMETBins> mMETRatio_GenMETTrue_METBins;
+  ElemArr<mNEtaBins> mMETRatio_GenMETTrue_EtaBins;
+  ElemArr<mNPhiBins> mMETRatio_GenMETTrue_PhiBins;
+  ElemArr<mNMETBins> mMETDeltaPhi_GenMETTrue_METBins;
+  ElemArr<mNEtaBins> mMETDeltaPhi_GenMETTrue_EtaBins;
+  ElemArr<mNPhiBins> mMETDeltaPhi_GenMETTrue_PhiBins;
 
   bool isCaloMET;
   bool isPFMET;
