@@ -13,5 +13,5 @@ HLTJetMETValSeq = cms.Sequence(
     + hltMetAnalyzerPF
     + hltMetAnalyzerPFPuppi
     + hltMetTypeOneAnalyzerPFPuppi
-    + hltMetAnalyzerPFCalo
+    ## + hltMetAnalyzerPFCalo
 )
