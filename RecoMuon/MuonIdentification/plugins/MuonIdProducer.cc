@@ -166,6 +166,7 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
   //create mesh holder
   meshAlgo_ = std::make_unique<MuonMesh>(iConfig.getParameter<edm::ParameterSet>("arbitrationCleanerOptions"));
 
+  gemgeomToken_ = esConsumes<GEMGeometry, MuonGeometryRecord>();
   edm::InputTag rpcHitTag("rpcRecHits");
   rpcHitToken_ = consumes<RPCRecHitCollection>(rpcHitTag);
 
@@ -274,6 +275,8 @@ void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     iEvent.getByToken(glbQualToken_, glbQualHandle_);
   if (selectHighPurity_)
     iEvent.getByToken(pvToken_, pvHandle_);
+  if (gemHitHandle_.isValid())
+    gemgeom = &iSetup.getData(gemgeomToken_);
 }
 
 reco::Muon MuonIdProducer::makeMuon(edm::Event& iEvent,
@@ -1122,11 +1125,29 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent,
         gemHitMatch.mask = 0;
         gemHitMatch.bx = gemRecHit.BunchX();
 
-        const double absDx = std::abs(gemRecHit.localPosition().x() - chamber.tState.localPosition().x());
-        if (absDx <= 5 or absDx * absDx <= 16 * localError.xx())
-          matchedChamber.gemHitMatches.push_back(gemHitMatch);
+        const GeomDet* geomDet = gemgeom->idToDetUnit(chamber.id);
+        const GlobalPoint& global_position = geomDet->toGlobal(lPos);
+        if (const GEMChamber* gemChamber = dynamic_cast<const GEMChamber*>(geomDet)) {
+          const GeomDet* eta_geomdet = gemChamber->component(gemRecHit.gemId());
+          const GEMEtaPartition* eta_partition = dynamic_cast<const GEMEtaPartition*>(eta_geomdet);
+          float bordercut = 2;
+          const TrapezoidalPlaneBounds* bounds =
+              dynamic_cast<const TrapezoidalPlaneBounds*>(&eta_partition->surface().bounds());
+          LocalPoint localPoint = eta_partition->surface().toLocal(global_position);
+          float wideWidth = bounds->width();
+          float narrowWidth = 2.f * bounds->widthAtHalfLength() - wideWidth;
+          float length = bounds->length();
+          float tangent = (wideWidth - narrowWidth) / (2.f * length);
+          float halfWidthAtY = tangent * localPoint.y() + 0.25f * (narrowWidth + wideWidth);
+          float distanceY = std::abs(localPoint.y()) - 0.5f * length;
+          float distanceX = std::abs(localPoint.x()) - halfWidthAtY;
+          if (distanceX < bordercut && distanceY < bordercut) {
+            const double absDx = std::abs(gemRecHit.localPosition().x() - chamber.tState.localPosition().x());
+            if (absDx <= 5 or absDx * absDx <= 16 * localError.xx())
+              matchedChamber.gemHitMatches.push_back(gemHitMatch);
+          }
+        }
       }
-
       muonChamberMatches.push_back(matchedChamber);
     }
   }
@@ -1223,8 +1244,8 @@ void MuonIdProducer::fillArbitrationInfo(reco::MuonCollection* pOutputMuons, uns
                     arbitrationPairs.push_back(std::make_pair(&chamber2, &segment2));
                   }
                 }  // segmentIter2
-              }    // chamberIter2
-            }      // muonIndex2
+              }  // chamberIter2
+            }  // muonIndex2
           }
 
           // arbitration segment sort
