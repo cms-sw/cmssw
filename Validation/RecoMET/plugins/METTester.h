@@ -53,17 +53,21 @@ public:
 
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  static void fillDescriptions(edm::ConfigurationDescriptions&);
+  static void fillDescriptions(edm::ConfigurationDescriptions &);
 
   static const int mNMETBins = 11;
-  static constexpr std::array<float, mNMETBins+1> mMETBins = {{0., 20., 40., 60., 80., 100., 150., 200., 300., 400., 500., 10000.}};
+  static constexpr std::array<float, mNMETBins + 1> mMETBins = {
+      {0., 20., 40., 60., 80., 100., 150., 200., 300., 400., 500., 10000.}};
   static const int mNEtaBins = 24;
-  static constexpr std::array<float, mNEtaBins+1> mEtaBins = {{-6., -5, -4., -3., -2.5, -2., -1.5, -1.25, -1., -0.75, -0.5, -0.25, 0., 0.25, 0.5, 0.75, 1., 1.25, 1.5, 2., 2.5, 3., 4., 5., 6.}};
+  static constexpr std::array<float, mNEtaBins + 1> mEtaBins = {{-6.,   -5,   -4.,   -3., -2.5, -2., -1.5, -1.25, -1.,
+                                                                 -0.75, -0.5, -0.25, 0.,  0.25, 0.5, 0.75, 1.,    1.25,
+                                                                 1.5,   2.,   2.5,   3.,  4.,   5.,  6.}};
   static const int mNPhiBins = 14;
-  static constexpr std::array<float, mNPhiBins+1> mPhiBins = {{-3.15, -3., -2.5, -2., -1.5, -1., -0.5, -0., 0.5, 1., 1.5, 2., 2.5, 3., 3.15}};
+  static constexpr std::array<float, mNPhiBins + 1> mPhiBins = {
+      {-3.15, -3., -2.5, -2., -1.5, -1., -0.5, -0., 0.5, 1., 1.5, 2., 2.5, 3., 3.15}};
 
   static std::string binStr(float left, float right, bool rountInt = true);
-  
+
 private:
   std::map<std::string, MonitorElement *> me;
 
@@ -162,11 +166,11 @@ private:
 
   template <size_t S>
   using ElemArr = std::array<MonitorElement *, S>;
-  
+
   ElemArr<mNMETBins> mMET_METBins;
   ElemArr<mNEtaBins> mMET_EtaBins;
   ElemArr<mNPhiBins> mMET_PhiBins;
-  
+
   ElemArr<mNMETBins> mMETDiff_GenMETTrue_METBins;
   ElemArr<mNEtaBins> mMETDiff_GenMETTrue_EtaBins;
   ElemArr<mNPhiBins> mMETDiff_GenMETTrue_PhiBins;
