@@ -3,31 +3,11 @@ from PhysicsTools.NanoAOD.genparticles_cff import *
 from RecoJets.Configuration.GenJetParticles_cff import *
 from RecoJets.Configuration.RecoGenJets_cff import *
 
-hltMetPreValidSeq = cms.Sequence(
-)
-
-# metPreValidSeqTask = cms.Task(ak4PFCHSL1FastjetCorrector,
-#                               ak4PFCHSL2RelativeCorrector,
-#                               ak4PFCHSL3AbsoluteCorrector,
-#                               ak4PFCHSResidualCorrector
-# )
-# metPreValidSeq = cms.Sequence(metPreValidSeqTask)
-
-# jetPreValidSeqTask = cms.Task(ak4CaloL2RelativeCorrector,
-#                               ak4CaloL3AbsoluteCorrector,
-#                               ak4PFL1FastjetCorrector,
-#                               ak4PFL2RelativeCorrector,
-#                               ak4PFL3AbsoluteCorrector,
-#                               ak4PFCHSL1FastjetCorrector,
-#                               ak4PFCHSL2RelativeCorrector,
-#                               ak4PFCHSL3AbsoluteCorrector
-# )
-# jetPreValidSeq=cms.Sequence(jetPreValidSeqTask)
-
+hltMetPreValidSeq = cms.Sequence()
 
 from Validation.RecoMET.metTester_cfi import metTester as _metTester
 _hltMetTester = _metTester.clone(
-    primaryVertices = cms.InputTag("hltPixelVertices"), # hltGoodOfflinePrimaryVertices, hltOfflinePrimaryVertices
+    primaryVertices = cms.InputTag("hltPhase2PixelVertices"),
     genMetTrue = cms.InputTag("genMetTrue"),
     genMetCalo = cms.InputTag("genMetCalo"),
 )
