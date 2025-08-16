@@ -171,11 +171,11 @@ std::vector<std::shared_ptr<const edm::DaqProvenanceHelper>>& DataModeDTH::makeD
   daqProvenanceHelpers_.clear();
 
   if (legacyFRDCollection_)
-    daqProvenanceHelpers_.emplace_back(std::make_shared<const edm::DaqProvenanceHelper>(
-        edm::TypeID(typeid(FEDRawDataCollection)), "FEDRawDataCollection", "FEDRawDataCollection", "DAQSource"));
+    daqProvenanceHelpers_.emplace_back(
+        std::make_shared<const edm::DaqProvenanceHelper>(edm::TypeID(typeid(FEDRawDataCollection)), "DAQSource"));
   else
-    daqProvenanceHelpers_.emplace_back(std::make_shared<const edm::DaqProvenanceHelper>(
-        edm::TypeID(typeid(RawDataBuffer)), "RawDataBuffer", "RawDataBuffer", "DAQSource"));
+    daqProvenanceHelpers_.emplace_back(
+        std::make_shared<const edm::DaqProvenanceHelper>(edm::TypeID(typeid(RawDataBuffer)), "DAQSource"));
 
   return daqProvenanceHelpers_;
 }

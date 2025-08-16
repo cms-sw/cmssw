@@ -16,18 +16,14 @@
 
 namespace {
   edm::ProductDescription makeDescriptionForDaqProvHelper(edm::TypeID const& rawDataType,
-                                                          std::string const& collectionName,
-                                                          std::string const& friendlyName,
                                                           std::string const& sourceLabel) {
     edm::ProductDescription desc(edm::InEvent,
                                  "rawDataCollector",
                                  // "source",
                                  "LHC",
                                  // "HLT",
-                                 collectionName,
-                                 friendlyName,
                                  "",
-                                 edm::TypeWithDict(rawDataType.typeInfo()),
+                                 rawDataType,
                                  false);
     desc.setIsProvenanceSetOnRead();
     return desc;
@@ -35,12 +31,8 @@ namespace {
 }  // namespace
 
 namespace edm {
-  DaqProvenanceHelper::DaqProvenanceHelper(TypeID const& rawDataType,
-                                           std::string const& collectionName,
-                                           std::string const& friendlyName,
-                                           std::string const& sourceLabel)
-      : constProductDescription_(
-            makeDescriptionForDaqProvHelper(rawDataType, collectionName, friendlyName, sourceLabel)),
+  DaqProvenanceHelper::DaqProvenanceHelper(TypeID const& rawDataType, std::string const& sourceLabel)
+      : constProductDescription_(makeDescriptionForDaqProvHelper(rawDataType, sourceLabel)),
         dummyProvenance_(constProductDescription_.branchID()),
         processParameterSet_(),
         oldProcessName_(),
@@ -86,7 +78,7 @@ namespace edm {
 
   //default
   DaqProvenanceHelper::DaqProvenanceHelper(TypeID const& rawDataType)
-      : DaqProvenanceHelper(rawDataType, "FEDRawDataCollection", "FEDRawDataCollection", "FedRawDataInputSource") {}
+      : DaqProvenanceHelper(rawDataType, "FedRawDataInputSource") {}
 
   ProcessHistoryID DaqProvenanceHelper::daqInit(ProductRegistry& productRegistry,
                                                 ProcessHistoryRegistry& processHistoryRegistry) const {

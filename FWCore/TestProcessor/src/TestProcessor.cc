@@ -128,14 +128,11 @@ namespace edm {
         if (processName.empty()) {
           processName = processConfiguration_->processName();
         }
-        edm::TypeWithDict twd(produce.type_.typeInfo());
         edm::ProductDescription product(edm::InEvent,
                                         produce.moduleLabel_,
                                         processName,
-                                        twd.userClassName(),
-                                        twd.friendlyClassName(),
                                         produce.instanceLabel_,
-                                        twd,
+                                        produce.type_,
                                         true  //force this to come from 'source'
         );
         product.init();
