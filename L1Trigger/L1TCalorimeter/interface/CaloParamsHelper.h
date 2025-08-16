@@ -75,9 +75,9 @@ namespace l1t {
       metHFPhiCalibration = 49,
       layer1HCalFBUpper = 50,
       layer1HCalFBLower = 51,
-      layer1ECalZS = 52,
-      layer1HCalZS = 53,
-      hiZDC = 54,
+      hiZDC = 52,
+      layer1ECalZS = 53,
+      layer1HCalZS = 54,
       NUM_CALOPARAMNODES = 55
     };
 
