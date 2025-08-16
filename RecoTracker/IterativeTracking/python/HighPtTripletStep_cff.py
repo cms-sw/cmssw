@@ -433,13 +433,10 @@ _HighPtTripletStepTask_LST.add(siPhase2RecHits, lstInitialStepSeedTracks, lstHig
                                lstProducerTask, highPtTripletStepLSTpTracks, highPtTripletStepLSTT5Tracks, highPtTripletStepSelectorLSTT5)
 (trackingPhase2PU140 & trackingLST).toReplaceWith(HighPtTripletStepTask, _HighPtTripletStepTask_LST)
 
-lstInputProducerSerialSync = lstInputProducer.clone(
-    alpaka = dict(backend = "serial_sync")
-)
-lstProducerSerialSync = lstProducer.clone(
-    alpaka = dict(backend = "serial_sync"),
-    lstInput = "lstInputProducerSerialSync"
-)
+from HeterogeneousCore.AlpakaCore.functions import makeSerialClone
+lstInputProducerSerialSync = makeSerialClone(lstInputProducer)
+lstProducerSerialSync = makeSerialClone(lstProducer, lstInput = "lstInputProducerSerialSync")
+
 highPtTripletStepTrackCandidatesSerialSync = highPtTripletStepTrackCandidates.clone()
 (trackingPhase2PU140 & trackingLST).toModify(highPtTripletStepTrackCandidatesSerialSync,
     lstOutput = "lstProducerSerialSync",
