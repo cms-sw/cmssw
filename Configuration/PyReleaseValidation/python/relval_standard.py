@@ -743,6 +743,8 @@ workflows[8]  = ['', ['BeamHalo','DIGICOS','RECOCOS','ALCABH','HARVESTCOS']]
 workflows[8.1] = ['', ['BeamHalo_UP18','DIGICOS_UP18','RECOCOS_UP18','ALCABH_UP18','HARVESTCOS_UP18']]
 workflows[8.2] = ['', ['BeamHalo_UP21','DIGICOS_UP21','RECOCOS_UP21','ALCABH_UP21','HARVESTCOS_UP21']]
 
+workflows[77] = ['', ['HGCal_TestBeam']]
+
 workflows[11] = ['', ['MinBias','DIGI','RECOMIN','HARVEST','ALCAMIN']]
 workflows[28] = ['', ['QCD_Pt_80_120','DIGI','RECO','HARVEST']]
 workflows[27] = ['', ['WM','DIGI','RECO','HARVEST']]
