@@ -28,7 +28,7 @@ namespace gpuVertexFinder {
   template <typename TrackerTraits>
   __global__ void loadTracks(
       TrackSoAConstView<TrackerTraits> tracks_view, VtxSoAView soa, WsSoAView pws, float ptMin, float ptMax) {
-    auto const* quality = tracks_view.quality();
+    auto const quality = tracks_view.quality();
     using helper = TracksUtilities<TrackerTraits>;
     auto first = blockIdx.x * blockDim.x + threadIdx.x;
     for (int idx = first, nt = tracks_view.nTracks(); idx < nt; idx += gridDim.x * blockDim.x) {

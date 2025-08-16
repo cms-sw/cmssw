@@ -121,10 +121,10 @@ void SiPixelRecHitSoAFromLegacyT<TrackerTraits>::produce(edm::StreamID streamID,
 
   cms::cuda::PortableHostCollection<SiPixelClustersCUDALayout<>> clusters_h(nModules + 1);
 
-  memset(clusters_h.view().clusInModule(), 0, (nModules + 1) * sizeof(uint32_t));  // needed??
-  memset(clusters_h.view().moduleStart(), 0, (nModules + 1) * sizeof(uint32_t));
-  memset(clusters_h.view().moduleId(), 0, (nModules + 1) * sizeof(uint32_t));
-  memset(clusters_h.view().clusModuleStart(), 0, (nModules + 1) * sizeof(uint32_t));
+  memset(clusters_h.view().clusInModule().data(), 0, (nModules + 1) * sizeof(uint32_t));  // needed??
+  memset(clusters_h.view().moduleStart().data(), 0, (nModules + 1) * sizeof(uint32_t));
+  memset(clusters_h.view().moduleId().data(), 0, (nModules + 1) * sizeof(uint32_t));
+  memset(clusters_h.view().clusModuleStart().data(), 0, (nModules + 1) * sizeof(uint32_t));
 
   assert(0 == clusters_h.view()[nModules].clusInModule());
   clusters_h.view()[1].moduleStart() = 0;
@@ -151,8 +151,10 @@ void SiPixelRecHitSoAFromLegacyT<TrackerTraits>::produce(edm::StreamID streamID,
   assert((uint32_t)numberOfClusters == clusters_h.view()[nModules].clusModuleStart());
   // output SoA
   // element 96 is the start of BPIX2 (i.e. the number of clusters in BPIX1)
-  HitsOnHost output(
-      numberOfClusters, clusters_h.view()[startBPIX2].clusModuleStart(), &cpeView, clusters_h.view().clusModuleStart());
+  HitsOnHost output(numberOfClusters,
+                    clusters_h.view()[startBPIX2].clusModuleStart(),
+                    &cpeView,
+                    clusters_h.view().clusModuleStart().data());
 
   if (0 == numberOfClusters) {
     iEvent.emplace(tokenHit_, std::move(output));
@@ -268,18 +270,18 @@ void SiPixelRecHitSoAFromLegacyT<TrackerTraits>::produce(edm::StreamID streamID,
 
   cms::cuda::fillManyFromVector(&(output.view().phiBinner()),
                                 nLayers,
-                                output.view().iphi(),
+                                output.view().iphi().data(),
                                 output.view().hitsLayerStart().data(),
                                 output.view().nHits(),
                                 256,
-                                output.view().phiBinnerStorage());
+                                output.view().phiBinnerStorage().data());
 
   LogDebug("SiPixelRecHitSoAFromLegacy") << "created HitSoa for " << numberOfClusters << " clusters in "
                                          << numberOfDetUnits << " Dets"
                                          << "\n";
 
   // copy pointer to data (SoA view) to allocated buffer
-  memcpy(hitsModuleStart, clusters_h.view().clusModuleStart(), nModules * sizeof(uint32_t));
+  memcpy(hitsModuleStart, clusters_h.view().clusModuleStart().data(), nModules * sizeof(uint32_t));
 
   iEvent.emplace(tokenHit_, std::move(output));
   if (convert2Legacy_)
