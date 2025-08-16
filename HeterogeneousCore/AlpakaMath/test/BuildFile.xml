@@ -4,3 +4,10 @@
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <flags ALPAKA_BACKENDS="1"/>
 </bin>
+<bin name="alpakaTestVector" file="alpaka/testVector.dev.cc">
+  <use name="alpaka"/>
+  <use name="catch2"/>
+  <use name="HeterogeneousCore/AlpakaMath"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
+
