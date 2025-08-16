@@ -50,11 +50,11 @@ process.dqmSaver.runNumber = options.runNumber
 # process.dqmSaverPB.tag = "PixelLumi"
 # process.dqmSaverPB.runNumber = options.runNumber
 
-if not unitTest:
+if (not unitTest) and (not options.inputFiles):
     process.source.SelectEvents = cms.untracked.vstring("HLT_ZeroBias*","HLT_L1AlwaysTrue*", "HLT_PAZeroBias*", "HLT_PAL1AlwaysTrue*")
 #if (process.runType.getRunType() == process.runType.hi_run):
 
-if (process.runType.getRunType() == process.runType.cosmic_run and not unitTest):
+if (process.runType.getRunType() == process.runType.cosmic_run and (not unitTest) and (not options.inputFiles)):
     process.source.SelectEvents = ['HLT*SingleMu*']
 
 #----------------------------
@@ -103,7 +103,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.load('Configuration.StandardSequences.RawToDigi_Repacked_cff')
     process.siPixelDigis.InputLabel = "rawDataRepacker"
 
-    if not unitTest:
+    if not unitTest and (not options.inputFiles):
         process.source.SelectEvents = ['HLT_HIL1MinimumBiasHF2AND*']
 
 
