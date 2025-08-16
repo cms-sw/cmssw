@@ -44,26 +44,41 @@ LEDTask::LEDTask(edm::ParameterSet const& ps)
     if (HcalGenericDetId(id.rawId()).isHcalCalibDetId()) {
       HcalCalibDetId calibId(id);
       if (calibId.calibFlavor() == HcalCalibDetId::CalibrationBox) {
+        auto cUch = calibId.cboxChannel();
+        bool isLED(false);
         HcalSubdetector this_subdet = HcalEmpty;
+
         switch (calibId.hcalSubdet()) {
           case HcalBarrel:
             this_subdet = HcalBarrel;
+            if (cUch == 0 || cUch == 1) {
+              isLED = true;
+            }
             break;
           case HcalEndcap:
             this_subdet = HcalEndcap;
+            if (cUch == 0 || cUch == 1) {
+              isLED = true;
+            }
             break;
           case HcalOuter:
             this_subdet = HcalOuter;
+            isLED = true;
             break;
           case HcalForward:
             this_subdet = HcalForward;
+            if (cUch == 0 || cUch == 8) {
+              isLED = true;
+            }
             break;
           default:
             this_subdet = HcalEmpty;
             break;
         }
-        _ledCalibrationChannels[this_subdet].push_back(
-            HcalDetId(HcalOther, calibId.ieta(), calibId.iphi(), calibId.cboxChannel()));
+
+        if (isLED) {
+          _ledCalibrationChannels[this_subdet].push_back(HcalDetId(id.rawId()));
+        }
       }
     }
   }
@@ -223,16 +238,16 @@ LEDTask::LEDTask(edm::ParameterSet const& ps)
                                new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
                                new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250),
                                0);
-    _LED_ADCvsBX_Subdet.initialize(_name,
-                                   "LED_ADCvsBX",
+    _LED_ADCvsTS_Subdet.initialize(_name + "/CU_LED",
+                                   "CU_ADCvsTS",
                                    hcaldqm::hashfunctions::fSubdet,
-                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fBX_36),
-                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_256_4),
+                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
+                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
                                    new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                                    0);
   } else if (_ptype == fLocal) {
-    _LED_ADCvsEvn_Subdet.initialize(_name,
-                                    "LED_ADCvsEvn",
+    _LED_ADCvsEvn_Subdet.initialize(_name + "CU_LED",
+                                    "CU_ADCvsEvn",
                                     hcaldqm::hashfunctions::fSubdet,
                                     new hcaldqm::quantity::EventNumber(_nevents),
                                     new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_256_4),
@@ -278,7 +293,7 @@ LEDTask::LEDTask(edm::ParameterSet const& ps)
   }
 
   if (_ptype == fOnline) {
-    _LED_ADCvsBX_Subdet.book(ib, _emap, _subsystem);
+    _LED_ADCvsTS_Subdet.book(ib, _emap, _subsystem);
   } else if (_ptype == fLocal) {
     _LED_ADCvsEvn_Subdet.book(ib, _emap, _subsystem);
   }
@@ -370,6 +385,7 @@ LEDTask::LEDTask(edm::ParameterSet const& ps)
   for (QIE11DigiCollection::const_iterator it = c_QIE11->begin(); it != c_QIE11->end(); ++it) {
     const QIE11DataFrame digi = static_cast<const QIE11DataFrame>(*it);
     HcalDetId const& did = digi.detid();
+    HcalCalibDetId hcdid(digi.id());
     if ((did.subdet() != HcalBarrel) && (did.subdet() != HcalEndcap)) {
       // LED monitoring from calibration channels
       if (did.subdet() == HcalOther) {
@@ -379,7 +395,7 @@ LEDTask::LEDTask(edm::ParameterSet const& ps)
               _ledCalibrationChannels[HcalEndcap].end()) {
             for (int i = 0; i < digi.samples(); i++) {
               if (_ptype == fOnline) {
-                _LED_ADCvsBX_Subdet.fill(HcalDetId(HcalEndcap, 16, 1, 1), e.bunchCrossing(), digi[i].adc());
+                _LED_ADCvsTS_Subdet.fill(HcalDetId(HcalEndcap, 16, 1, 1), i, digi[i].adc());
               } else if (_ptype == fLocal) {
                 _LED_ADCvsEvn_Subdet.fill(
                     HcalDetId(HcalEndcap, 16, 1, 1), e.eventAuxiliary().id().event(), digi[i].adc());
@@ -388,9 +404,11 @@ LEDTask::LEDTask(edm::ParameterSet const& ps)
           } else if (std::find(_ledCalibrationChannels[HcalBarrel].begin(),
                                _ledCalibrationChannels[HcalBarrel].end(),
                                did) != _ledCalibrationChannels[HcalBarrel].end()) {
+            if (hcdid.rawId() == constants::HBLasMon.rawId())
+              continue;
             for (int i = 0; i < digi.samples(); i++) {
               if (_ptype == fOnline) {
-                _LED_ADCvsBX_Subdet.fill(HcalDetId(HcalBarrel, 1, 1, 1), e.bunchCrossing(), digi[i].adc());
+                _LED_ADCvsTS_Subdet.fill(HcalDetId(HcalBarrel, 1, 1, 1), i, digi[i].adc());
               } else if (_ptype == fLocal) {
                 _LED_ADCvsEvn_Subdet.fill(
                     HcalDetId(HcalBarrel, 1, 1, 1), e.eventAuxiliary().id().event(), digi[i].adc());
@@ -472,7 +490,7 @@ LEDTask::LEDTask(edm::ParameterSet const& ps)
               _ledCalibrationChannels[HcalOuter].end()) {
             for (int i = 0; i < digi.size(); i++) {
               if (_ptype == fOnline) {
-                _LED_ADCvsBX_Subdet.fill(HcalDetId(HcalOuter, 1, 1, 4), e.bunchCrossing(), digi[i].adc());
+                _LED_ADCvsTS_Subdet.fill(HcalDetId(HcalOuter, 1, 1, 4), i, digi[i].adc());
               } else if (_ptype == fLocal) {
                 _LED_ADCvsEvn_Subdet.fill(
                     HcalDetId(HcalOuter, 1, 1, 4), e.eventAuxiliary().id().event(), digi[i].adc());
@@ -528,7 +546,7 @@ LEDTask::LEDTask(edm::ParameterSet const& ps)
                         did) != _ledCalibrationChannels[HcalForward].end()) {
             for (int i = 0; i < digi.samples(); i++) {
               if (_ptype == fOnline) {
-                _LED_ADCvsBX_Subdet.fill(HcalDetId(HcalForward, 29, 1, 1), e.bunchCrossing(), digi[i].adc());
+                _LED_ADCvsTS_Subdet.fill(HcalDetId(HcalForward, 29, 1, 1), i, digi[i].adc());
               } else if (_ptype == fLocal) {
                 _LED_ADCvsEvn_Subdet.fill(
                     HcalDetId(HcalForward, 29, 1, 1), e.eventAuxiliary().id().event(), digi[i].adc());
