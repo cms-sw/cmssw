@@ -41,6 +41,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "TMath.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
@@ -51,23 +53,34 @@ public:
 
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions &);
+
+  static const int mNMETBins = 11;
+  static constexpr std::array<float, mNMETBins + 1> mMETBins = {
+      {0., 20., 40., 60., 80., 100., 150., 200., 300., 400., 500., 10000.}};
+  static const int mNEtaBins = 24;
+  static constexpr std::array<float, mNEtaBins + 1> mEtaBins = {{-6.,   -5,   -4.,   -3., -2.5, -2., -1.5, -1.25, -1.,
+                                                                 -0.75, -0.5, -0.25, 0.,  0.25, 0.5, 0.75, 1.,    1.25,
+                                                                 1.5,   2.,   2.5,   3.,  4.,   5.,  6.}};
+  static const int mNPhiBins = 14;
+  static constexpr std::array<float, mNPhiBins + 1> mPhiBins = {
+      {-3.15, -3., -2.5, -2., -1.5, -1., -0.5, -0., 0.5, 1., 1.5, 2., 2.5, 3., 3.15}};
+
+  static std::string binStr(float left, float right, bool rountInt = true);
 
 private:
   std::map<std::string, MonitorElement *> me;
 
   // Inputs from Configuration File
-
   edm::InputTag mInputCollection_;
   edm::InputTag inputMETLabel_;
   std::string METType_;
-
   edm::InputTag inputCaloMETLabel_;
 
   // Tokens
   edm::EDGetTokenT<std::vector<reco::Vertex>> pvToken_;
   edm::EDGetTokenT<reco::CaloMETCollection> caloMETsToken_;
   edm::EDGetTokenT<reco::PFMETCollection> pfMETsToken_;
-  // edm::EDGetTokenT<reco::METCollection> tcMETsToken_;
   edm::EDGetTokenT<reco::GenMETCollection> genMETsToken_;
   edm::EDGetTokenT<reco::GenMETCollection> genMETsTrueToken_;
   edm::EDGetTokenT<reco::GenMETCollection> genMETsCaloToken_;
@@ -79,15 +92,19 @@ private:
   // Common variables
   MonitorElement *mMEx;
   MonitorElement *mMEy;
-  MonitorElement *mMETSig;
+  MonitorElement *mMETPseudoSign;
+  MonitorElement *mMETRealSign;
   MonitorElement *mMET;
   MonitorElement *mMETFine;
   MonitorElement *mMET_Nvtx;
+  MonitorElement *mMETEta;
   MonitorElement *mMETPhi;
   MonitorElement *mSumET;
-  MonitorElement *mMETDifference_GenMETTrue;
+  MonitorElement *mMETDiff_GenMETTrue;
+  MonitorElement *mMETRatio_GenMETTrue;
   MonitorElement *mMETDeltaPhi_GenMETTrue;
-  MonitorElement *mMETDifference_GenMETCalo;
+  MonitorElement *mMETDiff_GenMETCalo;
+  MonitorElement *mMETRatio_GenMETCalo;
   MonitorElement *mMETDeltaPhi_GenMETCalo;
 
   // MET Uncertainity Variables
@@ -107,7 +124,6 @@ private:
   MonitorElement *mMETUnc_PhotonEnDown;
 
   // CaloMET variables
-
   MonitorElement *mCaloMaxEtInEmTowers;
   MonitorElement *mCaloMaxEtInHadTowers;
   MonitorElement *mCaloEtFractionHadronic;
@@ -132,8 +148,6 @@ private:
   MonitorElement *mMuonEtFraction;
   MonitorElement *mInvisibleEtFraction;
 
-  // MET variables
-
   // PFMET variables
   MonitorElement *mPFphotonEtFraction;
   MonitorElement *mPFphotonEt;
@@ -150,26 +164,28 @@ private:
   MonitorElement *mPFHFEMEtFraction;
   MonitorElement *mPFHFEMEt;
 
-  MonitorElement *mMETDifference_GenMETTrue_MET0to20;
-  MonitorElement *mMETDifference_GenMETTrue_MET20to40;
-  MonitorElement *mMETDifference_GenMETTrue_MET40to60;
-  MonitorElement *mMETDifference_GenMETTrue_MET60to80;
-  MonitorElement *mMETDifference_GenMETTrue_MET80to100;
-  MonitorElement *mMETDifference_GenMETTrue_MET100to150;
-  MonitorElement *mMETDifference_GenMETTrue_MET150to200;
-  MonitorElement *mMETDifference_GenMETTrue_MET200to300;
-  MonitorElement *mMETDifference_GenMETTrue_MET300to400;
-  MonitorElement *mMETDifference_GenMETTrue_MET400to500;
-  MonitorElement *mMETDifference_GenMETTrue_MET500;
-  // moved into postprocessor
-  // MonitorElement* mMETDifference_GenMETTrue_METResolution;
+  template <size_t S>
+  using ElemArr = std::array<MonitorElement *, S>;
+
+  ElemArr<mNMETBins> mMET_METBins;
+  ElemArr<mNEtaBins> mMET_EtaBins;
+  ElemArr<mNPhiBins> mMET_PhiBins;
+
+  ElemArr<mNMETBins> mMETDiff_GenMETTrue_METBins;
+  ElemArr<mNEtaBins> mMETDiff_GenMETTrue_EtaBins;
+  ElemArr<mNPhiBins> mMETDiff_GenMETTrue_PhiBins;
+  ElemArr<mNMETBins> mMETRatio_GenMETTrue_METBins;
+  ElemArr<mNEtaBins> mMETRatio_GenMETTrue_EtaBins;
+  ElemArr<mNPhiBins> mMETRatio_GenMETTrue_PhiBins;
+  ElemArr<mNMETBins> mMETDeltaPhi_GenMETTrue_METBins;
+  ElemArr<mNEtaBins> mMETDeltaPhi_GenMETTrue_EtaBins;
+  ElemArr<mNPhiBins> mMETDeltaPhi_GenMETTrue_PhiBins;
 
   bool isCaloMET;
-  //  bool isCorMET;
-  //  bool isTcMET;
   bool isPFMET;
   bool isGenMET;
   bool isMiniAODMET;
+  bool isHLT;
 };
 
 #endif  // METTESTER_H
