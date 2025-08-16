@@ -141,11 +141,11 @@ void HLTJetMETValidation::bookHistograms(DQMStore::IBooker &iBooker,
     // std::cout << "str = " << triggerTag_+hltTrgJet[it].c_str() << std::endl;
     // std::cout << "trgPathName = " << trgPathName << std::endl;
     iBooker.setCurrentFolder(trgPathName);
-    _meHLTJetPt.push_back(iBooker.book1D("_meHLTJetPt", "Single HLT Jet Pt", 100, 0, 500));
-    _meHLTJetPtTrgMC.push_back(iBooker.book1D("_meHLTJetPtTrgMC", "Single HLT Jet Pt - HLT Triggered", 100, 0, 500));
-    _meHLTJetPtTrg.push_back(iBooker.book1D("_meHLTJetPtTrg", "Single HLT Jet Pt - HLT Triggered", 100, 0, 500));
+    _meHLTJetPt.push_back(iBooker.book1D("_meHLTJetPt", "Single HLT Jet Pt", 100, 0, 1000));
+    _meHLTJetPtTrgMC.push_back(iBooker.book1D("_meHLTJetPtTrgMC", "Single HLT Jet Pt - HLT Triggered", 100, 0, 1000));
+    _meHLTJetPtTrg.push_back(iBooker.book1D("_meHLTJetPtTrg", "Single HLT Jet Pt - HLT Triggered", 100, 0, 1000));
     _meHLTJetPtTrgLow.push_back(
-        iBooker.book1D("_meHLTJetPtTrgLow", "Single HLT Jet Pt - HLT Triggered Low", 100, 0, 500));
+        iBooker.book1D("_meHLTJetPtTrgLow", "Single HLT Jet Pt - HLT Triggered Low", 100, 0, 1000));
 
     _meHLTJetEta.push_back(iBooker.book1D("_meHLTJetEta", "Single HLT Jet Eta", 100, -10, 10));
     _meHLTJetEtaTrgMC.push_back(
@@ -161,12 +161,12 @@ void HLTJetMETValidation::bookHistograms(DQMStore::IBooker &iBooker,
     _meHLTJetPhiTrgLow.push_back(
         iBooker.book1D("_meHLTJetPhiTrgLow", "Single HLT Jet Phi - HLT Triggered Low", 100, -4., 4.));
 
-    _meGenJetPt.push_back(iBooker.book1D("_meGenJetPt", "Single Generated Jet Pt", 100, 0, 500));
+    _meGenJetPt.push_back(iBooker.book1D("_meGenJetPt", "Single Generated Jet Pt", 100, 0, 1000));
     _meGenJetPtTrgMC.push_back(
-        iBooker.book1D("_meGenJetPtTrgMC", "Single Generated Jet Pt - HLT Triggered", 100, 0, 500));
-    _meGenJetPtTrg.push_back(iBooker.book1D("_meGenJetPtTrg", "Single Generated Jet Pt - HLT Triggered", 100, 0, 500));
+        iBooker.book1D("_meGenJetPtTrgMC", "Single Generated Jet Pt - HLT Triggered", 100, 0, 1000));
+    _meGenJetPtTrg.push_back(iBooker.book1D("_meGenJetPtTrg", "Single Generated Jet Pt - HLT Triggered", 100, 0, 1000));
     _meGenJetPtTrgLow.push_back(
-        iBooker.book1D("_meGenJetPtTrgLow", "Single Generated Jet Pt - HLT Triggered Low", 100, 0, 500));
+        iBooker.book1D("_meGenJetPtTrgLow", "Single Generated Jet Pt - HLT Triggered Low", 100, 0, 1000));
 
     _meGenJetEta.push_back(iBooker.book1D("_meGenJetEta", "Single Generated Jet Eta", 100, -10, 10));
     _meGenJetEtaTrgMC.push_back(
@@ -189,16 +189,16 @@ void HLTJetMETValidation::bookHistograms(DQMStore::IBooker &iBooker,
     // "<<hltTrgMetLow[it].c_str()<<std::endl;
     std::string trgPathName = HLTConfigProvider::removeVersion(triggerTag_ + hltTrgMet[it]);
     iBooker.setCurrentFolder(trgPathName);
-    _meHLTMET.push_back(iBooker.book1D("_meHLTMET", "HLT Missing ET", 100, 0, 500));
-    _meHLTMETTrgMC.push_back(iBooker.book1D("_meHLTMETTrgMC", "HLT Missing ET - HLT Triggered", 100, 0, 500));
-    _meHLTMETTrg.push_back(iBooker.book1D("_meHLTMETTrg", "HLT Missing ET - HLT Triggered", 100, 0, 500));
-    _meHLTMETTrgLow.push_back(iBooker.book1D("_meHLTMETTrgLow", "HLT Missing ET - HLT Triggered Low", 100, 0, 500));
+    _meHLTMET.push_back(iBooker.book1D("_meHLTMET", "HLT Missing ET", 100, 0, 1000));
+    _meHLTMETTrgMC.push_back(iBooker.book1D("_meHLTMETTrgMC", "HLT Missing ET - HLT Triggered", 100, 0, 1000));
+    _meHLTMETTrg.push_back(iBooker.book1D("_meHLTMETTrg", "HLT Missing ET - HLT Triggered", 100, 0, 1000));
+    _meHLTMETTrgLow.push_back(iBooker.book1D("_meHLTMETTrgLow", "HLT Missing ET - HLT Triggered Low", 100, 0, 1000));
 
-    _meGenMET.push_back(iBooker.book1D("_meGenMET", "Generated Missing ET", 100, 0, 500));
-    _meGenMETTrgMC.push_back(iBooker.book1D("_meGenMETTrgMC", "Generated Missing ET - HLT Triggered", 100, 0, 500));
-    _meGenMETTrg.push_back(iBooker.book1D("_meGenMETTrg", "Generated Missing ET - HLT Triggered", 100, 0, 500));
+    _meGenMET.push_back(iBooker.book1D("_meGenMET", "Generated Missing ET", 100, 0, 1000));
+    _meGenMETTrgMC.push_back(iBooker.book1D("_meGenMETTrgMC", "Generated Missing ET - HLT Triggered", 100, 0, 1000));
+    _meGenMETTrg.push_back(iBooker.book1D("_meGenMETTrg", "Generated Missing ET - HLT Triggered", 100, 0, 1000));
     _meGenMETTrgLow.push_back(
-        iBooker.book1D("_meGenMETTrgLow", "Generated Missing ET - HLT Triggered Low", 100, 0, 500));
+        iBooker.book1D("_meGenMETTrgLow", "Generated Missing ET - HLT Triggered Low", 100, 0, 1000));
   }
 }
 

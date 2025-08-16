@@ -1,0 +1,39 @@
+from PhysicsTools.PatAlgos.slimming.genParticles_cff import *
+from PhysicsTools.NanoAOD.genparticles_cff import *
+from RecoJets.Configuration.GenJetParticles_cff import *
+from RecoJets.Configuration.RecoGenJets_cff import *
+
+hltJetPreValidSeq = cms.Sequence(
+    prunedGenParticlesWithStatusOne
+    + prunedGenParticles
+    + finalGenParticles
+    + genParticlesForJetsNoNu
+    + ak4GenJetsNoNu
+)
+
+from Validation.RecoJets.jetTester_cfi import jetTester as _jetTester
+_hltJetTester = _jetTester.clone(
+    isHLT = cms.untracked.bool(True),
+    recoJetPtThreshold = cms.double(30),
+    matchGenPtThreshold = cms.double(20.0),
+    RThreshold = cms.double(0.2),
+    srcGen = cms.InputTag("ak4GenJetsNoNu"),
+    JetType = cms.untracked.string('pf'), # requires "pf", "calo", or "miniaod"
+    primVertex = cms.InputTag("hltGoodOfflinePrimaryVertices"),
+)
+
+hltJetAnalyzerAK4PFPuppi = _hltJetTester.clone(
+    src = cms.InputTag("hltAK4PFPuppiJets"),
+    JetCorrections = cms.InputTag("hltAK4PFPuppiJetCorrector"),
+)
+
+hltJetAnalyzerAK4PF = _hltJetTester.clone(
+    src = cms.InputTag("hltAK4PFJets"),
+    JetCorrections = cms.InputTag("hltAK4PFJetCorrector"),
+)
+
+hltJetAnalyzerAK4PFCHS = _hltJetTester.clone(
+    src = cms.InputTag("hltAK4PFCHSJets"),
+    JetCorrections = cms.InputTag("hltAK4PFCHSJetCorrector"),
+)
+

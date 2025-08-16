@@ -47,24 +47,24 @@ void JetTesterPostProcessor::dqmEndJob(DQMStore::IBooker &ibook_, DQMStore::IGet
     MonitorElement *mGenPt_Reco = iget_.get(rundir_reco + "/" + "GenPt");
     MonitorElement *mGenPhi_Reco = iget_.get(rundir_reco + "/" + "GenPhi");
     MonitorElement *mGenEta_Reco = iget_.get(rundir_reco + "/" + "GenEta");
-    MonitorElement *mPt_Reco = iget_.get(rundir_reco + "/" + "Pt");
-    MonitorElement *mPhi_Reco = iget_.get(rundir_reco + "/" + "Phi");
-    MonitorElement *mEta_Reco = iget_.get(rundir_reco + "/" + "Eta");
+    MonitorElement *mPt_Reco = iget_.get(rundir_reco + "/" + "JetPt");
+    MonitorElement *mPhi_Reco = iget_.get(rundir_reco + "/" + "JetPhi");
+    MonitorElement *mEta_Reco = iget_.get(rundir_reco + "/" + "JetEta");
     MonitorElement *mCorrJetPt_Reco = iget_.get(rundir_reco + "/" + "CorrJetPt");
     MonitorElement *mCorrJetPhi_Reco = iget_.get(rundir_reco + "/" + "CorrJetPhi");
     MonitorElement *mCorrJetEta_Reco = iget_.get(rundir_reco + "/" + "CorrJetEta");
     /*
-    map_string_vec.push_back("Pt");
-    map_string_vec.push_back("Phi");
-    map_string_vec.push_back("Eta");
+    map_string_vec.push_back("JetPt");
+    map_string_vec.push_back("JetPhi");
+    map_string_vec.push_back("JetEta");
     map_string_vec.push_back("CorrJetPt");
     map_string_vec.push_back("CorrJetPhi");
     map_string_vec.push_back("CorrJetEta");
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(rundir_reco+"/"+"Pt"
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(rundir_reco+"/"+"JetPt"
     ,mPt_Reco));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(rundir_reco+"/"+"Phi"
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(rundir_reco+"/"+"JetPhi"
     ,mPhi_Reco));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(rundir_reco+"/"+"Eta"
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(rundir_reco+"/"+"JetEta"
     ,mEta_Reco));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(rundir_reco+"/"+"CorrJetPt"
     ,mCorrJetPt_Reco));
@@ -73,12 +73,14 @@ void JetTesterPostProcessor::dqmEndJob(DQMStore::IBooker &ibook_, DQMStore::IGet
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(rundir_reco+"/"+"CorrJetEta"
     ,mCorrJetEta_Reco));
     */
-    MonitorElement *mPtCorrOverReco_Eta_20_40_Reco = iget_.get(rundir_reco + "/" + "PtCorrOverReco_Eta_20_40");
-    MonitorElement *mPtCorrOverReco_Eta_200_600_Reco = iget_.get(rundir_reco + "/" + "PtCorrOverReco_Eta_200_600");
-    MonitorElement *mPtCorrOverReco_Eta_1500_3500_Reco = iget_.get(rundir_reco + "/" + "PtCorrOverReco_Eta_1500_3500");
-    MonitorElement *mPtCorrOverGen_GenEta_40_200_Reco = iget_.get(rundir_reco + "/" + "PtCorrOverGen_GenEta_40_200");
+    MonitorElement *mPtCorrOverReco_Eta_20_40_Reco = iget_.get(rundir_reco + "/" + "pr_PtCorrOverReco_Eta_Pt20_40");
+    MonitorElement *mPtCorrOverReco_Eta_200_600_Reco = iget_.get(rundir_reco + "/" + "pr_PtCorrOverReco_Eta_Pt200_600");
+    MonitorElement *mPtCorrOverReco_Eta_1500_3500_Reco =
+        iget_.get(rundir_reco + "/" + "pr_PtCorrOverReco_Eta_Pt1500_3500");
+    MonitorElement *mPtCorrOverGen_GenEta_40_200_Reco =
+        iget_.get(rundir_reco + "/" + "pr_PtCorrOverGen_GenEta_Pt40_200");
     MonitorElement *mPtCorrOverGen_GenEta_600_1500_Reco =
-        iget_.get(rundir_reco + "/" + "PtCorrOverGen_GenEta_600_1500");
+        iget_.get(rundir_reco + "/" + "pr_PtCorrOverGen_GenEta_Pt600_1500");
     MonitorElement *mDeltaEta_Reco = iget_.get(rundir_reco + "/" + "DeltaEta");
     MonitorElement *mDeltaPhi_Reco = iget_.get(rundir_reco + "/" + "DeltaPhi");
     MonitorElement *mDeltaPt_Reco = iget_.get(rundir_reco + "/" + "DeltaPt");
@@ -121,21 +123,22 @@ void JetTesterPostProcessor::dqmEndJob(DQMStore::IBooker &ibook_, DQMStore::IGet
     MonitorElement *mGenPt_MiniAOD = iget_.get(rundir_miniaod + "/" + "GenPt");
     MonitorElement *mGenPhi_MiniAOD = iget_.get(rundir_miniaod + "/" + "GenPhi");
     MonitorElement *mGenEta_MiniAOD = iget_.get(rundir_miniaod + "/" + "GenEta");
-    MonitorElement *mPt_MiniAOD = iget_.get(rundir_miniaod + "/" + "Pt");
-    MonitorElement *mPhi_MiniAOD = iget_.get(rundir_miniaod + "/" + "Phi");
-    MonitorElement *mEta_MiniAOD = iget_.get(rundir_miniaod + "/" + "Eta");
+    MonitorElement *mPt_MiniAOD = iget_.get(rundir_miniaod + "/" + "JetPt");
+    MonitorElement *mPhi_MiniAOD = iget_.get(rundir_miniaod + "/" + "JetPhi");
+    MonitorElement *mEta_MiniAOD = iget_.get(rundir_miniaod + "/" + "JetEta");
     MonitorElement *mCorrJetPt_MiniAOD = iget_.get(rundir_miniaod + "/" + "CorrJetPt");
     MonitorElement *mCorrJetPhi_MiniAOD = iget_.get(rundir_miniaod + "/" + "CorrJetPhi");
     MonitorElement *mCorrJetEta_MiniAOD = iget_.get(rundir_miniaod + "/" + "CorrJetEta");
-    MonitorElement *mPtCorrOverReco_Eta_20_40_MiniAOD = iget_.get(rundir_miniaod + "/" + "PtCorrOverReco_Eta_20_40");
+    MonitorElement *mPtCorrOverReco_Eta_20_40_MiniAOD =
+        iget_.get(rundir_miniaod + "/" + "pr_PtCorrOverReco_Eta_Pt20_40");
     MonitorElement *mPtCorrOverReco_Eta_200_600_MiniAOD =
-        iget_.get(rundir_miniaod + "/" + "PtCorrOverReco_Eta_200_600");
+        iget_.get(rundir_miniaod + "/" + "pr_PtCorrOverReco_Eta_Pt200_600");
     MonitorElement *mPtCorrOverReco_Eta_1500_3500_MiniAOD =
-        iget_.get(rundir_miniaod + "/" + "PtCorrOverReco_Eta_1500_3500");
+        iget_.get(rundir_miniaod + "/" + "pr_PtCorrOverReco_Eta_Pt1500_3500");
     MonitorElement *mPtCorrOverGen_GenEta_40_200_MiniAOD =
-        iget_.get(rundir_miniaod + "/" + "PtCorrOverGen_GenEta_40_200");
+        iget_.get(rundir_miniaod + "/" + "pr_PtCorrOverGen_GenEta_Pt40_200");
     MonitorElement *mPtCorrOverGen_GenEta_600_1500_MiniAOD =
-        iget_.get(rundir_miniaod + "/" + "PtCorrOverGen_GenEta_600_1500");
+        iget_.get(rundir_miniaod + "/" + "pr_PtCorrOverGen_GenEta_Pt600_1500");
     MonitorElement *mDeltaEta_MiniAOD = iget_.get(rundir_miniaod + "/" + "DeltaEta");
     MonitorElement *mDeltaPhi_MiniAOD = iget_.get(rundir_miniaod + "/" + "DeltaPhi");
     MonitorElement *mDeltaPt_MiniAOD = iget_.get(rundir_miniaod + "/" + "DeltaPt");
@@ -181,9 +184,9 @@ void JetTesterPostProcessor::dqmEndJob(DQMStore::IBooker &ibook_, DQMStore::IGet
     mGenPt_MiniAOD_over_Reco = ibook_.book1D("GenPt_MiniAOD_over_RECO", (TH1F *)mGenPt_Reco->getRootObject());
     mGenPhi_MiniAOD_over_Reco = ibook_.book1D("GenPhi_MiniAOD_over_RECO", (TH1F *)mGenPhi_Reco->getRootObject());
     mGenEta_MiniAOD_over_Reco = ibook_.book1D("GenEta_MiniAOD_over_RECO", (TH1F *)mGenEta_Reco->getRootObject());
-    mPt_MiniAOD_over_Reco = ibook_.book1D("Pt_MiniAOD_over_RECO", (TH1F *)mPt_Reco->getRootObject());
-    mPhi_MiniAOD_over_Reco = ibook_.book1D("Phi_MiniAOD_over_RECO", (TH1F *)mPhi_Reco->getRootObject());
-    mEta_MiniAOD_over_Reco = ibook_.book1D("Eta_MiniAOD_over_RECO", (TH1F *)mEta_Reco->getRootObject());
+    mPt_MiniAOD_over_Reco = ibook_.book1D("JetPt_MiniAOD_over_RECO", (TH1F *)mPt_Reco->getRootObject());
+    mPhi_MiniAOD_over_Reco = ibook_.book1D("JetPhi_MiniAOD_over_RECO", (TH1F *)mPhi_Reco->getRootObject());
+    mEta_MiniAOD_over_Reco = ibook_.book1D("JetEta_MiniAOD_over_RECO", (TH1F *)mEta_Reco->getRootObject());
     mCorrJetPt_MiniAOD_over_Reco =
         ibook_.book1D("CorrJetPt_MiniAOD_over_RECO", (TH1F *)mCorrJetPt_Reco->getRootObject());
     mCorrJetPhi_MiniAOD_over_Reco =
