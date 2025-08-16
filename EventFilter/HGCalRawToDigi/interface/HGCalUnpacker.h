@@ -14,6 +14,7 @@
 #include "DataFormats/HGCalDigi/interface/HGCalRawDataDefinitions.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/HGCalDigi/interface/HGCalDigiHost.h"
+#include "DataFormats/HGCalDigi/interface/HGCalFEDPacketInfoHost.h"
 #include "DataFormats/HGCalDigi/interface/HGCalECONDPacketInfoHost.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "CondFormats/HGCalObjects/interface/HGCalConfiguration.h"
@@ -37,6 +38,7 @@ public:
                         const HGCalMappingModuleIndexer& moduleIndexer,
                         const HGCalConfiguration& config,
                         hgcaldigi::HGCalDigiHost& digis,
+                        hgcaldigi::HGCalFEDPacketInfoHost& fedPacketInfo,
                         hgcaldigi::HGCalECONDPacketInfoHost& econdPacketInfo,
                         bool headerOnlyMode = false);
 
