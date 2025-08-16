@@ -384,7 +384,8 @@ void FitPVResiduals(TString namesandlabels,
                     TString theDate = "bogus",
                     bool setAutoLimits = true,
                     TString CMSlabel = "",
-                    TString Rlabel = "");
+                    TString Rlabel = "",
+                    TString outdir = "");
 TH1F *DrawZero(TH1F *hist, Int_t nbins, Double_t lowedge, Double_t highedge, Int_t iter);
 TH1F *DrawConstant(TH1F *hist, Int_t nbins, Double_t lowedge, Double_t highedge, Int_t iter, Double_t theConst);
 void makeNewXAxis(TH1F *h);
@@ -450,7 +451,8 @@ void FitPVResiduals(TString namesandlabels,
                     TString theDate,
                     bool setAutoLimits,
                     TString CMSlabel,
-                    TString Rlabel)
+                    TString Rlabel,
+                    TString outdir)
 //*************************************************************
 {
   // only for fatal errors (useful in debugging)
@@ -485,6 +487,12 @@ void FitPVResiduals(TString namesandlabels,
 
   Int_t markers[9];
   Int_t colors[9];
+
+  if (outdir != "") {
+    if (!outdir.EndsWith("/")) {
+      outdir += "/";
+    }
+  }
 
   setStyle(CMSlabel, Rlabel);
 
@@ -1897,42 +1905,42 @@ void FitPVResiduals(TString namesandlabels,
   TCanvas *BareResiduals = new TCanvas("BareResiduals", "BareResiduals", 1200, 1200);
   arrangeBiasCanvas(BareResiduals, dxyRefit, dxySigRefit, dzRefit, dzSigRefit, nFiles_, LegLabels, theDate, true);
 
-  BareResiduals->SaveAs("ResidualsCanvas_" + theStrDate + theStrAlignment + ".pdf");
-  BareResiduals->SaveAs("ResidualsCanvas_" + theStrDate + theStrAlignment + ".png");
+  BareResiduals->SaveAs(outdir + "ResidualsCanvas_" + theStrDate + theStrAlignment + ".pdf");
+  BareResiduals->SaveAs(outdir + "ResidualsCanvas_" + theStrDate + theStrAlignment + ".png");
 
   // DCA absolute
 
   TCanvas *dxyPhiTrend = new TCanvas("dxyPhiTrend", "dxyPhiTrend", 1200, 600);
   arrangeCanvas(dxyPhiTrend, dxyPhiMeanTrend, dxyPhiWidthTrend, nFiles_, LegLabels, theDate, false, setAutoLimits);
 
-  dxyPhiTrend->SaveAs("dxyPhiTrend_" + theStrDate + theStrAlignment + ".pdf");
-  dxyPhiTrend->SaveAs("dxyPhiTrend_" + theStrDate + theStrAlignment + ".png");
+  dxyPhiTrend->SaveAs(outdir + "dxyPhiTrend_" + theStrDate + theStrAlignment + ".pdf");
+  dxyPhiTrend->SaveAs(outdir + "dxyPhiTrend_" + theStrDate + theStrAlignment + ".png");
 
   TCanvas *dzPhiTrend = new TCanvas("dzPhiTrend", "dzPhiTrend", 1200, 600);
   arrangeCanvas(dzPhiTrend, dzPhiMeanTrend, dzPhiWidthTrend, nFiles_, LegLabels, theDate, false, setAutoLimits);
 
-  dzPhiTrend->SaveAs("dzPhiTrend_" + theStrDate + theStrAlignment + ".pdf");
-  dzPhiTrend->SaveAs("dzPhiTrend_" + theStrDate + theStrAlignment + ".png");
+  dzPhiTrend->SaveAs(outdir + "dzPhiTrend_" + theStrDate + theStrAlignment + ".pdf");
+  dzPhiTrend->SaveAs(outdir + "dzPhiTrend_" + theStrDate + theStrAlignment + ".png");
 
   TCanvas *dxyEtaTrend = new TCanvas("dxyEtaTrend", "dxyEtaTrend", 1200, 600);
   arrangeCanvas(dxyEtaTrend, dxyEtaMeanTrend, dxyEtaWidthTrend, nFiles_, LegLabels, theDate, false, setAutoLimits);
 
-  dxyEtaTrend->SaveAs("dxyEtaTrend_" + theStrDate + theStrAlignment + ".pdf");
-  dxyEtaTrend->SaveAs("dxyEtaTrend_" + theStrDate + theStrAlignment + ".png");
+  dxyEtaTrend->SaveAs(outdir + "dxyEtaTrend_" + theStrDate + theStrAlignment + ".pdf");
+  dxyEtaTrend->SaveAs(outdir + "dxyEtaTrend_" + theStrDate + theStrAlignment + ".png");
 
   TCanvas *dzEtaTrend = new TCanvas("dzEtaTrend", "dzEtaTrend", 1200, 600);
   arrangeCanvas(dzEtaTrend, dzEtaMeanTrend, dzEtaWidthTrend, nFiles_, LegLabels, theDate, false, setAutoLimits);
 
-  dzEtaTrend->SaveAs("dzEtaTrend_" + theStrDate + theStrAlignment + ".pdf");
-  dzEtaTrend->SaveAs("dzEtaTrend_" + theStrDate + theStrAlignment + ".png");
+  dzEtaTrend->SaveAs(outdir + "dzEtaTrend_" + theStrDate + theStrAlignment + ".pdf");
+  dzEtaTrend->SaveAs(outdir + "dzEtaTrend_" + theStrDate + theStrAlignment + ".png");
 
   if (nLadders_ > 0) {
     TCanvas *dxyLadderTrend = new TCanvas("dxyLadderTrend", "dxyLadderTrend", 600, 600);
     arrangeCanvas(
         dxyLadderTrend, dxyLadderMeanTrend, dxyLadderWidthTrend, nFiles_, LegLabels, theDate, true, setAutoLimits);
 
-    dxyLadderTrend->SaveAs("dxyLadderTrend_" + theStrDate + theStrAlignment + ".pdf");
-    dxyLadderTrend->SaveAs("dxyLadderTrend_" + theStrDate + theStrAlignment + ".png");
+    dxyLadderTrend->SaveAs(outdir + "dxyLadderTrend_" + theStrDate + theStrAlignment + ".pdf");
+    dxyLadderTrend->SaveAs(outdir + "dxyLadderTrend_" + theStrDate + theStrAlignment + ".png");
 
     delete dxyLadderTrend;
   }
@@ -1941,21 +1949,21 @@ void FitPVResiduals(TString namesandlabels,
   TCanvas *dzPhiTrendFit = new TCanvas("dzPhiTrendFit", "dzPhiTrendFit", 1200, 600);
   arrangeFitCanvas(dzPhiTrendFit, dzPhiMeanTrend, nFiles_, LegLabels, theDate);
 
-  dzPhiTrendFit->SaveAs("dzPhiTrendFit_" + theStrDate + theStrAlignment + ".pdf");
-  dzPhiTrendFit->SaveAs("dzPhiTrendFit_" + theStrDate + theStrAlignment + ".png");
+  dzPhiTrendFit->SaveAs(outdir + "dzPhiTrendFit_" + theStrDate + theStrAlignment + ".pdf");
+  dzPhiTrendFit->SaveAs(outdir + "dzPhiTrendFit_" + theStrDate + theStrAlignment + ".png");
 
   if (minPt_ > 0.) {
     TCanvas *dxyPtTrend = new TCanvas("dxyPtTrend", "dxyPtTrend", 1200, 600);
     arrangeCanvas(dxyPtTrend, dxyPtMeanTrend, dxyPtWidthTrend, nFiles_, LegLabels, theDate, false, setAutoLimits);
 
-    dxyPtTrend->SaveAs("dxyPtTrend_" + theStrDate + theStrAlignment + ".pdf");
-    dxyPtTrend->SaveAs("dxyPtTrend_" + theStrDate + theStrAlignment + ".png");
+    dxyPtTrend->SaveAs(outdir + "dxyPtTrend_" + theStrDate + theStrAlignment + ".pdf");
+    dxyPtTrend->SaveAs(outdir + "dxyPtTrend_" + theStrDate + theStrAlignment + ".png");
 
     TCanvas *dzPtTrend = new TCanvas("dzPtTrend", "dzPtTrend", 1200, 600);
     arrangeCanvas(dzPtTrend, dzPtMeanTrend, dzPtWidthTrend, nFiles_, LegLabels, theDate, false, setAutoLimits);
 
-    dzPtTrend->SaveAs("dzPtTrend_" + theStrDate + theStrAlignment + ".pdf");
-    dzPtTrend->SaveAs("dzPtTrend_" + theStrDate + theStrAlignment + ".png");
+    dzPtTrend->SaveAs(outdir + "dzPtTrend_" + theStrDate + theStrAlignment + ".pdf");
+    dzPtTrend->SaveAs(outdir + "dzPtTrend_" + theStrDate + theStrAlignment + ".png");
 
     delete dxyPtTrend;
     delete dzPtTrend;
@@ -1976,44 +1984,44 @@ void FitPVResiduals(TString namesandlabels,
   arrangeCanvas(
       dxyNormPhiTrend, dxyNormPhiMeanTrend, dxyNormPhiWidthTrend, nFiles_, LegLabels, theDate, false, setAutoLimits);
 
-  dxyNormPhiTrend->SaveAs("dxyPhiTrendNorm_" + theStrDate + theStrAlignment + ".pdf");
-  dxyNormPhiTrend->SaveAs("dxyPhiTrendNorm_" + theStrDate + theStrAlignment + ".png");
+  dxyNormPhiTrend->SaveAs(outdir + "dxyPhiTrendNorm_" + theStrDate + theStrAlignment + ".pdf");
+  dxyNormPhiTrend->SaveAs(outdir + "dxyPhiTrendNorm_" + theStrDate + theStrAlignment + ".png");
 
   TCanvas *dzNormPhiTrend = new TCanvas("dzNormPhiTrend", "dzNormPhiTrend", 1200, 600);
   arrangeCanvas(
       dzNormPhiTrend, dzNormPhiMeanTrend, dzNormPhiWidthTrend, nFiles_, LegLabels, theDate, false, setAutoLimits);
 
-  dzNormPhiTrend->SaveAs("dzPhiTrendNorm_" + theStrDate + theStrAlignment + ".pdf");
-  dzNormPhiTrend->SaveAs("dzPhiTrendNorm_" + theStrDate + theStrAlignment + ".png");
+  dzNormPhiTrend->SaveAs(outdir + "dzPhiTrendNorm_" + theStrDate + theStrAlignment + ".pdf");
+  dzNormPhiTrend->SaveAs(outdir + "dzPhiTrendNorm_" + theStrDate + theStrAlignment + ".png");
 
   TCanvas *dxyNormEtaTrend = new TCanvas("dxyNormEtaTrend", "dxyNormEtaTrend", 1200, 600);
   arrangeCanvas(
       dxyNormEtaTrend, dxyNormEtaMeanTrend, dxyNormEtaWidthTrend, nFiles_, LegLabels, theDate, false, setAutoLimits);
 
-  dxyNormEtaTrend->SaveAs("dxyEtaTrendNorm_" + theStrDate + theStrAlignment + ".pdf");
-  dxyNormEtaTrend->SaveAs("dxyEtaTrendNorm_" + theStrDate + theStrAlignment + ".png");
+  dxyNormEtaTrend->SaveAs(outdir + "dxyEtaTrendNorm_" + theStrDate + theStrAlignment + ".pdf");
+  dxyNormEtaTrend->SaveAs(outdir + "dxyEtaTrendNorm_" + theStrDate + theStrAlignment + ".png");
 
   TCanvas *dzNormEtaTrend = new TCanvas("dzNormEtaTrend", "dzNormEtaTrend", 1200, 600);
   arrangeCanvas(
       dzNormEtaTrend, dzNormEtaMeanTrend, dzNormEtaWidthTrend, nFiles_, LegLabels, theDate, false, setAutoLimits);
 
-  dzNormEtaTrend->SaveAs("dzEtaTrendNorm_" + theStrDate + theStrAlignment + ".pdf");
-  dzNormEtaTrend->SaveAs("dzEtaTrendNorm_" + theStrDate + theStrAlignment + ".png");
+  dzNormEtaTrend->SaveAs(outdir + "dzEtaTrendNorm_" + theStrDate + theStrAlignment + ".pdf");
+  dzNormEtaTrend->SaveAs(outdir + "dzEtaTrendNorm_" + theStrDate + theStrAlignment + ".png");
 
   if (minPt_ > 0.) {
     TCanvas *dxyNormPtTrend = new TCanvas("dxyNormPtTrend", "dxyNormPtTrend", 1200, 600);
     arrangeCanvas(
         dxyNormPtTrend, dxyNormPtMeanTrend, dxyNormPtWidthTrend, nFiles_, LegLabels, theDate, false, setAutoLimits);
 
-    dxyNormPtTrend->SaveAs("dxyPtTrendNorm_" + theStrDate + theStrAlignment + ".pdf");
-    dxyNormPtTrend->SaveAs("dxyPtTrendNorm_" + theStrDate + theStrAlignment + ".png");
+    dxyNormPtTrend->SaveAs(outdir + "dxyPtTrendNorm_" + theStrDate + theStrAlignment + ".pdf");
+    dxyNormPtTrend->SaveAs(outdir + "dxyPtTrendNorm_" + theStrDate + theStrAlignment + ".png");
 
     TCanvas *dzNormPtTrend = new TCanvas("dzNormPtTrend", "dzNormPtTrend", 1200, 600);
     arrangeCanvas(
         dzNormPtTrend, dzNormPtMeanTrend, dzNormPtWidthTrend, nFiles_, LegLabels, theDate, false, setAutoLimits);
 
-    dzNormPtTrend->SaveAs("dzPtTrendNorm_" + theStrDate + theStrAlignment + ".pdf");
-    dzNormPtTrend->SaveAs("dzPtTrendNorm_" + theStrDate + theStrAlignment + ".png");
+    dzNormPtTrend->SaveAs(outdir + "dzPtTrendNorm_" + theStrDate + theStrAlignment + ".pdf");
+    dzNormPtTrend->SaveAs(outdir + "dzPtTrendNorm_" + theStrDate + theStrAlignment + ".png");
 
     delete dxyNormPtTrend;
     delete dzNormPtTrend;
@@ -2039,8 +2047,8 @@ void FitPVResiduals(TString namesandlabels,
                     theDate,
                     setAutoLimits);
 
-  BiasesCanvas->SaveAs("BiasesCanvas_" + theStrDate + theStrAlignment + ".pdf");
-  BiasesCanvas->SaveAs("BiasesCanvas_" + theStrDate + theStrAlignment + ".png");
+  BiasesCanvas->SaveAs(outdir + "BiasesCanvas_" + theStrDate + theStrAlignment + ".pdf");
+  BiasesCanvas->SaveAs(outdir + "BiasesCanvas_" + theStrDate + theStrAlignment + ".png");
 
   // Bias plots (x and y)
 
@@ -2055,8 +2063,8 @@ void FitPVResiduals(TString namesandlabels,
                     theDate,
                     setAutoLimits);
 
-  BiasesCanvasXY->SaveAs("BiasesCanvasXY_" + theStrDate + theStrAlignment + ".pdf");
-  BiasesCanvasXY->SaveAs("BiasesCanvasXY_" + theStrDate + theStrAlignment + ".png");
+  BiasesCanvasXY->SaveAs(outdir + "BiasesCanvasXY_" + theStrDate + theStrAlignment + ".pdf");
+  BiasesCanvasXY->SaveAs(outdir + "BiasesCanvasXY_" + theStrDate + theStrAlignment + ".png");
 
   // Bias plots (ladders and module number)
   if (nLadders_ > 0 && nModZ_ > 0) {
@@ -2071,8 +2079,8 @@ void FitPVResiduals(TString namesandlabels,
                       theDate,
                       setAutoLimits);
 
-    BiasesCanvasLayer1->SaveAs("BiasesCanvasLayer1_" + theStrDate + theStrAlignment + ".pdf");
-    BiasesCanvasLayer1->SaveAs("BiasesCanvasLayer1_" + theStrDate + theStrAlignment + ".png");
+    BiasesCanvasLayer1->SaveAs(outdir + "BiasesCanvasLayer1_" + theStrDate + theStrAlignment + ".pdf");
+    BiasesCanvasLayer1->SaveAs(outdir + "BiasesCanvasLayer1_" + theStrDate + theStrAlignment + ".png");
     delete BiasesCanvasLayer1;
   }
 
@@ -2086,15 +2094,15 @@ void FitPVResiduals(TString namesandlabels,
   arrangeCanvas(dxyEtaBiasCanvas, dxyEtaMeanTrend, dxyEtaWidthTrend, nFiles_, LegLabels, theDate, true, setAutoLimits);
   arrangeCanvas(dzEtaBiasCanvas, dzEtaMeanTrend, dzEtaWidthTrend, nFiles_, LegLabels, theDate, true, setAutoLimits);
 
-  dxyPhiBiasCanvas->SaveAs("dxyPhiBiasCanvas_" + theStrDate + theStrAlignment + ".pdf");
-  dxyEtaBiasCanvas->SaveAs("dxyEtaBiasCanvas_" + theStrDate + theStrAlignment + ".pdf");
-  dzPhiBiasCanvas->SaveAs("dzPhiBiasCanvas_" + theStrDate + theStrAlignment + ".pdf");
-  dzEtaBiasCanvas->SaveAs("dzEtaBiasCanvas_" + theStrDate + theStrAlignment + ".pdf");
+  dxyPhiBiasCanvas->SaveAs(outdir + "dxyPhiBiasCanvas_" + theStrDate + theStrAlignment + ".pdf");
+  dxyEtaBiasCanvas->SaveAs(outdir + "dxyEtaBiasCanvas_" + theStrDate + theStrAlignment + ".pdf");
+  dzPhiBiasCanvas->SaveAs(outdir + "dzPhiBiasCanvas_" + theStrDate + theStrAlignment + ".pdf");
+  dzEtaBiasCanvas->SaveAs(outdir + "dzEtaBiasCanvas_" + theStrDate + theStrAlignment + ".pdf");
 
-  dxyPhiBiasCanvas->SaveAs("dxyPhiBiasCanvas_" + theStrDate + theStrAlignment + ".png");
-  dxyEtaBiasCanvas->SaveAs("dxyEtaBiasCanvas_" + theStrDate + theStrAlignment + ".png");
-  dzPhiBiasCanvas->SaveAs("dzPhiBiasCanvas_" + theStrDate + theStrAlignment + ".png");
-  dzEtaBiasCanvas->SaveAs("dzEtaBiasCanvas_" + theStrDate + theStrAlignment + ".png");
+  dxyPhiBiasCanvas->SaveAs(outdir + "dxyPhiBiasCanvas_" + theStrDate + theStrAlignment + ".png");
+  dxyEtaBiasCanvas->SaveAs(outdir + "dxyEtaBiasCanvas_" + theStrDate + theStrAlignment + ".png");
+  dzPhiBiasCanvas->SaveAs(outdir + "dzPhiBiasCanvas_" + theStrDate + theStrAlignment + ".png");
+  dzEtaBiasCanvas->SaveAs(outdir + "dzEtaBiasCanvas_" + theStrDate + theStrAlignment + ".png");
 
   // delete all news
 
@@ -2117,8 +2125,8 @@ void FitPVResiduals(TString namesandlabels,
                     theDate,
                     setAutoLimits);
 
-  ResolutionsCanvas->SaveAs("ResolutionsCanvas_" + theStrDate + theStrAlignment + ".pdf");
-  ResolutionsCanvas->SaveAs("ResolutionsCanvas_" + theStrDate + theStrAlignment + ".png");
+  ResolutionsCanvas->SaveAs(outdir + "ResolutionsCanvas_" + theStrDate + theStrAlignment + ".pdf");
+  ResolutionsCanvas->SaveAs(outdir + "ResolutionsCanvas_" + theStrDate + theStrAlignment + ".png");
 
   TCanvas *ResolutionsCanvasXY = new TCanvas("ResolutionsCanvasXY", "ResolutionsCanvasXY", 1200, 1200);
   arrangeBiasCanvas(ResolutionsCanvasXY,
@@ -2131,8 +2139,8 @@ void FitPVResiduals(TString namesandlabels,
                     theDate,
                     setAutoLimits);
 
-  ResolutionsCanvasXY->SaveAs("ResolutionsCanvasXY_" + theStrDate + theStrAlignment + ".pdf");
-  ResolutionsCanvasXY->SaveAs("ResolutionsCanvasXY_" + theStrDate + theStrAlignment + ".png");
+  ResolutionsCanvasXY->SaveAs(outdir + "ResolutionsCanvasXY_" + theStrDate + theStrAlignment + ".pdf");
+  ResolutionsCanvasXY->SaveAs(outdir + "ResolutionsCanvasXY_" + theStrDate + theStrAlignment + ".png");
 
   if (nLadders_ > 0 && nModZ_ > 0) {
     TCanvas *ResolutionsCanvasLayer1 = new TCanvas("ResolutionsCanvasLayer1", "ResolutionsCanvasLayer1", 1200, 1200);
@@ -2146,8 +2154,8 @@ void FitPVResiduals(TString namesandlabels,
                       theDate,
                       setAutoLimits);
 
-    ResolutionsCanvasLayer1->SaveAs("ResolutionsCanvasLayer1_" + theStrDate + theStrAlignment + ".pdf");
-    ResolutionsCanvasLayer1->SaveAs("ResolutionsCanvasLayer1_" + theStrDate + theStrAlignment + ".png");
+    ResolutionsCanvasLayer1->SaveAs(outdir + "ResolutionsCanvasLayer1_" + theStrDate + theStrAlignment + ".pdf");
+    ResolutionsCanvasLayer1->SaveAs(outdir + "ResolutionsCanvasLayer1_" + theStrDate + theStrAlignment + ".png");
     delete ResolutionsCanvasLayer1;
   }
 
@@ -2163,8 +2171,8 @@ void FitPVResiduals(TString namesandlabels,
                     theDate,
                     setAutoLimits);
 
-  PullsCanvas->SaveAs("PullsCanvas_" + theStrDate + theStrAlignment + ".pdf");
-  PullsCanvas->SaveAs("PullsCanvas_" + theStrDate + theStrAlignment + ".png");
+  PullsCanvas->SaveAs(outdir + "PullsCanvas_" + theStrDate + theStrAlignment + ".pdf");
+  PullsCanvas->SaveAs(outdir + "PullsCanvas_" + theStrDate + theStrAlignment + ".png");
 
   if (nLadders_ > 0 && nModZ_ > 0) {
     TCanvas *PullsCanvasLayer1 = new TCanvas("PullsCanvasLayer1", "PullsCanvasLayer1", 1200, 1200);
@@ -2178,8 +2186,8 @@ void FitPVResiduals(TString namesandlabels,
                       theDate,
                       setAutoLimits);
 
-    PullsCanvasLayer1->SaveAs("PullsCanvasLayer1_" + theStrDate + theStrAlignment + ".pdf");
-    PullsCanvasLayer1->SaveAs("PullsCanvasLayer1_" + theStrDate + theStrAlignment + ".png");
+    PullsCanvasLayer1->SaveAs(outdir + "PullsCanvasLayer1_" + theStrDate + theStrAlignment + ".pdf");
+    PullsCanvasLayer1->SaveAs(outdir + "PullsCanvasLayer1_" + theStrDate + theStrAlignment + ".png");
     delete PullsCanvasLayer1;
   }
 
@@ -2193,23 +2201,23 @@ void FitPVResiduals(TString namesandlabels,
   if (do2DMaps) {
     TCanvas *dxyAbsMap = new TCanvas("dxyAbsMap", "dxyAbsMap", 1200, 500 * nFiles_);
     arrangeCanvas2D(dxyAbsMap, t_dxyMeanMap, t_dxyWidthMap, nFiles_, LegLabels, theDate);
-    dxyAbsMap->SaveAs("dxyAbsMap_" + theStrDate + theStrAlignment + ".pdf");
-    dxyAbsMap->SaveAs("dxyAbsMap_" + theStrDate + theStrAlignment + ".png");
+    dxyAbsMap->SaveAs(outdir + "dxyAbsMap_" + theStrDate + theStrAlignment + ".pdf");
+    dxyAbsMap->SaveAs(outdir + "dxyAbsMap_" + theStrDate + theStrAlignment + ".png");
 
     TCanvas *dzAbsMap = new TCanvas("dzAbsMap", "dzAbsMap", 1200, 500 * nFiles_);
     arrangeCanvas2D(dzAbsMap, t_dzMeanMap, t_dzWidthMap, nFiles_, LegLabels, theDate);
-    dzAbsMap->SaveAs("dzAbsMap_" + theStrDate + theStrAlignment + ".pdf");
-    dzAbsMap->SaveAs("dzAbsMap_" + theStrDate + theStrAlignment + ".png");
+    dzAbsMap->SaveAs(outdir + "dzAbsMap_" + theStrDate + theStrAlignment + ".pdf");
+    dzAbsMap->SaveAs(outdir + "dzAbsMap_" + theStrDate + theStrAlignment + ".png");
 
     TCanvas *dxyNormMap = new TCanvas("dxyNormMap", "dxyNormMap", 1200, 500 * nFiles_);
     arrangeCanvas2D(dxyNormMap, t_dxyNormMeanMap, t_dxyNormWidthMap, nFiles_, LegLabels, theDate);
-    dxyNormMap->SaveAs("dxyNormMap_" + theStrDate + theStrAlignment + ".pdf");
-    dxyNormMap->SaveAs("dxyNormMap_" + theStrDate + theStrAlignment + ".png");
+    dxyNormMap->SaveAs(outdir + "dxyNormMap_" + theStrDate + theStrAlignment + ".pdf");
+    dxyNormMap->SaveAs(outdir + "dxyNormMap_" + theStrDate + theStrAlignment + ".png");
 
     TCanvas *dzNormMap = new TCanvas("dzNormMap", "dzNormMap", 1200, 500 * nFiles_);
     arrangeCanvas2D(dzNormMap, t_dzNormMeanMap, t_dzNormWidthMap, nFiles_, LegLabels, theDate);
-    dzNormMap->SaveAs("dzNormMap_" + theStrDate + theStrAlignment + ".pdf");
-    dzNormMap->SaveAs("dzNormMap_" + theStrDate + theStrAlignment + ".png");
+    dzNormMap->SaveAs(outdir + "dzNormMap_" + theStrDate + theStrAlignment + ".pdf");
+    dzNormMap->SaveAs(outdir + "dzNormMap_" + theStrDate + theStrAlignment + ".png");
 
     delete dxyAbsMap;
     delete dzAbsMap;
@@ -2220,23 +2228,23 @@ void FitPVResiduals(TString namesandlabels,
 
     TCanvas *dxyAbsL1Map = new TCanvas("dxyAbsL1Map", "dxyAbsL1Map", 1200, 500 * nFiles_);
     arrangeCanvas2D(dxyAbsL1Map, t_dxyMeanL1Map, t_dxyWidthL1Map, nFiles_, LegLabels, theDate);
-    dxyAbsL1Map->SaveAs("dxyAbsL1Map_" + theStrDate + theStrAlignment + ".pdf");
-    dxyAbsL1Map->SaveAs("dxyAbsL1Map_" + theStrDate + theStrAlignment + ".png");
+    dxyAbsL1Map->SaveAs(outdir + "dxyAbsL1Map_" + theStrDate + theStrAlignment + ".pdf");
+    dxyAbsL1Map->SaveAs(outdir + "dxyAbsL1Map_" + theStrDate + theStrAlignment + ".png");
 
     TCanvas *dzAbsL1Map = new TCanvas("dzAbsL1Map", "dzAbsL1Map", 1200, 500 * nFiles_);
     arrangeCanvas2D(dzAbsL1Map, t_dzMeanL1Map, t_dzWidthL1Map, nFiles_, LegLabels, theDate);
-    dzAbsL1Map->SaveAs("dzAbsL1Map_" + theStrDate + theStrAlignment + ".pdf");
-    dzAbsL1Map->SaveAs("dzAbsL1Map_" + theStrDate + theStrAlignment + ".png");
+    dzAbsL1Map->SaveAs(outdir + "dzAbsL1Map_" + theStrDate + theStrAlignment + ".pdf");
+    dzAbsL1Map->SaveAs(outdir + "dzAbsL1Map_" + theStrDate + theStrAlignment + ".png");
 
     TCanvas *dxyNormL1Map = new TCanvas("dxyNormL1Map", "dxyNormL1Map", 1200, 500 * nFiles_);
     arrangeCanvas2D(dxyNormL1Map, t_dxyNormMeanL1Map, t_dxyNormWidthL1Map, nFiles_, LegLabels, theDate);
-    dxyNormL1Map->SaveAs("dxyNormL1Map_" + theStrDate + theStrAlignment + ".pdf");
-    dxyNormL1Map->SaveAs("dxyNormL1Map_" + theStrDate + theStrAlignment + ".png");
+    dxyNormL1Map->SaveAs(outdir + "dxyNormL1Map_" + theStrDate + theStrAlignment + ".pdf");
+    dxyNormL1Map->SaveAs(outdir + "dxyNormL1Map_" + theStrDate + theStrAlignment + ".png");
 
     TCanvas *dzNormL1Map = new TCanvas("dzNormL1Map", "dzNormL1Map", 1200, 500 * nFiles_);
     arrangeCanvas2D(dzNormL1Map, t_dzNormMeanL1Map, t_dzNormWidthL1Map, nFiles_, LegLabels, theDate);
-    dzNormL1Map->SaveAs("dzNormL1Map_" + theStrDate + theStrAlignment + ".pdf");
-    dzNormL1Map->SaveAs("dzNormL1Map_" + theStrDate + theStrAlignment + ".png");
+    dzNormL1Map->SaveAs(outdir + "dzNormL1Map_" + theStrDate + theStrAlignment + ".pdf");
+    dzNormL1Map->SaveAs(outdir + "dzNormL1Map_" + theStrDate + theStrAlignment + ".png");
 
     delete dxyAbsL1Map;
     delete dzAbsL1Map;
