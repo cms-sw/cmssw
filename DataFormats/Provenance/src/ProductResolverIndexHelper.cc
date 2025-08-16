@@ -114,7 +114,21 @@ namespace edm {
     if (iToIndexAndNames == std::numeric_limits<unsigned int>::max()) {
       return ProductResolverIndexInvalid;
     }
-    return indexAndNames_[iToIndexAndNames].index();
+
+    auto checkForSingleProcess = [this](unsigned int index) {
+      //0 is for blank process name. If not zero, we have a match
+      if (indexAndNames_[index].startInProcessNames() != 0U) {
+        return index;
+      }
+      //Now check to see if only one process has this type/module/instance name
+      auto nextIndex = index + 1;
+      while (indexAndNames_.size() > nextIndex && indexAndNames_[nextIndex].startInProcessNames() != 0U) {
+        ++nextIndex;
+      }
+      return (nextIndex == index + 2) ? index + 1 : index;
+    };
+
+    return indexAndNames_[checkForSingleProcess(iToIndexAndNames)].index();
   }
 
   ProductResolverIndexHelper::Matches::Matches(ProductResolverIndexHelper const* productResolverIndexHelper,
@@ -303,7 +317,7 @@ namespace edm {
     return insert(typeID, moduleLabel, instance, process, containedTypeID, baseTypesOfContainedType);
   }
 
-  void ProductResolverIndexHelper::setFrozen() {
+  void ProductResolverIndexHelper::setFrozen(std::string_view processName) {
     if (!items_)
       return;
 
@@ -360,6 +374,9 @@ namespace edm {
       }
       processNames_.push_back('\0');
       lookupProcessNames_.push_back(processItem);
+      if (processItem == processName) {
+        producesInCurrentProcess_ = true;
+      }
     }
 
     // Reserve memory in the vectors

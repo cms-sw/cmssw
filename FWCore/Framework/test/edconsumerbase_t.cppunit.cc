@@ -141,7 +141,7 @@ void TestEDConsumerBase::testRegularType() {
   helper.insert(typeIDSetInt, "labelC", "instanceC", "processC");          // 25, 26
   helper.insert(typeIDVSimpleDerived, "labelC", "instanceC", "processC");  // 27, 28, 29, 30
 
-  helper.setFrozen();
+  helper.setFrozen("processC");
 
   edm::TypeID typeID_vint(typeid(std::vector<int>));
   const auto vint_c = helper.index(edm::PRODUCT_TYPE, typeID_vint, "labelC", "instanceC", "processC");
@@ -341,7 +341,7 @@ void TestEDConsumerBase::testViewType() {
   helper.insert(typeIDSetInt, "labelC", "instanceC", "processC");          // 25, 26
   helper.insert(typeIDVSimpleDerived, "labelC", "instanceC", "processC");  // 27, 28, 29, 30
 
-  helper.setFrozen();
+  helper.setFrozen("processC");
 
   edm::TypeID typeID_int(typeid(int));
   edm::TypeID typeID_Simple(typeid(edmtest::Simple));
@@ -454,7 +454,7 @@ void TestEDConsumerBase::testMay() {
   helper.insert(typeIDSetInt, "labelC", "instanceC", "processC");          // 25, 26
   helper.insert(typeIDVSimpleDerived, "labelC", "instanceC", "processC");  // 27, 28, 29, 30
 
-  helper.setFrozen();
+  helper.setFrozen("processC");
   edm::TypeID typeID_vint(typeid(std::vector<int>));
   const auto vint_c = helper.index(edm::PRODUCT_TYPE, typeID_vint, "labelC", "instanceC", "processC");
   const auto vint_c_no_proc = helper.index(edm::PRODUCT_TYPE, typeID_vint, "labelC", "instanceC", 0);

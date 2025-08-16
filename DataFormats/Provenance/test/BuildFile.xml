@@ -8,8 +8,8 @@
   <use name="catch2"/>
 </bin>
 
-<bin name="testProductResolverIndexHelper" file="testRunner.cpp productResolverIndexHelper_t.cppunit.cc">
+<bin name="testProductResolverIndexHelper" file="productResolverIndexHelper_t.cpp">
   <use name="DataFormats/TestObjects"/>
-  <use name="cppunit"/>
+  <use name="catch2"/>
   <use name="DataFormats/Provenance"/>
 </bin>

@@ -60,6 +60,7 @@ ProductRegistry is frozen.
 #include <memory>
 #include <set>
 #include <string>
+#include <string_view>
 #include <vector>
 #include <tuple>
 #include <unordered_map>
@@ -195,9 +196,14 @@ namespace edm {
     // Before the object is frozen the accessors above will
     // fail to find a match. Once frozen, no more new entries
     // can be added with insert.
-    void setFrozen();
+    void setFrozen(std::string_view processName);
 
+    /**The list of process names for data products associated to the ProductResolvers.
+     * If no products are associated with a process for this transition, the process name will not be in this list.
+     */
     std::vector<std::string> const& lookupProcessNames() const;
+
+    bool producesInCurrentProcess() const { return producesInCurrentProcess_; }
 
     class Range {
     public:
@@ -345,6 +351,8 @@ namespace edm {
     edm::propagate_const<std::unique_ptr<std::set<Item>>> items_;
 
     edm::propagate_const<std::unique_ptr<std::set<std::string>>> processItems_;
+
+    bool producesInCurrentProcess_{false};
   };
 }  // namespace edm
 #endif
