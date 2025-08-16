@@ -153,6 +153,7 @@ if __name__ == '__main__':
         'muonmc' : [5.1, 124.4, 124.5, 20, 21, 22, 23, 25, 30], #MC
 
         'ph2_hlt' : [29634.75,    # HLT phase-2 timing menu
+                     29634.7501,  # HLT phase-2 tracking-only menu
                      29634.751,   # HLT phase-2 timing menu Alpaka variant
                      29634.752,   # HLT phase-2 timing menu ticl_v5 variant
                      29634.753,   # HLT phase-2 timing menu Alpaka, single tracking iteration variant

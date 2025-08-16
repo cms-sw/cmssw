@@ -16,6 +16,7 @@ autoHLT = {
   'relval2025'          : '2025v13',
   'relvalRun4'          : '75e33',
   'relvalRun4_timing'   : '75e33_timing',
+  'relvalRun4_trk'      : '75e33_trackingOnly',
   'relvalRun4_scouting' : 'NGTScouting',    
   'test'                : 'GRun',
 }

@@ -54,6 +54,7 @@ The offsets currently in use are:
 * 0.703: LST tracking (Phase-2 only), initialStep+HighPtTripletStep only, on CPU
 * 0.704: LST tracking (Phase-2 only), initialStep+HighPtTripletStep only, on GPU (if available)
 * 0.75: HLT phase-2 timing menu
+* 0.7501: HLT phase-2 tracking-only menu
 * 0.751: HLT phase-2 timing menu Alpaka variant
 * 0.752: HLT phase-2 timing menu ticl_v5 variant
 * 0.753: HLT phase-2 timing menu Alpaka, single tracking iteration variant
