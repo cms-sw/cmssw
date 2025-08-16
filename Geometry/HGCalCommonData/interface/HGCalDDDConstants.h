@@ -149,6 +149,7 @@ public:
   int numberCellsHexagon(int wafer) const;
   int numberCellsHexagon(int lay, int waferU, int waferV, bool flag) const;
   inline int partialWaferType(int lay, int waferU, int waferV) const {
+    // Works for zside = -1
     int indx = HGCalWaferIndex::waferIndex(lay, waferU, waferV);
     auto ktr = hgpar_->waferInfoMap_.find(indx);
     int part = (ktr != hgpar_->waferInfoMap_.end()) ? (ktr->second).part : HGCalTypes::WaferFull;
