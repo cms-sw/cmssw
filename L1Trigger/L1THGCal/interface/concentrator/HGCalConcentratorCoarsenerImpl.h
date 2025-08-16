@@ -23,7 +23,6 @@ private:
   HGCalTriggerTools triggerTools_;
   bool fixedDataSizePerHGCROC_;
   HGCalCoarseTriggerCellMapping coarseTCmapping_;
-  static constexpr int kHighDensityThickness_ = 0;
 
   HGCalTriggerCellCalibration calibration_;
   HGCalVFECompressionImpl vfeCompression_;

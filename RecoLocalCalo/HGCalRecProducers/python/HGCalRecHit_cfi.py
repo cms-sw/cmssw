@@ -3,6 +3,7 @@ from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import *
 from RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi import *
 
 from Configuration.Eras.Modifier_phase2_hgcalV16_cff import phase2_hgcalV16
+from Configuration.Eras.Modifier_phase2_hgcalV19_cff import phase2_hgcalV19
 
 # There is no layer zero, while no average is taken for the last layer
 dummy_weight = 0.0
@@ -212,3 +213,7 @@ phase2_hgcalV16.toModify(HGCalRecHit,
                          sciThicknessCorrection =  0.69,
                          layerWeights = dEdX_v16.weights) 
 
+phase2_hgcalV19.toModify(HGCalRecHit, 
+                         thicknessCorrection = [0.75, 0.76, 0.75, 0.76, 0.85, 0.85, 0.84, 0.85] , 
+                         sciThicknessCorrection =  0.69,
+                         layerWeights = dEdX_v16.weights) 
