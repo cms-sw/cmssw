@@ -11,7 +11,8 @@
   <version ClassVersion="11" checksum="3216100975"/>
   <version ClassVersion="10" checksum="747121728"/>
  </class>
- <class name="edm::SendJobHeader" ClassVersion="12">
+ <class name="edm::SendJobHeader" ClassVersion="13">
+  <version ClassVersion="13" checksum="2608260554"/>
   <version ClassVersion="12" checksum="3199648792"/>
   <version ClassVersion="11" checksum="79372782"/>
   <version ClassVersion="10" checksum="1238072397"/>

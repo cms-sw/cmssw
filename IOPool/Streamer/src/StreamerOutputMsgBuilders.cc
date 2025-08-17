@@ -35,10 +35,11 @@ namespace edm::streamer {
 
   StreamerOutputMsgBuilders::StreamerOutputMsgBuilders(Parameters const& p,
                                                        SelectedProducts const* selections,
+                                                       std::vector<std::string> const* orderedProcessNames,
                                                        std::string const& moduleLabel)
       :
 
-        serializer_(selections),
+        serializer_(selections, orderedProcessNames),
         useCompression_(p.useCompression),
         compressionAlgoStr_(p.compressionAlgoStr),
         compressionLevel_(p.compressionLevel),

@@ -62,7 +62,7 @@ namespace edm::streamer {
 
     if (subsequent) {
       ProductRegistry pReg;
-      pReg.updateFromInput(descs);
+      pReg.updateFromInput(descs, header.orderedProcessNames());
       std::string mergeInfo = reg.merge(pReg, std::string(), ProductDescription::Permissive);
       if (!mergeInfo.empty()) {
         throw cms::Exception("MismatchedInput", "StreamerInputSource::mergeIntoRegistry") << mergeInfo;
@@ -72,7 +72,7 @@ namespace edm::streamer {
       buildClassCache(descs);
       loadExtraClasses();
       if (!reg.frozen()) {
-        reg.updateFromInput(descs);
+        reg.updateFromInput(descs, header.orderedProcessNames());
       }
     }
   }

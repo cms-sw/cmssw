@@ -73,7 +73,7 @@ namespace edm::streamer {
 
   class StreamSerializer {
   public:
-    StreamSerializer(SelectedProducts const *selections);
+    explicit StreamSerializer(SelectedProducts const *selections, std::vector<std::string> const *orderedProcessNames);
 
     int serializeRegistry(SerializeDataBuffer &data_buffer) const;
 
@@ -128,6 +128,7 @@ namespace edm::streamer {
                              unsigned int reserveSize) const;
 
     SelectedProducts const *selections_;
+    std::vector<std::string> const *orderedProcessNames_;
     edm::propagate_const<TClass *> tc_;
   };
 

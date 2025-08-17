@@ -28,12 +28,14 @@ namespace edm {
 
       explicit StreamerOutputModuleCommon(Parameters const& p,
                                           SelectedProducts const* selections,
+                                          std::vector<std::string> const* orderedProcessNames,
                                           std::string const& moduleLabel);
 
       explicit StreamerOutputModuleCommon(ParameterSet const& ps,
                                           SelectedProducts const* selections,
+                                          std::vector<std::string> const* orderedProcessNames,
                                           std::string const& moduleLabel)
-          : StreamerOutputModuleCommon(parameters(ps), selections, moduleLabel) {}
+          : StreamerOutputModuleCommon(parameters(ps), selections, orderedProcessNames, moduleLabel) {}
 
       ~StreamerOutputModuleCommon();
       static void fillDescription(ParameterSetDescription& desc);

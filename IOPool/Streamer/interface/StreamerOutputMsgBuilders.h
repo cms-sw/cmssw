@@ -34,6 +34,7 @@ namespace edm {
 
       explicit StreamerOutputMsgBuilders(Parameters const& p,
                                          SelectedProducts const* selections,
+                                         std::vector<std::string> const* orderedProcessNames,
                                          std::string const& moduleLabel);
 
       ~StreamerOutputMsgBuilders();

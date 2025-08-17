@@ -123,13 +123,16 @@ namespace edm {
     SendJobHeader() {}
     SendDescs const& descs() const { return descs_; }
     ParameterSetMap const& processParameterSet() const { return processParameterSet_; }
+    std::vector<std::string> const& orderedProcessNames() const { return processNames_; }
     void push_back(ProductDescription const& bd) { descs_.push_back(bd); }
     void setParameterSetMap(ParameterSetMap const& psetMap) { processParameterSet_ = psetMap; }
+    void setOrderedProcessNames(std::vector<std::string> const& processNames) { processNames_ = processNames; }
     void initializeTransients();
 
   private:
     SendDescs descs_;
     ParameterSetMap processParameterSet_;
+    std::vector<std::string> processNames_;
   };
 
 }  // namespace edm

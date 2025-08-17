@@ -29,8 +29,9 @@ namespace edm::streamer {
 
   StreamerOutputModuleCommon::StreamerOutputModuleCommon(Parameters const& p,
                                                          SelectedProducts const* selections,
+                                                         std::vector<std::string> const* orderedProcessNames,
                                                          std::string const& moduleLabel)
-      : builders_(p, selections, moduleLabel) {}
+      : builders_(p, selections, orderedProcessNames, moduleLabel) {}
 
   StreamerOutputModuleCommon::~StreamerOutputModuleCommon() {}
 

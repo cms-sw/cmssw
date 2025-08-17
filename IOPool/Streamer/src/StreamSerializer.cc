@@ -34,8 +34,9 @@ namespace edm::streamer {
   /**
    * Creates a translator instance for the specified product registry.
    */
-  StreamSerializer::StreamSerializer(SelectedProducts const *selections)
-      : selections_(selections), tc_(getTClass(typeid(SendEvent))) {}
+  StreamSerializer::StreamSerializer(SelectedProducts const *selections,
+                                     std::vector<std::string> const *orderedProcessNames)
+      : selections_(selections), orderedProcessNames_(orderedProcessNames), tc_(getTClass(typeid(SendEvent))) {}
 
   /**
    * Serializes the product registry (that was specified to the constructor)
@@ -59,6 +60,7 @@ namespace edm::streamer {
       FDEBUG(9) << "StreamOutput got product = " << selection.first->className() << std::endl;
     }
     sd.setParameterSetMap(psetMap);
+    sd.setOrderedProcessNames(*orderedProcessNames_);
 
     data_buffer.rootbuf_.Reset();
 
