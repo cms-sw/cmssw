@@ -100,7 +100,8 @@ namespace edm {
                                             ));
       branches.back().setOnDemand(true);  //says we use delayed reader
     }
-    productRegistryUpdate().updateFromInput(branches);
+    std::vector<std::string> processOrder = {"INPUTTEST"};
+    productRegistryUpdate().updateFromInput(branches, processOrder);
 
     ProcessHistory ph;
     ph.emplace_back("INPUTTEST", dummy.id(), PROJECT_VERSION, HardwareResourcesDescription());
