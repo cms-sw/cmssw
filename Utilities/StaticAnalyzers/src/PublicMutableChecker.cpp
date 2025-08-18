@@ -13,7 +13,7 @@ namespace clangcms {
     if (D->hasAttr<clang::CMSThreadGuardAttr>() || D->hasAttr<clang::CMSThreadSafeAttr>() ||
         D->hasAttr<clang::CMSSaAllowAttr>())
       return;
-    if (D->isMutable() && D->getDeclContext()->isRecord() && D->getAccess() != clang::AS_private) {
+    if (D->isMutable() && D->getDeclContext()->isRecord() && D->getAccess() == clang::AS_public) {
       clang::QualType t = D->getType();
       clang::ento::PathDiagnosticLocation DLoc = clang::ento::PathDiagnosticLocation::create(D, BR.getSourceManager());
 
