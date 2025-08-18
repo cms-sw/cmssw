@@ -14,6 +14,7 @@
 #include "FWCore/ServiceRegistry/interface/CurrentModuleOnThread.h"
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
+#include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 #include "FWCore/Concurrency/interface/FunctorTask.h"
@@ -980,8 +981,10 @@ namespace edm {
       skippingWaitingTasks_.add(waitTask);
       bool expected = false;
       if (skippingPrefetchRequested_.compare_exchange_strong(expected, true)) {
+        bool producesInCurrentProcess = principal.productLookup().producesInCurrentProcess() and skipCurrentProcess;
+        auto startIndex = producesInCurrentProcess ? 1U : 0U;
         //we are the first thread to request
-        tryPrefetchResolverAsync(0, principal, true, sra, mcc, token, waitTask.group());
+        tryPrefetchResolverAsync(startIndex, principal, true, sra, mcc, token, waitTask.group());
       }
     }
   }
@@ -1190,6 +1193,9 @@ namespace edm {
       bool skipCurrentProcess,
       SharedResourcesAcquirer* sra,
       ModuleCallingContext const* mcc) const {
+    //In future changes this class will be removed. Although the class is still being instantiated, it should never be called.
+    // For now the assert is here to catch any missed cases.
+    assert(false);
     //NOTE: Have to lookup the other ProductResolver each time rather than cache
     // it's pointer since it appears the pointer can change at some later stage
     return principal.getProductResolverByIndex(realResolverIndex_)
@@ -1202,6 +1208,9 @@ namespace edm {
                                                             ServiceToken const& token,
                                                             SharedResourcesAcquirer* sra,
                                                             ModuleCallingContext const* mcc) const noexcept {
+    //In future changes this class will be removed. Although the class is still being instantiated, it should never be called.
+    // For now the assert is here to catch any missed cases.
+    assert(false);
     principal.getProductResolverByIndex(realResolverIndex_)
         ->prefetchAsync(waitTask, principal, skipCurrentProcess, token, sra, mcc);
   }
