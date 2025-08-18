@@ -101,7 +101,7 @@ CTPPSGregPlotter::CTPPSGregPlotter(const edm::ParameterSet &ps):
     outputFile_(ps.getParameter<std::string>("outputFile")),
     outputFileRoot_(new TFile(outputFile_.c_str(), "recreate")), 
     h_example (new TH2D("Example Histogram", "Prototype", 350, -0.05, 0.3, 500, -0.5, 4.5)),
-    h_theta (new TH1D("Theta Degrees", "Theta", 100, -0.0003, 0.0003)),
+    h_theta (new TH1D("Theta", "Theta", 100, -0.0003, 0.0003)),
     h_phi (new TH1D("Phi", "Phi", 250, -5., 5.)),
     h_energy (new TH1D("Energy", "Energy", 1800, 4800., 6600.)),
     h_pt (new TH1D("Pt", "Pt", 250, -0.5, 2.)),
