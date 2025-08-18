@@ -108,6 +108,8 @@ namespace edm {
 
   void InputTag::cacheToken(EDGetToken token) const { token_.store(token); }
 
+  bool InputTag::isUninitialized() const { return label_.empty(); }
+
   std::ostream& operator<<(std::ostream& ost, InputTag const& tag) {
     static std::string const process(", process = ");
     ost << "InputTag:  label = " << tag.label() << ", instance = " << tag.instance()
