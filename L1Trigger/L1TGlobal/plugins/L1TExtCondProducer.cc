@@ -96,7 +96,7 @@ L1TExtCondProducer::L1TExtCondProducer(const ParameterSet& iConfig)
 
   tcdsRecordToken_ = consumes<TCDSRecord>(tcdsInputTag_);
   // Note that the tcdsRecord input tag should be used as InputTag("unpackTcds","tcdsRecord") only for data
-  if (!(tcdsInputTag_ == edm::InputTag(""))) {
+  if (!tcdsInputTag_.isUninitialized()) {
     makeTriggerRulePrefireVetoBit_ = true;
   }
 
