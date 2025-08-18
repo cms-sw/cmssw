@@ -476,7 +476,7 @@ namespace evf {
 
   void GlobalEvFOutputModule::beginJob() {
     msgBuilders_ = std::make_unique<StreamerOutputMsgBuilders>(
-        commonParameters_, &keptProducts()[edm::InEvent], description().moduleLabel());
+        commonParameters_, &keptProducts()[edm::InEvent], &orderedProcessNames(), description().moduleLabel());
 
     cacheEventMetaData();
   }
