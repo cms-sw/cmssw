@@ -76,8 +76,8 @@ namespace edm {
     }
     ProductRegistry::ProductList& productListUpdator() { return registry_.productListUpdator(); }
 
-    void setCurrentProcess(std::string processOrder) {
-      registry_.setProcessOrder(std::vector<std::string>(1, std::move(processOrder)));
+    void setCurrentProcess(std::string const& processOrder) {
+      registry_.setProcessOrder(std::vector<std::string>(1, processOrder));
     }
 
     template <class T>
