@@ -13,8 +13,11 @@ public:
   std::vector<uint32_t> getConstituentTriggerCells(uint32_t ctcId) const;
   GlobalPoint getCoarseTriggerCellPosition(uint32_t ctcId) const;
   uint32_t getCoarseTriggerCellId(uint32_t detid) const;
-  void checkSizeValidity(int ctcSize) const;
-  void setGeometry(const HGCalTriggerGeometryBase* const geom) { triggerTools_.setGeometry(geom); }
+  void checkSizeValidity() const;
+  void setGeometry(const HGCalTriggerGeometryBase* const geom) {
+    triggerTools_.setGeometry(geom);
+    checkSizeValidity();
+  }
 
   static constexpr int kCTCsizeCoarse_ = 16;
   static constexpr int kCTCsizeMid_ = 8;
@@ -26,7 +29,6 @@ private:
   static const std::map<int, int> kSplit_;
   static const std::map<int, int> kSplit_Scin_;
   static constexpr int kSTCidMaskInv_ = ~0xf;
-  static constexpr int kNThicknesses_ = 4;
   static constexpr int kNHGCalLayersMax_ = 52;
 
   static constexpr int kSplit_Coarse_ = 0;

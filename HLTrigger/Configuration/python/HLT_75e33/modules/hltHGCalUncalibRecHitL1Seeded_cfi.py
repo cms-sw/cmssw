@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from ..psets.hgcal_reco_constants_cfi import HGCAL_reco_constants as HGCAL_reco_constants
+from Configuration.Eras.Modifier_phase2_hgcalV19_cff import phase2_hgcalV19
 
 hltHGCalUncalibRecHitL1Seeded = cms.EDProducer("HGCalUncalibRecHitProducer",
     HGCEEConfig = cms.PSet(
@@ -60,3 +61,20 @@ hltHGCalUncalibRecHitL1Seeded = cms.EDProducer("HGCalUncalibRecHitProducer",
 
 from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
 ticl_v5.toModify(hltHGCalUncalibRecHitL1Seeded, computeLocalTime = cms.bool(True))
+
+_modifiedHGCEEConfig_v19 = hltHGCalUncalibRecHitL1Seeded.HGCEEConfig.clone(
+    fCPerMIP = HGCAL_reco_constants.fcPerMip[0:4]
+)
+_modifiedHGCHEFConfig_v19 = hltHGCalUncalibRecHitL1Seeded.HGCHEFConfig.clone(
+    fCPerMIP = HGCAL_reco_constants.fcPerMip[4:8]
+)
+_modifiedHGCHFNoseConfig_v19 = hltHGCalUncalibRecHitL1Seeded.HGCHFNoseConfig.clone(
+    fCPerMIP = [1.25, 2.57, 3.88, 2.57]
+)
+
+phase2_hgcalV19.toModify(
+    hltHGCalUncalibRecHitL1Seeded,
+    HGCEEConfig = _modifiedHGCEEConfig_v19,
+    HGCHEFConfig = _modifiedHGCHEFConfig_v19,
+    HGCHFNoseConfig = _modifiedHGCHFNoseConfig_v19
+)
