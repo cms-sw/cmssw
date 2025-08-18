@@ -1,6 +1,3 @@
-/*
- *  productResolverIndexHelper_t.cppunit.cc
- */
 #define CATCH_CONFIG_MAIN
 #include <catch.hpp>
 
@@ -73,7 +70,7 @@ TEST_CASE("ProductResolverIndexHelper", "[ProductResolverIndexHelper]") {
     REQUIRE(indexWithProcess < 2);
     REQUIRE(indexEmptyProcess != indexWithProcess);
 
-    //wit only one entry, all should resolve to the one with process name
+    //with only one entry, all should resolve to the one with process name
     REQUIRE(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA") == indexWithProcess);
     REQUIRE(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", "") == indexWithProcess);
     REQUIRE(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", 0) == indexWithProcess);

@@ -1069,7 +1069,6 @@ namespace edm {
     return false;
   }
 
-  //CDJ this is the function to change
   void NoProcessProductResolver::tryPrefetchResolverAsync(unsigned int iProcessingIndex,
                                                           Principal const& principal,
                                                           bool skipCurrentProcess,
@@ -1194,6 +1193,8 @@ namespace edm {
       bool skipCurrentProcess,
       SharedResourcesAcquirer* sra,
       ModuleCallingContext const* mcc) const {
+    //In future changes this class will be removed. Although the class is still being instantiated, it should never be called.
+    // For now the assert is here to catch any missed cases.
     assert(false);
     //NOTE: Have to lookup the other ProductResolver each time rather than cache
     // it's pointer since it appears the pointer can change at some later stage
@@ -1207,6 +1208,8 @@ namespace edm {
                                                             ServiceToken const& token,
                                                             SharedResourcesAcquirer* sra,
                                                             ModuleCallingContext const* mcc) const noexcept {
+    //In future changes this class will be removed. Although the class is still being instantiated, it should never be called.
+    // For now the assert is here to catch any missed cases.
     assert(false);
     principal.getProductResolverByIndex(realResolverIndex_)
         ->prefetchAsync(waitTask, principal, skipCurrentProcess, token, sra, mcc);
