@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_phase2_hgcalV19_cff import phase2_hgcalV19
 
 hgchefrontDigitizer = cms.PSet(
     NoiseGeneration_Method = cms.bool(True),
@@ -63,3 +64,5 @@ hgchefrontDigitizer = cms.PSet(
     useAllChannels = cms.bool(True),
     verbosity = cms.untracked.uint32(0)
 )
+
+phase2_hgcalV19.toModify(hgchefrontDigitizer.digiCfg.feCfg, tdcForToAOnset_fC = [12.,12.,12.,12.])
