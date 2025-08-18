@@ -125,7 +125,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     }
 
     void fillBuffer(const std::vector<const FEDRawData*>& raw) {
-      for (uint16_t fedId = sistrip::FED_ID_MIN; fedId < (sistrip::FED_ID_MAX + 1); fedId++) {
+      for (uint16_t fedId = sistrip::FED_ID_MIN; fedId <= sistrip::FED_ID_MAX; ++fedId) {
         if (raw[fedId]) {
           std::memcpy(buffer.data() + ofs, raw[fedId]->data(), raw[fedId]->size());
           ofsFedId[fedId] = ofs;
