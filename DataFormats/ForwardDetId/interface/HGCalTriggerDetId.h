@@ -26,6 +26,7 @@
 
 class HGCalTriggerDetId : public DetId {
 public:
+  enum waferType { HGCalHD120 = 0, HGCalLD200 = 1, HGCalLD300 = 2, HGCalHD200 = 3 };
   static const int HGCalTriggerCell = 4;
 
   /** Create a null cellid*/
@@ -46,6 +47,8 @@ public:
 
   /// get the type
   int type() const { return (id_ >> kHGCalTypeOffset) & kHGCalTypeMask; }
+  bool lowDensity() const { return ((type() == HGCalLD200) || (type() == HGCalLD300)); }
+  bool highDensity() const { return ((type() == HGCalHD120) || (type() == HGCalHD200)); }
 
   /// get the z-side of the cell (1/-1)
   int zside() const { return (((id_ >> kHGCalZsideOffset) & kHGCalZsideMask) ? -1 : 1); }

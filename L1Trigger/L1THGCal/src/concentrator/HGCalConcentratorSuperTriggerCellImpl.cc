@@ -48,10 +48,10 @@ void HGCalConcentratorSuperTriggerCellImpl::createAllTriggerCells(
       continue;
 
     HGCalTriggerTools::SubDetectorType subdet = triggerTools_.getSubDetectorType(output_ids.at(0));
-    int thickness = (!output_ids.empty() ? triggerTools_.thicknessIndex(output_ids.at(0)) : 0);
+    bool isHighDensity = (!output_ids.empty() ? triggerTools_.isSiliconHighDensity(output_ids.at(0)) : false);
 
     for (const auto& id : output_ids) {
-      if (((fixedDataSizePerHGCROC_ && thickness > kHighDensityThickness_) || coarsenTriggerCells_[subdet]) &&
+      if (((fixedDataSizePerHGCROC_ && !isHighDensity) || coarsenTriggerCells_[subdet]) &&
           (id != coarseTCmapping_.getRepresentativeDetId(id))) {
         continue;
       }
@@ -95,14 +95,14 @@ void HGCalConcentratorSuperTriggerCellImpl::assignSuperTriggerCellEnergyAndPosit
   uint32_t compressed_value = getCompressedSTCEnergy(stc);
 
   HGCalTriggerTools::SubDetectorType subdet = triggerTools_.getSubDetectorType(c.detId());
-  int thickness = triggerTools_.thicknessIndex(c.detId());
+  bool isHighDensity = triggerTools_.isSiliconHighDensity(c.detId());
 
   bool isSilicon = triggerTools_.isSilicon(c.detId());
   bool isEM = triggerTools_.isEm(c.detId());
   bool isNose = triggerTools_.isNose(c.detId());
 
   GlobalPoint point;
-  if ((fixedDataSizePerHGCROC_ && thickness > kHighDensityThickness_) || coarsenTriggerCells_[subdet]) {
+  if ((fixedDataSizePerHGCROC_ && !isHighDensity) || coarsenTriggerCells_[subdet]) {
     point = coarseTCmapping_.getCoarseTriggerCellPosition(coarseTCmapping_.getCoarseTriggerCellId(c.detId()));
   } else {
     point = triggerTools_.getTCPosition(c.detId());
