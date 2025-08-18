@@ -1,6 +1,3 @@
-// Implement and access Proton objects from cmssw/SimPPS/DirectSimProducer/plugins/PPSDirectProtonSimulation.cc
-// Extract simple data like momentum from hepmc_prod
-
 /****************************************************************************
 * Authors:
 *  Greg, based on Jan Kašpar
@@ -41,6 +38,7 @@
 #include "TGraphErrors.h"
 #include "TH1D.h"
 #include "TH2D.h"
+#include "TH3D.h"
 #include "TProfile.h"
 
 
@@ -61,12 +59,17 @@ private:
     edm::EDGetTokenT<CTPPSLocalTrackLiteCollection> tokenTracks_;
 
     std::string outputFile_;
-    std::unique_ptr<TH1D> h_example;
+    std::unique_ptr<TFile> outputFileRoot_;
+    std::unique_ptr<TH2D> h_example;
     std::unique_ptr<TH1D> h_theta;
     std::unique_ptr<TH1D> h_phi;
     std::unique_ptr<TH1D> h_energy;
     std::unique_ptr<TH1D> h_pt;
     std::unique_ptr<TH1D> h_xi;
+    std::unique_ptr<TH3D> h_ptXiPhi;
+    std::unique_ptr<TH3D> h_thetaXiPhi;
+    
+
 
 
     edm::EDGetTokenT<edm::HepMCProduct> hepMCToken_; //Protons
@@ -96,12 +99,15 @@ void CTPPSGregPlotter::fillDescriptions(edm::ConfigurationDescriptions &descript
 CTPPSGregPlotter::CTPPSGregPlotter(const edm::ParameterSet &ps):
     tokenTracks_(consumes<CTPPSLocalTrackLiteCollection>(ps.getParameter<edm::InputTag>("tagTracks"))),
     outputFile_(ps.getParameter<std::string>("outputFile")),
-    h_example (new TH1D("Example Histogram", "Energy", 2001, 3000., 7000.)),
-    h_theta (new TH1D("Theta Degrees", "Theta", 1000, -0.025, 0.025)),
-    h_phi (new TH1D("Phi", "Phi", 1000, -5., 5.)),
+    outputFileRoot_(new TFile(outputFile_.c_str(), "recreate")), 
+    h_example (new TH2D("Example Histogram", "Prototype", 350, -0.05, 0.3, 500, -0.5, 4.5)),
+    h_theta (new TH1D("Theta Degrees", "Theta", 100, -0.0003, 0.0003)),
+    h_phi (new TH1D("Phi", "Phi", 250, -5., 5.)),
     h_energy (new TH1D("Energy", "Energy", 1800, 4800., 6600.)),
-    h_pt (new TH1D("Pt", "Pt", 1000, -0.5, 4.5)),
-    h_xi (new TH1D("Xi", "Xi", 350, -0.05, 0.3)),
+    h_pt (new TH1D("Pt", "Pt", 250, -0.5, 2.)),
+    h_xi (new TH1D("Xi", "Xi", 175, -0.05, 0.3)),
+    h_ptXiPhi(new TH3D("Xi_Pt_Phi", "Pt vs Xi in different Phi", 175, -0.05, 0.3, 250, -0.5, 2., 250, -5., 5.)),
+    h_thetaXiPhi(new TH3D("Xi_Theta_Phi", "Theta vs Xi in different Phi", 175, -0.05, 0.3, 100, -0.0003, 0.0003, 250, -5., 5.)),
     hepMCToken_(consumes<edm::HepMCProduct>(ps.getParameter<edm::InputTag>("hepMCTag"))), //Protons
     tokenBeamParameters_(esConsumes())
 
@@ -150,11 +156,11 @@ void CTPPSGregPlotter::analyze(const edm::Event &event, const edm::EventSetup &i
           if(part->pdg_id() != 2212) std::cout << "it exists" << std::endl;
 
         }
-        h_example->Fill(momentum.e());
+        h_example->Fill(1.- momentum.rho()/ beamParameters.getBeamMom56(), momentum.perp());
         // Theta Transformation
         double theta_deg = 200;
-        theta_deg = momentum.theta() / M_PI * 180;
-        if (theta_deg > 90) theta_deg -= 180; 
+        theta_deg = momentum.theta(); /// M_PI * 180;
+        if (theta_deg > M_PI/2) theta_deg -= M_PI; 
 
         if (theta_deg != 200) h_theta->Fill(theta_deg);
 
@@ -166,6 +172,8 @@ void CTPPSGregPlotter::analyze(const edm::Event &event, const edm::EventSetup &i
         h_pt->Fill(momentum.perp());
         //from PPSDirectProtonSimulation.cc
         h_xi->Fill(1.- momentum.rho()/ beamParameters.getBeamMom56());
+        h_ptXiPhi->Fill(1.- momentum.rho()/ beamParameters.getBeamMom56(), momentum.perp(), momentum.phi());
+        h_thetaXiPhi->Fill(1.- momentum.rho()/ beamParameters.getBeamMom56(), theta_deg, momentum.phi());
       }
 
 
@@ -187,7 +195,8 @@ void CTPPSGregPlotter::analyze(const edm::Event &event, const edm::EventSetup &i
 
 void CTPPSGregPlotter::endJob() {
 
-  auto f_out = std::make_unique<TFile>(outputFile_.c_str(), "recreate");
+  // auto f_out = std::make_unique<TFile>(outputFile_.c_str(), "recreate");
+  outputFileRoot_->cd();
 
   h_example->Write();
   h_theta->Write();
@@ -195,7 +204,10 @@ void CTPPSGregPlotter::endJob() {
   h_energy->Write();
   h_pt->Write();
   h_xi->Write();
+  h_ptXiPhi->Write();
+  h_thetaXiPhi->Write();
 
+  outputFileRoot_->Close();
   std::cout << "GregPlotter worked" 
             << std::endl;
 
