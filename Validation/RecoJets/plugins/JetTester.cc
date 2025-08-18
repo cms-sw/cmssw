@@ -193,24 +193,25 @@ JetTester::JetTester(const edm::ParameterSet& iConfig)
   HFEMEnergy = nullptr;
   /// HFEMEnergyFraction (relative to corrected jet energy)
   HFEMEnergyFraction = nullptr;
-  /// chargedHadronMultiplicity
+
   chargedHadronMultiplicity = nullptr;
-  /// neutralHadronMultiplicity
   neutralHadronMultiplicity = nullptr;
-  /// photonMultiplicity
   photonMultiplicity = nullptr;
-  /// electronMultiplicity
   electronMultiplicity = nullptr;
-  /// HFHadronMultiplicity
   HFHadronMultiplicity = nullptr;
-  /// HFEMMultiplicity
   HFEMMultiplicity = nullptr;
-  /// chargedMuEnergy
   chargedMuEnergy = nullptr;
-  /// chargedMuEnergyFraction
   chargedMuEnergyFraction = nullptr;
-  /// neutralMultiplicity
   neutralMultiplicity = nullptr;
+
+  for (size_t j = 0; j < etaInfo.size(); ++j) {
+    photonMultiplicity_EtaBins[j] = nullptr;
+    electronMultiplicity_EtaBins[j] = nullptr;
+    neutralHadronMultiplicity_EtaBins[j] = nullptr;
+    neutralMultiplicity_EtaBins[j] = nullptr;
+    chargedHadronMultiplicity_EtaBins[j] = nullptr;
+    chargedMultiplicity_EtaBins[j] = nullptr;
+  }
 
   /// HOEnergy
   HOEnergy = nullptr;
@@ -910,8 +911,8 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
     HFEMEnergyFraction = ibooker.book1D("HFEmEnergyFraction", "HFEmEnergyFraction", 50, 0, 1);
     chargedHadronMultiplicity = ibooker.book1D("chargedHadronMultiplicity", "chargedHadronMultiplicity", 50, 0, 50);
     neutralHadronMultiplicity = ibooker.book1D("neutralHadronMultiplicity", "neutralHadronMultiplicity", 50, 0, 50);
-    photonMultiplicity = ibooker.book1D("photonMultiplicity", "photonMultiplicity", 10, 0, 10);
-    electronMultiplicity = ibooker.book1D("electronMultiplicity", "electronMultiplicity", 10, 0, 10);
+    photonMultiplicity = ibooker.book1D("photonMultiplicity", "photonMultiplicity", 15, 0, 15);
+    electronMultiplicity = ibooker.book1D("electronMultiplicity", "electronMultiplicity", 15, 0, 15);
     HFHadronMultiplicity = ibooker.book1D("HFHadronMultiplicity", "HFHadronMultiplicity", 50, 0, 50);
     HFEMMultiplicity = ibooker.book1D("HFEMMultiplicity", "HFEMMultiplicity", 50, 0, 50);
     chargedMuEnergy = ibooker.book1D("chargedMuEnergy", "chargedMuEnergy", 50, 0, 500);
@@ -919,6 +920,34 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
     neutralMultiplicity = ibooker.book1D("neutralMultiplicity", "neutralMultiplicity", 50, 0, 50);
     HOEnergy = ibooker.book1D("HOEnergy", "HOEnergy", 50, 0, 500);
     HOEnergyFraction = ibooker.book1D("HOEnergyFraction", "HOEnergyFraction", 50, 0, 1);
+
+    for (size_t j = 0; j < etaInfo.size(); ++j) {
+      const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
+      photonMultiplicity_EtaBins[j] = ibooker.book1D(
+          fmt::format("photonMultiplicity_{}", etaRegion), fmt::format("photonMultiplicity_{}", etaRegion), 15, 0, 15);
+      electronMultiplicity_EtaBins[j] = ibooker.book1D(fmt::format("electronMultiplicity_{}", etaRegion),
+                                                       fmt::format("electronMultiplicity_{}", etaRegion),
+                                                       15,
+                                                       0,
+                                                       15);
+      neutralHadronMultiplicity_EtaBins[j] = ibooker.book1D(fmt::format("neutralHadronMultiplicity_{}", etaRegion),
+                                                            fmt::format("neutralHadronMultiplicity_{}", etaRegion),
+                                                            50,
+                                                            0,
+                                                            50);
+      neutralMultiplicity_EtaBins[j] = ibooker.book1D(
+          fmt::format("neutralMultiplicity_{}", etaRegion), fmt::format("neutralMultiplicity_{}", etaRegion), 50, 0, 50);
+      chargedHadronMultiplicity_EtaBins[j] = ibooker.book1D(fmt::format("chargedHadronMultiplicity_{}", etaRegion),
+                                                            fmt::format("chargedHadronMultiplicity_{}", etaRegion),
+                                                            50,
+                                                            0,
+                                                            50);
+      chargedMultiplicity_EtaBins[j] = ibooker.book1D(fmt::format("chargedMultiplicity_{}", etaRegion),
+                                                      fmt::format("chargedMultiplicity_{}", etaRegion),
+                                                      100,
+                                                      0,
+                                                      100);
+    }
   }
 }
 
@@ -1153,6 +1182,13 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
       for (size_t j = 0; j < etaInfo.size(); ++j) {
         const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
         if (mInEtaBin(recoJets[ijet], etaMin, etaMax)) {
+          photonMultiplicity_EtaBins[j]->Fill((*pfJets)[ijet].photonMultiplicity());
+          electronMultiplicity_EtaBins[j]->Fill((*pfJets)[ijet].electronMultiplicity());
+          neutralHadronMultiplicity_EtaBins[j]->Fill((*pfJets)[ijet].neutralHadronMultiplicity());
+          neutralMultiplicity_EtaBins[j]->Fill((*pfJets)[ijet].neutralMultiplicity());
+          chargedHadronMultiplicity_EtaBins[j]->Fill((*pfJets)[ijet].chargedHadronMultiplicity());
+          chargedMultiplicity_EtaBins[j]->Fill((*pfJets)[ijet].chargedMultiplicity());
+
           h2d_chHad_vs_pt[j]->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].chargedHadronEnergyFraction());
           h2d_neHad_vs_pt[j]->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].neutralHadronEnergyFraction());
           h2d_chEm_vs_pt[j]->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].chargedEmEnergyFraction());
@@ -1341,14 +1377,14 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
           h2d_JetPtCorrOverReco_vs_Phi_EtaBins[j]->Fill(corrJets[ijet].phi(), ratio);
           h2d_JetPtCorrOverReco_vs_Pt_EtaBins[j]->Fill(corrJets[ijet].pt(), ratio);
           for (int i = 0; i < ptSize; ++i) {
-            if ((recoJets[ijet].pt() > ptBins_[i]) && (recoJets[ijet].pt() < ptBins_[i + 1]))
+            if ((recoJets[ijet].pt() > ptBins_[i]) && (recoJets[ijet].pt() <= ptBins_[i + 1]))
               hVector_JetPtCorrOverReco_ptBins[j][i]->Fill(ratio);
           }
         }
       }
 
       for (int i = 0; i < ptSize; ++i) {
-        if ((recoJets[ijet].pt() > ptBins_[i]) && (recoJets[ijet].pt() < ptBins_[i + 1])) {
+        if ((recoJets[ijet].pt() > ptBins_[i]) && (recoJets[ijet].pt() <= ptBins_[i + 1])) {
           h2d_JetPtCorrOverReco_vs_Eta_ptBins[i]->Fill(corrJets[ijet].eta(), ratio);
         }
       }
@@ -1488,7 +1524,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
               h2d_JetPtRecoOverGen_vs_nCost[j]->Fill(recoJets[iMatchReco].nConstituents(), response);
             }
             for (int i = 0; i < ptSize; ++i) {
-              if ((genJets[gjet].pt() > ptBins_[i]) && (genJets[gjet].pt() < ptBins_[i + 1])) {
+              if ((genJets[gjet].pt() > ptBins_[i]) && (genJets[gjet].pt() <= ptBins_[i + 1])) {
                 hVector_JetPtRecoOverGen_ptBins[j][i]->Fill(response);
               }
             }
@@ -1496,7 +1532,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
         }
 
         for (int i = 0; i < ptSize; ++i) {
-          if ((genJets[gjet].pt() > ptBins_[i]) && (genJets[gjet].pt() < ptBins_[i + 1])) {
+          if ((genJets[gjet].pt() > ptBins_[i]) && (genJets[gjet].pt() <= ptBins_[i + 1])) {
             h2d_JetPtRecoOverGen_vs_GenEta_ptBins[i]->Fill(genJets[gjet].eta(), response);
           }
         }
@@ -1523,14 +1559,14 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
               h2d_JetPtCorrOverGen_vs_GenPt_EtaBins[j]->Fill(genJets[gjet].pt(), responseCorr);
               h2d_JetPtCorrOverGen_vs_GenPhi_EtaBins[j]->Fill(genJets[gjet].phi(), responseCorr);
               for (int i = 0; i < ptSize; ++i) {
-                if ((genJets[gjet].pt() > ptBins_[i]) && (genJets[gjet].pt() < ptBins_[i + 1]))
+                if ((genJets[gjet].pt() > ptBins_[i]) && (genJets[gjet].pt() <= ptBins_[i + 1]))
                   hVector_JetPtCorrOverGen_ptBins[j][i]->Fill(responseCorr);
               }
             }
           }
 
           for (int i = 0; i < ptSize; ++i) {
-            if ((genJets[gjet].pt() > ptBins_[i]) && (genJets[gjet].pt() < ptBins_[i + 1])) {
+            if ((genJets[gjet].pt() > ptBins_[i]) && (genJets[gjet].pt() <= ptBins_[i + 1])) {
               h2d_JetPtCorrOverGen_vs_GenEta_ptBins[i]->Fill(genJets[gjet].eta(), responseCorr);
             }
           }

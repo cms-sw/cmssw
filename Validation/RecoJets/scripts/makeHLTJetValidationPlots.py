@@ -139,11 +139,11 @@ class HLabels:
     @staticmethod
     def fraction_label(labtype):
         return {
-            'neHad': 'Neutral Hadron Energy Fraction',
-            'chEm':  'Charged EM Energy Fraction',
-            'chHad': 'Charged Hadron Energy Fraction',
-            'neEm':  'Neutral EM Energy Fraction',
-            'nCost': '# Jet Constituents',
+            'neHad':  'Neutral Hadron Energy Fraction',
+            'chEm':   'Charged EM Energy Fraction',
+            'chHad':  'Charged Hadron Energy Fraction',
+            'neEm':   'Neutral EM Energy Fraction',
+            'nConst': '# Jet Constituents',
         }[labtype]
 
     @staticmethod
@@ -284,10 +284,9 @@ if __name__ == '__main__':
 
     fontsize = 16       
 
-    ResLabels = ('PtRecoOverGen', 'PtCorrOverGen', 'PtCorrOverReco')
-    tprofile_rebinning = {'B': (30, 40, 50, 60, 80, 100, 120, 140, 160, 200, 250, 300, 350, 400, 500, 600), #barrel
-                          'E': (30, 40, 50, 60, 80, 100, 120, 140, 160, 200, 250, 300, 350, 400, 500, 600), # endcap
-                          'F': (30, 40, 50, 60, 80, 120, 240, 600)} # forward
+    tprofile_rebinning = {'B': (30, 40, 50, 80, 100, 120, 140, 160, 200, 250, 300, 350, 400, 500, 600), #barrel
+                          'E': (30, 40, 50, 80, 100, 120, 140, 160, 200, 250, 300, 350, 400, 500, 600), # endcap
+                          'F': (30, 40, 50, 80, 120, 240, 600)} # forward
 
     if args.jet == 'hltAK4PFPuppiJets': JetType = "AK4 PF Puppi Jets"
     elif args.jet == 'hltAK4PFClusterJets': JetType = "AK4 PF Cluster Jets"
@@ -295,14 +294,22 @@ if __name__ == '__main__':
     elif args.jet == 'hltAK4PFCHSJets': JetType = "AK4 PF CHS Jets"
     else: JetType = args.jet
 
+    colors = hep.style.CMS['axes.prop_cycle'].by_key()['color']
+    markers = ('o', 's', 'd')
+
     #####################################
     # Plot 1D single variables
     #####################################
 
     Var1DList = {
-        'HLT Jets':             'JetPt',
-        'HLT Corrected Jets':   'CorrJetPt',
-        'Gen-level Jets':       'GenPt',
+        'HLT Jets'                            : 'JetPt',
+        'HLT Corrected Jets'                  : 'CorrJetPt',
+        'Gen-level Jets'                      : 'GenPt',
+        'Photon Multiplicity'                 : 'photonMultiplicity',
+        'Neutral Multiplicity'                : 'neutralMultiplicity',
+        'Charged Multiplicity'                : 'chargedMultiplicity',
+        'Neutral Hadron Multiplicity'         : 'neutralHadronMultiplicity',
+        'Charged Hadron Multiplicity'         : 'chargedHadronMultiplicity',
     }
     
     for Label, Var in Var1DList.items():
@@ -316,8 +323,13 @@ if __name__ == '__main__':
         plotter.ax.text(0.03, 0.97, f"{JetType}", transform=plotter.ax.transAxes, fontsize=fontsize,
                         verticalalignment='top', horizontalalignment='left')
 
-        plotter.limits(y=(0, 1.2*max(values)))
-        plotter.labels(x=HLabels.pt_label('pt'), y=f"# Jets", legend_title='')
+        if 'Multiplicity' in Var:
+            plotter.limits(y=(5E-1, 2*max(values)), logY=True)
+            plotter.labels(x=Label, y='# Jets')
+        else:
+            plotter.limits(y=(0, 1.2*max(values)), logY=False)
+            plotter.labels(x=HLabels.pt_label('pt'), y='# Jets', legend_title='')
+
         plotter.save( os.path.join(args.odir, Var) )
 
     #####################################
@@ -345,7 +357,7 @@ if __name__ == '__main__':
                                     cmap='viridis', shading='auto')
 
         if '_nCost_' in Var2D:
-            xlabel = HLabels.fraction_label('nCost')
+            xlabel = HLabels.fraction_label('nConst')
         elif '_chHad_' in Var2D:
             xlabel = HLabels.fraction_label('chHad')
         elif '_neHad_' in Var2D:
@@ -397,17 +409,44 @@ if __name__ == '__main__':
         'JetNeutralEmFrac': dotdict(
             histos={'HLT jets': 'neutralEmEnergyFraction',
                     'HLT jets matched': 'MatchedJetneEm',},
-            xlabel=HLabels.fraction_label('neHad')
+            xlabel=HLabels.fraction_label('neEm')
         ),
         'JetnConst': dotdict(
             histos={'HLT jets':         'JetConstituents',
                     'HLT jets matched': 'MatchedJetnCost'},
-            xlabel=HLabels.fraction_label('nCost')
+            xlabel=HLabels.fraction_label('nConst')
+        ),
+        'photonMultiplicity': dotdict(
+            histos={'Barrel': 'photonMultiplicity_B',
+                    'Endcap': 'photonMultiplicity_E',
+                    'Forward': 'photonMultiplicity_F'},
+            xlabel="Photon Multiplicity"
+        ),
+        'neutralMultiplicity': dotdict(
+            histos={'Barrel': 'neutralMultiplicity_B',
+                    'Endcap': 'neutralMultiplicity_E',
+                    'Forward': 'neutralMultiplicity_F'},
+            xlabel="Neutral Multiplicity"
+        ),
+        'chargedMultiplicity': dotdict(
+            histos={'Barrel': 'chargedMultiplicity_B',
+                    'Endcap': 'chargedMultiplicity_E',
+                    'Forward': 'chargedMultiplicity_F'},
+            xlabel="Charged Multiplicity"
+        ),
+        'chargedHadronMultiplicity': dotdict(
+            histos={'Barrel': 'chargedHadronMultiplicity_B',
+                    'Endcap': 'chargedHadronMultiplicity_E',
+                    'Forward': 'chargedHadronMultiplicity_F'},
+            xlabel="Charged Hadron Multiplicity"
+        ),
+        'neutralHadronMultiplicity': dotdict(
+            histos={'Barrel': 'neutralHadronMultiplicity_B',
+                    'Endcap': 'neutralHadronMultiplicity_E',
+                    'Forward': 'neutralHadronMultiplicity_F'},
+            xlabel="Neutral Hadron Multiplicity"
         ),
     })
-
-    colors = hep.style.CMS['axes.prop_cycle'].by_key()['color']
-    markers = ('o', 's', 'd')
 
     for GroupedVar in GroupedVarList:
         plotter = Plotter(args.sample_label)
@@ -420,7 +459,7 @@ if __name__ == '__main__':
             plt.errorbar(bin_centers, values, xerr=0.5 * bin_widths, yerr=errors, linestyle='', label=Label, color=colors[i_var], fmt=markers[i_var])
             plt.step(bin_edges[:-1], values, where="post", color=colors[i_var], linewidth=2)
 
-        plotter.labels(x=GroupedVarList[GroupedVar].xlabel, y='# Jets', legend_title='')
+        plotter.labels(x=GroupedVarList[GroupedVar].xlabel, y='# Jets' if 'Multiplicity' in GroupedVar else '# Jets', legend_title='')
         plotter.save( os.path.join(args.odir, GroupedVar) )
 
     #####################################
@@ -445,10 +484,12 @@ if __name__ == '__main__':
                 axis = None
                 stacked = None
 
-                for j, hist_name in enumerate(hist_names):                    
-                    root_hist = CheckRootFile(f"{dqm_dir}/{hist_name}", rebin=2)
-                    
-                    # root_hist = root_hist.Rebin(2) # Use for low statistics
+                for j, hist_name in enumerate(hist_names):
+                    if EtaRegion == 'F': 
+                        root_hist = CheckRootFile(f"{dqm_dir}/{hist_name}", rebin=2)
+                    else:
+                        root_hist = CheckRootFile(f"{dqm_dir}/{hist_name}", rebin=None)
+
                     nbins = root_hist.GetNbinsX()
                     edges = [root_hist.GetBinLowEdge(i+1) for i in range(nbins)]
                     edges.append(root_hist.GetBinLowEdge(nbins+1))
@@ -477,11 +518,15 @@ if __name__ == '__main__':
 
             plotter = Plotter(args.sample_label)
 
-            for stacked_histo, pt_label in zip(v_stacked_histo, v_labels):
+            for i, (stacked_histo, pt_label) in enumerate(zip(v_stacked_histo, v_labels)):
                 if stacked_histo.sum().value == 0:
                     print(f"WARNING: Skipping empty histogram for {pt_label}")
                     continue
-                stacked_histo.plot(ax=plotter.ax, linewidth=2, label=pt_label, density=True)
+                if stacked_histo.sum().value < 2:
+                    print(f"WARNING: Skipping histogram with low stat {pt_label}")
+                    continue
+                stacked_histo.plot(ax=plotter.ax, density=True, color=colors[i], histtype="fill", alpha=0.1)
+                stacked_histo.plot(ax=plotter.ax, linewidth=2, label=pt_label, density=True, color=colors[i])
                 
             plotter.ax.text(0.03, 0.97, f"{JetType}\n{EtaInfo.label(EtaRegion)}", transform=plotter.ax.transAxes, fontsize=fontsize,
                             verticalalignment='top', horizontalalignment='left')
@@ -507,8 +552,8 @@ if __name__ == '__main__':
             for myXvar in myResolLabel.xvars:
 
                 plotter = Plotter(args.sample_label)
-                tprofile_mean = CheckRootFile( myResolLabel.mhisto(myXvar, dqm_dir), rebin=2)
-                tprofile_sigma = CheckRootFile( myResolLabel.shisto(myXvar, dqm_dir), rebin=2)
+                tprofile_mean = CheckRootFile( myResolLabel.mhisto(myXvar, dqm_dir), rebin=None)
+                tprofile_sigma = CheckRootFile( myResolLabel.shisto(myXvar, dqm_dir), rebin=None)
                 nbins, bin_edges, bin_centers, bin_widths = define_bins(tprofile_mean)
                 means, mean_errors = histo_values_errors(tprofile_mean)
                 sigmas, sigma_errors = histo_values_errors(tprofile_sigma)
@@ -565,6 +610,10 @@ if __name__ == '__main__':
             plotter.limits(y=(ResolOptions[key][0], ResolOptions[key][1]))
             plotter.ax.text(0.03, 0.97, f"{JetType}", transform=plotter.ax.transAxes,
                             fontsize=fontsize, verticalalignment='top', horizontalalignment='left')
+
+            if key == 'Scale': 
+                plotter.ax.axhline(1.0, color='gray', linestyle='--', linewidth=2)
+
             plotter.save( os.path.join(args.odir, f'{key}_{resol_type}_Pt_EtaBins') )
 
     #####################################
@@ -638,6 +687,8 @@ if __name__ == '__main__':
             numerator_vals, _ = histo_values_errors(root_hist_num)
             denominator_vals, _ = histo_values_errors(root_hist_den)
             eff_values, eff_errors = histo_values_errors(root_ratio)
+            if eff_type == 'Fake Rate':
+                eff_values = np.array([1-i if i != 0 else np.nan for i in eff_values])
 
             plotter = Plotter(args.sample_label, grid_color=None, fontsize=fontsize)
             common_kwargs = dict(where="post", linewidth=2)
@@ -657,11 +708,14 @@ if __name__ == '__main__':
             ax2.set_ylabel(myEffLabel.ytitle(), color=eff_color)
             common_kwargs = dict(linestyle='', color=eff_color, label=eff_type)
             if any(x in myEffLabel.ytitle() for x in ('Fake', 'Duplicate')):
-                axmin = 5E-2
+                if eff_type == 'Fake Rate':
+                    axmin = 1E-2
+                else:
+                    axmin = 1E-4
                 ax2.set_yscale('log')
                 ax2.set_ylim(axmin, 1.9)
 
-                # replace points below y axis by uper errors bars
+                # replace points below y axis by upper errors bars
                 # ( avoid cluttering the plot)
                 eff_filt = np.where(eff_values<=axmin, np.nan, eff_values)
                 err_filt = np.where(eff_values<=axmin, np.nan, eff_errors)
@@ -686,6 +740,8 @@ if __name__ == '__main__':
             root_ratio = CheckRootFile( myEffLabel.rhisto(f"Pt_{etareg}", dqm_dir), rebin=tprofile_rebinning[etareg] )
             nbins, bin_edges, bin_centers, bin_widths = define_bins(root_ratio)
             eff_values, eff_errors = histo_values_errors(root_ratio)
+            if eff_type == 'Fake Rate':
+                eff_values = np.array([1-i if i != 0 else np.nan for i in eff_values])
 
             plt.errorbar(bin_centers, eff_values, xerr=0.5 * bin_widths, yerr=eff_errors, linestyle='',
                          fmt=EtaInfo.marker(etareg), color=EtaInfo.color(etareg), label=EtaInfo.label(etareg))
@@ -695,8 +751,12 @@ if __name__ == '__main__':
                         fontsize=fontsize, verticalalignment='top', horizontalalignment='left')
         label = root_ratio.GetXaxis().GetTitle()
         plotter.labels(x=f"${label}$", y=myEffLabel.ytitle(), legend_title='')
-        if "Duplicates" in eff_type: 
-            plotter.limits(y=(0.001,2), logY=True)
+        if any(x in myEffLabel.ytitle() for x in ('Fake', 'Duplicate')):
+            if eff_type == 'Fake Rate':
+                axmin = 1E-2
+            else:
+                axmin = 1E-4
+            plotter.limits(y=(axmin, 1.9), logY=True)
         else:
             plotter.limits(y=(0,1.25))
 

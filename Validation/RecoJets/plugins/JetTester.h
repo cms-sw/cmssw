@@ -279,6 +279,13 @@ private:
   MonitorElement *HOEnergy;
   MonitorElement *HOEnergyFraction;
 
+  std::array<MonitorElement *, etaSize> photonMultiplicity_EtaBins;
+  std::array<MonitorElement *, etaSize> electronMultiplicity_EtaBins;
+  std::array<MonitorElement *, etaSize> neutralHadronMultiplicity_EtaBins;
+  std::array<MonitorElement *, etaSize> neutralMultiplicity_EtaBins;
+  std::array<MonitorElement *, etaSize> chargedHadronMultiplicity_EtaBins;
+  std::array<MonitorElement *, etaSize> chargedMultiplicity_EtaBins;
+
   // contained in MiniAOD
   MonitorElement *hadronFlavor;
   MonitorElement *partonFlavor;
