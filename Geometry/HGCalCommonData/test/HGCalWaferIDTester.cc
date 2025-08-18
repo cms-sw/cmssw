@@ -144,7 +144,8 @@ void HGCalWaferIDTester::analyze(const edm::Event& iEvent, const edm::EventSetup
       double wt(0);
       int layer = detIds_[k].layer();
       int zside = detIds_[k].zside();
-      int indx = HGCalWaferIndex::waferIndex(layer, detIds_[k].waferU(), detIds_[k].waferV());
+      waferU = (zside > 0) ? -detIds_[k].waferU() : detIds_[k].waferU();
+      int indx = HGCalWaferIndex::waferIndex(layer, waferU, detIds_[k].waferV());
       st1 << " Part:Orient:Cassette:Shift " << std::get<1>(hgdc.waferFileInfo(indx)) << ":"
           << std::get<2>(hgdc.waferFileInfo(indx)) << ":" << std::get<3>(hgdc.waferFileInfo(indx)) << ":"
           << hgdc.cassetteShiftSilicon(zside, layer, detIds_[k].waferU(), detIds_[k].waferV());
@@ -172,7 +173,7 @@ void HGCalWaferIDTester::analyze(const edm::Event& iEvent, const edm::EventSetup
       if (diff > tol)
         st1 << " ***** CheckID *****";
       bool valid1 = hgdc.isValidHex8(
-          detIds_[k].layer(), detIds_[k].waferU(), detIds_[k].waferV(), detIds_[k].cellU(), detIds_[k].cellV(), true);
+          detIds_[k].layer(), waferU, detIds_[k].waferV(), detIds_[k].cellU(), detIds_[k].cellV(), true);
       bool valid2 = hgdc.isValidHex8(id.layer(), id.waferU(), id.waferV(), id.cellU(), id.cellV(), true);
       st1 << " Validity flag: " << valid1 << ":" << valid2;
       if ((!valid1) || (!valid2))
