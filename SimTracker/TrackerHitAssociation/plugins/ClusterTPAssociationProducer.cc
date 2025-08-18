@@ -124,7 +124,7 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
   // Strip Cluster (other product, if there)
   bool foundOtherStripClusters = false;
   edm::Handle<edmNew::DetSetVector<SiStripCluster> > stripClustersOther;
-  if (otherStripClusterTag_ != edm::InputTag(""))
+  if (!otherStripClusterTag_.isUninitialized())
     foundOtherStripClusters = iEvent.getByToken(stripClustersOtherToken_, stripClustersOther);
 
   // Phase2 Cluster
