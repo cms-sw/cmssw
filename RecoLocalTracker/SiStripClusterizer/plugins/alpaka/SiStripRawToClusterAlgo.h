@@ -113,12 +113,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   class PortableFEDMover {
   public:
     PortableFEDMover(Queue& queue, uint32_t rawBufferSize, uint32_t fedChannelsNb)
-        : buffer(cms::alpakatools::make_host_buffer<uint8_t[]>(queue, rawBufferSize)),
-          mapping(fedChannelsNb, queue),
-          ofs(0),
-          chanN(0),
-          fedChannelsNb_(fedChannelsNb),
-          ofsFedId(sistrip::FED_ID_MAX + 1),
+        : buffer_(cms::alpakatools::make_host_buffer<uint8_t[]>(queue, rawBufferSize)),
+          mapping_(fedChannelsNb, queue),
+          bufferSize_(0),
+          channelNb_(0),
+          fedChannelNb_(fedChannelsNb),
+          offset4FedId_(sistrip::FED_ID_MAX + 1),
           queue_(queue) {
       // std::cout << "#portBuffSize," << rawBufferSize << std::endl;
       ;
@@ -127,23 +127,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     void fillBuffer(const std::vector<const FEDRawData*>& raw) {
       for (uint16_t fedId = sistrip::FED_ID_MIN; fedId <= sistrip::FED_ID_MAX; ++fedId) {
         if (raw[fedId]) {
-          std::memcpy(buffer.data() + ofs, raw[fedId]->data(), raw[fedId]->size());
-          ofsFedId[fedId] = ofs;
-          ofs += raw[fedId]->size();
+          std::memcpy(buffer_.data() + bufferSize_, raw[fedId]->data(), raw[fedId]->size());
+          offset4FedId_[fedId] = bufferSize_;
+          bufferSize_ += raw[fedId]->size();
         }
       }
       // std::cout << "#fillBuffer," << ofs << std::endl;
     }
 
     void fillMapping(const std::vector<FEDChMetadata>& channelsMeta) {
-      for (uint32_t i = 0; i < fedChannelsNb_; i++, chanN++) {
+      for (uint32_t i = 0; i < fedChannelNb_; i++, channelNb_++) {
         const auto& channel = channelsMeta[i];
-        mapping->detID(i) = channel.detId;
-        mapping->fedID(i) = channel.fedId;
-        mapping->fedCh(i) = channel.fedCh;
-        mapping->fedChOfs(i) = channel.fedChOfs;
-        mapping->fedChDataOfsBuf(i) = channel.fedChOfs_wrt_rawFedId + ofsFedId[channel.fedId];
-        mapping->readoutMode(i) = channel.fedBufferRO;
+        mapping_->detID(i) = channel.detId;
+        mapping_->fedID(i) = channel.fedId;
+        mapping_->fedCh(i) = channel.fedCh;
+        mapping_->fedChOfs(i) = channel.fedChOfs;
+        mapping_->fedChDataOfsBuf(i) = channel.fedChOfs_wrt_rawFedId + offset4FedId_[channel.fedId];
+        mapping_->readoutMode(i) = channel.fedBufferRO;
 
         // // Checks that I can rebuilt the FEDChannel
         // bool isNonLite = (mapping->readoutMode(i) == 10 || mapping->readoutMode(i) == 11);
@@ -152,20 +152,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       }
     }
 
-    auto getBuffer() { return buffer; }
-    uint32_t getBufferSize() { return ofs; }
+    auto getBuffer() { return buffer_; }
+    uint32_t getBufferSize() { return bufferSize_; }
 
-    auto getMapping() { return std::move(mapping); }
-    uint32_t getChannelsN() { return chanN; }
+    auto getMapping() { return std::move(mapping_); }
+    uint32_t getChannelNb() { return channelNb_; }
 
   private:
-    cms::alpakatools::host_buffer<uint8_t[]> buffer;
-    SiStripMappingHost mapping;
+    cms::alpakatools::host_buffer<uint8_t[]> buffer_;
+    SiStripMappingHost mapping_;
 
-    uint32_t ofs;
-    uint32_t chanN;
-    uint32_t fedChannelsNb_;
-    std::vector<uint32_t> ofsFedId;
+    uint32_t bufferSize_;
+    uint32_t channelNb_;
+    uint32_t fedChannelNb_;
+    std::vector<uint32_t> offset4FedId_;
 
     Queue& queue_;
   };

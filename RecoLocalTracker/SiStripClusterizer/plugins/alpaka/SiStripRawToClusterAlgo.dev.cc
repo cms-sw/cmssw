@@ -804,7 +804,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
     // Apply quality conditions to mapping and calculate the number of strips to unpack
     uint32_t divider = 32u;
-    uint32_t groups = divide_up_by(FEDChMover->getChannelsN(), divider);
+    uint32_t groups = divide_up_by(FEDChMover->getChannelNb(), divider);
     auto workDiv = make_workdiv<Acc1D>(groups, divider);
 
     // alpaka::wait(queue);
