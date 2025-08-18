@@ -301,7 +301,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     }
 
     // Create container for the buffer and mapping
-    auto fedMover = std::make_unique<PortableFEDMover>(&queue, rawBuffFlattenSize, fedChOfs_wrt_rawFedId_.size());
+    auto fedMover = std::make_unique<PortableFEDMover>(queue, rawBuffFlattenSize, fedChOfs_wrt_rawFedId_.size());
 
     // Fill buffer
     fedMover->fillBuffer(raw_);

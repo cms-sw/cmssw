@@ -112,15 +112,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
   class PortableFEDMover {
   public:
-    PortableFEDMover(Queue* queue, uint32_t rawBufferSize, uint32_t fedChannelsNb)
-        : buffer(cms::alpakatools::make_host_buffer<uint8_t[]>(*queue, rawBufferSize)),
-          mapping(fedChannelsNb, *queue),
+    PortableFEDMover(Queue& queue, uint32_t rawBufferSize, uint32_t fedChannelsNb)
+        : buffer(cms::alpakatools::make_host_buffer<uint8_t[]>(queue, rawBufferSize)),
+          mapping(fedChannelsNb, queue),
           ofs(0),
           chanN(0),
           fedChannelsNb_(fedChannelsNb),
-          ofsFedId(sistrip::FED_ID_MAX + 1) {
+          ofsFedId(sistrip::FED_ID_MAX + 1),
+          queue_(queue) {
       // std::cout << "#portBuffSize," << rawBufferSize << std::endl;
-      queue_ = queue;
+      ;
     }
 
     void fillBuffer(const std::vector<const FEDRawData*>& raw) {
@@ -166,7 +167,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     uint32_t fedChannelsNb_;
     std::vector<uint32_t> ofsFedId;
 
-    Queue* queue_;
+    Queue& queue_;
   };
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip
 
