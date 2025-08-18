@@ -118,8 +118,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
           bufferSize_(0),
           channelNb_(0),
           fedChannelNb_(fedChannelsNb),
-          offset4FedId_(sistrip::FED_ID_MAX + 1),
-          queue_(queue) {
+          offset4FedId_(sistrip::FED_ID_MAX + 1) {
       // std::cout << "#portBuffSize," << rawBufferSize << std::endl;
       ;
     }
@@ -153,10 +152,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     }
 
     auto getBuffer() { return buffer_; }
-    uint32_t getBufferSize() { return bufferSize_; }
+    uint32_t getBufferSize() const { return bufferSize_; }
 
     auto getMapping() { return std::move(mapping_); }
-    uint32_t getChannelNb() { return channelNb_; }
+    uint32_t getChannelNb() const { return channelNb_; }
 
   private:
     cms::alpakatools::host_buffer<uint8_t[]> buffer_;
@@ -166,8 +165,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     uint32_t channelNb_;
     uint32_t fedChannelNb_;
     std::vector<uint32_t> offset4FedId_;
-
-    Queue& queue_;
   };
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip
 
