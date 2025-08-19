@@ -68,6 +68,7 @@ numWFIB.extend([prefixDet+234.703])  #LST tracking on CPU (initialStep+HighPtTri
 numWFIB.extend([24834.911]) #D98 XML, to monitor instability of DD4hep
 
 # Phase-2 HLT tests
+numWFIB.extend([prefixDet+34.7501])# HLTTrackingOnly75e33
 numWFIB.extend([prefixDet+34.751]) # HLTTiming75e33, alpaka
 numWFIB.extend([prefixDet+34.752]) # HLTTiming75e33, ticl_v5
 numWFIB.extend([prefixDet+34.753]) # HLTTiming75e33, alpaka,singleIterPatatrack
