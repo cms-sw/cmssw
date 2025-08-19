@@ -38,6 +38,7 @@ Phase2SteppingAction::Phase2SteppingAction(const CMSSteppingVerbose* sv,
   caloName_ = (G4String)(p.getParameter<std::string>("CaloName"));
   btlName_ = (G4String)(p.getParameter<std::string>("BTLName"));
   cms2ZDCName_ = p.getParameter<std::string>("CMS2ZDCName");
+  doFineCalo_ = (p.getParameter<bool>("DoFineCalo"));
 
   edm::LogVerbatim("SimG4CoreApplication")
       << "Phase2SteppingAction:: KillBeamPipe = " << killBeamPipe
