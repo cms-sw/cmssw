@@ -247,7 +247,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     return fedIndex(fedId) * FEDCH_PER_FED + fedCh;
   }
 
-  class siStripKer_applyQualConds {
+  class SiStripKer_applyQualConds {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_HOST_ACC void operator()(TAcc const& acc,
@@ -303,7 +303,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     }
   };
 
-  class siStripKer_init {
+  class SiStripKer_init {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_HOST_ACC void operator()(TAcc const& acc,
@@ -330,7 +330,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     }
   };
 
-  class siStripKer_unpackZS2 {
+  class SiStripKer_unpackZS2 {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_HOST_ACC void operator()(TAcc const& acc,
@@ -393,7 +393,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     }
   };
 
-  class siStripKer_setSeedStrips {
+  class SiStripKer_setSeedStrips {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const& acc,
@@ -429,7 +429,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     }
   };
 
-  class siStripKer_setNCSeedStrips {
+  class SiStripKer_setNCSeedStrips {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const& acc,
@@ -450,7 +450,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     }
   };
 
-  class siStripKer_setNCStripIndex {
+  class SiStripKer_setNCStripIndex {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const& acc, StripClustersAuxView clusterDataObj) const {
@@ -464,7 +464,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     }
   };
 
-  class siStripKer_makeCandidates {
+  class SiStripKer_makeCandidates {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const& acc,
@@ -617,7 +617,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     }
   };
 
-  class siStripKer_endCandidates {
+  class SiStripKer_endCandidates {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const& acc,
@@ -701,7 +701,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     }
   };
 
-  class siStripKer_blkPfxScan {
+  class SiStripKer_blkPfxScan {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const& acc, StripClustersAuxView clusterDataObj) const {
@@ -813,7 +813,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
     alpaka::exec<Acc1D>(queue,
                         workDiv,
-                        siStripKer_applyQualConds{},
+                        SiStripKer_applyQualConds{},
                         nstrips_d.data(),
                         invalidFedChN_d.data(),
                         fedBuffer_d_->data(),
@@ -875,7 +875,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     auto workDiv = make_workdiv<Acc1D>(groups, divider);
     alpaka::exec<Acc1D>(queue,
                         workDiv,
-                        siStripKer_unpackZS2{},
+                        SiStripKer_unpackZS2{},
                         fedBuffer_d_->data(),
                         digis_d_->view(),
                         stripMapping_d_->const_view(),
@@ -893,7 +893,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // LogDebug("sClustersAux") << "Size of StripClustersAuxDevice (bytes): " << alpaka::getExtentProduct(sClustersAux_d_->buffer()) * sizeof(std::byte);
     alpaka::exec<Acc1D>(queue,
                         make_workdiv<Acc1D>(1u, 1u),
-                        siStripKer_init{},
+                        SiStripKer_init{},
                         channelThreshold_,
                         seedThreshold_,
                         clusterThresholdSquared_,
@@ -910,7 +910,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // Cluster seeding
     alpaka::exec<Acc1D>(queue,
                         workDiv,
-                        siStripKer_setSeedStrips{},
+                        SiStripKer_setSeedStrips{},
                         digis_d_->const_view(),
                         sClustersAux_d_->view(),
                         stripMapping_d_->const_view(),
@@ -919,7 +919,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // Un-seed any contiguous strips in the same detector
     alpaka::exec<Acc1D>(queue,
                         workDiv,
-                        siStripKer_setNCSeedStrips{},
+                        SiStripKer_setNCSeedStrips{},
                         digis_d_->const_view(),
                         sClustersAux_d_->view(),
                         stripMapping_d_->const_view());
@@ -949,7 +949,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     alpaka::memcpy(queue, viewDst, viewSrc);
 
     // Find index of the non-contiguous strip seeds
-    alpaka::exec<Acc1D>(queue, workDiv, siStripKer_setNCStripIndex{}, sClustersAux_d_->view());
+    alpaka::exec<Acc1D>(queue, workDiv, SiStripKer_setNCStripIndex{}, sClustersAux_d_->view());
 
     // dumpSeeds(queue, digis_d_.get(), sClustersAux_d_.get());
     // std::cout << "#pointE" << std::endl;
@@ -976,7 +976,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // Three-threshold clusterization algo
     alpaka::exec<Acc1D>(queue,
                         workDiv,
-                        siStripKer_makeCandidates{},
+                        SiStripKer_makeCandidates{},
                         kMaxSeedStrips_,
                         digis_d_->const_view(),
                         sClustersAux_d_->const_view(),
@@ -989,7 +989,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // Apply the conditions
     alpaka::exec<Acc1D>(queue,
                         workDiv,
-                        siStripKer_endCandidates{},
+                        SiStripKer_endCandidates{},
                         digis_d_->view(),
                         sClustersAux_d_->const_view(),
                         clusters_d->view(),

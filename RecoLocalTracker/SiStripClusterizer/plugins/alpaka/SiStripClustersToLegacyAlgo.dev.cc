@@ -13,7 +13,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   using namespace sistripConverter;
   using namespace cms::alpakatools;
 
-  class siStripConvKer_fillClCollSlim {
+  class SiStripConvKer_fillClCollSlim {
   public:
     template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_HOST_ACC void operator()(TAcc const& acc,
@@ -82,7 +82,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     auto workDiv = cms::alpakatools::make_workdiv<Acc1D>(groups, divider);
     alpaka::exec<Acc1D>(queue,
                         workDiv,
-                        siStripConvKer_fillClCollSlim{},
+                        SiStripConvKer_fillClCollSlim{},
                         clusterCandidates,
                         clusters_d.const_view(),
                         clusters_d_slim.view());
