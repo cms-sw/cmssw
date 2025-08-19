@@ -198,6 +198,13 @@ private:
   std::array<MonitorElement *, etaSize> h2d_JetPtCorrOverReco_vs_Phi_EtaBins;
   std::array<MonitorElement *, etaSize> h2d_JetPtCorrOverReco_vs_Pt_EtaBins;
 
+  // Jet charged/neutral multiplicities profiled in pt
+  std::array<MonitorElement *, etaSize> h2d_chHadMult_vs_pt;
+  std::array<MonitorElement *, etaSize> h2d_neHadMult_vs_pt;
+  std::array<MonitorElement *, etaSize> h2d_chMult_vs_pt;
+  std::array<MonitorElement *, etaSize> h2d_neMult_vs_pt;
+  std::array<MonitorElement *, etaSize> h2d_phoMult_vs_pt;
+
   // Jet em/had fractions profiled in pt
   std::array<MonitorElement *, etaSize> h2d_chHad_vs_pt;
   std::array<MonitorElement *, etaSize> h2d_neHad_vs_pt;

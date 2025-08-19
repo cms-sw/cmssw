@@ -528,43 +528,45 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
         RespRange[0],
         RespRange[1]);
 
+	h2d_chHadMult_vs_pt[j] = ibooker.book2D(
+        fmt::format("h2d_chHadMult_pt_{}", etaRegion),
+        fmt::format("Profiled charged HAD multiplicity - {};p_{{T}}^{{reco}};charged HAD multiplicity", etaLabel),
+        n_PtBins, PtRange[0], PtRange[1], 50, 0, 50);
+	h2d_neHadMult_vs_pt[j] = ibooker.book2D(
+        fmt::format("h2d_neHadMult_pt_{}", etaRegion),
+        fmt::format("Profiled neutral HAD multiplicity - {};p_{{T}}^{{reco}};neutral HAD multiplicity", etaLabel),
+        n_PtBins, PtRange[0], PtRange[1], 50, 0, 50);
+	h2d_chMult_vs_pt[j] = ibooker.book2D(
+        fmt::format("h2d_chMult_pt_{}", etaRegion),
+        fmt::format("Profiled charged multiplicity - {};p_{{T}}^{{reco}};charged multiplicity", etaLabel),
+        n_PtBins, PtRange[0], PtRange[1], 50, 0, 50);
+	h2d_neMult_vs_pt[j] = ibooker.book2D(
+        fmt::format("h2d_neMult_pt_{}", etaRegion),
+        fmt::format("Profiled neutral multiplicity - {};p_{{T}}^{{reco}};neutral EM multiplicity", etaLabel),
+        n_PtBins, PtRange[0], PtRange[1], 50, 0, 50);
+	h2d_phoMult_vs_pt[j] = ibooker.book2D(
+        fmt::format("h2d_phoMult_pt_{}", etaRegion),
+        fmt::format("Profiled photon multiplicity - {};p_{{T}}^{{reco}};photon multiplicity", etaLabel),
+        n_PtBins, PtRange[0], PtRange[1], 15, 0, 15);
+	
     h2d_chHad_vs_pt[j] = ibooker.book2D(
         fmt::format("h2d_chHad_pt_{}", etaRegion),
         fmt::format("Profiled charged HAD energy fraction - {};p_{{T}}^{{reco}};charged HAD energy fraction", etaLabel),
-        n_PtBins,
-        PtRange[0],
-        PtRange[1],
-        40,
-        0,
-        1);
+        n_PtBins, PtRange[0], PtRange[1], 40, 0, 1);
     h2d_neHad_vs_pt[j] = ibooker.book2D(
         fmt::format("h2d_neHad_pt_{}", etaRegion),
         fmt::format("Profiled neutral HAD energy fraction - {};p_{{T}}^{{reco}};neutral HAD energy fraction", etaLabel),
-        n_PtBins,
-        PtRange[0],
-        PtRange[1],
-        40,
-        0,
-        1);
+        n_PtBins, PtRange[0], PtRange[1], 40, 0, 1);
     h2d_chEm_vs_pt[j] = ibooker.book2D(
         fmt::format("h2d_chEm_pt_{}", etaRegion),
         fmt::format("Profiled charged EM energy fraction - {};p_{{T}}^{{reco}};charged EM energy fraction", etaLabel),
-        n_PtBins,
-        PtRange[0],
-        PtRange[1],
-        40,
-        0,
-        1);
+        n_PtBins, PtRange[0], PtRange[1], 40, 0, 1);
     h2d_neEm_vs_pt[j] = ibooker.book2D(
         fmt::format("h2d_neEm_pt_{}", etaRegion),
         fmt::format("Profiled neutral EM energy fraction - {};p_{{T}}^{{reco}};neutral EM energy fraction", etaLabel),
-        n_PtBins,
-        PtRange[0],
-        PtRange[1],
-        40,
-        0,
-        1);
-    h2d_JetPtRecoOverGen_vs_chHad[j] = ibooker.book2D(
+        n_PtBins, PtRange[0], PtRange[1], 40, 0, 1);
+
+	h2d_JetPtRecoOverGen_vs_chHad[j] = ibooker.book2D(
         fmt::format("h2d_PtRecoOverGen_chHad_{}", etaRegion),
         fmt::format("Response Reco Jets - {};charged HAD energy Fraction;p_{{T}}^{{reco}}/p_{{T}}^{{gen}}", etaLabel),
         30,
@@ -1188,6 +1190,12 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
           neutralMultiplicity_EtaBins[j]->Fill((*pfJets)[ijet].neutralMultiplicity());
           chargedHadronMultiplicity_EtaBins[j]->Fill((*pfJets)[ijet].chargedHadronMultiplicity());
           chargedMultiplicity_EtaBins[j]->Fill((*pfJets)[ijet].chargedMultiplicity());
+
+		  h2d_chHadMult_vs_pt[j]->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].chargedHadronMultiplicity());
+          h2d_neHadMult_vs_pt[j]->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].neutralHadronMultiplicity());
+          h2d_chMult_vs_pt[j]->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].chargedMultiplicity());
+          h2d_neMult_vs_pt[j]->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].neutralMultiplicity());
+		  h2d_phoMult_vs_pt[j]->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].photonMultiplicity());
 
           h2d_chHad_vs_pt[j]->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].chargedHadronEnergyFraction());
           h2d_neHad_vs_pt[j]->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].neutralHadronEnergyFraction());

@@ -29,7 +29,7 @@ def CheckRootFile(hname, rebin=None):
     hist.SetDirectory(0) # detach from file
 
     if rebin is not None:
-        if isinstance(rebin, int) or isinstance(rebin, float):
+        if isinstance(rebin, (int, float)):
             hist = hist.Rebin(int(rebin), hname + "_rebin")
         elif hasattr(rebin, '__iter__'):
             bin_edges_c = array.array('d', rebin)
