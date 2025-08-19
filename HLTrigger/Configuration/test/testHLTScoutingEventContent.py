@@ -21,11 +21,27 @@ class TestHLTScoutingEventContent(unittest.TestCase):
         if combined != allset:
             missing = allset - combined
             extra_stuff = combined - allset
-            msg = ["HLTScouting consistency check failed:"]
+
+            msg = []
+            msg.append("ERROR: HLTScouting consistency check failed!")
+            msg.append("")
+            msg.append("The combined content of HLTScouting + HLTScoutingExtra")
+            msg.append("does not match HLTScoutingAll.")
+            msg.append("")
             if missing:
-                msg.append(f"  Missing in (HLTScouting + HLTScoutingExtra): {sorted(missing)}")
+                msg.append(" Missing expected entries in (HLTScouting + HLTScoutingExtra):")
+                for item in sorted(missing):
+                    msg.append(f"    - '{item}'")
             if extra_stuff:
-                msg.append(f"  Extra in (HLTScouting + HLTScoutingExtra): {sorted(extra_stuff)}")
+                msg.append(" Extra entries in (HLTScouting + HLTScoutingExtra):")
+                for item in sorted(extra_stuff):
+                    msg.append(f"    - '{item}'")
+            msg.append("")
+            msg.append(
+                "To fix this: edit "
+                "HLTrigger/Configuration/python/HLTScouting_EventContent_cff.py"
+            )
+            msg.append("   (do NOT edit HLTrigger_EventContent_cff.py, it is auto-generated).")
             self.fail("\n".join(msg))
 
 
