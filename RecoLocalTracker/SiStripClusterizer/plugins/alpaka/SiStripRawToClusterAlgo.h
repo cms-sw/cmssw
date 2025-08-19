@@ -151,11 +151,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       }
     }
 
-    auto getBuffer() { return buffer_; }
-    uint32_t getBufferSize() const { return bufferSize_; }
+    auto buffer() { return buffer_; }
+    uint32_t bufferSize() const { return bufferSize_; }
 
-    auto getMapping() { return std::move(mapping_); }
-    uint32_t getChannelNb() const { return channelNb_; }
+    auto mapping() { return std::move(mapping_); }
+    uint32_t channelNb() const { return channelNb_; }
 
   private:
     cms::alpakatools::host_buffer<uint8_t[]> buffer_;
@@ -178,7 +178,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     void unpackStrips(Queue& queue, const SiStripClusterizerConditionsDataDevice& conditions_Data);
 
     std::unique_ptr<SiStripClusterDevice> makeClusters(Queue& queue, const SiStripClusterizerConditionsDataDevice& conditions_Data);
-    std::unique_ptr<SiStripDigiDevice> getDigiAmplitudes(Queue& queue);
+    std::unique_ptr<SiStripDigiDevice> releaseDigiAmplitudes(Queue& queue);
 
   private:
     // Clusterizer parameters
@@ -188,7 +188,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     const float minGoodCharge_;
     const uint32_t kMaxSeedStrips_;
 
-    std::unique_ptr<PortableFEDMover> FEDChMover_;
+    std::unique_ptr<PortableFEDMover> fedChMover_;
 
     using DeviceBufferU8 = decltype(cms::alpakatools::make_device_buffer<uint8_t[]>(std::declval<Queue>(), 0));
     std::optional<DeviceBufferU8> fedBuffer_d_;

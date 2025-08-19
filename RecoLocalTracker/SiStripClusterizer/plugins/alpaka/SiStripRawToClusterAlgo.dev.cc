@@ -788,18 +788,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                                                      const SiStripClusterizerConditionsDetToFedsDevice& conditions_DetToFeds,
                                                      std::unique_ptr<PortableFEDMover> rFEDChMover) {
     // Move ownership of the host-data container this class
-    FEDChMover_ = std::move(rFEDChMover);
+    fedChMover_ = std::move(rFEDChMover);
 
     // Move the data to the device
-    fedBuffer_d_.emplace(cms::alpakatools::make_device_buffer<uint8_t[]>(queue, FEDChMover_->getBufferSize()));
-    alpaka::memcpy(queue, *fedBuffer_d_, FEDChMover_->getBuffer(), FEDChMover_->getBufferSize());
+    fedBuffer_d_.emplace(cms::alpakatools::make_device_buffer<uint8_t[]>(queue, fedChMover_->bufferSize()));
+    alpaka::memcpy(queue, *fedBuffer_d_, fedChMover_->buffer(), fedChMover_->bufferSize());
 
     // Move fedchannels to the device
-    stripMapping_d_ = cms::alpakatools::moveToDeviceAsync(queue, FEDChMover_->getMapping());
+    stripMapping_d_ = cms::alpakatools::moveToDeviceAsync(queue, fedChMover_->mapping());
 
     // Apply quality conditions to mapping and calculate the number of strips to unpack
     uint32_t divider = 32u;
-    uint32_t groups = divide_up_by(FEDChMover_->getChannelNb(), divider);
+    uint32_t groups = divide_up_by(fedChMover_->channelNb(), divider);
     auto workDiv = make_workdiv<Acc1D>(groups, divider);
 
     // alpaka::wait(queue);
@@ -1037,7 +1037,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     return clusters_d;
   }
 
-  std::unique_ptr<SiStripDigiDevice> SiStripRawToClusterAlgo::getDigiAmplitudes(Queue& queue) {
+  std::unique_ptr<SiStripDigiDevice> SiStripRawToClusterAlgo::releaseDigiAmplitudes(Queue& queue) {
     return std::move(digis_d_);
   }
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip
