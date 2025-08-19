@@ -37,14 +37,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         //     fullCollection.candidateAcceptedPrefix(i)
         //   );
         // }
-        if (fullCollection.candidateAccepted(i)) {
-          const uint32_t idx = fullCollection.candidateAcceptedPrefix(i) - 1;
-          slimCollection.clusterIndex(idx) = fullCollection.clusterIndex(i);
-          slimCollection.clusterSize(idx) = fullCollection.clusterSize(i);
-          slimCollection.clusterDetId(idx) = fullCollection.clusterDetId(i);
-          slimCollection.firstStrip(idx) = fullCollection.firstStrip(i);
-          slimCollection.barycenter(idx) = fullCollection.barycenter(i);
-          slimCollection.charge(idx) = fullCollection.charge(i);
+        const auto full = fullCollection[i];
+        if (full.candidateAccepted()) {
+          const uint32_t idx = full.candidateAcceptedPrefix() - 1;
+          slimCollection[idx] = {
+            full.clusterIndex(),
+            full.clusterSize(),
+            full.clusterDetId(),
+            full.firstStrip(),
+            full.barycenter(),
+            full.charge()
+          };
         }
       }
 
