@@ -153,10 +153,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     const auto& rawCollection = iEvent.get(fedRawGetToken_);
 
     // Fill the raw_, buffers_. Prepare the LUT for FEDCh mapping in the raw[] on the device
-    std::unique_ptr<PortableFEDMover> FEDChMover = fillFedIdFedChBuffer(iEvent.queue(), stripCond, rawCollection);
+    std::unique_ptr<PortableFEDMover> fedChMover = fillFedIdFedChBuffer(iEvent.queue(), stripCond, rawCollection);
 
     // Move PortableFEDMover class to algo
-    algo_.prepareUnpackCluster(iEvent.queue(), stripCablCond, std::move(FEDChMover));
+    algo_.prepareUnpackCluster(iEvent.queue(), stripCablCond, std::move(fedChMover));
   }
 
   void SiStripRawToCluster::produce(device::Event& iEvent, device::EventSetup const& iSetup) {
