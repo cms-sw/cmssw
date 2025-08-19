@@ -5,7 +5,6 @@
 <use name="Geometry/Records"/>
 <use name="Geometry/HGCalMapping"/>
 <use name="RecoLocalCalo/HGCalRecAlgos"/>
-<use name="DataFormats/HGCalRecHit"/>
 <use name="DataFormats/HGCalDigi"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/HGCalObjects"/>

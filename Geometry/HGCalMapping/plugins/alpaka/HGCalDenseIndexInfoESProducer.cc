@@ -114,6 +114,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
               //assign det id only for full and calibration cells
               row.detid() = 0;
+              row.layer() = 0;
               if (cell_row.t() == 1 || cell_row.t() == 0) {
                 if (isSiPM) {
                   row.detid() = ::hgcal::mappingtools::getSiPMDetId(module_row.zside(),
@@ -122,19 +123,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                                     module_row.celltype(),
                                                                     cell_row.i1(),
                                                                     cell_row.i2());
+                  row.layer() = HGCScintillatorDetId(row.detid()).layer();
                 } else {
                   row.detid() = module_row.detid() + cell_row.detid();
+                  row.layer() = HGCSiliconDetId(row.detid()).layer();
                 }
 
                 //assign position from geometry
                 row.x() = 0;
                 row.y() = 0;
                 row.z() = 0;
+                row.eta() = 0;
+                row.phi() = 0;
                 if (hgcal_geom != nullptr) {
                   GlobalPoint position = hgcal_geom->getPosition(row.detid());
                   row.x() = position.x();
                   row.y() = position.y();
                   row.z() = position.z();
+                  row.eta() = position.eta();
+                  row.phi() = position.phi();
                 }
               }
             }  // end cell loop
