@@ -173,12 +173,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   public:
     SiStripRawToClusterAlgo(const edm::ParameterSet& unpackPar, const edm::ParameterSet& clustPar);
     void prepareUnpackCluster(Queue& queue,
-                              const SiStripClusterizerConditionsDetToFedsDevice* rDetToFeds,
-                              const SiStripClusterizerConditionsDataDevice* rData,
+                              const SiStripClusterizerConditionsDetToFedsDevice& conditions_DetToFeds,
                               std::unique_ptr<PortableFEDMover> FEDChMover);
-    void unpackStrips(Queue& queue);
+    void unpackStrips(Queue& queue, const SiStripClusterizerConditionsDataDevice& conditions_Data);
 
-    std::unique_ptr<SiStripClusterDevice> makeClusters(Queue& queue);
+    std::unique_ptr<SiStripClusterDevice> makeClusters(Queue& queue, const SiStripClusterizerConditionsDataDevice& conditions_Data);
     std::unique_ptr<SiStripDigiDevice> getDigiAmplitudes(Queue& queue);
 
   private:
@@ -188,10 +187,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     const uint32_t maxClusterSize_;
     const float minGoodCharge_;
     const uint32_t kMaxSeedStrips_;
-
-    // Handles to conditions
-    const SiStripClusterizerConditionsDetToFedsDevice* conditions_DetToFeds;
-    const SiStripClusterizerConditionsDataDevice* conditions_Data;
 
     std::unique_ptr<PortableFEDMover> FEDChMover;
 

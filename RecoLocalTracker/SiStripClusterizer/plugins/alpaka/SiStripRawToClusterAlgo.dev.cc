@@ -785,13 +785,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   }
 
   void SiStripRawToClusterAlgo::prepareUnpackCluster(Queue& queue,
-                                                     const SiStripClusterizerConditionsDetToFedsDevice* rDetToFeds,
-                                                     const SiStripClusterizerConditionsDataDevice* rData,
+                                                     const SiStripClusterizerConditionsDetToFedsDevice& conditions_DetToFeds,
                                                      std::unique_ptr<PortableFEDMover> rFEDChMover) {
-    // Initialize/update the conditions pointer on the class
-    conditions_DetToFeds = rDetToFeds;
-    conditions_Data = rData;
-
     // Move ownership of the host-data container this class
     FEDChMover = std::move(rFEDChMover);
 
@@ -823,7 +818,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                         invalidFedChN_d.data(),
                         fedBuffer_d->data(),
                         stripMapping_d->view(),
-                        conditions_DetToFeds->const_view());
+                        conditions_DetToFeds.const_view());
 
     const uint32_t threads = 1024u;
     const uint32_t nBlocks = divide_up_by(stripMapping_d->view().metadata().size(), threads);
@@ -863,7 +858,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // }
   }
 
-  void SiStripRawToClusterAlgo::unpackStrips(Queue& queue) {
+  void SiStripRawToClusterAlgo::unpackStrips(Queue& queue, const SiStripClusterizerConditionsDataDevice& conditions_Data) {
     // std::cout << "#kerStrips," << nStrips_h->data()[0] << std::endl;
     // std::cout << "#invalidFed," << invalidFedChN_d.data()[0] << std::endl;
 
@@ -884,9 +879,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                         fedBuffer_d->data(),
                         digis_d_->view(),
                         stripMapping_d->const_view(),
-                        conditions_Data->const_view<SiStripClusterizerConditionsData_fedchSoA>(),
-                        conditions_Data->const_view<SiStripClusterizerConditionsData_stripSoA>(),
-                        conditions_Data->const_view<SiStripClusterizerConditionsData_apvSoA>());
+                        conditions_Data.const_view<SiStripClusterizerConditionsData_fedchSoA>(),
+                        conditions_Data.const_view<SiStripClusterizerConditionsData_stripSoA>(),
+                        conditions_Data.const_view<SiStripClusterizerConditionsData_apvSoA>());
 
     // std::cout << "#pointC" << std::endl;
     // alpaka::wait(queue);
@@ -919,7 +914,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                         digis_d_->const_view(),
                         sClustersAux_d_->view(),
                         stripMapping_d->const_view(),
-                        conditions_Data->const_view<SiStripClusterizerConditionsData_stripSoA>());
+                        conditions_Data.const_view<SiStripClusterizerConditionsData_stripSoA>());
 
     // Un-seed any contiguous strips in the same detector
     alpaka::exec<Acc1D>(queue,
@@ -961,7 +956,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // alpaka::wait(queue);
   }
 
-  std::unique_ptr<SiStripClusterDevice> SiStripRawToClusterAlgo::makeClusters(Queue& queue) {
+  std::unique_ptr<SiStripClusterDevice> SiStripRawToClusterAlgo::makeClusters(Queue& queue, const SiStripClusterizerConditionsDataDevice& conditions_Data) {
     // auto viewSeedsNb = make_host_view(*nSeeds_h->data());
     // std::cout << "#nSed," << viewSeedsNb.data()[0] << std::endl;
     // auto clusters_d = std::make_unique<SiStripClusterDevice>(*nSeeds_h->data(), queue);
@@ -987,7 +982,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                         sClustersAux_d_->const_view(),
                         clusters_d->view(),
                         stripMapping_d->const_view(),
-                        conditions_Data->const_view<SiStripClusterizerConditionsData_stripSoA>());
+                        conditions_Data.const_view<SiStripClusterizerConditionsData_stripSoA>());
 
     // dumpClusters(queue, clusters_d.get(), digis_d_.get());
 
@@ -999,8 +994,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                         sClustersAux_d_->const_view(),
                         clusters_d->view(),
                         stripMapping_d->const_view(),
-                        conditions_Data->const_view<SiStripClusterizerConditionsData_fedchSoA>(),
-                        conditions_Data->const_view<SiStripClusterizerConditionsData_apvSoA>());
+                        conditions_Data.const_view<SiStripClusterizerConditionsData_fedchSoA>(),
+                        conditions_Data.const_view<SiStripClusterizerConditionsData_apvSoA>());
 
     // Fill the prefix indexes for the candidateAccepted
     const uint32_t nThreads = 1024u;

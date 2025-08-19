@@ -43,7 +43,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     std::vector<const FEDRawData*> raw_;
     std::vector<std::unique_ptr<FEDBuffer>> buffers_;
 
-    std::unique_ptr<PortableFEDMover> fillFedIdFedChBuffer(Queue& queue, const FEDRawDataCollection& rawColl);
+    std::unique_ptr<PortableFEDMover> fillFedIdFedChBuffer(Queue& queue, const SiStripClusterizerConditions& stripCond, const FEDRawDataCollection& rawColl);
 
     // RAW unpacking and clustering algorithm
     SiStripRawToClusterAlgo algo_;
@@ -56,11 +56,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         stripDataCondGetToken_;
     device::EDPutToken<SiStripClusterDevice> stripClustPutToken_;
     device::EDPutToken<SiStripDigiDevice> stripDigiPutToken_;
-
-    // The unpacker and clusterizer conditions
-    const SiStripClusterizerConditions* stripCond_ = nullptr;
-    const SiStripClusterizerConditionsDetToFedsDevice* stripCablCond_ = nullptr;
-    const SiStripClusterizerConditionsDataDevice* stripDataCond_ = nullptr;
 
     edm::ESWatcher<SiStripClusterizerConditionsRcd> stripCondWatcher_;
     edm::ESWatcher<SiStripClusterizerConditionsDetToFedsRecord> stripCablCondWatcher_;
@@ -148,41 +143,32 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // then load/update the conditions + cabling map
 
     // Host conditions (for buffer preconstruct + fedCh mapping preparation)
-    if (stripCondWatcher_.check(iSetup)) {
-      stripCond_ = &iSetup.getData(stripCondGetToken_);
-    }
-
-    // Device conditions (cabling map, noise, etc.)
-    if (stripCablCondWatcher_.check(iSetup)) {
-      // Get the cabling map
-      stripCablCond_ = &iSetup.getData(stripCablCondGetToken_);
-      IfLogDebug(STRIPALPCHK, "STRIPALPCHK")
-          << "#sizeB,stripCablCond_," << alpaka::getExtentProduct(stripCablCond_->buffer());
-    }
-
-    if (stripDataCondWatcher_.check(iSetup)) {
-      // Make the cabling and clusterizer conditions available on device
-      stripDataCond_ = &iSetup.getData(stripDataCondGetToken_);
-      IfLogDebug(STRIPALPCHK, "STRIPALPCHK")
-          << "#sizeB,stripDataCond_," << alpaka::getExtentProduct(stripDataCond_->buffer());
-    }
+    const auto& stripCond = iSetup.getData(stripCondGetToken_);
+    
+    // Device conditions (cabling map)
+    const auto& stripCablCond = iSetup.getData(stripCablCondGetToken_);
+    IfLogDebug(STRIPALPCHK, "STRIPALPCHK") << "#sizeB,stripCablCond_," << alpaka::getExtentProduct(stripCablCond.buffer());
 
     // Get FED raw data collection
     const auto& rawCollection = iEvent.get(fedRawGetToken_);
 
     // Fill the raw_, buffers_. Prepare the LUT for FEDCh mapping in the raw[] on the device
-    std::unique_ptr<PortableFEDMover> FEDChMover = fillFedIdFedChBuffer(iEvent.queue(), rawCollection);
+    std::unique_ptr<PortableFEDMover> FEDChMover = fillFedIdFedChBuffer(iEvent.queue(), stripCond, rawCollection);
 
     // Move PortableFEDMover class to algo
-    algo_.prepareUnpackCluster(iEvent.queue(), stripCablCond_, stripDataCond_, std::move(FEDChMover));
+    algo_.prepareUnpackCluster(iEvent.queue(), stripCablCond, std::move(FEDChMover));
   }
 
   void SiStripRawToCluster::produce(device::Event& iEvent, device::EventSetup const& iSetup) {
+    // Device conditions (strip noise)
+    const auto& stripDataCond = iSetup.getData(stripDataCondGetToken_);
+    IfLogDebug(STRIPALPCHK, "STRIPALPCHK") << "#sizeB,stripDataCond_," << alpaka::getExtentProduct(stripDataCond.buffer());
+    
     // Unpack the raw FED data into strip digi
-    algo_.unpackStrips(iEvent.queue());
+    algo_.unpackStrips(iEvent.queue(), stripDataCond);
 
     // Run the clusterization algorithm (ThreeThresholdAlgorithm)
-    auto cluster_d = algo_.makeClusters(iEvent.queue());
+    auto cluster_d = algo_.makeClusters(iEvent.queue(), stripDataCond);
 
     // Get the clusters amplitudes
     auto clusterAmpls_d = algo_.getDigiAmplitudes(iEvent.queue());
@@ -192,6 +178,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   }
 
   std::unique_ptr<PortableFEDMover> SiStripRawToCluster::fillFedIdFedChBuffer(Queue& queue,
+                                                                              const SiStripClusterizerConditions& stripCond,
                                                                               const FEDRawDataCollection& rawColl) {
     // Containers for the condition-passing raw data
     std::fill(raw_.begin(), raw_.end(), nullptr);
@@ -201,16 +188,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     uint32_t rawBuffFlattenSize = 0;
 
     // loop over good det in cabling
-    for (auto idet : stripCond_->allDetIds()) {
+    for (auto idet : stripCond.allDetIds()) {
       // it populates raw_, buffers_ with only connected fed
-      auto const& det = stripCond_->findDetId(idet);
+      auto const& det = stripCond.findDetId(idet);
       if (!det.valid()) {
         continue;  // idet loop
       }
 
       // Loop over apv-pairs of det
       // int connIdx = 0;
-      for (auto const conn : stripCond_->currentConnection(det)) {
+      for (auto const conn : stripCond.currentConnection(det)) {
         // connIdx++;
         if (!conn) {
           continue;  // conn loop
