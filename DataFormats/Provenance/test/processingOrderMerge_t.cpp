@@ -12,7 +12,7 @@ TEST_CASE("processingOrderMerge", "[processingOrderMerge]") {
         edm::processingOrderMerge(ph, names);
         REQUIRE(names.empty());
       }
-      SECTION("one history") {
+      SECTION("one process") {
         edm::ProcessHistory ph;
         edm::ProcessConfiguration pc("A", edm::ReleaseVersion(""), edm::HardwareResourcesDescription());
         ph.push_back(pc);
@@ -21,7 +21,7 @@ TEST_CASE("processingOrderMerge", "[processingOrderMerge]") {
         REQUIRE(names.size() == 1);
         REQUIRE(names[0] == "A");
       }
-      SECTION("two histories") {
+      SECTION("two processes") {
         edm::ProcessHistory ph;
         ph.emplace_back("A", edm::ReleaseVersion(""), edm::HardwareResourcesDescription());
         ph.emplace_back("B", edm::ReleaseVersion(""), edm::HardwareResourcesDescription());
@@ -142,7 +142,7 @@ TEST_CASE("processingOrderMerge", "[processingOrderMerge]") {
         std::vector<std::string> names = {"C", "B", "A"};
         REQUIRE_THROWS_AS(edm::processingOrderMerge(ph, names), cms::Exception);
       }
-      SECTION("beginning out order") {
+      SECTION("ending inconsistent") {
         edm::ProcessHistory ph;
         ph.emplace_back("A", edm::ReleaseVersion(""), edm::HardwareResourcesDescription());
         ph.emplace_back("B", edm::ReleaseVersion(""), edm::HardwareResourcesDescription());
@@ -150,7 +150,7 @@ TEST_CASE("processingOrderMerge", "[processingOrderMerge]") {
         std::vector<std::string> names = {"B", "C", "A"};
         REQUIRE_THROWS_AS(edm::processingOrderMerge(ph, names), cms::Exception);
       }
-      SECTION("end out order") {
+      SECTION("beginning inconsistent") {
         edm::ProcessHistory ph;
         ph.emplace_back("A", edm::ReleaseVersion(""), edm::HardwareResourcesDescription());
         ph.emplace_back("B", edm::ReleaseVersion(""), edm::HardwareResourcesDescription());
@@ -158,7 +158,7 @@ TEST_CASE("processingOrderMerge", "[processingOrderMerge]") {
         std::vector<std::string> names = {"C", "A", "B"};
         REQUIRE_THROWS_AS(edm::processingOrderMerge(ph, names), cms::Exception);
       }
-      SECTION("middle out order") {
+      SECTION("middle inconsistent") {
         edm::ProcessHistory ph;
         ph.emplace_back("A", edm::ReleaseVersion(""), edm::HardwareResourcesDescription());
         ph.emplace_back("B", edm::ReleaseVersion(""), edm::HardwareResourcesDescription());

@@ -41,7 +41,6 @@ namespace edm {
       std::vector<std::string> tempNames;
       tempNames.reserve(processNames.size() > iHistory.size() ? processNames.size() : iHistory.size());
       auto itNew = iHistory.begin();
-      ;
       auto itNewEnd = iHistory.end();
       auto itOld = processNames.begin();
       auto itOldEnd = processNames.end();
