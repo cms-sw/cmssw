@@ -110,7 +110,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             //identify special cases (Si vs SiPM, calib vs normal)
             std::string typecode = pmap.getAttr("Typecode", row);
             auto typeidx = cellIndexer.getEnumFromTypecode(typecode);
-            bool isSiPM = typecode.find("TM") != std::string::npos;
+            bool isSiPM = (typecode[0] == 'T');
             int rocpin = pmap.getIntAttr("ROCpin", row);
             int celltype = pmap.getIntAttr("t", row);
             int i1(0), i2(0), sensorcell(0);
