@@ -199,7 +199,7 @@ void Phase2SteppingAction::UserSteppingAction(const G4Step* aStep) {
     } else if (preStep->GetPhysicalVolume() == tracker && postStep->GetPhysicalVolume() == calo) {
       // store transition tracker -> calo
       TrackInformation* trkinfo = static_cast<TrackInformation*>(theTrack->GetUserInformation());
-      if (!trkinfo->crossedBoundary()) {
+      if (!trkinfo->crossedBoundary() && !doFineCalo_) {
         trkinfo->setCrossedBoundary(theTrack);
       }
     } else if ((preStep->GetPhysicalVolume() == calo && postStep->GetPhysicalVolume() == tracker) ||
