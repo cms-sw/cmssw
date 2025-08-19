@@ -434,7 +434,7 @@ CalibPlotProperties::CalibPlotProperties(const char *fname,
       rbxFile_(rbxFile),
       exclude_(exc),
       includeRun_(true),
-      h_etaE(nullptr), 
+      h_etaE(nullptr),
       h_trgbit1(nullptr),
       h_trgbit2(nullptr) {
   // if parameter tree is not specified (or zero), connect the file
@@ -1155,7 +1155,7 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
         }
 
         if (plotHists_) {
-	  float weight = (isRealData_ ? t_EventWeight : t_EventWeight * puweight(t_nVtx));
+          float weight = (isRealData_ ? t_EventWeight : t_EventWeight * puweight(t_nVtx));
           if ((std::fabs(rat - 1) < 0.15) && (kp == kp50) && ((std::abs(t_ieta) < 15) || (std::abs(t_ieta) > 17))) {
             h_etaE->Fill(t_ieta, eHcal, weight);
             sel += weight;
@@ -1232,11 +1232,11 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
     if (plotHists_) {
       float weight = (isRealData_ ? t_EventWeight : t_EventWeight * puweight(t_nVtx));
       for (unsigned int k = 0; k < t_trgbits->size(); ++k) {
-	int trg = (*t_trgbits)[k];
-	if (h_trgbit1 != nullptr)
-	  h_trgbit1->Fill(trg, weight);
-	if (goodTk && (kp != CalibPlots::npbin0 && selPhi) && (rat > rcut) && final && (h_trgbit2 != nullptr)) 
-	  h_trgbit2->Fill(trg, weight);
+        int trg = (*t_trgbits)[k];
+        if (h_trgbit1 != nullptr)
+          h_trgbit1->Fill(trg, weight);
+        if (goodTk && (kp != CalibPlots::npbin0 && selPhi) && (rat > rcut) && final && (h_trgbit2 != nullptr))
+          h_trgbit2->Fill(trg, weight);
       }
     }
     ++kount;
@@ -2121,7 +2121,7 @@ void PlotPHist(const char *hisFileName,
                int pLow = 1,
                int pHigh = 5,
                bool isRealData = true,
-	       bool logy = false,
+               bool logy = false,
                int save = 0) {
   gStyle->SetCanvasBorderMode(0);
   gStyle->SetCanvasColor(kWhite);
