@@ -788,18 +788,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                                                      const SiStripClusterizerConditionsDetToFedsDevice& conditions_DetToFeds,
                                                      std::unique_ptr<PortableFEDMover> rFEDChMover) {
     // Move ownership of the host-data container this class
-    FEDChMover = std::move(rFEDChMover);
+    FEDChMover_ = std::move(rFEDChMover);
 
     // Move the data to the device
-    fedBuffer_d.emplace(cms::alpakatools::make_device_buffer<uint8_t[]>(queue, FEDChMover->getBufferSize()));
-    alpaka::memcpy(queue, *fedBuffer_d, FEDChMover->getBuffer(), FEDChMover->getBufferSize());
+    fedBuffer_d_.emplace(cms::alpakatools::make_device_buffer<uint8_t[]>(queue, FEDChMover_->getBufferSize()));
+    alpaka::memcpy(queue, *fedBuffer_d_, FEDChMover_->getBuffer(), FEDChMover_->getBufferSize());
 
     // Move fedchannels to the device
-    stripMapping_d = cms::alpakatools::moveToDeviceAsync(queue, FEDChMover->getMapping());
+    stripMapping_d_ = cms::alpakatools::moveToDeviceAsync(queue, FEDChMover_->getMapping());
 
     // Apply quality conditions to mapping and calculate the number of strips to unpack
     uint32_t divider = 32u;
-    uint32_t groups = divide_up_by(FEDChMover->getChannelNb(), divider);
+    uint32_t groups = divide_up_by(FEDChMover_->getChannelNb(), divider);
     auto workDiv = make_workdiv<Acc1D>(groups, divider);
 
     // alpaka::wait(queue);
@@ -816,21 +816,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                         siStripKer_applyQualConds{},
                         nstrips_d.data(),
                         invalidFedChN_d.data(),
-                        fedBuffer_d->data(),
-                        stripMapping_d->view(),
+                        fedBuffer_d_->data(),
+                        stripMapping_d_->view(),
                         conditions_DetToFeds.const_view());
 
     const uint32_t threads = 1024u;
-    const uint32_t nBlocks = divide_up_by(stripMapping_d->view().metadata().size(), threads);
+    const uint32_t nBlocks = divide_up_by(stripMapping_d_->view().metadata().size(), threads);
     const auto workDivMultiBlock = make_workdiv<Acc1D>(nBlocks, threads);
     auto blockCounter_d = make_device_buffer<int32_t>(queue);
     alpaka::memset(queue, blockCounter_d, 0);
     alpaka::exec<Acc1D>(queue,
                         workDivMultiBlock,
                         multiBlockPrefixScan<uint32_t>(),
-                        stripMapping_d->const_view().fedChStripsN(),
-                        stripMapping_d->view().fedChStripsN(),
-                        (uint32_t)stripMapping_d->view().metadata().size(),
+                        stripMapping_d_->const_view().fedChStripsN(),
+                        stripMapping_d_->view().fedChStripsN(),
+                        (uint32_t)stripMapping_d_->view().metadata().size(),
                         (int32_t)nBlocks,
                         blockCounter_d.data(),
                         alpaka::getPreferredWarpSize(alpaka::getDev(queue)));
@@ -838,10 +838,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // To do: merge the two kernels for applyQualConds and sum into a single one.
 
     // Get the number of strips to unpack
-    nStrips_h = cms::alpakatools::make_host_buffer<uint32_t>(queue);
-    const uint32_t size = stripMapping_d->view().metadata().size();
-    auto viewSrc = make_device_view(queue, stripMapping_d->view().fedChStripsN(size - 1));
-    auto viewDst = make_host_view(*nStrips_h->data());
+    nStrips_h_ = cms::alpakatools::make_host_buffer<uint32_t>(queue);
+    const uint32_t size = stripMapping_d_->view().metadata().size();
+    auto viewSrc = make_device_view(queue, stripMapping_d_->view().fedChStripsN(size - 1));
+    auto viewDst = make_host_view(*nStrips_h_->data());
     alpaka::memcpy(queue, viewDst, viewSrc);
 
     // auto stripMapping_h = SiStripMappingHost(stripMapping_d->view().metadata().size(), queue);
@@ -863,22 +863,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // std::cout << "#invalidFed," << invalidFedChN_d.data()[0] << std::endl;
 
     // Allocate the SiStripDigi collection on device
-    const uint32_t nStrips = nStrips_h->data()[0];
+    const uint32_t nStrips = nStrips_h_->data()[0];
     digis_d_ = std::make_unique<SiStripDigiDevice>(nStrips, queue);
     // MEMO: remove zeroInitialise after testing
     // digis_d_->zeroInitialise(queue);
 
     // Run the unpacking kernel
     uint32_t divider = 32u;
-    uint32_t nChannels = (*stripMapping_d)->metadata().size();
+    uint32_t nChannels = (*stripMapping_d_)->metadata().size();
     uint32_t groups = divide_up_by(nChannels, divider);
     auto workDiv = make_workdiv<Acc1D>(groups, divider);
     alpaka::exec<Acc1D>(queue,
                         workDiv,
                         siStripKer_unpackZS2{},
-                        fedBuffer_d->data(),
+                        fedBuffer_d_->data(),
                         digis_d_->view(),
-                        stripMapping_d->const_view(),
+                        stripMapping_d_->const_view(),
                         conditions_Data.const_view<SiStripClusterizerConditionsData_fedchSoA>(),
                         conditions_Data.const_view<SiStripClusterizerConditionsData_stripSoA>(),
                         conditions_Data.const_view<SiStripClusterizerConditionsData_apvSoA>());
@@ -913,7 +913,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                         siStripKer_setSeedStrips{},
                         digis_d_->const_view(),
                         sClustersAux_d_->view(),
-                        stripMapping_d->const_view(),
+                        stripMapping_d_->const_view(),
                         conditions_Data.const_view<SiStripClusterizerConditionsData_stripSoA>());
 
     // Un-seed any contiguous strips in the same detector
@@ -922,7 +922,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                         siStripKer_setNCSeedStrips{},
                         digis_d_->const_view(),
                         sClustersAux_d_->view(),
-                        stripMapping_d->const_view());
+                        stripMapping_d_->const_view());
 
     // Calculate the discrete integral (prefix sum) of seedStripsNCMask.
     // When the integral increase AND I am at a non-contigous strip, the beginning of new cluster is marked.
@@ -941,10 +941,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                                                     alpaka::getPreferredWarpSize(alpaka::getDev(queue))));
 
     // Get the total number of non-contiguous seeds (ready on the host in produce)
-    nSeeds_h = cms::alpakatools::make_host_buffer<uint32_t>(queue);
+    nSeeds_h_ = cms::alpakatools::make_host_buffer<uint32_t>(queue);
     auto viewSrc = make_device_view(queue, sClustersAux_d_->view().prefixSeedStripsNCMask(nStrips - 1));
     //alpaka::ViewPlainPtr<alpaka::DevCpu, unsigned int, std::integral_constant<unsigned long, 0>, unsigned int>
-    auto viewDst = make_host_view(*nSeeds_h->data());
+    auto viewDst = make_host_view(*nSeeds_h_->data());
     //alpaka::ViewPlainPtr<alpaka::DevCpu, unsigned int, std::integral_constant<unsigned long, 0>, unsigned int>
     alpaka::memcpy(queue, viewDst, viewSrc);
 
@@ -965,7 +965,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     auto clusters_d = std::make_unique<SiStripClusterDevice>(kMaxSeedStrips_, queue);
     clusters_d->zeroInitialise(queue);
     // The number of seed over which to loop for clusters is the min between the number of strips and the kMaxSeeds
-    const uint32_t nStrips = nStrips_h->data()[0];
+    const uint32_t nStrips = nStrips_h_->data()[0];
     const uint32_t nSeeds = std::min(kMaxSeedStrips_, nStrips);
     // std::cout << "#mkCl," << nSeeds << std::endl;
 
@@ -981,7 +981,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                         digis_d_->const_view(),
                         sClustersAux_d_->const_view(),
                         clusters_d->view(),
-                        stripMapping_d->const_view(),
+                        stripMapping_d_->const_view(),
                         conditions_Data.const_view<SiStripClusterizerConditionsData_stripSoA>());
 
     // dumpClusters(queue, clusters_d.get(), digis_d_.get());
@@ -993,7 +993,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                         digis_d_->view(),
                         sClustersAux_d_->const_view(),
                         clusters_d->view(),
-                        stripMapping_d->const_view(),
+                        stripMapping_d_->const_view(),
                         conditions_Data.const_view<SiStripClusterizerConditionsData_fedchSoA>(),
                         conditions_Data.const_view<SiStripClusterizerConditionsData_apvSoA>());
 

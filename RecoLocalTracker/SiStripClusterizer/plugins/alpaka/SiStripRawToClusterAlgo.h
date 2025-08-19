@@ -188,17 +188,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     const float minGoodCharge_;
     const uint32_t kMaxSeedStrips_;
 
-    std::unique_ptr<PortableFEDMover> FEDChMover;
+    std::unique_ptr<PortableFEDMover> FEDChMover_;
 
     using DeviceBufferU8 = decltype(cms::alpakatools::make_device_buffer<uint8_t[]>(std::declval<Queue>(), 0));
-    std::optional<DeviceBufferU8> fedBuffer_d;
+    std::optional<DeviceBufferU8> fedBuffer_d_;
 
-    std::optional<SiStripMappingDevice> stripMapping_d;
+    std::optional<SiStripMappingDevice> stripMapping_d_;
 
     using HostBufferU32 = decltype(cms::alpakatools::make_host_buffer<uint32_t>(std::declval<Queue>()));
-    std::optional<HostBufferU32> nStrips_h;
+    std::optional<HostBufferU32> nStrips_h_;
 
-    std::optional<HostBufferU32> nSeeds_h;
+    std::optional<HostBufferU32> nSeeds_h_;
 
     int nStripsBytes_ = 0;
     std::unique_ptr<SiStripDigiDevice> digis_d_;
