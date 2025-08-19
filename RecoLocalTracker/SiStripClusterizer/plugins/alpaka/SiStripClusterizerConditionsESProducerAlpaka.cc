@@ -31,18 +31,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   class DetToFed {
   public:
     DetToFed(uint32_t detid, uint16_t fedid, uint16_t fedch, uint16_t ipair)
-        : detid_(detid), fedid_(fedid), fedch_(fedch), ipair_(ipair) {}
+        : detID_(detid), fedID_(fedid), fedCh_(fedch), iPair_(ipair) {}
 
-    inline uint32_t detID() const { return detid_; }
-    inline uint16_t fedID() const { return fedid_; }
-    inline uint16_t fedCh() const { return fedch_; }
-    inline uint16_t pair() const { return ipair_; }
+    inline uint32_t detID() const { return detID_; }
+    inline uint16_t fedID() const { return fedID_; }
+    inline uint16_t fedCh() const { return fedCh_; }
+    inline uint16_t iPair() const { return iPair_; }
 
   private:
-    uint32_t detid_;
-    uint16_t fedid_;
-    uint16_t fedch_;
-    uint16_t ipair_;
+    uint32_t detID_;
+    uint16_t fedID_;
+    uint16_t fedCh_;
+    uint16_t iPair_;
   };
 
   class SiStripClusterizerConditionsESProducerAlpaka : public ESProducer {
@@ -137,7 +137,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       std::vector<uint16_t> noise(sistrip::NUMBER_OF_FEDS * sistrip::FEDCH_PER_FED * sistrip::STRIPS_PER_FEDCH);
       std::vector<float> gain(sistrip::NUMBER_OF_FEDS * sistrip::APVS_PER_FEDCH * sistrip::FEDCH_PER_FED);
 
-      fillSiStripClusterizerConditions_(quality, gains.product(), noises, invthick, detID, iPair, noise, gain);
+      fillSiStripClusterizerConditions(quality, gains.product(), noises, invthick, detID, iPair, noise, gain);
 
       // LogDebug("StripCondsESProd") << "Produced a SiStripClusterizerConditions object for " << detToFeds.size()
       //                              << " modules";
@@ -198,7 +198,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     edm::ESGetToken<SiStripQuality, SiStripQualityRcd> qualityTokenB_;
 
     // Make conditions as in the RecoLocalTracker/SiStripClusterizer/plugins/ClustersFromRawProducer.cc module
-    void fillSiStripClusterizerConditions_(const SiStripQuality& quality,
+    void fillSiStripClusterizerConditions(const SiStripQuality& quality,
                                            const SiStripGain* gains,
                                            const SiStripNoises& noises,
                                            std::vector<float>& invthick,
@@ -208,7 +208,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                                            std::vector<float>& gain);
   };
 
-  void SiStripClusterizerConditionsESProducerAlpaka::fillSiStripClusterizerConditions_(const SiStripQuality& quality,
+  void SiStripClusterizerConditionsESProducerAlpaka::fillSiStripClusterizerConditions(const SiStripQuality& quality,
                                                                                        const SiStripGain* gains,
                                                                                        const SiStripNoises& noises,
                                                                                        std::vector<float>& invthick,
