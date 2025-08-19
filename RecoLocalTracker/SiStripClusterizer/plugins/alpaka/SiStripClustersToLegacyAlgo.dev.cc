@@ -23,7 +23,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       //
       // for (uint32_t i=0; i<nbClusterCandidates; ++i) {
       for (auto i : uniform_elements(acc, nbClusterCandidates)) {
-        const bool write = fullCollection.candidateAccepted(i);
         // if (i<100 || i> (nbClusterCandidates - 100)) {
         //   printf(
         //     "#fccs,%i,%i,%i,%i,%i,%i,%f,%f,%i\n",
@@ -38,7 +37,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         //     fullCollection.candidateAcceptedPrefix(i)
         //   );
         // }
-        if (write) {
+        if (fullCollection.candidateAccepted(i)) {
           const uint32_t idx = fullCollection.candidateAcceptedPrefix(i) - 1;
           slimCollection.clusterIndex(idx) = fullCollection.clusterIndex(i);
           slimCollection.clusterSize(idx) = fullCollection.clusterSize(i);
