@@ -512,7 +512,7 @@ if (process.runType.getRunType() == process.runType.hpu_run):
 process.castorDigis.InputLabel = rawDataCollectorLabel
 process.csctfDigis.producer = rawDataCollectorLabel
 process.dttfDigis.DTTF_FED_Source = rawDataCollectorLabel
-process.ecalDigisCPU.InputLabel = rawDataCollectorLabel
+process.ecalDigis.InputLabel = rawDataCollectorLabel
 process.ecalPreshowerDigis.sourceTag = rawDataCollectorLabel
 process.gctDigis.inputLabel = rawDataCollectorLabel
 process.gtDigis.DaqGtInputTag = rawDataCollectorLabel
@@ -537,7 +537,7 @@ if process.runType.getRunType() == process.runType.hi_run:
     process.castorDigis.InputLabel = rawDataRepackerLabel
     process.csctfDigis.producer = rawDataRepackerLabel
     process.dttfDigis.DTTF_FED_Source = rawDataRepackerLabel
-    process.ecalDigisCPU.InputLabel = rawDataRepackerLabel
+    process.ecalDigis.InputLabel = rawDataRepackerLabel
     process.ecalPreshowerDigis.sourceTag = rawDataRepackerLabel
     process.gctDigis.inputLabel = rawDataRepackerLabel
     process.hcalDigis.InputLabel = rawDataRepackerLabel

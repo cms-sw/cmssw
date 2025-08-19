@@ -1,20 +1,15 @@
 import FWCore.ParameterSet.Config as cms
-from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
 
 # ECAL Phase 2 weights running on CPU
 from RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitPhase2_cfi import ecalUncalibRecHitPhase2 as _ecalUncalibRecHitPhase2
-ecalUncalibRecHitPhase2CPU = _ecalUncalibRecHitPhase2.clone() 
-ecalUncalibRecHitPhase2 = SwitchProducerCUDA(
-  cpu = ecalUncalibRecHitPhase2CPU
-)
+ecalUncalibRecHitPhase2 = _ecalUncalibRecHitPhase2.clone()
+ecalUncalibRecHitPhase2Legacy = ecalUncalibRecHitPhase2.clone()
 
 ecalUncalibRecHitPhase2Task = cms.Task(
         # ECAL weights running on CPU
         ecalUncalibRecHitPhase2
 )
 
-
-from Configuration.StandardSequences.Accelerators_cff import *
 
 # process modifier to run alpaka implementation
 from Configuration.ProcessModifiers.alpaka_cff import alpaka
@@ -30,8 +25,7 @@ ecalUncalibRecHitPhase2SoA = _ecalUncalibRecHitPhase2Portable.clone(
 )
 
 from RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitSoAToLegacy_cfi import ecalUncalibRecHitSoAToLegacy as _ecalUncalibRecHitSoAToLegacy
-alpaka.toModify(ecalUncalibRecHitPhase2,
-    cpu = _ecalUncalibRecHitSoAToLegacy.clone(
+alpaka.toReplaceWith(ecalUncalibRecHitPhase2, _ecalUncalibRecHitSoAToLegacy.clone(
     isPhase2 = True,
     inputCollectionEB = 'ecalUncalibRecHitPhase2SoA:EcalUncalibRecHitsEB',
     inputCollectionEE = None,
