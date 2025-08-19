@@ -134,6 +134,7 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_BTV_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_Ele5_Open_L1Seeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_Ele5_Open_Unseeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_JME_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_TRK_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/CkfBaseTrajectoryFilter_block_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/ckfBaseTrajectoryFilterP5_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/CkfTrajectoryBuilder_cfi")
@@ -365,6 +366,7 @@ fragment.schedule = cms.Schedule(*[
 
     fragment.MC_JME,
     fragment.MC_BTV,
+    fragment.MC_TRK,
     fragment.MC_Ele5_Open_Unseeded,
     fragment.MC_Ele5_Open_L1Seeded,
 
