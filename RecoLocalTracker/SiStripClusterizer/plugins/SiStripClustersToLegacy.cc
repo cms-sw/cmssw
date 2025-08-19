@@ -56,7 +56,7 @@ namespace sistrip {
       const uint32_t goodClustersNb = clusters_onHost->candidateAcceptedPrefix(clustersArrSize - 1);
 
       using out_t = edmNew::DetSetVector<SiStripCluster>;
-      auto output = std::make_unique<out_t>(edmNew::DetSetVector<SiStripCluster>());
+      auto output = std::make_unique<out_t>();
       // output->reserve(nModulesWithClustersGuess, goodClustersNb);
 
       // Debugging

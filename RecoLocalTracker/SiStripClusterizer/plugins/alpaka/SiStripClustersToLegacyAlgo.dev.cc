@@ -118,7 +118,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     const int nSeedStripsNC = (*clusters_h_)->nClusters();
 
     using out_t = edmNew::DetSetVector<SiStripCluster>;
-    auto output = std::make_unique<out_t>(edmNew::DetSetVector<SiStripCluster>());
+    auto output = std::make_unique<out_t>();
     // output->reserve(kInitSeedStripsSize, nSeedStripsNC);
     // return output;
 
