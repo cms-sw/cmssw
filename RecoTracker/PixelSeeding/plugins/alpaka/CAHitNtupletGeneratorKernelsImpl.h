@@ -528,7 +528,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                                     nCellTracks,
                                                     ct,
                                                     *apc,
-                                                    tracks_view.quality(),
+                                                    tracks_view.quality().data(),
                                                     stack,
                                                     params.minHitsPerNtuplet_);
           ALPAKA_ASSERT_ACC(stack.empty());
