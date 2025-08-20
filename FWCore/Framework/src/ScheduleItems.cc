@@ -87,6 +87,7 @@ namespace edm {
     }
     // propagate_const<T> has no reset() function
     processConfiguration_ = std::make_shared<ProcessConfiguration>(processName, releaseVersion, hwResources);
+    preg_->setCurrentProcess(processName);
     auto common = std::make_shared<CommonParams>(
         parameterSet.getUntrackedParameterSet("maxEvents").getUntrackedParameter<int>("input"),
         parameterSet.getUntrackedParameterSet("maxLuminosityBlocks").getUntrackedParameter<int>("input"),

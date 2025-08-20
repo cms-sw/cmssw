@@ -57,6 +57,7 @@ private:
   bool killBeamPipe{false};
   bool hasWatcher;
   bool dd4hep_;
+  bool doFineCalo_;
 
   std::vector<double> maxTrackTimes, ekinMins;
   std::vector<std::string> maxTimeNames, ekinNames, ekinParticles;
