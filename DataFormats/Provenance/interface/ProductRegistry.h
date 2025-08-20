@@ -62,14 +62,24 @@ namespace edm {
 
     void setUnscheduledProducts(std::set<std::string> const& unscheduledLabels);
 
+    /** For ProductDescription::ProducingAndInput, the call to merge must be on the
+    ProductRegistry of the current process and contain products from just that process
+    and `other` must be from the input. The process names from `other` should be ordered
+    such that the most recent processes are first.*/
     std::string merge(ProductRegistry const& other,
                       std::string const& fileName,
                       ProductDescription::MatchMode branchesMustMatch = ProductDescription::Permissive);
 
-    void updateFromInput(ProductList const& other);
+    /** The `processOrder` argument is the list of process name ordered by recency where the
+     * most recent process is first.
+     */
+    void updateFromInput(ProductList const& other, std::vector<std::string> const& processOrder);
+    void updateFromInput(std::vector<ProductDescription> const& other, std::vector<std::string> const& processOrder);
 
-    void updateFromInput(std::vector<ProductDescription> const& other);
-
+    void setProcessOrder(std::vector<std::string> const& processOrder) {
+      throwIfFrozen();
+      transient_.processOrder_ = processOrder;
+    }
     ProductList const& productList() const {
       //throwIfNotFrozen();
       return productList_;
@@ -79,6 +89,7 @@ namespace edm {
       throwIfFrozen();
       return productList_;
     }
+    std::vector<std::string> const& processOrder() const { return transient_.processOrder_; }
 
     // Return all the branch names currently known to *this.  This
     // does a return-by-value of the vector so that it may be used in
@@ -142,6 +153,7 @@ namespace edm {
       std::array<ProductResolverIndex, NumBranchTypes> nextIndexValues_;
 
       std::map<BranchID, ProductResolverIndex> branchIDToIndex_;
+      std::vector<std::string> processOrder_;
 
       enum { kKind, kType, kModuleLabel, kProductInstanceName, kAliasForModuleLabel };
       using AliasToOriginalVector = std::vector<std::tuple<KindOfType, TypeID, std::string, std::string, std::string>>;
@@ -193,6 +205,7 @@ namespace edm {
                                           std::map<TypeID, std::vector<TypeID>>& containedTypeToBaseTypesMap);
 
     void checkForDuplicateProcessName(ProductDescription const& desc, std::string const* processName) const;
+    void updateProcessOrder(std::vector<std::string> const& processOrder);
 
     void throwIfNotFrozen() const;
     void throwIfFrozen() const;

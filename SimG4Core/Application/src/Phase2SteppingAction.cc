@@ -38,6 +38,7 @@ Phase2SteppingAction::Phase2SteppingAction(const CMSSteppingVerbose* sv,
   caloName_ = (G4String)(p.getParameter<std::string>("CaloName"));
   btlName_ = (G4String)(p.getParameter<std::string>("BTLName"));
   cms2ZDCName_ = p.getParameter<std::string>("CMS2ZDCName");
+  doFineCalo_ = (p.getParameter<bool>("DoFineCalo"));
 
   edm::LogVerbatim("SimG4CoreApplication")
       << "Phase2SteppingAction:: KillBeamPipe = " << killBeamPipe
@@ -199,7 +200,7 @@ void Phase2SteppingAction::UserSteppingAction(const G4Step* aStep) {
     } else if (preStep->GetPhysicalVolume() == tracker && postStep->GetPhysicalVolume() == calo) {
       // store transition tracker -> calo
       TrackInformation* trkinfo = static_cast<TrackInformation*>(theTrack->GetUserInformation());
-      if (!trkinfo->crossedBoundary()) {
+      if (!trkinfo->crossedBoundary() && !doFineCalo_) {
         trkinfo->setCrossedBoundary(theTrack);
       }
     } else if ((preStep->GetPhysicalVolume() == calo && postStep->GetPhysicalVolume() == tracker) ||
