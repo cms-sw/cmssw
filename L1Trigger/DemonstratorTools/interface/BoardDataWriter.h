@@ -51,13 +51,8 @@ namespace l1t::demo {
     // If there are events that have not been written to file, forces creation of a board data file containing them
     void flush();
 
-    std::vector<std::string> fileNames_;
-
-    size_t maxEventsPerFile_;
-
-    // Flag that controls whether channels of different TMUX slices are offset from each other by
-    // framesPerBX_ x relative BX ID (via invalid words at start of file)
-    bool staggerTmuxSlices_;
+    // Check that all given file writers have the same maxEventsPerFile_
+    static void checkNumEventsPerFile(const std::vector<BoardDataWriter*>& fileWriters);
 
   private:
     static ChannelMap_t mergeMaps(const std::map<LinkId, std::vector<size_t>>&,
@@ -72,11 +67,15 @@ namespace l1t::demo {
 
     std::function<std::string(const size_t)> filePathGen_;
 
+    std::vector<std::string> fileNames_;
+
     size_t framesPerBX_;
 
     size_t boardTMUX_;
 
     size_t maxFramesPerFile_;
+
+    size_t maxEventsPerFile_;
 
     size_t eventIndex_;
 
@@ -87,6 +86,10 @@ namespace l1t::demo {
 
     // map of logical channel ID -> [TMUX period, interpacket-gap & offset; channel indices]
     ChannelMap_t channelMap_;
+
+    // Flag that controls whether channels of different TMUX slices are offset from each other by
+    // framesPerBX_ x relative BX ID (via invalid words at start of file)
+    bool staggerTmuxSlices_;
   };
 
 }  // namespace l1t::demo

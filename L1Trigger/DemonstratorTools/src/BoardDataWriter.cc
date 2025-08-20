@@ -15,17 +15,17 @@ namespace l1t::demo {
                                    const size_t maxFramesPerFile,
                                    const ChannelMap_t& channelSpecs,
                                    const bool staggerTmuxSlices)
-      : maxEventsPerFile_(maxFramesPerFile),
-        staggerTmuxSlices_(staggerTmuxSlices),
-        fileFormat_(format),
+      : fileFormat_(format),
         boardDataFileID_("CMSSW"),
         filePathGen_([=](const size_t i) { return path + "_" + std::to_string(i) + "." + fileExt; }),
         framesPerBX_(framesPerBX),
         boardTMUX_(tmux),
         maxFramesPerFile_(maxFramesPerFile),
+        maxEventsPerFile_(maxFramesPerFile_),
         eventIndex_(0),
         pendingEvents_(0),
-        channelMap_(channelSpecs) {
+        channelMap_(channelSpecs),
+        staggerTmuxSlices_(staggerTmuxSlices) {
     if (channelMap_.empty())
       throw std::runtime_error("BoardDataWriter channel map cannnot be empty");
     if (fileExt != "txt" && fileExt != "txt.gz" && fileExt != "txt.xz")
@@ -53,9 +53,6 @@ namespace l1t::demo {
           tmuxRatio * ((maxFramesPerFile_ - spec.offset) / (framesPerBX_ * boardTMUX_ * tmuxRatio));
       maxEventsPerFile_ =
           std::min(maxEventsPerFile_, staggerTmuxSlices ? maxEventsPerFileStaggered : maxEventsPerFileUnstaggered);
-      //TODO: maxEventsPerFile_ can in principle be different for different channels, but we assume that all channels have the same maxEventsPerFile_ and only use the value from the last channel in this loop.
-      // staggerTmuxSlices_ = tmuxRatio == 1 ? false : staggerTmuxSlices_;  // This is to ensure staggerTmuxSlices_ is set to false if the link:board TMUX ratio is 1, as staggering has no effect in this case.
-      // tmuxRatio_ = tmuxRatio; // alternatively, we could store the tmuxRatio and treat channels with tmuxRatio=1 as unstaggered.
     }
 
     resetBoardData();
@@ -84,13 +81,12 @@ namespace l1t::demo {
     // Note we don't call flush() in the destructor because any exceptions would not be properly handled.
     // BoardDataWriter::flush() should be called in the endJob() function, e.g. GTTFileWriter::endJob().
     if (pendingEvents_ > 0) {
-      std::cerr << "BoardDataWriter: Warning: The last " << pendingEvents_
+      std::cerr << "BoardDataWriter: WARNING: The last " << pendingEvents_
                 << " events were not written to file. Please remember to flush() in the endJob() function of your file "
                    "writer."
                 << std::endl;
       if (!fileNames_.empty()) {
-        std::cerr << "BoardDataWriter: The name of the last complete output buffer file was " << fileNames_.back()
-                  << std::endl;
+        std::cerr << " The name of the last complete output buffer file was " << fileNames_.back() << std::endl;
       }
     }
   }
@@ -197,6 +193,50 @@ namespace l1t::demo {
     }
 
     pendingEvents_ = 0;
+  }
+
+  void BoardDataWriter::checkNumEventsPerFile(const std::vector<BoardDataWriter*>& fileWriters) {
+    // Check that all given file writers have the same maxEventsPerFile_
+    if (fileWriters.empty())
+      return;
+
+    // Create a vector of pointers to all unstaggered file writers
+    std::vector<BoardDataWriter*> fileWritersUnstaggered;
+    for (const auto& fileWriter : fileWriters) {
+      if (!fileWriter->staggerTmuxSlices_) {
+        fileWritersUnstaggered.push_back(fileWriter);
+      }
+    }
+
+    const size_t maxEventsPerFile = fileWritersUnstaggered.size() > 0
+                                        ? fileWritersUnstaggered.front()->maxEventsPerFile_
+                                        : fileWriters.front()->maxEventsPerFile_;
+
+    // Print a warning if a staggered file writer has a different maxEventsPerFile_ (only a warning because staggered file writers
+    // are not expected to all have the same maxEventsPerFile_ when they don't share the same link:board TMUX ratio)
+    for (const auto& fileWriter : fileWriters) {
+      if (fileWriter->staggerTmuxSlices_ && fileWriter->maxEventsPerFile_ != maxEventsPerFile) {
+        std::cerr << "\nBoardDataWriter: WARNING: A staggered BoardDataWriter has a different maxEventsPerFile_.\n"
+                  << " The first file writer has maxEventsPerFile_ = " << maxEventsPerFile
+                  << ", but a staggered file writer has maxEventsPerFile_ = " << fileWriter->maxEventsPerFile_
+                  << ".\n This is expected only if they are using different link:board TMUX ratios"
+                  << " (or if you're using a mixture of staggered and unstaggered file writers).\n"
+                  << std::endl;
+      }
+    }
+
+    // Throw an error if the maxEventsPerFile_ is not the same for all unstaggered file writers
+    for (const auto& fileWriter : fileWritersUnstaggered) {
+      if (fileWriter->maxEventsPerFile_ != maxEventsPerFile) {
+        throw std::runtime_error(
+            "BoardDataWriter: All unstaggered BoardDataWriters must have the same maxEventsPerFile_.\n"
+            "The first file writer has maxEventsPerFile_ = " +
+            std::to_string(maxEventsPerFile) +
+            ", but another file writer has maxEventsPerFile_ = " + std::to_string(fileWriter->maxEventsPerFile_) +
+            ".\nPlease set the maxFramesPerFile parameter to use a multiple of the link TMUX (after accounting for any "
+            "offset).");
+      }
+    }
   }
 
 }  // namespace l1t::demo
