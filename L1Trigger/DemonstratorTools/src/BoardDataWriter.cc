@@ -208,9 +208,8 @@ namespace l1t::demo {
       }
     }
 
-    const size_t maxEventsPerFile = fileWritersUnstaggered.size() > 0
-                                        ? fileWritersUnstaggered.front()->maxEventsPerFile_
-                                        : fileWriters.front()->maxEventsPerFile_;
+    const size_t maxEventsPerFile = !fileWritersUnstaggered.empty() ? fileWritersUnstaggered.front()->maxEventsPerFile_
+                                                                    : fileWriters.front()->maxEventsPerFile_;
 
     // Print a warning if a staggered file writer has a different maxEventsPerFile_ (only a warning because staggered file writers
     // are not expected to all have the same maxEventsPerFile_ when they don't share the same link:board TMUX ratio)
