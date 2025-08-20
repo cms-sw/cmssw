@@ -5,6 +5,8 @@ __init__.py
 #*#
 *~
 *.pb
+*.png
+*.root
 
 # ignore partially applied patches and their backup
 *.rej

@@ -9,8 +9,9 @@ file_paths = ['/afs/cern.ch/user/g/gjedrzej/private/mainTask/CMSSW_15_0_11/src/V
 file_labels = ['Unfiltered', 'Calibration', 'Physics']
 
 #histogram names
-histogram_names = ['Example Histogram', 'Theta Degrees', 'Phi', 'Energy', 'Pt', 'Xi']
+histogram_names = ['Example Histogram', 'Theta', 'Phi', 'Energy', 'Pt', 'Xi']
 histogram_3d_names = ['Xi_Pt_Phi', 'Xi_Theta_Phi']
+
 
 # Phi slices for projections (e.g., in radians)
 phi_slices = [(-5.0, -2.5), (-2.5, 0.0), (0.0, 2.5), (2.5, 5.0)]
@@ -168,5 +169,87 @@ for hist_3d_name in histogram_3d_names:
     del c_phi_slices
     for f in files:
         f.Close()
+
+
+
+
+# --- Plotting 1D Histograms on the same canvas ---
+for hist_name in histogram_names:
+    print(f"Processing 1D histogram: {hist_name}")
+
+    c1 = ROOT.TCanvas('c1', hist_name, 800, 600)
+    
+    files = []
+    hists_to_keep = [] # List to prevent histograms from being garbage collected
+    
+    # Define colors and line styles
+    colors = [ROOT.kRed, ROOT.kBlue, ROOT.kGreen + 2]
+    line_styles = [1, 2, 3] # Solid, dashed, dotted
+    
+    # Create the legend
+    legend = ROOT.TLegend(0.8, 0.8, 1.0, 1.0)
+
+    for i, path in enumerate(file_paths):
+        try:
+            f = ROOT.TFile.Open(path)
+            if not f or f.IsZombie():
+                print(f"Error: Could not open file {path}")
+                continue
+            files.append(f)
+
+            hist = f.Get(hist_name)
+            if not hist:
+                print(f"Error: Histogram '{hist_name}' not found in {path}")
+                continue
+
+            # # Normalize the histogram to unit area for direct shape comparison
+            # if hist.Integral() > 0:
+            #     hist.Scale(1.0 / hist.Integral())
+
+            # Set styling
+            hist.SetStats(0)
+            hist.SetLineColor(colors[i])
+            hist.SetLineStyle(line_styles[i])
+            hist.SetLineWidth(2)
+            hist.SetTitle(f'Comparison of {hist_name}')
+            
+            hists_to_keep.append(hist)
+            legend.AddEntry(hist, file_labels[i], "l")
+
+            # Draw the first histogram normally, subsequent ones with "SAME"
+            if i == 0:
+                hist.Draw()
+                hist.GetXaxis().SetTitle(hist_name)
+                hist.GetYaxis().SetTitle("Entries")
+            else:
+                hist.Draw("SAME")
+
+        except Exception as e:
+            print(f"An error occurred: {e}")
+
+    # Draw the legend and update the canvas
+    legend.Draw()
+    c1.Update()
+    
+    # Save the plot
+    safe_hist_name = hist_name.replace(" ", "_").replace(";", "")
+    output_filename = os.path.join(output_directory, f"{safe_hist_name}_overlay_comparison.png")
+    c1.SaveAs(output_filename)
+    
+    print(f"Comparison plot saved to {output_filename}")
+    
+    # Clean up
+    del c1
+    for f in files:
+        f.Close()
+
+
+
+
+
+
+
+
+
 
 print("All histograms have been processed.")

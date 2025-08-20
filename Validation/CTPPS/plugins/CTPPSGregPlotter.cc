@@ -101,13 +101,13 @@ CTPPSGregPlotter::CTPPSGregPlotter(const edm::ParameterSet &ps):
     outputFile_(ps.getParameter<std::string>("outputFile")),
     outputFileRoot_(new TFile(outputFile_.c_str(), "recreate")), 
     h_example (new TH2D("Example Histogram", "Prototype", 350, -0.05, 0.3, 500, -0.5, 4.5)),
-    h_theta (new TH1D("Theta", "Theta", 100, -0.0003, 0.0003)),
-    h_phi (new TH1D("Phi", "Phi", 250, -5., 5.)),
-    h_energy (new TH1D("Energy", "Energy", 1800, 4800., 6600.)),
-    h_pt (new TH1D("Pt", "Pt", 250, -0.5, 2.)),
-    h_xi (new TH1D("Xi", "Xi", 175, -0.05, 0.3)),
-    h_ptXiPhi(new TH3D("Xi_Pt_Phi", "Pt vs Xi in different Phi", 175, -0.05, 0.3, 250, -0.5, 2., 250, -5., 5.)),
-    h_thetaXiPhi(new TH3D("Xi_Theta_Phi", "Theta vs Xi in different Phi", 175, -0.05, 0.3, 100, -0.0003, 0.0003, 250, -5., 5.)),
+    h_theta (new TH1D("Theta", "Theta", 200, -0.0003, 0.0003)),
+    h_phi (new TH1D("Phi", "Phi", 100, -5., 5.)),
+    h_energy (new TH1D("Energy", "Energy", 180, 4800., 6600.)),
+    h_pt (new TH1D("Pt", "Pt", 200, -0.5, 2.)),
+    h_xi (new TH1D("Xi", "Xi", 100, -0.05, 0.3)),
+    h_ptXiPhi(new TH3D("Xi_Pt_Phi", "Pt vs Xi in different Phi", 100, -0.05, 0.3, 250, -0.5, 2., 100, -5., 5.)),
+    h_thetaXiPhi(new TH3D("Xi_Theta_Phi", "Theta vs Xi in different Phi", 100, -0.05, 0.3, 200, -0.0003, 0.0003, 100, -5., 5.)),
     hepMCToken_(consumes<edm::HepMCProduct>(ps.getParameter<edm::InputTag>("hepMCTag"))), //Protons
     tokenBeamParameters_(esConsumes())
 
