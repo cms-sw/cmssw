@@ -30,6 +30,7 @@ private:
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> pDDToken_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> hTTToken_;
   edm::ESGetToken<SiPixelLorentzAngle, SiPixelLorentzAngleRcd> lorentzAngleToken_;
+  edm::ESGetToken<std::vector<SiPixelTemplateStore>, SiPixelTemplateDBObjectESProducerRcd> templateStoreToken_;
   edm::ESGetToken<SiPixelTemplateDBObject, SiPixelTemplateDBObjectESProducerRcd> templateDBobjectToken_;
   edm::ESGetToken<SiPixel2DTemplateDBObject, SiPixel2DTemplateDBObjectESProducerRcd> templateDBobject2DToken_;
 
@@ -51,6 +52,7 @@ PixelCPEClusterRepairESProducer::PixelCPEClusterRepairESProducer(const edm::Para
   magfieldToken_ = c.consumes();
   pDDToken_ = c.consumes();
   hTTToken_ = c.consumes();
+  templateStoreToken_ = c.consumes();
   templateDBobjectToken_ = c.consumes();
   templateDBobject2DToken_ = c.consumes();
   if (useLAFromDB_ || doLorentzFromAlignment_) {
@@ -91,6 +93,7 @@ std::unique_ptr<PixelClusterParameterEstimator> PixelCPEClusterRepairESProducer:
                                                  iRecord.get(pDDToken_),
                                                  iRecord.get(hTTToken_),
                                                  lorentzAngleProduct,
+                                                 &iRecord.get(templateStoreToken_),
                                                  &iRecord.get(templateDBobjectToken_),
                                                  &iRecord.get(templateDBobject2DToken_));
 }

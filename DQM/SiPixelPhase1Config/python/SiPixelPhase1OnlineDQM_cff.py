@@ -70,6 +70,8 @@ from DQM.SiPixelPhase1Summary.SiPixelPhase1Summary_cfi import *
 
 # Track cluster                                                                                                                                                                            
 from DQM.SiPixelPhase1Track.SiPixelPhase1TrackClusters_cfi import *
+from RecoLocalTracker.SiPixelRecHits.SiPixelTemplateStoreESProducer_cfi import *
+
 SiPixelPhase1TrackClustersOnTrackCorrCharge.enabled=cms.bool(False)
 SiPixelPhase1TrackTemplateCorr.enabled=cms.bool(False)
 SiPixelPhase1TrackClustersOnTrackCorrChargeOuter.enabled=cms.bool(False)
