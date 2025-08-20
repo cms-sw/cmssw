@@ -7,7 +7,7 @@ root_file_path = "/afs/cern.ch/user/g/gjedrzej/private/mainTask/CMSSW_15_0_11/sr
 # Set the output directory for plots
 output_directory = "./plots/plotsTracks/"
 # Define the sub-folders to process
-folders_to_process_single_rp = ["RP 3", "RP 16", "RP 23", "RP 103", "RP 116", "RP 123"]
+folders_to_process_single_rp = ["RP 3", "RP 23", "RP 103", "RP 123"]
 histograms_to_plot_single_rp = ["h2_y_vs_x"]#, "h_x", "h_y", "h_time"]
 
 # Create the output directory if it doesn't exist
@@ -52,6 +52,7 @@ def plot_histograms_from_folders(file_path, sub_dirs, hist_names, output_dir):
 
             # Create a new canvas for each plot
             c = ROOT.TCanvas(f"c_{sub_dir_name.replace(' ', '_')}_{hist_name}", f"{sub_dir_name} - {hist_name}", 800, 600)
+            c.SetLogx(1)
 
             # Draw the histogram based on its type (h2_ for 2D, others for 1D)
             if isinstance(hist, ROOT.TH2):
