@@ -319,10 +319,10 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
   mMatchedJetEta = ibooker.book1D("MatchedJetEta", "Matched Jets;#eta;# jets", n_EtaBins, EtaRange[0], EtaRange[1]);
   mMatchedJetPhi = ibooker.book1D("MatchedJetPhi", "Matched Jets;#phi;# jets", n_PhiBins, PhiRange[0], PhiRange[1]);
   mMatchedJetPt = ibooker.book1D("MatchedJetPt", "Matched Jets;p_{T};# jets", n_PtBins, PtRange[0], PtRange[1]);
-  mMatchedJetchHad = ibooker.book1D("MatchedJetchHad", "Matched Jets;charged HAD energy fraction;# jets", 40, 0, 1);
-  mMatchedJetneHad = ibooker.book1D("MatchedJetneHad", "Matched Jets;neutral HAD energy fraction;# jets", 40, 0, 1);
-  mMatchedJetchEm = ibooker.book1D("MatchedJetchEm", "Matched Jets;charged EM energy fraction;# jets", 40, 0, 1);
-  mMatchedJetneEm = ibooker.book1D("MatchedJetneEm", "Matched Jets;neutral EM energy fraction;# jets", 40, 0, 1);
+  mMatchedJetchHad = ibooker.book1D("MatchedJetchHad", "Matched Jets;charged HAD energy fraction;# jets", 50, 0, 1);
+  mMatchedJetneHad = ibooker.book1D("MatchedJetneHad", "Matched Jets;neutral HAD energy fraction;# jets", 50, 0, 1);
+  mMatchedJetchEm = ibooker.book1D("MatchedJetchEm", "Matched Jets;charged EM energy fraction;# jets", 50, 0, 1);
+  mMatchedJetneEm = ibooker.book1D("MatchedJetneEm", "Matched Jets;neutral EM energy fraction;# jets", 50, 0, 1);
   mMatchedJetnCost = ibooker.book1D("MatchedJetnCost", "Matched Jets;# constituents;# jets", 100, 0, 100);
   mMatchedJetEtaPt = ibooker.book2D("MatchedJetEtaPt",
                                     "Matched Jets;#eta;p_{T}",
