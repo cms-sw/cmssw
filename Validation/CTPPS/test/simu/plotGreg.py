@@ -18,7 +18,7 @@ phi_slices = [(-5.0, -2.5), (-2.5, 0.0), (0.0, 2.5), (2.5, 5.0)]
 phi_slice_labels = ['Phi_-5.0_to_-2.5', 'Phi_-2.5_to_0.0', 'Phi_0.0_to_2.5', 'Phi_2.5_to_5.0']
 
 #setup
-output_directory = './plots/'
+output_directory = './plots/plotsGreg/'
 if not os.path.exists(output_directory):
     os.makedirs(output_directory)
     print(f"Created directory: {output_directory}")
