@@ -10,7 +10,7 @@ process.options = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:testProcessBlock5.root'
+        'file:testProcessBlockDummy.root'
     )
 )
 
@@ -20,7 +20,7 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 process.testOneOutput = cms.OutputModule("TestOneOutput",
     verbose = cms.untracked.bool(False),
-    expectedProcessesWithProcessBlockProducts = cms.untracked.vstring('MERGEOFMERGED', 'MERGE'),
+    expectedProcessesWithProcessBlockProducts = cms.untracked.vstring('PROD1', 'MERGE'),
     expectedWriteProcessBlockTransitions = cms.untracked.int32(2)
 )
 

@@ -35,7 +35,7 @@ namespace edm {
   public:
     static int const invalidSplitLevel = -1;
     static int const invalidBasketSize = 0;
-    enum MatchMode { Strict = 0, Permissive };
+    enum MatchMode { Strict = 0, Permissive, FromInputToCurrent };
 
     BranchDescription();
 

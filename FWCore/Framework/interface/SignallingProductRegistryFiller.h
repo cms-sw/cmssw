@@ -76,6 +76,10 @@ namespace edm {
     }
     ProductRegistry::ProductList& productListUpdator() { return registry_.productListUpdator(); }
 
+    void setCurrentProcess(std::string const& processOrder) {
+      registry_.setProcessOrder(std::vector<std::string>(1, processOrder));
+    }
+
     template <class T>
     void watchProductAdditions(const T& iFunc) {
       serviceregistry::connect_but_block_self(productAddedSignal_, iFunc);

@@ -134,6 +134,9 @@ then
   echo "testProcessBlock5"
   cmsRun ${LOCAL_TEST_DIR}/testProcessBlock5_cfg.py &> testProcessBlock5.log || die "cmsRun testProcessBlock5_cfg.py" $?
 
+  echo "testProcessBlockDummy"
+  cmsRun ${LOCAL_TEST_DIR}/testProcessBlockDummy_cfg.py &> testProcessBlockDummy.log || die "cmsRun testProcessBlockDummy_cfg.py" $?
+
   echo "testProcessBlockMerge3"
   cmsRun ${LOCAL_TEST_DIR}/testProcessBlockMerge3_cfg.py &> testProcessBlockMerge3.log || die "cmsRun testProcessBlockMerge3_cfg.py" $?
 
@@ -234,6 +237,7 @@ then
   rm testProcessBlockRead2.log
   rm testProcessBlockLooper.log
   rm testProcessBlock5.log
+  rm testProcessBlockDummy.log
   rm testProcessBlockMerge3.log
   rm testProcessBlockMergeOfMergedFiles2.log
   rm testProcessBlockDropOnInput.log
@@ -261,6 +265,7 @@ then
   rm testProcessBlockRead2.root
   rm testProcessBlockLooperTest.root
   rm testProcessBlock5.root
+  rm testProcessBlockDummy.root
   rm testProcessBlockMerge3.root
   rm testProcessBlockMergeOfMergedFiles2.root
   rm testProcessBlockDropOnInput.root
