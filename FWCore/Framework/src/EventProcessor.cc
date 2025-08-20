@@ -974,7 +974,8 @@ namespace edm {
     //incase the input's registry changed
     if (input_->productRegistry().cacheIdentifier() != oldCacheID) {
       auto temp = std::make_shared<edm::ProductRegistry>(*preg_);
-      temp->merge(input_->productRegistry(), fb_ ? fb_->fileName() : std::string());
+      temp->merge(
+          input_->productRegistry(), fb_ ? fb_->fileName() : std::string(), ProductDescription::FromInputToCurrent);
       preg_ = std::move(temp);
     }
     if (preallocations_.numberOfStreams() > 1 and preallocations_.numberOfThreads() > 1) {
