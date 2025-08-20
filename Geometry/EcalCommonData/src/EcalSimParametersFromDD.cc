@@ -35,43 +35,67 @@ bool EcalSimParametersFromDD::build(const DDCompactView* cpv, const std::string&
   //First the specpars
   php.useWeight_ = true;
   std::vector<double> tempD = getDDDArray("EnergyWeight", sv);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << "EcalSimParametersFromDD:" << name << " EnergyWeight " << tempD.empty();
+#endif
   if (!tempD.empty()) {
     if (tempD[0] < 0.1)
       php.useWeight_ = false;
   }
   tempD = getDDDArray("nxtalEta", sv);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << "EcalSimParametersFromDD:" << name << " nxtalEta " << tempD.empty();
+#endif
   if (tempD.empty())
     php.nxtalEta_ = 0;
   else
     php.nxtalEta_ = static_cast<int>(tempD[0]);
   tempD = getDDDArray("nxtalPhi", sv);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << "EcalSimParametersFromDD:" << name << " nxtalPhi " << tempD.empty();
+#endif
   if (tempD.empty())
     php.nxtalPhi_ = 0;
   else
     php.nxtalPhi_ = static_cast<int>(tempD[0]);
   tempD = getDDDArray("PhiBaskets", sv);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << "EcalSimParametersFromDD:" << name << " PhiBaskets " << tempD.empty();
+#endif
   if (tempD.empty())
     php.phiBaskets_ = 0;
   else
     php.phiBaskets_ = static_cast<int>(tempD[0]);
   php.etaBaskets_ = dbl_to_int(getDDDArray("EtaBaskets", sv));
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << "EcalSimParametersFromDD:" << name << " EtaBaskets " << tempD.empty();
+#endif
   tempD = getDDDArray("ncrys", sv);
   if (tempD.empty())
     php.ncrys_ = 0;
   else
     php.ncrys_ = static_cast<int>(tempD[0]);
   tempD = getDDDArray("nmods", sv);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << "EcalSimParametersFromDD:" << name << " ncrys " << tempD.empty();
+#endif
   if (tempD.empty())
     php.nmods_ = 0;
   else
     php.nmods_ = static_cast<int>(tempD[0]);
 
   std::vector<std::string> tempS = getStringArray("Depth1Name", sv);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << "EcalSimParametersFromDD:" << name << " Depth1Name " << tempS.empty();
+#endif
   if (!tempS.empty())
     php.depth1Name_ = tempS[0];
   else
     php.depth1Name_ = " ";
   tempS = getStringArray("Depth2Name", sv);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << "EcalSimParametersFromDD:" << name << " Depth2Name " << tempS.empty();
+#endif
   if (!tempS.empty())
     php.depth2Name_ = tempS[0];
   else

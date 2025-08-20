@@ -6,7 +6,6 @@ usage:
 submitPVResolutionJobs.py -i PVResolutionExample.ini -D /JetHT/Run2018C-TkAlMinBias-12Nov2019_UL2018-v2/ALCARECO
 '''
 
-from __future__ import print_function
 
 __author__ = 'Marco Musich'
 __copyright__ = 'Copyright 2020, CERN CMS'

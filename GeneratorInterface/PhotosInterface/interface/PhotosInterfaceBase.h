@@ -4,6 +4,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "HepMC/GenEvent.h"
+#include "HepMC3/GenEvent.h"
 #include <vector>
 #include "CLHEP/Random/RandomEngine.h"
 #include "HepMC/SimpleVector.h"
@@ -21,6 +22,7 @@ namespace gen {
     virtual void init() = 0;
     virtual const std::vector<std::string>& specialSettings() { return fSpecialSettings; }
     virtual HepMC::GenEvent* apply(HepMC::GenEvent* evt) { return evt; }
+    virtual HepMC3::GenEvent* apply(HepMC3::GenEvent* evt) { return evt; }
     virtual void avoidTauLeptonicDecays() = 0;
     ;
     virtual void configureOnlyFor(int) = 0;

@@ -64,8 +64,8 @@ const GlobalObjectMap* GlobalObjectMapRecord::getObjectMap(const int algoBitNumb
 
 // return all the combinations passing the requirements imposed in condition condNameVal
 // from algorithm algoNameVal
-const CombinationsInCond* GlobalObjectMapRecord::getCombinationsInCond(const std::string& algoNameVal,
-                                                                       const std::string& condNameVal) const {
+const CombinationsWithBxInCond* GlobalObjectMapRecord::getCombinationsInCond(const std::string& algoNameVal,
+                                                                             const std::string& condNameVal) const {
   for (std::vector<GlobalObjectMap>::const_iterator itObj = m_gtObjectMap.begin(); itObj != m_gtObjectMap.end();
        ++itObj) {
     if (itObj->algoName() == algoNameVal) {
@@ -85,8 +85,8 @@ const CombinationsInCond* GlobalObjectMapRecord::getCombinationsInCond(const std
 
 // return all the combinations passing the requirements imposed in condition condNameVal
 // from algorithm with bit number algoBitNumberVal
-const CombinationsInCond* GlobalObjectMapRecord::getCombinationsInCond(const int algoBitNumberVal,
-                                                                       const std::string& condNameVal) const {
+const CombinationsWithBxInCond* GlobalObjectMapRecord::getCombinationsInCond(const int algoBitNumberVal,
+                                                                             const std::string& condNameVal) const {
   for (std::vector<GlobalObjectMap>::const_iterator itObj = m_gtObjectMap.begin(); itObj != m_gtObjectMap.end();
        ++itObj) {
     if (itObj->algoBitNumber() == algoBitNumberVal) {

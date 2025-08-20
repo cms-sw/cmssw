@@ -1,5 +1,3 @@
-from __future__ import print_function
-from __future__ import absolute_import
 import json, urllib2, os, sys
 from bs4 import BeautifulSoup
 

@@ -104,7 +104,7 @@ void MuScleFitMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   //std::cout << "parameters size from dbObject = " << dbObject_->parameters.size() << std::endl;;
 
   // Create the corrector and set the parameters
-  corrector_.reset(new MomentumScaleCorrector(dbObject_.product()));
+  corrector_ = std::make_shared<MomentumScaleCorrector>(dbObject_.product());
 
   if (patMuons_ == true) {
     edm::Handle<pat::MuonCollection> allMuons;

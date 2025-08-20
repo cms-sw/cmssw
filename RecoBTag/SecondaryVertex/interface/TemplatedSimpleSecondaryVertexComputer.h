@@ -3,15 +3,13 @@
 
 #include <cmath>
 
-#include "Math/GenVector/VectorUtil.h"
-
+#include "DataFormats/BTauReco/interface/TemplatedSecondaryVertexTagInfo.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/BTauReco/interface/TemplatedSecondaryVertexTagInfo.h"
-
-#include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "RecoBTag/SecondaryVertex/interface/TrackKinematics.h"
+#include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
+#include "Math/GenVector/VectorUtil.h"
 
 template <class IPTI, class VTX>
 class TemplatedSimpleSecondaryVertexComputer : public JetTagComputer {
@@ -25,10 +23,16 @@ public:
         useSig(parameters.getParameter<bool>("useSignificance")),
         unBoost(parameters.getParameter<bool>("unBoost")),
         minTracks(parameters.getParameter<unsigned int>("minTracks")),
-        minVertices_(1) {
+        minVertices_(parameters.getParameter<unsigned int>("minVertices")) {
     uses("svTagInfos");
-    minVertices_ =
-        parameters.existsAs<unsigned int>("minVertices") ? parameters.getParameter<unsigned int>("minVertices") : 1;
+  }
+
+  static void fillPSetDescription(edm::ParameterSetDescription &desc) {
+    desc.add<bool>("use3d", true);
+    desc.add<bool>("useSignificance", true);
+    desc.add<bool>("unBoost", false);
+    desc.add<unsigned int>("minTracks", 2);
+    desc.add<unsigned int>("minVertices", 1);
   }
 
   float discriminator(const TagInfoHelper &tagInfos) const override {

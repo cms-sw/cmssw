@@ -279,7 +279,13 @@ void TICLCandidateValidator::bookCandidatesHistos(DQMStore::IBooker& ibook,
 void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
                                                  const Histograms& histograms,
                                                  edm::Handle<ticl::TracksterCollection> simTrackstersCP_h) const {
-  auto TICLCandidates = event.get(TICLCandidatesToken_);
+  auto TICLCandidatesHandle = event.getHandle(TICLCandidatesToken_);
+  if (!TICLCandidatesHandle.isValid()) {
+    edm::LogError("TICLCandidatesError") << "Failed to retrieve TICL candidates.";
+    return;  // Handle error appropriately
+  }
+
+  auto TICLCandidates = *TICLCandidatesHandle;
 
   edm::Handle<std::vector<TICLCandidate>> simTICLCandidates_h;
   event.getByToken(simTICLCandidatesToken_, simTICLCandidates_h);
@@ -361,14 +367,14 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
 
     int32_t cand_idx = -1;
     float shared_energy = 0.;
-    const auto ts_vec = mergeTsSimToRecoMap[i];
+    const auto& ts_vec = mergeTsSimToRecoMap[i];
     if (!ts_vec.empty()) {
       auto min_elem =
           std::min_element(ts_vec.begin(), ts_vec.end(), [](auto const& ts1_id_pair, auto const& ts2_id_pair) {
-            return ts1_id_pair.second.second < ts2_id_pair.second.second;
+            return ts1_id_pair.score() < ts2_id_pair.score();
           });
-      shared_energy = min_elem->second.first;
-      cand_idx = min_elem->first;
+      shared_energy = min_elem->sharedEnergy();
+      cand_idx = min_elem->index();
     }
     // no reco associated to sim
     if (cand_idx == -1)
@@ -438,14 +444,14 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
 
     int32_t cand_idx = -1;
     float shared_energy = 0.;
-    const auto ts_vec = mergeTsSimToRecoMap[i];
+    const auto& ts_vec = mergeTsSimToRecoMap[i];
     if (!ts_vec.empty()) {
       auto min_elem =
           std::min_element(ts_vec.begin(), ts_vec.end(), [](auto const& ts1_id_pair, auto const& ts2_id_pair) {
-            return ts1_id_pair.second.second < ts2_id_pair.second.second;
+            return ts1_id_pair.score() < ts2_id_pair.score();
           });
-      shared_energy = min_elem->second.first;
-      cand_idx = min_elem->first;
+      shared_energy = min_elem->sharedEnergy();
+      cand_idx = min_elem->index();
     }
 
     // no reco associated to sim
@@ -549,16 +555,16 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     histograms.h_chg_candidate_partType[index]->Fill(std::max_element(arr.begin(), arr.end()) - arr.begin());
 
     int32_t simCand_idx = -1;
-    const auto sts_vec = mergeTsRecoToSimMap[mergeTs_id];
+    const auto& sts_vec = mergeTsRecoToSimMap[mergeTs_id];
     float shared_energy = 0.;
     // search for reco cand associated
     if (!sts_vec.empty()) {
       auto min_elem =
           std::min_element(sts_vec.begin(), sts_vec.end(), [](auto const& sts1_id_pair, auto const& sts2_id_pair) {
-            return sts1_id_pair.second.second < sts2_id_pair.second.second;
+            return sts1_id_pair.score() < sts2_id_pair.score();
           });
-      shared_energy = min_elem->second.first;
-      simCand_idx = min_elem->first;
+      shared_energy = min_elem->sharedEnergy();
+      simCand_idx = min_elem->index();
     }
 
     if (simCand_idx == -1)
@@ -635,16 +641,16 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     histograms.h_neut_candidate_partType[index]->Fill(std::max_element(arr.begin(), arr.end()) - arr.begin());
 
     int32_t simCand_idx = -1;
-    const auto sts_vec = mergeTsRecoToSimMap[mergeTs_id];
+    const auto& sts_vec = mergeTsRecoToSimMap[mergeTs_id];
     float shared_energy = 0.;
     // search for reco cand associated
     if (!sts_vec.empty()) {
       auto min_elem =
           std::min_element(sts_vec.begin(), sts_vec.end(), [](auto const& sts1_id_pair, auto const& sts2_id_pair) {
-            return sts1_id_pair.second.second < sts2_id_pair.second.second;
+            return sts1_id_pair.score() < sts2_id_pair.score();
           });
-      shared_energy = min_elem->second.first;
-      simCand_idx = min_elem->first;
+      shared_energy = min_elem->sharedEnergy();
+      simCand_idx = min_elem->index();
     }
 
     if (simCand_idx == -1)

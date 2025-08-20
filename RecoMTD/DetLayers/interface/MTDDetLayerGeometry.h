@@ -12,7 +12,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "TrackingTools/DetLayers/interface/DetLayerGeometry.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
-#include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
+#include "Geometry/MTDGeometryBuilder/interface/MTDTopology.h"
 
 #include <vector>
 #include <map>

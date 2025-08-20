@@ -2,19 +2,20 @@
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/ESProducts.h"
+#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
 #include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
-#include "CondFormats/HGCalObjects/interface/HGCalMappingParameterHostCollection.h"
+#include "CondFormats/HGCalObjects/interface/HGCalMappingParameterHost.h"
 #include "DataFormats/HGCalDigi/interface/HGCalElectronicsId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "Geometry/HGCalMapping/interface/HGCalMappingTools.h"
+#include <regex>  // regular expression
 
 /**
    @short plugin parses the module/cell locator files to produce the indexer records
@@ -102,15 +103,26 @@ void HGCalMappingESProducer::prepareModuleMapperIndexer() {
   auto& pmap = parsedMaps_["modules"];
   auto& entities = pmap.getEntries();
   for (auto row : entities) {
-    std::string typecode = pmap.getAttr("typecode", row);
+    std::string typecode = pmap.getAttr("typecode", row);  // module type code
+    std::string wtypecode;                                 // wafer type code
 
-    if (typecode.find('M') == 0 && typecode.size() > 4)
-      typecode = typecode.substr(0, 4);
+    // match module type code to regular expression pattern (MM-TTTT-LL-NNNN)
+    // see https://edms.cern.ch/ui/#!master/navigator/document?D:101059405:101148061:subDocs
+    //const std::regex typecode_regex("([MX])([LH])-([FTBLR5])([123])([WPC])-([A-Z]{2})-([0-9]{3,4})"); // MM-TTTT-LL-NNNN
+    const std::regex typecode_regex("(([MX])([LH])-([FTBLR5])).*");  // MM-T*
+    std::smatch typecode_match;                                      // match object for string objects
+    bool matched = std::regex_match(typecode, typecode_match, typecode_regex);
+    if (matched) {
+      wtypecode = typecode_match[1].str();  // wafer type following MM-T pattern, e.g. "MH-F"
+    } else {
+      edm::LogWarning("HGCalMappingIndexESSource")
+          << "Could not match module type code to expected pattern: " << typecode;
+    }
 
     try {
-      typecodeidx = cellIndexer_.getEnumFromTypecode(typecode);
-      nwords = cellIndexer_.getNWordsExpectedFor(typecode);
-      nerx = cellIndexer_.getNErxExpectedFor(typecode);
+      typecodeidx = cellIndexer_.getEnumFromTypecode(wtypecode);
+      nwords = cellIndexer_.getNWordsExpectedFor(wtypecode);
+      nerx = cellIndexer_.getNErxExpectedFor(wtypecode);
     } catch (cms::Exception& e) {
       int plane = pmap.getIntAttr("plane", row);
       int u = pmap.getIntAttr("u", row);
@@ -127,7 +139,7 @@ void HGCalMappingESProducer::prepareModuleMapperIndexer() {
     int fedid = pmap.getIntAttr("fedid", row);
     int captureblockidx = pmap.getIntAttr("captureblockidx", row);
     int econdidx = pmap.getIntAttr("econdidx", row);
-    modIndexer_.processNewModule(fedid, captureblockidx, econdidx, typecodeidx, nerx, nwords);
+    modIndexer_.processNewModule(fedid, captureblockidx, econdidx, typecodeidx, nerx, nwords, typecode);
   }
 
   modIndexer_.finalize();

@@ -13,16 +13,23 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class LSTModulesDevESProducer : public ESProducer {
+  private:
+    std::string ptCutLabel_;
+
   public:
-    LSTModulesDevESProducer(edm::ParameterSet const& iConfig) : ESProducer(iConfig) { setWhatProduced(this); }
+    LSTModulesDevESProducer(edm::ParameterSet const& iConfig)
+        : ESProducer(iConfig), ptCutLabel_(iConfig.getParameter<std::string>("ptCutLabel")) {
+      setWhatProduced(this, ptCutLabel_);
+    }
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
+      desc.add<std::string>("ptCutLabel", "0.8");
       descriptions.addWithDefaultLabel(desc);
     }
 
     std::unique_ptr<lst::LSTESData<DevHost>> produce(TrackerRecoGeometryRecord const& iRecord) {
-      return lst::loadAndFillESHost();
+      return lst::loadAndFillESHost(ptCutLabel_);
     }
   };
 

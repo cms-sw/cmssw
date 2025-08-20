@@ -13,6 +13,7 @@
  *
  */
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "CommonTools/UtilAlgos/interface/SelectionAdderTrait.h"
 #include "CommonTools/UtilAlgos/interface/StoreContainerTrait.h"
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
@@ -50,6 +51,10 @@ struct SingleElementCollectionSelector {
         addRef_(selected_, c, idx);
     }
   }
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc) {
+    reco::modules::ParameterAdapter<Selector>::fillPSetDescription(desc);
+  };
 
 private:
   container selected_;

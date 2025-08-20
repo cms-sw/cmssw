@@ -26,6 +26,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -42,6 +43,8 @@ namespace cms {
     explicit CaloMETProducer(const edm::ParameterSet &);
     ~CaloMETProducer() override;
     void produce(edm::Event &, const edm::EventSetup &) override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
   private:
     edm::EDGetTokenT<edm::View<reco::Candidate> > inputToken_;

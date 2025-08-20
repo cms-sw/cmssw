@@ -11,5 +11,12 @@ hltInitialStepSeeds = cms.EDProducer("SeedGeneratorFromProtoTracksEDProducer",
     originRadius = cms.double(0.1),
     useEventsWithNoVertex = cms.bool(True),
     usePV = cms.bool(False),
-    useProtoTrackKinematics = cms.bool(False)
+    useProtoTrackKinematics = cms.bool(False),
+    includeFourthHit = cms.bool(False)
 )
+
+from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
+trackingLST.toModify(hltInitialStepSeeds, includeFourthHit = True)
+
+from Configuration.ProcessModifiers.phase2_hlt_vertexTrimming_cff import phase2_hlt_vertexTrimming
+phase2_hlt_vertexTrimming.toModify(hltInitialStepSeeds, InputVertexCollection = "hltPhase2TrimmedPixelVertices")

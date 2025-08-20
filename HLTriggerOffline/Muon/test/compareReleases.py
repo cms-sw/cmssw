@@ -6,7 +6,6 @@
 ##     ./compareReleases.py -h
 
 ## Import python libraries
-from __future__ import print_function
 import sys
 import optparse
 import os

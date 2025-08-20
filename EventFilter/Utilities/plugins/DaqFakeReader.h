@@ -58,6 +58,15 @@ private:
   unsigned int tcdsFEDID_;
   unsigned int modulo_error_events;
   unsigned int fakeLs_ = 0;
+  std::vector<std::string> subsystems_;
+  bool haveTCDS_ = false;
+  bool haveSiPixel_ = false;
+  bool haveSiStrip_ = false;
+  bool haveECAL_ = false;
+  bool haveHCAL_ = false;
+  bool haveDT_ = false;
+  bool haveCSC_ = false;
+  bool haveRPC_ = false;
 };
 
 #endif

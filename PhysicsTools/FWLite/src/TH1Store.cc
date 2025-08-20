@@ -40,7 +40,7 @@ void TH1Store::add(TH1 *histPtr, const std::string &directory) {
   }
   m_ptrMap[name] = histPtr;
   histPtr->SetDirectory(nullptr);
-  if (directory.length()) {
+  if (!directory.empty()) {
     m_nameDirMap[name] = directory;
   }
 }

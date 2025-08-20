@@ -36,7 +36,7 @@ DQM_HcalReconstruction_v*
 
 HLTriggerFinalPath
 
-## EndPaths / FinalPaths ##
+## EndPaths ##
 
 CalibrationOutput
 DQMOutput

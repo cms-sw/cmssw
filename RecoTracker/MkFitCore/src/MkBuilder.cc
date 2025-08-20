@@ -120,14 +120,14 @@ namespace {
     const float pt = 1.f / fir->getPar(0, 0, 3);
     std::cout << "propagate to lay=" << ilay << " start from x=" << fir->getPar(0, 0, 0)
               << " y=" << fir->getPar(0, 0, 1) << " z=" << fir->getPar(0, 0, 2)
-              << " r=" << getHypot(fir->getPar(0, 0, 0), fir->getPar(0, 0, 1))
+              << " r=" << hipo(fir->getPar(0, 0, 0), fir->getPar(0, 0, 1))
               << " px=" << pt * std::cos(fir->getPar(0, 0, 4)) << " py=" << pt * std::sin(fir->getPar(0, 0, 4))
               << " pz=" << pt / std::tan(fir->getPar(0, 0, 5)) << " pT=" << pt << std::endl;
   }
 
   void post_prop_print(int ilay, MkBase *fir) {
     std::cout << "propagate to lay=" << ilay << " arrive at x=" << fir->getPar(0, 1, 0) << " y=" << fir->getPar(0, 1, 1)
-              << " z=" << fir->getPar(0, 1, 2) << " r=" << getHypot(fir->getPar(0, 1, 0), fir->getPar(0, 1, 1))
+              << " z=" << fir->getPar(0, 1, 2) << " r=" << hipo(fir->getPar(0, 1, 0), fir->getPar(0, 1, 1))
               << std::endl;
   }
 
@@ -660,7 +660,7 @@ namespace mkfit {
               continue;
             }
             // Check if the candidate is close to it's max_r, pi/2 - 0.2 rad (11.5 deg)
-            if (iteration_dir == SteeringParams::IT_FwdSearch && ccand[ic].pT() < 1.2) {
+            if (iteration_dir == SteeringParams::IT_FwdSearch && ccand[ic].pT() < 1.2f) {
               const float dphi = std::abs(ccand[ic].posPhi() - ccand[ic].momPhi());
               if (ccand[ic].posRsq() > 625.f && dphi > 1.371f && dphi < 4.512f) {
                 // printf("Stopping cand at r=%f, posPhi=%.1f momPhi=%.2f pt=%.2f emomEta=%.2f\n",

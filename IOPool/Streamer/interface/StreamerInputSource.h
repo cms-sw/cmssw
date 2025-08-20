@@ -128,7 +128,6 @@ namespace edm::streamer {
     edm::propagate_const<std::unique_ptr<SendEvent>> sendEvent_;
     edm::propagate_const<std::unique_ptr<EventPrincipalHolder>> eventPrincipalHolder_;
     std::vector<edm::propagate_const<std::unique_ptr<EventPrincipalHolder>>> streamToEventPrincipalHolders_;
-    bool adjustEventToNewProductRegistry_;
 
     std::string processName_;
     unsigned int protocolVersion_;

@@ -46,7 +46,7 @@ process.MeasurementTrackerEvent.inactivePixelDetectorLabels = cms.VInputTag()
 process.MeasurementTrackerEvent.inactiveStripDetectorLabels = cms.VInputTag()
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000000)
+    input = cms.untracked.int32(options.maxEvents)
 )
 
 #####################################################################

@@ -13,8 +13,6 @@
 
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 
-#include "FWCore/Utilities/interface/GetPassID.h"
-
 namespace edm {
   namespace {
     class ThrowingDelayedReader : public DelayedReader {
@@ -89,25 +87,23 @@ namespace edm {
     dummy.registerIt();
     auto twd = TypeWithDict::byTypeInfo(typeid(edmtest::IntProduct));
 
-    std::vector<BranchDescription> branches;
+    std::vector<ProductDescription> branches;
     for (auto const& label : pset.getUntrackedParameter<std::vector<std::string>>("labels")) {
-      branches.push_back(BranchDescription(InEvent,
-                                           label,        //module label
-                                           "INPUTTEST",  //can't be the present process name
-                                           twd.userClassName(),
-                                           twd.friendlyClassName(),
-                                           "",  //product instance name
-                                           "",  //module name which isn't set for items not produced
-                                           dummy.id(),
-                                           twd,
-                                           false  //not produced
-                                           ));
+      branches.push_back(ProductDescription(InEvent,
+                                            label,        //module label
+                                            "INPUTTEST",  //can't be the present process name
+                                            twd.userClassName(),
+                                            twd.friendlyClassName(),
+                                            "",  //product instance name
+                                            twd,
+                                            false  //not produced
+                                            ));
       branches.back().setOnDemand(true);  //says we use delayed reader
     }
     productRegistryUpdate().updateFromInput(branches);
 
     ProcessHistory ph;
-    ph.emplace_back("INPUTTEST", dummy.id(), PROJECT_VERSION, getPassID());
+    ph.emplace_back("INPUTTEST", dummy.id(), PROJECT_VERSION, HardwareResourcesDescription());
     processHistoryRegistry().registerProcessHistory(ph);
     historyID_ = ph.id();
 

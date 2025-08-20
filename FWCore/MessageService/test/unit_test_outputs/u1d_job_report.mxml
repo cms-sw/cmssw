@@ -1,3 +1,9 @@
 <FrameworkJobReport>
+
+<Process>
+  <Name>TEST</Name>
+  <ReducedConfigurationID>{Value}</ReducedConfigurationID>
+  <ParameterSetID>{Value}</ParameterSetID>
+</Process>
 <!--                                                            -->
 </FrameworkJobReport>

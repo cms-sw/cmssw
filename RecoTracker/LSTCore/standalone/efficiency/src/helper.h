@@ -39,7 +39,7 @@ public:
   TChain* events_tchain;
 
   // Custom Looper object to facilitate looping over many files
-  RooUtil::Looper<LSTEff> looper;
+  RooUtil::Looper looper;
 
   // Custom Cutflow framework
   RooUtil::Cutflow cutflow;
@@ -61,6 +61,9 @@ public:
 
   // do lower level
   bool do_lower_level;
+
+  // Boolean to enable jet branches
+  bool jet_branches;
 
   AnalysisConfig();
 };

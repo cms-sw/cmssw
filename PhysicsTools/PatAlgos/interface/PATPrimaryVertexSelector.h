@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -36,6 +37,8 @@ public:
   size_t size() const { return selected_.size(); }
   /// operator used in sorting the selected vertices
   bool operator()(const reco::Vertex*, const reco::Vertex*) const;
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
 private:
   /// access to track-related vertex quantities (multiplicity and pt-sum)

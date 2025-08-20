@@ -1,4 +1,3 @@
-from __future__ import print_function
 # importing the python binding to the C++ class from ROOT 
 from ROOT import heppy
 

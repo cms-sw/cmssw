@@ -1,22 +1,18 @@
-#include "DataFormats/PortableTestObjects/interface/alpaka/TestDeviceCollection.h"
+#include "DataFormats/HGCalReco/interface/HGCalSoARecHitsHostCollection.h"
+#include "DataFormats/HGCalReco/interface/alpaka/HGCalSoARecHitsDeviceCollection.h"
+#include "DataFormats/HGCalReco/interface/alpaka/HGCalSoARecHitsExtraDeviceCollection.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/EDProducer.h"
+#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDPutToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESGetToken.h"
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/EDProducer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HeterogeneousCore/AlpakaTest/interface/AlpakaESTestRecords.h"
-#include "HeterogeneousCore/AlpakaTest/interface/alpaka/AlpakaESTestData.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalTilesConstants.h"
-#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
-#include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 
-#include "DataFormats/HGCalReco/interface/HGCalSoARecHitsHostCollection.h"
-#include "DataFormats/HGCalReco/interface/alpaka/HGCalSoARecHitsDeviceCollection.h"
-#include "DataFormats/HGCalReco/interface/alpaka/HGCalSoARecHitsExtraDeviceCollection.h"
 #include "HGCalLayerClustersAlgoWrapper.h"
 
 // Processes the input RecHit SoA collection and generates an output SoA
@@ -33,7 +29,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class HGCalSoARecHitsLayerClustersProducer : public stream::EDProducer<> {
   public:
     HGCalSoARecHitsLayerClustersProducer(edm::ParameterSet const& config)
-        : getTokenDevice_{consumes(config.getParameter<edm::InputTag>("hgcalRecHitsSoA"))},
+        : EDProducer(config),
+          getTokenDevice_{consumes(config.getParameter<edm::InputTag>("hgcalRecHitsSoA"))},
           deviceToken_{produces()},
           deltac_((float)config.getParameter<double>("deltac")),
           kappa_((float)config.getParameter<double>("kappa")),

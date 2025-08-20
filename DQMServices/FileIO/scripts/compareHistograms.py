@@ -1,6 +1,5 @@
 #!/bin/env python3
 
-from __future__ import print_function
 import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 import os

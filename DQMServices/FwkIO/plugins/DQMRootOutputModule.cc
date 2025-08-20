@@ -269,6 +269,8 @@ static TreeHelperBase* makeHelper(unsigned int iTypeIndex, TTree* iTree, std::st
       return new TreeHelper<TH2S>(iTree, iFullNameBufferPtr);
     case kTH2DIndex:
       return new TreeHelper<TH2D>(iTree, iFullNameBufferPtr);
+    case kTH2PolyIndex:
+      return new TreeHelper<TH2Poly>(iTree, iFullNameBufferPtr);
     case kTH2IIndex:
       return new TreeHelper<TH2I>(iTree, iFullNameBufferPtr);
     case kTH3FIndex:
@@ -309,7 +311,7 @@ DQMRootOutputModule::DQMRootOutputModule(edm::ParameterSet const& pset)
   // DQM module labels.
   // This is needed to support unscheduled DQM modules now that
   // non-consumed EDProducers are deleted from the job at beginJob.
-  callWhenNewProductsRegistered([this](edm::BranchDescription const& bd) {
+  callWhenNewProductsRegistered([this](edm::ProductDescription const& bd) {
     m_getterOfProductsLumi(bd);
     m_getterOfProductsRun(bd);
   });
@@ -396,6 +398,7 @@ void DQMRootOutputModule::openFile(edm::FileBlock const&) {
   m_dqmKindToTypeIndex[(int)MonitorElement::Kind::TH2F] = kTH2FIndex;
   m_dqmKindToTypeIndex[(int)MonitorElement::Kind::TH2S] = kTH2SIndex;
   m_dqmKindToTypeIndex[(int)MonitorElement::Kind::TH2D] = kTH2DIndex;
+  m_dqmKindToTypeIndex[(int)MonitorElement::Kind::TH2Poly] = kTH2PolyIndex;
   m_dqmKindToTypeIndex[(int)MonitorElement::Kind::TH2I] = kTH2IIndex;
   m_dqmKindToTypeIndex[(int)MonitorElement::Kind::TH3F] = kTH3FIndex;
   m_dqmKindToTypeIndex[(int)MonitorElement::Kind::TPROFILE] = kTProfileIndex;
@@ -528,8 +531,8 @@ void DQMRootOutputModule::startEndFile() {
   processHistoryTree->Branch(kProcessConfigurationParameterSetIDBranch, &parameterSetID);
   std::string releaseVersion;
   processHistoryTree->Branch(kProcessConfigurationReleaseVersion, &releaseVersion);
-  std::string passID;
-  processHistoryTree->Branch(kProcessConfigurationPassID, &passID);
+  std::string hardwareResourcesSerialized;
+  processHistoryTree->Branch(kProcessConfigurationHardwareResources, &hardwareResourcesSerialized);
 
   for (std::vector<edm::ProcessHistoryID>::iterator it = m_seenHistories.begin(), itEnd = m_seenHistories.end();
        it != itEnd;
@@ -542,7 +545,7 @@ void DQMRootOutputModule::startEndFile() {
          ++itPC, ++index) {
       processName = itPC->processName();
       releaseVersion = itPC->releaseVersion();
-      passID = itPC->passID();
+      hardwareResourcesSerialized = itPC->hardwareResourcesDescriptionSerialized();
       parameterSetID = itPC->parameterSetID().compactForm();
       tbb::this_task_arena::isolate([&] { processHistoryTree->Fill(); });
     }

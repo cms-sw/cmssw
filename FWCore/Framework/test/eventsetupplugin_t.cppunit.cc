@@ -16,12 +16,10 @@
 // user include files
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
-#include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
-#include "FWCore/Framework/interface/EventSetupsController.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 #include "DummyFinder.h"
@@ -146,7 +144,6 @@ void testEventsetupplugin::finderTest()
 
 {
   doInit();
-  EventSetupsController esController;
   EventSetupProvider provider(&activityRegistry);
   edm::ModuleTypeResolverMaker const* resolverMaker = nullptr;
 
@@ -154,7 +151,7 @@ void testEventsetupplugin::finderTest()
   dummyFinderPSet.addParameter("@module_type", std::string("LoadableDummyFinder"));
   dummyFinderPSet.addParameter("@module_label", std::string(""));
   dummyFinderPSet.registerIt();
-  SourceFactory::get()->addTo(esController, provider, dummyFinderPSet, resolverMaker);
+  SourceFactory::get()->addTo(provider, dummyFinderPSet, resolverMaker);
 
   ComponentDescription descFinder("LoadableDummyFinder", "", ComponentDescription::unknownID(), true);
   std::set<ComponentDescription> descriptions(provider.resolverProviderDescriptions());
@@ -165,7 +162,7 @@ void testEventsetupplugin::finderTest()
   dummyProviderPSet.addParameter("@module_type", std::string("LoadableDummyProvider"));
   dummyProviderPSet.addParameter("@module_label", std::string(""));
   dummyProviderPSet.registerIt();
-  ModuleFactory::get()->addTo(esController, provider, dummyProviderPSet, resolverMaker);
+  ModuleFactory::get()->addTo(provider, dummyProviderPSet, resolverMaker);
 
   ComponentDescription desc("LoadableDummyProvider", "", ComponentDescription::unknownID(), false);
   descriptions = provider.resolverProviderDescriptions();
@@ -176,7 +173,7 @@ void testEventsetupplugin::finderTest()
   dummySourcePSet.addParameter("@module_type", std::string("LoadableDummyESSource"));
   dummySourcePSet.addParameter("@module_label", std::string(""));
   dummySourcePSet.registerIt();
-  SourceFactory::get()->addTo(esController, provider, dummySourcePSet, resolverMaker);
+  SourceFactory::get()->addTo(provider, dummySourcePSet, resolverMaker);
 
   ComponentDescription descSource("LoadableDummyESSource", "", ComponentDescription::unknownID(), true);
   descriptions = provider.resolverProviderDescriptions();
@@ -188,14 +185,13 @@ void testEventsetupplugin::simpleResolverTest() {
   doInit();
 
   edm::test::SimpleTestTypeResolverMaker resolverMaker;
-  EventSetupsController esController(&resolverMaker);
   EventSetupProvider provider(&activityRegistry);
 
   edm::ParameterSet dummyFinderPSet;
   dummyFinderPSet.addParameter("@module_type", std::string("LoadableDummyFinder"));
   dummyFinderPSet.addParameter("@module_label", std::string(""));
   dummyFinderPSet.registerIt();
-  SourceFactory::get()->addTo(esController, provider, dummyFinderPSet, &resolverMaker);
+  SourceFactory::get()->addTo(provider, dummyFinderPSet, &resolverMaker);
 
   ComponentDescription descFinder("LoadableDummyFinder", "", ComponentDescription::unknownID(), true);
   std::set<ComponentDescription> descriptions(provider.resolverProviderDescriptions());
@@ -206,7 +202,7 @@ void testEventsetupplugin::simpleResolverTest() {
   dummyProviderPSet.addParameter("@module_type", std::string("LoadableDummyProvider"));
   dummyProviderPSet.addParameter("@module_label", std::string(""));
   dummyProviderPSet.registerIt();
-  ModuleFactory::get()->addTo(esController, provider, dummyProviderPSet, &resolverMaker);
+  ModuleFactory::get()->addTo(provider, dummyProviderPSet, &resolverMaker);
 
   ComponentDescription desc("LoadableDummyProvider", "", ComponentDescription::unknownID(), false);
   descriptions = provider.resolverProviderDescriptions();
@@ -217,7 +213,7 @@ void testEventsetupplugin::simpleResolverTest() {
   dummySourcePSet.addParameter("@module_type", std::string("LoadableDummyESSource"));
   dummySourcePSet.addParameter("@module_label", std::string(""));
   dummySourcePSet.registerIt();
-  SourceFactory::get()->addTo(esController, provider, dummySourcePSet, &resolverMaker);
+  SourceFactory::get()->addTo(provider, dummySourcePSet, &resolverMaker);
 
   ComponentDescription descSource("LoadableDummyESSource", "", ComponentDescription::unknownID(), true);
   descriptions = provider.resolverProviderDescriptions();
@@ -229,14 +225,13 @@ void testEventsetupplugin::complexResolverTest() {
   doInit();
 
   edm::test::ComplexTestTypeResolverMaker resolverMaker;
-  EventSetupsController esController(&resolverMaker);
   EventSetupProvider provider(&activityRegistry);
 
   edm::ParameterSet dummyFinderPSet;
   dummyFinderPSet.addParameter("@module_type", std::string("generic::LoadableDummyFinderA"));
   dummyFinderPSet.addParameter("@module_label", std::string(""));
   dummyFinderPSet.registerIt();
-  SourceFactory::get()->addTo(esController, provider, dummyFinderPSet, &resolverMaker);
+  SourceFactory::get()->addTo(provider, dummyFinderPSet, &resolverMaker);
 
   ComponentDescription descFinder("generic::LoadableDummyFinderA", "", ComponentDescription::unknownID(), true);
   std::set<ComponentDescription> descriptions(provider.resolverProviderDescriptions());
@@ -251,7 +246,7 @@ void testEventsetupplugin::complexResolverTest() {
     dummyProviderPSet.addParameter("@module_type", std::string("generic::LoadableDummyProviderA"));
     dummyProviderPSet.addParameter("@module_label", std::string(""));
     dummyProviderPSet.registerIt();
-    ModuleFactory::get()->addTo(esController, provider, dummyProviderPSet, &resolverMaker);
+    ModuleFactory::get()->addTo(provider, dummyProviderPSet, &resolverMaker);
 
     ComponentDescription desc("generic::LoadableDummyProviderA", "", ComponentDescription::unknownID(), false);
     descriptions = provider.resolverProviderDescriptions();
@@ -269,7 +264,7 @@ void testEventsetupplugin::complexResolverTest() {
     dummyProviderPSet.addParameter("@module_type", std::string("generic::LoadableDummyProviderB"));
     dummyProviderPSet.addParameter("@module_label", std::string(""));
     dummyProviderPSet.registerIt();
-    ModuleFactory::get()->addTo(esController, provider, dummyProviderPSet, &resolverMaker);
+    ModuleFactory::get()->addTo(provider, dummyProviderPSet, &resolverMaker);
 
     ComponentDescription desc("generic::LoadableDummyProviderB", "", ComponentDescription::unknownID(), false);
     descriptions = provider.resolverProviderDescriptions();
@@ -287,7 +282,7 @@ void testEventsetupplugin::complexResolverTest() {
     dummySourcePSet.addParameter("@module_type", std::string("generic::LoadableDummyESSourceA"));
     dummySourcePSet.addParameter("@module_label", std::string(""));
     dummySourcePSet.registerIt();
-    SourceFactory::get()->addTo(esController, provider, dummySourcePSet, &resolverMaker);
+    SourceFactory::get()->addTo(provider, dummySourcePSet, &resolverMaker);
 
     ComponentDescription descSource("generic::LoadableDummyESSourceA", "", ComponentDescription::unknownID(), true);
     descriptions = provider.resolverProviderDescriptions();
@@ -305,7 +300,7 @@ void testEventsetupplugin::complexResolverTest() {
     dummySourcePSet.addParameter("@module_type", std::string("generic::LoadableDummyESSourceB"));
     dummySourcePSet.addParameter("@module_label", std::string(""));
     dummySourcePSet.registerIt();
-    SourceFactory::get()->addTo(esController, provider, dummySourcePSet, &resolverMaker);
+    SourceFactory::get()->addTo(provider, dummySourcePSet, &resolverMaker);
 
     ComponentDescription descSource("generic::LoadableDummyESSourceB", "", ComponentDescription::unknownID(), true);
     descriptions = provider.resolverProviderDescriptions();
@@ -320,7 +315,6 @@ void testEventsetupplugin::configurableResolverTest() {
   doInit();
 
   edm::test::ConfigurableTestTypeResolverMaker resolverMaker;
-  EventSetupsController esController(&resolverMaker);
   EventSetupProvider provider(&activityRegistry);
 
   edm::ParameterSet dummyFinderPSet;
@@ -328,7 +322,7 @@ void testEventsetupplugin::configurableResolverTest() {
   dummyFinderPSet.addParameter("@module_label", std::string(""));
   dummyFinderPSet.addUntrackedParameter("variant", std::string(""));
   dummyFinderPSet.registerIt();
-  SourceFactory::get()->addTo(esController, provider, dummyFinderPSet, &resolverMaker);
+  SourceFactory::get()->addTo(provider, dummyFinderPSet, &resolverMaker);
 
   ComponentDescription descFinder("generic::LoadableDummyFinderA", "", ComponentDescription::unknownID(), true);
   std::set<ComponentDescription> descriptions(provider.resolverProviderDescriptions());
@@ -344,7 +338,7 @@ void testEventsetupplugin::configurableResolverTest() {
     dummyProviderPSet.addParameter("@module_label", std::string(""));
     dummyProviderPSet.addUntrackedParameter("variant", std::string(""));
     dummyProviderPSet.registerIt();
-    ModuleFactory::get()->addTo(esController, provider, dummyProviderPSet, &resolverMaker);
+    ModuleFactory::get()->addTo(provider, dummyProviderPSet, &resolverMaker);
 
     ComponentDescription desc("generic::LoadableDummyProviderA", "", ComponentDescription::unknownID(), false);
     descriptions = provider.resolverProviderDescriptions();
@@ -364,7 +358,7 @@ void testEventsetupplugin::configurableResolverTest() {
     dummyProviderPSet.addParameter("@module_label", std::string(""));
     dummyProviderPSet.addUntrackedParameter("variant", std::string("cpu"));
     dummyProviderPSet.registerIt();
-    ModuleFactory::get()->addTo(esController, provider, dummyProviderPSet, &resolverMaker);
+    ModuleFactory::get()->addTo(provider, dummyProviderPSet, &resolverMaker);
 
     ComponentDescription desc("generic::LoadableDummyProviderA", "", ComponentDescription::unknownID(), false);
     descriptions = provider.resolverProviderDescriptions();
@@ -384,7 +378,7 @@ void testEventsetupplugin::configurableResolverTest() {
     dummyProviderPSet.addParameter("@module_label", std::string(""));
     dummyProviderPSet.addUntrackedParameter("variant", std::string("other"));
     dummyProviderPSet.registerIt();
-    ModuleFactory::get()->addTo(esController, provider, dummyProviderPSet, &resolverMaker);
+    ModuleFactory::get()->addTo(provider, dummyProviderPSet, &resolverMaker);
 
     ComponentDescription desc("generic::LoadableDummyProviderA", "", ComponentDescription::unknownID(), false);
     descriptions = provider.resolverProviderDescriptions();

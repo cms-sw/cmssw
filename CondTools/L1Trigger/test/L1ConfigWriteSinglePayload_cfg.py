@@ -1,4 +1,3 @@
-from __future__ import print_function
 # Example using L1RCTParameters
 
 import FWCore.ParameterSet.Config as cms

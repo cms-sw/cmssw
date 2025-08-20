@@ -219,3 +219,6 @@ void SETMuonSeedProducer::produce(edm::Event& event, const edm::EventSetup& even
 
 //
 void SETMuonSeedProducer::setEvent(const edm::Event& event) { theFilter->setEvent(event); }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(SETMuonSeedProducer);

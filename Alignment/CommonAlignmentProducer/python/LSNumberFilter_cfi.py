@@ -6,5 +6,6 @@ LSNumberFilter = lsNumberFilter.clone(
     veto_HLT_Menu = [
         "LumiScan",
         "PPS",
-        "ECALTiming"]
+        "ECALTiming",
+        "ECAL"]
     )

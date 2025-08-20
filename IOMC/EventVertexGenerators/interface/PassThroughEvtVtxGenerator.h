@@ -4,21 +4,11 @@
 */
 
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "TMatrixD.h"
 
-namespace HepMC {
-  class FourVector;
-}
-
 namespace CLHEP {
   class HepRandomEngine;
-}
-
-namespace edm {
-  class HepMCProduct;
 }
 
 class PassThroughEvtVtxGenerator : public BaseEvtVtxGenerator {
@@ -27,14 +17,11 @@ public:
   explicit PassThroughEvtVtxGenerator(const edm::ParameterSet&);
   ~PassThroughEvtVtxGenerator() override;
 
-  void produce(edm::Event&, const edm::EventSetup&) override;
-
-  HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override;
+  ROOT::Math::XYZTVector vertexShift(CLHEP::HepRandomEngine*) const override;
 
   TMatrixD const* GetInvLorentzBoost() const override { return nullptr; };
 
 private:
-  edm::EDGetTokenT<edm::HepMCProduct> sourceToken;
 };
 
 #endif

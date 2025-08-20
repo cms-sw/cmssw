@@ -1,4 +1,3 @@
-from __future__ import print_function
 ##-----
 # Set job-specific inputs based on shell
 # the following enviromental variables

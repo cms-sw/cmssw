@@ -222,7 +222,8 @@ void BTagDifferentialPlot::bookHisto(DQMStore::IBooker& ibook) {
   stream << constVariableValue.second << "_"
          << "_Vs_" << diffVariableName;
   commonName += stream.str();
-  std::remove(commonName.begin(), commonName.end(), ' ');
+  auto last = std::remove(commonName.begin(), commonName.end(), ' ');
+  commonName.erase(last, commonName.end());
   std::replace(commonName.begin(), commonName.end(), '.', 'v');
 
   std::string label(commonName);

@@ -763,3 +763,6 @@ void MuonErrorMatrixAnalyzer::endJob() {
     thePlotFile->Close();
   }
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(MuonErrorMatrixAnalyzer);

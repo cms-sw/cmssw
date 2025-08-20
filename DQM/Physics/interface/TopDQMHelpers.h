@@ -378,17 +378,13 @@ bool SelectionStep<Object>::select(const edm::Event& event, const std::string& t
     if (dynamic_cast<const reco::PFCandidate*>(&*obj)) {
       reco::PFCandidate objtmp = dynamic_cast<const reco::PFCandidate&>(*obj);
 
-      if (objtmp.muonRef().isNonnull() && type == "muon") {
+      if (type == "muon") {
         if (select_(*obj)) {
           ++n;
         }
-      } else if (objtmp.gsfElectronRef().isNonnull() && type == "electron") {
+      } else if (type == "electron") {
         if (select_(*obj)) {
-          if (electronId_.isUninitialized()) {
-            ++n;
-          } else if (((double)(*electronId)[obj->gsfElectronRef()] >= eidCutValue_)) {
-            ++n;
-          }
+          ++n;
         }
         //        idx_gsf++;
       }

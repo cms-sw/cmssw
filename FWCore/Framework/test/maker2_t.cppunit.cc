@@ -3,20 +3,20 @@
 
 #include <memory>
 
-#include "FWCore/Utilities/interface/GetPassID.h"
-#include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/maker/WorkerT.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
-#include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "FWCore/Framework/interface/maker/WorkerMaker.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
+#include "FWCore/Framework/interface/maker/ModuleMaker.h"
 #include "FWCore/Framework/interface/maker/MakeModuleParams.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "cppunit/extensions/HelperMacros.h"
+
+#include "makeDummyProcessConfiguration.h"
 
 using namespace edm;
 
@@ -49,7 +49,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testmaker2);
 void testmaker2::maker2Test()
 //int main()
 {
-  std::unique_ptr<Maker> f = std::make_unique<WorkerMaker<TestMod>>();
+  std::unique_ptr<ModuleMakerBase> f = std::make_unique<ModuleMaker<TestMod>>();
 
   ParameterSet p1;
   p1.addParameter("@module_type", std::string("TestMod"));
@@ -65,10 +65,9 @@ void testmaker2::maker2Test()
 
   edm::ExceptionToActionTable table;
 
-  edm::ProductRegistry preg;
+  edm::SignallingProductRegistryFiller preg;
   edm::PreallocationConfiguration prealloc;
-  auto pc =
-      std::make_shared<ProcessConfiguration>("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
+  auto pc = edmtest::makeSharedDummyProcessConfiguration("PROD");
   edm::MakeModuleParams params1(&p1, preg, &prealloc, pc);
   edm::MakeModuleParams params2(&p2, preg, &prealloc, pc);
 

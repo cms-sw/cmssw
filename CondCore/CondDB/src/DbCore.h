@@ -32,7 +32,6 @@
 #include "RelationalAccess/IColumn.h"
 #include "RelationalAccess/ITableDataEditor.h"
 #include "RelationalAccess/IBulkOperation.h"
-#include "RelationalAccess/IBulkOperation.h"
 #include "RelationalAccess/SchemaException.h"
 //
 #include <tuple>
@@ -40,10 +39,112 @@
 #include <set>
 #include <map>
 #include <memory>
+#include <string_view>
+
 //
 #include <boost/date_time/posix_time/posix_time.hpp>
 
 // macros for the schema definition
+
+namespace condcore_detail {
+  consteval int string_size(char const* iSize) { return std::string_view(iSize).size(); }
+
+  template <int N, int M>
+  consteval std::array<char, N + M + 2> makeFullName(const char* n, const char* m) {
+    if (std::string_view(n).size() != N) {
+      throw "makeFullName first argument incorrect size";
+    }
+    if (std::string_view(m).size() != M) {
+      throw "makeFullName second argument incorrect size";
+    }
+    std::array<char, N + M + 2> ret = {};
+    for (int i = 0; i < N; ++i) {
+      ret[i] = n[i];
+    }
+    ret[N] = '.';
+    for (int i = 0; i < M; ++i) {
+      ret[i + N + 1] = m[i];
+    }
+    return ret;
+  }
+
+  consteval void test_makeFullName() {
+    constexpr auto v = makeFullName<2, 3>("ab", "cde");
+    static_assert(v.size() == 2 + 3 + 1 + 1);
+    static_assert('a' == v[0]);
+    static_assert('b' == v[1]);
+    static_assert('.' == v[2]);
+    static_assert('c' == v[3]);
+    static_assert('d' == v[4]);
+    static_assert('e' == v[5]);
+    static_assert(0 == v[6]);
+  }
+
+  template <int N>
+  consteval std::array<char, N + 5 + 1> addMin(std::string_view n) {
+    if (n.size() != N) {
+      throw "addMin argument wrong size";
+    }
+    std::array<char, N + 5 + 1> ret = {};
+    ret[0] = 'M';
+    ret[1] = 'I';
+    ret[2] = 'N';
+    ret[3] = '(';
+    for (int i = 0; i < N; ++i) {
+      ret[4 + i] = n[i];
+    }
+    ret[N + 4] = ')';
+    return ret;
+  }
+
+  consteval void test_addMin() {
+    constexpr std::string_view foo("Foo");
+    constexpr auto addMin_ = addMin<3>(foo);
+    static_assert(addMin_.size() == 9);
+    static_assert(addMin_[0] == 'M');
+    static_assert(addMin_[1] == 'I');
+    static_assert(addMin_[2] == 'N');
+    static_assert(addMin_[3] == '(');
+    static_assert(addMin_[4] == 'F');
+    static_assert(addMin_[5] == 'o');
+    static_assert(addMin_[6] == 'o');
+    static_assert(addMin_[7] == ')');
+    static_assert(addMin_[8] == 0);
+  }
+
+  template <int N>
+  consteval std::array<char, N + 5 + 1> addMax(std::string_view n) {
+    if (n.size() != N) {
+      throw "addMax argument wrong size";
+    }
+    std::array<char, N + 5 + 1> ret = {};
+    ret[0] = 'M';
+    ret[1] = 'A';
+    ret[2] = 'X';
+    ret[3] = '(';
+    for (int i = 0; i < N; ++i) {
+      ret[4 + i] = n[i];
+    }
+    ret[N + 4] = ')';
+    return ret;
+  }
+
+  consteval void test_addMax() {
+    constexpr std::string_view foo("Foo");
+    constexpr auto addMin_ = addMax<3>(foo);
+    static_assert(addMin_.size() == 9);
+    static_assert(addMin_[0] == 'M');
+    static_assert(addMin_[1] == 'A');
+    static_assert(addMin_[2] == 'X');
+    static_assert(addMin_[3] == '(');
+    static_assert(addMin_[4] == 'F');
+    static_assert(addMin_[5] == 'o');
+    static_assert(addMin_[6] == 'o');
+    static_assert(addMin_[7] == ')');
+    static_assert(addMin_[8] == 0);
+  }
+
+}  // namespace condcore_detail
 
 // table definition
 #define conddb_table(NAME)                      \
@@ -55,13 +156,16 @@
 // implementation for the column definition:
 
 // case with 3 params
-#define FIXSIZE_COLUMN(NAME, TYPE, SIZE)                                                \
-  struct NAME {                                                                         \
-    static constexpr char const* name = #NAME;                                          \
-    typedef TYPE type;                                                                  \
-    static constexpr size_t size = SIZE;                                                \
-    static std::string tableName() { return std::string(tname); }                       \
-    static std::string fullyQualifiedName() { return std::string(tname) + "." + name; } \
+#define FIXSIZE_COLUMN(NAME, TYPE, SIZE)                                                                              \
+  struct NAME {                                                                                                       \
+    static constexpr char const* name = #NAME;                                                                        \
+    typedef TYPE type;                                                                                                \
+    static constexpr size_t size = SIZE;                                                                              \
+    static constexpr std::string_view tableName() { return std::string_view(tname); }                                 \
+    static constexpr auto fullyQualifiedName_ =                                                                       \
+        condcore_detail::makeFullName<condcore_detail::string_size(tname), condcore_detail::string_size(name)>(tname, \
+                                                                                                               name); \
+    static constexpr std::string_view fullyQualifiedName() { return std::string_view(fullyQualifiedName_.data()); }   \
   };
 
 // case with 2 params
@@ -156,7 +260,7 @@ namespace cond {
       varId << Column::name << "_" << id;
       if (!whereClause.empty())
         whereClause += " AND ";
-      whereClause += Column::fullyQualifiedName() + " " + condition + " :" + varId.str() + " ";
+      whereClause += std::string(Column::fullyQualifiedName()) + " " + condition + " :" + varId.str() + " ";
       //bool init = (id == 0);
       f_add_attribute(data, varId.str(), value);
     }
@@ -332,7 +436,8 @@ namespace cond {
       template <typename Column, typename ReferencedColumn>
       void setForeignKey(const std::string& name) {
         checkColumns<0, Column>();
-        m_description.createForeignKey(name, Column::name, ReferencedColumn::tableName(), ReferencedColumn::name);
+        m_description.createForeignKey(
+            name, Column::name, std::string(ReferencedColumn::tableName()), ReferencedColumn::name);
       }
 
       const coral::TableDescription& get() { return m_description; }
@@ -389,7 +494,7 @@ namespace cond {
       }
     };
     template <std::size_t n>
-    struct GetFromRow<std::array<char, n> > {
+    struct GetFromRow<std::array<char, n>> {
       std::string operator()(const coral::AttributeList& row, const std::string& fullyQualifiedName) {
         std::string val = row[fullyQualifiedName].data<std::string>();
         if (val.size() != n)
@@ -427,7 +532,7 @@ namespace cond {
 
       template <typename T>
       typename T::type get() const {
-        return GetFromRow<typename T::type>()(*m_currentRow, T::fullyQualifiedName());
+        return GetFromRow<typename T::type>()(*m_currentRow, std::string(T::fullyQualifiedName()));
       }
 
       auto operator*() -> decltype(std::make_tuple(this->get<Types>()...)) { return std::make_tuple(get<Types>()...); }
@@ -493,7 +598,7 @@ namespace cond {
       }
     };
     template <std::size_t n>
-    struct DefineQueryOutput<std::array<char, n> > {
+    struct DefineQueryOutput<std::array<char, n>> {
       static void make(coral::IQuery& query, const std::string& fullyQualifiedName) {
         query.addToOutputList(fullyQualifiedName);
         query.defineOutputType(fullyQualifiedName, coral::AttributeSpecification::typeNameForType<std::string>());
@@ -515,8 +620,9 @@ namespace cond {
       template <typename Col>
       Query& addTable() {
         if (m_tables.find(Col::tableName()) == m_tables.end()) {
-          m_coralQuery->addToTableList(Col::tableName());
-          m_tables.insert(Col::tableName());
+          std::string const tb{Col::tableName()};
+          m_coralQuery->addToTableList(std::string(tb));
+          m_tables.insert(std::move(tb));
         }
         return *this;
       }
@@ -527,7 +633,7 @@ namespace cond {
       template <int n, typename Arg1, typename... Args>
       void _Query() {
         addTable<Arg1>();
-        DefineQueryOutput<typename Arg1::type>::make(*m_coralQuery, Arg1::fullyQualifiedName());
+        DefineQueryOutput<typename Arg1::type>::make(*m_coralQuery, std::string(Arg1::fullyQualifiedName()));
         _Query<n + 1, Args...>();
       }
 
@@ -603,7 +709,7 @@ namespace cond {
       size_t m_retrievedRows = 0;
       coral::AttributeList m_whereData;
       std::string m_whereClause;
-      std::set<std::string> m_tables;
+      std::set<std::string, std::less<>> m_tables;
     };
 
     class UpdateBuffer {

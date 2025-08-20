@@ -9,17 +9,19 @@
 
 #include "AlgoProductTraits.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "TrackingTools/PatternTools/interface/TrackConstraintAssociation.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+#include "TrackingTools/PatternTools/interface/TrackConstraintAssociation.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 class MagneticField;
 class TrackingGeometry;
@@ -56,13 +58,15 @@ public:
       : algo_(reco::TrackBase::algoByName(conf.getParameter<std::string>("AlgorithmName"))),
         originalAlgo_(reco::TrackBase::undefAlgorithm),
         stopReason_(0),
-        reMatchSplitHits_(false),
-        usePropagatorForPCA_(false) {
-    geometricInnerState_ = (conf.exists("GeometricInnerState") ? conf.getParameter<bool>("GeometricInnerState") : true);
-    if (conf.exists("reMatchSplitHits"))
-      reMatchSplitHits_ = conf.getParameter<bool>("reMatchSplitHits");
-    if (conf.exists("usePropagatorForPCA"))
-      usePropagatorForPCA_ = conf.getParameter<bool>("usePropagatorForPCA");
+        geometricInnerState_(conf.getParameter<bool>("GeometricInnerState")),
+        reMatchSplitHits_(conf.getParameter<bool>("reMatchSplitHits")),
+        usePropagatorForPCA_(conf.getParameter<bool>("usePropagatorForPCA")) {}
+
+  static void fillPSetDescription(edm::ParameterSetDescription &desc) {
+    desc.add<std::string>("AlgorithmName", std::string("undefAlgorithm"));
+    desc.add<bool>("GeometricInnerState", true);
+    desc.add<bool>("reMatchSplitHits", false);
+    desc.add<bool>("usePropagatorForPCA", false);
   }
 
   /// Destructor
@@ -139,8 +143,8 @@ private:
   reco::TrackBase::AlgoMask algoMask_;
   uint8_t stopReason_;
 
-  bool reMatchSplitHits_;
   bool geometricInnerState_;
+  bool reMatchSplitHits_;
   bool usePropagatorForPCA_;
 
   TrajectoryStateOnSurface getInitialState(const T *theT,

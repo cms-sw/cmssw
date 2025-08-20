@@ -33,7 +33,7 @@ namespace edm {
     ProductProvenanceLookup& operator=(ProductProvenanceLookup const&) = delete;
 
     ProductProvenance const* branchIDToProvenance(BranchID const& bid) const;
-    void insertIntoSet(ProductProvenance provenanceProduct) const;
+    void insertIntoSet(ProductProvenance const& provenanceProduct) const;
     ProductProvenance const* branchIDToProvenanceForProducedOnly(BranchID const& bid) const;
 
     void update(edm::ProductRegistry const&);
@@ -42,8 +42,7 @@ namespace edm {
     public:
       ProducedProvenanceInfo(BranchID iBid) : provenance_{iBid}, isParentageSet_{false} {}
       ProducedProvenanceInfo(ProducedProvenanceInfo&& iOther)
-          : provenance_{std::move(iOther.provenance_)},
-            isParentageSet_{iOther.isParentageSet_.load(std::memory_order_acquire)} {}
+          : provenance_{iOther.provenance_}, isParentageSet_{iOther.isParentageSet_.load(std::memory_order_acquire)} {}
       ProducedProvenanceInfo(ProducedProvenanceInfo const& iOther) : provenance_{iOther.provenance_.branchID()} {
         bool isSet = iOther.isParentageSet_.load(std::memory_order_acquire);
         if (isSet) {
@@ -53,7 +52,7 @@ namespace edm {
       }
 
       ProducedProvenanceInfo& operator=(ProducedProvenanceInfo&& iOther) {
-        provenance_ = std::move(iOther.provenance_);
+        provenance_ = iOther.provenance_;
         isParentageSet_.store(iOther.isParentageSet_.load(std::memory_order_acquire), std::memory_order_release);
         return *this;
       }
@@ -78,8 +77,8 @@ namespace edm {
 
       bool isParentageSet() const noexcept { return isParentageSet_.load(std::memory_order_acquire); }
 
-      void threadsafe_set(ParentageID id) const {
-        provenance_.set(std::move(id));
+      void threadsafe_set(ParentageID const& id) const {
+        provenance_.set(id);
         isParentageSet_.store(true, std::memory_order_release);
       }
 

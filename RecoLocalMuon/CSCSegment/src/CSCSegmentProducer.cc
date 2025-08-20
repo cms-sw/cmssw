@@ -2,16 +2,16 @@
  *
  */
 
-#include <RecoLocalMuon/CSCSegment/src/CSCSegmentProducer.h>
-#include <RecoLocalMuon/CSCSegment/src/CSCSegmentBuilder.h>
+#include "RecoLocalMuon/CSCSegment/src/CSCSegmentProducer.h"
+#include "RecoLocalMuon/CSCSegment/src/CSCSegmentBuilder.h"
 
-#include <DataFormats/Common/interface/Handle.h>
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Utilities/interface/InputTag.h>
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
-#include <DataFormats/CSCRecHit/interface/CSCSegment.h>
+#include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
+#include "DataFormats/CSCRecHit/interface/CSCSegment.h"
 
 CSCSegmentProducer::CSCSegmentProducer(const edm::ParameterSet& pas) : iev(0) {
   m_token = consumes<CSCRecHit2DCollection>(pas.getParameter<edm::InputTag>("inputObjects"));
@@ -20,6 +20,13 @@ CSCSegmentProducer::CSCSegmentProducer(const edm::ParameterSet& pas) : iev(0) {
 
   // register what this produces
   produces<CSCSegmentCollection>();
+}
+
+void CSCSegmentProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("inputObjects", edm::InputTag("csc2DRecHits"))->setComment("define input");
+  CSCSegmentBuilder::fillPSetDescription(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 CSCSegmentProducer::~CSCSegmentProducer() {

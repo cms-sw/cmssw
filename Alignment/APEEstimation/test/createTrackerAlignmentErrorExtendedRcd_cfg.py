@@ -1,4 +1,3 @@
-from __future__ import print_function
 ########################################################################################
 ###
 ###  Read and write APEs to and from database and ASCII files

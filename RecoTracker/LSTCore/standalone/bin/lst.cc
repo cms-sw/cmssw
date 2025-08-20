@@ -1,8 +1,10 @@
 #include "lst.h"
+#include "LSTPrepareInput.h"
 
 #include <typeinfo>
 
 using LSTEvent = ALPAKA_ACCELERATOR_NAMESPACE::lst::LSTEvent;
+using LSTInputDeviceCollection = ALPAKA_ACCELERATOR_NAMESPACE::lst::LSTInputDeviceCollection;
 using namespace ::lst;
 
 //___________________________________________________________________________________________________________________________________________________________________________________________
@@ -53,6 +55,7 @@ int main(int argc, char **argv) {
       cxxopts::value<std::string>()->default_value("trackingNtuple/tree"))(
       "o,output", "Output file name", cxxopts::value<std::string>())(
       "N,nmatch", "N match for MTV-like matching", cxxopts::value<int>()->default_value("9"))(
+      "p,ptCut", "Min pT cut In GeV", cxxopts::value<float>()->default_value("0.8"))(
       "n,nevents", "N events to loop over", cxxopts::value<int>()->default_value("-1"))(
       "x,event_index", "specific event index to process", cxxopts::value<int>()->default_value("-1"))(
       "g,pdg_id", "The simhit pdgId match option", cxxopts::value<int>()->default_value("0"))(
@@ -67,7 +70,8 @@ int main(int argc, char **argv) {
       "I,job_index",
       "job_index of split jobs (--nsplit_jobs must be set. index starts from 0. i.e. 0, 1, 2, 3, etc...)",
       cxxopts::value<int>())("3,tc_pls_triplets", "Allow triplet pLSs in TC collection")(
-      "2,no_pls_dupclean", "Disable pLS duplicate cleaning (both steps)")("h,help", "Print help");
+      "2,no_pls_dupclean", "Disable pLS duplicate cleaning (both steps)")("h,help", "Print help")(
+      "J,jet_branches", "Accounts for specific jet branches in input root file for testing");
 
   auto result = options.parse(argc, argv);
 
@@ -88,6 +92,7 @@ int main(int argc, char **argv) {
 
   // A default value one
   TString TrackingNtupleDir = gSystem->Getenv("TRACKINGNTUPLEDIR");
+
   if (ana.input_raw_string.EqualTo("muonGun"))
     ana.input_file_list_tstring = TString::Format("%s/trackingNtuple_10mu_pt_0p5_2.root", TrackingNtupleDir.Data());
   else if (ana.input_raw_string.EqualTo("muonGun_highPt"))
@@ -144,6 +149,10 @@ int main(int argc, char **argv) {
       ana.output_tfile = new TFile("debug.root", "recreate");
     }
   }
+
+  //_______________________________________________________________________________
+  // --ptCut
+  ana.ptCut = result["ptCut"].as<float>();
 
   //_______________________________________________________________________________
   // --nmatch
@@ -254,6 +263,10 @@ int main(int argc, char **argv) {
   // --no_pls_dupclean
   ana.no_pls_dupclean = result["no_pls_dupclean"].as<bool>();
 
+  //_______________________________________________________________________________
+  // --jet_branches
+  ana.jet_branches = result["jet_branches"].as<bool>();
+
   // Printing out the option settings overview
   std::cout << "=========================================================" << std::endl;
   std::cout << " Running for Acc = " << alpaka::getAccName<ALPAKA_ACCELERATOR_NAMESPACE::Acc3D>() << std::endl;
@@ -308,7 +321,9 @@ void run_lst() {
   // Load various maps used in the lst reconstruction
   TStopwatch full_timer;
   full_timer.Start();
-  auto hostESData = lst::loadAndFillESHost();
+  // Determine which maps to use based on given pt cut for standalone.
+  std::string ptCutString = (ana.ptCut >= 0.8) ? "0.8" : "0.6";
+  auto hostESData = lst::loadAndFillESHost(ptCutString);
   auto deviceESData =
       cms::alpakatools::CopyToDevice<lst::LSTESData<alpaka_common::DevHost>>::copyAsync(queues[0], *hostESData.get());
   float timeForMapLoading = full_timer.RealTime() * 1000;
@@ -320,29 +335,7 @@ void run_lst() {
     }
   }
 
-  std::vector<std::vector<float>> out_trkX;
-  std::vector<std::vector<float>> out_trkY;
-  std::vector<std::vector<float>> out_trkZ;
-  std::vector<std::vector<unsigned int>> out_hitId;
-  std::vector<std::vector<unsigned int>> out_hitIdxs;
-  std::vector<std::vector<unsigned int>> out_hitIndices_vec0;
-  std::vector<std::vector<unsigned int>> out_hitIndices_vec1;
-  std::vector<std::vector<unsigned int>> out_hitIndices_vec2;
-  std::vector<std::vector<unsigned int>> out_hitIndices_vec3;
-  std::vector<std::vector<float>> out_deltaPhi_vec;
-  std::vector<std::vector<float>> out_ptIn_vec;
-  std::vector<std::vector<float>> out_ptErr_vec;
-  std::vector<std::vector<float>> out_px_vec;
-  std::vector<std::vector<float>> out_py_vec;
-  std::vector<std::vector<float>> out_pz_vec;
-  std::vector<std::vector<float>> out_eta_vec;
-  std::vector<std::vector<float>> out_etaErr_vec;
-  std::vector<std::vector<float>> out_phi_vec;
-  std::vector<std::vector<int>> out_charge_vec;
-  std::vector<std::vector<unsigned int>> out_seedIdx_vec;
-  std::vector<std::vector<int>> out_superbin_vec;
-  std::vector<std::vector<PixelType>> out_pixelType_vec;
-  std::vector<std::vector<char>> out_isQuad_vec;
+  std::vector<LSTInputHostCollection> out_lstInputHC;
   std::vector<int> evt_num;
   std::vector<TString> file_name;
 
@@ -356,29 +349,31 @@ void run_lst() {
     if (not goodEvent())
       continue;
 
-    addInputsToLineSegmentTrackingPreLoad(out_trkX,
-                                          out_trkY,
-                                          out_trkZ,
-                                          out_hitId,
-                                          out_hitIdxs,
-                                          out_hitIndices_vec0,
-                                          out_hitIndices_vec1,
-                                          out_hitIndices_vec2,
-                                          out_hitIndices_vec3,
-                                          out_deltaPhi_vec,
-                                          out_ptIn_vec,
-                                          out_ptErr_vec,
-                                          out_px_vec,
-                                          out_py_vec,
-                                          out_pz_vec,
-                                          out_eta_vec,
-                                          out_etaErr_vec,
-                                          out_phi_vec,
-                                          out_charge_vec,
-                                          out_seedIdx_vec,
-                                          out_superbin_vec,
-                                          out_pixelType_vec,
-                                          out_isQuad_vec);
+    auto lstInputHC = prepareInput(trk.getVF("see_px"),
+                                   trk.getVF("see_py"),
+                                   trk.getVF("see_pz"),
+                                   trk.getVF("see_dxy"),
+                                   trk.getVF("see_dz"),
+                                   trk.getVF("see_ptErr"),
+                                   trk.getVF("see_etaErr"),
+                                   trk.getVF("see_stateTrajGlbX"),
+                                   trk.getVF("see_stateTrajGlbY"),
+                                   trk.getVF("see_stateTrajGlbZ"),
+                                   trk.getVF("see_stateTrajGlbPx"),
+                                   trk.getVF("see_stateTrajGlbPy"),
+                                   trk.getVF("see_stateTrajGlbPz"),
+                                   trk.getVI("see_q"),
+                                   trk.getVVI("see_hitIdx"),
+                                   trk.getVU("see_algo"),
+                                   trk.getVU("ph2_detId"),
+                                   trk.getVF("ph2_x"),
+                                   trk.getVF("ph2_y"),
+                                   trk.getVF("ph2_z"),
+                                   ana.ptCut,
+                                   queues[0]);
+
+    out_lstInputHC.push_back(std::move(lstInputHC));
+
     evt_num.push_back(ana.looper.getCurrentEventIndex());
     file_name.push_back(ana.looper.getCurrentFileName());
   }
@@ -387,9 +382,11 @@ void run_lst() {
   full_timer.Reset();
   full_timer.Start();
   std::vector<LSTEvent *> events;
+  std::vector<ALPAKA_ACCELERATOR_NAMESPACE::Queue *> event_queues;
   for (int s = 0; s < ana.streams; s++) {
-    LSTEvent *event = new LSTEvent(ana.verbose >= 2, queues[s], &deviceESData);
+    LSTEvent *event = new LSTEvent(ana.verbose >= 2, ana.ptCut, queues[s], &deviceESData);
     events.push_back(event);
+    event_queues.push_back(&queues[s]);
   }
   float timeForEventCreation = full_timer.RealTime() * 1000;
 
@@ -411,42 +408,26 @@ void run_lst() {
     float timing_TC;
 
 #pragma omp for  // nowait// private(event)
-    for (int evt = 0; evt < static_cast<int>(out_trkX.size()); evt++) {
+    for (int evt = 0; evt < static_cast<int>(out_lstInputHC.size()); evt++) {
       if (ana.verbose >= 1)
         std::cout << "Running Event number = " << evt << " " << omp_get_thread_num() << std::endl;
 
       events.at(omp_get_thread_num())->initSync();
-      timing_input_loading = addInputsToEventPreLoad(events.at(omp_get_thread_num()),
-                                                     false,
-                                                     out_trkX.at(evt),
-                                                     out_trkY.at(evt),
-                                                     out_trkZ.at(evt),
-                                                     out_hitId.at(evt),
-                                                     out_hitIdxs.at(evt),
-                                                     out_hitIndices_vec0.at(evt),
-                                                     out_hitIndices_vec1.at(evt),
-                                                     out_hitIndices_vec2.at(evt),
-                                                     out_hitIndices_vec3.at(evt),
-                                                     out_deltaPhi_vec.at(evt),
-                                                     out_ptIn_vec.at(evt),
-                                                     out_ptErr_vec.at(evt),
-                                                     out_px_vec.at(evt),
-                                                     out_py_vec.at(evt),
-                                                     out_pz_vec.at(evt),
-                                                     out_eta_vec.at(evt),
-                                                     out_etaErr_vec.at(evt),
-                                                     out_phi_vec.at(evt),
-                                                     out_charge_vec.at(evt),
-                                                     out_seedIdx_vec.at(evt),
-                                                     out_superbin_vec.at(evt),
-                                                     out_pixelType_vec.at(evt),
-                                                     out_isQuad_vec.at(evt));
+
+      // We need to initialize it here so that it stays in scope
+      auto &queue = *event_queues.at(omp_get_thread_num());
+      LSTInputDeviceCollection lstInputDC(out_lstInputHC.at(evt).sizes(), queue);
+
+      timing_input_loading =
+          addInputsToEventPreLoad(events.at(omp_get_thread_num()), &out_lstInputHC.at(evt), &lstInputDC, queue);
 
       timing_MD = runMiniDoublet(events.at(omp_get_thread_num()), evt);
       timing_LS = runSegment(events.at(omp_get_thread_num()));
       timing_T3 = runT3(events.at(omp_get_thread_num()));
       timing_T5 = runQuintuplet(events.at(omp_get_thread_num()));
+
       timing_pLS = runPixelLineSegment(events.at(omp_get_thread_num()), ana.no_pls_dupclean);
+
       timing_pT5 = runPixelQuintuplet(events.at(omp_get_thread_num()));
       timing_pT3 = runpT3(events.at(omp_get_thread_num()));
       timing_TC = runTrackCandidate(events.at(omp_get_thread_num()), ana.no_pls_dupclean, ana.tc_pls_triplets);
@@ -505,7 +486,7 @@ void run_lst() {
     timevec.insert(timevec.end(), timing_information.begin(), timing_information.end());
   }
 
-  float avg_elapsed = full_elapsed / out_trkX.size();
+  float avg_elapsed = full_elapsed / out_lstInputHC.size();
 
   std::cout << "Time for map loading = " << timeForMapLoading << " ms\n";
   std::cout << "Time for input loading = " << timeForInputLoading << " ms\n";

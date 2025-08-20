@@ -12,7 +12,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class AlpakaBackendProducer : public global::EDProducer<> {
   public:
-    AlpakaBackendProducer(edm::ParameterSet const& config) {}
+    AlpakaBackendProducer(edm::ParameterSet const& config) : EDProducer(config) {}
 
     void produce(edm::StreamID sid, device::Event& event, device::EventSetup const&) const override {}
 

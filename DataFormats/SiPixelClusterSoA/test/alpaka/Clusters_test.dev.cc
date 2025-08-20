@@ -14,8 +14,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::testClusterSoA {
 
   class TestFillKernel {
   public:
-    template <typename TAcc, typename = std::enable_if_t<isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc, SiPixelClustersSoAView clust_view) const {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc, SiPixelClustersSoAView clust_view) const {
       for (int32_t j : cms::alpakatools::uniform_elements(acc, clust_view.metadata().size())) {
         clust_view[j].moduleStart() = j;
         clust_view[j].clusInModule() = j * 2;
@@ -27,8 +26,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::testClusterSoA {
 
   class TestVerifyKernel {
   public:
-    template <typename TAcc, typename = std::enable_if_t<isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc, SiPixelClustersSoAConstView clust_view) const {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc, SiPixelClustersSoAConstView clust_view) const {
       for (uint32_t j : cms::alpakatools::uniform_elements(acc, clust_view.metadata().size())) {
         ALPAKA_ASSERT_ACC(clust_view[j].moduleStart() == j);
         ALPAKA_ASSERT_ACC(clust_view[j].clusInModule() == j * 2);

@@ -446,7 +446,7 @@ const indexedCorners Phase1PixelMaps::retrieveCorners(const std::vector<edm::Fil
   indexedCorners theOutMap;
 
   for (const auto& file : cornerFiles) {
-    auto cornerFileName = file.fullPath();
+    const auto& cornerFileName = file.fullPath();
     std::ifstream cornerFile(cornerFileName.c_str());
     if (!cornerFile.good()) {
       throw cms::Exception("FileError") << "Problem opening corner file: " << cornerFileName;

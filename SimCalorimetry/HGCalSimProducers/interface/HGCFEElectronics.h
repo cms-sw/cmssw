@@ -103,7 +103,7 @@ public:
   float getMaxADC() { return adcSaturation_fC_; }
   float getMaxTDC() { return tdcSaturation_fC_; }
   float getTDCOnset() { return tdcOnset_fC_; }
-  std::array<float, 3> getTDCForToAOnset() { return tdcForToAOnset_fC_; }
+  std::vector<float> getTDCForToAOnset() { return tdcForToAOnset_fC_; }
   void setADClsb(float newLSB) { adcLSB_fC_ = newLSB; }
   void setTDCfsc(float newTDCfsc) {
     tdcSaturation_fC_ = newTDCfsc;
@@ -193,19 +193,19 @@ private:
   //private members
   uint32_t fwVersion_;
   hgc_digi::FEADCPulseShape adcPulse_, pulseAvgT_;
-  std::array<float, 3> tdcForToAOnset_fC_;
+  std::vector<float> tdcForToAOnset_fC_;
   std::vector<float> tdcChargeDrainParameterisation_;
   float adcSaturation_fC_, adcLSB_fC_, tdcLSB_fC_, tdcSaturation_fC_, adcThreshold_fC_, tdcOnset_fC_, toaLSB_ns_,
       tdcResolutionInNs_;
   uint32_t targetMIPvalue_ADC_;
-  std::array<float, 3> jitterNoise_ns_, jitterConstant_ns_, eventTimeOffset_ns_;
+  std::vector<float> jitterNoise_ns_, jitterConstant_ns_, eventTimeOffset_ns_;
   std::vector<float> noise_fC_;
   uint32_t toaMode_;
   uint32_t tdcNbits_;
   bool thresholdFollowsMIP_;
   //caches
-  std::array<bool, hgc::nSamples> busyFlags, totFlags, toaFlags;
-  hgc::HGCSimHitData newCharge, toaFromToT;
+  std::array<bool, hgc::nSamples> busyFlags_, totFlags_, toaFlags_;
+  hgc::HGCSimHitData newCharge_, toaFromToT_;
 };
 
 #endif

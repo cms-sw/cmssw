@@ -169,8 +169,8 @@ private:
                      const std::string& basedir,
                      bool useDqmMode)
         : tfd(nullptr), dqmMode(useDqmMode), theDbe(nullptr) {
-      if (newDir.length() != 0) {
-        if (upDir.directoryString.length() != 0)
+      if (!newDir.empty()) {
+        if (!upDir.directoryString.empty())
           directoryString = upDir.directoryString + "/" + newDir;
         else
           directoryString = newDir;
@@ -178,7 +178,7 @@ private:
         directoryString = upDir.directoryString;
 
       if (!dqmMode) {
-        if (newDir.length() == 0)
+        if (newDir.empty())
           tfd.reset(&(*upDir.tfd));
         else
           tfd = std::make_unique<TFileDirectory>(upDir.tfd->mkdir(newDir));
@@ -191,15 +191,15 @@ private:
         : tfd(nullptr), dqmMode(useDqmMode), theDbe(nullptr) {
       if (!dqmMode) {
         edm::Service<TFileService> fs;
-        if (newDir.length() == 0) {
+        if (newDir.empty()) {
           tfd = std::make_unique<TFileDirectory>(fs->tFileDirectory());
         } else {
           tfd = std::make_unique<TFileDirectory>(fs->mkdir(newDir));
           directoryString = newDir;
         }
       } else {
-        if (newDir.length() != 0) {
-          if (basedir.length() != 0)
+        if (!newDir.empty()) {
+          if (!basedir.empty())
             directoryString = basedir + "/" + newDir;
           else
             directoryString = newDir;

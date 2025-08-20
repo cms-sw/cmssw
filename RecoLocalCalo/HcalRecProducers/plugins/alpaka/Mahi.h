@@ -11,7 +11,8 @@
 #include "CondFormats/HcalObjects/interface/alpaka/HcalMahiConditionsDevice.h"
 #include "CondFormats/HcalObjects/interface/alpaka/HcalSiPMCharacteristicsDevice.h"
 #include "CondFormats/HcalObjects/interface/alpaka/HcalRecoParamWithPulseShapeDevice.h"
-#include "CondFormats/HcalObjects/interface/alpaka/HcalMahiPulseOffsetsDevice.h"
+
+#include "HcalMahiPulseOffsetsSoA.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::hcal::reconstruction {
 
@@ -50,7 +51,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::hcal::reconstruction {
                     HcalMahiConditionsPortableDevice::ConstView const& mahi,
                     HcalSiPMCharacteristicsPortableDevice::ConstView const& sipmCharacteristics,
                     HcalRecoParamWithPulseShapeDevice::ConstView const& recoParams,
-                    HcalMahiPulseOffsetsPortableDevice::ConstView const& mahiPulseOffsets,
+                    HcalMahiPulseOffsetsSoA::ConstView const& mahiPulseOffsets,
                     ConfigParameters const& configParameters);
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::hcal::reconstruction

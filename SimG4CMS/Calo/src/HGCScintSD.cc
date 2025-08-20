@@ -94,7 +94,7 @@ HGCScintSD::HGCScintSD(const std::string& name,
 
   if (!fileName_.empty()) {
     edm::FileInPath filetmp("SimG4CMS/Calo/data/" + fileName_);
-    std::string fileName = filetmp.fullPath();
+    const std::string& fileName = filetmp.fullPath();
     std::ifstream fInput(fileName.c_str());
     if (!fInput.good()) {
       edm::LogVerbatim("HGCSim") << "Cannot open file " << fileName;

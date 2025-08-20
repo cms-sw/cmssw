@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 
 process = cms.Process("Demo",Phase2C17I13M9)
-process.load('Configuration.Geometry.GeometryExtended2026D99Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D99Reco_cff')
 
 process.load('FWCore.MessageLogger.MessageLogger_cfi')
 if 'MessageLogger' in process.__dict__:

@@ -1,49 +1,69 @@
-
-#include "FWCore/Framework/test/stubs/RunLumiEventAnalyzer.h"
-
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <cassert>
-#include <iostream>
+#include <vector>
 
 namespace edmtest {
+  class RunLumiEventAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
+  public:
+    explicit RunLumiEventAnalyzer(edm::ParameterSet const& pset);
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+    void analyze(edm::Event const& event, edm::EventSetup const& es) final;
+    void beginRun(edm::Run const& run, edm::EventSetup const& es) final;
+    void endRun(edm::Run const& run, edm::EventSetup const& es) final;
+    void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es) final;
+    void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es) final;
+    void endJob();
+
+  private:
+    std::vector<unsigned long long> const expectedRunLumisEvents0_;
+    std::vector<unsigned long long> const expectedRunLumisEvents1_;
+    std::vector<unsigned long long> const* const expectedRunLumisEvents_;
+    bool const verbose_;
+    bool const dumpTriggerResults_;
+    int const expectedEndingIndex0_;
+    int const expectedEndingIndex1_;
+    int const expectedEndingIndex_;
+    edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
+    int index_ = 0;
+  };
 
   RunLumiEventAnalyzer::RunLumiEventAnalyzer(edm::ParameterSet const& pset)
-      : expectedRunLumisEvents0_(),
-        expectedRunLumisEvents1_(),
+      : expectedRunLumisEvents0_(pset.getUntrackedParameter<std::vector<unsigned long long>>("expectedRunLumiEvents")),
+        expectedRunLumisEvents1_(pset.getUntrackedParameter<std::vector<unsigned long long>>("expectedRunLumiEvents1")),
         expectedRunLumisEvents_(&expectedRunLumisEvents0_),
-        index_(0),
-        verbose_(pset.getUntrackedParameter<bool>("verbose", false)),
-        dumpTriggerResults_(pset.getUntrackedParameter<bool>("dumpTriggerResults", false)),
-        expectedEndingIndex0_(pset.getUntrackedParameter<int>("expectedEndingIndex", -1)),
-        expectedEndingIndex1_(pset.getUntrackedParameter<int>("expectedEndingIndex1", -1)),
+        verbose_(pset.getUntrackedParameter<bool>("verbose")),
+        dumpTriggerResults_(pset.getUntrackedParameter<bool>("dumpTriggerResults")),
+        expectedEndingIndex0_(pset.getUntrackedParameter<int>("expectedEndingIndex")),
+        expectedEndingIndex1_(pset.getUntrackedParameter<int>("expectedEndingIndex1")),
         expectedEndingIndex_(expectedEndingIndex0_) {
-    if (pset.existsAs<std::vector<unsigned int> >("expectedRunLumiEvents", false)) {
-      std::vector<unsigned int> temp = pset.getUntrackedParameter<std::vector<unsigned int> >("expectedRunLumiEvents");
-      expectedRunLumisEvents0_.assign(temp.begin(), temp.end());
-    } else {
-      expectedRunLumisEvents0_ = pset.getUntrackedParameter<std::vector<unsigned long long> >(
-          "expectedRunLumiEvents", std::vector<unsigned long long>());
-    }
-
-    if (pset.existsAs<std::vector<unsigned int> >("expectedRunLumiEvents1", false)) {
-      std::vector<unsigned int> temp = pset.getUntrackedParameter<std::vector<unsigned int> >("expectedRunLumiEvents1");
-      expectedRunLumisEvents1_.assign(temp.begin(), temp.end());
-    } else {
-      expectedRunLumisEvents1_ = pset.getUntrackedParameter<std::vector<unsigned long long> >(
-          "expectedRunLumiEvents1", std::vector<unsigned long long>());
-    }
     if (dumpTriggerResults_) {
       triggerResultsToken_ = consumes(edm::InputTag("TriggerResults"));
     }
+  }
+
+  void RunLumiEventAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.addUntracked<bool>("verbose", false);
+    desc.addUntracked<bool>("dumpTriggerResults", false);
+    desc.addUntracked<int>("expectedEndingIndex", -1);
+    desc.addUntracked<int>("expectedEndingIndex1", -1);
+    desc.addUntracked<std::vector<unsigned long long>>("expectedRunLumiEvents", {});
+    desc.addUntracked<std::vector<unsigned long long>>("expectedRunLumiEvents1", {});
+
+    descriptions.addDefault(desc);
   }
 
   void RunLumiEventAnalyzer::analyze(edm::Event const& event, edm::EventSetup const&) {

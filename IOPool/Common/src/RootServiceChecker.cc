@@ -1,7 +1,7 @@
 #include "IOPool/Common/interface/RootServiceChecker.h"
+#include "FWCore/AbstractServices/interface/RootHandlers.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/RootHandlers.h"
 
 namespace edm {
   RootServiceChecker::RootServiceChecker() {

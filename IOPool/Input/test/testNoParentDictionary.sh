@@ -11,11 +11,40 @@ cd $SCRAM_TEST_NAME
 NEW_CMSSW_BASE=$(/bin/pwd -P)/$CMSSW_VERSION
 scram -a $SCRAM_ARCH project $CMSSW_VERSION
 pushd $CMSSW_VERSION/src
+mkdir DataFormats
+
+# Copy DataFormats/Common if it was modified locally
+if [ -d ${CMSSW_BASE}/src/DataFormats/Common ]; then
+    cp -Lr ${CMSSW_BASE}/src/DataFormats/Common DataFormats/
+fi
+if [ -d ${CMSSW_BASE}/src/DataFormats/Provenance ]; then
+    cp -Lr ${CMSSW_BASE}/src/DataFormats/Provenance DataFormats/
+fi
+#DataFormats/Common and DataFormat/Provenance depend on Utilities
+if [ -d ${CMSSW_BASE}/src/FWCore/Utilities ]; then
+    mkdir -p FWCore
+    cp -Lr ${CMSSW_BASE}/src/FWCore/Utilities FWCore/
+fi
+#DataFormats/Common depends on MessageLogger
+if [ -d ${CMSSW_BASE}/src/FWCore/MessageLogger ]; then
+    mkdir -p FWCore
+    cp -Lr ${CMSSW_BASE}/src/FWCore/MessageLogger FWCore/
+fi
+#DataFormats/Provenance depends on Reflection
+if [ -d ${CMSSW_BASE}/src/FWCore/Reflection ]; then
+    mkdir -p FWCore
+    cp -Lr ${CMSSW_BASE}/src/FWCore/Reflection FWCore/
+fi
+
+#DataFormats/TestObjects depends on FWCore/SOA
+if [ -d ${CMSSW_BASE}/src/FWCore/SOA ]; then
+    mkdir -p FWCore
+    cp -Lr ${CMSSW_BASE}/src/FWCore/SOA FWCore/
+fi
 
 # Copy DataFormats/TestObjects code to be able to edit it to make ROOT header parsing to fail
 for DIR in ${CMSSW_BASE} ${CMSSW_RELEASE_BASE} ${CMSSW_FULL_RELEASE_BASE} ; do
     if [ -d ${DIR}/src/DataFormats/TestObjects ]; then
-        mkdir DataFormats
         cp -Lr ${DIR}/src/DataFormats/TestObjects DataFormats/
         break
     fi

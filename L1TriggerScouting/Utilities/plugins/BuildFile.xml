@@ -1,8 +1,15 @@
+<use name="tbb"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/PluginManager"/>
+<use name="IOPool/Provenance"/>
+<use name="DataFormats/Common"/>
 <use name="DataFormats/L1Trigger"/>
 <use name="DataFormats/L1Scouting"/>
+<use name="DataFormats/NanoAOD"/>
+<use name="PhysicsTools/NanoAOD"/>
 <use name="EventFilter/Utilities"/>
 <use name="L1TriggerScouting/Utilities"/>
+<use name="CommonTools/Utils"/>
+<use name="Utilities/General"/>
 <flags EDM_PLUGIN="1"/>

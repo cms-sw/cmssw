@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 '''Script that directs the popcon output to the dropbox
 '''
-from __future__ import print_function
 
 __author__ = 'Giacomo Govi'
 

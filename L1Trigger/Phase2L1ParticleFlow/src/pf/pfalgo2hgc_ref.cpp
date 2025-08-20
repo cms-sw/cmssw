@@ -119,7 +119,7 @@ void l1ct::PFAlgo2HGCEmulator::run(const PFInputRegion& in, OutputRegion& out) c
           int(in.region.isFiducial(in.hadcalo[i].hwEta, in.hadcalo[i].hwPhi)),
           in.region.floatGlbEtaOf(in.hadcalo[i]),
           in.region.floatGlbPhiOf(in.hadcalo[i]),
-          in.hadcalo[i].pack().to_string(16).c_str());
+          in.hadcalo[i].pack_endcap().to_string(16).c_str());
     }
     for (unsigned int i = 0; i < nMU; ++i) {
       if (in.muon[i].hwPt == 0)

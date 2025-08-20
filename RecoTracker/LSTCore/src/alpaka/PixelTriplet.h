@@ -6,9 +6,12 @@
 #include "RecoTracker/LSTCore/interface/ObjectRangesSoA.h"
 #include "RecoTracker/LSTCore/interface/MiniDoubletsSoA.h"
 #include "RecoTracker/LSTCore/interface/PixelTripletsSoA.h"
+#include "RecoTracker/LSTCore/interface/PixelSegmentsSoA.h"
 #include "RecoTracker/LSTCore/interface/QuintupletsSoA.h"
 #include "RecoTracker/LSTCore/interface/SegmentsSoA.h"
 #include "RecoTracker/LSTCore/interface/TripletsSoA.h"
+
+#include "Quintuplet.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
@@ -18,7 +21,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                 ObjectRangesConst ranges,
                                                                 MiniDoubletsConst mds,
                                                                 SegmentsConst segments,
-                                                                SegmentsPixelConst segmentsPixel,
+                                                                PixelSeedsConst pixelSeeds,
                                                                 uint16_t pixelModuleIndex,
                                                                 uint16_t outerInnerLowerModuleIndex,
                                                                 uint16_t outerOuterLowerModuleIndex,
@@ -27,14 +30,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                 unsigned int firstMDIndex,
                                                                 unsigned int secondMDIndex,
                                                                 unsigned int thirdMDIndex,
-                                                                unsigned int fourthMDIndex);
+                                                                unsigned int fourthMDIndex,
+                                                                const float ptCut);
   template <typename TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runTripletDefaultAlgoPPEE(TAcc const& acc,
                                                                 ModulesConst modules,
                                                                 ObjectRangesConst ranges,
                                                                 MiniDoubletsConst mds,
                                                                 SegmentsConst segments,
-                                                                SegmentsPixelConst segmentsPixel,
+                                                                PixelSeedsConst pixelSeeds,
                                                                 uint16_t pixelModuleIndex,
                                                                 uint16_t outerInnerLowerModuleIndex,
                                                                 uint16_t outerOuterLowerModuleIndex,
@@ -43,7 +47,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                 unsigned int firstMDIndex,
                                                                 unsigned int secondMDIndex,
                                                                 unsigned int thirdMDIndex,
-                                                                unsigned int fourthMDIndex);
+                                                                unsigned int fourthMDIndex,
+                                                                const float ptCut);
 
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void addPixelTripletToMemory(MiniDoubletsConst mds,
                                                               SegmentsConst segments,
@@ -64,10 +69,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                               float phi,
                                                               float eta_pix,
                                                               float phi_pix,
+                                                              float pixelRadiusError,
                                                               float score) {
     pixelTriplets.pixelSegmentIndices()[pixelTripletIndex] = pixelSegmentIndex;
     pixelTriplets.tripletIndices()[pixelTripletIndex] = tripletIndex;
     pixelTriplets.pixelRadius()[pixelTripletIndex] = __F2H(pixelRadius);
+    pixelTriplets.pixelRadiusError()[pixelTripletIndex] = __F2H(pixelRadiusError);
     pixelTriplets.tripletRadius()[pixelTripletIndex] = __F2H(tripletRadius);
     pixelTriplets.pt()[pixelTripletIndex] = __F2H(pt);
     pixelTriplets.eta()[pixelTripletIndex] = __F2H(eta);
@@ -116,12 +123,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                      ObjectRangesConst ranges,
                                                                      MiniDoubletsConst mds,
                                                                      SegmentsConst segments,
-                                                                     SegmentsPixelConst segmentsPixel,
+                                                                     PixelSeedsConst pixelSeeds,
                                                                      uint16_t pixelLowerModuleIndex,
                                                                      uint16_t outerInnerLowerModuleIndex,
                                                                      uint16_t outerOuterLowerModuleIndex,
                                                                      unsigned int innerSegmentIndex,
-                                                                     unsigned int outerSegmentIndex) {
+                                                                     unsigned int outerSegmentIndex,
+                                                                     const float ptCut) {
     short outerInnerLowerModuleSubdet = modules.subdets()[outerInnerLowerModuleIndex];
     short outerOuterLowerModuleSubdet = modules.subdets()[outerOuterLowerModuleIndex];
 
@@ -138,7 +146,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                        ranges,
                                        mds,
                                        segments,
-                                       segmentsPixel,
+                                       pixelSeeds,
                                        pixelLowerModuleIndex,
                                        outerInnerLowerModuleIndex,
                                        outerOuterLowerModuleIndex,
@@ -147,14 +155,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                        firstMDIndex,
                                        secondMDIndex,
                                        thirdMDIndex,
-                                       fourthMDIndex);
+                                       fourthMDIndex,
+                                       ptCut);
     } else if (outerInnerLowerModuleSubdet == Endcap and outerOuterLowerModuleSubdet == Endcap) {
       return runTripletDefaultAlgoPPEE(acc,
                                        modules,
                                        ranges,
                                        mds,
                                        segments,
-                                       segmentsPixel,
+                                       pixelSeeds,
                                        pixelLowerModuleIndex,
                                        outerInnerLowerModuleIndex,
                                        outerOuterLowerModuleIndex,
@@ -163,7 +172,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                        firstMDIndex,
                                        secondMDIndex,
                                        thirdMDIndex,
-                                       fourthMDIndex);
+                                       fourthMDIndex,
+                                       ptCut);
     }
     return false;
   }
@@ -192,7 +202,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
     /*
     else if(layer1 == 7 and layer2 == 8 and layer3 == 14)
-    {   
+    {
         // PS+PS+2S in endcap layers 1+2+3, which is not really feasible in the current geometry,
         // without skipping barrel layers 1 and 2 (not allowed by algorithm logic).
     }
@@ -217,52 +227,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     //default - category not found!
     return true;
-  }
-
-  template <typename TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE float computeChiSquaredpT3(TAcc const& acc,
-                                                            unsigned int nPoints,
-                                                            float* xs,
-                                                            float* ys,
-                                                            float* delta1,
-                                                            float* delta2,
-                                                            float* slopes,
-                                                            bool* isFlat,
-                                                            float g,
-                                                            float f,
-                                                            float radius) {
-    //given values of (g, f, radius) and a set of points (and its uncertainties)
-    //compute chi squared
-    float c = g * g + f * f - radius * radius;
-    float chiSquared = 0.f;
-    float absArctanSlope, angleM, xPrime, yPrime, sigma2;
-    for (size_t i = 0; i < nPoints; i++) {
-      absArctanSlope = ((slopes[i] != kVerticalModuleSlope) ? alpaka::math::abs(acc, alpaka::math::atan(acc, slopes[i]))
-                                                            : kPi / 2.f);
-      if (xs[i] > 0 and ys[i] > 0) {
-        angleM = kPi / 2.f - absArctanSlope;
-      } else if (xs[i] < 0 and ys[i] > 0) {
-        angleM = absArctanSlope + kPi / 2.f;
-      } else if (xs[i] < 0 and ys[i] < 0) {
-        angleM = -(absArctanSlope + kPi / 2.f);
-      } else if (xs[i] > 0 and ys[i] < 0) {
-        angleM = -(kPi / 2.f - absArctanSlope);
-      } else {
-        angleM = 0;
-      }
-
-      if (not isFlat[i]) {
-        xPrime = xs[i] * alpaka::math::cos(acc, angleM) + ys[i] * alpaka::math::sin(acc, angleM);
-        yPrime = ys[i] * alpaka::math::cos(acc, angleM) - xs[i] * alpaka::math::sin(acc, angleM);
-      } else {
-        xPrime = xs[i];
-        yPrime = ys[i];
-      }
-      sigma2 = 4 * ((xPrime * delta1[i]) * (xPrime * delta1[i]) + (yPrime * delta2[i]) * (yPrime * delta2[i]));
-      chiSquared += (xs[i] * xs[i] + ys[i] * ys[i] - 2 * g * xs[i] - 2 * f * ys[i] + c) *
-                    (xs[i] * xs[i] + ys[i] * ys[i] - 2 * g * xs[i] - 2 * f * ys[i] + c) / sigma2;
-    }
-    return chiSquared;
   }
 
   //TODO: merge this one and the pT5 function later into a single function
@@ -332,7 +296,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       }
 #endif
     }
-    chiSquared = computeChiSquaredpT3(acc, 3, xs, ys, delta1, delta2, slopes, isFlat, g, f, radius);
+    chiSquared = computeChiSquared(acc, 3, xs, ys, delta1, delta2, slopes, isFlat, g, f, radius);
 
     return chiSquared;
   }
@@ -672,7 +636,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                  ObjectRangesConst ranges,
                                                                  MiniDoubletsConst mds,
                                                                  SegmentsConst segments,
-                                                                 SegmentsPixelConst segmentsPixel,
+                                                                 PixelSeedsConst pixelSeeds,
+                                                                 PixelSegmentsConst pixelSegments,
                                                                  TripletsConst triplets,
                                                                  unsigned int pixelSegmentIndex,
                                                                  unsigned int tripletIndex,
@@ -683,6 +648,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                  float& rzChiSquared,
                                                                  float& rPhiChiSquared,
                                                                  float& rPhiChiSquaredInwards,
+                                                                 float& pixelRadiusError,
+                                                                 const float ptCut,
+                                                                 bool runDNN = true,
                                                                  bool runChiSquaredCuts = true) {
     //run pT4 compatibility between the pixel segment and inner segment, and between the pixel and outer segment of the triplet
     uint16_t pixelModuleIndex = segments.innerLowerModuleIndices()[pixelSegmentIndex];
@@ -698,12 +666,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                              ranges,
                                              mds,
                                              segments,
-                                             segmentsPixel,
+                                             pixelSeeds,
                                              pixelModuleIndex,
                                              lowerModuleIndex,
                                              middleModuleIndex,
                                              pixelSegmentIndex,
-                                             triplets.segmentIndices()[tripletIndex][0]))
+                                             triplets.segmentIndices()[tripletIndex][0],
+                                             ptCut))
         return false;
 
       //pixel segment vs outer segment of triplet
@@ -712,33 +681,34 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                              ranges,
                                              mds,
                                              segments,
-                                             segmentsPixel,
+                                             pixelSeeds,
                                              pixelModuleIndex,
                                              middleModuleIndex,
                                              upperModuleIndex,
                                              pixelSegmentIndex,
-                                             triplets.segmentIndices()[tripletIndex][1]))
+                                             triplets.segmentIndices()[tripletIndex][1],
+                                             ptCut))
         return false;
     }
 
     //pt matching between the pixel ptin and the triplet circle pt
     unsigned int pixelSegmentArrayIndex = pixelSegmentIndex - ranges.segmentModuleIndices()[pixelModuleIndex];
-    float pixelSegmentPt = segmentsPixel.ptIn()[pixelSegmentArrayIndex];
-    float pixelSegmentPtError = segmentsPixel.ptErr()[pixelSegmentArrayIndex];
-    float pixelSegmentPx = segmentsPixel.px()[pixelSegmentArrayIndex];
-    float pixelSegmentPy = segmentsPixel.py()[pixelSegmentArrayIndex];
-    float pixelSegmentPz = segmentsPixel.pz()[pixelSegmentArrayIndex];
-    int pixelSegmentCharge = segmentsPixel.charge()[pixelSegmentArrayIndex];
+    float pixelSegmentPt = pixelSeeds.ptIn()[pixelSegmentArrayIndex];
+    float pixelSegmentPtError = pixelSeeds.ptErr()[pixelSegmentArrayIndex];
+    float pixelSegmentPx = pixelSeeds.px()[pixelSegmentArrayIndex];
+    float pixelSegmentPy = pixelSeeds.py()[pixelSegmentArrayIndex];
+    float pixelSegmentPz = pixelSeeds.pz()[pixelSegmentArrayIndex];
+    int pixelSegmentCharge = pixelSeeds.charge()[pixelSegmentArrayIndex];
 
-    float pixelG = segmentsPixel.circleCenterX()[pixelSegmentArrayIndex];
-    float pixelF = segmentsPixel.circleCenterY()[pixelSegmentArrayIndex];
-    float pixelRadiusPCA = segmentsPixel.circleRadius()[pixelSegmentArrayIndex];
+    float pixelG = pixelSegments.circleCenterX()[pixelSegmentArrayIndex];
+    float pixelF = pixelSegments.circleCenterY()[pixelSegmentArrayIndex];
+    float pixelRadiusPCA = pixelSegments.circleRadius()[pixelSegmentArrayIndex];
 
     unsigned int pixelInnerMDIndex = segments.mdIndices()[pixelSegmentIndex][0];
     unsigned int pixelOuterMDIndex = segments.mdIndices()[pixelSegmentIndex][1];
 
     pixelRadius = pixelSegmentPt * kR1GeVf;
-    float pixelRadiusError = pixelSegmentPtError * kR1GeVf;
+    pixelRadiusError = pixelSegmentPtError * kR1GeVf;
     unsigned int tripletInnerSegmentIndex = triplets.segmentIndices()[tripletIndex][0];
     unsigned int tripletOuterSegmentIndex = triplets.segmentIndices()[tripletIndex][1];
 
@@ -768,7 +738,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     uint16_t lowerModuleIndices[Params_T3::kLayers] = {lowerModuleIndex, middleModuleIndex, upperModuleIndex};
 
-    if (runChiSquaredCuts and pixelSegmentPt < 5.0f) {
+    if (runDNN || runChiSquaredCuts) {
       float rts[Params_T3::kLayers] = {
           mds.anchorRt()[firstMDIndex], mds.anchorRt()[secondMDIndex], mds.anchorRt()[thirdMDIndex]};
       float zs[Params_T3::kLayers] = {
@@ -794,58 +764,64 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                             pixelSegmentPy,
                                             pixelSegmentPz,
                                             pixelSegmentCharge);
-      if (not passPT3RZChiSquaredCuts(modules, lowerModuleIndex, middleModuleIndex, upperModuleIndex, rzChiSquared))
-        return false;
-    } else {
-      rzChiSquared = -1;
+      if (runChiSquaredCuts && pixelSegmentPt < 5.0f) {
+        if (!passPT3RZChiSquaredCuts(modules, lowerModuleIndex, middleModuleIndex, upperModuleIndex, rzChiSquared))
+          return false;
+      }
+
+      rPhiChiSquared =
+          computePT3RPhiChiSquared(acc, modules, lowerModuleIndices, pixelG, pixelF, pixelRadiusPCA, xs, ys);
+      if (runChiSquaredCuts && pixelSegmentPt < 5.0f) {
+        if (!passPT3RPhiChiSquaredCuts(modules, lowerModuleIndex, middleModuleIndex, upperModuleIndex, rPhiChiSquared))
+          return false;
+      }
+
+      rPhiChiSquaredInwards = computePT3RPhiChiSquaredInwards(g, f, tripletRadius, xPix, yPix);
+      if (runChiSquaredCuts && pixelSegmentPt < 5.0f) {
+        if (!passPT3RPhiChiSquaredInwardsCuts(
+                modules, lowerModuleIndex, middleModuleIndex, upperModuleIndex, rPhiChiSquaredInwards))
+          return false;
+      }
     }
 
-    rPhiChiSquared = computePT3RPhiChiSquared(acc, modules, lowerModuleIndices, pixelG, pixelF, pixelRadiusPCA, xs, ys);
-
-    if (runChiSquaredCuts and pixelSegmentPt < 5.0f) {
-      if (not passPT3RPhiChiSquaredCuts(modules, lowerModuleIndex, middleModuleIndex, upperModuleIndex, rPhiChiSquared))
-        return false;
-    }
-
-    float xPix[Params_pLS::kLayers] = {mds.anchorX()[pixelInnerMDIndex], mds.anchorX()[pixelOuterMDIndex]};
-    float yPix[Params_pLS::kLayers] = {mds.anchorY()[pixelInnerMDIndex], mds.anchorY()[pixelOuterMDIndex]};
-    rPhiChiSquaredInwards = computePT3RPhiChiSquaredInwards(g, f, tripletRadius, xPix, yPix);
-
-    if (runChiSquaredCuts and pixelSegmentPt < 5.0f) {
-      if (not passPT3RPhiChiSquaredInwardsCuts(
-              modules, lowerModuleIndex, middleModuleIndex, upperModuleIndex, rPhiChiSquaredInwards))
-        return false;
-    }
     centerX = 0;
     centerY = 0;
+
+    if (runDNN and !lst::pt3dnn::runInference(acc,
+                                              rPhiChiSquared,
+                                              tripletRadius,
+                                              pixelRadius,
+                                              pixelRadiusError,
+                                              rzChiSquared,
+                                              pixelSeeds.eta()[pixelSegmentArrayIndex],
+                                              pixelSegmentPt)) {
+      return false;
+    }
+
     return true;
   }
 
   struct CreatePixelTripletsFromMap {
-    template <typename TAcc>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+    ALPAKA_FN_ACC void operator()(Acc3D const& acc,
                                   ModulesConst modules,
                                   ModulesPixelConst modulesPixel,
                                   ObjectRangesConst ranges,
                                   MiniDoubletsConst mds,
                                   SegmentsConst segments,
-                                  SegmentsPixelConst segmentsPixel,
+                                  PixelSeedsConst pixelSeeds,
+                                  PixelSegmentsConst pixelSegments,
                                   Triplets triplets,
                                   TripletsOccupancyConst tripletsOccupancy,
                                   PixelTriplets pixelTriplets,
                                   unsigned int* connectedPixelSize,
                                   unsigned int* connectedPixelIndex,
-                                  unsigned int nPixelSegments) const {
-      auto const globalBlockIdx = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc);
-      auto const globalThreadIdx = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
-      auto const gridBlockExtent = alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc);
-      auto const gridThreadExtent = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc);
-
-      for (unsigned int i_pLS = globalThreadIdx[1]; i_pLS < nPixelSegments; i_pLS += gridThreadExtent[1]) {
+                                  unsigned int nPixelSegments,
+                                  const float ptCut) const {
+      for (unsigned int i_pLS : cms::alpakatools::uniform_elements_z(acc, nPixelSegments)) {
         auto iLSModule_max = connectedPixelIndex[i_pLS] + connectedPixelSize[i_pLS];
 
-        for (unsigned int iLSModule = connectedPixelIndex[i_pLS] + globalBlockIdx[0]; iLSModule < iLSModule_max;
-             iLSModule += gridBlockExtent[0]) {
+        for (unsigned int iLSModule :
+             cms::alpakatools::uniform_elements_y(acc, connectedPixelIndex[i_pLS], iLSModule_max)) {
           uint16_t tripletLowerModuleIndex =
               modulesPixel.connectedPixels()
                   [iLSModule];  //connected pixels will have the appropriate lower module index by default!
@@ -868,9 +844,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
           unsigned int pixelSegmentIndex = ranges.segmentModuleIndices()[pixelModuleIndex] + i_pLS;
 
-          if (segmentsPixel.isDup()[i_pLS])
+          if (pixelSegments.isDup()[i_pLS])
             continue;
-          if (segmentsPixel.partOfPT5()[i_pLS])
+          if (pixelSegments.partOfPT5()[i_pLS])
             continue;  //don't make pT3s for those pixels that are part of pT5
 
           short layer2_adjustment;
@@ -885,8 +861,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           }
 
           //fetch the triplet
-          for (unsigned int outerTripletArrayIndex = globalThreadIdx[2]; outerTripletArrayIndex < nOuterTriplets;
-               outerTripletArrayIndex += gridThreadExtent[2]) {
+          for (unsigned int outerTripletArrayIndex : cms::alpakatools::uniform_elements_x(acc, nOuterTriplets)) {
             unsigned int outerTripletIndex =
                 ranges.tripletModuleIndices()[tripletLowerModuleIndex] + outerTripletArrayIndex;
             if (modules.moduleType()[triplets.lowerModuleIndices()[outerTripletIndex][1]] == TwoS)
@@ -895,13 +870,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
             if (triplets.partOfPT5()[outerTripletIndex])
               continue;  //don't create pT3s for T3s accounted in pT5s
 
-            float pixelRadius, tripletRadius, rPhiChiSquared, rzChiSquared, rPhiChiSquaredInwards, centerX, centerY;
+            float pixelRadius, tripletRadius, rPhiChiSquared, rzChiSquared, rPhiChiSquaredInwards, centerX, centerY,
+                pixelRadiusError;
             bool success = runPixelTripletDefaultAlgo(acc,
                                                       modules,
                                                       ranges,
                                                       mds,
                                                       segments,
-                                                      segmentsPixel,
+                                                      pixelSeeds,
+                                                      pixelSegments,
                                                       triplets,
                                                       pixelSegmentIndex,
                                                       outerTripletIndex,
@@ -911,7 +888,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                       centerY,
                                                       rzChiSquared,
                                                       rPhiChiSquared,
-                                                      rPhiChiSquaredInwards);
+                                                      rPhiChiSquaredInwards,
+                                                      pixelRadiusError,
+                                                      ptCut);
 
             if (success) {
               float phi =
@@ -920,9 +899,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
               float eta =
                   mds.anchorEta()[segments
                                       .mdIndices()[triplets.segmentIndices()[outerTripletIndex][0]][layer2_adjustment]];
-              float eta_pix = segmentsPixel.eta()[i_pLS];
-              float phi_pix = segmentsPixel.phi()[i_pLS];
-              float pt = segmentsPixel.ptIn()[i_pLS];
+              float eta_pix = pixelSeeds.eta()[i_pLS];
+              float phi_pix = pixelSeeds.phi()[i_pLS];
+              float pt = pixelSeeds.ptIn()[i_pLS];
               float score = rPhiChiSquared + rPhiChiSquaredInwards;
               unsigned int totOccupancyPixelTriplets =
                   alpaka::atomicAdd(acc, &pixelTriplets.totOccupancyPixelTriplets(), 1u, alpaka::hierarchy::Threads{});
@@ -952,6 +931,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                         phi,
                                         eta_pix,
                                         phi_pix,
+                                        pixelRadiusError,
                                         score);
                 triplets.partOfPT3()[outerTripletIndex] = true;
               }
@@ -963,111 +943,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   };
 
   template <typename TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE void runDeltaBetaIterationspT3(TAcc const& acc,
-                                                                float& betaIn,
-                                                                float& betaOut,
-                                                                float betaAv,
-                                                                float& pt_beta,
-                                                                float sdIn_dr,
-                                                                float sdOut_dr,
-                                                                float dr,
-                                                                float lIn) {
-    if (lIn == 0) {
-      betaOut += alpaka::math::copysign(
-          acc,
-          alpaka::math::asin(
-              acc, alpaka::math::min(acc, sdOut_dr * k2Rinv1GeVf / alpaka::math::abs(acc, pt_beta), kSinAlphaMax)),
-          betaOut);
-      return;
-    }
-
-    if (betaIn * betaOut > 0.f and
-        (alpaka::math::abs(acc, pt_beta) < 4.f * kPt_betaMax or
-         (lIn >= 11 and alpaka::math::abs(acc, pt_beta) <
-                            8.f * kPt_betaMax)))  //and the pt_beta is well-defined; less strict for endcap-endcap
-    {
-      const float betaInUpd =
-          betaIn +
-          alpaka::math::copysign(
-              acc,
-              alpaka::math::asin(
-                  acc, alpaka::math::min(acc, sdIn_dr * k2Rinv1GeVf / alpaka::math::abs(acc, pt_beta), kSinAlphaMax)),
-              betaIn);  //FIXME: need a faster version
-      const float betaOutUpd =
-          betaOut +
-          alpaka::math::copysign(
-              acc,
-              alpaka::math::asin(
-                  acc, alpaka::math::min(acc, sdOut_dr * k2Rinv1GeVf / alpaka::math::abs(acc, pt_beta), kSinAlphaMax)),
-              betaOut);  //FIXME: need a faster version
-      betaAv = 0.5f * (betaInUpd + betaOutUpd);
-
-      //1st update
-      const float pt_beta_inv =
-          1.f / alpaka::math::abs(acc, dr * k2Rinv1GeVf / alpaka::math::sin(acc, betaAv));  //get a better pt estimate
-
-      betaIn += alpaka::math::copysign(
-          acc,
-          alpaka::math::asin(acc, alpaka::math::min(acc, sdIn_dr * k2Rinv1GeVf * pt_beta_inv, kSinAlphaMax)),
-          betaIn);  //FIXME: need a faster version
-      betaOut += alpaka::math::copysign(
-          acc,
-          alpaka::math::asin(acc, alpaka::math::min(acc, sdOut_dr * k2Rinv1GeVf * pt_beta_inv, kSinAlphaMax)),
-          betaOut);  //FIXME: need a faster version
-      //update the av and pt
-      betaAv = 0.5f * (betaIn + betaOut);
-      //2nd update
-      pt_beta = dr * k2Rinv1GeVf / alpaka::math::sin(acc, betaAv);  //get a better pt estimate
-    } else if (lIn < 11 && alpaka::math::abs(acc, betaOut) < 0.2f * alpaka::math::abs(acc, betaIn) &&
-               alpaka::math::abs(acc, pt_beta) < 12.f * kPt_betaMax)  //use betaIn sign as ref
-    {
-      const float pt_betaIn = dr * k2Rinv1GeVf / alpaka::math::sin(acc, betaIn);
-
-      const float betaInUpd =
-          betaIn +
-          alpaka::math::copysign(
-              acc,
-              alpaka::math::asin(
-                  acc, alpaka::math::min(acc, sdIn_dr * k2Rinv1GeVf / alpaka::math::abs(acc, pt_betaIn), kSinAlphaMax)),
-              betaIn);  //FIXME: need a faster version
-      const float betaOutUpd =
-          betaOut +
-          alpaka::math::copysign(
-              acc,
-              alpaka::math::asin(
-                  acc,
-                  alpaka::math::min(acc, sdOut_dr * k2Rinv1GeVf / alpaka::math::abs(acc, pt_betaIn), kSinAlphaMax)),
-              betaIn);  //FIXME: need a faster version
-      betaAv = (alpaka::math::abs(acc, betaOut) > 0.2f * alpaka::math::abs(acc, betaIn))
-                   ? (0.5f * (betaInUpd + betaOutUpd))
-                   : betaInUpd;
-
-      //1st update
-      pt_beta = dr * k2Rinv1GeVf / alpaka::math::sin(acc, betaAv);  //get a better pt estimate
-      betaIn += alpaka::math::copysign(
-          acc,
-          alpaka::math::asin(
-              acc, alpaka::math::min(acc, sdIn_dr * k2Rinv1GeVf / alpaka::math::abs(acc, pt_beta), kSinAlphaMax)),
-          betaIn);  //FIXME: need a faster version
-      betaOut += alpaka::math::copysign(
-          acc,
-          alpaka::math::asin(
-              acc, alpaka::math::min(acc, sdOut_dr * k2Rinv1GeVf / alpaka::math::abs(acc, pt_beta), kSinAlphaMax)),
-          betaIn);  //FIXME: need a faster version
-      //update the av and pt
-      betaAv = 0.5f * (betaIn + betaOut);
-      //2nd update
-      pt_beta = dr * k2Rinv1GeVf / alpaka::math::sin(acc, betaAv);  //get a better pt estimate
-    }
-  }
-
-  template <typename TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runTripletDefaultAlgoPPBB(TAcc const& acc,
                                                                 ModulesConst modules,
                                                                 ObjectRangesConst ranges,
                                                                 MiniDoubletsConst mds,
                                                                 SegmentsConst segments,
-                                                                SegmentsPixelConst segmentsPixel,
+                                                                PixelSeedsConst pixelSeeds,
                                                                 uint16_t pixelModuleIndex,
                                                                 uint16_t outerInnerLowerModuleIndex,
                                                                 uint16_t outerOuterLowerModuleIndex,
@@ -1076,7 +957,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                 unsigned int firstMDIndex,
                                                                 unsigned int secondMDIndex,
                                                                 unsigned int thirdMDIndex,
-                                                                unsigned int fourthMDIndex) {
+                                                                unsigned int fourthMDIndex,
+                                                                const float ptCut) {
     float dPhi, betaIn, betaOut, pt_beta, zLo, zHi, zLoPointed, zHiPointed, dPhiCut, betaOutCut;
 
     bool isPS_OutLo = (modules.moduleType()[outerInnerLowerModuleIndex] == PS);
@@ -1101,17 +983,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     float rt_InOut = rt_InUp;
 
-    if (alpaka::math::abs(acc, deltaPhi(acc, x_InUp, y_InUp, x_OutLo, y_OutLo)) > kPi / 2.f)
+    if (alpaka::math::abs(acc, cms::alpakatools::deltaPhi(acc, x_InUp, y_InUp, x_OutLo, y_OutLo)) > kPi / 2.f)
       return false;
 
     unsigned int pixelSegmentArrayIndex = innerSegmentIndex - ranges.segmentModuleIndices()[pixelModuleIndex];
-    float ptIn = segmentsPixel.ptIn()[pixelSegmentArrayIndex];
+    float ptIn = pixelSeeds.ptIn()[pixelSegmentArrayIndex];
     float ptSLo = ptIn;
-    float px = segmentsPixel.px()[pixelSegmentArrayIndex];
-    float py = segmentsPixel.py()[pixelSegmentArrayIndex];
-    float pz = segmentsPixel.pz()[pixelSegmentArrayIndex];
-    float ptErr = segmentsPixel.ptErr()[pixelSegmentArrayIndex];
-    float etaErr = segmentsPixel.etaErr()[pixelSegmentArrayIndex];
+    float px = pixelSeeds.px()[pixelSegmentArrayIndex];
+    float py = pixelSeeds.py()[pixelSegmentArrayIndex];
+    float pz = pixelSeeds.pz()[pixelSegmentArrayIndex];
+    float ptErr = pixelSeeds.ptErr()[pixelSegmentArrayIndex];
+    float etaErr = pixelSeeds.etaErr()[pixelSegmentArrayIndex];
     ptSLo = alpaka::math::max(acc, ptCut, ptSLo - 10.0f * alpaka::math::max(acc, ptErr, 0.005f * ptSLo));
     ptSLo = alpaka::math::min(acc, 10.0f, ptSLo);
 
@@ -1175,7 +1057,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float diffX = x_OutLo - x_InLo;
     float diffY = y_OutLo - y_InLo;
 
-    dPhi = deltaPhi(acc, midPointX, midPointY, diffX, diffY);
+    dPhi = cms::alpakatools::deltaPhi(acc, midPointX, midPointY, diffX, diffY);
 
     if (alpaka::math::abs(acc, dPhi) > dPhiCut)
       return false;
@@ -1189,7 +1071,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                           modules.moduleType()[outerOuterLowerModuleIndex] == TwoS;
 
     float alpha_OutUp, alpha_OutUp_highEdge, alpha_OutUp_lowEdge;
-    alpha_OutUp = deltaPhi(acc, x_OutUp, y_OutUp, x_OutUp - x_OutLo, y_OutUp - y_OutLo);
+    alpha_OutUp = cms::alpakatools::deltaPhi(acc, x_OutUp, y_OutUp, x_OutUp - x_OutLo, y_OutUp - y_OutLo);
 
     alpha_OutUp_highEdge = alpha_OutUp;
     alpha_OutUp_lowEdge = alpha_OutUp;
@@ -1203,42 +1085,42 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float tl_axis_lowEdge_x = tl_axis_x;
     float tl_axis_lowEdge_y = tl_axis_y;
 
-    betaIn = -deltaPhi(acc, px, py, tl_axis_x, tl_axis_y);
+    betaIn = -cms::alpakatools::deltaPhi(acc, px, py, tl_axis_x, tl_axis_y);
     float betaInRHmin = betaIn;
     float betaInRHmax = betaIn;
 
-    betaOut = -alpha_OutUp + deltaPhi(acc, x_OutUp, y_OutUp, tl_axis_x, tl_axis_y);
+    betaOut = -alpha_OutUp + cms::alpakatools::deltaPhi(acc, x_OutUp, y_OutUp, tl_axis_x, tl_axis_y);
 
     float betaOutRHmin = betaOut;
     float betaOutRHmax = betaOut;
 
     if (isEC_lastLayer) {
-      alpha_OutUp_highEdge = deltaPhi(acc,
-                                      mds.anchorHighEdgeX()[fourthMDIndex],
-                                      mds.anchorHighEdgeY()[fourthMDIndex],
-                                      mds.anchorHighEdgeX()[fourthMDIndex] - x_OutLo,
-                                      mds.anchorHighEdgeY()[fourthMDIndex] - y_OutLo);
-      alpha_OutUp_lowEdge = deltaPhi(acc,
-                                     mds.anchorLowEdgeX()[fourthMDIndex],
-                                     mds.anchorLowEdgeY()[fourthMDIndex],
-                                     mds.anchorLowEdgeX()[fourthMDIndex] - x_OutLo,
-                                     mds.anchorLowEdgeY()[fourthMDIndex] - y_OutLo);
+      alpha_OutUp_highEdge = cms::alpakatools::deltaPhi(acc,
+                                                        mds.anchorHighEdgeX()[fourthMDIndex],
+                                                        mds.anchorHighEdgeY()[fourthMDIndex],
+                                                        mds.anchorHighEdgeX()[fourthMDIndex] - x_OutLo,
+                                                        mds.anchorHighEdgeY()[fourthMDIndex] - y_OutLo);
+      alpha_OutUp_lowEdge = cms::alpakatools::deltaPhi(acc,
+                                                       mds.anchorLowEdgeX()[fourthMDIndex],
+                                                       mds.anchorLowEdgeY()[fourthMDIndex],
+                                                       mds.anchorLowEdgeX()[fourthMDIndex] - x_OutLo,
+                                                       mds.anchorLowEdgeY()[fourthMDIndex] - y_OutLo);
 
       tl_axis_highEdge_x = mds.anchorHighEdgeX()[fourthMDIndex] - x_InUp;
       tl_axis_highEdge_y = mds.anchorHighEdgeY()[fourthMDIndex] - y_InUp;
       tl_axis_lowEdge_x = mds.anchorLowEdgeX()[fourthMDIndex] - x_InUp;
       tl_axis_lowEdge_y = mds.anchorLowEdgeY()[fourthMDIndex] - y_InUp;
 
-      betaOutRHmin = -alpha_OutUp_highEdge + deltaPhi(acc,
-                                                      mds.anchorHighEdgeX()[fourthMDIndex],
-                                                      mds.anchorHighEdgeY()[fourthMDIndex],
-                                                      tl_axis_highEdge_x,
-                                                      tl_axis_highEdge_y);
-      betaOutRHmax = -alpha_OutUp_lowEdge + deltaPhi(acc,
-                                                     mds.anchorLowEdgeX()[fourthMDIndex],
-                                                     mds.anchorLowEdgeY()[fourthMDIndex],
-                                                     tl_axis_lowEdge_x,
-                                                     tl_axis_lowEdge_y);
+      betaOutRHmin = -alpha_OutUp_highEdge + cms::alpakatools::deltaPhi(acc,
+                                                                        mds.anchorHighEdgeX()[fourthMDIndex],
+                                                                        mds.anchorHighEdgeY()[fourthMDIndex],
+                                                                        tl_axis_highEdge_x,
+                                                                        tl_axis_highEdge_y);
+      betaOutRHmax = -alpha_OutUp_lowEdge + cms::alpakatools::deltaPhi(acc,
+                                                                       mds.anchorLowEdgeX()[fourthMDIndex],
+                                                                       mds.anchorLowEdgeY()[fourthMDIndex],
+                                                                       tl_axis_lowEdge_x,
+                                                                       tl_axis_lowEdge_y);
     }
 
     //beta computation
@@ -1258,7 +1140,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         alpaka::math::sqrt(acc, (x_OutUp - x_OutLo) * (x_OutUp - x_OutLo) + (y_OutUp - y_OutLo) * (y_OutUp - y_OutLo));
     float sdOut_d = rt_OutUp - rt_OutLo;
 
-    runDeltaBetaIterationspT3(acc, betaIn, betaOut, betaAv, pt_beta, rt_InSeg, sdOut_dr, drt_tl_axis, lIn);
+    runDeltaBetaIterations(acc, betaIn, betaOut, betaAv, pt_beta, rt_InSeg, sdOut_dr, drt_tl_axis, lIn);
 
     const float betaInMMSF = (alpaka::math::abs(acc, betaInRHmin + betaInRHmax) > 0)
                                  ? (2.f * betaIn / alpaka::math::abs(acc, betaInRHmin + betaInRHmax))
@@ -1325,7 +1207,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                 ObjectRangesConst ranges,
                                                                 MiniDoubletsConst mds,
                                                                 SegmentsConst segments,
-                                                                SegmentsPixelConst segmentsPixel,
+                                                                PixelSeedsConst pixelSeeds,
                                                                 uint16_t pixelModuleIndex,
                                                                 uint16_t outerInnerLowerModuleIndex,
                                                                 uint16_t outerOuterLowerModuleIndex,
@@ -1334,7 +1216,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                 unsigned int firstMDIndex,
                                                                 unsigned int secondMDIndex,
                                                                 unsigned int thirdMDIndex,
-                                                                unsigned int fourthMDIndex) {
+                                                                unsigned int fourthMDIndex,
+                                                                const float ptCut) {
     float dPhi, betaIn, betaOut, pt_beta, rtLo, rtHi, dPhiCut, betaOutCut;
 
     bool isPS_OutLo = (modules.moduleType()[outerInnerLowerModuleIndex] == PS);
@@ -1362,13 +1245,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     unsigned int pixelSegmentArrayIndex = innerSegmentIndex - ranges.segmentModuleIndices()[pixelModuleIndex];
 
-    float ptIn = segmentsPixel.ptIn()[pixelSegmentArrayIndex];
+    float ptIn = pixelSeeds.ptIn()[pixelSegmentArrayIndex];
     float ptSLo = ptIn;
-    float px = segmentsPixel.px()[pixelSegmentArrayIndex];
-    float py = segmentsPixel.py()[pixelSegmentArrayIndex];
-    float pz = segmentsPixel.pz()[pixelSegmentArrayIndex];
-    float ptErr = segmentsPixel.ptErr()[pixelSegmentArrayIndex];
-    float etaErr = segmentsPixel.etaErr()[pixelSegmentArrayIndex];
+    float px = pixelSeeds.px()[pixelSegmentArrayIndex];
+    float py = pixelSeeds.py()[pixelSegmentArrayIndex];
+    float pz = pixelSeeds.pz()[pixelSegmentArrayIndex];
+    float ptErr = pixelSeeds.ptErr()[pixelSegmentArrayIndex];
+    float etaErr = pixelSeeds.etaErr()[pixelSegmentArrayIndex];
 
     ptSLo = alpaka::math::max(acc, ptCut, ptSLo - 10.0f * alpaka::math::max(acc, ptErr, 0.005f * ptSLo));
     ptSLo = alpaka::math::min(acc, 10.0f, ptSLo);
@@ -1438,7 +1321,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float diffX = x_OutLo - x_InLo;
     float diffY = y_OutLo - y_InLo;
 
-    dPhi = deltaPhi(acc, midPointX, midPointY, diffX, diffY);
+    dPhi = cms::alpakatools::deltaPhi(acc, midPointX, midPointY, diffX, diffY);
 
     // Cut #5: deltaPhiChange
     if (alpaka::math::abs(acc, dPhi) > dPhiCut)
@@ -1452,7 +1335,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     float alpha_OutUp, alpha_OutUp_highEdge, alpha_OutUp_lowEdge;
 
-    alpha_OutUp = deltaPhi(acc, x_OutUp, y_OutUp, x_OutUp - x_OutLo, y_OutUp - y_OutLo);
+    alpha_OutUp = cms::alpakatools::deltaPhi(acc, x_OutUp, y_OutUp, x_OutUp - x_OutLo, y_OutUp - y_OutLo);
     alpha_OutUp_highEdge = alpha_OutUp;
     alpha_OutUp_lowEdge = alpha_OutUp;
 
@@ -1465,41 +1348,41 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float tl_axis_lowEdge_x = tl_axis_x;
     float tl_axis_lowEdge_y = tl_axis_y;
 
-    betaIn = -deltaPhi(acc, px, py, tl_axis_x, tl_axis_y);
+    betaIn = -cms::alpakatools::deltaPhi(acc, px, py, tl_axis_x, tl_axis_y);
     float betaInRHmin = betaIn;
     float betaInRHmax = betaIn;
 
-    betaOut = -alpha_OutUp + deltaPhi(acc, x_OutUp, y_OutUp, tl_axis_x, tl_axis_y);
+    betaOut = -alpha_OutUp + cms::alpakatools::deltaPhi(acc, x_OutUp, y_OutUp, tl_axis_x, tl_axis_y);
     float betaOutRHmin = betaOut;
     float betaOutRHmax = betaOut;
 
     if (isEC_lastLayer) {
-      alpha_OutUp_highEdge = deltaPhi(acc,
-                                      mds.anchorHighEdgeX()[fourthMDIndex],
-                                      mds.anchorHighEdgeY()[fourthMDIndex],
-                                      mds.anchorHighEdgeX()[fourthMDIndex] - x_OutLo,
-                                      mds.anchorHighEdgeY()[fourthMDIndex] - y_OutLo);
-      alpha_OutUp_lowEdge = deltaPhi(acc,
-                                     mds.anchorLowEdgeX()[fourthMDIndex],
-                                     mds.anchorLowEdgeY()[fourthMDIndex],
-                                     mds.anchorLowEdgeX()[fourthMDIndex] - x_OutLo,
-                                     mds.anchorLowEdgeY()[fourthMDIndex] - y_OutLo);
+      alpha_OutUp_highEdge = cms::alpakatools::deltaPhi(acc,
+                                                        mds.anchorHighEdgeX()[fourthMDIndex],
+                                                        mds.anchorHighEdgeY()[fourthMDIndex],
+                                                        mds.anchorHighEdgeX()[fourthMDIndex] - x_OutLo,
+                                                        mds.anchorHighEdgeY()[fourthMDIndex] - y_OutLo);
+      alpha_OutUp_lowEdge = cms::alpakatools::deltaPhi(acc,
+                                                       mds.anchorLowEdgeX()[fourthMDIndex],
+                                                       mds.anchorLowEdgeY()[fourthMDIndex],
+                                                       mds.anchorLowEdgeX()[fourthMDIndex] - x_OutLo,
+                                                       mds.anchorLowEdgeY()[fourthMDIndex] - y_OutLo);
 
       tl_axis_highEdge_x = mds.anchorHighEdgeX()[fourthMDIndex] - x_InUp;
       tl_axis_highEdge_y = mds.anchorHighEdgeY()[fourthMDIndex] - y_InUp;
       tl_axis_lowEdge_x = mds.anchorLowEdgeX()[fourthMDIndex] - x_InUp;
       tl_axis_lowEdge_y = mds.anchorLowEdgeY()[fourthMDIndex] - y_InUp;
 
-      betaOutRHmin = -alpha_OutUp_highEdge + deltaPhi(acc,
-                                                      mds.anchorHighEdgeX()[fourthMDIndex],
-                                                      mds.anchorHighEdgeY()[fourthMDIndex],
-                                                      tl_axis_highEdge_x,
-                                                      tl_axis_highEdge_y);
-      betaOutRHmax = -alpha_OutUp_lowEdge + deltaPhi(acc,
-                                                     mds.anchorLowEdgeX()[fourthMDIndex],
-                                                     mds.anchorLowEdgeY()[fourthMDIndex],
-                                                     tl_axis_lowEdge_x,
-                                                     tl_axis_lowEdge_y);
+      betaOutRHmin = -alpha_OutUp_highEdge + cms::alpakatools::deltaPhi(acc,
+                                                                        mds.anchorHighEdgeX()[fourthMDIndex],
+                                                                        mds.anchorHighEdgeY()[fourthMDIndex],
+                                                                        tl_axis_highEdge_x,
+                                                                        tl_axis_highEdge_y);
+      betaOutRHmax = -alpha_OutUp_lowEdge + cms::alpakatools::deltaPhi(acc,
+                                                                       mds.anchorLowEdgeX()[fourthMDIndex],
+                                                                       mds.anchorLowEdgeY()[fourthMDIndex],
+                                                                       tl_axis_lowEdge_x,
+                                                                       tl_axis_lowEdge_y);
     }
 
     //beta computation
@@ -1517,7 +1400,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         alpaka::math::sqrt(acc, (x_OutUp - x_OutLo) * (x_OutUp - x_OutLo) + (y_OutUp - y_OutLo) * (y_OutUp - y_OutLo));
     float sdOut_d = rt_OutUp - rt_OutLo;
 
-    runDeltaBetaIterationspT3(acc, betaIn, betaOut, betaAv, pt_beta, rt_InSeg, sdOut_dr, drt_tl_axis, lIn);
+    runDeltaBetaIterations(acc, betaIn, betaOut, betaAv, pt_beta, rt_InSeg, sdOut_dr, drt_tl_axis, lIn);
 
     const float betaInMMSF = (alpaka::math::abs(acc, betaInRHmin + betaInRHmax) > 0)
                                  ? (2.f * betaIn / alpaka::math::abs(acc, betaInRHmin + betaInRHmax))

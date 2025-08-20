@@ -223,7 +223,7 @@ void L2MuonSeedGeneratorFromL1TkMu::produce(edm::Event &iEvent, const edm::Event
       deta = deta * tanh(tk_eta);
     }
     float resPhi = tk_phi - phiCorr0_ * tk_q * cosh(phiCorr1_) / cosh(etaProp) / tk_pt * dzCorrPhi - M_PI / phiCorr2_;
-    resPhi = reco::reduceRange(resPhi);
+    resPhi = reco::reducePhiRange(resPhi);
 
     float pt = tk_pt;  //not corrected for eloss
     float eta = tk_eta + deta;

@@ -5,7 +5,7 @@
 //
 /**\class BeamSpotCompatibilityChecker BeamSpotCompatibilityChecker.cc RecoVertex/BeamSpotProducer/plugins/BeamSpotCompatibilityChecker.cc
 
- Description: Class to check the compatibilty between the BeamSpot payload in the database and the one in the event
+ Description: Class to check the compatibility between the BeamSpot payload in the database and the one in the file
 
  Implementation:
      Makes use of the Significance struct to establish how compatible are the data members of the two BeamSpots in input
@@ -22,6 +22,7 @@
 // user include files
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 #include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
+#include "CondFormats/DataRecord/interface/BeamSpotTransientObjectsRcd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Scalers/interface/BeamSpotOnline.h"
@@ -38,7 +39,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
+#include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
 //
 // class declaration
 //
@@ -47,20 +48,26 @@
 namespace {
 
   struct Significance {
-    Significance(const double& a, const double& b, const double& errA, const double& errB)
-        : m_A(a), m_B(b), m_ErrA(errA), m_ErrB(errB) {
+    Significance(const double& a, const double& b, const double& errA, const double& errB, const std::string& var)
+        : m_A(a), m_B(b), m_ErrA(errA), m_ErrB(errB), m_var(var) {
       if (m_ErrA == 0 && m_ErrB == 0) {
         edm::LogError("LogicalError") << "Can't calculate significance when both errors are zero!" << std::endl;
       }
       m_combinedError = std::sqrt((m_ErrA * m_ErrA) + (m_ErrB * m_ErrB));
     }
 
-    float getSig(bool verbose) {
+    inline void printBeamSpotComparison(
+        const std::string& varName, double A, double ErrA, double B, double ErrB, double combinedError) {
+      edm::LogPrint("BeamSpotCompatibilityChecker")
+          << std::fixed << std::setprecision(6) << std::left << std::setw(10) << " " + varName << std::right
+          << std::setw(12) << A << std::setw(14) << ErrA << std::setw(12) << B << std::setw(14) << ErrB << std::setw(14)
+          << std::abs(A - B) << std::setw(14) << combinedError << std::setw(12) << std::abs(A - B) / combinedError
+          << std::endl;
+    }
+
+    float getSig(const bool verbose) {
       if (verbose) {
-        edm::LogInfo("BeamSpotCompatibilityChecker")
-            << "A= " << m_A << "+/-" << m_ErrA << "    "
-            << "B= " << m_B << "+/-" << m_ErrB << " | delta=" << std::abs(m_A - m_B) << "+/-" << m_combinedError
-            << std::endl;
+        printBeamSpotComparison(m_var, m_A, m_ErrA, m_B, m_ErrB, m_combinedError);
       }
       return std::abs(m_A - m_B) / m_combinedError;
     }
@@ -71,6 +78,7 @@ namespace {
     double m_ErrA;
     double m_ErrB;
     double m_ErrAB;
+    std::string m_var;
     double m_combinedError;
   };
 }  // namespace
@@ -82,7 +90,8 @@ public:
 
   void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const final;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  static std::array<float, 6> compareBS(const reco::BeamSpot& BSA, const reco::BeamSpot& BSB);
+  static std::array<float, 6> compareBS(const reco::BeamSpot& BSA, const reco::BeamSpot& BSB, const bool verbose);
+  static double computeBeamSpotCompatibility(const reco::BeamSpot& beamSpot1, const reco::BeamSpot& beamSpot2);
 
 private:
   // ----------member data ---------------------------
@@ -91,9 +100,39 @@ private:
   const double throwingThreshold_;
   const bool verbose_;
   const bool dbFromEvent_;
-  const edm::EDGetTokenT<reco::BeamSpot> bsFromEventToken_;             // beamSpot from the event
-  edm::ESGetToken<BeamSpotObjects, BeamSpotObjectsRcd> bsFromDBToken_;  // beamSpot from the DB
-  edm::EDGetTokenT<reco::BeamSpot> dbBSfromEventToken_;                 // beamSpot from the DB (via event)
+
+  // beamSpot from the file
+  const edm::EDGetTokenT<reco::BeamSpot> bsFromFileToken_;
+
+  // switch to decide with record to take
+  bool useTransientRecord_;
+
+  // beamSpot from the DB (object record)
+  edm::ESGetToken<BeamSpotObjects, BeamSpotObjectsRcd> bsFromDBToken_;
+
+  // beamspot from the DB (transient record)
+  edm::ESGetToken<BeamSpotObjects, BeamSpotTransientObjectsRcd> bsFromTransientDBToken_;
+
+  // beamSpot from the DB (via event)
+  edm::EDGetTokenT<reco::BeamSpot> dbBSfromEventToken_;
+
+  template <typename RecordT>
+  reco::BeamSpot getBeamSpotFromES(edm::EventSetup const& iSetup,
+                                   edm::ESGetToken<BeamSpotObjects, RecordT> const& token) const {
+    edm::ESHandle<BeamSpotObjects> beamhandle = iSetup.getHandle(token);
+    const BeamSpotObjects* aSpot = beamhandle.product();
+
+    // translate from BeamSpotObjects to reco::BeamSpot
+    reco::BeamSpot::Point apoint(aSpot->x(), aSpot->y(), aSpot->z());
+
+    reco::BeamSpot::CovarianceMatrix matrix;
+    for (int i = 0; i < reco::BeamSpot::dimension; ++i)
+      for (int j = 0; j < reco::BeamSpot::dimension; ++j)
+        matrix(i, j) = aSpot->covariance(i, j);
+
+    // this assume beam width same in x and y
+    return reco::BeamSpot(apoint, aSpot->sigmaZ(), aSpot->dxdz(), aSpot->dydz(), aSpot->beamWidthX(), matrix);
+  }
 };
 
 //
@@ -104,19 +143,28 @@ BeamSpotCompatibilityChecker::BeamSpotCompatibilityChecker(const edm::ParameterS
       throwingThreshold_(iConfig.getParameter<double>("errorThr")),
       verbose_(iConfig.getUntrackedParameter<bool>("verbose", false)),
       dbFromEvent_(iConfig.getParameter<bool>("dbFromEvent")),
-      bsFromEventToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("bsFromEvent"))) {
+      bsFromFileToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("bsFromFile"))) {
   //now do what ever initialization is needed
   if (warningThreshold_ > throwingThreshold_) {
     throw cms::Exception("ConfigurationError")
         << __PRETTY_FUNCTION__ << "\n Warning threshold (" << warningThreshold_
         << ") cannot be smaller than the throwing threshold (" << throwingThreshold_ << ")" << std::endl;
   }
+
   if (dbFromEvent_) {
-    edm::LogWarning("BeamSpotCompatibilityChecker")
-        << "!!!! Warning !!!\nThe Database Beam Spot is going to be taken from the Event via BeamSpotProducer!";
+    edm::LogInfo("BeamSpotCompatibilityChecker")
+        << "The Database Beam Spot is going to be taken from the File via BeamSpotProducer!";
     dbBSfromEventToken_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("bsFromDB"));
   } else {
-    bsFromDBToken_ = esConsumes<BeamSpotObjects, BeamSpotObjectsRcd>();
+    useTransientRecord_ = iConfig.getParameter<bool>("useTransientRecord");
+    if (useTransientRecord_) {
+      edm::LogInfo("BeamSpotCompatibilityChecker") << "Using BeamSpot from BeamSpotTransientObjectsRcd.";
+      bsFromTransientDBToken_ = esConsumes<BeamSpotObjects, BeamSpotTransientObjectsRcd>();
+    } else {
+      edm::LogInfo("BeamSpotCompatibilityChecker") << "Using BeamSpot from BeamSpotObjectsRcd.";
+      bsFromDBToken_ = esConsumes<BeamSpotObjects, BeamSpotObjectsRcd>();
+    }
+    dbBSfromEventToken_ = edm::EDGetTokenT<reco::BeamSpot>();
   }
 }
 
@@ -129,35 +177,25 @@ void BeamSpotCompatibilityChecker::analyze(edm::StreamID sid,
                                            edm::Event const& iEvent,
                                            edm::EventSetup const& iSetup) const {
   using namespace edm;
-  reco::BeamSpot spotEvent, spotDB;
+  reco::BeamSpot spotFile, spotDB;
 
-  edm::Handle<reco::BeamSpot> beamSpotFromEventHandle;
-  iEvent.getByToken(bsFromEventToken_, beamSpotFromEventHandle);
-  spotEvent = *beamSpotFromEventHandle;
+  edm::Handle<reco::BeamSpot> beamSpotFromFileHandle;
+  iEvent.getByToken(bsFromFileToken_, beamSpotFromFileHandle);
+  spotFile = *beamSpotFromFileHandle;
 
-  double evt_BSx0 = spotEvent.x0();
-  double evt_BSy0 = spotEvent.y0();
-  double evt_BSz0 = spotEvent.z0();
-  double evt_Beamsigmaz = spotEvent.sigmaZ();
-  double evt_BeamWidthX = spotEvent.BeamWidthX();
-  double evt_BeamWidthY = spotEvent.BeamWidthY();
+  double file_BSx0 = spotFile.x0();
+  double file_BSy0 = spotFile.y0();
+  double file_BSz0 = spotFile.z0();
+  double file_Beamsigmaz = spotFile.sigmaZ();
+  double file_BeamWidthX = spotFile.BeamWidthX();
+  double file_BeamWidthY = spotFile.BeamWidthY();
 
   if (!dbFromEvent_) {
-    edm::ESHandle<BeamSpotObjects> beamhandle = iSetup.getHandle(bsFromDBToken_);
-    const BeamSpotObjects* aSpot = beamhandle.product();
-
-    // translate from BeamSpotObjects to reco::BeamSpot
-    reco::BeamSpot::Point apoint(aSpot->x(), aSpot->y(), aSpot->z());
-
-    reco::BeamSpot::CovarianceMatrix matrix;
-    for (int i = 0; i < reco::BeamSpot::dimension; ++i) {
-      for (int j = 0; j < reco::BeamSpot::dimension; ++j) {
-        matrix(i, j) = aSpot->covariance(i, j);
-      }
+    if (useTransientRecord_) {
+      spotDB = getBeamSpotFromES(iSetup, bsFromTransientDBToken_);
+    } else {
+      spotDB = getBeamSpotFromES(iSetup, bsFromDBToken_);
     }
-
-    // this assume beam width same in x and y
-    spotDB = reco::BeamSpot(apoint, aSpot->sigmaZ(), aSpot->dxdz(), aSpot->dydz(), aSpot->beamWidthX(), matrix);
   } else {
     // take the DB beamspot from the event (different label)
     edm::Handle<reco::BeamSpot> beamSpotFromDBHandle;
@@ -172,61 +210,97 @@ void BeamSpotCompatibilityChecker::analyze(edm::StreamID sid,
   double db_BeamWidthX = spotDB.BeamWidthX();
   double db_BeamWidthY = spotDB.BeamWidthY();
 
-  double deltaX0 = evt_BSx0 - db_BSx0;
-  double deltaY0 = evt_BSy0 - db_BSy0;
-  double deltaZ0 = evt_BSz0 - db_BSz0;
-  double deltaSigmaX = evt_BeamWidthX - db_BeamWidthX;
-  double deltaSigmaY = evt_BeamWidthY - db_BeamWidthY;
-  double deltaSigmaZ = evt_Beamsigmaz - db_Beamsigmaz;
+  double deltaX0 = file_BSx0 - db_BSx0;
+  double deltaY0 = file_BSy0 - db_BSy0;
+  double deltaZ0 = file_BSz0 - db_BSz0;
+  double deltaSigmaX = file_BeamWidthX - db_BeamWidthX;
+  double deltaSigmaY = file_BeamWidthY - db_BeamWidthY;
+  double deltaSigmaZ = file_Beamsigmaz - db_Beamsigmaz;
 
   if (verbose_) {
-    edm::LogPrint("BeamSpotCompatibilityChecker") << "BS from Event: \n" << spotEvent << std::endl;
-    edm::LogPrint("BeamSpotCompatibilityChecker") << "BS from DB: \n" << spotDB << std::endl;
+    edm::LogPrint("BeamSpotCompatibilityChecker") << "BS from DB:   \n" << spotDB << std::endl;
+    edm::LogPrint("BeamSpotCompatibilityChecker") << "BS from File: \n" << spotFile << std::endl;
   }
 
-  auto significances = compareBS(spotDB, spotEvent);
+  auto significances = compareBS(spotDB, spotFile, verbose_);
   std::vector<std::string> labels = {"x0", "y0", "z0", "sigmaX", "sigmaY", "sigmaZ"};
 
-  std::string msg = " |delta X0|=" + std::to_string(std::abs(deltaX0) * cmToum) +
-                    " um |delta Y0|=" + std::to_string(std::abs(deltaY0) * cmToum) +
-                    " um |delta Z0|=" + std::to_string(std::abs(deltaZ0) * cmToum) +
-                    " um |delta sigmaX|=" + std::to_string(std::abs(deltaSigmaX) * cmToum) +
-                    " um |delta sigmaY|=" + std::to_string(std::abs(deltaSigmaY) * cmToum) +
-                    " um |delta sigmaZ|=" + std::to_string(std::abs(deltaSigmaZ)) + "cm";
+  std::string msg = " |delta X0|     = " + std::to_string(std::abs(deltaX0) * cmToum) +
+                    " um\n |delta Y0|     = " + std::to_string(std::abs(deltaY0) * cmToum) +
+                    " um\n |delta Z0|     = " + std::to_string(std::abs(deltaZ0)) +
+                    " cm\n |delta sigmaX| = " + std::to_string(std::abs(deltaSigmaX) * cmToum) +
+                    " um\n |delta sigmaY| = " + std::to_string(std::abs(deltaSigmaY) * cmToum) +
+                    " um\n |delta sigmaZ| = " + std::to_string(std::abs(deltaSigmaZ)) + " cm";
+  /*
   if (verbose_) {
     edm::LogPrint("BeamSpotCompatibilityChecker") << msg.c_str() << std::endl;
   }
+  */
 
   for (unsigned int i = 0; i < 3; i++) {
     auto sig = significances.at(i);
     if (sig > throwingThreshold_) {
       edm::LogError("BeamSpotCompatibilityChecker") << msg.c_str() << std::endl;
       throw cms::Exception("BeamSpotCompatibilityChecker")
-          << "[" << __PRETTY_FUNCTION__ << "] \n DB-Event BeamSpot " << labels.at(i) << " distance sigificance " << sig
-          << ", exceeds the threshold of " << throwingThreshold_ << "!" << std::endl;
+          << "   [" << __PRETTY_FUNCTION__ << "]\n   DB-File BeamSpot " << labels.at(i) << " distance significance is "
+          << sig << ", exceeds the threshold of " << throwingThreshold_ << "!" << std::endl;
     } else if (sig > warningThreshold_) {
       edm::LogWarning("BeamSpotCompatibilityChecker") << msg.c_str() << std::endl;
       edm::LogWarning("BeamSpotCompatibilityChecker")
-          << "[" << __PRETTY_FUNCTION__ << "]  \n  DB-Event BeamSpot " << labels.at(i) << " distance significance "
+          << "   [" << __PRETTY_FUNCTION__ << "]\n   DB-File BeamSpot " << labels.at(i) << " distance significance is "
           << sig << ", exceeds the threshold of " << warningThreshold_ << "!" << std::endl;
     }
   }
 }
 
-std::array<float, 6> BeamSpotCompatibilityChecker::compareBS(const reco::BeamSpot& beamSpotA,
-                                                             const reco::BeamSpot& beamSpotB) {
-  auto xS = Significance(beamSpotA.x0(), beamSpotB.x0(), beamSpotA.x0Error(), beamSpotB.x0Error());
-  auto yS = Significance(beamSpotA.y0(), beamSpotB.y0(), beamSpotA.y0Error(), beamSpotB.y0Error());
-  auto zS = Significance(beamSpotA.z0(), beamSpotB.z0(), beamSpotA.z0Error(), beamSpotB.z0Error());
-  auto xWS = Significance(
-      beamSpotA.BeamWidthX(), beamSpotB.BeamWidthX(), beamSpotA.BeamWidthXError(), beamSpotB.BeamWidthXError());
-  auto yWS = Significance(
-      beamSpotA.BeamWidthY(), beamSpotB.BeamWidthY(), beamSpotA.BeamWidthYError(), beamSpotB.BeamWidthYError());
-  auto zWS = Significance(beamSpotA.sigmaZ(), beamSpotB.sigmaZ(), beamSpotA.sigmaZ0Error(), beamSpotB.sigmaZ0Error());
+std::array<float, 6> BeamSpotCompatibilityChecker::compareBS(const reco::BeamSpot& spotA,
+                                                             const reco::BeamSpot& spotB,
+                                                             const bool verbose) {
+  if (verbose) {
+    edm::LogPrint("BeamSpotCompatibilityChecker")
+        << std::fixed << std::setprecision(6) << std::left << std::setw(10) << " Var" << std::right << std::setw(12)
+        << "DB" << std::setw(14) << "+/-" << std::setw(12) << "File" << std::setw(14) << "+/-" << std::setw(14)
+        << "|delta|" << std::setw(14) << "+/-" << std::setw(12) << "Sig";
+    edm::LogPrint("BeamSpotCompatibilityChecker") << std::string(102, '-');
+  }
 
+  // Lambda to calculate the significance
+  auto calcSignificance = [&](auto a, auto b, auto aErr, auto bErr, auto var) {
+    return Significance(a, b, aErr, bErr, var).getSig(verbose);
+  };
+
+  // Populate the array using the lambda
   std::array<float, 6> ret = {
-      {xS.getSig(false), yS.getSig(false), zS.getSig(false), xWS.getSig(false), yWS.getSig(false), zWS.getSig(false)}};
+      {calcSignificance(spotA.x0(), spotB.x0(), spotA.x0Error(), spotB.x0Error(), "x"),
+       calcSignificance(spotA.y0(), spotB.y0(), spotA.y0Error(), spotB.y0Error(), "y"),
+       calcSignificance(spotA.z0(), spotB.z0(), spotA.z0Error(), spotB.z0Error(), "z"),
+       calcSignificance(
+           spotA.BeamWidthX(), spotB.BeamWidthX(), spotA.BeamWidthXError(), spotB.BeamWidthXError(), "widthX"),
+       calcSignificance(
+           spotA.BeamWidthY(), spotB.BeamWidthY(), spotA.BeamWidthYError(), spotB.BeamWidthYError(), "witdhY"),
+       calcSignificance(spotA.sigmaZ(), spotB.sigmaZ(), spotA.sigmaZ0Error(), spotB.sigmaZ0Error(), "witdthZ")}};
+
+  if (verbose) {
+    edm::LogPrint("BeamSpotCompatibilityChecker") << std::string(102, '-');
+  }
+
   return ret;
+}
+
+double BeamSpotCompatibilityChecker::computeBeamSpotCompatibility(const reco::BeamSpot& beamSpot1,
+                                                                  const reco::BeamSpot& beamSpot2) {
+  reco::Vertex vertex1(
+      reco::Vertex::Point(beamSpot1.x0(), beamSpot1.y0(), beamSpot1.z0()), beamSpot1.rotatedCovariance3D(), 0, 0, 0);
+  reco::Vertex vertex2(
+      reco::Vertex::Point(beamSpot2.x0(), beamSpot2.y0(), beamSpot2.z0()), beamSpot2.rotatedCovariance3D(), 0, 0, 0);
+
+  // Calculate distance and significance using VertexDistance3D
+  VertexDistance3D distanceCalculator;
+  // double distance = distanceCalculator.distance(vertex1, vertex2).value();  // Euclidean distance
+  double significance = distanceCalculator.distance(vertex1, vertex2).significance();  // Distance significance
+
+  // Return the significance as a measure of compatibility
+  return significance;  // Smaller values indicate higher compatibility
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
@@ -235,12 +309,27 @@ void BeamSpotCompatibilityChecker::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<double>("warningThr", 1.)->setComment("Threshold on the signficances to emit a warning");
   desc.add<double>("errorThr", 3.)->setComment("Threshold on the signficances to abort the job");
   desc.addUntracked<bool>("verbose", false)->setComment("verbose output");
-  desc.add<edm::InputTag>("bsFromEvent", edm::InputTag(""))
-      ->setComment("edm::InputTag on the BeamSpot from the Event (Reference)");
-  desc.add<bool>("dbFromEvent", false)
-      ->setComment("Switch to take the (target) DB beamspot from the event instead of the EventSetup");
-  desc.add<edm::InputTag>("bsFromDB", edm::InputTag(""))
-      ->setComment("edm::InputTag on the BeamSpot from the Event (Target)\n To be used only if dbFromEvent is True");
+  desc.add<edm::InputTag>("bsFromFile", edm::InputTag(""))
+      ->setComment("edm::InputTag on the BeamSpot from the File (Reference)");
+
+  // Conditional parameters based on dbFromEvent
+  desc.ifValue(
+      edm::ParameterDescription<bool>(
+          "dbFromEvent",
+          true,
+          true,
+          edm::Comment("Switch to take the (target) DB beamspot from the event instead of the EventSetup")),
+      true >> edm::ParameterDescription<edm::InputTag>(
+                  "bsFromDB",
+                  edm::InputTag(""),
+                  true,
+                  edm::Comment("edm::InputTag on the BeamSpot from the Event (Target) (used if dbFromEvent = true")) or
+          false >> edm::ParameterDescription<bool>(
+                       "useTransientRecord",
+                       false,
+                       true,
+                       edm::Comment("Use transient BeamSpot record (used if dbFromEvent = false)")));
+
   descriptions.addWithDefaultLabel(desc);
 }
 

@@ -2,7 +2,6 @@
 #Script to parse the output of ManualO2O.py for various debugging tasks
 #First use case is to debug issue with HV1/HV2 channels handling
 
-from __future__ import print_function
 import os,datetime, pickle
 def GetLogTimestamps(ManualO2Ologfilename):
     """

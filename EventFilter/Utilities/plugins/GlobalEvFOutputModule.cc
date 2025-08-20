@@ -31,9 +31,10 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include <sys/stat.h>
-#include <filesystem>
 #include <boost/algorithm/string.hpp>
+#include <filesystem>
+#include <memory>
+#include <sys/stat.h>
 
 typedef edm::detail::TriggerResultsBasedEventSelector::handle_t Trig;
 
@@ -310,7 +311,7 @@ namespace evf {
     mergeType_.setName("MergeType");
     hltErrorEvents_.setName("HLTErrorEvents");
 
-    jsonMonitor_.reset(new jsoncollector::FastMonitor(&outJsonDef, true));
+    jsonMonitor_ = std::make_shared<jsoncollector::FastMonitor>(&outJsonDef, true);
     jsonMonitor_->setDefPath(outJsonDefName);
     jsonMonitor_->registerGlobalMonitorable(&processed_, false);
     jsonMonitor_->registerGlobalMonitorable(&accepted_, false);
@@ -358,10 +359,14 @@ namespace evf {
     if (!edm::Service<evf::EvFDaqDirector>().isAvailable())
       throw cms::Exception("GlobalEvFOutputModule") << "EvFDaqDirector is not available";
 
+    auto const& baseRunDir = edm::Service<evf::EvFDaqDirector>()->baseRunDir();
+    if (edm::Service<evf::EvFDaqDirector>()->fileListMode() && !std::filesystem::is_directory(baseRunDir))
+      std::filesystem::create_directory(baseRunDir);
+
     const std::string iniFileName = edm::Service<evf::EvFDaqDirector>()->getInitTempFilePath(streamLabel_);
     std::ofstream file(iniFileName);
     if (!file)
-      throw cms::Exception("GlobalEvFOutputModule") << "can not create " << iniFileName << "error: " << strerror(errno);
+      throw cms::Exception("GlobalEvFOutputModule") << "can not create " << iniFileName << "\n" << strerror(errno);
     file.close();
 
     edm::LogInfo("GlobalEvFOutputModule") << "Constructor created initemp file -: " << iniFileName;

@@ -231,10 +231,7 @@ void FastTrackDeDxProducer::produce(edm::Event& iEvent, const edm::EventSetup&) 
 
     sort(dedxHits.begin(), dedxHits.end(), less<DeDxHit>());
     std::pair<float, float> val_and_error = m_estimator->dedx(dedxHits);
-    //WARNING: Since the dEdX Error is not properly computed for the moment
-    //It was decided to store the number of saturating cluster in that dataformat
-    val_and_error.second = NClusterSaturating;
-    dedxEstimate[j] = DeDxData(val_and_error.first, val_and_error.second, dedxHits.size());
+    dedxEstimate[j] = DeDxData(val_and_error.first, val_and_error.second, NClusterSaturating, dedxHits.size());
   }
 
   filler.insert(trackCollectionHandle, dedxEstimate.begin(), dedxEstimate.end());

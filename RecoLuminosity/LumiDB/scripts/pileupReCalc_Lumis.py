@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import print_function
 VERSION='1.00'
 import os,sys,time
 import optparse

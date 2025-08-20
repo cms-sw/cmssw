@@ -11,7 +11,6 @@
 #include <CLHEP/Random/RandFlat.h>
 #include <CLHEP/Units/SystemOfUnits.h>
 #include <CLHEP/Units/GlobalPhysicalConstants.h>
-#include "HepMC/SimpleVector.h"
 
 using namespace std;
 
@@ -119,7 +118,7 @@ void HLLHCEvtVtxGenerator::update(const edm::EventSetup& iEventSetup) {
   }
 }
 
-HepMC::FourVector HLLHCEvtVtxGenerator::newVertex(CLHEP::HepRandomEngine* engine) const {
+ROOT::Math::XYZTVector HLLHCEvtVtxGenerator::vertexShift(CLHEP::HepRandomEngine* engine) const {
   double imax = intensity(0., 0., 0., 0.);
 
   double x(0.), y(0.), z(0.), t(0.), i(0.);
@@ -155,7 +154,7 @@ HepMC::FourVector HLLHCEvtVtxGenerator::newVertex(CLHEP::HepRandomEngine* engine
   z += fMeanZ;
   t += fTimeOffset_c_light;
 
-  return HepMC::FourVector(x, y, z, t);
+  return ROOT::Math::XYZTVector(x, y, z, t);
 }
 
 double HLLHCEvtVtxGenerator::sigma(double z, double epsilon, double beta, double betagamma) const {

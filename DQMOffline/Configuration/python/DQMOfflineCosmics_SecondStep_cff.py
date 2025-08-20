@@ -95,3 +95,6 @@ DQMOfflineCosmics_SecondStep = cms.Sequence(
 DQMOfflineCosmics_SecondStep_FakeHLT = cms.Sequence(DQMOfflineCosmics_SecondStep )
 DQMOfflineCosmics_SecondStep_FakeHLT.remove( DQMOfflineCosmics_SecondStepTrigger )
 
+from DQMOffline.Trigger.TrackingMonitoringCosmics_Client_cff import *
+
+HLTMonitoringClient = cms.Sequence(trackingMonitorCosmicsClientHLT * trackEfficiencyMonitoringCosmicsClientHLT )

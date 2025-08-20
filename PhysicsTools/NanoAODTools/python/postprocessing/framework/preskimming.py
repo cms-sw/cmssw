@@ -8,7 +8,9 @@ class JSONFilter:
     def __init__(self, fname="", runsAndLumis={}):
         self.keep = {}
         if fname != "":
-            self.runsAndLumis = json.load(open(fname, 'r'))
+            jsonfp = open(fname, 'r')
+            self.runsAndLumis = json.load(jsonfp)
+            jsonfp.close()
         else:
             self.runsAndLumis = runsAndLumis
         for _run, lumis in self.runsAndLumis.items():

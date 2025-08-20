@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys
 
@@ -6,8 +5,8 @@ if 'runkey=hi_run' in sys.argv:
   from Configuration.Eras.Era_Run3_pp_on_PbPb_approxSiStripClusters_cff import Run3_pp_on_PbPb_approxSiStripClusters
   process = cms.Process("PixelLumiDQM", Run3_pp_on_PbPb_approxSiStripClusters)
 else:
-  from Configuration.Eras.Era_Run3_cff import Run3
-  process = cms.Process("PixelLumiDQM", Run3)
+  from Configuration.Eras.Era_Run3_2025_cff import Run3_2025
+  process = cms.Process("PixelLumiDQM", Run3_2025)
 
 unitTest=False
 if 'unitTest=True' in sys.argv:
@@ -83,7 +82,7 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 #-----------------------
 # Real data raw to digi
 process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
-process.siPixelDigis.cpu.IncludeErrors = True
+process.siPixelDigis.IncludeErrors = True
 
 # Local Reconstruction
 process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
@@ -96,13 +95,13 @@ process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
 #        SelectEvents = cms.vstring('HLT_600Tower*','HLT_L1*','HLT_Jet*','HLT_*Cosmic*','HLT_HT*','HLT_MinBias_*','HLT_Physics*', 'HLT_ZeroBias*','HLT_HcalNZS*'))
 
 
-process.siPixelDigis.cpu.InputLabel = cms.InputTag("rawDataCollector")
+process.siPixelDigis.InputLabel = cms.InputTag("rawDataCollector")
 #--------------------------------
 # Heavy Ion Configuration Changes
 #--------------------------------
 if (process.runType.getRunType() == process.runType.hi_run):
     process.load('Configuration.StandardSequences.RawToDigi_Repacked_cff')
-    process.siPixelDigis.cpu.InputLabel = "rawDataRepacker"
+    process.siPixelDigis.InputLabel = "rawDataRepacker"
 
     if not unitTest:
         process.source.SelectEvents = ['HLT_HIL1MinimumBiasHF2AND*']
@@ -146,4 +145,5 @@ process.p = cms.Path(process.Reco*process.DQMmodules)
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
+print("Global Tag used:", process.GlobalTag.globaltag.value())
 print("Final Source settings:", process.source)

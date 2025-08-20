@@ -1,7 +1,17 @@
 <test name="TestSCRAM" command="run.sh"/>
 <test name="SCRAM_TestPass" command="true"/>
 <test name="SCRAM_TestFail" command="! false"/>
+<test name="test-gdb-python" command="gdb/test-gdb-python.sh">
+  <use name="gdb"/>
+</test>
+<test name="test-cmsTraceFunction-setenv" command="gdb/test-cmsTraceFunction-setenv.sh">
+  <use name="gdb"/>
+</test>
 <test name="test-clang-tidy" command="test-clang-tidy.sh">
+  <use name="llvm"/>
+</test>
+<test name="test-scram-code-checks" command="test-scram-code-checks.sh">
+  <use name="cmssw-config"/>
   <use name="llvm"/>
 </test>
 <ifrelease name="!ASAN">

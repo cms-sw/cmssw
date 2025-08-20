@@ -41,9 +41,10 @@ void HLTGenValHistCollFilter::fillHists(const HLTGenValObject& obj, edm::Handle<
     // main filling code
 
     // get filter object from filter name
-    edm::InputTag filterTag(filter_, "", hltProcessName_);
+    // filters that are ignored start with "-" in the path but are not that way in trigger results
+    const std::string& filterName = !filter_.empty() && filter_[0] == '-' ? filter_.substr(1) : filter_;
+    edm::InputTag filterTag(filterName, "", hltProcessName_);
     size_t filterIndex = triggerEvent->filterIndex(filterTag);
-
     // get trigger objects passing filter in question
     trigger::TriggerObjectCollection allTriggerObjects = triggerEvent->getObjects();  // all objects
     trigger::TriggerObjectCollection selectedObjects;  // vector to fill with objects passing our filter

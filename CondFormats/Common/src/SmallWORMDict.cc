@@ -1,13 +1,10 @@
-#include "CondFormats/Common/interface/SmallWORMDict.h"
-#include <string>
+#include <algorithm>
 #include <functional>
 #include <numeric>
 
-namespace cond {
-  using namespace std::placeholders;
+#include "CondFormats/Common/interface/SmallWORMDict.h"
 
-  SmallWORMDict::SmallWORMDict() {}
-  SmallWORMDict::~SmallWORMDict() {}
+namespace cond {
 
   SmallWORMDict::SmallWORMDict(std::vector<std::string> const& idict)
       : m_data(std::accumulate(idict.begin(), idict.end(), 0, [](int a, std::string b) { return a + b.size(); })),

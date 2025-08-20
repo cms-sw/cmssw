@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 import sys,os
-from __future__ import print_function
 
 arguments=sys.argv
 sqlitename="ctppspixgain.db"

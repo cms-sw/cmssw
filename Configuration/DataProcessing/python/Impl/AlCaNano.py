@@ -5,7 +5,6 @@ _AlCaNano_
 Scenario supporting proton collisions for AlCa needs when ALCANANO is produced
 
 """
-from __future__ import print_function
 
 import os
 import sys

@@ -56,6 +56,7 @@ namespace edmtest {
     unsigned int nElements3_;
     int firstElement_;
     int elementDelta_;
+    uint bxIndexModulus_;
 
     edm::EDPutTokenT<GlobalObjectMapRecord> globalObjectMapRecordPutToken_;
   };
@@ -76,6 +77,7 @@ namespace edmtest {
         nElements3_(iPSet.getParameter<unsigned int>("nElements3")),
         firstElement_(iPSet.getParameter<int>("firstElement")),
         elementDelta_(iPSet.getParameter<int>("elementDelta")),
+        bxIndexModulus_(iPSet.getParameter<uint>("bxIndexModulus")),
         globalObjectMapRecordPutToken_(produces()) {
     if (algoNames_.size() != nGlobalObjectMaps_ || algoBitNumbers_.size() != nGlobalObjectMaps_ ||
         algoResults_.size() != nGlobalObjectMaps_ || tokenNames0_.size() != nGlobalObjectMaps_ ||
@@ -121,14 +123,20 @@ namespace edmtest {
       // The only purpose is to later check that when
       // we read we get values that match what we wrote.
       int value = firstElement_;
-      std::vector<CombinationsInCond> combinationsInCondVector;
+      uint bxCounter = 0;
+      std::vector<CombinationsWithBxInCond> combinationsInCondVector;
+      combinationsInCondVector.reserve(nElements1_);
       for (unsigned int i = 0; i < nElements1_; ++i) {
-        CombinationsInCond combinationsInCond;
+        CombinationsWithBxInCond combinationsInCond;
+        combinationsInCond.reserve(nElements2_);
         for (unsigned int j = 0; j < nElements2_; ++j) {
-          SingleCombInCond singleCombInCond;
+          SingleCombWithBxInCond singleCombInCond;
+          singleCombInCond.reserve(nElements3_);
           for (unsigned int k = 0; k < nElements3_; ++k) {
-            singleCombInCond.push_back(value);
+            L1TObjBxIndexType const bxIdx = bxCounter % bxIndexModulus_;
+            singleCombInCond.emplace_back(bxIdx, value);
             value += elementDelta_;
+            ++bxCounter;
           }
           combinationsInCond.push_back(std::move(singleCombInCond));
         }
@@ -172,6 +180,7 @@ namespace edmtest {
     desc.add<unsigned int>("nElements3");
     desc.add<int>("firstElement");
     desc.add<int>("elementDelta");
+    desc.add<uint>("bxIndexModulus");
 
     descriptions.addDefault(desc);
   }

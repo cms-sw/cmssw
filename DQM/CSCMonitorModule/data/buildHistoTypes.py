@@ -1,4 +1,3 @@
-from __future__ import print_function
 from Cheetah.Template import Template
 from getopt import getopt
 from sys import argv, exit

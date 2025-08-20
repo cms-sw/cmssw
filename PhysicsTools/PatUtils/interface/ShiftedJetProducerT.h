@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -32,10 +33,11 @@
 #include "PhysicsTools/PatUtils/interface/RawJetExtractorT.h"
 
 #include <string>
+#include <optional>
 
 template <typename T, typename Textractor>
 class ShiftedJetProducerT : public edm::stream::EDProducer<> {
-  typedef std::vector<T> JetCollection;
+  using JetCollection = std::vector<T>;
 
 public:
   explicit ShiftedJetProducerT(const edm::ParameterSet& cfg)
@@ -43,11 +45,10 @@ public:
         src_(cfg.getParameter<edm::InputTag>("src")),
         srcToken_(consumes<JetCollection>(src_)),
         jetCorrPayloadName_(""),
-        jetCorrParameters_(nullptr),
-        jecUncertainty_(nullptr),
-        jecUncertaintyValue_(-1.) {
+        jecUncertainty_(),
+        jecUncertaintyValue_() {
     if (cfg.exists("jecUncertaintyValue")) {
-      jecUncertaintyValue_ = cfg.getParameter<double>("jecUncertaintyValue");
+      jecUncertaintyValue_.emplace(cfg.getParameter<double>("jecUncertaintyValue"));
     } else {
       jetCorrUncertaintyTag_ = cfg.getParameter<std::string>("jetCorrUncertaintyTag");
       if (cfg.exists("jetCorrInputFileName")) {
@@ -55,9 +56,8 @@ public:
         if (jetCorrInputFileName_.location() == edm::FileInPath::Unknown)
           throw cms::Exception("ShiftedJetProducerT")
               << " Failed to find JEC parameter file = " << jetCorrInputFileName_ << " !!\n";
-        jetCorrParameters_ =
-            std::make_unique<JetCorrectorParameters>(jetCorrInputFileName_.fullPath(), jetCorrUncertaintyTag_);
-        jecUncertainty_ = std::make_unique<JetCorrectionUncertainty>(*jetCorrParameters_);
+        JetCorrectorParameters jetCorrParameters(jetCorrInputFileName_.fullPath(), jetCorrUncertaintyTag_);
+        jecUncertainty_.emplace(jetCorrParameters);
       } else {
         jetCorrPayloadName_ = cfg.getParameter<std::string>("jetCorrPayloadName");
         jetCorrPayloadToken_ = esConsumes(edm::ESInputTag("", jetCorrPayloadName_));
@@ -65,21 +65,48 @@ public:
     }
 
     addResidualJES_ = cfg.getParameter<bool>("addResidualJES");
-    if (cfg.exists("jetCorrLabelUpToL3")) {
-      jetCorrLabelUpToL3_ = cfg.getParameter<edm::InputTag>("jetCorrLabelUpToL3");
-      jetCorrTokenUpToL3_ = mayConsume<reco::JetCorrector>(jetCorrLabelUpToL3_);
+    if (addResidualJES_) {
+      if (cfg.exists("jetCorrLabelUpToL3")) {
+        jetCorrLabelUpToL3_ = cfg.getParameter<edm::InputTag>("jetCorrLabelUpToL3");
+        jetCorrTokenUpToL3_ = consumes<reco::JetCorrector>(jetCorrLabelUpToL3_);
+      }
+      if (cfg.exists("jetCorrLabelUpToL3Res")) {
+        jetCorrLabelUpToL3Res_ = cfg.getParameter<edm::InputTag>("jetCorrLabelUpToL3Res");
+        jetCorrTokenUpToL3Res_ = consumes<reco::JetCorrector>(jetCorrLabelUpToL3Res_);
+      }
     }
-    if (cfg.exists("jetCorrLabelUpToL3Res") && addResidualJES_) {
-      jetCorrLabelUpToL3Res_ = cfg.getParameter<edm::InputTag>("jetCorrLabelUpToL3Res");
-      jetCorrTokenUpToL3Res_ = mayConsume<reco::JetCorrector>(jetCorrLabelUpToL3Res_);
-    }
-    jetCorrEtaMax_ = (cfg.exists("jetCorrEtaMax")) ? cfg.getParameter<double>("jetCorrEtaMax") : 9.9;
+    jetCorrEtaMax_ = cfg.getParameter<double>("jetCorrEtaMax");
 
     shiftBy_ = cfg.getParameter<double>("shiftBy");
 
-    verbosity_ = (cfg.exists("verbosity")) ? cfg.getParameter<int>("verbosity") : 0;
+    verbosity_ = cfg.getUntrackedParameter<int>("verbosity");
 
-    produces<JetCollection>();
+    putToken_ = produces<JetCollection>();
+
+    //PATJetCorrExtractor wants a string not a product when called
+    static_assert(not std::is_base_of<class PATJetCorrExtractor, Textractor>::value);
+  }
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& iDesc) {
+    //NOTE: the full complexity of the pset handling could be expressed using
+    // ifValue and addNode but it might result in present configs failing
+    edm::ParameterSetDescription ps;
+    ps.add<edm::InputTag>("src");
+    ps.addOptional<double>("jecUncertaintyValue");
+    ps.addOptional<std::string>("jetCorrUncertaintyTag")->setComment("only used if 'jecUncertaintyValue' not declared");
+    ps.addOptional<edm::FileInPath>("jetCorrInputFileName")
+        ->setComment("only used if 'jecUncertaintyValue' not declared");
+    ps.addOptional<std::string>("jetCorrPayloadName")
+        ->setComment("only used if neither 'jecUncertaintyValue' nor 'jetCorrInputFileName' are declared");
+
+    ps.add<bool>("addResidualJES");
+    ps.addOptional<edm::InputTag>("jetCorrLabelUpToL3")->setComment("only used of 'addResidualJES' is set true");
+    ps.addOptional<edm::InputTag>("jetCorrLabelUpToL3Res")->setComment("only used of 'addResidualJES' is set true");
+
+    ps.add<double>("jetCorrEtaMax", 9.9);
+    ps.add<double>("shiftBy");
+    ps.addUntracked<int>("verbosity", 0);
+    iDesc.addDefault(ps);
   }
 
 private:
@@ -90,33 +117,39 @@ private:
       std::cout << " src = " << src_.label() << std::endl;
     }
 
-    edm::Handle<JetCollection> originalJets;
-    evt.getByToken(srcToken_, originalJets);
+    JetCollection const& originalJets = evt.get(srcToken_);
+
     edm::Handle<reco::JetCorrector> jetCorrUpToL3;
-    evt.getByToken(jetCorrTokenUpToL3_, jetCorrUpToL3);
     edm::Handle<reco::JetCorrector> jetCorrUpToL3Res;
     if (evt.isRealData() && addResidualJES_) {
-      evt.getByToken(jetCorrTokenUpToL3Res_, jetCorrUpToL3Res);
-    }
-    auto shiftedJets = std::make_unique<JetCollection>();
-
-    if (!jetCorrPayloadName_.empty()) {
-      const JetCorrectorParametersCollection& jetCorrParameterSet = es.getData(jetCorrPayloadToken_);
-      const JetCorrectorParameters& jetCorrParameters = (jetCorrParameterSet)[jetCorrUncertaintyTag_];
-      jecUncertainty_ = std::make_unique<JetCorrectionUncertainty>(jetCorrParameters);
+      jetCorrUpToL3 = evt.getHandle(jetCorrTokenUpToL3_);
+      jetCorrUpToL3Res = evt.getHandle(jetCorrTokenUpToL3Res_);
     }
 
-    for (typename JetCollection::const_iterator originalJet = originalJets->begin(); originalJet != originalJets->end();
-         ++originalJet) {
-      reco::Candidate::LorentzVector originalJetP4 = originalJet->p4();
+    if (not jecUncertaintyValue_) {
+      if (jetCorrPayloadToken_.isInitialized()) {
+        auto cacheID = es.get<JetCorrectionsRecord>().cacheIdentifier();
+        if (cacheID != recordIdentifier_) {
+          const JetCorrectorParametersCollection& jetCorrParameterSet = es.getData(jetCorrPayloadToken_);
+          const JetCorrectorParameters& jetCorrParameters = (jetCorrParameterSet)[jetCorrUncertaintyTag_];
+          jecUncertainty_.emplace(jetCorrParameters);
+          recordIdentifier_ = cacheID;
+        }
+      }
+    }
+
+    JetCollection shiftedJets;
+    shiftedJets.reserve(originalJets.size());
+    for (auto const& originalJet : originalJets) {
+      reco::Candidate::LorentzVector originalJetP4 = originalJet.p4();
       if (verbosity_) {
         std::cout << "originalJet: Pt = " << originalJetP4.pt() << ", eta = " << originalJetP4.eta()
                   << ", phi = " << originalJetP4.phi() << std::endl;
       }
 
       double shift = 0.;
-      if (jecUncertaintyValue_ != -1.) {
-        shift = jecUncertaintyValue_;
+      if (jecUncertaintyValue_) {
+        shift = *jecUncertaintyValue_;
       } else {
         jecUncertainty_->setJetEta(originalJetP4.eta());
         jecUncertainty_->setJetPt(originalJetP4.pt());
@@ -128,17 +161,12 @@ private:
       }
 
       if (evt.isRealData() && addResidualJES_) {
-        const static pat::RawJetExtractorT<T> rawJetExtractor{};
-        reco::Candidate::LorentzVector rawJetP4 = rawJetExtractor(*originalJet);
+        reco::Candidate::LorentzVector rawJetP4 = pat::RawJetExtractorT<T>{}(originalJet);
         if (rawJetP4.E() > 1.e-1) {
           reco::Candidate::LorentzVector corrJetP4upToL3 =
-              std::is_base_of<class PATJetCorrExtractor, Textractor>::value
-                  ? jetCorrExtractor_(*originalJet, jetCorrLabelUpToL3_.label(), jetCorrEtaMax_, &rawJetP4)
-                  : jetCorrExtractor_(*originalJet, jetCorrUpToL3.product(), jetCorrEtaMax_, &rawJetP4);
+              jetCorrExtractor_(originalJet, jetCorrUpToL3.product(), jetCorrEtaMax_, &rawJetP4);
           reco::Candidate::LorentzVector corrJetP4upToL3Res =
-              std::is_base_of<class PATJetCorrExtractor, Textractor>::value
-                  ? jetCorrExtractor_(*originalJet, jetCorrLabelUpToL3Res_.label(), jetCorrEtaMax_, &rawJetP4)
-                  : jetCorrExtractor_(*originalJet, jetCorrUpToL3Res.product(), jetCorrEtaMax_, &rawJetP4);
+              jetCorrExtractor_(originalJet, jetCorrUpToL3Res.product(), jetCorrEtaMax_, &rawJetP4);
           if (corrJetP4upToL3.E() > 1.e-1 && corrJetP4upToL3Res.E() > 1.e-1) {
             double residualJES = (corrJetP4upToL3Res.E() / corrJetP4upToL3.E()) - 1.;
             shift = sqrt(shift * shift + residualJES * residualJES);
@@ -151,30 +179,30 @@ private:
         std::cout << "shift*shiftBy = " << shift << std::endl;
       }
 
-      T shiftedJet(*originalJet);
-      shiftedJet.setP4((1. + shift) * originalJetP4);
+      shiftedJets.emplace_back(originalJet);
+      shiftedJets.back().setP4((1. + shift) * originalJetP4);
       if (verbosity_) {
+        auto const& shiftedJet = shiftedJets.back();
         std::cout << "shiftedJet: Pt = " << shiftedJet.pt() << ", eta = " << shiftedJet.eta()
                   << ", phi = " << shiftedJet.phi() << std::endl;
       }
-
-      shiftedJets->push_back(shiftedJet);
     }
 
-    evt.put(std::move(shiftedJets));
+    evt.emplace(putToken_, std::move(shiftedJets));
   }
 
   std::string moduleLabel_;
 
   edm::InputTag src_;
   edm::EDGetTokenT<JetCollection> srcToken_;
+  edm::EDPutTokenT<JetCollection> putToken_;
 
   edm::FileInPath jetCorrInputFileName_;
   std::string jetCorrPayloadName_;
   edm::ESGetToken<JetCorrectorParametersCollection, JetCorrectionsRecord> jetCorrPayloadToken_;
   std::string jetCorrUncertaintyTag_;
-  std::unique_ptr<JetCorrectorParameters> jetCorrParameters_;
-  std::unique_ptr<JetCorrectionUncertainty> jecUncertainty_;
+  std::optional<JetCorrectionUncertainty> jecUncertainty_;
+  unsigned long long recordIdentifier_ = 0;
 
   bool addResidualJES_;
   edm::InputTag jetCorrLabelUpToL3_;                            // L1+L2+L3 correction
@@ -188,7 +216,7 @@ private:
                           //  https://hypernews.cern.ch/HyperNews/CMS/get/JetMET/1259/1.html
   Textractor jetCorrExtractor_;
 
-  double jecUncertaintyValue_;
+  std::optional<double> jecUncertaintyValue_;
 
   double shiftBy_;  // set to +1.0/-1.0 for up/down variation of energy scale
 

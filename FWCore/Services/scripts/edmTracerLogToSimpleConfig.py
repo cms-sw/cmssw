@@ -1,4 +1,3 @@
-from __future__ import print_function
 #==============================
 #
 # First argument is a log file from cmsRun

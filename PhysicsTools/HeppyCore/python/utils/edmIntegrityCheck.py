@@ -2,8 +2,6 @@
 """
 Classes to check that a set of ROOT files are OK and publish a report
 """
-from __future__ import print_function
-from __future__ import absolute_import
 
 from builtins import range
 import datetime, fnmatch, json, os, shutil, sys, tempfile, time

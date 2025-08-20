@@ -1,4 +1,3 @@
-from __future__ import print_function
 import re
 
 def setup(process, global_tag, zero_tesla=False, geometry=""):

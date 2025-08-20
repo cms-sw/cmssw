@@ -8,7 +8,6 @@ from ..modules.hltEgammaR9Unseeded_cfi import *
 from ..modules.hltEgammaHollowTrackIsoUnseeded_cfi import *
 from ..modules.hltEgammaEcalPFClusterIsoUnseeded_cfi import *
 from ..modules.hltEgammaEleGsfTrackIsoUnseeded_cfi import *
-from ..modules.hltEgammaEleGsfTrackIsoV6Unseeded_cfi import *
 from ..modules.hltEgammaEleL1TrkIsoUnseeded_cfi import *
 from ..modules.hltEgammaHcalPFClusterIsoUnseeded_cfi import *
 from ..modules.hltEgammaHGCALIDVarsUnseeded_cfi import *
@@ -38,20 +37,18 @@ from ..sequences.HLTElePixelMatchUnseededSequence_cfi import *
 from ..sequences.HLTFastJetForEgammaSequence_cfi import *
 from ..sequences.HLTGsfElectronUnseededSequence_cfi import *
 from ..sequences.HLTHgcalTiclPFClusteringForEgammaUnseededSequence_cfi import *
-from ..sequences.HLTL1Sequence_cfi import *
 from ..sequences.HLTPFClusteringForEgammaUnseededSequence_cfi import *
 from ..sequences.HLTPFHcalClusteringForEgammaSequence_cfi import *
-from ..sequences.HLTTrackingV61Sequence_cfi import *
+from ..sequences.HLTTrackingSequence_cfi import *
 
-HLTEle5OpenUnseededSequence = cms.Sequence(HLTL1Sequence
-                                           +HLTDoFullUnpackingEgammaEcalSequence
+HLTEle5OpenUnseededSequence = cms.Sequence(HLTDoFullUnpackingEgammaEcalSequence
                                            +HLTEGammaDoLocalHcalSequence
                                            +HLTPFClusteringForEgammaUnseededSequence
                                            +HLTHgcalTiclPFClusteringForEgammaUnseededSequence
                                            +HLTFastJetForEgammaSequence
                                            +HLTPFHcalClusteringForEgammaSequence
                                            +HLTElePixelMatchUnseededSequence
-                                           +HLTTrackingV61Sequence
+                                           +HLTTrackingSequence
                                            +HLTGsfElectronUnseededSequence
                                            +hltEgammaCandidatesUnseeded
                                            +hltEgammaClusterShapeUnseeded
@@ -62,7 +59,6 @@ HLTEle5OpenUnseededSequence = cms.Sequence(HLTL1Sequence
                                            +hltEgammaHGCalLayerClusterIsoUnseeded
                                            +hltEgammaHcalPFClusterIsoUnseeded
                                            +hltEgammaEleGsfTrackIsoUnseeded
-                                           +hltEgammaEleGsfTrackIsoV6Unseeded
                                            +hltEgammaEleL1TrkIsoUnseeded
                                            +hltEgammaHollowTrackIsoUnseeded
                                            +hltEgammaCandidatesWrapperUnseeded

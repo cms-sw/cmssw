@@ -171,6 +171,7 @@ void BTagProbabilityToDiscriminator::fillDescriptions(edm::ConfigurationDescript
   edm::ParameterSetDescription desc;
   {
     edm::ParameterSetDescription vpsd1;
+    vpsd1.setAllowAnything();  // Allow any string-to-string mappings
     vpsd1.add<std::vector<edm::InputTag>>("denominator", {});
     vpsd1.add<std::vector<edm::InputTag>>("numerator",
                                           {
@@ -178,51 +179,55 @@ void BTagProbabilityToDiscriminator::fillDescriptions(edm::ConfigurationDescript
                                               edm::InputTag("pfDeepCSVJetTags", "probbb"),
                                           });
     vpsd1.add<std::string>("name", "BvsAll");
-    std::vector<edm::ParameterSet> temp1;
-    temp1.reserve(3);
+    std::vector<edm::ParameterSet> vectorOfDiscriminators;
+    vectorOfDiscriminators.reserve(3);
     {
-      edm::ParameterSet temp2;
-      temp2.addParameter<std::vector<edm::InputTag>>("denominator", {});
-      temp2.addParameter<std::vector<edm::InputTag>>("numerator",
-                                                     {
-                                                         edm::InputTag("pfDeepCSVJetTags", "probb"),
-                                                         edm::InputTag("pfDeepCSVJetTags", "probbb"),
-                                                     });
-      temp2.addParameter<std::string>("name", "BvsAll");
-      temp1.push_back(temp2);
+      edm::ParameterSet tempDiscriminator;
+      tempDiscriminator.addParameter<std::vector<edm::InputTag>>("denominator", {});
+      tempDiscriminator.addParameter<std::vector<edm::InputTag>>("numerator",
+                                                                 {
+                                                                     edm::InputTag("pfDeepCSVJetTags", "probb"),
+                                                                     edm::InputTag("pfDeepCSVJetTags", "probbb"),
+                                                                 });
+      tempDiscriminator.addParameter<std::string>("name", "BvsAll");
+      vectorOfDiscriminators.push_back(tempDiscriminator);
     }
     {
-      edm::ParameterSet temp2;
-      temp2.addParameter<std::vector<edm::InputTag>>("denominator",
-                                                     {
-                                                         edm::InputTag("pfDeepCSVJetTags", "probc"),
-                                                         edm::InputTag("pfDeepCSVJetTags", "probb"),
-                                                         edm::InputTag("pfDeepCSVJetTags", "probbb"),
-                                                     });
-      temp2.addParameter<std::vector<edm::InputTag>>("numerator",
-                                                     {
-                                                         edm::InputTag("pfDeepCSVJetTags", "probc"),
-                                                     });
-      temp2.addParameter<std::string>("name", "CvsB");
-      temp1.push_back(temp2);
+      edm::ParameterSet tempDiscriminator;
+      tempDiscriminator.addParameter<std::vector<edm::InputTag>>("denominator",
+                                                                 {
+                                                                     edm::InputTag("pfDeepCSVJetTags", "probc"),
+                                                                     edm::InputTag("pfDeepCSVJetTags", "probb"),
+                                                                     edm::InputTag("pfDeepCSVJetTags", "probbb"),
+                                                                 });
+      tempDiscriminator.addParameter<std::vector<edm::InputTag>>("numerator",
+                                                                 {
+                                                                     edm::InputTag("pfDeepCSVJetTags", "probc"),
+                                                                 });
+      tempDiscriminator.addParameter<std::string>("name", "CvsB");
+      vectorOfDiscriminators.push_back(tempDiscriminator);
     }
     {
-      edm::ParameterSet temp2;
-      temp2.addParameter<std::vector<edm::InputTag>>("denominator",
-                                                     {
-                                                         edm::InputTag("pfDeepCSVJetTags", "probudsg"),
-                                                         edm::InputTag("pfDeepCSVJetTags", "probc"),
-                                                     });
-      temp2.addParameter<std::vector<edm::InputTag>>("numerator",
-                                                     {
-                                                         edm::InputTag("pfDeepCSVJetTags", "probc"),
-                                                     });
-      temp2.addParameter<std::string>("name", "CvsL");
-      temp1.push_back(temp2);
+      edm::ParameterSet tempDiscriminator;
+      tempDiscriminator.addParameter<std::vector<edm::InputTag>>("denominator",
+                                                                 {
+                                                                     edm::InputTag("pfDeepCSVJetTags", "probudsg"),
+                                                                     edm::InputTag("pfDeepCSVJetTags", "probc"),
+                                                                 });
+      tempDiscriminator.addParameter<std::vector<edm::InputTag>>("numerator",
+                                                                 {
+                                                                     edm::InputTag("pfDeepCSVJetTags", "probc"),
+                                                                 });
+      tempDiscriminator.addParameter<std::string>("name", "CvsL");
+      vectorOfDiscriminators.push_back(tempDiscriminator);
     }
-    desc.addVPSet("discriminators", vpsd1, temp1);
+    desc.addVPSet("discriminators", vpsd1, vectorOfDiscriminators)
+        ->setComment(
+            "List of ParameterSets to create new ratio-based neural network discriminants. "
+            "Each entry is a ParameterSet where 'name' is the new name of the variable, and 'numerator' and "
+            "'denominator' are vector of InputTags of the pure neural network scores to be used in the calculation.");
   }
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 // define this as a plug-in

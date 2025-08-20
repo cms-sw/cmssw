@@ -12,21 +12,37 @@ StripCPEfromTrackAngle::StripCPEfromTrackAngle(edm::ParameterSet& conf,
                                                const SiStripConfObject& confObj,
                                                const SiStripLatency& latency)
     : StripCPE(conf, mag, geom, lorentz, backPlaneCorrection, confObj, latency),
-      useLegacyError(conf.existsAs<bool>("useLegacyError") ? conf.getParameter<bool>("useLegacyError") : true),
-      maxChgOneMIP(conf.existsAs<float>("maxChgOneMIP") ? conf.getParameter<double>("maxChgOneMIP") : -6000.),
+      useLegacyError(conf.getParameter<bool>("useLegacyError")),
+      maxChgOneMIP(conf.getParameter<double>("maxChgOneMIP")),
       m_algo(useLegacyError ? Algo::legacy : (maxChgOneMIP < 0 ? Algo::mergeCK : Algo::chargeCK)) {
-  mLC_P[0] = conf.existsAs<double>("mLC_P0") ? conf.getParameter<double>("mLC_P0") : -.326;
-  mLC_P[1] = conf.existsAs<double>("mLC_P1") ? conf.getParameter<double>("mLC_P1") : .618;
-  mLC_P[2] = conf.existsAs<double>("mLC_P2") ? conf.getParameter<double>("mLC_P2") : .300;
+  mLC_P[0] = conf.getParameter<double>("mLC_P0");
+  mLC_P[1] = conf.getParameter<double>("mLC_P1");
+  mLC_P[2] = conf.getParameter<double>("mLC_P2");
 
-  mHC_P[SiStripDetId::TIB - 3][0] = conf.existsAs<double>("mTIB_P0") ? conf.getParameter<double>("mTIB_P0") : -.742;
-  mHC_P[SiStripDetId::TIB - 3][1] = conf.existsAs<double>("mTIB_P1") ? conf.getParameter<double>("mTIB_P1") : .202;
-  mHC_P[SiStripDetId::TID - 3][0] = conf.existsAs<double>("mTID_P0") ? conf.getParameter<double>("mTID_P0") : -1.026;
-  mHC_P[SiStripDetId::TID - 3][1] = conf.existsAs<double>("mTID_P1") ? conf.getParameter<double>("mTID_P1") : .253;
-  mHC_P[SiStripDetId::TOB - 3][0] = conf.existsAs<double>("mTOB_P0") ? conf.getParameter<double>("mTOB_P0") : -1.427;
-  mHC_P[SiStripDetId::TOB - 3][1] = conf.existsAs<double>("mTOB_P1") ? conf.getParameter<double>("mTOB_P1") : .433;
-  mHC_P[SiStripDetId::TEC - 3][0] = conf.existsAs<double>("mTEC_P0") ? conf.getParameter<double>("mTEC_P0") : -1.885;
-  mHC_P[SiStripDetId::TEC - 3][1] = conf.existsAs<double>("mTEC_P1") ? conf.getParameter<double>("mTEC_P1") : .471;
+  mHC_P[SiStripDetId::TIB - 3][0] = conf.getParameter<double>("mTIB_P0");
+  mHC_P[SiStripDetId::TIB - 3][1] = conf.getParameter<double>("mTIB_P1");
+  mHC_P[SiStripDetId::TID - 3][0] = conf.getParameter<double>("mTID_P0");
+  mHC_P[SiStripDetId::TID - 3][1] = conf.getParameter<double>("mTID_P1");
+  mHC_P[SiStripDetId::TOB - 3][0] = conf.getParameter<double>("mTOB_P0");
+  mHC_P[SiStripDetId::TOB - 3][1] = conf.getParameter<double>("mTOB_P1");
+  mHC_P[SiStripDetId::TEC - 3][0] = conf.getParameter<double>("mTEC_P0");
+  mHC_P[SiStripDetId::TEC - 3][1] = conf.getParameter<double>("mTEC_P1");
+}
+
+void StripCPEfromTrackAngle::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  desc.add<bool>("useLegacyError", true);
+  desc.add<double>("maxChgOneMIP", -6000.);
+  desc.add<double>("mLC_P0", -.326);
+  desc.add<double>("mLC_P1", .618);
+  desc.add<double>("mLC_P2", .300);
+  desc.add<double>("mTIB_P0", -.742);
+  desc.add<double>("mTIB_P1", .202);
+  desc.add<double>("mTID_P0", -1.026);
+  desc.add<double>("mTID_P1", .253);
+  desc.add<double>("mTOB_P0", -1.427);
+  desc.add<double>("mTOB_P1", .433);
+  desc.add<double>("mTEC_P0", -1.885);
+  desc.add<double>("mTEC_P1", .471);
 }
 
 float StripCPEfromTrackAngle::stripErrorSquared(const unsigned N,

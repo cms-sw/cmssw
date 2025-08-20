@@ -122,7 +122,7 @@ void OMTFReconstruction::beginRun(edm::Run const& run,
     XMLConfigReader xmlConfigReader;
     xmlConfigReader.setConfigFile(fName);
 
-    omtfParams.reset(new L1TMuonOverlapParams());
+    omtfParams = std::make_unique<L1TMuonOverlapParams>();
     xmlConfigReader.readConfig(omtfParams.get());
 
     //getPatternsVersion() parses the entire patterns xml - si it is very inefficient

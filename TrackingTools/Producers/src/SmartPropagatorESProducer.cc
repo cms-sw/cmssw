@@ -4,24 +4,22 @@
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
-#include "FWCore/Framework/interface/ESProducer.h"
+#include <memory>
 
-#include "TrackingTools/GeomPropagators/interface/SmartPropagator.h"
-#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
-
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
-#include <memory>
+#include "TrackingTools/GeomPropagators/interface/SmartPropagator.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 class SmartPropagatorESProducer : public edm::ESProducer {
 public:
@@ -29,10 +27,13 @@ public:
   SmartPropagatorESProducer(const edm::ParameterSet&);
 
   /// Destructor
-  ~SmartPropagatorESProducer() override;
+  ~SmartPropagatorESProducer() override = default;
 
   // Operations
   std::unique_ptr<Propagator> produce(const TrackingComponentsRecord&);
+
+  // fillDescriptions
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   PropagationDirection thePropagationDirection;
@@ -67,11 +68,19 @@ SmartPropagatorESProducer::SmartPropagatorESProducer(const ParameterSet& paramet
   muonToken_ = cc.consumes(edm::ESInputTag("", parameterSet.getParameter<string>("MuonPropagator")));
 }
 
-SmartPropagatorESProducer::~SmartPropagatorESProducer() {}
-
 std::unique_ptr<Propagator> SmartPropagatorESProducer::produce(const TrackingComponentsRecord& iRecord) {
   return std::make_unique<SmartPropagator>(
       iRecord.get(trackerToken_), iRecord.get(muonToken_), &iRecord.get(magToken_), thePropagationDirection, theEpsilon);
+}
+
+void SmartPropagatorESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<string>("ComponentName", "SmartPropagator");
+  desc.add<string>("PropagationDirection", "alongMomentum");
+  desc.add<double>("Epsilon", 5.0);
+  desc.add<string>("TrackerPropagator", "PropagatorWithMaterial");
+  desc.add<string>("MuonPropagator", "SteppingHelixPropagatorAlong");
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(SmartPropagatorESProducer);

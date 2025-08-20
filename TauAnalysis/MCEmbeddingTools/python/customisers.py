@@ -3,7 +3,8 @@
 
 # Various set of customise functions needed for embedding
 import FWCore.ParameterSet.Config as cms
-
+from Configuration.Eras.Modifier_run2_common_cff import run2_common
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
 from PhysicsTools.NanoAOD.common_cff import ExtVar
 
 ################################ Customizer for skimming ###########################
@@ -61,6 +62,7 @@ to_bemanipulate.append(
         module_name="generalTracks", manipulator_name="Track", steps=["SIM", "MERGE"]
     )
 )
+# needed by the PFLinker:particleFlow to create MuonProducer:muons
 to_bemanipulate.append(
     module_manipulate(
         module_name="cosmicsVetoTracksRaw", manipulator_name="Track", steps=["SIM", "MERGE"]
@@ -80,13 +82,7 @@ to_bemanipulate.append(
         steps=["SIM", "MERGE"],
     )
 )
-to_bemanipulate.append(
-    module_manipulate(
-        module_name="conversionStepTracks",
-        manipulator_name="Track",
-        steps=["SIM", "MERGE"],
-    )
-)
+# This is needed by displacedMuonReducedTrackExtras which is specifically added in the merging_step
 to_bemanipulate.append(
     module_manipulate(
         module_name="displacedTracks",
@@ -94,13 +90,7 @@ to_bemanipulate.append(
         steps=["SIM", "MERGE"],
     )
 )
-to_bemanipulate.append(
-    module_manipulate(
-        module_name="ckfInOutTracksFromConversions",
-        manipulator_name="Track",
-        steps=["SIM", "MERGE"],
-    )
-)
+# This is needed by the conversion producer which is run by the highlevelreco task
 to_bemanipulate.append(
     module_manipulate(
         module_name="ckfOutInTracksFromConversions",
@@ -114,6 +104,7 @@ to_bemanipulate.append(
         module_name="muons1stStep", manipulator_name="Muon", steps=["SIM", "MERGE"]
     )
 )
+# needed by  MuIsoDepositCopyProducer/'muIsoDepositTkDisplaced'
 to_bemanipulate.append(
     module_manipulate(
         module_name="displacedMuons1stStep", manipulator_name="Muon", steps=["SIM", "MERGE"]
@@ -133,6 +124,7 @@ to_bemanipulate.append(
         steps=["SIM", "MERGE"],
     )
 )
+# needed by the PFLinker:particleFlow to create MuonProducer:muons
 to_bemanipulate.append(
     module_manipulate(
         module_name="particleFlowTmp",
@@ -155,23 +147,10 @@ to_bemanipulate.append(
         module_name="ecalDigis", manipulator_name="EcalSrFlag", steps=["SIM", "MERGE"]
     )
 )
+# this is needed by the HcalNoiseInfoProducer/'hcalnoise'
 to_bemanipulate.append(
     module_manipulate(
         module_name="hcalDigis", manipulator_name="HcalDigi", steps=["SIM", "MERGE"]
-    )
-)
-to_bemanipulate.append(
-    module_manipulate(
-        module_name="electronMergedSeeds",
-        manipulator_name="ElectronSeed",
-        steps=["SIM", "MERGE"],
-    )
-)
-to_bemanipulate.append(
-    module_manipulate(
-        module_name="ecalDrivenElectronSeeds",
-        manipulator_name="EcalDrivenElectronSeed",
-        steps=["SIM", "MERGE"],
     )
 )
 
@@ -191,13 +170,7 @@ to_bemanipulate.append(
 )
 
 to_bemanipulate.append(
-    module_manipulate(module_name="hbheprereco", manipulator_name="HBHERecHit")
-)
-to_bemanipulate.append(
     module_manipulate(module_name="hbhereco", manipulator_name="HBHERecHit")
-)
-to_bemanipulate.append(
-    module_manipulate(module_name="zdcreco", manipulator_name="ZDCRecHit")
 )
 
 to_bemanipulate.append(
@@ -261,6 +234,41 @@ to_bemanipulate.append(
         manipulator_name="RPCRecHit",
         steps=["SELECT", "CLEAN"],
     )
+)
+
+# add some collections for run2
+# The era Modifier/ModifierChain is specified with the cmsDriver `--era` option or the cms.Process('NAME', era=...) constructor in the python config.
+# The `Modifier.toModify` method is executed if the Modifier is in the ModifierChain. (see https://github.com/cms-sw/cmssw/blob/master/FWCore/ParameterSet/python/Config.py#L1831)
+# The Run3 ModifierChain is based on the Run2 ModifierChain. Therefore the `run2_common` Modifier is included in both ModifierChains.
+# Those Modifiers allow bool operators to combine them. With `(run2_common & ~run3_common)` the `toModify` function is only executed if the era ModifierChain contains `run2_common` but not `run3_common`.
+(run2_common & ~run3_common).toModify(
+    to_bemanipulate,
+    lambda l: l.extend(
+        [
+            module_manipulate(
+                module_name="conversionStepTracks",
+                manipulator_name="Track",
+                steps=["SIM", "MERGE"],
+            ),
+            module_manipulate(
+                module_name="ckfInOutTracksFromConversions",
+                manipulator_name="Track",
+                steps=["SIM", "MERGE"],
+            ),
+            module_manipulate(
+                module_name="electronMergedSeeds",
+                manipulator_name="ElectronSeed",
+                steps=["SIM", "MERGE"],
+            ),
+            module_manipulate(
+                module_name="ecalDrivenElectronSeeds",
+                manipulator_name="EcalDrivenElectronSeed",
+                steps=["SIM", "MERGE"],
+            ),
+            module_manipulate(module_name="hbheprereco", manipulator_name="HBHERecHit"),
+            module_manipulate(module_name="zdcreco", manipulator_name="ZDCRecHit"),
+        ]
+    ),
 )
 
 
@@ -353,7 +361,7 @@ def keepCleaned(dataTier):
         "keep *_l1extraParticles_*_" + dataTier,
         "keep TrajectorySeeds_*_*_*",
         "keep recoElectronSeeds_*_*_*",
-        "drop recoIsoDepositedmValueMap_muIsoDepositTk_*_*" ,
+        "drop recoIsoDepositedmValueMap_muIsoDepositTk_*_*",
         "drop recoIsoDepositedmValueMap_muIsoDepositTkDisplaced_*_*",
         "drop *_ctppsProtons_*_*",
         "drop *_ctppsLocalTrackLiteProducer_*_*",
@@ -582,9 +590,9 @@ def customiseGenerator_preHLT(process, changeProcessname=True, reselect=False):
         "Correcting Vertex in genEvent to one from input. Replaced 'VtxSmeared' with the Corrector."
     )
 
-    # Disable noise simulation
-    process.mix.digitizers.castor.doNoise = cms.bool(False)
-
+    #### Disable noise simulation ####
+    # Castor was a detector in CMS till 2018.
+    (run2_common & ~run3_common).toModify(process, lambda p: setattr(p.mix.digitizers.castor, "doNoise", cms.bool(False)))
     process.mix.digitizers.ecal.doESNoise = cms.bool(False)
     process.mix.digitizers.ecal.doENoise = cms.bool(False)
 
@@ -637,6 +645,18 @@ def customiseGenerator_HLT(process, changeProcessname=True, reselect=False):
     process.firstStepPrimaryVerticesUnsorted = process.embeddingHltPixelVertices.clone()
     process.firstStepPrimaryVerticesPreSplitting = (
         process.embeddingHltPixelVertices.clone()
+    )
+
+    # Replace the original detector state filters in the HLT with a dummy module with 100% efficiency.
+    # Those original filters have a efficiency of 0% for embedding samples.
+    # This is due to the fact that the simulation of the tau decay happens in an empty detector.
+    # For more info see https://github.com/cms-sw/cmssw/pull/47299#discussion_r1949023230
+    process.hltPixelTrackerHVOn = cms.EDFilter("HLTBool",
+        result = cms.bool(True)
+    )
+
+    process.hltStripTrackerHVOn = cms.EDFilter("HLTBool",
+        result = cms.bool(True)
     )
 
     process = customisoptions(process)
@@ -801,12 +821,10 @@ def customiseMerging(process, changeProcessname=True, reselect=False):
 
     print("**** Attention: overriding behaviour of 'removeMCMatching' ****")
 
-    from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeMC
-    def performMCMatching(process, names, postfix, outputModules):
-        miniAOD_customizeMC(process)
-
     import PhysicsTools.PatAlgos.tools.coreTools
-    PhysicsTools.PatAlgos.tools.coreTools.removeMCMatching = performMCMatching
+    from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeMC
+
+    PhysicsTools.PatAlgos.tools.coreTools.removeMCMatching = lambda process, names, postfix, outputModules : miniAOD_customizeMC(process)
 
     if changeProcessname:
         process._Process__name = "MERGE"
@@ -893,42 +911,10 @@ def customiseMerging(process, changeProcessname=True, reselect=False):
     )
     process.dedxHitInfo.clusterShapeCache = cms.InputTag("")
 
-    # process.muons.FillDetectorBasedIsolation = cms.bool(False)
-    # process.muons.FillSelectorMaps = cms.bool(False)
-    # process.muons.FillShoweringInfo = cms.bool(False)
-    # process.muons.FillCosmicsIdMap = cms.bool(False)
-
-    # process.displacedMuons.FillDetectorBasedIsolation = cms.bool(False)
-    # process.displacedMuons.FillSelectorMaps = cms.bool(False)
-    # process.displacedMuons.FillShoweringInfo = cms.bool(False)
-    # process.displacedMuons.FillCosmicsIdMap = cms.bool(False)
-
-    # seed configuration needed for seedmerger
-    #process.load(
-    #    "RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeedsParameters_cff"
-    #)
-    #process.ecalDrivenElectronSeeds.SeedConfiguration = cms.PSet(
-    #    process.ecalDrivenElectronSeedsParameters
-    #)
-
     process.merge_step += process.highlevelreco
-    # process.merge_step.remove(process.reducedEcalRecHitsEE)
-    # process.merge_step.remove(process.reducedEcalRecHitsEB)
-
-    # process.merge_step.remove(process.ak4JetTracksAssociatorExplicit)
-
-    # process.merge_step.remove(process.cosmicsVeto)
-    # process.merge_step.remove(process.cosmicsVetoTrackCandidates)
-    # process.merge_step.remove(process.ecalDrivenGsfElectronCores)
-    # process.merge_step.remove(process.ecalDrivenGsfElectrons)
-    # process.merge_step.remove(process.gedPhotonsTmp)
-    # process.merge_step.remove(process.particleFlowTmp)
-
-    # process.merge_step.remove(process.hcalnoise)
 
     process.load("CommonTools.ParticleFlow.genForPF2PAT_cff")
 
-    # process.muonsFromCosmics.ShowerDigiFillerParameters.dtDigiCollectionLabel = cms.InputTag("simMuonDTDigis")
 
     process.merge_step += process.genForPF2PATSequence
 
@@ -970,6 +956,7 @@ def customiseMerging(process, changeProcessname=True, reselect=False):
         if name in reconstruction_modules_list:
             modules_to_be_ordered[name] = reconstruction_modules_list.index(name)
         else:
+            import sys
             print("ERROR:",name,"not prepared in modules list. Please adapt 'customiseMerging'")
             sys.exit(1)
 

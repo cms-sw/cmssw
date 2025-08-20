@@ -26,22 +26,20 @@ the worker is reset().
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/maker/WorkerParams.h"
+#include "FWCore/Framework/interface/maker/ModuleSignalSentry.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/ModuleContextSentry.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/ProductResolverIndexAndSkipBit.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
-#include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
 #include "FWCore/ServiceRegistry/interface/InternalContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
-#include "FWCore/ServiceRegistry/interface/PathContext.h"
-#include "FWCore/ServiceRegistry/interface/PlaceInPathContext.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueueChain.h"
@@ -74,19 +72,16 @@ namespace edm {
   class EventPrincipal;
   class EventSetupImpl;
   class EarlyDeleteHelper;
-  class ModuleProcessName;
-  class ProductResolverIndexHelper;
   class ProductResolverIndexAndSkipBit;
-  class ProductRegistry;
-  class ThinnedAssociationsHelper;
 
   namespace workerhelper {
     template <typename O>
     class CallImpl;
   }
   namespace eventsetup {
+    struct ComponentDescription;
     class ESRecordsToProductResolverIndices;
-  }
+  }  // namespace eventsetup
 
   class Worker {
   public:
@@ -131,9 +126,12 @@ namespace edm {
     virtual bool wantsStreamRuns() const noexcept = 0;
     virtual bool wantsStreamLuminosityBlocks() const noexcept = 0;
 
+    //returns non-nullptr if the module can only process one Run at a time
     virtual SerialTaskQueue* globalRunsQueue() = 0;
+    //returns non-nullptr if the module can only process one LuminosityBlock at a time
     virtual SerialTaskQueue* globalLuminosityBlocksQueue() = 0;
 
+    //Run only for OutputModules. Causes TriggerResults information to be used to decide if module should run.
     void prePrefetchSelectionAsync(oneapi::tbb::task_group&,
                                    WaitingTask* task,
                                    ServiceToken const&,
@@ -167,7 +165,7 @@ namespace edm {
                                          ParentContext const&,
                                          typename T::Context const*) noexcept;
 
-    virtual size_t transformIndex(edm::BranchDescription const&) const noexcept = 0;
+    virtual size_t transformIndex(edm::ProductDescription const&) const noexcept = 0;
     void doTransformAsync(WaitingTaskHolder,
                           size_t iTransformIndex,
                           EventPrincipal const&,
@@ -177,15 +175,8 @@ namespace edm {
                           StreamContext const*) noexcept;
 
     void callWhenDoneAsync(WaitingTaskHolder task) { waitingTasks_.add(std::move(task)); }
+    // Called if filter earlier in the path has failed.
     void skipOnPath(EventPrincipal const& iEvent);
-    void beginJob(GlobalContext const&);
-    void endJob(GlobalContext const&);
-    void beginStream(StreamID, StreamContext const&);
-    void endStream(StreamID, StreamContext const&);
-    void respondToOpenInputFile(FileBlock const& fb) { implRespondToOpenInputFile(fb); }
-    void respondToCloseInputFile(FileBlock const& fb) { implRespondToCloseInputFile(fb); }
-    void respondToCloseOutputFile() { implRespondToCloseOutputFile(); }
-    void registerThinnedAssociations(ProductRegistry const& registry, ThinnedAssociationsHelper& helper);
 
     void reset() {
       cached_exception_ = std::exception_ptr();
@@ -208,25 +199,6 @@ namespace edm {
     void setActivityRegistry(std::shared_ptr<ActivityRegistry> areg);
 
     void setEarlyDeleteHelper(EarlyDeleteHelper* iHelper);
-
-    //Used to make EDGetToken work
-    virtual void updateLookup(BranchType iBranchType, ProductResolverIndexHelper const&) = 0;
-    virtual void updateLookup(eventsetup::ESRecordsToProductResolverIndices const&) = 0;
-    virtual void selectInputProcessBlocks(ProductRegistry const&, ProcessBlockHelperBase const&) = 0;
-    virtual void resolvePutIndicies(
-        BranchType iBranchType,
-        std::unordered_multimap<std::string, std::tuple<TypeID const*, const char*, edm::ProductResolverIndex>> const&
-            iIndicies) = 0;
-
-    virtual void modulesWhoseProductsAreConsumed(
-        std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modules,
-        std::vector<ModuleProcessName>& modulesInPreviousProcesses,
-        ProductRegistry const& preg,
-        std::map<std::string, ModuleDescription const*> const& labelsToDesc) const = 0;
-
-    virtual void convertCurrentProcessAlias(std::string const& processName) = 0;
-
-    virtual std::vector<ConsumesInfo> consumesInfo() const = 0;
 
     virtual Types moduleType() const = 0;
     virtual ConcurrencyTypes moduleConcurrencyType() const = 0;
@@ -252,6 +224,7 @@ namespace edm {
 
     virtual bool hasAccumulator() const noexcept = 0;
 
+    virtual bool matchesBaseClassPointer(void const* iPtr) const noexcept = 0;
     // Used in PuttableProductResolver
     edm::WaitingTaskList& waitingTaskList() noexcept { return waitingTasks_; }
 
@@ -261,15 +234,12 @@ namespace edm {
 
     virtual void doClearModule() = 0;
 
-    virtual std::string workerType() const = 0;
     virtual bool implDo(EventTransitionInfo const&, ModuleCallingContext const*) = 0;
 
     virtual void itemsToGetForSelection(std::vector<ProductResolverIndexAndSkipBit>&) const = 0;
     virtual bool implNeedToRunSelection() const noexcept = 0;
 
-    virtual void implDoAcquire(EventTransitionInfo const&,
-                               ModuleCallingContext const*,
-                               WaitingTaskWithArenaHolder&) = 0;
+    virtual void implDoAcquire(EventTransitionInfo const&, ModuleCallingContext const*, WaitingTaskHolder&&) = 0;
 
     virtual void implDoTransformAsync(WaitingTaskHolder,
                                       size_t iTransformIndex,
@@ -290,10 +260,6 @@ namespace edm {
     virtual bool implDoStreamBegin(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
     virtual bool implDoStreamEnd(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
     virtual bool implDoEnd(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
-    virtual void implBeginJob() = 0;
-    virtual void implEndJob() = 0;
-    virtual void implBeginStream(StreamID) = 0;
-    virtual void implEndStream(StreamID) = 0;
 
     void resetModuleDescription(ModuleDescription const*);
 
@@ -314,12 +280,6 @@ namespace edm {
     virtual void preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
                                               ModuleCallingContext const& moduleCallingContext,
                                               Principal const& iPrincipal) const noexcept = 0;
-
-    virtual void implRespondToOpenInputFile(FileBlock const& fb) = 0;
-    virtual void implRespondToCloseInputFile(FileBlock const& fb) = 0;
-    virtual void implRespondToCloseOutputFile() = 0;
-
-    virtual void implRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) = 0;
 
     virtual TaskQueueAdaptor serializeRunModule() = 0;
 
@@ -394,12 +354,14 @@ namespace edm {
                                                    ParentContext const&,
                                                    typename T::Context const*) noexcept;
 
-    void runAcquire(EventTransitionInfo const&, ParentContext const&, WaitingTaskWithArenaHolder&);
+    // runAcquire() must take a copy of WaitingTaskHolder
+    // see comment in runAcquireAfterAsyncPrefetch() definition
+    void runAcquire(EventTransitionInfo const&, ParentContext const&, WaitingTaskHolder);
 
     void runAcquireAfterAsyncPrefetch(std::exception_ptr,
                                       EventTransitionInfo const&,
                                       ParentContext const&,
-                                      WaitingTaskWithArenaHolder) noexcept;
+                                      WaitingTaskHolder) noexcept;
 
     std::exception_ptr handleExternalWorkException(std::exception_ptr iEPtr,
                                                    ParentContext const& parentContext) noexcept;
@@ -519,7 +481,7 @@ namespace edm {
                   typename T::TransitionInfoType const&,
                   ServiceToken const&,
                   ParentContext const&,
-                  WaitingTaskWithArenaHolder) noexcept {}
+                  WaitingTaskHolder) noexcept {}
       void execute() final {}
     };
 
@@ -530,7 +492,7 @@ namespace edm {
                   EventTransitionInfo const& eventTransitionInfo,
                   ServiceToken const& token,
                   ParentContext const& parentContext,
-                  WaitingTaskWithArenaHolder holder) noexcept
+                  WaitingTaskHolder holder) noexcept
           : m_worker(worker),
             m_eventTransitionInfo(eventTransitionInfo),
             m_parentContext(parentContext),
@@ -545,7 +507,7 @@ namespace edm {
         // to hold the exception_ptr
         std::exception_ptr temp_excptr;
         auto excptr = exceptionPtr();
-        // Caught exception is passed to Worker::runModuleAfterAsyncPrefetch(), which propagates it via WaitingTaskWithArenaHolder
+        // Caught exception is passed to Worker::runModuleAfterAsyncPrefetch(), which propagates it via WaitingTaskHolder
         CMS_SA_ALLOW try {
           //pre was called in prefetchAsync
           m_worker->emitPostModuleEventPrefetchingSignal();
@@ -563,12 +525,12 @@ namespace edm {
                         info = m_eventTransitionInfo,
                         parentContext = m_parentContext,
                         serviceToken = m_serviceToken,
-                        holder = m_holder]() {
+                        holder = std::move(m_holder)]() mutable {
                          //Need to make the services available
                          ServiceRegistry::Operate operateRunAcquire(serviceToken.lock());
 
                          std::exception_ptr ptr;
-                         worker->runAcquireAfterAsyncPrefetch(ptr, info, parentContext, holder);
+                         worker->runAcquireAfterAsyncPrefetch(ptr, info, parentContext, std::move(holder));
                        });
             return;
           }
@@ -581,7 +543,7 @@ namespace edm {
       Worker* m_worker;
       EventTransitionInfo m_eventTransitionInfo;
       ParentContext const m_parentContext;
-      WaitingTaskWithArenaHolder m_holder;
+      WaitingTaskHolder m_holder;
       ServiceWeakToken m_serviceToken;
     };
 
@@ -629,61 +591,6 @@ namespace edm {
     bool shouldTryToContinue_ = false;
     bool beginSucceeded_ = false;
   };
-
-  namespace {
-    template <typename T>
-    class ModuleSignalSentry {
-    public:
-      ModuleSignalSentry(ActivityRegistry* a,
-                         typename T::Context const* context,
-                         ModuleCallingContext const* moduleCallingContext)
-          : a_(a), context_(context), moduleCallingContext_(moduleCallingContext) {}
-
-      ~ModuleSignalSentry() {
-        // This destructor does nothing unless we are unwinding the
-        // the stack from an earlier exception (a_ will be null if we are
-        // are not). We want to report the earlier exception and ignore any
-        // addition exceptions from the post module signal.
-        CMS_SA_ALLOW try {
-          if (a_) {
-            T::postModuleSignal(a_, context_, moduleCallingContext_);
-          }
-        } catch (...) {
-        }
-      }
-      void preModuleSignal() {
-        if (a_) {
-          try {
-            convertException::wrap([this]() { T::preModuleSignal(a_, context_, moduleCallingContext_); });
-          } catch (cms::Exception& ex) {
-            ex.addContext("Handling pre module signal, likely in a service function immediately before module method");
-            throw;
-          }
-        }
-      }
-      void postModuleSignal() {
-        if (a_) {
-          auto temp = a_;
-          // Setting a_ to null informs the destructor that the signal
-          // was already run and that it should do nothing.
-          a_ = nullptr;
-          try {
-            convertException::wrap([this, temp]() { T::postModuleSignal(temp, context_, moduleCallingContext_); });
-          } catch (cms::Exception& ex) {
-            ex.addContext("Handling post module signal, likely in a service function immediately after module method");
-            throw;
-          }
-        }
-      }
-
-    private:
-      ActivityRegistry* a_;  // We do not use propagate_const because the registry itself is mutable.
-      typename T::Context const* context_;
-      ModuleCallingContext const* moduleCallingContext_;
-    };
-
-  }  // namespace
-
   namespace workerhelper {
     template <>
     class CallImpl<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>> {
@@ -1127,7 +1034,7 @@ namespace edm {
             auto* group = task.group();
             moduleTask = make_waiting_task(
                 [this, weakToken, transitionInfo, parentContext, ownRunTask, group](std::exception_ptr const* iExcept) {
-                  WaitingTaskWithArenaHolder runTaskHolder(
+                  WaitingTaskHolder runTaskHolder(
                       *group, new HandleExternalWorkExceptionTask(this, group, ownRunTask->release(), parentContext));
                   AcquireTask<T> t(this, transitionInfo, weakToken.lock(), parentContext, runTaskHolder);
                   t.execute();
@@ -1154,7 +1061,7 @@ namespace edm {
         auto group = task.group();
         if constexpr (T::isEvent_) {
           if (hasAcquire()) {
-            WaitingTaskWithArenaHolder runTaskHolder(
+            WaitingTaskHolder runTaskHolder(
                 *group, new HandleExternalWorkExceptionTask(this, group, moduleTask, parentContext));
             moduleTask = new AcquireTask<T>(this, transitionInfo, token, parentContext, std::move(runTaskHolder));
           }

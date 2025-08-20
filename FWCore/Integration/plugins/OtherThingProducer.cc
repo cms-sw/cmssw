@@ -24,16 +24,18 @@ namespace edmtest {
 
   private:
     OtherThingAlgorithm alg_;
-    edm::EDGetToken thingToken_;
-    edm::EDPutToken putToken_;
+    edm::EDGetTokenT<ThingCollection> thingToken_;
+    edm::EDPutTokenT<OtherThingCollection> putToken_;
     bool useRefs_;
     bool refsAreTransient_;
+    bool thingMissing_;
   };
 
   OtherThingProducer::OtherThingProducer(edm::ParameterSet const& pset) : alg_(), refsAreTransient_(false) {
     putToken_ = produces<OtherThingCollection>("testUserTag");
     useRefs_ = pset.getUntrackedParameter<bool>("useRefs");
-    if (useRefs_) {
+    thingMissing_ = pset.getUntrackedParameter<bool>("thingMissing");
+    if (useRefs_ or thingMissing_) {
       thingToken_ = consumes<ThingCollection>(pset.getParameter<edm::InputTag>("thingTag"));
     }
     refsAreTransient_ = pset.getUntrackedParameter<bool>("transient");
@@ -51,10 +53,17 @@ namespace edmtest {
 
     // Step C: Get data for algorithm
     edm::Handle<ThingCollection> parentHandle;
-    if (useRefs_) {
-      bool succeeded = e.getByToken(thingToken_, parentHandle);
-      assert(succeeded);
-      assert(parentHandle.isValid());
+    if (useRefs_ or thingMissing_) {
+      parentHandle = e.getHandle(thingToken_);
+      //If not here, throw exception
+      if (thingMissing_) {
+        if (parentHandle.isValid()) {
+          throw cms::Exception("TestFailure")
+              << "The ThingCollection is available when it was expected to not be available";
+        }
+      } else {
+        *parentHandle;
+      }
     }
 
     // Step D: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
@@ -71,6 +80,7 @@ namespace edmtest {
         ->setComment("Actually get the ThingCollection and build edm::Refs to the contained items.");
     desc.addUntracked<bool>("transient", false)
         ->setComment("If true, then the Refs constructed by the ThingCollection can not be persisted");
+    desc.addUntracked<bool>("thingMissing", false)->setComment("If true, expect that thing collection is missing");
     descriptions.add("otherThingProd", desc);
   }
 

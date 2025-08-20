@@ -53,15 +53,15 @@ process.load("DQM.EcalMonitorClient.EcalMonitorClient_cfi")
 ### Individual module setups ###
 
 # Use the ratio timing method for the online DQM
-process.ecalMultiFitUncalibRecHitCPU.algoPSet.timealgo = "RatioMethod"
-process.ecalMultiFitUncalibRecHitCPU.algoPSet.outOfTimeThresholdGain12pEB = 5.
-process.ecalMultiFitUncalibRecHitCPU.algoPSet.outOfTimeThresholdGain12mEB = 5.
-process.ecalMultiFitUncalibRecHitCPU.algoPSet.outOfTimeThresholdGain61pEB = 5.
-process.ecalMultiFitUncalibRecHitCPU.algoPSet.outOfTimeThresholdGain61mEB = 5.
-process.ecalMultiFitUncalibRecHitCPU.algoPSet.timeCalibTag = ':'
-process.ecalMultiFitUncalibRecHitCPU.algoPSet.timeOffsetTag = ':'
-process.ecalRecHit.cpu.timeCalibTag = ':'
-process.ecalRecHit.cpu.timeOffsetTag = ':'
+process.ecalMultiFitUncalibRecHit.algoPSet.timealgo = "RatioMethod"
+process.ecalMultiFitUncalibRecHit.algoPSet.outOfTimeThresholdGain12pEB = 5.
+process.ecalMultiFitUncalibRecHit.algoPSet.outOfTimeThresholdGain12mEB = 5.
+process.ecalMultiFitUncalibRecHit.algoPSet.outOfTimeThresholdGain61pEB = 5.
+process.ecalMultiFitUncalibRecHit.algoPSet.outOfTimeThresholdGain61mEB = 5.
+process.ecalMultiFitUncalibRecHit.algoPSet.timeCalibTag = ':'
+process.ecalMultiFitUncalibRecHit.algoPSet.timeOffsetTag = ':'
+process.ecalRecHit.timeCalibTag = ':'
+process.ecalRecHit.timeOffsetTag = ':'
 
 process.ecalPhysicsFilter = cms.EDFilter("EcalMonitorPrescaler",
     cosmics = cms.untracked.uint32(1),
@@ -193,12 +193,13 @@ elif (runTypeName == 'cosmic_run' or runTypeName == 'cosmic_run_stage1'):
     process.ecalMonitorTask.workerParameters.PresampleTask.params.doPulseMaxCheck = False 
 elif runTypeName == 'hi_run':
     process.ecalMonitorTask.collectionTags.Source = "rawDataRepacker"
-    process.ecalDigisCPU.InputLabel = 'rawDataRepacker'
+    process.ecalDigis.InputLabel = 'rawDataRepacker'
 elif runTypeName == 'hpu_run':
     if not unitTest:
         process.source.SelectEvents = cms.untracked.vstring("*")
 
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
-print("Final Source settings:", process.source)
 process = customise(process)
+print("Global Tag used:", process.GlobalTag.globaltag.value())
+print("Final Source settings:", process.source)

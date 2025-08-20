@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 
-from __future__ import print_function
 
 def manipulate_log(logfile_name,category_names,printBeginEvent,printMessageLabel,verbosityLevel):
 

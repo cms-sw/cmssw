@@ -11,7 +11,6 @@
 //
 
 // system include files
-#include <array>
 #include <cassert>
 
 // user include files
@@ -24,7 +23,9 @@
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/EventForTransformer.h"
+#include "FWCore/Framework/interface/ModuleConsumesMinimalESInfo.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
+#include "FWCore/ServiceRegistry/interface/ModuleConsumesInfo.h"
 
 //
 // constants, enums and typedefs
@@ -71,12 +72,12 @@ namespace edm {
 
     template <typename T>
     void ProducingModuleAdaptorBase<T>::registerProductsAndCallbacks(ProducingModuleAdaptorBase const*,
-                                                                     ProductRegistry* reg) {
+                                                                     SignallingProductRegistryFiller* reg) {
       auto firstMod = m_streamModules[0];
       if (firstMod->registrationCallback() and m_streamModules.size() > 1) {
         //we have a callback so we will collect all callbacks and create a new callback which calls them all.
 
-        std::vector<std::function<void(BranchDescription const&)>> callbacks;
+        std::vector<std::function<void(ProductDescription const&)>> callbacks;
         callbacks.reserve(m_streamModules.size());
 
         for (auto mod : m_streamModules) {
@@ -84,7 +85,7 @@ namespace edm {
         }
         //Since only the first module will actually do the registration
         // we will change its callback to call all the callbacks
-        firstMod->callWhenNewProductsRegistered([callbacks](BranchDescription const& iBD) {
+        firstMod->callWhenNewProductsRegistered([callbacks](ProductDescription const& iBD) {
           for (const auto& c : callbacks) {
             c(iBD);
           }
@@ -129,18 +130,6 @@ namespace edm {
     }
 
     template <typename T>
-    void ProducingModuleAdaptorBase<T>::modulesWhoseProductsAreConsumed(
-        std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modules,
-        std::vector<ModuleProcessName>& modulesInPreviousProcesses,
-        ProductRegistry const& preg,
-        std::map<std::string, ModuleDescription const*> const& labelsToDesc,
-        std::string const& processName) const {
-      assert(not m_streamModules.empty());
-      return m_streamModules[0]->modulesWhoseProductsAreConsumed(
-          modules, modulesInPreviousProcesses, preg, labelsToDesc, processName);
-    }
-
-    template <typename T>
     void ProducingModuleAdaptorBase<T>::convertCurrentProcessAlias(std::string const& processName) {
       for (auto mod : m_streamModules) {
         mod->convertCurrentProcessAlias(processName);
@@ -148,9 +137,15 @@ namespace edm {
     }
 
     template <typename T>
-    std::vector<edm::ConsumesInfo> ProducingModuleAdaptorBase<T>::consumesInfo() const {
+    std::vector<edm::ModuleConsumesInfo> ProducingModuleAdaptorBase<T>::moduleConsumesInfos() const {
       assert(not m_streamModules.empty());
-      return m_streamModules[0]->consumesInfo();
+      return m_streamModules[0]->moduleConsumesInfos();
+    }
+
+    template <typename T>
+    std::vector<edm::ModuleConsumesMinimalESInfo> ProducingModuleAdaptorBase<T>::moduleConsumesMinimalESInfos() const {
+      assert(not m_streamModules.empty());
+      return m_streamModules[0]->moduleConsumesMinimalESInfos();
     }
 
     template <typename T>
@@ -165,6 +160,13 @@ namespace edm {
     void ProducingModuleAdaptorBase<T>::updateLookup(eventsetup::ESRecordsToProductResolverIndices const& iPI) {
       for (auto mod : m_streamModules) {
         mod->updateLookup(iPI);
+      }
+    }
+
+    template <typename T>
+    void ProducingModuleAdaptorBase<T>::releaseMemoryPostLookupSignal() {
+      for (auto mod : m_streamModules) {
+        mod->releaseMemoryPostLookupSignal();
       }
     }
 
@@ -188,7 +190,7 @@ namespace edm {
       return 0;
     }
     template <typename T>
-    size_t ProducingModuleAdaptorBase<T>::transformIndex_(edm::BranchDescription const& iBranch) const noexcept {
+    size_t ProducingModuleAdaptorBase<T>::transformIndex_(edm::ProductDescription const& iBranch) const noexcept {
       return 0;
     }
     template <typename T>

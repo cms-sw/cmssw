@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import print_function
 
 import uproot
 import argparse
@@ -45,6 +44,7 @@ if 'Indices;1' in things:
     "TH2Fs",
     "TH2Ss",
     "TH2Ds",
+    "TH2Polys",
     "TH3Fs",
     "TProfiles",
     "TProfile2Ds",

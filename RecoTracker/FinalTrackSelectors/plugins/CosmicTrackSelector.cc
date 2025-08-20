@@ -8,24 +8,29 @@
  *
  */
 
-#include <utility>
-#include <vector>
-#include <memory>
 #include <algorithm>
 #include <map>
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include <memory>
+#include <utility>
+#include <vector>
 
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+
+#include <Math/DistFunc.h>
+#include "TMath.h"
 
 using namespace reco;
 
@@ -35,7 +40,9 @@ public:
   // constructor
   explicit CosmicTrackSelector(const edm::ParameterSet &cfg);
   // destructor
-  ~CosmicTrackSelector() override;
+  ~CosmicTrackSelector() override = default;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
   typedef math::XYZPoint Point;
@@ -92,16 +99,12 @@ private:
   std::vector<reco::TrackRef> trackRefs_;
 };
 
-#include <Math/DistFunc.h>
-#include "TMath.h"
-
 CosmicTrackSelector::CosmicTrackSelector(const edm::ParameterSet &cfg)
     : src_(consumes<reco::TrackCollection>(cfg.getParameter<edm::InputTag>("src"))),
       beamspot_(consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>("beamspot"))),
       copyExtras_(cfg.getUntrackedParameter<bool>("copyExtras", false)),
       copyTrajectories_(cfg.getUntrackedParameter<bool>("copyTrajectories", false)),
-      keepAllTracks_(cfg.exists("keepAllTracks") ? cfg.getParameter<bool>("keepAllTracks")
-                                                 : false),  // as this is what you expect from a well behaved selector
+      keepAllTracks_(cfg.getParameter<bool>("keepAllTracks")),
       setQualityBit_(false),
       qualityToSet_(TrackBase::undefQuality),
       chi2n_par_(cfg.getParameter<double>("chi2n_par")),
@@ -119,13 +122,12 @@ CosmicTrackSelector::CosmicTrackSelector(const edm::ParameterSet &cfg)
       min_layers_(cfg.getParameter<uint32_t>("minNumberLayers")),
       min_3Dlayers_(cfg.getParameter<uint32_t>("minNumber3DLayers")),
       max_lostLayers_(cfg.getParameter<uint32_t>("maxNumberLostLayers")) {
-  if (cfg.exists("qualityBit")) {
-    std::string qualityStr = cfg.getParameter<std::string>("qualityBit");
-    if (!qualityStr.empty()) {
-      setQualityBit_ = true;
-      qualityToSet_ = TrackBase::qualityByName(cfg.getParameter<std::string>("qualityBit"));
-    }
+  std::string qualityStr = cfg.getParameter<std::string>("qualityBit");
+  if (!qualityStr.empty()) {
+    setQualityBit_ = true;
+    qualityToSet_ = TrackBase::qualityByName(cfg.getParameter<std::string>("qualityBit"));
   }
+
   if (keepAllTracks_ && !setQualityBit_)
     throw cms::Exception("Configuration")
         << "If you set 'keepAllTracks' to true, you must specify which qualityBit to set.\n";
@@ -147,8 +149,6 @@ CosmicTrackSelector::CosmicTrackSelector(const edm::ParameterSet &cfg)
     produces<TrajTrackAssociationCollection>().setBranchAlias(alias + "TrajectoryTrackAssociations");
   }
 }
-
-CosmicTrackSelector::~CosmicTrackSelector() {}
 
 void CosmicTrackSelector::produce(edm::Event &evt, const edm::EventSetup &es) {
   using namespace std;
@@ -316,6 +316,29 @@ bool CosmicTrackSelector::select(const reco::BeamSpot &vertexBeamSpot, const rec
 
   else
     return true;
+}
+
+void CosmicTrackSelector::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("src", edm::InputTag("ctfWithMaterialTracksCosmics"));
+  desc.add<edm::InputTag>("beamspot", edm::InputTag("offlineBeamSpot"));
+  desc.addUntracked<bool>("copyExtras", true);
+  desc.addUntracked<bool>("copyTrajectories", false);
+  desc.add<bool>("keepAllTracks", false)
+      ->setComment("if set to true tracks failing this filter are kept in the output");
+  desc.add<double>("chi2n_par", 10.0)->setComment("parameters for adapted optimal cuts on chi2");
+  desc.add<double>("max_d0", 110.)->setComment("d0 impact parameter absolute cut");
+  desc.add<double>("max_z0", 300.)->setComment("z0 impact parameter absolute cut");
+  desc.add<double>("min_pt", 1.0);
+  desc.add<double>("max_eta", 2.0);
+  desc.add<uint32_t>("min_nHit", 5);
+  desc.add<uint32_t>("min_nPixelHit", 0);
+  desc.add<uint32_t>("minNumberLayers", 0);
+  desc.add<uint32_t>("minNumber3DLayers", 0);
+  desc.add<uint32_t>("maxNumberLostLayers", 999);
+  desc.add<std::string>("qualityBit", std::string(""))
+      ->setComment("set to '' or comment out if you don't want to set the bit");
+  descriptions.addWithDefaultLabel(desc);
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

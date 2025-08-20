@@ -19,7 +19,6 @@ Notes:
 		 
 	OUTPUT is always unique in a per row bases
 """
-from __future__ import print_function
 ################################################################################
 from builtins import range
 import sys, os.path

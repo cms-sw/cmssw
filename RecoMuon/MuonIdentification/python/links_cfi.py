@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
-globalMuonLinks = cms.EDProducer("MuonLinksProducer",
-    inputCollection = cms.InputTag("muons","","@skipCurrentProcess")
+
+from RecoMuon.MuonIdentification.muonLinksProducer_cfi import muonLinksProducer as _muonLinksProducer
+globalMuonLinks = _muonLinksProducer.clone(
+    inputCollection = ("muons","","@skipCurrentProcess")
 )
 

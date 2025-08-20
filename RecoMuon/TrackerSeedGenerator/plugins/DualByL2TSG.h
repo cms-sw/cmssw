@@ -9,7 +9,7 @@
  * \author Jean-Roch vlimant, Adam Everett
  */
 
-#include "RecoMuon/TrackerSeedGenerator/plugins/SeparatingTSG.h"
+#include "RecoMuon/TrackerSeedGenerator/interface/SeparatingTSG.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"

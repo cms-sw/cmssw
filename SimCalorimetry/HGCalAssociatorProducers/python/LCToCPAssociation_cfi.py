@@ -6,6 +6,12 @@ layerClusterCaloParticleAssociation = cms.EDProducer("LCToCPAssociatorEDProducer
     label_lc = cms.InputTag("hgcalMergeLayerClusters")
 )
 
+barrelLayerClusterCaloParticleAssociation = cms.EDProducer("LCToCPAssociatorEDProducer",
+    associator = cms.InputTag('barrelLCToCPAssociatorByEnergyScoreProducer'),
+    label_cp = cms.InputTag("mix","MergedCaloTruth"),
+    label_lc = cms.InputTag("hgcalMergeLayerClusters")
+)
+
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 premix_stage2.toModify(layerClusterCaloParticleAssociation,
     label_cp = "mixData:MergedCaloTruth"

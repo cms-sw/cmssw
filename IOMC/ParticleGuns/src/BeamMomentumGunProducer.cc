@@ -3,11 +3,11 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "CLHEP/Random/RandFlat.h"
 
@@ -47,7 +47,7 @@ namespace edm {
           << "Beam vertex offset (cm) " << xoff_ << ":" << yoff_ << " and z position " << zpos_;
 
     edm::FileInPath fp = pgun_params.getParameter<edm::FileInPath>("FileName");
-    std::string infileName = fp.fullPath();
+    const std::string& infileName = fp.fullPath();
 
     fFile_ = new TFile(infileName.c_str());
     fFile_->GetObject("EventTree", fTree_);

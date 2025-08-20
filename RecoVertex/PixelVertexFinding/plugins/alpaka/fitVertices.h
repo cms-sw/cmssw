@@ -75,19 +75,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
     alpaka::syncBlockThreads(acc);
     // reuse nn
     for (auto i : cms::alpakatools::uniform_elements(acc, foundClusters)) {
-      bool const wv_cond = (wv[i] > 0.f);
-      if (not wv_cond) {
-        printf("ERROR: wv[%d] (%f) > 0.f failed\n", i, wv[i]);
-        // printing info on tracks associated to this vertex
-        for (auto trk_i = 0u; trk_i < nt; ++trk_i) {
-          if (iv[trk_i] != int(i)) {
-            continue;
+      if constexpr (verbose) {
+        if (not(wv[i] > 0.f)) {
+          printf("ERROR: wv[%d] (%f) > 0.f failed\n", i, wv[i]);
+          // printing info on tracks associated to this vertex
+          for (auto trk_i = 0u; trk_i < nt; ++trk_i) {
+            if (iv[trk_i] != int(i)) {
+              continue;
+            }
+            printf("   iv[%d]=%d zt[%d]=%f ezt2[%d]=%f\n", trk_i, iv[trk_i], trk_i, zt[trk_i], trk_i, ezt2[trk_i]);
           }
-          printf("   iv[%d]=%d zt[%d]=%f ezt2[%d]=%f\n", trk_i, iv[trk_i], trk_i, zt[trk_i], trk_i, ezt2[trk_i]);
         }
-        ALPAKA_ASSERT_ACC(false);
       }
-
+      ALPAKA_ASSERT_ACC(wv[i] > 0.f);
       zv[i] /= wv[i];
       nn[i] = -1;  // ndof
     }

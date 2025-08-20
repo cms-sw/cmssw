@@ -23,8 +23,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     hostProductMulti2_ = portabletest::TestHostMultiCollection2{deviceProductMulti2.sizes(), iEvent.queue()};
     hostProductMulti3_ = portabletest::TestHostMultiCollection3{deviceProductMulti3.sizes(), iEvent.queue()};
 
-    alpaka::memcpy(iEvent.queue(), hostProduct_.buffer(), deviceProduct.const_buffer());
-    alpaka::memcpy(iEvent.queue(), hostProductMulti2_.buffer(), deviceProductMulti2.const_buffer());
-    alpaka::memcpy(iEvent.queue(), hostProductMulti3_.buffer(), deviceProductMulti3.const_buffer());
+    alpaka::memcpy(iEvent.queue(), hostProduct_->buffer(), deviceProduct.const_buffer());
+    alpaka::memcpy(iEvent.queue(), hostProductMulti2_->buffer(), deviceProductMulti2.const_buffer());
+    alpaka::memcpy(iEvent.queue(), hostProductMulti3_->buffer(), deviceProductMulti3.const_buffer());
   }
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

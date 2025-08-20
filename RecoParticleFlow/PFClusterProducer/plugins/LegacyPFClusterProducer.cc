@@ -30,7 +30,6 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitHostCollection.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterHostCollection.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFractionHostCollection.h"
-#include "HeterogeneousCore/CUDACore/interface/JobConfigurationGPURecord.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorBase.h"
 
 class LegacyPFClusterProducer : public edm::stream::EDProducer<> {

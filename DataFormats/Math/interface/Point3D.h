@@ -1,7 +1,8 @@
 #ifndef Math_Point3D_h
 #define Math_Point3D_h
-#include "Math/Point3D.h"
-#include "Math/GenVector/CoordinateSystemTags.h"
+
+#include <Math/Point3D.h>
+#include <Math/GenVector/CoordinateSystemTags.h>
 
 namespace math {
   /// point in space with cartesian internal representation

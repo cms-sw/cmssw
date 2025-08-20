@@ -1,4 +1,3 @@
-from __future__ import print_function
 #!/usr/bin/env cmsRun
 
 ## Original Author: Andrea Carlo Marini

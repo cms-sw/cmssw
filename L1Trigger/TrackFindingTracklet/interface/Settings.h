@@ -55,19 +55,8 @@ namespace trklet {
 
   class Settings {
   public:
-    Settings() {
-      //Comment out to run tracklet-only algorithm
-#ifdef CMSSW_GIT_HASH
-#ifndef CMS_DICT_IMPL  // Don't print message if genreflex being run.
-#ifndef USEHYBRID
-#pragma message "USEHYBRID is undefined, so Hybrid L1 tracking disabled."
-#endif
-#endif
-#endif
-    }
-
+    Settings() {};
     ~Settings() = default;
-
     void passSetup(const tt::Setup* setup) { setup_ = setup; }
     const tt::Setup* setup() const { return setup_; }
 
@@ -158,6 +147,7 @@ namespace trklet {
     }
 
     unsigned int teunits(unsigned int iSeed) const { return teunits_[iSeed]; }
+    unsigned int trpunits(unsigned int iSeed) const { return trpunits_[iSeed]; }
 
     unsigned int NTC(int seed) const { return ntc_[seed]; }
 
@@ -666,7 +656,8 @@ namespace trklet {
     int chisqphifactbits_{14};
     int chisqzfactbits_{14};
 
-    std::array<unsigned int, N_SEED> teunits_{{5, 2, 5, 3, 3, 2, 3, 2, 0, 0, 0, 0}};  //teunits used by seed
+    std::array<unsigned int, N_SEED> teunits_{{5, 2, 5, 3, 3, 2, 3, 2, 0, 0, 0, 0}};       //teunits used by seed
+    std::array<unsigned int, N_SEED> trpunits_{{0, 0, 0, 0, 0, 0, 0, 0, 10, 10, 10, 10}};  //trpunits used by seed
 
     std::array<unsigned int, N_LAYER + N_DISK> vmrlutzbits_{
         {7, 7, 7, 7, 7, 7, 3, 3, 3, 3, 3}};  // zbits used by LUT in VMR

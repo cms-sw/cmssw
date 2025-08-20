@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <array>
+#include <memory>
 
 #include "GroupedCkfTrajectoryBuilder.h"
 #include "TrajectorySegmentBuilder.h"
@@ -230,7 +231,7 @@ void GroupedCkfTrajectoryBuilder::rebuildTrajectories(const TrajectorySeed& seed
   // better the seed to be always the same...
   std::shared_ptr<const TrajectorySeed> sharedSeed;
   if (result.empty())
-    sharedSeed.reset(new TrajectorySeed(seed));
+    sharedSeed = std::make_shared<TrajectorySeed>(seed);
   else
     sharedSeed = result.front().sharedSeed();
 

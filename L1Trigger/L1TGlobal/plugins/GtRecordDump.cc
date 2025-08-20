@@ -287,28 +287,24 @@ namespace l1t {
             // Combination
             const std::vector<GlobalLogicParser::OperandToken>& opTokenVecObjMap = oMap.operandTokenVector();
             const std::vector<L1TObjectTypeInCond>& condObjTypeVec = oMap.objectTypeVector();
-            //		   const std::vector<CombinationsInCond>& condCombinations = oMapcombinationVector();
 
             for (size_t iCond = 0; iCond < opTokenVecObjMap.size(); iCond++) {
-              std::cout << "       " << iCond << ") Condition Token: " << opTokenVecObjMap.at(iCond).tokenName
+              std::cout << "       " << iCond << ") Condition Token: " << opTokenVecObjMap[iCond].tokenName
                         << "  Types: ";
-              std::vector<l1t::GlobalObject> condObjType = condObjTypeVec[iCond];
+              auto const& condObjType = condObjTypeVec[iCond];
               for (size_t iCondType = 0; iCondType < condObjType.size(); iCondType++) {
                 std::cout << condObjType.at(iCondType) << "  ";
               }
               std::cout << std::endl;
 
-              const CombinationsInCond* condComb = oMap.getCombinationsInCond(iCond);
+              const CombinationsWithBxInCond* condComb = oMap.getCombinationsInCond(iCond);
               std::cout << "            Combinations in Condition [" << condComb->size() << "] : ";
-              for (std::vector<SingleCombInCond>::const_iterator itComb = (*condComb).begin();
-                   itComb != (*condComb).end();
-                   itComb++) {
+              for (auto const& itComb : *condComb) {
                 // loop over objects in a combination for a given condition
                 //
                 unsigned int iType = 0;
                 std::cout << "(";
-                for (SingleCombInCond::const_iterator itObject = (*itComb).begin(); itObject != (*itComb).end();
-                     itObject++) {
+                for (auto const& [bxIdx, objIdx] : itComb) {
                   // loop over types for the object in a combination.  This object might have more then one type (i.e. mu-eg)
                   //
 
@@ -318,12 +314,12 @@ namespace l1t {
                   //
                   //const l1t::GlobalObject objTypeVal = condObjType.at(iType);
 
-                  std::cout << (*itObject);
-                  //std::cout <<objTypeVal << "@" << (*itObject);
+                  std::cout << bxIdx << ":" << objIdx;
+                  //std::cout <<objTypeVal << "@" << bxIdx << ":" << objIdx;
                   if (iType < condObjType.size() - 1)
                     std::cout << ",";
                   //std::cout
-                  //<< "\tAdd object of type " << objTypeVal << " and index " << (*itObject) << " to the seed list."
+                  //<< "\tAdd object of type " << objTypeVal << " and bx:index " << bxIdx << ":" << objIdx << " to the seed list."
                   //<< std::endl;
 
                   //		             } // end loop over objs in combination

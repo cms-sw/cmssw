@@ -1,9 +1,9 @@
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include "FWCore/AbstractServices/interface/ResourceInformation.h"
+#include "FWCore/AbstractServices/interface/TimingServiceBase.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/ResourceInformation.h"
-#include "FWCore/Utilities/interface/TimingServiceBase.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -59,7 +59,7 @@ namespace edm {
       void eventPost(StreamContext const &iContext);
       void lumiPost(GlobalContext const &);
       void runPost(GlobalContext const &);
-      void beginPre(PathsAndConsumesOfModulesBase const &, ProcessContext const &processContext);
+      void beginPre(ProcessContext const &processContext);
       void beginPost();
       void endPost();
       void filePost(std::string const &);
@@ -83,7 +83,6 @@ namespace edm {
 
       std::uint_least64_t m_lastEventCount = 0;
     };
-    inline bool isProcessWideService(CondorStatusService const *) { return true; }
 
   }  // namespace service
 
@@ -150,7 +149,7 @@ void CondorStatusService::filePost(std::string const & /*lfn*/) {
   update();
 }
 
-void CondorStatusService::beginPre(PathsAndConsumesOfModulesBase const &, ProcessContext const &processContext) {
+void CondorStatusService::beginPre(ProcessContext const &processContext) {
   secondUpdate();
   if (!m_processParameterSetID.isValid()) {
     m_processParameterSetID = processContext.parameterSetID();

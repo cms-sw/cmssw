@@ -25,7 +25,7 @@
 #include "Geometry/Records/interface/MTDTopologyRcd.h"
 #include "Geometry/CommonTopologies/interface/Topology.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
-#include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
+#include "Geometry/MTDGeometryBuilder/interface/MTDTopology.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"

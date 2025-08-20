@@ -43,11 +43,10 @@
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 #include "Geometry/HGCalCommonData/interface/HGCalCellUV.h"
 #include "Geometry/HGCalCommonData/interface/HGCalCell.h"
+#include "Geometry/HGCalCommonData/interface/HGCGuardRing.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferMask.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
 #include "SimG4CMS/Calo/interface/HGCMouseBite.h"
-#include "SimG4CMS/Calo/interface/HGCGuardRing.h"
-#include "SimG4CMS/Calo/interface/HGCGuardRingPartial.h"
 #include "G4ThreeVector.hh"
 
 class HGCalMouseBiteTester : public edm::one::EDAnalyzer<> {
@@ -111,11 +110,10 @@ void HGCalMouseBiteTester::analyze(const edm::Event& iEvent, const edm::EventSet
   int orient = HGCalWaferType::getOrient(index, hgcons_.getParameter()->waferInfoMap_);
   int placeIndex_ = HGCalCell::cellPlacementIndex(zside, frontBack, orient);
   int waferType_ = HGCalWaferType::getType(index, hgcons_.getParameter()->waferInfoMap_);
-  double mouseBiteCut_ = waferSize_ * tan(30.0 * CLHEP::deg) - 5.0;
+  double mouseBiteCut_ = hgcons_.mouseBite(false);
   bool v17OrLess = hgcons_.v17OrLess();
   HGCGuardRing guardRing_(hgcons_);
-  HGCGuardRingPartial guardRingPartial_(hgcons_);
-  HGCMouseBite mouseBite_(hgcons_, angle_, mouseBiteCut_, true);
+  HGCMouseBite mouseBite_(hgcons_, angle_, (waferSize_ * tan(30.0 * CLHEP::deg) - mouseBiteCut_), true);
   const int nFine(12), nCoarse(8);
   double r2 = 0.5 * waferSize_;
   double R2 = 2 * r2 / sqrt(3);
@@ -127,7 +125,7 @@ void HGCalMouseBiteTester::analyze(const edm::Event& iEvent, const edm::EventSet
   double x0 = (zside > 0) ? xy.first : -xy.first;
   double y0 = xy.second;
   std::ofstream guard_ring("Guard_ring.csv");
-  std::ofstream guard_ring_partial("Guard_ring_partial.csv");
+  //  std::ofstream guard_ring_partial("Guard_ring_partial.csv");
   std::ofstream mouse_bite("Mouse_bite.csv");
   std::ofstream selected("Selected.csv");
   edm::LogVerbatim("HGCalGeom") << "\nHGCalMouseBiteTester:: nCells " << nCells << " FrontBack " << frontBack
@@ -177,8 +175,9 @@ void HGCalMouseBiteTester::analyze(const edm::Event& iEvent, const edm::EventSet
         guard_ring << xi << "," << yi << std::endl;
       }
 
-      if (guardRingPartial_.exclude(point, zside, frontBack, layer_, waferU_, waferV_)) {
-        guard_ring_partial << xi << "," << yi << std::endl;
+      if (guardRing_.excludePartial(point, zside, frontBack, layer_, waferU_, waferV_)) {
+        guard_ring << xi << "," << yi << std::endl;
+        //      guard_ring_partial << xi << "," << yi << std::endl;
       } else if (mouseBite_.exclude(point, zside, layer_, waferU_, waferV_)) {
         mouse_bite << xi << "," << yi << std::endl;
       } else {
@@ -188,7 +187,6 @@ void HGCalMouseBiteTester::analyze(const edm::Event& iEvent, const edm::EventSet
     }
   }
   guard_ring.close();
-  guard_ring_partial.close();
   mouse_bite.close();
   selected.close();
   outputFile.close();

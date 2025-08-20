@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 import os
@@ -73,7 +72,7 @@ process.FastMonitoringService = cms.Service("FastMonitoringService",
 )
 
 process.EvFDaqDirector = cms.Service("EvFDaqDirector",
-    useFileBroker = cms.untracked.bool(False),
+    useFileBroker = cms.untracked.bool(True),
     fileBrokerHostFromCfg = cms.untracked.bool(True),
     fileBrokerHost = cms.untracked.string("htcp40.cern.ch"),
     runNumber = cms.untracked.uint32(options.runNumber),
@@ -89,6 +88,7 @@ except Exception as ex:
   pass
 
 process.source = cms.Source("FedRawDataInputSource",
+    fileDiscoveryMode = cms.untracked.bool(True),
     getLSFromFilename = cms.untracked.bool(True),
     verifyChecksum = cms.untracked.bool(True),
     useL1EventID = cms.untracked.bool(False),

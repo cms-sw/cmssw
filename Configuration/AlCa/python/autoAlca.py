@@ -4,6 +4,7 @@ AlCaRecoMatrix = {
                   # These two (AlCaPhiSym, AlCaP0) cannot run on RAW, they are just meant to run on the dedicated AlcaRAW so they do not enter the allForPrompt list
                   "AlCaPhiSym"                  : "",
                   "AlCaP0"                      : "",
+                  "AlCaHcalIsoTrk"              : "HcalCalIsoTrkFromAlCaRaw",
                   "AlCaPPSExpress"              : "PPSCalMaxTracks", # Express producer
                   "AlCaPPSPrompt"               : "PPSCalMaxTracks", # Prompt  producer
                   "Commissioning"               : "HcalCalIsoTrk+TkAlMinBias+SiStripCalMinBias+HcalCalIsolatedBunchSelector",
@@ -16,6 +17,7 @@ AlCaRecoMatrix = {
                   "ExpressCosmics"              : "SiStripPCLHistos+SiStripCalZeroBias+TkAlCosmics0T+SiPixelCalZeroBias+SiPixelCalCosmics+SiStripCalCosmics",
                   "HcalNZS"                     : "HcalCalMinBias",
                   "HLTPhysics"                  : "TkAlMinBias+TkAlV0s",
+                  "HLTMonitor"                  : "TkAlHLTTracks+TkAlHLTTracksZMuMu",
                   "JetHT"                       : "HcalCalIsoTrkProducerFilter+TkAlJetHT",
                   "JetMET"                      : "HcalCalIsoTrkProducerFilter+TkAlJetHT+HcalCalNoise",
                   "MinimumBias"                 : "SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias",
@@ -63,6 +65,7 @@ AlCaNoConcurrentLumis = [
     'PromptCalibProdSiPixelAli',       # AlignmentProducerAsAnalyzer, MillePedeFileConverter
     'PromptCalibProdSiPixelAliHG',     # AlignmentProducerAsAnalyzer, MillePedeFileConverter
     'PromptCalibProdSiPixelAliHGComb', # AlignmentProducerAsAnalyzer, MillePedeFileConverter
+    'PromptCalibProdSiPixelAliHLTHGC', # AlignmentProducerAsAnalyzer, MillePedeFileConverter
     'PromptCalibProdBeamSpotHP',       # AlcaBeamSpotProducer
     'PromptCalibProdBeamSpotHPLowPU',  # AlcaBeamSpotProducer
 ]

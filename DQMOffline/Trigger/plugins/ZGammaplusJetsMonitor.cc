@@ -322,7 +322,7 @@ void ZGammaplusJetsMonitor::analyze(edm::Event const& iEvent, edm::EventSetup co
   if (!aodTriggerEvent.isValid())
     return;
 
-  edm::TriggerNames triggerNames_ = iEvent.triggerNames(*triggerResults);  // all trigger names available
+  const edm::TriggerNames& triggerNames_ = iEvent.triggerNames(*triggerResults);  // all trigger names available
 
   bool passTrig = false;
 

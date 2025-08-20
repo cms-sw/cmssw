@@ -9,8 +9,6 @@
 #include <CLHEP/Random/RandFlat.h>
 #include <CLHEP/Units/SystemOfUnits.h>
 #include <CLHEP/Units/GlobalPhysicalConstants.h>
-//#include "CLHEP/Vector/ThreeVector.h"
-#include "HepMC/SimpleVector.h"
 
 using CLHEP::cm;
 using CLHEP::ns;
@@ -48,8 +46,7 @@ FlatEvtVtxGenerator::FlatEvtVtxGenerator(const edm::ParameterSet& p) : BaseEvtVt
 
 FlatEvtVtxGenerator::~FlatEvtVtxGenerator() {}
 
-//Hep3Vector * FlatEvtVtxGenerator::newVertex() {
-HepMC::FourVector FlatEvtVtxGenerator::newVertex(CLHEP::HepRandomEngine* engine) const {
+ROOT::Math::XYZTVector FlatEvtVtxGenerator::vertexShift(CLHEP::HepRandomEngine* engine) const {
   double aX, aY, aZ, aT;
   aX = CLHEP::RandFlat::shoot(engine, fMinX, fMaxX);
   aY = CLHEP::RandFlat::shoot(engine, fMinY, fMaxY);
@@ -59,7 +56,7 @@ HepMC::FourVector FlatEvtVtxGenerator::newVertex(CLHEP::HepRandomEngine* engine)
   edm::LogVerbatim("FlatEvtVtx") << "FlatEvtVtxGenerator Vertex at [" << aX << ", " << aY << ", " << aZ << ", " << aT
                                  << "]";
 
-  return HepMC::FourVector(aX, aY, aZ, aT);
+  return ROOT::Math::XYZTVector(aX, aY, aZ, aT);
 }
 
 void FlatEvtVtxGenerator::minX(double min) { fMinX = min; }

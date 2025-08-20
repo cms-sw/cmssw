@@ -1,8 +1,6 @@
 """
 An API and a CLI for quickly building complex figures.
 """
-from __future__ import absolute_import
-from __future__ import print_function
 
 from builtins import range
 __license__ = '''\

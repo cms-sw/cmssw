@@ -15,17 +15,15 @@
 
 MuonTagger::Tokens::Tokens(const edm::ParameterSet& cfg, edm::ESConsumesCollector&& cc) {
   if (cfg.getParameter<bool>("useCondDB")) {
-    gbrForest_ = cc.consumes(edm::ESInputTag{
-        "", cfg.existsAs<std::string>("gbrForestLabel") ? cfg.getParameter<std::string>("gbrForestLabel") : ""});
+    gbrForest_ = cc.consumes(edm::ESInputTag{"", cfg.getParameter<std::string>("gbrForestLabel")});
   }
 }
 
 MuonTagger::MuonTagger(const edm::ParameterSet& cfg, Tokens tokens)
     : m_selector(cfg),
-      m_weightFile(cfg.existsAs<edm::FileInPath>("weightFile") ? cfg.getParameter<edm::FileInPath>("weightFile")
-                                                               : edm::FileInPath()),
-      m_useGBRForest(cfg.existsAs<bool>("useGBRForest") ? cfg.getParameter<bool>("useGBRForest") : false),
-      m_useAdaBoost(cfg.existsAs<bool>("useAdaBoost") ? cfg.getParameter<bool>("useAdaBoost") : false),
+      m_weightFile(cfg.getParameter<edm::FileInPath>("weightFile")),
+      m_useGBRForest(cfg.getParameter<bool>("useGBRForest")),
+      m_useAdaBoost(cfg.getParameter<bool>("useAdaBoost")),
       m_tokens{tokens} {
   uses("smTagInfos");
   mvaID = std::make_unique<TMVAEvaluator>();
@@ -85,4 +83,13 @@ float MuonTagger::discriminator(const TagInfoHelper& tagInfo) const {
   }
 
   return bestTag;
+}
+
+void MuonTagger::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  btag::LeptonSelector::fillPSetDescription(desc);
+  desc.add<bool>("useCondDB", false);
+  desc.add<std::string>("gbrForestLabel", "");
+  desc.add<edm::FileInPath>("weightFile", edm::FileInPath());
+  desc.add<bool>("useGBRForest", false);
+  desc.add<bool>("useAdaBoost", false);
 }

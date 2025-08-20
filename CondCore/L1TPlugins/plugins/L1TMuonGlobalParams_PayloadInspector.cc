@@ -72,7 +72,7 @@ namespace {
         leg.SetLineColor(0);
         leg.SetFillColor(0);
 
-        input1.SetStats(0);
+        input1.SetStats(false);
         input1.SetMaximum(5);
         input1.SetXTitle("InputBits");
         input1.SetYTitle("Bit value");

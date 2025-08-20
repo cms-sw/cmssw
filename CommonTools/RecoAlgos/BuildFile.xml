@@ -1,6 +1,7 @@
 <use name="SimGeneral/HepPDTRecord"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
+<use name="DataFormats/Math"/>
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/MuonReco"/>
 <use name="DataFormats/TrackingRecHit"/>

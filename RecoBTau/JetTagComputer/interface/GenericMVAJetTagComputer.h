@@ -3,13 +3,15 @@
 
 #include <memory>
 
-#include "FWCore/Framework/interface/ESConsumesCollector.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/DataRecord/interface/BTauGenericMVAJetTagComputerRcd.h"
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
-#include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
+#include "FWCore/Framework/interface/ESConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "RecoBTau/JetTagComputer/interface/GenericMVAComputerCache.h"
+#include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 #include "RecoBTau/JetTagComputer/interface/TagInfoMVACategorySelector.h"
 
 class JetTagComputerRecord;
@@ -30,6 +32,8 @@ public:
 
   virtual reco::TaggingVariableList taggingVariables(const reco::BaseTagInfo &tagInfo) const;
   virtual reco::TaggingVariableList taggingVariables(const TagInfoHelper &info) const;
+
+  static void fillPSetDescription(edm::ParameterSetDescription &desc);
 
 private:
   std::unique_ptr<TagInfoMVACategorySelector> categorySelector_;

@@ -9,7 +9,7 @@
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCDigitizerPluginFactory.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -119,7 +119,7 @@ namespace {
                                        const float minCharge,
                                        const float maxCharge,
                                        bool setIfZero,
-                                       const std::array<float, 3>& tdcForToAOnset,
+                                       const std::vector<float>& tdcForToAOnset,
                                        const bool minbiasFlag,
                                        std::unordered_map<uint32_t, bool>& hitOrder_monitor,
                                        const unsigned int thisBx) {
@@ -196,6 +196,7 @@ namespace {
         auto simIt = simData.emplace(detectorId, HGCCellInfo()).first;
         const bool orderChanged = hitOrder_monitor[detectorId];
         int waferThickness = getCellThickness(geom, detectorId);
+        assert(waferThickness - 1 < static_cast<int>(tdcForToAOnset.size()));
         float cell_threshold = tdcForToAOnset[waferThickness - 1];
         const auto& hitRec = hitmapIterator.second;
         float fireTDC(0.f);
@@ -496,6 +497,7 @@ void HGCDigitizer::accumulate_forPreMix(edm::Handle<edm::PCaloHitContainer> cons
         //cumulate the charge of new entry for all elements that follow in the sorted list
         //and resize list accounting for cases when the inserted element itself crosses the threshold
 
+        assert(waferThickness - 1 < static_cast<int>(tdcForToAOnset.size()));
         for (auto step = insertedPos; step != PhitRefs_bx0[id].end(); ++step) {
           if (step != insertedPos)
             std::get<1>(*(step)) += charge;
@@ -610,6 +612,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const& hits,
     //for time-of-arrival: save the time-sorted list of timestamps with cumulative charge just above threshold
     //working version with pileup only for in-time hits
     int waferThickness = getCellThickness(geom, id);
+    assert(waferThickness - 1 < static_cast<int>(tdcForToAOnset.size()));
     bool orderChanged = false;
     if (itime == (int)thisBx_) {
       //if start empty => just add charge and time

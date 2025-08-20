@@ -1,4 +1,4 @@
-#include "RecoMuon/MuonSeedGenerator/src/MuonSeedSimpleCleaner.h"
+#include "RecoMuon/MuonSeedGenerator/interface/MuonSeedSimpleCleaner.h"
 
 void MuonSeedSimpleCleaner::clean(TrajectorySeedCollection& seeds) {
   for (std::vector<TrajectorySeed>::iterator seed = seeds.begin(); seed != seeds.end(); ++seed) {

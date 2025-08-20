@@ -9,6 +9,7 @@ plots_*/
 scripts/moduleconnection*.txt
 *.root
 .make.log*
+performance*
 bin/doAnalysis
 bin/lst
 bin/lst_cuda

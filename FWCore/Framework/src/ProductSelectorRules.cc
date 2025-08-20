@@ -5,7 +5,7 @@
 
 #include "boost/algorithm/string.hpp"
 
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "FWCore/Framework/interface/ProductSelectorRules.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -14,7 +14,7 @@
 namespace edm {
   // The following typedef is used only in this implementation file, in
   // order to shorten several lines of code.
-  typedef std::vector<edm::BranchDescription const*> VCBDP;
+  typedef std::vector<edm::ProductDescription const*> VCBDP;
 
   namespace {
 
@@ -28,7 +28,7 @@ namespace edm {
 
   //--------------------------------------------------
   // Class Rule is used to determine whether or not a given branch
-  // (really a ProductResolver, as described by the BranchDescription object
+  // (really a ProductResolver, as described by the ProductDescription object
   // that specifies that ProductResolver) matches a 'rule' specified by the
   // configuration. Each Rule is configured with a single std::string from
   // the configuration file.
@@ -170,8 +170,19 @@ namespace edm {
       it->applyToAll(branchstates);
   }
 
+  bool ProductSelectorRules::select(edm::ProductDescription const& bd) const {
+    bool selected = false;
+    for (auto const& rule : rules_) {
+      rule.applyToOne(&bd, selected);
+      if (selected) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   //   bool
-  //   Rule::applyToOne(edm::BranchDescription const* branch) const
+  //   Rule::applyToOne(edm::ProductDescription const* branch) const
   //   {
   //     bool match =
   //       partial_match(productType_, branch->friendlyClassName()) &&
@@ -182,12 +193,12 @@ namespace edm {
   //     return match ? selectflag_ : !selectflag_;
   //   }
 
-  void ProductSelectorRules::Rule::applyToOne(edm::BranchDescription const* branch, bool& result) const {
+  void ProductSelectorRules::Rule::applyToOne(edm::ProductDescription const* branch, bool& result) const {
     if (this->appliesTo(branch))
       result = selectflag_;
   }
 
-  bool ProductSelectorRules::Rule::appliesTo(edm::BranchDescription const* branch) const {
+  bool ProductSelectorRules::Rule::appliesTo(edm::ProductDescription const* branch) const {
     return partial_match(productType_, branch->friendlyClassName()) &&
            partial_match(moduleLabel_, branch->moduleLabel()) &&
            partial_match(instanceName_, branch->productInstanceName()) &&

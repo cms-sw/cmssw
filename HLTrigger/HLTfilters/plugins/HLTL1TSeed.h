@@ -1,5 +1,5 @@
-#ifndef HLTfilters_HLTL1TSeed_h
-#define HLTfilters_HLTL1TSeed_h
+#ifndef HLTrigger_HLTfilters_HLTL1TSeed_h
+#define HLTrigger_HLTfilters_HLTL1TSeed_h
 
 /**
  * \class HLTL1TSeed
@@ -49,7 +49,7 @@ public:
   explicit HLTL1TSeed(const edm::ParameterSet&);
 
   /// destructor
-  ~HLTL1TSeed() override;
+  ~HLTL1TSeed() override = default;
 
   /// parameter description
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);

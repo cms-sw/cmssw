@@ -5,7 +5,7 @@
  */
 
 #include "RecoMuon/MuonSeedGenerator/plugins/MuonSeedProducer.h"
-#include "RecoMuon/MuonSeedGenerator/src/MuonSeedBuilder.h"
+#include "RecoMuon/MuonSeedGenerator/interface/MuonSeedBuilder.h"
 
 // Data Formats
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -72,3 +72,6 @@ void MuonSeedProducer::produce(edm::Event& event, const edm::EventSetup& eSetup)
   // Append muon seed collection to event
   event.put(std::move(output));
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(MuonSeedProducer);

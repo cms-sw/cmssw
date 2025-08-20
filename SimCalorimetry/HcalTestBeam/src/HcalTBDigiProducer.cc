@@ -1,10 +1,10 @@
 #include <memory>
 
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "SimCalorimetry/HcalTestBeam/interface/HcalTBDigiProducer.h"
 

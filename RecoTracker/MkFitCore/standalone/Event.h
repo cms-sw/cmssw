@@ -31,8 +31,6 @@ namespace mkfit {
 
     void setInputFromCMSSW(std::vector<HitVec> hits, TrackVec seeds);
 
-    void kludge_cms_hit_errors();
-
     int use_seeds_from_cmsswtracks();  //special mode --> use only seeds which generated cmssw reco track
     int clean_cms_simtracks();
     int clean_cms_seedtracks(

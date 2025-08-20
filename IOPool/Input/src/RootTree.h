@@ -7,7 +7,7 @@ RootTree.h // used by ROOT input sources
 
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -31,7 +31,7 @@ class TTree;
 class TTreeCache;
 
 namespace edm {
-  class RootDelayedReader;
+  class RootDelayedReaderBase;
   class InputFile;
 
   namespace roottree {
@@ -41,13 +41,17 @@ namespace edm {
     unsigned int const defaultNonEventLearningEntries = 1U;
     using EntryNumber = IndexIntoFile::EntryNumber_t;
     struct BranchInfo {
-      BranchInfo(BranchDescription const& prod)
-          : branchDescription_(prod), productBranch_(nullptr), classCache_(nullptr), offsetToWrapperBase_(0) {}
-      BranchDescription const branchDescription_;
+      BranchInfo(ProductDescription const& prod)
+          : productDescription_(prod), productBranch_(nullptr), classCache_(nullptr), offsetToWrapperBase_(0) {}
+      ProductDescription const productDescription_;
+      void setBranch(TBranch* branch, TClass const* wrapperBaseTClass);
+      std::unique_ptr<WrapperBase> newWrapper() const;
       TBranch* productBranch_;
+
+    private:
       //All access to a ROOT file is serialized
-      CMS_SA_ALLOW mutable TClass* classCache_;
-      CMS_SA_ALLOW mutable Int_t offsetToWrapperBase_;
+      TClass* classCache_;
+      Int_t offsetToWrapperBase_;
     };
 
     class BranchMap {
@@ -56,13 +60,19 @@ namespace edm {
 
       void reserve(Map::size_type iSize) { map_.reserve(iSize); }
       void insert(edm::BranchID const& iKey, BranchInfo const& iInfo) { map_.emplace(iKey.id(), iInfo); }
-      BranchInfo const* find(BranchID const& iKey) const {
-        auto itFound = map_.find(iKey.id());
+      BranchInfo const* find(BranchID const& iKey) const { return find(iKey.id()); }
+      BranchInfo const* find(unsigned int iKey) const {
+        auto itFound = map_.find(iKey);
         if (itFound == map_.end()) {
           return nullptr;
         }
         return &itFound->second;
       }
+
+      using const_iterator = Map::const_iterator;
+      const_iterator begin() const { return map_.cbegin(); }
+      const_iterator end() const { return map_.cend(); }
+      Map::size_type size() const { return map_.size(); }
 
     private:
       Map map_;
@@ -80,31 +90,30 @@ namespace edm {
   public:
     using BranchMap = roottree::BranchMap;
     using EntryNumber = roottree::EntryNumber;
+    struct Options {
+      unsigned int treeCacheSize = 0U;
+      int treeMaxVirtualSize;
+      bool enablePrefetching;
+      bool promptReading = false;
+
+      Options usingDefaultNonEventOptions() const {
+        return {roottree::defaultNonEventCacheSize, treeMaxVirtualSize, enablePrefetching, false};
+      }
+    };
 
     RootTree(std::shared_ptr<InputFile> filePtr,
              BranchType const& branchType,
              unsigned int nIndexes,
+             Options const& options,
              unsigned int learningEntries,
-             bool enablePrefetching,
-             InputType inputType);
-
-    RootTree(std::shared_ptr<InputFile> filePtr,
-             BranchType const& branchType,
-             unsigned int nIndexes,
-             unsigned int maxVirtualSize,
-             unsigned int cacheSize,
-             unsigned int learningEntries,
-             bool enablePrefetching,
              InputType inputType);
 
     RootTree(std::shared_ptr<InputFile> filePtr,
              BranchType const& branchType,
              std::string const& processName,
              unsigned int nIndexes,
-             unsigned int maxVirtualSize,
-             unsigned int cacheSize,
+             Options const& options,
              unsigned int learningEntries,
-             bool enablePrefetching,
              InputType inputType);
 
     void init(std::string const& productTreeName, unsigned int maxVirtualSize, unsigned int cacheSize);
@@ -116,10 +125,11 @@ namespace edm {
 
     bool isValid() const;
     void numberOfBranchesToAdd(BranchMap::Map::size_type iSize) { branches_.reserve(iSize); }
-    void addBranch(BranchDescription const& prod, std::string const& oldBranchName);
+    void addBranch(ProductDescription const& prod, std::string const& oldBranchName);
     void dropBranch(std::string const& oldBranchName);
     void getEntry(TBranch* branch, EntryNumber entry) const;
-    void setPresence(BranchDescription& prod, std::string const& oldBranchName);
+    void getEntryForAllBranches() const;
+    void setPresence(ProductDescription& prod, std::string const& oldBranchName);
 
     bool next() { return ++entryNumber_ < entries_; }
     bool nextWithCache();
@@ -135,18 +145,21 @@ namespace edm {
     void setEntryNumber(EntryNumber theEntryNumber);
     void insertEntryForIndex(unsigned int index);
     std::vector<std::string> const& branchNames() const { return branchNames_; }
-    DelayedReader* rootDelayedReader() const;
+    RootDelayedReaderBase* rootDelayedReader() const;
     DelayedReader* resetAndGetRootDelayedReader() const;
     template <typename T>
     void fillAux(T*& pAux) {
       auxBranch_->SetAddress(&pAux);
-      getEntry(auxBranch_, entryNumber_);
+      auto cache = getAuxCache(auxBranch_);
+      getEntryUsingCache(auxBranch_, entryNumber_, cache);
+      auxBranch_->SetAddress(nullptr);
     }
 
     template <typename T>
     void fillBranchEntry(TBranch* branch, T*& pbuf) {
       branch->SetAddress(&pbuf);
       getEntry(branch, entryNumber_);
+      branch->SetAddress(nullptr);
     }
 
     template <typename T>
@@ -189,10 +202,21 @@ namespace edm {
         signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* postEventReadSource);
 
   private:
+    RootTree(std::shared_ptr<InputFile> filePtr,
+             BranchType const& branchType,
+             unsigned int nIndexes,
+             unsigned int learningEntries,
+             bool enablePrefetching,
+             bool promptRead,
+             InputType inputType);
+
+    std::shared_ptr<TTreeCache> createCacheWithSize(unsigned int cacheSize) const;
     void setCacheSize(unsigned int cacheSize);
     void setTreeMaxVirtualSize(int treeMaxVirtualSize);
     void startTraining();
     void stopTraining();
+    void getEntryUsingCache(TBranch* branch, EntryNumber entry, TTreeCache*) const;
+    TTreeCache* getAuxCache(TBranch* auxBranch) const;
 
     std::shared_ptr<InputFile> filePtr_;
     // We use bare pointers for pointers to some ROOT entities.
@@ -208,6 +232,7 @@ namespace edm {
     // So, we make sure to it is detached before closing the TFile so there is no double delete.
     std::shared_ptr<TTreeCache> treeCache_;
     std::shared_ptr<TTreeCache> rawTreeCache_;
+    CMS_SA_ALLOW mutable std::shared_ptr<TTreeCache> auxCache_;
     //All access to a ROOT file is serialized
     CMS_SA_ALLOW mutable std::shared_ptr<TTreeCache> triggerTreeCache_;
     CMS_SA_ALLOW mutable std::shared_ptr<TTreeCache> rawTriggerTreeCache_;
@@ -229,7 +254,8 @@ namespace edm {
     // effect on the primary treeCache_; all other caches have this explicitly disabled.
     bool enablePrefetching_;
     bool enableTriggerCache_;
-    std::unique_ptr<RootDelayedReader> rootDelayedReader_;
+    bool promptRead_;
+    std::unique_ptr<RootDelayedReaderBase> rootDelayedReader_;
 
     TBranch* branchEntryInfoBranch_ = nullptr;  //backwards compatibility
     // below for backward compatibility

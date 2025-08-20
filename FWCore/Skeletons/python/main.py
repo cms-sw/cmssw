@@ -6,7 +6,6 @@ File       : Skeleton.py
 Author     : Valentin Kuznetsov <vkuznet@gmail.com>
 Description:
 """
-from __future__ import print_function
 
 # system modules
 import os

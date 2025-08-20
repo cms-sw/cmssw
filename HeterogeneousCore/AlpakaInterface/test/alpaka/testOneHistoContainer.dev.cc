@@ -16,13 +16,12 @@ using namespace ALPAKA_ACCELERATOR_NAMESPACE;
 
 template <int NBINS, int S, int DELTA>
 struct mykernel {
-  template <typename TAcc, typename T>
-  ALPAKA_FN_ACC void operator()(const TAcc& acc, T const* __restrict__ v, uint32_t N) const {
+  template <typename T>
+  ALPAKA_FN_ACC void operator()(Acc1D const& acc, T const* __restrict__ v, uint32_t N) const {
     ALPAKA_ASSERT_ACC(v);
     ALPAKA_ASSERT_ACC(N == 12000);
 
-    const uint32_t threadIdxLocal(alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u]);
-    if (threadIdxLocal == 0) {
+    if (once_per_block(acc)) {
       printf("start kernel for %d data\n", N);
     }
 
@@ -110,10 +109,10 @@ struct mykernel {
       auto vm = int(v[j]) - DELTA;
       auto vp = int(v[j]) + DELTA;
       constexpr int vmax = NBINS != 128 ? NBINS * 2 - 1 : std::numeric_limits<T>::max();
-      vm = std::max(vm, 0);
-      vm = std::min(vm, vmax);
-      vp = std::min(vp, vmax);
-      vp = std::max(vp, 0);
+      vm = alpaka::math::max(acc, vm, 0);
+      vm = alpaka::math::min(acc, vm, vmax);
+      vp = alpaka::math::min(acc, vp, vmax);
+      vp = alpaka::math::max(acc, vp, 0);
       ALPAKA_ASSERT_ACC(vp >= vm);
       forEachInWindow(hist, vm, vp, ftest);
 #ifndef NDEBUG

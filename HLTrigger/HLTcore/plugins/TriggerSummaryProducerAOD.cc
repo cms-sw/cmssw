@@ -107,7 +107,7 @@ TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps
   auto const& moduleLabelPatternsToMatch = moduleLabelPatternsToMatch_;
   auto const& moduleLabelPatternsToSkip = moduleLabelPatternsToSkip_;
   auto productMatch = [pProcessName, &moduleLabelPatternsToSkip, &moduleLabelPatternsToMatch](
-                          edm::BranchDescription const& iBranch) -> bool {
+                          edm::ProductDescription const& iBranch) -> bool {
     if (iBranch.processName() == *pProcessName || *pProcessName == "*") {
       auto const& label = iBranch.moduleLabel();
       for (auto& match : moduleLabelPatternsToMatch) {
@@ -161,7 +161,7 @@ TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps
 
   getL1TP2GTCandCollection_ = edm::GetterOfProducts<l1t::P2GTCandidateCollection>(productMatch, this);
 
-  callWhenNewProductsRegistered([this](edm::BranchDescription const& bd) {
+  callWhenNewProductsRegistered([this](edm::ProductDescription const& bd) {
     getTriggerFilterObjectWithRefs_(bd);
     getRecoEcalCandidateCollection_(bd);
     getElectronCollection_(bd);

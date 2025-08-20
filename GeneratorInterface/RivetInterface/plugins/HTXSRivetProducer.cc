@@ -84,7 +84,7 @@ void HTXSRivetProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
         ConstGenVertexPtr HSvtx = myGenEvent->vertices()[0];
 
         if (HSvtx) {
-          for (auto ptcl : HepMCUtils::particles(HSvtx, Relatives::CHILDREN)) {
+          for (const auto& ptcl : HepMCUtils::particles(HSvtx, Relatives::CHILDREN)) {
             if (std::abs(ptcl->pdg_id()) == 24)
               ++nWs;
             if (ptcl->pdg_id() == 23)

@@ -264,7 +264,6 @@ namespace cond {
         IMPORT_PAYLOAD_CASE(L1TriggerKey)
         IMPORT_PAYLOAD_CASE(MagFieldConfig)
         if (inputTypeName == "L1TriggerKeyList") {
-          match = true;
           throwException("Import of \"L1TriggerKeyList\" type payloads is not supported.", "import");
         }
         //IMPORT_PAYLOAD_CASE( L1TriggerKeyList )

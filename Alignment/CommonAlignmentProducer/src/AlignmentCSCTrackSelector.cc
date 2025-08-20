@@ -20,6 +20,14 @@ AlignmentCSCTrackSelector::AlignmentCSCTrackSelector(const edm::ParameterSet& cf
       m_minHitsPerStation(cfg.getParameter<int>("minHitsPerStation")),
       m_maxHitsPerStation(cfg.getParameter<int>("maxHitsPerStation")) {}
 
+void AlignmentCSCTrackSelector::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  desc.add<int>("stationA", 0);
+  desc.add<int>("stationB", 0);
+  desc.add<int>("minHitsDT", 0);
+  desc.add<int>("minHitsPerStation", 0);
+  desc.add<int>("maxHitsPerStation", 0);
+}
+
 // destructor -----------------------------------------------------------------
 
 AlignmentCSCTrackSelector::~AlignmentCSCTrackSelector() {}

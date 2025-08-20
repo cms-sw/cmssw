@@ -299,7 +299,6 @@ void SiPixelDataQuality::computeGlobalQualityFlag(
     digiCounterBarrel = 0, clusterCounterBarrel = 0, trackCounterBarrel = 0;
     digiStatsEndcap = false, clusterStatsEndcap = false, trackStatsEndcap = false;
     digiCounterEndcap = 0, clusterCounterEndcap = 0, trackCounterEndcap = 0;
-    init = false;
   }
   if (nFEDs == 0)
     return;
@@ -652,9 +651,7 @@ void SiPixelDataQuality::computeGlobalQualityFlag(
     endcapFlag = endcap_errors_temp[0] * combinedCuts;
 
     // Track results:
-    combinedCuts = 1.;
-    numerator = 0;
-    denominator = 0;
+
     me = iGetter.get("Pixel/Tracks/PixelTracksCut");
     if (me)
       pixel_cuts_temp[0] = me->getIntValue();
@@ -799,7 +796,6 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore::IBooker &iBooker,
   if (init) {
     count = 0;
     errcount = 0;
-    init = false;
     count1 = 0;
     count2 = 0;
     count3 = 0;

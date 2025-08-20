@@ -139,6 +139,10 @@ void TrackQuality::newEvent(const edm::Event &ev, const edm::EventSetup &es) {
   associator_ = std::make_unique<TrackerHitAssociator>(ev, trackerHitAssociatorConfig_);
 }
 
+void TrackQuality::fillPSetDescription(edm::ParameterSetDescription &desc) {
+  TrackerHitAssociator::fillPSetDescription(desc);
+}
+
 void TrackQuality::evaluate(SimParticleTrail const &spt, reco::TrackBaseRef const &tr, const TrackerTopology *tTopo) {
   std::vector<MatchedHit> matchedHits;
 

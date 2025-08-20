@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 """ Helper functions for time conversions """
-from __future__ import print_function
 
 def pack(high,low):
     """pack high,low 32bit unsigned int to one unsigned 64bit long long

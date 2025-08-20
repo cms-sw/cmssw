@@ -26,8 +26,7 @@ public:
   ~BeamProfileVtxGenerator() override;
 
   /// return a new event vertex
-  //virtual CLHEP::Hep3Vector * newVertex();
-  HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override;
+  ROOT::Math::XYZTVector vertexShift(CLHEP::HepRandomEngine*) const override;
 
   TMatrixD const* GetInvLorentzBoost() const override { return nullptr; }
 

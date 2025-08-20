@@ -10,7 +10,7 @@ ProductResolver: Class to handle access to a WrapperBase and its related informa
 
 #include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Common/interface/ProductData.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
@@ -107,16 +107,16 @@ namespace edm {
     ProductProvenance const* productProvenancePtr() const { return productProvenancePtr_(); }
 
     // Retrieves a reference to the event independent provenance.
-    BranchDescription const& branchDescription() const { return branchDescription_(); }
+    ProductDescription const& productDescription() const { return productDescription_(); }
 
     // Retrieves a reference to the event independent provenance.
     bool singleProduct() const { return singleProduct_(); }
 
     // Sets the pointer to the event independent provenance.
-    void resetBranchDescription(std::shared_ptr<BranchDescription const> bd) { resetBranchDescription_(bd); }
+    void resetProductDescription(std::shared_ptr<ProductDescription const> bd) { resetProductDescription_(bd); }
 
     // Retrieves a reference to the module label.
-    std::string const& moduleLabel() const { return branchDescription().moduleLabel(); }
+    std::string const& moduleLabel() const { return productDescription().moduleLabel(); }
 
     // Same as moduleLabel except in the case of an AliasProductResolver, in which
     // case it resolves the module which actually produces the product and returns
@@ -124,10 +124,10 @@ namespace edm {
     std::string const& resolvedModuleLabel() const { return resolvedModuleLabel_(); }
 
     // Retrieves a reference to the product instance name
-    std::string const& productInstanceName() const { return branchDescription().productInstanceName(); }
+    std::string const& productInstanceName() const { return productDescription().productInstanceName(); }
 
     // Retrieves a reference to the process name
-    std::string const& processName() const { return branchDescription().processName(); }
+    std::string const& processName() const { return productDescription().processName(); }
 
     // Retrieves pointer to a class containing both the event independent and the per even provenance.
     Provenance const* provenance() const;
@@ -183,8 +183,8 @@ namespace edm {
     virtual bool productWasDeleted_() const = 0;
     virtual bool productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const = 0;
 
-    virtual BranchDescription const& branchDescription_() const = 0;
-    virtual void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) = 0;
+    virtual ProductDescription const& productDescription_() const = 0;
+    virtual void resetProductDescription_(std::shared_ptr<ProductDescription const> bd) = 0;
     virtual Provenance const* provenance_() const = 0;
     virtual std::string const& resolvedModuleLabel_() const = 0;
     virtual void setProductProvenanceRetriever_(ProductProvenanceRetriever const* provRetriever) = 0;

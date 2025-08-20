@@ -1,4 +1,3 @@
-from __future__ import print_function
 from PhysicsTools.PatAlgos.tools.ConfigToolBase import *
 from FWCore.ParameterSet.Mixins import PrintOptions,_ParameterTypeBase,_SimpleParameterTypeBase, _Parameterizable, _ConfigureComponent, _TypedParameterizable, _Labelable,  _Unlabelable,  _ValidatingListBase
 from FWCore.ParameterSet.SequenceTypes import _ModuleSequenceType, _Sequenceable
@@ -462,22 +461,16 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                     btag.pfDeepCSVTagInfos.clone(
                                         svTagInfos = cms.InputTag(btagPrefix+'pfInclusiveSecondaryVertexFinderTagInfos'+labelName+postfix)),
                                     process, task)
-                if svClustering or fatJets != cms.InputTag(''):
-                    setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
             if btagInfo == 'pfDeepCSVNegativeTagInfos':
                 addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
                                     btag.pfDeepCSVNegativeTagInfos.clone(
                                         svTagInfos = cms.InputTag(btagPrefix+'pfInclusiveSecondaryVertexFinderNegativeTagInfos'+labelName+postfix)),
                                     process, task)
-                if svClustering or fatJets != cms.InputTag(''):
-                    setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
             if btagInfo == 'pfDeepCSVPositiveTagInfos':
                 addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
                                     btag.pfDeepCSVPositiveTagInfos.clone(
                                         svTagInfos = cms.InputTag(btagPrefix+'pfInclusiveSecondaryVertexFinderTagInfos'+labelName+postfix)),
                                     process, task)
-                if svClustering or fatJets != cms.InputTag(''):
-                    setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
             if btagInfo == 'pfDeepCMVATagInfos':
                 addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
                                     btag.pfDeepCMVATagInfos.clone(
@@ -736,6 +729,37 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                       is_weighted_jet = is_weighted_jet,
                                       flip = flip),
                                     process, task)
+
+            if 'UnifiedParticleTransformerAK4V1TagInfos' in btagInfo:
+                svUsed = svSource
+                if btagInfo == 'pfNegativeUnifiedParticleTransformerAK4V1TagInfos':
+                    svUsed = cms.InputTag(btagPrefix+'inclusiveCandidateNegativeSecondaryVertices'+labelName+postfix)
+                    flip = True 
+                else:
+                    flip = False
+                # use right input tags when running with RECO PF candidates, which actually
+                # depends of whether jets use "particleFlow"
+                if pfCandidates.value() == 'packedPFCandidates':
+                    puppi_value_map = setupPuppiForPackedPF(process)[0]
+                    vertex_associator = cms.InputTag("")
+                else:
+                    puppi_value_map = cms.InputTag("puppi")
+                    vertex_associator = cms.InputTag("primaryVertexAssociation","original")
+
+                # If this jet is a puppi jet, then set is_weighted_jet to true.
+                is_weighted_jet = False
+                if ('puppi' in jetSource.value().lower()):
+                    is_weighted_jet = True
+                addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                    btag.pfUnifiedParticleTransformerAK4V1TagInfos.clone(
+                                        jets = jetSource,
+                                        vertices=pvSource,
+                                        secondary_vertices=svUsed,
+                                        puppi_value_map = puppi_value_map,
+                                        vertex_associator = vertex_associator,
+                                        is_weighted_jet = is_weighted_jet,
+                                        flip = flip),
+                                    process, task)              
 
             if btagInfo == 'pfDeepDoubleXTagInfos':
                 # can only run on PAT jets, so the updater needs to be used

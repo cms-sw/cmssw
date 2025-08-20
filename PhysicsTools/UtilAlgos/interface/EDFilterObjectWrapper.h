@@ -39,7 +39,9 @@
 #include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Common/interface/EventBase.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace edm {
 
@@ -51,17 +53,14 @@ namespace edm {
     typename C::const_iterator const_iterator;
 
     /// default contructor. Declares the output (type "C") and the filter (of type T, operates on C::value_type)
-    FilterObjectWrapper(const edm::ParameterSet& cfg) : src_(consumes<C>(cfg.getParameter<edm::InputTag>("src"))) {
+    FilterObjectWrapper(const edm::ParameterSet& cfg)
+        : src_(consumes<C>(cfg.getParameter<edm::InputTag>("src"))), doFilter_(cfg.getParameter<bool>("filter")) {
       filter_ = std::shared_ptr<T>(new T(cfg.getParameter<edm::ParameterSet>("filterParams")));
-      if (cfg.exists("filter")) {
-        doFilter_ = cfg.getParameter<bool>("filter");
-      } else {
-        doFilter_ = false;
-      }
       produces<C>();
     }
     /// default destructor
-    ~FilterObjectWrapper() override {}
+    ~FilterObjectWrapper() override = default;
+
     /// everything which has to be done during the event loop. NOTE: We can't use the eventSetup in FWLite so ignore it
     bool filter(edm::Event& event, const edm::EventSetup& eventSetup) override {
       // create a collection of the objects to put into the event
@@ -84,13 +83,21 @@ namespace edm {
         return true;
     }
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.add<edm::InputTag>("src", edm::InputTag(""))->setComment("input collection");
+      desc.add<edm::ParameterSetDescription>("filterParams", T::getDescription());
+      desc.add<bool>("filter", false);
+      descriptions.addWithDefaultLabel(desc);
+    }
+
   protected:
     /// InputTag of the input source
-    edm::EDGetTokenT<C> src_;
+    const edm::EDGetTokenT<C> src_;
+    /// whether or not to filter based on size
+    const bool doFilter_;
     /// shared pointer to analysis class of type BasicAnalyzer
     std::shared_ptr<T> filter_;
-    /// whether or not to filter based on size
-    bool doFilter_;
   };
 
 }  // namespace edm

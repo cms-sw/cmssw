@@ -399,7 +399,7 @@ int L1TMuonBarrelParamsHelper::load_pt(std::vector<LUT>& pta_lut,
     // assemble file name
     const string& lutpath = AssLUTpath;
     edm::FileInPath lut_f = edm::FileInPath(string(lutpath + pta_str + ".lut"));
-    string pta_file = lut_f.fullPath();
+    const string& pta_file = lut_f.fullPath();
 
     // open file
     L1TriggerLutFile file(pta_file);
@@ -476,7 +476,7 @@ int L1TMuonBarrelParamsHelper::load_phi(std::vector<LUT>& phi_lut,
 
     // assemble file name
     edm::FileInPath lut_f = edm::FileInPath(string(AssLUTpath + phi_str + ".lut"));
-    string phi_file = lut_f.fullPath();
+    const string& phi_file = lut_f.fullPath();
 
     // open file
     L1TriggerLutFile file(phi_file);
@@ -599,7 +599,7 @@ int L1TMuonBarrelParamsHelper::load_ext(std::vector<L1TMuonBarrelParams::LUTPara
 
     // assemble file name
     edm::FileInPath lut_f = edm::FileInPath(string(defaultPath + ext_dir + ext_str + ".lut"));
-    string ext_file = lut_f.fullPath();
+    const string& ext_file = lut_f.fullPath();
 
     // open file
     L1TriggerLutFile file(ext_file);

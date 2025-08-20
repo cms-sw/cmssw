@@ -20,7 +20,7 @@ bool goodEvent() {
 }
 
 //___________________________________________________________________________________________________________________________________________________________________________________________
-float runMiniDoublet(LSTEvent *event, int evt) {
+float runMiniDoublet(LSTEvent* event, int evt) {
   TStopwatch my_timer;
   if (ana.verbose >= 2)
     std::cout << "Reco Mini-Doublet start " << evt << std::endl;
@@ -73,7 +73,7 @@ float runMiniDoublet(LSTEvent *event, int evt) {
 }
 
 //___________________________________________________________________________________________________________________________________________________________________________________________
-float runSegment(LSTEvent *event) {
+float runSegment(LSTEvent* event) {
   TStopwatch my_timer;
   if (ana.verbose >= 2)
     std::cout << "Reco Segment start" << std::endl;
@@ -111,7 +111,7 @@ float runSegment(LSTEvent *event) {
 }
 
 //___________________________________________________________________________________________________________________________________________________________________________________________
-float runT3(LSTEvent *event) {
+float runT3(LSTEvent* event) {
   TStopwatch my_timer;
   if (ana.verbose >= 2)
     std::cout << "Reco T3 start" << std::endl;
@@ -153,7 +153,7 @@ float runT3(LSTEvent *event) {
 }
 
 //___________________________________________________________________________________________________________________________________________________________________________________________
-float runpT3(LSTEvent *event) {
+float runpT3(LSTEvent* event) {
   TStopwatch my_timer;
   if (ana.verbose >= 2)
     std::cout << "Reco Pixel Triplet pT3 start" << std::endl;
@@ -170,7 +170,7 @@ float runpT3(LSTEvent *event) {
 }
 
 //___________________________________________________________________________________________________________________________________________________________________________________________
-float runQuintuplet(LSTEvent *event) {
+float runQuintuplet(LSTEvent* event) {
   TStopwatch my_timer;
   if (ana.verbose >= 2)
     std::cout << "Reco Quintuplet start" << std::endl;
@@ -216,11 +216,12 @@ float runQuintuplet(LSTEvent *event) {
 }
 
 //___________________________________________________________________________________________________________________________________________________________________________________________
-float runPixelLineSegment(LSTEvent *event, bool no_pls_dupclean) {
+float runPixelLineSegment(LSTEvent* event, bool no_pls_dupclean) {
   TStopwatch my_timer;
   if (ana.verbose >= 2)
     std::cout << "Reco Pixel Line Segment start" << std::endl;
   my_timer.Start();
+  event->addPixelSegmentToEventFinalize();
   event->pixelLineSegmentCleaning(no_pls_dupclean);
   event->wait();  // device side event calls are asynchronous: wait to measure time or print
   float pls_elapsed = my_timer.RealTime();
@@ -231,7 +232,7 @@ float runPixelLineSegment(LSTEvent *event, bool no_pls_dupclean) {
 }
 
 //___________________________________________________________________________________________________________________________________________________________________________________________
-float runPixelQuintuplet(LSTEvent *event) {
+float runPixelQuintuplet(LSTEvent* event) {
   TStopwatch my_timer;
   if (ana.verbose >= 2)
     std::cout << "Reco Pixel Quintuplet start" << std::endl;
@@ -248,7 +249,7 @@ float runPixelQuintuplet(LSTEvent *event) {
 }
 
 //___________________________________________________________________________________________________________________________________________________________________________________________
-float runTrackCandidate(LSTEvent *event, bool no_pls_dupclean, bool tc_pls_triplets) {
+float runTrackCandidate(LSTEvent* event, bool no_pls_dupclean, bool tc_pls_triplets) {
   TStopwatch my_timer;
   if (ana.verbose >= 2)
     std::cout << "Reco TrackCandidate start" << std::endl;
@@ -282,16 +283,13 @@ float runTrackCandidate(LSTEvent *event, bool no_pls_dupclean, bool tc_pls_tripl
 //  ---------------------------------- =========================================== ----------------------------------------------
 
 //___________________________________________________________________________________________________________________________________________________________________________________________
-std::vector<int> matchedSimTrkIdxs(std::vector<int> hitidxs, std::vector<int> hittypes, bool verbose) {
-  std::vector<unsigned int> hitidxs_(std::begin(hitidxs), std::end(hitidxs));
-  std::vector<unsigned int> hittypes_(std::begin(hittypes), std::end(hittypes));
-  return matchedSimTrkIdxs(hitidxs_, hittypes_, verbose);
-}
-
-//___________________________________________________________________________________________________________________________________________________________________________________________
 std::vector<int> matchedSimTrkIdxs(std::vector<unsigned int> hitidxs,
                                    std::vector<unsigned int> hittypes,
-                                   bool verbose) {
+                                   std::vector<int> const& trk_simhit_simTrkIdx,
+                                   std::vector<std::vector<int>> const& trk_ph2_simHitIdx,
+                                   std::vector<std::vector<int>> const& trk_pix_simHitIdx,
+                                   bool verbose,
+                                   float* pmatched) {
   if (hitidxs.size() != hittypes.size()) {
     std::cout << "Error: matched_sim_trk_idxs()   hitidxs and hittypes have different lengths" << std::endl;
     std::cout << "hitidxs.size(): " << hitidxs.size() << std::endl;
@@ -320,7 +318,7 @@ std::vector<int> matchedSimTrkIdxs(std::vector<unsigned int> hitidxs,
 
   for (size_t ihit = 0; ihit < to_check_duplicate.size(); ++ihit) {
     auto ihitdata = to_check_duplicate[ihit];
-    auto &&[hitidx, hittype] = ihitdata;
+    auto&& [hitidx, hittype] = ihitdata;
 
     if (verbose) {
       std::cout << " hitidx: " << hitidx << " hittype: " << hittype << std::endl;
@@ -328,29 +326,29 @@ std::vector<int> matchedSimTrkIdxs(std::vector<unsigned int> hitidxs,
 
     std::vector<int> simtrk_idxs_per_hit;
 
-    const std::vector<std::vector<int>> *simHitIdxs = hittype == 4 ? &trk.ph2_simHitIdx() : &trk.pix_simHitIdx();
+    const std::vector<std::vector<int>>* simHitIdxs = hittype == 4 ? &trk_ph2_simHitIdx : &trk_pix_simHitIdx;
 
     if (verbose) {
-      std::cout << " trk.ph2_simHitIdx().size(): " << trk.ph2_simHitIdx().size() << std::endl;
-      std::cout << " trk.pix_simHitIdx().size(): " << trk.pix_simHitIdx().size() << std::endl;
+      std::cout << " trk_ph2_simHitIdx.size(): " << trk_ph2_simHitIdx.size() << std::endl;
+      std::cout << " trk_pix_simHitIdx.size(): " << trk_pix_simHitIdx.size() << std::endl;
     }
 
     if (static_cast<const unsigned int>((*simHitIdxs).size()) <= hitidx) {
       std::cout << "ERROR" << std::endl;
       std::cout << " hittype: " << hittype << std::endl;
-      std::cout << " trk.pix_simHitIdx().size(): " << trk.pix_simHitIdx().size() << std::endl;
-      std::cout << " trk.ph2_simHitIdx().size(): " << trk.ph2_simHitIdx().size() << std::endl;
+      std::cout << " trk_pix_simHitIdx.size(): " << trk_pix_simHitIdx.size() << std::endl;
+      std::cout << " trk_ph2_simHitIdx.size(): " << trk_ph2_simHitIdx.size() << std::endl;
       std::cout << (*simHitIdxs).size() << " " << hittype << std::endl;
       std::cout << hitidx << " " << hittype << std::endl;
     }
 
-    for (auto &simhit_idx : (*simHitIdxs).at(hitidx)) {
-      if (static_cast<const int>(trk.simhit_simTrkIdx().size()) <= simhit_idx) {
+    for (auto& simhit_idx : (*simHitIdxs).at(hitidx)) {
+      if (static_cast<const int>(trk_simhit_simTrkIdx.size()) <= simhit_idx) {
         std::cout << (*simHitIdxs).size() << " " << hittype << std::endl;
         std::cout << hitidx << " " << hittype << std::endl;
-        std::cout << trk.simhit_simTrkIdx().size() << " " << simhit_idx << std::endl;
+        std::cout << trk_simhit_simTrkIdx.size() << " " << simhit_idx << std::endl;
       }
-      int simtrk_idx = trk.simhit_simTrkIdx().at(simhit_idx);
+      int simtrk_idx = trk_simhit_simTrkIdx[simhit_idx];
       if (verbose) {
         std::cout << " hitidx: " << hitidx << " simhit_idx: " << simhit_idx << " simtrk_idx: " << simtrk_idx
                   << std::endl;
@@ -374,7 +372,7 @@ std::vector<int> matchedSimTrkIdxs(std::vector<unsigned int> hitidxs,
 
   if (verbose) {
     std::cout << " unique_idxs.size(): " << unique_idxs.size() << std::endl;
-    for (auto &unique_idx : unique_idxs) {
+    for (auto& unique_idx : unique_idxs) {
       std::cout << " unique_idx: " << unique_idx << std::endl;
     }
   }
@@ -382,8 +380,8 @@ std::vector<int> matchedSimTrkIdxs(std::vector<unsigned int> hitidxs,
   // print
   if (verbose) {
     std::cout << "va print" << std::endl;
-    for (auto &vec : simtrk_idxs) {
-      for (auto &idx : vec) {
+    for (auto& vec : simtrk_idxs) {
+      for (auto& idx : vec) {
         std::cout << idx << " ";
       }
       std::cout << std::endl;
@@ -392,11 +390,11 @@ std::vector<int> matchedSimTrkIdxs(std::vector<unsigned int> hitidxs,
   }
 
   // Compute all permutations
-  std::function<void(std::vector<std::vector<int>> &, std::vector<int>, size_t, std::vector<std::vector<int>> &)> perm =
-      [&](std::vector<std::vector<int>> &result,
+  std::function<void(std::vector<std::vector<int>>&, std::vector<int>, size_t, std::vector<std::vector<int>>&)> perm =
+      [&](std::vector<std::vector<int>>& result,
           std::vector<int> intermediate,
           size_t n,
-          std::vector<std::vector<int>> &va) {
+          std::vector<std::vector<int>>& va) {
         // std::cout <<  " 'called': " << "called" <<  std::endl;
         if (va.size() > n) {
           for (auto x : va[n]) {
@@ -425,9 +423,10 @@ std::vector<int> matchedSimTrkIdxs(std::vector<unsigned int> hitidxs,
   }
   int maxHitMatchCount = 0;  // ultimate maximum of the number of matched hits
   std::vector<int> matched_sim_trk_idxs;
-  for (auto &trkidx_perm : allperms) {
+  float max_percent_matched = 0.0f;
+  for (auto& trkidx_perm : allperms) {
     std::vector<int> counts;
-    for (auto &unique_idx : unique_idxs) {
+    for (auto& unique_idx : unique_idxs) {
       int cnt = std::count(trkidx_perm.begin(), trkidx_perm.end(), unique_idx);
       counts.push_back(cnt);
     }
@@ -436,10 +435,18 @@ std::vector<int> matchedSimTrkIdxs(std::vector<unsigned int> hitidxs,
     int trkidx = unique_idxs[rawidx];
     if (trkidx < 0)
       continue;
-    if (counts[rawidx] > (((float)nhits_input) * 0.75))
+    float percent_matched = static_cast<float>(counts[rawidx]) / nhits_input;
+    if (percent_matched > 0.75f)
       matched_sim_trk_idxs.push_back(trkidx);
     maxHitMatchCount = std::max(maxHitMatchCount, *std::max_element(counts.begin(), counts.end()));
+    max_percent_matched = std::max(max_percent_matched, percent_matched);
   }
+
+  // If pmatched is provided, set its value
+  if (pmatched != nullptr) {
+    *pmatched = max_percent_matched;
+  }
+
   std::set<int> s;
   unsigned size = matched_sim_trk_idxs.size();
   for (unsigned i = 0; i < size; ++i)
@@ -449,26 +456,35 @@ std::vector<int> matchedSimTrkIdxs(std::vector<unsigned int> hitidxs,
 }
 
 //__________________________________________________________________________________________
-int getDenomSimTrkType(int isimtrk) {
+int getDenomSimTrkType(int isimtrk,
+                       std::vector<int> const& trk_sim_q,
+                       std::vector<float> const& trk_sim_pt,
+                       std::vector<float> const& trk_sim_eta,
+                       std::vector<int> const& trk_sim_bunchCrossing,
+                       std::vector<int> const& trk_sim_event,
+                       std::vector<int> const& trk_sim_parentVtxIdx,
+                       std::vector<float> const& trk_simvtx_x,
+                       std::vector<float> const& trk_simvtx_y,
+                       std::vector<float> const& trk_simvtx_z) {
   if (isimtrk < 0)
     return 0;  // not a sim
-  const int &q = trk.sim_q()[isimtrk];
+  const int& q = trk_sim_q[isimtrk];
   if (q == 0)
     return 1;  // sim
-  const float &pt = trk.sim_pt()[isimtrk];
-  const float &eta = trk.sim_eta()[isimtrk];
-  if (pt < 1 or abs(eta) > 2.4)
+  const float& pt = trk_sim_pt[isimtrk];
+  const float& eta = trk_sim_eta[isimtrk];
+  if (pt < 1 or std::abs(eta) > 2.4)
     return 2;  // sim and charged
-  const int &bunch = trk.sim_bunchCrossing()[isimtrk];
-  const int &event = trk.sim_event()[isimtrk];
-  const int &vtxIdx = trk.sim_parentVtxIdx()[isimtrk];
-  const float &vtx_x = trk.simvtx_x()[vtxIdx];
-  const float &vtx_y = trk.simvtx_y()[vtxIdx];
-  const float &vtx_z = trk.simvtx_z()[vtxIdx];
-  const float &vtx_perp = sqrt(vtx_x * vtx_x + vtx_y * vtx_y);
+  const int& bunch = trk_sim_bunchCrossing[isimtrk];
+  const int& event = trk_sim_event[isimtrk];
+  const int& vtxIdx = trk_sim_parentVtxIdx[isimtrk];
+  const float& vtx_x = trk_simvtx_x[isimtrk];
+  const float& vtx_y = trk_simvtx_y[isimtrk];
+  const float& vtx_z = trk_simvtx_z[isimtrk];
+  const float& vtx_perp = sqrt(vtx_x * vtx_x + vtx_y * vtx_y);
   if (vtx_perp > 2.5)
     return 3;  // pt > 1 and abs(eta) < 2.4
-  if (abs(vtx_z) > 30)
+  if (std::abs(vtx_z) > 30)
     return 4;  // pt > 1 and abs(eta) < 2.4 and vtx < 2.5
   if (bunch != 0)
     return 5;  // pt > 1 and abs(eta) < 2.4 and vtx < 2.5 and vtx < 300
@@ -478,10 +494,28 @@ int getDenomSimTrkType(int isimtrk) {
 }
 
 //__________________________________________________________________________________________
-int getDenomSimTrkType(std::vector<int> simidxs) {
+int getDenomSimTrkType(std::vector<int> simidxs,
+                       std::vector<int> const& trk_sim_q,
+                       std::vector<float> const& trk_sim_pt,
+                       std::vector<float> const& trk_sim_eta,
+                       std::vector<int> const& trk_sim_bunchCrossing,
+                       std::vector<int> const& trk_sim_event,
+                       std::vector<int> const& trk_sim_parentVtxIdx,
+                       std::vector<float> const& trk_simvtx_x,
+                       std::vector<float> const& trk_simvtx_y,
+                       std::vector<float> const& trk_simvtx_z) {
   int type = 0;
-  for (auto &simidx : simidxs) {
-    int this_type = getDenomSimTrkType(simidx);
+  for (auto& simidx : simidxs) {
+    int this_type = getDenomSimTrkType(simidx,
+                                       trk_sim_q,
+                                       trk_sim_pt,
+                                       trk_sim_eta,
+                                       trk_sim_bunchCrossing,
+                                       trk_sim_event,
+                                       trk_sim_parentVtxIdx,
+                                       trk_simvtx_x,
+                                       trk_simvtx_y,
+                                       trk_simvtx_z);
     if (this_type > type) {
       type = this_type;
     }
@@ -496,26 +530,41 @@ int getDenomSimTrkType(std::vector<int> simidxs) {
 //  ---------------------------------- =========================================== ----------------------------------------------
 
 //___________________________________________________________________________________________________________________________________________________________________________________________
-float drfracSimHitConsistentWithHelix(int isimtrk, int isimhitidx) {
+float drfracSimHitConsistentWithHelix(int isimtrk,
+                                      int isimhitidx,
+                                      std::vector<float> const& trk_simvtx_x,
+                                      std::vector<float> const& trk_simvtx_y,
+                                      std::vector<float> const& trk_simvtx_z,
+                                      std::vector<float> const& trk_sim_pt,
+                                      std::vector<float> const& trk_sim_eta,
+                                      std::vector<float> const& trk_sim_phi,
+                                      std::vector<int> const& trk_sim_q,
+                                      std::vector<float> const& trk_simhit_x,
+                                      std::vector<float> const& trk_simhit_y,
+                                      std::vector<float> const& trk_simhit_z) {
   // Read track parameters
-  float vx = trk.simvtx_x()[0];
-  float vy = trk.simvtx_y()[0];
-  float vz = trk.simvtx_z()[0];
-  float pt = trk.sim_pt()[isimtrk];
-  float eta = trk.sim_eta()[isimtrk];
-  float phi = trk.sim_phi()[isimtrk];
-  int charge = trk.sim_q()[isimtrk];
+  float vx = trk_simvtx_x[0];
+  float vy = trk_simvtx_y[0];
+  float vz = trk_simvtx_z[0];
+  float pt = trk_sim_pt[isimtrk];
+  float eta = trk_sim_eta[isimtrk];
+  float phi = trk_sim_phi[isimtrk];
+  int charge = trk_sim_q[isimtrk];
 
   // Construct helix object
   lst_math::Helix helix(pt, eta, phi, vx, vy, vz, charge);
 
-  return drfracSimHitConsistentWithHelix(helix, isimhitidx);
+  return drfracSimHitConsistentWithHelix(helix, isimhitidx, trk_simhit_x, trk_simhit_y, trk_simhit_z);
 }
 
 //__________________________________________________________________________________________
-float drfracSimHitConsistentWithHelix(lst_math::Helix &helix, int isimhitidx) {
+float drfracSimHitConsistentWithHelix(lst_math::Helix& helix,
+                                      int isimhitidx,
+                                      std::vector<float> const& trk_simhit_x,
+                                      std::vector<float> const& trk_simhit_y,
+                                      std::vector<float> const& trk_simhit_z) {
   // Sim hit vector
-  std::vector<float> point = {trk.simhit_x()[isimhitidx], trk.simhit_y()[isimhitidx], trk.simhit_z()[isimhitidx]};
+  std::vector<float> point = {trk_simhit_x[isimhitidx], trk_simhit_y[isimhitidx], trk_simhit_z[isimhitidx]};
 
   // Inferring parameter t of helix parametric function via z position
   float t = helix.infer_t(point);
@@ -528,32 +577,47 @@ float drfracSimHitConsistentWithHelix(lst_math::Helix &helix, int isimhitidx) {
   auto [x, y, z, r] = helix.get_helix_point(t);
 
   // ( expected_r - simhit_r ) / expected_r
-  float drfrac = abs(helix.compare_radius(point)) / r;
+  float drfrac = std::abs(helix.compare_radius(point)) / r;
 
   return drfrac;
 }
 
 //__________________________________________________________________________________________
-float distxySimHitConsistentWithHelix(int isimtrk, int isimhitidx) {
+float distxySimHitConsistentWithHelix(int isimtrk,
+                                      int isimhitidx,
+                                      std::vector<float> const& trk_simvtx_x,
+                                      std::vector<float> const& trk_simvtx_y,
+                                      std::vector<float> const& trk_simvtx_z,
+                                      std::vector<float> const& trk_sim_pt,
+                                      std::vector<float> const& trk_sim_eta,
+                                      std::vector<float> const& trk_sim_phi,
+                                      std::vector<int> const& trk_sim_q,
+                                      std::vector<float> const& trk_simhit_x,
+                                      std::vector<float> const& trk_simhit_y,
+                                      std::vector<float> const& trk_simhit_z) {
   // Read track parameters
-  float vx = trk.simvtx_x()[0];
-  float vy = trk.simvtx_y()[0];
-  float vz = trk.simvtx_z()[0];
-  float pt = trk.sim_pt()[isimtrk];
-  float eta = trk.sim_eta()[isimtrk];
-  float phi = trk.sim_phi()[isimtrk];
-  int charge = trk.sim_q()[isimtrk];
+  float vx = trk_simvtx_x[0];
+  float vy = trk_simvtx_y[0];
+  float vz = trk_simvtx_z[0];
+  float pt = trk_sim_pt[isimtrk];
+  float eta = trk_sim_eta[isimtrk];
+  float phi = trk_sim_phi[isimtrk];
+  int charge = trk_sim_q[isimtrk];
 
   // Construct helix object
   lst_math::Helix helix(pt, eta, phi, vx, vy, vz, charge);
 
-  return distxySimHitConsistentWithHelix(helix, isimhitidx);
+  return distxySimHitConsistentWithHelix(helix, isimhitidx, trk_simhit_x, trk_simhit_y, trk_simhit_z);
 }
 
 //__________________________________________________________________________________________
-float distxySimHitConsistentWithHelix(lst_math::Helix &helix, int isimhitidx) {
+float distxySimHitConsistentWithHelix(lst_math::Helix& helix,
+                                      int isimhitidx,
+                                      std::vector<float> const& trk_simhit_x,
+                                      std::vector<float> const& trk_simhit_y,
+                                      std::vector<float> const& trk_simhit_z) {
   // Sim hit vector
-  std::vector<float> point = {trk.simhit_x()[isimhitidx], trk.simhit_y()[isimhitidx], trk.simhit_z()[isimhitidx]};
+  std::vector<float> point = {trk_simhit_x[isimhitidx], trk_simhit_y[isimhitidx], trk_simhit_z[isimhitidx]};
 
   // Inferring parameter t of helix parametric function via z position
   float t = helix.infer_t(point);
@@ -572,7 +636,7 @@ float distxySimHitConsistentWithHelix(lst_math::Helix &helix, int isimhitidx) {
 }
 
 //__________________________________________________________________________________________
-TVector3 calculateR3FromPCA(const TVector3 &p3, const float dxy, const float dz) {
+TVector3 calculateR3FromPCA(const TVector3& p3, const float dxy, const float dz) {
   const float pt = p3.Pt();
   const float p = p3.Mag();
   const float vz = dz * pt * pt / p / p;
@@ -589,285 +653,10 @@ TVector3 calculateR3FromPCA(const TVector3 &p3, const float dxy, const float dz)
 //  ---------------------------------- =========================================== ----------------------------------------------
 
 //___________________________________________________________________________________________________________________________________________________________________________________________
-void addInputsToLineSegmentTrackingPreLoad(std::vector<std::vector<float>> &out_trkX,
-                                           std::vector<std::vector<float>> &out_trkY,
-                                           std::vector<std::vector<float>> &out_trkZ,
-                                           std::vector<std::vector<unsigned int>> &out_hitId,
-                                           std::vector<std::vector<unsigned int>> &out_hitIdxs,
-                                           std::vector<std::vector<unsigned int>> &out_hitIndices_vec0,
-                                           std::vector<std::vector<unsigned int>> &out_hitIndices_vec1,
-                                           std::vector<std::vector<unsigned int>> &out_hitIndices_vec2,
-                                           std::vector<std::vector<unsigned int>> &out_hitIndices_vec3,
-                                           std::vector<std::vector<float>> &out_deltaPhi_vec,
-                                           std::vector<std::vector<float>> &out_ptIn_vec,
-                                           std::vector<std::vector<float>> &out_ptErr_vec,
-                                           std::vector<std::vector<float>> &out_px_vec,
-                                           std::vector<std::vector<float>> &out_py_vec,
-                                           std::vector<std::vector<float>> &out_pz_vec,
-                                           std::vector<std::vector<float>> &out_eta_vec,
-                                           std::vector<std::vector<float>> &out_etaErr_vec,
-                                           std::vector<std::vector<float>> &out_phi_vec,
-                                           std::vector<std::vector<int>> &out_charge_vec,
-                                           std::vector<std::vector<unsigned int>> &out_seedIdx_vec,
-                                           std::vector<std::vector<int>> &out_superbin_vec,
-                                           std::vector<std::vector<PixelType>> &out_pixelType_vec,
-                                           std::vector<std::vector<char>> &out_isQuad_vec) {
-  unsigned int count = 0;
-  auto n_see = trk.see_stateTrajGlbPx().size();
-  std::vector<float> px_vec;
-  px_vec.reserve(n_see);
-  std::vector<float> py_vec;
-  py_vec.reserve(n_see);
-  std::vector<float> pz_vec;
-  pz_vec.reserve(n_see);
-  std::vector<unsigned int> hitIndices_vec0;
-  hitIndices_vec0.reserve(n_see);
-  std::vector<unsigned int> hitIndices_vec1;
-  hitIndices_vec1.reserve(n_see);
-  std::vector<unsigned int> hitIndices_vec2;
-  hitIndices_vec2.reserve(n_see);
-  std::vector<unsigned int> hitIndices_vec3;
-  hitIndices_vec3.reserve(n_see);
-  std::vector<float> ptIn_vec;
-  ptIn_vec.reserve(n_see);
-  std::vector<float> ptErr_vec;
-  ptErr_vec.reserve(n_see);
-  std::vector<float> etaErr_vec;
-  etaErr_vec.reserve(n_see);
-  std::vector<float> eta_vec;
-  eta_vec.reserve(n_see);
-  std::vector<float> phi_vec;
-  phi_vec.reserve(n_see);
-  std::vector<int> charge_vec;
-  charge_vec.reserve(n_see);
-  std::vector<unsigned int> seedIdx_vec;
-  seedIdx_vec.reserve(n_see);
-  std::vector<float> deltaPhi_vec;
-  deltaPhi_vec.reserve(n_see);
-  std::vector<float> trkX = trk.ph2_x();
-  std::vector<float> trkY = trk.ph2_y();
-  std::vector<float> trkZ = trk.ph2_z();
-  std::vector<unsigned int> hitId = trk.ph2_detId();
-  std::vector<unsigned int> hitIdxs(trk.ph2_detId().size());
-
-  std::vector<int> superbin_vec;
-  std::vector<PixelType> pixelType_vec;
-  std::vector<char> isQuad_vec;
-  std::iota(hitIdxs.begin(), hitIdxs.end(), 0);
-  const int hit_size = trkX.size();
-
-  for (size_t iSeed = 0; iSeed < trk.see_stateTrajGlbPx().size(); ++iSeed) {
-    //// track algorithm; partial copy from TrackBase.h
-    // enum class TrackAlgorithm {
-    //    undefAlgorithm = 0,
-    //    ctf = 1,
-    //    duplicateMerge = 2,
-    //    cosmics = 3,
-    //    initialStep = 4,
-    //    lowPtTripletStep = 5,
-    //    pixelPairStep = 6,
-    //    detachedTripletStep = 7,
-    //    mixedTripletStep = 8,
-    //    pixelLessStep = 9,
-    //    tobTecStep = 10,
-    //    jetCoreRegionalStep = 11,
-    //    conversionStep = 12,
-    //    muonSeededStepInOut = 13,
-    //    muonSeededStepOutIn = 14,
-    //    outInEcalSeededConv = 15, inOutEcalSeededConv = 16,
-    //    nuclInter = 17,
-    //    standAloneMuon = 18, globalMuon = 19, cosmicStandAloneMuon = 20, cosmicGlobalMuon = 21,
-    //    // Phase1
-    //    highPtTripletStep = 22, lowPtQuadStep = 23, detachedQuadStep = 24,
-    //    reservedForUpgrades1 = 25, reservedForUpgrades2 = 26,
-    //    bTagGhostTracks = 27,
-    //    beamhalo = 28,
-    //    gsf = 29
-    //};
-    bool good_seed_type = false;
-    if (trk.see_algo()[iSeed] == 4)
-      good_seed_type = true;
-    // if (trk.see_algo()[iSeed] == 5) good_seed_type = true;
-    // if (trk.see_algo()[iSeed] == 7) good_seed_type = true;
-    if (trk.see_algo()[iSeed] == 22)
-      good_seed_type = true;
-    // if (trk.see_algo()[iSeed] == 23) good_seed_type = true;
-    // if (trk.see_algo()[iSeed] == 24) good_seed_type = true;
-    if (not good_seed_type)
-      continue;
-
-    TVector3 p3LH(trk.see_stateTrajGlbPx()[iSeed], trk.see_stateTrajGlbPy()[iSeed], trk.see_stateTrajGlbPz()[iSeed]);
-    float ptIn = p3LH.Pt();
-    float eta = p3LH.Eta();
-    float ptErr = trk.see_ptErr()[iSeed];
-
-    if ((ptIn > PT_CUT - 2 * ptErr)) {
-      TVector3 r3LH(trk.see_stateTrajGlbX()[iSeed], trk.see_stateTrajGlbY()[iSeed], trk.see_stateTrajGlbZ()[iSeed]);
-      TVector3 p3PCA(trk.see_px()[iSeed], trk.see_py()[iSeed], trk.see_pz()[iSeed]);
-      TVector3 r3PCA(calculateR3FromPCA(p3PCA, trk.see_dxy()[iSeed], trk.see_dz()[iSeed]));
-      TVector3 seedSD_mdRef_r3 = r3PCA;
-      TVector3 seedSD_mdOut_r3 = r3LH;
-      TVector3 seedSD_r3 = r3LH;
-      TVector3 seedSD_p3 = p3LH;
-
-      // The charge could be used directly in the line below
-      float pixelSegmentDeltaPhiChange = r3LH.DeltaPhi(p3LH);
-      float etaErr = trk.see_etaErr()[iSeed];
-      float px = p3LH.X();
-      float py = p3LH.Y();
-      float pz = p3LH.Z();
-      int charge = trk.see_q()[iSeed];
-      unsigned int seedIdx = iSeed;
-
-      PixelType pixtype = PixelType::kInvalid;
-      if (ptIn >= 2.0) {
-        pixtype = PixelType::kHighPt;
-      } else if (ptIn >= (PT_CUT - 2 * ptErr) and ptIn < 2.0) {
-        if (pixelSegmentDeltaPhiChange >= 0) {
-          pixtype = PixelType::kLowPtPosCurv;
-        } else {
-          pixtype = PixelType::kLowPtNegCurv;
-        }
-      } else {
-        continue;
-      }
-
-      unsigned int hitIdx0 = hit_size + count;
-      count++;
-
-      unsigned int hitIdx1 = hit_size + count;
-      count++;
-
-      unsigned int hitIdx2 = hit_size + count;
-      count++;
-
-      unsigned int hitIdx3;
-      if (trk.see_hitIdx()[iSeed].size() <= 3) {
-        hitIdx3 = hitIdx2;
-      } else {
-        hitIdx3 = hit_size + count;
-        count++;
-      }
-
-      trkX.push_back(r3PCA.X());
-      trkY.push_back(r3PCA.Y());
-      trkZ.push_back(r3PCA.Z());
-      trkX.push_back(p3PCA.Pt());
-      float p3PCA_Eta = p3PCA.Eta();
-      trkY.push_back(p3PCA_Eta);
-      float p3PCA_Phi = p3PCA.Phi();
-      trkZ.push_back(p3PCA_Phi);
-      trkX.push_back(r3LH.X());
-      trkY.push_back(r3LH.Y());
-      trkZ.push_back(r3LH.Z());
-      hitId.push_back(1);
-      hitId.push_back(1);
-      hitId.push_back(1);
-      if (trk.see_hitIdx()[iSeed].size() > 3) {
-        trkX.push_back(r3LH.X());
-        trkY.push_back(trk.see_dxy()[iSeed]);
-        trkZ.push_back(trk.see_dz()[iSeed]);
-        hitId.push_back(1);
-      }
-      px_vec.push_back(px);
-      py_vec.push_back(py);
-      pz_vec.push_back(pz);
-
-      hitIndices_vec0.push_back(hitIdx0);
-      hitIndices_vec1.push_back(hitIdx1);
-      hitIndices_vec2.push_back(hitIdx2);
-      hitIndices_vec3.push_back(hitIdx3);
-      ptIn_vec.push_back(ptIn);
-      ptErr_vec.push_back(ptErr);
-      etaErr_vec.push_back(etaErr);
-      eta_vec.push_back(eta);
-      float phi = p3LH.Phi();
-      phi_vec.push_back(phi);
-      charge_vec.push_back(charge);
-      seedIdx_vec.push_back(seedIdx);
-      deltaPhi_vec.push_back(pixelSegmentDeltaPhiChange);
-
-      // For matching with sim tracks
-      hitIdxs.push_back(trk.see_hitIdx()[iSeed][0]);
-      hitIdxs.push_back(trk.see_hitIdx()[iSeed][1]);
-      hitIdxs.push_back(trk.see_hitIdx()[iSeed][2]);
-      char isQuad = false;
-      if (trk.see_hitIdx()[iSeed].size() > 3) {
-        isQuad = true;
-        hitIdxs.push_back(trk.see_hitIdx()[iSeed].size() > 3 ? trk.see_hitIdx()[iSeed][3] : trk.see_hitIdx()[iSeed][2]);
-      }
-      // if (pt < 0){ ptbin = 0;}
-      float neta = 25.;
-      float nphi = 72.;
-      float nz = 25.;
-      int etabin = (p3PCA_Eta + 2.6) / ((2 * 2.6) / neta);
-      int phibin = (p3PCA_Phi + 3.14159265358979323846) / ((2. * 3.14159265358979323846) / nphi);
-      int dzbin = (trk.see_dz()[iSeed] + 30) / (2 * 30 / nz);
-      int isuperbin =
-          /*(nz * nphi * neta) * ptbin + (removed since pt bin is determined by pixelType)*/ (nz * nphi) * etabin +
-          (nz)*phibin + dzbin;
-      // if(isuperbin<0 || isuperbin>=44900){printf("isuperbin %d %d %d %d %f\n",isuperbin,etabin,phibin,dzbin,p3PCA.Eta());}
-      superbin_vec.push_back(isuperbin);
-      pixelType_vec.push_back(pixtype);
-      isQuad_vec.push_back(isQuad);
-    }
-  }
-
-  out_trkX.push_back(trkX);
-  out_trkY.push_back(trkY);
-  out_trkZ.push_back(trkZ);
-  out_hitId.push_back(hitId);
-  out_hitIdxs.push_back(hitIdxs);
-  out_hitIndices_vec0.push_back(hitIndices_vec0);
-  out_hitIndices_vec1.push_back(hitIndices_vec1);
-  out_hitIndices_vec2.push_back(hitIndices_vec2);
-  out_hitIndices_vec3.push_back(hitIndices_vec3);
-  out_deltaPhi_vec.push_back(deltaPhi_vec);
-  out_ptIn_vec.push_back(ptIn_vec);
-  out_ptErr_vec.push_back(ptErr_vec);
-  out_px_vec.push_back(px_vec);
-  out_py_vec.push_back(py_vec);
-  out_pz_vec.push_back(pz_vec);
-  out_eta_vec.push_back(eta_vec);
-  out_etaErr_vec.push_back(etaErr_vec);
-  out_phi_vec.push_back(phi_vec);
-  out_charge_vec.push_back(charge_vec);
-  out_seedIdx_vec.push_back(seedIdx_vec);
-  out_superbin_vec.push_back(superbin_vec);
-  out_pixelType_vec.push_back(pixelType_vec);
-  out_isQuad_vec.push_back(isQuad_vec);
-
-  //    float hit_loading_elapsed = my_timer.RealTime();
-  //    if (ana.verbose >= 2) std::cout << "Loading inputs processing time: " << hit_loading_elapsed << " secs" << std::endl;
-  //    return hit_loading_elapsed;
-}
-
-//___________________________________________________________________________________________________________________________________________________________________________________________
-float addInputsToEventPreLoad(LSTEvent *event,
-                              bool useOMP,
-                              std::vector<float> trkX,
-                              std::vector<float> trkY,
-                              std::vector<float> trkZ,
-                              std::vector<unsigned int> hitId,
-                              std::vector<unsigned int> hitIdxs,
-                              std::vector<unsigned int> hitIndices_vec0,
-                              std::vector<unsigned int> hitIndices_vec1,
-                              std::vector<unsigned int> hitIndices_vec2,
-                              std::vector<unsigned int> hitIndices_vec3,
-                              std::vector<float> deltaPhi_vec,
-                              std::vector<float> ptIn_vec,
-                              std::vector<float> ptErr_vec,
-                              std::vector<float> px_vec,
-                              std::vector<float> py_vec,
-                              std::vector<float> pz_vec,
-                              std::vector<float> eta_vec,
-                              std::vector<float> etaErr_vec,
-                              std::vector<float> phi_vec,
-                              std::vector<int> charge_vec,
-                              std::vector<unsigned int> seedIdx_vec,
-                              std::vector<int> superbin_vec,
-                              std::vector<PixelType> pixelType_vec,
-                              std::vector<char> isQuad_vec) {
+float addInputsToEventPreLoad(LSTEvent* event,
+                              lst::LSTInputHostCollection* lstInputHC,
+                              LSTInputDeviceCollection* lstInputDC,
+                              ALPAKA_ACCELERATOR_NAMESPACE::Queue& queue) {
   TStopwatch my_timer;
 
   if (ana.verbose >= 2)
@@ -876,26 +665,14 @@ float addInputsToEventPreLoad(LSTEvent *event,
 
   my_timer.Start();
 
-  event->addHitToEvent(trkX, trkY, trkZ, hitId, hitIdxs);
+  // We can't use CopyToDevice because the device can be DevHost
+  alpaka::memcpy(queue, lstInputDC->buffer(), lstInputHC->buffer());
+  alpaka::wait(queue);
 
-  event->addPixelSegmentToEvent(hitIndices_vec0,
-                                hitIndices_vec1,
-                                hitIndices_vec2,
-                                hitIndices_vec3,
-                                deltaPhi_vec,
-                                ptIn_vec,
-                                ptErr_vec,
-                                px_vec,
-                                py_vec,
-                                pz_vec,
-                                eta_vec,
-                                etaErr_vec,
-                                phi_vec,
-                                charge_vec,
-                                seedIdx_vec,
-                                superbin_vec,
-                                pixelType_vec,
-                                isQuad_vec);
+  event->addInputToEvent(lstInputDC);
+  event->addHitToEvent();
+
+  event->addPixelSegmentToEventStart();
   event->wait();  // device side event calls are asynchronous: wait to measure time or print
   float hit_loading_elapsed = my_timer.RealTime();
 
@@ -906,7 +683,7 @@ float addInputsToEventPreLoad(LSTEvent *event,
 }
 
 //________________________________________________________________________________________________________________________________
-void printTimingInformation(std::vector<std::vector<float>> &timing_information, float fullTime, float fullavg) {
+void printTimingInformation(std::vector<std::vector<float>>& timing_information, float fullTime, float fullavg) {
   if (ana.verbose == 0)
     return;
 

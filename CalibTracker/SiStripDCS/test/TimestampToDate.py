@@ -1,4 +1,3 @@
-from __future__ import print_function
 def pack(high,low):
     """pack high,low 32bit unsigned int to one unsigned 64bit long long
        Note:the print value of result number may appear signed, if the sign bit is used.

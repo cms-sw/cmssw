@@ -15,7 +15,7 @@ namespace reco {
 
   // reduce to [-pi,pi]
   template <typename T>
-  constexpr T reduceRange(T x) {
+  constexpr T reducePhiRange(T x) {
     constexpr T o2pi = 1. / (2. * M_PI);
     if (std::abs(x) <= T(M_PI))
       return x;
@@ -23,13 +23,13 @@ namespace reco {
     return x - n * T(2. * M_PI);
   }
 
-  constexpr double deltaPhi(double phi1, double phi2) { return reduceRange(phi1 - phi2); }
+  constexpr double deltaPhi(double phi1, double phi2) { return reducePhiRange(phi1 - phi2); }
 
   constexpr double deltaPhi(float phi1, double phi2) { return deltaPhi(static_cast<double>(phi1), phi2); }
 
   constexpr double deltaPhi(double phi1, float phi2) { return deltaPhi(phi1, static_cast<double>(phi2)); }
 
-  constexpr float deltaPhi(float phi1, float phi2) { return reduceRange(phi1 - phi2); }
+  constexpr float deltaPhi(float phi1, float phi2) { return reducePhiRange(phi1 - phi2); }
 
   template <typename T1, typename T2>
   constexpr auto deltaPhi(T1 const& t1, T2 const& t2) -> decltype(deltaPhi(t1.phi(), t2.phi())) {
@@ -38,7 +38,7 @@ namespace reco {
 
   template <typename T>
   constexpr T deltaPhi(T phi1, T phi2) {
-    return reduceRange(phi1 - phi2);
+    return reducePhiRange(phi1 - phi2);
   }
 }  // namespace reco
 
@@ -57,7 +57,7 @@ namespace angle0to2pi {
   using angle_units::operators::operator""_pi;
 
   // make0To2pi constrains an angle to be >= 0 and < 2pi.
-  // This function is a faster version of reco::reduceRange.
+  // This function is a faster version of reco::reducePhiRange.
   // In timing tests, it is almost always faster than reco::reduceRange.
   // It also protects against floating-point value drift over repeated calculations.
   // This implementation uses multiplication instead of division and avoids

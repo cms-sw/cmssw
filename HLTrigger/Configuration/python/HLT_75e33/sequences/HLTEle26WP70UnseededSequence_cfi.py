@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from ..modules.hltEgammaCandidatesUnseeded_cfi import *
 from ..modules.hltEgammaClusterShapeUnseeded_cfi import *
 from ..modules.hltEgammaEcalPFClusterIsoUnseeded_cfi import *
-from ..modules.hltEgammaEleGsfTrackIsoV6Unseeded_cfi import *
+from ..modules.hltEgammaEleGsfTrackIsoUnseeded_cfi import *
 from ..modules.hltEgammaEleL1TrkIsoUnseeded_cfi import *
 from ..modules.hltEgammaHcalPFClusterIsoUnseeded_cfi import *
 from ..modules.hltEgammaHGCALIDVarsUnseeded_cfi import *
@@ -36,14 +36,13 @@ from ..sequences.HLTElePixelMatchUnseededSequence_cfi import *
 from ..sequences.HLTFastJetForEgammaSequence_cfi import *
 from ..sequences.HLTGsfElectronUnseededSequence_cfi import *
 from ..sequences.HLTHgcalTiclPFClusteringForEgammaUnseededSequence_cfi import *
-from ..sequences.HLTL1Sequence_cfi import *
 from ..sequences.HLTPFClusteringForEgammaUnseededSequence_cfi import *
 from ..sequences.HLTPFHcalClusteringForEgammaSequence_cfi import *
-from ..sequences.HLTTrackingV61Sequence_cfi import *
+from ..sequences.HLTTrackingSequence_cfi import *
 
-HLTEle26WP70UnseededSequence = cms.Sequence(HLTL1Sequence
-                                            +hltEGL1SeedsForSingleEleIsolatedFilter
+HLTEle26WP70UnseededSequence = cms.Sequence(hltEGL1SeedsForSingleEleIsolatedFilter
                                             +HLTDoFullUnpackingEgammaEcalSequence
+                                            +HLTEGammaDoLocalHcalSequence    
                                             +HLTPFClusteringForEgammaUnseededSequence
                                             +HLTHgcalTiclPFClusteringForEgammaUnseededSequence
                                             +hltEgammaCandidatesUnseeded
@@ -55,7 +54,6 @@ HLTEle26WP70UnseededSequence = cms.Sequence(HLTL1Sequence
                                             +hltEle26WP70ClusterShapeSigmavvUnseededFilter
                                             +hltEle26WP70ClusterShapeSigmawwUnseededFilter
                                             +hltEle26WP70HgcalHEUnseededFilter
-                                            +HLTEGammaDoLocalHcalSequence    
                                             +HLTFastJetForEgammaSequence
                                             +hltEgammaHoverEUnseeded
                                             +hltEle26WP70HEUnseededFilter
@@ -77,6 +75,6 @@ HLTEle26WP70UnseededSequence = cms.Sequence(HLTL1Sequence
                                             +hltEle26WP70BestGsfChi2UnseededFilter
                                             +hltEgammaEleL1TrkIsoUnseeded
                                             +hltEle26WP70GsfTrackIsoFromL1TracksUnseededFilter
-                                            +HLTTrackingV61Sequence
-                                            +hltEgammaEleGsfTrackIsoV6Unseeded
+                                            +HLTTrackingSequence
+                                            +hltEgammaEleGsfTrackIsoUnseeded
                                             +hltEle26WP70GsfTrackIsoUnseededFilter)

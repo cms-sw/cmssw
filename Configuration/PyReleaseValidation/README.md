@@ -37,40 +37,41 @@ The offsets currently in use are:
 * 0.407: Alpaka, pixel only triplets, portable vs. CPU validation
 * 0.407: Alpaka, pixel only triplets, portable profiling
 * 0.412: Alpaka, ECAL only, portable
+* 0.413: Alpaka, ECAL only, portable vs. CPU validation
 * 0.422: Alpaka, HCAL only, portable
 * 0.423: Alpaka, HCAL only, portable vs CPU validation
 * 0.424: Alpaka, HCAL only, portable profiling
 * 0.492: Alpaka, full reco with pixel quadruplets
 * 0.496: Alpaka, full reco with pixel triplets
-* 0.5: Pixel tracking only + 0.1
-* 0.501: Patatrack, pixel only quadruplets, on CPU
-* 0.502: Patatrack, pixel only quadruplets, with automatic offload to GPU if available
-* 0.504: Patatrack, pixel only quadruplets, GPU profiling
-* 0.505: Patatrack, pixel only triplets, on CPU
-* 0.506: Patatrack, pixel only triplets, with automatic offload to GPU if available
-* 0.508: Patatrack, pixel only triplets, GPU profiling
-* 0.511: Patatrack, ECAL only, on CPU
-* 0.512: Patatrack, ECAL only, with automatic offload to GPU if available
-* 0.513: Patatrack, ECAL only, GPU vs. CPU validation
-* 0.514: Patatrack, ECAL only, GPU profiling
-* 0.521: Patatrack, HCAL only, on CPU
-* 0.522: Patatrack, HCAL only, with automatic offload to GPU if available
-* 0.524: Patatrack, HCAL only, GPU profiling
-* 0.591: Patatrack, full reco with pixel quadruplets, on CPU
-* 0.592: Patatrack, full reco with pixel quadruplets, with automatic offload to GPU if available
-* 0.595: Patatrack, full reco with pixel triplets, on CPU
-* 0.596: Patatrack, full reco with pixel triplets, with automatic offload to GPU if available
+* 0.5: Legacy pixel tracking only (CPU)
+* 0.511: Legacy ECAL reco only (CPU)
+* 0.521: Legacy HCAL reco only (CPU)
 * 0.6: HE Collapse (old depth segmentation for 2018)
 * 0.601: HLT as separate step
 * 0.7: trackingMkFit modifier
 * 0.701: DisplacedRegionalStep tracking iteration for Run-3
 * 0.702: trackingMkFit modifier for Phase-2 (initialStep only)
 * 0.703: LST tracking (Phase-2 only), initialStep+HighPtTripletStep only, on CPU
-* 0.704: LST tracking (Phase-2 only), initialStep+HighPtTripletStep only, on GPU
+* 0.704: LST tracking (Phase-2 only), initialStep+HighPtTripletStep only, on GPU (if available)
 * 0.75: HLT phase-2 timing menu
+* 0.7501: HLT phase-2 tracking-only menu
 * 0.751: HLT phase-2 timing menu Alpaka variant
 * 0.752: HLT phase-2 timing menu ticl_v5 variant
+* 0.753: HLT phase-2 timing menu Alpaka, single tracking iteration variant
+* 0.754: HLT phase-2 timing menu Alpaka, single tracking iteration, LST building variant
+* 0.755: HLT phase-2 timing menu Alpaka, LST building variant
+* 0.756 HLT phase-2 timing menu trimmed tracking
+* 0.7561 HLT phase-2 timing menu Alpaka, trimmed tracking
+* 0.7562 HLT phase-2 timing menu Alpaka, trimmed tracking, single tracking iteration variant
+* 0.757: HLT phase-2 timing menu Alpaka, single tracking iteration, LST seeding + CKF building variant
+* 0.758 HLT phase-2 timing menu ticl_barrel variant
+* 0.759: HLT phase-2 timing menu, with NANO:@Phase2HLT
+* 0.77: HLT phase-2 NGT Scouting menu
+* 0.771: HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting
+* 0.778 L3 Tracker Muons reconstruction Outside-In first, HLT Muon NanoAOD
 * 0.78: Complete L1 workflow
+* 0.781: Complete L1 workflow, producing FEVT and NANO output L1/P2GT objects
+* 0.782: Complete L1 workflow, producing only NANO output L1/P2GT objects
 * 0.8: BPH Parking (Run-2)
 * 0.81: Running also HeavyFlavor DQM
 * 0.85: Phase-2 Heavy Ion
@@ -79,6 +80,7 @@ The offsets currently in use are:
 * 0.13: MLPF algorithm
 * 0.15: JME NanoAOD
 * 0.17: Run-3 deep core seeding for JetCore iteration
+* 0.18  Run-3 SiPixel Digi Morphing
 * 0.19: ECAL SuperClustering with DeepSC algorithm
 * 0.21: Production-like sequence
 * 0.21X1 : Production-like sequence with classical mixing PU=X (X=10,20,30,40,50,60,70,80,90,100,120,140,160,180)
@@ -91,7 +93,6 @@ The offsets currently in use are:
 * 0.633: ECAL phase2 Trigger Primitive
 * 0.634: ECAL phase2 Trigger Primitive + component-method based digis
 * 0.635: ECAL phase2 Trigger Primitive + component-method based finely-sampled waveforms
-* 0.75: Phase-2 HLT Timing menu
 * 0.91: Track DNN modifier
 * 0.97: Premixing stage1
 * 0.98: Premixing stage2
@@ -109,6 +110,8 @@ The offsets currently in use are:
 * 0.203: HGCAL TICLv5
 * 0.204: HGCAL superclustering : using Mustache in TICLv5
 * 0.205: HGCAL superclustering : using old PFCluster-based Mustache algorithm with TICLv5
+* 0.209: TICL barrel : run TICL in HGCAL and barrel calorimeters
+* 0.2091: TICL barrel with CaloParticles from PU enabled
 * 0.302: FastSim Run-3 trackingOnly validation
 * 0.303: FastSim Run-3 MB for mixing
 * 0.9001: Sonic Triton
@@ -119,3 +122,4 @@ The offsets currently in use are:
 * 0.113: Activate OuterTracker inefficiency (PS-p: bias rails inefficiency; PS-s and SS: 5% bad strips)
 * 0.114: Activate OuterTracker inefficiency (PS-p: bias rails inefficiency; PS-s and SS: 10% bad strips)
 * 0.141: Activate emulation of the signal shape of the InnerTracker FE chip (CROC)
+* 0.186: Run-3 goodEdgeAlgo CPE

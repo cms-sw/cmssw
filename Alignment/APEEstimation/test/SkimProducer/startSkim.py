@@ -1,4 +1,3 @@
-from __future__ import print_function
 import sys
 sys.path.append("../SkimProducer")
 # for switching to CAF queue (condor submit)

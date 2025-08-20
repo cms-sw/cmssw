@@ -10,7 +10,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-#include "FWCore/Utilities/interface/Span.h"
 
 // L1 scouting
 #include "DataFormats/L1Scouting/interface/L1ScoutingCalo.h"
@@ -26,7 +25,7 @@ using namespace l1ScoutingRun3;
 class JetBxSelector : public edm::stream::EDProducer<> {
 public:
   explicit JetBxSelector(const edm::ParameterSet&);
-  ~JetBxSelector() {}
+  ~JetBxSelector() override {}
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
@@ -67,7 +66,7 @@ void JetBxSelector::produce(edm::Event& iEvent, const edm::EventSetup&) {
     const auto& jets = jetsCollection->bxIterator(bx);
 
     // we have at least N jets
-    if (jets.size() < minNJet_)
+    if (std::ssize(jets) < minNJet_)
       continue;
 
     // it must be in a certain eta region with an pT and quality threshold

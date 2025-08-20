@@ -13,6 +13,7 @@ namespace lst {
                       SOA_COLUMN(Params_T5::ArrayU16xLayers, lowerModuleIndices),  // lower module index in each layer
                       SOA_COLUMN(Params_T5::ArrayU8xLayers, logicalLayers),        // layer ID
                       SOA_COLUMN(Params_T5::ArrayUxHits, hitIndices),              // hit indices
+                      SOA_COLUMN(Params_T5::ArrayFxEmbed, t5Embed),                // t5 embedding vector
                       SOA_COLUMN(FPX, innerRadius),                                // inner triplet circle radius
                       SOA_COLUMN(FPX, bridgeRadius),                               // "middle"/bridge triplet radius
                       SOA_COLUMN(FPX, outerRadius),                                // outer triplet radius
@@ -24,11 +25,13 @@ namespace lst {
                       SOA_COLUMN(bool, tightCutFlag),  // tight pass to be a TC
                       SOA_COLUMN(bool, partOfPT5),
                       SOA_COLUMN(float, regressionRadius),
-                      SOA_COLUMN(float, regressionG),
-                      SOA_COLUMN(float, regressionF),
+                      SOA_COLUMN(float, regressionCenterX),
+                      SOA_COLUMN(float, regressionCenterY),
                       SOA_COLUMN(float, rzChiSquared),  // r-z only chi2
                       SOA_COLUMN(float, chiSquared),
-                      SOA_COLUMN(float, nonAnchorChiSquared));
+                      SOA_COLUMN(float, nonAnchorChiSquared),
+                      SOA_COLUMN(float, dBeta1),
+                      SOA_COLUMN(float, dBeta2));
 
   using QuintupletsSoA = QuintupletsSoALayout<>;
   using Quintuplets = QuintupletsSoA::View;

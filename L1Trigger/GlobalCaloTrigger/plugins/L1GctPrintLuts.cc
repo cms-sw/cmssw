@@ -16,8 +16,9 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctHfEtSumsLut.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <memory>
 #include <sys/stat.h>
 
 L1GctPrintLuts::L1GctPrintLuts(const edm::ParameterSet& iConfig)
@@ -33,7 +34,7 @@ L1GctPrintLuts::L1GctPrintLuts(const edm::ParameterSet& iConfig)
   for (unsigned ieta = 0; ieta < L1GctJetFinderBase::COL_OFFSET; ieta++) {
     nextLut->setEtaBin(ieta);
     m_jetEtCalibLuts.push_back(nextLut);
-    nextLut.reset(new L1GctJetEtCalibrationLut());
+    nextLut = std::make_shared<L1GctJetEtCalibrationLut>();
   }
   m_jfParsToken = esConsumes<L1GctJetFinderParams, L1GctJetFinderParamsRcd>();
   m_etScaleToken = esConsumes<L1CaloEtScale, L1JetEtScaleRcd>();

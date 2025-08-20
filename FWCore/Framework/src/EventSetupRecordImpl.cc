@@ -115,6 +115,15 @@ namespace edm {
       return ret;
     }
 
+    std::vector<unsigned int> EventSetupRecordImpl::produceMethodIDsForRegisteredDataKeys() const {
+      std::vector<unsigned int> ret;
+      ret.reserve(resolvers_.size());
+      for (auto const& resolver : resolvers_) {
+        ret.push_back(resolver->produceMethodID());
+      }
+      return ret;
+    }
+
     bool EventSetupRecordImpl::add(const DataKey& iKey, ESProductResolver* iResolver) {
       const ESProductResolver* resolver = find(iKey);
       if (nullptr != resolver) {
@@ -245,9 +254,7 @@ namespace edm {
       return nullptr;
     }
 
-    void EventSetupRecordImpl::fillRegisteredDataKeys(std::vector<DataKey>& oToFill) const {
-      oToFill = keysForResolvers_;
-    }
+    std::vector<DataKey> const& EventSetupRecordImpl::registeredDataKeys() const { return keysForResolvers_; }
 
     void EventSetupRecordImpl::addTraceInfoToCmsException(cms::Exception& iException,
                                                           const char* iName,

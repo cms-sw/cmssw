@@ -7,6 +7,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/DTRecHit/interface/DTRecSegment2D.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
@@ -40,6 +41,8 @@ public:
   std::vector<const CSCSegment*> matchCSC(const reco::Track& muon, const edm::Event& event);
 
   std::vector<const RPCRecHit*> matchRPC(const reco::Track& muon, const edm::Event& event);
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
 protected:
 private:

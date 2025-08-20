@@ -1,0 +1,4 @@
+<use name="alpaka"/>
+<export>
+  <lib name="1"/>
+</export>

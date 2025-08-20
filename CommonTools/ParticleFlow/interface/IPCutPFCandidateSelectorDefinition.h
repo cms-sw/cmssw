@@ -12,6 +12,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "CommonTools/ParticleFlow/interface/PFCandidateSelectorDefinition.h"
@@ -30,6 +31,16 @@ namespace pf2pat {
           d0SigCut_(cfg.getParameter<double>("d0SigCut")),
           dzSigCut_(cfg.getParameter<double>("dzSigCut")),
           dtSigCut_(cfg.getParameter<double>("dtSigCut")) {}
+
+    static void fillPSetDescription(edm::ParameterSetDescription &desc) {
+      desc.add<edm::InputTag>("vertices", edm::InputTag(""));
+      desc.add<double>("d0Cut", 0.2)->setComment("transverse IP");
+      desc.add<double>("dzCut", 0.5)->setComment("longitudingal IP");
+      desc.add<double>("dtCut", -1.0)->setComment("time");
+      desc.add<double>("d0SigCut", 99.)->setComment("transverse IP significance");
+      desc.add<double>("dzSigCut", 99.)->setComment("longitudingal IP significance");
+      desc.add<double>("dtSigCut", -1.0)->setComment("time significance");
+    }
 
     void select(const HandleToCollection &hc, const edm::Event &e, const edm::EventSetup &s) {
       selected_.clear();

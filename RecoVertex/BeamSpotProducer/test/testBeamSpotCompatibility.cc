@@ -12,7 +12,7 @@ TEST_CASE("Significance Calculation", "[Significance]") {
   double errA = 1.0;
   double errB = 1.5;
 
-  Significance sig(a, b, errA, errB);
+  Significance sig(a, b, errA, errB, "test");
   float significance = sig.getSig(false);
 
   // Correct the expected value based on actual calculation
@@ -42,12 +42,12 @@ TEST_CASE("BeamSpot Compatibility Checker", "[compareBS]") {
   edm::ParameterSet pset;
   pset.addParameter<double>("warningThr", 1.0);
   pset.addParameter<double>("errorThr", 2.0);
-  pset.addParameter<edm::InputTag>("bsFromEvent", edm::InputTag(""));
-  pset.addParameter<bool>("dbFromEvent", false);
+  pset.addParameter<edm::InputTag>("bsFromFile", edm::InputTag(""));
+  pset.addParameter<bool>("dbFromEvent", true);
   pset.addParameter<edm::InputTag>("bsFromDB", edm::InputTag(""));
 
   BeamSpotCompatibilityChecker checker(pset);
-  auto significances = checker.compareBS(beamSpotA, beamSpotB);
+  auto significances = checker.compareBS(beamSpotA, beamSpotB, true);
 
   // Print significances
   for (size_t i = 0; i < significances.size(); ++i) {

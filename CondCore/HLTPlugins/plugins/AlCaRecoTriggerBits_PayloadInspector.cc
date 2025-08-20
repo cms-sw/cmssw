@@ -347,7 +347,7 @@ namespace {
                 toAppend += not_in_last[iPath] + ";";
               }
               // if it's the last and not empty, dump it
-              if (toAppend.length() > 0 && iPath == not_in_last.size() - 1)
+              if (!toAppend.empty() && iPath == not_in_last.size() - 1)
                 output.push_back(toAppend);
             }
 
@@ -372,7 +372,7 @@ namespace {
                 toAppend += not_in_first[jPath] + ";";
               }
               // if it's the last and not empty, dump it
-              if (toAppend.length() > 0 && jPath == not_in_first.size() - 1)
+              if (!toAppend.empty() && jPath == not_in_first.size() - 1)
                 output.push_back(toAppend);
             }
 

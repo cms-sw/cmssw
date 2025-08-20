@@ -3,7 +3,7 @@
  *
  */
 
-#include "RecoMuon/MuonSeedGenerator/src/RPCSeedOverlapper.h"
+#include "RecoMuon/MuonSeedGenerator/interface/RPCSeedOverlapper.h"
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 

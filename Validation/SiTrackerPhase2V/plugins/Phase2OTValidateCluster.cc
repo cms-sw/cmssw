@@ -157,8 +157,16 @@ void Phase2OTValidateCluster::fillOTHistos(const edm::Event& iEvent,
                                            const std::map<unsigned int, SimTrack>& simTracks) {
   // Getting the clusters
   const auto& clusterHandle = iEvent.getHandle(clustersToken_);
+  if (!clusterHandle.isValid()) {
+    edm::LogWarning("Phase2OTValidateCluster") << "No Phase2TrackerCluster1D Collection found in the event. Skipping!";
+    return;
+  }
   // Getting PixelDigiSimLinks
   const auto& pixelSimLinksHandle = iEvent.getHandle(simOTLinksToken_);
+  if (!pixelSimLinksHandle.isValid()) {
+    edm::LogWarning("Phase2OTValidateCluster") << "No PixelDigiSimLinks Collection found in the event. Skipping!";
+    return;
+  }
 
   // Number of clusters
   std::map<std::string, unsigned int> nPrimarySimHits[3];

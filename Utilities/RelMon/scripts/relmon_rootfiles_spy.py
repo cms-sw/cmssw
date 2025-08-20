@@ -12,7 +12,6 @@
 """
 Just a draft of the real program...It is very ugly still.
 """
-from __future__ import print_function
 
 
 from os.path import basename

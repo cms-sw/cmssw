@@ -13,6 +13,7 @@
  *
  */
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "CommonTools/UtilAlgos/interface/SelectionAdderTrait.h"
 #include "CommonTools/UtilAlgos/interface/StoreContainerTrait.h"
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
@@ -51,6 +52,11 @@ struct SingleElementCollectionRefSelector {
       if (select_(c->refAt(idx)))
         addRef_(selected_, c, idx);
     }
+  }
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc) {
+    // Use ParameterAdapter to fill the descriptions
+    reco::modules::ParameterAdapter<Selector>::fillPSetDescription(desc);
   }
 
 private:

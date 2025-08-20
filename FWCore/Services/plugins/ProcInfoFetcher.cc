@@ -17,6 +17,7 @@
 #include <cstring>
 #include <cassert>
 #include <iostream>
+#include <array>
 #ifdef __linux__
 #include <malloc.h>
 #endif
@@ -193,16 +194,18 @@ namespace edm {
 
       lseek(fd_, 0, SEEK_SET);
 
-      if ((cnt = read(fd_, buf_, sizeof(buf_) - 1)) < 0) {
+      std::array<char, 500> buf;
+
+      if ((cnt = read(fd_, buf.data(), buf.size() - 1)) < 0) {
         perror("Read of Proc file failed:");
         return ProcInfo();
       }
 
       if (cnt > 0) {
-        buf_[cnt] = '\0';
+        buf[cnt] = '\0';
 
         try {
-          Fetcher fetcher(buf_);
+          Fetcher fetcher(buf.data());
           fetcher >> pinfo.pid >> pinfo.comm >> pinfo.state >> pinfo.ppid >> pinfo.pgrp >> pinfo.session >> pinfo.tty >>
               pinfo.tpgid >> pinfo.flags >> pinfo.minflt >> pinfo.cminflt >> pinfo.majflt >> pinfo.cmajflt >>
               pinfo.utime >> pinfo.stime >> pinfo.cutime >> pinfo.cstime >> pinfo.priority >> pinfo.nice >>

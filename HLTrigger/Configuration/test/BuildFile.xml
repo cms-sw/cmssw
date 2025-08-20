@@ -17,3 +17,9 @@
 
 <!-- test script testOnlineVsDevTablesConsistency -->
 <test name="test_OnlineVsDevTablesConsistency" command="test_OnlineVsDevTablesConsistency.sh"/>
+
+<!-- test script check_phase2_hlt_duplicates.sh -->
+<test name="test_check_phase2_hlt_duplicates" command="check_phase2_hlt_duplicates.sh"/>
+
+<!-- test script to check the consistency of event content of HLTScoutingExtra and HLTScoutingAll -->
+<test name="testHLTScoutingEventContent"  command="python3 ${CMSSW_BASE}/src/HLTrigger/Configuration/test/testHLTScoutingEventContent.py"/>

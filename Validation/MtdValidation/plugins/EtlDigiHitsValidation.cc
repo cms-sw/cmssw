@@ -26,9 +26,10 @@
 #include "DataFormats/FTLDigi/interface/FTLDigiCollections.h"
 
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
+#include "Geometry/Records/interface/MTDTopologyRcd.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
+#include "Geometry/MTDGeometryBuilder/interface/MTDTopology.h"
 #include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
 
 class EtlDigiHitsValidation : public DQMEDAnalyzer {

@@ -1,10 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 # Clusterizer options
-siPhase2Clusters = cms.EDProducer('Phase2TrackerClusterizer',
-    src = cms.InputTag("mix", "Tracker"),
-    maxClusterSize = cms.uint32(0), # was 8
-    maxNumberClusters = cms.uint32(0)
+from RecoLocalTracker.SiPhase2Clusterizer.default_phase2TrackerClusterizer_cfi import default_phase2TrackerClusterizer
+siPhase2Clusters = default_phase2TrackerClusterizer.clone(
+    src = "mix:Tracker",
+    maxClusterSize = 0, # was 8
+    maxNumberClusters = 0
 )
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2

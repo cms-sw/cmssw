@@ -221,7 +221,7 @@ int L1MuDTPtaLut::load() {
 
     // assemble file name
     edm::FileInPath lut_f = edm::FileInPath(string(defaultPath + pta_dir + pta_str + ".lut"));
-    string pta_file = lut_f.fullPath();
+    const string& pta_file = lut_f.fullPath();
 
     // open file
     L1TriggerLutFile file(pta_file);

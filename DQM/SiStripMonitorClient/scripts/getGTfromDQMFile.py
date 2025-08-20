@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import print_function
 from math import *
 from ROOT import TFile, TObject, TTree
 from array import array

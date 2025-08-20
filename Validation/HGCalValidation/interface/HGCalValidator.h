@@ -32,6 +32,8 @@
 #include "SimDataFormats/Associations/interface/LayerClusterToSimClusterAssociator.h"
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 
+#include "CommonTools/RecoAlgos/interface/MultiVectorManager.h"
+
 class PileupSummaryInfo;
 
 struct HGCalValidatorHistograms {
@@ -44,7 +46,7 @@ class HGCalValidator : public DQMGlobalEDAnalyzer<HGCalValidatorHistograms> {
 public:
   using Histograms = HGCalValidatorHistograms;
   using TracksterToTracksterMap =
-      ticl::AssociationMap<ticl::mapWithFractionAndScore, std::vector<ticl::Trackster>, std::vector<ticl::Trackster>>;
+      ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore, std::vector<ticl::Trackster>, std::vector<ticl::Trackster>>;
   using SimClusterToCaloParticleMap =
       ticl::AssociationMap<ticl::oneToOneMapWithFraction, std::vector<SimCluster>, std::vector<CaloParticle>>;
 
@@ -65,7 +67,7 @@ public:
                                 std::vector<size_t>& selected_cPeff,
                                 unsigned int layers,
                                 std::unordered_map<DetId, const unsigned int> const&,
-                                std::vector<HGCRecHit> const& hits) const;
+                                MultiVectorManager<HGCRecHit> const& hits) const;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -111,7 +113,7 @@ protected:
   edm::EDGetTokenT<ticl::RecoToSimCollectionWithSimClusters> associatorMapRtSim;
   std::unique_ptr<HGVHistoProducerAlgo> histoProducerAlgo_;
   std::vector<edm::InputTag> hits_label_;
-  std::vector<edm::EDGetTokenT<HGCRecHitCollection>> hits_token_;
+  std::vector<edm::EDGetTokenT<HGCRecHitCollection>> hits_tokens_;
   std::unique_ptr<TICLCandidateValidator> candidateVal_;
   std::vector<edm::EDGetTokenT<TracksterToTracksterMap>> tracksterToTracksterAssociatorsTokens_;
   std::vector<edm::EDGetTokenT<TracksterToTracksterMap>> tracksterToTracksterByHitsAssociatorsTokens_;

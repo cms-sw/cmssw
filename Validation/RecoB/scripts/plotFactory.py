@@ -8,7 +8,6 @@
 #######
 
 #import all what is needed
-from __future__ import print_function
 from histoStyle import *
 #parser options
 from optparse import OptionParser

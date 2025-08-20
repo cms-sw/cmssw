@@ -39,7 +39,7 @@ namespace mkfit::mini_propagators {
         for (int i = 0; i < Config::Niter; ++i) {
           // compute tangental and ideal distance for the current iteration.
           // 3-rd order asin for symmetric incidence (shortest arc lenght).
-          float r0 = std::hypot(c.x, c.y);
+          float r0 = hipo(c.x, c.y);
           float td = (R - r0) * curv;
           float id = oo_curv * td * (1.0f + 0.16666666f * td * td);
           // This would be for line approximation:
@@ -67,7 +67,7 @@ namespace mkfit::mini_propagators {
       }
     }
     // should have some epsilon constant / member? relative vs. abs?
-    c.fail_flag = std::abs(std::hypot(c.x, c.y) - R) < 0.1f ? 0 : 1;
+    c.fail_flag = std::abs(hipo(c.x, c.y) - R) < 0.1f ? 0 : 1;
     return c.fail_flag;
   }
 

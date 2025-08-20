@@ -7,24 +7,25 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD3")
 
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
+from IOPool.Input.modules import PoolSource
+process.source = PoolSource(
+    fileNames = [
         'file:testGetByRunsMode.root',
         'file:testGetBy1.root'
-    ),
-    inputCommands=cms.untracked.vstring(
+    ],
+    inputCommands = [
         'keep *',
         'drop *_*_*_PROD2'
-    )
+    ]
 )
 
-process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('testGetByWithEmptyRun.root')
-)
+from IOPool.Output.modules import PoolOutputModule
+process.out = PoolOutputModule(fileName = 'testGetByWithEmptyRun.root')
 
-process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
-                              verbose = cms.untracked.bool(True),
-                              expectedRunLumiEvents = cms.untracked.vuint32(
+from FWCore.Framework.modules import RunLumiEventAnalyzer
+process.test = RunLumiEventAnalyzer(
+    verbose = True,
+    expectedRunLumiEvents = [
 1, 0, 0,
 1, 0, 0,
 1, 0, 0,
@@ -34,7 +35,7 @@ process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
 1, 1, 3,
 1, 1, 0,
 1, 0, 0
-)
+]
 )
 
 process.p1 = cms.Path(process.test)

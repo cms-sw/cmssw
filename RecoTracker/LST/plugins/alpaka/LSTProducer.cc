@@ -12,85 +12,65 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDPutToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EventSetup.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/SynchronizingEDProducer.h"
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/global/EDProducer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
-#include "RecoTracker/LST/interface/LSTOutput.h"
-#include "RecoTracker/LST/interface/LSTPhase2OTHitsInput.h"
-#include "RecoTracker/LST/interface/LSTPixelSeedInput.h"
+#include "RecoTracker/LSTCore/interface/alpaka/TrackCandidatesDeviceCollection.h"
 
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
-  class LSTProducer : public stream::SynchronizingEDProducer<> {
+  class LSTProducer : public global::EDProducer<> {
   public:
     LSTProducer(edm::ParameterSet const& config)
-        : lstPixelSeedInputToken_{consumes(config.getParameter<edm::InputTag>("pixelSeedInput"))},
-          lstPhase2OTHitsInputToken_{consumes(config.getParameter<edm::InputTag>("phase2OTHitsInput"))},
-          lstESToken_{esConsumes()},
+        : EDProducer(config),
+          lstInputToken_{consumes(config.getParameter<edm::InputTag>("lstInput"))},
+          lstESToken_{esConsumes(edm::ESInputTag("", config.getParameter<std::string>("ptCutLabel")))},
           verbose_(config.getParameter<bool>("verbose")),
+          ptCut_(config.getParameter<double>("ptCut")),
           nopLSDupClean_(config.getParameter<bool>("nopLSDupClean")),
           tcpLSTriplets_(config.getParameter<bool>("tcpLSTriplets")),
           lstOutputToken_{produces()} {}
 
-    void acquire(device::Event const& event, device::EventSetup const& setup) override {
+    void produce(edm::StreamID sid, device::Event& iEvent, const device::EventSetup& iSetup) const override {
+      lst::LST lst;
       // Inputs
-      auto const& pixelSeeds = event.get(lstPixelSeedInputToken_);
-      auto const& phase2OTHits = event.get(lstPhase2OTHitsInputToken_);
+      auto const& lstInputDC = iEvent.get(lstInputToken_);
+      auto const& lstESDeviceData = iSetup.getData(lstESToken_);
 
-      auto const& lstESDeviceData = setup.getData(lstESToken_);
+      lst.run(iEvent.queue(),
+              verbose_,
+              static_cast<float>(ptCut_),
+              &lstESDeviceData,
+              &lstInputDC,
+              nopLSDupClean_,
+              tcpLSTriplets_);
 
-      lst_.run(event.queue(),
-               verbose_,
-               &lstESDeviceData,
-               pixelSeeds.px(),
-               pixelSeeds.py(),
-               pixelSeeds.pz(),
-               pixelSeeds.dxy(),
-               pixelSeeds.dz(),
-               pixelSeeds.ptErr(),
-               pixelSeeds.etaErr(),
-               pixelSeeds.stateTrajGlbX(),
-               pixelSeeds.stateTrajGlbY(),
-               pixelSeeds.stateTrajGlbZ(),
-               pixelSeeds.stateTrajGlbPx(),
-               pixelSeeds.stateTrajGlbPy(),
-               pixelSeeds.stateTrajGlbPz(),
-               pixelSeeds.q(),
-               pixelSeeds.hitIdx(),
-               phase2OTHits.detId(),
-               phase2OTHits.x(),
-               phase2OTHits.y(),
-               phase2OTHits.z(),
-               nopLSDupClean_,
-               tcpLSTriplets_);
-    }
-
-    void produce(device::Event& event, device::EventSetup const&) override {
       // Output
-      LSTOutput lstOutput(lst_.hits(), lst_.len(), lst_.seedIdx(), lst_.trackCandidateType());
-      event.emplace(lstOutputToken_, std::move(lstOutput));
+      auto lstTrackCandidates = lst.getTrackCandidates();
+      iEvent.emplace(lstOutputToken_, std::move(*lstTrackCandidates.release()));
     }
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
-      desc.add<edm::InputTag>("pixelSeedInput", edm::InputTag{"lstPixelSeedInputProducer"});
-      desc.add<edm::InputTag>("phase2OTHitsInput", edm::InputTag{"lstPhase2OTHitsInputProducer"});
+      desc.add<edm::InputTag>("lstInput", edm::InputTag{"lstInputProducer"});
       desc.add<bool>("verbose", false);
+      desc.add<double>("ptCut", 0.8);
+      desc.add<std::string>("ptCutLabel", "0.8");
       desc.add<bool>("nopLSDupClean", false);
       desc.add<bool>("tcpLSTriplets", false);
       descriptions.addWithDefaultLabel(desc);
     }
 
   private:
-    edm::EDGetTokenT<LSTPixelSeedInput> lstPixelSeedInputToken_;
-    edm::EDGetTokenT<LSTPhase2OTHitsInput> lstPhase2OTHitsInputToken_;
-    device::ESGetToken<lst::LSTESData<Device>, TrackerRecoGeometryRecord> lstESToken_;
-    const bool verbose_, nopLSDupClean_, tcpLSTriplets_;
-    edm::EDPutTokenT<LSTOutput> lstOutputToken_;
-
-    lst::LST lst_;
+    const device::EDGetToken<lst::LSTInputDeviceCollection> lstInputToken_;
+    const device::ESGetToken<lst::LSTESData<Device>, TrackerRecoGeometryRecord> lstESToken_;
+    const bool verbose_;
+    const double ptCut_;
+    const bool nopLSDupClean_;
+    const bool tcpLSTriplets_;
+    const device::EDPutToken<lst::TrackCandidatesBaseDeviceCollection> lstOutputToken_;
   };
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

@@ -24,3 +24,64 @@ hltGeneralTracks = cms.EDProducer("TrackListMerger",
     trackAlgoPriorityOrder = cms.string('trackAlgoPriorityOrder'),
     writeOnlyTrkQuals = cms.bool(False)
 )
+
+from Configuration.ProcessModifiers.singleIterPatatrack_cff import singleIterPatatrack
+from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
+from Configuration.ProcessModifiers.seedingLST_cff import seedingLST
+
+_hltGeneralTracksSingleIterPatatrack = hltGeneralTracks.clone(
+    TrackProducers = ["hltInitialStepTrackSelectionHighPurity"],
+    hasSelector = [0],
+    indivShareFrac = [1.0],
+    selectedTrackQuals = ["hltInitialStepTrackSelectionHighPurity"],
+    setsToMerge = [cms.PSet(
+        pQual = cms.bool(True),
+        tLists = cms.vint32(0)
+    )]
+)
+
+(singleIterPatatrack & ~trackingLST & ~seedingLST).toReplaceWith(hltGeneralTracks, _hltGeneralTracksSingleIterPatatrack)
+
+_hltGeneralTracksLST = hltGeneralTracks.clone(
+    TrackProducers = ["hltInitialStepTrackSelectionHighPuritypTTCLST", "hltInitialStepTrackSelectionHighPuritypLSTCLST", "hltInitialStepTracksT5TCLST", "hltHighPtTripletStepTrackSelectionHighPurity"],
+    hasSelector = [0,0,0,0],
+    indivShareFrac = [0.1,0.1,0.1,0.1],
+    selectedTrackQuals = ["hltInitialStepTrackSelectionHighPuritypTTCLST", "hltInitialStepTrackSelectionHighPuritypLSTCLST", "hltInitialStepTracksT5TCLST", "hltHighPtTripletStepTrackSelectionHighPurity"],
+    setsToMerge = [cms.PSet(
+        pQual = cms.bool(True),
+        tLists = cms.vint32(0,1,2,3)
+    )]
+)
+
+(~singleIterPatatrack & trackingLST & ~seedingLST).toReplaceWith(hltGeneralTracks, _hltGeneralTracksLST)
+
+_hltGeneralTracksSingleIterPatatrackLST = hltGeneralTracks.clone(
+    TrackProducers = ["hltInitialStepTrackSelectionHighPuritypTTCLST", "hltInitialStepTrackSelectionHighPuritypLSTCLST", "hltInitialStepTracksT5TCLST"],
+    hasSelector = [0,0,0],
+    indivShareFrac = [0.1,0.1,0.1],
+    selectedTrackQuals = ["hltInitialStepTrackSelectionHighPuritypTTCLST", "hltInitialStepTrackSelectionHighPuritypLSTCLST", "hltInitialStepTracksT5TCLST"],
+    setsToMerge = [cms.PSet(
+        pQual = cms.bool(True),
+        tLists = cms.vint32(0,1,2)
+    )]
+)
+
+(singleIterPatatrack & trackingLST & ~seedingLST).toReplaceWith(hltGeneralTracks, _hltGeneralTracksSingleIterPatatrackLST)
+
+_hltGeneralTracksLSTSeeding = hltGeneralTracks.clone(
+            TrackProducers = ["hltInitialStepTrackSelectionHighPuritypTTCLST", "hltInitialStepTracksT5TCLST", "hltHighPtTripletStepTrackSelectionHighPuritypLSTCLST"],
+            hasSelector = [0,0,0],
+            indivShareFrac = [0.1,0.1,0.1],
+            selectedTrackQuals = ["hltInitialStepTrackSelectionHighPuritypTTCLST", "hltInitialStepTracksT5TCLST", "hltHighPtTripletStepTrackSelectionHighPuritypLSTCLST"],
+            setsToMerge = [cms.PSet(
+               pQual = cms.bool(True),
+               tLists = cms.vint32(0,1,2)
+            )]
+    )
+
+(~singleIterPatatrack & trackingLST & seedingLST).toReplaceWith(hltGeneralTracks, _hltGeneralTracksLSTSeeding)
+
+(singleIterPatatrack & trackingLST & seedingLST).toModify(_hltGeneralTracksSingleIterPatatrack,
+                                                          TrackProducers = ["hltInitialStepTracks"],
+                                                          selectedTrackQuals = ["hltInitialStepTracks"])
+(singleIterPatatrack & trackingLST & seedingLST).toReplaceWith(hltGeneralTracks, _hltGeneralTracksSingleIterPatatrack)

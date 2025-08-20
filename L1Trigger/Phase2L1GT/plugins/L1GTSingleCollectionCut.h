@@ -63,9 +63,9 @@ namespace l1t {
           maxAbsEta_(getOptionalParam<int, double>(
               "maxAbsEta", config, [&scales](double value) { return scales.to_hw_eta_ceil(value); })),
           minIsolationPt_(getOptionalParam<int, double>(
-              "minRelIsolationPt", config, [&scales](double value) { return scales.to_hw_isolationPT_floor(value); })),
+              "minIsolationPt", config, [&scales](double value) { return scales.to_hw_isolationPT_floor(value); })),
           maxIsolationPt_(getOptionalParam<int, double>(
-              "maxRelIsolationPt", config, [&scales](double value) { return scales.to_hw_isolationPT_ceil(value); })),
+              "maxIsolationPt", config, [&scales](double value) { return scales.to_hw_isolationPT_ceil(value); })),
           minRelIsolationPt_(getOptionalParam<int, double>(
               "minRelIsolationPt",
               config,
@@ -90,7 +90,26 @@ namespace l1t {
           primVertex_(getOptionalParam<unsigned int>("primVertex", config)),
           minPtMultiplicityN_(config.getParameter<unsigned int>("minPtMultiplicityN")),
           minPtMultiplicityCut_(getOptionalParam<int, double>(
-              "minPtMultiplicityCut", config, [&scales](double value) { return scales.to_hw_pT_floor(value); })) {}
+              "minPtMultiplicityCut", config, [&scales](double value) { return scales.to_hw_pT_floor(value); })) {
+      if (!std::is_sorted(regionsAbsEtaLowerBounds_.begin(), regionsAbsEtaLowerBounds_.end())) {
+        throw cms::Exception("Configuration") << "\'regionsAbsEtaLowerBounds\' is not sorted.";
+      }
+      if (!regionsMinPt_.empty() && regionsAbsEtaLowerBounds_.size() != regionsMinPt_.size()) {
+        throw cms::Exception("Configuration")
+            << "\'regionsMinPt\' has " << regionsMinPt_.size() << " entries, but requires "
+            << regionsAbsEtaLowerBounds_.size() << " in " << tag_ << " .";
+      }
+      if (!regionsMaxRelIsolationPt_.empty() && regionsAbsEtaLowerBounds_.size() != regionsMaxRelIsolationPt_.size()) {
+        throw cms::Exception("Configuration")
+            << "\'regionsMaxRelIsolationPt\' has " << regionsMaxRelIsolationPt_.size() << " entries, but requires "
+            << regionsAbsEtaLowerBounds_.size() << " in " << tag_ << " .";
+      }
+      if (!regionsQualityFlags_.empty() && regionsAbsEtaLowerBounds_.size() != regionsQualityFlags_.size()) {
+        throw cms::Exception("Configuration")
+            << "\'regionsQualityFlags\' has " << regionsQualityFlags_.size() << " entries, but requires "
+            << regionsAbsEtaLowerBounds_.size() << " in " << tag_ << " .";
+      }
+    }
 
     bool checkObject(const P2GTCandidate& obj) const {
       bool result = true;

@@ -36,8 +36,9 @@ _theTrackCollection = 'generalTracks' # FIXME: 'ALCARECOTkAlMinBias' once a samp
 ###################################################################
 # Set default phase-2 settings
 ###################################################################
-import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
-_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
+if(options.isPhase2):
+     import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+     _PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
 
 ###################################################################
 # Set the era
@@ -123,7 +124,7 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 ####################################################################
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, (_PH2_GLOBAL_TAG if options.isPhase2 else 'auto:phase1_2022_realistic'), '')
+process.GlobalTag = GlobalTag(process.GlobalTag, (_PH2_GLOBAL_TAG if options.isPhase2 else '125X_mcRun3_2022_realistic_v3'), '')
 
 if _allFromGT:
      print("############ testPVValidation_cfg.py: msg%-i: All is taken from GT")
@@ -138,7 +139,6 @@ else:
           from CondCore.DBCommon.CondDBSetup_cfi import *
           process.trackerAlignment = cms.ESSource("PoolDBESSource",CondDBSetup,
                                                   connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
-                                                  timetype = cms.string("runnumber"),
                                                   toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentRcd'),
                                                                              tag = cms.string('TrackerAlignment_Upgrade2017_design_v4')
                                                                         )
@@ -151,7 +151,6 @@ else:
           ####################################################################
           process.setAPE = cms.ESSource("PoolDBESSource",CondDBSetup,
                                         connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
-                                        timetype = cms.string("runnumber"),
                                         toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentErrorExtendedRcd'),
                                                                    tag = cms.string('TrackerAlignmentErrorsExtended_Upgrade2017_design_v0')
                                                               )
@@ -213,6 +212,18 @@ process.noslowpt = cms.EDFilter("FilterOutLowPt",
                                 runControl = cms.untracked.bool(True),
                                 runControlNumber = cms.untracked.vuint32(int(runboundary))
                                 )
+
+####################################################################
+# BeamSpot check
+####################################################################
+from RecoVertex.BeamSpotProducer.beamSpotCompatibilityChecker_cfi import beamSpotCompatibilityChecker
+process.BeamSpotChecker = beamSpotCompatibilityChecker.clone(
+     bsFromFile = "offlineBeamSpot::RECO",  # source of the event beamspot (in the ALCARECO files)
+     bsFromDB = "offlineBeamSpot::@currentProcess", # source of the DB beamspot (from Global Tag) NOTE: only if dbFromEvent is True!
+     dbFromEvent = True,
+     warningThr = 5, # significance threshold to emit a warning message
+     errorThr = 10,  # significance threshold to abort the job
+)
 
 if _isMC:
      process.goodvertexSkim = cms.Sequence(process.noscraping)
@@ -351,6 +362,7 @@ process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
 ####################################################################
 process.p = cms.Path(process.goodvertexSkim*
                      process.seqTrackselRefit*
+                     process.BeamSpotChecker*
                      process.PVValidation)
 
 ## PV refit part
@@ -395,8 +407,8 @@ process.vertexanalysis = cms.EDAnalyzer('GeneralPurposeVertexAnalyzer',
                                         TkSizeMin = cms.double(499.5),
                                         TkSizeMax = cms.double(-0.5),
                                         DxyBin = cms.int32(100),
-                                        DxyMin = cms.double(5000),
-                                        DxyMax = cms.double(-5000),
+                                        DxyMin = cms.double(-2000),
+                                        DxyMax = cms.double(2000),
                                         DzBin = cms.int32(100),
                                         DzMin = cms.double(-2000),
                                         DzMax = cms.double(2000),
@@ -424,6 +436,7 @@ process.PrimaryVertexResolution = cms.EDAnalyzer('SplitVertexResolution',
 
 process.p2 = cms.Path(process.HLTFilter                               +
                       process.seqTrackselRefit                        +
+                      process.BeamSpotChecker                         +
                       process.offlinePrimaryVerticesFromRefittedTrks  +
                       process.PrimaryVertexResolution                 +
                       process.trackanalysis                           +

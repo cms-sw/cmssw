@@ -9,14 +9,10 @@
 #include "FWCore/Framework/interface/WorkerRegistry.h"
 #include "FWCore/Framework/interface/maker/Worker.h"
 #include "FWCore/Framework/interface/maker/ModuleHolder.h"
-#include "FWCore/Framework/interface/maker/MakeModuleParams.h"
 #include "FWCore/Framework/interface/ModuleRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 namespace edm {
-
-  WorkerRegistry::WorkerRegistry(std::shared_ptr<ActivityRegistry> areg, ModuleTypeResolverMaker const* resolverMaker)
-      : modRegistry_(std::make_shared<ModuleRegistry>(resolverMaker)), m_workerMap(), actReg_(areg) {}
 
   WorkerRegistry::WorkerRegistry(std::shared_ptr<ActivityRegistry> areg, std::shared_ptr<ModuleRegistry> modReg)
       : modRegistry_(modReg), m_workerMap(), actReg_(areg) {}
@@ -25,15 +21,23 @@ namespace edm {
 
   void WorkerRegistry::clear() { m_workerMap.clear(); }
 
-  Worker* WorkerRegistry::getWorker(WorkerParams const& p, std::string const& moduleLabel) {
-    WorkerMap::iterator workerIt = m_workerMap.find(moduleLabel);
+  Worker const* WorkerRegistry::get(std::string const& moduleLabel) const {
+    WorkerMap::const_iterator workerIt = m_workerMap.find(moduleLabel);
+    if (workerIt != m_workerMap.end()) {
+      return workerIt->second;
+    }
+    return nullptr;
+  }
 
-    // if the worker is not there, make it
+  Worker* WorkerRegistry::getWorkerFromExistingModule(std::string const& moduleLabel,
+                                                      ExceptionToActionTable const* actions) {
+    WorkerMap::iterator workerIt = m_workerMap.find(moduleLabel);
     if (workerIt == m_workerMap.end()) {
-      MakeModuleParams mmp(p.pset_, *p.reg_, p.preallocate_, p.processConfiguration_);
-      auto modulePtr = modRegistry_->getModule(
-          mmp, moduleLabel, actReg_->preModuleConstructionSignal_, actReg_->postModuleConstructionSignal_);
-      auto workerPtr = modulePtr->makeWorker(p.actions_);
+      auto modulePtr = modRegistry_->getExistingModule(moduleLabel);
+      if (!modulePtr) {
+        return nullptr;
+      }
+      auto workerPtr = modulePtr->makeWorker(actions);
 
       workerPtr->setActivityRegistry(actReg_);
 
@@ -43,14 +47,6 @@ namespace edm {
       return m_workerMap[moduleLabel].get();
     }
     return (workerIt->second.get());
-  }
-
-  Worker const* WorkerRegistry::get(std::string const& moduleLabel) const {
-    WorkerMap::const_iterator workerIt = m_workerMap.find(moduleLabel);
-    if (workerIt != m_workerMap.end()) {
-      return workerIt->second;
-    }
-    return nullptr;
   }
 
   void WorkerRegistry::deleteModule(std::string const& moduleLabel) {

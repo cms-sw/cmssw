@@ -7,7 +7,7 @@ function runSuccess {
     echo
 }
 function runFailure {
-    echo "cmsRun $@ (exepcted to fail)"
+    echo "cmsRun $@ (expected to fail)"
     cmsRun $@ && die "cmsRun $*" 1
     echo
 }

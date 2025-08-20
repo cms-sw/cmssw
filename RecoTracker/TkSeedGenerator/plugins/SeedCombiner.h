@@ -9,6 +9,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/Visibility.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace edm {
   class Event;
@@ -21,9 +24,8 @@ public:
   SeedCombiner(const edm::ParameterSet& cfg);
   ~SeedCombiner() override = default;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-
   void produce(edm::Event& ev, const edm::EventSetup& es) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   std::vector<edm::EDGetTokenT<TrajectorySeedCollection>> inputCollections_;

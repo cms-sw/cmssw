@@ -409,8 +409,6 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const {
 
         // First remake the 12-bit dPhi word from the core
         remerged = (address.delta_phi_12 | (address.delta_phi_23 << 8));
-        // Now get 8-bit dPhi12
-        absPhi12 = ((1 << 8) - 1) & remerged;
         // Now get 3-bit dEta
         dEta = ((1 << 3) - 1) & (remerged >> 8);
         // New get CLCT bit. CLCT = true if CLCTPattern = 8, 9, or 10, else 0.

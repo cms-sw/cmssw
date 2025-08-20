@@ -51,8 +51,6 @@ public:
 
   static constexpr uint32_t kSoff = 4;
 
-  enum class EtlLayout { tp = 1, v4 = 2, v5 = 3, v8 = 4 };
-
   // ---------- Constructors, enumerated types ----------
 
   /** Construct a null id */

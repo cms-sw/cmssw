@@ -34,19 +34,33 @@ public:
   static constexpr int32_t fullWaferCellsCount = 6;
 
   static constexpr int32_t halfCell = 11;
-  static constexpr int32_t halfTrunCell = 12;
-  static constexpr int32_t halfExtCell = 13;
+  static constexpr int32_t extHalfTrunCell = 12;
+  static constexpr int32_t extHalfExtCell = 13;
+  static constexpr int32_t extTrunCellCenCut = 14;
+  static constexpr int32_t extExtCellCenCut = 15;
+  static constexpr int32_t extTrunCellEdgeCut = 16;
+  static constexpr int32_t extExtCellEdgeCut = 17;
+  static constexpr int32_t fullCellEdgeCut = 18;
+  static constexpr int32_t fullCellCenCut = 19;
+  static constexpr int32_t intExtCell = 20;
+  static constexpr int32_t intTrunCell = 21;
+  static constexpr int32_t intHalfExtCell = 22;
+  static constexpr int32_t intHalfTrunCell = 23;
+  static constexpr int32_t intExtCellCenCut = 24;
+  static constexpr int32_t intTrunCellCenCut = 25;
+  static constexpr int32_t intExtCellEdgeCut = 26;
+  static constexpr int32_t intTrunCellEdgeCut = 27;
   static constexpr int32_t partiaclWaferCellsOffset = 11;
 
-  static constexpr int32_t LDPartial0714Cell = 14;
-  static constexpr int32_t LDPartial0209Cell = 15;
-  static constexpr int32_t LDPartial0007Cell = 16;
-  static constexpr int32_t LDPartial0815Cell = 17;
-  static constexpr int32_t LDPartial1415Cell = 18;
-  static constexpr int32_t LDPartial1515Cell = 19;
+  static constexpr int32_t LDPartial0714Cell = 28;
+  static constexpr int32_t LDPartial0209Cell = 29;
+  static constexpr int32_t LDPartial0007Cell = 30;
+  static constexpr int32_t LDPartial0815Cell = 31;
+  static constexpr int32_t LDPartial1415Cell = 32;
+  static constexpr int32_t LDPartial1515Cell = 33;
 
-  static constexpr int32_t HDPartial0920Cell = 20;
-  static constexpr int32_t HDPartial1021Cell = 21;
+  static constexpr int32_t HDPartial0920Cell = 34;
+  static constexpr int32_t HDPartial1021Cell = 35;
 
   static constexpr int32_t undefinedCell = -1;
   static constexpr int32_t centralCell = 0;

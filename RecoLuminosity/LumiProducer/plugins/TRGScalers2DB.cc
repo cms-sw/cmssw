@@ -621,35 +621,25 @@ namespace lumi {
       TRGScalers2DB::TriggerDeadCountResult::iterator dEnd = deadtimeresult.end();
       unsigned int dcnt = 0;
       for (dIt = dBeg; dIt != dEnd; ++dIt) {
-        try {
-          deadfracresult.at(dcnt);
-        } catch (std::out_of_range& er) {
+        if (dcnt >= deadfracresult.size()) {
           std::cout << "[WARNING] filling FAKE deadfrac=0.0 at LS " << dcnt << std::endl;
-          deadfracresult[dcnt] = 0.0;
+          deadfracresult.push_back(0.0);
         }
-        try {
-          algocount.at(dcnt);
-        } catch (std::out_of_range& er) {
-          std::vector<unsigned int> tmpzero(lumi::N_TRGALGOBIT, 0);
+        if (dcnt >= algocount.size()) {
           std::cout << "[WARNING] filling FAKE algocount at LS " << dcnt << std::endl;
-          algocount[dcnt] = tmpzero;
+          algocount.emplace_back(lumi::N_TRGALGOBIT, 0);
         }
-        try {
-          techcount.at(dcnt);
-        } catch (std::out_of_range& er) {
-          std::vector<unsigned int> tmpzero(lumi::N_TRGTECHBIT, 0);
+        if (dcnt >= techcount.size()) {
           std::cout << "[WARNING] filling FAKE techcount at LS " << dcnt << std::endl;
-          techcount[dcnt] = tmpzero;
+          techcount.emplace_back(lumi::N_TRGTECHBIT, 0);
         }
         if (algoprescale.find(dcnt + 1) == algoprescale.end()) {
-          std::vector<unsigned int> tmpzero(lumi::N_TRGALGOBIT, 1);
           std::cout << "[WARNING] filling FAKE 1 algoprescale at LS " << dcnt + 1 << std::endl;
-          algoprescale[dcnt + 1] = tmpzero;
+          algoprescale[dcnt + 1] = std::vector<unsigned int>(lumi::N_TRGALGOBIT, 1);
         }
         if (techprescale.find(dcnt + 1) == techprescale.end()) {
-          std::vector<unsigned int> tmpzero(lumi::N_TRGTECHBIT, 1);
           std::cout << "[WARNING] filling FAKE 1 techprescale at LS " << dcnt + 1 << std::endl;
-          techprescale[dcnt + 1] = tmpzero;
+          techprescale[dcnt + 1] = std::vector<unsigned int>(lumi::N_TRGTECHBIT, 1);
         }
         ++dcnt;
       }

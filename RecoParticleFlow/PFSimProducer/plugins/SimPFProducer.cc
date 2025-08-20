@@ -292,7 +292,7 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
   }
 
   auto blocksHandle = evt.put(std::move(blocks));
-  auto superClustersHandle = evt.put(std::move(superclusters), "perfect");
+  evt.put(std::move(superclusters), "perfect");
 
   // list tracks so we can mark them as used and/or fight over them
   std::vector<bool> usedTrack(TrackCollection.size(), false),

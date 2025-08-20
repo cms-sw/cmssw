@@ -10,12 +10,13 @@
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 #include "IOPool/Streamer/interface/DumpTools.h"
 
+#include <algorithm>
+#include <cctype>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <memory>
 #include <queue>
-#include <algorithm>
-#include <cctype>
 
 namespace dqmservices {
   using namespace edm::streamer;
@@ -114,7 +115,7 @@ namespace dqmservices {
       std::vector<std::string> tnames;
       header->hltTriggerNames(tnames);
 
-      triggerSelector_.reset(new TriggerSelector(hltSel_, tnames));
+      triggerSelector_ = std::make_shared<TriggerSelector>(hltSel_, tnames);
 
       // check if any trigger path name requested matches with trigger name in the header file
       setMatchTriggerSel(tnames);
@@ -171,7 +172,7 @@ namespace dqmservices {
         if (unitTest_) {
           throw edm::Exception(edm::errors::FileReadError, "DQMStreamerReader::openNextFileInp")
               << std::string("Can't deserialize registry data (in open file): ") + e.what()
-              << "\n error: data file corrupted";
+              << "\n error: data file corrupted, rethrowing!";
         }
 
         fiterator_.logFileAction(std::string("Can't deserialize registry data (in open file): ") + e.what(), p);
@@ -353,6 +354,12 @@ namespace dqmservices {
 
       deserializeEvent(*eview);
     } catch (const cms::Exception& e) {
+      if (unitTest_) {
+        throw edm::Exception(edm::errors::FileReadError, "DQMStreamerReader::checkNext")
+            << std::string("Can't deserialize event or registry data: ") + e.what()
+            << "\n error: data file corrupted, rethrowing!";
+      }
+
       // try to recover from corrupted files/events
       fiterator_.logFileAction(std::string("Can't deserialize event or registry data: ") + e.what());
       closeFileImp_("data file corrupted");
@@ -434,6 +441,11 @@ namespace dqmservices {
         }
       }
     } catch (const cms::Exception& e) {
+      if (unitTest_) {
+        throw edm::Exception(edm::errors::FileReadError, "DQMStreamerReader::skip")
+            << std::string("Can't deserialize registry data: ") + e.what()
+            << "\n error: data file corrupted, rethrowing!";
+      }
       // try to recover from corrupted files/events
       fiterator_.logFileAction(std::string("Can't deserialize event data: ") + e.what());
       closeFileImp_("data file corrupted");

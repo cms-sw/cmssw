@@ -12,6 +12,7 @@
     <use name="cppunit"/>
     <use name="cuda"/>
     <use name="tensorflow-cc"/>
+    <use name="FWCore/AbstractServices"/>
     <use name="FWCore/ParameterSet"/>
     <use name="FWCore/ParameterSetReader"/>
     <use name="FWCore/PluginManager"/>
@@ -26,6 +27,7 @@
 <bin name="testTFMetaGraphLoading" file="testRunner.cpp,testMetaGraphLoading.cc">
   <use name="boost_filesystem"/>
   <use name="cppunit"/>
+  <use name="FWCore/AbstractServices"/>
   <use name="PhysicsTools/TensorFlow"/>
 </bin>
 
@@ -35,6 +37,7 @@
     <use name="catch2"/>
     <use name="cppunit"/>
     <use name="cuda"/>
+    <use name="FWCore/AbstractServices"/>
     <use name="FWCore/ParameterSet"/>
     <use name="FWCore/ParameterSetReader"/>
     <use name="FWCore/PluginManager"/>
@@ -82,6 +85,7 @@
     <use name="catch2"/>
     <use name="cppunit"/>
     <use name="cuda"/>
+    <use name="FWCore/AbstractServices"/>
     <use name="FWCore/ParameterSet"/>
     <use name="FWCore/ParameterSetReader"/>
     <use name="FWCore/PluginManager"/>
@@ -105,6 +109,7 @@
     <use name="catch2"/>
     <use name="cppunit"/>
     <use name="cuda"/>
+    <use name="FWCore/AbstractServices"/>
     <use name="FWCore/ParameterSet"/>
     <use name="FWCore/ParameterSetReader"/>
     <use name="FWCore/PluginManager"/>
@@ -129,6 +134,7 @@
     <use name="catch2"/>
     <use name="cppunit"/>
     <use name="cuda"/>
+    <use name="FWCore/AbstractServices"/>
     <use name="FWCore/ParameterSet"/>
     <use name="FWCore/ParameterSetReader"/>
     <use name="FWCore/PluginManager"/>
@@ -160,6 +166,7 @@
     <use name="catch2"/>
     <use name="cppunit"/>
     <use name="cuda"/>
+    <use name="FWCore/AbstractServices"/>
     <use name="FWCore/ParameterSet"/>
     <use name="FWCore/ParameterSetReader"/>
     <use name="FWCore/PluginManager"/>

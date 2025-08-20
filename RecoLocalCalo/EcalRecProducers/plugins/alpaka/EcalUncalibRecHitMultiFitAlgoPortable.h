@@ -4,11 +4,12 @@
 #include <vector>
 
 #include "CondFormats/EcalObjects/interface/alpaka/EcalMultifitConditionsDevice.h"
-#include "CondFormats/EcalObjects/interface/alpaka/EcalMultifitParametersDevice.h"
 #include "DataFormats/EcalDigi/interface/alpaka/EcalDigiDeviceCollection.h"
 #include "DataFormats/EcalRecHit/interface/alpaka/EcalUncalibratedRecHitDeviceCollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+
 #include "DeclsForKernels.h"
+#include "EcalMultifitParameters.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
 
@@ -21,7 +22,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit {
                      OutputProduct& uncalibRecHitsDevEB,
                      OutputProduct& uncalibRecHitsDevEE,
                      EcalMultifitConditionsDevice const& conditionsDev,
-                     EcalMultifitParametersDevice const& paramsDev,
+                     EcalMultifitParameters const* paramsDev,
                      ConfigurationParameters const& configParams);
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::multifit

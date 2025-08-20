@@ -170,11 +170,11 @@ int main(int argc, char* argv[]) {
   // Draw and save the map
   TCanvas canvas("Summary", "Summary", 1200, k_height[static_cast<int>(region)]);
   if (region == Region::Full) {
-    theMap.drawMaps(canvas, title.c_str());
+    theMap.drawMaps(canvas, title);
   } else if (region == Region::Barrel) {
-    theMap.drawBarrelMaps(canvas, title.c_str());
+    theMap.drawBarrelMaps(canvas, title);
   } else if (region == Region::Forward) {
-    theMap.drawForwardMaps(canvas, title.c_str());
+    theMap.drawForwardMaps(canvas, title);
   }
 
   // Construct the filename string based on the region

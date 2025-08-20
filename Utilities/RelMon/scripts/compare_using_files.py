@@ -9,7 +9,6 @@
 ################################################################################
 
 
-from __future__ import print_function
 def getInfoFromFilename(filename):
   prefix,sample,cmssw_release,tier = filename[:-5].split("__")[:5]
   run=int(prefix.split("_")[-1][1:])

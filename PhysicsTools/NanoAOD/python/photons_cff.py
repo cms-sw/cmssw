@@ -166,17 +166,6 @@ run2_egamma.toModify(slimmedPhotonsWithUserData.userFloats,
                 toModify(slimmedPhotonsWithUserData.userInts,
                          VIDNestedWPBitmap = None)
 
-run2_egamma.toModify(
-    slimmedPhotonsWithUserData.userFloats,
-    ecalEnergyErrPostCorrNew = cms.InputTag("calibratedPatPhotonsNano","ecalEnergyErrPostCorr"),
-    ecalEnergyPreCorrNew     = cms.InputTag("calibratedPatPhotonsNano","ecalEnergyPreCorr"),
-    ecalEnergyPostCorrNew    = cms.InputTag("calibratedPatPhotonsNano","ecalEnergyPostCorr"),
-    energyScaleUpNew            = cms.InputTag("calibratedPatPhotonsNano","energyScaleUp"),
-    energyScaleDownNew          = cms.InputTag("calibratedPatPhotonsNano","energyScaleDown"),
-    energySigmaUpNew            = cms.InputTag("calibratedPatPhotonsNano","energySigmaUp"),
-    energySigmaDownNew          = cms.InputTag("calibratedPatPhotonsNano","energySigmaDown"),
-)
-
 
 finalPhotons = cms.EDFilter("PATPhotonRefSelector",
     src = cms.InputTag("slimmedPhotonsWithUserData"),
@@ -221,12 +210,12 @@ photonTable = simplePATPhotonFlatTableProducer.clone(
         ecalPFClusterIso = Var("ecalPFClusterIso()",float,doc="sum pt of ecal clusters, vetoing clusters part of photon", precision=10),
         hcalPFClusterIso = Var("hcalPFClusterIso()",float,doc="sum pt of hcal clusters, vetoing clusters part of photon", precision=10), 
         pfPhoIso03 = Var("photonIso()",float,doc="PF absolute isolation dR=0.3, photon component (uncorrected)"),
-        pfChargedIso = Var("chargedHadronIso()",float,doc="PF absolute isolation dR=0.3, charged component with dxy,dz match to PV", precision=8),        
+        pfChargedIso = Var("chargedHadronIso()",float,doc="PF absolute isolation dR=0.3, charged component with dxy,dz match to PV", precision=10),        
         pfChargedIsoPFPV = Var("chargedHadronPFPVIso()",float,doc="PF absolute isolation dR=0.3, charged component (PF PV only)"),
         pfChargedIsoWorstVtx = Var("chargedHadronWorstVtxIso()",float,doc="PF absolute isolation dR=0.3, charged component (Vertex with largest isolation)"),
         pfRelIso03_chg_quadratic = Var("userFloat('PFIsoChgQuadratic')/pt",float,doc="PF relative isolation dR=0.3, charged hadron component (with quadraticEA*rho*rho + linearEA*rho Winter22V1 corrections)"),
         pfRelIso03_all_quadratic = Var("userFloat('PFIsoAllQuadratic')/pt",float,doc="PF relative isolation dR=0.3, total (with quadraticEA*rho*rho + linearEA*rho Winter22V1 corrections)"),
-        hoe = Var("hadronicOverEm()",float,doc="H over E",precision=8),
+        hoe = Var("hadronicOverEm()",float,doc="H over E",precision=10),
         hoe_Tower = Var("hadTowOverEm()",float,doc="H over E Tower based calculation",precision=8),
         hoe_PUcorr = Var("userFloat('HoverEQuadratic')",float,doc="PU corrected H/E (cone-based with quadraticEA*rho*rho + linearEA*rho Winter22V1 corrections)",precision=8),
         isScEtaEB = Var("abs(superCluster().eta()) < 1.4442",bool,doc="is supercluster eta within barrel acceptance"),
@@ -281,9 +270,6 @@ _phoVarsExtra = cms.PSet(
 #these eras need to make the energy correction, hence the "New". Also save only Fall17V2 IDS in Run2, No Run3 Winter22V1 and quadratic iso in Run2 
 run2_egamma.toModify(
     photonTable.variables,
-    pt = Var("pt*userFloat('ecalEnergyPostCorrNew')/userFloat('ecalEnergyPreCorrNew')", float, precision=-1, doc="p_{T}"),
-    energyErr = Var("userFloat('ecalEnergyErrPostCorrNew')",float,doc="energy error of the cluster from regression",precision=6),
-    ptPreCorr = Var("pt",float,doc="pt of the photon before energy corrections"),
     cutBased = Var(
             "userInt('cutBasedID_Fall17V2_loose')+userInt('cutBasedID_Fall17V2_medium')+userInt('cutBasedID_Fall17V2_tight')",
             "uint8",
@@ -325,15 +311,6 @@ photonMCTable = cms.EDProducer("CandMCMatchTableProducer",
     docString = cms.string("MC matching to status==1 photons or electrons"),
 )
 
-#adding 4 most imp scale & smearing variables to table
-run2_egamma.toModify(
-    photonTable.variables,
-    dEscaleUp=Var("userFloat('ecalEnergyPostCorrNew') - userFloat('energyScaleUpNew')", float, doc="ecal energy scale shifted 1 sigma up (adding gain/stat/syst in quadrature)", precision=8),
-    dEscaleDown=Var("userFloat('ecalEnergyPostCorrNew') - userFloat('energyScaleDownNew')", float, doc="ecal energy scale shifted 1 sigma down (adding gain/stat/syst in quadrature)", precision=8),
-    dEsigmaUp=Var("userFloat('ecalEnergyPostCorrNew') - userFloat('energySigmaUpNew')", float, doc="ecal energy smearing value shifted 1 sigma up", precision=8),
-    dEsigmaDown=Var("userFloat('ecalEnergyPostCorrNew') - userFloat('energySigmaDownNew')", float, doc="ecal energy smearing value shifted 1 sigma up", precision=8),
-)
-
 
 photonTask = cms.Task(bitmapVIDForPho, bitmapVIDForPhoRun2, isoForPho, hOverEForPho, isoForPhoFall17V2, seedGainPho, slimmedPhotonsWithUserData, finalPhotons)
 
@@ -344,5 +321,4 @@ _photonTask_Run2 = photonTask.copy()
 _photonTask_Run2.remove(bitmapVIDForPho)
 _photonTask_Run2.remove(isoForPho)
 _photonTask_Run2.remove(hOverEForPho)
-_photonTask_Run2.add(calibratedPatPhotonsNano)
 run2_egamma.toReplaceWith(photonTask, _photonTask_Run2)

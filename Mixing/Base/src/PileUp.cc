@@ -5,8 +5,9 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/SignallingProductRegistry.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
+#include "FWCore/Framework/interface/ProductResolversFactory.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
@@ -15,12 +16,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -82,12 +82,13 @@ namespace edm {
         fixed_(type_ == "fixed"),
         none_(type_ == "none"),
         fileNameHash_(0U),
-        productRegistry_(new SignallingProductRegistry),
-        input_(VectorInputSourceFactory::get()
-                   ->makeVectorInputSource(
-                       pset, VectorInputSourceDescription(productRegistry_, edm::PreallocationConfiguration()))
-                   .release()),
-        processConfiguration_(new ProcessConfiguration(std::string("@MIXING"), getReleaseVersion(), getPassID())),
+        productRegistry_(),
+        input_(VectorInputSourceFactory::get()->makeVectorInputSource(
+            pset,
+            VectorInputSourceDescription(std::make_shared<edm::ProductRegistry>(), edm::PreallocationConfiguration()))),
+        // hardware information is not needed for the "overlay"
+        processConfiguration_(std::make_shared<ProcessConfiguration>(
+            "@MIXING", getReleaseVersion(), edm::HardwareResourcesDescription())),
         processContext_(new ProcessContext()),
         eventPrincipal_(),
         lumiPrincipal_(),
@@ -106,6 +107,7 @@ namespace edm {
     processConfiguration_->setParameterSetID(ParameterSet::emptyParameterSetID());
     processContext_->setProcessConfiguration(processConfiguration_.get());
 
+    SignallingProductRegistryFiller filler;
     if (pset.existsAs<std::vector<ParameterSet> >("producers", true)) {
       std::vector<ParameterSet> producers = pset.getParameter<std::vector<ParameterSet> >("producers");
 
@@ -120,13 +122,15 @@ namespace edm {
       serviceToken_ = edm::ServiceRegistry::createContaining(
           std::move(baseGen), edm::ServiceRegistry::instance().presentToken(), true);
 
-      provider_ = std::make_unique<SecondaryEventProvider>(producers, *productRegistry_, processConfiguration_);
+      provider_ = std::make_unique<SecondaryEventProvider>(producers, filler, processConfiguration_);
     }
-
-    productRegistry_->setFrozen();
+    filler.addFromInput(*input_->productRegistry());
+    filler.setFrozen();
+    productRegistry_ = std::make_shared<ProductRegistry>(filler.moveTo());
 
     // A modified HistoryAppender must be used for unscheduled processing.
-    eventPrincipal_ = std::make_unique<EventPrincipal>(input_->productRegistry(),
+    eventPrincipal_ = std::make_unique<EventPrincipal>(productRegistry_,
+                                                       edm::productResolversFactory::makePrimary,
                                                        std::make_shared<BranchIDListHelper>(),
                                                        std::make_shared<ThinnedAssociationsHelper>(),
                                                        *processConfiguration_,
@@ -210,7 +214,7 @@ namespace edm {
 
   void PileUp::beginStream(edm::StreamID) {
     auto iID = eventPrincipal_->streamID();  // each producer has its own workermanager, so use default streamid
-    streamContext_.reset(new StreamContext(iID, processContext_.get()));
+    streamContext_ = std::make_shared<StreamContext>(iID, processContext_.get());
     streamContext_->setTransition(StreamContext::Transition::kBeginStream);
     if (provider_.get() != nullptr) {
       edm::ServiceRegistry::Operate guard(*serviceToken_);
@@ -245,7 +249,8 @@ namespace edm {
 
   void PileUp::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
     if (provider_.get() != nullptr) {
-      runPrincipal_.reset(new RunPrincipal(productRegistry_, *processConfiguration_, nullptr, 0));
+      runPrincipal_ = std::make_shared<RunPrincipal>(
+          productRegistry_, edm::productResolversFactory::makePrimary, *processConfiguration_, nullptr, 0);
       runPrincipal_->setAux(run.runAuxiliary());
       edm::ServiceRegistry::Operate guard(*serviceToken_);
       streamContext_->setTransition(StreamContext::Transition::kBeginRun);
@@ -254,7 +259,8 @@ namespace edm {
   }
   void PileUp::beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& setup) {
     if (provider_.get() != nullptr) {
-      lumiPrincipal_.reset(new LuminosityBlockPrincipal(productRegistry_, *processConfiguration_, nullptr, 0));
+      lumiPrincipal_ = std::make_shared<LuminosityBlockPrincipal>(
+          productRegistry_, edm::productResolversFactory::makePrimary, *processConfiguration_, nullptr, 0);
       lumiPrincipal_->setAux(lumi.luminosityBlockAuxiliary());
       lumiPrincipal_->setRunPrincipal(runPrincipal_);
       setRandomEngine(lumi);
@@ -348,7 +354,7 @@ namespace edm {
       edm::LogInfo("MixingModule") << "An histogram will be created with " << numBins << " bins in the range (" << xmin
                                    << "," << xmax << ")." << std::endl;
 
-      histo_.reset(new TH1F("h", "Histo from the user's probability function", numBins, xmin, xmax));
+      histo_ = std::make_shared<TH1F>("h", "Histo from the user's probability function", numBins, xmin, xmax);
 
       LogDebug("MixingModule") << "Filling histogram with the following data:" << std::endl;
 

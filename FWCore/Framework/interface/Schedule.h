@@ -58,6 +58,7 @@
 */
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/ExceptionHelpers.h"
@@ -65,7 +66,6 @@
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/WorkerManager.h"
 #include "FWCore/Framework/interface/maker/Worker.h"
-#include "FWCore/Framework/interface/WorkerRegistry.h"
 #include "FWCore/Framework/interface/GlobalSchedule.h"
 #include "FWCore/Framework/interface/StreamSchedule.h"
 #include "FWCore/Framework/interface/SystemTimeKeeper.h"
@@ -81,6 +81,7 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWCore/Utilities/interface/Transition.h"
 
 #include <array>
 #include <map>
@@ -97,16 +98,17 @@ namespace edm {
   namespace service {
     class TriggerNamesService;
   }
-  namespace evetnsetup {
+  namespace eventsetup {
+    struct ComponentDescription;
     class ESRecordsToProductResolverIndices;
-  }
+  }  // namespace eventsetup
 
   class BranchIDListHelper;
   class EventTransitionInfo;
   class ExceptionCollector;
   class MergeableRunProductMetadata;
   class OutputModuleCommunicator;
-  class ProductRegistry;
+  class SignallingProductRegistryFiller;
   class PreallocationConfiguration;
   class StreamSchedule;
   class GlobalSchedule;
@@ -114,7 +116,6 @@ namespace edm {
   class ModuleRegistry;
   class ModuleTypeResolverMaker;
   class ThinnedAssociationsHelper;
-  class SubProcessParentageHelper;
   class TriggerResultInserter;
   class PathStatusInserter;
   class EndPathStatusInserter;
@@ -130,7 +131,7 @@ namespace edm {
 
     Schedule(ParameterSet& proc_pset,
              service::TriggerNamesService const& tns,
-             ProductRegistry& pregistry,
+             SignallingProductRegistryFiller& pregistry,
              ExceptionToActionTable const& actions,
              std::shared_ptr<ActivityRegistry> areg,
              std::shared_ptr<ProcessConfiguration const> processConfiguration,
@@ -139,14 +140,12 @@ namespace edm {
              ModuleTypeResolverMaker const* resolverMaker);
     void finishSetup(ParameterSet& proc_pset,
                      service::TriggerNamesService const& tns,
-                     ProductRegistry& preg,
+                     SignallingProductRegistryFiller& preg,
                      BranchIDListHelper& branchIDListHelper,
                      ProcessBlockHelperBase& processBlockHelper,
                      ThinnedAssociationsHelper& thinnedAssociationsHelper,
-                     SubProcessParentageHelper const* subProcessParentageHelper,
                      std::shared_ptr<ActivityRegistry> areg,
                      std::shared_ptr<ProcessConfiguration> processConfiguration,
-                     bool hasSubprocesses,
                      PreallocationConfiguration const& prealloc,
                      ProcessContext const* processContext);
 
@@ -171,8 +170,7 @@ namespace edm {
     void beginJob(ProductRegistry const&,
                   eventsetup::ESRecordsToProductResolverIndices const&,
                   ProcessBlockHelperBase const&,
-                  PathsAndConsumesOfModulesBase const&,
-                  ProcessContext const&);
+                  std::string const& processName);
     void endJob(ExceptionCollector& collector);
     void sendFwkSummaryToMessageLogger() const;
 
@@ -246,14 +244,6 @@ namespace edm {
                                      std::vector<ModuleDescription const*>& descriptions,
                                      unsigned int hint) const;
 
-    void fillModuleAndConsumesInfo(
-        std::vector<ModuleDescription const*>& allModuleDescriptions,
-        std::vector<std::pair<unsigned int, unsigned int>>& moduleIDToIndex,
-        std::array<std::vector<std::vector<ModuleDescription const*>>, NumBranchTypes>&
-            modulesWhoseProductsAreConsumedBy,
-        std::vector<std::vector<ModuleProcessName>>& modulesInPreviousProcessesWhoseProductsAreConsumedBy,
-        ProductRegistry const& preg) const;
-
     /// Return the number of events this Schedule has tried to process
     /// (inclues both successes and failures, including failures due
     /// to exceptions during processing).
@@ -285,7 +275,7 @@ namespace edm {
     /// Returns true if successful.
     bool changeModule(std::string const& iLabel,
                       ParameterSet const& iPSet,
-                      const ProductRegistry& iRegistry,
+                      const SignallingProductRegistryFiller& iRegistry,
                       eventsetup::ESRecordsToProductResolverIndices const&);
 
     /// Deletes module with label iLabel
@@ -299,25 +289,29 @@ namespace edm {
     /// returns the collection of pointers to workers
     AllWorkers const& allWorkers() const;
 
+    ModuleRegistry const& moduleRegistry() const { return *moduleRegistry_; }
+
     /// Convert "@currentProcess" in InputTag process names to the actual current process name.
     void convertCurrentProcessAlias(std::string const& processName);
 
+    void releaseMemoryPostLookupSignal();
+
   private:
-    void limitOutput(ParameterSet const& proc_pset,
-                     BranchIDLists const& branchIDLists,
-                     SubProcessParentageHelper const* subProcessParentageHelper);
+    void limitOutput(ParameterSet const& proc_pset, BranchIDLists const& branchIDLists);
 
     std::shared_ptr<TriggerResultInserter const> resultsInserter() const {
       return get_underlying_safe(resultsInserter_);
     }
     std::shared_ptr<TriggerResultInserter>& resultsInserter() { return get_underlying_safe(resultsInserter_); }
-    std::shared_ptr<ModuleRegistry const> moduleRegistry() const { return get_underlying_safe(moduleRegistry_); }
-    std::shared_ptr<ModuleRegistry>& moduleRegistry() { return get_underlying_safe(moduleRegistry_); }
+    std::shared_ptr<ModuleRegistry const> moduleRegistrySharedPtr() const {
+      return get_underlying_safe(moduleRegistry_);
+    }
+    std::shared_ptr<ModuleRegistry>& moduleRegistrySharedPtr() { return get_underlying_safe(moduleRegistry_); }
 
+    edm::propagate_const<std::shared_ptr<ModuleRegistry>> moduleRegistry_;
     edm::propagate_const<std::shared_ptr<TriggerResultInserter>> resultsInserter_;
     std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>> pathStatusInserters_;
     std::vector<edm::propagate_const<std::shared_ptr<EndPathStatusInserter>>> endPathStatusInserters_;
-    edm::propagate_const<std::shared_ptr<ModuleRegistry>> moduleRegistry_;
     std::vector<edm::propagate_const<std::shared_ptr<StreamSchedule>>> streamSchedules_;
     //In the future, we will have one GlobalSchedule per simultaneous transition
     edm::propagate_const<std::unique_ptr<GlobalSchedule>> globalSchedule_;

@@ -2,8 +2,8 @@
 #include "DataFormats/EcalDigi/interface/ESSample.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>

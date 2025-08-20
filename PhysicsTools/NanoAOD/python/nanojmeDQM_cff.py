@@ -184,6 +184,70 @@ nanojmeDQM.vplots.JetCalo = cms.PSet(
     ),
 )
 
+#============================================
+#
+# Setup for AK4 GenJets
+#
+#============================================
+_ak4genplots = cms.VPSet(
+    Count1D('_size', 20, -0.5, 19.5, 'AK4 Gen jets (made with visible genparticles) with pt > 3 GeV. Sourced from slimmedGenJets')
+)
+for plot in nanojmeDQM.vplots.GenJet.plots:
+    if plot.name.value()=="_size": continue
+    _ak4genplots.append(plot)
+
+_ak4genplots.extend([
+    Plot1D('nConstituents', 'nConstituents', 20, 0, 80, 'Number of particles in the jet'),
+    Plot1D('chHadMultiplicity','chHadMultiplicity',10, 0, 40,'number of charged hadrons in the jet'),
+    Plot1D('neHadMultiplicity','neHadMultiplicity',10, 0, 40,'number of neutral hadrons in the jet'),
+    Plot1D('chEmMultiplicity','chEmMultiplicity',5,0,10,'number of charged EM particles in the jet'),
+    Plot1D('neEmMultiplicity','neEmMultiplicity',10,0,40,'number of neutral EM particles in the jet'),
+    Plot1D('muMultiplicity','muMultiplicity',5,0,10,'number of muons in the jet'),
+    Plot1D('chHEF','chHEF',20,0,2,'charged Hadron Energy Fraction'),
+    Plot1D('neHEF','neHEF',20,0,1,'neutral Hadron Energy Fraction'),
+    Plot1D('chEmEF','chEmEF',20,0, 1,'charged Electromagnetic Energy Fraction'),
+    Plot1D('neEmEF','neEmEF',20,0, 1,'neutral Electromagnetic Energy Fraction'),
+    Plot1D('muEF','muEF',20,0, 1, 'muon Energy Fraction')
+    ]
+)
+nanojmeDQM.vplots.GenJet.plots = _ak4genplots
+
+#============================================
+#
+# Setup for AK8 GenJets
+#
+#============================================
+nanojmeDQM.vplots.GenJetAK8.plots.extend([
+    Plot1D('nConstituents', 'nConstituents', 20, 0, 80, 'Number of particles in the jet'),
+    ]
+)
+#============================================
+#
+# Setup for AK8 GenJets for JEC
+#
+#============================================
+nanojmeDQM.vplots.GenJetAK8ForJEC = cms.PSet(
+    plots = cms.VPSet(
+        Count1D('_size', 20, -0.5, 19.5, 'AK8 Gen jets (made with visible genparticles) with pt > 10 GeV. Reclustered for JEC studies.'),
+        Plot1D('eta', 'eta', 20, -6, 6, 'eta'),
+        Plot1D('mass', 'mass', 20, 0, 200, 'mass'),
+        Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'phi'),
+        Plot1D('pt', 'pt', 20, 0, 400, 'pt'),
+        Plot1D('nConstituents', 'nConstituents', 20, 0, 80, 'Number of particles in the jet'),
+        Plot1D('chHadMultiplicity','chHadMultiplicity',10, 0, 40,'number of charged hadrons in the jet'),
+        Plot1D('neHadMultiplicity','neHadMultiplicity',10, 0, 40,'number of neutral hadrons in the jet'),
+        Plot1D('chEmMultiplicity','chEmMultiplicity',5,0,10,'number of charged EM particles in the jet'),
+        Plot1D('neEmMultiplicity','neEmMultiplicity',10,0,40,'number of neutral EM particles in the jet'),
+        Plot1D('muMultiplicity','muMultiplicity',5,0,10,'number of muons in the jet'),
+        Plot1D('chHEF','chHEF',20,0,2,'charged Hadron Energy Fraction'),
+        Plot1D('neHEF','neHEF',20,0,1,'neutral Hadron Energy Fraction'),
+        Plot1D('chEmEF','chEmEF',20,0, 1,'charged Electromagnetic Energy Fraction'),
+        Plot1D('neEmEF','neEmEF',20,0, 1,'neutral Electromagnetic Energy Fraction'),
+        Plot1D('muEF','muEF',20,0, 1, 'muon Energy Fraction')
+    ),
+)
+
+
 ##MC
 nanojmeDQMMC = nanojmeDQM.clone()
 #nanojmeDQMMC.vplots.Electron.sels.Prompt = cms.string("genPartFlav == 1")

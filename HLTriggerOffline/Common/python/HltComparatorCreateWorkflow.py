@@ -5,7 +5,6 @@
 #   Makes CMSSW config for prompt validation of a given run number,
 #   HLT Key or HLT Config
 
-from __future__ import print_function
 from optparse import OptionParser
 import os, time, re
 

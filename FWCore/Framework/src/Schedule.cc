@@ -1,4 +1,5 @@
 #include "FWCore/Framework/interface/Schedule.h"
+#include "FWCore/Framework/src/ScheduleBuilder.h"
 
 #include "DataFormats/Common/interface/setIsMergeable.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -7,32 +8,36 @@
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Common/interface/ProcessBlockHelper.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/src/OutputModuleDescription.h"
-#include "FWCore/Framework/interface/SubProcess.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/TriggerReport.h"
 #include "FWCore/Framework/src/TriggerTimingReport.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
-#include "FWCore/Framework/src/Factory.h"
+#include "FWCore/Framework/src/ModuleHolderFactory.h"
 #include "FWCore/Framework/interface/OutputModuleCommunicator.h"
 #include "FWCore/Framework/interface/maker/ModuleHolder.h"
 #include "FWCore/Framework/interface/ModuleRegistry.h"
+#include "FWCore/Framework/interface/ModuleRegistryUtilities.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
+#include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/Framework/src/PathStatusInserter.h"
 #include "FWCore/Framework/src/EndPathStatusInserter.h"
+#include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
+#include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Concurrency/interface/chain_first.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
+#include "FWCore/ServiceRegistry/interface/ModuleConsumesInfo.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
@@ -53,7 +58,7 @@
 
 namespace edm {
 
-  class Maker;
+  class ModuleMakerBase;
 
   namespace {
     using std::placeholders::_1;
@@ -62,97 +67,12 @@ namespace edm {
       return std::binary_search(v.begin(), v.end(), s);
     }
 
-    // Here we make the trigger results inserter directly.  This should
-    // probably be a utility in the WorkerRegistry or elsewhere.
-
-    std::shared_ptr<TriggerResultInserter> makeInserter(
-        ParameterSet& proc_pset,
-        PreallocationConfiguration const& iPrealloc,
-        ProductRegistry& preg,
-        ExceptionToActionTable const& actions,
-        std::shared_ptr<ActivityRegistry> areg,
-        std::shared_ptr<ProcessConfiguration const> processConfiguration) {
-      ParameterSet* trig_pset = proc_pset.getPSetForUpdate("@trigger_paths");
-      trig_pset->registerIt();
-
-      WorkerParams work_args(trig_pset, preg, &iPrealloc, processConfiguration, actions);
-      ModuleDescription md(trig_pset->id(),
-                           "TriggerResultInserter",
-                           "TriggerResults",
-                           processConfiguration.get(),
-                           ModuleDescription::getUniqueID());
-
-      areg->preModuleConstructionSignal_(md);
-      bool postCalled = false;
-      std::shared_ptr<TriggerResultInserter> returnValue;
-      // Caught exception is rethrown
-      CMS_SA_ALLOW try {
-        maker::ModuleHolderT<TriggerResultInserter> holder(
-            make_shared_noexcept_false<TriggerResultInserter>(*trig_pset, iPrealloc.numberOfStreams()),
-            static_cast<Maker const*>(nullptr));
-        holder.setModuleDescription(md);
-        holder.registerProductsAndCallbacks(&preg);
-        returnValue = holder.module();
-        postCalled = true;
-        // if exception then post will be called in the catch block
-        areg->postModuleConstructionSignal_(md);
-      } catch (...) {
-        if (!postCalled) {
-          CMS_SA_ALLOW try { areg->postModuleConstructionSignal_(md); } catch (...) {
-            // If post throws an exception ignore it because we are already handling another exception
-          }
-        }
-        throw;
-      }
-      return returnValue;
-    }
-
-    template <typename T>
-    void makePathStatusInserters(std::vector<edm::propagate_const<std::shared_ptr<T>>>& pathStatusInserters,
-                                 std::vector<std::string> const& pathNames,
-                                 PreallocationConfiguration const& iPrealloc,
-                                 ProductRegistry& preg,
-                                 std::shared_ptr<ActivityRegistry> areg,
-                                 std::shared_ptr<ProcessConfiguration const> processConfiguration,
-                                 std::string const& moduleTypeName) {
-      ParameterSet pset;
-      pset.addParameter<std::string>("@module_type", moduleTypeName);
-      pset.addParameter<std::string>("@module_edm_type", "EDProducer");
-      pset.registerIt();
-
-      pathStatusInserters.reserve(pathNames.size());
-
-      for (auto const& pathName : pathNames) {
-        ModuleDescription md(
-            pset.id(), moduleTypeName, pathName, processConfiguration.get(), ModuleDescription::getUniqueID());
-
-        areg->preModuleConstructionSignal_(md);
-        bool postCalled = false;
-        // Caught exception is rethrown
-        CMS_SA_ALLOW try {
-          maker::ModuleHolderT<T> holder(make_shared_noexcept_false<T>(iPrealloc.numberOfStreams()),
-                                         static_cast<Maker const*>(nullptr));
-          holder.setModuleDescription(md);
-          holder.registerProductsAndCallbacks(&preg);
-          pathStatusInserters.emplace_back(holder.module());
-          postCalled = true;
-          // if exception then post will be called in the catch block
-          areg->postModuleConstructionSignal_(md);
-        } catch (...) {
-          if (!postCalled) {
-            CMS_SA_ALLOW try { areg->postModuleConstructionSignal_(md); } catch (...) {
-              // If post throws an exception ignore it because we are already handling another exception
-            }
-          }
-          throw;
-        }
-      }
-    }
-
     typedef std::vector<std::string> vstring;
 
-    void processSwitchProducers(ParameterSet const& proc_pset, std::string const& processName, ProductRegistry& preg) {
-      // Update Switch BranchDescriptions for the chosen case
+    void processSwitchProducers(ParameterSet const& proc_pset,
+                                std::string const& processName,
+                                SignallingProductRegistryFiller& preg) {
+      // Update Switch ProductDescriptions for the chosen case
       struct BranchesCases {
         BranchesCases(std::vector<std::string> cases) : caseLabels{std::move(cases)} {}
         std::vector<BranchKey> chosenBranches;
@@ -171,17 +91,17 @@ namespace edm {
           }
 
           bool found = false;
-          for (auto const& productIter : preg.productList()) {
+          for (auto const& productIter : preg.registry().productList()) {
             BranchKey const& branchKey = productIter.first;
             // The alias-for product must be in the same process as
-            // the SwitchProducer (earlier processes or SubProcesses
+            // the SwitchProducer (earlier processes
             // may contain products with same type, module label, and
             // instance name)
             if (branchKey.processName() != processName) {
               continue;
             }
 
-            BranchDescription const& desc = productIter.second;
+            ProductDescription const& desc = productIter.second;
             if (desc.branchType() == prod.second.branchType() and
                 desc.unwrappedTypeID().typeInfo() == prod.second.unwrappedTypeID().typeInfo() and
                 branchKey.moduleLabel() == prod.second.switchAliasModuleLabel() and
@@ -195,7 +115,7 @@ namespace edm {
           }
           if (not found) {
             Exception ex(errors::LogicError);
-            ex << "Trying to find a BranchDescription to be aliased-for by SwitchProducer with\n"
+            ex << "Trying to find a ProductDescription to be aliased-for by SwitchProducer with\n"
                << "  friendly class name = " << prod.second.friendlyClassName() << "\n"
                << "  module label = " << prod.second.moduleLabel() << "\n"
                << "  product instance name = " << prod.second.productInstanceName() << "\n"
@@ -215,7 +135,7 @@ namespace edm {
 
       auto addProductsToException = [&preg, &processName](auto const& caseLabels, edm::Exception& ex) {
         std::map<std::string, std::vector<BranchKey>> caseBranches;
-        for (auto const& item : preg.productList()) {
+        for (auto const& item : preg.registry().productList()) {
           if (item.first.processName() != processName)
             continue;
 
@@ -452,19 +372,6 @@ namespace edm {
       proc_pset.addParameter<vstring>(std::string("@end_paths"), scheduledEndPaths);
     }
 
-    class RngEDConsumer : public EDConsumerBase {
-    public:
-      explicit RngEDConsumer(std::set<TypeID>& typesConsumed) {
-        Service<RandomNumberGenerator> rng;
-        if (rng.isAvailable()) {
-          rng->consumes(consumesCollector());
-          for (auto const& consumesInfo : this->consumesInfo()) {
-            typesConsumed.emplace(consumesInfo.type());
-          }
-        }
-      }
-    };
-
     template <typename F>
     auto doCleanup(F&& iF) {
       auto wrapped = [f = std::move(iF)](std::exception_ptr const* iPtr, edm::WaitingTaskHolder iTask) {
@@ -485,7 +392,7 @@ namespace edm {
 
   Schedule::Schedule(ParameterSet& proc_pset,
                      service::TriggerNamesService const& tns,
-                     ProductRegistry& preg,
+                     SignallingProductRegistryFiller& preg,
                      ExceptionToActionTable const& actions,
                      std::shared_ptr<ActivityRegistry> areg,
                      std::shared_ptr<ProcessConfiguration const> processConfiguration,
@@ -493,98 +400,74 @@ namespace edm {
                      ProcessContext const* processContext,
                      ModuleTypeResolverMaker const* resolverMaker)
       :  //Only create a resultsInserter if there is a trigger path
-        resultsInserter_{tns.getTrigPaths().empty()
-                             ? std::shared_ptr<TriggerResultInserter>{}
-                             : makeInserter(proc_pset, prealloc, preg, actions, areg, processConfiguration)},
         moduleRegistry_(std::make_shared<ModuleRegistry>(resolverMaker)),
         all_output_communicators_(),
         preallocConfig_(prealloc),
         pathNames_(&tns.getTrigPaths()),
         endPathNames_(&tns.getEndPaths()),
         wantSummary_(tns.wantSummary()) {
-    makePathStatusInserters(pathStatusInserters_,
-                            *pathNames_,
-                            prealloc,
-                            preg,
-                            areg,
-                            processConfiguration,
-                            std::string("PathStatusInserter"));
+    ScheduleBuilder builder(
+        *moduleRegistry_, proc_pset, *pathNames_, *endPathNames_, prealloc, preg, *areg, processConfiguration);
+    resultsInserter_ = std::move(builder.resultsInserter_);
+    assert(builder.pathStatusInserters_.size() == builder.pathNameAndModules_.size());
+    pathStatusInserters_ = std::move(builder.pathStatusInserters_);
+    endPathStatusInserters_ = std::move(builder.endPathStatusInserters_);
 
-    if (endPathNames_->size() > 1) {
-      //NOTE: FinalPaths are a type of EndPath
-      makePathStatusInserters(endPathStatusInserters_,
-                              *endPathNames_,
-                              prealloc,
-                              preg,
-                              areg,
-                              processConfiguration,
-                              std::string("EndPathStatusInserter"));
+    std::vector<StreamSchedule::PathInfo> paths;
+    paths.reserve(builder.pathNameAndModules_.size());
+    unsigned int index = 0;
+    for (auto& path : builder.pathNameAndModules_) {
+      paths.emplace_back(path.first, std::move(path.second), get_underlying_safe(pathStatusInserters_[index]));
+      ++index;
+    }
+    std::vector<StreamSchedule::EndPathInfo> endpaths;
+    endpaths.reserve(builder.endpathNameAndModules_.size());
+    if (builder.endpathNameAndModules_.size() == 1) {
+      assert(endPathStatusInserters_.empty());
+      auto& path = builder.endpathNameAndModules_.front();
+      endpaths.emplace_back(path.first, std::move(path.second), std::shared_ptr<EndPathStatusInserter>());
+    } else {
+      assert(endPathStatusInserters_.size() == builder.endpathNameAndModules_.size());
+      index = 0;
+      for (auto& path : builder.endpathNameAndModules_) {
+        endpaths.emplace_back(path.first, std::move(path.second), get_underlying_safe(endPathStatusInserters_[index]));
+        ++index;
+      }
     }
 
     assert(0 < prealloc.numberOfStreams());
     streamSchedules_.reserve(prealloc.numberOfStreams());
     for (unsigned int i = 0; i < prealloc.numberOfStreams(); ++i) {
-      streamSchedules_.emplace_back(make_shared_noexcept_false<StreamSchedule>(resultsInserter(),
-                                                                               pathStatusInserters_,
-                                                                               endPathStatusInserters_,
-                                                                               moduleRegistry(),
-                                                                               proc_pset,
-                                                                               tns,
-                                                                               prealloc,
-                                                                               preg,
+      streamSchedules_.emplace_back(make_shared_noexcept_false<StreamSchedule>(paths,
+                                                                               endpaths,
+                                                                               builder.unscheduledModules_,
+                                                                               resultsInserter(),
+                                                                               moduleRegistrySharedPtr(),
                                                                                actions,
                                                                                areg,
-                                                                               processConfiguration,
                                                                                StreamID{i},
                                                                                processContext));
     }
 
-    //TriggerResults are injected automatically by StreamSchedules and are
-    // unknown to the ModuleRegistry
-    const std::string kTriggerResults("TriggerResults");
-    std::vector<std::string> modulesToUse;
-    modulesToUse.reserve(streamSchedules_[0]->allWorkersLumisAndEvents().size());
-    for (auto const& worker : streamSchedules_[0]->allWorkersLumisAndEvents()) {
-      if (worker->description()->moduleLabel() != kTriggerResults) {
-        modulesToUse.push_back(worker->description()->moduleLabel());
-      }
-    }
-    //The unscheduled modules are at the end of the list, but we want them at the front
-    unsigned int const nUnscheduledModules = streamSchedules_[0]->numberOfUnscheduledModules();
-    if (nUnscheduledModules > 0) {
-      std::vector<std::string> temp;
-      temp.reserve(modulesToUse.size());
-      auto itBeginUnscheduled = modulesToUse.begin() + modulesToUse.size() - nUnscheduledModules;
-      std::copy(itBeginUnscheduled, modulesToUse.end(), std::back_inserter(temp));
-      std::copy(modulesToUse.begin(), itBeginUnscheduled, std::back_inserter(temp));
-      temp.swap(modulesToUse);
-    }
-
-    // propagate_const<T> has no reset() function
     globalSchedule_ = std::make_unique<GlobalSchedule>(resultsInserter(),
                                                        pathStatusInserters_,
                                                        endPathStatusInserters_,
-                                                       moduleRegistry(),
-                                                       modulesToUse,
-                                                       proc_pset,
-                                                       preg,
+                                                       moduleRegistrySharedPtr(),
+                                                       builder.allNeededModules_,
                                                        prealloc,
                                                        actions,
                                                        areg,
-                                                       processConfiguration,
                                                        processContext);
   }
 
   void Schedule::finishSetup(ParameterSet& proc_pset,
                              service::TriggerNamesService const& tns,
-                             ProductRegistry& preg,
+                             SignallingProductRegistryFiller& preg,
                              BranchIDListHelper& branchIDListHelper,
                              ProcessBlockHelperBase& processBlockHelper,
                              ThinnedAssociationsHelper& thinnedAssociationsHelper,
-                             SubProcessParentageHelper const* subProcessParentageHelper,
                              std::shared_ptr<ActivityRegistry> areg,
                              std::shared_ptr<ProcessConfiguration> processConfiguration,
-                             bool hasSubprocesses,
                              PreallocationConfiguration const& prealloc,
                              ProcessContext const* processContext) {
     //TriggerResults is not in the top level ParameterSet so the call to
@@ -592,11 +475,11 @@ namespace edm {
     const std::string kTriggerResults("TriggerResults");
 
     std::set<std::string> usedModuleLabels;
-    for (auto const& worker : allWorkers()) {
-      if (worker->description()->moduleLabel() != kTriggerResults) {
-        usedModuleLabels.insert(worker->description()->moduleLabel());
+    moduleRegistry_->forAllModuleHolders([&usedModuleLabels, &kTriggerResults](maker::ModuleHolder* iHolder) {
+      if (iHolder->moduleDescription().moduleLabel() != kTriggerResults) {
+        usedModuleLabels.insert(iHolder->moduleDescription().moduleLabel());
       }
-    }
+    });
     std::vector<std::string> modulesInConfig(proc_pset.getParameter<std::vector<std::string>>("@all_modules"));
     std::map<std::string, std::vector<std::pair<std::string, int>>> outputModulePathPositions;
     reduceParameterSet(proc_pset, tns.getEndPaths(), modulesInConfig, usedModuleLabels, outputModulePathPositions);
@@ -605,7 +488,7 @@ namespace edm {
       detail::processEDAliases(aliases, {}, proc_pset, processConfiguration->processName(), preg);
     }
 
-    // At this point all BranchDescriptions are created. Mark now the
+    // At this point all ProductDescriptions are created. Mark now the
     // ones of unscheduled workers to be on-demand.
     {
       auto const& unsched = streamSchedules_[0]->unscheduledWorkersLumisAndEvents();
@@ -626,7 +509,7 @@ namespace edm {
 
     // This is used for a little sanity-check to make sure no code
     // modifications alter the number of workers at a later date.
-    size_t all_workers_count = allWorkers().size();
+    size_t all_workers_count = moduleRegistry_->maxModuleID();
 
     moduleRegistry_->forAllModuleHolders([this](maker::ModuleHolder* iHolder) {
       auto comm = iHolder->createOutputModuleCommunicator();
@@ -634,25 +517,25 @@ namespace edm {
         all_output_communicators_.emplace_back(std::shared_ptr<OutputModuleCommunicator>{comm.release()});
       }
     });
-    // Now that the output workers are filled in, set any output limits or information.
-    limitOutput(proc_pset, branchIDListHelper.branchIDLists(), subProcessParentageHelper);
+    // Now that the output communicators are filled in, set any output limits or information.
+    limitOutput(proc_pset, branchIDListHelper.branchIDLists());
 
-    // Sanity check: make sure nobody has added a worker after we've
-    // already relied on the WorkerManager being full.
-    assert(all_workers_count == allWorkers().size());
+    // Sanity check: make sure nobody has added a module after we've
+    // already relied on the ModuleRegistry being full.
+    assert(all_workers_count == moduleRegistry_->maxModuleID());
 
-    branchIDListHelper.updateFromRegistry(preg);
+    branchIDListHelper.updateFromRegistry(preg.registry());
 
-    for (auto const& worker : streamSchedules_[0]->allWorkersLumisAndEvents()) {
-      worker->registerThinnedAssociations(preg, thinnedAssociationsHelper);
-    }
+    moduleRegistry_->forAllModuleHolders([&preg, &thinnedAssociationsHelper](auto& iHolder) {
+      iHolder->registerThinnedAssociations(preg.registry(), thinnedAssociationsHelper);
+    });
 
-    processBlockHelper.updateForNewProcess(preg, processConfiguration->processName());
+    processBlockHelper.updateForNewProcess(preg.registry(), processConfiguration->processName());
 
     // The output modules consume products in kept branches.
     // So we must set this up before freezing.
     for (auto& c : all_output_communicators_) {
-      c->selectProducts(preg, thinnedAssociationsHelper, processBlockHelper);
+      c->selectProducts(preg.registry(), thinnedAssociationsHelper, processBlockHelper);
     }
 
     for (auto& product : preg.productListUpdator()) {
@@ -663,27 +546,35 @@ namespace edm {
       // We now get a collection of types that may be consumed.
       std::set<TypeID> productTypesConsumed;
       std::set<TypeID> elementTypesConsumed;
-      // Loop over all modules
-      for (auto const& worker : allWorkers()) {
-        for (auto const& consumesInfo : worker->consumesInfo()) {
-          if (consumesInfo.kindOfType() == PRODUCT_TYPE) {
-            productTypesConsumed.emplace(consumesInfo.type());
-          } else {
-            elementTypesConsumed.emplace(consumesInfo.type());
+
+      moduleRegistry_->forAllModuleHolders(
+          [&productTypesConsumed, &elementTypesConsumed](maker::ModuleHolder* iHolder) {
+            for (auto const& consumesInfo : iHolder->moduleConsumesInfos()) {
+              if (consumesInfo.kindOfType() == PRODUCT_TYPE) {
+                productTypesConsumed.emplace(consumesInfo.type());
+              } else {
+                elementTypesConsumed.emplace(consumesInfo.type());
+              }
+            }
+          });
+      // The RandomNumberGeneratorService is not a module, yet it consumes.
+      {
+        Service<RandomNumberGenerator> rng;
+        if (rng.isAvailable()) {
+          //if the service doesn't consume anything, the consumer will be nullptr
+          auto consumer = rng->consumer();
+          if (consumer) {
+            for (auto const& consumesInfo : consumer->moduleConsumesInfos()) {
+              productTypesConsumed.emplace(consumesInfo.type());
+            }
           }
         }
       }
-      // The SubProcess class is not a module, yet it may consume.
-      if (hasSubprocesses) {
-        productTypesConsumed.emplace(typeid(TriggerResults));
-      }
-      // The RandomNumberGeneratorService is not a module, yet it consumes.
-      { RngEDConsumer rngConsumer = RngEDConsumer(productTypesConsumed); }
       preg.setFrozen(productTypesConsumed, elementTypesConsumed, processConfiguration->processName());
     }
 
     for (auto& c : all_output_communicators_) {
-      c->setEventSelectionInfo(outputModulePathPositions, preg.anyProductProduced());
+      c->setEventSelectionInfo(outputModulePathPositions, preg.registry().anyProductProduced());
     }
 
     if (wantSummary_) {
@@ -724,9 +615,7 @@ namespace edm {
 
   }  // Schedule::Schedule
 
-  void Schedule::limitOutput(ParameterSet const& proc_pset,
-                             BranchIDLists const& branchIDLists,
-                             SubProcessParentageHelper const* subProcessParentageHelper) {
+  void Schedule::limitOutput(ParameterSet const& proc_pset, BranchIDLists const& branchIDLists) {
     std::string const output("output");
 
     ParameterSet const& maxEventsPSet = proc_pset.getUntrackedParameterSet("maxEvents");
@@ -751,7 +640,7 @@ namespace edm {
     }
 
     for (auto& c : all_output_communicators_) {
-      OutputModuleDescription desc(branchIDLists, maxEventsOut, subProcessParentageHelper);
+      OutputModuleDescription desc(branchIDLists, maxEventsOut);
       if (vMaxEventsOut != nullptr && !vMaxEventsOut->empty()) {
         std::string const& moduleLabel = c->description().moduleLabel();
         try {
@@ -781,7 +670,7 @@ namespace edm {
   }
 
   void Schedule::endJob(ExceptionCollector& collector) {
-    globalSchedule_->endJob(collector);
+    globalSchedule_->endJob(collector, *moduleRegistry_);
     if (collector.hasThrown()) {
       return;
     }
@@ -819,10 +708,6 @@ namespace edm {
       // The trigger report (pass/fail etc.):
 
       LogFwkVerbatim("FwkSummary") << "";
-      if (streamSchedules_[0]->context().processContext()->isSubProcess()) {
-        LogFwkVerbatim("FwkSummary") << "TrigReport Process: "
-                                     << streamSchedules_[0]->context().processContext()->processName();
-      }
       LogFwkVerbatim("FwkSummary") << "TrigReport "
                                    << "---------- Event  Summary ------------";
       if (!tr.trigPathSummaries.empty()) {
@@ -1064,9 +949,7 @@ namespace edm {
   void Schedule::closeOutputFiles() {
     using std::placeholders::_1;
     for_all(all_output_communicators_, std::bind(&OutputModuleCommunicator::closeFile, _1));
-    for (auto& worker : allWorkers()) {
-      worker->respondToCloseOutputFile();
-    }
+    moduleRegistry_->forAllModuleHolders([](maker::ModuleHolder* iHolder) { iHolder->respondToCloseOutputFile(); });
   }
 
   void Schedule::openOutputFiles(FileBlock& fb) {
@@ -1176,31 +1059,29 @@ namespace edm {
   }
 
   void Schedule::respondToOpenInputFile(FileBlock const& fb) {
-    using std::placeholders::_1;
-    for_all(allWorkers(), std::bind(&Worker::respondToOpenInputFile, _1, std::cref(fb)));
+    moduleRegistry_->forAllModuleHolders([&fb](maker::ModuleHolder* iHolder) { iHolder->respondToOpenInputFile(fb); });
   }
 
   void Schedule::respondToCloseInputFile(FileBlock const& fb) {
-    using std::placeholders::_1;
-    for_all(allWorkers(), std::bind(&Worker::respondToCloseInputFile, _1, std::cref(fb)));
+    moduleRegistry_->forAllModuleHolders([&fb](maker::ModuleHolder* iHolder) { iHolder->respondToCloseInputFile(fb); });
   }
 
   void Schedule::beginJob(ProductRegistry const& iRegistry,
                           eventsetup::ESRecordsToProductResolverIndices const& iESIndices,
                           ProcessBlockHelperBase const& processBlockHelperBase,
-                          PathsAndConsumesOfModulesBase const& pathsAndConsumesOfModules,
-                          ProcessContext const& processContext) {
-    globalSchedule_->beginJob(iRegistry, iESIndices, processBlockHelperBase, pathsAndConsumesOfModules, processContext);
+                          std::string const& iProcessName) {
+    finishModulesInitialization(*moduleRegistry_, iRegistry, iESIndices, processBlockHelperBase, iProcessName);
+    globalSchedule_->beginJob(*moduleRegistry_);
   }
 
   void Schedule::beginStream(unsigned int streamID) {
     assert(streamID < streamSchedules_.size());
-    streamSchedules_[streamID]->beginStream();
+    streamSchedules_[streamID]->beginStream(*moduleRegistry_);
   }
 
   void Schedule::endStream(unsigned int streamID, ExceptionCollector& collector, std::mutex& collectorMutex) noexcept {
     assert(streamID < streamSchedules_.size());
-    streamSchedules_[streamID]->endStream(collector, collectorMutex);
+    streamSchedules_[streamID]->endStream(*moduleRegistry_, collector, collectorMutex);
   }
 
   void Schedule::processOneEventAsync(WaitingTaskHolder iTask,
@@ -1213,7 +1094,7 @@ namespace edm {
 
   bool Schedule::changeModule(std::string const& iLabel,
                               ParameterSet const& iPSet,
-                              const ProductRegistry& iRegistry,
+                              const SignallingProductRegistryFiller& iRegistry,
                               eventsetup::ESRecordsToProductResolverIndices const& iIndices) {
     Worker* found = nullptr;
     for (auto const& worker : allWorkers()) {
@@ -1236,25 +1117,25 @@ namespace edm {
 
     {
       //Need to updateLookup in order to make getByToken work
-      auto const processBlockLookup = iRegistry.productLookup(InProcess);
-      auto const runLookup = iRegistry.productLookup(InRun);
-      auto const lumiLookup = iRegistry.productLookup(InLumi);
-      auto const eventLookup = iRegistry.productLookup(InEvent);
-      found->updateLookup(InProcess, *runLookup);
-      found->updateLookup(InRun, *runLookup);
-      found->updateLookup(InLumi, *lumiLookup);
-      found->updateLookup(InEvent, *eventLookup);
-      found->updateLookup(iIndices);
+      auto const processBlockLookup = iRegistry.registry().productLookup(InProcess);
+      auto const runLookup = iRegistry.registry().productLookup(InRun);
+      auto const lumiLookup = iRegistry.registry().productLookup(InLumi);
+      auto const eventLookup = iRegistry.registry().productLookup(InEvent);
+      newMod->updateLookup(InProcess, *runLookup);
+      newMod->updateLookup(InRun, *runLookup);
+      newMod->updateLookup(InLumi, *lumiLookup);
+      newMod->updateLookup(InEvent, *eventLookup);
+      newMod->updateLookup(iIndices);
 
       auto const& processName = newMod->moduleDescription().processName();
       auto const& processBlockModuleToIndicies = processBlockLookup->indiciesForModulesInProcess(processName);
       auto const& runModuleToIndicies = runLookup->indiciesForModulesInProcess(processName);
       auto const& lumiModuleToIndicies = lumiLookup->indiciesForModulesInProcess(processName);
       auto const& eventModuleToIndicies = eventLookup->indiciesForModulesInProcess(processName);
-      found->resolvePutIndicies(InProcess, processBlockModuleToIndicies);
-      found->resolvePutIndicies(InRun, runModuleToIndicies);
-      found->resolvePutIndicies(InLumi, lumiModuleToIndicies);
-      found->resolvePutIndicies(InEvent, eventModuleToIndicies);
+      newMod->resolvePutIndicies(InProcess, processBlockModuleToIndicies);
+      newMod->resolvePutIndicies(InRun, runModuleToIndicies);
+      newMod->resolvePutIndicies(InLumi, lumiModuleToIndicies);
+      newMod->resolvePutIndicies(InEvent, eventModuleToIndicies);
     }
 
     return true;
@@ -1273,28 +1154,25 @@ namespace edm {
                                        std::vector<std::string> const& modulesToSkip,
                                        edm::ProductRegistry const& preg) {
     for (auto& stream : streamSchedules_) {
-      stream->initializeEarlyDelete(
-          *moduleRegistry(), branchesToDeleteEarly, referencesToBranches, modulesToSkip, preg);
+      stream->initializeEarlyDelete(*moduleRegistry_, branchesToDeleteEarly, referencesToBranches, modulesToSkip, preg);
     }
   }
 
   std::vector<ModuleDescription const*> Schedule::getAllModuleDescriptions() const {
     std::vector<ModuleDescription const*> result;
-    result.reserve(allWorkers().size());
+    result.reserve(moduleRegistry_->maxModuleID() + 1);
 
-    for (auto const& worker : allWorkers()) {
-      ModuleDescription const* p = worker->description();
-      result.push_back(p);
-    }
+    moduleRegistry_->forAllModuleHolders([&](auto const* iHolder) { result.push_back(&iHolder->moduleDescription()); });
     return result;
   }
-
   Schedule::AllWorkers const& Schedule::allWorkers() const { return globalSchedule_->allWorkers(); }
 
   void Schedule::convertCurrentProcessAlias(std::string const& processName) {
-    for (auto const& worker : allWorkers()) {
-      worker->convertCurrentProcessAlias(processName);
-    }
+    moduleRegistry_->forAllModuleHolders([&](auto& iHolder) { iHolder->convertCurrentProcessAlias(processName); });
+  }
+
+  void Schedule::releaseMemoryPostLookupSignal() {
+    moduleRegistry_->forAllModuleHolders([&](auto& iHolder) { iHolder->releaseMemoryPostLookupSignal(); });
   }
 
   void Schedule::availablePaths(std::vector<std::string>& oLabelsToFill) const {
@@ -1319,57 +1197,6 @@ namespace edm {
                                              std::vector<ModuleDescription const*>& descriptions,
                                              unsigned int hint) const {
     streamSchedules_[0]->moduleDescriptionsInEndPath(iEndPathLabel, descriptions, hint);
-  }
-
-  void Schedule::fillModuleAndConsumesInfo(
-      std::vector<ModuleDescription const*>& allModuleDescriptions,
-      std::vector<std::pair<unsigned int, unsigned int>>& moduleIDToIndex,
-      std::array<std::vector<std::vector<ModuleDescription const*>>, NumBranchTypes>& modulesWhoseProductsAreConsumedBy,
-      std::vector<std::vector<ModuleProcessName>>& modulesInPreviousProcessesWhoseProductsAreConsumedBy,
-      ProductRegistry const& preg) const {
-    allModuleDescriptions.clear();
-    moduleIDToIndex.clear();
-    for (auto iBranchType = 0U; iBranchType < NumBranchTypes; ++iBranchType) {
-      modulesWhoseProductsAreConsumedBy[iBranchType].clear();
-    }
-    modulesInPreviousProcessesWhoseProductsAreConsumedBy.clear();
-
-    allModuleDescriptions.reserve(allWorkers().size());
-    moduleIDToIndex.reserve(allWorkers().size());
-    for (auto iBranchType = 0U; iBranchType < NumBranchTypes; ++iBranchType) {
-      modulesWhoseProductsAreConsumedBy[iBranchType].resize(allWorkers().size());
-    }
-    modulesInPreviousProcessesWhoseProductsAreConsumedBy.resize(allWorkers().size());
-
-    std::map<std::string, ModuleDescription const*> labelToDesc;
-    unsigned int i = 0;
-    for (auto const& worker : allWorkers()) {
-      ModuleDescription const* p = worker->description();
-      allModuleDescriptions.push_back(p);
-      moduleIDToIndex.push_back(std::pair<unsigned int, unsigned int>(p->id(), i));
-      labelToDesc[p->moduleLabel()] = p;
-      ++i;
-    }
-    sort_all(moduleIDToIndex);
-
-    i = 0;
-    for (auto const& worker : allWorkers()) {
-      std::array<std::vector<ModuleDescription const*>*, NumBranchTypes> modules;
-      for (auto iBranchType = 0U; iBranchType < NumBranchTypes; ++iBranchType) {
-        modules[iBranchType] = &modulesWhoseProductsAreConsumedBy[iBranchType].at(i);
-      }
-
-      std::vector<ModuleProcessName>& modulesInPreviousProcesses =
-          modulesInPreviousProcessesWhoseProductsAreConsumedBy.at(i);
-      try {
-        worker->modulesWhoseProductsAreConsumed(modules, modulesInPreviousProcesses, preg, labelToDesc);
-      } catch (cms::Exception& ex) {
-        ex.addContext("Calling Worker::modulesWhoseProductsAreConsumed() for module " +
-                      worker->description()->moduleLabel());
-        throw;
-      }
-      ++i;
-    }
   }
 
   void Schedule::getTriggerReport(TriggerReport& rep) const {

@@ -123,28 +123,10 @@ then
   cmsRun ${LOCAL_TEST_DIR}/testProcessBlockRead2_cfg.py &> testProcessBlockRead2.log || die "cmsRun testProcessBlockRead2_cfg.py" $?
 fi
 
-if [ $1 -eq 14 ]
-then
-  echo "testProcessBlockSubProcess"
-  cmsRun ${LOCAL_TEST_DIR}/testProcessBlockSubProcess_cfg.py &> testProcessBlockSubProcess.log || die "cmsRun testProcessBlockSubProcess_cfg.py" $?
-fi
-
-if [ $1 -eq 15 ]
-then
-  echo "testProcessBlockSubProcessRead1"
-  cmsRun ${LOCAL_TEST_DIR}/testProcessBlockSubProcessRead1_cfg.py &> testProcessBlockSubProcessRead1.log || die "cmsRun testProcessBlockSubProcessRead1_cfg.py" $?
-fi
-
-if [ $1 -eq 16 ]
-then
-  echo "testProcessBlockSubProcessRead2"
-  cmsRun ${LOCAL_TEST_DIR}/testProcessBlockSubProcessRead2_cfg.py &> testProcessBlockSubProcessRead2.log || die "cmsRun testProcessBlockSubProcessRead2_cfg.py" $?
-fi
-
 if [ $1 -eq 17 ]
 then
-  echo "testProcessBlockSubProcessLooper"
-  cmsRun ${LOCAL_TEST_DIR}/testProcessBlockSubProcessLooper_cfg.py &> testProcessBlockSubProcessLooper.log || die "cmsRun testProcessBlockSubProcessLooper_cfg.py" $?
+  echo "testProcessBlockLooper"
+  cmsRun ${LOCAL_TEST_DIR}/testProcessBlockLooper_cfg.py &> testProcessBlockLooper.log || die "cmsRun testProcessBlockLooper_cfg.py" $?
 fi
 
 if [ $1 -eq 18 ]
@@ -250,10 +232,7 @@ then
   rm testProcessBlockMergeOfMergedFiles.log
   rm testProcessBlockNOMergeOfMergedFiles.log
   rm testProcessBlockRead2.log
-  rm testProcessBlockSubProcess.log
-  rm testProcessBlockSubProcessRead1.log
-  rm testProcessBlockSubProcessRead2.log
-  rm testProcessBlockSubProcessLooper.log
+  rm testProcessBlockLooper.log
   rm testProcessBlock5.log
   rm testProcessBlockMerge3.log
   rm testProcessBlockMergeOfMergedFiles2.log
@@ -280,14 +259,7 @@ then
   rm testProcessBlockMergeOfMergedFiles.root
   rm testProcessBlockNOMergeOfMergedFiles.root
   rm testProcessBlockRead2.root
-  rm testProcessBlockSubProcessTest.root
-  rm testProcessBlockSubProcessRead.root
-  rm testProcessBlockSubProcessReadAgain.root
-  rm testProcessBlockSubProcessRead1.root
-  rm testProcessBlockSubProcessRead2.root
-  rm testProcessBlockSubProcessLooperTest.root
-  rm testProcessBlockSubProcessLooperRead.root
-  rm testProcessBlockSubProcessLooperReadAgain.root
+  rm testProcessBlockLooperTest.root
   rm testProcessBlock5.root
   rm testProcessBlockMerge3.root
   rm testProcessBlockMergeOfMergedFiles2.root
@@ -300,12 +272,8 @@ then
   rm testProcessBlockReadDropOnOutput.root
   rm testProcessBlockReadDropOnOutput2.root
   rm testProcessBlockNOMergeOfMergedFiles001.root
-  rm testProcessBlockSubProcessLooperRead001.root
-  rm testProcessBlockSubProcessLooperRead002.root
-  rm testProcessBlockSubProcessLooperReadAgain001.root
-  rm testProcessBlockSubProcessLooperReadAgain002.root
-  rm testProcessBlockSubProcessLooperTest001.root
-  rm testProcessBlockSubProcessLooperTest002.root
+  rm testProcessBlockLooperTest001.root
+  rm testProcessBlockLooperTest002.root
 
   #rm testProcessBlockNonStrict.log
   #rm testProcessBlockNonStrict2.log

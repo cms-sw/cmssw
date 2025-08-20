@@ -17,7 +17,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::device {
    */
   template <typename TProduct>
   class EDPutToken {
-    using ProductType = typename detail::DeviceProductType<TProduct>::type;
+    using ProductType = detail::DeviceProductType<TProduct>;
 
   public:
     constexpr EDPutToken() noexcept = default;

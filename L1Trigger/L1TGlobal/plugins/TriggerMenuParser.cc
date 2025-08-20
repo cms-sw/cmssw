@@ -2849,7 +2849,7 @@ bool l1t::TriggerMenuParser::parseAXOL1TL(L1TUtmCondition condAXOL1TL, unsigned 
   }
 
   // check model version is not empty
-  if (model == "") {
+  if (model.empty()) {
     edm::LogError("TriggerMenuParser") << "    Error: AXOL1TL movel version is empty" << std::endl;
     return false;
   }

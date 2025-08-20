@@ -1,5 +1,5 @@
-#include "RecoMuon/MuonSeedGenerator/src/MuonCSCSeedFromRecHits.h"
-#include "RecoMuon/MuonSeedGenerator/src/MuonSeedPtExtractor.h"
+#include "RecoMuon/MuonSeedGenerator/interface/MuonCSCSeedFromRecHits.h"
+#include "RecoMuon/MuonSeedGenerator/interface/MuonSeedPtExtractor.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/ME0DetId.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"

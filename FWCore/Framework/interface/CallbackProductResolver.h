@@ -1,11 +1,11 @@
+// -*- C++ -*-
 #ifndef Framework_CallbackProductResolver_h
 #define Framework_CallbackProductResolver_h
-// -*- C++ -*-
 //
 // Package:     Framework
 // Class  :     CallbackProductResolver
 //
-/**\class CallbackProductResolver CallbackProductResolver.h FWCore/Framework/interface/CallbackProductResolver.h
+/**\class edm::eventsetup::CallbackProductResolver
 
  Description: A ESProductResolver which performs a callback when data is requested
 
@@ -74,6 +74,8 @@ namespace edm::eventsetup {
     // Delete copy operations
     CallbackProductResolver(const CallbackProductResolver&) = delete;
     const CallbackProductResolver& operator=(const CallbackProductResolver&) = delete;
+
+    unsigned int produceMethodID() const final { return callback_->produceMethodID(); }
 
   private:
     DataT data_{};

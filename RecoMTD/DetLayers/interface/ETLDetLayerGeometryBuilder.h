@@ -9,7 +9,7 @@
  */
 
 #include <Geometry/MTDGeometryBuilder/interface/MTDGeometry.h>
-#include <Geometry/MTDNumberingBuilder/interface/MTDTopology.h>
+#include <Geometry/MTDGeometryBuilder/interface/MTDTopology.h>
 #include <vector>
 
 class DetLayer;

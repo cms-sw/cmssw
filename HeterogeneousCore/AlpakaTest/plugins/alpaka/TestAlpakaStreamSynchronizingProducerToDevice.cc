@@ -19,7 +19,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class TestAlpakaStreamSynchronizingProducerToDevice : public stream::SynchronizingEDProducer<> {
   public:
     TestAlpakaStreamSynchronizingProducerToDevice(edm::ParameterSet const& iConfig)
-        : putToken_{produces()},
+        : SynchronizingEDProducer<>(iConfig),
+          putToken_{produces()},
           size_{iConfig.getParameter<edm::ParameterSet>("size").getParameter<int32_t>(
               EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE))} {}
 

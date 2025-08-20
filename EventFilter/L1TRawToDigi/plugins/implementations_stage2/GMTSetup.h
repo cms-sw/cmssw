@@ -9,6 +9,7 @@
 
 #include "GMTCollections.h"
 #include "GMTTokens.h"
+#include "GMTPutTokens.h"
 
 namespace l1t {
   namespace stage2 {
@@ -20,6 +21,8 @@ namespace l1t {
       void registerProducts(edm::ProducesCollector) override;
       std::unique_ptr<UnpackerCollections> getCollections(edm::Event& e) override;
       UnpackerMap getUnpackers(int fed, int board, int amc, unsigned int fw) override;
+
+      GMTPutTokens putTokens_;
     };
   }  // namespace stage2
 }  // namespace l1t

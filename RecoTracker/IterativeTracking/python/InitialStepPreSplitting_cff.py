@@ -156,7 +156,8 @@ import RecoTracker.MkFit.mkFitIterationConfigESProducer_cfi as _mkFitIterationCo
 import RecoTracker.MkFit.mkFitProducer_cfi as _mkFitProducer_cfi
 import RecoTracker.MkFit.mkFitOutputConverter_cfi as _mkFitOutputConverter_cfi
 mkFitSiPixelHitsPreSplitting = _mkFitSiPixelHitConverter_cfi.mkFitSiPixelHitConverter.clone(
-    hits = 'siPixelRecHitsPreSplitting'
+    hits = 'siPixelRecHitsPreSplitting',
+    clusters = 'siPixelClustersPreSplitting'
 )
 mkFitSiStripHits = _mkFitSiStripHitConverter_cfi.mkFitSiStripHitConverter.clone() # TODO: figure out better place for this module?
 mkFitEventOfHitsPreSplitting = _mkFitEventOfHitsProducer_cfi.mkFitEventOfHitsProducer.clone(
@@ -221,6 +222,12 @@ ak4CaloJetsForTrkPreSplitting = ak4CaloJetsForTrk.clone(
     src    = 'caloTowerForTrkPreSplitting',
     srcPVs = 'firstStepPrimaryVerticesPreSplitting'
 )
+
+from Configuration.ProcessModifiers.hltClusterSplitting_cff import hltClusterSplitting
+hltClusterSplitting.toModify(ak4CaloJetsForTrkPreSplitting,
+    srcPVs = 'hltPixelVertices'
+)
+
 jetsForCoreTrackingPreSplitting = jetsForCoreTracking.clone(
     src    = 'ak4CaloJetsForTrkPreSplitting'
 )
@@ -232,6 +239,8 @@ siPixelClusters = jetCoreClusterSplitter.clone(
     vertices      = 'firstStepPrimaryVerticesPreSplitting',
     cores         = 'jetsForCoreTrackingPreSplitting'
 )
+
+
 
 # Final sequence
 from RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi import siPixelRecHits
@@ -254,6 +263,21 @@ InitialStepPreSplittingTask = cms.Task(trackerClusterCheckPreSplitting,
                                        siPixelRecHits,
                                        MeasurementTrackerEvent,
                                        siPixelClusterShapeCache)
+
+hltClusterSplitting.toModify(siPixelClusters,
+    vertices = cms.InputTag("hltPixelVertices") 
+)
+
+InitialStepPreSplittingFromHLTTask = cms.Task(
+                                       caloTowerForTrkPreSplitting,
+                                       ak4CaloJetsForTrkPreSplitting,
+                                       jetsForCoreTrackingPreSplitting,
+                                       siPixelClusters,
+                                       siPixelRecHits,
+                                       MeasurementTrackerEvent,
+                                       siPixelClusterShapeCache)
+hltClusterSplitting.toReplaceWith(InitialStepPreSplittingTask, InitialStepPreSplittingFromHLTTask)
+
 InitialStepPreSplitting = cms.Sequence(InitialStepPreSplittingTask)
 _InitialStepPreSplittingTask_trackingPhase1 = InitialStepPreSplittingTask.copy()
 _InitialStepPreSplittingTask_trackingPhase1.replace(initialStepHitTripletsPreSplitting, cms.Task(initialStepHitTripletsPreSplitting,initialStepHitQuadrupletsPreSplitting))

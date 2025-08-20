@@ -321,19 +321,8 @@ namespace edm::streamer {
         eventSize = head.size();
         if (code != Header::EVENT) {
           if (code == Header::INIT) {
-            edm::LogWarning("StreamerInputFile") << "Found another INIT header in the file. It will be skipped";
-            if (eventSize < sizeof(EventHeader)) {
-              //very unlikely case that EventHeader is larger than total INIT size inserted in the middle of the file
-              hdrSkipped = nGot - eventSize;
-              memmove(&eventBuf_[0], &eventBuf_[eventSize], hdrSkipped);
-              continue;
-            }
-            if (headerBuf_.size() < eventSize)
-              headerBuf_.resize(eventSize);
-            memcpy(&headerBuf_[0], &eventBuf_[0], nGot);
-            readBytes(&headerBuf_[nGot], eventSize, true, nGot);
-            //do not parse this header and proceed to the next event
-            continue;
+            throw Exception(errors::FileReadError, "StreamerInputFile::readEventMessage")
+                << "Found another INIT header in the file.";
           }
           throw Exception(errors::FileReadError, "StreamerInputFile::readEventMessage")
               << "Failed reading streamer file, unknown code in event header\n"

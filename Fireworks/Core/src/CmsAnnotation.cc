@@ -1,4 +1,5 @@
 #include <sstream>
+#include <cmath>
 
 #include "TGLIncludes.h"
 #include "TGLCamera.h"
@@ -261,16 +262,15 @@ Bool_t CmsAnnotation::Handle(TGLRnrCtx& rnrCtx, TGLOvlSelectRecord& selRec, Even
           else if (fPosY > 1.0f)
             fPosY = 1.0f;
         } else {
-          using namespace TMath;
           Float_t oovpw = 1.0f / vp.Width(), oovph = 1.0f / vp.Height();
 
-          Float_t xw = oovpw * Min(Max(0, event->fX), vp.Width());
-          Float_t yw = oovph * Min(Max(0, vp.Height() - event->fY), vp.Height());
+          Float_t xw = oovpw * std::min(std::max(0, event->fX), vp.Width());
+          Float_t yw = oovph * std::min(std::max(0, vp.Height() - event->fY), vp.Height());
 
-          Float_t rx = Max((xw - fPosX) / (oovpw * fMouseX - fPosX), 0.0f);
-          Float_t ry = Max((yw - fPosY) / (oovph * (vp.Height() - fMouseY) - fPosY), 0.0f);
+          Float_t rx = std::max((xw - fPosX) / (oovpw * fMouseX - fPosX), 0.0f);
+          Float_t ry = std::max((yw - fPosY) / (oovph * (vp.Height() - fMouseY) - fPosY), 0.0f);
 
-          fSize = Max(fSizeDrag * Min(rx, ry), 0.01f);
+          fSize = std::max(fSizeDrag * std::min(rx, ry), 0.01f);
         }
       }
       return kTRUE;

@@ -1,7 +1,7 @@
 /** \class SETFilter
    I. Bloch, E. James, S. Stoynev
  */
-#include "RecoMuon/MuonSeedGenerator/src/SETFilter.h"
+#include "RecoMuon/MuonSeedGenerator/interface/SETFilter.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

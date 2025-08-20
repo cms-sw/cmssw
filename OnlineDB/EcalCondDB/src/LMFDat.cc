@@ -131,7 +131,7 @@ std::string LMFDat::buildSelectSql(int logic_id, int direction) {
   std::stringstream sql;
   int count = 1;
   if (getLMFRunIOVID() > 0) {
-    if (_where.length() > 0) {
+    if (!_where.empty()) {
       // check if this is an expert query. If so, add a WHERE clause
       _where = " AND " + _where;
     }

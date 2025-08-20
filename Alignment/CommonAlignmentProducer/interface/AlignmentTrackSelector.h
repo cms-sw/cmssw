@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include <vector>
 
@@ -36,6 +37,8 @@ public:
   Tracks select(const Tracks& tracks, const edm::Event& evt, const edm::EventSetup& eSetup) const;
   ///returns if any of the Filters is used.
   bool useThisFilter();
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
 private:
   /// apply basic cuts on pt,eta,phi,nhit

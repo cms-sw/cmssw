@@ -2,7 +2,6 @@
 #
 # for t in {'BeamPipe','Tracker','PixBar','PixFwdMinus','PixFwdPlus','TIB','TOB','TIDB','TIDF','TEC','TkStrct','InnerServices'}; do python3 runP_Tracker.py geom=XYZ label=$t >& /dev/null &; done
 
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 import sys, re

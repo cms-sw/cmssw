@@ -117,7 +117,7 @@ void LHESource::putRunInfoProduct(edm::RunPrincipal& iRunPrincipal) {
   if (runInfoProductLast_) {
     auto product = std::make_unique<LHERunInfoProduct>(*runInfoProductLast_);
     std::unique_ptr<edm::WrapperBase> rdp = std::make_unique<edm::Wrapper<LHERunInfoProduct>>(std::move(product));
-    iRunPrincipal.putOrMerge(lheProvenanceHelper_.runProductBranchDescription_, std::move(rdp));
+    iRunPrincipal.putOrMerge(lheProvenanceHelper_.runProductProductDescription_, std::move(rdp));
   }
 }
 
@@ -159,7 +159,7 @@ void LHESource::readEvent_(edm::EventPrincipal& eventPrincipal) {
                 std::bind(&LHEEventProduct::addComment, product.get(), std::placeholders::_1));
 
   std::unique_ptr<edm::WrapperBase> edp = std::make_unique<edm::Wrapper<LHEEventProduct>>(std::move(product));
-  eventPrincipal.put(lheProvenanceHelper_.eventProductBranchDescription_,
+  eventPrincipal.put(lheProvenanceHelper_.eventProductProductDescription_,
                      std::move(edp),
                      lheProvenanceHelper_.eventProductProvenance_);
 

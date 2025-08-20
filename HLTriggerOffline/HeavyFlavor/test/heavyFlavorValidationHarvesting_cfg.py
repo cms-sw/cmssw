@@ -1,4 +1,3 @@
-from __future__ import print_function
 sampleName = "/RelValJpsiMM/CMSSW_3_5_0_pre2-STARTUP3X_V14-v1/GEN-SIM-RECO"
 
 import FWCore.ParameterSet.Config as cms

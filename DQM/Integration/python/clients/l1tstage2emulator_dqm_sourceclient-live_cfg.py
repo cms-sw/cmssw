@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 import sys
-from Configuration.Eras.Era_Run3_2024_cff import Run3_2024
-process = cms.Process("L1TStage2EmulatorDQM", Run3_2024)
+from Configuration.Eras.Era_Run3_2025_cff import Run3_2025
+process = cms.Process("L1TStage2EmulatorDQM", Run3_2025)
 
 unitTest = False
 if 'unitTest=True' in sys.argv:
@@ -131,7 +131,7 @@ if process.runType.getRunType() == process.runType.hi_run:
     process.castorDigis.InputLabel = rawDataRepackerLabel
     process.ctppsDiamondRawToDigi.rawDataTag = rawDataRepackerLabel
     process.ctppsPixelDigis.inputLabel = rawDataRepackerLabel
-    process.ecalDigisCPU.InputLabel = rawDataRepackerLabel
+    process.ecalDigis.InputLabel = rawDataRepackerLabel
     process.ecalPreshowerDigis.sourceTag = rawDataRepackerLabel
     process.hcalDigis.InputLabel = rawDataRepackerLabel
     process.muonCSCDigis.InputObjects = rawDataRepackerLabel
@@ -139,7 +139,7 @@ if process.runType.getRunType() == process.runType.hi_run:
     process.muonRPCDigis.InputLabel = rawDataRepackerLabel
     process.muonGEMDigis.InputLabel = rawDataRepackerLabel
     process.scalersRawToDigi.scalersInputTag = rawDataRepackerLabel
-    process.siPixelDigis.cpu.InputLabel = rawDataRepackerLabel
+    process.siPixelDigis.InputLabel = rawDataRepackerLabel
     process.siStripDigis.ProductLabel = rawDataRepackerLabel
     process.tcdsDigis.InputLabel = rawDataRepackerLabel
     process.tcdsRawToDigi.InputLabel = rawDataRepackerLabel
@@ -181,4 +181,5 @@ process.schedule = cms.Schedule(
 
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
+print("Global Tag used:", process.GlobalTag.globaltag.value())
 print("Final Source settings:", process.source)

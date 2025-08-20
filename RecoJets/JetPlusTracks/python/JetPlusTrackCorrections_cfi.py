@@ -38,8 +38,8 @@ JPTZSPCorrectorAntiKt4 = cms.PSet(
 
     # Electrons
     UseElectrons    = cms.bool(True),
-    Electrons       = cms.InputTag("gedGsfElectrons"),
-    ElectronIds     = cms.InputTag("JPTeidTight"),
+    Electrons       = cms.InputTag("reducedGedGsfElectrons"),
+    ElectronIds     = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-RunIIIWinter22-V1-tight"),
     PatElectrons       = cms.InputTag("slimmedElectrons"),
     electronDRmatch = cms.double(0.02), 
     

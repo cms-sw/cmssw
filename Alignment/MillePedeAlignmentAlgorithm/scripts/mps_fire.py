@@ -12,7 +12,6 @@
 #  mps_fire.py [-a] [-m [-f]] [maxjobs]
 #  mps_fire.py -h
 
-from __future__ import print_function
 from builtins import range
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.Mpslibclass as mpslib
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.tools as mps_tools

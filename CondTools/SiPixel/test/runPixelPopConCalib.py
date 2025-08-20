@@ -6,7 +6,6 @@ Python script to run PixelPopConCalibAnalyzer application
 
 Initial version: M. Eads, Sep 2008
 """
-from __future__ import print_function
 
 import os, sys, getopt, shutil
 from socket import getfqdn

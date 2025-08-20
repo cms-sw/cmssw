@@ -343,7 +343,7 @@ PATTriggerProducer::PATTriggerProducer(const ParameterSet& iConfig)
   if (iConfig.exists("exludeCollections"))
     exludeCollections_ = iConfig.getParameter<std::vector<std::string> >("exludeCollections");
 
-  callWhenNewProductsRegistered([this, &iConfig](BranchDescription const& bd) {
+  callWhenNewProductsRegistered([this, &iConfig](ProductDescription const& bd) {
     if (iConfig.exists("l1ExtraMu"))
       l1ExtraMuGetter_(bd);
     if (iConfig.exists("l1ExtraNoIsoEG"))

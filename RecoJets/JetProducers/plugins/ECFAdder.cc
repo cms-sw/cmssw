@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "RecoJets/JetProducers/interface/ECFAdder.h"
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/ClusterSequence.hh"
@@ -28,23 +30,27 @@ ECFAdder::ECFAdder(const edm::ParameterSet& iConfig)
 
     if (ecftype_ == "ECF" || ecftype_.empty()) {
       ecfN_str << "ecf" << *n;
-      pfunc.reset(new fastjet::contrib::EnergyCorrelator(*n, beta_, fastjet::contrib::EnergyCorrelator::pt_R));
+      pfunc = std::make_shared<fastjet::contrib::EnergyCorrelator>(*n, beta_, fastjet::contrib::EnergyCorrelator::pt_R);
     } else if (ecftype_ == "C") {
       ecfN_str << "ecfC" << *n;
-      pfunc.reset(new fastjet::contrib::EnergyCorrelatorCseries(*n, beta_, fastjet::contrib::EnergyCorrelator::pt_R));
+      pfunc = std::make_shared<fastjet::contrib::EnergyCorrelatorCseries>(
+          *n, beta_, fastjet::contrib::EnergyCorrelator::pt_R);
     } else if (ecftype_ == "D") {
       ecfN_str << "ecfD" << *n;
-      pfunc.reset(
-          new fastjet::contrib::EnergyCorrelatorGeneralizedD2(alpha_, beta_, fastjet::contrib::EnergyCorrelator::pt_R));
+      pfunc = std::make_shared<fastjet::contrib::EnergyCorrelatorGeneralizedD2>(
+          alpha_, beta_, fastjet::contrib::EnergyCorrelator::pt_R);
     } else if (ecftype_ == "N") {
       ecfN_str << "ecfN" << *n;
-      pfunc.reset(new fastjet::contrib::EnergyCorrelatorNseries(*n, beta_, fastjet::contrib::EnergyCorrelator::pt_R));
+      pfunc = std::make_shared<fastjet::contrib::EnergyCorrelatorNseries>(
+          *n, beta_, fastjet::contrib::EnergyCorrelator::pt_R);
     } else if (ecftype_ == "M") {
       ecfN_str << "ecfM" << *n;
-      pfunc.reset(new fastjet::contrib::EnergyCorrelatorMseries(*n, beta_, fastjet::contrib::EnergyCorrelator::pt_R));
+      pfunc = std::make_shared<fastjet::contrib::EnergyCorrelatorMseries>(
+          *n, beta_, fastjet::contrib::EnergyCorrelator::pt_R);
     } else if (ecftype_ == "U") {
       ecfN_str << "ecfU" << *n;
-      pfunc.reset(new fastjet::contrib::EnergyCorrelatorUseries(*n, beta_, fastjet::contrib::EnergyCorrelator::pt_R));
+      pfunc = std::make_shared<fastjet::contrib::EnergyCorrelatorUseries>(
+          *n, beta_, fastjet::contrib::EnergyCorrelator::pt_R);
     }
     variables_.push_back(ecfN_str.str());
     produces<edm::ValueMap<float>>(ecfN_str.str());

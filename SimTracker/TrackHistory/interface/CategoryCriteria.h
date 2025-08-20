@@ -1,13 +1,13 @@
-#ifndef CategoryCriteria_h
-#define CategoryCriteria_h
+#ifndef SimTracker_TrackHistory_CategoryCriteria_h
+#define SimTracker_TrackHistory_CategoryCriteria_h
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "DataFormats/Common/interface/Ref.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/Common/interface/Ref.h"
 
 //! Implement a selector given a track or vertex collection and track or vertex
 //! classifier.
@@ -29,6 +29,11 @@ public:
   // Constructor from parameter set configurability
   CategoryCriteria(const edm::ParameterSet &config, edm::ConsumesCollector &&iC)
       : classifier_(config, std::move(iC)), evaluate_(config.getParameter<std::string>("cut")) {}
+
+  static void fillPSetDescription(edm::ParameterSetDescription &desc) {
+    desc.add<std::string>("cut", "");
+    Classifier::fillPSetDescription(desc);
+  }
 
   // Select object from a collection and possibly event content
   void select(const edm::Handle<collection> &collectionHandler, const edm::Event &event, const edm::EventSetup &setup) {

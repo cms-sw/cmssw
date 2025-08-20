@@ -1,10 +1,10 @@
-
 #ifndef VertexClassifierByProxy_h
 #define VertexClassifierByProxy_h
 
 #include "DataFormats/Common/interface/AssociationMap.h"
 
 #include "SimTracker/TrackHistory/interface/VertexClassifier.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 //! Get track history and classification by proxy
 template <typename Collection>
@@ -18,6 +18,11 @@ public:
       : VertexClassifier(config, std::move(collector)),
         proxy_(config.getUntrackedParameter<edm::InputTag>("vertexProducer")) {
     collector.consumes<Association>(proxy_);
+  }
+
+  static void fillPSetDescription(edm::ParameterSetDescription &desc) {
+    desc.add<edm::InputTag>("vertexProducer", edm::InputTag(""));
+    VertexClassifier::fillPSetDescription(desc);
   }
 
   //! Pre-process event information (for accessing reconstraction information).

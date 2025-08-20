@@ -4,6 +4,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
@@ -36,6 +39,7 @@ class SeedClusterRemover : public edm::stream::EDProducer<> {
 public:
   SeedClusterRemover(const edm::ParameterSet &iConfig);
   void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> const tTrackerGeom_;
@@ -43,14 +47,21 @@ private:
     ParamBlock() : isSet_(false), usesCharge_(false) {}
     ParamBlock(const edm::ParameterSet &iConfig)
         : isSet_(true),
-          usesCharge_(iConfig.exists("maxCharge")),
-          usesSize_(iConfig.exists("maxSize")),
           maxChi2_(iConfig.getParameter<double>("maxChi2")),
-          maxCharge_(usesCharge_ ? iConfig.getParameter<double>("maxCharge") : 0),
-          maxSize_(usesSize_ ? iConfig.getParameter<uint32_t>("maxSize") : 0) {}
-    bool isSet_, usesCharge_, usesSize_;
+          maxCharge_(iConfig.getParameter<double>("maxCharge")),
+          maxSize_(iConfig.getParameter<uint32_t>("maxSize")),
+          usesCharge_(maxCharge_ > 0.),
+          usesSize_(maxSize_ > 0.) {}
+    bool isSet_;
     float maxChi2_, maxCharge_;
     size_t maxSize_;
+    bool usesCharge_, usesSize_;
+
+    static void fillPSetDescription(edm::ParameterSetDescription &desc) {
+      desc.addOptional<double>("maxChi2")->setComment("Maximum chi2 value for the cluster.");
+      desc.add<double>("maxCharge", 0.)->setComment("Maximum charge for the cluster.");
+      desc.add<uint32_t>("maxSize", 0.)->setComment("Maximum size of the cluster.");
+    }
   };
   static const unsigned int NumberOfParamBlocks = 6;
 
@@ -112,8 +123,8 @@ void SeedClusterRemover::readPSet(
 
 SeedClusterRemover::SeedClusterRemover(const ParameterSet &iConfig)
     : tTrackerGeom_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()),
-      doStrip_(iConfig.existsAs<bool>("doStrip") ? iConfig.getParameter<bool>("doStrip") : true),
-      doPixel_(iConfig.existsAs<bool>("doPixel") ? iConfig.getParameter<bool>("doPixel") : true),
+      doStrip_(iConfig.getParameter<bool>("doStrip")),
+      doPixel_(iConfig.getParameter<bool>("doPixel")),
       mergeOld_(iConfig.exists("oldClusterRemovalInfo")) {
   fill(pblocks_, pblocks_ + NumberOfParamBlocks, ParamBlock());
   readPSet(iConfig, "Common", -1);
@@ -302,6 +313,35 @@ void SeedClusterRemover::produce(Event &iEvent, const EventSetup &iSetup) {
 
   collectedStrips_.clear();
   collectedPixels_.clear();
+}
+
+void SeedClusterRemover::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+
+  // Define the structure for optional ParameterSets like Common, Pixel, Strip, etc.
+  edm::ParameterSetDescription paramBlockDesc;
+  ParamBlock::fillPSetDescription(paramBlockDesc);
+
+  // Add all possible ParameterSets (optional) using the above structure
+  desc.addOptional<edm::ParameterSetDescription>("Common", paramBlockDesc);
+  desc.addOptional<edm::ParameterSetDescription>("Pixel", paramBlockDesc);
+  desc.addOptional<edm::ParameterSetDescription>("Strip", paramBlockDesc);
+  desc.addOptional<edm::ParameterSetDescription>("PXB", paramBlockDesc);
+  desc.addOptional<edm::ParameterSetDescription>("PXE", paramBlockDesc);
+  desc.addOptional<edm::ParameterSetDescription>("StripInner", paramBlockDesc);
+  desc.addOptional<edm::ParameterSetDescription>("StripOuter", paramBlockDesc);
+  desc.addOptional<edm::ParameterSetDescription>("TIB", paramBlockDesc);
+  desc.addOptional<edm::ParameterSetDescription>("TID", paramBlockDesc);
+  desc.addOptional<edm::ParameterSetDescription>("TOB", paramBlockDesc);
+  desc.addOptional<edm::ParameterSetDescription>("TEC", paramBlockDesc);
+
+  desc.add<bool>("doStrip", true);
+  desc.add<bool>("doPixel", true);
+  desc.add<InputTag>("trajectories");
+  desc.add<InputTag>("pixelClusters");
+  desc.add<InputTag>("stripClusters");
+  desc.add<InputTag>("oldClusterRemovalInfo");
+  descriptions.addDefault(desc);
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

@@ -1,4 +1,3 @@
-from __future__ import print_function
 #
 # cfg file to pack a GT EVM record
 #

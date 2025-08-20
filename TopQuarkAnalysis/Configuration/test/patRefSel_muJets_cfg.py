@@ -1,4 +1,3 @@
-from __future__ import print_function
 # As of 1 Feb 2017:
 # This configuration appears to be already broken in more
 # than one way. It fails to even run only under python.

@@ -20,11 +20,16 @@
 namespace {
   class ConvertHitTraitsPhase2 {
   public:
+    using Clusters = Phase2TrackerCluster1DCollectionNew;
+    using Cluster = Clusters::data_type;
+
     static constexpr bool applyCCC() { return false; }
-    static std::nullptr_t clusterCharge(const Phase2TrackerRecHit1D& hit, DetId hitId) { return nullptr; }
+    static float chargeScale(DetId id) { return 0; }
+    static const Cluster& cluster(const Clusters& prod, unsigned int index) { return prod.data()[index]; }
+    static std::nullptr_t clusterCharge(const Cluster&, float) { return nullptr; }
     static bool passCCC(std::nullptr_t) { return true; }
-    static void setDetails(mkfit::Hit& mhit, const Phase2TrackerCluster1D& cluster, int shortId, std::nullptr_t) {
-      mhit.setupAsStrip(shortId, (1 << 8) - 1, cluster.size());
+    static void setDetails(mkfit::Hit& mhit, const Cluster& clu, int shortId, std::nullptr_t) {
+      mhit.setupAsStrip(shortId, (1 << 8) - 1, clu.size());
     }
   };
 }  // namespace
@@ -40,31 +45,34 @@ private:
   void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
   const edm::EDGetTokenT<Phase2TrackerRecHit1DCollectionNew> siPhase2RecHitToken_;
+  const edm::EDGetTokenT<Phase2TrackerCluster1DCollectionNew> siPhase2ClusterToken_;
   const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> ttrhBuilderToken_;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttopoToken_;
   const edm::ESGetToken<MkFitGeometry, TrackerRecoGeometryRecord> mkFitGeomToken_;
   const edm::EDPutTokenT<MkFitHitWrapper> wrapperPutToken_;
   const edm::EDPutTokenT<MkFitClusterIndexToHit> clusterIndexPutToken_;
+  const edm::EDPutTokenT<std::vector<int>> layerIndexPutToken_;
   const edm::EDPutTokenT<std::vector<float>> clusterChargePutToken_;
   const ConvertHitTraitsPhase2 convertTraits_;
 };
 
 MkFitPhase2HitConverter::MkFitPhase2HitConverter(edm::ParameterSet const& iConfig)
-    : siPhase2RecHitToken_{consumes<Phase2TrackerRecHit1DCollectionNew>(
-          iConfig.getParameter<edm::InputTag>("siPhase2Hits"))},
-      ttrhBuilderToken_{esConsumes<TransientTrackingRecHitBuilder, TransientRecHitRecord>(
-          iConfig.getParameter<edm::ESInputTag>("ttrhBuilder"))},
-      ttopoToken_{esConsumes<TrackerTopology, TrackerTopologyRcd>()},
-      mkFitGeomToken_{esConsumes<MkFitGeometry, TrackerRecoGeometryRecord>()},
-      wrapperPutToken_{produces<MkFitHitWrapper>()},
-      clusterIndexPutToken_{produces<MkFitClusterIndexToHit>()},
-      clusterChargePutToken_{produces<std::vector<float>>()},
+    : siPhase2RecHitToken_{consumes(iConfig.getParameter<edm::InputTag>("hits"))},
+      siPhase2ClusterToken_{consumes(iConfig.getParameter<edm::InputTag>("clusters"))},
+      ttrhBuilderToken_{esConsumes(iConfig.getParameter<edm::ESInputTag>("ttrhBuilder"))},
+      ttopoToken_{esConsumes()},
+      mkFitGeomToken_{esConsumes()},
+      wrapperPutToken_{produces()},
+      clusterIndexPutToken_{produces()},
+      layerIndexPutToken_{produces()},
+      clusterChargePutToken_{produces()},
       convertTraits_{} {}
 
 void MkFitPhase2HitConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
-  desc.add("siPhase2Hits", edm::InputTag{"siPhase2RecHits"});
+  desc.add("hits", edm::InputTag{"siPhase2RecHits"});
+  desc.add("clusters", edm::InputTag{"siPhase2Clusters"});
   desc.add("ttrhBuilder", edm::ESInputTag{"", "WithTrackAngle"});
 
   descriptions.add("mkFitPhase2HitConverterDefault", desc);
@@ -77,6 +85,7 @@ void MkFitPhase2HitConverter::produce(edm::StreamID iID, edm::Event& iEvent, con
 
   MkFitHitWrapper hitWrapper;
   MkFitClusterIndexToHit clusterIndexToHit;
+  std::vector<int> layerIndexToHit;
   std::vector<float> clusterCharge;
 
   edm::ProductID stripClusterID;
@@ -85,18 +94,22 @@ void MkFitPhase2HitConverter::produce(edm::StreamID iID, edm::Event& iEvent, con
   if (not phase2Hits.empty()) {
     stripClusterID = mkfit::convertHits(ConvertHitTraitsPhase2{},
                                         phase2Hits,
+                                        iEvent.get(siPhase2ClusterToken_),
                                         hitWrapper.hits(),
                                         clusterIndexToHit.hits(),
+                                        layerIndexToHit,
                                         dummy,
                                         ttopo,
                                         ttrhBuilder,
-                                        mkFitGeom);
+                                        mkFitGeom,
+                                        phase2Hits.dataSize());
   }
 
   hitWrapper.setClustersID(stripClusterID);
 
   iEvent.emplace(wrapperPutToken_, std::move(hitWrapper));
   iEvent.emplace(clusterIndexPutToken_, std::move(clusterIndexToHit));
+  iEvent.emplace(layerIndexPutToken_, std::move(layerIndexToHit));
   iEvent.emplace(clusterChargePutToken_, std::move(clusterCharge));
 }
 

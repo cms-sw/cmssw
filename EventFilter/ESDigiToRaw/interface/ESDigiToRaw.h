@@ -27,10 +27,9 @@ public:
   typedef uint32_t Word32;
   typedef uint64_t Word64;
 
-  static const int BXMAX = 2808;
-  static const int LHC_BX_RANGE = 3564;
-  static const int KCHIP_BC_RANGE = 4096;
-  static const int KCHIP_EC_RANGE = 256;
+  static constexpr unsigned int LHC_BX_RANGE = 3564;
+  static constexpr unsigned int KCHIP_BC_RANGE = 4096;
+  static constexpr unsigned int KCHIP_EC_RANGE = 256;
 
 private:
   int fedId_[2][2][40][40];

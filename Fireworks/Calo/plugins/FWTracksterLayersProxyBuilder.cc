@@ -237,7 +237,7 @@ void FWTracksterLayersProxyBuilder::build(const ticl::Trackster &iData,
       const bool isAdjacent = std::abs(layerOut - layerIn) == 1;
 
       // draw 3D cross
-      if (layer_ == 0 || fabs(layerIn - layer_) == 0 || fabs(layerOut - layer_) == 0) {
+      if (layer_ == 0 || std::abs(layerIn - layer_) == 0 || std::abs(layerOut - layer_) == 0) {
         if (isAdjacent)
           adjacent_marker->AddLine(doublet.first.x(),
                                    doublet.first.y(),

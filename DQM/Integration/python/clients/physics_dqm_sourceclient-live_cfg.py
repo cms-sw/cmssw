@@ -1,4 +1,3 @@
-from __future__ import print_function
 import sys
 # $Id: physics_dqm_sourceclient-live_cfg.py,v 1.11 2012/02/13 15:09:30 lilopera Exp $
 
@@ -62,7 +61,7 @@ process.p = cms.Path(
     # process.dqmSaverPB
 )
 
-process.siPixelDigis.cpu.InputLabel = "rawDataCollector"
+process.siPixelDigis.InputLabel = "rawDataCollector"
 
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
@@ -75,4 +74,4 @@ process = customise(process)
 print("Running with run type = ", process.runType.getRunType())
 
 if (process.runType.getRunType() == process.runType.hi_run):
-    process.siPixelDigis.cpu.InputLabel = "rawDataRepacker"
+    process.siPixelDigis.InputLabel = "rawDataRepacker"

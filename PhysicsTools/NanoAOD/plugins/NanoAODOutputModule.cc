@@ -34,7 +34,7 @@
 #include "FWCore/Utilities/interface/Digest.h"
 #include "IOPool/Provenance/interface/CommonProvenanceFiller.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
 #include "DataFormats/NanoAOD/interface/UniqueString.h"
@@ -273,7 +273,7 @@ void NanoAODOutputModule::writeRun(edm::RunForOutput const& iRun) {
         throw cms::Exception("LogicError", "Inconsistent nanoMetadata " + p.first + " (" + hstring->str() + ")");
     } else {
       auto ostr = std::make_unique<TObjString>(hstring->str().c_str());
-      m_file->WriteTObject(ostr.release(), p.first.c_str());
+      m_file->WriteTObject(ostr.get(), p.first.c_str());
     }
   }
 

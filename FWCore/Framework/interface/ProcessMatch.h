@@ -10,7 +10,7 @@ See comments in the file GetterOfProducts.h for a description.
 
 */
 
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 
 #include <string>
 
@@ -20,8 +20,8 @@ namespace edm {
   public:
     ProcessMatch(std::string const& processName) : processName_(processName) {}
 
-    bool operator()(edm::BranchDescription const& branchDescription) {
-      return branchDescription.processName() == processName_ || processName_ == "*";
+    bool operator()(edm::ProductDescription const& productDescription) {
+      return productDescription.processName() == processName_ || processName_ == "*";
     }
 
   private:

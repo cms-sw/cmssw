@@ -23,7 +23,7 @@
 #include <unordered_map>
 
 // user include files
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "SimDataFormats/RandomEngine/interface/RandomEngineState.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 
@@ -54,7 +54,7 @@ private:
   std::vector<RandomEngineState> const& getEventCache(edm::StreamID const&) const final;
   std::vector<RandomEngineState> const& getLumiCache(edm::LuminosityBlockIndex const&) const final;
 
-  void consumes(edm::ConsumesCollector&& iC) const final;
+  edm::EDConsumerBase* consumer() final;
 
   /// For debugging purposes only.
   void print(std::ostream& os) const final;

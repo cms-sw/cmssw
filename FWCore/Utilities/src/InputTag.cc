@@ -8,45 +8,23 @@ namespace edm {
   const std::string InputTag::kCurrentProcess("@currentProcess");
   static std::string const separator(":");
 
-  InputTag::InputTag()
-      : label_(),
-        instance_(),
-        process_(),
-        typeID_(),
-        productRegistry_(nullptr),
-        index_(ProductResolverIndexInvalid),
-        branchType_(NumBranchTypes),
-        skipCurrentProcess_(false) {}
+  InputTag::InputTag() : label_(), instance_(), process_(), token_(), skipCurrentProcess_(false) {}
 
   InputTag::InputTag(std::string const& label, std::string const& instance, std::string const& processName)
       : label_(label),
         instance_(instance),
         process_(processName),
-        typeID_(),
-        productRegistry_(nullptr),
-        index_(ProductResolverIndexInvalid),
-        branchType_(NumBranchTypes),
+        token_(),
         skipCurrentProcess_(calcSkipCurrentProcess()) {}
 
   InputTag::InputTag(char const* label, char const* instance, char const* processName)
       : label_(label),
         instance_(instance),
         process_(processName),
-        typeID_(),
-        productRegistry_(nullptr),
-        index_(ProductResolverIndexInvalid),
-        branchType_(NumBranchTypes),
+        token_(),
         skipCurrentProcess_(calcSkipCurrentProcess()) {}
 
-  InputTag::InputTag(std::string const& s)
-      : label_(),
-        instance_(),
-        process_(),
-        typeID_(),
-        productRegistry_(nullptr),
-        index_(ProductResolverIndexInvalid),
-        branchType_(NumBranchTypes),
-        skipCurrentProcess_(false) {
+  InputTag::InputTag(std::string const& s) : label_(), instance_(), process_(), token_(), skipCurrentProcess_(false) {
     // string is delimited by colons
     std::vector<std::string> tokens = tokenize(s, separator);
     size_t nwords = tokens.size();
@@ -68,37 +46,15 @@ namespace edm {
       : label_(other.label()),
         instance_(other.instance()),
         process_(other.process()),
-        typeID_(),
-        productRegistry_(nullptr),
-        index_(ProductResolverIndexInvalid),
-        branchType_(NumBranchTypes),
-        skipCurrentProcess_(other.willSkipCurrentProcess()) {
-    ProductResolverIndex otherIndex = other.index_.load();
-    if (otherIndex < ProductResolverIndexInitializing) {
-      branchType_ = other.branchType_;
-      typeID_ = other.typeID_;
-      productRegistry_ = other.productRegistry_;
-      index_.store(otherIndex);
-    }
-  }
+        token_(other.token_.load()),
+        skipCurrentProcess_(other.willSkipCurrentProcess()) {}
 
   InputTag::InputTag(InputTag&& other)
       : label_(std::move(other.label_)),
         instance_(std::move(other.instance_)),
         process_(std::move(other.process_)),
-        typeID_(),
-        productRegistry_(nullptr),
-        index_(ProductResolverIndexInvalid),
-        branchType_(NumBranchTypes),
-        skipCurrentProcess_(other.willSkipCurrentProcess()) {
-    ProductResolverIndex otherIndex = other.index_.load();
-    if (otherIndex < ProductResolverIndexInitializing) {
-      branchType_ = other.branchType_;
-      typeID_ = other.typeID_;
-      productRegistry_ = other.productRegistry_;
-      index_.store(otherIndex);
-    }
-  }
+        token_(other.token_.load()),
+        skipCurrentProcess_(other.willSkipCurrentProcess()) {}
 
   InputTag& InputTag::operator=(InputTag const& other) {
     if (this != &other) {
@@ -106,19 +62,7 @@ namespace edm {
       instance_ = other.instance_;
       process_ = other.process_;
       skipCurrentProcess_ = other.skipCurrentProcess_;
-
-      ProductResolverIndex otherIndex = other.index_.load();
-      if (otherIndex < ProductResolverIndexInitializing) {
-        branchType_ = other.branchType_;
-        typeID_ = other.typeID_;
-        productRegistry_ = other.productRegistry_;
-        index_.store(otherIndex);
-      } else {
-        branchType_ = NumBranchTypes;
-        typeID_ = TypeID();
-        productRegistry_ = nullptr;
-        index_.store(ProductResolverIndexInvalid);
-      }
+      token_.store(other.token_.load());
     }
     return *this;
   }
@@ -129,19 +73,7 @@ namespace edm {
       instance_ = std::move(other.instance_);
       process_ = std::move(other.process_);
       skipCurrentProcess_ = other.skipCurrentProcess_;
-
-      ProductResolverIndex otherIndex = other.index_.load();
-      if (otherIndex < ProductResolverIndexInitializing) {
-        branchType_ = other.branchType_;
-        typeID_ = other.typeID_;
-        productRegistry_ = other.productRegistry_;
-        index_.store(otherIndex);
-      } else {
-        branchType_ = NumBranchTypes;
-        typeID_ = TypeID();
-        productRegistry_ = nullptr;
-        index_.store(ProductResolverIndexInvalid);
-      }
+      token_.store(other.token_.load());
     }
     return *this;
   }
@@ -174,30 +106,9 @@ namespace edm {
     return (label_ == tag.label_) && (instance_ == tag.instance_) && (process_ == tag.process_);
   }
 
-  ProductResolverIndex InputTag::indexFor(TypeID const& typeID,
-                                          BranchType branchType,
-                                          void const* productRegistry) const {
-    ProductResolverIndex index = index_.load();
+  void InputTag::cacheToken(EDGetToken token) const { token_.store(token); }
 
-    if (index < ProductResolverIndexInitializing && typeID_ == typeID && branchType_ == branchType &&
-        productRegistry_ == productRegistry) {
-      return index;
-    }
-    return ProductResolverIndexInvalid;
-  }
-
-  void InputTag::tryToCacheIndex(ProductResolverIndex index,
-                                 TypeID const& typeID,
-                                 BranchType branchType,
-                                 void const* productRegistry) const {
-    unsigned int invalidValue = static_cast<unsigned int>(ProductResolverIndexInvalid);
-    if (index_.compare_exchange_strong(invalidValue, static_cast<unsigned int>(ProductResolverIndexInitializing))) {
-      typeID_ = typeID;
-      branchType_ = branchType;
-      productRegistry_ = productRegistry;
-      index_.store(index);
-    }
-  }
+  bool InputTag::isUninitialized() const { return label_.empty(); }
 
   std::ostream& operator<<(std::ostream& ost, InputTag const& tag) {
     static std::string const process(", process = ");

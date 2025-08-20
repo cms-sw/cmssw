@@ -1124,25 +1124,26 @@ bool JetPlusTrackCorrector::matchMuons(TrackRefs::const_iterator& itrk,
 // -----------------------------------------------------------------------------
 //
 bool JetPlusTrackCorrector::matchElectrons(TrackRefs::const_iterator& itrk,
-                                           const edm::Handle<RecoElectrons>& elecs,
-                                           const edm::Handle<RecoElectronIds>& elec_ids) const {
-  if (elecs->empty()) {
+                                           const edm::Handle<RecoElectrons>& gsfEles,
+                                           const edm::Handle<RecoElectronIds>& idDecisionMap) const {
+  if (!gsfEles.isValid()) {
     return false;
   }
 
   double deltaRMIN = 999.;
 
-  uint32_t electron_index = 0;
-  for (auto const& ielec : *elecs) {
-    edm::Ref<RecoElectrons> electron_ref(elecs, electron_index);
-    electron_index++;
+  for (auto ele = gsfEles->begin(); ele != gsfEles->end(); ++ele) {
+    const edm::Ptr<reco::GsfElectron> elePtr(gsfEles, ele - gsfEles->begin());
+    bool passID = false;
+    if (idDecisionMap.isValid())
+      passID = (*idDecisionMap)[elePtr];
 
-    if ((*elec_ids)[electron_ref] < 1.e-6) {
+    if (!passID) {
       continue;
-    }  //@@ Check for null value
+    }  //@@ Check for electronID
 
     // DR matching b/w electron and track
-    auto dR2 = deltaR2(ielec, **itrk);
+    auto dR2 = deltaR2(*ele, **itrk);
     if (dR2 < deltaRMIN) {
       deltaRMIN = dR2;
     }

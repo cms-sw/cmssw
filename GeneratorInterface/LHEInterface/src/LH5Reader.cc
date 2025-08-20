@@ -233,7 +233,7 @@ namespace lhef {
         // Use temporary process info block to define const HEPRUP
         const HEPRUP heprup(tmprup);
 
-        curRunInfo.reset(new LHERunInfo(heprup));
+        curRunInfo = std::make_shared<LHERunInfo>(heprup);
         // Run info has now been set when a new file is encountered
       }
       // Handler should be modified to have these capabilities
@@ -277,7 +277,7 @@ namespace lhef {
       // Use temporary event to construct const HEPEUP;
       const HEPEUP hepeup(tmp);
 
-      lheevent.reset(new LHEEvent(curRunInfo, hepeup));
+      lheevent = std::make_shared<LHEEvent>(curRunInfo, hepeup);
       // Might have to add this capability later
       /*          const XMLHandler::wgt_info &info = handler->weightsinevent;
           for (size_t i = 0; i < info.size(); ++i) {

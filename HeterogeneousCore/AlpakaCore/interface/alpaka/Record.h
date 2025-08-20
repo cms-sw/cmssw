@@ -47,7 +47,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       template <typename TProduct, typename TDepRecord>
       edm::ESHandle<TProduct> getHandle(device::ESGetToken<TProduct, TDepRecord> const& iToken) const {
         auto handle = record_.getHandle(iToken.underlyingToken());
-        if constexpr (detail::useESProductDirectly<TProduct>) {
+        if constexpr (detail::useESProductDirectly) {
           return handle;
         } else {
           if (not handle) {
@@ -67,7 +67,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       template <typename TProduct, typename TDepRecord>
       edm::ESTransientHandle<TProduct> getTransientHandle(device::ESGetToken<TProduct, TDepRecord> const& iToken) const {
         auto handle = record_.getTransientHandle(iToken.underlyingToken());
-        if constexpr (detail::useESProductDirectly<TProduct>) {
+        if constexpr (detail::useESProductDirectly) {
           return handle;
         } else {
           if (not handle) {
@@ -90,7 +90,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       template <typename TProduct, typename TDepRecord>
       TProduct const& get(device::ESGetToken<TProduct, TDepRecord> const& iToken) const {
         auto const& product = record_.get(iToken.underlyingToken());
-        if constexpr (detail::useESProductDirectly<TProduct>) {
+        if constexpr (detail::useESProductDirectly) {
           return product;
         } else {
           return product.get(alpaka::getDev(*queue_));

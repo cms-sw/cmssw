@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from __future__ import print_function
 from PhysicsTools.HeppyCore.utils.edmIntegrityCheck import PublishToFileSystem, IntegrityCheck
 import das
 

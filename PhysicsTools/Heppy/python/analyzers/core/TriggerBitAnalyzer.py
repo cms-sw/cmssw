@@ -1,4 +1,3 @@
-from __future__ import print_function
 import ROOT
 
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer

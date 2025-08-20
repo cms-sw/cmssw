@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
 # copy log4cplus.properties from >script directory< to >local<
@@ -61,5 +60,6 @@ process.DQMMonitoringService = cms.Service("DQMMonitoringService")
 
 # path
 process.p = cms.Path( process.beamSpotDipServer )
+print("Global Tag used:", process.GlobalTag.globaltag.value())
 print("Final Source settings:", process.source)
 

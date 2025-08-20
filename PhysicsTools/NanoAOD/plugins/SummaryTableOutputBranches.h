@@ -6,12 +6,12 @@
 #include <TTree.h>
 #include "FWCore/Framework/interface/OccurrenceForOutput.h"
 #include "DataFormats/NanoAOD/interface/MergeableCounterTable.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 class SummaryTableOutputBranches {
 public:
-  SummaryTableOutputBranches(const edm::BranchDescription *desc, const edm::EDGetToken &token)
+  SummaryTableOutputBranches(const edm::ProductDescription *desc, const edm::EDGetToken &token)
       : m_token(token), m_fills(0) {
     if (desc->className() != "nanoaod::MergeableCounterTable")
       throw cms::Exception("Configuration", "NanoAODOutputModule can only write out MergableCounterTable objects");

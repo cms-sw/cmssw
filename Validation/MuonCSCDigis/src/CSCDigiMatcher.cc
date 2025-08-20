@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "Validation/MuonCSCDigis/interface/CSCDigiMatcher.h"
 
 using namespace std;
@@ -22,7 +24,7 @@ CSCDigiMatcher::CSCDigiMatcher(const edm::ParameterSet& pset, edm::ConsumesColle
   matchDeltaStrip_ = stripDigi.getParameter<int>("matchDeltaStrip");
 
   // make a new simhits matcher
-  muonSimHitMatcher_.reset(new CSCSimHitMatcher(pset, std::move(iC)));
+  muonSimHitMatcher_ = std::make_shared<CSCSimHitMatcher>(pset, std::move(iC));
 
   comparatorDigiInput_ =
       iC.consumes<CSCComparatorDigiCollection>(comparatorDigi.getParameter<edm::InputTag>("inputTag"));

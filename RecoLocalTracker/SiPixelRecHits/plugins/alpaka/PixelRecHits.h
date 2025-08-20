@@ -22,30 +22,29 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforDevice.h"
 
 //#define GPU_DEBUG
-
+//#define ONLY_TRIPLETS_IN_HOLE
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   namespace pixelRecHits {
 
     template <typename TrackerTraits>
     class GetHits {
     public:
-      template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-      ALPAKA_FN_ACC void operator()(const TAcc& acc,
+      ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                     pixelCPEforDevice::ParamsOnDeviceT<TrackerTraits> const* __restrict__ cpeParams,
                                     BeamSpotPOD const* __restrict__ bs,
                                     SiPixelDigisSoAConstView digis,
                                     uint32_t numElements,
                                     uint32_t nonEmptyModules,
                                     SiPixelClustersSoAConstView clusters,
-                                    TrackingRecHitSoAView<TrackerTraits> hits) const {
+                                    ::reco::TrackingRecHitView hits) const {
         ALPAKA_ASSERT_ACC(cpeParams);
 
         // outer loop: one block per module
         for (uint32_t module : cms::alpakatools::independent_groups(acc, nonEmptyModules)) {
+#ifdef ONLY_TRIPLETS_IN_HOLE
           // This is necessary only once - consider moving it somewhere else.
           // Copy the average geometry corrected by the beamspot.
           if (0 == module) {
-            auto& agc = hits.averageGeometry();
             auto const& ag = cpeParams->averageGeometry();
             auto nLadders = TrackerTraits::numberOfLaddersInBarrel;
 
@@ -63,6 +62,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               agc.endCapZ[1] = ag.endCapZ[1] - bs->z;
             }
           }
+#endif  // ONLY_TRIPLETS_IN_HOLE
 
           // to be moved in common namespace...
           using pixelClustering::invalidModuleId;
@@ -92,9 +92,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
 
           auto& clusParams = alpaka::declareSharedVar<pixelCPEforDevice::ClusParams, __COUNTER__>(acc);
+
           for (int startClus = 0, endClus = nclus; startClus < endClus; startClus += maxHitsInIter) {
             auto first = clusters[1 + module].moduleStart();
-
             int nClusInIter = alpaka::math::min(acc, maxHitsInIter, endClus - startClus);
             int lastClus = startClus + nClusInIter;
             ALPAKA_ASSERT_ACC(nClusInIter <= nclus);

@@ -15,8 +15,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::testDigisSoA {
 
   class TestFillKernel {
   public:
-    template <typename TAcc, typename = std::enable_if_t<isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc, SiPixelDigiErrorsSoAView digiErrors_view) const {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc, SiPixelDigiErrorsSoAView digiErrors_view) const {
       for (uint32_t j : cms::alpakatools::uniform_elements(acc, digiErrors_view.metadata().size())) {
         digiErrors_view[j].pixelErrors().rawId = j;
         digiErrors_view[j].pixelErrors().word = j;
@@ -28,8 +27,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::testDigisSoA {
 
   class TestVerifyKernel {
   public:
-    template <typename TAcc, typename = std::enable_if_t<isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc, SiPixelDigiErrorsSoAConstView digiErrors_view) const {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc, SiPixelDigiErrorsSoAConstView digiErrors_view) const {
       for (uint32_t j : cms::alpakatools::uniform_elements(acc, digiErrors_view.metadata().size())) {
         ALPAKA_ASSERT_ACC(digiErrors_view[j].pixelErrors().rawId == j);
         ALPAKA_ASSERT_ACC(digiErrors_view[j].pixelErrors().word == j);

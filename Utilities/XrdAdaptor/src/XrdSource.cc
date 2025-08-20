@@ -194,6 +194,9 @@ Source::Source(timespec now, std::unique_ptr<XrdCl::File> fh, const std::string 
 #endif
 {
   if (m_fh.get()) {
+    std::string lastUrl;
+    m_fh->GetProperty("LastURL", lastUrl);
+    edm::LogFwkInfo("XrdAdaptor") << "Opened a file at URL " << lastUrl;
     if (!m_fh->GetProperty("DataServer", m_id)) {
       edm::LogWarning("XrdFileWarning") << "Source::Source() failed to determine data server name.'";
     }
@@ -292,6 +295,23 @@ void Source::determineHostExcludeString(XrdCl::File &file, const XrdCl::HostList
   // exclude parameter.
   // We assume this is a federation context if there's at least a regional, dCache door,
   // and dCache pool server (so, more than 2 servers!).
+
+  // Further explanation of the motivation from recollections of Brian Bockelman
+  // 1. The way dCache sites are (were?) integrated into AAA they
+  //    required a standalone server, separate from dCache itself,
+  //    that would advertise file availability (via running the cmsd
+  //    component).
+  // 2. When a file-open failed for a dCache "pool" (the disk server
+  //    itself), adding the pool name to the exclude list was useless
+  //    because the client was subsequently redirected to server in
+  //    item (1) which, unlike native XRootD solutions, was not aware
+  //    of what pool the client would land on (i.e., it didn't know it
+  //    would redirect again to the same bad pool).
+  // 3. So, the code had to take an informed guess as to which the
+  //    site integration server (item 1) was by walking up the list of
+  //    redirects and try to hit the first native XRootD source.
+  //    That's what the heuristic in
+  //    Source::determineHostExcludeString is trying to do.
 
   exclude = "";
   if (hostList && (hostList->size() > 3) && isDCachePool(file, hostList)) {

@@ -5349,12 +5349,12 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
               mapRADDAM_HED2[k1][k2] /= mapRADDAM_HED2[2][kk2];
               // (d1 & eta 17-29)                       L1
               int LLLLLL111111 = 0;
-              if ((k1 == 0 && fabs(kkk - 41) > 16 && fabs(kkk - 41) < 30))
+              if ((k1 == 0 && std::abs(kkk - 41) > 16 && std::abs(kkk - 41) < 30))
                 LLLLLL111111 = 1;
               // (d2 & eta 17-26) && (d3 & eta 27-28)   L2
               int LLLLLL222222 = 0;
-              if ((k1 == 1 && fabs(kkk - 41) > 16 && fabs(kkk - 41) < 27) ||
-                  (k1 == 2 && fabs(kkk - 41) > 26 && fabs(kkk - 41) < 29))
+              if ((k1 == 1 && std::abs(kkk - 41) > 16 && std::abs(kkk - 41) < 27) ||
+                  (k1 == 2 && std::abs(kkk - 41) > 26 && std::abs(kkk - 41) < 29))
                 LLLLLL222222 = 1;
               //
               if (LLLLLL111111 == 1) {
@@ -5389,11 +5389,11 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
               if (mapRADDAM_HE[k1][k2][k3] != 0. && mapRADDAM_HE[2][kk2][k3] != 0) {
                 mapRADDAM_HE[k1][k2][k3] /= mapRADDAM_HE[2][kk2][k3];
                 int LLLLLL111111 = 0;
-                if ((k1 == 0 && fabs(kkk - 41) > 16 && fabs(kkk - 41) < 30))
+                if ((k1 == 0 && std::abs(kkk - 41) > 16 && std::abs(kkk - 41) < 30))
                   LLLLLL111111 = 1;
                 int LLLLLL222222 = 0;
-                if ((k1 == 1 && fabs(kkk - 41) > 16 && fabs(kkk - 41) < 27) ||
-                    (k1 == 2 && fabs(kkk - 41) > 26 && fabs(kkk - 41) < 29))
+                if ((k1 == 1 && std::abs(kkk - 41) > 16 && std::abs(kkk - 41) < 27) ||
+                    (k1 == 2 && std::abs(kkk - 41) > 26 && std::abs(kkk - 41) < 29))
                   LLLLLL222222 = 1;
                 if (LLLLLL111111 == 1) {
                   h_sigLayer1RADDAM5_HE->Fill(double(kkk - 41), mapRADDAM_HE[k1][k2][k3]);
@@ -9945,12 +9945,12 @@ void CMTRawAnalyzer::fillDigiAmplitude(HBHEDigiCollection::const_iterator& digiI
 
         // (d1 & eta 17-29)                       L1
         int LLLLLL111111 = 0;
-        if ((mdepth == 1 && fabs(ieta0) > 16 && fabs(ieta0) < 30))
+        if ((mdepth == 1 && std::abs(ieta0) > 16 && std::abs(ieta0) < 30))
           LLLLLL111111 = 1;
         // (d2 & eta 17-26) && (d3 & eta 27-28)   L2
         int LLLLLL222222 = 0;
-        if ((mdepth == 2 && fabs(ieta0) > 16 && fabs(ieta0) < 27) ||
-            (mdepth == 3 && fabs(ieta0) > 26 && fabs(ieta0) < 29))
+        if ((mdepth == 2 && std::abs(ieta0) > 16 && std::abs(ieta0) < 27) ||
+            (mdepth == 3 && std::abs(ieta0) > 26 && std::abs(ieta0) < 29))
           LLLLLL222222 = 1;
         //
         if (LLLLLL111111 == 1) {
@@ -9965,7 +9965,7 @@ void CMTRawAnalyzer::fillDigiAmplitude(HBHEDigiCollection::const_iterator& digiI
         }
 
         //
-        if (mdepth == 3 && fabs(ieta0) == 16) {
+        if (mdepth == 3 && std::abs(ieta0) == 16) {
           h_mapDepth3RADDAM16_HE->Fill(amplitudewithPedSubtr);
           // forStudy     h_mapDepth3RADDAM160_HE->Fill(1.);
         }

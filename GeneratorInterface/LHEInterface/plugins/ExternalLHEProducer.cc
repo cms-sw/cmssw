@@ -57,8 +57,8 @@ Implementation:
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEReader.h"
 
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -110,7 +110,7 @@ private:
   edm::EDPutTokenT<LHERunInfoProduct> beginRunPutToken_;
   class FileCloseSentry {
   public:
-    explicit FileCloseSentry(int fd) : fd_(fd){};
+    explicit FileCloseSentry(int fd) : fd_(fd) {};
 
     ~FileCloseSentry() { close(fd_); }
 
@@ -505,7 +505,6 @@ void ExternalLHEProducer::executeScript(std::vector<std::string> const& args, in
   close(filedes[1]);
   // If the exec succeeds, the read will fail.
   while (((rc2 = read(filedes[0], &rc, sizeof(int))) == -1) && (errno == EINTR)) {
-    rc2 = 0;
   }
   if ((rc2 == sizeof(int)) && rc) {
     throw cms::Exception("ExternalLHEProducer")

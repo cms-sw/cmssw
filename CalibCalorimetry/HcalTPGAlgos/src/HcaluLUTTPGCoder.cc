@@ -40,6 +40,7 @@ constexpr double MaximumFractionalError = 0.002;  // 0.2% error allowed from thi
 
 HcaluLUTTPGCoder::HcaluLUTTPGCoder()
     : topo_{},
+      emap_{},
       delay_{},
       LUTGenerationMode_{},
       FG_HF_thresholds_{},
@@ -71,10 +72,13 @@ HcaluLUTTPGCoder::HcaluLUTTPGCoder()
       linearLSB_QIE11_{},
       linearLSB_QIE11Overlap_{} {}
 
-HcaluLUTTPGCoder::HcaluLUTTPGCoder(const HcalTopology* top, const HcalTimeSlew* delay) { init(top, delay); }
+HcaluLUTTPGCoder::HcaluLUTTPGCoder(const HcalTopology* top, const HcalElectronicsMap* emap, const HcalTimeSlew* delay) {
+  init(top, emap, delay);
+}
 
-void HcaluLUTTPGCoder::init(const HcalTopology* top, const HcalTimeSlew* delay) {
+void HcaluLUTTPGCoder::init(const HcalTopology* top, const HcalElectronicsMap* emap, const HcalTimeSlew* delay) {
   topo_ = top;
+  emap_ = emap;
   delay_ = delay;
   LUTGenerationMode_ = true;
   FG_HF_thresholds_ = {0, 0};
@@ -283,7 +287,7 @@ void HcaluLUTTPGCoder::update(const char* filename, bool appendMSB) {
 
 void HcaluLUTTPGCoder::updateXML(const char* filename) {
   LutXml* _xml = new LutXml(filename);
-  _xml->create_lut_map();
+  _xml->create_lut_map(emap_);
   HcalSubdetector subdet[3] = {HcalBarrel, HcalEndcap, HcalForward};
   for (int ieta = -HcalDetId::kHcalEtaMask2; ieta <= (int)(HcalDetId::kHcalEtaMask2); ++ieta) {
     for (unsigned int iphi = 0; iphi <= HcalDetId::kHcalPhiMask2; ++iphi) {
@@ -367,8 +371,6 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 
   // Here we will determine if we are using new version of TPs (1TS)
   // i.e. are we using a new pulse filter scheme.
-  const HcalElectronicsMap* emap = conditions.getHcalMapping();
-
   int lastHBRing = topo_->lastHBRing();
   int lastHERing = topo_->lastHERing();
 
@@ -378,13 +380,13 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
   bool foundHE = false;
   bool newHBtp = false;
   bool newHEtp = false;
-  std::vector<HcalElectronicsId> vIds = emap->allElectronicsIdTrigger();
+  std::vector<HcalElectronicsId> vIds = emap_->allElectronicsIdTrigger();
   for (std::vector<HcalElectronicsId>::const_iterator eId = vIds.begin(); eId != vIds.end(); eId++) {
     // The first HB or HE id is enough to tell whether to use new scheme in HB or HE
     if (foundHB and foundHE)
       break;
 
-    HcalTrigTowerDetId hcalTTDetId(emap->lookupTrigger(*eId));
+    HcalTrigTowerDetId hcalTTDetId(emap_->lookupTrigger(*eId));
     if (hcalTTDetId.null())
       continue;
 

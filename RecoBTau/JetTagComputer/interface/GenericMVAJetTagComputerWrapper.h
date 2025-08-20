@@ -56,6 +56,11 @@ public:
     uses(3, ti4);
   }
 
+  static void fillPSetDescription(edm::ParameterSetDescription &desc) {
+    Provider::fillPSetDescription(desc);
+    GenericMVAJetTagComputer::fillPSetDescription(desc);
+  }
+
 protected:
   reco::TaggingVariableList taggingVariables(const TagInfoHelper &info) const override {
     return (static_cast<const Provider &>(*this))(
@@ -74,6 +79,11 @@ public:
     uses(0, ti1);
     uses(1, ti2);
     uses(2, ti3);
+  }
+
+  static void fillPSetDescription(edm::ParameterSetDescription &desc) {
+    Provider::fillPSetDescription(desc);
+    GenericMVAJetTagComputer::fillPSetDescription(desc);
   }
 
 protected:
@@ -102,6 +112,11 @@ public:
     uses(1, ti2);
   }
 
+  static void fillPSetDescription(edm::ParameterSetDescription &desc) {
+    Provider::fillPSetDescription(desc);
+    GenericMVAJetTagComputer::fillPSetDescription(desc);
+  }
+
 protected:
   reco::TaggingVariableList taggingVariables(const TagInfoHelper &info) const override {
     return (static_cast<const Provider &>(*this))(info.get<TI1>(0), info.get<TI2>(1));
@@ -127,6 +142,11 @@ public:
     uses(0, ti1);
   }
 
+  static void fillPSetDescription(edm::ParameterSetDescription &desc) {
+    Provider::fillPSetDescription(desc);
+    GenericMVAJetTagComputer::fillPSetDescription(desc);
+  }
+
 protected:
   reco::TaggingVariableList taggingVariables(const TagInfoHelper &info) const override {
     return (static_cast<const Provider &>(*this))(info.get<TI1>(0));
@@ -149,6 +169,11 @@ class GenericMVAJetTagComputerWrapper<Provider,
 public:
   GenericMVAJetTagComputerWrapper(const edm::ParameterSet &params, Tokens tokens)
       : GenericMVAJetTagComputer(params, tokens), Provider(params) {}
+
+  static void fillPSetDescription(edm::ParameterSetDescription &desc) {
+    Provider::fillPSetDescription(desc);
+    GenericMVAJetTagComputer::fillPSetDescription(desc);
+  }
 
 protected:
   reco::TaggingVariableList taggingVariables(const TagInfoHelper &info) const override {

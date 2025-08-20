@@ -15,8 +15,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
 
 namespace edm {
 
@@ -36,6 +34,7 @@ namespace edm {
     int prescale_;
     int verbosity_;
     int counter_;
+    bool allProvenance_;
   };
 
   AsciiOutputModule::AsciiOutputModule(ParameterSet const& pset)
@@ -43,7 +42,8 @@ namespace edm {
         global::OutputModule<>(pset),
         prescale_(pset.getUntrackedParameter<unsigned int>("prescale")),
         verbosity_(pset.getUntrackedParameter<unsigned int>("verbosity")),
-        counter_(0) {
+        counter_(0),
+        allProvenance_(pset.getUntrackedParameter<bool>("allProvenance")) {
     if (prescale_ == 0)
       prescale_ = 1;
   }
@@ -73,9 +73,8 @@ namespace edm {
     LogAbsolute("AsciiOut") << '\n' << e.id() << '\n';
 
     // Loop over products, and write some output for each...
-    Service<ConstProductRegistry> reg;
-    for (auto const& prod : reg->productList()) {
-      BranchDescription const& desc = prod.second;
+    for (auto const& prod : e.productRegistry().productList()) {
+      ProductDescription const& desc = prod.second;
       if (selected(desc)) {
         if (desc.isAlias()) {
           LogAbsolute("AsciiOut") << "ModuleLabel " << desc.moduleLabel() << " is an alias for";
@@ -85,7 +84,30 @@ namespace edm {
         LogAbsolute("AsciiOut") << prov;
 
         if (verbosity_ > 2) {
-          BranchDescription const& desc2 = prov.branchDescription();
+          ProductDescription const& desc2 = prov.productDescription();
+          std::string const& process = desc2.processName();
+          std::string const& label = desc2.moduleLabel();
+          ProcessHistory const& processHistory = e.processHistory();
+
+          for (ProcessConfiguration const& pc : processHistory) {
+            if (pc.processName() == process) {
+              ParameterSetID const& psetID = pc.parameterSetID();
+              pset::Registry const* psetRegistry = pset::Registry::instance();
+              ParameterSet const* processPset = psetRegistry->getMapped(psetID);
+              if (processPset) {
+                if (desc.isAlias()) {
+                  LogAbsolute("AsciiOut") << "Alias PSet\n" << processPset->getParameterSet(desc.moduleLabel());
+                }
+                LogAbsolute("AsciiOut") << processPset->getParameterSet(label) << "\n";
+              }
+            }
+          }
+        }
+      } else if (allProvenance_) {
+        auto const& prov = e.getStableProvenance(desc.originalBranchID());
+        LogAbsolute("AsciiOut") << prov;
+        if (verbosity_ > 2) {
+          ProductDescription const& desc2 = prov.productDescription();
           std::string const& process = desc2.processName();
           std::string const& label = desc2.moduleLabel();
           ProcessHistory const& processHistory = e.processHistory();
@@ -118,6 +140,8 @@ namespace edm {
             "1: event ID and timestamp only\n"
             "2: provenance for each kept product\n"
             ">2: PSet and provenance for each kept product");
+    desc.addUntracked("allProvenance", false)
+        ->setComment("when printing provenance info, also print stable provenance of non-kept data products.");
     OutputModule::fillDescription(desc);
     descriptions.add("asciiOutput", desc);
   }

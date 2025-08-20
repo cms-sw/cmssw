@@ -432,6 +432,8 @@ int HGCalCLUEAlgoT<T, STRATEGY>::findAndAssignClusters(const unsigned int layerI
       localStack.push_back(i);
 
     } else if (!isOutlier) {
+      assert(cellsOnLayer.nearestHigher[i] != -1);
+      assert(cellsOnLayer.nearestHigher[i] < static_cast<int>(cellsOnLayer.followers.size()));
       cellsOnLayer.followers[cellsOnLayer.nearestHigher[i]].push_back(i);
     }
   }

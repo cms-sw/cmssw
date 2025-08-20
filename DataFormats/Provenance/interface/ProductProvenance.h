@@ -39,8 +39,7 @@ namespace edm {
     ParentageID const& parentageID() const { return parentageID_; }
     Parentage const& parentage() const;
 
-    void set(ParentageID id) { parentageID_ = std::move(id); }
-    ParentageID moveParentageID() { return std::move(parentageID_); }
+    void set(ParentageID const& id) { parentageID_ = id; }
 
   private:
     BranchID branchID_;

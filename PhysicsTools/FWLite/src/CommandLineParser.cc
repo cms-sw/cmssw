@@ -102,7 +102,7 @@ void CommandLineParser::parseArguments(int argc, char **argv, bool returnArgs) {
 }
 
 void CommandLineParser::help() {
-  if (m_usageString.length()) {
+  if (!m_usageString.empty()) {
     cout << m_argv0 << " - " << m_usageString << endl;
   }
   cout << "--help    - This screen" << endl
@@ -138,7 +138,7 @@ void CommandLineParser::split(SVec &retval, string line, string match, bool igno
     }
     string part = line.substr(pos, current - last - 1);
     // don't bother adding 0 length strings
-    if (part.length()) {
+    if (!part.empty()) {
       retval.push_back(part);
     }
     last = current;
@@ -208,7 +208,7 @@ void CommandLineParser::printOptionValues() {
   for (SIMapConstIter iter = m_integerMap.begin(); m_integerMap.end() != iter; ++iter) {
     const string &description = m_variableDescriptionMap[iter->first];
     cout << "    " << setw(14) << iter->first << " = " << setw(14) << iter->second;
-    if (description.length()) {
+    if (!description.empty()) {
       cout << " - " << description;
     }
     cout << endl;
@@ -221,7 +221,7 @@ void CommandLineParser::printOptionValues() {
   for (SDMapConstIter iter = m_doubleMap.begin(); m_doubleMap.end() != iter; ++iter) {
     const string &description = m_variableDescriptionMap[iter->first];
     cout << "    " << setw(14) << iter->first << " = " << setw(14) << iter->second;
-    if (description.length()) {
+    if (!description.empty()) {
       cout << " - " << description;
     }
     cout << endl;
@@ -239,7 +239,7 @@ void CommandLineParser::printOptionValues() {
     } else {
       cout << "false";
     }
-    if (description.length()) {
+    if (!description.empty()) {
       cout << " - " << description;
     }
     cout << endl;
@@ -254,7 +254,7 @@ void CommandLineParser::printOptionValues() {
     cout << "    " << setw(14) << iter->first << " = ";
     const string value = "'" + iter->second + "'";
     cout << setw(14) << "";
-    if (description.length()) {
+    if (!description.empty()) {
       cout << " - " << description;
     }
     cout << endl << "        " << value << endl;
@@ -269,7 +269,7 @@ void CommandLineParser::printOptionValues() {
     cout << "    " << setw(14) << iter->first << " = ";
     dumpSTL(iter->second);
     cout << endl;
-    if (description.length()) {
+    if (!description.empty()) {
       cout << "      - " << description;
     }
     cout << endl;
@@ -284,7 +284,7 @@ void CommandLineParser::printOptionValues() {
     cout << "    " << setw(14) << iter->first << " = ";
     dumpSTL(iter->second);
     cout << endl;
-    if (description.length()) {
+    if (!description.empty()) {
       cout << "      - " << description;
     }
     cout << endl;
@@ -299,7 +299,7 @@ void CommandLineParser::printOptionValues() {
   for (SSVecMapConstIter iter = m_stringVecMap.begin(); m_stringVecMap.end() != iter; ++iter) {
     const string &description = m_variableDescriptionMap[iter->first];
     cout << "    " << setw(14) << iter->first << " = ";
-    if (description.length()) {
+    if (!description.empty()) {
       cout << setw(14) << ""
            << " - " << description;
     }
@@ -601,7 +601,7 @@ void CommandLineParser::_finishDefaultOptions(std::string tag) {
   // Store lfn to pfn //
   //////////////////////
   const string &kStorePrepend = stringValue("storePrepend");
-  if (kStorePrepend.length()) {
+  if (!kStorePrepend.empty()) {
     string match = "/store/";
     int matchLen = match.length();
     SVec tempVec;
@@ -623,7 +623,7 @@ void CommandLineParser::_finishDefaultOptions(std::string tag) {
   // //////////////////////////// //
   //////////////////////////////////
   string outputFile = stringValue("outputFile");
-  bool modifyOutputFile = (outputFile.length());
+  bool modifyOutputFile = (!outputFile.empty());
   outputFile = removeEnding(outputFile, ".root");
   outputFile += tag;
   if (integerValue("maxEvents")) {
@@ -632,7 +632,7 @@ void CommandLineParser::_finishDefaultOptions(std::string tag) {
   if (integerValue("jobID") >= 0) {
     outputFile += Form("_jobID%03d", integerValue("jobID"));
   }
-  if (stringValue("tag").length()) {
+  if (!stringValue("tag").empty()) {
     outputFile += "_" + stringValue("tag");
   }
 

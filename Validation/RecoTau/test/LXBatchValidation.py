@@ -2,7 +2,6 @@
 
 # Script to submit Tau Validation jobs to lxbatch
 #  Author: Evan Friis evan.klose.friis@cern.ch
-from __future__ import print_function
 from builtins import range
 import time
 import random

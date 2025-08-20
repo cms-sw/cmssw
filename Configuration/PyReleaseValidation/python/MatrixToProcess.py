@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 
-from __future__ import print_function
 class MatrixToProcess:
 
     def __init__(self,what='standard',strict=True):

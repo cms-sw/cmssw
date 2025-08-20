@@ -1,11 +1,11 @@
+// -*- C++ -*-
 #ifndef FWCore_Framework_ESConsumesCollector_h
 #define FWCore_Framework_ESConsumesCollector_h
-// -*- C++ -*-
 //
 // Package:     FWCore/Framework
 // Class  :     edm::ConsumesCollector
 //
-/**\class edm::ESConsumesCollector ESConsumesCollector.h "FWCore/Framework/interface/ESConsumesCollector.h"
+/**\class edm::ESConsumesCollector
 
  Description: Helper class to gather consumes information for the EventSetup.
 
@@ -80,7 +80,7 @@ namespace edm {
                                nullptr);
       //even though m_consumer may expand, the address for
       // name().value() remains the same since it is 'moved'.
-      return ESGetToken<Product, Record>{m_transitionID, index, m_consumer->back().productKey_.name().value()};
+      return ESGetToken<Product, Record>{m_produceMethodID, index, m_consumer->back().productKey_.name().value()};
     }
 
     template <typename Product, typename Record>
@@ -91,15 +91,15 @@ namespace edm {
           EventSetupRecordKey::makeKey<Record>(), DataKey(DataKey::makeTypeTag<Product>(), ""), "", nullptr);
       //even though m_consumer may expand, the address for
       // name().value() remains the same since it is 'moved'.
-      return ESGetToken<Product, Record>{m_transitionID, index, m_consumer->back().productKey_.name().value()};
+      return ESGetToken<Product, Record>{m_produceMethodID, index, m_consumer->back().productKey_.name().value()};
     }
 
     ESConsumesCollectorAdaptor consumes();
     ESConsumesCollectorWithTagAdaptor consumes(ESInputTag tag);
 
   protected:
-    explicit ESConsumesCollector(ESConsumesInfo* const iConsumer, unsigned int iTransitionID)
-        : m_consumer{iConsumer}, m_transitionID{iTransitionID} {}
+    explicit ESConsumesCollector(ESConsumesInfo* const iConsumer, unsigned int iProduceMethodID)
+        : m_consumer{iConsumer}, m_produceMethodID{iProduceMethodID} {}
 
     template <typename Product, typename Record, typename Collector, typename PTag>
     auto registerMayConsume(std::unique_ptr<Collector> iCollector, PTag const& productTag) {
@@ -115,13 +115,13 @@ namespace edm {
                                std::move(iCollector));
       //even though m_consumer may expand, the address for
       // name().value() remains the same since it is 'moved'.
-      return ESGetToken<Product, Record>{m_transitionID, index, m_consumer->back().productKey_.name().value()};
+      return ESGetToken<Product, Record>{m_produceMethodID, index, m_consumer->back().productKey_.name().value()};
     }
 
   private:
     // ---------- member data --------------------------------
     edm::propagate_const<ESConsumesInfo*> m_consumer{nullptr};
-    unsigned int m_transitionID{0};
+    unsigned int m_produceMethodID{0};
   };
 
   template <typename RECORD>

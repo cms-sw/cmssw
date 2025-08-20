@@ -1,6 +1,10 @@
+<use name="DataFormats/TrackerCommon"/>
 <use name="FWCore/Utilities"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
 <use name="TrackingTools/TrajectoryState"/>
 <use name="clhep"/>
 <export>
   <lib name="1"/>
 </export>
+

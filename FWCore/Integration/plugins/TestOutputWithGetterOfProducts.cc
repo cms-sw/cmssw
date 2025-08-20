@@ -60,7 +60,7 @@ namespace edm {
         getterOfProductsRun_(TypeMatch(), this, InRun),
         getterOfProductsLumi_(edm::TypeMatch(), this, InLumi),
         getterOfProductsEvent_(edm::TypeMatch(), this) {
-    callWhenNewProductsRegistered([this](edm::BranchDescription const& bd) {
+    callWhenNewProductsRegistered([this](edm::ProductDescription const& bd) {
       getterOfProductsRun_(bd);
       getterOfProductsLumi_(bd);
       getterOfProductsEvent_(bd);

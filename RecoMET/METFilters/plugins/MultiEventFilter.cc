@@ -36,7 +36,7 @@ MultiEventFilter::MultiEventFilter(const edm::ParameterSet& iConfig)
     : eventList_(iConfig.getParameter<std::vector<std::string> >("EventList")),
       taggingMode_(iConfig.getParameter<bool>("taggingMode")) {
   edm::FileInPath fp = iConfig.getParameter<edm::FileInPath>("file");
-  std::string fFile = fp.fullPath();
+  const std::string& fFile = fp.fullPath();
   std::ifstream inStream(fFile.c_str());
 
   for (unsigned int i = 0; i < eventList_.size(); ++i) {

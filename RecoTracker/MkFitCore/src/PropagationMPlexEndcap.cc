@@ -129,14 +129,16 @@ namespace mkfit {
 
       const TrackerInfo& tinfo = *pflags.tracker_info;
 
+#if !defined(__clang__)
 #pragma omp simd
+#endif
       for (int n = 0; n < NN; ++n) {
         if (n >= N_proc || (noMatEffPtr && noMatEffPtr->constAt(n, 0, 0))) {
           hitsRl(n, 0, 0) = 0.f;
           hitsXi(n, 0, 0) = 0.f;
         } else {
-          const float hypo = std::hypot(outPar(n, 0, 0), outPar(n, 1, 0));
-          auto mat = tinfo.material_checked(std::abs(msZ(n, 0, 0)), hypo);
+          const float hypo = hipo(outPar(n, 0, 0), outPar(n, 1, 0));
+          const auto mat = tinfo.material_checked(std::abs(msZ(n, 0, 0)), hypo);
           hitsRl(n, 0, 0) = mat.radl;
           hitsXi(n, 0, 0) = mat.bbxi;
         }
@@ -454,7 +456,7 @@ namespace mkfit {
         // Are we close to apex? Same condition as in propToR, 12.5 deg, cos(78.5deg) = 0.2
         float dotp = (outPar.At(n, 0, 0) * std::cos(outPar.At(n, 4, 0)) +
                       outPar.At(n, 1, 0) * std::sin(outPar.At(n, 4, 0))) /
-                     std::hypot(outPar.At(n, 0, 0), outPar.At(n, 1, 0));
+                     hipo(outPar.At(n, 0, 0), outPar.At(n, 1, 0));
         if (dotp < 0.2 || dotp < 0) {
           dprintf("helixAtZ: dot product bad, dotp = %f\n", dotp);
           outFailFlag[n] = 1;

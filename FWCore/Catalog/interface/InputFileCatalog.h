@@ -19,7 +19,7 @@
 namespace edm {
   class FileCatalogItem {
   public:
-    FileCatalogItem(std::vector<std::string> const& pfns, std::string const& lfn) : pfns_(pfns), lfn_(lfn) {}
+    FileCatalogItem(std::vector<std::string> pfns, std::string lfn) : pfns_(std::move(pfns)), lfn_(std::move(lfn)) {}
 
     std::string const& fileName(unsigned iCatalog) const { return pfns_[iCatalog]; }
     std::string const& logicalFileName() const { return lfn_; }
@@ -33,7 +33,7 @@ namespace edm {
 
   class InputFileCatalog {
   public:
-    InputFileCatalog(std::vector<std::string> const& fileNames,
+    InputFileCatalog(std::vector<std::string> fileNames,
                      std::string const& override,
                      bool useLFNasPFNifLFNnotFound = false,
                      //switching between two catalog types
@@ -42,19 +42,19 @@ namespace edm {
 
     ~InputFileCatalog();
     std::vector<FileCatalogItem> const& fileCatalogItems() const { return fileCatalogItems_; }
-    std::vector<std::string> const& logicalFileNames() const { return logicalFileNames_; }
     std::vector<std::string> fileNames(unsigned iCatalog) const;
     bool empty() const { return fileCatalogItems_.empty(); }
     static bool isPhysical(std::string const& name) { return (name.empty() || name.find(':') != std::string::npos); }
 
   private:
-    void init(std::string const& override, bool useLFNasPFNifLFNnotFound, edm::CatalogType catType);
+    void init(std::vector<std::string> logicalFileNames,
+              std::string const& override,
+              bool useLFNasPFNifLFNnotFound,
+              edm::CatalogType catType);
     void findFile(std::string const& lfn,
                   std::vector<std::string>& pfns,
                   bool useLFNasPFNifLFNnotFound,
                   edm::CatalogType catType);
-    std::vector<std::string> logicalFileNames_;
-    std::vector<std::string> fileNames_;
     std::vector<FileCatalogItem> fileCatalogItems_;
     edm::propagate_const<std::unique_ptr<FileLocator>> overrideFileLocator_;
 

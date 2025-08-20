@@ -10,7 +10,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-#include "FWCore/Utilities/interface/Span.h"
 
 // L1 scouting
 #include "DataFormats/L1Scouting/interface/L1ScoutingMuon.h"
@@ -27,7 +26,7 @@ template <typename T>
 class MaskOrbitBx : public edm::stream::EDProducer<> {
 public:
   explicit MaskOrbitBx(const edm::ParameterSet&);
-  ~MaskOrbitBx() {}
+  ~MaskOrbitBx() override {}
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:

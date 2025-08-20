@@ -1,0 +1,18 @@
+<library file="*.cc" name="L3MuonProducerPlugins">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="DataFormats/Common"/>
+  <use name="DataFormats/L1Trigger"/>
+  <use name="DataFormats/Math"/>
+  <use name="DataFormats/MuonReco"/>
+  <use name="DataFormats/MuonSeed"/>
+  <use name="DataFormats/RecoCandidate"/>
+  <use name="DataFormats/TrackReco"/>
+  <use name="TrackingTools/PatternTools"/>
+  <use name="RecoMuon/GlobalTrackingTools"/>
+  <use name="RecoMuon/L3TrackFinder"/>
+  <use name="RecoMuon/TrackingTools"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

@@ -26,7 +26,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class CaloRecHitSoAProducer : public global::EDProducer<> {
   public:
     CaloRecHitSoAProducer(edm::ParameterSet const& config)
-        : recHitsToken_(consumes(config.getParameter<edm::InputTag>("src"))),
+        : EDProducer(config),
+          recHitsToken_(consumes(config.getParameter<edm::InputTag>("src"))),
           deviceToken_(produces()),
           synchronise_(config.getUntrackedParameter<bool>("synchronise")) {}
 
@@ -74,6 +75,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                   const HCAL::CaloRecHitType& from) {
     // Fill SoA from HCAL rec hit
     to.detId() = from.id().rawId();
+    to.chi2() = from.chi2();
     to.energy() = from.energy();
     to.timeM0() = from.time();
   }

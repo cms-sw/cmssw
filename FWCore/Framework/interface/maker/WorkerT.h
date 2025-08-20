@@ -12,8 +12,10 @@ WorkerT: Code common to all workers.
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/maker/Worker.h"
 #include "FWCore/Framework/interface/maker/WorkerParams.h"
-#include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
+#include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWCore/Utilities/interface/Transition.h"
 
 #include <array>
 #include <map>
@@ -23,11 +25,12 @@ WorkerT: Code common to all workers.
 
 namespace edm {
 
-  class ModuleCallingContext;
-  class ModuleProcessName;
   class ProductResolverIndexAndSkipBit;
   class ThinnedAssociationsHelper;
-  class WaitingTaskWithArenaHolder;
+
+  namespace eventsetup {
+    struct ComponentDescription;
+  }  // namespace eventsetup
 
   template <typename T>
   class WorkerT : public Worker {
@@ -56,15 +59,6 @@ namespace edm {
     SerialTaskQueue* globalRunsQueue() final;
     SerialTaskQueue* globalLuminosityBlocksQueue() final;
 
-    void updateLookup(BranchType iBranchType, ProductResolverIndexHelper const&) final;
-    void updateLookup(eventsetup::ESRecordsToProductResolverIndices const&) final;
-    void selectInputProcessBlocks(ProductRegistry const&, ProcessBlockHelperBase const&) final;
-
-    void resolvePutIndicies(
-        BranchType iBranchType,
-        std::unordered_multimap<std::string, std::tuple<TypeID const*, const char*, edm::ProductResolverIndex>> const&
-            iIndicies) final;
-
     template <typename D>
     void callWorkerBeginStream(D, StreamID);
     template <typename D>
@@ -78,6 +72,8 @@ namespace edm {
     template <typename D>
     void callWorkerStreamEnd(D, StreamID, LumiTransitionInfo const&, ModuleCallingContext const*);
 
+    bool matchesBaseClassPointer(void const* iPtr) const noexcept final { return &(*module_) == iPtr; }
+
   protected:
     T& module() { return *module_; }
     T const& module() const { return *module_; }
@@ -90,9 +86,9 @@ namespace edm {
     void itemsToGetForSelection(std::vector<ProductResolverIndexAndSkipBit>&) const final;
     bool implNeedToRunSelection() const noexcept final;
 
-    void implDoAcquire(EventTransitionInfo const&, ModuleCallingContext const*, WaitingTaskWithArenaHolder&) final;
+    void implDoAcquire(EventTransitionInfo const&, ModuleCallingContext const*, WaitingTaskHolder&&) final;
 
-    size_t transformIndex(edm::BranchDescription const&) const noexcept final;
+    size_t transformIndex(edm::ProductDescription const&) const noexcept final;
     void implDoTransformAsync(WaitingTaskHolder,
                               size_t iTransformIndex,
                               EventPrincipal const&,
@@ -112,31 +108,7 @@ namespace edm {
     bool implDoStreamBegin(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) override;
     bool implDoStreamEnd(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) override;
     bool implDoEnd(LumiTransitionInfo const&, ModuleCallingContext const*) override;
-    void implBeginJob() override;
-    void implEndJob() override;
-    void implBeginStream(StreamID) override;
-    void implEndStream(StreamID) override;
-    void implRespondToOpenInputFile(FileBlock const& fb) override;
-    void implRespondToCloseInputFile(FileBlock const& fb) override;
-    void implRespondToCloseOutputFile() override;
-    void implRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) override;
-    std::string workerType() const override;
     TaskQueueAdaptor serializeRunModule() override;
-
-    void modulesWhoseProductsAreConsumed(
-        std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modules,
-        std::vector<ModuleProcessName>& modulesInPreviousProcesses,
-        ProductRegistry const& preg,
-        std::map<std::string, ModuleDescription const*> const& labelsToDesc) const override {
-      module_->modulesWhoseProductsAreConsumed(
-          modules, modulesInPreviousProcesses, preg, labelsToDesc, module_->moduleDescription().processName());
-    }
-
-    void convertCurrentProcessAlias(std::string const& processName) override {
-      module_->convertCurrentProcessAlias(processName);
-    }
-
-    std::vector<ConsumesInfo> consumesInfo() const override { return module_->consumesInfo(); }
 
     void itemsToGet(BranchType branchType, std::vector<ProductResolverIndexAndSkipBit>& indexes) const override {
       module_->itemsToGet(branchType, indexes);

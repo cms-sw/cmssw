@@ -1110,12 +1110,8 @@ void CSCOfflineMonitor::doPedestalNoise(edm::Handle<CSCStripDigiCollection> stri
           (1. / 6) * (myADCVals[2] + myADCVals[3] + myADCVals[4] + myADCVals[5] + myADCVals[6] + myADCVals[7]);
       float threshold = 13.3;
 
-      // Why is this code block even here? Doesn't use myStrip after setting it (converts channel to strip
-      // for ganged ME11A
       if ((kStation == 1 && kRing == 4) && cscGeom->gangedStrips()) {
         kRing = 1;
-        if (myStrip <= 16)
-          myStrip += 64;  // no trapping for any bizarreness
       }
 
       if (TotalADC > threshold) {
@@ -1848,7 +1844,6 @@ void CSCOfflineMonitor::doBXMonitor(edm::Handle<CSCALCTDigiCollection> alcts,
     if (length >= 32) {  ///if fed has data then unpack it
       CSCDCCExaminer* examiner = nullptr;
       std::stringstream examiner_out, examiner_err;
-      goodEvent = true;
       examiner = new CSCDCCExaminer();
       if (examinerMask & 0x40000)
         examiner->crcCFEB(true);

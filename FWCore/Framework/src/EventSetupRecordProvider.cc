@@ -17,7 +17,7 @@
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 
-#include "FWCore/Framework/interface/ParameterSetIDHolder.h"
+#include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Framework/interface/EventSetupImpl.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
@@ -232,24 +232,20 @@ namespace edm {
       firstRecordImpl().getESProducers(referencedESProducers[key_]);
     }
 
-    void EventSetupRecordProvider::fillReferencedDataKeys(
-        std::map<DataKey, ComponentDescription const*>& referencedDataKeys) const {
-      std::vector<DataKey> keys;
-      firstRecordImpl().fillRegisteredDataKeys(keys);
-      std::vector<ComponentDescription const*> components = firstRecordImpl().componentsForRegisteredDataKeys();
-      auto itComponents = components.begin();
-      for (auto const& k : keys) {
-        referencedDataKeys.emplace(k, *itComponents);
-        ++itComponents;
+    void EventSetupRecordProvider::fillAllESProductResolverProviders(
+        std::vector<ESProductResolverProvider const*>& allESProductResolverProviders,
+        std::unordered_set<unsigned int>& componentIDs) const {
+      for (auto const& provider : providers_) {
+        if (componentIDs.insert(provider->description().id_).second) {
+          allESProductResolverProviders.push_back(provider.get());
+        }
       }
     }
 
-    void EventSetupRecordProvider::resetRecordToResolverPointers(DataToPreferredProviderMap const& iMap) {
-      for (auto& recordImplIter : recordImpls_) {
-        recordImplIter.clearResolvers();
+    void EventSetupRecordProvider::updateLookup(ESRecordsToProductResolverIndices const& iResolverToIndices) {
+      for (auto& productResolverProvider : providers_) {
+        productResolverProvider->updateLookup(iResolverToIndices);
       }
-      using std::placeholders::_1;
-      for_all(providers_, std::bind(&EventSetupRecordProvider::addResolversToRecordHelper, this, _1, iMap));
     }
 
     std::set<EventSetupRecordKey> EventSetupRecordProvider::dependentRecords() const { return dependencies(key()); }
@@ -278,35 +274,16 @@ namespace edm {
       return get_underlying_safe(*itFound);
     }
 
-    std::shared_ptr<ESProductResolverProvider> EventSetupRecordProvider::resolverProvider(
-        ParameterSetIDHolder const& psetID) {
-      for (auto& productResolverProvider : providers_) {
-        if (productResolverProvider->description().pid_ == psetID.psetID()) {
-          return get_underlying_safe(productResolverProvider);
-        }
-      }
-      return std::shared_ptr<ESProductResolverProvider>();
-    }
-
-    void EventSetupRecordProvider::resetProductResolverProvider(
-        ParameterSetIDHolder const& psetID,
-        std::shared_ptr<ESProductResolverProvider> const& sharedESProductResolverProvider) {
-      for (auto& productResolverProvider : providers_) {
-        if (productResolverProvider->description().pid_ == psetID.psetID()) {
-          productResolverProvider = sharedESProductResolverProvider;
-          productResolverProvider->createKeyedResolvers(key_, nConcurrentIOVs_);
-        }
-      }
-    }
-
-    std::vector<DataKey> EventSetupRecordProvider::registeredDataKeys() const {
-      std::vector<DataKey> ret;
-      firstRecordImpl().fillRegisteredDataKeys(ret);
-      return ret;
+    std::vector<DataKey> const& EventSetupRecordProvider::registeredDataKeys() const {
+      return firstRecordImpl().registeredDataKeys();
     }
 
     std::vector<ComponentDescription const*> EventSetupRecordProvider::componentsForRegisteredDataKeys() const {
       return firstRecordImpl().componentsForRegisteredDataKeys();
+    }
+
+    std::vector<unsigned int> EventSetupRecordProvider::produceMethodIDsForRegisteredDataKeys() const {
+      return firstRecordImpl().produceMethodIDsForRegisteredDataKeys();
     }
 
   }  // namespace eventsetup

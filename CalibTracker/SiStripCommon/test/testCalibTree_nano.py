@@ -1,4 +1,3 @@
-from __future__ import print_function
 
 ## adapted from produceCalibrationTree_template_cfg.py
 

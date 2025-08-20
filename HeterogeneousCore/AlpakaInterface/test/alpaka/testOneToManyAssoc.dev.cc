@@ -35,8 +35,7 @@ namespace {
 }  // namespace
 
 struct countMultiLocal {
-  template <typename TAcc>
-  ALPAKA_FN_ACC void operator()(const TAcc& acc,
+  ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                 TK const* __restrict__ tk,
                                 Multiplicity* __restrict__ assoc,
                                 uint32_t n) const {
@@ -58,8 +57,7 @@ struct countMultiLocal {
 };
 
 struct countMulti {
-  template <typename TAcc>
-  ALPAKA_FN_ACC void operator()(const TAcc& acc,
+  ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                 TK const* __restrict__ tk,
                                 Multiplicity* __restrict__ assoc,
                                 uint32_t n) const {
@@ -70,8 +68,7 @@ struct countMulti {
 };
 
 struct verifyMulti {
-  template <typename TAcc>
-  ALPAKA_FN_ACC void operator()(const TAcc& acc, Multiplicity* __restrict__ m1, Multiplicity* __restrict__ m2) const {
+  ALPAKA_FN_ACC void operator()(Acc1D const& acc, Multiplicity* __restrict__ m1, Multiplicity* __restrict__ m2) const {
     for ([[maybe_unused]] auto i : uniform_elements(acc, Multiplicity{}.totOnes())) {
       ALPAKA_ASSERT_ACC(m1->off[i] == m2->off[i]);
     }
@@ -79,8 +76,7 @@ struct verifyMulti {
 };
 
 struct count {
-  template <typename TAcc>
-  ALPAKA_FN_ACC void operator()(const TAcc& acc,
+  ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                 TK const* __restrict__ tk,
                                 AssocRandomAccess* __restrict__ assoc,
                                 uint32_t n) const {
@@ -99,8 +95,7 @@ struct count {
 };
 
 struct fill {
-  template <typename TAcc>
-  ALPAKA_FN_ACC void operator()(const TAcc& acc,
+  ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                 TK const* __restrict__ tk,
                                 AssocRandomAccess* __restrict__ assoc,
                                 uint32_t n) const {
@@ -119,16 +114,19 @@ struct fill {
 };
 
 struct verify {
-  template <typename TAcc, typename Assoc>
-  ALPAKA_FN_ACC void operator()(const TAcc& acc, Assoc* __restrict__ assoc) const {
+  template <typename Assoc>
+  ALPAKA_FN_ACC void operator()(Acc1D const& acc, Assoc* __restrict__ assoc) const {
     ALPAKA_ASSERT_ACC(assoc->size() < Assoc{}.capacity());
   }
 };
 
 struct fillBulk {
-  template <typename TAcc, typename Assoc>
-  ALPAKA_FN_ACC void operator()(
-      const TAcc& acc, AtomicPairCounter* apc, TK const* __restrict__ tk, Assoc* __restrict__ assoc, uint32_t n) const {
+  template <typename Assoc>
+  ALPAKA_FN_ACC void operator()(Acc1D const& acc,
+                                AtomicPairCounter* apc,
+                                TK const* __restrict__ tk,
+                                Assoc* __restrict__ assoc,
+                                uint32_t n) const {
     for (auto k : uniform_elements(acc, n)) {
       auto m = tk[k][3] < MaxElem ? 4 : 3;
       assoc->bulkFill(acc, *apc, &tk[k][0], m);
@@ -137,8 +135,8 @@ struct fillBulk {
 };
 
 struct verifyBulk {
-  template <typename TAcc, typename Assoc>
-  ALPAKA_FN_ACC void operator()(const TAcc& acc, Assoc const* __restrict__ assoc, AtomicPairCounter const* apc) const {
+  template <typename Assoc>
+  ALPAKA_FN_ACC void operator()(Acc1D const& acc, Assoc const* __restrict__ assoc, AtomicPairCounter const* apc) const {
     if (::toSigned(apc->get().first) >= Assoc::ctNOnes()) {
       printf("Overflow %d %d\n", apc->get().first, Assoc::ctNOnes());
     }

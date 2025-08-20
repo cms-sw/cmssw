@@ -17,7 +17,7 @@ int main() {
   using namespace caStructures;
 
   //for Phase-I
-  print<CACellT<Phase1>>();
+  print<CACell<Phase1>>();
   print<CellNeighborsT<Phase1>>();
   print<CellTracksT<Phase1>>();
   print<OuterHitOfCellContainerT<Phase1>>();
@@ -27,7 +27,7 @@ int main() {
   print<CellNeighborsVectorT<Phase1>>();
 
   //for Phase-II
-  print<CACellT<Phase2>>();
+  print<CACell<Phase2>>();
   print<CellNeighborsT<Phase2>>();
   print<CellTracksT<Phase2>>();
   print<OuterHitOfCellContainerT<Phase2>>();

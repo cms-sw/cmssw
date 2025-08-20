@@ -118,15 +118,15 @@ void FactorizedJetCorrectorCalculator::initCorrectors(const std::string& fLevels
     if (mLevels[i] == kL1 || mLevels[i] == kL1JPT || mLevels[i] == kL2 || mLevels[i] == kL3 || mLevels[i] == kL4 ||
         mLevels[i] == kL6 || mLevels[i] == kL1fj)
       mCorrectors.push_back(new SimpleJetCorrector(Files[i]));
-    else if (mLevels[i] == kL5 && FlavorOption.length() == 0)
+    else if (mLevels[i] == kL5 && FlavorOption.empty())
       handleError("FactorizedJetCorrectorCalculator",
                   "must specify flavor option when requesting L5Flavor correction!");
-    else if (mLevels[i] == kL5 && FlavorOption.length() > 0)
+    else if (mLevels[i] == kL5 && !FlavorOption.empty())
       mCorrectors.push_back(new SimpleJetCorrector(Files[i], FlavorOption));
-    else if (mLevels[i] == kL7 && PartonOption.length() == 0)
+    else if (mLevels[i] == kL7 && PartonOption.empty())
       handleError("FactorizedJetCorrectorCalculator",
                   "must specify parton option when requesting L7Parton correction!");
-    else if (mLevels[i] == kL7 && PartonOption.length() > 0)
+    else if (mLevels[i] == kL7 && !PartonOption.empty())
       mCorrectors.push_back(new SimpleJetCorrector(Files[i], PartonOption));
     else {
       std::stringstream sserr;

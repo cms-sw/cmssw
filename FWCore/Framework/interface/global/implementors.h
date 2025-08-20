@@ -48,9 +48,9 @@
 // forward declarations
 namespace edm {
 
-  class WaitingTaskWithArenaHolder;
   class ServiceWeakToken;
   class ActivityRegistry;
+  class WaitingTaskWithArenaHolder;
 
   namespace global {
     namespace impl {
@@ -436,7 +436,7 @@ namespace edm {
       private:
         bool hasAcquire() const noexcept override { return true; }
 
-        void doAcquire_(StreamID, Event const&, edm::EventSetup const&, WaitingTaskWithArenaHolder&) final;
+        void doAcquire_(StreamID, Event const&, edm::EventSetup const&, WaitingTaskHolder&&) final;
 
         virtual void acquire(StreamID, Event const&, edm::EventSetup const&, WaitingTaskWithArenaHolder) const = 0;
       };
@@ -474,17 +474,17 @@ namespace edm {
 
         template <typename G, typename F>
         void registerTransform(edm::EDPutTokenT<G> iToken, F iF, std::string productInstance = std::string()) {
-          using ReturnTypeT = decltype(iF(std::declval<G>()));
+          using ReturnTypeT = decltype(iF(std::declval<edm::StreamID>(), std::declval<G>()));
           TypeID returnType(typeid(ReturnTypeT));
           TransformerBase::registerTransformImp(
               *this,
               EDPutToken(iToken),
               returnType,
               std::move(productInstance),
-              [f = std::move(iF)](std::any const& iGotProduct) {
+              [f = std::move(iF)](edm::StreamID id, std::any const& iGotProduct) {
                 auto pGotProduct = std::any_cast<edm::WrapperBase const*>(iGotProduct);
                 return std::make_unique<edm::Wrapper<ReturnTypeT>>(
-                    WrapperBase::Emplace{}, f(*static_cast<edm::Wrapper<G> const*>(pGotProduct)->product()));
+                    WrapperBase::Emplace{}, f(id, *static_cast<edm::Wrapper<G> const*>(pGotProduct)->product()));
               });
         }
 
@@ -493,25 +493,27 @@ namespace edm {
                                     P iPre,
                                     F iF,
                                     std::string productInstance = std::string()) {
-          using CacheTypeT = decltype(iPre(std::declval<G>(), WaitingTaskWithArenaHolder()));
-          using ReturnTypeT = decltype(iF(std::declval<CacheTypeT>()));
+          using CacheTypeT =
+              decltype(iPre(std::declval<edm::StreamID>(), std::declval<G>(), WaitingTaskWithArenaHolder()));
+          using ReturnTypeT = decltype(iF(std::declval<edm::StreamID>(), std::declval<CacheTypeT>()));
           TypeID returnType(typeid(ReturnTypeT));
           TransformerBase::registerTransformAsyncImp(
               *this,
               EDPutToken(iToken),
               returnType,
               std::move(productInstance),
-              [p = std::move(iPre)](edm::WrapperBase const& iGotProduct, WaitingTaskWithArenaHolder iHolder) {
-                return std::any(p(*static_cast<edm::Wrapper<G> const&>(iGotProduct).product(), std::move(iHolder)));
+              [p = std::move(iPre)](
+                  edm::StreamID id, edm::WrapperBase const& iGotProduct, WaitingTaskWithArenaHolder iHolder) {
+                return std::any(p(id, *static_cast<edm::Wrapper<G> const&>(iGotProduct).product(), std::move(iHolder)));
               },
-              [f = std::move(iF)](std::any const& iCache) {
+              [f = std::move(iF)](edm::StreamID id, std::any const& iCache) {
                 return std::make_unique<edm::Wrapper<ReturnTypeT>>(WrapperBase::Emplace{},
-                                                                   f(std::any_cast<CacheTypeT>(iCache)));
+                                                                   f(id, std::any_cast<CacheTypeT>(iCache)));
               });
         }
 
       private:
-        size_t transformIndex_(edm::BranchDescription const& iBranch) const noexcept final {
+        size_t transformIndex_(edm::ProductDescription const& iBranch) const noexcept final {
           return TransformerBase::findMatchingIndex(*this, iBranch);
         }
         ProductResolverIndex transformPrefetch_(std::size_t iIndex) const noexcept final {

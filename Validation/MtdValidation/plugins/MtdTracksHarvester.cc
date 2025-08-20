@@ -44,11 +44,17 @@ private:
   MonitorElement* meBTLTPPtMatchEff_;
   MonitorElement* meBTLTPEtaMatchEff_;
   MonitorElement* meETLTPPtSelEff_;
+  MonitorElement* meBTLTPPtCorrectMatchEff_;
+  MonitorElement* meBTLTPEtaCorrectMatchEff_;
   MonitorElement* meETLTPEtaSelEff_;
   MonitorElement* meETLTPPtMatchEff_;
   MonitorElement* meETLTPEtaMatchEff_;
   MonitorElement* meETLTPPtMatchEff2_;
   MonitorElement* meETLTPEtaMatchEff2_;
+  MonitorElement* meETLTPPtCorrectMatchEff_;
+  MonitorElement* meETLTPEtaCorrectMatchEff_;
+  MonitorElement* meETLTPPtCorrectMatchEff2_;
+  MonitorElement* meETLTPEtaCorrectMatchEff2_;
 
   // - BTL track-mtd matching efficiencies
   MonitorElement* meBTLTPmtdDirectEtaSelEff_;
@@ -187,6 +193,8 @@ void MtdTracksHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter& 
   MonitorElement* meETLTrackMatchedTPEtaTot = igetter.get(folder_ + "ETLTrackMatchedTPEtaTot");
   MonitorElement* meETLTrackMatchedTPEtaMtd = igetter.get(folder_ + "ETLTrackMatchedTPEtaMtd");
   MonitorElement* meETLTrackMatchedTPEta2Mtd = igetter.get(folder_ + "ETLTrackMatchedTPEta2Mtd");
+  MonitorElement* meETLTrackMatchedTPPtMtdCorrect = igetter.get(folder_ + "ETLTrackMatchedTPPtMtdCorrect");
+  MonitorElement* meETLTrackMatchedTPEtaMtdCorrect = igetter.get(folder_ + "ETLTrackMatchedTPEtaMtdCorrect");
 
   //
   MonitorElement* meBTLTrackMatchedTPmtdDirectEta = igetter.get(folder_ + "BTLTrackMatchedTPmtdDirectEta");
@@ -268,7 +276,7 @@ void MtdTracksHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter& 
       !meBTLTrackMatchedTPPtTot || !meBTLTrackMatchedTPPtMtd || !meBTLTrackMatchedTPEtaTot ||
       !meBTLTrackMatchedTPEtaMtd || !meETLTrackMatchedTPPtTot || !meETLTrackMatchedTPPtMtd ||
       !meETLTrackMatchedTPPt2Mtd || !meETLTrackMatchedTPEtaTot || !meETLTrackMatchedTPEtaMtd ||
-      !meETLTrackMatchedTPEta2Mtd ||
+      !meETLTrackMatchedTPEta2Mtd || !meETLTrackMatchedTPPtMtdCorrect || !meETLTrackMatchedTPEtaMtdCorrect ||
 
       !meBTLTrackMatchedTPmtdDirectEta || !meBTLTrackMatchedTPmtdDirectPt || !meBTLTrackMatchedTPmtdOtherEta ||
       !meBTLTrackMatchedTPmtdOtherPt || !meBTLTrackMatchedTPnomtdEta || !meBTLTrackMatchedTPnomtdPt ||
@@ -468,6 +476,42 @@ void MtdTracksHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter& 
   meBTLTPEtaMatchEff_->getTH1()->SetMinimum(0.);
   computeEfficiency1D(meBTLTrackMatchedTPEtaMtd, meBTLTrackMatchedTPEtaTot, meBTLTPEtaMatchEff_);
 
+  // -- BTL fraction of tracks with time and correct reco match
+  meBTLTPPtCorrectMatchEff_ =
+      ibook.book1D("BTLTPPtCorrectMatchEff",
+                   "Track matched to TP efficiency for correct reco match VS Pt;Pt [GeV];Efficiency",
+                   meBTLTrackMatchedTPPtMtd->getNbinsX(),
+                   meBTLTrackMatchedTPPtMtd->getTH1()->GetXaxis()->GetXmin(),
+                   meBTLTrackMatchedTPPtMtd->getTH1()->GetXaxis()->GetXmax());
+  meBTLTPPtCorrectMatchEff_->getTH1()->SetMinimum(0.);
+  MonitorElement* meBTLTrackMatchedTPPtMtdCorrect =
+      ibook.book1D("BTLTrackMatchedTPPtMtdCorrect",
+                   "Pt of tracks matched to TP with correct reco match; Pt [GeV];Efficiency",
+                   meBTLTrackMatchedTPPtMtd->getNbinsX(),
+                   meBTLTrackMatchedTPPtMtd->getTH1()->GetXaxis()->GetXmin(),
+                   meBTLTrackMatchedTPPtMtd->getTH1()->GetXaxis()->GetXmax());
+  meBTLTrackMatchedTPPtMtdCorrect->getTH1F()->Add(meBTLTrackMatchedTPmtdDirectCorrectAssocPt->getTH1F(),
+                                                  meBTLTrackMatchedTPmtdOtherCorrectAssocPt->getTH1F());
+  computeEfficiency1D(meBTLTrackMatchedTPPtMtdCorrect, meBTLTrackMatchedTPPtMtd, meBTLTPPtCorrectMatchEff_);
+
+  meBTLTPEtaCorrectMatchEff_ =
+      ibook.book1D("BTLTPEtaCorrectMatchEff",
+                   "Track matched to TP efficiency for correct reco match VS Eta;Eta;Efficiency",
+                   meBTLTrackMatchedTPEtaMtd->getNbinsX(),
+                   meBTLTrackMatchedTPEtaMtd->getTH1()->GetXaxis()->GetXmin(),
+                   meBTLTrackMatchedTPEtaMtd->getTH1()->GetXaxis()->GetXmax());
+  meBTLTPEtaCorrectMatchEff_->getTH1()->SetMinimum(0.);
+  MonitorElement* meBTLTrackMatchedTPEtaMtdCorrect =
+      ibook.book1D("BTLTrackMatchedTPEtaMtdCorrect",
+                   "Eta of tracks matched to TP with correct reco match; Eta [GeV];Efficiency",
+                   meBTLTrackMatchedTPEtaMtd->getNbinsX(),
+                   meBTLTrackMatchedTPEtaMtd->getTH1()->GetXaxis()->GetXmin(),
+                   meBTLTrackMatchedTPEtaMtd->getTH1()->GetXaxis()->GetXmax());
+  meBTLTrackMatchedTPEtaMtdCorrect->getTH1F()->Add(meBTLTrackMatchedTPmtdDirectCorrectAssocEta->getTH1F(),
+                                                   meBTLTrackMatchedTPmtdOtherCorrectAssocEta->getTH1F());
+  computeEfficiency1D(meBTLTrackMatchedTPEtaMtdCorrect, meBTLTrackMatchedTPEtaMtd, meBTLTPEtaCorrectMatchEff_);
+
+  // -- ETL
   meETLTPPtSelEff_ = ibook.book1D("ETLTPPtSelEff",
                                   "Track selected efficiency TP VS Pt;Pt [GeV];Efficiency",
                                   meETLTrackPtTot->getNbinsX(),
@@ -515,6 +559,43 @@ void MtdTracksHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter& 
                                       meETLTrackMatchedTPEtaTot->getTH1()->GetXaxis()->GetXmax());
   meETLTPEtaMatchEff2_->getTH1()->SetMinimum(0.);
   computeEfficiency1D(meETLTrackMatchedTPEta2Mtd, meETLTrackMatchedTPEtaTot, meETLTPEtaMatchEff2_);
+
+  //-- ETL fraction of tracks with time and correct reco match
+  meETLTPPtCorrectMatchEff_ =
+      ibook.book1D("ETLTPPtCorrectMatchEff",
+                   "Track matched to TP efficiency with correct reco match VS Pt;Pt [GeV];Efficiency",
+                   meETLTrackMatchedTPPtMtd->getNbinsX(),
+                   meETLTrackMatchedTPPtMtd->getTH1()->GetXaxis()->GetXmin(),
+                   meETLTrackMatchedTPPtMtd->getTH1()->GetXaxis()->GetXmax());
+  meETLTPPtCorrectMatchEff_->getTH1()->SetMinimum(0.);
+  computeEfficiency1D(meETLTrackMatchedTPPtMtdCorrect, meETLTrackMatchedTPPtMtd, meETLTPPtCorrectMatchEff_);
+
+  meETLTPEtaCorrectMatchEff_ =
+      ibook.book1D("ETLTPEtaCorrectMatchEff",
+                   "Track matched to TP efficiency with correct reco match VS Eta;Eta;Efficiency",
+                   meETLTrackMatchedTPEtaMtd->getNbinsX(),
+                   meETLTrackMatchedTPEtaMtd->getTH1()->GetXaxis()->GetXmin(),
+                   meETLTrackMatchedTPEtaMtd->getTH1()->GetXaxis()->GetXmax());
+  meETLTPEtaCorrectMatchEff_->getTH1()->SetMinimum(0.);
+  computeEfficiency1D(meETLTrackMatchedTPEtaMtdCorrect, meETLTrackMatchedTPEtaMtd, meETLTPEtaCorrectMatchEff_);
+
+  meETLTPPtCorrectMatchEff2_ =
+      ibook.book1D("ETLTPPtCorrectMatchEff2",
+                   "Track matched to TP efficiency with correct reco match (2 hits) VS Pt;Pt [GeV];Efficiency",
+                   meETLTrackMatchedTPPt2Mtd->getNbinsX(),
+                   meETLTrackMatchedTPPt2Mtd->getTH1()->GetXaxis()->GetXmin(),
+                   meETLTrackMatchedTPPt2Mtd->getTH1()->GetXaxis()->GetXmax());
+  meETLTPPtCorrectMatchEff2_->getTH1()->SetMinimum(0.);
+  computeEfficiency1D(meETLTrackMatchedTPmtd2CorrectAssocPt, meETLTrackMatchedTPPt2Mtd, meETLTPPtCorrectMatchEff2_);
+
+  meETLTPEtaCorrectMatchEff2_ =
+      ibook.book1D("ETLTPEtaCorrectMatchEff2",
+                   "Track matched to TP efficiency with correct reco match (2 hits) VS Eta;Eta;Efficiency",
+                   meETLTrackMatchedTPEta2Mtd->getNbinsX(),
+                   meETLTrackMatchedTPEta2Mtd->getTH1()->GetXaxis()->GetXmin(),
+                   meETLTrackMatchedTPEta2Mtd->getTH1()->GetXaxis()->GetXmax());
+  meETLTPEtaCorrectMatchEff2_->getTH1()->SetMinimum(0.);
+  computeEfficiency1D(meETLTrackMatchedTPmtd2CorrectAssocEta, meETLTrackMatchedTPEta2Mtd, meETLTPEtaCorrectMatchEff2_);
 
   // == Track-cluster matching efficiencies based on mc truth
   // -- BTL

@@ -42,7 +42,7 @@ namespace cond {
 
     while ((ch = getch()) != RETURN) {
       if (ch == BACKSPACE) {
-        if (password.length() != 0) {
+        if (!password.empty()) {
           if (show_asterisk)
             std::cout << "\b \b";
           password.resize(password.length() - 1);

@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "Validation/HGCalValidation/interface/HGCalValidator.h"
 
 #include "SimCalorimetry/HGCalAssociatorProducers/interface/AssociatorTools.h"
@@ -24,7 +26,10 @@ namespace {
     const auto recoTrackstersProductId = tracksterHandle.id();
     const auto simTrackstersProductId = simTracksterHandle.id();
     const auto simTrackstersFromCPsProductId = simTracksterFromCPHandle.id();
-
+    if (recoTrackstersProductId == simTrackstersProductId or recoTrackstersProductId == simTrackstersFromCPsProductId) {
+      edm::LogInfo("MissingProduct") << "no SimTrackster to Simtrackster map available.";
+      return false;
+    }
     for (const auto& handle : tracksterToTracksterMapsHandles) {
       const auto& firstID = handle->getCollectionIDs().first.id();
       const auto& secondID = handle->getCollectionIDs().second.id();
@@ -100,7 +105,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
   const edm::InputTag& label_cp_fake_tag = pset.getParameter<edm::InputTag>("label_cp_fake");
 
   for (auto& label : hits_label_) {
-    hits_token_.push_back(consumes<HGCRecHitCollection>(label));
+    hits_tokens_.push_back(consumes<HGCRecHitCollection>(label));
   }
   label_cp_effic = consumes<std::vector<CaloParticle>>(label_cp_effic_tag);
   label_cp_fake = consumes<std::vector<CaloParticle>>(label_cp_fake_tag);
@@ -114,10 +119,9 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
   associatorMapSimtR = consumes<ticl::SimToRecoCollectionWithSimClusters>(associatorSim_);
   associatorMapRtSim = consumes<ticl::RecoToSimCollectionWithSimClusters>(associatorSim_);
 
-  simTrackstersMap_ = consumes<std::map<uint, std::vector<uint>>>(edm::InputTag("ticlSimTracksters"));
+  simTrackstersMap_ = consumes<std::map<uint, std::vector<uint>>>(pset.getParameter<edm::InputTag>("simTrackstersMap"));
 
-  hitMap_ =
-      consumes<std::unordered_map<DetId, const unsigned int>>(edm::InputTag("recHitMapProducer", "hgcalRecHitMap"));
+  hitMap_ = consumes<std::unordered_map<DetId, const unsigned int>>(pset.getParameter<edm::InputTag>("hitMap"));
 
   simClusters_ = consumes<std::vector<SimCluster>>(pset.getParameter<edm::InputTag>("label_scl"));
 
@@ -178,7 +182,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
                                     pset.getParameter<bool>("notConvertedOnlyCP"),
                                     pset.getParameter<std::vector<int>>("pdgIdCP"));
 
-  tools_.reset(new hgcal::RecHitTools());
+  tools_ = std::make_shared<hgcal::RecHitTools>();
 
   particles_to_monitor_ = pset.getParameter<std::vector<int>>("pdgIdCP");
   totallayers_to_monitor_ = pset.getParameter<int>("totallayers_to_monitor");
@@ -339,7 +343,7 @@ void HGCalValidator::cpParametersAndSelection(const Histograms& histograms,
                                               std::vector<size_t>& selected_cPeff,
                                               unsigned int layers,
                                               std::unordered_map<DetId, const unsigned int> const& hitMap,
-                                              std::vector<HGCRecHit> const& hits) const {
+                                              MultiVectorManager<HGCRecHit> const& hits) const {
   selected_cPeff.reserve(cPeff.size());
 
   size_t j = 0;
@@ -379,15 +383,23 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
 
   edm::Handle<ticl::TracksterCollection> simTracksterHandle;
   event.getByToken(simTracksters_, simTracksterHandle);
+  if (!simTracksterHandle.isValid()) {
+    edm::LogWarning("MissingInput") << "Missing SimTrackster collection";
+    return;
+  }
   ticl::TracksterCollection const& simTracksters = *simTracksterHandle;
 
   edm::Handle<ticl::TracksterCollection> simTracksterFromCPHandle;
   event.getByToken(simTracksters_fromCPs_, simTracksterFromCPHandle);
+  if (!simTracksterFromCPHandle.isValid()) {
+    edm::LogWarning("MissingInput") << "Missing SimTrackster collection from CP";
+    return;
+  }
   ticl::TracksterCollection const& simTrackstersFromCPs = *simTracksterFromCPHandle;
 
   edm::Handle<std::map<uint, std::vector<uint>>> simTrackstersMapHandle;
   event.getByToken(simTrackstersMap_, simTrackstersMapHandle);
-  const std::map<uint, std::vector<uint>> cpToSc_SimTrackstersMap = *simTrackstersMapHandle;
+  const std::map<uint, std::vector<uint>>& cpToSc_SimTrackstersMap = *simTrackstersMapHandle;
 
   edm::ESHandle<CaloGeometry> geom = setup.getHandle(caloGeomToken_);
   tools_->setGeometry(*geom);
@@ -395,20 +407,20 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
 
   edm::Handle<ticl::SimToRecoCollection> simtorecoCollectionH;
   event.getByToken(associatorMapStR, simtorecoCollectionH);
-  auto simRecColl = *simtorecoCollectionH;
+  const auto& simRecColl = *simtorecoCollectionH;
   edm::Handle<ticl::RecoToSimCollection> recotosimCollectionH;
   event.getByToken(associatorMapRtS, recotosimCollectionH);
-  auto recSimColl = *recotosimCollectionH;
+  const auto& recSimColl = *recotosimCollectionH;
 
   edm::Handle<std::unordered_map<DetId, const unsigned int>> hitMapHandle;
   event.getByToken(hitMap_, hitMapHandle);
-  const std::unordered_map<DetId, const unsigned int>* hitMap = &*hitMapHandle;
+  const std::unordered_map<DetId, const unsigned int>& hitMap = *hitMapHandle;
 
-  std::vector<HGCRecHit> hits;
-  for (auto& token : hits_token_) {
-    edm::Handle<HGCRecHitCollection> hitsHandle;
+  MultiVectorManager<HGCRecHit> rechitManager;
+  for (const auto& token : hits_tokens_) {
+    Handle<HGCRecHitCollection> hitsHandle;
     event.getByToken(token, hitsHandle);
-    hits.insert(hits.end(), (*hitsHandle).begin(), (*hitsHandle).end());
+    rechitManager.addVector(*hitsHandle);
   }
 
   //Some general info on layers etc.
@@ -428,7 +440,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   LogTrace("HGCalValidator") << "\n# of CaloParticles: " << caloParticles.size() << "\n" << std::endl;
   std::vector<size_t> selected_cPeff;
   cpParametersAndSelection(
-      histograms, caloParticles, simVertices, selected_cPeff, totallayers_to_monitor_, *hitMap, hits);
+      histograms, caloParticles, simVertices, selected_cPeff, totallayers_to_monitor_, hitMap, rechitManager);
 
   //get collections from the event
   //simClusters
@@ -483,7 +495,14 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
         histograms.histoProducerAlgo, simClusters, totallayers_to_monitor_, thicknesses_to_monitor_);
 
     for (unsigned int ws = 0; ws < label_clustersmask.size(); ws++) {
-      const auto& inputClusterMask = event.get(clustersMaskTokens_[ws]);
+      const auto& inputClusterMaskHandle = event.getHandle(clustersMaskTokens_[ws]);
+
+      if (!inputClusterMaskHandle.isValid()) {
+        edm::LogError("ClusterMaskError") << "Failed to retrieve clusters mask for ws index: " << ws;
+        continue;  // Or handle the error appropriately
+      }
+
+      const auto& inputClusterMask = *inputClusterMaskHandle;
 
       edm::Handle<ticl::SimToRecoCollectionWithSimClusters> simtorecoCollectionH;
       event.getByToken(associatorMapSimtR, simtorecoCollectionH);
@@ -500,11 +519,11 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
                                                             simClusters,
                                                             sCIndices,
                                                             inputClusterMask,
-                                                            *hitMap,
+                                                            hitMap,
                                                             totallayers_to_monitor_,
                                                             recSimColl,
                                                             simRecColl,
-                                                            hits);
+                                                            rechitManager);
 
       //General Info on simClusters
       LogTrace("HGCalValidator") << "\n# of SimClusters: " << nSimClusters
@@ -525,13 +544,13 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
                                                     caloParticles,
                                                     cPIndices,
                                                     selected_cPeff,
-                                                    *hitMap,
+                                                    hitMap,
                                                     cumulative_material_budget,
                                                     totallayers_to_monitor_,
                                                     thicknesses_to_monitor_,
                                                     recSimColl,
                                                     simRecColl,
-                                                    hits);
+                                                    rechitManager);
 
     for (unsigned int layerclusterIndex = 0; layerclusterIndex < clusters.size(); layerclusterIndex++) {
       histoProducerAlgo_->fill_cluster_histos(histograms.histoProducerAlgo, w, clusters[layerclusterIndex]);
@@ -549,9 +568,13 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
     if (doTrackstersPlots_) {
       edm::Handle<ticl::TracksterCollection> tracksterHandle;
       event.getByToken(label_tstTokens[wml], tracksterHandle);
+
+      if (!tracksterHandle.isValid()) {
+        edm::LogWarning("MissinInput") << "Failed to retrieve tracksters for wml index: " << wml;
+        continue;  // Or handle the error as needed
+      }
+
       const ticl::TracksterCollection& tracksters = *tracksterHandle;
-      if (tracksterHandle.id() == simTracksterHandle.id() or tracksterHandle.id() == simTracksterFromCPHandle.id())
-        continue;
       edm::Handle<TracksterToTracksterMap> trackstersToSimTrackstersMapH, simTrackstersToTrackstersMapH,
           trackstersToSimTrackstersFromCPsMapH, simTrackstersFromCPsToTrackstersMapH,
           trackstersToSimTrackstersByHitsMapH, simTrackstersToTrackstersByHitsMapH,
@@ -587,9 +610,9 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
                                                 caloParticles,
                                                 cPIndices,
                                                 selected_cPeff,
-                                                *hitMap,
+                                                hitMap,
                                                 totallayers_to_monitor_,
-                                                hits,
+                                                rechitManager,
                                                 mapsFound,
                                                 trackstersToSimTrackstersMapH,
                                                 simTrackstersToTrackstersMapH,
@@ -843,6 +866,8 @@ void HGCalValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<edm::InputTag>("label_cp_fake", edm::InputTag("mix", "MergedCaloTruth"));
   desc.add<edm::InputTag>("label_scl", edm::InputTag("mix", "MergedCaloTruth"));
   desc.add<edm::InputTag>("simVertices", edm::InputTag("g4SimHits"));
+  desc.add<edm::InputTag>("simTrackstersMap", edm::InputTag("ticlSimTracksters"));
+  desc.add<edm::InputTag>("hitMap", edm::InputTag("recHitMapProducer", "hgcalRecHitMap"));
   desc.add<std::vector<edm::InputTag>>("LayerClustersInputMask",
                                        {
                                            edm::InputTag("ticlTrackstersCLUE3DHigh"),

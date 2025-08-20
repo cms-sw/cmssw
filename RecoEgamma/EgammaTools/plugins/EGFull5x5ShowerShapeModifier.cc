@@ -12,7 +12,7 @@ namespace {
   template <typename T, typename U, typename V>
   inline void make_consumes(const T& tag, edm::EDGetTokenT<U>& tok, V& sume) {
     if (!(empty_tag == tag))
-      tok = sume.template consumes(tag);
+      tok = sume.consumes(tag);
   }
 }  // namespace
 

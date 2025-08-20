@@ -8,9 +8,9 @@
 #include "DataFormats/HGCalDigi/interface/HGCalElectronicsId.h"
 
 typedef HGCROCChannelDataFrame<HGCalDetId> HGCROCChannelDataFrameSpec;
-typedef edm::SortedCollection<HGCROCChannelDataFrameSpec> HGCalDigiCollection;
+typedef edm::SortedCollection<HGCROCChannelDataFrameSpec> HGCalROCChannelDigiCollection;
 
 typedef HGCROCChannelDataFrame<HGCalElectronicsId> HGCROCChannelDataFrameElecSpec;
-typedef edm::SortedCollection<HGCROCChannelDataFrameElecSpec> HGCalElecDigiCollection;
+typedef edm::SortedCollection<HGCROCChannelDataFrameElecSpec> HGCalElecROCChannelDigiCollection;
 
 #endif

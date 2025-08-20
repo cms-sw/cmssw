@@ -7,8 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/RunForOutput.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "TTree.h"
@@ -334,11 +333,10 @@ namespace edm {
     }
   }
 
-  std::shared_ptr<int> TestOneOutput::globalBeginRun(RunForOutput const&) const {
+  std::shared_ptr<int> TestOneOutput::globalBeginRun(RunForOutput const& iRun) const {
     if (verbose_) {
       LogAbsolute("TestOneOutput") << "one globalBeginRun";
-      edm::Service<edm::ConstProductRegistry> reg;
-      for (auto const& it : reg->productList()) {
+      for (auto const& it : iRun.productRegistry().productList()) {
         LogAbsolute("TestOneOutput") << it.second;
       }
     }

@@ -1,5 +1,4 @@
 #!/bin/env python
-from __future__ import print_function
 
 def var( tree, varName, type=float ):
     tree.var(varName, type)

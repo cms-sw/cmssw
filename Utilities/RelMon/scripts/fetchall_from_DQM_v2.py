@@ -5,7 +5,6 @@ Script fetches files matching specified RegExps from DQM GUI.
 Author:  Albertas Gimbutas,  Vilnius University (LT)
 e-mail:  albertasgim@gmail.com
 '''
-from __future__ import print_function
 ################################################################################
 # Change logs:
 # 2012-10-22 11:31 - Checking to Download also files <1MB (like GEN samples)

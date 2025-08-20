@@ -1,25 +1,65 @@
-#ifndef DATAFORMATS_METRECO_PHIWEDGE_H
-#define DATAFORMATS_METRECO_PHIWEDGE_H
+#ifndef DataFormats_METReco_interface_PhiWedge_h
+#define DataFormats_METReco_interface_PhiWedge_h
 /*
   [class]:  PhiWedge
   [authors]: R. Remington, The University of Florida
   [description]: Simple class analogous to CaloTower but in z-direction.  Stores basic information related to Hcal and Ecal rechits within constant 5-degree phi windows.  The idea will be to match these reconstructed phi-wedges with csc tracks for BeamHalo identification.
   [date]: October 15, 2009
 */
-#include "TMath.h"
+
 #include <vector>
+
+#include "TMath.h"
+
 namespace reco {
 
   class PhiWedge {
   public:
     // Constructors
-    PhiWedge();
-    PhiWedge(float E, int iphi, int constituents);
-    PhiWedge(float E, int iphi, int constituents, float min_time, float max_time);
-    PhiWedge(const PhiWedge&);
-    // Destructors
+    constexpr PhiWedge()
+        : energy_{0.f},
+          iphi_{0},
+          constituents_{0},
+          min_time_{0.f},
+          max_time_{0.f},
+          PlusZOriginConfidence_{0.f},
+          OverlappingCSCTracks_{0},
+          OverlappingCSCSegments_{0},
+          OverlappingCSCRecHits_{0},
+          OverlappingCSCHaloTriggers_{0} {}
 
-    ~PhiWedge() {}
+    constexpr PhiWedge(float E, int iphi, int constituents)
+        : energy_{E},
+          iphi_{iphi},
+          constituents_{constituents},
+          min_time_{0.f},
+          max_time_{0.f},
+          PlusZOriginConfidence_{0.f},
+          OverlappingCSCTracks_{0},
+          OverlappingCSCSegments_{0},
+          OverlappingCSCRecHits_{0},
+          OverlappingCSCHaloTriggers_{0} {}
+
+    constexpr PhiWedge(float E, int iphi, int constituents, float min_time, float max_time)
+        : energy_{E},
+          iphi_{iphi},
+          constituents_{constituents},
+          min_time_{min_time},
+          max_time_{max_time},
+          PlusZOriginConfidence_{0.f},
+          OverlappingCSCTracks_{0},
+          OverlappingCSCSegments_{0},
+          OverlappingCSCRecHits_{0},
+          OverlappingCSCHaloTriggers_{0} {}
+
+    constexpr PhiWedge(PhiWedge const &) = default;
+    constexpr PhiWedge(PhiWedge &&) = default;
+
+    constexpr PhiWedge &operator=(PhiWedge const &) = default;
+    constexpr PhiWedge &operator=(PhiWedge &&) = default;
+
+    // Destructor
+    constexpr ~PhiWedge() = default;
 
     // Energy sum of all rechits above threshold in this 5-degree window
     float Energy() const { return energy_; }
@@ -80,6 +120,9 @@ namespace reco {
     int OverlappingCSCRecHits_;
     int OverlappingCSCHaloTriggers_;
   };
-  typedef std::vector<PhiWedge> PhiWedgeCollection;
+
+  using PhiWedgeCollection = std::vector<PhiWedge>;
+
 }  // namespace reco
-#endif
+
+#endif  // DataFormats_METReco_interface_PhiWedge_h

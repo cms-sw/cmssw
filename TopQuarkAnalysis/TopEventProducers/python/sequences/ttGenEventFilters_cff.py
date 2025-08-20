@@ -1,4 +1,3 @@
-from __future__ import print_function
 print("*** Warning: TopQuarkAnalysis/TopEventProducers/python/sequences/ttGenEventFilters_cff.py will be deprecated")
 print("*** Please use TopQuarkAnalysis/TopSkimming/python/ttDecayChannelFilters_cff.py instead")
 print("*** (you can still use 'genEvent' instead of 'genParticles' as input)")

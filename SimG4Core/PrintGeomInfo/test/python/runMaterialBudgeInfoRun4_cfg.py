@@ -5,7 +5,8 @@
 #   Options for type DDD, DD4hep
 #   Options for geometry D95, D96, D98, D99, D100, D101, D102, D103, D104,
 #                        D105, D106, D107, D108, D109, D110, D111, D112, D113,
-#                        D114, D115
+#                        D114, D115, D116, D117, D118, D119, D120, D121, D122,
+#                        D123
 #
 ################################################################################
 import FWCore.ParameterSet.Config as cms
@@ -24,7 +25,7 @@ options.register('geometry',
                  "D110",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D95, D96, D98, D99, D100, D101, D102, D103, D104, D105, D106, D107, D108, D109, D110, D111, D112, D113, D114, D115")
+                  "geometry of operations: D95, D96, D98, D99, D100, D101, D102, D103, D104, D105, D106, D107, D108, D109, D110, D111, D112, D113, D114, D115, D116, D117, D118, D119, D120, D121, D122, D123")
 options.register('detector',
                  "Tracker",
                   VarParsing.VarParsing.multiplicity.singleton,
@@ -38,61 +39,20 @@ print(options)
 #####p###############################################################
 # Use the options
 
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+geomName = "Run4" + options.geometry
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
+print("Geometry Name:   ", geomName)
+print("Global Tag Name: ", GLOBAL_TAG)
+print("Era Name:        ", ERA)
 
-if (options.geometry == "D115"):
-    from Configuration.Eras.Era_Phase2C20I13M9_cff import Phase2C20I13M9
-    if (options.type == "DD4hep"):
-        process = cms.Process('G4PrintGeometry',Phase2C20I13M9,dd4hep)
-    else:
-        process = cms.Process('G4PrintGeometry',Phase2C20I13M9)
-elif (options.geometry == "D104"):
-    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
-    if (options.type == "DD4hep"):
-        process = cms.Process('G4PrintGeometry',Phase2C22I13M9,dd4hep)
-    else:
-        process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
-elif (options.geometry == "D106"):
-    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
-    if (options.type == "DD4hep"):
-        process = cms.Process('G4PrintGeometry',Phase2C22I13M9,dd4hep)
-    else:
-        process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
-elif (options.geometry == "D109"):
-    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
-    if (options.type == "DD4hep"):
-        process = cms.Process('G4PrintGeometry',Phase2C22I13M9,dd4hep)
-    else:
-        process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
-elif (options.geometry == "D111"):
-    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
-    if (options.type == "DD4hep"):
-        process = cms.Process('G4PrintGeometry',Phase2C22I13M9,dd4hep)
-    else:
-        process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
-elif (options.geometry == "D112"):
-    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
-    if (options.type == "DD4hep"):
-        process = cms.Process('G4PrintGeometry',Phase2C22I13M9,dd4hep)
-    else:
-        process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
-elif (options.geometry == "D113"):
-    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
-    if (options.type == "DD4hep"):
-        process = cms.Process('G4PrintGeometry',Phase2C22I13M9,dd4hep)
-    else:
-        process = cms.Process('G4PrintGeometry',Phase2C22I13M9)
+if (options.type == "DD4hep"):
+    from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
+    process = cms.Process('G4PrintGeometry',ERA,dd4hep)
+    geomFile = "Configuration.Geometry.GeometryDD4hepExtended" + geomName + "Reco_cff"
 else:
-    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-    if (options.type == "DD4hep"):
-        process = cms.Process('G4PrintGeometry',Phase2C17I13M9,dd4hep)
-    else:
-        process = cms.Process('G4PrintGeometry',Phase2C17I13M9)
-
-if (options.type == "DDD"):
-    geomFile = "Configuration.Geometry.GeometryExtendedRun4" + options.geometry + "Reco_cff"
-else:
-    geomFile = "Configuration.Geometry.GeometryDD4hepExtendedRun4" + options.geometry + "Reco_cff"
+    process = cms.Process('G4PrintGeometry',ERA)
+    geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
 
 print("Geometry file Name: ", geomFile)
 print("Detector          : ", options.detector)

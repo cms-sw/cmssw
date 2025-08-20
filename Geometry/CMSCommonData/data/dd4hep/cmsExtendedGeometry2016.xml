@@ -4,7 +4,8 @@
   <close_geometry/>
 
   <IncludeSection>
-    <Include ref='Geometry/CMSCommonData/data/materials.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/materials/2016/v1/materials.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/trackermaterial/2017/v2/trackermaterial.xml'/>
     <Include ref='Geometry/CMSCommonData/data/rotations.xml'/>
     <Include ref='Geometry/CMSCommonData/data/extend/cmsextent.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cms.xml'/>

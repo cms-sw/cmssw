@@ -25,7 +25,7 @@ PlotCompareUtility::PlotCompareUtility(std::string Reference,
                                        std::string RefBasePath,
                                        std::string RefPrefix) {
   // open TFiles
-  cout << refFile << " " << newFile << endl;
+  cout << Reference << " " << New << endl;
   refFile = new TFile(Reference.c_str(), "READ");
   newFile = new TFile(New.c_str(), "READ");
 
@@ -173,7 +173,7 @@ void PlotCompareUtility::centerRebin(TH1 *H1, TH1 *H2) {
   // determine x axis range and binning requirements
   float h1RMS = H1->GetRMS();
   float h2RMS = H2->GetRMS();
-  float rms = TMath::Max(h1RMS, h2RMS);
+  float rms = std::max(h1RMS, h2RMS);
   float h1Mean = H1->GetMean();
   float h2Mean = H2->GetMean();
   float mean = 0.5 * (h1Mean + h2Mean);

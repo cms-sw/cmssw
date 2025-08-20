@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <vector>
+#include <optional>
 
 #include "EventFilter/L1TRawToDigi/interface/AMCSpec.h"
 #include "DataFormats/L1Trigger/interface/BxBlock.h"
@@ -109,7 +110,7 @@ namespace l1t {
     // header.  Called by getBlock(), which also checks that data_ !=
     // end_ before calling (assumes size of one 32 bit word).
     virtual BlockHeader getHeader() = 0;
-    virtual std::unique_ptr<Block> getBlock();
+    virtual std::optional<Block> getBlock();
 
   protected:
     const uint32_t* data_;
@@ -132,7 +133,7 @@ namespace l1t {
     // Unused methods - we override getBlock() instead
     unsigned getHeaderSize() const override { return 0; };
     BlockHeader getHeader() override { return BlockHeader(nullptr); };
-    std::unique_ptr<Block> getBlock() override;
+    std::optional<Block> getBlock() override;
 
   private:
     // sizes in 16 bit words
@@ -174,7 +175,7 @@ namespace l1t {
     CTP7Payload(const uint32_t* data, const uint32_t* end, amc::Header amcHeader);
     unsigned getHeaderSize() const override { return 2; };
     BlockHeader getHeader() override;
-    std::unique_ptr<Block> getBlock() override;
+    std::optional<Block> getBlock() override;
 
   private:
     // FIXME check values

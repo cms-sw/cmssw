@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import print_function
 
 #Hack to get ROOT to ignore command line arguments that we want
 #to pass to Python

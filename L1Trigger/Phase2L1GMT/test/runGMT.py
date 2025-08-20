@@ -107,6 +107,12 @@ process.dtTriggerPhase2PrimitiveDigis.debug = False
 process.dtTriggerPhase2PrimitiveDigis.dump = False
 process.dtTriggerPhase2PrimitiveDigis.scenario = 0
 
+#DTTriggerPhase2Showers
+process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2Showers_cfi")
+process.dtTriggerPhase2Shower.showerTaggingAlgo = 1
+process.dtTriggerPhase2Shower.debug = False
+process.dtTriggerPhase2Shower.scenario = 0
+
 process.load("L1Trigger.Phase2L1GMT.gmt_cff")
 
 # Path and EndPath definitions

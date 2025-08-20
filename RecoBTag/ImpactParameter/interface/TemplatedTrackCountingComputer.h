@@ -5,6 +5,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/BTauReco/interface/TrackCountingTagInfo.h"
 #include "DataFormats/BTauReco/interface/IPTagInfo.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "Math/GenVector/VectorUtil.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 
@@ -16,12 +17,8 @@ public:
   typedef reco::IPTagInfo<Container, Base> TagInfo;
 
   TemplatedTrackCountingComputer(const edm::ParameterSet& parameters) {
-    m_minIP = parameters.existsAs<double>("minimumImpactParameter")
-                  ? parameters.getParameter<double>("minimumImpactParameter")
-                  : -1;
-    m_useSignedIPSig = parameters.existsAs<bool>("useSignedImpactParameterSig")
-                           ? parameters.getParameter<bool>("useSignedImpactParameterSig")
-                           : true;
+    m_minIP = parameters.getParameter<double>("minimumImpactParameter");
+    m_useSignedIPSig = parameters.getParameter<bool>("useSignedImpactParameterSig");
     m_nthTrack = parameters.getParameter<int>("nthTrack");
     m_ipType = parameters.getParameter<int>("impactParameterType");
     m_deltaR = parameters.getParameter<double>("deltaR");
@@ -38,8 +35,7 @@ public:
 
     uses("ipTagInfos");
 
-    useVariableJTA_ =
-        parameters.existsAs<bool>("useVariableJTA") ? parameters.getParameter<bool>("useVariableJTA") : false;
+    useVariableJTA_ = parameters.getParameter<bool>("useVariableJTA");
     if (useVariableJTA_) {
       varJTApars = {parameters.getParameter<double>("a_dR"),
                     parameters.getParameter<double>("b_dR"),
@@ -63,6 +59,27 @@ public:
       return *nth;
     else
       return -100.;
+  }
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc) {
+    desc.add<double>("minimumImpactParameter", -1.);
+    desc.add<bool>("useSignedImpactParameterSig", true);
+    desc.add<int>("nthTrack", -1);
+    desc.add<int>("impactParameterType", 0)->setComment("0 = 3D, 1 = 2D");
+    desc.add<double>("deltaR", -1.0)->setComment("maximum deltaR of track to jet. If -ve just use cut from JTA");
+    desc.add<double>("maximumDecayLength", 999999.0);
+    desc.add<double>("maximumDistanceToJetAxis", 999999.0);
+    desc.add<std::string>("trackQualityClass", "any");
+    desc.add<bool>("useVariableJTA", false);
+    desc.add<double>("a_dR", -0.001053);
+    desc.add<double>("b_dR", 0.6263);
+    desc.add<double>("a_pT", 0.005263);
+    desc.add<double>("b_pT", 0.3684);
+    desc.add<double>("min_pT", 120);
+    desc.add<double>("max_pT", 500);
+    desc.add<double>("min_pT_dRcut", 0.5);
+    desc.add<double>("max_pT_dRcut", 0.1);
+    desc.add<double>("max_pT_trackPTcut", 3.);
   }
 
 protected:

@@ -25,7 +25,6 @@
    Fermilab 2010
    
 """
-from __future__ import print_function
 
 
 from builtins import range

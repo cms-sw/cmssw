@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys
 import os
@@ -118,7 +117,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.twinMuxStage2Digis.DTTM7_FED_Source = "rawDataRepacker"
     process.dtunpacker.inputLabel = "rawDataRepacker"
     process.gtDigis.DaqGtInputTag = "rawDataRepacker"
-    process.gtStage2Digis.InputLabel = "rawDataCollector"
+    process.gtStage2Digis.InputLabel = "rawDataRepacker"
     process.scalersRawToDigi.scalersInputTag = "rawDataRepacker"
     
     process.dtDigiMonitor.ResetCycle = 9999
@@ -126,5 +125,6 @@ if (process.runType.getRunType() == process.runType.hi_run):
 
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
-print("Final Source settings:", process.source)
 process = customise(process)
+print("Global Tag used:", process.GlobalTag.globaltag.value())
+print("Final Source settings:", process.source)

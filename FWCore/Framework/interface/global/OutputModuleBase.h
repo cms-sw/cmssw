@@ -59,18 +59,13 @@ namespace edm {
       void doEndStream(StreamID id) { doEndStream_(id); }
 
       bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
-      void doAcquire(EventTransitionInfo const&,
-                     ActivityRegistry*,
-                     ModuleCallingContext const*,
-                     WaitingTaskWithArenaHolder&);
+      void doAcquire(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*, WaitingTaskHolder&&);
       //For now this is a placeholder
       /*virtual*/ void preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
                                                     ModuleCallingContext const& iModuleCallingContext,
                                                     Principal const& iPrincipal) const noexcept {}
 
     private:
-      std::string workerType() const { return "WorkerT<edm::global::OutputModuleBase>"; }
-
       virtual void preallocStreams(unsigned int) {}
       virtual void preallocate(PreallocationConfiguration const&) {}
       virtual void doBeginStream_(StreamID) {}
@@ -86,7 +81,7 @@ namespace edm {
       virtual void doEndRunSummary_(RunForOutput const&, EventSetup const&) {}
       virtual void doBeginLuminosityBlockSummary_(LuminosityBlockForOutput const&, EventSetup const&) {}
       virtual void doEndLuminosityBlockSummary_(LuminosityBlockForOutput const&, EventSetup const&) {}
-      virtual void doAcquire_(StreamID, EventForOutput const&, WaitingTaskWithArenaHolder&) {}
+      virtual void doAcquire_(StreamID, EventForOutput const&, WaitingTaskHolder&&) {}
 
       virtual bool hasAcquire() const noexcept { return false; }
     };

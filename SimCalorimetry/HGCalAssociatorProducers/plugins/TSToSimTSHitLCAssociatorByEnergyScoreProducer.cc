@@ -1,6 +1,8 @@
 // Original author: Leonardo Cristella
 
 // user include files
+#include <memory>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 
@@ -38,7 +40,7 @@ TSToSimTSHitLCAssociatorByEnergyScoreProducer::TSToSimTSHitLCAssociatorByEnergyS
       caloGeometry_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       hardScatterOnly_(ps.getParameter<bool>("hardScatterOnly")),
       hits_label_(ps.getParameter<std::vector<edm::InputTag>>("hits")) {
-  rhtools_.reset(new hgcal::RecHitTools());
+  rhtools_ = std::make_shared<hgcal::RecHitTools>();
 
   for (auto &label : hits_label_) {
     hits_token_.push_back(consumes<HGCRecHitCollection>(label));

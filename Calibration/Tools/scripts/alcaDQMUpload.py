@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from __future__ import print_function
 import sys, os, os.path, re, string, httplib, mimetypes, urllib, urllib2, httplib, gzip, md5
 from cStringIO import StringIO
 from stat import *

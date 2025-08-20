@@ -1,4 +1,3 @@
-from __future__ import print_function
 #
 # L1 Pattern Generator
 # ====================

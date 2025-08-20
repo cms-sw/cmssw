@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/ProductResolversFactory.h"
 
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
@@ -47,7 +48,8 @@ namespace edm {
           prodReg->setFrozen();
           edm::ProcessConfiguration procConfig;
 
-          LuminosityBlockPrincipal temp(prodReg, procConfig, &historyAppender, 0);
+          LuminosityBlockPrincipal temp(
+              prodReg, edm::productResolversFactory::makePrimary, procConfig, &historyAppender, 0);
           readLuminosityBlock_(temp);
           type = PoolSource::getNextItemType();
         } while (type == ItemType::IsLumi);

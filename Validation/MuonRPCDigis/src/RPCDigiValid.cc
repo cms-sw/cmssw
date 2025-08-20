@@ -78,7 +78,7 @@ void RPCDigiValid::analyze(const Event &event, const EventSetup &eventSetup) {
         match->second->Fill(gp.x(), gp.y());
     }
   }
-  for (auto detToSimHitXs : detToSimHitXsMap) {
+  for (const auto &detToSimHitXs : detToSimHitXsMap) {
     hNSimHitPerRoll_->Fill(detToSimHitXs.second.size());
   }
 
@@ -143,7 +143,7 @@ void RPCDigiValid::analyze(const Event &event, const EventSetup &eventSetup) {
       detToDigiXsMap[roll].push_back(digiX);
     }
   }
-  for (auto detToDigiXs : detToDigiXsMap) {
+  for (const auto &detToDigiXs : detToDigiXsMap) {
     const auto digiXs = detToDigiXs.second;
     const int nDigi = digiXs.size();
     hNDigiPerRoll_->Fill(nDigi);

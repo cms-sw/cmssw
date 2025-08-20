@@ -20,7 +20,7 @@
 class PhotonXGBoostProducer : public edm::global::EDProducer<> {
 public:
   explicit PhotonXGBoostProducer(edm::ParameterSet const&);
-  ~PhotonXGBoostProducer() = default;
+  ~PhotonXGBoostProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

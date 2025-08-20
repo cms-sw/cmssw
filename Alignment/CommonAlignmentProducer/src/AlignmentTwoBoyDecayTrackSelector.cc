@@ -64,6 +64,34 @@ AlignmentTwoBodyDecayTrackSelector::AlignmentTwoBodyDecayTrackSelector(const edm
   }
 }
 
+void AlignmentTwoBodyDecayTrackSelector::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  // Mass range filter
+  desc.add<bool>("applyMassrangeFilter", false);
+  desc.add<double>("daughterMass", 0.105);  // GeV
+
+  // Charge-related parameters
+  desc.add<bool>("useUnsignedCharge", true);
+  desc.add<int>("charge", 0);
+
+  // Missing ET source
+  desc.add<edm::InputTag>("missingETSource", edm::InputTag("met"));
+  desc.add<double>("maxXMass", 15000.0);  // GeV
+  desc.add<double>("minXMass", 0.0);      // GeV
+
+  // Acoplanarity settings
+  desc.add<double>("acoplanarDistance", 1.0);  // Radian
+
+  // Filters
+  desc.add<bool>("applyChargeFilter", false);
+  desc.add<bool>("applyAcoplanarityFilter", false);
+  desc.add<bool>("applyMissingETFilter", false);
+
+  // Candidate selection
+  desc.add<unsigned int>("numberOfCandidates", 1);
+  desc.add<bool>("applySecThreshold", false);
+  desc.add<double>("secondThreshold", 6.0);
+}
+
 // destructor -----------------------------------------------------------------
 
 AlignmentTwoBodyDecayTrackSelector::~AlignmentTwoBodyDecayTrackSelector() {}

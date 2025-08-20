@@ -225,7 +225,7 @@ std::vector<std::pair<std::string, std::string>> APVGain::monHnames(std::vector<
   out.reserve(re);
 
   std::string Tag = tag;
-  if (Tag.length())
+  if (!Tag.empty())
     Tag = "__" + Tag;
 
   std::string h_tag = "";

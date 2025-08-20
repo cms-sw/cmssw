@@ -20,8 +20,8 @@ using namespace magneticFieldParabolicPortable;
 using Vector3f = Eigen::Matrix<float, 3, 1>;
 
 struct MagneticFieldKernel {
-  template <typename TAcc, typename T>
-  ALPAKA_FN_ACC void operator()(TAcc const& acc, T const* __restrict__ in, T* __restrict__ out, size_t size) const {
+  template <typename T>
+  ALPAKA_FN_ACC void operator()(Acc1D const& acc, T const* __restrict__ in, T* __restrict__ out, size_t size) const {
     for (auto index : cms::alpakatools::uniform_elements(acc, size)) {
       out[index](0) = 0;
       out[index](1) = 0;

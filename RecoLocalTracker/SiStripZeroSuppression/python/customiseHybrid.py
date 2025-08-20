@@ -8,9 +8,15 @@ def runOnHybridZS(process):
     zsInputs = process.siStripZeroSuppression.RawDigiProducersList
     clusInputs = process.siStripClusters.DigiProducersList
     unpackedZS = cms.InputTag("siStripDigis", "ZeroSuppressed")
+
+    # Convert string elements to cms.InputTag objects if necessary
+    clusInputs = [cms.InputTag(x) if isinstance(x, str) else x for x in clusInputs]
+
     zsInputs.append(unpackedZS)
-    clusInputs.remove(unpackedZS)
-    clusInputs.append(cms.InputTag("siStripZeroSuppression","ZeroSuppressed"))
+    if unpackedZS in clusInputs:
+        clusInputs.remove(unpackedZS)
+    clusInputs.append(cms.InputTag("siStripZeroSuppression", "ZeroSuppressed"))
+
     # for on-demand clusterizer
     from FWCore.ParameterSet.MassReplace import massReplaceParameter
     massReplaceParameter(process, "HybridZeroSuppressed", cms.bool(False), cms.bool(True))

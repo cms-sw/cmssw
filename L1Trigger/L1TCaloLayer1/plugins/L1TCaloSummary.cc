@@ -202,7 +202,7 @@ void L1TCaloSummary<INPUT, OUTPUT>::produce(edm::Event& iEvent, const edm::Event
     edm::LogError("L1TCaloSummary") << "UCT: Failed to get regions from region collection!";
   iEvent.getByToken(regionToken, regionCollection);
 
-  if (regionCollection->size() == 0) {
+  if (regionCollection->empty()) {
     iEvent.getByToken(backupRegionToken, regionCollection);
     edm::LogWarning("L1TCaloSummary") << "Switched to emulated regions since data regions was empty.\n";
   }
@@ -285,7 +285,7 @@ void L1TCaloSummary<INPUT, OUTPUT>::produce(edm::Event& iEvent, const edm::Event
   std::list<std::shared_ptr<UCTObject>> boostedJetObjs = summaryCard.getBoostedJetObjs();
   for (std::list<std::shared_ptr<UCTObject>>::const_iterator i = boostedJetObjs.begin(); i != boostedJetObjs.end();
        i++) {
-    const std::shared_ptr<UCTObject> object = *i;
+    const std::shared_ptr<UCTObject>& object = *i;
     pt = ((double)object->et()) * caloScaleFactor * boostedJetPtFactor;
     eta = g.getUCTTowerEta(object->iEta());
     phi = g.getUCTTowerPhi(object->iPhi());

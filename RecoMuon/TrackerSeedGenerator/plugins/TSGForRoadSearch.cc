@@ -543,3 +543,7 @@ void TSGForRoadSearch::pushTrajectorySeed(const reco::Track &muon,
   }
   return;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGeneratorFactory.h"
+DEFINE_EDM_PLUGIN(TrackerSeedGeneratorFactory, TSGForRoadSearch, "TSGForRoadSearch");

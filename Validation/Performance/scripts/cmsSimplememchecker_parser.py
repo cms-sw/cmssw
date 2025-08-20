@@ -1,7 +1,6 @@
 #! /usr/bin/env python3
 
     
-from __future__ import print_function
 def manipulate_log(outdir,logfile_name,startevt):
 
     import time

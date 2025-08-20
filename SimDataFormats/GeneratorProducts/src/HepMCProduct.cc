@@ -36,7 +36,6 @@ void HepMCProduct::addHepMCData(HepMC::GenEvent* evt) {
 
 void HepMCProduct::applyVtxGen(HepMC::FourVector const& vtxShift) {
   //std::cout<< " applyVtxGen called " << isVtxGenApplied_ << endl;
-  //fTimeOffset = 0;
 
   if (isVtxGenApplied())
     return;
@@ -126,7 +125,6 @@ HepMCProduct::HepMCProduct(HepMCProduct const& other) : evt_(nullptr) {
   isVtxGenApplied_ = other.isVtxGenApplied_;
   isVtxBoostApplied_ = other.isVtxBoostApplied_;
   isPBoostApplied_ = other.isPBoostApplied_;
-  //fTimeOffset = other.fTimeOffset;
 }
 
 // swap
@@ -135,7 +133,6 @@ void HepMCProduct::swap(HepMCProduct& other) {
   std::swap(isVtxGenApplied_, other.isVtxGenApplied_);
   std::swap(isVtxBoostApplied_, other.isVtxBoostApplied_);
   std::swap(isPBoostApplied_, other.isPBoostApplied_);
-  //std::swap(fTimeOffset, other.fTimeOffset);
 }
 
 // assignment: use copy/swap idiom for exception safety.
@@ -146,7 +143,10 @@ HepMCProduct& HepMCProduct::operator=(HepMCProduct const& other) {
 }
 
 // move, needed explicitly as we have raw pointer...
-HepMCProduct::HepMCProduct(HepMCProduct&& other) : evt_(nullptr) { swap(other); }
+HepMCProduct::HepMCProduct(HepMCProduct&& other)
+    : evt_(nullptr), isVtxGenApplied_(false), isVtxBoostApplied_(false), isPBoostApplied_(false) {
+  swap(other);
+}
 HepMCProduct& HepMCProduct::operator=(HepMCProduct&& other) {
   swap(other);
   return *this;

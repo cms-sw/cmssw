@@ -47,6 +47,8 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
+#include <CLHEP/Units/SystemOfUnits.h>
+
 namespace {
   using Index_t = unsigned;
   using Barcode_t = int;
@@ -151,12 +153,15 @@ namespace {
                              CaloTruthAccumulator::calo_particles &caloParticles,
                              std::unordered_multimap<Barcode_t, Index_t> &simHitBarcodeToIndex,
                              std::unordered_map<int, std::map<int, float>> &simTrackDetIdEnergyMap,
+                             std::unordered_map<uint32_t, float> &vertex_time_map,
                              Selector selector)
         : output_(output),
           caloParticles_(caloParticles),
           simHitBarcodeToIndex_(simHitBarcodeToIndex),
           simTrackDetIdEnergyMap_(simTrackDetIdEnergyMap),
-          selector_(selector) {}
+          vertex_time_map_(vertex_time_map),
+          selector_(selector),
+          insideCP_(false) {}
     template <typename Vertex, typename Graph>
     void discover_vertex(Vertex u, const Graph &g) {
       // If we reach the vertex 0, it means that we are backtracking with respect
@@ -169,7 +174,7 @@ namespace {
       auto trackIdx = vertex_property.simTrack->trackId();
       IfLogDebug(DEBUG, messageCategoryGraph_)
           << " Found " << simHitBarcodeToIndex_.count(trackIdx) << " associated simHits" << std::endl;
-      if (simHitBarcodeToIndex_.count(trackIdx)) {
+      if (insideCP_ && simHitBarcodeToIndex_.count(trackIdx)) {
         output_.pSimClusters->emplace_back(*vertex_property.simTrack);
         auto &simcluster = output_.pSimClusters->back();
         std::unordered_map<uint32_t, float> acc_energy;
@@ -189,9 +194,13 @@ namespace {
         auto edge_property = get(edge_weight, g, e);
         IfLogDebug(DEBUG, messageCategoryGraph_) << "Considering CaloParticle: " << edge_property.simTrack->trackId();
         if (selector_(edge_property)) {
+          insideCP_ = true;
           IfLogDebug(DEBUG, messageCategoryGraph_) << "Adding CaloParticle: " << edge_property.simTrack->trackId();
           output_.pCaloParticles->emplace_back(*(edge_property.simTrack));
+          output_.pCaloParticles->back().setSimTime(vertex_time_map_[(edge_property.simTrack)->vertIndex()]);
           caloParticles_.sc_start_.push_back(output_.pSimClusters->size());
+        } else {
+          insideCP_ = false;
         }
       }
     }
@@ -204,6 +213,7 @@ namespace {
         auto edge_property = get(edge_weight, g, e);
         if (selector_(edge_property)) {
           caloParticles_.sc_stop_.push_back(output_.pSimClusters->size());
+          insideCP_ = false;
         }
       }
     }
@@ -213,7 +223,9 @@ namespace {
     CaloTruthAccumulator::calo_particles &caloParticles_;
     std::unordered_multimap<Barcode_t, Index_t> &simHitBarcodeToIndex_;
     std::unordered_map<int, std::map<int, float>> &simTrackDetIdEnergyMap_;
+    std::unordered_map<uint32_t, float> &vertex_time_map_;
     Selector selector_;
+    bool insideCP_;
   };
 }  // namespace
 
@@ -425,6 +437,12 @@ void CaloTruthAccumulator::accumulateEvent(const T &event,
     idx++;
   }
 
+  std::unordered_map<uint32_t, float> vertex_time_map;
+  for (uint32_t i = 0; i < vertices.size(); i++) {
+    // Geant4 time is in seconds, convert to ns (CLHEP::s = 1e9)
+    vertex_time_map[i] = vertices[i].position().t() * CLHEP::s;
+  }
+
   /**
   Build the main decay graph and assign the SimTrack to each edge. The graph
   built here will only contain the particles that have a decay vertex
@@ -512,6 +530,7 @@ void CaloTruthAccumulator::accumulateEvent(const T &event,
       m_caloParticles,
       m_simHitBarcodeToIndex,
       simTrackDetIdEnergyMap,
+      vertex_time_map,
       [&](EdgeProperty &edge_property) -> bool {
         // Apply selection on SimTracks in order to promote them to be
         // CaloParticles. The function returns TRUE if the particle satisfies
@@ -539,13 +558,14 @@ void CaloTruthAccumulator::fillSimHits(std::vector<std::pair<DetId, const PCaloH
   for (auto const &collectionTag : collectionTags_) {
     edm::Handle<std::vector<PCaloHit>> hSimHits;
     const bool isHcal = (collectionTag.instance().find("HcalHits") != std::string::npos);
+    const bool isHGCal = (collectionTag.instance().find("HGCHits") != std::string::npos);
     event.getByLabel(collectionTag, hSimHits);
 
     for (auto const &simHit : *hSimHits) {
       DetId id(0);
 
       //Relabel as necessary for HGCAL
-      if (doHGCAL) {
+      if (isHGCal) {
         const uint32_t simId = simHit.id();
         if (geometryType_ == 1) {
           // no test numbering in new geometry

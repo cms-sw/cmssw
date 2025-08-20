@@ -8,7 +8,6 @@
 # see an example file at HLTriggerOffline/Egamma/python/HLT_Ele17_SW_TighterEleIdIsol_L1RDQM_cfi.py
 #----------------------------------------------------------------------
 
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import HLTriggerOffline.Egamma.EgammaHLTValidationUtils as EgammaHLTValidationUtils
 import sys, os

@@ -23,11 +23,13 @@
 #include "FWCore/Framework/interface/EventSetupRecordImpl.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // system include files
 #include <map>
 #include <memory>
 #include <set>
+#include <unordered_set>
 #include <vector>
 
 // forward declarations
@@ -40,9 +42,9 @@ namespace edm {
     struct ComponentDescription;
     class DataKey;
     class ESProductResolverProvider;
+    class ESRecordsToProductResolverIndices;
     class EventSetupProvider;
     class EventSetupRecordImpl;
-    class ParameterSetIDHolder;
 
     class EventSetupRecordProvider {
     public:
@@ -76,18 +78,15 @@ namespace edm {
       std::set<ComponentDescription> resolverProviderDescriptions() const;
 
       /// The available DataKeys in the Record. The order can be used to request the data by index
-      std::vector<DataKey> registeredDataKeys() const;
+      std::vector<DataKey> const& registeredDataKeys() const;
 
       std::vector<ComponentDescription const*> componentsForRegisteredDataKeys() const;
+      std::vector<unsigned int> produceMethodIDsForRegisteredDataKeys() const;
+
       // ---------- member functions ---------------------------
 
       ///returns the first matching ESProductResolverProvider or a 'null' if not found
       std::shared_ptr<ESProductResolverProvider> resolverProvider(ComponentDescription const&);
-
-      ///returns the first matching ESProductResolverProvider or a 'null' if not found
-      std::shared_ptr<ESProductResolverProvider> resolverProvider(ParameterSetIDHolder const&);
-
-      void resetProductResolverProvider(ParameterSetIDHolder const&, std::shared_ptr<ESProductResolverProvider> const&);
 
       void add(std::shared_ptr<ESProductResolverProvider>);
       ///For now, only use one finder
@@ -130,8 +129,8 @@ namespace edm {
        */
       bool setValidityIntervalFor(IOVSyncValue const&);
 
-      bool newIntervalForAnySubProcess() const { return newIntervalForAnySubProcess_; }
-      void setNewIntervalForAnySubProcess(bool value) { newIntervalForAnySubProcess_ = value; }
+      bool newInterval() const { return newInterval_; }
+      void setNewInterval(bool value) { newInterval_ = value; }
 
       ///If the provided Record depends on other Records, here are the dependent Providers
       void setDependentProviders(std::vector<std::shared_ptr<EventSetupRecordProvider>> const&);
@@ -149,13 +148,14 @@ namespace edm {
       void getReferencedESProducers(
           std::map<EventSetupRecordKey, std::vector<ComponentDescription const*>>& referencedESProducers) const;
 
-      void fillReferencedDataKeys(std::map<DataKey, ComponentDescription const*>& referencedDataKeys) const;
-
-      void resetRecordToResolverPointers(DataToPreferredProviderMap const& iMap);
-
       void setEventSetupImpl(EventSetupImpl* value) { eventSetupImpl_ = value; }
 
       IntervalStatus intervalStatus() const { return intervalStatus_; }
+
+      void fillAllESProductResolverProviders(std::vector<ESProductResolverProvider const*>&,
+                                             std::unordered_set<unsigned int>& componentIDs) const;
+
+      void updateLookup(ESRecordsToProductResolverIndices const&);
 
     protected:
       void addResolversToRecordHelper(edm::propagate_const<std::shared_ptr<ESProductResolverProvider>>& dpp,
@@ -190,7 +190,7 @@ namespace edm {
 
       const unsigned int nConcurrentIOVs_;
       IntervalStatus intervalStatus_ = IntervalStatus::NotInitializedForSyncValue;
-      bool newIntervalForAnySubProcess_ = false;
+      bool newInterval_ = false;
       bool hasNonconcurrentFinder_ = false;
     };
   }  // namespace eventsetup

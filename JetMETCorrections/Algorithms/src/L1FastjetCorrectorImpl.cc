@@ -47,8 +47,8 @@ std::unique_ptr<reco::JetCorrectorImpl> L1FastjetCorrectorImplMaker::make(edm::E
 void L1FastjetCorrectorImplMaker::fillDescriptions(edm::ConfigurationDescriptions& iDescriptions) {
   edm::ParameterSetDescription desc;
   addToDescription(desc);
-  desc.add<edm::InputTag>("srcRho");
-  iDescriptions.addDefault(desc);
+  desc.add<edm::InputTag>("srcRho", edm::InputTag(""));
+  iDescriptions.addWithDefaultLabel(desc);
 }
 
 //______________________________________________________________________________

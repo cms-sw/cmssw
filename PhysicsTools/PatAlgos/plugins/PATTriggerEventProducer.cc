@@ -144,7 +144,7 @@ PATTriggerEventProducer::PATTriggerEventProducer(const ParameterSet& iConfig)
   triggerMatcherTokens_ = vector_transform(
       tagsTriggerMatcher_, [this](InputTag const& tag) { return mayConsume<TriggerObjectStandAloneMatch>(tag); });
 
-  callWhenNewProductsRegistered([this](BranchDescription const& bd) {
+  callWhenNewProductsRegistered([this](ProductDescription const& bd) {
     if (not(this->autoProcessName_ and bd.processName() == this->moduleDescription().processName())) {
       triggerResultsGetter_(bd);
     }

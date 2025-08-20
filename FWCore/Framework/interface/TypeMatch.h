@@ -12,13 +12,13 @@ duplication can occur when an EDAlias is involved.
 
 */
 
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 
 namespace edm {
   class TypeMatch {
   public:
-    bool operator()(edm::BranchDescription const& branchDescription) const {
-      return not branchDescription.isAnyAlias();
+    bool operator()(edm::ProductDescription const& productDescription) const {
+      return not productDescription.isAnyAlias();
     }
   };
 }  // namespace edm

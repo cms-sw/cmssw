@@ -55,11 +55,11 @@ namespace edm {
     void OutputModuleBase::doAcquire(EventTransitionInfo const& info,
                                      ActivityRegistry* act,
                                      ModuleCallingContext const* mcc,
-                                     WaitingTaskWithArenaHolder& holder) {
+                                     WaitingTaskHolder&& holder) {
       EventForOutput e(info, moduleDescription(), mcc);
       e.setConsumer(this);
       EventAcquireSignalsSentry sentry(act, mcc);
-      this->doAcquire_(e.streamID(), e, holder);
+      this->doAcquire_(e.streamID(), e, std::move(holder));
     }
   }  // namespace global
 }  // namespace edm

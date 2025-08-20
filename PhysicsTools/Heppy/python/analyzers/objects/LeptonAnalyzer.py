@@ -1,4 +1,3 @@
-from __future__ import print_function
 from builtins import range
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle

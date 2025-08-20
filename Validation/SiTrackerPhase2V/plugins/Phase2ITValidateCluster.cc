@@ -153,8 +153,17 @@ void Phase2ITValidateCluster::fillITHistos(const edm::Event& iEvent,
                                            const std::map<unsigned int, SimTrack>& simTracks) {
   // Getting the clusters
   const auto& clusterHandle = iEvent.getHandle(clustersToken_);
+  if (!clusterHandle.isValid()) {
+    edm::LogWarning("Phase2ITValidateCluster") << "No SiPixelCluster Collection found in the event. Skipping!";
+    return;
+  }
+
   // Getting PixelDigiSimLinks
   const auto& pixelSimLinksHandle = iEvent.getHandle(simITLinksToken_);
+  if (!pixelSimLinksHandle.isValid()) {
+    edm::LogWarning("Phase2ITValidateCluster") << "No PixelDigiSimLinks Collection found in the event. Skipping!";
+    return;
+  }
 
   for (const auto& DSVItr : *clusterHandle) {
     // Getting the id of detector unit

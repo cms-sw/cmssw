@@ -24,7 +24,7 @@ public:
   ~CandidateChargeBTagComputer() override;
   void initialize(const JetTagComputerRecord &record) override;
   float discriminator(const TagInfoHelper &tagInfo) const override;
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  static void fillPSetDescription(edm::ParameterSetDescription &desc);
 
 private:
   const edm::FileInPath weightFile_;

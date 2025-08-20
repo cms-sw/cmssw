@@ -162,6 +162,18 @@ process.filterOutLowPt.ptmin  = PTCUTTEMPLATE
 process.filterOutLowPt.runControl = RUNCONTROLTEMPLATE
 process.filterOutLowPt.runControlNumber = [runboundary]
 
+####################################################################
+# BeamSpot check
+####################################################################
+from RecoVertex.BeamSpotProducer.beamSpotCompatibilityChecker_cfi import beamSpotCompatibilityChecker
+process.BeamSpotChecker = beamSpotCompatibilityChecker.clone(
+    bsFromFile = "offlineBeamSpot::RECO",  # source of the event beamspot (in the ALCARECO files)
+    bsFromDB = "offlineBeamSpot::@currentProcess", # source of the DB beamspot (from Global Tag) NOTE: only if dbFromEvent is True!
+    dbFromEvent = True,
+    warningThr = 3, # significance threshold to emit a warning message
+    errorThr = 5,    # significance threshold to abort the job
+)
+
 if isMC:
      process.goodvertexSkim = cms.Sequence(process.noscraping+process.filterOutLowPt)
 else:
@@ -326,6 +338,7 @@ process.p = cms.Path(process.goodvertexSkim*
                      # in case the common refitting sequence is removed
                      #process.offlineBeamSpot*
                      process.seqTrackselRefit*
+                     process.BeamSpotChecker*
                      # in case the navigation shool is removed
                      #process.MeasurementTrackerEvent*
                      # in case the common refitting sequence is removed

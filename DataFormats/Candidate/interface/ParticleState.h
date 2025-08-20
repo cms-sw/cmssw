@@ -10,12 +10,13 @@
  *
  */
 
+#include <Rtypes.h>
+
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/PtEtaPhiMass.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "Rtypes.h"
 
 namespace reco {
 

@@ -19,6 +19,7 @@
 #include <iterator>
 #include <vector>
 #include <cmath>
+#include <cassert>
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -100,7 +101,7 @@ namespace {  // anonymous
   }
 
   void ProcMLP::eval(ValueIterator iter, unsigned int n) const {
-    double *tmp = (double *)alloca(2 * maxTmp * sizeof(double));
+    double *tmp = (double *)calloc(2 * maxTmp, sizeof(double));
     bool flip = false;
 
     for (double *pos = tmp; iter; iter++, pos++)
@@ -108,6 +109,7 @@ namespace {  // anonymous
 
     double *output = nullptr;
     for (std::vector<Layer>::const_iterator layer = layers.begin(); layer != layers.end(); layer++, flip = !flip) {
+      assert(maxTmp >= layer->inputs);
       const double *input = &tmp[flip ? maxTmp : 0];
       output = &tmp[flip ? 0 : maxTmp];
       std::vector<double>::const_iterator coeff = layer->coeffs.begin();
@@ -123,6 +125,7 @@ namespace {  // anonymous
 
     for (const double *pos = &tmp[flip ? maxTmp : 0]; pos < output; pos++)
       iter(*pos);
+    free(tmp);
   }
 
   std::vector<double> ProcMLP::deriv(ValueIterator iter, unsigned int n) const {

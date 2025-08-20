@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from __future__ import print_function
 from builtins import range
 import os
 # probably easier to fetch everything without subdirs, but that's up to user preferences

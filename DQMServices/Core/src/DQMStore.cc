@@ -89,7 +89,7 @@ namespace dqm::implementation {
     // However, it is easier to do that in putME().
 
     MonitorElement* me = store_->findME(path);
-    store_->printTrace("Booking " + std::string(name) + (me ? " (existing)" : " (new)"));
+    store_->printTrace("Booking " + fullpath + (me ? " (existing)" : " (new)"));
 
     if (me == nullptr) {
       // no existing global ME found. We need to instantiate one, and put it
@@ -749,7 +749,7 @@ namespace dqm::implementation {
     }
     std::vector<std::string> out;
     for (const auto& dir : subdirs) {
-      if (dir.length() == 0)
+      if (dir.empty())
         continue;
       out.push_back(this->cwd_ + dir);
     }

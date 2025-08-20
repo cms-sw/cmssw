@@ -15,6 +15,12 @@ slimmedMuonsUpdated = cms.EDProducer("PATMuonUpdater",
     pfCandsForMiniIso = cms.InputTag("packedPFCandidates"),
     miniIsoParams = PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi.patMuons.miniIsoParams, # so they're in sync
     recomputeMuonBasicSelectors = cms.bool(False),
+    recomputeSoftMuonMvaRun3 = cms.bool(False),
+    softMvaRun3Model = PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi.patMuons.softMvaRun3Model,
+)
+
+(run2_nanoAOD_106Xv2 | run3_nanoAOD_pre142X).toModify(
+    slimmedMuonsUpdated, recomputeMuonBasicSelectors=True, recomputeSoftMuonMvaRun3=True,
 )
 
 isoForMu = cms.EDProducer("MuonIsoValueMapProducer",
@@ -83,6 +89,13 @@ finalMuons = cms.EDFilter("PATMuonRefSelector",
     src = cms.InputTag("slimmedMuonsWithUserData"),
     cut = cms.string("pt > 15 || (pt > 3 && (passed('CutBasedIdLoose') || passed('SoftCutBasedId') || passed('SoftMvaId') || passed('CutBasedIdGlobalHighPt') || passed('CutBasedIdTrkHighPt')))")
 )
+
+# lower the muon pt threshold to 2 GeV
+(run3_nanoAOD_2025 | run3_nanoAOD_devel).toModify(
+    finalMuons,
+    cut = cms.string("pt > 15 || (pt > 2 && (passed('CutBasedIdLoose') || passed('SoftCutBasedId') || passed('SoftMvaId') || passed('CutBasedIdGlobalHighPt') || passed('CutBasedIdTrkHighPt')))")
+)
+
 
 finalLooseMuons = cms.EDFilter("PATMuonRefSelector", # for isotrack cleaning
     src = cms.InputTag("slimmedMuonsWithUserData"),
@@ -237,6 +250,7 @@ muonTable = simplePATMuonFlatTableProducer.clone(
         segmentComp   = Var("segmentCompatibility()", float, doc = "muon segment compatibility", precision=14), # keep higher precision since people have cuts with 3 digits on this
         nStations = Var("numberOfMatchedStations", "uint8", doc = "number of matched stations with default arbitration (segment & track)"),
         nTrackerLayers = Var("?track.isNonnull?innerTrack().hitPattern().trackerLayersWithMeasurement():0", "uint8", doc = "number of layers in the tracker"),
+        bestTrackType = Var("muonBestTrackType()", "uint8", doc = "Type of track used (1=inner, 2=STA, 3=global, 4=TPFMS, 5=Picky, 6=DYT)"),
         highPurity = Var("?track.isNonnull?innerTrack().quality('highPurity'):0", bool, doc = "inner track is high purity"),
         jetIdx = Var("?hasUserCand('jet')?userCand('jet').key():-1", "int16", doc="index of the associated jet (-1 if none)"),
         svIdx = Var("?hasUserCand('vertex')?userCand('vertex').key():-1", "int16", doc="index of matching secondary vertex"),
@@ -297,7 +311,7 @@ muonTable.variables.phi.precision = 16
 
 
 # Revert back to AK4 CHS jets for Run 2
-run2_nanoAOD_ANY.toModify(
+run2_muon.toModify(
     ptRatioRelForMu,srcJet="updatedJets"
 )
 

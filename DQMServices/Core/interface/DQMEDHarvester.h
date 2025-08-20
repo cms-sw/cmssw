@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/GetterOfProducts.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
 
 #include "DataFormats/Histograms/interface/DQMToken.h"
@@ -26,9 +27,9 @@ namespace edm {
       }
     }
 
-    bool operator()(edm::BranchDescription const &branchDescription) {
+    bool operator()(edm::ProductDescription const &productDescription) {
       for (auto &m : matchers_) {
-        if (m(branchDescription)) {
+        if (m(productDescription)) {
           return true;
         }
       }
@@ -63,6 +64,15 @@ protected:
   edm::EDPutTokenT<DQMToken> runToken_;
   edm::EDPutTokenT<DQMToken> jobToken_;
 
+  static void fillDescription(edm::ParameterSetDescription &iDesc) {
+    iDesc.addUntracked<std::string>("inputGeneration", "DQMGenerationReco");
+    iDesc.addUntracked<std::string>("outputGeneration", "DQMGenerationHarvesting");
+    iDesc.addUntracked<std::vector<edm::InputTag>>("inputMEs", std::vector<edm::InputTag>())
+        ->setComment(
+            "DQM tokens to read from other modules. Used to form dependencies between MonitorElements created by other "
+            "modules.");
+  }
+
 public:
   DQMEDHarvester(edm::ParameterSet const &iConfig) {
     usesResource("DQMStore");
@@ -88,7 +98,7 @@ public:
     jobmegetter_ = edm::GetterOfProducts<DQMToken>(edm::VInputTagMatch(inputtags), this, edm::InProcess);
     runmegetter_ = edm::GetterOfProducts<DQMToken>(edm::VInputTagMatch(inputtags), this, edm::InRun);
     lumimegetter_ = edm::GetterOfProducts<DQMToken>(edm::VInputTagMatch(inputtags), this, edm::InLumi);
-    callWhenNewProductsRegistered([this](edm::BranchDescription const &bd) {
+    callWhenNewProductsRegistered([this](edm::ProductDescription const &bd) {
       jobmegetter_(bd);
       runmegetter_(bd);
       lumimegetter_(bd);

@@ -1,4 +1,3 @@
-from __future__ import print_function
 # customization fragments to be used with cmsDriver and hltGetConfiguration
 #
 # V.M. Ghete 2010-06-09 initial version
@@ -124,7 +123,6 @@ def customiseL1Menu(process):
                                     toGet = cms.VPSet(cms.PSet(
                                                 record = cms.string('L1GtTriggerMenuRcd'),
                                                 tag = cms.string(menuDbTag))),
-                                                BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService')
                                             )
             process.es_prefer_l1conddb = cms.ESPrefer("PoolDBESSource", "l1conddb")
 

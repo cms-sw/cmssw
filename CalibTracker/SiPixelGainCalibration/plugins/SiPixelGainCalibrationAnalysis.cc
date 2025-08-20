@@ -23,6 +23,7 @@ Implementation:
 #include <cmath>
 #include "TGraphErrors.h"
 #include "TMath.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 using std::cout;
 using std::endl;
@@ -209,7 +210,6 @@ bool SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelC
   for (uint32_t ii = 0; ii < ipix->getnpoints() && ii < 200; ii++) {
     //    std::cout << ipix->getsum(ii) << " " << ipix->getnentries(ii) << " " << ipix->getsumsquares(ii) << std::endl;
     nallpoints++;
-    use_point = true;
     if (useVcalHigh_) {
       xvalsall[ii] = vCalValues_[ii] * scalarVcalHigh_VcalLow_;
     } else
@@ -276,7 +276,6 @@ bool SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelC
       use_point = false;
     if (ii > 1 && fabs(yvalsall[ii] - yvalsall[ii - 1]) < 5. && yvalsall[ii] > 0.8 * maxgoodvalinfit &&
         reject_plateaupoints_) {
-      use_point = false;
       break;
     }
 
@@ -289,8 +288,6 @@ bool SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelC
   }
 
   float chi2, slope, intercept, prob, slopeerror, intercepterror;
-  prob = chi2 = -1;
-  slope = intercept = slopeerror = intercepterror = 0;
 
   // now check on number of points. If bad just start taking the first 4:
 
@@ -344,7 +341,7 @@ bool SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelC
   chi2 = func_->GetChisquare() / ((float)npoints - func_->GetNpar());
   prob = TMath::Prob(func_->GetChisquare(), npoints - func_->GetNpar());
   size_t ntimes = 0;
-  while ((std::isnan(slope) || std::isnan(intercept)) && ntimes < 10) {
+  while ((edm::isNotFinite(slope) || edm::isNotFinite(intercept)) && ntimes < 10) {
     ntimes++;
     makehistopersistent = true;
     //    std::cout << slope << " " << intercept << " " << prob << std::endl;
@@ -368,7 +365,7 @@ bool SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelC
     status = 0;
   if (slope != 0)
     slope = 1. / slope;
-  if (std::isnan(slope) || std::isnan(intercept)) {
+  if (edm::isNotFinite(slope) || edm::isNotFinite(intercept)) {
     status = -6;
     bookkeeper_[detid]["status_2d"]->setBinContent(ipix->col() + 1, ipix->row() + 1, status);
     if (writeSummary_) {

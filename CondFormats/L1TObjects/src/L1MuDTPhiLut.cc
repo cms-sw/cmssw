@@ -110,7 +110,7 @@ int L1MuDTPhiLut::load() {
 
     // assemble file name
     edm::FileInPath lut_f = edm::FileInPath(string(defaultPath + phi_dir + phi_str + ".lut"));
-    string phi_file = lut_f.fullPath();
+    const string& phi_file = lut_f.fullPath();
 
     // open file
     L1TriggerLutFile file(phi_file);

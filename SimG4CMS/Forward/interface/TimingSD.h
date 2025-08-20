@@ -65,6 +65,9 @@ protected:
   // general method to assign track ID to be stored in hits
   virtual int getTrackID(const G4Track*);
 
+  // general method to determine classification of hit based on its properties
+  virtual void setHitClassID(const G4Step*);
+
 private:
   void getStepInfo(const G4Step*);
   bool hitExists(const G4Step*);
@@ -106,6 +109,9 @@ private:
   float tof;              // ns
   float edeposit;
   float edepositEM, edepositHAD;
+
+protected:
+  unsigned int hitClassID;
 };
 
 #endif

@@ -25,6 +25,8 @@
 #include "CondCore/AlignmentPlugins/interface/AlignmentPayloadInspectorHelper.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 
+#include "DQM/TrackerRemapper/interface/Phase1PixelSummaryMap.h"
+
 #include <memory>
 #include <sstream>
 #include <iostream>
@@ -318,6 +320,87 @@ namespace {
   typedef TrackerAlignmentErrorExtendedTrackerMap<AlignmentPI::XY> TrackerAlignmentErrorExtendedXYTrackerMap;
   typedef TrackerAlignmentErrorExtendedTrackerMap<AlignmentPI::XZ> TrackerAlignmentErrorExtendedXZTrackerMap;
   typedef TrackerAlignmentErrorExtendedTrackerMap<AlignmentPI::YZ> TrackerAlignmentErrorExtendedYZTrackerMap;
+
+  // /************************************************
+  //   TrackerMap of sqrt(d_ii) of 1 IOV
+  // *************************************************/
+  template <AlignmentPI::index i>
+  class PixelAlignmentErrorExtendedTrackerMap : public PlotImage<AlignmentErrorsExtended, SINGLE_IOV> {
+  public:
+    PixelAlignmentErrorExtendedTrackerMap()
+        : PlotImage<AlignmentErrorsExtended, SINGLE_IOV>("Pixel Map of sqrt(d_{" + getStringFromIndex(i) +
+                                                         "}) of APE matrix") {
+      label_ = " PixelAlignmentErrorExtendedTrackerMap";
+      payloadString = "Alignment Parameter Error";
+    }
+
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
+      std::string IOVsince = std::to_string(std::get<0>(iov));
+
+      std::shared_ptr<AlignmentErrorsExtended> payload = fetchPayload(std::get<1>(iov));
+
+      Phase1PixelSummaryMap fullMap("", fmt::sprintf("%s", payloadString), fmt::sprintf("%s [#mum]", payloadString));
+      fullMap.createTrackerBaseMap();
+
+      std::vector<AlignTransformErrorExtended> alignErrors = payload->m_alignError;
+
+      auto indices = AlignmentPI::getIndices(i);
+
+      TCanvas canvas("Canv", "Canv", 3000, 2000);
+      if (alignErrors.size() == AlignmentPI::phase0size) {
+        AlignmentPI::displayNotSupported(canvas, 0);
+        return false;
+      }
+
+      for (const auto& it : alignErrors) {
+        int subid = DetId(it.rawId()).subdetId();
+
+        CLHEP::HepSymMatrix errMatrix = it.matrix();
+
+        if (DetId(it.rawId()).det() != DetId::Tracker) {
+          edm::LogWarning("TrackerAlignmentErrorExtended_PayloadInspector")
+              << "Encountered invalid Tracker DetId:" << it.rawId() << " - terminating ";
+          return false;
+        }
+        // fill the tracker map only if it's pixel
+        if ((subid == PixelSubdetector::PixelBarrel) || (subid == PixelSubdetector::PixelEndcap)) {
+          fullMap.fillTrackerMap(it.rawId(), sqrt(errMatrix[indices.first][indices.second]) * AlignmentPI::cmToUm);
+        }
+      }
+
+      fullMap.printTrackerMap(canvas);
+
+      auto ltx = TLatex();
+      ltx.SetTextFont(62);
+      ltx.SetTextSize(0.025);
+      ltx.SetTextAlign(11);
+
+      ltx.DrawLatexNDC(gPad->GetLeftMargin() + 0.01,
+                       gPad->GetBottomMargin() + 0.01,
+                       ("#color[4]{" + std::string{tag.name} + "}, IOV: #color[2]{" + IOVsince + "}").c_str());
+
+      std::string fileName(this->m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }
+
+  protected:
+    std::string payloadString;
+    std::string label_;
+  };
+
+  // diagonal elements
+  typedef PixelAlignmentErrorExtendedTrackerMap<AlignmentPI::XX> PixelAlignmentErrorExtendedXXTrackerMap;
+  typedef PixelAlignmentErrorExtendedTrackerMap<AlignmentPI::YY> PixelAlignmentErrorExtendedYYTrackerMap;
+  typedef PixelAlignmentErrorExtendedTrackerMap<AlignmentPI::ZZ> PixelAlignmentErrorExtendedZZTrackerMap;
+
+  // off-diagonal elements
+  typedef PixelAlignmentErrorExtendedTrackerMap<AlignmentPI::XY> PixelAlignmentErrorExtendedXYTrackerMap;
+  typedef PixelAlignmentErrorExtendedTrackerMap<AlignmentPI::XZ> PixelAlignmentErrorExtendedXZTrackerMap;
+  typedef PixelAlignmentErrorExtendedTrackerMap<AlignmentPI::YZ> PixelAlignmentErrorExtendedYZTrackerMap;
 
   // /************************************************
   //  Partition details of 1 IOV
@@ -795,6 +878,12 @@ PAYLOAD_INSPECTOR_MODULE(TrackerAlignmentErrorExtended) {
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXYTrackerMap);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedXZTrackerMap);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedYZTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(PixelAlignmentErrorExtendedXXTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(PixelAlignmentErrorExtendedYYTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(PixelAlignmentErrorExtendedZZTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(PixelAlignmentErrorExtendedXYTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(PixelAlignmentErrorExtendedXZTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(PixelAlignmentErrorExtendedYZTrackerMap);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedBPixDetail);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedFPixDetail);
   PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentErrorExtendedTIBDetail);

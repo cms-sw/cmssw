@@ -1,6 +1,7 @@
 #ifndef DataFormats_SiPixelDigiSoA_interface_SiPixelDigisHost_h
 #define DataFormats_SiPixelDigiSoA_interface_SiPixelDigisHost_h
 
+#include "DataFormats/Common/interface/Uninitialized.h"
 #include "DataFormats/Portable/interface/PortableHostCollection.h"
 #include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigisSoA.h"
 
@@ -9,7 +10,8 @@
 // See: https://github.com/cms-sw/cmssw/pull/40465#discussion_r1067364306
 class SiPixelDigisHost : public PortableHostCollection<SiPixelDigisSoA> {
 public:
-  SiPixelDigisHost() = default;
+  SiPixelDigisHost(edm::Uninitialized) : PortableHostCollection<SiPixelDigisSoA>{edm::kUninitialized} {}
+
   template <typename TQueue>
   explicit SiPixelDigisHost(size_t maxFedWords, TQueue queue)
       : PortableHostCollection<SiPixelDigisSoA>(maxFedWords + 1, queue) {}

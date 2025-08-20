@@ -39,7 +39,7 @@ namespace edm {
     setupEntryInfoSet(iReg);
   }
 
-  void ProductProvenanceLookup::insertIntoSet(ProductProvenance entryInfo) const {
+  void ProductProvenanceLookup::insertIntoSet(ProductProvenance const& entryInfo) const {
     //NOTE:do not read provenance here because we only need the full
     // provenance when someone tries to access it not when doing the insert
     // doing the delay saves 20% of time when doing an analysis job
@@ -53,7 +53,7 @@ namespace edm {
       throw edm::Exception(edm::errors::LogicError) << "ProductProvenanceLookup::insertIntoSet passed a BranchID "
                                                     << entryInfo.branchID().id() << " that has not been pre-registered";
     }
-    itFound->threadsafe_set(entryInfo.moveParentageID());
+    itFound->threadsafe_set(entryInfo.parentageID());
   }
 
   ProductProvenance const* ProductProvenanceLookup::branchIDToProvenance(BranchID const& bid) const {

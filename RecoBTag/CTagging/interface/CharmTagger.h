@@ -1,12 +1,14 @@
 #ifndef RecoBTag_CTagging_CharmTagger_h
 #define RecoBTag_CTagging_CharmTagger_h
 
-#include "FWCore/Framework/interface/ESConsumesCollector.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CommonTools/MVAUtils/interface/TMVAEvaluator.h"
-#include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
-#include "RecoBTag/SecondaryVertex/interface/CombinedSVSoftLeptonComputer.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
+#include "FWCore/Framework/interface/ESConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "RecoBTag/SecondaryVertex/interface/CombinedSVSoftLeptonComputer.h"
+#include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputerRecord.h"
 
 #include <memory>
@@ -28,6 +30,8 @@ public:
   ~CharmTagger() override;  //{}
   float discriminator(const TagInfoHelper& tagInfo) const override;
   void initialize(const JetTagComputerRecord& record) override;
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
   typedef std::vector<edm::ParameterSet> vpset;
 

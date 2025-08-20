@@ -29,6 +29,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/RunID.h"
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 
 #include "FWCore/Common/interface/EventBase.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -55,7 +56,6 @@ class testEvent;
 
 namespace edm {
 
-  class BranchDescription;
   class ModuleCallingContext;
   class TriggerResultsByName;
   class TriggerResults;
@@ -270,7 +270,7 @@ namespace edm {
 
     void fillLuminosityBlock() const;
 
-    ProductID makeProductID(BranchDescription const& desc) const;
+    ProductID makeProductID(ProductDescription const& desc) const;
 
     //override used by EventBase class
     BasicHandle getByLabelImpl(std::type_info const& iWrapperType,

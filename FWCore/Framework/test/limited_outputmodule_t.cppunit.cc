@@ -14,6 +14,8 @@
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/maker/WorkerT.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
+#include "FWCore/Framework/interface/ProductResolversFactory.h"
+#include "FWCore/Framework/interface/maker/ModuleHolder.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
@@ -70,7 +72,8 @@ public:
   typedef std::vector<Trans> Expectations;
 
 private:
-  std::map<Trans, std::function<void(edm::Worker*, edm::OutputModuleCommunicator*)>> m_transToFunc;
+  std::map<Trans, std::function<void(edm::Worker*, edm::maker::ModuleHolder*, edm::OutputModuleCommunicator*)>>
+      m_transToFunc;
 
   edm::ProcessConfiguration m_procConfig;
   edm::PreallocationConfiguration m_preallocConfig;
@@ -169,43 +172,49 @@ testLimitedOutputModule::testLimitedOutputModule()
 
   std::string uuid = edm::createGlobalIdentifier();
   edm::Timestamp now(1234567UL);
-  m_rp.reset(new edm::RunPrincipal(m_prodReg, m_procConfig, &historyAppender_, 0));
+  m_rp.reset(
+      new edm::RunPrincipal(m_prodReg, edm::productResolversFactory::makePrimary, m_procConfig, &historyAppender_, 0));
   m_rp->setAux(edm::RunAuxiliary(eventID.run(), now, now));
-  m_lbp.reset(new edm::LuminosityBlockPrincipal(m_prodReg, m_procConfig, &historyAppender_, 0));
+  m_lbp.reset(new edm::LuminosityBlockPrincipal(
+      m_prodReg, edm::productResolversFactory::makePrimary, m_procConfig, &historyAppender_, 0));
   m_lbp->setAux(edm::LuminosityBlockAuxiliary(m_rp->run(), 1, now, now));
   m_lbp->setRunPrincipal(m_rp);
   edm::EventAuxiliary eventAux(eventID, uuid, now, true);
 
-  m_ep.reset(new edm::EventPrincipal(m_prodReg, m_idHelper, m_associationsHelper, m_procConfig, nullptr));
+  m_ep.reset(new edm::EventPrincipal(
+      m_prodReg, edm::productResolversFactory::makePrimary, m_idHelper, m_associationsHelper, m_procConfig, nullptr));
   m_ep->fillEventPrincipal(eventAux, nullptr);
   m_ep->setLuminosityBlockPrincipal(m_lbp.get());
   m_actReg.reset(new edm::ActivityRegistry);
 
   //For each transition, bind a lambda which will call the proper method of the Worker
-  m_transToFunc[Trans::kGlobalOpenInputFile] = [](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
-    edm::FileBlock fb;
-    iBase->respondToOpenInputFile(fb);
-  };
+  m_transToFunc[Trans::kGlobalOpenInputFile] =
+      [](edm::Worker* iBase, edm::maker::ModuleHolder* iHolder, edm::OutputModuleCommunicator*) {
+        edm::FileBlock fb;
+        iHolder->respondToOpenInputFile(fb);
+      };
 
-  m_transToFunc[Trans::kGlobalBeginRun] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
-    typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalBegin> Traits;
-    edm::GlobalContext gc(edm::GlobalContext::Transition::kBeginRun, nullptr);
-    edm::ParentContext parentContext(&gc);
-    iBase->setActivityRegistry(m_actReg);
-    edm::RunTransitionInfo info(*m_rp, *m_es);
-    doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
-  };
+  m_transToFunc[Trans::kGlobalBeginRun] =
+      [this](edm::Worker* iBase, edm::maker::ModuleHolder*, edm::OutputModuleCommunicator*) {
+        typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalBegin> Traits;
+        edm::GlobalContext gc(edm::GlobalContext::Transition::kBeginRun, nullptr);
+        edm::ParentContext parentContext(&gc);
+        iBase->setActivityRegistry(m_actReg);
+        edm::RunTransitionInfo info(*m_rp, *m_es);
+        doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
+      };
 
-  m_transToFunc[Trans::kGlobalBeginLuminosityBlock] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
-    typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalBegin> Traits;
-    edm::GlobalContext gc(edm::GlobalContext::Transition::kBeginLuminosityBlock, nullptr);
-    edm::ParentContext parentContext(&gc);
-    iBase->setActivityRegistry(m_actReg);
-    edm::LumiTransitionInfo info(*m_lbp, *m_es);
-    doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
-  };
+  m_transToFunc[Trans::kGlobalBeginLuminosityBlock] =
+      [this](edm::Worker* iBase, edm::maker::ModuleHolder*, edm::OutputModuleCommunicator*) {
+        typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalBegin> Traits;
+        edm::GlobalContext gc(edm::GlobalContext::Transition::kBeginLuminosityBlock, nullptr);
+        edm::ParentContext parentContext(&gc);
+        iBase->setActivityRegistry(m_actReg);
+        edm::LumiTransitionInfo info(*m_lbp, *m_es);
+        doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
+      };
 
-  m_transToFunc[Trans::kEvent] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
+  m_transToFunc[Trans::kEvent] = [this](edm::Worker* iBase, edm::maker::ModuleHolder*, edm::OutputModuleCommunicator*) {
     typedef edm::OccurrenceTraits<edm::EventPrincipal, edm::BranchActionStreamBegin> Traits;
     edm::StreamContext streamContext(s_streamID0, nullptr);
     edm::ParentContext parentContext(&streamContext);
@@ -214,36 +223,39 @@ testLimitedOutputModule::testLimitedOutputModule()
     doWork<Traits>(iBase, info, s_streamID0, parentContext);
   };
 
-  m_transToFunc[Trans::kGlobalEndLuminosityBlock] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator* iComm) {
-    typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalEnd> Traits;
-    edm::GlobalContext gc(edm::GlobalContext::Transition::kEndLuminosityBlock, nullptr);
-    edm::ParentContext parentContext(&gc);
-    iBase->setActivityRegistry(m_actReg);
-    edm::LumiTransitionInfo info(*m_lbp, *m_es);
-    doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
-    oneapi::tbb::task_group group;
-    edm::FinalWaitingTask task{group};
-    iComm->writeLumiAsync(edm::WaitingTaskHolder(group, &task), *m_lbp, nullptr, &activityRegistry);
-    task.wait();
-  };
+  m_transToFunc[Trans::kGlobalEndLuminosityBlock] =
+      [this](edm::Worker* iBase, edm::maker::ModuleHolder*, edm::OutputModuleCommunicator* iComm) {
+        typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalEnd> Traits;
+        edm::GlobalContext gc(edm::GlobalContext::Transition::kEndLuminosityBlock, nullptr);
+        edm::ParentContext parentContext(&gc);
+        iBase->setActivityRegistry(m_actReg);
+        edm::LumiTransitionInfo info(*m_lbp, *m_es);
+        doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
+        oneapi::tbb::task_group group;
+        edm::FinalWaitingTask task{group};
+        iComm->writeLumiAsync(edm::WaitingTaskHolder(group, &task), *m_lbp, nullptr, &activityRegistry);
+        task.wait();
+      };
 
-  m_transToFunc[Trans::kGlobalEndRun] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator* iComm) {
-    typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalEnd> Traits;
-    edm::GlobalContext gc(edm::GlobalContext::Transition::kEndRun, nullptr);
-    edm::ParentContext parentContext(&gc);
-    iBase->setActivityRegistry(m_actReg);
-    edm::RunTransitionInfo info(*m_rp, *m_es);
-    doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
-    oneapi::tbb::task_group group;
-    edm::FinalWaitingTask task{group};
-    iComm->writeRunAsync(edm::WaitingTaskHolder(group, &task), *m_rp, nullptr, &activityRegistry, nullptr);
-    task.wait();
-  };
+  m_transToFunc[Trans::kGlobalEndRun] =
+      [this](edm::Worker* iBase, edm::maker::ModuleHolder*, edm::OutputModuleCommunicator* iComm) {
+        typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalEnd> Traits;
+        edm::GlobalContext gc(edm::GlobalContext::Transition::kEndRun, nullptr);
+        edm::ParentContext parentContext(&gc);
+        iBase->setActivityRegistry(m_actReg);
+        edm::RunTransitionInfo info(*m_rp, *m_es);
+        doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
+        oneapi::tbb::task_group group;
+        edm::FinalWaitingTask task{group};
+        iComm->writeRunAsync(edm::WaitingTaskHolder(group, &task), *m_rp, nullptr, &activityRegistry, nullptr);
+        task.wait();
+      };
 
-  m_transToFunc[Trans::kGlobalCloseInputFile] = [](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
-    edm::FileBlock fb;
-    iBase->respondToCloseInputFile(fb);
-  };
+  m_transToFunc[Trans::kGlobalCloseInputFile] =
+      [](edm::Worker* iBase, edm::maker::ModuleHolder* iHolder, edm::OutputModuleCommunicator*) {
+        edm::FileBlock fb;
+        iHolder->respondToCloseInputFile(fb);
+      };
 
   // We want to create the TriggerNamesService because it is used in
   // the tests.  We do that here, but first we need to build a minimal
@@ -270,14 +282,16 @@ testLimitedOutputModule::testLimitedOutputModule()
 
 namespace {
   template <typename T>
-  void testTransition(std::shared_ptr<T> iMod,
-                      edm::Worker* iWorker,
-                      edm::OutputModuleCommunicator* iComm,
-                      testLimitedOutputModule::Trans iTrans,
-                      testLimitedOutputModule::Expectations const& iExpect,
-                      std::function<void(edm::Worker*, edm::OutputModuleCommunicator*)> iFunc) {
+  void testTransition(
+      std::shared_ptr<T> iMod,
+      edm::Worker* iWorker,
+      edm::OutputModuleCommunicator* iComm,
+      testLimitedOutputModule::Trans iTrans,
+      testLimitedOutputModule::Expectations const& iExpect,
+      std::function<void(edm::Worker*, edm::maker::ModuleHolder*, edm::OutputModuleCommunicator*)> iFunc) {
     assert(0 == iMod->m_count);
-    iFunc(iWorker, iComm);
+    edm::maker::ModuleHolderT<edm::limited::OutputModuleBase> h(iMod);
+    iFunc(iWorker, &h, iComm);
     auto count = std::count(iExpect.begin(), iExpect.end(), iTrans);
     if (count != iMod->m_count) {
       std::cout << "For trans " << static_cast<std::underlying_type<testLimitedOutputModule::Trans>::type>(iTrans)

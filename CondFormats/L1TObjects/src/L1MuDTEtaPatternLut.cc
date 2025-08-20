@@ -78,7 +78,7 @@ int L1MuDTEtaPatternLut::load() {
 
   // assemble file name
   edm::FileInPath lut_f = edm::FileInPath(string(defaultPath + eau_dir + "ETFPatternList.lut"));
-  string etf_file = lut_f.fullPath();
+  const string& etf_file = lut_f.fullPath();
 
   // open file
   L1TriggerLutFile file(etf_file);

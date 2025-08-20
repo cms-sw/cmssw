@@ -142,7 +142,7 @@ void HybridFit::Fit(Tracklet* tracklet, std::vector<const Stub*>& trackstublist)
   }
 
   // KF wants global phi0, not phi0 measured with respect to lower edge of sector (Tracklet convention).
-  kfphi0 = reco::reduceRange(kfphi0 + iSector_ * settings_.dphisector() - 0.5 * settings_.dphisectorHG());
+  kfphi0 = reco::reducePhiRange(kfphi0 + iSector_ * settings_.dphisector() - 0.5 * settings_.dphisectorHG());
 
   std::pair<float, float> helixrphi(kfrinv / (0.01 * settings_.c() * settings_.bfield()), kfphi0);
   std::pair<float, float> helixrz(kfz0, kft);
@@ -210,7 +210,7 @@ void HybridFit::Fit(Tracklet* tracklet, std::vector<const Stub*>& trackstublist)
       }
 
       // Tracklet wants phi0 with respect to lower edge of sector, not global phi0.
-      double phi0fit = reco::reduceRange(phi0 - iSector_ * 2 * M_PI / N_SECTOR + 0.5 * settings_.dphisectorHG());
+      double phi0fit = reco::reducePhiRange(phi0 - iSector_ * 2 * M_PI / N_SECTOR + 0.5 * settings_.dphisectorHG());
       double rinvfit = 0.01 * settings_.c() * settings_.bfield() * qoverpt;
 
       int irinvfit = floor(rinvfit / settings_.krinvpars());

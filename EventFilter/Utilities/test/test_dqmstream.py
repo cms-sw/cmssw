@@ -1,5 +1,3 @@
-#from __future__ import print_function
-#from __future__ import absolute_import
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 from FWCore.ParameterSet.Types import PSet

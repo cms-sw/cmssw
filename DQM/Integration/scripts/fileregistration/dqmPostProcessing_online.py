@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 
-from __future__ import print_function
 import os, time, sys, shutil, glob, smtplib, re
 from datetime import datetime
 from email.MIMEText import MIMEText

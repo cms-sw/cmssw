@@ -1,19 +1,129 @@
-# "PIon" menu (placeholder)
-
-HLT_Random_v*
-HLT_ZeroBias_v*
-HLT_Physics_v*
+# "PIon" menu
 
 HLTriggerFirstPath
 HLTriggerFinalPath
-HLTAnalyzerEndpath
 
-Status_OnCPU	#	CMSHLT-2206
-Status_OnGPU	#	CMSHLT-2206
+Status_OnCPU # CMSHLT-2206
+Status_OnGPU # CMSHLT-2206
 
+AlCa_EcalPhiSym_v*
+AlCa_HIEcalEtaEBonly_v*
+AlCa_HIEcalEtaEEonly_v*
+AlCa_HIEcalPi0EBonly_v*
+AlCa_HIEcalPi0EEonly_v*
+AlCa_HIRPCMuonNormalisation_v*
+AlCa_LumiPixelsCounts_Random_v*
+AlCa_LumiPixelsCounts_ZeroBias_v*
+DQM_EcalReconstruction_v*
+DQM_HcalReconstruction_v*
+DQM_PixelReconstruction_v*
+DST_Physics_v*
+HLT_CDC_L2cosmic_10_er1p0_v*
+HLT_CDC_L2cosmic_5p5_er1p0_v*
+HLT_EcalCalibration_v*
+HLT_HcalCalibration_v*
+HLT_HcalNZS_v*
+HLT_HcalPhiSym_v*
+HLT_HIHT80_Beamspot_Oxy5TeV_v*
+HLT_HIL1NotBptxORForPPRef_v*
+HLT_HIL1UnpairedBunchBptxMinusForPPRef_v*
+HLT_HIL1UnpairedBunchBptxPlusForPPRef_v*
+HLT_Physics_v*
+HLT_Random_v*
+HLT_Random_HighRate_v*
+HLT_ZeroBias_Beamspot_v*
+HLT_ZeroBias_FirstCollisionAfterAbortGap_v*
+HLT_ZeroBias_v*
+HLT_PPSMaxTracksPerArm1_v*
+HLT_PPSMaxTracksPerRP4_v*
+HLT_PPSRandom_v*
+HLT_MinimumBiasHF_AND_BptxAND_v*
+HLT_MinimumBiasHF_OR_BptxAND_v*
+HLT_MinimumBiasZDC1n_OR_BptxAND_v*
+HLT_MinimumBiasZDC1n_OR_MinimumBiasHF_AND_BptxAND_v*
+HLT_MinimumBiasZDC1n_OR_MinimumBiasHF_OR_BptxAND_v*
+HLT_MinimumBiasZDC1n_OR_OR_MinimumBiasHF_OR_BptxAND_v*
+HLT_MinimumBiasZDC_Asym_MinimumBiasHF_OR_BptxAND_v*
+HLT_OxyDoubleEG2_NotMBHF2AND_v*
+HLT_OxyDoubleEG5_NotMBHF2AND_v*
+HLT_OxyL1CentralityGate_v*
+HLT_OxyL1DoubleMu0_v*
+HLT_OxyL1DoubleMuOpen_v*
+HLT_OxyL1SingleEG10_v*
+HLT_OxyL1SingleEG15_v*
+HLT_OxyL1SingleEG15er2p1_v*
+HLT_OxyL1SingleEG15er2p5_v*
+HLT_OxyL1SingleEG21_v*
+HLT_OxyL1SingleJet20_v*
+HLT_OxyL1SingleJet28_v*
+HLT_OxyL1SingleJet35_v*
+HLT_OxyL1SingleJet44_v*
+HLT_OxyL1SingleJet60_v*
+HLT_OxyL1SingleMu0_v*
+HLT_OxyL1SingleMu3_v*
+HLT_OxyL1SingleMu5_v*
+HLT_OxyL1SingleMu7_v*
+HLT_OxyL1SingleMuOpen_v*
+HLT_OxyNotMBHF2_v*
+HLT_OxySingleEG2_NotMBHF2AND_ZDC1nOR_v*
+HLT_OxySingleEG3_NotMBHF2AND_v*
+HLT_OxySingleEG3_NotMBHF2OR_v*
+HLT_OxySingleEG5_NotMBHF2AND_v*
+HLT_OxySingleJet16_ZDC1nAsymXOR_NotPreBptx_v*
+HLT_OxySingleJet16_ZDC1nAsymXOR_v*
+HLT_OxySingleJet16_ZDC1nXOR_v*
+HLT_OxySingleJet24_ZDC1nAsymXOR_NotPreBptx_v*
+HLT_OxySingleJet24_ZDC1nAsymXOR_v*
+HLT_OxySingleJet24_ZDC1nXOR_v*
+HLT_OxySingleJet8_ZDC1nAsymXOR_NotPreBptx_v*
+HLT_OxySingleJet8_ZDC1nAsymXOR_v*
+HLT_OxySingleJet8_ZDC1nXOR_v*
+HLT_OxySingleMuCosmic_NotMBHF2AND_v*
+HLT_OxySingleMuOpen_NotMBHF2AND_v*
+HLT_OxySingleMuOpen_NotMBHF2OR_v*
+HLT_OxySingleMuOpen_OR_SingleMuCosmic_EMTF_BptxAND_v*
+HLT_OxySingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_v*
+HLT_OxyZDC1nOR_v*
+HLT_OxyZeroBias_v*
+HLT_OxyZeroBias_SinglePixelTrackLowPt_MaxPixelCluster400_v*
+HLT_OxyZeroBias_MinPixelCluster400_v*
+
+ALCALumiPixelsCountsExpressOutput
+ALCALumiPixelsCountsPromptOutput
+ALCAP0Output
+ALCAPHISYMOutput
+ALCAPPSExpressOutput
+ALCAPPSPromptOutput
+CalibrationOutput
+DQMOutput
+DQMCalibrationOutput
+DQMEventDisplayOutput
+DQMGPUvsCPUOutput
+DQMOnlineBeamspotOutput
+DQMPPSRandomOutput
+EcalCalibrationOutput
+ExpressOutput
+ExpressAlignmentOutput
+HLTMonitorOutput
+NanoDSTOutput
 PhysicsCommissioningOutput
 
-DQMOutput
+PhysicsIonPhysicsOutput
 
-## only in 'online' version
+PhysicsSpecialRandom0Output
+PhysicsSpecialRandom1Output
+PhysicsSpecialRandom2Output
+PhysicsSpecialRandom3Output
+PhysicsSpecialRandom4Output
+PhysicsSpecialRandom5Output
+PhysicsSpecialRandom6Output
+PhysicsSpecialRandom7Output
+PhysicsSpecialRandom8Output
+PhysicsSpecialRandom9Output
+RPCMONOutput
+
+######## paths that are different between PIon and online_pion ################################
+
+#HLTAnalyzerEndpath
 RatesMonitoring
+DQMHistograms

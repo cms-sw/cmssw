@@ -1,64 +1,48 @@
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <sstream>
 
-#include "RecoMTD/DetLayers/interface/MTDDetLayerGeometry.h"
-#include "RecoMTD/Records/interface/MTDRecoGeometryRecord.h"
-
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
-#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
-
-#include "DataFormats/TrackerRecHit2D/interface/MTDTrackingRecHit.h"
-
-#include "RecoMTD/DetLayers/interface/MTDTrayBarrelLayer.h"
-#include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
 
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 #include "DataFormats/ForwardDetId/interface/MTDChannelIdentifier.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-
-#include "RecoMTD/TransientTrackingRecHit/interface/MTDTransientTrackingRecHitBuilder.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/GeomPropagators/interface/Propagator.h"
-
-#include "TrackingTools/PatternTools/interface/TSCBLBuilderWithPropagator.h"
-
-#include "RecoTracker/TransientTrackingRecHit/interface/Traj2TrackHits.h"
-#include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
-
-#include <sstream>
-
-#include "Geometry/CommonTopologies/interface/Topology.h"
-
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
 #include "DataFormats/Math/interface/GeantUnits.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "DataFormats/Math/interface/Rounding.h"
-
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/TrackerRecHit2D/interface/MTDTrackingRecHit.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/CommonTopologies/interface/Topology.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoMTD/DetLayers/interface/MTDDetLayerGeometry.h"
+#include "RecoMTD/DetLayers/interface/MTDTrayBarrelLayer.h"
+#include "RecoMTD/Records/interface/MTDRecoGeometryRecord.h"
+#include "RecoMTD/TransientTrackingRecHit/interface/MTDTransientTrackingRecHitBuilder.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/Traj2TrackHits.h"
+#include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderWithPropagator.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 using namespace std;
 using namespace edm;
@@ -491,7 +475,7 @@ public:
                                                              const Propagator* prop,
                                                              const reco::BeamSpot& bs,
                                                              const float vtxTime,
-                                                             const bool matchVertex,
+                                                             const float vtxTimeError,
                                                              MTDHitMatchingInfo& bestHit) const;
 
   TransientTrackingRecHit::ConstRecHitContainer tryETLLayers(const TrajectoryStateOnSurface&,
@@ -505,7 +489,7 @@ public:
                                                              const Propagator* prop,
                                                              const reco::BeamSpot& bs,
                                                              const float vtxTime,
-                                                             const bool matchVertex,
+                                                             const float vtxTimeError,
                                                              MTDHitMatchingInfo& bestHit) const;
 
   void fillMatchingHits(const DetLayer*,
@@ -518,7 +502,7 @@ public:
                         const Propagator*,
                         const reco::BeamSpot&,
                         const float&,
-                        const bool,
+                        const float&,
                         TransientTrackingRecHit::ConstRecHitContainer&,
                         MTDHitMatchingInfo&) const;
 
@@ -589,8 +573,6 @@ private:
   edm::EDGetTokenT<TrajTrackAssociationCollection> trajTrackAToken_;
   edm::EDGetTokenT<MTDTrackingDetSetVector> hitsToken_;
   edm::EDGetTokenT<reco::BeamSpot> bsToken_;
-  edm::EDGetTokenT<GlobalPoint> genVtxPositionToken_;
-  edm::EDGetTokenT<float> genVtxTimeToken_;
   edm::EDGetTokenT<VertexCollection> vtxToken_;
 
   const bool updateTraj_, updateExtra_, updatePattern_;
@@ -617,9 +599,10 @@ private:
   const float etlTimeChi2Cut_;
 
   const bool useVertex_;
-  const bool useSimVertex_;
   const float dzCut_;
   const float bsTimeSpread_;
+
+  static constexpr float trackMaxBtlEta_ = 1.5;
 };
 
 template <class TrackCollection>
@@ -641,15 +624,10 @@ TrackExtenderWithMTDT<TrackCollection>::TrackExtenderWithMTDT(const ParameterSet
       etlChi2Cut_(iConfig.getParameter<double>("etlChi2Cut")),
       etlTimeChi2Cut_(iConfig.getParameter<double>("etlTimeChi2Cut")),
       useVertex_(iConfig.getParameter<bool>("useVertex")),
-      useSimVertex_(iConfig.getParameter<bool>("useSimVertex")),
       dzCut_(iConfig.getParameter<double>("dZCut")),
       bsTimeSpread_(iConfig.getParameter<double>("bsTimeSpread")) {
   if (useVertex_) {
-    if (useSimVertex_) {
-      genVtxPositionToken_ = consumes<GlobalPoint>(iConfig.getParameter<edm::InputTag>("genVtxPositionSrc"));
-      genVtxTimeToken_ = consumes<float>(iConfig.getParameter<edm::InputTag>("genVtxTimeSrc"));
-    } else
-      vtxToken_ = consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("vtxSrc"));
+    vtxToken_ = consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("vtxSrc"));
   }
 
   theEstimator = std::make_unique<Chi2MeasurementEstimator>(estMaxChi2_, estMaxNSigma_);
@@ -699,8 +677,6 @@ void TrackExtenderWithMTDT<TrackCollection>::fillDescriptions(edm::Configuration
   desc.add<edm::InputTag>("trjtrkAssSrc", edm::InputTag("generalTracks"));
   desc.add<edm::InputTag>("hitsSrc", edm::InputTag("mtdTrackingRecHits"));
   desc.add<edm::InputTag>("beamSpotSrc", edm::InputTag("offlineBeamSpot"));
-  desc.add<edm::InputTag>("genVtxPositionSrc", edm::InputTag("genParticles:xyz0"));
-  desc.add<edm::InputTag>("genVtxTimeSrc", edm::InputTag("genParticles:t0"));
   desc.add<edm::InputTag>("vtxSrc", edm::InputTag("offlinePrimaryVertices4D"));
   desc.add<bool>("updateTrackTrajectory", true);
   desc.add<bool>("updateTrackExtra", true);
@@ -726,7 +702,6 @@ void TrackExtenderWithMTDT<TrackCollection>::fillDescriptions(edm::Configuration
   desc.add<double>("etlChi2Cut", 50.);
   desc.add<double>("etlTimeChi2Cut", 10.);
   desc.add<bool>("useVertex", false);
-  desc.add<bool>("useSimVertex", false);
   desc.add<double>("dZCut", 0.1);
   desc.add<double>("bsTimeSpread", 0.2);
   descriptions.add("trackExtenderWithMTDBase", desc);
@@ -806,27 +781,14 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
   //beam spot
   const auto& bs = ev.get(bsToken_);
 
-  const Vertex* pv = nullptr;
-  if (useVertex_ && !useSimVertex_) {
-    auto const& vtxs = ev.get(vtxToken_);
-    if (!vtxs.empty())
-      pv = &vtxs[0];
-  }
+  bool vtxConstraint(false);
 
-  std::unique_ptr<math::XYZTLorentzVectorF> genPV(nullptr);
-  if (useVertex_ && useSimVertex_) {
-    const auto& genVtxPosition = ev.get(genVtxPositionToken_);
-    const auto& genVtxTime = ev.get(genVtxTimeToken_);
-    genPV = std::make_unique<math::XYZTLorentzVectorF>(
-        genVtxPosition.x(), genVtxPosition.y(), genVtxPosition.z(), genVtxTime);
-  }
-
-  float vtxTime = 0.f;
+  VertexCollection vtxs;
   if (useVertex_) {
-    if (useSimVertex_ && genPV) {
-      vtxTime = genPV->t();
-    } else if (pv)
-      vtxTime = pv->t();  //already in ns
+    vtxs = ev.get(vtxToken_);
+    if (!vtxs.empty()) {
+      vtxConstraint = true;
+    }
   }
 
   std::vector<unsigned> track_indices;
@@ -843,15 +805,17 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
                                      << " sigma_p/p = " << sqrt(track->covariance()(0, 0)) * track->p() * 100 << " %";
 
     float trackVtxTime = 0.f;
-    if (useVertex_) {
-      float dz;
-      if (useSimVertex_)
-        dz = std::abs(track->dz(math::XYZPoint(*genPV)));
-      else
-        dz = std::abs(track->dz(pv->position()));
-
-      if (dz < dzCut_)
-        trackVtxTime = vtxTime;
+    float trackVtxTimeError = 0.f;
+    if (vtxConstraint) {
+      for (const auto& vtx : vtxs) {
+        for (size_t itrk = 0; itrk < vtx.tracksSize(); itrk++) {
+          if (track == vtx.trackRefAt(itrk).castTo<TrackRef>()) {
+            trackVtxTime = vtx.t();
+            trackVtxTimeError = vtx.tError();
+            break;
+          }
+        }
+      }
     }
 
     reco::TransientTrack ttrack(track, magfield.product(), gtg_);
@@ -882,7 +846,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
                                            prop,
                                            bs,
                                            trackVtxTime,
-                                           trackVtxTime != 0.f,
+                                           trackVtxTimeError,
                                            mBTL);
         mtdthits.insert(mtdthits.end(), btlhits.begin(), btlhits.end());
 
@@ -899,7 +863,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
                                            prop,
                                            bs,
                                            trackVtxTime,
-                                           trackVtxTime != 0.f,
+                                           trackVtxTimeError,
                                            mETL);
         mtdthits.insert(mtdthits.end(), etlhits.begin(), etlhits.end());
       }
@@ -1004,9 +968,15 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
 #endif
         npixBarrel.push_back(backtrack.hitPattern().numberOfValidPixelBarrelHits());
         npixEndcap.push_back(backtrack.hitPattern().numberOfValidPixelEndcapHits());
-        outermostHitPosition.push_back(
-            mBTL.hit ? (float)(*track).outerRadius()
-                     : (float)(*track).outerZ());  // save R of the outermost hit for BTL, z for ETL.
+
+        if (mBTL.hit || mETL.hit) {
+          outermostHitPosition.push_back(
+              mBTL.hit ? (float)(*track).outerRadius()
+                       : (float)(*track).outerZ());  // save R of the outermost hit for BTL, z for ETL.
+        } else {
+          outermostHitPosition.push_back(std::abs(track->eta()) < trackMaxBtlEta_ ? (float)(*track).outerRadius()
+                                                                                  : (float)(*track).outerZ());
+        }
 
         LogTrace("TrackExtenderWithMTD") << "TrackExtenderWithMTD: tmtd " << tmtdMap << " +/- " << sigmatmtdMap
                                          << " t0 " << t0Map << " +/- " << sigmat0Map << " tof pi/K/p " << tofpiMap
@@ -1050,7 +1020,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
     ++itrack;
   }
 
-  auto outTrksHandle = ev.put(std::move(output));
+  ev.put(std::move(output));
   ev.put(std::move(extras));
   ev.put(std::move(outhits));
 
@@ -1089,11 +1059,12 @@ namespace {
                          const float pathlength0,
                          const TrackSegments& trs0,
                          const float vtxTime,
+                         const float vtxTimeError,
+                         bool useVtxConstraint,
                          const reco::BeamSpot& bs,
                          const float bsTimeSpread,
                          const Propagator* prop,
                          const MeasurementEstimator* estimator,
-                         bool useVtxConstraint,
                          std::set<MTDHitMatchingInfo>& out) {
     pair<bool, TrajectoryStateOnSurface> comp = layer->compatible(tsos, *prop, *estimator);
     if (comp.first) {
@@ -1117,8 +1088,7 @@ namespace {
 
           const float t_vtx = useVtxConstraint ? vtxTime : 0.f;
 
-          constexpr float vtx_res = 0.008f;
-          const float t_vtx_err = useVtxConstraint ? vtx_res : bsTimeSpread;
+          const float t_vtx_err = useVtxConstraint ? vtxTimeError : bsTimeSpread;
 
           float lastpmag2 = trs0.getSegmentPathAndMom2(0).second;
 
@@ -1180,7 +1150,7 @@ TransientTrackingRecHit::ConstRecHitContainer TrackExtenderWithMTDT<TrackCollect
     const Propagator* prop,
     const reco::BeamSpot& bs,
     const float vtxTime,
-    const bool matchVertex,
+    const float vtxTimeError,
     MTDHitMatchingInfo& bestHit) const {
   const vector<const DetLayer*>& layers = geo->allBTLLayers();
 
@@ -1190,7 +1160,8 @@ TransientTrackingRecHit::ConstRecHitContainer TrackExtenderWithMTDT<TrackCollect
     LogTrace("TrackExtenderWithMTD") << "Hit search: BTL layer at R= "
                                      << static_cast<const BarrelDetLayer*>(ilay)->specificSurface().radius();
 
-    fillMatchingHits(ilay, tsos, traj, pmag2, pathlength0, trs0, hits, prop, bs, vtxTime, matchVertex, output, bestHit);
+    fillMatchingHits(
+        ilay, tsos, traj, pmag2, pathlength0, trs0, hits, prop, bs, vtxTime, vtxTimeError, output, bestHit);
   }
 
   return output;
@@ -1209,7 +1180,7 @@ TransientTrackingRecHit::ConstRecHitContainer TrackExtenderWithMTDT<TrackCollect
     const Propagator* prop,
     const reco::BeamSpot& bs,
     const float vtxTime,
-    const bool matchVertex,
+    const float vtxTimeError,
     MTDHitMatchingInfo& bestHit) const {
   const vector<const DetLayer*>& layers = geo->allETLLayers();
 
@@ -1224,7 +1195,8 @@ TransientTrackingRecHit::ConstRecHitContainer TrackExtenderWithMTDT<TrackCollect
 
     LogTrace("TrackExtenderWithMTD") << "Hit search: ETL disk at Z = " << diskZ;
 
-    fillMatchingHits(ilay, tsos, traj, pmag2, pathlength0, trs0, hits, prop, bs, vtxTime, matchVertex, output, bestHit);
+    fillMatchingHits(
+        ilay, tsos, traj, pmag2, pathlength0, trs0, hits, prop, bs, vtxTime, vtxTimeError, output, bestHit);
   }
 
   // the ETL hits order must be from the innermost to the outermost
@@ -1248,7 +1220,7 @@ void TrackExtenderWithMTDT<TrackCollection>::fillMatchingHits(const DetLayer* il
                                                               const Propagator* prop,
                                                               const reco::BeamSpot& bs,
                                                               const float& vtxTime,
-                                                              const bool matchVertex,
+                                                              const float& vtxTimeError,
                                                               TransientTrackingRecHit::ConstRecHitContainer& output,
                                                               MTDHitMatchingInfo& bestHit) const {
   std::set<MTDHitMatchingInfo> hitsInLayer;
@@ -1264,17 +1236,20 @@ void TrackExtenderWithMTDT<TrackCollection>::fillMatchingHits(const DetLayer* il
                              pathlength0,
                              trs0,
                              _1,
+                             _2,
+                             _3,
                              std::cref(bs),
                              bsTimeSpread_,
                              prop,
                              theEstimator.get(),
-                             _2,
                              std::ref(hitsInLayer));
 
-  if (useVertex_ && matchVertex)
-    find_hits(vtxTime, true);
-  else
-    find_hits(0, false);
+  bool matchVertex = vtxTimeError > 0.f;
+  if (useVertex_ && matchVertex) {
+    find_hits(vtxTime, vtxTimeError, true);
+  } else {
+    find_hits(0, 0, false);
+  }
 
   float spaceChi2Cut = ilay->isBarrel() ? btlChi2Cut_ : etlChi2Cut_;
   float timeChi2Cut = ilay->isBarrel() ? btlTimeChi2Cut_ : etlTimeChi2Cut_;
@@ -1296,7 +1271,7 @@ void TrackExtenderWithMTDT<TrackCollection>::fillMatchingHits(const DetLayer* il
   if (useVertex_ && matchVertex && !hitMatched) {
     //try a second search with beamspot hypothesis
     hitsInLayer.clear();
-    find_hits(0, false);
+    find_hits(0, 0, false);
     if (!hitsInLayer.empty()) {
       auto const& firstHit = *hitsInLayer.begin();
       LogTrace("TrackExtenderWithMTD") << "TrackExtenderWithMTD: matching trial 2: estChi2= " << firstHit.estChi2

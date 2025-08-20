@@ -25,7 +25,6 @@
 class PuppiProducer : public edm::stream::EDProducer<> {
 public:
   explicit PuppiProducer(const edm::ParameterSet&);
-  ~PuppiProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   typedef math::XYZTLorentzVector LorentzVector;
@@ -39,9 +38,7 @@ public:
   typedef edm::Association<reco::VertexCollection> CandToVertex;
 
 private:
-  virtual void beginJob();
   void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob();
 
   edm::EDGetTokenT<CandidateView> tokenPFCandidates_;
   edm::EDGetTokenT<VertexCollection> tokenVertices_;
@@ -87,12 +84,11 @@ private:
   int fVtxNdofCut;
   double fVtxZCut;
   bool fUsePUProxyValue;
-  std::unique_ptr<PuppiContainer> fPuppiContainer;
-  std::vector<RecoObj> fRecoObjCollection;
+  PuppiContainer fPuppiContainer;
 };
 
 // ------------------------------------------------------------------------------------------
-PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
+PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) : fPuppiContainer(iConfig) {
   fPuppiDiagnostics = iConfig.getParameter<bool>("puppiDiagnostics");
   fPuppiNoLep = iConfig.getParameter<bool>("puppiNoLep");
   fUseFromPVLooseTight = iConfig.getParameter<bool>("UseFromPVLooseTight");
@@ -113,7 +109,6 @@ PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
   fClonePackedCands = iConfig.getParameter<bool>("clonePackedCands");
   fVtxNdofCut = iConfig.getParameter<int>("vtxNdofCut");
   fVtxZCut = iConfig.getParameter<double>("vtxZCut");
-  fPuppiContainer = std::make_unique<PuppiContainer>(iConfig);
 
   tokenPFCandidates_ = consumes<CandidateView>(iConfig.getParameter<edm::InputTag>("candName"));
   tokenVertices_ = consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexName"));
@@ -150,8 +145,6 @@ PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
   }
 }
 // ------------------------------------------------------------------------------------------
-PuppiProducer::~PuppiProducer() {}
-// ------------------------------------------------------------------------------------------
 void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Get PFCandidate Collection
   edm::Handle<CandidateView> hPFProduct;
@@ -180,11 +173,13 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
   }
 
+  std::vector<RecoObj> recoObjCollection;
+
+  PuppiContainer::Weights weightsInfo;
   std::vector<double> lWeights;
   if (!fUseExistingWeights) {
     //Fill the reco objects
-    fRecoObjCollection.clear();
-    fRecoObjCollection.reserve(pfCol->size());
+    recoObjCollection.reserve(pfCol->size());
     int iCand = 0;
     for (auto const& aPF : *pfCol) {
       RecoObj pReco;
@@ -347,15 +342,13 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         }
       }
 
-      fRecoObjCollection.push_back(pReco);
+      recoObjCollection.push_back(pReco);
       iCand++;
     }
 
-    fPuppiContainer->initialize(fRecoObjCollection);
-    fPuppiContainer->setPUProxy(puProxyValue);
-
     //Compute the weights and get the particles
-    lWeights = fPuppiContainer->puppiWeights();
+    weightsInfo = fPuppiContainer.calculatePuppiWeights(recoObjCollection, puProxyValue);
+    lWeights = std::move(weightsInfo.weights);
   } else {
     //Use the existing weights
     lWeights.reserve(pfCol->size());
@@ -457,8 +450,8 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   p4PupFiller.insert(hPFProduct, puppiP4s.begin(), puppiP4s.end());
   p4PupFiller.fill();
 
-  iEvent.emplace(ptokenPupOut_, lPupOut);
-  iEvent.emplace(ptokenP4PupOut_, p4PupOut);
+  iEvent.emplace(ptokenPupOut_, std::move(lPupOut));
+  iEvent.emplace(ptokenP4PupOut_, std::move(p4PupOut));
   if (fUseExistingWeights || fClonePackedCands) {
     edm::OrphanHandle<pat::PackedCandidateCollection> oh =
         iEvent.emplace(ptokenPackedPuppiCandidates_, fPackedPuppiCandidates);
@@ -477,31 +470,22 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::ValueMap<reco::CandidatePtr>::Filler filler(pfMap_p);
   filler.insert(hPFProduct, values.begin(), values.end());
   filler.fill();
-  iEvent.emplace(ptokenValues_, pfMap_p);
+  iEvent.emplace(ptokenValues_, std::move(pfMap_p));
 
   //////////////////////////////////////////////
   if (fPuppiDiagnostics && !fUseExistingWeights) {
     // all the different alphas per particle
     // THE alpha per particle
-    std::vector<double> theAlphas(fPuppiContainer->puppiAlphas());
-    std::vector<double> theAlphasMed(fPuppiContainer->puppiAlphasMed());
-    std::vector<double> theAlphasRms(fPuppiContainer->puppiAlphasRMS());
-    std::vector<double> alphas(fPuppiContainer->puppiRawAlphas());
-    double nalgos(fPuppiContainer->puppiNAlgos());
+    double nalgos(fPuppiContainer.puppiNAlgos());
 
-    iEvent.emplace(ptokenRawAlphas_, alphas);
+    iEvent.emplace(ptokenRawAlphas_, std::move(weightsInfo.puppiRawAlphas));
     iEvent.emplace(ptokenNalgos_, nalgos);
-    iEvent.emplace(ptokenAlphas_, theAlphas);
-    iEvent.emplace(ptokenAlphasMed_, theAlphasMed);
-    iEvent.emplace(ptokenAlphasRms_, theAlphasRms);
+    iEvent.emplace(ptokenAlphas_, std::move(weightsInfo.puppiAlphas));
+    iEvent.emplace(ptokenAlphasMed_, std::move(weightsInfo.puppiAlphasMed));
+    iEvent.emplace(ptokenAlphasRms_, std::move(weightsInfo.puppiAlphasRMS));
   }
 }
 
-// ------------------------------------------------------------------------------------------
-void PuppiProducer::beginJob() {}
-// ------------------------------------------------------------------------------------------
-void PuppiProducer::endJob() {}
-// ------------------------------------------------------------------------------------------
 void PuppiProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<bool>("puppiDiagnostics", false);

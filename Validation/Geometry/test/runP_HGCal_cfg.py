@@ -1,4 +1,3 @@
-from __future__ import print_function
 # In order to produce everything that you need in one go, use the command:
 #
 # for t in {'BeamPipe','Tracker','PixBar','PixFwdMinus','PixFwdPlus','TIB','TOB','TIDB','TIDF','TEC','TkStrct','InnerServices'}; do cmsRun runP_Tracker_cfg.py geom=XYZ label=$t >& /dev/null &; done

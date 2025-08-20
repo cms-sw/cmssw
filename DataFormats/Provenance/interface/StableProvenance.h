@@ -8,7 +8,7 @@ The parentage can change from event to event.
 
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
@@ -31,21 +31,20 @@ namespace edm {
   public:
     StableProvenance();
 
-    StableProvenance(std::shared_ptr<BranchDescription const> const& p, ProductID const& pid);
+    StableProvenance(std::shared_ptr<ProductDescription const> const& p, ProductID const& pid);
 
-    BranchDescription const& branchDescription() const { return *branchDescription_; }
-    std::shared_ptr<BranchDescription const> const& constBranchDescriptionPtr() const { return branchDescription_; }
+    ProductDescription const& productDescription() const { return *productDescription_; }
+    std::shared_ptr<ProductDescription const> const& constProductDescriptionPtr() const { return productDescription_; }
 
-    BranchID const& branchID() const { return branchDescription().branchID(); }
-    BranchID const& originalBranchID() const { return branchDescription().originalBranchID(); }
-    std::string const& branchName() const { return branchDescription().branchName(); }
-    std::string const& className() const { return branchDescription().className(); }
-    std::string const& moduleLabel() const { return branchDescription().moduleLabel(); }
-    std::string const& moduleName() const { return branchDescription().moduleName(); }
-    std::string const& processName() const { return branchDescription().processName(); }
-    std::string const& productInstanceName() const { return branchDescription().productInstanceName(); }
-    std::string const& friendlyClassName() const { return branchDescription().friendlyClassName(); }
-    std::set<std::string> const& branchAliases() const { return branchDescription().branchAliases(); }
+    BranchID const& branchID() const { return productDescription().branchID(); }
+    BranchID const& originalBranchID() const { return productDescription().originalBranchID(); }
+    std::string const& branchName() const { return productDescription().branchName(); }
+    std::string const& className() const { return productDescription().className(); }
+    std::string const& moduleLabel() const { return productDescription().moduleLabel(); }
+    std::string const& processName() const { return productDescription().processName(); }
+    std::string const& productInstanceName() const { return productDescription().productInstanceName(); }
+    std::string const& friendlyClassName() const { return productDescription().friendlyClassName(); }
+    std::set<std::string> const& branchAliases() const { return productDescription().branchAliases(); }
 
     void write(std::ostream& os) const;
 
@@ -53,12 +52,12 @@ namespace edm {
 
     void setProductID(ProductID const& pid) { productID_ = pid; }
 
-    void setBranchDescription(std::shared_ptr<BranchDescription const> const& p) { branchDescription_ = p; }
+    void setProductDescription(std::shared_ptr<ProductDescription const> const& p) { productDescription_ = p; }
 
     void swap(StableProvenance&);
 
   private:
-    std::shared_ptr<BranchDescription const> branchDescription_;
+    std::shared_ptr<ProductDescription const> productDescription_;
     ProductID productID_;
   };
 

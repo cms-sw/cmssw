@@ -1,10 +1,11 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun g4OverlapCheck2026DDD_cfg.py geometry=D110 tol=0.01
+#   cmsRun g4OverlapCheckRun4DDD_cfg.py geometry=D110 tol=0.01
 #
 #   Options for geometry D95, D96, D98, D99, D100, D101, D102, D103, D104,
 #                        D105, D106, D107, D108, D109, D110, D111, D112, D113,
-#                        D114, D115
+#                        D114, D115, D116, D117, D118, D119, D120, D121, D122,
+#                        D123
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -18,7 +19,7 @@ options.register('geometry',
                  "D110",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D95, D96, D98, D99, D100, D101, D102, D103, D104, D105, D106, D107, D108, D109, D110, D111, D112, D113, D114, D115")
+                  "geometry of operations: D95, D96, D98, D99, D100, D101, D102, D103, D104, D105, D106, D107, D108, D109, D110, D111, D112, D113, D114, D115, D116, D117, D118, D119, D120, D121, D122, D123")
 options.register('tol',
                  0.01,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -34,18 +35,18 @@ print(options)
 ####################################################################
 # Use the options
 
-if (options.geometry == "D115"):
-    from Configuration.Eras.Era_Phase2C20I13M9_cff import Phase2C20I13M9
-    process = cms.Process('OverlapCheck',Phase2C20I13M9)
-else:
-    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-    process = cms.Process('OverlapCheck',Phase2C17I13M9)
+geomName = "Run4" + options.geometry
+geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
+baseName = "cms" + geomName + "DDD"
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
+print("Geometry Name:   ", geomName)
+print("Geom file Name:  ", geomFile)
+print("Base file Name:  ", baseName)
+print("Global Tag Name: ", GLOBAL_TAG)
+print("Era Name:        ", ERA)
 
-geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
-baseName = "cms2026" + options.geometry + "DDD"
-
-print("Geometry file Name: ", geomFile)
-print("Base file Name:     ", baseName)
+process = cms.Process('OverlapCheck',ERA)
 
 process.load(geomFile)
 process.load('FWCore.MessageService.MessageLogger_cfi')

@@ -1,5 +1,7 @@
 # Menu configuration manual
 
+**NB! A general overview of the P2GT emulator menus is given in the `L1Trigger/Configuration/python/Phase2GTMenus/README.md`**
+
 ## Conditions
 
 The basic building blocks of a Phase-2 Global Trigger menu are conditions. In order to start writing a menu one should first pull the standard definitions for the conditions into the configuration. These standard definitions contain the scale parameters (c.f. [l1tGTScales.py](python/l1tGTScales.py)) as well as the values for the $\cos$ and $\cosh$ LUT (computed in [l1tGTSingleInOutLUT.py](python/l1tGTSingleInOutLUT.py)).
@@ -89,6 +91,87 @@ process.TripleTkMuon533 = l1tGTTripleObjectCond.clone(
 )
 ```
 
+### Object presets to synchronise with the MenuTools
+
+The L1 DPG Phase-2 Menu team is responsible for implementing, maintaining and validating the L1 menu.
+See the twiki: https://twiki.cern.ch/twiki/bin/viewauth/CMS/PhaseIIL1TriggerMenuTools
+
+In `L1Trigger/Phase2L1GT/python/l1tGTObject_constants.py` there are several functions to extract object cut properties defined by the menu team, which allow to simplify and synchronise the seed definitions between the P2GT emulator in CMSSW and the [MenuTools](https://github.com/cms-l1-dpg/Phase2-L1MenuTools).
+
+There are these getter functions available to simplify the seed definitions:
+* `get_object_etalowbounds(obj)` to get the min abs(eta) requirements to be set for `regionsAbsEtaLowerBounds`
+* `get_object_thrs(thr, obj, id)` to set the thresholds using the online-offline scalings (per regions if available, otherwise a single value e.g. for sums). The `thr` argument is the offline threshold.
+* `get_object_ids(obj, id)` to set the ID values (per regions if available) for 
+* `get_object_isos(obj, id)`  to set the ID values (per regions if available)
+
+The arguments are:
+- `obj`: the trigger object name as from the P2GT producer, e.g. `GMTTkMuons`, 
+- `id`: the ID label e.g. `Loose` or `NoIso`.
+
+The definitions of the object requirements are hardcoded in these files:
+* IDs: `L1Trigger/Phase2L1GT/python/l1tGTObject_ids.py`
+* Scalings: `L1Trigger/Phase2L1GT/python/l1tGTObject_scalings.py`
+
+An example of translating the hard-coded values for `GMTTkMuon` is below:
+```python
+collection1 = cms.PSet(
+    tag = cms.InputTag("l1tGTProducer", "GMTTkMuons"),
+    regionsAbsEtaLowerBounds=cms.vdouble(0,0.83,1.24),
+    regionsMinPt=cms.vdouble(13,13,13)
+    qualityFlags = cms.uint32(0b0001)
+    ...
+)
+```
+
+Becomes:
+```python
+collection1 = cms.PSet(
+    tag = cms.InputTag("l1tGTProducer", "GMTTkMuons"),
+    regionsAbsEtaLowerBounds = get_object_etalowbounds("GMTTkMuons"),
+    regionsMinPt = get_object_thrs(15, "GMTTkMuons","VLoose"),
+    qualityFlags = get_object_ids("GMTTkMuons","VLoose"),
+    ...
+)
+```
+
+#### Simplification for common baseline objects
+
+As there are only few baseline objects which are are used in many seeds, it might be simpler to define some baseline objects that could be re-used in many seeds, modifying/extending only with additional cuts. 
+
+E.g. in the b-physics seeds identical `Loose` `tkMuons` are used with only the pt thresholds varying.
+Thus a baseline tkMuon can be defined as:
+```python
+ l1tGTtkMuon = cms.PSet(
+    tag = cms.InputTag("l1tGTProducer", "GMTTkMuons"),
+    minEta = cms.double(-2.4),
+    maxEta = cms.double(2.4),
+    regionsAbsEtaLowerBounds = get_object_etalowbounds("GMTTkMuons"),
+)
+l1tGTtkMuonVLoose = l1tGTtkMuon.clone(
+    qualityFlags = get_object_ids("GMTTkMuons","VLoose"),
+)
+```
+And then this can be used in seed definitions by only changing / adding what is needed, e.g.:
+```python
+FakeDiMuSeed = l1tGTDoubleObjectCond.clone(
+    collection1 = l1tGTtkMuon.clone(
+        minPt = cms.double(5), # overwrites minPt = 0 from template
+    ),
+    collection2 = l1tGTtkMuonVLoose.clone(
+        minEta = cms.double(-1.5), # overwrites minEta = -2.4 
+        maxEta = cms.double(1.5), # overwrites maxEta = 2.4 
+    ),
+)
+```
+**NB!** Also new cuts can be added, however caution is needed to not mix per-region cuts such as `regionsMinPt` and the inclusive version `minPt`.
+
+For single object conditions using pre-defined objects requires to first clone the condition and then extend it with the objects PSet as shown below:
+```python
+SingleTkMuon22 = l1tGTSingleObjectCond.clone(
+    l1tGTtkMuonVLoose.clone(),
+)    
+```
+
 ### Single cuts
 
 Possible cuts on single quantities are:
@@ -169,6 +252,15 @@ The following 3-body correlational cuts are available:
 | `maxInvMass` | $\frac{m_{1,2}^2}{2} +  \frac{m_{1,3}^2}{2} +  \frac{m_{2,3}^2}{2} < \frac{X^2}{2}$ | `cms.double` | `ceil(X**2 * LUT_Scale / (2 * pT_lsb**2))` |
 | `minTransMass` | $\frac{m_{T,1,2}^2}{2} +  \frac{m_{T,1,3}^2}{2} +  \frac{m_{T,2,3}^2}{2} > \frac{X^2}{2}$ | `cms.double` |  `floor(X**2 * LUT_Scale / (2 * pT_lsb**2))` |
 | `maxTransMass` | $\frac{m_{T,1,2}^2}{2} +  \frac{m_{T,1,3}^2}{2} +  \frac{m_{T,2,3}^2}{2} < \frac{X^2}{2}$ | `cms.double` |  `ceil(X**2 * LUT_Scale / (2 * pT_lsb**2))` |
+
+The following N-body correlational cuts are available (N = 2 for DoubleObjectCondition, N = 3 for TripleObjectCondition and N = 4 for the QuadObjectCondition):
+
+| Name | Expression | Datatype | Hardware conversion |
+|:-----|:----------:|:-------------:|:--------:|
+| `minQualityScoreSum`* | $\sum^N_{i=1} \mathrm{qualityScore} > X$ | `cms.unit32` | `X` |
+| `maxQualityScoreSum`* | $\sum^N_{i=1} \mathrm{qualityScore} < X$ | `cms.unit32` | `X` |
+
+\*: For N=4 the 4 objects should be from the same input collection to guarantee timing closure of the FPGA firmware.
 
 ## Algorithms
 

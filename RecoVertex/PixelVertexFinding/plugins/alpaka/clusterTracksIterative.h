@@ -76,7 +76,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
       // fill hist (bin shall be wider than "eps")
       for (auto i : cms::alpakatools::uniform_elements(acc, nt)) {
         int iz = static_cast<int>(zt[i] * 10.f);  // valid if eps <= 0.1
-        iz = std::clamp(iz, INT8_MIN, INT8_MAX);
+        // Equivalent of iz = std::clamp(iz, INT8_MIN, INT8_MAX)
+        // which doesn't compile with gcc14 due to reference to __glibcxx_assert
+        // See https://github.com/llvm/llvm-project/issues/95183
+        int tmp_max = alpaka::math::max<Acc1D, int>(acc, iz, INT8_MIN);
+        iz = alpaka::math::min<Acc1D, int>(acc, tmp_max, INT8_MAX);
         izt[i] = iz - INT8_MIN;
         ALPAKA_ASSERT_ACC(iz - INT8_MIN >= 0);
         ALPAKA_ASSERT_ACC(iz - INT8_MIN < 256);
@@ -100,7 +104,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
       for (auto i : cms::alpakatools::uniform_elements(acc, nt)) {
         if (ezt2[i] > errmax2)
           continue;
-        cms::alpakatools::forEachInBins(hist, izt[i], 1, [&](uint32_t j) {
+        cms::alpakatools::forEachInBins(acc, hist, izt[i], 1, [&](uint32_t j) {
           if (i == j)
             return;
           auto dist = std::abs(zt[i] - zt[j]);
@@ -134,13 +138,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
             ++p;
             if (nn[i] < minT)
               continue;  // DBSCAN core rule
-            auto be = std::min(Hist::bin(izt[i]) + 1, int(hist.nbins() - 1));
+            auto be = alpaka::math::min(acc, Hist::bin(izt[i]) + 1, int(hist.nbins() - 1));
             for (; p < hist.end(be); ++p) {
               uint32_t j = *p;
               ALPAKA_ASSERT_ACC(i != j);
               if (nn[j] < minT)
                 continue;  // DBSCAN core rule
-              auto dist = std::abs(zt[i] - zt[j]);
+              auto dist = alpaka::math::abs(acc, zt[i] - zt[j]);
               if (dist > eps)
                 continue;
               if (dist * dist > chi2max * (ezt2[i] + ezt2[j]))
@@ -164,10 +168,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
         if (nn[i] >= minT)
           continue;  // DBSCAN edge rule
         float mdist = eps;
-        cms::alpakatools::forEachInBins(hist, izt[i], 1, [&](int j) {
+        cms::alpakatools::forEachInBins(acc, hist, izt[i], 1, [&](int j) {
           if (nn[j] < minT)
             return;  // DBSCAN core rule
-          auto dist = std::abs(zt[i] - zt[j]);
+          auto dist = alpaka::math::abs(acc, zt[i] - zt[j]);
           if (dist > mdist)
             return;
           if (dist * dist > chi2max * (ezt2[i] + ezt2[j]))

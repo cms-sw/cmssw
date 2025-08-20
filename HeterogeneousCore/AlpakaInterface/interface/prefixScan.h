@@ -155,7 +155,7 @@ namespace cms::alpakatools {
       // first each block does a scan
       [[maybe_unused]] int off = elementsPerBlock * blockIdx;
       if (size - off > 0) {
-        blockPrefixScan(acc, ci + off, co + off, std::min(elementsPerBlock, size - off), ws);
+        blockPrefixScan(acc, ci + off, co + off, alpaka::math::min(acc, elementsPerBlock, size - off), ws);
       }
 
       // count blocks that finished
@@ -188,8 +188,22 @@ namespace cms::alpakatools {
         psum[i] = (j < size) ? co[j] : T(0);
       }
       alpaka::syncBlockThreads(acc);
-      blockPrefixScan(acc, psum, psum, blocksPerGrid, ws);
-
+      if constexpr (!requires_single_thread_per_block_v<TAcc>) {
+        if (blocksPerGrid <= warpSize * warpSize)
+          blockPrefixScan(acc, psum, blocksPerGrid, ws);
+        else {
+          auto off = 0u;
+          while (off + warpSize * warpSize < blocksPerGrid) {
+            blockPrefixScan(acc, psum + off, warpSize * warpSize, ws);
+            off = off + warpSize * warpSize - 1;
+            // ^ this -1 is to keep the previous round total sum around
+            alpaka::syncBlockThreads(acc);
+          }
+          blockPrefixScan(acc, psum + off, psum + off, blocksPerGrid - off, ws);
+        }
+      } else {
+        blockPrefixScan(acc, psum, blocksPerGrid, ws);
+      }
       // now it would have been handy to have the other blocks around...
       // Simplify the computation by having one version where threads per block = block size
       // and a second for the one thread per block accelerator.

@@ -1,4 +1,3 @@
-from __future__ import print_function
 import DLFCN, sys, os, time
 sys.setdlopenflags(DLFCN.RTLD_GLOBAL+DLFCN.RTLD_LAZY)
 

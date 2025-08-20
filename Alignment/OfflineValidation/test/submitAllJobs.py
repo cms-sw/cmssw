@@ -2,7 +2,6 @@
 
 '''Script that submits CMS Tracker Alignment Primary Vertex Validation workflows
 '''
-from __future__ import print_function
 
 from builtins import range
 __author__ = 'Marco Musich'

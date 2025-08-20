@@ -10,7 +10,6 @@
 # The output will be all the matching lines and a final count of them
 # The check is positive if the total number of lines matches the total number of detids in the log
 
-from __future__ import print_function
 import sys
 
 fileIN = open(sys.argv[1], "r")

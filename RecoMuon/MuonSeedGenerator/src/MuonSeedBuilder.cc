@@ -4,9 +4,9 @@
  *  \author Shih-Chuan Kao, Dominique Fortin - UCR
  */
 
-#include <RecoMuon/MuonSeedGenerator/src/MuonSeedBuilder.h>
-#include <RecoMuon/MuonSeedGenerator/src/MuonSeedCreator.h>
-#include <RecoMuon/MuonSeedGenerator/src/MuonSeedCleaner.h>
+#include <RecoMuon/MuonSeedGenerator/interface/MuonSeedBuilder.h>
+#include <RecoMuon/MuonSeedGenerator/interface/MuonSeedCreator.h>
+#include <RecoMuon/MuonSeedGenerator/interface/MuonSeedCleaner.h>
 
 // Data Formats
 #include <DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h>

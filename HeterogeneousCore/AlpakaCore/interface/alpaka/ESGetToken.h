@@ -32,7 +32,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::device {
 
     auto const& underlyingToken() const { return token_; }
 
-    using ProductType = typename detail::ESDeviceProductType<ESProduct>::type;
+    using ProductType = detail::ESDeviceProductType<ESProduct>;
     edm::ESGetToken<ProductType, ESRecord> token_;
   };
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::device

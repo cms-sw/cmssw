@@ -50,7 +50,6 @@ process.source = cms.Source("EmptyIOVSource",
 
 #Input DB
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
     DBParameters = cms.PSet(
         messageLevel = cms.untracked.int32(10),
         authenticationPath = cms.untracked.string('.')

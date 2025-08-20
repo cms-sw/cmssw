@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 import FWCore.ParameterSet.Config as cms
 
 from SimTracker.TrackAssociatorProducers.trackAssociatorByChi2_cfi import *
@@ -21,6 +20,7 @@ from CommonTools.RecoAlgos.recoChargedRefCandidateToTrackRefProducer_cfi import 
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 import RecoTracker.IterativeTracking.iterativeTkUtils as _utils
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
+from Configuration.ProcessModifiers.hltClusterSplitting_cff import hltClusterSplitting
 
 ### First define the stuff for the standard validation sequence
 ## Track selectors
@@ -48,8 +48,8 @@ _removeForFastSimSeedProducers =["initialStepSeedsPreSplitting",
                                  "displacedRegionalStepSeeds",
                                  "muonSeededSeedsInOut",
                                  "muonSeededSeedsOutIn"]
-
 _seedProducers_fastSim = [ x for x in _seedProducers if x not in _removeForFastSimSeedProducers]
+_seedProducers_hltSplit = [ x for x in _seedProducers if x not in ["initialStepSeedsPreSplitting"]]
 
 _removeForFastTrackProducers = ["initialStepTracksPreSplitting",
                                 "jetCoreRegionalStepTracks",
@@ -57,6 +57,7 @@ _removeForFastTrackProducers = ["initialStepTracksPreSplitting",
                                 "muonSeededTracksInOut",
                                 "muonSeededTracksOutIn"]
 _trackProducers_fastSim = [ x for x in _trackProducers if x not in _removeForFastTrackProducers]
+_trackProducers_hltSplit = [ x for x in _trackProducers if x not in ["initialStepTracksPreSplitting"]]
 
 def _algoToSelector(algo):
     sel = ""
@@ -720,10 +721,11 @@ trackingParticleHIPixelTrackAssociation = trackingParticleRecoTrackAsssociation.
     associator = "quickTrackAssociatorByHits",
 )
 
-from Configuration.ProcessModifiers.pixelNtupletFit_cff import pixelNtupletFit
+# For the moment we have no Alpaka version of the hiConformalPixelTracks
+# from Configuration.ProcessModifiers.pixelNtupletFit_cff import pixelNtupletFit
 
-pixelNtupletFit.toModify(trackingParticleHIPixelTrackAssociation,
-        associator = "quickTrackAssociatorByHitsPreSplitting")
+# pixelNtupletFit.toModify(trackingParticleHIPixelTrackAssociation,
+#         associator = "quickTrackAssociatorByHitsPreSplitting")
 
 HIPixelVertexAssociatorByPositionAndTracks = VertexAssociatorByPositionAndTracks.clone(
     trackAssociation = "trackingParticleHIPixelTrackAssociation"
@@ -812,6 +814,10 @@ fastSim.toReplaceWith(tracksValidation, tracksValidation.copyAndExclude([
     trackValidatorBuildingPreSplitting,
     trackValidatorConversion,
     trackValidatorGsfTracks,
+]))
+
+hltClusterSplitting.toReplaceWith(tracksValidation, tracksValidation.copyAndExclude([
+    trackValidatorBuildingPreSplitting,
 ]))
 
 ### Then define stuff for standalone mode (i.e. MTV with RECO+DIGI input)
@@ -1017,6 +1023,12 @@ fastSim.toReplaceWith(trackValidatorsTrackingOnly, trackValidatorsTrackingOnly.c
     trackValidatorConversionTrackingOnly,
     trackValidatorBHadronTrackingOnly
 ]))
+
+hltClusterSplitting.toReplaceWith(trackValidatorsTrackingOnly, trackValidatorsTrackingOnly.copyAndExclude([
+    trackValidatorBuildingPreSplitting,
+    trackValidatorSeedingPreSplittingTrackingOnly,
+]))
+
 tracksValidationTrackingOnly = cms.Sequence(
     trackValidatorsTrackingOnly,
     tracksPreValidationTrackingOnly,
@@ -1068,7 +1080,7 @@ cutstring = "pt > 0.9"
 pixelTracksPt09 = trackRefSelector.clone( cut = cutstring )
 #pixelTracksPt09 = generalTracksPt09.clone(quality = ["undefQuality"], **_pixelTracksCustom)
 
-pixelTracksFromPV = generalTracksFromPV.clone(quality = "highPurity", ptMin = 0.0, ptMax = 99999., ptErrorCut = 99999., copyExtras = True, **_pixelTracksCustom)
+pixelTracksFromPV = generalTracksFromPV.clone(quality = "highPurity", ptMin = 0.0, ptMax = 99999., ptErrorCut = 99999., **_pixelTracksCustom)
 #pixelTracksFromPVPt09 = generalTracksPt09.clone(quality = ["loose","tight","highPurity"], vertexTag = "pixelVertices", src = "pixelTracksFromPV")
 pixelTracksFromPVPt09 = pixelTracksFromPV.clone(ptMin = 0.9)
 

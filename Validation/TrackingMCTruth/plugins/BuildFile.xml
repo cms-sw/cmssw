@@ -3,6 +3,7 @@
 <use name="SimDataFormats/TrackingAnalysis"/>
 <use name="SimDataFormats/Track"/>
 <use name="SimDataFormats/GeneratorProducts"/>
+<use name="Geometry/Records"/>
 <use name="root"/>
 <use name="clhep"/>
 <library file="*.cc" name="ValidationTrackingMCTruthPlugins">

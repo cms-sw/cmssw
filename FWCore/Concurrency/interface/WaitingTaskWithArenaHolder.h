@@ -40,9 +40,8 @@ namespace edm {
     // eventually intend for the task to be spawned.
     explicit WaitingTaskWithArenaHolder(oneapi::tbb::task_group&, WaitingTask* iTask);
 
-    // Takes ownership of the underlying task and uses the current
-    // arena.
-    explicit WaitingTaskWithArenaHolder(WaitingTaskHolder&& iTask);
+    // Captures the current arena.
+    explicit WaitingTaskWithArenaHolder(WaitingTaskHolder iTask);
 
     ~WaitingTaskWithArenaHolder();
 

@@ -8,7 +8,6 @@ exec ${python_cmd} $0 ${1+"$@"}
 
 """
 
-from __future__ import print_function
 print('Starting cmsLHEtoEOSManager.py')
 
 __version__ = "$Revision: 1.13 $"

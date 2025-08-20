@@ -85,28 +85,28 @@ namespace edm {
   template <typename T>
   static void check(T const& p, std::string const& id, SelectedProducts const& iProducts, bool iVerbose) {
     for (auto const& product : iProducts) {
-      BranchDescription const* branchDescription = product.first;
-      TypeID const& tid = branchDescription->unwrappedTypeID();
+      ProductDescription const* productDescription = product.first;
+      TypeID const& tid = productDescription->unwrappedTypeID();
       EDGetToken const& token = product.second;
       BasicHandle bh = p.getByToken(token, tid);
       if (iVerbose) {
         if (bh.isValid()) {
-          edm::LogInfo("FoundProduct") << "found " << branchDescription->moduleLabel() << " '"
-                                       << branchDescription->productInstanceName() << "' "
-                                       << branchDescription->processName();
+          edm::LogInfo("FoundProduct") << "found " << productDescription->moduleLabel() << " '"
+                                       << productDescription->productInstanceName() << "' "
+                                       << productDescription->processName();
         } else {
           edm::LogInfo("DidNotFindProduct")
-              << "did not find " << branchDescription->moduleLabel() << " '" << branchDescription->productInstanceName()
-              << "' " << branchDescription->processName();
+              << "did not find " << productDescription->moduleLabel() << " '"
+              << productDescription->productInstanceName() << "' " << productDescription->processName();
         }
       }
       if (nullptr != bh.provenance() &&
-          bh.provenance()->branchDescription().branchID() != branchDescription->branchID()) {
+          bh.provenance()->productDescription().branchID() != productDescription->branchID()) {
         throw cms::Exception("BranchIDMissMatch")
-            << "While processing " << id << " getByToken request for " << branchDescription->moduleLabel() << " '"
-            << branchDescription->productInstanceName() << "' " << branchDescription->processName()
-            << "\n should have returned BranchID " << branchDescription->branchID() << " but returned BranchID "
-            << bh.provenance()->branchDescription().branchID() << "\n";
+            << "While processing " << id << " getByToken request for " << productDescription->moduleLabel() << " '"
+            << productDescription->productInstanceName() << "' " << productDescription->processName()
+            << "\n should have returned BranchID " << productDescription->branchID() << " but returned BranchID "
+            << bh.provenance()->productDescription().branchID() << "\n";
       }
     }
   }

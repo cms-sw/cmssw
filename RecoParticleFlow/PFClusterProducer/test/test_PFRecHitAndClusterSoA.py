@@ -140,7 +140,7 @@ if 'MessageLogger' in process.__dict__:
 #####################################
 import sys
 import argparse
-parser = argparse.ArgumentParser(prog=f"{sys.argv[0]} {sys.argv[1]} --", description='Test and validation of PFRecHitProducer with Alpaka')
+parser = argparse.ArgumentParser(prog=f"{sys.argv[0]}", description='Test and validation of PFRecHitProducer with Alpaka')
 parser.add_argument('-c', '--cal', type=str, default='HCAL',
                     help='Calorimeter type. Possible options: HCAL, ECAL. Default: HCAL')
 parser.add_argument('-b', '--backend', type=str, default='auto',
@@ -404,42 +404,31 @@ process.hltParticleFlowAlpakaToLegacyPFRecHitsComparison2 = DQMEDAnalyzer("PFRec
 )
 
 #Move Onto Clustering
-
-process.pfClusterParamsAlpakaESRcdSource = cms.ESSource('EmptyESSource',
-    recordName = cms.string('JobConfigurationGPURecord'),
-    iovIsRunNotTime = cms.bool(True),
-    firstValid = cms.vuint32(1)
+import RecoParticleFlow.PFClusterProducer.modules as _modules
+process.hltParticleFlowPFClusterAlpaka = getattr(_modules, (alpaka_backend_str % "PFClusterSoAProducer").replace("::", "_").replace("@", "_"))(
+    pfRecHits = "hltParticleFlowPFRecHitAlpaka",
+    topology = "hltParticleFlowRecHitTopologyESProducer:",
+    pfClusterBuilder = dict(maxIterations = 5),
+    synchronise = args.synchronise
 )
-
-from RecoParticleFlow.PFClusterProducer.pfClusterParamsESProducer_cfi import pfClusterParamsESProducer as _pfClusterParamsESProducer
-
-process.hltParticleFlowClusterParamsESProducer = _pfClusterParamsESProducer.clone()
-process.hltParticleFlowClusterParamsESProducer.pfClusterBuilder.maxIterations = 5
-
-for idx, x in enumerate(process.hltParticleFlowClusterParamsESProducer.initialClusteringStep.thresholdsByDetector):
+for idx, x in enumerate(process.hltParticleFlowPFClusterAlpaka.initialClusteringStep.thresholdsByDetector):
     for idy, y in enumerate(process.hltParticleFlowClusterHBHE.initialClusteringStep.thresholdsByDetector):
         if x.detector == y.detector:
             x.gatheringThreshold = y.gatheringThreshold
-for idx, x in enumerate(process.hltParticleFlowClusterParamsESProducer.pfClusterBuilder.recHitEnergyNorms):
+for idx, x in enumerate(process.hltParticleFlowPFClusterAlpaka.pfClusterBuilder.recHitEnergyNorms):
     for idy, y in enumerate(process.hltParticleFlowClusterHBHE.pfClusterBuilder.recHitEnergyNorms):
         if x.detector == y.detector:
             x.recHitEnergyNorm = y.recHitEnergyNorm
-for idx, x in enumerate(process.hltParticleFlowClusterParamsESProducer.seedFinder.thresholdsByDetector):
+for idx, x in enumerate(process.hltParticleFlowPFClusterAlpaka.seedFinder.thresholdsByDetector):
     for idy, y in enumerate(process.hltParticleFlowClusterHBHE.seedFinder.thresholdsByDetector):
         if x.detector == y.detector:
             x.seedingThreshold = y.seedingThreshold
 
-process.hltParticleFlowPFClusterAlpaka = cms.EDProducer(alpaka_backend_str % "PFClusterSoAProducer",
-                                                        pfClusterParams = cms.ESInputTag("hltParticleFlowClusterParamsESProducer:"),
-                                                        topology = cms.ESInputTag("hltParticleFlowRecHitTopologyESProducer:"),
-                                                        synchronise = cms.bool(args.synchronise))
-process.hltParticleFlowPFClusterAlpaka.pfRecHits = cms.InputTag("hltParticleFlowPFRecHitAlpaka")
 
 # Create legacy PFClusters
 
 process.hltParticleFlowAlpakaToLegacyPFClusters = cms.EDProducer("LegacyPFClusterProducer",
                                                                  src = cms.InputTag("hltParticleFlowPFClusterAlpaka"),
-                                                                 pfClusterParams = cms.ESInputTag("hltParticleFlowClusterParamsESProducer:"),
                                                                  pfClusterBuilder = process.hltParticleFlowClusterHBHE.pfClusterBuilder,
                                                                  usePFThresholdsFromDB = cms.bool(True),
                                                                  recHitsSource = cms.InputTag("hltParticleFlowAlpakaToLegacyPFRecHits"))

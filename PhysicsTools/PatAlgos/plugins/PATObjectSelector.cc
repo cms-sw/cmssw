@@ -4,6 +4,7 @@
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/GenericParticle.h"
@@ -255,6 +256,16 @@ namespace pat {
       >
       PATPackedCandidateSelector;
 
+  typedef SingleObjectSelector<std::vector<edm::Ptr<PackedCandidate>>,
+                               StringCutObjectSelector<edm::Ptr<PackedCandidate>, true>,
+                               std::vector<edm::Ptr<PackedCandidate>>>
+      PATPackedCandidatePtrSelector;
+
+  typedef SingleObjectSelector<std::vector<edm::Ptr<PackedGenParticle>>,
+                               StringCutObjectSelector<edm::Ptr<PackedGenParticle>, true>,
+                               std::vector<edm::Ptr<PackedGenParticle>>>
+      PATPackedGenParticlePtrSelector;
+
   typedef SingleObjectSelector<std::vector<Electron>,
                                StringCutObjectSelector<Electron>,
                                edm::RefVector<std::vector<Electron>>>
@@ -304,6 +315,8 @@ DEFINE_FWK_MODULE(PATCompositeCandidateSelector);
 DEFINE_FWK_MODULE(PATTriggerObjectStandAloneSelector);
 DEFINE_FWK_MODULE(PATGenericParticleSelector);
 DEFINE_FWK_MODULE(PATPackedCandidateSelector);
+DEFINE_FWK_MODULE(PATPackedCandidatePtrSelector);
+DEFINE_FWK_MODULE(PATPackedGenParticlePtrSelector);
 
 DEFINE_FWK_MODULE(PATElectronRefSelector);
 DEFINE_FWK_MODULE(PATMuonRefSelector);

@@ -94,7 +94,7 @@ namespace edmtest {
       // that case the normal grandparent can be found on the place of
       // the parent.
 
-      assert(parentProvenance.branchDescription().moduleLabel() == moduleLabel + "@test" + std::to_string(mode));
+      assert(parentProvenance.productDescription().moduleLabel() == moduleLabel + "@test" + std::to_string(mode));
 
       // Check grandparent as well
       parentProductProvenance = parentProvenance.productProvenance();
@@ -108,7 +108,7 @@ namespace edmtest {
     if (aliasMode_ and mode == 2) {
       postfix = 3;
     }
-    assert(grandParentProvenance.branchDescription().moduleLabel() == producerPrefix_ + std::to_string(postfix));
+    assert(grandParentProvenance.productDescription().moduleLabel() == producerPrefix_ + std::to_string(postfix));
   }
 }  // namespace edmtest
 using edmtest::SwitchProducerProvenanceAnalyzer;

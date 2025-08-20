@@ -8,7 +8,6 @@ from ..modules.hltEgammaR9L1Seeded_cfi import *
 from ..modules.hltEgammaHollowTrackIsoL1Seeded_cfi import *
 from ..modules.hltEgammaEcalPFClusterIsoL1Seeded_cfi import *
 from ..modules.hltEgammaEleGsfTrackIsoL1Seeded_cfi import *
-from ..modules.hltEgammaEleGsfTrackIsoV6L1Seeded_cfi import *
 from ..modules.hltEgammaEleL1TrkIsoL1Seeded_cfi import *
 from ..modules.hltEgammaHcalPFClusterIsoL1Seeded_cfi import *
 from ..modules.hltEgammaHGCALIDVarsL1Seeded_cfi import *
@@ -38,13 +37,12 @@ from ..sequences.HLTElePixelMatchL1SeededSequence_cfi import *
 from ..sequences.HLTFastJetForEgammaSequence_cfi import *
 from ..sequences.HLTGsfElectronL1SeededSequence_cfi import *
 from ..sequences.HLTHgcalTiclPFClusteringForEgammaL1SeededSequence_cfi import *
-from ..sequences.HLTL1Sequence_cfi import *
 from ..sequences.HLTPFClusteringForEgammaL1SeededSequence_cfi import *
 from ..sequences.HLTPFHcalClusteringForEgammaSequence_cfi import *
-from ..sequences.HLTTrackingV61Sequence_cfi import *
+from ..sequences.HLTTrackingSequence_cfi import *
 
-HLTEle5OpenL1SeededSequence = cms.Sequence(HLTL1Sequence
-        +HLTDoFullUnpackingEgammaEcalL1SeededSequence
+HLTEle5OpenL1SeededSequence = cms.Sequence(
+        HLTDoFullUnpackingEgammaEcalL1SeededSequence
         +HLTPFClusteringForEgammaL1SeededSequence
         +HLTHgcalTiclPFClusteringForEgammaL1SeededSequence
         +hltEgammaCandidatesL1Seeded
@@ -80,8 +78,7 @@ HLTEle5OpenL1SeededSequence = cms.Sequence(HLTL1Sequence
         +hltEle5DphiL1SeededFilter
         +hltEgammaEleL1TrkIsoL1Seeded
         +cms.ignore(hltEle5WPTightGsfTrackIsoFromL1TracksL1SeededFilter)
-        +HLTTrackingV61Sequence
+        +HLTTrackingSequence
         +hltEgammaEleGsfTrackIsoL1Seeded
-        +hltEgammaEleGsfTrackIsoV6L1Seeded
         +hltEgammaHollowTrackIsoL1Seeded
         +cms.ignore(hltEle5WPTightGsfTrackIsoL1SeededFilter))

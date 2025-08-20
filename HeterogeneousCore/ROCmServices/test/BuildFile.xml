@@ -1,5 +1,6 @@
 <use name="catch2"/>
 <use name="fmt"/>
+<use name="FWCore/AbstractServices"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ParameterSetReader"/>
 <use name="FWCore/PluginManager"/>

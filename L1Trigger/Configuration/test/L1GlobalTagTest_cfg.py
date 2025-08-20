@@ -1,4 +1,3 @@
-from __future__ import print_function
 #
 # cfg file to print the content of 
 # L1 trigger records from a global tag 

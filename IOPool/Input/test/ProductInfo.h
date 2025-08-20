@@ -30,7 +30,7 @@ private:
 
 ProductInfo::ProductInfo(const edm::Provenance &prov, TBranch &branch, edm::EDGetToken const &token)
     : m_tag(prov.moduleLabel(), prov.productInstanceName(), prov.processName()),
-      m_type(prov.branchDescription().unwrappedTypeID()),
+      m_type(prov.productDescription().unwrappedTypeID()),
       m_token(token),
       m_size(0) {
   addBranchSizes(branch, m_size);

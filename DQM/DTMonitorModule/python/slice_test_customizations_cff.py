@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms                                                
 
 def customise_for_slice_test(process, enableDigis, enableTPs):

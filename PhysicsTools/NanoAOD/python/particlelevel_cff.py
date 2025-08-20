@@ -63,7 +63,7 @@ rivetProducerHTXS = cms.EDProducer('HTXSRivetProducer',
 ##################### Tables for final output and docs ##########################
 rivetLeptonTable = simpleCandidateFlatTableProducer.clone(
     src = cms.InputTag("particleLevel:leptons"),
-    cut = cms.string("pt > 15"),
+    cut = cms.string("pt > 10"),
     name= cms.string("GenDressedLepton"),
     doc = cms.string("Dressed leptons from Rivet-based ParticleLevelProducer"),
     externalVariables = cms.PSet(

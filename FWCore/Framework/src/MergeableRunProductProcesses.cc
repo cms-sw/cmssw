@@ -2,7 +2,7 @@
 #include "FWCore/Framework/interface/MergeableRunProductProcesses.h"
 
 #include "DataFormats/Common/interface/WrapperBase.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Utilities/interface/getAnyPtr.h"
 
@@ -19,7 +19,7 @@ namespace edm {
     TClass* wrapperBaseTClass = TypeWithDict::byName("edm::WrapperBase").getClass();
     std::set<std::string> processSet;
     for (auto const& prod : productRegistry.productList()) {
-      BranchDescription const& desc = prod.second;
+      ProductDescription const& desc = prod.second;
       if (desc.branchType() == InRun && !desc.produced() && desc.present()) {
         TClass* cp = desc.wrappedType().getClass();
         void* p = cp->New();

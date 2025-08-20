@@ -1,4 +1,3 @@
-from __future__ import print_function
 #-------------------------------------
 #	Hcal DQM Application using New DQM Sources/Clients
 #	Online Mode
@@ -198,5 +197,6 @@ process.options = cms.untracked.PSet(
 )
 
 process.options.wantSummary = True
+print("Global Tag used:", process.GlobalTag.globaltag.value())
 print("Final Source settings:", process.source)
 

@@ -21,6 +21,8 @@ public:
   int classify(const reco::GsfElectron*);
   bool compute_cut(double x, double et, double cut_min, double cut_max, bool gtn = false);
 
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
+
 private:
   bool wantBinning_;
   bool newCategories_;

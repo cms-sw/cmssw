@@ -42,7 +42,7 @@ set InputGenSimSpec3 = $InputGenSimGRun3
 set InputLHCRawGRun0 = /store/data/Run2012A/MuEG/RAW/v1/000/191/718/14932935-E289-E111-830C-5404A6388697.root
 set InputLHCRawGRun1 = /store/data/Run2015D/MuonEG/RAW/v1/000/256/677/00000/80950A90-745D-E511-92FD-02163E011C5D.root
 set InputLHCRawGRun2 = /store/data/Run2016B/JetHT/RAW/v1/000/272/762/00000/C666CDE2-E013-E611-B15A-02163E011DBE.root
-set InputLHCRawGRun3 = /store/data/Run2024H/EphemeralHLTPhysics0/RAW/v1/000/386/071/00000/3a502248-b2ac-4e8a-b9bf-5f98d5c688dd.root
+set InputLHCRawGRun3 = /store/data/Run2024I/EphemeralHLTPhysics0/RAW/v1/000/386/593/00000/91a08676-199e-404c-9957-f72772ef1354.root
 set InputLHCRawHIon1 = /store/hidata/HIRun2015/HIHardProbes/RAW/v1/000/263/718/00000/08057733-02A5-E511-9C7D-02163E014606.root
 set InputLHCRawHIon2 = /store/hidata/HIRun2018A/HIHardProbes/RAW/v1/000/326/479/00000/0E2CC5D5-9D87-7348-9219-B00CD718C847.root
 set InputLHCRawHIon3 = /store/hidata/HIRun2022A/HITestRaw0/RAW/v1/000/362/321/00000/f467ee64-fc64-47a6-9d8a-7ca73ebca2bd.root
@@ -136,7 +136,7 @@ foreach gtag ( MC DATA )
   if ( $1 == "" ) then
     set tables = ( GRun )
   else if ( ($1 == all) || ($1 == ALL) ) then
-    set tables = ( GRun HIon PIon PRef Special 2024v14 Fake Fake1 Fake2 )
+    set tables = ( GRun HIon PIon PRef Special 2025v13 Fake Fake1 Fake2 )
   else if ( ($1 == ib) || ($1 == IB) ) then
     set tables = ( GRun HIon PIon PRef Special )
   else if ( ($1 == dev) || ($1 == DEV) ) then
@@ -146,7 +146,7 @@ foreach gtag ( MC DATA )
   else if ( ($1 == fake) || ($1 == FAKE) ) then
     set tables = ( Fake Fake1 Fake2 )
   else if ( ($1 == frozen) || ($1 == FROZEN) ) then
-    set tables = ( 2024v14 )
+    set tables = ( 2025v13 )
   else
     set tables = ( $1 )
   endif
@@ -220,11 +220,11 @@ foreach gtag ( MC DATA )
       set Custom = " "
       set L1REPACK = L1REPACK:Full
       set DIGI = DIGI:pdigi
-    else if ( $table == 2024v14 ) then
+    else if ( $table == 2025v13 ) then
       set XL1T = $XL1TPP3
-      set XHLT = HLT:2024v14
-      set GTAG = ${BASE3}_2024v14
-      set RTAG = ${RECO3}_2024v14
+      set XHLT = HLT:2025v13
+      set GTAG = ${BASE3}_2025v13
+      set RTAG = ${RECO3}_2025v13
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun3

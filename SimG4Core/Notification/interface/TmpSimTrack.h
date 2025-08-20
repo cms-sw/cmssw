@@ -40,7 +40,7 @@ public:
   const math::XYZVectorD& momentum() const { return ip_; }
   double energy() const { return ie_; }
   int ivert() const { return ivert_; }
-  int igenpart() const { return igenpart_; }
+  int igenpart() const { return isPrimary_ ? igenpart_ : -1; }
   // parent momentum at interaction
   const math::XYZVectorD& parentMomentum() const { return parentMomentum_; }
   // Information at level of tracker surface
@@ -62,6 +62,12 @@ public:
   const math::XYZTLorentzVectorF& getPositionAtBoundary() const { return positionAtBoundary_; }
   const math::XYZTLorentzVectorF& getMomentumAtBoundary() const { return momentumAtBoundary_; }
   int getIDAtBoundary() const { return idAtBoundary_; }
+  bool isFromBackScattering() const { return isFromBackScattering_; }
+  void setFromBackScattering() { isFromBackScattering_ = true; }
+  void setGenParticleID(int i) { igenpart_ = i; }
+  bool isPrimary() const { return isPrimary_; }
+  void setIsPrimary() { isPrimary_ = true; }
+  int getPrimaryID() const { return igenpart_; }
 
 private:
   int id_;
@@ -74,7 +80,9 @@ private:
   math::XYZVectorD parentMomentum_{math::XYZVectorD(0., 0., 0.)};
   math::XYZVectorD tkSurfacePosition_{math::XYZVectorD(0., 0., 0.)};
   math::XYZTLorentzVectorD tkSurfaceMomentum_{math::XYZTLorentzVectorD(0., 0., 0., 0.)};
+  bool isFromBackScattering_{false};
   bool crossedBoundary_{false};
+  bool isPrimary_{false};
   int idAtBoundary_{-1};
   math::XYZTLorentzVectorF positionAtBoundary_{math::XYZTLorentzVectorF(0.f, 0.f, 0.f, 0.f)};
   math::XYZTLorentzVectorF momentumAtBoundary_{math::XYZTLorentzVectorF(0.f, 0.f, 0.f, 0.f)};

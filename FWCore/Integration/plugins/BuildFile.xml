@@ -7,18 +7,18 @@
     <use name="FWCore/Utilities"/>
   </library>
 
-  <library file="ThingProducer.cc,ThingAlgorithm.cc,TrackOfThingsProducer.cc,ThinningTestAnalyzer.cc,ThinnedRefFromTestAnalyzer.cc,DetSetVectorThingProducer.cc,TrackOfDSVThingsProducer.cc,ThinningDSVThingProducer.cc,SlimmingDSVThingProducer.cc,ThinningDSVTestAnalyzer.cc,ThingSource.cc,ThingExtSource.cc,ThingWithMergeProducer.cc,TestGetterOfProducts.cc,PutOrMergeTestSource.cc,TestGetByLabelAnalyzer.cc,ThingAnalyzer.cc,TestOutputWithGetterOfProducts.cc,TestOutputWithGetterOfProductsGlobal.cc,TestOutputWithGetterOfProductsLimited.cc"
-      name="FWCoreIntegrationTestWithThing">
+  <library file="DetSetVectorThingProducer.cc,PostInsertProducer.cc,PutOrMergeTestSource.cc,SlimmingDSVThingProducer.cc,TestGetByLabelAnalyzer.cc,TestGetterOfProducts.cc,TestOutputWithGetterOfProducts.cc,TestOutputWithGetterOfProductsGlobal.cc,TestOutputWithGetterOfProductsLimited.cc,ThingAlgorithm.cc,ThingAnalyzer.cc,ThingExtSource.cc,ThingProducer.cc,ThingSource.cc,ThingWithMergeProducer.cc,ThinnedRefFromTestAnalyzer.cc,ThinningDSVTestAnalyzer.cc,ThinningDSVThingProducer.cc,ThinningTestAnalyzer.cc,TrackOfDSVThingsProducer.cc,TrackOfThingsProducer.cc" name="FWCoreIntegrationTestWithThing">
       <flags EDM_PLUGIN="1"/>
       <use name="FWCore/Framework"/>
       <use name="FWCore/Sources"/>
       <use name="DataFormats/Common"/>
       <use name="DataFormats/TestObjects"/>
 </library>
-  
-  <library file="ThinningThingProducer.cc,SlimmingThingProducer.cc,WhatsIt.cc,GadgetRcd.cc,Doodad.cc,WhatsItESProducer.cc,WhatsItAnalyzer.cc,WhatsItWatcherAnalyzer.cc,DoodadESProducer.cc,DoodadEDLooper.cc,DoodadESSource.cc" name="FWCoreIntegrationTestWithWhatsItDoodad">
+
+  <library file="ThinningThingProducer.cc,SlimmingThingProducer.cc,WhatsIt.cc,GadgetRcd.cc,Doodad.cc,WhatsItESProducer.cc,WhatsItAnalyzer.cc,WhatsItWatcherAnalyzer.cc,DoodadESProducer.cc,DoodadEDLooper.cc,DoodadESSource.cc,ConsumeWhatsIt.cc,MayConsumeWhatsIt.cc,ConsumeIOVTestInfoAnalyzer.cc" name="FWCoreIntegrationTestWithWhatsItDoodad">
       <flags EDM_PLUGIN="1"/>
       <use name="FWCore/Framework"/>
+      <use name="FWCore/Integration"/>
       <use name="DataFormats/TestObjects"/>
 </library>
 
@@ -75,6 +75,12 @@
     <use name="FWCore/ServiceRegistry"/>
   </library>
 
+  <library file="MaybeUninitializedIntProducer.cc, MaybeUninitializedIntAnalyzer.cc" name="FWCoreIntegrationMaybeUninitialized">
+    <flags EDM_PLUGIN="1"/>
+    <use name="DataFormats/TestObjects"/>
+    <use name="FWCore/Framework"/>
+    <use name="FWCore/Utilities"/>
+  </library>
 
   <library file="PathsAndConsumesOfModulesTestService.cc" name="FWCoreIntegrationPathsAndConsumesOfModulesTestService">
     <flags EDM_PLUGIN="1"/>
@@ -100,6 +106,7 @@
 
   <library file="TestInterProcessProd.cc" name="TestInterProcessProd">
     <flags EDM_PLUGIN="1"/>
+    <use name="FWCore/AbstractServices"/>
     <use name="FWCore/Framework"/>
     <use name="FWCore/ParameterSet"/>
     <use name="FWCore/Sources"/>
@@ -109,6 +116,7 @@
 
   <library file="TestInterProcessRandomProd.cc,RandomIntProducer.cc" name="TestInterProcessRandomProd">
     <flags EDM_PLUGIN="1"/>
+    <use name="FWCore/AbstractServices"/>
     <use name="FWCore/Framework"/>
     <use name="FWCore/ParameterSet"/>
     <use name="FWCore/Sources"/>
@@ -120,6 +128,7 @@
   </library>
   <library file="TestServicesOnNonFrameworkThreadsAnalyzer.cc" name = "TestServicesOnNonFrameworkThreadsAnalyzer">
     <flags EDM_PLUGIN="1"/>
+    <use name="FWCore/AbstractServices"/>
     <use name="FWCore/Framework"/>
     <use name="FWCore/ParameterSet"/>
     <use name="FWCore/MessageLogger"/>
@@ -131,5 +140,5 @@
     <use name="FWCore/Framework"/>
     <use name="FWCore/ParameterSet"/>
   </library>
-  
+
 </environment>

@@ -12,24 +12,24 @@
  *
  */
 
-#include <memory>
-
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 #include <algorithm>
 #include <map>
 #include <memory>
 #include <utility>
 #include <vector>
 
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
 
 namespace reco {
   namespace modules {
@@ -57,7 +57,16 @@ namespace reco {
         }
       }
       /// destructor
-      ~TrackFullCloneSelectorBase() override {}
+      ~TrackFullCloneSelectorBase() override = default;
+
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+        edm::ParameterSetDescription desc;
+        desc.add<edm::InputTag>("src", edm::InputTag("generalTracks"));
+        desc.addUntracked<bool>("copyExtras", false);
+        desc.addUntracked<bool>("copyTrajectories", false);
+        Selector::fillPSetDescription(desc);
+        descriptions.addWithDefaultLabel(desc);
+      }
 
     private:
       /// process one event
@@ -173,7 +182,6 @@ namespace reco {
       std::unique_ptr<std::vector<Trajectory> > selTrajs_;
       std::unique_ptr<TrajTrackAssociationCollection> selTTAss_;
     };
-
   }  // namespace modules
 }  // namespace reco
 #endif

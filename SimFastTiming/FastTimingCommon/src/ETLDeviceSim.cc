@@ -11,6 +11,7 @@
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
+#include <cmath>
 
 ETLDeviceSim::ETLDeviceSim(const edm::ParameterSet& pset, edm::ConsumesCollector iC)
     : geomToken_(iC.esConsumes()),
@@ -111,7 +112,7 @@ void ETLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
       MPV_charge *= gain[0];
     } else {
       if (applyDegradation_) {
-        double dGapCenter = TMath::Max(TMath::Abs(simscaled.x()), TMath::Abs(simscaled.y()));
+        double dGapCenter = std::max(std::abs(simscaled.x()), std::abs(simscaled.y()));
         param[0] = gain[0];
         param[1] = dGapCenter;
         gain[0] = lgadGainDegradation_.evaluate(param, emptyV);

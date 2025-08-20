@@ -70,7 +70,8 @@ namespace TopSingleLepton_miniAOD {
       }
 
       if (elecExtras.existsAs<std::string>("rho")) {
-        rhoTag = elecExtras.getParameter<edm::InputTag>("rho");
+        auto rhoTag = elecExtras.getParameter<edm::InputTag>("rho");
+        rhoToken_ = iC.consumes(rhoTag);
       }
       // electronId is optional; in case it's not found the
       // InputTag will remain empty
@@ -177,7 +178,7 @@ namespace TopSingleLepton_miniAOD {
     // instantaneous luminosity
     //hists_["InstLumi_"] = ibooker.book1D("InstLumi", "Inst. Lumi.", 100, 0., 1.e3);
     // number of selected primary vertices
-    hists_["pvMult_"] = ibooker.book1D("PvMult", "N_{good pvs}", 50, 0., 50.);
+    hists_["pvMult_"] = ibooker.book1D("PvMult", "N_{good pvs}", 50, 0., 100.);
     // pt of the leading muon
     hists_["muonPt_"] = ibooker.book1D("MuonPt", "pt(#mu TightId, TightIso)", 40, 0., 200.);
     // muon multiplicity before std isolation
@@ -264,10 +265,16 @@ namespace TopSingleLepton_miniAOD {
     hists_["muonDelZ_"] = ibooker.book1D("MuonDelZ", "d_{z}(#mu)", 50, -25., 25.);
     // dxy for muons (to suppress cosmics)
     hists_["muonDelXY_"] = ibooker.book2D("MuonDelXY", "d_{xy}(#mu)", 50, -0.1, 0.1, 50, -0.1, 0.1);
+    // dxy distribution for muons
+    hists_["muonDxy_"] = ibooker.book1D("MuonDxy", "d_{xy}(#mu)", 100, -0.05, 0.05);
+    // muon _dxy error
+    hists_["muonDxyError_"] = ibooker.book1D("MuonDxyError", "d_{xy} Error (#mu)", 100, 0., 0.05);
 
     // set axes titles for dxy for muons
     hists_["muonDelXY_"]->setAxisTitle("x [cm]", 1);
     hists_["muonDelXY_"]->setAxisTitle("y [cm]", 2);
+    hists_["muonDxy_"]->setAxisTitle("d_{xy} [cm]", 1);
+    hists_["muonDxyError_"]->setAxisTitle("d_{xy} error [cm]", 1);
 
     if (verbosity_ == VERBOSE)
       return;
@@ -305,9 +312,9 @@ namespace TopSingleLepton_miniAOD {
     //hists_["jetBDiscVtx_"] = ibooker.book1D("JetBDiscVtx",
     //    "Disc_{SSVHE}(Jet)", 35, -1., 6.);
     // multiplicity for combined secondary vertex
-    hists_["jetMultBDeepJetM_"] = ibooker.book1D("JetMultBDeepJetM", "N_{30}(DeepJetM)", 10, 0., 10.);
+    hists_["jetMultBPNetM_"] = ibooker.book1D("JetMultBPNetM", "N_{30}(PNetM)", 10, 0., 10.);
     // btag discriminator for combined secondary vertex
-    hists_["jetBDeepJet_"] = ibooker.book1D("JetDiscDeepJet", "BJet Disc_{DeepJet}(JET)", 100, -1., 2.);
+    hists_["jetBPNet_"] = ibooker.book1D("JetDiscPNet", "BJet Disc_{PNet}(JET)", 100, -1., 2.);
     // pt of the 1. leading jet (uncorrected)
     //hists_["jet1PtRaw_"] = ibooker.book1D("Jet1PtRaw", "pt_{Raw}(jet1)", 60, 0., 300.);
     // pt of the 2. leading jet (uncorrected)
@@ -400,8 +407,9 @@ namespace TopSingleLepton_miniAOD {
       return;
 
     edm::Handle<double> _rhoHandle;
-    event.getByLabel(rhoTag, _rhoHandle);
-    //if (!event.getByToken(elecs_, elecs)) return;
+    if (!rhoToken_.isUninitialized()) {
+      _rhoHandle = event.getHandle(rhoToken_);
+    }
 
     // check availability of electron id
     edm::Handle<edm::ValueMap<float>> electronId;
@@ -492,6 +500,15 @@ namespace TopSingleLepton_miniAOD {
         fill("muonDelZ_", muon->innerTrack()->vz());  // CB using inner track!
         fill("muonDelXY_", muon->innerTrack()->vx(), muon->innerTrack()->vy());
 
+        // d_xy distribution
+        if (muon->muonBestTrack().isNonnull()) {
+          double dxy = muon->dB(pat::Muon::PV2D);
+          fill("muonDxy_", dxy);
+
+          double dxyError = muon->edB(pat::Muon::PV2D);
+          fill("muonDxyError_", dxyError);
+        }
+
         // apply preselection loose muon
         if (!muonSelect_ || (*muonSelect_)(*muon)) {
           //loose muon count
@@ -550,7 +567,7 @@ namespace TopSingleLepton_miniAOD {
     // loop jet collection
     std::vector<pat::Jet> correctedJets;
     std::vector<double> JetTagValues;
-    unsigned int mult = 0, loosemult = 0, multBDeepJetM = 0;
+    unsigned int mult = 0, loosemult = 0, multBPNetM = 0;
 
     edm::Handle<edm::View<pat::Jet>> jets;
     if (!event.getByToken(jets_, jets)) {
@@ -579,15 +596,18 @@ namespace TopSingleLepton_miniAOD {
         correctedJets.push_back(monitorJet);
         ++loosemult;  // determine jet multiplicity
 
-        double discriminator = monitorJet.bDiscriminator("pfDeepFlavourJetTags:probb") +
-                               monitorJet.bDiscriminator("pfDeepFlavourJetTags:probbb") +
-                               monitorJet.bDiscriminator("pfDeepFlavourJetTags:problepb");
+        //ParticleNet discriminator
 
-        fill("jetBDeepJet_", discriminator);  //hard coded discriminator and value right now.
-        if (discriminator > 0.2435)
-          ++multBDeepJetM;
+        double discriminator =
+            monitorJet.bDiscriminator("pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags:BvsAll") > 0
+                ? monitorJet.bDiscriminator("pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags:BvsAll")
+                : -1;
 
-        // Fill a vector with Jet b-tag WP for later M3+1tag calculation: DeepJet
+        fill("jetBPNet_", discriminator);  //hard coded discriminator and value right now.
+        if (discriminator > 0.1919)
+          ++multBPNetM;
+
+        // Fill a vector with Jet b-tag WP for later M3+1tag calculation: PNet
         // tagger
         JetTagValues.push_back(discriminator);
         //    }
@@ -618,7 +638,7 @@ namespace TopSingleLepton_miniAOD {
     }
     fill("jetMult_", mult);
     fill("jetLooseMult_", loosemult);
-    fill("jetMultBDeepJetM_", multBDeepJetM);
+    fill("jetMultBPNetM_", multBPNetM);
 
     /*
   ------------------------------------------------------------
@@ -638,7 +658,7 @@ namespace TopSingleLepton_miniAOD {
         unsigned int idx = met_ - mets_.begin();
         if (idx == 0)
           fill("slimmedMETs_", met->begin()->et());
-        if (idx == 2)
+        if (idx == 1)
           fill("slimmedMETsPuppi_", met->begin()->et());
       }
     }
@@ -661,13 +681,13 @@ namespace TopSingleLepton_miniAOD {
       fill("massTop_", topMass);
     }
 
-    // Fill M3 with Btag (DeepJet Tight) requirement
+    // Fill M3 with Btag (PNet Tight) requirement
 
     // if (!includeBTag_) return;
     if (correctedJets.size() != JetTagValues.size())
       return;
 
-    double btopMass = eventKinematics.massBTopQuark(correctedJets, JetTagValues, 0.2435);  //hard coded DeepJet value
+    double btopMass = eventKinematics.massBTopQuark(correctedJets, JetTagValues, 0.2435);  //hard coded PNet value
 
     if (btopMass >= 0)
       fill("massBTop_", btopMass);

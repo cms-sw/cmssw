@@ -47,4 +47,7 @@
  <class name="std::vector<std::unique_ptr<int> >" />
  <class name="std::vector<std::pair<int,std::bitset<6> > >" />
  <class name="std::pair<int,std::bitset<6>>"/>
+ <class name="std::vector<std::pair<short,int>>" />
+ <class name="std::vector<std::vector<std::pair<short,int>>>" />
+ <class name="std::vector<std::vector<std::vector<std::pair<short,int>>>>" />
 </lcgdict>

@@ -15,6 +15,7 @@
     <use name="cppunit"/>
     <use name="cuda"/>
     <use name="pytorch"/>
+    <use name="FWCore/AbstractServices"/>
     <use name="FWCore/ParameterSet"/>
     <use name="FWCore/ParameterSetReader"/>
     <use name="FWCore/PluginManager"/>

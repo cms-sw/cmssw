@@ -1,10 +1,11 @@
 #ifndef RecoParticleFlow_PFClusterProducer_plugins_alpaka_PFClusterECLCC_h
 #define RecoParticleFlow_PFClusterProducer_plugins_alpaka_PFClusterECLCC_h
 
+#include "DataFormats/ParticleFlowReco/interface/alpaka/PFRecHitDeviceCollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/alpaka/PFClusteringVarsDeviceCollection.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/alpaka/PFClusteringEdgeVarsDeviceCollection.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/alpaka/PFClusteringVarsDeviceCollection.h"
 
 // The following comment block is required in using the ECL-CC algorithm for topological clustering
 
@@ -79,9 +80,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // Initial step of ECL-CC. Uses ID of first neighbour in edgeList with a smaller ID
   class ECLCCInit {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(const TAcc& acc,
-                                  reco::PFRecHitHostCollection::ConstView pfRecHits,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
+                                  reco::PFRecHitDeviceCollection::ConstView pfRecHits,
                                   reco::PFClusteringVarsDeviceCollection::View pfClusteringVars,
                                   reco::PFClusteringEdgeVarsDeviceCollection::View pfClusteringEdgeVars) const {
       const int nRH = pfRecHits.size();
@@ -103,9 +103,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // Processes vertices
   class ECLCCCompute1 {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(const TAcc& acc,
-                                  reco::PFRecHitHostCollection::ConstView pfRecHits,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
+                                  reco::PFRecHitDeviceCollection::ConstView pfRecHits,
                                   reco::PFClusteringVarsDeviceCollection::View pfClusteringVars,
                                   reco::PFClusteringEdgeVarsDeviceCollection::View pfClusteringEdgeVars) const {
       const int nRH = pfRecHits.size();
@@ -148,9 +147,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   /* link all vertices to sink */
   class ECLCCFlatten {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(const TAcc& acc,
-                                  reco::PFRecHitHostCollection::ConstView pfRecHits,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
+                                  reco::PFRecHitDeviceCollection::ConstView pfRecHits,
                                   reco::PFClusteringVarsDeviceCollection::View pfClusteringVars,
                                   reco::PFClusteringEdgeVarsDeviceCollection::View pfClusteringEdgeVars) const {
       const int nRH = pfRecHits.size();

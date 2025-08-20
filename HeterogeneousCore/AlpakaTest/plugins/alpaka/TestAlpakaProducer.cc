@@ -19,7 +19,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class TestAlpakaProducer : public global::EDProducer<> {
   public:
     TestAlpakaProducer(edm::ParameterSet const& config)
-        : objectToken_{produces()},
+        : EDProducer<>(config),
+          objectToken_{produces()},
           collectionToken_{produces()},
           deviceTokenMulti2_{produces()},
           deviceTokenMulti3_{produces()},

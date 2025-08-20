@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <cstdint>
+#include <span>
 
 namespace amc {
   static const unsigned int split_block_size = 0x1000;
@@ -143,8 +144,11 @@ namespace amc {
     // cross-checks for data consistency.
     void finalize(unsigned int lv1, unsigned int bx, bool legacy_mc = false, bool mtf7_mode = false);
 
-    std::vector<uint64_t> block(unsigned int id) const;
-    std::unique_ptr<uint64_t[]> data();
+    std::span<const uint64_t> block(unsigned int id) const;
+    std::span<const uint64_t> data() const {
+      // Remove 3 words: 2 for the header, 1 for the trailer
+      return payload_.empty() ? std::span<const uint64_t>() : std::span<const uint64_t>(payload_).subspan(2, size());
+    };
     BlockHeader blockHeader(unsigned int block = 0) const { return block_header_; };
     Header header() const { return header_; };
     Trailer trailer() const { return trailer_; };

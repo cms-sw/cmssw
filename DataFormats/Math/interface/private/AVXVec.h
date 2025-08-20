@@ -134,22 +134,22 @@ inline mathSSE::Vec4<double> operator/(mathSSE::Vec4<double> b, double a) {
   return _mm256_div_pd(b.vec, _mm256_set1_pd(a));
 }
 
-inline double __attribute__((always_inline)) __attribute__((pure))
-dot(mathSSE::Vec4<double> a, mathSSE::Vec4<double> b) {
+inline double __attribute__((always_inline)) __attribute__((pure)) dot(mathSSE::Vec4<double> a,
+                                                                       mathSSE::Vec4<double> b) {
   using mathSSE::_mm256_dot_pd;
   mathSSE::Vec4<double> ret;
   ret.vec = _mm256_dot_pd(a.vec, b.vec);
   return ret.arr[0];
 }
 
-inline mathSSE::Vec4<double> __attribute__((always_inline)) __attribute__((pure))
-cross(mathSSE::Vec4<double> a, mathSSE::Vec4<double> b) {
+inline mathSSE::Vec4<double> __attribute__((always_inline)) __attribute__((pure)) cross(mathSSE::Vec4<double> a,
+                                                                                        mathSSE::Vec4<double> b) {
   using mathSSE::_mm256_cross_pd;
   return _mm256_cross_pd(a.vec, b.vec);
 }
 
-inline double __attribute__((always_inline)) __attribute__((pure))
-dotxy(mathSSE::Vec4<double> a, mathSSE::Vec4<double> b) {
+inline double __attribute__((always_inline)) __attribute__((pure)) dotxy(mathSSE::Vec4<double> a,
+                                                                         mathSSE::Vec4<double> b) {
   mathSSE::Vec4<double> mul = a * b;
   mul = hadd(mul, mul);
   return mul.arr[0];

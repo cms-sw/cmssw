@@ -4,7 +4,13 @@
 #include <TH1.h>
 #include <TPad.h>
 
-class Style : public TH1 {};
+class Style : public TH1 {
+private:
+  void AddBinContent(Int_t) override {}
+  void AddBinContent(Int_t, Double_t) override {}
+  Double_t RetrieveBinContent(Int_t) const override { return 0.; }
+  void UpdateBinContent(Int_t, Double_t) override {}
+};
 
 class Styles {
 public:

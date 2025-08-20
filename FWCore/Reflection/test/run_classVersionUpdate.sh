@@ -36,7 +36,7 @@ mv TestObjects.h.tmp FWCore/Reflection/test/stubs/TestObjects.h
 
 
 #Set env and build in sub-shel
-(eval $(scram run -sh) ; scram build -j $(nproc))
+(eval $(scram run -sh) ; SCRAM_NOEDM_CHECKS=yes scram build -j $(nproc))
 
 popd
 

@@ -12,6 +12,10 @@ namespace HepMC {
   class GenEvent;
 }
 
+namespace HepMC3 {
+  class GenEvent;
+}
+
 namespace CLHEP {
   class HepRandomEngine;
 }
@@ -39,6 +43,9 @@ namespace gen {
 
     HepMC::GenEvent* decay(HepMC::GenEvent* evt);
     HepMC::GenEvent* decay(HepMC::GenEvent* evt, lhef::LHEEvent* lheEvent);
+
+    HepMC3::GenEvent* decay(HepMC3::GenEvent* evt);
+    HepMC3::GenEvent* decay(HepMC3::GenEvent* evt, lhef::LHEEvent* lheEvent);
 
     void statistics() const;
 

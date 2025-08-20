@@ -12,6 +12,12 @@ AlignmentSeedSelector::AlignmentSeedSelector(const edm::ParameterSet& cfg)
     edm::LogInfo("AlignmentSeedSelector") << "apply seedNumber N<=" << minNSeeds;
 }
 
+void AlignmentSeedSelector::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  desc.add<bool>("applySeedNumber", false);
+  desc.add<int>("minNSeeds", 0);
+  desc.add<int>("maxNSeeds", 999999.);
+}
+
 // destructor -----------------------------------------------------------------
 
 AlignmentSeedSelector::~AlignmentSeedSelector() {}

@@ -10,13 +10,15 @@
 
 #include "AlgoProductTraits.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 class MagneticField;
 class TrackingGeometry;
@@ -59,6 +61,8 @@ public:
                         bool,
                         AlgoProductCollection&,
                         AlgoProductCollection&) const;
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
 private:
   /// Construct Tracks to be put in the event

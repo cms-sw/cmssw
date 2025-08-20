@@ -74,7 +74,9 @@ namespace cms {
     bool firstInitializeEvent_;
     bool firstFinalizeEvent_;
     bool applyLateReweighting_;
+    bool usePixelExtraLiteFormat_;
     const bool store_SimHitEntryExitPoints_;
+    const bool store_SimHitEntryExitPointsLite_;
     bool makeDigiSimLinks_;
     std::unique_ptr<SiPixelDigitizerAlgorithm> _pixeldigialgo;
     /** @brief Offset to add to the index of each sim hit to account for which crossing it's in.

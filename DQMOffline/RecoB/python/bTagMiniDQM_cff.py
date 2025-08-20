@@ -61,6 +61,19 @@ Etaregions = {
 }
 
 
+# For DQM
+bTagMiniDQMSource = cms.Sequence(bTagSVDQM, patJetsSVInfoTask)
+bTagMiniDQMHarvesting = cms.Sequence()
+
+# For Validation
+bTagMiniValidationSource = cms.Sequence(bTagSVDQM, patJetsSVInfoTask)
+bTagMiniValidationHarvesting = cms.Sequence()
+
+#####################################################################################
+#
+# Setup DQM and Validation plots for DeepJet, ParticleNet and UParT taggers' outputs
+#
+#####################################################################################
 def addSequences(Analyzer, Harvester, discriminators, regions, globalPSet, label='bTag'):
     for discr in discriminators.keys():
         for region in regions.keys():
@@ -72,9 +85,6 @@ def addSequences(Analyzer, Harvester, discriminators, regions, globalPSet, label
             Analyzer.insert(-1, globals()[name + 'Analyzer'])
             Harvester.insert(-1, globals()[name + 'Harvester'])
 
-#
-#
-#
 taggersToAnalyze = {
     'bTagDeepFlavour': {
         'discriminators': DeepFlavourDiscriminators,
@@ -104,16 +114,7 @@ taggersToAnalyze = {
     }
 }
 
-# For DQM
-bTagMiniDQMSource = cms.Sequence(bTagSVDQM, patJetsSVInfoTask)
-bTagMiniDQMHarvesting = cms.Sequence()
-
-# For Validation
-bTagMiniValidationSource = cms.Sequence(bTagSVDQM, patJetsSVInfoTask)
-bTagMiniValidationHarvesting = cms.Sequence()
-
 for tagger in taggersToAnalyze:
-
     # DQM
     addSequences(bTagMiniDQMSource,
                  bTagMiniDQMHarvesting,
@@ -130,9 +131,88 @@ for tagger in taggersToAnalyze:
                  globalPSet=bTagMiniValidationGlobalUParT if "UParT" in tagger else bTagMiniValidationGlobal,
                  label=tagger+'Validation')
 
+#####################################################################################
+#
+# Setup Validation plots for DeepJet, ParticleNet and UParT taggers' inputs
+#
+#####################################################################################
+# Jets in the tracker-coverage region
+patJetsPuppiTagInfoAnalyzerDQM = DQMEDAnalyzer('MiniAODTagInfoAnalyzer', cms.PSet(
+    jets = cms.InputTag('updatedPatJetsSlimmedPuppiWithDeepTags'),
+    jetTagInfos = cms.vstring(
+        "pfDeepFlavourTagInfosSlimmedPuppiWithDeepTags",
+        "pfParticleNetFromMiniAODAK4PuppiCentralTagInfosSlimmedPuppiWithDeepTags",
+        "pfUnifiedParticleTransformerAK4TagInfosSlimmedPuppiWithDeepTags",
+    ),
+    ptMin = cms.double(30.),
+    absEtaMin = cms.double(0.0),
+    absEtaMax = cms.double(2.5),
+    jetPartonFlavour = cms.int32(-1),#Inclusive flavour since DQM is for data
+   )
+)
+bTagMiniDQMSource += patJetsPuppiTagInfoAnalyzerDQM
+
+# Jets outside tracker-coverage region. Only ParticleNet
+patJetsPuppiForwardTagInfoAnalyzerDQM = patJetsPuppiTagInfoAnalyzerDQM.clone(
+    jetTagInfos = cms.vstring(
+        "pfParticleNetFromMiniAODAK4PuppiForwardTagInfosSlimmedPuppiWithDeepTags",
+    ),
+    absEtaMin = cms.double(2.5),
+    absEtaMax = cms.double(5.0),
+    jetPartonFlavour = cms.int32(-1),#Inclusive flavour since DQM is for data
+)
+bTagMiniDQMSource += patJetsPuppiForwardTagInfoAnalyzerDQM
+
+#####################################################################################
+#
+# Setup Validation plots for DeepJet, ParticleNet and UParT taggers' inputs
+#
+#####################################################################################
+# Jets in the tracker-coverage region (Inclusive flavour)
+patJetsPuppiTagInfoAnalyzerValidation = patJetsPuppiTagInfoAnalyzerDQM.clone()
+bTagMiniValidationSource += patJetsPuppiTagInfoAnalyzerValidation
+
+# Jets in the tracker-coverage region (B flavour)
+patJetsPuppiTagInfoAnalyzerBJetsValidation = patJetsPuppiTagInfoAnalyzerValidation.clone(jetPartonFlavour=5)
+bTagMiniValidationSource += patJetsPuppiTagInfoAnalyzerBJetsValidation
+
+# Jets in the tracker-coverage region (C flavour)
+patJetsPuppiTagInfoAnalyzerCJetsValidation = patJetsPuppiTagInfoAnalyzerValidation.clone(jetPartonFlavour=4)
+bTagMiniValidationSource += patJetsPuppiTagInfoAnalyzerCJetsValidation
+
+# Jets in the tracker-coverage region (L flavour: uds+g)
+patJetsPuppiTagInfoAnalyzerLJetsValidation = patJetsPuppiTagInfoAnalyzerValidation.clone(jetPartonFlavour=1)
+bTagMiniValidationSource += patJetsPuppiTagInfoAnalyzerLJetsValidation
+
+# Jets outside tracker-coverage region (Inclusive flavour). Only ParticleNet
+patJetsPuppiForwardTagInfoAnalyzerValidation = patJetsPuppiForwardTagInfoAnalyzerDQM.clone()
+bTagMiniValidationSource += patJetsPuppiForwardTagInfoAnalyzerValidation
+#####################################################################################
+#
+# Setup modifiers here
+#
+#####################################################################################
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 from Configuration.ProcessModifiers.miniAOD_skip_trackExtras_cff import miniAOD_skip_trackExtras
 
+toExcludeDQMSource_pp_on_AA = [
+    bTagSVDQM,
+    patJetsSVInfoTask,
+    patJetsPuppiTagInfoAnalyzerDQM,
+    patJetsPuppiForwardTagInfoAnalyzerDQM,
+]
+
+toExcludeValidationSource_pp_on_AA = [
+    bTagSVDQM,
+    patJetsSVInfoTask,
+    patJetsPuppiTagInfoAnalyzerValidation,
+    patJetsPuppiTagInfoAnalyzerBJetsValidation,
+    patJetsPuppiTagInfoAnalyzerCJetsValidation,
+    patJetsPuppiTagInfoAnalyzerLJetsValidation,
+    patJetsPuppiForwardTagInfoAnalyzerValidation
+]
+
 _mAOD = (pp_on_AA | miniAOD_skip_trackExtras)
-_mAOD.toReplaceWith(bTagMiniDQMSource, bTagMiniDQMSource.copyAndExclude([bTagSVDQM, patJetsSVInfoTask]))
-_mAOD.toReplaceWith(bTagMiniValidationSource, bTagMiniValidationSource.copyAndExclude([bTagSVDQM, patJetsSVInfoTask]))
+_mAOD.toReplaceWith(bTagMiniDQMSource, bTagMiniDQMSource.copyAndExclude(toExcludeDQMSource_pp_on_AA))
+_mAOD.toReplaceWith(bTagMiniValidationSource, bTagMiniValidationSource.copyAndExclude(toExcludeValidationSource_pp_on_AA))
+

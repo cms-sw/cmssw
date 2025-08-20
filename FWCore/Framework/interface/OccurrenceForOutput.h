@@ -17,6 +17,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
+#include "DataFormats/Provenance/interface/ProductDescriptionFwd.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/PrincipalGetAdapter.h"
@@ -37,7 +38,6 @@ namespace edmtest {
 
 namespace edm {
 
-  class BranchDescription;
   class ModuleCallingContext;
   class Principal;
   class EDConsumerBase;
@@ -64,10 +64,14 @@ namespace edm {
     Handle<PROD> getHandle(EDGetTokenT<PROD> token) const;
 
     Provenance getProvenance(BranchID const& theID) const;
+    StableProvenance const& getStableProvenance(BranchID const& ithID) const;
 
     void getAllProvenance(std::vector<Provenance const*>& provenances) const;
 
     void getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const;
+
+    std::vector<ProductDescription const*> productDescriptions() const;
+    ProductRegistry const& productRegistry() const;
 
     virtual ProcessHistory const& processHistory() const;
 

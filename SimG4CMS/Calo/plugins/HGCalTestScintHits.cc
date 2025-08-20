@@ -56,7 +56,7 @@ HGCalTestScintHits::HGCalTestScintHits(const edm::ParameterSet& ps)
                                << "   Hits: " << caloHitSource_ << " Tile file " << tileFileName_;
   if (!tileFileName_.empty()) {
     edm::FileInPath filetmp("SimG4CMS/Calo/data/" + tileFileName_);
-    std::string fileName = filetmp.fullPath();
+    const std::string& fileName = filetmp.fullPath();
     std::ifstream fInput(fileName.c_str());
     if (!fInput.good()) {
       edm::LogVerbatim("HGCalSim") << "Cannot open file " << fileName;

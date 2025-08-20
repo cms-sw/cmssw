@@ -32,6 +32,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 
 //
 // class decleration
@@ -49,7 +50,7 @@ public:
 private:
   using HostType = edm::ESProductHost<HcaluLUTTPGCoder, HcalDbRecord>;
 
-  void buildCoder(const HcalTopology*, const HcalTimeSlew*, HcaluLUTTPGCoder*);
+  void buildCoder(const HcalTopology*, const HcalElectronicsMap*, const HcalTimeSlew*, HcaluLUTTPGCoder*);
 
   // ----------member data ---------------------------
   edm::ReusableObjectHolder<HostType> holder_;
@@ -96,6 +97,7 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig) {
   auto cc = setWhatProduced(this);
   topoToken_ = cc.consumes();
   delayToken_ = cc.consumes(edm::ESInputTag{"", "HBHE"});
+  serviceToken_ = cc.consumes();
 
   if (!(read_Ascii_ || read_XML_)) {
     LUTGenerationMode_ = iConfig.getParameter<bool>("LUTGenerationMode");
@@ -106,15 +108,17 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig) {
     linearLSB_QIE11Overlap_ = scales.getParameter<double>("LSBQIE11Overlap");
     maskBit_ = iConfig.getParameter<int>("MaskBit");
     FG_HF_thresholds_ = iConfig.getParameter<std::vector<uint32_t> >("FG_HF_thresholds");
-    serviceToken_ = cc.consumes();
   } else {
     ifilename_ = iConfig.getParameter<edm::FileInPath>("inputLUTs");
   }
 }
 
-void HcalTPGCoderULUT::buildCoder(const HcalTopology* topo, const HcalTimeSlew* delay, HcaluLUTTPGCoder* theCoder) {
+void HcalTPGCoderULUT::buildCoder(const HcalTopology* topo,
+                                  const HcalElectronicsMap* emap,
+                                  const HcalTimeSlew* delay,
+                                  HcaluLUTTPGCoder* theCoder) {
   using namespace edm::es;
-  theCoder->init(topo, delay);
+  theCoder->init(topo, emap, delay);
 
   theCoder->setOverrideDBweightsAndFilterHB(overrideDBweightsAndFilterHB_);
   theCoder->setOverrideDBweightsAndFilterHE(overrideDBweightsAndFilterHE_);
@@ -161,12 +165,14 @@ HcalTPGCoderULUT::ReturnType HcalTPGCoderULUT::produce(const HcalTPGRecord& iRec
 
   const auto& topo = iRecord.get(topoToken_);
   const auto& delayRcd = iRecord.getRecord<HcalDbRecord>();
+  const auto& dbServ = iRecord.get(serviceToken_);
+  const auto* emap = dbServ.getHcalMapping();
   const auto& delay = delayRcd.get(delayToken_);
   if (read_Ascii_ || read_XML_) {
-    buildCoder(&topo, &delay, host.get());
+    buildCoder(&topo, emap, &delay, host.get());
   } else {
-    host->ifRecordChanges<HcalDbRecord>(iRecord, [this, &topo, &delay, h = host.get()](auto const& rec) {
-      buildCoder(&topo, &delay, h);
+    host->ifRecordChanges<HcalDbRecord>(iRecord, [this, &topo, emap, &delay, h = host.get()](auto const& rec) {
+      buildCoder(&topo, emap, &delay, h);
       h->update(rec.get(serviceToken_));
       // Temporary update for FG Lut
       // Will be moved to DB

@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from ..modules.hltPreDiphoton3023IsoCaloIdL1Seeded_cfi import *
 from ..sequences.HLTBeginSequence_cfi import *
 from ..sequences.HLTDiphoton3023IsoCaloIdL1SeededSequence_cfi import *
 from ..sequences.HLTEndSequence_cfi import *

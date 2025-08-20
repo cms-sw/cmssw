@@ -800,10 +800,10 @@ process.l1tGTAlgoBlockProducer = cms.EDProducer(
 process.pl1tGTAlgoBlockProducer = cms.Path(process.l1tGTAlgoBlockProducer)
 
 if options.platform == "VU13P":
-    from L1Trigger.Phase2L1GT.l1tGTBoardWriterVU13P_cff import BoardDataInput, BoardDataOutputObjects
+    from L1Trigger.Phase2L1GT.l1tGTBoardWriterVU13P_cff import BoardDataInputVU13P as BoardDataInput, BoardDataOutputObjectsVU13P as BoardDataOutputObjects
     channels = cms.untracked.vuint32(46, 47)
 else:
-    from L1Trigger.Phase2L1GT.l1tGTBoardWriterVU9P_cff import BoardDataInput, BoardDataOutputObjects
+    from L1Trigger.Phase2L1GT.l1tGTBoardWriterVU9P_cff import BoardDataInputVU9P as BoardDataInput, BoardDataOutputObjectsVU9P as BoardDataOutputObjects
     channels = cms.untracked.vuint32(32, 33)
 
 

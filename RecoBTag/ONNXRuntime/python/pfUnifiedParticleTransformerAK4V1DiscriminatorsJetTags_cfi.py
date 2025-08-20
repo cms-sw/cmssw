@@ -1,0 +1,182 @@
+import FWCore.ParameterSet.Config as cms
+
+pfUnifiedParticleTransformerAK4V1DiscriminatorsJetTags = cms.EDProducer(
+   'BTagProbabilityToDiscriminator',
+   discriminators = cms.VPSet(
+      cms.PSet(
+         name = cms.string('BvsAll'),
+         numerator = cms.VInputTag(
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probb'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probbb'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'problepb'),
+            ),
+         denominator=cms.VInputTag(
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probb'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probbb'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'problepb'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probc'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probs'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probu'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probd'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probg'),
+         ),
+      ),
+      cms.PSet(
+         name = cms.string('CvsL'),
+         numerator = cms.VInputTag(
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probc'),
+            ),
+         denominator = cms.VInputTag(
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probc'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probs'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probu'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probd'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probg'),
+            ),
+         ),
+      cms.PSet(
+         name = cms.string('CvsB'),
+         numerator = cms.VInputTag(
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probc'),
+            ),
+         denominator = cms.VInputTag(
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probc'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probb'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probbb'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'problepb'),
+            ),
+         ),
+      cms.PSet(
+         name = cms.string('QvsG'),
+         numerator = cms.VInputTag(
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probs'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probu'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probd'),
+            ),
+         denominator = cms.VInputTag(
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probs'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probu'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probd'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probg'),
+            ),
+         ),
+      cms.PSet(
+         name = cms.string('SvsUDG'),
+         numerator = cms.VInputTag(
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probs'),
+         ),
+         denominator = cms.VInputTag(
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probs'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probu'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probd'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probg'),
+            ),
+         ),
+      cms.PSet(
+         name = cms.string('SvsBC'),
+         numerator = cms.VInputTag(
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probs'),
+         ),
+         denominator = cms.VInputTag(
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probs'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probb'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probbb'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'problepb'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probc'),
+            ),
+         ),
+      cms.PSet(
+         name = cms.string('TauVsJet'),
+         numerator = cms.VInputTag(
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaup1h0p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaup1h1p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaup1h2p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaup3h0p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaup3h1p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaum1h0p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaum1h1p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaum1h2p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaum3h0p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaum3h1p'),
+            ),
+         denominator = cms.VInputTag(
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probb'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probbb'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'problepb'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probc'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probs'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probu'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probd'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probg'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaup1h0p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaup1h1p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaup1h2p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaup3h0p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaup3h1p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaum1h0p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaum1h1p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaum1h2p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaum3h0p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaum3h1p'),
+            ),
+         ),
+      cms.PSet(
+         name = cms.string('TauVsEle'),
+         numerator = cms.VInputTag(
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaup1h0p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaup1h1p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaup1h2p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaup3h0p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaup3h1p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaum1h0p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaum1h1p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaum1h2p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaum3h0p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaum3h1p'),
+            ),
+         denominator = cms.VInputTag(
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probele'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaup1h0p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaup1h1p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaup1h2p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaup3h0p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaup3h1p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaum1h0p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaum1h1p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaum1h2p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaum3h0p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaum3h1p'),
+            ),
+         ),
+
+      cms.PSet(
+         name = cms.string('TauVsMu'),
+         numerator = cms.VInputTag(
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaup1h0p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaup1h1p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaup1h2p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaup3h0p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaup3h1p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaum1h0p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaum1h1p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaum1h2p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaum3h0p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaum3h1p'),
+            ),
+         denominator = cms.VInputTag(
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probmu'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaup1h0p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaup1h1p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaup1h2p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaup3h0p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaup3h1p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaum1h0p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaum1h1p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaum1h2p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaum3h0p'),
+            cms.InputTag('pfUnifiedParticleTransformerAK4V1JetTags', 'probtaum3h1p'),
+            ),
+         ),
+
+      )
+   )

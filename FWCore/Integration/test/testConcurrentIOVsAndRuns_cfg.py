@@ -9,9 +9,7 @@
 # to get to the next event. In this test every lumi is
 # only valid for one transition (see internals of
 # RunLumiESSource). This test checks that correct
-# EventSetup info is retrieved in all the transitions
-# plus the same test is run in a SubProcess to
-# check that transitions there are also running properly.
+# EventSetup info is retrieved in all the transitions.
 # Manual examination of the times in the log output should
 # show 3 events in 3 different runs being processed
 # concurrently.
@@ -53,20 +51,3 @@ process.out = cms.OutputModule("PoolOutputModule",
 )
 
 process.e = cms.EndPath(process.out)
-
-# ---------------------------------------------------------------
-
-aSubProcess = cms.Process("TESTSUBPROCESS")
-process.addSubProcess(cms.SubProcess(aSubProcess))
-
-aSubProcess.runLumiESSource = cms.ESSource("RunLumiESSource")
-
-aSubProcess.test = cms.EDAnalyzer("RunLumiESAnalyzer")
-
-aSubProcess.p1 = cms.Path(aSubProcess.test)
-
-aSubProcess.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('testConcurrentIOVsAndRunsSubProcess.root')
-)
-
-aSubProcess.e = cms.EndPath(aSubProcess.out)

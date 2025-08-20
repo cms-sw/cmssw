@@ -10,23 +10,20 @@
  */
 
 #include <memory>
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/global/EDProducer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/StreamID.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
-#include "DataFormats/PatCandidates/interface/GenericParticle.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
-
-#include "DataFormats/PatCandidates/interface/Muon.h"
-#include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/GenericParticle.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 class LeptonFSRProducer : public edm::global::EDProducer<> {
 public:
@@ -217,7 +214,7 @@ void LeptonFSRProducer::produce(edm::StreamID streamID, edm::Event& iEvent, cons
     }
   }  // end of loop over pfCands
 
-  edm::OrphanHandle<std::vector<pat::GenericParticle>> oh = iEvent.put(std::move(fsrPhotons));
+  iEvent.put(std::move(fsrPhotons));
 
   {
     std::unique_ptr<edm::ValueMap<int>> bareIdx(new edm::ValueMap<int>());

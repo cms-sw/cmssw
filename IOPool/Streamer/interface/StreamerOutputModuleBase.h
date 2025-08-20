@@ -45,7 +45,9 @@ namespace edm {
     private:
       edm::EDGetTokenT<edm::TriggerResults> trToken_;
       edm::EDGetTokenT<SendJobHeader::ParameterSetMap> psetToken_;
+      edm::ProcessHistoryID lastHistory_;
       bool lastCallWasBeginRun_ = false;
+      bool initWritten_ = false;
 
     };  //end-of-class-def
   }  // namespace streamer

@@ -19,7 +19,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/ThinnedAssociation.h"
 #include "DataFormats/Common/interface/EndPathStatus.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
@@ -46,10 +46,7 @@ namespace edm {
     // -------------------------------------------------------
     OutputModuleBase::OutputModuleBase(ParameterSet const& pset) : core::OutputModuleCore(pset) {}
 
-    void OutputModuleBase::configure(OutputModuleDescription const& desc) {
-      core::OutputModuleCore::configure(desc);
-      subProcessParentageHelper_ = desc.subProcessParentageHelper_;
-    }
+    void OutputModuleBase::configure(OutputModuleDescription const& desc) { core::OutputModuleCore::configure(desc); }
 
     SharedResourcesAcquirer OutputModuleBase::createAcquirer() {
       return SharedResourcesAcquirer{

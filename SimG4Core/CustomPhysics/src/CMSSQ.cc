@@ -11,16 +11,16 @@
 // ###                          SEXAQUARK                             ###
 // ######################################################################
 
-CMSSQ* CMSSQ::theInstance = 0;
+CMSSQ* CMSSQ::theInstance = nullptr;
 
 CMSSQ* CMSSQ::Definition(double mass) {
-  if (theInstance != 0)
+  if (theInstance != nullptr)
     return theInstance;
   const G4String name = "sexaq";
   // search in particle table]
   G4ParticleTable* pTable = G4ParticleTable::GetParticleTable();
   G4ParticleDefinition* anInstance = pTable->FindParticle(name);
-  if (anInstance == 0) {
+  if (anInstance == nullptr) {
     // create particle
     //
     //    Arguments for constructor are as follows

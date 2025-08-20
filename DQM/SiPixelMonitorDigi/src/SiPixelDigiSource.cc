@@ -1138,68 +1138,18 @@ void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup) {
         uint32_t id = detId();
         SiPixelDigiModule* theModule = new SiPixelDigiModule(id, ncols, nrows);
 
-        PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(id), pTT, isUpgrade).halfCylinder();
         int disk = PixelEndcapName(DetId(id), pTT, isUpgrade).diskName();
         if (disk > noOfDisks)
           noOfDisks = disk;
-        int blade = PixelEndcapName(DetId(id), pTT, isUpgrade).bladeName();
-        int panel = PixelEndcapName(DetId(id), pTT, isUpgrade).pannelName();
-        int module = PixelEndcapName(DetId(id), pTT, isUpgrade).plaquetteName();
-
-        char sside[80];
-        sprintf(sside, "HalfCylinder_%i", side);
-        char sdisk[80];
-        sprintf(sdisk, "Disk_%i", disk);
-        char sblade[80];
-        sprintf(sblade, "Blade_%02i", blade);
-        char spanel[80];
-        sprintf(spanel, "Panel_%i", panel);
-        char smodule[80];
-        sprintf(smodule, "Module_%i", module);
-        std::string side_str = sside;
-        std::string disk_str = sdisk;
-        bool mask = side_str.find("HalfCylinder_1") != string::npos ||
-                    side_str.find("HalfCylinder_2") != string::npos ||
-                    side_str.find("HalfCylinder_4") != string::npos || disk_str.find("Disk_2") != string::npos;
-        // clutch to take all of FPIX, but no BPIX:
-        mask = false;
-        if (isPIB && mask)
-          continue;
-
         thePixelStructure.insert(pair<uint32_t, SiPixelDigiModule*>(id, theModule));
       } else if ((detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) && (isUpgrade)) {
         LogDebug("PixelDQM") << " ---> Adding Endcap Module " << detId.rawId() << endl;
         uint32_t id = detId();
         SiPixelDigiModule* theModule = new SiPixelDigiModule(id, ncols, nrows);
 
-        PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(id), pTT, isUpgrade).halfCylinder();
         int disk = PixelEndcapName(DetId(id), pTT, isUpgrade).diskName();
         if (disk > noOfDisks)
           noOfDisks = disk;
-        int blade = PixelEndcapName(DetId(id), pTT, isUpgrade).bladeName();
-        int panel = PixelEndcapName(DetId(id), pTT, isUpgrade).pannelName();
-        int module = PixelEndcapName(DetId(id), pTT, isUpgrade).plaquetteName();
-
-        char sside[80];
-        sprintf(sside, "HalfCylinder_%i", side);
-        char sdisk[80];
-        sprintf(sdisk, "Disk_%i", disk);
-        char sblade[80];
-        sprintf(sblade, "Blade_%02i", blade);
-        char spanel[80];
-        sprintf(spanel, "Panel_%i", panel);
-        char smodule[80];
-        sprintf(smodule, "Module_%i", module);
-        std::string side_str = sside;
-        std::string disk_str = sdisk;
-        bool mask = side_str.find("HalfCylinder_1") != string::npos ||
-                    side_str.find("HalfCylinder_2") != string::npos ||
-                    side_str.find("HalfCylinder_4") != string::npos || disk_str.find("Disk_2") != string::npos;
-        // clutch to take all of FPIX, but no BPIX:
-        mask = false;
-        if (isPIB && mask)
-          continue;
-
         thePixelStructure.insert(pair<uint32_t, SiPixelDigiModule*>(id, theModule));
       }  //end_elseif(isUpgrade)
     }

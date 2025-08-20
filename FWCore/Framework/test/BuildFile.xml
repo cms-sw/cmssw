@@ -318,7 +318,7 @@
   <use name="FWCore/Framework"/>
 </bin>
 
-<bin file="test_catch2_main.cc,test_catch2_Factory.cc" name="TestFWCoreFrameworkFactory">
+<bin file="test_catch2_main.cc,test_catch2_ModuleHolderFactory.cc" name="TestFWCoreFrameworkFactory">
   <use name="catch2"/>
   <use name="FWCore/Framework"/>
 </bin>
@@ -382,6 +382,12 @@
 <test name="testFWCoreFrameworkWrongOptionssizeOfStackForThreadsInKBType" command="run_wrongOptionsType.sh sizeOfStackForThreadsInKB 'cms.untracked.int32(1024)'"/>
 
 <bin file="test_catch2_main.cc,test_catch2_CmsRunParser.cc" name="TestFWCoreFrameworkCmsRunParser">
+  <use name="catch2"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/Utilities"/>
+</bin>
+
+<bin file="test_catch2_main.cc,test_catch2_ScheduleBuilder.cc" name="TestFWCoreFrameworkScheduleBuilder">
   <use name="catch2"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/Utilities"/>

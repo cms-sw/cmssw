@@ -13,8 +13,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // Kernel to apply cuts to calorimeter hits and construct PFRecHits
   template <typename CAL>
   struct PFRecHitProducerKernelConstruct {
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(const TAcc& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   const typename CAL::ParameterType::ConstView params,
                                   const typename CAL::TopologyTypeDevice::ConstView topology,
                                   const typename CAL::CaloRecHitSoATypeDevice::ConstView recHits,
@@ -142,8 +141,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // Kernel to associate topology information of PFRecHits
   template <typename CAL>
   struct PFRecHitProducerKernelTopology {
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(const TAcc& acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   const typename CAL::TopologyTypeDevice::ConstView topology,
                                   reco::PFRecHitDeviceCollection::View pfRecHits,
                                   const uint32_t* __restrict__ denseId2pfRecHit,

@@ -52,3 +52,7 @@ unsigned int DualByL2TSG::selectTSG(const TrackCand& muonTrackCand, const Tracki
 
   return re_do_this_L2 ? 1 : 0;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGeneratorFactory.h"
+DEFINE_EDM_PLUGIN(TrackerSeedGeneratorFactory, DualByL2TSG, "DualByL2TSG");

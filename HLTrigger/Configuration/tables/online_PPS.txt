@@ -25,8 +25,7 @@ HLT_Physics_v*
 HLT_Random_v*
 HLT_HT60_Beamspot_v*
 HLT_HT300_Beamspot_v*
-HLT_IsoTrackHB_v*
-HLT_IsoTrackHE_v*
+AlCa_IsoTrackHBHE_v*	# CMSHLT-3519
 HLT_L1SingleMuCosmics_EMTF_v*
 HLT_PPSMaxTracksPerArm1_v*
 HLT_PPSMaxTracksPerRP4_v*
@@ -42,11 +41,11 @@ HLT_ZeroBias_FirstCollisionInTrain_v*
 HLT_ZeroBias_LastCollisionInTrain_v*
 HLT_PixelClusters_WP1_v*
 HLT_PixelClusters_WP2_v*
-HLT_HT300_Beamspot_PixelClusters_WP2_v*
+HLT_Beamspot_PixelClusters_WP2_v*	# CMSHLT-3528
 
 HLTriggerFinalPath
 
-## EndPaths / FinalPaths ##
+## EndPaths ##
 
 ALCALumiPixelsCountsExpressOutput
 ALCALumiPixelsCountsPromptOutput
@@ -54,6 +53,7 @@ ALCAP0Output
 ALCAPHISYMOutput
 ALCAPPSExpressOutput
 ALCAPPSPromptOutput
+ALCAHcalIsoTrkOutput	# CMSHLT-3519
 CalibrationOutput
 DQMOutput
 DQMCalibrationOutput
@@ -75,6 +75,17 @@ PhysicsSpecialZeroBias6Output
 PhysicsSpecialZeroBias7Output
 PhysicsSpecialZeroBias8Output
 PhysicsSpecialZeroBias9Output
+PhysicsSpecialZeroBias10Output
+PhysicsSpecialZeroBias11Output
+PhysicsSpecialZeroBias12Output
+PhysicsSpecialZeroBias13Output
+PhysicsSpecialZeroBias14Output
+PhysicsSpecialZeroBias15Output
+PhysicsSpecialZeroBias16Output
+PhysicsSpecialZeroBias17Output
+PhysicsSpecialZeroBias18Output
+PhysicsSpecialZeroBias19Output
+
 NanoDSTOutput
 RPCMONOutput
 PhysicsSpecialRandom0Output

@@ -27,7 +27,7 @@
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 
-#include "FWCore/Utilities/interface/TimingServiceBase.h"
+#include "FWCore/AbstractServices/interface/TimingServiceBase.h"
 
 #include "ThreadAllocInfo.h"
 
@@ -365,10 +365,13 @@ namespace edm::service::moduleAlloc {
 
     auto esModuleLabelsPtr = std::make_shared<std::vector<std::string>>();
     auto& esModuleLabels = *esModuleLabelsPtr;
+    auto esModuleTypesPtr = std::make_shared<std::vector<std::string>>();
+    auto& esModuleTypes = *esModuleTypesPtr;
     //acquire names for all the ED and ES modules
-    iRegistry.watchPostESModuleRegistration([&esModuleLabels](auto const& iDescription) {
+    iRegistry.watchPostESModuleRegistration([&esModuleLabels, &esModuleTypes](auto const& iDescription) {
       if (esModuleLabels.size() <= iDescription.id_ + 1) {
         esModuleLabels.resize(iDescription.id_ + 2);
+        esModuleTypes.resize(iDescription.id_ + 2);
       }
       //NOTE: we want the id to start at 1 not 0
       if (not iDescription.label_.empty()) {
@@ -376,22 +379,28 @@ namespace edm::service::moduleAlloc {
       } else {
         esModuleLabels[iDescription.id_ + 1] = iDescription.type_;
       }
+      esModuleTypes[iDescription.id_ + 1] = iDescription.type_;
     });
     auto moduleCtrDtrPtr = std::make_shared<std::vector<ModuleCtrDtr>>();
     auto& moduleCtrDtr = *moduleCtrDtrPtr;
     auto moduleLabelsPtr = std::make_shared<std::vector<std::string>>();
+    auto moduleTypesPtr = std::make_shared<std::vector<std::string>>();
     auto& moduleLabels = *moduleLabelsPtr;
+    auto& moduleTypes = *moduleTypesPtr;
     iRegistry.watchPreModuleConstruction(
-        [&moduleLabels, &moduleCtrDtr, beginTime, iFilter](ModuleDescription const& md) {
+        [&moduleLabels, &moduleTypes, &moduleCtrDtr, beginTime, iFilter](ModuleDescription const& md) {
           auto const t = duration_cast<duration_t>(now() - beginTime).count();
 
           auto const mid = md.id();
           if (mid < moduleLabels.size()) {
             moduleLabels[mid] = md.moduleLabel();
+            moduleTypes[mid] = md.moduleName();
             moduleCtrDtr[mid].beginConstruction = t;
           } else {
             moduleLabels.resize(mid + 1);
             moduleLabels.back() = md.moduleLabel();
+            moduleTypes.resize(mid + 1);
+            moduleTypes.back() = md.moduleName();
             moduleCtrDtr.resize(mid + 1);
             moduleCtrDtr.back().beginConstruction = t;
           }
@@ -481,24 +490,30 @@ namespace edm::service::moduleAlloc {
     iRegistry.watchPreBeginJob([logFile,
                                 iFilter,
                                 moduleLabelsPtr,
+                                moduleTypesPtr,
                                 esModuleLabelsPtr,
+                                esModuleTypesPtr,
                                 moduleCtrDtrPtr,
                                 sourceCtrPtr,
                                 beginTime,
                                 beginModuleAlloc,
-                                addDataInDtr](auto&, auto&) mutable {
+                                addDataInDtr](auto&) mutable {
       *addDataInDtr = true;
       {
         std::ostringstream oss;
-        moduleIdToLabel(oss, *moduleLabelsPtr, 'M', "EDModule ID", "Module label");
+        moduleIdToLabelAndType(
+            oss, *moduleLabelsPtr, *moduleTypesPtr, 'M', "EDModule ID", "Module label", "Module type");
         logFile->write(oss.str());
         moduleLabelsPtr.reset();
+        moduleTypesPtr.reset();
       }
       {
         std::ostringstream oss;
-        moduleIdToLabel(oss, *esModuleLabelsPtr, 'N', "ESModule ID", "ESModule label");
+        moduleIdToLabelAndType(
+            oss, *esModuleLabelsPtr, *esModuleTypesPtr, 'N', "ESModule ID", "ESModule label", "ESModule type");
         logFile->write(oss.str());
         esModuleLabelsPtr.reset();
+        esModuleTypesPtr.reset();
       }
       {
         auto const moduleAllocStart = duration_cast<duration_t>(beginModuleAlloc - beginTime).count();

@@ -2,7 +2,6 @@
 #from G.Benelli and Arun Mittal
 # 2016 November 17
 #Quick script to split a large sqlite file (holding all of our Noise payloads (Run1+Run2) into a set of smaller ones.
-from __future__ import print_function
 import subprocess
 IOVs=[]
 for line in subprocess.Popen("conddb --noLimit --db Linear.db list EcalLinearCorrections_from2011_offline",shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).stdout.readlines():

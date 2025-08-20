@@ -37,6 +37,9 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/Common/interface/EventBase.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace edm {
 
@@ -52,6 +55,11 @@ namespace edm {
       edm::EventBase& eventBase = dynamic_cast<edm::EventBase&>(event);
       edm::EventBase const& eventBaseConst = const_cast<edm::EventBase const&>(eventBase);
       return (*filter_)(eventBaseConst);
+    }
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc = T::getDescription();
+      descriptions.addWithDefaultLabel(desc);
     }
 
   protected:

@@ -723,7 +723,6 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
                                       << std::endl;
         }
 
-        reqEtaPhiResult = false;
         continue;
 
       } else {

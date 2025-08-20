@@ -46,6 +46,9 @@ public:
   // pt binning options
   int ptbound_mode;
 
+  // pt cut
+  float ptCut;
+
   // pdg id of the particles to compute efficincies on
   int pdg_id;
 
@@ -78,7 +81,7 @@ public:
   int job_index;
 
   // Custom Looper object to facilitate looping over many files
-  RooUtil::Looper<Trktree> looper;
+  RooUtil::Looper looper;
 
   // Custom Cutflow framework
   RooUtil::Cutflow cutflow;
@@ -128,6 +131,9 @@ public:
 
   // Boolean to disable pLS duplicate cleaning
   bool no_pls_dupclean;
+
+  // Boolean to enable jet branches
+  bool jet_branches;
 };
 
 extern AnalysisConfig ana;

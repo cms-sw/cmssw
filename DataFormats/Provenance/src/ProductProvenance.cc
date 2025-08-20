@@ -16,8 +16,7 @@ namespace edm {
 
   ProductProvenance::ProductProvenance(BranchID bid) : branchID_(bid), parentageID_() {}
 
-  ProductProvenance::ProductProvenance(BranchID bid, ParentageID edid)
-      : branchID_(bid), parentageID_(std::move(edid)) {}
+  ProductProvenance::ProductProvenance(BranchID bid, ParentageID edid) : branchID_(bid), parentageID_(edid) {}
 
   ProductProvenance::ProductProvenance(BranchID bid, std::vector<BranchID> const& parents)
       : branchID_(bid), parentageID_() {

@@ -1,4 +1,3 @@
-from __future__ import print_function
 # cfg file to test the online producer of L1GtTriggerMenuRcd
 
 import FWCore.ParameterSet.Config as cms

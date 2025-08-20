@@ -1,6 +1,6 @@
 # Structure of array (SoA) generation
 
-The two header files [`SoALayout.h`](SoALayout.h) and [`SoAView.h`](SoAView.h) define preprocessor macros that
+The header file [`SoALayout.h`](SoALayout.h) defines preprocessor macros that
 allow generating SoA classes. The SoA classes generate multiple, aligned column from a memory buffer. The memory
 buffer is allocated separately by the user, and can be located in a memory space different from the local one (for
 example, a SoA located in a GPU device memory can be fully pre-defined on the host and the resulting structure is
@@ -30,19 +30,29 @@ alignment.
 
 ## View
 
-`SoAView` is a macro generated templated class allowing access to columns defined in one or multiple `SoALayout`s or
-`SoAViews`. The view can be generated in a constant and non-constant flavors. All view flavors provide with the same
-interface where scalar elements are accessed with an `operator()`: `soa.scalar()` while columns (Eigen or not) are
-accessed via a array of structure (AoS) -like syntax: `soa[index].x()`. The "struct" object returned by `operator[]`
-can be used as a shortcut: `auto si = soa[index]; si.z() = si.x() + zi.y();`
-
-A view can be instanciated by being passed the layout(s) and view(s) it is defined against, or column by column.
-
 Layout classes also define a `View` and `ConstView` subclass that provide access to each column and
 scalar of the layout. In addition to those fully parametrized templates, two others levels of parametrization are
 provided: `ViewTemplate`, `ViewViewTemplateFreeParams` and respectively `ConstViewTemplate`,
 `ConstViewTemplateFreeParams`. The parametrization of those templates is explained in the [Template
 parameters section](#template-parameters).
+
+The view can be generated in a constant and non-constant flavors. All view flavors provide with the same
+interface where scalar elements are accessed with an `operator()`: `soa.scalar()` while columns (Eigen or not) are
+accessed via a array of structure (AoS) -like syntax: `soa[index].x()`. The "struct" object returned by `operator[]`
+can be used as a shortcut: `auto si = soa[index]; si.z() = si.x() + si.y();`
+
+A view can be instanciated by being passed the corresponding layout or passing from the [Metarecords subclass](#metarecords-subclass). 
+This view can point to data belonging to different SoAs and thus not contiguous in memory.
+
+## Descriptor
+
+The nested class `ConstDescriptor` can only be instantiated passing a `View` or a `ConstView` and provides access to
+each column through a `std::tuple<std::span<T>...>`. This class should be considered an internal implementation detail,
+used solely by the SoA and EDM frameworks for performing heterogeneous memory operations. It is used to implement the
+`deepCopy` from a `View` referencing different memory buffers, as shown in 
+[`PortableHostCollection<T>`](../../DataFormats/Portable/README.md#portablehostCollection)
+and [`PortableDeviceCollection<T, TDev>`](../../DataFormats/Portable/README.md#portabledeviceCollection) sections.
+It should likely not be used for other purposes.
 
 ## Metadata subclass
 
@@ -51,6 +61,19 @@ instanciated with the `metadata()` member function and contains various utility 
 of elements in the SoA), `byteSize()`, `byteAlignment()`, `data()` (a pointer to the buffer). A `nextByte()`
 function computes the first byte of a structure right after a layout, allowing using a single buffer for multiple
 layouts.
+
+## Metarecords subclass
+
+The nested type `Metarecords` describes the elements of the SoA. It can be instantiated by the `records()` member 
+function of a `View` or `ConstView`. Every object contains the address of the first element of the column, the number
+of elements per column, and the stride for the Eigen columns. These are used to validate the columns size at run time 
+and to build a generic `View` as described in [View](#view).
+
+## Customized methods
+
+It is possible to generate methods inside the `element` and `const_element` nested structs using the `SOA_ELEMENT_METHODS`
+and `SOA_CONST_ELEMENT_METHODS` macros. Each of these macros can be called only once, and can define multiple methods. 
+[An example is showed below.](#examples)
 
 ## ROOT serialization and de-serialization
 
@@ -129,6 +152,40 @@ using SoA1Layout = SoA1LayoutTemplate<>;
 using SoA1LayoutAligned = SoA1LayoutTemplate<cms::soa::CacheLineSize::defaultSize, cms::soa::AlignmentEnforcement::enforced>;
 ```
 
+It is possible to declare methods that operate on the SoA elements:
+
+```C++
+#include "DataFormats/SoALayout.h"
+
+GENERATE_SOA_LAYOUT(SoATemplate,
+  SOA_COLUMN(double, x),
+  SOA_COLUMN(double, y),
+  SOA_COLUMN(double, z),
+  
+  // methods operating on const_element
+  SOA_CONST_ELEMENT_METHODS(
+    auto norm() const {
+      return sqrt(x()*x() + y()+y() + z()*z());
+    }
+  ),
+
+  // methods operating on element
+  SOA_ELEMENT_METHODS(
+    void scale(float arg) {
+      x() *= arg;
+      y() *= arg;
+      z() *= arg;
+    }
+  ),
+  
+  SOA_SCALAR(int, detectorType)
+);
+
+using SoA = SoATemplate<>;
+using SoAView = SoA::View;
+using SoAConstView = SoA::ConstView;
+```
+
 The buffer of the proper size is allocated, and the layout is populated with:
 
 ```C++
@@ -137,40 +194,6 @@ size_t elements = 100;
 using AlignedBuffer = std::unique_ptr<std::byte, decltype(std::free) *>;
 AlignedBuffer h_buf (reinterpret_cast<std::byte*>(aligned_alloc(SoA1LayoutAligned::alignment, SoA1LayoutAligned::computeDataSize(elements))), std::free);
 SoA1LayoutAligned soaLayout(h_buf.get(), elements);
-```
-
-A view will derive its column types from one or multiple layouts. The macro generating the view takes a list of layouts or views it
-gets is data from as a first parameter, and the selection of the columns the view will give access to as a second parameter.
-
-```C++
-// A 1 to 1 view of the layout (except for unsupported types).
-GENERATE_SOA_VIEW(SoA1ViewTemplate,
-  SOA_VIEW_LAYOUT_LIST(
-    SOA_VIEW_LAYOUT(SoA1Layout, soa1)
-  ),
-  SOA_VIEW_VALUE_LIST(
-    SOA_VIEW_VALUE(soa1, x),
-    SOA_VIEW_VALUE(soa1, y),
-    SOA_VIEW_VALUE(soa1, z),
-    SOA_VIEW_VALUE(soa1, color),
-    SOA_VIEW_VALUE(soa1, value),
-    SOA_VIEW_VALUE(soa1, py),
-    SOA_VIEW_VALUE(soa1, count),
-    SOA_VIEW_VALUE(soa1, anotherCount),
-    SOA_VIEW_VALUE(soa1, description),
-    SOA_VIEW_VALUE(soa1, someNumber)
-  )
-);
-
-using SoA1View = SoA1ViewTemplate<>;
-
-SoA1View soaView(soaLayout);
-
-for (size_t i=0; i < soaLayout.metadata().size(); ++i) {
-  auto si = soaView[i];
-  si.x() = si.y() = i;
-  soaView.someNumber() += i;
-}
 ```
 
 The mutable and const views with the exact same set of columns and their parametrized variants are provided from the layout as:
@@ -201,8 +224,6 @@ template<size_t ALIGNMENT = cms::soa::CacheLineSize::defaultSize,
          bool RANGE_CHECKING = cms::soa::RangeChecking::disabled>
 struct SoA1Layout::ConstViewTemplateFreeParams;
 ```
-
-
 
 ## Current status and further improvements
 

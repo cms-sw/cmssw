@@ -1,10 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-navigationSchoolESProducer = cms.ESProducer("NavigationSchoolESProducer",
-    ComponentName = cms.string('SimpleNavigationSchool'),
-    PluginName    = cms.string('SimpleNavigationSchool'),
-    SimpleMagneticField = cms.string('')
-#    SimpleMagneticField = cms.string('ParabolicMf')
+from RecoTracker.TkNavigation.navigationSchoolESProducer_cfi import navigationSchoolESProducer as _navigationSchoolESProducer
+navigationSchoolESProducer = _navigationSchoolESProducer.clone(
+    ComponentName = 'SimpleNavigationSchool',
+    PluginName    = 'SimpleNavigationSchool',
+    SimpleMagneticField = ''
+#   SimpleMagneticField = 'ParabolicMf'
 )
 
 navigationSchoolESProducerParabolicMf = navigationSchoolESProducer.clone(

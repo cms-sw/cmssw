@@ -25,14 +25,14 @@
 #include <vector>
 
 // user include files
-#include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Utilities/interface/ProductResolverIndex.h"
 #include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
-#include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
@@ -43,13 +43,14 @@
 
 namespace edm {
   class ModuleCallingContext;
-  class ModuleProcessName;
   class ProductResolverIndexHelper;
   class EDConsumerBase;
   class PreallocationConfiguration;
   class ProductResolverIndexAndSkipBit;
   class ActivityRegistry;
   class ThinnedAssociationsHelper;
+  class SignallingProductRegistryFiller;
+  struct ModuleConsumesMinimalESInfo;
 
   namespace maker {
     template <typename T>
@@ -57,8 +58,9 @@ namespace edm {
   }
 
   namespace eventsetup {
+    struct ComponentDescription;
     class ESRecordsToProductResolverIndices;
-  }
+  }  // namespace eventsetup
 
   namespace stream {
     class EDAnalyzerBase;
@@ -89,8 +91,7 @@ namespace edm {
       virtual bool wantsStreamRuns() const noexcept = 0;
       virtual bool wantsStreamLuminosityBlocks() const noexcept = 0;
 
-      std::string workerType() const { return "WorkerT<EDAnalyzerAdaptorBase>"; }
-      void registerProductsAndCallbacks(EDAnalyzerAdaptorBase const*, ProductRegistry* reg);
+      void registerProductsAndCallbacks(EDAnalyzerAdaptorBase const*, SignallingProductRegistryFiller* reg);
 
     protected:
       template <typename T>
@@ -113,20 +114,16 @@ namespace edm {
 
       void updateLookup(BranchType iBranchType, ProductResolverIndexHelper const&, bool iPrefetchMayGet);
       void updateLookup(eventsetup::ESRecordsToProductResolverIndices const&);
+      void releaseMemoryPostLookupSignal();
+
       virtual void selectInputProcessBlocks(ProductRegistry const&, ProcessBlockHelperBase const&) = 0;
 
       const EDConsumerBase* consumer() const;
 
-      void modulesWhoseProductsAreConsumed(std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modules,
-                                           std::vector<ModuleProcessName>& modulesInPreviousProcesses,
-                                           ProductRegistry const& preg,
-                                           std::map<std::string, ModuleDescription const*> const& labelsToDesc,
-                                           std::string const& processName) const;
-
       void convertCurrentProcessAlias(std::string const& processName);
 
-      std::vector<ConsumesInfo> consumesInfo() const;
-
+      std::vector<ModuleConsumesInfo> moduleConsumesInfos() const;
+      std::vector<ModuleConsumesMinimalESInfo> moduleConsumesMinimalESInfos() const;
       void deleteModulesEarly();
 
     private:
@@ -166,10 +163,7 @@ namespace edm {
       virtual void doBeginLuminosityBlock(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
       virtual void doEndLuminosityBlock(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
 
-      void doRespondToOpenInputFile(FileBlock const&) {}
-      void doRespondToCloseInputFile(FileBlock const&) {}
       virtual void doRespondToCloseOutputFile() = 0;
-      void doRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) {}
 
       bool hasAcquire() const noexcept { return false; }
       bool hasAccumulator() const noexcept { return false; }

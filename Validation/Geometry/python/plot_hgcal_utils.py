@@ -1,4 +1,3 @@
-from __future__ import print_function
 from ROOT import TStyle, kWhite, kTRUE
 from ROOT import gROOT, gStyle
 from ROOT import kGray, kAzure, kMagenta, kOrange, kWhite

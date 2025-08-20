@@ -20,23 +20,19 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/StreamID.h"
-
 #include "DataFormats/BTauReco/interface/CandIPTagInfo.h"
 #include "DataFormats/BTauReco/interface/CandSecondaryVertexTagInfo.h"
+#include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
 #include "DataFormats/BTauReco/interface/ShallowTagInfo.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
-#include "RecoBTag/SecondaryVertex/interface/CombinedSVComputer.h"
-
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
-#include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/StreamID.h"
+#include "RecoBTag/SecondaryVertex/interface/CombinedSVComputer.h"
 
 #include <map>
 
@@ -50,7 +46,7 @@ template <typename IPTag, typename SVTag>
 class TemplatedDeepNNTagInfoProducer : public edm::stream::EDProducer<> {
 public:
   explicit TemplatedDeepNNTagInfoProducer(const edm::ParameterSet&);
-  ~TemplatedDeepNNTagInfoProducer() override;
+  ~TemplatedDeepNNTagInfoProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -65,14 +61,6 @@ private:
 };
 
 //
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
 // constructors and destructor
 //
 template <typename IPTag, typename SVTag>
@@ -80,12 +68,6 @@ TemplatedDeepNNTagInfoProducer<IPTag, SVTag>::TemplatedDeepNNTagInfoProducer(con
     : svSrc_(consumes<std::vector<SVTag> >(iConfig.getParameter<edm::InputTag>("svTagInfos"))),
       computer_(iConfig.getParameter<edm::ParameterSet>("computer")) {
   produces<std::vector<reco::ShallowTagInfo> >();
-}
-
-template <typename IPTag, typename SVTag>
-TemplatedDeepNNTagInfoProducer<IPTag, SVTag>::~TemplatedDeepNNTagInfoProducer() {
-  // do anything here that needs to be done at destruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -131,11 +113,15 @@ void TemplatedDeepNNTagInfoProducer<IPTag, SVTag>::produce(edm::Event& iEvent, c
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 template <typename IPTag, typename SVTag>
 void TemplatedDeepNNTagInfoProducer<IPTag, SVTag>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<edm::InputTag>("svTagInfos", edm::InputTag(""));
+
+  // Define the computer parameter using CombinedSVComputer
+  edm::ParameterSetDescription computerDesc;
+  CombinedSVComputer::fillPSetDescription(computerDesc);
+  desc.add<edm::ParameterSetDescription>("computer", computerDesc);
+
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

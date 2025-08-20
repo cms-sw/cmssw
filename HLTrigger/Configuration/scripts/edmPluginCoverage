@@ -3,7 +3,6 @@
 
 # Author: Andrea 'fwyzard' Bocci <andrea.bocci@cern.ch>, Università di Pisa
 
-from __future__ import print_function
 import os, sys
 import re
 

@@ -6,7 +6,6 @@
 #
 #  mps_merge.pl [-c] inCfg mergeCfg mergeDir njobs
 
-from __future__ import print_function
 from builtins import range
 import Alignment.MillePedeAlignmentAlgorithm.mpslib.Mpslibclass as mpslib
 import re

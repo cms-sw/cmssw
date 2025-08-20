@@ -77,3 +77,10 @@ TaggingVariableList GenericMVAJetTagComputer::taggingVariables(const BaseTagInfo
 TaggingVariableList GenericMVAJetTagComputer::taggingVariables(const TagInfoHelper &info) const {
   return taggingVariables(info.getBase(0));
 }
+
+void GenericMVAJetTagComputer::fillPSetDescription(edm::ParameterSetDescription &desc) {
+  desc.add<bool>("useCategories", false);
+  TagInfoMVACategorySelector::fillPSetDescription(desc);
+  desc.add<std::string>("calibrationRecord", "");
+  desc.add<std::string>("recordLabel", "");
+}

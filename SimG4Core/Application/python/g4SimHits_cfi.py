@@ -181,7 +181,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         #        please select "SimG4Core/Physics/DummyPhysics" for type
         #        and turn ON DummyEMPhysics
         #
-        type = cms.string('SimG4Core/Physics/FTFP_BERT_EMM'),
+        type = cms.string('SimG4Core/Physics/FTFP_BERT_EMH'),
         DummyEMPhysics = cms.bool(False),
         # 1 will print cuts as they get set from DD
         # 2 will do as 1 + will dump Geant4 table of cuts
@@ -285,6 +285,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         MinPhiCut = cms.double(-3.14159265359), ## (radians)
         MaxPhiCut = cms.double(3.14159265359),  ## according to CMS conventions
         ApplyLumiMonitorCuts = cms.bool(False), ## primary for lumi monitors
+        IsSlepton = cms.bool(False),
         Verbosity = cms.untracked.int32(0),
         PDGselection = cms.PSet(
             PDGfilterSel = cms.bool(False), ## filter out unwanted particles
@@ -372,7 +373,8 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         AllMuonsPersistent = cms.bool(True),
         UseDemoHitRPC = cms.bool(True),
         UseDemoHitGEM = cms.bool(True),
-        HaveDemoChambers = cms.bool(True)
+        HaveDemoChambers = cms.bool(True),
+        RemoveGEMHits = cms.vint32()
     ),
     CaloSD = cms.PSet(
         common_heavy_suppression,
@@ -788,4 +790,12 @@ from Configuration.Eras.Modifier_phase2_hgcalV18_cff import phase2_hgcalV18
 phase2_hgcalV18.toModify(g4SimHits,
                  HGCSD = dict(
                      HitCollection = 2)
+)
+
+##
+## Fix for long-lived slepton simulation
+##
+from Configuration.ProcessModifiers.fixLongLivedSleptonSim_cff import fixLongLivedSleptonSim
+fixLongLivedSleptonSim.toModify( g4SimHits,
+                                 Generator = dict(IsSlepton = True)
 )

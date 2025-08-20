@@ -12,8 +12,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::testDigisSoA {
 
   class TestFillKernel {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc, SiPixelDigisSoAView digi_view) const {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc, SiPixelDigisSoAView digi_view) const {
       for (int32_t j : cms::alpakatools::uniform_elements(acc, digi_view.metadata().size())) {
         digi_view[j].clus() = j;
         digi_view[j].rawIdArr() = j * 2;
@@ -25,8 +24,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::testDigisSoA {
 
   class TestVerifyKernel {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc, SiPixelDigisSoAConstView digi_view) const {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc, SiPixelDigisSoAConstView digi_view) const {
       for (uint32_t j : cms::alpakatools::uniform_elements(acc, digi_view.metadata().size())) {
         ALPAKA_ASSERT_ACC(digi_view[j].clus() == int(j));
         ALPAKA_ASSERT_ACC(digi_view[j].rawIdArr() == j * 2);

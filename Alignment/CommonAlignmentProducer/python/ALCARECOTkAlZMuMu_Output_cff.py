@@ -15,7 +15,8 @@ OutALCARECOTkAlZMuMu_noDrop = cms.PSet(
         'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
         'keep *_TriggerResults_*_*',
         'keep DcsStatuss_scalersRawToDigi_*_*',
-	'keep *_offlinePrimaryVertices_*_*')
+        'keep *_offlinePrimaryVertices_*_*',
+        'keep *_offlineBeamSpot_*_*')
 )
 
 # add branches for MC truth evaluation

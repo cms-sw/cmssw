@@ -1,7 +1,7 @@
-
 #include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 // the selectores used to select the tracks
 #include "Calibration/TkAlCaRecoProducers/interface/CalibrationTrackSelector.h"
@@ -35,6 +35,10 @@ struct SiStripCalTrackConfigSelector {
     // might add EvetSetup to the select(...) method of the Selectors
     if (theBaseSwitch)
       theSelectedTracks = theBaseSelector.select(theSelectedTracks, evt);
+  }
+
+  static void fillPSetDescription(edm::ParameterSetDescription &desc) {
+    CalibrationTrackSelector::fillPSetDescription(desc);
   }
 
 private:

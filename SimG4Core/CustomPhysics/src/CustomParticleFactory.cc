@@ -51,7 +51,7 @@ void CustomParticleFactory::loadCustomParticles(const std::string &filePath) {
   G4ParticleTable *theParticleTable = G4ParticleTable::GetParticleTable();
   while (getline(configFile, line)) {
     line.erase(0, line.find_first_not_of(" \t"));  // Remove leading whitespace.
-    if (line.length() == 0 || line.at(0) == '#') {
+    if (line.empty() || line.at(0) == '#') {
       continue;
     }  // Skip blank lines and comments.
     // The mass table begins with a line containing "BLOCK MASS"
@@ -255,7 +255,7 @@ void CustomParticleFactory::getMassTable(std::ifstream *configFile) {
   // This should be compatible IMO to SLHA
   while (getline(*configFile, line)) {
     line.erase(0, line.find_first_not_of(" \t"));  // remove leading whitespace
-    if (line.length() == 0 || line.at(0) == '#')
+    if (line.empty() || line.at(0) == '#')
       continue;  // skip blank lines and comments
     if (ToLower(line).find("block") < line.npos) {
       edm::LogInfo("SimG4CoreCustomPhysics") << "CustomParticleFactory: Finished the Mass Table ";
@@ -348,7 +348,7 @@ G4DecayTable *CustomParticleFactory::getDecayTable(std::ifstream *configFile, in
 
   while (getline(*configFile, line)) {
     line.erase(0, line.find_first_not_of(" \t"));  // remove leading whitespace
-    if (line.length() == 0)
+    if (line.empty())
       continue;  // skip blank lines
     if (line.at(0) == '#' && ToLower(line).find("br") < line.npos && ToLower(line).find("nda") < line.npos)
       continue;  // skip a comment of the form:  # BR  NDA  ID1  ID2

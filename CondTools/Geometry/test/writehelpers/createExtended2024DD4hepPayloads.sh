@@ -50,7 +50,7 @@ cmsRun geometryExtended2024DD4hep_xmlwriter.py --geom=ExtendedGeometry2024FlatPl
 
 #sed -i '{s/ExtendedGeometry2024FlatPlus05Percent/ExtendedGeometry2024FlatPlus10Percent/g}' geometryExtended2024DD4hep_xmlwriter.py
 #sed -i '{s/\/geFP05/\/geFP10/g}' geometryExtended2024DD4hep_xmlwriter.py
-cmsRun geometryExtended2024DD4hep_xmlwriter.py --geom=ExtendedGeometry2024FlatPlus05Percent --out=geFP10 || die 'failed geometryExtended2024DD4hep_xmlwriter.py' $?
+cmsRun geometryExtended2024DD4hep_xmlwriter.py --geom=ExtendedGeometry2024FlatPlus10Percent --out=geFP10 || die 'failed geometryExtended2024DD4hep_xmlwriter.py' $?
 
 # Read the one big XML file and output a record to the
 # database with the an identifying tag

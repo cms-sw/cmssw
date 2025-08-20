@@ -1,4 +1,3 @@
-from __future__ import print_function
 # to test the communication with DBS and produce the csctf configuration
 import FWCore.ParameterSet.Config as cms
 

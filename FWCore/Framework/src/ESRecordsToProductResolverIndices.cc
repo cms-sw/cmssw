@@ -18,10 +18,6 @@
 #include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
 
-//
-// constants, enums and typedefs
-//
-
 namespace edm::eventsetup {
   ESRecordsToProductResolverIndices::ESRecordsToProductResolverIndices(std::vector<EventSetupRecordKey> iRecords)
       : recordKeys_{std::move(iRecords)} {
@@ -34,13 +30,16 @@ namespace edm::eventsetup {
       unsigned int iRecordIndex,
       EventSetupRecordKey const& iRecord,
       std::vector<DataKey> const& iDataKeys,
-      std::vector<ComponentDescription const*> const& iComponents) {
+      std::vector<ComponentDescription const*> const& iComponents,
+      std::vector<unsigned int> const& iProduceMethodIDs) {
     assert(iRecord == recordKeys_[iRecordIndex]);
     assert(iDataKeys.size() == iComponents.size());
+    assert(iDataKeys.size() == iProduceMethodIDs.size());
     assert(iRecordIndex + 1 == recordOffsets_.size());
     dataKeys_.insert(dataKeys_.end(), iDataKeys.begin(), iDataKeys.end());
     ++iRecordIndex;
     components_.insert(components_.end(), iComponents.begin(), iComponents.end());
+    produceMethodIDs_.insert(produceMethodIDs_.end(), iProduceMethodIDs.begin(), iProduceMethodIDs.end());
     recordOffsets_.push_back(dataKeys_.size());
     return iRecordIndex;
   }
@@ -91,6 +90,23 @@ namespace edm::eventsetup {
       return nullptr;
     }
     return components_[std::distance(dataKeys_.begin(), itDK)];
+  }
+
+  std::tuple<ComponentDescription const*, unsigned int> ESRecordsToProductResolverIndices::componentAndProduceMethodID(
+      EventSetupRecordKey const& iRK, ESResolverIndex esResolverIndex) const noexcept {
+    auto const recIndex = recordIndexFor(iRK);
+    if (recIndex == missingRecordIndex()) {
+      return {nullptr, 0};
+    }
+    auto const beginIndex = recordOffsets_[recIndex.value()];
+    auto const endIndex = recordOffsets_[recIndex.value() + 1];
+
+    int resolverIndex = esResolverIndex.value();
+    if (resolverIndex < 0 || static_cast<unsigned int>(resolverIndex) >= endIndex - beginIndex) {
+      return {nullptr, 0};
+    }
+    auto index = beginIndex + resolverIndex;
+    return {components_[index], produceMethodIDs_[index]};
   }
 
   ESTagGetter ESRecordsToProductResolverIndices::makeTagGetter(EventSetupRecordKey const& iRK,

@@ -14,6 +14,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "RecoTracker/TrackProducer/interface/TrackProducerAlgorithm.h"
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
@@ -32,6 +33,9 @@ public:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   std::vector<reco::TransientTrack> getTransient(edm::Event&, const edm::EventSetup&);
+
+  /// fillDescriptions
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   std::string myname_;
@@ -90,6 +94,19 @@ TrackProducerWithSCAssociation::TrackProducerWithSCAssociation(const edm::Parame
   produces<TrajTrackAssociationCollection>();
   //  produces< reco::TrackSuperClusterAssociationCollection > (trackSuperClusterAssociationCollection_ );
   produces<reco::TrackCaloClusterPtrAssociation>(trackSuperClusterAssociationCollection_);
+}
+
+void TrackProducerWithSCAssociation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("TrajectoryInEvent", false);
+  desc.add<edm::InputTag>("src", edm::InputTag("conversionTrackCandidates", "inOutTracksFromConversions"));
+  desc.add<std::string>("ComponentName", "ckfInOutTracksFromConversions");
+  desc.add<std::string>("producer", "conversionTrackCandidates");
+  desc.add<std::string>("trackCandidateSCAssociationCollection", "inOutTrackCandidateSCAssociationCollection");
+  desc.add<std::string>("recoTrackSCAssociationCollection", "inOutTrackSCAssociationCollection");
+  TrackProducerAlgorithm<reco::Track>::fillPSetDescription(desc);
+  TrackProducerBase::fillPSetDescription(desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::EventSetup& setup) {

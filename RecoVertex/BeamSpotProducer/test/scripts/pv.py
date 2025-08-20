@@ -1,6 +1,5 @@
 #! /usr/bin/env python
 
-from __future__ import print_function
 import ROOT
 from builtins import range
 from ROOT import gROOT, gSystem, TFile, TH1I, TCanvas, TFitterMinuit

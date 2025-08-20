@@ -7,7 +7,7 @@
 #include "RecoTracker/LSTCore/interface/SegmentsSoA.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
-  using SegmentsDeviceCollection = PortableCollection3<SegmentsSoA, SegmentsOccupancySoA, SegmentsPixelSoA>;
+  using SegmentsDeviceCollection = PortableCollection2<SegmentsSoA, SegmentsOccupancySoA>;
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::lst
 
 #endif

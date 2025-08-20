@@ -21,7 +21,7 @@ namespace tfaot {
   BatchRule::BatchRule(const std::string& ruleString) {
     // extract the target batch size from the front
     std::string rule = ruleString;
-    auto pos = rule.find(":");
+    auto pos = rule.find(':');
     if (pos == std::string::npos) {
       throw cms::Exception("InvalidBatchRule") << "invalid batch rule format: " << ruleString;
     }
@@ -32,7 +32,7 @@ namespace tfaot {
     std::vector<size_t> sizes;
     size_t sumSizes = 0;
     while (!rule.empty()) {
-      pos = rule.find(",");
+      pos = rule.find(',');
       sizes.push_back(std::stoi(rule.substr(0, pos)));
       sumSizes += sizes.back();
       rule = pos == std::string::npos ? "" : rule.substr(pos + 1);
@@ -53,7 +53,7 @@ namespace tfaot {
 
   void BatchRule::validate() const {
     // sizes must not be empty
-    if (sizes_.size() == 0) {
+    if (sizes_.empty()) {
       throw cms::Exception("EmptySizes") << "no batch sizes provided for stitching";
     }
 

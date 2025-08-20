@@ -5,6 +5,9 @@
 
 #include "PropagationMPlex.h"
 
+#include <vdt/log.h>
+#include <vdt/sincos.h>
+
 //#define DEBUG
 #include "Debug.h"
 
@@ -93,26 +96,31 @@ namespace mkfit {
       const float ipt = outPar.constAt(n, 3, 0);
       const float pt = 1.f / ipt;  //fixme, make sure it is positive?
       const float ipt2 = ipt * ipt;
-      const float p = pt / std::sin(theta);
-      const float pz = p * std::cos(theta);
+      float sT;
+      float cT;
+      vdt::fast_sincosf(theta, sT, cT);
+      const float p = pt / sT;
+      const float pz = p * cT;
       const float p2 = p * p;
       constexpr float mpi = 0.140;       // m=140 MeV, pion
       constexpr float mpi2 = mpi * mpi;  // m=140 MeV, pion
       const float beta2 = p2 / (p2 + mpi2);
       const float beta = std::sqrt(beta2);
       //radiation lenght, corrected for the crossing angle (cos alpha from dot product of radius vector and momentum)
-      const float invCos =
-          p / std::abs(pt * std::cos(outPar.constAt(n, 4, 0)) * plNrm.constAt(n, 0, 0) +
-                       pt * std::sin(outPar.constAt(n, 4, 0)) * plNrm.constAt(n, 1, 0) + pz * plNrm.constAt(n, 2, 0));
+      float sinP;
+      float cosP;
+      vdt::fast_sincosf(outPar.constAt(n, 4, 0), sinP, cosP);
+      const float invCos = p / std::abs(pt * cosP * plNrm.constAt(n, 0, 0) + pt * sinP * plNrm.constAt(n, 1, 0) +
+                                        pz * plNrm.constAt(n, 2, 0));
       radL = radL * invCos;  //fixme works only for barrel geom
       // multiple scattering
       //vary independently phi and theta by the rms of the planar multiple scattering angle
       // XXX-KMD radL < 0, see your fixme above! Repeating bailout
       if (radL < 1e-13f)
         continue;
-      // const float thetaMSC = 0.0136f*std::sqrt(radL)*(1.f+0.038f*std::log(radL))/(beta*p);// eq 32.15
+      // const float thetaMSC = 0.0136f*std::sqrt(radL)*(1.f+0.038f*vdt::fast_logf(radL))/(beta*p);// eq 32.15
       // const float thetaMSC2 = thetaMSC*thetaMSC;
-      const float thetaMSC = 0.0136f * (1.f + 0.038f * std::log(radL)) / (beta * p);  // eq 32.15
+      const float thetaMSC = 0.0136f * (1.f + 0.038f * vdt::fast_logf(radL)) / (beta * p);  // eq 32.15
       const float thetaMSC2 = thetaMSC * thetaMSC * radL;
       if /*constexpr*/ (Config::usePtMultScat) {
         outErr.At(n, 3, 3) += thetaMSC2 * pz * pz * ipt2 * ipt2;
@@ -135,12 +143,13 @@ namespace mkfit {
       constexpr float me = 0.0005;            // m=0.5 MeV, electron
       const float wmax = 2.f * me * beta2 * gamma2 / (1.f + 2.f * gamma * me / mpi + me * me / (mpi * mpi));
       constexpr float I = 16.0e-9 * 10.75;
-      const float deltahalf = std::log(28.816e-9f * std::sqrt(2.33f * 0.498f) / I) + std::log(beta * gamma) - 0.5f;
+      const float deltahalf =
+          vdt::fast_logf(28.816e-9f * std::sqrt(2.33f * 0.498f) / I) + vdt::fast_logf(beta * gamma) - 0.5f;
       const float dEdx =
-          beta < 1.f
-              ? (2.f * (hitsXi.constAt(n, 0, 0) * invCos *
-                        (0.5f * std::log(2.f * me * beta2 * gamma2 * wmax / (I * I)) - beta2 - deltahalf) / beta2))
-              : 0.f;  //protect against infs and nans
+          beta < 1.f ? (2.f * (hitsXi.constAt(n, 0, 0) * invCos *
+                               (0.5f * vdt::fast_logf(2.f * me * beta2 * gamma2 * wmax / (I * I)) - beta2 - deltahalf) /
+                               beta2))
+                     : 0.f;  //protect against infs and nans
       // dEdx = dEdx*2.;//xi in cmssw is defined with an extra factor 0.5 with respect to formula 27.1 in pdg
       //std::cout << "dEdx=" << dEdx << " delta=" << deltahalf << " wmax=" << wmax << " Xi=" << hitsXi.constAt(n,0,0) << std::endl;
       const float dP = propSign.constAt(n, 0, 0) * dEdx / beta;

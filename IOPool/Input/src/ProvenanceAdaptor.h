@@ -38,7 +38,7 @@ namespace edm {
     ProvenanceAdaptor(ProvenanceAdaptor const&) = delete;             // Disallow copying and moving
     ProvenanceAdaptor& operator=(ProvenanceAdaptor const&) = delete;  // Disallow copying and moving
 
-    std::shared_ptr<BranchIDLists const> branchIDLists() const;
+    std::shared_ptr<BranchIDLists> releaseBranchIDLists();
 
     void branchListIndexes(BranchListIndexes& indexes) const;
 
@@ -51,7 +51,7 @@ namespace edm {
 
     ParameterSetIdConverter parameterSetIdConverter_;
     ProcessHistoryIdConverter processHistoryIdConverter_;
-    std::shared_ptr<BranchIDLists const> branchIDLists_;
+    std::shared_ptr<BranchIDLists> branchIDLists_;
     std::vector<BranchListIndex> branchListIndexes_;
   };  // class ProvenanceAdaptor
 }  // namespace edm

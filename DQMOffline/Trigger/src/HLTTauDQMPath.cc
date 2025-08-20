@@ -47,7 +47,7 @@ namespace {
       for (auto iLabel = moduleLabels.begin(); iLabel != moduleLabels.end(); ++iLabel) {
         if (HLTCP.moduleEDMType(*iLabel) != "EDFilter")
           continue;
-        const std::string type = HLTCP.moduleType(*iLabel);
+        const std::string& type = HLTCP.moduleType(*iLabel);
         LogTrace("HLTTauDQMOffline") << "  " << std::distance(moduleLabels.begin(), iLabel) << " " << *iLabel << " "
                                      << type << " saveTags " << HLTCP.saveTags(*iLabel);
         if (type.find("Selector") != std::string::npos)
@@ -99,7 +99,7 @@ namespace {
     }
 
     bool isL3TauProducer(const HLTConfigProvider& HLTCP, const std::string& producerLabel) const {
-      const std::string type = HLTCP.moduleType(producerLabel);
+      const std::string& type = HLTCP.moduleType(producerLabel);
       if (type == "PFRecoTauProducer" || type == "RecoTauPiZeroUnembedder" ||
           type == "BTagProbabilityToDiscriminator") {
         LogDebug("HLTTauDQMOffline") << "Found tau producer " << type << " with label " << producerLabel
@@ -110,7 +110,7 @@ namespace {
     }
 
     bool isL3ElectronProducer(const HLTConfigProvider& HLTCP, const std::string& producerLabel) const {
-      const std::string type = HLTCP.moduleType(producerLabel);
+      const std::string& type = HLTCP.moduleType(producerLabel);
       if (type == "EgammaHLTPixelMatchElectronProducers") {
         LogDebug("HLTTauDQMOffline") << "Found electron producer " << type << " with label " << producerLabel
                                      << " from path " << name_;
@@ -120,7 +120,7 @@ namespace {
     }
 
     bool isL3MuonProducer(const HLTConfigProvider& HLTCP, const std::string& producerLabel) const {
-      const std::string type = HLTCP.moduleType(producerLabel);
+      const std::string& type = HLTCP.moduleType(producerLabel);
       if (type == "L3MuonCandidateProducer" || type == "L3MuonCombinedRelativeIsolationProducer") {
         LogDebug("HLTTauDQMOffline") << "Found muon producer " << type << " with label " << producerLabel
                                      << " from path " << name_;

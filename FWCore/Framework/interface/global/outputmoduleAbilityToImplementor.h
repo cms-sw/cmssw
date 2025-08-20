@@ -141,8 +141,8 @@ namespace edm {
       private:
         bool hasAcquire() const noexcept override { return true; }
 
-        void doAcquire_(StreamID id, EventForOutput const& event, WaitingTaskWithArenaHolder& holder) final {
-          acquire(id, event, holder);
+        void doAcquire_(StreamID id, EventForOutput const& event, WaitingTaskHolder&& holder) final {
+          acquire(id, event, WaitingTaskWithArenaHolder(std::move(holder)));
         }
 
         virtual void acquire(StreamID, EventForOutput const&, WaitingTaskWithArenaHolder) const = 0;

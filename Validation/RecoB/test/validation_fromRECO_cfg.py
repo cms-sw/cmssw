@@ -1,4 +1,3 @@
-from __future__ import print_function
 #Basic example configration file to run the b-tagging validation sequence.
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("validation")

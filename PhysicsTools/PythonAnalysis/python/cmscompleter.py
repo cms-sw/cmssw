@@ -5,8 +5,6 @@ Please read license in your lcg external python version
 benedikt.hegner@cern.ch
 
 """
-from __future__ import absolute_import
-from __future__ import print_function
 # TODO: sometimes results are doubled. clean global_matches list!
 
 import readline

@@ -71,6 +71,10 @@ namespace edm {
 
       virtual void initializeForNewIOV() {}
 
+      // Counts setWhatProduced calls if creating module class derives from ESProducer.
+      // Currently, all others cases always return 0 (CondDBESSource, unit tests...).
+      virtual unsigned int produceMethodID() const;
+
     protected:
       /**This is the function which does the real work of getting the data if it is not
           already cached.  The returning 'void const*' must point to an instance of the class

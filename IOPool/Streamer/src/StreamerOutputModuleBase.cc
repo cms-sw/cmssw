@@ -26,18 +26,31 @@ namespace edm::streamer {
   void StreamerOutputModuleBase::beginRun(RunForOutput const& iRun) {
     start();
 
-    auto psetMapHandle = iRun.getHandle(psetToken_);
+    if (not initWritten_) {
+      auto psetMapHandle = iRun.getHandle(psetToken_);
 
-    std::unique_ptr<InitMsgBuilder> init_message =
-        serializeRegistry(OutputModule::processName(),
-                          description().moduleLabel(),
-                          moduleDescription().mainParameterSetID(),
-                          psetMapHandle.isValid() ? psetMapHandle.product() : nullptr);
+      std::unique_ptr<InitMsgBuilder> init_message =
+          serializeRegistry(OutputModule::processName(),
+                            description().moduleLabel(),
+                            moduleDescription().mainParameterSetID(),
+                            psetMapHandle.isValid() ? psetMapHandle.product() : nullptr);
 
-    doOutputHeader(*init_message);
-    lastCallWasBeginRun_ = true;
+      doOutputHeader(*init_message);
+      lastCallWasBeginRun_ = true;
+      auto history = iRun.processHistory();
+      lastHistory_ = history.reduce().id();
+      initWritten_ = true;
 
-    clearHeaderBuffer();
+      clearHeaderBuffer();
+    } else {
+      auto history = iRun.processHistory();
+      if (lastHistory_ != history.reduce().id()) {
+        throw edm::Exception(errors::FileWriteError) << "Streamer output can not handle writing a new Run if the "
+                                                        "ProcessHistory changed since the last Run written.";
+      }
+      //need to write meta data anyway
+      lastCallWasBeginRun_ = true;
+    }
   }
 
   void StreamerOutputModuleBase::endRun(RunForOutput const&) { stop(); }

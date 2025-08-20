@@ -1,14 +1,6 @@
 <use name="FWCore/Framework"/>
 <use name="HeterogeneousCore/AlpakaCore"/>
 <use name="HeterogeneousCore/AlpakaInterface"/>
-<!--
-Let the alpaka libraries depend on the main library.
-The possible syntaxes are:
-  <use name="HeterogeneousCore/AlpakaTest" for="alpaka"/>
-  <use name="1" for="alpaka"/>
-  <flags USE_ALPAKA="1"/>
--->
-<use name="HeterogeneousCore/AlpakaTest" for="alpaka"/>
 <flags ALPAKA_BACKENDS="1"/>
 <export>
   <lib name="1"/>

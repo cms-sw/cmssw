@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 # External libraries (standard in Python >= 2.4, at least)
-from __future__ import print_function
 from sys import stdin
 from re import split, sub
 

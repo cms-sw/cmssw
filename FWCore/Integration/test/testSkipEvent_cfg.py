@@ -6,22 +6,17 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("TEST")
 
 # We are testing the SkipEvent behavior.
-process.options = cms.untracked.PSet(
-    SkipEvent = cms.untracked.vstring('EventCorruption')
-)
+process.options.SkipEvent = 'EventCorruption'
 
-process.load("FWCore.MessageService.MessageLogger_cfi")
+process.maxEvents.input = 3
 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(3)
-)
-
-process.source = cms.Source("EmptySource",
-    firstLuminosityBlock = cms.untracked.uint32(1),
-    numberEventsInLuminosityBlock = cms.untracked.uint32(100),
-    firstEvent = cms.untracked.uint32(1),
-    firstRun = cms.untracked.uint32(1),
-    numberEventsInRun = cms.untracked.uint32(100)
+from FWCore.Modules.import EmptySource
+process.source = EmptySource(
+    firstLuminosityBlock = 1,
+    numberEventsInLuminosityBlock = 100,
+    firstEvent = 1,
+    firstRun = 1,
+    numberEventsInRun = 100
 )
 
 process.testThrow = cms.EDAnalyzer("TestFailuresAnalyzer",
@@ -29,10 +24,11 @@ process.testThrow = cms.EDAnalyzer("TestFailuresAnalyzer",
     eventToThrow = cms.untracked.uint64(2)
 )
 
+from FWCore.Framework.modules import RunLumiEventAnalyzer, IntProducer, IntConsumingAnalyzer
 # In the path before the module throwing an exception all 3 events should run
-process.beforeException = cms.EDAnalyzer('RunLumiEventAnalyzer',
-    verbose = cms.untracked.bool(True),
-    expectedRunLumiEvents = cms.untracked.vuint32(
+process.beforeException = RunLumiEventAnalyzer(
+    verbose = True,
+    expectedRunLumiEvents = [
         1, 0, 0,
         1, 1, 0,
         1, 1, 1,
@@ -40,25 +36,25 @@ process.beforeException = cms.EDAnalyzer('RunLumiEventAnalyzer',
         1, 1, 3,
         1, 1, 0,
         1, 0, 0
-     )
+     ]
 )
 
 # Note that this one checks that the second event was skipped
-process.afterException = cms.EDAnalyzer('RunLumiEventAnalyzer',
-    verbose = cms.untracked.bool(True),
-    expectedRunLumiEvents = cms.untracked.vuint32(
+process.afterException = RunLumiEventAnalyzer(
+    verbose = True,
+    expectedRunLumiEvents = [
         1, 0, 0,
         1, 1, 0,
         1, 1, 1,
         1, 1, 3,
         1, 1, 0,
         1, 0, 0
-     )
+     ]
 )
 
-process.onEndPath = cms.EDAnalyzer('RunLumiEventAnalyzer',
-    verbose = cms.untracked.bool(True),
-    expectedRunLumiEvents = cms.untracked.vuint32(
+process.onEndPath = RunLumiEventAnalyzer(
+    verbose = True,
+    expectedRunLumiEvents = [
         1, 0, 0,
         1, 1, 0,
         1, 1, 1,
@@ -66,18 +62,18 @@ process.onEndPath = cms.EDAnalyzer('RunLumiEventAnalyzer',
         1, 1, 3,
         1, 1, 0,
         1, 0, 0
-     ),
-     dumpTriggerResults = cms.untracked.bool(True)
+     ],
+     dumpTriggerResults = True
 )
 
 # The next two modules are not really necessary for the test
 # Just adding in a producer and filter to make it more realistic
 # No particular reason that I selected these two modules
-process.thingWithMergeProducer = cms.EDProducer("ThingWithMergeProducer")
+from FWCore.Integration.modules import ThingWithMergeProducer
+process.thingWithMergeProducer = ThingWithMergeProducer()
 
-process.p1Done = cms.EDProducer("IntProducer", ivalue = cms.int32(1))
-process.waitTillP1Done = cms.EDAnalyzer("IntConsumingAnalyzer",
-                                        getFromModule = cms.untracked.InputTag("p1Done"))
+process.p1Done = IntProducer(ivalue = 1)
+process.waitTillP1Done = IntConsumingAnalyzer(getFromModule = "p1Done")
 
 
 process.f1 = cms.EDFilter("TestFilterModule",
@@ -85,11 +81,10 @@ process.f1 = cms.EDFilter("TestFilterModule",
     onlyOne = cms.untracked.bool(False)
 )
 
-process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('testSkipEvent.root'),
-    SelectEvents = cms.untracked.PSet(
-      SelectEvents = cms.vstring('p1')
-    )
+from IOPool.Output.modules import PoolOutputModule
+process.out = PoolOutputModule(
+    fileName = 'testSkipEvent.root',
+    SelectEvents = dict(SelectEvents = ['p1'])
 )
 
 process.p1 = cms.Path(process.beforeException *

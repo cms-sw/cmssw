@@ -6,6 +6,7 @@
 #include <type_traits>
 
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputerRecord.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
@@ -46,6 +47,12 @@ namespace jet_tag_computer_esproducer_impl {
       return jetTagComputer;
     }
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      ConcreteJetTagComputer::fillPSetDescription(desc);
+      descriptions.addWithDefaultLabel(desc);
+    }
+
   private:
     const Tokens m_tokens;
     const edm::ParameterSet m_pset;
@@ -67,6 +74,12 @@ namespace jet_tag_computer_esproducer_impl {
       jetTagComputer->initialize(record);
       jetTagComputer->setupDone();
       return jetTagComputer;
+    }
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      ConcreteJetTagComputer::fillPSetDescription(desc);
+      descriptions.addWithDefaultLabel(desc);
     }
 
   private:

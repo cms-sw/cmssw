@@ -13,6 +13,8 @@
 <test name="TestDQMOnlineClient-hcal_dqm_sourceclient" command="runtest.sh hcal_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-hlt_dqm_clientPB" command="runtest.sh hlt_dqm_clientPB-live_cfg.py"/>
 <test name="TestDQMOnlineClient-hlt_dqm_sourceclient" command="runtest.sh hlt_dqm_sourceclient-live_cfg.py"/>
+<test name="TestDQMOnlineClient-ngt_dqm_sourceclient" command="runtest.sh ngt_dqm_sourceclient-live_cfg.py"/>
+<test name="TestDQMOnlineClient-scouting_dqm_sourceclient" command="runtest.sh scouting_dqm_sourceclient-live_cfg.py 392642"/>
 <test name="TestDQMOnlineClient-info_dqm_sourceclient" command="runtest.sh info_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-l1tstage2_dqm_sourceclient" command="runtest.sh l1tstage2_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-l1tstage2emulator_dqm_sourceclient" command="runtest.sh l1tstage2emulator_dqm_sourceclient-live_cfg.py"/>
@@ -20,10 +22,11 @@
 <test name="TestDQMOnlineClient-pixel_dqm_sourceclient" command="runtest.sh pixel_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-pixellumi_dqm_sourceclient" command="runtest.sh pixellumi_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-rpc_dqm_sourceclient" command="runtest.sh rpc_dqm_sourceclient-live_cfg.py"/>
-<test name="TestDQMOnlineClient-scal_dqm_sourceclient" command="runtest.sh scal_dqm_sourceclient-live_cfg.py"/>
+<!-- The SCAL FED has been removed from DAQ since the end of Run 2 -->
+<!-- <test name="TestDQMOnlineClient-scal_dqm_sourceclient" command="runtest.sh scal_dqm_sourceclient-live_cfg.py"/> -->
 <test name="TestDQMOnlineClient-sistrip_dqm_sourceclient" command="runtest.sh sistrip_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-sistrip_approx_dqm_sourceclient" command="runtest.sh sistrip_approx_dqm_sourceclient-live_cfg.py 362321 hi_run"/>
-<test name="TestDQMOnlineClient-onlinebeammonitor_dqm_sourceclient" command="runtest.sh onlinebeammonitor_dqm_sourceclient-live_cfg.py"/>
+<test name="TestDQMOnlineClient-onlinebeammonitor_dqm_sourceclient" command="runtest.sh onlinebeammonitor_dqm_sourceclient-live_cfg.py 381594 pp_run"/>
 <test name="TestDQMOnlineClient-ecalgpu_dqm_sourceclient" command="runtest.sh ecalgpu_dqm_sourceclient-live_cfg.py 381594"/>
 <test name="TestDQMOnlineClient-hcalgpu_dqm_sourceclient" command="runtest.sh hcalgpu_dqm_sourceclient-live_cfg.py 381594"/>
 <test name="TestDQMOnlineClient-pixelgpu_dqm_sourceclient" command="runtest.sh pixelgpu_dqm_sourceclient-live_cfg.py 381594"/>

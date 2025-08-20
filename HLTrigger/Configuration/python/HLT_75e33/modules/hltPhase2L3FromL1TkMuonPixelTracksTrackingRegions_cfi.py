@@ -22,3 +22,9 @@ hltPhase2L3FromL1TkMuonPixelTracksTrackingRegions = cms.EDProducer("CandidateSee
         zErrorVetex = cms.double(0.2)
     )
 )
+
+from Configuration.ProcessModifiers.phase2L3MuonsOIFirst_cff import phase2L3MuonsOIFirst
+phase2L3MuonsOIFirst.toModify(
+    hltPhase2L3FromL1TkMuonPixelTracksTrackingRegions.RegionPSet,
+    input = "hltPhase2L3MuonFilter:L1TkMuToReuse"
+)

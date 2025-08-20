@@ -3,7 +3,6 @@
 Unit tests for python conddblib framework.
 
 """
-from __future__ import absolute_import
 
 import unittest
 import sys

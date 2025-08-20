@@ -3,6 +3,7 @@
 <use name="DataFormats/HepMCCandidate"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="hepmc"/>
+<use name="hepmc3"/>
 <use name="eigen"/>
 <use name="CLHEP"/>
 <export>

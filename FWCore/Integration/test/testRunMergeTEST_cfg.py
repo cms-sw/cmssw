@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
-
-process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.MessageLogger.cerr.threshold = 'ERROR'
 
@@ -12,34 +10,33 @@ process.options = cms.untracked.PSet(
   Rethrow = FWCore.Framework.test.cmsExceptionsFatalOption_cff.Rethrow
 )
 
-
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
+from IOPool.Input.modules import PoolSource
+process.source = PoolSource(
+    fileNames = [
         # CAUTION if you recreate the PROD files then you must recreate BOTH
         # of these files otherwise you will get exceptions because the GUIDs
         # used to check the match of the event in the secondary files will
         # not be the same.
         'file:testRunMerge.root',
         'file:testRunMergeMERGE2.root'
-    ),
-    secondaryFileNames = cms.untracked.vstring(
+    ],
+    secondaryFileNames = [
         'file:testRunMerge0.root', 
         'file:testRunMerge1.root', 
         'file:testRunMerge2.root', 
         'file:testRunMerge3.root',
         'file:testRunMerge4.root',
         'file:testRunMerge5.root'
-    )
-    , duplicateCheckMode = cms.untracked.string('checkEachRealDataFile')
-    , noEventSort = cms.untracked.bool(False)
+    ]
+    , duplicateCheckMode = 'checkEachRealDataFile'
+    , noEventSort = False
 )
 
-process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('file:testRunMergeRecombined.root')
-)
+from IOPool.Output.modules import PoolOutputModule
+process.out = PoolOutputModule(fileName = 'testRunMergeRecombined.root')
 
-process.test = cms.EDAnalyzer("TestMergeResults",
-
+from FWCore.Framework.modules import TestMergeResults, RunLumiEventAnalyzer
+process.test = TestMergeResults(
     #   Check to see that the value we read matches what we know
     #   was written. Expected values listed below come in sets of three
     #      value expected in Thing
@@ -52,7 +49,7 @@ process.test = cms.EDAnalyzer("TestMergeResults",
     #   When the sequence of parameter values is exhausted it stops checking
     #   0's are just placeholders, if the value is a "0" the check is not made.
 
-    expectedBeginRunProd = cms.untracked.vint32(
+    expectedBeginRunProd = [
         10001,   30006,  10003,  # end run 1, merged run entries within a file
         10001,   10002,  10003,  # end run 2
         10001,   20004,  10003,  # end run 11
@@ -62,9 +59,9 @@ process.test = cms.EDAnalyzer("TestMergeResults",
         10001,   10002,  10003,  # end run 1, not merged different ProcessHistoryID
         10001,   10002,  10003,  # end run 2
         10001,   10002,  10004   # end run 1
-    ),
+    ],
 
-    expectedEndRunProd = cms.untracked.vint32(
+    expectedEndRunProd = [
         100001,  300006, 100003,  # end run 1
         100001,  100002, 100003,  # end run 2
         100001,  200004, 100003,  # end run 11
@@ -74,9 +71,9 @@ process.test = cms.EDAnalyzer("TestMergeResults",
         100001,  100002, 100003,  # end run 1
         100001,  100002, 100003,  # end run 2
         100001,  100002, 100004   # end run 1
-    ),
+    ],
 
-    expectedBeginLumiProd = cms.untracked.vint32(
+    expectedBeginLumiProd = [
         101,  306, 103,  # end run 1 lumi 1
         101,  102, 103,  # end run 2 lumi 1
         101,  102, 103,  # end run 11 lumi 1
@@ -88,9 +85,9 @@ process.test = cms.EDAnalyzer("TestMergeResults",
         101,  102, 103,  # end run 1 lumi 1
         101,  102, 103,  # end run 2 lumi 1
         101,  102, 104   # end run 1 lumi 1
-    ),
+    ],
 
-    expectedEndLumiProd = cms.untracked.vint32(
+    expectedEndLumiProd = [
         1001,  3006, 1003,  # end run 1 lumi 1
         1001,  1002, 1003,  # end run 2 lumi 1
         1001,  1002, 1003,  # end run 11 lumi 1
@@ -102,9 +99,9 @@ process.test = cms.EDAnalyzer("TestMergeResults",
         1001,  1002, 1003,  # end run 1 lumi 1
         1001,  1002, 1003,  # end run 2 lumi 1
         1001,  1002, 1004   # end run 1 lumi 1
-    ),
+    ],
 
-    expectedBeginRunNew = cms.untracked.vint32(
+    expectedBeginRunNew = [
         10001,   20004,  10003,  # end run 1
         10001,   10002,  10003,  # end run 2
         10001,   10002,  10003,  # end run 11
@@ -114,9 +111,9 @@ process.test = cms.EDAnalyzer("TestMergeResults",
         10001,   10002,  10003,  # end run 1
         10001,   10002,  10003,  # end run 2
         10001,   10002,  10003   # end run 1
-    ),
+    ],
 
-    expectedEndRunNew = cms.untracked.vint32(
+    expectedEndRunNew = [
         100001,  200004, 100003,  # end run 1
         100001,  100002, 100003,  # end run 2
         100001,  100002, 100003,  # end run 11
@@ -126,9 +123,9 @@ process.test = cms.EDAnalyzer("TestMergeResults",
         100001,  100002, 100003,  # end run 1
         100001,  100002, 100003,  # end run 2
         100001,  100002, 100003   # end run 1
-    ),
+    ],
 
-    expectedBeginLumiNew = cms.untracked.vint32(
+    expectedBeginLumiNew = [
         101,  204, 103,  # end run 1 lumi 1
         101,  102, 103,  # end run 2 lumi 1
         101,  102, 103,  # end run 11 lumi 1
@@ -140,9 +137,9 @@ process.test = cms.EDAnalyzer("TestMergeResults",
         101,  102, 103,  # end run 1 lumi 1
         101,  102, 103,  # end run 2 lumi 1
         101,  102, 103   # end run 1 lumi 1
-    ),
+    ],
 
-    expectedEndLumiNew = cms.untracked.vint32(
+    expectedEndLumiNew = [
         1001,  2004, 1003,  # end run 1 lumi 1
         1001,  1002, 1003,  # end run 2 lumi 1
         1001,  1002, 1003,  # end run 11 lumi 1
@@ -154,12 +151,12 @@ process.test = cms.EDAnalyzer("TestMergeResults",
         1001,  1002, 1003,  # end run 1 lumi 1
         1001,  1002, 1003,  # end run 2 lumi 1
         1001,  1002, 1003   # end run 1 lumi 1
-    ),
+    ],
 
-    expectedDroppedEvent = cms.untracked.vint32(13, 10003, 100003, 103, 1003),
-    verbose = cms.untracked.bool(True),
+    expectedDroppedEvent = [13, 10003, 100003, 103, 1003],
+    verbose = True,
 
-    expectedParents = cms.untracked.vstring(
+    expectedParents = [
         'm3', 'm3', 'm3', 'm3', 'm3',
         'm3', 'm3', 'm3', 'm3', 'm3',
         'm1', 'm1', 'm1', 'm1', 'm1',
@@ -175,13 +172,13 @@ process.test = cms.EDAnalyzer("TestMergeResults",
         'm2', 'm2', 'm2', 'm2', 'm2',
         'm3', 'm3', 'm3', 'm3', 'm3',
         'm3', 'm3', 'm3', 'm3', 'm3'
-   ),
-   testAlias = cms.untracked.bool(True)
+   ],
+   testAlias = True
 )
 
-process.test2 = cms.EDAnalyzer('RunLumiEventAnalyzer',
-    verbose = cms.untracked.bool(True),
-    expectedRunLumiEvents = cms.untracked.vuint32(
+process.test2 = RunLumiEventAnalyzer(
+    verbose = True,
+    expectedRunLumiEvents = [
 1, 0, 0,
 1, 1, 0,
 1, 1, 1,
@@ -255,7 +252,7 @@ process.test2 = cms.EDAnalyzer('RunLumiEventAnalyzer',
 100, 100, 100,
 100, 100, 0,
 100, 0, 0
-)
+]
 )
 process.test2.expectedRunLumiEvents.extend([
 1, 0, 0,

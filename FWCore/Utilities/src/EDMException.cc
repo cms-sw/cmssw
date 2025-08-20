@@ -88,14 +88,14 @@ namespace edm {
                             char const* message2,
                             char const* message3,
                             char const* message4) {
-    Exception e(aCategory, std::string(message0));
-    e << message1 << message2 << message3 << message4;
+    Exception e(aCategory);
+    e << message0 << message1 << message2 << message3 << message4;
     throw e;
   }
 
   void Exception::throwThis(errors::ErrorCodes aCategory, char const* message0, int intVal, char const* message1) {
-    Exception e(aCategory, std::string(message0));
-    e << intVal << message1;
+    Exception e(aCategory);
+    e << message0 << intVal << message1;
     throw e;
   }
 

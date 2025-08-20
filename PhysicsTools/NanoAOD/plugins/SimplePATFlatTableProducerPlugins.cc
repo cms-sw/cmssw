@@ -24,6 +24,9 @@ typedef SimpleFlatTableProducer<pat::GenericParticle> SimplePATGenericParticleFl
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 typedef SimpleFlatTableProducer<pat::PackedCandidate> SimplePATCandidateFlatTableProducer;
 
+#include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
+typedef SimpleFlatTableProducer<pat::PackedGenParticle> SimplePATGenParticleFlatTableProducer;
+
 #include "DataFormats/PatCandidates/interface/MET.h"
 typedef SimpleFlatTableProducer<pat::MET> SimplePATMETFlatTableProducer;
 
@@ -44,6 +47,7 @@ DEFINE_FWK_MODULE(SimplePATJetFlatTableProducer);
 DEFINE_FWK_MODULE(SimplePATIsolatedTrackFlatTableProducer);
 DEFINE_FWK_MODULE(SimplePATGenericParticleFlatTableProducer);
 DEFINE_FWK_MODULE(SimplePATCandidateFlatTableProducer);
+DEFINE_FWK_MODULE(SimplePATGenParticleFlatTableProducer);
 DEFINE_FWK_MODULE(SimplePATMETFlatTableProducer);
 DEFINE_FWK_MODULE(SimplePATElectron2TrackTimeLifeInfoFlatTableProducer);
 DEFINE_FWK_MODULE(SimplePATMuon2TrackTimeLifeInfoFlatTableProducer);

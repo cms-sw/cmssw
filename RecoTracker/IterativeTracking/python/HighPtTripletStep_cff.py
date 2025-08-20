@@ -426,13 +426,46 @@ trackingPhase2PU140.toReplaceWith(HighPtTripletStepTask, _HighPtTripletStepTask_
 _HighPtTripletStepTask_LST = HighPtTripletStepTask.copy()
 from RecoLocalTracker.Phase2TrackerRecHits.Phase2TrackerRecHits_cfi import siPhase2RecHits
 from RecoTracker.LST.lstSeedTracks_cff import lstInitialStepSeedTracks,lstHighPtTripletStepSeedTracks
-from RecoTracker.LST.lstPixelSeedInputProducer_cfi import lstPixelSeedInputProducer
-from RecoTracker.LST.lstPhase2OTHitsInputProducer_cfi import lstPhase2OTHitsInputProducer
+from RecoTracker.LST.lstInputProducer_cfi import lstInputProducer
 from RecoTracker.LST.lstProducerTask_cff import *
 
-_HighPtTripletStepTask_LST.add(siPhase2RecHits, lstInitialStepSeedTracks, lstHighPtTripletStepSeedTracks, lstPixelSeedInputProducer, lstPhase2OTHitsInputProducer,
+_HighPtTripletStepTask_LST.add(siPhase2RecHits, lstInitialStepSeedTracks, lstHighPtTripletStepSeedTracks, lstInputProducer,
                                lstProducerTask, highPtTripletStepLSTpTracks, highPtTripletStepLSTT5Tracks, highPtTripletStepSelectorLSTT5)
 (trackingPhase2PU140 & trackingLST).toReplaceWith(HighPtTripletStepTask, _HighPtTripletStepTask_LST)
+
+from HeterogeneousCore.AlpakaCore.functions import makeSerialClone
+lstInputProducerSerialSync = makeSerialClone(lstInputProducer)
+lstProducerSerialSync = makeSerialClone(lstProducer, lstInput = "lstInputProducerSerialSync")
+
+highPtTripletStepTrackCandidatesSerialSync = highPtTripletStepTrackCandidates.clone()
+(trackingPhase2PU140 & trackingLST).toModify(highPtTripletStepTrackCandidatesSerialSync,
+    lstOutput = "lstProducerSerialSync",
+    lstInput = "lstInputProducerSerialSync",
+    lstPixelSeeds = "lstInputProducerSerialSync"
+)
+highPtTripletStepLSTpTracksSerialSync = highPtTripletStepLSTpTracks.clone(
+    src    = 'highPtTripletStepTrackCandidatesSerialSync:pTCsLST')
+highPtTripletStepLSTT5TracksSerialSync = highPtTripletStepLSTT5Tracks.clone(
+    src    = 'highPtTripletStepTrackCandidatesSerialSync:t5TCsLST')
+highPtTripletStepSelectorSerialSync = highPtTripletStepSelector.clone()
+(trackingPhase2PU140 & trackingLST).toModify(highPtTripletStepSelectorSerialSync, src = "highPtTripletStepLSTpTracksSerialSync" )
+highPtTripletStepSelectorLSTT5SerialSync = highPtTripletStepSelectorLSTT5.clone(src = "highPtTripletStepLSTT5TracksSerialSync")
+highPtTripletStepTracksSerialSync = highPtTripletStepTracks.clone()
+(trackingPhase2PU140 & trackingLST).toModify(highPtTripletStepTracksSerialSync,
+    TrackProducers     = ['highPtTripletStepLSTpTracksSerialSync',
+                          'highPtTripletStepLSTT5TracksSerialSync'],
+    selectedTrackQuals = ['highPtTripletStepSelectorSerialSync:highPtTripletStep',
+                          'highPtTripletStepSelectorLSTT5SerialSync:highPtTripletStepLSTT5'],
+)
+_HighPtTripletStepTask_LSTSerialSync = HighPtTripletStepTask.copy()
+_HighPtTripletStepTask_LSTSerialSync.add(siPhase2RecHits, lstInitialStepSeedTracks, lstHighPtTripletStepSeedTracks, lstInputProducerSerialSync,
+                                         lstProducerSerialSync, highPtTripletStepTrackCandidatesSerialSync,
+                                         highPtTripletStepLSTpTracksSerialSync, highPtTripletStepLSTT5TracksSerialSync,
+                                         highPtTripletStepSelectorSerialSync, highPtTripletStepSelectorLSTT5SerialSync,
+                                         highPtTripletStepTracksSerialSync
+)
+HighPtTripletStepTaskSerialSync = cms.Task()
+(trackingPhase2PU140 & trackingLST).toReplaceWith(HighPtTripletStepTaskSerialSync, _HighPtTripletStepTask_LSTSerialSync)
 
 # fast tracking mask producer 
 from FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi import maskProducerFromClusterRemover

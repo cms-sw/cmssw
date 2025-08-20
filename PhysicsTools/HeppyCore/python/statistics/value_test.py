@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 import unittest
 import math
 from .value import Value 

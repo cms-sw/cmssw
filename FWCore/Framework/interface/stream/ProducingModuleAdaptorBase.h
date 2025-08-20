@@ -26,28 +26,28 @@
 #include <unordered_map>
 
 // user include files
-#include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Utilities/interface/ProductResolverIndex.h"
 #include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
+#include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 #include "FWCore/Utilities/interface/ESIndices.h"
+#include "FWCore/Utilities/interface/Transition.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ProcessBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
 
 // forward declarations
 
 namespace edm {
   class Event;
   class ModuleCallingContext;
-  class ModuleProcessName;
   class ProductResolverIndexHelper;
   class EDConsumerBase;
   class PreallocationConfiguration;
@@ -56,6 +56,8 @@ namespace edm {
   class ActivityRegistry;
   class WaitingTaskHolder;
   class ServiceWeakToken;
+  class SignallingProductRegistryFiller;
+  struct ModuleConsumesMinimalESInfo;
 
   namespace maker {
     template <typename T>
@@ -63,8 +65,9 @@ namespace edm {
   }
 
   namespace eventsetup {
+    struct ComponentDescription;
     class ESRecordsToProductResolverIndices;
-  }
+  }  // namespace eventsetup
 
   namespace stream {
     template <typename T>
@@ -96,7 +99,7 @@ namespace edm {
       virtual bool wantsStreamRuns() const noexcept = 0;
       virtual bool wantsStreamLuminosityBlocks() const noexcept = 0;
 
-      void registerProductsAndCallbacks(ProducingModuleAdaptorBase const*, ProductRegistry* reg);
+      void registerProductsAndCallbacks(ProducingModuleAdaptorBase const*, SignallingProductRegistryFiller* reg);
 
       void itemsToGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
       void itemsMayGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
@@ -107,17 +110,13 @@ namespace edm {
 
       void updateLookup(BranchType iBranchType, ProductResolverIndexHelper const&, bool iPrefetchMayGet);
       void updateLookup(eventsetup::ESRecordsToProductResolverIndices const&);
+      void releaseMemoryPostLookupSignal();
       virtual void selectInputProcessBlocks(ProductRegistry const&, ProcessBlockHelperBase const&) = 0;
-
-      void modulesWhoseProductsAreConsumed(std::array<std::vector<ModuleDescription const*>*, NumBranchTypes>& modules,
-                                           std::vector<ModuleProcessName>& modulesInPreviousProcesses,
-                                           ProductRegistry const& preg,
-                                           std::map<std::string, ModuleDescription const*> const& labelsToDesc,
-                                           std::string const& processName) const;
 
       void convertCurrentProcessAlias(std::string const& processName);
 
-      std::vector<ConsumesInfo> consumesInfo() const;
+      std::vector<ModuleConsumesInfo> moduleConsumesInfos() const;
+      std::vector<ModuleConsumesMinimalESInfo> moduleConsumesMinimalESInfos() const;
 
       using ModuleToResolverIndicies =
           std::unordered_multimap<std::string, std::tuple<edm::TypeID const*, const char*, edm::ProductResolverIndex>>;
@@ -129,7 +128,7 @@ namespace edm {
       std::vector<edm::ProductResolverIndex> const& indiciesForPutProducts(BranchType iBranchType) const;
 
       ProductResolverIndex transformPrefetch_(size_t iTransformIndex) const noexcept;
-      size_t transformIndex_(edm::BranchDescription const& iBranch) const noexcept;
+      size_t transformIndex_(edm::ProductDescription const& iBranch) const noexcept;
       void doTransformAsync(WaitingTaskHolder iTask,
                             size_t iTransformIndex,
                             EventPrincipal const& iEvent,
@@ -192,8 +191,6 @@ namespace edm {
       virtual void doBeginLuminosityBlock(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
       virtual void doEndLuminosityBlock(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
 
-      void doRespondToOpenInputFile(FileBlock const&) {}
-      void doRespondToCloseInputFile(FileBlock const&) {}
       virtual void doRespondToCloseOutputFile() = 0;
       void doRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&);
 

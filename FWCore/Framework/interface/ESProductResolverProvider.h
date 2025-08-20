@@ -60,6 +60,7 @@ namespace edm {
   namespace eventsetup {
     class ESProductResolver;
     class ESRecordsToProductResolverIndices;
+    class ESModuleProducesInfo;
 
     class ESProductResolverProvider {
     public:
@@ -161,6 +162,10 @@ namespace edm {
       void fillRecordsNotAllowingConcurrentIOVs(std::set<EventSetupRecordKey>& recordsNotAllowingConcurrentIOVs) const {
         productResolverContainer_.fillRecordsNotAllowingConcurrentIOVs(recordsNotAllowingConcurrentIOVs);
       }
+      /// @brief Provides information about each product that this module produces.
+      /// If the value of produceMethodID is same for different infos it means they are produced by the same call.
+      /// @return the vector of ESModuleProducesInfo objects, one for each product produced by this module.
+      virtual std::vector<ESModuleProducesInfo> producesInfo() const = 0;
 
       virtual void initConcurrentIOVs(EventSetupRecordKey const& key, unsigned int nConcurrentIOVs) {}
 

@@ -229,7 +229,7 @@ namespace l1t {
   void L1GTProducer::produceGTTPromptHtSum(edm::Event &event) const {
     std::unique_ptr<P2GTCandidateCollection> outputCollection = std::make_unique<P2GTCandidateCollection>();
     const std::vector<l1t::EtSum> &collection = event.get(gttPromptHtSumToken_);
-    if (collection.size() > 0) {
+    if (!collection.empty()) {
       const l1t::EtSum &obj = collection[0];
       l1tmhtemu::EtMiss htMiss;
       htMiss.Et = obj.p4().energy();
@@ -251,7 +251,7 @@ namespace l1t {
   void L1GTProducer::produceGTTDisplacedHtSum(edm::Event &event) const {
     std::unique_ptr<P2GTCandidateCollection> outputCollection = std::make_unique<P2GTCandidateCollection>();
     const std::vector<l1t::EtSum> &collection = event.get(gttDisplacedHtSumToken_);
-    if (collection.size() > 0) {
+    if (!collection.empty()) {
       const l1t::EtSum &obj = collection[0];
       l1tmhtemu::EtMiss htMiss;
       htMiss.Et = obj.p4().energy();
@@ -273,7 +273,7 @@ namespace l1t {
   void L1GTProducer::produceGTTEtSum(edm::Event &event) const {
     std::unique_ptr<P2GTCandidateCollection> outputCollection = std::make_unique<P2GTCandidateCollection>();
     const std::vector<l1t::EtSum> &collection = event.get(gttEtSumToken_);
-    if (collection.size() > 0) {
+    if (!collection.empty()) {
       const l1t::EtSum &obj = collection[0];
       P2GTCandidate gtObj(
           0, reco::ParticleState::PolarLorentzVector(scales_.to_pT(obj.hwPt()), 0, scales_.to_phi(obj.hwPhi()), 0));

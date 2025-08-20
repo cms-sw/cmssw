@@ -8,7 +8,6 @@ e-mail:  albertasgim@gmail.com
 
 Note: balcklist support not implemented.
 """
-from __future__ import print_function
 import sys
 import sqlite3
 from datetime import datetime

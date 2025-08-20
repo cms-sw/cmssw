@@ -680,7 +680,7 @@ void lumi::Lumi2DB::cleanTemporaryMemory(lumi::Lumi2DB::LumiResult::iterator lum
 lumi::Lumi2DB::Lumi2DB(const std::string& dest) : DataPipe(dest) {}
 void lumi::Lumi2DB::parseSourceString(lumi::Lumi2DB::LumiSource& result) const {
   //parse lumi source file name
-  if (m_source.length() == 0)
+  if (m_source.empty())
     throw lumi::Exception("lumi source is not set", "parseSourceString", "Lumi2DB");
   //std::cout<<"source "<<m_source<<std::endl;
   size_t tempIndex = m_source.find_last_of('.');

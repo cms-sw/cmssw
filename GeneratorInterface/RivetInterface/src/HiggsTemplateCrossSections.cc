@@ -73,7 +73,7 @@ namespace Rivet {
 
     /// @brief Checks whether the input particle has a parent with a given PDGID
     bool hasParent(const ConstGenParticlePtr &ptcl, int pdgID) {
-      for (auto parent : HepMCUtils::particles(ptcl->production_vertex(), Relatives::PARENTS))
+      for (const auto &parent : HepMCUtils::particles(ptcl->production_vertex(), Relatives::PARENTS))
         if (parent->pdg_id() == pdgID)
           return true;
       return false;
@@ -191,7 +191,7 @@ namespace Rivet {
       FourVector uncatV_v4(0, 0, 0, 0);
       int nWs = 0, nZs = 0;
       if (isVH(prodMode)) {
-        for (auto ptcl : HepMCUtils::particles(HSvtx, Relatives::CHILDREN)) {
+        for (const auto &ptcl : HepMCUtils::particles(HSvtx, Relatives::CHILDREN)) {
           if (PID::isW(ptcl->pdg_id())) {
             ++nWs;
             cat.V = Particle(ptcl);
@@ -204,7 +204,7 @@ namespace Rivet {
         if (nWs + nZs > 0)
           cat.V = getLastInstance(cat.V);
         else {
-          for (auto ptcl : HepMCUtils::particles(HSvtx, Relatives::CHILDREN)) {
+          for (const auto &ptcl : HepMCUtils::particles(HSvtx, Relatives::CHILDREN)) {
             if (!PID::isHiggs(ptcl->pdg_id())) {
               uncatV_decays += Particle(ptcl);
               uncatV_p4 += Particle(ptcl).momentum();
@@ -236,7 +236,7 @@ namespace Rivet {
       Particles Ws;
       if (prodMode == HTXS::TTH || prodMode == HTXS::TH) {
         // loop over particles produced in hard-scatter vertex
-        for (auto ptcl : HepMCUtils::particles(HSvtx, Relatives::CHILDREN)) {
+        for (const auto &ptcl : HepMCUtils::particles(HSvtx, Relatives::CHILDREN)) {
           if (!PID::isTop(ptcl->pdg_id()))
             continue;
           Particle top = getLastInstance(Particle(ptcl));

@@ -1,4 +1,3 @@
-from __future__ import print_function
 #
 # configuration file fragment containing user choices
 # for release to run, sample and data type to use in

@@ -8,6 +8,7 @@
 <use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/Utilities"/>
 <use name="RecoVertex/BeamSpotProducer"/>
+<use name="RecoVertex/VertexTools"/>
 
 <library file="BeamSpotProducer.cc" name="BeamSpotProducer">
   <flags EDM_PLUGIN="1"/>

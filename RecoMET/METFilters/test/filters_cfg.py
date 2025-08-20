@@ -1,4 +1,3 @@
-from __future__ import print_function
 ##____________________________________________________________________________||
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 

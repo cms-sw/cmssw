@@ -1,4 +1,3 @@
-from __future__ import print_function
 print(" ##################################################################### ")  
 print(" # WARNING: the module CondCore.DBCommon.CondDBCommon is deprecated. # ")                                                                              
 print(" # Please import CondCore.CondDB.CondDB_cfi                          # ")                                                                             

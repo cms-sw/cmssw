@@ -47,8 +47,6 @@ ElectronDNNEstimator::ElectronDNNEstimator(const egammaTools::DNNConfiguration& 
                  ElectronDNNEstimator::dnnAvaibleInputs),
       useEBModelInGap_(useEBModelInGap) {}
 
-std::vector<tensorflow::Session*> ElectronDNNEstimator::getSessions() const { return dnnHelper_.getSessions(); };
-
 const std::vector<std::string> ElectronDNNEstimator::dnnAvaibleInputs = {
     {"pt",
      "eta",
@@ -157,12 +155,12 @@ std::map<std::string, float> ElectronDNNEstimator::getInputsVars(const reco::Gsf
 }
 
 std::vector<std::pair<uint, std::vector<float>>> ElectronDNNEstimator::evaluate(
-    const reco::GsfElectronCollection& electrons, const std::vector<tensorflow::Session*>& sessions) const {
+    const reco::GsfElectronCollection& electrons) const {
   // Collect the map of variables for each candidate and call the dnnHelper
   // Scaling, model selection and running is performed in the helper
   std::vector<std::map<std::string, float>> inputs;
   for (const auto& ele : electrons) {
     inputs.push_back(getInputsVars(ele));
   }
-  return dnnHelper_.evaluate(inputs, sessions);
+  return dnnHelper_.evaluate(inputs);
 }

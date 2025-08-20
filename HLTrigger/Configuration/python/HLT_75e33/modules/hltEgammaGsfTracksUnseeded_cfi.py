@@ -11,7 +11,6 @@ hltEgammaGsfTracksUnseeded = cms.EDProducer("GsfTrackProducer",
     TTRHBuilder = cms.string('WithTrackAngle'),
     TrajectoryInEvent = cms.bool(False),
     beamSpot = cms.InputTag("hltOnlineBeamSpot"),
-    producer = cms.string(''),
     src = cms.InputTag("hltEgammaCkfTrackCandidatesForGSFUnseeded"),
     useHitsSplitting = cms.bool(False)
 )

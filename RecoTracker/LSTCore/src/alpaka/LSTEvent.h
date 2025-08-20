@@ -1,33 +1,36 @@
 #ifndef RecoTracker_LSTCore_src_alpaka_LSTEvent_h
 #define RecoTracker_LSTCore_src_alpaka_LSTEvent_h
 
+#include <algorithm>
 #include <optional>
 
+#include "RecoTracker/LSTCore/interface/LSTInputHostCollection.h"
 #include "RecoTracker/LSTCore/interface/HitsHostCollection.h"
 #include "RecoTracker/LSTCore/interface/MiniDoubletsHostCollection.h"
 #include "RecoTracker/LSTCore/interface/PixelQuintupletsHostCollection.h"
 #include "RecoTracker/LSTCore/interface/PixelTripletsHostCollection.h"
 #include "RecoTracker/LSTCore/interface/QuintupletsHostCollection.h"
 #include "RecoTracker/LSTCore/interface/SegmentsHostCollection.h"
+#include "RecoTracker/LSTCore/interface/PixelSegmentsHostCollection.h"
 #include "RecoTracker/LSTCore/interface/TrackCandidatesHostCollection.h"
 #include "RecoTracker/LSTCore/interface/TripletsHostCollection.h"
 #include "RecoTracker/LSTCore/interface/ObjectRangesHostCollection.h"
 #include "RecoTracker/LSTCore/interface/ModulesHostCollection.h"
 #include "RecoTracker/LSTCore/interface/alpaka/Common.h"
 #include "RecoTracker/LSTCore/interface/alpaka/LST.h"
+#include "RecoTracker/LSTCore/interface/alpaka/LSTInputDeviceCollection.h"
+#include "RecoTracker/LSTCore/interface/alpaka/HitsDeviceCollection.h"
 #include "RecoTracker/LSTCore/interface/alpaka/MiniDoubletsDeviceCollection.h"
 #include "RecoTracker/LSTCore/interface/alpaka/PixelQuintupletsDeviceCollection.h"
 #include "RecoTracker/LSTCore/interface/alpaka/PixelTripletsDeviceCollection.h"
 #include "RecoTracker/LSTCore/interface/alpaka/QuintupletsDeviceCollection.h"
 #include "RecoTracker/LSTCore/interface/alpaka/SegmentsDeviceCollection.h"
+#include "RecoTracker/LSTCore/interface/alpaka/PixelSegmentsDeviceCollection.h"
 #include "RecoTracker/LSTCore/interface/alpaka/TrackCandidatesDeviceCollection.h"
 #include "RecoTracker/LSTCore/interface/alpaka/TripletsDeviceCollection.h"
 #include "RecoTracker/LSTCore/interface/alpaka/ModulesDeviceCollection.h"
 #include "RecoTracker/LSTCore/interface/alpaka/ObjectRangesDeviceCollection.h"
 #include "RecoTracker/LSTCore/interface/alpaka/EndcapGeometryDevDeviceCollection.h"
-
-#include "Hit.h"
-#include "Kernels.h"
 
 #include "HeterogeneousCore/AlpakaInterface/interface/host.h"
 
@@ -36,6 +39,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   class LSTEvent {
   private:
     Queue& queue_;
+    const float ptCut_;
 
     std::array<unsigned int, 6> n_minidoublets_by_layer_barrel_{};
     std::array<unsigned int, 5> n_minidoublets_by_layer_endcap_{};
@@ -46,25 +50,33 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     std::array<unsigned int, 6> n_quintuplets_by_layer_barrel_{};
     std::array<unsigned int, 5> n_quintuplets_by_layer_endcap_{};
     unsigned int nTotalSegments_;
+    unsigned int pixelSize_;
+    uint16_t pixelModuleIndex_;
 
     //Device stuff
+    LSTInputDeviceCollection const* lstInputDC_;  // not owned
     std::optional<ObjectRangesDeviceCollection> rangesDC_;
     std::optional<HitsDeviceCollection> hitsDC_;
     std::optional<MiniDoubletsDeviceCollection> miniDoubletsDC_;
     std::optional<SegmentsDeviceCollection> segmentsDC_;
+    std::optional<PixelSegmentsDeviceCollection> pixelSegmentsDC_;
     std::optional<TripletsDeviceCollection> tripletsDC_;
     std::optional<QuintupletsDeviceCollection> quintupletsDC_;
-    std::optional<TrackCandidatesDeviceCollection> trackCandidatesDC_;
+    std::optional<TrackCandidatesBaseDeviceCollection> trackCandidatesBaseDC_;
+    std::optional<TrackCandidatesExtendedDeviceCollection> trackCandidatesExtendedDC_;
     std::optional<PixelTripletsDeviceCollection> pixelTripletsDC_;
     std::optional<PixelQuintupletsDeviceCollection> pixelQuintupletsDC_;
 
     //CPU interface stuff
+    std::optional<LSTInputHostCollection> lstInputHC_;
     std::optional<ObjectRangesHostCollection> rangesHC_;
     std::optional<HitsHostCollection> hitsHC_;
     std::optional<MiniDoubletsHostCollection> miniDoubletsHC_;
     std::optional<SegmentsHostCollection> segmentsHC_;
+    std::optional<PixelSegmentsHostCollection> pixelSegmentsHC_;
     std::optional<TripletsHostCollection> tripletsHC_;
-    std::optional<TrackCandidatesHostCollection> trackCandidatesHC_;
+    std::optional<TrackCandidatesBaseHostCollection> trackCandidatesBaseHC_;
+    std::optional<TrackCandidatesExtendedHostCollection> trackCandidatesExtendedHC_;
     std::optional<ModulesHostCollection> modulesHC_;
     std::optional<QuintupletsHostCollection> quintupletsHC_;
     std::optional<PixelTripletsHostCollection> pixelTripletsHC_;
@@ -81,8 +93,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
   public:
     // Constructor used for CMSSW integration. Uses an external queue.
-    LSTEvent(bool verbose, Queue& q, const LSTESData<Device>* deviceESData)
+    LSTEvent(bool verbose, const float pt_cut, Queue& q, const LSTESData<Device>* deviceESData)
         : queue_(q),
+          ptCut_(pt_cut),
           nModules_(deviceESData->nModules),
           nLowerModules_(deviceESData->nLowerModules),
           nPixels_(deviceESData->nPixels),
@@ -90,37 +103,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           modules_(*deviceESData->modules),
           pixelMapping_(*deviceESData->pixelMapping),
           endcapGeometry_(*deviceESData->endcapGeometry),
-          addObjects_(verbose) {}
+          addObjects_(verbose) {
+      if (pt_cut < 0.6f) {
+        throw std::invalid_argument("Minimum pT cut must be at least 0.6 GeV. Provided value: " +
+                                    std::to_string(pt_cut));
+      }
+    }
     void initSync();        // synchronizes, for standalone usage
     void resetEventSync();  // synchronizes, for standalone usage
     void wait() const { alpaka::wait(queue_); }
 
+    void addInputToEvent(LSTInputDeviceCollection const* lstInputDC);
     // Calls the appropriate hit function, then increments the counter
-    void addHitToEvent(std::vector<float> const& x,
-                       std::vector<float> const& y,
-                       std::vector<float> const& z,
-                       std::vector<unsigned int> const& detId,
-                       std::vector<unsigned int> const& idxInNtuple);
-    void addPixelSegmentToEvent(std::vector<unsigned int> const& hitIndices0,
-                                std::vector<unsigned int> const& hitIndices1,
-                                std::vector<unsigned int> const& hitIndices2,
-                                std::vector<unsigned int> const& hitIndices3,
-                                std::vector<float> const& dPhiChange,
-                                std::vector<float> const& ptIn,
-                                std::vector<float> const& ptErr,
-                                std::vector<float> const& px,
-                                std::vector<float> const& py,
-                                std::vector<float> const& pz,
-                                std::vector<float> const& eta,
-                                std::vector<float> const& etaErr,
-                                std::vector<float> const& phi,
-                                std::vector<int> const& charge,
-                                std::vector<unsigned int> const& seedIdx,
-                                std::vector<int> const& superbin,
-                                std::vector<PixelType> const& pixelType,
-                                std::vector<char> const& isQuad);
+    void addHitToEvent();
+    void addPixelSegmentToEventStart();
 
     void createMiniDoublets();
+    void addPixelSegmentToEventFinalize();
     void createSegmentsWithModuleMap();
     void createTriplets();
     void createTrackCandidates(bool no_pls_dupclean, bool tc_pls_triplets);
@@ -137,17 +136,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     void resetObjectsInModule();
 
     unsigned int getNumberOfMiniDoublets();
-    unsigned int getNumberOfMiniDoubletsByLayer(unsigned int layer);
     unsigned int getNumberOfMiniDoubletsByLayerBarrel(unsigned int layer);
     unsigned int getNumberOfMiniDoubletsByLayerEndcap(unsigned int layer);
 
     unsigned int getNumberOfSegments();
-    unsigned int getNumberOfSegmentsByLayer(unsigned int layer);
     unsigned int getNumberOfSegmentsByLayerBarrel(unsigned int layer);
     unsigned int getNumberOfSegmentsByLayerEndcap(unsigned int layer);
 
     unsigned int getNumberOfTriplets();
-    unsigned int getNumberOfTripletsByLayer(unsigned int layer);
     unsigned int getNumberOfTripletsByLayerBarrel(unsigned int layer);
     unsigned int getNumberOfTripletsByLayerEndcap(unsigned int layer);
 
@@ -155,7 +151,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     int getNumberOfPixelQuintuplets();
 
     unsigned int getNumberOfQuintuplets();
-    unsigned int getNumberOfQuintupletsByLayer(unsigned int layer);
     unsigned int getNumberOfQuintupletsByLayerBarrel(unsigned int layer);
     unsigned int getNumberOfQuintupletsByLayerEndcap(unsigned int layer);
 
@@ -171,7 +166,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     // set to false may allow faster operation with concurrent calls of get*
     // HANDLE WITH CARE
     template <typename TSoA, typename TDev = Device>
-    typename TSoA::ConstView getHits(bool inCMSSW = false, bool sync = true);
+    typename TSoA::ConstView getInput(bool sync = true);
+    template <typename TSoA, typename TDev = Device>
+    typename TSoA::ConstView getHits(bool sync = true);
     template <typename TDev = Device>
     ObjectRangesConst getRanges(bool sync = true);
     template <typename TSoA, typename TDev = Device>
@@ -185,8 +182,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     template <typename TDev = Device>
     PixelTripletsConst getPixelTriplets(bool sync = true);
     template <typename TDev = Device>
+    PixelSegmentsConst getPixelSegments(bool sync = true);
+    template <typename TDev = Device>
     PixelQuintupletsConst getPixelQuintuplets(bool sync = true);
-    const TrackCandidatesConst& getTrackCandidates(bool inCMSSW = false, bool sync = true);
+    template <typename TDev = Device>
+    TrackCandidatesBaseConst getTrackCandidatesBase(bool sync = true);
+    template <typename TDev = Device>
+    TrackCandidatesExtendedConst getTrackCandidatesExtended(bool sync = true);
+    std::unique_ptr<TrackCandidatesBaseDeviceCollection> releaseTrackCandidatesBaseDeviceCollection();
     template <typename TSoA, typename TDev = Device>
     typename TSoA::ConstView getModules(bool sync = true);
   };

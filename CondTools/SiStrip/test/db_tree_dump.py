@@ -121,13 +121,11 @@ else:
     print("overriding using local conditions: %s" %records)
     process.poolDBESSource = cms.ESSource(
         "PoolDBESSource",
-        BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
         DBParameters = cms.PSet(
             messageLevel = cms.untracked.int32(1),  # it used to be 2
             authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
             ),
         #DumpStat = cms.untracked.bool(True),
-        timetype = cms.untracked.string('runnumber'),
         toGet = cms.VPSet(records),
         connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
         )

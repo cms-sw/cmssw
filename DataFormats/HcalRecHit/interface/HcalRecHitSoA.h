@@ -6,7 +6,6 @@
 namespace hcal {
 
   GENERATE_SOA_LAYOUT(HcalRecHitSoALayout,
-                      SOA_SCALAR(uint32_t, size),
                       SOA_COLUMN(uint32_t, detId),
                       SOA_COLUMN(float, energy),
                       SOA_COLUMN(float, chi2),

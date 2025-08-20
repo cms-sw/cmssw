@@ -3,11 +3,12 @@
 
 #include <vector>
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace reco {
 
@@ -28,6 +29,8 @@ namespace reco {
     inline bool operator()(const std::vector<reco::Track> &tracks) const { return (*this)(&tracks[0], tracks.size()); }
 
     bool operator()(const reco::Track *const *tracks, unsigned int n) const;
+
+    static void fillPSetDescription(edm::ParameterSetDescription &desc);
 
   private:
     double k0sMassWindow;

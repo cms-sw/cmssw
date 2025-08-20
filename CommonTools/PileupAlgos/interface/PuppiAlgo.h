@@ -9,7 +9,7 @@
 
 class PuppiAlgo {
 public:
-  PuppiAlgo(edm::ParameterSet &iConfig);
+  PuppiAlgo(const edm::ParameterSet &iConfig);
   ~PuppiAlgo();
   static void fillDescriptionsPuppiAlgo(edm::ParameterSetDescription &desc);
   //Computing Mean and RMS
@@ -19,7 +19,7 @@ public:
   void computeMedRMS(const unsigned int &iAlgo);
   //Get the Weight
   double compute(std::vector<double> const &iVals, double iChi2) const;
-  const std::vector<float> &alphas() { return fPups; }
+  const std::vector<float> &alphas() const { return fPups; }
   //Helpers
   inline int etaBins() const { return fEtaMin.size(); }
   inline double etaMin(int i) const { return fEtaMin[i]; }

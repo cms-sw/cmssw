@@ -157,7 +157,8 @@ _pp_on_AA_extraCommands = [
 ]
 
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
-pp_on_AA.toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + _pp_on_AA_extraCommands)
+from Configuration.Eras.Modifier_run3_oxygen_cff import run3_oxygen
+(pp_on_AA | run3_oxygen).toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + _pp_on_AA_extraCommands)
 
 _upc_extraCommands = [
     'keep patPackedCandidates_hiPixelTracks_*_*',
@@ -171,6 +172,10 @@ _upc_extraCommands = [
 
 from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
 run3_upc.toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + _upc_extraCommands)
+
+_dedx_extraCommands = ["keep recoDeDxDataedmValueMap_dedxEstimator_*_*"]
+from Configuration.Eras.Modifier_dedx_lfit_cff import dedx_lfit
+dedx_lfit.toModify(MicroEventContent, outputCommands = MicroEventContent.outputCommands + _dedx_extraCommands)
 
 _ppRef_extraCommands = [
     'keep floatedmValueMap_*TrackChi2_*_*',
@@ -194,7 +199,7 @@ MicroEventContentMC.outputCommands += [
                                         'keep L1GtTriggerMenuLite_l1GtTriggerMenuLite__*'
                                       ]
 _pp_on_AA_MC_extraCommands = ['keep *_packedGenParticlesSignal_*_*','keep edmGenHIEvent_heavyIon_*_*']
-pp_on_AA.toModify(MicroEventContentMC, outputCommands = MicroEventContentMC.outputCommands + _pp_on_AA_MC_extraCommands)
+(pp_on_AA | run3_oxygen).toModify(MicroEventContentMC, outputCommands = MicroEventContentMC.outputCommands + _pp_on_AA_MC_extraCommands)
 
 from Configuration.Eras.Modifier_strips_vfp30_2016_cff import strips_vfp30_2016
 strips_vfp30_2016.toModify(MicroEventContentMC, outputCommands = MicroEventContentMC.outputCommands + [

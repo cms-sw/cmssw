@@ -4,7 +4,6 @@
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
-#include "DataFormats/Provenance/interface/SubProcessParentageHelper.h"
 
 #include "FWCore/Common/interface/ProcessBlockHelper.h"
 #include "FWCore/Framework/src/CommonParams.h"
@@ -23,25 +22,24 @@
 #include "FWCore/Framework/interface/ModuleChanger.h"
 #include "FWCore/Framework/interface/makeModuleTypeResolverMaker.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
+#include "FWCore/Framework/interface/PathsAndConsumesOfModules.h"
 #include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
 #include "FWCore/Framework/interface/ProcessingController.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/interface/ScheduleInfo.h"
 #include "FWCore/Framework/interface/ScheduleItems.h"
-#include "FWCore/Framework/interface/SubProcess.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/Framework/src/Breakpoints.h"
 #include "FWCore/Framework/interface/EventSetupsController.h"
 #include "FWCore/Framework/interface/maker/InputSourceFactory.h"
 #include "FWCore/Framework/interface/SharedResourcesRegistry.h"
-#include "FWCore/Framework/interface/streamTransitionAsync.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/ensureAvailableAccelerators.h"
-#include "FWCore/Framework/interface/globalTransitionAsync.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/SendSourceTerminationSignalIfException.h"
+#include "FWCore/Framework/interface/ProductResolversFactory.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -52,6 +50,9 @@
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ParameterSet/interface/validateTopLevelParameterSets.h"
+
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
+#include "FWCore/AbstractServices/interface/RootHandlers.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -68,11 +69,9 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-#include "FWCore/Utilities/interface/RootHandlers.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
@@ -94,6 +93,7 @@
 #include <sys/msg.h>
 
 #include "oneapi/tbb/task.h"
+#include "oneapi/tbb/task_arena.h"
 
 //Used for CPU affinity
 #ifndef __APPLE__
@@ -119,7 +119,6 @@ namespace edm {
   std::unique_ptr<InputSource> makeInput(unsigned int moduleIndex,
                                          ParameterSet& params,
                                          CommonParams const& common,
-                                         std::shared_ptr<ProductRegistry> preg,
                                          std::shared_ptr<BranchIDListHelper> branchIDListHelper,
                                          std::shared_ptr<ProcessBlockHelper> const& processBlockHelper,
                                          std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper,
@@ -164,7 +163,6 @@ namespace edm {
                          moduleIndex);
 
     InputSourceDescription isdesc(md,
-                                  preg,
                                   branchIDListHelper,
                                   processBlockHelper,
                                   thinnedAssociationsHelper,
@@ -180,7 +178,7 @@ namespace edm {
       //even if we have an exception, send the signal
       std::shared_ptr<int> sentry(nullptr, [areg, &md](void*) { areg->postSourceConstructionSignal_(md); });
       convertException::wrap([&]() {
-        input = std::unique_ptr<InputSource>(InputSourceFactory::get()->makeInputSource(*main_input, isdesc).release());
+        input = InputSourceFactory::get()->makeInputSource(*main_input, isdesc);
         input->preEventReadFromSourceSignal_.connect(std::cref(areg->preEventReadFromSourceSignal_));
         input->postEventReadFromSourceSignal_.connect(std::cref(areg->postEventReadFromSourceSignal_));
       });
@@ -194,8 +192,7 @@ namespace edm {
   }
 
   // ---------------------------------------------------------------
-  std::shared_ptr<EDLooperBase> fillLooper(eventsetup::EventSetupsController& esController,
-                                           eventsetup::EventSetupProvider& cp,
+  std::shared_ptr<EDLooperBase> fillLooper(eventsetup::EventSetupProvider& eventSetupProvider,
                                            ParameterSet& params,
                                            std::vector<std::string> const& loopers) {
     std::shared_ptr<EDLooperBase> vLooper;
@@ -205,7 +202,7 @@ namespace edm {
     for (auto const& looperName : loopers) {
       ParameterSet* providerPSet = params.getPSetForUpdate(looperName);
       // Unlikely we would ever need the ModuleTypeResolver in Looper
-      vLooper = eventsetup::LooperFactory::get()->addTo(esController, cp, *providerPSet, nullptr);
+      vLooper = eventsetup::LooperFactory::get()->addTo(eventSetupProvider, *providerPSet, nullptr);
     }
     return vLooper;
   }
@@ -227,7 +224,6 @@ namespace edm {
         act_table_(),
         processConfiguration_(),
         schedule_(),
-        subProcesses_(),
         historyAppender_(new HistoryAppender),
         fb_(),
         looper_(),
@@ -243,8 +239,7 @@ namespace edm {
         exceptionMessageLumis_(false),
         forceLooperToEnd_(false),
         looperBeginJobRun_(false),
-        forceESCacheClearOnNewRun_(false),
-        eventSetupDataToExcludeFromPrefetching_() {
+        forceESCacheClearOnNewRun_(false) {
     auto processDesc = std::make_shared<ProcessDesc>(std::move(parameterSet));
     processDesc->addServices(defaultServices, forcedServices);
     init(processDesc, iToken, iLegacy);
@@ -264,7 +259,6 @@ namespace edm {
         act_table_(),
         processConfiguration_(),
         schedule_(),
-        subProcesses_(),
         historyAppender_(new HistoryAppender),
         fb_(),
         looper_(),
@@ -280,8 +274,7 @@ namespace edm {
         exceptionMessageLumis_(false),
         forceLooperToEnd_(false),
         looperBeginJobRun_(false),
-        forceESCacheClearOnNewRun_(false),
-        eventSetupDataToExcludeFromPrefetching_() {
+        forceESCacheClearOnNewRun_(false) {
     auto processDesc = std::make_shared<ProcessDesc>(std::move(parameterSet));
     processDesc->addServices(defaultServices, forcedServices);
     init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
@@ -301,7 +294,6 @@ namespace edm {
         act_table_(),
         processConfiguration_(),
         schedule_(),
-        subProcesses_(),
         historyAppender_(new HistoryAppender),
         fb_(),
         looper_(),
@@ -317,8 +309,7 @@ namespace edm {
         exceptionMessageLumis_(false),
         forceLooperToEnd_(false),
         looperBeginJobRun_(false),
-        forceESCacheClearOnNewRun_(false),
-        eventSetupDataToExcludeFromPrefetching_() {
+        forceESCacheClearOnNewRun_(false) {
     init(processDesc, token, legacy);
   }
 
@@ -334,10 +325,6 @@ namespace edm {
     ParameterSet().registerIt();
 
     std::shared_ptr<ParameterSet> parameterSet = processDesc->getProcessPSet();
-
-    // If there are subprocesses, pop the subprocess parameter sets out of the process parameter set
-    auto subProcessVParameterSet = popSubProcessVParameterSet(*parameterSet);
-    bool const hasSubProcesses = !subProcessVParameterSet.empty();
 
     // Validates the parameters in the 'options', 'maxEvents', 'maxLuminosityBlocks',
     // and 'maxSecondsUntilRampdown' top level parameter sets. Default values are also
@@ -415,11 +402,9 @@ namespace edm {
     printDependencies_ = optionsPset.getUntrackedParameter<bool>("printDependencies");
     deleteNonConsumedUnscheduledModules_ =
         optionsPset.getUntrackedParameter<bool>("deleteNonConsumedUnscheduledModules");
-    //for now, if have a subProcess, don't allow early delete
-    // In the future we should use the SubProcess's 'keep list' to decide what can be kept
-    if (not hasSubProcesses) {
-      branchesToDeleteEarly_ = optionsPset.getUntrackedParameter<std::vector<std::string>>("canDeleteEarly");
-    }
+
+    branchesToDeleteEarly_ = optionsPset.getUntrackedParameter<std::vector<std::string>>("canDeleteEarly");
+
     if (not branchesToDeleteEarly_.empty()) {
       auto referencePSets =
           optionsPset.getUntrackedParameter<std::vector<edm::ParameterSet>>("holdsReferencesToDeleteEarly");
@@ -439,8 +424,8 @@ namespace edm {
 
     //initialize the services
     auto& serviceSets = processDesc->getServicesPSets();
-    ServiceToken token = items.initServices(serviceSets, *parameterSet, iToken, iLegacy, true);
-    serviceToken_ = items.addCPRandTNS(*parameterSet, token);
+    ServiceToken token = items.initServices(serviceSets, *parameterSet, iToken, iLegacy);
+    serviceToken_ = items.addTNS(*parameterSet, token);
 
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
@@ -461,7 +446,7 @@ namespace edm {
 
       // initialize the looper, if any
       if (!loopers.empty()) {
-        looper_ = fillLooper(*espController_, *esp_, *parameterSet, loopers);
+        looper_ = fillLooper(*esp_, *parameterSet, loopers);
         looper_->setActionTable(items.act_table_.get());
         looper_->attachTo(*items.actReg_);
 
@@ -486,7 +471,6 @@ namespace edm {
         tbb::task_group group;
 
         // initialize the input source
-        auto tempReg = std::make_shared<ProductRegistry>();
         auto sourceID = ModuleDescription::getUniqueID();
 
         group.run([&, this]() {
@@ -497,12 +481,11 @@ namespace edm {
               items.initModules(*parameterSet, tns, preallocations_, &processContext_, moduleTypeResolverMaker_.get());
         });
 
-        group.run([&, this, tempReg]() {
+        group.run([&, this]() {
           ServiceRegistry::Operate operate(serviceToken_);
           input_ = makeInput(sourceID,
                              *parameterSet,
                              *common,
-                             /*items.preg(),*/ tempReg,
                              items.branchIDListHelper(),
                              get_underlying_safe(processBlockHelper_),
                              items.thinnedAssociationsHelper(),
@@ -512,30 +495,32 @@ namespace edm {
         });
 
         group.wait();
-        items.preg()->addFromInput(*tempReg);
-        input_->switchTo(items.preg());
-
+        items.preg()->addFromInput(input_->productRegistry());
         {
           auto const& tns = ServiceRegistry::instance().get<service::TriggerNamesService>();
-          schedule_ = items.finishSchedule(std::move(*madeModules),
-                                           *parameterSet,
-                                           tns,
-                                           hasSubProcesses,
-                                           preallocations_,
-                                           &processContext_,
-                                           *processBlockHelper_);
+          schedule_ = items.finishSchedule(
+              std::move(*madeModules), *parameterSet, tns, preallocations_, &processContext_, *processBlockHelper_);
         }
       }
 
       // set the data members
       act_table_ = std::move(items.act_table_);
       actReg_ = items.actReg_;
-      preg_ = items.preg();
+      preg_ = std::make_shared<ProductRegistry>(items.preg()->moveTo());
       mergeableRunProductProcesses_.setProcessesWithMergeableRunProducts(*preg_);
       branchIDListHelper_ = items.branchIDListHelper();
       thinnedAssociationsHelper_ = items.thinnedAssociationsHelper();
       processConfiguration_ = items.processConfiguration();
       processContext_.setProcessConfiguration(processConfiguration_.get());
+
+      {
+        edm::Service<edm::JobReport> jr;
+        if (jr.isAvailable()) {
+          ProcessConfiguration reduced = *processConfiguration_;
+          reduced.reduce();
+          jr->reportProcess(reduced.processName(), reduced.id(), reduced.parameterSetID());
+        }
+      }
 
       FDEBUG(2) << parameterSet << std::endl;
 
@@ -543,53 +528,40 @@ namespace edm {
       for (unsigned int index = 0; index < preallocations_.numberOfStreams(); ++index) {
         // Reusable event principal
         auto ep = std::make_shared<EventPrincipal>(preg(),
+                                                   productResolversFactory::makePrimary,
                                                    branchIDListHelper(),
                                                    thinnedAssociationsHelper(),
                                                    *processConfiguration_,
                                                    historyAppender_.get(),
                                                    index,
-                                                   true /*primary process*/,
                                                    &*processBlockHelper_);
         principalCache_.insert(std::move(ep));
       }
 
       for (unsigned int index = 0; index < preallocations_.numberOfRuns(); ++index) {
-        auto rp = std::make_unique<RunPrincipal>(
-            preg(), *processConfiguration_, historyAppender_.get(), index, true, &mergeableRunProductProcesses_);
+        auto rp = std::make_unique<RunPrincipal>(preg(),
+                                                 productResolversFactory::makePrimary,
+                                                 *processConfiguration_,
+                                                 historyAppender_.get(),
+                                                 index,
+                                                 &mergeableRunProductProcesses_);
         principalCache_.insert(std::move(rp));
       }
 
       for (unsigned int index = 0; index < preallocations_.numberOfLuminosityBlocks(); ++index) {
-        auto lp =
-            std::make_unique<LuminosityBlockPrincipal>(preg(), *processConfiguration_, historyAppender_.get(), index);
+        auto lp = std::make_unique<LuminosityBlockPrincipal>(
+            preg(), productResolversFactory::makePrimary, *processConfiguration_, historyAppender_.get(), index);
         principalCache_.insert(std::move(lp));
       }
 
       {
-        auto pb = std::make_unique<ProcessBlockPrincipal>(preg(), *processConfiguration_);
+        auto pb = std::make_unique<ProcessBlockPrincipal>(
+            preg(), productResolversFactory::makePrimary, *processConfiguration_);
         principalCache_.insert(std::move(pb));
 
-        auto pbForInput = std::make_unique<ProcessBlockPrincipal>(preg(), *processConfiguration_);
+        auto pbForInput = std::make_unique<ProcessBlockPrincipal>(
+            preg(), productResolversFactory::makePrimary, *processConfiguration_);
         principalCache_.insertForInput(std::move(pbForInput));
-      }
-
-      // fill the subprocesses, if there are any
-      subProcesses_.reserve(subProcessVParameterSet.size());
-      for (auto& subProcessPSet : subProcessVParameterSet) {
-        subProcesses_.emplace_back(subProcessPSet,
-                                   *parameterSet,
-                                   preg(),
-                                   branchIDListHelper(),
-                                   *processBlockHelper_,
-                                   *thinnedAssociationsHelper_,
-                                   SubProcessParentageHelper(),
-                                   *espController_,
-                                   *actReg_,
-                                   token,
-                                   serviceregistry::kConfigurationOverrides,
-                                   preallocations_,
-                                   &processContext_,
-                                   moduleTypeResolverMaker_);
       }
     } catch (...) {
       //in case of an exception, make sure Services are available
@@ -643,37 +615,21 @@ namespace edm {
                                  preallocations_.numberOfThreads());
     actReg_->preallocateSignal_(bounds);
     schedule_->convertCurrentProcessAlias(processConfiguration_->processName());
-    pathsAndConsumesOfModules_.initialize(schedule_.get(), preg());
 
-    std::vector<ModuleProcessName> consumedBySubProcesses;
-    for_all(subProcesses_,
-            [&consumedBySubProcesses, deleteModules = deleteNonConsumedUnscheduledModules_](auto& subProcess) {
-              auto c = subProcess.keepOnlyConsumedUnscheduledModules(deleteModules);
-              if (consumedBySubProcesses.empty()) {
-                consumedBySubProcesses = std::move(c);
-              } else if (not c.empty()) {
-                std::vector<ModuleProcessName> tmp;
-                tmp.reserve(consumedBySubProcesses.size() + c.size());
-                std::merge(consumedBySubProcesses.begin(),
-                           consumedBySubProcesses.end(),
-                           c.begin(),
-                           c.end(),
-                           std::back_inserter(tmp));
-                std::swap(consumedBySubProcesses, tmp);
-              }
-            });
+    PathsAndConsumesOfModules pathsAndConsumesOfModules;
+    pathsAndConsumesOfModules.initialize(schedule_.get(), preg());
 
     // Note: all these may throw
-    checkForModuleDependencyCorrectness(pathsAndConsumesOfModules_, printDependencies_);
+    checkForModuleDependencyCorrectness(pathsAndConsumesOfModules, printDependencies_);
     if (deleteNonConsumedUnscheduledModules_) {
-      if (auto const unusedModules = nonConsumedUnscheduledModules(pathsAndConsumesOfModules_, consumedBySubProcesses);
+      if (auto const unusedModules = nonConsumedUnscheduledModules(pathsAndConsumesOfModules);
           not unusedModules.empty()) {
-        pathsAndConsumesOfModules_.removeModules(unusedModules);
+        pathsAndConsumesOfModules.removeModules(unusedModules);
 
         edm::LogInfo("DeleteModules").log([&unusedModules](auto& l) {
-          l << "Following modules are not in any Path or EndPath, nor is their output consumed by any other module, "
-               "and "
-               "therefore they are deleted before beginJob transition.";
+          l << "The following modules are not in any Path or EndPath, nor is their output consumed by any other "
+               "module, "
+               "and therefore they are deleted before the beginJob transition.";
           for (auto const& description : unusedModules) {
             l << "\n " << description->moduleLabel();
           }
@@ -715,9 +671,12 @@ namespace edm {
     //   looper_->beginOfJob(es);
     //}
     espController_->finishConfiguration();
-    actReg_->eventSetupConfigurationSignal_(esp_->recordsToResolverIndices(), processContext_);
+
+    eventsetup::ESRecordsToProductResolverIndices esRecordsToProductResolverIndices = esp_->recordsToResolverIndices();
+
+    actReg_->eventSetupConfigurationSignal_(esRecordsToProductResolverIndices, processContext_);
     try {
-      convertException::wrap([&]() { input_->doBeginJob(); });
+      convertException::wrap([&]() { input_->doBeginJob(*preg_); });
     } catch (cms::Exception& ex) {
       ex.addContext("Calling beginJob for the source");
       throw;
@@ -731,7 +690,7 @@ namespace edm {
     std::exception_ptr firstException;
     CMS_SA_ALLOW try {
       schedule_->beginJob(
-          *preg_, esp_->recordsToResolverIndices(), *processBlockHelper_, pathsAndConsumesOfModules_, processContext_);
+          *preg_, esRecordsToProductResolverIndices, *processBlockHelper_, processContext_.processName());
     } catch (...) {
       firstException = std::current_exception();
     }
@@ -746,21 +705,31 @@ namespace edm {
         looper_->updateLookup(InRun, *runLookup, mustPrefetchMayGet);
         looper_->updateLookup(InLumi, *lumiLookup, mustPrefetchMayGet);
         looper_->updateLookup(InEvent, *eventLookup, mustPrefetchMayGet);
-        looper_->updateLookup(esp_->recordsToResolverIndices());
+        looper_->updateLookup(esRecordsToProductResolverIndices);
       } catch (...) {
         firstException = std::current_exception();
       }
     }
-    for (auto& subProcess : subProcesses_) {
-      CMS_SA_ALLOW try { subProcess.doBeginJob(); } catch (...) {
-        if (!firstException) {
-          firstException = std::current_exception();
+    if (!firstException) {
+      CMS_SA_ALLOW try {
+        edm::Service<edm::RandomNumberGenerator> rng;
+        if (rng.isAvailable()) {
+          auto consumer = rng->consumer();
+          if (consumer) {
+            consumer->updateLookup(InLumi, *preg_->productLookup(InLumi), true);
+            consumer->updateLookup(InEvent, *preg_->productLookup(InEvent), true);
+          }
         }
+      } catch (...) {
+        firstException = std::current_exception();
       }
     }
     if (firstException) {
       std::rethrow_exception(firstException);
     }
+    pathsAndConsumesOfModules.initializeForEventSetup(*esp_);
+    actReg_->lookupInitializationCompleteSignal_(pathsAndConsumesOfModules, processContext_);
+    schedule_->releaseMemoryPostLookupSignal();
 
     beginJobSucceeded_ = true;
     beginStreams();
@@ -768,7 +737,7 @@ namespace edm {
 
   void EventProcessor::beginStreams() {
     // This will process streams concurrently, but not modules in the
-    // same stream or SubProcesses.
+    // same stream.
     oneapi::tbb::task_group group;
     FinalWaitingTask finalWaitingTask{group};
     using namespace edm::waiting_task::chain;
@@ -782,13 +751,6 @@ namespace edm {
             CMS_SA_ALLOW try { schedule_->beginStream(i); } catch (...) {
               exceptionPtr = std::current_exception();
             }
-            for (auto& subProcess : subProcesses_) {
-              CMS_SA_ALLOW try { subProcess.doBeginStream(i); } catch (...) {
-                if (!exceptionPtr) {
-                  exceptionPtr = std::current_exception();
-                }
-              }
-            }
           }
           nextTask.doneWaiting(exceptionPtr);
         }) | lastTask(taskHolder);
@@ -801,7 +763,7 @@ namespace edm {
     std::mutex collectorMutex;
 
     // This will process streams concurrently, but not modules in the
-    // same stream or SubProcesses.
+    // same stream.
     oneapi::tbb::task_group group;
     FinalWaitingTask finalWaitingTask{group};
     using namespace edm::waiting_task::chain;
@@ -812,9 +774,6 @@ namespace edm {
           {
             ServiceRegistry::Operate operate(serviceToken_);
             schedule_->endStream(i, collector, collectorMutex);
-            for (auto& subProcess : subProcesses_) {
-              subProcess.doEndStream(i, collector, collectorMutex);
-            }
           }
         }) | lastTask(taskHolder);
       }
@@ -837,9 +796,6 @@ namespace edm {
 
     if (beginJobStartedModules_) {
       schedule_->endJob(c);
-      for (auto& subProcess : subProcesses_) {
-        subProcess.doEndJob(c);
-      }
       c.call(std::bind(&InputSource::doEndJob, input_.get()));
       if (looper_) {
         c.call(std::bind(&EDLooperBase::endOfJob, looper()));
@@ -1005,23 +961,22 @@ namespace edm {
 
   void EventProcessor::readFile() {
     FDEBUG(1) << " \treadFile\n";
-    size_t size = preg_->size();
     SendSourceTerminationSignalIfException sentry(actReg_.get());
 
     if (streamRunActive_ > 0) {
+      //deals with data structures that allows merged Run products to be split on Lumi boundaries then
+      // in later processes reintegrated.
       streamRunStatus_[0]->runPrincipal()->preReadFile();
-      streamRunStatus_[0]->runPrincipal()->adjustIndexesAfterProductRegistryAddition();
     }
 
-    if (streamLumiActive_ > 0) {
-      streamLumiStatus_[0]->lumiPrincipal()->adjustIndexesAfterProductRegistryAddition();
-    }
-
+    auto oldCacheID = input_->productRegistry().cacheIdentifier();
     fb_ = input_->readFile();
-    if (size < preg_->size()) {
-      principalCache_.adjustIndexesAfterProductRegistryAddition();
+    //incase the input's registry changed
+    if (input_->productRegistry().cacheIdentifier() != oldCacheID) {
+      auto temp = std::make_shared<edm::ProductRegistry>(*preg_);
+      temp->merge(input_->productRegistry(), fb_ ? fb_->fileName() : std::string());
+      preg_ = std::move(temp);
     }
-    principalCache_.adjustEventsToNewProductRegistry(preg());
     if (preallocations_.numberOfStreams() > 1 and preallocations_.numberOfThreads() > 1) {
       fb_->setNotFastClonable(FileBlock::ParallelProcesses);
     }
@@ -1040,24 +995,19 @@ namespace edm {
   void EventProcessor::openOutputFiles() {
     if (fileBlockValid()) {
       schedule_->openOutputFiles(*fb_);
-      for_all(subProcesses_, [this](auto& subProcess) { subProcess.openOutputFiles(*fb_); });
     }
     FDEBUG(1) << "\topenOutputFiles\n";
   }
 
   void EventProcessor::closeOutputFiles() {
     schedule_->closeOutputFiles();
-    for_all(subProcesses_, [](auto& subProcess) { subProcess.closeOutputFiles(); });
     processBlockHelper_->clearAfterOutputFilesClose();
     FDEBUG(1) << "\tcloseOutputFiles\n";
   }
 
   void EventProcessor::respondToOpenInputFile() {
     if (fileBlockValid()) {
-      for_all(subProcesses_,
-              [this](auto& subProcess) { subProcess.updateBranchIDListHelper(branchIDListHelper_->branchIDLists()); });
       schedule_->respondToOpenInputFile(*fb_);
-      for_all(subProcesses_, [this](auto& subProcess) { subProcess.respondToOpenInputFile(*fb_); });
     }
     FDEBUG(1) << "\trespondToOpenInputFile\n";
   }
@@ -1065,7 +1015,6 @@ namespace edm {
   void EventProcessor::respondToCloseInputFile() {
     if (fileBlockValid()) {
       schedule_->respondToCloseInputFile(*fb_);
-      for_all(subProcesses_, [this](auto& subProcess) { subProcess.respondToCloseInputFile(*fb_); });
     }
     FDEBUG(1) << "\trespondToCloseInputFile\n";
   }
@@ -1082,7 +1031,8 @@ namespace edm {
 
   bool EventProcessor::endOfLoop() {
     if (looper_) {
-      ModuleChanger changer(schedule_.get(), preg_.get(), esp_->recordsToResolverIndices());
+      SignallingProductRegistryFiller sReg(*preg());
+      ModuleChanger changer(schedule_.get(), &sReg, esp_->recordsToResolverIndices());
       looper_->setModuleChanger(&changer);
       EDLooperBase::Status status = looper_->doEndOfLoop(esp_->eventSetupImpl());
       looper_->setModuleChanger(nullptr);
@@ -1108,14 +1058,6 @@ namespace edm {
 
   bool EventProcessor::shouldWeCloseOutput() const {
     FDEBUG(1) << "\tshouldWeCloseOutput\n";
-    if (!subProcesses_.empty()) {
-      for (auto const& subProcess : subProcesses_) {
-        if (subProcess.shouldWeCloseOutput()) {
-          return true;
-        }
-      }
-      return false;
-    }
     return schedule_->shouldWeCloseOutput();
   }
 
@@ -1136,8 +1078,8 @@ namespace edm {
     FinalWaitingTask globalWaitTask{taskGroup_};
 
     ProcessBlockTransitionInfo transitionInfo(processBlockPrincipal);
-    beginGlobalTransitionAsync<Traits>(
-        WaitingTaskHolder(taskGroup_, &globalWaitTask), *schedule_, transitionInfo, serviceToken_, subProcesses_);
+    schedule_->processOneGlobalAsync<Traits>(
+        WaitingTaskHolder(taskGroup_, &globalWaitTask), transitionInfo, serviceToken_);
 
     globalWaitTask.wait();
     beginProcessBlockSucceeded = true;
@@ -1153,8 +1095,8 @@ namespace edm {
       FinalWaitingTask globalWaitTask{taskGroup_};
 
       ProcessBlockTransitionInfo transitionInfo(processBlockPrincipal);
-      beginGlobalTransitionAsync<Traits>(
-          WaitingTaskHolder(taskGroup_, &globalWaitTask), *schedule_, transitionInfo, serviceToken_, subProcesses_);
+      schedule_->processOneGlobalAsync<Traits>(
+          WaitingTaskHolder(taskGroup_, &globalWaitTask), transitionInfo, serviceToken_);
 
       globalWaitTask.wait();
 
@@ -1163,9 +1105,6 @@ namespace edm {
       writeWaitTask.wait();
 
       processBlockPrincipal.clearPrincipal();
-      for (auto& s : subProcesses_) {
-        s.clearProcessBlockPrincipal(ProcessBlockType::Input);
-      }
     }
   }
 
@@ -1176,12 +1115,8 @@ namespace edm {
     FinalWaitingTask globalWaitTask{taskGroup_};
 
     ProcessBlockTransitionInfo transitionInfo(processBlockPrincipal);
-    endGlobalTransitionAsync<Traits>(WaitingTaskHolder(taskGroup_, &globalWaitTask),
-                                     *schedule_,
-                                     transitionInfo,
-                                     serviceToken_,
-                                     subProcesses_,
-                                     cleaningUpAfterException);
+    schedule_->processOneGlobalAsync<Traits>(
+        WaitingTaskHolder(taskGroup_, &globalWaitTask), transitionInfo, serviceToken_, cleaningUpAfterException);
     globalWaitTask.wait();
 
     if (beginProcessBlockSucceeded) {
@@ -1191,9 +1126,6 @@ namespace edm {
     }
 
     processBlockPrincipal.clearPrincipal();
-    for (auto& s : subProcesses_) {
-      s.clearProcessBlockPrincipal(ProcessBlockType::New);
-    }
   }
 
   InputSource::ItemType EventProcessor::processRuns() {
@@ -1244,7 +1176,7 @@ namespace edm {
       espController_->runOrQueueEventSetupForInstanceAsync(iSync,
                                                            nextTask,
                                                            status->endIOVWaitingTasks(),
-                                                           status->eventSetupImpls(),
+                                                           status->eventSetupImplPtr(),
                                                            queueWhichWaitsForIOVsToFinish_,
                                                            actReg_.get(),
                                                            serviceToken_,
@@ -1282,16 +1214,19 @@ namespace edm {
                           return;
                         }
 
-                        status->setRunPrincipal(readRun());
-
-                        RunPrincipal& runPrincipal = *status->runPrincipal();
                         {
-                          SendSourceTerminationSignalIfException sentry(actReg_.get());
-                          input_->doBeginRun(runPrincipal, &processContext_);
-                          sentry.completedSuccessfully();
+                          std::lock_guard<std::recursive_mutex> guard(*(sourceMutex_.get()));
+                          status->setRunPrincipal(readRun());
+
+                          RunPrincipal& runPrincipal = *status->runPrincipal();
+                          {
+                            SendSourceTerminationSignalIfException sentry(actReg_.get());
+                            input_->doBeginRun(runPrincipal, &processContext_);
+                            sentry.completedSuccessfully();
+                          }
                         }
 
-                        EventSetupImpl const& es = status->eventSetupImpl(esp_->subProcessIndex());
+                        EventSetupImpl const& es = status->eventSetupImpl();
                         if (looper_ && looperBeginJobRun_ == false) {
                           looper_->copyInfo(ScheduleInfo(schedule_.get()));
 
@@ -1324,10 +1259,9 @@ namespace edm {
                           if (status->stopBeforeProcessingRun()) {
                             return;
                           }
-                          RunTransitionInfo transitionInfo(*status->runPrincipal(), es, &status->eventSetupImpls());
+                          RunTransitionInfo transitionInfo(*status->runPrincipal(), es);
                           using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin>;
-                          beginGlobalTransitionAsync<Traits>(
-                              nextTask, *schedule_, transitionInfo, serviceToken_, subProcesses_);
+                          schedule_->processOneGlobalAsync<Traits>(nextTask, transitionInfo, serviceToken_);
                         }) | ifThen(looper_, [this, status, &es](auto nextTask) {
                           if (status->stopBeforeProcessingRun()) {
                             return;
@@ -1444,11 +1378,9 @@ namespace edm {
       chain::first([this, iStream](auto nextTask) {
         RunProcessingStatus& rs = *streamRunStatus_[iStream];
         if (rs.didGlobalBeginSucceed()) {
-          RunTransitionInfo transitionInfo(
-              *rs.runPrincipal(), rs.eventSetupImpl(esp_->subProcessIndex()), &rs.eventSetupImpls());
+          RunTransitionInfo transitionInfo(*rs.runPrincipal(), rs.eventSetupImpl());
           using Traits = OccurrenceTraits<RunPrincipal, BranchActionStreamBegin>;
-          beginStreamTransitionAsync<Traits>(
-              std::move(nextTask), *schedule_, iStream, transitionInfo, serviceToken_, subProcesses_);
+          schedule_->processOneStreamAsync<Traits>(std::move(nextTask), iStream, transitionInfo, serviceToken_);
         }
       }) | then([this, iStream](std::exception_ptr const* exceptionFromBeginStreamRun, auto nextTask) {
         if (exceptionFromBeginStreamRun) {
@@ -1486,7 +1418,7 @@ namespace edm {
       espController_->runOrQueueEventSetupForInstanceAsync(ts,
                                                            nextTask,
                                                            iRunStatus->endIOVWaitingTasksEndRun(),
-                                                           iRunStatus->eventSetupImplsEndRun(),
+                                                           iRunStatus->eventSetupImplPtrEndRun(),
                                                            queueWhichWaitsForIOVsToFinish_,
                                                            actReg_.get(),
                                                            serviceToken_);
@@ -1534,19 +1466,17 @@ namespace edm {
     auto& runPrincipal = *(iRunStatus->runPrincipal());
     bool didGlobalBeginSucceed = iRunStatus->didGlobalBeginSucceed();
     bool cleaningUpAfterException = iRunStatus->cleaningUpAfterException() || iTask.taskHasFailed();
-    EventSetupImpl const& es = iRunStatus->eventSetupImplEndRun(esp_->subProcessIndex());
-    std::vector<std::shared_ptr<const EventSetupImpl>> const* eventSetupImpls = &iRunStatus->eventSetupImplsEndRun();
+    EventSetupImpl const& es = iRunStatus->eventSetupImplEndRun();
     bool endingEventSetupSucceeded = iRunStatus->endingEventSetupSucceeded();
 
     MergeableRunProductMetadata* mergeableRunProductMetadata = runPrincipal.mergeableRunProductMetadata();
     using namespace edm::waiting_task::chain;
-    chain::first([this, &runPrincipal, &es, &eventSetupImpls, cleaningUpAfterException, endingEventSetupSucceeded](
-                     auto nextTask) {
+    chain::first([this, &runPrincipal, &es, cleaningUpAfterException, endingEventSetupSucceeded](auto nextTask) {
       if (endingEventSetupSucceeded) {
-        RunTransitionInfo transitionInfo(runPrincipal, es, eventSetupImpls);
+        RunTransitionInfo transitionInfo(runPrincipal, es);
         using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd>;
-        endGlobalTransitionAsync<Traits>(
-            std::move(nextTask), *schedule_, transitionInfo, serviceToken_, subProcesses_, cleaningUpAfterException);
+        schedule_->processOneGlobalAsync<Traits>(
+            std::move(nextTask), transitionInfo, serviceToken_, cleaningUpAfterException);
       }
     }) |
         ifThen(looper_ && endingEventSetupSucceeded,
@@ -1642,20 +1572,14 @@ namespace edm {
       auto runStatus = streamRunStatus_[iStreamIndex].get();
 
       if (runStatus->didGlobalBeginSucceed() && runStatus->endingEventSetupSucceeded()) {
-        EventSetupImpl const& es = runStatus->eventSetupImplEndRun(esp_->subProcessIndex());
-        auto eventSetupImpls = &runStatus->eventSetupImplsEndRun();
+        EventSetupImpl const& es = runStatus->eventSetupImplEndRun();
         bool cleaningUpAfterException = runStatus->cleaningUpAfterException() || iTask.taskHasFailed();
 
         auto& runPrincipal = *runStatus->runPrincipal();
         using Traits = OccurrenceTraits<RunPrincipal, BranchActionStreamEnd>;
-        RunTransitionInfo transitionInfo(runPrincipal, es, eventSetupImpls);
-        endStreamTransitionAsync<Traits>(std::move(runDoneTaskHolder),
-                                         *schedule_,
-                                         iStreamIndex,
-                                         transitionInfo,
-                                         serviceToken_,
-                                         subProcesses_,
-                                         cleaningUpAfterException);
+        RunTransitionInfo transitionInfo(runPrincipal, es);
+        schedule_->processOneStreamAsync<Traits>(
+            std::move(runDoneTaskHolder), iStreamIndex, transitionInfo, serviceToken_, cleaningUpAfterException);
       }
     } catch (...) {
       handleEndRunExceptions(std::current_exception(), iTask);
@@ -1676,6 +1600,28 @@ namespace edm {
     }
   }
 
+  namespace {
+    void prefetchForRandomNumberGeneratorAsync(edm::WaitingTaskHolder const& iTask,
+                                               edm::Principal const& iPrincipal,
+                                               edm::ServiceToken const& iServiceToken) {
+      edm::ServiceRegistry::Operate operate(iServiceToken);
+      Service<edm::RandomNumberGenerator> rng;
+      if (rng.isAvailable()) {
+        auto consumer = rng->consumer();
+        if (consumer) {
+          // Prefetch products the module declares it consumes
+          std::vector<ProductResolverIndexAndSkipBit> const& items = consumer->itemsToGetFrom(iPrincipal.branchType());
+
+          for (auto const& item : items) {
+            ProductResolverIndex productResolverIndex = item.productResolverIndex();
+            bool skipCurrentProcess = item.skipCurrentProcess();
+            iPrincipal.prefetchAsync(iTask, productResolverIndex, skipCurrentProcess, iServiceToken, nullptr);
+          }
+        }
+      }
+    }
+  }  // namespace
+
   void EventProcessor::beginLumiAsync(IOVSyncValue const& iSync,
                                       std::shared_ptr<RunProcessingStatus> iRunStatus,
                                       edm::WaitingTaskHolder iHolder) {
@@ -1686,7 +1632,7 @@ namespace edm {
       espController_->runOrQueueEventSetupForInstanceAsync(iSync,
                                                            nextTask,
                                                            status->endIOVWaitingTasks(),
-                                                           status->eventSetupImpls(),
+                                                           status->eventSetupImplPtr(),
                                                            queueWhichWaitsForIOVsToFinish_,
                                                            actReg_.get(),
                                                            serviceToken_);
@@ -1724,93 +1670,113 @@ namespace edm {
                           return;
                         }
 
-                        status->setLumiPrincipal(readLuminosityBlock(iRunStatus->runPrincipal()));
-
-                        LuminosityBlockPrincipal& lumiPrincipal = *status->lumiPrincipal();
                         {
-                          SendSourceTerminationSignalIfException sentry(actReg_.get());
-                          input_->doBeginLumi(lumiPrincipal, &processContext_);
-                          sentry.completedSuccessfully();
-                        }
+                          std::lock_guard<std::recursive_mutex> guard(*(sourceMutex_.get()));
+                          status->setLumiPrincipal(readLuminosityBlock(iRunStatus->runPrincipal()));
 
+                          LuminosityBlockPrincipal& lumiPrincipal = *status->lumiPrincipal();
+                          {
+                            SendSourceTerminationSignalIfException sentry(actReg_.get());
+                            input_->doBeginLumi(lumiPrincipal, &processContext_);
+                            sentry.completedSuccessfully();
+                          }
+                        }
+                        LuminosityBlockPrincipal& lumiPrincipal = *status->lumiPrincipal();
                         Service<RandomNumberGenerator> rng;
-                        if (rng.isAvailable()) {
-                          LuminosityBlock lb(lumiPrincipal, ModuleDescription(), nullptr, false);
-                          rng->preBeginLumi(lb);
-                        }
 
-                        EventSetupImpl const& es = status->eventSetupImpl(esp_->subProcessIndex());
+                        EventSetupImpl const& es = status->eventSetupImpl();
 
                         using namespace edm::waiting_task::chain;
-                        chain::first([this, status](auto nextTask) mutable {
-                          if (lastTransitionType().itemPosition() != InputSource::ItemPosition::LastItemToBeMerged) {
-                            readAndMergeLumiEntriesAsync(std::move(status), std::move(nextTask));
-                          } else {
-                            setNeedToCallNext(true);
-                          }
-                        }) | then([this, status, &es, &lumiPrincipal](auto nextTask) {
-                          LumiTransitionInfo transitionInfo(lumiPrincipal, es, &status->eventSetupImpls());
-                          using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin>;
-                          beginGlobalTransitionAsync<Traits>(
-                              nextTask, *schedule_, transitionInfo, serviceToken_, subProcesses_);
-                        }) | ifThen(looper_, [this, status, &es](auto nextTask) {
-                          looper_->prefetchAsync(
-                              nextTask, serviceToken_, Transition::BeginLuminosityBlock, *(status->lumiPrincipal()), es);
-                        }) | ifThen(looper_, [this, status, &es](auto nextTask) {
-                          ServiceRegistry::Operate operateLooper(serviceToken_);
-                          looper_->doBeginLuminosityBlock(*(status->lumiPrincipal()), es, &processContext_);
-                        }) | then([this, status, iRunStatus](std::exception_ptr const* iException, auto holder) mutable {
-                          status->setGlobalEndRunHolder(iRunStatus->globalEndRunHolder());
+                        chain::firstIf(rng.isAvailable() and rng->consumer() != nullptr,
+                                       [this, &lumiPrincipal](auto nextTask) {
+                                         //handle RandomNumberGenerator prefetching and preBeginLumi
+                                         chain::first([this, &lumiPrincipal](auto nextTask) {
+                                           prefetchForRandomNumberGeneratorAsync(
+                                               std::move(nextTask), lumiPrincipal, serviceToken_);
+                                         }) | then([this, &lumiPrincipal](auto nextTask) {
+                                           ServiceRegistry::Operate operate(serviceToken_);
+                                           Service<RandomNumberGenerator> rng;
+                                           if (rng.isAvailable()) {
+                                             LuminosityBlock lb(lumiPrincipal, ModuleDescription(), nullptr, false);
+                                             lb.setConsumer(rng->consumer());
+                                             rng->preBeginLumi(lb);
+                                           }
+                                         }) | runLast(nextTask);
+                                       }) |
+                            then([this, status](auto nextTask) mutable {
+                              if (lastTransitionType().itemPosition() !=
+                                  InputSource::ItemPosition::LastItemToBeMerged) {
+                                readAndMergeLumiEntriesAsync(std::move(status), std::move(nextTask));
+                              } else {
+                                setNeedToCallNext(true);
+                              }
+                            }) |
+                            then([this, status, &es, &lumiPrincipal](auto nextTask) {
+                              LumiTransitionInfo transitionInfo(lumiPrincipal, es);
+                              using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin>;
+                              schedule_->processOneGlobalAsync<Traits>(nextTask, transitionInfo, serviceToken_);
+                            }) |
+                            ifThen(looper_,
+                                   [this, status, &es](auto nextTask) {
+                                     looper_->prefetchAsync(nextTask,
+                                                            serviceToken_,
+                                                            Transition::BeginLuminosityBlock,
+                                                            *(status->lumiPrincipal()),
+                                                            es);
+                                   }) |
+                            ifThen(looper_,
+                                   [this, status, &es](auto nextTask) {
+                                     ServiceRegistry::Operate operateLooper(serviceToken_);
+                                     looper_->doBeginLuminosityBlock(*(status->lumiPrincipal()), es, &processContext_);
+                                   }) |
+                            then([this, status, iRunStatus](std::exception_ptr const* iException, auto holder) mutable {
+                              status->setGlobalEndRunHolder(iRunStatus->globalEndRunHolder());
 
-                          if (iException) {
-                            WaitingTaskHolder copyHolder(holder);
-                            copyHolder.doneWaiting(*iException);
-                            globalEndLumiAsync(holder, status);
-                            endRunAsync(iRunStatus, holder);
-                          } else {
-                            status->globalBeginDidSucceed();
+                              if (iException) {
+                                WaitingTaskHolder copyHolder(holder);
+                                copyHolder.doneWaiting(*iException);
+                                globalEndLumiAsync(holder, status);
+                                endRunAsync(iRunStatus, holder);
+                              } else {
+                                status->globalBeginDidSucceed();
 
-                            EventSetupImpl const& es = status->eventSetupImpl(esp_->subProcessIndex());
-                            using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>;
+                                EventSetupImpl const& es = status->eventSetupImpl();
+                                using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>;
 
-                            streamQueuesInserter_.push(*holder.group(), [this, status, holder, &es]() mutable {
-                              for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
-                                streamQueues_[i].push(*holder.group(), [this, i, status, holder, &es]() mutable {
-                                  if (!status->shouldStreamStartLumi()) {
-                                    return;
-                                  }
-                                  streamQueues_[i].pause();
+                                streamQueuesInserter_.push(*holder.group(), [this, status, holder, &es]() mutable {
+                                  for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
+                                    streamQueues_[i].push(*holder.group(), [this, i, status, holder, &es]() mutable {
+                                      if (!status->shouldStreamStartLumi()) {
+                                        return;
+                                      }
+                                      streamQueues_[i].pause();
 
-                                  auto& event = principalCache_.eventPrincipal(i);
-                                  auto eventSetupImpls = &status->eventSetupImpls();
-                                  auto lp = status->lumiPrincipal().get();
-                                  streamLumiStatus_[i] = std::move(status);
-                                  ++streamLumiActive_;
-                                  event.setLuminosityBlockPrincipal(lp);
-                                  LumiTransitionInfo transitionInfo(*lp, es, eventSetupImpls);
-                                  using namespace edm::waiting_task::chain;
-                                  chain::first([this, i, &transitionInfo](auto nextTask) {
-                                    beginStreamTransitionAsync<Traits>(std::move(nextTask),
-                                                                       *schedule_,
-                                                                       i,
-                                                                       transitionInfo,
-                                                                       serviceToken_,
-                                                                       subProcesses_);
-                                  }) |
-                                      then([this, i](std::exception_ptr const* exceptionFromBeginStreamLumi,
-                                                     auto nextTask) {
-                                        if (exceptionFromBeginStreamLumi) {
-                                          WaitingTaskHolder copyHolder(nextTask);
-                                          copyHolder.doneWaiting(*exceptionFromBeginStreamLumi);
-                                        }
-                                        handleNextEventForStreamAsync(std::move(nextTask), i);
+                                      auto& event = principalCache_.eventPrincipal(i);
+                                      auto lp = status->lumiPrincipal().get();
+                                      streamLumiStatus_[i] = std::move(status);
+                                      ++streamLumiActive_;
+                                      event.setLuminosityBlockPrincipal(lp);
+                                      LumiTransitionInfo transitionInfo(*lp, es);
+                                      using namespace edm::waiting_task::chain;
+                                      chain::first([this, i, &transitionInfo](auto nextTask) {
+                                        schedule_->processOneStreamAsync<Traits>(
+                                            std::move(nextTask), i, transitionInfo, serviceToken_);
                                       }) |
-                                      runLast(std::move(holder));
+                                          then([this, i](std::exception_ptr const* exceptionFromBeginStreamLumi,
+                                                         auto nextTask) {
+                                            if (exceptionFromBeginStreamLumi) {
+                                              WaitingTaskHolder copyHolder(nextTask);
+                                              copyHolder.doneWaiting(*exceptionFromBeginStreamLumi);
+                                            }
+                                            handleNextEventForStreamAsync(std::move(nextTask), i);
+                                          }) |
+                                          runLast(std::move(holder));
+                                    });
+                                  }  // end for loop over streams
                                 });
-                              }  // end for loop over streams
-                            });
-                          }
-                        }) | runLast(postSourceTask);
+                              }
+                            }) |
+                            runLast(postSourceTask);
                       } catch (...) {
                         status->resetResources();
                         queueWhichWaitsForIOVsToFinish_.resume();
@@ -1875,17 +1841,16 @@ namespace edm {
     auto& lp = *(iLumiStatus->lumiPrincipal());
     bool didGlobalBeginSucceed = iLumiStatus->didGlobalBeginSucceed();
     bool cleaningUpAfterException = iLumiStatus->cleaningUpAfterException() || iTask.taskHasFailed();
-    EventSetupImpl const& es = iLumiStatus->eventSetupImpl(esp_->subProcessIndex());
-    std::vector<std::shared_ptr<const EventSetupImpl>> const* eventSetupImpls = &iLumiStatus->eventSetupImpls();
+    EventSetupImpl const& es = iLumiStatus->eventSetupImpl();
 
     using namespace edm::waiting_task::chain;
-    chain::first([this, &lp, &es, &eventSetupImpls, cleaningUpAfterException](auto nextTask) {
+    chain::first([this, &lp, &es, cleaningUpAfterException](auto nextTask) {
       IOVSyncValue ts(EventID(lp.run(), lp.luminosityBlock(), EventID::maxEventNumber()), lp.beginTime());
 
-      LumiTransitionInfo transitionInfo(lp, es, eventSetupImpls);
+      LumiTransitionInfo transitionInfo(lp, es);
       using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd>;
-      endGlobalTransitionAsync<Traits>(
-          std::move(nextTask), *schedule_, transitionInfo, serviceToken_, subProcesses_, cleaningUpAfterException);
+      schedule_->processOneGlobalAsync<Traits>(
+          std::move(nextTask), transitionInfo, serviceToken_, cleaningUpAfterException);
     }) | then([this, didGlobalBeginSucceed, &lumiPrincipal = lp](auto nextTask) {
       //Only call writeLumi if beginLumi succeeded
       if (didGlobalBeginSucceed) {
@@ -1962,20 +1927,14 @@ namespace edm {
     auto lumiStatus = streamLumiStatus_[iStreamIndex].get();
     lumiStatus->setEndTime();
 
-    EventSetupImpl const& es = lumiStatus->eventSetupImpl(esp_->subProcessIndex());
-    auto eventSetupImpls = &lumiStatus->eventSetupImpls();
+    EventSetupImpl const& es = lumiStatus->eventSetupImpl();
     bool cleaningUpAfterException = lumiStatus->cleaningUpAfterException() || iTask.taskHasFailed();
 
     auto& lumiPrincipal = *lumiStatus->lumiPrincipal();
     using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd>;
-    LumiTransitionInfo transitionInfo(lumiPrincipal, es, eventSetupImpls);
-    endStreamTransitionAsync<Traits>(std::move(lumiDoneTask),
-                                     *schedule_,
-                                     iStreamIndex,
-                                     transitionInfo,
-                                     serviceToken_,
-                                     subProcesses_,
-                                     cleaningUpAfterException);
+    LumiTransitionInfo transitionInfo(lumiPrincipal, es);
+    schedule_->processOneStreamAsync<Traits>(
+        std::move(lumiDoneTask), iStreamIndex, transitionInfo, serviceToken_, cleaningUpAfterException);
   }
 
   void EventProcessor::endUnfinishedLumi(bool cleaningUpAfterException) {
@@ -1988,8 +1947,11 @@ namespace edm {
         assert(streamLumiActive_ == preallocations_.numberOfStreams());
         streamLumiStatus_[0]->noMoreEventsInLumi();
         streamLumiStatus_[0]->setCleaningUpAfterException(cleaningUpAfterException);
-        for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
-          streamEndLumiAsync(WaitingTaskHolder{taskGroup_, &globalWaitTask}, i);
+        {
+          WaitingTaskHolder holder{taskGroup_, &globalWaitTask};
+          for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
+            streamEndLumiAsync(holder, i);
+          }
         }
         globalWaitTask.wait();
       }
@@ -2004,6 +1966,8 @@ namespace edm {
 
   std::shared_ptr<RunPrincipal> EventProcessor::readRun() {
     auto rp = principalCache_.getAvailableRunPrincipalPtr();
+    //a new file may have been opened since the last use of this Run
+    rp->possiblyUpdateAfterAddition(preg());
     assert(rp);
     rp->setAux(*input_->runAuxiliary());
     {
@@ -2017,9 +1981,10 @@ namespace edm {
 
   void EventProcessor::readAndMergeRun(RunProcessingStatus& iStatus) {
     RunPrincipal& runPrincipal = *iStatus.runPrincipal();
+    //If a file open happened and we are continuing the Run we may need
+    // to do the update
+    runPrincipal.possiblyUpdateAfterAddition(preg());
 
-    bool runOK = runPrincipal.adjustToNewProductRegistry(*preg_);
-    assert(runOK);
     runPrincipal.mergeAuxiliary(*input_->runAuxiliary());
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
@@ -2030,6 +1995,8 @@ namespace edm {
 
   std::shared_ptr<LuminosityBlockPrincipal> EventProcessor::readLuminosityBlock(std::shared_ptr<RunPrincipal> rp) {
     auto lbp = principalCache_.getAvailableLumiPrincipalPtr();
+    //A new file may have been opened since the last use of the LuminosityBlock
+    lbp->possiblyUpdateAfterAddition(preg());
     assert(lbp);
     lbp->setAux(*input_->luminosityBlockAuxiliary());
     {
@@ -2047,8 +2014,9 @@ namespace edm {
            input_->processHistoryRegistry().reducedProcessHistoryID(lumiPrincipal.aux().processHistoryID()) ==
                input_->processHistoryRegistry().reducedProcessHistoryID(
                    input_->luminosityBlockAuxiliary()->processHistoryID()));
-    bool lumiOK = lumiPrincipal.adjustToNewProductRegistry(*preg());
-    assert(lumiOK);
+    //If a file was opened and the LuminosityBlock is continuing
+    // we may need to do the update
+    lumiPrincipal.possiblyUpdateAfterAddition(preg());
     lumiPrincipal.mergeAuxiliary(*input_->luminosityBlockAuxiliary());
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
@@ -2058,40 +2026,23 @@ namespace edm {
   }
 
   void EventProcessor::writeProcessBlockAsync(WaitingTaskHolder task, ProcessBlockType processBlockType) {
-    using namespace edm::waiting_task;
-    chain::first([&](auto nextTask) {
-      ServiceRegistry::Operate op(serviceToken_);
-      schedule_->writeProcessBlockAsync(
-          nextTask, principalCache_.processBlockPrincipal(processBlockType), &processContext_, actReg_.get());
-    }) | chain::ifThen(not subProcesses_.empty(), [this, processBlockType](auto nextTask) {
-      ServiceRegistry::Operate op(serviceToken_);
-      for (auto& s : subProcesses_) {
-        s.writeProcessBlockAsync(nextTask, processBlockType);
-      }
-    }) | chain::runLast(std::move(task));
+    ServiceRegistry::Operate op(serviceToken_);
+    // Don't move task because the lifetime of the task should be greater than the lifetime of the Operate object
+    schedule_->writeProcessBlockAsync(
+        task, principalCache_.processBlockPrincipal(processBlockType), &processContext_, actReg_.get());
   }
 
   void EventProcessor::writeRunAsync(WaitingTaskHolder task,
                                      RunPrincipal const& runPrincipal,
                                      MergeableRunProductMetadata const* mergeableRunProductMetadata) {
-    using namespace edm::waiting_task;
     if (runPrincipal.shouldWriteRun() != RunPrincipal::kNo) {
-      chain::first([&](auto nextTask) {
-        ServiceRegistry::Operate op(serviceToken_);
-        schedule_->writeRunAsync(nextTask, runPrincipal, &processContext_, actReg_.get(), mergeableRunProductMetadata);
-      }) | chain::ifThen(not subProcesses_.empty(), [this, &runPrincipal, mergeableRunProductMetadata](auto nextTask) {
-        ServiceRegistry::Operate op(serviceToken_);
-        for (auto& s : subProcesses_) {
-          s.writeRunAsync(nextTask, runPrincipal, mergeableRunProductMetadata);
-        }
-      }) | chain::runLast(std::move(task));
+      ServiceRegistry::Operate op(serviceToken_);
+      // Don't move task because the lifetime of the task should be greater than the lifetime of the Operate object
+      schedule_->writeRunAsync(task, runPrincipal, &processContext_, actReg_.get(), mergeableRunProductMetadata);
     }
   }
 
   void EventProcessor::clearRunPrincipal(RunProcessingStatus& iStatus) {
-    for (auto& s : subProcesses_) {
-      s.clearRunPrincipal(*iStatus.runPrincipal());
-    }
     iStatus.runPrincipal()->setShouldWriteRun(RunPrincipal::kUninitialized);
     iStatus.runPrincipal()->clearPrincipal();
   }
@@ -2104,19 +2055,11 @@ namespace edm {
 
         lumiPrincipal.runPrincipal().mergeableRunProductMetadata()->writeLumi(lumiPrincipal.luminosityBlock());
         schedule_->writeLumiAsync(nextTask, lumiPrincipal, &processContext_, actReg_.get());
-      }) | chain::ifThen(not subProcesses_.empty(), [this, &lumiPrincipal](auto nextTask) {
-        ServiceRegistry::Operate op(serviceToken_);
-        for (auto& s : subProcesses_) {
-          s.writeLumiAsync(nextTask, lumiPrincipal);
-        }
       }) | chain::lastTask(std::move(task));
     }
   }
 
   void EventProcessor::clearLumiPrincipal(LuminosityBlockProcessingStatus& iStatus) {
-    for (auto& s : subProcesses_) {
-      s.clearLumiPrincipal(*iStatus.lumiPrincipal());
-    }
     iStatus.lumiPrincipal()->setRunPrincipal(std::shared_ptr<RunPrincipal>());
     iStatus.lumiPrincipal()->setShouldWriteLumi(LuminosityBlockPrincipal::kUninitialized);
     iStatus.lumiPrincipal()->clearPrincipal();
@@ -2354,6 +2297,8 @@ namespace edm {
     //TODO this will have to become per stream
     auto& event = principalCache_.eventPrincipal(iStreamIndex);
     StreamContext streamContext(event.streamID(), &processContext_);
+    // a new file may have been read since the last time this event was used
+    event.possiblyUpdateAfterAddition(preg());
 
     SendSourceTerminationSignalIfException sentry(actReg_.get());
     input_->readEvent(event, streamContext);
@@ -2388,18 +2333,28 @@ namespace edm {
     Service<RandomNumberGenerator> rng;
     if (rng.isAvailable()) {
       Event ev(*pep, ModuleDescription(), nullptr);
+      ev.setConsumer(rng->consumer());
       rng->postEventRead(ev);
     }
 
-    EventSetupImpl const& es = streamLumiStatus_[iStreamIndex]->eventSetupImpl(esp_->subProcessIndex());
+    EventSetupImpl const& es = streamLumiStatus_[iStreamIndex]->eventSetupImpl();
     using namespace edm::waiting_task::chain;
-    chain::first([this, &es, pep, iStreamIndex](auto nextTask) {
+    chain::firstIf(rng.isAvailable() and rng->consumer() != nullptr, [this, pep](auto nextTask) {
+      //handle RandomNumberGenerator prefetching and postEventRead
+      chain::first([this, pep](auto nextTask) {
+        prefetchForRandomNumberGeneratorAsync(std::move(nextTask), *pep, serviceToken_);
+      }) | then([this, pep](auto nextTask) {
+        ServiceRegistry::Operate operate(serviceToken_);
+        Service<RandomNumberGenerator> rng;
+        if (rng.isAvailable()) {
+          Event ev(*pep, ModuleDescription(), nullptr);
+          ev.setConsumer(rng->consumer());
+          rng->postEventRead(ev);
+        }
+      }) | runLast(nextTask);
+    }) | then([this, &es, pep, iStreamIndex](auto nextTask) {
       EventTransitionInfo info(*pep, es);
       schedule_->processOneEventAsync(std::move(nextTask), iStreamIndex, info, serviceToken_);
-    }) | ifThen(not subProcesses_.empty(), [this, pep, iStreamIndex](auto nextTask) {
-      for (auto& subProcess : boost::adaptors::reverse(subProcesses_)) {
-        subProcess.doEventAsync(nextTask, *pep, &streamLumiStatus_[iStreamIndex]->eventSetupImpls());
-      }
     }) | ifThen(looper_, [this, iStreamIndex, pep](auto nextTask) {
       //NOTE: behavior change. previously if an exception happened looper was still called. Now it will not be called
       ServiceRegistry::Operate operateLooper(serviceToken_);
@@ -2427,7 +2382,7 @@ namespace edm {
     EDLooperBase::Status status = EDLooperBase::kContinue;
     do {
       StreamContext streamContext(iPrincipal.streamID(), &processContext_);
-      EventSetupImpl const& es = streamLumiStatus_[iStreamIndex]->eventSetupImpl(esp_->subProcessIndex());
+      EventSetupImpl const& es = streamLumiStatus_[iStreamIndex]->eventSetupImpl();
       status = looper_->doDuringLoop(iPrincipal, es, pc, &streamContext);
 
       bool succeeded = true;
@@ -2449,14 +2404,6 @@ namespace edm {
     FDEBUG(1) << "\tshouldWeStop\n";
     if (shouldWeStop_)
       return true;
-    if (!subProcesses_.empty()) {
-      for (auto const& subProcess : subProcesses_) {
-        if (subProcess.terminate()) {
-          return true;
-        }
-      }
-      return false;
-    }
     return schedule_->terminate();
   }
 

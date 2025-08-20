@@ -1,11 +1,11 @@
 #include <iomanip>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/CRC32Calculator.h"
+#include "FWCore/Utilities/interface/calculateCRC32.h"
 
 #include "EventFilter/L1TRawToDigi/interface/AMCSpec.h"
 
-#define EDM_ML_DEBUG 1
+//#define EDM_ML_DEBUG 1
 
 namespace amc {
   BlockHeader::BlockHeader(unsigned int amc_no, unsigned int board_id, unsigned int size, unsigned int block) {
@@ -92,8 +92,8 @@ namespace amc {
   }
 
   void Trailer::writeCRC(const uint64_t *start, uint64_t *end) {
-    std::string dstring(reinterpret_cast<const char *>(start), reinterpret_cast<const char *>(end) + 4);
-    auto crc = cms::CRC32Calculator(dstring).checksum();
+    std::string_view dstring(reinterpret_cast<const char *>(start), reinterpret_cast<const char *>(end) + 4);
+    auto crc = cms::calculateCRC32(dstring);
 
     *end = ((*end) & ~(uint64_t(CRC_mask) << CRC_shift)) | (static_cast<uint64_t>(crc & CRC_mask) << CRC_shift);
   }
@@ -133,29 +133,21 @@ namespace amc {
       header_ = Header(payload_.data());
       trailer_ = Trailer(&payload_.back());
 
-      std::string check(reinterpret_cast<const char *>(payload_.data()), payload_.size() * 8 - 4);
-      auto crc = cms::CRC32Calculator(check).checksum();
+      std::string_view check(reinterpret_cast<const char *>(payload_.data()), payload_.size() * 8 - 4);
+      auto crc = cms::calculateCRC32(check);
 
       trailer_.check(crc, lv1, header_.getSize(), mtf7_mode);
     }
   }
 
-  std::vector<uint64_t> Packet::block(unsigned int id) const {
+  std::span<const uint64_t> Packet::block(unsigned int id) const {
     if (id == 0 and id == block_header_.getBlocks() - 1) {
-      return payload_;
+      return std::span<const uint64_t>(payload_);
     } else if (id == block_header_.getBlocks() - 1) {
-      return std::vector<uint64_t>(payload_.begin() + id * split_block_size, payload_.end());
+      return std::span<const uint64_t>(payload_.begin() + id * split_block_size, payload_.end());
     } else {
-      return std::vector<uint64_t>(payload_.begin() + id * split_block_size,
-                                   payload_.begin() + (id + 1) * split_block_size);
+      return std::span<const uint64_t>(payload_.begin() + id * split_block_size,
+                                       payload_.begin() + (id + 1) * split_block_size);
     }
-  }
-
-  std::unique_ptr<uint64_t[]> Packet::data() {
-    // Remove 3 words: 2 for the header, 1 for the trailer
-    std::unique_ptr<uint64_t[]> res(new uint64_t[payload_.size() - 3]);
-    for (unsigned int i = 0; i < payload_.size() - 3; ++i)
-      res.get()[i] = payload_[i + 2];
-    return res;
   }
 }  // namespace amc
