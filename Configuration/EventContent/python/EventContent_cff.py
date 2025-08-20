@@ -95,12 +95,13 @@ from L1Trigger.Configuration.L1Trigger_EventContent_cff import *
 #
 #
 from HLTrigger.Configuration.HLTrigger_EventContent_cff import *
-from HLTrigger.Configuration.HLTScouting_EventContent_cff import HLTScoutingAll
+from HLTrigger.Configuration.HLTScouting_EventContent_cff import HLTScoutingExtra
 # Extend HLT dataformats to the previous scouting objects, to keep them when running on old data/MC
-HLTriggerMINIAOD.outputCommands.extend(HLTScoutingAll.outputCommands)
-HLTriggerAOD.outputCommands.extend(HLTScoutingAll.outputCommands)
-HLTriggerRECO.outputCommands.extend(HLTScoutingAll.outputCommands)
-HLTDebugFEVT.outputCommands.extend(HLTScoutingAll.outputCommands)
+HLTriggerMINIAODSIM.outputCommands.extend(HLTScoutingExtra.outputCommands)
+HLTriggerMINIAOD.outputCommands.extend(HLTScoutingExtra.outputCommands)
+HLTriggerAOD.outputCommands.extend(HLTScoutingExtra.outputCommands)
+HLTriggerRECO.outputCommands.extend(HLTScoutingExtra.outputCommands)
+HLTDebugFEVT.outputCommands.extend(HLTScoutingExtra.outputCommands)
 #
 #
 # DQM
