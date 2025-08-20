@@ -1,4 +1,4 @@
-#include "TauAnalysis/MCEmbeddingTools/plugins/TrackMergeremb.h"
+#include "TauAnalysis/MCEmbeddingTools/interface/TrackMergeremb.h"
 
 #include <memory>
 
