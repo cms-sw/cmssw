@@ -45,6 +45,7 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const& conf,
                                            const TrackerGeometry& geom,
                                            const TrackerTopology& ttopo,
                                            const SiPixelLorentzAngle* lorentzAngle,
+                                           const std::vector<SiPixelTemplateStore>* templateStore,
                                            const SiPixelTemplateDBObject* templateDBobject)
     : PixelCPEBase(conf, mag, geom, ttopo, lorentzAngle, nullptr, templateDBobject, nullptr, 1) {
   //cout << endl;
@@ -62,24 +63,20 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const& conf,
 
   if (LoadTemplatesFromDB_) {
     //cout << "PixelCPETemplateReco: Loading templates from database (DB) --------- " << endl;
-
-    // Initialize template store to the selected ID [Morris, 6/25/08]
-    if (!SiPixelTemplate::pushfile(*templateDBobject_, thePixelTemp_))
-      throw cms::Exception("PixelCPETemplateReco")
-          << "\nERROR: Templates not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version "
-          << (*templateDBobject_).version() << "\n\n";
+    thePixelTemp_ = templateStore;
   } else {
     //cout << "PixelCPETemplateReco : Loading templates for barrel and forward from ASCII files ----------" << endl;
     barrelTemplateID_ = conf.getParameter<int>("barrelTemplateID");
     forwardTemplateID_ = conf.getParameter<int>("forwardTemplateID");
     templateDir_ = conf.getParameter<int>("directoryWithTemplates");
 
-    if (!SiPixelTemplate::pushfile(barrelTemplateID_, thePixelTemp_, templateDir_))
+    thePixelTemp_ = &thePixelTempCache_;
+    if (!SiPixelTemplate::pushfile(barrelTemplateID_, thePixelTempCache_, templateDir_))
       throw cms::Exception("PixelCPETemplateReco")
           << "\nERROR: Template ID " << barrelTemplateID_
           << " not loaded correctly from text file. Reconstruction will fail.\n\n";
 
-    if (!SiPixelTemplate::pushfile(forwardTemplateID_, thePixelTemp_, templateDir_))
+    if (!SiPixelTemplate::pushfile(forwardTemplateID_, thePixelTempCache_, templateDir_))
       throw cms::Exception("PixelCPETemplateReco")
           << "\nERROR: Template ID " << forwardTemplateID_
           << " not loaded correctly from text file. Reconstruction will fail.\n\n";
@@ -129,7 +126,7 @@ LocalPoint PixelCPETemplateReco::localPosition(DetParam const& theDetParam, Clus
   }
   //cout << "PixelCPETemplateReco : ID = " << ID << endl;
 
-  SiPixelTemplate templ(thePixelTemp_);
+  SiPixelTemplate templ(*thePixelTemp_);
 
   // Preparing to retrieve ADC counts from the SiPixeltheClusterParam.theCluster->  In the cluster,
   // we have the following:

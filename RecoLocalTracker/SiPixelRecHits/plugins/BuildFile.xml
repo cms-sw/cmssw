@@ -7,6 +7,7 @@
 <use name="RecoLocalTracker/Records"/>
 <use name="RecoLocalTracker/SiPixelRecHits"/>
 <use name="DataFormats/TrackerCommon"/>
+<use name="CondFormats/SiPixelTransient"/>
 <library file="*.cc *.cu" name="RecoLocalTrackerSiPixelRecHitsPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>

@@ -51,7 +51,7 @@ public:
   virtual void beginRun(edm::Run const& run,
                         const edm::EventSetup& eventSetup,
                         const SiPixelTemplateDBObject* pixelTemplateDBObjectPtr,
-                        std::vector<SiPixelTemplateStore>& tempStoreRef);
+                        const std::vector<SiPixelTemplateStore>& tempStoreRef);
 
   //this function will only be called once per event
   virtual void beginEvent(edm::Event& event, const edm::EventSetup& eventSetup);
