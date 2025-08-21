@@ -1,6 +1,7 @@
 #include "DataFormats/Provenance/interface/processingOrderMerge.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include <algorithm>
 
 namespace edm {
   namespace {
