@@ -39,21 +39,27 @@ def CheckRootFile(hname, rebin=None):
 
     return hist
 
-def errorbar_declutter(eff, err, yaxmin, frac=0.01):
+def rate_errorbar_declutter(eff, err, yaxmin, frac=0.01):
     """
     Filter uncertainties if they lie below the minimum (vertical) axis value.
     Used to plot the filtered points differently, for instance by displaying only the upper uncertainty.
+    Uncertainties are trimmed to 1. or 0. if these values are crossed
+    (the retrieved Clopper-Pearson uncertainties have been symmetrized in the DQMGenericClient).
     """
     filt = eff-err/2 <= yaxmin
     eff_filt = np.where(filt, np.nan, eff)
     err_filt = np.where(filt, np.nan, err)
-
+    
     up_error = eff_filt + err_filt/2
     transform = blended_transform_factory(plotter.ax.transData, plotter.ax.transAxes)
     up_error = np.where(np.isnan(up_error), frac, up_error) # place at 0.9% above the minimum vertical axis value
     up_error = np.where(up_error != frac, np.nan, up_error)
 
-    return eff_filt, err_filt, up_error, transform
+    filt_limit_one = eff_filt+err_filt/2 > 1.
+    filt_limit_zero = eff_filt-err_filt/2 < 0.
+    err_hi = np.where(filt_limit_one, 0., err_filt)
+    err_lo = np.where(filt_limit_zero, 0., err_filt)
+    return eff_filt, (err_lo/2,err_hi/2), up_error, transform
 
 def define_bins(h):
     """
@@ -156,11 +162,11 @@ class HLabels:
     @staticmethod
     def fraction_label(labtype):
         return {
-            'neHad':  'Neutral Hadron Energy Fraction',
-            'chEm':   'Charged EM Energy Fraction',
-            'chHad':  'Charged Hadron Energy Fraction',
-            'neEm':   'Neutral EM Energy Fraction',
-            'nConst': '# Jet Constituents',
+            'neHad': 'Neutral Hadron Energy Fraction',
+            'chEm':  'Charged EM Energy Fraction',
+            'chHad': 'Charged Hadron Energy Fraction',
+            'neEm':  'Neutral EM Energy Fraction',
+            'nCost': '# Jet Constituents',
         }[labtype]
 
     @staticmethod
@@ -375,18 +381,9 @@ if __name__ == '__main__':
         pcm = plotter.ax.pcolormesh(x_edges, y_edges, np.where(values==0, np.nan, values),
                                     cmap='viridis', shading='auto')
 
-        if '_nCost_' in Var2D:
-            xlabel = HLabels.fraction_label('nConst')
-        elif '_chHad_' in Var2D:
-            xlabel = HLabels.fraction_label('chHad')
-        elif '_neHad_' in Var2D:
-            xlabel = HLabels.fraction_label('neHad')
-        elif '_chEm_' in Var2D:
-            xlabel = HLabels.fraction_label('chEm')
-        elif '_neEm_' in Var2D:
-            xlabel = HLabels.fraction_label('neEm')
-        else:
-            raise RuntimeError(f'Label for variable {Var2D} is not supported.')
+        for lab2d in ('nCost', 'chHad', 'neHad', 'chEm', 'neEm'):
+            if lab2d in Var2D:
+                xlabel = HLabels.fraction_label(lab2d)
 
         plotter.labels(x=xlabel, y=f"${y_label}$")
         plotter.fig.colorbar(pcm, ax=plotter.ax, label='# Jets')
@@ -433,7 +430,7 @@ if __name__ == '__main__':
         'JetnConst': dotdict(
             histos={'HLT jets':         'JetConstituents',
                     'HLT jets matched': 'MatchedJetnCost'},
-            xlabel=HLabels.fraction_label('nConst')
+            xlabel=HLabels.fraction_label('nCost')
         ),
         'photonMultiplicity': dotdict(
             histos={'Barrel': 'photonMultiplicity_B',
@@ -730,9 +727,9 @@ if __name__ == '__main__':
                 ax2.set_yscale('log')
             ax2.set_ylim(axmin, axmax)
 
-            eff_filt, err_filt, up_error, transform = errorbar_declutter(eff_values, eff_errors, axmin)
-            ax2.errorbar(bin_centers, eff_filt, xerr=0.5 * bin_widths, yerr=err_filt/2, fmt='o',
-                         capthick=2, linewidth=1, capsize=2, **common_kwargs)
+            eff_filt, (err_filt_lo, err_filt_hi), up_error, transform = rate_errorbar_declutter(eff_values, eff_errors, axmin)
+            ax2.errorbar(bin_centers, eff_filt, xerr=0.5 * bin_widths, yerr=[err_filt_lo,err_filt_hi],
+                         fmt='o', capthick=2, linewidth=1, capsize=2, **common_kwargs)
             ax2.plot(bin_centers, up_error, 'v', transform=transform, **common_kwargs)
 
             ax2.grid(color=eff_color, axis='y')
@@ -749,8 +746,8 @@ if __name__ == '__main__':
             if eff_type == 'Fake Rate':
                 eff_values = np.array([1-i if i != 0 else np.nan for i in eff_values])
 
-            eff_filt, err_filt, up_error, transform = errorbar_declutter(eff_values, eff_errors, axmin)
-            plotter.ax.errorbar(bin_centers, eff_filt, xerr=0.5 * bin_widths, yerr=err_filt/2,
+            eff_filt, (err_filt_lo, err_filt_hi), up_error, transform = rate_errorbar_declutter(eff_values, eff_errors, axmin)
+            plotter.ax.errorbar(bin_centers, eff_filt, xerr=0.5 * bin_widths, yerr=[err_filt_lo,err_filt_hi],
                                 fmt=EtaInfo.marker(etareg), color=EtaInfo.color(etareg), label=EtaInfo.label(etareg),
                                 **errorbar_kwargs)
             plotter.ax.plot(bin_centers, up_error, 'v', linestyle='', color=EtaInfo.color(etareg), transform=transform)
