@@ -16,6 +16,7 @@ ledTask = DQMEDAnalyzer(
 	ptype = cms.untracked.int32(0),
 	mtype = cms.untracked.bool(True),
 	subsystem = cms.untracked.string("HcalCalib"),
+	nevents = cms.untracked.int32(2000),
 
 	#	tags
 	tagHBHE = cms.untracked.InputTag("hcalDigis"),
