@@ -171,7 +171,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   class SiStripRawToClusterAlgo {
   public:
-    SiStripRawToClusterAlgo(const edm::ParameterSet& unpackPar, const edm::ParameterSet& clustPar);
+    SiStripRawToClusterAlgo(const edm::ParameterSet& clustPar);
     void prepareUnpackCluster(Queue& queue,
                               const SiStripClusterizerConditionsDetToFedsDevice& conditions_DetToFeds,
                               std::unique_ptr<PortableFEDMover> FEDChMover);

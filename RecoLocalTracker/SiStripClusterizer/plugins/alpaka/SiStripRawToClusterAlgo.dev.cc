@@ -761,8 +761,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   using namespace ::sistrip;
   using namespace cms::alpakatools;
 
-  SiStripRawToClusterAlgo::SiStripRawToClusterAlgo(const edm::ParameterSet& unpackPar,
-                                                   const edm::ParameterSet& clustPar)
+  SiStripRawToClusterAlgo::SiStripRawToClusterAlgo(const edm::ParameterSet& clustPar)
       : channelThreshold_(clustPar.getParameter<double>("ChannelThreshold")),
         seedThreshold_(clustPar.getParameter<double>("SeedThreshold")),
         clusterThresholdSquared_(std::pow(clustPar.getParameter<double>("ClusterThreshold"), 2.0f)),
@@ -775,12 +774,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // Checks non-sensical parameters
     if (maxClusterSize_ > 768) {
       throw cms::Exception("SiStripRawToClstAlg", "MaxClusterSize must be <= 768");
-    }
-
-    // Make sure this class is not used outside its scope (SiStripRawToCluster.cc)
-    const bool isLegacyUnpacker = unpackPar.getParameter<bool>("LegacyUnpacker");
-    if (isLegacyUnpacker) {
-      throw cms::Exception("SiStripRawToClstAlg", "Legacy unpacking not supported");
     }
   }
 

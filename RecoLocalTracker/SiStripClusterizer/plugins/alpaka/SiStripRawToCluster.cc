@@ -39,6 +39,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     void acquire(device::Event const& iEvent, device::EventSetup const& iSetup) override;
     void produce(device::Event& iEvent, device::EventSetup const& iSetup) override;
 
+
     // Containers for the condition-passing raw data
     std::vector<const FEDRawData*> raw_;
     std::vector<std::unique_ptr<FEDBuffer>> buffers_;
@@ -56,6 +57,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         stripDataCondGetToken_;
     device::EDPutToken<SiStripClusterDevice> stripClustPutToken_;
     device::EDPutToken<SiStripDigiDevice> stripDigiPutToken_;
+    
+    // Setup
+    bool doAPVEmulatorCheck_;
 
     edm::ESWatcher<SiStripClusterizerConditionsRcd> stripCondWatcher_;
     edm::ESWatcher<SiStripClusterizerConditionsDetToFedsRecord> stripCablCondWatcher_;
@@ -69,33 +73,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       : SynchronizingEDProducer(iConfig),
         raw_(sistrip::FED_ID_MAX + 1),
         buffers_(sistrip::FED_ID_MAX + 1),
-        algo_(iConfig.getParameter<edm::ParameterSet>("Unpacker"),
-              iConfig.getParameter<edm::ParameterSet>("Clusterizer")),
+        algo_(iConfig.getParameter<edm::ParameterSet>("Clusterizer")),
         fedRawGetToken_(consumes(iConfig.getParameter<edm::InputTag>("ProductLabel"))),
         stripCondGetToken_(esConsumes(edm::ESInputTag{"", iConfig.getParameter<std::string>("ConditionsLabel")})),
         stripCablCondGetToken_(
             esConsumes(edm::ESInputTag{"", iConfig.getParameter<std::string>("CablingConditionsLabel")})),
         stripDataCondGetToken_(esConsumes()),
         stripClustPutToken_(produces()),
-        stripDigiPutToken_(produces()) {
-    // Throw exceptions if the parameters are not set correctly
-    const bool legacyUnpacker =
-        iConfig.getParameter<edm::ParameterSet>("Unpacker").getParameter<bool>("LegacyUnpacker");
-    const bool unpackBadChannels =
-        iConfig.getParameter<edm::ParameterSet>("Unpacker").getParameter<bool>("UnpackBadChannels");
-    const bool doFullCorruptBufferChecks =
-        iConfig.getParameter<edm::ParameterSet>("Unpacker").getParameter<bool>("DoAllCorruptBufferChecks");
-
-    if (legacyUnpacker)
-      throw cms::Exception("Configuration") << "[SiStripRawToCluster]:"
-                                            << "Unsupported legacy unpacking mode. Set LegacyUnpacker to false.";
-    if (unpackBadChannels)
-      throw cms::Exception("Configuration") << "[SiStripRawToCluster]:"
-                                            << "Unsupported bad channel unpacking. Set UnpackBadChannels to false.";
-    if (doFullCorruptBufferChecks)
-      throw cms::Exception("Configuration")
-          << "[SiStripRawToCluster]:"
-          << "Unsupported full corrupt buffer checks. Set DoAllCorruptBufferChecks to false.";
+        stripDigiPutToken_(produces()),
+        doAPVEmulatorCheck_(iConfig.getParameter<bool>("DoAPVEmulatorCheck")) {
   }
 
   void SiStripRawToCluster::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -104,36 +90,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     desc.add("ProductLabel", edm::InputTag("rawDataCollector"));
     desc.add<std::string>("ConditionsLabel", "");
     desc.add<std::string>("CablingConditionsLabel", "");
-
-    // Unpacking parameters (from EventFilter/SiStripRawToDigi/plugins/SiStripRawToDigiModule.cc)
-    // (all optional entries are to be discussed)
-    edm::ParameterSetDescription unpacker;
-    unpacker.addOptional<int>("AppendedBytes", 0);
-    unpacker.addOptional<int>("TriggerFedId", 0);
-    unpacker.add<bool>("LegacyUnpacker", false);
-    unpacker.addOptional<bool>("UseDaqRegister", false);
-    unpacker.addOptional<bool>("UseFedKey", false);
-    unpacker.addOptional<bool>("UnpackBadChannels", false);
-    unpacker.addOptional<bool>("MarkModulesOnMissingFeds", true);
-    unpacker.addOptionalUntracked<int>("FedBufferDumpFreq", 0);
-    unpacker.addOptionalUntracked<int>("FedEventDumpFreq", 0);
-    unpacker.addOptionalUntracked<bool>("Quiet", true);
-    unpacker.addOptional<bool>("UnpackCommonModeValues", false);
-    unpacker.addOptional<bool>("DoAllCorruptBufferChecks", false);
-    unpacker.addOptional<bool>("DoAPVEmulatorCheck", false);
-    unpacker.addOptional<unsigned int>("ErrorThreshold", 7174);
-    desc.add("Unpacker", unpacker);
+    
+    // Setup parameters (from SiStripClusterizerFromRaw)
+    desc.add<bool>("DoAPVEmulatorCheck", false);
 
     // Inherit all the parameters from the clusterizers (all var.s from the Clusterizer PSet)
     // 1:Algorithm, ConditionsLabel, ChannelThreshold, SeedThreshold, ClusterThreshold,
     // MaxSequentialHoles, MaxSequentialBad, MaxAdjacentBad, MaxClusterSize, RemoveApvShots,
     // setDetId, 12:clusterChargeCut
-    //
-    // The parameter MaxSeedStrips determines the size for pre-allocation of the clusters collection SoA
     edm::ParameterSetDescription clusterizer;
     StripClusterizerAlgorithmFactory::fillDescriptions(clusterizer);
-    clusterizer.addOptional<uint32_t>("MaxSeedStrips", 200000u);
+    // The parameter MaxSeedStrips determines the size for pre-allocation of the clusters collection SoA
+    clusterizer.add<uint32_t>("MaxSeedStrips", 200000u);
     desc.add("Clusterizer", clusterizer);
+
 
     descriptions.addWithDefaultLabel(desc);
   }
@@ -247,7 +217,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
         // check channel
         const uint8_t fedCh = conn->fedCh();
-        if (!buffer->channelGood(fedCh, false)) {
+        if (!buffer->channelGood(fedCh, doAPVEmulatorCheck_)) {
           if (edm::isDebugEnabled()) {
             std::ostringstream ss;
             ss << "Problem unpacking channel " << (int)fedCh << " on FED " << fedId;

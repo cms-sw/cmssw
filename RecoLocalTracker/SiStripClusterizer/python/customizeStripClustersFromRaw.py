@@ -32,11 +32,17 @@ def customizeHLTStripClustersFromRaw_alpaka(process: cms.Process, MaxClusterSize
         # (parameters_() makes a copy, this could cause issues if the parameters are changed after this customizer is applied)
         initialPars = process.hltSiStripRawToClustersFacility.parameters_()
         
+        # Make sure the module configuration is compatible with the heterogeneous producer
+        if 'LegacyUnpacker' in initialPars and initialPars['LegacyUnpacker'] == True:
+            raise RuntimeError("The LegacyUnpacker is not supported by the alpaka producer. Please set LegacyUnpacker to False.")
+        if 'HybridZeroSuppressed' in initialPars and initialPars['HybridZeroSuppressed'] == True:
+            # The alpaka version supports READOUT_MODE_ZERO_SUPPRESSED* modes
+            raise RuntimeError("The HybridZeroSuppressed is not supported by the alpaka producer. Please set HybridZeroSuppressed to False.")
+        
         # Create the alpaka-producer and set its parameters from the original one
         hltSiStripRawToClustersFacilityAlpaka = cms.EDProducer("sistrip::SiStripRawToCluster@alpaka", **initialPars)
         
         # Add the extra pars (if not present)
-        if not hasattr(hltSiStripRawToClustersFacilityAlpaka, "ConditionsLabel"): hltSiStripRawToClustersFacilityAlpaka.ConditionsLabel = cms.string("")
         if not hasattr(hltSiStripRawToClustersFacilityAlpaka, "CablingConditionsLabel"): hltSiStripRawToClustersFacilityAlpaka.CablingConditionsLabel = cms.string("")        
         ## Make sure the Clusterizer PSet has the MaxClusterSize argument
         if not hasattr(hltSiStripRawToClustersFacilityAlpaka.Clusterizer, "MaxClusterSize"):
@@ -45,33 +51,16 @@ def customizeHLTStripClustersFromRaw_alpaka(process: cms.Process, MaxClusterSize
         ## Add the MaxSeedStrips to the clusterizer PSet if not present
         if not hasattr(hltSiStripRawToClustersFacilityAlpaka.Clusterizer, "MaxSeedStrips"):
             hltSiStripRawToClustersFacilityAlpaka.Clusterizer.MaxSeedStrips = cms.uint32(200000)
-        
-        if not hasattr(hltSiStripRawToClustersFacilityAlpaka, "Unpacker"):
-            hltSiStripRawToClustersFacilityAlpaka.Unpacker = cms.PSet(
-                AppendedBytes = cms.int32(0),
-                TriggerFedId = cms.int32(0),
-                LegacyUnpacker = cms.bool(False),
-                UseDaqRegister = cms.bool(False),
-                UseFedKey = cms.bool(False),
-                UnpackBadChannels = cms.bool(False),
-                MarkModulesOnMissingFeds = cms.bool(True),
-                FedBufferDumpFreq = cms.untracked.int32(0),
-                FedEventDumpFreq = cms.untracked.int32(0),
-                Quiet = cms.untracked.bool(True),
-                UnpackCommonModeValues = cms.bool(False),
-                DoAllCorruptBufferChecks = cms.bool(False),
-                DoAPVEmulatorCheck = cms.bool(False),
-                ErrorThreshold = cms.uint32(7174)
-            )
-            
-        # The alpaka version work with only READOUT_MODE_ZERO_SUPPRESSED or READOUT_MODE_ZERO_SUPPRESSED_LITE10
-        
-        # Remove illegal parameters from the configuration
-        for par in ['Algorithms', 'DoAPVEmulatorCheck', 'HybridZeroSuppressed', 'LegacyUnpacker', 'onDemand']:
+                
+        # Remove illegal parameters from the configuration from comparison of 
+        # the legacy `edmPluginHelp -b -p SiStripClusterizerFromRaw` and
+        # the heterogeneous `edmPluginHelp -b -p sistrip::SiStripRawToCluster@alpaka` parameters.
+        for par in ['onDemand', 'LegacyUnpacker', 'HybridZeroSuppressed', 'Algorithms']:
             if hasattr(hltSiStripRawToClustersFacilityAlpaka, par): delattr(hltSiStripRawToClustersFacilityAlpaka, par)
         
         # Create the converter bringing the alpaka-made cluster into legacy objects
-        ## development - The heterogeneous converter can be enabled by using "sistrip::SiStripClustersToLegacy2@alpaka"
+        ## note: the heterogeneous converter can be enabled by using "sistrip::SiStripClustersToLegacy2@alpaka".
+        ## It is found however that no performance gain is observed.
         hltSiStripClustersToLegacy = cms.EDProducer("sistrip::SiStripClustersToLegacy",
             source = cms.InputTag("hltSiStripRawToClustersFacilityAlpaka")
         )
@@ -84,7 +73,8 @@ def customizeHLTStripClustersFromRaw_alpaka(process: cms.Process, MaxClusterSize
         )
         
         # Add to process, if not already present
-        if not hasattr(process, "hltSiStripClusterizerConditionsESProducerAlpaka"): process.hltSiStripClusterizerConditionsESProducerAlpaka = hltSiStripClusterizerConditionsESProducerAlpaka
+        if not hasattr(process, "hltSiStripClusterizerConditionsESProducerAlpaka"):
+            process.hltSiStripClusterizerConditionsESProducerAlpaka = hltSiStripClusterizerConditionsESProducerAlpaka
         process.hltSiStripRawToClustersFacilityAlpaka = hltSiStripRawToClustersFacilityAlpaka
         process.hltSiStripRawToClustersFacility = hltSiStripClustersToLegacy
         
