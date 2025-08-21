@@ -208,8 +208,8 @@ namespace l1t::demo {
       }
     }
 
-    const size_t maxEventsPerFile = !fileWritersUnstaggered.empty() ? fileWritersUnstaggered.front()->maxEventsPerFile_
-                                                                    : fileWriters.front()->maxEventsPerFile_;
+    const size_t maxEventsPerFile = fileWritersUnstaggered.empty() ? fileWriters.front()->maxEventsPerFile_
+                                                                   : fileWritersUnstaggered.front()->maxEventsPerFile_;
 
     // Print a warning if a staggered file writer has a different maxEventsPerFile_ (only a warning because staggered file writers
     // are not expected to all have the same maxEventsPerFile_ when they don't share the same link:board TMUX ratio)
@@ -221,6 +221,7 @@ namespace l1t::demo {
                   << ".\n This is expected only if they are using different link:board TMUX ratios"
                   << " (or if you're using a mixture of staggered and unstaggered file writers).\n"
                   << std::endl;
+        break;
       }
     }
 
@@ -229,11 +230,11 @@ namespace l1t::demo {
       if (fileWriter->maxEventsPerFile_ != maxEventsPerFile) {
         throw std::runtime_error(
             "BoardDataWriter: All unstaggered BoardDataWriters must have the same maxEventsPerFile_.\n"
-            "The first file writer has maxEventsPerFile_ = " +
+            " The first file writer has maxEventsPerFile_ = " +
             std::to_string(maxEventsPerFile) +
             ", but another file writer has maxEventsPerFile_ = " + std::to_string(fileWriter->maxEventsPerFile_) +
-            ".\nPlease set the maxFramesPerFile parameter to use a multiple of the link TMUX (after accounting for any "
-            "offset).");
+            ".\n Please set the maxFramesPerFile parameter to use a multiple of the link TMUX (after accounting for "
+            "any offset).");
       }
     }
   }
