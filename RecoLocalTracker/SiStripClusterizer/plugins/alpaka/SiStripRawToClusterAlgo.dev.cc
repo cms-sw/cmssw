@@ -382,8 +382,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                                                                             mode,
                                                                             packetCode);
         if (retCode != fedchannelunpacker::StatusCode::SUCCESS) {
-          // ANSI escape codes won't be used - this is ONLY for quick DEBUGGING of these cases
-          printf("\033[31m [%i] [fedID %i] [fedCH %i] - Returned %i \033[0m \n", chan, fedId, fedCh, (int)retCode);
+          printf("[%i] [fedID %hu] [fedCH %hhu] - Returned %i \n", chan, fedId, fedCh, (int)retCode);
         }
 
         // if (chan > 20){
