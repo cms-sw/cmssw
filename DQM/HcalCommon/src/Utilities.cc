@@ -238,7 +238,24 @@ namespace hcaldqm {
           return "Null";
       }
     }
-
+    std::string uhtrtype2string(uHTRType type) {
+      switch (type) {
+        case uUnknown:
+          return "Unknown";
+        case uPhysics:
+          return "Physics";
+        case uPedestal:
+          return "Pedestal";
+        case uLED:
+          return "LED";
+        case uHFRaddam:
+          return "HFRaddam";
+        case uLaser:
+          return "Laser";
+        default:
+          return "Unknown";
+      }
+    }
     int getRBX(uint32_t iphi) { return (((iphi + 2) % 72) + 4 - 1) / 4; }
 
   }  // namespace utilities

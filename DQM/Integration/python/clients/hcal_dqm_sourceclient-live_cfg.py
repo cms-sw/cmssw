@@ -21,6 +21,7 @@ errorstr     = "### HcalDQM::cfg::ERROR:"
 useOfflineGT = False
 useFileInput = False
 useMap       = False
+usetxtMap    = False
 
 unitTest = False
 if 'unitTest=True' in sys.argv:
@@ -73,6 +74,18 @@ process.load("EventFilter.HcalRawToDigi.HcalRawToDigi_cfi")
 process.load('EventFilter.CastorRawToDigi.CastorRawToDigi_cff')
 process.load("SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff")
 
+if usetxtMap:
+    process.es_ascii = cms.ESSource(
+                'HcalTextCalibrations',
+                input = cms.VPSet(
+                        cms.PSet(
+                                object = cms.string('ElectronicsMap'),
+                                file = cms.FileInPath("ElectronicsMap_Run394200_new.txt")
+                        )
+                )
+        )
+    process.es_prefer = cms.ESPrefer('HcalTextCalibrations', 'es_ascii')
+	
 #-------------------------------------
 #	CMSSW/Hcal non-DQM Related Module Settings
 #	-> runType
