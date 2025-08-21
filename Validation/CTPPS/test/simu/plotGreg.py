@@ -1,3 +1,9 @@
+#  ****************************************************************************
+#  * Author:
+#  *   Grzegorz Jędrzejowski,
+#  ****************************************************************************
+
+
 import ROOT
 import os
 
@@ -202,9 +208,6 @@ for hist_name in histogram_names:
                 print(f"Error: Histogram '{hist_name}' not found in {path}")
                 continue
 
-            # # Normalize the histogram to unit area for direct shape comparison
-            # if hist.Integral() > 0:
-            #     hist.Scale(1.0 / hist.Integral())
 
             # Set styling
             hist.SetStats(0)

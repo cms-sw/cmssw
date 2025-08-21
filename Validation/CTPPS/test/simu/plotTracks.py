@@ -1,3 +1,8 @@
+#  ****************************************************************************
+#  * Author:
+#  *   Grzegorz Jędrzejowski,
+#  ****************************************************************************
+
 import ROOT
 import os
 
@@ -52,7 +57,7 @@ def plot_histograms_from_folders(file_path, sub_dirs, hist_names, output_dir):
 
             # Create a new canvas for each plot
             c = ROOT.TCanvas(f"c_{sub_dir_name.replace(' ', '_')}_{hist_name}", f"{sub_dir_name} - {hist_name}", 800, 600)
-            c.SetLogx(1)
+            c.SetLogz(1)
 
             # Draw the histogram based on its type (h2_ for 2D, others for 1D)
             if isinstance(hist, ROOT.TH2):

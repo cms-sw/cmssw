@@ -1,7 +1,8 @@
 /****************************************************************************
-* Authors:
-*  Greg, based on Jan Kašpar
-****************************************************************************/
+ * Authors:
+ *   Grzegorz Jędrzejowski,
+ *    based on Jan Kašpar.
+ ****************************************************************************/
 
 #include <memory>
 
@@ -168,7 +169,6 @@ void CTPPSGregPlotter::analyze(const edm::Event &event, const edm::EventSetup &i
 
         h_phi->Fill(momentum.phi());
         h_energy->Fill(momentum.e());
-        // h_pt->Fill(sqrt(pow(momentum.px(),2)+ pow(momentum.py(),2)));
         h_pt->Fill(momentum.perp());
         //from PPSDirectProtonSimulation.cc
         h_xi->Fill(1.- momentum.rho()/ beamParameters.getBeamMom56());

@@ -1,7 +1,7 @@
 /****************************************************************************
  * Authors:
- *   Jan Kašpar
- *   Greg
+ *   Grzegorz Jędrzejowski,
+ *    based on Jan Kašpar.
  ****************************************************************************/
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
