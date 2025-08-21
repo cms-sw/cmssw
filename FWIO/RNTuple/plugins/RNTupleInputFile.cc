@@ -171,11 +171,13 @@ namespace edm {
       }
     }
     reg.setFrozen(false);
-    iReg.updateFromInput(reg.productList());
 
     for (auto const& h : processHist) {
       iHist.registerProcessHistory(h);
     }
+    auto processingOrder = iReg.processOrder();
+    processingOrderMerge(iHist, processingOrder);
+    iReg.updateFromInput(reg.productList(), processingOrder);
 
     std::vector<ProcessHistoryID> orderedHistory;
     index_.fixIndexes(orderedHistory);
