@@ -8,9 +8,16 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/jetmet/L1PFMetEmulator.h"
 
+#include "FWCore/Utilities/interface/FileInPath.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "nlohmann/json.hpp"
+
 #include <vector>
 #include <numeric>
+#include <array>
+#include <fstream>
 #include <algorithm>
+#include <cmath>
 #include "ap_int.h"
 #include "ap_fixed.h"
 
@@ -22,35 +29,55 @@ namespace L1JUMPEmu {
     - Approximate L1 Jet energy resolution by pT, eta value
     - Apply the estimated resolution to MET
   */
+  struct JER_param {
+    std::array<ap_fixed<11, 1>, 5> par0;   // eta.par0 (slope)
+    std::array<ap_fixed<8, 5>, 5> par1;    // eta.par1 (offset)
+    std::array<L1METEmu::eta_t, 4> edges;  // |eta| boundaries in HW scale
+  };
 
-  inline void Get_dPt(l1ct::Jet jet, L1METEmu::proj2_t& dPx_2, L1METEmu::proj2_t& dPy_2) {
+  inline const JER_param& Get_jer_param() {
+    static JER_param P = []() {
+      JER_param t{};
+      edm::FileInPath fip("L1Trigger/Phase2L1ParticleFlow/data/met/l1jump_jer_v1.json");
+      std::ifstream in(fip.fullPath());
+      if (!in)
+        throw cms::Exception("FileNotFound") << fip.fullPath();
+      nlohmann::json j;
+      in >> j;
+
+      for (int i = 0; i < 5; ++i) {
+        t.par0[i] = ap_fixed<11, 1>(j["eta"]["par0"][i].get<double>());
+        t.par1[i] = ap_fixed<8, 5>(j["eta"]["par1"][i].get<double>());
+      }
+      for (int i = 0; i < 4; ++i) {
+        t.edges[i] = l1ct::Scales::makeGlbEta(j["eta_edges"][i].get<double>());
+      }
+      return t;
+    }();
+    return P;
+  }
+
+  inline void Get_dPt(const l1ct::Jet jet, L1METEmu::proj2_t& dPx_2, L1METEmu::proj2_t& dPy_2) {
     /*
       L1 Jet Energy Resolution parameterization
       - Fitted σ(pT)/pT as a function of jet pT in each η region (detector boundary at η≈1.3, 1.7, 2.5, 3.0)
       - Derived from simulated QCD multijet samples to calculate detector‐dependent resolution
-      - σ(pT) ≈ eta_par1[i] * pT + eta_par2[i]
+      - σ(pT) ≈ eta_par0[i] * pT + eta_par1[i]
     */
 
-    ap_fixed<11, 1> eta_par1[5] = {0, 0.073, 0.247, 0.128, 0.091};
-    ap_fixed<8, 5> eta_par2[5] = {0, 12.322, 6.061, 10.944, 12.660};
-
-    L1METEmu::eta_t eta_edges[4];
-    float eta_boundaries[4] = {1.3, 1.7, 2.5, 3.0};
-    for (uint i = 0; i < 4; i++) {
-      eta_edges[i] = l1ct::Scales::makeGlbEta(eta_boundaries[i]);
-    }
+    const auto& J = Get_jer_param();
 
     L1METEmu::eta_t abseta = abs(jet.hwEta.to_float());
     int etabin = 0;
     if (abseta == 0.00)
       etabin = 1;
-    else if (abseta < eta_edges[0])
+    else if (abseta < J.edges[0])
       etabin = 1;
-    else if (abseta < eta_edges[1])
+    else if (abseta < J.edges[1])
       etabin = 2;
-    else if (abseta < eta_edges[2])
+    else if (abseta < J.edges[2])
       etabin = 3;
-    else if (abseta < eta_edges[3])
+    else if (abseta < J.edges[3])
       etabin = 4;
     else
       etabin = 0;
@@ -58,7 +85,7 @@ namespace L1JUMPEmu {
     dPx_2 = 0;
     dPy_2 = 0;
     l1ct::Sum jet_resolution;
-    jet_resolution.hwPt = eta_par1[etabin] * jet.hwPt + eta_par2[etabin];
+    jet_resolution.hwPt = J.par0[etabin] * jet.hwPt + J.par1[etabin];
     jet_resolution.hwPhi = jet.hwPhi;
     L1METEmu::Particle_xy dpt_xy = L1METEmu::Get_xy(jet_resolution.hwPt, jet_resolution.hwPhi);
 
@@ -66,7 +93,7 @@ namespace L1JUMPEmu {
     dPy_2 = dpt_xy.hwPy * dpt_xy.hwPy;
   }
 
-  inline void Met_dPt(std::vector<l1ct::Jet> jets, L1METEmu::proj2_t& dPx_2, L1METEmu::proj2_t& dPy_2) {
+  inline void Met_dPt(const std::vector<l1ct::Jet> jets, L1METEmu::proj2_t& dPx_2, L1METEmu::proj2_t& dPy_2) {
     L1METEmu::proj2_t each_dPx2 = 0;
     L1METEmu::proj2_t each_dPy2 = 0;
 
@@ -84,7 +111,7 @@ namespace L1JUMPEmu {
   }
 }  // namespace L1JUMPEmu
 
-inline void JUMP_emu(l1ct::Sum inMet, std::vector<l1ct::Jet> jets, l1ct::Sum& outMet) {
+inline void JUMP_emu(const l1ct::Sum inMet, const std::vector<l1ct::Jet> jets, l1ct::Sum& outMet) {
   L1METEmu::Particle_xy inMet_xy = L1METEmu::Get_xy(inMet.hwPt, inMet.hwPhi);
 
   L1METEmu::proj2_t dPx_2;
@@ -97,8 +124,6 @@ inline void JUMP_emu(l1ct::Sum inMet, std::vector<l1ct::Jet> jets, l1ct::Sum& ou
   outMet_xy.hwPy = (inMet_xy.hwPy > 0) ? inMet_xy.hwPy + L1METEmu::proj2_t(sqrt(dPy_2.to_float()))
                                        : inMet_xy.hwPy - L1METEmu::proj2_t(sqrt(dPy_2.to_float()));
   L1METEmu::pxpy_to_ptphi(outMet_xy, outMet);
-
-  return;
 }
 
 #endif

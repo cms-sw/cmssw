@@ -25,8 +25,6 @@
 
 #include "L1Trigger/Phase2L1ParticleFlow/interface/jetmet/L1PFJUMPEmulator.h"
 
-using namespace l1t;
-
 class L1JUMPProducer : public edm::global::EDProducer<> {
   /*
     Producer for the JUMP Algorithm
@@ -50,11 +48,11 @@ private:
   static constexpr float phiLSB_ = M_PI / 720;
   static constexpr float maxPt_ = ((1 << pt_t::width) - 1) * ptLSB_;
 
-  void CalcJUMP_HLS(l1t::EtSum& metVector,
-                    std::vector<l1ct::Jet>& jets,
+  void CalcJUMP_HLS(const l1t::EtSum& metVector,
+                    const std::vector<l1ct::Jet>& jets,
                     reco::Candidate::PolarLorentzVector& JUMPVector) const;
 
-  std::vector<l1ct::Jet> convertEDMToHW(std::vector<l1t::PFJet> edmJets) const;
+  std::vector<l1ct::Jet> convertEDMToHW(const std::vector<l1t::PFJet> edmJets) const;
 
   double minJetPt;
   double maxJetEta;
@@ -92,8 +90,8 @@ void L1JUMPProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
   iEvent.put(std::move(JUMPCollection));
 }
 
-void L1JUMPProducer::CalcJUMP_HLS(l1t::EtSum& metVector,
-                                  std::vector<l1ct::Jet>& jets,
+void L1JUMPProducer::CalcJUMP_HLS(const l1t::EtSum& metVector,
+                                  const std::vector<l1ct::Jet>& jets,
                                   reco::Candidate::PolarLorentzVector& outMet_Vector) const {
   // JUMP Calculate
   l1ct::Sum inMet;
@@ -109,9 +107,9 @@ void L1JUMPProducer::CalcJUMP_HLS(l1t::EtSum& metVector,
   outMet_Vector.SetEta(0);
 }
 
-std::vector<l1ct::Jet> L1JUMPProducer::convertEDMToHW(std::vector<l1t::PFJet> edmJets) const {
+std::vector<l1ct::Jet> L1JUMPProducer::convertEDMToHW(const std::vector<l1t::PFJet> edmJets) const {
   std::vector<l1ct::Jet> hwJets;
-  std::for_each(edmJets.begin(), edmJets.end(), [&](l1t::PFJet jet) {
+  std::for_each(edmJets.begin(), edmJets.end(), [&](const l1t::PFJet jet) {
     l1ct::Jet hwJet = l1ct::Jet::unpack(jet.getHWJetCT());
     hwJets.push_back(hwJet);
   });
