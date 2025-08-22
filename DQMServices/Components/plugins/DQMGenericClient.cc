@@ -389,69 +389,69 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
   // Parse resolution commands
   std::array<std::string, 2> optionNames = {{"resolution", "resolutionProfile"}};
   for (auto& optName : optionNames) {
-	vstring resCmds;
-	if (optName.find("Profile") != std::string::npos)
-	  resCmds = pset.getUntrackedParameter<vstring>(optName, vstring());
-	else
-	  resCmds = pset.getParameter<vstring>(optName);
+    vstring resCmds;
+    if (optName.find("Profile") != std::string::npos)
+      resCmds = pset.getUntrackedParameter<vstring>(optName, vstring());
+    else
+      resCmds = pset.getParameter<vstring>(optName);
 
-	for (vstring::const_iterator resCmd = resCmds.begin(); resCmd != resCmds.end(); ++resCmd) {
-	  if (resCmd->empty())
-		continue;
-	  boost::tokenizer<elsc> tokens(*resCmd, commonEscapes);
+    for (vstring::const_iterator resCmd = resCmds.begin(); resCmd != resCmds.end(); ++resCmd) {
+      if (resCmd->empty())
+        continue;
+      boost::tokenizer<elsc> tokens(*resCmd, commonEscapes);
 
-	  vector<string> args;
-	  for (boost::tokenizer<elsc>::const_iterator iToken = tokens.begin(); iToken != tokens.end(); ++iToken) {
-		if (iToken->empty())
-		  continue;
-		args.push_back(*iToken);
-	  }
+      vector<string> args;
+      for (boost::tokenizer<elsc>::const_iterator iToken = tokens.begin(); iToken != tokens.end(); ++iToken) {
+        if (iToken->empty())
+          continue;
+        args.push_back(*iToken);
+      }
 
-	  if (args.size() < 3) {
-		LogInfo("DQMGenericClient") << "Wrong input to resCmds\n";
-		continue;
-	  }
+      if (args.size() < 3) {
+        LogInfo("DQMGenericClient") << "Wrong input to resCmds\n";
+        continue;
+      }
 
-	  ResolOption opt;
-	  opt.namePrefix = args[0];
-	  opt.titlePrefix = args[1];
-	  opt.srcName = args[2];
-	  opt.isProfile = (optName.find("Profile") != std::string::npos) ? true : false;
+      ResolOption opt;
+      opt.namePrefix = args[0];
+      opt.titlePrefix = args[1];
+      opt.srcName = args[2];
+      opt.isProfile = (optName.find("Profile") != std::string::npos) ? true : false;
 
-	  std::string typeDefault = (optName.find("Profile") != std::string::npos) ? "rms" : "fit";
-	  const string typeName = args.size() == 3 ? typeDefault : args[3];
-	  if (typeName == "fit")
-		opt.type = ResType::fit;
-	  else if (typeName == "rms")
-		opt.type = ResType::rms;
-	  else
-		opt.type = ResType::none;
+      std::string typeDefault = (optName.find("Profile") != std::string::npos) ? "rms" : "fit";
+      const string typeName = args.size() == 3 ? typeDefault : args[3];
+      if (typeName == "fit")
+        opt.type = ResType::fit;
+      else if (typeName == "rms")
+        opt.type = ResType::rms;
+      else
+        opt.type = ResType::none;
 
-	  resolOptions_.push_back(opt);	  
-	}
+      resolOptions_.push_back(opt);
+    }
   }
 
   std::array<std::string, 2> optionSetNames = {{"resolutionProfileSets", "resolutionSets"}};
   for (auto& optName : optionSetNames) {
-	VPSet resSets = pset.getUntrackedParameter<VPSet>(optName, VPSet());
-	for (VPSet::const_iterator resSet = resSets.begin(); resSet != resSets.end(); ++resSet) {
-	  ResolOption opt;
-	  opt.namePrefix  = resSet->getUntrackedParameter<string>("namePrefix");
-	  opt.titlePrefix = resSet->getUntrackedParameter<string>("titlePrefix");
-	  opt.srcName	  = resSet->getUntrackedParameter<string>("srcName");
+    VPSet resSets = pset.getUntrackedParameter<VPSet>(optName, VPSet());
+    for (VPSet::const_iterator resSet = resSets.begin(); resSet != resSets.end(); ++resSet) {
+      ResolOption opt;
+      opt.namePrefix = resSet->getUntrackedParameter<string>("namePrefix");
+      opt.titlePrefix = resSet->getUntrackedParameter<string>("titlePrefix");
+      opt.srcName = resSet->getUntrackedParameter<string>("srcName");
 
-	  std::string typeDefault = (optName.find("Profile") != std::string::npos) ? "rms" : "fit";
-	  const string typeName = resSet->getUntrackedParameter<string>("typeName", typeDefault);
-	  if (typeName == "fit")
-		opt.type = ResType::fit;
-	  else if (typeName == "rms")
-		opt.type = ResType::rms;
-	  else
-		opt.type = ResType::none;
-	  opt.isProfile = (optName.find("Profile") != std::string::npos) ? true : false;
+      std::string typeDefault = (optName.find("Profile") != std::string::npos) ? "rms" : "fit";
+      const string typeName = resSet->getUntrackedParameter<string>("typeName", typeDefault);
+      if (typeName == "fit")
+        opt.type = ResType::fit;
+      else if (typeName == "rms")
+        opt.type = ResType::rms;
+      else
+        opt.type = ResType::none;
+      opt.isProfile = (optName.find("Profile") != std::string::npos) ? true : false;
 
-	  resolOptions_.push_back(opt);
-	}
+      resolOptions_.push_back(opt);
+    }
   }
 
   // Parse profiles
