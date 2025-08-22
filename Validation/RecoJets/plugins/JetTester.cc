@@ -343,11 +343,11 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
 
   // DeltaR distance jet
   h2d_DeltaR_vs_Eta = ibooker.book2D(
-      "h2d_DeltaR_Eta", "#Delta R Jets;#eta^{{reco}};#Delta R", n_EtaBins, EtaRange[0], EtaRange[1], 50, 0.0, 0.5);
+      "h2d_DeltaR_Eta", "#Delta R Jets;#eta^{reco};#Delta R", n_EtaBins, EtaRange[0], EtaRange[1], 50, 0.0, 0.5);
   h2d_DeltaR_vs_Phi = ibooker.book2D(
-      "h2d_DeltaR_Phi", "#Delta R Jets;#phi^{{reco}};#Delta R", n_PhiBins, PhiRange[0], PhiRange[1], 50, 0.0, 0.5);
+      "h2d_DeltaR_Phi", "#Delta R Jets;#phi^{reco};#Delta R", n_PhiBins, PhiRange[0], PhiRange[1], 50, 0.0, 0.5);
   h2d_DeltaR_vs_Pt = ibooker.book2D(
-      "h2d_DeltaR_Pt", "#Delta R Jets;p_{T}^{{reco}};#Delta R", n_PtBins, PtRange[0], PtRange[1], 50, 0.0, 0.5);
+      "h2d_DeltaR_Pt", "#Delta R Jets;p_{T}^{reco};#Delta R", n_PtBins, PtRange[0], PtRange[1], 50, 0.0, 0.5);
 
   // Duplicated jet
   mDuplicatesJetEta = ibooker.book1D(
@@ -399,11 +399,11 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
 
   // DeltaR distance gen jet
   h2d_DeltaR_vs_GenEta = ibooker.book2D(
-      "h2d_DeltaR_GenEta", "#Delta R Gen Jets;#eta^{{gen}};#Delta R", n_EtaBins, EtaRange[0], EtaRange[1], 50, 0.0, 0.5);
+      "h2d_DeltaR_GenEta", "#Delta R Gen Jets;#eta^{gen};#Delta R", n_EtaBins, EtaRange[0], EtaRange[1], 50, 0.0, 0.5);
   h2d_DeltaR_vs_GenPhi = ibooker.book2D(
-      "h2d_DeltaR_GenPhi", "#Delta R Gen Jets;#phi^{{gen}};#Delta R", n_PhiBins, PhiRange[0], PhiRange[1], 50, 0.0, 0.5);
+      "h2d_DeltaR_GenPhi", "#Delta R Gen Jets;#phi^{gen};#Delta R", n_PhiBins, PhiRange[0], PhiRange[1], 50, 0.0, 0.5);
   h2d_DeltaR_vs_GenPt = ibooker.book2D(
-      "h2d_DeltaR_GenPt", "#Delta R Gen Jets;p_{T}^{{gen}};#Delta R", n_PtBins, PtRange[0], PtRange[1], 50, 0.0, 0.5);
+      "h2d_DeltaR_GenPt", "#Delta R Gen Jets;p_{T}^{gen};#Delta R", n_PtBins, PtRange[0], PtRange[1], 50, 0.0, 0.5);
 
   // Duplicated gen jet
   mDuplicatesGenEta = ibooker.book1D(
@@ -431,7 +431,7 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
 
   // Response
   h2d_JetPtRecoOverGen_vs_GenEta = ibooker.book2D("h2d_PtRecoOverGen_GenEta",
-                                                  "Response Reco Jets;#eta^{{gen}};p_{{T}}^{{reco}}/p_{{T}}^{{gen}}",
+                                                  "Response Reco Jets;#eta^{gen};p_{T}^{reco}/p_{T}^{gen}",
                                                   n_EtaBins,
                                                   EtaRange[0],
                                                   EtaRange[1],
@@ -439,7 +439,7 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
                                                   RespRange[0],
                                                   RespRange[1]);
   h2d_JetPtRecoOverGen_vs_GenPhi = ibooker.book2D("h2d_PtRecoOverGen_GenPhi",
-                                                  "Response Reco Jets;#phi^{{gen}};p_{{T}}^{{reco}}/p_{{T}}^{{gen}}",
+                                                  "Response Reco Jets;#phi^{gen};p_{T}^{reco}/p_{T}^{gen}",
                                                   n_PhiBins,
                                                   PhiRange[0],
                                                   PhiRange[1],
@@ -447,7 +447,7 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
                                                   RespRange[0],
                                                   RespRange[1]);
   h2d_JetPtRecoOverGen_vs_GenPt = ibooker.book2D("h2d_PtRecoOverGen_GenPt",
-                                                 "Response Reco Jets;p_{T}^{{gen}};p_{{T}}^{{reco}}/p_{{T}}^{{gen}}",
+                                                 "Response Reco Jets;p_{T}^{gen};p_{T}^{reco}/p_{T}^{gen}",
                                                  n_PtBins,
                                                  PtRange[0],
                                                  PtRange[1],
