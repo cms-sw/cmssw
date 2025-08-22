@@ -39,6 +39,91 @@ def CheckRootFile(hname, rebin=None):
 
     return hist
 
+def findBestGaussianCoreFit(histo, quiet=True):
+    mean, rms = histo.GetMean(), histo.GetRMS()
+
+    HalfMaxBinLow = histo.FindFirstBinAbove(histo.GetMaximum()/2)
+    HalfMaxBinHigh = histo.FindLastBinAbove(histo.GetMaximum()/2)
+    WidthAtHalfMaximum = 0.5*(histo.GetBinCenter(HalfMaxBinHigh) - histo.GetBinCenter(HalfMaxBinLow))
+    Xmax = histo.GetXaxis().GetBinCenter(histo.GetMaximumBin())
+
+    gausTF1 = ROOT.TF1()
+
+    Pvalue = 0.
+    RangeLow = histo.GetBinLowEdge(2)
+    RangeUp = histo.GetBinLowEdge(histo.GetNbinsX())
+
+    PvalueBest = 0.
+    RangeLowBest = 0.
+    RangeUpBest = 0.
+
+    if Xmax < mean:
+        meanForRange = Xmax
+    else: # because some entries with LARGE errors sometimes falsely become the maximum
+        meanForRange = mean
+
+    if WidthAtHalfMaximum < rms and WidthAtHalfMaximum>0:
+        spreadForRange = WidthAtHalfMaximum
+    else: # WHF does not take into account weights and sometimes it turns LARGE
+        spreadForRange = rms 
+
+    rms_step_minus = 2.2
+    while rms_step_minus>1.1:
+        RangeLow = meanForRange - rms_step_minus*spreadForRange
+        rms_step_plus = rms_step_minus
+
+        while rms_step_plus>0.7:    
+            RangeUp = meanForRange + rms_step_plus*spreadForRange
+            if quiet:
+                histo.Fit("gaus", "0Q", "0", RangeLow, RangeUp)
+            else:
+                histo.Fit("gaus", "0", "0", RangeLow, RangeUp)
+            gausTF1 = histo.GetListOfFunctions().FindObject("gaus")
+            ChiSquare = gausTF1.GetChisquare()
+            ndf       = gausTF1.GetNDF()
+            Pvalue = ROOT.TMath.Prob(ChiSquare, ndf)
+            
+            if Pvalue > PvalueBest:
+                PvalueBest = Pvalue
+                RangeLowBest = RangeLow
+                RangeUpBest = RangeUp
+                ndfBest = ndf
+                ChiSquareBest = ChiSquare
+                StepMinusBest = rms_step_minus
+                StepPlusBest = rms_step_plus
+                meanForRange = gausTF1.GetParameter(1)
+
+            if not quiet:
+                print("\n\nFitting range used: [Mean - " + str(rms_step_minus) + " sigma,  Mean + " + str(rms_step_plus) + " sigma ] ")
+                print("ChiSquare = " + str(ChiSquare) + " NDF = " + str(ndf) + " Prob =  " + str(Pvalue) + "  Best Prob so far = " + str(PvalueBest))
+
+            rms_step_plus = rms_step_plus - 0.1
+            
+        rms_step_minus = rms_step_minus - 0.1
+
+    if quiet:
+        histo.Fit("gaus", "0Q", "0", RangeLowBest, RangeUpBest)
+    else:
+        histo.Fit("gaus","0","0",RangeLowBest, RangeUpBest)
+        print("\n\n\nMean =     " + str(mean) + "    Xmax = " + str(Xmax) + "  RMS = " + str(rms) + "  WidthAtHalfMax = " + str(WidthAtHalfMaximum))
+        print("Fit found!")
+        print("Final fitting range used: [Mean(Xmax) - " + str(StepMinusBest) + " rms(WHF), Mean(Xmax) + " + str(StepPlusBest) + " rms(WHF) ] ")
+        print("ChiSquare = " + str(ChiSquareBest) + " NDF = " + str(ndfBest) + " Prob =     " + str(PvalueBest) + "\n\n")
+
+    return histo.GetListOfFunctions().FindObject("gaus")
+
+def tails_errors(n1, n2):
+    """Compute and return the lower and upper errors."""
+    if n1 == 0:
+        return 0, 0
+    elif n1 < 0 or n2 < 0:
+        raise RuntimeError(f"Negative number of entries! n1={n1}, n2={n2}")
+    elif n1 < n2:
+        raise RuntimeError(f"n1 is smaller than n2! n1={n1}, n2={n2}")
+    else:
+        return ( n2/n1 - (n2/n1 + 0.5/n1 - np.sqrt(n2/pow(n1,2)*(1-n2/n1) + 0.25/pow(n1,2))) / (1+1.0/n1),
+                 (n2/n1 + 0.5/n1 + np.sqrt(n2/pow(n1,2)*(1-n2/n1) + 0.25/pow(n1,2))) / (1+1.0/n1) - n2/n1 )
+
 def rate_errorbar_declutter(eff, err, yaxmin, frac=0.01):
     """
     Filter uncertainties if they lie below the minimum (vertical) axis value.
@@ -146,9 +231,7 @@ class HLabels:
     _resol_types = ('RecoOverGen', 'CorrOverGen', 'CorrOverReco')
     
     def __init__(self, atype):
-        assert (
-            atype in self._eff_types or atype in self._resol_types
-        ), f"Invalid type: {atype}"
+        assert atype in self._eff_types or atype in self._resol_types, f"Invalid type: {atype}"
         self.mytype = atype
 
     @staticmethod
@@ -406,6 +489,64 @@ if __name__ == '__main__':
 
         plotter.save( os.path.join(histo2d_dir, Var2D) )
 
+    # Tails
+    nsigmas = (1, 2)
+    ideal_fraction = {1: 0.3173, 2: 0.0455, 3: 0.0027}
+    pt_bins = np.array((20, 30, 40, 60, 90, 150, 250, 400, 650, 1000))
+    Var2DList = ('h2d_PtRecoOverGen_GenPt', )
+
+    for Var2D in Var2DList:
+        plotter = Plotter(args.sample_label, fontsize=15)
+        root_hist = CheckRootFile(f"{dqm_dir}/{Var2D}") 
+
+        tail_fracs, tail_low_errors, tail_high_errors = ({ns:[] for ns in nsigmas} for _ in range(3))
+        for ipt, (low,high) in enumerate(zip(pt_bins[:-1],pt_bins[1:])):
+            if root_hist.GetXaxis().FindBin(low) <= 0 and root_hist.GetXaxis().FindBin(high) >= root_hist.GetNbinsX():
+                mess = f"Low bin: {low} | Low value: {root_hist.GetXaxis().FindBin(low)} | High bin: {high} | High value: {root_hist.GetXaxis().FindBin(high)}"
+                raise RuntimeError(mess)
+
+            hproj = root_hist.ProjectionY(root_hist.GetName() + "_proj" + str(ipt),
+                                          root_hist.GetXaxis().FindBin(low), root_hist.GetXaxis().FindBin(high), "e")
+
+            integr_start, integr_stop = 1, hproj.GetNbinsX()+1 # includes overflow
+            integr = hproj.Integral(integr_start, integr_stop) 
+            gausTF1 = findBestGaussianCoreFit(hproj)
+
+            # plot individual projection + gaussian core fit
+            plotter_single = Plotter(args.sample_label, fontsize=15)
+            nbins, bin_edges, bin_centers, bin_widths = define_bins(hproj)
+            values, errors = histo_values_errors(hproj)
+            pt_label = str(low) + " < $p_T$ < " + str(high) + " GeV"
+            plotter_single.ax.errorbar(bin_centers, values, xerr=None, yerr=errors/2, fmt='o', markersize=3,
+                                       color='black', label=pt_label, **errorbar_kwargs)
+
+            for ins, ns in enumerate(nsigmas):
+                xfunc = np.linspace(gausTF1.GetParameter(1) - ns*abs(gausTF1.GetParameter(2)), gausTF1.GetParameter(1) + ns*abs(gausTF1.GetParameter(2)))
+                yfunc = np.array([gausTF1.Eval(xi) for xi in xfunc])
+                plotter_single.ax.plot(xfunc, yfunc, 'o', color=colors[ins], linewidth=2, linestyle='--', label=f'{ns}$\sigma$ gaussian coverage')
+     
+                tail_low = hproj.Integral(integr_start, hproj.FindBin(gausTF1.GetParameter(1) - ns*abs(gausTF1.GetParameter(2))))
+                tail_high = hproj.Integral(hproj.FindBin(gausTF1.GetParameter(1) + ns*abs(gausTF1.GetParameter(2))), integr_stop)
+                tail_fracs[ns].append((tail_low + tail_high) / integr)
+                tail_frac_errlo, tail_frac_errhi = tails_errors(integr, tail_low + tail_high)
+                tail_low_errors[ns].append(tail_frac_errlo)
+                tail_high_errors[ns].append(tail_frac_errhi)
+            xlabel = hproj.GetXaxis().GetTitle().replace('#', '\\')
+            plotter_single.labels(x=f"{xlabel}", y=f"# Jets", legend_title='')
+            plotter_single.save( os.path.join(args.odir, Var2D  + '_tails_fit' + str(ipt)) )
+
+        pt_centers = pt_bins[:-1] + (pt_bins[1:] - pt_bins[:-1])/2
+        for ins, ns in enumerate(nsigmas):
+            plotter.ax.errorbar(pt_centers, tail_fracs[ns], xerr=None, yerr=[tail_low_errors[ns],tail_low_errors[ns]],
+                                fmt='o', markersize=3, color=colors[ins], **errorbar_kwargs)
+            plotter.ax.stairs(tail_fracs[ns], pt_bins, color=colors[ins], linewidth=2)
+            plotter.ax.axhline(y=ideal_fraction[ns], color=colors[ins], linestyle='--', label=f'{ns}$\sigma$ coverage')
+        plotter.ax.set_xscale('log')
+        xlabel = root_hist.GetXaxis().GetTitle().replace('#', '\\')
+        plotter.labels(x=f"{xlabel}", y="Resolution Tail Fraction", legend_title='Ideal Gaussian')
+        plotter.save( os.path.join(args.odir, Var2D  + '_tails') )
+    
+    # Multiplicities    
     Var2DList = (
         'h2d_chEm_pt_B', 'h2d_chEm_pt_E', 'h2d_chEm_pt_F',
         'h2d_neEm_pt_B', 'h2d_neEm_pt_E', 'h2d_neEm_pt_F',
