@@ -8,10 +8,10 @@ import ROOT
 import os
 
 # --- Configuration Section ---
-file_paths = ['/afs/cern.ch/user/g/gjedrzej/private/mainTask/CMSSW_15_0_11/src/Validation/CTPPS/test/simu/simu_2018_Greg.root',
-             '/afs/cern.ch/user/g/gjedrzej/private/mainTask/CMSSW_15_0_11/src/Validation/CTPPS/test/simu/simu_2018_64binsCalib.root',
-             '/afs/cern.ch/user/g/gjedrzej/private/mainTask/CMSSW_15_0_11/src/Validation/CTPPS/test/simu/simu_2018_64binsPhys.root']
-
+file_paths = ['simu_2018_Greg.root',
+              'simu_2018_64binsCalib.root',
+              'simu_2018_64binsPhys.root']
+              
 file_labels = ['Unfiltered', 'Calibration', 'Physics']
 
 #histogram names
@@ -84,7 +84,7 @@ for hist_3d_name in histogram_3d_names:
     c_all_phi.Divide(3, 1)
 
     # 2D projections for phi slices
-    c_phi_slices = ROOT.TCanvas('c_phi_slices', f'{hist_3d_name} Phi Slices', 2400, 800 * len(phi_slices))
+    c_phi_slices = ROOT.TCanvas('c_phi_slices', f'{hist_3d_name} Phi Slices', 3600, 1200 * len(phi_slices))
     c_phi_slices.Divide(3, len(phi_slices))
 
     files = []
@@ -144,6 +144,7 @@ for hist_3d_name in histogram_3d_names:
 
                 proj_slice.SetTitle(f'{file_labels[i]} ({phi_slice_labels[j]})')
                 proj_slice.GetXaxis().SetTitle("Xi")
+                proj_slice.SetStats(0)
                 if "Pt" in hist_3d_name:
                     proj_slice.GetYaxis().SetTitle("Pt")
                 elif "Theta" in hist_3d_name:

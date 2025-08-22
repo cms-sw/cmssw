@@ -8,7 +8,7 @@ import os
 
 # --- Configuration ---
 # Root file
-root_file_path = "/afs/cern.ch/user/g/gjedrzej/private/mainTask/CMSSW_15_0_11/src/Validation/CTPPS/test/simu/simu_2018_tracks.root"
+root_file_path = "simu_2018_tracks.root"
 # Set the output directory for plots
 output_directory = "./plots/plotsTracks/"
 # Define the sub-folders to process

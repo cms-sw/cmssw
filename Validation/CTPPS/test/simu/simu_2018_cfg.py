@@ -79,7 +79,8 @@ process.ctppsGregPlotter = cms.EDAnalyzer("CTPPSGregPlotter",
 process.ctppsGregDucer1 = cms.EDProducer("CTPPSGregDucer",
     tagTracks = cms.InputTag("GenParticlesNew"),
     hepMCTag = cms.InputTag("generator", "unsmeared"),
-    filename = cms.string("/afs/cern.ch/user/g/gjedrzej/private/mainTask/CMSSW_15_0_11/src/SimPPS/DirectSimProducer/cutFiles/thetaphilimits_-160urad_18cm_60cm_calib-nodet-xrphd-64bins.out")
+    # filename = cms.string("/afs/cern.ch/user/g/gjedrzej/private/mainTask/CMSSW_15_0_11/src/SimPPS/DirectSimProducer/cutFiles/thetaphilimits_-160urad_18cm_60cm_calib-nodet-xrphd-64bins.out")
+    filename = cms.string("../../../../SimPPS/DirectSimProducer/cutFiles/thetaphilimits_-160urad_18cm_60cm_calib-nodet-xrphd-64bins.out")
 )
 
 # Greg plotter 2 - Calibration
@@ -94,7 +95,8 @@ process.ctppsGregPlotter2 = cms.EDAnalyzer("CTPPSGregPlotter",
 process.ctppsGregDucer2 = cms.EDProducer("CTPPSGregDucer",
     tagTracks = cms.InputTag("GenParticlesNew"),
     hepMCTag = cms.InputTag("generator", "unsmeared"),
-    filename = cms.string("/afs/cern.ch/user/g/gjedrzej/private/mainTask/CMSSW_15_0_11/src/SimPPS/DirectSimProducer/cutFiles/thetaphilimits_-160urad_18cm_60cm_phys-nodet-xrphd-64bins.out")
+    # filename = cms.string("/afs/cern.ch/user/g/gjedrzej/private/mainTask/CMSSW_15_0_11/src/SimPPS/DirectSimProducer/cutFiles/thetaphilimits_-160urad_18cm_60cm_phys-nodet-xrphd-64bins.out")
+    filename = cms.string("../../../../SimPPS/DirectSimProducer/cutFiles/thetaphilimits_-160urad_18cm_60cm_phys-nodet-xrphd-64bins.out")
 
 )
 
