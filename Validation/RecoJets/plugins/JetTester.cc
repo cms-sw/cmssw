@@ -239,8 +239,8 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
   std::vector<double> PhiRange = {-3.5, 3.5};
   int n_PtBins = 50;
   std::vector<double> PtRange = {0, 1000};
-  int n_RespBins = 60;
-  std::vector<double> RespRange = {0, 3};
+  int n_RespBins = 70;
+  std::vector<double> RespRange = {0, 3.5};
 
   // Event variables
   mNvtx = ibooker.book1D("Nvtx", "number of vertices", 60, 0, 60);
