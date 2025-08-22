@@ -119,7 +119,7 @@ class StandardTester(object):
         if os.path.exists(self.devPath + rFile): fullPath = self.devPath + rFile
         return fullPath
 
-    def runTests(self, testList = None):
+    def runTests(self, testList = None, dontRun = False):
 
         actDir = os.getcwd()
 
@@ -145,8 +145,14 @@ class StandardTester(object):
             print('Preparing to run %s' % str(command))
             current = testit(dirName, command)
             self.threadList.append(current)
+
+            if dontRun:
+                continue
             current.start()
             time.sleep(random.randint(1,5)) # try to avoid race cond by sleeping random amount of time [1,5] sec 
+
+        if dontRun:
+            return
 
         # wait until all threads are finished
         while self.activeThreads() > 0:
@@ -239,8 +245,7 @@ def main(argv=None):
     if args.dump:
         tester.dumpTest()
     else:
-        if not args.noRun:
-            tester.runTests(args.tests)
+        tester.runTests(args.tests,args.noRun)
         if args.uploadDir:
             tester.upload(args.uploadDir)
 
