@@ -55,26 +55,26 @@ public:
   std::string getHistoId(uint32_t det_id, bool flag);
 
   struct DigiMEs {
-    MonitorElement* NumberOfDigisPerDet;
-    MonitorElement* DigiOccupancyP;
-    MonitorElement* DigiOccupancyS;
-    MonitorElement* ChargeXYMap;
-    MonitorElement* PositionOfDigisP;
-    MonitorElement* PositionOfDigisS;
-    MonitorElement* ChargeOfDigis;
-    MonitorElement* ChargeOfDigisVsWidth;
-    MonitorElement* TotalNumberOfDigisPerLayer;
-    MonitorElement* NumberOfHitDetectorsPerLayer;
-    MonitorElement* NumberOfClustersPerDet;
-    MonitorElement* ClusterWidth;
-    MonitorElement* ClusterPositionP;
-    MonitorElement* ClusterPositionS;
-    MonitorElement* FractionOfOvTBits;
-    MonitorElement* FractionOfOvTBitsVsEta;
-    MonitorElement* EtaOccupancyProfP;
-    MonitorElement* EtaOccupancyProfS;
-    unsigned int nDigiPerLayer;
-    unsigned int nHitDetsPerLayer;
+    MonitorElement* NumberOfDigisPerDet{nullptr};
+    MonitorElement* DigiOccupancyP{nullptr};
+    MonitorElement* DigiOccupancyS{nullptr};
+    MonitorElement* ChargeXYMap{nullptr};
+    MonitorElement* PositionOfDigisP{nullptr};
+    MonitorElement* PositionOfDigisS{nullptr};
+    MonitorElement* ChargeOfDigis{nullptr};
+    MonitorElement* ChargeOfDigisVsWidth{nullptr};
+    MonitorElement* TotalNumberOfDigisPerLayer{nullptr};
+    MonitorElement* NumberOfHitDetectorsPerLayer{nullptr};
+    MonitorElement* NumberOfClustersPerDet{nullptr};
+    MonitorElement* ClusterWidth{nullptr};
+    MonitorElement* ClusterPositionP{nullptr};
+    MonitorElement* ClusterPositionS{nullptr};
+    MonitorElement* FractionOfOvTBits{nullptr};
+    MonitorElement* FractionOfOvTBitsVsEta{nullptr};
+    MonitorElement* EtaOccupancyProfP{nullptr};
+    MonitorElement* EtaOccupancyProfS{nullptr};
+    unsigned int nDigiPerLayer{0};
+    unsigned int nHitDetsPerLayer{0};
   };
 
   struct Ph2DigiCluster {
@@ -84,10 +84,10 @@ public:
     int column;
   };
 
-  MonitorElement* XYPositionMap;
-  MonitorElement* RZPositionMap;
-  MonitorElement* XYOccupancyMap;
-  MonitorElement* RZOccupancyMap;
+  MonitorElement* XYPositionMap{nullptr};
+  MonitorElement* RZPositionMap{nullptr};
+  MonitorElement* XYOccupancyMap{nullptr};
+  MonitorElement* RZOccupancyMap{nullptr};
 
 private:
   void bookLayerHistos(DQMStore::IBooker& ibooker, unsigned int det_id);
@@ -509,9 +509,6 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
     std::ostringstream HistoName;
     DigiMEs local_mes;
 
-    local_mes.nDigiPerLayer = 0;
-    local_mes.nHitDetsPerLayer = 0;
-
     edm::ParameterSet Parameters = config_.getParameter<edm::ParameterSet>("NumberOfDigisPerDetH");
     edm::ParameterSet EtaParameters = config_.getParameter<edm::ParameterSet>("EtaH");
     HistoName.str("");
@@ -522,8 +519,6 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
                                                      Parameters.getParameter<int32_t>("Nbins"),
                                                      Parameters.getParameter<double>("xmin"),
                                                      Parameters.getParameter<double>("xmax"));
-    else
-      local_mes.NumberOfDigisPerDet = nullptr;
 
     Parameters = config_.getParameter<edm::ParameterSet>("TotalNumberOfDigisPerLayerH");
     HistoName.str("");
@@ -534,8 +529,6 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
                                                             Parameters.getParameter<int32_t>("Nbins"),
                                                             Parameters.getParameter<double>("xmin"),
                                                             Parameters.getParameter<double>("xmax"));
-    else
-      local_mes.TotalNumberOfDigisPerLayer = nullptr;
 
     Parameters = config_.getParameter<edm::ParameterSet>("NumberOfHitDetsPerLayerH");
     HistoName.str("");
@@ -546,8 +539,6 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
                                                               Parameters.getParameter<int32_t>("Nbins"),
                                                               Parameters.getParameter<double>("xmin"),
                                                               Parameters.getParameter<double>("xmax"));
-    else
-      local_mes.NumberOfHitDetectorsPerLayer = nullptr;
 
     // Plots only for the inner pixel
     if (pixelFlag_) {
@@ -563,8 +554,6 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
                                                Parameters.getParameter<int32_t>("Nybins"),
                                                Parameters.getParameter<double>("ymin"),
                                                Parameters.getParameter<double>("ymax"));
-      else
-        local_mes.ChargeXYMap = nullptr;
 
       Parameters = config_.getParameter<edm::ParameterSet>("DigiChargeH");
       HistoName.str("");
@@ -575,8 +564,6 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
                                                  Parameters.getParameter<int32_t>("Nbins"),
                                                  Parameters.getParameter<double>("xmin"),
                                                  Parameters.getParameter<double>("xmax"));
-      else
-        local_mes.ChargeOfDigis = nullptr;
 
       // For standalone clusteriser
       if (clsFlag_) {
@@ -592,8 +579,6 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
                                                           WidthParameters.getParameter<int32_t>("Nbins"),
                                                           WidthParameters.getParameter<double>("xmin"),
                                                           WidthParameters.getParameter<double>("xmax"));
-        else
-          local_mes.ChargeOfDigisVsWidth = nullptr;
       }
     }
     // For outer tracker modules (S-type histograms)
@@ -607,8 +592,6 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
                                                   Parameters.getParameter<int32_t>("Nbins"),
                                                   Parameters.getParameter<double>("xmin"),
                                                   Parameters.getParameter<double>("xmax"));
-      else
-        local_mes.DigiOccupancyS = nullptr;
 
       HistoName.str("");
       HistoName << "DigiOccupancyVsEtaS";
@@ -621,8 +604,6 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
                                                           Parameters.getParameter<double>("xmin"),
                                                           Parameters.getParameter<double>("xmax"),
                                                           "");
-      else
-        local_mes.EtaOccupancyProfS = nullptr;
 
       Parameters = config_.getParameter<edm::ParameterSet>("PositionOfDigisSH");
       HistoName.str("");
@@ -636,8 +617,6 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
                                                     Parameters.getParameter<int32_t>("Nybins"),
                                                     Parameters.getParameter<double>("ymin"),
                                                     Parameters.getParameter<double>("ymax"));
-      else
-        local_mes.PositionOfDigisS = nullptr;
 
       // For standalone clusteriser
       if (clsFlag_) {
@@ -653,8 +632,6 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
                                                       Parameters.getParameter<int32_t>("Nybins"),
                                                       Parameters.getParameter<double>("ymin"),
                                                       Parameters.getParameter<double>("ymax"));
-        else
-          local_mes.ClusterPositionS = nullptr;
       }
       // Only for the S-type sensor of PS module
       // FracOfOverThresholdBits is only available for S-type sensor of PS module
@@ -675,8 +652,6 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
                                                                  Parameters.getParameter<double>("xmin"),
                                                                  Parameters.getParameter<double>("xmax"),
                                                                  "");
-        else
-          local_mes.FractionOfOvTBitsVsEta = nullptr;
       }
     }
 
@@ -691,8 +666,6 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
                                                   Parameters.getParameter<int32_t>("Nbins"),
                                                   Parameters.getParameter<double>("xmin"),
                                                   Parameters.getParameter<double>("xmax"));
-      else
-        local_mes.DigiOccupancyP = nullptr;
 
       HistoName.str("");
       HistoName << "DigiOccupancyVsEtaP";
@@ -705,8 +678,6 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
                                                           Parameters.getParameter<double>("xmin"),
                                                           Parameters.getParameter<double>("xmax"),
                                                           "");
-      else
-        local_mes.EtaOccupancyProfP = nullptr;
 
       Parameters = config_.getParameter<edm::ParameterSet>("PositionOfDigisPH");
       HistoName.str("");
@@ -720,8 +691,6 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
                                                     Parameters.getParameter<int32_t>("Nybins"),
                                                     Parameters.getParameter<double>("ymin"),
                                                     Parameters.getParameter<double>("ymax"));
-      else
-        local_mes.PositionOfDigisP = nullptr;
 
       if (clsFlag_) {
         Parameters = config_.getParameter<edm::ParameterSet>("ClusterPositionPH");
@@ -736,8 +705,6 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
                                                       Parameters.getParameter<int32_t>("Nybins"),
                                                       Parameters.getParameter<double>("ymin"),
                                                       Parameters.getParameter<double>("ymax"));
-        else
-          local_mes.ClusterPositionP = nullptr;
       }
     }
 
@@ -752,8 +719,6 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
                                                           Parameters.getParameter<int32_t>("Nbins"),
                                                           Parameters.getParameter<double>("xmin"),
                                                           Parameters.getParameter<double>("xmax"));
-      else
-        local_mes.NumberOfClustersPerDet = nullptr;
 
       Parameters = config_.getParameter<edm::ParameterSet>("ClusterWidthH");
       HistoName.str("");
@@ -764,8 +729,6 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
                                                 Parameters.getParameter<int32_t>("Nbins"),
                                                 Parameters.getParameter<double>("xmin"),
                                                 Parameters.getParameter<double>("xmax"));
-      else
-        local_mes.ClusterWidth = nullptr;
     }
 
     layerMEs.insert(std::make_pair(key, local_mes));
