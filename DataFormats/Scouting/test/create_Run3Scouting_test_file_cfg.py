@@ -91,12 +91,31 @@ process.run3ScoutingProducer = cms.EDProducer("TestWriteRun3Scouting",
     ),
     vertexesIntegralValues = cms.vint32(
         15,  25,  35
+    ),
+    ebRecHitsFloatingPointValues = cms.vdouble(
+        16.0,   26.0
+    ),
+    ebRecHitsIntegralValues = cms.vint32(
+        16,  26
+    ),
+    eeRecHitsFloatingPointValues = cms.vdouble(
+        17.0,   27.0
+    ),
+    eeRecHitsIntegralValues = cms.vint32(
+        17
+    ),
+    hbheRecHitsFloatingPointValues = cms.vdouble(
+        18.0
+    ),
+    hbheRecHitsIntegralValues = cms.vint32(
+        18
     )
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('testRun3Scouting.root')
-)
+                               fileName = cms.untracked.string('testRun3Scouting.root'),
+                               #splitLevel = cms.untracked.int32(0) # default is 99, uncomment for split level 0
+                               )
 
 process.path = cms.Path(process.run3ScoutingProducer)
 process.endPath = cms.EndPath(process.out)

@@ -42,8 +42,10 @@ protected:
 
   // Get index of a particular OrbitGapType in the vector, which is used as the value for filling the histogram
   int getOrbitGapIndex(uint8_t eventType, uint32_t laserType);
+  int getUHTRType(uint8_t eventType);
 
   std::vector<uint32_t> _eventtypes;
+  std::vector<uint32_t> _uHTRtypes;
 
   //	tags and tokens
   edm::InputTag taguMN_;
@@ -56,6 +58,8 @@ protected:
   edm::EDGetTokenT<HcalUMNioDigi> tokuMN_;
   edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
 
+  edm::InputTag _tagFEDs;
+  edm::EDGetTokenT<FEDRawDataCollection> _tokFEDs;
   //	cuts
   double lowHBHE_, lowHO_, lowHF_;
 
@@ -68,5 +72,11 @@ protected:
   hcaldqm::ContainerSingle2D _cEventType;
   hcaldqm::ContainerSingle2D _cTotalCharge;
   hcaldqm::ContainerSingleProf2D _cTotalChargeProfile;
+
+  // 1D histograms for uHTR eventType and uMNio eventType
+  hcaldqm::ContainerSingle1D _cEventType_uMNio;
+  hcaldqm::ContainerSingle1D _cEventType_uHTR;
+  // 2D histogram for UHTRType (analogous to _cEventType)
+  hcaldqm::ContainerSingle2D _cUHTRType;
 };
 #endif

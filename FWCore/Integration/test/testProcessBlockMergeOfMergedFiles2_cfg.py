@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # Intentionally reversing the order of process names in this series
-process = cms.Process("PROD1")
+process = cms.Process("MERGEOFMERGED")
 
 process.options = cms.untracked.PSet(
     numberOfStreams = cms.untracked.uint32(1),
@@ -19,16 +19,17 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('testProcessBlockMergeOfMergedFiles2.root')
 )
 
-process.intProducerBeginProcessBlock = cms.EDProducer("IntProducerBeginProcessBlock", ivalue = cms.int32(707))
+#NEW
+process.intProducerBeginProcessBlockMM = cms.EDProducer("IntProducerBeginProcessBlock", ivalue = cms.int32(404))
 
-process.intProducerEndProcessBlock = cms.EDProducer("IntProducerEndProcessBlock", ivalue = cms.int32(7000))
+process.intProducerEndProcessBlockMM = cms.EDProducer("IntProducerEndProcessBlock", ivalue = cms.int32(440))
 
-process.intProducerBeginProcessBlockB = cms.EDProducer("IntProducerBeginProcessBlock", ivalue = cms.int32(40000))
+process.intProducerBeginProcessBlockB = cms.EDProducer("IntProducerBeginProcessBlock", ivalue = cms.int32(308))
 
-process.intProducerEndProcessBlockB = cms.EDProducer("IntProducerEndProcessBlock", ivalue = cms.int32(400000))
+process.intProducerEndProcessBlockB = cms.EDProducer("IntProducerEndProcessBlock", ivalue = cms.int32(380))
 
-process.p = cms.Path(process.intProducerBeginProcessBlock *
-                     process.intProducerEndProcessBlock *
+process.p = cms.Path(process.intProducerBeginProcessBlockMM *
+                     process.intProducerEndProcessBlockMM *
                      process.intProducerBeginProcessBlockB *
                      process.intProducerEndProcessBlockB
 )

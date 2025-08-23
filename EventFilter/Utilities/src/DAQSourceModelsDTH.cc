@@ -476,8 +476,7 @@ int DataModeDTH::eventCounterCallback(
   if ((rawFd = ::open(name.c_str(), O_RDONLY)) < 0) {
     assert(rawFd == -1);
     found = false;
-    edm::LogError("EvFDaqDirector") << "parseFRDFileHeader - failed to open input file -: " << name << " : "
-                                    << strerror(errno);
+    edm::LogError("EvFDaqDirector") << "rawCounter - failed to open input file -: " << name << " : " << strerror(errno);
     return -1;
   }
   found = true;

@@ -50,10 +50,10 @@ modules on endpath p1ep2:
 All modules and modules in the current process whose products they consume:
 (This does not include modules from previous processes or the source)
 (Exclusively considers consumed Event and EventSetup products, not Run, Lumi, or ProcessBlock products)
-  IntProducer/'intProducerA'
-  IntProducer/'intProducerU'
-  IntVectorProducer/'intVectorProducer'
-  IntProducer/'intProducer'
+  TriggerResultInserter/'TriggerResults'
+  WhatsItAnalyzer/'WhatsItAnalyzer'
+    consumes products during Event from these EventSetup modules:
+      WhatsItESProducer/'' ESProducer
   TestFindProduct/'a1'
   TestFindProduct/'a2'
     consumes products from these modules:
@@ -64,21 +64,47 @@ All modules and modules in the current process whose products they consume:
   TestFindProduct/'a4'
     consumes products from these modules:
       IntProducer/'intProducerA'
-  TestContextAnalyzer/'test'
-  TestFindProduct/'testView1'
-    consumes products from these modules:
-      IntVectorProducer/'intVectorProducer'
-  IntProducer/'testStreamingProducer'
-  ConsumingStreamAnalyzer/'testStreamingAnalyzer'
-    consumes products from these modules:
-      IntProducer/'testStreamingProducer'
-  IntProducerBeginProcessBlock/'intProducerBeginProcessBlock'
-  IntProducerEndProcessBlock/'intProducerEndProcessBlock'
-  TestFindProduct/'processBlockTest1'
+  ConcurrentIOVAnalyzer/'concurrentIOVAnalyzer'
+    consumes products during Event from these EventSetup modules:
+      ConcurrentIOVESSource/'concurrentIOVESSource' ESSource
+      ConcurrentIOVESProducer/'concurrentIOVESProducer' ESProducer
+  ConsumeIOVTestInfoAnalyzer/'consumeIOVTestInfoAnalyzer'
+    consumes products during Event from these EventSetup modules:
+      MayConsumeWhatsIt/'mayConsumeWhatsIt' ESProducer
+  ConsumeIOVTestInfoAnalyzer/'consumeIOVTestInfoAnalyzer2'
+    consumes products during Event from these EventSetup modules:
+      MayConsumeWhatsIt/'mayConsumeWhatsIt' ESProducer
+  EndPathStatusInserter/'e'
+  IntProducer/'intProducer'
+  IntProducer/'intProducerA'
   IntProducer/'intProducerB'
+  IntProducerBeginProcessBlock/'intProducerBeginProcessBlock'
   IntProducer/'intProducerC'
   IntProducer/'intProducerD'
   IntProducer/'intProducerE'
+  IntProducerEndProcessBlock/'intProducerEndProcessBlock'
+  IntProducer/'intProducerU'
+  IntVectorProducer/'intVectorProducer'
+  PoolOutputModule/'out'
+    consumes products from these modules:
+      TriggerResultInserter/'TriggerResults'
+      IntProducer/'intProducerA'
+      IntProducer/'intProducer'
+      IntProducer/'intProducerU'
+      ConsumingIntProducer/'testManyConsumingProducer'
+      IntProducer/'testStreamingProducer'
+      IntVectorProducer/'intVectorProducer'
+  PathStatusInserter/'p'
+  PathStatusInserter/'p11'
+  EndPathStatusInserter/'p1ep2'
+  PathStatusInserter/'p2'
+  PathStatusInserter/'p3'
+  TestFindProduct/'processBlockTest1'
+  TestContextAnalyzer/'test'
+  PathStatusInserter/'testEventSetupPath'
+  ConsumingIntProducer/'testManyConsumingProducer'
+    consumes products from these modules:
+      TriggerResultInserter/'TriggerResults'
   RunLumiESAnalyzer/'testReadLumiESSource'
     consumes products during Event from these EventSetup modules:
       RunLumiESSource/'runLumiESSource' ESSource
@@ -109,39 +135,13 @@ All modules and modules in the current process whose products they consume:
   RunLumiESAnalyzer/'testReadLumiESSource3'
     consumes products during Event from these EventSetup modules:
       RunLumiESSource/'runLumiESSource' ESSource
-  ConcurrentIOVAnalyzer/'concurrentIOVAnalyzer'
-    consumes products during Event from these EventSetup modules:
-      ConcurrentIOVESSource/'concurrentIOVESSource' ESSource
-      ConcurrentIOVESProducer/'concurrentIOVESProducer' ESProducer
-  WhatsItAnalyzer/'WhatsItAnalyzer'
-    consumes products during Event from these EventSetup modules:
-      WhatsItESProducer/'' ESProducer
-  ConsumeIOVTestInfoAnalyzer/'consumeIOVTestInfoAnalyzer'
-    consumes products during Event from these EventSetup modules:
-      MayConsumeWhatsIt/'mayConsumeWhatsIt' ESProducer
-  ConsumeIOVTestInfoAnalyzer/'consumeIOVTestInfoAnalyzer2'
-    consumes products during Event from these EventSetup modules:
-      MayConsumeWhatsIt/'mayConsumeWhatsIt' ESProducer
-  ConsumingIntProducer/'testManyConsumingProducer'
+  ConsumingStreamAnalyzer/'testStreamingAnalyzer'
     consumes products from these modules:
-      TriggerResultInserter/'TriggerResults'
-  PoolOutputModule/'out'
-    consumes products from these modules:
-      TriggerResultInserter/'TriggerResults'
-      IntProducer/'intProducerA'
-      IntProducer/'intProducer'
-      IntProducer/'intProducerU'
-      ConsumingIntProducer/'testManyConsumingProducer'
       IntProducer/'testStreamingProducer'
+  IntProducer/'testStreamingProducer'
+  TestFindProduct/'testView1'
+    consumes products from these modules:
       IntVectorProducer/'intVectorProducer'
-  TriggerResultInserter/'TriggerResults'
-  PathStatusInserter/'p'
-  PathStatusInserter/'p2'
-  PathStatusInserter/'p3'
-  PathStatusInserter/'p11'
-  PathStatusInserter/'testEventSetupPath'
-  EndPathStatusInserter/'e'
-  EndPathStatusInserter/'p1ep2'
 All EventSetup modules:
   RunLumiESSource/'runLumiESSource'
   ConcurrentIOVESProducer/'concurrentIOVESProducer'
@@ -173,10 +173,14 @@ and the module type and module label of the EventSetup module producing the prod
 Next is the produceMethodID (counts setWhatProduced calls in ESProducers, otherwise 0).
 If the requested module label was specified, then there is a remark in parentheses
 stating whether it matched the actual module label of the producer.
-  IntProducer/'intProducerA'
-  IntProducer/'intProducerU'
-  IntVectorProducer/'intVectorProducer'
-  IntProducer/'intProducer'
+  TriggerResultInserter/'TriggerResults'
+  WhatsItAnalyzer/'WhatsItAnalyzer'
+    consumes from EventSetup:
+      GadgetRcd edmtest::WhatsIt '' Event ESProducer WhatsItESProducer/'WhatsItESProducer' 0
+      GadgetRcd edmtest::WhatsIt 'A' Event ESProducer WhatsItESProducer/'WhatsItESProducer' 1
+      GadgetRcd edmtest::WhatsIt 'B' Event ESProducer WhatsItESProducer/'WhatsItESProducer' 2
+      GadgetRcd edmtest::WhatsIt 'C' Event ESProducer WhatsItESProducer/'WhatsItESProducer' 3
+      GadgetRcd edmtest::WhatsIt 'D' Event ESProducer WhatsItESProducer/'WhatsItESProducer' 4
   TestFindProduct/'a1'
     consumes:
       edmtest::IntProduct 'source' '' ''
@@ -192,26 +196,59 @@ stating whether it matched the actual module label of the producer.
   TestFindProduct/'a4'
     consumes:
       edmtest::IntProduct 'intProducerA' '' 'PROD1'
-  TestContextAnalyzer/'test'
-  TestFindProduct/'testView1'
-    consumes:
-      int 'intVectorProducer' '' 'PROD1', element type
-  IntProducer/'testStreamingProducer'
-  ConsumingStreamAnalyzer/'testStreamingAnalyzer'
-    consumes:
-      edmtest::IntProduct 'testStreamingProducer' '' '', may consume
+  ConcurrentIOVAnalyzer/'concurrentIOVAnalyzer'
+    consumes from EventSetup:
+      ESTestRecordI edmtest::IOVTestInfo '' Event ESSource ConcurrentIOVESSource/'concurrentIOVESSource' 0
+      ESTestRecordI edmtest::IOVTestInfo 'fromESProducer' Event ESProducer ConcurrentIOVESProducer/'concurrentIOVESProducer' 0
+  ConsumeIOVTestInfoAnalyzer/'consumeIOVTestInfoAnalyzer'
+    consumes from EventSetup:
+      GadgetRcd edmtest::IOVTestInfo 'DependsOnMayConsume' Event ESProducer MayConsumeWhatsIt/'mayConsumeWhatsIt' 0
+  ConsumeIOVTestInfoAnalyzer/'consumeIOVTestInfoAnalyzer2'
+    consumes from EventSetup:
+      GadgetRcd edmtest::IOVTestInfo 'DependsOnMayConsume2' Event ESProducer MayConsumeWhatsIt/'mayConsumeWhatsIt' 1
+  EndPathStatusInserter/'e'
+  IntProducer/'intProducer'
+  IntProducer/'intProducerA'
+  IntProducer/'intProducerB'
   IntProducerBeginProcessBlock/'intProducerBeginProcessBlock'
+  IntProducer/'intProducerC'
+  IntProducer/'intProducerD'
+  IntProducer/'intProducerE'
   IntProducerEndProcessBlock/'intProducerEndProcessBlock'
+  IntProducer/'intProducerU'
+  IntVectorProducer/'intVectorProducer'
+  PoolOutputModule/'out'
+    consumes:
+      edm::TriggerResults 'TriggerResults' '' 'PROD1'
+      edmtest::IntProduct 'aliasForInt' '' 'PROD1'
+      edmtest::IntProduct 'intProducer' '' 'PROD1'
+      edmtest::IntProduct 'intProducerBeginProcessBlock' '' 'PROD1', processBlock
+      edmtest::IntProduct 'intProducerEndProcessBlock' '' 'PROD1', processBlock
+      edmtest::IntProduct 'intProducerEndProcessBlock' 'four' 'PROD1', processBlock
+      edmtest::IntProduct 'intProducerEndProcessBlock' 'three' 'PROD1', processBlock
+      edmtest::IntProduct 'intProducerEndProcessBlock' 'two' 'PROD1', processBlock
+      edmtest::IntProduct 'intProducerU' '' 'PROD1'
+      edmtest::IntProduct 'source' '' 'PROD1'
+      edmtest::IntProduct 'testManyConsumingProducer' '' 'PROD1'
+      edmtest::IntProduct 'testStreamingProducer' '' 'PROD1'
+      std::vector<int> 'intVectorProducer' '' 'PROD1'
+  PathStatusInserter/'p'
+  PathStatusInserter/'p11'
+  EndPathStatusInserter/'p1ep2'
+  PathStatusInserter/'p2'
+  PathStatusInserter/'p3'
   TestFindProduct/'processBlockTest1'
     consumes:
       edmtest::IntProduct 'intProducerBeginProcessBlock' '' '', processBlock
       edmtest::IntProduct 'intProducerBeginProcessBlock' '' 'PROD1', processBlock
       edmtest::IntProduct 'intProducerEndProcessBlock' '' '', processBlock
       edmtest::IntProduct 'intProducerEndProcessBlock' '' 'PROD1', processBlock
-  IntProducer/'intProducerB'
-  IntProducer/'intProducerC'
-  IntProducer/'intProducerD'
-  IntProducer/'intProducerE'
+  TestContextAnalyzer/'test'
+  PathStatusInserter/'testEventSetupPath'
+  ConsumingIntProducer/'testManyConsumingProducer'
+    consumes:
+      edm::TriggerResults 'TriggerResults' '' ''
+      edm::TriggerResults 'TriggerResults' '' 'PROD1'
   RunLumiESAnalyzer/'testReadLumiESSource'
     consumes from EventSetup:
       ESTestRecordC edmtest::IOVTestInfo '' Event ESSource RunLumiESSource/'runLumiESSource' 0
@@ -246,50 +283,13 @@ stating whether it matched the actual module label of the producer.
       ESTestRecordC edmtest::IOVTestInfo '' BeginLuminosityBlock, EventSetup module label mismatch, requested 'moduleLabelThatDoesNotMatch'
       ESTestRecordC edmtest::IOVTestInfo '' EndLuminosityBlock, EventSetup module label mismatch, requested 'moduleLabelThatDoesNotMatch'
       ESTestRecordC edmtest::IOVTestInfo '' EndRun, EventSetup module label mismatch, requested 'moduleLabelThatDoesNotMatch'
-  ConcurrentIOVAnalyzer/'concurrentIOVAnalyzer'
-    consumes from EventSetup:
-      ESTestRecordI edmtest::IOVTestInfo '' Event ESSource ConcurrentIOVESSource/'concurrentIOVESSource' 0
-      ESTestRecordI edmtest::IOVTestInfo 'fromESProducer' Event ESProducer ConcurrentIOVESProducer/'concurrentIOVESProducer' 0
-  WhatsItAnalyzer/'WhatsItAnalyzer'
-    consumes from EventSetup:
-      GadgetRcd edmtest::WhatsIt '' Event ESProducer WhatsItESProducer/'WhatsItESProducer' 0
-      GadgetRcd edmtest::WhatsIt 'A' Event ESProducer WhatsItESProducer/'WhatsItESProducer' 1
-      GadgetRcd edmtest::WhatsIt 'B' Event ESProducer WhatsItESProducer/'WhatsItESProducer' 2
-      GadgetRcd edmtest::WhatsIt 'C' Event ESProducer WhatsItESProducer/'WhatsItESProducer' 3
-      GadgetRcd edmtest::WhatsIt 'D' Event ESProducer WhatsItESProducer/'WhatsItESProducer' 4
-  ConsumeIOVTestInfoAnalyzer/'consumeIOVTestInfoAnalyzer'
-    consumes from EventSetup:
-      GadgetRcd edmtest::IOVTestInfo 'DependsOnMayConsume' Event ESProducer MayConsumeWhatsIt/'mayConsumeWhatsIt' 0
-  ConsumeIOVTestInfoAnalyzer/'consumeIOVTestInfoAnalyzer2'
-    consumes from EventSetup:
-      GadgetRcd edmtest::IOVTestInfo 'DependsOnMayConsume2' Event ESProducer MayConsumeWhatsIt/'mayConsumeWhatsIt' 1
-  ConsumingIntProducer/'testManyConsumingProducer'
+  ConsumingStreamAnalyzer/'testStreamingAnalyzer'
     consumes:
-      edm::TriggerResults 'TriggerResults' '' ''
-      edm::TriggerResults 'TriggerResults' '' 'PROD1'
-  PoolOutputModule/'out'
+      edmtest::IntProduct 'testStreamingProducer' '' '', may consume
+  IntProducer/'testStreamingProducer'
+  TestFindProduct/'testView1'
     consumes:
-      edm::TriggerResults 'TriggerResults' '' 'PROD1'
-      edmtest::IntProduct 'aliasForInt' '' 'PROD1'
-      edmtest::IntProduct 'intProducer' '' 'PROD1'
-      edmtest::IntProduct 'intProducerBeginProcessBlock' '' 'PROD1', processBlock
-      edmtest::IntProduct 'intProducerEndProcessBlock' '' 'PROD1', processBlock
-      edmtest::IntProduct 'intProducerEndProcessBlock' 'four' 'PROD1', processBlock
-      edmtest::IntProduct 'intProducerEndProcessBlock' 'three' 'PROD1', processBlock
-      edmtest::IntProduct 'intProducerEndProcessBlock' 'two' 'PROD1', processBlock
-      edmtest::IntProduct 'intProducerU' '' 'PROD1'
-      edmtest::IntProduct 'source' '' 'PROD1'
-      edmtest::IntProduct 'testManyConsumingProducer' '' 'PROD1'
-      edmtest::IntProduct 'testStreamingProducer' '' 'PROD1'
-      std::vector<int> 'intVectorProducer' '' 'PROD1'
-  TriggerResultInserter/'TriggerResults'
-  PathStatusInserter/'p'
-  PathStatusInserter/'p2'
-  PathStatusInserter/'p3'
-  PathStatusInserter/'p11'
-  PathStatusInserter/'testEventSetupPath'
-  EndPathStatusInserter/'e'
-  EndPathStatusInserter/'p1ep2'
+      int 'intVectorProducer' '' 'PROD1', element type
 All EventSetup modules (listed by class and label) and all their consumed products.
 These modules can only consume EventSetup products. These are listed by record type,
 data type, product label, whether the module is ESSource, ESProducer, or ESProducerLooper,

@@ -322,6 +322,8 @@ With --checkInputs option this throws an error.
                     if self.wm and self.revertDqmio=='yes':
                         cmd=cmd.replace('DQMIO','DQM')
                         cmd=cmd.replace('--filetype DQM','')
+                    if os.getenv("CMSSW_USE_IBEOS","false")=="true":
+                        cmd="export CMSSW_USE_IBEOS=true; "+cmd
                 commands.append(cmd)
                 ranStepList.append(stepName)
                 stepIndex+=1

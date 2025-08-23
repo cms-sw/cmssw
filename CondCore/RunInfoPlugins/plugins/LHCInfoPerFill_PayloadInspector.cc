@@ -3,6 +3,7 @@
 #include "CondFormats/RunInfo/interface/LHCInfoPerFill.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "utils.h"  // local
 #include <sstream>
 #include <memory>
 #include "TLatex.h"
@@ -10,10 +11,12 @@
 
 namespace {
 
-  class LHCInfoPerFill_Display : public cond::payloadInspector::PlotImage<LHCInfoPerFill> {
+  class LHCInfoPerFill_Display
+      : public cond::payloadInspector::PlotImage<LHCInfoPerFill, cond::payloadInspector::SINGLE_IOV> {
   public:
     LHCInfoPerFill_Display()
-        : cond::payloadInspector::PlotImage<LHCInfoPerFill>("LHCInfoPerFill Inspector - Display") {}
+        : cond::payloadInspector::PlotImage<LHCInfoPerFill, cond::payloadInspector::SINGLE_IOV>(
+              "LHCInfoPerFill Inspector - Display") {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
@@ -64,9 +67,16 @@ namespace {
       t1.DrawLatex(0.1, 0.18, "LHCInfo parameters:");
       t1.DrawLatex(0.1, 0.15, "payload:");
 
+      auto runLS = lhcInfo::unpack(std::get<0>(iov));
+
       t1.SetTextFont(42);
       t1.SetTextColor(4);
-      t1.DrawLatex(0.37, 0.182, Form("IOV %s", std::to_string(+std::get<0>(iov)).c_str()));
+      t1.DrawLatex(0.37,
+                   0.182,
+                   Form("IOV %s (#color[2]{%s , %s})",
+                        std::to_string(+std::get<0>(iov)).c_str(),
+                        std::to_string(runLS.first).c_str(),
+                        std::to_string(runLS.second).c_str()));
       t1.DrawLatex(0.21, 0.152, Form(" %s", (std::get<1>(iov)).c_str()));
 
       std::string fileName(m_imageFileName);

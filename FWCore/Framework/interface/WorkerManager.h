@@ -18,11 +18,8 @@
 #include <vector>
 
 namespace edm {
-  class ExceptionCollector;
   class ExceptionToActionTable;
   class ModuleRegistry;
-  class ModuleTypeResolverMaker;
-  class PreallocationConfiguration;
   class Worker;
   namespace eventsetup {
     class ESRecordsToProductResolverIndices;
@@ -40,13 +37,7 @@ namespace edm {
 
     void deleteModuleIfExists(std::string const& moduleLabel);
 
-    void addToUnscheduledWorkers(ParameterSet& pset,
-                                 SignallingProductRegistryFiller& preg,
-                                 PreallocationConfiguration const* prealloc,
-                                 std::shared_ptr<ProcessConfiguration const> processConfiguration,
-                                 std::string label,
-                                 std::set<std::string>& unscheduledLabels,
-                                 std::vector<std::string>& shouldBeUsedLabels);
+    void addToUnscheduledWorkers(ModuleDescription const& iDescription);
 
     template <typename T, typename U>
     void processOneOccurrenceAsync(WaitingTaskHolder,
@@ -74,20 +65,22 @@ namespace edm {
 
     ExceptionToActionTable const& actionTable() const { return *actionTable_; }
 
-    Worker* getWorker(ParameterSet& pset,
-                      SignallingProductRegistryFiller& preg,
-                      PreallocationConfiguration const* prealloc,
-                      std::shared_ptr<ProcessConfiguration const> processConfiguration,
-                      std::string const& label,
-                      bool addToAllWorkers = true);
-
     template <typename T>
+      requires requires(T const& x) { x.moduleDescription(); }
     Worker* getWorkerForModule(T const& module) {
       auto* worker = getWorkerForExistingModule(module.moduleDescription().moduleLabel());
       assert(worker != nullptr);
       assert(worker->matchesBaseClassPointer(static_cast<typename T::ModuleType const*>(&module)));
       return worker;
     }
+
+    Worker* getWorkerForModule(edm::ModuleDescription const& iDescription) {
+      auto* worker = getWorkerForExistingModule(iDescription.moduleLabel());
+      assert(worker != nullptr);
+      assert(worker->description() == &iDescription);
+      return worker;
+    }
+
     void resetAll();
 
   private:

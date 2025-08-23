@@ -126,7 +126,7 @@ bsLabels_ = cms.untracked.vstring("")
 alignments = configuration.get('alignments', None) # NOTE: aligments is plural
 if alignments is None:
     align = configuration['alignment'] # NOTE: alignment is singular
-    label = configuration['alignment'].get('label', align['title'].split()[0])
+    label = configuration['alignment'].get('label', 'alignment')
     alignments = {label: align}
 
 for label, align in alignments.items():

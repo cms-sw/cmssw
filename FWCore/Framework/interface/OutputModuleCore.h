@@ -97,6 +97,7 @@ namespace edm {
       std::string const& processName() const { return process_name_; }
       SelectedProductsForBranchType const& keptProducts() const { return keptProducts_; }
       std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const { return hasNewlyDroppedBranch_; }
+      std::vector<std::string> const& orderedProcessNames() const { return orderedProcessNames_; }
 
       static void fillDescription(
           ParameterSetDescription& desc,
@@ -171,6 +172,7 @@ namespace edm {
       // We do not own the ProductDescriptions to which we point.
       SelectedProductsForBranchType keptProducts_;
       std::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
+      std::vector<std::string> orderedProcessNames_;
 
       std::string process_name_;
       ProductSelectorRules productSelectorRules_;
@@ -208,8 +210,6 @@ namespace edm {
       void doOpenFile(FileBlock const& fb);
       void doRespondToOpenInputFile(FileBlock const& fb);
       void doRespondToCloseInputFile(FileBlock const& fb);
-      void doRespondToCloseOutputFile() {}
-      void doRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) {}
 
       /// Tell the OutputModule that is must end the current file.
       void doCloseFile();

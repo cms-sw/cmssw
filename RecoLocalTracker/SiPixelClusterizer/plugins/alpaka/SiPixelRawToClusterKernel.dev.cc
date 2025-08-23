@@ -565,18 +565,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         auto moduleStartFirstElement = cms::alpakatools::make_device_view(queue, clusters_d->view().moduleStart(), 1u);
         alpaka::memcpy(queue, nModules_Clusters_h, moduleStartFirstElement);
 
-        const auto elementsPerBlockFindClus = FindClus<TrackerTraits>::maxElementsPerBlock;
-        const auto workDivMaxNumModules =
-            cms::alpakatools::make_workdiv<Acc1D>(numberOfModules, elementsPerBlockFindClus);
+        {
+          const int blocks = 64;
+          const auto elementsPerBlockFindClus = FindClus<TrackerTraits>::maxElementsPerBlock;
+          const auto workDivMaxNumModules = cms::alpakatools::make_workdiv<Acc1D>(blocks, elementsPerBlockFindClus);
+
 #ifdef GPU_DEBUG
-        std::cout << " FindClus kernel launch with " << numberOfModules << " blocks of " << elementsPerBlockFindClus
-                  << " threadsPerBlockOrElementsPerThread\n";
+          std::cout << " FindClus kernel launch with " << numberOfModules << " blocks of " << elementsPerBlockFindClus
+                    << " threadsPerBlockOrElementsPerThread\n";
 #endif
-        alpaka::exec<Acc1D>(
-            queue, workDivMaxNumModules, FindClus<TrackerTraits>{}, digis_d->view(), clusters_d->view(), wordCounter);
+          alpaka::exec<Acc1D>(
+              queue, workDivMaxNumModules, FindClus<TrackerTraits>{}, digis_d->view(), clusters_d->view(), wordCounter);
 #ifdef GPU_DEBUG
-        alpaka::wait(queue);
+          alpaka::wait(queue);
 #endif
+        }
 
         constexpr auto threadsPerBlockChargeCut = 256;
         const auto workDivChargeCut = cms::alpakatools::make_workdiv<Acc1D>(numberOfModules, threadsPerBlockChargeCut);

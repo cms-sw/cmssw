@@ -12,19 +12,19 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDPutToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EventSetup.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/SynchronizingEDProducer.h"
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/global/EDProducer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
-#include "RecoTracker/LST/interface/LSTOutput.h"
+#include "RecoTracker/LSTCore/interface/alpaka/TrackCandidatesDeviceCollection.h"
 
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
-  class LSTProducer : public stream::SynchronizingEDProducer<> {
+  class LSTProducer : public global::EDProducer<> {
   public:
     LSTProducer(edm::ParameterSet const& config)
-        : SynchronizingEDProducer(config),
+        : EDProducer(config),
           lstInputToken_{consumes(config.getParameter<edm::InputTag>("lstInput"))},
           lstESToken_{esConsumes(edm::ESInputTag("", config.getParameter<std::string>("ptCutLabel")))},
           verbose_(config.getParameter<bool>("verbose")),
@@ -33,25 +33,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           tcpLSTriplets_(config.getParameter<bool>("tcpLSTriplets")),
           lstOutputToken_{produces()} {}
 
-    void acquire(device::Event const& event, device::EventSetup const& setup) override {
+    void produce(edm::StreamID sid, device::Event& iEvent, const device::EventSetup& iSetup) const override {
+      lst::LST lst;
       // Inputs
-      auto const& lstInputDC = event.get(lstInputToken_);
+      auto const& lstInputDC = iEvent.get(lstInputToken_);
+      auto const& lstESDeviceData = iSetup.getData(lstESToken_);
 
-      auto const& lstESDeviceData = setup.getData(lstESToken_);
+      lst.run(iEvent.queue(),
+              verbose_,
+              static_cast<float>(ptCut_),
+              &lstESDeviceData,
+              &lstInputDC,
+              nopLSDupClean_,
+              tcpLSTriplets_);
 
-      lst_.run(event.queue(),
-               verbose_,
-               static_cast<float>(ptCut_),
-               &lstESDeviceData,
-               &lstInputDC,
-               nopLSDupClean_,
-               tcpLSTriplets_);
-    }
-
-    void produce(device::Event& event, device::EventSetup const&) override {
       // Output
-      LSTOutput lstOutput(lst_.hits(), lst_.len(), lst_.seedIdx(), lst_.trackCandidateType());
-      event.emplace(lstOutputToken_, std::move(lstOutput));
+      auto lstTrackCandidates = lst.getTrackCandidates();
+      iEvent.emplace(lstOutputToken_, std::move(*lstTrackCandidates.release()));
     }
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -66,15 +64,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
   private:
-    device::EDGetToken<lst::LSTInputDeviceCollection> lstInputToken_;
-    device::ESGetToken<lst::LSTESData<Device>, TrackerRecoGeometryRecord> lstESToken_;
+    const device::EDGetToken<lst::LSTInputDeviceCollection> lstInputToken_;
+    const device::ESGetToken<lst::LSTESData<Device>, TrackerRecoGeometryRecord> lstESToken_;
     const bool verbose_;
     const double ptCut_;
     const bool nopLSDupClean_;
     const bool tcpLSTriplets_;
-    edm::EDPutTokenT<LSTOutput> lstOutputToken_;
-
-    lst::LST lst_;
+    const device::EDPutToken<lst::TrackCandidatesBaseDeviceCollection> lstOutputToken_;
   };
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

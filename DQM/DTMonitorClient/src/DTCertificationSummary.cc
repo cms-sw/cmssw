@@ -18,9 +18,16 @@
 using namespace std;
 using namespace edm;
 
-DTCertificationSummary::DTCertificationSummary(const ParameterSet& pset) {}
+DTCertificationSummary::DTCertificationSummary(const ParameterSet& pset) : DQMEDHarvester(pset) {}
 
 DTCertificationSummary::~DTCertificationSummary() {}
+
+void DTCertificationSummary::fillDescriptions(edm::ConfigurationDescriptions& iConfig) {
+  edm::ParameterSetDescription pset;
+  DQMEDHarvester::fillDescription(pset);
+
+  iConfig.addDefault(pset);
+}
 
 void DTCertificationSummary::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
                                                    DQMStore::IGetter& igetter,

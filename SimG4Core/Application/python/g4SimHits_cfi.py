@@ -347,6 +347,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         EndPrintTrackID = cms.int32(0)
     ),
     SteppingAction = cms.PSet(
+        common_MCtruth,
         common_maximum_time,
         CMStoZDCtransport       = cms.bool(False),
         MaxNumberOfSteps        = cms.int32(20000),

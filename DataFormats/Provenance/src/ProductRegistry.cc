@@ -10,6 +10,7 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 
 #include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
+#include "DataFormats/Provenance/interface/processingOrderMerge.h"
 
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -197,16 +198,24 @@ namespace edm {
     return result;
   }
 
-  void ProductRegistry::updateFromInput(ProductList const& other) {
+  void ProductRegistry::updateFromInput(ProductList const& other, std::vector<std::string> const& processOrder) {
     for (auto const& product : other) {
       copyProduct(product.second);
     }
+    updateProcessOrder(processOrder);
   }
 
-  void ProductRegistry::updateFromInput(std::vector<ProductDescription> const& other) {
+  void ProductRegistry::updateFromInput(std::vector<ProductDescription> const& other,
+                                        std::vector<std::string> const& processOrder) {
     for (ProductDescription const& productDescription : other) {
       copyProduct(productDescription);
     }
+    updateProcessOrder(processOrder);
+  }
+
+  void ProductRegistry::updateProcessOrder(std::vector<std::string> const& processOrder) {
+    throwIfFrozen();
+    processingOrderMerge(processOrder, transient_.processOrder_);
   }
 
   void ProductRegistry::setUnscheduledProducts(std::set<std::string> const& unscheduledLabels) {
@@ -241,6 +250,13 @@ namespace edm {
   std::string ProductRegistry::merge(ProductRegistry const& other,
                                      std::string const& fileName,
                                      ProductDescription::MatchMode branchesMustMatch) {
+    if (branchesMustMatch == ProductDescription::FromInputToCurrent) {
+      assert(transient_.processOrder_.size() == 1);
+      transient_.processOrder_.insert(
+          transient_.processOrder_.end(), other.transient_.processOrder_.begin(), other.transient_.processOrder_.end());
+    } else {
+      processingOrderMerge(other.processOrder(), transient_.processOrder_);
+    }
     std::ostringstream differences;
 
     ProductRegistry::ProductList::iterator j = productList_.begin();
@@ -435,8 +451,9 @@ namespace edm {
       throwMissingDictionariesException(missingDictionaries, context, producedTypes, branchNamesForMissing);
     }
 
+    std::string_view processNameSV(processName ? std::string_view(*processName) : std::string_view());
     for (auto& iterProductLookup : new_productLookups) {
-      iterProductLookup->setFrozen();
+      iterProductLookup->setFrozen(processNameSV);
     }
     for (size_t i = 0; i < new_productLookups.size(); ++i) {
       transient_.productLookups_[i] = std::move(new_productLookups[i]);

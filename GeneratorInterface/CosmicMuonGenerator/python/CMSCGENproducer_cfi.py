@@ -41,5 +41,6 @@ generator = cms.EDProducer("CosMuoGenProducer",
     MaxEnu = cms.double(10000.),                
     NuProdAlt = cms.double(7.5e6),                       
     AcptAllMu = cms.bool(False),                
+    SurfaceDepth = cms.double(0.0),
     Verbosity = cms.bool(False)
 )

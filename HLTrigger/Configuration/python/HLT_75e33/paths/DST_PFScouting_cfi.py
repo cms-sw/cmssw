@@ -46,8 +46,8 @@ DST_PFScouting = cms.Path(
     HLTBeginSequence
     + hltL1GTAcceptFilter
     + HLTRawToDigiSequence
-    + HLTTICLLocalRecoSequence
     + HLTLocalrecoSequence
+    + HLTTICLLocalRecoSequence
     + HLTTrackingSequence
     + HLTMuonsSequence
     + HLTParticleFlowSequence

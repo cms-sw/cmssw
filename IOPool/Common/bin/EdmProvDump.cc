@@ -27,6 +27,8 @@
 
 #include "boost/program_options.hpp"
 
+#include <fmt/format.h>
+
 #include <cassert>
 #include <iostream>
 #include <memory>
@@ -34,10 +36,8 @@
 #include <optional>
 #include <set>
 #include <sstream>
+#include <string_view>
 #include <vector>
-
-typedef std::map<std::string, std::vector<edm::ProductDescription>> IdToBranches;
-typedef std::map<std::pair<std::string, std::string>, IdToBranches> ModuleToIdBranches;
 
 static std::ostream& prettyPrint(std::ostream& oStream,
                                  edm::ParameterSet const& iPSet,
@@ -50,28 +50,46 @@ static std::string const source = std::string("source");
 static std::string const input = std::string("@main_input");
 
 namespace {
-  typedef std::map<edm::ParameterSetID, edm::ParameterSetBlob> ParameterSetMap;
+  struct ModuleInformation {
+    std::set<unsigned int> processSimpleIDs;
+    std::set<edm::ProductDescription> products;
+  };
+  // key is ParameterSetID string representation
+  using IdToBranches = std::map<std::string, ModuleInformation>;
+  // key is data product's (process name, module label)
+  using ModuleToIdBranches = std::map<std::pair<std::string, std::string>, IdToBranches>;
+
+  using ParameterSetMap = std::map<edm::ParameterSetID, edm::ParameterSetBlob>;
 
   class HistoryNode {
   public:
     HistoryNode() = default;
 
-    HistoryNode(edm::ProcessConfiguration const& iConfig,
-                unsigned int iSimpleId,
-                bool printHardwareResourcesDescription)
-        : config_(iConfig),
-          simpleId_(iSimpleId),
-          printHardwareResourcesDescription_(printHardwareResourcesDescription) {}
-
-    void addChild(HistoryNode const& child) { children_.push_back(child); }
+    HistoryNode(edm::ProcessConfiguration const& iConfig, unsigned int iSimpleId)
+        : config_(iConfig), simpleId_(iSimpleId) {}
 
     edm::ParameterSetID const& parameterSetID() const { return config_.parameterSetID(); }
 
     std::string const& processName() const { return config_.processName(); }
 
-    std::size_t size() const { return children_.size(); }
+    void print(std::ostream& os) const { os << config_.processName() << " [" << simpleId_ << "]"; }
 
-    HistoryNode* lastChildAddress() { return &children_.back(); }
+    edm::ProcessConfigurationID configurationID() const { return config_.id(); }
+
+  private:
+    edm::ProcessConfiguration config_;
+    unsigned int simpleId_ = 0;
+  };
+
+  class HistoryChain {
+  public:
+    explicit HistoryChain(edm::ProcessHistoryID id) : historyId_(id) {}
+
+    void addChild(HistoryNode const& child) { children_.push_back(child); }
+
+    void reserve(std::size_t s) { children_.reserve(s); }
+
+    std::size_t size() const { return children_.size(); }
 
     typedef std::vector<HistoryNode>::const_iterator const_iterator;
     typedef std::vector<HistoryNode>::iterator iterator;
@@ -82,73 +100,37 @@ namespace {
     const_iterator begin() const { return children_.begin(); }
     const_iterator end() const { return children_.end(); }
 
-    void print(std::ostream& os) const {
-      os << config_.processName() << " '" << config_.releaseVersion() << "' [" << simpleId_ << "]  ("
-         << config_.parameterSetID() << ")";
-      if (printHardwareResourcesDescription_) {
-        auto const& hwresources = config_.hardwareResourcesDescription();
-        os << "  (" << hwresources.microarchitecture;
-        if (not hwresources.selectedAccelerators.empty()) {
-          os << "; " << hwresources.selectedAccelerators.front();
-          for (auto it = hwresources.selectedAccelerators.begin() + 1; it != hwresources.selectedAccelerators.end();
-               ++it) {
-            os << "," << *it;
-          }
-        }
-        os << ")";
-      }
-      os << std::endl;
-    }
-
-    void printHistory(std::string const& iIndent = std::string("  ")) const;
-    void printEventSetupHistory(ParameterSetMap const& iPSM,
-                                std::vector<std::string> const& iFindMatch,
-                                std::ostream& oErrorLog) const;
-    void printOtherModulesHistory(ParameterSetMap const& iPSM,
-                                  ModuleToIdBranches const&,
-                                  std::vector<std::string> const& iFindMatch,
-                                  std::ostream& oErrorLog) const;
-    void printTopLevelPSetsHistory(ParameterSetMap const& iPSM,
-                                   std::vector<std::string> const& iFindMatch,
-                                   std::ostream& oErrorLog) const;
-
-    edm::ProcessConfigurationID configurationID() const { return config_.id(); }
-
-    static bool sort_;
+    void printHistory(bool showHistoryID) const;
 
   private:
-    edm::ProcessConfiguration config_;
     std::vector<HistoryNode> children_;
-    unsigned int simpleId_ = 0;
-    bool printHardwareResourcesDescription_ = false;
+    edm::ProcessHistoryID historyId_;
   };
 
   std::ostream& operator<<(std::ostream& os, HistoryNode const& node) {
     node.print(os);
     return os;
   }
-  bool HistoryNode::sort_ = false;
+
+  std::string formatHeader(std::string_view text) {
+    constexpr std::string_view decoration = "---------";
+    return fmt::format("{}{}{}", decoration, text, decoration);
+  }
 }  // namespace
 
-std::ostream& operator<<(std::ostream& os, edm::ProcessHistory& iHist) {
-  std::string const indentDelta("  ");
-  std::string indent = indentDelta;
-  for (auto const& process : iHist) {
-    // TODO: add printout of HardwareResourcesDescription
-    os << indent << process.processName() << " '" << process.releaseVersion() << "' (" << process.parameterSetID()
-       << ")" << std::endl;
-    indent += indentDelta;
+void HistoryChain::printHistory(bool showHistoryID) const {
+  constexpr std::string_view indent = "  ";
+  std::cout << "History: {" << std::endl;
+  if (showHistoryID) {
+    std::cout << indent << "History id: " << historyId_ << std::endl;
   }
-  return os;
-}
-
-void HistoryNode::printHistory(std::string const& iIndent) const {
-  std::string const indentDelta("  ");
-  const std::string& indent = iIndent;
-  for (auto const& item : *this) {
-    std::cout << indent << item;
-    item.printHistory(indent + indentDelta);
+  for (auto const& item : children_) {
+    std::cout << indent << item << std::endl;
+    if (showHistoryID) {
+      std::cout << indent << indent << "Configuration id: " << item.configurationID() << std::endl;
+    }
   }
+  std::cout << "}" << std::endl;
 }
 
 std::string eventSetupComponent(char const* iType,
@@ -168,62 +150,6 @@ std::string eventSetupComponent(char const* iType,
   return result.str();
 }
 
-void HistoryNode::printEventSetupHistory(ParameterSetMap const& iPSM,
-                                         std::vector<std::string> const& iFindMatch,
-                                         std::ostream& oErrorLog) const {
-  for (auto const& itH : *this) {
-    //Get ParameterSet for process
-    ParameterSetMap::const_iterator itFind = iPSM.find(itH.parameterSetID());
-    if (itFind == iPSM.end()) {
-      oErrorLog << "No ParameterSetID for " << itH.parameterSetID() << std::endl;
-    } else {
-      edm::ParameterSet processConfig(itFind->second.pset());
-      std::vector<std::string> sourceStrings, moduleStrings;
-      //get the sources
-      std::vector<std::string> sources = processConfig.getParameter<std::vector<std::string>>("@all_essources");
-      for (auto& itM : sources) {
-        std::string retValue = eventSetupComponent("ESSource", itM, processConfig, itH.processName());
-        bool foundMatch = true;
-        if (!iFindMatch.empty()) {
-          for (auto const& stringToFind : iFindMatch) {
-            if (retValue.find(stringToFind) == std::string::npos) {
-              foundMatch = false;
-              break;
-            }
-          }
-        }
-        if (foundMatch) {
-          sourceStrings.push_back(std::move(retValue));
-        }
-      }
-      //get the modules
-      std::vector<std::string> modules = processConfig.getParameter<std::vector<std::string>>("@all_esmodules");
-      for (auto& itM : modules) {
-        std::string retValue = eventSetupComponent("ESModule", itM, processConfig, itH.processName());
-        bool foundMatch = true;
-        if (!iFindMatch.empty()) {
-          for (auto const& stringToFind : iFindMatch) {
-            if (retValue.find(stringToFind) == std::string::npos) {
-              foundMatch = false;
-              break;
-            }
-          }
-        }
-        if (foundMatch) {
-          moduleStrings.push_back(std::move(retValue));
-        }
-      }
-      if (sort_) {
-        std::sort(sourceStrings.begin(), sourceStrings.end());
-        std::sort(moduleStrings.begin(), moduleStrings.end());
-      }
-      std::copy(sourceStrings.begin(), sourceStrings.end(), std::ostream_iterator<std::string>(std::cout, "\n"));
-      std::copy(moduleStrings.begin(), moduleStrings.end(), std::ostream_iterator<std::string>(std::cout, "\n"));
-    }
-    itH.printEventSetupHistory(iPSM, iFindMatch, oErrorLog);
-  }
-}
-
 std::string nonProducerComponent(std::string const& iCompName,
                                  edm::ParameterSet const& iProcessConfig,
                                  std::string const& iProcessName) {
@@ -235,47 +161,6 @@ std::string nonProducerComponent(std::string const& iCompName,
          << " parameters: ";
   prettyPrint(result, pset, " ", " ");
   return result.str();
-}
-
-void HistoryNode::printOtherModulesHistory(ParameterSetMap const& iPSM,
-                                           ModuleToIdBranches const& iModules,
-                                           std::vector<std::string> const& iFindMatch,
-                                           std::ostream& oErrorLog) const {
-  for (auto const& itH : *this) {
-    //Get ParameterSet for process
-    ParameterSetMap::const_iterator itFind = iPSM.find(itH.parameterSetID());
-    if (itFind == iPSM.end()) {
-      oErrorLog << "No ParameterSetID for " << itH.parameterSetID() << std::endl;
-    } else {
-      edm::ParameterSet processConfig(itFind->second.pset());
-      std::vector<std::string> moduleStrings;
-      //get all modules
-      std::vector<std::string> modules = processConfig.getParameter<std::vector<std::string>>("@all_modules");
-      for (auto& itM : modules) {
-        //if we didn't already handle this from the branches
-        if (iModules.end() == iModules.find(std::make_pair(itH.processName(), itM))) {
-          std::string retValue(nonProducerComponent(itM, processConfig, itH.processName()));
-          bool foundMatch = true;
-          if (!iFindMatch.empty()) {
-            for (auto const& stringToFind : iFindMatch) {
-              if (retValue.find(stringToFind) == std::string::npos) {
-                foundMatch = false;
-                break;
-              }
-            }
-          }
-          if (foundMatch) {
-            moduleStrings.push_back(std::move(retValue));
-          }
-        }
-      }
-      if (sort_) {
-        std::sort(moduleStrings.begin(), moduleStrings.end());
-      }
-      std::copy(moduleStrings.begin(), moduleStrings.end(), std::ostream_iterator<std::string>(std::cout, "\n"));
-    }
-    itH.printOtherModulesHistory(iPSM, iModules, iFindMatch, oErrorLog);
-  }
 }
 
 static void appendToSet(std::set<std::string>& iSet, std::vector<std::string> const& iFrom) {
@@ -294,60 +179,6 @@ static std::string topLevelPSet(std::string const& iName,
          << " parameters: ";
   prettyPrint(result, pset, " ", " ");
   return result.str();
-}
-
-void HistoryNode::printTopLevelPSetsHistory(ParameterSetMap const& iPSM,
-                                            std::vector<std::string> const& iFindMatch,
-                                            std::ostream& oErrorLog) const {
-  for (auto const& itH : *this) {
-    //Get ParameterSet for process
-    ParameterSetMap::const_iterator itFind = iPSM.find(itH.parameterSetID());
-    if (itFind == iPSM.end()) {
-      oErrorLog << "No ParameterSetID for " << itH.parameterSetID() << std::endl;
-    } else {
-      edm::ParameterSet processConfig(itFind->second.pset());
-      //Need to get the names of PSets which are used by the framework (e.g. names of modules)
-      std::set<std::string> namesToExclude;
-      appendToSet(namesToExclude, processConfig.getParameter<std::vector<std::string>>("@all_modules"));
-      appendToSet(namesToExclude, processConfig.getParameter<std::vector<std::string>>("@all_sources"));
-      appendToSet(namesToExclude, processConfig.getParameter<std::vector<std::string>>("@all_loopers"));
-      appendToSet(namesToExclude, processConfig.getParameter<std::vector<std::string>>("@all_esmodules"));
-      appendToSet(namesToExclude, processConfig.getParameter<std::vector<std::string>>("@all_essources"));
-      appendToSet(namesToExclude, processConfig.getParameter<std::vector<std::string>>("@all_esprefers"));
-      if (processConfig.existsAs<std::vector<std::string>>("all_aliases")) {
-        appendToSet(namesToExclude, processConfig.getParameter<std::vector<std::string>>("@all_aliases"));
-      }
-
-      std::vector<std::string> allNames{};
-      processConfig.getParameterSetNames(allNames);
-
-      std::vector<std::string> results;
-      for (auto const& name : allNames) {
-        if (name.empty() || '@' == name[0] || namesToExclude.find(name) != namesToExclude.end()) {
-          continue;
-        }
-        std::string retValue = topLevelPSet(name, processConfig, itH.processName());
-
-        bool foundMatch = true;
-        if (!iFindMatch.empty()) {
-          for (auto const& stringToFind : iFindMatch) {
-            if (retValue.find(stringToFind) == std::string::npos) {
-              foundMatch = false;
-              break;
-            }
-          }
-        }
-        if (foundMatch) {
-          results.push_back(std::move(retValue));
-        }
-      }
-      if (sort_) {
-        std::sort(results.begin(), results.end());
-      }
-      std::copy(results.begin(), results.end(), std::ostream_iterator<std::string>(std::cout, "\n"));
-    }
-    itH.printTopLevelPSetsHistory(iPSM, iFindMatch, oErrorLog);
-  }
 }
 
 namespace {
@@ -460,11 +291,12 @@ public:
                    bool excludeESModules,
                    bool showAllModules,
                    bool showTopLevelPSets,
+                   bool showHistoryID,
                    std::vector<std::string> const& findMatch,
                    bool dontPrintProducts,
                    std::string const& dumpPSetID,
                    int productIDEntry,
-                   bool printHardwareResourcesDescription);
+                   bool sort);
 
   ProvenanceDumper(ProvenanceDumper const&) = delete;             // Disallow copying and moving
   ProvenanceDumper& operator=(ProvenanceDumper const&) = delete;  // Disallow copying and moving
@@ -494,7 +326,7 @@ private:
   edm::ProcessConfigurationVector phc_;
   edm::ProcessHistoryVector phv_;
   ParameterSetMap psm_;
-  HistoryNode historyGraph_;
+  std::vector<HistoryChain> histories_;
   bool showDependencies_;
   bool extendedAncestors_;
   bool extendedDescendants_;
@@ -502,16 +334,40 @@ private:
   bool showOtherModules_;
   bool productRegistryPresent_;
   bool showTopLevelPSets_;
+  bool showHistoryID_;
   std::vector<std::string> findMatch_;
   bool dontPrintProducts_;
   std::string dumpPSetID_;
   int const productIDEntry_;
-  bool const printHardwareResourcesDescription_;
+  bool const sort_;
+
+  // The "simple ID" unsigned int is a counter for processes that have
+  // the same name but with different ProcessConfigurationID. The
+  // "simple ID" is used in the process history and configuration
+  // printouts for human-friendlier identification of processes than
+  // the ProcessConfigurationID.
+  using ProcessSimpleIDsType = std::map<edm::ProcessConfigurationID, unsigned int>;
 
   void work_();
-  void dumpProcessHistory_();
-  void dumpEventFilteringParameterSets_(TFile* file);
-  void dumpEventFilteringParameterSets(edm::EventSelectionIDVector const& ids);
+  ProcessSimpleIDsType dumpProcessHistory_();
+  void dumpOtherModulesHistory_(ModuleToIdBranches const&);
+  void dumpEventSetupHistory_();
+  void dumpTopLevelPSetsHistory_();
+
+  bool matchToFindMatch_(std::string_view str) const {
+    if (findMatch_.empty())
+      return true;
+    for (auto const& stringToFind : findMatch_) {
+      if (str.find(stringToFind) == std::string::npos) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  void dumpEventFilteringParameterSets_(TFile* file, ProcessSimpleIDsType const& processSimpleIDs);
+  void dumpEventFilteringParameterSets(edm::EventSelectionIDVector const& ids,
+                                       ProcessSimpleIDsType const& processSimpleIDs);
   void dumpParameterSetForID_(edm::ParameterSetID const& id);
   std::optional<std::tuple<edm::BranchIDListHelper, std::vector<edm::ProcessIndex>>> makeBranchIDListHelper();
 };
@@ -523,11 +379,12 @@ ProvenanceDumper::ProvenanceDumper(std::string const& filename,
                                    bool excludeESModules,
                                    bool showOtherModules,
                                    bool showTopLevelPSets,
+                                   bool showHistoryID,
                                    std::vector<std::string> const& findMatch,
                                    bool dontPrintProducts,
                                    std::string const& dumpPSetID,
                                    int productIDEntry,
-                                   bool printHardwareResourcesDescription)
+                                   bool sort)
     : filename_(filename),
       inputFile_(makeTFile(filename)),
       exitCode_(0),
@@ -540,11 +397,12 @@ ProvenanceDumper::ProvenanceDumper(std::string const& filename,
       showOtherModules_(showOtherModules),
       productRegistryPresent_(true),
       showTopLevelPSets_(showTopLevelPSets),
+      showHistoryID_(showHistoryID),
       findMatch_(findMatch),
       dontPrintProducts_(dontPrintProducts),
       dumpPSetID_(dumpPSetID),
       productIDEntry_(productIDEntry),
-      printHardwareResourcesDescription_(printHardwareResourcesDescription) {}
+      sort_(sort) {}
 
 void ProvenanceDumper::dump() { work_(); }
 
@@ -555,22 +413,30 @@ void ProvenanceDumper::printErrors(std::ostream& os) {
 
 int ProvenanceDumper::exitCode() const { return exitCode_; }
 
-void ProvenanceDumper::dumpEventFilteringParameterSets(edm::EventSelectionIDVector const& ids) {
+void ProvenanceDumper::dumpEventFilteringParameterSets(edm::EventSelectionIDVector const& ids,
+                                                       ProcessSimpleIDsType const& processSimpleIDs) {
   edm::EventSelectionIDVector::size_type num_ids = ids.size();
   if (num_ids == 0) {
     std::cout << "No event filtering information is available.\n";
-    std::cout << "------------------------------\n";
   } else {
     std::cout << "Event filtering information for " << num_ids << " processing steps is available.\n"
-              << "The ParameterSets will be printed out, "
-              << "with the oldest printed first.\n";
+              << "The ParameterSets are printed out with the oldest process first.\n";
+    std::string const indent = "  ";
     for (edm::EventSelectionIDVector::size_type i = 0; i != num_ids; ++i) {
-      dumpParameterSetForID_(ids[i]);
+      auto found = psm_.find(ids[i]);
+      if (found == psm_.end()) {
+        std::cout << "PSet id " << ids[i] << " not found" << std::endl;
+        continue;
+      }
+      std::cout << "Event filtering:\n" << indent << "PSet id: " << ids[i] << "\n" << indent << "parameters: ";
+      edm::ParameterSet ps(found->second.pset());
+      prettyPrint(std::cout, ps, indent, indent);
+      std::cout << std::endl;
     }
   }
 }
 
-void ProvenanceDumper::dumpEventFilteringParameterSets_(TFile* file) {
+void ProvenanceDumper::dumpEventFilteringParameterSets_(TFile* file, ProcessSimpleIDsType const& processSimpleIDs) {
   TTree* history = dynamic_cast<TTree*>(file->Get(edm::poolNames::eventHistoryTreeName().c_str()));
   if (history != nullptr) {
     edm::History h;
@@ -580,7 +446,7 @@ void ProvenanceDumper::dumpEventFilteringParameterSets_(TFile* file) {
     if (history->GetEntry(0) <= 0) {
       std::cout << "No event filtering information is available; the event history tree has no entries\n";
     } else {
-      dumpEventFilteringParameterSets(h.eventSelectionIDs());
+      dumpEventFilteringParameterSets(h.eventSelectionIDs(), processSimpleIDs);
     }
   } else {
     TTree* events = dynamic_cast<TTree*>(file->Get(edm::poolNames::eventTreeName().c_str()));
@@ -594,7 +460,7 @@ void ProvenanceDumper::dumpEventFilteringParameterSets_(TFile* file) {
     if (eventSelectionsBranch->GetEntry(0) <= 0) {
       std::cout << "No event filtering information is available; the event selections branch has no entries\n";
     } else {
-      dumpEventFilteringParameterSets(ids);
+      dumpEventFilteringParameterSets(ids, processSimpleIDs);
     }
   }
 }
@@ -621,40 +487,188 @@ void ProvenanceDumper::dumpParameterSetForID_(edm::ParameterSetID const& id) {
   std::cout << "     -------------------------\n";
 }
 
-void ProvenanceDumper::dumpProcessHistory_() {
-  std::cout << "Processing History:" << std::endl;
-  std::map<edm::ProcessConfigurationID, unsigned int> simpleIDs;
+ProvenanceDumper::ProcessSimpleIDsType ProvenanceDumper::dumpProcessHistory_() {
+  std::cout << formatHeader("Processing histories") << std::endl;
+
+  ProcessSimpleIDsType simpleIDs;
+  // expect the outer vector to not grow large so that linear search is still acceptable
+  std::vector<std::vector<edm::ProcessConfiguration const*>> processesByName;
+  histories_.reserve(phv_.size());
   for (auto const& ph : phv_) {
-    //loop over the history entries looking for matches
-    HistoryNode* parent = &historyGraph_;
+    // loop over the history entries to find ProcessConfigurations that are the same
+    // use a simple count ID for each process that have the same name, but different ProcessConfigurationID
+    histories_.emplace_back(ph.id());
+    HistoryChain& chain = histories_.back();
+    chain.reserve(ph.size());
+
     for (auto const& pc : ph) {
-      if (parent->size() == 0) {
-        unsigned int id = simpleIDs[pc.id()];
-        if (0 == id) {
+      unsigned int& id = simpleIDs[pc.id()];
+      if (id == 0) {
+        // first time seeing this ID
+        auto found = std::ranges::find_if(processesByName, [&name = pc.processName()](auto const& pcs) {
+          return pcs.front()->processName() == name;
+        });
+        if (found == processesByName.end()) {
+          processesByName.emplace_back(std::initializer_list<edm::ProcessConfiguration const*>({&pc}));
           id = 1;
-          simpleIDs[pc.id()] = id;
-        }
-        parent->addChild(HistoryNode(pc, id, printHardwareResourcesDescription_));
-        parent = parent->lastChildAddress();
-      } else {
-        //see if this is unique
-        bool isUnique = true;
-        for (auto& child : *parent) {
-          if (child.configurationID() == pc.id()) {
-            isUnique = false;
-            parent = &child;
-            break;
-          }
-        }
-        if (isUnique) {
-          simpleIDs[pc.id()] = parent->size() + 1;
-          parent->addChild(HistoryNode(pc, simpleIDs[pc.id()], printHardwareResourcesDescription_));
-          parent = parent->lastChildAddress();
+        } else {
+          found->emplace_back(&pc);
+          id = found->size();
         }
       }
+
+      chain.addChild(HistoryNode(pc, id));
+    }
+    chain.printHistory(showHistoryID_);
+  }
+
+  std::cout << formatHeader("Processes") << std::endl;
+  auto concatenate = [](std::ostream& os, std::vector<std::string> const& vs) {
+    if (not vs.empty()) {
+      os << vs.front();
+      for (auto it = vs.begin() + 1; it != vs.end(); ++it) {
+        os << ", " << *it;
+      }
+    }
+  };
+  constexpr std::string_view indent = "  ";
+  for (auto const& processes : processesByName) {
+    for (auto const* pc : processes) {
+      auto const& hwresources = pc->hardwareResourcesDescription();
+      std::cout << "Process: " << pc->processName() << " [" << simpleIDs.at(pc->id()) << "]\n"
+                << indent << "PSet id: " << pc->parameterSetID() << "\n"
+                << indent << "version: '" << pc->releaseVersion() << "'\n"
+                << indent << "microarchitecture: " << hwresources.microarchitecture << "\n"
+                << indent << "accelerators: ";
+      concatenate(std::cout, hwresources.selectedAccelerators);
+      std::cout << "\n" << indent << "CPU models: ";
+      concatenate(std::cout, hwresources.cpuModels);
+      if (not hwresources.gpuModels.empty()) {
+        std::cout << "\n" << indent << "GPU models: ";
+        concatenate(std::cout, hwresources.gpuModels);
+      }
+      std::cout << "\n" << std::endl;
     }
   }
-  historyGraph_.printHistory();
+  return simpleIDs;
+}
+
+void ProvenanceDumper::dumpOtherModulesHistory_(ModuleToIdBranches const& iModules) {
+  for (auto const& chain : histories_) {
+    for (auto const& node : chain) {
+      //Get ParameterSet for process
+      ParameterSetMap::const_iterator itFind = psm_.find(node.parameterSetID());
+      if (itFind == psm_.end()) {
+        errorLog_ << "No ParameterSetID for " << node.parameterSetID() << std::endl;
+        continue;
+      }
+
+      edm::ParameterSet processConfig(itFind->second.pset());
+      std::vector<std::string> moduleStrings;
+      //get all modules
+      std::vector<std::string> modules = processConfig.getParameter<std::vector<std::string>>("@all_modules");
+      for (auto& moduleLabel : modules) {
+        //if we didn't already handle this from the branches
+        if (iModules.end() == iModules.find(std::make_pair(node.processName(), moduleLabel))) {
+          std::string retValue(nonProducerComponent(moduleLabel, processConfig, node.processName()));
+          if (matchToFindMatch_(retValue)) {
+            moduleStrings.push_back(std::move(retValue));
+          }
+        }
+      }
+      if (sort_) {
+        std::sort(moduleStrings.begin(), moduleStrings.end());
+      }
+      std::copy(moduleStrings.begin(), moduleStrings.end(), std::ostream_iterator<std::string>(std::cout, "\n"));
+    }
+  }
+}
+
+void ProvenanceDumper::dumpEventSetupHistory_() {
+  for (auto const& chain : histories_) {
+    for (auto const& node : chain) {
+      //Get ParameterSet for process
+      ParameterSetMap::const_iterator itFind = psm_.find(node.parameterSetID());
+      if (itFind == psm_.end()) {
+        errorLog_ << "No ParameterSetID for " << node.parameterSetID() << std::endl;
+        continue;
+      }
+
+      edm::ParameterSet processConfig(itFind->second.pset());
+      std::vector<std::string> sourceStrings, moduleStrings;
+
+      //get the sources
+      auto const sources = processConfig.getParameter<std::vector<std::string>>("@all_essources");
+      for (auto const& sourceLabel : sources) {
+        std::string retValue = eventSetupComponent("ESSource", sourceLabel, processConfig, node.processName());
+        if (matchToFindMatch_(retValue)) {
+          sourceStrings.push_back(std::move(retValue));
+        }
+      }
+
+      //get the modules
+      auto const modules = processConfig.getParameter<std::vector<std::string>>("@all_esmodules");
+      for (auto const& moduleLabel : modules) {
+        std::string retValue = eventSetupComponent("ESModule", moduleLabel, processConfig, node.processName());
+        if (matchToFindMatch_(retValue)) {
+          moduleStrings.push_back(std::move(retValue));
+        }
+      }
+
+      if (sort_) {
+        std::sort(sourceStrings.begin(), sourceStrings.end());
+        std::sort(moduleStrings.begin(), moduleStrings.end());
+      }
+
+      std::copy(sourceStrings.begin(), sourceStrings.end(), std::ostream_iterator<std::string>(std::cout, "\n"));
+      std::copy(moduleStrings.begin(), moduleStrings.end(), std::ostream_iterator<std::string>(std::cout, "\n"));
+    }
+  }
+}
+
+void ProvenanceDumper::dumpTopLevelPSetsHistory_() {
+  for (auto const& chain : histories_) {
+    for (auto const& node : chain) {
+      //Get ParameterSet for process
+      ParameterSetMap::const_iterator itFind = psm_.find(node.parameterSetID());
+      if (itFind == psm_.end()) {
+        errorLog_ << "No ParameterSetID for " << node.parameterSetID() << std::endl;
+        continue;
+      }
+
+      //Get ParameterSet for process
+      edm::ParameterSet processConfig(itFind->second.pset());
+      //Need to get the names of PSets which are used by the framework (e.g. names of modules)
+      std::set<std::string> namesToExclude;
+      appendToSet(namesToExclude, processConfig.getParameter<std::vector<std::string>>("@all_modules"));
+      appendToSet(namesToExclude, processConfig.getParameter<std::vector<std::string>>("@all_sources"));
+      appendToSet(namesToExclude, processConfig.getParameter<std::vector<std::string>>("@all_loopers"));
+      appendToSet(namesToExclude, processConfig.getParameter<std::vector<std::string>>("@all_esmodules"));
+      appendToSet(namesToExclude, processConfig.getParameter<std::vector<std::string>>("@all_essources"));
+      appendToSet(namesToExclude, processConfig.getParameter<std::vector<std::string>>("@all_esprefers"));
+      if (processConfig.existsAs<std::vector<std::string>>("all_aliases")) {
+        appendToSet(namesToExclude, processConfig.getParameter<std::vector<std::string>>("@all_aliases"));
+      }
+
+      std::vector<std::string> allNames{};
+      processConfig.getParameterSetNames(allNames);
+
+      std::vector<std::string> results;
+      for (auto const& name : allNames) {
+        if (name.empty() || '@' == name[0] || namesToExclude.find(name) != namesToExclude.end()) {
+          continue;
+        }
+        std::string retValue = topLevelPSet(name, processConfig, node.processName());
+        if (matchToFindMatch_(retValue)) {
+          results.push_back(std::move(retValue));
+        }
+      }
+      if (sort_) {
+        std::sort(results.begin(), results.end());
+      }
+      std::copy(results.begin(), results.end(), std::ostream_iterator<std::string>(std::cout, "\n"));
+    }
+  }
 }
 
 std::optional<std::tuple<edm::BranchIDListHelper, std::vector<edm::ProcessIndex>>>
@@ -779,6 +793,14 @@ void ProvenanceDumper::work_() {
   }
 
   if (!phv_.empty()) {
+    // (Re-)Sort according to reduced history ID in order to have a
+    // stable order with respect to hardware differences
+    std::ranges::stable_sort(phv_, {}, [](auto const& history) {
+      auto copy = history;
+      copy.reduce();
+      return copy.id();
+    });
+
     for (auto const& history : phv_) {
       for (auto const& process : history) {
         phc_.push_back(process);
@@ -912,19 +934,16 @@ void ProvenanceDumper::work_() {
     }
   }
 
-  dumpEventFilteringParameterSets_(inputFile_.get());
+  ProcessSimpleIDsType const& processSimpleIDs = dumpProcessHistory_();
 
-  dumpProcessHistory_();
+  std::cout << formatHeader("Event filtering") << std::endl;
+  dumpEventFilteringParameterSets_(inputFile_.get(), processSimpleIDs);
 
   if (productRegistryPresent_) {
-    std::cout << "---------Producers with data in file---------" << std::endl;
+    std::cout << formatHeader("Producers with data in file") << std::endl;
   }
 
-  //using edm::ParameterSetID as the key does not work
-  //   typedef std::map<edm::ParameterSetID, std::vector<edm::ProductDescription> > IdToBranches
   ModuleToIdBranches moduleToIdBranches;
-  //IdToBranches idToBranches;
-
   std::map<edm::BranchID, std::string> branchIDToBranchName;
 
   for (auto const& processConfig : phc_) {
@@ -967,23 +986,36 @@ void ProvenanceDumper::work_() {
         } else {
           s << moduleParameterSet.id();
         }
-        moduleToIdBranches[std::make_pair(product.processName(), product.moduleLabel())][s.str()].push_back(product);
+        auto& moduleInformation =
+            moduleToIdBranches[std::make_pair(product.processName(), product.moduleLabel())][s.str()];
+        moduleInformation.processSimpleIDs.insert(processSimpleIDs.at(processConfig.id()));
+        moduleInformation.products.insert(product);
       }
     }
   }
 
   for (auto const& item : moduleToIdBranches) {
     std::ostringstream sout;
-    sout << "Module: " << item.first.second << " " << item.first.first << std::endl;
+    auto const& processName = item.first.first;
+    auto const& moduleLabel = item.first.second;
+    sout << "Module: " << moduleLabel << " " << processName << std::endl;
     std::set<edm::BranchID> allBranchIDsForLabelAndProcess;
     IdToBranches const& idToBranches = item.second;
     for (auto const& idBranch : idToBranches) {
-      sout << " PSet id:" << idBranch.first << std::endl;
+      auto const& psetID = idBranch.first;
+      auto const& moduleInformation = idBranch.second;
+
+      sout << " Process: " << processName;
+      for (auto const& simpleID : moduleInformation.processSimpleIDs) {
+        sout << " [" << simpleID << "]";
+      }
+      sout << std::endl;
+      sout << " PSet id:" << psetID << std::endl;
       if (!dontPrintProducts_) {
         sout << " products: {" << std::endl;
       }
       std::set<edm::BranchID> branchIDs;
-      for (auto const& branch : idBranch.second) {
+      for (auto const& branch : moduleInformation.products) {
         if (!dontPrintProducts_) {
           sout << "  " << branch.branchName();
           edm::ProductID id;
@@ -1059,36 +1091,27 @@ void ProvenanceDumper::work_() {
       }
       sout << " }" << std::endl;
     }
-    bool foundMatch = true;
-    if (!findMatch_.empty()) {
-      for (auto const& stringToFind : findMatch_) {
-        if (sout.str().find(stringToFind) == std::string::npos) {
-          foundMatch = false;
-          break;
-        }
-      }
-    }
-    if (foundMatch) {
+    if (matchToFindMatch_(sout.str())) {
       std::cout << sout.str() << std::endl;
     }
   }  // end loop over module label/process
 
   if (productRegistryPresent_ && showOtherModules_) {
-    std::cout << "---------Other Modules---------" << std::endl;
-    historyGraph_.printOtherModulesHistory(psm_, moduleToIdBranches, findMatch_, errorLog_);
+    std::cout << formatHeader("Other Modules") << std::endl;
+    dumpOtherModulesHistory_(moduleToIdBranches);
   } else if (!productRegistryPresent_) {
-    std::cout << "---------All Modules---------" << std::endl;
-    historyGraph_.printOtherModulesHistory(psm_, moduleToIdBranches, findMatch_, errorLog_);
+    std::cout << formatHeader("All Modules") << std::endl;
+    dumpOtherModulesHistory_(moduleToIdBranches);
   }
 
   if (!excludeESModules_) {
-    std::cout << "---------EventSetup---------" << std::endl;
-    historyGraph_.printEventSetupHistory(psm_, findMatch_, errorLog_);
+    std::cout << formatHeader("EventSetup") << std::endl;
+    dumpEventSetupHistory_();
   }
 
   if (showTopLevelPSets_) {
-    std::cout << "---------Top Level PSets---------" << std::endl;
-    historyGraph_.printTopLevelPSetsHistory(psm_, findMatch_, errorLog_);
+    std::cout << formatHeader("Top Level PSets") << std::endl;
+    dumpTopLevelPSetsHistory_();
   }
   if (errorCount_ != 0) {
     exitCode_ = 1;
@@ -1145,13 +1168,13 @@ static char const* const kDontPrintProductsOpt = "dontPrintProducts";
 static char const* const kDontPrintProductsCommandOpt = "dontPrintProducts,p";
 static char const* const kShowTopLevelPSetsOpt = "showTopLevelPSets";
 static char const* const kShowTopLevelPSetsCommandOpt = "showTopLevelPSets,t";
+static char const* const kShowHistoryIDOpt = "showHistoryID";
 static char const* const kHelpOpt = "help";
 static char const* const kHelpCommandOpt = "help,h";
 static char const* const kFileNameOpt = "input-file";
 static char const* const kDumpPSetIDOpt = "dumpPSetID";
 static char const* const kDumpPSetIDCommandOpt = "dumpPSetID,i";
 static char const* const kProductIDEntryOpt = "productIDEntry";
-static char const* const kHardwareOpt = "hardware";
 
 int main(int argc, char* argv[]) {
   using namespace boost::program_options;
@@ -1169,7 +1192,8 @@ int main(int argc, char* argv[]) {
       "print what data depends on the data each EDProducer produces including indirect dependences")(
       kExcludeESModulesCommandOpt, "do not print ES module information")(
       kShowAllModulesCommandOpt, "show all modules (not just those that created data in the file)")(
-      kShowTopLevelPSetsCommandOpt, "show all top level PSets")(
+      kShowTopLevelPSetsCommandOpt, "show all top level PSets")
+    (kShowHistoryIDOpt, "show process history and configuration IDs")(
       kFindMatchCommandOpt,
       boost::program_options::value<std::vector<std::string>>(),
       "show only modules whose information contains the matching string (or all the matching strings, this option can "
@@ -1179,9 +1203,7 @@ int main(int argc, char* argv[]) {
       "print the parameter set associated with the parameter set ID string (and print nothing else)")(
       kProductIDEntryOpt,
       value<int>(),
-      "show ProductID instead of BranchID using the specified entry in the Events tree")(
-      kHardwareOpt,
-      "include hardware provenance");
+      "show ProductID instead of BranchID using the specified entry in the Events tree");
   // clang-format on
 
   //we don't want users to see these in the help messages since this
@@ -1201,7 +1223,7 @@ int main(int argc, char* argv[]) {
     store(command_line_parser(argc, argv).options(cmdline_options).positional(p).run(), vm);
     notify(vm);
   } catch (error const& iException) {
-    std::cerr << iException.what();
+    std::cerr << iException.what() << std::endl;
     return 1;
   }
 
@@ -1210,8 +1232,9 @@ int main(int argc, char* argv[]) {
     return 0;
   }
 
+  bool sort = false;
   if (vm.count(kSortOpt)) {
-    HistoryNode::sort_ = true;
+    sort = true;
   }
 
   bool showDependencies = false;
@@ -1242,6 +1265,11 @@ int main(int argc, char* argv[]) {
   bool showTopLevelPSets = false;
   if (vm.count(kShowTopLevelPSetsOpt)) {
     showTopLevelPSets = true;
+  }
+
+  bool showHistoryID = false;
+  if (vm.count(kShowHistoryIDOpt)) {
+    showHistoryID = true;
   }
 
   std::string fileName;
@@ -1293,11 +1321,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  bool printHardwareResourcesDescription = false;
-  if (vm.count(kHardwareOpt)) {
-    printHardwareResourcesDescription = true;
-  }
-
   //silence ROOT warnings about missing dictionaries
   gErrorIgnoreLevel = kError;
 
@@ -1308,11 +1331,12 @@ int main(int argc, char* argv[]) {
                           excludeESModules,
                           showAllModules,
                           showTopLevelPSets,
+                          showHistoryID,
                           findMatch,
                           dontPrintProducts,
                           dumpPSetID,
                           productIDEntry,
-                          printHardwareResourcesDescription);
+                          sort);
   int exitCode(0);
   try {
     dumper.dump();

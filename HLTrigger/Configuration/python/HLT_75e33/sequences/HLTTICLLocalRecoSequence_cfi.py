@@ -18,6 +18,9 @@ from ..modules.hltBarrelLayerClustersEB_cfi import *
 from ..modules.hltBarrelLayerClustersHB_cfi import *
 from ..sequences.HLTPfRecHitUnseededSequence_cfi import *
 
+from Configuration.ProcessModifiers.alpaka_cff import alpaka
+from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
+
 HLTTICLLocalRecoSequence = cms.Sequence(
         hltHGCalUncalibRecHit+
         hltHGCalRecHit+
@@ -35,12 +38,8 @@ _HLTTICLLocalRecoSequence_heterogeneous = cms.Sequence(
         hltHgCalLayerClustersFromSoAProducer+
         hltHgcalLayerClustersHSci+
         hltHgcalLayerClustersHSi+
-        hltBarrelLayerClustersEB+
-        hltBarrelLayerClustersHB+
         hltMergeLayerClusters)
-
-from Configuration.ProcessModifiers.alpaka_cff import alpaka
-alpaka.toReplaceWith(HLTTICLLocalRecoSequence, _HLTTICLLocalRecoSequence_heterogeneous)
+(alpaka & (~ticl_barrel)).toReplaceWith(HLTTICLLocalRecoSequence, _HLTTICLLocalRecoSequence_heterogeneous)
 
 _HLTTICLLocalRecoSequence_withBarrel = cms.Sequence(
         hltHGCalUncalibRecHit+
@@ -53,25 +52,7 @@ _HLTTICLLocalRecoSequence_withBarrel = cms.Sequence(
         hltBarrelLayerClustersHB+
         hltMergeLayerClusters
 )
-
-layerClusters = ["hltHgCalLayerClustersEE", 
-                 "hltHgcalLayerClustersHSci", 
-                 "hltHgcalLayerClustersHSi", 
-                 "hltBarrelLayerClustersEB", 
-                 "hltBarrelLayerClustersHB"]
-
-time_layerclusters = ["hltHgCalLayerClustersEE:timeLayerCluster", 
-                      "hltHgcalLayerClustersHSci:timeLayerCluster", 
-                      "hltHgcalLayerClustersHSi:timeLayerCluster", 
-                      "hltBarrelLayerClustersEB:timeLayerCluster", 
-                      "hltBarrelLayerClustersHB:timeLayerCluster"]
-
-
-from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
-ticl_barrel.toReplaceWith(HLTTICLLocalRecoSequence, _HLTTICLLocalRecoSequence_withBarrel)
-ticl_barrel.toModify(hltMergeLayerClusters,
-                     layerClusters = layerClusters,
-                     time_layerclusters = time_layerclusters)
+(ticl_barrel & (~alpaka)).toReplaceWith(HLTTICLLocalRecoSequence, _HLTTICLLocalRecoSequence_withBarrel)
 
 _HLTTICLLocalRecoSequence_heterogeneous_withBarrel = cms.Sequence(
         hltHGCalUncalibRecHit+
@@ -87,21 +68,4 @@ _HLTTICLLocalRecoSequence_heterogeneous_withBarrel = cms.Sequence(
         hltBarrelLayerClustersHB+
         hltMergeLayerClusters
 )
-
-layerClusters = ["hltHgCalLayerClustersFromSoAProducer", 
-                 "hltHgcalLayerClustersHSci", 
-                 "hltHgcalLayerClustersHSi", 
-                 "hltBarrelLayerClustersEB", 
-                 "hltBarrelLayerClustersHB"]
-
-time_layerclusters = ["hltHgCalLayerClustersFromSoAProducer:timeLayerCluster", 
-                      "hltHgcalLayerClustersHSci:timeLayerCluster", 
-                      "hltHgcalLayerClustersHSi:timeLayerCluster", 
-                      "hltBarrelLayerClustersEB:timeLayerCluster", 
-                      "hltBarrelLayerClustersHB:timeLayerCluster"]
-
 (ticl_barrel & alpaka).toReplaceWith(HLTTICLLocalRecoSequence, _HLTTICLLocalRecoSequence_heterogeneous_withBarrel)
-(ticl_barrel & alpaka).toModify(hltMergeLayerClusters,
-                                layerClusters = layerClusters,
-                                time_layerclusters = time_layerclusters
-)

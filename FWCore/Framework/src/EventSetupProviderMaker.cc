@@ -22,12 +22,11 @@ namespace edm {
   namespace eventsetup {
     // ---------------------------------------------------------------
     std::unique_ptr<EventSetupProvider> makeEventSetupProvider(ParameterSet const& params,
-                                                               unsigned subProcessIndex,
                                                                ActivityRegistry* activityRegistry) {
       std::vector<std::string> prefers = params.getParameter<std::vector<std::string> >("@all_esprefers");
 
       if (prefers.empty()) {
-        return std::make_unique<EventSetupProvider>(activityRegistry, subProcessIndex);
+        return std::make_unique<EventSetupProvider>(activityRegistry);
       }
 
       EventSetupProvider::PreferredProviderInfo preferInfo;
@@ -86,13 +85,12 @@ namespace edm {
                                         ComponentDescription::unknownID(),
                                         false)] = recordToData;
       }
-      return std::make_unique<EventSetupProvider>(activityRegistry, subProcessIndex, &preferInfo);
+      return std::make_unique<EventSetupProvider>(activityRegistry, &preferInfo);
     }
 
     // ---------------------------------------------------------------
     void fillEventSetupProvider(ModuleTypeResolverMaker const* resolverMaker,
-                                EventSetupsController& esController,
-                                EventSetupProvider& cp,
+                                EventSetupProvider& eventSetupProvider,
                                 ParameterSet& params) {
       std::vector<std::string> providers = params.getParameter<std::vector<std::string> >("@all_esmodules");
 
@@ -100,7 +98,7 @@ namespace edm {
            itName != itNameEnd;
            ++itName) {
         ParameterSet* providerPSet = params.getPSetForUpdate(*itName);
-        ModuleFactory::get()->addTo(esController, cp, *providerPSet, resolverMaker);
+        ModuleFactory::get()->addTo(eventSetupProvider, *providerPSet, resolverMaker);
       }
 
       std::vector<std::string> sources = params.getParameter<std::vector<std::string> >("@all_essources");
@@ -108,7 +106,7 @@ namespace edm {
       for (std::vector<std::string>::iterator itName = sources.begin(), itNameEnd = sources.end(); itName != itNameEnd;
            ++itName) {
         ParameterSet* providerPSet = params.getPSetForUpdate(*itName);
-        SourceFactory::get()->addTo(esController, cp, *providerPSet, resolverMaker);
+        SourceFactory::get()->addTo(eventSetupProvider, *providerPSet, resolverMaker);
       }
     }
   }  // namespace eventsetup

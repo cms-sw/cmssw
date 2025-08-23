@@ -26,14 +26,13 @@ unpackCastorDigis = EventFilter.CastorRawToDigi.CastorRawToDigi_cfi.castorDigis.
 ## run the L1 emulator
 ##
 
-from Configuration.ProcessModifiers.gpu_cff import gpu
 from Configuration.ProcessModifiers.alpaka_cff import alpaka
 
 from L1Trigger.L1TCalorimeter.L1TCaloStage1_PPFromRaw_cff import *
-from EventFilter.EcalRawToDigi.ecalDigis_cff import ecalDigisCPU, ecalDigisGPU, ecalDigisPortable
-ecalDigisCPU.InputLabel = cms.InputTag('rawDataCollector', processName=cms.InputTag.skipCurrentProcess())
-gpu.toModify(ecalDigisGPU, InputLabel = cms.InputTag('rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))
-alpaka.toModify(ecalDigisPortable, InputLabel = cms.InputTag('rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))
+from EventFilter.EcalRawToDigi.ecalDigis_cff import ecalDigis, ecalDigisPortable, ecalDigisLegacy
+(~alpaka).toModify(ecalDigis, InputLabel = cms.InputTag('rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))
+ecalDigisPortable.InputLabel = cms.InputTag('rawDataCollector', processName=cms.InputTag.skipCurrentProcess())
+ecalDigisLegacy.InputLabel = cms.InputTag('rawDataCollector', processName=cms.InputTag.skipCurrentProcess())
 hcalDigis.InputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess())
 simHcalTriggerPrimitiveDigis.InputTagFEDRaw = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess())
 

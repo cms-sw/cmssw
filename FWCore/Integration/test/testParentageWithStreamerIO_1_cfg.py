@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("TEST1")
+process = cms.Process("LHC")
 
 process.source = cms.Source("EmptySource",
     firstEvent = cms.untracked.uint32(1)

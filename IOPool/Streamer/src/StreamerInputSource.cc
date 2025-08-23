@@ -60,9 +60,36 @@ namespace edm::streamer {
 
     FDEBUG(6) << "mergeIntoRegistry: Product List: " << std::endl;
 
+    std::set<std::string> processNames;
+    for (auto const& item : descs) {
+      processNames.insert(item.processName());
+    }
+    std::vector<std::string> orderedProcessNames;
+    orderedProcessNames.reserve(processNames.size());
+    if (processNames.size() == 1) {
+      orderedProcessNames.push_back(*processNames.begin());
+    } else {
+      if (processNames.size() == 2) {
+        //The LHC name is injected by the DAQProvenanceHelper
+        auto it = processNames.find("LHC");
+        if (it != processNames.end()) {
+          processNames.erase(it);
+          orderedProcessNames.push_back(*processNames.begin());
+          orderedProcessNames.push_back("LHC");
+        }
+      }
+    }
+    if (orderedProcessNames.empty()) {
+      cms::Exception toThrow("MismatchedInput", "StreamerInputSource::mergeIntoRegistry");
+      toThrow << "Could not determine process name order from input file(s). Found process names: ";
+      for (auto const& pn : processNames) {
+        toThrow << "\n  " << pn;
+      }
+      throw toThrow;
+    }
     if (subsequent) {
       ProductRegistry pReg;
-      pReg.updateFromInput(descs);
+      pReg.updateFromInput(descs, orderedProcessNames);
       std::string mergeInfo = reg.merge(pReg, std::string(), ProductDescription::Permissive);
       if (!mergeInfo.empty()) {
         throw cms::Exception("MismatchedInput", "StreamerInputSource::mergeIntoRegistry") << mergeInfo;
@@ -72,7 +99,7 @@ namespace edm::streamer {
       buildClassCache(descs);
       loadExtraClasses();
       if (!reg.frozen()) {
-        reg.updateFromInput(descs);
+        reg.updateFromInput(descs, orderedProcessNames);
       }
     }
   }

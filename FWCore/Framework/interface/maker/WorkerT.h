@@ -108,15 +108,7 @@ namespace edm {
     bool implDoStreamBegin(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) override;
     bool implDoStreamEnd(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) override;
     bool implDoEnd(LumiTransitionInfo const&, ModuleCallingContext const*) override;
-    void implRespondToOpenInputFile(FileBlock const& fb) override;
-    void implRespondToCloseInputFile(FileBlock const& fb) override;
-    void implRespondToCloseOutputFile() override;
     TaskQueueAdaptor serializeRunModule() override;
-
-    std::vector<ModuleConsumesInfo> moduleConsumesInfos() const override;
-    std::vector<ModuleConsumesMinimalESInfo> moduleConsumesMinimalESInfos() const final {
-      return module_->moduleConsumesMinimalESInfos();
-    }
 
     void itemsToGet(BranchType branchType, std::vector<ProductResolverIndexAndSkipBit>& indexes) const override {
       module_->itemsToGet(branchType, indexes);

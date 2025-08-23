@@ -20,7 +20,7 @@
 #include <fstream>
 
 EcalDQMonitorClient::EcalDQMonitorClient(edm::ParameterSet const& _ps)
-    : DQMEDHarvester(),
+    : DQMEDHarvester(_ps),
       ecaldqm::EcalDQMonitor(_ps),
       iEvt_(0),
       cStHndl(esConsumes<edm::Transition::BeginRun>()),
@@ -52,6 +52,7 @@ EcalDQMonitorClient::~EcalDQMonitorClient() {}
 /*static*/
 void EcalDQMonitorClient::fillDescriptions(edm::ConfigurationDescriptions& _descs) {
   edm::ParameterSetDescription desc;
+  DQMEDHarvester::fillDescription(desc);
   ecaldqm::EcalDQMonitor::fillDescriptions(desc);
 
   edm::ParameterSetDescription clientParameters;

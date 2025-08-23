@@ -72,6 +72,7 @@ namespace hcaldqm {
       fDiffRatio,  // (v2-v1)/v1
       fCPUenergy,
       fGPUenergy,
+      fNbins,
     };
     const std::map<ValueQuantityType, std::string> name_value = {
         {fN, "N"},
@@ -138,6 +139,7 @@ namespace hcaldqm {
         {fDiffRatio, "(GPU energy - CPU energy)/CPU energy"},
         {fCPUenergy, "CPU energy"},
         {fGPUenergy, "GPU energy"},
+        {fNbins, "Nbins"},
     };
     const std::map<ValueQuantityType, double> min_value = {
         {fN, -0.05},
@@ -204,6 +206,7 @@ namespace hcaldqm {
         {fDiffRatio, -2.5},
         {fCPUenergy, 0},
         {fGPUenergy, 0},
+        {fNbins, 0},
     };
     const std::map<ValueQuantityType, double> max_value = {
         {fN, 1000},
@@ -270,6 +273,7 @@ namespace hcaldqm {
         {fDiffRatio, 2.5},
         {fCPUenergy, 200},
         {fGPUenergy, 200},
+        {fNbins, 50},
     };
     const std::map<ValueQuantityType, int> nbins_value = {
         {fN, 200},
@@ -335,6 +339,7 @@ namespace hcaldqm {
         {fDiffRatio, 50},
         {fCPUenergy, 1000},
         {fGPUenergy, 1000},
+        {fNbins, 50},
     };
     class ValueQuantity : public Quantity {
     public:
@@ -557,6 +562,50 @@ namespace hcaldqm {
         return new EventType(vtypes);
       }
     };
+
+    class uHTRType : public ValueQuantity {
+    public:
+      uHTRType() {}
+      uHTRType(std::vector<uint32_t> const &vtypes) : ValueQuantity(fN) { this->setup(vtypes); }
+      ~uHTRType() override {}
+
+      virtual void setup(std::vector<uint32_t> const &vtypes) {
+        std::cout << "SIZE = " << vtypes.size() << std::endl;
+        for (uint32_t i = 0; i < vtypes.size(); i++)
+          _types.insert(std::make_pair((uint32_t)vtypes[i], i));
+      }
+      int getValue(int v) override { return _types[(uint32_t)v]; }
+      uint32_t getBin(int v) override { return getValue(v) + 1; }
+
+      int nbins() override { return _types.size(); }
+      double min() override { return 0; }
+      double max() override { return _types.size(); }
+      std::string name() override { return "uHTR Type"; }
+
+    protected:
+      typedef std::unordered_map<uint32_t, int> TypeMap;
+      TypeMap _types;
+
+    public:
+      std::vector<std::string> getLabels() override {
+        std::vector<std::string> labels(_types.size());
+        std::cout << "SIZE = " << _types.size() << std::endl;
+        for (auto const &v : _types) {
+          labels[v.second] = utilities::uhtrtype2string((constants::uHTRType)v.first);
+        }
+        return labels;
+      }
+      uHTRType *makeCopy() override {
+        std::vector<uint32_t> vtypes;
+        for (auto const &p : _types) {
+          vtypes.push_back(p.first);
+        }
+
+        std::sort(vtypes.begin(), vtypes.end());
+        return new uHTRType(vtypes);
+      }
+    };
+
   }  // namespace quantity
 }  // namespace hcaldqm
 

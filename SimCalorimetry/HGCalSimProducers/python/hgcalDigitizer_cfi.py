@@ -2,13 +2,17 @@ import FWCore.ParameterSet.Config as cms
 
 from SimCalorimetry.HGCalSimProducers.hgcROCParameters_cfi import hgcROCSettings
 from SimCalorimetry.HGCalSimAlgos.hgcSensorOpParams_cfi import hgcSiSensorIleak,hgcSiSensorCCE
+from Configuration.Eras.Modifier_phase2_hgcalV19_cff import phase2_hgcalV19
 
 # Base configurations for HGCal digitizers
 eV_per_eh_pair = 3.62
 fC_per_ele     = 1.6020506e-4
-nonAgedCCEs    = [1.0, 1.0, 1.0]
-nonAgedNoises  = [2100.0,2100.0,1600.0] #100,200,300 um (in electrons)
-nonAgedNoises_v9 = [2000.0,2400.0,2000.0] # 120,200,300 um (in electrons)
+nonAgedCCEs    = [1.0, 1.0, 1.0]            # HD120, LD200, LD300, HD120 um (in electrons) - the last entry will be ignored for v<v19
+nonAgedCCEs_v19    = [1.0, 1.0, 1.0, 1.0]            # HD120, LD200, LD300, HD120 um (in electrons) - the last entry will be ignored for v<v19
+nonAgedNoises  = [2100.0,2100.0,1600.0]   # " " notice the noise is further scaled by the size of the cell
+nonAgedNoises_v19  = [2100.0,2100.0,1600.0,2100.0]   # " " notice the noise is further scaled by the size of the cell
+nonAgedNoises_v9 = [2000.0,2400.0,2000.0] # " "
+nonAgedNoises_v9_v19 = [2000.0,2400.0,2000.0,2400.0] # " "
 thresholdTracksMIP = True
 
 HGCAL_ileakParam_toUse    = cms.PSet(
@@ -26,7 +30,7 @@ HGCAL_noise_fC = cms.PSet(
     scaleByDoseAlgo = cms.uint32(0),
     scaleByDoseFactor = cms.double(1),
     doseMap = cms.string(""),
-    values = cms.vdouble( [x*fC_per_ele for x in nonAgedNoises] ), #100,200,300 um
+    values = cms.vdouble( [x*fC_per_ele for x in nonAgedNoises] ), #HD 120, LD 200, LD 300, HD 200
     )
 
 HFNose_noise_fC = HGCAL_noise_fC.clone()
@@ -49,6 +53,8 @@ HGCAL_chargeCollectionEfficiencies = cms.PSet(
 HGCAL_noises = cms.PSet(
     values = cms.vdouble([x for x in nonAgedNoises])
     )
+phase2_hgcalV19.toModify(HGCAL_noises, values = [x for x in nonAgedNoises_v9_v19])
+phase2_hgcalV19.toModify(HGCAL_chargeCollectionEfficiencies, values = nonAgedCCEs_v19)
 
 # ECAL
 hgceeDigitizer = cms.PSet(
@@ -190,7 +196,9 @@ for _m in [hgceeDigitizer, hgchefrontDigitizer, hgchebackDigitizer, hfnoseDigiti
 
 #function to set noise to aged HGCal
 endOfLifeCCEs = [0.5, 0.5, 0.7] # this is to be deprecated
-endOfLifeNoises = [2400.0,2250.0,1750.0]  #this is to be deprecated
+endOfLifeNoises = [2400.0, 2250.0, 1750.0]  #this is to be deprecated
+endOfLifeCCEs_v19 = [0.5, 0.5, 0.7, 0.5] # this is to be deprecated
+endOfLifeNoises_v19 = [2400.0, 2250.0, 1750.0, 2250.0]  #this is to be deprecated
 def HGCal_setEndOfLifeNoise(process,byDose=True,byDoseAlgo=0,byDoseAlgoSci=2,byDoseFactor=1):
     """
     includes all effects from radiation and gain choice
@@ -321,6 +329,10 @@ def HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=0,byDoseMap=doseMap
     process.HGCAL_noises = cms.PSet(
         values = cms.vdouble([x for x in endOfLifeNoises])  
         )
+    phase2_hgcalV19.toModify(HGCAL_noise_fC, values = [x*fC_per_ele for x in endOfLifeNoises_v19] ) #100,200,300 um, to be deprecated
+    phase2_hgcalV19.toModify(HGCAL_noise_fC, values = [x*fC_per_ele for x in endOfLifeNoises_v19] ) #100,200,300 um, to be deprecated
+    phase2_hgcalV19.toModify(HGCAL_chargeCollectionEfficiencies, values = endOfLifeNoises_v19)
+    phase2_hgcalV19.toModify(HGCAL_noise, values = [x for x in endOfLifeNoises_v19])
 
     return process
 
@@ -333,6 +345,8 @@ def HFNose_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=0,byDoseMap=doseMa
         doseMap = byDoseMap,
         values = cms.vdouble( [x*fC_per_ele for x in endOfLifeNoises] ), #100,200,300 um
         )
+
+    phase2_hgcalV19.toModify(HFNose_noise_fC, values = [x*fC_per_ele for x in endOfLifeNoises_v19]) #100,200,300 um, to be deprecated
     return process
 
 
@@ -362,7 +376,7 @@ def HGCal_disableNoise(process):
         scaleByDoseAlgo = cms.uint32(0),
         scaleByDoseFactor = cms.double(1),
         doseMap = cms.string(""),
-        values = cms.vdouble(0,0,0), #100,200,300 um
+        values = cms.vdouble(0,0,0,0), #HD 120, LD 200, LD 300, HD 200
     )
     process.HGCAL_noise_heback = cms.PSet(
         scaleByDose = cms.bool(False),
@@ -374,14 +388,24 @@ def HGCal_disableNoise(process):
         noise_MIP = cms.double(0.), #zero noise (this is to be deprecated)
         )
     process.HGCAL_noises = cms.PSet(
-        values = cms.vdouble(0,0,0)
+        values = cms.vdouble(0,0,0,0) #HD 120, LD 200, LD 300, HD 200
     )
+
+    phase2_hgcalV19.toModify(HGCAL_noise_fC, values = [0.,0.,0.,0.])
+    phase2_hgcalV19.toModify(HGCAL_noises, values = [0.,0.,0.,0.])
     return process
 
 from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10
 
 phase2_hgcalV10.toModify(HGCAL_noise_fC, values = [x*fC_per_ele for x in nonAgedNoises_v9])
 phase2_hgcalV10.toModify(HGCAL_noises, values = [x for x in nonAgedNoises_v9])
+
+
+phase2_hgcalV19.toModify(HGCAL_noise_fC, values = [x*fC_per_ele for x in nonAgedNoises_v9_v19])
+phase2_hgcalV19.toModify(HFNose_noise_fC, values = [x*fC_per_ele for x in nonAgedNoises_v9_v19])
+phase2_hgcalV19.toModify(hgchebackDigitizer.digiCfg.feCfg, tdcForToAOnset_fC = [12.,12.,12.,12.])
+
+
 
 def HFNose_setEndOfLifeNoise(process,byDose=True,byDoseAlgo=0,byDoseFactor=1):
     """includes all effects from radiation and gain choice"""
