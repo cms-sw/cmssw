@@ -3,7 +3,7 @@ from HLTriggerOffline.Muon.HLTMuonPostVal_cff import *
 from HLTriggerOffline.Egamma.EgammaPostProcessor_cfi import *
 from HLTriggerOffline.B2G.b2gHLTValidationHarvest_cff import *
 from HLTriggerOffline.HeavyFlavor.heavyFlavorValidationHarvestingSequence_cff import *
-from HLTriggerOffline.JetMET.Validation.JetMETPostProcessor_cff import *
+from HLTriggerOffline.JetMET.Validation.HLTJetMETPostVal_cff import *
 #from HLTriggerOffline.special.hltAlCaPostVal_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_postProcessor_cff import *
 from HLTriggerOffline.Higgs.HLTHiggsPostVal_cff import *
@@ -26,7 +26,7 @@ hltpostvalidation = cms.Sequence(
     +EgammaPostVal
     + postProcessorHLTgsfTrackingSequence
     +heavyFlavorValidationHarvestingSequence
-    +JetMETPostVal
+    +HLTJetMETPostVal
     #+HLTAlCaPostVal
     +SusyExoPostVal
    #+ExamplePostVal
@@ -44,7 +44,7 @@ from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 _phase2_hltpostvalidation =  hltpostvalidation.copyAndExclude([HLTTauPostVal,
                                                                EgammaPostVal,
                                                                heavyFlavorValidationHarvestingSequence,
-                                                               #JetMETPostVal,
+                                                               #HLTJetMETPostVal,
                                                                #HLTAlCaPostVal,
                                                                SusyExoPostVal,
                                                                #ExamplePostVal,

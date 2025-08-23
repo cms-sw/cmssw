@@ -45,6 +45,7 @@ public:
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override {}
 
   enum class EfficType { none = 0, efficiency, fakerate, simpleratio };
+  enum class ResType { none = 0, fit, rms };
 
   struct EfficOption {
     std::string name, title;
@@ -56,6 +57,8 @@ public:
   struct ResolOption {
     std::string namePrefix, titlePrefix;
     std::string srcName;
+    ResType type;
+    bool isProfile;
   };
 
   struct ProfileOption {
@@ -90,7 +93,9 @@ public:
                          const std::string& startDir,
                          const std::string& fitMEPrefix,
                          const std::string& fitMETitlePrefix,
-                         const std::string& srcMEName);
+                         const std::string& srcMEName,
+                         const ResType type = ResType::fit,
+                         const bool makeProfile = false);
   void computeProfile(DQMStore::IBooker& ibooker,
                       DQMStore::IGetter& igetter,
                       const std::string& startDir,
@@ -207,8 +212,10 @@ public:
     if (h1->GetNbinsX() == me->getNbinsX()) {
       for (int bin = 0; bin != h1->GetNbinsX(); bin++) {
         me->setBinContent(bin + 1, h1->GetBinContent(bin + 1));
-        //       me->setBinEntries(bin+1, 1.);
         me->setBinError(bin + 1, h1->GetBinError(bin + 1));
+        if (me->kind() == MonitorElement::Kind::TPROFILE) {
+          me->setBinEntries(bin + 1, 1);
+        }
       }
     } else {
       throw cms::Exception("FitSlicesYTool") << "Different number of bins!";
@@ -221,8 +228,10 @@ public:
     if (h2->GetNbinsX() == me->getNbinsX()) {
       for (int bin = 0; bin != h2->GetNbinsX(); bin++) {
         me->setBinContent(bin + 1, h2->GetBinContent(bin + 1));
-        //       me->setBinEntries(bin+1, 1.);
         me->setBinError(bin + 1, h2->GetBinError(bin + 1));
+        if (me->kind() == MonitorElement::Kind::TPROFILE) {
+          me->setBinEntries(bin + 1, 1);
+        }
       }
     } else {
       throw cms::Exception("FitSlicesYTool") << "Different number of bins!";
@@ -391,7 +400,7 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
       args.push_back(*iToken);
     }
 
-    if (args.size() != 3) {
+    if (args.size() < 3) {
       LogInfo("DQMGenericClient") << "Wrong input to resCmds\n";
       continue;
     }
@@ -400,6 +409,15 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
     opt.namePrefix = args[0];
     opt.titlePrefix = args[1];
     opt.srcName = args[2];
+
+    const string typeName = args.size() == 3 ? "fit" : args[3];
+    if (typeName == "fit")
+      opt.type = ResType::fit;
+    else if (typeName == "rms")
+      opt.type = ResType::rms;
+    else
+      opt.type = ResType::none;
+    opt.isProfile = false;
 
     resolOptions_.push_back(opt);
   }
@@ -410,6 +428,70 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
     opt.namePrefix = resolSet->getUntrackedParameter<string>("namePrefix");
     opt.titlePrefix = resolSet->getUntrackedParameter<string>("titlePrefix");
     opt.srcName = resolSet->getUntrackedParameter<string>("srcName");
+    const string typeName = resolSet->getUntrackedParameter<string>("typeName", "fit");
+    if (typeName == "fit")
+      opt.type = ResType::fit;
+    else if (typeName == "rms")
+      opt.type = ResType::rms;
+    else
+      opt.type = ResType::none;
+    opt.isProfile = false;
+
+    resolOptions_.push_back(opt);
+  }
+
+  // Parse resolution profiles
+  vstring resolProfileCmds = pset.getUntrackedParameter<vstring>("resolutionProfile", vstring());
+  for (vstring::const_iterator resolProfileCmd = resolProfileCmds.begin(); resolProfileCmd != resolProfileCmds.end();
+       ++resolProfileCmd) {
+    if (resolProfileCmd->empty())
+      continue;
+
+    boost::tokenizer<elsc> tokens(*resolProfileCmd, commonEscapes);
+
+    vector<string> args;
+    for (boost::tokenizer<elsc>::const_iterator iToken = tokens.begin(); iToken != tokens.end(); ++iToken) {
+      if (iToken->empty())
+        continue;
+      args.push_back(*iToken);
+    }
+
+    if (args.size() < 4) {
+      LogInfo("DQMGenericClient") << "Wrong input to resolProfileCmds\n";
+      continue;
+    }
+    ResolOption opt;
+    opt.namePrefix = args[0];
+    opt.titlePrefix = args[1];
+    opt.srcName = args[2];
+    opt.isProfile = true;
+
+    const string typeName = args.size() == 3 ? "rms" : args[3];
+    if (typeName == "fit")
+      opt.type = ResType::fit;
+    else if (typeName == "rms")
+      opt.type = ResType::rms;
+    else
+      opt.type = ResType::none;
+
+    resolOptions_.push_back(opt);
+  }
+
+  VPSet resolProfileSets = pset.getUntrackedParameter<VPSet>("resolutionProfileSets", VPSet());
+  for (VPSet::const_iterator resolProfileSet = resolProfileSets.begin(); resolProfileSet != resolProfileSets.end();
+       ++resolProfileSet) {
+    ResolOption opt;
+    opt.namePrefix = resolProfileSet->getUntrackedParameter<string>("namePrefix");
+    opt.titlePrefix = resolProfileSet->getUntrackedParameter<string>("titlePrefix");
+    opt.srcName = resolProfileSet->getUntrackedParameter<string>("srcName");
+    const string typeName = resolProfileSet->getUntrackedParameter<string>("typeName", "rms");
+    if (typeName == "fit")
+      opt.type = ResType::fit;
+    else if (typeName == "rms")
+      opt.type = ResType::rms;
+    else
+      opt.type = ResType::none;
+    opt.isProfile = true;
 
     resolOptions_.push_back(opt);
   }
@@ -664,8 +746,14 @@ void DQMGenericClient::makeAllPlots(DQMStore::IBooker& ibooker, DQMStore::IGette
 
     for (vector<ResolOption>::const_iterator resolOption = resolOptions_.begin(); resolOption != resolOptions_.end();
          ++resolOption) {
-      computeResolution(
-          ibooker, igetter, dirName, resolOption->namePrefix, resolOption->titlePrefix, resolOption->srcName);
+      computeResolution(ibooker,
+                        igetter,
+                        dirName,
+                        resolOption->namePrefix,
+                        resolOption->titlePrefix,
+                        resolOption->srcName,
+                        resolOption->type,
+                        resolOption->isProfile);
     }
 
     for (const auto& profileOption : profileOptions_) {
@@ -766,7 +854,8 @@ void DQMGenericClient::computeEfficiency(DQMStore::IBooker& ibooker,
       efficHist->SetBinEntries(i, 1);
       efficHist->SetBinError(i, std::hypot(effVal, errVal));
     }
-    ibooker.bookProfile(newEfficMEName, efficHist);
+    ME* efficMe = ibooker.bookProfile(newEfficMEName, efficHist);
+    efficMe->setEfficiencyFlag();
     delete efficHist;
   }
 
@@ -865,7 +954,9 @@ void DQMGenericClient::computeResolution(DQMStore::IBooker& ibooker,
                                          const string& startDir,
                                          const string& namePrefix,
                                          const string& titlePrefix,
-                                         const std::string& srcName) {
+                                         const std::string& srcName,
+                                         const ResType type,
+                                         const bool makeProfile) {
   if (!igetter.dirExists(startDir)) {
     if (verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_)) {
       LogInfo("DQMGenericClient") << "computeResolution() : "
@@ -907,31 +998,96 @@ void DQMGenericClient::computeResolution(DQMStore::IBooker& ibooker,
   ibooker.setCurrentFolder(newDir);
 
   float* lowedgesfloats = new float[nBin + 1];
-  ME* meanME;
-  ME* sigmaME;
-  if (hSrc->GetXaxis()->GetXbins()->GetSize()) {
-    for (int j = 0; j < nBin + 1; ++j)
-      lowedgesfloats[j] = (float)hSrc->GetXaxis()->GetXbins()->GetAt(j);
-    meanME = ibooker.book1D(newPrefix + "_Mean", titlePrefix + " Mean", nBin, lowedgesfloats);
-    sigmaME = ibooker.book1D(newPrefix + "_Sigma", titlePrefix + " Sigma", nBin, lowedgesfloats);
-  } else {
-    meanME = ibooker.book1D(
-        newPrefix + "_Mean", titlePrefix + " Mean", nBin, hSrc->GetXaxis()->GetXmin(), hSrc->GetXaxis()->GetXmax());
-    sigmaME = ibooker.book1D(
-        newPrefix + "_Sigma", titlePrefix + " Sigma", nBin, hSrc->GetXaxis()->GetXmin(), hSrc->GetXaxis()->GetXmax());
-  }
 
-  if (meanME && sigmaME) {
-    meanME->setEfficiencyFlag();
-    sigmaME->setEfficiencyFlag();
-
-    if (!resLimitedFit_) {
-      FitSlicesYTool fitTool(srcME);
-      fitTool.getFittedMeanWithError(meanME);
-      fitTool.getFittedSigmaWithError(sigmaME);
-      ////  fitTool.getFittedChisqWithError(chi2ME); // N/A
+  if (makeProfile) {
+    TProfile* meanHist;
+    TProfile* sigmaHist;
+    if (hSrc->GetXaxis()->GetXbins()->GetSize()) {
+      for (int j = 0; j < nBin + 1; ++j)
+        lowedgesfloats[j] = (float)hSrc->GetXaxis()->GetXbins()->GetAt(j);
+      meanHist = new TProfile((newPrefix + "_Mean").c_str(), (titlePrefix + " Mean").c_str(), nBin, lowedgesfloats);
+      sigmaHist = new TProfile((newPrefix + "_Sigma").c_str(), (titlePrefix + " Sigma").c_str(), nBin, lowedgesfloats);
     } else {
-      limitedFit(srcME, meanME, sigmaME);
+      meanHist = new TProfile((newPrefix + "_Mean").c_str(),
+                              (titlePrefix + " Mean").c_str(),
+                              hSrc->GetXaxis()->GetNbins(),
+                              hSrc->GetXaxis()->GetXmin(),
+                              hSrc->GetXaxis()->GetXmax());
+      sigmaHist = new TProfile((newPrefix + "_Sigma").c_str(),
+                               (titlePrefix + " Sigma").c_str(),
+                               hSrc->GetXaxis()->GetNbins(),
+                               hSrc->GetXaxis()->GetXmin(),
+                               hSrc->GetXaxis()->GetXmax());
+    }
+    ME* meanME = ibooker.bookProfile((newPrefix + "_Mean").c_str(), meanHist);
+    ME* sigmaME = ibooker.bookProfile((newPrefix + "_Sigma").c_str(), sigmaHist);
+
+    if (meanME && sigmaME) {
+      meanME->setEfficiencyFlag();
+      sigmaME->setEfficiencyFlag();
+
+      if (type == ResType::fit) {
+        if (!resLimitedFit_) {
+          FitSlicesYTool fitTool(srcME);
+          fitTool.getFittedMeanWithError(meanME);
+          fitTool.getFittedSigmaWithError(sigmaME);
+        } else {
+          limitedFit(srcME, meanME, sigmaME);
+        }
+      }
+      if (type == ResType::rms) {
+        for (int i = 1; i <= nBin; i++) {
+          TH1* histoY = hSrc->ProjectionY(" ", i, i, "e");
+          if (histoY->GetEntries() > 0) {
+            meanME->setBinContent(i, histoY->GetMean() * histoY->GetEntries());
+            meanME->setBinError(i, histoY->GetMeanError());
+            meanME->setBinEntries(i, histoY->GetEntries());
+            sigmaME->setBinContent(i, histoY->GetRMS() * histoY->GetEntries());
+            sigmaME->setBinError(i, histoY->GetRMSError());
+            sigmaME->setBinEntries(i, histoY->GetEntries());
+          }
+        }
+      }
+    }
+  } else {
+    ME* meanME;
+    ME* sigmaME;
+    if (hSrc->GetXaxis()->GetXbins()->GetSize()) {
+      for (int j = 0; j < nBin + 1; ++j)
+        lowedgesfloats[j] = (float)hSrc->GetXaxis()->GetXbins()->GetAt(j);
+      meanME = ibooker.book1D(newPrefix + "_Mean", titlePrefix + " Mean", nBin, lowedgesfloats);
+      sigmaME = ibooker.book1D(newPrefix + "_Sigma", titlePrefix + " Sigma", nBin, lowedgesfloats);
+    } else {
+      meanME = ibooker.book1D(
+          newPrefix + "_Mean", titlePrefix + " Mean", nBin, hSrc->GetXaxis()->GetXmin(), hSrc->GetXaxis()->GetXmax());
+      sigmaME = ibooker.book1D(
+          newPrefix + "_Sigma", titlePrefix + " Sigma", nBin, hSrc->GetXaxis()->GetXmin(), hSrc->GetXaxis()->GetXmax());
+    }
+
+    if (meanME && sigmaME) {
+      meanME->setEfficiencyFlag();
+      sigmaME->setEfficiencyFlag();
+
+      if (type == ResType::fit) {
+        if (!resLimitedFit_) {
+          FitSlicesYTool fitTool(srcME);
+          fitTool.getFittedMeanWithError(meanME);
+          fitTool.getFittedSigmaWithError(sigmaME);
+          ////  fitTool.getFittedChisqWithError(chi2ME); // N/A
+        } else {
+          limitedFit(srcME, meanME, sigmaME);
+        }
+      } else if (type == ResType::rms) {
+        for (int i = 1; i <= nBin; i++) {
+          TH1* histoY = hSrc->ProjectionY(" ", i, i, "e");
+          if (histoY->GetEntries() > 0) {
+            meanME->setBinContent(i, histoY->GetMean());
+            meanME->setBinError(i, histoY->GetMeanError());
+            sigmaME->setBinContent(i, histoY->GetRMS());
+            sigmaME->setBinError(i, histoY->GetRMSError());
+          }
+        }
+      }
     }
   }
   delete[] lowedgesfloats;
