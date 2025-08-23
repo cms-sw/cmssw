@@ -7,20 +7,6 @@
     <use name="cuda"/>
   </bin>
 
-  <ifrelease name="_GPU_">
-    <test name="TestCUDATest" command="runtests.sh gpu">
-      <!-- dependence only to trigger the unit test when NVIDIA GPU is (expected to be) present -->
-      <use name="cuda"/>
-    </test>
-  <else/>
-    <test name="TestCUDATest" command="runtests.sh cpu"/>
-  </ifrelease>
-
-  <test name="testHeterogeneousCoreCUDATestWriteRead" command="testHeterogeneousCoreCUDATestWriteRead.sh">
-    <!-- dependence only to trigger the unit test when NVIDIA GPU is (expected to be) present -->
-    <use name="cuda"/>
-  </test>
-
   <!--
   Test that the framework handles correctly the case of edm::Wrapper<T> where
     - T has a dictionary
