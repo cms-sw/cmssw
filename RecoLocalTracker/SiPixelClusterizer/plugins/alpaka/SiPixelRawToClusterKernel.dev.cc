@@ -695,16 +695,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       std::cout << "FindClus kernel launch with " << numberOfModules << " blocks of " << elementsPerBlockFindClus
                 << " threadsPerBlockOrElementsPerThread\n";
 #endif
-      auto unused = SiPixelDigisSoACollection(0, queue);
-#if 0
-      alpaka::exec<Acc1D>(queue,
-                          workDivMaxNumModules,
-                          FindClus<TrackerTraits>{},
-                          digis_view,
-                          unused.view(),
-                          clusters_d->view(),
-                          numDigis);
-#endif
+  auto unused = SiPixelDigisSoACollection(0, queue);
+
+  alpaka::exec<Acc1D>(queue,
+          workDivMaxNumModules,
+          FindClus<TrackerTraits>{},
+          digis_view,      
+          unused.view(),   
+          false,           
+          static_cast<uint32_t*>(nullptr),
+          static_cast<uint32_t>(0),       
+          static_cast<uint32_t>(0),       
+          clusters_d->view(), 
+          numDigis);          
 #ifdef GPU_DEBUG
       alpaka::wait(queue);
 #endif

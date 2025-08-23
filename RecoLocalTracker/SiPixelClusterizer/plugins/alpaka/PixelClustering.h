@@ -116,9 +116,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
 
     ALPAKA_FN_ACC
     bool isMorphingModule(uint32_t moduleId, const uint32_t* morphingModules, uint32_t nMorphingModules) {
-      for (uint32_t i = 0; i < nMorphingModules; ++i) {
-        if (morphingModules[i] == moduleId)
-          return true;
+      // Binary search for moduleId in sorted morphingModules
+      int left = 0, right = static_cast<int>(nMorphingModules) - 1;
+      while (left <= right) {
+        int mid = left + (right - left) / 2;
+        uint32_t val = morphingModules[mid];
+        if (val == moduleId) return true;
+        if (val < moduleId)
+          left = mid + 1;
+        else
+          right = mid - 1;
       }
       return false;
     }
@@ -172,13 +179,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
     static constexpr uint32_t maxElementsPerBlock =
         cms::alpakatools::round_up_by(TrackerTraits::maxPixInModule / maxIterGPU, 128);
 
-    // FIXME: this is just an estimate, to be studied and optimised
-    //static constexpr uint32_t maxFakesInModule = TrackerTraits::maxPixInModule * 2 / 5;
-
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   SiPixelDigisSoAView digi_view,
                                   SiPixelDigisSoAView fakes_view,
-                                  bool applyDigiMorphing,
+                                  bool enableDigiMorphing,
                                   uint32_t* morphingModules,
                                   uint32_t nMorphingModules,
                                   uint32_t maxFakesInModule,
@@ -199,9 +203,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
         auto firstPixel = clus_view[1 + module].moduleStart();
         uint32_t thisModuleId = digi_view[firstPixel].moduleId();
         uint32_t rawModuleId = digi_view[firstPixel].rawIdArr();
-        applyDigiMorphing =
-            applyDigiMorphing && pixelStatus::isMorphingModule(rawModuleId, morphingModules, nMorphingModules);
-        //applyDigiMorphing = applyDigiMorphing && isMorphingModule;
+        bool applyDigiMorphing = enableDigiMorphing && pixelStatus::isMorphingModule(rawModuleId, morphingModules, nMorphingModules);
         ALPAKA_ASSERT_ACC(thisModuleId < TrackerTraits::numberOfModules);
 
 #ifdef GPU_DEBUG

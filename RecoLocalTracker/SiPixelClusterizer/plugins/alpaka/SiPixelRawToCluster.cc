@@ -4,6 +4,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <algorithm>
 #include <boost/algorithm/string.hpp>
 
 #include "CalibTracker/Records/interface/SiPixelGainCalibrationForHLTSoARcd.h"
@@ -74,7 +75,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const device::ESGetToken<SiPixelGainCalibrationForHLTDevice, SiPixelGainCalibrationForHLTSoARcd> gainsToken_;
     const edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> cablingMapToken_;
     const edm::ESGetToken<SiPixelFedCablingMap, SiPixelFedCablingMapRcd> cablingMapTokenBeginRun_;
-    edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
+    const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
     SiPixelMorphingConfig digiMorphingConfig_;
 
     std::unique_ptr<SiPixelFedCablingTree> cabling_;
@@ -111,11 +112,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         std::vector<std::string> limits;
         boost::split(limits, r, boost::is_any_of("-"));
         try {
-          if (limits.size() > 1) {
+          if (limits.size() == 2) {
             reg.push_back(std::make_pair(std::stoi(limits.at(0)), std::stoi(limits.at(1))));
-          } else {
+          } else if (limits.size() == 1) {
             reg.push_back(std::make_pair(std::stoi(limits.at(0)), std::stoi(limits.at(0))));
+          } else {
+            throw cms::Exception("Configuration") << "[SiPixelDigiMorphing]:"
+                                                  << " invalid range format in '" << r
+                                                  << "' (expected 'A' or 'A-B')\n";
           }
+        } catch (cms::Exception&) {
+          throw;
         } catch (...) {
           throw cms::Exception("Configuration") << "[SiPixelDigiMorphing]:"
                                                 << " invalid coordinate value provided in " << str << "\n";
@@ -267,6 +274,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           digiMorphingConfig_.morphingModules.push_back(rawId);
         }
       }
+
+      // Sort once on CPU for efficient binary search on device later
+      std::sort(digiMorphingConfig_.morphingModules.begin(), digiMorphingConfig_.morphingModules.end());
     }
 
     // if used, the buffer is guaranteed to stay alive until the after the execution of makePhase1ClustersAsync completes
