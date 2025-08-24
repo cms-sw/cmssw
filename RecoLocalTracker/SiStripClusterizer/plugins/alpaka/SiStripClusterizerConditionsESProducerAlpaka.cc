@@ -216,11 +216,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                                                                                        std::vector<uint16_t>& iPair,
                                                                                        std::vector<uint16_t>& noise,
                                                                                        std::vector<float>& gain) {
-    // Lambda to lookup channel index and set the invThickness array
-    auto setInvThickness = [&](uint16_t fed, uint8_t channel, float val) {
-      invthick[channelIndex(fed, channel)] = val;
-    };
-
     // connected: map<DetID, std::vector<int>>
     // map of KEY=detid DATA=vector of apvs, maximum 6 APVs per detector module :
     const auto& connected = quality.cabling()->connected();
@@ -245,7 +240,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
               // Note: the channelIndex is used to access the data structures
               detID[channelIndex(chan_fedID, chan_fedCh)] = chan_detID;
               iPair[channelIndex(chan_fedID, chan_fedCh)] = chan_apvPairNumber;
-              setInvThickness(chan_fedID, chan_fedCh, siStripClusterTools::sensorThicknessInverse(chan_detID));
+              invthick[channelIndex(chan_fedID, chan_fedCh)] = siStripClusterTools::sensorThicknessInverse(chan_detID);
 
               auto offset = STRIPS_PER_FEDCH * chan_apvPairNumber;
 
