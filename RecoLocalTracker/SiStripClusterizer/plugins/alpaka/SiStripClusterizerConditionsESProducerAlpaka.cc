@@ -256,7 +256,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                 // setStrip_(chan_fedID, chan_fedCh, detstrip, noise, gain, bad);
                 gain[apvIndex(chan_fedID, chan_fedCh, detstrip)] = strip_gain;
                 if (bad) [[unlikely]] {
-                  noise[stripIndex(chan_fedID, chan_fedCh, detstrip)] |= badBit;
+                  noise[stripIndex(chan_fedID, chan_fedCh, detstrip)] = badBit;
                 } else {
                   noise[stripIndex(chan_fedID, chan_fedCh, detstrip)] = strip_noise;
                 }
