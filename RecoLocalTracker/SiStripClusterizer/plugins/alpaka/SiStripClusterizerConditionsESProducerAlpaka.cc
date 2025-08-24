@@ -124,54 +124,30 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       auto gains = iRecord.getTransientHandle(gainsToken_);
       const auto& noises = iRecord.get(noisesToken_);
       const auto& quality = iRecord.get(qualityTokenB_);
-
+      
       // Prepare the conditions on the host
-      // Note: most likely depending on the size of this operation, perfomance could be much likely improved moving this operation in a device kernel.
-      //       Some thinking should go into understanding how to optimize the move of gain/noise/quality and how to define a alpaka-kernel doing the
-      //       preparation for the conditions.
-      //       (same algo from RecoLocalTracker/SiStripClusterizer/plugins/SiStripClusterizerConditionsESProducer.cc)
-
-      std::vector<float> invthick(sistrip::NUMBER_OF_FEDS * sistrip::FEDCH_PER_FED);
-      std::vector<uint32_t> detID(sistrip::NUMBER_OF_FEDS * sistrip::FEDCH_PER_FED);
-      std::vector<uint16_t> iPair(sistrip::NUMBER_OF_FEDS * sistrip::FEDCH_PER_FED);
-      std::vector<uint16_t> noise(sistrip::NUMBER_OF_FEDS * sistrip::FEDCH_PER_FED * sistrip::STRIPS_PER_FEDCH);
-      std::vector<float> gain(sistrip::NUMBER_OF_FEDS * sistrip::FEDCH_PER_FED * sistrip::APVS_PER_FEDCH);
-
-      fillSiStripClusterizerConditions(quality, gains.product(), noises, invthick, detID, iPair, noise, gain);
-
-      // LogDebug("StripCondsESProd") << "Produced a SiStripClusterizerConditions object for " << detToFeds.size()
-      //                              << " modules";
-
-      // Prepare the product & Fill the product
-      const int Data_fedch_size = detID.size();
-      const int Data_strip_size = noise.size();
-      const int Data_apv_size = gain.size();
-      //// Typical sizes for these collections (from MC run)
-      //// constexpr const unsigned int Data_fedch_size= 42240;
-      //// constexpr const unsigned int Data_strip_size= 10813440;
-      //// constexpr const unsigned int Data_apv_size= 84480;
-
-      assert(detID.size() == iPair.size() && iPair.size() == invthick.size());
-
-      // PortableHostMultiCollection(const std::array<int32_t, members_>& sizes, alpaka_common::DevHost const& host)
+      const int Data_fedch_size = sistrip::NUMBER_OF_FEDS * sistrip::FEDCH_PER_FED; // 42240
+      const int Data_strip_size = sistrip::NUMBER_OF_FEDS * sistrip::FEDCH_PER_FED * sistrip::STRIPS_PER_FEDCH; // 10813440
+      const int Data_apv_size = sistrip::NUMBER_OF_FEDS * sistrip::FEDCH_PER_FED * sistrip::APVS_PER_FEDCH; // 84480
       auto product = std::make_unique<SiStripClusterizerConditionsDataHost>(
           std::array<int32_t, 3>{{Data_fedch_size, Data_strip_size, Data_apv_size}}, cms::alpakatools::host());
 
+      // Create the view to fill the collection
       auto Data_fedch_View = product->view<SiStripClusterizerConditionsData_fedchSoA>();
       auto Data_strip_View = product->view<SiStripClusterizerConditionsData_stripSoA>();
       auto Data_apv_View = product->view<SiStripClusterizerConditionsData_apvSoA>();
 
-      for (int j = 0; j < Data_fedch_size; ++j) {
-        Data_fedch_View.detID_(j) = detID[j];
-        Data_fedch_View.iPair_(j) = iPair[j];
-        Data_fedch_View.invthick_(j) = invthick[j];
-      }
-      for (int j = 0; j < Data_strip_size; ++j) {
-        Data_strip_View.noise_(j) = noise[j];
-      }
-      for (int j = 0; j < Data_apv_size; ++j) {
-        Data_apv_View.gain_(j) = gain[j];
-      }
+      // Fill the collections
+      fillSiStripClusterizerConditions(
+        quality,
+        gains.product(),
+        noises,
+        std::span(Data_fedch_View.invthick_(), Data_fedch_size),
+        std::span(Data_fedch_View.detID_(), Data_fedch_size),
+        std::span(Data_fedch_View.iPair_(), Data_fedch_size),
+        std::span(Data_strip_View.noise_(), Data_strip_size),
+        std::span(Data_apv_View.gain_(), Data_apv_size)
+      );
 
       return product;
     }
@@ -201,21 +177,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     void fillSiStripClusterizerConditions(const SiStripQuality& quality,
                                            const SiStripGain* gains,
                                            const SiStripNoises& noises,
-                                           std::vector<float>& invthick,
-                                           std::vector<uint32_t>& detID,
-                                           std::vector<uint16_t>& iPair,
-                                           std::vector<uint16_t>& noise,
-                                           std::vector<float>& gain);
+                                           std::span<float> invthick,
+                                           std::span<uint32_t> detID,
+                                           std::span<uint16_t> iPair,
+                                           std::span<uint16_t> noise,
+                                           std::span<float> gain);
   };
 
   void SiStripClusterizerConditionsESProducerAlpaka::fillSiStripClusterizerConditions(const SiStripQuality& quality,
                                                                                        const SiStripGain* gains,
                                                                                        const SiStripNoises& noises,
-                                                                                       std::vector<float>& invthick,
-                                                                                       std::vector<uint32_t>& detID,
-                                                                                       std::vector<uint16_t>& iPair,
-                                                                                       std::vector<uint16_t>& noise,
-                                                                                       std::vector<float>& gain) {
+                                                                                       std::span<float> invthick,
+                                                                                       std::span<uint32_t> detID,
+                                                                                       std::span<uint16_t> iPair,
+                                                                                       std::span<uint16_t> noise,
+                                                                                       std::span<float> gain) {
     // connected: map<DetID, std::vector<int>>
     // map of KEY=detid DATA=vector of apvs, maximum 6 APVs per detector module :
     const auto& connected = quality.cabling()->connected();
