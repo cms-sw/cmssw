@@ -39,7 +39,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     void acquire(device::Event const& iEvent, device::EventSetup const& iSetup) override;
     void produce(device::Event& iEvent, device::EventSetup const& iSetup) override;
 
-    std::unique_ptr<PortableFEDMover> fillFedIdFedChBuffer(Queue& queue, const SiStripClusterizerConditions& stripCond, const FEDRawDataCollection& rawColl);
+    std::unique_ptr<PortableFEDMover> fillFedIdFedChBuffer(Queue& queue,
+                                                           const SiStripClusterizerConditions& stripCond,
+                                                           const FEDRawDataCollection& rawColl);
 
     // RAW unpacking and clustering algorithm
     SiStripRawToClusterAlgo algo_;
@@ -52,7 +54,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         stripDataCondGetToken_;
     device::EDPutToken<SiStripClusterDevice> stripClustPutToken_;
     device::EDPutToken<SiStripDigiDevice> stripDigiPutToken_;
-    
+
     // Setup
     bool doAPVEmulatorCheck_;
 
@@ -74,8 +76,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         stripDataCondGetToken_(esConsumes()),
         stripClustPutToken_(produces()),
         stripDigiPutToken_(produces()),
-        doAPVEmulatorCheck_(iConfig.getParameter<bool>("DoAPVEmulatorCheck")) {
-  }
+        doAPVEmulatorCheck_(iConfig.getParameter<bool>("DoAPVEmulatorCheck")) {}
 
   void SiStripRawToCluster::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     // Add some custom parameter description to the automatically-created ones by the addWithDefaultLabel methos
@@ -83,7 +84,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     desc.add("ProductLabel", edm::InputTag("rawDataCollector"));
     desc.add<std::string>("ConditionsLabel", "");
     desc.add<std::string>("CablingConditionsLabel", "");
-    
+
     // Setup parameters (from SiStripClusterizerFromRaw)
     desc.add<bool>("DoAPVEmulatorCheck", false);
 
@@ -97,7 +98,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     clusterizer.add<uint32_t>("MaxSeedStrips", 200000u);
     desc.add("Clusterizer", clusterizer);
 
-
     descriptions.addWithDefaultLabel(desc);
   }
 
@@ -107,10 +107,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
     // Host conditions (for buffer preconstruct + fedCh mapping preparation)
     const auto& stripCond = iSetup.getData(stripCondGetToken_);
-    
+
     // Device conditions (cabling map)
     const auto& stripCablCond = iSetup.getData(stripCablCondGetToken_);
-    IfLogDebug(STRIPALPCHK, "STRIPALPCHK") << "#sizeB,stripCablCond_," << alpaka::getExtentProduct(stripCablCond.buffer());
+    IfLogDebug(STRIPALPCHK, "STRIPALPCHK")
+        << "#sizeB,stripCablCond_," << alpaka::getExtentProduct(stripCablCond.buffer());
 
     // Get FED raw data collection
     const auto& rawCollection = iEvent.get(fedRawGetToken_);
@@ -125,8 +126,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   void SiStripRawToCluster::produce(device::Event& iEvent, device::EventSetup const& iSetup) {
     // Device conditions (strip noise)
     const auto& stripDataCond = iSetup.getData(stripDataCondGetToken_);
-    IfLogDebug(STRIPALPCHK, "STRIPALPCHK") << "#sizeB,stripDataCond_," << alpaka::getExtentProduct(stripDataCond.buffer());
-    
+    IfLogDebug(STRIPALPCHK, "STRIPALPCHK")
+        << "#sizeB,stripDataCond_," << alpaka::getExtentProduct(stripDataCond.buffer());
+
     // Unpack the raw FED data into strip digi
     algo_.unpackStrips(iEvent.queue(), stripDataCond);
 
@@ -140,9 +142,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     iEvent.put(stripDigiPutToken_, std::move(clusterAmpls_d));
   }
 
-  std::unique_ptr<PortableFEDMover> SiStripRawToCluster::fillFedIdFedChBuffer(Queue& queue,
-                                                                              const SiStripClusterizerConditions& stripCond,
-                                                                              const FEDRawDataCollection& rawColl) {
+  std::unique_ptr<PortableFEDMover> SiStripRawToCluster::fillFedIdFedChBuffer(
+      Queue& queue, const SiStripClusterizerConditions& stripCond, const FEDRawDataCollection& rawColl) {
     // Containers for the condition-passing raw data
     const auto fedID_maxIdx = sistrip::FED_ID_MAX + 1;
     std::vector<const FEDRawData*> raw(fedID_maxIdx, nullptr);

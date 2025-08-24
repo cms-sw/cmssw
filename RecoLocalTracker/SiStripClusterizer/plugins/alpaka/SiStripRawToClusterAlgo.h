@@ -177,7 +177,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                               std::unique_ptr<PortableFEDMover> FEDChMover);
     void unpackStrips(Queue& queue, const SiStripClusterizerConditionsDataDevice& conditions_Data);
 
-    std::unique_ptr<SiStripClusterDevice> makeClusters(Queue& queue, const SiStripClusterizerConditionsDataDevice& conditions_Data);
+    std::unique_ptr<SiStripClusterDevice> makeClusters(Queue& queue,
+                                                       const SiStripClusterizerConditionsDataDevice& conditions_Data);
     std::unique_ptr<SiStripDigiDevice> releaseDigiAmplitudes(Queue& queue);
 
   private:

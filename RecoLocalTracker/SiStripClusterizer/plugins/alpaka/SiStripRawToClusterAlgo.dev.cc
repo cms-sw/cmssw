@@ -776,9 +776,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     }
   }
 
-  void SiStripRawToClusterAlgo::prepareUnpackCluster(Queue& queue,
-                                                     const SiStripClusterizerConditionsDetToFedsDevice& conditions_DetToFeds,
-                                                     std::unique_ptr<PortableFEDMover> rFEDChMover) {
+  void SiStripRawToClusterAlgo::prepareUnpackCluster(
+      Queue& queue,
+      const SiStripClusterizerConditionsDetToFedsDevice& conditions_DetToFeds,
+      std::unique_ptr<PortableFEDMover> rFEDChMover) {
     // Move ownership of the host-data container this class
     fedChMover_ = std::move(rFEDChMover);
 
@@ -850,7 +851,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // }
   }
 
-  void SiStripRawToClusterAlgo::unpackStrips(Queue& queue, const SiStripClusterizerConditionsDataDevice& conditions_Data) {
+  void SiStripRawToClusterAlgo::unpackStrips(Queue& queue,
+                                             const SiStripClusterizerConditionsDataDevice& conditions_Data) {
     // std::cout << "#kerStrips," << nStrips_h->data()[0] << std::endl;
     // std::cout << "#invalidFed," << invalidFedChN_d.data()[0] << std::endl;
 
@@ -948,7 +950,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // alpaka::wait(queue);
   }
 
-  std::unique_ptr<SiStripClusterDevice> SiStripRawToClusterAlgo::makeClusters(Queue& queue, const SiStripClusterizerConditionsDataDevice& conditions_Data) {
+  std::unique_ptr<SiStripClusterDevice> SiStripRawToClusterAlgo::makeClusters(
+      Queue& queue, const SiStripClusterizerConditionsDataDevice& conditions_Data) {
     // auto viewSeedsNb = make_host_view(*nSeeds_h->data());
     // std::cout << "#nSed," << viewSeedsNb.data()[0] << std::endl;
     // auto clusters_d = std::make_unique<SiStripClusterDevice>(*nSeeds_h->data(), queue);

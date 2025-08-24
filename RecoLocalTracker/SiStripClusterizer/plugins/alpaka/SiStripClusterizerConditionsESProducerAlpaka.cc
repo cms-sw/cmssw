@@ -124,11 +124,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       auto gains = iRecord.getTransientHandle(gainsToken_);
       const auto& noises = iRecord.get(noisesToken_);
       const auto& quality = iRecord.get(qualityTokenB_);
-      
+
       // Prepare the conditions on the host
-      const int Data_fedch_size = sistrip::NUMBER_OF_FEDS * sistrip::FEDCH_PER_FED; // 42240
-      const int Data_strip_size = sistrip::NUMBER_OF_FEDS * sistrip::FEDCH_PER_FED * sistrip::STRIPS_PER_FEDCH; // 10813440
-      const int Data_apv_size = sistrip::NUMBER_OF_FEDS * sistrip::FEDCH_PER_FED * sistrip::APVS_PER_FEDCH; // 84480
+      const int Data_fedch_size = sistrip::NUMBER_OF_FEDS * sistrip::FEDCH_PER_FED;  // 42240
+      const int Data_strip_size =
+          sistrip::NUMBER_OF_FEDS * sistrip::FEDCH_PER_FED * sistrip::STRIPS_PER_FEDCH;                      // 10813440
+      const int Data_apv_size = sistrip::NUMBER_OF_FEDS * sistrip::FEDCH_PER_FED * sistrip::APVS_PER_FEDCH;  // 84480
       auto product = std::make_unique<SiStripClusterizerConditionsDataHost>(
           std::array<int32_t, 3>{{Data_fedch_size, Data_strip_size, Data_apv_size}}, cms::alpakatools::host());
 
@@ -138,16 +139,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       auto Data_apv_View = product->view<SiStripClusterizerConditionsData_apvSoA>();
 
       // Fill the collections
-      fillSiStripClusterizerConditions(
-        quality,
-        gains.product(),
-        noises,
-        std::span(Data_fedch_View.invthick_(), Data_fedch_size),
-        std::span(Data_fedch_View.detID_(), Data_fedch_size),
-        std::span(Data_fedch_View.iPair_(), Data_fedch_size),
-        std::span(Data_strip_View.noise_(), Data_strip_size),
-        std::span(Data_apv_View.gain_(), Data_apv_size)
-      );
+      fillSiStripClusterizerConditions(quality,
+                                       gains.product(),
+                                       noises,
+                                       std::span(Data_fedch_View.invthick_(), Data_fedch_size),
+                                       std::span(Data_fedch_View.detID_(), Data_fedch_size),
+                                       std::span(Data_fedch_View.iPair_(), Data_fedch_size),
+                                       std::span(Data_strip_View.noise_(), Data_strip_size),
+                                       std::span(Data_apv_View.gain_(), Data_apv_size));
 
       return product;
     }
@@ -175,23 +174,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
     // Make conditions as in the RecoLocalTracker/SiStripClusterizer/plugins/ClustersFromRawProducer.cc module
     void fillSiStripClusterizerConditions(const SiStripQuality& quality,
-                                           const SiStripGain* gains,
-                                           const SiStripNoises& noises,
-                                           std::span<float> invthick,
-                                           std::span<uint32_t> detID,
-                                           std::span<uint16_t> iPair,
-                                           std::span<uint16_t> noise,
-                                           std::span<float> gain);
+                                          const SiStripGain* gains,
+                                          const SiStripNoises& noises,
+                                          std::span<float> invthick,
+                                          std::span<uint32_t> detID,
+                                          std::span<uint16_t> iPair,
+                                          std::span<uint16_t> noise,
+                                          std::span<float> gain);
   };
 
   void SiStripClusterizerConditionsESProducerAlpaka::fillSiStripClusterizerConditions(const SiStripQuality& quality,
-                                                                                       const SiStripGain* gains,
-                                                                                       const SiStripNoises& noises,
-                                                                                       std::span<float> invthick,
-                                                                                       std::span<uint32_t> detID,
-                                                                                       std::span<uint16_t> iPair,
-                                                                                       std::span<uint16_t> noise,
-                                                                                       std::span<float> gain) {
+                                                                                      const SiStripGain* gains,
+                                                                                      const SiStripNoises& noises,
+                                                                                      std::span<float> invthick,
+                                                                                      std::span<uint32_t> detID,
+                                                                                      std::span<uint16_t> iPair,
+                                                                                      std::span<uint16_t> noise,
+                                                                                      std::span<float> gain) {
     // connected: map<DetID, std::vector<int>>
     // map of KEY=detid DATA=vector of apvs, maximum 6 APVs per detector module :
     const auto& connected = quality.cabling()->connected();
@@ -201,13 +200,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
     for (const auto& conn : connected) {
       const auto det = conn.first;
-      
+
       if (!quality.IsModuleBad(det)) {
         const auto detConn_it = detCabling.find(det);
-        
+
         const auto gainRange = gains->getRange(det);
         if (detCabling.end() != detConn_it) {
-
           for (const auto& chan : (*detConn_it).second) {
             if (chan && chan->fedId() && chan->isConnected()) {
               const uint32_t chan_detID = chan->detId();
@@ -234,15 +232,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                   noise[stripIndex(chan_fedID, chan_fedCh, detstrip)] = strip_noise;
                 }
               }
-              
+
               // gain is actually stored per-APV, not per-strip (so stored for the strpis 0-127 and 128-255)
               gain[apvIndex(chan_fedID, chan_fedCh, 0)] = SiStripGain::getApvGain(0, gainRange);
               gain[apvIndex(chan_fedID, chan_fedCh, 255)] = SiStripGain::getApvGain(1, gainRange);
             }
           }
-
-
-
         }
       }
     }

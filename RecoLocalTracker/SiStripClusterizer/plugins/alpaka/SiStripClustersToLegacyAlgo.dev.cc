@@ -40,14 +40,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         const auto full = fullCollection[i];
         if (full.candidateAccepted()) {
           const uint32_t idx = full.candidateAcceptedPrefix() - 1;
-          slimCollection[idx] = {
-            full.clusterIndex(),
-            full.clusterSize(),
-            full.clusterDetId(),
-            full.firstStrip(),
-            full.barycenter(),
-            full.charge()
-          };
+          slimCollection[idx] = {full.clusterIndex(),
+                                 full.clusterSize(),
+                                 full.clusterDetId(),
+                                 full.firstStrip(),
+                                 full.barycenter(),
+                                 full.charge()};
         }
       }
 
@@ -119,7 +117,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
     using out_t = edmNew::DetSetVector<SiStripCluster>;
     auto output = std::make_unique<out_t>();
-    
 
     for (int i = 0; i < nSeedStripsNC;) {
       const auto detid = detIDs[i];
