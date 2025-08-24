@@ -89,7 +89,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                         clusters_d.const_view(),
                         clusters_d_slim.view());
 
-    // Move the clusters and digi to device
+    // Copy the clusters SoA to the host
     clusters_h_ = std::make_unique<SiStripClustersSlimHost>(nbClusters, queue);
     alpaka::memcpy(queue, clusters_h_->buffer(), clusters_d_slim.buffer());
   }
