@@ -41,7 +41,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
 
     // Containers for the condition-passing raw data
-    std::vector<const FEDRawData*> raw_;
     std::vector<std::unique_ptr<FEDBuffer>> buffers_;
 
     std::unique_ptr<PortableFEDMover> fillFedIdFedChBuffer(Queue& queue, const SiStripClusterizerConditions& stripCond, const FEDRawDataCollection& rawColl);
@@ -71,7 +70,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
   SiStripRawToCluster::SiStripRawToCluster(const edm::ParameterSet& iConfig)
       : SynchronizingEDProducer(iConfig),
-        raw_(sistrip::FED_ID_MAX + 1),
         buffers_(sistrip::FED_ID_MAX + 1),
         algo_(iConfig.getParameter<edm::ParameterSet>("Clusterizer")),
         fedRawGetToken_(consumes(iConfig.getParameter<edm::InputTag>("ProductLabel"))),
@@ -122,7 +120,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // Get FED raw data collection
     const auto& rawCollection = iEvent.get(fedRawGetToken_);
 
-    // Fill the raw_, buffers_. Prepare the LUT for FEDCh mapping in the raw[] on the device
+    // Fill the buffers_. Prepare the LUT for FEDCh mapping in the raw[] on the device
     std::unique_ptr<PortableFEDMover> fedChMover = fillFedIdFedChBuffer(iEvent.queue(), stripCond, rawCollection);
 
     // Move PortableFEDMover class to algo
@@ -151,7 +149,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                                                                               const SiStripClusterizerConditions& stripCond,
                                                                               const FEDRawDataCollection& rawColl) {
     // Containers for the condition-passing raw data
-    std::fill(raw_.begin(), raw_.end(), nullptr);
+    std::vector<const FEDRawData*> raw(sistrip::FED_ID_MAX + 1);
+
+    std::fill(raw.begin(), raw.end(), nullptr);
     std::fill(buffers_.begin(), buffers_.end(), nullptr);
 
     std::vector<FEDChMetadata> fedChOfs_wrt_rawFedId_;
@@ -159,7 +159,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
     // loop over good det in cabling
     for (auto idet : stripCond.allDetIds()) {
-      // it populates raw_, buffers_ with only connected fed
+      // it populates raw, buffers_ with only connected fed
       auto const& det = stripCond.findDetId(idet);
       if (!det.valid()) {
         continue;  // idet loop
@@ -180,16 +180,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
           continue;  // conn loop
         }
 
-        if (!raw_[fedId]) {
+        if (!raw[fedId]) {
           // pointer to the raw data in the collection
-          raw_[fedId] = &rawColl.FEDData(fedId);
-          rawBuffFlattenSize += raw_[fedId]->size();
+          raw[fedId] = &rawColl.FEDData(fedId);
+          rawBuffFlattenSize += raw[fedId]->size();
         }
 
         // If Fed hasnt already been initialised, extract data and initialise
         sistrip::FEDBuffer* buffer = buffers_[fedId].get();
         if (!buffer) {
-          buffers_[fedId] = fillBuffer(fedId, *raw_[fedId]);
+          buffers_[fedId] = fillBuffer(fedId, *raw[fedId]);
           if (!buffers_[fedId]) {
             continue;
           } else {
@@ -230,7 +230,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         const FEDChannel& channel = buffer->channel(fedCh);
         const uint32_t fedChOfs = channel.offset();
 
-        auto diff = channel.data() - raw_[fedId]->data();
+        auto diff = channel.data() - raw[fedId]->data();
         if (diff < 0 || diff > std::numeric_limits<uint32_t>::max()) {
           // std::cout << "#diff," << diff << std::endl;
           if (edm::isDebugEnabled()) {
@@ -252,7 +252,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         // assert(channel.length() == (channel.data()[(channel.offset()) ^ 7] + (channel.data()[(channel.offset() + 1) ^ 7] << 8)));
 
         // // Check that a FEDChannel built using the method effectively return the same value
-        // auto fedChCheck = FEDChannel(raw_[fedId]->data()+diff, channel.offset());
+        // auto fedChCheck = FEDChannel(raw[fedId]->data()+diff, channel.offset());
         // std::cout << "#fedChChk," << fedId << "," << (int)fedCh << "," << channel.length() << "," << fedChCheck.length() << std::endl;
       }
     }
@@ -261,7 +261,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     auto fedMover = std::make_unique<PortableFEDMover>(queue, rawBuffFlattenSize, fedChOfs_wrt_rawFedId_.size());
 
     // Fill buffer
-    fedMover->fillBuffer(raw_);
+    fedMover->fillBuffer(raw);
 
     // Fill the mapping
     fedMover->fillMapping(fedChOfs_wrt_rawFedId_);
