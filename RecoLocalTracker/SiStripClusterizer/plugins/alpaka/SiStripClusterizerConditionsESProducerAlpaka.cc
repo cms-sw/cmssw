@@ -135,7 +135,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       std::vector<uint32_t> detID(sistrip::NUMBER_OF_FEDS * sistrip::FEDCH_PER_FED);
       std::vector<uint16_t> iPair(sistrip::NUMBER_OF_FEDS * sistrip::FEDCH_PER_FED);
       std::vector<uint16_t> noise(sistrip::NUMBER_OF_FEDS * sistrip::FEDCH_PER_FED * sistrip::STRIPS_PER_FEDCH);
-      std::vector<float> gain(sistrip::NUMBER_OF_FEDS * sistrip::APVS_PER_FEDCH * sistrip::FEDCH_PER_FED);
+      std::vector<float> gain(sistrip::NUMBER_OF_FEDS * sistrip::FEDCH_PER_FED * sistrip::APVS_PER_FEDCH);
 
       fillSiStripClusterizerConditions(quality, gains.product(), noises, invthick, detID, iPair, noise, gain);
 
@@ -179,15 +179,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // Auxiliary functions to translate indexes on the arrays
     static constexpr uint16_t badBit = 1 << 15;
     inline uint16_t fedIndex(uint16_t fed) { return (fed - FED_ID_MIN); };
-    inline uint32_t stripIndex(uint16_t fed, uint8_t channel, uint16_t strip) {
+    inline uint32_t stripIndex(uint16_t fed, uint16_t channel, uint16_t strip) {
       return (fedIndex(fed) * FEDCH_PER_FED * STRIPS_PER_FEDCH + channel * STRIPS_PER_FEDCH +
               (strip % STRIPS_PER_FEDCH));
     };
-    inline uint32_t apvIndex(uint16_t fed, uint8_t channel, uint16_t strip) {
+    inline uint32_t apvIndex(uint16_t fed, uint16_t channel, uint16_t strip) {
       return (fedIndex(fed) * APVS_PER_FEDCH * FEDCH_PER_FED + APVS_PER_CHAN * channel +
               (strip % STRIPS_PER_FEDCH) / STRIPS_PER_APV);
     };
-    inline uint32_t channelIndex(uint16_t fedId, uint8_t fedCh) { return (fedIndex(fedId) * FEDCH_PER_FED + fedCh); };
+    inline uint32_t channelIndex(uint16_t fedId, uint16_t fedCh) { return (fedIndex(fedId) * FEDCH_PER_FED + fedCh); };
 
   private:
     edm::ESGetToken<SiStripGain, SiStripGainRcd> gainsToken_;
@@ -225,16 +225,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
     for (const auto& conn : connected) {
       const auto det = conn.first;
+      
       if (!quality.IsModuleBad(det)) {
         const auto detConn_it = detCabling.find(det);
-
+        
+        const auto gainRange = gains->getRange(det);
         if (detCabling.end() != detConn_it) {
+
           for (const auto& chan : (*detConn_it).second) {
             if (chan && chan->fedId() && chan->isConnected()) {
-              const auto chan_detID = chan->detId();
-              const auto chan_fedID = chan->fedId();
-              const auto chan_fedCh = chan->fedCh();
-              const auto chan_apvPairNumber = chan->apvPairNumber();
+              const uint32_t chan_detID = chan->detId();
+              const uint16_t chan_fedID = chan->fedId();
+              const uint16_t chan_fedCh = chan->fedCh();
+              const uint16_t chan_apvPairNumber = chan->apvPairNumber();
 
               // Fill the data structures
               // Note: the channelIndex is used to access the data structures
@@ -243,26 +246,27 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
               invthick[channelIndex(chan_fedID, chan_fedCh)] = siStripClusterTools::sensorThicknessInverse(chan_detID);
 
               auto offset = STRIPS_PER_FEDCH * chan_apvPairNumber;
-
-              for (auto strip = 0; strip < STRIPS_PER_FEDCH; ++strip) {
-                const auto gainRange = gains->getRange(det);
-
+              for (uint16_t strip = 0; strip < STRIPS_PER_FEDCH; ++strip) {
                 const auto detstrip = strip + offset;
                 const uint16_t strip_noise = SiStripNoises::getRawNoise(detstrip, noises.getRange(det));
-                const auto strip_gain = SiStripGain::getStripGain(detstrip, gainRange);
                 const auto bad = quality.IsStripBad(quality.getRange(det), detstrip);
 
-                // gain is actually stored per-APV, not per-strip
                 // setStrip_(chan_fedID, chan_fedCh, detstrip, noise, gain, bad);
-                gain[apvIndex(chan_fedID, chan_fedCh, detstrip)] = strip_gain;
                 if (bad) [[unlikely]] {
                   noise[stripIndex(chan_fedID, chan_fedCh, detstrip)] = badBit;
                 } else {
                   noise[stripIndex(chan_fedID, chan_fedCh, detstrip)] = strip_noise;
                 }
               }
+              
+              // gain is actually stored per-APV, not per-strip (so stored for the strpis 0-127 and 128-255)
+              gain[apvIndex(chan_fedID, chan_fedCh, 0)] = SiStripGain::getApvGain(0, gainRange);
+              gain[apvIndex(chan_fedID, chan_fedCh, 255)] = SiStripGain::getApvGain(1, gainRange);
             }
           }
+
+
+
         }
       }
     }
