@@ -39,10 +39,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     void acquire(device::Event const& iEvent, device::EventSetup const& iSetup) override;
     void produce(device::Event& iEvent, device::EventSetup const& iSetup) override;
 
-
-    // Containers for the condition-passing raw data
-    std::vector<std::unique_ptr<FEDBuffer>> buffers_;
-
     std::unique_ptr<PortableFEDMover> fillFedIdFedChBuffer(Queue& queue, const SiStripClusterizerConditions& stripCond, const FEDRawDataCollection& rawColl);
 
     // RAW unpacking and clustering algorithm
@@ -70,7 +66,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
   SiStripRawToCluster::SiStripRawToCluster(const edm::ParameterSet& iConfig)
       : SynchronizingEDProducer(iConfig),
-        buffers_(sistrip::FED_ID_MAX + 1),
         algo_(iConfig.getParameter<edm::ParameterSet>("Clusterizer")),
         fedRawGetToken_(consumes(iConfig.getParameter<edm::InputTag>("ProductLabel"))),
         stripCondGetToken_(esConsumes(edm::ESInputTag{"", iConfig.getParameter<std::string>("ConditionsLabel")})),
@@ -120,7 +115,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // Get FED raw data collection
     const auto& rawCollection = iEvent.get(fedRawGetToken_);
 
-    // Fill the buffers_. Prepare the LUT for FEDCh mapping in the raw[] on the device
+    // Prepare the LUT for FEDCh mapping in the raw[] on the device
     std::unique_ptr<PortableFEDMover> fedChMover = fillFedIdFedChBuffer(iEvent.queue(), stripCond, rawCollection);
 
     // Move PortableFEDMover class to algo
@@ -149,17 +144,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                                                                               const SiStripClusterizerConditions& stripCond,
                                                                               const FEDRawDataCollection& rawColl) {
     // Containers for the condition-passing raw data
-    std::vector<const FEDRawData*> raw(sistrip::FED_ID_MAX + 1);
-
-    std::fill(raw.begin(), raw.end(), nullptr);
-    std::fill(buffers_.begin(), buffers_.end(), nullptr);
+    const auto fedID_maxIdx = sistrip::FED_ID_MAX + 1;
+    std::vector<const FEDRawData*> raw(fedID_maxIdx, nullptr);
+    std::vector<std::unique_ptr<FEDBuffer>> buffers(fedID_maxIdx);
 
     std::vector<FEDChMetadata> fedChOfs_wrt_rawFedId_;
     uint32_t rawBuffFlattenSize = 0;
 
     // loop over good det in cabling
     for (auto idet : stripCond.allDetIds()) {
-      // it populates raw, buffers_ with only connected fed
+      // it populates raw, buffers with only connected fed
       auto const& det = stripCond.findDetId(idet);
       if (!det.valid()) {
         continue;  // idet loop
@@ -187,19 +181,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         }
 
         // If Fed hasnt already been initialised, extract data and initialise
-        sistrip::FEDBuffer* buffer = buffers_[fedId].get();
+        sistrip::FEDBuffer* buffer = buffers[fedId].get();
         if (!buffer) {
-          buffers_[fedId] = fillBuffer(fedId, *raw[fedId]);
-          if (!buffers_[fedId]) {
+          buffers[fedId] = fillBuffer(fedId, *raw[fedId]);
+          if (!buffers[fedId]) {
             continue;
           } else {
-            buffer = buffers_[fedId].get();
+            buffer = buffers[fedId].get();
           }
         }
         assert(buffer);
 
         // Set legacy unpacking
-        // buffers_[fedidx]->setLegacyMode(legacyUnpacker_);
+        // buffers[fedidx]->setLegacyMode(legacyUnpacker_);
 
         // Check the readout mode of the buffer
         const FEDReadoutMode buffROMode = buffer->readoutMode();
