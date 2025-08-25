@@ -25,7 +25,7 @@ struct MagneticFieldKernel {
     for (auto index : cms::alpakatools::uniform_elements(acc, size)) {
       out[index](0) = 0;
       out[index](1) = 0;
-      out[index](2) = magneticFieldAtPoint(in[index]);
+      out[index](2) = magneticFieldAtPoint(acc, in[index]);
     }
   }
 };
@@ -77,7 +77,8 @@ int main() {
     field_host[i] = Vector3f::Zero();
   }
 
-  float resolution = 0.2;
+  const float resolution = 0.2;
+
   float maxdelta = 0.;
   int fail = 0;
 
@@ -107,7 +108,7 @@ int main() {
       const auto& point = points[i];
       const auto& referenceB = referenceB_vec[i];
       GlobalVector parametricB(field_host[i](0), field_host[i](1), field_host[i](2));
-      float delta = (referenceB - parametricB).mag();
+      const float delta = (referenceB - parametricB).mag();
       if (delta > resolution) {
         ++fail;
         if (delta > maxdelta)
