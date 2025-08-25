@@ -616,6 +616,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   SegmentsOccupancy segmentsOccupancy,
                                   ObjectRangesConst ranges,
                                   const float ptCut) const {
+      ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[1] == 1) &&
+                        (alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[2] == 1));
       for (uint16_t innerLowerModuleIndex : cms::alpakatools::uniform_elements_z(acc, modules.nLowerModules())) {
         unsigned int nInnerMDs = mdsOccupancy.nMDs()[innerLowerModuleIndex];
         if (nInnerMDs == 0)
@@ -635,8 +637,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           for (unsigned int hitIndex : cms::alpakatools::uniform_elements_x(acc, limit)) {
             unsigned int innerMDArrayIdx = hitIndex / nOuterMDs;
             unsigned int outerMDArrayIdx = hitIndex % nOuterMDs;
-            if (outerMDArrayIdx >= nOuterMDs)
-              continue;
 
             unsigned int innerMDIndex = ranges.mdRanges()[innerLowerModuleIndex][0] + innerMDArrayIdx;
             unsigned int outerMDIndex = ranges.mdRanges()[outerLowerModuleIndex][0] + outerMDArrayIdx;
@@ -727,6 +727,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   MiniDoubletsOccupancyConst mdsOccupancy,
                                   ObjectRangesConst ranges,
                                   const float ptCut) const {
+      // The atomicAdd below with hierarchy::Threads{} requires one block in x, y dimensions.
+      ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[1] == 1) &&
+                        (alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[2] == 1));
       const auto& mdRanges = ranges.mdRanges();
 
       for (uint16_t innerLowerModuleIndex : cms::alpakatools::uniform_elements_z(acc, modules.nLowerModules())) {
@@ -749,8 +752,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           for (unsigned int hitIndex : cms::alpakatools::uniform_elements_x(acc, limit)) {
             const unsigned int innerMDArrayIdx = hitIndex / nOuterMDs;
             const unsigned int outerMDArrayIdx = hitIndex % nOuterMDs;
-            if (outerMDArrayIdx >= nOuterMDs)
-              continue;
 
             const unsigned int innerMDIndex = mdRanges[innerLowerModuleIndex][0] + innerMDArrayIdx;
             const unsigned int outerMDIndex = mdRanges[outerLowerModuleIndex][0] + outerMDArrayIdx;

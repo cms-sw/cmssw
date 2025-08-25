@@ -1697,6 +1697,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   ObjectRangesConst ranges,
                                   uint16_t nEligibleT5Modules,
                                   const float ptCut) const {
+      ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[1] == 1) &&
+                        (alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[2] == 1));
       for (int iter : cms::alpakatools::uniform_elements_z(acc, nEligibleT5Modules)) {
         uint16_t lowerModule1 = ranges.indicesOfEligibleT5Modules()[iter];
         short layer2_adjustment;
@@ -1833,6 +1835,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   Triplets triplets,
                                   TripletsOccupancyConst tripletsOcc,
                                   ObjectRangesConst ranges) const {
+      // The atomicAdd below with hierarchy::Threads{} requires one block in x, y dimensions.
+      ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[1] == 1) &&
+                        (alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[2] == 1));
       const auto& mdIndices = segments.mdIndices();
       const auto& segIdx = triplets.segmentIndices();
       const auto& lmIdx = triplets.lowerModuleIndices();

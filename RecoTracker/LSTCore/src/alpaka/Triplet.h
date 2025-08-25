@@ -722,6 +722,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   uint16_t* index_gpu,
                                   uint16_t nonZeroModules,
                                   const float ptCut) const {
+      ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[1] == 1) &&
+                        (alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[2] == 1));
       for (uint16_t innerLowerModuleArrayIdx : cms::alpakatools::uniform_elements_z(acc, nonZeroModules)) {
         uint16_t innerInnerLowerModuleIndex = index_gpu[innerLowerModuleArrayIdx];
         if (innerInnerLowerModuleIndex >= modules.nLowerModules())
@@ -824,6 +826,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   Segments segments,
                                   SegmentsOccupancyConst segOcc,
                                   ObjectRangesConst ranges) const {
+      // The atomicAdd below with hierarchy::Threads{} requires one block in x, y dimensions.
+      ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[1] == 1) &&
+                        (alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[2] == 1));
       const auto& mdIndices = segments.mdIndices();
       const auto& outerLowerModuleIndices = segments.outerLowerModuleIndices();
       const auto& segmentRanges = ranges.segmentRanges();
