@@ -559,8 +559,8 @@ void TracksterLinkingbySkeletons::linkTracksters(
     for (auto const &node : comp) {
       LogDebug("TracksterLinkingbySkeletons") << node << " ";
       linkedTracksterIdToInputTracksterId[ic].push_back(node);
-      outTrackster.mergeTracksters(input.tracksters[node]);
     }
+    outTrackster.mergeTracksters(input.tracksters, linkedTracksterIdToInputTracksterId[ic]);
     linkedTracksters.push_back(resultTracksters.size());
     LogDebug("TracksterLinkingbySkeletons") << "\nOut Trackster " << outTrackster.raw_energy() << std::endl;
     resultTracksters.push_back(outTrackster);
