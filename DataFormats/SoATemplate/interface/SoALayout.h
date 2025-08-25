@@ -158,7 +158,7 @@ namespace cms::soa {
 	return cms::soa::computePitch(parent_.metadata().BOOST_PP_CAT(parametersOf_, NAME)(),							   \
 						ParentClass::alignment, parent_.elements_);													   \
   }
-  // clang-format on
+// clang-format on
 
 #define _DEFINE_METADATA_MEMBERS(R, DATA, TYPE_NAME)                                        \
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
@@ -196,7 +196,7 @@ namespace cms::soa {
  */
 // clang-format off
 #define _ASSIGN_SPAN_TO_COLUMNS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                                		   \
-    (cms::soa::assignSpanToColumn(view.metadata().BOOST_PP_CAT(parametersOf_, NAME)(), view.metadata().size(), alignment))  // clang-format on
+    (cms::soa::getSpanToColumn(view.metadata().BOOST_PP_CAT(parametersOf_, NAME)(), view.metadata().size(), alignment))  // clang-format on
 
 #define _ASSIGN_SPAN_TO_COLUMNS(R, DATA, TYPE_NAME)                                         \
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \

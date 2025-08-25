@@ -984,46 +984,46 @@ namespace cms::soa {
 
   // Helper functions for constructing a span from a column
   template <typename T>
-  auto assignSpanToColumn(const cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::scalar, T>& column,
-                          cms::soa::size_type,
-                          cms::soa::byte_size_type alignment) {
+  auto getSpanToColumn(const cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::scalar, T>& column,
+                       cms::soa::size_type,
+                       cms::soa::byte_size_type alignment) {
     return std::span(column.addr_, 1);
   }
 
   template <typename T>
-  auto assignSpanToColumn(const cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::column, T>& column,
-                          cms::soa::size_type elements,
-                          cms::soa::byte_size_type alignment) {
+  auto getSpanToColumn(const cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::column, T>& column,
+                       cms::soa::size_type elements,
+                       cms::soa::byte_size_type alignment) {
     return std::span(column.addr_, elements);
   }
 
   template <typename T>
-  auto assignSpanToColumn(const cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::eigen, T>& column,
-                          cms::soa::size_type elements,
-                          cms::soa::byte_size_type alignment) {
+  auto getSpanToColumn(const cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::eigen, T>& column,
+                       cms::soa::size_type elements,
+                       cms::soa::byte_size_type alignment) {
     return std::span(column.addr_,
                      cms::soa::alignSize(elements * sizeof(typename T::Scalar), alignment) * T::RowsAtCompileTime *
                          T::ColsAtCompileTime / sizeof(typename T::Scalar));
   }
 
   template <typename T>
-  auto assignSpanToColumn(const cms::soa::SoAConstParametersImpl<cms::soa::SoAColumnType::scalar, T>& column,
-                          cms::soa::size_type elements,
-                          cms::soa::byte_size_type alignment) {
+  auto getSpanToColumn(const cms::soa::SoAConstParametersImpl<cms::soa::SoAColumnType::scalar, T>& column,
+                       cms::soa::size_type elements,
+                       cms::soa::byte_size_type alignment) {
     return std::span(column.addr_, 1);
   }
 
   template <typename T>
-  auto assignSpanToColumn(const cms::soa::SoAConstParametersImpl<cms::soa::SoAColumnType::column, T>& column,
-                          cms::soa::size_type elements,
-                          cms::soa::byte_size_type alignment) {
+  auto getSpanToColumn(const cms::soa::SoAConstParametersImpl<cms::soa::SoAColumnType::column, T>& column,
+                       cms::soa::size_type elements,
+                       cms::soa::byte_size_type alignment) {
     return std::span(column.addr_, elements);
   }
 
   template <typename T>
-  auto assignSpanToColumn(const cms::soa::SoAConstParametersImpl<cms::soa::SoAColumnType::eigen, T>& column,
-                          cms::soa::size_type elements,
-                          cms::soa::byte_size_type alignment) {
+  auto getSpanToColumn(const cms::soa::SoAConstParametersImpl<cms::soa::SoAColumnType::eigen, T>& column,
+                       cms::soa::size_type elements,
+                       cms::soa::byte_size_type alignment) {
     return std::span(column.addr_,
                      cms::soa::alignSize(elements * sizeof(typename T::Scalar), alignment) * T::RowsAtCompileTime *
                          T::ColsAtCompileTime / sizeof(typename T::Scalar));
