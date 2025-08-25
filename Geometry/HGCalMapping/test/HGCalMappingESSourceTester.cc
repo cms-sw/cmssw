@@ -392,7 +392,7 @@ std::map<uint32_t, uint32_t> HGCalMappingESSourceTester::mapGeoToElectronics(
 
       if (sipm) {
         geoid = ::hgcal::mappingtools::getSiPMDetId(
-            imod.zside(), imod.plane(), imod.i2(), imod.celltype(), jcell.i1(), jcell.i2());
+            imod.zside(), imod.plane(), imod.i2(), imod.celltype(), jcell.i1(), jcell.i2(), jcell.isHD());
       } else {
         geoid = imod.detid() + jcell.detid();
       }
