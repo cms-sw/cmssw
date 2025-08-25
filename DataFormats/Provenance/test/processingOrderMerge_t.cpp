@@ -167,6 +167,13 @@ TEST_CASE("processingOrderMerge", "[processingOrderMerge]") {
         std::vector<std::string> names = {"D", "B", "C", "A"};
         REQUIRE_THROWS_AS(edm::processingOrderMerge(ph, names), cms::Exception);
       }
+      SECTION("reverse order with an extra one in front") {
+        edm::ProcessHistory ph;
+        ph.emplace_back("C", edm::ReleaseVersion(""), edm::HardwareResourcesDescription());
+        ph.emplace_back("A", edm::ReleaseVersion(""), edm::HardwareResourcesDescription());
+        std::vector<std::string> names = {"B", "C", "A"};
+        REQUIRE_THROWS_AS(edm::processingOrderMerge(ph, names), cms::Exception);
+      }
     }
   }
 }

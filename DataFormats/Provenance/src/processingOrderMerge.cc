@@ -13,6 +13,7 @@ namespace edm {
     template <typename Iter>
     Iter foundLaterIn(Iter itBegin, Iter it, Iter itEnd, std::string const& name) {
       auto itFind = std::find(itBegin, itEnd, name);
+      // Sanity check, it should be impossible for this to happen
       if (itFind < it) {
         throwIncompatibleOrdering("process " + name + " found earlier in other list");
       }
@@ -56,28 +57,17 @@ namespace edm {
           auto itFindNew = foundLaterIn(iHistory.begin(), itNew, itNewEnd, *itOld);
           if (itFindOld != itOldEnd) {
             if (itFindNew != itNewEnd) {
-              throwIncompatibleOrdering("process " + *itNew + " and " + *itOld + " are out of order");
-            }
-            //found it, copy over everything up to and including it
-            while (itOld != itFindOld) {
-              tempNames.push_back(*itOld);
-              ++itOld;
+              throwIncompatibleOrdering("order of processes " + *itNew + " and " + *itOld +
+                                        " is not the same in all ProcessHistories");
             }
             tempNames.push_back(*itOld);
             ++itOld;
-            ++itNew;
           } else {
             if (itFindNew == itNewEnd) {
-              throwIncompatibleOrdering("process " + *itOld + " and " + *itNew + " are independent");
+              throwIncompatibleOrdering("order of processes " + *itOld + " and " + *itNew + " is ambiguous");
             }
-            while (itNew != itFindNew) {
-              tempNames.push_back(*itNew);
-              ++itNew;
-            }
-            //not found, add the new one
             tempNames.push_back(*itNew);
             ++itNew;
-            ++itOld;
           }
         }
       }
