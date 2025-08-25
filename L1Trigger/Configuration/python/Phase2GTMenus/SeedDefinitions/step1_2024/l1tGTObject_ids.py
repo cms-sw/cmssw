@@ -40,7 +40,7 @@ objectIDs = {
         "NoIsoLowPt": {
             "qual": {
                 "barrel": 0b0010,
-                "endcap": 0b0000,
+                "endcap": 0b0010, # Now apply electron ID in endcap for all pT, remove separate LowPt category?
             },
         }
     },
