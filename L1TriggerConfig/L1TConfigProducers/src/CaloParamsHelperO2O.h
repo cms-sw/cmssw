@@ -70,9 +70,10 @@ namespace l1t {
       metHFPhiCalibration = 49,
       layer1HCalFBUpper = 50,
       layer1HCalFBLower = 51,
-      layer1ECalZS = 52,
-      layer1HCalZS = 53,
-      NUM_CALOPARAMNODES = 54
+      hiZDC = 52,
+      layer1ECalZS = 53,
+      layer1HCalZS = 54,
+      NUM_CALOPARAMNODES = 55
     };
 
     CaloParamsHelperO2O() { pnode_.resize(NUM_CALOPARAMNODES); }
@@ -546,6 +547,11 @@ namespace l1t {
     // HI Q2
     l1t::LUT* q2LUT() { return &pnode_[hiQ2].LUT_; }
     void setQ2LUT(const l1t::LUT& lut) { pnode_[hiQ2].LUT_ = lut; }
+
+    // HI ZDC
+    l1t::LUT* zdcLUT() { return &pnode_[hiZDC].LUT_; }
+    l1t::LUT const* zdcLUT() const { return &pnode_[hiZDC].LUT_; }
+    void setZDCLUT(const l1t::LUT& lut) { pnode_[hiZDC].LUT_ = lut; }
 
     // HI parameters
 
