@@ -143,8 +143,6 @@ void testEventGetRefBeforePut::getRefTest() {
   std::string productInstanceName("Rick");
 
   edmtest::IntProduct dp;
-  edm::TypeWithDict dummytype(typeid(edmtest::IntProduct));
-  std::string className = dummytype.friendlyClassName();
 
   edm::ParameterSet dummyProcessPset;
   dummyProcessPset.registerIt();
@@ -152,7 +150,7 @@ void testEventGetRefBeforePut::getRefTest() {
   processConfiguration->setParameterSetID(dummyProcessPset.id());
 
   edm::ProductDescription product(
-      edm::InEvent, label, processName, dummytype.userClassName(), className, productInstanceName, dummytype);
+      edm::InEvent, label, processName, productInstanceName, edm::TypeID(typeid(edmtest::IntProduct)));
 
   product.init();
 

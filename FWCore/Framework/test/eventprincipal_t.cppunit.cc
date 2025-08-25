@@ -106,22 +106,15 @@ std::shared_ptr<edm::ProductDescription> test_ep::fake_single_process_branch(std
                                                                              std::string const& productInstanceName) {
   std::string moduleLabel = processName + "dummyMod";
   std::string moduleClass("DummyModule");
-  edm::TypeWithDict dummyType(typeid(edmtest::DummyProduct));
-  std::string productClassName = dummyType.userClassName();
-  std::string friendlyProductClassName = dummyType.friendlyClassName();
+  edm::TypeID dummyType(typeid(edmtest::DummyProduct));
   edm::ParameterSet modParams;
   modParams.addParameter<std::string>("@module_type", moduleClass);
   modParams.addParameter<std::string>("@module_label", moduleLabel);
   modParams.registerIt();
   std::shared_ptr<edm::ProcessConfiguration> process(fake_single_module_process(tag, processName, modParams));
 
-  auto result = std::make_shared<edm::ProductDescription>(edm::InEvent,
-                                                          moduleLabel,
-                                                          processName,
-                                                          productClassName,
-                                                          friendlyProductClassName,
-                                                          productInstanceName,
-                                                          dummyType);
+  auto result =
+      std::make_shared<edm::ProductDescription>(edm::InEvent, moduleLabel, processName, productInstanceName, dummyType);
   productDescriptions_[tag] = result;
   return result;
 }

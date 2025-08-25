@@ -137,9 +137,6 @@ void testGenericHandle::getbyLabelTest() {
   std::string label("fred");
   std::string productInstanceName("Rick");
 
-  edm::TypeWithDict dummytype(typeid(edmtest::DummyProduct));
-  std::string className = dummytype.friendlyClassName();
-
   edm::ParameterSet dummyProcessPset;
   dummyProcessPset.registerIt();
 
@@ -147,7 +144,7 @@ void testGenericHandle::getbyLabelTest() {
   pset.registerIt();
 
   edm::ProductDescription product(
-      edm::InEvent, label, processName, dummytype.userClassName(), className, productInstanceName, dummytype);
+      edm::InEvent, label, processName, productInstanceName, edm::TypeID(typeid(edmtest::DummyProduct)));
 
   product.init();
 
