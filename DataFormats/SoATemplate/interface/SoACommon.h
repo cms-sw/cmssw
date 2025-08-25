@@ -942,6 +942,9 @@ namespace cms::soa {
     using type = std::span<typename T::Scalar>;
   };
 
+  template <typename ColumnType>
+  using SpanType = GetSpanType<ColumnType>::type;
+
   // Helper type trait for obtaining a const-span type for a column
   template <typename ColumnType>
   struct GetConstSpanType;
@@ -975,6 +978,9 @@ namespace cms::soa {
   struct GetConstSpanType<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::eigen, T>> {
     using type = std::span<std::add_const_t<typename T::Scalar>>;
   };
+
+  template <typename ColumnType>
+  using ConstSpanType = GetConstSpanType<ColumnType>::type;
 
   // Helper functions for constructing a span from a column
   template <typename T>
