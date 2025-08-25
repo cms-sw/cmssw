@@ -11,7 +11,7 @@ objectIDs = {
     "CL2Photons":{
         "Iso": {
             "qual": {
-                "barrel": 0b0010,
+                "barrel": 0b0100,
                 "endcap": 0b0100,
             },
             "iso": {
