@@ -949,8 +949,8 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
 
   if (!onlyScouting_) {
     PVvsPU_hist =
-        ibook.bookProfile("PVvsPU", "Number of primary vertices vs pile up; pile up; <N_{PV}>", 20, 20, 60, 0, 65);
-    rhovsPU_hist = ibook.bookProfile("rhovsPU", "#rho vs pile up; pile up; <#rho>", 20, 20, 60, 0, 45);
+        ibook.bookProfile("PVvsPU", "Number of primary vertices vs pile up; pile up; <N_{PV}>", 20, 20, 70, 0, 65);
+    rhovsPU_hist = ibook.bookProfile("rhovsPU", "#rho vs pile up; pile up; <#rho>", 20, 20, 70, 0, 45);
   }
 
   ibook.setCurrentFolder(topfoldername_ + "/PFcand");
