@@ -21,7 +21,7 @@ scalings = {
         },
         "NoIso": {
             "barrel": {
-                "offset": 3.69,
+                "offset": 3.7,
                 "slope": 1.18
             },
             "endcap": {
@@ -33,7 +33,7 @@ scalings = {
     "CL2EtSum": {
         "default": {
             "inclusive": {
-                "offset": 36.8,
+                "offset": 37.03,
                 "slope": 1.68
             }
         }
@@ -41,13 +41,13 @@ scalings = {
     "CL2HtSum": {
         "HT": {
             "inclusive": {
-                "offset": 37.73,
+                "offset": 37.82,
                 "slope": 1.17
             }
         },
         "MHT": {
             "inclusive": {
-                "offset": -13.67,
+                "offset": -13.7,
                 "slope": 1.2
             }
         }
@@ -55,19 +55,19 @@ scalings = {
     "CL2JetsSC4": {
         "default": {
             "barrel": {
-                "offset": 16.52,
+                "offset": 16.51,
                 "slope": 1.36
             },
             "endcap": {
-                "offset": 10.14,
+                "offset": 10.1,
                 "slope": 1.59
             },
             "forwardHF": {
-                "offset": -6.35,
-                "slope": 1.34
+                "offset": -5.9,
+                "slope": 1.33
             },
             "forwardHGC": {
-                "offset": 47.81,
+                "offset": 47.64,
                 "slope": 1.22
             }
         }
@@ -75,20 +75,38 @@ scalings = {
     "CL2JetsSC8": {
         "default": {
             "barrel": {
-                "offset": 25.88,
+                "offset": 25.77,
                 "slope": 1.4
             },
             "endcap": {
-                "offset": 24.88,
+                "offset": 24.97,
                 "slope": 1.46
             },
             "forwardHF": {
-                "offset": -5.31,
+                "offset": -5.49,
                 "slope": 1.5
             },
             "forwardHGC": {
-                "offset": 63.24,
+                "offset": 63.12,
                 "slope": 1.28
+            }
+        },
+        "mass30": {
+            "barrel": {
+                "offset": 2.84,
+                "slope": 1.45
+            },
+            "endcap": {
+                "offset": 6.82,
+                "slope": 1.31
+            },
+            "forwardHF": {
+                "offset": 95.12,
+                "slope": 0.58
+            },
+            "forwardHGC": {
+                "offset": 51.74,
+                "slope": 1.15
             }
         }
     },
@@ -117,7 +135,7 @@ scalings = {
     "CL2Taus": {
         "default": {
             "barrel": {
-                "offset": -0.31,
+                "offset": -0.29,
                 "slope": 1.38
             },
             "endcap": {
@@ -129,16 +147,16 @@ scalings = {
     "GMTSaPromptMuons": {
         "default": {
             "barrel": {
-                "offset": 1.1,
+                "offset": 1.09,
                 "slope": 1.69
             },
             "endcap": {
-                "offset": -3.1,
+                "offset": -3.08,
                 "slope": 1.21
             },
             "overlap": {
-                "offset": -1.19,
-                "slope": 1.32
+                "offset": -1.15,
+                "slope": 1.31
             }
         }
     },
@@ -149,7 +167,7 @@ scalings = {
                 "slope": 1.04
             },
             "endcap": {
-                "offset": 0.81,
+                "offset": 0.82,
                 "slope": 1.04
             },
             "overlap": {
@@ -163,11 +181,11 @@ scalings = {
                 "slope": 1.04
             },
             "endcap": {
-                "offset": 0.81,
+                "offset": 0.82,
                 "slope": 1.04
             },
             "overlap": {
-                "offset": 1.08,
+                "offset": 1.09,
                 "slope": 1.03
             }
         },
@@ -195,7 +213,7 @@ scalings = {
                 "slope": 1.04
             },
             "overlap": {
-                "offset": 1.08,
+                "offset": 1.09,
                 "slope": 1.03
             }
         },
@@ -205,7 +223,7 @@ scalings = {
                 "slope": 1.04
             },
             "endcap": {
-                "offset": 0.79,
+                "offset": 0.8,
                 "slope": 1.04
             },
             "overlap": {
@@ -221,7 +239,7 @@ scalings = {
                 "slope": 1.15
             },
             "endcap": {
-                "offset": 2.38,
+                "offset": 2.37,
                 "slope": 1.24
             }
         }
@@ -229,25 +247,25 @@ scalings = {
     "L1TrackHT": {
         "HT": {
             "inclusive": {
-                "offset": -36.76,
+                "offset": -36.64,
                 "slope": 2.51
             }
         },
         "MHT": {
             "inclusive": {
-                "offset": -9.98,
-                "slope": 2.16
+                "offset": -10.92,
+                "slope": 2.17
             }
         }
     },
     "L1TrackJet": {
         "default": {
             "barrel": {
-                "offset": 13.45,
+                "offset": 13.36,
                 "slope": 5.26
             },
             "endcap": {
-                "offset": 17.38,
+                "offset": 17.39,
                 "slope": 7.67
             }
         }
@@ -255,7 +273,7 @@ scalings = {
     "L1TrackMET": {
         "default": {
             "inclusive": {
-                "offset": -77.78,
+                "offset": -77.79,
                 "slope": 8.69
             }
         }
@@ -263,12 +281,12 @@ scalings = {
     "L1caloJet": {
         "default": {
             "barrel": {
-                "offset": 2.83,
-                "slope": 1.46
+                "offset": 2.77,
+                "slope": 1.47
             },
             "endcap": {
-                "offset": 25.75,
-                "slope": 1.99
+                "offset": 23.47,
+                "slope": 2.0
             },
             "forwardHF": {
                 "offset": -30.41,
@@ -319,27 +337,33 @@ scalings = {
     "L1puppiExtJetSC4": {
         "default": {
             "barrel": {
-                "offset": 3.29,
+                "offset": 3.24,
                 "slope": 1.61
             },
             "endcap": {
-                "offset": 12.25,
+                "offset": 12.05,
                 "slope": 1.53
             },
             "forwardHF": {
-                "offset": -6.35,
-                "slope": 1.34
+                "offset": -5.9,
+                "slope": 1.33
             },
             "forwardHGC": {
-                "offset": 47.57,
+                "offset": 47.31,
                 "slope": 1.23
             }
         }
     },
     "L1puppiHistoJetSums": {
+        "HT": {
+            "inclusive": {
+                "offset": 45.97,
+                "slope": 1.18
+            }
+        },
         "MHT": {
             "inclusive": {
-                "offset": -17.4,
+                "offset": -17.45,
                 "slope": 1.23
             }
         }
@@ -347,8 +371,8 @@ scalings = {
     "L1puppiJetSC4NG": {
         "default": {
             "barrel": {
-                "offset": 10.8,
-                "slope": 1.66
+                "offset": 12.02,
+                "slope": 1.64
             },
             "endcap": {
                 "offset": 4.32,
@@ -359,7 +383,7 @@ scalings = {
     "L1puppiMLMET": {
         "default": {
             "inclusive": {
-                "offset": 28.82,
+                "offset": 28.84,
                 "slope": 1.6
             }
         }
