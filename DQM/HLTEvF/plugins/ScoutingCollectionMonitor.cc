@@ -750,6 +750,7 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
     mvaDiscriminator_pfj_hist->Fill(jet.mvaDiscriminator());
   }
 
+  primaryVertex_counter = 0;
   // fill all the primary vertices histograms
   for (const auto& vtx : *primaryVerticesH) {
     primaryVertex_counter++;
