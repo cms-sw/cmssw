@@ -239,8 +239,8 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
   std::vector<double> PhiRange = {-3.5, 3.5};
   int n_PtBins = 50;
   std::vector<double> PtRange = {0, 1000};
-  int n_RespBins = 60;
-  std::vector<double> RespRange = {0, 3};
+  int n_RespBins = 70;
+  std::vector<double> RespRange = {0, 3.5};
 
   // Event variables
   mNvtx = ibooker.book1D("Nvtx", "number of vertices", 60, 0, 60);
@@ -343,11 +343,11 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
 
   // DeltaR distance jet
   h2d_DeltaR_vs_Eta = ibooker.book2D(
-      "h2d_DeltaR_Eta", "#Delta R Jets;#eta^{{reco}};#Delta R", n_EtaBins, EtaRange[0], EtaRange[1], 50, 0.0, 0.5);
+      "h2d_DeltaR_Eta", "#Delta R Jets;#eta^{reco};#Delta R", n_EtaBins, EtaRange[0], EtaRange[1], 50, 0.0, 0.5);
   h2d_DeltaR_vs_Phi = ibooker.book2D(
-      "h2d_DeltaR_Phi", "#Delta R Jets;#phi^{{reco}};#Delta R", n_PhiBins, PhiRange[0], PhiRange[1], 50, 0.0, 0.5);
+      "h2d_DeltaR_Phi", "#Delta R Jets;#phi^{reco};#Delta R", n_PhiBins, PhiRange[0], PhiRange[1], 50, 0.0, 0.5);
   h2d_DeltaR_vs_Pt = ibooker.book2D(
-      "h2d_DeltaR_Pt", "#Delta R Jets;p_{T}^{{reco}};#Delta R", n_PtBins, PtRange[0], PtRange[1], 50, 0.0, 0.5);
+      "h2d_DeltaR_Pt", "#Delta R Jets;p_{T}^{reco};#Delta R", n_PtBins, PtRange[0], PtRange[1], 50, 0.0, 0.5);
 
   // Duplicated jet
   mDuplicatesJetEta = ibooker.book1D(
@@ -399,11 +399,11 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
 
   // DeltaR distance gen jet
   h2d_DeltaR_vs_GenEta = ibooker.book2D(
-      "h2d_DeltaR_GenEta", "#Delta R Gen Jets;#eta^{{gen}};#Delta R", n_EtaBins, EtaRange[0], EtaRange[1], 50, 0.0, 0.5);
+      "h2d_DeltaR_GenEta", "#Delta R Gen Jets;#eta^{gen};#Delta R", n_EtaBins, EtaRange[0], EtaRange[1], 50, 0.0, 0.5);
   h2d_DeltaR_vs_GenPhi = ibooker.book2D(
-      "h2d_DeltaR_GenPhi", "#Delta R Gen Jets;#phi^{{gen}};#Delta R", n_PhiBins, PhiRange[0], PhiRange[1], 50, 0.0, 0.5);
+      "h2d_DeltaR_GenPhi", "#Delta R Gen Jets;#phi^{gen};#Delta R", n_PhiBins, PhiRange[0], PhiRange[1], 50, 0.0, 0.5);
   h2d_DeltaR_vs_GenPt = ibooker.book2D(
-      "h2d_DeltaR_GenPt", "#Delta R Gen Jets;p_{T}^{{gen}};#Delta R", n_PtBins, PtRange[0], PtRange[1], 50, 0.0, 0.5);
+      "h2d_DeltaR_GenPt", "#Delta R Gen Jets;p_{T}^{gen};#Delta R", n_PtBins, PtRange[0], PtRange[1], 50, 0.0, 0.5);
 
   // Duplicated gen jet
   mDuplicatesGenEta = ibooker.book1D(
@@ -431,7 +431,7 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
 
   // Response
   h2d_JetPtRecoOverGen_vs_GenEta = ibooker.book2D("h2d_PtRecoOverGen_GenEta",
-                                                  "Response Reco Jets;#eta^{{gen}};p_{{T}}^{{reco}}/p_{{T}}^{{gen}}",
+                                                  "Response Reco Jets;#eta^{gen};p_{T}^{reco}/p_{T}^{gen}",
                                                   n_EtaBins,
                                                   EtaRange[0],
                                                   EtaRange[1],
@@ -439,7 +439,7 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
                                                   RespRange[0],
                                                   RespRange[1]);
   h2d_JetPtRecoOverGen_vs_GenPhi = ibooker.book2D("h2d_PtRecoOverGen_GenPhi",
-                                                  "Response Reco Jets;#phi^{{gen}};p_{{T}}^{{reco}}/p_{{T}}^{{gen}}",
+                                                  "Response Reco Jets;#phi^{gen};p_{T}^{reco}/p_{T}^{gen}",
                                                   n_PhiBins,
                                                   PhiRange[0],
                                                   PhiRange[1],
@@ -447,7 +447,7 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
                                                   RespRange[0],
                                                   RespRange[1]);
   h2d_JetPtRecoOverGen_vs_GenPt = ibooker.book2D("h2d_PtRecoOverGen_GenPt",
-                                                 "Response Reco Jets;p_{T}^{{gen}};p_{{T}}^{{reco}}/p_{{T}}^{{gen}}",
+                                                 "Response Reco Jets;p_{T}^{gen};p_{T}^{reco}/p_{T}^{gen}",
                                                  n_PtBins,
                                                  PtRange[0],
                                                  PtRange[1],
@@ -528,6 +528,52 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
         RespRange[0],
         RespRange[1]);
 
+    h2d_chHadMult_vs_pt[j] = ibooker.book2D(
+        fmt::format("h2d_chHadMult_pt_{}", etaRegion),
+        fmt::format("Profiled charged HAD multiplicity - {};p_{{T}}^{{reco}};charged HAD multiplicity", etaLabel),
+        n_PtBins,
+        PtRange[0],
+        PtRange[1],
+        50,
+        0,
+        50);
+    h2d_neHadMult_vs_pt[j] = ibooker.book2D(
+        fmt::format("h2d_neHadMult_pt_{}", etaRegion),
+        fmt::format("Profiled neutral HAD multiplicity - {};p_{{T}}^{{reco}};neutral HAD multiplicity", etaLabel),
+        n_PtBins,
+        PtRange[0],
+        PtRange[1],
+        50,
+        0,
+        50);
+    h2d_chMult_vs_pt[j] = ibooker.book2D(
+        fmt::format("h2d_chMult_pt_{}", etaRegion),
+        fmt::format("Profiled charged multiplicity - {};p_{{T}}^{{reco}};charged multiplicity", etaLabel),
+        n_PtBins,
+        PtRange[0],
+        PtRange[1],
+        50,
+        0,
+        50);
+    h2d_neMult_vs_pt[j] = ibooker.book2D(
+        fmt::format("h2d_neMult_pt_{}", etaRegion),
+        fmt::format("Profiled neutral multiplicity - {};p_{{T}}^{{reco}};neutral EM multiplicity", etaLabel),
+        n_PtBins,
+        PtRange[0],
+        PtRange[1],
+        50,
+        0,
+        50);
+    h2d_phoMult_vs_pt[j] =
+        ibooker.book2D(fmt::format("h2d_phoMult_pt_{}", etaRegion),
+                       fmt::format("Profiled photon multiplicity - {};p_{{T}}^{{reco}};photon multiplicity", etaLabel),
+                       n_PtBins,
+                       PtRange[0],
+                       PtRange[1],
+                       15,
+                       0,
+                       15);
+
     h2d_chHad_vs_pt[j] = ibooker.book2D(
         fmt::format("h2d_chHad_pt_{}", etaRegion),
         fmt::format("Profiled charged HAD energy fraction - {};p_{{T}}^{{reco}};charged HAD energy fraction", etaLabel),
@@ -564,6 +610,7 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
         40,
         0,
         1);
+
     h2d_JetPtRecoOverGen_vs_chHad[j] = ibooker.book2D(
         fmt::format("h2d_PtRecoOverGen_chHad_{}", etaRegion),
         fmt::format("Response Reco Jets - {};charged HAD energy Fraction;p_{{T}}^{{reco}}/p_{{T}}^{{gen}}", etaLabel),
@@ -1188,6 +1235,12 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
           neutralMultiplicity_EtaBins[j]->Fill((*pfJets)[ijet].neutralMultiplicity());
           chargedHadronMultiplicity_EtaBins[j]->Fill((*pfJets)[ijet].chargedHadronMultiplicity());
           chargedMultiplicity_EtaBins[j]->Fill((*pfJets)[ijet].chargedMultiplicity());
+
+          h2d_chHadMult_vs_pt[j]->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].chargedHadronMultiplicity());
+          h2d_neHadMult_vs_pt[j]->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].neutralHadronMultiplicity());
+          h2d_chMult_vs_pt[j]->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].chargedMultiplicity());
+          h2d_neMult_vs_pt[j]->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].neutralMultiplicity());
+          h2d_phoMult_vs_pt[j]->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].photonMultiplicity());
 
           h2d_chHad_vs_pt[j]->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].chargedHadronEnergyFraction());
           h2d_neHad_vs_pt[j]->Fill(recoJets[ijet].pt(), (*pfJets)[ijet].neutralHadronEnergyFraction());
