@@ -119,6 +119,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             if (isSiPM) {
               i1 = pmap.getIntAttr("iring", row);
               i2 = pmap.getIntAttr("iphi", row);
+              isHD = {typecode.find("TH") != std::string::npos ? true : false};
             } else {
               i1 = pmap.getIntAttr("iu", row);
               i2 = pmap.getIntAttr("iv", row);
