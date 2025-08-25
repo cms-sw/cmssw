@@ -19,7 +19,8 @@ namespace lst {
                       SOA_COLUMN(uint16_t, outerLowerModuleIndices),
                       SOA_COLUMN(Params_LS::ArrayUxLayers, mdIndices),
                       SOA_COLUMN(unsigned int, innerMiniDoubletAnchorHitIndices),
-                      SOA_COLUMN(unsigned int, outerMiniDoubletAnchorHitIndices))
+                      SOA_COLUMN(unsigned int, outerMiniDoubletAnchorHitIndices),
+                      SOA_COLUMN(unsigned int, connectedMax))
 
   GENERATE_SOA_LAYOUT(SegmentsOccupancySoALayout,
                       SOA_COLUMN(unsigned int, nSegments),  //number of segments per inner lower module
