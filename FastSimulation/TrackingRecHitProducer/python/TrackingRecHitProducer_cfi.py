@@ -37,7 +37,9 @@ trackerStripGaussianResolutions={
     "TID": {
         1: cms.double(0.00262),
         2: cms.double(0.00354),
-        3: cms.double(0.00391)
+        3: cms.double(0.00391),
+        4: cms.double(0.00391),
+        5: cms.double(0.00391)
     },
     "TOB": {
         1: cms.double(0.00461),
