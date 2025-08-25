@@ -724,7 +724,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   const float ptCut) const {
       ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[1] == 1) &&
                         (alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[2] == 1));
-      for (uint16_t innerLowerModuleArrayIdx : cms::alpakatools::uniform_elements_z(acc, nonZeroModules)) {
+      for (uint16_t innerLowerModuleArrayIdx : cms::alpakatools::uniform_groups_z(acc, nonZeroModules)) {
         uint16_t innerInnerLowerModuleIndex = index_gpu[innerLowerModuleArrayIdx];
         if (innerInnerLowerModuleIndex >= modules.nLowerModules())
           continue;
@@ -833,7 +833,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       const auto& outerLowerModuleIndices = segments.outerLowerModuleIndices();
       const auto& segmentRanges = ranges.segmentRanges();
 
-      for (uint16_t innerLowerModuleArrayIdx : cms::alpakatools::uniform_elements_z(acc, modules.nLowerModules())) {
+      for (uint16_t innerLowerModuleArrayIdx : cms::alpakatools::uniform_groups_z(acc, modules.nLowerModules())) {
         const unsigned int nInnerSegments = segOcc.nSegments()[innerLowerModuleArrayIdx];
         if (nInnerSegments == 0)
           continue;

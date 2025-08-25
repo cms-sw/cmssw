@@ -1699,7 +1699,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   const float ptCut) const {
       ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[1] == 1) &&
                         (alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[2] == 1));
-      for (int iter : cms::alpakatools::uniform_elements_z(acc, nEligibleT5Modules)) {
+      for (int iter : cms::alpakatools::uniform_groups_z(acc, nEligibleT5Modules)) {
         uint16_t lowerModule1 = ranges.indicesOfEligibleT5Modules()[iter];
         short layer2_adjustment;
         int layer = modules.layers()[lowerModule1];
@@ -1843,7 +1843,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       const auto& lmIdx = triplets.lowerModuleIndices();
       const auto& tripIdx = ranges.tripletModuleIndices();
 
-      for (uint16_t lowerModule1 : cms::alpakatools::uniform_elements_z(acc, modules.nLowerModules())) {
+      for (uint16_t lowerModule1 : cms::alpakatools::uniform_groups_z(acc, modules.nLowerModules())) {
         if (!isValidQuintRegion(modules, lowerModule1))
           continue;
 

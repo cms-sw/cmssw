@@ -618,7 +618,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   const float ptCut) const {
       ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[1] == 1) &&
                         (alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[2] == 1));
-      for (uint16_t innerLowerModuleIndex : cms::alpakatools::uniform_elements_z(acc, modules.nLowerModules())) {
+      for (uint16_t innerLowerModuleIndex : cms::alpakatools::uniform_groups_z(acc, modules.nLowerModules())) {
         unsigned int nInnerMDs = mdsOccupancy.nMDs()[innerLowerModuleIndex];
         if (nInnerMDs == 0)
           continue;
@@ -732,7 +732,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                         (alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[2] == 1));
       const auto& mdRanges = ranges.mdRanges();
 
-      for (uint16_t innerLowerModuleIndex : cms::alpakatools::uniform_elements_z(acc, modules.nLowerModules())) {
+      for (uint16_t innerLowerModuleIndex : cms::alpakatools::uniform_groups_z(acc, modules.nLowerModules())) {
         const unsigned int nInnerMDs = mdsOccupancy.nMDs()[innerLowerModuleIndex];
         if (nInnerMDs == 0)
           continue;
