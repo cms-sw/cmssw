@@ -247,48 +247,9 @@ void PatternRecognitionbyCA<TILES>::mergeTrackstersTRK(
   for (auto &thisSeed : seedToTracksterAssociation) {
     auto &tracksters = thisSeed.second;
     if (!tracksters.empty()) {
-      auto numberOfTrackstersInSeed = tracksters.size();
       output.emplace_back(input[tracksters[0]]);
       auto &outTrackster = output.back();
-      tracksters[0] = output.size() - 1;
-      auto updated_size = outTrackster.vertices().size();
-      for (unsigned int j = 1; j < numberOfTrackstersInSeed; ++j) {
-        auto &thisTrackster = input[tracksters[j]];
-        updated_size += thisTrackster.vertices().size();
-        if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Basic) {
-          LogDebug("HGCPatternRecoByCA") << "Updated size: " << updated_size << std::endl;
-        }
-        outTrackster.vertices().reserve(updated_size);
-        outTrackster.vertex_multiplicity().reserve(updated_size);
-        std::copy(std::begin(thisTrackster.vertices()),
-                  std::end(thisTrackster.vertices()),
-                  std::back_inserter(outTrackster.vertices()));
-        std::copy(std::begin(thisTrackster.vertex_multiplicity()),
-                  std::end(thisTrackster.vertex_multiplicity()),
-                  std::back_inserter(outTrackster.vertex_multiplicity()));
-      }
-      tracksters.resize(1);
-
-      // Find duplicate LCs
-      auto &orig_vtx = outTrackster.vertices();
-      auto vtx_sorted{orig_vtx};
-      std::sort(std::begin(vtx_sorted), std::end(vtx_sorted));
-      for (unsigned int iLC = 1; iLC < vtx_sorted.size(); ++iLC) {
-        if (vtx_sorted[iLC] == vtx_sorted[iLC - 1]) {
-          // Clean up duplicate LCs
-          const auto lcIdx = vtx_sorted[iLC];
-          const auto firstEl = std::find(orig_vtx.begin(), orig_vtx.end(), lcIdx);
-          const auto firstPos = std::distance(std::begin(orig_vtx), firstEl);
-          auto iDup = std::find(std::next(firstEl), orig_vtx.end(), lcIdx);
-          while (iDup != orig_vtx.end()) {
-            orig_vtx.erase(iDup);
-            outTrackster.vertex_multiplicity().erase(outTrackster.vertex_multiplicity().begin() +
-                                                     std::distance(std::begin(orig_vtx), iDup));
-            outTrackster.vertex_multiplicity()[firstPos] -= 1;
-            iDup = std::find(std::next(firstEl), orig_vtx.end(), lcIdx);
-          };
-        }
-      }
+      outTrackster.mergeTracksters(input, tracksters);
     }
   }
   output.shrink_to_fit();

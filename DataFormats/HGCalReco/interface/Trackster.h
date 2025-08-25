@@ -6,8 +6,10 @@
 
 #include <array>
 #include <vector>
+
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Math/interface/Vector3D.h"
+#include "CommonTools/RecoAlgos/interface/MultiVectorManager.h"
 
 #include <Eigen/Core>
 
@@ -80,12 +82,15 @@ namespace ticl {
     inline bool isHadronic(float th = 0.5f) const {
       return id_probability(Trackster::ParticleType::photon) + id_probability(Trackster::ParticleType::electron) < th;
     }
+
     inline void mergeTracksters(const Trackster &other) {
       *this += other;
 
       //remove duplicates
       removeDuplicates();
       zeroProbabilities();
+      calculateRawPt();
+      calculateRawEmPt();
     }
 
     inline void mergeTracksters(const std::vector<Trackster> &others) {
@@ -96,7 +101,34 @@ namespace ticl {
       //remove duplicates
       removeDuplicates();
       zeroProbabilities();
+      calculateRawPt();
+      calculateRawEmPt();
     }
+    template <typename T>
+    inline void mergeTracksters(const std::vector<Trackster> &allTracksters, const std::vector<T> &others) {
+      for (auto &other : others) {
+        *this += allTracksters[other];
+      }
+
+      //remove duplicates
+      removeDuplicates();
+      zeroProbabilities();
+      calculateRawPt();
+      calculateRawEmPt();
+    }
+    template <typename T>
+    inline void mergeTracksters(const MultiVectorManager<Trackster> &allTracksters, const std::vector<T> &others) {
+      for (auto &other : others) {
+        *this += allTracksters[other];
+      }
+
+      //remove duplicates
+      removeDuplicates();
+      zeroProbabilities();
+      calculateRawPt();
+      calculateRawEmPt();
+    }
+
     inline void fillPCAVariables(Eigen::Vector3f const &eigenvalues,
                                  Eigen::Matrix3f const &eigenvectors,
                                  Eigen::Vector3f const &sigmas,
@@ -127,9 +159,6 @@ namespace ticl {
       // Now also update the pt part of the Trackster, using the PCA as direction
       // raw_pt_ = std::sqrt((eigenvectors_[0].Unit() * raw_energy_).perp2());
       // raw_em_pt_ = std::sqrt((eigenvectors_[0].Unit() * raw_em_energy_).perp2());
-
-      calculateRawPt();
-      calculateRawEmPt();
     }
     void zeroProbabilities() {
       for (auto &p : id_probabilities_) {
