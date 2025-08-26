@@ -119,7 +119,7 @@ class StandardTester(object):
         if os.path.exists(self.devPath + rFile): fullPath = self.devPath + rFile
         return fullPath
 
-    def runTests(self, testList = None):
+    def runTests(self, testList = None, dontRun = False):
 
         actDir = os.getcwd()
 
@@ -145,8 +145,14 @@ class StandardTester(object):
             print('Preparing to run %s' % str(command))
             current = testit(dirName, command)
             self.threadList.append(current)
+
+            if dontRun:
+                continue
             current.start()
             time.sleep(random.randint(1,5)) # try to avoid race cond by sleeping random amount of time [1,5] sec 
+
+        if dontRun:
+            return
 
         # wait until all threads are finished
         while self.activeThreads() > 0:
@@ -204,43 +210,44 @@ class StandardTester(object):
 
         return
 
+import argparse
 
-def main(argv) :
+def main(argv=None):
+    parser = argparse.ArgumentParser(
+        description="Run CMSSW addOnTests in parallel threads and collect reports."
+    )
 
-    import getopt
+    parser.add_argument(
+        "-j", "--nproc", type=int, default=4,
+        help="Number of parallel threads to run (default: 4)"
+    )
+    parser.add_argument(
+        "-t", "--tests", type=lambda s: s.split(","),
+        help="Comma-separated list of tests to run (default: all)"
+    )
+    parser.add_argument(
+        "-d", "--dump", action="store_true",
+        help="Print the list of available tests and exit"
+    )
+    parser.add_argument(
+        "--noRun", action="store_true",
+        help="Do not run tests (useful with --dump)"
+    )
+    parser.add_argument(
+        "--uploadDir", metavar="DIR",
+        help="Copy logs and reports to the given directory"
+    )
 
-    try:
-        opts, args = getopt.getopt(argv, "dj:t:", ["nproc=", 'uploadDir=', 'tests=','noRun','dump'])
-    except getopt.GetoptError as e:
-        print("unknown option", str(e))
-        sys.exit(2)
+    args = parser.parse_args(argv)
 
-    np        = 4
-    uploadDir = None
-    runTests  = True
-    testList  = None
-    dump      = False
-    for opt, arg in opts :
-        if opt in ('-j', "--nproc" ):
-            np=int(arg)
-        if opt in ("--uploadDir", ):
-            uploadDir = arg
-        if opt in ('--noRun', ):
-            runTests = False
-        if opt in ('-d','--dump', ):
-            dump = True
-        if opt in ('-t','--tests', ):
-            testList = arg.split(",")
+    tester = StandardTester(args.nproc)
 
-    tester = StandardTester(np)
-    if dump:
+    if args.dump:
         tester.dumpTest()
     else:
-        if runTests:
-            tester.runTests(testList)
-        if uploadDir:
-            tester.upload(uploadDir)
-    return
+        tester.runTests(args.tests,args.noRun)
+        if args.uploadDir:
+            tester.upload(args.uploadDir)
 
-if __name__ == '__main__' :
-    main(sys.argv[1:])
+if __name__ == '__main__':
+    main()
