@@ -571,6 +571,13 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
       continue;
 
     const auto& simCand = simTICLCandidates[simCand_idx];
+
+    // if simCand does not have the track and has pdg id charged skip this
+    // it means we have not recontruct the track
+    // if associated cand is neutral then this is correct
+    if (simCand.charge() == 0 and (std::abs(simCand.pdgId()) == 211 or std::abs(simCand.pdgId()) == 11))
+      continue;
+
     if (simCand.trackPtr().get() != nullptr) {
       const auto simCandTrackIdx = simCand.trackPtr().get() - edm::Ptr<reco::Track>(recoTracks_h, 0).get();
       if (simCandTrackIdx != candTrackIdx) {
