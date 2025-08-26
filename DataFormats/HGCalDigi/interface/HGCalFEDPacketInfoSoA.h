@@ -57,7 +57,11 @@ namespace hgcaldigi {
                       // bit 1 : unable to unpack data
                       // bit 2 : at least one capture block has active flags
                       SOA_COLUMN(uint16_t, FEDUnpackingFlag),
-                      SOA_COLUMN(uint32_t, FEDPayload))  //number of words (char)
+                      SOA_COLUMN(uint32_t, FEDPayload),  //number of words (char)
+                      // BX,L1A,Orbit number of the SLink
+                      SOA_COLUMN(uint16_t, FEDBX),
+                      SOA_COLUMN(uint64_t, FEDL1A),
+                      SOA_COLUMN(uint32_t, FEDOrbit))
 
   using HGCalFEDPacketInfoSoA = HGCalFEDPacketInfoSoALayout<>;
 }  // namespace hgcaldigi
