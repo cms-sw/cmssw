@@ -27,7 +27,7 @@ cmsRun ${LOCAL_TEST_DIR}/LHCInfoPerFillAnalyzer_cfg.py \
   db=sqlite_file:LHCInfoPerFill.sqlite > fill_Analyzer.log 2>&1 \
   || die "cmsRun LHCInfoPerFillAnalyzer_cfg.py" $? fill_Analyzer.log
 lines=$(wc -l < fill_Analyzer.log)
-# Number of lines expected to be 31, accounting IOV print, 'LHCInfoPerFill retrieved' and number of fields
+# Number of lines expected to be 31, accounting IOV print, 'LHCInfoPerFill retrieved' and number of fields for testcase in Writer
 assert_equal 31 "$lines" "LHCInfoPerFillAnalyzer_cfg.py log has wrong number of lines" "fill_Analyzer.log"
 rm -f fill_Analyzer.log
 
@@ -35,8 +35,11 @@ cmsRun ${LOCAL_TEST_DIR}/LHCInfoPerLSWriter_cfg.py   || die "cmsRun LHCInfoPerLS
 
 cmsRun ${LOCAL_TEST_DIR}/LHCInfoPerLSAnalyzer_cfg.py \
   tag=LHCInfoPerLSFake \
-  db=sqlite_file:LHCInfoPerLS.sqlite > ls_Analyzer.log 2>&1 \
+  db=sqlite_file:LHCInfoPerLS.sqlite \
+  csv=True \
+  header=True > ls_Analyzer.log 2>&1 \
   || die "cmsRun LHCInfoPerLSAnalyzer_cfg.py" $? ls_Analyzer.log
-# Number of lines expected to be 31, accounting IOV print, 'LHCInfoPerFill retrieved' and number of fields
-assert_equal 31 "$lines" "LHCInfoPerLSAnalyzer_cfg.py log has wrong number of lines" "ls_Analyzer.log"
+lines=$(wc -l < ls_Analyzer.log)
+# Number of lines expected to be 2 for csv format, accounting IOV print, 'LHCInfoPerFill retrieved' and number of fields for testcase in Writer
+assert_equal 2 "$lines" "LHCInfoPerLSAnalyzer_cfg.py log has wrong number of lines" "ls_Analyzer.log"
 rm -f ls_Analyzer.log
