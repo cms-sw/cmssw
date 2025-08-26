@@ -10,6 +10,7 @@
 
 #include <cmath>
 #include <string>
+#include <string_view>
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -82,7 +83,7 @@ private:
       {20., 30., 40., 100., 200., 300., 600., 2000., 5000., 6500., 1e6}};
   double minJetPt;
 
-  static constexpr std::array<std::tuple<std::string, std::string, double, double>, 3> etaInfo = {{
+  static constexpr std::array<std::tuple<std::string_view, std::string_view, double, double>, 3> etaInfo = {{
       std::make_tuple("B", "0<|#eta|<1.5", 0.0, 1.5),     // barrel
       std::make_tuple("E", "1.5#leq|#eta|<3", 1.5, 3.0),  // endcap
       std::make_tuple("F", "3#leq|#eta|<6", 3.0, 6.0),    // forward
