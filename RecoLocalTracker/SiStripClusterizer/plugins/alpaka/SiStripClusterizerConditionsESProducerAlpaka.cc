@@ -101,11 +101,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         }
       }
 
-      // // Make sure the detToFeds is sorted by detID and apvPairNumber
-      // std::sort(detToFeds.begin(), detToFeds.end(), [](const DetToFed& a, const DetToFed& b) {
-      //   return a.detID() < b.detID() || (a.detID() == b.detID() && a.pair() < b.pair());
-      // });
-
       // Prepare the product & Fill the product
       //// Typical sizes for these collections (from MC run)
       //// constexpr const unsigned int DetToFeds_size= 34813;

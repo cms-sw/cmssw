@@ -14,7 +14,6 @@ namespace sistrip {
                       SOA_COLUMN(bool, candidateAccepted),
                       SOA_COLUMN(float, barycenter),
                       SOA_COLUMN(float, charge),
-                      //
                       SOA_COLUMN(uint32_t, candidateAcceptedPrefix),
                       SOA_SCALAR(uint32_t, nClusterCandidates),
                       SOA_SCALAR(uint32_t, maxClusterSize))
