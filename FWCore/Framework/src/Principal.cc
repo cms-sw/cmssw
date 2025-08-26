@@ -142,8 +142,8 @@ namespace edm {
   size_t Principal::size() const {
     size_t size = 0U;
     for (auto const& prod : *this) {
-      if (prod->singleProduct() &&  // Not a NoProcessProductResolver
-          !prod->productUnavailable() && !prod->unscheduledWasNotRun() && !prod->productDescription().dropped()) {
+      if (prod->singleProduct() && !prod->productUnavailable() && !prod->unscheduledWasNotRun() &&
+          !prod->productDescription().dropped()) {
         ++size;
       }
     }
@@ -409,14 +409,13 @@ namespace edm {
   BasicHandle Principal::getByToken(KindOfType,
                                     TypeID const&,
                                     ProductResolverIndex index,
-                                    bool skipCurrentProcess,
                                     bool& ambiguous,
                                     SharedResourcesAcquirer* sra,
                                     ModuleCallingContext const* mcc) const {
     assert(index != ProductResolverIndexInvalid);
     auto& productResolver = productResolvers_[index];
     assert(nullptr != productResolver.get());
-    auto resolution = productResolver->resolveProduct(*this, skipCurrentProcess, sra, mcc);
+    auto resolution = productResolver->resolveProduct(*this, sra, mcc);
     if (resolution.isAmbiguous()) {
       ambiguous = true;
       //The caller is looking explicitly for this case
@@ -434,12 +433,11 @@ namespace edm {
 
   void Principal::prefetchAsync(WaitingTaskHolder task,
                                 ProductResolverIndex index,
-                                bool skipCurrentProcess,
                                 ServiceToken const& token,
                                 ModuleCallingContext const* mcc) const {
     auto const& productResolver = productResolvers_.at(index);
     assert(nullptr != productResolver.get());
-    productResolver->prefetchAsync(task, *this, skipCurrentProcess, token, nullptr, mcc);
+    productResolver->prefetchAsync(task, *this, token, nullptr, mcc);
   }
 
   ProductData const* Principal::findProductByLabel(KindOfType kindOfType,
@@ -459,6 +457,10 @@ namespace edm {
       if (inputTag.process() == InputTag::kCurrentProcess) {
         processName = &processConfiguration_->processName();
       }
+      std::string const kSkipCurrentProcess = "#";
+      if (skipCurrentProcess) {
+        processName = &kSkipCurrentProcess;
+      }
       token = consumer->getRegisteredToken(
           typeID, inputTag.label(), inputTag.instance(), *processName, branchType(), skipCurrentProcess);
       if (token.isUninitialized()) {
@@ -472,11 +474,14 @@ namespace edm {
     }
     //check that the InputTag is not being used for a different type/Principal than the first call
     auto index = consumer ? consumer->indexFromIfExactMatch(token, branchType(), typeID).productResolverIndex()
-                          : ProductResolverIndexInvalid;
+                          : ProductResolverIndexInitializing;
     if (index == ProductResolverIndexInvalid) {
+      return nullptr;
+    }
+    if (index == ProductResolverIndexInitializing) {
       char const* processName = inputTag.process().c_str();
       if (skipCurrentProcess) {
-        processName = "\0";
+        processName = "#";
       } else if (inputTag.process() == InputTag::kCurrentProcess) {
         processName = processConfiguration_->processName().c_str();
       }
@@ -514,7 +519,7 @@ namespace edm {
 
     auto const& productResolver = productResolvers_[index];
 
-    auto resolution = productResolver->resolveProduct(*this, skipCurrentProcess, sra, mcc);
+    auto resolution = productResolver->resolveProduct(*this, sra, mcc);
     if (resolution.isAmbiguous()) {
       throwAmbiguousException("findProductByLabel",
                               typeID,
@@ -558,7 +563,7 @@ namespace edm {
 
     auto const& productResolver = productResolvers_[index];
 
-    auto resolution = productResolver->resolveProduct(*this, false, sra, mcc);
+    auto resolution = productResolver->resolveProduct(*this, sra, mcc);
     if (resolution.isAmbiguous()) {
       throwAmbiguousException("findProductByLabel", typeID, label, instance, process);
     }

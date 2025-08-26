@@ -109,85 +109,6 @@ namespace edm::productResolversFactory {
       }
       return makePutOnReadInputProduct(cbd);
     }
-    bool isProductMadeAtEnd(edm::BranchIDList const& matchingHolders,
-                            std::vector<bool> const& ambiguous,
-                            std::vector<std::shared_ptr<edm::ProductResolverBase>> const& productResolvers) {
-      for (unsigned int j = 0; j < matchingHolders.size(); ++j) {
-        if ((not ambiguous[j]) and ProductResolverIndexInvalid != matchingHolders[j] and
-            productResolvers[matchingHolders[j]]->productDescription().availableOnlyAtEndTransition()) {
-          return true;
-        }
-      }
-      return false;
-    }
-    std::shared_ptr<ProductResolverBase> makeNoProcess(
-        unsigned int numberOfMatches,
-        ProductResolverIndex lastMatchIndex,
-        edm::BranchIDList const& matchingHolders,
-        std::vector<bool> const& ambiguous,
-        std::vector<std::shared_ptr<edm::ProductResolverBase>> const& productResolvers) {
-      if ((numberOfMatches == 1) and (lastMatchIndex != ProductResolverIndexAmbiguous)) {
-        //only one choice so use a special resolver
-        return std::make_shared<SingleChoiceNoProcessProductResolver>(lastMatchIndex);
-      }
-      //Need to know if the product from this processes is added at end of transition
-      bool productMadeAtEnd = isProductMadeAtEnd(matchingHolders, ambiguous, productResolvers);
-      return std::make_shared<NoProcessProductResolver>(matchingHolders, ambiguous, productMadeAtEnd);
-    }
-
-    void addUnspecifiedProcess(ProductResolverIndexHelper const& iHelper,
-                               std::vector<std::shared_ptr<ProductResolverBase>>& productResolvers) {
-      // Now create the ProductResolvers that search in reverse process
-      // order and are used for queries where the process name is the
-      // empty string
-      std::vector<std::string> const& lookupProcessNames = iHelper.lookupProcessNames();
-      std::vector<ProductResolverIndex> matchingHolders(lookupProcessNames.size(), ProductResolverIndexInvalid);
-      std::vector<bool> ambiguous(lookupProcessNames.size(), false);
-      unsigned int beginElements = iHelper.beginElements();
-      std::vector<TypeID> const& sortedTypeIDs = iHelper.sortedTypeIDs();
-      std::vector<ProductResolverIndexHelper::Range> const& ranges = iHelper.ranges();
-      std::vector<ProductResolverIndexHelper::IndexAndNames> const& indexAndNames = iHelper.indexAndNames();
-      std::vector<char> const& processNamesCharArray = iHelper.processNames();
-
-      unsigned int numberOfMatches = 0;
-      ProductResolverIndex lastMatchIndex = ProductResolverIndexInvalid;
-      if (!sortedTypeIDs.empty()) {
-        ProductResolverIndex productResolverIndex = ProductResolverIndexInvalid;
-        for (unsigned int k = 0, kEnd = sortedTypeIDs.size(); k < kEnd; ++k) {
-          ProductResolverIndexHelper::Range const& range = ranges.at(k);
-          for (unsigned int i = range.begin(); i < range.end(); ++i) {
-            ProductResolverIndexHelper::IndexAndNames const& product = indexAndNames.at(i);
-            if (product.startInProcessNames() == 0) {
-              if (productResolverIndex != ProductResolverIndexInvalid) {
-                productResolvers.at(productResolverIndex) =
-                    makeNoProcess(numberOfMatches, lastMatchIndex, matchingHolders, ambiguous, productResolvers);
-                matchingHolders.assign(lookupProcessNames.size(), ProductResolverIndexInvalid);
-                ambiguous.assign(lookupProcessNames.size(), false);
-                numberOfMatches = 0;
-                lastMatchIndex = ProductResolverIndexInvalid;
-              }
-              productResolverIndex = product.index();
-            } else {
-              const std::string_view process(&processNamesCharArray.at(product.startInProcessNames()));
-              auto iter = std::find(lookupProcessNames.begin(), lookupProcessNames.end(), process);
-              assert(iter != lookupProcessNames.end());
-              ProductResolverIndex iMatchingIndex = product.index();
-              lastMatchIndex = iMatchingIndex;
-              assert(iMatchingIndex != ProductResolverIndexInvalid);
-              ++numberOfMatches;
-              if (iMatchingIndex == ProductResolverIndexAmbiguous) {
-                assert(k >= beginElements);
-                ambiguous.at(iter - lookupProcessNames.begin()) = true;
-              } else {
-                matchingHolders.at(iter - lookupProcessNames.begin()) = iMatchingIndex;
-              }
-            }
-          }
-        }
-        productResolvers.at(productResolverIndex) =
-            makeNoProcess(numberOfMatches, lastMatchIndex, matchingHolders, ambiguous, productResolvers);
-      }
-    }
   }  // namespace
 
   std::vector<std::shared_ptr<ProductResolverBase>> make(BranchType bt,
@@ -244,8 +165,6 @@ namespace edm::productResolversFactory {
         }
       }
     }
-
-    addUnspecifiedProcess(*helper, productResolvers);
 
     return productResolvers;
   }

@@ -260,6 +260,8 @@ std::unique_ptr<ProducerBase> testEvent::putProduct(std::unique_ptr<T> product,
                                                  productInstanceLabel.c_str(),
                                                  currentModuleDescription_->processName().c_str());
   CPPUNIT_ASSERT(index != std::numeric_limits<unsigned int>::max());
+  CPPUNIT_ASSERT(index != ProductResolverIndexInvalid);
+  CPPUNIT_ASSERT(index != ProductResolverIndexInitializing);
   const_cast<std::vector<edm::ProductResolverIndex>&>(prod->putTokenIndexToProductResolverIndex()).push_back(index);
   currentEvent_->setProducer(prod.get(), nullptr);
   currentEvent_->put(std::move(product), productInstanceLabel);
@@ -363,6 +365,7 @@ testEvent::testEvent()
   availableProducts_->addProduct(branch);
 
   // Freeze the product registry before we make the Event.
+  availableProducts_->setProcessOrder({"CURRENT", "LATE", "EARLY"});
   availableProducts_->setFrozen();
   branchIDListHelper_->updateFromRegistry(availableProducts_->registry());
 }
@@ -429,6 +432,7 @@ void testEvent::setUp() {
   // look up the object.
 
   std::shared_ptr<ProductRegistry const> preg(std::make_shared<ProductRegistry>(availableProducts_->registry()));
+  assert(not preg->processOrder().empty());
   std::string uuid = createGlobalIdentifier();
   Timestamp time = make_timestamp();
   EventID id = make_id();
@@ -782,19 +786,9 @@ void testEvent::getByToken() {
   CPPUNIT_ASSERT(eb->getByToken(modMultiToken, h));
   CPPUNIT_ASSERT(h->value == 3);
 
-  CPPUNIT_ASSERT(currentEvent_->getByToken(modMultiInt1Token, h));
-  CPPUNIT_ASSERT(h->value == 200);
-  CPPUNIT_ASSERT(eb->getByToken(modMultiInt1Token, h));
-  CPPUNIT_ASSERT(h->value == 200);
-
   CPPUNIT_ASSERT(!currentEvent_->getByToken(modMultinomatchToken, h));
   CPPUNIT_ASSERT(!h.isValid());
   CPPUNIT_ASSERT_THROW(*h, cms::Exception);
-
-  CPPUNIT_ASSERT(currentEvent_->getByToken(modMultiInt1Token, h));
-  CPPUNIT_ASSERT(h->value == 200);
-  CPPUNIT_ASSERT(eb->getByToken(modMultiInt1Token, h));
-  CPPUNIT_ASSERT(h->value == 200);
 
   CPPUNIT_ASSERT(currentEvent_->getByToken(modMultiInt1EarlyToken, h));
   CPPUNIT_ASSERT(h->value == 1);
@@ -815,6 +809,11 @@ void testEvent::getByToken() {
   CPPUNIT_ASSERT(h->value == 2);
   CPPUNIT_ASSERT(eb->getByToken(modMultiInt2EarlyToken, h));
   CPPUNIT_ASSERT(h->value == 2);
+
+  CPPUNIT_ASSERT(currentEvent_->getByToken(modMultiInt1Token, h));
+  CPPUNIT_ASSERT(h->value == 200);
+  CPPUNIT_ASSERT(eb->getByToken(modMultiInt1Token, h));
+  CPPUNIT_ASSERT(h->value == 200);
 
   CPPUNIT_ASSERT(currentEvent_->getByToken(modOneToken, h));
   CPPUNIT_ASSERT(h->value == 4);

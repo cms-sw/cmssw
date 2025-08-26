@@ -10,7 +10,6 @@
 #include <TClass.h>
 
 #include <cassert>
-#include <iostream>
 #include <limits>
 
 namespace edm {
@@ -121,11 +120,12 @@ namespace edm {
         return index;
       }
       //Now check to see if only one process has this type/module/instance name
-      auto nextIndex = index + 1;
+      // we need to skip the skipCurrentProcess entry
+      auto nextIndex = index + 2;
       while (indexAndNames_.size() > nextIndex && indexAndNames_[nextIndex].startInProcessNames() != 0U) {
         ++nextIndex;
       }
-      return (nextIndex == index + 2) ? index + 1 : index;
+      return (nextIndex == index + 3) ? index + 2 : index;
     };
 
     return indexAndNames_[checkForSingleProcess(iToIndexAndNames)].index();
@@ -201,23 +201,6 @@ namespace edm {
     return Matches(this, startInIndexAndNames, numberOfMatches);
   }
 
-  ProductResolverIndexHelper::Matches ProductResolverIndexHelper::relatedIndexes(KindOfType kindOfType,
-                                                                                 TypeID const& typeID) const {
-    unsigned int startInIndexAndNames = std::numeric_limits<unsigned int>::max();
-    unsigned int numberOfMatches = 0;
-
-    // Look for the type and check to see if it found it
-    unsigned iType = indexToType(kindOfType, typeID);
-    if (iType != std::numeric_limits<unsigned int>::max()) {
-      // Get the range of entries with a matching TypeID
-      Range const& range = ranges_[iType];
-
-      startInIndexAndNames = range.begin();
-      numberOfMatches = range.end() - range.begin();
-    }
-    return Matches(this, startInIndexAndNames, numberOfMatches);
-  }
-
   ProductResolverIndex ProductResolverIndexHelper::insert(TypeID const& typeID,
                                                           char const* moduleLabel,
                                                           char const* instance,
@@ -252,8 +235,11 @@ namespace edm {
     item.clearProcess();
     iter = items_->find(item);
     if (iter == items_->end()) {
-      item.setIndex(nextIndexValue_);
-      ++nextIndexValue_;
+      item.setIndex(ProductResolverIndexInitializing);
+      items_->insert(item);
+      //add entry for skipCurrentProcess
+      item.setSkipCurrentProcess();
+      item.setIndex(ProductResolverIndexInitializing);
       items_->insert(item);
     }
 
@@ -273,8 +259,10 @@ namespace edm {
       containedItem.clearProcess();
       iter = items_->find(containedItem);
       if (iter == items_->end()) {
-        containedItem.setIndex(nextIndexValue_);
-        ++nextIndexValue_;
+        containedItem.setIndex(ProductResolverIndexInitializing);
+        items_->insert(containedItem);
+        containedItem.setSkipCurrentProcess();
+        containedItem.setIndex(ProductResolverIndexInitializing);
         items_->insert(containedItem);
       }
 
@@ -292,8 +280,10 @@ namespace edm {
           baseItem.clearProcess();
           iter = items_->find(baseItem);
           if (iter == items_->end()) {
-            baseItem.setIndex(nextIndexValue_);
-            ++nextIndexValue_;
+            baseItem.setIndex(ProductResolverIndexInitializing);
+            items_->insert(baseItem);
+            baseItem.setSkipCurrentProcess();
+            baseItem.setIndex(ProductResolverIndexInitializing);
             items_->insert(baseItem);
           }
         }
@@ -317,7 +307,67 @@ namespace edm {
     return insert(typeID, moduleLabel, instance, process, containedTypeID, baseTypesOfContainedType);
   }
 
-  void ProductResolverIndexHelper::setFrozen(std::string_view processName) {
+  namespace {
+    void setNoProcessIndices(std::vector<edm::ProductResolverIndexHelper::IndexAndNames>::iterator itBegin,
+                             std::vector<edm::ProductResolverIndexHelper::IndexAndNames>::iterator itEnd,
+                             std::vector<std::string> const& orderedProcessNames,
+                             std::vector<char> const& processNames) {
+      using IndexAndNames = edm::ProductResolverIndexHelper::IndexAndNames;
+      assert(itEnd - itBegin > 2);
+      assert(itBegin->startInProcessNames() == 0U);
+      assert((itBegin + 1)->startInProcessNames() == 1U);
+      assert(processNames[(itBegin + 1)->startInProcessNames()] == '#');
+      assert(itBegin->index() == edm::ProductResolverIndexInitializing);
+      assert((itBegin + 1)->index() == edm::ProductResolverIndexInitializing);
+      if (itEnd - itBegin == 3) {
+        //only have one actual process
+        *itBegin =
+            IndexAndNames((itBegin + 2)->index(), itBegin->startInBigNamesContainer(), itBegin->startInProcessNames());
+        //Now handle skipCurrentProcess
+        if (orderedProcessNames[0] == &processNames[(itBegin + 2)->startInProcessNames()]) {
+          //the one process is the current process
+          *(itBegin + 1) = IndexAndNames(ProductResolverIndexInvalid,
+                                         (itBegin + 1)->startInBigNamesContainer(),
+                                         (itBegin + 1)->startInProcessNames());
+        } else {
+          *(itBegin + 1) = IndexAndNames(
+              (itBegin + 2)->index(), (itBegin + 1)->startInBigNamesContainer(), (itBegin + 1)->startInProcessNames());
+        }
+      } else {
+        bool foundFirstMatch = false;
+        for (auto const& proc : orderedProcessNames) {
+          auto it = itBegin + 2;
+          while (it != itEnd && proc != &processNames[it->startInProcessNames()]) {
+            ++it;
+          }
+          if (it != itEnd) {
+            if (not foundFirstMatch) {
+              foundFirstMatch = true;
+              //found a process that matches
+              *itBegin =
+                  IndexAndNames(it->index(), itBegin->startInBigNamesContainer(), itBegin->startInProcessNames());
+              //Now handle skipCurrentProcess
+              if (proc != orderedProcessNames[0]) {
+                *(itBegin + 1) = IndexAndNames(
+                    it->index(), (itBegin + 1)->startInBigNamesContainer(), (itBegin + 1)->startInProcessNames());
+                break;
+              } else {
+                //this process is the current process
+                *(itBegin + 1) = IndexAndNames(ProductResolverIndexInvalid,
+                                               (itBegin + 1)->startInBigNamesContainer(),
+                                               (itBegin + 1)->startInProcessNames());
+              }
+            } else {
+              *(itBegin + 1) = IndexAndNames(
+                  it->index(), (itBegin + 1)->startInBigNamesContainer(), (itBegin + 1)->startInProcessNames());
+              break;
+            }
+          }
+        }
+      }
+    }
+  }  // namespace
+  void ProductResolverIndexHelper::setFrozen(std::vector<std::string> const& orderedProcessNames) {
     if (!items_)
       return;
 
@@ -361,6 +411,15 @@ namespace edm {
       previousInstance = item.instance();
     }
 
+    //sanity check
+    for (auto const& p : *processItems_) {
+      if (p.empty() or p == "#")
+        continue;
+      if (orderedProcessNames.end() == std::find(orderedProcessNames.begin(), orderedProcessNames.end(), p)) {
+        throw Exception(errors::LogicError)
+            << "ProductResolverIndexHelper::setFrozen process not in ordered list " << p << std::endl;
+      }
+    }
     // Size and fill the process name vector
     unsigned int processNamesSize = 0;
     for (auto const& processItem : *processItems_) {
@@ -374,9 +433,6 @@ namespace edm {
       }
       processNames_.push_back('\0');
       lookupProcessNames_.push_back(processItem);
-      if (processItem == processName) {
-        producesInCurrentProcess_ = true;
-      }
     }
 
     // Reserve memory in the vectors
@@ -393,9 +449,10 @@ namespace edm {
     unsigned int iBeginning = 0;
     iCountCharacters = 0;
     unsigned int previousCharacterCount = 0;
+    unsigned int iNoProcessBegin = 0;
     if (!items_->empty()) {
       for (auto const& item : *items_) {
-        if (iFirstThisType || item.typeID() != previousTypeID || item.kindOfType() != previousKindOfType) {
+        if (iFirstType || item.typeID() != previousTypeID || item.kindOfType() != previousKindOfType) {
           iFirstThisType = true;
           sortedTypeIDs_.push_back(item.typeID());
           if (iFirstType) {
@@ -405,9 +462,15 @@ namespace edm {
           }
           iBeginning = iCount;
         }
-        ++iCount;
 
         if (iFirstThisType || item.moduleLabel() != previousModuleLabel || item.instance() != previousInstance) {
+          if (iNoProcessBegin != iCount) {
+            setNoProcessIndices(indexAndNames_.begin() + iNoProcessBegin,
+                                indexAndNames_.begin() + iCount,
+                                orderedProcessNames,
+                                processNames_);
+            iNoProcessBegin = iCount;
+          }
           unsigned int labelSize = item.moduleLabel().size();
           for (unsigned int j = 0; j < labelSize; ++j) {
             bigNamesContainer_.push_back(item.moduleLabel()[j]);
@@ -439,8 +502,11 @@ namespace edm {
         previousKindOfType = item.kindOfType();
         previousModuleLabel = item.moduleLabel();
         previousInstance = item.instance();
+        ++iCount;
       }
       ranges_.push_back(Range(iBeginning, iCount));
+      setNoProcessIndices(
+          indexAndNames_.begin() + iNoProcessBegin, indexAndNames_.end(), orderedProcessNames, processNames_);
     }
 
     // Some sanity checks to protect against out of bounds vector accesses
@@ -616,30 +682,50 @@ namespace edm {
 
   void ProductResolverIndexHelper::sanityCheck() const {
     bool sanityChecksPass = true;
-    if (sortedTypeIDs_.size() != ranges_.size())
+    std::string errorMessage;
+    if (sortedTypeIDs_.size() != ranges_.size()) {
       sanityChecksPass = false;
+      errorMessage += "sortedTypeIDs_.size() != ranges_.size()\n";
+    }
 
     unsigned int previousEnd = 0;
     for (auto const& range : ranges_) {
-      if (range.begin() != previousEnd)
+      if (range.begin() != previousEnd) {
         sanityChecksPass = false;
-      if (range.begin() >= range.end())
+        errorMessage += "ranges_ are not contiguous\n";
+      }
+      if (range.begin() >= range.end()) {
         sanityChecksPass = false;
+        errorMessage += "ranges_ are not valid\n";
+      }
       previousEnd = range.end();
     }
-    if (previousEnd != indexAndNames_.size())
+    if (previousEnd != indexAndNames_.size()) {
       sanityChecksPass = false;
+      errorMessage += "ranges_ do not cover all of indexAndNames_\n";
+    }
 
     unsigned maxStart = 0;
     unsigned maxStartProcess = 0;
     for (auto const& indexAndName : indexAndNames_) {
-      if (indexAndName.index() >= nextIndexValue_ && indexAndName.index() != ProductResolverIndexAmbiguous)
+      if (indexAndName.index() >= nextIndexValue_ && (indexAndName.index() != ProductResolverIndexAmbiguous and
+                                                      indexAndName.index() != ProductResolverIndexInvalid)) {
         sanityChecksPass = false;
+        auto startOfModule = indexAndName.startInBigNamesContainer();
+        auto startOfInstance = strlen(&bigNamesContainer_[startOfModule]) + 1 + startOfModule;
+        errorMessage += "indexAndNames_ has invalid index" + std::to_string(indexAndName.index()) + " " +
+                        &bigNamesContainer_[startOfModule] + " " + &bigNamesContainer_[startOfInstance] + " " +
+                        &processNames_[indexAndName.startInProcessNames()] + "\n";
+      }
 
-      if (indexAndName.startInBigNamesContainer() >= bigNamesContainer_.size())
+      if (indexAndName.startInBigNamesContainer() >= bigNamesContainer_.size()) {
         sanityChecksPass = false;
-      if (indexAndName.startInProcessNames() >= processNames_.size())
+        errorMessage += "indexAndNames_ has invalid startInBigNamesContainer\n";
+      }
+      if (indexAndName.startInProcessNames() >= processNames_.size()) {
         sanityChecksPass = false;
+        errorMessage += "indexAndNames_ has invalid startInProcessNames\n";
+      }
 
       if (indexAndName.startInBigNamesContainer() > maxStart)
         maxStart = indexAndName.startInBigNamesContainer();
@@ -648,34 +734,47 @@ namespace edm {
     }
 
     if (!indexAndNames_.empty()) {
-      if (bigNamesContainer_.back() != '\0')
+      if (bigNamesContainer_.back() != '\0') {
         sanityChecksPass = false;
-      if (processNames_.back() != '\0')
+        errorMessage += "bigNamesContainer_ does not end with null char\n";
+      }
+      if (processNames_.back() != '\0') {
         sanityChecksPass = false;
-      if (maxStart >= bigNamesContainer_.size())
+        errorMessage += "processNames_ does not end with null char\n";
+      }
+      if (maxStart >= bigNamesContainer_.size()) {
         sanityChecksPass = false;
+        errorMessage += "maxStart >= bigNamesContainer_.size()\n";
+      }
       unsigned int countZeroes = 0;
       for (unsigned j = maxStart; j < bigNamesContainer_.size(); ++j) {
         if (bigNamesContainer_[j] == '\0') {
           ++countZeroes;
         }
       }
-      if (countZeroes != 2)
+      if (countZeroes != 2) {
         sanityChecksPass = false;
-      if (maxStartProcess >= processNames_.size())
+        errorMessage += "bigNamesContainer_ does not have two null chars\n";
+      }
+      if (maxStartProcess >= processNames_.size()) {
         sanityChecksPass = false;
+        errorMessage += "maxStartProcess >= processNames_.size()\n";
+      }
       countZeroes = 0;
       for (unsigned j = maxStartProcess; j < processNames_.size(); ++j) {
         if (processNames_[j] == '\0') {
           ++countZeroes;
         }
       }
-      if (countZeroes != 1)
+      if (countZeroes != 1) {
         sanityChecksPass = false;
+        errorMessage += "processNames_ does not have one null char\n";
+      }
     }
 
     if (!sanityChecksPass) {
-      throw Exception(errors::LogicError) << "ProductResolverIndexHelper::setFrozen - Detected illegal state.\n";
+      throw Exception(errors::LogicError) << "ProductResolverIndexHelper::setFrozen - Detected illegal state.\n"
+                                          << errorMessage;
     }
   }
 
@@ -769,8 +868,8 @@ namespace edm {
     if (items_) {
       os << "******* items_ \n";
       for (auto const& item : *items_) {
-        std::cout << item.kindOfType() << " " << item.moduleLabel() << " " << item.instance() << " " << item.process()
-                  << " " << item.index() << " " << item.typeID() << "\n";
+        os << item.kindOfType() << " " << item.moduleLabel() << " " << item.instance() << " " << item.process() << " "
+           << item.index() << " " << item.typeID() << "\n";
       }
     }
     if (processItems_) {
