@@ -332,7 +332,7 @@ namespace edm {
     std::vector<std::string> producedTypes;
 
     transient_.branchIDToIndex_.clear();
-    assert(productList_.empty() or processOrder().size() > 0);
+    assert(productList_.empty() or !processOrder().empty());
 
     std::array<std::shared_ptr<ProductResolverIndexHelper>, NumBranchTypes> new_productLookups{
         {std::make_shared<ProductResolverIndexHelper>(),

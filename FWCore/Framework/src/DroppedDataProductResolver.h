@@ -13,7 +13,7 @@ namespace edm {
   class DroppedDataProductResolver : public ProductResolverBase {
   public:
     DroppedDataProductResolver(std::shared_ptr<ProductDescription const> bd)
-        : ProductResolverBase(), m_provenance(std::move(bd), {}) {}
+        : ProductResolverBase(), m_provenance(bd, {}) {}
 
     void connectTo(ProductResolverBase const&, Principal const*) final {}
 
