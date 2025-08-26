@@ -413,7 +413,7 @@ namespace edm {
 
     //sanity check
     for (auto const& p : *processItems_) {
-      if (p.empty() or p == "#")
+      if (p.empty() or p == skipCurrentProcessLabel())
         continue;
       if (orderedProcessNames.end() == std::find(orderedProcessNames.begin(), orderedProcessNames.end(), p)) {
         throw Exception(errors::LogicError)

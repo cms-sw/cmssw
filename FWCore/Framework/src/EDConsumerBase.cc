@@ -129,7 +129,7 @@ void EDConsumerBase::updateLookup(BranchType iBranchType,
         const char* moduleLabel = &(m_tokenLabels[labelStart]);
         const char* processName = moduleLabel + itLabels->m_deltaToProcessName;
         if (itInfo->m_index.skipCurrentProcess()) {
-          processName = "#";
+          processName = iHelper.skipCurrentProcessLabel();
         }
         itInfo->m_index = ProductResolverIndexAndSkipBit(
             iHelper.index(

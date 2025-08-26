@@ -457,7 +457,7 @@ namespace edm {
       if (inputTag.process() == InputTag::kCurrentProcess) {
         processName = &processConfiguration_->processName();
       }
-      std::string const kSkipCurrentProcess = "#";
+      std::string const kSkipCurrentProcess = ProductResolverIndexHelper::skipCurrentProcessLabel();
       if (skipCurrentProcess) {
         processName = &kSkipCurrentProcess;
       }
@@ -481,7 +481,7 @@ namespace edm {
     if (index == ProductResolverIndexInitializing) {
       char const* processName = inputTag.process().c_str();
       if (skipCurrentProcess) {
-        processName = "#";
+        processName = ProductResolverIndexHelper::skipCurrentProcessLabel();
       } else if (inputTag.process() == InputTag::kCurrentProcess) {
         processName = processConfiguration_->processName().c_str();
       }
