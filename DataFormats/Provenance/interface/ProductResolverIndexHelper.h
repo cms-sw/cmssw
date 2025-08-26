@@ -258,6 +258,10 @@ namespace edm {
     // For debugging only
     void print(std::ostream& os) const;
 
+    //ProcessName label used to denote the current process should be skipped
+    //used by all methods of this class that accept the process name
+    static constexpr char const* const skipCurrentProcessLabel() { return "#"; }
+
   private:
     // Next available value for a ProductResolverIndex. This just
     // increments by one each time a new value is assigned.
@@ -330,7 +334,7 @@ namespace edm {
       ProductResolverIndex index() const { return index_; }
 
       void clearProcess() { process_.clear(); }
-      void setSkipCurrentProcess() { process_ = "#"; }
+      void setSkipCurrentProcess() { process_ = ProductResolverIndexHelper::skipCurrentProcessLabel(); }
       void setIndex(ProductResolverIndex v) { index_ = v; }
 
       bool operator<(Item const& right) const;

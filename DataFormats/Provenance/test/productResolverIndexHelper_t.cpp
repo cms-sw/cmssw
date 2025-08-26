@@ -14,6 +14,9 @@
 #include <iomanip>
 
 using namespace edm;
+namespace {
+  constexpr auto skipCurrentProcessLabel = edm::ProductResolverIndexHelper::skipCurrentProcessLabel();
+}
 
 TEST_CASE("ProductResolverIndexHelper", "[ProductResolverIndexHelper]") {
   TypeID typeID_ProductID(typeid(ProductID));
@@ -79,7 +82,8 @@ TEST_CASE("ProductResolverIndexHelper", "[ProductResolverIndexHelper]") {
       REQUIRE(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA") == indexWithProcess);
       REQUIRE(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", "") == indexWithProcess);
       REQUIRE(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", 0) == indexWithProcess);
-      REQUIRE(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", "#") == indexSkipCurrentProcess);
+      REQUIRE(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", skipCurrentProcessLabel) ==
+              indexSkipCurrentProcess);
       REQUIRE(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", "processA") == indexWithProcess);
 
       REQUIRE(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instance", "processA") ==
@@ -154,7 +158,8 @@ TEST_CASE("ProductResolverIndexHelper", "[ProductResolverIndexHelper]") {
       REQUIRE(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA") == indexWithProcess);
       REQUIRE(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", "") == indexWithProcess);
       REQUIRE(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", 0) == indexWithProcess);
-      REQUIRE(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", "#") == indexSkipCurrentProcess);
+      REQUIRE(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", skipCurrentProcessLabel) ==
+              indexSkipCurrentProcess);
       REQUIRE(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", "processA") == indexWithProcess);
 
       REQUIRE(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instance", "processA") ==
@@ -216,7 +221,8 @@ TEST_CASE("ProductResolverIndexHelper", "[ProductResolverIndexHelper]") {
       REQUIRE(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA") == indexWithProcessB);
       REQUIRE(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", "") == indexWithProcessB);
       REQUIRE(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", 0) == indexWithProcessB);
-      REQUIRE(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", "#") == indexSkipCurrentProcess);
+      REQUIRE(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", skipCurrentProcessLabel) ==
+              indexSkipCurrentProcess);
       REQUIRE(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", "processA") == indexWithProcessA);
       REQUIRE(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", "processB") == indexWithProcessB);
     }

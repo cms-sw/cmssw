@@ -114,6 +114,7 @@ namespace {
     std::vector<edm::EDGetTokenT<std::vector<int>>> m_tokens;
   };
 
+  constexpr const auto skipCurrentProcessLabel = edm::ProductResolverIndexHelper::skipCurrentProcessLabel();
 }  // namespace
 
 void TestEDConsumerBase::testRegularType() {
@@ -150,7 +151,8 @@ void TestEDConsumerBase::testRegularType() {
 
   edm::TypeID typeID_vint(typeid(std::vector<int>));
   const auto vint_c = helper.index(edm::PRODUCT_TYPE, typeID_vint, "labelC", "instanceC", "processC");
-  const auto vint_c_skipCurrent = helper.index(edm::PRODUCT_TYPE, typeID_vint, "labelC", "instanceC", "#");
+  const auto vint_c_skipCurrent =
+      helper.index(edm::PRODUCT_TYPE, typeID_vint, "labelC", "instanceC", skipCurrentProcessLabel);
   CPPUNIT_ASSERT(edm::ProductResolverIndexInvalid == vint_c_skipCurrent);
   const auto vint_c_no_proc = helper.index(edm::PRODUCT_TYPE, typeID_vint, "labelC", "instanceC", 0);
   CPPUNIT_ASSERT(vint_c == vint_c_no_proc);
@@ -364,7 +366,7 @@ void TestEDConsumerBase::testViewType() {
   const auto v_int_no_proc = helper.index(edm::ELEMENT_TYPE, typeID_int, "label", "instance");
   const auto v_simple_no_proc = helper.index(edm::ELEMENT_TYPE, typeID_Simple, "labelC", "instanceC");
   CPPUNIT_ASSERT(v_simple_no_proc == v_simple);
-  const auto v_simple_skip = helper.index(edm::ELEMENT_TYPE, typeID_Simple, "labelC", "#");
+  const auto v_simple_skip = helper.index(edm::ELEMENT_TYPE, typeID_Simple, "labelC", skipCurrentProcessLabel);
 
   {
     std::vector<std::pair<edm::TypeToGet, edm::InputTag>> vT = {
@@ -477,7 +479,7 @@ void TestEDConsumerBase::testMay() {
   const auto vint_c = helper.index(edm::PRODUCT_TYPE, typeID_vint, "labelC", "instanceC", "processC");
   const auto vint_c_no_proc = helper.index(edm::PRODUCT_TYPE, typeID_vint, "labelC", "instanceC", 0);
   CPPUNIT_ASSERT(vint_c_no_proc == vint_c);
-  const auto vint_c_skip = helper.index(edm::PRODUCT_TYPE, typeID_vint, "labelC", "instanceC", "#");
+  const auto vint_c_skip = helper.index(edm::PRODUCT_TYPE, typeID_vint, "labelC", "instanceC", skipCurrentProcessLabel);
   const auto vint_blank = helper.index(edm::PRODUCT_TYPE, typeID_vint, "label", "instance", "process");
   const auto vint_blank_no_proc = helper.index(edm::PRODUCT_TYPE, typeID_vint, "label", "instance", 0);
   {
