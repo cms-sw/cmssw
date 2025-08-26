@@ -2067,7 +2067,7 @@ upgradeWFs['HLTPhase2WithNano'].step2 = {
 
 upgradeWFs['NGTScoutingWithNano'] = deepcopy(upgradeWFs['HLTPhase2WithNano'])
 upgradeWFs['NGTScoutingWithNano'].suffix = '_NGTScoutingWithNano'
-upgradeWFs['NGTScoutingWithNano'].offset = 0.771
+upgradeWFs['NGTScoutingWithNano'].offset = 0.772
 upgradeWFs['NGTScoutingWithNano'].step2 = {
     '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:NGTScouting,NANO:@NGTScouting',
     '--datatier':'GEN-SIM-DIGI-RAW,NANOAODSIM',
@@ -2077,7 +2077,7 @@ upgradeWFs['NGTScoutingWithNano'].step2 = {
 
 upgradeWFs['NGTScoutingWithNanoValid'] = deepcopy(upgradeWFs['HLTPhase2WithNano'])
 upgradeWFs['NGTScoutingWithNanoValid'].suffix = '_NGTScoutingWithNanoVal'
-upgradeWFs['NGTScoutingWithNanoValid'].offset = 0.772
+upgradeWFs['NGTScoutingWithNanoValid'].offset = 0.773
 upgradeWFs['NGTScoutingWithNanoValid'].step2 = {
     '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:NGTScouting,VALIDATION:@hltValidation,NANO:@NGTScoutingVal',
     '--datatier':'GEN-SIM-DIGI-RAW,NANOAODSIM',
@@ -2151,6 +2151,20 @@ upgradeWFs['NGTScouting'].step2 = {
 }
 upgradeWFs['NGTScouting'].step3 = {
     '--procModifiers': 'ngtScouting',
+    '-s':'HARVESTING:@hltValidation'
+}
+
+upgradeWFs['NGTScoutingAll'] = deepcopy(upgradeWFs['NGTScouting'])
+upgradeWFs['NGTScoutingAll'].suffix = '_NGTScoutingAll'
+upgradeWFs['NGTScoutingAll'].offset = 0.771
+upgradeWFs['NGTScoutingAll'].step2 = {
+    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:NGTScouting,VALIDATION:@hltValidation',
+    '--procModifiers': 'ngtScouting,alpaka,ticl_v5,ticl_barrel',
+    '--datatier':'GEN-SIM-DIGI-RAW,DQMIO',
+    '--eventcontent':'FEVTDEBUGHLT,DQMIO'
+}
+upgradeWFs['NGTScoutingAll'].step3 = {
+    '--procModifiers': 'ngtScouting,alpaka,ticl_v5,ticl_barrel',
     '-s':'HARVESTING:@hltValidation'
 }
 
