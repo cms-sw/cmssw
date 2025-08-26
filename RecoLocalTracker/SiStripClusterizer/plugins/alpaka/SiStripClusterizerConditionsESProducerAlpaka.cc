@@ -104,14 +104,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       // Prepare the product & Fill the product
       //// Typical sizes for these collections (from MC run)
       //// constexpr const unsigned int DetToFeds_size= 34813;
-      auto DetToFeds_size = detToFeds_qualityFlags.size();
-      auto DetToFedsCollection =
-          std::make_unique<SiStripClusterizerConditionsDetToFedsHost>(DetToFeds_size, cms::alpakatools::host());
+      auto detToFeds_size = detToFeds_qualityFlags.size();
+      auto detToFedsCollection =
+          std::make_unique<SiStripClusterizerConditionsDetToFedsHost>(detToFeds_size, cms::alpakatools::host());
 
-      for (uint32_t j = 0; j < DetToFeds_size; ++j) {
-        (*DetToFedsCollection)->qualityOk_(j) = detToFeds_qualityFlags[j];
+      for (uint32_t j = 0; j < detToFeds_size; ++j) {
+        (*detToFedsCollection)->qualityOk_(j) = detToFeds_qualityFlags[j];
       }
-      return DetToFedsCollection;
+      return detToFedsCollection;
     }
 
     std::unique_ptr<SiStripClusterizerConditionsDataHost> produceData(
