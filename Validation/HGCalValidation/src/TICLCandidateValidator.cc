@@ -342,6 +342,8 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
   chargedCandidates.shrink_to_fit();
   neutralCandidates.shrink_to_fit();
 
+  auto firstTs = edm::Ptr<ticl::Trackster>(Tracksters_h, 0).get();
+  auto firstTrack = edm::Ptr<reco::Track>(recoTracks_h, 0).get();
   for (const auto i : chargedCandidates) {
     const auto& simCand = simTICLCandidates[i];
     auto index = std::log2(int(ticl::tracksterParticleTypeFromPdgId(simCand.pdgId(), 1)));
@@ -349,14 +351,13 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
      * 13 (type 2) becomes 1
      * 211 (type 4) becomes 2
      */
-    int32_t simCandTrackIdx = -1;
-    if (simCand.trackPtr().get() != nullptr)
-      simCandTrackIdx = simCand.trackPtr().get() - edm::Ptr<reco::Track>(recoTracks_h, 0).get();
-    else {
-      // no reco track, but simCand is charged
-      continue;
+
+    std::vector<int32_t> simCandTrackIdx;
+    for (const auto& track : simCand.trackPtrs()) {
+      if (cutTk(*(simCand.trackPtr().get())))
+        simCandTrackIdx.push_back(track.get() - firstTrack);
     }
-    if (!cutTk(*(simCand.trackPtr().get())))
+    if (simCandTrackIdx.empty())
       continue;
 
     // +1 to all denominators
@@ -383,13 +384,14 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     auto& recoCand = TICLCandidates[cand_idx];
     if (isTICLv5_) {
       // cand_idx is the tsMerge index, find the ts in the candidates collection
-      auto const tsPtr = edm::Ptr<ticl::Trackster>(Tracksters_h, cand_idx);
-      auto cand_it = std::find_if(TICLCandidates.begin(), TICLCandidates.end(), [tsPtr](TICLCandidate const& cand) {
-        if (!cand.tracksters().empty())
-          return cand.tracksters()[0] == tsPtr;
-        else
-          return false;
-      });
+      auto cand_it =
+          std::find_if(TICLCandidates.begin(), TICLCandidates.end(), [firstTs, cand_idx](TICLCandidate const& cand) {
+            if (!cand.tracksters().empty())
+              return (cand.tracksters()[0]).get() - firstTs ==
+                     cand_idx;  // in TICLv5 there is one trackster per candidate
+            else
+              return false;
+          });
       if (cand_it != TICLCandidates.end())
         recoCand = *cand_it;
       else
@@ -397,8 +399,8 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     }
 
     if (recoCand.trackPtr().get() != nullptr) {
-      const auto candTrackIdx = recoCand.trackPtr().get() - edm::Ptr<reco::Track>(recoTracks_h, 0).get();
-      if (simCandTrackIdx == candTrackIdx) {
+      const auto candTrackIdx = recoCand.trackPtr().get() - firstTrack;
+      if (std::find(simCandTrackIdx.begin(), simCandTrackIdx.end(), candTrackIdx) != simCandTrackIdx.end()) {
         // +1 to track num
         histograms.h_num_chg_energy_candidate_track[index]->Fill(simCand.rawEnergy());
         histograms.h_num_chg_pt_candidate_track[index]->Fill(simCand.pt());
@@ -412,6 +414,7 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     }
 
     //step 2: PID
+    // NOTE: ok to compare number and not had / em because few pgd are used for the candidates
     if (simCand.pdgId() == recoCand.pdgId()) {
       // +1 to num pdg id
       histograms.h_num_chg_energy_candidate_pdgId[index]->Fill(simCand.rawEnergy());
@@ -461,13 +464,14 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     auto& recoCand = TICLCandidates[cand_idx];
     if (isTICLv5_) {
       // cand_idx is the tsMerge index, find the ts in the candidates collection
-      auto const tsPtr = edm::Ptr<ticl::Trackster>(Tracksters_h, cand_idx);
-      auto cand_it = std::find_if(TICLCandidates.begin(), TICLCandidates.end(), [tsPtr](TICLCandidate const& cand) {
-        if (!cand.tracksters().empty())
-          return cand.tracksters()[0] == tsPtr;
-        else
-          return false;
-      });
+      auto cand_it =
+          std::find_if(TICLCandidates.begin(), TICLCandidates.end(), [firstTs, cand_idx](TICLCandidate const& cand) {
+            if (!cand.tracksters().empty())
+              return (cand.tracksters()[0]).get() - firstTs ==
+                     cand_idx;  // in TICLv5 there is one trackster per candidate
+            else
+              return false;
+          });
       if (cand_it != TICLCandidates.end())
         recoCand = *cand_it;
       else
@@ -530,7 +534,7 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
      * 211 (type 4) becomes 2
      */
     int32_t candTrackIdx = -1;
-    candTrackIdx = cand.trackPtr().get() - edm::Ptr<reco::Track>(recoTracks_h, 0).get();
+    candTrackIdx = cand.trackPtr().get() - firstTrack;
 
     if (cand.tracksters().empty())
       continue;
@@ -538,7 +542,7 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     // i is the candidate idx == ts idx only in v4, find ts_idx in v5
     auto mergeTs_id = i;
     if (isTICLv5_) {
-      mergeTs_id = cand.tracksters()[0].get() - edm::Ptr<ticl::Trackster>(Tracksters_h, 0).get();
+      mergeTs_id = cand.tracksters()[0].get() - firstTs;
     }
 
     // +1 to all denominators
@@ -547,6 +551,7 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     histograms.h_den_fake_chg_eta_candidate[index]->Fill(cand.eta());
     histograms.h_den_fake_chg_phi_candidate[index]->Fill(cand.phi());
 
+    // general plots
     histograms.h_chg_tracksters_in_candidate[index]->Fill(cand.tracksters().size());
     histograms.h_chg_candidate_regressed_energy[index]->Fill(cand.energy());
     histograms.h_chg_candidate_charge[index]->Fill(cand.charge());
@@ -578,9 +583,13 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     if (simCand.charge() == 0 and (std::abs(simCand.pdgId()) == 211 or std::abs(simCand.pdgId()) == 11))
       continue;
 
-    if (simCand.trackPtr().get() != nullptr) {
-      const auto simCandTrackIdx = simCand.trackPtr().get() - edm::Ptr<reco::Track>(recoTracks_h, 0).get();
-      if (simCandTrackIdx != candTrackIdx) {
+    std::vector<int32_t> simCandTrackIdx;
+    for (const auto& track : simCand.trackPtrs()) {
+      simCandTrackIdx.push_back(track.get() - firstTrack);
+    }
+
+    if (!simCandTrackIdx.empty()) {
+      if (std::find(simCandTrackIdx.begin(), simCandTrackIdx.end(), candTrackIdx) == simCandTrackIdx.end()) {
         // fake += 1
         histograms.h_num_fake_chg_energy_candidate_track[index]->Fill(cand.rawEnergy());
         histograms.h_num_fake_chg_pt_candidate_track[index]->Fill(cand.pt());
@@ -631,7 +640,7 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     // i is the candidate idx == ts idx only in v4, find ts_idx in v5
     auto mergeTs_id = i;
     if (isTICLv5_) {
-      mergeTs_id = cand.tracksters()[0].get() - edm::Ptr<ticl::Trackster>(Tracksters_h, 0).get();
+      mergeTs_id = cand.tracksters()[0].get() - firstTs;
     }
 
     // +1 to all denominators
@@ -640,6 +649,7 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     histograms.h_den_fake_neut_eta_candidate[index]->Fill(cand.eta());
     histograms.h_den_fake_neut_phi_candidate[index]->Fill(cand.phi());
 
+    // general plots
     histograms.h_neut_tracksters_in_candidate[index]->Fill(cand.tracksters().size());
     histograms.h_neut_candidate_regressed_energy[index]->Fill(cand.energy());
     histograms.h_neut_candidate_charge[index]->Fill(cand.charge());
