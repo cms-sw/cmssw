@@ -9,6 +9,7 @@
 #include "RecoLocalTracker/SiStripClusterizer/interface/ClusterChargeCut.h"
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
+#include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBufferComponents.h"
 
 #include "SiStripRawToClusterAlgo.h"
 
@@ -275,7 +276,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
           bool isNonLite = fedchannelunpacker::checks::isNonLiteZS(mapping.readoutMode(chan));
 
-          fedChannelDetails::FEDChannel fedChan(fedChannelsData + fedChDataOfsBuf, fedChOfs, isNonLite);
+          FEDChannel fedChan(fedChannelsData + fedChDataOfsBuf, fedChOfs, FEDChannel::ZSROMode(isNonLite));
 
           // Calculate the number of strips in the channel
           uint8_t numBits = 8;
@@ -361,7 +362,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         const uint8_t mode = mapping.readoutMode(chan);
         const bool isNonLite = fedchannelunpacker::checks::isNonLiteZS(mode);
         // printf("#ssk2,%i,%i,%i,%i", fedId, fedCh, ipoff, fedChOfs);
-        const fedChannelDetails::FEDChannel fedChan(fedChannelsData + fedChDataOfsBuf, fedChOfs, isNonLite);
+        const FEDChannel fedChan(fedChannelsData + fedChDataOfsBuf, fedChOfs, FEDChannel::ZSROMode(isNonLite));
         const uint8_t packetCode = fedChan.packetCode();
         // printf("#pckCd,%i,%i,%i\n", fedId, fedCh, packetCode);
 

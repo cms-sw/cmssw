@@ -61,55 +61,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     uint8_t fedBufferRO;
   };
 
-  namespace fedChannelDetails {
-    // It corresponds to the one in EventFilter/SiStripRawToDigi/interface/SiStripFEDBufferComponents.h,
-    // but for Alpaka, with the addition of stripsInCh function
-    class FEDChannel {
-    public:
-      ALPAKA_FN_HOST_ACC inline FEDChannel(const uint8_t* data, uint32_t offset, bool isNonLite)
-          : data_(data), offset_(offset), headerLen_(isNonLite ? 7 : 2) {
-        length_ = (data_[(offset_) ^ 7] + (data_[(offset_ + 1) ^ 7] << 8));
-      }
-
-      ALPAKA_FN_HOST_ACC inline uint16_t length() const { return length_; }
-
-      ALPAKA_FN_HOST_ACC inline uint16_t stripsInCh(uint8_t num_bits = 8) const {
-        const bool emptyCh = (headerLen_ + 2) >= (length_);
-        const uint16_t start = offset_ + headerLen_;
-        const uint16_t end = offset_ + length_;
-        uint16_t stripN = 0;
-        if (!emptyCh) {
-          for (uint16_t nStrip_wOfs = start + 1; nStrip_wOfs < end;) {
-            const uint8_t clustStripN = data_[(nStrip_wOfs) ^ 7];
-            nStrip_wOfs += ((uint32_t)clustStripN) * num_bits / 8 + 2;
-            stripN += clustStripN;
-            // std::cout << (int)nStrip_Ofs << "," << (int)clustStripN << std::endl;
-          }
-        }
-        return stripN;
-      }
-
-      ALPAKA_FN_HOST_ACC inline uint8_t packetCode() const { return data_[(offset_ + 2) ^ 7]; }
-
-      ALPAKA_FN_HOST_ACC inline uint16_t cmMedian(uint8_t apvIndex) const {
-        uint16_t result = 0;
-        result |= data_[(offset_ + 3 + 2 * apvIndex) ^ 7];
-        result |= (((data_[(offset_ + 4 + 2 * apvIndex) ^ 7]) << 8) & 0x300);
-        return result;
-      }
-
-      ALPAKA_FN_HOST_ACC inline const uint8_t* data() const { return data_; }
-
-      ALPAKA_FN_HOST_ACC inline uint32_t offset() const { return offset_; }
-
-    private:
-      const uint8_t* data_;
-      uint32_t offset_;
-      uint16_t length_;
-      uint8_t headerLen_;
-    };
-  }  // namespace fedChannelDetails
-
   class PortableFEDMover {
   public:
     PortableFEDMover(Queue& queue, uint32_t rawBufferSize, uint32_t fedChannelsNb)
