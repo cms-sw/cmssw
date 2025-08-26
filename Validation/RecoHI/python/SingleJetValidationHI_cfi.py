@@ -8,7 +8,7 @@ genjetcoll="iterativeCone5HiGenJets"
 
 hltlow35  =""
 hltname35="HLT_HIJet35U"
-folderjet35="HLT/HLTJETMET/SingleJet35U"
+folderjet35="HLT/JetMET/TurnOnValidation/SingleJet35U"
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SingleJetPathVal35 = DQMEDAnalyzer('HLTJetMETValidation',
