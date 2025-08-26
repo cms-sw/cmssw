@@ -67,7 +67,9 @@ The offsets currently in use are:
 * 0.758 HLT phase-2 timing menu ticl_barrel variant
 * 0.759: HLT phase-2 timing menu, with NANO:@Phase2HLT
 * 0.77: HLT phase-2 NGT Scouting menu
-* 0.771: HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting
+* 0.771: HLT phase-2 NGT Scouting menu, Alpaka, TICL-v5, TICL-Barrel
+* 0.772: HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting
+* 0.773: HLT phase-2 NGT Scouting menu, with NANO:@NGTScoutingVal
 * 0.778 L3 Tracker Muons reconstruction Outside-In first, HLT Muon NanoAOD
 * 0.78: Complete L1 workflow
 * 0.781: Complete L1 workflow, producing FEVT and NANO output L1/P2GT objects
