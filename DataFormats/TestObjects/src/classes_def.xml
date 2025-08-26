@@ -411,10 +411,17 @@ exception when running testMissingDictionaryChecking_cfg.py.
   <version ClassVersion="3" checksum="1545257825"/>
  </class>
  <class name="std::auto_ptr<edmtest::SchemaEvolutionContained>"/>
+ <class name="edmtest::compat::deprecated_auto_ptr<edmtest::SchemaEvolutionContained>"/>
  <class name="edmtest::SchemaEvolutionAutoPtrToUniquePtr" ClassVersion="4">
   <version ClassVersion="4" checksum="2908944573"/>
   <version ClassVersion="3" checksum="1427898213"/>
  </class>
+ <ioread sourceClass="std::auto_ptr<edmtest::SchemaEvolutionContained>" targetClass="edmtest::compat::deprecated_auto_ptr<edmtest::SchemaEvolutionContained>"/>
+ <ioread sourceClass="edmtest::SchemaEvolutionAutoPtrToUniquePtr" version="[3]" targetClass="edmtest::SchemaEvolutionAutoPtrToUniquePtr" source="edmtest::compat::deprecated_auto_ptr<edmtest::SchemaEvolutionContained> contained_" target="contained_">
+  <![CDATA[
+   contained_.release(); contained_.reset(onfile.contained_._M_ptr);
+  ]]>
+ </ioread>
  <class name="edmtest::SchemaEvolutionCArrayToStdArray" ClassVersion="4">
   <version ClassVersion="4" checksum="66373354"/>
   <version ClassVersion="3" checksum="2848265407"/>
