@@ -33,6 +33,7 @@ public:
                         const HGCalMappingModuleIndexer& moduleIndexer,
                         const HGCalConfiguration& config,
                         hgcaldigi::HGCalDigiHost& digis,
+                        hgcaldigi::HGCalFEDPacketInfoHost& fedPacketInfo,
                         hgcaldigi::HGCalECONDPacketInfoHost& econdPacketInfo);
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
@@ -113,7 +114,7 @@ void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
       if (fed_data.size() == 0)
         continue;
       fedPacketInfo.view()[fedId].FEDUnpackingFlag() =
-          callUnpacker(fedId, fed_data, moduleIndexer, config, digis, econdPacketInfo);
+          callUnpacker(fedId, fed_data, moduleIndexer, config, digis, fedPacketInfo, econdPacketInfo);
     }
   }
   //parallel unpacking calls
@@ -129,7 +130,7 @@ void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
         if (fed_data.size() == 0)
           return;
         fedPacketInfo.view()[fedId].FEDUnpackingFlag() =
-            callUnpacker(fedId, fed_data, moduleIndexer, config, digis, econdPacketInfo);
+            callUnpacker(fedId, fed_data, moduleIndexer, config, digis, fedPacketInfo, econdPacketInfo);
         return;
       });
     });
@@ -147,9 +148,10 @@ uint16_t HGCalRawToDigi::callUnpacker(unsigned fedId,
                                       const HGCalMappingModuleIndexer& moduleIndexer,
                                       const HGCalConfiguration& config,
                                       hgcaldigi::HGCalDigiHost& digis,
+                                      hgcaldigi::HGCalFEDPacketInfoHost& fedPacketInfo,
                                       hgcaldigi::HGCalECONDPacketInfoHost& econdPacketInfo) {
-  uint16_t status =
-      unpacker_.parseFEDData(fedId, fed_data, moduleIndexer, config, digis, econdPacketInfo, headersOnly_);
+  uint16_t status = unpacker_.parseFEDData(
+      fedId, fed_data, moduleIndexer, config, digis, fedPacketInfo, econdPacketInfo, headersOnly_);
   return status;
 }
 
