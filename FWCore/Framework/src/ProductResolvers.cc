@@ -170,7 +170,7 @@ namespace edm {
     }
   }  // namespace
   ProductResolverBase::Resolution DelayedReaderInputProductResolver::resolveProduct_(
-      Principal const& principal, bool, SharedResourcesAcquirer*, ModuleCallingContext const* mcc) const {
+      Principal const& principal, SharedResourcesAcquirer*, ModuleCallingContext const* mcc) const {
     return resolveProductImpl<true>([this, &principal, mcc]() {
       auto branchType = principal.branchType();
       if (branchType == InLumi || branchType == InRun) {
@@ -276,7 +276,6 @@ namespace edm {
 
   void DelayedReaderInputProductResolver::prefetchAsync_(WaitingTaskHolder waitTask,
                                                          Principal const& principal,
-                                                         bool skipCurrentProcess,
                                                          ServiceToken const& token,
                                                          SharedResourcesAcquirer* sra,
                                                          ModuleCallingContext const* mcc) const noexcept {
@@ -368,7 +367,6 @@ namespace edm {
   bool PutOnReadInputProductResolver::isFromCurrentProcess() const { return false; }
 
   ProductResolverBase::Resolution PutOnReadInputProductResolver::resolveProduct_(Principal const&,
-                                                                                 bool skipCurrentProcess,
                                                                                  SharedResourcesAcquirer*,
                                                                                  ModuleCallingContext const*) const {
     return resolveProductImpl<false>([]() { return; });
@@ -376,7 +374,6 @@ namespace edm {
 
   void PutOnReadInputProductResolver::prefetchAsync_(WaitingTaskHolder waitTask,
                                                      Principal const& principal,
-                                                     bool skipCurrentProcess,
                                                      ServiceToken const& token,
                                                      SharedResourcesAcquirer* sra,
                                                      ModuleCallingContext const* mcc) const noexcept {}
@@ -386,42 +383,34 @@ namespace edm {
   }
 
   ProductResolverBase::Resolution PuttableProductResolver::resolveProduct_(Principal const&,
-                                                                           bool skipCurrentProcess,
                                                                            SharedResourcesAcquirer*,
                                                                            ModuleCallingContext const*) const {
-    if (!skipCurrentProcess) {
-      //'false' means never call the lambda function
-      return resolveProductImpl<false>([]() { return; });
-    }
-    return Resolution(nullptr);
+    return resolveProductImpl<false>([]() { return; });
   }
 
   void PuttableProductResolver::prefetchAsync_(WaitingTaskHolder waitTask,
                                                Principal const& principal,
-                                               bool skipCurrentProcess,
                                                ServiceToken const& token,
                                                SharedResourcesAcquirer* sra,
                                                ModuleCallingContext const* mcc) const noexcept {
-    if (not skipCurrentProcess) {
-      if (productDescription().branchType() == InProcess &&
-          mcc->parent().globalContext()->transition() == GlobalContext::Transition::kAccessInputProcessBlock) {
-        // This is an accessInputProcessBlock transition
-        // We cannot access produced products in those transitions.
+    if (productDescription().branchType() == InProcess &&
+        mcc->parent().globalContext()->transition() == GlobalContext::Transition::kAccessInputProcessBlock) {
+      // This is an accessInputProcessBlock transition
+      // We cannot access produced products in those transitions.
+      return;
+    }
+    if (productDescription().availableOnlyAtEndTransition() and mcc) {
+      if (not mcc->parent().isAtEndTransition()) {
         return;
       }
-      if (productDescription().availableOnlyAtEndTransition() and mcc) {
-        if (not mcc->parent().isAtEndTransition()) {
-          return;
-        }
-      }
+    }
 
-      if (waitingTasks_) {
-        // using a waiting task to do a callback guarantees that the
-        // waitingTasks_ list (from the worker) will be released from
-        // waiting even if the module does not put this data product
-        // or the module has an exception while running
-        waitingTasks_->add(waitTask);
-      }
+    if (waitingTasks_) {
+      // using a waiting task to do a callback guarantees that the
+      // waitingTasks_ list (from the worker) will be released from
+      // waiting even if the module does not put this data product
+      // or the module has an exception while running
+      waitingTasks_->add(waitTask);
     }
   }
 
@@ -438,10 +427,9 @@ namespace edm {
   }
 
   ProductResolverBase::Resolution UnscheduledProductResolver::resolveProduct_(Principal const&,
-                                                                              bool skipCurrentProcess,
                                                                               SharedResourcesAcquirer*,
                                                                               ModuleCallingContext const*) const {
-    if (!skipCurrentProcess and worker_) {
+    if (worker_) {
       return resolveProductImpl<false>([] {});
     }
     return Resolution(nullptr);
@@ -449,13 +437,9 @@ namespace edm {
 
   void UnscheduledProductResolver::prefetchAsync_(WaitingTaskHolder waitTask,
                                                   Principal const& principal,
-                                                  bool skipCurrentProcess,
                                                   ServiceToken const& token,
                                                   SharedResourcesAcquirer* sra,
                                                   ModuleCallingContext const* mcc) const noexcept {
-    if (skipCurrentProcess) {
-      return;
-    }
     assert(worker_);
     //need to try changing prefetchRequested_ before adding to waitingTasks_
     bool expected = false;
@@ -512,10 +496,9 @@ namespace edm {
   }
 
   ProductResolverBase::Resolution TransformingProductResolver::resolveProduct_(Principal const&,
-                                                                               bool skipCurrentProcess,
                                                                                SharedResourcesAcquirer*,
                                                                                ModuleCallingContext const*) const {
-    if (!skipCurrentProcess and worker_) {
+    if (worker_) {
       return resolveProductImpl<false>([] {});
     }
     return Resolution(nullptr);
@@ -534,13 +517,9 @@ namespace edm {
 
   void TransformingProductResolver::prefetchAsync_(WaitingTaskHolder waitTask,
                                                    Principal const& principal,
-                                                   bool skipCurrentProcess,
                                                    ServiceToken const& token,
                                                    SharedResourcesAcquirer* sra,
                                                    ModuleCallingContext const* mcc) const noexcept {
-    if (skipCurrentProcess) {
-      return;
-    }
     assert(worker_ != nullptr);
     //need to try changing prefetchRequested_ before adding to waitingTasks_
     bool expected = false;
@@ -653,10 +632,7 @@ namespace edm {
   // This routine returns true if the product was deleted early in order to save memory
   bool DataManagingProductResolver::productWasDeleted_() const { return status() == ProductStatus::ProductDeleted; }
 
-  bool DataManagingProductResolver::productWasFetchedAndIsValid_(bool iSkipCurrentProcess) const {
-    if (iSkipCurrentProcess and isFromCurrentProcess()) {
-      return false;
-    }
+  bool DataManagingProductResolver::productWasFetchedAndIsValid_() const {
     if (status() == ProductStatus::ProductSet) {
       if (getProductData().wrapper()->isPresent()) {
         return true;
@@ -770,25 +746,19 @@ namespace edm {
                                                                DataManagingOrAliasProductResolver& realProduct)
       : SwitchBaseProductResolver(std::move(bd), realProduct), status_(defaultStatus_) {}
 
-  ProductResolverBase::Resolution SwitchProducerProductResolver::resolveProduct_(Principal const& principal,
-                                                                                 bool skipCurrentProcess,
-                                                                                 SharedResourcesAcquirer* sra,
-                                                                                 ModuleCallingContext const* mcc) const {
+  ProductResolverBase::Resolution SwitchProducerProductResolver::resolveProduct_(
+      Principal const& principal, SharedResourcesAcquirer* sra, ModuleCallingContext const* mcc) const {
     if (status_ == ProductStatus::ResolveFailed) {
-      return resolveProductImpl(realProduct().resolveProduct(principal, skipCurrentProcess, sra, mcc));
+      return resolveProductImpl(realProduct().resolveProduct(principal, sra, mcc));
     }
     return Resolution(nullptr);
   }
 
   void SwitchProducerProductResolver::prefetchAsync_(WaitingTaskHolder waitTask,
                                                      Principal const& principal,
-                                                     bool skipCurrentProcess,
                                                      ServiceToken const& token,
                                                      SharedResourcesAcquirer* sra,
                                                      ModuleCallingContext const* mcc) const noexcept {
-    if (skipCurrentProcess) {
-      return;
-    }
     if (productDescription().availableOnlyAtEndTransition() and mcc and not mcc->parent().isAtEndTransition()) {
       return;
     }
@@ -847,22 +817,16 @@ namespace edm {
   }
 
   ProductResolverBase::Resolution SwitchAliasProductResolver::resolveProduct_(Principal const& principal,
-                                                                              bool skipCurrentProcess,
                                                                               SharedResourcesAcquirer* sra,
                                                                               ModuleCallingContext const* mcc) const {
-    return resolveProductImpl(realProduct().resolveProduct(principal, skipCurrentProcess, sra, mcc));
+    return resolveProductImpl(realProduct().resolveProduct(principal, sra, mcc));
   }
 
   void SwitchAliasProductResolver::prefetchAsync_(WaitingTaskHolder waitTask,
                                                   Principal const& principal,
-                                                  bool skipCurrentProcess,
                                                   ServiceToken const& token,
                                                   SharedResourcesAcquirer* sra,
                                                   ModuleCallingContext const* mcc) const noexcept {
-    if (skipCurrentProcess) {
-      return;
-    }
-
     //need to try changing prefetchRequested_ before adding to waitingTasks_
     bool expected = false;
     bool doPrefetchRequested = prefetchRequested().compare_exchange_strong(expected, true);
@@ -881,402 +845,7 @@ namespace edm {
           waitingTasks().doneWaiting(std::exception_ptr());
         }
       });
-      realProduct().prefetchAsync(
-          WaitingTaskHolder(*waitTask.group(), waiting), principal, skipCurrentProcess, token, sra, mcc);
+      realProduct().prefetchAsync(WaitingTaskHolder(*waitTask.group(), waiting), principal, token, sra, mcc);
     }
   }
-
-  NoProcessProductResolver::NoProcessProductResolver(std::vector<ProductResolverIndex> const& matchingHolders,
-                                                     std::vector<bool> const& ambiguous,
-                                                     bool madeAtEnd)
-      : matchingHolders_(matchingHolders),
-        ambiguous_(ambiguous),
-        lastCheckIndex_(ambiguous_.size() + kUnsetOffset),
-        lastSkipCurrentCheckIndex_(lastCheckIndex_.load()),
-        prefetchRequested_(false),
-        skippingPrefetchRequested_(false),
-        madeAtEnd_{madeAtEnd} {
-    assert(ambiguous_.size() == matchingHolders_.size());
-  }
-
-  ProductResolverBase::Resolution NoProcessProductResolver::tryResolver(unsigned int index,
-                                                                        Principal const& principal,
-                                                                        bool skipCurrentProcess,
-                                                                        SharedResourcesAcquirer* sra,
-                                                                        ModuleCallingContext const* mcc) const {
-    ProductResolverBase const* productResolver = principal.getProductResolverByIndex(matchingHolders_[index]);
-    return productResolver->resolveProduct(principal, skipCurrentProcess, sra, mcc);
-  }
-
-  ProductResolverBase::Resolution NoProcessProductResolver::resolveProduct_(Principal const& principal,
-                                                                            bool skipCurrentProcess,
-                                                                            SharedResourcesAcquirer* sra,
-                                                                            ModuleCallingContext const* mcc) const {
-    //See if we've already cached which Resolver we should call or if
-    // we know it is ambiguous
-    const unsigned int choiceSize = ambiguous_.size();
-
-    //madeAtEnd_==true and not at end transition is the same as skipping the current process
-    if ((not skipCurrentProcess) and (madeAtEnd_ and mcc)) {
-      skipCurrentProcess = not mcc->parent().isAtEndTransition();
-    }
-
-    unsigned int checkCacheIndex = skipCurrentProcess ? lastSkipCurrentCheckIndex_.load() : lastCheckIndex_.load();
-    if (checkCacheIndex != choiceSize + kUnsetOffset) {
-      if (checkCacheIndex == choiceSize + kAmbiguousOffset) {
-        return ProductResolverBase::Resolution::makeAmbiguous();
-      } else if (checkCacheIndex == choiceSize + kMissingOffset) {
-        return Resolution(nullptr);
-      }
-      return tryResolver(checkCacheIndex, principal, skipCurrentProcess, sra, mcc);
-    }
-
-    std::atomic<unsigned int>& updateCacheIndex = skipCurrentProcess ? lastSkipCurrentCheckIndex_ : lastCheckIndex_;
-
-    std::vector<unsigned int> const& lookupProcessOrder = principal.lookupProcessOrder();
-    for (unsigned int k : lookupProcessOrder) {
-      assert(k < ambiguous_.size());
-      if (k == 0)
-        break;  // Done
-      if (ambiguous_[k]) {
-        updateCacheIndex = choiceSize + kAmbiguousOffset;
-        return ProductResolverBase::Resolution::makeAmbiguous();
-      }
-      if (matchingHolders_[k] != ProductResolverIndexInvalid) {
-        auto resolution = tryResolver(k, principal, skipCurrentProcess, sra, mcc);
-        if (resolution.data() != nullptr) {
-          updateCacheIndex = k;
-          return resolution;
-        }
-      }
-    }
-
-    updateCacheIndex = choiceSize + kMissingOffset;
-    return Resolution(nullptr);
-  }
-
-  void NoProcessProductResolver::prefetchAsync_(WaitingTaskHolder waitTask,
-                                                Principal const& principal,
-                                                bool skipCurrentProcess,
-                                                ServiceToken const& token,
-                                                SharedResourcesAcquirer* sra,
-                                                ModuleCallingContext const* mcc) const noexcept {
-    bool timeToMakeAtEnd = true;
-    if (madeAtEnd_ and mcc) {
-      timeToMakeAtEnd = mcc->parent().isAtEndTransition();
-    }
-
-    //If timeToMakeAtEnd is false, then it is equivalent to skipping the current process
-    if (not skipCurrentProcess and timeToMakeAtEnd) {
-      //need to try changing prefetchRequested_ before adding to waitingTasks_
-      bool expected = false;
-      bool prefetchRequested = prefetchRequested_.compare_exchange_strong(expected, true);
-      waitingTasks_.add(waitTask);
-
-      if (prefetchRequested) {
-        //we are the first thread to request
-        tryPrefetchResolverAsync(0, principal, false, sra, mcc, token, waitTask.group());
-      }
-    } else {
-      skippingWaitingTasks_.add(waitTask);
-      bool expected = false;
-      if (skippingPrefetchRequested_.compare_exchange_strong(expected, true)) {
-        bool producesInCurrentProcess = principal.productLookup().producesInCurrentProcess() and skipCurrentProcess;
-        auto startIndex = producesInCurrentProcess ? 1U : 0U;
-        //we are the first thread to request
-        tryPrefetchResolverAsync(startIndex, principal, true, sra, mcc, token, waitTask.group());
-      }
-    }
-  }
-
-  void NoProcessProductResolver::setCache(bool iSkipCurrentProcess,
-                                          ProductResolverIndex iIndex,
-                                          std::exception_ptr iExceptPtr) const {
-    if (not iSkipCurrentProcess) {
-      lastCheckIndex_ = iIndex;
-      waitingTasks_.doneWaiting(iExceptPtr);
-    } else {
-      lastSkipCurrentCheckIndex_ = iIndex;
-      skippingWaitingTasks_.doneWaiting(iExceptPtr);
-    }
-  }
-
-  namespace {
-    class TryNextResolverWaitingTask : public edm::WaitingTask {
-    public:
-      TryNextResolverWaitingTask(NoProcessProductResolver const* iResolver,
-                                 unsigned int iResolverIndex,
-                                 Principal const* iPrincipal,
-                                 SharedResourcesAcquirer* iSRA,
-                                 ModuleCallingContext const* iMCC,
-                                 bool iSkipCurrentProcess,
-                                 ServiceToken iToken,
-                                 oneapi::tbb::task_group* iGroup) noexcept
-          : resolver_(iResolver),
-            principal_(iPrincipal),
-            sra_(iSRA),
-            mcc_(iMCC),
-            group_(iGroup),
-            serviceToken_(iToken),
-            index_(iResolverIndex),
-            skipCurrentProcess_(iSkipCurrentProcess) {}
-
-      void execute() final {
-        auto exceptPtr = exceptionPtr();
-        if (exceptPtr) {
-          resolver_->prefetchFailed(index_, *principal_, skipCurrentProcess_, exceptPtr);
-        } else {
-          if (not resolver_->dataValidFromResolver(index_, *principal_, skipCurrentProcess_)) {
-            resolver_->tryPrefetchResolverAsync(
-                index_ + 1, *principal_, skipCurrentProcess_, sra_, mcc_, serviceToken_.lock(), group_);
-          }
-        }
-      }
-
-    private:
-      NoProcessProductResolver const* resolver_;
-      Principal const* principal_;
-      SharedResourcesAcquirer* sra_;
-      ModuleCallingContext const* mcc_;
-      oneapi::tbb::task_group* group_;
-      ServiceWeakToken serviceToken_;
-      unsigned int index_;
-      bool skipCurrentProcess_;
-    };
-  }  // namespace
-
-  void NoProcessProductResolver::prefetchFailed(unsigned int iProcessingIndex,
-                                                Principal const& principal,
-                                                bool iSkipCurrentProcess,
-                                                std::exception_ptr iExceptPtr) const {
-    std::vector<unsigned int> const& lookupProcessOrder = principal.lookupProcessOrder();
-    auto k = lookupProcessOrder[iProcessingIndex];
-
-    setCache(iSkipCurrentProcess, k, iExceptPtr);
-  }
-
-  bool NoProcessProductResolver::dataValidFromResolver(unsigned int iProcessingIndex,
-                                                       Principal const& principal,
-                                                       bool iSkipCurrentProcess) const {
-    std::vector<unsigned int> const& lookupProcessOrder = principal.lookupProcessOrder();
-    auto k = lookupProcessOrder[iProcessingIndex];
-    ProductResolverBase const* productResolver = principal.getProductResolverByIndex(matchingHolders_[k]);
-
-    if (productResolver->productWasFetchedAndIsValid(iSkipCurrentProcess)) {
-      setCache(iSkipCurrentProcess, k, nullptr);
-      return true;
-    }
-    return false;
-  }
-
-  void NoProcessProductResolver::tryPrefetchResolverAsync(unsigned int iProcessingIndex,
-                                                          Principal const& principal,
-                                                          bool skipCurrentProcess,
-                                                          SharedResourcesAcquirer* sra,
-                                                          ModuleCallingContext const* mcc,
-                                                          ServiceToken token,
-                                                          oneapi::tbb::task_group* group) const noexcept {
-    std::vector<unsigned int> const& lookupProcessOrder = principal.lookupProcessOrder();
-    auto index = iProcessingIndex;
-
-    const unsigned int choiceSize = ambiguous_.size();
-    unsigned int newCacheIndex = choiceSize + kMissingOffset;
-    while (index < lookupProcessOrder.size()) {
-      auto k = lookupProcessOrder[index];
-      if (k == 0) {
-        break;
-      }
-      assert(k < ambiguous_.size());
-      if (ambiguous_[k]) {
-        newCacheIndex = choiceSize + kAmbiguousOffset;
-        break;
-      }
-      if (matchingHolders_[k] != ProductResolverIndexInvalid) {
-        //make new task
-
-        auto task = new TryNextResolverWaitingTask(this, index, &principal, sra, mcc, skipCurrentProcess, token, group);
-        WaitingTaskHolder hTask(*group, task);
-        ProductResolverBase const* productResolver = principal.getProductResolverByIndex(matchingHolders_[k]);
-
-        //Make sure the Services are available on this thread
-        ServiceRegistry::Operate guard(token);
-
-        productResolver->prefetchAsync(hTask, principal, skipCurrentProcess, token, sra, mcc);
-        return;
-      }
-      ++index;
-    }
-    //data product unavailable
-    setCache(skipCurrentProcess, newCacheIndex, nullptr);
-  }
-
-  void NoProcessProductResolver::setProductProvenanceRetriever_(ProductProvenanceRetriever const*) {}
-
-  void NoProcessProductResolver::setProductID_(ProductID const&) {}
-
-  ProductProvenance const* NoProcessProductResolver::productProvenancePtr_() const { return nullptr; }
-
-  inline unsigned int NoProcessProductResolver::unsetIndexValue() const { return ambiguous_.size() + kUnsetOffset; }
-
-  void NoProcessProductResolver::resetProductData_(bool) {
-    // This function should never receive 'true'. On the other hand,
-    // nothing should break if a 'true' is passed, because
-    // NoProcessProductResolver just forwards the resolve
-    const auto resetValue = unsetIndexValue();
-    lastCheckIndex_ = resetValue;
-    lastSkipCurrentCheckIndex_ = resetValue;
-    prefetchRequested_ = false;
-    skippingPrefetchRequested_ = false;
-    waitingTasks_.reset();
-    skippingWaitingTasks_.reset();
-  }
-
-  bool NoProcessProductResolver::singleProduct_() const { return false; }
-
-  bool NoProcessProductResolver::unscheduledWasNotRun_() const {
-    throw Exception(errors::LogicError)
-        << "NoProcessProductResolver::unscheduledWasNotRun_() not implemented and should never be called.\n"
-        << "Contact a Framework developer\n";
-  }
-
-  bool NoProcessProductResolver::productUnavailable_() const {
-    throw Exception(errors::LogicError)
-        << "NoProcessProductResolver::productUnavailable_() not implemented and should never be called.\n"
-        << "Contact a Framework developer\n";
-  }
-
-  bool NoProcessProductResolver::productResolved_() const {
-    throw Exception(errors::LogicError)
-        << "NoProcessProductResolver::productResolved_() not implemented and should never be called.\n"
-        << "Contact a Framework developer\n";
-  }
-
-  bool NoProcessProductResolver::productWasDeleted_() const {
-    throw Exception(errors::LogicError)
-        << "NoProcessProductResolver::productWasDeleted_() not implemented and should never be called.\n"
-        << "Contact a Framework developer\n";
-  }
-
-  bool NoProcessProductResolver::productWasFetchedAndIsValid_(bool /*iSkipCurrentProcess*/) const {
-    throw Exception(errors::LogicError)
-        << "NoProcessProductResolver::productWasFetchedAndIsValid_() not implemented and should never be called.\n"
-        << "Contact a Framework developer\n";
-  }
-
-  ProductDescription const& NoProcessProductResolver::productDescription_() const {
-    throw Exception(errors::LogicError)
-        << "NoProcessProductResolver::productDescription_() not implemented and should never be called.\n"
-        << "Contact a Framework developer\n";
-  }
-
-  void NoProcessProductResolver::resetProductDescription_(std::shared_ptr<ProductDescription const>) {
-    throw Exception(errors::LogicError)
-        << "NoProcessProductResolver::resetProductDescription_() not implemented and should never be called.\n"
-        << "Contact a Framework developer\n";
-  }
-
-  Provenance const* NoProcessProductResolver::provenance_() const {
-    throw Exception(errors::LogicError)
-        << "NoProcessProductResolver::provenance_() not implemented and should never be called.\n"
-        << "Contact a Framework developer\n";
-  }
-
-  void NoProcessProductResolver::connectTo(ProductResolverBase const&, Principal const*) {
-    throw Exception(errors::LogicError)
-        << "NoProcessProductResolver::connectTo() not implemented and should never be called.\n"
-        << "Contact a Framework developer\n";
-  }
-
-  //---- SingleChoiceNoProcessProductResolver ----------------
-  ProductResolverBase::Resolution SingleChoiceNoProcessProductResolver::resolveProduct_(
-      Principal const& principal,
-      bool skipCurrentProcess,
-      SharedResourcesAcquirer* sra,
-      ModuleCallingContext const* mcc) const {
-    //In future changes this class will be removed. Although the class is still being instantiated, it should never be called.
-    // For now the assert is here to catch any missed cases.
-    assert(false);
-    //NOTE: Have to lookup the other ProductResolver each time rather than cache
-    // it's pointer since it appears the pointer can change at some later stage
-    return principal.getProductResolverByIndex(realResolverIndex_)
-        ->resolveProduct(principal, skipCurrentProcess, sra, mcc);
-  }
-
-  void SingleChoiceNoProcessProductResolver::prefetchAsync_(WaitingTaskHolder waitTask,
-                                                            Principal const& principal,
-                                                            bool skipCurrentProcess,
-                                                            ServiceToken const& token,
-                                                            SharedResourcesAcquirer* sra,
-                                                            ModuleCallingContext const* mcc) const noexcept {
-    //In future changes this class will be removed. Although the class is still being instantiated, it should never be called.
-    // For now the assert is here to catch any missed cases.
-    assert(false);
-    principal.getProductResolverByIndex(realResolverIndex_)
-        ->prefetchAsync(waitTask, principal, skipCurrentProcess, token, sra, mcc);
-  }
-
-  void SingleChoiceNoProcessProductResolver::setProductProvenanceRetriever_(ProductProvenanceRetriever const*) {}
-
-  void SingleChoiceNoProcessProductResolver::setProductID_(ProductID const&) {}
-
-  ProductProvenance const* SingleChoiceNoProcessProductResolver::productProvenancePtr_() const { return nullptr; }
-
-  void SingleChoiceNoProcessProductResolver::resetProductData_(bool) {}
-
-  bool SingleChoiceNoProcessProductResolver::singleProduct_() const { return false; }
-
-  bool SingleChoiceNoProcessProductResolver::unscheduledWasNotRun_() const {
-    throw Exception(errors::LogicError)
-        << "SingleChoiceNoProcessProductResolver::unscheduledWasNotRun_() not implemented and should never be called.\n"
-        << "Contact a Framework developer\n";
-  }
-
-  bool SingleChoiceNoProcessProductResolver::productUnavailable_() const {
-    throw Exception(errors::LogicError)
-        << "SingleChoiceNoProcessProductResolver::productUnavailable_() not implemented and should never be called.\n"
-        << "Contact a Framework developer\n";
-  }
-
-  bool SingleChoiceNoProcessProductResolver::productResolved_() const {
-    throw Exception(errors::LogicError)
-        << "SingleChoiceNoProcessProductResolver::productResolved_() not implemented and should never be called.\n"
-        << "Contact a Framework developer\n";
-  }
-
-  bool SingleChoiceNoProcessProductResolver::productWasDeleted_() const {
-    throw Exception(errors::LogicError)
-        << "SingleChoiceNoProcessProductResolver::productWasDeleted_() not implemented and should never be called.\n"
-        << "Contact a Framework developer\n";
-  }
-
-  bool SingleChoiceNoProcessProductResolver::productWasFetchedAndIsValid_(bool /*iSkipCurrentProcess*/) const {
-    throw Exception(errors::LogicError) << "SingleChoiceNoProcessProductResolver::productWasFetchedAndIsValid_() not "
-                                           "implemented and should never be called.\n"
-                                        << "Contact a Framework developer\n";
-  }
-
-  ProductDescription const& SingleChoiceNoProcessProductResolver::productDescription_() const {
-    throw Exception(errors::LogicError)
-        << "SingleChoiceNoProcessProductResolver::productDescription_() not implemented and should never be called.\n"
-        << "Contact a Framework developer\n";
-  }
-
-  void SingleChoiceNoProcessProductResolver::resetProductDescription_(std::shared_ptr<ProductDescription const>) {
-    throw Exception(errors::LogicError) << "SingleChoiceNoProcessProductResolver::resetProductDescription_() not "
-                                           "implemented and should never be called.\n"
-                                        << "Contact a Framework developer\n";
-  }
-
-  Provenance const* SingleChoiceNoProcessProductResolver::provenance_() const {
-    throw Exception(errors::LogicError)
-        << "SingleChoiceNoProcessProductResolver::provenance_() not implemented and should never be called.\n"
-        << "Contact a Framework developer\n";
-  }
-
-  void SingleChoiceNoProcessProductResolver::connectTo(ProductResolverBase const&, Principal const*) {
-    throw Exception(errors::LogicError)
-        << "SingleChoiceNoProcessProductResolver::connectTo() not implemented and should never be called.\n"
-        << "Contact a Framework developer\n";
-  }
-
 }  // namespace edm
