@@ -278,7 +278,8 @@ void TICLCandidateValidator::bookCandidatesHistos(DQMStore::IBooker& ibook,
 
 void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
                                                  const Histograms& histograms,
-                                                 edm::Handle<ticl::TracksterCollection> simTrackstersCP_h) const {
+                                                 edm::Handle<ticl::TracksterCollection> simTrackstersCP_h,
+                                                 const StringCutObjectSelector<reco::Track> cutTk) const {
   auto TICLCandidatesHandle = event.getHandle(TICLCandidatesToken_);
   if (!TICLCandidatesHandle.isValid()) {
     edm::LogError("TICLCandidatesError") << "Failed to retrieve TICL candidates.";
@@ -355,8 +356,7 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
       // no reco track, but simCand is charged
       continue;
     }
-    if (simCand.trackPtr().get()->pt() < 1 or simCand.trackPtr().get()->missingOuterHits() > 5 or
-        not simCand.trackPtr().get()->quality(reco::TrackBase::highPurity))
+    if (!cutTk(*(simCand.trackPtr().get())))
       continue;
 
     // +1 to all denominators

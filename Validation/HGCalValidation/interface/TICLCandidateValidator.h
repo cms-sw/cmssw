@@ -12,6 +12,8 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "DataFormats/HGCalReco/interface/TICLCandidate.h"
@@ -128,7 +130,8 @@ public:
 
   void fillCandidateHistos(const edm::Event& event,
                            const Histograms& histograms,
-                           edm::Handle<ticl::TracksterCollection> simTrackstersCP_h) const;
+                           edm::Handle<ticl::TracksterCollection> simTrackstersCP_h,
+                           const StringCutObjectSelector<reco::Track> cutTk) const;
 
 private:
   edm::EDGetTokenT<std::vector<TICLCandidate>> TICLCandidatesToken_;

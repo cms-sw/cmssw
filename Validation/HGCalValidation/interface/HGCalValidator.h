@@ -33,6 +33,7 @@
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 
 #include "DataFormats/HGCalReco/interface/MultiVectorManager.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 class PileupSummaryInfo;
 
@@ -118,6 +119,7 @@ protected:
   std::vector<edm::EDGetTokenT<TracksterToTracksterMap>> tracksterToTracksterAssociatorsTokens_;
   std::vector<edm::EDGetTokenT<TracksterToTracksterMap>> tracksterToTracksterByHitsAssociatorsTokens_;
   edm::EDGetTokenT<SimClusterToCaloParticleMap> scToCpMapToken_;
+  const StringCutObjectSelector<reco::Track> cutTk_;
 
 private:
   CaloParticleSelector cpSelector;
