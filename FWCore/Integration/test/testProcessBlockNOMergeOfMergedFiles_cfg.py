@@ -16,6 +16,24 @@ process.source = cms.Source("PoolSource",
     )
 )
 
+# In the next module, the expectedSum is a sum of values from previous
+# processes as follow:
+#
+#     testProcessBlock1_cfg.py      intProducerBeginProcessBlock     1
+#                                   intProducerEndProcessBlock      10
+#     testProcessBlock2_cfg.py      intProducerBeginProcessBlock     2
+#                                   intProducerEndProcessBlock      20
+#     testProcessBlock3_cfg.py      intProducerBeginProcessBlock   300
+#                                   intProducerEndProcessBlock    3000
+#     testProcessBlock4_cfg.py      intProducerBeginProcessBlock   400
+#                                   intProducerEndProcessBlock    4000
+#     testProcessBlockMerge_cfg.py  intProducerBeginProcessBlockM    4
+#                                   intProducerBeginProcessBlockM   40
+#     testProcessBlockMerge2_cfg.py  intProducerBeginProcessBlockM  204
+#                                   intProducerBeginProcessBlockM  240
+#
+#     TOTAL                                                       8221
+
 process.readProcessBlocksOneAnalyzer = cms.EDAnalyzer("edmtest::one::InputProcessBlockIntAnalyzer",
                                             transitions = cms.int32(30),
                                             consumesBeginProcessBlock = cms.InputTag("intProducerBeginProcessBlock", ""),
