@@ -232,60 +232,44 @@ namespace edm {
 
     // Put in an entry for the product with an empty process name
     // if it is not already there
-    item.clearProcess();
-    iter = items_->find(item);
-    if (iter == items_->end()) {
-      item.setIndex(ProductResolverIndexInitializing);
-      items_->insert(item);
-      //add entry for skipCurrentProcess
-      item.setSkipCurrentProcess();
-      item.setIndex(ProductResolverIndexInitializing);
-      items_->insert(item);
-    }
+    auto insertNoProcessCase = [](Item& item, std::set<Item>& container) {
+      item.clearProcess();
+      auto iter = container.find(item);
+      if (iter == container.end()) {
+        item.setIndex(ProductResolverIndexInitializing);
+        container.insert(item);
+        //add entry for skipCurrentProcess
+        item.setSkipCurrentProcess();
+        item.setIndex(ProductResolverIndexInitializing);
+        container.insert(item);
+      }
+    };
+    insertNoProcessCase(item, *items_);
 
     // Now put in entries for a contained class if this is a
     // recognized container.
     if (containedTypeID != TypeID(typeid(void)) && containedTypeID != TypeID()) {
       TypeWithDict containedType(containedTypeID.typeInfo());
 
-      Item containedItem(ELEMENT_TYPE, containedTypeID, moduleLabel, instance, process, savedProductIndex);
-      iter = items_->find(containedItem);
-      if (iter != items_->end()) {
-        containedItem.setIndex(ProductResolverIndexAmbiguous);
-        items_->erase(iter);
-      }
-      items_->insert(containedItem);
+      auto insertAndCheckForAmbiguous = [](Item& item, std::set<Item>& container) {
+        auto iter = container.find(item);
+        if (iter != container.end()) {
+          item.setIndex(ProductResolverIndexAmbiguous);
+          container.erase(iter);
+        }
+        container.insert(item);
+      };
 
-      containedItem.clearProcess();
-      iter = items_->find(containedItem);
-      if (iter == items_->end()) {
-        containedItem.setIndex(ProductResolverIndexInitializing);
-        items_->insert(containedItem);
-        containedItem.setSkipCurrentProcess();
-        containedItem.setIndex(ProductResolverIndexInitializing);
-        items_->insert(containedItem);
-      }
+      Item containedItem(ELEMENT_TYPE, containedTypeID, moduleLabel, instance, process, savedProductIndex);
+      insertAndCheckForAmbiguous(containedItem, *items_);
+      insertNoProcessCase(containedItem, *items_);
 
       // Repeat this for all public base classes of the contained type
       if (baseTypesOfContainedType) {
         for (TypeID const& baseTypeID : *baseTypesOfContainedType) {
           Item baseItem(ELEMENT_TYPE, baseTypeID, moduleLabel, instance, process, savedProductIndex);
-          iter = items_->find(baseItem);
-          if (iter != items_->end()) {
-            baseItem.setIndex(ProductResolverIndexAmbiguous);
-            items_->erase(iter);
-          }
-          items_->insert(baseItem);
-
-          baseItem.clearProcess();
-          iter = items_->find(baseItem);
-          if (iter == items_->end()) {
-            baseItem.setIndex(ProductResolverIndexInitializing);
-            items_->insert(baseItem);
-            baseItem.setSkipCurrentProcess();
-            baseItem.setIndex(ProductResolverIndexInitializing);
-            items_->insert(baseItem);
-          }
+          insertAndCheckForAmbiguous(baseItem, *items_);
+          insertNoProcessCase(baseItem, *items_);
         }
       }
     }
@@ -312,31 +296,40 @@ namespace edm {
                              std::vector<edm::ProductResolverIndexHelper::IndexAndNames>::iterator itEnd,
                              std::vector<std::string> const& orderedProcessNames,
                              std::vector<char> const& processNames) {
+      /*The order of the iterators should be
+      0 : the empty process name case -> ''
+      1 : the skip current process case -> '#'
+      2+: the cases with a specific process name*/
       using IndexAndNames = edm::ProductResolverIndexHelper::IndexAndNames;
       assert(itEnd - itBegin > 2);
-      assert(itBegin->startInProcessNames() == 0U);
-      assert((itBegin + 1)->startInProcessNames() == 1U);
-      assert(processNames[(itBegin + 1)->startInProcessNames()] == '#');
-      assert(itBegin->index() == edm::ProductResolverIndexInitializing);
-      assert((itBegin + 1)->index() == edm::ProductResolverIndexInitializing);
+      const auto itNoProcess = itBegin;
+      const auto itSkipCurrentProcess = itBegin + 1;
+      const auto itFirstWithSetProcess = itBegin + 2;
+      assert(itNoProcess->startInProcessNames() == 0U);
+      assert(itSkipCurrentProcess->startInProcessNames() == 1U);
+      assert(processNames[itSkipCurrentProcess->startInProcessNames()] == '#');
+      assert(itNoProcess->index() == edm::ProductResolverIndexInitializing);
+      assert(itSkipCurrentProcess->index() == edm::ProductResolverIndexInitializing);
       if (itEnd - itBegin == 3) {
         //only have one actual process
-        *itBegin =
-            IndexAndNames((itBegin + 2)->index(), itBegin->startInBigNamesContainer(), itBegin->startInProcessNames());
+        *itNoProcess = IndexAndNames(itFirstWithSetProcess->index(),
+                                     itNoProcess->startInBigNamesContainer(),
+                                     itNoProcess->startInProcessNames());
         //Now handle skipCurrentProcess
-        if (orderedProcessNames[0] == &processNames[(itBegin + 2)->startInProcessNames()]) {
+        if (orderedProcessNames[0] == &processNames[itFirstWithSetProcess->startInProcessNames()]) {
           //the one process is the current process
-          *(itBegin + 1) = IndexAndNames(ProductResolverIndexInvalid,
-                                         (itBegin + 1)->startInBigNamesContainer(),
-                                         (itBegin + 1)->startInProcessNames());
+          *itSkipCurrentProcess = IndexAndNames(ProductResolverIndexInvalid,
+                                                itSkipCurrentProcess->startInBigNamesContainer(),
+                                                itSkipCurrentProcess->startInProcessNames());
         } else {
-          *(itBegin + 1) = IndexAndNames(
-              (itBegin + 2)->index(), (itBegin + 1)->startInBigNamesContainer(), (itBegin + 1)->startInProcessNames());
+          *itSkipCurrentProcess = IndexAndNames(itFirstWithSetProcess->index(),
+                                                itSkipCurrentProcess->startInBigNamesContainer(),
+                                                itSkipCurrentProcess->startInProcessNames());
         }
       } else {
         bool foundFirstMatch = false;
         for (auto const& proc : orderedProcessNames) {
-          auto it = itBegin + 2;
+          auto it = itFirstWithSetProcess;
           while (it != itEnd && proc != &processNames[it->startInProcessNames()]) {
             ++it;
           }
@@ -344,22 +337,24 @@ namespace edm {
             if (not foundFirstMatch) {
               foundFirstMatch = true;
               //found a process that matches
-              *itBegin =
-                  IndexAndNames(it->index(), itBegin->startInBigNamesContainer(), itBegin->startInProcessNames());
+              *itNoProcess = IndexAndNames(
+                  it->index(), itNoProcess->startInBigNamesContainer(), itNoProcess->startInProcessNames());
               //Now handle skipCurrentProcess
               if (proc != orderedProcessNames[0]) {
-                *(itBegin + 1) = IndexAndNames(
-                    it->index(), (itBegin + 1)->startInBigNamesContainer(), (itBegin + 1)->startInProcessNames());
+                *itSkipCurrentProcess = IndexAndNames(it->index(),
+                                                      itSkipCurrentProcess->startInBigNamesContainer(),
+                                                      itSkipCurrentProcess->startInProcessNames());
                 break;
               } else {
                 //this process is the current process
-                *(itBegin + 1) = IndexAndNames(ProductResolverIndexInvalid,
-                                               (itBegin + 1)->startInBigNamesContainer(),
-                                               (itBegin + 1)->startInProcessNames());
+                *itSkipCurrentProcess = IndexAndNames(ProductResolverIndexInvalid,
+                                                      itSkipCurrentProcess->startInBigNamesContainer(),
+                                                      itSkipCurrentProcess->startInProcessNames());
               }
             } else {
-              *(itBegin + 1) = IndexAndNames(
-                  it->index(), (itBegin + 1)->startInBigNamesContainer(), (itBegin + 1)->startInProcessNames());
+              *itSkipCurrentProcess = IndexAndNames(it->index(),
+                                                    itSkipCurrentProcess->startInBigNamesContainer(),
+                                                    itSkipCurrentProcess->startInProcessNames());
               break;
             }
           }
