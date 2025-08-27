@@ -6,8 +6,10 @@
 
 #include <array>
 #include <vector>
+
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Math/interface/Vector3D.h"
+#include "CommonTools/RecoAlgos/interface/MultiVectorManager.h"
 
 #include <Eigen/Core>
 
@@ -71,19 +73,24 @@ namespace ticl {
     inline void setRawEmEnergy(float value) { raw_em_energy_ = value; }
     inline void addToRawEmEnergy(float value) { raw_em_energy_ += value; }
     inline void setRawPt(float value) { raw_pt_ = value; }
+    inline void calculateRawPt() { raw_pt_ = raw_energy_ / std::cosh(barycenter_.eta()); }
     inline void setRawEmPt(float value) { raw_em_pt_ = value; }
+    inline void calculateRawEmPt() { raw_em_pt_ = raw_em_energy_ / std::cosh(barycenter_.eta()); }
     inline void setBarycenter(Vector value) { barycenter_ = value; }
     inline void setTrackIdx(int index) { track_idx_ = index; }
     int trackIdx() const { return track_idx_; }
     inline bool isHadronic(float th = 0.5f) const {
       return id_probability(Trackster::ParticleType::photon) + id_probability(Trackster::ParticleType::electron) < th;
     }
+
     inline void mergeTracksters(const Trackster &other) {
       *this += other;
 
       //remove duplicates
       removeDuplicates();
       zeroProbabilities();
+      calculateRawPt();
+      calculateRawEmPt();
     }
 
     inline void mergeTracksters(const std::vector<Trackster> &others) {
@@ -94,7 +101,34 @@ namespace ticl {
       //remove duplicates
       removeDuplicates();
       zeroProbabilities();
+      calculateRawPt();
+      calculateRawEmPt();
     }
+    template <typename T>
+    inline void mergeTracksters(const std::vector<Trackster> &allTracksters, const std::vector<T> &others) {
+      for (auto &other : others) {
+        *this += allTracksters[other];
+      }
+
+      //remove duplicates
+      removeDuplicates();
+      zeroProbabilities();
+      calculateRawPt();
+      calculateRawEmPt();
+    }
+    template <typename T>
+    inline void mergeTracksters(const MultiVectorManager<Trackster> &allTracksters, const std::vector<T> &others) {
+      for (auto &other : others) {
+        *this += allTracksters[other];
+      }
+
+      //remove duplicates
+      removeDuplicates();
+      zeroProbabilities();
+      calculateRawPt();
+      calculateRawEmPt();
+    }
+
     inline void fillPCAVariables(Eigen::Vector3f const &eigenvalues,
                                  Eigen::Matrix3f const &eigenvectors,
                                  Eigen::Vector3f const &sigmas,
@@ -123,8 +157,8 @@ namespace ticl {
       }
 
       // Now also update the pt part of the Trackster, using the PCA as direction
-      raw_pt_ = std::sqrt((eigenvectors_[0].Unit() * raw_energy_).perp2());
-      raw_em_pt_ = std::sqrt((eigenvectors_[0].Unit() * raw_em_energy_).perp2());
+      // raw_pt_ = std::sqrt((eigenvectors_[0].Unit() * raw_energy_).perp2());
+      // raw_em_pt_ = std::sqrt((eigenvectors_[0].Unit() * raw_em_energy_).perp2());
     }
     void zeroProbabilities() {
       for (auto &p : id_probabilities_) {
@@ -173,8 +207,8 @@ namespace ticl {
 
   private:
     Vector barycenter_;
-    float regressed_energy_;
-    float raw_energy_;
+    float regressed_energy_ = 0.f;
+    float raw_energy_ = 0.f;
     // -99, -1 if not available. ns units otherwise
     float boundTime_;
     float time_;
@@ -187,9 +221,9 @@ namespace ticl {
     // 2d objects in the global collection
     std::vector<unsigned int> vertices_;
     std::vector<float> vertex_multiplicity_;
-    float raw_pt_;
-    float raw_em_pt_;
-    float raw_em_energy_;
+    float raw_pt_ = 0.f;
+    float raw_em_pt_ = 0.f;
+    float raw_em_energy_ = 0.f;
 
     // Product ID of the seeding collection used to create the Trackster.
     // For GlobalSeeding the ProductID is set to 0. For track-based seeding
@@ -241,8 +275,6 @@ namespace ticl {
       // use getters on other
       raw_energy_ += other.raw_energy();
       raw_em_energy_ += other.raw_em_energy();
-      raw_pt_ += other.raw_pt();
-      raw_em_pt_ += other.raw_em_pt();
       // add vertices and multiplicities
       std::copy(std::begin(other.vertices()), std::end(other.vertices()), std::back_inserter(vertices_));
       std::copy(std::begin(other.vertex_multiplicity()),
