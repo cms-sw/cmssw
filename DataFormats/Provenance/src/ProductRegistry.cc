@@ -473,7 +473,6 @@ namespace edm {
       throwMissingDictionariesException(missingDictionaries, context, producedTypes, branchNamesForMissing);
     }
 
-    std::string_view processNameSV(processName ? std::string_view(*processName) : std::string_view());
     for (auto& iterProductLookup : new_productLookups) {
       iterProductLookup->setFrozen(processOrder());
     }
