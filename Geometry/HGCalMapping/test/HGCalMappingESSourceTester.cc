@@ -150,7 +150,8 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
 
     assert(frs.readoutTypes_.size() == frs.totalECONs_);
     size_t nmods = frs.totalECONs_;
-    if(nmods==0) continue;
+    if (nmods == 0)
+      continue;
     totalmods += nmods;
     printf("\t[FED %d] packs data from %ld ECON-Ds - readout types -> (offsets)\n", frs.id, nmods);
     printf("\tTotal capture blocks: %ld Total ECON-Ds %ld\n", frs.totalCBs_, frs.totalECONs_);
@@ -291,7 +292,8 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
   elapsed = stop - start;
   printf("\tTime: %f seconds\n", elapsed.count());
   eid = HGCalElectronicsId(elecid);
-  assert(eid.localFEDId() == (modules.view()[modidx].fedid() & HGCalElectronicsId::HGCalElectronicsIdMask::kLocalFEDIDMask));
+  assert(eid.localFEDId() ==
+         (modules.view()[modidx].fedid() & HGCalElectronicsId::HGCalElectronicsIdMask::kLocalFEDIDMask));
   assert((uint32_t)eid.captureBlock() == modules.view()[modidx].captureblockidx());
   assert((uint32_t)eid.econdIdx() == modules.view()[modidx].econdidx());
   assert((uint32_t)eid.halfrocChannel() == cells.view()[cellidx].seq());

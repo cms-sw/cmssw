@@ -94,7 +94,7 @@ void HGCalMappingModuleIndexer::finalize() {
       fedit.moduleLUT_[i] = nconn;
       nconn++;
 
-      uniqueCB.insert( modFedIndexer_.unpackDenseIndex(i)[0] );
+      uniqueCB.insert(modFedIndexer_.unpackDenseIndex(i)[0]);
     }
     fedit.totalECONs_ = nconn;
     fedit.totalCBs_ = uniqueCB.size();
