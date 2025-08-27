@@ -26,10 +26,6 @@
 #include <cassert>
 #include <utility>
 
-static constexpr unsigned int kUnsetOffset = 0;
-static constexpr unsigned int kAmbiguousOffset = 1;
-static constexpr unsigned int kMissingOffset = 2;
-
 namespace edm {
 
   void DataManagingProductResolver::throwProductDeletedException() const {
