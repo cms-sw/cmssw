@@ -29,7 +29,7 @@ def CheckRootFile(hname, rebin=None):
     hist.SetDirectory(0) # detach from file
 
     if rebin is not None:
-        if isinstance(rebin, int) or isinstance(rebin, float):
+        if isinstance(rebin, (int, float)):
             hist = hist.Rebin(int(rebin), hname + "_rebin")
         elif hasattr(rebin, '__iter__'):
             bin_edges_c = array.array('d', rebin)
@@ -39,21 +39,112 @@ def CheckRootFile(hname, rebin=None):
 
     return hist
 
-def errorbar_declutter(eff, err, yaxmin, frac=0.01):
+def findBestGaussianCoreFit(histo, quiet=True):
+    mean, rms = histo.GetMean(), histo.GetRMS()
+
+    HalfMaxBinLow = histo.FindFirstBinAbove(histo.GetMaximum()/2)
+    HalfMaxBinHigh = histo.FindLastBinAbove(histo.GetMaximum()/2)
+    WidthAtHalfMaximum = 0.5*(histo.GetBinCenter(HalfMaxBinHigh) - histo.GetBinCenter(HalfMaxBinLow))
+    Xmax = histo.GetXaxis().GetBinCenter(histo.GetMaximumBin())
+
+    gausTF1 = ROOT.TF1()
+
+    Pvalue = 0.
+    RangeLow = histo.GetBinLowEdge(2)
+    RangeUp = histo.GetBinLowEdge(histo.GetNbinsX())
+
+    PvalueBest = 0.
+    RangeLowBest = 0.
+    RangeUpBest = 0.
+
+    if Xmax < mean:
+        meanForRange = Xmax
+    else: # because some entries with LARGE errors sometimes falsely become the maximum
+        meanForRange = mean
+
+    if WidthAtHalfMaximum < rms and WidthAtHalfMaximum>0:
+        spreadForRange = WidthAtHalfMaximum
+    else: # WHF does not take into account weights and sometimes it turns LARGE
+        spreadForRange = rms 
+
+    rms_step_minus = 2.2
+    while rms_step_minus>1.1:
+        RangeLow = meanForRange - rms_step_minus*spreadForRange
+        rms_step_plus = rms_step_minus
+
+        while rms_step_plus>0.7:    
+            RangeUp = meanForRange + rms_step_plus*spreadForRange
+            if quiet:
+                histo.Fit("gaus", "0Q", "0", RangeLow, RangeUp)
+            else:
+                histo.Fit("gaus", "0", "0", RangeLow, RangeUp)
+            gausTF1 = histo.GetListOfFunctions().FindObject("gaus")
+            ChiSquare = gausTF1.GetChisquare()
+            ndf       = gausTF1.GetNDF()
+            Pvalue = ROOT.TMath.Prob(ChiSquare, ndf)
+            
+            if Pvalue > PvalueBest:
+                PvalueBest = Pvalue
+                RangeLowBest = RangeLow
+                RangeUpBest = RangeUp
+                ndfBest = ndf
+                ChiSquareBest = ChiSquare
+                StepMinusBest = rms_step_minus
+                StepPlusBest = rms_step_plus
+                meanForRange = gausTF1.GetParameter(1)
+
+            if not quiet:
+                print("\n\nFitting range used: [Mean - " + str(rms_step_minus) + " sigma,  Mean + " + str(rms_step_plus) + " sigma ] ")
+                print("ChiSquare = " + str(ChiSquare) + " NDF = " + str(ndf) + " Prob =  " + str(Pvalue) + "  Best Prob so far = " + str(PvalueBest))
+
+            rms_step_plus = rms_step_plus - 0.1
+            
+        rms_step_minus = rms_step_minus - 0.1
+
+    if quiet:
+        histo.Fit("gaus", "0Q", "0", RangeLowBest, RangeUpBest)
+    else:
+        histo.Fit("gaus","0","0",RangeLowBest, RangeUpBest)
+        print("\n\n\nMean =     " + str(mean) + "    Xmax = " + str(Xmax) + "  RMS = " + str(rms) + "  WidthAtHalfMax = " + str(WidthAtHalfMaximum))
+        print("Fit found!")
+        print("Final fitting range used: [Mean(Xmax) - " + str(StepMinusBest) + " rms(WHF), Mean(Xmax) + " + str(StepPlusBest) + " rms(WHF) ] ")
+        print("ChiSquare = " + str(ChiSquareBest) + " NDF = " + str(ndfBest) + " Prob =     " + str(PvalueBest) + "\n\n")
+
+    return histo.GetListOfFunctions().FindObject("gaus")
+
+def tails_errors(n1, n2):
+    """Compute and return the lower and upper errors."""
+    if n1 == 0:
+        return 0, 0
+    elif n1 < 0 or n2 < 0:
+        raise RuntimeError(f"Negative number of entries! n1={n1}, n2={n2}")
+    elif n1 < n2:
+        raise RuntimeError(f"n1 is smaller than n2! n1={n1}, n2={n2}")
+    else:
+        return ( n2/n1 - (n2/n1 + 0.5/n1 - np.sqrt(n2/pow(n1,2)*(1-n2/n1) + 0.25/pow(n1,2))) / (1+1.0/n1),
+                 (n2/n1 + 0.5/n1 + np.sqrt(n2/pow(n1,2)*(1-n2/n1) + 0.25/pow(n1,2))) / (1+1.0/n1) - n2/n1 )
+
+def rate_errorbar_declutter(eff, err, yaxmin, frac=0.01):
     """
     Filter uncertainties if they lie below the minimum (vertical) axis value.
     Used to plot the filtered points differently, for instance by displaying only the upper uncertainty.
+    Uncertainties are trimmed to 1. or 0. if these values are crossed
+    (the retrieved Clopper-Pearson uncertainties have been symmetrized in the DQMGenericClient).
     """
     filt = eff-err/2 <= yaxmin
     eff_filt = np.where(filt, np.nan, eff)
     err_filt = np.where(filt, np.nan, err)
-
+    
     up_error = eff_filt + err_filt/2
     transform = blended_transform_factory(plotter.ax.transData, plotter.ax.transAxes)
     up_error = np.where(np.isnan(up_error), frac, up_error) # place at 0.9% above the minimum vertical axis value
     up_error = np.where(up_error != frac, np.nan, up_error)
 
-    return eff_filt, err_filt, up_error, transform
+    filt_limit_one = eff_filt+err_filt/2 > 1.
+    filt_limit_zero = eff_filt-err_filt/2 < 0.
+    err_hi = np.where(filt_limit_one, 0., err_filt)
+    err_lo = np.where(filt_limit_zero, 0., err_filt)
+    return eff_filt, (err_lo/2,err_hi/2), up_error, transform
 
 def define_bins(h):
     """
@@ -140,9 +231,7 @@ class HLabels:
     _resol_types = ('RecoOverGen', 'CorrOverGen', 'CorrOverReco')
     
     def __init__(self, atype):
-        assert (
-            atype in self._eff_types or atype in self._resol_types
-        ), f"Invalid type: {atype}"
+        assert atype in self._eff_types or atype in self._resol_types, f"Invalid type: {atype}"
         self.mytype = atype
 
     @staticmethod
@@ -156,11 +245,22 @@ class HLabels:
     @staticmethod
     def fraction_label(labtype):
         return {
-            'neHad':  'Neutral Hadron Energy Fraction',
-            'chEm':   'Charged EM Energy Fraction',
-            'chHad':  'Charged Hadron Energy Fraction',
-            'neEm':   'Neutral EM Energy Fraction',
-            'nConst': '# Jet Constituents',
+            'neHad': 'Neutral Hadron Energy Fraction',
+            'chEm':  'Charged EM Energy Fraction',
+            'chHad': 'Charged Hadron Energy Fraction',
+            'neEm':  'Neutral EM Energy Fraction',
+            'nCost': '# Jet Constituents',
+        }[labtype]
+
+    @staticmethod
+    def multiplicity_label(labtype):
+        return {
+            'neHad':  'Neutral Hadron Multiplicity',
+            'chEm':   'Charged EM Multiplicity',
+            'chHad':  'Charged Hadron Multiplicity',
+            'neEm':   'Neutral EM Multiplicity',
+            'chMult': 'Charged Multiplicity',
+            'neMult': 'Neutral Multiplicity',
         }[labtype]
 
     @staticmethod
@@ -293,7 +393,8 @@ if __name__ == '__main__':
 
     if not os.path.exists(args.odir):
         os.makedirs(args.odir)
-
+    histo2d_dir = os.path.join(args.odir, 'histo2D')
+    
     file = ROOT.TFile.Open(args.file)
     dqm_dir = f"DQMData/Run 1/HLT/Run summary/JetMET/JetValidation/{args.jet}"
     if not file.Get(dqm_dir):
@@ -355,11 +456,15 @@ if __name__ == '__main__':
     # Plot 2D single variables
     #####################################
 
+    if not os.path.exists(histo2d_dir):
+        os.makedirs(histo2d_dir)
+
     Var2DList = ('h2d_PtRecoOverGen_nCost_B', 'h2d_PtRecoOverGen_nCost_E', 'h2d_PtRecoOverGen_nCost_F', 
                  'h2d_PtRecoOverGen_chHad_B', 'h2d_PtRecoOverGen_chHad_E', 'h2d_PtRecoOverGen_chHad_F',
                  'h2d_PtRecoOverGen_neHad_B', 'h2d_PtRecoOverGen_neHad_E', 'h2d_PtRecoOverGen_neHad_F',
                  'h2d_PtRecoOverGen_chEm_B', 'h2d_PtRecoOverGen_chEm_E', 'h2d_PtRecoOverGen_chEm_F',
-                 'h2d_PtRecoOverGen_neEm_B', 'h2d_PtRecoOverGen_neEm_E', 'h2d_PtRecoOverGen_neEm_F',)
+                 'h2d_PtRecoOverGen_neEm_B', 'h2d_PtRecoOverGen_neEm_E', 'h2d_PtRecoOverGen_neEm_F',
+                 )
 
     for Var2D in Var2DList:
         plotter = Plotter(args.sample_label, fontsize=15)
@@ -368,31 +473,188 @@ if __name__ == '__main__':
         nbins_x, nbins_y, x_edges, y_edges = define_bins_2D(root_hist)
         values = histo_values_2D(root_hist)
 
-        y_label = root_hist.GetYaxis().GetTitle().replace('#', '\\')
+        ylabel = root_hist.GetYaxis().GetTitle().replace('#', '\\')
 
         # Plot with mplhep's hist2d (preserves ROOT bin edges, color bar included)
         # empty bins will be invisible (background color)
         pcm = plotter.ax.pcolormesh(x_edges, y_edges, np.where(values==0, np.nan, values),
                                     cmap='viridis', shading='auto')
 
-        if '_nCost_' in Var2D:
-            xlabel = HLabels.fraction_label('nConst')
-        elif '_chHad_' in Var2D:
-            xlabel = HLabels.fraction_label('chHad')
-        elif '_neHad_' in Var2D:
-            xlabel = HLabels.fraction_label('neHad')
-        elif '_chEm_' in Var2D:
-            xlabel = HLabels.fraction_label('chEm')
-        elif '_neEm_' in Var2D:
-            xlabel = HLabels.fraction_label('neEm')
-        else:
-            raise RuntimeError(f'Label for variable {Var2D} is not supported.')
-
-        plotter.labels(x=xlabel, y=f"${y_label}$")
+        for lab2d in ('nCost', 'chHad', 'neHad', 'chEm', 'neEm'):
+            if lab2d in Var2D:
+                xlabel = HLabels.fraction_label(lab2d)
+                    
+        plotter.labels(x=xlabel, y=f"${ylabel}$")
         plotter.fig.colorbar(pcm, ax=plotter.ax, label='# Jets')
 
-        plotter.save( os.path.join(args.odir, Var2D) )
+        plotter.save( os.path.join(histo2d_dir, Var2D) )
 
+    # Tails
+    nsigmas = (1, 2)
+    ideal_fraction = {1: 0.3173, 2: 0.0455, 3: 0.0027}
+    pt_bins = np.array((20, 30, 40, 60, 90, 150, 250, 400, 650, 1000))
+    Var2DList = ('h2d_PtRecoOverGen_GenPt', )
+
+    for Var2D in Var2DList:
+        plotter = Plotter(args.sample_label, fontsize=15)
+        root_hist = CheckRootFile(f"{dqm_dir}/{Var2D}") 
+
+        tail_fracs, tail_low_errors, tail_high_errors = ({ns:[] for ns in nsigmas} for _ in range(3))
+        for ipt, (low,high) in enumerate(zip(pt_bins[:-1],pt_bins[1:])):
+            if root_hist.GetXaxis().FindBin(low) <= 0 and root_hist.GetXaxis().FindBin(high) >= root_hist.GetNbinsX():
+                mess = f"Low bin: {low} | Low value: {root_hist.GetXaxis().FindBin(low)} | High bin: {high} | High value: {root_hist.GetXaxis().FindBin(high)}"
+                raise RuntimeError(mess)
+
+            hproj = root_hist.ProjectionY(root_hist.GetName() + "_proj" + str(ipt),
+                                          root_hist.GetXaxis().FindBin(low), root_hist.GetXaxis().FindBin(high), "e")
+
+            integr_start, integr_stop = 1, hproj.GetNbinsX()+1 # includes overflow
+            integr = hproj.Integral(integr_start, integr_stop) 
+            gausTF1 = findBestGaussianCoreFit(hproj)
+
+            # plot individual projection + gaussian core fit
+            plotter_single = Plotter(args.sample_label, fontsize=15)
+            nbins, bin_edges, bin_centers, bin_widths = define_bins(hproj)
+            values, errors = histo_values_errors(hproj)
+            pt_label = str(low) + " < $p_T$ < " + str(high) + " GeV"
+            plotter_single.ax.errorbar(bin_centers, values, xerr=None, yerr=errors/2, fmt='o', markersize=3,
+                                       color='black', label=pt_label, **errorbar_kwargs)
+
+            for ins, ns in enumerate(nsigmas):
+                xfunc = np.linspace(gausTF1.GetParameter(1) - ns*abs(gausTF1.GetParameter(2)), gausTF1.GetParameter(1) + ns*abs(gausTF1.GetParameter(2)))
+                yfunc = np.array([gausTF1.Eval(xi) for xi in xfunc])
+                plotter_single.ax.plot(xfunc, yfunc, 'o', color=colors[ins], linewidth=2, linestyle='--', label=f'{ns}$\sigma$ gaussian coverage')
+     
+                tail_low = hproj.Integral(integr_start, hproj.FindBin(gausTF1.GetParameter(1) - ns*abs(gausTF1.GetParameter(2))))
+                tail_high = hproj.Integral(hproj.FindBin(gausTF1.GetParameter(1) + ns*abs(gausTF1.GetParameter(2))), integr_stop)
+                tail_fracs[ns].append((tail_low + tail_high) / integr)
+                tail_frac_errlo, tail_frac_errhi = tails_errors(integr, tail_low + tail_high)
+                tail_low_errors[ns].append(tail_frac_errlo)
+                tail_high_errors[ns].append(tail_frac_errhi)
+            xlabel = hproj.GetXaxis().GetTitle().replace('#', '\\')
+            plotter_single.labels(x=f"{xlabel}", y=f"# Jets", legend_title='')
+            plotter_single.save( os.path.join(args.odir, Var2D  + '_tails_fit' + str(ipt)) )
+
+        pt_centers = pt_bins[:-1] + (pt_bins[1:] - pt_bins[:-1])/2
+        for ins, ns in enumerate(nsigmas):
+            plotter.ax.errorbar(pt_centers, tail_fracs[ns], xerr=None, yerr=[tail_low_errors[ns],tail_low_errors[ns]],
+                                fmt='o', markersize=3, color=colors[ins], **errorbar_kwargs)
+            plotter.ax.stairs(tail_fracs[ns], pt_bins, color=colors[ins], linewidth=2)
+            plotter.ax.axhline(y=ideal_fraction[ns], color=colors[ins], linestyle='--', label=f'{ns}$\sigma$ coverage')
+        plotter.ax.set_xscale('log')
+        xlabel = root_hist.GetXaxis().GetTitle().replace('#', '\\')
+        plotter.labels(x=f"{xlabel}", y="Resolution Tail Fraction", legend_title='Ideal Gaussian')
+        plotter.save( os.path.join(args.odir, Var2D  + '_tails') )
+    
+    # Multiplicities    
+    Var2DList = (
+        'h2d_chEm_pt_B', 'h2d_chEm_pt_E', 'h2d_chEm_pt_F',
+        'h2d_neEm_pt_B', 'h2d_neEm_pt_E', 'h2d_neEm_pt_F',
+        'h2d_chHad_pt_B', 'h2d_chHad_pt_E', 'h2d_chHad_pt_F',
+        'h2d_neHad_pt_B', 'h2d_neHad_pt_E', 'h2d_neHad_pt_F',
+        'h2d_chMult_pt_B', 'h2d_chMult_pt_E', 'h2d_chMult_pt_F',
+        'h2d_neMult_pt_B', 'h2d_neMult_pt_E', 'h2d_neMult_pt_F',
+        'h2d_chHadMult_pt_B', 'h2d_chHadMult_pt_E', 'h2d_chHadMult_pt_F',
+        'h2d_neHadMult_pt_B', 'h2d_neHadMult_pt_E', 'h2d_neHadMult_pt_F',
+        'h2d_phoMult_pt_B', 'h2d_phoMult_pt_E', 'h2d_phoMult_pt_F',
+    )
+    pt_bins = (20, 60, 100, 1000)
+    
+    for Var2D in Var2DList:
+        root_hist = CheckRootFile(f"{dqm_dir}/{Var2D}")
+        
+        plotter = Plotter(args.sample_label, fontsize=15)
+
+        nbins_x, nbins_y, x_edges, y_edges = define_bins_2D(root_hist)
+        values = histo_values_2D(root_hist)
+
+        xlabel = root_hist.GetXaxis().GetTitle().replace('#', '\\')
+
+        # Plot with mplhep's hist2d (preserves ROOT bin edges, color bar included)
+        # empty bins will be invisible (background color)
+        pcm = plotter.ax.pcolormesh(x_edges, y_edges, np.where(values==0, np.nan, values),
+                                    cmap='viridis', shading='auto')
+
+        for lab2d in ('nCost', 'chHad', 'neHad', 'chEm', 'neEm', 'chMult', 'neMult'):
+            if lab2d in Var2D:
+                if 'Mult' in Var2D:
+                    ylabel = HLabels.multiplicity_label(lab2d)
+                else:
+                    ylabel = HLabels.fraction_label(lab2d)
+                break
+
+        plotter.labels(x=f"${xlabel}$", y=ylabel)
+        plotter.fig.colorbar(pcm, ax=plotter.ax, label='# Jets')
+        plotter.save(os.path.join(histo2d_dir, Var2D))
+        
+        if 'Mult' not in Var2D:
+            continue
+
+        for ptbin in pt_bins:
+            notfound = True
+            for ibin in range(root_hist.GetNbinsX()+1):
+                if root_hist.GetXaxis().GetBinLowEdge(ibin+1) == ptbin:
+                    notfound = False
+                    break
+            if notfound:
+                raise RuntimeError(f"The specified pT bin '{ptbin}' could not be matched to histogram {root_hist.GetName()}.")
+
+        hproj = {}
+        values_all, errors_all, labels_all = [], [], []
+        nybins = root_hist.GetNbinsY()
+        bin_edges = np.array(root_hist.GetXaxis().GetXbins())
+        for ipt, (low,high) in enumerate(zip(pt_bins[:-1],pt_bins[1:])):
+            plotter_single = Plotter(args.sample_label, fontsize=15)            
+            hname = root_hist.GetName() + '_proj' + str(ipt)
+            htitle = root_hist.GetTitle() + ' Proj PtBin' + str(ipt)
+            if bin_edges.size:
+                hproj[ipt] = ROOT.TH1F(hname, htitle, nybins, bin_edges)
+            else:
+                hproj[ipt] = ROOT.TH1F(hname, htitle, nybins,
+                                       root_hist.GetXaxis().GetBinLowEdge(1), root_hist.GetXaxis().GetBinLowEdge(nybins+1))
+
+            for ibin in range(root_hist.GetNbinsX()+1):
+                xlow = root_hist.GetXaxis().GetBinLowEdge(ibin+1)
+                xhigh = root_hist.GetXaxis().GetBinLowEdge(ibin+2)
+                if low <= xlow and high >= xhigh:
+                    for jbin in range(root_hist.GetNbinsX()+1):
+                        # compute the weighted error between the current bin content and the one that will be added
+                        val_curr = hproj[ipt].GetBinContent(jbin+1)
+                        val_next = root_hist.GetBinContent(ibin+1, jbin+1)
+                        error_curr = val_curr*hproj[ipt].GetBinError(jbin+1)
+                        error_next = val_next*root_hist.GetBinError(ibin+1, jbin+1)
+                        error = 0. if val_curr+val_next==0 else (error_curr + error_next) / (val_curr + val_next)
+                        hproj[ipt].SetBinError(jbin+1, error)
+                        hproj[ipt].SetBinContent(jbin+1, val_curr + val_next)
+                        
+            nbins, bin_edges, bin_centers, bin_widths = define_bins(hproj[ipt])
+            values, errors = histo_values_errors(hproj[ipt])
+            pt_label = str(low) + " < $p_T$ < " + str(high) + " GeV"
+            values_all.append(values)
+            errors_all.append(errors)
+            labels_all.append(pt_label)
+            plotter_single.ax.errorbar(bin_centers, values, xerr=None, yerr=errors/2, fmt='o', markersize=3,
+                                       color='black', label=pt_label, **errorbar_kwargs)
+            plotter_single.ax.stairs(values, bin_edges, color='black', linewidth=2)
+            plotter_single.ax.set_yscale('log')
+            plotter_single.ax.text(0.97, 0.92, f"{EtaInfo.label(Var2D[-1])}", transform=plotter_single.ax.transAxes, fontsize=fontsize,
+                                   verticalalignment='top', horizontalalignment='right')
+            plotter_single.labels(x=ylabel, y="# Jets", legend_title='')
+            plotter_single.save(os.path.join(args.odir, Var2D + '_PtBin' + str(ipt)))
+
+        plotter_all = Plotter(args.sample_label, fontsize=15)
+        for idx, (vals, errs, lab) in enumerate(zip(values_all, errors_all, labels_all)):
+            values = np.zeros_like(vals) if sum(vals)==0 else vals / sum(vals)
+            errors = np.zeros_like(vals) if sum(vals)==0 else errs / sum(vals)
+            plotter_all.ax.errorbar(bin_centers, values, xerr=None, yerr=errors/2, fmt='o', markersize=3,
+                                    color=colors[idx], label=lab, **errorbar_kwargs)
+            plotter_all.ax.stairs(values, bin_edges, color=colors[idx], linewidth=2)
+        plotter_all.ax.set_yscale('log')
+        plotter_all.ax.text(0.97, 0.79, f"{EtaInfo.label(Var2D[-1])}", transform=plotter_all.ax.transAxes, fontsize=fontsize,
+                            verticalalignment='top', horizontalalignment='right')
+        plotter_all.labels(x=ylabel, y="Counts [a.u.]", legend_title='Jet $p_T$ range')
+        plotter_all.save(os.path.join(args.odir, Var2D + '_PtBinAll'))
+        
     #####################################
     # Plot grouped variables
     #####################################
@@ -433,7 +695,7 @@ if __name__ == '__main__':
         'JetnConst': dotdict(
             histos={'HLT jets':         'JetConstituents',
                     'HLT jets matched': 'MatchedJetnCost'},
-            xlabel=HLabels.fraction_label('nConst')
+            xlabel=HLabels.fraction_label('nCost')
         ),
         'photonMultiplicity': dotdict(
             histos={'Barrel': 'photonMultiplicity_B',
@@ -540,7 +802,7 @@ if __name__ == '__main__':
                             verticalalignment='top', horizontalalignment='left')
 
             plotter.labels(x="${}$".format(v_stacked_histo[0].GetXaxis().GetTitle()),
-                           y="[a.u.]",
+                           y="Counts [a.u.]",
                            legend_title=r"Jet $p_T$ range")
 
             plotter.save( os.path.join(args.odir, f"Response_{ResType}_{EtaRegion}") )
@@ -730,9 +992,9 @@ if __name__ == '__main__':
                 ax2.set_yscale('log')
             ax2.set_ylim(axmin, axmax)
 
-            eff_filt, err_filt, up_error, transform = errorbar_declutter(eff_values, eff_errors, axmin)
-            ax2.errorbar(bin_centers, eff_filt, xerr=0.5 * bin_widths, yerr=err_filt/2, fmt='o',
-                         capthick=2, linewidth=1, capsize=2, **common_kwargs)
+            eff_filt, (err_filt_lo, err_filt_hi), up_error, transform = rate_errorbar_declutter(eff_values, eff_errors, axmin)
+            ax2.errorbar(bin_centers, eff_filt, xerr=0.5 * bin_widths, yerr=[err_filt_lo,err_filt_hi],
+                         fmt='o', capthick=2, linewidth=1, capsize=2, **common_kwargs)
             ax2.plot(bin_centers, up_error, 'v', transform=transform, **common_kwargs)
 
             ax2.grid(color=eff_color, axis='y')
@@ -749,8 +1011,8 @@ if __name__ == '__main__':
             if eff_type == 'Fake Rate':
                 eff_values = np.array([1-i if i != 0 else np.nan for i in eff_values])
 
-            eff_filt, err_filt, up_error, transform = errorbar_declutter(eff_values, eff_errors, axmin)
-            plotter.ax.errorbar(bin_centers, eff_filt, xerr=0.5 * bin_widths, yerr=err_filt/2,
+            eff_filt, (err_filt_lo, err_filt_hi), up_error, transform = rate_errorbar_declutter(eff_values, eff_errors, axmin)
+            plotter.ax.errorbar(bin_centers, eff_filt, xerr=0.5 * bin_widths, yerr=[err_filt_lo,err_filt_hi],
                                 fmt=EtaInfo.marker(etareg), color=EtaInfo.color(etareg), label=EtaInfo.label(etareg),
                                 **errorbar_kwargs)
             plotter.ax.plot(bin_centers, up_error, 'v', linestyle='', color=EtaInfo.color(etareg), transform=transform)
