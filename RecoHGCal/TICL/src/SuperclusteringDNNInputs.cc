@@ -2,7 +2,7 @@
 // Author: Theo Cuisset - theo.cuisset@cern.ch
 // Date: 11/2023
 
-// Modified by Gamze Sokmen - gamze.sokmen@cern.ch 
+// Modified by Gamze Sokmen - gamze.sokmen@cern.ch
 // Changes: Implementation of the delta time feature under a new DNN input version (v3) for the superclustering DNN and correcting the seed pT calculation.
 // Date: 07/2025
 
@@ -36,7 +36,7 @@ namespace ticl {
         ts_base.barycenter().Eta(),                                                        //seedEta
         ts_base.barycenter().Phi(),                                                        //seedPhi
         ts_base.raw_energy(),                                                              //seedEn
-        (ts_base.raw_energy() * std::sin(ts_base.barycenter().Theta())),              //seedPt
+        (ts_base.raw_energy() * std::sin(ts_base.barycenter().Theta())),                   //seedPt
     }};
   }
 
@@ -95,7 +95,7 @@ namespace ticl {
         ts_base.barycenter().Eta(),                                                        //seedEta
         ts_base.barycenter().Phi(),                                                        //seedPhi
         ts_base.raw_energy(),                                                              //seedEn
-        (ts_base.raw_energy() * std::sin(ts_base.barycenter().Theta())),                   //seedPt 
+        (ts_base.raw_energy() * std::sin(ts_base.barycenter().Theta())),                   //seedPt
         static_cast<float>(Angle(pca_cand_cmsFrame, pca_seed_cmsFrame)),  // theta : angle between seed and candidate
         Angle2D(XYVectorF(pca_cand_seedFrame.x(), pca_cand_seedFrame.z()), XYVectorF(0, 1)),  // theta_xz_seedFrame
         Angle2D(XYVectorF(pca_cand_seedFrame.y(), pca_cand_seedFrame.z()), XYVectorF(0, 1)),  // theta_yz_seedFrame
@@ -131,36 +131,35 @@ namespace ticl {
           << "Sum of eigenvalues was zero for trackster. Could not compute explained variance ratio.";
     }
 
-
     // modified deltaTime: set the default values <-50 or >50 to -5
-    float raw_dt       = ts_toCluster.time() - ts_base.time();
-    float mod_deltaTime = ( raw_dt < -kDeltaTimeDefault || raw_dt > kDeltaTimeDefault ) ? kBadDeltaTime : raw_dt;
+    float raw_dt = ts_toCluster.time() - ts_base.time();
+    float mod_deltaTime = (raw_dt < -kDeltaTimeDefault || raw_dt > kDeltaTimeDefault) ? kBadDeltaTime : raw_dt;
 
     return {{
-      std::abs(ts_toCluster.barycenter().Eta()) - std::abs(ts_base.barycenter().Eta()),  // DeltaEtaBaryc
-      ts_toCluster.barycenter().Phi() - ts_base.barycenter().phi(),                      // DeltaPhiBaryc
-      ts_toCluster.raw_energy(),                                                         // multi_en
-      ts_toCluster.barycenter().Eta(),                                                   // multi_eta
-      ts_toCluster.raw_energy() * std::sin(ts_toCluster.barycenter().Theta()),           // multi_pt
-      ts_base.barycenter().Eta(),                                                        // seedEta
-      ts_base.barycenter().Phi(),                                                        // seedPhi
-      ts_base.raw_energy(),                                                              // seedEn
-      ts_base.raw_energy() * std::sin(ts_base.barycenter().Theta()),                     // seedPt
-      static_cast<float>(Angle(pca_cand_cmsFrame, pca_seed_cmsFrame)),                   // theta
-      Angle2D(XYVectorF(pca_cand_seedFrame.x(), pca_cand_seedFrame.z()),                 // theta_xz_seedFrame
-            XYVectorF(0,1)),
-      Angle2D(XYVectorF(pca_cand_seedFrame.y(), pca_cand_seedFrame.z()),                 // theta_yz_seedFrame
-            XYVectorF(0,1)),
-      Angle2D(XYVectorF(pca_cand_cmsFrame.x(), pca_cand_cmsFrame.y()),                   // theta_xy_cmsFrame
-            XYVectorF(pca_seed_cmsFrame.x(), pca_seed_cmsFrame.y())),
-      Angle2D(XYVectorF(pca_cand_cmsFrame.y(), pca_cand_cmsFrame.z()),                   // theta_yz_cmsFrame
-            XYVectorF(pca_seed_cmsFrame.y(), pca_seed_cmsFrame.z())),
-      Angle2D(XYVectorF(pca_cand_cmsFrame.x(), pca_cand_cmsFrame.z()),                   // theta_xz_cmsFrame
-            XYVectorF(pca_seed_cmsFrame.x(), pca_seed_cmsFrame.z())),
-      ts_toCluster.eigenvalues()[0],                                                     // explVar
-      explVarRatio,                                                                      // explVarRatio
-      mod_deltaTime                                                                      // mod_deltaTime
-      }};
+        std::abs(ts_toCluster.barycenter().Eta()) - std::abs(ts_base.barycenter().Eta()),  // DeltaEtaBaryc
+        ts_toCluster.barycenter().Phi() - ts_base.barycenter().phi(),                      // DeltaPhiBaryc
+        ts_toCluster.raw_energy(),                                                         // multi_en
+        ts_toCluster.barycenter().Eta(),                                                   // multi_eta
+        ts_toCluster.raw_energy() * std::sin(ts_toCluster.barycenter().Theta()),           // multi_pt
+        ts_base.barycenter().Eta(),                                                        // seedEta
+        ts_base.barycenter().Phi(),                                                        // seedPhi
+        ts_base.raw_energy(),                                                              // seedEn
+        ts_base.raw_energy() * std::sin(ts_base.barycenter().Theta()),                     // seedPt
+        static_cast<float>(Angle(pca_cand_cmsFrame, pca_seed_cmsFrame)),                   // theta
+        Angle2D(XYVectorF(pca_cand_seedFrame.x(), pca_cand_seedFrame.z()),                 // theta_xz_seedFrame
+                XYVectorF(0, 1)),
+        Angle2D(XYVectorF(pca_cand_seedFrame.y(), pca_cand_seedFrame.z()),  // theta_yz_seedFrame
+                XYVectorF(0, 1)),
+        Angle2D(XYVectorF(pca_cand_cmsFrame.x(), pca_cand_cmsFrame.y()),  // theta_xy_cmsFrame
+                XYVectorF(pca_seed_cmsFrame.x(), pca_seed_cmsFrame.y())),
+        Angle2D(XYVectorF(pca_cand_cmsFrame.y(), pca_cand_cmsFrame.z()),  // theta_yz_cmsFrame
+                XYVectorF(pca_seed_cmsFrame.y(), pca_seed_cmsFrame.z())),
+        Angle2D(XYVectorF(pca_cand_cmsFrame.x(), pca_cand_cmsFrame.z()),  // theta_xz_cmsFrame
+                XYVectorF(pca_seed_cmsFrame.x(), pca_seed_cmsFrame.z())),
+        ts_toCluster.eigenvalues()[0],  // explVar
+        explVarRatio,                   // explVarRatio
+        mod_deltaTime                   // mod_deltaTime
+    }};
   }
 
   std::unique_ptr<AbstractSuperclusteringDNNInput> makeSuperclusteringDNNInputFromString(std::string dnnInputVersion) {

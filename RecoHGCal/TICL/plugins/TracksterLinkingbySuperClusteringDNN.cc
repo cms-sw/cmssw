@@ -119,7 +119,8 @@ void TracksterLinkingbySuperClusteringDNN::linkTracksters(
   std::iota(trackstersIndicesPt.begin(), trackstersIndicesPt.end(), 0);
   std::stable_sort(
       trackstersIndicesPt.begin(), trackstersIndicesPt.end(), [&inputTracksters](unsigned int i1, unsigned int i2) {
-        return inputTracksters[i1].raw_energy()*std::sin(inputTracksters[i1].barycenter().Theta()) > inputTracksters[i2].raw_energy()*std::sin(inputTracksters[i2].barycenter().Theta());
+        return inputTracksters[i1].raw_energy() * std::sin(inputTracksters[i1].barycenter().Theta()) >
+               inputTracksters[i2].raw_energy() * std::sin(inputTracksters[i2].barycenter().Theta());
       });
 
   /* Evaluate in minibatches since running with trackster count = 3000 leads to a short-lived ~15GB memory allocation
@@ -149,8 +150,8 @@ void TracksterLinkingbySuperClusteringDNN::linkTracksters(
     Trackster const& ts_cand = inputTracksters[trackstersIndicesPt[ts_cand_idx_pt]];
 
     if (ts_cand.raw_energy() < candidateEnergyThreshold_ ||
-	//        !checkExplainedVarianceRatioCut(ts_cand))  // || !trackstersPassesPIDCut(ts_cand)
-	!checkExplainedVarianceRatioCut(ts_cand))//   || !trackstersPassesPIDCut(ts_cand))
+        //        !checkExplainedVarianceRatioCut(ts_cand))  // || !trackstersPassesPIDCut(ts_cand)
+        !checkExplainedVarianceRatioCut(ts_cand))  //   || !trackstersPassesPIDCut(ts_cand))
       continue;
 
     auto& tracksterTiles = tracksterTilesBothEndcaps_pt[ts_cand.barycenter().eta() > 0];
@@ -168,7 +169,7 @@ void TracksterLinkingbySuperClusteringDNN::linkTracksters(
 
           Trackster const& ts_seed = inputTracksters[trackstersIndicesPt[ts_seed_idx_pt]];
 
-          if (ts_seed.raw_energy()*std::sin(ts_seed.barycenter().Theta()) < seedPtThreshold_)
+          if (ts_seed.raw_energy() * std::sin(ts_seed.barycenter().Theta()) < seedPtThreshold_)
             break;  // All further seeds will have lower pT than threshold (due to pT sorting)
 
           if (!checkExplainedVarianceRatioCut(ts_seed) || !trackstersPassesPIDCut(ts_seed))
@@ -249,95 +250,91 @@ void TracksterLinkingbySuperClusteringDNN::linkTracksters(
   Also mask seeds (only needed to add tracksters not in a supercluster to the output). */
   std::vector<bool> tracksterMask(tracksterCount, false);
 
-
   /////////////////////////////////////////////////////////////////////////TRKBUILDINGMOD
-  
+
   unsigned int previousCandTrackster_idx = std::numeric_limits<unsigned int>::max();
   unsigned int bestSeedForCurrentCandidate_idx = std::numeric_limits<unsigned int>::max();
   float bestSeedForCurrentCandidate_dnnScore = nnWorkingPoint_;
-  
+
   // Track which tracksters were ever used as candidates
   std::vector<bool> usedAsCandidate(tracksterCount, false);
-  
-  
+
   auto onCandidateTransition = [&](unsigned ts_cand_idx) {
     if (bestSeedForCurrentCandidate_idx < std::numeric_limits<unsigned int>::max()) {
-      tracksterMask[ts_cand_idx] = true;           // Mask the candidate so it’s not reused as a seed
+      tracksterMask[ts_cand_idx] = true;  // Mask the candidate so it’s not reused as a seed
       usedAsCandidate[ts_cand_idx] = true;
-      
+
       // Find the supercluster the seed belongs to (even if it's already used in another supercluster)
       // Find existing supercluster for the seed
-      auto seed_supercluster_it =
-        std::find_if(outputSuperclusters.begin(),
-                     outputSuperclusters.end(),
-                     [bestSeedForCurrentCandidate_idx](const std::vector<unsigned int>& sc) {
-                       return sc[0] == bestSeedForCurrentCandidate_idx;
-                     });
+      auto seed_supercluster_it = std::find_if(outputSuperclusters.begin(),
+                                               outputSuperclusters.end(),
+                                               [bestSeedForCurrentCandidate_idx](const std::vector<unsigned int>& sc) {
+                                                 return sc[0] == bestSeedForCurrentCandidate_idx;
+                                               });
       if (seed_supercluster_it == outputSuperclusters.end()) {
-	// No supercluster exists for this seed, create one
-	outputSuperclusters.emplace_back(std::initializer_list<unsigned int>{bestSeedForCurrentCandidate_idx});
-	resultTracksters.emplace_back(inputTracksters[bestSeedForCurrentCandidate_idx]);
-	linkedTracksterIdToInputTracksterId.emplace_back(
-							 std::initializer_list<unsigned int>{bestSeedForCurrentCandidate_idx});
-	seed_supercluster_it = outputSuperclusters.end() - 1;
-	tracksterMask[bestSeedForCurrentCandidate_idx] = true;
+        // No supercluster exists for this seed, create one
+        outputSuperclusters.emplace_back(std::initializer_list<unsigned int>{bestSeedForCurrentCandidate_idx});
+        resultTracksters.emplace_back(inputTracksters[bestSeedForCurrentCandidate_idx]);
+        linkedTracksterIdToInputTracksterId.emplace_back(
+            std::initializer_list<unsigned int>{bestSeedForCurrentCandidate_idx});
+        seed_supercluster_it = outputSuperclusters.end() - 1;
+        tracksterMask[bestSeedForCurrentCandidate_idx] = true;
       }
-      
+
       unsigned int indexIntoOutputTracksters = seed_supercluster_it - outputSuperclusters.begin();
       seed_supercluster_it->push_back(ts_cand_idx);
       resultTracksters[indexIntoOutputTracksters].mergeTracksters(inputTracksters[ts_cand_idx]);
       linkedTracksterIdToInputTracksterId[indexIntoOutputTracksters].push_back(ts_cand_idx);
-      
+
       assert(outputSuperclusters.size() == resultTracksters.size() &&
-	     outputSuperclusters.size() == linkedTracksterIdToInputTracksterId.size());
+             outputSuperclusters.size() == linkedTracksterIdToInputTracksterId.size());
       assert(seed_supercluster_it->size() == linkedTracksterIdToInputTracksterId[indexIntoOutputTracksters].size());
-      
+
       bestSeedForCurrentCandidate_idx = std::numeric_limits<unsigned int>::max();
       bestSeedForCurrentCandidate_dnnScore = nnWorkingPoint_;
     }
   };
-  
+
   // Iterate over minibatches
   for (unsigned int batchIndex = 0; batchIndex < batchOutputs.size(); batchIndex++) {
     std::vector<float> const& currentBatchOutputs = batchOutputs[batchIndex];
-    
+
     for (unsigned int indexInBatch = 0; indexInBatch < tracksterIndicesUsedInDNN[batchIndex].size(); indexInBatch++) {
       assert(indexInBatch < static_cast<unsigned int>(batchOutputs[batchIndex].size()));
-      
+
       const unsigned int ts_seed_idx = tracksterIndicesUsedInDNN[batchIndex][indexInBatch].first;
       const unsigned int ts_cand_idx = tracksterIndicesUsedInDNN[batchIndex][indexInBatch].second;
       const float currentDnnScore = currentBatchOutputs[indexInBatch];
-      
+
       if (previousCandTrackster_idx != std::numeric_limits<unsigned int>::max() &&
-	  ts_cand_idx != previousCandTrackster_idx) {
-	onCandidateTransition(previousCandTrackster_idx);
+          ts_cand_idx != previousCandTrackster_idx) {
+        onCandidateTransition(previousCandTrackster_idx);
       }
-      
+
       // Ignore seed if it was previously used as a candidate
-      if (currentDnnScore > bestSeedForCurrentCandidate_dnnScore  && !usedAsCandidate[ts_seed_idx]) {
-	bestSeedForCurrentCandidate_idx = ts_seed_idx;
-	bestSeedForCurrentCandidate_dnnScore = currentDnnScore;
+      if (currentDnnScore > bestSeedForCurrentCandidate_dnnScore && !usedAsCandidate[ts_seed_idx]) {
+        bestSeedForCurrentCandidate_idx = ts_seed_idx;
+        bestSeedForCurrentCandidate_dnnScore = currentDnnScore;
       }
-      
+
       previousCandTrackster_idx = ts_cand_idx;
     }
   }
   onCandidateTransition(previousCandTrackster_idx);
-  
+
   // Create singleton superclusters for unused tracksters with enough pt
   for (unsigned int ts_id = 0; ts_id < tracksterCount; ts_id++) {
-    if (!tracksterMask[ts_id] && inputTracksters[ts_id].raw_energy()*std::sin(inputTracksters[ts_id].barycenter().Theta()) >= seedPtThreshold_) {
+    if (!tracksterMask[ts_id] &&
+        inputTracksters[ts_id].raw_energy() * std::sin(inputTracksters[ts_id].barycenter().Theta()) >=
+            seedPtThreshold_) {
       outputSuperclusters.emplace_back(std::initializer_list<unsigned int>{ts_id});
       resultTracksters.emplace_back(inputTracksters[ts_id]);
       linkedTracksterIdToInputTracksterId.emplace_back(std::initializer_list<unsigned int>{ts_id});
     }
   }
-  
-  
-  
+
   /////////////////////////////////////////////////////////////////////////TRKBUILDINGMOD
-  
-  
+
 #ifdef EDM_ML_DEBUG
   for (std::vector<unsigned int> const& sc : outputSuperclusters) {
     std::ostringstream s;
