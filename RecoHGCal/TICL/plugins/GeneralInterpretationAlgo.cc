@@ -377,9 +377,9 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
         Trackster outTrackster;
         float regr_en = 0.f;
         bool isHadron = false;
+        outTrackster.mergeTracksters(input.tracksters, trackstersInTrackIndices[iTrack]);
         for (auto const tracksterId : trackstersInTrackIndices[iTrack]) {
           //maskTracksters[tracksterId] = 0;
-          outTrackster.mergeTracksters(input.tracksters[tracksterId]);
           regr_en += input.tracksters[tracksterId].regressed_energy();
           if (input.tracksters[tracksterId].isHadronic())
             isHadron = true;
