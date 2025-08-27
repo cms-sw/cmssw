@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SingleJetMetPaths = DQMEDAnalyzer('HLTJetMETValidation',
     triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","","HLT"),
-    DQMFolder             = cms.untracked.string("HLT/HLTJETMET/"),
+    DQMFolder             = cms.untracked.string("HLT/JetMET/TurnOnValidation/"),
     PatternJetTrg         = cms.untracked.string("HLT_PF(NoPU)?Jet([0-9])+(_v[0-9]+)?$"),                                   
     PatternMetTrg         = cms.untracked.string("HLT_+[Calo|PF]+MET([0-9])+[_NotCleaned|_BeamHaloCleaned]+(_v[0-9]+)?$"),
     PatternMuTrg          = cms.untracked.string("HLT_Mu([0-9])+(_v[0-9]+)?$"),
