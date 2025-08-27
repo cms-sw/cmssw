@@ -48,10 +48,8 @@ namespace edm {
   BranchDescription::BranchDescription(BranchType const& branchType,
                                        std::string const& moduleLabel,
                                        std::string const& processName,
-                                       std::string const& className,
-                                       std::string const& friendlyClassName,
                                        std::string const& productInstanceName,
-                                       TypeWithDict const& theTypeWithDict,
+                                       edm::TypeID const& theType,
                                        bool produced,
                                        bool availableOnlyAtEndTransition,
                                        std::set<std::string> const& aliases)
@@ -59,8 +57,8 @@ namespace edm {
         moduleLabel_(moduleLabel),
         processName_(processName),
         branchID_(),
-        fullClassName_(className),
-        friendlyClassName_(friendlyClassName),
+        fullClassName_(theType.className()),
+        friendlyClassName_(theType.friendlyClassName()),
         productInstanceName_(productInstanceName),
         branchAliases_(aliases),
         transient_() {
@@ -68,7 +66,6 @@ namespace edm {
     setProduced(produced);
     setOnDemand(false);
     transient_.availableOnlyAtEndTransition_ = availableOnlyAtEndTransition;
-    setUnwrappedType(theTypeWithDict);
     init();
   }
 
@@ -89,7 +86,7 @@ namespace edm {
     setProduced(aliasForBranch.produced());
     setOnDemand(false);  // will be re-set externally to the aliasForBranch.onDemand() after that one has been set
     transient_.availableOnlyAtEndTransition_ = aliasForBranch.availableOnlyAtEndTransition();
-    setUnwrappedType(aliasForBranch.unwrappedType());
+    transient_.unwrappedType_ = aliasForBranch.unwrappedType();
     init();
   }
 
@@ -152,7 +149,7 @@ namespace edm {
     try {
       setWrappedName(wrappedClassName(fullClassName()));
       // unwrapped type.
-      setUnwrappedType(TypeWithDict::byName(fullClassName()));
+      transient_.unwrappedType_ = TypeWithDict::byName(fullClassName());
       if (!bool(unwrappedType())) {
         setTransient(false);
         return;
@@ -164,7 +161,7 @@ namespace edm {
 
     edm::TypeWithDict wrType(TypeWithDict::byName(wrappedName()));
     try {
-      setWrappedType(wrType);
+      transient_.wrappedType_ = wrType;
       if (!bool(wrappedType())) {
         return;
       }
