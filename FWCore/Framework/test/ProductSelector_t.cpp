@@ -14,6 +14,9 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Reflection/interface/TypeWithDict.h"
 
+struct ProdTypeA {};
+struct ProdTypeB {};
+
 typedef std::vector<edm::ProductDescription const*> VCBDP;
 
 void apply_gs(edm::ProductSelector const& gs, VCBDP const& allbranches, std::vector<bool>& results) {
@@ -43,7 +46,7 @@ TEST_CASE("test ProductSelector", "[ProductSelector]") {
   auto processConfiguration = std::make_shared<edm::ProcessConfiguration>();
   processConfiguration->setParameterSetID(dummyProcessPset.id());
 
-  edm::TypeWithDict dummyTypeWithDict;
+  edm::TypeID dummyTypeID(typeid(ProdTypeA));
   // We pretend to have one module, with two products. The products
   // are of the same and, type differ in instance name.
   std::set<edm::ParameterSetID> psetsA;
@@ -53,8 +56,8 @@ TEST_CASE("test ProductSelector", "[ProductSelector]") {
   modAparams.registerIt();
   psetsA.insert(modAparams.id());
 
-  edm::ProductDescription b1(edm::InEvent, "modA", "PROD", "UglyProdTypeA", "ProdTypeA", "i1", dummyTypeWithDict);
-  edm::ProductDescription b2(edm::InEvent, "modA", "PROD", "UglyProdTypeA", "ProdTypeA", "i2", dummyTypeWithDict);
+  edm::ProductDescription b1(edm::InEvent, "modA", "PROD", "i1", dummyTypeID);
+  edm::ProductDescription b2(edm::InEvent, "modA", "PROD", "i2", dummyTypeID);
 
   // Our second pretend module has only one product, and gives it no
   // instance name.
@@ -64,13 +67,13 @@ TEST_CASE("test ProductSelector", "[ProductSelector]") {
   modBparams.registerIt();
   psetsB.insert(modBparams.id());
 
-  edm::ProductDescription b3(edm::InEvent, "modB", "HLT", "UglyProdTypeB", "ProdTypeB", "", dummyTypeWithDict);
+  edm::ProductDescription b3(edm::InEvent, "modB", "HLT", "", edm::TypeID(typeid(ProdTypeB)));
 
   // Our third pretend is like modA, except it hass processName_ of
   // "USER"
 
-  edm::ProductDescription b4(edm::InEvent, "modA", "USER", "UglyProdTypeA", "ProdTypeA", "i1", dummyTypeWithDict);
-  edm::ProductDescription b5(edm::InEvent, "modA", "USER", "UglyProdTypeA", "ProdTypeA", "i2", dummyTypeWithDict);
+  edm::ProductDescription b4(edm::InEvent, "modA", "USER", "i1", dummyTypeID);
+  edm::ProductDescription b5(edm::InEvent, "modA", "USER", "i2", dummyTypeID);
 
   // These are pointers to all the branches that are available. In a
   // framework program, these would come from the ProductRegistry
