@@ -206,8 +206,20 @@ id_score_t l1ct::TkEgCID_EE_v0::compute_score(const CompositeCandidate &cand,
   // Run BDT inference
   std::vector<bdt_feature_t> inputs = {tkpt, hoe, srrtot, deta, dphi, dpt, meanz, nstubs, chi2rphi, chi2rz, chi2bend};
   std::vector<bdt_score_t> bdt_score = model_->decision_function(inputs);
-  constexpr unsigned int MAX_SCORE = (1 << (bdt_score_t::iwidth - 1));
-  return bdt_score[0] / MAX_SCORE;
+
+  id_score_t ret_shift = (bdt_score[0] >> (bdt_score_t::iwidth - 1));
+
+#if defined(BDT_DEBUG)
+  bdt_debug_data_.inputs.clear();
+  for (const auto &in : inputs)
+    bdt_debug_data_.inputs.push_back(in.range());
+  bdt_debug_data_.raw_score = bdt_score[0].range();
+  bdt_debug_data_.norm_score = (ret_shift).range();
+#endif
+
+  // We normalize to -1 and 1 with MAX_SCORE = (1 << (bdt_score_t::iwidth - 1));
+  // use bitshift to get truncation as in FW
+  return ret_shift;
 }
 
 l1ct::TkEgCID_EE_v1::TkEgCID_EE_v1(const l1ct::PFTkEGAlgoEmuConfig::CompIDParameters &params, int debug)
@@ -260,8 +272,10 @@ id_score_t l1ct::TkEgCID_EE_v1::compute_score(const CompositeCandidate &cand,
                                        cltk_absDphi};
   std::vector<bdt_score_t> bdt_score = model_->decision_function(inputs);
   // std::cout << "  out BDT score: " << bdt_score[0] << std::endl;
-  constexpr unsigned int MAX_SCORE = 1 << (bdt_score_t::iwidth - 1);
-  return bdt_score[0] / MAX_SCORE;
+
+  // We normalize to -1 and 1 with MAX_SCORE = (1 << (bdt_score_t::iwidth - 1));
+  // use bitshift to get truncation as in FW
+  return (bdt_score[0] >> (bdt_score_t::iwidth - 1));
 #else
   return 0;
 #endif
@@ -327,8 +341,10 @@ id_score_t l1ct::TkEgCID_EB_v0::compute_score(const CompositeCandidate &cand,
                                        cltk_absDphi};
   std::vector<bdt_score_t> bdt_score = model_->decision_function(inputs);
   // std::cout << "  out BDT score: " << bdt_score[0] << std::endl;
-  constexpr unsigned int MAX_SCORE = 1 << (bdt_score_t::iwidth - 1);
-  return bdt_score[0] / MAX_SCORE;  // normalize to [-1,1]
+
+  // We normalize to -1 and 1 with MAX_SCORE = (1 << (bdt_score_t::iwidth - 1));
+  // use bitshift to get truncation as in FW
+  return (bdt_score[0] >> (bdt_score_t::iwidth - 1));  // normalize to [-1,1]
 #else
   return 0;
 #endif
@@ -418,10 +434,12 @@ id_score_t l1ct::TkEgCID_EB_v1::compute_score(const CompositeCandidate &cand,
       dbgCout() << " .  [9] scaled cltk_absDeta: " << scaled_cltk_absDeta << std::endl;
       dbgCout() << " .  [10] scaled cltk_absDphi: " << scaled_cltk_absDphi << std::endl;
     }
-    dbgCout() << "  out BDT score: " << bdt_score[0] / 8 << std::endl;
+    dbgCout() << "  out BDT score: " << (bdt_score[0] >> (bdt_score_t::iwidth - 1)) << std::endl;
   }
 
-  return bdt_score[0] / 8;  // normalize to [-1,1]
+  // We normalize to -1 and 1 with MAX_SCORE = (1 << (bdt_score_t::iwidth - 1));
+  // use bitshift to get truncation as in FW
+  return (bdt_score[0] >> (bdt_score_t::iwidth - 1));  // normalize to [-1,1]
 }
 
 PFTkEGAlgoEmulator::PFTkEGAlgoEmulator(const PFTkEGAlgoEmuConfig &config)
@@ -591,6 +609,9 @@ void PFTkEGAlgoEmulator::link_emCalo2tk_composite_eb_ee(const PFRegionEmu &r,
       auto &cand = candidates[icand];
       const std::vector<EmCaloObjEmu> &emcalo_sel = emcalo;
       id_score_t score = tkEleModel_->compute_score(cand, emcalo_sel, track, {float(nTkMatch), sumTkPt});
+#if defined(BDT_DEBUG)
+      bdt_debug_datas_.push_back(tkEleModel_->bdtData());
+#endif
       if ((tkEleModel_->apply_wp_loose(score, emcalo_sel[cand.cluster_idx].floatPt())) && (score > maxScore)) {
         maxScore = score;
         ibest = icand;
@@ -618,6 +639,10 @@ void PFTkEGAlgoEmulator::sel_emCalo(unsigned int nmax_sel,
 }
 
 void PFTkEGAlgoEmulator::run(const PFInputRegion &in, OutputRegion &out) const {
+#if defined(BDT_DEBUG)
+  bdt_debug_datas_.clear();
+#endif
+
   if (debug_ > 1) {
     for (int ic = 0, nc = in.emcalo.size(); ic < nc; ++ic) {
       const auto &calo = in.emcalo[ic];
