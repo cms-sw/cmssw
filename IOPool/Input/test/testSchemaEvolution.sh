@@ -14,25 +14,31 @@ LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
 # test code is actually working properly and if we see failures
 # in the later cmsRun processes, they are more likely to be
 # caused by a failure in ROOT schema evolution.
-cmsRun ${LOCAL_TEST_DIR}/SchemaEvolution_create_test_file_cfg.py || die 'Failure using SchemaEvolution_create_test_file_cfg.py' $?
-cmsRun ${LOCAL_TEST_DIR}/SchemaEvolution_test_read_cfg.py || die 'Failure using SchemaEvolution_create_test_file_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/SchemaEvolution_create_test_file_cfg.py --splitLevel 0 || die 'Failure using SchemaEvolution_create_test_file_cfg.py splitLevel 0' $?
+cmsRun ${LOCAL_TEST_DIR}/SchemaEvolution_test_read_cfg.py --inputFile SchemaEvolutionTest_splitLevel0.root || die 'Failure using SchemaEvolution_create_test_file_cfg.py splitLevel 0' $?
+
+cmsRun ${LOCAL_TEST_DIR}/SchemaEvolution_create_test_file_cfg.py --splitLevel 99 || die 'Failure using SchemaEvolution_create_test_file_cfg.py splitLevel 99' $?
+cmsRun ${LOCAL_TEST_DIR}/SchemaEvolution_test_read_cfg.py --inputFile SchemaEvolutionTest_splitLevel99.root || die 'Failure using SchemaEvolution_create_test_file_cfg.py splitLevel 99' $?
+
 
 # For each StreamerInfo in the input file, test for existence of StreamerInfo for
 # nested classes (members, base, elements of containers).
-root.exe -b -l -q file:SchemaEvolutionTest.root "${LOCAL_TEST_DIR}/testForStreamerInfo.C(gFile)" | sort -u > testForStreamerInfo1.log
-grep "Missing" testForStreamerInfo1.log && die "Missing nested streamer info" 1
-grep "SchemaEvolutionChangeOrder" testForStreamerInfo1.log || die 'Failure cannot find SchemaEvolutionChangeOrder in testForStreamerInfo1.log' $?
-grep "SchemaEvolutionAddMember" testForStreamerInfo1.log || die 'Failure cannot find SchemaEvolutionAddMember in testForStreamerInfo1.log' $?
-grep "SchemaEvolutionRemoveMember" testForStreamerInfo1.log || die 'Failure cannot find SchemaEvolutionRemoveMember in testForStreamerInfo1.log' $?
-grep "SchemaEvolutionMoveToBase" testForStreamerInfo1.log || die 'Failure cannot find SchemaEvolutionMoveToBase" in testForStreamerInfo1.log' $?
-grep "SchemaEvolutionChangeType" testForStreamerInfo1.log || die 'Failure cannot find SchemaEvolutionChangeType in testForStreamerInfo1.log' $?
-grep "SchemaEvolutionAddBase" testForStreamerInfo1.log || die 'Failure cannot find SchemaEvolutionAddBase in testForStreamerInfo1.log' $?
-grep "SchemaEvolutionPointerToMember" testForStreamerInfo1.log || die 'Failure cannot find SchemaEvolutionPointerToMember in testForStreamerInfo1.log' $?
-grep "SchemaEvolutionPointerToUniquePtr" testForStreamerInfo1.log || die 'Failure cannot find SchemaEvolutionPointerToUniquePtr in testForStreamerInfo1.log' $?
-grep "SchemaEvolutionCArrayToStdArray" testForStreamerInfo1.log || die 'Failure cannot find SchemaEvolutionCArrayToStdArray in testForStreamerInfo1.log' $?
-grep "SchemaEvolutionVectorToList" testForStreamerInfo1.log || die 'Failure cannot find SchemaEvolutionVectorToList in testForStreamerInfo1.log' $?
-grep "SchemaEvolutionMapToUnorderedMap" testForStreamerInfo1.log || die 'Failure cannot find SchemaEvolutionMapToUnorderedMap in testForStreamerInfo1.log' $?
-grep "VectorVectorElementNonSplit" testForStreamerInfo1.log || die 'Failure cannot find VectorVectorElementNonSplit in testForStreamerInfo1.log' $?
+for SPLIT in 0 99; do
+    root.exe -b -l -q file:SchemaEvolutionTest_splitLevel${SPLIT}.root "${LOCAL_TEST_DIR}/testForStreamerInfo.C(gFile)" | sort -u > testForStreamerInfo_${SPLIT}.log
+    grep "Missing" testForStreamerInfo_${SPLIT}.log && die "Missing nested streamer info" 1
+    grep "SchemaEvolutionChangeOrder" testForStreamerInfo_${SPLIT}.log || die 'Failure cannot find SchemaEvolutionChangeOrder in testForStreamerInfo_${SPLIT}.log' $?
+    grep "SchemaEvolutionAddMember" testForStreamerInfo_${SPLIT}.log || die 'Failure cannot find SchemaEvolutionAddMember in testForStreamerInfo_${SPLIT}.log' $?
+    grep "SchemaEvolutionRemoveMember" testForStreamerInfo_${SPLIT}.log || die 'Failure cannot find SchemaEvolutionRemoveMember in testForStreamerInfo_${SPLIT}.log' $?
+    grep "SchemaEvolutionMoveToBase" testForStreamerInfo_${SPLIT}.log || die 'Failure cannot find SchemaEvolutionMoveToBase" in testForStreamerInfo_${SPLIT}.log' $?
+    grep "SchemaEvolutionChangeType" testForStreamerInfo_${SPLIT}.log || die 'Failure cannot find SchemaEvolutionChangeType in testForStreamerInfo_${SPLIT}.log' $?
+    grep "SchemaEvolutionAddBase" testForStreamerInfo_${SPLIT}.log || die 'Failure cannot find SchemaEvolutionAddBase in testForStreamerInfo_${SPLIT}.log' $?
+    grep "SchemaEvolutionPointerToMember" testForStreamerInfo_${SPLIT}.log || die 'Failure cannot find SchemaEvolutionPointerToMember in testForStreamerInfo_${SPLIT}.log' $?
+    grep "SchemaEvolutionPointerToUniquePtr" testForStreamerInfo_${SPLIT}.log || die 'Failure cannot find SchemaEvolutionPointerToUniquePtr in testForStreamerInfo_${SPLIT}.log' $?
+    grep "SchemaEvolutionCArrayToStdArray" testForStreamerInfo_${SPLIT}.log || die 'Failure cannot find SchemaEvolutionCArrayToStdArray in testForStreamerInfo_${SPLIT}.log' $?
+    grep "SchemaEvolutionVectorToList" testForStreamerInfo_${SPLIT}.log || die 'Failure cannot find SchemaEvolutionVectorToList in testForStreamerInfo_${SPLIT}.log' $?
+    grep "SchemaEvolutionMapToUnorderedMap" testForStreamerInfo_${SPLIT}.log || die 'Failure cannot find SchemaEvolutionMapToUnorderedMap in testForStreamerInfo_${SPLIT}.log' $?
+    grep "VectorVectorElementNonSplit" testForStreamerInfo_${SPLIT}.log || die 'Failure cannot find VectorVectorElementNonSplit in testForStreamerInfo_${SPLIT}.log' $?
+done
 
 # Then we read permanently saved data files from the cms-data
 # repository. When these data files were written, the working area
@@ -79,18 +85,26 @@ grep "VectorVectorElementNonSplit" testForStreamerInfo1.log || die 'Failure cann
 #     Then rebuild the working area.
 #
 #     Then run the configuration IOPool/Input/test/SchemaEvolution_create_test_file_cfg.py
-#     This will generate an output file named SchemaEvolutionTest.root.
+#     twice: with arguments' --splitLevel 0' and '--splitLevel 99'
+#     This will generate an output file named SchemaEvolutionTest_splitLevel<N>.root.
 #     Rename this file appropriately to include the release used and use
 #     it as an input for this test by adding additional cases below.
 #     The new data file will need to added to the cms-data repository
 #     named IOPool-Input.
 
-file=SchemaEvolutionTestOLD13_2_3.root
+file=SchemaEvolutionTestOLD15_1_0_pre5_splitLevel0.root
+inputfile=$(edmFileInPath IOPool/Input/data/$file) || die "Failure edmFileInPath IOPool/Input/data/$file" $?
+cmsRun ${LOCAL_TEST_DIR}/SchemaEvolution_test_read_cfg.py --inputFile "$inputfile" || die "Failed to read old file $file" $?
+
+file=SchemaEvolutionTestOLD15_1_0_pre5_splitLevel99.root
 inputfile=$(edmFileInPath IOPool/Input/data/$file) || die "Failure edmFileInPath IOPool/Input/data/$file" $?
 cmsRun ${LOCAL_TEST_DIR}/SchemaEvolution_test_read_cfg.py --inputFile "$inputfile" || die "Failed to read old file $file" $?
 
 file=SchemaEvolutionTestOLD13_0_0.root
 inputfile=$(edmFileInPath IOPool/Input/data/$file) || die "Failure edmFileInPath IOPool/Input/data/$file" $?
+
+
+## Note that the following two tests exercise implicitly only split level 99
 
 # The next test demonstrates the FileReadError that can occur as a
 # result of the known ROOT bug in 13_0_0 (file has a problem when
