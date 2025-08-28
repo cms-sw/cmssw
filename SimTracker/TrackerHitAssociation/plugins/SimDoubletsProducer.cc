@@ -239,7 +239,7 @@ void SimDoubletsProducer<pixelTopology::Phase1>::fillDescriptions(edm::Configura
   descTPSelector.add<double>("ptMax", 1e100);
   descTPSelector.add<double>("minRapidity", -3.);
   descTPSelector.add<double>("maxRapidity", 3.);
-  descTPSelector.add<double>("tip", 60.);
+  descTPSelector.add<double>("tip", 2.5);
   descTPSelector.add<double>("lip", 30.);
   descTPSelector.add<int>("minHit", 0);
   descTPSelector.add<bool>("signalOnly", true);
@@ -286,7 +286,7 @@ void SimDoubletsProducer<pixelTopology::Phase2>::fillDescriptions(edm::Configura
   descTPSelector.add<double>("ptMax", 1e100);
   descTPSelector.add<double>("minRapidity", -4.5);
   descTPSelector.add<double>("maxRapidity", 4.5);
-  descTPSelector.add<double>("tip", 2.);  // NOTE: differs from HLT MultiTrackValidator
+  descTPSelector.add<double>("tip", 2.5);
   descTPSelector.add<double>("lip", 30.);
   descTPSelector.add<int>("minHit", 0);
   descTPSelector.add<bool>("signalOnly", true);
