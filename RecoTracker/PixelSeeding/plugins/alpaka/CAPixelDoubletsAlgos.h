@@ -37,14 +37,44 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
   using PhiBinner = PhiBinnerT<TrackerTraits>;
   //Move this ^ definition in CAStructures maybe
 
-  template <typename TAcc>
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool moduleIsOuterLadderPhase1(int const moduleId) {
+    return (0 == (moduleId / 8) % 2);
+  }
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool moduleIsOuterLadderPhase2(int const moduleId) {
+    return (0 != (moduleId / 18) % 2);
+  }
+
+  template <typename TrackerTraits>
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool moduleIsOuterLadder(const int moduleId);
+
+  template <>
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool moduleIsOuterLadder<pixelTopology::Phase1>(int const moduleId) {
+    return moduleIsOuterLadderPhase1(moduleId);
+  }
+
+  template <>
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool moduleIsOuterLadder<pixelTopology::HIonPhase1>(int const moduleId) {
+    return moduleIsOuterLadderPhase1(moduleId);
+  }
+
+  template <>
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool moduleIsOuterLadder<pixelTopology::Phase2>(int const moduleId) {
+    return moduleIsOuterLadderPhase2(moduleId);
+  }
+
+  template <>
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool moduleIsOuterLadder<pixelTopology::Phase2OT>(int const moduleId) {
+    return moduleIsOuterLadderPhase2(moduleId);
+  }
+
+  template <typename TrackerTraits, typename TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool zSizeCut(
       const TAcc& acc, HitsConstView hh, ::reco::CALayersSoAConstView ll, AlgoParams const& params, int i, int o) {
     const uint32_t mi = hh[i].detectorIndex();
     const auto first_forward = ll.layerStarts()[4];
     const auto first_bpix2 = ll.layerStarts()[1];
     bool innerB1 = mi < first_bpix2;
-    bool isOuterLadder = 0 == (mi / 8) % 2;
+    bool isOuterLadder = moduleIsOuterLadder<TrackerTraits>(mi);
     auto mes = (!innerB1) || isOuterLadder ? hh[i].clusterSizeY() : -1;
 #ifdef DOUBLETS_DEBUG
     printf("i = %d o = %d mi = %d innerB1 = %d isOuterLadder = %d first_forward = %d first_bpix2 = %d\n",
@@ -88,7 +118,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
                : innerBarrel && std::abs(mes - int(std::abs(dz / dr) * params.dzdrFact_ + 0.5f)) > params.maxDYPred_;
   }
 
-  template <typename TAcc>
+  template <typename TrackerTraits, typename TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool clusterCut(
       const TAcc& acc, HitsConstView hh, ::reco::CALayersSoAConstView ll, AlgoParams const& params, uint32_t i) {
     const uint32_t mi = hh[i].detectorIndex();
@@ -114,7 +144,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
 
     bool innerB1 = mi < first_bpix2;
 
-    bool isOuterLadder = 0 == (mi / 8) % 2;
+    bool isOuterLadder = moduleIsOuterLadder<TrackerTraits>(mi);
     auto mes = (!innerB1) || isOuterLadder ? hh[i].clusterSizeY() : -1;
 
     if (innerB1)  // B1
@@ -245,10 +275,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
 
 #ifdef DOUBLETS_DEBUG
       if (doClusterCut && outer > pixelTopology::last_barrel_layer)
-        printf("clustCut: %d %d \n", i, clusterCut<TAcc>(acc, hh, ll, params, i));
+        printf("clustCut: %d %d \n", i, clusterCut<TrackerTraits, TAcc>(acc, hh, ll, params, i));
 #endif
 
-      if (doClusterCut && outer > pixelTopology::last_barrel_layer && clusterCut<TAcc>(acc, hh, ll, params, i)) {
+      if (doClusterCut && outer > pixelTopology::last_barrel_layer &&
+          clusterCut<TrackerTraits, TAcc>(acc, hh, ll, params, i)) {
 #ifdef DOUBLETS_DEBUG
         printf("Killed here 4\n");
 #endif
@@ -340,8 +371,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
 #endif
             continue;
           }
-          
-          auto dz = zo-zi;
+
+          auto dz = zo - zi;
 
           // cut on signed dz
           if (dz < cc.minDZ()[pairLayerId] || dz > cc.maxDZ()[pairLayerId]) {
@@ -354,7 +385,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
 #endif
             continue;
           }
-
 
           if (params.cellZ0Cut_ > 0. && z0cutoff(oi)) {
 #ifdef DOUBLETS_DEBUG
@@ -373,9 +403,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
             continue;
           }
 #ifdef DOUBLETS_DEBUG
-          printf("zSizeCut: %d %d %d \n", i, oi, zSizeCut<TAcc>(acc, hh, ll, params, i, oi));
+          printf("zSizeCut: %d %d %d \n", i, oi, zSizeCut<TrackerTraits, TAcc>(acc, hh, ll, params, i, oi));
 #endif
-          if (doZSizeCut && zSizeCut<TAcc>(acc, hh, ll, params, i, oi)) {
+          if (doZSizeCut && zSizeCut<TrackerTraits, TAcc>(acc, hh, ll, params, i, oi)) {
 #ifdef DOUBLETS_DEBUG
             printf("Killed here 7\n");
 #endif
