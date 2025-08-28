@@ -9,6 +9,7 @@ from L1Trigger.Configuration.Phase2GTMenus.SeedDefinitions.step1_2024.l1tGTObjec
 obj_regions_abseta_lowbounds = {
     "CL2Photons": { "barrel": 0, "endcap": 1.479 },
     "CL2Electrons": { "barrel": 0, "endcap": 1.479 },
+    "L1EG": { "barrel": 0, "endcap": 1.479 },
 
     "CL2Taus": { "barrel": 0, "endcap": 1.5 },
     "CL2JetsSC4": { "barrel": 0, "endcap": 1.5, "forwardHGC": 2.4, "forwardHF": 3.0 },
