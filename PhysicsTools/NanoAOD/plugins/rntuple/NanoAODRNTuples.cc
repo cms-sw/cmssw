@@ -31,18 +31,27 @@ void LumiNTuple::fill(const edm::LuminosityBlockID& id, TFile& file) {
 
 void LumiNTuple::finalizeWrite() { m_ntuple.reset(); }
 
-void RunNTuple::registerToken(const edm::EDGetToken& token) { m_tokens.push_back(token); }
+void RunNTuple::registerCounterTableToken(const edm::EDGetToken& token) { m_counterTableTokens.push_back(token); }
+
+void RunNTuple::registerFlatTableToken(const edm::EDGetToken& token) { m_flatTableTokens.push_back(token); }
 
 void RunNTuple::createFields(const edm::RunForOutput& iRun, TFile& file) {
   auto model = RNTupleModel::Create();
   m_run = RNTupleFieldPtr<UInt_t>("run", "", *model);
 
-  edm::Handle<nanoaod::MergeableCounterTable> handle;
-  for (const auto& token : m_tokens) {
-    iRun.getByToken(token, handle);
-    const nanoaod::MergeableCounterTable& tab = *handle;
-    m_tables.push_back(SummaryTableOutputFields(tab, *model));
+  edm::Handle<nanoaod::MergeableCounterTable> counterTableHandle;
+  for (const auto& token : m_counterTableTokens) {
+    iRun.getByToken(token, counterTableHandle);
+    const nanoaod::MergeableCounterTable& tab = *counterTableHandle;
+    m_counterTables.push_back(SummaryTableOutputFields(tab, *model));
   }
+
+  edm::Handle<nanoaod::FlatTable> flatTableHandle;
+  for (const auto& token : m_flatTableTokens) {
+    iRun.getByToken(token, flatTableHandle);
+    m_flatTables.add(token, *flatTableHandle);
+  }
+  m_flatTables.createFields(iRun, *model);
 
   RNTupleWriteOptions options;
   options.SetCompression(file.GetCompressionSettings());
@@ -54,12 +63,16 @@ void RunNTuple::fill(const edm::RunForOutput& iRun, TFile& file) {
     createFields(iRun, file);
   }
   m_run.fill(iRun.id().run());
-  edm::Handle<nanoaod::MergeableCounterTable> handle;
-  for (std::size_t i = 0; i < m_tokens.size(); i++) {
-    iRun.getByToken(m_tokens.at(i), handle);
-    const nanoaod::MergeableCounterTable& tab = *handle;
-    m_tables.at(i).fill(tab);
+
+  edm::Handle<nanoaod::MergeableCounterTable> counterTableHandle;
+  for (std::size_t i = 0; i < m_counterTableTokens.size(); i++) {
+    iRun.getByToken(m_counterTableTokens.at(i), counterTableHandle);
+    const nanoaod::MergeableCounterTable& tab = *counterTableHandle;
+    m_counterTables.at(i).fill(tab);
   }
+
+  m_flatTables.fill(iRun);
+
   m_ntuple->Fill();
 }
 
