@@ -19,4 +19,4 @@ for id_module_name in my_id_modules:
         if hasattr(item,'idName') and hasattr(item,'cutFlow'):
             setupVIDSelection(egmGsfElectronIDsForScoutingDQM,item)
 
-hltScoutingEGammaDqmOffline = cms.Sequence(egmGsfElectronIDsForScoutingDQM + scoutingMonitoringEGM + scoutingMonitoringTagProbe + scoutingMonitoringPatElectronTagProbe)
+hltScoutingEGammaDqmOffline = cms.Sequence(egmGsfElectronIDsForScoutingDQM + scoutingMonitoringEGMOffline + scoutingMonitoringTagProbeOffline + scoutingMonitoringPatElectronTagProbe)
