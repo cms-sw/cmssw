@@ -1563,23 +1563,22 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
       hVector_outer_.at(layerPairIdIndex)
           .book1D(ibook,
                   "outer",
-                  "r of the outer RecHit " + layerTitle,
-                  "r of outer RecHit [cm]",
-                  "Number of " + doublet + "s",
-                  600,
-                  0,
-                  60);
-    } else {
-      // histogram for potential outerZ cut
-      hVector_outer_.at(layerPairIdIndex)
-          .book1D(ibook,
-                  "outer",
                   "z of the outer RecHit " + layerTitle,
                   "z of outer RecHit [cm]",
                   "Number of " + doublet + "s",
                   600,
                   -300,
                   300);
+    } else {
+      hVector_outer_.at(layerPairIdIndex)
+          .book1D(ibook,
+                  "outer",
+                  "r of the outer RecHit " + layerTitle,
+                  "r of outer RecHit [cm]",
+                  "Number of " + doublet + "s",
+                  600,
+                  0,
+                  60);
     }
 
     // histograms for cluster size and size differences
