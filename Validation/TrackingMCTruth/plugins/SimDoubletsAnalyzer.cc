@@ -8,6 +8,7 @@
 #include "Validation/TrackingMCTruth/plugins/SimDoubletsAnalyzer.h"
 #include <sys/types.h>
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/Histograms/interface/MonitorElementCollection.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -27,7 +28,7 @@
 namespace simdoublets {
   // class that calculate and stores all cut variables for a given doublet
   struct CellCutVariables {
-    void calculateCutVariables(SimDoublets::Doublet const& doublet, SimDoublets const& simDoublets) {
+    void calculateCutVariables(SimDoublets::Doublet& doublet, SimDoublets const& simDoublets) {
       // inner RecHit properties
       GlobalPoint inner_globalPosition = doublet.innerGlobalPos();
       inner_z_ = inner_globalPosition.z();
@@ -70,8 +71,11 @@ namespace simdoublets {
       CAThetaCut_.clear();
       dcaCut_.clear();
       hardCurvCut_.clear();
+      dCurvCut_.clear();
+      curvRatioCut_.clear();
+      tripletConnectionPassed_.clear();
       // then, refill
-      for (auto const& neighbor : doublet.innerNeighborsView()) {
+      for (auto& neighbor : doublet.innerNeighbors()) {
         // get the inner RecHit of the inner neighbor
         GlobalPoint neighbor_globalPosition = simDoublets.getSimDoublet(neighbor.index()).innerGlobalPos();
         double neighbor_z = neighbor_globalPosition.z();
@@ -90,8 +94,10 @@ namespace simdoublets {
 
         // alignement cut variables in x-y
         CircleEq<double> eq(neighbor_x, neighbor_y, inner_x, inner_y, outer_x, outer_y);
-        hardCurvCut_.push_back(std::abs(eq.curvature()));
-        dcaCut_.push_back(std::abs(eq.dca0() / std::abs(eq.curvature())));
+        double tripletCurvature = eq.curvature();
+        neighbor.setCurvature(tripletCurvature);
+        hardCurvCut_.push_back(std::abs(tripletCurvature));
+        dcaCut_.push_back(std::abs(eq.dca0() / std::abs(tripletCurvature)));
       }
     }
 
@@ -113,18 +119,40 @@ namespace simdoublets {
     std::vector<double> const& CAThetaCut() const { return CAThetaCut_; }
     std::vector<double> const& dcaCut() const { return dcaCut_; }
     std::vector<double> const& hardCurvCut() const { return hardCurvCut_; }
+    std::vector<double>& dCurvCut() const { return dCurvCut_; }
+    std::vector<double>& curvRatioCut() const { return curvRatioCut_; }
+    std::vector<bool>& tripletConnectionPassed() const { return tripletConnectionPassed_; }
     double CAThetaCut(int i) const { return CAThetaCut_.at(i); }
     double dcaCut(int i) const { return dcaCut_.at(i); }
     double hardCurvCut(int i) const { return hardCurvCut_.at(i); }
+    double dCurvCut(int i) const { return dCurvCut_.at(i); }
+    double curvRatioCut(int i) const { return curvRatioCut_.at(i); }
+    bool tripletConnectionPassed(int i) const { return tripletConnectionPassed_.at(i); }
 
   private:
     double inner_z_, inner_r_, outer_z_, outer_r_, dz_, dr_;
     double dphi_, z0_, curvature_, pT_;                      // double-valued variables
     int idphi_, Ysize_, DYsize_, DYPred_;                    // integer-valued variables
     std::vector<double> CAThetaCut_, dcaCut_, hardCurvCut_;  // doublet connection cut variables
+    mutable std::vector<double> dCurvCut_, curvRatioCut_;    // triplet connection cut variables
+    mutable std::vector<bool> tripletConnectionPassed_;
   };
 
+  template <typename TrackerTraits>
+  bool moduleIsOuterLadder(int const moduleId);
+
+  template <>
+  bool moduleIsOuterLadder<pixelTopology::Phase1>(int const moduleId) {
+    return (0 == (moduleId / 8) % 2);
+  }
+
+  template <>
+  bool moduleIsOuterLadder<pixelTopology::Phase2>(int const moduleId) {
+    return (0 != (moduleId / 18) % 2);
+  }
+
   // class to help keep track of which cluster size cuts are applied
+  template <typename TrackerTraits>
   struct ClusterSizeCutManager {
     // flags indicating to which cluster size cuts the doublet is subject to
     enum class CutStatusBit : uint8_t {
@@ -166,7 +194,7 @@ namespace simdoublets {
       // define bools needed to decide on cutting parameters
       const bool innerInB1 = (doublet.innerLayerId() == 0);
       const bool innerInB2 = (doublet.innerLayerId() == 1);
-      const bool isOuterLadder = (0 == (moduleId / 8) % 2);  // check if this even makes sense in Phase-2
+      const bool isOuterLadder = moduleIsOuterLadder<TrackerTraits>(moduleId);
       const bool innerInBarrel = (doublet.innerLayerId() < 4);
       const bool outerInBarrel = (doublet.outerLayerId() < 4);
       const bool onlyBarrel = innerInBarrel && outerInBarrel;
@@ -403,10 +431,12 @@ void SimDoubletsAnalyzer<TrackerTraits>::dqmBeginRun(const edm::Run& iRun, const
 template <typename TrackerTraits>
 void SimDoubletsAnalyzer<TrackerTraits>::applyCuts(
     SimDoublets::Doublet& doublet,
+    SimDoublets const& simDoublets,
     bool const hasValidNeighbors,
+    bool const hasValidTripletNeighbors,
     int const layerPairIdIndex,
     simdoublets::CellCutVariables const& cellCutVariables,
-    simdoublets::ClusterSizeCutManager const& clusterSizeCutManager) const {
+    simdoublets::ClusterSizeCutManager<TrackerTraits> const& clusterSizeCutManager) const {
   // -------------------------------------------------------------------------
   //  apply cuts for doublet creation
   // -------------------------------------------------------------------------
@@ -451,7 +481,7 @@ void SimDoubletsAnalyzer<TrackerTraits>::applyCuts(
   }
 
   // -------------------------------------------------------------------------
-  //  apply cuts for doublet connections
+  //  apply cuts for doublet and triplet connections
   // -------------------------------------------------------------------------
   if (hasValidNeighbors) {
     // loop over the inner neighboring doublets of the doublet
@@ -468,6 +498,26 @@ void SimDoubletsAnalyzer<TrackerTraits>::applyCuts(
         neighbor.setAlive();
       }
 
+      // loop over the neighbors of the neighbors to apply cuts on triplet connections
+      if (hasValidTripletNeighbors) {
+        auto const& neighborDoublet = simDoublets.getSimDoublet(neighbor.index());
+        for (int j{0}; auto const& tripletNeighbor : neighborDoublet.innerNeighborsView()) {
+          /* DCurv cut*/
+          double dCurv = std::abs(tripletNeighbor.curvature() - neighbor.curvature());
+          cellCutVariables.dCurvCut().push_back(dCurv);
+          /* curvRatio cut*/
+          double curvRatio = tripletNeighbor.curvature() / neighbor.curvature();
+          cellCutVariables.curvRatioCut().push_back(curvRatio);
+          if (dCurv > 100000.) {
+            neighbor.setKilledTripletConnection(j);
+            cellCutVariables.tripletConnectionPassed().push_back(false);
+          } else
+            cellCutVariables.tripletConnectionPassed().push_back(true);
+
+          j++;
+        }
+      }
+
       i++;
     }
   }
@@ -478,9 +528,11 @@ template <typename TrackerTraits>
 void SimDoubletsAnalyzer<TrackerTraits>::fillCutHistograms(
     SimDoublets::Doublet const& doublet,
     bool hasValidNeighbors,
+    bool hasValidTripletNeighbors,
     int const layerPairIdIndex,
     simdoublets::CellCutVariables const& cellCutVariables,
-    simdoublets::ClusterSizeCutManager const& clusterSizeCutManager) {
+    simdoublets::ClusterSizeCutManager<TrackerTraits> const& clusterSizeCutManager,
+    simdoublets::TrackTruth const& trackTruth) {
   // check if the doublet passed all cuts
   bool passed = doublet.isAlive();
 
@@ -488,57 +540,57 @@ void SimDoubletsAnalyzer<TrackerTraits>::fillCutHistograms(
   //  layer pair independent cuts (global folder)
   // -------------------------------------------------------------------------
   // radius of the circle defined by the two RecHits and the beamspot
-  h_curvatureR_.fill(passed, cellCutVariables.curvature());
+  h_curvatureR_.fillCut(passed, trackTruth, cellCutVariables.curvature());
   // pT that this curvature radius corresponds to
-  h_pTFromR_.fill(passed, cellCutVariables.pT());
+  h_pTFromR_.fillCut(passed, trackTruth, cellCutVariables.pT());
   // longitudinal impact parameter with respect to the beamspot
-  h_z0_.fill(passed, cellCutVariables.z0());
+  h_z0_.fillCut(passed, trackTruth, cellCutVariables.z0());
 
   // -------------------------------------------------------------------------
   //  layer pair dependent cuts (sub-folders for layer pairs)
   // -------------------------------------------------------------------------
   // dr = (outer_r - inner_r) histogram
-  hVector_dr_[layerPairIdIndex].fill(passed, cellCutVariables.dr());
+  hVector_dr_[layerPairIdIndex].fillCut(passed, trackTruth, cellCutVariables.dr());
   // dphi histogram
-  hVector_dphi_[layerPairIdIndex].fill(passed, cellCutVariables.dphi());
-  hVector_idphi_[layerPairIdIndex].fill(passed, cellCutVariables.idphi());
+  hVector_dphi_[layerPairIdIndex].fillCut(passed, trackTruth, cellCutVariables.dphi());
+  hVector_idphi_[layerPairIdIndex].fillCut(passed, trackTruth, cellCutVariables.idphi());
   // z of the inner RecHit histogram
-  hVector_innerZ_[layerPairIdIndex].fill(passed, cellCutVariables.inner_z());
+  hVector_innerZ_[layerPairIdIndex].fillCut(passed, trackTruth, cellCutVariables.inner_z());
   // potential cuts for inner r and dz
-  hVector_innerR_[layerPairIdIndex].fill(passed, cellCutVariables.inner_r());
-  hVector_dz_[layerPairIdIndex].fill(passed, cellCutVariables.dz());
-  hVector_outerZ_[layerPairIdIndex].fill(passed, cellCutVariables.outer_z());
-  hVector_outerR_[layerPairIdIndex].fill(passed, cellCutVariables.outer_r());
+  hVector_innerR_[layerPairIdIndex].fillCut(passed, trackTruth, cellCutVariables.inner_r());
+  hVector_dz_[layerPairIdIndex].fillCut(passed, trackTruth, cellCutVariables.dz());
+  hVector_outerZ_[layerPairIdIndex].fillCut(passed, trackTruth, cellCutVariables.outer_z());
+  hVector_outerR_[layerPairIdIndex].fillCut(passed, trackTruth, cellCutVariables.outer_r());
 
   // -------------------------------------------------------------------------
   //  cluster size cuts (global + sub-folders for layer pairs)
   // -------------------------------------------------------------------------
   // cluster size in local y histogram
-  hVector_Ysize_[layerPairIdIndex].fill(passed, cellCutVariables.Ysize());
+  hVector_Ysize_[layerPairIdIndex].fillCut(passed, trackTruth, cellCutVariables.Ysize());
   // histograms for clusterCut
   // YsizeB1 cut
   if (clusterSizeCutManager.isSubjectToYsizeB1()) {
-    h_YsizeB1_.fill(passed, cellCutVariables.Ysize());
+    h_YsizeB1_.fillCut(passed, trackTruth, cellCutVariables.Ysize());
   }
   // YsizeB2 cut
   if (clusterSizeCutManager.isSubjectToYsizeB2()) {
-    h_YsizeB2_.fill(passed, cellCutVariables.Ysize());
+    h_YsizeB2_.fillCut(passed, trackTruth, cellCutVariables.Ysize());
   }
   // histograms for zSizeCut
   // DYsize12 cut
   if (clusterSizeCutManager.isSubjectToDYsize12()) {
-    hVector_DYsize_[layerPairIdIndex].fill(passed, cellCutVariables.DYsize());
-    h_DYsize12_.fill(passed, cellCutVariables.DYsize());
+    hVector_DYsize_[layerPairIdIndex].fillCut(passed, trackTruth, cellCutVariables.DYsize());
+    h_DYsize12_.fillCut(passed, trackTruth, cellCutVariables.DYsize());
   }
   // DYsize cut
   if (clusterSizeCutManager.isSubjectToDYsize()) {
-    hVector_DYsize_[layerPairIdIndex].fill(passed, cellCutVariables.DYsize());
-    h_DYsize_.fill(passed, cellCutVariables.DYsize());
+    hVector_DYsize_[layerPairIdIndex].fillCut(passed, trackTruth, cellCutVariables.DYsize());
+    h_DYsize_.fillCut(passed, trackTruth, cellCutVariables.DYsize());
   }
   // DYPred cut
   if (clusterSizeCutManager.isSubjectToDYPred()) {
-    hVector_DYPred_[layerPairIdIndex].fill(passed, cellCutVariables.DYPred());
-    h_DYPred_.fill(passed, cellCutVariables.DYPred());
+    hVector_DYPred_[layerPairIdIndex].fillCut(passed, trackTruth, cellCutVariables.DYPred());
+    h_DYPred_.fillCut(passed, trackTruth, cellCutVariables.DYPred());
   }
 
   // -------------------------------------------------------------------------
@@ -560,6 +612,18 @@ void SimDoubletsAnalyzer<TrackerTraits>::fillCutHistograms(
       // CATheta cut
       hVector_caThetaCut_.at(doublet.innerLayerId()).fill(passedConnect, cellCutVariables.CAThetaCut(i));
 
+      // loop over the neighbors of the neighbors to fill histograms on triplet connections
+      if (hasValidTripletNeighbors) {
+        for (size_t j{0}; bool const passedTripletConnect : cellCutVariables.tripletConnectionPassed()) {
+          // DCurv cut
+          h_dCurvCut_.fill(passedTripletConnect, cellCutVariables.dCurvCut(j));
+          // curvRatioCut
+          h_curvRatioCut_.fill(passedTripletConnect, cellCutVariables.curvRatioCut(j));
+
+          j++;
+        }
+      }
+
       i++;
     }
   }
@@ -568,8 +632,7 @@ void SimDoubletsAnalyzer<TrackerTraits>::fillCutHistograms(
 //  function that fills all histograms of SimDoublets (in folder SimDoublets)
 template <typename TrackerTraits>
 void SimDoubletsAnalyzer<TrackerTraits>::fillSimDoubletHistograms(SimDoublets::Doublet const& doublet,
-                                                                  double const true_eta,
-                                                                  double const true_pT) {
+                                                                  simdoublets::TrackTruth const& trackTruth) {
   // check if doublet passed all cuts
   bool passed = doublet.isAlive();
 
@@ -583,15 +646,14 @@ void SimDoubletsAnalyzer<TrackerTraits>::fillSimDoubletHistograms(SimDoublets::D
     return;
 
   // fill histograms for SimDoublet numbers
-  h_num_vs_pt_.fill(passed, true_pT);
-  h_num_vs_eta_.fill(passed, true_eta);
+  h_num_vs_pt_.fill(passed, trackTruth.pt);
+  h_num_vs_eta_.fill(passed, trackTruth.eta);
 }
 
 //  function that fills all histograms of SimNtuplets (in folder SimNtuplets)
 template <typename TrackerTraits>
 void SimDoubletsAnalyzer<TrackerTraits>::fillSimNtupletHistograms(SimDoublets const& simDoublets,
-                                                                  double const true_eta,
-                                                                  double const true_pT) {
+                                                                  simdoublets::TrackTruth const& trackTruth) {
   // get the longest SimNtuplet of the TrackingParticle (if it exists)
   auto const& longNtuplet = simDoublets.longestSimNtuplet();
 
@@ -617,50 +679,55 @@ void SimDoubletsAnalyzer<TrackerTraits>::fillSimNtupletHistograms(SimDoublets co
   if (inputIsRecoTracks_)
     return;
 
-  h_longNtuplet_firstLayerVsEta_.fill(isAlive, true_eta, longNtuplet.firstLayerId());
-  h_longNtuplet_lastLayerVsEta_.fill(isAlive, true_eta, longNtuplet.lastLayerId());
+  h_longNtuplet_firstLayerVsEta_.fill(isAlive, trackTruth.eta, longNtuplet.firstLayerId());
+  h_longNtuplet_lastLayerVsEta_.fill(isAlive, trackTruth.eta, longNtuplet.lastLayerId());
 
   // fill the respective histogram
   // 1. check if alive
   if (isAlive) {
-    h_longNtuplet_alive_eta_->Fill(true_eta);
-    h_longNtuplet_alive_pt_->Fill(true_pT);
+    h_longNtuplet_alive_eta_->Fill(trackTruth.eta);
+    h_longNtuplet_alive_pt_->Fill(trackTruth.pt);
   }
   // 2. if not alive, find out why (go in order of cut application)
   // A) the Ntuplet does not meet the minimum length requirement and will never be build
   else if (longNtuplet.isTooShort()) {
-    h_longNtuplet_tooShort_eta_->Fill(true_eta);
-    h_longNtuplet_tooShort_pt_->Fill(true_pT);
+    h_longNtuplet_tooShort_eta_->Fill(trackTruth.eta);
+    h_longNtuplet_tooShort_pt_->Fill(trackTruth.pt);
   }
   // B) a layer pair is missing, therefore no doublet is formed
   else if (longNtuplet.hasMissingLayerPair()) {
-    h_longNtuplet_missingLayerPair_eta_->Fill(true_eta);
-    h_longNtuplet_missingLayerPair_pt_->Fill(true_pT);
+    h_longNtuplet_missingLayerPair_eta_->Fill(trackTruth.eta);
+    h_longNtuplet_missingLayerPair_pt_->Fill(trackTruth.pt);
   }
   // C) a doublet got killed by doublet building cuts
   else if (longNtuplet.hasKilledDoublets()) {
-    h_longNtuplet_killedDoublets_eta_->Fill(true_eta);
-    h_longNtuplet_killedDoublets_pt_->Fill(true_pT);
+    h_longNtuplet_killedDoublets_eta_->Fill(trackTruth.eta);
+    h_longNtuplet_killedDoublets_pt_->Fill(trackTruth.pt);
   }
   // D) one of connections between the doublets got cut
-  else if (longNtuplet.hasKilledConnections()) {
-    h_longNtuplet_killedConnections_eta_->Fill(true_eta);
-    h_longNtuplet_killedConnections_pt_->Fill(true_pT);
+  else if (longNtuplet.hasKilledDoubletConnections()) {
+    h_longNtuplet_killedDoubletConnections_eta_->Fill(trackTruth.eta);
+    h_longNtuplet_killedDoubletConnections_pt_->Fill(trackTruth.pt);
   }
-  // E) the Ntuplet starts with a layer pair not considered for starting
+  // E) one of connections between the triplets got cut
+  else if (longNtuplet.hasKilledTripletConnections()) {
+    h_longNtuplet_killedTripletConnections_eta_->Fill(trackTruth.eta);
+    h_longNtuplet_killedTripletConnections_pt_->Fill(trackTruth.pt);
+  }
+  // F) the Ntuplet starts with a layer pair not considered for starting
   else if (longNtuplet.firstDoubletNotInStartingLayerPairs()) {
-    h_longNtuplet_notStartingPair_eta_->Fill(true_eta);
-    h_longNtuplet_notStartingPair_pt_->Fill(true_pT);
+    h_longNtuplet_notStartingPair_eta_->Fill(trackTruth.eta);
+    h_longNtuplet_notStartingPair_pt_->Fill(trackTruth.pt);
   }
-  // F) if we arrive here something's wrong
+  // G) if we arrive here something's wrong
   else if (longNtuplet.hasUndefDoubletCuts()) {
-    h_longNtuplet_undefDoubletCuts_eta_->Fill(true_eta);
-    h_longNtuplet_undefDoubletCuts_pt_->Fill(true_pT);
+    h_longNtuplet_undefDoubletCuts_eta_->Fill(trackTruth.eta);
+    h_longNtuplet_undefDoubletCuts_pt_->Fill(trackTruth.pt);
   }
-  // G) or even wronger...
+  // H) or even wronger...
   else if (longNtuplet.hasUndefDoubletConnectionCuts()) {
-    h_longNtuplet_undefConnectionCuts_eta_->Fill(true_eta);
-    h_longNtuplet_undefConnectionCuts_pt_->Fill(true_pT);
+    h_longNtuplet_undefConnectionCuts_eta_->Fill(trackTruth.eta);
+    h_longNtuplet_undefConnectionCuts_pt_->Fill(trackTruth.pt);
   }
 
   // -------------------------------------------------------------------------------------
@@ -675,67 +742,71 @@ void SimDoubletsAnalyzer<TrackerTraits>::fillSimNtupletHistograms(SimDoublets co
   h_bestNtuplet_lastLayerId_.fill(isAlive, bestNtuplet.lastLayerId());
   h_bestNtuplet_layerSpan_.fill(isAlive, bestNtuplet.firstLayerId(), bestNtuplet.lastLayerId());
   h_bestNtuplet_firstVsSecondLayer_.fill(isAlive, bestNtuplet.firstLayerId(), bestNtuplet.secondLayerId());
-  h_bestNtuplet_firstLayerVsEta_.fill(isAlive, true_eta, bestNtuplet.firstLayerId());
-  h_bestNtuplet_lastLayerVsEta_.fill(isAlive, true_eta, bestNtuplet.lastLayerId());
+  h_bestNtuplet_firstLayerVsEta_.fill(isAlive, trackTruth.eta, bestNtuplet.firstLayerId());
+  h_bestNtuplet_lastLayerVsEta_.fill(isAlive, trackTruth.eta, bestNtuplet.lastLayerId());
   h_bestNtuplet_numSkippedLayersVsNumLayers_.fill(isAlive, bestNtuplet.numRecHits(), bestNtuplet.numSkippedLayers());
 
   // fill the respective histogram
   // 1. check if alive
   if (isAlive) {
-    h_bestNtuplet_alive_eta_->Fill(true_eta);
-    h_bestNtuplet_alive_pt_->Fill(true_pT);
+    h_bestNtuplet_alive_eta_->Fill(trackTruth.eta);
+    h_bestNtuplet_alive_pt_->Fill(trackTruth.pt);
   }
   // 2. if not alive, find out why (go in order of cut application)
   // A) the Ntuplet does not meet the minimum length requirement and will never be build
   else if (bestNtuplet.isTooShort()) {
-    h_bestNtuplet_tooShort_eta_->Fill(true_eta);
-    h_bestNtuplet_tooShort_pt_->Fill(true_pT);
+    h_bestNtuplet_tooShort_eta_->Fill(trackTruth.eta);
+    h_bestNtuplet_tooShort_pt_->Fill(trackTruth.pt);
   }
   // B) a layer pair is missing, therefore no doublet is formed
   else if (bestNtuplet.hasMissingLayerPair()) {
-    h_bestNtuplet_missingLayerPair_eta_->Fill(true_eta);
-    h_bestNtuplet_missingLayerPair_pt_->Fill(true_pT);
+    h_bestNtuplet_missingLayerPair_eta_->Fill(trackTruth.eta);
+    h_bestNtuplet_missingLayerPair_pt_->Fill(trackTruth.pt);
   }
   // C) a doublet got killed by doublet building cuts
   else if (bestNtuplet.hasKilledDoublets()) {
-    h_bestNtuplet_killedDoublets_eta_->Fill(true_eta);
-    h_bestNtuplet_killedDoublets_pt_->Fill(true_pT);
+    h_bestNtuplet_killedDoublets_eta_->Fill(trackTruth.eta);
+    h_bestNtuplet_killedDoublets_pt_->Fill(trackTruth.pt);
   }
   // D) one of connections between the doublets got cut
-  else if (bestNtuplet.hasKilledConnections()) {
-    h_bestNtuplet_killedConnections_eta_->Fill(true_eta);
-    h_bestNtuplet_killedConnections_pt_->Fill(true_pT);
+  else if (bestNtuplet.hasKilledDoubletConnections()) {
+    h_bestNtuplet_killedDoubletConnections_eta_->Fill(trackTruth.eta);
+    h_bestNtuplet_killedDoubletConnections_pt_->Fill(trackTruth.pt);
   }
-  // E) the Ntuplet starts with a layer pair not considered for starting
+  // E) one of connections between the triplets got cut
+  else if (bestNtuplet.hasKilledTripletConnections()) {
+    h_bestNtuplet_killedTripletConnections_eta_->Fill(trackTruth.eta);
+    h_bestNtuplet_killedTripletConnections_pt_->Fill(trackTruth.pt);
+  }
+  // F) the Ntuplet starts with a layer pair not considered for starting
   else if (bestNtuplet.firstDoubletNotInStartingLayerPairs()) {
-    h_bestNtuplet_notStartingPair_eta_->Fill(true_eta);
-    h_bestNtuplet_notStartingPair_pt_->Fill(true_pT);
+    h_bestNtuplet_notStartingPair_eta_->Fill(trackTruth.eta);
+    h_bestNtuplet_notStartingPair_pt_->Fill(trackTruth.pt);
   }
-  // F) if we arrive here something's wrong
+  // G) if we arrive here something's wrong
   else if (bestNtuplet.hasUndefDoubletCuts()) {
-    h_bestNtuplet_undefDoubletCuts_eta_->Fill(true_eta);
-    h_bestNtuplet_undefDoubletCuts_pt_->Fill(true_pT);
+    h_bestNtuplet_undefDoubletCuts_eta_->Fill(trackTruth.eta);
+    h_bestNtuplet_undefDoubletCuts_pt_->Fill(trackTruth.pt);
   }
-  // G) or even wronger...
+  // H) or even wronger...
   else if (bestNtuplet.hasUndefDoubletConnectionCuts()) {
-    h_bestNtuplet_undefConnectionCuts_eta_->Fill(true_eta);
-    h_bestNtuplet_undefConnectionCuts_pt_->Fill(true_pT);
+    h_bestNtuplet_undefConnectionCuts_eta_->Fill(trackTruth.eta);
+    h_bestNtuplet_undefConnectionCuts_pt_->Fill(trackTruth.pt);
   }
   // -------------------------------------------------------------------------------------
   if (simDoublets.hasAliveSimNtuplet()) {
     auto const& aliveNtuplet = simDoublets.longestAliveSimNtuplet();
     // relative length of alive SimNtuplet vs longest SimNtuplet
     double relativeLength = (double)aliveNtuplet.numRecHits() / (double)longNtuplet.numRecHits();
-    h_aliveNtuplet_fracNumRecHits_eta_->Fill(true_eta, relativeLength);
-    h_aliveNtuplet_fracNumRecHits_pt_->Fill(true_pT, relativeLength);
+    h_aliveNtuplet_fracNumRecHits_eta_->Fill(trackTruth.eta, relativeLength);
+    h_aliveNtuplet_fracNumRecHits_pt_->Fill(trackTruth.pt, relativeLength);
   }
 }
 
 // function that fills all general histograms (in folder general)
 template <typename TrackerTraits>
 void SimDoubletsAnalyzer<TrackerTraits>::fillGeneralHistograms(SimDoublets const& simDoublets,
-                                                               double const true_eta,
-                                                               double const true_pT,
+                                                               simdoublets::TrackTruth const& trackTruth,
                                                                int const pass_numSimDoublets,
                                                                int const numSimDoublets,
                                                                int const numSkippedLayers) {
@@ -751,31 +822,16 @@ void SimDoubletsAnalyzer<TrackerTraits>::fillGeneralHistograms(SimDoublets const
     layerId++;
   }
 
-  double true_phi, true_dxy, true_dz;
   if (inputIsRecoTracks_) {
-    auto track = simDoublets.track();
-    true_phi = track->phi();
-    auto bs = simDoublets.beamSpotPosition();
-    reco::TrackBase::Point beamSpotPoint(bs.x(), bs.y(), bs.z());
-    true_dxy = track->dxy(beamSpotPoint);
-    true_dz = track->dz(beamSpotPoint);
-
-    h_numTOVsChi2_.fill(passed, track->normalizedChi2());
-    h_numRecHitsVsChi2_.fill(passed, track->normalizedChi2(), simDoublets.numRecHits());
+    auto nChi2 = simDoublets.track()->normalizedChi2();
+    h_numTOVsChi2_.fill(passed, nChi2);
+    h_numRecHitsVsChi2_.fill(passed, nChi2, simDoublets.numRecHits());
   } else {
-    auto trackingParticle = simDoublets.trackingParticle();
-    true_phi = trackingParticle->phi();
-    auto true_pdgId = trackingParticle->pdgId();
-    auto momentum = trackingParticle->momentum();
-    auto vertex = trackingParticle->vertex();
-    true_dxy = TrackingParticleIP::dxy(vertex, momentum, simDoublets.beamSpotPosition());
-    true_dz = TrackingParticleIP::dz(vertex, momentum, simDoublets.beamSpotPosition());
-
-    h_numTOVsPdgId_.fill(passed, true_pdgId);
+    h_numTOVsPdgId_.fill(passed, trackTruth.pdgId);
     // Fill the efficiency profile per Tracking Particle only if the TP has at least one SimDoublet
     if (numSimDoublets > 0) {
-      h_effSimDoubletsPerTOVsEta_->Fill(true_eta, (double)pass_numSimDoublets / (double)numSimDoublets);
-      h_effSimDoubletsPerTOVsPt_->Fill(true_pT, (double)pass_numSimDoublets / (double)numSimDoublets);
+      h_effSimDoubletsPerTOVsEta_->Fill(trackTruth.eta, (double)pass_numSimDoublets / (double)numSimDoublets);
+      h_effSimDoubletsPerTOVsPt_->Fill(trackTruth.pt, (double)pass_numSimDoublets / (double)numSimDoublets);
     }
   }
 
@@ -786,24 +842,24 @@ void SimDoubletsAnalyzer<TrackerTraits>::fillGeneralHistograms(SimDoublets const
   h_numSkippedLayersPerTrackingObject_.fill(passed, numSkippedLayers);
   h_numSkippedLayersVsNumLayers_.fill(passed, simDoublets.numLayers(), numSkippedLayers);
   h_numSkippedLayersVsNumRecHits_.fill(passed, simDoublets.numRecHits(), numSkippedLayers);
-  h_numRecHitsVsEta_.fill(passed, true_eta, simDoublets.numRecHits());
-  h_numLayersVsEta_.fill(passed, true_eta, simDoublets.numLayers());
-  h_numSkippedLayersVsEta_.fill(passed, true_eta, numSkippedLayers);
-  h_numRecHitsVsPt_.fill(passed, true_pT, simDoublets.numRecHits());
-  h_numLayersVsPt_.fill(passed, true_pT, simDoublets.numLayers());
-  h_numSkippedLayersVsPt_.fill(passed, true_pT, numSkippedLayers);
-  h_numLayersVsEtaPt_->Fill(true_eta, true_pT, simDoublets.numLayers());
+  h_numRecHitsVsEta_.fill(passed, trackTruth.eta, simDoublets.numRecHits());
+  h_numLayersVsEta_.fill(passed, trackTruth.eta, simDoublets.numLayers());
+  h_numSkippedLayersVsEta_.fill(passed, trackTruth.eta, numSkippedLayers);
+  h_numRecHitsVsPt_.fill(passed, trackTruth.pt, simDoublets.numRecHits());
+  h_numLayersVsPt_.fill(passed, trackTruth.pt, simDoublets.numLayers());
+  h_numSkippedLayersVsPt_.fill(passed, trackTruth.pt, numSkippedLayers);
+  h_numLayersVsEtaPt_->Fill(trackTruth.eta, trackTruth.pt, simDoublets.numLayers());
   // fill histograms for number of TrackingParticles
-  h_numTOVsPt_.fill(passed, true_pT);
-  h_numTOVsEta_.fill(passed, true_eta);
-  h_numTOVsPhi_.fill(passed, true_phi);
-  h_numTOVsDxy_.fill(passed, true_dxy);
-  h_numTOVsDz_.fill(passed, true_dz);
-  h_numRecHitsVsDxy_.fill(passed, true_dxy, simDoublets.numRecHits());
-  h_numRecHitsVsDz_.fill(passed, true_dz, simDoublets.numRecHits());
-  h_numTOVsEtaPhi_.fill(passed, true_eta, true_phi);
-  h_numTOVsEtaPt_.fill(passed, true_eta, true_pT);
-  h_numTOVsPhiPt_.fill(passed, true_phi, true_pT);
+  h_numTOVsPt_.fill(passed, trackTruth.pt);
+  h_numTOVsEta_.fill(passed, trackTruth.eta);
+  h_numTOVsPhi_.fill(passed, trackTruth.phi);
+  h_numTOVsDxy_.fill(passed, trackTruth.dxy);
+  h_numTOVsDz_.fill(passed, trackTruth.dz);
+  h_numRecHitsVsDxy_.fill(passed, trackTruth.dxy, simDoublets.numRecHits());
+  h_numRecHitsVsDz_.fill(passed, trackTruth.dz, simDoublets.numRecHits());
+  h_numTOVsEtaPhi_.fill(passed, trackTruth.eta, trackTruth.phi);
+  h_numTOVsEtaPt_.fill(passed, trackTruth.eta, trackTruth.pt);
+  h_numTOVsPhiPt_.fill(passed, trackTruth.phi, trackTruth.pt);
 }
 
 // function that trys to find a valid Ntuplet for the given SimDoublets object using the given geometry configuration
@@ -862,32 +918,42 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
   SimDoubletsCollection const& simDoubletsCollection = iEvent.get(simDoublets_getToken_);
 
   // initialize a bunch of variables that we will use in the coming for loops
-  double true_pT{0.}, true_eta{0.};
   int numSimDoublets, pass_numSimDoublets, layerPairId, layerPairIdIndex, numSkippedLayers;
-  bool hasValidNeighbors;
+  bool hasValidNeighbors, hasValidTripletNeighbors;
 
   // initialize the manager for keeping track of which cluster cuts are applied to the inidividual doublets
-  simdoublets::ClusterSizeCutManager clusterSizeCutManager;
+  simdoublets::ClusterSizeCutManager<TrackerTraits> clusterSizeCutManager;
   // initialize the structure holding the cut variables for an individual doublet
   simdoublets::CellCutVariables cellCutVariables;
+  // initialize the structure holding the true TrackingParticle/RecoTrack parameters
+  simdoublets::TrackTruth trackTruth{};
 
   // loop over SimDoublets (= loop over TrackingParticles/RecoTracks)
   for (auto const& simDoublets : simDoubletsCollection) {
     if (inputIsRecoTracks_) {
-      // get true quatities from the track
       auto track = simDoublets.track();
-      true_pT = track->pt();
-      true_eta = track->eta();
+      auto bs = simDoublets.beamSpotPosition();
+      reco::TrackBase::Point beamSpotPoint(bs.x(), bs.y(), bs.z());
+      trackTruth.dxy = track->dxy(beamSpotPoint);
+      trackTruth.dz = track->dz(beamSpotPoint);
+      trackTruth.phi = track->phi();
+      trackTruth.pt = track->pt();
+      trackTruth.eta = track->eta();
     } else {
-      // get true quantities of the TrackingParticle
       auto trackingParticle = simDoublets.trackingParticle();
-      true_pT = trackingParticle->pt();
-      true_eta = trackingParticle->eta();
+      auto momentum = trackingParticle->momentum();
+      auto vertex = trackingParticle->vertex();
+      trackTruth.dxy = TrackingParticleIP::dxy(vertex, momentum, simDoublets.beamSpotPosition());
+      trackTruth.dz = TrackingParticleIP::dz(vertex, momentum, simDoublets.beamSpotPosition());
+      trackTruth.phi = trackingParticle->phi();
+      trackTruth.pt = trackingParticle->pt();
+      trackTruth.eta = trackingParticle->eta();
+      trackTruth.pdgId = trackingParticle->pdgId();
 
       // check if a valid Ntuplet is possible for the given TP and geometry ignoring any cuts and fill hists
       bool reconstructable = configAllowsForValidNtuplet(simDoublets);
-      h_effConfigLimitVsEta_->Fill(true_eta, reconstructable);
-      h_effConfigLimitVsPt_->Fill(true_pT, reconstructable);
+      h_effConfigLimitVsEta_->Fill(trackTruth.eta, reconstructable);
+      h_effConfigLimitVsPt_->Fill(trackTruth.pt, reconstructable);
     }
 
     // create the true RecHit doublets of the TrackingParticle
@@ -911,20 +977,41 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
         // get the position of the layer pair in the vectors of histograms
         layerPairIdIndex = layerPairId2Index_.at(layerPairId);
 
+        // function to check if a doublet has inner neighbors from a considered layer pair
+        auto checkValidNeighbors = [&](SimDoublets::Doublet const& d) {
+          return (d.numInnerNeighbors() > 0 &&
+                  !(simDoublets.getSimDoublet(d.innerNeighborIndex(0)).isKilledByMissingLayerPair()));
+        };
+
         // check if the SimDoublet's inner neighbors also are from a considered layer pair
-        hasValidNeighbors = (doublet.numInnerNeighbors() > 0 &&
-                             !(simDoublets.getSimDoublet(doublet.innerNeighborIndex(0)).isKilledByMissingLayerPair()));
+        hasValidNeighbors = checkValidNeighbors(doublet);
+
+        // check if the inner neighbors' neighbors also are from a considered layer pair
+        hasValidTripletNeighbors =
+            hasValidNeighbors && checkValidNeighbors(simDoublets.getSimDoublet(doublet.innerNeighborIndex(0)));
 
         // determine which cluster size cuts the doublet is subject to
         clusterSizeCutManager.setSubjectsToCuts(doublet);
 
         // apply the cuts for doublet building according to the set cut values
-        applyCuts(doublet, hasValidNeighbors, layerPairIdIndex, cellCutVariables, clusterSizeCutManager);
+        applyCuts(doublet,
+                  simDoublets,
+                  hasValidNeighbors,
+                  hasValidTripletNeighbors,
+                  layerPairIdIndex,
+                  cellCutVariables,
+                  clusterSizeCutManager);
 
         // -------------------------------------------------------------------------
         //  cut histograms for SimDoublets (CAParameters folder)
         // -------------------------------------------------------------------------
-        fillCutHistograms(doublet, hasValidNeighbors, layerPairIdIndex, cellCutVariables, clusterSizeCutManager);
+        fillCutHistograms(doublet,
+                          hasValidNeighbors,
+                          hasValidTripletNeighbors,
+                          layerPairIdIndex,
+                          cellCutVariables,
+                          clusterSizeCutManager,
+                          trackTruth);
 
       } else {
         // if not considered set the doublet as killed
@@ -934,7 +1021,7 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
       // ---------------------------------------------------------------------------
       //  general plots related to SimDoublets (SimDoublets folder)
       // ---------------------------------------------------------------------------
-      fillSimDoubletHistograms(doublet, true_eta, true_pT);
+      fillSimDoubletHistograms(doublet, trackTruth);
 
       // if the doublet passes all cuts, increment number of SimDoublets passing all cuts
       if (doublet.isAlive())
@@ -953,13 +1040,13 @@ void SimDoubletsAnalyzer<TrackerTraits>::analyze(const edm::Event& iEvent, const
     if (simDoublets.hasSimNtuplet()) {
       // get number of skipped layers from longest SimNtuplet and fill histos
       numSkippedLayers = simDoublets.longestSimNtuplet().numSkippedLayers();
-      fillSimNtupletHistograms(simDoublets, true_eta, true_pT);
+      fillSimNtupletHistograms(simDoublets, trackTruth);
     }
 
     // -----------------------------------------------------------------------------
     //  general plots related to TrackingParticles (general folder)
     // -----------------------------------------------------------------------------
-    fillGeneralHistograms(simDoublets, true_eta, true_pT, pass_numSimDoublets, numSimDoublets, numSkippedLayers);
+    fillGeneralHistograms(simDoublets, trackTruth, pass_numSimDoublets, numSimDoublets, numSkippedLayers);
 
     // clear SimDoublets and SimNtuplets of the TrackingParticle
     simDoublets.clearMutables();
@@ -1544,6 +1631,26 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                         0,
                         0.04);
 
+  // histogram for dCurvCut (x-y alignement of triplet connections)
+  h_dCurvCut_.book1D(ibook,
+                     "dCurvCut",
+                     "Curvature difference of a pair of neighboring triplets",
+                     "Absolute curvature difference [1/cm]",
+                     "Number of triplet connections",
+                     50,
+                     0,
+                     0.02);
+
+  // histogram for curvRatioCut (x-y alignement of triplet connections)
+  h_curvRatioCut_.book1D(ibook,
+                         "curvRatioCut",
+                         "Curvature ratio of a pair of neighboring triplets",
+                         "Ratio of curvatures",
+                         "Number of triplet connections",
+                         200,
+                         -3,
+                         3);
+
   // loop through layer ids
   for (auto id{0}; id < numLayers_; ++id) {
     // layer as string
@@ -1736,7 +1843,7 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
     h_bestNtuplet_undefConnectionCuts_pt_ =
         simdoublets::make1DLogX(ibook,
                                 "num_pt_undefConnectionCuts",
-                                "Most alive SimNtuplet per TrackingParticle (with undef connection cuts);True "
+                                "Most alive SimNtuplet per TrackingParticle (with undef doublet connection cuts);True "
                                 "transverse momentum p_{T} [GeV];Number of TrackingParticles",
                                 pTNBins,
                                 pTmin,
@@ -1760,10 +1867,19 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                                 pTmin,
                                 pTmax);
 
-    h_bestNtuplet_killedConnections_pt_ =
+    h_bestNtuplet_killedDoubletConnections_pt_ =
         simdoublets::make1DLogX(ibook,
-                                "num_pt_killedConnections",
-                                "Most alive SimNtuplet per TrackingParticle (killed by connection cuts);True "
+                                "num_pt_killedDoubletConnections",
+                                "Most alive SimNtuplet per TrackingParticle (killed by doublet connection cuts);True "
+                                "transverse momentum p_{T} [GeV];Number of TrackingParticles",
+                                pTNBins,
+                                pTmin,
+                                pTmax);
+
+    h_bestNtuplet_killedTripletConnections_pt_ =
+        simdoublets::make1DLogX(ibook,
+                                "num_pt_killedTripletConnections",
+                                "Most alive SimNtuplet per TrackingParticle (killed by triplet connection cuts);True "
                                 "transverse momentum p_{T} [GeV];Number of TrackingParticles",
                                 pTNBins,
                                 pTmin,
@@ -1802,13 +1918,13 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                                                        etamin,
                                                        etamax);
 
-    h_bestNtuplet_undefConnectionCuts_eta_ =
-        ibook.book1D("num_eta_undefConnectionCuts",
-                     "Most alive SimNtuplet per TrackingParticle (with undef connection cuts);True pseudorapidity "
-                     "#eta;Number of TrackingParticles",
-                     etaNBins,
-                     etamin,
-                     etamax);
+    h_bestNtuplet_undefConnectionCuts_eta_ = ibook.book1D(
+        "num_eta_undefConnectionCuts",
+        "Most alive SimNtuplet per TrackingParticle (with undef doublet connection cuts);True pseudorapidity "
+        "#eta;Number of TrackingParticles",
+        etaNBins,
+        etamin,
+        etamax);
 
     h_bestNtuplet_missingLayerPair_eta_ = ibook.book1D("num_eta_missingLayerPair",
                                                        "Most alive SimNtuplet per TrackingParticle (with missing layer "
@@ -1824,9 +1940,17 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                                                      etamin,
                                                      etamax);
 
-    h_bestNtuplet_killedConnections_eta_ =
-        ibook.book1D("num_eta_killedConnections",
-                     "Most alive SimNtuplet per TrackingParticle (killed by connection "
+    h_bestNtuplet_killedDoubletConnections_eta_ =
+        ibook.book1D("num_eta_killedDoubletConnections",
+                     "Most alive SimNtuplet per TrackingParticle (killed by doublet connection "
+                     "cuts);True pseudorapidity #eta;Number of TrackingParticles",
+                     etaNBins,
+                     etamin,
+                     etamax);
+
+    h_bestNtuplet_killedTripletConnections_eta_ =
+        ibook.book1D("num_eta_killedTripletConnections",
+                     "Most alive SimNtuplet per TrackingParticle (killed by triplet connection "
                      "cuts);True pseudorapidity #eta;Number of TrackingParticles",
                      etaNBins,
                      etamin,
@@ -1983,10 +2107,19 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                                 pTmin,
                                 pTmax);
 
-    h_longNtuplet_killedConnections_pt_ =
+    h_longNtuplet_killedDoubletConnections_pt_ =
         simdoublets::make1DLogX(ibook,
-                                "num_pt_killedConnections",
-                                "Longest SimNtuplets per TrackingParticle (killed by connection cuts);True "
+                                "num_pt_killedDoubletConnections",
+                                "Longest SimNtuplets per TrackingParticle (killed by doublet connection cuts);True "
+                                "transverse momentum p_{T} [GeV];Number of TrackingParticles",
+                                pTNBins,
+                                pTmin,
+                                pTmax);
+
+    h_longNtuplet_killedTripletConnections_pt_ =
+        simdoublets::make1DLogX(ibook,
+                                "num_pt_killedTripletConnections",
+                                "Longest SimNtuplets per TrackingParticle (killed by triplet connection cuts);True "
                                 "transverse momentum p_{T} [GeV];Number of TrackingParticles",
                                 pTNBins,
                                 pTmin,
@@ -2047,9 +2180,17 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                                                      etamin,
                                                      etamax);
 
-    h_longNtuplet_killedConnections_eta_ =
-        ibook.book1D("num_eta_killedConnections",
-                     "Longest SimNtuplets per TrackingParticle (killed by connection "
+    h_longNtuplet_killedDoubletConnections_eta_ =
+        ibook.book1D("num_eta_killedDoubletConnections",
+                     "Longest SimNtuplets per TrackingParticle (killed by doublet connection "
+                     "cuts);True pseudorapidity #eta;Number of TrackingParticles",
+                     etaNBins,
+                     etamin,
+                     etamax);
+
+    h_longNtuplet_killedTripletConnections_eta_ =
+        ibook.book1D("num_eta_killedTripletConnections",
+                     "Longest SimNtuplets per TrackingParticle (killed by triplet connection "
                      "cuts);True pseudorapidity #eta;Number of TrackingParticles",
                      etaNBins,
                      etamin,

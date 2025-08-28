@@ -55,9 +55,20 @@
 
 namespace simdoublets {
   struct CellCutVariables;
+  template <typename TrackerTraits>
   struct ClusterSizeCutManager;
   void BinLogX(TH1*);
   void BinLogY(TH1*);
+
+  // struct keeping all the true parameters of the TrackingParticle / RecoTrack
+  struct TrackTruth {
+    double eta;
+    double pt;
+    double phi;
+    double dz;
+    double dxy;
+    int pdgId{0};
+  };
 }  // namespace simdoublets
 
 // -------------------------------------------------------------------------------------------------------------
@@ -119,7 +130,7 @@ public:
   class CoupledMonitorElement {
   public:
     CoupledMonitorElement() {}
-    ~CoupledMonitorElement() {}
+    virtual ~CoupledMonitorElement() = default;
 
     template <typename... Args>
     void fill(const bool pass, Args... args) {
@@ -138,6 +149,7 @@ public:
       const std::string& xylabels = "; " + xlabel + "; " + ylabel;
       h_pass_ = ibooker.book1D("pass_" + name, title + " (pass)" + xylabels, args...);
       h_total_ = ibooker.book1D(name, title + " (all)" + xylabels, args...);
+      bookExtraCutHistos(ibooker, name, xlabel);
     }
 
     template <typename... Args>
@@ -150,6 +162,7 @@ public:
       const std::string& xylabels = "; " + xlabel + "; " + ylabel;
       h_pass_ = ibooker.book2D("pass_" + name, title + " (pass)" + xylabels, args...);
       h_total_ = ibooker.book2D(name, title + " (all)" + xylabels, args...);
+      bookExtraCutHistos(ibooker, name, xlabel);
     }
 
     template <typename... Args>
@@ -168,6 +181,7 @@ public:
       simdoublets::BinLogX(ht.get());
       h_pass_ = ibooker.book1D("pass_" + name, hp.release());
       h_total_ = ibooker.book1D(name, ht.release());
+      bookExtraCutHistos(ibooker, name, xlabel);
     }
 
     template <typename... Args>
@@ -186,6 +200,7 @@ public:
       simdoublets::BinLogX(ht.get());
       h_pass_ = ibooker.book2D("pass_" + name, hp.release());
       h_total_ = ibooker.book2D(name, ht.release());
+      bookExtraCutHistos(ibooker, name, xlabel);
     }
 
     template <typename... Args>
@@ -204,11 +219,52 @@ public:
       simdoublets::BinLogY(ht.get());
       h_pass_ = ibooker.book2D("pass_" + name, hp.release());
       h_total_ = ibooker.book2D(name, ht.release());
+      bookExtraCutHistos(ibooker, name, xlabel);
+    }
+
+  protected:
+    virtual void bookExtraCutHistos(DQMStore::IBooker& ibooker, const std::string& name, const std::string& title) {}
+    MonitorElement* h_pass_ = nullptr;
+    MonitorElement* h_total_ = nullptr;
+  };
+
+  // special class version for histograms of cut variables
+  class CoupledCutMonitorElement : public CoupledMonitorElement {
+  public:
+    CoupledCutMonitorElement() {}
+    ~CoupledCutMonitorElement() = default;
+
+    template <typename... Args>
+    void fillCut(const bool pass, simdoublets::TrackTruth const& trackTruth, Args... args) {
+      if (pass)
+        this->h_pass_->Fill(args...);
+      this->h_total_->Fill(args...);
+      h_z_eta_->Fill(trackTruth.dz, trackTruth.eta, args...);
     }
 
   private:
-    MonitorElement* h_pass_ = nullptr;
-    MonitorElement* h_total_ = nullptr;
+    void bookExtraCutHistos(DQMStore::IBooker& ibooker, const std::string& name, const std::string& title) override {
+      int etaNBins = 90;
+      double etamin = -4.5;
+      double etamax = 4.5;
+      int zNBins = 80;
+      double zmin = -20.;
+      double zmax = 20.;
+      h_z_eta_ = ibooker.bookProfile2D(name + "_zEta",
+                                       title + "; Vertex z coordinate [cm]; Pseudorapidity #eta",
+                                       zNBins,
+                                       zmin,
+                                       zmax,
+                                       etaNBins,
+                                       etamin,
+                                       etamax,
+                                       -1.0e5,
+                                       1.0e5,
+                                       " ");
+    }
+
+    // additional histograms for cuts
+    MonitorElement* h_z_eta_ = nullptr;
   };
 
 private:
@@ -218,26 +274,30 @@ private:
 
   // function to apply cuts and set doublet to alive if it passes and to killed otherwise
   void applyCuts(SimDoublets::Doublet&,
+                 SimDoublets const&,
+                 bool const,
                  bool const,
                  int const,
                  simdoublets::CellCutVariables const&,
-                 simdoublets::ClusterSizeCutManager const&) const;
+                 simdoublets::ClusterSizeCutManager<TrackerTraits> const&) const;
 
   // function that fills all histograms for cut variables (in folder CAParameters)
   void fillCutHistograms(SimDoublets::Doublet const&,
                          bool const,
+                         bool const,
                          int const,
                          simdoublets::CellCutVariables const&,
-                         simdoublets::ClusterSizeCutManager const&);
+                         simdoublets::ClusterSizeCutManager<TrackerTraits> const&,
+                         simdoublets::TrackTruth const&);
 
   // function that fills all histograms of SimDoublets (in folder SimDoublets)
-  void fillSimDoubletHistograms(SimDoublets::Doublet const&, double const, double const);
+  void fillSimDoubletHistograms(SimDoublets::Doublet const&, simdoublets::TrackTruth const&);
 
   // function that fills all histograms of SimNtuplets (in folder SimNtuplets)
-  void fillSimNtupletHistograms(SimDoublets const&, double const, double const);
+  void fillSimNtupletHistograms(SimDoublets const&, simdoublets::TrackTruth const&);
 
   // function that fills all general histograms (in folder general)
-  void fillGeneralHistograms(SimDoublets const&, double const, double const, int const, int const, int const);
+  void fillGeneralHistograms(SimDoublets const&, simdoublets::TrackTruth const&, int const, int const, int const);
 
   // function that trys to find a valid Ntuplet for the given SimDoublets object using the given geometry configuration
   // (layer pairs, starting pairs, minimum number of hits) ignoring all cuts on doublets/connections and returns if it was able to find one
@@ -276,7 +336,7 @@ private:
 
   std::string folder_;  // main folder in the DQM file
   // inputIsRecoTracks_: - set to false if SimPixelTracks were produced based on TrackingParticles (truth information)
-  //                      - set to true if they were produced based on reconstructed tracks
+  //                     - set to true if they were produced based on reconstructed tracks
   bool inputIsRecoTracks_;
 
   // monitor elements
@@ -315,32 +375,34 @@ private:
   CoupledMonitorElement h_numTOVsPdgId_;
   CoupledMonitorElement h_numRecHitsPerLayer_;
   // histograms of SimDoublets
-  CoupledMonitorElement h_layerPairs_;
-  CoupledMonitorElement h_numSkippedLayers_;
-  CoupledMonitorElement h_num_vs_pt_;
-  CoupledMonitorElement h_num_vs_eta_;
-  CoupledMonitorElement h_z0_;
-  CoupledMonitorElement h_curvatureR_;
-  CoupledMonitorElement h_pTFromR_;
-  CoupledMonitorElement h_YsizeB1_;
-  CoupledMonitorElement h_YsizeB2_;
-  CoupledMonitorElement h_DYsize12_;
-  CoupledMonitorElement h_DYsize_;
-  CoupledMonitorElement h_DYPred_;
+  CoupledCutMonitorElement h_layerPairs_;
+  CoupledCutMonitorElement h_numSkippedLayers_;
+  CoupledCutMonitorElement h_num_vs_pt_;
+  CoupledCutMonitorElement h_num_vs_eta_;
+  CoupledCutMonitorElement h_z0_;
+  CoupledCutMonitorElement h_curvatureR_;
+  CoupledCutMonitorElement h_pTFromR_;
+  CoupledCutMonitorElement h_YsizeB1_;
+  CoupledCutMonitorElement h_YsizeB2_;
+  CoupledCutMonitorElement h_DYsize12_;
+  CoupledCutMonitorElement h_DYsize_;
+  CoupledCutMonitorElement h_DYPred_;
   // vectors of histograms (one hist per layer pair)
-  std::vector<CoupledMonitorElement> hVector_dz_;
-  std::vector<CoupledMonitorElement> hVector_dr_;
-  std::vector<CoupledMonitorElement> hVector_dphi_;
-  std::vector<CoupledMonitorElement> hVector_idphi_;
-  std::vector<CoupledMonitorElement> hVector_innerZ_;
-  std::vector<CoupledMonitorElement> hVector_innerR_;
-  std::vector<CoupledMonitorElement> hVector_outerZ_;
-  std::vector<CoupledMonitorElement> hVector_outerR_;
-  std::vector<CoupledMonitorElement> hVector_Ysize_;
-  std::vector<CoupledMonitorElement> hVector_DYsize_;
-  std::vector<CoupledMonitorElement> hVector_DYPred_;
+  std::vector<CoupledCutMonitorElement> hVector_dz_;
+  std::vector<CoupledCutMonitorElement> hVector_dr_;
+  std::vector<CoupledCutMonitorElement> hVector_dphi_;
+  std::vector<CoupledCutMonitorElement> hVector_idphi_;
+  std::vector<CoupledCutMonitorElement> hVector_innerZ_;
+  std::vector<CoupledCutMonitorElement> hVector_innerR_;
+  std::vector<CoupledCutMonitorElement> hVector_outerZ_;
+  std::vector<CoupledCutMonitorElement> hVector_outerR_;
+  std::vector<CoupledCutMonitorElement> hVector_Ysize_;
+  std::vector<CoupledCutMonitorElement> hVector_DYsize_;
+  std::vector<CoupledCutMonitorElement> hVector_DYPred_;
   // histograms of doublet connections
   CoupledMonitorElement h_hardCurvCut_;
+  CoupledMonitorElement h_dCurvCut_;
+  CoupledMonitorElement h_curvRatioCut_;
   // vectors of historgrams (one per layer)
   std::vector<CoupledMonitorElement> hVector_caThetaCut_;
   std::vector<CoupledMonitorElement> hVector_caDCACut_;
@@ -371,7 +433,8 @@ private:
   MonitorElement* h_bestNtuplet_undefConnectionCuts_eta_;
   MonitorElement* h_bestNtuplet_missingLayerPair_eta_;
   MonitorElement* h_bestNtuplet_killedDoublets_eta_;
-  MonitorElement* h_bestNtuplet_killedConnections_eta_;
+  MonitorElement* h_bestNtuplet_killedDoubletConnections_eta_;
+  MonitorElement* h_bestNtuplet_killedTripletConnections_eta_;
   MonitorElement* h_bestNtuplet_tooShort_eta_;
   MonitorElement* h_bestNtuplet_notStartingPair_eta_;
   MonitorElement* h_bestNtuplet_alive_pt_;
@@ -379,7 +442,8 @@ private:
   MonitorElement* h_bestNtuplet_undefConnectionCuts_pt_;
   MonitorElement* h_bestNtuplet_missingLayerPair_pt_;
   MonitorElement* h_bestNtuplet_killedDoublets_pt_;
-  MonitorElement* h_bestNtuplet_killedConnections_pt_;
+  MonitorElement* h_bestNtuplet_killedDoubletConnections_pt_;
+  MonitorElement* h_bestNtuplet_killedTripletConnections_pt_;
   MonitorElement* h_bestNtuplet_tooShort_pt_;
   MonitorElement* h_bestNtuplet_notStartingPair_pt_;
   // status of the longest SimNtuplet per TP
@@ -388,7 +452,8 @@ private:
   MonitorElement* h_longNtuplet_undefConnectionCuts_eta_;
   MonitorElement* h_longNtuplet_missingLayerPair_eta_;
   MonitorElement* h_longNtuplet_killedDoublets_eta_;
-  MonitorElement* h_longNtuplet_killedConnections_eta_;
+  MonitorElement* h_longNtuplet_killedDoubletConnections_eta_;
+  MonitorElement* h_longNtuplet_killedTripletConnections_eta_;
   MonitorElement* h_longNtuplet_tooShort_eta_;
   MonitorElement* h_longNtuplet_notStartingPair_eta_;
   MonitorElement* h_longNtuplet_alive_pt_;
@@ -396,7 +461,8 @@ private:
   MonitorElement* h_longNtuplet_undefConnectionCuts_pt_;
   MonitorElement* h_longNtuplet_missingLayerPair_pt_;
   MonitorElement* h_longNtuplet_killedDoublets_pt_;
-  MonitorElement* h_longNtuplet_killedConnections_pt_;
+  MonitorElement* h_longNtuplet_killedDoubletConnections_pt_;
+  MonitorElement* h_longNtuplet_killedTripletConnections_pt_;
   MonitorElement* h_longNtuplet_tooShort_pt_;
   MonitorElement* h_longNtuplet_notStartingPair_pt_;
 };
