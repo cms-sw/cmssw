@@ -90,36 +90,32 @@ public:
     CAGeometryParams(edm::ParameterSet const& iConfig, double const ptmin)
         : caDCACuts_(iConfig.getParameter<std::vector<double>>("caDCACuts")),
           phiCuts_(iConfig.getParameter<std::vector<int>>("phiCuts")),
-          minInnerZ_(iConfig.getParameter<std::vector<double>>("minInnerZ")),
-          maxInnerZ_(iConfig.getParameter<std::vector<double>>("maxInnerZ")),
-          minOuterZ_(iConfig.getParameter<std::vector<double>>("minOuterZ")),
-          maxOuterZ_(iConfig.getParameter<std::vector<double>>("maxOuterZ")),
-          minInnerR_(iConfig.getParameter<std::vector<double>>("minInnerR")),
-          maxInnerR_(iConfig.getParameter<std::vector<double>>("maxInnerR")),
-          minOuterR_(iConfig.getParameter<std::vector<double>>("minOuterR")),
-          maxOuterR_(iConfig.getParameter<std::vector<double>>("maxOuterR")),
+          minInner_(iConfig.getParameter<std::vector<double>>("minInner")),
+          maxInner_(iConfig.getParameter<std::vector<double>>("maxInner")),
+          minOuter_(iConfig.getParameter<std::vector<double>>("minOuter")),
+          maxOuter_(iConfig.getParameter<std::vector<double>>("maxOuter")),
           maxDZ_(iConfig.getParameter<std::vector<double>>("maxDZ")),
           minDZ_(iConfig.getParameter<std::vector<double>>("minDZ")),
           maxDR_(iConfig.getParameter<std::vector<double>>("maxDR")) {
       for (double const caThetaCut : iConfig.getParameter<std::vector<double>>("caThetaCuts")) {
         caThetaCuts_over_ptmin_.push_back(caThetaCut / ptmin);
       }
+      for (double const isBar : iConfig.getParameter<std::vector<int>>("isBarrel")) {
+        isBarrel_.push_back((bool)isBar);
+      }
     }
 
     // Layers params
+    std::vector<bool> isBarrel_;
     std::vector<double> caThetaCuts_over_ptmin_;
     const std::vector<double> caDCACuts_;
 
     // Cells params
     const std::vector<int> phiCuts_;
-    const std::vector<double> minInnerZ_;
-    const std::vector<double> maxInnerZ_;
-    const std::vector<double> minOuterZ_;
-    const std::vector<double> maxOuterZ_;
-    const std::vector<double> minInnerR_;
-    const std::vector<double> maxInnerR_;
-    const std::vector<double> minOuterR_;
-    const std::vector<double> maxOuterR_;
+    const std::vector<double> minInner_;
+    const std::vector<double> maxInner_;
+    const std::vector<double> minOuter_;
+    const std::vector<double> maxOuter_;
     const std::vector<double> maxDZ_;
     const std::vector<double> minDZ_;
     const std::vector<double> maxDR_;
@@ -242,6 +238,8 @@ public:
       h_z_eta_->Fill(trackTruth.dz, trackTruth.eta, args...);
     }
 
+    void fillPassThisCut(const bool passThisCut) { h_passThisCut_->Fill(0.5, passThisCut); }
+
   private:
     void bookExtraCutHistos(DQMStore::IBooker& ibooker, const std::string& name, const std::string& title) override {
       int etaNBins = 90;
@@ -261,10 +259,13 @@ public:
                                        -1.0e5,
                                        1.0e5,
                                        " ");
+      h_passThisCut_ = ibooker.bookProfile(
+          name + "_passThisCut", title + ";;Fraction of Doublets passing this cut", 1, 0, 1, 0.0, 1.0, " ");
     }
 
     // additional histograms for cuts
     MonitorElement* h_z_eta_ = nullptr;
+    MonitorElement* h_passThisCut_ = nullptr;
   };
 
 private:
@@ -392,10 +393,8 @@ private:
   std::vector<CoupledCutMonitorElement> hVector_dr_;
   std::vector<CoupledCutMonitorElement> hVector_dphi_;
   std::vector<CoupledCutMonitorElement> hVector_idphi_;
-  std::vector<CoupledCutMonitorElement> hVector_innerZ_;
-  std::vector<CoupledCutMonitorElement> hVector_innerR_;
-  std::vector<CoupledCutMonitorElement> hVector_outerZ_;
-  std::vector<CoupledCutMonitorElement> hVector_outerR_;
+  std::vector<CoupledCutMonitorElement> hVector_inner_;
+  std::vector<CoupledCutMonitorElement> hVector_outer_;
   std::vector<CoupledCutMonitorElement> hVector_Ysize_;
   std::vector<CoupledCutMonitorElement> hVector_DYsize_;
   std::vector<CoupledCutMonitorElement> hVector_DYPred_;

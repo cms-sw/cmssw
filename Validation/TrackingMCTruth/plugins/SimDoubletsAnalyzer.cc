@@ -402,10 +402,8 @@ SimDoubletsAnalyzer<TrackerTraits>::SimDoubletsAnalyzer(const edm::ParameterSet&
   hVector_dr_.resize(numLayerPairs);
   hVector_dphi_.resize(numLayerPairs);
   hVector_idphi_.resize(numLayerPairs);
-  hVector_innerR_.resize(numLayerPairs);
-  hVector_innerZ_.resize(numLayerPairs);
-  hVector_outerR_.resize(numLayerPairs);
-  hVector_outerZ_.resize(numLayerPairs);
+  hVector_inner_.resize(numLayerPairs);
+  hVector_outer_.resize(numLayerPairs);
   hVector_Ysize_.resize(numLayerPairs);
   hVector_DYsize_.resize(numLayerPairs);
   hVector_DYPred_.resize(numLayerPairs);
@@ -441,18 +439,14 @@ void SimDoubletsAnalyzer<TrackerTraits>::applyCuts(
   //  apply cuts for doublet creation
   // -------------------------------------------------------------------------
 
-  if (/* inner r window cut */
-      (cellCutVariables.inner_r() < cellCuts_.minInnerR_[layerPairIdIndex] ||
-       cellCutVariables.inner_r() > cellCuts_.maxInnerR_[layerPairIdIndex]) ||
-      /* outer r window cut */
-      (cellCutVariables.outer_r() < cellCuts_.minOuterR_[layerPairIdIndex] ||
-       cellCutVariables.outer_r() > cellCuts_.maxOuterR_[layerPairIdIndex]) ||
-      /* inner z window cut */
-      (cellCutVariables.inner_z() < cellCuts_.minInnerZ_[layerPairIdIndex] ||
-       cellCutVariables.inner_z() > cellCuts_.maxInnerZ_[layerPairIdIndex]) ||
-      /* outer z window cut */
-      (cellCutVariables.outer_z() < cellCuts_.minOuterZ_[layerPairIdIndex] ||
-       cellCutVariables.outer_z() > cellCuts_.maxOuterZ_[layerPairIdIndex]) ||
+  double inner = cellCuts_.isBarrel_[doublet.innerLayerId()] ? cellCutVariables.inner_z() : cellCutVariables.inner_r();
+  double outer = cellCuts_.isBarrel_[doublet.outerLayerId()] ? cellCutVariables.outer_z() : cellCutVariables.outer_r();
+
+  if (
+      /* inner r/z window cut */
+      (inner < cellCuts_.minInner_[layerPairIdIndex] || inner > cellCuts_.maxInner_[layerPairIdIndex]) ||
+      /* outer r/z window cut */
+      (outer < cellCuts_.minOuter_[layerPairIdIndex] || outer > cellCuts_.maxOuter_[layerPairIdIndex]) ||
       /* dz window */
       cellCutVariables.dz() > cellCuts_.maxDZ_[layerPairIdIndex] ||
       cellCutVariables.dz() < cellCuts_.minDZ_[layerPairIdIndex] ||
@@ -554,13 +548,13 @@ void SimDoubletsAnalyzer<TrackerTraits>::fillCutHistograms(
   // dphi histogram
   hVector_dphi_[layerPairIdIndex].fillCut(passed, trackTruth, cellCutVariables.dphi());
   hVector_idphi_[layerPairIdIndex].fillCut(passed, trackTruth, cellCutVariables.idphi());
-  // z of the inner RecHit histogram
-  hVector_innerZ_[layerPairIdIndex].fillCut(passed, trackTruth, cellCutVariables.inner_z());
-  // potential cuts for inner r and dz
-  hVector_innerR_[layerPairIdIndex].fillCut(passed, trackTruth, cellCutVariables.inner_r());
+  // r/z of the inner and outer RecHit histograms
+  double inner = cellCuts_.isBarrel_[doublet.innerLayerId()] ? cellCutVariables.inner_z() : cellCutVariables.inner_r();
+  double outer = cellCuts_.isBarrel_[doublet.outerLayerId()] ? cellCutVariables.outer_z() : cellCutVariables.outer_r();
+  hVector_inner_[layerPairIdIndex].fillCut(passed, trackTruth, inner);
+  hVector_outer_[layerPairIdIndex].fillCut(passed, trackTruth, outer);
+  // potential cuts for dz
   hVector_dz_[layerPairIdIndex].fillCut(passed, trackTruth, cellCutVariables.dz());
-  hVector_outerZ_[layerPairIdIndex].fillCut(passed, trackTruth, cellCutVariables.outer_z());
-  hVector_outerR_[layerPairIdIndex].fillCut(passed, trackTruth, cellCutVariables.outer_r());
 
   // -------------------------------------------------------------------------
   //  cluster size cuts (global + sub-folders for layer pairs)
@@ -1541,49 +1535,52 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                 0,
                 2000);
 
-    // histogram for potential innerR cut
-    hVector_innerR_.at(layerPairIdIndex)
-        .book1D(ibook,
-                "innerR",
-                "r of the inner RecHit " + layerTitle,
-                "r of inner RecHit [cm]",
-                "Number of " + doublet + "s",
-                600,
-                0,
-                60);
+    // histogram for inner (r/z) cuts
+    if (cellCuts_.isBarrel_[std::stoi(innerLayerName)]) {
+      hVector_inner_.at(layerPairIdIndex)
+          .book1D(ibook,
+                  "inner",
+                  "z of the inner RecHit " + layerTitle,
+                  "z of inner RecHit [cm]",
+                  "Number of " + doublet + "s",
+                  600,
+                  -300,
+                  300);
+    } else {
+      hVector_inner_.at(layerPairIdIndex)
+          .book1D(ibook,
+                  "inner",
+                  "r of the inner RecHit " + layerTitle,
+                  "r of inner RecHit [cm]",
+                  "Number of " + doublet + "s",
+                  600,
+                  0,
+                  60);
+    }
 
-    // histogram for z window  (minz and maxz)
-    hVector_innerZ_.at(layerPairIdIndex)
-        .book1D(ibook,
-                "innerZ",
-                "z of the inner RecHit " + layerTitle,
-                "z of inner RecHit [cm]",
-                "Number of " + doublet + "s",
-                600,
-                -300,
-                300);
-
-    // histogram for potential outerR cut
-    hVector_outerR_.at(layerPairIdIndex)
-        .book1D(ibook,
-                "outerR",
-                "r of the outer RecHit " + layerTitle,
-                "r of outer RecHit [cm]",
-                "Number of " + doublet + "s",
-                600,
-                0,
-                60);
-
-    // histogram for potential outerZ cut
-    hVector_outerZ_.at(layerPairIdIndex)
-        .book1D(ibook,
-                "outerZ",
-                "z of the outer RecHit " + layerTitle,
-                "z of outer RecHit [cm]",
-                "Number of " + doublet + "s",
-                600,
-                -300,
-                300);
+    // histogram for outer (r/z) cut
+    if (cellCuts_.isBarrel_[std::stoi(outerLayerName)]) {
+      hVector_outer_.at(layerPairIdIndex)
+          .book1D(ibook,
+                  "outer",
+                  "r of the outer RecHit " + layerTitle,
+                  "r of outer RecHit [cm]",
+                  "Number of " + doublet + "s",
+                  600,
+                  0,
+                  60);
+    } else {
+      // histogram for potential outerZ cut
+      hVector_outer_.at(layerPairIdIndex)
+          .book1D(ibook,
+                  "outer",
+                  "z of the outer RecHit " + layerTitle,
+                  "z of outer RecHit [cm]",
+                  "Number of " + doublet + "s",
+                  600,
+                  -300,
+                  300);
+    }
 
     // histograms for cluster size and size differences
     hVector_DYsize_.at(layerPairIdIndex)
@@ -2258,42 +2255,42 @@ void SimDoubletsAnalyzer<pixelTopology::Phase1>::fillDescriptions(edm::Configura
   geometryParams.add<std::vector<unsigned int>>("startingPairs", {0u, 1u, 2u})
       ->setComment(
           "Array of variable length with the indices of the starting pairs for Ntuplet building");  //TODO could be parsed via an expression
+                                                                                                    // cells params
+  geometryParams.add<std::vector<int>>("isBarrel", std::vector<int>(phase1PixelTopology::numberOfLayers, 1))
+      ->setComment(
+          "Bool vector with one element per layer that defines if the min/max cut for doublet building is applied in "
+          "z (isBarrel->true) or r (isBarrel->false).");
   // cells params
   geometryParams
       .add<std::vector<unsigned int>>(
           "pairGraph",
-          std::vector<uint>(std::begin(phase1PixelTopology::layerPairs), std::end(phase1PixelTopology::layerPairs)))
-      ->setComment(
-          "Array of length 2*NumberOfPairs where the elements at 2i and 2i+1 are the inner and outer layers of layer "
-          "pair i considered in the CA for doublet building");
+          std::vector<unsigned int>(std::begin(phase1PixelTopology::layerPairs),
+                                    std::begin(phase1PixelTopology::layerPairs) + (nPairs * 2)))
+      ->setComment("CA graph");
   geometryParams
       .add<std::vector<int>>(
-          "phiCuts", std::vector<int>(std::begin(phase1PixelTopology::phicuts), std::end(phase1PixelTopology::phicuts)))
+          "phiCuts",
+          std::vector<int>(std::begin(phase1PixelTopology::phicuts), std::begin(phase1PixelTopology::phicuts) + nPairs))
       ->setComment("Cuts in phi for cells");
   geometryParams
       .add<std::vector<double>>(
-          "minInnerZ", std::vector<double>(std::begin(phase1PixelTopology::minz), std::end(phase1PixelTopology::minz)))
-      ->setComment("Cuts in min z (on inner hit) for cells");
+          "minInner",
+          std::vector<double>(std::begin(phase1PixelTopology::minz), std::begin(phase1PixelTopology::minz) + nPairs))
+      ->setComment("Cuts on inner hit's z (for barrel) or r (for endcap) for cells (min value)");
   geometryParams
       .add<std::vector<double>>(
-          "maxInnerZ", std::vector<double>(std::begin(phase1PixelTopology::maxz), std::end(phase1PixelTopology::maxz)))
-      ->setComment("Cuts in max z (on inner hit) for cells");
+          "maxInner",
+          std::vector<double>(std::begin(phase1PixelTopology::maxz), std::begin(phase1PixelTopology::maxz) + nPairs))
+      ->setComment("Cuts on inner hit's z (for barrel) or r (for endcap) for cells (max value)");
+  geometryParams.add<std::vector<double>>("minOuter", std::vector<double>(nPairs, -10000))
+      ->setComment("Cuts on outer hit's z (for barrel) or r (for endcap) for cells (min value)");
+  geometryParams.add<std::vector<double>>("maxOuter", std::vector<double>(nPairs, 10000))
+      ->setComment("Cuts on outer hit's z (for barrel) or r (for endcap) for cells (max value)");
   geometryParams
       .add<std::vector<double>>(
-          "maxDR", std::vector<double>(std::begin(phase1PixelTopology::maxr), std::end(phase1PixelTopology::maxr)))
-      ->setComment("Cuts in max r for cells");
-  geometryParams.add<std::vector<double>>("minOuterZ", std::vector<double>(nPairs, -10000))
-      ->setComment("Cuts in min z (of outer hit) for cells");
-  geometryParams.add<std::vector<double>>("maxOuterZ", std::vector<double>(nPairs, 10000))
-      ->setComment("Cuts in max z (of outer hit) for cells");
-  geometryParams.add<std::vector<double>>("minInnerR", std::vector<double>(nPairs, 0))
-      ->setComment("Cuts in min r (of inner hit) for cells");
-  geometryParams.add<std::vector<double>>("maxInnerR", std::vector<double>(nPairs, 10000))
-      ->setComment("Cuts in max r (of inner hit) for cells");
-  geometryParams.add<std::vector<double>>("minOuterR", std::vector<double>(nPairs, 0))
-      ->setComment("Cuts in min r (of outer hit) for cells");
-  geometryParams.add<std::vector<double>>("maxOuterR", std::vector<double>(nPairs, 10000))
-      ->setComment("Cuts in max r (of outer hit) for cells");
+          "maxDR",
+          std::vector<double>(std::begin(phase1PixelTopology::maxr), std::begin(phase1PixelTopology::maxr) + nPairs))
+      ->setComment("Cuts in max dr for cells");
   geometryParams.add<std::vector<double>>("minDZ", std::vector<double>(nPairs, -10000))
       ->setComment("Cuts in max dz for cells");
   geometryParams.add<std::vector<double>>("maxDZ", std::vector<double>(nPairs, 10000))
@@ -2335,45 +2332,47 @@ void SimDoubletsAnalyzer<pixelTopology::Phase2>::fillDescriptions(edm::Configura
           "caThetaCuts",
           std::vector<double>(std::begin(phase2PixelTopology::thetaCuts), std::end(phase2PixelTopology::thetaCuts)))
       ->setComment("Cut on origin radius. One per layer, the layer being the innermost one for a triplet.");
-  geometryParams.add<std::vector<unsigned int>>("startingPairs", {0u, 1u, 2u})
+  geometryParams.add<std::vector<int>>("isBarrel", std::vector<int>(phase2PixelTopology::numberOfLayers, 1))
       ->setComment(
-          "Array of variable length with the indices of the starting pairs for Ntuplet building");  //TODO could be parsed via an expression
+          "Bool vector with one element per layer that defines if the min/max cut for doublet building is applied in "
+          "z (isBarrel->true) or r (isBarrel->false).");
+  geometryParams
+      .add<std::vector<unsigned int>>("startingPairs",
+                                      {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15, 16,
+                                       17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32})
+      ->setComment(
+          "The list of the ids of pairs from which the CA ntuplets building may start.");  //TODO could be parsed via an expression
   // cells params
   geometryParams
       .add<std::vector<unsigned int>>(
           "pairGraph",
-          std::vector<uint>(std::begin(phase2PixelTopology::layerPairs), std::end(phase2PixelTopology::layerPairs)))
-      ->setComment(
-          "Array of length 2*NumberOfPairs where the elements at 2i and 2i+1 are the inner and outer layers of layer "
-          "pair i considered in the CA for doublet building");
+          std::vector<unsigned int>(std::begin(phase2PixelTopology::layerPairs),
+                                    std::begin(phase2PixelTopology::layerPairs) + (nPairs * 2)))
+      ->setComment("CA graph");
   geometryParams
       .add<std::vector<int>>(
-          "phiCuts", std::vector<int>(std::begin(phase2PixelTopology::phicuts), std::end(phase2PixelTopology::phicuts)))
+          "phiCuts",
+          std::vector<int>(std::begin(phase2PixelTopology::phicuts), std::begin(phase2PixelTopology::phicuts) + nPairs))
       ->setComment("Cuts in phi for cells");
   geometryParams
       .add<std::vector<double>>(
-          "minInnerZ", std::vector<double>(std::begin(phase2PixelTopology::minz), std::end(phase2PixelTopology::minz)))
-      ->setComment("Cuts in min z (on inner hit) for cells");
+          "minInner",
+          std::vector<double>(std::begin(phase2PixelTopology::minz), std::begin(phase2PixelTopology::minz) + nPairs))
+      ->setComment("Cuts on inner hit's z (for barrel) or r (for endcap) for cells (min value)");
   geometryParams
       .add<std::vector<double>>(
-          "maxInnerZ", std::vector<double>(std::begin(phase2PixelTopology::maxz), std::end(phase2PixelTopology::maxz)))
-      ->setComment("Cuts in max z (on inner hit) for cells");
+          "maxInner",
+          std::vector<double>(std::begin(phase2PixelTopology::maxz), std::begin(phase2PixelTopology::maxz) + nPairs))
+      ->setComment("Cuts on inner hit's z (for barrel) or r (for endcap) for cells (max value)");
+  geometryParams.add<std::vector<double>>("minOuter", std::vector<double>(nPairs, -10000))
+      ->setComment("Cuts on outer hit's z (for barrel) or r (for endcap) for cells (min value)");
+  geometryParams.add<std::vector<double>>("maxOuter", std::vector<double>(nPairs, 10000))
+      ->setComment("Cuts on outer hit's z (for barrel) or r (for endcap) for cells (max value)");
   geometryParams
       .add<std::vector<double>>(
-          "maxDR", std::vector<double>(std::begin(phase2PixelTopology::maxr), std::end(phase2PixelTopology::maxr)))
-      ->setComment("Cuts in max r for cells");
-  geometryParams.add<std::vector<double>>("minOuterZ", std::vector<double>(nPairs, -10000))
-      ->setComment("Cuts in min z (of outer hit) for cells");
-  geometryParams.add<std::vector<double>>("maxOuterZ", std::vector<double>(nPairs, 10000))
-      ->setComment("Cuts in max z (of outer hit) for cells");
-  geometryParams.add<std::vector<double>>("minInnerR", std::vector<double>(nPairs, 0))
-      ->setComment("Cuts in min r (of inner hit) for cells");
-  geometryParams.add<std::vector<double>>("maxInnerR", std::vector<double>(nPairs, 10000))
-      ->setComment("Cuts in max r (of inner hit) for cells");
-  geometryParams.add<std::vector<double>>("minOuterR", std::vector<double>(nPairs, 0))
-      ->setComment("Cuts in min r (of outer hit) for cells");
-  geometryParams.add<std::vector<double>>("maxOuterR", std::vector<double>(nPairs, 10000))
-      ->setComment("Cuts in max r (of outer hit) for cells");
+          "maxDR",
+          std::vector<double>(std::begin(phase2PixelTopology::maxr), std::begin(phase2PixelTopology::maxr) + nPairs))
+      ->setComment("Cuts in max dr for cells");
   geometryParams.add<std::vector<double>>("minDZ", std::vector<double>(nPairs, -10000))
       ->setComment("Cuts in max dz for cells");
   geometryParams.add<std::vector<double>>("maxDZ", std::vector<double>(nPairs, 10000))
