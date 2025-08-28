@@ -495,6 +495,9 @@ namespace edm {
                                 inputTag.instance(),
                                 appendCurrentProcessIfAlias(inputTag.process(), processConfiguration_->processName()));
       } else if (index == ProductResolverIndexInvalid) {
+        if (not consumer) {
+          return nullptr;
+        }
         // can occur because of missing consumes if nothing else in the process consumes the product
         for (auto const& item : preg_->productList()) {
           auto const& bd = item.second;
