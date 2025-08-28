@@ -353,6 +353,8 @@ void SimDoublets::buildSimNtuplets(SimDoublets::Doublet const& doublet,
                      updatedNumSkippedLayers,
                      startingPairs,
                      minNumDoubletsToPass);
+
+    i++;
   }
 }
 
