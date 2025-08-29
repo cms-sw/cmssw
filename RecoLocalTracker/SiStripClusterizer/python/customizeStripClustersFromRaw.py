@@ -59,8 +59,6 @@ def customizeHLTStripClustersFromRaw_alpaka(process: cms.Process, MaxClusterSize
             if hasattr(hltSiStripRawToClustersFacilityAlpaka, par): delattr(hltSiStripRawToClustersFacilityAlpaka, par)
         
         # Create the converter bringing the alpaka-made cluster into legacy objects
-        ## note: the heterogeneous converter can be enabled by using "sistrip::SiStripClustersToLegacy2@alpaka".
-        ## It is found however that no performance gain is observed.
         hltSiStripClustersToLegacy = cms.EDProducer("sistrip::SiStripClustersToLegacy",
             source = cms.InputTag("hltSiStripRawToClustersFacilityAlpaka")
         )
