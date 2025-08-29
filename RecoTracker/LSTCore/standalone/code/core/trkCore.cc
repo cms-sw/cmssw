@@ -289,7 +289,25 @@ std::vector<int> matchedSimTrkIdxs(std::vector<unsigned int> hitidxs,
                                    std::vector<std::vector<int>> const& trk_ph2_simHitIdx,
                                    std::vector<std::vector<int>> const& trk_pix_simHitIdx,
                                    bool verbose,
+                                   float matchfrac,
                                    float* pmatched) {
+  std::vector<int> matched_idxs;
+  std::vector<float> matched_idx_fracs;
+  std::tie(matched_idxs, matched_idx_fracs) = matchedSimTrkIdxsAndFracs(
+      hitidxs, hittypes, trk_simhit_simTrkIdx, trk_ph2_simHitIdx, trk_pix_simHitIdx, verbose, matchfrac, pmatched);
+  return matched_idxs;
+}
+
+//___________________________________________________________________________________________________________________________________________________________________________________________
+std::tuple<std::vector<int>, std::vector<float>> matchedSimTrkIdxsAndFracs(
+    std::vector<unsigned int> hitidxs,
+    std::vector<unsigned int> hittypes,
+    std::vector<int> const& trk_simhit_simTrkIdx,
+    std::vector<std::vector<int>> const& trk_ph2_simHitIdx,
+    std::vector<std::vector<int>> const& trk_pix_simHitIdx,
+    bool verbose,
+    float matchfrac,
+    float* pmatched) {
   if (hitidxs.size() != hittypes.size()) {
     std::cout << "Error: matched_sim_trk_idxs()   hitidxs and hittypes have different lengths" << std::endl;
     std::cout << "hitidxs.size(): " << hitidxs.size() << std::endl;
@@ -395,11 +413,8 @@ std::vector<int> matchedSimTrkIdxs(std::vector<unsigned int> hitidxs,
           std::vector<int> intermediate,
           size_t n,
           std::vector<std::vector<int>>& va) {
-        // std::cout <<  " 'called': " << "called" <<  std::endl;
         if (va.size() > n) {
           for (auto x : va[n]) {
-            // std::cout <<  " n: " << n <<  std::endl;
-            // std::cout <<  " intermediate.size(): " << intermediate.size() <<  std::endl;
             std::vector<int> copy_intermediate(intermediate);
             copy_intermediate.push_back(x);
             perm(result, copy_intermediate, n + 1, va);
@@ -423,6 +438,7 @@ std::vector<int> matchedSimTrkIdxs(std::vector<unsigned int> hitidxs,
   }
   int maxHitMatchCount = 0;  // ultimate maximum of the number of matched hits
   std::vector<int> matched_sim_trk_idxs;
+  std::vector<float> matched_sim_trk_idxs_frac;
   float max_percent_matched = 0.0f;
   for (auto& trkidx_perm : allperms) {
     std::vector<int> counts;
@@ -436,8 +452,13 @@ std::vector<int> matchedSimTrkIdxs(std::vector<unsigned int> hitidxs,
     if (trkidx < 0)
       continue;
     float percent_matched = static_cast<float>(counts[rawidx]) / nhits_input;
-    if (percent_matched > 0.75f)
+    if (verbose) {
+      std::cout << " fr: " << percent_matched << std::endl;
+    }
+    if (percent_matched > matchfrac) {
       matched_sim_trk_idxs.push_back(trkidx);
+      matched_sim_trk_idxs_frac.push_back(percent_matched);
+    }
     maxHitMatchCount = std::max(maxHitMatchCount, *std::max_element(counts.begin(), counts.end()));
     max_percent_matched = std::max(max_percent_matched, percent_matched);
   }
@@ -447,12 +468,35 @@ std::vector<int> matchedSimTrkIdxs(std::vector<unsigned int> hitidxs,
     *pmatched = max_percent_matched;
   }
 
-  std::set<int> s;
+  std::map<int, float> pairs;
   unsigned size = matched_sim_trk_idxs.size();
-  for (unsigned i = 0; i < size; ++i)
-    s.insert(matched_sim_trk_idxs[i]);
-  matched_sim_trk_idxs.assign(s.begin(), s.end());
-  return matched_sim_trk_idxs;
+  for (unsigned i = 0; i < size; ++i) {
+    int idx = matched_sim_trk_idxs[i];
+    float frac = matched_sim_trk_idxs_frac[i];
+    if (pairs.find(idx) != pairs.end()) {
+      if (pairs[idx] < frac)
+        pairs[idx] = frac;
+    } else {
+      pairs[idx] = frac;
+    }
+  }
+  std::vector<int> result;
+  std::vector<float> result_frac;
+  // Loop over the map using range-based for loop
+  for (const auto& pair : pairs) {
+    result.push_back(pair.first);
+    result_frac.push_back(pair.second);
+  }
+  // Sort indices based on 'values'
+  auto indices = sort_indices(result_frac);
+  // Reorder 'vec1' and 'vec2' based on the sorted indices
+  std::vector<int> sorted_result(result.size());
+  std::vector<float> sorted_result_frac(result_frac.size());
+  for (size_t i = 0; i < indices.size(); ++i) {
+    sorted_result[i] = result[indices[i]];
+    sorted_result_frac[i] = result_frac[indices[i]];
+  }
+  return std::make_tuple(sorted_result, sorted_result_frac);
 }
 
 //__________________________________________________________________________________________
