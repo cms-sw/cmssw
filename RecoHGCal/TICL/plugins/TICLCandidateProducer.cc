@@ -409,6 +409,8 @@ void TICLCandidateProducer::assignTimeToCandidates(std::vector<TICLCandidate> &r
     float invTimeErr = 0.f;
     float timeErr = -1.f;
 
+    const int trackIndex =
+        cand.trackPtr().isNonnull() ? (cand.trackPtr().get() - (edm::Ptr<reco::Track>(track_h, 0)).get()) : -1;
     for (const auto &tr : cand.tracksters()) {
       if (tr->timeError() > 0) {
         const auto invTimeESq = pow(tr->timeError(), -2);
@@ -416,8 +418,7 @@ void TICLCandidateProducer::assignTimeToCandidates(std::vector<TICLCandidate> &r
         const auto y = tr->barycenter().Y();
         const auto z = tr->barycenter().Z();
         auto path = std::sqrt(x * x + y * y + z * z);
-        if (cand.trackPtr().get() != nullptr) {
-          const auto &trackIndex = cand.trackPtr().get() - (edm::Ptr<reco::Track>(track_h, 0)).get();
+        if (trackIndex != -1) {
           if (useMTDTiming_ and inputTimingView.timeErr()[trackIndex] > 0) {
             const auto xMtd = inputTimingView.posInMTD_x()[trackIndex];
             const auto yMtd = inputTimingView.posInMTD_y()[trackIndex];
@@ -448,7 +449,6 @@ void TICLCandidateProducer::assignTimeToCandidates(std::vector<TICLCandidate> &r
 
     if (useMTDTiming_ and cand.charge()) {
       // Check MTD timing availability
-      const auto &trackIndex = cand.trackPtr().get() - (edm::Ptr<reco::Track>(track_h, 0)).get();
       const bool assocQuality = inputTimingView.MVAquality()[trackIndex] > timingQualityThreshold_;
       if (assocQuality) {
         const auto timeHGC = cand.time();
