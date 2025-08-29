@@ -118,6 +118,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         Depth = cms.int32(3),        # -1 means check whatever depth
         PVname = cms.string(''),
         LVname = cms.string(''),
+        NodeName = cms.string(''),
         NodeNames = cms.vstring('World')
     ),
     G4Commands = cms.vstring(),
