@@ -14,7 +14,7 @@ namespace hgcaldigi {
     constexpr uint8_t NormalUnpacking = 0, GenericUnpackError = 1, ErrorSLinkHeader = 2, ErrorPayload = 3,
                       ErrorCaptureBlockHeader = 4, ActiveCaptureBlockFlags = 5, ErrorECONDHeader = 6,
                       ECONDPayloadLengthOverflow = 7, ECONDPayloadLengthMismatch = 8, ErrorSLinkTrailer = 9,
-                      EarlySLinkEnd = 10;
+                      EarlySLinkEnd = 10, GenericUnpackWarning = 11;
   }  // namespace FEDUnpackingFlags
 
   inline constexpr bool isNotNormalFED(uint16_t fedUnpackingFlag) {

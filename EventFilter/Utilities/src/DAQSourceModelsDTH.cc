@@ -512,7 +512,7 @@ int DataModeDTH::eventCounterCallback(
       edm::LogError("EvFDaqDirector") << "Invalid DTH header encountered";
       return fileClose();
     }
-    if (!oh->verifyMarker() || oh->version() != 1) {
+    if (!oh->verifyMarker() || (oh->version() != 1 && oh->version() != 2)) {
       edm::LogError("EvFDaqDirector") << "Unexpected DTH header version " << oh->version();
       return fileClose();
     }
