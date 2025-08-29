@@ -995,7 +995,7 @@ void L1TCorrelatorLayer1Producer::addHGCalHadCalo(const l1t::HGCalMulticluster &
       // Use the valid flag to reject PU clusters when creating the decoded object
       bool valid = true;
       l1ct::HadCaloObjEmu decCalo = hgcalInput_->decode(sec_raw.region, cwrd, valid);
-      if (decCalo.floatPt() > hadPtCut_ && valid)
+      if (decCalo.floatPt() > hadPtCut_)
         addDecodedHadCalo(decCalo, caloPtr, sec);
     }
   }
