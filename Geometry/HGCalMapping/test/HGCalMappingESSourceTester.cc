@@ -148,9 +148,13 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
               frs.chDataOffsets_.end(),
               std::inserter(unique_chDataOffsets, unique_chDataOffsets.end()));
 
-    size_t nmods = frs.readoutTypes_.size();
+    assert(frs.readoutTypes_.size() == frs.totalECONs_);
+    size_t nmods = frs.totalECONs_;
+    if (nmods == 0)
+      continue;
     totalmods += nmods;
-    printf("\t[FED %d] packs data from %ld ECON-Ds - readout types -> (offsets) :", frs.id, nmods);
+    printf("\t[FED %d] packs data from %ld ECON-Ds - readout types -> (offsets)\n", frs.id, nmods);
+    printf("\tTotal capture blocks: %ld Total ECON-Ds %ld\n", frs.totalCBs_, frs.totalECONs_);
     for (size_t i = 0; i < nmods; i++) {
       printf("\t%d -> (%d;%d;%d)", frs.readoutTypes_[i], frs.modOffsets_[i], frs.erxOffsets_[i], frs.chDataOffsets_[i]);
     }
@@ -247,7 +251,7 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
   printf("\tTime: %f seconds\n", elapsed.count());
 
   HGCalElectronicsId eid(elecid);
-  assert(eid.localFEDId() == fedid);
+  assert(eid.localFEDId() == (fedid & HGCalElectronicsId::HGCalElectronicsIdMask::kLocalFEDIDMask));
   assert((uint32_t)eid.captureBlock() == captureblockidx);
   assert((uint32_t)eid.econdIdx() == econdidx);
   assert((uint32_t)eid.econdeRx() == (uint32_t)(2 * chip + half));
@@ -288,7 +292,8 @@ void HGCalMappingESSourceTester::analyze(const edm::Event& iEvent, const edm::Ev
   elapsed = stop - start;
   printf("\tTime: %f seconds\n", elapsed.count());
   eid = HGCalElectronicsId(elecid);
-  assert(eid.localFEDId() == modules.view()[modidx].fedid());
+  assert(eid.localFEDId() ==
+         (modules.view()[modidx].fedid() & HGCalElectronicsId::HGCalElectronicsIdMask::kLocalFEDIDMask));
   assert((uint32_t)eid.captureBlock() == modules.view()[modidx].captureblockidx());
   assert((uint32_t)eid.econdIdx() == modules.view()[modidx].econdidx());
   assert((uint32_t)eid.halfrocChannel() == cells.view()[cellidx].seq());

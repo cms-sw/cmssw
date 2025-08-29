@@ -102,7 +102,7 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
 
   // parse SLink body (capture blocks)
   bool hasActiveCBFlags(false);
-  for (uint32_t captureblockIdx = 0; captureblockIdx < HGCalMappingModuleIndexer::maxCBperFED_ && ptr < trailer - 2;
+  for (uint32_t captureblockIdx = 0; captureblockIdx < fedReadoutSequence.totalCBs_ && ptr < trailer - 2;
        captureblockIdx++) {
     // check capture block header (64b)
 
@@ -158,6 +158,11 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
       if (econd_pkt_status != backend::ECONDPacketStatus::InactiveECOND) {
         // always increment the global ECON-D index (unless inactive/unconnected)
         globalECONDIdx++;
+
+        //stop if we have all the ECON-Ds expected
+        if (globalECONDIdx >= fedReadoutSequence.totalECONs_) {
+          return (0x1 << hgcaldigi::FEDUnpackingFlags::GenericUnpackWarning);
+        }
       }
       LogDebug("[HGCalUnpacker]") << "fedId = " << fedId << ", captureblockIdx = " << captureblockIdx
                                   << ", econdIdx = " << econdIdx << ", globalECONDIdx = " << (int)globalECONDIdx
