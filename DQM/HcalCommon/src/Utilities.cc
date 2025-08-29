@@ -190,9 +190,20 @@ namespace hcaldqm {
 
       return false;
     }
+    bool isFEDZDC(HcalElectronicsId const &eid) {
+      if (eid.isVMEid())
+        return false;
+      int fed = crate2fed(eid.crateId(), eid.slot());
+      if (fed == 1136)
+        return true;
+      else
+        return false;
+
+      return false;
+    }
 
     /*
- *	Orbit Gap Related
+       *	Orbit Gap Related
  */
     std::string ogtype2string(OrbitGapType type) {
       switch (type) {
