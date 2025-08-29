@@ -159,7 +159,6 @@ uint16_t HGCalRawToDigi::callUnpacker(unsigned fedId,
 void HGCalRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("rawDataCollector"));
-  desc.add<std::vector<unsigned int> >("fedIds", {});
   desc.add<bool>("doSerial", true)->setComment("do not attempt to paralleize unpacking of different FEDs");
   desc.add<bool>("headersOnly", false)->setComment("unpack only headers");
   descriptions.add("hgcalDigis", desc);

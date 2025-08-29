@@ -82,8 +82,10 @@ void HGCalMappingModuleIndexer::finalize() {
   std::vector<uint32_t> typeCounters(globalTypesCounter_.size(), 0);
   for (auto& fedit : fedReadoutSequences_) {
     //assign the final indexing in the look-up table depending on which ECON-D's are really present
+    //count also the the number of capture blocks present
     size_t nconn(0);
     fedit.moduleLUT_.resize(fedit.readoutTypes_.size(), -1);
+    std::set<uint32_t> uniqueCB;
     for (size_t i = 0; i < fedit.readoutTypes_.size(); i++) {
       if (fedit.readoutTypes_[i] == -1)
         continue;  //unexisting
@@ -91,7 +93,11 @@ void HGCalMappingModuleIndexer::finalize() {
       reassignTypecodeLocation(fedit.id, i, nconn);
       fedit.moduleLUT_[i] = nconn;
       nconn++;
+
+      uniqueCB.insert(modFedIndexer_.unpackDenseIndex(i)[0]);
     }
+    fedit.totalECONs_ = nconn;
+    fedit.totalCBs_ = uniqueCB.size();
 
     //remove unexisting ECONs building a final compact readout sequence
     fedit.readoutTypes_.erase(
