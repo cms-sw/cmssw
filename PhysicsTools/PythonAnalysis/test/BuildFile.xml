@@ -6,7 +6,9 @@
 <test name="test_bs4" command="test_bs4.py"/>
 <test name="testBottleneck" command="testBottleneck.py"/>
 <test name="testNumExpr" command="testNumExpr.py"/>
+<ifrelease name="!ASAN">
 <test name="testTables" command="testTables.py"/>
+</ifrelease>
 <test name="testXGBoost_and_sklearn" command="testXGBoost_and_sklearn.py"/>
 <test name="testUncertainties" command="testUncertainties.py"/>
 <test name="testJupyter" command="testJupyter.sh"/>
@@ -105,7 +107,9 @@
 <test name="import-sniffio" command="python3 -c 'import sniffio'"/>
 <test name="import-sqlalchemy" command="python3 -c 'import sqlalchemy'"/>
 <test name="import-sympy" command="python3 -c 'import sympy'"/>
+<ifrelease name="!ASAN">
 <test name="import-tables" command="python3 -c 'import tables'"/>
+</ifrelease>
 <test name="import-tensorflow" command="python3 -c 'import tensorflow'"/>
 <test name="import-terminado" command="python3 -c 'import terminado'"/>
 <test name="import-testpath" command="python3 -c 'import testpath'"/>
