@@ -62,7 +62,7 @@ if options.photos == 'exp':
         parameterSets = cms.vstring("Photospp")
     )
     process.generator.PythiaParameters.processParameters += cms.vstring(
-        'ParticleDecays:allowPhotonRadiation = off',
+        'HadronLevel:QED = off',
         'TimeShower:QEDshowerByL = off',
     )
 
@@ -82,7 +82,7 @@ if options.photos == 'single':
         parameterSets = cms.vstring("Photospp")
     )
     process.generator.PythiaParameters.processParameters += cms.vstring(
-        'ParticleDecays:allowPhotonRadiation = off',
+        'HadronLevel:QED = off',
         'TimeShower:QEDshowerByL = off'
     )
 
@@ -103,7 +103,7 @@ if options.photos == 'double':
         parameterSets = cms.vstring("Photospp")
     )
     process.generator.PythiaParameters.processParameters += cms.vstring(
-        'ParticleDecays:allowPhotonRadiation = off',
+        'HadronLevel:QED = off',
         'TimeShower:QEDshowerByL = off'
     )
 
@@ -124,7 +124,7 @@ if options.photos == 'quatro':
         parameterSets = cms.vstring("Photospp")
     )
     process.generator.PythiaParameters.processParameters += cms.vstring(
-        'ParticleDecays:allowPhotonRadiation = off',
+        'HadronLevel:QED = off',
         'TimeShower:QEDshowerByL = off'
     )
 
