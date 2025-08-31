@@ -389,6 +389,9 @@ private:
   CoupledCutMonitorElement h_DYsize_;
   CoupledCutMonitorElement h_DYPred_;
   // vectors of histograms (one hist per layer pair)
+  std::vector<CoupledCutMonitorElement> hVector_z0_;
+  std::vector<CoupledCutMonitorElement> hVector_curvatureR_;
+  std::vector<CoupledCutMonitorElement> hVector_pTFromR_;
   std::vector<CoupledCutMonitorElement> hVector_dz_;
   std::vector<CoupledCutMonitorElement> hVector_dr_;
   std::vector<CoupledCutMonitorElement> hVector_dphi_;
