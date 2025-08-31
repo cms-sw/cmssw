@@ -400,6 +400,9 @@ SimDoubletsAnalyzer<TrackerTraits>::SimDoubletsAnalyzer(const edm::ParameterSet&
 
   // resize all histogram vectors, so that we can fill them according to the
   // layerPairIndex saved in the map that we just created
+  hVector_z0_.resize(numLayerPairs);
+  hVector_curvatureR_.resize(numLayerPairs);
+  hVector_pTFromR_.resize(numLayerPairs);
   hVector_dz_.resize(numLayerPairs);
   hVector_dr_.resize(numLayerPairs);
   hVector_dphi_.resize(numLayerPairs);
@@ -567,10 +570,13 @@ void SimDoubletsAnalyzer<TrackerTraits>::fillCutHistograms(
   // -------------------------------------------------------------------------
   // radius of the circle defined by the two RecHits and the beamspot
   h_curvatureR_.fillCut(passed, trackTruth, cellCutVariables.curvature());
+  hVector_curvatureR_[layerPairIdIndex].fillCut(passed, trackTruth, cellCutVariables.curvature());
   // pT that this curvature radius corresponds to
   h_pTFromR_.fillCut(passed, trackTruth, cellCutVariables.pT());
+  hVector_pTFromR_[layerPairIdIndex].fillCut(passed, trackTruth, cellCutVariables.pT());
   // longitudinal impact parameter with respect to the beamspot
   h_z0_.fillCut(passed, trackTruth, cellCutVariables.z0());
+  hVector_z0_[layerPairIdIndex].fillCut(passed, trackTruth, cellCutVariables.z0());
 
   // -------------------------------------------------------------------------
   //  layer pair dependent cuts (sub-folders for layer pairs)
@@ -1524,6 +1530,37 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
 
     // set folder to the sub-folder for the layer pair
     ibook.setCurrentFolder(folder_ + subFolderName);
+
+    // histogram for z0cutoff  (z0)
+    hVector_z0_.at(layerPairIdIndex)
+        .book1D(ibook,
+                "z0",
+                "z_{0} of " + doublet + "s " + layerTitle,
+                "Longitudinal impact parameter z_{0} [cm]",
+                "Number of " + doublet + "s",
+                51,
+                -1,
+                50);
+
+    // histograms for ptcut  (ptCut)
+    hVector_curvatureR_.at(layerPairIdIndex)
+        .book1DLogX(ibook,
+                    "curvatureR",
+                    "Curvature from 3 points of beamspot + RecHits of " + doublet + "s " + layerTitle,
+                    "Curvature radius [cm]",
+                    "Number of " + doublet + "s",
+                    100,
+                    2,
+                    4);
+    hVector_pTFromR_.at(layerPairIdIndex)
+        .book1DLogX(ibook,
+                    "pTFromR",
+                    "Transverse momentum from curvature " + layerTitle,
+                    "Transverse momentum p_{T} [GeV]",
+                    "Number of " + doublet + "s",
+                    pTNBins,
+                    pTmin,
+                    pTmax);
 
     // histogram for potential dz cut
     hVector_dz_.at(layerPairIdIndex)
