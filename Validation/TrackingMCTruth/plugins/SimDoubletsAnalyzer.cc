@@ -4,7 +4,7 @@
 // Class:      SimDoubletsAnalyzer
 //
 
-#define DOUBLETCUTS_PRINTOUTS
+// #define DOUBLETCUTS_PRINTOUTS
 
 // user include files
 #include "Validation/TrackingMCTruth/plugins/SimDoubletsAnalyzer.h"
@@ -483,7 +483,7 @@ void SimDoubletsAnalyzer<TrackerTraits>::applyCuts(
       /* DYPred cut */
       (clusterSizeCutManager.isSubjectToDYPred() && (cellCutVariables.DYPred() > maxDYPred_)))
     passDYsize = false;
-  if (!(passInner && passYsize && passOuter && passDZ && passDPhi && passDYsize && passPt)) {
+  if (!(passInner && passYsize && passOuter && passDZ && passDPhi && passDYsize && passPt && passDR && passZ0)) {
     // if any of the cuts apply kill the doublet
     doublet.setKilledByCuts();
   } else {
@@ -1091,7 +1091,7 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                                                         edm::Run const& run,
                                                         edm::EventSetup const& iSetup) {
   // set some common parameters
-  int pTNBins = 50;
+  int pTNBins = 200;
   double pTmin = log10(0.01);
   double pTmax = log10(1000);
   int etaNBins = 90;
