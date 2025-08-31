@@ -4,6 +4,8 @@
 // Class:      SimDoubletsAnalyzer
 //
 
+#define DOUBLETCUTS_PRINTOUTS
+
 // user include files
 #include "Validation/TrackingMCTruth/plugins/SimDoubletsAnalyzer.h"
 #include <sys/types.h>
@@ -442,37 +444,67 @@ void SimDoubletsAnalyzer<TrackerTraits>::applyCuts(
   double inner = cellCuts_.isBarrel_[doublet.innerLayerId()] ? cellCutVariables.inner_z() : cellCutVariables.inner_r();
   double outer = cellCuts_.isBarrel_[doublet.outerLayerId()] ? cellCutVariables.outer_z() : cellCutVariables.outer_r();
 
+  bool passInner{true}, passYsize{true}, passOuter{true}, passDPhi{true}, passDR{true}, passDZ{true}, passDYsize{true},
+      passPt{true}, passZ0{true};
+
+  /* inner r/z window cut */
+  if (inner < cellCuts_.minInner_[layerPairIdIndex] || inner > cellCuts_.maxInner_[layerPairIdIndex])
+    passInner = false;
+  /* outer r/z window cut */
+  if (outer < cellCuts_.minOuter_[layerPairIdIndex] || outer > cellCuts_.maxOuter_[layerPairIdIndex])
+    passOuter = false;
+  /* dz window */
+  if (cellCutVariables.dz() > cellCuts_.maxDZ_[layerPairIdIndex] ||
+      cellCutVariables.dz() < cellCuts_.minDZ_[layerPairIdIndex])
+    passDZ = false;
+  /* z0cutoff */
+  if (cellCutVariables.dr() > cellCuts_.maxDR_[layerPairIdIndex] || cellCutVariables.dr() < 0)
+    passDR = false;
+  if (cellCutVariables.z0() > cellZ0Cut_)
+    passZ0 = false;
+  /* ptcut */
+  if (cellCutVariables.pT() < cellPtCut_)
+    passPt = false;
+  /* idphicut */
+  if (cellCutVariables.idphi() > cellCuts_.phiCuts_[layerPairIdIndex])
+    passDPhi = false;
+  /* YsizeB1/2 cut */
+  if ((clusterSizeCutManager.isSubjectToYsizeB1() && (cellCutVariables.Ysize() < minYsizeB1_)) ||
+      (clusterSizeCutManager.isSubjectToYsizeB2() && (cellCutVariables.Ysize() < minYsizeB2_)))
+    passYsize = false;
   if (
-      /* inner r/z window cut */
-      (inner < cellCuts_.minInner_[layerPairIdIndex] || inner > cellCuts_.maxInner_[layerPairIdIndex]) ||
-      /* outer r/z window cut */
-      (outer < cellCuts_.minOuter_[layerPairIdIndex] || outer > cellCuts_.maxOuter_[layerPairIdIndex]) ||
-      /* dz window */
-      cellCutVariables.dz() > cellCuts_.maxDZ_[layerPairIdIndex] ||
-      cellCutVariables.dz() < cellCuts_.minDZ_[layerPairIdIndex] ||
-      /* z0cutoff */
-      (cellCutVariables.dr() > cellCuts_.maxDR_[layerPairIdIndex] || cellCutVariables.dr() < 0 ||
-       cellCutVariables.z0() > cellZ0Cut_) ||
-      /* ptcut */
-      (cellCutVariables.pT() < cellPtCut_) ||
-      /* idphicut */
-      (cellCutVariables.idphi() > cellCuts_.phiCuts_[layerPairIdIndex]) ||
-      /* YsizeB1 cut */
-      (clusterSizeCutManager.isSubjectToYsizeB1() && (cellCutVariables.Ysize() < minYsizeB1_)) ||
-      /* YsizeB2 cut */
-      (clusterSizeCutManager.isSubjectToYsizeB2() && (cellCutVariables.Ysize() < minYsizeB2_)) ||
       /* DYsize12 cut */
       (clusterSizeCutManager.isSubjectToDYsize12() && (cellCutVariables.DYsize() > maxDYsize12_)) ||
       /* DYsize cut */
       (clusterSizeCutManager.isSubjectToDYsize() && (cellCutVariables.DYsize() > maxDYsize_)) ||
       /* DYPred cut */
-      (clusterSizeCutManager.isSubjectToDYPred() && (cellCutVariables.DYPred() > maxDYPred_))) {
+      (clusterSizeCutManager.isSubjectToDYPred() && (cellCutVariables.DYPred() > maxDYPred_)))
+    passDYsize = false;
+  if (!(passInner && passYsize && passOuter && passDZ && passDPhi && passDYsize && passPt)) {
     // if any of the cuts apply kill the doublet
     doublet.setKilledByCuts();
   } else {
     // if the function arrives here, the doublet survived
     doublet.setAlive();
   }
+
+#ifdef DOUBLETCUTS_PRINTOUTS
+  printf("%d %d %d %d %d %d %d %d %d %d %d %d %d %d\n",
+         layerPairIdIndex,
+         doublet.innerLayerId(),
+         doublet.outerLayerId(),
+         0,
+         0,
+         passInner,
+         passYsize,
+         passOuter,
+         passDZ,
+         passZ0,
+         passDR,
+         passDPhi,
+         passDYsize,
+         passPt);
+#endif
 
   // -------------------------------------------------------------------------
   //  apply cuts for doublet and triplet connections
