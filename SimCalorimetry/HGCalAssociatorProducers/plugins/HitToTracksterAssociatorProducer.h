@@ -15,7 +15,7 @@
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
-#include "CommonTools/RecoAlgos/interface/MultiVectorManager.h"
+#include "DataFormats/HGCalReco/interface/MultiVectorManager.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 
 class HitToTracksterAssociatorProducer : public edm::global::EDProducer<> {

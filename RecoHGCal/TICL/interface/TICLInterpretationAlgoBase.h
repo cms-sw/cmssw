@@ -22,7 +22,7 @@
 #include "DataFormats/HGCalReco/interface/Common.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
-#include "CommonTools/RecoAlgos/interface/MultiVectorManager.h"
+#include "DataFormats/HGCalReco/interface/MultiVectorManager.h"
 
 namespace edm {
   class Event;
