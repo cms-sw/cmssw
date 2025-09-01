@@ -276,7 +276,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
           bool isNonLite = fedchannelunpacker::checks::isNonLiteZS(mapping.readoutMode(chan));
 
-          FEDChannel fedChan(fedChannelsData + fedChDataOfsBuf, fedChOfs, FEDChannel::ZSROMode(isNonLite));
+          FEDChannel fedChan(fedChannelsData + fedChDataOfsBuf,
+                             fedChOfs,
+                             isNonLite ? FEDChannel::ZSROMode::nonLite : FEDChannel::ZSROMode::lite);
 
           // Calculate the number of strips in the channel
           uint8_t numBits = 8;

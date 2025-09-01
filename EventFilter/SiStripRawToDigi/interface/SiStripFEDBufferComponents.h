@@ -615,7 +615,7 @@ namespace sistrip {
   //holds information about position of a channel in the buffer for use by unpacker
   class FEDChannel {
   public:
-    enum class ZSROMode { nonLite, lite };
+    enum class ZSROMode { nonLite = 7, lite = 2 };
     constexpr FEDChannel(const uint8_t* const data, const uint32_t offset, const uint16_t length);
     constexpr FEDChannel(const uint8_t* const data, const uint32_t offset, const ZSROMode zsRoMode);
     //gets length from first 2 bytes (assuming normal FED channel)
