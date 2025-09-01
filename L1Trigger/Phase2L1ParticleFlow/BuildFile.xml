@@ -16,7 +16,6 @@
 <use name="L1METML"/>
 <use name="hls4mLEmulatorExtras"/>
 <use name="TOoLLiP"/>
-<!-- <use name="nlohmann_json"/> -->
 <export>
   <lib name="1"/>
 </export>

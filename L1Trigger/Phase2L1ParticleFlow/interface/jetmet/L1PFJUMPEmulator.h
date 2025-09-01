@@ -69,18 +69,12 @@ namespace L1JUMPEmu {
 
     L1METEmu::eta_t abseta = abs(jet.hwEta.to_float());
     int etabin = 0;
-    if (abseta == 0.00)
-      etabin = 1;
-    else if (abseta < J.edges[0])
-      etabin = 1;
-    else if (abseta < J.edges[1])
-      etabin = 2;
-    else if (abseta < J.edges[2])
-      etabin = 3;
-    else if (abseta < J.edges[3])
-      etabin = 4;
-    else
-      etabin = 0;
+    for (uint i = 0; i < 4;) {
+      if (abseta < J.edges[i]) {
+        etabin = i+1;
+        break;
+      }
+    }
 
     dPx_2 = 0;
     dPy_2 = 0;
