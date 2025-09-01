@@ -1,5 +1,5 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/typelookup.h"
-#include "RecoLocalTracker/SiStripClusterizer/interface/alpaka/SiStripClusterizerConditionsDevice.h"
+#include "RecoLocalTracker/SiStripClusterizer/interface/alpaka/SiStripClusterizerConditionsDeviceObject.h"
 
-TYPELOOKUP_ALPAKA_DATA_REG(sistrip::SiStripClusterizerConditionsDetToFedsDevice);
-TYPELOOKUP_ALPAKA_DATA_REG(sistrip::SiStripClusterizerConditionsDataDevice);
+TYPELOOKUP_ALPAKA_DATA_REG(sistrip::SiStripClusterizerConditionsDetToFedsDeviceObject);
+TYPELOOKUP_ALPAKA_DATA_REG(sistrip::SiStripClusterizerConditionsDataDeviceObject);
