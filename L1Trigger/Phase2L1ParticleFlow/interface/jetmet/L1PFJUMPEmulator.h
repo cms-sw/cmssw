@@ -71,7 +71,7 @@ namespace L1JUMPEmu {
     int etabin = 0;
     for (uint i = 0; i < 4;) {
       if (abseta < J.edges[i]) {
-        etabin = i+1;
+        etabin = i + 1;
         break;
       }
     }
