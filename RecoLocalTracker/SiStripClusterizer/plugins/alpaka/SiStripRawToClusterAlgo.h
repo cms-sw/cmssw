@@ -10,7 +10,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 
-#include "RecoLocalTracker/SiStripClusterizer/interface/alpaka/SiStripClusterizerConditionsDevice.h"
+#include "RecoLocalTracker/SiStripClusterizer/interface/alpaka/SiStripClusterizerConditionsDeviceObject.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/alpaka/SiStripMappingDevice.h"
 
 namespace edm {
@@ -115,12 +115,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
   public:
     SiStripRawToClusterAlgo(const edm::ParameterSet& clustPar);
     void prepareUnpackCluster(Queue& queue,
-                              const SiStripClusterizerConditionsDetToFedsDevice& conditions_DetToFeds,
+                              const DetToFeds* conditions_DetToFeds,
                               std::unique_ptr<PortableFEDMover> FEDChMover);
-    void unpackStrips(Queue& queue, const SiStripClusterizerConditionsDataDevice& conditions_Data);
+    void unpackStrips(Queue& queue, const Data* conditions_Data);
 
-    std::unique_ptr<SiStripClusterDevice> makeClusters(Queue& queue,
-                                                       const SiStripClusterizerConditionsDataDevice& conditions_Data);
+    std::unique_ptr<SiStripClusterDevice> makeClusters(Queue& queue, const Data* conditions_Data);
     std::unique_ptr<SiStripDigiDevice> releaseDigiAmplitudes(Queue& queue);
 
   private:

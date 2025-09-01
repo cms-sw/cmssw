@@ -66,8 +66,8 @@ def customizeHLTStripClustersFromRaw_alpaka(process: cms.Process, MaxClusterSize
         ####### Produce ES for the alpaka clusterizer #######
         # Produce the SiStripClusterizerConditionsHost object
         hltSiStripClusterizerConditionsESProducerAlpaka = cms.ESProducer("sistrip::SiStripClusterizerConditionsESProducerAlpaka@alpaka",
-            QualityLabel = cms.string(""),
-            Label = cms.string(""),
+            QualityLabel = cms.ESInputTag(""),
+            Label = cms.ESInputTag(""),
         )
         
         # Add to process, if not already present

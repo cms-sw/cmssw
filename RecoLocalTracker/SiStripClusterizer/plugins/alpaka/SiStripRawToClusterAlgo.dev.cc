@@ -7,6 +7,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/moveToDeviceAsync.h"
 
 #include "RecoLocalTracker/SiStripClusterizer/interface/ClusterChargeCut.h"
+#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterizerConditionsStruct.h"
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBufferComponents.h"
@@ -252,21 +253,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                                        uint32_t* invalidFedCh,
                                        uint8_t* fedChannelsData,
                                        SiStripMappingView mapping,
-                                       SiStripClusterizerConditionsDetToFedsConstView qualityConditions) const {
+                                       const DetToFeds* qualityConditions) const {
       //
       for (auto chan : uniform_elements(acc, mapping.metadata().size())) {
-        // for (uint32_t chan=0; chan<(uint32_t)mapping.metadata().size(); chan++) {
         const auto fedId = mapping.fedID(chan);
         const auto fedCh = mapping.fedCh(chan);
 
         uint32_t index = channelIndex(fedId, fedCh);
-        if (qualityConditions.qualityOk_(index) == false) {
-          mapping.fedID(chan) = invalidFed;
-          mapping.fedChStripsN(chan) = 0;
-          printf("#invFed,%i,%i,%i\n", fedId, fedCh, invalidFedCh[0]);
-          alpaka::atomicAdd(acc, invalidFedCh, 1u, alpaka::hierarchy::Grids{});
-        } else {
-          // Atomic add the total number of strips to be unpacked
+
+        if (qualityConditions->qualityOk_[index]) {
           const uint32_t fedChOfs = mapping.fedChOfs(chan);
           const uint32_t fedChDataOfsBuf = mapping.fedChDataOfsBuf(chan);
 
@@ -294,10 +289,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
           // uint8_t chLength = fedChan.length();
           // printf("#chLen,%i,%i,%i,%i,%i\n", fedId, fedCh, fedChOfs, chStripNb, blockStripN[0]);
           // alpaka::atomicAdd(acc, blockStripN, static_cast<uint32_t>(chStripNb), alpaka::hierarchy::Grids{});
+        } else {
+          // Atomic add the total number of strips which cannot be unpacked (unlikely case)
+          mapping.fedID(chan) = invalidFed;
+          mapping.fedChStripsN(chan) = 0;
+          // printf("#invFed,%i,%i,%i,%i\n", index, fedId, fedCh, invalidFedCh[0]);
+          alpaka::atomicAdd(acc, invalidFedCh, 1u, alpaka::hierarchy::Grids{});
         }
-        // if (chan > 10){
-        //   break;
-        // }
       }
     }
   };
@@ -336,9 +334,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                                        uint8_t* fedChannelsData,
                                        SiStripDigiView stripDigis,
                                        SiStripMappingConstView mapping,
-                                       SiStripClusterizerConditionsData_fedchConstView Data_fedch,
-                                       SiStripClusterizerConditionsData_stripConstView Data_strip,
-                                       SiStripClusterizerConditionsData_apvConstView Data_apv) const {
+                                       const Data* data
+                                       //  SiStripClusterizerConditionsData_fedchConstView Data_fedch,
+                                       //  SiStripClusterizerConditionsData_stripConstView Data_strip,
+                                       //  SiStripClusterizerConditionsData_apvConstView Data_apv
+    ) const {
       // Loop over the FEDChannel collection to be digitized
       for (auto chan : uniform_elements(acc, mapping.metadata().size())) {
         // for (uint32_t chan=0; chan<(uint32_t)mapping.metadata().size(); chan++) {
@@ -347,10 +347,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         // const auto detId = mapping.detID(chan);
 
         // reject strips which are in the conditions but not in the fed data collection
-        if (fedId == invalidFed)
+        if (fedId == invalidFed) {
           continue;
+        }
 
-        // const auto ipair = Data_fedch.iPair_(channelIndex(fedId, fedCh));
         const auto ipair = data->iPair_[channelIndex(fedId, fedCh)];
         int ipoff = STRIPS_PER_FEDCH * ipair;
 
@@ -391,7 +391,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                                   SiStripDigiConstView stripDigi,
                                   StripClustersAuxView clusterDataObj,
                                   SiStripMappingConstView mapping,
-                                  SiStripClusterizerConditionsData_stripConstView Data_strip) const {
+                                  const Data* data) const {
       auto nStrips = stripDigi.metadata().size();
       const float seedThreshold = clusterDataObj.seedThreshold();
       for (auto i : uniform_elements(acc, nStrips)) {
@@ -405,7 +405,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         const auto stripID = stripDigi.stripId(i);
 
         const uint32_t idx = stripIndex(fedId, fedCh, stripID);
-        const uint16_t noise_tmp = Data_strip.noise_(idx);
+        const uint16_t noise_tmp = data->noise_[idx];
         const bool isBad = (noise_tmp & badBit) > 0;
 
         if (!isBad) {
@@ -462,7 +462,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                                   StripClustersAuxConstView clusterDataObj,
                                   SiStripClusterView clusters,
                                   SiStripMappingConstView mapping,
-                                  SiStripClusterizerConditionsData_stripConstView Data_strip) const {
+                                  const Data* conditionsData) const {
       //
       const int32_t nStrips = stripDataObj.metadata().size();
       const uint32_t nSeedStripsNC = (kMaxSeedStrips < clusterDataObj.prefixSeedStripsNCMask(nStrips - 1))
@@ -495,7 +495,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         const auto stripId = stripIdArr[chan_];
         //
         const uint32_t idx = stripIndex(fedId, fedCh, stripId);
-        const uint16_t noise_tmp = Data_strip.noise_(idx);
+        const uint16_t noise_tmp = conditionsData->noise_[idx];
         const float noise_i = 0.1f * (noise_tmp & ~badBit);
 
         // Calculate the accumulated noise2 and ADC
@@ -511,7 +511,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
           const auto test_stripId = stripIdArr[testIndex];
 
           const uint32_t test_idx = stripIndex(test_fedId, test_fedCh, test_stripId);
-          const uint16_t test_noise_tmp = Data_strip.noise_(test_idx);
+          const uint16_t test_noise_tmp = conditionsData->noise_[test_idx];
           const bool test_isBad = (test_noise_tmp & badBit) > 0;
 
           const float test_noise_i = 0.1f * (test_noise_tmp & ~badBit);
@@ -611,8 +611,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                                   StripClustersAuxConstView clusterDataObj,
                                   SiStripClusterView clusters,
                                   SiStripMappingConstView mapping,
-                                  SiStripClusterizerConditionsData_fedchConstView Data_fedch,
-                                  SiStripClusterizerConditionsData_apvConstView Data_apv) const {
+                                  const Data* conditionsData) const {
       //
       constexpr uint8_t adc_low_saturation = 254;
       constexpr uint8_t adc_high_saturation = 255;
@@ -643,7 +642,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
               const auto stripId = stripDataObj.stripId(index);
 
               // ThreeThresholdAlgorithm::applyGains
-              const float gain_j = Data_apv.gain_(apvIndex(fedId, fedCh, stripId));
+              const float gain_j = conditionsData->gain_[apvIndex(fedId, fedCh, stripId)];
               uint8_t amplitudes_j = stripDataObj.adc(index);
               const uint16_t charge = static_cast<uint16_t>(static_cast<float>(amplitudes_j) / gain_j + 0.5f);
 
@@ -671,9 +670,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
             const auto fedChL = mapping.fedCh(chanL);
 
             // Flags for siStripClusterTools::chargePerCM in current candidate
-            clusters.candidateAccepted(i) =
-                (clusterDataObj.minGoodCharge() <= 0 ||
-                 ((chargeSum * Data_fedch.invthick_(channelIndex(fedIdL, fedChL))) > clusterDataObj.minGoodCharge()));
+            clusters.candidateAccepted(i) = (clusterDataObj.minGoodCharge() <= 0 ||
+                                             ((chargeSum * conditionsData->invthick_[channelIndex(fedIdL, fedChL)]) >
+                                              clusterDataObj.minGoodCharge()));
 
             // SiStripCluster::initQB() -> barycenter_
             const float bary_i = static_cast<float>(sumx) / static_cast<float>(suma);
@@ -763,10 +762,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     }
   }
 
-  void SiStripRawToClusterAlgo::prepareUnpackCluster(
-      Queue& queue,
-      const SiStripClusterizerConditionsDetToFedsDevice& conditions_DetToFeds,
-      std::unique_ptr<PortableFEDMover> rFEDChMover) {
+  void SiStripRawToClusterAlgo::prepareUnpackCluster(Queue& queue,
+                                                     const DetToFeds* conditions_DetToFeds,
+                                                     std::unique_ptr<PortableFEDMover> rFEDChMover) {
     // Move ownership of the host-data container this class
     fedChMover_ = std::move(rFEDChMover);
 
@@ -782,9 +780,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     uint32_t groups = divide_up_by(fedChMover_->channelNb(), divider);
     auto workDiv = make_workdiv<Acc1D>(groups, divider);
 
-    // alpaka::wait(queue);
-    // std::cout << "#pointA" << std::endl;
-
     auto nstrips_d = make_device_buffer<uint32_t>(queue);
     alpaka::memset(queue, nstrips_d, 0);
 
@@ -798,7 +793,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                         invalidFedChN_d.data(),
                         fedBuffer_d_->data(),
                         stripMapping_d_->view(),
-                        conditions_DetToFeds.const_view());
+                        conditions_DetToFeds);
 
     const uint32_t threads = 1024u;
     const uint32_t nBlocks = divide_up_by(stripMapping_d_->view().metadata().size(), threads);
@@ -823,22 +818,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     auto viewSrc = make_device_view(queue, stripMapping_d_->view().fedChStripsN(size - 1));
     auto viewDst = make_host_view(*nStrips_h_->data());
     alpaka::memcpy(queue, viewDst, viewSrc);
-
-    // auto stripMapping_h = SiStripMappingHost(stripMapping_d->view().metadata().size(), queue);
-    // alpaka::memcpy(queue, stripMapping_h.buffer(), stripMapping_d->buffer());
-    // // auto invalidFedChN_h = make_host_buffer<uint32_t>(queue);
-    // // alpaka::memcpy(queue, invalidFedChN_h, invalidFedChN_d);
-    // alpaka::wait(queue);
-    // // std::cout << "#invalidFed," << invalidFedChN_d.data()[0] << std::endl;
-    // std::cout << "#pointB" << std::endl;
-    // for(int i=0; i<stripMapping_d->view().metadata().size(); ++i){
-    //   if ((i<100) || (i>(stripMapping_d->view().metadata().size()-100))){
-    //     std::cout << "#sMap," << (int)stripMapping_h->fedID(i) << "," << (int)stripMapping_h->fedCh(i) << "," << (int)stripMapping_h->fedChStripsN(i) << std::endl;
-    //   }
-    // }
   }
 
   void SiStripRawToClusterAlgo::unpackStrips(Queue& queue, const Data* conditions_Data) {
+    // std::cout << "#kerStrips," << nStrips_h->data()[0] << std::endl;
+    // std::cout << "#invalidFed," << invalidFedChN_d.data()[0] << std::endl;
+
     // Allocate the SiStripDigi collection on device
     const uint32_t nStrips = nStrips_h_->data()[0];
     digis_d_ = std::make_unique<SiStripDigiDevice>(nStrips, queue);
@@ -854,9 +839,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                         fedBuffer_d_->data(),
                         digis_d_->view(),
                         stripMapping_d_->const_view(),
-                        conditions_Data.const_view<SiStripClusterizerConditionsData_fedchSoA>(),
-                        conditions_Data.const_view<SiStripClusterizerConditionsData_stripSoA>(),
-                        conditions_Data.const_view<SiStripClusterizerConditionsData_apvSoA>());
+                        conditions_Data);
 
     // dumpUnpackedStrips(queue, digis_d_.get()); // (for debugging)
 
@@ -883,7 +866,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                         digis_d_->const_view(),
                         sClustersAux_d_->view(),
                         stripMapping_d_->const_view(),
-                        conditions_Data.const_view<SiStripClusterizerConditionsData_stripSoA>());
+                        conditions_Data);
 
     // Un-seed any contiguous strips in the same detector
     alpaka::exec<Acc1D>(queue,
@@ -946,7 +929,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                         sClustersAux_d_->const_view(),
                         clusters_d->view(),
                         stripMapping_d_->const_view(),
-                        conditions_Data.const_view<SiStripClusterizerConditionsData_stripSoA>());
+                        conditions_Data);
 
     // dumpClusters(queue, clusters_d.get(), digis_d_.get());
 
@@ -958,8 +941,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                         sClustersAux_d_->const_view(),
                         clusters_d->view(),
                         stripMapping_d_->const_view(),
-                        conditions_Data.const_view<SiStripClusterizerConditionsData_fedchSoA>(),
-                        conditions_Data.const_view<SiStripClusterizerConditionsData_apvSoA>());
+                        conditions_Data);
 
     // Fill the prefix indexes for the candidateAccepted
     const uint32_t nThreads = 1024u;
