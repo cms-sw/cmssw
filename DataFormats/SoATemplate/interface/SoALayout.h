@@ -91,6 +91,18 @@ namespace cms::soa {
 
 // -------- MACROS FOR GENERATING SOA LAYOUT --------
 
+#define _COUNT_SOA_ELEM_METHODS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS, DATA) \
+  BOOST_PP_IF(BOOST_PP_EQUAL(VALUE_TYPE, _VALUE_TYPE_ELEM_METHOD), DATA++;, BOOST_PP_EMPTY())
+
+#define _COUNT_SOA_ELEM_METHODS(R, DATA, TYPE_NAME) \
+  BOOST_PP_EXPAND(_COUNT_SOA_ELEM_METHODS_IMPL BOOST_PP_TUPLE_PUSH_BACK(TYPE_NAME, DATA))
+
+#define _COUNT_SOA_CONST_ELEM_METHODS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS, DATA) \
+  BOOST_PP_IF(BOOST_PP_EQUAL(VALUE_TYPE, _VALUE_TYPE_CONST_ELEM_METHOD), DATA++;, BOOST_PP_EMPTY())
+
+#define _COUNT_SOA_CONST_ELEM_METHODS(R, DATA, TYPE_NAME) \
+  BOOST_PP_EXPAND(_COUNT_SOA_CONST_ELEM_METHODS_IMPL BOOST_PP_TUPLE_PUSH_BACK(TYPE_NAME, DATA))
+
 #define _COUNT_SOA_METHODS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS, DATA) \
   BOOST_PP_IF(BOOST_PP_EQUAL(VALUE_TYPE, _VALUE_TYPE_METHOD), DATA++;, BOOST_PP_EMPTY())
 
@@ -1321,11 +1333,11 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       struct const_element {                                                                                           \
         SOA_HOST_DEVICE SOA_INLINE                                                                                     \
         const_element(size_type _soa_impl_index, /* Declare parameters */                                              \
-                      _ITERATE_ON_ALL_COMMA(_DECLARE_CONST_VIEW_ELEMENT_VALUE_ARG, ~, __VA_ARGS__))                \
+                      _ITERATE_ON_ALL_COMMA(_DECLARE_CONST_VIEW_ELEMENT_VALUE_ARG, ~, __VA_ARGS__))                    \
                       : _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_CONST_ELEM_MEMBER_INIT, _soa_impl_index, __VA_ARGS__) {}   \
         _ITERATE_ON_ALL(_DECLARE_VIEW_CONST_ELEMENT_ACCESSOR, ~, __VA_ARGS__)                                          \
                                                                                                                        \
-        ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_CONST_METHODS, ~, __VA_ARGS__))                                         \
+        ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_CONST_ELEM_METHODS, ~, __VA_ARGS__))                                    \
                                                                                                                        \
         private:                                                                                                       \
         _ITERATE_ON_ALL(_DECLARE_VIEW_CONST_ELEMENT_VALUE_MEMBER, ~, __VA_ARGS__)                                      \
@@ -1349,6 +1361,8 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         /* dump the SoA internal structure */                                                                          \
         template <typename T>                                                                                          \
         SOA_HOST_ONLY friend void dump();                                                                              \
+                                                                                                                       \
+        ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_CONST_METHODS, ~, __VA_ARGS__))                                         \
                                                                                                                        \
         private:                                                                                                       \
           size_type elements_ = 0;                                                                                     \
@@ -1508,8 +1522,8 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
           return *this;                                                                                                \
         }                                                                                                              \
                                                                                                                        \
-        ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_METHODS, ~, __VA_ARGS__))                                               \
-        ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_CONST_METHODS, ~, __VA_ARGS__))                                         \
+        ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_ELEM_METHODS, ~, __VA_ARGS__))                                          \
+        ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_CONST_ELEM_METHODS, ~, __VA_ARGS__))                                    \
                                                                                                                        \
         _ITERATE_ON_ALL(_DECLARE_VIEW_ELEMENT_VALUE_MEMBER, ~, __VA_ARGS__)                                            \
       };                                                                                                               \
@@ -1528,6 +1542,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                                                                                                                        \
       /* non-const accessors */                                                                                        \
       _ITERATE_ON_ALL(_DECLARE_VIEW_SOA_ACCESSOR, ~, __VA_ARGS__)                                                      \
+                                                                                                                       \
+      ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_METHODS, ~, __VA_ARGS__))                                                 \
+      ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_CONST_METHODS, ~, __VA_ARGS__))                                           \
                                                                                                                        \
       /* dump the SoA internal structure */                                                                            \
       template <typename T>                                                                                            \
@@ -1628,6 +1645,17 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
     }                                                                                                                  \
                                                                                                                        \
     /* Helper function to compute the total number of methods */                                                       \
+    static constexpr std::pair<size_type, size_type> computeElemMethodsNumber() {                                      \
+      size_type _soa_elem_methods_count = 0;                                                                           \
+      size_type _soa_const_elem_methods_count = 0;                                                                     \
+                                                                                                                       \
+      _ITERATE_ON_ALL(_COUNT_SOA_ELEM_METHODS, _soa_elem_methods_count, __VA_ARGS__)                                   \
+      _ITERATE_ON_ALL(_COUNT_SOA_CONST_ELEM_METHODS, _soa_const_elem_methods_count, __VA_ARGS__)                       \
+                                                                                                                       \
+      return {_soa_elem_methods_count, _soa_const_elem_methods_count};                                                 \
+    }                                                                                                                  \
+                                                                                                                       \
+    /* Helper function to compute the total number of methods */                                                       \
     static constexpr std::pair<size_type, size_type> computeMethodsNumber() {                                          \
       size_type _soa_methods_count = 0;                                                                                \
       size_type _soa_const_methods_count = 0;                                                                          \
@@ -1638,13 +1666,22 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       return {_soa_methods_count, _soa_const_methods_count};                                                           \
     }                                                                                                                  \
                                                                                                                        \
-    /* compile-time error launched if more than one macro for methods is declared */                                   \
-    static_assert(computeMethodsNumber().first <= 1,                                                                   \
+    /* compile-time error launched if more than one macro for element methods is declared */                           \
+    static_assert(computeElemMethodsNumber().first <= 1,                                                               \
                   "There can be at most one SOA_ELEMENT_METHODS macro."                                                \
                   "Please declare all your methods inside the same macro.");                                           \
                                                                                                                        \
-    static_assert(computeMethodsNumber().second <= 1,                                                                  \
+    static_assert(computeElemMethodsNumber().second <= 1,                                                              \
                   "There can be at most one SOA_CONST_ELEMENT_METHODS macro."                                          \
+                  "Please declare all your methods inside the same macro.");                                           \
+                                                                                                                       \
+    /* compile-time error launched if more than one macro for methods is declared */                                   \
+    static_assert(computeMethodsNumber().first <= 1,                                                                   \
+                  "There can be at most one SOA_METHODS macro."                                                        \
+                  "Please declare all your methods inside the same macro.");                                           \
+                                                                                                                       \
+    static_assert(computeMethodsNumber().second <= 1,                                                                  \
+                  "There can be at most one SOA_CONST_METHODS macro."                                                  \
                   "Please declare all your methods inside the same macro.");                                           \
                                                                                                                        \
     /* Data members */                                                                                                 \
@@ -1652,8 +1689,8 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
     size_type elements_;                                                                                               \
     size_type const scalar_ = 1;                                                                                       \
     byte_size_type byteSize_ EDM_REFLEX_TRANSIENT;                                                                     \
-    /* TODO: The layout will contain SoAParametersImpl as members for the columns, which will allow the use of   	   \
-    * more template helper functions. */																			   \
+    /* TODO: The layout will contain SoAParametersImpl as members for the columns, which will allow the use of   	     \
+    * more template helper functions. */																			                                         \
     _ITERATE_ON_ALL(_DECLARE_SOA_DATA_MEMBER, ~, __VA_ARGS__)                                                          \
     /* Making the code conditional is problematic in macros as the commas will interfere with parameter lisings     */ \
     /* So instead we make the code unconditional with paceholder names which are protected by a private protection. */ \

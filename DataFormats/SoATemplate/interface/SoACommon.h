@@ -56,8 +56,10 @@
 #define _VALUE_TYPE_SCALAR 0
 #define _VALUE_TYPE_COLUMN 1
 #define _VALUE_TYPE_EIGEN_COLUMN 2
-#define _VALUE_TYPE_METHOD 3
-#define _VALUE_TYPE_CONST_METHOD 4
+#define _VALUE_TYPE_ELEM_METHOD 3
+#define _VALUE_TYPE_CONST_ELEM_METHOD 4
+#define _VALUE_TYPE_METHOD 5
+#define _VALUE_TYPE_CONST_METHOD 6
 
 /* declare the value of last valid column */
 #define _VALUE_LAST_COLUMN_TYPE _VALUE_TYPE_EIGEN_COLUMN
@@ -614,16 +616,30 @@ namespace cms::soa {
 #define SOA_SCALAR(TYPE, NAME) (_VALUE_TYPE_SCALAR, TYPE, NAME, ~)
 #define SOA_COLUMN(TYPE, NAME) (_VALUE_TYPE_COLUMN, TYPE, NAME, ~)
 #define SOA_EIGEN_COLUMN(TYPE, NAME) (_VALUE_TYPE_EIGEN_COLUMN, TYPE, NAME, ~)
-#define SOA_ELEMENT_METHODS(...) (_VALUE_TYPE_METHOD, _, _, (__VA_ARGS__))
-#define SOA_CONST_ELEMENT_METHODS(...) (_VALUE_TYPE_CONST_METHOD, _, _, (__VA_ARGS__))
+#define SOA_ELEMENT_METHODS(...) (_VALUE_TYPE_ELEM_METHOD, _, _, (__VA_ARGS__))
+#define SOA_CONST_ELEMENT_METHODS(...) (_VALUE_TYPE_CONST_ELEM_METHOD, _, _, (__VA_ARGS__))
+#define SOA_METHODS(...) (_VALUE_TYPE_METHOD, _, _, (__VA_ARGS__))
+#define SOA_CONST_METHODS(...) (_VALUE_TYPE_CONST_METHOD, _, _, (__VA_ARGS__))
 
 /* Macro generating customized methods for the element */
+#define GENERATE_ELEM_METHODS(R, DATA, FIELD)                                         \
+  BOOST_PP_IF(BOOST_PP_EQUAL(BOOST_PP_TUPLE_ELEM(0, FIELD), _VALUE_TYPE_ELEM_METHOD), \
+              BOOST_PP_TUPLE_ELEM(3, FIELD),                                          \
+              BOOST_PP_EMPTY())
+
+/* Macro generating customized methods for the const element*/
+#define GENERATE_CONST_ELEM_METHODS(R, DATA, FIELD)                                         \
+  BOOST_PP_IF(BOOST_PP_EQUAL(BOOST_PP_TUPLE_ELEM(0, FIELD), _VALUE_TYPE_CONST_ELEM_METHOD), \
+              BOOST_PP_TUPLE_ELEM(3, FIELD),                                                \
+              BOOST_PP_EMPTY())
+
+/* Macro generating customized methods for the View */
 #define GENERATE_METHODS(R, DATA, FIELD)                                         \
   BOOST_PP_IF(BOOST_PP_EQUAL(BOOST_PP_TUPLE_ELEM(0, FIELD), _VALUE_TYPE_METHOD), \
               BOOST_PP_TUPLE_ELEM(3, FIELD),                                     \
               BOOST_PP_EMPTY())
 
-/* Macro generating customized methods for the const element*/
+/* Macro generating customized methods for the ConstView */
 #define GENERATE_CONST_METHODS(R, DATA, FIELD)                                         \
   BOOST_PP_IF(BOOST_PP_EQUAL(BOOST_PP_TUPLE_ELEM(0, FIELD), _VALUE_TYPE_CONST_METHOD), \
               BOOST_PP_TUPLE_ELEM(3, FIELD),                                           \
