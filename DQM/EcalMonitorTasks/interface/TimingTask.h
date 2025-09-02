@@ -35,7 +35,16 @@ namespace ecaldqm {
     float timeErrorThreshold_;
     bool splashSwitch_;
 
+    // non corrected plots only turned on for offline
     MESet* meTimeMapByLS;
+    MESet* meTimeMapByLS_nonCorr;
+    MESet* meTimeAmp_nonCorr;
+    MESet* meTimeAmpAll_nonCorr;
+    MESet* meTimingVsBX_nonCorr;
+    MESet* meTimeAll_nonCorr;
+    MESet* meTimeAllMap_nonCorr;
+    MESet* meTimeMap_nonCorr;
+    MESet* meTime1D_nonCorr;
   };
 
   inline bool TimingTask::analyze(void const* _p, Collections _collection) {

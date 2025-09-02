@@ -122,10 +122,10 @@ void CTPPSCommonDQMSource::GlobalPlots::Init(DQMStore::IBooker &ibooker) {
      3 -> ok
   */
   RPState = ibooker.book2D(
-      "rpstate per LS", "RP State per Lumisection;Luminosity Section;", 1000, 0, 1000, MAX_VBINS, 0., MAX_VBINS);
+      "rpstate per LS", "RP State per Lumisection;Luminosity Section;", 3000, 0, 3000, MAX_VBINS, 0., MAX_VBINS);
   {
     TH2F *hist = RPState->getTH2F();
-    hist->SetCanExtend(TH1::kAllAxes);
+    hist->SetCanExtend(TH2F::kXaxis);
     TAxis *ya = hist->GetYaxis();
     ya->SetBinLabel(1, "45, 210, FR-BT");
     ya->SetBinLabel(2, "45, 210, FR-HR");

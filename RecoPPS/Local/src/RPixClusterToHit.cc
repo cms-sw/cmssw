@@ -1,65 +1,63 @@
 #include "RecoPPS/Local/interface/RPixClusterToHit.h"
 
-RPixClusterToHit::RPixClusterToHit(edm::ParameterSet const &conf) {
-  verbosity_ = conf.getUntrackedParameter<int>("RPixVerbosity");
-}
-
-RPixClusterToHit::~RPixClusterToHit() {}
+RPixClusterToHit::RPixClusterToHit(edm::ParameterSet const &conf)
+    : verbosity_(conf.getUntrackedParameter<int>("RPixVerbosity")) {}
 
 void RPixClusterToHit::buildHits(unsigned int detId,
                                  const std::vector<CTPPSPixelCluster> &clusters,
                                  std::vector<CTPPSPixelRecHit> &hits,
-                                 const PPSPixelTopology &ppt) {
+                                 const PPSPixelTopology &ppt) const {
   if (verbosity_)
     edm::LogInfo("PPS") << " RPixClusterToHit " << detId << " received cluster array of size = " << clusters.size();
+
   for (unsigned int i = 0; i < clusters.size(); i++) {
-    make_hit(clusters[i], hits, ppt);
+    makeHit(clusters[i], hits, ppt);
   }
 }
 
-void RPixClusterToHit::make_hit(CTPPSPixelCluster aCluster,
-                                std::vector<CTPPSPixelRecHit> &hits,
-                                const PPSPixelTopology &ppt) {
+void RPixClusterToHit::makeHit(CTPPSPixelCluster cluster,
+                               std::vector<CTPPSPixelRecHit> &hits,
+                               const PPSPixelTopology &ppt) const {
   // take a cluster, generate a rec hit and push it in the rec hit vector
 
   //call the numbering inside the ROC
   CTPPSPixelIndices pxlInd;
   // get information from the cluster
   // get the whole cluster size and row/col size
-  unsigned int thisClusterSize = aCluster.size();
-  unsigned int thisClusterRowSize = aCluster.sizeRow();
-  unsigned int thisClusterColSize = aCluster.sizeCol();
+  unsigned int thisClusterSize = cluster.size();
+  unsigned int thisClusterRowSize = cluster.sizeRow();
+  unsigned int thisClusterColSize = cluster.sizeCol();
 
   // get the minimum pixel row/col
-  unsigned int thisClusterMinRow = aCluster.minPixelRow();
-  unsigned int thisClusterMinCol = aCluster.minPixelCol();
+  unsigned int thisClusterMinRow = cluster.minPixelRow();
+  unsigned int thisClusterMinCol = cluster.minPixelCol();
 
   // calculate "on edge" flag
   bool anEdgePixel = false;
-  if (aCluster.minPixelRow() == 0 || aCluster.minPixelCol() == 0 ||
-      int(aCluster.minPixelRow() + aCluster.rowSpan()) == (pxlInd.getDefaultRowDetSize() - 1) ||
-      int(aCluster.minPixelCol() + aCluster.colSpan()) == (pxlInd.getDefaultColDetSize() - 1))
+  if (cluster.minPixelRow() == 0 || cluster.minPixelCol() == 0 ||
+      int(cluster.minPixelRow() + cluster.rowSpan()) == (pxlInd.getDefaultRowDetSize() - 1) ||
+      int(cluster.minPixelCol() + cluster.colSpan()) == (pxlInd.getDefaultColDetSize() - 1))
     anEdgePixel = true;
 
   // check for bad (ADC=0) pixels in cluster
   bool aBadPixel = false;
   for (unsigned int i = 0; i < thisClusterSize; i++) {
-    if (aCluster.pixelADC(i) == 0)
+    if (cluster.pixelADC(i) == 0)
       aBadPixel = true;
   }
 
   // check for spanning two ROCs
   bool twoRocs = false;
-  int currROCId = pxlInd.getROCId(aCluster.pixelCol(0), aCluster.pixelRow(0));
+  int currROCId = pxlInd.getROCId(cluster.pixelCol(0), cluster.pixelRow(0));
 
   for (unsigned int i = 1; i < thisClusterSize; i++) {
-    if (pxlInd.getROCId(aCluster.pixelCol(i), aCluster.pixelRow(i)) != currROCId) {
+    if (pxlInd.getROCId(cluster.pixelCol(i), cluster.pixelRow(i)) != currROCId) {
       twoRocs = true;
       break;
     }
   }
 
-  //estimate position and error of the hit
+  // estimate position and error of the hit
   double avgWLocalX = 0;
   double avgWLocalY = 0;
   double weights = 0;
@@ -72,33 +70,34 @@ void RPixClusterToHit::make_hit(CTPPSPixelCluster aCluster,
 
   for (unsigned int i = 0; i < thisClusterSize; i++) {
     if (verbosity_)
-      edm::LogInfo("PPS") << "RPixClusterToHit " << aCluster.pixelRow(i) << " " << aCluster.pixelCol(i) << " "
-                          << aCluster.pixelADC(i);
+      edm::LogInfo("PPS") << "RPixClusterToHit " << cluster.pixelRow(i) << " " << cluster.pixelCol(i) << " "
+                          << cluster.pixelADC(i);
 
     double minPxlX = 0;
     double minPxlY = 0;
     double maxPxlX = 0;
     double maxPxlY = 0;
 
-    ppt.pixelRange(aCluster.pixelRow(i), aCluster.pixelCol(i), minPxlX, maxPxlX, minPxlY, maxPxlY);
+    ppt.pixelRange(cluster.pixelRow(i), cluster.pixelCol(i), minPxlX, maxPxlX, minPxlY, maxPxlY);
     double halfSizeX = (maxPxlX - minPxlX) / 2.;
     double halfSizeY = (maxPxlY - minPxlY) / 2.;
     double avgPxlX = minPxlX + halfSizeX;
     double avgPxlY = minPxlY + halfSizeY;
-    //error propagation
-    weightedVarianceX += aCluster.pixelADC(i) * aCluster.pixelADC(i) * halfSizeX * halfSizeX / 3.;
-    weightedVarianceY += aCluster.pixelADC(i) * aCluster.pixelADC(i) * halfSizeY * halfSizeY / 3.;
 
-    avgWLocalX += avgPxlX * aCluster.pixelADC(i);
-    avgWLocalY += avgPxlY * aCluster.pixelADC(i);
-    weights += aCluster.pixelADC(i);
+    // error propagation
+    weightedVarianceX += cluster.pixelADC(i) * cluster.pixelADC(i) * halfSizeX * halfSizeX / 3.;
+    weightedVarianceY += cluster.pixelADC(i) * cluster.pixelADC(i) * halfSizeY * halfSizeY / 3.;
+
+    avgWLocalX += avgPxlX * cluster.pixelADC(i);
+    avgWLocalY += avgPxlY * cluster.pixelADC(i);
+    weights += cluster.pixelADC(i);
   }
 
   if (weights == 0) {
     edm::LogError("RPixClusterToHit") << " unexpected weights = 0 for cluster (Row_min, Row_max, Col_min, Col_max) = ("
-                                      << aCluster.minPixelRow() << "," << aCluster.minPixelRow() + aCluster.rowSpan()
-                                      << "," << aCluster.minPixelCol() << ","
-                                      << aCluster.minPixelCol() + aCluster.colSpan() << ")";
+                                      << cluster.minPixelRow() << "," << cluster.minPixelRow() + cluster.rowSpan()
+                                      << "," << cluster.minPixelCol() << ","
+                                      << cluster.minPixelCol() + cluster.colSpan() << ")";
     return;
   }
 
@@ -124,6 +123,4 @@ void RPixClusterToHit::make_hit(CTPPSPixelCluster aCluster,
                     thisClusterSize,
                     thisClusterRowSize,
                     thisClusterColSize);
-
-  return;
 }

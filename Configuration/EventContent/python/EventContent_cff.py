@@ -95,6 +95,13 @@ from L1Trigger.Configuration.L1Trigger_EventContent_cff import *
 #
 #
 from HLTrigger.Configuration.HLTrigger_EventContent_cff import *
+from HLTrigger.Configuration.HLTScouting_EventContent_cff import HLTScoutingExtra
+# Extend HLT dataformats to the previous scouting objects, to keep them when running on old data/MC
+HLTriggerMINIAODSIM.outputCommands.extend(HLTScoutingExtra.outputCommands)
+HLTriggerMINIAOD.outputCommands.extend(HLTScoutingExtra.outputCommands)
+HLTriggerAOD.outputCommands.extend(HLTScoutingExtra.outputCommands)
+HLTriggerRECO.outputCommands.extend(HLTScoutingExtra.outputCommands)
+HLTDebugFEVT.outputCommands.extend(HLTScoutingExtra.outputCommands)
 #
 #
 # DQM
@@ -956,7 +963,7 @@ MINIAODSIMEventContent= cms.PSet(
     compressionLevel=cms.untracked.int32(4)
 )
 MINIAODSIMEventContent.outputCommands.extend(MicroEventContentMC.outputCommands)
-MINIAODSIMEventContent.outputCommands.extend(HLTriggerMINIAOD.outputCommands)
+MINIAODSIMEventContent.outputCommands.extend(HLTriggerMINIAODSIM.outputCommands)
 
 MINIGENEventContent= cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),

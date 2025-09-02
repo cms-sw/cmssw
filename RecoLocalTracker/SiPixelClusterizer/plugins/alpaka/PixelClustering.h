@@ -209,6 +209,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
         ALPAKA_ASSERT_ACC(thisModuleId < TrackerTraits::numberOfModules);
 
 #ifdef GPU_DEBUG
+        auto block = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u];
         if (thisModuleId % 100 == 1)
           if (cms::alpakatools::once_per_block(acc))
             printf("start clusterizer for module %4d in block %4d\n", thisModuleId, block);

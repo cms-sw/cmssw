@@ -29,6 +29,7 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "helper.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class BToTrkLLBuilder : public edm::global::EDProducer<> {
   // perhaps we need better structure here (begin run etc)
@@ -122,6 +123,7 @@ void BToTrkLLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup co
       cand.addUserInt("l1_idx", l1_idx);
       cand.addUserInt("l2_idx", l2_idx);
       cand.addUserInt("trk_idx", k_idx);
+      cand.addUserInt("ll_idx", ll_idx);
 
       auto dr_info = bph::min_max_dr({l1_ptr, l2_ptr, k_ptr});
       cand.addUserFloat("min_dr", dr_info.first);
@@ -130,10 +132,15 @@ void BToTrkLLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup co
       if (!pre_vtx_selection_(cand))
         continue;
 
-      KinVtxFitter fitter({leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx), kaons_ttracks->at(k_idx)},
-                          {l1_ptr->mass(), l2_ptr->mass(), bph::K_MASS},
-                          {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA}  // some small sigma for the lepton mass
-      );
+      KinVtxFitter fitter;
+      try {
+        fitter = KinVtxFitter({leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx), kaons_ttracks->at(k_idx)},
+                              {l1_ptr->mass(), l2_ptr->mass(), bph::K_MASS},
+                              {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA});
+      } catch (const VertexException &e) {
+        edm::LogWarning("KinematicFit") << "BToKLL: Skipping candidate due to fit failure: " << e.what();
+        continue;
+      }
 
       if (!fitter.success())
         continue;  // hardcoded, but do we need otherwise?
@@ -166,6 +173,19 @@ void BToTrkLLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup co
 
       if (!post_vtx_selection_(cand))
         continue;
+
+      const reco::BeamSpot &beamSpot = *beamspot;
+      TrajectoryStateClosestToPoint theDCAXBS = fitter.fitted_candidate_ttrk().trajectoryStateClosestToPoint(
+          GlobalPoint(beamSpot.position().x(), beamSpot.position().y(), beamSpot.position().z()));
+      double DCAB0BS = -99.;
+      double DCAB0BSErr = -99.;
+
+      if (theDCAXBS.isValid() == true) {
+        DCAB0BS = theDCAXBS.perigeeParameters().transverseImpactParameter();
+        DCAB0BSErr = theDCAXBS.perigeeError().transverseImpactParameterError();
+      }
+      cand.addUserFloat("dca", DCAB0BS);
+      cand.addUserFloat("dcaErr", DCAB0BSErr);
 
       cand.addUserFloat("vtx_x", cand.vx());
       cand.addUserFloat("vtx_y", cand.vy());
@@ -217,11 +237,18 @@ void BToTrkLLBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup co
         // Mass constraint is applied to the first two particles in the
         // "particles" vector Make sure that the first two particles are the
         // ones you want to constrain
-        KinVtxFitter constraint_fitter(
-            {leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx), kaons_ttracks->at(k_idx)},
-            {l1_ptr->mass(), l2_ptr->mass(), bph::K_MASS},
-            {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA},
-            mass_constraint);
+        KinVtxFitter constraint_fitter;
+        try {
+          constraint_fitter =
+              KinVtxFitter({leptons_ttracks->at(l1_idx), leptons_ttracks->at(l2_idx), kaons_ttracks->at(k_idx)},
+                           {l1_ptr->mass(), l2_ptr->mass(), bph::K_MASS},
+                           {bph::LEP_SIGMA, bph::LEP_SIGMA, bph::K_SIGMA},
+                           mass_constraint);
+        } catch (const VertexException &e) {
+          edm::LogWarning("KinematicFit")
+              << "BToKLL - Constrained fit: Skipping candidate due to fit failure: " << e.what();
+          continue;
+        }
         if (constraint_fitter.success()) {
           auto constraint_p4 = constraint_fitter.fitted_p4();
           constraint_sv_prob = constraint_fitter.prob();

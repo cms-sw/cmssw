@@ -79,6 +79,7 @@ private:
   const std::vector<SiPixelTemplateStore> *thePixelTemp_;
 
   int speed_;
+  bool goodEdgeAlgo_;
 
   bool UseClusterSplitter_;
 

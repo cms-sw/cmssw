@@ -2,14 +2,15 @@
 #include <vector>
 #include <utility>
 
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Utilities/interface/EDGetToken.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -68,6 +69,8 @@ private:
   edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > siphase2OTSimLinksToken_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClustersToken_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > stripClustersToken_;
+  const edm::InputTag otherStripClusterTag_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > stripClustersOtherToken_;
   edm::EDGetTokenT<edmNew::DetSetVector<Phase2TrackerCluster1D> > phase2OTClustersToken_;
   edm::EDGetTokenT<TrackingParticleCollection> trackingParticleToken_;
   bool throwOnMissingCollections_;
@@ -84,6 +87,8 @@ ClusterTPAssociationProducer::ClusterTPAssociationProducer(const edm::ParameterS
           consumes<edmNew::DetSetVector<SiPixelCluster> >(cfg.getParameter<edm::InputTag>("pixelClusterSrc"))),
       stripClustersToken_(
           consumes<edmNew::DetSetVector<SiStripCluster> >(cfg.getParameter<edm::InputTag>("stripClusterSrc"))),
+      otherStripClusterTag_(cfg.getParameter<edm::InputTag>("stripClusterOtherSrc")),
+      stripClustersOtherToken_(consumes<edmNew::DetSetVector<SiStripCluster> >(otherStripClusterTag_)),
       phase2OTClustersToken_(consumes<edmNew::DetSetVector<Phase2TrackerCluster1D> >(
           cfg.getParameter<edm::InputTag>("phase2OTClusterSrc"))),
       trackingParticleToken_(
@@ -100,6 +105,7 @@ void ClusterTPAssociationProducer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<edm::InputTag>("phase2OTSimLinkSrc", edm::InputTag("simSiPixelDigis", "Tracker"));
   desc.add<edm::InputTag>("pixelClusterSrc", edm::InputTag("siPixelClusters"));
   desc.add<edm::InputTag>("stripClusterSrc", edm::InputTag("siStripClusters"));
+  desc.add<edm::InputTag>("stripClusterOtherSrc", edm::InputTag(""));
   desc.add<edm::InputTag>("phase2OTClusterSrc", edm::InputTag("siPhase2Clusters"));
   desc.add<edm::InputTag>("trackingParticleSrc", edm::InputTag("mix", "MergedTrackTruth"));
   desc.add<bool>("throwOnMissingCollections", true);
@@ -115,6 +121,12 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
   edm::Handle<edmNew::DetSetVector<SiStripCluster> > stripClusters;
   bool foundStripClusters = iEvent.getByToken(stripClustersToken_, stripClusters);
 
+  // Strip Cluster (other product, if there)
+  bool foundOtherStripClusters = false;
+  edm::Handle<edmNew::DetSetVector<SiStripCluster> > stripClustersOther;
+  if (otherStripClusterTag_ != edm::InputTag(""))
+    foundOtherStripClusters = iEvent.getByToken(stripClustersOtherToken_, stripClustersOther);
+
   // Phase2 Cluster
   edm::Handle<edmNew::DetSetVector<Phase2TrackerCluster1D> > phase2OTClusters;
   bool foundPhase2OTClusters = iEvent.getByToken(phase2OTClustersToken_, phase2OTClusters);
@@ -129,9 +141,10 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
   }
 
   // SiStrip DigiSimLink
+  bool foundAnyStripClusters = (foundStripClusters || foundOtherStripClusters);
   edm::Handle<edm::DetSetVector<StripDigiSimLink> > sistripSimLinks;
   auto stripSimLinksFound = iEvent.getByToken(sistripSimLinksToken_, sistripSimLinks);
-  if (not throwOnMissingCollections_ and foundStripClusters and not stripSimLinksFound) {
+  if (not throwOnMissingCollections_ and foundAnyStripClusters and not stripSimLinksFound) {
     auto clusterTPList = std::make_unique<ClusterTPAssociation>();
     iEvent.put(std::move(clusterTPList));
     return;
@@ -183,10 +196,10 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
          ++iter) {
       uint32_t detid = iter->id();
       DetId detId(detid);
-      edmNew::DetSet<SiPixelCluster> link_pixel = (*iter);
-      for (edmNew::DetSet<SiPixelCluster>::const_iterator di = link_pixel.begin(); di != link_pixel.end(); ++di) {
-        const SiPixelCluster& cluster = (*di);
-        edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> c_ref = edmNew::makeRefTo(pixelClusters, di);
+      const auto& link_pixel = (*iter);
+      for (const auto& cluster : link_pixel) {
+        auto di = &cluster - &*link_pixel.begin();
+        auto c_ref = edmNew::makeRefTo(pixelClusters, link_pixel.begin() + di);
 
         simTkIds.clear();
         for (int irow = cluster.minPixelRow(); irow <= cluster.maxPixelRow(); ++irow) {
@@ -197,10 +210,13 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
             simTkIds.insert(trkid.begin(), trkid.end());
           }
         }
-        for (auto iset = simTkIds.begin(); iset != simTkIds.end(); iset++) {
-          auto ipos = mapping.find(*iset);
+
+        for (const auto& simTkId : simTkIds) {
+          auto ipos = mapping.find(simTkId);
           if (ipos != mapping.end()) {
-            //std::cout << "cluster in detid: " << detid << " from tp: " << ipos->second.key() << " " << iset->first << std::endl;
+            LogDebug("ClusterTPAssociationProducer")
+                << "cluster in detid: " << detid << " from tp: " << ipos->second.key() << " " << simTkId.first
+                << std::endl;
             clusterTPList->emplace_back(OmniClusterRef(c_ref), ipos->second);
           }
         }
@@ -219,10 +235,50 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
         continue;
       uint32_t detid = iter->id();
       DetId detId(detid);
+      const auto& link_strip = (*iter);
+      for (const auto& cluster : link_strip) {
+        auto di = &cluster - &*link_strip.begin();
+        auto c_ref = edmNew::makeRefTo(stripClusters, link_strip.begin() + di);
+
+        simTkIds.clear();
+        int first = cluster.firstStrip();
+        int last = first + cluster.amplitudes().size();
+
+        for (int istr = first; istr < last; ++istr) {
+          trkid.clear();
+          getSimTrackId<StripDigiSimLink>(trkid, sistripSimLinks, detId, istr);
+          simTkIds.insert(trkid.begin(), trkid.end());
+        }
+
+        for (const auto& simTkId : simTkIds) {
+          const auto& ipos = mapping.find(simTkId);
+          if (ipos != mapping.end()) {
+            LogDebug("ClusterTPAssociationProducer")
+                << "cluster in detid: " << detid << " from tp: " << ipos->second.key() << " " << simTkId.first
+                << std::endl;
+            clusterTPList->emplace_back(OmniClusterRef(c_ref), ipos->second);
+          }
+        }
+      }
+    }
+  }
+
+  if (foundOtherStripClusters) {
+    // Strip Clusters (other product, if there)
+    clusterTPList->addKeyID(stripClustersOther.id());
+    for (edmNew::DetSetVector<SiStripCluster>::const_iterator iter = stripClustersOther->begin(false),
+                                                              eter = stripClustersOther->end(false);
+         iter != eter;
+         ++iter) {
+      if (!(*iter).isValid())
+        continue;
+      uint32_t detid = iter->id();
+      DetId detId(detid);
       edmNew::DetSet<SiStripCluster> link_strip = (*iter);
       for (edmNew::DetSet<SiStripCluster>::const_iterator di = link_strip.begin(); di != link_strip.end(); di++) {
         const SiStripCluster& cluster = (*di);
-        edm::Ref<edmNew::DetSetVector<SiStripCluster>, SiStripCluster> c_ref = edmNew::makeRefTo(stripClusters, di);
+        edm::Ref<edmNew::DetSetVector<SiStripCluster>, SiStripCluster> c_ref =
+            edmNew::makeRefTo(stripClustersOther, di);
 
         simTkIds.clear();
         int first = cluster.firstStrip();

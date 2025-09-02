@@ -464,7 +464,7 @@ upgradeWFs['trackingMkFit'] = UpgradeWorkflow_trackingMkFit(
     offset = 0.7,
 )
 upgradeWFs['trackingMkFit'].step2 = {
-    '--customise': 'RecoTracker/MkFit/customizeHLTIter0ToMkFit.customizeHLTIter0ToMkFit'
+    '--customise': 'RecoTracker/MkFit/customizeHLTTrackingToMkFit.customizeHLTIter0ToMkFit,RecoTracker/MkFit/customizeHLTTrackingToMkFit.customizeHLTDoubletRecoveryToMkFit'
 }
 upgradeWFs['trackingMkFit'].step3 = {
     '--procModifiers': 'trackingMkFitDevel'
@@ -614,6 +614,32 @@ upgradeWFs['siPixelDigiMorphing'] = UpgradeWorkflow_siPixelDigiMorphing(
     offset = 0.18,
 )
 
+# pixel GoodEdgeAlgo CPE workflows
+class UpgradeWorkflow_siPixelGoodEdgeAlgo(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step:
+            stepDict[stepName][k] = merge([{'--procModifiers': 'siPixelGoodEdgeAlgo'}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        result = (fragment=="QCD_Pt_1800_2400_14" or fragment=="TTbar_14TeV" ) and any(y in key for y in ['2025'])
+        return result
+upgradeWFs['siPixelGoodEdgeAlgo'] = UpgradeWorkflow_siPixelGoodEdgeAlgo(
+    steps = [
+        'Reco',
+        'RecoFakeHLT',
+        'RecoGlobal',
+        'RecoNano',
+        'RecoNanoFakeHLT',
+    ],
+    PU = [
+        'Reco',
+        'RecoFakeHLT',
+        'RecoGlobal',
+        'RecoNano',
+        'RecoNanoFakeHLT',
+    ],
+    suffix = '_siPixelGoodEdgeAlgo',
+    offset = 0.186,
+)
 
 #Workflow to enable displacedRegionalStep tracking iteration
 class UpgradeWorkflow_displacedRegional(UpgradeWorkflowTracking):
@@ -2967,7 +2993,7 @@ upgradeProperties[2017] = {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2024_realistic',
         'HLTmenu': '@relval2024',
-        'Era' : 'Run3_FastSim',
+        'Era' : 'Run3_2024_FastSim',
         'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
     },

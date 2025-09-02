@@ -54,6 +54,7 @@ class Eras (object):
                  'Run3_2023_UPC',
                  'Run3_2024_ppRef',
                  'Run3_2024_UPC',
+                 'Run3_2024_FastSim',
                  'Run3_2025_UPC',
                  'Run3_2025_OXY',
                  'Run3_2025_UPC_OXY',

@@ -638,7 +638,7 @@ steps['RunParkingDoubleMuonLowMass2023D']={'INPUT':InputInfo(dataSet='/ParkingDo
 Run2023UPC={375463: [[52,52]]}
 steps['RunUPC2023']={'INPUT':InputInfo(dataSet='/HIForward1/HIRun2023A-v1/RAW',label='upc2023',events=10000,location='STD',ls=Run2023UPC)}
 
-Run2024UPC={388784: [[344,344]]}
+Run2024UPC={388784: [[406,406]]}
 steps['RunUPC2024']={'INPUT':InputInfo(dataSet='/HIForward0/HIRun2024B-v1/RAW',label='upc2024',events=10000,location='STD',ls=Run2024UPC)}
 
 RunHI2023={375491: [[100, 100]]}
@@ -1715,10 +1715,10 @@ steps['BsToMuMu_forSTEAM_13TeV_ExtGen']=genvalid('BsToMuMu_forSTEAM_13TeV_ExtGen
 steps['BuToKstarJPsiToMuMu_forSTEAM_13TeV_ExtGen']=genvalid('BuToKstarJPsiToMuMu_forSTEAM_13TeV_ExtGen_cfi',step1GenDefaults)
 steps['ZTTFS_ExtGen']=genvalid('ZTT_Tauola_OneLepton_OtherHadrons_8TeV_TuneCUETP8M1_ExtGen_cfi',step1GenDefaults)
 steps['sherpa_ttbar_2j_MENLOPS_13TeV_MASTER_ExtGen']=genvalid('sherpa_ttbar_2j_MENLOPS_13TeV_MASTER_ExtGen_cff',merge([{'-n':'50'},step1GenDefaults]))
-steps['HydjetQ_B12_5020GeV_2018_ExtGen']=genvalid('Hydjet_Quenched_B12_5020GeV_ExtGen_cfi',step1GenDefaults)
-steps['AMPT_PPb_5020GeV_MinimumBias_ExtGen']=genvalid('AMPT_PPb_5020GeV_MinimumBias_ExtGen_cfi',step1GenDefaults)
-steps['EPOS_PPb_8160GeV_MinimumBias_ExtGen']=genvalid('ReggeGribovPartonMC_EposLHC_4080_4080GeV_pPb_ExtGen_cfi',step1GenDefaults)
-steps['Pyquen_ZeemumuJets_pt10_2760GeV_ExtGen']=genvalid('Pyquen_ZeemumuJets_pt10_2760GeV_ExtGen_cfi',step1GenDefaults)
+steps['HydjetQ_B12_5020GeV_2018_ExtGen']=genvalid('Hydjet_Quenched_B12_5020GeV_cfi',step1GenDefaults)
+steps['AMPT_PPb_5020GeV_MinimumBias_ExtGen']=genvalid('AMPT_PPb_5020GeV_MinimumBias_cfi',step1GenDefaults)
+steps['EPOS_PPb_8160GeV_MinimumBias_ExtGen']=genvalid('ReggeGribovPartonMC_EposLHC_4080_4080GeV_pPb_cfi',step1GenDefaults)
+steps['Pyquen_ZeemumuJets_pt10_2760GeV_ExtGen']=genvalid('Pyquen_ZeemumuJets_pt10_2760GeV_cfi',step1GenDefaults)
 
 # Generator Hadronization (Hadronization of LHE)
 steps['WJetsLNu_13TeV_madgraph-pythia8']=genvalid('Hadronizer_MgmMatchTuneCUETP8M1_13TeV_madgraph_pythia8_cff',step1GenDefaults,dataSet='/WJetsToLNu_13TeV-madgraph/Fall13wmLHE-START62_V1-v1/GEN')
@@ -2043,7 +2043,7 @@ steps['DIGIUP17_PU25']=merge([PU25UP17,step2Upg2017Defaults])
 steps['DIGIUP18_PU25']=merge([PU25UP18,step2Upg2018Defaults])
 
 # for Run2 PPb MC workflows
-steps['DIGIUP15_PPb']=merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:PIon','--conditions':'auto:run2_mc_pa', '--era':'Run2_2016_pA'}, steps['DIGIUP15']])
+steps['DIGIUP15_PPb']=merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@fake2','--conditions':'auto:run2_mc_pa', '--era':'Run2_2016_pA'}, steps['DIGIUP15']])
 
 # PU25 for high stats workflows
 steps['DIGIUP15_PU25HS']=merge([PU25HS,step2Upg2015Defaults])
@@ -2861,6 +2861,7 @@ steps['RECODR3_2025_HIN']=merge([{'--conditions':'auto:run3_data_prompt', '-s':'
 steps['RECODR3_2025_UPC']=merge([{'--era':'Run3_2025_UPC'},steps['RECODR3_2025_HIN']])
 steps['RECODR3_2025_OXY']=merge([{'--era':'Run3_2025_OXY'},steps['RECODR3_2025_HIN']])
 steps['RECODR3_2025_UPC_OXY']=merge([{'--era':'Run3_2025_UPC_OXY'},steps['RECODR3_2025_HIN']])
+steps['RECODR3_2025_OXY_SKIMIONPHYSICS0']=merge([{'--era':'Run3_2025_OXY', '-s':'RAW2DIGI,L1Reco,RECO,SKIM:%s,PAT,DQM:@commonFakeHLT+@standardDQMFakeHLT'%(autoSkim['IonPhysics0'])},steps['RECODR3_2025_HIN']])
 
 steps['RECODR3Splash']=merge([{'-n': 2,
                                '-s': 'RAW2DIGI,L1Reco,RECO,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM'
@@ -4349,7 +4350,14 @@ steps['SKIMD']={'-s':'SKIM:all',
                 '--filein':'file:step2.root',
                 '--secondfilein':'filelist:step1_dasquery.log'}
 
-steps['SKIMDreHLT'] = merge([ {'--conditions':'auto:run1_data_%s'%menu, '--hltProcess':'reHLT', '--filein':'file:step3.root'}, steps['SKIMD'] ])
+steps['SKIMDRun1']={'-s':'SKIM:allRun1',
+                '--conditions':'auto:run1_data',
+                '--data':'',
+                '--scenario':'pp',
+                '--filein':'file:step2.root',
+                '--secondfilein':'filelist:step1_dasquery.log'}
+
+steps['SKIMDreHLT'] = merge([ {'--conditions':'auto:run1_data_%s'%menu, '--hltProcess':'reHLT', '--filein':'file:step3.root'}, steps['SKIMDRun1'] ])
 
 steps['SKIMCOSD']={'-s':'SKIM:all',
                    '--conditions':'auto:run1_data',

@@ -232,6 +232,7 @@ HLT_Dimuon0_Upsilon_L1_4p5_v*	#	CMSHLT-1298
 HLT_Dimuon0_Upsilon_L1_4p5er2p0_v*	#	CMSHLT-1298
 HLT_Dimuon0_Upsilon_L1_4p5er2p0M_v*	#	CMSHLT-1298
 HLT_Dimuon0_Upsilon_NoVertexing_v*	#	CMSHLT-1298
+HLT_Dimuon0_Upsilon_v*                  # CMSHLT-3568
 HLT_DoubleMu2_Jpsi_LowPt_v*             # CMSHLT-3065
 HLT_DoubleMu4_3_LowMass_SS_v*           # CMSHLT-3069
 HLT_DoubleMu4_Jpsi_Displaced_v*	#	CMSHLT-1298
@@ -267,6 +268,10 @@ DST_PFScouting_DoubleMuonVtx_v*  # CMSHLT-3411
 DST_PFScouting_DoubleMuonVtxMonitorJPsi_v* # CMSHLT-3423
 DST_PFScouting_DoubleMuonVtxMonitorZ_v*    # CMSHLT-3423
 DST_PFScouting_DoubleEG_v*       # CMSHLT-2120, CMSHLT-2231, CMSHLT-2696, CMSHLT-2746, CMSHLT-2836, CMSHLT-3066
+DST_PFScouting_DoubleEGMonitorJPsi_v*		# CMSHLT-3600
+DST_PFScouting_DoubleEGMonitorZ_v*		# CMSHLT-3600
+DST_PFScouting_SinglePhotonEBMonitorJPsi_v*	# CMSHLT-3600
+DST_PFScouting_SinglePhotonEBMonitorZ_v*	# CMSHLT-3600
 DST_PFScouting_JetHT_v*          # CMSHLT-2120, CMSHLT-2231, CMSHLT-2696, CMSHLT-2746, CMSHLT-3066
 DST_PFScouting_AXOVLoose_v*      # CMSHLT-3173 
 DST_PFScouting_AXOLoose_v*       # CMSHLT-3173
@@ -678,6 +683,7 @@ HLT_L1CSCShower_DTCluster50_v*      # CMSHLT-2211
 HLT_L1CSCShower_DTCluster75_v*      # CMSHLT-2211
 HLT_PFMET105_IsoTrk50_v*            # CMSHLT-2211
 HLT_L1SingleLLPJet_v*                                                 # CMSHLT-2730
+HLT_L1SingleMuShower_v*						      # CMSHLT-3612
 HLT_HT170_L1SingleLLPJet_DisplacedDijet40_DisplacedTrack_v*           # CMSHLT-2280
 HLT_HT200_L1SingleLLPJet_DisplacedDijet40_DisplacedTrack_v*           # CMSHLT-2280
 HLT_HT200_L1SingleLLPJet_DisplacedDijet60_DisplacedTrack_v*           # CMSHLT-2280
@@ -794,17 +800,21 @@ PhysicsCommissioningOutput
 PhysicsBTagMuEGTauOutput               # CMSHLT-3487
 PhysicsEGamma0Output                   # CMSHLT-2596
 PhysicsEGamma1Output                   # CMSHLT-2596
+PhysicsEGamma2Output                   # CMSHLT-3549
+PhysicsEGamma3Output                   # CMSHLT-3549
 PhysicsJetMET0Output                   # CMSHLT-2431, CMSHLT-2596
 PhysicsJetMET1Output                   # CMSHLT-2431, CMSHLT-2596
 PhysicsMuon0Output                     # CMSHLT-2431, CMSHLT-2596
 PhysicsMuon1Output                     # CMSHLT-2431, CMSHLT-2596
 PhysicsScoutingPFMonitorOutput # CMSHLT-487, CMSHLT-548, CMSHLT-599, CMSHLT-603, CMSHLT-2231
-ScoutingPFOutput               # CMSHLT-548, CMSHLT-2231
+ScoutingPF0Output              # CMSHLT-548, CMSHLT-2231, CMSHLT-3607
+ScoutingPF1Output              # CMSHLT-548, CMSHLT-2231, CMSHLT-3607
 DQMOutput
 DQMCalibrationOutput
 DQMEventDisplayOutput
 DQMGPUvsCPUOutput       # CMSHLT-2287
 DQMOnlineBeamspotOutput # CMSHLT-1288
+DQMOnlineScoutingOutput # CMSHLT-3571
 DQMPPSRandomOutput      # CMSHLT-2606, CMSHLT-2728
 HLTMonitorOutput        # CMSHLT-462, CMSHLT-481
 CalibrationOutput

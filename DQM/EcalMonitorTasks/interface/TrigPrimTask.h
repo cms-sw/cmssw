@@ -16,6 +16,9 @@
 #include "CondFormats/DataRecord/interface/EcalTPGTowerStatusRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGStripStatusRcd.h"
 
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
+
 namespace ecaldqm {
 
   class TrigPrimTask : public DQWorkerTask {
@@ -34,10 +37,13 @@ namespace ecaldqm {
     void runOnEmulTPs(EcalTrigPrimDigiCollection const&);
     template <typename DigiCollection>
     void runOnDigis(DigiCollection const&);
-
+    void runOnRecHits(EcalRecHitCollection const&, Collections); 
+    
     void setTokens(edm::ConsumesCollector&) override;
 
     enum Constants { nBXBins = 15 };
+
+    void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   private:
     void setParams(edm::ParameterSet const&) override;
@@ -56,6 +62,9 @@ namespace ecaldqm {
     double bxBin_;
     double bxBinFine_;
 
+    std::vector<double> etSum_ = {0., 0., 0.}; // when using 13, 20, 30 GeV thresholds
+    std::vector<double> etSpikeMatchSum_ = {0., 0., 0.};
+
     std::map<uint32_t, unsigned> towerReadouts_;
 
     edm::ESGetToken<EcalTPGTowerStatus, EcalTPGTowerStatusRcd> TTStatusRcd_;
@@ -65,10 +74,21 @@ namespace ecaldqm {
 
     edm::InputTag lhcStatusInfoCollectionTag_;
     edm::EDGetTokenT<TCDSRecord> lhcStatusInfoRecordToken_;
+  
+    std::map<EcalTrigTowerDetId, float> mapTowerMaxRecHitEnergy_;
+    std::map<EcalTrigTowerDetId, int> mapTowerOfflineSpikes_;
+    edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> severityToken_;
+    const EcalSeverityLevelAlgo* sevLevel;
   };
 
   inline bool TrigPrimTask::analyze(void const* _p, Collections _collection) {
     switch (_collection) {
+      case kEBRecHit:
+      case kEERecHit:
+        if (_p)
+          runOnRecHits(*static_cast<EcalRecHitCollection const*>(_p), _collection);
+        return true;
+        break;
       case kTrigPrimDigi:
         if (_p)
           runOnRealTPs(*static_cast<EcalTrigPrimDigiCollection const*>(_p));
@@ -89,7 +109,7 @@ namespace ecaldqm {
           runOnDigis(*static_cast<EEDigiCollection const*>(_p));
         return true;
         break;
-      default:
+     default:
         break;
     }
     return false;

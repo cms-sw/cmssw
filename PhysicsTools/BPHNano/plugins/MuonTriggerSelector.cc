@@ -199,8 +199,8 @@ void MuonTriggerSelector::produce(edm::Event &iEvent, const edm::EventSetup &iSe
     allmuons_out->push_back(muonCopy);
 
     // Save in selectedMuons for triggering muons
-    if (muonIsTrigger[iMuo] != 1)
-      continue;
+    //    if (muonIsTrigger[iMuo] != 1)
+    //      continue;
 
     muons_out->emplace_back(muon);
     muons_out->back().addUserInt("isTriggering", muonIsTrigger[iMuo]);

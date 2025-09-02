@@ -35,6 +35,7 @@ namespace ecaldqm {
       MEs_.erase(std::string("FGEmulError"));
       MEs_.erase(std::string("RealvEmulEt"));
     }
+
     lhcStatusInfoCollectionTag_ = _params.getUntrackedParameter<edm::InputTag>(
         "lhcStatusInfoCollectionTag", edm::InputTag("tcdsDigis", "tcdsRecord"));
     bxBinEdges_ = _params.getUntrackedParameter<std::vector<int> >("bxBins");
@@ -61,12 +62,14 @@ namespace ecaldqm {
     using namespace std;
 
     towerReadouts_.clear();
+    mapTowerOfflineSpikes_.clear();
+    mapTowerMaxRecHitEnergy_.clear();
 
     if (ByLumiResetSwitch) {
       MEs_.at("EtSummaryByLumi").reset(GetElectronicsMap());
       MEs_.at("TTFlags4ByLumi").reset(GetElectronicsMap());
-      MEs_.at("LHCStatusByLumi").reset(GetElectronicsMap(), -1);
-    }
+      MEs_.at("LHCStatusByLumi").reset(GetElectronicsMap(), -1);      
+   }
 
     if (!lhcStatusSet) {
       // Update LHC status once each LS
@@ -111,6 +114,8 @@ namespace ecaldqm {
         meTTMaskMap.fill(getEcalDQMSetupObjects(), stid, 1);
       }  //masked
     }  //loop on pseudo-strips
+
+    sevLevel = &_es.getData(severityToken_);
 
     //     if(HLTCaloPath_.size() || HLTMuonPath_.size()){
     //       edm::TriggerResultsByName results(_evt.triggerResultsByName("HLT"));
@@ -180,11 +185,16 @@ namespace ecaldqm {
     lhcStatusInfoRecordToken_ = _collector.consumes<TCDSRecord>(lhcStatusInfoCollectionTag_);
     TTStatusRcd_ = _collector.esConsumes<edm::Transition::BeginRun>();
     StripStatusRcd_ = _collector.esConsumes<edm::Transition::BeginRun>();
+    severityToken_ = _collector.esConsumes();
   }
 
   void TrigPrimTask::runOnRealTPs(EcalTrigPrimDigiCollection const& _tps) {
     MESet& meEtVsBx(MEs_.at("EtVsBx"));
     MESet& meEtReal(MEs_.at("EtReal"));
+    MESet& meEtRealIntVsThres(MEs_.at("EtRealIntVsThres"));
+    MESet& meEtRealSpikeMatched(MEs_.at("EtRealSpikeMatched"));
+    MESet& meEtRealSpikeMatchedIntVsThres(MEs_.at("EtRealSpikeMatchedIntVsThres"));
+    MESet& meEffSpikeMatch(MEs_.at("EffSpikeMatch"));
     MESet& meEtRealMap(MEs_.at("EtRealMap"));
     MESet& meEtSummary(MEs_.at("EtSummary"));
     MESet& meEtSummaryByLumi(MEs_.at("EtSummaryByLumi"));
@@ -220,6 +230,31 @@ namespace ecaldqm {
       meEtRealMap.fill(getEcalDQMSetupObjects(), ttid, et);
       meEtSummary.fill(getEcalDQMSetupObjects(), ttid, et);
       meEtSummaryByLumi.fill(getEcalDQMSetupObjects(), ttid, et);
+
+      if (ttid.subDet() == EcalBarrel) {
+        if (et > 26) {
+	  etSum_[0] += et;
+	  if (et > 40) {
+	    etSum_[1] += et;
+	    if (et> 60) {
+	      etSum_[2] += et;
+	    }
+	  }
+	}
+	
+	if (mapTowerOfflineSpikes_[ttid] == 1) {
+          meEtRealSpikeMatched.fill(getEcalDQMSetupObjects(), ttid, et);
+          if (et > 26) {
+            etSpikeMatchSum_[0] += et;
+	    if (et > 40) {
+	      etSpikeMatchSum_[1] += et;
+	      if (et> 60) {
+	        etSpikeMatchSum_[2] += et;
+	      }
+	    }
+	  }
+        }
+      }
 
       int interest(tpItr->ttFlag() & 0x3);
 
@@ -279,6 +314,21 @@ namespace ecaldqm {
         meTTMaskMapAll.setBinContent(getEcalDQMSetupObjects(), ttid, 1);  // PseudoStrip is masked
     }  // PseudoStrips
 
+    // Integrate Et with Et > thres with threshold scan : FIXME -> more efficienct way?
+    int nThresEtBin = 128;
+    
+    for (int thres=1; thres<=nThresEtBin; thres++) {
+      int nFiltered = 0;
+      int nFilteredSpikeMatched = 0;
+      for (int iBin=thres; iBin<=nThresEtBin; iBin++) {
+	nFiltered += meEtReal.getBinContent(getEcalDQMSetupObjects(), EcalBarrel, iBin);
+        nFilteredSpikeMatched += meEtRealSpikeMatched.getBinContent(getEcalDQMSetupObjects(), EcalBarrel, iBin);
+      }
+      meEtRealIntVsThres.setBinContent(getEcalDQMSetupObjects(), EcalBarrel, thres, nFiltered);
+      meEtRealSpikeMatchedIntVsThres.setBinContent(getEcalDQMSetupObjects(), EcalBarrel, thres, nFilteredSpikeMatched);
+      if (nFiltered != 0)
+        meEffSpikeMatch.setBinContent(getEcalDQMSetupObjects(), EcalBarrel, thres, double(nFilteredSpikeMatched)/nFiltered);
+    }
   }  // TrigPrimTask::runOnRealTPs()
 
   void TrigPrimTask::runOnEmulTPs(EcalTrigPrimDigiCollection const& _tps) {
@@ -376,6 +426,42 @@ namespace ecaldqm {
       if (!matchFG)
         meFGEmulError.fill(getEcalDQMSetupObjects(), ttid);
     }
+  }
+
+  void TrigPrimTask::runOnRecHits(EcalRecHitCollection const& _hits, Collections _collection) {
+    int iSubdet(_collection == kEBRecHit ? EcalBarrel : EcalEndcap);
+    std::for_each(_hits.begin(), _hits.end(), [&](EcalRecHitCollection::value_type const& hit) {
+      DetId id(hit.id());
+
+      bool isEB = iSubdet == EcalBarrel;
+      if (isEB) {
+        EcalTrigTowerDetId ttid = EBDetId(id).tower();
+        if (hit.energy() >= mapTowerMaxRecHitEnergy_[ttid]) {
+          mapTowerMaxRecHitEnergy_[ttid] = hit.energy();
+	  int bitSeverity = sevLevel->severityLevel(EBDetId(id), _hits);
+          mapTowerOfflineSpikes_[ttid] = ((bitSeverity == 3) || (bitSeverity == 4));
+        }
+      } // For spike-killer related plots
+    });
+  }
+
+  void TrigPrimTask::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
+    MESet& meTrendEtSum13(MEs_.at("TrendEtSum13"));
+    MESet& meTrendEtSum20(MEs_.at("TrendEtSum20"));
+    MESet& meTrendEtSum30(MEs_.at("TrendEtSum30"));
+    MESet& meTrendEtSpikeMatchSum13(MEs_.at("TrendEtSpikeMatchSum13"));
+    MESet& meTrendEtSpikeMatchSum20(MEs_.at("TrendEtSpikeMatchSum20"));
+    MESet& meTrendEtSpikeMatchSum30(MEs_.at("TrendEtSpikeMatchSum30"));
+
+    meTrendEtSum13.fill(getEcalDQMSetupObjects(), EcalBarrel, double(timestamp_.iLumi), etSum_[0]);
+    meTrendEtSum20.fill(getEcalDQMSetupObjects(), EcalBarrel, double(timestamp_.iLumi), etSum_[1]);
+    meTrendEtSum30.fill(getEcalDQMSetupObjects(), EcalBarrel, double(timestamp_.iLumi), etSum_[2]);
+    meTrendEtSpikeMatchSum13.fill(getEcalDQMSetupObjects(), EcalBarrel, double(timestamp_.iLumi), etSpikeMatchSum_[0]);
+    meTrendEtSpikeMatchSum20.fill(getEcalDQMSetupObjects(), EcalBarrel, double(timestamp_.iLumi), etSpikeMatchSum_[1]);
+    meTrendEtSpikeMatchSum30.fill(getEcalDQMSetupObjects(), EcalBarrel, double(timestamp_.iLumi), etSpikeMatchSum_[2]);
+   
+    etSum_ = {0., 0., 0.}; 
+    etSpikeMatchSum_ = {0., 0., 0.}; 
   }
 
   DEFINE_ECALDQM_WORKER(TrigPrimTask);
