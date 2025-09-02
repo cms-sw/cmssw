@@ -1,31 +1,5 @@
-// author: Mike Schmitt, University of Florida
-// first version 8/24/2006
-// modification: Bobby Scurlock
-// date:  03.11.2006
-// note:  added RMS(METx) vs SumET capability
-// modification: Rick Cavanaugh
-// date:  05.11.2006
-// note:  cleaned up constructor and beginJob, removed int conv. warning
-//        added configuration params
-// modification: Mike Schmitt
-// date:  02.28.2007
-// note:  code rewrite. Now uses STL map for monitoring element container.
-// modification: Bobby Scurlock
-// date:  04.03.2007
-// note:  Eliminated automated resolution fitting. This is now done in a ROOT
-// script.
-
-// date:  02.04.2009
-// note:  Added option to use fine binning or course binning for histos
-//
-// modification: Samantha Hewamanage, Florida International University
-// date: 01.30.2012
-// note: Added few hists for various nvtx ranges to study PU effects.
-//       Cleaned up the code by making it readable and const'ing the
-//       variables that should be changedc.
-//       Changed the number of bins from odd to even. Odd number of bins
-//       makes it impossible to rebin a hist.
 #include "METTester.h"
+
 using namespace reco;
 using namespace std;
 using namespace edm;
@@ -62,8 +36,8 @@ METTester::METTester(const edm::ParameterSet &iConfig) {
   // Common variables
   mMEx = nullptr;
   mMEy = nullptr;
-  mMETPseudoSign = nullptr;
-  mMETRealSign = nullptr;
+  mMETSignPseudo = nullptr;
+  mMETSignReal = nullptr;
   mMET = nullptr;
   mMETFine = nullptr;
   mMET_Nvtx = nullptr;
@@ -119,9 +93,9 @@ METTester::METTester(const edm::ParameterSet &iConfig) {
   mInvisibleEtFraction = nullptr;
 }
 
-std::string METTester::binStr(float left, float right, bool rountInt) {
+std::string METTester::binStr(float left, float right, bool roundInt) {
   std::string out;
-  if (rountInt) {
+  if (roundInt) {
     out = std::to_string((int)left) + "to" + std::to_string((int)right);
   } else {
     out = fmt::format("{:.2f}", left) + "to" + fmt::format("{:.2f}", right);
@@ -136,14 +110,14 @@ void METTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
   else
     ibooker.setCurrentFolder("JetMET/METValidation/" + inputMETLabel_.label());
 
-  mNvertex = ibooker.book1D("Nvertex", "Nvertex", 80, 0, 80);
+  mNvertex = ibooker.book1D("Nvertex", "Nvertex", 350, 0, 350);
   mMEx = ibooker.book1D("MEx", "MEx", 160, -800, 800);
   mMEy = ibooker.book1D("MEy", "MEy", 160, -800, 800);
-  mMETPseudoSign = ibooker.book1D("METPseudoSign", "METPseudoSign", 25, 0, 24.5);
-  mMETRealSign = ibooker.book1D("METRealSign", "METRealSign", 25, 0, 24.5);
+  mMETSignPseudo = ibooker.book1D("METSignPseudo", "METSignPseudo", 25, 0, 24.5);
+  mMETSignReal = ibooker.book1D("METSignReal", "METSignReal", 25, 0, 24.5);
   mMET = ibooker.book1D("MET", "MET (20 GeV binning)", 100, 0, 2000);
   mMETFine = ibooker.book1D("METFine", "MET (2 GeV binning)", 1000, 0, 2000);
-  mMET_Nvtx = ibooker.bookProfile("MET_Nvtx", "MET vs. nvtx", 60, 0., 60., 0., 2000., " ");
+  mMET_Nvtx = ibooker.bookProfile("MET_Nvtx", "MET vs. nvtx", 350, 0., 350., 0., 2000., "");
   mMETEta = ibooker.book1D("METEta", "METEta", 80, -6, 6);
   mMETPhi = ibooker.book1D("METPhi", "METPhi", 80, -4, 4);
   mSumET = ibooker.book1D("SumET", "SumET", 200, 0, 4000);  // 10GeV
@@ -197,7 +171,7 @@ void METTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
     }
 
     for (unsigned metIdx = 0; metIdx < mNEtaBins; ++metIdx) {
-      const std::string title = "_GenMETTrue_Eta" + binStr(mEtaBins[metIdx], mEtaBins[metIdx + 1]);
+      const std::string title = "_GenMETTrue_Eta" + binStr(mEtaBins[metIdx], mEtaBins[metIdx + 1], false);
       mMETDiff_GenMETTrue_EtaBins[metIdx] =
           ibooker.book1D(("METDiff" + title).c_str(), ("METDiff" + title).c_str(), 500, -500, 500);
       mMETRatio_GenMETTrue_EtaBins[metIdx] =
@@ -207,7 +181,7 @@ void METTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
     }
 
     for (unsigned metIdx = 0; metIdx < mNPhiBins; ++metIdx) {
-      const std::string title = "_GenMETTrue_Phi" + binStr(mPhiBins[metIdx], mPhiBins[metIdx + 1]);
+      const std::string title = "_GenMETTrue_Phi" + binStr(mPhiBins[metIdx], mPhiBins[metIdx + 1], false);
       mMETDiff_GenMETTrue_PhiBins[metIdx] =
           ibooker.book1D(("METDiff" + title).c_str(), ("METDiff" + title).c_str(), 500, -500, 500);
       mMETRatio_GenMETTrue_PhiBins[metIdx] =
@@ -306,9 +280,9 @@ void METTester::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
     met = patMET->front();
 
   const double SumET = met.sumEt();
-  const double METPseudoSign = met.mEtSig();
-  const double METRealSign =
-      met.significance();  // https://github.com/cms-sw/cmssw/blob/e6f90ca623ceed749b1a529b01c7a8b0ec1c6b8b/DataFormats/METReco/src/MET.cc#L142
+  const double METSignPseudo = met.mEtSig();
+  const double METSignReal = met.significance(); // covariance matrix to be fixed by JetMET
+  
   const double MET = met.pt();
   const double MEx = met.px();
   const double MEy = met.py();
@@ -316,8 +290,8 @@ void METTester::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
   const double METPhi = met.phi();
 
   mSumET->Fill(SumET);
-  mMETPseudoSign->Fill(METPseudoSign);
-  mMETRealSign->Fill(METRealSign);
+  mMETSignPseudo->Fill(METSignPseudo);
+  mMETSignReal->Fill(METSignReal);
   mMET->Fill(MET);
   mMETFine->Fill(MET);
   mMET_Nvtx->Fill((double)nvtx, MET);

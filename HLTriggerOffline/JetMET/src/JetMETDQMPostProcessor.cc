@@ -50,9 +50,6 @@ void JetMETDQMPostProcessor::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGe
       isMetDir = true;
 
     if (isMetDir) {
-      // std::cout << "JetMETDQMPostProcessor - Met paths: " << ibooker.pwd() <<
-      // " " << *dir << std::endl;
-
       // GenMET
       dividehistos(ibooker,
                    igetter,
@@ -191,13 +188,7 @@ TProfile *JetMETDQMPostProcessor::dividehistos(DQMStore::IBooker &ibooker,
                                                const std::string &outName,
                                                const std::string &label,
                                                const std::string &titel) {
-  // ibooker.pwd();
-  // std::cout << "In dividehistos: " << ibooker.pwd() << std::endl;
-
-  // std::cout << numName <<std::endl;
   TH1F *num = getHistogram(ibooker, igetter, ibooker.pwd() + "/" + numName);
-
-  // std::cout << denomName << std::endl;
   TH1F *denom = getHistogram(ibooker, igetter, ibooker.pwd() + "/" + denomName);
 
   if (num == nullptr)
