@@ -32,7 +32,7 @@
 #include "SimDataFormats/Associations/interface/LayerClusterToSimClusterAssociator.h"
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 
-#include "CommonTools/RecoAlgos/interface/MultiVectorManager.h"
+#include "DataFormats/HGCalReco/interface/MultiVectorManager.h"
 
 class PileupSummaryInfo;
 
