@@ -23,6 +23,7 @@
 #include "DataFormats/SiPixelRawData/interface/SiPixelErrorCompact.h"
 #include "DataFormats/SiPixelRawData/interface/SiPixelFormatterErrors.h"
 #include "DataFormats/SiPixelDetId/interface/PixelChannelIdentifier.h"
+#include "SiPixelMorphingConfig.h"
 
 namespace pixelDetails {
 
@@ -160,6 +161,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                    const uint32_t fedCounter,
                                    bool useQualityInfo,
                                    bool includeErrors,
+                                   SiPixelMorphingConfig digiMorphingConfig,
+                                   uint32_t* morphingModulesDevice,
                                    bool debug);
 
       void makePhase2ClustersAsync(Queue& queue,
