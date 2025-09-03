@@ -110,12 +110,14 @@ for n in neutrals:
 for c in charged:
     for var in variables.keys():
         eff_candidates.append("fake_"+c+"_track_"+var+" '"+c.replace("_", " ")+" candidates track fake vs "+var+"' num_fake_track_cand_vs_"+var+"_"+c+" den_fake_cand_vs_"+var+"_"+c)
-        eff_candidates.append("fake_"+c+"_pid_"+var+" '"+c.replace("_", " ")+" candidates track + pid fake vs "+var+"' num_fake_pid_cand_vs_"+var+"_"+c+" den_fake_cand_vs_"+var+"_"+c)
-        eff_candidates.append("fake_"+c+"_energy_"+var+" '"+c.replace("_", " ")+" candidates track + pid + energy fake vs "+var+"' num_fake_energy_cand_vs_"+var+"_"+c+" den_fake_cand_vs_"+var+"_"+c)
+        eff_candidates.append("fake_"+c+"_pid_"+var+" '"+c.replace("_", " ")+" candidates pid fake vs "+var+"' num_fake_pid_cand_vs_"+var+"_"+c+" den_fake_cand_vs_"+var+"_"+c)
+        eff_candidates.append("fake_"+c+"_energy_"+var+" '"+c.replace("_", " ")+" candidates energy fake vs "+var+"' num_fake_energy_cand_vs_"+var+"_"+c+" den_fake_cand_vs_"+var+"_"+c)
+        eff_candidates.append("fake_"+c+"_total_"+var+" '"+c.replace("_", " ")+" candidates track + pid + energy fake vs "+var+"' num_fake_total_cand_vs_"+var+"_"+c+" den_fake_cand_vs_"+var+"_"+c)
 for n in neutrals:
     for var in variables.keys():
         eff_candidates.append("fake_"+n+"_pid_"+var+" '"+n.replace("_", " ")+" candidates pid fake vs "+var+"' num_fake_pid_cand_vs_"+var+"_"+n+" den_fake_cand_vs_"+var+"_"+n)
-        eff_candidates.append("fake_"+n+"_energy_"+var+" '"+n.replace("_", " ")+" candidates pid + energy fake vs "+var+"' num_fake_energy_cand_vs_"+var+"_"+n+" den_fake_cand_vs_"+var+"_"+n)
+        eff_candidates.append("fake_"+n+"_energy_"+var+" '"+n.replace("_", " ")+" candidates energy fake vs "+var+"' num_fake_energy_cand_vs_"+var+"_"+n+" den_fake_cand_vs_"+var+"_"+n)
+        eff_candidates.append("fake_"+n+"_total_"+var+" '"+n.replace("_", " ")+" candidates pid + energy fake vs "+var+"' num_fake_total_cand_vs_"+var+"_"+n+" den_fake_cand_vs_"+var+"_"+n)
 
 postProcessorHGCALCandidates = DQMEDHarvester('DQMGenericClient',
   subDirs = cms.untracked.vstring(subDirsCandidates),

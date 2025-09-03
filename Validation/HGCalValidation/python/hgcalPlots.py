@@ -1835,20 +1835,44 @@ for ct in cand_type:
     cand_eff_plots = []
     for var in ["pt", "energy", "eta", "phi"]:
         for cut in ["track", "pid", "energy"]:
-            cand_eff_plots.extend([Plot("eff_"+ct+"_"+cut+"_"+var, title=cut + " efficiency for "+ct.replace("_", " ")+" vs "+var, ytitle="Efficiency", **_common_eff_fake)])
+            if cut=="track" and ct in ["neutral_hadrons", "neutral_pions", "photons"]: continue
+            #options = (_common_eff_fake | _xminmaxEn) if var=="energy" else ( (_common_eff_fake | _xminmaxPt) if var=="pt" else _common_eff_fake)
+            cand_eff_plots.extend([Plot("eff_"+ct+"_"+cut+"_"+var, title=cut + " - efficiency for "+ct.replace("_", " ")+" vs "+var, ytitle="Efficiency", **_common_eff_fake)])
     _all_cand_eff_plots.append(cand_eff_plots)
+
+_all_cand_effNum_plots = []
+for ct in cand_type:
+    cand_eff_plots = []
+    for var in ["pt", "energy", "eta", "phi"]:
+        for cut in ["track", "pid", "energy"]:
+            if cut=="track" and ct in ["neutral_hadrons", "neutral_pions", "photons"]: continue
+            cand_eff_plots.extend([Plot("num_"+cut+"_cand_vs_"+var+"_"+ct, title=cut + " - number of efficient "+ct.replace("_", " ")+" vs "+var, ytitle="Efficient candidates", **_common)])
+    _all_cand_effNum_plots.append(cand_eff_plots)
 
 _all_cand_fake_plots = []
 for ct in cand_type:
     cand_fake_plots = []
     for var in ["pt", "energy", "eta", "phi"]:
-        for cut in ["track", "pid", "energy"]:
-            cand_fake_plots.extend([Plot("fake_"+ct+"_"+cut+"_"+var, title=cut + " fake rate for "+ct.replace("_", " ")+" vs "+var, ytitle="Fake rate", **_common_eff_fake)])
+        for cut in ["track", "pid", "energy", "total"]:
+            if cut=="track" and ct in ["neutral_hadrons", "neutral_pions", "photons"]: continue
+            #options = (_common_eff_fake | _xminmaxEn) if var=="energy" else ( (_common_eff_fake | _xminmaxPt) if var=="pt" else _common_eff_fake)
+            cand_fake_plots.extend([Plot("fake_"+ct+"_"+cut+"_"+var, title=cut + " - fake rate for "+ct.replace("_", " ")+" vs "+var, ytitle="Fake rate", **_common_eff_fake)])
     _all_cand_fake_plots.append(cand_fake_plots)
 
+_all_cand_fakeNum_plots = []
+for ct in cand_type:
+    cand_fake_plots = []
+    for var in ["pt", "energy", "eta", "phi"]:
+        for cut in ["track", "pid", "energy", "total"]:
+            if cut=="track" and ct in ["neutral_hadrons", "neutral_pions", "photons"]: continue
+            cand_fake_plots.extend([Plot("num_fake_"+cut+"_cand_vs_"+var+"_"+ct, title=cut + " - number of fakes for "+ct.replace("_", " ")+" vs "+var, ytitle="Fake number", **_common)])
+    _all_cand_fakeNum_plots.append(cand_fake_plots)
+
 _allCandidatesPlots = [[],[],[],[],[],[]]
-for i in range(6):
-    _allCandidatesPlots[i].extend([PlotGroup(cand_type[i]+"_type", _all_cand_type_plots[i], ncols=2), PlotGroup(cand_type[i]+"_kin", _all_cand_ene_plots[i], ncols=3), PlotGroup(cand_type[i]+"_eff", _all_cand_eff_plots[i], ncols=3), PlotGroup(cand_type[i]+"_fake", _all_cand_fake_plots[i], ncols=3)])
+for i in range(3):
+    _allCandidatesPlots[i].extend([PlotGroup(cand_type[i]+"_type", _all_cand_type_plots[i], ncols=2), PlotGroup(cand_type[i]+"_kin", _all_cand_ene_plots[i], ncols=3), PlotGroup(cand_type[i]+"_eff", _all_cand_eff_plots[i], ncols=3), PlotGroup(cand_type[i]+"_effMultiplicity", _all_cand_effNum_plots[i], ncols=3), PlotGroup(cand_type[i]+"_fake", _all_cand_fake_plots[i], ncols=4), PlotGroup(cand_type[i]+"_fakeMultiplicity", _all_cand_fakeNum_plots[i], ncols=4)])
+for i in range(3,6):
+    _allCandidatesPlots[i].extend([PlotGroup(cand_type[i]+"_type", _all_cand_type_plots[i], ncols=2), PlotGroup(cand_type[i]+"_kin", _all_cand_ene_plots[i], ncols=3), PlotGroup(cand_type[i]+"_eff", _all_cand_eff_plots[i], ncols=2), PlotGroup(cand_type[i]+"_effMultiplicity", _all_cand_effNum_plots[i], ncols=2), PlotGroup(cand_type[i]+"_fake", _all_cand_fake_plots[i], ncols=3), PlotGroup(cand_type[i]+"_fakeMultiplicity", _all_cand_fakeNum_plots[i], ncols=3)])
 
 #--------------------------------------------------------------------------------------------
 # SIMHITS, DIGIS, RECHITS
