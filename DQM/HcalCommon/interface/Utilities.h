@@ -182,7 +182,7 @@ namespace hcaldqm {
     bool isFEDHBHE(HcalElectronicsId const &);
     bool isFEDHF(HcalElectronicsId const &);
     bool isFEDHO(HcalElectronicsId const &);
-
+    bool isFEDZDC(HcalElectronicsId const &);
     /**
  *	This is wrap around in case hashing scheme changes in the future
  */
