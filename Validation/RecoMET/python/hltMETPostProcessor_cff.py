@@ -3,5 +3,5 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 hltMETPostProcessor = DQMEDHarvester(
     'METTesterPostProcessor',
-    isHLT = True
+    isHLT = cms.untracked.bool(True)
 )
