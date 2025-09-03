@@ -22,29 +22,28 @@
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
-#include "TTree.h"
 
 class GEMTnPEfficiencyTask : public BaseTnPEfficiencyTask {
 public:
   /// Constructor
   GEMTnPEfficiencyTask(const edm::ParameterSet& config);
   void maskChamberWithError(const GEMDetId& chamber_id,
-                                const GEMOHStatusCollection*,
-                                const GEMVFATStatusCollection*,
-                                const GEMAMCStatusCollection*,
-                                const GEMAMC13StatusCollection*,
-                                uint64_t& errors,
-                                uint64_t& warnings);
+                            const GEMOHStatusCollection*,
+                            const GEMVFATStatusCollection*,
+                            const GEMAMCStatusCollection*,
+                            const GEMAMC13StatusCollection*,
+                            uint64_t& errors,
+                            uint64_t& warnings);
   bool checkBounds(const GeomDet* geomDet, const GlobalPoint& global_position, const float bordercut);
-  /// Destructor
+  /// Destructorr
   ~GEMTnPEfficiencyTask() override;
 
   const bool m_maskChamberWithError_;
   const edm::EDGetTokenT<GEMOHStatusCollection> m_GEMOHStatusCollectionToken_;
   const edm::EDGetTokenT<GEMVFATStatusCollection> m_GEMVFATStatusCollectionToken_;
   const edm::EDGetTokenT<GEMAMCStatusCollection> m_GEMAMCStatusCollectionToken_;
-  const edm::EDGetTokenT<GEMAMC13StatusCollection>  m_GEMAMC13StatusCollectionToken_;
-  const edm::EDGetTokenT<GEMRecHitCollection>  m_GEMRecHitCollectionToken_;
+  const edm::EDGetTokenT<GEMAMC13StatusCollection> m_GEMAMC13StatusCollectionToken_;
+  const edm::EDGetTokenT<GEMRecHitCollection> m_GEMRecHitCollectionToken_;
   std::unique_ptr<MuonServiceProxy> muon_service_;
 
 protected:
@@ -248,22 +247,22 @@ void GEMTnPEfficiencyTask::bookHistograms(DQMStore::IBooker& iBooker,
       iBooker.book1D("GE11_nPassingProbe_VFATMask_allCh_1D", "GE11_nPassingProbe_VFATMask_allCh_1D", 2, -1.5, 1.5);
   MonitorElement* VFATMask_me_GE11_fail_allCh_1D =
       iBooker.book1D("GE11_nFailingProbe_VFATMask_allCh_1D", "GE11_nFailingProbe_VFATMask_allCh_1D", 2, -1.5, 1.5);
-  MonitorElement* VFATMask_me_GEM_pass_chamber_p1_1D =
-      iBooker.book1D("GEM_nPassingProbe_VFATMask_chamber_P-L1_1D", "GEM_nPassingProbe_VFATMask_chamber_P-L1_1D", 36, 1, 37);
-  MonitorElement* VFATMask_me_GEM_fail_chamber_p1_1D =
-      iBooker.book1D("GEM_nFailingProbe_VFATMask_chamber_P-L1_1D", "GEM_nFailingProbe_VFATMask_chamber_P-L1_1D", 36, 1, 37);
-  MonitorElement* VFATMask_me_GEM_pass_chamber_p2_1D =
-      iBooker.book1D("GEM_nPassingProbe_VFATMask_chamber_P-L2_1D", "GEM_nPassingProbe_VFATMask_chamber_P-L2_1D", 36, 1, 37);
-  MonitorElement* VFATMask_me_GEM_fail_chamber_p2_1D =
-      iBooker.book1D("GEM_nFailingProbe_VFATMask_chamber_P-L2_1D", "GEM_nFailingProbe_VFATMask_chamber_P-L2_1D", 36, 1, 37);
-  MonitorElement* VFATMask_me_GEM_pass_chamber_n1_1D =
-      iBooker.book1D("GEM_nPassingProbe_VFATMask_chamber_M-L1_1D", "GEM_nPassingProbe_VFATMask_chamber_M-L1_1D", 36, 1, 37);
-  MonitorElement* VFATMask_me_GEM_fail_chamber_n1_1D =
-      iBooker.book1D("GEM_nFailingProbe_VFATMask_chamber_M-L1_1D", "GEM_nFailingProbe_VFATMask_chamber_M-L1_1D", 36, 1, 37);
-  MonitorElement* VFATMask_me_GEM_pass_chamber_n2_1D =
-      iBooker.book1D("GEM_nPassingProbe_VFATMask_chamber_M-L2_1D", "GEM_nPassingProbe_VFATMask_chamber_M-L2_1D", 36, 1, 37);
-  MonitorElement* VFATMask_me_GEM_fail_chamber_n2_1D =
-      iBooker.book1D("GEM_nFailingProbe_VFATMask_chamber_M-L2_1D", "GEM_nFailingProbe_VFATMask_chamber_M-L2_1D", 36, 1, 37);
+  MonitorElement* VFATMask_me_GEM_pass_chamber_p1_1D = iBooker.book1D(
+      "GEM_nPassingProbe_VFATMask_chamber_P-L1_1D", "GEM_nPassingProbe_VFATMask_chamber_P-L1_1D", 36, 1, 37);
+  MonitorElement* VFATMask_me_GEM_fail_chamber_p1_1D = iBooker.book1D(
+      "GEM_nFailingProbe_VFATMask_chamber_P-L1_1D", "GEM_nFailingProbe_VFATMask_chamber_P-L1_1D", 36, 1, 37);
+  MonitorElement* VFATMask_me_GEM_pass_chamber_p2_1D = iBooker.book1D(
+      "GEM_nPassingProbe_VFATMask_chamber_P-L2_1D", "GEM_nPassingProbe_VFATMask_chamber_P-L2_1D", 36, 1, 37);
+  MonitorElement* VFATMask_me_GEM_fail_chamber_p2_1D = iBooker.book1D(
+      "GEM_nFailingProbe_VFATMask_chamber_P-L2_1D", "GEM_nFailingProbe_VFATMask_chamber_P-L2_1D", 36, 1, 37);
+  MonitorElement* VFATMask_me_GEM_pass_chamber_n1_1D = iBooker.book1D(
+      "GEM_nPassingProbe_VFATMask_chamber_M-L1_1D", "GEM_nPassingProbe_VFATMask_chamber_M-L1_1D", 36, 1, 37);
+  MonitorElement* VFATMask_me_GEM_fail_chamber_n1_1D = iBooker.book1D(
+      "GEM_nFailingProbe_VFATMask_chamber_M-L1_1D", "GEM_nFailingProbe_VFATMask_chamber_M-L1_1D", 36, 1, 37);
+  MonitorElement* VFATMask_me_GEM_pass_chamber_n2_1D = iBooker.book1D(
+      "GEM_nPassingProbe_VFATMask_chamber_M-L2_1D", "GEM_nPassingProbe_VFATMask_chamber_M-L2_1D", 36, 1, 37);
+  MonitorElement* VFATMask_me_GEM_fail_chamber_n2_1D = iBooker.book1D(
+      "GEM_nFailingProbe_VFATMask_chamber_M-L2_1D", "GEM_nFailingProbe_VFATMask_chamber_M-L2_1D", 36, 1, 37);
   MonitorElement* VFATMask_me_GEM_pass_pt_1D =
       iBooker.book1D("GEM_nPassingProbe_VFATMask_pt_1D", "GEM_nPassingProbe_VFATMask_pt_1D", 20, 0, 100);
   MonitorElement* VFATMask_me_GEM_fail_pt_1D =
@@ -912,14 +911,13 @@ void GEMTnPEfficiencyTask::bookHistograms(DQMStore::IBooker& iBooker,
   m_histos["xyErr_GE1"] = iBooker.book2D("xyErr_GE1", "xyErr_GE1", 50, 0., 5., 50, 0., 5.);
 }
 
-
 void GEMTnPEfficiencyTask::maskChamberWithError(const GEMDetId& chamber_id,
-                                                    const GEMOHStatusCollection* oh_status_collection,
-                                                    const GEMVFATStatusCollection* vfat_status_collection,
-                                                    const GEMAMCStatusCollection* amc_status_collection,
-                                                    const GEMAMC13StatusCollection* amc13_status_collection,
-                                                    uint64_t& errors,
-                                                    uint64_t& warnings) {
+                                                const GEMOHStatusCollection* oh_status_collection,
+                                                const GEMVFATStatusCollection* vfat_status_collection,
+                                                const GEMAMCStatusCollection* amc_status_collection,
+                                                const GEMAMC13StatusCollection* amc13_status_collection,
+                                                uint64_t& errors,
+                                                uint64_t& warnings) {
   bool amc13_exists = false;
   bool amc_exists = false;
   bool oh_exists = false;
@@ -928,10 +926,10 @@ void GEMTnPEfficiencyTask::maskChamberWithError(const GEMDetId& chamber_id,
   for (auto iter = amc13_status_collection->begin(); iter != amc13_status_collection->end(); iter++) {
     const auto [amc13_id, range] = (*iter);
     int amc13_region = 0;
-    if (amc13_id == 1468) { //GEM+
+    if (amc13_id == 1468) {  //GEM+
       amc13_region = 1;
     }
-    if (amc13_id == 1467) { //GEM-
+    if (amc13_id == 1467) {  //GEM-
       amc13_region = -1;
     }
     if (amc13_region != chamber_id.region()) {
@@ -939,24 +937,24 @@ void GEMTnPEfficiencyTask::maskChamberWithError(const GEMDetId& chamber_id,
     }
     for (auto amc13_status = range.first; amc13_status != range.second; amc13_status++) {
       //errors = errors;
-      errors = errors | (amc13_status->errors()); // 8
+      errors = errors | (amc13_status->errors());  // 8
       //warnings = warnings;
-      warnings = warnings | (amc13_status->warnings()); // 8
+      warnings = warnings | (amc13_status->warnings());  // 8
       errors = errors << 1;
     }
     if (!amc13_exists) {
       errors = errors << 9;
-      errors = errors | 1; // 8 1
+      errors = errors | 1;  // 8 1
     }
   }
 
   for (auto iter = amc_status_collection->begin(); iter != amc_status_collection->end(); iter++) {
     const auto [amc_id, range] = (*iter);
     int amc_region = 0;
-    if (amc_id == 1468) { //GEM+
+    if (amc_id == 1468) {  //GEM+
       amc_region = 1;
     }
-    if (amc_id == 1467) { //GEM-
+    if (amc_id == 1467) {  //GEM-
       amc_region = -1;
     }
     if (amc_region != chamber_id.region()) {
@@ -965,37 +963,37 @@ void GEMTnPEfficiencyTask::maskChamberWithError(const GEMDetId& chamber_id,
     for (auto amc_status = range.first; amc_status != range.second; amc_status++) {
       amc_exists = true;
       errors = errors << 16;
-      errors = errors | (amc_status->errors()); // 8 1 16
+      errors = errors | (amc_status->errors());  // 8 1 16
       warnings = warnings << 8;
-      warnings = warnings | (amc_status->warnings()); // 8 8
+      warnings = warnings | (amc_status->warnings());  // 8 8
       errors = errors << 1;
     }
     if (!amc_exists) {
       errors = errors << 17;
-      errors = errors | 1; // 8 1 16 1
+      errors = errors | 1;  // 8 1 16 1
     }
   }
 
   for (auto iter = oh_status_collection->begin(); iter != oh_status_collection->end(); iter++) {
     const auto [oh_id, range] = (*iter);
-    
+
     if (chamber_id.chamberId() != oh_id) {
       continue;
     }
-    
+
     for (auto oh_status = range.first; oh_status != range.second; oh_status++) {
       oh_exists = true;
       errors = errors << 16;
-      errors = errors | (oh_status->errors()); // 8 1 16 1 16
+      errors = errors | (oh_status->errors());  // 8 1 16 1 16
       warnings = warnings << 8;
-      warnings = warnings | (oh_status->warnings()); // 8 8 8
-      
+      warnings = warnings | (oh_status->warnings());  // 8 8 8
+
       uint32_t vfatmask = oh_status->vfatMask();
-      errors = errors << 1; // 8 1 16 1 16 1
+      errors = errors << 1;  // 8 1 16 1 16 1
       if (vfatmask != 16777215) {
         int ieta = chamber_id.ieta();
         if (!((vfatmask >> (8 - ieta) & 1) && (vfatmask >> (16 - ieta) & 1) &&
-              (vfatmask >> (24 - ieta) & 1))) {  // will not work for GE21      
+              (vfatmask >> (24 - ieta) & 1))) {  // will not work for GE21
           errors = errors | 1;
         }
       }
@@ -1003,13 +1001,13 @@ void GEMTnPEfficiencyTask::maskChamberWithError(const GEMDetId& chamber_id,
 
     if (!oh_exists) {
       errors = errors << 17;
-      errors = errors | 1; // 8 1 16 1 16 1 1
+      errors = errors | 1;  // 8 1 16 1 16 1 1
     }
   }
 
   for (auto iter = vfat_status_collection->begin(); iter != vfat_status_collection->end(); iter++) {
     const auto [vfat_id, range] = (*iter);
-    
+
     if (chamber_id.chamberId() != vfat_id) {
       continue;
     }
@@ -1017,19 +1015,19 @@ void GEMTnPEfficiencyTask::maskChamberWithError(const GEMDetId& chamber_id,
     for (auto vfat_status = range.first; vfat_status != range.second; vfat_status++) {
       vfat_exists = true;
       errors = errors << 8;
-      errors = errors | (vfat_status->errors()); // 8 1 16 1 16 1 1 8
+      errors = errors | (vfat_status->errors());  // 8 1 16 1 16 1 1 8
       warnings = warnings << 8;
-      warnings = warnings | (vfat_status->warnings()); // 8 8 8 8
+      warnings = warnings | (vfat_status->warnings());  // 8 8 8 8
       errors = errors << 1;
     }
     if (!vfat_exists) {
       errors = errors << 9;
-      
-      errors = errors | 1; // 8 1 16 1 16 1 1 8 1
+
+      errors = errors | 1;  // 8 1 16 1 16 1 1 8 1
     }
   }
   return;
-  }
+}
 
 bool GEMTnPEfficiencyTask::checkBounds(const GeomDet* geomDet,
                                        const GlobalPoint& global_position,
@@ -1203,9 +1201,6 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
                 ieta = eta_partition->id().ieta();
                 break;
               }
-            if (ieta == 0) {
-              continue;
-            }
           }
 
           if (station == 1 || station == 2) {
@@ -1356,7 +1351,6 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
 
   //Loop over probes
   for (unsigned i = 0; i < probe_indices.size(); ++i) {
-
     //Loop over ME0 matches
     unsigned nME0_matches = probe_coll_ME0_region.at(i).size();
     for (unsigned j = 0; j < nME0_matches; ++j) {
