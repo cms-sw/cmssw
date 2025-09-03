@@ -57,9 +57,7 @@ public:
 
   static const int mNMETBins = 11;
   static constexpr std::array<float, mNMETBins + 1> mMETBins = {
-      {0., 20., 40., 60., 80., 100., 150., 200., 300., 400., 500., 10000.}};
-  static const int mNEtaBins = 16;
-  static constexpr std::array<float, mNEtaBins + 1> mEtaBins = {{-6., -4., -3., -2., -1.5, -1., -0.5, -0.25, 0., 0.25, 0.5, 1., 1.5, 2., 3., 4., 6.}};
+      {0., 20., 40., 60., 80., 100., 150., 200., 300., 400., 500., 1000.}};
   static const int mNPhiBins = 6;
   static constexpr std::array<float, mNPhiBins + 1> mPhiBins = {{-3.15, -2., -1., 0., 1., 2., 3.15}};
 
@@ -165,17 +163,13 @@ private:
   using ElemArr = std::array<MonitorElement *, S>;
 
   ElemArr<mNMETBins> mMET_METBins;
-  ElemArr<mNEtaBins> mMET_EtaBins;
   ElemArr<mNPhiBins> mMET_PhiBins;
 
   ElemArr<mNMETBins> mMETDiff_GenMETTrue_METBins;
-  ElemArr<mNEtaBins> mMETDiff_GenMETTrue_EtaBins;
   ElemArr<mNPhiBins> mMETDiff_GenMETTrue_PhiBins;
   ElemArr<mNMETBins> mMETRatio_GenMETTrue_METBins;
-  ElemArr<mNEtaBins> mMETRatio_GenMETTrue_EtaBins;
   ElemArr<mNPhiBins> mMETRatio_GenMETTrue_PhiBins;
   ElemArr<mNMETBins> mMETDeltaPhi_GenMETTrue_METBins;
-  ElemArr<mNEtaBins> mMETDeltaPhi_GenMETTrue_EtaBins;
   ElemArr<mNPhiBins> mMETDeltaPhi_GenMETTrue_PhiBins;
 
   bool isCaloMET;
