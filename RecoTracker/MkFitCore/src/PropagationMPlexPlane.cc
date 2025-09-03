@@ -364,15 +364,15 @@ namespace {
              float cosP,
              float sinT,
              float cosT,
-             float pt,
+             float ipt,
              int q,
              float kinv) {
     float A = delta0 * eta0 + delta1 * eta1 + delta2 * eta2;
-    float ip = sinT / pt;
-    float p0[3] = {pt * cosP, pt * sinP, cosT / ip};
+    float ip = sinT * ipt;
+    float p0[3] = {cosP / ipt, sinP / ipt, cosT / ip};
     float B = (p0[0] * eta0 + p0[1] * eta1 + p0[2] * eta2) * ip;
     float rho = kinv * ip;
-    float C = (eta0 * p0[1] - eta1 * p0[0]) * rho * 0.5f * ip;
+    float C = - (eta0 * p0[1] - eta1 * p0[0]) * rho * 0.5f * ip;
     float sqb2m4ac = std::sqrt(B * B - 4.f * A * C);
     float s1 = (-B + sqb2m4ac) * 0.5f / C;
     float s2 = (-B - sqb2m4ac) * 0.5f / C;
