@@ -58,16 +58,15 @@ void METTesterPostProcessor::mFillAggrHistograms(std::string metdir, DQMStore::I
 
 		float metMean = mArrayIdx<MElem*>(mMET[bt], idx)->getMean();
 		float metRMS = mArrayIdx<MElem*>(mMET[bt], idx)->getRMS();
-		float resol = mArrayIdx<MElem*>(mMET[bt], idx)->getRMS() / ratioMean;
-		float resolError = metRMS * ratioRMS * ratioRMS / (ratioMean * ratioMean);
-		mMETResolAggr[bt]->setBinContent(idx + 1, resol);
+		float resolError = mArrayIdx<MElem*>(mMET[bt], idx)->getRMSError();
+		mMETResolAggr[bt]->setBinContent(idx + 1, metRMS);
 		mMETResolAggr[bt]->setBinError(idx + 1, resolError);
 
-		float significance = mArrayIdx<MElem*>(mMET[bt], idx)->getMean() / resol;
+		float significance = metMean / metRMS;
 		mMETSignAggr[bt]->setBinContent(idx+1, significance);
 		mMETSignAggr[bt]->setBinError(idx + 1,
 									  significance * std::sqrt((metRMS * metRMS / (metMean * metMean)) +
-															   (resolError * resolError / (resol * resol))));
+															   (resolError * resolError / (metRMS * metRMS))));
 	  }
 	}
   }
