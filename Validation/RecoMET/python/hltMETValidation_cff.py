@@ -7,39 +7,39 @@ hltMetPreValidSeq = cms.Sequence()
 
 from Validation.RecoMET.metTesterPostProcessor_cfi import metTesterPostProcessor as _metTesterPostProcessor
 hltMetPostProcessor = _metTesterPostProcessor.clone(
-    isHLT = cms.untracked.bool(True),
+    isHLT = True,
 )
 
 from Validation.RecoMET.metTester_cfi import metTester as _metTester
 _hltMetTester = _metTester.clone(
-    isHLT = cms.untracked.bool(True),
-    primaryVertices = cms.InputTag("hltPhase2PixelVertices"),
-    genMetTrue = cms.InputTag("genMetTrue"),
-    genMetCalo = cms.InputTag("genMetCalo"),
+    isHLT = True,
+    primaryVertices = 'hltPhase2PixelVertices',
+    genMetTrue = 'genMetTrue',
+    genMetCalo = 'genMetCalo',
 )
 
 hltMetAnalyzerPF = _hltMetTester.clone(
-    inputMETLabel = cms.InputTag('hltPFMET'), 
-    METType = cms.untracked.string('pf'), 
+    inputMETLabel = 'hltPFMET', 
+    METType = 'pf', 
 )
 
 hltMetAnalyzerPFPuppi = _hltMetTester.clone(
-    inputMETLabel = cms.InputTag('hltPFPuppiMET'),
-    METType = cms.untracked.string('pf'),
+    inputMETLabel = 'hltPFPuppiMET',
+    METType = 'pf',
 )
 
 hltMetAnalyzerPFPuppi = _hltMetTester.clone(
-    inputMETLabel = cms.InputTag('hltPFPuppiMET'),
-    METType = cms.untracked.string('pf'),
+    inputMETLabel = 'hltPFPuppiMET',
+    METType = 'pf',
 )
 
 hltMetTypeOneAnalyzerPFPuppi = _hltMetTester.clone(
-    inputMETLabel = cms.InputTag('hltPFPuppiMETTypeOne'),
-    METType = cms.untracked.string('pf'),
+    inputMETLabel = 'hltPFPuppiMETTypeOne',
+    METType = 'pf',
 )
 
 hltMetAnalyzerPFCalo = _hltMetTester.clone(
-    inputMETLabel = cms.InputTag('hltCaloMET'),
-    METType = cms.untracked.string('calo'),
+    inputMETLabel = 'hltCaloMET',
+    METType = 'calo',
 )
 
