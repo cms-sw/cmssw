@@ -1,3 +1,7 @@
-<export>
-  <lib name="1"/>
-</export>
+<environment>
+  <use name="sockets"/> <!-- this provides the dl library -->
+  <use name="FWCore/Utilities" source_only="1"/>
+  <export>
+    <lib name="1"/>
+  </export>
+</environment>
