@@ -35,7 +35,7 @@ public:
                             uint64_t& errors,
                             uint64_t& warnings);
   bool checkBounds(const GeomDet* geomDet, const GlobalPoint& global_position, const float bordercut);
-  /// Destructorr
+  /// Destructor
   ~GEMTnPEfficiencyTask() override;
 
   const bool m_maskChamberWithError_;
