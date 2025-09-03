@@ -141,11 +141,14 @@ public:
                 const std::string& title,
                 const std::string& xlabel,
                 const std::string& ylabel,
+                const int nBins,
+                const double valMin,
+                const double valMax,
                 Args... args) {
       const std::string& xylabels = "; " + xlabel + "; " + ylabel;
-      h_pass_ = ibooker.book1D("pass_" + name, title + " (pass)" + xylabels, args...);
-      h_total_ = ibooker.book1D(name, title + " (all)" + xylabels, args...);
-      bookExtraCutHistos(ibooker, name, xlabel);
+      h_pass_ = ibooker.book1D("pass_" + name, title + " (pass)" + xylabels, nBins, valMin, valMax, args...);
+      h_total_ = ibooker.book1D(name, title + " (all)" + xylabels, nBins, valMin, valMax, args...);
+      bookExtraCutHistos(ibooker, name, xlabel, nBins, valMin, valMax);
     }
 
     template <typename... Args>
@@ -154,11 +157,14 @@ public:
                 const std::string& title,
                 const std::string& xlabel,
                 const std::string& ylabel,
+                const int nBins,
+                const double valMin,
+                const double valMax,
                 Args... args) {
       const std::string& xylabels = "; " + xlabel + "; " + ylabel;
-      h_pass_ = ibooker.book2D("pass_" + name, title + " (pass)" + xylabels, args...);
-      h_total_ = ibooker.book2D(name, title + " (all)" + xylabels, args...);
-      bookExtraCutHistos(ibooker, name, xlabel);
+      h_pass_ = ibooker.book2D("pass_" + name, title + " (pass)" + xylabels, nBins, valMin, valMax, args...);
+      h_total_ = ibooker.book2D(name, title + " (all)" + xylabels, nBins, valMin, valMax, args...);
+      bookExtraCutHistos(ibooker, name, xlabel, nBins, valMin, valMax);
     }
 
     template <typename... Args>
@@ -167,17 +173,24 @@ public:
                     const std::string& title,
                     const std::string& xlabel,
                     const std::string& ylabel,
+                    const int nBins,
+                    const double valMin,
+                    const double valMax,
                     Args&&... args) {
       const std::string& xylabels = "; " + xlabel + "; " + ylabel;
-      auto hp = std::make_unique<TH1F>(
-          ("pass_" + name).c_str(), (title + " (pass)" + xylabels).c_str(), std::forward<Args>(args)...);
-      auto ht =
-          std::make_unique<TH1F>(name.c_str(), (title + " (all)" + xylabels).c_str(), std::forward<Args>(args)...);
+      auto hp = std::make_unique<TH1F>(("pass_" + name).c_str(),
+                                       (title + " (pass)" + xylabels).c_str(),
+                                       nBins,
+                                       valMin,
+                                       valMax,
+                                       std::forward<Args>(args)...);
+      auto ht = std::make_unique<TH1F>(
+          name.c_str(), (title + " (all)" + xylabels).c_str(), nBins, valMin, valMax, std::forward<Args>(args)...);
       simdoublets::BinLogX(hp.get());
       simdoublets::BinLogX(ht.get());
       h_pass_ = ibooker.book1D("pass_" + name, hp.release());
       h_total_ = ibooker.book1D(name, ht.release());
-      bookExtraCutHistos(ibooker, name, xlabel);
+      bookExtraCutHistos(ibooker, name, xlabel, nBins, valMin, valMax);
     }
 
     template <typename... Args>
@@ -186,17 +199,24 @@ public:
                     const std::string& title,
                     const std::string& xlabel,
                     const std::string& ylabel,
+                    const int nBins,
+                    const double valMin,
+                    const double valMax,
                     Args&&... args) {
       const std::string& xylabels = "; " + xlabel + "; " + ylabel;
-      auto hp = std::make_unique<TH2F>(
-          ("pass_" + name).c_str(), (title + " (pass)" + xylabels).c_str(), std::forward<Args>(args)...);
-      auto ht =
-          std::make_unique<TH2F>(name.c_str(), (title + " (all)" + xylabels).c_str(), std::forward<Args>(args)...);
+      auto hp = std::make_unique<TH2F>(("pass_" + name).c_str(),
+                                       (title + " (pass)" + xylabels).c_str(),
+                                       nBins,
+                                       valMin,
+                                       valMax,
+                                       std::forward<Args>(args)...);
+      auto ht = std::make_unique<TH2F>(
+          name.c_str(), (title + " (all)" + xylabels).c_str(), nBins, valMin, valMax, std::forward<Args>(args)...);
       simdoublets::BinLogX(hp.get());
       simdoublets::BinLogX(ht.get());
       h_pass_ = ibooker.book2D("pass_" + name, hp.release());
       h_total_ = ibooker.book2D(name, ht.release());
-      bookExtraCutHistos(ibooker, name, xlabel);
+      bookExtraCutHistos(ibooker, name, xlabel, nBins, valMin, valMax);
     }
 
     template <typename... Args>
@@ -205,21 +225,33 @@ public:
                     const std::string& title,
                     const std::string& xlabel,
                     const std::string& ylabel,
+                    const int nBins,
+                    const double valMin,
+                    const double valMax,
                     Args&&... args) {
       const std::string& xylabels = "; " + xlabel + "; " + ylabel;
-      auto hp = std::make_unique<TH2F>(
-          ("pass_" + name).c_str(), (title + " (pass)" + xylabels).c_str(), std::forward<Args>(args)...);
-      auto ht =
-          std::make_unique<TH2F>(name.c_str(), (title + " (all)" + xylabels).c_str(), std::forward<Args>(args)...);
+      auto hp = std::make_unique<TH2F>(("pass_" + name).c_str(),
+                                       (title + " (pass)" + xylabels).c_str(),
+                                       nBins,
+                                       valMin,
+                                       valMax,
+                                       std::forward<Args>(args)...);
+      auto ht = std::make_unique<TH2F>(
+          name.c_str(), (title + " (all)" + xylabels).c_str(), nBins, valMin, valMax, std::forward<Args>(args)...);
       simdoublets::BinLogY(hp.get());
       simdoublets::BinLogY(ht.get());
       h_pass_ = ibooker.book2D("pass_" + name, hp.release());
       h_total_ = ibooker.book2D(name, ht.release());
-      bookExtraCutHistos(ibooker, name, xlabel);
+      bookExtraCutHistos(ibooker, name, xlabel, nBins, valMin, valMax);
     }
 
   protected:
-    virtual void bookExtraCutHistos(DQMStore::IBooker& ibooker, const std::string& name, const std::string& title) {}
+    virtual void bookExtraCutHistos(DQMStore::IBooker& ibooker,
+                                    const std::string& name,
+                                    const std::string& title,
+                                    const int cutNBins,
+                                    const double cutMin,
+                                    const double cutMax) {}
     MonitorElement* h_pass_ = nullptr;
     MonitorElement* h_total_ = nullptr;
   };
@@ -231,40 +263,66 @@ public:
     ~CoupledCutMonitorElement() = default;
 
     template <typename... Args>
-    void fillCut(const bool pass, simdoublets::TrackTruth const& trackTruth, Args... args) {
+    void fillCut(const bool pass, simdoublets::TrackTruth const& trackTruth, const double inner, Args... args) {
       if (pass)
         this->h_pass_->Fill(args...);
       this->h_total_->Fill(args...);
       h_z_eta_->Fill(trackTruth.dz, trackTruth.eta, args...);
+      h_z_->Fill(trackTruth.dz, args...);
+      h_eta_->Fill(trackTruth.eta, args...);
+      h_inner_->Fill(inner, args...);
     }
 
     void fillPassThisCut(const bool passThisCut) { h_passThisCut_->Fill(0.5, passThisCut); }
 
   private:
-    void bookExtraCutHistos(DQMStore::IBooker& ibooker, const std::string& name, const std::string& title) override {
+    void bookExtraCutHistos(DQMStore::IBooker& ibooker,
+                            const std::string& name,
+                            const std::string& title,
+                            const int cutNBins,
+                            const double cutMin,
+                            const double cutMax) override {
       int etaNBins = 90;
-      double etamin = -4.5;
-      double etamax = 4.5;
+      double etaMin = -4.5;
+      double etaMax = 4.5;
       int zNBins = 80;
-      double zmin = -20.;
-      double zmax = 20.;
+      double zMin = -20.;
+      double zMax = 20.;
+      int innerNBins = 300;
+      double innerMin = -150;
+      double innerMax = 150;
       h_z_eta_ = ibooker.bookProfile2D(name + "_zEta",
                                        title + "; Vertex z coordinate [cm]; Pseudorapidity #eta",
-                                       zNBins,
-                                       zmin,
-                                       zmax,
+                                       innerNBins,
+                                       zMin,
+                                       zMax,
                                        etaNBins,
-                                       etamin,
-                                       etamax,
+                                       etaMin,
+                                       etaMax,
                                        -1.0e5,
                                        1.0e5,
                                        " ");
+      h_inner_ = ibooker.book2D(name + "_inner",
+                                title + "; z or r coordinate of inner RecHit [cm]; " + title,
+                                innerNBins,
+                                innerMin,
+                                innerMax,
+                                cutNBins,
+                                cutMin,
+                                cutMax);
+      h_z_ = ibooker.book2D(
+          name + "_z", title + "; Vertex z coordinate [cm]; " + title, zNBins, zMin, zMax, cutNBins, cutMin, cutMax);
+      h_eta_ = ibooker.book2D(
+          name + "_eta", title + "; Pseudorapidity #eta; " + title, etaNBins, etaMin, etaMax, cutNBins, cutMin, cutMax);
       h_passThisCut_ = ibooker.bookProfile(
           name + "_passThisCut", title + ";;Fraction of Doublets passing this cut", 1, 0, 1, 0.0, 1.0, " ");
     }
 
     // additional histograms for cuts
     MonitorElement* h_z_eta_ = nullptr;
+    MonitorElement* h_z_ = nullptr;
+    MonitorElement* h_eta_ = nullptr;
+    MonitorElement* h_inner_ = nullptr;
     MonitorElement* h_passThisCut_ = nullptr;
   };
 
@@ -280,7 +338,7 @@ private:
                  bool const,
                  int const,
                  simdoublets::CellCutVariables const&,
-                 simdoublets::ClusterSizeCutManager<TrackerTraits> const&) const;
+                 simdoublets::ClusterSizeCutManager<TrackerTraits> const&);
 
   // function that fills all histograms for cut variables (in folder CAParameters)
   void fillCutHistograms(SimDoublets::Doublet const&,
@@ -376,10 +434,10 @@ private:
   CoupledMonitorElement h_numTOVsPdgId_;
   CoupledMonitorElement h_numRecHitsPerLayer_;
   // histograms of SimDoublets
-  CoupledCutMonitorElement h_layerPairs_;
-  CoupledCutMonitorElement h_numSkippedLayers_;
-  CoupledCutMonitorElement h_num_vs_pt_;
-  CoupledCutMonitorElement h_num_vs_eta_;
+  CoupledMonitorElement h_layerPairs_;
+  CoupledMonitorElement h_numSkippedLayers_;
+  CoupledMonitorElement h_num_vs_pt_;
+  CoupledMonitorElement h_num_vs_eta_;
   CoupledCutMonitorElement h_z0_;
   CoupledCutMonitorElement h_curvatureR_;
   CoupledCutMonitorElement h_pTFromR_;
@@ -402,13 +460,13 @@ private:
   std::vector<CoupledCutMonitorElement> hVector_DYsize_;
   std::vector<CoupledCutMonitorElement> hVector_DYPred_;
   // histograms of doublet connections
-  CoupledMonitorElement h_hardCurvCut_;
-  CoupledMonitorElement h_dCurvCut_;
-  CoupledMonitorElement h_curvRatioCut_;
+  CoupledCutMonitorElement h_hardCurvCut_;
+  CoupledCutMonitorElement h_dCurvCut_;
+  CoupledCutMonitorElement h_curvRatioCut_;
   // vectors of historgrams (one per layer)
-  std::vector<CoupledMonitorElement> hVector_caThetaCut_;
-  std::vector<CoupledMonitorElement> hVector_caDCACut_;
-  std::vector<CoupledMonitorElement> hVector_firstHitR_;
+  std::vector<CoupledCutMonitorElement> hVector_caThetaCut_;
+  std::vector<CoupledCutMonitorElement> hVector_caDCACut_;
+  std::vector<CoupledCutMonitorElement> hVector_firstHitR_;
   // histograms of the most alive Ntuplet per TP
   CoupledMonitorElement h_bestNtuplet_numRecHits_;
   CoupledMonitorElement h_bestNtuplet_firstLayerId_;

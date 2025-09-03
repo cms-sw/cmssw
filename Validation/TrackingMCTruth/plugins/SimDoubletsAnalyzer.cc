@@ -4,7 +4,7 @@
 // Class:      SimDoubletsAnalyzer
 //
 
-// #define DOUBLETCUTS_PRINTOUTS
+#define DOUBLETCUTS_PRINTOUTS
 
 // user include files
 #include "Validation/TrackingMCTruth/plugins/SimDoubletsAnalyzer.h"
@@ -439,7 +439,7 @@ void SimDoubletsAnalyzer<TrackerTraits>::applyCuts(
     bool const hasValidTripletNeighbors,
     int const layerPairIdIndex,
     simdoublets::CellCutVariables const& cellCutVariables,
-    simdoublets::ClusterSizeCutManager<TrackerTraits> const& clusterSizeCutManager) const {
+    simdoublets::ClusterSizeCutManager<TrackerTraits> const& clusterSizeCutManager) {
   // -------------------------------------------------------------------------
   //  apply cuts for doublet creation
   // -------------------------------------------------------------------------
@@ -491,6 +491,25 @@ void SimDoubletsAnalyzer<TrackerTraits>::applyCuts(
     doublet.setAlive();
   }
 
+  // fill pass this cut histograms
+  h_z0_.fillPassThisCut(passZ0);
+  h_pTFromR_.fillPassThisCut(passPt);
+  h_YsizeB1_.fillPassThisCut(passYsize);
+  h_YsizeB2_.fillPassThisCut(passYsize);
+  h_DYsize12_.fillPassThisCut(passDYsize);
+  h_DYsize_.fillPassThisCut(passDYsize);
+  h_DYPred_.fillPassThisCut(passDYsize);
+  hVector_z0_[layerPairIdIndex].fillPassThisCut(passZ0);
+  hVector_pTFromR_[layerPairIdIndex].fillPassThisCut(passPt);
+  hVector_dz_[layerPairIdIndex].fillPassThisCut(passDZ);
+  hVector_dr_[layerPairIdIndex].fillPassThisCut(passDR);
+  hVector_idphi_[layerPairIdIndex].fillPassThisCut(passDPhi);
+  hVector_inner_[layerPairIdIndex].fillPassThisCut(passInner);
+  hVector_outer_[layerPairIdIndex].fillPassThisCut(passOuter);
+  hVector_Ysize_[layerPairIdIndex].fillPassThisCut(passYsize);
+  hVector_DYsize_[layerPairIdIndex].fillPassThisCut(passDYsize);
+  hVector_DYPred_[layerPairIdIndex].fillPassThisCut(passDYsize);
+
 #ifdef DOUBLETCUTS_PRINTOUTS
   printf("%d %d %d %d %d %d %d %d %d %d %d %d %d %d\n",
          layerPairIdIndex,
@@ -515,13 +534,23 @@ void SimDoubletsAnalyzer<TrackerTraits>::applyCuts(
   if (hasValidNeighbors) {
     // loop over the inner neighboring doublets of the doublet
     for (int i{0}; auto& neighbor : doublet.innerNeighbors()) {
-      if (
-          // apply CAThetaCut
-          (cellCutVariables.CAThetaCut(i) > cellCuts_.caThetaCuts_over_ptmin_.at(doublet.innerLayerId())) ||
-          // apply hardCurvCut
-          (cellCutVariables.hardCurvCut(i) > hardCurvCut_) ||
-          // apply dcaCut
-          (cellCutVariables.dcaCut(i) > cellCuts_.caDCACuts_.at(doublet.innerNeighborsInnerLayerId()))) {
+      bool passCATheta{true}, passHardCurv{true}, passDca{true};
+
+      // apply CAThetaCut
+      if (cellCutVariables.CAThetaCut(i) > cellCuts_.caThetaCuts_over_ptmin_.at(doublet.innerLayerId()))
+        passCATheta = false;
+      // apply hardCurvCut
+      if (cellCutVariables.hardCurvCut(i) > hardCurvCut_)
+        passHardCurv = false;
+      // apply dcaCut
+      if (cellCutVariables.dcaCut(i) > cellCuts_.caDCACuts_.at(doublet.innerNeighborsInnerLayerId()))
+        passDca = false;
+
+      h_hardCurvCut_.fillPassThisCut(passHardCurv);
+      hVector_caThetaCut_[doublet.innerLayerId()].fillPassThisCut(passCATheta);
+      hVector_caDCACut_[doublet.innerNeighborsInnerLayerId()].fillPassThisCut(passDca);
+
+      if (!(passCATheta && passHardCurv && passDca)) {
         neighbor.setKilled();
       } else {
         neighbor.setAlive();
@@ -564,65 +593,65 @@ void SimDoubletsAnalyzer<TrackerTraits>::fillCutHistograms(
     simdoublets::TrackTruth const& trackTruth) {
   // check if the doublet passed all cuts
   bool passed = doublet.isAlive();
+  double inner = cellCuts_.isBarrel_[doublet.innerLayerId()] ? cellCutVariables.inner_z() : cellCutVariables.inner_r();
+  double outer = cellCuts_.isBarrel_[doublet.outerLayerId()] ? cellCutVariables.outer_z() : cellCutVariables.outer_r();
 
   // -------------------------------------------------------------------------
   //  layer pair independent cuts (global folder)
   // -------------------------------------------------------------------------
   // radius of the circle defined by the two RecHits and the beamspot
-  h_curvatureR_.fillCut(passed, trackTruth, cellCutVariables.curvature());
-  hVector_curvatureR_[layerPairIdIndex].fillCut(passed, trackTruth, cellCutVariables.curvature());
+  h_curvatureR_.fillCut(passed, trackTruth, inner, cellCutVariables.curvature());
+  hVector_curvatureR_[layerPairIdIndex].fillCut(passed, trackTruth, inner, cellCutVariables.curvature());
   // pT that this curvature radius corresponds to
-  h_pTFromR_.fillCut(passed, trackTruth, cellCutVariables.pT());
-  hVector_pTFromR_[layerPairIdIndex].fillCut(passed, trackTruth, cellCutVariables.pT());
+  h_pTFromR_.fillCut(passed, trackTruth, inner, cellCutVariables.pT());
+  hVector_pTFromR_[layerPairIdIndex].fillCut(passed, trackTruth, inner, cellCutVariables.pT());
   // longitudinal impact parameter with respect to the beamspot
-  h_z0_.fillCut(passed, trackTruth, cellCutVariables.z0());
-  hVector_z0_[layerPairIdIndex].fillCut(passed, trackTruth, cellCutVariables.z0());
+  h_z0_.fillCut(passed, trackTruth, inner, cellCutVariables.z0());
+  hVector_z0_[layerPairIdIndex].fillCut(passed, trackTruth, inner, cellCutVariables.z0());
 
   // -------------------------------------------------------------------------
   //  layer pair dependent cuts (sub-folders for layer pairs)
   // -------------------------------------------------------------------------
   // dr = (outer_r - inner_r) histogram
-  hVector_dr_[layerPairIdIndex].fillCut(passed, trackTruth, cellCutVariables.dr());
+  hVector_dr_[layerPairIdIndex].fillCut(passed, trackTruth, inner, cellCutVariables.dr());
   // dphi histogram
-  hVector_dphi_[layerPairIdIndex].fillCut(passed, trackTruth, cellCutVariables.dphi());
-  hVector_idphi_[layerPairIdIndex].fillCut(passed, trackTruth, cellCutVariables.idphi());
+  hVector_dphi_[layerPairIdIndex].fillCut(passed, trackTruth, inner, cellCutVariables.dphi());
+  hVector_idphi_[layerPairIdIndex].fillCut(passed, trackTruth, inner, cellCutVariables.idphi());
   // r/z of the inner and outer RecHit histograms
-  double inner = cellCuts_.isBarrel_[doublet.innerLayerId()] ? cellCutVariables.inner_z() : cellCutVariables.inner_r();
-  double outer = cellCuts_.isBarrel_[doublet.outerLayerId()] ? cellCutVariables.outer_z() : cellCutVariables.outer_r();
-  hVector_inner_[layerPairIdIndex].fillCut(passed, trackTruth, inner);
-  hVector_outer_[layerPairIdIndex].fillCut(passed, trackTruth, outer);
+  hVector_inner_[layerPairIdIndex].fillCut(passed, trackTruth, inner, inner);
+  hVector_outer_[layerPairIdIndex].fillCut(passed, trackTruth, inner, outer);
   // potential cuts for dz
-  hVector_dz_[layerPairIdIndex].fillCut(passed, trackTruth, cellCutVariables.dz());
+  hVector_dz_[layerPairIdIndex].fillCut(passed, trackTruth, inner, cellCutVariables.dz());
 
   // -------------------------------------------------------------------------
   //  cluster size cuts (global + sub-folders for layer pairs)
   // -------------------------------------------------------------------------
   // cluster size in local y histogram
-  hVector_Ysize_[layerPairIdIndex].fillCut(passed, trackTruth, cellCutVariables.Ysize());
+  hVector_Ysize_[layerPairIdIndex].fillCut(passed, trackTruth, inner, cellCutVariables.Ysize());
   // histograms for clusterCut
   // YsizeB1 cut
   if (clusterSizeCutManager.isSubjectToYsizeB1()) {
-    h_YsizeB1_.fillCut(passed, trackTruth, cellCutVariables.Ysize());
+    h_YsizeB1_.fillCut(passed, trackTruth, inner, cellCutVariables.Ysize());
   }
   // YsizeB2 cut
   if (clusterSizeCutManager.isSubjectToYsizeB2()) {
-    h_YsizeB2_.fillCut(passed, trackTruth, cellCutVariables.Ysize());
+    h_YsizeB2_.fillCut(passed, trackTruth, inner, cellCutVariables.Ysize());
   }
   // histograms for zSizeCut
   // DYsize12 cut
   if (clusterSizeCutManager.isSubjectToDYsize12()) {
-    hVector_DYsize_[layerPairIdIndex].fillCut(passed, trackTruth, cellCutVariables.DYsize());
-    h_DYsize12_.fillCut(passed, trackTruth, cellCutVariables.DYsize());
+    hVector_DYsize_[layerPairIdIndex].fillCut(passed, trackTruth, inner, cellCutVariables.DYsize());
+    h_DYsize12_.fillCut(passed, trackTruth, inner, cellCutVariables.DYsize());
   }
   // DYsize cut
   if (clusterSizeCutManager.isSubjectToDYsize()) {
-    hVector_DYsize_[layerPairIdIndex].fillCut(passed, trackTruth, cellCutVariables.DYsize());
-    h_DYsize_.fillCut(passed, trackTruth, cellCutVariables.DYsize());
+    hVector_DYsize_[layerPairIdIndex].fillCut(passed, trackTruth, inner, cellCutVariables.DYsize());
+    h_DYsize_.fillCut(passed, trackTruth, inner, cellCutVariables.DYsize());
   }
   // DYPred cut
   if (clusterSizeCutManager.isSubjectToDYPred()) {
-    hVector_DYPred_[layerPairIdIndex].fillCut(passed, trackTruth, cellCutVariables.DYPred());
-    h_DYPred_.fillCut(passed, trackTruth, cellCutVariables.DYPred());
+    hVector_DYPred_[layerPairIdIndex].fillCut(passed, trackTruth, inner, cellCutVariables.DYPred());
+    h_DYPred_.fillCut(passed, trackTruth, inner, cellCutVariables.DYPred());
   }
 
   // -------------------------------------------------------------------------
@@ -1591,9 +1620,9 @@ void SimDoubletsAnalyzer<TrackerTraits>::bookHistograms(DQMStore::IBooker& ibook
                 "dphi of RecHit pair " + layerTitle,
                 "d#phi between outer and inner RecHit [rad]",
                 "Number of " + doublet + "s",
-                50,
-                -M_PI,
-                M_PI);
+                200,
+                -M_PI / 16,
+                M_PI / 16);
     hVector_idphi_.at(layerPairIdIndex)
         .book1D(ibook,
                 "idphi",
