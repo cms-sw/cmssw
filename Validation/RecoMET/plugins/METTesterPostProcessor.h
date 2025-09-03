@@ -24,34 +24,39 @@ private:
 
   void mFillAggrHistograms(std::string, DQMStore::IGetter &);
 
-  template <int S>
-  using ElemArr = std::array<MonitorElement *, S>;
+  using MElem = MonitorElement;
+  template <typename T>
+  using ArrayVariant = std::variant<
+    std::array<T, METTester::mNMETBins+1>,
+    std::array<T, METTester::mNPhiBins+1>>;
 
-  static constexpr int mNMETBins = METTester::mNMETBins;
-  static constexpr auto mMETBins = METTester::mMETBins;
-  ElemArr<mNMETBins> mMET_METBins;
-  ElemArr<mNMETBins> mMETDiff_GenMETTrue_METBins;
-  ElemArr<mNMETBins> mMETRatio_GenMETTrue_METBins;
-  ElemArr<mNMETBins> mMETDeltaPhi_GenMETTrue_METBins;
+  // reading
+  template <typename T>
+  T mArrayIdx(const ArrayVariant<T>& arr, unsigned idx) {
+    return std::visit([idx](const auto& x) { return x.at(idx); }, arr);
+  }
+  // assigning
+  template <typename T>
+  auto& mArrayIdx(ArrayVariant<T>& arr, unsigned idx) {
+    return std::visit([idx](auto& x) -> auto& { return x.at(idx); }, arr);
+  }
+  
+  std::unordered_map<std::string, unsigned> mNBins = {{"MET", METTester::mNMETBins}, {"Phi", METTester::mNPhiBins}};
+  std::unordered_map<std::string, ArrayVariant<float>> mEdges = {{"MET", std::array<float, METTester::mNMETBins+1>{METTester::mMETBins}},
+																 {"Phi", std::array<float, METTester::mNPhiBins+1>{METTester::mPhiBins}}};
 
-  static constexpr int mNEtaBins = METTester::mNEtaBins;
-  static constexpr auto mEtaBins = METTester::mEtaBins;
-  ElemArr<mNEtaBins> mMET_EtaBins;
-  ElemArr<mNEtaBins> mMETDiff_GenMETTrue_EtaBins;
-  ElemArr<mNEtaBins> mMETRatio_GenMETTrue_EtaBins;
-  ElemArr<mNEtaBins> mMETDeltaPhi_GenMETTrue_EtaBins;
+  using ElemMap = std::unordered_map<std::string, MElem*>; // one entry per bin type, for instance "MET" and "Phi"
+  using ElemMapArr = std::unordered_map<std::string, ArrayVariant<MElem*>>; // one entry per bin type, for instance "MET" and "Phi"
 
-  static constexpr int mNPhiBins = METTester::mNPhiBins;
-  static constexpr auto mPhiBins = METTester::mPhiBins;
-  ElemArr<mNPhiBins> mMET_PhiBins;
-  ElemArr<mNPhiBins> mMETDiff_GenMETTrue_PhiBins;
-  ElemArr<mNPhiBins> mMETRatio_GenMETTrue_PhiBins;
-  ElemArr<mNPhiBins> mMETDeltaPhi_GenMETTrue_PhiBins;
+  ElemMapArr mMET;
+  ElemMapArr mMETDiff_GenMETTrue;
+  ElemMapArr mMETRatio_GenMETTrue;
+  ElemMapArr mMETDeltaPhi_GenMETTrue;
 
-  MonitorElement *mMETDiffAggr_METBins, *mMETDiffAggr_EtaBins, *mMETDiffAggr_PhiBins;
-  MonitorElement *mMETRespAggr_METBins, *mMETRespAggr_EtaBins, *mMETRespAggr_PhiBins;
-  MonitorElement *mMETResolAggr_METBins, *mMETResolAggr_EtaBins, *mMETResolAggr_PhiBins;
-  MonitorElement *mMETSignAggr_METBins, *mMETSignAggr_EtaBins, *mMETSignAggr_PhiBins;
+  ElemMap mMETDiffAggr;
+  ElemMap mMETRespAggr;
+  ElemMap mMETResolAggr;
+  ElemMap mMETSignAggr;
 
   bool isHLT;
 };
