@@ -1,6 +1,6 @@
 // Author: Felice Pantaleo (CERN), 2023, felice.pantaleo@cern.ch
-#ifndef MultiVectorManager_h
-#define MultiVectorManager_h
+#ifndef DataFormats_HGCalReco_MultiVectorManager_h
+#define DataFormats_HGCalReco_MultiVectorManager_h
 
 #include <vector>
 #include <cassert>

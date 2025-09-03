@@ -10,7 +10,7 @@
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
-#include "CommonTools/RecoAlgos/interface/MultiVectorManager.h"
+#include "DataFormats/HGCalReco/interface/MultiVectorManager.h"
 
 class AllHitToTracksterAssociatorsProducer : public edm::global::EDProducer<> {
 public:
