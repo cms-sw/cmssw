@@ -126,12 +126,12 @@ void METTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
   mMETDeltaPhi_GenMETTrue = ibooker.book1D("METDeltaPhi_GenMETTrue", "METDeltaPhi_GenMETTrue", 80, 0, 4);
 
   for (unsigned metIdx = 0; metIdx < mNMETBins; ++metIdx) {
-    std::string title = "MET_MET" + binStr(mMETBins[metIdx], mMETBins[metIdx + 1], true);
-    mMET_METBins[metIdx] = ibooker.book1D(title.c_str(), title.c_str(), 30, mMETBins[metIdx], mMETBins[metIdx + 1]);
+    std::string title = "MET_MET" + binStr(mMETBins[metIdx], mMETBins[metIdx+1], true);
+    mMET_METBins[metIdx] = ibooker.book1D(title.c_str(), title.c_str(), 50, mMETBins[metIdx], mMETBins[metIdx+1]);
   }
   for (unsigned metIdx = 0; metIdx < mNPhiBins; ++metIdx) {
-    std::string title = "MET_Phi" + binStr(mPhiBins[metIdx], mPhiBins[metIdx + 1], false);
-    mMET_PhiBins[metIdx] = ibooker.book1D(title.c_str(), title.c_str(), 20, mPhiBins[metIdx], mPhiBins[metIdx + 1]);
+    std::string title = "MET_Phi" + binStr(mPhiBins[metIdx], mPhiBins[metIdx+1], false);
+    mMET_PhiBins[metIdx] = ibooker.book1D(title.c_str(), title.c_str(), 600, -600, 600);
   }
 
   if (isMiniAODMET) {
@@ -157,7 +157,7 @@ void METTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
   }
   if (!isGenMET) {
     for (unsigned metIdx = 0; metIdx < mNMETBins; ++metIdx) {
-      const std::string title = "_GenMETTrue_MET" + binStr(mMETBins[metIdx], mMETBins[metIdx + 1], true);
+      const std::string title = "_GenMETTrue_MET" + binStr(mMETBins[metIdx], mMETBins[metIdx+1], true);
       mMETDiff_GenMETTrue_METBins[metIdx] =
           ibooker.book1D(("METDiff" + title).c_str(), ("METDiff" + title).c_str(), 600, -600, 600);
       mMETRatio_GenMETTrue_METBins[metIdx] =
@@ -166,7 +166,7 @@ void METTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
           ibooker.book1D(("METDeltaPhi" + title).c_str(), ("METDeltaPhi" + title).c_str(), 80, 0, 4);
     }
     for (unsigned metIdx = 0; metIdx < mNPhiBins; ++metIdx) {
-      const std::string title = "_GenMETTrue_Phi" + binStr(mPhiBins[metIdx], mPhiBins[metIdx + 1], false);
+      const std::string title = "_GenMETTrue_Phi" + binStr(mPhiBins[metIdx], mPhiBins[metIdx+1], false);
       mMETDiff_GenMETTrue_PhiBins[metIdx] =
           ibooker.book1D(("METDiff" + title).c_str(), ("METDiff" + title).c_str(), 600, -600, 600);
       mMETRatio_GenMETTrue_PhiBins[metIdx] =
@@ -286,11 +286,11 @@ void METTester::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
   mMETPhi->Fill(METPhi);
 
   for (unsigned metIdx = 0; metIdx < mNMETBins; ++metIdx) {
-    if (MET > mMETBins[metIdx] && MET < mMETBins[metIdx + 1])
+    if (MET > mMETBins[metIdx] && MET < mMETBins[metIdx+1])
       mMET_METBins[metIdx]->Fill(MET);
   }
   for (unsigned metIdx = 0; metIdx < mNPhiBins; ++metIdx) {
-    if (METPhi > mPhiBins[metIdx] && METPhi < mPhiBins[metIdx + 1])
+    if (METPhi > mPhiBins[metIdx] && METPhi < mPhiBins[metIdx+1])
       mMET_PhiBins[metIdx]->Fill(MET);
   }
 
@@ -325,7 +325,7 @@ void METTester::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
     if (!isGenMET) {
       // MET difference in MET bins
       for (unsigned metIdx = 0; metIdx < mNMETBins; ++metIdx) {
-        if (MET >= mMETBins[metIdx] && MET < mMETBins[metIdx + 1]) {
+        if (MET >= mMETBins[metIdx] && MET < mMETBins[metIdx+1]) {
           mMETDiff_GenMETTrue_METBins[metIdx]->Fill(metDiff);
           mMETRatio_GenMETTrue_METBins[metIdx]->Fill(metRatio);
           mMETDeltaPhi_GenMETTrue_METBins[metIdx]->Fill(metDeltaPhi);
@@ -333,7 +333,7 @@ void METTester::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
       }
       // MET difference in Phi bins
       for (unsigned metIdx = 0; metIdx < mNPhiBins; ++metIdx) {
-        if (METPhi >= mPhiBins[metIdx] && METPhi < mPhiBins[metIdx + 1]) {
+        if (METPhi >= mPhiBins[metIdx] && METPhi < mPhiBins[metIdx+1]) {
           mMETDiff_GenMETTrue_PhiBins[metIdx]->Fill(metDiff);
           mMETRatio_GenMETTrue_PhiBins[metIdx]->Fill(metRatio);
           mMETDeltaPhi_GenMETTrue_PhiBins[metIdx]->Fill(metDeltaPhi);
