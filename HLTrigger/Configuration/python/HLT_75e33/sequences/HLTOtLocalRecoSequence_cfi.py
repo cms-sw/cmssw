@@ -9,6 +9,5 @@ _HLTOtLocalRecoSequenceWithHits = cms.Sequence(hltMeasurementTrackerEvent
                                                +hltSiPhase2RecHits
                                                )
 
-from Configuration.ProcessModifiers.alpaka_cff import alpaka
 from Configuration.ProcessModifiers.phase2CAExtension_cff import phase2CAExtension
-(alpaka & phase2CAExtension).toReplaceWith(HLTOtLocalRecoSequence, _HLTOtLocalRecoSequenceWithHits)
+phase2CAExtension.toReplaceWith(HLTOtLocalRecoSequence, _HLTOtLocalRecoSequenceWithHits)
