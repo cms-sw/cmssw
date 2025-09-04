@@ -1,5 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoLocalTracker.SiPixelRecHits.SiPixelRecHitExtendedAlpaka_alpaka import SiPixelRecHitExtendedAlpaka_alpaka as _SiPixelRecHitExtendedAlpaka_alpaka
-
-hltPhase2PixelRecHitsExtendedSoA = _SiPixelRecHitExtendedAlpaka_alpaka()
+hltPhase2PixelRecHitsExtendedSoA = cms.EDProducer('SiPixelRecHitExtendedAlpaka@alpaka',
+    pixelRecHitsSoA = cms.InputTag('hltPhase2SiPixelRecHitsSoA'),
+    trackerRecHitsSoA = cms.InputTag('hltPhase2OtRecHitsSoA'),
+    mightGet = cms.optional.untracked.vstring,
+    alpaka = cms.untracked.PSet(
+      backend = cms.untracked.string('')
+    )
+  )

@@ -160,16 +160,16 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
                                              subdetId != PixelSubdetector::PixelEndcap;
                                     }),
                      hits.end());
-	  
-	  if (hits.size() > 2){
-	    seedCreator_.makeSeed(*result, hits);
-	  }
+
+          if (hits.size() > 2) {
+            seedCreator_.makeSeed(*result, hits);
+          }
         } else {
-	  if (hits.size() > 3 and not includeFourthHit_)
-	    seedCreator_.makeSeed(*result, {hits[0], hits[1], hits[2]});
-	  else
-	    seedCreator_.makeSeed(*result, hits);
-	}
+          if (hits.size() > 3 and not includeFourthHit_)
+            seedCreator_.makeSeed(*result, {hits[0], hits[1], hits[2]});
+          else
+            seedCreator_.makeSeed(*result, hits);
+        }
       }
     }
   }
