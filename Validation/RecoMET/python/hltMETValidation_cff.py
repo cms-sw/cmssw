@@ -28,11 +28,6 @@ hltMetAnalyzerPFPuppi = _hltMetTester.clone(
     METType = 'pf',
 )
 
-hltMetAnalyzerPFPuppi = _hltMetTester.clone(
-    inputMETLabel = 'hltPFPuppiMET',
-    METType = 'pf',
-)
-
 hltMetTypeOneAnalyzerPFPuppi = _hltMetTester.clone(
     inputMETLabel = 'hltPFPuppiMETTypeOne',
     METType = 'pf',

@@ -127,11 +127,11 @@ void METTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun,
 
   for (unsigned metIdx = 0; metIdx < mNMETBins; ++metIdx) {
     std::string title = "MET_MET" + binStr(mMETBins[metIdx], mMETBins[metIdx + 1], true);
-    mMET_METBins[metIdx] = ibooker.book1D(title.c_str(), title.c_str(), 30, mMETBins[metIdx], mMETBins[metIdx + 1]);
+    mMET_METBins[metIdx] = ibooker.book1D(title.c_str(), title.c_str(), 50, mMETBins[metIdx], mMETBins[metIdx + 1]);
   }
   for (unsigned metIdx = 0; metIdx < mNPhiBins; ++metIdx) {
     std::string title = "MET_Phi" + binStr(mPhiBins[metIdx], mPhiBins[metIdx + 1], false);
-    mMET_PhiBins[metIdx] = ibooker.book1D(title.c_str(), title.c_str(), 20, mPhiBins[metIdx], mPhiBins[metIdx + 1]);
+    mMET_PhiBins[metIdx] = ibooker.book1D(title.c_str(), title.c_str(), 600, -600, 600);
   }
 
   if (isMiniAODMET) {

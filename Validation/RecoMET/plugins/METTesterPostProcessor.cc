@@ -49,7 +49,7 @@ void METTesterPostProcessor::mFillAggrHistograms(std::string metdir, DQMStore::I
 	if (mArrayIdx<MElem*>(mMETDiff_GenMETTrue[bt], 0) && mArrayIdx<MElem*>(mMETDiff_GenMETTrue[bt], 0)->getRootObject()) {
 	  for (unsigned idx = 0; idx < mNBins[bt]-1; ++idx) {
 		mMETDiffAggr[bt]->setBinContent(idx+1, mArrayIdx<MElem*>(mMETDiff_GenMETTrue[bt], idx)->getMean());
-		mMETDiffAggr[bt]->setBinError(idx + 1, mArrayIdx<MElem*>(mMETDiff_GenMETTrue[bt], idx)->getRMS());
+		mMETDiffAggr[bt]->setBinError(idx+1, mArrayIdx<MElem*>(mMETDiff_GenMETTrue[bt], idx)->getRMS());
 
 		float ratioMean = mArrayIdx<MElem*>(mMETRatio_GenMETTrue[bt], idx)->getMean();
 		float ratioRMS = mArrayIdx<MElem*>(mMETRatio_GenMETTrue[bt], idx)->getRMS();
@@ -59,12 +59,12 @@ void METTesterPostProcessor::mFillAggrHistograms(std::string metdir, DQMStore::I
 		float metMean = mArrayIdx<MElem*>(mMET[bt], idx)->getMean();
 		float metRMS = mArrayIdx<MElem*>(mMET[bt], idx)->getRMS();
 		float resolError = mArrayIdx<MElem*>(mMET[bt], idx)->getRMSError();
-		mMETResolAggr[bt]->setBinContent(idx + 1, metRMS);
-		mMETResolAggr[bt]->setBinError(idx + 1, resolError);
+		mMETResolAggr[bt]->setBinContent(idx+1, metRMS);
+		mMETResolAggr[bt]->setBinError(idx+1, resolError);
 
 		float significance = metMean / metRMS;
 		mMETSignAggr[bt]->setBinContent(idx+1, significance);
-		mMETSignAggr[bt]->setBinError(idx + 1,
+		mMETSignAggr[bt]->setBinError(idx+1,
 									  significance * std::sqrt((metRMS * metRMS / (metMean * metMean)) +
 															   (resolError * resolError / (metRMS * metRMS))));
 	  }
