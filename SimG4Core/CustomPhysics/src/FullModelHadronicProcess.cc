@@ -141,7 +141,8 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
       TargetSurvives = true;
     }
 
-    if (finalStateParticle->GetParticleType() == "rhadron" || finalStateParticle->GetParticleType() == "mesonino" || finalStateParticle->GetParticleType() == "sbaryon") {
+    if (finalStateParticle->GetParticleType() == "rhadron" || finalStateParticle->GetParticleType() == "mesonino" ||
+        finalStateParticle->GetParticleType() == "sbaryon") {
       outgoingRhadronDefinition = finalStateParticle;
       outgoingCloudDefinition = finalStateCustomParticle->GetCloud();
     }
