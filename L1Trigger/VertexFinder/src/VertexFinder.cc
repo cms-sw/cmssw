@@ -93,6 +93,18 @@ namespace l1tVertexFinder {
           // ErfcWeight with only 1/width
           zweight = ErfcWeight * std::pow(trackPt, settings_->vx_weightedmean()) / GaussianWidth;
         }
+        // Additional undocumented options using only trackPt^1 (instead of settings_->vx_weightedmean(), which defaults to 2)
+        else if (settings_->vx_pfa_weightedz0() == 7) {
+          zweight = ErfcWeight * std::pow(trackPt, 1) / GaussianWidth / GaussianWidth;
+        } else if (settings_->vx_pfa_weightedz0() == 8) {
+          zweight = ErfcWeight * std::pow(trackPt, 1) / GaussianWidth;
+        } else if (settings_->vx_pfa_weightedz0() == 9) {
+          zweight = StepFunctionWeight * std::pow(trackPt, 1);
+        } else if (settings_->vx_pfa_weightedz0() == 10) {
+          zweight = StepFunctionWeight * std::pow(trackPt, 1) / (GaussianWidth + 0.5 * settings_->vx_pfa_binwidth());
+        } else if (settings_->vx_pfa_weightedz0() == 11) {
+          zweight = StepFunctionWeight * std::pow(trackPt, 1) / GaussianWidth / GaussianWidth;
+        }
 
         SumZWeight += zweight;
         SumZ += track->z0() * zweight;
@@ -191,6 +203,39 @@ namespace l1tVertexFinder {
           float StepFunctionWeight = deltaZ > GaussianWidth ? 0 : 1;
           // Step function weight, to replicate fastHisto when used with settings_->vx_pfa_weightfunction() == 3
           zweight = StepFunctionWeight * std::pow(trackPt, settings_->vx_weightedmean());
+        }
+        // Additional undocumented options with different uses of the eta-dependent width
+        else if (settings_->vx_pfa_weightedz0() == 4) {
+          // Step function weight divided by step function width (to maintain constant area when using eta-dependent resolution)
+          float StepFunctionWeight = deltaZ > GaussianWidth ? 0 : 1;
+          zweight = StepFunctionWeight * std::pow(trackPt, settings_->vx_weightedmean()) /
+                    (GaussianWidth + 0.5 * settings_->vx_pfa_binwidth());
+        } else if (settings_->vx_pfa_weightedz0() == 5) {
+          // Step function weight weighted by 1/variance (relevant when using eta-dependent resolution)
+          float StepFunctionWeight = deltaZ > GaussianWidth ? 0 : 1;
+          zweight =
+              StepFunctionWeight * std::pow(trackPt, settings_->vx_weightedmean()) / GaussianWidth / GaussianWidth;
+        } else if (settings_->vx_pfa_weightedz0() == 6) {
+          // ErfcWeight with only 1/width
+          float ErfcWeight = std::erfc(sqrt0p5 * deltaZ / GaussianWidth);
+          zweight = ErfcWeight * std::pow(trackPt, settings_->vx_weightedmean()) / GaussianWidth;
+        }
+        // Additional undocumented options using only trackPt^1 (instead of settings_->vx_weightedmean(), which defaults to 2)
+        else if (settings_->vx_pfa_weightedz0() == 7) {
+          float ErfcWeight = std::erfc(sqrt0p5 * deltaZ / GaussianWidth);
+          zweight = ErfcWeight * std::pow(trackPt, 1) / GaussianWidth / GaussianWidth;
+        } else if (settings_->vx_pfa_weightedz0() == 8) {
+          float ErfcWeight = std::erfc(sqrt0p5 * deltaZ / GaussianWidth);
+          zweight = ErfcWeight * std::pow(trackPt, 1) / GaussianWidth;
+        } else if (settings_->vx_pfa_weightedz0() == 9) {
+          float StepFunctionWeight = deltaZ > GaussianWidth ? 0 : 1;
+          zweight = StepFunctionWeight * std::pow(trackPt, 1);
+        } else if (settings_->vx_pfa_weightedz0() == 10) {
+          float StepFunctionWeight = deltaZ > GaussianWidth ? 0 : 1;
+          zweight = StepFunctionWeight * std::pow(trackPt, 1) / (GaussianWidth + 0.5 * settings_->vx_pfa_binwidth());
+        } else if (settings_->vx_pfa_weightedz0() == 11) {
+          float StepFunctionWeight = deltaZ > GaussianWidth ? 0 : 1;
+          zweight = StepFunctionWeight * std::pow(trackPt, 1) / GaussianWidth / GaussianWidth;
         }
         SumZWeightPFA += zweight;
         SumZ += track->z0() * zweight;
