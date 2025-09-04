@@ -21,13 +21,13 @@ void METTesterPostProcessor::dqmEndJob(DQMStore::IBooker &ibook_, DQMStore::IGet
   for (size_t i = 0; i < met_dirs.size(); i++) {
     ibook_.setCurrentFolder(met_dirs[i]);
 	for (std::string bt: {"MET", "Phi"}) { // loop over bin types
-	  mMETDiffAggr[bt]  = ibook_.book1D("mMETDiffAggr_" + bt,  "mMETDiffAggr_" + bt,  mNBins[bt],
+	  mMETDiffAggr[bt]  = ibook_.book1D("METDiffAggr_" + bt,  "METDiffAggr_" + bt,  mNBins[bt],
 										std::visit([](const auto& arr) {return arr.data();}, mEdges[bt]));
-	  mMETRespAggr[bt]  = ibook_.book1D("mMETRespAggr_" + bt,  "mMETRespAggr_" + bt,  mNBins[bt],
+	  mMETRespAggr[bt]  = ibook_.book1D("METRespAggr_" + bt,  "METRespAggr_" + bt,  mNBins[bt],
 										std::visit([](const auto& arr) {return arr.data();}, mEdges[bt]));
-	  mMETResolAggr[bt] = ibook_.book1D("mMETResolAggr_" + bt, "mMETResolAggr_" + bt, mNBins[bt],
+	  mMETResolAggr[bt] = ibook_.book1D("METResolAggr_" + bt, "METResolAggr_" + bt, mNBins[bt],
 										std::visit([](const auto& arr) {return arr.data();}, mEdges[bt]));
-	  mMETSignAggr[bt]  = ibook_.book1D("mMETSignAggr_" + bt,  "mMETSignAggr_" + bt,  mNBins[bt],
+	  mMETSignAggr[bt]  = ibook_.book1D("METSignAggr_" + bt,  "METSignAggr_" + bt,  mNBins[bt],
 										std::visit([](const auto& arr) {return arr.data();}, mEdges[bt]));
 	}
     mFillAggrHistograms(met_dirs[i], iget_);
@@ -50,7 +50,9 @@ void METTesterPostProcessor::mFillAggrHistograms(std::string metdir, DQMStore::I
 	  for (unsigned idx = 0; idx < mNBins[bt]-1; ++idx) {
 		mMETDiffAggr[bt]->setBinContent(idx+1, mArrayIdx<MElem*>(mMETDiff_GenMETTrue[bt], idx)->getMean());
 		mMETDiffAggr[bt]->setBinError(idx+1, mArrayIdx<MElem*>(mMETDiff_GenMETTrue[bt], idx)->getRMS());
-
+		std::cout << mArrayIdx<MElem*>(mMETDiff_GenMETTrue[bt], idx)->getMean() << std::endl;
+		std::cout << mArrayIdx<MElem*>(mMETDiff_GenMETTrue[bt], idx)->getRMS() << std::endl;
+		std::cout << std::endl;
 		float ratioMean = mArrayIdx<MElem*>(mMETRatio_GenMETTrue[bt], idx)->getMean();
 		float ratioRMS = mArrayIdx<MElem*>(mMETRatio_GenMETTrue[bt], idx)->getRMS();
 		mMETRespAggr[bt]->setBinContent(idx+1, ratioMean);
