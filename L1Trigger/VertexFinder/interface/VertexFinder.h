@@ -135,8 +135,10 @@ namespace l1tVertexFinder {
     void computeAndSetVertexParameters(RecoVertex<>& vertex,
                                        const std::vector<float>& bin_centers,
                                        const std::vector<unsigned int>& counts);
-
+    /// Dedicated function used only in PFA(). Not used in PFASimple(), which uses the computeAndSetVertexParameters() function shared with other algorithms.
     double computeAndSetVertexParametersPFA(RecoVertex<>& vertex);
+    /// Calculates the PFA weight and the weighted average z weight for a given track
+    std::pair<float,float> calcPFAweights(const L1Track* track, double vertexZ0);
     /// Peak finding algorithm
     void PFA();
     /// Peak finding algorithm, single vertex, fastHisto-like simplification (by using step functon PFA weights)
