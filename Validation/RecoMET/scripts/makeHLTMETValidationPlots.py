@@ -134,51 +134,52 @@ if __name__ == '__main__':
     #####################################
 
     Var1DList = {
-        r'HF EM $E_T$'                      : 'HFEMEt',
-        r'HF EM $E_T$ fraction'             : 'HFEMEtFraction',
-        r'HF Hadron $E_T$'                  : 'HFHadronEt',
-        'HF Hadron $E_T$ fraction'          : 'HFHadronEtFraction',
-        'MET'                               : 'MET',
-        'MET along x'                       : 'MEx',
-        'MET along y'                       : 'MEy',
-        r'MET $\phi$'                       : 'METPhi',
-        r'Calo MET $\Delta\phi$'      : 'METDeltaPhi_GenMETCalo',
-        r'True MET $\Delta\phi$'      : 'METDeltaPhi_GenMETTrue',
-        r'MET - gen MET_{Calo}'                  : 'METDiff_GenMETCalo',
-        r'MET - gen MET_{True}'                  : 'METDiff_GenMETTrue',
-        'MET Significance (Event-by-event)' : 'METSignPseudo', # Et / std::sqrt(sumEt)
-        'MET Significance (Likelihood)'     : 'METSignReal', # covariance matrix missing
-        'Number of vertices (MET-weighted)' : 'MET_Nvtx',
-        'Number of vertices'                : 'Nvertex',
-        r'$\sum E_T$'                       : 'SumET',
-        r'Charged Hadron $E_T$'             : 'chargedHadronEt',
-        r'Charged Hadron $E_T$ fraction'    : 'chargedHadronEtFraction',
-        r'Neutral Hadron $E_T$'             : 'neutralHadronEt',
-        r'Neutral Hadron $E_T$ fraction'    : 'neutralHadronEtFraction',
-        r'Photon $E_T$'                     : 'photonEt',
-        r'Photon $E_T$ fraction'            : 'photonEtFraction',
-        r'Muon $E_T$'                       : 'muonEt',
-        r'Muon $E_T$ fraction'              : 'muonEtFraction',
-        r'Electron $E_T$'                   : 'electronEt',
-        r'Electron $E_T$ fraction'          : 'electronEtFraction',
+        'HFEMEt'                  : (r'HF EM $E_T$', None),
+        'HFEMEtFraction'          : (r'HF EM $E_T$ fraction', None),
+        'HFHadronEt'              : (r'HF Hadron $E_T$', 2),
+        'HFHadronEtFraction'      : ('HF Hadron $E_T$ fraction', 2),
+        'MET'                     : ('MET', 2),
+        'MEx'                     : ('MET along x', 4),
+        'MEy'                     : ('MET along y', 4),
+        'METPhi'                  : (r'MET $\phi$', 2),
+        'METDeltaPhi_GenMETCalo'  : (r'Calo MET $\Delta\phi$', 2),
+        'METDeltaPhi_GenMETTrue'  : (r'True MET $\Delta\phi$', 2),
+        'METDiff_GenMETCalo'      : (r'MET - gen MET$_{Calo}$', 6),
+        'METDiff_GenMETTrue'      : (r'MET - gen MET$_{True}$', 6),
+        'METSignPseudo'           : ('MET Significance (Event-by-event)', None), # Et / std: (: (sqrt(sumEt)
+        'METSignReal'             : ('MET Significance (Likelihood)', None), # covariance matrix missing
+        'MET_Nvtx'                : ('Number of vertices (MET-weighted)', 6),
+        'Nvertex'                 : ('Number of vertices', 6),
+        'SumET'                   : (r'$\sum E_T$', 4),
+        'chargedHadronEt'         : (r'Charged Hadron $E_T$', 2),
+        'chargedHadronEtFraction' : (r'Charged Hadron $E_T$ fraction', 2),
+        'neutralHadronEt'         : (r'Neutral Hadron $E_T$', 2),
+        'neutralHadronEtFraction' : (r'Neutral Hadron $E_T$ fraction', 2),
+        'photonEt'                : (r'Photon $E_T$', 2),
+        'photonEtFraction'        : (r'Photon $E_T$ fraction', 2),
+        'muonEt'                  : (r'Muon $E_T$', None),
+        'muonEtFraction'          : (r'Muon $E_T$ fraction', None),
+        'electronEt'              : (r'Electron $E_T$', None),
+        'electronEtFraction'      : (r'Electron $E_T$ fraction', None),
     }
     
-    for Label, Var in Var1DList.items():
+    for var, (xlabel, rebin) in Var1DList.items():
         plotter = Plotter(args.sample_label)
-        root_hist = CheckRootFile(f"{dqm_dir}/{Var}", rebin=None)
+        root_hist = CheckRootFile(f"{dqm_dir}/{var}", rebin=rebin)
         nbins, bin_edges, bin_centers, bin_widths = define_bins(root_hist)
         values, errors = histo_values_errors(root_hist)
 
-        plt.errorbar(bin_centers, values, xerr=None, yerr=errors,
-                     fmt='s', color='black', label=Label, **errorbar_kwargs)
-        plt.step(bin_edges[:-1], values, where="post", color='black')
+        plotter.ax.errorbar(bin_centers, values, xerr=None, yerr=errors,
+                     fmt='s', color='black', label=xlabel, **errorbar_kwargs)
+        plotter.ax.step(bin_edges[:-1], values, where="post", color='black')
         plotter.ax.text(0.03, 0.97, METType, transform=plotter.ax.transAxes, fontsize=fontsize,
                         verticalalignment='top', horizontalalignment='left')
 
-        plotter.limits(y=(5E-1, 2*max(values)), logY=False)
-        plotter.labels(x=Label, y='# Events')
+        diff_step = 0.05 * (max(values)-min(values))
+        plotter.limits(y=(min(values) - diff_step, 1.2*max(values)), logY=False)
+        plotter.labels(x=xlabel, y='# Events')
 
-        plotter.save( os.path.join(args.odir, Var) )
+        plotter.save( os.path.join(args.odir, var) )
 
 
     #####################################
@@ -206,7 +207,8 @@ if __name__ == '__main__':
         plotter.ax.text(0.03, 0.97, METType, transform=plotter.ax.transAxes, fontsize=fontsize,
                         verticalalignment='top', horizontalalignment='left')
 
-        plotter.limits(y=(min(-1,min(values)), 1.2*max(values)), logY=False)
+        diff_step = 0.05 * (max(values)-min(values))
+        plotter.limits(y=(min(values) - diff_step, 1.2*max(values)), logY=False)
         plotter.labels(x=xlabel, y=ylabel)
 
         plotter.save( os.path.join(args.odir, var) )
