@@ -175,7 +175,6 @@ hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2@alpaka',
     minHitsPerNtuplet = cms.uint32(4),
     maxNumberOfDoublets = cms.string(str(6*512*1024)),
     maxNumberOfTuples = cms.string(str(60*1024)),
-    cellPtCut = cms.double(0.85), # Corresponds to 1 GeV * this cut, i.e., 850 MeV, as minimum p_t
     cellZ0Cut = cms.double(12.5), # it's half the BS width! It has nothing to do with the sample!!
     minYsizeB1 = cms.int32(20),
     minYsizeB2 = cms.int32(18),
@@ -226,7 +225,7 @@ _hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
     hardCurvCut = cms.double(0.01425), # corresponds to 800 MeV in 3.8T.
     earlyFishbone = cms.bool(True),
     lateFishbone = cms.bool(False),
-    fillStatistics = cms.bool(True),
+    fillStatistics = cms.bool(False),
     minHitsPerNtuplet = cms.uint32(4),
     maxNumberOfDoublets = cms.string(str(12*512*1024)),
     maxNumberOfTuples = cms.string(str(2*60*1024)),
@@ -320,4 +319,4 @@ def _exclude_OT_layers(hltPhase2PixelTracksSoA, layers_to_exclude = [28, 29, 30]
 from Configuration.ProcessModifiers.phase2CAExtension_cff import phase2CAExtension
 phase2CAExtension.toReplaceWith(hltPhase2PixelTracksSoA, _hltPhase2PixelTracksSoA)
 
-print("Using {} pair connections: {}".format(len(hltPhase2PixelTracksSoA.geometry.pairGraph) // 2, hltPhase2PixelTracksSoA.geometry.pairGraph))
+#print("Using {} pair connections: {}".format(len(hltPhase2PixelTracksSoA.geometry.pairGraph) // 2, hltPhase2PixelTracksSoA.geometry.pairGraph))

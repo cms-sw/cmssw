@@ -29,6 +29,6 @@ hltPhase2PixelTracksCutClassifier = cms.EDProducer("TrackCutClassifier",
         minPixelHits = cms.vint32(0, 0, 3)
     ),
     qualityCuts = cms.vdouble(-0.7, 0.1, 0.7),
-    src = cms.InputTag("hltPhase2PixelTracks"),
+    src = cms.InputTag("hltPhase2PixelTracksCAExtension"),
     vertices = cms.InputTag("hltPhase2PixelVertices")
 )
