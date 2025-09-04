@@ -854,41 +854,6 @@ namespace l1tVertexFinder {
     pv_index_ = 0;
   }  // end of PFASimple
 
-  /**
-  * @note This method is the same as PFA() when settings_->vx_nvtx()=1
-  * @note This method does not support settings_->vx_pfa_usemultiplicitymaxima()=True (which requires a 2-step process).
-  */
-  void VertexFinder::PFASingleVertex() {
-    float vxPt = 0.;
-    RecoVertex leading_vertex;
-
-    int nbins = std::ceil((settings_->vx_pfa_max() - settings_->vx_pfa_min()) / settings_->vx_pfa_binwidth());
-    for (int i = 0; i <= nbins; ++i) {
-      float z = settings_->vx_pfa_min() + i * settings_->vx_pfa_binwidth();
-      RecoVertex vertex;
-      vertex.setZ0(z);
-      for (const L1Track& track : fitTracks_) {
-        if (std::abs(z - track.z0()) > settings_->vx_pfa_width())
-          continue;
-
-        if (settings_->vx_pfa_doqualitycuts() &
-            (track.pt() <
-             settings_->vx_TrackMinPt()))  // minimal additional quality cut as done in fastHistoEmulation()
-          continue;
-
-        vertex.insert(&track);
-      }  // end loop over tracks
-      computeAndSetVertexParametersPFA(vertex);
-      if (vertex.pt() > vxPt) {
-        leading_vertex = vertex;
-        vxPt = vertex.pt();
-      }
-    }
-
-    vertices_.emplace_back(leading_vertex);
-    pv_index_ = 0;
-  }  // end of PFASingleVertex
-
   void VertexFinder::PFA() {
     RecoVertex vertex2(-999.);
     RecoVertex vertex3(-999.);

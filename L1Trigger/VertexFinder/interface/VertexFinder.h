@@ -139,8 +139,6 @@ namespace l1tVertexFinder {
     double computeAndSetVertexParametersPFA(RecoVertex<>& vertex);
     /// Peak finding algorithm
     void PFA();
-    /// Peak finding algorithm, single vertex
-    void PFASingleVertex();
     /// Peak finding algorithm, single vertex, fastHisto-like simplification (by using step functon PFA weights)
     void PFASimple();
     /// DBSCAN algorithm
