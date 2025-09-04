@@ -19,7 +19,9 @@
    cd CMSSW_15_0_10/src/
    cmsenv
    copy input from /afs/cern.ch/work/s/snandan/public/hackathon/CMSSW_14_1_5/src/RecoLocalTracker/SiStripClusterizer/test/e1f7f325-4ca8-4fea-8d27-06b33862cf11.root
-   copy python file step2_L1REPACK_HLT_rawp.py from previous step and run
+   copy python file step2_L1REPACK_HLT_rawp.py from previous step and change this
+   process.hltSiStripClusterizerForRawPrime.Clusterizer.clusterChargeCut.refToPSet_='HLTSiStripClusterChargeCutNone'
+   process.ClusterShapeHitFilterESProducer.clusterChargeCut.refToPSet_='HLTSiStripClusterChargeCutNone' 
    cmsRun step2_L1REPACK_HLT_rawp.py
 
 ```
@@ -27,4 +29,5 @@
 ```
    edmEvenSize -v outputfile | grep Approx
 ```
+
 
