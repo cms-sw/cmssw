@@ -1390,7 +1390,6 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
       float GEM_phi = probe_coll_GE11_phi.at(i).at(j);
 
       uint64_t GEM_warning = probe_coll_GE11_warnings.at(i).at(j);
-      uint64_t GEM_error = probe_coll_GE11_errors.at(i).at(j);
       //Fill GEM plots
       if (GEM_dx < m_dxCut) {
         m_histos.find("GE11_nPassingProbe_Ch_region")->second->Fill(GEM_region, GEM_chamber);
