@@ -4,64 +4,6 @@ using namespace std;
 
 namespace l1tVertexFinder {
 
-  // Dedicated function used only in PFA(). Not used in PFASimple(), which uses the computeAndSetVertexParameters() function shared with other algorithms.
-  double VertexFinder::computeAndSetVertexParametersPFA(RecoVertex<>& vertex) {
-    double pt = 0.;
-    double z0 = -999.;
-    double z0width = 0.;
-
-    bool highPt = false;
-    double highestPt = 0.;
-    unsigned int numHighPtTracks = 0;
-
-    float SumWeight = 0.;
-    float SumWeightedPt = 0.;
-    float SumZWeight = 0.;
-    float SumZ = 0.;
-    float z0square = 0.;
-    float trackPt = 0.;
-
-    for (const L1Track* track : vertex.tracks()) {
-      trackPt = track->pt();
-
-      if (trackPt > settings_->vx_TrackMaxPt()) {
-        highPt = true;
-        numHighPtTracks++;
-        highestPt = (trackPt > highestPt) ? trackPt : highestPt;
-        if (settings_->vx_TrackMaxPtBehavior() == 0)
-          continue;  // ignore this track
-        else if (settings_->vx_TrackMaxPtBehavior() == 1)
-          trackPt = settings_->vx_TrackMaxPt();  // saturate
-      }
-      std::pair<float, float> weights = calcPFAweights(track, vertex.z0());
-      float weight = weights.first;
-      SumWeight += weight;
-      SumWeightedPt += weight * std::pow(trackPt, settings_->vx_weightedmean());
-
-      // Calculate weighted average z0
-      if (settings_->vx_pfa_weightedz0() > 0) {
-        float zweight = weights.second;
-        SumZWeight += zweight;
-        SumZ += track->z0() * zweight;
-        z0square += track->z0() * track->z0() * zweight;
-      }
-    }  // end loop over tracks
-
-    if (settings_->vx_pfa_weightedz0() > 0 && SumZWeight > 0) {
-      z0 = SumZ / SumZWeight;
-      z0square /= SumZWeight;
-      // Note: z0width is used in setParameters(), but only pt and z0 are used downstream so in principle this line could be skipped.
-      z0width = sqrt(std::abs(z0 * z0 - z0square));
-    } else {
-      z0 = vertex.z0();
-    }
-
-    pt = SumWeightedPt;
-
-    vertex.setParameters(pt, z0, z0width, highPt, numHighPtTracks, highestPt);
-    return SumWeight;
-  }
-
   // Calculates the PFA weight and the weighted average z weight for a given track
   std::pair<float, float> VertexFinder::calcPFAweights(const L1Track* track, double vertexZ0) {
     const float sqrt0p5 = std::sqrt(0.5);
@@ -137,7 +79,7 @@ namespace l1tVertexFinder {
     return std::make_pair(weight, zweight);
   }
 
-  void VertexFinder::computeAndSetVertexParameters(RecoVertex<>& vertex,
+  float VertexFinder::computeAndSetVertexParameters(RecoVertex<>& vertex,
                                                    const std::vector<float>& bin_centers,
                                                    const std::vector<unsigned int>& counts) {
     double pt = 0.;
@@ -148,9 +90,12 @@ namespace l1tVertexFinder {
     unsigned int numHighPtTracks = 0;
 
     float SumZ = 0.;
-    float SumZWeightPFA = 0.;
     float z0square = 0.;
     float trackPt = 0.;
+
+    bool isPFA = settings_->vx_algo() == Algorithm::PFA || settings_->vx_algo() == Algorithm::PFASimple;
+    float SumWeightPFA = 0.;
+    float SumZWeightPFA = 0.;
 
     std::vector<double> bin_pt(bin_centers.size(), 0.0);
     unsigned int ibin = 0;
@@ -174,10 +119,24 @@ namespace l1tVertexFinder {
           trackPt = settings_->vx_TrackMaxPt();  // saturate
       }
 
-      pt += std::pow(trackPt, settings_->vx_weightedmean());
-      if (settings_->vx_algo() == Algorithm::PFASimple && settings_->vx_pfa_weightedz0() > 0) {
-        // Calculate weighted-average z0 for PFASimple
-        float zweight = calcPFAweights(track, vertex.z0()).second;
+      std::pair<float, float> weights;
+      if (isPFA) {
+        weights = calcPFAweights(track, vertex.z0());
+      }
+
+      if (settings_->vx_algo() == Algorithm::PFA) {
+        // note this is not used in PFASimple(), where the simplification is that all tracks in the "bin" have PFA weight 1 (and 0 otherwise)
+        float weight = weights.first;
+        SumWeightPFA += weight;
+        pt += weight * std::pow(trackPt, settings_->vx_weightedmean());
+      }
+      else {
+        pt += std::pow(trackPt, settings_->vx_weightedmean());
+      }
+
+      if (isPFA && settings_->vx_pfa_weightedz0() > 0) {
+        // Calculate weighted-average z0 for PFASimple and PFA
+        float zweight = weights.second;
         SumZWeightPFA += zweight;
         SumZ += track->z0() * zweight;
         z0square += track->z0() * track->z0() * zweight;
@@ -195,8 +154,8 @@ namespace l1tVertexFinder {
       }
     }  // end loop over tracks
 
-    if (settings_->vx_algo() == Algorithm::PFASimple) {
-      // Alternative z0 calculation when using PFASimple
+    if (isPFA) {
+      // Alternative z0 calculation when using PFASimple or PFA
       if (settings_->vx_pfa_weightedz0() > 0 && SumZWeightPFA > 0) {
         z0 = SumZ / SumZWeightPFA;
         z0square /= SumZWeightPFA;
@@ -212,6 +171,7 @@ namespace l1tVertexFinder {
     }
 
     vertex.setParameters(pt, z0, z0width, highPt, numHighPtTracks, highestPt);
+    return SumWeightPFA;
   }
 
   void VertexFinder::GapClustering() {
@@ -804,14 +764,14 @@ namespace l1tVertexFinder {
     vertex3.setPt(0.);
     vertex4.setPt(0.);
 
-    double vertexScore1 = 0.;
-    double vertexScore2 = 0.;
-    double vertexScore3 = 0.;
-    double vertexScore4 = 0.;
+    float vertexScore1 = 0.;
+    float vertexScore2 = 0.;
+    float vertexScore3 = 0.;
+    float vertexScore4 = 0.;
 
-    double zCorrection2 = 0.;
-    double zCorrection3 = 0.;
-    double zCorrection4 = 0.;
+    float zCorrection2 = 0.;
+    float zCorrection3 = 0.;
+    float zCorrection4 = 0.;
 
     bool vertex1LocalMaximum = false;
     bool vertex2LocalMaximum = false;
@@ -852,7 +812,7 @@ namespace l1tVertexFinder {
         vertex.insert(&track);
       }  // end loop over tracks
 
-      vertexScore4 = computeAndSetVertexParametersPFA(vertex);
+      vertexScore4 = computeAndSetVertexParameters(vertex, {}, {});
       vertex4 = vertex;
 
       if (!settings_->vx_pfa_usemultiplicitymaxima()) {
