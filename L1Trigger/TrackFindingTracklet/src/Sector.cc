@@ -59,7 +59,7 @@ void Sector::setSector(unsigned int isector) {
   }
 }
 
-bool Sector::addStub(L1TStub stub, string dtc) {
+bool Sector::addStub(L1TStub stub, const string& dtc) {
   unsigned int layerdisk = stub.layerdisk();
   int nrbits = 3;
 
@@ -84,7 +84,7 @@ bool Sector::addStub(L1TStub stub, string dtc) {
     const string& name = DL_[i]->getName();
     if (name.find("_" + dtc) == string::npos)
       continue;
-    DL_[i]->addStub(stub, fpgastub);
+    DL_[i]->addStub(stub, fpgastub);  // Creates its own copy of stub
     nadd++;
   }
 
@@ -94,7 +94,7 @@ bool Sector::addStub(L1TStub stub, string dtc) {
   return true;
 }
 
-void Sector::addMem(string memType, string memName) {
+void Sector::addMem(const string& memType, const string& memName) {
   if (memType == "DTCLink:") {
     addMemToVec(DL_, memName, settings_, phimin_, phimax_);
   } else if (memType == "InputLink:") {
@@ -125,7 +125,7 @@ void Sector::addMem(string memType, string memName) {
   }
 }
 
-void Sector::addProc(string procType, string procName) {
+void Sector::addProc(const string& procType, const string& procName) {
   if (procType == "InputRouter:") {
     addProcToVec(IR_, procName, settings_, globals_);
   } else if (procType == "VMRouterCM:") {
@@ -152,7 +152,7 @@ void Sector::addProc(string procType, string procName) {
   }
 }
 
-void Sector::addWire(string mem, string procinfull, string procoutfull) {
+void Sector::addWire(const string& mem, const string& procinfull, const string& procoutfull) {
   stringstream ss1(procinfull);
   string procin, output;
   getline(ss1, procin, '.');
@@ -176,7 +176,7 @@ void Sector::addWire(string mem, string procinfull, string procoutfull) {
   }
 }
 
-ProcessBase* Sector::getProc(string procName) {
+ProcessBase* Sector::getProc(const string& procName) {
   auto it = Processes_.find(procName);
 
   if (it != Processes_.end()) {
@@ -186,7 +186,7 @@ ProcessBase* Sector::getProc(string procName) {
   return nullptr;
 }
 
-MemoryBase* Sector::getMem(string memName) {
+MemoryBase* Sector::getMem(const string& memName) {
   auto it = Memories_.find(memName);
 
   if (it != Memories_.end()) {

@@ -59,20 +59,20 @@ namespace trklet {
     //Set the sector
     void setSector(unsigned int isector);
 
-    bool addStub(L1TStub stub, std::string dtc);  //TODO - should be pointer or string
+    bool addStub(L1TStub stub, const std::string& dtc);  //TODO - should be pointer or string
 
     // Creates all required memory modules based on wiring map (args: module type, module instance)
-    void addMem(std::string memType, std::string memName);
+    void addMem(const std::string& memType, const std::string& memName);
 
     // Creates all required processing modules based on wiring map (args: module type, module instance)
-    void addProc(std::string procType, std::string procName);
+    void addProc(const std::string& procType, const std::string& procName);
 
     //--- Create all required proc -> mem module connections, based on wiring map
     //--- (args: memory instance & input/output proc modules it connects to in format procName.pinName)
-    void addWire(std::string mem, std::string procinfull, std::string procoutfull);
+    void addWire(const std::string& mem, const std::string& procinfull, const std::string& procoutfull);
 
-    ProcessBase* getProc(std::string procName);
-    MemoryBase* getMem(std::string memName);
+    ProcessBase* getProc(const std::string& procName);
+    MemoryBase* getMem(const std::string& memName);
 
     void writeDTCStubs(bool first);
     void writeIRStubs(bool first);

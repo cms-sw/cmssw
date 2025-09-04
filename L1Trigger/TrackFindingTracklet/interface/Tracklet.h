@@ -85,6 +85,11 @@ namespace trklet {
       return proj_[layerdisk].valid();
     }
 
+    const Projection& proj(int layerdisk) const {
+      assert(validProj(layerdisk));
+      return proj_[layerdisk];
+    }
+
     Projection& proj(int layerdisk) {
       assert(validProj(layerdisk));
       return proj_[layerdisk];

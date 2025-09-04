@@ -105,6 +105,8 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks, unsigned int iSec
 
   unsigned int numTrk = inputtracks_.size();
 
+  phiSec_ = iSector * settings_.dphisector() - 0.5 * settings_.dphisectorHG();
+
   ////////////////////
   // Hybrid Removal //
   ////////////////////
@@ -265,8 +267,8 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks, unsigned int iSec
               };
               doCompareAll(stubsTrk1, stubsTrk2, layerArr, nShareLay);
             } else if (settings_.mergeComparison() == "CompareBest") {
-              std::vector<const Stub*> fullStubslistsTrk1 = sortedinputstublists[itrk];
-              std::vector<const Stub*> fullStubslistsTrk2 = sortedinputstublists[jtrk];
+              const std::vector<const Stub*>& fullStubslistsTrk1 = sortedinputstublists[itrk];
+              const std::vector<const Stub*>& fullStubslistsTrk2 = sortedinputstublists[jtrk];
 
               // Arrays to store the index of the best stub in each layer
               int layStubidsTrk1[16];
@@ -275,10 +277,12 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks, unsigned int iSec
                 layStubidsTrk1[i] = -1;
                 layStubidsTrk2[i] = -1;
               }
+              // IAN COMMENT: This wastes CPU. It's repeatedly finding the best stubs on each track
+              // because it's doing it inside a double loop over all tracks.
               // For each stub on the first track, find the stub with the best residual and store its index in the layStubidsTrk1 array
-              doCompareBest(stubsTrk1, fullStubslistsTrk1, sortedinputtracklets, layStubidsTrk1, itrk);
-              // For each stub on the second track, find the stub with the best residual and store its index in the layStubidsTrk1 array
-              doCompareBest(stubsTrk2, fullStubslistsTrk2, sortedinputtracklets, layStubidsTrk2, jtrk);
+              doCompareBest(stubsTrk1, fullStubslistsTrk1, sortedinputtracklets[itrk], layStubidsTrk1);
+              // For each stub on the second track, find the stub with the best residual and store its index in the layStubidsTrk2 array
+              doCompareBest(stubsTrk2, fullStubslistsTrk2, sortedinputtracklets[jtrk], layStubidsTrk2);
               // For all 16 layers (6 layers and 10 disks), count the number of layers who's best stub on both tracks are the same
               for (int i = 0; i < 16; i++) {
                 int t1i = layStubidsTrk1[i];
@@ -336,8 +340,8 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks, unsigned int iSec
               } else {
                 // Get a merged stub list
                 std::vector<const Stub*> newStubList;
-                std::vector<const Stub*> stubsTrk1 = sortedinputstublists[preftrk];
-                std::vector<const Stub*> stubsTrk2 = sortedinputstublists[rejetrk];
+                const std::vector<const Stub*>& stubsTrk1 = sortedinputstublists[preftrk];
+                const std::vector<const Stub*>& stubsTrk2 = sortedinputstublists[rejetrk];
                 std::vector<unsigned int> stubsTrk1indices;
                 std::vector<unsigned int> stubsTrk2indices;
                 for (unsigned int stub1it = 0; stub1it < stubsTrk1.size(); stub1it++) {
@@ -357,8 +361,8 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks, unsigned int iSec
                 sortedinputstublists[preftrk] = newStubList;
 
                 std::vector<std::pair<int, int>> newStubidsList;
-                std::vector<std::pair<int, int>> stubidsTrk1 = sortedmergedstubidslists[preftrk];
-                std::vector<std::pair<int, int>> stubidsTrk2 = sortedmergedstubidslists[rejetrk];
+                const std::vector<std::pair<int, int>>& stubidsTrk1 = sortedmergedstubidslists[preftrk];
+                const std::vector<std::pair<int, int>>& stubidsTrk2 = sortedmergedstubidslists[rejetrk];
                 newStubidsList = stubidsTrk1;
 
                 for (unsigned int stub2it = 0; stub2it < stubsTrk2.size(); stub2it++) {
@@ -575,12 +579,8 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks, unsigned int iSec
   }
 }
 
-double PurgeDuplicate::getPhiRes(Tracklet* curTracklet, const Stub* curStub) const {
-  double phiproj;
-  double stubphi;
+double PurgeDuplicate::getPhiRes(const Tracklet* curTracklet, const Stub* curStub) const {
   double phires;
-  // Get phi position of stub
-  stubphi = curStub->l1tstub()->phi();
   // Get layer that the stub is in (Layer 1->6, Disk 1->5)
   int Layer = curStub->layerdisk() + 1;
   if (Layer > N_LAYER) {
@@ -592,19 +592,23 @@ double PurgeDuplicate::getPhiRes(Tracklet* curTracklet, const Stub* curStub) con
   }
   // Get phi projection of tracklet
   int seedindex = curTracklet->seedIndex();
-  // If this stub is a seed stub, set projection=phi, so that res=0
   if (isSeedingStub(seedindex, Layer, Disk)) {
-    phiproj = stubphi;
-    // Otherwise, get projection of tracklet
+    // If this stub is a seed stub, residual is zero by definition
+    phires = 0;
   } else {
-    phiproj = curTracklet->proj(curStub->layerdisk()).phiproj();
+    // Otherwise, get residual from stub position & projection of tracklet
+    double stubphi = curStub->l1tstub()->phi();
+    double phiproj = curTracklet->proj(curStub->layerdisk()).phiproj();
+    phiproj += phiSec_;  // Tracklets measured relative to sector, but stubs in 0 to 2pi.
+    // IAN COMMENT: FIX -- this neglects corrections illustrated in MatchProcessor::matchCalculator()
+    // to allow for the stub radius not being exactly at the nominal layer radius.
+    phires = std::abs(reco::deltaPhi(stubphi, phiproj));
   }
-  // Calculate residual
-  phires = std::abs(stubphi - phiproj);
   return phires;
 }
 
 bool PurgeDuplicate::isSeedingStub(int seedindex, int Layer, int Disk) const {
+  // IAN COMMENT: These constants should be taken from seedlayers_ in Settings.h
   if ((seedindex == 0 && (Layer == 1 || Layer == 2)) || (seedindex == 1 && (Layer == 2 || Layer == 3)) ||
       (seedindex == 2 && (Layer == 3 || Layer == 4)) || (seedindex == 3 && (Layer == 5 || Layer == 6)) ||
       (seedindex == 4 && (abs(Disk) == 1 || abs(Disk) == 2)) ||
@@ -660,13 +664,13 @@ std::vector<double> PurgeDuplicate::getInventedCoords(unsigned int iSector,
   if (st->isBarrel()) {
     stub_r = settings_.rmean(stubLayer - 1);
     stub_phi = tracklet->phi0() - std::asin(stub_r * tracklet_rinv / 2);
-    stub_phi = stub_phi + iSector * settings_.dphisector() - 0.5 * settings_.dphisectorHG();
+    stub_phi = stub_phi + phiSec_;
     stub_phi = reco::reducePhiRange(stub_phi);
     stub_z = tracklet->z0() + 2 * tracklet->t() * 1 / tracklet_rinv * std::asin(stub_r * tracklet_rinv / 2);
   } else {
     stub_z = settings_.zmean(stubDisk - 1) * tracklet->disk() / abs(tracklet->disk());
     stub_phi = tracklet->phi0() - (stub_z - tracklet->z0()) * tracklet_rinv / 2 / tracklet->t();
-    stub_phi = stub_phi + iSector * settings_.dphisector() - 0.5 * settings_.dphisectorHG();
+    stub_phi = stub_phi + phiSec_;
     stub_phi = reco::reducePhiRange(stub_phi);
     stub_r = 2 / tracklet_rinv * std::sin((stub_z - tracklet->z0()) * tracklet_rinv / 2 / tracklet->t());
   }
@@ -709,7 +713,7 @@ std::vector<double> PurgeDuplicate::getInventedCoordsExtended(unsigned int iSect
           0.5 * (stub_r / rho_minus_d0) + 0.5 * (rho_minus_d0 / stub_r) - 0.5 * ((rho * rho) / (rho_minus_d0 * stub_r));
       sin_val = std::max(std::min(sin_val, 1.0), -1.0);
       stub_phi = tracklet->phi0() - std::asin(sin_val);
-      stub_phi = stub_phi + iSector * settings_.dphisector() - 0.5 * settings_.dphisectorHG();
+      stub_phi = stub_phi + phiSec_;
       stub_phi = reco::reducePhiRange(stub_phi);
 
       // The expanded version of this expression is more stable for extremely
@@ -734,7 +738,7 @@ std::vector<double> PurgeDuplicate::getInventedCoordsExtended(unsigned int iSect
           0.5 * (stub_r / rho_minus_d0) + 0.5 * (rho_minus_d0 / stub_r) - 0.5 * ((rho * rho) / (rho_minus_d0 * stub_r));
       sin_val = std::max(std::min(sin_val, 1.0), -1.0);
       stub_phi = tracklet->phi0() - std::asin(sin_val);
-      stub_phi = stub_phi + iSector * settings_.dphisector() - 0.5 * settings_.dphisectorHG();
+      stub_phi = stub_phi + phiSec_;
       stub_phi = reco::reducePhiRange(stub_phi);
     }
   }
@@ -890,22 +894,25 @@ void PurgeDuplicate::doCompareAll(const std::vector<std::pair<int, int>>& stubsT
 
 void PurgeDuplicate::doCompareBest(const std::vector<std::pair<int, int>>& stubsTrk,
                                    const std::vector<const Stub*>& fullStubslistsTrk,
-                                   const std::vector<Tracklet*>& sortedinputtracklets,
-                                   int layStubidsTrk[],
-                                   unsigned int itrk) const {
+                                   const Tracklet* inputtracklet,
+                                   int layStubidsTrk[]) const {
   for (unsigned int stcount = 0; stcount < stubsTrk.size(); stcount++) {
     int i = stubsTrk[stcount].first;  // layer/disk
     bool barrel = (i > 0 && i <= N_LAYER);
     bool endcapA = (i > N_LAYER);
     bool endcapB = (i < 0);
     int lay = barrel * (i - 1) + endcapA * (i - (N_LAYER - 1)) - endcapB * i;  // encode in range 0-15
-    double nres = getPhiRes(sortedinputtracklets[itrk], fullStubslistsTrk[stcount]);
-    double ores = 0;
-    if (layStubidsTrk[lay] != -1) {
-      ores = getPhiRes(sortedinputtracklets[itrk], fullStubslistsTrk[layStubidsTrk[lay]]);
-    }
-    if (layStubidsTrk[lay] == -1 || nres < ores) {
-      layStubidsTrk[lay] = stcount;
+
+    if (layStubidsTrk[lay] == -1) {  // If no stub yet found in this layer, then store new stub.
+      layStubidsTrk[lay] = stcount;  // Store index to best stub (smallest residual) in each layer.
+    } else {  // Stub already found in this layer. Only store new stub if has lower residual than old one.
+      double nres = getPhiRes(inputtracklet, fullStubslistsTrk[stcount]);
+      double ores = getPhiRes(inputtracklet, fullStubslistsTrk[layStubidsTrk[lay]]);
+      // This seems sensible, but duplicate rate actually falls if one instead never chooses new stub here.
+      if (nres < ores) {
+        layStubidsTrk[lay] = stcount;
+      }
+      //edm::LogVerbatim("Tracklet") <<"PurgeDuplicate::doCompareBest "<<nres<<" "<<ores<<" "<<layStubidsTrk[lay]<<" "<<lay<<" phis "<<inputtracklet->phi0()<<" "<<fullStubslistsTrk[stcount]->l1tstub()->phi()<<" rinv "<<inputtracklet->rinv()<<" phiSec "<<phiSec_<<std::endl;
     }
   }
 }
