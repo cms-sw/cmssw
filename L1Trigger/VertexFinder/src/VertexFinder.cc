@@ -32,8 +32,8 @@ namespace l1tVertexFinder {
 
     // Choice of weight function to use for the vertex score in PFA
     float weight = settings_->vx_pfa_weightfunction() == 3
-                        ? StepFunctionWeight
-                        : (settings_->vx_pfa_weightfunction() == 2 ? ErfcWeight : GaussianWeight);
+                       ? StepFunctionWeight
+                       : (settings_->vx_pfa_weightfunction() == 2 ? ErfcWeight : GaussianWeight);
     if (settings_->vx_pfa_weightfunction() == 1) {
       weight *= GaussianWidth;
     }
@@ -57,8 +57,7 @@ namespace l1tVertexFinder {
                 (GaussianWidth + 0.5 * settings_->vx_pfa_binwidth());
     } else if (settings_->vx_pfa_weightedz0() == 5) {
       // Step function weight weighted by 1/variance (relevant when using eta-dependent resolution)
-      zweight =
-          StepFunctionWeight * std::pow(trackPt, settings_->vx_weightedmean()) / GaussianWidth / GaussianWidth;
+      zweight = StepFunctionWeight * std::pow(trackPt, settings_->vx_weightedmean()) / GaussianWidth / GaussianWidth;
     } else if (settings_->vx_pfa_weightedz0() == 6) {
       // ErfcWeight with only 1/width
       zweight = ErfcWeight * std::pow(trackPt, settings_->vx_weightedmean()) / GaussianWidth;
@@ -80,8 +79,8 @@ namespace l1tVertexFinder {
   }
 
   float VertexFinder::computeAndSetVertexParameters(RecoVertex<>& vertex,
-                                                   const std::vector<float>& bin_centers,
-                                                   const std::vector<unsigned int>& counts) {
+                                                    const std::vector<float>& bin_centers,
+                                                    const std::vector<unsigned int>& counts) {
     double pt = 0.;
     double z0 = -999.;
     double z0width = 0.;
@@ -129,8 +128,7 @@ namespace l1tVertexFinder {
         float weight = weights.first;
         SumWeightPFA += weight;
         pt += weight * std::pow(trackPt, settings_->vx_weightedmean());
-      }
-      else {
+      } else {
         pt += std::pow(trackPt, settings_->vx_weightedmean());
       }
 
