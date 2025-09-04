@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 hltPhase2PixelTracksCutClassifier = cms.EDProducer("TrackCutClassifier",
     beamspot = cms.InputTag("hltOnlineBeamSpot"),
-    ignoreVertices = cms.bool(False),  # set to True, default should be False
+    ignoreVertices = cms.bool(False), 
     mva = cms.PSet(
         dr_par = cms.PSet(
             d0err = cms.vdouble(0.003, 0.003, 0.003),
