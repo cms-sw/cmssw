@@ -2,14 +2,28 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include <algorithm>
 #include <cmath>
+#include <assert.h>
 
 SiStripApproximateCluster::SiStripApproximateCluster(const SiStripCluster& cluster,
                                                      unsigned int maxNSat,
                                                      float hitPredPos,
+                                                     float& previous_cluster,
+                                                     unsigned int& module_length,
+                                                     unsigned int& previous_module_length,
                                                      bool peakFilter) {
-  barycenter_ = std::round(cluster.barycenter() * 10);
+  bool filter_, isSaturated_, peakFilter_;
+  if (previous_cluster == -999.)
+   compBarycenter_ = std::round(cluster.barycenter() * maxRange_/maxBarycenter_);
+  else
+   compBarycenter_ = std::round(((cluster.barycenter()-previous_cluster)+(module_length-previous_module_length))* maxRange_/maxBarycenter_);
+  previous_cluster = barycenter(previous_cluster, module_length, previous_module_length);
+  assert(cluster.barycenter() <= maxBarycenter_ && "Got a barycenter > maxBarycenter");
+  assert(compBarycenter_ <= maxRange_ && "Filling compBarycenter > maxRange");
   width_ = cluster.size();
-  avgCharge_ = cluster.charge() / cluster.size();
+  float avgCharge_ = cluster.charge() * 1. / width_;
+  assert(avgCharge_ <= maxavgCharge_ && "Got a avgCharge > maxavgCharge");
+  compavgCharge_ = std::round(avgCharge_ * maxavgChargeRange_/maxavgCharge_);
+  assert(compavgCharge_ <= maxavgChargeRange_ && "Filling compavgCharge > maxavgChargeRange");
   filter_ = false;
   isSaturated_ = false;
   peakFilter_ = peakFilter;
@@ -54,4 +68,7 @@ SiStripApproximateCluster::SiStripApproximateCluster(const SiStripCluster& clust
   } else {
     filter_ = peakFilter_;
   }
+  compavgCharge_ = (compavgCharge_ | (filter_ << kfilterMask));
+  compavgCharge_ = (compavgCharge_ | (peakFilter_ << kpeakFilterMask));
+  compBarycenter_ = (compBarycenter_ | (isSaturated_ << kSaturatedMask));
 }

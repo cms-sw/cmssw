@@ -9,7 +9,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/SiStripCluster/interface/SiStripApproximateCluster.h"
-#include "DataFormats/SiStripCluster/interface/SiStripApproximateClusterCollection.h"
+#include "DataFormats/SiStripCluster/interface/SiStripApproximateClusterCollection_v1.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -84,12 +84,12 @@ SiStripClusters2ApproxClusters::SiStripClusters2ApproxClusters(const edm::Parame
   csfToken_ = esConsumes(edm::ESInputTag("", csfLabel_));
 
   stripNoiseToken_ = esConsumes();
-  produces<SiStripApproximateClusterCollection>();
+  produces<v1::SiStripApproximateClusterCollection>();
 }
 
 void SiStripClusters2ApproxClusters::produce(edm::Event& event, edm::EventSetup const& iSetup) {
   const auto& clusterCollection = event.get(clusterToken);
-  auto result = std::make_unique<SiStripApproximateClusterCollection>();
+  auto result = std::make_unique<v1::SiStripApproximateClusterCollection>();
   result->reserve(clusterCollection.size(), clusterCollection.dataSize());
 
   auto const beamSpotHandle = event.getHandle(beamSpotToken_);
@@ -103,6 +103,13 @@ void SiStripClusters2ApproxClusters::produce(edm::Event& event, edm::EventSetup 
   const auto& theFilter = &iSetup.getData(csfToken_);
   const auto& theNoise_ = &iSetup.getData(stripNoiseToken_);
 
+  float previous_cluster = -999.;
+  unsigned int module_length = 0;
+  unsigned int previous_module_length = 0;
+  const auto tkDets = tkGeom->dets();
+
+  std::vector<uint16_t> v_strip;
+
   for (const auto& detClusters : clusterCollection) {
     auto ff = result->beginDet(detClusters.id());
 
@@ -114,6 +121,20 @@ void SiStripClusters2ApproxClusters::produce(edm::Event& event, edm::EventSetup 
 
     const StripGeomDetUnit* stripDet = dynamic_cast<const StripGeomDetUnit*>(det);
     float mip = 3.9 / (sistrip::MeVperADCStrip / stripDet->surface().bounds().thickness());
+
+    uint16_t nStrips{0};
+    const auto& _detId = detId; // for the capture clause in the lambda function
+    auto _det = std::find_if(tkDets.begin(), tkDets.end(), [_detId](auto& elem) -> bool {
+        return (elem->geographicalId().rawId() == _detId);
+      });
+    const StripTopology& p = dynamic_cast<const StripGeomDetUnit*>(*_det)->specificTopology();
+    nStrips = p.nstrips();
+    v_strip.push_back(nStrips);
+
+    previous_module_length += (v_strip.size() <3) ? 0 : v_strip[v_strip.size()-3];
+    module_length += (v_strip.size() <2) ? 0 : v_strip[v_strip.size()-2];
+    assert(detClusters.size());
+    bool first_cluster = true;
 
     for (const auto& cluster : detClusters) {
       const LocalPoint& lp = LocalPoint(((cluster.barycenter() * 10 / (sistrip::STRIPS_PER_APV * nApvs)) -
@@ -132,7 +153,7 @@ void SiStripClusters2ApproxClusters::produce(edm::Event& event, edm::EventSetup 
       bool isTrivial = (std::abs(hitPredPos) < 2.f && hitStrips <= 2);
 
       if (!usable || isTrivial) {
-        ff.push_back(SiStripApproximateCluster(cluster, maxNSat, hitPredPos, true));
+        ff.push_back(SiStripApproximateCluster(cluster, maxNSat, hitPredPos, previous_cluster, module_length, first_cluster ? previous_module_length : module_length, true));
       } else {
         bool peakFilter = false;
         SlidingPeakFinder pf(std::max<int>(2, std::ceil(std::abs(hitPredPos) + subclusterWindow_)));
@@ -147,8 +168,9 @@ void SiStripClusters2ApproxClusters::produce(edm::Event& event, edm::EventSetup 
                             subclusterCutSN_);
         peakFilter = pf.apply(cluster.amplitudes(), test);
 
-        ff.push_back(SiStripApproximateCluster(cluster, maxNSat, hitPredPos, peakFilter));
+        ff.push_back(SiStripApproximateCluster(cluster, maxNSat, hitPredPos, previous_cluster, module_length, first_cluster? previous_module_length : module_length, peakFilter));
       }
+      first_cluster = false;
     }
   }
 
