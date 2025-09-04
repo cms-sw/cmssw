@@ -1,21 +1,6 @@
 #ifndef METTESTER_H
 #define METTESTER_H
 
-// author: Mike Schmitt (The University of Florida)
-// date: 8/24/2006
-// modification: Bobby Scurlock
-// date: 03.11.2006
-// note: added RMS(METx) vs SumET capability
-// modification: Rick Cavanaugh
-// date: 05.11.2006
-// note: added configuration parameters
-// modification: Mike Schmitt
-// date: 02.28.2007
-// note: code rewrite
-
-// Rewritten by Viola Sordini, Matthias Artur Weber, Robert Schoefbeck Nov./Dez.
-// 2013
-
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -45,6 +30,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "TMath.h"
+#include "TVector2.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 class METTester : public DQMEDAnalyzer {

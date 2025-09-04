@@ -273,7 +273,7 @@ void METTester::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
   const double MEy = met.py();
   const double METEta = met.eta();
   const double METPhi = met.phi();
-
+  
   mSumET->Fill(SumET);
   mMETSignPseudo->Fill(METSignPseudo);
   mMETSignReal->Fill(METSignReal);
@@ -316,7 +316,7 @@ void METTester::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
     double genMETPhi = genMetTrue->phi();
     double metDiff = MET - genMET;
     double metRatio = MET / genMET;
-    double metDeltaPhi = TMath::ACos(TMath::Cos(METPhi - genMETPhi));
+    double metDeltaPhi = TVector2::Phi_mpi_pi(METPhi - genMETPhi);
 
     mMETDiff_GenMETTrue->Fill(metDiff);
     mMETRatio_GenMETTrue->Fill(metRatio);
@@ -351,10 +351,10 @@ void METTester::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
       const GenMET *genMetCalo = &(genmetcol->front());
       const double genMET = genMetCalo->pt();
       const double genMETPhi = genMetCalo->phi();
-
+		
       mMETDiff_GenMETCalo->Fill(MET - genMET);
       mMETRatio_GenMETCalo->Fill(MET / genMET);
-      mMETDeltaPhi_GenMETCalo->Fill(TMath::ACos(TMath::Cos(METPhi - genMETPhi)));
+      mMETDeltaPhi_GenMETCalo->Fill(TVector2::Phi_mpi_pi(METPhi - genMETPhi));
     } else {
       edm::LogInfo("OutputInfo") << " failed to retrieve data required by MET Task: genMetCalo";
     }
