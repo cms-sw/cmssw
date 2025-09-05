@@ -57,11 +57,11 @@ void plot_validation(){
   TFile *f1 = new TFile(file1);
   f1->cd(Form("DQMData/HLT/HLTJETMET/%s",trigname.Data()));
   if (dojet){
-    TH1F *h1 = (TH1F*)gROOT->FindObject("_meGenJetPtTrg");
-    TH1F *h2 = (TH1F*)gROOT->FindObject("_meGenJetPt");
+    TH1F *h1 = (TH1F*)gROOT->FindObject("GenJetPtTrg");
+    TH1F *h2 = (TH1F*)gROOT->FindObject("GenJetPt");
   } else{
-    TH1F *h1 = (TH1F*)gROOT->FindObject("_meGenMETTrg");
-    TH1F *h2 = (TH1F*)gROOT->FindObject("_meGenMET");
+    TH1F *h1 = (TH1F*)gROOT->FindObject("GenMETTrg");
+    TH1F *h2 = (TH1F*)gROOT->FindObject("GenMET");
   }
 
   h1->Sumw2();
@@ -79,11 +79,11 @@ void plot_validation(){
   f2->cd(Form("DQMData/HLT/HLTJETMET/%s",trigname.Data()));
 
   if (dojet){
-    TH1F *h3 = (TH1F*)gROOT->FindObject("_meGenJetPtTrg");
-    TH1F *h4 = (TH1F*)gROOT->FindObject("_meGenJetPt");
+    TH1F *h3 = (TH1F*)gROOT->FindObject("GenJetPtTrg");
+    TH1F *h4 = (TH1F*)gROOT->FindObject("GenJetPt");
   } else {
-    TH1F *h3 = (TH1F*)gROOT->FindObject("_meGenMETTrg");
-    TH1F *h4 = (TH1F*)gROOT->FindObject("_meGenMET");
+    TH1F *h3 = (TH1F*)gROOT->FindObject("GenMETTrg");
+    TH1F *h4 = (TH1F*)gROOT->FindObject("GenMET");
   }
 //   h3->Draw();
 //   h4->Draw();
