@@ -115,6 +115,23 @@ struct TICLCandidateValidatorHistograms {
   std::vector<dqm::reco::MonitorElement*> h_neut_candidate_charge;
   std::vector<dqm::reco::MonitorElement*> h_neut_candidate_pdgId;
   std::vector<dqm::reco::MonitorElement*> h_neut_candidate_partType;
+
+  std::vector<dqm::reco::MonitorElement*> h_neut_energy_noTrackster;
+  std::vector<dqm::reco::MonitorElement*> h_neut_pt_noTrackster;
+  std::vector<dqm::reco::MonitorElement*> h_neut_eta_noTrackster;
+  std::vector<dqm::reco::MonitorElement*> h_neut_phi_noTrackster;
+  std::vector<dqm::reco::MonitorElement*> h_chg_energy_noTrack;
+  std::vector<dqm::reco::MonitorElement*> h_chg_pt_noTrack;
+  std::vector<dqm::reco::MonitorElement*> h_chg_eta_noTrack;
+  std::vector<dqm::reco::MonitorElement*> h_chg_phi_noTrack;
+  std::vector<dqm::reco::MonitorElement*> h_chg_energy_noGoodTrack;
+  std::vector<dqm::reco::MonitorElement*> h_chg_pt_noGoodTrack;
+  std::vector<dqm::reco::MonitorElement*> h_chg_eta_noGoodTrack;
+  std::vector<dqm::reco::MonitorElement*> h_chg_phi_noGoodTrack;
+  std::vector<dqm::reco::MonitorElement*> h_chg_energy_noTrackster;
+  std::vector<dqm::reco::MonitorElement*> h_chg_pt_noTrackster;
+  std::vector<dqm::reco::MonitorElement*> h_chg_eta_noTrackster;
+  std::vector<dqm::reco::MonitorElement*> h_chg_phi_noTrackster;
 };
 
 class TICLCandidateValidator {

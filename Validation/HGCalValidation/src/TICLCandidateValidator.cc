@@ -161,6 +161,31 @@ void TICLCandidateValidator::bookCandidatesHistos(DQMStore::IBooker& ibook,
                      50,
                      -3.14159,
                      3.14159));
+
+    histograms.h_neut_energy_noTrackster.push_back(
+        ibook.book1D("noTrackster_cand_vs_energy_" + neutrals[i],
+                     neutrals[i] + " simCandidates without trackster energy;E (GeV)",
+                     50,
+                     0,
+                     500));
+    histograms.h_neut_pt_noTrackster.push_back(
+        ibook.book1D("noTrackster_cand_vs_pt_" + neutrals[i],
+                     neutrals[i] + " simCandidates without trackster pT;p_{T} (GeV)",
+                     50,
+                     0,
+                     200));
+    histograms.h_neut_eta_noTrackster.push_back(
+        ibook.book1D("noTrackster_cand_vs_eta_" + neutrals[i],
+                     neutrals[i] + " simCandidates without trackster eta;#eta (GeV)",
+                     50,
+                     -3,
+                     3));
+    histograms.h_neut_phi_noTrackster.push_back(
+        ibook.book1D("noTrackster_cand_vs_phi_" + neutrals[i],
+                     neutrals[i] + " simCandidates without trackster phi;#phi (GeV)",
+                     50,
+                     -3.14159,
+                     3.14159));
   }
   // charged: electron, muon, hadron
   const std::vector<std::string> charged{"electrons", "muons", "charged_hadrons"};
@@ -313,6 +338,68 @@ void TICLCandidateValidator::bookCandidatesHistos(DQMStore::IBooker& ibook,
                      50,
                      -3.14159,
                      3.14159));
+
+    histograms.h_chg_energy_noTrack.push_back(ibook.book1D(
+        "noTrack_cand_vs_energy_" + charged[i], charged[i] + " simCandidates without track energy;E (GeV)", 50, 0, 500));
+    histograms.h_chg_pt_noTrack.push_back(ibook.book1D(
+        "noTrack_cand_vs_pt_" + charged[i], charged[i] + " simCandidates without track pT;p_{T} (GeV)", 50, 0, 200));
+    histograms.h_chg_eta_noTrack.push_back(ibook.book1D(
+        "noTrack_cand_vs_eta_" + charged[i], charged[i] + " simCandidates without track eta;#eta (GeV)", 50, -3, 3));
+    histograms.h_chg_phi_noTrack.push_back(ibook.book1D("noTrack_cand_vs_phi_" + charged[i],
+                                                        charged[i] + " simCandidates without track phi;#phi (GeV)",
+                                                        50,
+                                                        -3.14159,
+                                                        3.14159));
+
+    histograms.h_chg_energy_noGoodTrack.push_back(
+        ibook.book1D("noGoodTrack_cand_vs_energy_" + charged[i],
+                     charged[i] + " simCandidates without good track energy;E (GeV)",
+                     50,
+                     0,
+                     500));
+    histograms.h_chg_pt_noGoodTrack.push_back(
+        ibook.book1D("noGoodTrack_cand_vs_pt_" + charged[i],
+                     charged[i] + " simCandidates without good track pT;p_{T} (GeV)",
+                     50,
+                     0,
+                     200));
+    histograms.h_chg_eta_noGoodTrack.push_back(
+        ibook.book1D("noGoodTrack_cand_vs_eta_" + charged[i],
+                     charged[i] + " simCandidates without good track eta;#eta (GeV)",
+                     50,
+                     -3,
+                     3));
+    histograms.h_chg_phi_noGoodTrack.push_back(
+        ibook.book1D("noGoodTrack_cand_vs_phi_" + charged[i],
+                     charged[i] + " simCandidates without good track phi;#phi (GeV)",
+                     50,
+                     -3.14159,
+                     3.14159));
+
+    histograms.h_chg_energy_noTrackster.push_back(
+        ibook.book1D("noTrackster_cand_vs_energy_" + charged[i],
+                     charged[i] + " simCandidates without trackster energy;E (GeV)",
+                     50,
+                     0,
+                     500));
+    histograms.h_chg_pt_noTrackster.push_back(
+        ibook.book1D("noTrackster_cand_vs_pt_" + charged[i],
+                     charged[i] + " simCandidates without trackster pT;p_{T} (GeV)",
+                     50,
+                     0,
+                     200));
+    histograms.h_chg_eta_noTrackster.push_back(
+        ibook.book1D("noTrackster_cand_vs_eta_" + charged[i],
+                     charged[i] + " simCandidates without trackster eta;#eta (GeV)",
+                     50,
+                     -3,
+                     3));
+    histograms.h_chg_phi_noTrackster.push_back(
+        ibook.book1D("noTrackster_cand_vs_phi_" + charged[i],
+                     charged[i] + " simCandidates without trackster phi;#phi (GeV)",
+                     50,
+                     -3.14159,
+                     3.14159));
   }
 }
 
@@ -392,13 +479,28 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
      * 211 (type 4) becomes 2
      */
 
+    // no track
+    if (simCand.trackPtrs().empty()) {
+      histograms.h_chg_energy_noTrack[index]->Fill(simCand.rawEnergy());
+      histograms.h_chg_pt_noTrack[index]->Fill(simCand.pt());
+      histograms.h_chg_eta_noTrack[index]->Fill(simCand.eta());
+      histograms.h_chg_phi_noTrack[index]->Fill(simCand.phi());
+      continue;
+    }
+
     std::vector<int32_t> simCandTrackIdx;
     for (const auto& track : simCand.trackPtrs()) {
       if (cutTk(*(simCand.trackPtr().get())))
         simCandTrackIdx.push_back(track.get() - firstTrack);
     }
-    if (simCandTrackIdx.empty())
+    if (simCandTrackIdx.empty()) {
+      // no track passing cuts
+      histograms.h_chg_energy_noGoodTrack[index]->Fill(simCand.rawEnergy());
+      histograms.h_chg_pt_noGoodTrack[index]->Fill(simCand.pt());
+      histograms.h_chg_eta_noGoodTrack[index]->Fill(simCand.eta());
+      histograms.h_chg_phi_noGoodTrack[index]->Fill(simCand.phi());
       continue;
+    }
 
     // +1 to all denominators
     histograms.h_den_chg_energy_candidate[index]->Fill(simCand.rawEnergy());
@@ -418,8 +520,13 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
       cand_idx = min_elem->index();
     }
     // no reco associated to sim
-    if (cand_idx == -1)
+    if (cand_idx == -1) {
+      histograms.h_chg_energy_noTrackster[index]->Fill(simCand.rawEnergy());
+      histograms.h_chg_pt_noTrackster[index]->Fill(simCand.pt());
+      histograms.h_chg_eta_noTrackster[index]->Fill(simCand.eta());
+      histograms.h_chg_phi_noTrackster[index]->Fill(simCand.phi());
       continue;
+    }
 
     auto& recoCand = TICLCandidates[cand_idx];
     if (isTICLv5_) {
@@ -498,8 +605,13 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     }
 
     // no reco associated to sim
-    if (cand_idx == -1)
+    if (cand_idx == -1) {
+      histograms.h_neut_energy_noTrackster[index]->Fill(simCand.rawEnergy());
+      histograms.h_neut_pt_noTrackster[index]->Fill(simCand.pt());
+      histograms.h_neut_eta_noTrackster[index]->Fill(simCand.eta());
+      histograms.h_neut_phi_noTrackster[index]->Fill(simCand.phi());
       continue;
+    }
 
     auto& recoCand = TICLCandidates[cand_idx];
     if (isTICLv5_) {
