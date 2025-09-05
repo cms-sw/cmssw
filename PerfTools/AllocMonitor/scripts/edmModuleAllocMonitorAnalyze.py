@@ -333,7 +333,7 @@ class ModuleCentricModuleData(object):
             else:
                 modules[m]=[]
                 l = modules[m]
-                cpptypes[m]=self._cpptypes[m]
+                cpptypes[m]=self._cpptypes.get(m)
             for d in lst:
                 l.append( d.toSimpleDict() )
         return dct
@@ -809,7 +809,7 @@ class PostEventReadFromSourceParser(EDModuleTransitionParser):
         return self._postJsonVis(data, self.allocInfo)
     def jsonInfo(self, syncs, temp, data):
         start = temp.findTime(self.moduleName+'source', self.transition, self.index)
-        data.insert( "source" , start, self.time, self.transition, self.index, syncs.get(self.transition, self.index) , Activity.delayedGet, self.allocInfo)
+        data.insert( "source" , "sourceType", start, self.time, self.transition, self.index, syncs.get(self.transition, self.index) , Activity.delayedGet, self.allocInfo)
 
 class ESModuleTransitionParser(object):
     def __init__(self, payload, moduleNames, moduleTypes, esModuleNames, esModuleTypes, recordNames):
