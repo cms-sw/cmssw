@@ -13,22 +13,20 @@
 //
 class METTesterPostProcessor : public DQMEDHarvester {
 public:
-  explicit METTesterPostProcessor(const edm::ParameterSet &);
+  explicit METTesterPostProcessor(const edm::ParameterSet&);
   ~METTesterPostProcessor() override;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions &);
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
+  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
   std::vector<std::string> met_dirs;
 
-  void mFillAggrHistograms(std::string, DQMStore::IGetter &);
+  void mFillAggrHistograms(std::string, DQMStore::IGetter&);
 
   using MElem = MonitorElement;
   template <typename T>
-  using ArrayVariant = std::variant<
-    std::array<T, METTester::mNMETBins+1>,
-    std::array<T, METTester::mNPhiBins+1>>;
+  using ArrayVariant = std::variant<std::array<T, METTester::mNMETBins + 1>, std::array<T, METTester::mNPhiBins + 1>>;
 
   // reading
   template <typename T>
@@ -40,13 +38,15 @@ private:
   auto& mArrayIdx(ArrayVariant<T>& arr, unsigned idx) {
     return std::visit([idx](auto& x) -> auto& { return x.at(idx); }, arr);
   }
-  
-  std::unordered_map<std::string, unsigned> mNBins = {{"MET", METTester::mNMETBins}, {"Phi", METTester::mNPhiBins}};
-  std::unordered_map<std::string, ArrayVariant<float>> mEdges = {{"MET", std::array<float, METTester::mNMETBins+1>{METTester::mMETBins}},
-																 {"Phi", std::array<float, METTester::mNPhiBins+1>{METTester::mPhiBins}}};
 
-  using ElemMap = std::unordered_map<std::string, MElem*>; // one entry per bin type, for instance "MET" and "Phi"
-  using ElemMapArr = std::unordered_map<std::string, ArrayVariant<MElem*>>; // one entry per bin type, for instance "MET" and "Phi"
+  std::unordered_map<std::string, unsigned> mNBins = {{"MET", METTester::mNMETBins}, {"Phi", METTester::mNPhiBins}};
+  std::unordered_map<std::string, ArrayVariant<float>> mEdges = {
+      {"MET", std::array<float, METTester::mNMETBins + 1>{METTester::mMETBins}},
+      {"Phi", std::array<float, METTester::mNPhiBins + 1>{METTester::mPhiBins}}};
+
+  using ElemMap = std::unordered_map<std::string, MElem*>;  // one entry per bin type, for instance "MET" and "Phi"
+  using ElemMapArr =
+      std::unordered_map<std::string, ArrayVariant<MElem*>>;  // one entry per bin type, for instance "MET" and "Phi"
 
   ElemMapArr mMET;
   ElemMapArr mMETDiff_GenMETTrue;

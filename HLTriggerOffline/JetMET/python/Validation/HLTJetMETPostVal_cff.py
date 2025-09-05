@@ -7,5 +7,5 @@ from HLTriggerOffline.JetMET.Validation.JetMETPostProcessor_cff import hltJetMET
 HLTJetMETPostVal = cms.Sequence(
     hltJetPostProcessor +
     hltMETPostProcessor +
-    hltJetMETPostProcessor # turn-on curves
+    hltJetMETPostProcessor # Jet and MET trigger turn-on curves
 )
