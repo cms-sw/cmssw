@@ -598,11 +598,15 @@ def addFixedEventsTestingWfs(years, pds, eras):
             step_name = 'Run' + pd.replace('ParkingDouble','Park2') + y + era + "_10k"
 
             workflows[wf_number] = ['',[step_name,'HLTDR3_' + y,'RECONANORUN3_reHLT_' + y,'HARVESTRUN3_' + suff + y]]
-    
-## 2024/2025 
+
+## 2025 
+pds  = ['ZeroBias', 'JetMET0', 'EGamma0']
+eras = ['B','C','D']
+addFixedEventsTestingWfs(['2025'], pds, eras)
+## 2024 
 pds  = ['ZeroBias', 'JetMET0', 'EGamma0', 'DisplacedJet', 'ParkingDoubleMuonLowMass0', 'BTagMu', 'Muon0', 'Tau']
 eras = ['B','C','D','E','F','G','H','I']
-addFixedEventsTestingWfs(['2024','2025'], pds, eras)
+addFixedEventsTestingWfs(['2024'], pds, eras)
 
 ## 2023
 pds  = ['ZeroBias', 'EGamma0', 'JetMET0']
