@@ -75,8 +75,6 @@ void HLTJetMETValidation::dqmBeginRun(edm::Run const &iRun, edm::EventSetup cons
       hltTrgJetLow.push_back(hltTrgJet[it]);  //---if no muon then itself
     if (it != 0)
       hltTrgJetLow.push_back(hltTrgJet[it - 1]);
-    // std::cout<<hltTrgJet[it].c_str()<<"
-    // "<<hltTrgJetLow[it].c_str()<<std::endl;
   }
   int itm(0), itpm(0), itmh(0), itpmh(0);
   for (size_t it = 0; it < hltTrgMet.size(); it++) {
@@ -123,8 +121,6 @@ void HLTJetMETValidation::dqmBeginRun(edm::Run const &iRun, edm::EventSetup cons
         itm++;
       }
     }
-    // std::cout<<hltTrgMet[it].c_str()<<"
-    // "<<hltTrgMetLow[it].c_str()<<std::endl;
   }
 }
 
@@ -135,11 +131,7 @@ void HLTJetMETValidation::bookHistograms(DQMStore::IBooker &iBooker,
                                          edm::EventSetup const &iSetup) {
   //----define DQM folders and elements
   for (size_t it = 0; it < hltTrgJet.size(); it++) {
-    // std::cout<<hltTrgJet[it].c_str()<<"
-    // "<<hltTrgJetLow[it].c_str()<<std::endl;
     std::string trgPathName = HLTConfigProvider::removeVersion(triggerTag_ + hltTrgJet[it]);
-    // std::cout << "str = " << triggerTag_+hltTrgJet[it].c_str() << std::endl;
-    // std::cout << "trgPathName = " << trgPathName << std::endl;
     iBooker.setCurrentFolder(trgPathName);
     _meHLTJetPt.push_back(iBooker.book1D("HLTJetPt", "Single HLT Jet Pt", 100, 0, 1000));
     _meHLTJetPtTrgMC.push_back(iBooker.book1D("HLTJetPtTrgMC", "Single HLT Jet Pt - HLT Triggered", 100, 0, 1000));
@@ -234,8 +226,6 @@ void HLTJetMETValidation::analyze(const edm::Event &iEvent, const edm::EventSetu
   Handle<TriggerResults> hltresults;
   iEvent.getByToken(HLTriggerResults, hltresults);
   if (!hltresults.isValid()) {
-    // if (evtCnt==1) edm::LogWarning("HLTJetMETValidation") << "  -- No
-    // HLTRESULTS";
     gotHLT = false;
   }
 
@@ -246,52 +236,29 @@ void HLTJetMETValidation::analyze(const edm::Event &iEvent, const edm::EventSetu
     //---pick-up the jet trigger decisions
     for (size_t it = 0; it < hltTrgJet.size(); it++) {
       trig_iter = hltTriggerMap.find(hltTrgJet[it]);
-      if (trig_iter == hltTriggerMap.end()) {
-        // std::cout << "Could not find trigger path with name: " <<
-        // _probefilter.label() << std::endl; if (evtCnt==1)
-        // edm::LogWarning("HLTJetMETValidation") << "Could not find trigger
-        // path with name: " << _probefilter.label();
-      } else {
+      if (trig_iter != hltTriggerMap.end()) {
         myTrigJ[it] = trig_iter->second;
       }
-      // std::cout<<hltTrgJet[it].c_str()<<" "<<myTrigJ[it]<<std::endl;
     }
     for (size_t it = 0; it < hltTrgJetLow.size(); it++) {
       trig_iter = hltTriggerMap.find(hltTrgJetLow[it]);
-      if (trig_iter == hltTriggerMap.end()) {
-        // std::cout << "Could not find trigger path with name: " <<
-        // _probefilter.label() << std::endl; if (evtCnt==1)
-        // edm::LogWarning("HLTJetMETValidation") << "Could not find trigger
-        // path with name: " << _probefilter.label();
-      } else {
+      if (trig_iter != hltTriggerMap.end()) {
         myTrigJLow[it] = trig_iter->second;
       }
-      // std::cout<<hltTrgJetLow[it].c_str()<<" "<<myTrigJLow[it]<<std::endl;
     }
+
     //---pick-up the met trigger decisions
     for (size_t it = 0; it < hltTrgMet.size(); it++) {
       trig_iter = hltTriggerMap.find(hltTrgMet[it]);
-      if (trig_iter == hltTriggerMap.end()) {
-        // std::cout << "Could not find trigger path with name: " <<
-        // _probefilter.label() << std::endl; if (evtCnt==1)
-        // edm::LogWarning("HLTJetMETValidation") << "Could not find trigger
-        // path with name: " << _probefilter.label();
-      } else {
+      if (trig_iter != hltTriggerMap.end()) {
         myTrigM[it] = trig_iter->second;
       }
-      // std::cout<<hltTrgMet[it].c_str()<<" "<<myTrigM[it]<<std::endl;
     }
     for (size_t it = 0; it < hltTrgMetLow.size(); it++) {
       trig_iter = hltTriggerMap.find(hltTrgMetLow[it]);
-      if (trig_iter == hltTriggerMap.end()) {
-        // std::cout << "Could not find trigger path with name: " <<
-        // _probefilter.label() << std::endl; if (evtCnt==1)
-        // edm::LogWarning("HLTJetMETValidation") << "Could not find trigger
-        // path with name: " << _probefilter.label();
-      } else {
+      if (trig_iter != hltTriggerMap.end()) {
         myTrigMLow[it] = trig_iter->second;
       }
-      // std::cout<<hltTrgMetLow[it].c_str()<<" "<<myTrigMLow[it]<<std::endl;
     }
   }
 
@@ -339,10 +306,6 @@ void HLTJetMETValidation::analyze(const edm::Event &iEvent, const edm::EventSetu
         jetInd++;
       }
     }  // loop over pfjets
-  } else {
-    // std::cout << "  -- No PFJets" << std::endl;
-    // if (evtCnt==1) edm::LogWarning("HLTJetMETValidation") << "  -- No
-    // PFJets";
   }
 
   // GenJets
@@ -386,10 +349,6 @@ void HLTJetMETValidation::analyze(const edm::Event &iEvent, const edm::EventSetu
         jetInd++;
       }
     }
-  } else {
-    // std::cout << "  -- No GenJets" << std::endl;
-    // if (evtCnt==1) edm::LogWarning("HLTJetMETValidation") << "  -- No
-    // GenJets";
   }
 
   // --- Fill histos for PFMET paths ---
@@ -413,10 +372,6 @@ void HLTJetMETValidation::analyze(const edm::Event &iEvent, const edm::EventSetu
           _meHLTMETTrgLow[it]->Fill(calMet);
       }
     }
-  } else {
-    // std::cout << "  -- No MET Collection with name: " << CaloMETColl <<
-    // std::endl; if (evtCnt==1) edm::LogWarning("HLTJetMETValidation") << "  --
-    // No MET Collection with name: "<< CaloMETColl;
   }
 
   edm::Handle<GenMETCollection> genmet;
@@ -437,10 +392,6 @@ void HLTJetMETValidation::analyze(const edm::Event &iEvent, const edm::EventSetu
           _meGenMETTrgLow[it]->Fill(genMet);
       }
     }
-  } else {
-    // std::cout << "  -- No GenMET Collection with name: " << GenMETColl <<
-    // std::endl; if (evtCnt==1) edm::LogWarning("HLTJetMETValidation") << "  --
-    // No GenMET Collection with name: "<< GenMETColl;
   }
 }
 
@@ -448,17 +399,11 @@ void HLTJetMETValidation::getHLTResults(const edm::TriggerResults &hltresults, c
   int ntrigs = hltresults.size();
   if (!HLTinit_) {
     HLTinit_ = true;
-
-    for (int itrig = 0; itrig != ntrigs; ++itrig) {
-      // std::cout << "trigger " << itrig << ": " << trigName << std::endl;
-    }
   }
 
   for (int itrig = 0; itrig != ntrigs; ++itrig) {
     std::string trigName = triggerNames.triggerName(itrig);
     bool accept = hltresults.accept(itrig);
-
-    // if (accept) _triggerResults->Fill(float(itrig));
 
     // fill the trigger map
     typedef std::map<std::string, bool>::value_type valType;

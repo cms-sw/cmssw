@@ -1,4 +1,4 @@
-// Migrated to use DQMEDHarvester by: Jyothsna Rani Komaragiri, Oct 2014
+// Numerator and denominator histograms filled in HLTriggerOffline/JetMET/src/HLTJetMETValidation.cc
 
 #include "HLTriggerOffline/JetMET/interface/JetMETDQMPostProcessor.h"
 
