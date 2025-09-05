@@ -8,6 +8,7 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -29,6 +30,8 @@
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+
+//#define HITS_DEBUG
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
@@ -88,17 +91,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   void Phase2OTRecHitsSoAConverter::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
     const auto& trackerGeometry = &iSetup.getData(geomTokenRun_);
     auto isPinPSinOTBarrel = [&](DetId detId) {
-      //    std::cout << (int)trackerGeometry->getDetectorType(detId) << " " << (trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP) << "\n";
-      //    std::cout << (int)detId.subdetId() << " " << (detId.subdetId() == StripSubdetector::TOB) << std::endl;
+      LogDebug("Phase2OTRecHitsSoAConverter")
+          << (int)trackerGeometry->getDetectorType(detId) << " "
+          << (trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP) << '\n'
+          << (int)detId.subdetId() << " " << (detId.subdetId() == StripSubdetector::TOB) << '\n';
       // Select only P-hits from the OT barrel
       return (trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP &&
               detId.subdetId() == StripSubdetector::TOB);
     };
     auto isPh2Pixel = [&](DetId detId) {
-      return (trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PXB ||
-              trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PXB3D ||
-              trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PXF ||
-              trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PXF3D);
+      auto subId = detId.subdetId();
+      return (subId == PixelSubdetector::PixelBarrel || subId == PixelSubdetector::PixelEndcap);
     };
 
     auto const& detUnits = trackerGeometry->detUnits();
@@ -112,7 +115,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         detIdToIndex_[detUnit->geographicalId()] = detUnit->index();
         moduleIndexToOffset_[detUnit->index()] = orderedModules_.size();
         orderedModules_.push_back(detUnit->index());
-        //      std::cout << "Inserted " << detUnit->index() << " " << p_modulesInPSInOTBarrel.size() << " on layer " << int((detId.rawId() >> 20) & 0xF) <<  std::endl;
+        LogDebug("Phase2OTRecHitsSoAConverter") << "Inserted " << detUnit->index() << " " << orderedModules_.size()
+                                                << " on layer " << int((detId.rawId() >> 20) & 0xF) << '\n';
       }
     }
   }
@@ -141,17 +145,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           PHitsInOTBarrel++;
       }
     }
-    //std::cout << "Tot number of modules in Pixels " << modulesInPixel_ << std::endl;
-    //std::cout << "Tot number of p_modulesInPSInOTBarrel: " << orderedModules_.size() << std::endl;
-    //std::cout << "Number of strip (active) modules:      " << activeStripModules << std::endl;
-    //std::cout << "Number of strip hits: " << nStripHits << std::endl;
-    //std::cout << "Total hits of PinOTBarrel:   " << PHitsInOTBarrel << std::endl;
+    LogDebug("Phase2OTRecHitsSoAConverter")
+        << "Tot number of modules in Pixels " << modulesInPixel_ << '\n'
+        << "Tot number of p_modulesInPSInOTBarrel: " << orderedModules_.size() << '\n'
+        << "Number of strip (active) modules:      " << activeStripModules << '\n'
+        << "Number of strip hits: " << nStripHits << '\n'
+        << "Total hits of PinOTBarrel:   " << PHitsInOTBarrel << '\n';
 
     HitsHost stripHitsHost(queue, PHitsInOTBarrel, orderedModules_.size());
     auto& stripHitsModuleView = stripHitsHost.view<::reco::HitModuleSoA>();
 
     std::vector<int> counterOfHitsPerModule(orderedModules_.size(), 0);
-    assert(orderedModules_.size());
+    assert(!orderedModules_.empty());
     for (const auto& detSet : stripHits) {
       auto firstHit = detSet.begin();
       auto detId = firstHit->rawId();
@@ -159,17 +164,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       int offset = 0;
       if (detIdIsP_[detId]) {
         offset = moduleIndexToOffset_[index];
-        for (const auto& recHit : detSet) {
+        for ([[maybe_unused]] const auto& recHit : detSet) {
           counterOfHitsPerModule[offset]++;
         }
       }
     }
-#if 0
-  int modId = 0;
-  for (auto c : counterOfHitsPerModule) {
-    std::cout << "On module " << modId << " we have " << c << " hits." << std::endl;
-    modId++;
-  }
+#ifdef HITS_DEBUG
+    int modId = 0;
+    for (auto c : counterOfHitsPerModule) {
+      std::cout << "On module " << modId << " we have " << c << " hits." << std::endl;
+      modId++;
+    }
 #endif
 
     std::vector<int> cumulativeHitPerModule(counterOfHitsPerModule.size());
@@ -177,11 +182,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // Create new vector with first element as 0, then shifted contents from counterOfHitsPerModule
     std::vector<int> shifted(cumulativeHitPerModule.size(), 0);
     stripHitsModuleView[0].moduleStart() = nPixelHits;
-    //  std::cout << "Module start: 0 with hits: " << stripHitsModuleView[0].moduleStart() << std::endl;
+    LogDebug("Phase2OTRecHitsSoAConverter")
+        << "Module start: 0 with hits: " << stripHitsModuleView[0].moduleStart() << '\n';
     for (size_t i = 1; i < cumulativeHitPerModule.size(); ++i) {
       shifted[i] = cumulativeHitPerModule[i - 1];
       stripHitsModuleView[i].moduleStart() = cumulativeHitPerModule[i - 1] + nPixelHits;
-      //   std::cout << "Module start: " << i << " with hits: " << stripHitsModuleView[i].moduleStart() << std::endl;
+      LogDebug("Phase2OTRecHitsSoAConverter")
+          << "Module start: " << i << " with hits: " << stripHitsModuleView[i].moduleStart() << '\n';
     }
 
     for (const auto& detSet : stripHits) {
@@ -201,24 +208,28 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             stripHitsHost.view()[idx].yLocal() = recHit.localPosition().y();
             stripHitsHost.view()[idx].xerrLocal() = recHit.localPositionError().xx();
             stripHitsHost.view()[idx].yerrLocal() = recHit.localPositionError().yy();
-            //std::cout << "Local (x, y) with (xx, yy) --> (" << recHit.localPosition().x() << ", " << recHit.localPosition().y() << ") with (" << recHit.localPositionError().xx() << ", " << recHit.localPositionError().yy() << ")" << std::endl;
             auto globalPosition = det->toGlobal(recHit.localPosition());
             double gx = globalPosition.x() - bs.x0();
             double gy = globalPosition.y() - bs.y0();
             double gz = globalPosition.z() - bs.z0();
-            //std::cout << "Global           (x, y, z) --> (" << globalPosition.x() << ", " << globalPosition.y() << ", " << globalPosition.z() << ")" << std::endl;
-            //std::cout << "Corrected Global (x, y, z) --> (" << gx << ", " << gy << ", " << gz << ")" << std::endl;
-            //        std::cout << gx << std::endl;
             stripHitsHost.view()[idx].xGlobal() = gx;
             stripHitsHost.view()[idx].yGlobal() = gy;
             stripHitsHost.view()[idx].zGlobal() = gz;
             stripHitsHost.view()[idx].rGlobal() = sqrt(gx * gx + gy * gy);
             stripHitsHost.view()[idx].iphi() = unsafe_atan2s<7>(gy, gx);
             stripHitsHost.view()[idx].chargeAndStatus().charge = 0;
-            stripHitsHost.view()[idx].chargeAndStatus().status = {0, 0, 0, 0, 0};
+            stripHitsHost.view()[idx].chargeAndStatus().status = {false, false, false, false, 0};
             stripHitsHost.view()[idx].clusterSizeX() = -1;
             stripHitsHost.view()[idx].clusterSizeY() = -1;
             stripHitsHost.view()[idx].detectorIndex() = modulesInPixel_ + offset;
+            LogDebug("Phase2OTRecHitsSoAConverter")
+                << "Local (x, y) with (xx, yy) --> (" << recHit.localPosition().x() << ", "
+                << recHit.localPosition().y() << ") with (" << recHit.localPositionError().xx() << ", "
+                << recHit.localPositionError().yy() << ")" << '\n'
+                << "Global           (x, y, z) --> (" << globalPosition.x() << ", " << globalPosition.y() << ", "
+                << globalPosition.z() << ")" << '\n'
+                << "Corrected Global (x, y, z) --> (" << gx << ", " << gy << ", " << gz << ")" << '\n'
+                << gx << '\n';
           }
         }
       }
@@ -226,18 +237,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     stripHitsModuleView[orderedModules_.size()].moduleStart() =
         cumulativeHitPerModule[orderedModules_.size() - 1] + nPixelHits;
 
-    //std::cout << "DONE" << std::endl;
-#if 0
-  int current = 0;
-  for (int h = 0; h < stripHitsHost.view().metadata().size(); ++h) {
-    auto idx =  stripHitsHost.view()[h].detectorIndex();
-    std::cout << h <<  " detectorIndexInSoA: " << idx << std::endl;
-    assert(idx>=current);
-    current = idx;
-  }
-  for (int h = 0; h < stripHitsModuleView.metadata().size(); ++h) {
-    std::cout << h << " -> " << stripHitsModuleView[h].moduleStart() << std::endl;
-  }
+#ifdef HITS_DEBUG
+    int current = 0;
+    for (int h = 0; h < stripHitsHost.view().metadata().size(); ++h) {
+      auto idx = stripHitsHost.view()[h].detectorIndex();
+      std::cout << h << " detectorIndexInSoA: " << idx << std::endl;
+      assert(idx >= current);
+      current = idx;
+    }
+    for (int h = 0; h < stripHitsModuleView.metadata().size(); ++h) {
+      std::cout << h << " -> " << stripHitsModuleView[h].moduleStart() << std::endl;
+    }
 #endif
 
     auto moduleStartView = cms::alpakatools::make_host_view<uint32_t>(stripHitsModuleView.moduleStart(),
