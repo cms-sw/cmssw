@@ -644,7 +644,7 @@ void SimpleCosmicBONSeeder::fillDescriptions(edm::ConfigurationDescriptions &des
   regionPSet.add<double>("originRadius", 150.0);
   regionPSet.add<double>("originHalfLength", 90.0);
   regionPSet.add<double>("ptMin", 0.5);
-  regionPSet.add<double>("pMin", 1.0);
+  regionPSet.add<double>("pMin", 4.0);
   desc.add<edm::ParameterSetDescription>("RegionPSet", regionPSet);
 
   desc.add<edm::InputTag>("TripletsSrc", edm::InputTag("simpleCosmicBONSeedingLayers"));
