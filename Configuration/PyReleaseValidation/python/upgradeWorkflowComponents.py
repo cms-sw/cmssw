@@ -2014,6 +2014,19 @@ upgradeWFs['HLTTiming75e33TiclBarrel'].step3 = {
     '-s':'HARVESTING:@hltValidation'
 }
 
+upgradeWFs['HLTTiming75e33CAExtension'] = deepcopy(upgradeWFs['HLTTiming75e33'])
+upgradeWFs['HLTTiming75e33CAExtension'].suffix = '_HLT75e33TimingCAExtension'
+upgradeWFs['HLTTiming75e33CAExtension'].offset = 0.7511
+upgradeWFs['HLTTiming75e33CAExtension'].step2 = {
+    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33_timing,VALIDATION:@hltValidation',
+    '--procModifiers': 'phase2CAExtension',
+    '--datatier':'GEN-SIM-DIGI-RAW,DQMIO',
+    '--eventcontent':'FEVTDEBUGHLT,DQMIO'
+}
+upgradeWFs['HLTTiming75e33CAExtension'].step3 = {
+    '-s':'HARVESTING:@hltValidation'
+}
+
 class UpgradeWorkflow_HLTPhase2_WithNano(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         # skip RECO, ALCA and HLT
@@ -2160,13 +2173,39 @@ upgradeWFs['NGTScoutingAll'].suffix = '_NGTScoutingAll'
 upgradeWFs['NGTScoutingAll'].offset = 0.771
 upgradeWFs['NGTScoutingAll'].step2 = {
     '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:NGTScouting,VALIDATION:@hltValidation',
-    '--procModifiers': 'ngtScouting,alpaka,ticl_v5,ticl_barrel',
+    '--procModifiers': 'ngtScouting,alpaka,ticl_v5,ticl_barrel,phase2CAExtension',
     '--datatier':'GEN-SIM-DIGI-RAW,DQMIO',
     '--eventcontent':'FEVTDEBUGHLT,DQMIO'
 }
 upgradeWFs['NGTScoutingAll'].step3 = {
     '--procModifiers': 'ngtScouting,alpaka,ticl_v5,ticl_barrel',
    '-s':'HARVESTING:@hltValidation'
+}
+
+upgradeWFs['NGTScoutingCAExtensionPixelOnly'] = deepcopy(upgradeWFs['NGTScouting'])
+upgradeWFs['NGTScoutingCAExtensionPixelOnly'].suffix = '_NGTScoutingCAExtensionPixelOnly'
+upgradeWFs['NGTScoutingCAExtensionPixelOnly'].offset = 0.774
+upgradeWFs['NGTScoutingCAExtensionPixelOnly'].step2 = {
+    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:NGTScouting,VALIDATION:@hltValidation',
+    '--procModifiers': 'ngtScouting,phase2CAExtension',
+    '--datatier':'GEN-SIM-DIGI-RAW,DQMIO',
+    '--eventcontent':'FEVTDEBUGHLT,DQMIO'
+}
+upgradeWFs['NGTScoutingCAExtensionPixelOnly'].step3 = {
+    '-s':'HARVESTING:@hltValidation'
+}
+
+upgradeWFs['NGTScoutingCAExtensionMergeT5'] = deepcopy(upgradeWFs['NGTScouting'])
+upgradeWFs['NGTScoutingCAExtensionMergeT5'].suffix = '_NGTScoutingCAExtensionMergeT5'
+upgradeWFs['NGTScoutingCAExtensionMergeT5'].offset = 0.775
+upgradeWFs['NGTScoutingCAExtensionMergeT5'].step2 = {
+    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33_timing,VALIDATION:@hltValidation',
+    '--procModifiers': 'ngtScouting,phase2CAExtension,trackingLST',
+    '--datatier':'GEN-SIM-DIGI-RAW,DQMIO',
+    '--eventcontent':'FEVTDEBUGHLT,DQMIO'
+}
+upgradeWFs['NGTScoutingCAExtensionMergeT5'].step3 = {
+    '-s':'HARVESTING:@hltValidation'
 }
 
 class UpgradeWorkflow_L1Complete(UpgradeWorkflow):
