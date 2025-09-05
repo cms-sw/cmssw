@@ -250,8 +250,7 @@ namespace edm {
   std::string ProductRegistry::merge(ProductRegistry const& other,
                                      std::string const& fileName,
                                      ProductDescription::MatchMode branchesMustMatch) {
-    if (branchesMustMatch == ProductDescription::FromInputToCurrent) {
-      assert(transient_.processOrder_.size() == 1);
+    if (branchesMustMatch == ProductDescription::FromInputToCurrent and transient_.processOrder_.size() == 1) {
       transient_.processOrder_.insert(
           transient_.processOrder_.end(), other.transient_.processOrder_.begin(), other.transient_.processOrder_.end());
     } else {
