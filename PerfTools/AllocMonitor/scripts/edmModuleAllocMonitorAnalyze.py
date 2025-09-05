@@ -303,12 +303,15 @@ class ModuleCentricModuleData(object):
     def __init__(self):
         self._data = {}
         self._last = {}
+        self._cpptypes = {}
         self._startTime = None
     def setStartTime(self, time):
         self._startTime = time
-    def insert(self, label, start, stop, transition, index, sync, activity, allocInfo, recordName=None, callID=None):
+    def insert(self, label, cpptype, start, stop, transition, index, sync, activity, allocInfo, recordName=None, callID=None):
         if label not in self._data:
             self._data[label] = []
+        if cpptype not in self._cpptypes:
+            self._cpptypes[label] = cpptype
         self._data[label].append(ModuleData(start, stop, transition, sync, activity, allocInfo, recordName, callID))
         self._last[(label, transition, index, activity)] = self._data[label][-1]
     def findLast(self, label, transition, index, activity):
@@ -318,8 +321,9 @@ class ModuleCentricModuleData(object):
     def data(self):
         return self._data
     def toSimpleDict(self):
-        dct = {'startedMonitoring': self._startTime, 'source' :[], 'clearEvent': [], 'modules' :{}}
+        dct = {'startedMonitoring': self._startTime, 'source' :[], 'clearEvent': [], 'modules' :{}, 'cpptypes':{}}
         modules = dct['modules']
+        cpptypes = dct['cpptypes']
         for m,lst in self._data.items():
             l = None
             if m == 'source':
@@ -329,6 +333,7 @@ class ModuleCentricModuleData(object):
             else:
                 modules[m]=[]
                 l = modules[m]
+                cpptypes[m]=self._cpptypes[m]
             for d in lst:
                 l.append( d.toSimpleDict() )
         return dct
@@ -502,7 +507,7 @@ class PostFrameworkTransitionParser (FrameworkTransitionParser):
     def jsonInfo(self, syncs, temp, data):
         if self.transition == Phase.clearEvent:
             start = temp.findTime("clearEvent", self.transition, self.index)
-            data.insert( "clearEvent" , start, self.time, self.transition, self.index, syncs.get(Phase.Event, self.index) , Activity.process, self.alloc)
+            data.insert( "clearEvent" , "cleatEventType", start, self.time, self.transition, self.index, syncs.get(Phase.Event, self.index) , Activity.process, self.alloc)
     def jsonVisInfo(self,  data):
         if transitionIsGlobal(self.transition):
             index = findMatchingTransition(list(self.sync), data.allGlobals())
@@ -611,9 +616,9 @@ class PostSourceTransitionParser(SourceTransitionParser):
         start = temp.findTime("source", self.transition, self.index)
         #we do not know the sync yet so have to wait until the framework transition
         if self.transition in [ Phase.construction, Phase.getNextTransition, Phase.destruction, Phase.openFile]:
-            data.insert( "source" , start, self.time, self.transition, self.index, (0,) , Activity.process, self.allocInfo)
+            data.insert( "source" , "sourceType", start, self.time, self.transition, self.index, (0,) , Activity.process, self.allocInfo)
         else:
-            data.insert( "source" , start, self.time, self.transition, self.index, self.index , Activity.process, self.allocInfo)
+            data.insert( "source" , "sourceType", start, self.time, self.transition, self.index, self.index , Activity.process, self.allocInfo)
     def jsonVisInfo(self,  data):
         index = self.index
         if self.transition == Phase.Event:
@@ -705,7 +710,7 @@ class EDModuleTransitionParser(object):
         temp.insertTime(self.moduleName, self.transition, self.index, self.time)
     def _postJsonInfo(self, syncs, temp, data, activity):
         start = temp.findTime(self.moduleName, self.transition, self.index)
-        data.insert( self.moduleName , start, self.time, self.transition, self.index, syncs.get(self.transition, self.index) , activity, self.allocInfo)
+        data.insert( self.moduleName , self.moduleType, start, self.time, self.transition, self.index, syncs.get(self.transition, self.index) , activity, self.allocInfo)
 
                 
 class PreEDModuleTransitionParser(EDModuleTransitionParser):
@@ -851,7 +856,7 @@ class ESModuleTransitionParser(object):
         temp.insertTimeES(self.moduleName, self.transition, self.index, self.recordID, self.callID, self.time)
     def _postJsonInfo(self, syncs, temp, data, activity):
         start = temp.findTimeES(self.moduleName, self.transition, self.index, self.recordID, self.callID)
-        data.insert( self.moduleName , start, self.time, self.transition, self.index, syncs.get(self.transition, self.index) , activity, self.allocInfo, self.recordName, self.callID)
+        data.insert( self.moduleName , self.moduleType, start, self.time, self.transition, self.index, syncs.get(self.transition, self.index) , activity, self.allocInfo, self.recordName, self.callID)
 
 
 class PreESModuleTransitionParser(ESModuleTransitionParser):
