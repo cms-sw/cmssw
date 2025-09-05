@@ -11,14 +11,13 @@ namespace edm {
 /**
 * @brief A view-like container that provides a contiguous indexing interface over multiple disjoint spans.
 *
-* MultiSpan allows you to append multiple `std::vector<T>` as std::span<const T> instances and access them through a
+* MultiSpan allows to append multiple `std::vector<T>` as std::span<const T> instances and access them through a
 * single global index as if they formed one continuous sequence. 
 *
 * This class is read-only and does not take ownership of the underlying data.
-* It is intended for efficient access and iteration over heterogeneous but logically connected data ranges without copying 
+* It is intended for iteration over heterogeneous but logically connected data ranges without copying 
 * or merging them into a single container.
 *
-* MultiSpan implements a constant random access iterator to allow usage in range-based for loops and STL algorithms.
 */
   template <typename T>
   class MultiSpan {
