@@ -2,9 +2,3 @@
   <use name="catch2"/>
   <use name="DataFormats/HGCalReco" />
 </bin>
-
-<bin   name="MultiSpanTest" file="MultiSpanTest.cpp">
-  <use name="catch2"/>
-  <use name="DataFormats/HGCalReco" />
-</bin>
-

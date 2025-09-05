@@ -9,7 +9,7 @@
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/HGCalMultiCluster.h"
-#include "DataFormats/HGCalReco/interface/MultiVectorManager.h"
+#include "DataFormats/Common/interface/MultiSpan.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -67,7 +67,7 @@ namespace hgcal {
 
     const HGCRecHitCollection *eerh_, *fhrh_, *bhrh_;
     const std::unordered_map<DetId, const unsigned int> *hitMap_;
-    std::unique_ptr<MultiVectorManager<HGCRecHit>> rechitManager_;
+    std::unique_ptr<edm::MultiSpan<HGCRecHit>> rechitManager_;
   };
 }  // namespace hgcal
 

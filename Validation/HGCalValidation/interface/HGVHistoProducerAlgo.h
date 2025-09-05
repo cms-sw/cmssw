@@ -22,7 +22,7 @@
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
-#include "DataFormats/HGCalReco/interface/MultiVectorManager.h"
+#include "DataFormats/Common/interface/MultiSpan.h"
 
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
@@ -282,7 +282,7 @@ public:
                                       unsigned int layers,
                                       const ticl::RecoToSimCollection& recSimColl,
                                       const ticl::SimToRecoCollection& simRecColl,
-                                      MultiVectorManager<HGCRecHit> const& hits) const;
+                                      edm::MultiSpan<HGCRecHit> const& hits) const;
   void layerClusters_to_SimClusters(const Histograms& histograms,
                                     const int count,
                                     edm::Handle<reco::CaloClusterCollection> clusterHandle,
@@ -295,7 +295,7 @@ public:
                                     unsigned int layers,
                                     const ticl::RecoToSimCollectionWithSimClusters& recSimColl,
                                     const ticl::SimToRecoCollectionWithSimClusters& simRecColl,
-                                    MultiVectorManager<HGCRecHit> const& hits) const;
+                                    edm::MultiSpan<HGCRecHit> const& hits) const;
 
   void tracksters_to_SimTracksters_fp(const Histograms& histograms,
                                       const int count,
@@ -314,7 +314,7 @@ public:
                                 std::vector<SimVertex> const& simVertices,
                                 unsigned int layers,
                                 std::unordered_map<DetId, const unsigned int> const&,
-                                MultiVectorManager<HGCRecHit> const& hits) const;
+                                edm::MultiSpan<HGCRecHit> const& hits) const;
   void fill_generic_cluster_histos(const Histograms& histograms,
                                    const int count,
                                    edm::Handle<reco::CaloClusterCollection> clusterHandle,
@@ -329,7 +329,7 @@ public:
                                    std::vector<int> thicknesses,
                                    const ticl::RecoToSimCollection& recSimColl,
                                    const ticl::SimToRecoCollection& simRecColl,
-                                   MultiVectorManager<HGCRecHit> const& hits) const;
+                                   edm::MultiSpan<HGCRecHit> const& hits) const;
   void fill_simCluster_histos(const Histograms& histograms,
                               std::vector<SimCluster> const& simClusters,
                               unsigned int layers,
@@ -346,7 +346,7 @@ public:
                                          unsigned int layers,
                                          const ticl::RecoToSimCollectionWithSimClusters& recSimColl,
                                          const ticl::SimToRecoCollectionWithSimClusters& simRecColl,
-                                         MultiVectorManager<HGCRecHit> const& hits) const;
+                                         edm::MultiSpan<HGCRecHit> const& hits) const;
   void fill_cluster_histos(const Histograms& histograms, const int count, const reco::CaloCluster& cluster) const;
   void fill_trackster_histos(const Histograms& histograms,
                              const int count,
@@ -362,7 +362,7 @@ public:
                              std::vector<size_t> const& cPSelectedIndices,
                              std::unordered_map<DetId, const unsigned int> const& hitMap,
                              unsigned int layers,
-                             MultiVectorManager<HGCRecHit> const& hits,
+                             edm::MultiSpan<HGCRecHit> const& hits,
                              bool mapsFound,
                              const edm::Handle<TracksterToTracksterMap>& trackstersToSimTrackstersByLCsMapH,
                              const edm::Handle<TracksterToTracksterMap>& simTrackstersToTrackstersByLCsMapH,
@@ -380,7 +380,7 @@ public:
 
   DetId findmaxhit(const reco::CaloCluster& cluster,
                    std::unordered_map<DetId, const unsigned int> const&,
-                   MultiVectorManager<HGCRecHit> const& hits) const;
+                   edm::MultiSpan<HGCRecHit> const& hits) const;
 
   struct detIdInfoInCluster {
     bool operator==(const detIdInfoInCluster& o) const { return clusterId == o.clusterId; };

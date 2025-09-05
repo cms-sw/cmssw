@@ -9,7 +9,7 @@
 
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Math/interface/Vector3D.h"
-#include "DataFormats/HGCalReco/interface/MultiSpan.h"
+#include "DataFormats/Common/interface/MultiSpan.h"
 
 #include <Eigen/Core>
 
@@ -117,7 +117,7 @@ namespace ticl {
       calculateRawEmPt();
     }
     template <typename T>
-    inline void mergeTracksters(const MultiSpan<Trackster> &allTracksters, const std::vector<T> &others) {
+    inline void mergeTracksters(const edm::MultiSpan<Trackster> &allTracksters, const std::vector<T> &others) {
       for (auto &other : others) {
         *this += allTracksters[other];
       }

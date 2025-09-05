@@ -1,3 +1,11 @@
+/*
+ *  CMSSW
+ */
+#define CATCH_CONFIG_MAIN
+#include <catch.hpp>
+
+#include "DataFormats/Common/interface/MultiSpan.h"
+
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -5,14 +13,10 @@
 #include <iostream>
 #include <vector>
 
-#include "DataFormats/HGCalReco/interface/MultiSpan.h"
-
-#define CATCH_CONFIG_MAIN
-#include <catch.hpp>
-
+using namespace edm;
 
 TEST_CASE("MultiSpan basic indexing", "[MultiSpan]") {
-    MultiSpan<int> ms;
+    edm::MultiSpan<int> ms;
 
     std::vector<int> a = {1, 2, 3};
     std::vector<int> b = {4, 5};

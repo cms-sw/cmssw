@@ -1,6 +1,6 @@
 // Author: Felice Pantaleo, Wahid Redjeb, Aurora Perego (CERN) - felice.pantaleo@cern.ch, wahid.redjeb@cern.ch, aurora.perego@cern.ch Date: 12/2023
 #include <memory>  // unique_ptr
-#include "DataFormats/HGCalReco/interface/MultiVectorManager.h"
+#include "DataFormats/Common/interface/MultiSpan.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -280,11 +280,11 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
   auto resultMask = std::make_unique<std::vector<float>>(original_global_mask);
 
   std::vector<edm::Handle<std::vector<Trackster>>> general_tracksters_h(general_tracksters_tokens_.size());
-  MultiVectorManager<Trackster> generalTrackstersManager;
+  edm::MultiSpan<Trackster> generalTrackstersManager;
   for (unsigned int i = 0; i < general_tracksters_tokens_.size(); ++i) {
     evt.getByToken(general_tracksters_tokens_[i], general_tracksters_h[i]);
-    //Fill MultiVectorManager
-    generalTrackstersManager.addVector(*general_tracksters_h[i]);
+    //Fill MultiSpan
+    generalTrackstersManager.add(*general_tracksters_h[i]);
   }
   //now get the general_tracksterlinks_tokens_
   std::vector<edm::Handle<std::vector<std::vector<unsigned>>>> general_tracksterlinks_h(

@@ -13,7 +13,7 @@
 
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
-#include "DataFormats/HGCalReco/interface/MultiVectorManager.h"
+#include "DataFormats/Common/interface/MultiSpan.h"
 
 class RecHitMapProducer : public edm::global::EDProducer<> {
 public:
@@ -75,13 +75,13 @@ void RecHitMapProducer::produce(edm::StreamID, edm::Event& evt, const edm::Event
 
   // TODO may be worth to avoid dependency on the order
   // of the collections, maybe using a map
-  MultiVectorManager<HGCRecHit> rechitManager;
-  rechitManager.addVector(*ee_hits);
-  rechitManager.addVector(*fh_hits);
-  rechitManager.addVector(*bh_hits);
+  edm::MultiSpan<HGCRecHit> rechitSpan;
+  rechitSpan.add(*ee_hits);
+  rechitSpan.add(*fh_hits);
+  rechitSpan.addV(*bh_hits);
 
-  for (unsigned int i = 0; i < rechitManager.size(); ++i) {
-    const auto recHitDetId = rechitManager[i].detid();
+  for (unsigned int i = 0; i < rechitSpan.size(); ++i) {
+    const auto recHitDetId = rechitSpan[i].detid();
     hitMapHGCal->emplace(recHitDetId, i);
   }
 
@@ -89,11 +89,11 @@ void RecHitMapProducer::produce(edm::StreamID, edm::Event& evt, const edm::Event
 
   if (!hgcalOnly_) {
     auto hitMapBarrel = std::make_unique<DetIdRecHitMap>();
-    MultiVectorManager<reco::PFRecHit> barrelRechitManager;
-    barrelRechitManager.addVector(evt.get(barrel_hits_token_[0]));
-    barrelRechitManager.addVector(evt.get(barrel_hits_token_[1]));
-    for (unsigned int i = 0; i < barrelRechitManager.size(); ++i) {
-      const auto recHitDetId = barrelRechitManager[i].detId();
+    edm::MultiSpan<reco::PFRecHit> barrelRechitSpan;
+    barrelRechitSpan.add(evt.get(barrel_hits_token_[0]));
+    barrelRechitSpan.add(evt.get(barrel_hits_token_[1]));
+    for (unsigned int i = 0; i < barrelRechitSpan.size(); ++i) {
+      const auto recHitDetId = barrelRechitSpan[i].detId();
       hitMapBarrel->emplace(recHitDetId, i);
     }
     evt.put(std::move(hitMapBarrel), "barrelRecHitMap");
