@@ -280,7 +280,7 @@ class ModuleData(object):
         self.allocInfo = allocInfo
         self.record = (recordName, callID)
     def __repr__(self):
-        if self.record[0]:
+        if len(self.record) == 2:
             return "{{ 'timeRange': {}, 'transition': {}, 'sync' :{}, 'activity':{}, 'record': {{'name' : {}, 'callID' :{} }}, 'alloc':{} }}".format(self.timeRange, self.transition, self.sync, self.activity, self.record[0], self.record[1], self.allocInfo)
 
         return "{{ 'timeRange': {}, 'transition': {}, 'sync' :{}, 'activity':{}, 'alloc':{} }}".format(self.timeRange, self.transition, self.sync, self.activity, self.allocInfo)
@@ -294,7 +294,8 @@ class ModuleData(object):
         return {'run' : self.sync[0], 'lumi' : self.sync[1], 'event' : self.sync[2] }
     def toSimpleDict(self) :
         if self.record[0]:
-            return {'timeRange': self.timeRange, 'transition': transitionName(self.transition), 'sync' : self.syncToSimpleDict(), 'activity' : activityName(self.activity), 'record' :{'name': self.record[0], 'callID' : self.record[1] }, 'alloc' : self.allocInfo.toSimpleDict() }
+            if len(self.record) == 2:
+                return {'timeRange': self.timeRange, 'transition': transitionName(self.transition), 'sync' : self.syncToSimpleDict(), 'activity' : activityName(self.activity), 'record' :{'name': self.record[0], 'callID' : self.record[1]}, 'alloc' : self.allocInfo.toSimpleDict() }
         return {'timeRange': self.timeRange, 'transition': transitionName(self.transition), 'sync' : self.syncToSimpleDict(), 'activity': activityName(self.activity), 'alloc' : self.allocInfo.toSimpleDict() }
         
     
@@ -642,11 +643,12 @@ class PostSourceTransitionParser(SourceTransitionParser):
         self.allocInfo.inject(container[-1])
 
 class EDModuleTransitionParser(object):
-    def __init__(self, payload, moduleNames):
+    def __init__(self, payload, moduleNames, moduleTypes):
         self.transition = int(payload[0])
         self.index = int(payload[1])
         self.moduleID = int(payload[2])
         self.moduleName = moduleNames[self.moduleID]
+        self.moduleType = moduleTypes[self.moduleID]
         self.callID = int(payload[3])
         self.time = int(payload[4])
     def baseIndentLevel(self):
@@ -707,8 +709,8 @@ class EDModuleTransitionParser(object):
 
                 
 class PreEDModuleTransitionParser(EDModuleTransitionParser):
-    def __init__(self, payload, names, moduleCentric):
-        super().__init__(payload, names)
+    def __init__(self, payload, names, types, moduleCentric):
+        super().__init__(payload, names, types)
         self._moduleCentric = moduleCentric
     def textSpecial(self):
         return "starting action"
@@ -719,8 +721,8 @@ class PreEDModuleTransitionParser(EDModuleTransitionParser):
 
     
 class PostEDModuleTransitionParser(EDModuleTransitionParser):
-    def __init__(self, payload, names):
-        super().__init__(payload, names)
+    def __init__(self, payload, names, types):
+        super().__init__(payload, names, types)
         self.allocInfo = AllocInfo(payload[5:])
     def textSpecial(self):
         return "finished action"
@@ -731,8 +733,8 @@ class PostEDModuleTransitionParser(EDModuleTransitionParser):
         
 
 class PreEDModuleAcquireParser(EDModuleTransitionParser):
-    def __init__(self, payload, names, moduleCentric):
-        super().__init__(payload, names)
+    def __init__(self, payload, names, types, moduleCentric):
+        super().__init__(payload, names, types)
         self._moduleCentric = moduleCentric
     def textSpecial(self):
         return "starting acquire"
@@ -743,8 +745,8 @@ class PreEDModuleAcquireParser(EDModuleTransitionParser):
 
 
 class PostEDModuleAcquireParser(EDModuleTransitionParser):
-    def __init__(self, payload, names, moduleCentric):
-        super().__init__(payload, names)
+    def __init__(self, payload, names, types, moduleCentric):
+        super().__init__(payload, names, types)
         self.allocInfo = AllocInfo(payload[5:])
         self._moduleCentric = moduleCentric
     def textSpecial(self):
@@ -758,8 +760,8 @@ class PostEDModuleAcquireParser(EDModuleTransitionParser):
         self._postJsonInfo(syncs, temp, data, Activity.acquire)
 
 class PreEDModuleEventDelayedGetParser(EDModuleTransitionParser):
-    def __init__(self, payload, names):
-        super().__init__(payload, names)
+    def __init__(self, payload, names, types):
+        super().__init__(payload, names, types)
     def textSpecial(self):
         return "starting delayed get"
     def jsonVisInfo(self,  data):
@@ -769,8 +771,8 @@ class PreEDModuleEventDelayedGetParser(EDModuleTransitionParser):
         #self._preJsonInfo(temp)
 
 class PostEDModuleEventDelayedGetParser(EDModuleTransitionParser):
-    def __init__(self, payload, names):
-        super().__init__(payload, names)
+    def __init__(self, payload, names, types):
+        super().__init__(payload, names, types)
         self.allocInfo = AllocInfo(payload[5:])
     def textSpecial(self):
         return "finished delayed get"
@@ -781,8 +783,8 @@ class PostEDModuleEventDelayedGetParser(EDModuleTransitionParser):
         #self._postJsonInfo(syncs, temp, data, Activity.delayedGet)
 
 class PreEventReadFromSourceParser(EDModuleTransitionParser):
-    def __init__(self, payload, names):
-        super().__init__(payload, names)
+    def __init__(self, payload, names, types):
+        super().__init__(payload, names, types)
     def textSpecial(self):
         return "starting read from source"
     def jsonVisInfo(self,  data):
@@ -793,8 +795,8 @@ class PreEventReadFromSourceParser(EDModuleTransitionParser):
         temp.insertTime(self.moduleName+'source', self.transition, self.index, self.time)
 
 class PostEventReadFromSourceParser(EDModuleTransitionParser):
-    def __init__(self, payload, names):
-        super().__init__(payload, names)
+    def __init__(self, payload, names, types):
+        super().__init__(payload, names, types)
         self.allocInfo = AllocInfo(payload[5:])
     def textSpecial(self):
         return "finished read from source"
@@ -805,11 +807,12 @@ class PostEventReadFromSourceParser(EDModuleTransitionParser):
         data.insert( "source" , start, self.time, self.transition, self.index, syncs.get(self.transition, self.index) , Activity.delayedGet, self.allocInfo)
 
 class ESModuleTransitionParser(object):
-    def __init__(self, payload, moduleNames, esModuleNames, recordNames):
+    def __init__(self, payload, moduleNames, moduleTypes, esModuleNames, esModuleTypes, recordNames):
         self.transition = int(payload[0])
         self.index = int(payload[1])
         self.moduleID = int(payload[2])
         self.moduleName = esModuleNames[self.moduleID]
+        self.moduleType = esModuleTypes[self.moduleID]
         self.recordID = int(payload[3])
         self.recordName = recordNames[self.recordID]
         self.callID = int(payload[4])
@@ -852,8 +855,8 @@ class ESModuleTransitionParser(object):
 
 
 class PreESModuleTransitionParser(ESModuleTransitionParser):
-    def __init__(self, payload, names, esNames, recordNames):
-        super().__init__(payload, names, esNames, recordNames)
+    def __init__(self, payload, names, types, esNames, esTypes, recordNames):
+        super().__init__(payload, names, types, esNames, esTypes, recordNames)
     def textSpecial(self):
         return "starting action"
     def jsonVisInfo(self,  data):
@@ -862,8 +865,8 @@ class PreESModuleTransitionParser(ESModuleTransitionParser):
         self._preJsonInfo(temp)
 
 class PostESModuleTransitionParser(ESModuleTransitionParser):
-    def __init__(self, payload, names, esNames, recordNames):
-        super().__init__(payload, names, esNames, recordNames)
+    def __init__(self, payload, names, types, esNames, esTypes, recordNames):
+        super().__init__(payload, names, types, esNames, esTypes, recordNames)
         self.allocInfo = AllocInfo(payload[6:])
     def textSpecial(self):
         return "finished action"
@@ -873,16 +876,16 @@ class PostESModuleTransitionParser(ESModuleTransitionParser):
         self._postJsonInfo(syncs, temp, data, Activity.process)
 
 class PreESModuleAcquireParser(ESModuleTransitionParser):
-    def __init__(self, payload, names, recordNames):
-        super().__init__(payload, names, recordNames)
+    def __init__(self, payload, names, types, esNames, esTypes, recordNames):
+        super().__init__(payload, names, types, esNames, esTypes, recordNames)
     def textSpecial(self):
         return "starting acquire"
     def jsonVisInfo(self,  data):
         return self._preJsonVis(Activity.acquire, data)
 
 class PostESModuleAcquireParser(ESModuleTransitionParser):
-    def __init__(self, payload, names, esNames, recordNames):
-        super().__init__(payload, names, esNames, recordNames)
+    def __init__(self, payload, names, types, esNames, esTypes, recordNames):
+        super().__init__(payload, names, types, esNames, esTypes, recordNames)
         self.allocInfo = AllocInfo(payload[6:])
     def textSpecial(self):
         return "finished acquire"
@@ -890,7 +893,7 @@ class PostESModuleAcquireParser(ESModuleTransitionParser):
         return self._postJsonVis(data, self.allocInfo)
 
 
-def lineParserFactory (step, payload, moduleNames, esModuleNames, recordNames, moduleCentric):
+def lineParserFactory (step, payload, moduleNames, moduleTypes, esModuleNames, esModuleTypes, recordNames, moduleCentric):
     if step == 'F':
         parser = PreFrameworkTransitionParser(payload)
         return parser
@@ -901,33 +904,33 @@ def lineParserFactory (step, payload, moduleNames, esModuleNames, recordNames, m
     if step == 's':
         return PostSourceTransitionParser(payload, moduleCentric)
     if step == 'M':
-        return PreEDModuleTransitionParser(payload, moduleNames, moduleCentric)
+        return PreEDModuleTransitionParser(payload, moduleNames, moduleTypes, moduleCentric)
     if step == 'm':
-        return PostEDModuleTransitionParser(payload, moduleNames)
+        return PostEDModuleTransitionParser(payload, moduleNames, moduleTypes)
     if step == 'A':
-        return PreEDModuleAcquireParser(payload, moduleNames, moduleCentric)
+        return PreEDModuleAcquireParser(payload, moduleNames, moduleTypes, moduleCentric)
     if step == 'a':
-        return PostEDModuleAcquireParser(payload, moduleNames, moduleCentric)
+        return PostEDModuleAcquireParser(payload, moduleNames, moduleTypes, moduleCentric)
     if step == 'D':
-        return PreEDModuleEventDelayedGetParser(payload, moduleNames)
+        return PreEDModuleEventDelayedGetParser(payload, moduleNames, moduleTypes)
     if step == 'd':
-        return PostEDModuleEventDelayedGetParser(payload, moduleNames)
+        return PostEDModuleEventDelayedGetParser(payload, moduleNames, moduleTypes)
     if step == 'R':
-        return PreEventReadFromSourceParser(payload, moduleNames)
+        return PreEventReadFromSourceParser(payload, moduleNames, moduleTypes)
     if step == 'r':
-        return PostEventReadFromSourceParser(payload, moduleNames)
+        return PostEventReadFromSourceParser(payload, moduleNames, moduleTypes)
     if step == 'N':
-        return PreESModuleTransitionParser(payload, moduleNames, esModuleNames, recordNames)
+        return PreESModuleTransitionParser(payload, moduleNames, moduleTypes, esModuleNames, esModuleTypes, recordNames)
     if step == 'n':
-        return PostESModuleTransitionParser(payload, moduleNames, esModuleNames, recordNames)
+        return PostESModuleTransitionParser(payload, moduleNames, moduleTypes, esModuleNames, esModuleTypes, recordNames)
     if step == 'B':
-        return PreESModuleAcquireParser(payload, moduleNames, esModuleNames, recordNames)
+        return PreESModuleAcquireParser(payload, moduleNames, moduleTypes, esModuleNames, esModuleTypes, recordNames)
     if step == 'b':
         return PostESModuleAcquireParser(payload, moduleNames, esModuleNames, recordNames)
     raise LogicError("Unknown step '{}'".format(step))
     
 #----------------------------------------------
-def processingStepsFromFile(f,moduleNames, esModuleNames, recordNames, moduleCentric):
+def processingStepsFromFile(f,moduleNames, moduleTypes, esModuleNames, esModuleTypes, recordNames, moduleCentric):
     for rawl in f:
         l = rawl.strip()
         if not l or l[0] == '#':
@@ -935,7 +938,7 @@ def processingStepsFromFile(f,moduleNames, esModuleNames, recordNames, moduleCen
         (step,payload) = tuple(l.split(None,1))
         payload=payload.split()
 
-        parser = lineParserFactory(step, payload, moduleNames, esModuleNames, recordNames, moduleCentric)
+        parser = lineParserFactory(step, payload, moduleNames, moduleTypes, esModuleNames, esModuleTypes, recordNames, moduleCentric)
         if parser:
             yield parser
     return
@@ -946,7 +949,9 @@ class ModuleAllocCompactFileParser(object):
         numStreams = 0
         numStreamsFromSource = 0
         moduleNames = {}
+        moduleTypes = {}
         esModuleNames = {}
+        esModuleTypes = {}
         recordNames = {}
         for rawl in f:
             l = rawl.strip()
@@ -963,10 +968,12 @@ class ModuleAllocCompactFileParser(object):
             if len(l) > 5 and l[0:2] == "#M":
                 (id,name,mType)=tuple(l[2:].split())
                 moduleNames[int(id)] = name
+                moduleTypes[int(id)] = mType
                 continue
             if len(l) > 5 and l[0:2] == "#N":
                 (id,name,mType)=tuple(l[2:].split())
                 esModuleNames[int(id)] = name
+                esModuleTypes[int(id)] = mType
                 continue
             if len(l) > 5 and l[0:2] == "#R":
                 (id,name)=tuple(l[2:].split())
@@ -979,7 +986,9 @@ class ModuleAllocCompactFileParser(object):
           numStreams = numStreamsFromSource +2
         self.numStreams =numStreams
         self._moduleNames = moduleNames
+        self._moduleTypes = moduleTypes
         self._esModuleNames = esModuleNames
+        self._esModuleTypes = esModuleTypes
         self._recordNames = recordNames
         self.maxNameSize =0
         for n in moduleNames.items():
@@ -994,7 +1003,7 @@ class ModuleAllocCompactFileParser(object):
         Using a generator reduces the memory overhead when parsing a large file.
             """
         self._f.seek(0)
-        return processingStepsFromFile(self._f,self._moduleNames, self._esModuleNames, self._recordNames,  self._moduleCentric)
+        return processingStepsFromFile(self._f,self._moduleNames, self._moduleTypes, self._esModuleNames, self._esModuleTypes, self._recordNames, self._moduleCentric)
 
 def textOutput( parser ):
     context = {}
@@ -1249,7 +1258,7 @@ def jsonVisualizationInfo(parser):
         sourceSlot = data._modules[data._moduleID2Index(0)]
         modules = []
         for i,m in parser._moduleNames.items():
-            modules.append({"name": f"{m}", "slots":[]})
+            modules.append({"name": f"{m}", "cpptype": f"{parser._moduleTypes[i]}", "slots":[]})
             slots = modules[-1]["slots"]
             foundSlots = data._modules[data._moduleID2Index(i)]
             time = 0
@@ -1260,7 +1269,7 @@ def jsonVisualizationInfo(parser):
                         time += t["finish"]-t["start"]
             modules[-1]['time']=time
         for i,m in parser._esModuleNames.items():
-            modules.append({"name": f"{m}", "slots":[]})
+            modules.append({"name": f"{m}", "cpptype": f"{parser._esModuleTypes[i]}", "slots":[]})
             slots = modules[-1]["slots"]
             foundSlots = data._modules[data._moduleID2Index(-1*i)]
             time = 0
@@ -1411,6 +1420,7 @@ class TestModuleCommand(unittest.TestCase):
     def testJson(self):
         parser = ModuleAllocCompactFileParser(self.tracerFile, False)
         j = jsonInfo(parser, False)
+        #print(j)
         self.assertEqual(len(j.data()),3) 
         self.assertEqual(len(j.data()["source"]), 10)
         self.assertEqual(len(j.data()["Module"]), 8)
@@ -1506,6 +1516,8 @@ if __name__=="__main__":
                         help='''Run internal tests.''')
 
     args = parser.parse_args()
+    #breakpoint()
+
     if args.test:
         runTests()
     else :
