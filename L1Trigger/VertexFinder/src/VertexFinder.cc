@@ -127,7 +127,7 @@ namespace l1tVertexFinder {
       }
 
       if (settings_->vx_algo() == Algorithm::PFA) {
-        // note this is not used in PFASimple(), where the simplification is that all tracks in the "bin" have PFA weight 1 (and 0 otherwise)
+        // Note this weight is not used in Algorithm::PFASimple, where the simplification is that all tracks in the "bin" have PFA weight 1 (and 0 otherwise)
         float weight = weights.first;
         SumWeightPFA += weight;
         pt += weight * std::pow(trackPt, settings_->vx_weightedmean());
