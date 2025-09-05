@@ -139,7 +139,7 @@ void ScoutingEGammaCollectionMonitoring::analyze(edm::Event const& iEvent, edm::
   // Get PAT / Scouting Electron Token  //
   ////////////////////////////////////////
 
-  if (useOfflineObject_){
+  if (useOfflineObject_) {
     edm::Handle<edm::View<pat::Electron>> patEls;
     iEvent.getByToken(electronCollection_, patEls);
     if (patEls.failedToGet()) {
@@ -154,15 +154,13 @@ void ScoutingEGammaCollectionMonitoring::analyze(edm::Event const& iEvent, edm::
     // DQM
     for (size_t i = 1; i < patEls->size(); ++i) {
       if (patEls->ptrAt(i - 1)->pt() < patEls->ptrAt(i)->pt()) {
-      edm::LogWarning("ScoutingEGammaCollectionMonitoring")
-           << "pat::Electron collection not sorted by PT in descending order"
-           << " will result in random histo filling. \n"
-           << "pat::Electron[" << i << "].pt() = " << patEls->ptrAt(i)->pt() << "\n"
-           << "pat::Electron[" << i + 1 << "].pt() = " << patEls->ptrAt(i + 1)->pt();
+        edm::LogWarning("ScoutingEGammaCollectionMonitoring")
+            << "pat::Electron collection not sorted by PT in descending order"
+            << " will result in random histo filling. \n"
+            << "pat::Electron[" << i << "].pt() = " << patEls->ptrAt(i)->pt() << "\n"
+            << "pat::Electron[" << i + 1 << "].pt() = " << patEls->ptrAt(i + 1)->pt();
       }
     }
-
-
 
     // Fill pat::Electron histograms
     histos.patElectron.h1N->Fill(patEls->size());
@@ -194,17 +192,16 @@ void ScoutingEGammaCollectionMonitoring::analyze(edm::Event const& iEvent, edm::
 
     if (tight_patElectron_index.size() == 2) {
       histos.patElectron.h1InvMassID->Fill(
-         (patEls->ptrAt(tight_patElectron_index[0])->p4() + patEls->ptrAt(tight_patElectron_index[1])->p4()).mass());
+          (patEls->ptrAt(tight_patElectron_index[0])->p4() + patEls->ptrAt(tight_patElectron_index[1])->p4()).mass());
     }
   }
- 
+
   edm::Handle<std::vector<Run3ScoutingElectron>> sctEls;
   iEvent.getByToken(scoutingElectronCollection_, sctEls);
   if (sctEls.failedToGet()) {
     edm::LogWarning("ScoutingEGammaCollectionMonitoring") << "Run3ScoutingElectron collection not found.";
     return;
   }
-
 
   edm::LogInfo("ScoutingEGammaCollectionMonitoring") << "Process Run3ScoutingElectrons: " << sctEls->size();
 
@@ -230,7 +227,6 @@ void ScoutingEGammaCollectionMonitoring::analyze(edm::Event const& iEvent, edm::
       }
     }
   }
-
 
   // Fill the Run3ScoutingElectron histograms. No sorting assumed.
   histos.sctElectron.h1N->Fill(sctEls->size());

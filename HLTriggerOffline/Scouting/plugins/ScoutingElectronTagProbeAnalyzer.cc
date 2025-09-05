@@ -149,7 +149,7 @@ ScoutingElectronTagProbeAnalyzer::ScoutingElectronTagProbeAnalyzer(const edm::Pa
           mayConsume<pat::TriggerObjectStandAloneCollection>(iConfig.getParameter<edm::InputTag>("TriggerObjects"))),
       scoutingElectronCollection_(consumes<std::vector<Run3ScoutingElectron>>(
           iConfig.getParameter<edm::InputTag>("ScoutingElectronCollection"))),
-      useOfflineObject_(iConfig.getParameter<bool>("useOfflineObject")){}
+      useOfflineObject_(iConfig.getParameter<bool>("useOfflineObject")) {}
 
 void ScoutingElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
                                                   edm::EventSetup const& iSetup,
@@ -191,11 +191,10 @@ void ScoutingElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
     }
   }
 
-
   // Trigger Object Matching (HLTSCOUT don't have)
   size_t numberOfFilters = filterToMatch_.size();
   trigger::TriggerObjectCollection* legObjects = new trigger::TriggerObjectCollection[numberOfFilters];
-  if (useOfflineObject_){
+  if (useOfflineObject_) {
     edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects;
     iEvent.getByToken(triggerObjects_, triggerObjects);
     for (size_t iteFilter = 0; iteFilter < filterToMatch_.size(); iteFilter++) {
