@@ -119,8 +119,7 @@ void TracksterLinkingbySuperClusteringDNN::linkTracksters(
   std::iota(trackstersIndicesPt.begin(), trackstersIndicesPt.end(), 0);
   std::stable_sort(
       trackstersIndicesPt.begin(), trackstersIndicesPt.end(), [&inputTracksters](unsigned int i1, unsigned int i2) {
-        return inputTracksters[i1].raw_energy() * std::sin(inputTracksters[i1].barycenter().Theta()) >
-               inputTracksters[i2].raw_energy() * std::sin(inputTracksters[i2].barycenter().Theta());
+        return inputTracksters[i1].raw_pt() > inputTracksters[i2].raw_pt();
       });
 
   /* Evaluate in minibatches since running with trackster count = 3000 leads to a short-lived ~15GB memory allocation
@@ -169,7 +168,7 @@ void TracksterLinkingbySuperClusteringDNN::linkTracksters(
 
           Trackster const& ts_seed = inputTracksters[trackstersIndicesPt[ts_seed_idx_pt]];
 
-          if (ts_seed.raw_energy() * std::sin(ts_seed.barycenter().Theta()) < seedPtThreshold_)
+          if (ts_seed.raw_pt() < seedPtThreshold_)
             break;  // All further seeds will have lower pT than threshold (due to pT sorting)
 
           if (!checkExplainedVarianceRatioCut(ts_seed) || !trackstersPassesPIDCut(ts_seed))
@@ -324,9 +323,7 @@ void TracksterLinkingbySuperClusteringDNN::linkTracksters(
 
   // Create singleton superclusters for unused tracksters with enough pt
   for (unsigned int ts_id = 0; ts_id < tracksterCount; ts_id++) {
-    if (!tracksterMask[ts_id] &&
-        inputTracksters[ts_id].raw_energy() * std::sin(inputTracksters[ts_id].barycenter().Theta()) >=
-            seedPtThreshold_) {
+    if (!tracksterMask[ts_id] && inputTracksters[ts_id].raw_pt() >= seedPtThreshold_) {
       outputSuperclusters.emplace_back(std::initializer_list<unsigned int>{ts_id});
       resultTracksters.emplace_back(inputTracksters[ts_id]);
       linkedTracksterIdToInputTracksterId.emplace_back(std::initializer_list<unsigned int>{ts_id});

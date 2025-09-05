@@ -32,11 +32,11 @@ namespace ticl {
         ts_toCluster.barycenter().Phi() - ts_base.barycenter().phi(),                      //DeltaPhiBaryc
         ts_toCluster.raw_energy(),                                                         //multi_en
         ts_toCluster.barycenter().Eta(),                                                   //multi_eta
-        (ts_toCluster.raw_energy() * std::sin(ts_toCluster.barycenter().Theta())),         //multi_pt
+        ts_toCluster.raw_pt(),                                                             //multi_pt
         ts_base.barycenter().Eta(),                                                        //seedEta
         ts_base.barycenter().Phi(),                                                        //seedPhi
         ts_base.raw_energy(),                                                              //seedEn
-        (ts_base.raw_energy() * std::sin(ts_base.barycenter().Theta())),                   //seedPt
+        ts_base.raw_pt(),                                                                  //seedPt
     }};
   }
 
@@ -91,11 +91,11 @@ namespace ticl {
         ts_toCluster.barycenter().Phi() - ts_base.barycenter().phi(),                      //DeltaPhiBaryc
         ts_toCluster.raw_energy(),                                                         //multi_en
         ts_toCluster.barycenter().Eta(),                                                   //multi_eta
-        (ts_toCluster.raw_energy() * std::sin(ts_toCluster.barycenter().Theta())),         //multi_pt
+        ts_toCluster.raw_pt(),                                                             //multi_pt
         ts_base.barycenter().Eta(),                                                        //seedEta
         ts_base.barycenter().Phi(),                                                        //seedPhi
         ts_base.raw_energy(),                                                              //seedEn
-        (ts_base.raw_energy() * std::sin(ts_base.barycenter().Theta())),                   //seedPt
+        ts_base.raw_pt(),                                                                  //seedPt
         static_cast<float>(Angle(pca_cand_cmsFrame, pca_seed_cmsFrame)),  // theta : angle between seed and candidate
         Angle2D(XYVectorF(pca_cand_seedFrame.x(), pca_cand_seedFrame.z()), XYVectorF(0, 1)),  // theta_xz_seedFrame
         Angle2D(XYVectorF(pca_cand_seedFrame.y(), pca_cand_seedFrame.z()), XYVectorF(0, 1)),  // theta_yz_seedFrame
@@ -140,11 +140,11 @@ namespace ticl {
         ts_toCluster.barycenter().Phi() - ts_base.barycenter().phi(),                      // DeltaPhiBaryc
         ts_toCluster.raw_energy(),                                                         // multi_en
         ts_toCluster.barycenter().Eta(),                                                   // multi_eta
-        ts_toCluster.raw_energy() * std::sin(ts_toCluster.barycenter().Theta()),           // multi_pt
+        ts_toCluster.raw_pt(),                                                             // multi_pt
         ts_base.barycenter().Eta(),                                                        // seedEta
         ts_base.barycenter().Phi(),                                                        // seedPhi
         ts_base.raw_energy(),                                                              // seedEn
-        ts_base.raw_energy() * std::sin(ts_base.barycenter().Theta()),                     // seedPt
+        ts_base.raw_pt(),                                                                  // seedPt
         static_cast<float>(Angle(pca_cand_cmsFrame, pca_seed_cmsFrame)),                   // theta
         Angle2D(XYVectorF(pca_cand_seedFrame.x(), pca_cand_seedFrame.z()),                 // theta_xz_seedFrame
                 XYVectorF(0, 1)),

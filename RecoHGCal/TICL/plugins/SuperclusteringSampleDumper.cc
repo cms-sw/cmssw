@@ -151,8 +151,7 @@ void SuperclusteringSampleDumper::analyze(const edm::Event& evt, const edm::Even
   std::iota(trackstersIndicesPt.begin(), trackstersIndicesPt.end(), 0);
   std::stable_sort(
       trackstersIndicesPt.begin(), trackstersIndicesPt.end(), [&inputTracksters](unsigned int i1, unsigned int i2) {
-        return (*inputTracksters)[i1].raw_energy() * std::sin((*inputTracksters)[i1].barycenter().Theta()) >
-               (*inputTracksters)[i2].raw_energy() * std::sin((*inputTracksters)[i2].barycenter().Theta());
+        return (*inputTracksters)[i1].raw_pt() > (*inputTracksters)[i2].raw_pt();
       });
 
   // Order of loops are reversed compared to SuperclusteringProducer (here outer is seed, inner is candidate), for performance reasons.
@@ -163,7 +162,7 @@ void SuperclusteringSampleDumper::analyze(const edm::Event& evt, const edm::Even
         trackstersIndicesPt[ts_seed_idx_pt];  // Index of seed trackster in input collection (not in pT sorted collection)
     Trackster const& ts_seed = (*inputTracksters)[ts_seed_idx_input];
 
-    if (ts_seed.raw_energy() * std::sin(ts_seed.barycenter().Theta()) < seedPtThreshold_)
+    if (ts_seed.raw_pt() < seedPtThreshold_)
       break;  // All further seeds will have lower pT than threshold (due to pT sorting)
 
     if (!checkExplainedVarianceRatioCut(ts_seed))
