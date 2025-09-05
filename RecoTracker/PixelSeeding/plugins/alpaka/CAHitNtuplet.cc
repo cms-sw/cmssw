@@ -176,10 +176,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 detId.subdetId() == StripSubdetector::TOB);
       };
       auto isPh2Pixel = [&](DetId detId) {
-        return (trackerGeometry.getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PXB ||
-                trackerGeometry.getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PXB3D ||
-                trackerGeometry.getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PXF ||
-                trackerGeometry.getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PXF3D);
+        auto subId = detId.subdetId();
+        return (subId == PixelSubdetector::PixelBarrel || subId == PixelSubdetector::PixelEndcap);
       };
       if constexpr (std::is_same_v<pixelTopology::Phase2OT, TrackerTraits>) {
         int counter = 0;
