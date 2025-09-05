@@ -221,7 +221,7 @@ void BarrelValidator::cpParametersAndSelection(const Histograms& histograms,
                                                std::vector<size_t>& selected_cPeff,
                                                unsigned int layers,
                                                std::unordered_map<DetId, const unsigned int> const& barrelHitMap,
-                                               MultiVectorManager<reco::PFRecHit> const& barrelHits) const {
+                                               edm::MultiSpan<reco::PFRecHit> const& barrelHits) const {
   selected_cPeff.reserve(cPeff.size());
 
   size_t j = 0;
@@ -278,11 +278,11 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
   event.getByToken(barrelHitMap_, barrelHitMapHandle);
   const std::unordered_map<DetId, const unsigned int>& barrelHitMap = *barrelHitMapHandle;
 
-  MultiVectorManager<reco::PFRecHit> barrelRechitManager;
+  edm::MultiSpan<reco::PFRecHit> barrelRechitSpan;
   for (const auto& token : barrel_hits_tokens_) {
     Handle<std::vector<reco::PFRecHit>> hitsHandle;
     event.getByToken(token, hitsHandle);
-    barrelRechitManager.addVector(*hitsHandle);
+    barrelRechitSpan.add(*hitsHandle);
   }
 
   //Some general info on layers etc.
@@ -307,7 +307,7 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
                            selected_cPeff,
                            totallayers_to_monitor_,
                            barrelHitMap,
-                           barrelRechitManager);
+                           barrelRechitSpan);
 
   //get collections from the event
   //simClusters
@@ -368,7 +368,7 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
                                                             totallayers_to_monitor_,
                                                             recSimColl[0],
                                                             simRecColl[0],
-                                                            barrelRechitManager);
+                                                            barrelRechitSpan);
 
       //General Info on simClusters
       LogTrace("BarrelValidator") << "\n# of SimClusters: " << nSimClusters
@@ -393,7 +393,7 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
                                                     totallayers_to_monitor_,
                                                     recSimColl[0],
                                                     simRecColl[0],
-                                                    barrelRechitManager);
+                                                    barrelRechitSpan);
 
     for (unsigned int layerclusterIndex = 0; layerclusterIndex < clusters.size(); layerclusterIndex++) {
       histoProducerAlgo_->fill_cluster_histos(histograms.histoProducerAlgo, w, clusters[layerclusterIndex]);

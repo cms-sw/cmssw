@@ -67,7 +67,7 @@ namespace hgcal {
 
     const HGCRecHitCollection *eerh_, *fhrh_, *bhrh_;
     const std::unordered_map<DetId, const unsigned int> *hitMap_;
-    std::unique_ptr<edm::MultiSpan<HGCRecHit>> rechitManager_;
+    std::unique_ptr<edm::MultiSpan<HGCRecHit>> rechitSpan_;
   };
 }  // namespace hgcal
 
