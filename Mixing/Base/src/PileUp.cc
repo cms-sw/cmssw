@@ -124,6 +124,7 @@ namespace edm {
 
       provider_ = std::make_unique<SecondaryEventProvider>(producers, filler, processConfiguration_);
     }
+    filler.setCurrentProcess(processConfiguration_->processName());
     filler.addFromInput(*input_->productRegistry());
     filler.setFrozen();
     productRegistry_ = std::make_shared<ProductRegistry>(filler.moveTo());
