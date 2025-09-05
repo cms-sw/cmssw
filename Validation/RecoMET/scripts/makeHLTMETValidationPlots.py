@@ -130,9 +130,8 @@ if __name__ == '__main__':
     errorbar_kwargs = dict(capsize=3, elinewidth=0.8, capthick=2, linewidth=2, linestyle='')
 
     #####################################
-    # Plot 1D simple variables
+    # Plot 1D variables from METTester
     #####################################
-
     Var1DList = {
         'HFEMEt'                  : (r'HF EM $E_T$', None),
         'HFEMEtFraction'          : (r'HF EM $E_T$ fraction', None),
@@ -182,9 +181,9 @@ if __name__ == '__main__':
         plotter.save( os.path.join(args.odir, var) )
 
 
-    #####################################
-    # Plot 1D post-processed variables
-    #####################################
+    ################################################
+    # Plot 1D variables from METTesterPostProcessor
+    ################################################
 
     var1dNames = {'METDiffAggr_MET': ('MET', 'MET Mean Difference'),
                   'METDiffAggr_Phi': (r'$\phi$', 'MET Mean Difference'),
@@ -192,8 +191,8 @@ if __name__ == '__main__':
                   'METResolAggr_Phi': (r'$\phi$', 'MET Resolution'),
                   'METRespAggr_MET': ('MET', 'MET Response'),
                   'METRespAggr_Phi': (r'$\phi$', 'MET Response'),
-                  'METSignAggr_MET': ('MET', 'MET Significance (Aggregated)'),
-                  'METSignAggr_Phi': (r'$\phi$', 'MET Significance (Aggregated)')}
+                  'METSignAggr_MET': ('MET', 'MET Significance'),
+                  'METSignAggr_Phi': (r'$\phi$', 'MET Significance')}
 
     for var, (xlabel, ylabel) in var1dNames.items():
         plotter = Plotter(args.sample_label)
@@ -212,3 +211,38 @@ if __name__ == '__main__':
         plotter.labels(x=xlabel, y=ylabel)
 
         plotter.save( os.path.join(args.odir, var) )
+
+    ######################
+    # Plot turn-on curves
+    ######################
+    turnon_dir = f"DQMData/Run 1/HLT/Run summary/JetMET/TurnOnValidation/HLT_PFPuppiMETTypeOne140_PFPuppiMHT140"
+    if not file.Get(dqm_dir):
+        raise RuntimeError(f"Directory '{turnon_dir}' not found in {args.file}")
+
+    var1dNames = ('_meTurnOngMET', '_meTurnOngMETLow', '_meTurnOnhMET', '_meTurnOnhMETLow')
+
+    for var in var1dNames:
+        plotter = Plotter(args.sample_label)
+        root_hist = CheckRootFile(f"{turnon_dir}/{var}", rebin=None)
+        nbins, bin_edges, bin_centers, bin_widths = define_bins(root_hist)
+        values, errors = histo_values_errors(root_hist)
+
+        xlabel = root_hist.GetXaxis().GetTitle().replace('ET', r'$E_T$ ')
+        ylabel = root_hist.GetYaxis().GetTitle()
+        title = root_hist.GetTitle()
+
+        plotter.ax.errorbar(bin_centers, values, xerr=None, yerr=errors,
+                             fmt='s', color='black', label=xlabel, **errorbar_kwargs)
+        plotter.ax.stairs(values, bin_edges, color='black', linewidth=2)
+        plotter.ax.text(0.03, 0.97, METType, transform=plotter.ax.transAxes, fontsize=fontsize,
+                        verticalalignment='top', horizontalalignment='left')
+
+        diff_step = 0.05 * (max(values)-min(values))
+        plotter.limits(y=(min(values) - diff_step, 1.2*max(values)), logY=False)
+        plotter.labels(x=xlabel, y=ylabel)
+
+        plotter.ax.text(0.97, 0.97, title.replace('ET', r'$E_T$'), transform=plotter.ax.transAxes, fontsize=fontsize,
+                        verticalalignment='top', horizontalalignment='right')
+
+        newvar = var.replace('_', '')
+        plotter.save( os.path.join(args.odir, newvar) )
