@@ -131,12 +131,15 @@ namespace l1tVertexFinder {
 
     /// Vertexing algorithms
 
+    /// Returns the track resolution in cm (which can depend on track eta)
+    float computeTrackZ0Res(const L1Track* track) const;
+    /// Calculates the PFA weight and the weighted average z weight for a given track
+    std::pair<float, float> calcPFAweights(const L1Track* track, double vertexZ0) const;
+
     /// Compute the vertex parameters
     float computeAndSetVertexParameters(RecoVertex<>& vertex,
                                         const std::vector<float>& bin_centers,
                                         const std::vector<unsigned int>& counts);
-    /// Calculates the PFA weight and the weighted average z weight for a given track
-    std::pair<float, float> calcPFAweights(const L1Track* track, double vertexZ0);
     /// Peak finding algorithm
     void PFA();
     /// Peak finding algorithm, single vertex, fastHisto-like simplification (by using step functon PFA weights)

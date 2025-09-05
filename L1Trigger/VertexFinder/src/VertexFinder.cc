@@ -4,19 +4,22 @@ using namespace std;
 
 namespace l1tVertexFinder {
 
+  // Returns the track resolution in cm (which can depend on track eta), to be used in PFA
+  float VertexFinder::computeTrackZ0Res(const L1Track* track) const {
+    float trackAbsEta = std::fabs(track->eta());
+    // Hard-coded eta-dependent and constant parametrisations of the track resolution taken from the PFA section of Giovanna's thesis: https://cds.cern.ch/record/2909504
+    return settings_->vx_pfa_etadependentresolution()
+               ? 0.09867 + 0.0007 * trackAbsEta + 0.0587 * trackAbsEta * trackAbsEta
+               : 0.15;
+  }
+
   // Calculates the PFA weight and the weighted average z weight for a given track
-  std::pair<float, float> VertexFinder::calcPFAweights(const L1Track* track, double vertexZ0) {
+  std::pair<float, float> VertexFinder::calcPFAweights(const L1Track* track, double vertexZ0) const {
     const float sqrt0p5 = std::sqrt(0.5);
     float trackPt = track->pt();
+    // Calculate PFA width parameter (customised using multiplicative scale factor)
+    float GaussianWidth = computeTrackZ0Res(track) * settings_->vx_pfa_resolutionSF();
 
-    // Note the next few lines recompute the PFA width parameter (GaussianWidth) previously computed in PFASimple(). This could instead be saved as a track property.
-    float trackAbsEta = std::fabs(track->eta());
-    // Hard-coded eta-dependent and constant parametrisations of the PFA Gaussian width parameter taken from Giovanna's thesis: https://cds.cern.ch/record/2909504
-    float GaussianWidth = settings_->vx_pfa_etadependentresolution()
-                              ? 0.09867 + 0.0007 * trackAbsEta + 0.0587 * trackAbsEta * trackAbsEta
-                              : 0.15;
-    // Customise PFA width parameter (via multiplicative scale factor)
-    GaussianWidth *= settings_->vx_pfa_resolutionSF();
     // PFA weights. No need to include 1/sqrt(2pi) normalisation constant in weight function, as it cancels out in the weighted sum.
     float deltaZ = std::fabs(track->z0() - vertexZ0);
     float GaussianWeight = std::exp(-0.5 * std::pow(deltaZ / GaussianWidth, 2)) / GaussianWidth;
@@ -725,13 +728,8 @@ namespace l1tVertexFinder {
       RecoVertex vertex;
       vertex.setZ0(z);
       for (const L1Track& track : fitTracks_) {
-        float trackAbsEta = std::fabs(track.eta());
-        // Hard-coded eta-dependent and constant parametrisations of the PFA Gaussian width parameter taken from Giovanna's thesis: https://cds.cern.ch/record/2909504
-        float GaussianWidth = settings_->vx_pfa_etadependentresolution()
-                                  ? 0.09867 + 0.0007 * trackAbsEta + 0.0587 * trackAbsEta * trackAbsEta
-                                  : 0.15;
-        // Customise PFA width parameter (via multiplicative scale factor)
-        GaussianWidth *= settings_->vx_pfa_resolutionSF();
+        // Calculate PFA width parameter (customised using multiplicative scale factor)
+        float GaussianWidth = computeTrackZ0Res(&track) * settings_->vx_pfa_resolutionSF();
         if (std::abs(z - track.z0()) > GaussianWidth + 0.5 * settings_->vx_pfa_binwidth())
           continue;
 
