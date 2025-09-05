@@ -51,7 +51,7 @@ simpleCosmicBONSeeds = simpleCosmicBONSeeder.clone(
         originRadius     = cms.double(150.0),  #  |-> probably don't change
         originHalfLength = cms.double(90.0),   # /    anything at all.
         ptMin = cms.double(0.5),               # pt cut, applied both at the triplet finding and at the seeding level
-        pMin  = cms.double(1.0),               # p  cut, applied only at the seeding level
+        pMin  = cms.double(4.0),               # p  cut, applied only at the seeding level
     ),
     TripletsSrc = "simpleCosmicBONSeedingLayers",
     TripletsDebugLevel = 0,  # debug triplet finding (0 to 3)
