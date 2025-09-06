@@ -74,17 +74,17 @@ BarrelValidator::BarrelValidator(const edm::ParameterSet& pset)
       label_SimClustersPlots_(pset.getParameter<edm::InputTag>("label_SimClusters")),
       label_SimClustersLevel_(pset.getParameter<edm::InputTag>("label_SimClustersLevel")),
       doLayerClustersPlots_(pset.getUntrackedParameter<bool>("doLayerClustersPlots")),
-      label_layerClustersPlots_(pset.getParameter<edm::InputTag>("label_layerClusterPlots")),
+      label_layerClustersPlots_(pset.getParameter<edm::InputTag>("label_layerClustersPlots")),
       label_LCToCPLinking_(pset.getParameter<edm::InputTag>("label_LCToCPLinking")),
-      barrel_hits_label_(pset.getParameter<std::vector<edm::InputTag>>("barrel_hits")),
+      hits_labels_(pset.getParameter<std::vector<edm::InputTag>>("hits")),
       scToCpMapToken_(
           consumes<SimClusterToCaloParticleMap>(pset.getParameter<edm::InputTag>("simClustersToCaloParticlesMap"))) {
   //In this way we can easily generalize to associations between other objects also.
   const edm::InputTag& label_cp_effic_tag = pset.getParameter<edm::InputTag>("label_cp_effic");
   const edm::InputTag& label_cp_fake_tag = pset.getParameter<edm::InputTag>("label_cp_fake");
 
-  for (auto& label : barrel_hits_label_) {
-    barrel_hits_tokens_.push_back(consumes<std::vector<reco::PFRecHit>>(label));
+  for (auto& label : hits_labels_) {
+    hits_tokens_.push_back(consumes<std::vector<reco::PFRecHit>>(label));
   }
 
   label_cp_effic = consumes<std::vector<CaloParticle>>(label_cp_effic_tag);
@@ -279,9 +279,15 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
   const std::unordered_map<DetId, const unsigned int>& barrelHitMap = *barrelHitMapHandle;
 
   MultiVectorManager<reco::PFRecHit> barrelRechitManager;
-  for (const auto& token : barrel_hits_tokens_) {
+  for (size_t i = 0; i < hits_tokens_.size(); ++i) {
     Handle<std::vector<reco::PFRecHit>> hitsHandle;
-    event.getByToken(token, hitsHandle);
+    event.getByToken(hits_tokens_[i], hitsHandle);
+
+    if (!hitsHandle.isValid()) {
+      edm::LogWarning("MissingInput") << "Missing " << hits_labels_[i] << " handle.";
+      return;
+    }
+
     barrelRechitManager.addVector(*hitsHandle);
   }
 
@@ -516,13 +522,7 @@ void BarrelValidator::fillDescriptions(edm::ConfigurationDescriptions& descripti
     psd1.add<int>("nintZ", 1100);
     desc.add<edm::ParameterSetDescription>("histoProducerAlgoBlock", psd1);
   }
-  desc.add<std::vector<edm::InputTag>>("hgcal_hits",
-                                       {
-                                           edm::InputTag("HGCalRecHit", "HGCEERecHits"),
-                                           edm::InputTag("HGCalRecHit", "HGCHEFRecHits"),
-                                           edm::InputTag("HGCalRecHit", "HGCHEBRecHits"),
-                                       });
-  desc.add<std::vector<edm::InputTag>>("barrel_hits",
+  desc.add<std::vector<edm::InputTag>>("hits",
                                        {
                                            edm::InputTag("particleFlowRecHitECAL"),
                                            edm::InputTag("particleFlowRecHitHBHE"),
@@ -549,7 +549,7 @@ void BarrelValidator::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<edm::InputTag>("label_SimClusters", edm::InputTag("SimClusters"));
   desc.add<edm::InputTag>("label_SimClustersLevel", edm::InputTag("ClusterLevel"));
   desc.addUntracked<bool>("doLayerClustersPlots", true);
-  desc.add<edm::InputTag>("label_layerClusterPlots", edm::InputTag("hgcalMergeLayerClusters"));
+  desc.add<edm::InputTag>("label_layerClustersPlots", edm::InputTag("LayerClusters"));
   desc.add<edm::InputTag>("label_LCToCPLinking", edm::InputTag("LCToCP_association"));
   desc.add<edm::InputTag>("simClustersToCaloParticlesMap",
                           edm::InputTag("SimClusterToCaloParticleAssociation", "simClusterToCaloParticleMap"));
