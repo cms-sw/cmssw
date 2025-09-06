@@ -1,0 +1,20 @@
+<lcgdict>
+  <!-- Particle -->
+  <class name="torchportable::ParticleSoA"/>
+  <class name="torchportable::ParticleSoA::View"/>
+  <class name="torchportable::ParticleSoA::ConstView"/>
+  <class name="torchportable::ParticleCollectionHost"/>
+  <class name="edm::Wrapper<torchportable::ParticleCollectionHost>" splitLevel="0"/>
+  <!-- Classification -->
+  <class name="torchportable::ClassificationSoA"/>
+  <class name="torchportable::ClassificationSoA::View"/>
+  <class name="torchportable::ClassificationSoA::ConstView"/>
+  <class name="torchportable::ClassificationCollectionHost"/>
+  <class name="edm::Wrapper<torchportable::ClassificationCollectionHost>" splitLevel="0"/>
+  <!-- Regression -->
+  <class name="torchportable::RegressionSoA"/>
+  <class name="torchportable::RegressionSoA::View"/>
+  <class name="torchportable::RegressionSoA::ConstView"/>
+  <class name="torchportable::RegressionCollectionHost"/>
+  <class name="edm::Wrapper<torchportable::RegressionCollectionHost>" splitLevel="0"/>
+</lcgdict>
