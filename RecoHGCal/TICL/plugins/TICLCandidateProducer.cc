@@ -280,11 +280,11 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
   auto resultMask = std::make_unique<std::vector<float>>(original_global_mask);
 
   std::vector<edm::Handle<std::vector<Trackster>>> general_tracksters_h(general_tracksters_tokens_.size());
-  edm::MultiSpan<Trackster> generalTrackstersManager;
+  edm::MultiSpan<Trackster> generalTrackstersSpan;
   for (unsigned int i = 0; i < general_tracksters_tokens_.size(); ++i) {
     evt.getByToken(general_tracksters_tokens_[i], general_tracksters_h[i]);
     //Fill MultiSpan
-    generalTrackstersManager.add(*general_tracksters_h[i]);
+    generalTrackstersSpan.add(*general_tracksters_h[i]);
   }
   //now get the general_tracksterlinks_tokens_
   std::vector<edm::Handle<std::vector<std::vector<unsigned>>>> general_tracksterlinks_h(
@@ -297,7 +297,7 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
       auto &links_vector = generalTracksterLinksGlobalId.back();
       links_vector.resize((*general_tracksterlinks_h[i])[j].size());
       for (unsigned int k = 0; k < links_vector.size(); ++k) {
-        links_vector[k] = generalTrackstersManager.getGlobalIndex(i, (*general_tracksterlinks_h[i])[j][k]);
+        links_vector[k] = generalTrackstersSpan.globalIndex(i, (*general_tracksterlinks_h[i])[j][k]);
       }
     }
   }
@@ -310,7 +310,7 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
                                                                        es,
                                                                        layerClusters,
                                                                        layerClustersTimes,
-                                                                       generalTrackstersManager,
+                                                                       generalTrackstersSpan,
                                                                        generalTracksterLinksGlobalId,
                                                                        tracks_h,
                                                                        maskTracks);
