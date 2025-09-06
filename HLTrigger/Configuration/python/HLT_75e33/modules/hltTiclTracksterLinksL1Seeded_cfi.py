@@ -38,7 +38,7 @@ hltTiclTracksterLinksL1Seeded = cms.EDProducer("TracksterLinksProducer",
     mightGet = cms.optional.untracked.vstring,
     original_masks = cms.VInputTag("hltMergeLayerClustersL1Seeded:InitialLayerClustersMask"),
     propagator = cms.string('PropagatorWithMaterial'),
-    regressionAndPid = cms.bool(True),
+    regressionAndPid = cms.bool(False),
     tracksters_collections = cms.VInputTag("hltTiclTrackstersCLUE3DHighL1Seeded", "hltTiclTrackstersRecoveryL1Seeded")
 )
 
