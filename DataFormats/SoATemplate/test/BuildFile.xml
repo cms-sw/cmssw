@@ -31,7 +31,13 @@
   <use name="DataFormats/SoATemplate"/>
 </bin>
 
-<bin file="SoACustomizedMethods_t.cc" name="SoACustomizedMethods_t">
+<bin file="SoAElementMethods_t.cc" name="SoAElementMethods_t">
+  <use name="boost"/>
+  <use name="catch2"/>
+  <use name="DataFormats/SoATemplate"/>
+</bin>
+
+<bin file="SoAMethods_t.cc" name="SoAMethods_t">
   <use name="boost"/>
   <use name="catch2"/>
   <use name="DataFormats/SoATemplate"/>

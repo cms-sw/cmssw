@@ -71,9 +71,16 @@ and to build a generic `View` as described in [View](#view).
 
 ## Customized methods
 
-It is possible to generate methods inside the `element` and `const_element` nested structs using the `SOA_ELEMENT_METHODS`
-and `SOA_CONST_ELEMENT_METHODS` macros. Each of these macros can be called only once, and can define multiple methods. 
-[An example is showed below.](#examples)
+It is possible to:
+- generate methods inside the `element` and `const_element` nested structs using the `SOA_ELEMENT_METHODS`and
+ `SOA_CONST_ELEMENT_METHODS` macros
+- generate methods inside the `View` and `ConstView` structs using the `SOA_METHODS` and `SOA_CONST_METHODS` macros
+You can define methods so that they are usable on both the CPU and the GPU, by marking them with the appropriate
+qualifiers. It is also possible to use internal qualifiers:
+- `SOA_HOST_ONLY`
+- `SOA_DEVICE_ONLY`
+- `SOA_HOST_DEVICE` 
+Each of these macros can be called only once, and can define multiple methods. [An example is showed below.](#examples)
 
 ## ROOT serialization and de-serialization
 
@@ -180,6 +187,71 @@ GENERATE_SOA_LAYOUT(SoATemplate,
   
   SOA_SCALAR(int, detectorType)
 );
+
+using SoA = SoATemplate<>;
+using SoAView = SoA::View;
+using SoAConstView = SoA::ConstView;
+```
+
+It is possible to declare methods that operate on the SoA View:
+
+```C++
+#include "DataFormats/SoALayout.h"
+
+GENERATE_SOA_LAYOUT(SoATemplate,
+  SOA_COLUMN(float, x),
+  SOA_COLUMN(float, y),
+  SOA_COLUMN(float, z),
+
+  // methods operating on the ConstView
+  SOA_CONST_METHODS( 
+      std::array<float, 3> centroid() const {
+          float x_sum = 0.f, y_sum = 0.f, z_sum = 0.f;
+          auto n = this->metadata().size();
+        
+          for (int i = 0; i < n; ++i) {
+            x_sum += x(i);
+            y_sum += y(i);
+            z_sum += z(i);
+          }
+          return std::array<float,3>{{ x_sum / n, y_sum / n, z_sum / n }};
+        }),
+
+  // methods operating on const_element
+  SOA_CONST_ELEMENT_METHODS(
+          float norm_position() const { return x() * x() + y() * y() + z() * z(); }),  
+          
+  // methods operating on the View        
+  SOA_METHODS(
+          void sortByDistance() {
+            auto n = this->metadata().size();
+      
+            // build permutation based on norm
+            std::vector<int> indices(n);
+            std::iota(indices.begin(), indices.end(), 0);
+      
+            std::sort(indices.begin(), indices.end(),
+              [&](int i, int j) {
+                return (*this)[i].norm_position() < (*this)[j].norm_position();
+              });
+      
+            // apply permutation to x,y,z
+            std::vector<float> new_x(n), new_y(n), new_z(n);
+            for (int k = 0; k < n; ++k) {
+              new_x[k] = x(indices[k]);
+              new_y[k] = y(indices[k]);
+              new_z[k] = z(indices[k]);
+            }
+      
+            for (int k = 0; k < n; ++k) {
+              x(k) = new_x[k];
+              y(k) = new_y[k];
+              z(k) = new_z[k];
+            }
+            sorted() = true;
+          }),
+  
+  SOA_SCALAR(bool, sorted))
 
 using SoA = SoATemplate<>;
 using SoAView = SoA::View;
