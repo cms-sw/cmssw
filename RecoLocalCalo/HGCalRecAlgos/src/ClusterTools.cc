@@ -122,7 +122,7 @@ bool ClusterTools::getWidths(const reco::CaloCluster& clus,
 
   double sumw = 0.;
   double sumlogw = 0.;
-  const auto& rhspan= *rechitSpan_;
+  const auto& rhspan = *rechitSpan_;
 
   for (unsigned int ih = 0; ih < nhit; ++ih) {
     const DetId& id = (clus.hitsAndFractions())[ih].first;

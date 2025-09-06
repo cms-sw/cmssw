@@ -78,7 +78,7 @@ void RecHitMapProducer::produce(edm::StreamID, edm::Event& evt, const edm::Event
   edm::MultiSpan<HGCRecHit> rechitSpan;
   rechitSpan.add(*ee_hits);
   rechitSpan.add(*fh_hits);
-  rechitSpan.addV(*bh_hits);
+  rechitSpan.add(*bh_hits);
 
   for (unsigned int i = 0; i < rechitSpan.size(); ++i) {
     const auto recHitDetId = rechitSpan[i].detid();

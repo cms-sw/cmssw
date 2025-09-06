@@ -5,10 +5,11 @@
 #include <algorithm>
 #include <cassert>
 #include <span>
+#include <vector>
 
 namespace edm {
 
-/**
+  /**
 * @brief A view-like container that provides a contiguous indexing interface over multiple disjoint spans.
 *
 * MultiSpan allows to append multiple `std::vector<T>` as std::span<const T> instances and access them through a
@@ -44,7 +45,8 @@ namespace edm {
       return offsets_[spanIndex] + indexWithinSpan;
     }
 
-    inline __attribute__((always_inline)) std::pair<std::size_t, std::size_t> spanAndLocalIndex(const std::size_t globalIndex) const {
+    inline __attribute__((always_inline)) std::pair<std::size_t, std::size_t> spanAndLocalIndex(
+        const std::size_t globalIndex) const {
       assert(globalIndex < totalSize_ && "Global index out of range");
 
       auto it = std::upper_bound(offsets_.begin(), offsets_.end(), globalIndex);
@@ -59,26 +61,45 @@ namespace edm {
     class ConstRandomAccessIterator {
     public:
       using iterator_category = std::random_access_iterator_tag;
-      using difference_type   = std::ptrdiff_t;
-      using value_type        = T;
-      using pointer           = const T*;
-      using reference         = const T&;
+      using difference_type = std::ptrdiff_t;
+      using value_type = T;
+      using pointer = const T*;
+      using reference = const T&;
 
-      ConstRandomAccessIterator(const MultiSpan& ms, const std::size_t index)
-        : ms_(&ms), currentIndex_(index) {}
+      ConstRandomAccessIterator(const MultiSpan& ms, const std::size_t index) : ms_(&ms), currentIndex_(index) {}
 
       reference operator*() const { return (*ms_)[currentIndex_]; }
       pointer operator->() const { return &(*ms_)[currentIndex_]; }
 
       reference operator[](difference_type n) const { return (*ms_)[currentIndex_ + n]; }
 
-      ConstRandomAccessIterator& operator++() { ++currentIndex_; return *this; }
-      ConstRandomAccessIterator operator++(int) { auto tmp = *this; ++(*this); return tmp; }
-      ConstRandomAccessIterator& operator--() { --currentIndex_; return *this; }
-      ConstRandomAccessIterator operator--(int) { auto tmp = *this; --(*this); return tmp; }
+      ConstRandomAccessIterator& operator++() {
+        ++currentIndex_;
+        return *this;
+      }
+      ConstRandomAccessIterator operator++(int) {
+        auto tmp = *this;
+        ++(*this);
+        return tmp;
+      }
+      ConstRandomAccessIterator& operator--() {
+        --currentIndex_;
+        return *this;
+      }
+      ConstRandomAccessIterator operator--(int) {
+        auto tmp = *this;
+        --(*this);
+        return tmp;
+      }
 
-      ConstRandomAccessIterator& operator+=(difference_type n) { currentIndex_ += n; return *this; }
-      ConstRandomAccessIterator& operator-=(difference_type n) { currentIndex_ -= n; return *this; }
+      ConstRandomAccessIterator& operator+=(difference_type n) {
+        currentIndex_ += n;
+        return *this;
+      }
+      ConstRandomAccessIterator& operator-=(difference_type n) {
+        currentIndex_ -= n;
+        return *this;
+      }
 
       ConstRandomAccessIterator operator+(difference_type n) const {
         return ConstRandomAccessIterator(*ms_, currentIndex_ + n);
@@ -117,4 +138,4 @@ namespace edm {
 
 }  // namespace edm
 
-#endif // DataFormats_Common_MultiSpan_h
+#endif  // DataFormats_Common_MultiSpan_h

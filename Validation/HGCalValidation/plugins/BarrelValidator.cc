@@ -301,13 +301,8 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
   // HGCRecHit are given to select the SimHits which are also reconstructed
   LogTrace("BarrelValidator") << "\n# of CaloParticles: " << caloParticles.size() << "\n" << std::endl;
   std::vector<size_t> selected_cPeff;
-  cpParametersAndSelection(histograms,
-                           caloParticles,
-                           simVertices,
-                           selected_cPeff,
-                           totallayers_to_monitor_,
-                           barrelHitMap,
-                           barrelRechitSpan);
+  cpParametersAndSelection(
+      histograms, caloParticles, simVertices, selected_cPeff, totallayers_to_monitor_, barrelHitMap, barrelRechitSpan);
 
   //get collections from the event
   //simClusters
