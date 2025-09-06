@@ -736,7 +736,8 @@ void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures 
           fts.fill("pfcand_isNeutralHad", std::abs(packed_cand->pdgId()) == 130);
           fts.fill("pfcand_dz", ip_sign * packed_cand->dz());
           fts.fill("pfcand_dxy", ip_sign * packed_cand->dxy());
-          fts.fill("pfcand_dzsig", track ? ip_sign * packed_cand->dz() / packed_cand->dzError() : 0);
+          // FIXME: old behavior dzError returned dszError; update after retraining to actual significance
+          fts.fill("pfcand_dzsig", track ? ip_sign * packed_cand->dz() / packed_cand->dszError() : 0);
           fts.fill("pfcand_dxysig", track ? ip_sign * packed_cand->dxy() / packed_cand->dxyError() : 0);
 
         }
@@ -948,7 +949,8 @@ void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures 
         fts.fill("pfcand_mask", 1);
 
         if (track) {
-          fts.fill("jet_pfcand_dzsig", fabs(candidate.dz(pv_ass_pos)) / candidate.dzError());
+          // FIXME: old behavior dzError returned dszError; update after retraining to actual significance
+          fts.fill("jet_pfcand_dzsig", fabs(candidate.dz(pv_ass_pos)) / candidate.dszError());
           fts.fill("jet_pfcand_dxysig", fabs(candidate.dxy(pv_ass_pos)) / candidate.dxyError());
           fts.fill("jet_pfcand_track_chi2", track->normalizedChi2());
           fts.fill("jet_pfcand_track_qual", track->qualityMask());
