@@ -15,6 +15,15 @@ namespace lst {
                       SOA_COLUMN(FPX, dPhiChanges),
                       SOA_COLUMN(FPX, dPhiChangeMins),
                       SOA_COLUMN(FPX, dPhiChangeMaxs),
+#ifdef CUT_VALUE_DEBUG
+                      SOA_COLUMN(FPX, zHis),
+                      SOA_COLUMN(FPX, zLos),
+                      SOA_COLUMN(FPX, rtHis),
+                      SOA_COLUMN(FPX, rtLos),
+                      SOA_COLUMN(FPX, dAlphaInners),
+                      SOA_COLUMN(FPX, dAlphaOuters),
+                      SOA_COLUMN(FPX, dAlphaInnerOuters),
+#endif
                       SOA_COLUMN(uint16_t, innerLowerModuleIndices),
                       SOA_COLUMN(uint16_t, outerLowerModuleIndices),
                       SOA_COLUMN(Params_LS::ArrayUxLayers, mdIndices),
