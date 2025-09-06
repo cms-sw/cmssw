@@ -604,7 +604,7 @@ namespace edm {
     provenances.clear();
     for (auto const& productResolver : *this) {
       if (productResolver->singleProduct() && productResolver->provenanceAvailable() &&
-          !productResolver->productDescription().isAnyAlias()) {
+          !productResolver->productDescription().isAlias()) {
         // We do not attempt to get the event/lumi/run status from the provenance,
         // because the per event provenance may have been dropped.
         if (productResolver->provenance()->productDescription().present()) {
@@ -620,7 +620,7 @@ namespace edm {
   void Principal::getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const {
     provenances.clear();
     for (auto const& productResolver : *this) {
-      if (productResolver->singleProduct() && !productResolver->productDescription().isAnyAlias()) {
+      if (productResolver->singleProduct() && !productResolver->productDescription().isAlias()) {
         if (productResolver->stableProvenance()->productDescription().present()) {
           provenances.push_back(productResolver->stableProvenance());
         }
