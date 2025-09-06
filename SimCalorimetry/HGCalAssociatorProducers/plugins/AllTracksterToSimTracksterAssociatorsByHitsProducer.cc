@@ -10,7 +10,7 @@
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
-#include "DataFormats/HGCalReco/interface/MultiVectorManager.h"
+#include "DataFormats/Common/interface/MultiSpan.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
@@ -104,7 +104,7 @@ void AllTracksterToSimTracksterAssociatorsByHitsProducer::produce(edm::StreamID,
                                                                   const edm::EventSetup&) const {
   using namespace edm;
 
-  MultiVectorManager<HGCRecHit> rechitManager;
+  edm::MultiSpan<HGCRecHit> rechitSpan;
   for (const auto& token : hitsTokens_) {
     Handle<HGCRecHitCollection> hitsHandle;
     iEvent.getByToken(token, hitsHandle);
@@ -114,11 +114,11 @@ void AllTracksterToSimTracksterAssociatorsByHitsProducer::produce(edm::StreamID,
           << "Missing HGCRecHitCollection for one of the hitsTokens.";
       continue;
     }
-    rechitManager.addVector(*hitsHandle);
+    rechitSpan.add(*hitsHandle);
   }
 
-  // Check if rechitManager is empty
-  if (rechitManager.size() == 0) {
+  // Check if rechitSpan is empty
+  if (rechitSpan.size() == 0) {
     edm::LogWarning("AllTracksterToSimTracksterAssociatorsByHitsProducer")
         << "No valid HGCRecHitCollections found. Association maps will be empty.";
 
@@ -267,7 +267,7 @@ void AllTracksterToSimTracksterAssociatorsByHitsProducer::produce(edm::StreamID,
           const auto& hitElement = recoTracksterHitsAndFractions[i];
           unsigned int hitIndex = hitElement.index();
           float recoFraction = hitElement.fraction();
-          const auto& recHit = rechitManager[hitIndex];
+          const auto& recHit = rechitSpan[hitIndex];
           float squaredRecoFraction = recoFraction * recoFraction;
           float rechitEnergy = recHit.energy();
           float squaredRecHitEnergy = rechitEnergy * rechitEnergy;
@@ -325,7 +325,7 @@ void AllTracksterToSimTracksterAssociatorsByHitsProducer::produce(edm::StreamID,
 
         for (unsigned int i = 0; i < recoTracksterHitsAndFractions.size(); ++i) {
           unsigned int hitIndex = recoTracksterHitsAndFractions[i].index();
-          const auto& recHit = rechitManager[hitIndex];
+          const auto& recHit = rechitSpan[hitIndex];
           float recoFraction = recoTracksterHitsAndFractions[i].fraction();
           float rechitEnergy = recHit.energy();
           float squaredRecHitEnergy = rechitEnergy * rechitEnergy;
@@ -377,7 +377,7 @@ void AllTracksterToSimTracksterAssociatorsByHitsProducer::produce(edm::StreamID,
             simFractions[i] = it->fraction();
           }
           float simFraction = simFractions[i];
-          const auto& recHit = rechitManager[hitIndex];
+          const auto& recHit = rechitSpan[hitIndex];
           float rechitEnergy = recHit.energy();
           float squaredSimFraction = simFraction * simFraction;
           float squaredRecHitEnergy = rechitEnergy * rechitEnergy;
@@ -414,7 +414,7 @@ void AllTracksterToSimTracksterAssociatorsByHitsProducer::produce(edm::StreamID,
         for (unsigned int i = 0; i < simTracksterHitsAndFractions.size(); ++i) {
           const auto& hitIndex = simTracksterHitsAndFractions[i].index();
           float simFraction = simFractions[i];
-          const auto& recHit = rechitManager[hitIndex];
+          const auto& recHit = rechitSpan[hitIndex];
           float rechitEnergy = recHit.energy();
           float squaredRecHitEnergy = rechitEnergy * rechitEnergy;
           float simSharedEnergy = rechitEnergy * simFraction;

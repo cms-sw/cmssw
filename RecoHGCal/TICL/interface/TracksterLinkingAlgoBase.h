@@ -19,7 +19,7 @@
 #include "DataFormats/HGCalReco/interface/Common.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
-#include "DataFormats/HGCalReco/interface/MultiVectorManager.h"
+#include "DataFormats/Common/interface/MultiSpan.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
@@ -53,13 +53,13 @@ namespace ticl {
       const edm::EventSetup& es;
       const std::vector<reco::CaloCluster>& layerClusters;
       const edm::ValueMap<std::pair<float, float>>& layerClustersTime;
-      const MultiVectorManager<Trackster>& tracksters;
+      const edm::MultiSpan<Trackster>& tracksters;
 
       Inputs(const edm::Event& eV,
              const edm::EventSetup& eS,
              const std::vector<reco::CaloCluster>& lC,
              const edm::ValueMap<std::pair<float, float>>& lT,
-             const MultiVectorManager<Trackster>& tS)
+             const edm::MultiSpan<Trackster>& tS)
           : ev(eV), es(eS), layerClusters(lC), layerClustersTime(lT), tracksters(tS) {}
     };
 

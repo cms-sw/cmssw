@@ -10,7 +10,7 @@
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
-#include "DataFormats/HGCalReco/interface/MultiVectorManager.h"
+#include "DataFormats/Common/interface/MultiSpan.h"
 
 class AllHitToTracksterAssociatorsProducer : public edm::global::EDProducer<> {
 public:
@@ -65,7 +65,7 @@ void AllHitToTracksterAssociatorsProducer::produce(edm::StreamID, edm::Event& iE
   Handle<std::unordered_map<DetId, const unsigned int>> hitMap;
   iEvent.getByToken(hitMapToken_, hitMap);
 
-  MultiVectorManager<HGCRecHit> rechitManager;
+  edm::MultiSpan<HGCRecHit> rechitSpan;
   for (const auto& token : hitsTokens_) {
     Handle<HGCRecHitCollection> hitsHandle;
     iEvent.getByToken(token, hitsHandle);
@@ -76,11 +76,11 @@ void AllHitToTracksterAssociatorsProducer::produce(edm::StreamID, edm::Event& iE
           << "Missing HGCRecHitCollection for one of the hitsTokens.";
       continue;
     }
-    rechitManager.addVector(*hitsHandle);
+    rechitSpan.add(*hitsHandle);
   }
 
-  // Check if rechitManager is empty
-  if (rechitManager.size() == 0) {
+  // Check if rechitSpan is empty
+  if (rechitSpan.size() == 0) {
     edm::LogWarning("HitToSimClusterCaloParticleAssociatorProducer")
         << "No valid HGCRecHitCollections found. Association maps will be empty.";
     for (const auto& tracksterToken : tracksterCollectionTokens_) {
@@ -101,7 +101,7 @@ void AllHitToTracksterAssociatorsProducer::produce(edm::StreamID, edm::Event& iE
       continue;
     }
 
-    auto hitToTracksterMap = std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(rechitManager.size());
+    auto hitToTracksterMap = std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(rechitSpan.size());
     auto tracksterToHitMap = std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(tracksters->size());
 
     for (unsigned int tracksterId = 0; tracksterId < tracksters->size(); ++tracksterId) {

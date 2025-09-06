@@ -343,7 +343,7 @@ void HGCalValidator::cpParametersAndSelection(const Histograms& histograms,
                                               std::vector<size_t>& selected_cPeff,
                                               unsigned int layers,
                                               std::unordered_map<DetId, const unsigned int> const& hitMap,
-                                              MultiVectorManager<HGCRecHit> const& hits) const {
+                                              edm::MultiSpan<HGCRecHit> const& hits) const {
   selected_cPeff.reserve(cPeff.size());
 
   size_t j = 0;
@@ -416,11 +416,11 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   event.getByToken(hitMap_, hitMapHandle);
   const std::unordered_map<DetId, const unsigned int>& hitMap = *hitMapHandle;
 
-  MultiVectorManager<HGCRecHit> rechitManager;
+  edm::MultiSpan<HGCRecHit> rechitSpan;
   for (const auto& token : hits_tokens_) {
     Handle<HGCRecHitCollection> hitsHandle;
     event.getByToken(token, hitsHandle);
-    rechitManager.addVector(*hitsHandle);
+    rechitSpan.add(*hitsHandle);
   }
 
   //Some general info on layers etc.
@@ -440,7 +440,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   LogTrace("HGCalValidator") << "\n# of CaloParticles: " << caloParticles.size() << "\n" << std::endl;
   std::vector<size_t> selected_cPeff;
   cpParametersAndSelection(
-      histograms, caloParticles, simVertices, selected_cPeff, totallayers_to_monitor_, hitMap, rechitManager);
+      histograms, caloParticles, simVertices, selected_cPeff, totallayers_to_monitor_, hitMap, rechitSpan);
 
   //get collections from the event
   //simClusters
@@ -523,7 +523,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
                                                             totallayers_to_monitor_,
                                                             recSimColl,
                                                             simRecColl,
-                                                            rechitManager);
+                                                            rechitSpan);
 
       //General Info on simClusters
       LogTrace("HGCalValidator") << "\n# of SimClusters: " << nSimClusters
@@ -550,7 +550,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
                                                     thicknesses_to_monitor_,
                                                     recSimColl,
                                                     simRecColl,
-                                                    rechitManager);
+                                                    rechitSpan);
 
     for (unsigned int layerclusterIndex = 0; layerclusterIndex < clusters.size(); layerclusterIndex++) {
       histoProducerAlgo_->fill_cluster_histos(histograms.histoProducerAlgo, w, clusters[layerclusterIndex]);
@@ -612,7 +612,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
                                                 selected_cPeff,
                                                 hitMap,
                                                 totallayers_to_monitor_,
-                                                rechitManager,
+                                                rechitSpan,
                                                 mapsFound,
                                                 trackstersToSimTrackstersMapH,
                                                 simTrackstersToTrackstersMapH,

@@ -18,7 +18,7 @@
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
-#include "DataFormats/HGCalReco/interface/MultiVectorManager.h"
+#include "DataFormats/Common/interface/MultiSpan.h"
 
 class HitToLayerClusterAssociatorProducer : public edm::global::EDProducer<> {
 public:
