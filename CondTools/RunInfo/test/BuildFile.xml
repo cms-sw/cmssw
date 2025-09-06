@@ -5,6 +5,8 @@
 </ifarch>
 <test name="CondToolsRunInfoTest" command="test_runinfo.sh"/>
 <test name="CondToolsLHCInfoTest" command="test_lhcInfo.sh"/>
+<test name="CondToolsLHCInfoAnalyzerTest" command="test_lhcInfo_analyzer.sh"/>
+<test name="CondToolsPrintLHCInfoPerPayloads" command="test_printLHCInfoPerPayloads.sh"/>
 <ifarch value="x86_64">
 <test name="CondToolsLHCInfoNewPopConTest" command="test_lhcInfoNewPopCon.sh"/>
 </ifarch>
