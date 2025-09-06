@@ -1,3 +1,4 @@
+
 // -*- C++ -*-
 //
 // Package:    Phase2TrackerMonitorDigi
@@ -605,7 +606,12 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
                                                           Parameters.getParameter<double>("xmax"),
                                                           "");
 
-      Parameters = config_.getParameter<edm::ParameterSet>("PositionOfDigisSH");
+      // choose the correct PSet by module type
+      if (isPtypeSensor) {
+        Parameters = config_.getParameter<edm::ParameterSet>("PositionOfDigisSHPS");
+      } else {
+        Parameters = config_.getParameter<edm::ParameterSet>("PositionOfDigisSH2S");
+      }
       HistoName.str("");
       HistoName << "PositionOfDigisS";
       if (Parameters.getParameter<bool>("switch"))
@@ -620,7 +626,13 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
 
       // For standalone clusteriser
       if (clsFlag_) {
-        Parameters = config_.getParameter<edm::ParameterSet>("ClusterPositionSH");
+        // Choose the correct PSet by module type
+        if (isPtypeSensor) {
+          Parameters = config_.getParameter<edm::ParameterSet>("ClusterPositionSHPS");
+        } else {
+          Parameters = config_.getParameter<edm::ParameterSet>("ClusterPositionSH2S");
+        }
+
         HistoName.str("");
         HistoName << "ClusterPositionS";
         if (Parameters.getParameter<bool>("switch"))
