@@ -32,15 +32,15 @@ def customizePixelTracksForTriplets(process):
                626, 522, 522, 626, 626,
                626, 522, 522, 522, 522,
                522, 522, 522, 522]
-            producer.geometry.minZ = [-20., 0., -30., -22., 10., 
+            producer.geometry.minInner = [-20., 0., -30., -22., 10., 
                -30., -70., -70., -22., 15., 
                -30, -70., -70., -20., -22., 
                0, -30., -70., -70.]
-            producer.geometry.maxZ = [20., 30., 0., 22., 30., 
+            producer.geometry.maxInner = [20., 30., 0., 22., 30., 
                -10., 70., 70., 22., 30., 
                -15., 70., 70., 20., 22., 
                30., 0., 70., 70.]
-            producer.geometry.maxR = [20., 9., 9., 20., 7., 
+            producer.geometry.maxDR = [20., 9., 9., 20., 7., 
                7., 5., 5., 20., 6., 
                6., 5., 5., 20., 20., 
                9., 9., 9., 9.]
