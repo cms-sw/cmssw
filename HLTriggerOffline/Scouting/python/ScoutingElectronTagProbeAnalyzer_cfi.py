@@ -14,8 +14,8 @@ ScoutingElectronTagProbeAnalysisOffline = DQMEDAnalyzer('ScoutingElectronTagProb
                                                  )
 
 ScoutingElectronTagProbeAnalysisOnline = ScoutingElectronTagProbeAnalysisOffline.clone(
-                                                 OutputInternalPath = cms.string('/HLT/ScoutingOnline/EGamma/TnP/Tag_ScoutingElectron'),
-                                                 useOfflineObject = cms.bool(False)
+                                                 OutputInternalPath = '/HLT/ScoutingOnline/EGamma/TnP/Tag_ScoutingElectron',
+                                                 useOfflineObject = False
                                                  )
 
 scoutingMonitoringTagProbeOffline = cms.Sequence(ScoutingElectronTagProbeAnalysisOffline)
