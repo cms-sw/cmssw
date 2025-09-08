@@ -603,7 +603,6 @@ class PreSourceTransitionParser(SourceTransitionParser):
 class PostSourceTransitionParser(SourceTransitionParser):
     def __init__(self, payload, moduleCentric):
         super().__init__(payload)
-        #print(payload)
         if self.index == -1:
             self.allocInfo = AllocInfo(payload[2:])
         else:
@@ -1424,7 +1423,6 @@ class TestModuleCommand(unittest.TestCase):
     def testJson(self):
         parser = ModuleAllocCompactFileParser(self.tracerFile, False)
         j = jsonInfo(parser, False)
-        #print(j)
         self.assertEqual(len(j.data()),3) 
         self.assertEqual(len(j.data()["source"]), 10)
         self.assertEqual(len(j.data()["Module"]), 8)
@@ -1436,7 +1434,6 @@ class TestModuleCommand(unittest.TestCase):
     def testSortBy(self):
         parser = ModuleAllocCompactFileParser(self.tracerFile, True)
         d = sortByAttribute(parser, 'maxTemp')
-        #print(d)
         self.assertEqual(len(d), 3)
         self.assertEqual(d[0][0], 'ESModule')
         self.assertEqual(d[1][0], 'Module')
@@ -1444,7 +1441,6 @@ class TestModuleCommand(unittest.TestCase):
     def testFullVisualization(self):
         parser = ModuleAllocCompactFileParser(self.tracerFile, False)
         j = jsonVisualizationInfo(parser)
-        #print(j)
         self.assertEqual(len(j["modules"]), 2)
         self.assertEqual(len(j["esModules"]), 2)
         self.assertEqual(len(j['transitions']), 3)
@@ -1463,7 +1459,6 @@ class TestModuleCommand(unittest.TestCase):
     def testModuleCentricVisualization(self):
         parser = ModuleAllocCompactFileParser(self.tracerFile, True)
         j = jsonVisualizationInfo(parser)
-        #print(j)
         self.assertEqual(len(j["modules"]), 2)
         self.assertEqual(len(j["esModules"]), 2)
         self.assertEqual(len(j['transitions']), 6)
@@ -1520,7 +1515,6 @@ if __name__=="__main__":
                         help='''Run internal tests.''')
 
     args = parser.parse_args()
-    #breakpoint()
 
     if args.test:
         runTests()
