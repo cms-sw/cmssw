@@ -7,31 +7,31 @@ along with the total luminosity and the statistical error.
 authors:Sam Higginbotham (shigginb@cern.ch), Chris Palmer (capalmer@cern.ch), Jose Benitez (jose.benitez@cern.ch)
 
 ________________________________________________________________**/
-#include <string>
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <mutex>
 #include <cmath>
-#include "DataFormats/Luminosity/interface/PixelClusterCounts.h"
-#include "DataFormats/Luminosity/interface/LumiInfo.h"
-#include "DataFormats/Luminosity/interface/LumiConstants.h"
-#include "CondFormats/Luminosity/interface/LumiCorrections.h"
+#include <fstream>
+#include <iostream>
+#include <mutex>
+#include <string>
+#include <vector>
 #include "CondFormats/DataRecord/interface/LumiCorrectionsRcd.h"
-#include "CondFormats/Luminosity/interface/PccVetoList.h"
 #include "CondFormats/DataRecord/interface/PccVetoListRcd.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
+#include "CondFormats/Luminosity/interface/LumiCorrections.h"
+#include "CondFormats/Luminosity/interface/PccVetoList.h"
+#include "DataFormats/Luminosity/interface/LumiConstants.h"
+#include "DataFormats/Luminosity/interface/LumiInfo.h"
+#include "DataFormats/Luminosity/interface/PixelClusterCounts.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/EDGetToken.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 class RawPCCProducerDynVeto : public edm::global::EDProducer<edm::EndLuminosityBlockProducer> {
 public:

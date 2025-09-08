@@ -24,63 +24,57 @@ modified:
 CondFormats/Luminosity/src/classes_def.xml
 CondFormats/Luminosity/test/BuildFile.xml
 ________________________________________________________________**/
-#include <memory>
-#include <string>
-#include <vector>
 #include <boost/serialization/vector.hpp>
+#include <cmath>
 #include <iostream>
 #include <map>
-#include <utility>
+#include <memory>
 #include <mutex>
-#include <cmath>
-
-#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "CondFormats/Luminosity/interface/PccVetoList.h"
-#include "CondFormats/DataRecord/interface/PccVetoListRcd.h"
-#include "CondFormats/Serialization/interface/Serializable.h"
-#include "DataFormats/Luminosity/interface/PixelClusterCounts.h"
-#include "DataFormats/Luminosity/interface/LumiInfo.h"
-#include "DataFormats/Luminosity/interface/LumiConstants.h"
-#include "DataFormats/Provenance/interface/LuminosityBlockRange.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/FileBlock.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/IOVSyncValue.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/EDGetToken.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Framework/interface/Run.h"
-
+#include <string>
 #include <TROOT.h>
-#include "TFile.h"
+#include <utility>
+#include <vector>
 
-#include "TMath.h"
-#include "TH1.h"
 #include "TCanvas.h"
+#include "TFile.h"
+#include "TH1.h"
 #include "TLine.h"
-
-
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
-#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "DataFormats/Luminosity/interface/PccVetoListTransient.h"
+#include "TMath.h"
 
 #include "Calibration/LumiAlCaRecoProducers/plugins/DQMOneEDProducer.h"
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "CondFormats/DataRecord/interface/PccVetoListRcd.h"
+#include "CondFormats/Luminosity/interface/PccVetoList.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/Luminosity/interface/LumiConstants.h"
+#include "DataFormats/Luminosity/interface/LumiInfo.h"
+#include "DataFormats/Luminosity/interface/PccVetoListTransient.h"
+#include "DataFormats/Luminosity/interface/PixelClusterCounts.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockRange.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/FileBlock.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/IOVSyncValue.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+
 
 
 enum class TrackerRegion {
