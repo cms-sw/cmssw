@@ -21,4 +21,3 @@ from Configuration.ProcessModifiers.phase2CAExtension_cff import phase2CAExtensi
 phase2CAExtension.toModify(hltPhase2PixelVertices,
     TrackCollection = "hltPhase2PixelTracksCAExtension"
 )
-

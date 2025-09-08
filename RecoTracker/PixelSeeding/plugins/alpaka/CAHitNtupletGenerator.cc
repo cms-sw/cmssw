@@ -272,7 +272,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             std::vector<int>(std::begin(phicuts), std::begin(phicuts) + pixelTopology::Phase1::nPairsForQuadruplets))
         ->setComment("Cuts in phi for cells");
     geometryParams
-        .add<std::vector<double>>("ptCuts", std::vector<double>(std::begin(ptcuts), std::begin(ptcuts) + nPairs))
+        .add<std::vector<double>>(
+            "ptCuts",
+            std::vector<double>(std::begin(ptcuts), std::begin(ptcuts) + pixelTopology::Phase1::nPairsForQuadruplets))
         ->setComment("Cuts in pt for cells");
     geometryParams
         .add<std::vector<double>>(
@@ -363,7 +365,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                     pixelTopology::Phase1::nPairsForQuadruplets))
         ->setComment("Cuts in phi for cells");
     geometryParams
-        .add<std::vector<double>>("ptCuts", std::vector<double>(std::begin(ptcuts), std::begin(ptcuts) + nPairs))
+        .add<std::vector<double>>(
+            "ptCuts",
+            std::vector<double>(std::begin(ptcuts), std::begin(ptcuts) + pixelTopology::Phase1::nPairsForQuadruplets))
         ->setComment("Cuts in pt for cells");
     geometryParams
         .add<std::vector<double>>(
