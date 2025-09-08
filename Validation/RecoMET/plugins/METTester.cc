@@ -286,11 +286,11 @@ void METTester::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
   mMETPhi->Fill(METPhi);
 
   for (unsigned metIdx = 0; metIdx < mNMETBins; ++metIdx) {
-    if (MET > mMETBins[metIdx] && MET < mMETBins[metIdx+1])
+    if (MET >= mMETBins[metIdx] && MET < mMETBins[metIdx+1])
       mMET_METBins[metIdx]->Fill(MET);
   }
   for (unsigned metIdx = 0; metIdx < mNPhiBins; ++metIdx) {
-    if (METPhi > mPhiBins[metIdx] && METPhi < mPhiBins[metIdx+1])
+    if (METPhi >= mPhiBins[metIdx] && METPhi < mPhiBins[metIdx+1])
       mMET_PhiBins[metIdx]->Fill(MET);
   }
 

@@ -37,7 +37,7 @@ void METTesterPostProcessor::dqmEndJob(DQMStore::IBooker &ibook_, DQMStore::IGet
 void METTesterPostProcessor::mFillAggrHistograms(std::string metdir, DQMStore::IGetter &iget) {
   for (std::string bt: {"MET", "Phi"}) { // loop over bin types
 	for (unsigned idx = 0; idx < mNBins[bt]-1; ++idx) {
-	  std::string edges = METTester::binStr(mArrayIdx<float>(mEdges[bt], idx), mArrayIdx<float>(mEdges[bt], idx+1), true);
+	  std::string edges = METTester::binStr(mArrayIdx<float>(mEdges[bt], idx), mArrayIdx<float>(mEdges[bt], idx+1), bt == "MET");
 	  mArrayIdx<MElem*>(mMET[bt], idx)						= iget.get(metdir + "/MET_" + bt.c_str() + edges);
 	  mArrayIdx<MElem*>(mMETDiff_GenMETTrue[bt], idx)		= iget.get(metdir + "/METDiff_GenMETTrue_" + bt.c_str() + edges);
 	  mArrayIdx<MElem*>(mMETRatio_GenMETTrue[bt], idx)		= iget.get(metdir + "/METRatio_GenMETTrue_" + bt.c_str() + edges);
@@ -50,9 +50,7 @@ void METTesterPostProcessor::mFillAggrHistograms(std::string metdir, DQMStore::I
 	  for (unsigned idx = 0; idx < mNBins[bt]-1; ++idx) {
 		mMETDiffAggr[bt]->setBinContent(idx+1, mArrayIdx<MElem*>(mMETDiff_GenMETTrue[bt], idx)->getMean());
 		mMETDiffAggr[bt]->setBinError(idx+1, mArrayIdx<MElem*>(mMETDiff_GenMETTrue[bt], idx)->getRMS());
-		std::cout << mArrayIdx<MElem*>(mMETDiff_GenMETTrue[bt], idx)->getMean() << std::endl;
-		std::cout << mArrayIdx<MElem*>(mMETDiff_GenMETTrue[bt], idx)->getRMS() << std::endl;
-		std::cout << std::endl;
+		
 		float ratioMean = mArrayIdx<MElem*>(mMETRatio_GenMETTrue[bt], idx)->getMean();
 		float ratioRMS = mArrayIdx<MElem*>(mMETRatio_GenMETTrue[bt], idx)->getRMS();
 		mMETRespAggr[bt]->setBinContent(idx+1, ratioMean);

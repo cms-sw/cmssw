@@ -143,8 +143,8 @@ if __name__ == '__main__':
         'METPhi'                  : (r'MET $\phi$', 2),
         'METDeltaPhi_GenMETCalo'  : (r'Calo MET $\Delta\phi$', 2),
         'METDeltaPhi_GenMETTrue'  : (r'True MET $\Delta\phi$', 2),
-        'METDiff_GenMETCalo'      : (r'MET - gen MET$_{Calo}$', 6),
-        'METDiff_GenMETTrue'      : (r'MET - gen MET$_{True}$', 6),
+        'METDiff_GenMETCalo'      : (r'MET - gen MET$_{Calo}$', 10),
+        'METDiff_GenMETTrue'      : (r'MET - gen MET$_{True}$', 10),
         'METSignPseudo'           : ('MET Significance (Event-by-event)', None), # Et / std: (: (sqrt(sumEt)
         'METSignReal'             : ('MET Significance (Likelihood)', None), # covariance matrix missing
         'MET_Nvtx'                : ('Number of vertices (MET-weighted)', 6),
@@ -206,8 +206,8 @@ if __name__ == '__main__':
         plotter.ax.text(0.03, 0.97, METType, transform=plotter.ax.transAxes, fontsize=fontsize,
                         verticalalignment='top', horizontalalignment='left')
 
-        diff_step = 0.05 * (max(values)-min(values))
-        plotter.limits(y=(min(values) - diff_step, 1.2*max(values)), logY=False)
+        diff_step = 0.05 * abs(max(values)-min(values))
+        plotter.limits(y=(min(values) - diff_step, max(values) + diff_step), logY=False)
         plotter.labels(x=xlabel, y=ylabel)
 
         plotter.save( os.path.join(args.odir, var) )
@@ -219,7 +219,7 @@ if __name__ == '__main__':
     if not file.Get(dqm_dir):
         raise RuntimeError(f"Directory '{turnon_dir}' not found in {args.file}")
 
-    var1dNames = ('_meTurnOngMET', '_meTurnOngMETLow', '_meTurnOnhMET', '_meTurnOnhMETLow')
+    var1dNames = ('TurnOngMET', 'TurnOngMETLow', 'TurnOnhMET', 'TurnOnhMETLow')
 
     for var in var1dNames:
         plotter = Plotter(args.sample_label)
