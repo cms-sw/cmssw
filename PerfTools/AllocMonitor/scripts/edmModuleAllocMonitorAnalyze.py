@@ -310,7 +310,6 @@ class ModuleCentricModuleData(object):
     def insert(self, label, cpptype, start, stop, transition, index, sync, activity, allocInfo, recordName=None, callID=None):
         if label not in self._data:
             self._data[label] = []
-        if cpptype not in self._cpptypes:
             self._cpptypes[label] = cpptype
         self._data[label].append(ModuleData(start, stop, transition, sync, activity, allocInfo, recordName, callID))
         self._last[(label, transition, index, activity)] = self._data[label][-1]
@@ -507,7 +506,7 @@ class PostFrameworkTransitionParser (FrameworkTransitionParser):
     def jsonInfo(self, syncs, temp, data):
         if self.transition == Phase.clearEvent:
             start = temp.findTime("clearEvent", self.transition, self.index)
-            data.insert( "clearEvent" , "cleatEventType", start, self.time, self.transition, self.index, syncs.get(Phase.Event, self.index) , Activity.process, self.alloc)
+            data.insert( "clearEvent" , "clearEventType", start, self.time, self.transition, self.index, syncs.get(Phase.Event, self.index) , Activity.process, self.alloc)
     def jsonVisInfo(self,  data):
         if transitionIsGlobal(self.transition):
             index = findMatchingTransition(list(self.sync), data.allGlobals())
