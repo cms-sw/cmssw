@@ -280,7 +280,7 @@ class ModuleData(object):
         self.allocInfo = allocInfo
         self.record = (recordName, callID)
     def __repr__(self):
-        if len(self.record) == 2:
+        if self.record[0]:
             return "{{ 'timeRange': {}, 'transition': {}, 'sync' :{}, 'activity':{}, 'record': {{'name' : {}, 'callID' :{} }}, 'alloc':{} }}".format(self.timeRange, self.transition, self.sync, self.activity, self.record[0], self.record[1], self.allocInfo)
 
         return "{{ 'timeRange': {}, 'transition': {}, 'sync' :{}, 'activity':{}, 'alloc':{} }}".format(self.timeRange, self.transition, self.sync, self.activity, self.allocInfo)
@@ -332,7 +332,7 @@ class ModuleCentricModuleData(object):
             else:
                 modules[m]=[]
                 l = modules[m]
-                cpptypes[m]=self._cpptypes.get(m)
+                cpptypes[m]=self._cpptypes[m]
             for d in lst:
                 l.append( d.toSimpleDict() )
         return dct
