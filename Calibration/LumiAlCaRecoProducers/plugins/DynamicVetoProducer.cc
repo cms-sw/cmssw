@@ -162,11 +162,11 @@ private:
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) final;
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) final;
   // void dqmEndRun(const edm::Run & runSeg, const edm::EventSetup& iSetup);
-  void dqmEndRun(edm::Run& runSeg, const edm::EventSetup& iSetup);
+  void dqmEndRun(edm::Run& runSeg, const edm::EventSetup& iSetup) override;
   void endJob() final;
 
   // must have
-  void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& context) {}
+  void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& context) override {}
 
   //
   void makePlot(std::string name,
@@ -269,6 +269,7 @@ std::vector<double> DynamicVetoProducer::getQuantile(const std::map<int, double>
     return std::vector<double>(probs.size(), inData.begin()->second);
 
   std::vector<double> data;
+  data.reserve(inData.size());
   for (const auto& [key, value] : inData)
     data.push_back(value);
   std::sort(data.begin(), data.end());
