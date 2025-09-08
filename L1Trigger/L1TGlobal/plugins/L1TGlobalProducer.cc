@@ -139,23 +139,25 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet)
       m_semiRandomInitialPSCounters(parSet.getParameter<bool>("semiRandomInitialPSCounters")),
       m_useMuonShowers(parSet.getParameter<bool>("useMuonShowers")),
       m_produceAXOL1TLScore(parSet.getParameter<bool>("produceAXOL1TLScore")) {
-  m_egInputToken = consumes<BXVector<EGamma>>(m_egInputTag);
-  m_tauInputToken = consumes<BXVector<Tau>>(m_tauInputTag);
-  m_jetInputToken = consumes<BXVector<Jet>>(m_jetInputTag);
-  m_sumInputToken = consumes<BXVector<EtSum>>(m_sumInputTag);
-  m_sumZdcInputToken = consumes<BXVector<EtSum>>(m_sumZdcInputTag);
-  m_CICADAInputToken = consumes<BXVector<float>>(m_CICADAInputTag);
-  m_muInputToken = consumes<BXVector<Muon>>(m_muInputTag);
+  m_egInputToken = consumes(m_egInputTag);
+  m_tauInputToken = consumes(m_tauInputTag);
+  m_jetInputToken = consumes(m_jetInputTag);
+  m_sumInputToken = consumes(m_sumInputTag);
+  m_sumZdcInputToken = consumes(m_sumZdcInputTag);
+  m_CICADAInputToken = consumes(m_CICADAInputTag);
+  m_muInputToken = consumes(m_muInputTag);
   if (m_useMuonShowers)
-    m_muShowerInputToken = consumes<BXVector<MuonShower>>(m_muShowerInputTag);
-  m_extInputToken = consumes<BXVector<GlobalExtBlk>>(m_extInputTag);
-  m_l1GtStableParToken = esConsumes<L1TGlobalParameters, L1TGlobalParametersRcd>();
-  m_l1GtMenuToken = esConsumes<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd>();
+    m_muShowerInputToken = consumes(m_muShowerInputTag);
+  m_extInputToken = consumes(m_extInputTag);
+  m_l1GtStableParToken = esConsumes<edm::Transition::BeginRun>();
+  m_l1GtMenuToken = esConsumes<edm::Transition::BeginRun>();
+
   if (!(m_algorithmTriggersUnprescaled && m_algorithmTriggersUnmasked)) {
-    m_l1GtPrescaleVetosToken = esConsumes<L1TGlobalPrescalesVetosFract, L1TGlobalPrescalesVetosFractRcd>();
+    m_l1GtPrescaleVetosToken = esConsumes();
   }
+
   if (m_getPrescaleColumnFromData || m_requireMenuToMatchAlgoBlkInput) {
-    m_algoblkInputToken = consumes<BXVector<GlobalAlgBlk>>(m_algoblkInputTag);
+    m_algoblkInputToken = consumes(m_algoblkInputTag);
   }
 
   if (m_verbosity) {
@@ -227,11 +229,7 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet)
   m_uGtBrd->setResetPSCountersEachLumiSec(m_resetPSCountersEachLumiSec);
   m_uGtBrd->setSemiRandomInitialPSCounters(m_semiRandomInitialPSCounters);
 
-  // initialize cached IDs
-
-  //
-  m_l1GtParCacheID = 0ULL;
-  m_l1GtMenuCacheID = 0ULL;
+  m_utml1GtMenu = nullptr;
 
   m_numberPhysTriggers = 0;
   m_numberDaqPartitions = 0;
@@ -246,9 +244,6 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet)
   m_ifMuEtaNumberBits = 0;
   m_ifCaloEtaNumberBits = 0;
 
-  //
-  m_l1GtParCacheID = 0ULL;
-
   m_totalBxInEvent = 0;
 
   m_activeBoardsGtDaq = 0;
@@ -256,15 +251,9 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet)
 
   //
   m_l1GtBMCacheID = 0ULL;
-
-  //
   m_l1GtPfAlgoCacheID = 0ULL;
-
   m_l1GtTmAlgoCacheID = 0ULL;
-
   m_l1GtTmVetoAlgoCacheID = 0ULL;
-
-  m_currentLumi = 0;
 
   // Set default, initial, dummy prescale factor table
   std::vector<std::vector<double>> temp_prescaleTable;
@@ -273,66 +262,52 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet)
   m_initialPrescaleFactorsAlgoTrig = temp_prescaleTable;
 }
 
-// destructor
-L1TGlobalProducer::~L1TGlobalProducer() {}
-
-// member functions
-
-// method called to produce the data
-void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup) {
-  // process event iEvent
+// method called once at the beginning of every Run
+void L1TGlobalProducer::beginRun(edm::Run const& iRun, const edm::EventSetup& evSetup) {
   // get / update the stable parameters from the EventSetup
-  // local cache & check on cacheIdentifier
 
-  unsigned long long l1GtParCacheID = evSetup.get<L1TGlobalParametersRcd>().cacheIdentifier();
+  auto const& l1GtStablePar = evSetup.getData(m_l1GtStableParToken);
+  const GlobalParamsHelper* data = GlobalParamsHelper::readFromEventSetup(&l1GtStablePar);
 
-  if (m_l1GtParCacheID != l1GtParCacheID) {
-    edm::ESHandle<L1TGlobalParameters> l1GtStablePar = evSetup.getHandle(m_l1GtStableParToken);
-    m_l1GtStablePar = l1GtStablePar.product();
-    const GlobalParamsHelper* data = GlobalParamsHelper::readFromEventSetup(m_l1GtStablePar);
+  // number of bx
+  m_totalBxInEvent = data->totalBxInEvent();
 
-    // number of bx
-    m_totalBxInEvent = data->totalBxInEvent();
+  // number of physics triggers
+  m_numberPhysTriggers = data->numberPhysTriggers();
 
-    // number of physics triggers
-    m_numberPhysTriggers = data->numberPhysTriggers();
+  // number of objects of each type
+  m_nrL1Mu = data->numberL1Mu();
 
-    // number of objects of each type
-    m_nrL1Mu = data->numberL1Mu();
+  // There should be at most 1 muon shower object per BX
+  // This object contains information for the in-time
+  // showers and out-of-time showers
+  if (m_useMuonShowers)
+    m_nrL1MuShower = 1;
 
-    // There should be at most 1 muon shower object per BX
-    // This object contains information for the in-time
-    // showers and out-of-time showers
-    if (m_useMuonShowers)
-      m_nrL1MuShower = 1;
+  // EG
+  m_nrL1EG = data->numberL1EG();
 
-    // EG
-    m_nrL1EG = data->numberL1EG();
+  // jets
+  m_nrL1Jet = data->numberL1Jet();
 
-    // jets
-    m_nrL1Jet = data->numberL1Jet();
+  // taus
+  m_nrL1Tau = data->numberL1Tau();
 
-    // taus
-    m_nrL1Tau = data->numberL1Tau();
+  if (m_L1DataBxInEvent < 1)
+    m_L1DataBxInEvent = 1;
 
-    if (m_L1DataBxInEvent < 1)
-      m_L1DataBxInEvent = 1;
-    int minL1DataBxInEvent = (m_L1DataBxInEvent + 1) / 2 - m_L1DataBxInEvent;
-    int maxL1DataBxInEvent = (m_L1DataBxInEvent + 1) / 2 - 1;
+  int const minL1DataBxInEvent = (m_L1DataBxInEvent + 1) / 2 - m_L1DataBxInEvent;
+  int const maxL1DataBxInEvent = (m_L1DataBxInEvent + 1) / 2 - 1;
 
-    // Initialize Board
-    m_uGtBrd->init(m_numberPhysTriggers,
-                   m_nrL1Mu,
-                   m_nrL1MuShower,
-                   m_nrL1EG,
-                   m_nrL1Tau,
-                   m_nrL1Jet,
-                   minL1DataBxInEvent,
-                   maxL1DataBxInEvent);
-
-    //
-    m_l1GtParCacheID = l1GtParCacheID;
-  }
+  // Initialize Board
+  m_uGtBrd->init(m_numberPhysTriggers,
+                 m_nrL1Mu,
+                 m_nrL1MuShower,
+                 m_nrL1EG,
+                 m_nrL1Tau,
+                 m_nrL1Jet,
+                 minL1DataBxInEvent,
+                 maxL1DataBxInEvent);
 
   if (m_emulateBxInEvent < 0) {
     m_emulateBxInEvent = m_totalBxInEvent;
@@ -340,80 +315,52 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 
   if (m_emulateBxInEvent < 1)
     m_emulateBxInEvent = 1;
-  int minEmulBxInEvent = (m_emulateBxInEvent + 1) / 2 - m_emulateBxInEvent;
-  int maxEmulBxInEvent = (m_emulateBxInEvent + 1) / 2 - 1;
 
   // get / update the trigger menu from the EventSetup
-  // local cache & check on cacheIdentifier
-  unsigned long long l1GtMenuCacheID = evSetup.get<L1TUtmTriggerMenuRcd>().cacheIdentifier();
 
-  if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
-    const GlobalParamsHelper* data = GlobalParamsHelper::readFromEventSetup(m_l1GtStablePar);
+  // Instantiate Parser
+  TriggerMenuParser gtParser = TriggerMenuParser();
+  gtParser.setGtNumberConditionChips(data->numberChips());
+  gtParser.setGtPinsOnConditionChip(data->pinsOnChip());
+  gtParser.setGtOrderConditionChip(data->orderOfChip());
+  gtParser.setGtNumberPhysTriggers(data->numberPhysTriggers());
 
-    edm::ESHandle<L1TUtmTriggerMenu> l1GtMenu = evSetup.getHandle(m_l1GtMenuToken);
-    const L1TUtmTriggerMenu* utml1GtMenu = l1GtMenu.product();
+  // parse menu into emulator classes
+  m_utml1GtMenu = &(evSetup.getData(m_l1GtMenuToken));
+  gtParser.parseCondFormats(m_utml1GtMenu);
 
-    if (m_requireMenuToMatchAlgoBlkInput) {
-      edm::Handle<BXVector<GlobalAlgBlk>> m_uGtAlgBlk;
-      iEvent.getByToken(m_algoblkInputToken, m_uGtAlgBlk);
-      if (m_uGtAlgBlk->size() >= 1) {
-        if ((*m_uGtAlgBlk)[0].getL1FirmwareUUID() != static_cast<int>(utml1GtMenu->getFirmwareUuidHashed())) {
-          throw cms::Exception("ConditionsError")
-              << " Error L1 menu loaded in via conditions does not match the L1 actually run "
-              << (*m_uGtAlgBlk)[0].getL1FirmwareUUID() << " vs " << utml1GtMenu->getFirmwareUuidHashed()
-              << ". This means that the mapping of the names to the bits may be incorrect. Please check the "
-                 "L1TUtmTriggerMenuRcd record supplied. Unless you know what you are doing, do not simply disable this "
-                 "check via the config as this a major error and the indication of something very wrong";
-        }
-      }
-    }
+  // transfer the condition map and algorithm map from parser to L1uGtTriggerMenu
+  m_l1GtMenu = std::make_unique<TriggerMenu>(gtParser.gtTriggerMenuName(),
+                                             data->numberChips(),
+                                             gtParser.vecMuonTemplate(),
+                                             gtParser.vecMuonShowerTemplate(),
+                                             gtParser.vecCaloTemplate(),
+                                             gtParser.vecEnergySumTemplate(),
+                                             gtParser.vecEnergySumZdcTemplate(),
+                                             gtParser.vecAXOL1TLTemplate(),
+                                             gtParser.vecCICADATemplate(),
+                                             gtParser.vecExternalTemplate(),
+                                             gtParser.vecCorrelationTemplate(),
+                                             gtParser.vecCorrelationThreeBodyTemplate(),
+                                             gtParser.vecCorrelationWithOverlapRemovalTemplate(),
+                                             gtParser.corMuonTemplate(),
+                                             gtParser.corCaloTemplate(),
+                                             gtParser.corEnergySumTemplate());
 
-    // Instantiate Parser
-    TriggerMenuParser gtParser = TriggerMenuParser();
+  m_l1GtMenu->setGtTriggerMenuInterface(gtParser.gtTriggerMenuInterface());
+  m_l1GtMenu->setGtTriggerMenuImplementation(gtParser.gtTriggerMenuImplementation());
+  m_l1GtMenu->setGtScaleDbKey(gtParser.gtScaleDbKey());
+  m_l1GtMenu->setGtScales(gtParser.gtScales());
+  m_l1GtMenu->setGtTriggerMenuUUID(gtParser.gtTriggerMenuUUID());
 
-    gtParser.setGtNumberConditionChips(data->numberChips());
-    gtParser.setGtPinsOnConditionChip(data->pinsOnChip());
-    gtParser.setGtOrderConditionChip(data->orderOfChip());
-    gtParser.setGtNumberPhysTriggers(data->numberPhysTriggers());
+  m_l1GtMenu->setGtAlgorithmMap(gtParser.gtAlgorithmMap());
+  m_l1GtMenu->setGtAlgorithmAliasMap(gtParser.gtAlgorithmAliasMap());
 
-    //Parse menu into emulator classes
-    gtParser.parseCondFormats(utml1GtMenu);
+  m_l1GtMenu->buildGtConditionMap();
 
-    // transfer the condition map and algorithm map from parser to L1uGtTriggerMenu
-    m_l1GtMenu = std::make_unique<TriggerMenu>(gtParser.gtTriggerMenuName(),
-                                               data->numberChips(),
-                                               gtParser.vecMuonTemplate(),
-                                               gtParser.vecMuonShowerTemplate(),
-                                               gtParser.vecCaloTemplate(),
-                                               gtParser.vecEnergySumTemplate(),
-                                               gtParser.vecEnergySumZdcTemplate(),
-                                               gtParser.vecAXOL1TLTemplate(),
-                                               gtParser.vecCICADATemplate(),
-                                               gtParser.vecExternalTemplate(),
-                                               gtParser.vecCorrelationTemplate(),
-                                               gtParser.vecCorrelationThreeBodyTemplate(),
-                                               gtParser.vecCorrelationWithOverlapRemovalTemplate(),
-                                               gtParser.corMuonTemplate(),
-                                               gtParser.corCaloTemplate(),
-                                               gtParser.corEnergySumTemplate());
-
-    m_l1GtMenu->setGtTriggerMenuInterface(gtParser.gtTriggerMenuInterface());
-    m_l1GtMenu->setGtTriggerMenuImplementation(gtParser.gtTriggerMenuImplementation());
-    m_l1GtMenu->setGtScaleDbKey(gtParser.gtScaleDbKey());
-    m_l1GtMenu->setGtScales(gtParser.gtScales());
-    m_l1GtMenu->setGtTriggerMenuUUID(gtParser.gtTriggerMenuUUID());
-
-    m_l1GtMenu->setGtAlgorithmMap(gtParser.gtAlgorithmMap());
-    m_l1GtMenu->setGtAlgorithmAliasMap(gtParser.gtAlgorithmAliasMap());
-
-    m_l1GtMenu->buildGtConditionMap();
-
-    int printV = 2;
-    if (m_printL1Menu)
-      m_l1GtMenu->print(std::cout, printV);
-
-    m_l1GtMenuCacheID = l1GtMenuCacheID;
-  }
+  int printV = 2;
+  if (m_printL1Menu)
+    m_l1GtMenu->print(std::cout, printV);
 
   // get / update the board maps from the EventSetup
   // local cache & check on cacheIdentifier
@@ -439,48 +386,6 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
     // TODO need changes in CondFormats to cache the maps
     const std::vector<L1GtBoard>& boardMaps = m_l1GtBM->gtBoardMaps();
 */
-  // get / update the prescale factors from the EventSetup
-  // local cache & check on cacheIdentifier
-
-  // Only get event record if not unprescaled and not unmasked
-  if (!(m_algorithmTriggersUnprescaled && m_algorithmTriggersUnmasked)) {
-    unsigned long long l1GtPfAlgoCacheID = evSetup.get<L1TGlobalPrescalesVetosFractRcd>().cacheIdentifier();
-
-    if (m_l1GtPfAlgoCacheID != l1GtPfAlgoCacheID) {
-      edm::ESHandle<L1TGlobalPrescalesVetosFract> l1GtPrescalesFractVetoes =
-          evSetup.getHandle(m_l1GtPrescaleVetosToken);
-      const L1TGlobalPrescalesVetosFract* es = l1GtPrescalesFractVetoes.product();
-      m_l1GtPrescalesVetosFract = PrescalesVetosFractHelper::readFromEventSetup(es);
-
-      m_prescaleFactorsAlgoTrig = &(m_l1GtPrescalesVetosFract->prescaleTable());
-      m_triggerMaskVetoAlgoTrig = &(m_l1GtPrescalesVetosFract->triggerMaskVeto());
-
-      m_l1GtPfAlgoCacheID = l1GtPfAlgoCacheID;
-    }
-    if (m_getPrescaleColumnFromData &&
-        (m_currentLumi != iEvent.luminosityBlock())) {  // get prescale column from unpacked data
-
-      m_currentLumi = iEvent.luminosityBlock();
-
-      edm::Handle<BXVector<GlobalAlgBlk>> m_uGtAlgBlk;
-      iEvent.getByToken(m_algoblkInputToken, m_uGtAlgBlk);
-
-      if (m_uGtAlgBlk.isValid() && !m_uGtAlgBlk->isEmpty(0)) {
-        std::vector<GlobalAlgBlk>::const_iterator algBlk = m_uGtAlgBlk->begin(0);
-        m_prescaleSet = static_cast<unsigned int>(algBlk->getPreScColumn());
-      } else {
-        m_prescaleSet = 1;
-        edm::LogError("L1TGlobalProduce")
-            << "Could not find valid algo block. Setting prescale column to 1" << std::endl;
-      }
-    }
-  } else {
-    // Set Prescale factors to initial dummy values
-    m_prescaleSet = 0;
-    m_prescaleFactorsAlgoTrig = &m_initialPrescaleFactorsAlgoTrig;
-    m_triggerMaskAlgoTrig = &m_initialTriggerMaskAlgoTrig;
-    m_triggerMaskVetoAlgoTrig = &m_initialTriggerMaskVetoAlgoTrig;
-  }
 
   // get / update the trigger mask from the EventSetup
   // local cache & check on cacheIdentifier
@@ -518,6 +423,54 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 
     }
 */
+
+  // initialise Trigger Conditions
+  m_uGtBrd->initTriggerConditions(evSetup, m_l1GtMenu.get(), m_nrL1Mu, m_nrL1MuShower, m_nrL1EG, m_nrL1Tau, m_nrL1Jet);
+}
+
+// method called to produce the data
+void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup) {
+  if (m_requireMenuToMatchAlgoBlkInput) {
+    auto const& uGtAlgBlk = iEvent.get(m_algoblkInputToken);
+    if (uGtAlgBlk.size() >= 1) {
+      if (uGtAlgBlk[0].getL1FirmwareUUID() != static_cast<int>(m_utml1GtMenu->getFirmwareUuidHashed())) {
+        throw cms::Exception("ConditionsError")
+            << " Error L1 menu loaded in via conditions does not match the L1 actually run "
+            << uGtAlgBlk[0].getL1FirmwareUUID() << " vs " << m_utml1GtMenu->getFirmwareUuidHashed()
+            << ". This means that the mapping of the names to the bits may be incorrect. Please check the "
+               "L1TUtmTriggerMenuRcd record supplied. Unless you know what you are doing, do not simply disable this "
+               "check via the config as this a major error and the indication of something very wrong";
+      }
+    }
+  }
+
+  // get / update the prescale factors from the EventSetup
+
+  // Only get event record if not unprescaled and not unmasked
+  if (not(m_algorithmTriggersUnprescaled and m_algorithmTriggersUnmasked)) {
+    auto const& l1GtPrescalesFractVetoes = evSetup.getData(m_l1GtPrescaleVetosToken);
+    m_l1GtPrescalesVetosFract = PrescalesVetosFractHelper::readFromEventSetup(&l1GtPrescalesFractVetoes);
+
+    m_prescaleFactorsAlgoTrig = &(m_l1GtPrescalesVetosFract->prescaleTable());
+    m_triggerMaskVetoAlgoTrig = &(m_l1GtPrescalesVetosFract->triggerMaskVeto());
+
+    // get prescale column from unpacked data
+    if (m_getPrescaleColumnFromData) {
+      auto const uGtAlgBlk = iEvent.getHandle(m_algoblkInputToken);
+      if (uGtAlgBlk.isValid() && !uGtAlgBlk->isEmpty(0)) {
+        m_prescaleSet = static_cast<unsigned int>(uGtAlgBlk->at(0, 0).getPreScColumn());
+      } else {
+        m_prescaleSet = 1;
+        edm::LogError("L1TGlobalProduce") << "Could not find valid algo block. Setting prescale column to 1";
+      }
+    }
+  } else {
+    // Set Prescale factors to initial dummy values
+    m_prescaleSet = 0;
+    m_prescaleFactorsAlgoTrig = &m_initialPrescaleFactorsAlgoTrig;
+    m_triggerMaskAlgoTrig = &m_initialTriggerMaskAlgoTrig;
+    m_triggerMaskVetoAlgoTrig = &m_initialTriggerMaskVetoAlgoTrig;
+  }
 
   // ******  Board Maps Need to be redone....hard code for now ******
   // loop over blocks in the GT DAQ record receiving data, count them if they are active
@@ -563,6 +516,9 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 
     }
 */
+
+  int const minEmulBxInEvent = (m_emulateBxInEvent + 1) / 2 - m_emulateBxInEvent;
+  int const maxEmulBxInEvent = (m_emulateBxInEvent + 1) / 2 - 1;
 
   // Produce the Output Records for the GT
   std::unique_ptr<GlobalAlgBlkBxCollection> uGtAlgRecord(
@@ -663,12 +619,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
                      m_produceL1GtObjectMapRecord,
                      iBxInEvent,
                      gtObjectMapRecord,
-                     m_numberPhysTriggers,
-                     m_nrL1Mu,
-                     m_nrL1MuShower,
-                     m_nrL1EG,
-                     m_nrL1Tau,
-                     m_nrL1Jet);
+                     m_numberPhysTriggers);
 
     //  run FDL
     LogDebug("L1TGlobalProducer") << "\nL1TGlobalProducer : running FDL for bx = " << iBxInEvent << "\n" << std::endl;
