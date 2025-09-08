@@ -55,8 +55,8 @@ ScoutingEGammaCollectionMonitoringOffline = DQMEDAnalyzer('ScoutingEGammaCollect
                                                    )
 
 ScoutingEGammaCollectionMonitoringOnline = ScoutingEGammaCollectionMonitoringOffline.clone(
-                                                   OutputInternalPath = cms.string('/HLT/ScoutingOnline/EGamma/Collection'),
-                                                   useOfflineObject = cms.bool(False)
+                                                   OutputInternalPath = '/HLT/ScoutingOnline/EGamma/Collection',
+                                                   useOfflineObject = False
                                                    )
 
 scoutingMonitoringEGMOffline= cms.Sequence(ScoutingEGammaCollectionMonitoringOffline)
