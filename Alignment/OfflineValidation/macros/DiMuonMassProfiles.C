@@ -473,7 +473,7 @@ void bookHistos(const diMuonMassBias::histo2DMap& harvestTargets_,
 
     const auto& title = ME->GetTitle();
     const auto& xtitle = ME->GetYaxis()->GetTitle();
-    const auto& ytitle = ME->GetXaxis()->GetTitle();
+    //const auto& ytitle = ME->GetXaxis()->GetTitle();
 
     const auto& nxbins = ME->GetNbinsY();
     const auto& xmin = ME->GetYaxis()->GetXmin();
