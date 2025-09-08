@@ -376,7 +376,6 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
         // TODO: fix probabilities when CNN will be splitted
         Trackster outTrackster;
         bool isHadron = false;
-        outTrackster.mergeTracksters(input.tracksters, trackstersInTrackIndices[iTrack]);
         for (auto const tracksterId : trackstersInTrackIndices[iTrack]) {
           //maskTracksters[tracksterId] = 0;
           outTrackster.mergeTracksters(input.tracksters[tracksterId]);
