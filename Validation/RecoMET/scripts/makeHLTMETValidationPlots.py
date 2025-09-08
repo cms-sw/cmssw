@@ -99,7 +99,8 @@ class Plotter:
         plt.close()
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Make HLT Jet validation plots.')
+    full_command = 'for amet in "hltPFMET" "hltPFPuppiMET" "hltPFPuppiMETTypeOne"; do python3 Validation/RecoMET/scripts/makeHLTMETValidationPlots.py --file Run/DQM_1000_Wprime.root --odir /eos/user/b/bfontana/www/MET_Valid/Wprime -l Wprime --met ${amet}; done'
+    parser = argparse.ArgumentParser(description='Make HLT MET validation plots. \nRun all MET paths with\n' + full_command)
     parser.add_argument('-f', '--file', required=True, help='Paths to the DQM ROOT file.')
     parser.add_argument('-m', '--met', default='hltPFPuppiMET', help='Name of the met collection')
     parser.add_argument('-o', '--odir', default="HLTMETValidationPlots", required=False, help='Path to the output directory.')
@@ -108,7 +109,10 @@ if __name__ == '__main__':
 
     if not os.path.exists(args.odir):
         os.makedirs(args.odir)
-    histo2d_dir = os.path.join(args.odir, 'histo2D')
+
+    outdir = os.path.join(args.odir, args.met)
+    if not os.path.exists(outdir):
+        os.makedirs(outdir)
     
     file = ROOT.TFile.Open(args.file)
     dqm_dir = f"DQMData/Run 1/HLT/Run summary/JetMET/METValidation/{args.met}"
@@ -121,9 +125,9 @@ if __name__ == '__main__':
                           'E': (30, 40, 50, 80, 100, 120, 140, 160, 200, 250, 300, 350, 400, 500, 600), # endcap
                           'F': (30, 40, 50, 80, 120, 240, 600)} # forward
 
-    METType = {'hltPFMet': "PF MET",
-               'hltPFPuppiMet': "PF PUPPI MET",
-               'hltPFPuppiMetTypeOne': "PF Type-1 PUPPI MET"}.get(args.met, args.met)
+    METType = {'hltPFMET': "PF MET",
+               'hltPFPuppiMET': "PF PUPPI MET",
+               'hltPFPuppiMETTypeOne': "PF Type-1 PUPPI MET"}.get(args.met, args.met)
     
     colors = hep.style.CMS['axes.prop_cycle'].by_key()['color']
     markers = ('o', 's', 'd')
@@ -174,17 +178,15 @@ if __name__ == '__main__':
         plotter.ax.text(0.03, 0.97, METType, transform=plotter.ax.transAxes, fontsize=fontsize,
                         verticalalignment='top', horizontalalignment='left')
 
-        diff_step = 0.05 * (max(values)-min(values))
-        plotter.limits(y=(min(values) - diff_step, 1.2*max(values)), logY=False)
+        diff_step = 0.05 * abs(max(values)-min(values))
+        plotter.limits(y=(min(values) - diff_step, max(values) + 2*diff_step), logY=False)
         plotter.labels(x=xlabel, y='# Events')
 
-        plotter.save( os.path.join(args.odir, var) )
-
+        plotter.save( os.path.join(outdir, var) )
 
     ################################################
     # Plot 1D variables from METTesterPostProcessor
     ################################################
-
     var1dNames = {'METDiffAggr_MET': ('MET', 'MET Mean Difference'),
                   'METDiffAggr_Phi': (r'$\phi$', 'MET Mean Difference'),
                   'METResolAggr_MET': ('MET', 'MET Resolution'),
@@ -207,10 +209,10 @@ if __name__ == '__main__':
                         verticalalignment='top', horizontalalignment='left')
 
         diff_step = 0.05 * abs(max(values)-min(values))
-        plotter.limits(y=(min(values) - diff_step, max(values) + diff_step), logY=False)
+        plotter.limits(y=(min(values) - diff_step, max(values) + 2*diff_step), logY=False)
         plotter.labels(x=xlabel, y=ylabel)
 
-        plotter.save( os.path.join(args.odir, var) )
+        plotter.save( os.path.join(outdir, var) )
 
     ######################
     # Plot turn-on curves
@@ -245,4 +247,4 @@ if __name__ == '__main__':
                         verticalalignment='top', horizontalalignment='right')
 
         newvar = var.replace('_', '')
-        plotter.save( os.path.join(args.odir, newvar) )
+        plotter.save( os.path.join(outdir, newvar) )
