@@ -140,15 +140,13 @@ void HLTJetMETValidation::bookHistograms(DQMStore::IBooker &iBooker,
         iBooker.book1D("HLTJetPtTrgLow", "Single HLT Jet Pt - HLT Triggered Low", 100, 0, 1000));
 
     _meHLTJetEta.push_back(iBooker.book1D("HLTJetEta", "Single HLT Jet Eta", 100, -10, 10));
-    _meHLTJetEtaTrgMC.push_back(
-        iBooker.book1D("HLTJetEtaTrgMC", "Single HLT Jet Eta - HLT Triggered", 100, -10, 10));
+    _meHLTJetEtaTrgMC.push_back(iBooker.book1D("HLTJetEtaTrgMC", "Single HLT Jet Eta - HLT Triggered", 100, -10, 10));
     _meHLTJetEtaTrg.push_back(iBooker.book1D("HLTJetEtaTrg", "Single HLT Jet Eta - HLT Triggered", 100, -10, 10));
     _meHLTJetEtaTrgLow.push_back(
         iBooker.book1D("HLTJetEtaTrgLow", "Single HLT Jet Eta - HLT Triggered Low", 100, -10, 10));
 
     _meHLTJetPhi.push_back(iBooker.book1D("HLTJetPhi", "Single HLT Jet Phi", 100, -4., 4.));
-    _meHLTJetPhiTrgMC.push_back(
-        iBooker.book1D("HLTJetPhiTrgMC", "Single HLT Jet Phi - HLT Triggered", 100, -4., 4.));
+    _meHLTJetPhiTrgMC.push_back(iBooker.book1D("HLTJetPhiTrgMC", "Single HLT Jet Phi - HLT Triggered", 100, -4., 4.));
     _meHLTJetPhiTrg.push_back(iBooker.book1D("HLTJetPhiTrg", "Single HLT Jet Phi - HLT Triggered", 100, -4., 4.));
     _meHLTJetPhiTrgLow.push_back(
         iBooker.book1D("HLTJetPhiTrgLow", "Single HLT Jet Phi - HLT Triggered Low", 100, -4., 4.));
@@ -163,16 +161,14 @@ void HLTJetMETValidation::bookHistograms(DQMStore::IBooker &iBooker,
     _meGenJetEta.push_back(iBooker.book1D("GenJetEta", "Single Generated Jet Eta", 100, -10, 10));
     _meGenJetEtaTrgMC.push_back(
         iBooker.book1D("GenJetEtaTrgMC", "Single Generated Jet Eta - HLT Triggered", 100, -10, 10));
-    _meGenJetEtaTrg.push_back(
-        iBooker.book1D("GenJetEtaTrg", "Single Generated Jet Eta - HLT Triggered", 100, -10, 10));
+    _meGenJetEtaTrg.push_back(iBooker.book1D("GenJetEtaTrg", "Single Generated Jet Eta - HLT Triggered", 100, -10, 10));
     _meGenJetEtaTrgLow.push_back(
         iBooker.book1D("GenJetEtaTrgLow", "Single Generated Jet Eta - HLT Triggered Low", 100, -10, 10));
 
     _meGenJetPhi.push_back(iBooker.book1D("_meGenJetPhi", "Single Generated Jet Phi", 100, -4., 4.));
     _meGenJetPhiTrgMC.push_back(
         iBooker.book1D("GenJetPhiTrgMC", "Single Generated Jet Phi - HLT Triggered", 100, -4., 4.));
-    _meGenJetPhiTrg.push_back(
-        iBooker.book1D("GenJetPhiTrg", "Single Generated Jet Phi - HLT Triggered", 100, -4., 4.));
+    _meGenJetPhiTrg.push_back(iBooker.book1D("GenJetPhiTrg", "Single Generated Jet Phi - HLT Triggered", 100, -4., 4.));
     _meGenJetPhiTrgLow.push_back(
         iBooker.book1D("GenJetPhiTrgLow", "Single Generated Jet Phi - HLT Triggered Low", 100, -4., 4.));
   }
@@ -189,8 +185,7 @@ void HLTJetMETValidation::bookHistograms(DQMStore::IBooker &iBooker,
     _meGenMET.push_back(iBooker.book1D("GenMET", "Generated Missing ET", 100, 0, 1000));
     _meGenMETTrgMC.push_back(iBooker.book1D("GenMETTrgMC", "Generated Missing ET - HLT Triggered", 100, 0, 1000));
     _meGenMETTrg.push_back(iBooker.book1D("GenMETTrg", "Generated Missing ET - HLT Triggered", 100, 0, 1000));
-    _meGenMETTrgLow.push_back(
-        iBooker.book1D("GenMETTrgLow", "Generated Missing ET - HLT Triggered Low", 100, 0, 1000));
+    _meGenMETTrgLow.push_back(iBooker.book1D("GenMETTrgLow", "Generated Missing ET - HLT Triggered Low", 100, 0, 1000));
   }
 }
 
