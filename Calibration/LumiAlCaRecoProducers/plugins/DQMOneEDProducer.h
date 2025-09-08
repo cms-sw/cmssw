@@ -9,7 +9,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Histograms/interface/DQMToken.h"
 
-
 template <typename... Args>
 class DQMOneEDProducer
     : public edm::one::EDProducer<edm::EndRunProducer, edm::one::WatchRuns, edm::Accumulator, Args...> {
@@ -67,7 +66,7 @@ protected:
   virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) {}
   virtual void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) = 0;
   virtual void analyze(edm::Event const&, edm::EventSetup const&) {}
-  virtual void dqmEndRun(edm::Run &, edm::EventSetup const&) {}
+  virtual void dqmEndRun(edm::Run&, edm::EventSetup const&) {}
 
   edm::EDPutTokenT<DQMToken> runToken_;
 };

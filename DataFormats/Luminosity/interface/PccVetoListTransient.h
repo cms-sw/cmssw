@@ -8,11 +8,8 @@
  *  
  */
 
-
 #include "CondFormats/Luminosity/interface/PccVetoList.h"
 
-
-class PccVetoListTransient :  public PccVetoList {};
-
+class PccVetoListTransient : public PccVetoList {};
 
 #endif

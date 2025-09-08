@@ -68,15 +68,17 @@ private:
 
 //--------------------------------------------------------------------------------------------------
 RawPCCProducerDynVeto::RawPCCProducerDynVeto(const edm::ParameterSet& iConfig)
-    : pccToken_(consumes<reco::PixelClusterCounts, edm::InLumi>(edm::InputTag(
-          iConfig.getParameter<edm::ParameterSet>("RawPCCProducerDynVetoParameters").getParameter<std::string>("inputPccLabel"),
-          iConfig.getParameter<edm::ParameterSet>("RawPCCProducerDynVetoParameters").getParameter<std::string>("ProdInst")))),
+    : pccToken_(consumes<reco::PixelClusterCounts, edm::InLumi>(
+          edm::InputTag(iConfig.getParameter<edm::ParameterSet>("RawPCCProducerDynVetoParameters")
+                            .getParameter<std::string>("inputPccLabel"),
+                        iConfig.getParameter<edm::ParameterSet>("RawPCCProducerDynVetoParameters")
+                            .getParameter<std::string>("ProdInst")))),
       lumiCorrectionsToken_(esConsumes<edm::Transition::EndLuminosityBlock>()),
       dinamicVetoToken_(esConsumes<edm::Transition::EndLuminosityBlock>()),
-      modVeto_(
-          iConfig.getParameter<edm::ParameterSet>("RawPCCProducerDynVetoParameters").getParameter<std::vector<int>>("modVeto")),
-      useDynamicModVeto_(
-            iConfig.getParameter<edm::ParameterSet>("RawPCCProducerDynVetoParameters").getParameter<bool>("useDynamicModVeto")),
+      modVeto_(iConfig.getParameter<edm::ParameterSet>("RawPCCProducerDynVetoParameters")
+                   .getParameter<std::vector<int>>("modVeto")),
+      useDynamicModVeto_(iConfig.getParameter<edm::ParameterSet>("RawPCCProducerDynVetoParameters")
+                             .getParameter<bool>("useDynamicModVeto")),
       applyCorr_(iConfig.getParameter<edm::ParameterSet>("RawPCCProducerDynVetoParameters")
                      .getUntrackedParameter<bool>("ApplyCorrections", false)),
       takeAverageValue_(iConfig.getParameter<edm::ParameterSet>("RawPCCProducerDynVetoParameters")
@@ -97,7 +99,7 @@ void RawPCCProducerDynVeto::produce(edm::StreamID, edm::Event& iEvent, const edm
 
 //--------------------------------------------------------------------------------------------------
 void RawPCCProducerDynVeto::globalEndLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg,
-                                                     const edm::EventSetup& iSetup) const {
+                                                            const edm::EventSetup& iSetup) const {
   //The total raw luminosity from the pixel clusters - not scaled
   float totalLumi = 0.0;
   //the statistical error on the lumi - large num ie sqrt(N)
@@ -125,16 +127,18 @@ void RawPCCProducerDynVeto::globalEndLuminosityBlockProduce(edm::LuminosityBlock
   ///////////////////////////
   std::vector<int> goodMods;
   double dynamicVetoScaleFactor = 1.0;
-  if (useDynamicModVeto_){
+  if (useDynamicModVeto_) {
     const auto dynamicVeto = &iSetup.getData(dinamicVetoToken_);
     for (unsigned int i = 0; i < modID.size(); i++) {
-      if (dynamicVeto->isBad(modID.at(i))) continue;
-      if ((! dynamicVeto->getShouldApplyBaseVeto()) && (std::find(modVeto_.begin(), modVeto_.end(), modID.at(i)) == modVeto_.end()) ) continue;
+      if (dynamicVeto->isBad(modID.at(i)))
+        continue;
+      if ((!dynamicVeto->getShouldApplyBaseVeto()) &&
+          (std::find(modVeto_.begin(), modVeto_.end(), modID.at(i)) == modVeto_.end()))
+        continue;
       goodMods.push_back(i);
-      dynamicVetoScaleFactor = 1.0 / dynamicVeto->responseFraction; // TODO: apply fraction
+      dynamicVetoScaleFactor = 1.0 / dynamicVeto->responseFraction;
     }
-  }
-  else{
+  } else {
     for (unsigned int i = 0; i < modID.size(); i++) {
       if (std::find(modVeto_.begin(), modVeto_.end(), modID.at(i)) == modVeto_.end()) {
         goodMods.push_back(i);
@@ -142,18 +146,11 @@ void RawPCCProducerDynVeto::globalEndLuminosityBlockProduce(edm::LuminosityBlock
     }
   }
 
-  dynamicVetoScaleFactor ++;
-
   for (int bx = 0; bx < int(LumiConstants::numBX); bx++) {
     for (unsigned int i = 0; i < goodMods.size(); i++) {
       clustersPerBXOutput.at(bx) += clustersPerBXInput.at(goodMods.at(i) * int(LumiConstants::numBX) + bx);
     }
   }
-  
-
-
-  
-  
 
   //////////////////////////////
   //// Apply afterglow corrections
@@ -168,7 +165,7 @@ void RawPCCProducerDynVeto::globalEndLuminosityBlockProduce(edm::LuminosityBlock
 
   for (unsigned int i = 0; i < clustersPerBXOutput.size(); i++) {
     if (events.at(i) != 0) {
-      corrClustersPerBXOutput[i] = clustersPerBXOutput[i] * correctionScaleFactors[i];
+      corrClustersPerBXOutput[i] = clustersPerBXOutput[i] * correctionScaleFactors[i] * dynamicVetoScaleFactor;
     } else {
       corrClustersPerBXOutput[i] = 0.0;
     }
@@ -196,7 +193,7 @@ void RawPCCProducerDynVeto::globalEndLuminosityBlockProduce(edm::LuminosityBlock
       statErrOnLumi = 1 / sqrt(statErrOnLumi) * totalLumi;
     }
   }
-  
+
   ///////////////////////////////////////////////////////
   ///Lumi saved in the LuminosityBlocks
   LumiInfo outputLumiInfo;
