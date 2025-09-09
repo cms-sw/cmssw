@@ -41,8 +41,8 @@ int merge(int argc, char* argv[]) {
   pt::ptree global_style;
   pt::ptree merge_style;
   global_style = main_tree.count("style") ? main_tree.get_child("style") : global_style;
-  merge_style = global_style.count("PV") && global_style.get_child("PV").count("merge")
-                    ? global_style.get_child("PV").get_child("merge")
+  merge_style = global_style.count("Zmumu") && global_style.get_child("Zmumu").count("merge")
+                    ? global_style.get_child("Zmumu").get_child("merge")
                     : global_style;
 
   //Read all configure variables and set default for missing keys
@@ -52,10 +52,12 @@ int merge(int argc, char* argv[]) {
   rlabel = merge_style.count("Rlabel") ? merge_style.get<std::string>("Rlabel") : rlabel;
   std::string cmslabel = merge_style.count("CMSlabel") ? merge_style.get<std::string>("CMSlabel") : "INTERNAL";
   std::string outdir = main_tree.count("output") ? main_tree.get<std::string>("output") : "";
-  if (TkAlStyle::toStatus(cmslabel) == CUSTOM)
+
+  if (TkAlStyle::toStatus(cmslabel) == CUSTOM) {
     TkAlStyle::set(CUSTOM, NONE, cmslabel, rlabel);
-  else
+  } else {
     TkAlStyle::set(TkAlStyle::toStatus(cmslabel), NONE, "", rlabel);
+  }
 
   TString filesAndLabels;
   for (const auto& childTree : alignments) {
@@ -65,8 +67,7 @@ int merge(int argc, char* argv[]) {
 
     // Check if the file contains "/eos/cms/" and add the prefix accordingly
     std::string prefixToAdd = file.find("/eos/cms/") != std::string::npos ? "root://eoscms.cern.ch/" : "";
-    std::string toAdd =
-        prefixToAdd + file + "/Zmumu.root=" + childTree.second.get<string>("title") + ",";
+    std::string toAdd = prefixToAdd + file + "/Zmumu.root=" + childTree.second.get<string>("title") + ",";
     filesAndLabels += toAdd;
   }
 
@@ -77,7 +78,7 @@ int merge(int argc, char* argv[]) {
   std::cout << "filesAndLabels: " << filesAndLabels << std::endl;
 
   //And finally fit
-  DiMuonMassProfiles(filesAndLabels, rlabel, autoLimits);
+  DiMuonMassProfiles(filesAndLabels, cmslabel, rlabel, autoLimits);
 
   return EXIT_SUCCESS;
 }
