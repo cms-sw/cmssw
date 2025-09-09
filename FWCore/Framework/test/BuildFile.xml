@@ -193,6 +193,15 @@
   <use name="FWCore/Utilities"/>
 </library>
 
+<library file="stubs/TriggerResultsTestSource.cc" name="FWCoreFrameworkTriggerResultsTestSource">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="FWCore/Sources"/>
+</library>
+
+
 <bin name="TestFWCoreFramework" file="testRunner.cpp,maker2_t.cppunit.cc,maker_t.cppunit.cc,productregistry.cppunit.cc,edproducer_productregistry_callback.cc,event_getrefbeforeput_t.cppunit.cc,generichandle_t.cppunit.cc,edconsumerbase_t.cppunit.cc,global_producer_t.cppunit.cc,global_filter_t.cppunit.cc,one_outputmodule_t.cppunit.cc,global_outputmodule_t.cppunit.cc,stream_producer_t.cppunit.cc,stream_filter_t.cppunit.cc,limited_producer_t.cppunit.cc,limited_filter_t.cppunit.cc,limited_outputmodule_t.cppunit.cc,checkForModuleDependencyCorrectness_t.cppunit.cc">
   <use name="DataFormats/Common"/>
   <use name="DataFormats/Provenance"/>
@@ -339,15 +348,9 @@
 <test name="testFWCoreFrameworkOutputModuleSelectEventsMissingPathSameProcessAnotherModuleAfter" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/testOutputModuleSelectEventsMissingPath_cfg.py --missingPath=sameProcess --anotherModule=after 2>&amp;1 | grep 'to request a trigger name that does not exist'"/>
 
 <test name="testFWCoreFrameworkOutputModuleSelectEventsMissingPathEarlier" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/testOutputModuleSelectEventsMissingPathEarlier_cfg.py"/>
-<test name="testFWCoreFrameworkOutputModuleSelectEventsMissingPathEarlierProcess" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/testOutputModuleSelectEventsMissingPath_cfg.py --missingPath=earlierProcess 2>&amp;1 | grep 'to request a trigger name that does not exist'">
-  <flags PRE_TEST="testFWCoreFrameworkOutputModuleSelectEventsMissingPathEarlier"/>
-</test>
-<test name="testFWCoreFrameworkOutputModuleSelectEventsMissingPathEarlierProcessBefore" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/testOutputModuleSelectEventsMissingPath_cfg.py --missingPath=earlierProcess --anotherModule=before 2>&amp;1 | grep 'to request a trigger name that does not exist'">
-  <flags PRE_TEST="testFWCoreFrameworkOutputModuleSelectEventsMissingPathEarlier"/>
-</test>
-<test name="testFWCoreFrameworkOutputModuleSelectEventsMissingPathEarlierProcessAfter" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/testOutputModuleSelectEventsMissingPath_cfg.py --missingPath=earlierProcess --anotherModule=after 2>&amp;1 | grep 'to request a trigger name that does not exist'">
-  <flags PRE_TEST="testFWCoreFrameworkOutputModuleSelectEventsMissingPathEarlier"/>
-</test>
+<test name="testFWCoreFrameworkOutputModuleSelectEventsMissingPathEarlierProcess" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/testOutputModuleSelectEventsMissingPath_cfg.py --missingPath=earlierProcess 2>&amp;1 | grep 'to request a trigger name that does not exist'"/>
+<test name="testFWCoreFrameworkOutputModuleSelectEventsMissingPathEarlierProcessBefore" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/testOutputModuleSelectEventsMissingPath_cfg.py --missingPath=earlierProcess --anotherModule=before 2>&amp;1 | grep 'to request a trigger name that does not exist'"/>
+<test name="testFWCoreFrameworkOutputModuleSelectEventsMissingPathEarlierProcessAfter" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/testOutputModuleSelectEventsMissingPath_cfg.py --missingPath=earlierProcess --anotherModule=after 2>&amp;1 | grep 'to request a trigger name that does not exist'"/>
 
 <test name="testFWCoreFrameworkOutputModuleSelectEventsMissingPathMissingProcess" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/testOutputModuleSelectEventsMissingPath_cfg.py --missingPath=missingProcess 2>&amp;1 | grep 'An exception of category .ProductNotFound'"/>
 <test name="testFWCoreFrameworkOutputModuleSelectEventsMissingPathMissingProcessAnotherModuleBefore" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/testOutputModuleSelectEventsMissingPath_cfg.py --missingPath=missingProcess --anotherModule=before 2>&amp;1 | grep 'An exception of category .ProductNotFound'"/>
