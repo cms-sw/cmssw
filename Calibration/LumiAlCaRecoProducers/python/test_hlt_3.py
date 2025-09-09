@@ -104,10 +104,10 @@ process.dynamicVetoProd = cms.EDProducer("DynamicVetoProducer",
     )
 )
 
-with open("minimal_veto-2024.txt") as f: 
+with open("../data/minimal_veto-2024.txt") as f: 
     process.dynamicVetoProd.DynamicVetoProducerParameters.BaseVeto.extend([ int(v) for v in f.readlines()])
 
-with open("minimal_veto_frac_response-2024.txt") as f: 
+with open("../data/minimal_veto_frac_response-2024.txt") as f: 
     tmp = [ v.split(",") for v in f.readlines()]
     moduleID          = [ int(l[0]) for l in tmp[1:]]
     ractionalResponse = [ float(l[1]) for l in tmp[1:]]
