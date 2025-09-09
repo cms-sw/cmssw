@@ -14,7 +14,7 @@ namespace hgcaldigi {
     constexpr uint8_t NormalUnpacking = 0, GenericUnpackError = 1, ErrorSLinkHeader = 2, ErrorPayload = 3,
                       ErrorCaptureBlockHeader = 4, ActiveCaptureBlockFlags = 5, ErrorECONDHeader = 6,
                       ECONDPayloadLengthOverflow = 7, ECONDPayloadLengthMismatch = 8, ErrorSLinkTrailer = 9,
-                      EarlySLinkEnd = 10;
+                      EarlySLinkEnd = 10, GenericUnpackWarning = 11;
   }  // namespace FEDUnpackingFlags
 
   inline constexpr bool isNotNormalFED(uint16_t fedUnpackingFlag) {
@@ -57,7 +57,11 @@ namespace hgcaldigi {
                       // bit 1 : unable to unpack data
                       // bit 2 : at least one capture block has active flags
                       SOA_COLUMN(uint16_t, FEDUnpackingFlag),
-                      SOA_COLUMN(uint32_t, FEDPayload))  //number of words (char)
+                      SOA_COLUMN(uint32_t, FEDPayload),  //number of words (char)
+                      // BX,L1A,Orbit number of the SLink
+                      SOA_COLUMN(uint16_t, FEDBX),
+                      SOA_COLUMN(uint64_t, FEDL1A),
+                      SOA_COLUMN(uint32_t, FEDOrbit))
 
   using HGCalFEDPacketInfoSoA = HGCalFEDPacketInfoSoALayout<>;
 }  // namespace hgcaldigi

@@ -210,8 +210,10 @@ RepeatingCachedRootSource::RepeatingCachedRootSource(ParameterSet const& pset, I
       logicalFileName, physicalFileName, 0 != nEventsToSkip, input, skipper, duplicateChecker, indexesIntoFiles);
   rootFile_->reportOpened("repeating");
 
+  std::vector<std::string> processOrder;
+  processingOrderMerge(processHistoryRegistry(), processOrder);
   auto const& prodList = rootFile_->productRegistry()->productList();
-  productRegistryUpdate().updateFromInput(prodList);
+  productRegistryUpdate().updateFromInput(prodList, processOrder);
 
   //setup caching
   auto nProdsInEvent =

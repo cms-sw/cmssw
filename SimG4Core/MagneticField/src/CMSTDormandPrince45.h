@@ -22,12 +22,21 @@
 #include <cassert>
 #include "G4MagIntegratorStepper.hh"
 #include "G4FieldUtils.hh"
+#include "G4Version.hh"
+
+#if G4VERSION_NUMBER >= 1132
+#include "G4FieldParameters.hh"
+#endif
 
 template <class T_Equation, unsigned int N = 6>
 class CMSTDormandPrince45 : public G4MagIntegratorStepper {
 public:
   CMSTDormandPrince45(T_Equation* equation);
   CMSTDormandPrince45(T_Equation* equation, G4int numVar);  // must have numVar == N
+
+#if G4VERSION_NUMBER >= 1132
+  G4StepperType StepperType() const override { return kTDormandPrince45; };
+#endif
 
   inline void StepWithError(
       const G4double yInput[], const G4double dydx[], G4double hstep, G4double yOutput[], G4double yError[]);

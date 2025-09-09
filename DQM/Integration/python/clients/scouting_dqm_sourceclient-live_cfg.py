@@ -44,14 +44,15 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 ### for pp collisions
 process.load("DQM.HLTEvF.ScoutingCollectionMonitor_cfi")
 process.scoutingCollectionMonitor.topfoldername = "HLT/ScoutingOnline/Miscellaneous"
-process.scoutingCollectionMonitor.onlyScouting = True
+process.scoutingCollectionMonitor.onlyScouting = False # this can flipped due to https://its.cern.ch/jira/browse/CMSHLT-3585
+process.scoutingCollectionMonitor.onlineMetaDataDigis = "hltOnlineMetaDataDigis"
 process.scoutingCollectionMonitor.rho = ["hltScoutingPFPacker", "rho"]
 process.dqmcommon = cms.Sequence(process.dqmEnv
                                * process.dqmSaver)#*process.dqmSaverPB)
 
 process.load("DQM.HLTEvF.ScoutingMuonMonitoring_cff")
 process.load("DQM.HLTEvF.ScoutingJetMonitoring_cff")
-
+process.load("DQM.HLTEvF.ScoutingElectronMonitoring_cff")
 ## Run-1 L1TGT required by ScoutingJetMonitoring https://github.com/cms-sw/cmssw/blob/master/DQMOffline/JetMET/src/JetAnalyzer.cc#L2603-L2611
 process.GlobalTag.toGet.append(
  cms.PSet(
@@ -60,7 +61,7 @@ process.GlobalTag.toGet.append(
  )
 )
 
-process.p = cms.Path(process.dqmcommon * process.scoutingCollectionMonitor * process.ScoutingMuonMonitoring * process.ScoutingJetMonitoring)
+process.p = cms.Path(process.dqmcommon * process.scoutingCollectionMonitor * process.ScoutingMuonMonitoring * process.ScoutingJetMonitoring * process.ScoutingElectronMonitoring)
 
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *

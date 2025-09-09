@@ -141,6 +141,7 @@ namespace edm {
           thinnedAssociationsHelper, keepAssociation_, droppedBranchIDToKeptBranchID_);
       outputProcessBlockHelper_.updateAfterProductSelection(processesWithKeptProcessBlockProducts, processBlockHelper);
 
+      orderedProcessNames_ = preg.processOrder();
       initialRegistry(preg);
     }
 

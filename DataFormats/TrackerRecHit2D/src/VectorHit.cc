@@ -76,12 +76,8 @@ bool VectorHit::sharesInput(const TrackingRecHit* other, SharedInputType what) c
   if (lowerClusterRef().id() == otherClus.id() || upperClusterRef().id() == otherClus.id())
     return (otherClus == lowerClusterRef()) || (otherClus == upperClusterRef());
   else {
-    bool lowerOverlap = false;
-    bool upperOverlap = false;
-    if (geographicalId() == other->geographicalId()) {
-      lowerOverlap = otherClus.stripOverlap(lowerClusterRef());
-      upperOverlap = otherClus.stripOverlap(upperClusterRef());
-    }
+    bool lowerOverlap = otherClus.stripOverlap(lowerClusterRef());
+    bool upperOverlap = otherClus.stripOverlap(upperClusterRef());
     return (lowerOverlap || upperOverlap);
   }
 }
@@ -93,7 +89,7 @@ bool VectorHit::sharesClusters(VectorHit const& other, SharedInputType what) con
     const bool upperIdentity = this->upperClusterRef() == other.upperClusterRef();
     return (what == TrackingRecHit::all) ? (lowerIdentity && upperIdentity) : (lowerIdentity || upperIdentity);
   } else {
-    const bool sameDetId = (geographicalId() == other.geographicalId());
+    const bool sameDetId = sameDetModule(other);
     bool lowerOverlap = (sameDetId) ? other.lowerClusterRef().stripOverlap(this->lowerClusterRef()) : false;
     bool upperOverlap = (sameDetId) ? other.upperClusterRef().stripOverlap(this->upperClusterRef()) : false;
     return (what == TrackingRecHit::all) ? (lowerOverlap && upperOverlap) : (lowerOverlap || upperOverlap);

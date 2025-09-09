@@ -106,8 +106,8 @@ void DataModeScoutingRun3::fillSDSRawDataCollection(SDSRawDataCollection& rawDat
 std::vector<std::shared_ptr<const edm::DaqProvenanceHelper>>& DataModeScoutingRun3::makeDaqProvenanceHelpers() {
   //set SRD data collection
   daqProvenanceHelpers_.clear();
-  daqProvenanceHelpers_.emplace_back(std::make_shared<const edm::DaqProvenanceHelper>(
-      edm::TypeID(typeid(SDSRawDataCollection)), "SDSRawDataCollection", "SDSRawDataCollection", "DAQSource"));
+  daqProvenanceHelpers_.emplace_back(
+      std::make_shared<const edm::DaqProvenanceHelper>(edm::TypeID(typeid(SDSRawDataCollection)), "DAQSource"));
   return daqProvenanceHelpers_;
 }
 

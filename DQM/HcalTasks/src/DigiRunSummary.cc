@@ -185,9 +185,9 @@ namespace hcaldqm {
       else
         vtmpflags[fUnknownIds]._state = flag::fGOOD;
 
-      if ((did.subdet() == HcalBarrel) || (did.subdet() == HcalBarrel) || (did.subdet() == HcalBarrel) ||
-          (did.subdet() == HcalBarrel)) {
-        std::string ledHistName = _subsystem + "/" + _taskname + "/LED_CUCountvsLS/Subdet/";
+      if ((did.subdet() == HcalBarrel) || (did.subdet() == HcalEndcap) || (did.subdet() == HcalOuter) ||
+          (did.subdet() == HcalForward)) {
+        std::string ledHistName = _subsystem + "/" + _taskname + "/CU_LED/CU_LED_CUCountvsLS/Subdet/";
         if (did.subdet() == HcalBarrel) {
           ledHistName += "HB";
         } else if (did.subdet() == HcalEndcap) {

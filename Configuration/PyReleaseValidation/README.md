@@ -54,6 +54,7 @@ The offsets currently in use are:
 * 0.703: LST tracking (Phase-2 only), initialStep+HighPtTripletStep only, on CPU
 * 0.704: LST tracking (Phase-2 only), initialStep+HighPtTripletStep only, on GPU (if available)
 * 0.75: HLT phase-2 timing menu
+* 0.7501: HLT phase-2 tracking-only menu
 * 0.751: HLT phase-2 timing menu Alpaka variant
 * 0.752: HLT phase-2 timing menu ticl_v5 variant
 * 0.753: HLT phase-2 timing menu Alpaka, single tracking iteration variant
@@ -66,7 +67,9 @@ The offsets currently in use are:
 * 0.758 HLT phase-2 timing menu ticl_barrel variant
 * 0.759: HLT phase-2 timing menu, with NANO:@Phase2HLT
 * 0.77: HLT phase-2 NGT Scouting menu
-* 0.771: HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting
+* 0.771: HLT phase-2 NGT Scouting menu, Alpaka, TICL-v5, TICL-Barrel
+* 0.772: HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting
+* 0.773: HLT phase-2 NGT Scouting menu, with NANO:@NGTScoutingVal
 * 0.778 L3 Tracker Muons reconstruction Outside-In first, HLT Muon NanoAOD
 * 0.78: Complete L1 workflow
 * 0.781: Complete L1 workflow, producing FEVT and NANO output L1/P2GT objects

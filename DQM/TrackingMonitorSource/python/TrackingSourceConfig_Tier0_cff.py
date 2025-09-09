@@ -403,6 +403,7 @@ trackingLST.toModify(locals()["TrackSeedMonhighPtTripletStep"],
 TrackingDQMSourceTier0 += TrackSeedMonSequence
 
 from DQM.TrackingMonitorSource.shortTrackResolution_cff import *
+from DQM.TrackingMonitorSource.trackToTrackCPU_cff import *
 
 # MessageLog
 for module in selectedModules :
@@ -412,6 +413,7 @@ TrackingDQMSourceTier0 += voMonitoringSequence
 TrackingDQMSourceTier0 += voWcutMonitoringSequence
 TrackingDQMSourceTier0 += primaryVertexResolution
 TrackingDQMSourceTier0 += shortTrackResolution3to8
+TrackingDQMSourceTier0 += trackToTrackCPUSequence
 TrackingDQMSourceTier0 += dqmInfoTracking
 
 

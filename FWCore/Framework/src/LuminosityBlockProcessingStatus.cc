@@ -16,9 +16,7 @@
 namespace edm {
   void LuminosityBlockProcessingStatus::resetResources() {
     endIOVWaitingTasks_.doneWaiting(std::exception_ptr{});
-    for (auto& iter : eventSetupImpls_) {
-      iter.reset();
-    }
+    eventSetupImpl_.reset();
     resumeGlobalLumiQueue();
   }
 

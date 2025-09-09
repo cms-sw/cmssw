@@ -215,15 +215,9 @@ void testEvent::registerProduct(std::string const& tag,
   auto processX = std::make_shared<ProcessConfiguration>(process);
   processConfigurations_.push_back(processX);
 
-  TypeWithDict product_type(typeid(T));
+  TypeID product_type(typeid(T));
 
-  ProductDescription branch(InEvent,
-                            moduleLabel,
-                            processName,
-                            product_type.userClassName(),
-                            product_type.friendlyClassName(),
-                            productInstanceName,
-                            product_type);
+  ProductDescription branch(InEvent, moduleLabel, processName, productInstanceName, product_type);
 
   moduleDescriptions_[tag] = ModuleDescription(
       moduleParams.id(), moduleClassName, moduleLabel, processX.get(), ModuleDescription::getUniqueID());
@@ -355,7 +349,7 @@ testEvent::testEvent()
 
   auto process = edmtest::makeDummyProcessConfiguration(processName, processParams.id());
 
-  TypeWithDict product_type(typeid(prod_t));
+  TypeID product_type(typeid(prod_t));
 
   auto processX = std::make_shared<ProcessConfiguration>(process);
   processConfigurations_.push_back(processX);
@@ -364,13 +358,7 @@ testEvent::testEvent()
 
   std::string productInstanceName("int1");
 
-  ProductDescription branch(InEvent,
-                            moduleLabel,
-                            processName,
-                            product_type.userClassName(),
-                            product_type.friendlyClassName(),
-                            productInstanceName,
-                            product_type);
+  ProductDescription branch(InEvent, moduleLabel, processName, productInstanceName, product_type);
 
   availableProducts_->addProduct(branch);
 

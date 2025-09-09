@@ -41,7 +41,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   private:
-    const int maxchans_, maxfeds_;
+    const int maxchans_, maxmods_, maxfeds_;
     const std::string fedjson_;  // JSON file of FED configuration
     void produce(device::Event&, device::EventSetup const&) override;
     void beginRun(edm::Run const&, edm::EventSetup const&) override;
@@ -54,6 +54,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   HGCalRecHitESProducersTest::HGCalRecHitESProducersTest(const edm::ParameterSet& iConfig)
       : EDProducer(iConfig),
         maxchans_(iConfig.getParameter<int>("maxchans")),
+        maxmods_(iConfig.getParameter<int>("maxmods")),
         maxfeds_(iConfig.getParameter<int>("maxfeds")),
         fedjson_(iConfig.getParameter<std::string>("fedjson")) {
     std::cout << "HGCalRecHitESProducersTest::HGCalRecHitESProducersTest" << std::endl;
@@ -67,7 +68,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     desc.add("indexSource", edm::ESInputTag{})->setComment("Label for module indexer to set SoA size");
     desc.add("configSource", edm::ESInputTag{})->setComment("Label for HGCal configuration for unpacking raw data");
     desc.add("calibParamSource", edm::ESInputTag{})->setComment("Label for calibration parameters");
-    desc.add<int>("maxchans", 200)->setComment("Maximum number of channels to print");
+    desc.add<int>("maxchans", 500)->setComment("Maximum number of channels to print");
+    desc.add<int>("maxmods", 8)->setComment("Maximum number of modules to print");
     desc.add<int>("maxfeds", 25)->setComment("Maximum number of FED IDs to test");
     desc.add<std::string>("fedjson", "")->setComment("JSON file with FED configuration parameters");
     descriptions.addWithDefaultLabel(desc);
@@ -83,10 +85,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     return stream.str();
   }
 
+  using CalibParamView = hgcalrechit::HGCalCalibParamSoALayout<>::ConstViewTemplateFreeParams<128, false, true, true>;
+  static void printCalPars(const CalibParamView& calibView, const int idx) {
+    const auto& calib = calibView[idx];
+    std::cout << std::setw(6) << idx << std::setw(7) << int2hex(idx) << std::dec << std::setw(12) << calib.ADC_ped()
+              << std::setw(11) << calib.CM_slope() << std::setw(9) << calib.CM_ped() << std::setw(11)
+              << calib.EM_scale() << std::endl;
+  }
+
   void HGCalRecHitESProducersTest::produce(device::Event& iEvent, device::EventSetup const& iSetup) {
     std::cout << "HGCalRecHitESProducersTest::produce" << std::endl;
     auto queue = iEvent.queue();
-    auto const& moduleMap = iSetup.getData(indexerToken_);
+    auto const& moduleIndexer = iSetup.getData(indexerToken_);
     auto const& config = iSetup.getData(configToken_);  // HGCalConfiguration
     auto const& calibParamDevice = iSetup.getData(calibParamToken_);
     //printf("HGCalRecHitESProducersTest::produce: time to load calibParamDevice from calib ESProducers: %f seconds\n", duration(start,now()));
@@ -95,8 +105,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     std::string line = "HGCalRecHitESProducersTest::produce " + std::string(90, '-');
     if (configWatcher_.check(iSetup)) {
       std::cout << line << std::endl;
-      std::cout << "HGCalRecHitESProducersTest::produce: moduleMap.getMaxDataSize()=" << moduleMap.getMaxDataSize()
-                << ", moduleMap.getMaxERxSize()=" << moduleMap.getMaxERxSize() << std::endl;
+      std::cout << "HGCalRecHitESProducersTest::produce: moduleIndexer.getMaxDataSize()="
+                << moduleIndexer.getMaxDataSize() << ", moduleIndexer.getMaxERxSize()=" << moduleIndexer.getMaxERxSize()
+                << std::endl;
 
       // ESProducer for global HGCal configuration (structs) with header markers, etc.
       auto nfeds = config.feds.size();  // number of FEDs
@@ -118,21 +129,36 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }
       }
 
-      // Alpaka ESProducer for SoA with calibration parameters with pedestals, etc.
+      // Alpaka ESProducer for SoA with calibration parameters with pedestals, etc. per channel
       std::cout << line << std::endl;
       int size = calibParamDevice.view().metadata().size();
       std::cout << "HGCalRecHitESProducersTest::produce: device size=" << size << std::endl;
-      std::cout << "HGCalRecHitESProducersTest::produce: calibration constants:" << std::endl;
-      std::cout << "   idx    hex     ADC_ped   CM_slope   CM_ped   BXm1_slope" << std::endl;
+      std::cout << "HGCalRecHitESProducersTest::produce: calibration constants per channel:" << std::endl;
+      std::cout << "   idx    hex     ADC_ped   CM_slope   CM_ped   EM_scale" << std::endl;
       for (int idx = 0; idx < size; idx++) {
         if (idx >= maxchans_)
           break;
-        std::cout << std::setw(6) << idx << std::setw(7) << int2hex(idx) << std::dec << std::setw(12)
-                  << calibParamDevice.view()[idx].ADC_ped() << std::setw(11) << calibParamDevice.view()[idx].CM_slope()
-                  << std::setw(9) << calibParamDevice.view()[idx].CM_ped() << std::setw(13)
-                  << calibParamDevice.view()[idx].BXm1_slope() << std::endl;
+        printCalPars(calibParamDevice.view(), idx);
       }
-    }
+
+      // per module
+      int imod = 0;
+      std::cout << "HGCalRecHitESProducersTest::produce: calibration constants per module:" << std::endl;
+      std::cout << "  imod          typecode   idx    hex     ADC_ped   CM_slope   CM_ped   EM_scale" << std::endl;
+      for (const auto& [typecode, ids] : moduleIndexer.getTypecodeMap()) {
+        const auto [fedid, modid] = ids;
+        if (imod >= maxmods_)
+          break;
+        const uint32_t offset = moduleIndexer.getIndexForModuleData(fedid, modid, 0, 0);
+        uint32_t minoffset = (offset > 0 ? offset - 1 : offset);
+        for (uint32_t idx = minoffset; idx <= offset + 1; idx++) {
+          const std::string typecode_ = (idx == offset ? typecode : "");
+          std::cout << std::setw(6) << imod << std::setw(18) << typecode_;
+          printCalPars(calibParamDevice.view(), idx);
+        }
+        imod += 1;
+      }
+    }  // end if for configWatcher_::check
 
     // test JSON parser
     json fed_data;
@@ -162,9 +188,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const auto fedkey = hgcal::search_fedkey(fedid, fed_data, fedjson_);  // search matching key
       fedkeys.push_back(fedkey);
     }
-    std::cout << "   fedid   fedkey" << std::endl;
+    std::cout << "HGCalRecHitESProducersTest::produce: results from search_fedkey:" << fedjson_ << std::endl;
+    std::cout << "   fedid   matched fedkey" << std::endl;
     for (int fedid = 0; fedid <= maxfeds_; fedid++) {
-      std::cout << std::setw(8) << fedid << "   '" + fedkeys[fedid] + "'" << std::endl;
+      std::cout << std::setw(8) << fedid << "   '" << fedkeys[fedid] << "'" << std::endl;
     }
 
     std::cout << line << std::endl;

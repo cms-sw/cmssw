@@ -18,6 +18,7 @@
    [19:20] Type (0 fine divisions of wafer with 120 mum thick silicon
                  1 coarse divisions of wafer with 200 mum thick silicon
                  2 coarse divisions of wafer with 300 mum thick silicon
+                 3 fine divisions of wafer with 200 mum thick silicon
                  0 fine divisions of scintillators
                  1 coarse divisions of scintillators)
 
@@ -30,6 +31,8 @@
 
 class HGCalTriggerModuleDetId : public DetId {
 public:
+  enum siliconType { HGCalHD120 = 0, HGCalLD200 = 1, HGCalLD300 = 2, HGCalHD200 = 3 };
+  enum tileGranularity { HGCalTileNormal = 0, HGCalTileFine = 1 };
   /** Create a null module id*/
   HGCalTriggerModuleDetId();
   /** Create module id from raw id (0=invalid id) */
@@ -71,6 +74,15 @@ public:
 
   /// get the scintillator panel phi
   int phi() const { return moduleV(); }
+
+  bool isSiliconLowDensity() const {
+    return (!isHScintillator() && ((type() == HGCalLD200) || (type() == HGCalLD300)));
+  }
+  bool isSiliconHighDensity() const {
+    return (!isHScintillator() && ((type() == HGCalHD120) || (type() == HGCalHD200)));
+  }
+  bool isScintillatorFine() const { return (isHScintillator() && (type() == HGCalTileFine)); }
+  bool isScintillatorCoarse() const { return (isHScintillator() && (type() == HGCalTileNormal)); }
 
   /// consistency check : no bits left => no overhead
   bool isHFNose() const { return (triggerSubdetId() == HFNoseTrigger); }

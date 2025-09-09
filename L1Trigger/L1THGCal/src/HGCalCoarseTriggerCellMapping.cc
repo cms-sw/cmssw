@@ -2,16 +2,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCalTriggerDetId.h"
 
 HGCalCoarseTriggerCellMapping::HGCalCoarseTriggerCellMapping(const std::vector<unsigned>& ctcSize)
-    : ctcSize_(!ctcSize.empty() ? ctcSize
-                                : std::vector<unsigned>{kNHGCalLayersMax_ * kNThicknesses_, kCTCsizeVeryFine_}) {
-  if (ctcSize_.size() != (kNHGCalLayersMax_ + 1) * kNThicknesses_) {
-    throw cms::Exception("HGCTriggerParameterError")
-        << "Inconsistent size of coarse trigger cell size vector " << ctcSize_.size();
-  }
-
-  for (auto ctc : ctcSize_)
-    checkSizeValidity(ctc);
-}
+    : ctcSize_(ctcSize) {}
 
 const std::map<int, int> HGCalCoarseTriggerCellMapping::kSplit_ = {
     {kCTCsizeIndividual_, kSplit_Individual_},
@@ -29,12 +20,19 @@ const std::map<int, int> HGCalCoarseTriggerCellMapping::kSplit_Scin_ = {
     {kCTCsizeCoarse_, kSplit_Scin_Coarse_},
 };
 
-void HGCalCoarseTriggerCellMapping::checkSizeValidity(int ctcSize) const {
-  if (ctcSize != kCTCsizeFine_ && ctcSize != kCTCsizeCoarse_ && ctcSize != kCTCsizeMid_ &&
-      ctcSize != kCTCsizeVeryFine_ && ctcSize != kCTCsizeIndividual_) {
+void HGCalCoarseTriggerCellMapping::checkSizeValidity() const {
+  unsigned nThickness = triggerTools_.nSiWaferTypes() + 1;  // +1 for scintillator
+  if (ctcSize_.size() != (kNHGCalLayersMax_ + 1) * nThickness) {
     throw cms::Exception("HGCTriggerParameterError")
-        << "Coarse Trigger Cell should be of size " << kCTCsizeIndividual_ << " or " << kCTCsizeVeryFine_ << " or "
-        << kCTCsizeFine_ << " or " << kCTCsizeMid_ << " or " << kCTCsizeCoarse_;
+        << "Inconsistent size of coarse trigger cell size vector " << ctcSize_.size();
+  }
+  for (auto ctcSize : ctcSize_) {
+    if (ctcSize != kCTCsizeFine_ && ctcSize != kCTCsizeCoarse_ && ctcSize != kCTCsizeMid_ &&
+        ctcSize != kCTCsizeVeryFine_ && ctcSize != kCTCsizeIndividual_) {
+      throw cms::Exception("HGCTriggerParameterError")
+          << "Coarse Trigger Cell should be of size " << kCTCsizeIndividual_ << " or " << kCTCsizeVeryFine_ << " or "
+          << kCTCsizeFine_ << " or " << kCTCsizeMid_ << " or " << kCTCsizeCoarse_;
+    }
   }
 }
 

@@ -19,6 +19,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/processingOrderMerge.h"
 #include "DataFormats/Provenance/interface/StoredMergeableRunProductMetadata.h"
 #include "DataFormats/Provenance/interface/StoredProcessBlockHelper.h"
 #include "DataFormats/Provenance/interface/StoredProductProvenance.h"
@@ -558,6 +559,9 @@ namespace edm {
       for (auto& processBlockTree : processBlockTrees_) {
         treePointers_.push_back(processBlockTree.get());
       }
+      auto processingOrder = inputProdDescReg.processOrder();
+      processingOrderMerge(*processHistoryRegistry_, processingOrder);
+      newReg->setProcessOrder(processingOrder);
 
       // freeze the product registry
       newReg->setFrozen(inputType != InputType::Primary);

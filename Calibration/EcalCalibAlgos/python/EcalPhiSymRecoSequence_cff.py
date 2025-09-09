@@ -155,15 +155,15 @@ def customise(process):
     """
     
     # Change input collection for the /AlCaPhiSym/*/RAW stream dataformat
-    process.ecalMultiFitUncalibRecHitCPU.EBdigiCollection = "hltEcalPhiSymFilter:phiSymEcalDigisEB"
-    process.ecalMultiFitUncalibRecHitCPU.EEdigiCollection = "hltEcalPhiSymFilter:phiSymEcalDigisEE"
-    process.ecalRecHit.cpu.killDeadChannels = cms.bool( False )
-    process.ecalRecHit.cpu.recoverEBVFE = cms.bool( False )
-    process.ecalRecHit.cpu.recoverEEVFE = cms.bool( False )
-    process.ecalRecHit.cpu.recoverEBFE = cms.bool( False )
-    process.ecalRecHit.cpu.recoverEEFE = cms.bool( False )
-    process.ecalRecHit.cpu.recoverEEIsolatedChannels = cms.bool( False )
-    process.ecalRecHit.cpu.recoverEBIsolatedChannels = cms.bool( False )
+    process.ecalMultiFitUncalibRecHit.EBdigiCollection = "hltEcalPhiSymFilter:phiSymEcalDigisEB"
+    process.ecalMultiFitUncalibRecHit.EEdigiCollection = "hltEcalPhiSymFilter:phiSymEcalDigisEE"
+    process.ecalRecHit.killDeadChannels = cms.bool( False )
+    process.ecalRecHit.recoverEBVFE = cms.bool( False )
+    process.ecalRecHit.recoverEEVFE = cms.bool( False )
+    process.ecalRecHit.recoverEBFE = cms.bool( False )
+    process.ecalRecHit.recoverEEFE = cms.bool( False )
+    process.ecalRecHit.recoverEEIsolatedChannels = cms.bool( False )
+    process.ecalRecHit.recoverEBIsolatedChannels = cms.bool( False )
 
     if "ALCARECOStreamEcalPhiSymByRunOutPath" in process.pathNames():
         process.schedule.remove(process.ALCARECOStreamEcalPhiSymByRunOutPath)

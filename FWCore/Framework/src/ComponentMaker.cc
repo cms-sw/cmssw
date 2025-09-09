@@ -1,7 +1,5 @@
 #include "FWCore/Framework/interface/ComponentMaker.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include <string>
 #include <atomic>
 
 namespace edm {

@@ -5,10 +5,7 @@
 #include <iosfwd>
 #include <string>
 
-#include "FWCore/Utilities/interface/TypeID.h"
-#include "FWCore/Utilities/interface/BranchType.h"
-#include "FWCore/Utilities/interface/ProductResolverIndex.h"
-#include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 namespace edm {
 
@@ -43,12 +40,11 @@ namespace edm {
 
     bool operator==(InputTag const& tag) const;
 
-    ProductResolverIndex indexFor(TypeID const& typeID, BranchType branchType, void const* productRegistry) const;
+    EDGetToken cachedToken() const { return token_; }
 
-    void tryToCacheIndex(ProductResolverIndex index,
-                         TypeID const& typeID,
-                         BranchType branchType,
-                         void const* productRegistry) const;
+    void cacheToken(EDGetToken) const;
+
+    bool isUninitialized() const;
 
     static const std::string kSkipCurrentProcess;
     static const std::string kCurrentProcess;
@@ -60,12 +56,7 @@ namespace edm {
     std::string instance_;
     std::string process_;
 
-    CMS_THREAD_GUARD(index_) mutable TypeID typeID_;
-    CMS_THREAD_GUARD(index_) mutable void const* productRegistry_;
-
-    mutable std::atomic<unsigned int> index_;
-
-    CMS_THREAD_GUARD(index_) mutable char branchType_;
+    mutable std::atomic<EDGetToken> token_;
 
     bool skipCurrentProcess_;
   };

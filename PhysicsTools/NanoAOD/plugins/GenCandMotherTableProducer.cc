@@ -42,10 +42,19 @@ public:
       reco::GenParticleRef motherRef = cands->at(i).motherRef();
       reco::GenParticleRef match = (*map)[motherRef];
 
-      if (match.isNull())
-        continue;
+      if (match.isNonnull())
+        key[i] = match.key();
+      else {
+        key[i] = -1;
+        // try to find the closest mother which is in the map
+        while (match.isNull() && motherRef.isNonnull()) {
+          motherRef = motherRef->motherRef();
+          match = (*map)[motherRef];
+          if (match.isNonnull())
+            key[i] = match.key();
+        }
+      }
 
-      key[i] = match.key();
       fromB[i] = isFromB(cands->at(i));
       fromC[i] = isFromC(cands->at(i));
     }

@@ -128,14 +128,11 @@ namespace edm {
         if (processName.empty()) {
           processName = processConfiguration_->processName();
         }
-        edm::TypeWithDict twd(produce.type_.typeInfo());
         edm::ProductDescription product(edm::InEvent,
                                         produce.moduleLabel_,
                                         processName,
-                                        twd.userClassName(),
-                                        twd.friendlyClassName(),
                                         produce.instanceLabel_,
-                                        twd,
+                                        produce.type_,
                                         true  //force this to come from 'source'
         );
         product.init();
@@ -505,7 +502,7 @@ namespace edm {
 
       auto const& es = esp_->eventSetupImpl();
 
-      RunTransitionInfo transitionInfo(*runPrincipal_, es, nullptr);
+      RunTransitionInfo transitionInfo(*runPrincipal_, es);
       {
         using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin>;
         processGlobalTransition<Traits>(transitionInfo);
@@ -533,7 +530,7 @@ namespace edm {
 
       auto const& es = esp_->eventSetupImpl();
 
-      LumiTransitionInfo transitionInfo(*lumiPrincipal_, es, nullptr);
+      LumiTransitionInfo transitionInfo(*lumiPrincipal_, es);
 
       {
         using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin>;
@@ -593,7 +590,7 @@ namespace edm {
 
         auto const& es = esp_->eventSetupImpl();
 
-        LumiTransitionInfo transitionInfo(*lumiPrincipal, es, nullptr);
+        LumiTransitionInfo transitionInfo(*lumiPrincipal, es);
 
         {
           using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd>;

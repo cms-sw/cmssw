@@ -225,6 +225,12 @@ steps['ScoutingPFRun32024RAW14.0'] = {'INPUT': InputInfo(location='STD', ls=lumi
 steps['ScoutingPFMonitor2024MINIAOD14.0'] = {'INPUT': InputInfo(location='STD', ls=lumis_Run2024D,
                                                                 dataSet='/ScoutingPFMonitor/Run2024D-PromptReco-v1/MINIAOD')}
 
+steps['L1Scouting2024RAW14.0'] = {'INPUT': InputInfo(location='STD', ls={386873: [[1, 332]]},
+                                                     dataSet='/L1Scouting/Run2024I-v1/L1SCOUT')}
+
+steps['L1ScoutingSelection2024RAW14.0'] = {'INPUT': InputInfo(location='STD', ls={386873: [[1, 332]]},
+                                                              dataSet='/L1ScoutingSelection/Run2024I-v1/L1SCOUT')}
+
 steps['ZMuSkim2024RAWRECO14.0'] = {'INPUT': InputInfo(location='STD', ls=lumis_Run2024D,
                                                       dataSet='/Muon0/Run2024D-ZMu-PromptReco-v1/RAW-RECO')}
 
@@ -261,11 +267,17 @@ steps['scoutingNANO_data14.0'] = merge([{'-s': 'NANO:@Scout'},
 steps['scoutingNANO_withPrompt_data14.0'] = merge([{'-s': 'NANO:@Prompt+@ScoutMonitor'},
                                                    steps['NANO_data14.0']])
 
+steps['l1ScoutingNANO_data14.0'] = merge([{'-s': 'NANO:@L1Scout', '-n': '1000'},
+                                          steps['NANO_data14.0']])
+
+steps['l1ScoutingSelectionNANO_data14.0'] = merge([{'-s': 'NANO:@L1ScoutSelect', '-n': '1000'},
+                                                   steps['NANO_data14.0']])
+
 # DPG custom NANO
 steps['muDPGNANO_data14.0'] = merge([{'-s': 'RAW2DIGI,NANO:@MUDPG', '-n': '100'},
                                      steps['NANO_data14.0']])
 
-steps['muDPGNANOBkg_data14.0'] = merge([{'-s': 'RAW2DIGI,NANO:@MUDPGBKG', '-n': '100'},
+steps['muDPGNANOBkg_data14.0'] = merge([{'-s': 'RAW2DIGI,RECO:localreco,NANO:@MUDPGBKG', '-n': '100'},
                                         steps['NANO_data14.0']])
 
 steps['hcalDPGNANO_data14.0'] = merge([{'-s': 'RAW2DIGI,RECO,NANO:@HCAL', '-n': '100',
@@ -456,6 +468,8 @@ _wfn()  # workflows[_wfn()] = ['jmeNANOrePuppidata140Xrun3', ['MuonEG2024MINIAOD
 workflows[_wfn()] = ['lepTrackInfoNANOdata140Xrun3', ['MuonEG2024MINIAOD14.0', 'lepTrackInfoNANO_data14.0']]
 workflows[_wfn()] = ['ScoutingNANOdata140Xrun3', ['ScoutingPFRun32024RAW14.0', 'scoutingNANO_data14.0']]
 workflows[_wfn()] = ['ScoutingNANOwithPromptdata140Xrun3', ['ScoutingPFMonitor2024MINIAOD14.0', 'scoutingNANO_withPrompt_data14.0']]
+workflows[_wfn()] = ['L1ScoutingNANOdata140Xrun3', ['L1Scouting2024RAW14.0', 'l1ScoutingNANO_data14.0']]
+workflows[_wfn()] = ['L1ScoutingSelectionNANOdata140Xrun3', ['L1ScoutingSelection2024RAW14.0', 'l1ScoutingSelectionNANO_data14.0']]
 
 # DPG custom NANOs, data
 _wfn.subnext()

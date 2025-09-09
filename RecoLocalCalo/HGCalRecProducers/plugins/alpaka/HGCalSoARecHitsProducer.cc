@@ -108,7 +108,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           entryInSoA.dim2() = position.y();
         }
         entryInSoA.dim3() = position.z();
-        entryInSoA.weight() = hgrh.energy();
+        entryInSoA.energy() = hgrh.energy();
+        entryInSoA.mipEnergy() = hgrh.energy();  // TODO: CHANGE TO MIP
         entryInSoA.sigmaNoise() = sigmaNoise;
         entryInSoA.layer() = layer;
         entryInSoA.recHitIndex() = i;

@@ -78,10 +78,8 @@ namespace {
       edm::ProductDescription prod(iDesc.branchType(),
                                    name_,
                                    iDesc.processName(),
-                                   iDesc.fullClassName(),
-                                   iDesc.friendlyClassName(),
                                    iDesc.productInstanceName() + "-" + name_,
-                                   iDesc.unwrappedType());
+                                   iDesc.unwrappedTypeID());
       reg_->addProduct(prod);
     }
   };
@@ -97,31 +95,23 @@ void testProductRegistry::setUp() {
 
   edm::ParameterSet pset;
   pset.registerIt();
-  intBranch_ = std::make_shared<edm::ProductDescription>(
-      edm::InEvent, "labeli", "PROD", "int", "int", "int", edm::TypeWithDict(typeid(int)));
+  intBranch_ =
+      std::make_shared<edm::ProductDescription>(edm::InEvent, "labeli", "PROD", "int", edm::TypeID(typeid(int)));
 
-  floatBranch_ = std::make_shared<edm::ProductDescription>(
-      edm::InEvent, "labelf", "PROD", "float", "float", "float", edm::TypeWithDict(typeid(float)));
+  floatBranch_ =
+      std::make_shared<edm::ProductDescription>(edm::InEvent, "labelf", "PROD", "float", edm::TypeID(typeid(float)));
 
   intVecBranch_ = std::make_shared<edm::ProductDescription>(
-      edm::InEvent, "labelvi", "PROD", "std::vector<int>", "ints", "vint", edm::TypeWithDict(typeid(std::vector<int>)));
+      edm::InEvent, "labelvi", "PROD", "vint", edm::TypeID(typeid(std::vector<int>)));
 
-  simpleVecBranch_ =
-      std::make_shared<edm::ProductDescription>(edm::InEvent,
-                                                "labelovsimple",
-                                                "PROD",
-                                                "edm::OwnVector<edmtest::Simple>",
-                                                "edmtestSimplesOwned",
-                                                "ovsimple",
-                                                edm::TypeWithDict(typeid(edm::OwnVector<edmtest::Simple>)));
+  simpleVecBranch_ = std::make_shared<edm::ProductDescription>(
+      edm::InEvent, "labelovsimple", "PROD", "ovsimple", edm::TypeID(typeid(edm::OwnVector<edmtest::Simple>)));
   simpleDerivedVecBranch_ =
       std::make_shared<edm::ProductDescription>(edm::InEvent,
                                                 "labelovsimplederived",
                                                 "PROD",
-                                                "edm::OwnVector<edmtest::SimpleDerived>",
-                                                "edmtestSimpleDerivedsOwned",
                                                 "ovsimplederived",
-                                                edm::TypeWithDict(typeid(edm::OwnVector<edmtest::SimpleDerived>)));
+                                                edm::TypeID(typeid(edm::OwnVector<edmtest::SimpleDerived>)));
 }
 
 namespace {
