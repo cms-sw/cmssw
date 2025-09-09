@@ -56,14 +56,17 @@ private:
 
   double minJetPt;
   double maxJetEta;
+  std::string jerFilePath_;
 };
 
 L1JUMPProducer::L1JUMPProducer(const edm::ParameterSet& cfg)
     : metToken(consumes<std::vector<l1t::EtSum>>(cfg.getParameter<edm::InputTag>("RawMET"))),
       jetsToken(consumes<std::vector<l1t::PFJet>>(cfg.getParameter<edm::InputTag>("L1PFJets"))),
       minJetPt(cfg.getParameter<double>("MinJetpT")),
-      maxJetEta(cfg.getParameter<double>("MaxJetEta")) {
+      maxJetEta(cfg.getParameter<double>("MaxJetEta")),
+      jerFilePath_(cfg.getParameter<std::string>("JERFile")) {
   produces<std::vector<l1t::EtSum>>();
+  L1JUMPEmu::SetJERFile(jerFilePath_);
 }
 
 void L1JUMPProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
@@ -118,5 +121,4 @@ std::vector<l1ct::Jet> L1JUMPProducer::convertEDMToHW(const std::vector<l1t::PFJ
 
 L1JUMPProducer::~L1JUMPProducer() {}
 
-#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(L1JUMPProducer);

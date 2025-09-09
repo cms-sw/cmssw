@@ -1,5 +1,5 @@
-#ifndef L1Trigger_Phase2L1ParticleFlow_JUMP_h
-#define L1Trigger_Phase2L1ParticleFlow_JUMP_h
+#ifndef L1Trigger_Phase2L1ParticleFlow_JUMPEmulator_h
+#define L1Trigger_Phase2L1ParticleFlow_JUMPEmulator_h
 
 #include "DataFormats/L1TParticleFlow/interface/jets.h"
 #include "DataFormats/L1TParticleFlow/interface/sums.h"
@@ -30,26 +30,56 @@ namespace L1JUMPEmu {
     - Apply the estimated resolution to MET
   */
   struct JER_param {
-    std::array<ap_fixed<11, 1>, 5> par0;   // eta.par0 (slope)
-    std::array<ap_fixed<8, 5>, 5> par1;    // eta.par1 (offset)
-    std::array<L1METEmu::eta_t, 4> edges;  // |eta| boundaries in HW scale
+    std::vector<ap_fixed<11, 1>> par0;   // eta.par0 (slope)
+    std::vector<ap_fixed<8, 5>> par1;    // eta.par1 (offset)
+    std::vector<L1METEmu::eta_t> edges;  // |eta| boundaries in HW scale
+    unsigned int eta_bins = 0;
   };
+
+  struct JER_Path {
+    std::string path = "L1Trigger/Phase2L1ParticleFlow/data/met/l1jump_jer_v1.json";
+  };
+
+  inline JER_Path& jer_path_config() {
+    static JER_Path jump_p;
+    return jump_p;
+  }
+
+  inline void SetJERFile(std::string jump_p) { jer_path_config().path = std::move(jump_p); }
 
   inline const JER_param& Get_jer_param() {
     static JER_param P = []() {
       JER_param t{};
-      edm::FileInPath fip("L1Trigger/Phase2L1ParticleFlow/data/met/l1jump_jer_v1.json");
-      std::ifstream in(fip.fullPath());
-      if (!in)
-        throw cms::Exception("FileNotFound") << fip.fullPath();
+      std::string path = jer_path_config().path;
+
+#ifdef CMSSW_GIT_HASH
+      edm::FileInPath f(path);
+      std::ifstream in(f.fullPath());
+      if (!in) {
+        throw cms::Exception("FileNotFound") << f.fullPath();
+      }
+#else
+      std::ifstream in(path);
+      if (!in) {
+        throw std::runtime_error(std::string("File not found: ") + path);
+      }
+#endif
+
       nlohmann::json j;
       in >> j;
 
-      for (int i = 0; i < 5; ++i) {
+      unsigned int N = j["eta_bins"].get<unsigned int>();
+      t.eta_bins = N;
+
+      t.par0.resize(N + 1);
+      t.par1.resize(N + 1);
+      t.edges.resize(N);
+
+      for (unsigned int i = 0; i < N + 1; ++i) {
         t.par0[i] = ap_fixed<11, 1>(j["eta"]["par0"][i].get<double>());
         t.par1[i] = ap_fixed<8, 5>(j["eta"]["par1"][i].get<double>());
       }
-      for (int i = 0; i < 4; ++i) {
+      for (unsigned int i = 0; i < N; ++i) {
         t.edges[i] = l1ct::Scales::makeGlbEta(j["eta_edges"][i].get<double>());
       }
       return t;
@@ -68,8 +98,8 @@ namespace L1JUMPEmu {
     const auto& J = Get_jer_param();
 
     L1METEmu::eta_t abseta = abs(jet.hwEta.to_float());
-    int etabin = 0;
-    for (uint i = 0; i < 4;) {
+    unsigned int etabin = 0;
+    for (unsigned int i = 0; i < J.eta_bins; i++) {
       if (abseta < J.edges[i]) {
         etabin = i + 1;
         break;
@@ -87,14 +117,14 @@ namespace L1JUMPEmu {
     dPy_2 = dpt_xy.hwPy * dpt_xy.hwPy;
   }
 
-  inline void Met_dPt(const std::vector<l1ct::Jet> jets, L1METEmu::proj2_t& dPx_2, L1METEmu::proj2_t& dPy_2) {
+  inline void Met_dPt(const std::vector<l1ct::Jet>& jets, L1METEmu::proj2_t& dPx_2, L1METEmu::proj2_t& dPy_2) {
     L1METEmu::proj2_t each_dPx2 = 0;
     L1METEmu::proj2_t each_dPy2 = 0;
 
     L1METEmu::proj2_t sum_dPx2 = 0;
     L1METEmu::proj2_t sum_dPy2 = 0;
 
-    for (uint i = 0; i < jets.size(); i++) {
+    for (unsigned int i = 0; i < jets.size(); i++) {
       Get_dPt(jets[i], each_dPx2, each_dPy2);
       sum_dPx2 += each_dPx2;
       sum_dPy2 += each_dPy2;
@@ -105,7 +135,7 @@ namespace L1JUMPEmu {
   }
 }  // namespace L1JUMPEmu
 
-inline void JUMP_emu(const l1ct::Sum inMet, const std::vector<l1ct::Jet> jets, l1ct::Sum& outMet) {
+inline void JUMP_emu(const l1ct::Sum& inMet, const std::vector<l1ct::Jet>& jets, l1ct::Sum& outMet) {
   L1METEmu::Particle_xy inMet_xy = L1METEmu::Get_xy(inMet.hwPt, inMet.hwPhi);
 
   L1METEmu::proj2_t dPx_2;

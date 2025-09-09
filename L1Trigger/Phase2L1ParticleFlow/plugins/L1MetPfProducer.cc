@@ -9,6 +9,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"
 // For HLS MET Data Formats
@@ -46,6 +48,7 @@ private:
   bool useMlModel_;
   std::shared_ptr<hls4mlEmulator::Model> model;
   std::string modelVersion_;
+
   typedef ap_fixed<32, 16> input_t;
   typedef ap_fixed<32, 16> result_t;
   static constexpr int numContInputs_ = 4;
@@ -69,6 +72,9 @@ L1MetPfProducer::L1MetPfProducer(const edm::ParameterSet& cfg)
   if (useMlModel_) {
     hls4mlEmulator::ModelLoader loader(modelVersion_);
     model = loader.load_model();
+  } else {
+    edm::FileInPath f = cfg.getParameter<edm::FileInPath>("Poly2File");
+    L1METEmu::SetPoly2File(f.fullPath());
   }
 }
 
@@ -77,6 +83,8 @@ void L1MetPfProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<edm::InputTag>("L1PFObjects", edm::InputTag("L1PFProducer", "l1pfCandidates"));
   desc.add<int>("maxCands", 128);
   desc.add<std::string>("modelVersion", "");
+  desc.add<edm::FileInPath>("Poly2File",
+                            edm::FileInPath("L1Trigger/Phase2L1ParticleFlow/data/met/l1met_ptphi2pxpy_poly2_v1.json"));
   descriptions.add("L1MetPfProducer", desc);
 }
 
@@ -165,7 +173,7 @@ void L1MetPfProducer::CalcMlMet(const std::vector<l1t::PFCandidate>& pfcands,
     input[i] = 0;
   }
 
-  for (uint i = 0; i < pt.size(); i++) {
+  for (unsigned int i = 0; i < pt.size(); i++) {
     // input_cont
     input[i * numContInputs_] = pt[i];
     input[i * numContInputs_ + 1] = eta[i];
@@ -193,5 +201,4 @@ void L1MetPfProducer::CalcMlMet(const std::vector<l1t::PFCandidate>& pfcands,
 
 L1MetPfProducer::~L1MetPfProducer() {}
 
-#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(L1MetPfProducer);
