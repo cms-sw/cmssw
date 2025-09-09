@@ -4,7 +4,7 @@ class:   RawPCCProducerDynVeto.cc
 description: Creates a LumiInfo object that will contain the luminosity per bunch crossing,
 along with the total luminosity and the statistical error.
 
-authors:Sam Higginbotham (shigginb@cern.ch), Chris Palmer (capalmer@cern.ch), Jose Benitez (jose.benitez@cern.ch)
+authors:Sam Higginbotham (shigginb@cern.ch), Chris Palmer (capalmer@cern.ch), Jose Benitez (jose.benitez@cern.ch), Peter Major
 
 ________________________________________________________________**/
 #include <cmath>

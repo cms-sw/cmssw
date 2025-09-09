@@ -1,28 +1,9 @@
 /**_________________________________________________________________
 
-Author: Peter Major
+Author: Braden Kronheim and Peter Major
 
-Description:
-Output: dynamic veto list per run
-Input: per LS per module cluster count data
-
-procedure:
-The filtering of the bad modules is carried out in 2 rounds:
-- round0: a base veto list is taken into account
-The detector is segmented into layes which are handled differently. The endcap is further segmented into 2 rings in eta. 
-- round1: 
-
-new files for this feature:
-"CondFormats/Luminosity/interface/PccVetoList.h"
-'CondFormats/Luminosity/src/headers.h'
-"CondFormats/DataRecord/interface/PccVetoListRcd.h"
-"CondFormats/DataRecord/src/PccVetoListRcd.cc"
-"CondFormats/Luminosity/src/T_EventSetup_PccVetoList.cc"
-
-
-modified: 
-CondFormats/Luminosity/src/classes_def.xml
-CondFormats/Luminosity/test/BuildFile.xml
+Algo description:
+https://indico.cern.ch/event/1358674/#34-pcc-active-masking
 ________________________________________________________________**/
 #include <boost/serialization/vector.hpp>
 #include <cmath>

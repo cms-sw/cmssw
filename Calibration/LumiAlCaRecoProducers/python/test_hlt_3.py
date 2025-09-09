@@ -1,6 +1,6 @@
 #########################
 ## standalone config to test PCC modules
-## Jose Benitez, Attila Radl, Alexey Shevelev
+## Jose Benitez, Attila Radl, Alexey Shevelev, modified by Peter Major
 #########################
 import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Era_Run3_2024_cff import Run3_2024
