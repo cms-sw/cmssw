@@ -15,9 +15,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.producerUsingCollector = cms.EDProducer("ProducerUsingCollector")
 
-process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('testProducesCollector.root')
-)
+process.out = cms.OutputModule("AsciiOutputModule")
 
 process.test = cms.EDAnalyzer("TestFindProduct",
   inputTags = cms.untracked.VInputTag(cms.InputTag("producerUsingCollector"),

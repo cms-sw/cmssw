@@ -85,7 +85,7 @@ All modules and modules in the current process whose products they consume:
   IntProducerEndProcessBlock/'intProducerEndProcessBlock'
   IntProducer/'intProducerU'
   IntVectorProducer/'intVectorProducer'
-  PoolOutputModule/'out'
+  AsciiOutputModule/'out'
     consumes products from these modules:
       TriggerResultInserter/'TriggerResults'
       IntProducer/'intProducerA'
@@ -217,7 +217,7 @@ stating whether it matched the actual module label of the producer.
   IntProducerEndProcessBlock/'intProducerEndProcessBlock'
   IntProducer/'intProducerU'
   IntVectorProducer/'intVectorProducer'
-  PoolOutputModule/'out'
+  AsciiOutputModule/'out'
     consumes:
       edm::TriggerResults 'TriggerResults' '' 'PROD1'
       edmtest::IntProduct 'aliasForInt' '' 'PROD1'
@@ -389,3 +389,4 @@ TestFindProduct sum = 300
 TestFindProduct sum = 300
 TestFindProduct sum = 220000
 TestFindProduct sum = 33
+>>> processed 3 events
