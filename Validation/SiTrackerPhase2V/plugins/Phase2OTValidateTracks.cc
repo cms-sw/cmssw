@@ -3,15 +3,15 @@
 // Class:      Phase2OTValidateTracks
 
 /**
- * This class is part of the Phase 2 Tracker validation framework. It validates the
- * performance of L1 tracks reconstruction by comparing them with tracking particles. 
- * It generates histograms to assess tracking efficiency, resolution,
+ * This class is part of the Phase 2 Tracker validation framework. It validates
+ * the performance of L1 tracks reconstruction by comparing them with tracking
+ * particles. It generates histograms to assess tracking efficiency, resolution,
  * and vertex reconstruction performance.
- * 
+ *
  * Usage:
- * To generate histograms from this code, run the test configuration files provided
- * in the DQM/SiTrackerPhase2/test directory. The generated histograms can then be
- * analyzed or visualized.
+ * To generate histograms from this code, run the test configuration files
+ * provided in the DQM/SiTrackerPhase2/test directory. The generated histograms
+ * can then be analyzed or visualized.
  */
 
 // Original Author:  Emily MacDonald
@@ -19,10 +19,11 @@
 // Updated by: Brandi Skipworth, 2025
 
 // system include files
+#include <fstream>
 #include <memory>
 #include <numeric>
 #include <vector>
-#include <fstream>
+
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -35,14 +36,13 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
@@ -51,30 +51,27 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/Associations/interface/TTClusterAssociationMap.h"
 #include "SimDataFormats/Associations/interface/TTStubAssociationMap.h"
 #include "SimDataFormats/Associations/interface/TTTrackAssociationMap.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "Validation/SiTrackerPhase2V/interface/TrackerPhase2ValidationUtil.h"
 
 class Phase2OTValidateTracks : public DQMEDAnalyzer {
-public:
+ public:
   explicit Phase2OTValidateTracks(const edm::ParameterSet &);
   ~Phase2OTValidateTracks() override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) override;
-  void processTrackCollection(const edm::Handle<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>> &trackHandle,
-                              edm::Ptr<TrackingParticle> tp_ptr,
-                              bool isExtended,
-                              int tmp_tp_pdgid,
-                              float tmp_tp_d0,
-                              float tmp_tp_Lxy,
-                              float tmp_tp_pt,
-                              float tmp_tp_eta,
-                              float tmp_tp_phi,
-                              float tmp_tp_z0,
-                              const edm::Event &iEvent);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
+                      edm::EventSetup const &) override;
+  void dqmBeginRun(const edm::Run &iRun,
+                   const edm::EventSetup &iSetup) override;
+  void processTrackCollection(
+      const edm::Handle<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>
+          &trackHandle,
+      edm::Ptr<TrackingParticle> tp_ptr, bool isExtended, int tmp_tp_pdgid,
+      float tmp_tp_d0, float tmp_tp_Lxy, float tmp_tp_pt, float tmp_tp_eta,
+      float tmp_tp_phi, float tmp_tp_z0, const edm::Event &iEvent);
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
   // Tracking particle distributions
   MonitorElement *trackParts_Eta = nullptr;
@@ -82,13 +79,13 @@ public:
   MonitorElement *trackParts_Pt = nullptr;
 
   // pT and eta for efficiency plots
-  MonitorElement *tp_pt = nullptr;             // denominator
-  MonitorElement *tp_pt_zoom = nullptr;        // denominator
-  MonitorElement *tp_eta = nullptr;            // denominator
-  MonitorElement *tp_d0 = nullptr;             // denominator
-  MonitorElement *tp_Lxy = nullptr;            // denominator (also known as vxy)
-  MonitorElement *tp_z0 = nullptr;             // denominator
-  MonitorElement *match_tp_pt = nullptr;       // numerator
+  MonitorElement *tp_pt = nullptr;        // denominator
+  MonitorElement *tp_pt_zoom = nullptr;   // denominator
+  MonitorElement *tp_eta = nullptr;       // denominator
+  MonitorElement *tp_d0 = nullptr;        // denominator
+  MonitorElement *tp_Lxy = nullptr;       // denominator (also known as vxy)
+  MonitorElement *tp_z0 = nullptr;        // denominator
+  MonitorElement *match_tp_pt = nullptr;  // numerator
   MonitorElement *match_tp_pt_zoom = nullptr;  // numerator
   MonitorElement *match_tp_eta = nullptr;      // numerator
   MonitorElement *match_tp_d0 = nullptr;       // numerator
@@ -103,18 +100,20 @@ public:
   MonitorElement *tp_z0_for_dis = nullptr;       // denominator
 
   // extended tracks pT and eta for efficiency plots
-  MonitorElement *match_prompt_tp_pt = nullptr;          // numerator
-  MonitorElement *match_prompt_tp_pt_zoom = nullptr;     // numerator
-  MonitorElement *match_prompt_tp_eta = nullptr;         // numerator
-  MonitorElement *match_prompt_tp_d0 = nullptr;          // numerator
-  MonitorElement *match_prompt_tp_Lxy = nullptr;         // numerator (also known as vxy)
+  MonitorElement *match_prompt_tp_pt = nullptr;       // numerator
+  MonitorElement *match_prompt_tp_pt_zoom = nullptr;  // numerator
+  MonitorElement *match_prompt_tp_eta = nullptr;      // numerator
+  MonitorElement *match_prompt_tp_d0 = nullptr;       // numerator
+  MonitorElement *match_prompt_tp_Lxy =
+      nullptr;  // numerator (also known as vxy)
   MonitorElement *match_prompt_tp_z0 = nullptr;          // numerator
   MonitorElement *match_displaced_tp_pt = nullptr;       // numerator
   MonitorElement *match_displaced_tp_pt_zoom = nullptr;  // numerator
   MonitorElement *match_displaced_tp_eta = nullptr;      // numerator
   MonitorElement *match_displaced_tp_d0 = nullptr;       // numerator
-  MonitorElement *match_displaced_tp_Lxy = nullptr;      // numerator (also known as vxy)
-  MonitorElement *match_displaced_tp_z0 = nullptr;       // numerator
+  MonitorElement *match_displaced_tp_Lxy =
+      nullptr;  // numerator (also known as vxy)
+  MonitorElement *match_displaced_tp_z0 = nullptr;  // numerator
 
   MonitorElement *d0_res_hist = nullptr;
   MonitorElement *res_displaced_d0 = nullptr;
@@ -131,9 +130,10 @@ public:
   MonitorElement *res_prompt_pt = nullptr;
   MonitorElement *res_prompt_ptRel = nullptr;
   // displaced tracks d0 >= 0.1
-  MonitorElement *res_displaced_eta = nullptr;    // for all eta and pT
-  MonitorElement *res_displaced_pt = nullptr;     // for all eta and pT
-  MonitorElement *res_displaced_ptRel = nullptr;  // for all eta and pT (delta(pT)/pT)
+  MonitorElement *res_displaced_eta = nullptr;  // for all eta and pT
+  MonitorElement *res_displaced_pt = nullptr;   // for all eta and pT
+  MonitorElement *res_displaced_ptRel =
+      nullptr;  // for all eta and pT (delta(pT)/pT)
 
   // Regular L1 track histograms
   std::vector<MonitorElement *> respt_pt2to3;
@@ -160,7 +160,7 @@ public:
   std::vector<MonitorElement *> resz0_displaced_vect;
   std::vector<MonitorElement *> resd0_displaced_vect;
 
-private:
+ private:
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> m_topoToken;
   edm::ParameterSet conf_;
   edm::EDGetTokenT<std::vector<TrackingParticle>> trackingParticleToken_;
@@ -171,9 +171,12 @@ private:
   edm::EDGetTokenT<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>
       ttTrackMCTruthToken_;  // MC truth association map for tracks
   edm::EDGetTokenT<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>
-      ttTrackMCTruthExtendedToken_;  // MC truth association map for extended tracks
-  edm::EDGetTokenT<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>> ttStubToken_;  // L1 Stub token
-  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> getTokenTrackerGeom_;     // Tracker geometry token
+      ttTrackMCTruthExtendedToken_;  // MC truth association map for extended
+                                     // tracks
+  edm::EDGetTokenT<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>>
+      ttStubToken_;  // L1 Stub token
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord>
+      getTokenTrackerGeom_;  // Tracker geometry token
   int L1Tk_minNStub;
   double L1Tk_maxChi2dof;
   int TP_minNStub;
@@ -192,35 +195,50 @@ private:
 Phase2OTValidateTracks::Phase2OTValidateTracks(const edm::ParameterSet &iConfig)
     : m_topoToken(esConsumes()), conf_(iConfig) {
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
-  trackingParticleToken_ =
-      consumes<std::vector<TrackingParticle>>(conf_.getParameter<edm::InputTag>("trackingParticleToken"));
-  ttStubMCTruthToken_ =
-      consumes<TTStubAssociationMap<Ref_Phase2TrackerDigi_>>(conf_.getParameter<edm::InputTag>("MCTruthStubInputTag"));
-  ttClusterMCTruthToken_ = consumes<TTClusterAssociationMap<Ref_Phase2TrackerDigi_>>(
-      conf_.getParameter<edm::InputTag>("MCTruthClusterInputTag"));
-  ttTrackMCTruthToken_ = consumes<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>(
-      conf_.getParameter<edm::InputTag>("MCTruthTrackInputTag"));
-  ttTrackMCTruthExtendedToken_ = consumes<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>(
-      conf_.getParameter<edm::InputTag>("MCTruthTrackExtendedInputTag"));
+  trackingParticleToken_ = consumes<std::vector<TrackingParticle>>(
+      conf_.getParameter<edm::InputTag>("trackingParticleToken"));
+  ttStubMCTruthToken_ = consumes<TTStubAssociationMap<Ref_Phase2TrackerDigi_>>(
+      conf_.getParameter<edm::InputTag>("MCTruthStubInputTag"));
+  ttClusterMCTruthToken_ =
+      consumes<TTClusterAssociationMap<Ref_Phase2TrackerDigi_>>(
+          conf_.getParameter<edm::InputTag>("MCTruthClusterInputTag"));
+  ttTrackMCTruthToken_ =
+      consumes<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>(
+          conf_.getParameter<edm::InputTag>("MCTruthTrackInputTag"));
+  ttTrackMCTruthExtendedToken_ =
+      consumes<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>(
+          conf_.getParameter<edm::InputTag>("MCTruthTrackExtendedInputTag"));
   ttStubToken_ = consumes<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>>(
       edm::InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"));
-  getTokenTrackerGeom_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
-  L1Tk_minNStub = conf_.getParameter<int>("L1Tk_minNStub");         // min number of stubs in the track
-  L1Tk_maxChi2dof = conf_.getParameter<double>("L1Tk_maxChi2dof");  // maximum chi2/dof of the track
-  TP_minNStub = conf_.getParameter<int>("TP_minNStub");  // Minimum number of stubs associated to the tracking particle
+  getTokenTrackerGeom_ =
+      esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
+  L1Tk_minNStub = conf_.getParameter<int>(
+      "L1Tk_minNStub");  // min number of stubs in the track
+  L1Tk_maxChi2dof = conf_.getParameter<double>(
+      "L1Tk_maxChi2dof");  // maximum chi2/dof of the track
+  TP_minNStub = conf_.getParameter<int>(
+      "TP_minNStub");  // Minimum number of stubs associated to the tracking
+                       // particle
   TP_minNLayersStub = conf_.getParameter<int>(
-      "TP_minNLayersStub");  // Minimum number of layers with stubs for the tracking particle to be considered for matching
+      "TP_minNLayersStub");  // Minimum number of layers with stubs for the
+                             // tracking particle to be considered for matching
   TP_minNLayersStub = conf_.getParameter<int>("TP_minNLayersStub");
-  TP_minPt = conf_.getParameter<double>("TP_minPt");    // min pT to consider matching
-  TP_maxEta = conf_.getParameter<double>("TP_maxEta");  // max eta to consider matching
-  TP_maxZ0 = conf_.getParameter<double>("TP_maxZ0");    // max vertZ (or z0) to consider matching
-  TP_maxLxy = conf_.getParameter<double>("TP_maxLxy");  // max Lxy to consider prompt matching
-  TP_maxD0 = conf_.getParameter<double>("TP_maxD0");    // max d0 to consider prompt matching
+  TP_minPt =
+      conf_.getParameter<double>("TP_minPt");  // min pT to consider matching
+  TP_maxEta =
+      conf_.getParameter<double>("TP_maxEta");  // max eta to consider matching
+  TP_maxZ0 = conf_.getParameter<double>(
+      "TP_maxZ0");  // max vertZ (or z0) to consider matching
+  TP_maxLxy = conf_.getParameter<double>(
+      "TP_maxLxy");  // max Lxy to consider prompt matching
+  TP_maxD0 = conf_.getParameter<double>(
+      "TP_maxD0");  // max d0 to consider prompt matching
 }
 
 Phase2OTValidateTracks::~Phase2OTValidateTracks() = default;
 
-void Phase2OTValidateTracks::dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
+void Phase2OTValidateTracks::dqmBeginRun(const edm::Run &iRun,
+                                         const edm::EventSetup &iSetup) {
   // Clear existing histograms
   respt_pt2to3.clear();
   respt_pt3to8.clear();
@@ -277,17 +295,11 @@ void Phase2OTValidateTracks::dqmBeginRun(const edm::Run &iRun, const edm::EventS
 // Helper function to process a track collection (nominal or extended)
 // ---------------------------------------------------------------------
 void Phase2OTValidateTracks::processTrackCollection(
-    const edm::Handle<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>> &trackHandle,
-    edm::Ptr<TrackingParticle> tp_ptr,
-    bool isExtended,
-    int tmp_tp_pdgid,
-    float tmp_tp_d0,
-    float tmp_tp_Lxy,
-    float tmp_tp_pt,
-    float tmp_tp_eta,
-    float tmp_tp_phi,
-    float tmp_tp_z0,
-    const edm::Event &iEvent) {
+    const edm::Handle<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>
+        &trackHandle,
+    edm::Ptr<TrackingParticle> tp_ptr, bool isExtended, int tmp_tp_pdgid,
+    float tmp_tp_d0, float tmp_tp_Lxy, float tmp_tp_pt, float tmp_tp_eta,
+    float tmp_tp_phi, float tmp_tp_z0, const edm::Event &iEvent) {
   std::vector<MonitorElement *> *reseta_vect_ptr = nullptr;
   std::vector<MonitorElement *> *resphi_vect_ptr = nullptr;
   std::vector<MonitorElement *> *resz0_vect_ptr = nullptr;
@@ -308,7 +320,8 @@ void Phase2OTValidateTracks::processTrackCollection(
 
   MonitorElement *res_d0_hist_ptr = nullptr;
 
-  std::vector<edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>>> matchedTracks = trackHandle->findTTTrackPtrs(tp_ptr);
+  std::vector<edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>>> matchedTracks =
+      trackHandle->findTTTrackPtrs(tp_ptr);
 
   int tp_nMatch = 0;
   int bestTrackIndex = -1;
@@ -317,16 +330,13 @@ void Phase2OTValidateTracks::processTrackCollection(
   for (size_t i = 0; i < matchedTracks.size(); i++) {
     const auto &thisTrack = matchedTracks[i];
 
-    if (!trackHandle->isGenuine(thisTrack))
-      continue;
+    if (!trackHandle->isGenuine(thisTrack)) continue;
 
     int nStubs = thisTrack->getStubRefs().size();
-    if (nStubs < L1Tk_minNStub)
-      continue;
+    if (nStubs < L1Tk_minNStub) continue;
 
     auto associatedTP = trackHandle->findTrackingParticlePtr(thisTrack);
-    if (!associatedTP.isNonnull())
-      continue;
+    if (!associatedTP.isNonnull()) continue;
 
     float dmatch_pt = std::fabs(associatedTP->p4().pt() - tmp_tp_pt);
     float dmatch_eta = std::fabs(associatedTP->p4().eta() - tmp_tp_eta);
@@ -334,7 +344,8 @@ void Phase2OTValidateTracks::processTrackCollection(
     int match_id = associatedTP->pdgId();
     float chi2dof = thisTrack->chi2Red();
 
-    if (dmatch_pt < 0.1 && dmatch_eta < 0.1 && dmatch_phi < 0.1 && tmp_tp_pdgid == match_id) {
+    if (dmatch_pt < 0.1 && dmatch_eta < 0.1 && dmatch_phi < 0.1 &&
+        tmp_tp_pdgid == match_id) {
       tp_nMatch++;
       if (bestTrackIndex < 0 || chi2dof < bestChi2dof) {
         bestTrackIndex = i;
@@ -343,18 +354,17 @@ void Phase2OTValidateTracks::processTrackCollection(
     }
   }  // end loop over matched tracks
 
-  if (tp_nMatch < 1)
-    return;
+  if (tp_nMatch < 1) return;
 
   const auto &bestTrack = matchedTracks[bestTrackIndex];
 
-  float bestTrack_d0 = -bestTrack->POCA().x() * sin(bestTrack->momentum().phi()) +
-                       bestTrack->POCA().y() * cos(bestTrack->momentum().phi());
+  float bestTrack_d0 =
+      -bestTrack->POCA().x() * sin(bestTrack->momentum().phi()) +
+      bestTrack->POCA().y() * cos(bestTrack->momentum().phi());
 
   int nStubs = bestTrack->getStubRefs().size();
   float chi2dof = bestTrack->chi2Red();
-  if (nStubs < L1Tk_minNStub || chi2dof > L1Tk_maxChi2dof)
-    return;
+  if (nStubs < L1Tk_minNStub || chi2dof > L1Tk_maxChi2dof) return;
 
   if (isExtended) {
     // if extended, if "prompt" or "displaced"
@@ -453,7 +463,8 @@ void Phase2OTValidateTracks::processTrackCollection(
   // Fill resolution plots for different abs(eta) bins:
   float bins[7] = {0.f, 0.7f, 1.0f, 1.2f, 1.6f, 2.0f, 2.4f};
   for (int i = 0; i < 6; i++) {
-    if (std::fabs(tmp_tp_eta) >= bins[i] && std::fabs(tmp_tp_eta) < bins[i + 1]) {
+    if (std::fabs(tmp_tp_eta) >= bins[i] &&
+        std::fabs(tmp_tp_eta) < bins[i + 1]) {
       // Use pointer dereferences to fill
       (*reseta_vect_ptr)[i]->Fill(eta_res);
       (*resphi_vect_ptr)[i]->Fill(phi_res);
@@ -473,21 +484,26 @@ void Phase2OTValidateTracks::processTrackCollection(
 }
 
 // ------------ method called for each event  ------------
-void Phase2OTValidateTracks::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+void Phase2OTValidateTracks::analyze(const edm::Event &iEvent,
+                                     const edm::EventSetup &iSetup) {
   // Tracking Particles
   edm::Handle<std::vector<TrackingParticle>> trackingParticleHandle;
   iEvent.getByToken(trackingParticleToken_, trackingParticleHandle);
 
   // Truth Association Maps
-  edm::Handle<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>> MCTruthTTTrackHandle;
+  edm::Handle<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>
+      MCTruthTTTrackHandle;
   iEvent.getByToken(ttTrackMCTruthToken_, MCTruthTTTrackHandle);
-  edm::Handle<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>> MCTruthTTTrackExtendedHandle;
+  edm::Handle<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>
+      MCTruthTTTrackExtendedHandle;
   iEvent.getByToken(ttTrackMCTruthExtendedToken_, MCTruthTTTrackExtendedHandle);
-  edm::Handle<TTClusterAssociationMap<Ref_Phase2TrackerDigi_>> MCTruthTTClusterHandle;
+  edm::Handle<TTClusterAssociationMap<Ref_Phase2TrackerDigi_>>
+      MCTruthTTClusterHandle;
   iEvent.getByToken(ttClusterMCTruthToken_, MCTruthTTClusterHandle);
   edm::Handle<TTStubAssociationMap<Ref_Phase2TrackerDigi_>> MCTruthTTStubHandle;
   iEvent.getByToken(ttStubMCTruthToken_, MCTruthTTStubHandle);
-  edm::Handle<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>> TTStubHandle;
+  edm::Handle<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>>
+      TTStubHandle;
   iEvent.getByToken(ttStubToken_, TTStubHandle);
 
   // Geometries
@@ -504,8 +520,9 @@ void Phase2OTValidateTracks::analyze(const edm::Event &iEvent, const edm::EventS
     float tmp_tp_phi = iterTP.phi();
     float tmp_tp_eta = iterTP.eta();
 
-    //Calculate nLayers variable
-    std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>, TTStub<Ref_Phase2TrackerDigi_>>>
+    // Calculate nLayers variable
+    std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>,
+                         TTStub<Ref_Phase2TrackerDigi_>>>
         theStubRefs = MCTruthTTStubHandle->findTTStubRefs(tp_ptr);
 
     int hasStubInLayer[11] = {0};
@@ -513,12 +530,16 @@ void Phase2OTValidateTracks::analyze(const edm::Event &iEvent, const edm::EventS
       DetId detid(theStubRefs.at(is)->getDetId());
       int layer = -1;
       if (detid.subdetId() == StripSubdetector::TOB)
-        layer = static_cast<int>(tTopo->layer(detid)) - 1;  //fill in array as entries 0-5
+        layer = static_cast<int>(tTopo->layer(detid)) -
+                1;  // fill in array as entries 0-5
       else if (detid.subdetId() == StripSubdetector::TID)
-        layer = static_cast<int>(tTopo->layer(detid)) + 5;  //fill in array as entries 6-10
+        layer = static_cast<int>(tTopo->layer(detid)) +
+                5;  // fill in array as entries 6-10
 
-      //treat genuine stubs separately (==2 is genuine, ==1 is not)
-      if (MCTruthTTStubHandle->findTrackingParticlePtr(theStubRefs.at(is)).isNull() && hasStubInLayer[layer] < 2)
+      // treat genuine stubs separately (==2 is genuine, ==1 is not)
+      if (MCTruthTTStubHandle->findTrackingParticlePtr(theStubRefs.at(is))
+              .isNull() &&
+          hasStubInLayer[layer] < 2)
         hasStubInLayer[layer] = 1;
       else
         hasStubInLayer[layer] = 2;
@@ -526,13 +547,12 @@ void Phase2OTValidateTracks::analyze(const edm::Event &iEvent, const edm::EventS
 
     int nStubLayerTP = 0;
     for (int isum = 0; isum < 11; isum++) {
-      if (hasStubInLayer[isum] >= 1)
-        nStubLayerTP += 1;
+      if (hasStubInLayer[isum] >= 1) nStubLayerTP += 1;
     }
 
-    if (std::fabs(tmp_tp_eta) > TP_maxEta)
-      continue;
-    // Fill the 1D distribution plots for tracking particles, to monitor change in stub definition
+    if (std::fabs(tmp_tp_eta) > TP_maxEta) continue;
+    // Fill the 1D distribution plots for tracking particles, to monitor change
+    // in stub definition
     if (tmp_tp_pt > TP_minPt && nStubLayerTP >= TP_minNLayersStub) {
       trackParts_Pt->Fill(tmp_tp_pt);
       trackParts_Eta->Fill(tmp_tp_eta);
@@ -540,37 +560,41 @@ void Phase2OTValidateTracks::analyze(const edm::Event &iEvent, const edm::EventS
     }
 
     // if (TP_select_eventid == 0 && tmp_eventid != 0)
-    //   continue;  //only care about tracking particles from the primary interaction for efficiency/resolution
+    //   continue;  //only care about tracking particles from the primary
+    //   interaction for efficiency/resolution
     int nStubTP = -1;
     if (MCTruthTTStubHandle.isValid()) {
-      std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>, TTStub<Ref_Phase2TrackerDigi_>>>
+      std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>,
+                           TTStub<Ref_Phase2TrackerDigi_>>>
           theStubRefs = MCTruthTTStubHandle->findTTStubRefs(tp_ptr);
       nStubTP = (int)theStubRefs.size();
     }
-    if (MCTruthTTClusterHandle.isValid() && MCTruthTTClusterHandle->findTTClusterRefs(tp_ptr).empty())
+    if (MCTruthTTClusterHandle.isValid() &&
+        MCTruthTTClusterHandle->findTTClusterRefs(tp_ptr).empty())
       continue;
 
     int tmp_tp_pdgid = iterTP.pdgId();
 
     float tmp_tp_z0, tmp_tp_Lxy, tmp_tp_d0;
-    std::tie(tmp_tp_z0, tmp_tp_Lxy, tmp_tp_d0) = phase2tkutil::computeZ0LxyD0(*tp_ptr);
+    std::tie(tmp_tp_z0, tmp_tp_Lxy, tmp_tp_d0) =
+        phase2tkutil::computeZ0LxyD0(*tp_ptr);
 
-    if (std::fabs(tmp_tp_z0) > TP_maxZ0)
-      continue;
+    if (std::fabs(tmp_tp_z0) > TP_maxZ0) continue;
 
     // To make efficiency plots where the denominator has NO stub cuts
     if (tmp_tp_Lxy < 1.0) {
-      tp_pt->Fill(tmp_tp_pt);  //pT effic, no cut on pT, but Lxy cut
+      tp_pt->Fill(tmp_tp_pt);  // pT effic, no cut on pT, but Lxy cut
       if (tmp_tp_pt <= 10)
-        tp_pt_zoom->Fill(tmp_tp_pt);  //pT effic, no cut on pT, but Lxy cut
+        tp_pt_zoom->Fill(tmp_tp_pt);  // pT effic, no cut on pT, but Lxy cut
     }
-    tp_pt_for_dis->Fill(tmp_tp_pt);  //pT effic for displaced, no cut on pT or Lxy
+    tp_pt_for_dis->Fill(
+        tmp_tp_pt);  // pT effic for displaced, no cut on pT or Lxy
     if (tmp_tp_pt <= 10) {
-      tp_pt_zoom_for_dis->Fill(tmp_tp_pt);  //pT effic for displaced, no cut on pT or Lxy
+      tp_pt_zoom_for_dis->Fill(
+          tmp_tp_pt);  // pT effic for displaced, no cut on pT or Lxy
     }
 
-    if (tmp_tp_pt < TP_minPt)
-      continue;
+    if (tmp_tp_pt < TP_minPt) continue;
     tp_Lxy->Fill(tmp_tp_Lxy);  // Lxy efficiency has no cut on Lxy
     tp_eta_for_dis->Fill(tmp_tp_eta);
     tp_d0_for_dis->Fill(tmp_tp_d0);
@@ -578,44 +602,29 @@ void Phase2OTValidateTracks::analyze(const edm::Event &iEvent, const edm::EventS
 
     if (MCTruthTTTrackExtendedHandle.isValid()) {
       if (nStubTP >= TP_minNStub || nStubLayerTP >= TP_minNLayersStub) {
-        processTrackCollection(MCTruthTTTrackExtendedHandle,
-                               tp_ptr,
-                               true,
-                               tmp_tp_pdgid,
-                               tmp_tp_d0,
-                               tmp_tp_Lxy,
-                               tmp_tp_pt,
-                               tmp_tp_eta,
-                               tmp_tp_phi,
-                               tmp_tp_z0,
+        processTrackCollection(MCTruthTTTrackExtendedHandle, tp_ptr, true,
+                               tmp_tp_pdgid, tmp_tp_d0, tmp_tp_Lxy, tmp_tp_pt,
+                               tmp_tp_eta, tmp_tp_phi, tmp_tp_z0,
                                iEvent);  // Extended Tracks
       }
     }
 
-    if (tmp_tp_Lxy > TP_maxLxy)
-      continue;
+    if (tmp_tp_Lxy > TP_maxLxy) continue;
 
     tp_eta->Fill(tmp_tp_eta);
     tp_d0->Fill(tmp_tp_d0);
     tp_z0->Fill(tmp_tp_z0);
 
     if (nStubTP < TP_minNStub || nStubLayerTP < TP_minNLayersStub)
-      continue;  //nStub cut not included in denominator of efficiency plots
+      continue;  // nStub cut not included in denominator of efficiency plots
 
     if (MCTruthTTTrackHandle.isValid()) {
-      processTrackCollection(MCTruthTTTrackHandle,
-                             tp_ptr,
-                             false,
-                             tmp_tp_pdgid,
-                             tmp_tp_d0,
-                             tmp_tp_Lxy,
-                             tmp_tp_pt,
-                             tmp_tp_eta,
-                             tmp_tp_phi,
-                             tmp_tp_z0,
+      processTrackCollection(MCTruthTTTrackHandle, tp_ptr, false, tmp_tp_pdgid,
+                             tmp_tp_d0, tmp_tp_Lxy, tmp_tp_pt, tmp_tp_eta,
+                             tmp_tp_phi, tmp_tp_z0,
                              iEvent);  // Regular L1 Tracks
     }
-  }  //end loop over tracking particles
+  }  // end loop over tracking particles
 }  // end of method
 
 // ------------ method called once each job just before starting event loop
@@ -623,63 +632,77 @@ void Phase2OTValidateTracks::analyze(const edm::Event &iEvent, const edm::EventS
 void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
                                             edm::Run const &run,
                                             edm::EventSetup const &es) {
-  edm::ParameterSet psTrackParts_Pt = conf_.getParameter<edm::ParameterSet>("TH1TrackParts_Pt");
-  edm::ParameterSet psTrackParts_Eta = conf_.getParameter<edm::ParameterSet>("TH1TrackParts_Eta");
-  edm::ParameterSet psTrackParts_Phi = conf_.getParameter<edm::ParameterSet>("TH1TrackParts_Phi");
-  edm::ParameterSet psEffic_pt = conf_.getParameter<edm::ParameterSet>("TH1Effic_pt");
-  edm::ParameterSet psEffic_pt_zoom = conf_.getParameter<edm::ParameterSet>("TH1Effic_pt_zoom");
-  edm::ParameterSet psEffic_eta = conf_.getParameter<edm::ParameterSet>("TH1Effic_eta");
-  edm::ParameterSet psEffic_d0 = conf_.getParameter<edm::ParameterSet>("TH1Effic_d0");
-  edm::ParameterSet psDisEffic_d0 = conf_.getParameter<edm::ParameterSet>("TH1DisEffic_d0");
-  edm::ParameterSet psEffic_Lxy = conf_.getParameter<edm::ParameterSet>("TH1Effic_Lxy");
-  edm::ParameterSet psEffic_z0 = conf_.getParameter<edm::ParameterSet>("TH1Effic_z0");
-  edm::ParameterSet psRes_pt = conf_.getParameter<edm::ParameterSet>("TH1Res_pt");
-  edm::ParameterSet psRes_eta = conf_.getParameter<edm::ParameterSet>("TH1Res_eta");
-  edm::ParameterSet psRes_ptRel = conf_.getParameter<edm::ParameterSet>("TH1Res_ptRel");
-  edm::ParameterSet psRes_phi = conf_.getParameter<edm::ParameterSet>("TH1Res_phi");
-  edm::ParameterSet psRes_z0 = conf_.getParameter<edm::ParameterSet>("TH1Res_z0");
-  edm::ParameterSet psRes_d0 = conf_.getParameter<edm::ParameterSet>("TH1Res_d0");
-  edm::ParameterSet psRes_displaced_d0 = conf_.getParameter<edm::ParameterSet>("TH1Resdisplaced_d0");
+  edm::ParameterSet psTrackParts_Pt =
+      conf_.getParameter<edm::ParameterSet>("TH1TrackParts_Pt");
+  edm::ParameterSet psTrackParts_Eta =
+      conf_.getParameter<edm::ParameterSet>("TH1TrackParts_Eta");
+  edm::ParameterSet psTrackParts_Phi =
+      conf_.getParameter<edm::ParameterSet>("TH1TrackParts_Phi");
+  edm::ParameterSet psEffic_pt =
+      conf_.getParameter<edm::ParameterSet>("TH1Effic_pt");
+  edm::ParameterSet psEffic_pt_zoom =
+      conf_.getParameter<edm::ParameterSet>("TH1Effic_pt_zoom");
+  edm::ParameterSet psEffic_eta =
+      conf_.getParameter<edm::ParameterSet>("TH1Effic_eta");
+  edm::ParameterSet psEffic_d0 =
+      conf_.getParameter<edm::ParameterSet>("TH1Effic_d0");
+  edm::ParameterSet psDisEffic_d0 =
+      conf_.getParameter<edm::ParameterSet>("TH1DisEffic_d0");
+  edm::ParameterSet psEffic_Lxy =
+      conf_.getParameter<edm::ParameterSet>("TH1Effic_Lxy");
+  edm::ParameterSet psEffic_z0 =
+      conf_.getParameter<edm::ParameterSet>("TH1Effic_z0");
+  edm::ParameterSet psRes_pt =
+      conf_.getParameter<edm::ParameterSet>("TH1Res_pt");
+  edm::ParameterSet psRes_eta =
+      conf_.getParameter<edm::ParameterSet>("TH1Res_eta");
+  edm::ParameterSet psRes_ptRel =
+      conf_.getParameter<edm::ParameterSet>("TH1Res_ptRel");
+  edm::ParameterSet psRes_phi =
+      conf_.getParameter<edm::ParameterSet>("TH1Res_phi");
+  edm::ParameterSet psRes_z0 =
+      conf_.getParameter<edm::ParameterSet>("TH1Res_z0");
+  edm::ParameterSet psRes_d0 =
+      conf_.getParameter<edm::ParameterSet>("TH1Res_d0");
+  edm::ParameterSet psRes_displaced_d0 =
+      conf_.getParameter<edm::ParameterSet>("TH1Resdisplaced_d0");
   // Histogram setup and definitions
   std::string HistoName;
   iBooker.setCurrentFolder(topFolderName_ + "/trackParticles");
 
   // 1D: pT
   HistoName = "trackParts_Pt";
-  trackParts_Pt = iBooker.book1D(HistoName,
-                                 HistoName,
-                                 psTrackParts_Pt.getParameter<int32_t>("Nbinsx"),
-                                 psTrackParts_Pt.getParameter<double>("xmin"),
-                                 psTrackParts_Pt.getParameter<double>("xmax"));
+  trackParts_Pt = iBooker.book1D(
+      HistoName, HistoName, psTrackParts_Pt.getParameter<int32_t>("Nbinsx"),
+      psTrackParts_Pt.getParameter<double>("xmin"),
+      psTrackParts_Pt.getParameter<double>("xmax"));
   trackParts_Pt->setAxisTitle("p_{T} [GeV]", 1);
   trackParts_Pt->setAxisTitle("# tracking particles", 2);
 
   // 1D: eta
   HistoName = "trackParts_Eta";
-  trackParts_Eta = iBooker.book1D(HistoName,
-                                  HistoName,
-                                  psTrackParts_Eta.getParameter<int32_t>("Nbinsx"),
-                                  psTrackParts_Eta.getParameter<double>("xmin"),
-                                  psTrackParts_Eta.getParameter<double>("xmax"));
+  trackParts_Eta = iBooker.book1D(
+      HistoName, HistoName, psTrackParts_Eta.getParameter<int32_t>("Nbinsx"),
+      psTrackParts_Eta.getParameter<double>("xmin"),
+      psTrackParts_Eta.getParameter<double>("xmax"));
   trackParts_Eta->setAxisTitle("#eta", 1);
   trackParts_Eta->setAxisTitle("# tracking particles", 2);
 
   // 1D: phi
   HistoName = "trackParts_Phi";
-  trackParts_Phi = iBooker.book1D(HistoName,
-                                  HistoName,
-                                  psTrackParts_Phi.getParameter<int32_t>("Nbinsx"),
-                                  psTrackParts_Phi.getParameter<double>("xmin"),
-                                  psTrackParts_Phi.getParameter<double>("xmax"));
+  trackParts_Phi = iBooker.book1D(
+      HistoName, HistoName, psTrackParts_Phi.getParameter<int32_t>("Nbinsx"),
+      psTrackParts_Phi.getParameter<double>("xmin"),
+      psTrackParts_Phi.getParameter<double>("xmax"));
   trackParts_Phi->setAxisTitle("#phi", 1);
   trackParts_Phi->setAxisTitle("# tracking particles", 2);
 
   // 1D plots for nominal collection efficiency
-  iBooker.setCurrentFolder(topFolderName_ + "/Nominal_L1TF/EfficiencyIngredients");
+  iBooker.setCurrentFolder(topFolderName_ +
+                           "/Nominal_L1TF/EfficiencyIngredients");
   // pT
   HistoName = "tp_pt";
-  tp_pt = iBooker.book1D(HistoName,
-                         HistoName,
+  tp_pt = iBooker.book1D(HistoName, HistoName,
                          psEffic_pt.getParameter<int32_t>("Nbinsx"),
                          psEffic_pt.getParameter<double>("xmin"),
                          psEffic_pt.getParameter<double>("xmax"));
@@ -688,8 +711,7 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
 
   // Matched TP's pT
   HistoName = "match_tp_pt";
-  match_tp_pt = iBooker.book1D(HistoName,
-                               HistoName,
+  match_tp_pt = iBooker.book1D(HistoName, HistoName,
                                psEffic_pt.getParameter<int32_t>("Nbinsx"),
                                psEffic_pt.getParameter<double>("xmin"),
                                psEffic_pt.getParameter<double>("xmax"));
@@ -698,8 +720,7 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
 
   // pT zoom (0-10 GeV)
   HistoName = "tp_pt_zoom";
-  tp_pt_zoom = iBooker.book1D(HistoName,
-                              HistoName,
+  tp_pt_zoom = iBooker.book1D(HistoName, HistoName,
                               psEffic_pt_zoom.getParameter<int32_t>("Nbinsx"),
                               psEffic_pt_zoom.getParameter<double>("xmin"),
                               psEffic_pt_zoom.getParameter<double>("xmax"));
@@ -708,18 +729,16 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
 
   // Matched pT zoom (0-10 GeV)
   HistoName = "match_tp_pt_zoom";
-  match_tp_pt_zoom = iBooker.book1D(HistoName,
-                                    HistoName,
-                                    psEffic_pt_zoom.getParameter<int32_t>("Nbinsx"),
-                                    psEffic_pt_zoom.getParameter<double>("xmin"),
-                                    psEffic_pt_zoom.getParameter<double>("xmax"));
+  match_tp_pt_zoom = iBooker.book1D(
+      HistoName, HistoName, psEffic_pt_zoom.getParameter<int32_t>("Nbinsx"),
+      psEffic_pt_zoom.getParameter<double>("xmin"),
+      psEffic_pt_zoom.getParameter<double>("xmax"));
   match_tp_pt_zoom->setAxisTitle("p_{T} [GeV]", 1);
   match_tp_pt_zoom->setAxisTitle("# matched tracking particles", 2);
 
   // eta
   HistoName = "tp_eta";
-  tp_eta = iBooker.book1D(HistoName,
-                          HistoName,
+  tp_eta = iBooker.book1D(HistoName, HistoName,
                           psEffic_eta.getParameter<int32_t>("Nbinsx"),
                           psEffic_eta.getParameter<double>("xmin"),
                           psEffic_eta.getParameter<double>("xmax"));
@@ -728,8 +747,7 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
 
   // Matched eta
   HistoName = "match_tp_eta";
-  match_tp_eta = iBooker.book1D(HistoName,
-                                HistoName,
+  match_tp_eta = iBooker.book1D(HistoName, HistoName,
                                 psEffic_eta.getParameter<int32_t>("Nbinsx"),
                                 psEffic_eta.getParameter<double>("xmin"),
                                 psEffic_eta.getParameter<double>("xmax"));
@@ -738,8 +756,7 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
 
   // d0
   HistoName = "tp_d0";
-  tp_d0 = iBooker.book1D(HistoName,
-                         HistoName,
+  tp_d0 = iBooker.book1D(HistoName, HistoName,
                          psEffic_d0.getParameter<int32_t>("Nbinsx"),
                          psEffic_d0.getParameter<double>("xmin"),
                          psEffic_d0.getParameter<double>("xmax"));
@@ -748,8 +765,7 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
 
   // Matched d0
   HistoName = "match_tp_d0";
-  match_tp_d0 = iBooker.book1D(HistoName,
-                               HistoName,
+  match_tp_d0 = iBooker.book1D(HistoName, HistoName,
                                psEffic_d0.getParameter<int32_t>("Nbinsx"),
                                psEffic_d0.getParameter<double>("xmin"),
                                psEffic_d0.getParameter<double>("xmax"));
@@ -758,8 +774,7 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
 
   // Lxy (also known as vxy)
   HistoName = "tp_Lxy";
-  tp_Lxy = iBooker.book1D(HistoName,
-                          HistoName,
+  tp_Lxy = iBooker.book1D(HistoName, HistoName,
                           psEffic_Lxy.getParameter<int32_t>("Nbinsx"),
                           psEffic_Lxy.getParameter<double>("xmin"),
                           psEffic_Lxy.getParameter<double>("xmax"));
@@ -768,8 +783,7 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
 
   // Matched Lxy
   HistoName = "match_tp_Lxy";
-  match_tp_Lxy = iBooker.book1D(HistoName,
-                                HistoName,
+  match_tp_Lxy = iBooker.book1D(HistoName, HistoName,
                                 psEffic_Lxy.getParameter<int32_t>("Nbinsx"),
                                 psEffic_Lxy.getParameter<double>("xmin"),
                                 psEffic_Lxy.getParameter<double>("xmax"));
@@ -778,8 +792,7 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
 
   // z0
   HistoName = "tp_z0";
-  tp_z0 = iBooker.book1D(HistoName,
-                         HistoName,
+  tp_z0 = iBooker.book1D(HistoName, HistoName,
                          psEffic_z0.getParameter<int32_t>("Nbinsx"),
                          psEffic_z0.getParameter<double>("xmin"),
                          psEffic_z0.getParameter<double>("xmax"));
@@ -788,8 +801,7 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
 
   // Matched d0
   HistoName = "match_tp_z0";
-  match_tp_z0 = iBooker.book1D(HistoName,
-                               HistoName,
+  match_tp_z0 = iBooker.book1D(HistoName, HistoName,
                                psEffic_z0.getParameter<int32_t>("Nbinsx"),
                                psEffic_z0.getParameter<double>("xmin"),
                                psEffic_z0.getParameter<double>("xmax"));
@@ -800,8 +812,7 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
   iBooker.setCurrentFolder(topFolderName_ + "/Nominal_L1TF/Residual");
   // full pT
   HistoName = "res_pt";
-  res_pt = iBooker.book1D(HistoName,
-                          HistoName,
+  res_pt = iBooker.book1D(HistoName, HistoName,
                           psRes_pt.getParameter<int32_t>("Nbinsx"),
                           psRes_pt.getParameter<double>("xmin"),
                           psRes_pt.getParameter<double>("xmax"));
@@ -810,8 +821,7 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
 
   // Full eta
   HistoName = "res_eta";
-  res_eta = iBooker.book1D(HistoName,
-                           HistoName,
+  res_eta = iBooker.book1D(HistoName, HistoName,
                            psRes_eta.getParameter<int32_t>("Nbinsx"),
                            psRes_eta.getParameter<double>("xmin"),
                            psRes_eta.getParameter<double>("xmax"));
@@ -820,8 +830,7 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
 
   // Relative pT
   HistoName = "res_ptRel";
-  res_ptRel = iBooker.book1D(HistoName,
-                             HistoName,
+  res_ptRel = iBooker.book1D(HistoName, HistoName,
                              psRes_ptRel.getParameter<int32_t>("Nbinsx"),
                              psRes_ptRel.getParameter<double>("xmin"),
                              psRes_ptRel.getParameter<double>("xmax"));
@@ -829,21 +838,21 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
   res_ptRel->setAxisTitle("# tracking particles", 2);
 
   HistoName = "res_d0";
-  d0_res_hist = iBooker.book1D(HistoName,
-                               HistoName,
+  d0_res_hist = iBooker.book1D(HistoName, HistoName,
                                psRes_d0.getParameter<int32_t>("Nbinsx"),
                                psRes_d0.getParameter<double>("xmin"),
                                psRes_d0.getParameter<double>("xmax"));
   d0_res_hist->setAxisTitle("trk d_{0} - tp d_{0} [cm]", 1);
   d0_res_hist->setAxisTitle("# tracking particles", 2);
 
-  iBooker.setCurrentFolder(topFolderName_ + "/Nominal_L1TF/ResolutionIngredients");
-  std::string ranges[6] = {"eta0to0p7", "eta0p7to1", "eta1to1p2", "eta1p2to1p6", "eta1p6to2", "eta2to2p4"};
+  iBooker.setCurrentFolder(topFolderName_ +
+                           "/Nominal_L1TF/ResolutionIngredients");
+  std::string ranges[6] = {"eta0to0p7",   "eta0p7to1", "eta1to1p2",
+                           "eta1p2to1p6", "eta1p6to2", "eta2to2p4"};
   for (int i = 0; i < 6; i++) {
     // Eta parts (for resolution)
     HistoName = "reseta_" + ranges[i];
-    reseta_vect[i] = iBooker.book1D(HistoName,
-                                    HistoName,
+    reseta_vect[i] = iBooker.book1D(HistoName, HistoName,
                                     psRes_eta.getParameter<int32_t>("Nbinsx"),
                                     psRes_eta.getParameter<double>("xmin"),
                                     psRes_eta.getParameter<double>("xmax"));
@@ -853,8 +862,7 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
     // pT parts for resolution (pT res vs eta)
     // pT a (2 to 3 GeV)
     HistoName = "respt_" + ranges[i] + "_pt2to3";
-    respt_pt2to3[i] = iBooker.book1D(HistoName,
-                                     HistoName,
+    respt_pt2to3[i] = iBooker.book1D(HistoName, HistoName,
                                      psRes_pt.getParameter<int32_t>("Nbinsx"),
                                      psRes_pt.getParameter<double>("xmin"),
                                      psRes_pt.getParameter<double>("xmax"));
@@ -863,8 +871,7 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
 
     // pT b (3 to 8 GeV)
     HistoName = "respt_" + ranges[i] + "_pt3to8";
-    respt_pt3to8[i] = iBooker.book1D(HistoName,
-                                     HistoName,
+    respt_pt3to8[i] = iBooker.book1D(HistoName, HistoName,
                                      psRes_pt.getParameter<int32_t>("Nbinsx"),
                                      psRes_pt.getParameter<double>("xmin"),
                                      psRes_pt.getParameter<double>("xmax"));
@@ -873,8 +880,7 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
 
     // pT c (>8 GeV)
     HistoName = "respt_" + ranges[i] + "_pt8toInf";
-    respt_pt8toInf[i] = iBooker.book1D(HistoName,
-                                       HistoName,
+    respt_pt8toInf[i] = iBooker.book1D(HistoName, HistoName,
                                        psRes_pt.getParameter<int32_t>("Nbinsx"),
                                        psRes_pt.getParameter<double>("xmin"),
                                        psRes_pt.getParameter<double>("xmax"));
@@ -883,8 +889,7 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
 
     // Phi parts (for resolution)
     HistoName = "resphi_" + ranges[i];
-    resphi_vect[i] = iBooker.book1D(HistoName,
-                                    HistoName,
+    resphi_vect[i] = iBooker.book1D(HistoName, HistoName,
                                     psRes_phi.getParameter<int32_t>("Nbinsx"),
                                     psRes_phi.getParameter<double>("xmin"),
                                     psRes_phi.getParameter<double>("xmax"));
@@ -893,8 +898,7 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
 
     // z0 parts (for resolution)
     HistoName = "resz0_" + ranges[i];
-    resz0_vect[i] = iBooker.book1D(HistoName,
-                                   HistoName,
+    resz0_vect[i] = iBooker.book1D(HistoName, HistoName,
                                    psRes_z0.getParameter<int32_t>("Nbinsx"),
                                    psRes_z0.getParameter<double>("xmin"),
                                    psRes_z0.getParameter<double>("xmax"));
@@ -903,8 +907,7 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
 
     // d0 parts (for resolution)
     HistoName = "resd0_" + ranges[i];
-    resd0_vect[i] = iBooker.book1D(HistoName,
-                                   HistoName,
+    resd0_vect[i] = iBooker.book1D(HistoName, HistoName,
                                    psRes_d0.getParameter<int32_t>("Nbinsx"),
                                    psRes_d0.getParameter<double>("xmin"),
                                    psRes_d0.getParameter<double>("xmax"));
@@ -912,11 +915,11 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
     resd0_vect[i]->setAxisTitle("# tracking particles", 2);
   }
 
-  iBooker.setCurrentFolder(topFolderName_ + "/Extended_L1TF/Displaced/EfficiencyIngredients");
+  iBooker.setCurrentFolder(topFolderName_ +
+                           "/Extended_L1TF/Displaced/EfficiencyIngredients");
   // tp pt for denom for displaced tracks
   HistoName = "tp_pt_for_dis";
-  tp_pt_for_dis = iBooker.book1D(HistoName,
-                                 HistoName,
+  tp_pt_for_dis = iBooker.book1D(HistoName, HistoName,
                                  psEffic_pt.getParameter<int32_t>("Nbinsx"),
                                  psEffic_pt.getParameter<double>("xmin"),
                                  psEffic_pt.getParameter<double>("xmax"));
@@ -925,38 +928,36 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
 
   // Matched Extended TP's pt
   HistoName = "match_displaced_tp_pt";
-  match_displaced_tp_pt = iBooker.book1D(HistoName,
-                                         HistoName,
-                                         psEffic_pt.getParameter<int32_t>("Nbinsx"),
-                                         psEffic_pt.getParameter<double>("xmin"),
-                                         psEffic_pt.getParameter<double>("xmax"));
+  match_displaced_tp_pt = iBooker.book1D(
+      HistoName, HistoName, psEffic_pt.getParameter<int32_t>("Nbinsx"),
+      psEffic_pt.getParameter<double>("xmin"),
+      psEffic_pt.getParameter<double>("xmax"));
   match_displaced_tp_pt->setAxisTitle("p_{T} [GeV]", 1);
-  match_displaced_tp_pt->setAxisTitle("# matched extended tracking particles", 2);
+  match_displaced_tp_pt->setAxisTitle("# matched extended tracking particles",
+                                      2);
 
   // Zoom version
   HistoName = "tp_pt_zoom_for_dis";
-  tp_pt_zoom_for_dis = iBooker.book1D(HistoName,
-                                      HistoName,
-                                      psEffic_pt_zoom.getParameter<int32_t>("Nbinsx"),
-                                      psEffic_pt_zoom.getParameter<double>("xmin"),
-                                      psEffic_pt_zoom.getParameter<double>("xmax"));
+  tp_pt_zoom_for_dis = iBooker.book1D(
+      HistoName, HistoName, psEffic_pt_zoom.getParameter<int32_t>("Nbinsx"),
+      psEffic_pt_zoom.getParameter<double>("xmin"),
+      psEffic_pt_zoom.getParameter<double>("xmax"));
   tp_pt_zoom_for_dis->setAxisTitle("p_{T} [GeV]", 1);
   tp_pt_zoom_for_dis->setAxisTitle("# tracking particles", 2);
 
   // Zoom version
   HistoName = "match_displaced_tp_pt_zoom";
-  match_displaced_tp_pt_zoom = iBooker.book1D(HistoName,
-                                              HistoName,
-                                              psEffic_pt_zoom.getParameter<int32_t>("Nbinsx"),
-                                              psEffic_pt_zoom.getParameter<double>("xmin"),
-                                              psEffic_pt_zoom.getParameter<double>("xmax"));
+  match_displaced_tp_pt_zoom = iBooker.book1D(
+      HistoName, HistoName, psEffic_pt_zoom.getParameter<int32_t>("Nbinsx"),
+      psEffic_pt_zoom.getParameter<double>("xmin"),
+      psEffic_pt_zoom.getParameter<double>("xmax"));
   match_displaced_tp_pt_zoom->setAxisTitle("p_{T} [GeV]", 1);
-  match_displaced_tp_pt_zoom->setAxisTitle("# matched extended tracking particles", 2);
+  match_displaced_tp_pt_zoom->setAxisTitle(
+      "# matched extended tracking particles", 2);
 
   // TP's eta for denom for displaced tracks
   HistoName = "tp_eta_for_dis";
-  tp_eta_for_dis = iBooker.book1D(HistoName,
-                                  HistoName,
+  tp_eta_for_dis = iBooker.book1D(HistoName, HistoName,
                                   psEffic_eta.getParameter<int32_t>("Nbinsx"),
                                   psEffic_eta.getParameter<double>("xmin"),
                                   psEffic_eta.getParameter<double>("xmax"));
@@ -965,18 +966,17 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
 
   // Matched Extended TP's eta
   HistoName = "match_displaced_tp_eta";
-  match_displaced_tp_eta = iBooker.book1D(HistoName,
-                                          HistoName,
-                                          psEffic_eta.getParameter<int32_t>("Nbinsx"),
-                                          psEffic_eta.getParameter<double>("xmin"),
-                                          psEffic_eta.getParameter<double>("xmax"));
+  match_displaced_tp_eta = iBooker.book1D(
+      HistoName, HistoName, psEffic_eta.getParameter<int32_t>("Nbinsx"),
+      psEffic_eta.getParameter<double>("xmin"),
+      psEffic_eta.getParameter<double>("xmax"));
   match_displaced_tp_eta->setAxisTitle("#eta", 1);
-  match_displaced_tp_eta->setAxisTitle("# matched extended tracking particles", 2);
+  match_displaced_tp_eta->setAxisTitle("# matched extended tracking particles",
+                                       2);
 
   // TP's d0 for denom for displaced tracks
   HistoName = "tp_d0_for_dis";
-  tp_d0_for_dis = iBooker.book1D(HistoName,
-                                 HistoName,
+  tp_d0_for_dis = iBooker.book1D(HistoName, HistoName,
                                  psDisEffic_d0.getParameter<int32_t>("Nbinsx"),
                                  psDisEffic_d0.getParameter<double>("xmin"),
                                  psDisEffic_d0.getParameter<double>("xmax"));
@@ -985,28 +985,27 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
 
   // Matched Extended TP's d0
   HistoName = "match_displaced_tp_d0";
-  match_displaced_tp_d0 = iBooker.book1D(HistoName,
-                                         HistoName,
-                                         psDisEffic_d0.getParameter<int32_t>("Nbinsx"),
-                                         psDisEffic_d0.getParameter<double>("xmin"),
-                                         psDisEffic_d0.getParameter<double>("xmax"));
+  match_displaced_tp_d0 = iBooker.book1D(
+      HistoName, HistoName, psDisEffic_d0.getParameter<int32_t>("Nbinsx"),
+      psDisEffic_d0.getParameter<double>("xmin"),
+      psDisEffic_d0.getParameter<double>("xmax"));
   match_displaced_tp_d0->setAxisTitle("d_{0} [cm]", 1);
-  match_displaced_tp_d0->setAxisTitle("# matched extended tracking particles", 2);
+  match_displaced_tp_d0->setAxisTitle("# matched extended tracking particles",
+                                      2);
 
   // Matched Extended TP's Lxy
   HistoName = "match_displaced_tp_Lxy";
-  match_displaced_tp_Lxy = iBooker.book1D(HistoName,
-                                          HistoName,
-                                          psEffic_Lxy.getParameter<int32_t>("Nbinsx"),
-                                          psEffic_Lxy.getParameter<double>("xmin"),
-                                          psEffic_Lxy.getParameter<double>("xmax"));
-  match_displaced_tp_Lxy->setAxisTitle("d_{xy} [cm]", 1);
-  match_displaced_tp_Lxy->setAxisTitle("# matched extended tracking particles", 2);
+  match_displaced_tp_Lxy = iBooker.book1D(
+      HistoName, HistoName, psEffic_Lxy.getParameter<int32_t>("Nbinsx"),
+      psEffic_Lxy.getParameter<double>("xmin"),
+      psEffic_Lxy.getParameter<double>("xmax"));
+  match_displaced_tp_Lxy->setAxisTitle("L_{xy} [cm]", 1);
+  match_displaced_tp_Lxy->setAxisTitle("# matched extended tracking particles",
+                                       2);
 
   // TP's z0 for denom for displaced tracks
   HistoName = "tp_z0_for_dis";
-  tp_z0_for_dis = iBooker.book1D(HistoName,
-                                 HistoName,
+  tp_z0_for_dis = iBooker.book1D(HistoName, HistoName,
                                  psEffic_z0.getParameter<int32_t>("Nbinsx"),
                                  psEffic_z0.getParameter<double>("xmin"),
                                  psEffic_z0.getParameter<double>("xmax"));
@@ -1015,28 +1014,27 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
 
   // Matched Extended TP's z0
   HistoName = "match_displaced_tp_z0";
-  match_displaced_tp_z0 = iBooker.book1D(HistoName,
-                                         HistoName,
-                                         psEffic_z0.getParameter<int32_t>("Nbinsx"),
-                                         psEffic_z0.getParameter<double>("xmin"),
-                                         psEffic_z0.getParameter<double>("xmax"));
+  match_displaced_tp_z0 = iBooker.book1D(
+      HistoName, HistoName, psEffic_z0.getParameter<int32_t>("Nbinsx"),
+      psEffic_z0.getParameter<double>("xmin"),
+      psEffic_z0.getParameter<double>("xmax"));
   match_displaced_tp_z0->setAxisTitle("z_{0} [cm]", 1);
-  match_displaced_tp_z0->setAxisTitle("# matched extended tracking particles", 2);
+  match_displaced_tp_z0->setAxisTitle("# matched extended tracking particles",
+                                      2);
 
-  iBooker.setCurrentFolder(topFolderName_ + "/Extended_L1TF/Displaced/Residual");
+  iBooker.setCurrentFolder(topFolderName_ +
+                           "/Extended_L1TF/Displaced/Residual");
 
   HistoName = "res_displaced_d0";
-  res_displaced_d0 = iBooker.book1D(HistoName,
-                                    HistoName,
-                                    psRes_displaced_d0.getParameter<int32_t>("Nbinsx"),
-                                    psRes_displaced_d0.getParameter<double>("xmin"),
-                                    psRes_displaced_d0.getParameter<double>("xmax"));
+  res_displaced_d0 = iBooker.book1D(
+      HistoName, HistoName, psRes_displaced_d0.getParameter<int32_t>("Nbinsx"),
+      psRes_displaced_d0.getParameter<double>("xmin"),
+      psRes_displaced_d0.getParameter<double>("xmax"));
   res_displaced_d0->setAxisTitle("trk d_{0} - tp d_{0} [cm]", 1);
   res_displaced_d0->setAxisTitle("# displaced tracks", 2);
 
   HistoName = "res_displaced_eta";
-  res_displaced_eta = iBooker.book1D(HistoName,
-                                     HistoName,
+  res_displaced_eta = iBooker.book1D(HistoName, HistoName,
                                      psRes_eta.getParameter<int32_t>("Nbinsx"),
                                      psRes_eta.getParameter<double>("xmin"),
                                      psRes_eta.getParameter<double>("xmax"));
@@ -1044,8 +1042,7 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
   res_displaced_eta->setAxisTitle("# tracking particles", 2);
 
   HistoName = "res_displaced_pt";
-  res_displaced_pt = iBooker.book1D(HistoName,
-                                    HistoName,
+  res_displaced_pt = iBooker.book1D(HistoName, HistoName,
                                     psRes_pt.getParameter<int32_t>("Nbinsx"),
                                     psRes_pt.getParameter<double>("xmin"),
                                     psRes_pt.getParameter<double>("xmax"));
@@ -1053,152 +1050,140 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
   res_displaced_pt->setAxisTitle("# tracking particles", 2);
 
   HistoName = "res_displaced_ptRel";
-  res_displaced_ptRel = iBooker.book1D(HistoName,
-                                       HistoName,
-                                       psRes_ptRel.getParameter<int32_t>("Nbinsx"),
-                                       psRes_ptRel.getParameter<double>("xmin"),
-                                       psRes_ptRel.getParameter<double>("xmax"));
+  res_displaced_ptRel = iBooker.book1D(
+      HistoName, HistoName, psRes_ptRel.getParameter<int32_t>("Nbinsx"),
+      psRes_ptRel.getParameter<double>("xmin"),
+      psRes_ptRel.getParameter<double>("xmax"));
   res_displaced_ptRel->setAxisTitle("Relative p_{T} [GeV]", 1);
   res_displaced_ptRel->setAxisTitle("# tracking particles", 2);
 
-  iBooker.setCurrentFolder(topFolderName_ + "/Extended_L1TF/Displaced/ResolutionIngredients");
+  iBooker.setCurrentFolder(topFolderName_ +
+                           "/Extended_L1TF/Displaced/ResolutionIngredients");
 
   for (int i = 0; i < 6; i++) {
     // reseta_displaced_vect[i]
     HistoName = "reseta_displaced_" + ranges[i];
-    reseta_displaced_vect[i] = iBooker.book1D(HistoName,
-                                              HistoName,
-                                              psRes_eta.getParameter<int32_t>("Nbinsx"),
-                                              psRes_eta.getParameter<double>("xmin"),
-                                              psRes_eta.getParameter<double>("xmax"));
+    reseta_displaced_vect[i] = iBooker.book1D(
+        HistoName, HistoName, psRes_eta.getParameter<int32_t>("Nbinsx"),
+        psRes_eta.getParameter<double>("xmin"),
+        psRes_eta.getParameter<double>("xmax"));
     reseta_displaced_vect[i]->setAxisTitle("#eta_{trk} - #eta_{tp}", 1);
     reseta_displaced_vect[i]->setAxisTitle("# tracking particles", 2);
 
     // resphi_displaced_vect[i]
     HistoName = "resphi_displaced_" + ranges[i];
-    resphi_displaced_vect[i] = iBooker.book1D(HistoName,
-                                              HistoName,
-                                              psRes_phi.getParameter<int32_t>("Nbinsx"),
-                                              psRes_phi.getParameter<double>("xmin"),
-                                              psRes_phi.getParameter<double>("xmax"));
+    resphi_displaced_vect[i] = iBooker.book1D(
+        HistoName, HistoName, psRes_phi.getParameter<int32_t>("Nbinsx"),
+        psRes_phi.getParameter<double>("xmin"),
+        psRes_phi.getParameter<double>("xmax"));
     resphi_displaced_vect[i]->setAxisTitle("#phi_{trk} - #phi_{tp}", 1);
     resphi_displaced_vect[i]->setAxisTitle("# tracking particles", 2);
 
     // resd0_displaced_vect[i]
     HistoName = "resd0_displaced_" + ranges[i];
-    resd0_displaced_vect[i] = iBooker.book1D(HistoName,
-                                             HistoName,
-                                             psRes_displaced_d0.getParameter<int32_t>("Nbinsx"),
-                                             psRes_displaced_d0.getParameter<double>("xmin"),
-                                             psRes_displaced_d0.getParameter<double>("xmax"));
+    resd0_displaced_vect[i] =
+        iBooker.book1D(HistoName, HistoName,
+                       psRes_displaced_d0.getParameter<int32_t>("Nbinsx"),
+                       psRes_displaced_d0.getParameter<double>("xmin"),
+                       psRes_displaced_d0.getParameter<double>("xmax"));
     resd0_displaced_vect[i]->setAxisTitle("d0_{trk} - d0_{tp} [cm]", 1);
     resd0_displaced_vect[i]->setAxisTitle("# tracking particles", 2);
 
     HistoName = "resz0_displaced_" + ranges[i];
-    resz0_displaced_vect[i] = iBooker.book1D(HistoName,
-                                             HistoName,
-                                             psRes_z0.getParameter<int32_t>("Nbinsx"),
-                                             psRes_z0.getParameter<double>("xmin"),
-                                             psRes_z0.getParameter<double>("xmax"));
+    resz0_displaced_vect[i] = iBooker.book1D(
+        HistoName, HistoName, psRes_z0.getParameter<int32_t>("Nbinsx"),
+        psRes_z0.getParameter<double>("xmin"),
+        psRes_z0.getParameter<double>("xmax"));
     resz0_displaced_vect[i]->setAxisTitle("z0_{trk} - z0_{tp} [cm]", 1);
     resz0_displaced_vect[i]->setAxisTitle("# tracking particles", 2);
 
     // pT resolution in bins (2‐3, 3‐8, >8 GeV)
     HistoName = "respt_displaced_" + ranges[i] + "_pt2to3";
-    respt_displaced_pt2to3[i] = iBooker.book1D(HistoName,
-                                               HistoName,
-                                               psRes_pt.getParameter<int32_t>("Nbinsx"),
-                                               psRes_pt.getParameter<double>("xmin"),
-                                               psRes_pt.getParameter<double>("xmax"));
+    respt_displaced_pt2to3[i] = iBooker.book1D(
+        HistoName, HistoName, psRes_pt.getParameter<int32_t>("Nbinsx"),
+        psRes_pt.getParameter<double>("xmin"),
+        psRes_pt.getParameter<double>("xmax"));
     respt_displaced_pt2to3[i]->setAxisTitle("p_{T}(trk)-p_{T}(tp)", 1);
     respt_displaced_pt2to3[i]->setAxisTitle("# tracking particles", 2);
 
     HistoName = "respt_displaced_" + ranges[i] + "_pt3to8";
-    respt_displaced_pt3to8[i] = iBooker.book1D(HistoName,
-                                               HistoName,
-                                               psRes_pt.getParameter<int32_t>("Nbinsx"),
-                                               psRes_pt.getParameter<double>("xmin"),
-                                               psRes_pt.getParameter<double>("xmax"));
+    respt_displaced_pt3to8[i] = iBooker.book1D(
+        HistoName, HistoName, psRes_pt.getParameter<int32_t>("Nbinsx"),
+        psRes_pt.getParameter<double>("xmin"),
+        psRes_pt.getParameter<double>("xmax"));
     respt_displaced_pt3to8[i]->setAxisTitle("p_{T}(trk)-p_{T}(tp)", 1);
     respt_displaced_pt3to8[i]->setAxisTitle("# tracking particles", 2);
 
     HistoName = "respt_displaced_" + ranges[i] + "_pt8toInf";
-    respt_displaced_pt8toInf[i] = iBooker.book1D(HistoName,
-                                                 HistoName,
-                                                 psRes_pt.getParameter<int32_t>("Nbinsx"),
-                                                 psRes_pt.getParameter<double>("xmin"),
-                                                 psRes_pt.getParameter<double>("xmax"));
+    respt_displaced_pt8toInf[i] = iBooker.book1D(
+        HistoName, HistoName, psRes_pt.getParameter<int32_t>("Nbinsx"),
+        psRes_pt.getParameter<double>("xmin"),
+        psRes_pt.getParameter<double>("xmax"));
     respt_displaced_pt8toInf[i]->setAxisTitle("p_{T}(trk)-p_{T}(tp)", 1);
     respt_displaced_pt8toInf[i]->setAxisTitle("# tracking particles", 2);
   }
 
-  iBooker.setCurrentFolder(topFolderName_ + "/Extended_L1TF/Prompt/EfficiencyIngredients");
+  iBooker.setCurrentFolder(topFolderName_ +
+                           "/Extended_L1TF/Prompt/EfficiencyIngredients");
 
   // Matched prompt TPs that come from the extended collection
   HistoName = "match_prompt_tp_pt";
-  match_prompt_tp_pt = iBooker.book1D(HistoName,
-                                      HistoName,
-                                      psEffic_pt.getParameter<int32_t>("Nbinsx"),
-                                      psEffic_pt.getParameter<double>("xmin"),
-                                      psEffic_pt.getParameter<double>("xmax"));
+  match_prompt_tp_pt = iBooker.book1D(
+      HistoName, HistoName, psEffic_pt.getParameter<int32_t>("Nbinsx"),
+      psEffic_pt.getParameter<double>("xmin"),
+      psEffic_pt.getParameter<double>("xmax"));
   match_prompt_tp_pt->setAxisTitle("p_{T} [GeV]", 1);
   match_prompt_tp_pt->setAxisTitle("# matched tracking particles", 2);
 
   // Zoom version
   HistoName = "match_prompt_tp_pt_zoom";
-  match_prompt_tp_pt_zoom = iBooker.book1D(HistoName,
-                                           HistoName,
-                                           psEffic_pt_zoom.getParameter<int32_t>("Nbinsx"),
-                                           psEffic_pt_zoom.getParameter<double>("xmin"),
-                                           psEffic_pt_zoom.getParameter<double>("xmax"));
+  match_prompt_tp_pt_zoom = iBooker.book1D(
+      HistoName, HistoName, psEffic_pt_zoom.getParameter<int32_t>("Nbinsx"),
+      psEffic_pt_zoom.getParameter<double>("xmin"),
+      psEffic_pt_zoom.getParameter<double>("xmax"));
   match_prompt_tp_pt_zoom->setAxisTitle("p_{T} [GeV]", 1);
   match_prompt_tp_pt_zoom->setAxisTitle("# matched tracking particles", 2);
 
   // Matched Extended TP's eta
   HistoName = "match_prompt_tp_eta";
-  match_prompt_tp_eta = iBooker.book1D(HistoName,
-                                       HistoName,
-                                       psEffic_eta.getParameter<int32_t>("Nbinsx"),
-                                       psEffic_eta.getParameter<double>("xmin"),
-                                       psEffic_eta.getParameter<double>("xmax"));
+  match_prompt_tp_eta = iBooker.book1D(
+      HistoName, HistoName, psEffic_eta.getParameter<int32_t>("Nbinsx"),
+      psEffic_eta.getParameter<double>("xmin"),
+      psEffic_eta.getParameter<double>("xmax"));
   match_prompt_tp_eta->setAxisTitle("#eta", 1);
   match_prompt_tp_eta->setAxisTitle("# matched tracking particles", 2);
 
   // Matched Extended TP's d0
   HistoName = "match_prompt_tp_d0";
-  match_prompt_tp_d0 = iBooker.book1D(HistoName,
-                                      HistoName,
-                                      psEffic_d0.getParameter<int32_t>("Nbinsx"),
-                                      psEffic_d0.getParameter<double>("xmin"),
-                                      psEffic_d0.getParameter<double>("xmax"));
+  match_prompt_tp_d0 = iBooker.book1D(
+      HistoName, HistoName, psEffic_d0.getParameter<int32_t>("Nbinsx"),
+      psEffic_d0.getParameter<double>("xmin"),
+      psEffic_d0.getParameter<double>("xmax"));
   match_prompt_tp_d0->setAxisTitle("d_{0} [cm]", 1);
   match_prompt_tp_d0->setAxisTitle("# matched tracking particles", 2);
 
   // Matched Extended TP's Lxy
   HistoName = "match_prompt_tp_Lxy";
-  match_prompt_tp_Lxy = iBooker.book1D(HistoName,
-                                       HistoName,
-                                       psEffic_Lxy.getParameter<int32_t>("Nbinsx"),
-                                       psEffic_Lxy.getParameter<double>("xmin"),
-                                       psEffic_Lxy.getParameter<double>("xmax"));
-  match_prompt_tp_Lxy->setAxisTitle("d_{xy} [cm]", 1);
+  match_prompt_tp_Lxy = iBooker.book1D(
+      HistoName, HistoName, psEffic_Lxy.getParameter<int32_t>("Nbinsx"),
+      psEffic_Lxy.getParameter<double>("xmin"),
+      psEffic_Lxy.getParameter<double>("xmax"));
+  match_prompt_tp_Lxy->setAxisTitle("L_{xy} [cm]", 1);
   match_prompt_tp_Lxy->setAxisTitle("# matched tracking particles", 2);
 
   // Matched Extended TP's z0
   HistoName = "match_prompt_tp_z0";
-  match_prompt_tp_z0 = iBooker.book1D(HistoName,
-                                      HistoName,
-                                      psEffic_z0.getParameter<int32_t>("Nbinsx"),
-                                      psEffic_z0.getParameter<double>("xmin"),
-                                      psEffic_z0.getParameter<double>("xmax"));
+  match_prompt_tp_z0 = iBooker.book1D(
+      HistoName, HistoName, psEffic_z0.getParameter<int32_t>("Nbinsx"),
+      psEffic_z0.getParameter<double>("xmin"),
+      psEffic_z0.getParameter<double>("xmax"));
   match_prompt_tp_z0->setAxisTitle("z_{0} [cm]", 1);
   match_prompt_tp_z0->setAxisTitle("# matched tracking particles", 2);
 
   iBooker.setCurrentFolder(topFolderName_ + "/Extended_L1TF/Prompt/Residual");
 
   HistoName = "res_prompt_d0";
-  res_prompt_d0 = iBooker.book1D(HistoName,
-                                 HistoName,
+  res_prompt_d0 = iBooker.book1D(HistoName, HistoName,
                                  psRes_d0.getParameter<int32_t>("Nbinsx"),
                                  psRes_d0.getParameter<double>("xmin"),
                                  psRes_d0.getParameter<double>("xmax"));
@@ -1206,8 +1191,7 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
   res_prompt_d0->setAxisTitle("# tracking particles", 2);
 
   HistoName = "res_prompt_eta";
-  res_prompt_eta = iBooker.book1D(HistoName,
-                                  HistoName,
+  res_prompt_eta = iBooker.book1D(HistoName, HistoName,
                                   psRes_eta.getParameter<int32_t>("Nbinsx"),
                                   psRes_eta.getParameter<double>("xmin"),
                                   psRes_eta.getParameter<double>("xmax"));
@@ -1215,8 +1199,7 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
   res_prompt_eta->setAxisTitle("# tracking particles", 2);
 
   HistoName = "res_prompt_pt";
-  res_prompt_pt = iBooker.book1D(HistoName,
-                                 HistoName,
+  res_prompt_pt = iBooker.book1D(HistoName, HistoName,
                                  psRes_pt.getParameter<int32_t>("Nbinsx"),
                                  psRes_pt.getParameter<double>("xmin"),
                                  psRes_pt.getParameter<double>("xmax"));
@@ -1224,81 +1207,74 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
   res_prompt_pt->setAxisTitle("# tracking particles", 2);
 
   HistoName = "res_prompt_ptRel";
-  res_prompt_ptRel = iBooker.book1D(HistoName,
-                                    HistoName,
+  res_prompt_ptRel = iBooker.book1D(HistoName, HistoName,
                                     psRes_ptRel.getParameter<int32_t>("Nbinsx"),
                                     psRes_ptRel.getParameter<double>("xmin"),
                                     psRes_ptRel.getParameter<double>("xmax"));
   res_prompt_ptRel->setAxisTitle("Relative p_{T} [GeV]", 1);
   res_prompt_ptRel->setAxisTitle("# tracking particles", 2);
 
-  iBooker.setCurrentFolder(topFolderName_ + "/Extended_L1TF/Prompt/ResolutionIngredients");
+  iBooker.setCurrentFolder(topFolderName_ +
+                           "/Extended_L1TF/Prompt/ResolutionIngredients");
 
   for (int i = 0; i < 6; i++) {
     // reseta_prompt_vect[i]
     HistoName = "reseta_prompt_" + ranges[i];
-    reseta_prompt_vect[i] = iBooker.book1D(HistoName,
-                                           HistoName,
-                                           psRes_eta.getParameter<int32_t>("Nbinsx"),
-                                           psRes_eta.getParameter<double>("xmin"),
-                                           psRes_eta.getParameter<double>("xmax"));
+    reseta_prompt_vect[i] = iBooker.book1D(
+        HistoName, HistoName, psRes_eta.getParameter<int32_t>("Nbinsx"),
+        psRes_eta.getParameter<double>("xmin"),
+        psRes_eta.getParameter<double>("xmax"));
     reseta_prompt_vect[i]->setAxisTitle("#eta_{trk} - #eta_{tp}", 1);
     reseta_prompt_vect[i]->setAxisTitle("# tracking particles", 2);
 
     // resphi_prompt_vect[i]
     HistoName = "resphi_prompt_" + ranges[i];
-    resphi_prompt_vect[i] = iBooker.book1D(HistoName,
-                                           HistoName,
-                                           psRes_phi.getParameter<int32_t>("Nbinsx"),
-                                           psRes_phi.getParameter<double>("xmin"),
-                                           psRes_phi.getParameter<double>("xmax"));
+    resphi_prompt_vect[i] = iBooker.book1D(
+        HistoName, HistoName, psRes_phi.getParameter<int32_t>("Nbinsx"),
+        psRes_phi.getParameter<double>("xmin"),
+        psRes_phi.getParameter<double>("xmax"));
     resphi_prompt_vect[i]->setAxisTitle("#phi_{trk} - #phi_{tp}", 1);
     resphi_prompt_vect[i]->setAxisTitle("# tracking particles", 2);
 
     // resd0_prompt_vect[i]
     HistoName = "resd0_prompt_" + ranges[i];
-    resd0_prompt_vect[i] = iBooker.book1D(HistoName,
-                                          HistoName,
-                                          psRes_d0.getParameter<int32_t>("Nbinsx"),
-                                          psRes_d0.getParameter<double>("xmin"),
-                                          psRes_d0.getParameter<double>("xmax"));
+    resd0_prompt_vect[i] = iBooker.book1D(
+        HistoName, HistoName, psRes_d0.getParameter<int32_t>("Nbinsx"),
+        psRes_d0.getParameter<double>("xmin"),
+        psRes_d0.getParameter<double>("xmax"));
     resd0_prompt_vect[i]->setAxisTitle("d0_{trk} - d0_{tp} [cm]", 1);
     resd0_prompt_vect[i]->setAxisTitle("# tracking particles", 2);
 
     HistoName = "resz0_prompt_" + ranges[i];
-    resz0_prompt_vect[i] = iBooker.book1D(HistoName,
-                                          HistoName,
-                                          psRes_z0.getParameter<int32_t>("Nbinsx"),
-                                          psRes_z0.getParameter<double>("xmin"),
-                                          psRes_z0.getParameter<double>("xmax"));
+    resz0_prompt_vect[i] = iBooker.book1D(
+        HistoName, HistoName, psRes_z0.getParameter<int32_t>("Nbinsx"),
+        psRes_z0.getParameter<double>("xmin"),
+        psRes_z0.getParameter<double>("xmax"));
     resz0_prompt_vect[i]->setAxisTitle("z0_{trk} - z0_{tp} [cm]", 1);
     resz0_prompt_vect[i]->setAxisTitle("# tracking particles", 2);
 
     // pT resolution in bins (2‐3, 3‐8, >8 GeV)
     HistoName = "respt_prompt_" + ranges[i] + "_pt2to3";
-    respt_prompt_pt2to3[i] = iBooker.book1D(HistoName,
-                                            HistoName,
-                                            psRes_pt.getParameter<int32_t>("Nbinsx"),
-                                            psRes_pt.getParameter<double>("xmin"),
-                                            psRes_pt.getParameter<double>("xmax"));
+    respt_prompt_pt2to3[i] = iBooker.book1D(
+        HistoName, HistoName, psRes_pt.getParameter<int32_t>("Nbinsx"),
+        psRes_pt.getParameter<double>("xmin"),
+        psRes_pt.getParameter<double>("xmax"));
     respt_prompt_pt2to3[i]->setAxisTitle("p_{T}(trk)-p_{T}(tp)", 1);
     respt_prompt_pt2to3[i]->setAxisTitle("# tracking particles", 2);
 
     HistoName = "respt_prompt_" + ranges[i] + "_pt3to8";
-    respt_prompt_pt3to8[i] = iBooker.book1D(HistoName,
-                                            HistoName,
-                                            psRes_pt.getParameter<int32_t>("Nbinsx"),
-                                            psRes_pt.getParameter<double>("xmin"),
-                                            psRes_pt.getParameter<double>("xmax"));
+    respt_prompt_pt3to8[i] = iBooker.book1D(
+        HistoName, HistoName, psRes_pt.getParameter<int32_t>("Nbinsx"),
+        psRes_pt.getParameter<double>("xmin"),
+        psRes_pt.getParameter<double>("xmax"));
     respt_prompt_pt3to8[i]->setAxisTitle("p_{T}(trk)-p_{T}(tp)", 1);
     respt_prompt_pt3to8[i]->setAxisTitle("# tracking particles", 2);
 
     HistoName = "respt_prompt_" + ranges[i] + "_pt8toInf";
-    respt_prompt_pt8toInf[i] = iBooker.book1D(HistoName,
-                                              HistoName,
-                                              psRes_pt.getParameter<int32_t>("Nbinsx"),
-                                              psRes_pt.getParameter<double>("xmin"),
-                                              psRes_pt.getParameter<double>("xmax"));
+    respt_prompt_pt8toInf[i] = iBooker.book1D(
+        HistoName, HistoName, psRes_pt.getParameter<int32_t>("Nbinsx"),
+        psRes_pt.getParameter<double>("xmin"),
+        psRes_pt.getParameter<double>("xmax"));
     respt_prompt_pt8toInf[i]->setAxisTitle("p_{T}(trk)-p_{T}(tp)", 1);
     respt_prompt_pt8toInf[i]->setAxisTitle("# tracking particles", 2);
   }
@@ -1307,7 +1283,8 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-void Phase2OTValidateTracks::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+void Phase2OTValidateTracks::fillDescriptions(
+    edm::ConfigurationDescriptions &descriptions) {
   // OuterTrackerMonitorTrackingParticles
   edm::ParameterSetDescription desc;
   {
@@ -1430,13 +1407,21 @@ void Phase2OTValidateTracks::fillDescriptions(edm::ConfigurationDescriptions &de
     desc.add<edm::ParameterSetDescription>("TH1Resdisplaced_d0", psd0);
   }
   desc.add<std::string>("TopFolderName", "TrackerPhase2OTL1TrackV");
-  desc.add<edm::InputTag>("trackingParticleToken", edm::InputTag("mix", "MergedTrackTruth"));
-  desc.add<edm::InputTag>("MCTruthStubInputTag", edm::InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"));
-  desc.add<edm::InputTag>("MCTruthTrackInputTag", edm::InputTag("TTTrackAssociatorFromPixelDigis", "Level1TTTracks"));
-  desc.add<edm::InputTag>("MCTruthTrackExtendedInputTag",
-                          edm::InputTag("TTTrackAssociatorFromPixelDigisExtended", "Level1TTTracks"));
-  desc.add<edm::InputTag>("MCTruthClusterInputTag",
-                          edm::InputTag("TTClusterAssociatorFromPixelDigis", "ClusterInclusive"));
+  desc.add<edm::InputTag>("trackingParticleToken",
+                          edm::InputTag("mix", "MergedTrackTruth"));
+  desc.add<edm::InputTag>(
+      "MCTruthStubInputTag",
+      edm::InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"));
+  desc.add<edm::InputTag>(
+      "MCTruthTrackInputTag",
+      edm::InputTag("TTTrackAssociatorFromPixelDigis", "Level1TTTracks"));
+  desc.add<edm::InputTag>(
+      "MCTruthTrackExtendedInputTag",
+      edm::InputTag("TTTrackAssociatorFromPixelDigisExtended",
+                    "Level1TTTracks"));
+  desc.add<edm::InputTag>(
+      "MCTruthClusterInputTag",
+      edm::InputTag("TTClusterAssociatorFromPixelDigis", "ClusterInclusive"));
   desc.add<int>("L1Tk_minNStub", 4);
   desc.add<double>("L1Tk_maxChi2dof", 25.0);
   desc.add<int>("TP_minNStub", 4);
