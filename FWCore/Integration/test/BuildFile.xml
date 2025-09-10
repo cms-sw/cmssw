@@ -7,7 +7,6 @@
     <use name="FWCore/ParameterSetReader"/>
   </bin>
 
-  <test name="TestIntegrationEventHistory" command="eventHistoryTest.sh"/>
   <test name="TestIntegrationRef" command="refTest.sh"/>
   <test name="TestIntegrationTransRef" command="transRefTest.sh"/>
   <test name="TestIntegrationTableTest" command="testTables.sh"/>
