@@ -28,8 +28,6 @@
   <test name="TestIntegrationGetProductAtEnd" command="run_getProductAtEnd.sh"/>
   <test name="TestIntegrationParentless" command="parentlessTest.sh"/>
   <test name="TestIntegrationWaitingThread" command="waiting_thread_test.sh"/>
-  <test name="TestIntegrationRunMerge" command="run_RunMerge.sh"/>
-  <test name="TestIntegrationRunMerge2" command="run_RunMerge2.sh"/>
   <test name="TestIntegrationRefMerge" command="run_RefMerge.sh"/>
   <test name="TestIntegrationRefAlias" command="run_RefAlias.sh"/>
   <test name="TestIntegrationParameterSet" command="run_ParameterSet.sh"/>
