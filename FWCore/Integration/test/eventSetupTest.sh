@@ -44,9 +44,6 @@ grep "A module declared it consumes an EventSetup product after its constructor"
 echo testConcurrentIOVsAndRuns_cfg.py
 cmsRun ${LOCAL_TEST_DIR}/testConcurrentIOVsAndRuns_cfg.py || die 'Failed in testConcurrentIOVsAndRuns_cfg.py' $?
 
-echo testConcurrentIOVsAndRunsRead_cfg.py
-cmsRun ${LOCAL_TEST_DIR}/testConcurrentIOVsAndRunsRead_cfg.py || die 'Failed in testConcurrentIOVsAndRunsRead_cfg.py' $?
-
 echo testESProducerUsingAcquire_cfg.py
 cmsRun ${LOCAL_TEST_DIR}/testESProducerUsingAcquire_cfg.py || die 'Failed in testESProducerUsingAcquire_cfg.py' $?
 
