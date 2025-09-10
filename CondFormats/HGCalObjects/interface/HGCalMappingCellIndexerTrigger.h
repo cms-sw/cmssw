@@ -137,7 +137,7 @@ public:
     size_t i = maxTrLink_.size();
     if (i == 0)
       return 0;
-    return offsets_.back() + maxTrLink_.back() * maxTCPerLink_.back();
+    return offsets_.back() + maxROC_.back() * maxTrLink_.back() * maxTCPerLink_.back();
   }
 
   /**

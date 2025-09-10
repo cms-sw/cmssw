@@ -12,7 +12,7 @@ options.register('sipmcells','Geometry/HGCalMapping/data/CellMaps/channels_sipmo
                  info="Path to SiPM-on-tile cell mapper. Absolute, or relative to CMSSW src directory")
 options.register('offsetfile','Geometry/HGCalMapping/data/CellMaps/calibration_to_surrounding_offsetMap.txt',mytype=VarParsing.varType.string,
                  info="Path to calibration-to-surrounding cell offset file. Absolute, or relative to CMSSW src directory")
-options.parse_args()
+options.parseArguments()
 
 process.source = cms.Source('EmptySource')
 

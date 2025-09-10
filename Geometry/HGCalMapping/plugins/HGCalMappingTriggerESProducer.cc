@@ -132,7 +132,7 @@ void HGCalMappingTriggerESProducer::prepareModuleMapperIndexer() {
     typecodeidx = cellIndexer_.getEnumFromTypecode(wtypecode);
     nTrLinks = cellIndexer_.getNTrLinkExpectedFor(wtypecode);
     nwords = cellIndexer_.getNWordsExpectedFor(wtypecode);
-    
+
     int fedid = pmap.getIntAttr("trig_fedid", row);
     int econtidx = pmap.getIntAttr("econtidx", row);
     modIndexer_.processNewModule(fedid, econtidx, typecodeidx, nTrLinks, nwords, typecode);

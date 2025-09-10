@@ -126,22 +126,9 @@ void HGCalMappingESProducer::prepareModuleMapperIndexer() {
       }
     }
 
-    try {
-      typecodeidx = cellIndexer_.getEnumFromTypecode(wtypecode);
-      nwords = cellIndexer_.getNWordsExpectedFor(wtypecode);
-      nerx = cellIndexer_.getNErxExpectedFor(wtypecode);
-    } catch (cms::Exception& e) {
-      int plane = pmap.getIntAttr("plane", row);
-      int u = pmap.getIntAttr("u", row);
-      int v = pmap.getIntAttr("v", row);
-      edm::LogWarning("HGCalMappingESProducer") << "Exception caught decoding index for typecode=" << typecode
-                                                << " @ plane=" << plane << " u=" << u << " v=" << v << "\n"
-                                                << e.what() << "\n"
-                                                << "===> will assign default (MH-F) which may be inefficient";
-      typecodeidx = defaultTypeCodeIdx;
-      nwords = defaultTypeNWords;
-      nerx = defaultNerx;
-    }
+    typecodeidx = cellIndexer_.getEnumFromTypecode(wtypecode);
+    nwords = cellIndexer_.getNWordsExpectedFor(wtypecode);
+    nerx = cellIndexer_.getNErxExpectedFor(wtypecode);
 
     int fedid = pmap.getIntAttr("fedid", row);
     int captureblockidx = pmap.getIntAttr("captureblockidx", row);

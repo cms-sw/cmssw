@@ -14,7 +14,7 @@
 #include "DataFormats/HGCalDigi/interface/HGCalElectronicsId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCTriggerDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCalTriggerDetId.h"
 #include "Geometry/HGCalMapping/interface/HGCalMappingTools.h"
 
 #include <string>
@@ -58,6 +58,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         pmap.buildFrom(filename_.fullPath());
         auto& entities = pmap.getEntries();
         for (auto row : entities) {
+          int cassette = pmap.hasColumn("cassette") ? pmap.getIntAttr("cassette", row) : 1;
           int fedid = pmap.getIntAttr("trig_fedid", row);
           int econtidx = pmap.getIntAttr("econtidx", row);
           int idx = modIndexer.getIndexForModule(fedid, static_cast<uint16_t>(econtidx));
@@ -72,14 +73,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           int i1 = pmap.getIntAttr("u", row);
           int i2 = pmap.getIntAttr("v", row);
           uint8_t irot = (uint8_t)(pmap.hasColumn("irot") ? pmap.getIntAttr("irot", row) : 0);
-          // TODO : eleid (trigger unique identifier) and detid are to be assigned correctly in the next iteration
-          uint32_t eleid = HGCalElectronicsId((zside > 0), fedid, 0, econtidx, 0, 0).raw();
-          uint32_t detid(0);
-
+          // TODO : muxid needs to be discussed with BE and will be assigned correctly in the next iteration
+          uint32_t muxid(0);
+          uint32_t trigdetid(0);
           if (!isSiPM) {
             int zp(zside > 0 ? 1 : -1);
-            DetId::Detector det = plane <= 26 ? DetId::Detector::HGCalEE : DetId::Detector::HGCalHSi;
-            detid = HGCSiliconDetId(det, zp, celltype, plane, i1, i2, 0, 0).rawId();
+            int subdet = ForwardSubdetector::ForwardEmpty;
+            trigdetid = HGCalTriggerDetId(subdet, zp, celltype, plane, i1, i2, 0, 0).rawId();
           }
 
           auto module = moduleParams.view()[idx];
@@ -95,8 +95,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           module.fedid() = fedid;
           module.slinkidx() = pmap.getIntAttr("slinkidx", row);
           module.econtidx() = econtidx;
-          module.eleid() = eleid;
-          module.detid() = detid;
+          module.muxid() = muxid;
+          module.trigdetid() = trigdetid;
+          module.cassette() = cassette;
         }
 
         return moduleParams;

@@ -16,10 +16,6 @@
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "Geometry/HGCalMapping/interface/HGCalMappingTools.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 
 #include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexerTrigger.h"
 
@@ -41,7 +37,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         cellIndexTkn_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("cellindexer"));
         moduleInfoTkn_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("moduleinfo"));
         cellInfoTkn_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("cellinfo"));
-        caloGeomToken_ = cc.consumes();
       }
 
       //
@@ -56,9 +51,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       //
       std::optional<HGCalDenseIndexTriggerInfoHost> produce(const HGCalDenseIndexInfoRcd& iRecord) {
-        //geometry
-        auto const& geo = iRecord.get(caloGeomToken_);
-
         //get cell and module indexer
         auto const& modIndexer = iRecord.get(moduleIndexTkn_);
         auto const& cellIndexer = iRecord.get(cellIndexTkn_);
@@ -84,14 +76,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             const auto& module_row = moduleInfo.view()[modIdx];
             bool isSiPM = module_row.isSiPM();
             uint16_t typeidx = module_row.typeidx();
-            uint32_t eleid = module_row.eleid();
-            uint32_t detid = module_row.detid();
-
-            //get the appropriate geometry
-            DetId::Detector det = DetId(detid).det();
+            uint32_t muxid = module_row.muxid();
+            uint32_t trigdetid = module_row.trigdetid();
+            DetId::Detector det = DetId(trigdetid).det();
             int subdet = ForwardSubdetector::ForwardEmpty;
-            const HGCalGeometry* hgcal_geom =
-                static_cast<const HGCalGeometry*>(geo.getSubdetectorGeometry(det, subdet));
 
             //get the offset to start reading the cell info from sequential
             uint32_t cellInfoOffset = cellIndexer.offsets_[typeidx];
@@ -112,32 +100,26 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               row.cellInfoIdx() = cellIdx;
 
               const auto& cell_row = cellInfo.view()[cellIdx];
-              row.eleid() = eleid + cell_row.eleid();
+              row.muxid() = muxid + ich;
 
               //assign det id only for full and calibration cells
-              row.detid() = 0;
+              row.trigdetid() = 0;
               if (cell_row.t() == 1 || cell_row.t() == 0) {
                 if (isSiPM) {
-                  row.detid() = ::hgcal::mappingtools::getSiPMDetId(module_row.zside(),
-                                                                    module_row.plane(),
-                                                                    module_row.i2(),
-                                                                    module_row.celltype(),
-                                                                    cell_row.i1(),
-                                                                    cell_row.i2());
+                  row.trigdetid() = ::hgcal::mappingtools::getSiPMDetId(module_row.zside(),
+                                                                        module_row.plane(),
+                                                                        module_row.i2(),
+                                                                        module_row.celltype(),
+                                                                        cell_row.i1(),
+                                                                        cell_row.i2());
                 } else {
-                  row.detid() = module_row.detid() + cell_row.detid();
+                  row.trigdetid() = module_row.trigdetid() + cell_row.detid();
                 }
 
-                //assign position from geometry
+                //TODO: assign position from geometry, for the moment no position is assigned
                 row.x() = 0;
                 row.y() = 0;
                 row.z() = 0;
-                if (hgcal_geom != nullptr) {
-                  GlobalPoint position = hgcal_geom->getPosition(row.detid());
-                  row.x() = position.x();
-                  row.y() = position.y();
-                  row.z() = position.z();
-                }
               }
             }  // end cell loop
 
@@ -153,7 +135,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       edm::ESGetToken<HGCalMappingCellIndexerTrigger, HGCalElectronicsMappingRcd> cellIndexTkn_;
       edm::ESGetToken<hgcal::HGCalMappingModuleTriggerParamHost, HGCalElectronicsMappingRcd> moduleInfoTkn_;
       edm::ESGetToken<hgcal::HGCalMappingCellParamHost, HGCalElectronicsMappingRcd> cellInfoTkn_;
-      edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
     };
 
   }  // namespace hgcal

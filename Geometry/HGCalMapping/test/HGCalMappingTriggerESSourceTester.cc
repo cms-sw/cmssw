@@ -74,7 +74,7 @@ void HGCalMappingTriggerESSourceTester::analyze(const edm::Event& iEvent, const 
     }
 
     //assert offset is consistent with the accumulation
-    auto off = cellIdx.offsets_[idx];
+    uint32_t off = cellIdx.offsets_[idx];
     assert(off == totOffset);
 
     totOffset += cellIdx.maxROC_[idx] * cellIdx.maxTrLink_[idx] * cellIdx.maxTCPerLink_[idx];
@@ -82,15 +82,15 @@ void HGCalMappingTriggerESSourceTester::analyze(const edm::Event& iEvent, const 
     //print
     printf(
         "[HGCalMappingIndexESSourceTester][analyze][%s] has index(internal)=%ld #ROCs=%d #TLinks=%d #TCells=%d "
-        "offset=%d\n",
+        "offset=%d-%d\n",
         typecode.c_str(),
         idx,
         cellIdx.maxROC_[idx],
         cellIdx.maxTrLink_[idx],
         cellIdx.di_[idx].maxIndex(),
-        cellIdx.offsets_[idx]);
+        cellIdx.offsets_[idx],
+        totOffset);
   }
-
   assert(totOffset == cellIdx.maxDenseIndex());
   printf("[HGCalMappingIndexESSourceTester][analyze] SoA size for module cell mapping will be %d\n", totOffset);
 
@@ -169,7 +169,7 @@ void HGCalMappingTriggerESSourceTester::analyze(const edm::Event& iEvent, const 
     validModules++;
     printf(
         "\t idx=%d zside=%d isSiPM=%d plane=%d i1=%d i2=%d irot=%d celltype=%d typeidx=%d fedid=%d localfedid=%d "
-        "econtidx=%d eleid=0x%x detid=0x%d\n",
+        "econtidx=%d muxid=0x%x trigid=0x%d cassette=0x%d\n",
         i,
         imod.zside(),
         imod.isSiPM(),
@@ -182,8 +182,9 @@ void HGCalMappingTriggerESSourceTester::analyze(const edm::Event& iEvent, const 
         imod.fedid(),
         imod.slinkidx(),
         imod.econtidx(),
-        imod.eleid(),
-        imod.detid());
+        imod.muxid(),
+        imod.trigdetid(),
+        imod.cassette());
   }
 
   printf(
@@ -194,7 +195,9 @@ void HGCalMappingTriggerESSourceTester::analyze(const edm::Event& iEvent, const 
       validCells,
       cells.view().metadata().size());
 
-  //test DetId to ElectronicsId mapping
+  //test TrigDetId to MuxId mapping
+  //FIXME: this is for the moment disabled as extra input is needed from the backend regarding the MUX id - there is degeneracy
+  /*
   const auto& tmap = [](auto geo2ele, auto ele2geo) {
     //sizes must match
     assert(geo2ele.size() == ele2geo.size());
@@ -204,6 +207,7 @@ void HGCalMappingTriggerESSourceTester::analyze(const edm::Event& iEvent, const 
       assert(ele2geo.count(it.second) == 1);
       assert(ele2geo[it.second] == it.first);
     }
+
     for (const auto& it : ele2geo) {
       assert(geo2ele.count(it.second) == 1);
       assert(geo2ele[it.second] == it.first);
@@ -225,19 +229,20 @@ void HGCalMappingTriggerESSourceTester::analyze(const edm::Event& iEvent, const 
   printf("[HGCalMappingIndexESSourceTester][produce] SiPM-on-tile electronics<->geometry map\n");
   printf("\tID maps ele2geo=%ld ID maps geo2ele=%ld\n", sipmele2geo.size(), sipmgeo2ele.size());
   tmap(sipmgeo2ele, sipmele2geo);
+  */
 
   //test dense index token
   auto const& denseIndexInfo = iSetup.getData(denseIndexTkn_);
   printf("Retrieved %d dense index info\n", denseIndexInfo.view().metadata().size());
   int nindices = denseIndexInfo.view().metadata().size();
-  printf("fedId fedReadoutSeq detId eleid modix cellidx channel x y z\n");
+  printf("fedId fedReadoutSeq detId muxid modix cellidx channel x y z\n");
   for (int i = 0; i < nindices; i++) {
     auto row = denseIndexInfo.view()[i];
     printf("%d %d 0x%x 0x%x %d %d %d %f %f %f\n",
            row.fedId(),
            row.fedReadoutSeq(),
-           row.detid(),
-           row.eleid(),
+           row.trigdetid(),
+           row.muxid(),
            row.modInfoIdx(),
            row.cellInfoIdx(),
            row.TCNumber(),
@@ -297,7 +302,7 @@ std::map<uint32_t, uint32_t> HGCalMappingTriggerESSourceTester::mapGeoToElectron
       if (jcell.t() != 1)
         continue;
 
-      uint32_t elecid = imod.eleid() + jcell.eleid();
+      uint32_t elecid = imod.muxid();
 
       uint32_t geoid(0);
 
@@ -305,7 +310,7 @@ std::map<uint32_t, uint32_t> HGCalMappingTriggerESSourceTester::mapGeoToElectron
         geoid = ::hgcal::mappingtools::getSiPMDetId(
             imod.zside(), imod.plane(), imod.i2(), imod.celltype(), jcell.i1(), jcell.i2());
       } else {
-        geoid = imod.detid() + jcell.detid();
+        geoid = imod.trigdetid() + jcell.detid();
       }
 
       if (geo2ele) {
