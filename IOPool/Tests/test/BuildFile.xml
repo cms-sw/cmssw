@@ -1,3 +1,4 @@
 <test name="IOPoolTestsMaxEventsOutput" command="run_testMaxEventsOutput.sh"/>
 <test name="TestIOPoolRunMerge" command="run_RunMerge.sh"/>
 <test name="TestIOPoolRunMerge2" command="run_RunMerge2.sh"/>
+<test name="TestIOPoolConcurrentIOVsAndRuns" command="concurrentIOVsAndRuns.sh"/>
