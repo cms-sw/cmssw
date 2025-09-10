@@ -274,7 +274,7 @@ bool TracksterLinkingbySkeletons::areCompatible(const ticl::Trackster &myTrackst
                                                 const ticl::Trackster &otherTrackster,
                                                 const std::array<ticl::Vector, 3> &mySkeleton,
                                                 const std::array<ticl::Vector, 3> &otherSkeleton) {
-  float zVal_interface = rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z();
+  float zVal_interface = std::abs(rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z());
 
   if (!isGoodTrackster(myTrackster, mySkeleton, min_num_lcs_, min_trackster_energy_, pca_quality_th_)) {
     LogDebug("TracksterLinkingbySkeletons") << "Inner Trackster with energy " << myTrackster.raw_energy() << " Num LCs "
@@ -286,12 +286,25 @@ bool TracksterLinkingbySkeletons::areCompatible(const ticl::Trackster &myTrackst
                                           << myTrackster.vertices().size() << " IS GOOD " << std::endl;
 
   float proj_distance = projective_distance(mySkeleton[1], otherSkeleton[1]);
-  auto isEE = mySkeleton[1].z() <= zVal_interface ? 0 : 1;
+  bool isInEE = std::abs(mySkeleton[1].z()) <= zVal_interface;
+  bool isOutEE = std::abs(otherSkeleton[1].z()) <= zVal_interface;
+  bool bothEE = (isInEE && isOutEE);  // only check if they are aligned
+
+  // inEE --> !outEE --> True
+  // inEE --> outEE --> False
+  // !inEE --> outEE --> False
+  // !inEE --> !outEE --> True
+  bool isLoose = (!isOutEE);
+
+  if (bothEE) {  //just don't try to link if two objects are in the CEE part (too much occupancy)
+    return false;
+  }
+
   auto const max_distance_proj_sqr = computeParameter(myTrackster.raw_energy(),
-                                                      lower_boundary_[isEE],
-                                                      lower_distance_projective_sqr_[isEE],
-                                                      upper_boundary_[isEE],
-                                                      upper_distance_projective_sqr_[isEE]);
+                                                      lower_boundary_[isLoose],
+                                                      lower_distance_projective_sqr_[isLoose],
+                                                      upper_boundary_[isLoose],
+                                                      upper_distance_projective_sqr_[isLoose]);
   bool areAlignedInProjectiveSpace = proj_distance < max_distance_proj_sqr;
 
   LogDebug("TracksterLinkingbySkeletons")
@@ -310,13 +323,10 @@ bool TracksterLinkingbySkeletons::areCompatible(const ticl::Trackster &myTrackst
         LogDebug("TracksterLinkingbySkeletons") << "\t\t Linked! Splitted components!" << std::endl;
         return true;
       }
-      //if is EE do not try to link more, PU occupancy is too high in this region
-      if (isEE) {
-        return false;
-      }
+
       //if instead we are in the CE-H part of the detector, we can try to link more
       // we measure the distance between the two closest nodes in the two skeletons
-      return checkClosestPoints(myTrackster, otherTrackster, mySkeleton, otherSkeleton, isEE);
+      return checkClosestPoints(myTrackster, otherTrackster, mySkeleton, otherSkeleton, isLoose);
     }
   } else {
     if (otherTrackster.vertices().size() >= 3) {
@@ -327,22 +337,22 @@ bool TracksterLinkingbySkeletons::areCompatible(const ticl::Trackster &myTrackst
         LogDebug("TracksterLinkingbySkeletons")
             << "\t Not aligned in projective space, check distance between closest points in the two skeletons "
             << std::endl;
-        if (checkClosestPoints(myTrackster, otherTrackster, mySkeleton, otherSkeleton, isEE)) {
+        if (checkClosestPoints(myTrackster, otherTrackster, mySkeleton, otherSkeleton, isLoose)) {
           return true;
         } else {
-          return checkCylinderAlignment(mySkeleton, otherSkeleton, isEE);
+          return checkCylinderAlignment(mySkeleton, otherSkeleton, isLoose);
         }
       }
     } else {
-      return checkCylinderAlignment(mySkeleton, otherSkeleton, isEE);
+      return checkCylinderAlignment(mySkeleton, otherSkeleton, isLoose);
     }
   }
 }
 
 bool TracksterLinkingbySkeletons::checkCylinderAlignment(const std::array<ticl::Vector, 3> &mySkeleton,
                                                          const std::array<ticl::Vector, 3> &otherSkeleton,
-                                                         int isEE) {
-  bool isInCyl = isInCylinder(mySkeleton, otherSkeleton, cylinder_radius_sqr_[isEE]);
+                                                         int isLoose) {
+  bool isInCyl = isInCylinder(mySkeleton, otherSkeleton, cylinder_radius_sqr_[isLoose]);
   if (isInCyl) {
     LogDebug("TracksterLinkingbySkeletons") << "Two Points are in Cylinder  " << isInCyl << " Linked! " << std::endl;
   }
@@ -369,7 +379,7 @@ bool TracksterLinkingbySkeletons::checkClosestPoints(const ticl::Trackster &myTr
                                                      const ticl::Trackster &otherTrackster,
                                                      const std::array<ticl::Vector, 3> &mySkeleton,
                                                      const std::array<ticl::Vector, 3> &otherSkeleton,
-                                                     int isEE) {
+                                                     int isLoose) {
   int myClosestPoint = -1;
   int otherClosestPoint = -1;
   float minDistance_z = std::numeric_limits<float>::max();
@@ -387,24 +397,24 @@ bool TracksterLinkingbySkeletons::checkClosestPoints(const ticl::Trackster &myTr
 
   float d = projective_distance(mySkeleton[myClosestPoint], otherSkeleton[otherClosestPoint]);
   auto const max_distance_proj_sqr_closest = computeParameter(myTrackster.raw_energy(),
-                                                              lower_boundary_[isEE],
-                                                              lower_distance_projective_sqr_closest_points_[isEE],
-                                                              upper_boundary_[isEE],
-                                                              upper_distance_projective_sqr_closest_points_[isEE]);
+                                                              lower_boundary_[isLoose],
+                                                              lower_distance_projective_sqr_closest_points_[isLoose],
+                                                              upper_boundary_[isLoose],
+                                                              upper_distance_projective_sqr_closest_points_[isLoose]);
 
   LogDebug("TracksterLinkingbySkeletons")
       << "\t\t Distance between closest points " << d << " TH " << 10.f << " Z Distance " << minDistance_z << " TH "
       << max_distance_proj_sqr_closest << std::endl;
 
-  if (d < max_distance_proj_sqr_closest && minDistance_z < max_z_distance_closest_points_[isEE]) {
+  if (d < max_distance_proj_sqr_closest && minDistance_z < max_z_distance_closest_points_[isLoose]) {
     LogDebug("TracksterLinkingbySkeletons") << "\t\t\t Linked! " << d << std::endl;
     return true;
   }
 
   LogDebug("TracksterLinkingbySkeletons") << "Distance between closest point " << d << " Distance in z "
-                                          << max_z_distance_closest_points_[isEE] << std::endl;
+                                          << max_z_distance_closest_points_[isLoose] << std::endl;
 
-  return checkCylinderAlignment(mySkeleton, otherSkeleton, isEE);
+  return checkCylinderAlignment(mySkeleton, otherSkeleton, isLoose);
 }
 
 void TracksterLinkingbySkeletons::linkTracksters(
