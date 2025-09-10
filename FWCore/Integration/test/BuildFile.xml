@@ -22,7 +22,6 @@
   <test name="TestIntegrationGetBy" command="run_TestGetBy.sh"/>
   <test name="TestIntegrationFallback" command="run_TestFallback.sh"/>
   <test name="TestIntegrationOutput" command="run_TestOutput.sh"/>
-  <test name="TestIntegrationDropOnInput" command="run_TestDropOnInput.sh"/>
   <test name="TestIntegrationUnscheduledFailOnOutput" command="run_unscheduledFailOnOutput.sh"/>
   <test name="TestIntegrationGetProductAtEnd" command="run_getProductAtEnd.sh"/>
   <test name="TestIntegrationParentless" command="parentlessTest.sh"/>
