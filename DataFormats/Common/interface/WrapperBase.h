@@ -57,15 +57,6 @@ namespace edm {
 
     std::shared_ptr<soa::TableExaminerBase> tableExaminer() const { return tableExaminer_(); }
 
-    bool hasTrivialCopyTraits() const { return hasTrivialCopyTraits_(); }
-    bool hasTrivialCopyProperties() const { return hasTrivialCopyProperties_(); }
-
-    void trivialCopyInitialize(edm::AnyBuffer const& args) { trivialCopyInitialize_(args); }
-    edm::AnyBuffer trivialCopyParameters() const { return trivialCopyParameters_(); }
-    std::vector<std::span<const std::byte>> trivialCopyRegions() const { return trivialCopyRegions_(); }
-    std::vector<std::span<std::byte>> trivialCopyRegions() { return trivialCopyRegions_(); }
-    void trivialCopyFinalize() { trivialCopyFinalize_(); }
-
   private:
     virtual std::type_info const& dynamicTypeInfo_() const = 0;
 
@@ -94,14 +85,6 @@ namespace edm {
                                   std::vector<void const*>& oPtr) const = 0;
 
     virtual std::shared_ptr<soa::TableExaminerBase> tableExaminer_() const = 0;
-
-    virtual bool hasTrivialCopyTraits_() const = 0;
-    virtual bool hasTrivialCopyProperties_() const = 0;
-    virtual void trivialCopyInitialize_(edm::AnyBuffer const& args) = 0;
-    virtual edm::AnyBuffer trivialCopyParameters_() const = 0;
-    virtual std::vector<std::span<const std::byte>> trivialCopyRegions_() const = 0;
-    virtual std::vector<std::span<std::byte>> trivialCopyRegions_() = 0;
-    virtual void trivialCopyFinalize_() = 0;
   };
 
 }  // namespace edm
