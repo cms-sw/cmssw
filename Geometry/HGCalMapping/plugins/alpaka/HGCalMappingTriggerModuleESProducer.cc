@@ -56,7 +56,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         ::hgcal::mappingtools::HGCalEntityList pmap;
         pmap.buildFrom(filename_.fullPath());
-        const auto& entities = pmap.getEntries();
+        auto& entities = pmap.getEntries();
         for (auto row : entities) {
           int fedid = pmap.getIntAttr("trig_fedid", row);
           int econtidx = pmap.getIntAttr("econtidx", row);
