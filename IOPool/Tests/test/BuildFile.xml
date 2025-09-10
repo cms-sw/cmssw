@@ -4,6 +4,9 @@
 <test name="TestIOPoolConcurrentIOVsAndRuns" command="concurrentIOVsAndRuns.sh"/>
 <test name="TestIOPool_TestEDAlias" command="run_TestEDAlias.sh"/>
 
+<test name="TestIOPoolEventHistory" command="eventHistoryTest.sh"/>
+
+
   <test name="TestIOPoolProcessBlock1" command="run_TestProcessBlock.sh 1"/>
   <test name="TestIOPoolProcessBlock2" command="run_TestProcessBlock.sh 2"/>
   <test name="TestIOPoolProcessBlock3" command="run_TestProcessBlock.sh 3"/>
