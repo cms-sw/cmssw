@@ -100,7 +100,7 @@ public:
     config_->feds.resize(moduleMap.maxFEDSize());
     for (std::size_t fedid = 0; fedid < moduleMap.maxFEDSize(); ++fedid) {
       // sanity checks
-      if (moduleMap.fedReadoutSequences()[fedid].readoutTypes_.empty())         // check if FED exists (non-empty)
+      if (moduleMap.fedReadoutSequences()[fedid].readoutTypes_.empty())            // check if FED exists (non-empty)
         continue;                                                                  // skip non-existent FED
       const auto fedkey = hgcal::search_fedkey(fedid, fed_config_data, fedjson_);  // search matching key
       hgcal::check_keys(

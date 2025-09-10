@@ -142,9 +142,10 @@ public:
 
   /**
      @short gets the number of words (cells) for a given typecode
-     TODO:(?) For the partials it will give a number rounded to the closest multiple of 16/8 if M[L/H],
-     ask if this needs correcting or if it is acceptable
+     Note : some partials are rounded to the closest multiplie of 16 or 8 depending on the density
+     That is done because not all the TrigLinks,TrgCells possible are assigned in practice
      e.g.: ML-T has 22 TCs but this will return 32 or MH-T has 19 but it will return 24
+     It results in a small mem overhead over the totall memory needed to be allocated
   */
   size_t getNWordsExpectedFor(std::string typecode) const {
     auto it = getEnumFromTypecode(typecode);

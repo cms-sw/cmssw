@@ -72,7 +72,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           int i1 = pmap.getIntAttr("u", row);
           int i2 = pmap.getIntAttr("v", row);
           uint8_t irot = (uint8_t)(pmap.hasColumn("irot") ? pmap.getIntAttr("irot", row) : 0);
-          // TODO: eleid and detid are not correctly done yet.
+          // TODO : eleid (trigger unique identifier) and detid are to be assigned correctly in the next iteration
           uint32_t eleid = HGCalElectronicsId((zside > 0), fedid, 0, econtidx, 0, 0).raw();
           uint32_t detid(0);
 

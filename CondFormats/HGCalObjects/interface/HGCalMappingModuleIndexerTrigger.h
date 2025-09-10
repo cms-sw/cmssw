@@ -141,9 +141,7 @@ public:
     const auto &[fedid, modid] = getIndexForFedAndModule(typecode);
     return getNumTrLinks(fedid, modid);
   }  ///< number of eRx half-ROCs for a given ECON-D typecode
-  uint32_t maxDataSize() const {
-    return maxNTCIdx_;
-  }  ///< total number of channels (useful for setting calib SoA size)
+  uint32_t maxDataSize() const { return maxNTCIdx_; }  ///< total number of channels (useful for setting calib SoA size)
 
   uint32_t getNumChannels(uint32_t fedid, uint32_t modid) const {
     auto modtype_val = fedReadoutSequences_[fedid].readoutTypes_[modid];

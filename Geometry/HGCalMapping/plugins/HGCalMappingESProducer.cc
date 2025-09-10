@@ -104,7 +104,7 @@ void HGCalMappingESProducer::prepareModuleMapperIndexer() {
   auto& entities = pmap.getEntries();
   for (auto row : entities) {
     const std::string& typecode = pmap.getAttr("typecode", row);  // module type code
-    std::string wtypecode;                                 // wafer type code
+    std::string wtypecode;                                        // wafer type code
 
     // match module type code to regular expression pattern (MM-TTTT-LL-NNNN)
     // see https://edms.cern.ch/ui/#!master/navigator/document?D:101059405:101148061:subDocs
