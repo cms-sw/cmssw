@@ -77,9 +77,9 @@ private:
 //
 void HGCalMappingTriggerESProducer::prepareCellMapperIndexer() {
   for (const auto& v : {"si", "sipm"}) {
-    auto& pmap = parsedMaps_[v];
-    auto& entities = pmap.getEntries();
-    for (auto row : entities) {
+    const auto& pmap = parsedMaps_[v];
+    const auto& entities = pmap.getEntries();
+    for(const auto& row : entities) {
       auto typecode = pmap.getAttr("Typecode", row);
       int ROC = pmap.getIntAttr("ROC", row);
       int trLink = pmap.getIntAttr("TrLink", row);
@@ -103,9 +103,9 @@ void HGCalMappingTriggerESProducer::prepareModuleMapperIndexer() {
   auto defaultTypeNTCs = cellIndexer_.getNWordsExpectedFor(defaultTypeCodeIdx);
   auto nwords = defaultTypeNTCs;
 
-  auto& pmap = parsedMaps_["modules"];
-  auto& entities = pmap.getEntries();
-  for (auto row : entities) {
+  const auto& pmap = parsedMaps_["modules"];
+  const auto& entities = pmap.getEntries();
+  for (const auto &row : entities) {
     auto typecode = pmap.getAttr("typecode", row);  // module type code
     std::string wtypecode;                          // wafer type code
 
