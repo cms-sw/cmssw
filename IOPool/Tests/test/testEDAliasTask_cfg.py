@@ -14,7 +14,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(3)
 )
 
-process.out = cms.OutputModule("AsciiOutputModule",
+process.out = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string('testEDAliasTask.root'),
     outputCommands = cms.untracked.vstring(
         'keep *_intProducer_*_*',
     )
@@ -28,7 +29,7 @@ process.intAlias = cms.EDAlias(
 
 process.intProducer = cms.EDProducer("ManyIntWhenRegisteredProducer", src = cms.string("intAlias"))
 
-process.t = cms.Task(process.intProducerOrig)
-process.p = cms.Path(process.intProducer, process.t)
+process.t = cms.Task(process.intProducer, process.intProducerOrig)
+process.p = cms.Path(process.t)
 
 process.e = cms.EndPath(process.out)
