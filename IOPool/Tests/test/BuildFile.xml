@@ -7,6 +7,7 @@
 <test name="TestIOPoolEventHistory" command="eventHistoryTest.sh"/>
 
 <test name="TestIOPoolDropOnInput" command="run_TestDropOnInput.sh"/>
+<test name="TestIOPoolThinningTests" command="run_ThinningTests.sh"/>
 
 
 <test name="TestIOPoolProcessBlock1" command="run_TestProcessBlock.sh 1"/>
