@@ -7,14 +7,14 @@
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/PtrVector.h"
 
-#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-
 namespace edm {
   template <typename T>
   class View;
 }
 
 namespace reco {
+  class CaloCluster;
+  
   /// collection of CaloCluster objects
   typedef std::vector<CaloCluster> CaloClusterCollection;
 
