@@ -80,7 +80,7 @@ void HGCalMappingTriggerESProducer::prepareCellMapperIndexer() {
     auto& pmap = parsedMaps_[v];
     auto& entities = pmap.getEntries();
     for (auto row : entities) {
-      const std::string& typecode = pmap.getAttr("Typecode", row);
+      auto typecode = pmap.getAttr("Typecode", row);
       int ROC = pmap.getIntAttr("ROC", row);
       int trLink = pmap.getIntAttr("TrLink", row);
       int trCell = pmap.getIntAttr("TrCell", row);
@@ -106,16 +106,15 @@ void HGCalMappingTriggerESProducer::prepareModuleMapperIndexer() {
   auto& pmap = parsedMaps_["modules"];
   auto& entities = pmap.getEntries();
   for (auto row : entities) {
-    const std::string& typecode = pmap.getAttr("typecode", row);  // module type code
-    std::string wtypecode;                                        // wafer type code
+    auto typecode = pmap.getAttr("typecode", row);  // module type code
+    std::string wtypecode;                          // wafer type code
 
     // match module type code to regular expression pattern (MM-TTTT-LL-NNNN)
     // see https://edms.cern.ch/ui/#!master/navigator/document?D:101059405:101148061:subDocs
-    //const std::regex typecode_regex("([MX])([LH])-([FTBLR5])([123])([WPC])-([A-Z]{2})-([0-9]{3,4})"); // MM-TTTT-LL-NNNN
     const std::regex typecode_regex_si("(([MX])([LH])-([FTBLR5])).*");  // MM-T*
+
     // match typecode to regular expression SiPM (TX-LYYSZ-NNNN)
-    // https://indico.cern.ch/event/1558202/contributions/6567912/attachments/3092451/5477467/hgcalweek_DPG_2025.pdf
-    // slide 8
+    // https://indico.cern.ch/event/1558202/contributions/6567912/attachments/3092451/5477467/hgcalweek_DPG_2025.pdf : slide 8
     const std::regex typecode_regex_sipm("(T[HL]-L[0-9]+S[123]).*");  // SiPM typecode format TM-
     std::smatch typecode_match_si, typecode_match_sipm;               // match object for string objects
 
@@ -130,23 +129,10 @@ void HGCalMappingTriggerESProducer::prepareModuleMapperIndexer() {
           << "Could not match module type code to expected pattern: " << typecode;
     }
 
-    try {
-      typecodeidx = cellIndexer_.getEnumFromTypecode(wtypecode);
-      nTrLinks = cellIndexer_.getNTrLinkExpectedFor(wtypecode);
-      nwords = cellIndexer_.getNWordsExpectedFor(wtypecode);
-    } catch (cms::Exception& e) {
-      int plane = pmap.getIntAttr("plane", row);
-      int u = pmap.getIntAttr("u", row);
-      int v = pmap.getIntAttr("v", row);
-      edm::LogWarning("HGCalMappingTriggerESProducer") << "Exception caught decoding index for typecode=" << typecode
-                                                       << " @ plane=" << plane << " u=" << u << " v=" << v << "\n"
-                                                       << e.what() << "\n"
-                                                       << "===> will assign default (MH-F) which may be inefficient";
-      typecodeidx = defaultTypeCodeIdx;
-      nTrLinks = defaultNTrLinks;
-      nwords = defaultTypeNTCs;
-    }
-
+    typecodeidx = cellIndexer_.getEnumFromTypecode(wtypecode);
+    nTrLinks = cellIndexer_.getNTrLinkExpectedFor(wtypecode);
+    nwords = cellIndexer_.getNWordsExpectedFor(wtypecode);
+    
     int fedid = pmap.getIntAttr("trig_fedid", row);
     int econtidx = pmap.getIntAttr("econtidx", row);
     modIndexer_.processNewModule(fedid, econtidx, typecodeidx, nTrLinks, nwords, typecode);

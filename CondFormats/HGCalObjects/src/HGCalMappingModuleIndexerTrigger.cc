@@ -122,8 +122,8 @@ void HGCalMappingModuleIndexerTrigger::finalize() {
       uint32_t internalData_offset = globalTypesNTCs_[type_val] * typeCounters[type_val];
       fedit.TCOffsets_[i] = baseData_offset + internalData_offset;
 
-      // enabled erx flags
-      // FIXME: assume all eRx are enabled now
+      // enabled erx flags : we assume all eRx are enabled
+      // this results in a small mem overhead for a few partial wafers but it's not a show stopper
       fedit.enabledLink_[i] = (0b1 << globalTypesNTrLinks_[type_val]) - 0b1;
       typeCounters[type_val]++;
     }
@@ -133,7 +133,7 @@ void HGCalMappingModuleIndexerTrigger::finalize() {
 /**
  * @short decode silicon or sipm type and cell type for the detector id 
  * from the typecode string: "M[LH]-X[123]X-*" for Si, "T[LH]-L*S*[PN]" for SiPm
- * TODO: Change to BC-STC4-STC16 instead of the above
+ * details can be found in the EDMS documents under https://edms.cern.ch/document/2718867/1
  */
 std::pair<bool, int8_t> HGCalMappingModuleIndexerTrigger::getCellType(std::string_view typecode) {
   if (typecode.size() < 5) {

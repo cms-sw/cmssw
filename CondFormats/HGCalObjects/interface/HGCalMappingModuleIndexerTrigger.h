@@ -206,7 +206,7 @@ private:
     uint32_t idx = modFedIndexer_.denseIndex({{econtIdx, 0}});
     auto dense_idx = fedReadoutSequences_[fedid].moduleLUT_[idx];
     if (dense_idx < 0)
-      throw cms::Exception("ValueError") << "FED ID=" << fedid  //<< " capture block=" << captureblockIdx
+      throw cms::Exception("ValueError") << "FED ID=" << fedid
                                          << " econ=" << econtIdx << "has not been assigned a dense indexing"
                                          << std::endl;
     return uint32_t(dense_idx);
