@@ -172,6 +172,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     const bool includeErrors_;
     const bool useQuality_;
+    const bool verbose_;
     uint32_t nDigis_;
     const SiPixelClusterThresholds clusterThresholds_;
     const std::vector<region> theBarrelRegions_;
@@ -191,6 +192,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         trackerTopologyToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
         includeErrors_(iConfig.getParameter<bool>("IncludeErrors")),
         useQuality_(iConfig.getParameter<bool>("UseQualityInfo")),
+        verbose_(iConfig.getParameter<bool>("verbose")),
         clusterThresholds_{iConfig.getParameter<int32_t>("clusterThreshold_layer1"),
                            iConfig.getParameter<int32_t>("clusterThreshold_otherLayers"),
                            static_cast<float>(iConfig.getParameter<double>("VCaltoElectronGain")),
@@ -219,6 +221,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     edm::ParameterSetDescription desc;
     desc.add<bool>("IncludeErrors", true);
     desc.add<bool>("UseQualityInfo", false);
+    desc.add<bool>("verbose", false)->setComment("verbose FED / ROC errors output");
     // Note: this parameter is obsolete: it is ignored and will have no effect.
     // It is kept to avoid breaking older configurations, and will not be printed in the generated cfi.py file.
     desc.addOptionalNode(edm::ParameterDescription<uint32_t>("MaxFEDWords", 0, true), false)
@@ -395,7 +398,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   includeErrors_,
                                   digiMorphingConfig_,
                                   morphingModulesDevice_->data(),
-                                  edm::MessageDrop::instance()->debugEnabled);
+                                  verbose_);
   }
 
   template <typename TrackerTraits>
