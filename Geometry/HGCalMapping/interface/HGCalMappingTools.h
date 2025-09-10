@@ -31,15 +31,17 @@ namespace hgcal {
       /**
            * @short gets the attribute corresponding the column col in a row
           */
-      const HGCalEntityAttr& getAttr(const std::string& col, const HGCalEntityRow &row) const {
+      const HGCalEntityAttr &getAttr(const std::string &col, const HGCalEntityRow &row) const {
         auto it = columnIndex_.find(col);
         if (it == columnIndex_.end()) {
           throw cms::Exception("ValueError") << "Request for unknown column " << col;
         }
-        return row.at(it->second); //[it->second];
+        return row.at(it->second);  //[it->second];
       }
 
-      float getFloatAttr(std::string col, const HGCalEntityRow &row) const { return (float)atof(getAttr(col, row).c_str()); }
+      float getFloatAttr(std::string col, const HGCalEntityRow &row) const {
+        return (float)atof(getAttr(col, row).c_str());
+      }
       float getIntAttr(std::string col, const HGCalEntityRow &row) const { return atoi(getAttr(col, row).c_str()); }
       const std::vector<HGCalEntityRow> &getEntries() const { return entities_; }
       const HGCalEntityRow &getColumnNames() const { return colNames_; }

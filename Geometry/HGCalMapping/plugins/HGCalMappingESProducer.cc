@@ -77,7 +77,7 @@ void HGCalMappingESProducer::prepareCellMapperIndexer() {
   for (auto v : {"si", "sipm"}) {
     const auto& pmap = parsedMaps_[v];
     const auto& entities = pmap.getEntries();
-    for (const auto &row : entities) {
+    for (const auto& row : entities) {
       const std::string& typecode = pmap.getAttr("Typecode", row);
       int chip = pmap.getIntAttr("ROC", row);
       int half = pmap.getIntAttr("HalfROC", row);

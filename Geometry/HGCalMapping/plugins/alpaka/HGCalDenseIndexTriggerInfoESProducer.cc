@@ -77,7 +77,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             bool isSiPM = module_row.isSiPM();
             uint16_t typeidx = module_row.typeidx();
             uint32_t muxid = module_row.muxid();
-            
+
             //get the offset to start reading the cell info from sequential
             uint32_t cellInfoOffset = cellIndexer.offsets_[typeidx];
 

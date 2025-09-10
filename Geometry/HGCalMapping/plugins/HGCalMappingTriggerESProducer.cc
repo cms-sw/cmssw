@@ -79,7 +79,7 @@ void HGCalMappingTriggerESProducer::prepareCellMapperIndexer() {
   for (const auto& v : {"si", "sipm"}) {
     const auto& pmap = parsedMaps_[v];
     const auto& entities = pmap.getEntries();
-    for(const auto& row : entities) {
+    for (const auto& row : entities) {
       auto typecode = pmap.getAttr("Typecode", row);
       int ROC = pmap.getIntAttr("ROC", row);
       int trLink = pmap.getIntAttr("TrLink", row);
@@ -105,7 +105,7 @@ void HGCalMappingTriggerESProducer::prepareModuleMapperIndexer() {
 
   const auto& pmap = parsedMaps_["modules"];
   const auto& entities = pmap.getEntries();
-  for (const auto &row : entities) {
+  for (const auto& row : entities) {
     auto typecode = pmap.getAttr("typecode", row);  // module type code
     std::string wtypecode;                          // wafer type code
 

@@ -55,53 +55,53 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         ::hgcal::mappingtools::HGCalEntityList pmap;
         pmap.buildFrom(filename_.fullPath());
-        auto& entities = pmap.getEntries();
-        for (auto row : entities) {
-          int cassette = pmap.hasColumn("cassette") ? pmap.getIntAttr("cassette", row) : 1;
-          int fedid = pmap.getIntAttr("fedid", row);
-          int captureblockidx = pmap.getIntAttr("captureblockidx", row);
-          int econdidx = pmap.getIntAttr("econdidx", row);
-          int idx = modIndexer.getIndexForModule(fedid, captureblockidx, econdidx);
-          int typeidx = modIndexer.getTypeForModule(fedid, captureblockidx, econdidx);
-          const std::string& typecode = pmap.getAttr("typecode", row);
+        const auto& entities = pmap.getEntries();
+        for(const auto &row : entities) {
+         int cassette = pmap.hasColumn("cassette") ? pmap.getIntAttr("cassette", row) : 1;
+         int fedid = pmap.getIntAttr("fedid", row);
+         int captureblockidx = pmap.getIntAttr("captureblockidx", row);
+         int econdidx = pmap.getIntAttr("econdidx", row);
+         int idx = modIndexer.getIndexForModule(fedid, captureblockidx, econdidx);
+         int typeidx = modIndexer.getTypeForModule(fedid, captureblockidx, econdidx);
+         const std::string& typecode = pmap.getAttr("typecode", row);
 
-          auto celltypes = modIndexer.getCellType(typecode);
-          bool isSiPM = celltypes.first;
-          int celltype = celltypes.second;
-          int zside = pmap.getIntAttr("zside", row);
-          int plane = pmap.getIntAttr("plane", row);
-          int i1 = pmap.getIntAttr("u", row);
-          int i2 = pmap.getIntAttr("v", row);
-          uint8_t irot = (uint8_t)(pmap.hasColumn("irot") ? pmap.getIntAttr("irot", row) : 0);
-          uint32_t eleid = HGCalElectronicsId((zside > 0), fedid, captureblockidx, econdidx, 0, 0).raw();
-          uint32_t detid(0);
-          if (!isSiPM) {
-            int zp(zside > 0 ? 1 : -1);
-            DetId::Detector det = plane <= 26 ? DetId::Detector::HGCalEE : DetId::Detector::HGCalHSi;
-            detid = HGCSiliconDetId(det, zp, celltype, plane, i1, i2, 0, 0).rawId();
-          }
+         auto celltypes = modIndexer.getCellType(typecode);
+         bool isSiPM = celltypes.first;
+         int celltype = celltypes.second;
+         int zside = pmap.getIntAttr("zside", row);
+         int plane = pmap.getIntAttr("plane", row);
+         int i1 = pmap.getIntAttr("u", row);
+         int i2 = pmap.getIntAttr("v", row);
+         uint8_t irot = (uint8_t)(pmap.hasColumn("irot") ? pmap.getIntAttr("irot", row) : 0);
+         uint32_t eleid = HGCalElectronicsId((zside > 0), fedid, captureblockidx, econdidx, 0, 0).raw();
+         uint32_t detid(0);
+         if (!isSiPM) {
+           int zp(zside > 0 ? 1 : -1);
+           DetId::Detector det = plane <= 26 ? DetId::Detector::HGCalEE : DetId::Detector::HGCalHSi;
+           detid = HGCSiliconDetId(det, zp, celltype, plane, i1, i2, 0, 0).rawId();
+         }
 
-          auto module = moduleParams.view()[idx];
-          module.valid() = true;
-          module.zside() = (zside > 0);
-          module.isSiPM() = isSiPM;
-          module.celltype() = celltype;
-          module.plane() = plane;
-          module.i1() = i1;
-          module.i2() = i2;
-          module.irot() = irot;
-          module.typeidx() = typeidx;
-          module.fedid() = fedid;
-          module.slinkidx() = pmap.getIntAttr("slinkidx", row);
-          module.captureblock() = pmap.getIntAttr("captureblock", row);
-          module.econdidx() = econdidx;
-          module.captureblockidx() = captureblockidx;
-          module.eleid() = eleid;
-          module.detid() = detid;
-          module.cassette() = cassette;
-        }
+         auto module = moduleParams.view()[idx];
+         module.valid() = true;
+         module.zside() = (zside > 0);
+         module.isSiPM() = isSiPM;
+         module.celltype() = celltype;
+         module.plane() = plane;
+         module.i1() = i1;
+         module.i2() = i2;
+         module.irot() = irot;
+         module.typeidx() = typeidx;
+         module.fedid() = fedid;
+         module.slinkidx() = pmap.getIntAttr("slinkidx", row);
+         module.captureblock() = pmap.getIntAttr("captureblock", row);
+         module.econdidx() = econdidx;
+         module.captureblockidx() = captureblockidx;
+         module.eleid() = eleid;
+         module.detid() = detid;
+         module.cassette() = cassette;
+       }
 
-        return moduleParams;
+       return moduleParams;
 
       }  // end of produce()
 
