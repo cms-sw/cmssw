@@ -375,18 +375,15 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
         // in this case mergeTracksters() clears the pid probabilities and the regressed energy is not set
         // TODO: fix probabilities when CNN will be splitted
         Trackster outTrackster;
-        float regr_en = 0.f;
         bool isHadron = false;
-        outTrackster.mergeTracksters(input.tracksters, trackstersInTrackIndices[iTrack]);
         for (auto const tracksterId : trackstersInTrackIndices[iTrack]) {
           //maskTracksters[tracksterId] = 0;
-          regr_en += input.tracksters[tracksterId].regressed_energy();
+          outTrackster.mergeTracksters(input.tracksters[tracksterId]);
           if (input.tracksters[tracksterId].isHadronic())
             isHadron = true;
         }
         resultCandidate[iTrack] = resultTracksters.size();
         resultTracksters.push_back(outTrackster);
-        resultTracksters.back().setRegressedEnergy(regr_en);
         // since a track has been linked it can only be electron or charged hadron
         if (isHadron)
           resultTracksters.back().setIdProbability(ticl::Trackster::ParticleType::charged_hadron, 1.f);
