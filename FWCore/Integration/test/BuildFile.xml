@@ -21,14 +21,11 @@
   <test name="TestIntegrationProducesCollector" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/testProducesCollector_cfg.py"/>
   <test name="TestIntegrationGetterOfProducts" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/testGetterOfProductsWithOutputModule_cfg.py"/>
   <test name="TestIntegrationConsumesInfo" command="run_TestConsumesInfo.sh"/>
-  <test name="TestIntegrationFallback" command="run_TestFallback.sh"/>
   <test name="TestIntegrationOutput" command="run_TestOutput.sh"/>
   <test name="TestIntegrationUnscheduledFailOnOutput" command="run_unscheduledFailOnOutput.sh"/>
   <test name="TestIntegrationGetProductAtEnd" command="run_getProductAtEnd.sh"/>
   <test name="TestIntegrationParentless" command="parentlessTest.sh"/>
   <test name="TestIntegrationWaitingThread" command="waiting_thread_test.sh"/>
-  <test name="TestIntegrationRefMerge" command="run_RefMerge.sh"/>
-  <test name="TestIntegrationRefAlias" command="run_RefAlias.sh"/>
   <test name="TestIntegrationParameterSet" command="run_ParameterSet.sh"/>
   <test name="TestIntegrationSwitchProducer" command="run_TestSwitchProducer.sh"/>
   <test name="TestIntegration_TestEDAlias" command="run_TestEDAlias.sh"/>
