@@ -107,3 +107,6 @@
 
 <test name="TestIOPoolRefMerge" command="run_RefMerge.sh"/>
 <test name="TestIOPoolRefAlias" command="run_RefAlias.sh"/>
+
+<test name="TestIOPoolFallback" command="run_TestFallback.sh"/>
+
