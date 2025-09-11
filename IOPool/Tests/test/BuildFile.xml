@@ -104,3 +104,6 @@
 </test>
 
 <test name="TestIOPoolOutputSignals" command="run_TestOutput.sh"/>
+
+<test name="TestIOPoolRefMerge" command="run_RefMerge.sh"/>
+<test name="TestIOPoolRefAlias" command="run_RefAlias.sh"/>
