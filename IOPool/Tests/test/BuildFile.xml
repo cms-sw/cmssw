@@ -11,6 +11,9 @@
 
 <test name="TestIOPoolSeriesOfProcesses" command="run_SeriesOfProcesses.sh"/>
 
+<test name="TestIOPoolGetBy" command="run_TestGetBy.sh"/>
+<test name="TestIOPoolGetByLabel" command="run_TestGetByLabel.sh"/>
+
 <test name="TestIOPoolProcessBlock1" command="run_TestProcessBlock.sh 1"/>
 <test name="TestIOPoolProcessBlock2" command="run_TestProcessBlock.sh 2"/>
 <test name="TestIOPoolProcessBlock3" command="run_TestProcessBlock.sh 3"/>
