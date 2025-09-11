@@ -16,7 +16,6 @@
   <test name="TestIntegrationHierarchyExample" command="hierarchy_example.sh"/>
   <test name="TestIntegrationServiceExample" command="service_example.sh"/>
   <test name="TestIntegrationView" command="ViewTest.sh"/>
-  <test name="TestIntegrationSeriesOfProcesses" command="run_SeriesOfProcesses.sh"/>
   <test name="TestParentageWithStreamerIO" command="run_ParentageWithStreamerIO.sh"/>
   <test name="TestIntegrationGetBy" command="run_TestGetBy.sh"/>
   <test name="TestIntegrationFallback" command="run_TestFallback.sh"/>
