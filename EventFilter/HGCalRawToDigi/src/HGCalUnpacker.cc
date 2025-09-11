@@ -7,7 +7,7 @@
 
 #include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/FEDRawData/interface/RawDataBuffer.h"
 #include "DataFormats/HGCalDigi/interface/HGCalDigiHost.h"
 #include "DataFormats/HGCalDigi/interface/HGCalECONDPacketInfoHost.h"
 #include "DataFormats/HGCalDigi/interface/HGCalFEDPacketInfoHost.h"
@@ -20,7 +20,7 @@
 using namespace hgcal;
 
 uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
-                                     const FEDRawData& fed_data,
+                                     const RawFragmentWrapper& fed_data,
                                      const HGCalMappingModuleIndexer& moduleIndexer,
                                      const HGCalConfiguration& config,
                                      hgcaldigi::HGCalDigiHost& digis,
@@ -50,8 +50,9 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
   // Endianness assumption
   // From 32-bit word(ECOND) to 64-bit word(capture block): little endianness
   // Others: big endianness
-  const auto* const header = reinterpret_cast<const uint64_t*>(fed_data.data());
-  const auto* const trailer = reinterpret_cast<const uint64_t*>(fed_data.data() + fed_data.size());
+  const auto* start_fed_data = &(fed_data.data().front());
+  const auto* const header = reinterpret_cast<const uint64_t*>(start_fed_data);
+  const auto* const trailer = reinterpret_cast<const uint64_t*>(start_fed_data+fed_data.data().size());
   LogDebug("[HGCalUnpacker]") << "fedId = " << fedId << ", nwords (64b) = " << std::distance(header, trailer);
   const auto* ptr = header;
 
