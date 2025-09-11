@@ -112,3 +112,9 @@
 
 <test name="TestIOPoolExistingDictionary" command="run_TestExistingDictionary.sh"/>
 <test name="TestIOPoolMissingDictionary" command="Run_MissingDictionary.sh"/>
+
+<test name="TestIOPoolProvenance" command ="provenance_test.sh"/>
+<test name="TestMaybeUninitializedIntProduct" command="cmsRun ${LOCALTOP}/src/IOPool/Tests/test/testMaybeUninitializedIntProductPart1_cfg.py &amp;&amp; cmsRun ${LOCALTOP}/src/IOPool/Tests/test/testMaybeUninitializedIntProductPart2_cfg.py"/>
+<test name="TestParentageWithStreamerIO" command="run_ParentageWithStreamerIO.sh"/>
+
+<test name="TestIOPoolUnscheduledFailOnOutput" command="run_unscheduledFailOnOutput.sh"/>

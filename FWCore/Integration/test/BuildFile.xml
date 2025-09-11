@@ -16,13 +16,11 @@
   <test name="TestIntegrationHierarchyExample" command="hierarchy_example.sh"/>
   <test name="TestIntegrationServiceExample" command="service_example.sh"/>
   <test name="TestIntegrationView" command="ViewTest.sh"/>
-  <test name="TestParentageWithStreamerIO" command="run_ParentageWithStreamerIO.sh"/>
   <test name="TestIntegrationGetByPlaceHolder" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/testGetByPlaceholder_cfg.py"/>
   <test name="TestIntegrationProducesCollector" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/testProducesCollector_cfg.py"/>
   <test name="TestIntegrationGetterOfProducts" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/testGetterOfProductsWithOutputModule_cfg.py"/>
   <test name="TestIntegrationConsumesInfo" command="run_TestConsumesInfo.sh"/>
   <test name="TestIntegrationOutput" command="run_TestOutput.sh"/>
-  <test name="TestIntegrationUnscheduledFailOnOutput" command="run_unscheduledFailOnOutput.sh"/>
   <test name="TestIntegrationGetProductAtEnd" command="run_getProductAtEnd.sh"/>
   <test name="TestIntegrationParentless" command="parentlessTest.sh"/>
   <test name="TestIntegrationWaitingThread" command="waiting_thread_test.sh"/>
@@ -35,7 +33,6 @@
   <test name="CatchCmsExceptiontest" command="CatchCmsExceptiontest.sh"/>
   <test name="TestStdProducts" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/testStdProducts_cfg.py"/>
   <test name="TestPostInsertProducer" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/testPostInsertProducer_cfg.py"/>
-  <test name="TestFWCoreIntegrationProvenance" command ="provenance_test.sh"/>
 
   <bin file="ProcessConfiguration_t.cpp,ProcessHistory_t.cpp" name="TestIntegrationDataFormatsProvenance">
     <use name="FWCore/ParameterSet"/>
@@ -131,6 +128,4 @@
   <test name="TestFWCoreIntegrationTryToContinueExceptionOutput" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_shouldTryToContinue_source_cfg.py"/>
   <test name="TestFWCoreIntegrationTryToContinueESProducer" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TryToContinue_ESProducer_cfg.py"/>
   <test name="TestFWCoreIntegrationTryToContinueESProducerContinue" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TryToContinue_ESProducer_cfg.py --continueAnalyzer"/>
-
-  <test name="TestMaybeUninitializedIntProduct" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/testMaybeUninitializedIntProductPart1_cfg.py &amp;&amp; cmsRun ${LOCALTOP}/src/FWCore/Integration/test/testMaybeUninitializedIntProductPart2_cfg.py"/>
 </environment>
