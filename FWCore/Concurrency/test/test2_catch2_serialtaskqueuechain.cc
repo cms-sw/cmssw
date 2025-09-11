@@ -5,13 +5,10 @@
 //  Created by Chris Jones on 9/27/11.
 //
 
-#include <iostream>
-#include <sstream>
 #include <catch.hpp>
 #include <chrono>
 #include <memory>
 #include <atomic>
-#include <iostream>
 #include "oneapi/tbb/task.h"
 #include "oneapi/tbb/global_control.h"
 #include "oneapi/tbb/task_arena.h"
@@ -100,36 +97,23 @@ TEST_CASE("SerialTaskQueueChain", "[SerialTaskQueueChain]") {
         {
           edm::WaitingTaskHolder lastHolder(group, &lastTask);
 
-          group.run([&chain, &waitToStart, &group, &count, lastHolder, index] {
+          group.run([&chain, &waitToStart, &group, &count, lastHolder] {
             --waitToStart;
             while (waitToStart.load() != 0)
               ;
-            std::ostringstream ss;
-            ss << "start task 1, index: " << index << "\n";
-            std::cout << ss.str() << std::flush;
             for (unsigned int i = 0; i < nTasks; ++i) {
               chain.push(group, [&count, lastHolder] { ++count; });
             }
-            ss.str(std::string());
-            ss << "stop task 1, index: " << index << "\n";
-            std::cout << ss.str() << std::flush;
           });
-          group.run([&chain, &waitToStart, &group, &count, lastHolder, index] {
+          group.run([&chain, &waitToStart, &group, &count, lastHolder] {
             --waitToStart;
             while (waitToStart.load() != 0)
               ;
-            std::ostringstream ss;
-            ss << "start task 2, index: " << index << "\n";
-            std::cout << ss.str() << std::flush;
             for (unsigned int i = 0; i < nTasks; ++i) {
               chain.push(group, [&count, lastHolder] { ++count; });
             }
-            ss.str(std::string());
-            ss << "stop task 2, index: " << index << "\n";
-            std::cout << ss.str() << std::flush;
           });
         }
-        std::cout << "Waiting for tasks to finish, index: " << index << "\n" << std::flush;
         lastTask.wait();
         REQUIRE(2 * nTasks == count);
       }
