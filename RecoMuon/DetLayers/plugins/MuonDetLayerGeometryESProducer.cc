@@ -54,7 +54,7 @@ using namespace edm;
 
 MuonDetLayerGeometryESProducer::MuonDetLayerGeometryESProducer(const edm::ParameterSet& p) {
   MuonRPCDetLayerGeometryBuilder::useUpdatedRPCIsFront = p.getParameter<bool>("useUpdatedRPCIsFront");
-  
+
   auto cc = setWhatProduced(this);
   dtToken_ = cc.consumes();
   cscToken_ = cc.consumes();

@@ -8,11 +8,6 @@ from Configuration.Eras.Modifier_run3_SiPixel_2025_cff import run3_SiPixel_2025
 from Configuration.Eras.Modifier_run3_nanoAOD_2025_cff import run3_nanoAOD_2025
 from Configuration.ProcessModifiers.ecal_cctiming_cff import ecal_cctiming
 from Configuration.ProcessModifiers.siPixelGoodEdgeAlgo_cff import siPixelGoodEdgeAlgo
-<<<<<<< HEAD
-
-Run3_2025 = cms.ModifierChain(Run3_2024, run3_GEM_2025, stage2L1Trigger_2025, run3_SiPixel_2025, run3_CSC_2025, run3_nanoAOD_2025, ecal_cctiming, siPixelGoodEdgeAlgo)
-=======
 from Configuration.Eras.Modifier_run3_RPC_2025_cff import run3_RPC_2025
 
 Run3_2025 = cms.ModifierChain(Run3_2024, run3_GEM_2025, stage2L1Trigger_2025, run3_SiPixel_2025, run3_CSC_2025, run3_nanoAOD_2025, ecal_cctiming, siPixelGoodEdgeAlgo, run3_RPC_2025)
->>>>>>> 23630d193b4 (Add an RPC Modifier class for Run3 2025 and add it to the ModifierChain within the Run3 2025 Era)

@@ -312,7 +312,7 @@ bool MuonRPCDetLayerGeometryBuilder::isFront(const RPCDetId& rpcId) {
     } else {
       // For the others, odd chambers are closer to the IP
       return (sector % 2 != 0);
-    }    
+    }
   } else {
     // ME1/2 is always in back
     //  if(rpcId.station() == 1 && rpcId.ring() == 2)  return false;
@@ -340,6 +340,6 @@ bool MuonRPCDetLayerGeometryBuilder::isFront(const RPCDetId& rpcId) {
       // 10 degree rings have odd subsectors in front
       result = (rpcId.subsector() % 2 == 0);
     }
-    return result;       
+    return result;
   }
 }
