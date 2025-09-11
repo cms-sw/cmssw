@@ -10,7 +10,7 @@ mkdir ${TEST_NAME}
 
 pushd ${TEST_NAME}
 
-TEST_PATH=${LOCALTOP}/src/FWCore/Integration/test
+TEST_PATH=${LOCALTOP}/src/IOPool/Tests/test
 
 cmsRun ${TEST_PATH}/testGetByLabelStep1_cfg.py || die "Failed cmsRun testGetByLabel_step1_cfg.py" $1
 
