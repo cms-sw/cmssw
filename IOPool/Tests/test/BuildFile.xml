@@ -110,3 +110,5 @@
 
 <test name="TestIOPoolFallback" command="run_TestFallback.sh"/>
 
+<test name="TestIOPoolExistingDictionary" command="run_TestExistingDictionary.sh"/>
+<test name="TestIOPoolMissingDictionary" command="Run_MissingDictionary.sh"/>
