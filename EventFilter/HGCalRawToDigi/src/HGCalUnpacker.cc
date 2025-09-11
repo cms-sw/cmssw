@@ -52,7 +52,7 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
   // Others: big endianness
   const auto* start_fed_data = &(fed_data.data().front());
   const auto* const header = reinterpret_cast<const uint64_t*>(start_fed_data);
-  const auto* const trailer = reinterpret_cast<const uint64_t*>(start_fed_data+fed_data.data().size());
+  const auto* const trailer = reinterpret_cast<const uint64_t*>(start_fed_data + fed_data.data().size());
   LogDebug("[HGCalUnpacker]") << "fedId = " << fedId << ", nwords (64b) = " << std::distance(header, trailer);
   const auto* ptr = header;
 

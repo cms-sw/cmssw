@@ -104,13 +104,12 @@ void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
   //serial unpacking calls
   if (doSerial_) {
-    
     for (unsigned fedId = 0; fedId < moduleIndexer.fedCount(); ++fedId) {
       const auto& frs = moduleIndexer.getFEDReadoutSequences()[fedId];
       if (frs.readoutTypes_.empty()) {
         continue;
       }
-      
+
       const auto& fed_data = fedBuffer.fragmentData(fedId);
       fedPacketInfo.view()[fedId].FEDPayload() = fed_data.size();
       if (fed_data.size() == 0)
