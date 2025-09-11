@@ -31,17 +31,20 @@ public:
 
   L1Phase2MuDTShower();
 
-  L1Phase2MuDTShower(int wh,                               // Wheel
-                     int sc,                               // Sector
-                     int st,                               // Station
-                     int sl,                               // Superlayer
-                     int ndigis,                           // Number of digis within shower
-                     int bx,                               // BX estimation
-                     int min_wire,                         // Minimum wire
-                     int max_wire,                         // Maximum wire
-                     float avg_pos,                        // Averaged position of the shower
-                     float avg_time,                       // Averaged time of the shower
-                     const std::vector<int> wires_profile  // Wires profile
+  L1Phase2MuDTShower(int wh,                                           // Wheel
+                     int sc,                                           // Sector
+                     int st,                                           // Station
+                     int sl,                                           // Superlayer
+                     int ndigis,                                       // Number of digis within shower
+                     int bx,                                           // BX estimation
+                     int min_wire,                                     // Minimum wire
+                     int max_wire,                                     // Maximum wire
+                     float avg_pos,                                    // Averaged position of the shower
+                     float avg_time,                                   // Averaged time of the shower
+                     const std::vector<int> wires_profile,             // Wires profile
+                     const std::vector<int> wires_constituents,        // Wires constituents
+                     const std::vector<int> wires_layer_constituents,  // Wires layer constituents
+                     const std::vector<int> wires_tdc_constituents     // Wires tdc constituents
   );
 
   // Operations
@@ -57,6 +60,9 @@ public:
   float avg_time() const;
   float avg_pos() const;
   std::vector<int> wiresProfile() const;
+  std::vector<int> wiresConstituents() const;
+  std::vector<int> wiresLayerConstituents() const;
+  std::vector<int> wiresTdcConstituents() const;
 
 private:
   int m_wheel;
@@ -70,6 +76,9 @@ private:
   float m_avg_pos;
   float m_avg_time;
   std::vector<int> m_wires_profile;
+  std::vector<int> m_wires_constituents;
+  std::vector<int> m_wires_layer_constituents;
+  std::vector<int> m_wires_tdc_constituents;
 };
 
 #endif

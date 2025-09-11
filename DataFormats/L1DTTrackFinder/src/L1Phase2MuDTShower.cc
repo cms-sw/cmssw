@@ -33,6 +33,9 @@ L1Phase2MuDTShower::L1Phase2MuDTShower()
       m_avg_pos(0),
       m_avg_time(0) {
   m_wires_profile.resize(96, 0);
+  m_wires_constituents.resize(50, 0);
+  m_wires_layer_constituents.resize(50, 0);
+  m_wires_tdc_constituents.resize(50, 0);
 }
 
 L1Phase2MuDTShower::L1Phase2MuDTShower(int wh,
@@ -45,7 +48,10 @@ L1Phase2MuDTShower::L1Phase2MuDTShower(int wh,
                                        int max_wire,
                                        float avg_pos,
                                        float avg_time,
-                                       const std::vector<int> wires_profile)
+                                       const std::vector<int> wires_profile,
+                                       const std::vector<int> wires_constituents,
+                                       const std::vector<int> wires_layer_constituents,
+                                       const std::vector<int> wires_tdc_constituents)
     : m_wheel(wh),
       m_sector(sc),
       m_station(st),
@@ -56,7 +62,10 @@ L1Phase2MuDTShower::L1Phase2MuDTShower(int wh,
       m_max_wire(max_wire),
       m_avg_pos(avg_pos),
       m_avg_time(avg_time),
-      m_wires_profile(wires_profile) {}
+      m_wires_profile(wires_profile),
+      m_wires_constituents(wires_constituents),
+      m_wires_layer_constituents(wires_layer_constituents),
+      m_wires_tdc_constituents(wires_tdc_constituents) {}
 
 //--------------
 // Operations --
@@ -83,3 +92,6 @@ float L1Phase2MuDTShower::avg_time() const { return m_avg_time; }
 float L1Phase2MuDTShower::avg_pos() const { return m_avg_pos; }
 
 std::vector<int> L1Phase2MuDTShower::wiresProfile() const { return m_wires_profile; }
+std::vector<int> L1Phase2MuDTShower::wiresConstituents() const { return m_wires_constituents; }
+std::vector<int> L1Phase2MuDTShower::wiresLayerConstituents() const { return m_wires_layer_constituents; }
+std::vector<int> L1Phase2MuDTShower::wiresTdcConstituents() const { return m_wires_tdc_constituents; }
