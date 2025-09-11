@@ -298,7 +298,7 @@ void MuonRPCDetLayerGeometryBuilder::makeBarrelRods(vector<const GeomDet*>& geom
 }
 
 bool MuonRPCDetLayerGeometryBuilder::isFront(const RPCDetId& rpcId) {
-  if (MuonRPCDetLayerGeometryBuilder::useUpdatedRPCIsFront) {
+  if (useUpdatedRPCIsFront) {
     const int station = rpcId.station();
     const int ring = rpcId.ring();
     const int sector = RPCGeomServ(rpcId).segment();
