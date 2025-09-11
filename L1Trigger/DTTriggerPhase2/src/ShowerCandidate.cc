@@ -31,4 +31,7 @@ void ShowerCandidate::clear() {
   avgTime_ = 0;
   shower_flag_ = false;
   wires_profile_.resize(96, 0);
+  wires_constituents_.clear();
+  wires_layer_constituents_.clear();
+  wires_tdc_constituents_.clear();
 }
