@@ -37,7 +37,6 @@
   <test name="CatchStdExceptiontest" command="CatchStdExceptiontest.sh"/>
   <test name="CatchCmsExceptiontest" command="CatchCmsExceptiontest.sh"/>
   <test name="TestIntegrationExistingDictionary" command="run_TestExistingDictionary.sh"/>
-  <test name="TestIntegrationEmptyRootFile" command="run_TestEmptyRootFile.sh"/>
   <test name="TestStdProducts" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/testStdProducts_cfg.py"/>
   <test name="TestPostInsertProducer" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/testPostInsertProducer_cfg.py"/>
   <test name="TestFWCoreIntegrationProvenance" command ="provenance_test.sh"/>
@@ -136,8 +135,6 @@
   <test name="TestFWCoreIntegrationTryToContinueExceptionOutput" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_shouldTryToContinue_source_cfg.py"/>
   <test name="TestFWCoreIntegrationTryToContinueESProducer" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TryToContinue_ESProducer_cfg.py"/>
   <test name="TestFWCoreIntegrationTryToContinueESProducerContinue" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TryToContinue_ESProducer_cfg.py --continueAnalyzer"/>
-
-  <test name="TestFWCoreIntegrationInconsistentProducts" command="run_inconsistent_products.sh"/>
 
   <test name="TestMaybeUninitializedIntProduct" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/testMaybeUninitializedIntProductPart1_cfg.py &amp;&amp; cmsRun ${LOCALTOP}/src/FWCore/Integration/test/testMaybeUninitializedIntProductPart2_cfg.py"/>
 </environment>

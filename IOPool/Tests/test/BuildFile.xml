@@ -88,3 +88,19 @@
   <flags PRE_TEST="TestIOPoolProcessBlock23"/>
   <flags PRE_TEST="TestIOPoolProcessBlock24"/>
 </test>
+
+<test name="TestIOPoolAssociationMapWrite" command="cmsRun ${LOCALTOP}/src/IOPool/Tests/test/AssociationMapTest_cfg.py"/>
+
+<test name="TestIOPoolAssociationMapTest" command="cmsRun ${LOCALTOP}/src/IOPool/Tests/test/AssociationMapReadTest_cfg.py">
+ <flags PRE_TEST="TestIOPoolAssociationMapWrite"/>
+</test>
+
+<test name="TestIOPoolInconsistentProducts" command="run_inconsistent_products.sh"/>
+
+<test name="TestIOPoolEmptyRootFileWrite" command="cmsRun ${LOCALTOP}/src/IOPool/Tests/test/makeEmptyRootFile.py"/>
+
+<test name="TestIOPoolEmptyRootFileRead" command="cmsRun ${LOCALTOP}/src/IOPool/Tests/test/useEmptyRootFile.py">
+ <flags PRE_TEST="TestIOPoolEmptyRootFileWrite"/>
+</test>
+
+<test name="TestIOPoolOutputSignals" command="run_TestOutput.sh"/>
