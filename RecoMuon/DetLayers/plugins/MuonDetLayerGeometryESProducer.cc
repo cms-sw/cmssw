@@ -53,6 +53,8 @@ private:
 using namespace edm;
 
 MuonDetLayerGeometryESProducer::MuonDetLayerGeometryESProducer(const edm::ParameterSet& p) {
+  MuonRPCDetLayerGeometryBuilder::useUpdatedRPCIsFront = p.getParameter<bool>("useUpdatedRPCIsFront");
+  
   auto cc = setWhatProduced(this);
   dtToken_ = cc.consumes();
   cscToken_ = cc.consumes();
@@ -109,7 +111,7 @@ std::unique_ptr<MuonDetLayerGeometry> MuonDetLayerGeometryESProducer::produce(co
 
 void MuonDetLayerGeometryESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  //no parameters are used
+  desc.add<bool>("useUpdatedRPCIsFront", false);
   descriptions.addDefault(desc);
 }
 
