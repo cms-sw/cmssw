@@ -8,7 +8,7 @@ l1tVertexProducer = cms.EDProducer('VertexProducer',
   # === Vertex Reconstruction configuration
   VertexReconstruction = cms.PSet(
         # Vertex Reconstruction Algorithm
-        Algorithm = cms.string("PFA"),
+        Algorithm = cms.string("fastHisto"),
         # Vertex distance [cm]
         VertexDistance = cms.double(.15),
         # Assumed Vertex Resolution [cm]
@@ -35,16 +35,16 @@ l1tVertexProducer = cms.EDProducer('VertexProducer',
         # Include eta-dependence of the estimated track resolution used in PFA
         PFA_EtaDependentResolution = cms.bool(True),
         # Scale factor for the PFA track resolution parameter (where the nominal values with and without eta-dependence are hard-coded using the fit results from Giovanna's thesis)
-        PFA_ResolutionSF = cms.double(2.),
+        PFA_ResolutionSF = cms.double(1.3),
         # PFA Gaussian width cutoff [cm]
         PFA_VertexWidth = cms.double(1.31), # Giovanna's recommendation of 3*sigma(lowest-resolution tracks).
         # Enable 2-step process where the weighted pT sum is only calculated at positions where the weighted multiplicity is maximum ("local maxima"). In the second step, the local maximum with the largest weighted pT sum is chosen as the vertex.
         PFA_UseMultiplicityMaxima = cms.bool(False),
         # Weight function to use in PFA. 0: Gaussian, 1: Gaussian without width normalisation, 2: Complementary error function, 3: Step function
-        PFA_WeightFunction = cms.uint32(1),
+        PFA_WeightFunction = cms.uint32(2),
         # Instead of taking the z0 value from the discrete PFA scan (0), calculate it from the Gaussian and pT-weighted average of track z0 (1) or the optimal (1/variance) weighted mean of associated tracks, weighted also by pT and association probability (2). Step function and pT-weighted average (3) is intended for use with PFA_WeightFunction=3 (to replicate fastHisto).
         # Additional options (4-11) have different uses of the track resolution (only relevant when eta-dependent) and different powers of trackPt in the weighted sum: see VertexFinder.cc for details.
-        PFA_WeightedZ0 = cms.uint32(1),
+        PFA_WeightedZ0 = cms.uint32(8),
         # Use VxMinTrackPt cut specified below (otherwise no additional track selection is applied)
         PFA_DoQualityCuts = cms.bool(False),
         # fastHisto algorithm histogram parameters (min,max,width) [cm]
@@ -55,7 +55,7 @@ l1tVertexProducer = cms.EDProducer('VertexProducer',
         # Track word limits (256 binns): [-20.46912512, 20.46912512, 0.15991504]
         FH_HistogramParameters = cms.vdouble(-20.46912512, 20.46912512, 0.15991504),
         # The number of vertixes to return (i.e. N windows with the highest combined pT)
-        FH_NVtx = cms.uint32(10),
+        FH_NVtx = cms.uint32(1),
         # fastHisto algorithm assumed vertex half-width [cm]
         FH_VertexWidth = cms.double(.15),
         # Window size of the sliding window
