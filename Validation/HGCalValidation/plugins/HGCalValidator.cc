@@ -84,7 +84,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
       label_SimClustersPlots_(pset.getParameter<edm::InputTag>("label_SimClusters")),
       label_SimClustersLevel_(pset.getParameter<edm::InputTag>("label_SimClustersLevel")),
       doLayerClustersPlots_(pset.getUntrackedParameter<bool>("doLayerClustersPlots")),
-      label_layerClustersPlots_(pset.getParameter<edm::InputTag>("label_layerClusterPlots")),
+      label_layerClustersPlots_(pset.getParameter<edm::InputTag>("label_layerClustersPlots")),
       label_LCToCPLinking_(pset.getParameter<edm::InputTag>("label_LCToCPLinking")),
       doTrackstersPlots_(pset.getUntrackedParameter<bool>("doTrackstersPlots")),
       label_TS_(pset.getParameter<std::string>("label_TS")),
@@ -97,14 +97,14 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
       label_candidates_(pset.getParameter<std::string>("ticlCandidates")),
       cummatbudinxo_(pset.getParameter<edm::FileInPath>("cummatbudinxo")),
       isTICLv5_(pset.getUntrackedParameter<bool>("isticlv5")),
-      hits_label_(pset.getParameter<std::vector<edm::InputTag>>("hits")),
+      hits_labels_(pset.getParameter<std::vector<edm::InputTag>>("hits")),
       scToCpMapToken_(
           consumes<SimClusterToCaloParticleMap>(pset.getParameter<edm::InputTag>("simClustersToCaloParticlesMap"))) {
   //In this way we can easily generalize to associations between other objects also.
   const edm::InputTag& label_cp_effic_tag = pset.getParameter<edm::InputTag>("label_cp_effic");
   const edm::InputTag& label_cp_fake_tag = pset.getParameter<edm::InputTag>("label_cp_fake");
 
-  for (auto& label : hits_label_) {
+  for (auto& label : hits_labels_) {
     hits_tokens_.push_back(consumes<HGCRecHitCollection>(label));
   }
   label_cp_effic = consumes<std::vector<CaloParticle>>(label_cp_effic_tag);
@@ -417,9 +417,15 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   const std::unordered_map<DetId, const unsigned int>& hitMap = *hitMapHandle;
 
   MultiVectorManager<HGCRecHit> rechitManager;
-  for (const auto& token : hits_tokens_) {
+  for (size_t i = 0; i < hits_tokens_.size(); ++i) {
     Handle<HGCRecHitCollection> hitsHandle;
-    event.getByToken(token, hitsHandle);
+    event.getByToken(hits_tokens_[i], hitsHandle);
+
+    if (!hitsHandle.isValid()) {
+      edm::LogWarning("MissingInput") << "Missing " << hits_labels_[i] << " handle.";
+      return;
+    }
+
     rechitManager.addVector(*hitsHandle);
   }
 
@@ -570,7 +576,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
       event.getByToken(label_tstTokens[wml], tracksterHandle);
 
       if (!tracksterHandle.isValid()) {
-        edm::LogWarning("MissinInput") << "Failed to retrieve tracksters for wml index: " << wml;
+        edm::LogWarning("MissingInput") << "Failed to retrieve tracksters for wml index: " << wml;
         continue;  // Or handle the error as needed
       }
 
@@ -798,7 +804,7 @@ void HGCalValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<edm::InputTag>("label_SimClusters", edm::InputTag("SimClusters"));
   desc.add<edm::InputTag>("label_SimClustersLevel", edm::InputTag("ClusterLevel"));
   desc.addUntracked<bool>("doLayerClustersPlots", true);
-  desc.add<edm::InputTag>("label_layerClusterPlots", edm::InputTag("hgcalMergeLayerClusters"));
+  desc.add<edm::InputTag>("label_layerClustersPlots", edm::InputTag("hgcalMergeLayerClusters"));
   desc.add<edm::InputTag>("label_LCToCPLinking", edm::InputTag("LCToCP_association"));
   desc.addUntracked<bool>("doTrackstersPlots", true);
   desc.add<std::string>("label_TS", "Morphology");

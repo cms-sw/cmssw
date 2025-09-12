@@ -89,7 +89,7 @@ namespace edm {
       void throwFillSize() const {
         Exception::throwThis(errors::InvalidReference,
                              "ValueMap::Filler: handle and reference "
-                             "collections should the same size\n");
+                             "collections should have the same size\n");
       }
       void throwFillID(ProductID id) const {
         Exception e(errors::InvalidReference);

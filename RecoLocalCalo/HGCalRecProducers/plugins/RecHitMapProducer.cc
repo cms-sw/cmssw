@@ -62,14 +62,22 @@ void RecHitMapProducer::produce(edm::StreamID, edm::Event& evt, const edm::Event
   auto hitMapHGCal = std::make_unique<DetIdRecHitMap>();
 
   // Retrieve collections
+  assert(hgcal_hits_token_.size() == 3);
   const auto& ee_hits = evt.getHandle(hgcal_hits_token_[0]);
   const auto& fh_hits = evt.getHandle(hgcal_hits_token_[1]);
   const auto& bh_hits = evt.getHandle(hgcal_hits_token_[2]);
 
   // Check validity of all handles
   if (!ee_hits.isValid() || !fh_hits.isValid() || !bh_hits.isValid()) {
-    edm::LogWarning("HGCalRecHitMapProducer") << "One or more hit collections are unavailable. Returning an empty map.";
+    edm::LogWarning("HGCalRecHitMapProducer")
+        << "One or more HGCal hit collections are unavailable. Returning an empty map.";
     evt.put(std::move(hitMapHGCal), "hgcalRecHitMap");
+
+    if (!hgcalOnly_) {
+      auto hitMapBarrel = std::make_unique<DetIdRecHitMap>();
+      evt.put(std::move(hitMapBarrel), "barrelRecHitMap");
+    }
+
     return;
   }
 
@@ -89,13 +97,26 @@ void RecHitMapProducer::produce(edm::StreamID, edm::Event& evt, const edm::Event
 
   if (!hgcalOnly_) {
     auto hitMapBarrel = std::make_unique<DetIdRecHitMap>();
+
+    assert(barrel_hits_token_.size() == 2);
+    const auto& ecal_hits = evt.getHandle(barrel_hits_token_[0]);
+    const auto& hbhe_hits = evt.getHandle(barrel_hits_token_[1]);
+
+    if (!ecal_hits.isValid() || !hbhe_hits.isValid()) {
+      edm::LogWarning("HGCalRecHitMapProducer")
+          << "One or more barrel hit collections are unavailable. Returning an empty map.";
+      evt.put(std::move(hitMapBarrel), "barrelRecHitMap");
+      return;
+    }
+
     MultiVectorManager<reco::PFRecHit> barrelRechitManager;
-    barrelRechitManager.addVector(evt.get(barrel_hits_token_[0]));
-    barrelRechitManager.addVector(evt.get(barrel_hits_token_[1]));
+    barrelRechitManager.addVector(*ecal_hits);
+    barrelRechitManager.addVector(*hbhe_hits);
     for (unsigned int i = 0; i < barrelRechitManager.size(); ++i) {
       const auto recHitDetId = barrelRechitManager[i].detId();
       hitMapBarrel->emplace(recHitDetId, i);
     }
+
     evt.put(std::move(hitMapBarrel), "barrelRecHitMap");
   }
 }
