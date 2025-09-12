@@ -11,7 +11,7 @@ cmsDriver.py \
 	--processName MERGE \
 	--data \
 	--scenario pp \
-	--eventcontent TauEmbeddingMerge \
+	--eventcontent TauEmbeddingMergeMINIAOD \
 	--datatier USER \
 	--inputCommands 'keep *_*_*_*' \
 	--era ... \
@@ -20,15 +20,15 @@ cmsDriver.py \
     --fileout ...
 ```
 """
+
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Reconstruction_Data_cff import * # most of the producers which are replaced here are imported in this file
+from Configuration.StandardSequences.RawToDigi_cff import * # placed this here to be consistent with the older developments, don't know if this is really needed
+import PhysicsTools.PatAlgos.tools.coreTools
+from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeMC
+from Configuration.ProcessModifiers.tau_embedding_merging_cff import tau_embedding_merging
 
 # overriding behaviour of 'removeMCMatching', as we also use mc and need this so that nanoAODs are correctly produced
-import PhysicsTools.PatAlgos.tools.coreTools
-from Configuration.Eras.Modifier_run2_common_cff import run2_common
-from Configuration.Eras.Modifier_run3_common_cff import run3_common
-from Configuration.StandardSequences.Reconstruction_Data_cff import *
-from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeMC
-
 # This is needed because we now have a hybrid event which contains both simulation and reconstructed data.
 PhysicsTools.PatAlgos.tools.coreTools.removeMCMatching = lambda process, names, postfix, outputModules : miniAOD_customizeMC(process)
 
@@ -36,192 +36,194 @@ from PhysicsTools.PatAlgos.slimming.unpackedPatTrigger_cfi import unpackedPatTri
 
 unpackedPatTrigger.triggerResults = cms.InputTag("TriggerResults::SIMembeddingHLT")
 
-# As we want to exploit the toModify and toReplaceWith features of the FWCore/ParameterSet/python/Config.py Modifier class,
-# we need a general modifier that is always applied.
-# maybe this can also be replaced by a specific embedding process modifier
-generalModifier = run2_common | run3_common
+# In the following replace producers that produce collections which are used as input for particle flow producers
+# by their corresponding merger producers.
+# The merger producers merge the collections from the simulation step and the cleaning step.
+# Those "toReplaceWith" modifiers need to be applied as late as possible e.g. in StandardSequences.Reconstruction_Data_cff.
+# This is to avoid collisions with other modules that are cloned and modified versions from the original modules or "toModify" modifier 
+# calls that try to modify the original modules. They throw an exeption trying to do this on the replaced merger modules.
 
-
-# The method used to replace the producers is the same for most of the collections.
-# That is why we define a function to avoid code duplication.
-def merge_collections(collection_name, merger_name, import_path, instances=[""]):
-    """A function to execute the code to merge the most common collections
-    First the old collection is imported from the given *import_path*.
-    Then a new collection is created using the *merger_name* producer.
-    This producer takes the collections from the simulation step ("SIMembedding") and the cleaning step ("LHEembeddingCLEAN") as input.
-    Those collections can be created multiple times from different instances, and are all needed to be merged.
-    Finally, the old collection is replaced with the new one with the generalModifier.
-    """
-    # import from the string import_path
-    exec(f"from {import_path} import {collection_name} as old_{collection_name}")
-    # create the new collection
-    exec(
-        f'{collection_name} = cms.EDProducer("{merger_name}",\n'
-        + f"    mergCollections = cms.VInputTag(\n"
-        + ",\n".join(
-            [
-                f'        cms.InputTag("{collection_name}", "{instance}", "SIMembedding"),\n        cms.InputTag("{collection_name}", "{instance}", "LHEembeddingCLEAN")'
-                for instance in instances
-            ]
-        )
-        + "\n    )\n"
-        + ")"
+# defined in RecoMuon/MuonIdentification/python/cosmics_id.py
+tau_embedding_cosmicsVetoTracksRaw_merger = cms.EDProducer("TrackColMerger",
+    mergeCollections = cms.VInputTag(
+        cms.InputTag("cosmicsVetoTracksRaw", "", "SIMembedding"),
+        cms.InputTag("cosmicsVetoTracksRaw", "", "LHEembeddingCLEAN")
     )
-    # replace the old collection with the new one
-    exec(f"generalModifier.toReplaceWith(old_{collection_name}, {collection_name})")
+)
+tau_embedding_merging.toReplaceWith(cosmicsVetoTracksRaw, tau_embedding_cosmicsVetoTracksRaw_merger)
 
-merge_collections(
-    collection_name="cosmicsVetoTracksRaw",
-    merger_name="TrackColMerger",
-    import_path="RecoMuon.MuonIdentification.cosmics_id",
+# defined in RecoEgamma/EgammaElectronProducers/python/lowPtGsfElectronSequence_cff.py
+tau_embedding_lowPtGsfEleGsfTracks_merger = cms.EDProducer("GsfTrackColMerger",
+    mergeCollections = cms.VInputTag(
+        cms.InputTag("lowPtGsfEleGsfTracks", "", "SIMembedding"),
+        cms.InputTag("lowPtGsfEleGsfTracks", "", "LHEembeddingCLEAN")
+    )
 )
-merge_collections(
-    collection_name="lowPtGsfEleGsfTracks",
-    merger_name="GsfTrackColMerger",
-    import_path="RecoEgamma.EgammaElectronProducers.lowPtGsfElectronSequence_cff",
-)
-merge_collections(
-    collection_name="displacedTracks",
-    merger_name="TrackColMerger",
-    import_path="RecoMuon.Configuration.MergeDisplacedTrackCollections_cff",
-)
-merge_collections(
-    collection_name="conversions",
-    merger_name="ConversionColMerger",
-    import_path="RecoEgamma.EgammaPhotonProducers.conversions_cfi",
-)
-merge_collections(
-    collection_name="particleFlowTmp",
-    merger_name="PFColMerger",
-    import_path="RecoParticleFlow.PFProducer.particleFlow_cff",
-    instances=[
-        "",
-        "CleanedHF",
-        "CleanedCosmicsMuons",
-        "CleanedTrackerAndGlobalMuons",
-        "CleanedFakeMuons",
-        "CleanedPunchThroughMuons",
-        "CleanedPunchThroughNeutralHadrons",
-        "AddedMuonsAndHadrons",
-    ],
-)
+tau_embedding_merging.toReplaceWith(lowPtGsfEleGsfTracks, tau_embedding_lowPtGsfEleGsfTracks_merger)
 
-merge_collections(
-    collection_name="ecalPreshowerRecHit",
-    merger_name="EcalRecHitColMerger",
-    import_path="RecoLocalCalo.EcalRecProducers.ecalPreshowerRecHit_cfi",
-    instances=["EcalRecHitsES"],
+# defined in RecoMuon/Configuration/python/MergeDisplacedTrackCollections_cff.py
+tau_embedding_displacedTracks_merger = cms.EDProducer("TrackColMerger",
+    mergeCollections = cms.VInputTag(
+        cms.InputTag("displacedTracks", "", "SIMembedding"),
+        cms.InputTag("displacedTracks", "", "LHEembeddingCLEAN")
+    )
 )
-merge_collections(
-    collection_name="horeco",
-    merger_name="HORecHitColMerger",
-    import_path="RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_ho_cfi",
-)
-merge_collections(
-    collection_name="hfreco",
-    merger_name="HFRecHitColMerger",
-    import_path="RecoLocalCalo.Configuration.hcalLocalReco_cff",
-)
-merge_collections(
-    collection_name="generalTracks",
-    merger_name="TrackColMerger",
-    import_path="RecoTracker.FinalTrackSelectors.MergeTrackCollections_cff",
-)
-merge_collections(
-    collection_name="electronGsfTracks",
-    merger_name="GsfTrackColMerger",
-    import_path="TrackingTools.GsfTracking.GsfElectronGsfFit_cff",
-)
-merge_collections(
-    collection_name="ckfOutInTracksFromConversions",
-    merger_name="TrackColMerger",
-    import_path="RecoEgamma.EgammaPhotonProducers.ckfOutInTracksFromConversions_cfi",
-)
-merge_collections(
-    collection_name="allConversions",
-    merger_name="ConversionColMerger",
-    import_path="RecoEgamma.EgammaPhotonProducers.allConversions_cfi",
-)
-merge_collections(
-    collection_name="muons1stStep",
-    merger_name="MuonColMerger",
-    import_path="RecoMuon.MuonIdentification.muons1stStep_cfi",
-)
-merge_collections(
-    collection_name="displacedMuons1stStep",
-    merger_name="MuonColMerger",
-    import_path="RecoMuon.Configuration.RecoMuonPPonly_cff",
-)
+tau_embedding_merging.toReplaceWith(displacedTracks, tau_embedding_displacedTracks_merger)
 
-# The following changes of the producers only worked by replacing the Task and not by replacing the Producer 
-# as in the other cases because the hbhereco is of the type SwitchProducerCUDA and not of the type EDProducer
-# use walrus operator ":=" to give a label to the Producer
-from RecoLocalCalo.EcalRecProducers.ecalRecHit_cff import ecalCalibratedRecHitTask
+# defined in RecoParticleFlow/PFProducer/python/particleFlow_cff.py
+tau_embedding_particleFlowTmp_merger = cms.EDProducer("PFColMerger",
+    mergeCollections = cms.VInputTag(
+        cms.InputTag("particleFlowTmp", "", "SIMembedding"),
+        cms.InputTag("particleFlowTmp", "", "LHEembeddingCLEAN"),
+        cms.InputTag("particleFlowTmp", "CleanedHF", "SIMembedding"),
+        cms.InputTag("particleFlowTmp", "CleanedHF", "LHEembeddingCLEAN"),
+        cms.InputTag("particleFlowTmp", "CleanedCosmicsMuons", "SIMembedding"),
+        cms.InputTag("particleFlowTmp", "CleanedCosmicsMuons", "LHEembeddingCLEAN"),
+        cms.InputTag("particleFlowTmp", "CleanedTrackerAndGlobalMuons", "SIMembedding"),
+        cms.InputTag("particleFlowTmp", "CleanedTrackerAndGlobalMuons", "LHEembeddingCLEAN"),
+        cms.InputTag("particleFlowTmp", "CleanedFakeMuons", "SIMembedding"),
+        cms.InputTag("particleFlowTmp", "CleanedFakeMuons", "LHEembeddingCLEAN"),
+        cms.InputTag("particleFlowTmp", "CleanedPunchThroughMuons", "SIMembedding"),
+        cms.InputTag("particleFlowTmp", "CleanedPunchThroughMuons", "LHEembeddingCLEAN"),
+        cms.InputTag("particleFlowTmp", "CleanedPunchThroughNeutralHadrons", "SIMembedding"),
+        cms.InputTag("particleFlowTmp", "CleanedPunchThroughNeutralHadrons", "LHEembeddingCLEAN"),
+        cms.InputTag("particleFlowTmp", "AddedMuonsAndHadrons", "SIMembedding"),
+        cms.InputTag("particleFlowTmp", "AddedMuonsAndHadrons", "LHEembeddingCLEAN")
+    )
+)
+tau_embedding_merging.toReplaceWith(particleFlowTmp, tau_embedding_particleFlowTmp_merger)
 
-generalModifier.toReplaceWith(
-    ecalCalibratedRecHitTask,
-    cms.Task(
-        ecalRecHit := cms.EDProducer(
-            "EcalRecHitColMerger",
-            mergCollections=cms.VInputTag(
-                cms.InputTag("ecalRecHit", "EcalRecHitsEB", "SIMembedding"),
-                cms.InputTag("ecalRecHit", "EcalRecHitsEB", "LHEembeddingCLEAN"),
-                cms.InputTag("ecalRecHit", "EcalRecHitsEE", "SIMembedding"),
-                cms.InputTag("ecalRecHit", "EcalRecHitsEE", "LHEembeddingCLEAN"),
-            ),
-        )
+# defined in RecoLocalCalo/EcalRecProducers/python/ecalPreshowerRecHit_cfi.py
+tau_embedding_ecalPreshowerRecHit_merger = cms.EDProducer("EcalRecHitColMerger",
+    mergeCollections=cms.VInputTag(
+        cms.InputTag("ecalPreshowerRecHit", "EcalRecHitsES", "SIMembedding"),
+        cms.InputTag("ecalPreshowerRecHit", "EcalRecHitsES", "LHEembeddingCLEAN"),
+    )
+)
+tau_embedding_merging.toReplaceWith(ecalPreshowerRecHit, tau_embedding_ecalPreshowerRecHit_merger)
+
+# defined in RecoLocalCalo/HcalRecProducers/python/HcalHitReconstructor_ho_cfi.py
+tau_embedding_horeco_merger = cms.EDProducer("HORecHitColMerger",
+    mergeCollections = cms.VInputTag(
+        cms.InputTag("horeco", "", "SIMembedding"),
+        cms.InputTag("horeco", "", "LHEembeddingCLEAN")
+    )
+)
+tau_embedding_merging.toReplaceWith(horeco, tau_embedding_horeco_merger)
+
+# defined in RecoLocalCalo/HcalRecProducers/python/HFPhase1Reconstructor_cfi.py
+tau_embedding_hfreco_merger = cms.EDProducer("HFRecHitColMerger",
+    mergeCollections = cms.VInputTag(
+        cms.InputTag("hfreco", "", "SIMembedding"),
+        cms.InputTag("hfreco", "", "LHEembeddingCLEAN")
+    )
+)
+tau_embedding_merging.toReplaceWith(hfreco, tau_embedding_hfreco_merger)
+
+# defined in RecoTracker/FinalTrackSelectors/python/MergeTrackCollections_cff.py
+tau_embedding_generalTracks_merger = cms.EDProducer("TrackColMerger",
+    mergeCollections = cms.VInputTag(
+        cms.InputTag("generalTracks", "", "SIMembedding"),
+        cms.InputTag("generalTracks", "", "LHEembeddingCLEAN")
+    )
+)
+tau_embedding_merging.toReplaceWith(generalTracks, tau_embedding_generalTracks_merger)
+
+# defined in TrackingTools/GsfTracking/python/GsfElectronGsfFit_cff.py
+tau_embedding_electronGsfTracks_merger = cms.EDProducer("GsfTrackColMerger",
+    mergeCollections = cms.VInputTag(
+        cms.InputTag("electronGsfTracks", "", "SIMembedding"),
+        cms.InputTag("electronGsfTracks", "", "LHEembeddingCLEAN")
+    )
+)
+tau_embedding_merging.toReplaceWith(electronGsfTracks, tau_embedding_electronGsfTracks_merger)
+
+# defined in RecoEgamma/EgammaPhotonProducers/python/allConversions_cfi.py
+tau_embedding_allConversions_merger = cms.EDProducer("ConversionColMerger",
+    mergeCollections = cms.VInputTag(
+        cms.InputTag("allConversions", "", "SIMembedding"),
+        cms.InputTag("allConversions", "", "LHEembeddingCLEAN")
+    )
+)
+tau_embedding_merging.toReplaceWith(allConversions, tau_embedding_allConversions_merger)
+
+# defined in RecoEgamma/EgammaPhotonProducers/python/ckfOutInTracksFromConversions_cfi.py
+tau_embedding_ckfOutInTracksFromConversions_merger = cms.EDProducer("TrackColMerger",
+    mergeCollections = cms.VInputTag(
+        cms.InputTag("ckfOutInTracksFromConversions", "", "SIMembedding"),
+        cms.InputTag("ckfOutInTracksFromConversions", "", "LHEembeddingCLEAN")
+    )
+)
+tau_embedding_merging.toReplaceWith(ckfOutInTracksFromConversions, tau_embedding_ckfOutInTracksFromConversions_merger)
+
+# defined in RecoEgamma/EgammaPhotonProducers/python/conversions_cfi.py
+tau_embedding_conversions_merger = cms.EDProducer("ConversionColMerger",
+    mergeCollections = cms.VInputTag(
+        cms.InputTag("conversions", "", "SIMembedding"),
+        cms.InputTag("conversions", "", "LHEembeddingCLEAN")
+    )
+)
+tau_embedding_merging.toReplaceWith(conversions, tau_embedding_conversions_merger)
+
+# defined in RecoMuon/MuonIdentification/python/muons1stStep_cfi.py
+tau_embedding_muons1stStep_merger = cms.EDProducer("MuonColMerger",
+    mergeCollections = cms.VInputTag(
+        cms.InputTag("muons1stStep", "", "SIMembedding"),
+        cms.InputTag("muons1stStep", "", "LHEembeddingCLEAN")
+    )
+)
+tau_embedding_merging.toReplaceWith(muons1stStep, tau_embedding_muons1stStep_merger)
+
+# defined in RecoMuon/Configuration/python/RecoMuonPPonly_cff.py
+tau_embedding_displacedMuons1stStep_merger = cms.EDProducer("MuonColMerger",
+    mergeCollections = cms.VInputTag(
+        cms.InputTag("displacedMuons1stStep", "", "SIMembedding"),
+        cms.InputTag("displacedMuons1stStep", "", "LHEembeddingCLEAN")
+    )
+)
+tau_embedding_merging.toReplaceWith(displacedMuons1stStep, tau_embedding_displacedMuons1stStep_merger)
+
+# defined in RecoLocalCalo/EcalRecProducers/python/ecalRecHit_cfi.py
+tau_embedding_ecalRecHit_merger = cms.EDProducer(
+    "EcalRecHitColMerger",
+    mergeCollections=cms.VInputTag(
+        cms.InputTag("ecalRecHit", "EcalRecHitsEB", "SIMembedding"),
+        cms.InputTag("ecalRecHit", "EcalRecHitsEB", "LHEembeddingCLEAN"),
+        cms.InputTag("ecalRecHit", "EcalRecHitsEE", "SIMembedding"),
+        cms.InputTag("ecalRecHit", "EcalRecHitsEE", "LHEembeddingCLEAN"),
     ),
 )
+tau_embedding_merging.toReplaceWith(ecalRecHit, tau_embedding_ecalRecHit_merger)
 
-from EventFilter.EcalRawToDigi.ecalDigis_cff import ecalDigisTask
+# defined in EventFilter/EcalRawToDigi/python/ecalDigis_cfi.py
 
-generalModifier.toReplaceWith(
-    ecalDigisTask,
-    cms.Task(
-        ecalDigis := cms.EDProducer(
-            "EcalSrFlagColMerger",
-            mergCollections=cms.VInputTag(
-                cms.InputTag("ecalDigis", "", "SIMembedding"),
-                cms.InputTag("ecalDigis", "", "LHEembeddingCLEAN"),
-            ),
-        )
+tau_embedding_ecalDigis_merger = cms.EDProducer(
+    "EcalSrFlagColMerger",
+    mergeCollections=cms.VInputTag(
+        cms.InputTag("ecalDigis", "", "SIMembedding"),
+        cms.InputTag("ecalDigis", "", "LHEembeddingCLEAN"),
     ),
 )
+tau_embedding_merging.toReplaceWith(ecalDigis, tau_embedding_ecalDigis_merger)
 
-from Configuration.StandardSequences.RawToDigi_cff import hcalDigis as old_hcalDigis
-
-hcalDigis = cms.EDProducer(
+# defined in EventFilter/HcalRawToDigi/python/HcalRawToDigi_cfi.py
+tau_embedding_hcalDigis_merger = cms.EDProducer(
     "HcalDigiColMerger",
-    mergCollections=cms.VInputTag(
+    mergeCollections=cms.VInputTag(
         cms.InputTag("hcalDigis", "", "SIMembedding"),
         cms.InputTag("hcalDigis", "", "LHEembeddingCLEAN"),
     ),
 )
-generalModifier.toReplaceWith(old_hcalDigis, hcalDigis)
+tau_embedding_merging.toReplaceWith(hcalDigis, tau_embedding_hcalDigis_merger)
 
-from RecoLocalCalo.Configuration.hcalGlobalReco_cff import (
-    hcalGlobalRecoTask,
-    hcalOnlyGlobalRecoTask,
+# defined in RecoLocalCalo/Configuration/python/hcalGlobalReco_cff.py
+tau_embedding_hbhereco_merger = cms.EDProducer("HBHERecHitColMerger",
+    mergeCollections=cms.VInputTag(
+        cms.InputTag("hbhereco", "", "SIMembedding"),
+        cms.InputTag("hbhereco", "", "LHEembeddingCLEAN"),
+    )
 )
-
-generalModifier.toReplaceWith(
-    hcalGlobalRecoTask,
-    cms.Task(
-        hbhereco := cms.EDProducer(
-            "HBHERecHitColMerger",
-            mergCollections=cms.VInputTag(
-                cms.InputTag("hbhereco", "", "SIMembedding"),
-                cms.InputTag("hbhereco", "", "LHEembeddingCLEAN"),
-            ),
-        )
-    ),
-)
-
-from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
-
-# This is also run by the official config fragment. See
-# https://github.com/cms-sw/cmssw/blob/aa687e885b0274105c53b002e0d5e75687bef387/RecoLocalCalo/Configuration/python/hcalGlobalReco_cff.py#L22
-run3_HB.toReplaceWith(hcalOnlyGlobalRecoTask, cms.Task(hbhereco))
+tau_embedding_merging.toReplaceWith(hbhereco, tau_embedding_hbhereco_merger)
 
 # create a sequence which runs some of the merge producers, which were just created.
 merge_step = cms.Sequence(
@@ -240,9 +242,9 @@ from EventFilter.CTPPSRawToDigi.totemRPRawToDigi_cfi import totemRPRawToDigi
 
 totemRPRawToDigi.rawDataTag = cms.InputTag("rawDataCollector", "", "LHC")
 merge_step += totemRPRawToDigi
-from EventFilter.CTPPSRawToDigi.ctppsDiamondRawToDigi_cfi import ctppsDiamondRawToDigi
 
 # produce local CT PPS reco
+from EventFilter.CTPPSRawToDigi.ctppsDiamondRawToDigi_cfi import ctppsDiamondRawToDigi
 from EventFilter.CTPPSRawToDigi.ctppsPixelDigis_cfi import ctppsPixelDigis
 
 ctppsDiamondRawToDigi.rawDataTag = cms.InputTag("rawDataCollector", "", "LHC")
@@ -260,6 +262,7 @@ from RecoLocalCalo.Configuration.RecoLocalCalo_cff import (
 )
 
 merge_step += calolocalreco + reducedHcalRecHitsSequence
+
 from RecoJets.JetProducers.CaloTowerSchemeB_cfi import towerMaker
 
 # produce hcal towers
@@ -271,6 +274,7 @@ merge_step += calotowermaker + towerMaker
 from RecoEcal.Configuration.RecoEcal_cff import ecalClusters
 
 merge_step += ecalClusters
+
 from RecoEcal.EgammaClusterProducers.particleFlowSuperClusteringSequence_cff import (
     particleFlowSuperClusteringSequence,
 )
@@ -305,6 +309,7 @@ from RecoMuon.MuonIdentification.muonSelectionTypeValueMapProducer_cff import (
 )
 
 merge_step += muonSelectionTypeSequence
+
 from RecoMuon.Configuration.MergeDisplacedTrackCollections_cff import (
     displacedTracksSequence,
 )
@@ -320,18 +325,21 @@ merge_step += displacedMuonReducedTrackExtras + displacedTracksSequence
 from RecoTracker.DeDx.dedxEstimators_cff import doAlldEdXEstimators
 
 merge_step += doAlldEdXEstimators
+
 from RecoVertex.Configuration.RecoVertex_cff import (
     unsortedOfflinePrimaryVertices,
     vertexreco,
 )
 
 merge_step += vertexreco
+
 unsortedOfflinePrimaryVertices.beamSpotLabel = cms.InputTag(
     "offlineBeamSpot", "", "SELECT"
 )
 from RecoJets.JetProducers.caloJetsForTrk_cff import ak4CaloJetsForTrk
 
 ak4CaloJetsForTrk.srcPVs = cms.InputTag("firstStepPrimaryVertices", "", "SELECT")
+
 from RecoTracker.DeDx.dedxEstimators_cff import dedxHitInfo
 
 dedxHitInfo.clusterShapeCache = cms.InputTag("")
