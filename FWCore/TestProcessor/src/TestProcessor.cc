@@ -45,6 +45,7 @@
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/ParameterSet/interface/validateTopLevelParameterSets.h"
 
+#include "DataFormats/Provenance/interface/processingOrderMerge.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
 
 #include "oneTimeInitialization.h"
@@ -121,6 +122,11 @@ namespace edm {
         processHistory_.emplace_back(p, psetid, xstr(PROJECT_VERSION), HardwareResourcesDescription());
         processHistoryRegistry_.registerProcessHistory(processHistory_);
       }
+      std::vector<std::string> orderedProcesses;
+      processingOrderMerge(processHistoryRegistry_, orderedProcesses);
+      orderedProcesses.insert(orderedProcesses.begin(), processConfiguration_->processName());
+
+      tempReg->setProcessOrder(orderedProcesses);
 
       //setup the products we will be adding to the event
       for (auto const& produce : iConfig.produceEntries()) {

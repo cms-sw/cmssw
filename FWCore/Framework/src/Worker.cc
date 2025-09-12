@@ -136,11 +136,9 @@ namespace edm {
 
     for (auto const& item : items) {
       ProductResolverIndex productResolverIndex = item.productResolverIndex();
-      bool skipCurrentProcess = item.skipCurrentProcess();
       if (productResolverIndex != ProductResolverIndexAmbiguous and
           productResolverIndex != ProductResolverIndexInvalid) {
-        iPrincipal->prefetchAsync(
-            choiceHolder, productResolverIndex, skipCurrentProcess, token, &moduleCallingContext_);
+        iPrincipal->prefetchAsync(choiceHolder, productResolverIndex, token, &moduleCallingContext_);
       }
     }
     choiceHolder.doneWaiting(std::exception_ptr{});
@@ -179,9 +177,8 @@ namespace edm {
 
     for (auto const& item : items) {
       ProductResolverIndex productResolverIndex = item.productResolverIndex();
-      bool skipCurrentProcess = item.skipCurrentProcess();
       if (productResolverIndex != ProductResolverIndexAmbiguous) {
-        iPrincipal.prefetchAsync(iTask, productResolverIndex, skipCurrentProcess, token, &moduleCallingContext_);
+        iPrincipal.prefetchAsync(iTask, productResolverIndex, token, &moduleCallingContext_);
       }
     }
   }
@@ -213,7 +210,7 @@ namespace edm {
     //pre prefetch signal
     actReg_->preModuleTransformPrefetchingSignal_.emit(*mcc.getStreamContext(), mcc);
     iPrincipal.prefetchAsync(
-        WaitingTaskHolder(*iTask.group(), task), itemToGetForTransform(iTransformIndex), false, iToken, &mcc);
+        WaitingTaskHolder(*iTask.group(), task), itemToGetForTransform(iTransformIndex), iToken, &mcc);
   }
 
   void Worker::resetModuleDescription(ModuleDescription const* iDesc) {

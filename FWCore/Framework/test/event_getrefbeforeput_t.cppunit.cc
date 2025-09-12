@@ -156,6 +156,7 @@ void testEventGetRefBeforePut::getRefTest() {
 
   auto preg = std::make_unique<edm::SignallingProductRegistryFiller>();
   preg->addProduct(product);
+  preg->setCurrentProcess(processName);
   preg->setFrozen();
   auto branchIDListHelper = std::make_shared<edm::BranchIDListHelper>();
   branchIDListHelper->updateFromRegistry(preg->registry());

@@ -16,7 +16,7 @@ namespace edm {
 
   BasicHandle EventForTransformer::get(edm::TypeID const& iTypeID, ProductResolverIndex iIndex) const {
     bool amb = false;
-    return eventPrincipal_.getByToken(PRODUCT_TYPE, iTypeID, iIndex, false, amb, nullptr, &mcc_);
+    return eventPrincipal_.getByToken(PRODUCT_TYPE, iTypeID, iIndex, amb, nullptr, &mcc_);
   }
 
   void EventForTransformer::put(ProductResolverIndex index,
