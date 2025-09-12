@@ -126,6 +126,18 @@ private:
   edm::EDGetTokenT<Run3ScoutingEERecHitCollection> eeCleanedRecHitsToken_;
   edm::EDGetTokenT<Run3ScoutingHBHERecHitCollection> hbheRecHitsToken_;
 
+  // Multiplicity histograms
+  dqm::reco::MonitorElement* nTracks_hist;
+  dqm::reco::MonitorElement* nPrimaryVertices_hist;
+  dqm::reco::MonitorElement* nDisplacedVertices_hist;
+  dqm::reco::MonitorElement* nDisplacedVerticesNoVtx_hist;
+  dqm::reco::MonitorElement* nMuons_hist;
+  dqm::reco::MonitorElement* nMuonsVtx_hist;
+  dqm::reco::MonitorElement* nElectrons_hist;
+  dqm::reco::MonitorElement* nPhotons_hist;
+  dqm::reco::MonitorElement* nPFJets_hist;
+  dqm::reco::MonitorElement* nPFCands_hist;
+
   // pv vs PU and rho vs PU plots
   int primaryVertex_counter = 0;
   float avgPileUp;
@@ -520,6 +532,18 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
   rho_hist->Fill(*rhoH);
   pfMetPhi_hist->Fill(*pfMetPhiH);
   pfMetPt_hist->Fill(*pfMetPtH);
+
+  // --- Fill multiplicity histograms ---
+  nTracks_hist->Fill(tracksH->size());
+  nPrimaryVertices_hist->Fill(primaryVerticesH->size());
+  nDisplacedVertices_hist->Fill(verticesH->size());
+  nDisplacedVerticesNoVtx_hist->Fill(verticesNoVtxH->size());
+  nMuons_hist->Fill(muonsH->size());
+  nMuonsVtx_hist->Fill(muonsVtxH->size());
+  nElectrons_hist->Fill(electronsH->size());
+  nPhotons_hist->Fill(photonsH->size());
+  nPFJets_hist->Fill(PFjetsH->size());
+  nPFCands_hist->Fill(pfcandsH->size());
 
   // fill the PF candidate histograms (no electrons!)
 
@@ -942,6 +966,20 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
                                                edm::Run const& run,
                                                edm::EventSetup const& iSetup) {
   ibook.setCurrentFolder(topfoldername_);
+
+  // Book multiplicity histograms in the topfolder
+  nTracks_hist = ibook.book1D("nTracks", "Number of Tracks;N_{tracks};Entries", 101, 0, 100);
+  nPrimaryVertices_hist = ibook.book1D("nPrimaryVertices", "Number of Primary Vertices;N_{PV};Entries", 51, 0, 50);
+  nDisplacedVertices_hist =
+      ibook.book1D("nDisplacedVertices", "Number of Displaced Vertices (Vtx);N_{DV};Entries", 51, 0, 50);
+  nDisplacedVerticesNoVtx_hist =
+      ibook.book1D("nDisplacedVerticesNoVtx", "Number of Displaced Vertices (NoVtx);N_{DV}^{NoVtx};Entries", 51, 0, 50);
+  nMuons_hist = ibook.book1D("nMuons", "Number of Muons (NoVtx);N_{muons};Entries", 51, 0, 50);
+  nMuonsVtx_hist = ibook.book1D("nMuonsVtx", "Number of Muons (Vtx);N_{muons}^{Vtx};Entries", 51, 0, 50);
+  nElectrons_hist = ibook.book1D("nElectrons", "Number of Electrons;N_{ele};Entries", 51, 0, 50);
+  nPhotons_hist = ibook.book1D("nPhotons", "Number of Photons;N_{photon};Entries", 51, 0, 50);
+  nPFJets_hist = ibook.book1D("nPFJets", "Number of PF Jets;N_{jet};Entries", 101, 0, 100);
+  nPFCands_hist = ibook.book1D("nPFCands", "Number of PF Candidates;N_{pfcand};Entries", 1001, 0, 1000);
 
   rho_hist = ibook.book1D("rho", "#rho; #rho; Entries", 100, 0.0, 60.0);
   pfMetPhi_hist = ibook.book1D("pfMetPhi", "pf MET #phi; #phi ;Entries", 100, -3.14, 3.14);
