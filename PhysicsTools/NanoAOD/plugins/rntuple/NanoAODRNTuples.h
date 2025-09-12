@@ -37,16 +37,19 @@ private:
 class RunNTuple {
 public:
   RunNTuple() = default;
-  void registerToken(const edm::EDGetToken& token);
+  void registerCounterTableToken(const edm::EDGetToken& token);
+  void registerFlatTableToken(const edm::EDGetToken& token);
   void fill(const edm::RunForOutput& iRun, TFile& file);
   void finalizeWrite();
 
 private:
   void createFields(const edm::RunForOutput& iRun, TFile& file);
-  std::vector<edm::EDGetToken> m_tokens;
+  std::vector<edm::EDGetToken> m_counterTableTokens;
+  std::vector<edm::EDGetToken> m_flatTableTokens;
   std::unique_ptr<RNTupleWriter> m_ntuple;
   RNTupleFieldPtr<UInt_t> m_run;
-  std::vector<SummaryTableOutputFields> m_tables;
+  std::vector<SummaryTableOutputFields> m_counterTables;
+  TableCollectionSet m_flatTables;
 };
 
 class PSetNTuple {
