@@ -8,7 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/RawDataBuffer.h"
 #include "DataFormats/HGCalDigi/interface/HGCalElectronicsId.h"
 #include "DataFormats/HGCalDigi/interface/HGCalDigiHost.h"
 #include "DataFormats/HGCalDigi/interface/HGCalECONDPacketInfoHost.h"
@@ -29,7 +29,7 @@ class HGCalRawToDigi : public edm::stream::EDProducer<> {
 public:
   explicit HGCalRawToDigi(const edm::ParameterSet&);
   uint16_t callUnpacker(unsigned fedId,
-                        const FEDRawData& fed_data,
+                        const RawFragmentWrapper& fed_data,
                         const HGCalMappingModuleIndexer& moduleIndexer,
                         const HGCalConfiguration& config,
                         hgcaldigi::HGCalDigiHost& digis,
@@ -42,7 +42,7 @@ private:
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
 
   // input tokens
-  const edm::EDGetTokenT<FEDRawDataCollection> fedRawToken_;
+  const edm::EDGetTokenT<RawDataBuffer> fedRawToken_;
 
   // output tokens
   const edm::EDPutTokenT<hgcaldigi::HGCalDigiHost> digisToken_;
@@ -70,7 +70,7 @@ private:
 };
 
 HGCalRawToDigi::HGCalRawToDigi(const edm::ParameterSet& iConfig)
-    : fedRawToken_(consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("src"))),
+    : fedRawToken_(consumes<RawDataBuffer>(iConfig.getParameter<edm::InputTag>("src"))),
       digisToken_(produces<hgcaldigi::HGCalDigiHost>()),
       econdPacketInfoToken_(produces<hgcaldigi::HGCalECONDPacketInfoHost>()),
       fedPacketInfoToken_(produces<hgcaldigi::HGCalFEDPacketInfoHost>()),
@@ -96,7 +96,7 @@ void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   hgcaldigi::HGCalFEDPacketInfoHost fedPacketInfo(moduleIndexer.fedCount(), cms::alpakatools::host());
 
   // retrieve the FED raw data
-  const auto& raw_data = iEvent.get(fedRawToken_);
+  const auto& fedBuffer = iEvent.get(fedRawToken_);
 
   for (int32_t i = 0; i < digis.view().metadata().size(); i++) {
     digis.view()[i].flags() = hgcal::DIGI_FLAG::NotAvailable;
@@ -109,7 +109,8 @@ void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
       if (frs.readoutTypes_.empty()) {
         continue;
       }
-      const auto& fed_data = raw_data.FEDData(fedId);
+
+      const auto& fed_data = fedBuffer.fragmentData(fedId);
       fedPacketInfo.view()[fedId].FEDPayload() = fed_data.size();
       if (fed_data.size() == 0)
         continue;
@@ -125,7 +126,7 @@ void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
         if (frs.readoutTypes_.empty()) {
           return;
         }
-        const auto& fed_data = raw_data.FEDData(fedId);
+        const auto& fed_data = fedBuffer.fragmentData(fedId);
         fedPacketInfo.view()[fedId].FEDPayload() = fed_data.size();
         if (fed_data.size() == 0)
           return;
@@ -144,7 +145,7 @@ void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
 //
 uint16_t HGCalRawToDigi::callUnpacker(unsigned fedId,
-                                      const FEDRawData& fed_data,
+                                      const RawFragmentWrapper& fed_data,
                                       const HGCalMappingModuleIndexer& moduleIndexer,
                                       const HGCalConfiguration& config,
                                       hgcaldigi::HGCalDigiHost& digis,

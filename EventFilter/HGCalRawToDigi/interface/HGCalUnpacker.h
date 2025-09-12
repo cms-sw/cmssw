@@ -12,7 +12,7 @@
 #define EventFilter_HGCalRawToDigi_HGCalUnpacker_h
 
 #include "DataFormats/HGCalDigi/interface/HGCalRawDataDefinitions.h"
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/FEDRawData/interface/RawDataBuffer.h"
 #include "DataFormats/HGCalDigi/interface/HGCalDigiHost.h"
 #include "DataFormats/HGCalDigi/interface/HGCalFEDPacketInfoHost.h"
 #include "DataFormats/HGCalDigi/interface/HGCalECONDPacketInfoHost.h"
@@ -34,7 +34,7 @@ public:
   // HGCalUnpacker(HGCalUnpackerConfig config);
 
   uint16_t parseFEDData(unsigned fedId,
-                        const FEDRawData& fed_data,
+                        const RawFragmentWrapper& fed_data,
                         const HGCalMappingModuleIndexer& moduleIndexer,
                         const HGCalConfiguration& config,
                         hgcaldigi::HGCalDigiHost& digis,
