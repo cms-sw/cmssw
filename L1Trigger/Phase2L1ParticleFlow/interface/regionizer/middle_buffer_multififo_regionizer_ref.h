@@ -42,6 +42,10 @@ namespace l1ct {
                    std::vector<bool>& valid);
     void fillLinks(unsigned int iclock,
                    const RegionizerDecodedInputs& in,
+                   std::vector<l1ct::CommonCaloObjEmu>& links,
+                   std::vector<bool>& valid);
+    void fillLinks(unsigned int iclock,
+                   const RegionizerDecodedInputs& in,
                    std::vector<l1ct::HadCaloObjEmu>& links,
                    std::vector<bool>& valid);
     void fillLinks(unsigned int iclock,
@@ -70,6 +74,7 @@ namespace l1ct {
               const std::vector<l1ct::TkObjEmu>& links_tk,
               const std::vector<l1ct::HadCaloObjEmu>& links_hadCalo,
               const std::vector<l1ct::EmCaloObjEmu>& links_emCalo,
+              const std::vector<l1ct::CommonCaloObjEmu>& links_commonCalo,
               const std::vector<l1ct::MuObjEmu>& links_mu,
               std::vector<l1ct::TkObjEmu>& out_tk,
               std::vector<l1ct::HadCaloObjEmu>& out_hadCalo,
@@ -86,9 +91,12 @@ namespace l1ct {
 
     void reset();
 
-    static void encode(const l1ct::EmCaloObjEmu& from, l1ct::HadCaloObjEmu& to);
-    static void encode(const l1ct::HadCaloObjEmu& from, l1ct::HadCaloObjEmu& to);
-    static void decode(l1ct::HadCaloObjEmu& had, l1ct::EmCaloObjEmu& em);
+    template <typename T>
+    static void encode(const T& from, l1ct::CommonCaloObjEmu& to) {
+      to.convertFrom(from);
+      to.src = from.src;
+    }
+
     void convert_GCTinput_tmux(const RegionizerDecodedInputs& in_tm6, RegionizerDecodedInputs& in_tm18) const;
     void init_GCT_tmux18sectors(std::vector<l1ct::DetectorSector<l1ct::HadCaloObjEmu>>& gct_tmux18_hadcalo,
                                 std::vector<l1ct::DetectorSector<l1ct::EmCaloObjEmu>>& gct_tmux18_emcalo) const;
@@ -104,6 +112,7 @@ namespace l1ct {
     bool tmux6GCTinput_;
     std::vector<l1ct::PFRegionEmu> mergedRegions_, outputRegions_;
     multififo_regionizer::Regionizer<l1ct::TkObjEmu> tkRegionizerPre_, tkRegionizerPost_;
+    multififo_regionizer::Regionizer<l1ct::CommonCaloObjEmu> commonCaloRegionizerPre_;
     multififo_regionizer::Regionizer<l1ct::HadCaloObjEmu> hadCaloRegionizerPre_, hadCaloRegionizerPost_;
     multififo_regionizer::Regionizer<l1ct::EmCaloObjEmu> emCaloRegionizerPre_, emCaloRegionizerPost_;
     multififo_regionizer::Regionizer<l1ct::MuObjEmu> muRegionizerPre_, muRegionizerPost_;
@@ -125,7 +134,7 @@ namespace l1ct {
     void fillSharedCaloLinks(unsigned int iclock,
                              const std::vector<DetectorSector<l1ct::EmCaloObjEmu>>& em_in,
                              const std::vector<DetectorSector<l1ct::HadCaloObjEmu>>& had_in,
-                             std::vector<l1ct::HadCaloObjEmu>& links,
+                             std::vector<l1ct::CommonCaloObjEmu>& links,
                              std::vector<bool>& valid);
 
     void run_worker(const RegionizerDecodedInputs& in, std::vector<PFInputRegion>& out);

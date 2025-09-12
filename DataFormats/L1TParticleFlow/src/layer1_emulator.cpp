@@ -32,6 +32,12 @@ bool l1ct::EmCaloObjEmu::read(std::fstream& from) {
 }
 bool l1ct::EmCaloObjEmu::write(std::fstream& to) const { return writeObj<EmCaloObj>(*this, to); }
 
+bool l1ct::CommonCaloObjEmu::read(std::fstream& from) {
+  src = nullptr;  // not persistent
+  return readObj<CommonCaloObj>(from, *this);
+}
+bool l1ct::CommonCaloObjEmu::write(std::fstream& to) const { return writeObj<CommonCaloObjEmu>(*this, to); }
+
 bool l1ct::TkObjEmu::read(std::fstream& from) {
   src = nullptr;  // not persistent
   return readObj<TkObj>(from, *this) && readVar(from, hwChi2) && readVar(from, simPt) && readVar(from, simCaloEta) &&
