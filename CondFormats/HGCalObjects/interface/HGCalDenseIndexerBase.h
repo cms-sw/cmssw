@@ -45,7 +45,7 @@ public:
     return codes;
   }
 
-  uint32_t getMaxIndex() const { return maxIdx_; }
+  uint32_t maxIndex() const { return maxIdx_; }
 
   ~HGCalDenseIndexerBase() = default;
 

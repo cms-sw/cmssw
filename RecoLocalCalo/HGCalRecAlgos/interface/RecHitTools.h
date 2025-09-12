@@ -88,7 +88,7 @@ namespace hgcal {
     float getPt(const DetId& id, const float& hitEnergy, const float& vertex_z = 0.) const;
     int getScintMaxIphi(const DetId& id) const;
 
-    inline const CaloGeometry* getGeometry() const { return geom_; };
+    inline const CaloGeometry* geometry() const { return geom_; };
     unsigned int lastLayerEE(bool nose = false) const { return (nose ? HFNoseDetId::HFNoseLayerEEmax : fhOffset_); }
     unsigned int lastLayerFH() const { return fhLastLayer_; }
     unsigned int firstLayerBH() const { return bhFirstLayer_; }
