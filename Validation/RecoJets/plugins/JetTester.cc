@@ -1466,7 +1466,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
             }
           }
         }
-      }
+      }  // if (!mEvent.isRealData()) {
     }
   }
 
