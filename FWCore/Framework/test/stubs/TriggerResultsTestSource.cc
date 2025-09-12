@@ -51,7 +51,7 @@ namespace edmtest {
   public:
     TriggerResultsTestSource(edm::ParameterSet const&, edm::InputSourceDescription const&);
 
-    void readEvent_(edm::EventPrincipal& eventPrincipal);
+    void readEvent_(edm::EventPrincipal& eventPrincipal) final;
 
     bool setRunAndEventInfo(edm::EventID& id,
                             edm::TimeValue_t& time,
