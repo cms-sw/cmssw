@@ -15,7 +15,7 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/Math/interface/deltaR.h" 
+#include "DataFormats/Math/interface/deltaR.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -69,7 +69,7 @@ ElectronMcSignalValidator::ElectronMcSignalValidator(const edm::ParameterSet &co
   offlineVerticesCollection_ =
       consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("offlinePrimaryVertices"));
   beamSpotTag_ = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpot"));
-  pfCandidates_ = consumes<reco::PFCandidateCollection>(conf.getParameter<edm::InputTag>("pfCandidates")); 
+  pfCandidates_ = consumes<reco::PFCandidateCollection>(conf.getParameter<edm::InputTag>("pfCandidates"));
 
   readAOD_ = conf.getParameter<bool>("readAOD");
 
@@ -604,15 +604,14 @@ ElectronMcSignalValidator::ElectronMcSignalValidator(const edm::ParameterSet &co
   h1_ele_photonRelativeIso_mAOD_barrel = nullptr;
   h1_ele_photonRelativeIso_mAOD_endcaps = nullptr;
   h1_ele_dRElectronsPFcand_ChHad_unCleaned = nullptr;
-  h1_ele_dRElectronsPFcand_ChHad_unCleaned_barrel = nullptr; 
-  h1_ele_dRElectronsPFcand_ChHad_unCleaned_endcaps = nullptr; 
+  h1_ele_dRElectronsPFcand_ChHad_unCleaned_barrel = nullptr;
+  h1_ele_dRElectronsPFcand_ChHad_unCleaned_endcaps = nullptr;
   h1_ele_dRElectronsPFcand_NeuHad_unCleaned = nullptr;
-  h1_ele_dRElectronsPFcand_NeuHad_unCleaned_barrel = nullptr; 
-  h1_ele_dRElectronsPFcand_NeuHad_unCleaned_endcaps = nullptr; 
-  h1_ele_dRElectronsPFcand_Pho_unCleaned = nullptr;  
-  h1_ele_dRElectronsPFcand_Pho_unCleaned_barrel = nullptr; 
-  h1_ele_dRElectronsPFcand_Pho_unCleaned_endcaps = nullptr; 
-
+  h1_ele_dRElectronsPFcand_NeuHad_unCleaned_barrel = nullptr;
+  h1_ele_dRElectronsPFcand_NeuHad_unCleaned_endcaps = nullptr;
+  h1_ele_dRElectronsPFcand_Pho_unCleaned = nullptr;
+  h1_ele_dRElectronsPFcand_Pho_unCleaned_barrel = nullptr;
+  h1_ele_dRElectronsPFcand_Pho_unCleaned_endcaps = nullptr;
 }
 
 void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &, edm::EventSetup const &) {
@@ -3258,17 +3257,66 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
                                                           "Events",
                                                           "ELE_LOGY E1 P");
 
-  h1_ele_dRElectronsPFcand_ChHad_unCleaned = bookH1(iBooker, "dRElectronsPFcand_ChHad_unCleaned", "dR(pho,cand) Charged Hadrons :  All Ecal", et_nbin, et_min, 0.7, "N_{ele}");
-  h1_ele_dRElectronsPFcand_ChHad_unCleaned_barrel = bookH1(iBooker, "dRElectronsPFcand_ChHad_unCleaned_barrel", "dR(pho,cand) Charged Hadrons :  Barrel", et_nbin, et_min, 0.7, "N_{ele}");
-  h1_ele_dRElectronsPFcand_ChHad_unCleaned_endcaps = bookH1(iBooker, "dRElectronsPFcand_ChHad_unCleaned_endcaps", "dR(pho,cand) Charged Hadrons :  Endcaps", et_nbin, et_min, 0.7, "N_{ele}");
+  h1_ele_dRElectronsPFcand_ChHad_unCleaned = bookH1(iBooker,
+                                                    "dRElectronsPFcand_ChHad_unCleaned",
+                                                    "dR(pho,cand) Charged Hadrons :  All Ecal",
+                                                    et_nbin,
+                                                    et_min,
+                                                    0.7,
+                                                    "N_{ele}");
+  h1_ele_dRElectronsPFcand_ChHad_unCleaned_barrel = bookH1(iBooker,
+                                                           "dRElectronsPFcand_ChHad_unCleaned_barrel",
+                                                           "dR(pho,cand) Charged Hadrons :  Barrel",
+                                                           et_nbin,
+                                                           et_min,
+                                                           0.7,
+                                                           "N_{ele}");
+  h1_ele_dRElectronsPFcand_ChHad_unCleaned_endcaps = bookH1(iBooker,
+                                                            "dRElectronsPFcand_ChHad_unCleaned_endcaps",
+                                                            "dR(pho,cand) Charged Hadrons :  Endcaps",
+                                                            et_nbin,
+                                                            et_min,
+                                                            0.7,
+                                                            "N_{ele}");
 
-  h1_ele_dRElectronsPFcand_NeuHad_unCleaned = bookH1(iBooker, "dRElectronsPFcand_NeuHad_unCleaned", "dR(pho,cand) Neutral Hadrons :  All Ecal", et_nbin, et_min, 0.7, "N_{ele}");
-  h1_ele_dRElectronsPFcand_NeuHad_unCleaned_barrel = bookH1(iBooker, "dRElectronsPFcand_NeuHad_unCleaned_barrel", "dR(pho,cand) Neutral Hadrons :  Barrel", et_nbin, et_min, 0.7, "N_{ele}");
-  h1_ele_dRElectronsPFcand_NeuHad_unCleaned_endcaps = bookH1(iBooker, "dRElectronsPFcand_NeuHad_unCleaned_endcaps", "dR(pho,cand) Neutral Hadrons :  Endcaps", et_nbin, et_min, 0.7, "N_{ele}");
+  h1_ele_dRElectronsPFcand_NeuHad_unCleaned = bookH1(iBooker,
+                                                     "dRElectronsPFcand_NeuHad_unCleaned",
+                                                     "dR(pho,cand) Neutral Hadrons :  All Ecal",
+                                                     et_nbin,
+                                                     et_min,
+                                                     0.7,
+                                                     "N_{ele}");
+  h1_ele_dRElectronsPFcand_NeuHad_unCleaned_barrel = bookH1(iBooker,
+                                                            "dRElectronsPFcand_NeuHad_unCleaned_barrel",
+                                                            "dR(pho,cand) Neutral Hadrons :  Barrel",
+                                                            et_nbin,
+                                                            et_min,
+                                                            0.7,
+                                                            "N_{ele}");
+  h1_ele_dRElectronsPFcand_NeuHad_unCleaned_endcaps = bookH1(iBooker,
+                                                             "dRElectronsPFcand_NeuHad_unCleaned_endcaps",
+                                                             "dR(pho,cand) Neutral Hadrons :  Endcaps",
+                                                             et_nbin,
+                                                             et_min,
+                                                             0.7,
+                                                             "N_{ele}");
 
-  h1_ele_dRElectronsPFcand_Pho_unCleaned = bookH1(iBooker, "dRElectronsPFcand_Pho_unCleaned", "dR(pho,cand) Photons :  All Ecal", et_nbin, et_min, 0.7, "N_{ele}");
-  h1_ele_dRElectronsPFcand_Pho_unCleaned_barrel = bookH1(iBooker, "dRElectronsPFcand_Pho_unCleaned_barrel", "dR(pho,cand) Photons :  Barrel", et_nbin, et_min, 0.7, "N_{ele}");
-  h1_ele_dRElectronsPFcand_Pho_unCleaned_endcaps = bookH1(iBooker, "dRElectronsPFcand_Pho_unCleaned_endcaps", "dR(pho,cand) Photons :  Endcaps", et_nbin, et_min, 0.7, "N_{ele}");
+  h1_ele_dRElectronsPFcand_Pho_unCleaned = bookH1(
+      iBooker, "dRElectronsPFcand_Pho_unCleaned", "dR(pho,cand) Photons :  All Ecal", et_nbin, et_min, 0.7, "N_{ele}");
+  h1_ele_dRElectronsPFcand_Pho_unCleaned_barrel = bookH1(iBooker,
+                                                         "dRElectronsPFcand_Pho_unCleaned_barrel",
+                                                         "dR(pho,cand) Photons :  Barrel",
+                                                         et_nbin,
+                                                         et_min,
+                                                         0.7,
+                                                         "N_{ele}");
+  h1_ele_dRElectronsPFcand_Pho_unCleaned_endcaps = bookH1(iBooker,
+                                                          "dRElectronsPFcand_Pho_unCleaned_endcaps",
+                                                          "dR(pho,cand) Photons :  Endcaps",
+                                                          et_nbin,
+                                                          et_min,
+                                                          0.7,
+                                                          "N_{ele}");
 
   // conversion rejection information
   h1_ele_convFlags = bookH1withSumw2(iBooker, "convFlags", "conversion rejection flag", 5, -1.5, 3.5);
@@ -3288,7 +3336,6 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
   h1_ele_convRadius = bookH1withSumw2(iBooker, "convRadius", "signed conversion radius", 100, 0., 130.);
   h1_ele_convRadius_all =
       bookH1withSumw2(iBooker, "convRadius_all", "signed conversion radius, all electrons", 100, 0., 130.);
-  
 }
 
 ElectronMcSignalValidator::~ElectronMcSignalValidator() {}
@@ -3310,12 +3357,12 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
   } else {
     edm::LogInfo("ElectronMcSignalValidator::analyze") << "vertexCollectionHandle OK";
   }
-  auto pfCandidateHandle = iEvent.getHandle(pfCandidates_); // #### NEW PR ####
+  auto pfCandidateHandle = iEvent.getHandle(pfCandidates_);  // #### NEW PR ####
   if (!pfCandidateHandle.isValid()) {
     edm::LogInfo("ElectronMcSignalValidator::analyze") << "pfCandidateHandle KO";
   } else {
     edm::LogInfo("ElectronMcSignalValidator::analyze") << "pfCandidateHandle OK";
-  } // #### NEW PR ####
+  }  // #### NEW PR ####
 
   reco::GsfElectronCollection::const_iterator gsfIter;          //
   reco::GsfElectronCoreCollection::const_iterator gsfCoreIter;  //
@@ -4324,7 +4371,7 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
       reco::PFCandidateRef pfCandRef(reco::PFCandidateRef(pfCandidateHandle, lCand));
       //float dR = deltaR(mcIter->eta(), mcIter->phi(), pfCandRef->eta(), pfCandRef->phi());
       float dR = deltaR(bestGsfElectron.eta(), bestGsfElectron.phi(), pfCandRef->eta(), pfCandRef->phi());
-      
+
       if (dR < 0.4) {
         /// uncleaned
         reco::PFCandidate::ParticleType type = pfCandRef->particleId();
@@ -4365,11 +4412,10 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
         }
 
       }  // dr=0.4
-      
+
     }  // loop over all PF Candidates
 
   }  // loop over mc particle
   h1_mcNum->Fill(mcNum);
   h1_eleNum->Fill(eleNum);
-
 }
