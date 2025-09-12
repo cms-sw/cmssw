@@ -31,7 +31,7 @@ The input of the first step must be RAW, and the inputs of the other samples are
 
    In this step two things are done:
    - The LHEProducer is run to generate the LHE file for the Z -> tau tau events in the USER step.
-   - The energy deposits of the two muons selected in the previous step are removed from the event record. This is done by modifying the RECO sequence by replacing some producers with special cleaning producers.
+   - The energy deposits of the two muons selected in the previous step are removed from the event record. This is done by modifying the RECO sequence by replacing some producers with special cleaning producers. To achieve this the `tau_embedding_cleaning` process modifier has to be used.
 
    This step can be modified using the following `--procModifiers` options:
    - `tau_embedding_mu_to_mu`: Muons are simulated instead of a taus. That means this method is replacing a muon with a simulated muon. This is very useful for the validation of the method and for calculating some corrections.
@@ -39,12 +39,13 @@ The input of the first step must be RAW, and the inputs of the other samples are
   
    ```bash
    cmsDriver.py \
-      --step USER:TauAnalysis/MCEmbeddingTools/LHE_USER_cff.embeddingLHEProducerTask,RAW2DIGI,RECO:TauAnalysis/MCEmbeddingTools/Cleaning_RECO_cff.reconstruction \
+      --step USER:TauAnalysis/MCEmbeddingTools/LHE_USER_cff.embeddingLHEProducerTask,RAW2DIGI,RECO \
       --processName LHEembeddingCLEAN \
       --data \
       --scenario pp \
       --eventcontent TauEmbeddingCleaning \
       --datatier RAWRECO \
+      --procModifiers tau_embedding_cleaning,tau_embedding_mu_to_mu \
       --conditions ... \
       --era ... \
       --filein ... \
@@ -77,7 +78,7 @@ The input of the first step must be RAW, and the inputs of the other samples are
          --geometry DB:Extended \
          --eventcontent TauEmbeddingSimGen \
          --datatier RAWSIM \
-         --procModifiers tau_embedding_mutauh \
+         --procModifiers tau_embedding_sim,tau_embedding_mutauh \
          --era ... \
          --conditions ... \
          --filein ... \
@@ -90,7 +91,7 @@ The input of the first step must be RAW, and the inputs of the other samples are
 
       ```bash
       cmsDriver.py \
-         --step HLT:TauAnalysis/MCEmbeddingTools/Simulation_HLT_customiser_cff.embeddingHLTCustomiser.Fake2 \
+         --step HLT:Fake2+TauAnalysis/MCEmbeddingTools/Simulation_HLT_customiser_cff.embeddingHLTCustomiser \
          --processName SIMembeddingHLT \
          --mc \
          --beamspot DBrealistic \
@@ -107,13 +108,14 @@ The input of the first step must be RAW, and the inputs of the other samples are
 
       ```bash
       cmsDriver.py \
-      --step RAW2DIGI,L1Reco,RECO:TauAnalysis/MCEmbeddingTools/Simulation_RECO_cff.reconstruction,RECOSIM \
+      --step RAW2DIGI,L1Reco,RECO,RECOSIM \
       --processName SIMembedding \
       --mc \
       --beamspot DBrealistic \
       --geometry DB:Extended \
       --eventcontent TauEmbeddingSimReco \
       --datatier RAW-RECO-SIM \
+      --procModifiers tau_embedding_sim \
       --era ... \
       --conditions ... \
       --filein ... \
@@ -130,8 +132,9 @@ The input of the first step must be RAW, and the inputs of the other samples are
       --processName MERGE \
       --data \
       --scenario pp \
-      --eventcontent TauEmbeddingMerge \
+      --eventcontent TauEmbeddingMergeMINIAOD \
       --datatier USER \
+      --procModifiers tau_embedding_merging \
       --inputCommands 'keep *_*_*_*' \
       --conditions ... \
       --era ... \
@@ -145,7 +148,7 @@ The input of the first step must be RAW, and the inputs of the other samples are
 
    ```bash
    cmsDriver.py \
-      --step NANO:TauAnalysis/MCEmbeddingTools/Nano_cff.embedding_nanoAOD_seq \
+      --step NANO:@TauEmbedding \
       --data \
       --scenario pp \
       --eventcontent TauEmbeddingNANOAOD \
