@@ -59,7 +59,7 @@ typedef CollectionMerger<edm::RangeMap<RPCDetId, edm::OwnVector<RPCRecHit>>, RPC
 
 template <typename T1, typename T2>
 CollectionMerger<T1, T2>::CollectionMerger(const edm::ParameterSet &iConfig) {
-  std::vector<edm::InputTag> inCollections = iConfig.getParameter<std::vector<edm::InputTag>>("mergCollections");
+  std::vector<edm::InputTag> inCollections = iConfig.getParameter<std::vector<edm::InputTag>>("mergeCollections");
   for (auto const &inCollection : inCollections) {
     inputs_[inCollection.instance()].push_back(consumes<MergeCollection>(inCollection));
   }

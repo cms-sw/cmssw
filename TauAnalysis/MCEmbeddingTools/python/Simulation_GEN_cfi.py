@@ -11,13 +11,14 @@ cmsDriver.py TauAnalysis/MCEmbeddingTools/python/Simulation_GEN_cfi.py \
 	--geometry DB:Extended \
 	--eventcontent TauEmbeddingSimGen \
 	--datatier RAWSIM \
-	--procModifiers tau_embedding_mu_to_mu \
+	--procModifiers tau_embedding_sim,tau_embedding_mu_to_mu \
     --era ... \
     --conditions ... \
     --filein ... \
     --fileout ...
 ```
 """
+
 import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Modifier_run2_common_cff import run2_common
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
@@ -31,49 +32,28 @@ from Configuration.ProcessModifiers.tau_embedding_mu_to_e_cff import (
 from Configuration.ProcessModifiers.tau_embedding_mu_to_mu_cff import (
     tau_embedding_mu_to_mu,
 )
-from Configuration.ProcessModifiers.tau_embedding_mutauh_cff import tau_embedding_mutauh
+from Configuration.ProcessModifiers.tau_embedding_mutauh_cff import (
+    tau_embedding_mutauh,
+)
 from Configuration.ProcessModifiers.tau_embedding_tauhtauh_cff import (
     tau_embedding_tauhtauh,
 )
 from GeneratorInterface.ExternalDecays.TauolaSettings_cff import *
-from IOMC.EventVertexGenerators.VtxSmearedRealistic_cfi import VtxSmeared
-from SimGeneral.MixingModule.mixNoPU_cfi import (  # if no PileUp is specified the mixing module from mixNoPU_cfi is used
-    mix,
-)
 
-# As we want to exploit the toModify and toReplaceWith features of the FWCore/ParameterSet/python/Config.py Modifier class,
-# we need a general modifier that is always applied.
-# maybe this can also be replaced by a specific embedding process modifier
-generalModifier = run2_common | run3_common
-
-# Set the measured vertex for the simulation.
-VtxCorrectedToInput = cms.EDProducer(
+# Set the the vertex used for the simulation to the measured vertex.
+# replaced in IOMC/EventVertexGenerators/python/VtxSmearedRealistic_cfi.py
+tau_embedding_vtx_corrected_to_input = cms.EDProducer(
     "EmbeddingVertexCorrector", src=cms.InputTag("generator", "unsmeared")
 )
-generalModifier.toReplaceWith(VtxSmeared, VtxCorrectedToInput)
 
-# as we only want to simulate the the taus, we have to disable the noise simulation
-generalModifier.toModify(
-    mix,
-    digitizers={
-        "ecal": {"doESNoise": cms.bool(False), "doENoise": cms.bool(False)},
-        "hcal": {
-            "doNoise": cms.bool(False),
-            "doThermalNoise": cms.bool(False),
-            "doHPDNoise": cms.bool(False),
-        },
-        "pixel": {"AddNoisyPixels": cms.bool(False), "AddNoise": cms.bool(False)},
-        "strip": {"Noise": cms.bool(False)},
-    },
-)
-
-# castor was a detector that was removed in run3, so we need to disable the noise for it in run2
-# but not in run3, as there is no castor in run3
-(run2_common & ~run3_common).toModify(
-    mix, digitizers={"castor": {"doNoise": cms.bool(False)}}
-)
-
-
+# As we only want to simulate the the taus, we have to disable the noise simulation.
+# Those settings can be set in the digitizers of the mixing module (SimGeneral/MixingModule/python/mixNoPU_cfi.py, because we don't have PU)
+# Because the settings there are also imported, this is done by process modifiers in the following files:
+# SimGeneral/MixingModule/python/SiPixelSimParameters_cfi.py
+# SimGeneral/MixingModule/python/SiStripSimParameters_cfi.py
+# SimGeneral/MixingModule/python/ecalDigitizer_cfi.py
+# SimGeneral/MixingModule/python/hcalDigitizer_cfi.py
+# SimGeneral/MixingModule/python/castorDigitizer_cfi.py # castor was removed in run3, so this is only needed for run2
 
 # The generator module is expected by the GEN step to specify the event generator
 generator = cms.EDFilter(
@@ -101,7 +81,7 @@ generator = cms.EDFilter(
     pythiaPylistVerbosity=cms.untracked.int32(1),
     filterEfficiency=cms.untracked.double(1.0),
     pythiaHepMCVerbosity=cms.untracked.bool(False),
-    comEnergy=cms.double(13000.0),
+    comEnergy=cms.double(13600.0),
     crossSection=cms.untracked.double(1.0),
     PythiaParameters=cms.PSet(
         pythia8CommonSettingsBlock,
@@ -117,6 +97,8 @@ generator = cms.EDFilter(
         ),
     ),
 )
+# Set the correct center of mass energy for run2
+(run2_common & ~run3_common).toModify(generator, comEnergy=cms.double(13000.0))
 
 ## This modifier sets the correct cuts for mu->mu embedding
 tau_embedding_mu_to_mu.toModify(
@@ -128,6 +110,16 @@ tau_embedding_mu_to_mu.toModify(
             ),
             "Final_States": cms.vstring("MuMu"),
         }
+    },
+    # disable final state radiation for mu->mu embedding
+    PythiaParameters={
+        "processParameters": cms.vstring(
+            "JetMatching:merge = off",
+            "Init:showChangedSettings = off",
+            "Init:showChangedParticleData = off",
+            "ProcessLevel:all = off",
+            "PartonLevel:FSR = off",
+        )
     },
 )
 # only one simulation needed, as the muons don't decay like taus and no wights need to be calculated.
@@ -143,6 +135,16 @@ tau_embedding_mu_to_e.toModify(
             ),
             "Final_States": cms.vstring("ElEl"),
         }
+    },
+    # disable final state radiation for mu->e embedding
+    PythiaParameters={
+        "processParameters": cms.vstring(
+            "JetMatching:merge = off",
+            "Init:showChangedSettings = off",
+            "Init:showChangedParticleData = off",
+            "ProcessLevel:all = off",
+            "PartonLevel:FSR = off",
+        )
     },
 )
 # only one simulation needed, as the electrons don't decay like taus and no wights need to be calculated.

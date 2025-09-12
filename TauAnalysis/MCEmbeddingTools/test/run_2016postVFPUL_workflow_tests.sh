@@ -30,7 +30,7 @@ cmsDriver.py \
 
 echo "################ LHE production and cleaning ################"
 cmsDriver.py \
-    --step USER:TauAnalysis/MCEmbeddingTools/LHE_USER_cff.embeddingLHEProducerTask,RAW2DIGI,RECO:TauAnalysis/MCEmbeddingTools/Cleaning_RECO_cff.reconstruction \
+    --step USER:TauAnalysis/MCEmbeddingTools/LHE_USER_cff.embeddingLHEProducerTask,RAW2DIGI,RECO \
     --processName LHEembeddingCLEAN \
     --data \
     --scenario pp \
@@ -38,7 +38,7 @@ cmsDriver.py \
     --era Run2_2016 \
     --eventcontent TauEmbeddingCleaning \
     --datatier RAWRECO \
-    --customise Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016 \
+    --procModifiers tau_embedding_cleaning,tau_embedding_mutauh \
     --filein file:selection.root \
     --fileout file:lhe_and_cleaned.root \
     -n -1 \
@@ -56,7 +56,7 @@ cmsDriver.py TauAnalysis/MCEmbeddingTools/python/Simulation_GEN_cfi.py \
     --conditions auto:run2_mc \
     --eventcontent TauEmbeddingSimGen \
     --datatier RAWSIM \
-    --procModifiers tau_embedding_mutauh \
+    --procModifiers tau_embedding_sim,tau_embedding_mutauh \
     --filein file:lhe_and_cleaned.root \
     --fileout file:simulated_and_cleaned_prehlt.root \
     -n -1 \
@@ -82,7 +82,7 @@ cmsDriver.py \
 # Simulation (Reconstruction)
 echo "################ Simulation (Reconstruction) ################"
 cmsDriver.py \
-    --step RAW2DIGI,L1Reco,RECO:TauAnalysis/MCEmbeddingTools/Simulation_RECO_cff.reconstruction,RECOSIM \
+    --step RAW2DIGI,L1Reco,RECO,RECOSIM \
     --processName SIMembedding \
     --mc \
     --beamspot Realistic25ns13TeV2016Collision \
@@ -91,6 +91,7 @@ cmsDriver.py \
     --conditions auto:run2_mc \
     --eventcontent TauEmbeddingSimReco \
     --datatier RAW-RECO-SIM \
+    --procModifiers tau_embedding_sim \
     --filein file:simulated_and_cleaned_hlt.root \
     --fileout file:simulated_and_cleaned_posthlt.root \
     -n -1 \
@@ -105,8 +106,9 @@ cmsDriver.py \
     --scenario pp \
     --conditions auto:run2_data \
     --era Run2_2016 \
-    --eventcontent TauEmbeddingMerge \
+    --eventcontent TauEmbeddingMergeMINIAOD \
     --datatier USER \
+    --procModifiers tau_embedding_merging \
     --inputCommands 'keep *_*_*_*' \
     --filein file:simulated_and_cleaned_posthlt.root \
     --fileout file:merged.root \
@@ -116,7 +118,7 @@ cmsDriver.py \
 # NanoAOD Production
 echo "################ NanoAOD Production ################"
 cmsDriver.py \
-    --step NANO:TauAnalysis/MCEmbeddingTools/Nano_cff.embedding_nanoAOD_seq \
+    --step NANO:@TauEmbedding \
     --data \
     --conditions auto:run2_data \
     --era Run2_2016 \
