@@ -141,19 +141,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           }
 
           // fill calibration parameters for ADC, CM, TOT, MIPS scale, ...
-          fill_SoA_column<float>(product.view().ADC_ped(), calib_data_["ADC_ped"], offset, nrows);
-          fill_SoA_column<float>(product.view().Noise(), calib_data_["Noise"], offset, nrows);
-          fill_SoA_column<float>(product.view().CM_slope(), calib_data_["CM_slope"], offset, nrows);
-          fill_SoA_column<float>(product.view().CM_ped(), calib_data_["CM_ped"], offset, nrows);
-          fill_SoA_column<float>(product.view().BXm1_slope(), calib_data_["BXm1_slope"], offset, nrows);
-          fill_SoA_column<float>(product.view().TOTtoADC(), calib_data_["TOTtoADC"], offset, nrows);
-          fill_SoA_column<float>(product.view().TOT_ped(), calib_data_["TOT_ped"], offset, nrows);
-          fill_SoA_column<float>(product.view().TOT_lin(), calib_data_["TOT_lin"], offset, nrows);
-          fill_SoA_column<float>(product.view().TOT_P0(), calib_data_["TOT_P0"], offset, nrows);
-          fill_SoA_column<float>(product.view().TOT_P1(), calib_data_["TOT_P1"], offset, nrows);
-          fill_SoA_column<float>(product.view().TOT_P2(), calib_data_["TOT_P2"], offset, nrows);
-          fill_SoA_column<float>(product.view().MIPS_scale(), calib_data_["MIPS_scale"], offset, nrows);
-          fill_SoA_column<unsigned char>(product.view().valid(), calib_data_["Valid"], offset, nrows);
+          fill_SoA_column<float>(product.view().ADC_ped().data(), calib_data_["ADC_ped"], offset, nrows);
+          fill_SoA_column<float>(product.view().Noise().data(), calib_data_["Noise"], offset, nrows);
+          fill_SoA_column<float>(product.view().CM_slope().data(), calib_data_["CM_slope"], offset, nrows);
+          fill_SoA_column<float>(product.view().CM_ped().data(), calib_data_["CM_ped"], offset, nrows);
+          fill_SoA_column<float>(product.view().BXm1_slope().data(), calib_data_["BXm1_slope"], offset, nrows);
+          fill_SoA_column<float>(product.view().TOTtoADC().data(), calib_data_["TOTtoADC"], offset, nrows);
+          fill_SoA_column<float>(product.view().TOT_ped().data(), calib_data_["TOT_ped"], offset, nrows);
+          fill_SoA_column<float>(product.view().TOT_lin().data(), calib_data_["TOT_lin"], offset, nrows);
+          fill_SoA_column<float>(product.view().TOT_P0().data(), calib_data_["TOT_P0"], offset, nrows);
+          fill_SoA_column<float>(product.view().TOT_P1().data(), calib_data_["TOT_P1"], offset, nrows);
+          fill_SoA_column<float>(product.view().TOT_P2().data(), calib_data_["TOT_P2"], offset, nrows);
+          fill_SoA_column<float>(product.view().MIPS_scale().data(), calib_data_["MIPS_scale"], offset, nrows);
+          fill_SoA_column<unsigned char>(product.view().valid().data(), calib_data_["Valid"], offset, nrows);
 
           // default parameters for fine-grain TDC, coarse-grain TDC and time-walk corrections that allow passthrough
           // (for backwards compatibility of older calibration JSONs)
@@ -191,7 +191,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               << "layer=" << layer << ", celltype=" << celltype << ", isSiPM=" << isSiPM << ", dEdx=" << dEdx
               << ", sf=" << sf << std::endl;
           dEdx *= sf * 1e3;  // apply correction and convert from MeV to GeV
-          fill_SoA_column_single<float>(product.view().EM_scale(), dEdx, offset, nrows);
+          fill_SoA_column_single<float>(product.view().EM_scale().data(), dEdx, offset, nrows);
 
         }  // end of loop over modules
 

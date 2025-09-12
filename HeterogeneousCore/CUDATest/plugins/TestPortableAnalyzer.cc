@@ -19,6 +19,8 @@ namespace {
   public:
     Column(T const* data, size_t size) : data_(data), size_(size) {}
 
+    Column(std::span<T const> span) : data_(span.data()), size_(span.size()) {}
+
     void print(std::ostream& out) const {
       std::stringstream buffer;
       buffer << "{ ";
@@ -66,13 +68,12 @@ public:
     edm::LogInfo msg("TestPortableAnalyzer");
     msg << source_.encode() << ".size() = " << view.metadata().size() << '\n';
     msg << "  data  @ " << product.buffer().get() << ",\n"
-        << "  x     @ " << view.metadata().addressOf_x() << " = " << Column(view.x(), view.metadata().size()) << ",\n"
-        << "  y     @ " << view.metadata().addressOf_y() << " = " << Column(view.y(), view.metadata().size()) << ",\n"
-        << "  z     @ " << view.metadata().addressOf_z() << " = " << Column(view.z(), view.metadata().size()) << ",\n"
-        << "  id    @ " << view.metadata().addressOf_id() << " = " << Column(view.id(), view.metadata().size()) << ",\n"
+        << "  x     @ " << view.metadata().addressOf_x() << " = " << Column(view.x()) << ",\n"
+        << "  y     @ " << view.metadata().addressOf_y() << " = " << Column(view.y()) << ",\n"
+        << "  z     @ " << view.metadata().addressOf_z() << " = " << Column(view.z()) << ",\n"
+        << "  id    @ " << view.metadata().addressOf_id() << " = " << Column(view.id()) << ",\n"
         << "  r     @ " << view.metadata().addressOf_r() << " = " << view.r() << '\n'
-        << "  flags @ " << view.metadata().addressOf_flags() << " = " << Column(view.flags(), view.metadata().size())
-        << ",\n"
+        << "  flags @ " << view.metadata().addressOf_flags() << " = " << Column(view.flags()) << ",\n"
         << "  m     @ " << view.metadata().addressOf_m() << " = { ... {" << view[1].m()(1, Eigen::indexing::all)
         << " } ... } \n";
     msg << std::hex << "  [y - x] = 0x"
