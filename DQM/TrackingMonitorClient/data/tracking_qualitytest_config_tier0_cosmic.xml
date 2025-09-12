@@ -41,7 +41,7 @@
       <PARAM name="useRange">1</PARAM>
       <PARAM name="minEntries">0</PARAM>
       <PARAM name="xmin">0.0</PARAM>
-      <PARAM name="xmax">200.0</PARAM>
+      <PARAM name="xmax">800.0</PARAM>
 </QTEST>
 <QTEST name="MeanWithinExpectedRange:SeedNPixel" activate="true">
      <TYPE>MeanWithinExpected</TYPE>
