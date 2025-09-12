@@ -48,12 +48,14 @@ namespace edmtest {
     const std::vector<int> expectedVectorVectorIntegralValues_;
     const edm::EDGetTokenT<VectorVectorTop> vectorVectorToken_;
     const edm::EDGetTokenT<VectorVectorTopNonSplit> vectorVectorNonSplitToken_;
+    const bool testAutoPtrToUniquePtr_;
   };
 
   SchemaEvolutionTestRead::SchemaEvolutionTestRead(edm::ParameterSet const& iPSet)
       : expectedVectorVectorIntegralValues_(iPSet.getParameter<std::vector<int>>("expectedVectorVectorIntegralValues")),
         vectorVectorToken_(consumes(iPSet.getParameter<edm::InputTag>("vectorVectorTag"))),
-        vectorVectorNonSplitToken_(consumes(iPSet.getParameter<edm::InputTag>("vectorVectorTag"))) {
+        vectorVectorNonSplitToken_(consumes(iPSet.getParameter<edm::InputTag>("vectorVectorTag"))),
+        testAutoPtrToUniquePtr_(iPSet.getParameter<bool>("testAutoPtrToUniquePtr")) {
     if (expectedVectorVectorIntegralValues_.size() != 15) {
       throwWithMessageFromConstructor("test configuration error, expectedVectorVectorIntegralValues must have size 15");
     }
@@ -68,6 +70,7 @@ namespace edmtest {
     edm::ParameterSetDescription desc;
     desc.add<std::vector<int>>("expectedVectorVectorIntegralValues");
     desc.add<edm::InputTag>("vectorVectorTag");
+    desc.add<bool>("testAutoPtrToUniquePtr", false);
     descriptions.addDefault(desc);
   }
 
@@ -168,6 +171,19 @@ namespace edmtest {
         }
         if (pointerToUniquePtr.contained_->c_ != expectedVectorVectorIntegralValues_[8] + iOffset + j * 1008) {
           throwWithMessage("analyzeVectorVector, pointerToUniquePtr c_ does not contain expected value");
+        }
+
+        if (testAutoPtrToUniquePtr_) {
+          SchemaEvolutionAutoPtrToUniquePtr const& autoPtrToUniquePtr = element.autoPtrToUniquePtr_;
+          if (autoPtrToUniquePtr.a_ != expectedVectorVectorIntegralValues_[8] + iOffset + j * 23) {
+            throwWithMessage("analyzeVectorVector, autoPtrToUniquePtr a_ does not contain expected value");
+          }
+          if (autoPtrToUniquePtr.b_ != expectedVectorVectorIntegralValues_[8] + iOffset + j * 123) {
+            throwWithMessage("analyzeVectorVector, autoPtrToUniquePtr b_ does not contain expected value");
+          }
+          if (autoPtrToUniquePtr.contained_->c_ != expectedVectorVectorIntegralValues_[8] + iOffset + j * 1023) {
+            throwWithMessage("analyzeVectorVector, autoPtrToUniquePtr c_ does not contain expected value");
+          }
         }
 
         SchemaEvolutionCArrayToStdArray const& cArrayToStdArray = element.cArrayToStdArray_;
