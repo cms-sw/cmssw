@@ -24,6 +24,7 @@ It is based on the preexisting work of the scouting group and can be found at gi
 
 // user include files
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -72,7 +73,7 @@ private:
   void setToken(edm::EDGetTokenT<T>& token, const edm::ParameterSet& iConfig, std::string name) {
     const auto inputTag = iConfig.getParameter<edm::InputTag>(name);
     if (!inputTag.encode().empty()) {
-      token = consumes(inputTag);
+      token = mayConsume<T>(inputTag);
     }
   }
 
@@ -117,6 +118,7 @@ private:
   const edm::EDGetTokenT<std::vector<Run3ScoutingPFJet>> pfjetsToken_;
   const edm::EDGetTokenT<std::vector<Run3ScoutingTrack>> tracksToken_;
   const edm::EDGetTokenT<OnlineLuminosityRecord> onlineMetaDataDigisToken_;
+  const edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
   const std::string topfoldername_;
 
   // calo rechits (only 2025 V1.3 onwards, see https://its.cern.ch/jira/browse/CMSHLT-3607)
@@ -417,6 +419,8 @@ private:
   dqm::reco::MonitorElement* tk_chi2_prob_hist;
   dqm::reco::MonitorElement* tk_PV_dxy_hist;
   dqm::reco::MonitorElement* tk_PV_dz_hist;
+  dqm::reco::MonitorElement* tk_BS_dxy_hist;
+  dqm::reco::MonitorElement* tk_BS_dz_hist;
 
   // calo rechits histrograms (ECAL has two version, cleaned and unclean)
   dqm::reco::MonitorElement* ebRecHitsNumber_hist[2];
@@ -457,6 +461,7 @@ ScoutingCollectionMonitor::ScoutingCollectionMonitor(const edm::ParameterSet& iC
       pfjetsToken_(consumes<std::vector<Run3ScoutingPFJet>>(iConfig.getParameter<edm::InputTag>("pfjets"))),
       tracksToken_(consumes<std::vector<Run3ScoutingTrack>>(iConfig.getParameter<edm::InputTag>("tracks"))),
       onlineMetaDataDigisToken_(consumes(iConfig.getParameter<edm::InputTag>("onlineMetaDataDigis"))),
+      beamSpotToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
       topfoldername_(iConfig.getParameter<std::string>("topfoldername")) {
   setToken(ebRecHitsToken_, iConfig, "pfRecHitsEB");
   setToken(eeRecHitsToken_, iConfig, "pfRecHitsEE");
@@ -822,6 +827,15 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
   for (const auto& vtx : *verticesNoVtxH)
     fillVtxHistograms(vtx, 1);
 
+  // determine the beamspot position (if it exists in the event)
+  std::unique_ptr<Run3ScoutingVertex> beamspotVertex{nullptr};
+  edm::Handle<reco::BeamSpot> beamSpotH;
+  if (getValidHandle(iEvent, beamSpotToken_, beamSpotH, "beamSpot")) {
+    const auto& beamspot = *beamSpotH;
+    beamspotVertex = std::make_unique<Run3ScoutingVertex>(
+        beamspot.x0(), beamspot.y0(), beamspot.z0(), 0., 0., 0., 0., 0., true, 0., 0., 0., 0);
+  }
+
   // fill tracks histograms
   for (const auto& tk : *tracksH) {
     tk_pt_tk_hist->Fill(tk.tk_pt());
@@ -864,6 +878,13 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
 
     tk_PV_dxy_hist->Fill(best_offset.first);
     tk_PV_dz_hist->Fill(best_offset.second);
+
+    // skip beamspot-based plots if not valid
+    if (beamspotVertex) {
+      auto bs_offset = trk_vtx_offSet(tk, *beamspotVertex);
+      tk_BS_dxy_hist->Fill(bs_offset.first);
+      tk_BS_dz_hist->Fill(bs_offset.second);
+    }
   }
 
   // Define helper lambdas for EB and EE rechits
@@ -1379,6 +1400,8 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   tk_chi2_prob_hist = ibook.book1DD("tk_chi2_prob_hist", "p(#chi^{2}, NDOF); p(#chi^{2}, NDOF); Entries", 100, 0, 1);
   tk_PV_dz_hist = ibook.book1DD("tk_PV_dz", "Track dz w.r.t. PV; Track dz w.r.t. PV; Entries", 100, -0.35, 0.35);
   tk_PV_dxy_hist = ibook.book1DD("tk_PV_dxy", "Track dxy w.r.t. PV; Track dxy w.r.t. PV; Entries", 100, -0.15, 0.15);
+  tk_BS_dxy_hist = ibook.book1D("tk_BS_dxy", "Track dxy w.r.t. BeamSpot;dxy_{BS} (cm);Entries", 100, -0.5, 0.5);
+  tk_BS_dz_hist = ibook.book1D("tk_BS_dz", "Track dz w.r.t. BeamSpot;dz_{BS} (cm);Entries", 100, -20.0, 20.0);
 
   // book the calo rechits histograms
   const std::array<std::string, 2> caloLabels = {{"All", "Cleaned"}};
@@ -1486,6 +1509,7 @@ void ScoutingCollectionMonitor::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<edm::InputTag>("pfMetPhi", edm::InputTag("hltScoutingPFPacker", "pfMetPhi"));
   desc.add<edm::InputTag>("rho", edm::InputTag("hltScoutingPFPacker", "rho"));
   desc.add<edm::InputTag>("onlineMetaDataDigis", edm::InputTag("onlineMetaDataDigis"));
+  desc.add<edm::InputTag>("beamSpot", edm::InputTag("hltOnlineBeamSpot"));
   desc.add<edm::InputTag>("pfRecHitsEB", edm::InputTag("hltScoutingRecHitPacker", "EB"));
   desc.add<edm::InputTag>("pfRecHitsEE", edm::InputTag("hltScoutingRecHitPacker", "EE"));
   desc.add<edm::InputTag>("pfRecHitsHBHE", edm::InputTag("hltScoutingRecHitPacker", "HBHE"));
