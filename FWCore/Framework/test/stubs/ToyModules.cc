@@ -267,75 +267,6 @@ namespace edmtest {
 
   //--------------------------------------------------------------------
   //
-  // Produces two products: (new DataSetVector)
-  //    DSTVSimpleProduct
-  //    DSTVSimpleDerivedProduct
-  //
-  class DSTVProducer : public edm::stream::EDProducer<> {
-  public:
-    explicit DSTVProducer(edm::ParameterSet const& p) : size_(p.getParameter<int>("size")) {
-      produces<DSTVSimpleProduct>();
-      produces<DSTVSimpleDerivedProduct>();
-      assert(size_ > 1);
-    }
-
-    explicit DSTVProducer(int i) : size_(i) {
-      produces<DSTVSimpleProduct>();
-      produces<DSTVSimpleDerivedProduct>();
-      assert(size_ > 1);
-    }
-
-    virtual ~DSTVProducer() {}
-
-    virtual void produce(edm::Event& e, edm::EventSetup const&) override;
-
-  private:
-    template <typename PROD>
-    void make_a_product(edm::Event& e);
-    void fill_a_data(DSTVSimpleProduct::data_type& d, unsigned int i);
-    void fill_a_data(DSTVSimpleDerivedProduct::data_type& d, unsigned int i);
-
-    int size_;
-  };
-
-  void DSTVProducer::produce(edm::Event& e, edm::EventSetup const& /* unused */) {
-    this->make_a_product<DSTVSimpleProduct>(e);
-    this->make_a_product<DSTVSimpleDerivedProduct>(e);
-  }
-
-  void DSTVProducer::fill_a_data(DSTVSimpleDerivedProduct::data_type& d, unsigned int i) {
-    d.key = size_ - i;
-    d.value = 1.5 * i;
-  }
-
-  void DSTVProducer::fill_a_data(DSTVSimpleProduct::data_type& d, unsigned int i) { d.data = size_ - i; }
-
-  template <typename PROD>
-  void DSTVProducer::make_a_product(edm::Event& e) {
-    typedef PROD product_type;
-    //FIXME
-    typedef typename product_type::FastFiller detset;
-    typedef typename detset::id_type id_type;
-
-    auto p = std::make_unique<product_type>();
-    product_type& v = *p;
-
-    unsigned int n = 0;
-    for (id_type id = 1; id < static_cast<id_type>(size_); ++id) {
-      ++n;
-      detset item(v, id);  // this will get DetID id
-      item.resize(n);
-      for (unsigned int i = 0; i < n; ++i)
-        fill_a_data(item[i], i);
-    }
-
-    // Put the product into the Event, thus sorting is not done by magic,
-    // up to one user-line
-    e.put(std::move(p));
-  }
-
-  //--------------------------------------------------------------------
-  //
   // Produces an Prodigal instance.
   //
   class ProdigalProducer : public edm::stream::EDProducer<> {
@@ -402,7 +333,6 @@ namespace edmtest {
 }  // namespace edmtest
 
 using edmtest::AVSimpleProducer;
-using edmtest::DSTVProducer;
 using edmtest::DSVProducer;
 using edmtest::IntProductFilter;
 using edmtest::OVSimpleProducer;
@@ -414,6 +344,5 @@ DEFINE_FWK_MODULE(OVSimpleProducer);
 DEFINE_FWK_MODULE(VSimpleProducer);
 DEFINE_FWK_MODULE(AVSimpleProducer);
 DEFINE_FWK_MODULE(DSVProducer);
-DEFINE_FWK_MODULE(DSTVProducer);
 DEFINE_FWK_MODULE(ProdigalProducer);
 DEFINE_FWK_MODULE(IntProductFilter);
