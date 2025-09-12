@@ -15,8 +15,6 @@ namespace l1tVertexFinder {
 
   // Calculates the PFA weight and the weighted average z weight for a given track
   std::pair<float, float> VertexFinder::calcPFAweights(const L1Track* track, double vertexZ0) const {
-    const float sqrt0p5 = std::sqrt(0.5);
-    float trackPt = track->pt();
     // Calculate PFA width parameter (customised using multiplicative scale factor)
     float PFAWidth = computeTrackZ0Res(track) * settings_->vx_pfa_resolutionSF();
 
@@ -28,7 +26,7 @@ namespace l1tVertexFinder {
     // Redefine deltaZ as the distance of the track from the bin edge (zero if inside the bin)
     deltaZ = (deltaZ > 0.5 * settings_->vx_pfa_binwidth()) ? deltaZ - 0.5 * settings_->vx_pfa_binwidth() : 0;
     // Use Erfc to reduce the weight based on the probability that a track from a vertex in this bin would be closer than deltaZ to the edge of the bin
-    float ErfcWeight = std::erfc(sqrt0p5 * deltaZ / PFAWidth);
+    float ErfcWeight = std::erfc(M_SQRT1_2 * deltaZ / PFAWidth);
 
     // Step function that allows tracks at most 1 sigma from the bin edge
     float StepFunctionWeight = deltaZ > PFAWidth ? 0 : 1;
@@ -42,10 +40,13 @@ namespace l1tVertexFinder {
     }
 
     // Calculate z-weight for weighted average z0 calculation
-    // Gaussian- and pT-weighted sums for estimates of vertex z0 and z0square based on the points of highest cumulative density of the contributions from each track at a given z0 position
-    float zweight = GaussianWeight * std::pow(trackPt, settings_->vx_weightedmean());
+    float trackPt = track->pt();
+    float zweight = 0.;
 
-    if (settings_->vx_pfa_weightedz0() == 2) {
+    if (settings_->vx_pfa_weightedz0() == 1) {
+      // Gaussian- and pT-weighted average
+      zweight = GaussianWeight * std::pow(trackPt, settings_->vx_weightedmean());
+    } else if (settings_->vx_pfa_weightedz0() == 2) {
       // Estimates of vertex z0 and z0square based on optimal combination (weighted by 1/variance) of the z0 of the tracks associated to the vertex, weighted also by pT and association probability
       // Note, all tracks in the bin have association probability 1 based on the definiton of deltaZ above, so this method won't work well for large bin widths. In that case, the ErfcWeight should really be iteratively recalculated at the best estimate point of z0 (and not subtracting half the bin width in deltaZ), but this would require a second loop over tracks.
       zweight = ErfcWeight * std::pow(trackPt, settings_->vx_weightedmean()) / PFAWidth / PFAWidth;
@@ -121,26 +122,28 @@ namespace l1tVertexFinder {
           trackPt = settings_->vx_TrackMaxPt();  // saturate
       }
 
-      std::pair<float, float> weights;
+      std::pair<float, float> PFAweights;
       if (isPFA) {
-        weights = calcPFAweights(track, vertex.z0());
+        PFAweights = calcPFAweights(track, vertex.z0());
       }
 
       if (settings_->vx_algo() == Algorithm::PFA) {
         // Note this weight is not used in Algorithm::PFASimple, where the simplification is that all tracks in the "bin" have PFA weight 1 (and 0 otherwise)
-        float weight = weights.first;
+        float weight = PFAweights.first;
         SumWeightPFA += weight;
         pt += weight * std::pow(trackPt, settings_->vx_weightedmean());
       } else {
         pt += std::pow(trackPt, settings_->vx_weightedmean());
       }
 
-      if (isPFA && settings_->vx_pfa_weightedz0() > 0) {
-        // Calculate weighted-average z0 for PFASimple and PFA
-        float zweight = weights.second;
-        SumZWeightPFA += zweight;
-        SumZ += track->z0() * zweight;
-        z0square += track->z0() * track->z0() * zweight;
+      if (isPFA) {
+        if (settings_->vx_pfa_weightedz0() > 0) {
+          // Calculate weighted-average z0 for PFASimple and PFA
+          float zweight = PFAweights.second;
+          SumZWeightPFA += zweight;
+          SumZ += track->z0() * zweight;
+          z0square += track->z0() * track->z0() * zweight;
+        }
       } else if (bin_centers.empty() && counts.empty()) {
         SumZ += track->z0() * std::pow(trackPt, settings_->vx_weightedmean());
         z0square += track->z0() * track->z0();
