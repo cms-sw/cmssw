@@ -154,14 +154,14 @@ void MakeNicePlotStyle(T* hist)
   //hist->SetStats(kFALSE);
   hist->SetLineWidth(2);
   hist->GetXaxis()->SetNdivisions(505);
-  hist->GetXaxis()->CenterTitle(true);
-  hist->GetYaxis()->CenterTitle(true);
+  //hist->GetXaxis()->CenterTitle(true);
+  //hist->GetYaxis()->CenterTitle(true);
   hist->GetXaxis()->SetTitleFont(42);
   hist->GetYaxis()->SetTitleFont(42);
   hist->GetXaxis()->SetTitleSize(0.05);
   hist->GetYaxis()->SetTitleSize(0.05);
   if (((TObject*)hist)->IsA()->InheritsFrom("TH2")) {
-    hist->GetZaxis()->CenterTitle(true);
+    //hist->GetZaxis()->CenterTitle(true);
     hist->GetZaxis()->SetTitleSize(0.04);
     hist->GetZaxis()->SetLabelFont(42);
     hist->GetYaxis()->SetLabelSize(.05);
@@ -181,6 +181,50 @@ void MakeNicePlotStyle(T* hist)
     hist->GetYaxis()->SetLabelSize(.05);
   }
   hist->GetXaxis()->SetLabelSize(.05);
+}
+
+/*--------------------------------------------------------------------*/
+void setStyle(TString customCMSLabel, TString customRightLabel)
+/*--------------------------------------------------------------------*/
+{
+  writeExtraText = true;  // if extra text
+  writeExraLumi = false;  // if write sqrt(s) info
+  if (customRightLabel != "") {
+    lumi_13TeV = customRightLabel;
+    lumi_13p6TeV = customRightLabel;
+    lumi_0p9TeV = customRightLabel;
+  } else {
+    lumi_13TeV = "pp collisions";
+    lumi_13p6TeV = "pp collisions";
+    lumi_0p9TeV = "pp collisions";
+  }
+  if (customCMSLabel != "") {
+    extraText = customCMSLabel;
+  } else {
+    extraText = "Internal";
+  }
+}
+
+/*--------------------------------------------------------------------*/
+void drawCMSExtra(TPad* pad, const char* extra = "")
+/*--------------------------------------------------------------------*/
+{
+  TLatex latex;
+  latex.SetNDC();
+  latex.SetTextFont(extraTextFont);  // 52
+  latex.SetTextSize(extraOverCmsTextSize * cmsTextSize * gPad->GetTopMargin());
+  latex.SetTextAlign(11);  // left aligned
+
+  float l = pad->GetLeftMargin();
+  float t = pad->GetTopMargin();
+
+  // CMS anchor point (from CMS_lumi outOfFrame logic)
+  float cmsX = l + relPosX * (1 - l - gPad->GetRightMargin());
+  float cmsY = 1 - t + lumiTextOffset * t;
+
+  // horizontal shift = width of "CMS" in NDC units
+  float dx = 1.3 * cmsTextSize * t;  // 3.6 ~ length of "CMS" in letters
+  latex.DrawLatex(cmsX + dx, cmsY, extra);
 }
 
 //-----------------------------------------------------------------------------------
@@ -473,7 +517,7 @@ void bookHistos(const diMuonMassBias::histo2DMap& harvestTargets_,
 
     const auto& title = ME->GetTitle();
     const auto& xtitle = ME->GetYaxis()->GetTitle();
-    const auto& ytitle = ME->GetXaxis()->GetTitle();
+    //const auto& ytitle = ME->GetXaxis()->GetTitle();
 
     const auto& nxbins = ME->GetNbinsY();
     const auto& xmin = ME->GetYaxis()->GetXmin();
@@ -591,9 +635,15 @@ void producePlots(const std::vector<diMuonMassBias::histoMap>& inputMap,
   float R = 0.04 * W;
 
   // Draw the legend
-  TLegend* infoBox = new TLegend(0.65, 0.75, 0.95, 0.90, "");
+  TLegend* infoBox = new TLegend(0.22, 0.80, 0.42, 0.90, "");
+
+  // Remove background fill
+  infoBox->SetFillStyle(0);  // 0 = fully transparent
+  // (optional) Remove the border
+  infoBox->SetBorderSize(0);
+  infoBox->SetLineColor(0);
   infoBox->SetShadowColor(0);  // 0 = transparent
-  infoBox->SetFillColor(kWhite);
+  infoBox->SetFillColor(0);
   infoBox->SetTextSize(0.035);
 
   // get the extrema
@@ -667,7 +717,7 @@ void producePlots(const std::vector<diMuonMassBias::histoMap>& inputMap,
       count++;
     }
 
-    CMS_lumi(c, 0, 3, Rlabel);
+    CMS_lumi(c, 6, 33, Rlabel);
 
     // Find the position of the first '/'
     size_t pos = var.find('/');
@@ -772,8 +822,11 @@ void produceMaps(const std::vector<diMuonMassBias::histo2DMap>& inputMap,
         infoBox->AddEntry(histoMap.at(var), labels[count], "LP");
       }
       //infoBox->Draw("same");
-
+      writeExtraText = false;
       CMS_lumi(dynamic_cast<TPad*>(gPad), 0, 3, labels[count]);
+      drawCMSExtra(dynamic_cast<TPad*>(gPad), extraText);
+      writeExtraText = true;
+
       count++;
     }
 
@@ -793,7 +846,10 @@ void produceMaps(const std::vector<diMuonMassBias::histo2DMap>& inputMap,
 }
 
 /************************************************/
-void DiMuonMassProfiles(TString namesandlabels, const TString& Rlabel = "", const bool useAutoLimits = false)
+void DiMuonMassProfiles(TString namesandlabels,
+                        const TString& CMSlabel = "",
+                        const TString& Rlabel = "",
+                        const bool useAutoLimits = false)
 /************************************************/
 {
   gStyle->SetOptStat(0);
@@ -816,6 +872,9 @@ void DiMuonMassProfiles(TString namesandlabels, const TString& Rlabel = "", cons
       return;
     }
   }
+
+  // set the style of the labeling
+  setStyle(CMSlabel, Rlabel);
 
   // for the bias plots
   std::vector<diMuonMassBias::histoMap> v_meanHistos;
