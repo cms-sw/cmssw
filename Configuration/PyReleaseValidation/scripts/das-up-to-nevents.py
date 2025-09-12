@@ -150,7 +150,7 @@ if __name__ == '__main__':
             json_list = os.listdir(cert_path)
             if len(json_list) == 0:
                 web_fallback == True 
-            json_list = [c for c in json_list if "golden" in c.lower() and "era" not in c.lower()]
+            json_list = [c for c in json_list if "golden" in c.lower() and "era" not in c.lower() and "ppref" not in c.lower()]
             json_list = [c for c in json_list if c.lower().startswith("cert_c") and c.endswith("json")]
         else:
             web_fallback = True
@@ -158,14 +158,13 @@ if __name__ == '__main__':
         if web_fallback:
             cert_url = base_cert_url + cert_type + "/"
             json_list = get_url_clean(cert_url).split("\n")
-            json_list = [c for c in json_list if "golden" in c.lower() and "era" not in c.lower() and "cert_c" in c.lower()]
+            json_list = [c for c in json_list if "golden" in c.lower() and "era" not in c.lower() and "cert_c" in c.lower() and "ppref" not in c.lower()]
             json_list = [[cc for cc in c.split(" ") if cc.lower().startswith("cert_c") and cc.endswith("json")][0] for c in json_list]
 
         # the larger the better, assuming file naming schema 
         # Cert_X_RunStart_RunFinish_Type.json
         # TODO if args.run keep golden only with right range
-
-        run_ranges = [int(c.split("_")[3]) - int(c.split("_")[2]) for c in json_list]
+        run_ranges = [int(c.split("_")[-2]) - int(c.split("_")[-3]) for c in json_list]
         latest_json = np.array(json_list[np.argmax(run_ranges)]).reshape(1,-1)[0].astype(str)
         best_json = str(latest_json[0])
         if not web_fallback:
@@ -197,30 +196,38 @@ if __name__ == '__main__':
         if (len(golden_data_runs)==0):
             no_intersection()
 
+        if testing:
+            golden_data_runs = golden_data_runs[:1] # take only the first run
         # building the dataframe, cleaning for bad lumis
         golden_data_runs_tocheck = golden_data_runs
        
-        if testing or args.precheck:
+        if args.precheck and not testing:
             golden_data_runs_tocheck = []
             # Here we check run per run.
             # This implies more dasgoclient queries, but smaller outputs
             # useful when running the IB/PR tests not to have huge
             # query results that have to be cached.
-
             sum_events = 0
-
             for r in golden_data_runs: 
                 sum_events = sum_events + int(das_run_events_data(dataset,r))
                 golden_data_runs_tocheck.append(r)
                 if events > 0 and sum_events > events:
                     break
-
             das_opt = "run in %s"%(str([int(g) for g in golden_data_runs_tocheck]))
-     
-    df = das_lumi_data(dataset,opt=das_opt).merge(das_file_data(dataset,opt=das_opt),on="file",how="inner") # merge file informations with run and lumis
+            
+        if testing:
+            golden_data_runs_tocheck = golden_data_runs[:1] # take only the first run
+            # in testing mode we just take the first file
+            das_opt = "run=%s"%(golden_data_runs_tocheck[0])
+    
+    if not testing:
+        df = das_lumi_data(dataset,opt=das_opt).merge(das_file_data(dataset,opt=das_opt),on="file",how="inner") # merge file informations with run and lumis
+    else:
+        df = das_lumi_data(dataset,opt=das_opt)
+
     df["lumis"] = [[int(ff) for ff in f.replace("[","").replace("]","").split(",")] for f in df.lumis.values]
     
-    if not args.nogolden:
+    if not args.nogolden and not testing:
 
         df_rs = []
         for r in golden_data_runs_tocheck:
@@ -247,13 +254,15 @@ if __name__ == '__main__':
     df.loc[:,"max_lumi"] = [max(f) for f in df.lumis]
     df = df.sort_values(["run","min_lumi","max_lumi"])
 
+    if testing:
+        df = df.head(1) # take only the first file
     if site is not None:
         df = df.merge(das_file_site(dataset,site),on="file",how="inner")
 
     if args.pandas:
         df.to_csv(dataset.replace("/","")+".csv")
 
-    if events > 0:
+    if events > 0 and not testing:
         df = df[df["events"] <= events] #jump too big files
         df.loc[:,"sum_evs"] = df.loc[:,"events"].cumsum()
         df = df[df["sum_evs"] < events]

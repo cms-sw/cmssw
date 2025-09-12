@@ -1,4 +1,5 @@
 import sys
+from functools import partial
 
 from .MatrixUtil import *
 
@@ -51,10 +52,6 @@ step1Up2025UPCProdDefaults = merge ([{'--era':'Run3_2025_UPC'},step1Up2025HiProd
 
 steps = Steps()
 
-#### Event to runs
-event_steps = [0.01,0.05,0.1,0.15,0.25,0.5,1] #in millions
-event_steps_k = ["10k","50k","100k","150k","250k","500k","1M"] ##TODO add an helper to convert the numbers to strings
-event_steps_dict = dict(zip(event_steps_k,event_steps))
 #### Production test section ####
 steps['ProdMinBias']=merge([{'cfg':'MinBias_8TeV_pythia8_TuneCUETP8M1_cff','--relval':'9000,300'},step1Defaults])
 steps['ProdTTbar']=merge([{'cfg':'TTbar_8TeV_TuneCUETP8M1_cfi','--relval':'9000,100'},step1Defaults])
@@ -649,105 +646,105 @@ RunHI2023={375491: [[100, 100]]}
 steps['RunHIPhysicsRawPrime2023A']={'INPUT':InputInfo(dataSet='/HIPhysicsRawPrime0/HIRun2023A-v1/RAW',label='HI2023A',events=100000,location='STD', ls=RunHI2023)}
 
 steps['RunHLTMonitor2024I']={'INPUT':InputInfo(dataSet='/HLTMonitor/Run2024I-Express-v2/FEVTHLTALL',label='2024I',events=100000,location='STD', ls={386801: [[32, 111]]})}
-##################################################################
+
+####################################################################################################################################
+####################################################################################################################################
+
 ### Golden Data Steps
 # Reading good runs directly from the latest golden json 
 # in https://cms-service-dqmdc.web.cern.ch/CAF/certification/
-# or (if available) from eos. the number of events limits 
-# the files used as input
+# or (if available) from eos. The number of events limits 
+# the files used as input.
 
-###2025 
-pds_2025  = ['BTagMu', 'DisplacedJet', 'EGamma0', 'HcalNZS', 'JetMET0', 'Muon0', 'MuonEG', 'NoBPTX', 'ParkingDoubleMuonLowMass0', 'ParkingHH', 'ParkingLLP', 'ParkingSingleMuon0', 'ParkingVBF0', 'Tau', 'ZeroBias','JetMET1','ScoutingPFMonitor']
-eras_2025 = ['Run2025B', 'Run2025C','Run2025D','Run2025E', 'Run2025F','Run2025G','Run2025H','Run2025I']
-for era in eras_2025:
-    for pd in pds_2025:
-        dataset = "/" + pd + "/" + era
-        skim = ''
+offset_era = 0.1 # less than 10 eras per year (hopefully!)
+offset_pd = 0.001 # less than 100 pds per year
+offset_events = 0.0001 # less than 10 event setups (10k,50k,150k,250k,500k,1M)
 
-        dataset = dataset + '-v1/RAW' 
-        
-        for e_key,evs in event_steps_dict.items():
-            step_name = "Run" + pd.replace("ParkingDouble","Park2") + era.split("Run")[1] + skim + "_" + e_key 
-            steps[step_name] = {'INPUT':InputInfo(dataSet=dataset,label=era.split("Run")[1],events=int(evs*1e6), skimEvents=True, location='STD')}
-
-
-###2024 
-## N.B. here we use JetMet0 as "starndard" PD and JetMET1 for the TeVJet skims 
+#### PDs to run
+pds_2025  = ['BTagMu', 'DisplacedJet', 'EGamma0', 'HcalNZS', 'JetMET0', 'Muon0', 'MuonEG', 'NoBPTX', 'ParkingDoubleMuonLowMass0', 'ParkingHH', 'ParkingLLP0', 'ParkingSingleMuon0', 'ParkingVBF0', 'Tau', 'ZeroBias','JetMET1','ScoutingPFMonitor']
 pds_2024  = ['BTagMu', 'DisplacedJet', 'EGamma0', 'HcalNZS', 'JetMET0', 'Muon0', 'MuonEG', 'NoBPTX', 'ParkingDoubleMuonLowMass0', 'ParkingHH', 'ParkingLLP', 'ParkingSingleMuon0', 'ParkingVBF0', 'Tau', 'ZeroBias','JetMET1']
-eras_2024 = ['Run2024B', 'Run2024C', 'Run2024D', 'Run2024E', 'Run2024F','Run2024G','Run2024H','Run2024I']
-for era in eras_2024:
-    for pd in pds_2024:
-        dataset = "/" + pd + "/" + era
-        skim = ''
-        
-        if pd == 'JetMET1':
-            dataset = dataset + '-TeVJet-PromptReco-v1/RAW-RECO'
-            skim = 'TeVJet'
-        else:
-            dataset = dataset + '-v1/RAW' 
-        
-        for e_key,evs in event_steps_dict.items():
-            step_name = "Run" + pd.replace("ParkingDouble","Park2") + era.split("Run")[1] + skim + "_" + e_key 
-            steps[step_name] = {'INPUT':InputInfo(dataSet=dataset,label=era.split("Run")[1],events=int(evs*1e6), skimEvents=True, location='STD')}
-
-###2023 
-
 pds_2023  = ['BTagMu', 'DisplacedJet', 'EGamma0', 'HcalNZS', 'JetMET0', 'Muon0', 'MuonEG', 'NoBPTX', 'ParkingDoubleElectronLowMass', 'ParkingDoubleMuonLowMass0', 'Tau', 'ZeroBias']
-eras_2023 = ['Run2023B', 'Run2023C', 'Run2023D']
-# 'MinimumBias' is excluded since apprently no Golden run for /MinimumBias/Run2023{B,C,D}-v1/RAW 
-for era in eras_2023:
-    for pd in pds_2023:
-        dataset = "/" + pd + "/" + era + "-v1/RAW"
-        for e_key,evs in event_steps_dict.items():
-            step_name = "Run" + pd.replace("ParkingDouble","Park2") + era.split("Run")[1] + "_" + e_key
-            steps[step_name] = {'INPUT':InputInfo(dataSet=dataset,label=era.split("Run")[1],events=int(evs*1e6), skimEvents=True, location='STD')}
-
-###2022 
-
 pds_2022_1  = ['BTagMu', 'DisplacedJet', 'DoubleMuon', 'SingleMuon', 'EGamma', 'HcalNZS', 'JetHT', 'MET', 'MinimumBias', 'MuonEG', 'NoBPTX', 'Tau', 'ZeroBias']
-eras_2022_1 = ['Run2022B', 'Run2022C']
-for era in eras_2022_1:
-    for pd in pds_2022_1:
-        dataset = "/" + pd + "/" + era + "-v1/RAW"
-        for e_key,evs in event_steps_dict.items():
-            step_name = "Run" + pd + era.split("Run")[1] + "_" + e_key
-            steps[step_name] = {'INPUT':InputInfo(dataSet=dataset,label=era.split("Run")[1],events=int(evs*1e6), skimEvents=True, location='STD')}
-
 # PD names changed during the year (!)
 pds_2022_2  = ['BTagMu', 'DisplacedJet', 'Muon', 'EGamma', 'HcalNZS', 'JetMET', 'MuonEG', 'NoBPTX', 'Tau', 'ZeroBias']
-# Note: 'MinimumBias' is excluded since apprently no Golden run for /MinimumBias/Run2022{D,E}-v1/RAW 
-eras_2022_2 = ['Run2022D', 'Run2022E']
 
-for era in eras_2022_2:
-    for pd in pds_2022_2:
-        dataset = "/" + pd + "/" + era + "-v1/RAW"
-        for e_key,evs in event_steps_dict.items():
-            step_name = "Run" + pd + era.split("Run")[1] + "_" + e_key
-            steps[step_name] = {'INPUT':InputInfo(dataSet=dataset,label=era.split("Run")[1],events=int(evs*1e6), skimEvents=True, location='STD')}
+#### Eras to run
+eras_2025 = ['B','C','D','E','F','G','H','I']
+eras_2024 = eras_2025
+eras_2023 = ['B','C','D']
+eras_2022_1 = ['B','C']
+eras_2022_2 = ['D','E']
+
+#### Event to run
+event_steps = [0.01,0.05,0.1,0.15,0.25,0.5,1] #in millions
+event_steps_k = ["10k","50k","100k","150k","250k","500k","1M"] ##TODO add an helper to convert the numbers to strings
+event_steps_dict = dict(zip(event_steps_k,event_steps))
+
+def run3SkimMod(pd):
+    ## We use JetMET1 to run the TevJet Skims
+    if pd == 'JetMET1':
+        return '-TeVJet-PromptReco-v1/RAW-RECO'
+    else:
+        return '-v1/RAW' 
 
 
+def addFixedEventsInputs(years, pds, eras, evstep = event_steps_dict, skimmod = None):
+
+    ''' Add fixed events inputs for Run3 data
+            year    : list of years to consider, strings.
+            pds     : list of PDs to consider, strings.
+            eras    : list of eras to consider, strings.
+            evstep  : dictionary of event string and number e.g. {'10k': 10000}
+            skimmod : function to modify the skim name (optional) based on the PD input:   
+                      e.g. skimmod = lambda pd:  '-TeVJet-PromptReco-v1/RAW-RECO' if pd=='JetMET1' else '-v1/RAW'
+    '''
+
+    for y in years:
+        for pd in pds:
+            pd_name = pd.replace('ParkingDouble','Park2')
+            for era in eras:
+                
+                dataset = '/' + pd + '/' + 'Run' + y + era
+
+                dataset = dataset + '-v1/RAW' if skimmod is None else dataset + skimmod(pd)
+                skim = '' if skimmod is None else skimmod(pd).split('/')[0].split('-')[0]
+                
+                for e_key,evs in event_steps_dict.items():
+                    step_name = 'Run' + pd_name + y + era + skim + '_' + e_key 
+                    steps[step_name] = {'INPUT':InputInfo(dataSet=dataset,label=pd_name+y+era,events=int(evs*1e6), skimEvents=True, location='STD')}
+            
+
+run3FixedSteps = partial(addFixedEventsInputs,evstep = event_steps_dict, skimmod = run3SkimMod)
+run3FixedSteps(['2025'],pds_2025,eras_2025)
+run3FixedSteps(['2024'],pds_2024,eras_2024)
+run3FixedSteps(['2023'],pds_2023,eras_2023)
+run3FixedSteps(['2022'],pds_2022_2,eras_2022_2)
+run3FixedSteps(['2022'],pds_2022_1,eras_2022_1)
+
+####################################################################################################################################
+### TODO: if everything works fine for testing using the fixed steps wfs, remove these
 ### 2024 single lumi mask wfs for the limited matrix only
 ### Mask chosen from golden json away from run start
 
 good_runs_2024 = [379238,379454,380360,381079,382258,383814,385889,386593]
 lumi_mask_2024 = [{ r : [[110, 111]]} for r in good_runs_2024]
-era_mask_2024  = dict(zip(eras_2024,lumi_mask_2024))
+era_mask_2024  = dict(zip(['B','C','D','E','F','G','H','I'],lumi_mask_2024))
 
 for era in era_mask_2024:
     for pd in pds_2024:
-        dataset = '/' + pd + '/' + era
+        dataset = '/' + pd + '/' + 'Run2024' + era
         lm = era_mask_2024[era]
 
         ## Here we use JetMET1 PD to run the TeVJet skims
         dataset = dataset + '-TeVJet-PromptReco-v1/RAW-RECO' if pd == 'JetMET1' else dataset + '-v1/RAW' 
         skim = 'TeVJet' if pd == 'JetMET1' else ''
+        pd_name = pd.replace('ParkingDouble','Park2')
+        step_name = 'Run' + pd_name + '2024' + era + skim
 
-        step_name = 'Run' + pd.replace('ParkingDouble','Park2') + era.split('Run')[1] + skim
-
-        steps[step_name]={'INPUT':InputInfo(dataSet=dataset,label=era.split('Run')[1],events=100000,location='STD', ls=lm)}
+        steps[step_name]={'INPUT':InputInfo(dataSet=dataset,label=pd_name+'2024'+era,events=100000,location='STD', ls=lm)}
 
 
-##################################################################
+####################################################################################################################################
 
 # Highstat HLTPhysics
 Run2015DHS=selectedLS([258712,258713,258714,258741,258742,258745,258749,258750,259626,259637,259683,259685,259686,259721,259809,259810,259818,259820,259821,259822,259862,259890,259891])
@@ -2340,11 +2337,11 @@ steps['HLTDR3_2023']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2023,},{'--con
 
 steps['HLTDR3_2023B']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2023,},{'--conditions':'auto:run3_hlt_relval'},{'--era' : 'Run3'},steps['HLTD'] ] )
 
-steps['HLTDR3_2024']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2025,},{'--conditions':'auto:run3_hlt_relval'},{'--era' : 'Run3_2024'},steps['HLTD'] ] )
+steps['HLTDR3_2024']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2024,},{'--conditions':'auto:run3_hlt_relval'},{'--era' : 'Run3_2024'},steps['HLTD'] ] )
 
 steps['HLTDR3_2025']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2025,},{'--conditions':'auto:run3_hlt_relval'},{'--era' : 'Run3_2025'},steps['HLTD'] ] )
 
-steps['HLTDR3_ScoutingPFMonitor_2024']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2025,},
+steps['HLTDR3_ScoutingPFMonitor_2024']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2024,},
                                                 {'--conditions':'auto:run3_hlt_relval'},
                                                 {'--era' : 'Run3_2024'},
                                                 {'--filein' : '/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/Scouting/Run3/ScoutingPFMonitor/300684ed-1a51-474f-8c4f-b3bf1e1f5044_skimmed.root'},
@@ -2909,7 +2906,7 @@ steps['RECODR3_2025']=merge([{'--era':'Run3_2025'},steps['RECODR3']])
 steps['RECODR3_reHLT_2022']=merge([{'--conditions':'auto:run3_data_relval', '--hltProcess':'reHLT'},steps['RECODR3']])
 steps['RECODR3_reHLT_2023']=merge([{'--conditions':'auto:run3_data_relval', '--hltProcess':'reHLT'},steps['RECODR3_2023']])
 steps['RECODR3_reHLT_2023B']=merge([{'--conditions':'auto:run3_data_relval', '--hltProcess':'reHLT'},steps['RECODR3']])
-steps['RECODR3_reHLT_2024']=merge([{'--conditions':'auto:run3_data_prompt_relval', '--hltProcess':'reHLT'},steps['RECODR3_2024']])
+steps['RECODR3_reHLT_2024']=merge([{'--conditions':'auto:run3_data_relval', '--hltProcess':'reHLT'},steps['RECODR3_2024']])
 steps['RECODR3_reHLT_2025']=merge([{'--conditions':'auto:run3_data_prompt_relval', '--hltProcess':'reHLT'},steps['RECODR3_2025']])
 # Added to run with the offline GT on few 2024 Eras.
 # Could be removed once 2025 wfs are in and we'll test the online GT with them
@@ -4174,13 +4171,16 @@ steps['HARVESTRUN3_2023B']=merge([{'--era':'Run3', '-s':'HARVESTING:@standardDQM
 steps['HARVESTRUN3_ZB_2023B']=merge([{'--era':'Run3', '-s':'HARVESTING:@rerecoZeroBiasFakeHLT+@miniAODDQM+@nanoAODDQM'},steps['HARVESTRUN3_2022']])
 steps['HARVESTRUN3_ZB_2023']=merge([{'--era':'Run3_2023', '-s':'HARVESTING:@rerecoZeroBiasFakeHLT+@miniAODDQM+@nanoAODDQM'},steps['HARVESTRUN3_2023']])
 steps['HARVESTRUN3_COS_2023']=merge([{'--scenario':'cosmics', '--era':'Run3_2023', '-s':'HARVESTING:dqmHarvesting'},steps['HARVESTRUN3_2022']])
+steps['HARVESTRUN3_HFLAV_2023']=merge([{'--era':'Run3_2024', '-s':'HARVESTING:@standardDQM+@miniAODDQM+@nanoAODDQM+@heavyFlavor'},steps['HARVESTDRUN3']])
 # 2024
 steps['HARVESTRUN3_ZB_2024']=merge([{'--era':'Run3_2024', '-s':'HARVESTING:@rerecoZeroBias+@miniAODDQM+@nanoAODDQM'},steps['HARVESTDRUN3']])
 steps['HARVESTRUN3_2024']=merge([{'--era':'Run3_2024', '-s':'HARVESTING:@standardDQM+@miniAODDQM+@nanoAODDQM'},steps['HARVESTDRUN3']])
+steps['HARVESTRUN3_HFLAV_2024']=merge([{'--era':'Run3_2024', '-s':'HARVESTING:@standardDQM+@miniAODDQM+@nanoAODDQM+@heavyFlavor'},steps['HARVESTDRUN3']])
 steps['HARVESTRUN3_ScoutingPFMonitor_2024']=merge([{'--era':'Run3_2024', '-s':'HARVESTING:@standardDQM+@miniAODDQM+@nanoAODDQM+@hltScouting'},steps['HARVESTDRUN3']])
 # 2025
 steps['HARVESTRUN3_ZB_2025']=merge([{'--era':'Run3_2025', '-s':'HARVESTING:@rerecoZeroBias+@miniAODDQM+@nanoAODDQM'},steps['HARVESTDRUN3']])
 steps['HARVESTRUN3_2025']=merge([{'--era':'Run3_2025', '-s':'HARVESTING:@standardDQM+@miniAODDQM+@nanoAODDQM'},steps['HARVESTDRUN3']])
+steps['HARVESTRUN3_HFLAV_2025']=merge([{'--era':'Run3_2025', '-s':'HARVESTING:@standardDQM+@miniAODDQM+@nanoAODDQM+@heavyFlavor'},steps['HARVESTDRUN3']])
 steps['HARVESTRUN3_ScoutingPFMonitor_2025']=merge([{'--era':'Run3_2025', '-s':'HARVESTING:@standardDQM+@miniAODDQM+@nanoAODDQM+@hltScouting'},steps['HARVESTDRUN3']])
 # HI
 steps['HARVESTRUN3_HI2023A']=merge([{'--era':'Run3_pp_on_PbPb_approxSiStripClusters_2023', '-s':'HARVESTING:@standardDQM+@miniAODDQM'},steps['HARVESTRUN3_2022']])
