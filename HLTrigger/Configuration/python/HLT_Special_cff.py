@@ -15802,43 +15802,6 @@ fragment.hltPreDatasetDQMOnlineScouting = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
 )
 
-fragment.hltOutputScoutingPF0 = cms.OutputModule( "GlobalEvFOutputModule",
-    use_compression = cms.untracked.bool( True ),
-    compression_algorithm = cms.untracked.string( "ZSTD" ),
-    compression_level = cms.untracked.int32( 3 ),
-    lumiSection_interval = cms.untracked.int32( 0 ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_ScoutingPF0' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltFEDSelectorL1_*_*',
-      'keep *_hltScoutingEgammaPacker_*_*',
-      'keep *_hltScoutingMuonPackerNoVtx_*_*',
-      'keep *_hltScoutingMuonPackerVtx_*_*',
-      'keep *_hltScoutingPFPacker_*_*',
-      'keep *_hltScoutingPrimaryVertexPacker_*_*',
-      'keep *_hltScoutingRecHitPacker_*_*',
-      'keep *_hltScoutingTrackPacker_*_*',
-      'keep edmTriggerResults_*_*_*' ),
-    psetMap = cms.untracked.InputTag( "hltPSetMap" )
-)
-fragment.hltOutputScoutingPF1 = cms.OutputModule( "GlobalEvFOutputModule",
-    use_compression = cms.untracked.bool( True ),
-    compression_algorithm = cms.untracked.string( "ZSTD" ),
-    compression_level = cms.untracked.int32( 3 ),
-    lumiSection_interval = cms.untracked.int32( 0 ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_ScoutingPF1' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltFEDSelectorL1_*_*',
-      'keep *_hltScoutingEgammaPacker_*_*',
-      'keep *_hltScoutingMuonPackerNoVtx_*_*',
-      'keep *_hltScoutingMuonPackerVtx_*_*',
-      'keep *_hltScoutingPFPacker_*_*',
-      'keep *_hltScoutingPrimaryVertexPacker_*_*',
-      'keep *_hltScoutingRecHitPacker_*_*',
-      'keep *_hltScoutingTrackPacker_*_*',
-      'keep edmTriggerResults_*_*_*' ),
-    psetMap = cms.untracked.InputTag( "hltPSetMap" )
-)
-
 fragment.HLTL1UnpackerSequence = cms.Sequence( fragment.hltGtStage2Digis + fragment.hltGtStage2ObjectMap )
 fragment.HLTBeamSpot = cms.Sequence( fragment.hltOnlineMetaDataDigis + fragment.hltOnlineBeamSpot )
 fragment.HLTBeginSequence = cms.Sequence( fragment.hltTriggerType + fragment.HLTL1UnpackerSequence + fragment.HLTBeamSpot )
