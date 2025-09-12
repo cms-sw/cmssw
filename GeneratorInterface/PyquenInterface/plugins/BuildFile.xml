@@ -1,5 +1,6 @@
 <use name="GeneratorInterface/PyquenInterface"/>
 <use name="pydata"/>
 <library file="*.cc" name="GeneratorInterfacePyquenInterfacePlugins">
+  <flags REM_LDFLAGS="-Wl,--as-needed"/>
   <flags EDM_PLUGIN="1"/>
 </library>
