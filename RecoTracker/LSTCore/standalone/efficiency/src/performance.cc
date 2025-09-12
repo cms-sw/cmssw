@@ -46,8 +46,7 @@ int main(int argc, char** argv) {
                                   TString("TC_") + selnames[isel],
                                   /* pdgid */ pdgid,
                                   /* q     */ charge,
-                                  /* pass  */
-                                  [&](unsigned int isim) { return lstEff.getVI("sim_TC_matched").at(isim) > 0; },
+                                  /* pass  */ [&](unsigned int isim) { return lstEff.getVI("sim_tcIdx").at(isim) >= 0; },
                                   /* sel   */ sels[isel]));
         list_effSetDef.push_back(SimTrackSetDefinition(
             /* name  */
@@ -55,7 +54,11 @@ int main(int argc, char** argv) {
             /* pdgid */ pdgid,
             /* q     */ charge,
             /* pass  */
-            [&](unsigned int isim) { return lstEff.getVI("sim_TC_matched_mask").at(isim) & (1 << pT5); },
+            [&](unsigned int isim) {
+              auto& lstEff_sim_tcIdx = lstEff.getVI("sim_tcIdx");
+              auto& lstEff_tc_type = lstEff.getVI("tc_type");
+              return lstEff_sim_tcIdx.at(isim) >= 0 ? lstEff_tc_type.at(lstEff_sim_tcIdx.at(isim)) == pT5 : false;
+            },
             /* sel   */ sels[isel]));
         list_effSetDef.push_back(SimTrackSetDefinition(
             /* name  */
@@ -63,7 +66,11 @@ int main(int argc, char** argv) {
             /* pdgid */ pdgid,
             /* q     */ charge,
             /* pass  */
-            [&](unsigned int isim) { return lstEff.getVI("sim_TC_matched_mask").at(isim) & (1 << pT3); },
+            [&](unsigned int isim) {
+              auto& lstEff_sim_tcIdx = lstEff.getVI("sim_tcIdx");
+              auto& lstEff_tc_type = lstEff.getVI("tc_type");
+              return lstEff_sim_tcIdx.at(isim) >= 0 ? lstEff_tc_type.at(lstEff_sim_tcIdx.at(isim)) == pT3 : false;
+            },
             /* sel   */ sels[isel]));
         list_effSetDef.push_back(SimTrackSetDefinition(
             /* name  */
@@ -71,7 +78,11 @@ int main(int argc, char** argv) {
             /* pdgid */ pdgid,
             /* q     */ charge,
             /* pass  */
-            [&](unsigned int isim) { return lstEff.getVI("sim_TC_matched_mask").at(isim) & (1 << T5); },
+            [&](unsigned int isim) {
+              auto& lstEff_sim_tcIdx = lstEff.getVI("sim_tcIdx");
+              auto& lstEff_tc_type = lstEff.getVI("tc_type");
+              return lstEff_sim_tcIdx.at(isim) >= 0 ? lstEff_tc_type.at(lstEff_sim_tcIdx.at(isim)) == T5 : false;
+            },
             /* sel   */ sels[isel]));
         list_effSetDef.push_back(SimTrackSetDefinition(
             /* name  */
@@ -79,7 +90,11 @@ int main(int argc, char** argv) {
             /* pdgid */ pdgid,
             /* q     */ charge,
             /* pass  */
-            [&](unsigned int isim) { return lstEff.getVI("sim_TC_matched_mask").at(isim) & (1 << pLS); },
+            [&](unsigned int isim) {
+              auto& lstEff_sim_tcIdx = lstEff.getVI("sim_tcIdx");
+              auto& lstEff_tc_type = lstEff.getVI("tc_type");
+              return lstEff_sim_tcIdx.at(isim) >= 0 ? lstEff_tc_type.at(lstEff_sim_tcIdx.at(isim)) == pLS : false;
+            },
             /* sel   */ sels[isel]));
 
         if (ana.do_lower_level) {
@@ -89,7 +104,15 @@ int main(int argc, char** argv) {
               TString("pT5_lower_") + selnames[isel],
               /* pdgid */ pdgid,
               /* q     */ charge,
-              /* pass  */ [&](unsigned int isim) { return lstEff.getVI("sim_pT5_matched").at(isim) > 0; },
+              /* pass  */
+              [&](unsigned int isim) {
+                auto& lstEff_sim_pt5IdxAllFrac = lstEff.getVVF("sim_pt5IdxAllFrac");
+                for (size_t i = 0; i < lstEff_sim_pt5IdxAllFrac.at(isim).size(); ++i) {
+                  if (lstEff_sim_pt5IdxAllFrac.at(isim).at(i) > 0.75)
+                    return true;
+                }
+                return false;
+              },
               /* sel   */ sels[isel]));
           list_effSetDef.push_back(
               SimTrackSetDefinition(/* name  */
@@ -97,14 +120,44 @@ int main(int argc, char** argv) {
                                     /* pdgid */ pdgid,
                                     /* q     */ charge,
                                     /* pass  */
-                                    [&](unsigned int isim) { return lstEff.getVI("sim_T5_matched").at(isim) > 0; },
+                                    [&](unsigned int isim) {
+                                      auto& lstEff_sim_t5IdxAllFrac = lstEff.getVVF("sim_t5IdxAllFrac");
+                                      for (size_t i = 0; i < lstEff_sim_t5IdxAllFrac.at(isim).size(); ++i) {
+                                        if (lstEff_sim_t5IdxAllFrac.at(isim).at(i) > 0.75)
+                                          return true;
+                                      }
+                                      return false;
+                                    },
                                     /* sel   */ sels[isel]));
           list_effSetDef.push_back(SimTrackSetDefinition(
               /* name  */
               TString("pT3_lower_") + selnames[isel],
               /* pdgid */ pdgid,
               /* q     */ charge,
-              /* pass  */ [&](unsigned int isim) { return lstEff.getVI("sim_pT3_matched").at(isim) > 0; },
+              /* pass  */
+              [&](unsigned int isim) {
+                auto& lstEff_sim_pt3IdxAllFrac = lstEff.getVVF("sim_pt3IdxAllFrac");
+                for (size_t i = 0; i < lstEff_sim_pt3IdxAllFrac.at(isim).size(); ++i) {
+                  if (lstEff_sim_pt3IdxAllFrac.at(isim).at(i) > 0.75)
+                    return true;
+                }
+                return false;
+              },
+              /* sel   */ sels[isel]));
+          list_effSetDef.push_back(SimTrackSetDefinition(
+              /* name  */
+              TString("pLS_lower_") + selnames[isel],
+              /* pdgid */ pdgid,
+              /* q     */ charge,
+              /* pass  */
+              [&](unsigned int isim) {
+                auto& lstEff_sim_plsIdxAllFrac = lstEff.getVVF("sim_plsIdxAllFrac");
+                for (size_t i = 0; i < lstEff_sim_plsIdxAllFrac.at(isim).size(); ++i) {
+                  if (lstEff_sim_plsIdxAllFrac.at(isim).at(i) > 0.75)
+                    return true;
+                }
+                return false;
+              },
               /* sel   */ sels[isel]));
         }
       }
@@ -198,6 +251,15 @@ int main(int argc, char** argv) {
         /* eta   */ [&]() { return lstEff.getVF("pT3_eta"); },
         /* phi   */ [&]() { return lstEff.getVF("pT3_phi"); },
         /* type  */ [&]() { return std::vector<int>(lstEff.getVF("pT3_pt").size(), 1); }));
+    list_FRSetDef.push_back(RecoTrackSetDefinition(
+        /* name  */
+        "pLS_lower",
+        /* pass  */ [&](unsigned int ipLS) { return lstEff.getVI("pLS_isFake").at(ipLS) > 0; },
+        /* sel   */ [&](unsigned int ipLS) { return 1; },
+        /* pt    */ [&]() { return lstEff.getVF("pLS_pt"); },
+        /* eta   */ [&]() { return lstEff.getVF("pLS_eta"); },
+        /* phi   */ [&]() { return lstEff.getVF("pLS_phi"); },
+        /* type  */ [&]() { return std::vector<int>(lstEff.getVF("pLS_pt").size(), 1); }));
   }
 
   bookFakeRateSets(list_FRSetDef);
@@ -287,6 +349,15 @@ int main(int argc, char** argv) {
         /* eta   */ [&]() { return lstEff.getVF("pT3_eta"); },
         /* phi   */ [&]() { return lstEff.getVF("pT3_phi"); },
         /* type  */ [&]() { return std::vector<int>(lstEff.getVF("pT3_pt").size(), 1); }));
+    list_DRSetDef.push_back(RecoTrackSetDefinition(
+        /* name  */
+        "pLS_lower",
+        /* pass  */ [&](unsigned int ipLS) { return lstEff.getVI("pLS_isDuplicate").at(ipLS) > 0; },
+        /* sel   */ [&](unsigned int ipLS) { return 1; },
+        /* pt    */ [&]() { return lstEff.getVF("pLS_pt"); },
+        /* eta   */ [&]() { return lstEff.getVF("pLS_eta"); },
+        /* phi   */ [&]() { return lstEff.getVF("pLS_phi"); },
+        /* type  */ [&]() { return std::vector<int>(lstEff.getVF("pLS_pt").size(), 1); }));
   }
 
   bookDuplicateRateSets(list_DRSetDef);

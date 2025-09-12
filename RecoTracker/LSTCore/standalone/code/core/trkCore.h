@@ -39,7 +39,17 @@ std::vector<int> matchedSimTrkIdxs(std::vector<unsigned int> hitidxs,
                                    std::vector<std::vector<int>> const& trk_ph2_simHitIdx,
                                    std::vector<std::vector<int>> const& trk_pix_simHitIdx,
                                    bool verbose = false,
+                                   float matchfrac = 0.75,
                                    float* pmatched = nullptr);
+std::tuple<std::vector<int>, std::vector<float>> matchedSimTrkIdxsAndFracs(
+    std::vector<unsigned int> hitidxs,
+    std::vector<unsigned int> hittypes,
+    std::vector<int> const& trk_simhit_simTrkIdx,
+    std::vector<std::vector<int>> const& trk_ph2_simHitIdx,
+    std::vector<std::vector<int>> const& trk_pix_simHitIdx,
+    bool verbose = false,
+    float matchfrac = 0.75,
+    float* pmatched = nullptr);
 int getDenomSimTrkType(int isimtrk,
                        std::vector<int> const& trk_sim_q,
                        std::vector<float> const& trk_sim_pt,
@@ -112,6 +122,14 @@ void printTimingInformation(std::vector<std::vector<float>>& timing_information,
 
 TString get_absolute_path_after_check_file_exists(const std::string name);
 void writeMetaData();
+
+template <typename T>
+std::vector<size_t> sort_indices(const std::vector<T>& vec) {
+  std::vector<size_t> indices(vec.size());
+  std::iota(indices.begin(), indices.end(), 0);
+  std::sort(indices.begin(), indices.end(), [&vec](size_t i1, size_t i2) { return vec[i1] > vec[i2]; });
+  return indices;
+}
 
 // --------------------- ======================== ---------------------
 
