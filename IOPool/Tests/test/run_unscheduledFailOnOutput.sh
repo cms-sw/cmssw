@@ -2,7 +2,7 @@
 
 test=unscheduled_fail_on_output_
 LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
-CFG_DIR=${LOCAL_TEST_DIR}/../python/test
+CFG_DIR=${LOCAL_TEST_DIR}
 
 function die { echo Failure $1: status $2 ; exit $2 ; }
 

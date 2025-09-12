@@ -22,10 +22,9 @@ echo $F2 "This test intentionally throws an exception"
 # Test maxEvents output parameter
 F3=${LOCAL_TEST_DIR}/testMaxEventsOutput_cfg.py
 echo $F3
-(cmsRun $F3 ) || die "Failure running cmsRun $F3" $?
+(cmsRun $F3 ) > testMaxEventsOutput.log  2>&1 || die "Failure running cmsRun $F3" $?
 # 6th word on the line containing the string "events"
-# output by edmFileUtil
-nEvents=`edmFileUtil file:testMaxEventsOutput.root | grep events | awk ' {print $6; exit} '`
+nEvents=`grep '>>> processed' testMaxEventsOutput.log | awk ' {print $3; exit} '`
 if [ "$nEvents" -lt 6 ] || [ "$nEvents" -gt 9 ]; then
 echo "maxEvents output test failed, nEvents = " $nEvents
 exit 1

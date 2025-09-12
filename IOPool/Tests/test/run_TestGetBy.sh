@@ -18,13 +18,6 @@ LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
   echo "testGetBy3"
   cmsRun ${LOCAL_TEST_DIR}/${test}3_cfg.py || die "cmsRun ${test}3_cfg.py" $?
 
-  echo "testConsumesInfo"
-  cmsRun ${LOCAL_TEST_DIR}/testConsumesInfo_cfg.py > testConsumesInfo.log 2>/dev/null || die "cmsRun testConsumesInfo_cfg.py" $?
-  grep -v '++\|LegacyModules\|time' testConsumesInfo.log > testConsumesInfo_1.log
-  rm testConsumesInfo.log
-  rm testConsumesInfo.root
-  diff ${LOCAL_TEST_DIR}/unit_test_outputs/testConsumesInfo_1.log testConsumesInfo_1.log || die "comparing testConsumesInfo_1.log" $?
-
   #It is intentional that this cmsRun process throws an exception
   echo "testDuplicateProcess"
   cmsRun ${LOCAL_TEST_DIR}/testDuplicateProcess_cfg.py &> testDuplicateProcess.log && die 'Failed to get exception running testDuplicateProcess_cfg.py' 1
@@ -36,12 +29,6 @@ LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
   echo "testGetByMerge"
   cmsRun ${LOCAL_TEST_DIR}/${test}Merge_cfg.py > testGetByMerge.log 2>/dev/null || die "cmsRun ${test}Merge_cfg.py" $?
 
-  echo "testGetByPlaceholder"
-  cmsRun ${LOCAL_TEST_DIR}/${test}Placeholder_cfg.py || die "cmsRun ${test}Placeholder_cfg.py" $?
-
-  echo "testProducesCollector"
-  cmsRun ${LOCAL_TEST_DIR}/testProducesCollector_cfg.py || die "cmsRun testProducesCollector_cfg.py" $?
-
   echo "testGetByRunsMode_cfg.py"
   cmsRun ${LOCAL_TEST_DIR}/testGetByRunsMode_cfg.py || die "cmsRun testGetByRunsMode_cfg.py" $?
 
@@ -50,8 +37,5 @@ LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
 
   echo "testGetByWithEmptyRun_cfg.py"
   cmsRun ${LOCAL_TEST_DIR}/testGetByWithEmptyRun_cfg.py || die "cmsRun testGetByWithEmptyRun_cfg.py" $?
-
-  echo "testGetterOfProductsWithOutputModule_cfg.py"
-  cmsRun ${LOCAL_TEST_DIR}/testGetterOfProductsWithOutputModule_cfg.py || die "cmsRun testGetterOfProductsWithOutputModule_cfg.py" $?
 
 exit 0

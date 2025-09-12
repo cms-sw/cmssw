@@ -33,9 +33,9 @@ process.busy1 = cms.EDProducer("BusyWaitIntProducer",
 )
 
 process.p1 = cms.Path(process.busy1)
-
-from FWCore.Modules.modules import AsciiOutputModule
-process.out = AsciiOutputModule(verbosity=0)
+process.out = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string('testMaxEventsOutput.root')
+)
 
 process.e = cms.EndPath(process.out)
 

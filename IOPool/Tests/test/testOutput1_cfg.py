@@ -30,6 +30,14 @@ process.testoutlimited = cms.OutputModule("TestLimitedOutput",
     )
 )
 
+process.out = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string('testOutput1.root'),
+    outputCommands = cms.untracked.vstring(
+        'keep *', 
+        'drop *_intProducerA_*_*'
+    )
+)
+
 process.path = cms.Path(process.intProducerA)
 
-process.endpath = cms.EndPath(process.testout + process.testoutlimited)
+process.endpath = cms.EndPath(process.testout + process.testoutlimited + process.out)
