@@ -49,7 +49,7 @@ void TableOutputFields::print() const {
   }
 }
 
-void TableOutputFields::createFields(const edm::EventForOutput& event, RNTupleModel& model) {
+void TableOutputFields::createFields(const edm::OccurrenceForOutput& event, RNTupleModel& model) {
   edm::Handle<nanoaod::FlatTable> handle;
   event.getByToken(m_token, handle);
   const nanoaod::FlatTable& table = *handle;
@@ -92,7 +92,7 @@ void TableOutputFields::fillEntry(const nanoaod::FlatTable& table, std::size_t i
 
 const edm::EDGetToken& TableOutputFields::getToken() const { return m_token; }
 
-const edm::Handle<nanoaod::FlatTable> TableOutputFields::getTable(const edm::EventForOutput& event) const {
+const edm::Handle<nanoaod::FlatTable> TableOutputFields::getTable(const edm::OccurrenceForOutput& event) const {
   edm::Handle<nanoaod::FlatTable> handle;
   event.getByToken(m_token, handle);
   return handle;
@@ -100,7 +100,7 @@ const edm::Handle<nanoaod::FlatTable> TableOutputFields::getTable(const edm::Eve
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void TableOutputVectorFields::createFields(const edm::EventForOutput& event, RNTupleModel& model) {
+void TableOutputVectorFields::createFields(const edm::OccurrenceForOutput& event, RNTupleModel& model) {
   edm::Handle<nanoaod::FlatTable> handle;
   event.getByToken(m_token, handle);
   const nanoaod::FlatTable& table = *handle;
@@ -125,7 +125,7 @@ void TableOutputVectorFields::createFields(const edm::EventForOutput& event, RNT
     }
   }
 }
-void TableOutputVectorFields::fill(const edm::EventForOutput& event) {
+void TableOutputVectorFields::fill(const edm::OccurrenceForOutput& event) {
   edm::Handle<nanoaod::FlatTable> handle;
   event.getByToken(m_token, handle);
   const auto& table = *handle;
@@ -159,7 +159,7 @@ void TableCollection::add(const edm::EDGetToken& table_token, const nanoaod::Fla
   m_main = TableOutputFields(table_token);
 }
 
-void TableCollection::createFields(const edm::EventForOutput& event, RNTupleModel& eventModel) {
+void TableCollection::createFields(const edm::OccurrenceForOutput& event, RNTupleModel& eventModel) {
   std::vector<edm::Handle<nanoaod::FlatTable>> tables;
 
   auto main_table = m_main.getTable(event);
@@ -176,7 +176,7 @@ void TableCollection::createFields(const edm::EventForOutput& event, RNTupleMode
 
 void TableCollection::bindBuffer(RNTupleModel& eventModel) { m_collection->bindBuffer(eventModel); }
 
-void TableCollection::fill(const edm::EventForOutput& event) {
+void TableCollection::fill(const edm::OccurrenceForOutput& event) {
   std::vector<edm::Handle<nanoaod::FlatTable>> tables;
 
   auto main_table = m_main.getTable(event);
@@ -248,7 +248,7 @@ void TableCollectionSet::print() const {
   }
 }
 
-void TableCollectionSet::createFields(const edm::EventForOutput& event, RNTupleModel& eventModel) {
+void TableCollectionSet::createFields(const edm::OccurrenceForOutput& event, RNTupleModel& eventModel) {
   for (auto& collection : m_collections) {
     if (!collection.hasMainTable()) {
       throw cms::Exception("LogicError",
@@ -271,7 +271,7 @@ void TableCollectionSet::bindBuffers(RNTupleModel& eventModel) {
   }
 }
 
-void TableCollectionSet::fill(const edm::EventForOutput& event) {
+void TableCollectionSet::fill(const edm::OccurrenceForOutput& event) {
   for (auto& collection : m_collections) {
     collection.fill(event);
   }

@@ -163,13 +163,15 @@ void NanoAODRNTupleOutputModule::openFile(edm::FileBlock const&) {
   const auto& keeps = keptProducts();
   for (const auto& keep : keeps[edm::InRun]) {
     if (keep.first->className() == "nanoaod::MergeableCounterTable") {
-      m_run.registerToken(keep.second);
+      m_run.registerCounterTableToken(keep.second);
     } else if (keep.first->className() == "nanoaod::UniqueString" && keep.first->moduleLabel() == "nanoMetadata") {
       m_nanoMetadata.emplace_back(keep.first->productInstanceName(), keep.second);
+    } else if (keep.first->className() == "nanoaod::FlatTable") {
+      m_run.registerFlatTableToken(keep.second);
     } else {
       throw cms::Exception(
           "Configuration",
-          "NanoAODRNTupleOutputModule cannot handle class " + keep.first->className() + " in Run branch");
+          "NanoAODRNTupleOutputModule cannot handle class " + keep.first->className() + " in Run RNTuple");
     }
   }
 }
