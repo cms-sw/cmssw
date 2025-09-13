@@ -112,33 +112,37 @@ pixelTracksAlpaka = _pixelTracksAlpakaPhase1.clone(
     maxNumberOfTuples   = str(32 * 1024),   # this couul be much lower (2.1k, these are quads)
 )
 phase2_tracker.toReplaceWith(pixelTracksAlpaka,_pixelTracksAlpakaPhase2.clone())
-phase2_tracker.toModify(pixelTracksAlpaka,
-    maxNumberOfDoublets = str(5*512*1024),
-    maxNumberOfTuples = str(256 * 1024),
-    avgHitsPerTrack = 7.0,
-    avgCellsPerHit = 6,
-    avgCellsPerCell = 0.151,
-    avgTracksPerCell = 0.040,
-    cellPtCut = 0.85,
-    cellZ0Cut = 7.5,
-    minYsizeB1 = 25,
-    minYsizeB2 = 15,
-    maxDYsize12 = 12,
-    maxDYsize = 10,
-    maxDYPred = 20,
-)
+def _modifyForPhase2(producer):
+    nPairs = int(len(producer.geometry.pairGraph) / 2)
+    producer.maxNumberOfDoublets = str(5*512*1024)
+    producer.maxNumberOfTuples = str(256 * 1024)
+    producer.avgHitsPerTrack = 7.0
+    producer.avgCellsPerHit = 6
+    producer.avgCellsPerCell = 0.151
+    producer.avgTracksPerCell = 0.040
+    producer.cellZ0Cut = 7.5
+    producer.minYsizeB1 = 25
+    producer.minYsizeB2 = 15
+    producer.maxDYsize12 = 12
+    producer.maxDYsize = 10
+    producer.maxDYPred = 20
+    producer.geometry.ptCuts = [0.85] * nPairs
+
+phase2_tracker.toModify(pixelTracksAlpaka, _modifyForPhase2)
 
 
-(pp_on_AA & ~phase2_tracker).toModify(pixelTracksAlpaka,
-    maxNumberOfDoublets = str(6 * 512 *1024),   # this could be 2.3M
-    maxNumberOfTuples = str(256 * 1024),        # this could be 4.7
-    avgHitsPerTrack = 5.0,
-    avgCellsPerHit = 40,
-    avgCellsPerCell = 0.07,                     # with maxNumberOfDoublets ~= 3.14M; 0.02  for HLT HI on 2024 HI Data 
-    avgTracksPerCell = 0.03,                    # with maxNumberOfDoublets ~= 3.14M; 0.005 for HLT HI on 2024 HI Data
-    cellPtCut = 0.5,                            # setup currenlty used @ HLT (was 0.0) 
-    cellZ0Cut = 8.0,                            # setup currenlty used @ HLT (was 10.0) 
-)
+def _modifyForPPonAAandNotPhase2(producer):
+    nPairs = int(len(producer.geometry.pairGraph) / 2)
+    producer.maxNumberOfDoublets = str(6 * 512 *1024)    # this could be 2.3M
+    producer.maxNumberOfTuples = str(256 * 1024)         # this could be 4.7
+    producer.avgHitsPerTrack = 5.0
+    producer.avgCellsPerHit = 40
+    producer.avgCellsPerCell = 0.07                      # with maxNumberOfDoublets ~= 3.14M; 0.02  for HLT HI on 2024 HI Data 
+    producer.avgTracksPerCell = 0.03                     # with maxNumberOfDoublets ~= 3.14M; 0.005 for HLT HI on 2024 HI Data
+    producer.cellZ0Cut = 8.0                             # setup currenlty used @ HLT (was 10.0) 
+    producer.geometry.ptCuts = [0.5] * nPairs            # setup currenlty used @ HLT (was 0.0) 
+
+(pp_on_AA & ~phase2_tracker).toModify(pixelTracksAlpaka, _modifyForPPonAAandNotPhase2)
 
 # pixel tracks SoA producer on the cpu, for validation
 pixelTracksAlpakaSerial = makeSerialClone(pixelTracksAlpaka,
