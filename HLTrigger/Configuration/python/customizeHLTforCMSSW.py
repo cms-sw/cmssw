@@ -37,7 +37,7 @@ def customiseForOffline(process):
 
     return process
 
-def customizeHLTforXXXXXX(process):
+def customizeHLTfor48921(process):
     """ This customizer
         - renames some of the geometry parameters used to fill the CAGeometry:
             - minZ -> minInner
@@ -179,7 +179,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-    
-    process = customizeHLTforXXXXXX(process)
+
+    process = customizeHLTfor48921(process)
 
     return process
