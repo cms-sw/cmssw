@@ -800,6 +800,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template class CAHitNtupletGeneratorKernels<pixelTopology::Phase1>;
   template class CAHitNtupletGeneratorKernels<pixelTopology::Phase2>;
+  template class CAHitNtupletGeneratorKernels<pixelTopology::Phase2OT>;
   template class CAHitNtupletGeneratorKernels<pixelTopology::HIonPhase1>;
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
