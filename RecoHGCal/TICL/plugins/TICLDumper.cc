@@ -159,8 +159,7 @@ public:
     if (tracksterType_ != TracksterType::Trackster) {
       trackster_tree_->Branch("regressed_pt", &simtrackster_regressed_pt);
       trackster_tree_->Branch("pdgID", &simtrackster_pdgID);
-      trackster_tree_->Branch("trackIdx", &simtrackster_trackIdx);
-      trackster_tree_->Branch("trackTime", &simtrackster_trackTime);
+      trackster_tree_->Branch("trackIdx", &simtrackster_trackIdxs);
       trackster_tree_->Branch("timeBoundary", &simtrackster_timeBoundary);
       trackster_tree_->Branch("boundaryX", &simtrackster_boundaryX);
       trackster_tree_->Branch("boundaryY", &simtrackster_boundaryY);
@@ -217,8 +216,7 @@ public:
 
     simtrackster_regressed_pt.clear();
     simtrackster_pdgID.clear();
-    simtrackster_trackIdx.clear();
-    simtrackster_trackTime.clear();
+    simtrackster_trackIdxs.clear();
     simtrackster_timeBoundary.clear();
     simtrackster_boundaryX.clear();
     simtrackster_boundaryY.clear();
@@ -291,11 +289,11 @@ public:
 
         simtrackster_timeBoundary.push_back(trackster_iterator->boundaryTime());
 
-        /* SimTracksters can be built from either a CaloParticle or a SimCluster 
+        /* SimTracksters can be built from either a CaloParticle or a SimCluster
         The SimTrackster "fromCP" collection is built solely from CaloParticle (all CPs that have association to reco in HGCAL)
         SimTrackster "from SC" is built from either :
            - a CaloParticle (when the CaloParticle first SimTrack has crossedBoundary=True)
-           - a SimCluster (other cases) 
+           - a SimCluster (other cases)
         Thus trackster.seedIndex() can point to either CaloParticle or SimCluster collection (check seedID to differentiate)
         */
         using CaloObjectVariant = std::variant<CaloParticle, SimCluster>;
@@ -330,47 +328,62 @@ public:
           simtrackster_boundaryPz.push_back(-999);
         }
 
-        auto const trackIdx = trackster_iterator->trackIdx();
-        simtrackster_trackIdx.push_back(trackIdx);
-        if (trackIdx != -1) {
-          const auto& track = tracks[trackIdx];
-
-          int iSide = int(track.eta() > 0);
-
-          const auto& fts = trajectoryStateTransform::outerFreeState((track), &detectorTools.bfield);
-          // to the HGCal front
-          const auto& tsos = detectorTools.propagator.propagate(fts, detectorTools.firstDisk_[iSide]->surface());
-          if (tsos.isValid()) {
-            const auto& globalPos = tsos.globalPosition();
-            const auto& globalMom = tsos.globalMomentum();
-            simtrackster_track_boundaryX.push_back(globalPos.x());
-            simtrackster_track_boundaryY.push_back(globalPos.y());
-            simtrackster_track_boundaryZ.push_back(globalPos.z());
-            simtrackster_track_boundaryEta.push_back(globalPos.eta());
-            simtrackster_track_boundaryPhi.push_back(globalPos.phi());
-            simtrackster_track_boundaryPx.push_back(globalMom.x());
-            simtrackster_track_boundaryPy.push_back(globalMom.y());
-            simtrackster_track_boundaryPz.push_back(globalMom.z());
-            simtrackster_trackTime.push_back(track.t0());
-          } else {
-            simtrackster_track_boundaryX.push_back(-999);
-            simtrackster_track_boundaryY.push_back(-999);
-            simtrackster_track_boundaryZ.push_back(-999);
-            simtrackster_track_boundaryEta.push_back(-999);
-            simtrackster_track_boundaryPhi.push_back(-999);
-            simtrackster_track_boundaryPx.push_back(-999);
-            simtrackster_track_boundaryPy.push_back(-999);
-            simtrackster_track_boundaryPz.push_back(-999);
+        auto const trackIdxs = trackster_iterator->trackIdxs();
+        simtrackster_trackIdxs.push_back(trackIdxs);
+        if (!trackIdxs.empty()) {
+          std::vector<float> track_boundaryX;
+          std::vector<float> track_boundaryY;
+          std::vector<float> track_boundaryZ;
+          std::vector<float> track_boundaryEta;
+          std::vector<float> track_boundaryPhi;
+          std::vector<float> track_boundaryPx;
+          std::vector<float> track_boundaryPy;
+          std::vector<float> track_boundaryPz;
+          for (const auto trackIdx : trackIdxs) {
+            const auto& track = tracks[trackIdx];
+            int iSide = int(track.eta() > 0);
+            const auto& fts = trajectoryStateTransform::outerFreeState((track), &detectorTools.bfield);
+            // to the HGCal front
+            const auto& tsos = detectorTools.propagator.propagate(fts, detectorTools.firstDisk_[iSide]->surface());
+            if (tsos.isValid()) {
+              const auto& globalPos = tsos.globalPosition();
+              const auto& globalMom = tsos.globalMomentum();
+              track_boundaryX.push_back(globalPos.x());
+              track_boundaryY.push_back(globalPos.y());
+              track_boundaryZ.push_back(globalPos.z());
+              track_boundaryEta.push_back(globalPos.eta());
+              track_boundaryPhi.push_back(globalPos.phi());
+              track_boundaryPx.push_back(globalMom.x());
+              track_boundaryPy.push_back(globalMom.y());
+              track_boundaryPz.push_back(globalMom.z());
+            } else {
+              track_boundaryX.push_back(-999);
+              track_boundaryY.push_back(-999);
+              track_boundaryZ.push_back(-999);
+              track_boundaryEta.push_back(-999);
+              track_boundaryPhi.push_back(-999);
+              track_boundaryPx.push_back(-999);
+              track_boundaryPy.push_back(-999);
+              track_boundaryPz.push_back(-999);
+            }
           }
+          simtrackster_track_boundaryX.push_back(track_boundaryX);
+          simtrackster_track_boundaryY.push_back(track_boundaryY);
+          simtrackster_track_boundaryZ.push_back(track_boundaryZ);
+          simtrackster_track_boundaryEta.push_back(track_boundaryEta);
+          simtrackster_track_boundaryPhi.push_back(track_boundaryPhi);
+          simtrackster_track_boundaryPx.push_back(track_boundaryPx);
+          simtrackster_track_boundaryPy.push_back(track_boundaryPy);
+          simtrackster_track_boundaryPz.push_back(track_boundaryPz);
         } else {
-          simtrackster_track_boundaryX.push_back(-999);
-          simtrackster_track_boundaryY.push_back(-999);
-          simtrackster_track_boundaryZ.push_back(-999);
-          simtrackster_track_boundaryEta.push_back(-999);
-          simtrackster_track_boundaryPhi.push_back(-999);
-          simtrackster_track_boundaryPx.push_back(-999);
-          simtrackster_track_boundaryPy.push_back(-999);
-          simtrackster_track_boundaryPz.push_back(-999);
+          simtrackster_track_boundaryX.push_back({-999});
+          simtrackster_track_boundaryY.push_back({-999});
+          simtrackster_track_boundaryZ.push_back({-999});
+          simtrackster_track_boundaryEta.push_back({-999});
+          simtrackster_track_boundaryPhi.push_back({-999});
+          simtrackster_track_boundaryPx.push_back({-999});
+          simtrackster_track_boundaryPy.push_back({-999});
+          simtrackster_track_boundaryPz.push_back({-999});
         }
       }
 
@@ -450,8 +463,7 @@ private:
   // for simtrackster
   std::vector<float> simtrackster_regressed_pt;
   std::vector<int> simtrackster_pdgID;
-  std::vector<int> simtrackster_trackIdx;
-  std::vector<float> simtrackster_trackTime;
+  std::vector<std::vector<int>> simtrackster_trackIdxs;
   std::vector<float> simtrackster_timeBoundary;
   std::vector<float> simtrackster_boundaryX;
   std::vector<float> simtrackster_boundaryY;
@@ -461,14 +473,14 @@ private:
   std::vector<float> simtrackster_boundaryPx;
   std::vector<float> simtrackster_boundaryPy;
   std::vector<float> simtrackster_boundaryPz;
-  std::vector<float> simtrackster_track_boundaryX;
-  std::vector<float> simtrackster_track_boundaryY;
-  std::vector<float> simtrackster_track_boundaryZ;
-  std::vector<float> simtrackster_track_boundaryEta;
-  std::vector<float> simtrackster_track_boundaryPhi;
-  std::vector<float> simtrackster_track_boundaryPx;
-  std::vector<float> simtrackster_track_boundaryPy;
-  std::vector<float> simtrackster_track_boundaryPz;
+  std::vector<std::vector<float>> simtrackster_track_boundaryX;
+  std::vector<std::vector<float>> simtrackster_track_boundaryY;
+  std::vector<std::vector<float>> simtrackster_track_boundaryZ;
+  std::vector<std::vector<float>> simtrackster_track_boundaryEta;
+  std::vector<std::vector<float>> simtrackster_track_boundaryPhi;
+  std::vector<std::vector<float>> simtrackster_track_boundaryPx;
+  std::vector<std::vector<float>> simtrackster_track_boundaryPy;
+  std::vector<std::vector<float>> simtrackster_track_boundaryPz;
 
   std::vector<std::vector<float>> trackster_id_probabilities;
   std::vector<std::vector<uint32_t>> trackster_vertices_indexes;
@@ -663,12 +675,13 @@ private:
   std::vector<float> simTICLCandidate_raw_energy;
   std::vector<float> simTICLCandidate_regressed_energy;
   std::vector<std::vector<int>> simTICLCandidate_simTracksterCPIndex;
-  std::vector<float> simTICLCandidate_boundaryX;
-  std::vector<float> simTICLCandidate_boundaryY;
-  std::vector<float> simTICLCandidate_boundaryZ;
-  std::vector<float> simTICLCandidate_boundaryPx;
-  std::vector<float> simTICLCandidate_boundaryPy;
-  std::vector<float> simTICLCandidate_boundaryPz;
+  std::vector<std::vector<int>> simTICLCandidate_tracks_in_candidate;
+  std::vector<std::vector<float>> simTICLCandidate_boundaryX;
+  std::vector<std::vector<float>> simTICLCandidate_boundaryY;
+  std::vector<std::vector<float>> simTICLCandidate_boundaryZ;
+  std::vector<std::vector<float>> simTICLCandidate_boundaryPx;
+  std::vector<std::vector<float>> simTICLCandidate_boundaryPy;
+  std::vector<std::vector<float>> simTICLCandidate_boundaryPz;
   std::vector<float> simTICLCandidate_pt;
   std::vector<float> simTICLCandidate_phi;
   std::vector<float> simTICLCandidate_eta;
@@ -676,7 +689,6 @@ private:
   std::vector<float> simTICLCandidate_time;
   std::vector<int> simTICLCandidate_pdgId;
   std::vector<int> simTICLCandidate_charge;
-  std::vector<int> simTICLCandidate_track_in_candidate;
 
   // from TICLCandidate, product of linking
   size_t nCandidates;
@@ -784,7 +796,7 @@ void TICLDumper::clearVariables() {
   simTICLCandidate_caloParticleMass.clear();
   simTICLCandidate_pdgId.clear();
   simTICLCandidate_charge.clear();
-  simTICLCandidate_track_in_candidate.clear();
+  simTICLCandidate_tracks_in_candidate.clear();
 
   nCandidates = 0;
   candidate_charge.clear();
@@ -1069,7 +1081,7 @@ void TICLDumper::beginJob() {
     simTICLCandidate_tree->Branch("simTICLCandidate_caloParticleMass", &simTICLCandidate_caloParticleMass);
     simTICLCandidate_tree->Branch("simTICLCandidate_pdgId", &simTICLCandidate_pdgId);
     simTICLCandidate_tree->Branch("simTICLCandidate_charge", &simTICLCandidate_charge);
-    simTICLCandidate_tree->Branch("simTICLCandidate_track_in_candidate", &simTICLCandidate_track_in_candidate);
+    simTICLCandidate_tree->Branch("simTICLCandidate_tracks_in_candidate", &simTICLCandidate_tracks_in_candidate);
   }
 }
 
@@ -1200,7 +1212,7 @@ void TICLDumper::analyze(const edm::Event& event, const edm::EventSetup& setup) 
   }
 
   const auto& simTrackstersSC_h = event.getHandle(simTracksters_SC_token_);
-  simTICLCandidate_track_in_candidate.resize(simTICLCandidates.size(), -1);
+  simTICLCandidate_tracks_in_candidate.resize(simTICLCandidates.size());
   for (size_t i = 0; i < simTICLCandidates.size(); ++i) {
     auto const& cand = simTICLCandidates[i];
 
@@ -1219,40 +1231,54 @@ void TICLDumper::analyze(const edm::Event& event, const edm::EventSetup& setup) 
     }
     simTICLCandidate_simTracksterCPIndex.push_back(tmpIdxVec);
     tmpIdxVec.clear();
-    auto const& trackPtr = cand.trackPtr();
-    if (!trackPtr.isNull()) {
-      auto const& track = *trackPtr;
-      int iSide = int(track.eta() > 0);
-      int tk_idx = trackPtr.get() - (edm::Ptr<reco::Track>(tracks_h, 0)).get();
-      simTICLCandidate_track_in_candidate[i] = tk_idx;
+    auto const& trackPtrs = cand.trackPtrs();
+    if (!trackPtrs.empty()) {
+      std::vector<float> boundaryX;
+      std::vector<float> boundaryY;
+      std::vector<float> boundaryZ;
+      std::vector<float> boundaryPx;
+      std::vector<float> boundaryPy;
+      std::vector<float> boundaryPz;
+      for (const auto& trackPtr : trackPtrs) {
+        auto const& track = *trackPtr;
+        int iSide = int(track.eta() > 0);
+        int tk_idx = trackPtr.get() - (edm::Ptr<reco::Track>(tracks_h, 0)).get();
+        simTICLCandidate_tracks_in_candidate[i].push_back(tk_idx);
 
-      const auto& fts = trajectoryStateTransform::outerFreeState((track), &detectorTools_->bfield);
-      // to the HGCal front
-      const auto& tsos = detectorTools_->propagator.propagate(fts, detectorTools_->firstDisk_[iSide]->surface());
-      if (tsos.isValid()) {
-        const auto& globalPos = tsos.globalPosition();
-        const auto& globalMom = tsos.globalMomentum();
-        simTICLCandidate_boundaryX.push_back(globalPos.x());
-        simTICLCandidate_boundaryY.push_back(globalPos.y());
-        simTICLCandidate_boundaryZ.push_back(globalPos.z());
-        simTICLCandidate_boundaryPx.push_back(globalMom.x());
-        simTICLCandidate_boundaryPy.push_back(globalMom.y());
-        simTICLCandidate_boundaryPz.push_back(globalMom.z());
-      } else {
-        simTICLCandidate_boundaryX.push_back(-999);
-        simTICLCandidate_boundaryY.push_back(-999);
-        simTICLCandidate_boundaryZ.push_back(-999);
-        simTICLCandidate_boundaryPx.push_back(-999);
-        simTICLCandidate_boundaryPy.push_back(-999);
-        simTICLCandidate_boundaryPz.push_back(-999);
+        const auto& fts = trajectoryStateTransform::outerFreeState((track), &detectorTools_->bfield);
+        // to the HGCal front
+        const auto& tsos = detectorTools_->propagator.propagate(fts, detectorTools_->firstDisk_[iSide]->surface());
+        if (tsos.isValid()) {
+          const auto& globalPos = tsos.globalPosition();
+          const auto& globalMom = tsos.globalMomentum();
+          boundaryX.push_back(globalPos.x());
+          boundaryY.push_back(globalPos.y());
+          boundaryZ.push_back(globalPos.z());
+          boundaryPx.push_back(globalMom.x());
+          boundaryPy.push_back(globalMom.y());
+          boundaryPz.push_back(globalMom.z());
+        } else {
+          boundaryX.push_back(-999);
+          boundaryY.push_back(-999);
+          boundaryZ.push_back(-999);
+          boundaryPx.push_back(-999);
+          boundaryPy.push_back(-999);
+          boundaryPz.push_back(-999);
+        }
       }
+      simTICLCandidate_boundaryX.push_back(boundaryX);
+      simTICLCandidate_boundaryY.push_back(boundaryY);
+      simTICLCandidate_boundaryZ.push_back(boundaryZ);
+      simTICLCandidate_boundaryPx.push_back(boundaryPx);
+      simTICLCandidate_boundaryPy.push_back(boundaryPy);
+      simTICLCandidate_boundaryPz.push_back(boundaryPz);
     } else {
-      simTICLCandidate_boundaryX.push_back(-999);
-      simTICLCandidate_boundaryY.push_back(-999);
-      simTICLCandidate_boundaryZ.push_back(-999);
-      simTICLCandidate_boundaryPx.push_back(-999);
-      simTICLCandidate_boundaryPy.push_back(-999);
-      simTICLCandidate_boundaryPz.push_back(-999);
+      simTICLCandidate_boundaryX.push_back({-999});
+      simTICLCandidate_boundaryY.push_back({-999});
+      simTICLCandidate_boundaryZ.push_back({-999});
+      simTICLCandidate_boundaryPx.push_back({-999});
+      simTICLCandidate_boundaryPy.push_back({-999});
+      simTICLCandidate_boundaryPz.push_back({-999});
     }
   }
 

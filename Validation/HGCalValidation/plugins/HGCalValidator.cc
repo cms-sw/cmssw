@@ -99,7 +99,8 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
       isTICLv5_(pset.getUntrackedParameter<bool>("isticlv5")),
       hits_label_(pset.getParameter<std::vector<edm::InputTag>>("hits")),
       scToCpMapToken_(
-          consumes<SimClusterToCaloParticleMap>(pset.getParameter<edm::InputTag>("simClustersToCaloParticlesMap"))) {
+          consumes<SimClusterToCaloParticleMap>(pset.getParameter<edm::InputTag>("simClustersToCaloParticlesMap"))),
+      cutTk_(pset.getParameter<std::string>("cutTk")) {
   //In this way we can easily generalize to associations between other objects also.
   const edm::InputTag& label_cp_effic_tag = pset.getParameter<edm::InputTag>("label_cp_effic");
   const edm::InputTag& label_cp_fake_tag = pset.getParameter<edm::InputTag>("label_cp_fake");
@@ -628,7 +629,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
 
   // tracksters histograms
   if (doCandidatesPlots_) {
-    candidateVal_->fillCandidateHistos(event, histograms.histoTICLCandidates, simTracksterFromCPHandle);
+    candidateVal_->fillCandidateHistos(event, histograms.histoTICLCandidates, simTracksterFromCPHandle, cutTk_);
   }
 }
 
@@ -883,6 +884,9 @@ void HGCalValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptio
                                  -1,
                              });
   desc.add<std::string>("dirName", "HGCAL/HGCalValidator/");
+  desc.add<std::string>("cutTk",
+                        "1.48 < abs(eta) < 3.0 && pt > 1. && quality(\"highPurity\") && "
+                        "hitPattern().numberOfLostHits(\"MISSING_OUTER_HITS\") < 5");
   desc.addUntracked<bool>("isticlv5", false);
   descriptions.add("hgcalValidator", desc);
 }
