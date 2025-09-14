@@ -19,6 +19,24 @@ HLTPhase2PixelTracksAndVerticesSequence = cms.Sequence(
   +HLTPhase2PixelVertexingSequence
 )
 
+from ..modules.hltPhase2TrimmedPixelVertices_cfi import hltPhase2TrimmedPixelVertices
+_HLTPhase2PixelTracksAndVerticesSequenceTrimming = cms.Sequence(
+  HLTBeamSpotSequence
+  + hltPhase2PixelTracksAndHighPtStepTrackingRegions
+  + hltPhase2PixelFitterByHelixProjections
+  + hltPhase2PixelTrackFilterByKinematics
+  + hltPhase2PixelTracksSoA
+  + hltPhase2PixelTracks
+  + hltPhase2PixelVertices
+  + hltPhase2TrimmedPixelVertices
+)
+
+from Configuration.ProcessModifiers.phase2_hlt_vertexTrimming_cff import phase2_hlt_vertexTrimming
+phase2_hlt_vertexTrimming.toReplaceWith(
+    HLTPhase2PixelTracksAndVerticesSequence,
+    _HLTPhase2PixelTracksAndVerticesSequenceTrimming
+)
+
 from ..modules.hltPhase2PixelRecHitsExtendedSoA_cfi import hltPhase2PixelRecHitsExtendedSoA
 from ..modules.hltPhase2OtRecHitsSoA_cfi import hltPhase2OtRecHitsSoA
 from ..modules.hltPhase2PixelTracksCAExtension_cfi import hltPhase2PixelTracksCAExtension
