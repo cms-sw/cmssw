@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 import json
 
-def processModule(moduleLabel, moduleInfo, construction):
+def processModule(moduleLabel, moduleType, moduleInfo, construction):
+    construction[moduleLabel] = {"cpptype": moduleType, "alloc": {}}
     for entry in moduleInfo:
         if entry["transition"] == "construction":
-            construction[moduleLabel] = entry["alloc"]
+            construction[moduleLabel]["alloc"] = entry.get("alloc",{})
 
 def formatToCircles(construction):
     nevents = 1
@@ -40,24 +41,30 @@ def formatToCircles(construction):
         }
     }
     for label, info in construction.items():
+        alloc=info.get("alloc", {})
+        if alloc:
+            added = alloc.get("added", 0)
+            nAlloc = alloc.get("nAlloc", 0)
+            maxTemp = alloc.get("maxTemp", 0)
         doc["modules"].append({
             "events" : nevents,
             "label": label,
-            "type": "TODO", # TODO
-            #"nAlloc": info["nAlloc"],
-            "added": info["added"],
-            #"maxTemp": info["maxTemp"],
+            "type": info.get("cpptype", "unknown"),
+            "nAlloc": nAlloc,
+            "added": added,
+            "maxTemp": maxTemp,
         })
     return doc
             
 def main(args):
     doc = json.load(args.filename)
+    moduleTypes = doc['cpptypes']
 
     construction = dict()
 
-    processModule("source", doc["source"], construction)
+    processModule("source", "sourceType", doc["source"],construction)
     for moduleLabel, moduleInfo in doc["modules"].items():
-        processModule(moduleLabel, moduleInfo, construction)
+        processModule(moduleLabel, moduleTypes[moduleLabel], moduleInfo, construction)
 
     import sys
     json.dump(formatToCircles(construction), sys.stdout, indent=2)
