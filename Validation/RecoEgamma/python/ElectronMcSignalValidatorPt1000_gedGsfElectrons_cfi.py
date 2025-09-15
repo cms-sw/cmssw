@@ -47,6 +47,8 @@ electronMcSignalValidatorPt1000 = DQMEDAnalyzer('ElectronMcSignalValidator',
   electronTrackCollection = cms.InputTag("electronGsfTracks"),
   electronSeedCollection = cms.InputTag("electronMergedSeeds"),
   offlinePrimaryVertices = cms.InputTag("offlinePrimaryVertices"),
+  pfCandidates = cms.InputTag("particleFlow"), #### NEW PR ####
+  valueMapElectronsToParticleBasedIso = cms.string("gedGsfElectrons"), #### NEW PR ####
   
   beamSpot = cms.InputTag("offlineBeamSpot"),
   readAOD = cms.bool(False),
