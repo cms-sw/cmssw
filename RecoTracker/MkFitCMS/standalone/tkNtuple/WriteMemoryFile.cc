@@ -493,6 +493,7 @@ int main(int argc, char* argv[]) {
   vector<float>* ph2_yz = 0;
   vector<float>* ph2_zz = 0;
   vector<float>* ph2_zx = 0;
+  vector<size_t>* ph2_clustSize = 0;
   vector<uint64_t>* ph2_usedMask = 0;
   vector<vector<int>>* ph2_simHitIdx = 0;
   if (hasPh2hits && applyCCC)
@@ -512,6 +513,9 @@ int main(int argc, char* argv[]) {
     t->SetBranchAddress("ph2_yz", &ph2_yz);
     t->SetBranchAddress("ph2_zz", &ph2_zz);
     t->SetBranchAddress("ph2_zx", &ph2_zx);
+    if (t->GetBranch("ph2_clustSize")) {
+      t->SetBranchAddress("ph2_clustSize", &ph2_clustSize);
+    }
     if (writeHitIterMasks) {
       t->SetBranchAddress("ph2_usedMask", &ph2_usedMask);
     }
@@ -1173,7 +1177,7 @@ int main(int argc, char* argv[]) {
           recHitLayIdx[ph2HitRecIdx[iph2][ih].first][ph2HitRecIdx[iph2][ih].second] = {ihit, ilay};
         }
         Hit hit(pos, err, totHits);
-        hit.setupAsStrip(imoduleid, 0, 1);
+        hit.setupAsStrip(imoduleid, 0, ph2_clustSize ? ph2_clustSize->at(iph2) : 1);
         layerHits_[ilay].push_back(hit);
         if (writeHitIterMasks)
           layerHitMasks_[ilay].push_back(ph2_usedMask->at(iph2));
