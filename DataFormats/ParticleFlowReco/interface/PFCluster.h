@@ -8,7 +8,7 @@
 #include <Rtypes.h>
 
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterCollection.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"

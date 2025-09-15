@@ -6,6 +6,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 
 #include "SimCalorimetry/HGCalAssociatorProducers/interface/AssociatorTools.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
