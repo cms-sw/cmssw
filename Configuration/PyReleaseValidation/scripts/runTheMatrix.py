@@ -130,7 +130,6 @@ if __name__ == '__main__':
             ###### MC (generated from scratch or from RelVals)
             # Phase2
             29634.0,    # RelValTTbar_14TeV                     phase2_realistic_T33        ExtendedRun4D110         (Phase-2 baseline)
-            24834.911,  # Previous DD4hep baseline for monitoring the stability of DD4hep workflow
             29634.911,  # TTbar_14TeV_TuneCP5                   phase2_realistic_T33        DD4hepExtendedRun4D110   DD4Hep (HLLHC14TeV BeamSpot)
             29834.999,  # RelValTTbar_14TeV (PREMIX)            phase2_realistic_T33        ExtendedRun4D110         AVE_50_BX_25ns_m3p3
             29696.0,    # RelValCloseByPGun_CE_E_Front_120um    phase2_realistic_T33        ExtendedRun4D110
