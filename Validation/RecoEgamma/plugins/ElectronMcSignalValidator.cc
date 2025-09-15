@@ -4363,10 +4363,6 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
       h1_ele_convRadius->Fill(bestGsfElectron.convRadius());
     }
 
-    float SumPtIsoValCh = 0.;
-    float SumPtIsoValNh = 0.;
-    float SumPtIsoValPh = 0.;
-
     for (unsigned int lCand = 0; lCand < pfCandidateHandle->size(); lCand++) {
       reco::PFCandidateRef pfCandRef(reco::PFCandidateRef(pfCandidateHandle, lCand));
       //float dR = deltaR(mcIter->eta(), mcIter->phi(), pfCandRef->eta(), pfCandRef->phi());
@@ -4381,7 +4377,6 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
           continue;
 
         if (type == reco::PFCandidate::h) {
-          SumPtIsoValCh += pfCandRef->pt();
           h1_ele_dRElectronsPFcand_ChHad_unCleaned->Fill(dR);
           if (isEBflag) {
             h1_ele_dRElectronsPFcand_ChHad_unCleaned_barrel->Fill(dR);
@@ -4391,7 +4386,6 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
           }
         }
         if (type == reco::PFCandidate::h0) {
-          SumPtIsoValNh += pfCandRef->pt();
           h1_ele_dRElectronsPFcand_NeuHad_unCleaned->Fill(dR);
           if (isEBflag) {
             h1_ele_dRElectronsPFcand_NeuHad_unCleaned_barrel->Fill(dR);
@@ -4401,7 +4395,6 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
           }
         }
         if (type == reco::PFCandidate::gamma) {
-          SumPtIsoValPh += pfCandRef->pt();
           h1_ele_dRElectronsPFcand_Pho_unCleaned->Fill(dR);
           if (isEBflag) {
             h1_ele_dRElectronsPFcand_Pho_unCleaned_barrel->Fill(dR);
