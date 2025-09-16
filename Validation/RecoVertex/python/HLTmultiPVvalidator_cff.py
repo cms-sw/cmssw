@@ -13,7 +13,9 @@ hltMultiPVanalysis = vertexAnalysis.clone(
 from Validation.RecoTrack.associators_cff import hltTPClusterProducer, hltTrackAssociatorByHits, tpToHLTpixelTrackAssociation
 from SimTracker.VertexAssociation.VertexAssociatorByPositionAndTracks_cfi import VertexAssociatorByPositionAndTracks as _VertexAssociatorByPositionAndTracks
 vertexAssociatorByPositionAndTracks4pixelTracks = _VertexAssociatorByPositionAndTracks.clone(
-    trackAssociation = "tpToHLTpixelTrackAssociation"
+    trackAssociation = "tpToHLTpixelTrackAssociation",
+    sharedTrackFraction = 0.5, # requires optimization
+
 )
 hltOtherTPClusterProducer = hltTPClusterProducer.clone(
     stripClusterOtherSrc = "hltSiStripRawToClustersFacilityOnDemand"
