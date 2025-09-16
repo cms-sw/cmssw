@@ -1615,8 +1615,7 @@ namespace edm {
 
           for (auto const& item : items) {
             ProductResolverIndex productResolverIndex = item.productResolverIndex();
-            bool skipCurrentProcess = item.skipCurrentProcess();
-            iPrincipal.prefetchAsync(iTask, productResolverIndex, skipCurrentProcess, iServiceToken, nullptr);
+            iPrincipal.prefetchAsync(iTask, productResolverIndex, iServiceToken, nullptr);
           }
         }
       }
