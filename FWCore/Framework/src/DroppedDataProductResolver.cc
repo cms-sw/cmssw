@@ -6,15 +6,11 @@
 namespace edm {
 
   DroppedDataProductResolver::Resolution DroppedDataProductResolver::resolveProduct_(
-      Principal const& principal,
-      bool skipCurrentProcess,
-      SharedResourcesAcquirer* sra,
-      ModuleCallingContext const* mcc) const {
+      Principal const& principal, SharedResourcesAcquirer* sra, ModuleCallingContext const* mcc) const {
     return Resolution(nullptr);
   }
   void DroppedDataProductResolver::prefetchAsync_(WaitingTaskHolder waitTask,
                                                   Principal const& principal,
-                                                  bool skipCurrentProcess,
                                                   ServiceToken const& token,
                                                   SharedResourcesAcquirer* sra,
                                                   ModuleCallingContext const* mcc) const noexcept {}

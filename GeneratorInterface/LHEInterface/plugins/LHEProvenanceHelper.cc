@@ -48,6 +48,7 @@ namespace edm {
     auto rp = runProductProductDescription_;
     rp.setIsProvenanceSetOnRead();
     productRegistry.copyProduct(rp);
+    productRegistry.setProcessOrder({eventProductProductDescription_.processName()});
     BranchIDList bli(1UL, ep.branchID().id());
     branchIDListHelper.updateFromInput({{bli}});
   }
