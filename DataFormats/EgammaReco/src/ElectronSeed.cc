@@ -77,8 +77,8 @@ void ElectronSeed::initTwoHitSeed(const unsigned char hitMask) {
   }
   for (size_t hitNr = 0; hitNr < hitInfo_.size(); hitNr++) {
     auto& info = hitInfo_[hitNr];
-    info.setDPhi(std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity());
-    info.setDRZ(std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity());
+    info.setDPhi(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
+    info.setDRZ(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
     info.setDet((recHits().begin() + hitNrs[hitNr])->geographicalId(), -1);
   }
 }
@@ -164,10 +164,10 @@ std::vector<ElectronSeed::PMVars> ElectronSeed::createHitInfo(const float dPhi1P
 }
 
 ElectronSeed::PMVars::PMVars()
-    : dRZPos(std::numeric_limits<float>::infinity()),
-      dRZNeg(std::numeric_limits<float>::infinity()),
-      dPhiPos(std::numeric_limits<float>::infinity()),
-      dPhiNeg(std::numeric_limits<float>::infinity()),
+    : dRZPos(std::numeric_limits<float>::max()),
+      dRZNeg(std::numeric_limits<float>::max()),
+      dPhiPos(std::numeric_limits<float>::max()),
+      dPhiNeg(std::numeric_limits<float>::max()),
       detId(0),
       layerOrDiskNr(-1) {}
 
