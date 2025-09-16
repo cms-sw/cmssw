@@ -66,7 +66,7 @@ namespace edm {
     // Open the first file.
     for (setAtFirstFile(); !noMoreFiles(); setAtNextFile()) {
       initFile(input_.skipBadFiles());
-      if (rootFile())
+      if (rootFile() and not rootFile()->empty())
         break;
     }
     if (rootFile()) {

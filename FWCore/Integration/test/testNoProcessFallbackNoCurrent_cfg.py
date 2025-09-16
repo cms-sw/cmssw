@@ -59,7 +59,7 @@ process.testerSkipCurrentProcess1 = cms.EDAnalyzer("BuiltinIntTestAnalyzer",
 process.keeper2 = EventIDFilter(
         eventsToPass = [cms.EventID(1,1,2)]
 )
-process.p2 = cms.Path(process.keeper2 + process.testerNoProcess1 + process.testerSkipCurrentProcess1 + process.testerCurrentProcessMissing)
+process.p2 = cms.Path(process.keeper2 + process.testerNoProcessMissing + process.testerSkipCurrentProcessMissing + process.testerCurrentProcessMissing)
 
 process.keeper3 = EventIDFilter(
         eventsToPass = [cms.EventID(1,1,3)]
