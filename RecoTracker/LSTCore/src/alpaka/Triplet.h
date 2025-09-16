@@ -503,17 +503,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         alpaka::syncBlockThreads(acc);
 
         // Step 1: Make inner and outer SG pairs
-        for (unsigned int innerSegmentArrayIndex = threadIdY; innerSegmentArrayIndex < nInnerSegments;
-             innerSegmentArrayIndex += blockSizeY) {
+        for (unsigned int outerSegmentArrayIndex : cms::alpakatools::uniform_elements_y(acc, nInnerSegments)) {
           unsigned int innerSegmentIndex =
-              ranges.segmentRanges()[innerInnerLowerModuleIndex][0] + innerSegmentArrayIndex;
+              ranges.segmentRanges()[innerInnerLowerModuleIndex][0] + innerTripletArrayIndex;
 
           uint16_t middleLowerModuleIndex = segments.outerLowerModuleIndices()[innerSegmentIndex];
           int middleMDIndiceInner = segments.mdIndices()[innerSegmentIndex][1];
 
           unsigned int nOuterSegments = segmentsOccupancy.nSegments()[middleLowerModuleIndex];
-          for (unsigned int outerSegmentArrayIndex = threadIdX; outerSegmentArrayIndex < nOuterSegments;
-               outerSegmentArrayIndex += blockSizeX) {
+          for (unsigned int outerSegmentArrayIndex : cms::alpakatools::uniform_elements_x(acc, nOuterSegments)) {
             unsigned int outerSegmentIndex = ranges.segmentRanges()[middleLowerModuleIndex][0] + outerSegmentArrayIndex;
 
             int middleMDIndiceOuter = segments.mdIndices()[outerSegmentIndex][0];

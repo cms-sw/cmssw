@@ -1696,12 +1696,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       const auto threadIdx = alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc);
       const auto blockDim = alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc);
 
-      const int threadIdX = threadIdx[2];
-      const int threadIdY = threadIdx[1];
+      const int threadIdX = threadIdx.x();
+      const int threadIdY = threadIdx.y();
       const int blockSizeX = blockDim[2];
       const int blockSizeY = blockDim[1];
-      const int blockSizeZ = blockDim[0];
-      const int blockSize = blockSizeX * blockSizeY * blockSizeZ;
+      const int blockSize = blockSizeX * blockSizeY;
       const int flatThreadIdxXY = threadIdY * blockSizeX + threadIdX;
       const int flatThreadExtent = blockSize;  // total threads per block
 
@@ -1729,13 +1728,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         alpaka::syncBlockThreads(acc);
 
         // Step 1: Make inner and outer triplet pairs
-        for (unsigned int innerTripletArrayIndex = threadIdY; innerTripletArrayIndex < nInnerTriplets;
-             innerTripletArrayIndex += blockSizeY) {
+        for (unsigned int innerTripletArrayIndex : cms::alpakatools::uniform_elements_y(acc, nInnerTriplets)) {
           unsigned int innerTripletIndex = ranges.tripletModuleIndices()[lowerModule1] + innerTripletArrayIndex;
           uint16_t lowerModule3 = triplets.lowerModuleIndices()[innerTripletIndex][2];
           unsigned int nOuterTriplets = tripletsOccupancy.nTriplets()[lowerModule3];
-          for (unsigned int outerTripletArrayIndex = threadIdX; outerTripletArrayIndex < nOuterTriplets;
-               outerTripletArrayIndex += blockSizeX) {
+          for (unsigned int outerTripletArrayIndex : cms::alpakatools::uniform_elements_x(acc, nOuterTriplets)) {
             unsigned int outerTripletIndex = ranges.tripletModuleIndices()[lowerModule3] + outerTripletArrayIndex;
 
             unsigned int secondSegmentIndex = triplets.segmentIndices()[innerTripletIndex][1];
