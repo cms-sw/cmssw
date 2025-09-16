@@ -85,6 +85,7 @@ namespace edm {
     // Now we need to set all the metadata
     // Add the product to the product registry
     productRegistry.copyProduct(constProductDescription_);
+    productRegistry.setProcessOrder({constProductDescription_.processName()});
 
     // Insert an entry for this process in the process history registry
     // This process is about the data from LHC, and has thus no

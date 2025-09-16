@@ -51,7 +51,7 @@ int EcalEBPhase2TriggerPrimitiveDigi::time() const {
 
 bool EcalEBPhase2TriggerPrimitiveDigi::isDebug() const { return (size_ > 1); }
 
-void EcalEBPhase2TriggerPrimitiveDigi::setSize(int size) { size_ = std::clamp(size_, 0, MAXSAMPLES); }
+void EcalEBPhase2TriggerPrimitiveDigi::setSize(int size) { size_ = std::clamp(size, 0, MAXSAMPLES); }
 
 std::ostream& operator<<(std::ostream& s, const EcalEBPhase2TriggerPrimitiveDigi& digi) {
   s << digi.id() << " " << digi.size() << " samples " << std::endl;

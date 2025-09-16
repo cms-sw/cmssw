@@ -127,12 +127,14 @@ void EDConsumerBase::updateLookup(BranchType iBranchType,
       if (itInfo->m_branchType == iBranchType) {
         const unsigned int labelStart = itLabels->m_startOfModuleLabel;
         const char* moduleLabel = &(m_tokenLabels[labelStart]);
-        itInfo->m_index = ProductResolverIndexAndSkipBit(iHelper.index(*itKind,
-                                                                       itInfo->m_type,
-                                                                       moduleLabel,
-                                                                       moduleLabel + itLabels->m_deltaToProductInstance,
-                                                                       moduleLabel + itLabels->m_deltaToProcessName),
-                                                         itInfo->m_index.skipCurrentProcess());
+        const char* processName = moduleLabel + itLabels->m_deltaToProcessName;
+        if (itInfo->m_index.skipCurrentProcess()) {
+          processName = iHelper.skipCurrentProcessLabel();
+        }
+        itInfo->m_index = ProductResolverIndexAndSkipBit(
+            iHelper.index(
+                *itKind, itInfo->m_type, moduleLabel, moduleLabel + itLabels->m_deltaToProductInstance, processName),
+            itInfo->m_index.skipCurrentProcess());
       }
     }
   }
@@ -268,7 +270,7 @@ ProductResolverIndexAndSkipBit EDConsumerBase::indexFromIfExactMatch(EDGetToken 
       return info.m_index;
     }
   }
-  return ProductResolverIndexAndSkipBit(edm::ProductResolverIndexInvalid, false);
+  return ProductResolverIndexAndSkipBit(edm::ProductResolverIndexInitializing, false);
 }
 
 EDGetToken EDConsumerBase::getRegisteredToken(TypeID const& typeID,

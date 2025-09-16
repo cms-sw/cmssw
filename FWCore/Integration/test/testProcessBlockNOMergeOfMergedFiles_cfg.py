@@ -34,12 +34,15 @@ process.source = cms.Source("PoolSource",
 #
 #     TOTAL                                                       8221
 
+#must use skipCurrentProcess as all ProcessBlocks use the same lookups and
+# the current process contains a module with the same label that makes the
+# same product as is found in the 'MERGE' process block
 process.readProcessBlocksOneAnalyzer = cms.EDAnalyzer("edmtest::one::InputProcessBlockIntAnalyzer",
                                             transitions = cms.int32(30),
                                             consumesBeginProcessBlock = cms.InputTag("intProducerBeginProcessBlock", ""),
                                             consumesEndProcessBlock = cms.InputTag("intProducerEndProcessBlock", ""),
-                                            consumesBeginProcessBlockM = cms.InputTag("intProducerBeginProcessBlockM", ""),
-                                            consumesEndProcessBlockM = cms.InputTag("intProducerEndProcessBlockM", ""),
+                                            consumesBeginProcessBlockM = cms.InputTag("intProducerBeginProcessBlockM", "", cms.InputTag.skipCurrentProcess()),
+                                            consumesEndProcessBlockM = cms.InputTag("intProducerEndProcessBlockM", "", cms.InputTag.skipCurrentProcess()),
                                             expectedByRun = cms.vint32(11, 22, 3300, 4400),
                                             expectedSum = cms.int32(8221)
 )

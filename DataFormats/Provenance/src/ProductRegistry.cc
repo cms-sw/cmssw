@@ -218,6 +218,17 @@ namespace edm {
     processingOrderMerge(processOrder, transient_.processOrder_);
   }
 
+  void ProductRegistry::mergeProcessOrderFromAddInput(std::vector<std::string> const& processOrder) {
+    if (processOrder.empty())
+      return;
+    //see if the input already has the current process
+    if (not transient_.processOrder_.empty() and (transient_.processOrder_[0] != processOrder[0])) {
+      transient_.processOrder_.insert(transient_.processOrder_.end(), processOrder.begin(), processOrder.end());
+    } else {
+      updateProcessOrder(processOrder);
+    }
+  }
+
   void ProductRegistry::setUnscheduledProducts(std::set<std::string> const& unscheduledLabels) {
     throwIfFrozen();
 
@@ -250,9 +261,20 @@ namespace edm {
   std::string ProductRegistry::merge(ProductRegistry const& other,
                                      std::string const& fileName,
                                      ProductDescription::MatchMode branchesMustMatch) {
-    if (branchesMustMatch == ProductDescription::FromInputToCurrent and transient_.processOrder_.size() == 1) {
-      transient_.processOrder_.insert(
-          transient_.processOrder_.end(), other.transient_.processOrder_.begin(), other.transient_.processOrder_.end());
+    if (branchesMustMatch == ProductDescription::FromInputToCurrent) {
+      if (processOrder().size() == 1 and not other.processOrder().empty() and
+          processOrder()[0] != other.processOrder()[0]) {
+        assert(transient_.processOrder_.size() == 1);
+        transient_.processOrder_.insert(transient_.processOrder_.end(),
+                                        other.transient_.processOrder_.begin(),
+                                        other.transient_.processOrder_.end());
+      } else {
+        //the current process must not change
+        assert(not processOrder().empty());
+        auto current = processOrder()[0];
+        processingOrderMerge(other.processOrder(), transient_.processOrder_);
+        assert(current == processOrder()[0]);
+      }
     } else {
       processingOrderMerge(other.processOrder(), transient_.processOrder_);
     }
@@ -310,6 +332,7 @@ namespace edm {
     std::vector<std::string> producedTypes;
 
     transient_.branchIDToIndex_.clear();
+    assert(productList_.empty() or !processOrder().empty());
 
     std::array<std::shared_ptr<ProductResolverIndexHelper>, NumBranchTypes> new_productLookups{
         {std::make_shared<ProductResolverIndexHelper>(),
@@ -450,9 +473,8 @@ namespace edm {
       throwMissingDictionariesException(missingDictionaries, context, producedTypes, branchNamesForMissing);
     }
 
-    std::string_view processNameSV(processName ? std::string_view(*processName) : std::string_view());
     for (auto& iterProductLookup : new_productLookups) {
-      iterProductLookup->setFrozen(processNameSV);
+      iterProductLookup->setFrozen(processOrder());
     }
     for (size_t i = 0; i < new_productLookups.size(); ++i) {
       transient_.productLookups_[i] = std::move(new_productLookups[i]);

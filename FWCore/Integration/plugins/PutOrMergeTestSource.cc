@@ -78,6 +78,7 @@ void PutOrMergeTestSource::registerProducts() {
   productRegistryUpdate().copyProduct(thingDesc_);
   productRegistryUpdate().copyProduct(thingWithMergeDesc_);
   productRegistryUpdate().copyProduct(thingWithEqualDesc_);
+  productRegistryUpdate().setProcessOrder({"PROD"});
 }
 
 InputSource::ItemTypeInfo PutOrMergeTestSource::getNextItemType() {

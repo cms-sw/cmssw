@@ -69,7 +69,7 @@ process.testerSkipCurrentProcess1 = cms.EDAnalyzer("BuiltinIntTestAnalyzer",
 process.keeper2 = EventIDFilter(
         eventsToPass = [cms.EventID(1,1,2)]
 )
-process.p2 = cms.Path(process.keeper2 + process.testerNoProcess1 + process.testerSkipCurrentProcess1 + process.testerCurrentProcessMissing)
+process.p2 = cms.Path(process.keeper2 + process.testerNoProcessMissing + process.testerSkipCurrentProcessMissing + process.testerCurrentProcessMissing)
 
 process.keeper3 = EventIDFilter(
         eventsToPass = [cms.EventID(1,1,3)]
@@ -87,12 +87,12 @@ process.testerSkipCurrentProcess2 = cms.EDAnalyzer("BuiltinIntTestAnalyzer",
     valueMustBeMissing = cms.untracked.bool(False)
 )
 
-process.p3 = cms.Path(process.keeper3 + process.testerNoProcess2 + process.testerSkipCurrentProcess2 + process.testerCurrentProcessMissing)
+process.p3 = cms.Path(process.keeper3 + process.testerNoProcessMissing + process.testerSkipCurrentProcess2 + process.testerCurrentProcessMissing)
 
 process.keeper4 = EventIDFilter(
         eventsToPass = [cms.EventID(1,1,4)]
 )
-process.p4 = cms.Path(process.keeper4 + process.testerNoProcess2 + process.testerSkipCurrentProcess2 + process.testerCurrentProcessMissing)
+process.p4 = cms.Path(process.keeper4 + process.testerNoProcessMissing + process.testerSkipCurrentProcess2 + process.testerCurrentProcessMissing)
 
 process.testerNoProcess3 = cms.EDAnalyzer("BuiltinIntTestAnalyzer",
     moduleLabel = cms.untracked.InputTag("intProducer"),
@@ -114,7 +114,7 @@ process.p5 = cms.Path(process.keeper5 + process.testerNoProcess3 + process.teste
 process.keeper6 = EventIDFilter(
         eventsToPass = [cms.EventID(1,1,6)]
 )
-process.p6 = cms.Path(process.keeper6 + process.testerNoProcess3 + process.testerSkipCurrentProcess1 + process.testerCurrentProcess3)
+process.p6 = cms.Path(process.keeper6 + process.testerNoProcess3 + process.testerSkipCurrentProcessMissing + process.testerCurrentProcess3)
 
 process.keeper7 = EventIDFilter(
         eventsToPass = [cms.EventID(1,1,7)]
