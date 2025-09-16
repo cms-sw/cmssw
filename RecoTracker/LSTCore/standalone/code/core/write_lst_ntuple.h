@@ -15,42 +15,66 @@ using LSTEvent = ALPAKA_ACCELERATOR_NAMESPACE::lst::LSTEvent;
 
 // Common
 void createOutputBranches();
-void createRequiredOutputBranches();
-void createOptionalOutputBranches();
-void createGnnNtupleBranches();
+void createJetBranches();
 void createT5DNNBranches();
 void createT3DNNBranches();
 void createpT3DNNBranches();
+void createSimTrackContainerBranches();
+void createTrackCandidateBranches();
+void createMiniDoubletBranches();
+void createLineSegmentBranches();
+void createTripletBranches();
+void createQuintupletBranches();
+void createPixelLineSegmentBranches();
+void createPixelTripletBranches();
+void createPixelQuintupletBranches();
+void createOccupancyBranches();
 
 void fillOutputBranches(LSTEvent* event);
-void setOutputBranches(LSTEvent* event);
-void setOptionalOutputBranches(LSTEvent* event);
 void setOccupancyBranches(LSTEvent* event);
-void setPixelQuintupletOutputBranches(LSTEvent* event);
-void setQuintupletOutputBranches(LSTEvent* event);
-void setPixelTripletOutputBranches(LSTEvent* event);
-void setGnnNtupleBranches(LSTEvent* event);
-void setGnnNtupleMiniDoublet(LSTEvent* event,
-                             unsigned int MD,
-                             std::vector<int> const& trk_sim_q,
-                             std::vector<float> const& trk_sim_pt,
-                             std::vector<float> const& trk_sim_eta,
-                             std::vector<int> const& trk_sim_bunchCrossing,
-                             std::vector<int> const& trk_sim_event,
-                             std::vector<int> const& trk_sim_parentVtxIdx,
-                             std::vector<float> const& trk_simvtx_x,
-                             std::vector<float> const& trk_simvtx_y,
-                             std::vector<float> const& trk_simvtx_z,
-                             std::vector<int> const& trk_simhit_simTrkIdx,
-                             std::vector<std::vector<int>> const& trk_ph2_simHitIdx,
-                             std::vector<std::vector<int>> const& trk_pix_simHitIdx);
+unsigned int setSimTrackContainerBranches(LSTEvent* event);
+void setTrackCandidateBranches(LSTEvent* event,
+                               unsigned int n_accepted_tracks,
+                               std::map<unsigned int, unsigned int> t5_idx_map,
+                               std::map<unsigned int, unsigned int> pls_idx_map,
+                               std::map<unsigned int, unsigned int> pt3_idx_map,
+                               std::map<unsigned int, unsigned int> pt5_idx_map,
+                               float matchfrac);
+std::map<unsigned int, unsigned int> setMiniDoubletBranches(LSTEvent* event,
+                                                            unsigned int n_accepted_simtrk,
+                                                            float matchfrac);
+std::map<unsigned int, unsigned int> setLineSegmentBranches(LSTEvent* event,
+                                                            unsigned int n_accepted_simtrk,
+                                                            float matchfrac,
+                                                            std::map<unsigned int, unsigned int> const& md_idx_map);
+std::map<unsigned int, unsigned int> setTripletBranches(LSTEvent* event,
+                                                        unsigned int n_accepted_simtrk,
+                                                        float matchfrac,
+                                                        std::map<unsigned int, unsigned int> const& ls_idx_map);
+std::map<unsigned int, unsigned int> setQuintupletBranches(LSTEvent* event,
+                                                           unsigned int n_accepted_simtrk,
+                                                           float matchfrac,
+                                                           std::map<unsigned int, unsigned int> const& t3_idx_map);
+std::map<unsigned int, unsigned int> setPixelLineSegmentBranches(LSTEvent* event,
+                                                                 unsigned int n_accepted_simtrk,
+                                                                 float matchfrac);
+std::map<unsigned int, unsigned int> setPixelTripletBranches(LSTEvent* event,
+                                                             unsigned int n_accepted_simtrk,
+                                                             float matchfrac,
+                                                             std::map<unsigned int, unsigned int> const& pls_idx_map,
+                                                             std::map<unsigned int, unsigned int> const& t3_idx_map);
+std::map<unsigned int, unsigned int> setPixelQuintupletBranches(LSTEvent* event,
+                                                                unsigned int n_accepted_simtrk,
+                                                                float matchfrac,
+                                                                std::map<unsigned int, unsigned int> const& pls_idx_map,
+                                                                std::map<unsigned int, unsigned int> const& t5_idx_map);
+
 void fillT5DNNBranches(LSTEvent* event, unsigned int T3);
 void fillT3DNNBranches(LSTEvent* event, unsigned int iT3);
 void fillpT3DNNBranches(LSTEvent* event, unsigned int iPT3);
 void setT5DNNBranches(LSTEvent* event);
-void setT3DNNBranches(LSTEvent* event);
+void setT3DNNBranches(LSTEvent* event, float matchfrac = 0.75);
 void setpT3DNNBranches(LSTEvent* event);
-void setpLSOutputBranches(LSTEvent* event);
 
 std::tuple<int, float, float, float, int, std::vector<int>> parseTrackCandidate(
     LSTEvent* event,
@@ -60,7 +84,18 @@ std::tuple<int, float, float, float, int, std::vector<int>> parseTrackCandidate(
     std::vector<float> const& trk_ph2_z,
     std::vector<int> const& trk_simhit_simTrkIdx,
     std::vector<std::vector<int>> const& trk_ph2_simHitIdx,
-    std::vector<std::vector<int>> const& trk_pix_simHitIdx);
+    std::vector<std::vector<int>> const& trk_pix_simHitIdx,
+    float matchfrac = 0.75);
+std::tuple<int, float, float, float, int, std::vector<int>, std::vector<float>> parseTrackCandidateAllMatch(
+    LSTEvent* event,
+    unsigned int,
+    std::vector<float> const& trk_ph2_x,
+    std::vector<float> const& trk_ph2_y,
+    std::vector<float> const& trk_ph2_z,
+    std::vector<int> const& trk_simhit_simTrkIdx,
+    std::vector<std::vector<int>> const& trk_ph2_simHitIdx,
+    std::vector<std::vector<int>> const& trk_pix_simHitIdx,
+    float matchfrac = 0.75);
 std::tuple<float, float, float, std::vector<unsigned int>, std::vector<unsigned int>> parsepT5(LSTEvent* event,
                                                                                                unsigned int);
 std::tuple<float, float, float, std::vector<unsigned int>, std::vector<unsigned int>> parsepT3(LSTEvent* event,
