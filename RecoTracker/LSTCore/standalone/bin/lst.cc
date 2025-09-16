@@ -65,13 +65,20 @@ int main(int argc, char **argv) {
       "w,write_ntuple", "Write Ntuple", cxxopts::value<int>()->default_value("1"))(
       "s,streams", "Set number of streams", cxxopts::value<int>()->default_value("1"))(
       "d,debug", "Run debug job. i.e. overrides output option to 'debug.root' and 'recreate's the file.")(
-      "l,lower_level", "write lower level objects ntuple results")("G,gnn_ntuple", "write gnn input variable ntuple")(
+      "l,lower_level", "write lower level objects ntuple results")(
       "j,nsplit_jobs", "Enable splitting jobs by N blocks (--job_index must be set)", cxxopts::value<int>())(
       "I,job_index",
       "job_index of split jobs (--nsplit_jobs must be set. index starts from 0. i.e. 0, 1, 2, 3, etc...)",
       cxxopts::value<int>())("3,tc_pls_triplets", "Allow triplet pLSs in TC collection")(
       "2,no_pls_dupclean", "Disable pLS duplicate cleaning (both steps)")("h,help", "Print help")(
-      "J,jet_branches", "Accounts for specific jet branches in input root file for testing");
+      "md", "Write MD branches in output ntuple.")("ls", "Write LS branches in output ntuple.")(
+      "t3", "Write T3 branches in output ntuple.")("t5", "Write T5 branches in output ntuple.")(
+      "pls", "Write pLS branches in output ntuple.")("pt3", "Write pT3 branches in output ntuple.")(
+      "pt5", "Write pT5 branches in output ntuple.")("occ", "Write occupancy branches in output ntuple.")(
+      "t5dnn", "Write T5 DNN branches in output ntuple.")("t3dnn", "Write T3 DNN branches in output ntuple.")(
+      "pt3dnn", "Write pT3 DNN branches in output ntuple.")("allobj", "Write all object branches in output ntuple.")(
+      "J,jet", "Accounts for specific jet branches in input root file for testing")(
+      "sim", "Write extra sim branches in output ntuple");
 
   auto result = options.parse(argc, argv);
 
@@ -242,20 +249,6 @@ int main(int argc, char **argv) {
   }
 
   //_______________________________________________________________________________
-  // --gnn_ntuple
-  if (result.count("gnn_ntuple")) {
-    ana.gnn_ntuple = true;
-    // If one is not provided then throw error
-    if (not ana.do_write_ntuple) {
-      std::cout << options.help() << std::endl;
-      std::cout << "ERROR: option string --write_ntuple 1 and --gnn_ntuple must be set at the same time!" << std::endl;
-      exit(1);
-    }
-  } else {
-    ana.gnn_ntuple = false;
-  }
-
-  //_______________________________________________________________________________
   // --tc_pls_triplets
   ana.tc_pls_triplets = result["tc_pls_triplets"].as<bool>();
 
@@ -264,8 +257,56 @@ int main(int argc, char **argv) {
   ana.no_pls_dupclean = result["no_pls_dupclean"].as<bool>();
 
   //_______________________________________________________________________________
-  // --jet_branches
-  ana.jet_branches = result["jet_branches"].as<bool>();
+  // --md
+  ana.md_branches = result["md"].as<bool>() || result["allobj"].as<bool>();
+
+  //_______________________________________________________________________________
+  // --ls
+  ana.ls_branches = result["ls"].as<bool>() || result["allobj"].as<bool>();
+
+  //_______________________________________________________________________________
+  // --t3
+  ana.t3_branches = result["t3"].as<bool>() || result["allobj"].as<bool>();
+
+  //_______________________________________________________________________________
+  // --t5
+  ana.t5_branches = result["t5"].as<bool>() || result["allobj"].as<bool>();
+
+  //_______________________________________________________________________________
+  // --pls
+  ana.pls_branches = result["pls"].as<bool>() || result["allobj"].as<bool>();
+
+  //_______________________________________________________________________________
+  // --pt3
+  ana.pt3_branches = result["pt3"].as<bool>() || result["allobj"].as<bool>();
+
+  //_______________________________________________________________________________
+  // --pt5
+  ana.pt5_branches = result["pt5"].as<bool>() || result["allobj"].as<bool>();
+
+  //_______________________________________________________________________________
+  // --occ
+  ana.occ_branches = result["occ"].as<bool>() || result["allobj"].as<bool>();
+
+  //_______________________________________________________________________________
+  // --t5dnn
+  ana.t5dnn_branches = result["t5dnn"].as<bool>() || result["allobj"].as<bool>();
+
+  //_______________________________________________________________________________
+  // --t3dnn
+  ana.t3dnn_branches = result["t3dnn"].as<bool>() || result["allobj"].as<bool>();
+
+  //_______________________________________________________________________________
+  // --pt3dnn
+  ana.pt3dnn_branches = result["pt3dnn"].as<bool>() || result["allobj"].as<bool>();
+
+  //_______________________________________________________________________________
+  // --jet
+  ana.jet_branches = result["jet"].as<bool>() || result["allobj"].as<bool>();
+
+  //_______________________________________________________________________________
+  // --sim
+  ana.extra_sim_branches = result["sim"].as<bool>() || result["allobj"].as<bool>();
 
   // Printing out the option settings overview
   std::cout << "=========================================================" << std::endl;
@@ -330,9 +371,6 @@ void run_lst() {
 
   if (ana.do_write_ntuple) {
     createOutputBranches();
-    if (ana.gnn_ntuple) {
-      createGnnNtupleBranches();
-    }
   }
 
   std::vector<LSTInputHostCollection> out_lstInputHC;
