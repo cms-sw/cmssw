@@ -66,8 +66,6 @@ numWFIB.extend([prefixDet+234.21])   #prodlike PU
 numWFIB.extend([prefixDet+234.9921]) #prodlike premix stage1+stage2
 numWFIB.extend([prefixDet+234.114])  #PU, with 10% OT inefficiency
 numWFIB.extend([prefixDet+234.703])  #LST tracking on CPU (initialStep+HighPtTripletStep only)
-#
-numWFIB.extend([24834.911]) #D98 XML, to monitor instability of DD4hep
 
 # Phase-2 HLT tests
 numWFIB.extend([prefixDet+34.7501])# HLTTrackingOnly75e33
