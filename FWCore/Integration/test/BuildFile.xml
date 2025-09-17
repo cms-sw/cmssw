@@ -7,7 +7,6 @@
     <use name="FWCore/ParameterSetReader"/>
   </bin>
 
-  <test name="TestIntegrationEventHistory" command="eventHistoryTest.sh"/>
   <test name="TestIntegrationRef" command="refTest.sh"/>
   <test name="TestIntegrationTransRef" command="transRefTest.sh"/>
   <test name="TestIntegrationTableTest" command="testTables.sh"/>
@@ -17,31 +16,21 @@
   <test name="TestIntegrationHierarchyExample" command="hierarchy_example.sh"/>
   <test name="TestIntegrationServiceExample" command="service_example.sh"/>
   <test name="TestIntegrationView" command="ViewTest.sh"/>
-  <test name="TestIntegrationSeriesOfProcesses" command="run_SeriesOfProcesses.sh"/>
-  <test name="TestParentageWithStreamerIO" command="run_ParentageWithStreamerIO.sh"/>
-  <test name="TestIntegrationThinningTests" command="run_ThinningTests.sh"/>
-  <test name="TestIntegrationGetBy" command="run_TestGetBy.sh"/>
-  <test name="TestIntegrationFallback" command="run_TestFallback.sh"/>
+  <test name="TestIntegrationGetByPlaceHolder" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/testGetByPlaceholder_cfg.py"/>
+  <test name="TestIntegrationProducesCollector" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/testProducesCollector_cfg.py"/>
+  <test name="TestIntegrationGetterOfProducts" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/testGetterOfProductsWithOutputModule_cfg.py"/>
+  <test name="TestIntegrationConsumesInfo" command="run_TestConsumesInfo.sh"/>
   <test name="TestIntegrationOutput" command="run_TestOutput.sh"/>
-  <test name="TestIntegrationDropOnInput" command="run_TestDropOnInput.sh"/>
-  <test name="TestIntegrationUnscheduledFailOnOutput" command="run_unscheduledFailOnOutput.sh"/>
   <test name="TestIntegrationGetProductAtEnd" command="run_getProductAtEnd.sh"/>
   <test name="TestIntegrationParentless" command="parentlessTest.sh"/>
   <test name="TestIntegrationWaitingThread" command="waiting_thread_test.sh"/>
-  <test name="TestIntegrationRunMerge" command="run_RunMerge.sh"/>
-  <test name="TestIntegrationRunMerge2" command="run_RunMerge2.sh"/>
-  <test name="TestIntegrationRefMerge" command="run_RefMerge.sh"/>
-  <test name="TestIntegrationRefAlias" command="run_RefAlias.sh"/>
   <test name="TestIntegrationParameterSet" command="run_ParameterSet.sh"/>
   <test name="TestIntegration_TestEDAlias" command="run_TestEDAlias.sh"/>
   <test name="TestFWCoreIntegrationModuleTypeResolver" command="run_TestModuleTypeResolver.sh"/>
   <test name="CatchStdExceptiontest" command="CatchStdExceptiontest.sh"/>
   <test name="CatchCmsExceptiontest" command="CatchCmsExceptiontest.sh"/>
-  <test name="TestIntegrationExistingDictionary" command="run_TestExistingDictionary.sh"/>
-  <test name="TestIntegrationEmptyRootFile" command="run_TestEmptyRootFile.sh"/>
   <test name="TestStdProducts" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/testStdProducts_cfg.py"/>
   <test name="TestPostInsertProducer" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/testPostInsertProducer_cfg.py"/>
-  <test name="TestFWCoreIntegrationProvenance" command ="provenance_test.sh"/>
 
   <bin file="ProcessConfiguration_t.cpp,ProcessHistory_t.cpp" name="TestIntegrationDataFormatsProvenance">
     <use name="FWCore/ParameterSet"/>
@@ -101,6 +90,10 @@
     <use name="catch2"/>
   </bin>
 
+  <test name="TestFWCoreIntegrationSlimming" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/SlimmingTestSiblings_cfg.py 2>&amp;1 | fgrep 'more than one thinned children'"/>
+  <test name="TestFWCoreIntegrationSlimmingFarther" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/SlimmingTestFartherSiblings_cfg.py 2>&amp;1 | fgrep 'SlimmingThingSelector::choose'"/>
+
+
   <test name="TestFWCoreIntegrationInterProcess" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TestInterProcessProd_cfg.py"/>
   <test name="TestFWCoreIntegrationPutOrMerge" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/putOrMergeTest_cfg.py"/>
   <test name="TestFWCoreIntegrationInputSourceAlias" command="cmsRun ${LOCALTOP}//src/FWCore/Integration/test/inputSource_alias_Test_cfg.py"/>
@@ -124,84 +117,4 @@
   <test name="TestFWCoreIntegrationTryToContinueExceptionOutput" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_shouldTryToContinue_source_cfg.py"/>
   <test name="TestFWCoreIntegrationTryToContinueESProducer" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TryToContinue_ESProducer_cfg.py"/>
   <test name="TestFWCoreIntegrationTryToContinueESProducerContinue" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TryToContinue_ESProducer_cfg.py --continueAnalyzer"/>
-
-  <test name="TestFWCoreIntegrationInconsistentProducts" command="run_inconsistent_products.sh"/>
-
-  <test name="TestIntegrationProcessBlock1" command="run_TestProcessBlock.sh 1"/>
-  <test name="TestIntegrationProcessBlock2" command="run_TestProcessBlock.sh 2"/>
-  <test name="TestIntegrationProcessBlock3" command="run_TestProcessBlock.sh 3"/>
-  <test name="TestIntegrationProcessBlock4" command="run_TestProcessBlock.sh 4"/>
-  <test name="TestIntegrationProcessBlock5" command="run_TestProcessBlock.sh 5">
-    <flags PRE_TEST="TestIntegrationProcessBlock1"/>
-    <flags PRE_TEST="TestIntegrationProcessBlock2"/>
-  </test>
-  <test name="TestIntegrationProcessBlock6" command="run_TestProcessBlock.sh 6">
-    <flags PRE_TEST="TestIntegrationProcessBlock5"/>
-  </test>
-  <test name="TestIntegrationProcessBlock7" command="run_TestProcessBlock.sh 7"/>
-  <test name="TestIntegrationProcessBlock8" command="run_TestProcessBlock.sh 8">
-    <flags PRE_TEST="TestIntegrationProcessBlock1"/>
-    <flags PRE_TEST="TestIntegrationProcessBlock7"/>
-  </test>
-  <test name="TestIntegrationProcessBlock9" command="run_TestProcessBlock.sh 9">
-    <flags PRE_TEST="TestIntegrationProcessBlock3"/>
-    <flags PRE_TEST="TestIntegrationProcessBlock4"/>
-  </test>
-  <test name="TestIntegrationProcessBlock10" command="run_TestProcessBlock.sh 10">
-    <flags PRE_TEST="TestIntegrationProcessBlock5"/>
-    <flags PRE_TEST="TestIntegrationProcessBlock9"/>
-  </test>
-  <test name="TestIntegrationProcessBlock11" command="run_TestProcessBlock.sh 11">
-    <flags PRE_TEST="TestIntegrationProcessBlock5"/>
-    <flags PRE_TEST="TestIntegrationProcessBlock9"/>
-  </test>
-  <test name="TestIntegrationProcessBlock12" command="run_TestProcessBlock.sh 12">
-    <flags PRE_TEST="TestIntegrationProcessBlock10"/>
-  </test>
-  <test name="TestIntegrationProcessBlock17" command="run_TestProcessBlock.sh 17">
-    <flags PRE_TEST="TestIntegrationProcessBlock10"/>
-  </test>
-  <test name="TestIntegrationProcessBlock18" command="run_TestProcessBlock.sh 18"/>
-  <test name="TestIntegrationProcessBlock19" command="run_TestProcessBlock.sh 19">
-    <flags PRE_TEST="TestIntegrationProcessBlock10"/>
-    <flags PRE_TEST="TestIntegrationProcessBlock18"/>
-  </test>
-  <test name="TestIntegrationProcessBlock20" command="run_TestProcessBlock.sh 20">
-    <flags PRE_TEST="TestIntegrationProcessBlock10"/>
-    <flags PRE_TEST="TestIntegrationProcessBlock18"/>
-  </test>
-  <test name="TestIntegrationProcessBlock21" command="run_TestProcessBlock.sh 21">
-    <flags PRE_TEST="TestIntegrationProcessBlock5"/>
-    <flags PRE_TEST="TestIntegrationProcessBlock9"/>
-  </test>
-  <test name="TestIntegrationProcessBlock22" command="run_TestProcessBlock.sh 22">
-    <flags PRE_TEST="TestIntegrationProcessBlock5"/>
-    <flags PRE_TEST="TestIntegrationProcessBlock9"/>
-  </test>
-  <test name="TestIntegrationProcessBlock23" command="run_TestProcessBlock.sh 23">
-    <flags PRE_TEST="TestIntegrationProcessBlock10"/>
-    <flags PRE_TEST="TestIntegrationProcessBlock18"/>
-  </test>
-  <test name="TestIntegrationProcessBlock24" command="run_TestProcessBlock.sh 24">
-    <flags PRE_TEST="TestIntegrationProcessBlock10"/>
-    <flags PRE_TEST="TestIntegrationProcessBlock18"/>
-  </test>
-  <test name="TestIntegrationProcessBlock100" command="run_TestProcessBlock.sh 100">
-    <flags PRE_TEST="TestIntegrationProcessBlock6"/>
-    <flags PRE_TEST="TestIntegrationProcessBlock8"/>
-    <flags PRE_TEST="TestIntegrationProcessBlock11"/>
-    <flags PRE_TEST="TestIntegrationProcessBlock12"/>
-    <flags PRE_TEST="TestIntegrationProcessBlock15"/>
-    <flags PRE_TEST="TestIntegrationProcessBlock16"/>
-    <flags PRE_TEST="TestIntegrationProcessBlock17"/>
-    <flags PRE_TEST="TestIntegrationProcessBlock19"/>
-    <flags PRE_TEST="TestIntegrationProcessBlock20"/>
-    <flags PRE_TEST="TestIntegrationProcessBlock21"/>
-    <flags PRE_TEST="TestIntegrationProcessBlock22"/>
-    <flags PRE_TEST="TestIntegrationProcessBlock23"/>
-    <flags PRE_TEST="TestIntegrationProcessBlock24"/>
-  </test>
-  <test name="TestIntegrationGetByLabel" command="run_TestGetByLabel.sh"/>
-
-  <test name="TestMaybeUninitializedIntProduct" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/testMaybeUninitializedIntProductPart1_cfg.py &amp;&amp; cmsRun ${LOCALTOP}/src/FWCore/Integration/test/testMaybeUninitializedIntProductPart2_cfg.py"/>
 </environment>

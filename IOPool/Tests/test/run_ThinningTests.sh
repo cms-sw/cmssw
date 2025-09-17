@@ -21,10 +21,6 @@ LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
   cmsRun ${LOCAL_TEST_DIR}/DetSetVectorThinningTest1_cfg.py || die "cmsRun DetSetVectorThinningTest1_cfg.py" $?
   cmsRun ${LOCAL_TEST_DIR}/DetSetVectorThinningTest2_cfg.py || die "cmsRun DetSetVectorThinningTest2_cfg.py" $?
 
-  cmsRun ${LOCAL_TEST_DIR}/SlimmingTestSiblings_cfg.py && die "cmsRun SlimmingTestSiblings_cfg.py"1
-
-  cmsRun ${LOCAL_TEST_DIR}/SlimmingTestFartherSiblings_cfg.py && die "cmsRun SlimmingTestFartherSiblings_cfg.py" 1
-
   cmsRun ${LOCAL_TEST_DIR}/SlimmingTest1_cfg.py || die "cmsRun SlimmingTest1_cfg.py" $?
 
   cmsRun ${LOCAL_TEST_DIR}/SlimmingTest2A_cfg.py || die "cmsRun SlimmingTest2A_cfg.py" $?
