@@ -8,12 +8,13 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/host.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "CondFormats/DataRecord/interface/HGCalElectronicsMappingRcd.h"
-#include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
+#include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexerTrigger.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingParameterHost.h"
 #include "CondFormats/HGCalObjects/interface/alpaka/HGCalMappingParameterDevice.h"
 #include "DataFormats/HGCalDigi/interface/HGCalElectronicsId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCalTriggerDetId.h"
 #include "Geometry/HGCalMapping/interface/HGCalMappingTools.h"
 
 #include <string>
@@ -25,13 +26,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   namespace hgcal {
 
-    class HGCalMappingModuleESProducer : public ESProducer {
+    class HGCalMappingTriggerModuleESProducer : public ESProducer {
     public:
       //
-      HGCalMappingModuleESProducer(const edm::ParameterSet& iConfig)
+      HGCalMappingTriggerModuleESProducer(const edm::ParameterSet& iConfig)
           : ESProducer(iConfig), filename_(iConfig.getParameter<edm::FileInPath>("filename")) {
         auto cc = setWhatProduced(this);
-        moduleIndexTkn_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("moduleindexer"));
+        moduleIndexTriggerTkn_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("moduleindexer"));
       }
 
       //
@@ -43,13 +44,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
 
       //
-      std::optional<HGCalMappingModuleParamHost> produce(const HGCalElectronicsMappingRcd& iRecord) {
+      std::optional<HGCalMappingModuleTriggerParamHost> produce(const HGCalElectronicsMappingRcd& iRecord) {
         //get cell and module indexer
-        auto modIndexer = iRecord.get(moduleIndexTkn_);
+        const auto& modIndexer = iRecord.get(moduleIndexTriggerTkn_);
 
         // load dense indexing
         const uint32_t size = modIndexer.maxModulesIndex();
-        HGCalMappingModuleParamHost moduleParams(size, cms::alpakatools::host());
+        HGCalMappingModuleTriggerParamHost moduleParams(size, cms::alpakatools::host());
         for (size_t i = 0; i < size; i++)
           moduleParams.view()[i].valid() = false;
 
@@ -58,11 +59,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         const auto& entities = pmap.getEntries();
         for (const auto& row : entities) {
           int cassette = pmap.hasColumn("cassette") ? pmap.getIntAttr("cassette", row) : 1;
-          int fedid = pmap.getIntAttr("fedid", row);
-          int captureblockidx = pmap.getIntAttr("captureblockidx", row);
-          int econdidx = pmap.getIntAttr("econdidx", row);
-          int idx = modIndexer.getIndexForModule(fedid, captureblockidx, econdidx);
-          int typeidx = modIndexer.getTypeForModule(fedid, captureblockidx, econdidx);
+          int fedid = pmap.getIntAttr("trig_fedid", row);
+          int econtidx = pmap.getIntAttr("econtidx", row);
+          int idx = modIndexer.getIndexForModule(fedid, static_cast<uint16_t>(econtidx));
+          int typeidx = modIndexer.getTypeForModule(fedid, static_cast<uint16_t>(econtidx));
           const std::string& typecode = pmap.getAttr("typecode", row);
 
           auto celltypes = modIndexer.getCellType(typecode);
@@ -73,31 +73,30 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           int i1 = pmap.getIntAttr("u", row);
           int i2 = pmap.getIntAttr("v", row);
           uint8_t irot = (uint8_t)(pmap.hasColumn("irot") ? pmap.getIntAttr("irot", row) : 0);
-          uint32_t eleid = HGCalElectronicsId((zside > 0), fedid, captureblockidx, econdidx, 0, 0).raw();
-          uint32_t detid(0);
+          // TODO : muxid needs to be discussed with BE and will be assigned correctly in the next iteration
+          uint32_t muxid(0);
+          uint32_t trigdetid(0);
           if (!isSiPM) {
             int zp(zside > 0 ? 1 : -1);
-            DetId::Detector det = plane <= 26 ? DetId::Detector::HGCalEE : DetId::Detector::HGCalHSi;
-            detid = HGCSiliconDetId(det, zp, celltype, plane, i1, i2, 0, 0).rawId();
+            int subdet = ForwardSubdetector::ForwardEmpty;
+            trigdetid = HGCalTriggerDetId(subdet, zp, celltype, plane, i1, i2, 0, 0).rawId();
           }
 
           auto module = moduleParams.view()[idx];
           module.valid() = true;
           module.zside() = (zside > 0);
           module.isSiPM() = isSiPM;
-          module.celltype() = celltype;
           module.plane() = plane;
           module.i1() = i1;
           module.i2() = i2;
           module.irot() = irot;
+          module.celltype() = celltype;
           module.typeidx() = typeidx;
           module.fedid() = fedid;
           module.slinkidx() = pmap.getIntAttr("slinkidx", row);
-          module.captureblock() = pmap.getIntAttr("captureblock", row);
-          module.econdidx() = econdidx;
-          module.captureblockidx() = captureblockidx;
-          module.eleid() = eleid;
-          module.detid() = detid;
+          module.econtidx() = econtidx;
+          module.muxid() = muxid;
+          module.trigdetid() = trigdetid;
           module.cassette() = cassette;
         }
 
@@ -106,7 +105,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }  // end of produce()
 
     private:
-      edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> moduleIndexTkn_;
+      edm::ESGetToken<HGCalMappingModuleIndexerTrigger, HGCalElectronicsMappingRcd> moduleIndexTriggerTkn_;
       const edm::FileInPath filename_;
     };
 
@@ -114,4 +113,4 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
-DEFINE_FWK_EVENTSETUP_ALPAKA_MODULE(hgcal::HGCalMappingModuleESProducer);
+DEFINE_FWK_EVENTSETUP_ALPAKA_MODULE(hgcal::HGCalMappingTriggerModuleESProducer);

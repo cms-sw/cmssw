@@ -1,88 +1,85 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
+#include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexerTrigger.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"       // for HGCSiliconDetId::waferType
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"  // for HGCScintillatorDetId::tileGranularity
 
 /**
- * @short for a new module it adds it's type to the readaout sequence vector
- * if the fed id is not yet existing in the mapping it's added
+ * @short for a new module it adds its type to the readout sequence vector
+ * if the fed id is not yet existing in the mapping it is added
  * a dense indexer is used to create the necessary indices for the new module
  * unused indices will be set with -1
  */
-void HGCalMappingModuleIndexer::processNewModule(uint32_t fedid,
-                                                 uint16_t captureblockIdx,
-                                                 uint16_t econdIdx,
-                                                 uint32_t typecodeIdx,
-                                                 uint32_t nerx,
-                                                 uint32_t nwords,
-                                                 std::string const& typecode) {
-  //add fed if needed
+void HGCalMappingModuleIndexerTrigger::processNewModule(uint32_t fedid,
+                                                        uint16_t econtIdx,
+                                                        uint32_t typecodeIdx,
+                                                        uint32_t nTrLinks,
+                                                        uint32_t nTCs,
+                                                        std::string const& typecode) {
+  // add fed if needed
   if (fedid >= fedReadoutSequences_.size()) {
     fedReadoutSequences_.resize(fedid + 1);
   }
-  HGCalFEDReadoutSequence& frs = fedReadoutSequences_[fedid];
+  HGCalTriggerFEDReadoutSequence& frs = fedReadoutSequences_[fedid];
   frs.id = fedid;
 
-  //assign position, resize if needed, and fill the type code
-  uint32_t idx = modFedIndexer_.denseIndex({{captureblockIdx, econdIdx}});
+  // asin position, resize if needed, and fill the type code
+  uint32_t idx = modFedIndexer_.denseIndex({{econtIdx, 0}});  // This will give back the econt*1+0 = econt
   if (idx >= frs.readoutTypes_.size()) {
     frs.readoutTypes_.resize(idx + 1, -1);
   }
   frs.readoutTypes_[idx] = typecodeIdx;
 
-  //count another typecodein the global list
+  // std::count another typecodein the global list
   if (typecodeIdx >= globalTypesCounter_.size()) {
     globalTypesCounter_.resize(typecodeIdx + 1, 0);
-    globalTypesNErx_.resize(typecodeIdx + 1, 0);
-    globalTypesNWords_.resize(typecodeIdx + 1, 0);
-    dataOffsets_.resize(typecodeIdx + 1, 0);
+    globalTypesNTrLinks_.resize(typecodeIdx + 1, 0);
+    globalTypesNTCs_.resize(typecodeIdx + 1, 0);
+    offsetsTC_.resize(typecodeIdx + 1, 0);
   }
   globalTypesCounter_[typecodeIdx]++;
-  globalTypesNErx_[typecodeIdx] = nerx;
-  globalTypesNWords_[typecodeIdx] = nwords;
+  globalTypesNTrLinks_[typecodeIdx] = nTrLinks;
+  globalTypesNTCs_[typecodeIdx] = nTCs;
 
-  //add typecode string to map to retrieve fedId & modId later
+  // add typecode string to map to retrieve fedId & modId later
   if (!typecode.empty()) {
     if (typecodeMap_.find(typecode) != typecodeMap_.end()) {     // found key
       const auto& [fedid_, modid_] = typecodeMap_.at(typecode);  // (fedId,modId)
-      edm::LogWarning("HGCalMappingModuleIndexer")
+      edm::LogWarning("HGCalMappingModuleIndexerTrigger")
           << "Found typecode " << typecode << " already in map (fedid,modid)=(" << fedid_ << "," << modid_
           << ")! Overwriting with (" << fedid << "," << idx << ")...";
     }
-    LogDebug("HGCalMappingModuleIndexer")
-        << "HGCalMappingModuleIndexer::processNewModule: Adding typecode=\"" << typecode << "\" with fedid=" << fedid
-        << ", idx=" << idx << " (will be re-indexed after finalize)";
+    LogDebug("HGCalMappingModuleIndexerTrigger")
+        << "HGCalMappingModuleIndexerTrigger::processNewModule: Adding typecode=\"" << typecode
+        << "\" with fedid=" << fedid << ", idx=" << idx << " (will be re-indexed after finalize)";
     typecodeMap_[typecode] = std::make_pair(fedid, idx);
   }
 }
 
-/// @short to be called after all the modules have been processed
-void HGCalMappingModuleIndexer::finalize() {
-  //max indices at different levels
+// @short to be called after all the modules have been processed
+void HGCalMappingModuleIndexerTrigger::finalize() {
+  // max indices at different levels
   nfeds_ = fedReadoutSequences_.size();
   maxModulesIdx_ = std::accumulate(globalTypesCounter_.begin(), globalTypesCounter_.end(), 0);
-  maxErxIdx_ = std::inner_product(globalTypesCounter_.begin(), globalTypesCounter_.end(), globalTypesNErx_.begin(), 0);
-  maxDataIdx_ =
-      std::inner_product(globalTypesCounter_.begin(), globalTypesCounter_.end(), globalTypesNWords_.begin(), 0);
+  maxTrLinksIdx_ =
+      std::inner_product(globalTypesCounter_.begin(), globalTypesCounter_.end(), globalTypesNTrLinks_.begin(), 0);
+  maxNTCIdx_ = std::inner_product(globalTypesCounter_.begin(), globalTypesCounter_.end(), globalTypesNTCs_.begin(), 0);
 
-  //compute the global offset to assign per board type, eRx and channel data
-  moduleOffsets_.resize(maxModulesIdx_, 0);
-  erxOffsets_.resize(maxModulesIdx_, 0);
-  dataOffsets_.resize(maxModulesIdx_, 0);
+  // compute the global offset to assign per board type, eRx and channel data
+  offsetsModule_.resize(maxModulesIdx_, 0);
+  offsetsTrLink_.resize(maxModulesIdx_, 0);
+  offsetsTC_.resize(maxModulesIdx_, 0);
   for (size_t i = 1; i < globalTypesCounter_.size(); i++) {
-    moduleOffsets_[i] = globalTypesCounter_[i - 1] + moduleOffsets_[i - 1];
-    erxOffsets_[i] = globalTypesCounter_[i - 1] * globalTypesNErx_[i - 1] + erxOffsets_[i - 1];
-    dataOffsets_[i] = globalTypesCounter_[i - 1] * globalTypesNWords_[i - 1] + dataOffsets_[i - 1];
+    offsetsModule_[i] = globalTypesCounter_[i - 1] + offsetsModule_[i - 1];
+    offsetsTrLink_[i] = globalTypesCounter_[i - 1] * globalTypesNTrLinks_[i - 1] + offsetsTrLink_[i - 1];
+    offsetsTC_[i] = globalTypesCounter_[i - 1] * globalTypesNTCs_[i - 1] + offsetsTC_[i - 1];
   }
 
-  //now go through the FEDs and ascribe the offsets per module in the readout sequence
+  // now go through the FEDs and ascribe the offsets per module in the readout sequence
   std::vector<uint32_t> typeCounters(globalTypesCounter_.size(), 0);
   for (auto& fedit : fedReadoutSequences_) {
-    //assign the final indexing in the look-up table depending on which ECON-D's are really present
-    //count also the the number of capture blocks present
+    // assign the final indexing in the look-up table depending on which ECON-D's are really present
     size_t nconn(0);
     fedit.moduleLUT_.resize(fedit.readoutTypes_.size(), -1);
-    std::set<uint32_t> uniqueCB;
     for (size_t i = 0; i < fedit.readoutTypes_.size(); i++) {
       if (fedit.readoutTypes_[i] == -1)
         continue;  //unexisting
@@ -90,45 +87,41 @@ void HGCalMappingModuleIndexer::finalize() {
       reassignTypecodeLocation(fedit.id, i, nconn);
       fedit.moduleLUT_[i] = nconn;
       nconn++;
-
-      uniqueCB.insert(modFedIndexer_.unpackDenseIndex(i)[0]);
     }
-    fedit.totalECONs_ = nconn;
-    fedit.totalCBs_ = uniqueCB.size();
 
-    //remove unexisting ECONs building a final compact readout sequence
+    // remove unexisting ECONs building a final compact readout sequence
     fedit.readoutTypes_.erase(
         std::remove_if(
             fedit.readoutTypes_.begin(), fedit.readoutTypes_.end(), [&](int val) -> bool { return val == -1; }),
         fedit.readoutTypes_.end());
 
-    //resize vectors to their final size and set final values
+    // resize vectors to their final size and set final values
     size_t nmods = fedit.readoutTypes_.size();
     fedit.modOffsets_.resize(nmods, 0);
-    fedit.erxOffsets_.resize(nmods, 0);
-    fedit.chDataOffsets_.resize(nmods, 0);
-    fedit.enabledErx_.resize(nmods, 0);
+    fedit.TrLinkOffsets_.resize(nmods, 0);
+    fedit.TCOffsets_.resize(nmods, 0);
+    fedit.enabledLink_.resize(nmods, 0);
 
     for (size_t i = 0; i < nmods; i++) {
       int type_val = fedit.readoutTypes_[i];
 
-      //module offset : global offset for this type + current index for this type
-      uint32_t baseMod_offset = moduleOffsets_[type_val] + typeCounters[type_val];
+      // module offset : global offset for this type + current index for this type
+      uint32_t baseMod_offset = offsetsModule_[type_val] + typeCounters[type_val];
       fedit.modOffsets_[i] = baseMod_offset;  // + internalMod_offset;
 
-      //erx-level offset : global offset of e-Rx of this type + #e-Rrx * current index for this type
-      uint32_t baseErx_offset = erxOffsets_[type_val];
-      uint32_t internalErx_offset = globalTypesNErx_[type_val] * typeCounters[type_val];
-      fedit.erxOffsets_[i] = baseErx_offset + internalErx_offset;
+      // erx-level offset : global offset of e-Rx of this type + #e-Rrx * current index for this type
+      uint32_t baseTrLink_offset = offsetsTrLink_[type_val];
+      uint32_t internalTrLink_offset = globalTypesNTrLinks_[type_val] * typeCounters[type_val];
+      fedit.TrLinkOffsets_[i] = baseTrLink_offset + internalTrLink_offset;
 
-      //channel data offset: global offset for data of this type + #words * current index for this type
-      uint32_t baseData_offset = dataOffsets_[type_val];
-      uint32_t internalData_offset = globalTypesNWords_[type_val] * typeCounters[type_val];
-      fedit.chDataOffsets_[i] = baseData_offset + internalData_offset;
+      // channel data offset: global offset for data of this type + #words * current index for this type
+      uint32_t baseData_offset = offsetsTC_[type_val];
+      uint32_t internalData_offset = globalTypesNTCs_[type_val] * typeCounters[type_val];
+      fedit.TCOffsets_[i] = baseData_offset + internalData_offset;
 
-      //enabled erx flags
-      //FIXME: assume all eRx are enabled now
-      fedit.enabledErx_[i] = (0b1 << globalTypesNErx_[type_val]) - 0b1;
+      // enabled erx flags : we assume all eRx are enabled
+      // this results in a small mem overhead for a few partial wafers but it's not a show stopper
+      fedit.enabledLink_[i] = (0b1 << globalTypesNTrLinks_[type_val]) - 0b1;
       typeCounters[type_val]++;
     }
   }
@@ -137,12 +130,13 @@ void HGCalMappingModuleIndexer::finalize() {
 /**
  * @short decode silicon or sipm type and cell type for the detector id 
  * from the typecode string: "M[LH]-X[123]X-*" for Si, "T[LH]-L*S*[PN]" for SiPm
+ * details can be found in the EDMS documents under https://edms.cern.ch/document/2718867/1
  */
-std::pair<bool, int8_t> HGCalMappingModuleIndexer::getCellType(std::string_view typecode) {
+std::pair<bool, int8_t> HGCalMappingModuleIndexerTrigger::getCellType(std::string_view typecode) {
   if (typecode.size() < 5) {
     cms::Exception ex("InvalidHGCALTypeCode");
     ex << "'" << typecode << "' is invalid for decoding readout cell type";
-    ex.addContext("Calling HGCalMappingModuleIndexer::getCellType()");
+    ex.addContext("Calling HGCalMappingModuleIndexerTrigger::getCellType()");
     throw ex;
   }
   int8_t celltype = -1;
@@ -170,14 +164,15 @@ std::pair<bool, int8_t> HGCalMappingModuleIndexer::getCellType(std::string_view 
   if (celltype == -1) {
     cms::Exception ex("InvalidHGCALTypeCode");
     ex << "Could not parse cell type from typecode='" << typecode << "'";
-    ex.addContext("Calling HGCalMappingModuleIndexer::getCellType()");
+    ex.addContext("Calling HGCalMappingModuleIndexerTrigger::getCellType()");
     throw ex;
   }
   return std::pair<bool, int8_t>(isSiPM, celltype);
 }
 
 //
-std::pair<uint32_t, uint32_t> HGCalMappingModuleIndexer::getIndexForFedAndModule(std::string const& typecode) const {
+std::pair<uint32_t, uint32_t> HGCalMappingModuleIndexerTrigger::getIndexForFedAndModule(
+    std::string const& typecode) const {
   auto it = typecodeMap_.find(typecode);
   if (it == typecodeMap_.end()) {       // did not find key
     std::size_t nmax = 100;             // maximum number of keys to print
@@ -189,7 +184,7 @@ std::pair<uint32_t, uint32_t> HGCalMappingModuleIndexer::getIndexForFedAndModule
         });
     if (typecodeMap_.size() > nmax)
       allkeys += ", ...";
-    throw cms::Exception("HGCalMappingModuleIndexer")
+    throw cms::Exception("HGCalMappingModuleIndexerTrigger")
         << "Could not find typecode '" << typecode << "' in map (size=" << typecodeMap_.size()
         << ")! Found the following modules (from the module locator file): " << allkeys;
   }
