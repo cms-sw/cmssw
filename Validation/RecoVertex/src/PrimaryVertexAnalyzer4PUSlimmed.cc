@@ -516,15 +516,15 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(DQMStore::IBooker& i,
     book1dlogx("RecoAssoc2GenPVNotMatched_GenPVTracksRemoved_Pt2", 15, &log_pt2_bins[0]);
 
     // Shared tracks
-    book1d("RecoAllAssoc2GenSingleMatched_SharedTrackFractionReco", 50, 0, 1);
-    book1d("RecoAllAssoc2GenMultiMatched_SharedTrackFractionReco", 50, 0, 1);
-    book1d("RecoAllAssoc2GenSingleMatched_SharedTrackFractionRecoMatched", 50, 0, 1);
-    book1d("RecoAllAssoc2GenMultiMatched_SharedTrackFractionRecoMatched", 50, 0, 1);
+    book1d("RecoAllAssoc2GenSingleMatched_SharedTrackFractionAssociationScore", 50, 0, 1);
+    book1d("RecoAllAssoc2GenMultiMatched_SharedTrackFractionAssociationScore", 50, 0, 1);
+    // book1d("RecoAllAssoc2GenSingleMatched_SharedTrackFractionRecoMatched", 50, 0, 1);
+    // book1d("RecoAllAssoc2GenMultiMatched_SharedTrackFractionRecoMatched", 50, 0, 1);
 
-    book1d("RecoAllAssoc2GenSingleMatched_SharedTrackFractionSim", 50, 0, 1);
-    book1d("RecoAllAssoc2GenMultiMatched_SharedTrackFractionSim", 50, 0, 1);
-    book1d("RecoAllAssoc2GenSingleMatched_SharedTrackFractionSimMatched", 50, 0, 1);
-    book1d("RecoAllAssoc2GenMultiMatched_SharedTrackFractionSimMatched", 50, 0, 1);
+    // book1d("RecoAllAssoc2GenSingleMatched_SharedTrackFractionSim", 50, 0, 1);
+    // book1d("RecoAllAssoc2GenMultiMatched_SharedTrackFractionSim", 50, 0, 1);
+    // book1d("RecoAllAssoc2GenSingleMatched_SharedTrackFractionSimMatched", 50, 0, 1);
+    // book1d("RecoAllAssoc2GenMultiMatched_SharedTrackFractionSimMatched", 50, 0, 1);
   }
 }
 
@@ -672,12 +672,13 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillGenAssociatedRecoVertexHistograms(
   }
 
   for (size_t i = 0; i < v.sim_vertices.size(); ++i) {
-    const double sharedTracks = v.sim_vertices_num_shared_tracks[i];
-    const simPrimaryVertex* simV = v.sim_vertices_internal[i];
-    mes_[label][prefix + "Reco"]->Fill(sharedTracks / v.nRecoTrk);
-    mes_[label][prefix + "RecoMatched"]->Fill(sharedTracks / v.num_matched_sim_tracks);
-    mes_[label][prefix + "Sim"]->Fill(sharedTracks / simV->nGenTrk);
-    mes_[label][prefix + "SimMatched"]->Fill(sharedTracks / simV->num_matched_reco_tracks);
+    const double sharedFraction = v.sim_vertices_num_shared_tracks[i];
+    std::cout << "sharedFraction " << sharedFraction << std::endl; // [FIXME] this is always 0 or 1!!!
+    // const simPrimaryVertex* simV = v.sim_vertices_internal[i];
+    mes_[label][prefix + "AssociationScore"]->Fill(sharedFraction);
+    // mes_[label][prefix + "RecoMatched"]->Fill(sharedFraction);
+    // mes_[label][prefix + "Sim"]->Fill(sharedFraction);
+    // mes_[label][prefix + "SimMatched"]->Fill(sharedFraction);
   }
 }
 
@@ -1123,6 +1124,8 @@ void PrimaryVertexAnalyzer4PUSlimmed::matchReco2SimVertices(std::vector<recoPrim
       for (const auto& vertexRefQuality : matched->val) {
         const auto tvPtr = &(*(vertexRefQuality.first));
         vrec->sim_vertices.push_back(tvPtr);
+        vrec->sim_vertices_num_shared_tracks.push_back(vertexRefQuality.second);
+        std::cout << "vertexRefQuality.second: " << vertexRefQuality.second << std::endl; // [FIXME] This is correctly defined
       }
 
       for (const TrackingVertex* tv : vrec->sim_vertices) {
@@ -1134,9 +1137,9 @@ void PrimaryVertexAnalyzer4PUSlimmed::matchReco2SimVertices(std::vector<recoPrim
           }
         }
 
-        // Calculate number of shared tracks
-        vrec->sim_vertices_num_shared_tracks.push_back(
-            calculateVertexSharedTracks(*(vrec->recVtx), *tv, *r2s_).nSharedTracks_);
+        // // Calculate number of shared tracks
+        // vrec->sim_vertices_num_shared_tracks.push_back(
+        //     calculateVertexSharedTracks(*(vrec->recVtx), *tv, *r2s_).nSharedTracks_);
       }
     }
 

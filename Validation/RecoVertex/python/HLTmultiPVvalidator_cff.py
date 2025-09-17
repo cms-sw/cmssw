@@ -14,9 +14,8 @@ from Validation.RecoTrack.associators_cff import hltTPClusterProducer, hltTrackA
 from SimTracker.VertexAssociation.VertexAssociatorByPositionAndTracks_cfi import VertexAssociatorByPositionAndTracks as _VertexAssociatorByPositionAndTracks
 vertexAssociatorByPositionAndTracks4pixelTracks = _VertexAssociatorByPositionAndTracks.clone(
     trackAssociation = "tpToHLTpixelTrackAssociation",
-    sharedTrackFraction = 0.5, # requires optimization
+    sharedTrackFraction = -1, # requires optimization
     weightMethod = "dzError",
-
 )
 hltOtherTPClusterProducer = hltTPClusterProducer.clone(
     stripClusterOtherSrc = "hltSiStripRawToClustersFacilityOnDemand"
@@ -61,7 +60,9 @@ tpToHLTphase2TrackAssociation = tpToHLTpixelTrackAssociation.clone(
     label_tr = "hltGeneralTracks"
 )
 vertexAssociatorByPositionAndTracks4phase2HLTTracks = _VertexAssociatorByPositionAndTracks.clone(
-    trackAssociation = "tpToHLTphase2TrackAssociation"
+    trackAssociation = "tpToHLTphase2TrackAssociation",
+    sharedTrackFraction = -1, # requires optimization
+    weightMethod = "pt2",
 )
 
 def _modifyFullPVanalysisForPhase2(pvanalysis):
