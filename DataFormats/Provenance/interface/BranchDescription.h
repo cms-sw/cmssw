@@ -95,14 +95,6 @@ namespace edm {
     TypeID wrappedTypeID() const { return TypeID(transient_.wrappedType_.typeInfo()); }
     TypeID unwrappedTypeID() const { return TypeID(transient_.unwrappedType_.typeInfo()); }
 
-    bool isSwitchAlias() const { return not transient_.switchAliasModuleLabel_.empty(); }
-    std::string const& switchAliasModuleLabel() const { return transient_.switchAliasModuleLabel_; }
-    void setSwitchAliasModuleLabel(std::string label) { transient_.switchAliasModuleLabel_ = std::move(label); }
-    BranchID const& switchAliasForBranchID() const { return transient_.switchAliasForBranchID_; }
-    void setSwitchAliasForBranch(BranchDescription const& aliasForBranch);
-
-    bool isAnyAlias() const { return isAlias() or isSwitchAlias(); }
-
     bool isProvenanceSetOnRead() const noexcept { return transient_.isProvenanceSetOnRead_; }
     void setIsProvenanceSetOnRead(bool value = true) noexcept { transient_.isProvenanceSetOnRead_ = value; }
 
@@ -131,14 +123,6 @@ namespace edm {
 
       // The wrapped class name, which is currently derivable from the other attributes.
       std::string wrappedName_;
-
-      // For SwitchProducer alias, the label of the aliased-for label; otherwise empty
-      std::string switchAliasModuleLabel_;
-
-      // Need a separate (transient) BranchID for switch, because
-      // otherwise originalBranchID() gives wrong answer when reading
-      // from a file (leading to wrong ProductProvenance to be retrieved)
-      BranchID switchAliasForBranchID_;
 
       // A TypeWithDict object for the wrapped object
       // This is set if and only if the dropped_ is false

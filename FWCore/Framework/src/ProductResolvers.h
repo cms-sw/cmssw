@@ -42,7 +42,7 @@ namespace edm {
   public:
     DataManagingOrAliasProductResolver() : ProductResolverBase{} {}
 
-    // Give AliasProductResolver and SwitchBaseProductResolver access by moving this method to public
+    // Give AliasProductResolver access by moving this method to public
     void resetProductData_(bool deleteEarly) override = 0;
     virtual ProductData const& getProductData() const = 0;
   };
@@ -320,104 +320,6 @@ namespace edm {
     DataManagingOrAliasProductResolver& realProduct_;
     std::shared_ptr<ProductDescription const> bd_;
   };
-
-  // Switch is a mixture of DataManaging (for worker and provenance) and Alias (for product)
-  class SwitchBaseProductResolver : public DataManagingOrAliasProductResolver {
-  public:
-    using ProductStatus = DataManagingProductResolver::ProductStatus;
-    SwitchBaseProductResolver(std::shared_ptr<ProductDescription const> bd,
-                              DataManagingOrAliasProductResolver& realProduct);
-
-    void connectTo(ProductResolverBase const& iOther, Principal const* iParentPrincipal) final;
-    void setupUnscheduled(UnscheduledConfigurator const& iConfigure) final;
-
-  protected:
-    Resolution resolveProductImpl(Resolution) const;
-    WaitingTaskList& waitingTasks() const { return waitingTasks_; }
-    Worker* worker() const { return worker_; }
-    DataManagingOrAliasProductResolver const& realProduct() const { return realProduct_; }
-    std::atomic<bool>& prefetchRequested() const { return prefetchRequested_; }
-    void unsafe_setWrapperAndProvenance() const;
-    void resetProductData_(bool deleteEarly) override;
-
-  private:
-    bool productResolved_() const final;
-    bool productWasDeleted_() const final { return realProduct_.productWasDeleted(); }
-    bool productWasFetchedAndIsValid_() const final { return realProduct_.productWasFetchedAndIsValid(); }
-    ProductDescription const& productDescription_() const final {
-      return *productData_.productDescription();
-      ;
-    }
-    void resetProductDescription_(std::shared_ptr<ProductDescription const> bd) final {
-      productData_.resetProductDescription(bd);
-    }
-    Provenance const* provenance_() const final { return &productData_.provenance(); }
-    std::string const& resolvedModuleLabel_() const final { return moduleLabel(); }
-    void setProductProvenanceRetriever_(ProductProvenanceRetriever const* provRetriever) final;
-    void setProductID_(ProductID const& pid) final;
-    ProductProvenance const* productProvenancePtr_() const final { return provenance()->productProvenance(); }
-    ProductData const& getProductData() const final { return productData_; }
-    bool singleProduct_() const final { return true; }
-
-    // for "alias" view
-    DataManagingOrAliasProductResolver& realProduct_;
-    // for "product" view
-    ProductData productData_;
-    Worker* worker_ = nullptr;
-    CMS_THREAD_SAFE mutable WaitingTaskList waitingTasks_;
-    mutable std::atomic<bool> prefetchRequested_;
-    // for provenance
-    ParentageID parentageID_;
-  };
-
-  // For the case when SwitchProducer is on a Path
-  class SwitchProducerProductResolver : public SwitchBaseProductResolver, public ProductPutterBase {
-  public:
-    SwitchProducerProductResolver(std::shared_ptr<ProductDescription const> bd,
-                                  DataManagingOrAliasProductResolver& realProduct);
-
-  private:
-    Resolution resolveProduct_(Principal const& principal,
-                               SharedResourcesAcquirer* sra,
-                               ModuleCallingContext const* mcc) const final;
-    void prefetchAsync_(WaitingTaskHolder waitTask,
-                        Principal const& principal,
-                        ServiceToken const& token,
-                        SharedResourcesAcquirer* sra,
-                        ModuleCallingContext const* mcc) const noexcept final;
-    void putProduct(std::unique_ptr<WrapperBase> edp) const final;
-    bool unscheduledWasNotRun_() const final { return false; }
-    bool productUnavailable_() const final;
-    void resetProductData_(bool deleteEarly) final;
-
-    constexpr static const ProductStatus defaultStatus_ = ProductStatus::NotPut;
-
-    // for filter in a Path
-    // The variable is only modified or read at times where the
-    //  framework has guaranteed synchronization between write and read
-    CMS_THREAD_SAFE mutable ProductStatus status_;
-  };
-
-  // For the case when SwitchProducer is not on any Path
-  class SwitchAliasProductResolver : public SwitchBaseProductResolver {
-  public:
-    SwitchAliasProductResolver(std::shared_ptr<ProductDescription const> bd,
-                               DataManagingOrAliasProductResolver& realProduct)
-        : SwitchBaseProductResolver(std::move(bd), realProduct) {}
-
-  private:
-    Resolution resolveProduct_(Principal const& principal,
-                               SharedResourcesAcquirer* sra,
-                               ModuleCallingContext const* mcc) const final;
-    void prefetchAsync_(WaitingTaskHolder waitTask,
-                        Principal const& principal,
-                        ServiceToken const& token,
-                        SharedResourcesAcquirer* sra,
-                        ModuleCallingContext const* mcc) const noexcept final;
-    bool unscheduledWasNotRun_() const final { return realProduct().unscheduledWasNotRun(); }
-    bool productUnavailable_() const final { return realProduct().productUnavailable(); }
-  };
-
 }  // namespace edm
 
 #endif
