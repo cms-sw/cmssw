@@ -40,27 +40,6 @@ namespace edm::productResolversFactory {
       return std::make_shared<AliasProductResolver>(
           std::move(bd), dynamic_cast<DataManagingOrAliasProductResolver&>(*iResolvers[index]));
     }
-    std::shared_ptr<ProductResolverBase> makeSwitchProducerProduct(
-        std::shared_ptr<ProductDescription const> bd,
-        ProductRegistry const& iReg,
-        std::vector<std::shared_ptr<ProductResolverBase>> const& iResolvers) {
-      ProductResolverIndex index = iReg.indexFrom(bd->switchAliasForBranchID());
-      assert(index != ProductResolverIndexInvalid);
-
-      return std::make_shared<SwitchProducerProductResolver>(
-          std::move(bd), dynamic_cast<DataManagingOrAliasProductResolver&>(*iResolvers[index]));
-    }
-
-    std::shared_ptr<ProductResolverBase> makeSwitchAliasProduct(
-        std::shared_ptr<ProductDescription const> bd,
-        ProductRegistry const& iReg,
-        std::vector<std::shared_ptr<ProductResolverBase>> const& iResolvers) {
-      ProductResolverIndex index = iReg.indexFrom(bd->switchAliasForBranchID());
-      assert(index != ProductResolverIndexInvalid);
-
-      return std::make_shared<SwitchAliasProductResolver>(
-          std::move(bd), dynamic_cast<DataManagingOrAliasProductResolver&>(*iResolvers[index]));
-    }
 
     void addProductOrThrow(std::shared_ptr<ProductResolverBase> iResolver,
                            std::vector<std::shared_ptr<ProductResolverBase>>& oResolvers,
@@ -121,14 +100,11 @@ namespace edm::productResolversFactory {
     // So, the non-alias product holders must be created first.
     // Therefore, on this first pass, skip current EDAliases.
     bool hasAliases = false;
-    bool hasSwitchAliases = false;
     for (auto const& prod : prodsList) {
       ProductDescription const& bd = prod.second;
       if (bd.branchType() == bt) {
         if (bd.isAlias()) {
           hasAliases = true;
-        } else if (bd.isSwitchAlias()) {
-          hasSwitchAliases = true;
         } else {
           addProductOrThrow(makeForPrimary(bd, iReg, *helper), productResolvers, iReg);
         }
@@ -142,26 +118,6 @@ namespace edm::productResolversFactory {
           addProductOrThrow(makeAliasedProduct(std::make_shared<ProductDescription const>(bd), iReg, productResolvers),
                             productResolvers,
                             iReg);
-        }
-      }
-    }
-    // Finally process any SwitchProducer aliases
-    if (hasSwitchAliases) {
-      for (auto const& prod : prodsList) {
-        ProductDescription const& bd = prod.second;
-        if (bd.isSwitchAlias() && bd.branchType() == bt) {
-          assert(bt == InEvent);
-          auto cbd = std::make_shared<ProductDescription const>(bd);
-          // Need different implementation for SwitchProducers not
-          // in any Path (onDemand) and for those in a Path in order
-          // to prevent the switch-aliased-for EDProducers from
-          // being run when the SwitchProducer is in a Path after a
-          // failing EDFilter.
-          if (bd.onDemand()) {
-            addProductOrThrow(makeSwitchAliasProduct(cbd, iReg, productResolvers), productResolvers, iReg);
-          } else {
-            addProductOrThrow(makeSwitchProducerProduct(cbd, iReg, productResolvers), productResolvers, iReg);
-          }
         }
       }
     }

@@ -30,7 +30,7 @@ namespace {
     std::string type_;
     std::string edmType_;
   };
-  enum class EdmType { kProducer, kFilter, kAnalyzer, kSwitchProducer, kOutputModule };
+  enum class EdmType { kProducer, kFilter, kAnalyzer, kOutputModule };
 
   struct ConfigBuilder {
     void addModule(std::string const& iLabel, std::string const& iType, EdmType iEdmType) {
@@ -47,8 +47,6 @@ namespace {
           return "EDAnalyzer";
         case EdmType::kOutputModule:
           return "OutputModule";
-        case EdmType::kSwitchProducer:
-          return "SwitchProducer";
       }
       return "";
     }
