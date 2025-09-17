@@ -1135,7 +1135,8 @@ void PrimaryVertexAnalyzer4PUSlimmed::matchReco2SimVertices(std::vector<recoPrim
         }
 
         // Calculate number of shared tracks
-        vrec->sim_vertices_num_shared_tracks.push_back(calculateVertexSharedTracks(*(vrec->recVtx), *tv, *r2s_));
+        vrec->sim_vertices_num_shared_tracks.push_back(
+            calculateVertexSharedTracks(*(vrec->recVtx), *tv, *r2s_).nSharedTracks_);
       }
     }
 

@@ -24,7 +24,8 @@ public:
                                       double maxRecoT,
                                       double sharedTrackFraction,
                                       const reco::RecoToSimCollection *trackRecoToSimAssociation,
-                                      const reco::SimToRecoCollection *trackSimToRecoAssociation);
+                                      const reco::SimToRecoCollection *trackSimToRecoAssociation,
+                                      const std::string &weightMethod);
 
   VertexAssociatorByPositionAndTracks(const edm::EDProductGetter *productGetter,
                                       double absZ,
@@ -32,9 +33,10 @@ public:
                                       double maxRecoZ,
                                       double sharedTrackFraction,
                                       const reco::RecoToSimCollection *trackRecoToSimAssociation,
-                                      const reco::SimToRecoCollection *trackSimToRecoAssociation);
+                                      const reco::SimToRecoCollection *trackSimToRecoAssociation,
+                                      const std::string &weightMethod);
 
-  ~VertexAssociatorByPositionAndTracks() override;
+  ~VertexAssociatorByPositionAndTracks() override = default;
 
   /* Associate TrackingVertex to RecoVertex By Hits */
   reco::VertexRecoToSimCollection associateRecoToSim(const edm::Handle<edm::View<reco::Vertex>> &vCH,
@@ -57,6 +59,9 @@ private:
 
   const reco::RecoToSimCollection *trackRecoToSimAssociation_;
   const reco::SimToRecoCollection *trackSimToRecoAssociation_;
+
+  bool useWeightPtSum2_;
+  bool useWeightDzErr_;
 };
 
 #endif
