@@ -62,7 +62,6 @@ SharedTracksAndFractions calculateVertexSharedTracks(const TrackingVertex &simV,
     // matched track equal to any track of reco vertex => increase counter
     for (const auto &tk : found->val) {
       if (std::find_if(recoV.tracks_begin(), recoV.tracks_end(), [&](const reco::TrackBaseRef &vtk) {
-            totalTracksWeightPtSum2 += (tk.first->pt() * tk.first->pt());
             return ((tk.first.id() == vtk.id()) &&
                     (tk.first.key() == vtk.key()));  // tk.first == vtk; operator::== not working
           }) != recoV.tracks_end()) {
