@@ -51,17 +51,17 @@ namespace l1tVertexFinder {
     float vx_chi2cut() const { return vx_chi2cut_; }
     // Do track quality cuts in emulation algorithms
     bool vx_DoQualityCuts() const { return vx_DoQualityCuts_; }
-    // PFA scan parameters (min, max, spacing) [cm]
+    // PFA scan parameters (min, max, interval) [cm]
     std::vector<double> vx_pfa_scanparameters() const { return vx_pfa_scanparameters_; }
     double vx_pfa_min() const { return vx_pfa_scanparameters_.at(0); }
     double vx_pfa_max() const { return vx_pfa_scanparameters_.at(1); }
-    double vx_pfa_binwidth() const { return vx_pfa_scanparameters_.at(2); }
+    double vx_pfa_interval() const { return vx_pfa_scanparameters_.at(2); }
     // Include eta-dependence of the estimated track resolution used in PFA
     bool vx_pfa_etadependentresolution() const { return vx_pfa_etadependentresolution_; }
     // Multiplicative scale factor for the above PFA track resolution parameter
     double vx_pfa_resolutionSF() const { return vx_pfa_resolutionSF_; }
     // PFA Gaussian width cutoff for input tracks [cm] (not used in PFASimple)
-    double vx_pfa_width() const { return vx_pfa_width_; }
+    double vx_pfa_cutoff() const { return vx_pfa_cutoff_; }
     // Enable 2-step process where the weighted pT sum is only calculated at positions where the weighted multiplicity is maximum ("local maxima"). In the second step, the local maximum with the largest weighted pT sum is chosen as the vertex. Only relevant for PFA (not used in PFASimple).
     bool vx_pfa_usemultiplicitymaxima() const { return vx_pfa_usemultiplicitymaxima_; }
     // Weight function to use in PFA (not used in PFASimple). 0: Gaussian, 1: Gaussian without width normalisation, 2: Complementary error function, 3: Step function. With vx_pfa_weightfunction=3 and PFA_UseMultiplicityMaxima=False, PFA and PFASimple are the same.
@@ -137,7 +137,7 @@ namespace l1tVertexFinder {
     std::vector<double> vx_pfa_scanparameters_;
     bool vx_pfa_etadependentresolution_;
     double vx_pfa_resolutionSF_;
-    double vx_pfa_width_;
+    double vx_pfa_cutoff_;
     bool vx_pfa_usemultiplicitymaxima_;
     unsigned int vx_pfa_weightfunction_;
     unsigned int vx_pfa_weightedz0_;

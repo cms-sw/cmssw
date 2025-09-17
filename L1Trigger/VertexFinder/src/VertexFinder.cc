@@ -24,7 +24,7 @@ namespace l1tVertexFinder {
 
     // Alternative definitions of PFA weights (added subsequent to Giovanna's thesis)
     // Redefine deltaZ as the distance of the track from the bin edge (zero if inside the bin)
-    deltaZ = (deltaZ > 0.5 * settings_->vx_pfa_binwidth()) ? deltaZ - 0.5 * settings_->vx_pfa_binwidth() : 0;
+    deltaZ = (deltaZ > 0.5 * settings_->vx_pfa_interval()) ? deltaZ - 0.5 * settings_->vx_pfa_interval() : 0;
     // Use Erfc to reduce the weight based on the probability that a track from a vertex in this bin would be closer than deltaZ to the edge of the bin
     float ErfcWeight = std::erfc(M_SQRT1_2 * deltaZ / PFAWidth);
 
@@ -57,7 +57,7 @@ namespace l1tVertexFinder {
     else if (settings_->vx_pfa_weightedz0() == 4) {
       // Step function weight divided by step function width (to maintain constant area when using eta-dependent resolution)
       zweight = StepFunctionWeight * std::pow(trackPt, settings_->vx_weightedmean()) /
-                (PFAWidth + 0.5 * settings_->vx_pfa_binwidth());
+                (PFAWidth + 0.5 * settings_->vx_pfa_interval());
     } else if (settings_->vx_pfa_weightedz0() == 5) {
       // Step function weight weighted by 1/variance (only relevant when using eta-dependent resolution)
       zweight = StepFunctionWeight * std::pow(trackPt, settings_->vx_weightedmean()) / PFAWidth / PFAWidth;
@@ -73,7 +73,7 @@ namespace l1tVertexFinder {
     } else if (settings_->vx_pfa_weightedz0() == 9) {
       zweight = StepFunctionWeight * std::pow(trackPt, 1);
     } else if (settings_->vx_pfa_weightedz0() == 10) {
-      zweight = StepFunctionWeight * std::pow(trackPt, 1) / (PFAWidth + 0.5 * settings_->vx_pfa_binwidth());
+      zweight = StepFunctionWeight * std::pow(trackPt, 1) / (PFAWidth + 0.5 * settings_->vx_pfa_interval());
     } else if (settings_->vx_pfa_weightedz0() == 11) {
       zweight = StepFunctionWeight * std::pow(trackPt, 1) / PFAWidth / PFAWidth;
     }
@@ -724,15 +724,15 @@ namespace l1tVertexFinder {
     float vxPt = 0.;
     RecoVertex leading_vertex;
 
-    int nbins = std::ceil((settings_->vx_pfa_max() - settings_->vx_pfa_min()) / settings_->vx_pfa_binwidth());
+    int nbins = std::ceil((settings_->vx_pfa_max() - settings_->vx_pfa_min()) / settings_->vx_pfa_interval());
     for (int i = 0; i <= nbins; ++i) {
-      float z = settings_->vx_pfa_min() + i * settings_->vx_pfa_binwidth();
+      float z = settings_->vx_pfa_min() + i * settings_->vx_pfa_interval();
       RecoVertex vertex;
       vertex.setZ0(z);
       for (const L1Track& track : fitTracks_) {
         // Calculate PFA width parameter (customised using multiplicative scale factor)
         float PFAWidth = computeTrackZ0Res(&track) * settings_->vx_pfa_resolutionSF();
-        if (std::abs(z - track.z0()) > PFAWidth + 0.5 * settings_->vx_pfa_binwidth())
+        if (std::abs(z - track.z0()) > PFAWidth + 0.5 * settings_->vx_pfa_interval())
           continue;
 
         if (settings_->vx_pfa_doqualitycuts() &
@@ -775,11 +775,11 @@ namespace l1tVertexFinder {
     bool vertex2LocalMaximum = false;
     bool vertex3LocalMaximum = false;
 
-    int nbins = std::ceil((settings_->vx_pfa_max() - settings_->vx_pfa_min()) / settings_->vx_pfa_binwidth());
+    int nbins = std::ceil((settings_->vx_pfa_max() - settings_->vx_pfa_min()) / settings_->vx_pfa_interval());
     std::vector<RecoVertex<>> sums;
     int counter = 0;
     for (int i = -1; i <= nbins + 2; ++i) {
-      float z = settings_->vx_pfa_min() + i * settings_->vx_pfa_binwidth();
+      float z = settings_->vx_pfa_min() + i * settings_->vx_pfa_interval();
 
       // Store vertex scores in 3 successive bins so we can identify local maxima
       vertexScore1 = vertexScore2;
@@ -799,7 +799,7 @@ namespace l1tVertexFinder {
       RecoVertex vertex;
       vertex.setZ0(z);
       for (const L1Track& track : fitTracks_) {
-        if (std::abs(z - track.z0()) > settings_->vx_pfa_width())
+        if (std::abs(z - track.z0()) > settings_->vx_pfa_cutoff())
           continue;
 
         if (settings_->vx_pfa_doqualitycuts() &

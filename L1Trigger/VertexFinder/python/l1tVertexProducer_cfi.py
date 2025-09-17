@@ -30,14 +30,14 @@ l1tVertexProducer = cms.EDProducer('VertexProducer',
         FH_DoPtComp = cms.bool(False),
         # chi2dof < 5 for tracks with Pt > 10
         FH_DoTightChi2 = cms.bool(False),
-        # PFA algorithm scan parameters (min,max,spacing) [cm]
+        # PFA algorithm scan parameters (min,max,interval) [cm]
         PFA_ScanParameters = cms.vdouble(-20.46912512, 20.46912512, 0.15991504), # set to the same values as for FH for ease of comparison
         # Include eta-dependence of the estimated track resolution used in PFA
         PFA_EtaDependentResolution = cms.bool(True),
         # Multiplicative scale factor for the above PFA track resolution parameter
         PFA_ResolutionSF = cms.double(1.3),
         # PFA Gaussian width cutoff for input tracks [cm] (not used in PFASimple)
-        PFA_VertexWidth = cms.double(1.31), # Giovanna's recommendation of 3*sigma(lowest-resolution tracks).
+        PFA_Cutoff = cms.double(1.31), # Giovanna's recommendation of 3*sigma(lowest-resolution tracks).
         # Enable 2-step process where the weighted pT sum is only calculated at positions where the weighted multiplicity is maximum ("local maxima"). In the second step, the local maximum with the largest weighted pT sum is chosen as the vertex. Only relevant for PFA (not used in PFASimple).
         PFA_UseMultiplicityMaxima = cms.bool(False),
         # Weight function to use in PFA (not used in PFASimple). 0: Gaussian, 1: Gaussian without width normalisation, 2: Complementary error function, 3: Step function. With PFA_WeightFunction=3 and PFA_UseMultiplicityMaxima=False, PFA and PFASimple are the same.

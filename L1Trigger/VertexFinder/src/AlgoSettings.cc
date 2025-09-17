@@ -16,7 +16,7 @@ namespace l1tVertexFinder {
         vx_pfa_scanparameters_(vertex_.getParameter<std::vector<double> >("PFA_ScanParameters")),
         vx_pfa_etadependentresolution_(vertex_.getParameter<bool>("PFA_EtaDependentResolution")),
         vx_pfa_resolutionSF_(vertex_.getParameter<double>("PFA_ResolutionSF")),
-        vx_pfa_width_(vertex_.getParameter<double>("PFA_VertexWidth")),
+        vx_pfa_cutoff_(vertex_.getParameter<double>("PFA_Cutoff")),
         vx_pfa_usemultiplicitymaxima_(vertex_.getParameter<bool>("PFA_UseMultiplicityMaxima")),
         vx_pfa_weightfunction_(vertex_.getParameter<unsigned int>("PFA_WeightFunction")),
         vx_pfa_weightedz0_(vertex_.getParameter<unsigned int>("PFA_WeightedZ0")),
