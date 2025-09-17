@@ -29,16 +29,17 @@ ticlSimTrackstersTask = cms.Task(filteredLayerClustersSimTracksters, ticlSimTrac
 
 # BARREL
 
-filteredLayerClusterSimTracksters = _filteredLayerClustersProducer.clone(
+filteredLayerClustersSimTrackstersBarrel = _filteredLayerClustersProducer.clone(
     clusterFilter = "ClusterFilterByAlgo",
     algo_number = [10, 11],
     iteration_label = "ticlSimTrackstersBarrel",
-    max_layerid = 5
+    max_layerId = 5
 )
 
 
 ticlSimTrackstersBarrel = _simTrackstersProducer.clone(
     computeLocalTime = False,
+    filtered_mask = "filteredLayerClustersSimTrackstersBarrel:ticlSimTrackstersBarrel",
     layerClusterSimClusterAssociator = 'barrelLayerClusterSimClusterAssociation',
     layerClusterCaloParticleAssociator = 'barrelLayerClusterCaloParticleAssociation',
     cutTk = cms.string('abs(eta) < 1.48 && pt > 1. && quality("highPurity") && hitPattern().numberOfLostHits("MISSING_OUTER_HITS") < 5')
@@ -47,6 +48,6 @@ ticlSimTrackstersBarrel = _simTrackstersProducer.clone(
 
 from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
 _ticlSimTrackstersTask = ticlSimTrackstersTask.copy()
-_ticlSimTrackstersTask += ticlSimTrackstersBarrel
+_ticlSimTrackstersTask.add(filteredLayerClustersSimTrackstersBarrel, ticlSimTrackstersBarrel)
 ticl_barrel.toReplaceWith(ticlSimTrackstersTask, _ticlSimTrackstersTask)
      
