@@ -25,7 +25,8 @@ l1ct::MiddleBufferMultififoRegionizerEmulator::MiddleBufferMultififoRegionizerEm
                                               /*streaming=*/true,
                                               /*outii=*/2,
                                               /*pauseii=*/1,
-                                              iConfig.getParameter<bool>("useAlsoVtxCoords")) {
+                                              iConfig.getParameter<bool>("useAlsoVtxCoords"),
+                                              iConfig.getParameter<bool>("tmux6GCTinput")) {
   debug_ = iConfig.getUntrackedParameter<bool>("debug", false);
 }
 
@@ -42,6 +43,7 @@ edm::ParameterSetDescription l1ct::MiddleBufferMultififoRegionizerEmulator::getP
   description.add<uint32_t>("nEmCalo", 12);
   description.add<uint32_t>("nMu", 2);
   description.add<bool>("useAlsoVtxCoords", true);
+  description.add<bool>("tmux6GCTinput", false);
   description.addUntracked<bool>("debug", false);
   return description;
 }
