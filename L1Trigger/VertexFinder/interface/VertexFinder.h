@@ -142,7 +142,7 @@ namespace l1tVertexFinder {
                                         const std::vector<unsigned int>& counts);
     /// Peak finding algorithm
     void PFA();
-    /// Peak finding algorithm, single vertex, fastHisto-like simplification (by using step functon PFA weights)
+    /// Peak finding algorithm, single vertex, fastHisto-like simplification (by using PFA weight=1 for all tracks in the "bin" and 0 otherwise)
     void PFASimple();
     /// DBSCAN algorithm
     void DBSCAN();

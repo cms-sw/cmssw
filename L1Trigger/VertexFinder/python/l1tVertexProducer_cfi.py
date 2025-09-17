@@ -30,21 +30,21 @@ l1tVertexProducer = cms.EDProducer('VertexProducer',
         FH_DoPtComp = cms.bool(False),
         # chi2dof < 5 for tracks with Pt > 10
         FH_DoTightChi2 = cms.bool(False),
-        # PFA algorithm scan parameters (min,max,width) [cm]
-        PFA_ScanParameters = cms.vdouble(-20.46912512, 20.46912512, 0.15991504),
+        # PFA algorithm scan parameters (min,max,spacing) [cm]
+        PFA_ScanParameters = cms.vdouble(-20.46912512, 20.46912512, 0.15991504), # set to the same values as for FH for ease of comparison
         # Include eta-dependence of the estimated track resolution used in PFA
         PFA_EtaDependentResolution = cms.bool(True),
-        # Scale factor for the PFA track resolution parameter (where the nominal values with and without eta-dependence are hard-coded using the fit results from Giovanna's thesis)
+        # Multiplicative scale factor for the above PFA track resolution parameter
         PFA_ResolutionSF = cms.double(1.3),
-        # PFA Gaussian width cutoff [cm]
+        # PFA Gaussian width cutoff for input tracks [cm] (not used in PFASimple)
         PFA_VertexWidth = cms.double(1.31), # Giovanna's recommendation of 3*sigma(lowest-resolution tracks).
-        # Enable 2-step process where the weighted pT sum is only calculated at positions where the weighted multiplicity is maximum ("local maxima"). In the second step, the local maximum with the largest weighted pT sum is chosen as the vertex.
+        # Enable 2-step process where the weighted pT sum is only calculated at positions where the weighted multiplicity is maximum ("local maxima"). In the second step, the local maximum with the largest weighted pT sum is chosen as the vertex. Only relevant for PFA (not used in PFASimple).
         PFA_UseMultiplicityMaxima = cms.bool(False),
-        # Weight function to use in PFA. 0: Gaussian, 1: Gaussian without width normalisation, 2: Complementary error function, 3: Step function
-        PFA_WeightFunction = cms.uint32(2),
-        # Instead of taking the z0 value from the discrete PFA scan (0), calculate it from the Gaussian and pT-weighted average of track z0 (1) or the optimal (1/variance) weighted mean of associated tracks, weighted also by pT and association probability (2). Step function and pT-weighted average (3) is intended for use with PFA_WeightFunction=3 (to replicate fastHisto).
+        # Weight function to use in PFA (not used in PFASimple). 0: Gaussian, 1: Gaussian without width normalisation, 2: Complementary error function, 3: Step function. With PFA_WeightFunction=3 and PFA_UseMultiplicityMaxima=False, PFA and PFASimple are the same.
+        PFA_WeightFunction = cms.uint32(3),
+        # Instead of taking the z0 value from the discrete PFA scan (0), calculate it from the Gaussian and pT^N-weighted average of track z0 (1) or the optimal (1/variance) weighted mean of associated tracks, weighted also by pT^N and association probability (2). Step function and pT^N-weighted average (3) is intended for use with PFA_WeightFunction=3 or PFASimple (to replicate fastHisto).
         # Additional options (4-11) have different uses of the track resolution (only relevant when eta-dependent) and different powers of trackPt in the weighted sum: see VertexFinder.cc for details.
-        PFA_WeightedZ0 = cms.uint32(8),
+        PFA_WeightedZ0 = cms.uint32(10), # 10 seems best overall for PFA, but 7-11 all have similar performance (with the best one depending on the process)
         # Use VxMinTrackPt cut specified below (otherwise no additional track selection is applied)
         PFA_DoQualityCuts = cms.bool(False),
         # fastHisto algorithm histogram parameters (min,max,width) [cm]

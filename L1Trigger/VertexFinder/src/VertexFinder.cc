@@ -4,7 +4,7 @@ using namespace std;
 
 namespace l1tVertexFinder {
 
-  // Returns the track resolution in cm (which can depend on track eta), to be used in PFA
+  // Returns the track resolution in cm (which can depend on track eta), to be used in PFA. Note in future this may not be necessary if the z0 uncertainty is included as a TTTrack property.
   float VertexFinder::computeTrackZ0Res(const L1Track* track) const {
     float trackAbsEta = std::fabs(track->eta());
     // Hard-coded eta-dependent and constant parametrisations of the track resolution taken from the PFA section of Giovanna's thesis: https://cds.cern.ch/record/2909504
@@ -39,7 +39,7 @@ namespace l1tVertexFinder {
       weight *= PFAWidth;
     }
 
-    // Calculate z-weight for weighted average z0 calculation
+    // Calculate z-weight for weighted average z0 calculation (added subsequent to Giovanna's thesis)
     float trackPt = track->pt();
     float zweight = 0.;
 
@@ -50,7 +50,7 @@ namespace l1tVertexFinder {
       // Estimates of vertex z0 and z0square based on optimal combination (weighted by 1/variance) of the z0 of the tracks associated to the vertex, weighted also by pT and association probability (ErfcWeight)
       zweight = ErfcWeight * std::pow(trackPt, settings_->vx_weightedmean()) / PFAWidth / PFAWidth;
     } else if (settings_->vx_pfa_weightedz0() == 3) {
-      // Step function weight, to replicate fastHisto when used with settings_->vx_pfa_weightfunction() == 3 or Algorithm::PFASimple
+      // Step function weight, to replicate fastHisto when used with settings_->vx_pfa_weightfunction() = 3 or Algorithm::PFASimple
       zweight = StepFunctionWeight * std::pow(trackPt, settings_->vx_weightedmean());
     }
     // Additional options with different uses of the eta-dependent width
