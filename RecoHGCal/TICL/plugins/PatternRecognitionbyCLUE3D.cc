@@ -269,7 +269,10 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
     clusters_[layer].eta.emplace_back(lc.eta());
     clusters_[layer].phi.emplace_back(lc.phi());
     clusters_[layer].cells.push_back(lc.hitsAndFractions().size());
-    clusters_[layer].algoId.push_back(lc.algo() - reco::CaloCluster::hgcal_em);
+    if (!isBarrel)
+      clusters_[layer].algoId.push_back(lc.algo() - reco::CaloCluster::hgcal_em);
+    else 
+      clusters_[layer].algoId.push_back(lc.algo() - reco::CaloCluster::barrel_em);
     clusters_[layer].isSilicon.push_back(rhtools_.isSilicon(detId));
     clusters_[layer].energy.emplace_back(lc.energy());
     clusters_[layer].isSeed.push_back(false);
