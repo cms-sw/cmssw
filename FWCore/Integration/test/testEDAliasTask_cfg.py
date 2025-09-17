@@ -14,8 +14,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(3)
 )
 
-process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('testEDAliasTask.root'),
+process.out = cms.OutputModule("AsciiOutputModule",
     outputCommands = cms.untracked.vstring(
         'keep *_intProducer_*_*',
     )
