@@ -135,7 +135,7 @@ def _addSeedToTrackProducers(seedProducers,modDict):
     names = []
     task = cms.Task()
     for seed in seedProducers:
-        modName = "seedTracks"+seed
+        modName = ("seedTracks"+seed).replace(":", "MI")
         if modName not in modDict:
             mod = _trajectorySeedTracks.clone(src=seed)
             modDict[modName] = mod
