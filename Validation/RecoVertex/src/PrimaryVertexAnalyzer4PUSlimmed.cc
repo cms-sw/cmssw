@@ -287,6 +287,10 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(DQMStore::IBooker& i,
     book1d("GenPVAssoc2RecoPVMatched_X", 120, -0.6, 0.6);
     book1d("GenPVAssoc2RecoPVMatched_Y", 120, -0.6, 0.6);
     book1d("GenPVAssoc2RecoPVMatched_Z", 120, -60, 60);
+	book1d("GenPVAssoc2RecoPVMatched_R", 120, -60, 60);
+	book1dlogx("GenPVAssoc2RecoPVMatched_Pt2", 15, &log_pt2_bins[0]);
+	book1dlogx("GenPVAssoc2RecoPVMatched_NumTracks", 24, &log_ntrk_bins[0]);
+	book1dlogx("GenPVAssoc2RecoPVMatched_ClosestDistanceZ", 30, &log_bins[0]);
 
     // All Generated Vertices Multi-Matched to a Reconstructed vertex. Used
     // for Duplicate rate plots
@@ -591,7 +595,12 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillRecoAssociatedGenPVHistograms(
     mes_[label]["GenPVAssoc2RecoPVMatched_X"]->Fill(v.x);
     mes_[label]["GenPVAssoc2RecoPVMatched_Y"]->Fill(v.y);
     mes_[label]["GenPVAssoc2RecoPVMatched_Z"]->Fill(v.z);
+	mes_[label]["GenPVAssoc2RecoPVMatched_R"]->Fill(v.r);
+	mes_[label]["GenPVAssoc2RecoPVMatched_Pt2"]->Fill(v.ptsq);
+	mes_[label]["GenPVAssoc2RecoPVMatched_NumTracks"]->Fill(v.nGenTrk);
+	mes_[label]["GenPVAssoc2RecoPVMatched_ClosestDistanceZ"]->Fill(v.closest_vertex_distance_z);
   }
+
 }
 
 void PrimaryVertexAnalyzer4PUSlimmed::fillGenAssociatedRecoVertexHistograms(
