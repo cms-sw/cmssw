@@ -1381,18 +1381,31 @@ namespace mkfit {
       }
 #endif
 
-      // input tracks
-      mkfndr->bkFitInputTracks(eoccs, icand, end);
+      if (Config::usePropToPlane) {
+        // input tracks
+        mkfndr->bkFitInputTracks(eoccs, icand, end);
+        // fit tracks back to first layer
+        mkfndr->bkFitFitTracksProp2Plane(m_job->m_event_of_hits, st_par, end - icand, chi_debug);
+        // tracks are put back into correcponding TrackCand when finsihed in the above function
+        // now move one last time to PCA
+        if (prop_config.backward_fit_to_pca) {
+          mkfndr->bkFitInputTracks(eoccs, icand, end);
+          mkfndr->bkFitPropTracksToPCA(end - icand);
+          mkfndr->bkFitOutputTracks(eoccs, icand, end, prop_config.backward_fit_to_pca);
+        }
+      } else {
+        // input tracks
+        mkfndr->bkFitInputTracks(eoccs, icand, end);
+        // fit tracks back to first layer
+        mkfndr->bkFitFitTracks(m_job->m_event_of_hits, st_par, end - icand, chi_debug);
 
-      // fit tracks back to first layer
-      mkfndr->bkFitFitTracks(m_job->m_event_of_hits, st_par, end - icand, chi_debug);
+        // now move one last time to PCA
+        if (prop_config.backward_fit_to_pca) {
+          mkfndr->bkFitPropTracksToPCA(end - icand);
+        }
 
-      // now move one last time to PCA
-      if (prop_config.backward_fit_to_pca) {
-        mkfndr->bkFitPropTracksToPCA(end - icand);
+        mkfndr->bkFitOutputTracks(eoccs, icand, end, prop_config.backward_fit_to_pca);
       }
-
-      mkfndr->bkFitOutputTracks(eoccs, icand, end, prop_config.backward_fit_to_pca);
 
 #ifdef DEBUG_FINAL_FIT
       dprintf("Post Final fit for %d - %d\n", icand, end);
