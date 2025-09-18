@@ -2014,7 +2014,7 @@ namespace evf {
         std::string fileprefix = "/fu/";
         std::string rawpath = bu_run_dir_ + "/" + name;  //filestem should be raw
         //make destination dir
-        if (!std::filesystem::exists(bu_run_dir_ + fileprefix)) {
+        if (!discoveryReadOnly_ && !std::filesystem::exists(bu_run_dir_ + fileprefix)) {
           std::filesystem::create_directory(bu_run_dir_ + fileprefix);
         }
         std::filesystem::path p = name;
