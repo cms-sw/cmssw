@@ -291,7 +291,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // Kernel to perform Raw to Digi conversion
     template <bool debug = false>
     struct RawToDigi_kernel {
-      ALPAKA_FN_ACC void operator()(Acc1D const &acc,
+    ALPAKA_FN_ACC void operator()(Acc1D const &acc,
                                     const SiPixelMappingSoAConstView &cablingMap,
                                     const unsigned char *modToUnp,
                                     const uint32_t wordCounter,
@@ -626,27 +626,28 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         {
           const int blocks = 64;
-          const auto elementsPerBlockFindClus = FindClus<TrackerTraits>::maxElementsPerBlock;
-          const auto workDivMaxNumModules = cms::alpakatools::make_workdiv<Acc1D>(blocks, elementsPerBlockFindClus);
+
+          const auto elementsPerBlockFindClus = digiMorphingConfig.applyDigiMorphing ? FindClus<TrackerTraits>::maxElementsPerBlockMorph : FindClus<TrackerTraits>::maxElementsPerBlock;
+          const auto workDivFindClus = cms::alpakatools::make_workdiv<Acc1D>(blocks, elementsPerBlockFindClus);
 
           // allocate a transient collection for the fake pixels recovered by the digi morphing algorithm
           auto fakes_d = SiPixelDigisSoACollection(blocks * digiMorphingConfig.maxFakesInModule, queue);
-
 #ifdef GPU_DEBUG
-          std::cout << " FindClus kernel launch with " << numberOfModules << " blocks of " << elementsPerBlockFindClus
+          alpaka::wait(queue);
+          std::cout << "FindClus kernel launch with " << blocks << " blocks of " << elementsPerBlockFindClus
                     << " threadsPerBlockOrElementsPerThread\n";
 #endif
 
           // Use device buffer created by producer and the module count stored in digiMorphingConfig
           alpaka::exec<Acc1D>(queue,
-                              workDivMaxNumModules,
+                              workDivFindClus,
                               FindClus<TrackerTraits>{},
                               digis_d->view(),
                               fakes_d.view(),
                               digiMorphingConfig.applyDigiMorphing,
                               morphingModulesDevice,
                               digiMorphingConfig.numMorphingModules,
-                              digiMorphingConfig.maxFakesInModule,
+                              digiMorphingConfig.maxFakesInModule, 
                               clusters_d->view(),
                               wordCounter);
 #ifdef GPU_DEBUG
@@ -799,5 +800,5 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     template class SiPixelRawToClusterKernel<pixelTopology::HIonPhase1>;
 
   }  // namespace pixelDetails
-
+  
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
