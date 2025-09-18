@@ -7,6 +7,9 @@
 <test name="test-cmsTraceFunction-setenv" command="gdb/test-cmsTraceFunction-setenv.sh">
   <use name="gdb"/>
 </test>
+<test name="test-cmsTraceFunction-failure" command="gdb/test-cmsTraceFunction-failure.sh">
+  <use name="gdb"/>
+</test>
 <test name="test-clang-tidy" command="test-clang-tidy.sh">
   <use name="llvm"/>
 </test>
