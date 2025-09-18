@@ -172,7 +172,7 @@ public:
   * muon system, set the tracker bounds to larger values.
   */
   const bool insideTrackerBounds(const GlobalPoint& point) const {
-    return ((point.transverse() < trackerBoundsRadius) && (abs(point.z()) < trackerBoundsHalfLength));
+    return ((point.transverse() < trackerBoundsRadius) && (std::abs(point.z()) < trackerBoundsHalfLength));
   }
 
   void setTrackerBounds(float radius, float halfLength) {
