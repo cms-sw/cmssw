@@ -210,6 +210,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     digiMorphingConfig_.applyDigiMorphing = iConfig.getParameter<bool>("DoDigiMorphing");
     digiMorphingConfig_.maxFakesInModule = iConfig.getParameter<uint32_t>("MaxFakesInModule");
 
+    if (digiMorphingConfig_.maxFakesInModule > TrackerTraits::maxPixInModuleForMorphing - TrackerTraits::maxPixInModule) {
+      throw cms::Exception("Configuration") << "[SiPixelDigiMorphing]:"
+                                            << " maxFakesInModule should be <= " << TrackerTraits::maxPixInModuleForMorphing - TrackerTraits::maxPixInModule 
+                                            << " (TrackerTraits::maxPixInModuleForMorphing - TrackerTraits::maxPixInModule)"
+                                            << " while " << digiMorphingConfig_.maxFakesInModule << " was provided at config level.\n";
+    }
+    
     // regions
     if (!iConfig.getParameter<edm::ParameterSet>("Regions").getParameterNames().empty()) {
       regions_ = std::make_unique<PixelUnpackingRegions>(iConfig, consumesCollector());
@@ -233,7 +240,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     desc.add<double>("VCaltoElectronOffset", -60.f);
     desc.add<double>("VCaltoElectronOffset_L1", -670.f);
     desc.add<bool>("DoDigiMorphing", false);
-    desc.add<uint32_t>("MaxFakesInModule", TrackerTraits::maxPixInModule * 2 / 5);
+    desc.add<uint32_t>("MaxFakesInModule", TrackerTraits::maxPixInModuleForMorphing - TrackerTraits::maxPixInModule);
 
     desc.add<edm::InputTag>("InputLabel", edm::InputTag("rawDataCollector"));
     {

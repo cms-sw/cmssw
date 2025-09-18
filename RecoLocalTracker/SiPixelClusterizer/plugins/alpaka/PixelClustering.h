@@ -17,7 +17,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/warpsize.h"
 
-//#define GPU_DEBUG
+// #define GPU_DEBUG
 
 // TODO move to HeterogeneousCore/AlpakaInterface or upstream to alpaka
 template <typename TAcc, typename T>
@@ -174,12 +174,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
   template <typename TrackerTraits>
   struct FindClus {
     // assume that we can cover the whole module with up to 16 blockDimension-wide iterations
-    static constexpr uint32_t maxIterGPU = 16;
-
-    // this must be larger than maxPixInModule / maxIterGPU, and should be a multiple of the warp size
+  
+    // this must be larger than maxPixInModule / maxIterClustering, and should be a multiple of the warp size
     static constexpr uint32_t maxElementsPerBlock =
-        cms::alpakatools::round_up_by(TrackerTraits::maxPixInModule / maxIterGPU, 128);
-
+        cms::alpakatools::round_up_by(TrackerTraits::maxPixInModule / TrackerTraits::maxIterClustering, 64);
+    static constexpr uint32_t maxElementsPerBlockMorph =
+        cms::alpakatools::round_up_by(TrackerTraits::maxPixInModuleForMorphing / TrackerTraits::maxIterClustering, 64);
+    static_assert(maxElementsPerBlockMorph>=maxElementsPerBlock);
+    
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   SiPixelDigisSoAView digi_view,
                                   SiPixelDigisSoAView fakes_view,
@@ -261,7 +263,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
 
         using Hist = cms::alpakatools::HistoContainer<uint16_t,
                                                       TrackerTraits::clusterBinning,
-                                                      TrackerTraits::maxPixInModule,
+                                                      TrackerTraits::maxPixInModuleForMorphing,
                                                       TrackerTraits::clusterBits,
                                                       uint16_t>;
         constexpr int warpSize = cms::alpakatools::warpSize;
@@ -568,15 +570,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
 #endif
 
         [[maybe_unused]] const uint32_t blockDimension = alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[0u];
-        // assume that we can cover the whole module with up to maxIterGPU blockDimension-wide iterations
-        ALPAKA_ASSERT_ACC((hist.size() / blockDimension) < maxIterGPU);
+        // assume that we can cover the whole module with up to maxIterClustering blockDimension-wide iterations
+        ALPAKA_ASSERT_ACC((hist.size() / blockDimension) < TrackerTraits::maxIterClustering);
 
         // number of elements per thread
-        constexpr uint32_t maxElements =
-            cms::alpakatools::requires_single_thread_per_block_v<Acc1D> ? maxElementsPerBlock : 1;
+        const uint32_t maxElements =
+            cms::alpakatools::requires_single_thread_per_block_v<Acc1D> ?  (enableDigiMorphing ? maxElementsPerBlockMorph : maxElementsPerBlock) : 1;
+        
+       
+#ifdef GPU_DEBUG
+        const auto nthreads = alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[0u];
+        if (nthreads > maxElements)
+          printf("This is WRONG: nthreads > maxElements : %d > %d\n",nthreads,maxElements);
+        else if (thisModuleId % 500 == 1)
+          printf("This is OK: nthreads <= maxElements : %d <= %d\n",nthreads,maxElements);
+#endif
+
         ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Thread, alpaka::Elems>(acc)[0u] <= maxElements));
 
-        constexpr unsigned int maxIter = maxIterGPU * maxElements;
+        const unsigned int maxIter = TrackerTraits::maxIterClustering * maxElements;
 
         // nearest neighbours (nn)
         constexpr int maxNeighbours = 8;
