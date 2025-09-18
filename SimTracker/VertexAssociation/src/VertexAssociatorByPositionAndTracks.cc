@@ -191,7 +191,7 @@ reco::VertexSimToRecoCollection VertexAssociatorByPositionAndTracks::associateSi
 
       const double tdiff = std::abs(recoVertex.t() - simVertex.position().t() * CLHEP::second);
       const double zdiff = std::abs(recoVertex.z() - simVertex.position().z());
-      if (zdiff < absZ_ && zdiff / recoVertex.zError() < sigmaZ_ &&
+      if (zdiff < absZ_ &&  // zdiff / recoVertex.zError() < sigmaZ_ &&
           (!useTiming || (tdiff < absT_ && tdiff / recoVertex.tError() < sigmaT_))) {
         auto sharedTracksAndFraction = calculateVertexSharedTracks(recoVertex, simVertex, *trackRecoToSimAssociation_);
         float fraction = sharedTracksAndFraction.sharedTracksFraction_;

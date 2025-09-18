@@ -120,7 +120,7 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
     int kind_of_vertex;
     std::vector<const TrackingVertex *> sim_vertices;
     std::vector<const simPrimaryVertex *> sim_vertices_internal;
-    std::vector<unsigned int> sim_vertices_num_shared_tracks;
+    std::vector<float> sim_vertices_num_shared_tracks;
     const reco::Vertex *recVtx;
     reco::VertexBaseRef recVtxRef;
   };

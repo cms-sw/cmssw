@@ -61,8 +61,8 @@ tpToHLTphase2TrackAssociation = tpToHLTpixelTrackAssociation.clone(
 )
 vertexAssociatorByPositionAndTracks4phase2HLTTracks = _VertexAssociatorByPositionAndTracks.clone(
     trackAssociation = "tpToHLTphase2TrackAssociation",
-    sharedTrackFraction = -1, # requires optimization
-    weightMethod = "pt2",
+    sharedTrackFraction = 0.5, # requires optimization
+    weightMethod = "dzError",
 )
 
 def _modifyFullPVanalysisForPhase2(pvanalysis):

@@ -672,8 +672,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillGenAssociatedRecoVertexHistograms(
   }
 
   for (size_t i = 0; i < v.sim_vertices.size(); ++i) {
-    const double sharedFraction = v.sim_vertices_num_shared_tracks[i];
-    std::cout << "sharedFraction " << sharedFraction << std::endl; // [FIXME] this is always 0 or 1!!!
+    const float sharedFraction = v.sim_vertices_num_shared_tracks[i];
     // const simPrimaryVertex* simV = v.sim_vertices_internal[i];
     mes_[label][prefix + "AssociationScore"]->Fill(sharedFraction);
     // mes_[label][prefix + "RecoMatched"]->Fill(sharedFraction);
@@ -1125,7 +1124,6 @@ void PrimaryVertexAnalyzer4PUSlimmed::matchReco2SimVertices(std::vector<recoPrim
         const auto tvPtr = &(*(vertexRefQuality.first));
         vrec->sim_vertices.push_back(tvPtr);
         vrec->sim_vertices_num_shared_tracks.push_back(vertexRefQuality.second);
-        std::cout << "vertexRefQuality.second: " << vertexRefQuality.second << std::endl; // [FIXME] This is correctly defined
       }
 
       for (const TrackingVertex* tv : vrec->sim_vertices) {
