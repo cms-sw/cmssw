@@ -23,7 +23,7 @@ namespace l1t::demo::gtt {
   static constexpr size_t kTrackTMUX = 18;  //TMUX of the TrackFindingProcessors
   static constexpr size_t kGTTBoardTMUX =
       6;  //TMUX of the GTT in the current configuration: 6 boards running 3 events in parallel, with a paired board running parallel algorithms
-  static constexpr size_t kMaxLinesPerFile = 1024;
+  static constexpr size_t kMaxLinesPerFile = 972;  //6 events x 18 BX/event x 9 clock cycles/BX
 
   static constexpr size_t kVertexChanIndex = 0;
 
