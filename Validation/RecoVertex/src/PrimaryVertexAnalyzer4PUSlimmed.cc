@@ -56,7 +56,8 @@ PrimaryVertexAnalyzer4PUSlimmed::PrimaryVertexAnalyzer4PUSlimmed(const edm::Para
           consumes<reco::RecoToSimCollection>(iConfig.getUntrackedParameter<edm::InputTag>("trackAssociatorMap"))),
       vertexAssociatorToken_(consumes<reco::VertexToTrackingVertexAssociator>(
           iConfig.getUntrackedParameter<edm::InputTag>("vertexAssociator"))),
-      nPUbins_(iConfig.getParameter<unsigned int>("nPUbins")) {
+      nPUbins_(iConfig.getParameter<unsigned int>("nPUbins")),
+      maxEta_(iConfig.getParameter<double>("maxEta")) {
   reco_vertex_collections_ = iConfig.getParameter<std::vector<edm::InputTag>>("vertexRecoCollections");
   for (auto const& l : reco_vertex_collections_) {
     reco_vertex_collection_tokens_.push_back(
@@ -942,7 +943,7 @@ std::vector<PrimaryVertexAnalyzer4PUSlimmed::simPrimaryVertex> PrimaryVertexAnal
       // TODO(rovere) be consistent between simulated tracks and
       // reconstructed tracks selection
       // count relevant particles
-      if (((**iTP).pt() > 0.2) && (fabs((**iTP).eta()) < 2.5) && (**iTP).charge() != 0) {
+      if (((**iTP).pt() > 0.2) && (fabs((**iTP).eta()) < maxEta_) && (**iTP).charge() != 0) {
         vp->nGenTrk++;
       }
     }  // End of for loop on daughters sim-particles

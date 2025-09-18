@@ -182,6 +182,7 @@ private:
   std::vector<bool> errorPrintedForColl_;
 
   unsigned int nPUbins_;
+  const float maxEta_;
 };
 
 #endif  // VALIDATION_RECOVERTEX_INTERFACE_PRIMARYVERTEXANALYZER4PUSLIMMED_H_

@@ -27,12 +27,14 @@ vertexAnalysis = DQMEDAnalyzer('PrimaryVertexAnalyzer4PUSlimmed',
                                                                       "selectedOfflinePrimaryVertices",
                                                                       "selectedOfflinePrimaryVerticesWithBS"
                                                                       ),
-                               nPUbins = cms.uint32(130)
+                               nPUbins = cms.uint32(130),
+                               maxEta = cms.double(2.5),
 )
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify( vertexAnalysis,
-                         nPUbins = 250 )
+                         nPUbins = 250,
+                         maxEta = 4.0,)
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 premix_stage2.toModify(vertexAnalysis,
