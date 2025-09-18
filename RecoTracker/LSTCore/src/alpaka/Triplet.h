@@ -473,12 +473,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       const auto threadIdx = alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc);
       const auto blockDim = alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc);
 
-      const int threadIdX = threadIdx[2];
-      const int threadIdY = threadIdx[1];
+      const int threadIdX = threadIdx.x();
+      const int threadIdY = threadIdx.y();
       const int blockSizeX = blockDim[2];
       const int blockSizeY = blockDim[1];
-      const int blockSizeZ = blockDim[0];
-      const int blockSize = blockSizeX * blockSizeY * blockSizeZ;
+      const int blockSize = blockSizeX * blockSizeY;
       const int flatThreadIdxXY = threadIdY * blockSizeX + threadIdX;
       const int flatThreadExtent = blockSize;  // total threads per block
 
