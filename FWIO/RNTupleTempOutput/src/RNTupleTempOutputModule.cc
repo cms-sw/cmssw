@@ -355,18 +355,10 @@ namespace edm::rntuple_temp {
     fillDependencyGraph();
     branchParents_.clear();
     startEndFile();
-    writeFileFormatVersion();
-    writeFileIdentifier();
-    writeIndexIntoFile();
-    writeStoredMergeableRunProductMetadata();
-    writeProcessHistoryRegistry();
+    writeMetaData();
+
     writeParameterSetRegistry();
-    writeProductDescriptionRegistry();
     writeParentageRegistry();
-    writeBranchIDListRegistry();
-    writeThinnedAssociationsHelper();
-    writeProductDependencies();  //productDependencies used here
-    writeProcessBlockHelper();
     productDependencies_.clear();
     finishEndFile();
 
@@ -376,24 +368,11 @@ namespace edm::rntuple_temp {
   // At some later date, we may move functionality from finishEndFile() to here.
   void RNTupleTempOutputModule::startEndFile() {}
 
-  void RNTupleTempOutputModule::writeFileFormatVersion() { rootOutputFile_->writeFileFormatVersion(); }
-  void RNTupleTempOutputModule::writeFileIdentifier() { rootOutputFile_->writeFileIdentifier(); }
-  void RNTupleTempOutputModule::writeIndexIntoFile() { rootOutputFile_->writeIndexIntoFile(); }
-  void RNTupleTempOutputModule::writeStoredMergeableRunProductMetadata() {
-    rootOutputFile_->writeStoredMergeableRunProductMetadata();
-  }
-  void RNTupleTempOutputModule::writeProcessHistoryRegistry() { rootOutputFile_->writeProcessHistoryRegistry(); }
+  void RNTupleTempOutputModule::writeMetaData() { rootOutputFile_->writeMetaData(*reg_); }
+
   void RNTupleTempOutputModule::writeParameterSetRegistry() { rootOutputFile_->writeParameterSetRegistry(); }
-  void RNTupleTempOutputModule::writeProductDescriptionRegistry() {
-    assert(reg_);
-    rootOutputFile_->writeProductDescriptionRegistry(*reg_);
-  }
   void RNTupleTempOutputModule::writeParentageRegistry() { rootOutputFile_->writeParentageRegistry(); }
-  void RNTupleTempOutputModule::writeBranchIDListRegistry() { rootOutputFile_->writeBranchIDListRegistry(); }
-  void RNTupleTempOutputModule::writeThinnedAssociationsHelper() { rootOutputFile_->writeThinnedAssociationsHelper(); }
-  void RNTupleTempOutputModule::writeProductDependencies() { rootOutputFile_->writeProductDependencies(); }
   void RNTupleTempOutputModule::writeEventAuxiliary() { rootOutputFile_->writeEventAuxiliary(); }
-  void RNTupleTempOutputModule::writeProcessBlockHelper() { rootOutputFile_->writeProcessBlockHelper(); }
   void RNTupleTempOutputModule::finishEndFile() {
     rootOutputFile_->finishEndFile();
     rootOutputFile_ = nullptr;

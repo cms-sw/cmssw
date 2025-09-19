@@ -182,19 +182,11 @@ namespace edm::rntuple_temp {
     void fillDependencyGraph();
 
     void startEndFile();
-    void writeFileFormatVersion();
-    void writeFileIdentifier();
-    void writeIndexIntoFile();
-    void writeStoredMergeableRunProductMetadata();
-    void writeProcessHistoryRegistry();
+    void writeMetaData();
+
     void writeParameterSetRegistry();
-    void writeProductDescriptionRegistry();
     void writeParentageRegistry();
-    void writeBranchIDListRegistry();
-    void writeThinnedAssociationsHelper();
-    void writeProductDependencies();
     void writeEventAuxiliary();
-    void writeProcessBlockHelper();
     void finishEndFile();
 
     void fillSelectedItemList(BranchType branchtype,
