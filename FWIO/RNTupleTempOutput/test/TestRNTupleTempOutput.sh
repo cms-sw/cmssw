@@ -5,9 +5,9 @@ function die { echo $1: status $2 ;  exit $2; }
 LOCAL_TEST_DIR=$SCRAM_TEST_PATH
 
 cmsRun ${LOCAL_TEST_DIR}/PoolOutputTest_cfg.py || die 'Failure using PoolOutputTest_cfg.py 1' $?
-GUID1=$(edmFileUtil -u PoolOutputTest.root | fgrep uuid | awk '{print $10}')
+GUID1=$(edmRNTupleTempFileUtil -u PoolOutputTest.root | fgrep uuid | awk '{print $10}')
 cmsRun ${LOCAL_TEST_DIR}/PoolOutputTest_cfg.py || die 'Failure using PoolOutputTest_cfg.py 2' $?
-GUID2=$(edmFileUtil -u PoolOutputTest.root | fgrep uuid | awk '{print $10}')
+GUID2=$(edmRNTupleTempFileUtil -u PoolOutputTest.root | fgrep uuid | awk '{print $10}')
 if [ "x${GUID1}" == "x${GUID2}" ]; then
     echo "GUID from two executions are the same: ${GUID1}"
     exit 1
@@ -41,13 +41,13 @@ cmsRun ${LOCAL_TEST_DIR}/PoolOutputTestUnscheduled_cfg.py || die 'Failure using 
 cmsRun ${LOCAL_TEST_DIR}/PoolOutputTestUnscheduledRead_cfg.py || die 'Failure using PoolOutputTestUnscheduledRead_cfg.py' $?
 
 cmsRun ${LOCAL_TEST_DIR}/PoolOutputTestOverrideGUID_cfg.py --guid abcdef01-2345-6789-abcd-ef0123456789 || die 'Failure using PoolOutputTestOverrideGUID_cfg.py with valid GUID' $?
-GUID=$(edmFileUtil -u PoolOutputTestOverrideGUID.root | fgrep uuid | awk '{print $10}')
+GUID=$(edmRNTupleTempFileUtil -u PoolOutputTestOverrideGUID.root | fgrep uuid | awk '{print $10}')
 if [ "x${GUID}" != "xabcdef01-2345-6789-abcd-ef0123456789" ]; then
     echo "GUID in file '${GUID}' did not match 'abcdef01-2345-6789-abcd-ef0123456789'"
     exit 1
 fi
 cmsRun ${LOCAL_TEST_DIR}/PoolOutputTestOverrideGUID_cfg.py --guid ABCDEF01-2345-6789-abcd-ef0123456789 || die 'Failure using PoolOutputTestOverrideGUID_cfg.py with valid GUID (with some capital letteters)' $?
-GUID=$(edmFileUtil -u PoolOutputTestOverrideGUID.root | fgrep uuid | awk '{print $10}')
+GUID=$(edmRNTupleTempFileUtil -u PoolOutputTestOverrideGUID.root | fgrep uuid | awk '{print $10}')
 if [ "x${GUID}" != "xABCDEF01-2345-6789-abcd-ef0123456789" ]; then
     echo "GUID in file '${GUID}' did not match 'ABCDEF01-2345-6789-abcd-ef0123456789'"
     exit 1
@@ -64,8 +64,8 @@ cmsRun ${LOCAL_TEST_DIR}/PoolOutputTest_cfg.py --firstLumi 1
 cmsRun ${LOCAL_TEST_DIR}/PoolOutputTest_cfg.py --firstLumi 2
 
 cmsRun ${LOCAL_TEST_DIR}/PoolOutputTestOverrideGUID_cfg.py --guid abcdef01-2345-6789-abcd-ef0123456789 --input PoolOutputTestLumi1.root PoolOutputTestLumi2.root --maxSize 1 || die 'Failure using PoolOutputTestOverrideGUID_cfg.py with valid GUID and two input files' $?
-GUID1=$(edmFileUtil -u PoolOutputTestOverrideGUID.root | fgrep uuid | awk '{print $10}')
-GUID2=$(edmFileUtil -u PoolOutputTestOverrideGUID001.root | fgrep uuid | awk '{print $10}')
+GUID1=$(edmRNTupleTempFileUtil -u PoolOutputTestOverrideGUID.root | fgrep uuid | awk '{print $10}')
+GUID2=$(edmRNTupleTempFileUtil -u PoolOutputTestOverrideGUID001.root | fgrep uuid | awk '{print $10}')
 if [ "x${GUID1}" != "xabcdef01-2345-6789-abcd-ef0123456789" ]; then
     echo "GUID in first file '${GUID1}' did not match 'abcdef01-2345-6789-abcd-ef0123456789'"
     exit 1

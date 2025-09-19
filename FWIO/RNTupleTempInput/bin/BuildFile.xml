@@ -1,0 +1,27 @@
+<bin name="edmRNTupleTempProvDump" file="EdmRNTupleTempProvDump.cc,">
+  <use name="boost_program_options"/>
+  <use name="fmt"/>
+  <use name="rootcore"/>
+  <use name="rootntuple"/>
+  <use name="DataFormats/Common"/>
+  <use name="DataFormats/Provenance"/>
+  <use name="FWCore/Catalog"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="FWCore/Services"/>
+  <use name="FWCore/Utilities"/>
+</bin>
+
+<bin name="edmRNTupleTempFileUtil" file="EdmRNTupleTempFileUtil.cpp,CollUtil.cc">
+  <use name="boost"/>
+  <use name="boost_program_options"/>
+  <use name="rootcore"/>
+  <use name="rootntuple"/>
+  <use name="roothistmatrix"/>
+  <use name="DataFormats/Provenance"/>
+  <use name="FWCore/Catalog"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="FWCore/Services"/>
+</bin>

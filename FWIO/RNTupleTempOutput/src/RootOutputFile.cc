@@ -50,7 +50,6 @@
 #include "ROOT/RNTuple.hxx"
 #include "ROOT/RNTupleWriter.hxx"
 
-
 #include "Compression.h"
 
 #include <algorithm>
@@ -101,8 +100,6 @@ namespace edm::rntuple_temp {
         indexIntoFile_(),
         storedMergeableRunProductMetadata_(processesWithSelectedMergeableRunProducts),
         nEventsInLumi_(0),
-        metaDataTree_(nullptr),
-        parentageTree_(nullptr),
         lumiAux_(),
         runAux_(),
         pEventAux_(nullptr),
@@ -196,9 +193,6 @@ namespace edm::rntuple_temp {
         branchesWithStoredHistory_.insert(item.branchID());
       }
     }
-    // Don't split metadata tree or event description tree
-    metaDataTree_ = RootOutputRNTuple::makeTTree(filePtr_.get(), poolNames::metaDataTreeName(), 0);
-    parentageTree_ = RootOutputRNTuple::makeTTree(filePtr_.get(), poolNames::parentageTreeName(), 0);
 
     if (overrideGUID.empty()) {
       fid_ = FileID(createGlobalIdentifier());
@@ -583,11 +577,49 @@ namespace edm::rntuple_temp {
     treePointers_[ttreeIndex]->optimizeBaskets(10ULL * 1024 * 1024);
   }
 
-  void RootOutputFile::writeParentageRegistry() {
-    Parentage const* desc(nullptr);
+  void RootOutputFile::writeMetaData(ProductRegistry const& iReg) {
+    auto model = ROOT::RNTupleModel::CreateBare();
+    {
+      model->AddField(setupFileFormatVersion());
+      model->AddField(setupFileIdentifier());
+      model->AddField(setupIndexIntoFile());
+      model->AddField(setupStoredMergeableRunProductMetadata());
+      model->AddField(setupProcessHistoryRegistry());
+      model->AddField(setupProductDescriptionRegistry());
+      model->AddField(setupBranchIDListRegistry());
+      model->AddField(setupThinnedAssociationsHelper());
+      model->AddField(setupProductDependencies());
+      model->AddField(setupProcessBlockHelper());
+    }
 
-    if (!parentageTree_->Branch(poolNames::parentageBranchName().c_str(), &desc, om_->basketSize(), 0))
-      throw Exception(errors::FatalRootError) << "Failed to create a branch for Parentages in the output file";
+    auto writeOptions = ROOT::RNTupleWriteOptions();
+    //writeOptions.SetCompression(convert(iConfig.compressionAlgo), iConfig.compressionLevel);
+    auto metaData =
+        ROOT::RNTupleWriter::Append(std::move(model), poolNames::metaDataTreeName(), *filePtr_, writeOptions);
+
+    auto rentry = metaData->CreateEntry();
+
+    writeFileFormatVersion(*rentry);
+    writeFileIdentifier(*rentry);
+    writeIndexIntoFile(*rentry);
+    writeStoredMergeableRunProductMetadata(*rentry);
+    writeProcessHistoryRegistry(*rentry);
+    writeProductDescriptionRegistry(*rentry, iReg);
+    writeBranchIDListRegistry(*rentry);
+    writeThinnedAssociationsHelper(*rentry);
+    writeProductDependencies(*rentry);
+    writeProcessBlockHelper(*rentry);
+    metaData->Fill(*rentry);
+  }
+
+  void RootOutputFile::writeParentageRegistry() {
+    auto model = ROOT::RNTupleModel::CreateBare();
+    model->AddField(ROOT::RFieldBase::Create(poolNames::parentageBranchName(), "edm::Parentage").Unwrap());
+
+    auto writeOptions = ROOT::RNTupleWriteOptions();
+    //writeOptions.SetCompression(convert(iConfig.compressionAlgo), iConfig.compressionLevel);
+    auto parentageWriter =
+        ROOT::RNTupleWriter::Append(std::move(model), poolNames::parentageTreeName(), *filePtr_, writeOptions);
 
     ParentageRegistry& ptReg = *ParentageRegistry::instance();
 
@@ -595,33 +627,70 @@ namespace edm::rntuple_temp {
     for (auto const& parentageID : parentageIDs_) {
       orderedIDs[parentageID.second] = parentageID.first;
     }
+    auto rentry = parentageWriter->CreateEntry();
+
     //now put them into the TTree in the correct order
     for (auto const& orderedID : orderedIDs) {
-      desc = ptReg.getMapped(orderedID);
-      //NOTE: some old format files have missing Parentage info
-      // so a null value of desc can't be fatal.
-      // Root will default construct an object in that case.
-      parentageTree_->Fill();
+      rentry->BindRawPtr(poolNames::parentageBranchName(), const_cast<edm::Parentage*>(ptReg.getMapped(orderedID)));
+      parentageWriter->Fill(*rentry);
     }
   }
+  /////////
 
-  void RootOutputFile::writeFileFormatVersion() {
-    FileFormatVersion fileFormatVersion(getFileFormatVersion());
-    FileFormatVersion* pFileFmtVsn = &fileFormatVersion;
-    TBranch* b =
-        metaDataTree_->Branch(poolNames::fileFormatVersionBranchName().c_str(), &pFileFmtVsn, om_->basketSize(), 0);
-    assert(b);
-    b->Fill();
+  std::unique_ptr<ROOT::RFieldBase> RootOutputFile::setupFileFormatVersion() {
+    return ROOT::RFieldBase::Create(poolNames::fileFormatVersionBranchName(), "edm::FileFormatVersion").Unwrap();
   }
 
-  void RootOutputFile::writeFileIdentifier() {
-    FileID* fidPtr = &fid_;
-    TBranch* b = metaDataTree_->Branch(poolNames::fileIdentifierBranchName().c_str(), &fidPtr, om_->basketSize(), 0);
-    assert(b);
-    b->Fill();
+  std::unique_ptr<ROOT::RFieldBase> RootOutputFile::setupFileIdentifier() {
+    return ROOT::RFieldBase::Create(poolNames::fileIdentifierBranchName(), "edm::FileID").Unwrap();
   }
 
-  void RootOutputFile::writeIndexIntoFile() {
+  std::unique_ptr<ROOT::RFieldBase> RootOutputFile::setupIndexIntoFile() {
+    return ROOT::RFieldBase::Create(poolNames::indexIntoFileBranchName(), "edm::IndexIntoFile").Unwrap();
+  }
+
+  std::unique_ptr<ROOT::RFieldBase> RootOutputFile::setupStoredMergeableRunProductMetadata() {
+    return ROOT::RFieldBase::Create(poolNames::mergeableRunProductMetadataBranchName(),
+                                    "edm::StoredMergeableRunProductMetadata")
+        .Unwrap();
+  }
+
+  std::unique_ptr<ROOT::RFieldBase> RootOutputFile::setupProcessHistoryRegistry() {
+    return ROOT::RFieldBase::Create(poolNames::processHistoryBranchName(), "std::vector<edm::ProcessHistory>").Unwrap();
+  }
+
+  std::unique_ptr<ROOT::RFieldBase> RootOutputFile::setupBranchIDListRegistry() {
+    return ROOT::RFieldBase::Create(poolNames::branchIDListBranchName(), "std::vector<std::vector<unsigned int>>")
+        .Unwrap();
+  }
+
+  std::unique_ptr<ROOT::RFieldBase> RootOutputFile::setupThinnedAssociationsHelper() {
+    return ROOT::RFieldBase::Create(poolNames::thinnedAssociationsHelperBranchName(), "edm::ThinnedAssociationsHelper")
+        .Unwrap();
+  }
+
+  std::unique_ptr<ROOT::RFieldBase> RootOutputFile::setupProductDescriptionRegistry() {
+    return ROOT::RFieldBase::Create(poolNames::productDescriptionBranchName(), "edm::ProductRegistry").Unwrap();
+  }
+  std::unique_ptr<ROOT::RFieldBase> RootOutputFile::setupProductDependencies() {
+    return ROOT::RFieldBase::Create(poolNames::productDependenciesBranchName(), "edm::ProductDependencies").Unwrap();
+  }
+
+  std::unique_ptr<ROOT::RFieldBase> RootOutputFile::setupProcessBlockHelper() {
+    return ROOT::RFieldBase::Create(poolNames::processBlockHelperBranchName(), "edm::StoredProcessBlockHelper").Unwrap();
+  }
+
+  ////////
+  void RootOutputFile::writeFileFormatVersion(ROOT::REntry& rentry) {
+    auto fileFormatVersion = std::make_shared<FileFormatVersion>(getFileFormatVersion());
+    rentry.BindValue(poolNames::fileFormatVersionBranchName(), fileFormatVersion);
+  }
+
+  void RootOutputFile::writeFileIdentifier(ROOT::REntry& rentry) {
+    rentry.BindRawPtr(poolNames::fileIdentifierBranchName(), &fid_);
+  }
+
+  void RootOutputFile::writeIndexIntoFile(ROOT::REntry& rentry) {
     if (eventTree_.checkEntriesInReadBranches(eventEntryNumber_) == false) {
       Exception ex(errors::OtherCMS);
       ex << "The number of entries in at least one output TBranch whose entries\n"
@@ -632,69 +701,36 @@ namespace edm::rntuple_temp {
       throw ex;
     }
     indexIntoFile_.sortVector_Run_Or_Lumi_Entries();
-    IndexIntoFile* iifPtr = &indexIntoFile_;
-    TBranch* b = metaDataTree_->Branch(poolNames::indexIntoFileBranchName().c_str(), &iifPtr, om_->basketSize(), 0);
-    assert(b);
-    b->Fill();
+    rentry.BindRawPtr(poolNames::indexIntoFileBranchName(), &indexIntoFile_);
   }
 
-  void RootOutputFile::writeStoredMergeableRunProductMetadata() {
+  void RootOutputFile::writeStoredMergeableRunProductMetadata(ROOT::REntry& rentry) {
     storedMergeableRunProductMetadata_.optimizeBeforeWrite();
-    StoredMergeableRunProductMetadata* ptr = &storedMergeableRunProductMetadata_;
-    TBranch* b =
-        metaDataTree_->Branch(poolNames::mergeableRunProductMetadataBranchName().c_str(), &ptr, om_->basketSize(), 0);
-    assert(b);
-    b->Fill();
+    rentry.BindRawPtr(poolNames::mergeableRunProductMetadataBranchName(), &storedMergeableRunProductMetadata_);
   }
 
-  void RootOutputFile::writeProcessHistoryRegistry() {
-    fillProcessHistoryBranch(metaDataTree_.get(), om_->basketSize(), processHistoryRegistry_);
-  }
-
-  void RootOutputFile::writeBranchIDListRegistry() {
-    BranchIDLists const* p = om_->branchIDLists();
-    TBranch* b = metaDataTree_->Branch(poolNames::branchIDListBranchName().c_str(), &p, om_->basketSize(), 0);
-    assert(b);
-    b->Fill();
-  }
-
-  void RootOutputFile::writeThinnedAssociationsHelper() {
-    ThinnedAssociationsHelper const* p = om_->thinnedAssociationsHelper();
-    TBranch* b =
-        metaDataTree_->Branch(poolNames::thinnedAssociationsHelperBranchName().c_str(), &p, om_->basketSize(), 0);
-    assert(b);
-    b->Fill();
-  }
-
-  void RootOutputFile::writeParameterSetRegistry() {
-    auto model = ROOT::RNTupleModel::CreateBare();
-    {
-      auto field =
-          ROOT::RFieldBase::Create("IdToParameterSetsBlobs", "std::pair<edm::Hash<1>,edm::ParameterSetBlob>").Unwrap();
-      model->AddField(std::move(field));
+  void RootOutputFile::writeProcessHistoryRegistry(ROOT::REntry& rentry) {
+    auto procHistoryVector = std::make_shared<ProcessHistoryVector>();
+    for (auto const& ph : processHistoryRegistry_) {
+      procHistoryVector->push_back(ph.second);
     }
-    auto writeOptions = ROOT::RNTupleWriteOptions();
-    //writeOptions.SetCompression(convert(iConfig.compressionAlgo), iConfig.compressionLevel);
-    auto parameterSets = ROOT::RNTupleWriter::Append(std::move(model), poolNames::parameterSetsTreeName(), *filePtr_, writeOptions);
-    
-    std::pair<ParameterSetID, ParameterSetBlob> idToBlob;
-
-    auto rentry = parameterSets->CreateEntry();
-    rentry->BindRawPtr("IdToParameterSetsBlobs", static_cast<void*>(&idToBlob));
-
-    for (auto const& pset : *pset::Registry::instance()) {
-      idToBlob.first = pset.first;
-      idToBlob.second.pset() = pset.second.toString();
-
-      parameterSets->Fill(*rentry);
-    }
+    rentry.BindValue(poolNames::processHistoryBranchName(), procHistoryVector);
   }
 
-  void RootOutputFile::writeProductDescriptionRegistry(ProductRegistry const& iReg) {
+  void RootOutputFile::writeBranchIDListRegistry(ROOT::REntry& rentry) {
+    rentry.BindRawPtr(poolNames::branchIDListBranchName(), const_cast<BranchIDLists*>(om_->branchIDLists()));
+  }
+
+  void RootOutputFile::writeThinnedAssociationsHelper(ROOT::REntry& rentry) {
+    auto* p = const_cast<ThinnedAssociationsHelper*>(om_->thinnedAssociationsHelper());
+    rentry.BindRawPtr(poolNames::thinnedAssociationsHelperBranchName(), p);
+  }
+
+  void RootOutputFile::writeProductDescriptionRegistry(ROOT::REntry& rentry, ProductRegistry const& iReg) {
     // Make a local copy of the ProductRegistry, removing any transient or pruned products.
     using ProductList = ProductRegistry::ProductList;
-    ProductRegistry pReg(iReg.productList());
-    ProductList& pList = const_cast<ProductList&>(pReg.productList());
+    auto pReg = std::make_shared<ProductRegistry>(iReg.productList());
+    ProductList& pList = const_cast<ProductList&>(pReg->productList());
     for (auto const& prod : pList) {
       if (prod.second.branchID() != prod.second.originalBranchID()) {
         if (branchesWithStoredHistory_.find(prod.second.branchID()) != branchesWithStoredHistory_.end()) {
@@ -715,18 +751,45 @@ namespace edm::rntuple_temp {
       }
     }
 
-    ProductRegistry* ppReg = &pReg;
-    TBranch* b = metaDataTree_->Branch(poolNames::productDescriptionBranchName().c_str(), &ppReg, om_->basketSize(), 0);
-    assert(b);
-    b->Fill();
+    rentry.BindValue(poolNames::productDescriptionBranchName(), pReg);
   }
-  void RootOutputFile::writeProductDependencies() {
+  void RootOutputFile::writeProductDependencies(ROOT::REntry& rentry) {
     ProductDependencies& pDeps = const_cast<ProductDependencies&>(om_->productDependencies());
-    ProductDependencies* ppDeps = &pDeps;
-    TBranch* b =
-        metaDataTree_->Branch(poolNames::productDependenciesBranchName().c_str(), &ppDeps, om_->basketSize(), 0);
-    assert(b);
-    b->Fill();
+    rentry.BindRawPtr(poolNames::productDependenciesBranchName(), &pDeps);
+  }
+
+  void RootOutputFile::writeProcessBlockHelper(ROOT::REntry& rentry) {
+    if (!om_->outputProcessBlockHelper().processesWithProcessBlockProducts().empty()) {
+      auto storedProcessBlockHelper = std::make_shared<StoredProcessBlockHelper>(
+          om_->outputProcessBlockHelper().processesWithProcessBlockProducts());
+      om_->outputProcessBlockHelper().fillCacheIndices(*storedProcessBlockHelper);
+
+      rentry.BindValue(poolNames::processBlockHelperBranchName(), storedProcessBlockHelper);
+    }
+  }
+  void RootOutputFile::writeParameterSetRegistry() {
+    auto model = ROOT::RNTupleModel::CreateBare();
+    {
+      auto field =
+          ROOT::RFieldBase::Create("IdToParameterSetsBlobs", "std::pair<edm::Hash<1>,edm::ParameterSetBlob>").Unwrap();
+      model->AddField(std::move(field));
+    }
+    auto writeOptions = ROOT::RNTupleWriteOptions();
+    //writeOptions.SetCompression(convert(iConfig.compressionAlgo), iConfig.compressionLevel);
+    auto parameterSets =
+        ROOT::RNTupleWriter::Append(std::move(model), poolNames::parameterSetsTreeName(), *filePtr_, writeOptions);
+
+    std::pair<ParameterSetID, ParameterSetBlob> idToBlob;
+
+    auto rentry = parameterSets->CreateEntry();
+    rentry->BindRawPtr("IdToParameterSetsBlobs", &idToBlob);
+
+    for (auto const& pset : *pset::Registry::instance()) {
+      idToBlob.first = pset.first;
+      idToBlob.second.pset() = pset.second.toString();
+
+      parameterSets->Fill(*rentry);
+    }
   }
 
   // For duplicate removal and to determine if fast cloning is possible, the input
@@ -766,31 +829,10 @@ namespace edm::rntuple_temp {
     }
   }
 
-  void RootOutputFile::writeProcessBlockHelper() {
-    if (!om_->outputProcessBlockHelper().processesWithProcessBlockProducts().empty()) {
-      StoredProcessBlockHelper storedProcessBlockHelper(
-          om_->outputProcessBlockHelper().processesWithProcessBlockProducts());
-      om_->outputProcessBlockHelper().fillCacheIndices(storedProcessBlockHelper);
-
-      StoredProcessBlockHelper* pStoredProcessBlockHelper = &storedProcessBlockHelper;
-      TBranch* b = metaDataTree_->Branch(
-          poolNames::processBlockHelperBranchName().c_str(), &pStoredProcessBlockHelper, om_->basketSize(), 0);
-      assert(b);
-      b->Fill();
-    }
-  }
-
   void RootOutputFile::finishEndFile() {
     std::string_view status = "beginning";
     std::string_view value = "";
     try {
-      metaDataTree_->SetEntries(-1);
-      status = "writeTTree() for metadata";
-      RootOutputRNTuple::writeTTree(metaDataTree_);
-
-      status = "writeTTree() for parentage";
-      RootOutputRNTuple::writeTTree(parentageTree_);
-
       // Create branch aliases for all the branches in the
       // events/lumis/runs/processblock trees. The loop is over
       // all types of data products.
@@ -812,7 +854,6 @@ namespace edm::rntuple_temp {
       // Just to play it safe, zero all pointers to objects in the TFile to be closed.
       status = "closing TTrees";
       value = "";
-      metaDataTree_ = parentageTree_ = nullptr;
       for (auto& treePointer : treePointers_) {
         treePointer->close();
         treePointer = nullptr;

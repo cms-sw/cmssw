@@ -1,5 +1,5 @@
-#ifndef IOPool_Output_RootOutputFile_h
-#define IOPool_Output_RootOutputFile_h
+#ifndef FWIO_RNTupleTempOutput_RootOutputFile_h
+#define FWIO_RNTupleTempOutput_RootOutputFile_h
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -41,6 +41,9 @@ class TTree;
 class TFile;
 class TClass;
 
+#include "ROOT/RFieldBase.hxx"
+#include "ROOT/REntry.hxx"
+
 namespace edm {
   class OccurrenceForOutput;
 }
@@ -62,19 +65,10 @@ namespace edm::rntuple_temp {
     void writeLuminosityBlock(LuminosityBlockForOutput const& lb);
     void writeRun(RunForOutput const& r);
     void writeProcessBlock(ProcessBlockForOutput const&);
-    void writeFileFormatVersion();
-    void writeFileIdentifier();
-    void writeIndexIntoFile();
-    void writeStoredMergeableRunProductMetadata();
-    void writeProcessHistoryRegistry();
     void writeParameterSetRegistry();
-    void writeProductDescriptionRegistry(ProductRegistry const&);
     void writeParentageRegistry();
-    void writeBranchIDListRegistry();
-    void writeThinnedAssociationsHelper();
-    void writeProductDependencies();
+    void writeMetaData(ProductRegistry const&);
     void writeEventAuxiliary();
-    void writeProcessBlockHelper();
 
     void finishEndFile();
     void beginInputFile(FileBlock const& fb, int remainingEvents);
@@ -84,6 +78,28 @@ namespace edm::rntuple_temp {
     std::string const& fileName() const { return file_; }
 
   private:
+    std::unique_ptr<ROOT::RFieldBase> setupFileFormatVersion();
+    std::unique_ptr<ROOT::RFieldBase> setupFileIdentifier();
+    std::unique_ptr<ROOT::RFieldBase> setupIndexIntoFile();
+    std::unique_ptr<ROOT::RFieldBase> setupStoredMergeableRunProductMetadata();
+    std::unique_ptr<ROOT::RFieldBase> setupProcessHistoryRegistry();
+    std::unique_ptr<ROOT::RFieldBase> setupProductDescriptionRegistry();
+    std::unique_ptr<ROOT::RFieldBase> setupBranchIDListRegistry();
+    std::unique_ptr<ROOT::RFieldBase> setupThinnedAssociationsHelper();
+    std::unique_ptr<ROOT::RFieldBase> setupProductDependencies();
+    std::unique_ptr<ROOT::RFieldBase> setupProcessBlockHelper();
+
+    void writeFileFormatVersion(ROOT::REntry&);
+    void writeFileIdentifier(ROOT::REntry&);
+    void writeIndexIntoFile(ROOT::REntry&);
+    void writeStoredMergeableRunProductMetadata(ROOT::REntry&);
+    void writeProcessHistoryRegistry(ROOT::REntry&);
+    void writeProductDescriptionRegistry(ROOT::REntry&, ProductRegistry const&);
+    void writeBranchIDListRegistry(ROOT::REntry&);
+    void writeThinnedAssociationsHelper(ROOT::REntry&);
+    void writeProductDependencies(ROOT::REntry&);
+    void writeProcessBlockHelper(ROOT::REntry&);
+
     void setBranchAliases(TTree* tree, SelectedProducts const& branches, std::string const& processName) const;
 
     void fillBranches(BranchType const& branchType,
@@ -124,8 +140,6 @@ namespace edm::rntuple_temp {
     IndexIntoFile indexIntoFile_;
     StoredMergeableRunProductMetadata storedMergeableRunProductMetadata_;
     unsigned long nEventsInLumi_;
-    edm::propagate_const<TTree*> metaDataTree_;
-    edm::propagate_const<TTree*> parentageTree_;
     LuminosityBlockAuxiliary lumiAux_;
     RunAuxiliary runAux_;
     EventAuxiliary const* pEventAux_;
