@@ -350,7 +350,10 @@ def formatToCircles(moduleTransitions):
             doc["total"]["maxTemp %s" % transitionType] += maxTemp
             doc["total"]["added %s" % transitionType] += added
             doc["total"]["max1Alloc %s" % transitionType] += max1Alloc
-            doc["total"]["events"] = moduleTransitions['event'][label].get("nEvents", 1)
+            if moduleTransitions['event'][label].get("nEvents", 1) > doc["total"]["events"] :
+                doc["total"]["events"] = moduleTransitions['event'][label].get("nEvents", 1)
+    if doc["total"]["events"] == 0:
+        doc["total"]["events"] = 1
     for key in sorted(modules_dict.keys()):
         module = modules_dict[key]
         module["events"] = moduleTransitions['event'][key].get("nEvents", 1)
