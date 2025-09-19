@@ -12,6 +12,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/prefixScan.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/warpsize.h"
 
 using namespace cms::alpakatools;
 using namespace ALPAKA_ACCELERATOR_NAMESPACE;
@@ -33,17 +34,8 @@ public:
 template <typename T>
 struct testPrefixScan {
   ALPAKA_FN_ACC void operator()(Acc1D const& acc, unsigned int size) const {
-    // alpaka::warp::getSize(acc) is runtime, but we need a compile-time or constexpr value
-#if defined(__CUDA_ARCH__)
-    // CUDA always has a warp size of 32
-    auto& ws = alpaka::declareSharedVar<T[32], __COUNTER__>(acc);
-#elif defined(__HIP_DEVICE_COMPILE__)
-    // HIP/ROCm defines warpSize as a constant expression with value 32 or 64 depending on the target device
-    auto& ws = alpaka::declareSharedVar<T[warpSize], __COUNTER__>(acc);
-#else
-    // CPU back-ends always have a warp size of 1
-    auto& ws = alpaka::declareSharedVar<T[1], __COUNTER__>(acc);
-#endif
+    // alpaka::warp::getSize(acc) is runtime, but we need a compile-time or constexpr value, so we use cms::alpakatools::warpSize
+    auto& ws = alpaka::declareSharedVar<T[cms::alpakatools::warpSize], __COUNTER__>(acc);
     auto& c = alpaka::declareSharedVar<T[1024], __COUNTER__>(acc);
     auto& co = alpaka::declareSharedVar<T[1024], __COUNTER__>(acc);
 
