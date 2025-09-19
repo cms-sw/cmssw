@@ -21,39 +21,39 @@ def formatToCircles(moduleTransitions):
        "resources": [
             {
                "name": "added event",
-               "description": "added memory average per event transition",
+               "description": "added memory per event transition average",
                "title": "Amount of memory added to the process at the end of the transition",
                "unit": "kB"
             },
             {
 
                "name": "nAlloc event",
-               "description": "num allocs average per event transition",
+               "description": "num allocs per event transition average",
                "title": "Number of allocations",
                "unit": ""
             },
 
            {
                "name": "max1Alloc event",
-               "description": "maximum temporary allocations average per event transition",
-               "title": "Maximum temporary allocations held during the transition",
-               "unit": ""
+               "description": "maximum one time allocation per event transition average",
+               "title": "Maximum one time allocation held during the transition",
+               "unit": "kB"
            },
            {
                "name": "nDealloc event",
-               "description": "num deallocs average per event",
-               "title": "Number of deallocations per event",
+               "description": "num deallocs for event transition average",
+               "title": "Number of deallocations",
                "unit": ""
            },
            {
                "name": "maxTemp event",
-               "description": "peak temporary memory average per event transition",
+               "description": "maximum temporary memory per event transition average",
                "title": "Maximum temporary memory held during the transition",
                "unit": "kB"
            },
            {
                "name": "added construction",
-               "description": "added memory construction transition",
+               "description": "added memory for construction transition",
                "title": "Amount of memory added to the process at the end of the transition",
                "unit": "kB"
             },
@@ -66,9 +66,9 @@ def formatToCircles(moduleTransitions):
            },
            {
                "name": "max1Alloc construction",
-               "description": "maximum temporary allocations average for construction transition",
-               "title": "Maximum temporary allocations held during the transition",
-               "unit": ""
+               "description": "maximum one time allocation for construction transition",
+               "title": "Maximum one time allocation held during the transition",
+               "unit": "kB"
            },
            {
                "name": "nDealloc construction",
@@ -84,7 +84,7 @@ def formatToCircles(moduleTransitions):
            },
            {
                "name": "added begin job",
-               "description": "added memory begin job transition",
+               "description": "added memory for begin job transition",
                "title": "Amount of memory added to the process at the end of the transition",
                "unit": "kB"
             },
@@ -97,9 +97,9 @@ def formatToCircles(moduleTransitions):
            },
            {
                "name": "max1Alloc begin job",
-               "description": "maximum temporary allocations average for begin job transition",
-               "title": "Maximum temporary allocations held during the transition",
-               "unit": ""
+               "description": "maximum one time allocation for begin job transition",
+               "title": "Maximum one time allocation held during the transition",
+               "unit": "kB"
            },
            {
                "name": "nDealloc begin job",
@@ -115,7 +115,7 @@ def formatToCircles(moduleTransitions):
            },
            {
                "name": "added begin stream",
-               "description": "added memory begin stream transition",
+               "description": "added memory for begin stream transition",
                "title": "Amount of memory added to the process at the end of the transition",
                "unit": "kB"
             },
@@ -128,9 +128,9 @@ def formatToCircles(moduleTransitions):
            },
            {
                "name": "max1Alloc begin stream",
-               "description": "maximum temporary allocations average for begin stream transition",
-               "title": "Maximum temporary allocations held during the transition",
-               "unit": ""
+               "description": "maximum one time allocation for begin stream transition",
+               "title": "Maximum one time allocation held during the transition",
+               "unit": "kB"
            },
            {
                "name": "nDealloc begin stream",
@@ -159,9 +159,9 @@ def formatToCircles(moduleTransitions):
            },
            {
                "name": "max1Alloc global begin run",
-               "description": "maximum temporary allocations average for global begin run transition",
-               "title": "Maximum temporary allocations held during the transition",
-               "unit": ""
+               "description": "maximum one time allocation for global begin run transition",
+               "title": "Maximum one time allocation held during the transition",
+               "unit": "kB"
            },
            {
                "name": "nDealloc global begin run",
@@ -177,7 +177,7 @@ def formatToCircles(moduleTransitions):
            },
            {
                "name": "added global begin luminosity block",
-               "description": "added memory global begin luminosity block transition",
+               "description": "added memory for global begin luminosity block transition",
                "title": "Amount of memory added to the process at the end of the transition",
                "unit": "kB"
             },
@@ -190,9 +190,9 @@ def formatToCircles(moduleTransitions):
            },
            {
                "name": "max1Alloc global begin luminosity block",
-               "description": "maximum temporary allocations average for global begin luminosity block transition",
-               "title": "Maximum temporary allocations held during the transition",
-               "unit": ""
+               "description": "maximum one time allocation for global begin luminosity block transition",
+               "title": "Maximum one time allocation held during the transition",
+               "unit": "kB"
            },
            {
                "name": "nDealloc global begin luminosity block",
@@ -208,7 +208,7 @@ def formatToCircles(moduleTransitions):
            },
            {
                "name": "added stream begin run",
-               "description": "added memory stream begin run transition",
+               "description": "added memory for stream begin run transition",
                "title": "Amount of memory added to the process at the end of the transition",
                "unit": "kB"
             },
@@ -221,9 +221,9 @@ def formatToCircles(moduleTransitions):
            },
            {
                "name": "max1Alloc stream begin run",
-               "description": "maximum temporary allocations average for stream begin run transition",
-               "title": "Maximum temporary allocations held during the transition",
-               "unit": ""
+               "description": "maximum one time allocation for stream begin run transition",
+               "title": "Maximum one time allocation held during the transition",
+               "unit": "kB"
            },
            {
                "name": "nDealloc stream begin run",
@@ -239,7 +239,7 @@ def formatToCircles(moduleTransitions):
            },
            {
                "name": "added stream begin luminosity block",
-               "description": "added memory stream begin luminosity block transition",
+               "description": "added memory for stream begin luminosity block transition",
                "title": "Amount of memory added to the process at the end of the transition",
                "unit": "kB"
             },
@@ -252,9 +252,9 @@ def formatToCircles(moduleTransitions):
            },
            {
                "name": "max1Alloc stream begin luminosity block",
-               "description": "maximum temporary allocations average for stream begin luminosity block transition",
-               "title": "Maximum temporary allocations held during the transition",
-               "unit": ""
+               "description": "maximum one time allocation average for stream begin luminosity block transition",
+               "title": "Maximum one time allocation held during the transition",
+               "unit": "kB"
            },
            {
                "name": "nDealloc stream begin luminosity block",
@@ -338,13 +338,13 @@ def formatToCircles(moduleTransitions):
                 modules_dict[label]["added %s" % transitionType] = (added/nevents)/1024
                 modules_dict[label]["maxTemp %s" % transitionType] = (maxTemp/nevents)/1024
                 modules_dict[label]["nDealloc %s" % transitionType] = nDealloc/nevents
-                modules_dict[label]["max1Alloc %s" % transitionType] = max1Alloc/nevents
+                modules_dict[label]["max1Alloc %s" % transitionType] = (max1Alloc/nevents)/1024
             else:
                 modules_dict[label]["nAlloc %s" % transitionType] = nAlloc
                 modules_dict[label]["added %s" % transitionType] = (added)/1024
                 modules_dict[label]["maxTemp %s" % transitionType] = (maxTemp)/1024
                 modules_dict[label]["nDealloc %s" % transitionType] = nDealloc
-                modules_dict[label]["max1Alloc %s" % transitionType] = max1Alloc
+                modules_dict[label]["max1Alloc %s" % transitionType] = max1Alloc/1024
             doc["total"]["nAlloc %s" % transitionType] += nAlloc
             doc["total"]["nDealloc %s" % transitionType] += nDealloc
             doc["total"]["maxTemp %s" % transitionType] += maxTemp
