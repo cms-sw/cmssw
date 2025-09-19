@@ -68,7 +68,7 @@ void JetMETDQMDCSFilter::initializeVars() {
                  {"hbhe", false},
                  {"hf", false},
                  {"ho", false},
-                 {"es", false},
+              //   {"es", false},  // remove ES
                  {"muon", false}};
 }
 
@@ -89,7 +89,7 @@ void JetMETDQMDCSFilter::checkDCSInfoPerPartition(const T& DCS) {
                        {"hbhe", {T::HBHEa, T::HBHEb, T::HBHEc}},
                        {"hf", {T::HF}},
                        {"ho", {T::HO}},
-                       {"es", {T::ESp, T::ESm}},
+                      //  {"es", {T::ESp, T::ESm}}, // remove ES
                        {"muon", {T::RPC, T::DT0, T::DTp, T::DTm, T::CSCp, T::CSCm}}};
   }
 
