@@ -451,8 +451,8 @@ namespace {
 
     MPlexLV outParTmp;
 
-    CMS_UNROLL_LOOP_COUNT(Config::Niter - 1)
-    for (int i = 0; i < Config::Niter - 1; ++i) {
+    CMS_UNROLL_LOOP_COUNT(Config::nSStepsInProp2Plane - 1)
+    for (int i = 0; i < Config::nSStepsInProp2Plane - 1; ++i) {
       parsFromPathL_impl(inPar, outParTmp, kinv, s);
 
       delta0 = outParTmp(0, 0) - plPnt(0, 0);
