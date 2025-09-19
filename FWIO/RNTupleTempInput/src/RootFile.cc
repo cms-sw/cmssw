@@ -174,8 +174,6 @@ namespace edm::rntuple_temp {
         indexIntoFileIter_(indexIntoFileBegin_),
         storedMergeableRunProductMetadata_((inputType == InputType::Primary) ? new StoredMergeableRunProductMetadata
                                                                              : nullptr),
-        eventProcessHistoryIDs_(),
-        eventProcessHistoryIter_(eventProcessHistoryIDs_.begin()),
         savedRunAuxiliary_(),
         skipAnyEvents_(processingOptions.skipAnyEvents),
         noRunLumiSort_(processingOptions.noRunLumiSort),
@@ -210,15 +208,12 @@ namespace edm::rntuple_temp {
         processingMode_(processingOptions.processingMode),
         runHelper_(crossFileInfo.runHelper),
         newBranchToOldBranch_(),
-        eventHistoryTree_(nullptr),
         eventToProcessBlockIndexesBranch_(
             inputType == InputType::Primary
                 ? eventTree_.tree()->GetBranch(poolNames::eventToProcessBlockIndexesBranchName().c_str())
                 : nullptr),
-        history_(),
         productDependencies_(new ProductDependencies),
         duplicateChecker_(crossFileInfo.duplicateChecker),
-        provenanceAdaptor_(),
         provenanceReaderMaker_(),
         eventProductProvenanceRetrievers_(),
         parentageIDLookup_(),
@@ -232,70 +227,51 @@ namespace edm::rntuple_temp {
     treePointers_[InLumi] = &lumiTree_;
     treePointers_[InRun] = &runTree_;
 
-    // Read the metadata tree.
+    // Read the metadata RNTuple.
     // We use a smart pointer so the tree will be deleted after use, and not kept for the life of the file.
-    std::unique_ptr<TTree> metaDataTree(dynamic_cast<TTree*>(filePtr_->Get(poolNames::metaDataTreeName().c_str())));
-    if (nullptr == metaDataTree.get()) {
+    std::unique_ptr<ROOT::RNTuple> metaDataRNTuple{filePtr_->Get<ROOT::RNTuple>(poolNames::metaDataTreeName().c_str())};
+    if (nullptr == metaDataRNTuple.get()) {
       throw Exception(errors::FileReadError)
-          << "Could not find tree " << poolNames::metaDataTreeName() << " in the input file.\n";
+          << "Could not find rntuple " << poolNames::metaDataTreeName() << " in the input file.\n";
     }
 
-    // To keep things simple, we just read in every possible branch that exists.
-    // We don't pay attention to which branches exist in which file format versions
+    auto metaDataReader = ROOT::RNTupleReader::Open(*metaDataRNTuple);
 
-    FileFormatVersion* fftPtr = &fileFormatVersion_;
-    if (metaDataTree->FindBranch(poolNames::fileFormatVersionBranchName().c_str()) != nullptr) {
-      TBranch* fft = metaDataTree->GetBranch(poolNames::fileFormatVersionBranchName().c_str());
-      fft->SetAddress(&fftPtr);
-      rootrntuple::getEntry(fft, 0);
-      metaDataTree->SetBranchAddress(poolNames::fileFormatVersionBranchName().c_str(), &fftPtr);
-    }
+    //If call CreateBareEntry and we do not bind all top level fields we get a seg fault
+    auto metaDataEntry = metaDataReader->GetModel().CreateEntry();
+    metaDataEntry->BindRawPtr(poolNames::fileFormatVersionBranchName(), &fileFormatVersion_);
 
-    FileID* fidPtr = &fid_;
-    if (metaDataTree->FindBranch(poolNames::fileIdentifierBranchName().c_str()) != nullptr) {
-      metaDataTree->SetBranchAddress(poolNames::fileIdentifierBranchName().c_str(), &fidPtr);
-    }
+    metaDataEntry->BindRawPtr(poolNames::fileIdentifierBranchName(), &fid_);
 
-    IndexIntoFile* iifPtr = &indexIntoFile_;
-    if (metaDataTree->FindBranch(poolNames::indexIntoFileBranchName().c_str()) != nullptr) {
-      metaDataTree->SetBranchAddress(poolNames::indexIntoFileBranchName().c_str(), &iifPtr);
-    }
+    metaDataEntry->BindRawPtr(poolNames::indexIntoFileBranchName(), &indexIntoFile_);
 
     storedProcessBlockHelper_ = std::make_unique<StoredProcessBlockHelper>();
-    StoredProcessBlockHelper& storedProcessBlockHelper = *storedProcessBlockHelper_;
-    StoredProcessBlockHelper* pStoredProcessBlockHelper = storedProcessBlockHelper_.get();
     if (inputType == InputType::Primary) {
-      if (metaDataTree->FindBranch(poolNames::processBlockHelperBranchName().c_str()) != nullptr) {
-        metaDataTree->SetBranchAddress(poolNames::processBlockHelperBranchName().c_str(), &pStoredProcessBlockHelper);
-      }
+      metaDataEntry->BindRawPtr(poolNames::processBlockHelperBranchName(), storedProcessBlockHelper_.get());
     }
 
     StoredMergeableRunProductMetadata* smrc = nullptr;
     if (inputType == InputType::Primary) {
       smrc = &*storedMergeableRunProductMetadata_;
-      if (metaDataTree->FindBranch(poolNames::mergeableRunProductMetadataBranchName().c_str()) != nullptr) {
-        metaDataTree->SetBranchAddress(poolNames::mergeableRunProductMetadataBranchName().c_str(), &smrc);
-      }
+      metaDataEntry->BindRawPtr(poolNames::mergeableRunProductMetadataBranchName(), smrc);
     }
 
     // Need to read to a temporary registry so we can do a translation of the BranchKeys.
     // This preserves backward compatibility against friendly class name algorithm changes.
     ProductRegistry inputProdDescReg;
-    ProductRegistry* ppReg = &inputProdDescReg;
-    metaDataTree->SetBranchAddress(poolNames::productDescriptionBranchName().c_str(), (&ppReg));
+    metaDataEntry->BindRawPtr(poolNames::productDescriptionBranchName(), &inputProdDescReg);
 
     using PsetMap = std::map<ParameterSetID, ParameterSetBlob>;
     PsetMap psetMap;
     {
       auto rntuple = filePtr_->Get<ROOT::RNTuple>("ParameterSets");
-      if(not rntuple) {
-        throw Exception(errors::FileReadError)
-            << "Could not find RNTuple 'ParameterSets' in the input file.\n";
+      if (not rntuple) {
+        throw Exception(errors::FileReadError) << "Could not find RNTuple 'ParameterSets' in the input file.\n";
       }
       auto psets = ROOT::RNTupleReader::Open(*rntuple);
       assert(psets.get());
       auto entry = psets->GetModel().CreateBareEntry();
-      
+
       std::pair<ParameterSetID, ParameterSetBlob> idToBlob;
       entry->BindRawPtr("IdToParameterSetsBlobs", &idToBlob);
 
@@ -305,69 +281,22 @@ namespace edm::rntuple_temp {
       }
     }
 
-    // backward compatibility
-    ProcessHistoryRegistry::collection_type pHistMap;
-    ProcessHistoryRegistry::collection_type* pHistMapPtr = &pHistMap;
-    if (metaDataTree->FindBranch(poolNames::processHistoryMapBranchName().c_str()) != nullptr) {
-      metaDataTree->SetBranchAddress(poolNames::processHistoryMapBranchName().c_str(), &pHistMapPtr);
-    }
-
     ProcessHistoryRegistry::vector_type pHistVector;
-    ProcessHistoryRegistry::vector_type* pHistVectorPtr = &pHistVector;
-    if (metaDataTree->FindBranch(poolNames::processHistoryBranchName().c_str()) != nullptr) {
-      metaDataTree->SetBranchAddress(poolNames::processHistoryBranchName().c_str(), &pHistVectorPtr);
-    }
-
-    // backward compatibility
-    ProcessConfigurationVector processConfigurations;
-    ProcessConfigurationVector* procConfigVectorPtr = &processConfigurations;
-    if (metaDataTree->FindBranch(poolNames::processConfigurationBranchName().c_str()) != nullptr) {
-      metaDataTree->SetBranchAddress(poolNames::processConfigurationBranchName().c_str(), &procConfigVectorPtr);
-    }
+    metaDataEntry->BindRawPtr(poolNames::processHistoryBranchName(), &pHistVector);
 
     auto branchIDListsAPtr = std::make_unique<BranchIDLists>();
-    BranchIDLists* branchIDListsPtr = branchIDListsAPtr.get();
-    if (metaDataTree->FindBranch(poolNames::branchIDListBranchName().c_str()) != nullptr) {
-      metaDataTree->SetBranchAddress(poolNames::branchIDListBranchName().c_str(), &branchIDListsPtr);
-    }
+    metaDataEntry->BindRawPtr(poolNames::branchIDListBranchName(), branchIDListsAPtr.get());
 
-    ThinnedAssociationsHelper* thinnedAssociationsHelperPtr;  // must remain in scope through getEntry()
     if (inputType != InputType::SecondarySource) {
       fileThinnedAssociationsHelper_ =
           std::make_unique<ThinnedAssociationsHelper>();  // propagate_const<T> has no reset() function
-      thinnedAssociationsHelperPtr = fileThinnedAssociationsHelper_.get();
-      if (metaDataTree->FindBranch(poolNames::thinnedAssociationsHelperBranchName().c_str()) != nullptr) {
-        metaDataTree->SetBranchAddress(poolNames::thinnedAssociationsHelperBranchName().c_str(),
-                                       &thinnedAssociationsHelperPtr);
-      }
+      metaDataEntry->BindRawPtr(poolNames::thinnedAssociationsHelperBranchName(), fileThinnedAssociationsHelper_.get());
     }
 
-    ProductDependencies* productDependenciesBuffer = productDependencies_.get();
-    if (metaDataTree->FindBranch(poolNames::productDependenciesBranchName().c_str()) != nullptr) {
-      metaDataTree->SetBranchAddress(poolNames::productDependenciesBranchName().c_str(), &productDependenciesBuffer);
-    }
-
-    // backward compatibility
-    std::vector<EventProcessHistoryID>* eventHistoryIDsPtr = &eventProcessHistoryIDs_;
-    if (metaDataTree->FindBranch(poolNames::eventHistoryBranchName().c_str()) != nullptr) {
-      metaDataTree->SetBranchAddress(poolNames::eventHistoryBranchName().c_str(), &eventHistoryIDsPtr);
-    }
-
-    if (metaDataTree->FindBranch(poolNames::moduleDescriptionMapBranchName().c_str()) != nullptr) {
-      if (metaDataTree->GetBranch(poolNames::moduleDescriptionMapBranchName().c_str())->GetSplitLevel() != 0) {
-        metaDataTree->SetBranchStatus((poolNames::moduleDescriptionMapBranchName() + ".*").c_str(), false);
-      } else {
-        metaDataTree->SetBranchStatus(poolNames::moduleDescriptionMapBranchName().c_str(), false);
-      }
-    }
+    metaDataEntry->BindRawPtr(poolNames::productDependenciesBranchName(), productDependencies_.get());
 
     // Here we read the metadata tree
-    rootrntuple::getEntry(metaDataTree.get(), 0);
-
-    eventProcessHistoryIter_ = eventProcessHistoryIDs_.begin();
-
-    // Here we read the event history tree, if we have one.
-    readEventHistoryTree();
+    metaDataReader->LoadEntry(0, *metaDataEntry);
 
     ParameterSetConverter::ParameterSetIdConverter psetIdConverter;
     if (!fileFormatVersion().triggerPathsTracked()) {
@@ -397,31 +326,23 @@ namespace edm::rntuple_temp {
     }
     std::shared_ptr<BranchIDLists> mutableBranchIDLists;
     if (!fileFormatVersion().splitProductIDs()) {
-      // Old provenance format input file.  Create a provenance adaptor.
-      // propagate_const<T> has no reset() function
-      provenanceAdaptor_ = std::make_unique<ProvenanceAdaptor>(
-          inputProdDescReg, pHistMap, pHistVector, processConfigurations, psetIdConverter, true);
-      // Fill in the branchIDLists branch from the provenance adaptor
-      mutableBranchIDLists = provenanceAdaptor_->releaseBranchIDLists();
+      assert(false);
     } else {
       if (!fileFormatVersion().triggerPathsTracked()) {
-        // New provenance format, but change in ParameterSet Format. Create a provenance adaptor.
-        // propagate_const<T> has no reset() function
-        provenanceAdaptor_ = std::make_unique<ProvenanceAdaptor>(
-            inputProdDescReg, pHistMap, pHistVector, processConfigurations, psetIdConverter, false);
+        assert(false);
       }
       // New provenance format input file. The branchIDLists branch was read directly from the input file.
-      if (metaDataTree->FindBranch(poolNames::branchIDListBranchName().c_str()) == nullptr) {
-        throw Exception(errors::EventCorruption) << "Failed to find branchIDLists branch in metaData tree.\n";
-      }
+      //if (metaDataTree->FindBranch(poolNames::branchIDListBranchName().c_str()) == nullptr) {
+      //  throw Exception(errors::EventCorruption) << "Failed to find branchIDLists branch in metaData tree.\n";
+      // }
       mutableBranchIDLists.reset(branchIDListsAPtr.release());
     }
 
     if (fileFormatVersion().hasThinnedAssociations()) {
-      if (metaDataTree->FindBranch(poolNames::thinnedAssociationsHelperBranchName().c_str()) == nullptr) {
-        throw Exception(errors::EventCorruption)
-            << "Failed to find thinnedAssociationsHelper branch in metaData tree.\n";
-      }
+      //if (metaDataTree->FindBranch(poolNames::thinnedAssociationsHelperBranchName().c_str()) == nullptr) {
+      //  throw Exception(errors::EventCorruption)
+      //      << "Failed to find thinnedAssociationsHelper branch in metaData tree.\n";
+      //}
     }
 
     if (!fileOptions.bypassVersionCheck) {
@@ -455,6 +376,7 @@ namespace edm::rntuple_temp {
         // Insert the new branch description into the product registry.
         inputProdDescReg.copyProduct(newBD);
         // Fix up other per file metadata.
+        ProcessConfigurationVector processConfigurations;  //was only needed for backwards compatibility
         daqProvenanceHelper_->fixMetaData(processConfigurations, pHistVector);
         daqProvenanceHelper_->fixMetaData(*mutableBranchIDLists);
         daqProvenanceHelper_->fixMetaData(*productDependencies_);
@@ -496,11 +418,10 @@ namespace edm::rntuple_temp {
             ? IndexIntoFile::entryOrder
             : (processingOptions.noEventSort ? IndexIntoFile::firstAppearanceOrder : IndexIntoFile::numericalOrder));
     runHelper_->setForcedRunOffset(indexIntoFileBegin_ == indexIntoFileEnd_ ? 1 : indexIntoFileBegin_.run());
-    eventProcessHistoryIter_ = eventProcessHistoryIDs_.begin();
 
-    makeProcessBlockRootRNTuples(fileOptions.filePtr, ttreeOptions, inputType, storedProcessBlockHelper);
+    makeProcessBlockRootRNTuples(fileOptions.filePtr, ttreeOptions, inputType, *storedProcessBlockHelper_);
 
-    setPresenceInProductRegistry(inputProdDescReg, storedProcessBlockHelper);
+    setPresenceInProductRegistry(inputProdDescReg, *storedProcessBlockHelper_);
 
     auto newReg = std::make_unique<ProductRegistry>();
 
@@ -529,14 +450,14 @@ namespace edm::rntuple_temp {
                             productChoices.productSelectorRules,
                             productChoices.dropDescendantsOfDroppedProducts,
                             inputType,
-                            storedProcessBlockHelper,
+                            *storedProcessBlockHelper_,
                             crossFileInfo.processBlockHelper);
 
       if (inputType == InputType::SecondaryFile) {
         crossFileInfo.thinnedAssociationsHelper->updateFromSecondaryInput(*fileThinnedAssociationsHelper_,
                                                                           *productChoices.associationsFromSecondary);
       } else if (inputType == InputType::Primary) {
-        crossFileInfo.processBlockHelper->initializeFromPrimaryInput(storedProcessBlockHelper);
+        crossFileInfo.processBlockHelper->initializeFromPrimaryInput(*storedProcessBlockHelper_);
         crossFileInfo.thinnedAssociationsHelper->updateFromPrimaryInput(*fileThinnedAssociationsHelper_);
       }
 
@@ -569,7 +490,7 @@ namespace edm::rntuple_temp {
       std::vector<size_t> nBranches(treePointers_.size(), 0);
       for (auto const& product : prodList) {
         if (product.second.branchType() == InProcess) {
-          std::vector<std::string> const& processes = storedProcessBlockHelper.processesWithProcessBlockProducts();
+          std::vector<std::string> const& processes = storedProcessBlockHelper_->processesWithProcessBlockProducts();
           auto it = std::find(processes.begin(), processes.end(), product.second.processName());
           if (it != processes.end()) {
             auto index = std::distance(processes.begin(), it);
@@ -589,7 +510,7 @@ namespace edm::rntuple_temp {
     for (auto const& product : prodList) {
       ProductDescription const& prod = product.second;
       if (prod.branchType() == InProcess) {
-        std::vector<std::string> const& processes = storedProcessBlockHelper.processesWithProcessBlockProducts();
+        std::vector<std::string> const& processes = storedProcessBlockHelper_->processesWithProcessBlockProducts();
         auto it = std::find(processes.begin(), processes.end(), prod.processName());
         if (it != processes.end()) {
           auto index = std::distance(processes.begin(), it);
@@ -669,21 +590,23 @@ namespace edm::rntuple_temp {
   void RootFile::readParentageTree(InputType inputType) {
     // New format file
     // We use a smart pointer so the tree will be deleted after use, and not kept for the life of the file.
-    std::unique_ptr<TTree> parentageTree(dynamic_cast<TTree*>(filePtr_->Get(poolNames::parentageTreeName().c_str())));
-    if (nullptr == parentageTree.get()) {
+    std::unique_ptr<ROOT::RNTuple> parentageRNTuple{
+        filePtr_->Get<ROOT::RNTuple>(poolNames::parentageTreeName().c_str())};
+    if (nullptr == parentageRNTuple.get()) {
       throw Exception(errors::FileReadError)
-          << "Could not find tree " << poolNames::parentageTreeName() << " in the input file.\n";
+          << "Could not find RNTuple " << poolNames::parentageTreeName() << " in the input file.\n";
     }
+    auto parentageReader = ROOT::RNTupleReader::Open(*parentageRNTuple);
+    auto entry = parentageReader->GetModel().CreateBareEntry();
 
     Parentage parents;
-    Parentage* pParentageBuffer = &parents;
-    parentageTree->SetBranchAddress(poolNames::parentageBranchName().c_str(), &pParentageBuffer);
+    entry->BindRawPtr(poolNames::parentageBranchName(), &parents);
 
     ParentageRegistry& registry = *ParentageRegistry::instance();
 
-    parentageIDLookup_.reserve(parentageTree->GetEntries());
-    for (Long64_t i = 0, numEntries = parentageTree->GetEntries(); i < numEntries; ++i) {
-      rootrntuple::getEntry(parentageTree.get(), i);
+    parentageIDLookup_.reserve(parentageReader->GetNEntries());
+    for (Long64_t i = 0, numEntries = parentageReader->GetNEntries(); i < numEntries; ++i) {
+      parentageReader->LoadEntry(i, *entry);
       if (daqProvenanceHelper_) {
         ParentageID const oldID = parents.id();
         daqProvenanceHelper_->fixMetaData(parents.parentsForUpdate());
@@ -698,7 +621,6 @@ namespace edm::rntuple_temp {
       }
       parentageIDLookup_.push_back(parents.id());
     }
-    parentageTree->SetBranchAddress(poolNames::parentageBranchName().c_str(), nullptr);
   }
 
   void RootFile::setIfFastClonable(int remainingEvents, int remainingLumis) {
@@ -1268,7 +1190,6 @@ namespace edm::rntuple_temp {
 
   void RootFile::close() {
     // Just to play it safe, zero all pointers to objects in the InputFile to be closed.
-    eventHistoryTree_ = nullptr;
     for (auto& treePointer : treePointers_) {
       treePointer->close();
       treePointer = nullptr;
@@ -1329,28 +1250,10 @@ namespace edm::rntuple_temp {
     // store this History object in a different tree than the event
     // data tree, this is too hard to do in this first version.
     if (fileFormatVersion().eventHistoryBranch()) {
-      // Lumi block number was not in EventID for the relevant releases.
-      EventID id(evtAux.id().run(), 0, evtAux.id().event());
-      if (eventProcessHistoryIter_->eventID() != id) {
-        EventProcessHistoryID target(id, ProcessHistoryID());
-        eventProcessHistoryIter_ = lower_bound_all(eventProcessHistoryIDs_, target);
-        assert(eventProcessHistoryIter_->eventID() == id);
-      }
-      evtAux.setProcessHistoryID(eventProcessHistoryIter_->processHistoryID());
-      ++eventProcessHistoryIter_;
+      assert(false);
     } else if (fileFormatVersion().eventHistoryTree()) {
+      assert(false);
       // for backward compatibility.
-      History* pHistory = history_.get();
-      TBranch* eventHistoryBranch = eventHistoryTree_->GetBranch(poolNames::eventHistoryBranchName().c_str());
-      if (!eventHistoryBranch) {
-        throw Exception(errors::EventCorruption) << "Failed to find history branch in event history tree.\n";
-      }
-      eventHistoryBranch->SetAddress(&pHistory);
-      rootrntuple::getEntry(eventHistoryTree_, eventTree_.entryNumber());
-      eventHistoryBranch->SetAddress(nullptr);
-      evtAux.setProcessHistoryID(history_->processHistoryID());
-      eventSelectionIDs.swap(history_->eventSelectionIDs());
-      branchListIndexes.swap(history_->branchListIndexes());
     } else if (fileFormatVersion().noMetaDataTrees()) {
       // Current format
       EventSelectionIDVector* pESV = &eventSelectionIDs;
@@ -1362,18 +1265,11 @@ namespace edm::rntuple_temp {
       assert(branchListIndexesBranch != nullptr);
       eventTree_.fillBranchEntry(branchListIndexesBranch, pBLI);
     }
-    if (provenanceAdaptor_) {
-      evtAux.setProcessHistoryID(provenanceAdaptor_->convertID(evtAux.processHistoryID()));
-      for (auto& esID : eventSelectionIDs) {
-        esID = provenanceAdaptor_->convertID(esID);
-      }
-    }
     if (daqProvenanceHelper_) {
       evtAux.setProcessHistoryID(daqProvenanceHelper_->mapProcessHistoryID(evtAux.processHistoryID()));
     }
     if (!fileFormatVersion().splitProductIDs()) {
       // old format.  branchListIndexes_ must be filled in from the ProvenanceAdaptor.
-      provenanceAdaptor_->branchListIndexes(branchListIndexes);
     }
     if (branchIDListHelper_) {
       return branchIDListHelper_->fixBranchListIndexes(branchListIndexes, assertOnFailure);
@@ -1391,9 +1287,6 @@ namespace edm::rntuple_temp {
       LuminosityBlockAux* pLumiAux = &lumiAux;
       lumiTree_.fillAux<LuminosityBlockAux>(pLumiAux);
       conversion(lumiAux, *lumiAuxiliary);
-    }
-    if (provenanceAdaptor_) {
-      lumiAuxiliary->setProcessHistoryID(provenanceAdaptor_->convertID(lumiAuxiliary->processHistoryID()));
     }
     if (daqProvenanceHelper_) {
       lumiAuxiliary->setProcessHistoryID(daqProvenanceHelper_->mapProcessHistoryID(lumiAuxiliary->processHistoryID()));
@@ -1414,9 +1307,6 @@ namespace edm::rntuple_temp {
       RunAux* pRunAux = &runAux;
       runTree_.fillAux<RunAux>(pRunAux);
       conversion(runAux, *runAuxiliary);
-    }
-    if (provenanceAdaptor_) {
-      runAuxiliary->setProcessHistoryID(provenanceAdaptor_->convertID(runAuxiliary->processHistoryID()));
     }
     if (daqProvenanceHelper_) {
       runAuxiliary->setProcessHistoryID(daqProvenanceHelper_->mapProcessHistoryID(runAuxiliary->processHistoryID()));
@@ -1857,17 +1747,6 @@ namespace edm::rntuple_temp {
     // eventTree entry.
     fillEventAuxiliary(indexIntoFileIter_.entry());
     return true;
-  }
-
-  void RootFile::readEventHistoryTree() {
-    // Read in the event history tree, if we have one...
-    if (fileFormatVersion().eventHistoryTree()) {
-      history_ = std::make_unique<History>();  // propagate_const<T> has no reset() function
-      eventHistoryTree_ = dynamic_cast<TTree*>(filePtr_->Get(poolNames::eventHistoryTreeName().c_str()));
-      if (!eventHistoryTree_) {
-        throw Exception(errors::EventCorruption) << "Failed to find the event history tree.\n";
-      }
-    }
   }
 
   void RootFile::initializeDuplicateChecker(

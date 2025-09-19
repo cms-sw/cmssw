@@ -245,7 +245,6 @@ namespace edm {
       void readParentageTree(InputType inputType);
       void readEntryDescriptionTree(EntryDescriptionMap& entryDescriptionMap,
                                     InputType inputType);  // backward compatibility
-      void readEventHistoryTree();
       bool isDuplicateEvent();
 
       void initializeDuplicateChecker(std::vector<std::shared_ptr<IndexIntoFile>> const& indexesIntoFiles,
@@ -282,8 +281,6 @@ namespace edm {
       IndexIntoFile::IndexIntoFileItr indexIntoFileEnd_;
       IndexIntoFile::IndexIntoFileItr indexIntoFileIter_;
       edm::propagate_const<std::unique_ptr<StoredMergeableRunProductMetadata>> storedMergeableRunProductMetadata_;
-      std::vector<EventProcessHistoryID> eventProcessHistoryIDs_;                   // backward compatibility
-      std::vector<EventProcessHistoryID>::const_iterator eventProcessHistoryIter_;  // backward compatibility
       edm::propagate_const<std::shared_ptr<RunAuxiliary>> savedRunAuxiliary_;
       bool skipAnyEvents_;
       bool noRunLumiSort_;
@@ -311,13 +308,10 @@ namespace edm {
       InputSource::ProcessingMode processingMode_;
       edm::propagate_const<InputSourceRunHelperBase*> runHelper_;
       std::map<std::string, std::string> newBranchToOldBranch_;
-      edm::propagate_const<TTree*> eventHistoryTree_;  // backward compatibility
       EventToProcessBlockIndexes eventToProcessBlockIndexes_;
       edm::propagate_const<TBranch*> eventToProcessBlockIndexesBranch_;
-      edm::propagate_const<std::unique_ptr<History>> history_;  // backward compatibility
       edm::propagate_const<std::shared_ptr<ProductDependencies>> productDependencies_;
       edm::propagate_const<std::shared_ptr<DuplicateChecker>> duplicateChecker_;
-      edm::propagate_const<std::unique_ptr<ProvenanceAdaptor>> provenanceAdaptor_;  // backward comatibility
       edm::propagate_const<std::unique_ptr<MakeProvenanceReader>> provenanceReaderMaker_;
       std::vector<edm::propagate_const<std::shared_ptr<ProductProvenanceRetriever>>> eventProductProvenanceRetrievers_;
       std::vector<ParentageID> parentageIDLookup_;
