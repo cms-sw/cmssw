@@ -2,6 +2,7 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "PhysicsTools/XGBoost/interface/XGBooster.h"
 #include "FWCore/Utilities/interface/isFinite.h"
+#include <cmath>
 
 typedef std::pair<const reco::MuonChamberMatch*, const reco::MuonSegmentMatch*> MatchPair;
 
@@ -15,7 +16,7 @@ const MatchPair& getBetterMatch(const MatchPair& match1, const MatchPair& match2
   // For the rest compare local x match. We expect that
   // segments belong to the muon, so the difference in
   // local x is a reflection on how well we can measure it
-  if (abs(match1.first->x - match1.second->x) > abs(match2.first->x - match2.second->x))
+  if (std::abs(match1.first->x - match1.second->x) > std::abs(match2.first->x - match2.second->x))
     return match2;
 
   return match1;
