@@ -95,7 +95,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         edm::LogInfo("HGCalCalibrationESProducer") << "produce: filename=" << filename_.fullPath().c_str();
 
         // load dense indexing
-        const uint32_t nchans = moduleIndexer.getMaxDataSize();  // channel-level size
+        const uint32_t nchans = moduleIndexer.maxDataSize();  // channel-level size
         hgcalrechit::HGCalCalibParamHost product(nchans, cms::alpakatools::host());
 
         // load calib parameters from JSON
@@ -114,7 +114,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         const std::vector<float> energylosses = energy_data["dEdx"].get<std::vector<float>>();
 
         // loop over all module typecodes, e.g. "ML-F3PT-TX-0003"
-        for (const auto& [module, ids] : moduleIndexer.getTypecodeMap()) {
+        for (const auto& [module, ids] : moduleIndexer.typecodeMap()) {
           const auto [fedid, modid] = ids;
 
           // retrieve matching key (glob patterns allowed)

@@ -84,7 +84,7 @@ public:
     const json mod_config_data = json::parse(modfile, nullptr, true, /*ignore_comments*/ true);
 
     // consistency check
-    uint32_t nfeds = moduleMap.getNumFEDs();
+    uint32_t nfeds = moduleMap.numFEDs();
     uint32_t ntot_mods = 0, ntot_rocs = 0;
     const std::vector<std::string> fedkeys = {"mismatchPassthroughMode", "cbHeaderMarker", "slinkHeaderMarker"};
     const std::vector<std::string> modkeys = {"headerMarker", "CalibrationSC"};
@@ -97,10 +97,10 @@ public:
     // follow indexing by HGCalMappingModuleIndexer
     // HGCalConfiguration = container class holding FED structs of ECON-D structs of eRx structs
     std::unique_ptr<HGCalConfiguration> config_ = std::make_unique<HGCalConfiguration>();
-    config_->feds.resize(moduleMap.getMaxFEDSize());
-    for (std::size_t fedid = 0; fedid < moduleMap.getMaxFEDSize(); ++fedid) {
+    config_->feds.resize(moduleMap.maxFEDSize());
+    for (std::size_t fedid = 0; fedid < moduleMap.maxFEDSize(); ++fedid) {
       // sanity checks
-      if (moduleMap.getFEDReadoutSequences()[fedid].readoutTypes_.empty())         // check if FED exists (non-empty)
+      if (moduleMap.fedReadoutSequences()[fedid].readoutTypes_.empty())            // check if FED exists (non-empty)
         continue;                                                                  // skip non-existent FED
       const auto fedkey = hgcal::search_fedkey(fedid, fed_config_data, fedjson_);  // search matching key
       hgcal::check_keys(
@@ -116,7 +116,7 @@ public:
                                      slinkHeaderMarker_);  // begin of event marker/identifier for S-link
 
       // loop over module typecodes (e.g. "ML-F3PT-TX-0003")
-      for (const auto& [typecode, ids] : moduleMap.getTypecodeMap()) {
+      for (const auto& [typecode, ids] : moduleMap.typecodeMap()) {
         auto [fedid_, imod] = ids;
         if (fedid_ != fedid)
           continue;
@@ -158,14 +158,14 @@ public:
     }
 
     // consistency check
-    if (ntot_mods != moduleMap.getMaxModuleSize())
+    if (ntot_mods != moduleMap.maxModuleSize())
       edm::LogWarning("HGCalConfigurationESProducer")
           << "Total number of ECON-D modules found in JSON file " << modjson_ << " (" << ntot_mods
-          << ") does not match indexer (" << moduleMap.getMaxModuleSize() << ")";
-    if (ntot_rocs != moduleMap.getMaxERxSize())
+          << ") does not match indexer (" << moduleMap.maxModuleSize() << ")";
+    if (ntot_rocs != moduleMap.maxERxSize())
       edm::LogWarning("HGCalConfigurationESProducer")
           << "Total number of eRx half-ROCs found in JSON file " << modjson_ << " (" << ntot_rocs
-          << ") does not match indexer (" << moduleMap.getMaxERxSize() << ")";
+          << ") does not match indexer (" << moduleMap.maxERxSize() << ")";
 
     return config_;
   }  // end of produce()
