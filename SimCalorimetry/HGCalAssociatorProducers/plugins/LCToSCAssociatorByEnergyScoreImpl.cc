@@ -2,6 +2,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 
 template <typename HIT>
 LCToSCAssociatorByEnergyScoreImpl<HIT>::LCToSCAssociatorByEnergyScoreImpl(
