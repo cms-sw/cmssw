@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!--
+DEFINING SENSITIVE DETECTORS FOR CRACK PHASE II
+Author: H. SFAR
+Parameter values are kept as in PhaseII Tracker for DIGI compatibility reason
+-->
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+<SpecParSection label="spec-pars.xml">
+
+<SpecPar name="ROUHitsCRACK">
+
+<PartSelector path="//CRACKL1M1Lower2Sactive"/>
+<PartSelector path="//CRACKL1M1Upper2Sactive"/>
+<PartSelector path="//CRACKL1M2Lower2Sactive"/>
+<PartSelector path="//CRACKL1M2Upper2Sactive"/>
+
+<PartSelector path="//CRACKL1M3Lower2Sactive"/>
+<PartSelector path="//CRACKL1M3Upper2Sactive"/>
+
+<PartSelector path="//CRACKL1M4Lower2Sactive"/>
+<PartSelector path="//CRACKL1M4Upper2Sactive"/>
+<PartSelector path="//CRACKL1M5Lower2Sactive"/>
+<PartSelector path="//CRACKL1M5Upper2Sactive"/>
+<PartSelector path="//CRACKL1M6Lower2Sactive"/>
+<PartSelector path="//CRACKL1M6Upper2Sactive"/>
+
+<Parameter name="SensitiveDetector" value="TkAccumulatingSensitiveDetector" />
+<Parameter name="ReadOutName" value="TrackerHitsPixelBarrel" />
+</SpecPar>
+
+</SpecParSection>
+</DDDefinition>
