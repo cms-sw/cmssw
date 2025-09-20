@@ -22,8 +22,8 @@ public:
 
   int maxFedWords() const { return maxFedWords_; }
 
-  auto& error_data() { return (*view().pixelErrors()); }
-  auto const& error_data() const { return (*view().pixelErrors()); }
+  auto& error_data() { return view()[0].pixelErrors(); }
+  auto const& error_data() const { return view()[0].pixelErrors(); }
 
 private:
   int maxFedWords_ = 0;
