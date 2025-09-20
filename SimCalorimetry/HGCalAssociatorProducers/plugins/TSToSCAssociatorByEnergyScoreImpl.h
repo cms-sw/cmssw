@@ -9,6 +9,7 @@
 #include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
 #include "SimDataFormats/Associations/interface/TracksterToSimClusterAssociator.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 
 namespace edm {
   class EDProductGetter;

@@ -575,39 +575,51 @@ workflows[143.911] = ['',['RunUPC2024','RECODR3_2025_OXY','HARVESTDPROMPTR3']]
 workflows[143.912] = ['',['RunUPC2024','RECODR3_2025_UPC_OXY','HARVESTDPROMPTR3']]
 workflows[143.921] = ['',['RunUPC2024','RECODR3_2025_OXY_SKIMIONPHYSICS0','HARVESTDPROMPTR3']]
 
-## Lumi mask fixed 2024 wfs
-base_wf = 145.0
-offset_era = 0.1 # less than 10 eras per year (hopefully)
-offset_pd = 0.001 # less than 100 pds per year
-
-for e_n,era in enumerate(era_mask_2024):
-    for p_n,pd in enumerate(pds_2024):
-        
-        # JetMET1 PD is used to run the TeVJet skims
-        # we don't really need it here
-        # (also as is the numbering conflicts with 
-        # the scouting wf below, so if we really want to
-        # extend the pds for standar relvals for 2024 data
-        # one needs to change the 145.415 below)
-        if pd == 'JetMET1':
-            continue
-
-        wf_number = round(base_wf + offset_era * e_n + offset_pd * p_n,3)
-        dataset = '/' + pd + '/' + era + '-v1/RAW'
-
-        ## ZeroBias have their own HARVESTING
-        suff = 'ZB_' if 'ZeroBias' in step_name else ''
-
-        # Running C,D,E with the offline GT.
-        # Could be removed once 2025 wfs are in and we'll test the online GT with them
-        recosetup = 'RECONANORUN3_' + suff + 'reHLT_2024' 
-        recosetup = recosetup if era[-1] > 'E' else recosetup + '_Offline'
-
-        step_name = 'Run' + pd.replace('ParkingDouble','Park2') + era.split('Run')[1]
-        workflows[wf_number] = ['',[step_name,'HLTDR3_2024',recosetup,'HARVESTRUN3_' + suff + '2024']]
-
 ## special HLT scouting workflow (with hardcoded private input file from ScoutingPFMonitor skimmed to remove all events without scouting)
 workflows[145.415] = ['',['HLTDR3_ScoutingPFMonitor_2024','RECONANORUN3_ScoutingPFMonitor_reHLT_2024','HARVESTRUN3_ScoutingPFMonitor_2024']]
+
+######################################################################################################################################
+######################################################################################################################################
+
+## Run3 Fixed Events for Testing and IBs
+## (with 1k events in input, cut to 100 at step2)
+
+fixed_events_offset = 1e-7 # to have it unique
+
+def addFixedEventsTestingWfs(years, pds, eras):
+
+    for y in years:
+        for era,pd in zip(eras, pds):
+
+            ## ZeroBias have their own HARVESTING
+            suff = 'ZB_' if 'ZeroBias' in pd else ''
+
+            wf_number = round(float(y) + offset_pd * pds.index(pd) + fixed_events_offset, 7)
+            step_name = 'Run' + pd.replace('ParkingDouble','Park2') + y + era + "_10k"
+
+            workflows[wf_number] = ['',[step_name,'HLTDR3_' + y,'RECONANORUN3_reHLT_' + y,'HARVESTRUN3_' + suff + y]]
+
+## 2025 
+pds  = ['ZeroBias', 'JetMET0', 'EGamma0']
+eras = ['B','C','D']
+addFixedEventsTestingWfs(['2025'], pds, eras)
+## 2024 
+pds  = ['ZeroBias', 'JetMET0', 'EGamma0', 'DisplacedJet', 'ParkingDoubleMuonLowMass0', 'BTagMu', 'Muon0', 'Tau']
+eras = ['B','C','D','E','F','G','H','I']
+addFixedEventsTestingWfs(['2024'], pds, eras)
+
+## 2023
+pds  = ['ZeroBias', 'EGamma0', 'JetMET0']
+eras = ['B','C','D']
+addFixedEventsTestingWfs(['2023'], pds, eras)
+
+## 2022
+pds  = ['ZeroBias', 'JetHT', 'Tau', 'BTagMu']
+eras = ['B','C','D','E']
+addFixedEventsTestingWfs(['2022'], pds, eras)
+
+######################################################################################################################################
+######################################################################################################################################
 
 ##################################################################
 ### run3 (2024) skims - Era F ###
