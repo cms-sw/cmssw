@@ -161,8 +161,9 @@ private:
   void computePairDistance(const T &collection, MonitorElement *me);
 
   // ----------member data ---------------------------
-  bool verbose_;
-  bool use_only_charged_tracks_;
+  const bool verbose_;
+  const bool use_only_charged_tracks_;
+  const bool use_reconstructable_simvertices_;
   const bool do_generic_sim_plots_;
   std::string root_folder_;
 

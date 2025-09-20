@@ -41,11 +41,24 @@ hltPixelPVanalysis = hltMultiPVanalysis.clone(
     )
 )
 
+hltPixelPVanalysisReconstructable = hltMultiPVanalysis.clone(
+    do_generic_sim_plots  = True,
+    use_reconstructable_simvertices = True,
+    root_folder           = "HLT/Vertexing/ValidationWRTReconstructableSim",
+    trackAssociatorMap    = "tpToHLTpixelTrackAssociation",
+    vertexAssociator      = "vertexAssociatorByPositionAndTracks4pixelTracks",
+    vertexRecoCollections = (
+        "hltPixelVertices",
+        "hltTrimmedPixelVertices",
+    )
+)
+
 def _modifyPixelPVanalysisForPhase2(pvanalysis):
     pvanalysis.vertexRecoCollections = ["hltPhase2PixelVertices"]
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(hltPixelPVanalysis, _modifyPixelPVanalysisForPhase2)
+phase2_tracker.toModify(hltPixelPVanalysisReconstructable, _modifyPixelPVanalysisForPhase2)
 
 hltPVanalysis = hltMultiPVanalysis.clone(
     trackAssociatorMap = "tpToHLTpfMuonMergingTrackAssociation",
@@ -86,6 +99,7 @@ hltMultiPVAssociations = cms.Task(
 
 hltMultiPVValidation = cms.Sequence( 
     hltPixelPVanalysis
+    + hltPixelPVanalysisReconstructable
     + hltPVanalysis,
     hltMultiPVAssociations
 )

@@ -15,6 +15,7 @@ selectedPixelVertices = selectedOfflinePrimaryVertices.clone(
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 vertexAnalysis = DQMEDAnalyzer('PrimaryVertexAnalyzer4PUSlimmed',
                                 use_only_charged_tracks = cms.untracked.bool(True),
+                                use_reconstructable_simvertices = cms.untracked.bool(False),
                                 do_generic_sim_plots = cms.untracked.bool(True),
                                 verbose = cms.untracked.bool(False),
                                 root_folder = cms.untracked.string("Vertexing/PrimaryVertexV"),

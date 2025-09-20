@@ -43,6 +43,7 @@ namespace {
 PrimaryVertexAnalyzer4PUSlimmed::PrimaryVertexAnalyzer4PUSlimmed(const edm::ParameterSet& iConfig)
     : verbose_(iConfig.getUntrackedParameter<bool>("verbose", false)),
       use_only_charged_tracks_(iConfig.getUntrackedParameter<bool>("use_only_charged_tracks", true)),
+      use_reconstructable_simvertices_(iConfig.getUntrackedParameter<bool>("use_reconstructable_simvertices", false)),
       do_generic_sim_plots_(iConfig.getUntrackedParameter<bool>("do_generic_sim_plots")),
       root_folder_(iConfig.getUntrackedParameter<std::string>("root_folder", "Validation/Vertices")),
       vecPileupSummaryInfoToken_(consumes<std::vector<PileupSummaryInfo>>(edm::InputTag(std::string("addPileupInfo")))),
@@ -942,8 +943,6 @@ std::vector<PrimaryVertexAnalyzer4PUSlimmed::simPrimaryVertex> PrimaryVertexAnal
       vp->ptot.setPz(vp->ptot.z() + momentum.z());
       vp->ptot.setE(vp->ptot.e() + (**iTP).energy());
       vp->ptsq += ((**iTP).pt() * (**iTP).pt());
-      // TODO(rovere) only select charged sim-particles? If so, maybe
-      // put it as a configuration parameter?
       if (matched_best_reco_track) {
         vp->num_matched_reco_tracks++;
         vp->average_match_quality += match_quality;
@@ -956,6 +955,11 @@ std::vector<PrimaryVertexAnalyzer4PUSlimmed::simPrimaryVertex> PrimaryVertexAnal
         vp->nGenTrk++;
       }
     }  // End of for loop on daughters sim-particles
+    // Remove the SimVertex if I cannot reconstruct it 'cause I miss at the very least 2 tracks
+    if (use_reconstructable_simvertices_ && vp->num_matched_reco_tracks <= 2) {
+      simpv.pop_back();
+      continue;
+    }
     if (vp->num_matched_reco_tracks)
       vp->average_match_quality /= static_cast<float>(vp->num_matched_reco_tracks);
     if (verbose_) {
@@ -1132,22 +1136,14 @@ void PrimaryVertexAnalyzer4PUSlimmed::matchReco2SimVertices(std::vector<recoPrim
     if (matched != vertex_r2s.end()) {
       for (const auto& vertexRefQuality : matched->val) {
         const auto tvPtr = &(*(vertexRefQuality.first));
-        vrec->sim_vertices.push_back(tvPtr);
-        vrec->sim_vertices_num_shared_tracks.push_back(vertexRefQuality.second);
-      }
-
-      for (const TrackingVertex* tv : vrec->sim_vertices) {
-        // Set pointers to internal simVertex objects
         for (const auto& vv : simpv) {
-          if (&(*(vv.sim_vertex)) == tv) {
+          if (&(*(vv.sim_vertex)) == tvPtr) {
+            vrec->sim_vertices.push_back(tvPtr);
+            vrec->sim_vertices_num_shared_tracks.push_back(vertexRefQuality.second);
             vrec->sim_vertices_internal.push_back(&vv);
             continue;
           }
         }
-
-        // // Calculate number of shared tracks
-        // vrec->sim_vertices_num_shared_tracks.push_back(
-        //     calculateVertexSharedTracks(*(vrec->recVtx), *tv, *r2s_).nSharedTracks_);
       }
     }
 
@@ -1229,10 +1225,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent, const ed
 
   std::vector<simPrimaryVertex> simpv;  // a list of simulated primary
                                         // MC vertices
-  // TODO(rovere) use move semantic?
   simpv = getSimPVs(TVCollectionH);
-  // TODO(rovere) 1 vertex is not, by definition, pileup, and should
-  // probably be subtracted?
   int kind_of_signal_vertex = 0;
   int num_pileup_vertices = simpv.size();
   if (do_generic_sim_plots_)
