@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <iostream>
 #include <memory>
 #include <numeric>
@@ -17,11 +18,13 @@
 #include "DataFormats/TrackSoA/interface/alpaka/TrackUtilities.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
 #include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
+// #include "FWCore/Framework/interface/RunCache.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -29,8 +32,10 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoTracker/PixelTrackFitting/interface/alpaka/FitUtils.h"
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCurvilinear.h"
 #include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
@@ -43,8 +48,18 @@
  */
 
 // #define GPU_DEBUG
+// struct that holds two maps for detIds of the OT modules
+struct DetIdMaps {
+  DetIdMaps() : detIdToOTModuleId_(), detIdIsUsedOTModule_() {}
 
-class PixelTrackProducerFromSoAAlpaka : public edm::global::EDProducer<> {
+  // map from the detId of OT modules to the moduleId among the used OT modules
+  // (starting from 0 for first module of first OT layer)
+  std::map<uint32_t, uint32_t> detIdToOTModuleId_;
+  // map from detId to bool if used as OT extension
+  std::map<uint32_t, bool> detIdIsUsedOTModule_;
+};
+
+class PixelTrackProducerFromSoAAlpaka : public edm::global::EDProducer<edm::RunCache<DetIdMaps>> {
   using TrackSoAHost = reco::TracksHost;
   using HMSstorage = std::vector<uint32_t>;
   using IndToEdm = std::vector<uint32_t>;
@@ -55,32 +70,45 @@ public:
   ~PixelTrackProducerFromSoAAlpaka() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  std::shared_ptr<DetIdMaps> globalBeginRun(edm::Run const &, edm::EventSetup const &) const override;
+  void globalEndRun(edm::Run const &, edm::EventSetup const &) const override {};
 
 private:
   void produce(edm::StreamID streamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const override;
 
   // Event Data tokens
-  const edm::EDGetTokenT<reco::BeamSpot> tBeamSpot_;
-  const edm::EDGetTokenT<TrackSoAHost> tokenTrack_;
-  const edm::EDGetTokenT<SiPixelRecHitCollectionNew> cpuHits_;
-  const edm::EDGetTokenT<HMSstorage> hmsToken_;
+  const edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
+  const edm::EDGetTokenT<TrackSoAHost> trackSoAToken_;
+  const edm::EDGetTokenT<SiPixelRecHitCollectionNew> pixelRecHitsToken_;
+  edm::EDGetTokenT<Phase2TrackerRecHit1DCollectionNew> otRecHitsToken_;
+  const edm::EDGetTokenT<HMSstorage> pixelHMSToken_;
+  edm::EDGetTokenT<HMSstorage> otHMSToken_;
   // Event Setup tokens
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> idealMagneticFieldToken_;
-  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttTopoToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
+  // const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryTokenRun_;
 
   int32_t const minNumberOfHits_;
   pixelTrack::Quality const minQuality_;
+  const bool useOTExtension_;
+  const bool requireQuadsFromConsecutiveLayers_;
 };
 
 PixelTrackProducerFromSoAAlpaka::PixelTrackProducerFromSoAAlpaka(const edm::ParameterSet &iConfig)
-    : tBeamSpot_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
-      tokenTrack_(consumes(iConfig.getParameter<edm::InputTag>("trackSrc"))),
-      cpuHits_(consumes<SiPixelRecHitCollectionNew>(iConfig.getParameter<edm::InputTag>("pixelRecHitLegacySrc"))),
-      hmsToken_(consumes<HMSstorage>(iConfig.getParameter<edm::InputTag>("pixelRecHitLegacySrc"))),
+    : beamSpotToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
+      trackSoAToken_(consumes(iConfig.getParameter<edm::InputTag>("trackSrc"))),
+      pixelRecHitsToken_(
+          consumes<SiPixelRecHitCollectionNew>(iConfig.getParameter<edm::InputTag>("pixelRecHitLegacySrc"))),
+      pixelHMSToken_(consumes<HMSstorage>(iConfig.getParameter<edm::InputTag>("pixelRecHitLegacySrc"))),
       idealMagneticFieldToken_(esConsumes()),
-      ttTopoToken_(esConsumes()),
+      trackerTopologyToken_(esConsumes()),
+      // trackerGeometryToken_(esConsumes()),
+      trackerGeometryTokenRun_(esConsumes<edm::Transition::BeginRun>()),
       minNumberOfHits_(iConfig.getParameter<int>("minNumberOfHits")),
-      minQuality_(pixelTrack::qualityByName(iConfig.getParameter<std::string>("minQuality"))) {
+      minQuality_(pixelTrack::qualityByName(iConfig.getParameter<std::string>("minQuality"))),
+      useOTExtension_(iConfig.getParameter<bool>("useOTExtension")),
+      requireQuadsFromConsecutiveLayers_(iConfig.getParameter<bool>("requireQuadsFromConsecutiveLayers")) {
   if (minQuality_ == pixelTrack::Quality::notQuality) {
     throw cms::Exception("PixelTrackConfiguration")
         << iConfig.getParameter<std::string>("minQuality") + " is not a pixelTrack::Quality";
@@ -96,6 +124,48 @@ PixelTrackProducerFromSoAAlpaka::PixelTrackProducerFromSoAAlpaka(const edm::Para
   // around a rare race condition in framework scheduling
   produces<reco::TrackCollection>();
   produces<IndToEdm>();
+
+  // if useOTExtension consume the OT RecHits
+  if (useOTExtension_) {
+    otRecHitsToken_ =
+        consumes<Phase2TrackerRecHit1DCollectionNew>(iConfig.getParameter<edm::InputTag>("outerTrackerRecHitSrc"));
+    otHMSToken_ = consumes<HMSstorage>(iConfig.getParameter<edm::InputTag>("outerTrackerRecHitSoAConverterSrc"));
+  }
+}
+
+std::shared_ptr<DetIdMaps> PixelTrackProducerFromSoAAlpaka::globalBeginRun(const edm::Run &iRun,
+                                                                           const edm::EventSetup &iSetup) const {
+  // make the maps object
+  auto detIdMaps = std::make_shared<DetIdMaps>();
+
+  // if OT RecHits are used in PixelTracks, fill the detIdToOTModuleId_ map
+  if (useOTExtension_) {
+    // get track geometry
+    const auto &trackerGeometry = &iSetup.getData(trackerGeometryTokenRun_);
+
+    // function to check if given module is used as OT for CA
+    auto isPinPSinOTBarrel = [&](DetId detId) {
+      // Select only P-hits from the OT barrel
+      return (trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP &&
+              detId.subdetId() == StripSubdetector::TOB);
+    };
+
+    // loop over all modules and fill the map detIdToOTModuleId_
+    auto const &detUnits = trackerGeometry->detUnits();
+    for (uint32_t otModuleId{0}; auto &detUnit : detUnits) {
+      DetId detId(detUnit->geographicalId());
+      // check if the module is used for OT extension
+      bool isUsedOTModule = isPinPSinOTBarrel(detId);
+      detIdMaps->detIdIsUsedOTModule_[detUnit->geographicalId()] = isUsedOTModule;
+      if (isUsedOTModule) {
+        // save the module index among the extension modules
+        detIdMaps->detIdToOTModuleId_[detUnit->geographicalId()] = otModuleId;
+        otModuleId++;
+      }
+    }
+  }
+
+  return detIdMaps;
 }
 
 void PixelTrackProducerFromSoAAlpaka::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
@@ -103,8 +173,12 @@ void PixelTrackProducerFromSoAAlpaka::fillDescriptions(edm::ConfigurationDescrip
   desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
   desc.add<edm::InputTag>("trackSrc", edm::InputTag("pixelTracksAlpaka"));
   desc.add<edm::InputTag>("pixelRecHitLegacySrc", edm::InputTag("siPixelRecHitsPreSplittingLegacy"));
+  desc.add<edm::InputTag>("outerTrackerRecHitSrc", edm::InputTag("hltSiPhase2RecHits"));
+  desc.add<edm::InputTag>("outerTrackerRecHitSoAConverterSrc", edm::InputTag("phase2OTRecHitsSoAConverter"));
   desc.add<int>("minNumberOfHits", 0);
   desc.add<std::string>("minQuality", "loose");
+  desc.add<bool>("useOTExtension", false);
+  desc.add<bool>("requireQuadsFromConsecutiveLayers", false);
   descriptions.addWithDefaultLabel(desc);
 }
 
@@ -125,44 +199,159 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
   std::cout << "Converting soa helix in reco tracks" << std::endl;
 #endif
 
+  // index map: trackId(in SoA) -> trackId(in legacy edm)
   auto indToEdmP = std::make_unique<IndToEdm>();
   auto &indToEdm = *indToEdmP;
 
   auto const &idealField = iSetup.getData(idealMagneticFieldToken_);
 
+  // prepare container for legacy tracks
   pixeltrackfitting::TracksWithRecHits tracks;
 
-  auto const &httopo = iSetup.getData(ttTopoToken_);
+  // get trackerTopology
+  auto const &trackerTopology = iSetup.getData(trackerTopologyToken_);
 
-  const auto &bsh = iEvent.get(tBeamSpot_);
+  // get the maps for the detId of the OT modules
+  auto const &detIdIsUsedOTModule = runCache(iEvent.getRun().index())->detIdIsUsedOTModule_;
+  auto const &detIdToOTModuleId = runCache(iEvent.getRun().index())->detIdToOTModuleId_;
+
+  // get beamspot
+  const auto &bsh = iEvent.get(beamSpotToken_);
   GlobalPoint bs(bsh.x0(), bsh.y0(), bsh.z0());
 
-  auto const &pixelRecHitsDSV = iEvent.get(cpuHits_);
-  std::vector<TrackingRecHit const *> hitmap;
+  // get the module's starting indices in the hit collection
+  auto const &pixelHitsModuleStart = iEvent.get(pixelHMSToken_);
+
+  // get Pixel RecHits
+  auto const &pixelRecHitsDSV = iEvent.get(pixelRecHitsToken_);
   auto const &pixelRecHits = pixelRecHitsDSV.data();
   auto const nPixelHits = pixelRecHits.size();
 
-  auto const &hitsModuleStart = iEvent.get(hmsToken_);
+  // get OT RecHits if needed
+  size_t nOTHits = 0;
+  const Phase2TrackerRecHit1DCollectionNew *otRecHitsDSV = nullptr;
+  if (useOTExtension_) {
+    otRecHitsDSV = &iEvent.get(otRecHitsToken_);
+    nOTHits = otRecHitsDSV->dataSize();
+  }
 
-  hitmap.resize(nPixelHits, nullptr);
+  size_t nTotalHits = nPixelHits + nOTHits;
 
+  // hitmap to go from a unique RecHit identifier to the RecHit in the legacy collection
+  // (unique hit identifier is equivalent to the position of the hit in the RecHit SoA)
+  std::vector<TrackingRecHit const *> hitmap;
+  hitmap.resize(nTotalHits, nullptr);
+
+  // loop over pixel RecHits to fill the hitmap
   for (auto const &pixelHit : pixelRecHits) {
     auto const &thit = static_cast<BaseTrackerRecHit const &>(pixelHit);
     auto const detI = thit.det()->index();
     auto const &clus = thit.firstClusterRef();
     assert(clus.isPixel());
-    auto const idx = hitsModuleStart[detI] + clus.pixelCluster().originalId();
-    if (idx >= hitmap.size())
-      hitmap.resize(idx + 256, nullptr);  // only in case of hit overflow in one module
+
+    // get hit identifier as (hit offset of the module) + (hit index in this module)
+    auto const idx = pixelHitsModuleStart[detI] + clus.pixelCluster().originalId();
 
     assert(nullptr == hitmap[idx]);
+    // std::cout << "Filling hitmap at position " << idx << " with a pixel hit." << std::endl;
     hitmap[idx] = &pixelHit;
   }
+
+  // if OT RecHits are used in PixelTracks, fill the hitmap also with those
+  if (useOTExtension_) {
+    // The RecHits in the SoA are ordered according to the detUnit->index()
+    // of the respective OT module. For this reason, we need the map from the
+    // detId to the moduleId among all used OT modules. This otModuleId corresponds
+    // to the module's position in the otHitsModuleStart that we get from the event.
+
+    // get the module's starting indices in the hit collection
+    auto const &otHitsModuleStart = iEvent.get(otHMSToken_);
+
+    // perform the exact same loop of how the SoA is initially filled with OT hits
+    // and get the index by counting the hits (starting from the correpondign HitStartModule)
+    for (auto const &detSet : *otRecHitsDSV) {
+      auto detId = detSet.detId();
+
+      // check if module is used in extension
+      if (detIdIsUsedOTModule.find(detId)->second) {
+        // get the corresponding otModuleId
+        auto otModuleId = detIdToOTModuleId.find(detId)->second;
+
+        // loop over the RecHits of the module and fill the hitmap
+        for (int idx = otHitsModuleStart[otModuleId]; auto const &recHit : detSet) {
+          assert(nullptr == hitmap[idx]);
+          // std::cout << "Filling hitmap at position " << idx << " with an OT hit." << std::endl;
+          hitmap[idx] = &recHit;
+          idx++;
+        }
+      }
+    }
+  }
+
+  // function that returns the layerId given a TrackingRecHit pointer (only works for Phase-2 for now...)
+  auto getLayerId = [&](const TrackingRecHit *recHit) {
+    constexpr unsigned int numBarrelLayers{4};
+    constexpr unsigned int numEndcapDisks{12};
+    auto detId = recHit->geographicalId();
+
+    // set default to 999 (invalid)
+    int layerId{99};
+
+    if (detId.subdetId() == PixelSubdetector::PixelBarrel) {
+      // subtract 1 in the barrel to get, e.g. for Phase 2, from (1,4) to (0,3)
+      layerId = trackerTopology.pxbLayer(detId) - 1;
+    } else if (detId.subdetId() == PixelSubdetector::PixelEndcap) {
+      if (trackerTopology.pxfSide(detId) == 1) {
+        // add offset in the backward endcap to get, e.g. for Phase 2, from (1,12) to (16,27)
+        layerId = trackerTopology.pxfDisk(detId) + numBarrelLayers + numEndcapDisks - 1;
+      } else {
+        // add offest in the forward endcap to get, e.g. for Phase 2, from (1,12) to (4,15)
+        layerId = trackerTopology.pxfDisk(detId) + numBarrelLayers - 1;
+      }
+    } else if (detId.subdetId() == StripSubdetector::TOB) {
+      layerId = trackerTopology.getOTLayerNumber(detId) + 27;
+    }
+    return layerId;
+  };
+
+  // function that returns the skipped layers for a given layer pair (i, o)
+  auto getNskippedLayers = [&](const int i, const int o) {
+    if (i == o)
+      return 0;
+
+    bool innerInBarrel = (i <= 3);
+    bool outerInBarrel = (o <= 3);
+    bool innerInOTExtension = (i >= 28);
+    bool outerInOTExtension = (o >= 28);
+    bool innerInBackward = (i >= 16) && (i <= 27);
+    bool outerInBackward = (o >= 16) && (o <= 27);
+    bool innerInForward = (i >= 4) && (i <= 15);
+    bool outerInForward = (o >= 4) && (o <= 15);
+
+    if ((innerInBarrel && outerInBarrel) || (innerInForward && outerInForward) ||
+        (innerInBackward && outerInBackward) || (innerInOTExtension && outerInOTExtension))
+      return (o - i - 1);
+
+    else if (innerInBarrel && outerInOTExtension)
+      return (o - i - 25);
+
+    else if (outerInOTExtension)
+      return (o - 28);
+
+    else if (innerInBarrel && outerInBackward)
+      return (o - 16);
+
+    else if (innerInBarrel && outerInForward)
+      return (o - 4);
+
+    else
+      return -99;
+  };
 
   std::vector<const TrackingRecHit *> hits;
   hits.reserve(5);  //TODO move to a configurable parameter?
 
-  auto const &tsoa = iEvent.get(tokenTrack_);
+  auto const &tsoa = iEvent.get(trackSoAToken_);
   auto const *quality = tsoa.view().quality();
   auto const *hitOffs = tsoa.view().hitOffsets();
   auto const *hitIdxs = tsoa.template view<TrackHitSoA>().id();
@@ -184,28 +373,63 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
       return quality[i1] > quality[i2];
   });
 
-  //store the index of the SoA: indToEdm[index_SoAtrack] -> index_edmTrack (if it exists)
-  indToEdm.resize(sortIdxs.size(), -1);
+  indToEdm.resize(nTracks, -1);
+
+  // loop over (sorted) tracks
   for (const auto &it : sortIdxs) {
     auto nHits = reco::nHits(tsoa.view(), it);
     assert(nHits >= 3);
     auto q = quality[it];
 
+    // apply cuts on quality and number of hits
     if (q < minQuality_)
-      continue;
+      // since the tracks are sorted according to quality,
+      // we can break after the first track with low quality
+      break;
     if (nHits < minNumberOfHits_)  //move to nLayers?
       continue;
+
+    //store the index of the SoA:
+    // indToEdm[index_SoAtrack] -> index_edmTrack (if it exists)
     indToEdm[it] = nt;
     ++nt;
 
     hits.resize(nHits);
     auto start = (it == 0) ? 0 : hitOffs[it - 1];
     auto end = hitOffs[it];
+    int nRemovedHits{0};
 
-    for (auto iHit = start; iHit < end; ++iHit)
-      hits[iHit - start] = hitmap[hitIdxs[iHit]];
+    for (auto iHit = start; iHit < end; ++iHit) {
+      // if hit in hitmap: true for pixel hits, true for OT hits if useOTExtension_
+      auto hitIdx = hitIdxs[iHit];
+      if (hitIdx < nTotalHits)
+        hits[iHit - start] = hitmap[hitIdx];
+      // else remove the OT hit from the track
+      else
+        nRemovedHits++;
+    }
+    hits.resize(nHits - nRemovedHits);
+    end = end - nRemovedHits;
 
-#ifdef CA_DEBUG
+    // implement custome requirement for quadruplets coming from consecutive layers
+    if (requireQuadsFromConsecutiveLayers_ && (nHits == 4)) {
+      bool skipThisTrack{false};
+      int i, o;
+      // loop over layer pairs and check if they skip
+      for (auto iHit = start; iHit < end - 1; ++iHit) {
+        i = getLayerId(hits[iHit - start]);
+        o = getLayerId(hits[iHit - start + 1]);
+        if (getNskippedLayers(i, o) > 0) {
+          skipThisTrack = true;
+          break;
+        }
+      }
+      if (skipThisTrack)
+        continue;
+    }
+
+//#ifdef CA_DEBUG
+#if 0
     std::cout << "track soa : " << it << " with hits: ";
     for (auto iHit = start; iHit < end; ++iHit)
       std::cout << hitIdxs[iHit] << " - ";
@@ -267,7 +491,7 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
 #endif
 
   // store tracks
-  storeTracks(iEvent, tracks, httopo);
+  storeTracks(iEvent, tracks, trackerTopology);
   iEvent.put(std::move(indToEdmP));
 }
 

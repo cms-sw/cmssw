@@ -635,7 +635,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
 
         tracks_view[it].quality() = Quality::strict;
 
-        if (cuts.strictCut(tracks_view, it))
+        if (cuts.strictCut(tracks_view, nhits, it))
           continue;
 
         tracks_view[it].quality() = Quality::tight;
