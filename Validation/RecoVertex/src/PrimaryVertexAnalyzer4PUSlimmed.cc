@@ -58,7 +58,8 @@ PrimaryVertexAnalyzer4PUSlimmed::PrimaryVertexAnalyzer4PUSlimmed(const edm::Para
       vertexAssociatorToken_(consumes<reco::VertexToTrackingVertexAssociator>(
           iConfig.getUntrackedParameter<edm::InputTag>("vertexAssociator"))),
       nPUbins_(iConfig.getParameter<unsigned int>("nPUbins")),
-      maxEta_(iConfig.getParameter<double>("maxEta")) {
+      maxEta_(iConfig.getParameter<double>("maxEta")),
+      reco_tracks_for_reconstructable_simvertices_(iConfig.getUntrackedParameter<int>("reco_tracks_for_reconstructable_simvertices")) {
   reco_vertex_collections_ = iConfig.getParameter<std::vector<edm::InputTag>>("vertexRecoCollections");
   for (auto const& l : reco_vertex_collections_) {
     reco_vertex_collection_tokens_.push_back(
@@ -955,8 +956,9 @@ std::vector<PrimaryVertexAnalyzer4PUSlimmed::simPrimaryVertex> PrimaryVertexAnal
         vp->nGenTrk++;
       }
     }  // End of for loop on daughters sim-particles
-    // Remove the SimVertex if I cannot reconstruct it 'cause I miss at the very least 2 tracks
-    if (use_reconstructable_simvertices_ && vp->num_matched_reco_tracks <= 2) {
+
+    // Remove the SimVertex if I cannot reconstruct it 'cause I miss at the very least reco_tracks_for_reconstructable_simvertices_ tracks
+    if (use_reconstructable_simvertices_ && vp->num_matched_reco_tracks <= reco_tracks_for_reconstructable_simvertices_) {
       simpv.pop_back();
       continue;
     }

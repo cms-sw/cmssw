@@ -44,6 +44,7 @@ hltPixelPVanalysis = hltMultiPVanalysis.clone(
 hltPixelPVanalysisReconstructable = hltMultiPVanalysis.clone(
     do_generic_sim_plots  = True,
     use_reconstructable_simvertices = True,
+    reco_tracks_for_reconstructable_simvertices = 1, #inclusive, below or equal discard sim vertex.
     root_folder           = "HLT/Vertexing/ValidationWRTReconstructableSim",
     trackAssociatorMap    = "tpToHLTpixelTrackAssociation",
     vertexAssociator      = "vertexAssociatorByPositionAndTracks4pixelTracks",

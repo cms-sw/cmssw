@@ -30,6 +30,7 @@ vertexAnalysis = DQMEDAnalyzer('PrimaryVertexAnalyzer4PUSlimmed',
                                                                       ),
                                nPUbins = cms.uint32(130),
                                maxEta = cms.double(2.5),
+                               reco_tracks_for_reconstructable_simvertices = cms.untracked.int32(1),
 )
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker

@@ -184,6 +184,7 @@ private:
 
   unsigned int nPUbins_;
   const float maxEta_;
+  const int reco_tracks_for_reconstructable_simvertices_;
 };
 
 #endif  // VALIDATION_RECOVERTEX_INTERFACE_PRIMARYVERTEXANALYZER4PUSLIMMED_H_
