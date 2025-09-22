@@ -426,7 +426,6 @@ void AllTracksterToSimTracksterAssociatorsByHitsProducerT<HIT>::produce(edm::Str
             }
           }
         }
-
         assert(simToRecoScoresDenominator > 0.f);
         const float invDenominator = 1.f / simToRecoScoresDenominator;
         for (unsigned int i = 0; i < simTracksterHitsAndFractions.size(); ++i) {

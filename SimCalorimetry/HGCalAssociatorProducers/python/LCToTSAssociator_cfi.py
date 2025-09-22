@@ -51,6 +51,6 @@ allLayerClusterToTracksterAssociations = AllLayerClusterToTracksterAssociatorsPr
 )
 
 allBarrelLayerClusterToTracksterAssociations = AllLayerClusterToTracksterAssociatorsProducer.clone(
-    layer_clusters = cms.InputTag("filteredLayerClustersCLUE3DBarrel"),
-    tracksterCollections = cms.VInputTag(cms.InputTag("ticlBarrelTracksters"), cms.InputTag("ticlBarrelSimTracksters"), cms.InputTag("ticlBarrelSimTracksters", "fromCPs"))
+    layer_clusters = cms.InputTag("hgcalMergeLayerClusters"),
+    tracksterCollections = cms.VInputTag(cms.InputTag("ticlTrackstersCLUE3DBarrel"), cms.InputTag("ticlSimTrackstersBarrel"), cms.InputTag("ticlSimTrackstersBarrel", "fromCPs"))
 )
