@@ -372,7 +372,7 @@ namespace {
     float p0[3] = {cosP / ipt, sinP / ipt, cosT / ip};
     float B = (p0[0] * eta0 + p0[1] * eta1 + p0[2] * eta2) * ip;
     float rho = kinv * ip;
-    float C = - (eta0 * p0[1] - eta1 * p0[0]) * rho * 0.5f * ip;
+    float C = -(eta0 * p0[1] - eta1 * p0[0]) * rho * 0.5f * ip;
     float sqb2m4ac = std::sqrt(B * B - 4.f * A * C);
     float s1 = (-B + sqb2m4ac) * 0.5f / C;
     float s2 = (-B - sqb2m4ac) * 0.5f / C;

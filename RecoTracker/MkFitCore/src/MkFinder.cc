@@ -984,8 +984,8 @@ namespace mkfit {
         for (bidx_t pi = pb1; pi != pb2; pi = L.phiMaskApply(pi + 1)) {
           // Limit to central Q-bin
           if (qi == qb && L.isBinDead(pi, qi) == true) {
-            dprint("dead module for track in layer=" << L.layer_id() << " qb=" << qi << " pi=" << pi
-                                                     << " q=" << B.m_q_center[itrack] << " phi=" << B.m_phi_center[itrack]);
+            dprint("dead module for track in layer=" << L.layer_id() << " qb=" << qi << " pi=" << pi << " q="
+                                                     << B.m_q_center[itrack] << " phi=" << B.m_phi_center[itrack]);
             m_XWsrResult[itrack].m_in_gap = true;
           }
 
@@ -2456,9 +2456,9 @@ namespace mkfit {
     MPlexQF tmp_chi2;
     MPlexQI done_flag(0);
 
-    MPlexHV plNrm; // input detector plane [pl - plane]
-    MPlexHV plDir; // ""
-    MPlexHV plPnt; // ""
+    MPlexHV plNrm;  // input detector plane [pl - plane]
+    MPlexHV plDir;  // ""
+    MPlexHV plPnt;  // ""
 
 #if defined(DEBUG_PROP_UPDATE)
     const int DSLOT = 0;
@@ -2469,7 +2469,6 @@ namespace mkfit {
 
     int done_count = 0;
     while (done_count != N_proc) {
-
 #if defined(DEBUG_BACKWARD_FIT)
       const Hit *last_hit_ptr[NN];
 #endif
@@ -2568,13 +2567,13 @@ namespace mkfit {
 
       // Fixup for failed propagation.
       // for (int i = 0; i < NN; ++i) {
-        // PROP-FAIL-ENABLE The following to be enabled when propagation failure
-        // detection is properly implemented in propagate-to-R/Z.
-        // 1. The following code was only expecting barrel state to be restored.
-        //      auto barrel_pf(m_prop_config->backward_fit_pflags);
-        //      barrel_pf.copy_input_state_on_fail = true;
-        // 2. There is also check on chi2, commented out to keep physics changes minimal.
-        /*
+      // PROP-FAIL-ENABLE The following to be enabled when propagation failure
+      // detection is properly implemented in propagate-to-R/Z.
+      // 1. The following code was only expecting barrel state to be restored.
+      //      auto barrel_pf(m_prop_config->backward_fit_pflags);
+      //      barrel_pf.copy_input_state_on_fail = true;
+      // 2. There is also check on chi2, commented out to keep physics changes minimal.
+      /*
         if (m_FailFlag[i] && LI.is_barrel()) {
           // Barrel pflags are set to include PF_copy_input_state_on_fail.
           // Endcap errors are immaterial here (relevant for fwd search), with prop error codes
