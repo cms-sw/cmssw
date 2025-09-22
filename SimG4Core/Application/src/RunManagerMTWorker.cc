@@ -727,6 +727,7 @@ G4Event* RunManagerMTWorker::generateEvent(const edm::Event& inpevt) {
     } else {
       //m_generator3.nonCentralEvent2G4(HepMCEvt->GetEvent(), evt);
     }
+    delete genevt3;
   }
   return evt;
 }
