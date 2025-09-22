@@ -5,322 +5,71 @@ transitionTypes = ["construction", "event",
                         "global begin run", "global begin luminosity block",
                         "stream begin run", "stream begin luminosity block",
                         ]
+allocTypes = ["added", "nAlloc", "nDealloc", "maxTemp", "max1Alloc"]
 
 def processModuleTransition(moduleLabel, moduleType, moduleInfo, transitionType, moduleTransition):
-        moduleTransition[moduleLabel] = {"cpptype": moduleType, "allocs": [], "nEvents": 0}
+        moduleTransition[moduleLabel] = {"cpptype": moduleType, "allocs": []}
         for entry in moduleInfo:
             if entry["transition"] == transitionType:
                 moduleTransition[moduleLabel]["allocs"].append(entry.get("alloc",{}))
-        moduleTransition[moduleLabel]["nEvents"] = len(moduleTransition[moduleLabel]["allocs"])
+        moduleTransition[moduleLabel]["nTransitions"] = len(moduleTransition[moduleLabel]["allocs"])
 
 def formatToCircles(moduleTransitions):
-    nevents = 1
     modules_dict = {}
     doc = {
        "modules": [],
-       "resources": [
-            {
-               "name": "added event",
-               "description": "added memory per event transition average",
-               "title": "Amount of memory added to the process at the end of the transition",
-               "unit": "kB"
-            },
-            {
-
-               "name": "nAlloc event",
-               "description": "num allocs per event transition average",
-               "title": "Number of allocations",
-               "unit": ""
-            },
-
-           {
-               "name": "max1Alloc event",
-               "description": "maximum one time allocation per event transition average",
-               "title": "Maximum one time allocation held during the transition",
-               "unit": "kB"
-           },
-           {
-               "name": "nDealloc event",
-               "description": "num deallocs for event transition average",
-               "title": "Number of deallocations",
-               "unit": ""
-           },
-           {
-               "name": "maxTemp event",
-               "description": "maximum temporary memory per event transition average",
-               "title": "Maximum temporary memory held during the transition",
-               "unit": "kB"
-           },
-           {
-               "name": "added construction",
-               "description": "added memory for construction transition",
-               "title": "Amount of memory added to the process at the end of the transition",
-               "unit": "kB"
-            },
-            {
-
-               "name": "nAlloc construction",
-               "description": "num allocs for construction transition",
-               "title": "Number of allocations",
-               "unit": ""
-           },
-           {
-               "name": "max1Alloc construction",
-               "description": "maximum one time allocation for construction transition",
-               "title": "Maximum one time allocation held during the transition",
-               "unit": "kB"
-           },
-           {
-               "name": "nDealloc construction",
-               "description": "num deallocs for construction transition",
-               "title": "Number of deallocations",
-               "unit": ""
-           },
-           {
-               "name": "maxTemp construction",
-               "description": "peak temporary memory for construction transition",
-               "title": "Maximum temporary memory held during the transition",
-               "unit": "kB"
-           },
-           {
-               "name": "added begin job",
-               "description": "added memory for begin job transition",
-               "title": "Amount of memory added to the process at the end of the transition",
-               "unit": "kB"
-            },
-            {
-
-               "name": "nAlloc begin job",
-               "description": "num allocs for begin job transition",
-               "title": "Number of allocations",
-               "unit": ""
-           },
-           {
-               "name": "max1Alloc begin job",
-               "description": "maximum one time allocation for begin job transition",
-               "title": "Maximum one time allocation held during the transition",
-               "unit": "kB"
-           },
-           {
-               "name": "nDealloc begin job",
-               "description": "num deallocs for begin job transition",
-               "title": "Number of deallocations",
-               "unit": ""
-           },
-           {
-               "name": "maxTemp begin job",
-               "description": "peak temporary memory for begin job transition",
-               "title": "Maximum temporary memory held during the transition",
-               "unit": "kB"
-           },
-           {
-               "name": "added begin stream",
-               "description": "added memory for begin stream transition",
-               "title": "Amount of memory added to the process at the end of the transition",
-               "unit": "kB"
-            },
-            {
-
-               "name": "nAlloc begin stream",
-               "description": "num allocs for begin stream transition",
-               "title": "Number of allocations",
-               "unit": ""
-           },
-           {
-               "name": "max1Alloc begin stream",
-               "description": "maximum one time allocation for begin stream transition",
-               "title": "Maximum one time allocation held during the transition",
-               "unit": "kB"
-           },
-           {
-               "name": "nDealloc begin stream",
-               "description": "num deallocs for begin stream transition",
-               "title": "Number of deallocations",
-               "unit": ""
-           },
-           {
-               "name": "maxTemp begin stream",
-               "description": "peak temporary memory for begin stream transition",
-               "title": "Maximum temporary memory held during the transition",
-               "unit": "kB"
-           },
-           {
-               "name": "added global begin run",
-               "description": "added memory global begin run transition",
-               "title": "Amount of memory added to the process at the end of the transition",
-               "unit": "kB"
-            },
-            {
-
-               "name": "nAlloc global begin run",
-               "description": "num allocs for global begin run transition",
-               "title": "Number of allocations",
-               "unit": ""
-           },
-           {
-               "name": "max1Alloc global begin run",
-               "description": "maximum one time allocation for global begin run transition",
-               "title": "Maximum one time allocation held during the transition",
-               "unit": "kB"
-           },
-           {
-               "name": "nDealloc global begin run",
-               "description": "num deallocs for global begin run transition",
-               "title": "Number of deallocations",
-               "unit": ""
-           },
-           {
-               "name": "maxTemp global begin run",
-               "description": "peak temporary memory for global begin run transition",
-               "title": "Maximum temporary memory held during the transition",
-               "unit": "kB"
-           },
-           {
-               "name": "added global begin luminosity block",
-               "description": "added memory for global begin luminosity block transition",
-               "title": "Amount of memory added to the process at the end of the transition",
-               "unit": "kB"
-            },
-            {
-
-               "name": "nAlloc global begin luminosity block",
-               "description": "num allocs for global begin luminosity block transition",
-               "title": "Number of allocations",
-               "unit": ""
-           },
-           {
-               "name": "max1Alloc global begin luminosity block",
-               "description": "maximum one time allocation for global begin luminosity block transition",
-               "title": "Maximum one time allocation held during the transition",
-               "unit": "kB"
-           },
-           {
-               "name": "nDealloc global begin luminosity block",
-               "description": "num deallocs for global begin luminosity block transition",
-               "title": "Number of deallocations",
-               "unit": ""
-           },
-           {
-               "name": "maxTemp global begin luminosity block",
-               "description": "peak temporary memory for global begin luminosity block transition",
-               "title": "Maximum temporary memory held during the transition",
-               "unit": "kB"
-           },
-           {
-               "name": "added stream begin run",
-               "description": "added memory for stream begin run transition",
-               "title": "Amount of memory added to the process at the end of the transition",
-               "unit": "kB"
-            },
-            {
-
-               "name": "nAlloc stream begin run",
-               "description": "num allocs for stream begin run transition",
-               "title": "Number of allocations",
-               "unit": ""
-           },
-           {
-               "name": "max1Alloc stream begin run",
-               "description": "maximum one time allocation for stream begin run transition",
-               "title": "Maximum one time allocation held during the transition",
-               "unit": "kB"
-           },
-           {
-               "name": "nDealloc stream begin run",
-               "description": "num deallocs for stream begin run transition",
-               "title": "Number of deallocations",
-               "unit": ""
-           },
-           {
-               "name": "maxTemp stream begin run",
-               "description": "peak temporary memory for stream begin run transition",
-               "title": "Maximum temporary memory held during the transition",
-               "unit": "kB"
-           },
-           {
-               "name": "added stream begin luminosity block",
-               "description": "added memory for stream begin luminosity block transition",
-               "title": "Amount of memory added to the process at the end of the transition",
-               "unit": "kB"
-            },
-            {
-
-               "name": "nAlloc stream begin luminosity block",
-               "description": "num allocs for stream begin luminosity block transition",
-               "title": "Number of allocations",
-               "unit": ""
-           },
-           {
-               "name": "max1Alloc stream begin luminosity block",
-               "description": "maximum one time allocation average for stream begin luminosity block transition",
-               "title": "Maximum one time allocation held during the transition",
-               "unit": "kB"
-           },
-           {
-               "name": "nDealloc stream begin luminosity block",
-               "description": "num deallocs for stream begin luminosity block transition",
-               "title": "Number of deallocations",
-               "unit": ""
-           },
-           {
-               "name": "maxTemp stream begin luminosity block",
-               "description": "peak temporary memory for stream begin luminosity block transition",
-               "title": "Maximum temporary memory held during the transition",
-               "unit": "kB"
-           },
-       ],
-       "total": {
-           "events": 1,
-           "label": "Job",
-           "type": "Job",
-           "nAlloc event": 0,
-           "nDealloc event": 0,
-           "max1Alloc event": 0,
-           "added event": 0,
-           "maxTemp event": 0,
-           "nAlloc construction": 0,
-           "nDealloc construction": 0,
-           "max1Alloc construction": 0,
-           "added construction": 0,
-           "maxTemp construction": 0,
-           "nAlloc begin job": 0,
-           "nDealloc begin job": 0,
-           "max1Alloc begin job": 0,
-           "added begin job": 0,
-           "maxTemp begin job": 0,
-           "nAlloc begin stream": 0,
-           "nDealloc begin stream": 0,
-           "max1Alloc begin stream": 0,
-           "added begin stream": 0,
-           "maxTemp begin stream": 0,
-           "nAlloc global begin run": 0,
-           "nDealloc global begin run": 0,
-           "max1Alloc global begin run": 0,
-           "added global begin run": 0,
-           "maxTemp global begin run": 0,
-           "nAlloc global begin luminosity block": 0,
-           "nDealloc global begin luminosity block": 0,
-           "max1Alloc global begin luminosity block": 0,
-           "added global begin luminosity block": 0,
-           "maxTemp global begin luminosity block": 0,
-           "nAlloc stream begin run": 0,
-           "nDealloc stream begin run": 0,
-           "max1Alloc stream begin run": 0,
-           "added stream begin run": 0,
-           "maxTemp stream begin run": 0,
-           "nAlloc stream begin luminosity block": 0,
-           "nDealloc stream begin luminosity block": 0,
-           "max1Alloc stream begin luminosity block": 0,
-           "added stream begin luminosity block": 0,
-           "maxTemp stream begin luminosity block": 0,
-       }
+       "resources": [],
+       "total": {}
     }
-    for transitionType in moduleTransitions.keys():
-        for label, info in moduleTransitions[transitionType].items():
+    for transitionType in transitionTypes:
+        doc["resources"] += [
+            {
+               "name": "added %s" % transitionType,
+               "description": "add memory per %s transition" % transitionType,
+               "title": "Amount of memory added to the process at the end of the %s transition" % transitionType,
+               "unit": "kB"
+            },
+            {
+
+               "name": "nAlloc %s" % transitionType,
+               "description": "num allocs per %s transition" % transitionType,
+               "title": "Number of allocations during the %s transition" % transitionType,
+               "unit": ""
+            },
+            {
+               "name": "max1Alloc %s" % transitionType,
+               "description": "maximum one time allocation per %s transition" % transitionType,
+               "title": "Maximum one time allocation held during the %s transition" % transitionType,
+               "unit": "kB"
+           },
+           {
+               "name": "nDealloc %s" % transitionType,
+               "description": "num deallocs for %s transition" % transitionType,
+               "title": "Number of deallocations during the %s transition" % transitionType,
+               "unit": ""
+           },
+           {
+               "name": "maxTemp %s" % transitionType,
+               "description": "maximum temporary memory per %s transition" % transitionType,
+               "title": "Maximum temporary memory held during the %s transition" % transitionType,
+               "unit": "kB"
+           },
+        ]
+
+        doc["total"]["events"] = 1
+        doc["total"]["label"] = "Job"
+        doc["total"]["type"] = "Job"
+        for allocType in allocTypes:
+            doc["total"]["%s %s" % (allocType, transitionType)] = 0
+
+    for transitionType, moduleTransition in moduleTransitions.items():
+        for label, info in moduleTransition.items():
             allocs = info.get("allocs", [])
-            modules_dict[label] = modules_dict.get(label, {})
-            modules_dict[label]["label"] = info.get("label", label)
-            modules_dict[label]["type"] = info.get("cpptype", "unknown")
+            if not label in modules_dict:
+                modules_dict[label] = {
+                    "label": info.get("label", label),
+                    "type": info.get("cpptype", "unknown")
+                }
             added = 0
             nAlloc = 0
             nDealloc = 0
@@ -332,13 +81,13 @@ def formatToCircles(moduleTransitions):
                 nDealloc += alloc.get("nDealloc", 0)
                 maxTemp += alloc.get("maxTemp", 0)
                 max1Alloc += alloc.get("max1Alloc", 0)
-            nevents = moduleTransitions[transitionType][label]["nEvents"]
-            if nevents > 0:
-                modules_dict[label]["nAlloc %s" % transitionType] = nAlloc/nevents
-                modules_dict[label]["added %s" % transitionType] = (added/nevents)/1024
-                modules_dict[label]["maxTemp %s" % transitionType] = (maxTemp/nevents)/1024
-                modules_dict[label]["nDealloc %s" % transitionType] = nDealloc/nevents
-                modules_dict[label]["max1Alloc %s" % transitionType] = (max1Alloc/nevents)/1024
+            ntransitions = moduleTransitions[transitionType][label]["nTransitions"]
+            if ntransitions > 0:
+                modules_dict[label]["nAlloc %s" % transitionType] = nAlloc/ntransitions
+                modules_dict[label]["added %s" % transitionType] = (added/ntransitions)/1024
+                modules_dict[label]["maxTemp %s" % transitionType] = (maxTemp/ntransitions)/1024
+                modules_dict[label]["nDealloc %s" % transitionType] = nDealloc/ntransitions
+                modules_dict[label]["max1Alloc %s" % transitionType] = (max1Alloc/ntransitions)/1024
             else:
                 modules_dict[label]["nAlloc %s" % transitionType] = nAlloc
                 modules_dict[label]["added %s" % transitionType] = (added)/1024
@@ -350,16 +99,12 @@ def formatToCircles(moduleTransitions):
             doc["total"]["maxTemp %s" % transitionType] += maxTemp
             doc["total"]["added %s" % transitionType] += added
             doc["total"]["max1Alloc %s" % transitionType] += max1Alloc
-            if moduleTransitions['event'][label].get("nEvents", 1) > doc["total"]["events"] :
-                doc["total"]["events"] = moduleTransitions['event'][label].get("nEvents", 1)
-    if doc["total"]["events"] == 0:
-        doc["total"]["events"] = 1
+     
     for key in sorted(modules_dict.keys()):
         module = modules_dict[key]
-        module["events"] = moduleTransitions['event'][key].get("nEvents", 1)
-        if module["events"] == 0:
-            module["events"] = 1
+        module["events"] = moduleTransitions['event'][key].get("nTransitions")
         doc["modules"].append(module)
+
     return doc
 
 def main(args):
