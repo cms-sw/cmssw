@@ -54,6 +54,7 @@ namespace edm {
       file_->SetCacheRead(nullptr, &iTree, TFile::kDoNotDisconnect);
       return newCache;
     }
+    TTreeCache* getCacheRead(TTree* tree) { return dynamic_cast<TTreeCache*>(file_->GetCacheRead(tree)); }
 
     class CacheGuard {
     public:
@@ -75,8 +76,6 @@ namespace edm {
       return CacheGuard(file_.get(), iTree, tfcr);
     }
     void clearCacheRead(TObject* iTree) { file_->SetCacheRead(nullptr, iTree, TFile::kDoNotDisconnect); }
-    //TFileCacheRead* GetCacheRead(const TObject* tree = nullptr) const { return file_->GetCacheRead(tree); }
-    //void SetCacheRead(TFileCacheRead* tfcr, TObject* tree = nullptr) { file_->SetCacheRead(tfcr, tree, TFile::kDoNotDisconnect); }
     void logFileAction(char const* msg, char const* fileName) const;
 
   private:

@@ -35,7 +35,6 @@ namespace edm {
       virtual void getAuxEntry(TBranch* auxBranch, EntryNumber entryNumber);
       virtual void getEntryForAllBranches(EntryNumber entryNumber) const = 0;
 
-
       static std::unique_ptr<CacheManagerBase> create(const std::string& strategy,
                                                       std::shared_ptr<InputFile> filePtr,
                                                       unsigned int learningEntries,

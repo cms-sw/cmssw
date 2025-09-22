@@ -55,10 +55,10 @@ namespace edm {
       : filePtr_(filePtr),
         branchType_(branchType),
         entryNumberForIndex_(std::make_unique<std::vector<EntryNumber>>(nIndexes, IndexIntoFile::invalidEntry)),
-        promptRead_(promptRead),
-        rootDelayedReader_(makeRootDelayedReader(*this, filePtr, inputType, nIndexes, promptRead)),
-        treeCacheManager_(
-            roottree::CacheManagerBase::create(promptRead ? "Simple" : "Sparse", filePtr_, learningEntries, enablePrefetching, branchType_)) {}
+        promptRead_(promptRead or not branchType_ == InEvent),
+        rootDelayedReader_(makeRootDelayedReader(*this, filePtr, inputType, nIndexes, promptRead_)),
+        treeCacheManager_(roottree::CacheManagerBase::create(
+            promptRead_ ? "Simple" : "Sparse", filePtr_, learningEntries, enablePrefetching, branchType_)) {}
 
   // Used for Event/Lumi/Run RootTrees
   RootTree::RootTree(std::shared_ptr<InputFile> filePtr,
@@ -226,9 +226,7 @@ namespace edm {
       tree_->SetMaxVirtualSize(static_cast<Long64_t>(treeMaxVirtualSize));
   }
 
-  void RootTree::fillAuxHelper() {
-    treeCacheManager_->getAuxEntry(auxBranch_, entryNumber_);
-  }
+  void RootTree::fillAuxHelper() { treeCacheManager_->getAuxEntry(auxBranch_, entryNumber_); }
 
   bool RootTree::nextWithCache() {
     bool returnValue = ++entryNumber_ < entries_;
@@ -243,9 +241,7 @@ namespace edm {
     entryNumber_ = theEntryNumber;
   }
 
-  void RootTree::getEntryForAllBranches() const {
-    treeCacheManager_->getEntryForAllBranches(entryNumber_);
-  }
+  void RootTree::getEntryForAllBranches() const { treeCacheManager_->getEntryForAllBranches(entryNumber_); }
 
   void RootTree::getEntry(TBranch* branch, EntryNumber entryNumber) const {
     treeCacheManager_->getEntry(branch, entryNumber);
@@ -277,7 +273,6 @@ namespace edm {
     // We make sure the treeCache_ is detached from the file,
     // so that ROOT does not also delete it.
     filePtr_->clearCacheRead(tree_);
-    //treeCacheManager_->setCacheRead(nullptr);
     // We *must* delete the TTreeCache here because the TFilePrefetch object
     // references the TFile.  If TFile is closed, before the TTreeCache is
     // deleted, the TFilePrefetch may continue to do TFile operations, causing
