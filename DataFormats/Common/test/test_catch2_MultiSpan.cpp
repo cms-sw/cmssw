@@ -1,21 +1,14 @@
-/*
- *  CMSSW
- */
-#define CATCH_CONFIG_MAIN
-#include <catch.hpp>
-
-#include "DataFormats/Common/interface/MultiSpan.h"
-
 #include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <numeric>
-#include <iostream>
 #include <vector>
+#include <catch.hpp>
 
-using namespace edm;
+#include "DataFormats/Common/interface/MultiSpan.h"
 
 TEST_CASE("MultiSpan basic indexing", "[MultiSpan]") {
+  edm::MultiSpan<int> emptyMultiSpan;
   edm::MultiSpan<int> ms;
 
   std::vector<int> a = {1, 2, 3};
@@ -29,7 +22,21 @@ TEST_CASE("MultiSpan basic indexing", "[MultiSpan]") {
   static_assert(!std::is_assignable<ElementType, int>::value,
                 "It should not be possible to assign to an element of MultiSpan; See PR #48826");
 
+  SECTION("Empty MultiSpan") {
+    REQUIRE(emptyMultiSpan.size() == 0);
+    REQUIRE(emptyMultiSpan.begin() == emptyMultiSpan.end());
+    REQUIRE_THROWS_AS(emptyMultiSpan[0], std::out_of_range);
+    REQUIRE_THROWS_AS(emptyMultiSpan.globalIndex(0, 0), std::out_of_range);
+  }
+
   SECTION("Size is correct") { REQUIRE(ms.size() == 5); }
+
+  SECTION("Range check") {
+    REQUIRE_THROWS_AS(ms[5], std::out_of_range);
+    REQUIRE_THROWS_AS(ms.globalIndex(2, 0), std::out_of_range);
+    REQUIRE_THROWS_AS(ms.globalIndex(1, 2), std::out_of_range);
+    REQUIRE_THROWS_AS(ms.spanAndLocalIndex(5), std::out_of_range);
+  }
 
   SECTION("Indexing returns correct values") {
     REQUIRE(ms[0] == 1);

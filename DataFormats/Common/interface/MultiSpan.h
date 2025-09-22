@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cassert>
 #include <span>
+#include <stdexcept>
 #include <vector>
 
 namespace edm {
@@ -19,6 +20,8 @@ namespace edm {
 * It is intended for iteration over heterogeneous but logically connected data ranges without copying 
 * or merging them into a single container.
 *
+* To find a span that corresponds to a global index, a binary search is used, making the access time logarithmic in the number of spans.
+*
 */
   template <typename T>
   class MultiSpan {
@@ -32,23 +35,34 @@ namespace edm {
     }
 
     const T& operator[](const std::size_t globalIndex) const {
-      assert(globalIndex < totalSize_ && "Global index out of range");
-
+#ifndef NDEBUG
+      if (globalIndex >= totalSize_) {
+        throw std::out_of_range("Global index out of range");
+      }
+#endif
       const auto [spanIndex, indexWithinSpan] = spanAndLocalIndex(globalIndex);
       return spans_[spanIndex][indexWithinSpan];
     }
 
     std::size_t globalIndex(const std::size_t spanIndex, const std::size_t indexWithinSpan) const {
-      assert(spanIndex < spans_.size() && "spanIndex index out of range");
-      assert(indexWithinSpan < spans_[spanIndex].size() && "indexWithinSpan out of range");
+#ifndef NDEBUG
+      if (spanIndex >= spans_.size()) {
+        throw std::out_of_range("spanIndex index out of range");
+      }
+      if (indexWithinSpan >= spans_[spanIndex].size()) {
+        throw std::out_of_range("indexWithinSpan index out of range");
+      }
+#endif
 
       return offsets_[spanIndex] + indexWithinSpan;
     }
 
-    inline __attribute__((always_inline)) std::pair<std::size_t, std::size_t> spanAndLocalIndex(
-        const std::size_t globalIndex) const {
-      assert(globalIndex < totalSize_ && "Global index out of range");
-
+    std::pair<std::size_t, std::size_t> spanAndLocalIndex(const std::size_t globalIndex) const {
+#ifndef NDEBUG
+      if (globalIndex >= totalSize_) {
+        throw std::out_of_range("Global index out of range");
+      }
+#endif
       auto it = std::upper_bound(offsets_.begin(), offsets_.end(), globalIndex);
       std::size_t spanIndex = std::distance(offsets_.begin(), it) - 1;
       std::size_t indexWithinSpan = globalIndex - offsets_[spanIndex];
@@ -115,10 +129,7 @@ namespace edm {
 
       bool operator==(const ConstRandomAccessIterator& other) const { return currentIndex_ == other.currentIndex_; }
       bool operator!=(const ConstRandomAccessIterator& other) const { return currentIndex_ != other.currentIndex_; }
-      bool operator<(const ConstRandomAccessIterator& other) const { return currentIndex_ < other.currentIndex_; }
-      bool operator>(const ConstRandomAccessIterator& other) const { return currentIndex_ > other.currentIndex_; }
-      bool operator<=(const ConstRandomAccessIterator& other) const { return currentIndex_ <= other.currentIndex_; }
-      bool operator>=(const ConstRandomAccessIterator& other) const { return currentIndex_ >= other.currentIndex_; }
+      auto operator<=>(const ConstRandomAccessIterator& other) const { return currentIndex_ <=> other.currentIndex_; }
 
     private:
       const MultiSpan* ms_;
