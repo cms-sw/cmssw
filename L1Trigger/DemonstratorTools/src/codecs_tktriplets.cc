@@ -15,22 +15,32 @@ namespace l1t::demo::codecs {
     tkTriplet.trk3Pt = t.trk3PtWord();
     tkTriplet.charge = t.chargeWord();
     ap_uint<1> valid = (t.validWord());
-    ap_uint<128 - (l1ttripletemu::kPtSize + l1ttripletemu::kPhiSize + l1ttripletemu::kEtaSize + l1ttripletemu::kMassSize + 3*l1ttripletemu::kTrk1PtSize + l1ttripletemu::kChargeSize + 1)> unassigned = 0;
-    ap_uint<128> tripletWord = (unassigned, tkTriplet.charge.range(), tkTriplet.trk3Pt.range(), tkTriplet.trk2Pt.range(), tkTriplet.trk1Pt.range(), tkTriplet.mass.range(), tkTriplet.eta.range(), tkTriplet.phi.range(), tkTriplet.pt.range(), valid);
+    ap_uint<128 - (l1ttripletemu::kPtSize + l1ttripletemu::kPhiSize + l1ttripletemu::kEtaSize +
+                   l1ttripletemu::kMassSize + 3 * l1ttripletemu::kTrk1PtSize + l1ttripletemu::kChargeSize + 1)>
+        unassigned = 0;
+    ap_uint<128> tripletWord = (unassigned,
+                                tkTriplet.charge.range(),
+                                tkTriplet.trk3Pt.range(),
+                                tkTriplet.trk2Pt.range(),
+                                tkTriplet.trk1Pt.range(),
+                                tkTriplet.mass.range(),
+                                tkTriplet.eta.range(),
+                                tkTriplet.phi.range(),
+                                tkTriplet.pt.range(),
+                                valid);
     return tripletWord;
   }
 
   // Output triplet word spans over 2 64-bit link words
   void encodeTripletLinks(std::array<std::vector<ap_uint<128>>, 1>& tripletWords,
-                     std::array<std::vector<ap_uint<64>>, 1>& linkData) {
-
+                          std::array<std::vector<ap_uint<64>>, 1>& linkData) {
     for (size_t i = 0; i < linkData.size(); i++) {
-      tripletWords.at(i).resize(1, 0); 
-      linkData.at(i).resize(2, {0});  
+      tripletWords.at(i).resize(1, 0);
+      linkData.at(i).resize(2, {0});
 
       for (size_t j = 0; j < tripletWords.at(i).size(); j += 1) {
-        linkData.at(i).at(2*j) = tripletWords.at(i).at(j)(63, 0);
-        linkData.at(i).at(2*j + 1) = tripletWords.at(i).at(j)(127, 64);
+        linkData.at(i).at(2 * j) = tripletWords.at(i).at(j)(63, 0);
+        linkData.at(i).at(2 * j + 1) = tripletWords.at(i).at(j)(127, 64);
       }
     }
   }
@@ -61,6 +71,4 @@ namespace l1t::demo::codecs {
     return linkData;
   }
 
-} // namespace l1t::demo::codecs
-
-  
+}  // namespace l1t::demo::codecs

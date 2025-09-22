@@ -87,7 +87,6 @@ private:
   const edm::EDGetTokenT<edm::View<l1t::EtSum>> htMissDispToken_;
   const edm::EDGetTokenT<edm::View<l1t::EtSum>> etMissToken_;
   const edm::EDGetTokenT<edm::View<l1t::TkTripletWord>> tripletsToken_;
-  
 
   l1t::demo::BoardDataWriter fileWriterInputTracks_;
   l1t::demo::BoardDataWriter fileWriterConvertedTracks_;
@@ -232,7 +231,7 @@ void GTTFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   sumsData.insert(sumsData.end(), htMissData.at(0).begin(), htMissData.at(0).end());
   sumsData.insert(sumsData.end(), htMissDispData.at(0).begin(), htMissDispData.at(0).end());
   sumsData.insert(sumsData.end(), etMissData.at(0).begin(), etMissData.at(0).end());
-  
+
   // Link 3
   std::vector<ap_uint<64>> mesonsData;
   mesonsData.insert(mesonsData.end(), tripletsData.at(0).begin(), tripletsData.at(0).end());
@@ -305,7 +304,8 @@ void GTTFileWriter::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.addUntracked<edm::InputTag>("jets", edm::InputTag("l1tTrackJetsEmulation", "L1TrackJets"));
   desc.addUntracked<edm::InputTag>("jetsdisp", edm::InputTag("l1tTrackJetsExtendedEmulation", "L1TrackJetsExtended"));
   desc.addUntracked<edm::InputTag>("htmiss", edm::InputTag("l1tTrackerEmuHTMiss", "L1TrackerEmuHTMiss"));
-  desc.addUntracked<edm::InputTag>("htmissdisp", edm::InputTag("l1tTrackerEmuHTMissExtended", "L1TrackerEmuHTMissExtended"));
+  desc.addUntracked<edm::InputTag>("htmissdisp",
+                                   edm::InputTag("l1tTrackerEmuHTMissExtended", "L1TrackerEmuHTMissExtended"));
   desc.addUntracked<edm::InputTag>("etmiss", edm::InputTag("l1tTrackerEmuEtMiss", "L1TrackerEmuEtMiss"));
   desc.addUntracked<edm::InputTag>("triplets", edm::InputTag("l1tTrackTripletEmulation", "L1TrackTripletWord"));
   desc.addUntracked<std::string>("inputFilename", "L1GTTInputFile");

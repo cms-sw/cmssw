@@ -24,22 +24,23 @@ namespace l1t {
 
     enum TkTripletBitWidths {
       // The sizes of the triplet word components and total word size
-      kValidSize      = 1,        // Width of the valid bit
-      kPtSize         = 16,
-      kPtMagSize      = 11,
-      kPhiSize        = 13,
-      kEtaSize        = 14,
-      kMassSize       = 13,       // Width of the entire triplet mass
-      kMassMagSize    = 7,        // Width of the triplet mass magnitude
-      kTrk1PtSize     = 13,
-      kTrk1PtMagSize  = 8,
-      kTrk2PtSize     = 13,
-      kTrk2PtMagSize  = 8,
-      kTrk3PtSize     = 13,
-      kTrk3PtMagSize  = 8,
-      kChargeSize     = 1,
+      kValidSize = 1,  // Width of the valid bit
+      kPtSize = 16,
+      kPtMagSize = 11,
+      kPhiSize = 13,
+      kEtaSize = 14,
+      kMassSize = 13,    // Width of the entire triplet mass
+      kMassMagSize = 7,  // Width of the triplet mass magnitude
+      kTrk1PtSize = 13,
+      kTrk1PtMagSize = 8,
+      kTrk2PtSize = 13,
+      kTrk2PtMagSize = 8,
+      kTrk3PtSize = 13,
+      kTrk3PtMagSize = 8,
+      kChargeSize = 1,
       kUnassignedSize = 31,
-      kTkTripletWordSize = kValidSize + kPtSize + kPhiSize + kEtaSize + kMassSize + kTrk1PtSize + kTrk2PtSize + kTrk3PtSize + kChargeSize + kUnassignedSize,
+      kTkTripletWordSize = kValidSize + kPtSize + kPhiSize + kEtaSize + kMassSize + kTrk1PtSize + kTrk2PtSize +
+                           kTrk3PtSize + kChargeSize + kUnassignedSize,
     };
 
     enum TkTripletBitLocations {
@@ -67,15 +68,18 @@ namespace l1t {
     };
 
     // ap parameter types
-    typedef ap_uint<TkTripletBitWidths::kValidSize>                                                             tktriplet_valid_t;      
-    typedef ap_ufixed<TkTripletBitWidths::kPtSize, TkTripletBitWidths::kPtMagSize, AP_RND_CONV, AP_SAT>         tktriplet_pt_t;        
-    typedef ap_int<TkTripletBitWidths::kPhiSize>                                                                tktriplet_phi_t;       
-    typedef ap_int<TkTripletBitWidths::kEtaSize>                                                                tktriplet_eta_t;        
-    typedef ap_ufixed<TkTripletBitWidths::kMassSize, TkTripletBitWidths::kMassMagSize, AP_RND_CONV, AP_SAT>     tktriplet_mass_t;       
-    typedef ap_ufixed<TkTripletBitWidths::kMassSize+7, TkTripletBitWidths::kMassMagSize+7, AP_RND_CONV, AP_SAT> tktriplet_mass_sq_t;
-    typedef ap_ufixed<TkTripletBitWidths::kTrk1PtSize, TkTripletBitWidths::kTrk1PtMagSize, AP_RND_CONV, AP_SAT> tktriplet_trk_pt_t;
-    typedef ap_uint<TkTripletBitWidths::kChargeSize>                                                            tktriplet_charge_t;
-    typedef ap_uint<TkTripletBitWidths::kUnassignedSize>                                                        tktriplet_unassigned_t; 
+    typedef ap_uint<TkTripletBitWidths::kValidSize> tktriplet_valid_t;
+    typedef ap_ufixed<TkTripletBitWidths::kPtSize, TkTripletBitWidths::kPtMagSize, AP_RND_CONV, AP_SAT> tktriplet_pt_t;
+    typedef ap_int<TkTripletBitWidths::kPhiSize> tktriplet_phi_t;
+    typedef ap_int<TkTripletBitWidths::kEtaSize> tktriplet_eta_t;
+    typedef ap_ufixed<TkTripletBitWidths::kMassSize, TkTripletBitWidths::kMassMagSize, AP_RND_CONV, AP_SAT>
+        tktriplet_mass_t;
+    typedef ap_ufixed<TkTripletBitWidths::kMassSize + 7, TkTripletBitWidths::kMassMagSize + 7, AP_RND_CONV, AP_SAT>
+        tktriplet_mass_sq_t;
+    typedef ap_ufixed<TkTripletBitWidths::kTrk1PtSize, TkTripletBitWidths::kTrk1PtMagSize, AP_RND_CONV, AP_SAT>
+        tktriplet_trk_pt_t;
+    typedef ap_uint<TkTripletBitWidths::kChargeSize> tktriplet_charge_t;
+    typedef ap_uint<TkTripletBitWidths::kUnassignedSize> tktriplet_unassigned_t;
 
     typedef std::bitset<TkTripletBitWidths::kTkTripletWordSize> tktripletword_bs_t;
     typedef ap_uint<TkTripletBitWidths::kTkTripletWordSize> tktripletword_t;
