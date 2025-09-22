@@ -69,6 +69,7 @@ void HLTVertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 
   //vertex collection
   auto pvsIn = iEvent.getHandle(pvs_);
+  auto pvScoreIn = iEvent.getHandle(pvsScore_);
   const size_t nPVs = pvsIn.isValid() ? (*pvsIn).size() : 0;
 
   static constexpr float default_value = std::numeric_limits<float>::quiet_NaN();
@@ -90,7 +91,6 @@ void HLTVertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 
   if (pvsIn.isValid() || !(this->skipNonExistingSrc_)) {
     const auto& pvs = *pvsIn;
-    const auto& pvsScoreProd = iEvent.get(pvsScore_);
 
     auto pfcIn = iEvent.getHandle(pfc_);
     const bool isPfcValid = pfcIn.isValid();
@@ -109,7 +109,11 @@ void HLTVertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
       v_zError[i] = pv.zError();
       v_nTracks[i] = pv.nTracks();
       v_is_good[i] = goodPvCut_(pv);
-      v_pv_score[i] = pvsScoreProd.get(pvsIn.id(), i);
+
+      if (pvScoreIn.isValid() || !(this->skipNonExistingSrc_)) {
+        const auto& pvsScoreProd = *pvScoreIn;
+        v_pv_score[i] = pvsScoreProd.get(pvsIn.id(), i);
+      }
 
       float sumpt2 = 0.f, sumpx = 0.f, sumpy = 0.f;
 

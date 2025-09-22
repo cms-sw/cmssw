@@ -47,6 +47,7 @@ hltNanoProducer = cms.Sequence(
     #+ hltTriggerAcceptFilter
     + hltVertexTable
     + hltPixelTrackTable
+    + hltPixelVertexTable
     + hltGeneralTrackTable
     + hltEgammaPacker
     + hltPhotonTable
@@ -70,6 +71,7 @@ dstNanoProducer = cms.Sequence(
     + dstTriggerAcceptFilter
     + hltVertexTable
     + hltPixelTrackTable
+    + hltPixelVertexTable
     + hltGeneralTrackTable
     + hltEgammaPacker
     + hltPhotonTable
