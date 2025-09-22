@@ -40,6 +40,7 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 #include "DataFormats/L1Trigger/interface/VertexWord.h"
+#include "DataFormats/L1Trigger/interface/TkTripletWord.h"
 
 #include "L1Trigger/DemonstratorTools/interface/BoardDataWriter.h"
 #include "L1Trigger/DemonstratorTools/interface/GTTInterface.h"
@@ -48,6 +49,7 @@
 #include "L1Trigger/DemonstratorTools/interface/codecs/tkjets.h"
 #include "L1Trigger/DemonstratorTools/interface/codecs/htsums.h"
 #include "L1Trigger/DemonstratorTools/interface/codecs/etsums.h"
+#include "L1Trigger/DemonstratorTools/interface/codecs/tktriplets.h"
 #include "L1Trigger/DemonstratorTools/interface/utilities.h"
 
 //
@@ -84,6 +86,8 @@ private:
   const edm::EDGetTokenT<edm::View<l1t::EtSum>> htMissToken_;
   const edm::EDGetTokenT<edm::View<l1t::EtSum>> htMissDispToken_;
   const edm::EDGetTokenT<edm::View<l1t::EtSum>> etMissToken_;
+  const edm::EDGetTokenT<edm::View<l1t::TkTripletWord>> tripletsToken_;
+  
 
   l1t::demo::BoardDataWriter fileWriterInputTracks_;
   l1t::demo::BoardDataWriter fileWriterConvertedTracks_;
@@ -113,6 +117,7 @@ GTTFileWriter::GTTFileWriter(const edm::ParameterSet& iConfig)
       htMissToken_(consumes<edm::View<l1t::EtSum>>(iConfig.getUntrackedParameter<edm::InputTag>("htmiss"))),
       htMissDispToken_(consumes<edm::View<l1t::EtSum>>(iConfig.getUntrackedParameter<edm::InputTag>("htmissdisp"))),
       etMissToken_(consumes<edm::View<l1t::EtSum>>(iConfig.getUntrackedParameter<edm::InputTag>("etmiss"))),
+      tripletsToken_(consumes<edm::View<l1t::TkTripletWord>>(iConfig.getUntrackedParameter<edm::InputTag>("triplets"))),
       fileWriterInputTracks_(l1t::demo::parseFileFormat(iConfig.getUntrackedParameter<std::string>("format")),
                              iConfig.getUntrackedParameter<std::string>("inputFilename"),
                              iConfig.getUntrackedParameter<std::string>("fileExtension"),
@@ -182,6 +187,7 @@ void GTTFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   const auto& htMissCollection = iEvent.get(htMissToken_);
   const auto& htMissDispCollection = iEvent.get(htMissDispToken_);
   const auto& etMissCollection = iEvent.get(etMissToken_);
+  const auto& tripletsCollection = iEvent.get(tripletsToken_);
 
   edm::Handle<TrackCollection_t> convertedTracksHandle;
   edm::Handle<TrackRefCollection_t> selectedTracksHandle;
@@ -201,6 +207,7 @@ void GTTFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   const auto htMissData(encodeHtSums(htMissCollection));
   const auto htMissDispData(encodeHtSums(htMissDispCollection));
   const auto etMissData(encodeEtSums(etMissCollection));
+  const auto tripletsData(encodeTriplets(tripletsCollection));
 
   // 2) Pack 'object' information into 'event data' object
   l1t::demo::EventData eventDataTracks;
@@ -218,12 +225,18 @@ void GTTFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   eventDataVertices.add({"vertices", 0}, vertexData.at(0));
 
   // 2b) For the global trigger 'event data' combine different objects into one 'logical' link
+  // Link 1
   std::vector<ap_uint<64>> sumsData;
   sumsData.insert(sumsData.end(), jetsData.at(0).begin(), jetsData.at(0).end());
   sumsData.insert(sumsData.end(), jetsDispData.at(0).begin(), jetsDispData.at(0).end());
   sumsData.insert(sumsData.end(), htMissData.at(0).begin(), htMissData.at(0).end());
   sumsData.insert(sumsData.end(), htMissDispData.at(0).begin(), htMissDispData.at(0).end());
   sumsData.insert(sumsData.end(), etMissData.at(0).begin(), etMissData.at(0).end());
+  
+  // Link 3
+  std::vector<ap_uint<64>> mesonsData;
+  mesonsData.insert(mesonsData.end(), tripletsData.at(0).begin(), tripletsData.at(0).end());
+  mesonsData.insert(mesonsData.end(), 36, 0);
 
   std::vector<ap_uint<64>> tracksVerticesData;
   tracksVerticesData.insert(tracksVerticesData.end(), 36, 0);
@@ -233,8 +246,8 @@ void GTTFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   l1t::demo::EventData eventDataGlobalTrigger;
   eventDataGlobalTrigger.add({"sums", 0}, sumsData);
   eventDataGlobalTrigger.add({"taus", 1}, std::vector<ap_uint<64>>(18, 0));  // Placeholder until tau object is written
-  eventDataGlobalTrigger.add({"mesons", 2},
-                             std::vector<ap_uint<64>>(39, 0));  // Placeholder until light meson objects are written
+  eventDataGlobalTrigger.add({"mesons", 2}, mesonsData);
+  //                          std::vector<ap_uint<64>>(39, 0));  // Placeholder until light meson objects are written, put triplet word at beggining or end, pad with zeroes
   eventDataGlobalTrigger.add({"vertices", 3}, tracksVerticesData);
 
   // 3) Pass the 'event data' object to the file writer
@@ -292,9 +305,9 @@ void GTTFileWriter::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.addUntracked<edm::InputTag>("jets", edm::InputTag("l1tTrackJetsEmulation", "L1TrackJets"));
   desc.addUntracked<edm::InputTag>("jetsdisp", edm::InputTag("l1tTrackJetsExtendedEmulation", "L1TrackJetsExtended"));
   desc.addUntracked<edm::InputTag>("htmiss", edm::InputTag("l1tTrackerEmuHTMiss", "L1TrackerEmuHTMiss"));
-  desc.addUntracked<edm::InputTag>("htmissdisp",
-                                   edm::InputTag("l1tTrackerEmuHTMissExtended", "L1TrackerEmuHTMissExtended"));
+  desc.addUntracked<edm::InputTag>("htmissdisp", edm::InputTag("l1tTrackerEmuHTMissExtended", "L1TrackerEmuHTMissExtended"));
   desc.addUntracked<edm::InputTag>("etmiss", edm::InputTag("l1tTrackerEmuEtMiss", "L1TrackerEmuEtMiss"));
+  desc.addUntracked<edm::InputTag>("triplets", edm::InputTag("l1tTrackTripletEmulation", "L1TrackTripletWord"));
   desc.addUntracked<std::string>("inputFilename", "L1GTTInputFile");
   desc.addUntracked<std::string>("inputConvertedFilename", "L1GTTInputConvertedFile");
   desc.addUntracked<std::string>("selectedTracksFilename", "L1GTTSelectedTracksFile");
