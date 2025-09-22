@@ -317,15 +317,6 @@ void L1TrackTripletEmulatorProducer::produce(Event &iEvent, const EventSetup &iS
 
     // Triplet invariant mass calculation
     if (this_l1track == nTracks) {
-      // DEBUG: PRINT TRACK TRIPLET FIELDS
-      /*
-            std::cout << "-----------------------------------" << std::endl;
-            std::cout << "Trk1: pT = " << trk1.f_Pt << ", Eta = " << trk1.f_Eta << ", globalPhi = " << trk1.globalPhi << std::endl;
-            std::cout << "Trk2: pT = " << trk2.f_Pt << ", Eta = " << trk2.f_Eta << ", globalPhi = " << trk2.globalPhi << std::endl;
-            std::cout << "Trk3: pT = " << trk3.f_Pt << ", Eta = " << trk3.f_Eta << ", globalPhi = " << trk3.globalPhi << std::endl;
-            std::cout << "-----------------------------------" << std::endl;
-            */
-
       // Check that all triplet tracks are valid
       if (trk1.f_Pt == 0 || trk2.f_Pt == 0 || trk3.f_Pt == 0) {
         break;
@@ -351,13 +342,6 @@ void L1TrackTripletEmulatorProducer::produce(Event &iEvent, const EventSetup &iS
       l1ttripletemu::pxyz_t p1 = (l1ttripletemu::pxyz_t)trk1.f_Pt * coshLUT_[coshIndex1];
       l1ttripletemu::pxyz_t p2 = (l1ttripletemu::pxyz_t)trk2.f_Pt * coshLUT_[coshIndex2];
       l1ttripletemu::pxyz_t p3 = (l1ttripletemu::pxyz_t)trk3.f_Pt * coshLUT_[coshIndex3];
-
-      /*
-            std::cout << "p1 (EM) = " << p1 << std::endl;
-            std::cout << "p2 (EM) = " << p2 << std::endl;
-            std::cout << "p3 (EM) = " << p3 << std::endl;
-            std::cout << "-----------------------------------" << std::endl;
-            */
 
       // Z-component track momenta
       l1ttripletemu::pxyz_t pz1 = (l1ttripletemu::pxyz_t)trk1.f_Pt * sinhLUT_[coshIndex1];
@@ -454,13 +438,6 @@ void L1TrackTripletEmulatorProducer::produce(Event &iEvent, const EventSetup &iS
         }
       }
 
-      /*
-            std::cout << "px (EM) = (" << px1 << ", " << px2 << ", " << px3 << ")" << std::endl;
-            std::cout << "py (EM) = (" << py1 << ", " << py2 << ", " << py3 << ")" << std::endl;
-            std::cout << "pz (EM) = (" << pz1 << ", " << pz2 << ", " << pz3 << ")" << std::endl;
-            std::cout << "-----------------------------------" << std::endl;
-            */
-
       // W mass calculation
       f_tktriplet_mass_sq = (l1ttripletemu::tktriplet_mass_sq_t)(
           (p1 + p2 + p3) * (p1 + p2 + p3) - (px1 + px2 + px3) * (px1 + px2 + px3) -
@@ -498,25 +475,25 @@ void L1TrackTripletEmulatorProducer::produce(Event &iEvent, const EventSetup &iS
   std::vector<double> pair_dzs{fabs(trk1.Z0 - trk2.Z0), fabs(trk2.Z0 - trk3.Z0), fabs(trk1.Z0 - trk3.Z0)};
   std::sort(pair_dzs.begin(), pair_dzs.end(), [](auto &a, auto &b) { return a > b; });
 
-  /** 
-    //triplet selection
-    if (triplet_mass < triplet_massMin_ || triplet_mass > triplet_massMax_)
+  
+  //triplet selection
+  if (triplet_mass < triplet_massMin_ || triplet_mass > triplet_massMax_)
     event_pass = false;
-    if (fabs(triplet_eta) < triplet_etaMin_ || fabs(triplet_eta) > triplet_etaMax_)
+  if (fabs(triplet_eta) < triplet_etaMin_ || fabs(triplet_eta) > triplet_etaMax_)
     event_pass = false;
-    if (triplet_pt < triplet_ptMin_ || triplet_pt > triplet_ptMax_)
+  if (triplet_pt < triplet_ptMin_ || triplet_pt > triplet_ptMax_)
     event_pass = false;
-    if (fabs(triplet_charge) != triplet_abscharge_ && triplet_abscharge_ > -1)
+  if (fabs(triplet_charge) != triplet_abscharge_ && triplet_abscharge_ > -1)
     event_pass = false;
-    if (pair_masses[2] < pair2_massMin_ || pair_masses[2] > pair2_massMax_)
+  if (pair_masses[2] < pair2_massMin_ || pair_masses[2] > pair2_massMax_)
     event_pass = false;
-    if (pair_masses[0] < pair1_massMin_ || pair_masses[0] > pair1_massMax_)
+  if (pair_masses[0] < pair1_massMin_ || pair_masses[0] > pair1_massMax_)
     event_pass = false;
-    if (pair_dzs[2] < pair2_dzMin_ || pair_dzs[2] > pair2_dzMax_)
+  if (pair_dzs[2] < pair2_dzMin_ || pair_dzs[2] > pair2_dzMax_)
     event_pass = false;
-    if (pair_dzs[0] < pair1_dzMin_ || pair_dzs[0] > pair1_dzMax_)
+  if (pair_dzs[0] < pair1_dzMin_ || pair_dzs[0] > pair1_dzMax_)
     event_pass = false;
-    */
+    
 
   if (!event_pass) {
     iEvent.put(std::move(L1TrackTripletContainer), OutputDigisName);
@@ -565,33 +542,6 @@ void L1TrackTripletEmulatorProducer::produce(Event &iEvent, const EventSetup &iS
                                tkTriplet.trk3Pt,
                                tkTriplet.charge,
                                unassigned);
-
-  // CODE FOR DEBUGGING EMU MASS OUTPUT
-  constexpr char const *RED = "\033[31m";
-  constexpr char const *GREEN = "\033[32m";
-  constexpr char const *RESET = "\033[0m";
-
-  float floatWMassSq = (pion1 + pion2 + pion3).M() * (pion1 + pion2 + pion3).M();
-
-  l1ttripletemu::tktriplet_mass_t tktriplet_mass =
-      (l1ttripletemu::tktriplet_mass_t)std::sqrt((float)f_tktriplet_mass_sq);
-  std::cout << "===================================================" << std::endl;
-  //std::cout << "Float Mass Word: " << ((l1ttripletemu::tktriplet_mass_sq_t)floatWMassSq).to_string(2).c_str() << std::endl;
-  std::cout << "W Mass (float)    = " << std::sqrt(floatWMassSq) << std::endl;
-  std::cout << "EM Mass Word   : " << tktriplet_mass.to_string(2).c_str() << std::endl;
-  std::cout << "W Mass (emu) = " << tktriplet_mass.to_string(10).c_str() << std::endl;
-  std::cout << "===================================================" << std::endl;
-  std::cout << "Word testing (dec): " << L1Triplet.massWord().to_string(10).c_str() << std::endl;
-  std::cout << "Word testing (bin): " << L1Triplet.massWord().to_string(2).c_str() << std::endl;
-  std::cout << "Word testing (hex): " << L1Triplet.massWord().to_string(16).c_str() << std::endl;
-
-  double mass_diff = std::abs(std::sqrt((pion1 + pion2 + pion3).M() * (pion1 + pion2 + pion3).M()) -
-                              std::sqrt((double)f_tktriplet_mass_sq));
-  if (mass_diff > 2.0) {
-    std::cout << RED << "Mass Difference = " << mass_diff << std::endl << RESET;
-  } else {
-    std::cout << GREEN << "Mass Difference = " << mass_diff << std::endl << RESET;
-  }
 
   L1TrackTripletWordContainer->push_back(L1Triplet);
 

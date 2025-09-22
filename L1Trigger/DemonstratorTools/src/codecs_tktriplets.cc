@@ -49,10 +49,6 @@ namespace l1t::demo::codecs {
   std::array<std::vector<ap_uint<64>>, 1> encodeTriplets(const edm::View<l1t::TkTripletWord>& triplets) {
     std::array<std::vector<ap_uint<128>>, 1> tripletWords;
 
-    /*
-    for (const auto& triplet : triplets)
-      tripletWords.push_back(encodeTriplet(triplet));
-    */
     for (size_t i = 0; i < triplets.size(); i++) {
       tripletWords.at(0).push_back(encodeTriplet(triplets.at(i)));
     }
@@ -60,13 +56,6 @@ namespace l1t::demo::codecs {
     std::array<std::vector<ap_uint<64>>, 1> linkData;
 
     encodeTripletLinks(tripletWords, linkData);
-
-    /*
-    for (size_t i = 0; i < linkData.size(); i++) {
-      tripletWords.resize(1, 0);
-      linkData.at(i) = tripletWords;
-    }
-    */
 
     return linkData;
   }

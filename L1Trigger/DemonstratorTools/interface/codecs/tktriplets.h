@@ -23,8 +23,6 @@ namespace l1t::demo::codecs {
   // Encodes TkTriplet collection onto 1 'logical' output link
   std::array<std::vector<ap_uint<64>>, 1> encodeTriplets(const edm::View<l1t::TkTripletWord>&);
 
-  //std::vector<l1t::TkTripletWord> decodeTkTriplets(const std::vector<ap_uint<64>>&);
-
 }  // namespace l1t::demo::codecs
 
 #endif
