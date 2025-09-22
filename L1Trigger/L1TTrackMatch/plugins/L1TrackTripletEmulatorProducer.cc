@@ -475,7 +475,6 @@ void L1TrackTripletEmulatorProducer::produce(Event &iEvent, const EventSetup &iS
   std::vector<double> pair_dzs{fabs(trk1.Z0 - trk2.Z0), fabs(trk2.Z0 - trk3.Z0), fabs(trk1.Z0 - trk3.Z0)};
   std::sort(pair_dzs.begin(), pair_dzs.end(), [](auto &a, auto &b) { return a > b; });
 
-  
   //triplet selection
   if (triplet_mass < triplet_massMin_ || triplet_mass > triplet_massMax_)
     event_pass = false;
@@ -493,7 +492,6 @@ void L1TrackTripletEmulatorProducer::produce(Event &iEvent, const EventSetup &iS
     event_pass = false;
   if (pair_dzs[0] < pair1_dzMin_ || pair_dzs[0] > pair1_dzMax_)
     event_pass = false;
-    
 
   if (!event_pass) {
     iEvent.put(std::move(L1TrackTripletContainer), OutputDigisName);
