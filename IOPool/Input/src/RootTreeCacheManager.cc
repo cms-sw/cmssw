@@ -23,6 +23,13 @@ namespace edm {
     void CacheManagerBase::getEntry(TBranch* branch, EntryNumber entryNumber) { branch->GetEntry(entryNumber); }
     void CacheManagerBase::getAuxEntry(TBranch* branch, EntryNumber entryNumber) { branch->GetEntry(entryNumber); }
 
+    //
+    // SimpleCache implements a policy that uses the TTreeCache
+    // in a straightforward way, with no swapping of Caches.
+    // It is intended for use primarily in production-like jobs
+    // that read nearly all the branches in a file sequentially,
+    // with little or no event selection or other event skipping.
+    //
     class SimpleCache : public CacheManagerBase {
     public:
       SimpleCache(std::shared_ptr<InputFile> filePtr,
@@ -117,6 +124,13 @@ namespace edm {
       }
     }
 
+    //
+    // SparseReadCache implements a policy for jobs with access
+    // patterns typical of late-stage analysis jobs, which may
+    // read only a sparse selection of branches from selected
+    // events.  Handles many special cases by swapping between
+    // different specialized caches.  Is not thread safe.
+    //
     class SparseReadCache : public CacheManagerBase {
     public:
       SparseReadCache(std::shared_ptr<InputFile> filePtr,

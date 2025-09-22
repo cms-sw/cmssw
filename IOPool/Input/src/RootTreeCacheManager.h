@@ -1,12 +1,23 @@
 #ifndef IOPool_Input_RootTreeCacheManager_h
 #define IOPool_Input_RootTreeCacheManager_h
+// -*- C++ -*-
+//
+// Package:     IOPool/Input
+// Class  :     roottree::CacheManagerBase
+//
+/**\class roottree::CacheManagerBase RootTreeCacheManager.h IOPool/Input/src/RootTreeCacheManager.h
+
+ Description: Base class for TTreeCache policy implementations
+
+ Usage:
+    <usage>
+
+*/
 
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 
 #include <memory>
-
-#include "Rtypes.h"
 
 class TFileCacheRead;
 class TBranch;
