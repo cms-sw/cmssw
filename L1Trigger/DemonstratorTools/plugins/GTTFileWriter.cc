@@ -224,7 +224,6 @@ void GTTFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   eventDataVertices.add({"vertices", 0}, vertexData.at(0));
 
   // 2b) For the global trigger 'event data' combine different objects into one 'logical' link
-  // Link 1
   std::vector<ap_uint<64>> sumsData;
   sumsData.insert(sumsData.end(), jetsData.at(0).begin(), jetsData.at(0).end());
   sumsData.insert(sumsData.end(), jetsDispData.at(0).begin(), jetsDispData.at(0).end());
@@ -232,7 +231,6 @@ void GTTFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   sumsData.insert(sumsData.end(), htMissDispData.at(0).begin(), htMissDispData.at(0).end());
   sumsData.insert(sumsData.end(), etMissData.at(0).begin(), etMissData.at(0).end());
 
-  // Link 3
   std::vector<ap_uint<64>> mesonsData;
   mesonsData.insert(mesonsData.end(), tripletsData.at(0).begin(), tripletsData.at(0).end());
   mesonsData.insert(mesonsData.end(), 36, 0);
@@ -246,7 +244,6 @@ void GTTFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   eventDataGlobalTrigger.add({"sums", 0}, sumsData);
   eventDataGlobalTrigger.add({"taus", 1}, std::vector<ap_uint<64>>(18, 0));  // Placeholder until tau object is written
   eventDataGlobalTrigger.add({"mesons", 2}, mesonsData);
-  //                          std::vector<ap_uint<64>>(39, 0));  // Placeholder until light meson objects are written, put triplet word at beggining or end, pad with zeroes
   eventDataGlobalTrigger.add({"vertices", 3}, tracksVerticesData);
 
   // 3) Pass the 'event data' object to the file writer
