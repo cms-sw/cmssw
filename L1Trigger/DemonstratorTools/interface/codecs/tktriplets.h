@@ -18,7 +18,7 @@ namespace l1t::demo::codecs {
   ap_uint<128> encodeTriplet(const l1t::TkTripletWord& t);
 
   void encodeTripletLinks(std::array<std::vector<ap_uint<128>>, 1>& tripletWords,
-                     std::array<std::vector<ap_uint<64>>, 1>& linkData);
+                          std::array<std::vector<ap_uint<64>>, 1>& linkData);
 
   // Encodes TkTriplet collection onto 1 'logical' output link
   std::array<std::vector<ap_uint<64>>, 1> encodeTriplets(const edm::View<l1t::TkTripletWord>&);
