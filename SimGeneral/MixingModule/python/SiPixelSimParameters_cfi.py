@@ -154,6 +154,15 @@ fastSim.toModify(SiPixelSimBlock,
                    RoutList = cms.vstring('TrackerHits'),
                    RoutListPU = cms.vstring('TrackerHits'))
 
+##
+## Disable all noise for the tau embedding methods simulation step
+##
+from Configuration.ProcessModifiers.tau_embedding_sim_cff import tau_embedding_sim
+tau_embedding_sim.toModify(SiPixelSimBlock, 
+    AddNoise = False,
+    AddNoisyPixels = False,
+)
+
 # Threshold in electrons are the Official CRAFT09 numbers:
 # FPix(smearing)/BPix(smearing) = 2480(160)/2730(200)
 
