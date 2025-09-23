@@ -1,0 +1,119 @@
+<test name="RNTupleTempTestsMaxEventsOutput" command="run_testMaxEventsOutput.sh"/>
+<test name="TestRNTupleTempRunMerge" command="run_RunMerge.sh"/>
+<test name="TestRNTupleTempRunMerge2" command="run_RunMerge2.sh"/>
+<test name="TestRNTupleTempConcurrentIOVsAndRuns" command="concurrentIOVsAndRuns.sh"/>
+<test name="TestRNTupleTemp_TestEDAlias" command="run_TestEDAlias.sh"/>
+
+<test name="TestRNTupleTempEventHistory" command="eventHistoryTest.sh"/>
+
+<test name="TestRNTupleTempDropOnInput" command="run_TestDropOnInput.sh"/>
+<test name="TestRNTupleTempThinningTests" command="run_ThinningTests.sh"/>
+
+<test name="TestRNTupleTempSeriesOfProcesses" command="run_SeriesOfProcesses.sh"/>
+
+<test name="TestRNTupleTempGetBy" command="run_TestGetBy.sh"/>
+<test name="TestRNTupleTempGetByLabel" command="run_TestGetByLabel.sh"/>
+
+<test name="TestRNTupleTempProcessBlock1" command="run_TestProcessBlock.sh 1"/>
+<test name="TestRNTupleTempProcessBlock2" command="run_TestProcessBlock.sh 2"/>
+<test name="TestRNTupleTempProcessBlock3" command="run_TestProcessBlock.sh 3"/>
+<test name="TestRNTupleTempProcessBlock4" command="run_TestProcessBlock.sh 4"/>
+<test name="TestRNTupleTempProcessBlock5" command="run_TestProcessBlock.sh 5">
+  <flags PRE_TEST="TestRNTupleTempProcessBlock1"/>
+  <flags PRE_TEST="TestRNTupleTempProcessBlock2"/>
+</test>
+<test name="TestRNTupleTempProcessBlock6" command="run_TestProcessBlock.sh 6">
+  <flags PRE_TEST="TestRNTupleTempProcessBlock5"/>
+</test>
+<test name="TestRNTupleTempProcessBlock7" command="run_TestProcessBlock.sh 7"/>
+<test name="TestRNTupleTempProcessBlock8" command="run_TestProcessBlock.sh 8">
+  <flags PRE_TEST="TestRNTupleTempProcessBlock1"/>
+  <flags PRE_TEST="TestRNTupleTempProcessBlock7"/>
+</test>
+<test name="TestRNTupleTempProcessBlock9" command="run_TestProcessBlock.sh 9">
+  <flags PRE_TEST="TestRNTupleTempProcessBlock3"/>
+  <flags PRE_TEST="TestRNTupleTempProcessBlock4"/>
+</test>
+<test name="TestRNTupleTempProcessBlock10" command="run_TestProcessBlock.sh 10">
+  <flags PRE_TEST="TestRNTupleTempProcessBlock5"/>
+  <flags PRE_TEST="TestRNTupleTempProcessBlock9"/>
+</test>
+<test name="TestRNTupleTempProcessBlock11" command="run_TestProcessBlock.sh 11">
+  <flags PRE_TEST="TestRNTupleTempProcessBlock5"/>
+  <flags PRE_TEST="TestRNTupleTempProcessBlock9"/>
+</test>
+<test name="TestRNTupleTempProcessBlock12" command="run_TestProcessBlock.sh 12">
+  <flags PRE_TEST="TestRNTupleTempProcessBlock10"/>
+</test>
+<test name="TestRNTupleTempProcessBlock17" command="run_TestProcessBlock.sh 17">
+  <flags PRE_TEST="TestRNTupleTempProcessBlock10"/>
+</test>
+<test name="TestRNTupleTempProcessBlock18" command="run_TestProcessBlock.sh 18"/>
+<test name="TestRNTupleTempProcessBlock19" command="run_TestProcessBlock.sh 19">
+  <flags PRE_TEST="TestRNTupleTempProcessBlock10"/>
+  <flags PRE_TEST="TestRNTupleTempProcessBlock18"/>
+</test>
+<test name="TestRNTupleTempProcessBlock20" command="run_TestProcessBlock.sh 20">
+  <flags PRE_TEST="TestRNTupleTempProcessBlock10"/>
+  <flags PRE_TEST="TestRNTupleTempProcessBlock18"/>
+</test>
+<test name="TestRNTupleTempProcessBlock21" command="run_TestProcessBlock.sh 21">
+  <flags PRE_TEST="TestRNTupleTempProcessBlock5"/>
+  <flags PRE_TEST="TestRNTupleTempProcessBlock9"/>
+</test>
+<test name="TestRNTupleTempProcessBlock22" command="run_TestProcessBlock.sh 22">
+  <flags PRE_TEST="TestRNTupleTempProcessBlock5"/>
+  <flags PRE_TEST="TestRNTupleTempProcessBlock9"/>
+</test>
+<test name="TestRNTupleTempProcessBlock23" command="run_TestProcessBlock.sh 23">
+  <flags PRE_TEST="TestRNTupleTempProcessBlock10"/>
+  <flags PRE_TEST="TestRNTupleTempProcessBlock18"/>
+</test>
+<test name="TestRNTupleTempProcessBlock24" command="run_TestProcessBlock.sh 24">
+  <flags PRE_TEST="TestRNTupleTempProcessBlock10"/>
+  <flags PRE_TEST="TestRNTupleTempProcessBlock18"/>
+</test>
+<test name="TestRNTupleTempProcessBlock100" command="run_TestProcessBlock.sh 100">
+  <flags PRE_TEST="TestRNTupleTempProcessBlock6"/>
+  <flags PRE_TEST="TestRNTupleTempProcessBlock8"/>
+  <flags PRE_TEST="TestRNTupleTempProcessBlock11"/>
+  <flags PRE_TEST="TestRNTupleTempProcessBlock12"/>
+  <flags PRE_TEST="TestRNTupleTempProcessBlock15"/>
+  <flags PRE_TEST="TestRNTupleTempProcessBlock16"/>
+  <flags PRE_TEST="TestRNTupleTempProcessBlock17"/>
+  <flags PRE_TEST="TestRNTupleTempProcessBlock19"/>
+  <flags PRE_TEST="TestRNTupleTempProcessBlock20"/>
+  <flags PRE_TEST="TestRNTupleTempProcessBlock21"/>
+  <flags PRE_TEST="TestRNTupleTempProcessBlock22"/>
+  <flags PRE_TEST="TestRNTupleTempProcessBlock23"/>
+  <flags PRE_TEST="TestRNTupleTempProcessBlock24"/>
+</test>
+
+<test name="TestRNTupleTempAssociationMapWrite" command="cmsRun ${LOCALTOP}/src/FWIO/RNTupleTempTests/test/AssociationMapTest_cfg.py"/>
+
+<test name="TestRNTupleTempAssociationMapTest" command="cmsRun ${LOCALTOP}/src/FWIO/RNTupleTempTests/test/AssociationMapReadTest_cfg.py">
+ <flags PRE_TEST="TestRNTupleTempAssociationMapWrite"/>
+</test>
+
+<test name="TestRNTupleTempInconsistentProducts" command="run_inconsistent_products.sh"/>
+
+<test name="TestRNTupleTempEmptyRootFileWrite" command="cmsRun ${LOCALTOP}/src/FWIO/RNTupleTempTests/test/makeEmptyRootFile.py"/>
+
+<test name="TestRNTupleTempEmptyRootFileRead" command="cmsRun ${LOCALTOP}/src/FWIO/RNTupleTempTests/test/useEmptyRootFile.py">
+ <flags PRE_TEST="TestRNTupleTempEmptyRootFileWrite"/>
+</test>
+
+<test name="TestRNTupleTempOutputSignals" command="run_TestOutput.sh"/>
+
+<test name="TestRNTupleTempRefMerge" command="run_RefMerge.sh"/>
+<test name="TestRNTupleTempRefAlias" command="run_RefAlias.sh"/>
+
+<test name="TestRNTupleTempFallback" command="run_TestFallback.sh"/>
+
+<test name="TestRNTupleTempExistingDictionary" command="run_TestExistingDictionary.sh"/>
+<test name="TestRNTupleTempMissingDictionary" command="Run_MissingDictionary.sh"/>
+
+<test name="TestRNTupleTempProvenance" command ="provenance_test.sh"/>
+<test name="TestMaybeUninitializedIntProduct" command="cmsRun ${LOCALTOP}/src/FWIO/RNTupleTempTests/test/testMaybeUninitializedIntProductPart1_cfg.py &amp;&amp; cmsRun ${LOCALTOP}/src/FWIO/RNTupleTempTests/test/testMaybeUninitializedIntProductPart2_cfg.py"/>
+
+<test name="TestRNTupleTempUnscheduledFailOnOutput" command="run_unscheduledFailOnOutput.sh"/>

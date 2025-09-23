@@ -25,6 +25,12 @@ namespace edm::rntuple_temp {
   void printUuids(ROOT::RNTupleReader *uuidTree);
   void printEventLists(TFile *tfl);
   void printEventsInLumis(TFile *tfl);
+
+  void printFieldNames(ROOT::RNTupleReader &tree);
+  void longFieldPrint(ROOT::RNTupleReader &tr);
+  void clusterPrint(ROOT::RNTupleReader &tr);
+  void pagePrint(ROOT::RNTupleReader &tr, const std::string &branchName);
+
 }  // namespace edm::rntuple_temp
 
 #endif
