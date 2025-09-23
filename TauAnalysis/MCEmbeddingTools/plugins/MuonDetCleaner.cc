@@ -1,4 +1,4 @@
-#include "TauAnalysis/MCEmbeddingTools/plugins/MuonDetCleaner.h"
+#include "TauAnalysis/MCEmbeddingTools/interface/MuonDetCleaner.h"
 
 #include "DataFormats/DTRecHit/interface/DTRecHit1DPair.h"
 #include "DataFormats/DTRecHit/interface/DTSLRecCluster.h"

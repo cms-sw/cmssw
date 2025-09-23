@@ -10,7 +10,7 @@ _coeffs = [1.0, 2.5, 2.2, 2.0, 1.8, 1.6, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
 _slopes_S9S1_run2 = [s*c for s, c in zip(_slopes_S9S1_run1, _coeffs)]
 
 
-hfreco = cms.EDProducer("HFPhase1Reconstructor",
+_hfreco = cms.EDProducer("HFPhase1Reconstructor",
     # Label for the input HFPreRecHitCollection
     inputLabel = cms.InputTag("hfprereco"),
 
@@ -213,3 +213,11 @@ hfreco = cms.EDProducer("HFPhase1Reconstructor",
         verboseLevel = cms.untracked.int32(10) # verboseLevel for debugging printouts, should be > 20 to get output
     )
 )
+# Clone the producer, so that the producer can be modified by tau embedding and the original producer can still be cloned by hcalLocalRecoNZS_cff.py
+hfreco = _hfreco.clone()
+##
+## Modify for the tau embedding methods cleaning step
+##
+from Configuration.ProcessModifiers.tau_embedding_cleaning_cff import tau_embedding_cleaning
+from TauAnalysis.MCEmbeddingTools.Cleaning_RECO_cff import tau_embedding_hfreco_cleaner
+tau_embedding_cleaning.toReplaceWith(hfreco, tau_embedding_hfreco_cleaner)
