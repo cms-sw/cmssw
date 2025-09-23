@@ -589,7 +589,9 @@ namespace edm::rntuple_temp {
       model->AddField(setupBranchIDListRegistry());
       model->AddField(setupThinnedAssociationsHelper());
       model->AddField(setupProductDependencies());
-      model->AddField(setupProcessBlockHelper());
+      if (!om_->outputProcessBlockHelper().processesWithProcessBlockProducts().empty()) {
+        model->AddField(setupProcessBlockHelper());
+      }
     }
 
     auto writeOptions = ROOT::RNTupleWriteOptions();
