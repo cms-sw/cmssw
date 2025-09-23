@@ -24,6 +24,7 @@
 
 #include "TFile.h"
 #include "TError.h"
+#include "TTree.h"
 #include "ROOT/RNTuple.hxx"
 #include "ROOT/RNTupleReader.hxx"
 
@@ -267,27 +268,53 @@ int main(int argc, char* argv[]) {
       }
 
       if (print or printBranchDetails or printClusters or not printBaskets.empty()) {
-        TTree* printTree = (TTree*)tfile->Get(selectedTree.c_str());
-        if (printTree == nullptr) {
-          std::cout << "Tree " << selectedTree << " appears to be missing. Could not find it in the file.\n";
+        auto container = tfile->GetObjectUnchecked(selectedTree.c_str());
+        if (container == nullptr) {
+          std::cout << "RNTuple " << selectedTree << " appears to be missing. Could not find it in the file.\n";
           std::cout << "Exiting\n";
           return 1;
         }
-        // Print out each tree
-        if (print) {
-          edm::rntuple_temp::printBranchNames(printTree);
-        }
+        auto* printRNTuple = tfile->Get<ROOT::RNTuple>(selectedTree.c_str());
+        if (printRNTuple) {
+          auto reader = ROOT::RNTupleReader::Open(*printRNTuple);
+          if (print) {
+            edm::rntuple_temp::printFieldNames(*reader);
+          }
 
-        if (printBranchDetails) {
-          edm::rntuple_temp::longBranchPrint(printTree);
-        }
+          if (printBranchDetails) {
+            edm::rntuple_temp::longFieldPrint(*reader);
+          }
 
-        if (printClusters) {
-          edm::rntuple_temp::clusterPrint(printTree);
-        }
+          if (printClusters) {
+            edm::rntuple_temp::clusterPrint(*reader);
+          }
 
-        if (not printBaskets.empty()) {
-          edm::rntuple_temp::basketPrint(printTree, printBaskets);
+          if (not printBaskets.empty()) {
+            edm::rntuple_temp::pagePrint(*reader, printBaskets);
+          }
+        } else {
+          TTree* printTree = (TTree*)tfile->Get(selectedTree.c_str());
+          if (printTree == nullptr) {
+            std::cout << "Tree " << selectedTree << " appears to be missing. Could not find it in the file.\n";
+            std::cout << "Exiting\n";
+            return 1;
+          }
+          // Print out each tree
+          if (print) {
+            edm::rntuple_temp::printBranchNames(printTree);
+          }
+
+          if (printBranchDetails) {
+            edm::rntuple_temp::longBranchPrint(printTree);
+          }
+
+          if (printClusters) {
+            edm::rntuple_temp::clusterPrint(printTree);
+          }
+
+          if (not printBaskets.empty()) {
+            edm::rntuple_temp::basketPrint(printTree, printBaskets);
+          }
         }
       }
 

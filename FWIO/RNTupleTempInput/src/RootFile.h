@@ -157,6 +157,8 @@ namespace edm {
       std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const { return hasNewlyDroppedBranch_; }
       bool branchListIndexesUnchanged() const { return branchListIndexesUnchanged_; }
       bool modifiedIDs() const { return daqProvenanceHelper_.get() != nullptr; }
+      //Are there no data stored in the file?
+      bool empty() const;
       std::shared_ptr<FileBlock> createFileBlock();
       void updateFileBlock(FileBlock&);
 

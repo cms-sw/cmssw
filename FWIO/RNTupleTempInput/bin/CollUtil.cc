@@ -16,6 +16,7 @@
 #include "TObject.h"
 #include "TTree.h"
 #include "ROOT/RNTupleReader.hxx"
+#include "ROOT/RNTupleDescriptor.hxx"
 
 #include <iomanip>
 #include <iostream>
@@ -71,7 +72,6 @@ namespace edm::rntuple_temp {
       }
     }
     Long64_t branchCompressedSizes(TBranch *branch) { return branch->GetZipBytes("*"); }
-
   }  // namespace
 
   void printBranchNames(TTree *tree) {
@@ -99,6 +99,53 @@ namespace edm::rntuple_temp {
       std::cout << "Missing Events tree?\n";
     }
   }
+
+  namespace {
+    Long64_t storageForField(ROOT::RFieldDescriptor const &iField, ROOT::RNTupleDescriptor const &iDesc) {
+      Long64_t storage = 0;
+      for (auto &col : iDesc.GetColumnIterable(iField)) {
+        if (col.IsAliasColumn()) {
+          continue;
+        }
+        auto id = col.GetPhysicalId();
+
+        for (auto &cluster : iDesc.GetClusterIterable()) {
+          auto columnRange = cluster.GetColumnRange(id);
+          if (columnRange.IsSuppressed()) {
+            continue;
+          }
+          const auto &pageRange = cluster.GetPageRange(id);
+          for (const auto &page : pageRange.GetPageInfos()) {
+            storage += page.GetLocator().GetNBytesOnStorage();
+          }
+        }
+      }
+      return storage;
+    }
+
+    Long64_t storageForFieldAndSubFields(ROOT::RFieldDescriptor const &iField, ROOT::RNTupleDescriptor const &iDesc) {
+      Long64_t storage = storageForField(iField, iDesc);
+      for (auto const &sub : iDesc.GetFieldIterable(iField)) {
+        storage += storageForFieldAndSubFields(sub, iDesc);
+      }
+      return storage;
+    }
+  }  // namespace
+
+  void printFieldNames(ROOT::RNTupleReader &reader) {
+    auto &desc = reader.GetDescriptor();
+    auto topLevel = desc.GetTopLevelFields();
+    unsigned int index = 0;
+    for (auto const &topField : topLevel) {
+      Long64_t storage = storageForFieldAndSubFields(topField, desc);
+      std::cout << "Field " << index << " of " << desc.GetName() << " RNTuple: " << topField.GetFieldName()
+                << " Bytes On Storage = " << storage << std::endl;
+
+      ++index;
+    }
+  }
+
+  void longFieldPrint(ROOT::RNTupleReader &reader) { reader.PrintInfo(ROOT::ENTupleInfo::kStorageDetails); }
 
   namespace {
     class BranchBasketBytes {
@@ -282,6 +329,9 @@ namespace edm::rntuple_temp {
     };
     processClusters(tr, BasketPrinter{}, branchName);
   }
+
+  void clusterPrint(ROOT::RNTupleReader &) {}
+  void pagePrint(ROOT::RNTupleReader &, std::string const &) {}
 
   std::string getUuid(ROOT::RNTupleReader *uuidTree) {
     FileID fid;
