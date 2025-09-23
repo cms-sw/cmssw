@@ -2,7 +2,6 @@
 
 // user include files
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
-#include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -37,6 +36,7 @@ private:
   const edm::EDGetTokenT<edm::ValueMap<float>> pvsScore_;
   const StringCutObjectSelector<reco::Vertex> goodPvCut_;
   const std::string goodPvCutString_;
+  const bool usePF_;
   const std::string pvName_;
   const double dlenMin_, dlenSigMin_;
 };
@@ -52,11 +52,11 @@ HLTVertexTableProducer::HLTVertexTableProducer(const edm::ParameterSet& params)
       pvsScore_(consumes<edm::ValueMap<float>>(params.getParameter<edm::InputTag>("pvSrc"))),
       goodPvCut_(params.getParameter<std::string>("goodPvCut"), true),
       goodPvCutString_(params.getParameter<std::string>("goodPvCut")),
+      usePF_(params.getParameter<bool>("usePF")),
       pvName_(params.getParameter<std::string>("pvName")),
       dlenMin_(params.getParameter<double>("dlenMin")),
       dlenSigMin_(params.getParameter<double>("dlenSigMin")) {
   produces<nanoaod::FlatTable>("PV");
-  produces<edm::PtrVector<reco::VertexCompositePtrCandidate>>();
 }
 
 //
@@ -117,36 +117,47 @@ void HLTVertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 
       float sumpt2 = 0.f, sumpx = 0.f, sumpy = 0.f;
 
-      if (isPfcValid || !(this->skipNonExistingSrc_)) {
-        for (const auto& obj : *pfcIn) {
-          if (obj.charge() == 0 || !obj.trackRef().isNonnull())
-            continue;
-
-          const auto dz = std::abs(obj.trackRef()->dz(pos));
-          if (dz >= 0.2)
-            continue;
-
-          bool isClosest = true;
-          for (size_t j = 0; j < nPVs; ++j) {
-            if (j == i)
+      if (usePF_) {
+        if (isPfcValid || !(this->skipNonExistingSrc_)) {
+          for (const auto& obj : *pfcIn) {
+            if (obj.charge() == 0 || !obj.trackRef().isNonnull())
               continue;
-            const auto dz_j = std::abs(obj.trackRef()->dz(pvs[j].position()));
-            if (dz_j < dz) {
-              isClosest = false;
-              break;
+
+            const auto dz = std::abs(obj.trackRef()->dz(pos));
+            if (dz >= 0.2)
+              continue;
+
+            bool isClosest = true;
+            for (size_t j = 0; j < nPVs; ++j) {
+              if (j == i)
+                continue;
+              const auto dz_j = std::abs(obj.trackRef()->dz(pvs[j].position()));
+              if (dz_j < dz) {
+                isClosest = false;
+                break;
+              }
+            }
+
+            if (isClosest) {
+              const float pt = obj.pt();
+              sumpt2 += pt * pt;
+              sumpx += obj.px();
+              sumpy += obj.py();
             }
           }
-
-          if (isClosest) {
-            const float pt = obj.pt();
-            sumpt2 += pt * pt;
-            sumpx += obj.px();
-            sumpy += obj.py();
-          }
+        } else {
+          edm::LogWarning("HLTVertexTableProducer")
+              << " Invalid handle for " << pvName_ << " in PF candidate input collection";
         }
       } else {
-        edm::LogWarning("HLTVertexTableProducer")
-            << " Invalid handle for " << pvName_ << " in PF candidate input collection";
+        // Loop over tracks used in PV fit
+        for (auto t = pv.tracks_begin(); t != pv.tracks_end(); ++t) {
+          const auto& trk = **t;  // trk is a reco::TrackBase
+          const float pt = trk.pt();
+          sumpt2 += pt * pt;
+          sumpx += trk.px();
+          sumpy += trk.py();
+        }
       }
       v_pv_sumpt2[i] = sumpt2;
       v_pv_sumpx[i] = sumpx;
@@ -190,6 +201,8 @@ void HLTVertexTableProducer::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.add<std::string>("pvName")->setComment("name of the flat table ouput");
   desc.add<edm::InputTag>("pvSrc")->setComment(
       "std::vector<reco::Vertex> and ValueMap<float> primary vertex input collections");
+  desc.add<bool>("usePF", true)
+      ->setComment("if true, use PF candidate-based association; if false, use only tracks used in PV fit");
   desc.add<edm::InputTag>("pfSrc")->setComment("reco::PFCandidateCollection PF candidates input collections");
   desc.add<std::string>("goodPvCut")->setComment("selection on the primary vertex");
   desc.add<double>("dlenMin")->setComment("minimum value of dl to select secondary vertex");
