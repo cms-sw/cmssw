@@ -391,6 +391,10 @@ void PrimaryVertexResolution::bookHistograms(DQMStore::IBooker& iBooker, edm::Ru
 
 void PrimaryVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<reco::VertexCollection> hvertices = iEvent.getHandle(vertexSrc_);
+  if (!hvertices.isValid()) {
+    return;
+  }
+
   const reco::VertexCollection& vertices = *hvertices;
   if (vertices.empty())
     return;
