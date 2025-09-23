@@ -20,7 +20,7 @@ scoutingMuonTableTask = cms.Task(scoutingMuonTable)
 scoutingMuonDisplacedVertexTableTask = cms.Task(scoutingMuonDisplacedVertexTable)
 
 # from 2024, there are two muon collections (https://its.cern.ch/jira/browse/CMSHLT-3089)
-run3_scouting_nanoAOD_2024.toReplaceWith(scoutingMuonTableTask, cms.Task(scoutingMuonVtxTable, scoutingMuonNoVtxTable))\
+run3_scouting_2024.toReplaceWith(scoutingMuonTableTask, cms.Task(scoutingMuonVtxTable, scoutingMuonNoVtxTable))\
     .toReplaceWith(scoutingMuonDisplacedVertexTableTask, cms.Task(scoutingMuonVtxDisplacedVertexTable, scoutingMuonNoVtxDisplacedVertexTable))
 
 # Scouting Electron
@@ -28,7 +28,7 @@ scoutingElectronTableTask = cms.Task(scoutingElectronTable)
 
 # from 2023, scouting electron's tracks are added as std::vector since multiple tracks can be associated to a scouting electron
 # plugin to select the best track to reduce to a single track per scouting electron is added
-(run3_scouting_nanoAOD_2023 | run3_scouting_nanoAOD_2024).toReplaceWith(
+(run3_scouting_2023 | run3_scouting_2024).toReplaceWith(
      scoutingElectronTableTask, cms.Task(scoutingElectronBestTrack, scoutingElectronTable)
 )
 
@@ -278,7 +278,7 @@ def addScoutingElectronTrack(process):
     )
     
     # additional electron track variables added in 2024 in https://github.com/cms-sw/cmssw/pull/43744
-    run3_scouting_nanoAOD_2024.toModify(
+    run3_scouting_2024.toModify(
         process.scoutingElectronTable.collectionVariables.variables,
         pMode = Var("trkpMode", "float", doc="track pMode"),
         etaMode = Var("trketaMode", "float", doc="track etaMode"),
