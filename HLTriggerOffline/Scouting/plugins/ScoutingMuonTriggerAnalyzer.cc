@@ -132,7 +132,7 @@ void ScoutingMuonTriggerAnalyzer::dqmBeginRun(edm::Run const& iRun, edm::EventSe
   if (hltConfig_.tableName().find("Fake") != std::string::npos) {
     edm::LogPrint("ScoutingMuonTriggerAnalyzer")
         << "Detected Fake in HLT Config tableName(): " << hltConfig_.tableName()
-        << "; the list of trigger expressions is going to be overriden!" << std::endl;
+        << "; the list of trigger expressions is going to be overridden!" << std::endl;
     vtriggerSelector_.clear();
     return;
   }
@@ -143,7 +143,7 @@ void ScoutingMuonTriggerAnalyzer::dqmBeginRun(edm::Run const& iRun, edm::EventSe
       isSpecial_ = true;
       edm::LogPrint("ScoutingMuonTriggerAnalyzer")
           << "Detected " << menu << " in HLT Config tableName(): " << hltConfig_.tableName()
-          << "; the list of trigger expressions is going to be overriden!" << std::endl;
+          << "; the list of trigger expressions is going to be overridden!" << std::endl;
       break;
     }
   }
