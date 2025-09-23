@@ -25,7 +25,7 @@ def formatToCircles(moduleTransitions):
         doc["resources"] += [
             {
                "name": "added %s" % transitionType,
-               "description": "add memory per %s transition" % transitionType,
+               "description": "added memory per %s transition" % transitionType,
                "title": "Amount of memory added to the process at the end of the %s transition" % transitionType,
                "unit": "kB"
             },
@@ -55,7 +55,8 @@ def formatToCircles(moduleTransitions):
                "unit": "kB"
            },
         ]
-
+# The circles code uses the "events" field to normalize the values between files with different number of events
+# Here we set it to 1 for the total events because the total is already normalized per transition
         doc["total"]["events"] = 1
         doc["total"]["label"] = "Job"
         doc["total"]["type"] = "Job"
