@@ -127,13 +127,23 @@ ScoutingMuonTriggerAnalyzer::ScoutingMuonTriggerAnalyzer(const edm::ParameterSet
 void ScoutingMuonTriggerAnalyzer::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   bool changed{false};
   hltConfig_.init(iRun, iSetup, hltProcessName_, changed);
+
+  // deal with Fake HLT menus
+  if (hltConfig_.tableName().find("Fake") != std::string::npos) {
+    edm::LogPrint("ScoutingMuonTriggerAnalyzer")
+        << "Detected Fake in HLT Config tableName(): " << hltConfig_.tableName()
+        << "; the list of trigger expressions is going to be overridden!" << std::endl;
+    vtriggerSelector_.clear();
+    return;
+  }
+
   for (const auto& menu : special_HLT_Menus_) {
     std::size_t found = hltConfig_.tableName().find(menu);
     if (found != std::string::npos) {
       isSpecial_ = true;
-      edm::LogWarning("ScoutingMuonTriggerAnalyzer")
+      edm::LogPrint("ScoutingMuonTriggerAnalyzer")
           << "Detected " << menu << " in HLT Config tableName(): " << hltConfig_.tableName()
-          << "; the list of trigger expressions is going to be overriden!" << std::endl;
+          << "; the list of trigger expressions is going to be overridden!" << std::endl;
       break;
     }
   }
@@ -279,7 +289,7 @@ void ScoutingMuonTriggerAnalyzer::fillDescriptions(edm::ConfigurationDescription
 
   desc.add<std::string>("OutputInternalPath", "MY_FOLDER");
   desc.add<std::vector<string>>("triggerSelection", {});
-  desc.add<std::string>("hltProcessName", "HLT");
+  desc.add<std::string>("hltProcessName", {});
   desc.add<std::vector<std::string>>("special_HLT_Menus", {})
       ->setComment("list of HLT menus to use to clear the trigger selection");
   desc.add<edm::InputTag>("ScoutingMuonCollection", edm::InputTag("hltScoutingMuonPackerVtx"));
