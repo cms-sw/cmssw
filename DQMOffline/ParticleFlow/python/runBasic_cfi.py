@@ -2,16 +2,19 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 
 PFAnalyzer = DQMEDAnalyzer("PFAnalyzer",
-    pfJetCollection        = cms.InputTag("ak4PFJetsCHS"),
-    pfCandidates             = cms.InputTag("particleFlow"),
+    #pfJetCollection        = cms.InputTag("ak4PFJetsCHS"),
+    pfJetCollection        = cms.InputTag("slimmedJets"),
+    #pfCandidates             = cms.InputTag("particleFlow"),
+    pfCandidates             = cms.InputTag("packedPFCandidates"),
     PVCollection             = cms.InputTag("offlinePrimaryVertices"),
 
     TriggerResultsLabel        = cms.InputTag("TriggerResults::HLT"),
     TriggerNames = cms.vstring("HLT_PFJet450"),
     #TriggerNames = cms.vstring(""),
-    srcWeights = cms.InputTag("puppi"),
+    #srcWeights = cms.InputTag("puppi"),
     #eventSelection = cms.string("nocut"),
-    eventSelection = cms.string("dijet"),
+    #eventSelection = cms.string("dijet"),
+    eventSelection = cms.string("nocut"),
 
 
 
@@ -29,19 +32,19 @@ PFAnalyzer = DQMEDAnalyzer("PFAnalyzer",
       # in order, are the number of bins, the lowest, and the highest values.
       # If any other number is given, this is just a list of bins for the histogram.
       observables     = cms.vstring('pt;p_{T,PFC};50.;0.;350.', 
-                                    'eta;#eta;50;-5;5',
-                                    'phi;#phi;50;-3.14;3.14',
-                                    'energy;E;50;0;300',
-                                    'RawHCal_E;Raw E_{hcal};50;0;300', 
-                                    'HCal_E;E_{hcal};50;0;300', 
-                                    'PFHad_calibration;E_{Hcal,calib} / E_{Hcal, raw};50;0;4',
-                                    'HCalE_depth1;HCal E, depth 1;50;0;1',
-                                    'HCalE_depth2;HCal E, depth 2;50;0;1',
-                                    'HCalE_depth3;HCal E, depth 3;50;0;1',
-                                    'HCalE_depth4;HCal E, depth 4;50;0;1',
-                                    'HCalE_depth5;HCal E, depth 5;50;0;1',
-                                    'HCalE_depth6;HCal E, depth 6;50;0;1',
-                                    'HCalE_depth7;HCal E, depth 7;50;0;1',
+      #                              'eta;#eta;50;-5;5',
+      #                              'phi;#phi;50;-3.14;3.14',
+      #                              'energy;E;50;0;300',
+      #                              'RawHCal_E;Raw E_{hcal};50;0;300', 
+      #                              'HCal_E;E_{hcal};50;0;300', 
+      #                              'PFHad_calibration;E_{Hcal,calib} / E_{Hcal, raw};50;0;4',
+      #                              'HCalE_depth1;HCal E, depth 1;50;0;1',
+      #                              'HCalE_depth2;HCal E, depth 2;50;0;1',
+      #                              'HCalE_depth3;HCal E, depth 3;50;0;1',
+      #                              'HCalE_depth4;HCal E, depth 4;50;0;1',
+      #                              'HCalE_depth5;HCal E, depth 5;50;0;1',
+      #                              'HCalE_depth6;HCal E, depth 6;50;0;1',
+      #                              'HCalE_depth7;HCal E, depth 7;50;0;1',
                                    ),
 
       # A list of event- or jet-wide observables for which plots should be made.
@@ -55,12 +58,12 @@ PFAnalyzer = DQMEDAnalyzer("PFAnalyzer",
       # Since the binning may be very different for events and jets, the first list
       # of bins is for the event histograms, and the second set is for the jets
       eventObservables     = cms.vstring(
-                                         'NPFC;N_{PFC};500;0;10000;100;0;100',
+      #                                   'NPFC;N_{PFC};500;0;10000;100;0;100',
                                         ),
 
 
       pfInJetObservables     = cms.vstring(
-                                         'PFSpectrum;E_{PF}/E_{jet};50;0;1',
+      #                                   'PFSpectrum;E_{PF}/E_{jet};50;0;1',
                                         ),
 
 
@@ -107,8 +110,8 @@ PFAnalyzer = DQMEDAnalyzer("PFAnalyzer",
       #
       # Just like for cutList, multiple sets of cuts can be applied, using the same formulation.
       jetCutList     = cms.vstring(
-                                   '[pt;20;30;50;100;200;450;1000]',
-                                   '[pt;20;10000]',
+      #                             '[pt;20;30;50;100;200;450;1000]',
+      #                             '[pt;20;10000]',
                                   ),
     )
 
