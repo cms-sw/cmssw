@@ -31,32 +31,32 @@ def formatToCircles(moduleTransitions):
             {
                "name": f"added {transitionType}",
                "description": f"{transitionType}: added memory (average)",
-               "title": f"Amount of memory added to the process at the end of the {transitionType} transition",
+               "title": f"{transitionType}: Amount of memory added to the process at the end of the transition",
                "unit": "kB"
             },
             {
 
                "name": f"nAlloc {transitionType}",
                "description": f"{transitionType}: num allocs (average)",
-               "title": f"Number of allocations during the {transitionType} transition",
+               "title": f"{transitionType}: Number of allocations during the transition",
                "unit": ""
             },
             {
                "name": f"nDealloc {transitionType}",
                "description": f"{transitionType}: num deallocs (average)",
-               "title": f"Number of deallocations during the {transitionType} transition",
+               "title": f"{transitionType}: Number of deallocations during the transition",
                "unit": ""
             },
             {
                "name": f"maxTemp {transitionType}",
                "description": f"{transitionType}: maximum temporary memory (average)",
-               "title": f"Maximum temporary memory held during the {transitionType} transition",
+               "title": f"{transitionType}: Maximum temporary memory during the transition",
                "unit": "kB"
             },
             {
                "name": f"max1Alloc {transitionType}",
                "description": f"{transitionType}: largest single allocation (average)",
-               "title": f"Largest single allocation held during the {transitionType} transition",
+               "title": f"{transitionType}: Largest single allocation during the transition",
                "unit": "kB"
             },
         ]
