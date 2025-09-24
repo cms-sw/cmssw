@@ -10,8 +10,11 @@
   <class name="reco::VertexToTrackingVertexAssociator" persistent="false"/>
   <class name="edm::Wrapper<reco::VertexToTrackingVertexAssociator>" persistent="false"/>
 
-  <class name="ticl::LayerClusterToCaloParticleAssociator" persistent="false"/>
-  <class name="edm::Wrapper<ticl::LayerClusterToCaloParticleAssociator>" persistent="false"/>
+  <class name="ticl::LayerClusterToCaloParticleAssociatorT<reco::CaloClusterCollection>" persistent="false"/>
+  <class name="edm::Wrapper<ticl::LayerClusterToCaloParticleAssociatorT<reco::CaloClusterCollection>>" persistent="false"/>
+
+  <class name="ticl::LayerClusterToCaloParticleAssociatorT<reco::PFClusterCollection>" persistent="false"/>
+  <class name="edm::Wrapper<ticl::LayerClusterToCaloParticleAssociatorT<reco::PFClusterCollection>>" persistent="false"/>
 
   <class name="ticl::LayerClusterToSimClusterAssociatorT<reco::CaloClusterCollection>" persistent="false"/>
   <class name="edm::Wrapper<ticl::LayerClusterToSimClusterAssociatorT<reco::CaloClusterCollection>>" persistent="false"/>
@@ -100,16 +103,21 @@
     <field name="transientMap_" transient="true"/>
   </class>
   <class name="edm::Wrapper<reco::VertexRecoToSimCollection>" />
-
-
-  <class name="ticl::SimToRecoCollection" >
+  
+  
+  <class name="ticl::SimToRecoCollectionT<reco::CaloClusterCollection>" >
     <field name="transientMap_" transient="true"/>
   </class>
-  <class name="edm::Wrapper<ticl::SimToRecoCollection>" />
-  <class name="ticl::RecoToSimCollection" >
+  <class name="ticl::SimToRecoCollectionT<reco::PFClusterCollection>" >
     <field name="transientMap_" transient="true"/>
   </class>
-  <class name="edm::Wrapper<ticl::RecoToSimCollection>" />
+  <class name="edm::Wrapper<ticl::SimToRecoCollectionT<reco::CaloClusterCollection>>" />
+  <class name="edm::Wrapper<ticl::SimToRecoCollectionT<reco::PFClusterCollection>>" />
+  <class name="ticl::RecoToSimCollectionT<reco::CaloClusterCollection>" >
+    <field name="transientMap_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<ticl::RecoToSimCollectionT<reco::CaloClusterCollection>>" />
+  <class name="edm::Wrapper<ticl::RecoToSimCollectionT<reco::PFClusterCollection>>" />
 
   <class name="edm::helpers::KeyVal<edm::RefProd<vector<CaloParticle> >,edm::RefProd<vector<reco::CaloCluster> > >" />
   <class name="edm::helpers::KeyVal<edm::RefProd<vector<reco::CaloCluster> >,edm::RefProd<vector<CaloParticle> > >" />

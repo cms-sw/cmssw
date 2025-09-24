@@ -14,31 +14,36 @@
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterCollection.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticleFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 
 namespace ticl {
 
-  typedef edm::AssociationMap<
-      edm::OneToManyWithQualityGeneric<CaloParticleCollection, reco::CaloClusterCollection, std::pair<float, float>>>
-      SimToRecoCollection;
-  typedef edm::AssociationMap<
-      edm::OneToManyWithQualityGeneric<reco::CaloClusterCollection, CaloParticleCollection, float>>
-      RecoToSimCollection;
+  template <typename CLUSTER>
+  using SimToRecoCollectionT =
+      edm::AssociationMap<edm::OneToManyWithQualityGeneric<CaloParticleCollection, CLUSTER, std::pair<float, float>>>;
+  template <typename CLUSTER>
+  using RecoToSimCollectionT =
+      edm::AssociationMap<edm::OneToManyWithQualityGeneric<CLUSTER, CaloParticleCollection, float>>;
 
-  class LayerClusterToCaloParticleAssociatorBaseImpl {
+  template <typename CLUSTER>
+  class LayerClusterToCaloParticleAssociatorBaseImplT {
   public:
     /// Constructor
-    LayerClusterToCaloParticleAssociatorBaseImpl();
+    LayerClusterToCaloParticleAssociatorBaseImplT();
     /// Destructor
-    virtual ~LayerClusterToCaloParticleAssociatorBaseImpl();
+    virtual ~LayerClusterToCaloParticleAssociatorBaseImplT();
 
     /// Associate a LayerCluster to CaloParticles
-    virtual ticl::RecoToSimCollection associateRecoToSim(const edm::Handle<reco::CaloClusterCollection> &cCH,
-                                                         const edm::Handle<CaloParticleCollection> &cPCH) const;
+    virtual ticl::RecoToSimCollectionT<CLUSTER> associateRecoToSim(
+        const edm::Handle<CLUSTER> &cCH, const edm::Handle<CaloParticleCollection> &cPCH) const;
 
     /// Associate a CaloParticle to LayerClusters
-    virtual ticl::SimToRecoCollection associateSimToReco(const edm::Handle<reco::CaloClusterCollection> &cCH,
-                                                         const edm::Handle<CaloParticleCollection> &cPCH) const;
+    virtual ticl::SimToRecoCollectionT<CLUSTER> associateSimToReco(
+        const edm::Handle<CLUSTER> &cCH, const edm::Handle<CaloParticleCollection> &cPCH) const;
   };
 }  // namespace ticl
+
+extern template class ticl::LayerClusterToCaloParticleAssociatorBaseImplT<reco::CaloClusterCollection>;
+extern template class ticl::LayerClusterToCaloParticleAssociatorBaseImplT<reco::PFClusterCollection>;
 
 #endif

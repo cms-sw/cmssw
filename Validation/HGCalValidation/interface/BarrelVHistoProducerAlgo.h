@@ -236,8 +236,8 @@ public:
                                       std::vector<size_t> const& cPSelectedIndices,
                                       std::unordered_map<DetId, const unsigned int> const&,
                                       unsigned int layers,
-                                      const ticl::RecoToSimCollection& recSimColl,
-                                      const ticl::SimToRecoCollection& simRecColl,
+                                      const ticl::RecoToSimCollectionT<reco::CaloClusterCollection>& recSimColl,
+                                      const ticl::SimToRecoCollectionT<reco::CaloClusterCollection>& simRecColl,
                                       MultiVectorManager<reco::PFRecHit> const& barrelHits) const;
   void layerClusters_to_SimClusters(const Histograms& histograms,
                                     const int count,
@@ -281,8 +281,8 @@ public:
                                    std::vector<size_t> const& cPSelectedIndices,
                                    std::unordered_map<DetId, const unsigned int> const&,
                                    unsigned int layers,
-                                   const ticl::RecoToSimCollection& recSimColl,
-                                   const ticl::SimToRecoCollection& simRecColl,
+                                   const ticl::RecoToSimCollectionT<reco::CaloClusterCollection>& recSimColl,
+                                   const ticl::SimToRecoCollectionT<reco::CaloClusterCollection>& simRecColl,
                                    MultiVectorManager<reco::PFRecHit> const& barrelHits) const;
   void fill_simCluster_histos(const Histograms& histograms,
                               std::vector<SimCluster> const& simClusters,
