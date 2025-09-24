@@ -6,6 +6,12 @@ def miniAODFromMiniAOD_customizeCommon(process):
     task = getPatAlgosToolsTask(process)
 
     ###########################################################################
+    # Set puppi producers to use the original packedPFCandidate collection
+    ###########################################################################
+    process.packedpuppi.candName = 'packedPFCandidates::@skipCurrentProcess'
+    process.packedpuppiNoLep.candName = 'packedPFCandidates::@skipCurrentProcess'
+
+    ###########################################################################
     # Update packedPFCandidates with the recomputed puppi weights
     ###########################################################################
     addToProcessAndTask("packedPFCandidates", cms.EDProducer("PATPackedCandidateUpdater",
