@@ -44,7 +44,7 @@ namespace edm {
       virtual void reserve(Int_t branchCount) {}
       virtual void getEntry(TBranch* branch, EntryNumber entryNumber);
       virtual void getAuxEntry(TBranch* auxBranch, EntryNumber entryNumber);
-      virtual void getEntryForAllBranches(EntryNumber entryNumber) const = 0;
+      virtual void getEntryForAllBranches(EntryNumber entryNumber) const;
 
       static std::unique_ptr<CacheManagerBase> create(const std::string& strategy,
                                                       std::shared_ptr<InputFile> filePtr,
@@ -55,6 +55,8 @@ namespace edm {
     protected:
       std::shared_ptr<InputFile> filePtr_;
       TTree* tree_ = nullptr;
+
+      static constexpr bool cachestats = false;
     };
 
   }  // namespace roottree

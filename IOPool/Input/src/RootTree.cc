@@ -55,10 +55,14 @@ namespace edm {
       : filePtr_(filePtr),
         branchType_(branchType),
         entryNumberForIndex_(std::make_unique<std::vector<EntryNumber>>(nIndexes, IndexIntoFile::invalidEntry)),
-        promptRead_(promptRead or not branchType_ == InEvent),
+        promptRead_(promptRead),
         rootDelayedReader_(makeRootDelayedReader(*this, filePtr, inputType, nIndexes, promptRead_)),
-        treeCacheManager_(roottree::CacheManagerBase::create(
-            promptRead_ ? "Simple" : "Sparse", filePtr_, learningEntries, enablePrefetching, branchType_)) {}
+        treeCacheManager_(
+            roottree::CacheManagerBase::create(promptRead_ or branchType_ != InEvent ? "Simple" : "Sparse",
+                                               filePtr_,
+                                               learningEntries,
+                                               enablePrefetching,
+                                               branchType_)) {}
 
   // Used for Event/Lumi/Run RootTrees
   RootTree::RootTree(std::shared_ptr<InputFile> filePtr,
