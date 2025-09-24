@@ -25,6 +25,7 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
@@ -222,7 +223,8 @@ void PFHcalGPUComparisonTask::_process(edm::Event const& event, edm::EventSetup 
       pfCluster_Depth_Diff_HostvsDevice_->Fill(pfClusters_ref->at(i).depth() - pfClusters_target->at(j).depth());
       ;
       pfCluster_Eta_Diff_HostvsDevice_->Fill(pfClusters_ref->at(i).eta() - pfClusters_target->at(j).eta());
-      pfCluster_Phi_Diff_HostvsDevice_->Fill(pfClusters_ref->at(i).phi() - pfClusters_target->at(j).phi());
+      pfCluster_Phi_Diff_HostvsDevice_->Fill(
+          reco::deltaPhi(pfClusters_ref->at(i).phi(), pfClusters_target->at(j).phi()));
     }
   }
 }
