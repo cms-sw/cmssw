@@ -26,3 +26,13 @@
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/Ref.h"
+
+namespace {
+  struct dictionary {
+    ticl::LayerClusterToSimClusterAssociatorT<reco::CaloClusterCollection> lcscAssocCalo;
+    edm::Wrapper<ticl::LayerClusterToSimClusterAssociatorT<reco::CaloClusterCollection>> w_lcscAssocCalo;
+    // PFCluster
+    // ticl::LayerClusterToSimClusterAssociatorT<reco::PFClusterCollection> lcscAssocPF;
+    // edm::Wrapper<ticl::LayerClusterToSimClusterAssociatorT<reco::PFClusterCollection>> w_lcscAssocPF;
+  };
+}  // namespace
