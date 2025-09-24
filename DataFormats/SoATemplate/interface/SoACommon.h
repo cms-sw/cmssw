@@ -162,7 +162,7 @@ namespace cms::soa {
 
     using ValueType = T;
     using ScalarType = typename T::Scalar;
-    using TupleOrPointerType = std::tuple<ScalarType*, byte_size_type>;
+    using TupleOrPointerType = std::tuple<const ScalarType*, byte_size_type>;
 
     // default constructor
     SoAConstParametersImpl() = default;
