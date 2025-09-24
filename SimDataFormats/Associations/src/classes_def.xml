@@ -13,8 +13,11 @@
   <class name="ticl::LayerClusterToCaloParticleAssociator" persistent="false"/>
   <class name="edm::Wrapper<ticl::LayerClusterToCaloParticleAssociator>" persistent="false"/>
 
-  <class name="ticl::LayerClusterToSimClusterAssociator" persistent="false"/>
-  <class name="edm::Wrapper<ticl::LayerClusterToSimClusterAssociator>" persistent="false"/>
+  <class name="ticl::LayerClusterToSimClusterAssociatorT<reco::CaloClusterCollection>" persistent="false"/>
+  <class name="edm::Wrapper<ticl::LayerClusterToSimClusterAssociatorT<reco::CaloClusterCollection>>" persistent="false"/>
+
+  <!-- <class name="ticl::LayerClusterToSimClusterAssociatorT<reco::PFClusterCollection>" persistent="false"/>
+  <class name="edm::Wrapper<ticl::LayerClusterToSimClusterAssociatorT<reco::PFClusterCollection>>" persistent="false"/> -->
 
   <class name="ticl::TracksterToSimClusterAssociator" persistent="false"/>
   <class name="edm::Wrapper<ticl::TracksterToSimClusterAssociator>" persistent="false"/>
