@@ -144,7 +144,7 @@ namespace edm {
     EntryNumber const& entryNumber() const { return entryNumber_; }
     EntryNumber const& entryNumberForIndex(unsigned int index) const;
     EntryNumber const& entries() const { return entries_; }
-    void setEntryNumber(EntryNumber theEntryNumber);
+    void setEntryNumber(EntryNumber newEntryNumber);
     void insertEntryForIndex(unsigned int index);
     std::vector<std::string> const& branchNames() const { return branchNames_; }
     RootDelayedReaderBase* rootDelayedReader() const;
@@ -230,6 +230,7 @@ namespace edm {
     unsigned long treeAutoFlush_ = 0;
     bool promptRead_;
     std::unique_ptr<RootDelayedReaderBase> rootDelayedReader_;
+    //All access to a ROOT file is serialized
     CMS_SA_ALLOW mutable std::unique_ptr<roottree::CacheManagerBase> treeCacheManager_;
 
     TBranch* branchEntryInfoBranch_ = nullptr;  //backwards compatibility

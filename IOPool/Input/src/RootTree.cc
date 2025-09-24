@@ -42,6 +42,8 @@ namespace edm {
       return std::make_unique<RootDelayedReader>(tree, filePtr, inputType);
     }
   }  // namespace
+  constexpr auto kSimpleCache = roottree::CacheManagerBase::CacheStrategy::kSimple;
+  constexpr auto kSparseCache = roottree::CacheManagerBase::CacheStrategy::kSparse;
 
   // Used for all RootTrees
   // All the other constructors delegate to this one
@@ -55,10 +57,14 @@ namespace edm {
       : filePtr_(filePtr),
         branchType_(branchType),
         entryNumberForIndex_(std::make_unique<std::vector<EntryNumber>>(nIndexes, IndexIntoFile::invalidEntry)),
-        promptRead_(promptRead or not branchType_ == InEvent),
+        promptRead_(promptRead),
         rootDelayedReader_(makeRootDelayedReader(*this, filePtr, inputType, nIndexes, promptRead_)),
-        treeCacheManager_(roottree::CacheManagerBase::create(
-            promptRead_ ? "Simple" : "Sparse", filePtr_, learningEntries, enablePrefetching, branchType_)) {}
+        treeCacheManager_(
+            roottree::CacheManagerBase::create(promptRead_ or branchType_ != InEvent ? kSimpleCache : kSparseCache,
+                                               filePtr_,
+                                               learningEntries,
+                                               enablePrefetching,
+                                               branchType_)) {}
 
   // Used for Event/Lumi/Run RootTrees
   RootTree::RootTree(std::shared_ptr<InputFile> filePtr,
@@ -236,15 +242,17 @@ namespace edm {
     return returnValue;
   }
 
-  void RootTree::setEntryNumber(EntryNumber theEntryNumber) {
-    treeCacheManager_->setEntryNumber(theEntryNumber, entryNumber_, entries_);
-    entryNumber_ = theEntryNumber;
+  void RootTree::setEntryNumber(EntryNumber newEntryNumber) {
+    treeCacheManager_->setEntryNumber(newEntryNumber, entryNumber_, entries_);
+    entryNumber_ = newEntryNumber;
   }
 
   void RootTree::getEntryForAllBranches() const { treeCacheManager_->getEntryForAllBranches(entryNumber_); }
 
   void RootTree::getEntry(TBranch* branch, EntryNumber entryNumber) const {
+    LogTrace("IOTrace").format("RootTree::getEntry() begin for branch {} entry {}", branch->GetName(), entryNumber);
     treeCacheManager_->getEntry(branch, entryNumber);
+    LogTrace("IOTrace").format("RootTree::getEntry() end for branch {} entry {}", branch->GetName(), entryNumber);
   }
 
   bool RootTree::skipEntries(unsigned int& offset) {
