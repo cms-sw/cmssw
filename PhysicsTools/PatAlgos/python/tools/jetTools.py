@@ -255,7 +255,7 @@ def setupPuppiForPackedPF(process, useExistingWeights=True, postfix=''):
     if not hasattr(process, puppiLabel):
         addToProcessAndTask(puppiLabel, puppi.clone(
             useExistingWeights = useExistingWeights,
-            candName = 'packedPFCandidates::@skipCurrentProcess',
+            candName = 'packedPFCandidates',
             vertexName = 'offlineSlimmedPrimaryVertices'), process, task)
 
     puppiNoLepLabel = puppiLabel+'NoLep'
