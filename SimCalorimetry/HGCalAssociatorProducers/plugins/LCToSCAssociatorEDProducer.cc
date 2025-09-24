@@ -124,7 +124,7 @@ void LCToSCAssociatorEDProducerT<CLUSTER>::fillDescriptions(edm::ConfigurationDe
 }
 
 // define this as a plug-in
-typedef LCToSCAssociatorEDProducerT<reco::CaloClusterCollection> LCToSCAssociatorEDProducer;
+using LCToSCAssociatorEDProducer = LCToSCAssociatorEDProducerT<reco::CaloClusterCollection>;
 DEFINE_FWK_MODULE(LCToSCAssociatorEDProducer);
-typedef LCToSCAssociatorEDProducerT<reco::PFClusterCollection> PCToSCAssociatorEDProducer;
+using PCToSCAssociatorEDProducer = LCToSCAssociatorEDProducerT<reco::PFClusterCollection>;
 DEFINE_FWK_MODULE(PCToSCAssociatorEDProducer);

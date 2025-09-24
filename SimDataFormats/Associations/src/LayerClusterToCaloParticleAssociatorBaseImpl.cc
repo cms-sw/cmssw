@@ -3,17 +3,24 @@
 #include "SimDataFormats/Associations/interface/LayerClusterToCaloParticleAssociatorBaseImpl.h"
 
 namespace ticl {
-  LayerClusterToCaloParticleAssociatorBaseImpl::LayerClusterToCaloParticleAssociatorBaseImpl() {}
-  LayerClusterToCaloParticleAssociatorBaseImpl::~LayerClusterToCaloParticleAssociatorBaseImpl() {}
+  template <typename CLUSTER>
+  LayerClusterToCaloParticleAssociatorBaseImplT<CLUSTER>::LayerClusterToCaloParticleAssociatorBaseImplT() {}
+  template <typename CLUSTER>
+  LayerClusterToCaloParticleAssociatorBaseImplT<CLUSTER>::~LayerClusterToCaloParticleAssociatorBaseImplT() {}
 
-  ticl::RecoToSimCollection LayerClusterToCaloParticleAssociatorBaseImpl::associateRecoToSim(
-      const edm::Handle<reco::CaloClusterCollection> &cCCH, const edm::Handle<CaloParticleCollection> &cPCH) const {
-    return ticl::RecoToSimCollection();
+  template <typename CLUSTER>
+  ticl::RecoToSimCollectionT<CLUSTER> LayerClusterToCaloParticleAssociatorBaseImplT<CLUSTER>::associateRecoToSim(
+      const edm::Handle<CLUSTER> &cCCH, const edm::Handle<CaloParticleCollection> &cPCH) const {
+    return ticl::RecoToSimCollectionT<CLUSTER>();
   }
 
-  ticl::SimToRecoCollection LayerClusterToCaloParticleAssociatorBaseImpl::associateSimToReco(
-      const edm::Handle<reco::CaloClusterCollection> &cCCH, const edm::Handle<CaloParticleCollection> &cPCH) const {
-    return ticl::SimToRecoCollection();
+  template <typename CLUSTER>
+  ticl::SimToRecoCollectionT<CLUSTER> LayerClusterToCaloParticleAssociatorBaseImplT<CLUSTER>::associateSimToReco(
+      const edm::Handle<CLUSTER> &cCCH, const edm::Handle<CaloParticleCollection> &cPCH) const {
+    return ticl::SimToRecoCollectionT<CLUSTER>();
   }
+
+  template class ticl::LayerClusterToCaloParticleAssociatorBaseImplT<reco::CaloClusterCollection>;
+  template class ticl::LayerClusterToCaloParticleAssociatorBaseImplT<reco::PFClusterCollection>;
 
 }  // namespace ticl

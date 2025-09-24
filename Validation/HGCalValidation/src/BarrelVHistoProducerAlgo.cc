@@ -876,8 +876,8 @@ void BarrelVHistoProducerAlgo::layerClusters_to_CaloParticles(
     std::vector<size_t> const& cPSelectedIndices,
     std::unordered_map<DetId, const unsigned int> const& barrelHitMap,
     unsigned int layers,
-    const ticl::RecoToSimCollection& cpsInLayerClusterMap,
-    const ticl::SimToRecoCollection& cPOnLayerMap,
+    const ticl::RecoToSimCollection<reco::CaloClusterCollection>& cpsInLayerClusterMap,
+    const ticl::SimToRecoCollection<reco::CaloClusterCollection>& cPOnLayerMap,
     edm::MultiSpan<reco::PFRecHit> const& barrelHits) const {
   const auto nLayerClusters = clusters.size();
 
@@ -1339,8 +1339,8 @@ void BarrelVHistoProducerAlgo::fill_generic_cluster_histos(
     std::vector<size_t> const& cPSelectedIndices,
     std::unordered_map<DetId, const unsigned int> const& barrelHitMap,
     unsigned int layers,
-    const ticl::RecoToSimCollection& cpsInLayerClusterMap,
-    const ticl::SimToRecoCollection& cPOnLayerMap,
+    const ticl::RecoToSimCollection<reco::CaloClusterCollection>& cpsInLayerClusterMap,
+    const ticl::SimToRecoCollection<reco::CaloClusterCollection>& cPOnLayerMap,
     edm::MultiSpan<reco::PFRecHit> const& barrelHits) const {
   //To keep track of total num of layer clusters per layer
   //tnlcpl[layerid]

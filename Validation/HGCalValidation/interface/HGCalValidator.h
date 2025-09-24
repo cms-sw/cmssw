@@ -108,8 +108,8 @@ protected:
   edm::EDGetTokenT<std::vector<SimVertex>> simVertices_;
   std::vector<edm::EDGetTokenT<std::vector<float>>> clustersMaskTokens_;
   edm::EDGetTokenT<std::unordered_map<DetId, const unsigned int>> hitMap_;
-  edm::EDGetTokenT<ticl::RecoToSimCollection> associatorMapRtS;
-  edm::EDGetTokenT<ticl::SimToRecoCollection> associatorMapStR;
+  edm::EDGetTokenT<ticl::RecoToSimCollectionT<reco::CaloClusterCollection>> associatorMapRtS;
+  edm::EDGetTokenT<ticl::SimToRecoCollectionT<reco::CaloClusterCollection>> associatorMapStR;
   edm::EDGetTokenT<ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>> associatorMapSimtR;
   edm::EDGetTokenT<ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection>> associatorMapRtSim;
   std::unique_ptr<HGVHistoProducerAlgo> histoProducerAlgo_;

@@ -111,10 +111,10 @@ BarrelValidator::BarrelValidator(const edm::ParameterSet& pset)
   layerclusters_ = consumes<reco::CaloClusterCollection>(label_lcl);
 
   for (auto& itag : associator_) {
-    associatorMapRtS.push_back(consumes<ticl::RecoToSimCollection>(itag));
+    associatorMapRtS.push_back(consumes<ticl::RecoToSimCollectionT<reco::CaloClusterCollection>>(itag));
   }
   for (auto& itag : associator_) {
-    associatorMapStR.push_back(consumes<ticl::SimToRecoCollection>(itag));
+    associatorMapStR.push_back(consumes<ticl::SimToRecoCollectionT<reco::CaloClusterCollection>>(itag));
   }
 
   cpSelector = CaloParticleSelector(pset.getParameter<double>("ptMinCP"),
@@ -263,13 +263,13 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
   tools_->setGeometry(*geom);
   histoProducerAlgo_->setRecHitTools(tools_);
 
-  std::vector<ticl::RecoToSimCollection> recSimColl;
-  std::vector<ticl::SimToRecoCollection> simRecColl;
+  std::vector<ticl::RecoToSimCollectionT<reco::CaloClusterCollection>> recSimColl;
+  std::vector<ticl::SimToRecoCollectionT<reco::CaloClusterCollection>> simRecColl;
   for (unsigned int i = 0; i < associatorMapRtS.size(); ++i) {
-    edm::Handle<ticl::SimToRecoCollection> simToRecoCollectionH;
+    edm::Handle<ticl::SimToRecoCollectionT<reco::CaloClusterCollection>> simToRecoCollectionH;
     event.getByToken(associatorMapStR[i], simToRecoCollectionH);
     simRecColl.push_back(*simToRecoCollectionH);
-    edm::Handle<ticl::RecoToSimCollection> recoToSimCollectionH;
+    edm::Handle<ticl::RecoToSimCollectionT<reco::CaloClusterCollection>> recoToSimCollectionH;
     event.getByToken(associatorMapRtS[i], recoToSimCollectionH);
     recSimColl.push_back(*recoToSimCollectionH);
   }
