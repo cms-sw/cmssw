@@ -1580,9 +1580,9 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
 }
 
 void HGVHistoProducerAlgo::fill_simCluster_histos(const Histograms& histograms,
-												  std::vector<SimCluster> const& simClusters,
-												  unsigned int layers,
-												  std::vector<int> thicknesses) const {
+                                                  std::vector<SimCluster> const& simClusters,
+                                                  unsigned int layers,
+                                                  std::vector<int> thicknesses) const {
   //Each event to be treated as two events: an event in +ve endcap,
   //plus another event in -ve endcap. In this spirit there will be
   //a layer variable (layerid) that maps the layers in :
@@ -1750,18 +1750,19 @@ void HGVHistoProducerAlgo::fill_cluster_histos(const Histograms& histograms,
   histograms.h_cluster_eta[count]->Fill(eta);
 }
 
-void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& histograms,
-                                                          edm::Handle<reco::CaloClusterCollection> clusterHandle,
-                                                          const reco::CaloClusterCollection& clusters,
-                                                          edm::Handle<std::vector<CaloParticle>> caloParticleHandle,
-                                                          std::vector<CaloParticle> const& cP,
-                                                          std::vector<size_t> const& cPIndices,
-                                                          std::vector<size_t> const& cPSelectedIndices,
-                                                          std::unordered_map<DetId, const unsigned int> const& hitMap,
-                                                          unsigned int layers,
-                                                          const ticl::RecoToSimCollectionT<reco::CaloClusterCollection>& cpsInLayerClusterMap,
-                                                          const ticl::SimToRecoCollectionT<reco::CaloClusterCollection>& cPOnLayerMap,
-                                                          MultiVectorManager<HGCRecHit> const& hits) const {
+void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(
+    const Histograms& histograms,
+    edm::Handle<reco::CaloClusterCollection> clusterHandle,
+    const reco::CaloClusterCollection& clusters,
+    edm::Handle<std::vector<CaloParticle>> caloParticleHandle,
+    std::vector<CaloParticle> const& cP,
+    std::vector<size_t> const& cPIndices,
+    std::vector<size_t> const& cPSelectedIndices,
+    std::unordered_map<DetId, const unsigned int> const& hitMap,
+    unsigned int layers,
+    const ticl::RecoToSimCollectionT<reco::CaloClusterCollection>& cpsInLayerClusterMap,
+    const ticl::SimToRecoCollectionT<reco::CaloClusterCollection>& cPOnLayerMap,
+    MultiVectorManager<HGCRecHit> const& hits) const {
   const auto nLayerClusters = clusters.size();
 
   std::unordered_map<DetId, std::vector<HGVHistoProducerAlgo::detIdInfoInCluster>> detIdToCaloParticleId_Map;
@@ -2207,21 +2208,22 @@ void HGVHistoProducerAlgo::layerClusters_to_SimClusters(
   }
 }
 
-void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histograms,
-                                                       const int count,
-                                                       edm::Handle<reco::CaloClusterCollection> clusterHandle,
-                                                       const reco::CaloClusterCollection& clusters,
-                                                       edm::Handle<std::vector<CaloParticle>> caloParticleHandle,
-                                                       std::vector<CaloParticle> const& cP,
-                                                       std::vector<size_t> const& cPIndices,
-                                                       std::vector<size_t> const& cPSelectedIndices,
-                                                       std::unordered_map<DetId, const unsigned int> const& hitMap,
-                                                       std::map<double, double> cummatbudg,
-                                                       unsigned int layers,
-                                                       std::vector<int> thicknesses,
-                                                       const ticl::RecoToSimCollectionT<reco::CaloClusterCollection>& cpsInLayerClusterMap,
-                                                       const ticl::SimToRecoCollectionT<reco::CaloClusterCollection>& cPOnLayerMap,
-                                                       MultiVectorManager<HGCRecHit> const& hits) const {
+void HGVHistoProducerAlgo::fill_generic_cluster_histos(
+    const Histograms& histograms,
+    const int count,
+    edm::Handle<reco::CaloClusterCollection> clusterHandle,
+    const reco::CaloClusterCollection& clusters,
+    edm::Handle<std::vector<CaloParticle>> caloParticleHandle,
+    std::vector<CaloParticle> const& cP,
+    std::vector<size_t> const& cPIndices,
+    std::vector<size_t> const& cPSelectedIndices,
+    std::unordered_map<DetId, const unsigned int> const& hitMap,
+    std::map<double, double> cummatbudg,
+    unsigned int layers,
+    std::vector<int> thicknesses,
+    const ticl::RecoToSimCollectionT<reco::CaloClusterCollection>& cpsInLayerClusterMap,
+    const ticl::SimToRecoCollectionT<reco::CaloClusterCollection>& cPOnLayerMap,
+    MultiVectorManager<HGCRecHit> const& hits) const {
   //Each event to be treated as two events: an event in +ve endcap,
   //plus another event in -ve endcap. In this spirit there will be
   //a layer variable (layerid) that maps the layers in :

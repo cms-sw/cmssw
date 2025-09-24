@@ -97,10 +97,12 @@ BarrelValidator::BarrelValidator(const edm::ParameterSet& pset)
   }
 
   for (auto& itag : associatorSim_) {
-    associatorMapRtSim.push_back(consumes<ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection>>(itag));
+    associatorMapRtSim.push_back(
+        consumes<ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection>>(itag));
   }
   for (auto& itag : associatorSim_) {
-    associatorMapSimtR.push_back(consumes<ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>>(itag));
+    associatorMapSimtR.push_back(
+        consumes<ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>>(itag));
   }
 
   barrelHitMap_ =
