@@ -293,8 +293,8 @@ public:
                                     const std::vector<float>& mask,
                                     std::unordered_map<DetId, const unsigned int> const&,
                                     unsigned int layers,
-                                    const ticl::RecoToSimCollectionWithSimClusters& recSimColl,
-                                    const ticl::SimToRecoCollectionWithSimClusters& simRecColl,
+                                    const ticl::RecoToSimCollectionWithSimClusters<reco::CaloClusterCollection>& recSimColl,
+                                    const ticl::SimToRecoCollectionWithSimClusters<reco::CaloClusterCollection>& simRecColl,
                                     edm::MultiSpan<HGCRecHit> const& hits) const;
 
   void tracksters_to_SimTracksters_fp(const Histograms& histograms,
@@ -344,8 +344,8 @@ public:
                                          const std::vector<float>& mask,
                                          std::unordered_map<DetId, const unsigned int> const& hitMap,
                                          unsigned int layers,
-                                         const ticl::RecoToSimCollectionWithSimClusters& recSimColl,
-                                         const ticl::SimToRecoCollectionWithSimClusters& simRecColl,
+                                         const ticl::RecoToSimCollectionWithSimClusters<reco::CaloClusterCollection>& recSimColl,
+                                         const ticl::SimToRecoCollectionWithSimClusters<reco::CaloClusterCollection>& simRecColl,
                                          edm::MultiSpan<HGCRecHit> const& hits) const;
   void fill_cluster_histos(const Histograms& histograms, const int count, const reco::CaloCluster& cluster) const;
   void fill_trackster_histos(const Histograms& histograms,

@@ -97,10 +97,10 @@ BarrelValidator::BarrelValidator(const edm::ParameterSet& pset)
   }
 
   for (auto& itag : associatorSim_) {
-    associatorMapRtSim.push_back(consumes<ticl::RecoToSimCollectionWithSimClusters>(itag));
+    associatorMapRtSim.push_back(consumes<ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection>>(itag));
   }
   for (auto& itag : associatorSim_) {
-    associatorMapSimtR.push_back(consumes<ticl::SimToRecoCollectionWithSimClusters>(itag));
+    associatorMapSimtR.push_back(consumes<ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>>(itag));
   }
 
   barrelHitMap_ =
@@ -340,13 +340,13 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
     for (unsigned int ws = 0; ws < label_clustersmask.size(); ws++) {
       const auto& inputClusterMask = event.get(clustersMaskTokens_[ws]);
 
-      std::vector<ticl::RecoToSimCollectionWithSimClusters> recSimColl;
-      std::vector<ticl::SimToRecoCollectionWithSimClusters> simRecColl;
+      std::vector<ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection>> recSimColl;
+      std::vector<ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>> simRecColl;
       for (unsigned int i = 0; i < associatorMapRtSim.size(); ++i) {
-        edm::Handle<ticl::SimToRecoCollectionWithSimClusters> simtorecoCollectionH;
+        edm::Handle<ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>> simtorecoCollectionH;
         event.getByToken(associatorMapSimtR[i], simtorecoCollectionH);
         simRecColl.push_back(*simtorecoCollectionH);
-        edm::Handle<ticl::RecoToSimCollectionWithSimClusters> recotosimCollectionH;
+        edm::Handle<ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection>> recotosimCollectionH;
         event.getByToken(associatorMapRtSim[i], recotosimCollectionH);
         recSimColl.push_back(*recotosimCollectionH);
       }

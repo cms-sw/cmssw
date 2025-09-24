@@ -831,8 +831,8 @@ void BarrelVHistoProducerAlgo::BarrelVHistoProducerAlgo::fill_simClusterAssociat
     const std::vector<float>& mask,
     std::unordered_map<DetId, const unsigned int> const& barrelHitMap,
     unsigned int layers,
-    const ticl::RecoToSimCollectionWithSimClusters& scsInLayerClusterMap,
-    const ticl::SimToRecoCollectionWithSimClusters& lcsInSimClusterMap,
+    const ticl::RecoToSimCollectionWithSimClusters<reco::CaloClusterCollection>& scsInLayerClusterMap,
+    const ticl::SimToRecoCollectionWithSimClusters<reco::CaloClusterCollection>& lcsInSimClusterMap,
     edm::MultiSpan<reco::PFRecHit> const& barrelHits) const {
   //Each event to be treated as two events: an event in +ve endcap,
   //plus another event in -ve endcap. In this spirit there will be
@@ -1151,8 +1151,8 @@ void BarrelVHistoProducerAlgo::layerClusters_to_SimClusters(
     const std::vector<float>& mask,
     std::unordered_map<DetId, const unsigned int> const& barrelHitMap,
     unsigned int layers,
-    const ticl::RecoToSimCollectionWithSimClusters& scsInLayerClusterMap,
-    const ticl::SimToRecoCollectionWithSimClusters& lcsInSimClusterMap,
+    const ticl::RecoToSimCollectionWithSimClusters<reco::CaloClusterCollection>& scsInLayerClusterMap,
+    const ticl::SimToRecoCollectionWithSimClusters<reco::CaloClusterCollection>& lcsInSimClusterMap,
     edm::MultiSpan<reco::PFRecHit> const& barrelHits) const {
   // Here fill the plots to compute the different metrics linked to
   // reco-level, namely fake-rate and merge-rate. In this loop should *not*

@@ -249,8 +249,8 @@ public:
                                     const std::vector<float>& mask,
                                     std::unordered_map<DetId, const unsigned int> const&,
                                     unsigned int layers,
-                                    const ticl::RecoToSimCollectionWithSimClusters& recSimColl,
-                                    const ticl::SimToRecoCollectionWithSimClusters& simRecColl,
+                                    const ticl::RecoToSimCollectionWithSimClusters<reco::CaloClusterCollection>& recSimColl,
+                                    const ticl::SimToRecoCollectionWithSimClusters<reco::CaloClusterCollection>& simRecColl,
                                     edm::MultiSpan<reco::PFRecHit> const& barrelHits) const;
 
   void tracksters_to_SimTracksters_fp(const Histograms& histograms,
@@ -297,8 +297,8 @@ public:
                                          const std::vector<float>& mask,
                                          std::unordered_map<DetId, const unsigned int> const& barrelHitMap,
                                          unsigned int layers,
-                                         const ticl::RecoToSimCollectionWithSimClusters& recSimColl,
-                                         const ticl::SimToRecoCollectionWithSimClusters& simRecColl,
+                                         const ticl::RecoToSimCollectionWithSimClusters<reco::CaloClusterCollection>& recSimColl,
+                                         const ticl::SimToRecoCollectionWithSimClusters<reco::CaloClusterCollection>& simRecColl,
                                          edm::MultiSpan<reco::PFRecHit> const& barrelHits) const;
   void fill_cluster_histos(const Histograms& histograms, const int count, const reco::CaloCluster& cluster) const;
 

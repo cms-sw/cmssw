@@ -117,8 +117,8 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
     clustersMaskTokens_.push_back(consumes<std::vector<float>>(itag));
   }
 
-  associatorMapSimtR = consumes<ticl::SimToRecoCollectionWithSimClusters>(associatorSim_);
-  associatorMapRtSim = consumes<ticl::RecoToSimCollectionWithSimClusters>(associatorSim_);
+  associatorMapSimtR = consumes<ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>>(associatorSim_);
+  associatorMapRtSim = consumes<ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection>>(associatorSim_);
 
   simTrackstersMap_ = consumes<std::map<uint, std::vector<uint>>>(pset.getParameter<edm::InputTag>("simTrackstersMap"));
 
@@ -511,10 +511,10 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
 
       const auto& inputClusterMask = *inputClusterMaskHandle;
 
-      edm::Handle<ticl::SimToRecoCollectionWithSimClusters> simtorecoCollectionH;
+      edm::Handle<ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>> simtorecoCollectionH;
       event.getByToken(associatorMapSimtR, simtorecoCollectionH);
       auto simRecColl = *simtorecoCollectionH;
-      edm::Handle<ticl::RecoToSimCollectionWithSimClusters> recotosimCollectionH;
+      edm::Handle<ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection>> recotosimCollectionH;
       event.getByToken(associatorMapRtSim, recotosimCollectionH);
       auto recSimColl = *recotosimCollectionH;
 
