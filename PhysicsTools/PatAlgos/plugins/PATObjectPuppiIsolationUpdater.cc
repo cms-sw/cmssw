@@ -38,15 +38,21 @@ namespace pat {
 using namespace pat;
 
 template <typename T>
-PATObjectPuppiIsolationUpdater<T>::PATObjectPuppiIsolationUpdater(const edm::ParameterSet &iConfig):
-  src_(consumes<std::vector<T>>(iConfig.getParameter<edm::InputTag>("src"))){
-  PUPPIIsolation_charged_hadrons_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("puppiIsolationChargedHadrons"));
-  PUPPIIsolation_neutral_hadrons_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("puppiIsolationNeutralHadrons"));
-  PUPPIIsolation_photons_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("puppiIsolationPhotons"));
-  if constexpr (std::is_same<T,pat::Electron>::value || std::is_same<T,pat::Muon>::value){
-    PUPPINoLeptonsIsolation_charged_hadrons_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("puppiNoLeptonsIsolationChargedHadrons"));
-    PUPPINoLeptonsIsolation_neutral_hadrons_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("puppiNoLeptonsIsolationNeutralHadrons"));
-    PUPPINoLeptonsIsolation_photons_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("puppiNoLeptonsIsolationPhotons"));
+PATObjectPuppiIsolationUpdater<T>::PATObjectPuppiIsolationUpdater(const edm::ParameterSet &iConfig)
+    : src_(consumes<std::vector<T>>(iConfig.getParameter<edm::InputTag>("src"))) {
+  PUPPIIsolation_charged_hadrons_ =
+      consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("puppiIsolationChargedHadrons"));
+  PUPPIIsolation_neutral_hadrons_ =
+      consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("puppiIsolationNeutralHadrons"));
+  PUPPIIsolation_photons_ =
+      consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("puppiIsolationPhotons"));
+  if constexpr (std::is_same<T, pat::Electron>::value || std::is_same<T, pat::Muon>::value) {
+    PUPPINoLeptonsIsolation_charged_hadrons_ =
+        consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("puppiNoLeptonsIsolationChargedHadrons"));
+    PUPPINoLeptonsIsolation_neutral_hadrons_ =
+        consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("puppiNoLeptonsIsolationNeutralHadrons"));
+    PUPPINoLeptonsIsolation_photons_ =
+        consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("puppiNoLeptonsIsolationPhotons"));
   }
   produces<std::vector<T>>();
 }
@@ -74,7 +80,7 @@ void PATObjectPuppiIsolationUpdater<T>::produce(edm::Event &iEvent, edm::EventSe
   iEvent.getByToken(PUPPIIsolation_photons_, PUPPIIsolation_photons);
   //puppiNoLeptons
 
-  if constexpr (std::is_same<T,pat::Electron>::value || std::is_same<T,pat::Muon>::value){
+  if constexpr (std::is_same<T, pat::Electron>::value || std::is_same<T, pat::Muon>::value) {
     iEvent.getByToken(PUPPINoLeptonsIsolation_charged_hadrons_, PUPPINoLeptonsIsolation_charged_hadrons);
     iEvent.getByToken(PUPPINoLeptonsIsolation_neutral_hadrons_, PUPPINoLeptonsIsolation_neutral_hadrons);
     iEvent.getByToken(PUPPINoLeptonsIsolation_photons_, PUPPINoLeptonsIsolation_photons);
@@ -87,27 +93,26 @@ void PATObjectPuppiIsolationUpdater<T>::produce(edm::Event &iEvent, edm::EventSe
     // copy original pat object and append to vector
     outPtrP->emplace_back((*src)[i]);
 
-    edm::Ptr<T> objPtr(src,i);
+    edm::Ptr<T> objPtr(src, i);
 
     outPtrP->back().setIsolationPUPPI((*PUPPIIsolation_charged_hadrons)[objPtr],
-                            (*PUPPIIsolation_neutral_hadrons)[objPtr],
-                            (*PUPPIIsolation_photons)[objPtr]);
+                                      (*PUPPIIsolation_neutral_hadrons)[objPtr],
+                                      (*PUPPIIsolation_photons)[objPtr]);
 
-    if constexpr (std::is_same<T,pat::Electron>::value || std::is_same<T,pat::Muon>::value){
+    if constexpr (std::is_same<T, pat::Electron>::value || std::is_same<T, pat::Muon>::value) {
       outPtrP->back().setIsolationPUPPINoLeptons((*PUPPINoLeptonsIsolation_charged_hadrons)[objPtr],
-                                     (*PUPPINoLeptonsIsolation_neutral_hadrons)[objPtr],
-                                     (*PUPPINoLeptonsIsolation_photons)[objPtr]);
+                                                 (*PUPPINoLeptonsIsolation_neutral_hadrons)[objPtr],
+                                                 (*PUPPINoLeptonsIsolation_photons)[objPtr]);
     }
   }
   iEvent.put(std::move(outPtrP));
 }
 
 typedef PATObjectPuppiIsolationUpdater<pat::Electron> PATElectronPuppiIsolationUpdater;
-typedef PATObjectPuppiIsolationUpdater<pat::Photon>   PATPhotonPuppiIsolationUpdater;
-typedef PATObjectPuppiIsolationUpdater<pat::Muon>     PATMuonPuppiIsolationUpdater;
+typedef PATObjectPuppiIsolationUpdater<pat::Photon> PATPhotonPuppiIsolationUpdater;
+typedef PATObjectPuppiIsolationUpdater<pat::Muon> PATMuonPuppiIsolationUpdater;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 
 DEFINE_FWK_MODULE(PATElectronPuppiIsolationUpdater);
 DEFINE_FWK_MODULE(PATPhotonPuppiIsolationUpdater);
