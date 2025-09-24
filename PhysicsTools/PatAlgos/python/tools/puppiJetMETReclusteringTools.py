@@ -131,6 +131,7 @@ def puppiAK4METReclusterFromMiniAOD(process, runOnMC, useExistingWeights, btagDi
   runMetCorAndUncFromMiniAOD(process,
     isData=not(runOnMC),
     jetCollUnskimmed="slimmedJetsPuppi",
+    pfCandColl=pfInputTag,
     metType="Puppi",
     postfix="Puppi",
     jetFlavor="AK4PFPuppi",
