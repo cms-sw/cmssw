@@ -213,7 +213,7 @@ ZDCQIE10Task::ZDCQIE10Task(edm::ParameterSet const& ps)
 
     histoname = "EM_P_" + std::to_string(channel);
     ib.setCurrentFolder("Hcal/ZDCQIE10Task/TDC_perChannel");
-    _cTDC_EChannel[didp()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 150,0,150);
+    _cTDC_EChannel[didp()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 150, 0, 150);
     _cTDC_EChannel[didp()]->setAxisTitle("TDC", 1);
     _cTDC_EChannel[didp()]->setAxisTitle("N", 2);
 
@@ -242,7 +242,7 @@ ZDCQIE10Task::ZDCQIE10Task(edm::ParameterSet const& ps)
 
     histoname = "EM_M_" + std::to_string(channel);
     ib.setCurrentFolder("Hcal/ZDCQIE10Task/TDC_perChannel");
-    _cTDC_EChannel[didm()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 150,0,150);
+    _cTDC_EChannel[didm()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 150, 0, 150);
     _cTDC_EChannel[didm()]->setAxisTitle("TDC", 1);
     _cTDC_EChannel[didm()]->setAxisTitle("N", 2);
   }
@@ -252,9 +252,14 @@ ZDCQIE10Task::ZDCQIE10Task(edm::ParameterSet const& ps)
     // EM Minus
     HcalZDCDetId didm(HcalZDCDetId::EM, false, channel);
 
-    std::vector<std::string> stationString = {"Station2_Top", "Station2_Bottom", "Station3_BottomLeft","Station3_BottomRight", "Station3_TopLeft", "Station3_TopRight"};
-    
-    histoname = "FSC_M_" + stationString.at(channel-7);
+    std::vector<std::string> stationString = {"Station2_Top",
+                                              "Station2_Bottom",
+                                              "Station3_BottomLeft",
+                                              "Station3_BottomRight",
+                                              "Station3_TopLeft",
+                                              "Station3_TopRight"};
+
+    histoname = "FSC_M_" + stationString.at(channel - 7);
     ib.setCurrentFolder("Hcal/ZDCQIE10Task/ADC_perChannel");
     _cADC_EChannel[didm()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 256, 0, 256);
     _cADC_EChannel[didm()]->setAxisTitle("ADC", 1);
@@ -264,7 +269,7 @@ ZDCQIE10Task::ZDCQIE10Task(edm::ParameterSet const& ps)
     _cADC_vs_TS_EChannel[didm()]->setAxisTitle("TS", 1);
     _cADC_vs_TS_EChannel[didm()]->setAxisTitle("sum ADC", 2);
 
-    histoname = "FSC_M_" + stationString.at(channel-7);
+    histoname = "FSC_M_" + stationString.at(channel - 7);
     ib.setCurrentFolder("Hcal/ZDCQIE10Task/fC_perChannel");
     _cfC_EChannel[didm()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 100, 0, 8000);
     _cfC_EChannel[didm()]->setAxisTitle("fC", 1);
@@ -274,9 +279,9 @@ ZDCQIE10Task::ZDCQIE10Task(edm::ParameterSet const& ps)
     _cfC_vs_TS_EChannel[didm()]->setAxisTitle("TS", 1);
     _cfC_vs_TS_EChannel[didm()]->setAxisTitle("sum fC", 2);
 
-    histoname = "FSC_M_" + stationString.at(channel-7);
+    histoname = "FSC_M_" + stationString.at(channel - 7);
     ib.setCurrentFolder("Hcal/ZDCQIE10Task/TDC_perChannel");
-    _cTDC_EChannel[didm()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 150,0,150);
+    _cTDC_EChannel[didm()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 150, 0, 150);
     _cTDC_EChannel[didm()]->setAxisTitle("TDC", 1);
     _cTDC_EChannel[didm()]->setAxisTitle("N", 2);
   }
@@ -307,7 +312,7 @@ ZDCQIE10Task::ZDCQIE10Task(edm::ParameterSet const& ps)
 
     histoname = "HAD_P_" + std::to_string(channel);
     ib.setCurrentFolder("Hcal/ZDCQIE10Task/TDC_perChannel");
-    _cTDC_EChannel[didp()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 150,0,150);
+    _cTDC_EChannel[didp()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 150, 0, 150);
     _cTDC_EChannel[didp()]->setAxisTitle("TDC", 1);
     _cTDC_EChannel[didp()]->setAxisTitle("N", 2);
 
@@ -335,7 +340,7 @@ ZDCQIE10Task::ZDCQIE10Task(edm::ParameterSet const& ps)
     _cfC_vs_TS_EChannel[didm()]->setAxisTitle("sum fC", 2);
 
     histoname = "HAD_M_" + std::to_string(channel);
-    _cTDC_EChannel[didm()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 150,0,150);
+    _cTDC_EChannel[didm()] = ib.book1DD(histoname.c_str(), histoname.c_str(), 150, 0, 150);
     _cTDC_EChannel[didm()]->setAxisTitle("TDC", 1);
     _cTDC_EChannel[didm()]->setAxisTitle("N", 2);
   }
@@ -500,8 +505,10 @@ void ZDCQIE10Task::_process(edm::Event const& e, edm::EventSetup const& es) {
         float tmp_tdctime = 0;
         // TDC error codes will be 60=-1, 61 = -2, 62 = -3, 63 = -4
         // assume max amplitude should occur in TS2
-        if (digi[i].le_tdc() >= 60) tmp_tdctime = -1 * (digi[i].le_tdc() - 59);
-        else tmp_tdctime = 50. + (digi[i].le_tdc() / 2);
+        if (digi[i].le_tdc() >= 60)
+          tmp_tdctime = -1 * (digi[i].le_tdc() - 59);
+        else
+          tmp_tdctime = 50. + (digi[i].le_tdc() / 2);
         _cTDC_EChannel[did()]->Fill(tmp_tdctime);
       }
       if (_cADC_vs_TS_EChannel.find(did()) != _cADC_vs_TS_EChannel.end()) {
