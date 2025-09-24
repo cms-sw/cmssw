@@ -30,10 +30,11 @@ namespace pat {
 
 using namespace pat;
 
-PATJetCandidatesRekeyer::PATJetCandidatesRekeyer(const edm::ParameterSet &iConfig):
-  src_(consumes<std::vector<pat::Jet>>(iConfig.getParameter<edm::InputTag>("src"))),
-  pcNewCandViewToken_(consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("packedPFCandidatesNew"))),
-  pcNewToken_(consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedPFCandidatesNew"))){
+PATJetCandidatesRekeyer::PATJetCandidatesRekeyer(const edm::ParameterSet &iConfig)
+    : src_(consumes<std::vector<pat::Jet>>(iConfig.getParameter<edm::InputTag>("src"))),
+      pcNewCandViewToken_(consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("packedPFCandidatesNew"))),
+      pcNewToken_(
+          consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedPFCandidatesNew"))) {
   produces<std::vector<pat::Jet>>();
   produces<edm::OwnVector<reco::BaseTagInfo>>("tagInfos");
 }
@@ -50,8 +51,9 @@ void PATJetCandidatesRekeyer::produce(edm::Event &iEvent, edm::EventSetup const 
   edm::Handle<pat::PackedCandidateCollection> pcNewHandle;
   iEvent.getByToken(pcNewToken_, pcNewHandle);
 
- edm::RefProd<edm::OwnVector<reco::BaseTagInfo>> h_tagInfosOut = iEvent.getRefBeforePut<edm::OwnVector<reco::BaseTagInfo>>("tagInfos");
- auto tagInfosOut = std::make_unique<edm::OwnVector<reco::BaseTagInfo>>();
+  edm::RefProd<edm::OwnVector<reco::BaseTagInfo>> h_tagInfosOut =
+      iEvent.getRefBeforePut<edm::OwnVector<reco::BaseTagInfo>>("tagInfos");
+  auto tagInfosOut = std::make_unique<edm::OwnVector<reco::BaseTagInfo>>();
 
   auto outPtrP = std::make_unique<std::vector<pat::Jet>>();
   outPtrP->reserve(src->size());
@@ -59,8 +61,13 @@ void PATJetCandidatesRekeyer::produce(edm::Event &iEvent, edm::EventSetup const 
   //
   //
   //
-  for (std::vector<pat::Jet>::const_iterator ibegin = (*src).begin(), iend = (*src).end(), ijet = ibegin; ijet != iend; ++ijet) {
-    for (TagInfoFwdPtrCollection::const_iterator iinfoBegin = ijet->tagInfosFwdPtr().begin(), iinfoEnd = ijet->tagInfosFwdPtr().end(), iinfo = iinfoBegin;iinfo != iinfoEnd;++iinfo) {
+  for (std::vector<pat::Jet>::const_iterator ibegin = (*src).begin(), iend = (*src).end(), ijet = ibegin; ijet != iend;
+       ++ijet) {
+    for (TagInfoFwdPtrCollection::const_iterator iinfoBegin = ijet->tagInfosFwdPtr().begin(),
+                                                 iinfoEnd = ijet->tagInfosFwdPtr().end(),
+                                                 iinfo = iinfoBegin;
+         iinfo != iinfoEnd;
+         ++iinfo) {
       tagInfosOut->push_back(**iinfo);
     }
   }
@@ -78,23 +85,26 @@ void PATJetCandidatesRekeyer::produce(edm::Event &iEvent, edm::EventSetup const 
 
     reco::CompositePtrCandidate::daughters old = outPtrP->back().daughterPtrVector();
     outPtrP->back().clearDaughters();
-    for (const auto & dauItr : old) {
-      outPtrP->back().addDaughter(edm::Ptr<reco::Candidate>(pcNewHandle,dauItr.key()));
+    for (const auto &dauItr : old) {
+      outPtrP->back().addDaughter(edm::Ptr<reco::Candidate>(pcNewHandle, dauItr.key()));
     }
 
     // Copy the tag infos
-    for (TagInfoFwdPtrCollection::const_iterator iinfoBegin = outPtrP->back().tagInfosFwdPtr().begin(), iinfoEnd = outPtrP->back().tagInfosFwdPtr().end(), iinfo = iinfoBegin; iinfo != iinfoEnd; ++iinfo) {
+    for (TagInfoFwdPtrCollection::const_iterator iinfoBegin = outPtrP->back().tagInfosFwdPtr().begin(),
+                                                 iinfoEnd = outPtrP->back().tagInfosFwdPtr().end(),
+                                                 iinfo = iinfoBegin;
+         iinfo != iinfoEnd;
+         ++iinfo) {
       // Update the "forward" bit of the FwdPtr to point at the new collection.
       // ptr to "this" info in the global list
       edm::Ptr<reco::BaseTagInfo> outPtr(oh_tagInfosOut, tagInfoIndex);
-      outPtrP->back().updateFwdTagInfoFwdPtr(iinfo - iinfoBegin,  outPtr);
+      outPtrP->back().updateFwdTagInfoFwdPtr(iinfo - iinfoBegin, outPtr);
       ++tagInfoIndex;
     }
   }
 
   iEvent.put(std::move(outPtrP));
 }
-
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PATJetCandidatesRekeyer);
