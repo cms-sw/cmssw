@@ -42,6 +42,7 @@ namespace reco {
 // Class definition
 namespace pat {
   class PATPhotonSlimmer;
+  class PATPhotonCandidatesRekeyer;
 
   class Photon : public PATObject<reco::Photon> {
   public:
@@ -328,6 +329,7 @@ namespace pat {
     reco::CandidatePtr sourceCandidatePtr(size_type i) const override;
 
     friend class PATPhotonSlimmer;
+    friend class PATPhotonCandidatesRekeyer;
 
   protected:
     // ---- for content embedding ----
