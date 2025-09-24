@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_15_0_0/HIon --cff --data --type HIon
 
-# /dev/CMSSW_15_0_0/HIon/V114 (CMSSW_15_0_11)
+# /dev/CMSSW_15_0_0/HIon/V117 (CMSSW_15_0_11)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.load("Configuration.StandardSequences.Accelerators_cff")
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_15_0_0/HIon/V114")
+  tableName = cms.string("/dev/CMSSW_15_0_0/HIon/V117")
 )
 
 fragment.HLTGroupedCkfTrajectoryBuilderP5 = cms.PSet( 
@@ -19645,7 +19645,7 @@ fragment.hltElePixelHitDoubletsPPOnAA = cms.EDProducer( "HitPairEDProducer",
     trackingRegionsSeedingLayers = cms.InputTag( "" ),
     clusterCheck = cms.InputTag( "" ),
     produceSeedingHitSets = cms.bool( True ),
-    produceIntermediateHitDoublets = cms.bool( True ),
+    produceIntermediateHitDoublets = cms.bool( False ),
     maxElement = cms.uint32( 0 ),
     maxElementTotal = cms.uint32( 50000000 ),
     putEmptyIfMaxElementReached = cms.bool( False ),
@@ -19667,7 +19667,7 @@ fragment.hltElePixelHitDoubletsForTripletsPPOnAA = cms.EDProducer( "HitPairEDPro
     trackingRegions = cms.InputTag( "hltEleSeedsTrackingRegionsPPOnAA" ),
     trackingRegionsSeedingLayers = cms.InputTag( "" ),
     clusterCheck = cms.InputTag( "" ),
-    produceSeedingHitSets = cms.bool( True ),
+    produceSeedingHitSets = cms.bool( False ),
     produceIntermediateHitDoublets = cms.bool( True ),
     maxElement = cms.uint32( 0 ),
     maxElementTotal = cms.uint32( 50000000 ),
@@ -25591,7 +25591,7 @@ fragment.hltFullIter2PixelHitDoubletsPPOnAAForDmeson = cms.EDProducer( "HitPairE
     trackingRegions = cms.InputTag( "hltFullIter2PixelTrackingRegionsPPOnAAForDmeson" ),
     trackingRegionsSeedingLayers = cms.InputTag( "" ),
     clusterCheck = cms.InputTag( "hltFullIter2PixelClusterCheckPPOnAAForDmeson" ),
-    produceSeedingHitSets = cms.bool( True ),
+    produceSeedingHitSets = cms.bool( False ),
     produceIntermediateHitDoublets = cms.bool( True ),
     maxElement = cms.uint32( 0 ),
     maxElementTotal = cms.uint32( 50000000 ),
@@ -25795,7 +25795,7 @@ fragment.hltFullIter3PixelHitDoubletsPPOnAA = cms.EDProducer( "HitPairEDProducer
     trackingRegions = cms.InputTag( "hltFullIter3PixelTrackingRegionsPPOnAA" ),
     trackingRegionsSeedingLayers = cms.InputTag( "" ),
     clusterCheck = cms.InputTag( "hltFullIter3PixelClusterCheckPPOnAA" ),
-    produceSeedingHitSets = cms.bool( True ),
+    produceSeedingHitSets = cms.bool( False ),
     produceIntermediateHitDoublets = cms.bool( True ),
     maxElement = cms.uint32( 0 ),
     maxElementTotal = cms.uint32( 50000000 ),
@@ -25994,7 +25994,7 @@ fragment.hltFullIter7MixedHitDoubletsAPPOnAA = cms.EDProducer( "HitPairEDProduce
     trackingRegions = cms.InputTag( "hltFullIter7MixedTrackingRegionsAPPOnAA" ),
     trackingRegionsSeedingLayers = cms.InputTag( "" ),
     clusterCheck = cms.InputTag( "hltFullIter7MixedClusterCheckPPOnAA" ),
-    produceSeedingHitSets = cms.bool( True ),
+    produceSeedingHitSets = cms.bool( False ),
     produceIntermediateHitDoublets = cms.bool( True ),
     maxElement = cms.uint32( 0 ),
     maxElementTotal = cms.uint32( 50000000 ),
@@ -26091,7 +26091,7 @@ fragment.hltFullIter7MixedHitDoubletsBPPOnAA = cms.EDProducer( "HitPairEDProduce
     trackingRegions = cms.InputTag( "hltFullIter7MixedTrackingRegionsBPPOnAA" ),
     trackingRegionsSeedingLayers = cms.InputTag( "" ),
     clusterCheck = cms.InputTag( "hltFullIter7MixedClusterCheckPPOnAA" ),
-    produceSeedingHitSets = cms.bool( True ),
+    produceSeedingHitSets = cms.bool( False ),
     produceIntermediateHitDoublets = cms.bool( True ),
     maxElement = cms.uint32( 0 ),
     maxElementTotal = cms.uint32( 50000000 ),
@@ -26689,7 +26689,7 @@ fragment.hltFullIter9TobTecHitDoubletsPairPPOnAA = cms.EDProducer( "HitPairEDPro
     trackingRegionsSeedingLayers = cms.InputTag( "" ),
     clusterCheck = cms.InputTag( "hltFullIter9TobTecClusterCheckPPOnAA" ),
     produceSeedingHitSets = cms.bool( True ),
-    produceIntermediateHitDoublets = cms.bool( True ),
+    produceIntermediateHitDoublets = cms.bool( False ),
     maxElement = cms.uint32( 0 ),
     maxElementTotal = cms.uint32( 50000000 ),
     putEmptyIfMaxElementReached = cms.bool( False ),
