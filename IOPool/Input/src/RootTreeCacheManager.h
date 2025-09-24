@@ -31,11 +31,19 @@ namespace edm {
 
     class CacheManagerBase {
     public:
+      enum class CacheStrategy {
+        kNone,
+        kSimple,
+        kSparse,
+      };
+
       CacheManagerBase(std::shared_ptr<InputFile> filePtr) : filePtr_(filePtr) {}
       virtual ~CacheManagerBase() = default;
 
       virtual void createPrimaryCache(unsigned int cacheSize) = 0;
-      virtual void setEntryNumber(EntryNumber theEntryNumber, EntryNumber entryNumber, EntryNumber entries) = 0;
+      // set the tree to read at nextEntryNumber; the current entryNumber is used when detecting
+      // non-serial reads, especially skipping backwards in the tree
+      virtual void setEntryNumber(EntryNumber nextEntryNumber, EntryNumber entryNumber, EntryNumber entries) = 0;
 
       virtual void resetTraining() {}
       virtual void reset() {}
@@ -44,9 +52,9 @@ namespace edm {
       virtual void reserve(Int_t branchCount) {}
       virtual void getEntry(TBranch* branch, EntryNumber entryNumber);
       virtual void getAuxEntry(TBranch* auxBranch, EntryNumber entryNumber);
-      virtual void getEntryForAllBranches(EntryNumber entryNumber) const = 0;
+      virtual void getEntryForAllBranches(EntryNumber entryNumber) const;
 
-      static std::unique_ptr<CacheManagerBase> create(const std::string& strategy,
+      static std::unique_ptr<CacheManagerBase> create(CacheStrategy strategy,
                                                       std::shared_ptr<InputFile> filePtr,
                                                       unsigned int learningEntries,
                                                       bool enablePrefetching,
@@ -55,6 +63,8 @@ namespace edm {
     protected:
       std::shared_ptr<InputFile> filePtr_;
       TTree* tree_ = nullptr;
+
+      static constexpr bool cachestats = false;
     };
 
   }  // namespace roottree
