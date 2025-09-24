@@ -2699,7 +2699,7 @@ void PlotHistCorrFactors(char* infile1,
                          bool isRealData = false,
                          const char* year = "2024",
                          int iformat = 0,
-			 int range = 1,
+                         int range = 1,
                          int save = 0) {
   std::map<int, cfactors> cfacs[5];
   std::vector<std::string> texts;
@@ -2748,12 +2748,15 @@ void PlotHistCorrFactors(char* infile1,
     gStyle->SetFillColor(kWhite);
     gStyle->SetOptTitle(0);
     double ylow, yhigh;
-    if  (range == 0) {
-      ylow = 0.8; yhigh = 1.2;
+    if (range == 0) {
+      ylow = 0.8;
+      yhigh = 1.2;
     } else if (range == 1) {
-      ylow = 0.5; yhigh = 1.5;
+      ylow = 0.5;
+      yhigh = 1.5;
     } else {
-      ylow = 0.0; yhigh = 2.0;
+      ylow = 0.0;
+      yhigh = 2.0;
     }
     if ((!ratio) && drawStatBox) {
       gStyle->SetOptStat(10);
@@ -2963,7 +2966,7 @@ void PlotHistCorr2Factors(char* infile1,
                           bool isRealData = true,
                           const char* year = "2024",
                           int iformat = 0,
-			  int range = 1,
+                          int range = 1,
                           int save = 0) {
   std::map<int, cfactors> cfacs[5];
   std::vector<std::string> texts;
@@ -2991,12 +2994,15 @@ void PlotHistCorr2Factors(char* infile1,
     gStyle->SetFillColor(kWhite);
     gStyle->SetOptTitle(0);
     double ylow, yhigh;
-    if  (range == 0) {
-      ylow = 0.8; yhigh = 1.2;
+    if (range == 0) {
+      ylow = 0.8;
+      yhigh = 1.2;
     } else if (range == 1) {
-      ylow = 0.5; yhigh = 1.5;
+      ylow = 0.5;
+      yhigh = 1.5;
     } else {
-      ylow = 0.0; yhigh = 2.0;
+      ylow = 0.0;
+      yhigh = 2.0;
     }
     if ((!ratio) && drawStatBox) {
       gStyle->SetOptStat(10);
@@ -3194,7 +3200,7 @@ void PlotHistCorrDFactors(char* infile1,
                           bool isRealData = true,
                           const char* year = "2024",
                           int iformat = 0,
-			  int range = 0,
+                          int range = 0,
                           int save = 0) {
   std::map<int, cfactors> cfacs[5];
   std::vector<std::string> texts;
@@ -3243,12 +3249,15 @@ void PlotHistCorrDFactors(char* infile1,
     gStyle->SetFillColor(kWhite);
     gStyle->SetOptTitle(0);
     double ylow, yhigh;
-    if  (range == 0) {
-      ylow = 0.8; yhigh = 1.2;
+    if (range == 0) {
+      ylow = 0.8;
+      yhigh = 1.2;
     } else if (range == 1) {
-      ylow = 0.5; yhigh = 1.5;
+      ylow = 0.5;
+      yhigh = 1.5;
     } else {
-      ylow = 0.0; yhigh = 2.0;
+      ylow = 0.0;
+      yhigh = 2.0;
     }
     if ((!ratio) && drawStatBox) {
       gStyle->SetOptStat(10);
