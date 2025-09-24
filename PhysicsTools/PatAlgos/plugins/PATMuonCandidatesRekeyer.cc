@@ -30,10 +30,11 @@ namespace pat {
 
 using namespace pat;
 
-PATMuonCandidatesRekeyer::PATMuonCandidatesRekeyer(const edm::ParameterSet &iConfig):
-  src_(consumes<std::vector<pat::Muon>>(iConfig.getParameter<edm::InputTag>("src"))),
-  pcNewCandViewToken_(consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("packedPFCandidatesNew"))),
-  pcNewToken_(consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedPFCandidatesNew"))){
+PATMuonCandidatesRekeyer::PATMuonCandidatesRekeyer(const edm::ParameterSet &iConfig)
+    : src_(consumes<std::vector<pat::Muon>>(iConfig.getParameter<edm::InputTag>("src"))),
+      pcNewCandViewToken_(consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("packedPFCandidatesNew"))),
+      pcNewToken_(
+          consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedPFCandidatesNew"))) {
   produces<std::vector<pat::Muon>>();
 }
 
@@ -59,19 +60,18 @@ void PATMuonCandidatesRekeyer::produce(edm::Event &iEvent, edm::EventSetup const
     //
     std::vector<unsigned int> keys;
     for (size_t ic = 0; ic < outPtrP->back().numberOfSourceCandidatePtrs(); ++ic) {
-      const reco::CandidatePtr& candPtr = outPtrP->back().sourceCandidatePtr(ic);
-      if (candPtr.isNonnull()){
+      const reco::CandidatePtr &candPtr = outPtrP->back().sourceCandidatePtr(ic);
+      if (candPtr.isNonnull()) {
         keys.push_back(candPtr.key());
       }
     }
-    if(keys.size() == 1){
-      outPtrP->back().refToOrig_ = reco::CandidatePtr(pcNewCandViewHandle,keys[0]);
+    if (keys.size() == 1) {
+      outPtrP->back().refToOrig_ = reco::CandidatePtr(pcNewCandViewHandle, keys[0]);
     }
   }
 
   iEvent.put(std::move(outPtrP));
 }
-
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PATMuonCandidatesRekeyer);

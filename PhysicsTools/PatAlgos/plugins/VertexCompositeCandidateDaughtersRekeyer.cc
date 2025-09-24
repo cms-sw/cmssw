@@ -32,10 +32,12 @@ namespace pat {
 
 using namespace pat;
 
-VertexCompositeCandidateDaughtersRekeyer::VertexCompositeCandidateDaughtersRekeyer(const edm::ParameterSet &iConfig):
-  src_(consumes<reco::VertexCompositePtrCandidateCollection>(iConfig.getParameter<edm::InputTag>("src"))),
-  pcOriToken_(consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedPFCandidatesOri"))),
-  pcNewToken_(consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedPFCandidatesNew"))){
+VertexCompositeCandidateDaughtersRekeyer::VertexCompositeCandidateDaughtersRekeyer(const edm::ParameterSet &iConfig)
+    : src_(consumes<reco::VertexCompositePtrCandidateCollection>(iConfig.getParameter<edm::InputTag>("src"))),
+      pcOriToken_(
+          consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedPFCandidatesOri"))),
+      pcNewToken_(
+          consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedPFCandidatesNew"))) {
   produces<reco::VertexCompositePtrCandidateCollection>();
 }
 
@@ -66,9 +68,9 @@ void VertexCompositeCandidateDaughtersRekeyer::produce(edm::Event &iEvent, edm::
       // We check if this CandidatePtr points to a candidate in the original packedPFCandidates collection
       // This is needed because the CandidatePtr can point to a candidate in lostTracks collection
       //
-      if (dau.id() == pcOriHandle.id()){
-        outPtrP->back().addDaughter(edm::Ptr<reco::Candidate>(pcNewHandle,dau.key()));
-      }else{
+      if (dau.id() == pcOriHandle.id()) {
+        outPtrP->back().addDaughter(edm::Ptr<reco::Candidate>(pcNewHandle, dau.key()));
+      } else {
         outPtrP->back().addDaughter(dau);
       }
     }

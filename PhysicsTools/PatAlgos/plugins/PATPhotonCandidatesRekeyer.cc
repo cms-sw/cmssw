@@ -30,10 +30,11 @@ namespace pat {
 
 using namespace pat;
 
-PATPhotonCandidatesRekeyer::PATPhotonCandidatesRekeyer(const edm::ParameterSet &iConfig):
-  src_(consumes<std::vector<pat::Photon>>(iConfig.getParameter<edm::InputTag>("src"))),
-  pcNewCandViewToken_(consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("packedPFCandidatesNew"))),
-  pcNewToken_(consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedPFCandidatesNew"))){
+PATPhotonCandidatesRekeyer::PATPhotonCandidatesRekeyer(const edm::ParameterSet &iConfig)
+    : src_(consumes<std::vector<pat::Photon>>(iConfig.getParameter<edm::InputTag>("src"))),
+      pcNewCandViewToken_(consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("packedPFCandidatesNew"))),
+      pcNewToken_(
+          consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedPFCandidatesNew"))) {
   produces<std::vector<pat::Photon>>();
 }
 
@@ -57,13 +58,11 @@ void PATPhotonCandidatesRekeyer::produce(edm::Event &iEvent, edm::EventSetup con
     outPtrP->emplace_back((*src)[i]);
 
     std::vector<unsigned int> keys;
-    for (const edm::Ref<pat::PackedCandidateCollection> &ref : outPtrP->back().associatedPackedPFCandidates()){
+    for (const edm::Ref<pat::PackedCandidateCollection> &ref : outPtrP->back().associatedPackedPFCandidates()) {
       keys.push_back(ref.key());
     };
     outPtrP->back().setAssociatedPackedPFCandidates(
-      edm::RefProd<pat::PackedCandidateCollection>(pcNewHandle),
-      keys.begin(), keys.end()
-    );
+        edm::RefProd<pat::PackedCandidateCollection>(pcNewHandle), keys.begin(), keys.end());
     if (keys.size() == 1) {
       outPtrP->back().refToOrig_ = outPtrP->back().sourceCandidatePtr(0);
     } else {
@@ -72,7 +71,6 @@ void PATPhotonCandidatesRekeyer::produce(edm::Event &iEvent, edm::EventSetup con
   }
   iEvent.put(std::move(outPtrP));
 }
-
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PATPhotonCandidatesRekeyer);
