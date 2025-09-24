@@ -10,6 +10,7 @@
 
 // user include files
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -21,7 +22,7 @@
 #include "SimDataFormats/Associations/interface/LayerClusterToSimClusterAssociator.h"
 
 //
-// class decleration
+// class declaration
 //
 
 template <typename CLUSTER>
@@ -83,10 +84,10 @@ void LCToSCAssociatorEDProducerT<CLUSTER>::produce(edm::StreamID,
   Handle<CLUSTER> LCCollection;
   iEvent.getByToken(LCCollectionToken_, LCCollection);
 
-  // Protection against missing CaloCluster collection
+  // Protection against missing cluster collection
   if (!LCCollection.isValid()) {
     edm::LogWarning("LCToSCAssociatorEDProducerT")
-        << "CaloCluster collection is unavailable. Producing empty associations.";
+        << "Cluster collection is unavailable. Producing empty associations.";
 
     // Return empty collections
     auto emptyRecSimColl = std::make_unique<ticl::RecoToSimCollectionWithSimClustersT<CLUSTER>>();
@@ -125,5 +126,5 @@ void LCToSCAssociatorEDProducerT<CLUSTER>::fillDescriptions(edm::ConfigurationDe
 // define this as a plug-in
 typedef LCToSCAssociatorEDProducerT<reco::CaloClusterCollection> LCToSCAssociatorEDProducer;
 DEFINE_FWK_MODULE(LCToSCAssociatorEDProducer);
-// typedef LCToSCAssociatorEDProducerT<reco::PFClusterCollection> PCToSCAssociatorEDProducer;
-// DEFINE_FWK_MODULE(PCToSCAssociatorEDProducer);
+typedef LCToSCAssociatorEDProducerT<reco::PFClusterCollection> PCToSCAssociatorEDProducer;
+DEFINE_FWK_MODULE(PCToSCAssociatorEDProducer);

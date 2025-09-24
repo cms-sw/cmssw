@@ -41,8 +41,8 @@ private:
 
 template class LCToSCAssociatorByEnergyScoreProducerT<HGCRecHit, reco::CaloClusterCollection>;
 template class LCToSCAssociatorByEnergyScoreProducerT<reco::PFRecHit, reco::CaloClusterCollection>;
-// template class LCToSCAssociatorByEnergyScoreProducerT<HGCRecHit, reco::PFClusterCollection>;
-// template class LCToSCAssociatorByEnergyScoreProducerT<reco::PFRecHit, reco::PFClusterCollection>;
+template class LCToSCAssociatorByEnergyScoreProducerT<HGCRecHit, reco::PFClusterCollection>;
+template class LCToSCAssociatorByEnergyScoreProducerT<reco::PFRecHit, reco::PFClusterCollection>;
 
 using HGCalLCToSCAssociatorByEnergyScoreProducer =
     LCToSCAssociatorByEnergyScoreProducerT<HGCRecHit, reco::CaloClusterCollection>;
@@ -50,9 +50,11 @@ DEFINE_FWK_MODULE(HGCalLCToSCAssociatorByEnergyScoreProducer);
 using BarrelLCToSCAssociatorByEnergyScoreProducer =
     LCToSCAssociatorByEnergyScoreProducerT<reco::PFRecHit, reco::CaloClusterCollection>;
 DEFINE_FWK_MODULE(BarrelLCToSCAssociatorByEnergyScoreProducer);
-// using HGCalPCToSCAssociatorByEnergyScoreProducer = LCToSCAssociatorByEnergyScoreProducerT<HGCRecHit, reco::PFClusterCollection>;
-// DEFINE_FWK_MODULE(HGCalLCToSCAssociatorByEnergyScoreProducer);
-// using BarrelPCToSCAssociatorByEnergyScoreProducer = LCToSCAssociatorByEnergyScoreProducerT<reco::PFRecHit, reco::PFClusterCollection>;
-// DEFINE_FWK_MODULE(BarrelLCToSCAssociatorByEnergyScoreProducer);
+using HGCalPCToSCAssociatorByEnergyScoreProducer =
+    LCToSCAssociatorByEnergyScoreProducerT<HGCRecHit, reco::PFClusterCollection>;
+DEFINE_FWK_MODULE(HGCalPCToSCAssociatorByEnergyScoreProducer);
+using BarrelPCToSCAssociatorByEnergyScoreProducer =
+    LCToSCAssociatorByEnergyScoreProducerT<reco::PFRecHit, reco::PFClusterCollection>;
+DEFINE_FWK_MODULE(BarrelPCToSCAssociatorByEnergyScoreProducer);
 
 #endif

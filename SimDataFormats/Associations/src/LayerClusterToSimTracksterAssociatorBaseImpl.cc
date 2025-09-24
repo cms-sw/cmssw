@@ -12,7 +12,7 @@ namespace ticl {
       const edm::Handle<CaloParticleCollection> &cPCH,
       const ticl::RecoToSimCollection &lCToCPs,
       const edm::Handle<SimClusterCollection> &sCCH,
-      const ticl::RecoToSimCollectionWithSimClusters &lCToSCs) const {
+      const ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection> &lCToSCs) const {
     return ticl::RecoToSimTracksterCollection();
   }
 
@@ -22,7 +22,7 @@ namespace ticl {
       const edm::Handle<CaloParticleCollection> &cPCH,
       const ticl::SimToRecoCollection &cPToLCs,
       const edm::Handle<SimClusterCollection> &sCCH,
-      const ticl::SimToRecoCollectionWithSimClusters &sCToLCs) const {
+      const ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection> &sCToLCs) const {
     return ticl::SimTracksterToRecoCollection();
   }
 

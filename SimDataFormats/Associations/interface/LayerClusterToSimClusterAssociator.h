@@ -47,9 +47,9 @@ namespace ticl {
 }  // namespace ticl
 
 extern template class ticl::LayerClusterToSimClusterAssociatorT<reco::CaloClusterCollection>;
-// extern template class ticl::LayerClusterToSimClusterAssociatorT<reco::PFClusterCollection>;
+extern template class ticl::LayerClusterToSimClusterAssociatorT<reco::PFClusterCollection>;
 
 using LayerClusterToSimClusterAssociator = ticl::LayerClusterToSimClusterAssociatorT<reco::CaloClusterCollection>;
-// using ParticleFlowClusterToSimClusterAssociator = ticl::LayerClusterToSimClusterAssociatorT<reco::PFClusterCollection>;
+using ParticleFlowClusterToSimClusterAssociator = ticl::LayerClusterToSimClusterAssociatorT<reco::PFClusterCollection>;
 
 #endif

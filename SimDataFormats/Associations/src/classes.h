@@ -22,17 +22,48 @@
 #include "SimDataFormats/Associations/interface/TTTypes.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/AssociationMap.h"
+#include "DataFormats/Common/interface/OneToManyWithQualityGeneric.h"
+#include "DataFormats/Common/interface/AssociationMapHelpers.h"
+#include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
 
 namespace {
   struct dictionary {
-    ticl::LayerClusterToSimClusterAssociatorT<reco::CaloClusterCollection> lcscAssocCalo;
-    edm::Wrapper<ticl::LayerClusterToSimClusterAssociatorT<reco::CaloClusterCollection>> w_lcscAssocCalo;
-    // PFCluster
-    // ticl::LayerClusterToSimClusterAssociatorT<reco::PFClusterCollection> lcscAssocPF;
-    // edm::Wrapper<ticl::LayerClusterToSimClusterAssociatorT<reco::PFClusterCollection>> w_lcscAssocPF;
+    // The produced types
+    edm::Wrapper<edm::RefProd<std::vector<reco::PFCluster>>> w_refPF;
+    edm::Wrapper<edm::RefProd<std::vector<SimCluster>>> w_refSim;
+
+    edm::Wrapper<edm::helpers::KeyVal<edm::RefProd<std::vector<SimCluster>>, edm::RefProd<std::vector<reco::PFCluster>>>>
+        w_keyVal1;
+    edm::Wrapper<edm::helpers::KeyVal<edm::RefProd<std::vector<reco::PFCluster>>, edm::RefProd<std::vector<SimCluster>>>>
+        w_keyVal2;
+
+    edm::Wrapper<edm::AssociationMap<edm::OneToManyWithQualityGeneric<std::vector<SimCluster>,
+                                                                      std::vector<reco::PFCluster>,
+                                                                      std::pair<float, float>,
+                                                                      unsigned int,
+                                                                      edm::RefProd<std::vector<SimCluster>>,
+                                                                      edm::RefProd<std::vector<reco::PFCluster>>,
+                                                                      edm::Ref<std::vector<SimCluster>>,
+                                                                      edm::Ref<std::vector<reco::PFCluster>>>>>
+        w_assoc1;
+
+    edm::Wrapper<edm::AssociationMap<edm::OneToManyWithQualityGeneric<std::vector<reco::PFCluster>,
+                                                                      std::vector<SimCluster>,
+                                                                      float,
+                                                                      unsigned int,
+                                                                      edm::RefProd<std::vector<reco::PFCluster>>,
+                                                                      edm::RefProd<std::vector<SimCluster>>,
+                                                                      edm::Ref<std::vector<reco::PFCluster>>,
+                                                                      edm::Ref<std::vector<SimCluster>>>>>
+        w_assoc2;
   };
 }  // namespace

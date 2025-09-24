@@ -14,6 +14,7 @@
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterCollection.h"
 
+#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimClusterFwd.h"
 
 namespace ticl {
@@ -24,13 +25,6 @@ namespace ticl {
   template <typename CLUSTER>
   using RecoToSimCollectionWithSimClustersT =
       edm::AssociationMap<edm::OneToManyWithQualityGeneric<CLUSTER, SimClusterCollection, float>>;
-
-  // Default
-  typedef edm::AssociationMap<
-      edm::OneToManyWithQualityGeneric<SimClusterCollection, reco::CaloClusterCollection, std::pair<float, float>>>
-      SimToRecoCollectionWithSimClusters;
-  typedef edm::AssociationMap<edm::OneToManyWithQualityGeneric<reco::CaloClusterCollection, SimClusterCollection, float>>
-      RecoToSimCollectionWithSimClusters;
 
   template <typename CLUSTER>
   class LayerClusterToSimClusterAssociatorBaseImplT {
@@ -51,6 +45,6 @@ namespace ticl {
 }  // namespace ticl
 
 extern template class ticl::LayerClusterToSimClusterAssociatorBaseImplT<reco::CaloClusterCollection>;
-// extern template class ticl::LayerClusterToSimClusterAssociatorBaseImplT<reco::PFClusterCollection>;
+extern template class ticl::LayerClusterToSimClusterAssociatorBaseImplT<reco::PFClusterCollection>;
 
 #endif
