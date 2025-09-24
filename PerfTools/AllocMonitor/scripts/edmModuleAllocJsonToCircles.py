@@ -95,12 +95,12 @@ def formatToCircles(moduleTransitions):
                 modules_dict[label]["maxTemp %s" % transitionType] = (maxTemp)/1024
                 modules_dict[label]["nDealloc %s" % transitionType] = nDealloc
                 modules_dict[label]["max1Alloc %s" % transitionType] = max1Alloc/1024
-            doc["total"]["nAlloc %s" % transitionType] += nAlloc
-            doc["total"]["nDealloc %s" % transitionType] += nDealloc
-            doc["total"]["maxTemp %s" % transitionType] += maxTemp
-            doc["total"]["added %s" % transitionType] += added
-            doc["total"]["max1Alloc %s" % transitionType] += max1Alloc
-     
+            doc["total"]["nAlloc %s" % transitionType] += modules_dict[label]["nAlloc %s" % transitionType] 
+            doc["total"]["nDealloc %s" % transitionType] += modules_dict[label]["nDealloc %s" % transitionType]
+            doc["total"]["maxTemp %s" % transitionType] += modules_dict[label]["maxTemp %s" % transitionType]
+            doc["total"]["added %s" % transitionType] += modules_dict[label]["added %s" % transitionType]
+            doc["total"]["max1Alloc %s" % transitionType] += modules_dict[label]["max1Alloc %s" % transitionType]
+
     for key in sorted(modules_dict.keys()):
         module = modules_dict[key]
         module["events"] = moduleTransitions['event'][key].get("nTransitions")
