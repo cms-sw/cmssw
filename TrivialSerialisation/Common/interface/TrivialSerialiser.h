@@ -156,4 +156,3 @@ namespace ngt {
 }  // namespace ngt
 
 #endif
-

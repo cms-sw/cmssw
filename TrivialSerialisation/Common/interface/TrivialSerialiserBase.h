@@ -22,7 +22,6 @@ namespace ngt {
     virtual std::vector<std::span<std::byte>> trivialCopyRegions() = 0;
     virtual void trivialCopyFinalize() = 0;
 
-    // TODO: should this be private?
     const edm::WrapperBase* getWrapperBasePtr() const { return ptr_; }
 
     virtual ~TrivialSerialiserBase() = default;
@@ -34,4 +33,3 @@ namespace ngt {
 }  // namespace ngt
 
 #endif  // TrivialSerialisation_Common_interface_TrivialSerialiserBase_h
-
