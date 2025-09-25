@@ -10,6 +10,15 @@ namespace mkfit {
 
   enum KalmanFilterOperation { KFO_Calculate_Chi2 = 1, KFO_Update_Params = 2, KFO_Local_Cov = 4 };
 
+  inline void kalmanCheckChargeFlip(MPlexLV& outPar, MPlexQI& Chg, int N_proc) {
+    for (int n = 0; n < NN; ++n) {
+      if (n < N_proc && outPar.At(n, 3, 0) < 0) {
+        Chg.At(n, 0, 0) = -Chg.At(n, 0, 0);
+        outPar.At(n, 3, 0) = -outPar.At(n, 3, 0);
+      }
+    }
+  }
+
   //------------------------------------------------------------------------------
 
   void kalmanUpdate(const MPlexLS& psErr,
