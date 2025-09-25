@@ -13,10 +13,15 @@ from Validation.HGCalValidation.HLT_TICLIterLabels_cff import hltTiclIterLabels 
 
 from RecoLocalCalo.HGCalRecProducers.recHitMapProducer_cff import recHitMapProducer as _recHitMapProducer
 
-hits = ["hltHGCalRecHit:HGCEERecHits", "hltHGCalRecHit:HGCHEFRecHits", "hltHGCalRecHit:HGCHEBRecHits"]
+hits = ["hltHGCalRecHit:HGCEERecHits",
+        "hltHGCalRecHit:HGCHEFRecHits",
+        "hltHGCalRecHit:HGCHEBRecHits",
+        "hltParticleFlowRecHitECALUnseeded",
+        "hltParticleFlowRecHitHBHE"
+        ]
 hltRecHitMapProducer = _recHitMapProducer.clone(
     hits = hits,
-    hgcalOnly = True,
+    hgcalOnly = False,
 )
 
 hltLcAssocByEnergyScoreProducer = _lcAssocByEnergyScoreProducer.clone(
