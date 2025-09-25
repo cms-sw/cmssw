@@ -63,12 +63,12 @@ from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
 ticl_barrel.toModify(
     caloParticles, 
     simHitCollections = cms.PSet(
-        hgc = cms.VInputTag(
-            cms.InputTag('g4SimHits', 'HGCHitsEE'),
-            cms.InputTag('g4SimHits', 'HGCHitsHEfront'),
-            cms.InputTag('g4SimHits', 'HGCHitsHEback'),
-        ),
-        hcal = cms.VInputTag(cms.InputTag('g4SimHits', 'HcalHits')),
+        # hgc = cms.VInputTag(
+        #     cms.InputTag('g4SimHits', 'HGCHitsEE'),
+        #     cms.InputTag('g4SimHits', 'HGCHitsHEfront'),
+        #     cms.InputTag('g4SimHits', 'HGCHitsHEback'),
+        # ),
+        # hcal = cms.VInputTag(cms.InputTag('g4SimHits', 'HcalHits')),
         ecal = cms.VInputTag(
             cms.InputTag('g4SimHits', 'EcalHitsEB')
         )

@@ -20,6 +20,8 @@ from Validation.HcalRecHits.HLTHcalRecHitParam_cfi import *
 from Validation.SiTrackerPhase2V.HLTPhase2TrackerValidationFirstStep_cff import *
 # Gen-level Validation
 from Validation.HLTrigger.HLTGenValidation_cff import *
+# PF
+from Validation.RecoParticleFlow.hltPFValidation_cfi import *
 
 # HGCAL Rechit Calibration
 from Validation.HGCalValidation.hgcalHitCalibrationDefault_cfi import hgcalHitCalibrationDefault as _hgcalHitCalibrationDefault
@@ -118,6 +120,7 @@ _hltvalidationWithMC_Phase2 = hltvalidationWithMC.copyAndExclude([#HLTMuonVal,
 _hltvalidationWithMC_Phase2.insert(-1, hgcalHitCalibrationHLT)
 _hltvalidationWithMC_Phase2.insert(-1, hltHgcalValidator)
 _hltvalidationWithMC_Phase2.insert(-1, hltGENValidation)
+_hltvalidationWithMC_Phase2.insert(-1, PFValSeq)
 phase2_common.toReplaceWith(hltvalidationWithMC, _hltvalidationWithMC_Phase2)
 
 hltvalidationWithData = cms.Sequence(
