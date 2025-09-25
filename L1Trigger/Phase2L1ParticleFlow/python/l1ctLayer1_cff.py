@@ -188,12 +188,25 @@ l1tLayer1HGCal = cms.EDProducer("L1TCorrelatorLayer1Producer",
         slim = cms.bool(False),
         multiclass_id = cms.PSet(
             model = cms.string("L1Trigger/Phase2L1ParticleFlow/data/multiclassID/multiclass_EE.json"),
-            wp_pt = cms.vdouble(20),
-            wp_PU = cms.vdouble(0.33462133, 0.25283374),
-            wp_Pi = cms.vdouble(0.26773010, 0.03898286),
-            wp_PFEm = cms.vdouble(0.29812516, 0.42790125),
-            wp_EgEm = cms.vdouble(0.29812516, 0.42790125),
-            wp_EgEm_tight = cms.vdouble(0.76317512, 0.67921004),
+            wp_eta = cms.vdouble(2.4), # eta bin edges for the WPs
+            wps = cms.VPSet(
+                cms.PSet(
+                    wp_pt = cms.vdouble(20),
+                    wp_PU = cms.vdouble(0.33462133, 0.25283374),
+                    wp_Pi = cms.vdouble(0.26773010, 0.03898286),
+                    wp_PFEm = cms.vdouble(0.29812516, 0.42790125),
+                    wp_EgEm = cms.vdouble(0.29812516, 0.42790125),
+                    wp_EgEm_tight = cms.vdouble(0.76317512, 0.67921004),
+                ),
+                cms.PSet(
+                    wp_pt = cms.vdouble(20),
+                    wp_PU = cms.vdouble(0.42100209, 0.52275714),
+                    wp_Pi = cms.vdouble(0.12800815, 0.20509825),
+                    wp_PFEm = cms.vdouble(0.35924579, 0.67921004),
+                    wp_EgEm = cms.vdouble(0.35924579, 0.67921004),
+                    wp_EgEm_tight = cms.vdouble(0.76317512, 0.67921004),
+                )
+            ),
         ),
         corrector = cms.string("L1Trigger/Phase2L1ParticleFlow/data/hadcorr_HGCal3D_TC.root"),
         correctorEmfMax = cms.double(1.125),
@@ -327,12 +340,25 @@ l1tLayer1HGCalNoTK = cms.EDProducer("L1TCorrelatorLayer1Producer",
         slim = cms.bool(True),
         multiclass_id = cms.PSet(
             model = cms.string("L1Trigger/Phase2L1ParticleFlow/data/multiclassID/multiclass_EE.json"),
-            wp_pt = cms.vdouble(20),
-            wp_PU = cms.vdouble(0.42100209, 0.52275714),
-            wp_Pi = cms.vdouble(0.12800815, 0.20509825),
-            wp_PFEm = cms.vdouble(0.35924579, 0.67921004),
-            wp_EgEm = cms.vdouble(0.35924579, 0.67921004),
-            wp_EgEm_tight = cms.vdouble(0.76317512, 0.67921004),
+            wp_eta = cms.vdouble(2.4), # eta bin edges for the WPs
+            wps = cms.VPSet(
+                cms.PSet(
+                    wp_pt = cms.vdouble(20),
+                    wp_PU = cms.vdouble(0.33462133, 0.25283374),
+                    wp_Pi = cms.vdouble(0.26773010, 0.03898286),
+                    wp_PFEm = cms.vdouble(0.29812516, 0.42790125),
+                    wp_EgEm = cms.vdouble(0.29812516, 0.42790125),
+                    wp_EgEm_tight = cms.vdouble(0.76317512, 0.67921004),
+                ),
+                cms.PSet(
+                    wp_pt = cms.vdouble(20),
+                    wp_PU = cms.vdouble(0.42100209, 0.52275714),
+                    wp_Pi = cms.vdouble(0.12800815, 0.20509825),
+                    wp_PFEm = cms.vdouble(0.35924579, 0.67921004),
+                    wp_EgEm = cms.vdouble(0.35924579, 0.67921004),
+                    wp_EgEm_tight = cms.vdouble(0.76317512, 0.67921004),
+                )
+            ),
         ),
         corrector = cms.string("L1Trigger/Phase2L1ParticleFlow/data/hadcorr_HGCal3D_TC.root"),
         correctorEmfMax = cms.double(1.125),

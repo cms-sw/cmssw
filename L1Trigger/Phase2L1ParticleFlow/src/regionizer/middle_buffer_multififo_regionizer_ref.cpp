@@ -237,8 +237,6 @@ void l1ct::MiddleBufferMultififoRegionizerEmulator::initSectorsAndRegions(const 
       commonCaloSectors[isec].region = in.hadcalo[isec].region;
     }
     commonCaloRegionizerPre_.initSectors(commonCaloSectors);
-    std::cout << "Initialized merged regions: " << mergedRegions.size() << " regions" << std::endl;
-    ;
     commonCaloRegionizerPre_.initRegions(mergedRegions);
     commonCaloRegionizerPre_.initRouting(caloRoutes_);
 
