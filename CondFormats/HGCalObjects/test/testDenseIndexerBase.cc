@@ -35,10 +35,10 @@ int main() {
   }
 
   //check that all values were unique
-  assert(allidx.size() == di.getMaxIndex());
+  assert(allidx.size() == di.maxIndex());
 
   //check that values were sequential (last value==size)
-  assert((*allidx.end()) == di.getMaxIndex());
+  assert((*allidx.end()) == di.maxIndex());
 
   return 0;
 }
