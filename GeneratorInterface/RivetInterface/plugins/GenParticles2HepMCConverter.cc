@@ -22,7 +22,7 @@
 #include "HepMC3/GenParticle.h"
 #include "HepMC3/GenVertex.h"
 #include "HepMC3/Print.h"
-#include "HepMC3/WriterAscii.h" 
+#include "HepMC3/WriterAscii.h"
 
 #include <iostream>
 #include <map>
@@ -47,7 +47,7 @@ private:
   const bool writeHepMC_;
   const std::string outputFile_;
   HepMC3::GenCrossSectionPtr xsec_;
-  std::shared_ptr<HepMC3::Writer> writer_; 
+  std::shared_ptr<HepMC3::Writer> writer_;
 
 private:
   inline HepMC3::FourVector FourVector(const reco::Candidate::Point& point) {
@@ -64,7 +64,6 @@ GenParticles2HepMCConverter::GenParticles2HepMCConverter(const edm::ParameterSet
     : cmEnergy_(pset.getUntrackedParameter<double>("cmEnergy", 13000)),
       writeHepMC_(pset.getUntrackedParameter<bool>("writeHepMC", false)),
       outputFile_(pset.getUntrackedParameter<std::string>("outputFile", "events.hepmc")) {
-  
   genParticlesToken_ = consumes<reco::CandidateView>(pset.getParameter<edm::InputTag>("genParticles"));
   genEventInfoToken_ = consumes<GenEventInfoProduct>(pset.getParameter<edm::InputTag>("genEventInfo"));
   genRunInfoToken_ = consumes<GenRunInfoProduct, edm::InRun>(pset.getParameter<edm::InputTag>("genEventInfo"));
@@ -73,8 +72,8 @@ GenParticles2HepMCConverter::GenParticles2HepMCConverter(const edm::ParameterSet
   produces<edm::HepMC3Product>("unsmeared");
 
   // Initialize HepMC3 writer
-  if (writeHepMC_){
-      writer_ = std::make_shared<HepMC3::WriterAscii>(outputFile_);
+  if (writeHepMC_) {
+    writer_ = std::make_shared<HepMC3::WriterAscii>(outputFile_);
   }
 }
 
@@ -237,4 +236,3 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
 }
 
 DEFINE_FWK_MODULE(GenParticles2HepMCConverter);
-
