@@ -11,8 +11,13 @@ ZDCQIE10Task::ZDCQIE10Task(edm::ParameterSet const& ps)
   _tagQIE10 = ps.getUntrackedParameter<edm::InputTag>("tagQIE10", edm::InputTag("hcalDigis", "ZDC"));
   _tokQIE10 = consumes<QIE10DigiCollection>(_tagQIE10);
 
+  // emulated sums
   sumTag = ps.getUntrackedParameter<edm::InputTag>("etSumTag", edm::InputTag("etSumZdcProducer", ""));
   sumToken_ = consumes<l1t::EtSumBxCollection>(sumTag);
+
+  // unpacked sums
+  sumTagUnpacked = ps.getUntrackedParameter<edm::InputTag>("etSumTag", edm::InputTag("gtStage2Digis", "EtSumZDC"));
+  sumTokenUnpacked_ = consumes<l1t::EtSumBxCollection>(sumTag);
 
   htopoToken_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
   paramsToken_ = esConsumes<HcalLongRecoParams, HcalLongRecoParamsRcd>();
@@ -118,6 +123,31 @@ ZDCQIE10Task::ZDCQIE10Task(edm::ParameterSet const& ps)
   _cZDC_BX_EmuSUMS[1] = ib.book1DD(histoname.c_str(), histoname.c_str(), 3500, 0, 3500);
   _cZDC_BX_EmuSUMS[1]->setAxisTitle("globalBX", 1);
   _cZDC_BX_EmuSUMS[1]->setAxisTitle("0-255 weighted output", 2);
+
+  // create variable binning for TP sum histograms
+  std::vector<double> varbins;
+  // -1 - 100 : 101 1-unit bins
+  // 100 - 700 :100 6-unit bins
+  // 700 - 1024 : 18 18-unit bins
+  for (int i = -1; i < 100; i += 1)
+    varbins.push_back(i);
+  for (int i = 100; i < 700; i += 6)
+    varbins.push_back(i);
+  for (int i = 700; i < 1024; i += 18)
+    varbins.push_back(i);
+  TH2D* varBinningTH2D = new TH2D(
+      histoname.c_str(), histoname.c_str(), varbins.size() - 1, varbins.data(), varbins.size() - 1, varbins.data());
+  _cZDC_EmuSumTP_DataSum[0] = ib.book2DD(histoname.c_str(), varBinningTH2D);
+
+  histoname = "ZDCM_EmuSumTP_DataSum";
+  ib.setCurrentFolder("Hcal/ZDCQIE10Task/Sums");
+  _cZDC_EmuSumTP_DataSum[0]->setAxisTitle("Emulated TP Sum (Online Counts)", 2);
+
+  histoname = "ZDCP_EmuSumTP_DataSum";
+  ib.setCurrentFolder("Hcal/ZDCQIE10Task/Sums");
+  _cZDC_EmuSumTP_DataSum[1] = ib.book2DD(histoname.c_str(), varBinningTH2D);
+  _cZDC_EmuSumTP_DataSum[1]->setAxisTitle("Data TP Sum (Online Counts)", 1);
+  _cZDC_EmuSumTP_DataSum[1]->setAxisTitle("Emulated TP Sum (Online Counts)", 2);
 
   histoname = "CapIDs";
   ib.setCurrentFolder("Hcal/ZDCQIE10Task");
@@ -252,12 +282,8 @@ ZDCQIE10Task::ZDCQIE10Task(edm::ParameterSet const& ps)
     // EM Minus
     HcalZDCDetId didm(HcalZDCDetId::EM, false, channel);
 
-    std::vector<std::string> stationString = {"2_M_Top",
-                                              "2_M_Bottom",
-                                              "3_M_BottomLeft",
-                                              "3_M_BottomRight",
-                                              "3_M_TopLeft",
-                                              "3_M_TopRight"};
+    std::vector<std::string> stationString = {
+        "2_M_Top", "2_M_Bottom", "3_M_BottomLeft", "3_M_BottomRight", "3_M_TopLeft", "3_M_TopRight"};
 
     histoname = "FSC" + stationString.at(channel - 7);
     ib.setCurrentFolder("Hcal/ZDCQIE10Task/ADC_perChannel");
@@ -419,20 +445,53 @@ void ZDCQIE10Task::_process(edm::Event const& e, edm::EventSetup const& es) {
 
   int startBX = sums->getFirstBX();
 
+  // to-do: if the TP is missing, this fills with -1
+  double emulatedSumP = -1.0;
+  double emulatedSumM = -1.0;
   for (int ibx = startBX; ibx <= sums->getLastBX(); ++ibx) {
     for (auto itr = sums->begin(ibx); itr != sums->end(ibx); ++itr) {
       l1t::EtSum::EtSumType type = itr->getType();
 
       if (type == l1t::EtSum::EtSumType::kZDCP) {
-        if (ibx == 0)
+        if (ibx == 0) {
           _cZDC_BX_EmuSUMS[1]->Fill(bx, itr->hwPt());
+          emulatedSumP = itr->hwPt();
+        }
       }
       if (type == l1t::EtSum::EtSumType::kZDCM) {
-        if (ibx == 0)
+        if (ibx == 0) {
           _cZDC_BX_EmuSUMS[0]->Fill(bx, itr->hwPt());
+          emulatedSumM = itr->hwPt();
+        }
       }
     }
   }
+
+  edm::Handle<BXVector<l1t::EtSum> > unpacked_sums;
+  e.getByToken(sumTokenUnpacked_, unpacked_sums);
+  int startBX_Unpacked = unpacked_sums->getFirstBX();
+  double unpackedSumP = -1.0;
+  double unpackedSumM = -1.0;
+  for (int ibx = startBX_Unpacked; ibx <= unpacked_sums->getLastBX(); ++ibx) {
+    for (auto itr = unpacked_sums->begin(ibx); itr != unpacked_sums->end(ibx); ++itr) {
+      l1t::EtSum::EtSumType type = itr->getType();
+
+      if (type == l1t::EtSum::EtSumType::kZDCP) {
+        if (ibx == 0) {
+          unpackedSumP = itr->hwPt();
+        }
+      }
+      if (type == l1t::EtSum::EtSumType::kZDCM) {
+        if (ibx == 0) {
+          unpackedSumM = itr->hwPt();
+        }
+      }
+    }
+  }
+
+  // now fill the unpacked and emulator comparison histogram
+  _cZDC_EmuSumTP_DataSum[0]->Fill(unpackedSumM, emulatedSumM);
+  _cZDC_EmuSumTP_DataSum[1]->Fill(unpackedSumP, emulatedSumP);
 
   edm::Handle<QIE10DigiCollection> digis;
   if (!e.getByToken(_tokQIE10, digis))
