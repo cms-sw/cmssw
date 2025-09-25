@@ -50,7 +50,7 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
                                      hgcaldigi::HGCalECONDPacketInfoHost& econdPacketInfo,
                                      bool headerOnlyMode) {
   // ReadoutSequence object for this FED
-  const auto& fedReadoutSequence = moduleIndexer.getFEDReadoutSequences()[fedId];
+  const auto& fedReadoutSequence = moduleIndexer.fedReadoutSequences()[fedId];
   // Configuration object for this FED
   const auto& fedConfig = config.feds[fedId];
 
@@ -288,7 +288,7 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
 
       // parse ECON-D body(eRx subpackets)
       const auto enabledErx = fedReadoutSequence.enabledErx_[globalECONDIdx];
-      const auto erxMax = moduleIndexer.getGlobalTypesNErx()[fedReadoutSequence.readoutTypes_[globalECONDIdx]];
+      const auto erxMax = moduleIndexer.globalTypesNErx()[fedReadoutSequence.readoutTypes_[globalECONDIdx]];
       const bool pass_through_mode = (econd_headers[0] >> ECOND_FRAME::BITP_POS) & 0b1;
 
       unsigned iword = 0;
