@@ -8,5 +8,14 @@ hltVertexTable = cms.EDProducer("HLTVertexTableProducer",
                                 pfSrc = cms.InputTag("hltParticleFlowTmp"),
                                 dlenMin = cms.double(0),
                                 dlenSigMin = cms.double(3),
-                                pvName = cms.string("hltPrimaryVertex"),
-                                )
+                                pvName = cms.string("hltPrimaryVertex"))
+
+hltPixelVertexTable = cms.EDProducer("HLTVertexTableProducer",
+                                     skipNonExistingSrc = cms.bool(True),
+                                     pvSrc = cms.InputTag("hltPhase2PixelVertices"),
+                                     goodPvCut = cms.string(""),
+                                     usePF = cms.bool(False), # use directly the tracks from PV fit 
+                                     pfSrc = cms.InputTag(""),
+                                     dlenMin = cms.double(0),
+                                     dlenSigMin = cms.double(3),
+                                     pvName = cms.string("hltPixelVertex"))
