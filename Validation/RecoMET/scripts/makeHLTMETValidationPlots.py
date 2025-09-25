@@ -117,11 +117,11 @@ def plot1Dvars(adir, avars, outdir, metType, top_text=False):
         root_hist = checkRootFile(f"{adir}/{var}", rebin=rebin)
         nbins, bin_edges, bin_centers, bin_widths = define_bins(root_hist)
         values, errors = histo_values_errors(root_hist)
-        
+
         plotter.ax.errorbar(bin_centers, values, xerr=None, yerr=errors,
                             fmt='s', color='black', label=xlabel, **errorbar_kwargs)
         # plotter.ax.step(bin_edges[:-1], values, where="post", color='black')
-        plotter.ax.stairs(values, bin_edges, color='black', linewidth=2)
+        plotter.ax.stairs(values, bin_edges, color='black', linewidth=2, baseline=None)
         plotter.ax.text(0.03, 0.97, metType, transform=plotter.ax.transAxes, fontsize=fontsize,
                         verticalalignment='top', horizontalalignment='left')
 
@@ -177,6 +177,7 @@ if __name__ == '__main__':
 
     nEventsLabel = '# Events'
     vars1D = {
+        # MET tester producer
         'HFEMEt'                  : (r'HF EM $E_T$', nEventsLabel, None),
         'HFEMEtFraction'          : (r'HF EM $E_T$ fraction', nEventsLabel, None),
         'HFHadronEt'              : (r'HF Hadron $E_T$', nEventsLabel, 2),
@@ -216,10 +217,10 @@ if __name__ == '__main__':
     }
 
     # Plot 1D MET variables
-    # for metType in args.met:
-    #     dqm_dir = f"DQMData/Run 1/HLT/Run summary/JetMET/METValidation/{metType}"
-    #     checkRootDir(file, dqm_dir)
-    #     plot1Dvars(dqm_dir, vars1D, METType[metType], outdir=os.path.join(args.odir, metType))
+    for metType in args.met:
+        dqm_dir = f"DQMData/Run 1/HLT/Run summary/JetMET/METValidation/{metType}"
+        checkRootDir(file, dqm_dir)
+        plot1Dvars(dqm_dir, vars1D, outdir=os.path.join(args.odir, metType), metType=METType[metType])
 
     # Plot MET turn-on curves
     trigger = 'HLT_PFPuppiMETTypeOne140_PFPuppiMHT140'
@@ -227,5 +228,5 @@ if __name__ == '__main__':
     checkRootDir(file, turnon_dir)
     vars1Dtrigger = ('TurnOngMET', 'TurnOngMETLow', 'TurnOnhMET', 'TurnOnhMETLow')
     outdir = createDir(os.path.join(args.odir, trigger))
-    plot1Dtrigger(turnon_dir, vars1Dtrigger, METType[metType], outdir=outdir)
+    plot1Dtrigger(turnon_dir, vars1Dtrigger, outdir=outdir, metType=METType[metType])
         
