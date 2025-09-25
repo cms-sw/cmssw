@@ -6,6 +6,7 @@ import numpy as np
 import hist
 import matplotlib.pyplot as plt
 from matplotlib.transforms import blended_transform_factory
+plt.style.use('tableau-colorblind10')
 import array
 import ROOT
 import mplhep as hep
@@ -147,14 +148,56 @@ def plot1Dtrigger(adir, avars, metType, outdir):
 
     plot1Dvars(adir, avarsDict, outdir, metType=metType, top_text=True)
 
-    
+
+def plot1Dcomparison(adir, avars, outdir, metTypes):
+    """
+    Plots 1D distributions.
+    The `avars` variables is a dictionary whose values are (xlabel, ylabel, rebin).
+    """
+    outdir = os.path.join(outdir, 'Comparison_' + '_'.join(metTypes))
+    createDir(outdir)
+
+    for var, (xlabel, ylabel, rebin) in avars.items():
+        plotter = Plotter(args.sample_label)
+
+        for metType in metTypes:
+            root_hist = checkRootFile(f"{adir}/{metType}/{var}", rebin=rebin)
+            nbins, bin_edges, bin_centers, bin_widths = define_bins(root_hist)
+            values, errors = histo_values_errors(root_hist)
+
+            patch = plotter.ax.stairs(values, bin_edges, linewidth=2, baseline=None)
+            plotter.ax.errorbar(bin_centers, values, xerr=None, yerr=errors,
+                                fmt='s', label=metType, color=patch.get_edgecolor(),
+                                **errorbar_kwargs)
+
+        plotter.ax.legend()
+        
+        diff_step = 0.05 * abs(max(values)-min(values))
+        plotter.limits(y=(min(values) - diff_step, max(values) + 2*diff_step), logY=False)
+        plotter.labels(x=xlabel, y=ylabel)
+
+        plotter.save( os.path.join(outdir, var) )
+
 if __name__ == '__main__':
+
+    def check_list_length(value):
+        if len(value) <= 1:
+            raise argparse.ArgumentTypeError("List must have more than one item")
+        return value
+
     full_command = 'for amet in "hltPFMET" "hltPFPuppiMET" "hltPFPuppiMETTypeOne"; do python3 Validation/RecoMET/scripts/makeHLTMETValidationPlots.py --file Run/DQM_1000_Wprime.root --odir /eos/user/b/bfontana/www/MET_Valid/Wprime -l Wprime --met ${amet}; done'
     parser = argparse.ArgumentParser(description='Make HLT MET validation plots. \nRun all MET paths with\n' + full_command)
     parser.add_argument('-f', '--file', required=True, help='Paths to the DQM ROOT file.')
-    parser.add_argument('-m', '--met',  nargs='+', default='hltPFPuppiMET', required=False, help='Name of the met collection(s).')
     parser.add_argument('-o', '--odir', default="HLTMETValidationPlots", required=False, help='Path to the output directory.')
     parser.add_argument('-l', '--sample_label', default="QCD (200 PU)", required=False,  help='Sample label for plotting.')
+
+    mutual_excl = parser.add_mutually_exclusive_group(required=True)
+    mutual_excl.add_argument('-m', '--met',  nargs='+', default='hltPFPuppiMET', required=False, help='Name of the met collection(s).')
+    mutual_excl.add_argument('-c', '--comparison',  nargs='+', default=None,
+                             choices=('hltPFMET', 'hltPFPuppiMET', 'hltPFPuppiMETTypeOne'),
+                             type=check_list_length, required=False,
+                             help='Name of the met collection(s).', )
+    
     args = parser.parse_args()
 
     createDir(args.odir)
@@ -216,17 +259,24 @@ if __name__ == '__main__':
         'METSignAggr_Phi': (r'$\phi$', 'MET Significance', None)
     }
 
-    # Plot 1D MET variables
-    for metType in args.met:
-        dqm_dir = f"DQMData/Run 1/HLT/Run summary/JetMET/METValidation/{metType}"
-        checkRootDir(file, dqm_dir)
-        plot1Dvars(dqm_dir, vars1D, outdir=os.path.join(args.odir, metType), metType=METType[metType])
+    
+    dqm_dir = f"DQMData/Run 1/HLT/Run summary/JetMET/METValidation"
+    if args.comparison is None:
+        # Plot 1D MET variables
+        for metType in args.met:
+            dqm_dir_met = os.path.join(dqm_dir, metType)
+            checkRootDir(file, dqm_dir_met)
+            plot1Dvars(dqm_dir_met, vars1D, outdir=os.path.join(args.odir, metType),
+                       metType=METType[metType])
 
-    # Plot MET turn-on curves
-    trigger = 'HLT_PFPuppiMETTypeOne140_PFPuppiMHT140'
-    turnon_dir = f"DQMData/Run 1/HLT/Run summary/JetMET/TurnOnValidation/{trigger}"
-    checkRootDir(file, turnon_dir)
-    vars1Dtrigger = ('TurnOngMET', 'TurnOngMETLow', 'TurnOnhMET', 'TurnOnhMETLow')
-    outdir = createDir(os.path.join(args.odir, trigger))
-    plot1Dtrigger(turnon_dir, vars1Dtrigger, outdir=outdir, metType=METType[metType])
+        # Plot MET turn-on curves
+        trigger = 'HLT_PFPuppiMETTypeOne140_PFPuppiMHT140'
+        turnon_dir = f"DQMData/Run 1/HLT/Run summary/JetMET/TurnOnValidation/{trigger}"
+        checkRootDir(file, turnon_dir)
+        vars1Dtrigger = ('TurnOngMET', 'TurnOngMETLow', 'TurnOnhMET', 'TurnOnhMETLow')
+        outdir = createDir(os.path.join(args.odir, trigger))
+        plot1Dtrigger(turnon_dir, vars1Dtrigger, outdir=outdir, metType=METType[metType])
+    else:
+        checkRootDir(file, dqm_dir)
+        plot1Dcomparison(dqm_dir, vars1D, outdir=args.odir, metTypes=args.comparison)
         
