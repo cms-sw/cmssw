@@ -713,12 +713,12 @@ G4Event* RunManagerMTWorker::generateEvent(const edm::Event& inpevt) {
     edm::Handle<edm::HepMC3Product> HepMCEvt3;
     inpevt.getByToken(m_InToken3, HepMCEvt3);
 
-    HepMC3::GenEvent* genevt3 = new HepMC3::GenEvent();
-    genevt3->read_data(*HepMCEvt3->GetEvent());
-    m_generator3.setGenEvent(genevt3);
+    HepMC3::GenEvent genevt3;
+    genevt3.read_data(*HepMCEvt3->GetEvent());
+    m_generator3.setGenEvent(&genevt3);
 
     if (!m_nonBeam) {
-      m_generator3.HepMC2G4(genevt3, evt);
+      m_generator3.HepMC2G4(&genevt3, evt);
       if (m_LHCTransport) {
         edm::Handle<edm::HepMC3Product> LHCMCEvt;
         inpevt.getByToken(m_LHCToken, LHCMCEvt);
