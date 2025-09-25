@@ -435,13 +435,13 @@ expertSettings.add_argument("--heap_profile",
                             dest="heap_profile")
 
 expertSettings.add_argument("--maxmem_profile",
-                            help="add the PerfTools/MaxMemoryPreload module",
+                            help="add the PerfTools/MaxMemoryPreload monitor",
                             default=False,
                             action="store_true",
                             dest="maxmem_profile")
 
 expertSettings.add_argument("--alloc_monitor",
-                            help="add the PerfTools/AllocMonitor module",
+                            help="Add necessary LD_PRELOAD for PerfTools/AllocMonitor",
                             default=False,
                             action="store_true",
                             dest="alloc_monitor")
