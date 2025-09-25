@@ -91,8 +91,8 @@ void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   //const auto& cellIndexer = iSetup.getData(cellIndexToken_);
   const auto& config = iSetup.getData(configToken_);
 
-  hgcaldigi::HGCalDigiHost digis(moduleIndexer.getMaxDataSize(), cms::alpakatools::host());
-  hgcaldigi::HGCalECONDPacketInfoHost econdPacketInfo(moduleIndexer.getMaxModuleSize(), cms::alpakatools::host());
+  hgcaldigi::HGCalDigiHost digis(moduleIndexer.maxDataSize(), cms::alpakatools::host());
+  hgcaldigi::HGCalECONDPacketInfoHost econdPacketInfo(moduleIndexer.maxModuleSize(), cms::alpakatools::host());
   hgcaldigi::HGCalFEDPacketInfoHost fedPacketInfo(moduleIndexer.fedCount(), cms::alpakatools::host());
 
   // retrieve the FED raw data
@@ -105,7 +105,7 @@ void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   //serial unpacking calls
   if (doSerial_) {
     for (unsigned fedId = 0; fedId < moduleIndexer.fedCount(); ++fedId) {
-      const auto& frs = moduleIndexer.getFEDReadoutSequences()[fedId];
+      const auto& frs = moduleIndexer.fedReadoutSequences()[fedId];
       if (frs.readoutTypes_.empty()) {
         continue;
       }
@@ -122,7 +122,7 @@ void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   else {
     oneapi::tbb::this_task_arena::isolate([&]() {
       oneapi::tbb::parallel_for(0U, moduleIndexer.fedCount(), [&](unsigned fedId) {
-        const auto& frs = moduleIndexer.getFEDReadoutSequences()[fedId];
+        const auto& frs = moduleIndexer.fedReadoutSequences()[fedId];
         if (frs.readoutTypes_.empty()) {
           return;
         }
