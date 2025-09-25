@@ -30,8 +30,8 @@ def checkRootDir(afile, adir):
     if not afile.Get(adir):
         raise RuntimeError(f"Directory '{adir}' not found in {afile}")
 
-def checkRootFile(hname, rebin=None):
-    hist_orig = file.Get(hname)
+def checkRootFile(afile, hname, rebin=None):
+    hist_orig = afile.Get(hname)
     if not hist_orig:
         raise RuntimeError(f"WARNING: Histogram {hname} not found.")
 
@@ -101,33 +101,42 @@ class Plotter:
             self._ax.set_xscale('log')
         if logY:
             self._ax.set_yscale('log')
-                
+
+    def limits_with_margin(self, values, errors):
+        values[np.isinf(values) | np.isnan(values)] = 0.
+        errors[np.isinf(errors) | np.isnan(errors)] = 0.
+        
+        up = values + errors
+        do = values - errors
+        diff_step = 0.05 * abs(up.max()-do.min())
+        self.limits(y=(do.min() - diff_step, up.max() + 2*diff_step), logY=False)
+
     def save(self, name):
         for ext in self.extensions:
             print(" ### INFO: Saving " + name + '.' + ext)
             plt.savefig(name + '.' + ext)
         plt.close()
 
-def plot1Dvars(adir, avars, outdir, metType, top_text=False):
+def plot1Dvars(afile, adir, avars, outdir, metType, top_text=False):
     """
     Plots 1D distributions.
     The `avars` variables is a dictionary whose values are (xlabel, ylabel, rebin).
     """
     for var, (xlabel, ylabel, rebin) in avars.items():
         plotter = Plotter(args.sample_label)
-        root_hist = checkRootFile(f"{adir}/{var}", rebin=rebin)
+        root_hist = checkRootFile(afile, f"{adir}/{var}", rebin=rebin)
         nbins, bin_edges, bin_centers, bin_widths = define_bins(root_hist)
         values, errors = histo_values_errors(root_hist)
-
+        errors /= 2
+        
         plotter.ax.errorbar(bin_centers, values, xerr=None, yerr=errors,
                             fmt='s', color='black', label=xlabel, **errorbar_kwargs)
-        # plotter.ax.step(bin_edges[:-1], values, where="post", color='black')
         plotter.ax.stairs(values, bin_edges, color='black', linewidth=2, baseline=None)
         plotter.ax.text(0.03, 0.97, metType, transform=plotter.ax.transAxes, fontsize=fontsize,
                         verticalalignment='top', horizontalalignment='left')
 
-        diff_step = 0.05 * abs(max(values)-min(values))
-        plotter.limits(y=(min(values) - diff_step, max(values) + 2*diff_step), logY=False)
+        print(adir, var)
+        plotter.limits_with_margin(values, errors)
         plotter.labels(x=xlabel, y=ylabel)
 
         if top_text:
@@ -136,46 +145,82 @@ def plot1Dvars(adir, avars, outdir, metType, top_text=False):
 
         plotter.save( os.path.join(outdir, var) )
 
-def plot1Dtrigger(adir, avars, metType, outdir):
+def plot1Dtrigger(afile, adir, avars, metType, outdir):
     avarsDict = {}
     for var in avars:
-        root_hist = checkRootFile(f"{adir}/{var}", rebin=None)
+        root_hist = checkRootFile(afile, f"{adir}/{var}", rebin=None)
 
         xlabel = root_hist.GetXaxis().GetTitle().replace('ET', r'$E_T$ ')
         ylabel = root_hist.GetYaxis().GetTitle()
 
         avarsDict[var] = (xlabel, ylabel, None)
 
-    plot1Dvars(adir, avarsDict, outdir, metType=metType, top_text=True)
+    plot1Dvars(afile, adir, avarsDict, outdir, metType=metType, top_text=True)
 
 
-def plot1Dcomparison(adir, avars, outdir, metTypes):
+def plot1DCollectionComparison(afile, adir, avars, outdir, metTypes):
     """
     Plots 1D distributions.
     The `avars` variables is a dictionary whose values are (xlabel, ylabel, rebin).
     """
-    outdir = os.path.join(outdir, 'Comparison_' + '_'.join(metTypes))
+    outdir = os.path.join(outdir, 'ComparisonCollections_' + '_'.join(metTypes))
     createDir(outdir)
 
     for var, (xlabel, ylabel, rebin) in avars.items():
         plotter = Plotter(args.sample_label)
 
+        amax, amin = float('-inf'), float('+inf')
         for metType in metTypes:
-            root_hist = checkRootFile(f"{adir}/{metType}/{var}", rebin=rebin)
+            root_hist = checkRootFile(afile, f"{adir}/{metType}/{var}", rebin=rebin)
             nbins, bin_edges, bin_centers, bin_widths = define_bins(root_hist)
             values, errors = histo_values_errors(root_hist)
+            errors /= 2 # symmetrize
 
             patch = plotter.ax.stairs(values, bin_edges, linewidth=2, baseline=None)
             plotter.ax.errorbar(bin_centers, values, xerr=None, yerr=errors,
                                 fmt='s', label=metType, color=patch.get_edgecolor(),
                                 **errorbar_kwargs)
+            
+            amax = max(amax, (values + errors).max())
+            amin = min(amin, (values - errors).min())
 
-        plotter.ax.legend()
-        
-        diff_step = 0.05 * abs(max(values)-min(values))
-        plotter.limits(y=(min(values) - diff_step, max(values) + 2*diff_step), logY=False)
+        diff_step = 0.05 * abs(amax-amin)
+        plotter.limits(y=(amin - diff_step, amax + 2*diff_step), logY=False)
         plotter.labels(x=xlabel, y=ylabel)
+        plotter.ax.legend(prop={'size': 15})
+        plotter.save( os.path.join(outdir, var) )
 
+def plot1DFilesComparison(adir, avars, outdir, files, files_labels, metType):
+    """
+    Plots 1D distributions.
+    The `avars` variables is a dictionary whose values are (xlabel, ylabel, rebin).
+    """
+    outdir = os.path.join(outdir, 'ComparisonFiles_' + '_'.join(files_labels), metType)
+    createDir(outdir)
+
+    for var, (xlabel, ylabel, rebin) in avars.items():
+        plotter = Plotter(args.sample_label)
+
+        amax, amin = float('-inf'), float('+inf')
+        for afile, alabel in zip(files, files_labels):
+            afile = ROOT.TFile.Open(afile)
+            root_hist = checkRootFile(afile, f"{adir}/{metType}/{var}", rebin=rebin)
+            nbins, bin_edges, bin_centers, bin_widths = define_bins(root_hist)
+            values, errors = histo_values_errors(root_hist)
+            errors /= 2 # symmetrize
+
+            patch = plotter.ax.stairs(values, bin_edges, linewidth=2, baseline=None)
+            plotter.ax.errorbar(bin_centers, values, xerr=None, yerr=errors,
+                                fmt='s', label=alabel, color=patch.get_edgecolor(),
+                                **errorbar_kwargs)
+            
+            amax = max(amax, (values + errors).max())
+            amin = min(amin, (values - errors).min())
+
+        diff_step = 0.05 * abs(amax-amin)
+        plotter.limits(y=(amin - diff_step, amax + 2*diff_step), logY=False)
+        plotter.labels(x=xlabel, y=ylabel)
+        plotter.ax.legend(prop={'size': 15})
         plotter.save( os.path.join(outdir, var) )
 
 if __name__ == '__main__':
@@ -185,26 +230,46 @@ if __name__ == '__main__':
             raise argparse.ArgumentTypeError("List must have more than one item")
         return value
 
-    full_command = 'for amet in "hltPFMET" "hltPFPuppiMET" "hltPFPuppiMETTypeOne"; do python3 Validation/RecoMET/scripts/makeHLTMETValidationPlots.py --file Run/DQM_1000_Wprime.root --odir /eos/user/b/bfontana/www/MET_Valid/Wprime -l Wprime --met ${amet}; done'
+    class DependencyAction(argparse.Action):
+        def __call__(self, parser, namespace, values, option_string=None):
+            if option_string == "--compare_files_labels" and not namespace.compare_files:
+                parser.error("`--compare_files_labels` requires `--compare_files` to be set")
+            if option_string == "--compare_files_labels" and not namespace.met:
+                parser.error("`--compare_files_labels` requires `--met` to be set")
+            if len(namespace.met) > 1:
+                parser.error("When comparing files only one MET collection can be used.")
+            if len(values) != len(namespace.compare_files):
+                parser.error("`--compare_files_labels` must have the same size as `--compare_files`")
+            setattr(namespace, self.dest, values)
+        
+    full_command = 'sample="Wprime"; python3 Validation/RecoMET/scripts/makeHLTMETValidationPlots.py --file Run/DQM_Wprime_1000.root --odir /eos/user/b/bfontana/www/MET_Valid_TICLv5/${sample} -l ${sample} --comparison hltPFMET hltPFPuppiMET hltPFPuppiMETTypeOne'
     parser = argparse.ArgumentParser(description='Make HLT MET validation plots. \nRun all MET paths with\n' + full_command)
-    parser.add_argument('-f', '--file', required=True, help='Paths to the DQM ROOT file.')
     parser.add_argument('-o', '--odir', default="HLTMETValidationPlots", required=False, help='Path to the output directory.')
-    parser.add_argument('-l', '--sample_label', default="QCD (200 PU)", required=False,  help='Sample label for plotting.')
+    parser.add_argument('-l', '--sample_label', default="QCD (200 PU)", required=False, help='Sample label for plotting.')
 
-    mutual_excl = parser.add_mutually_exclusive_group(required=True)
-    mutual_excl.add_argument('-m', '--met',  nargs='+', default='hltPFPuppiMET', required=False, help='Name of the met collection(s).')
-    mutual_excl.add_argument('-c', '--comparison',  nargs='+', default=None,
-                             choices=('hltPFMET', 'hltPFPuppiMET', 'hltPFPuppiMETTypeOne'),
+    mutual_excl1 = parser.add_mutually_exclusive_group(required=True)
+    mutual_excl1.add_argument('-m', '--met', nargs='+',
+                             required=False, help='Name of the met collection(s).')
+    mutual_excl1.add_argument('-c', '--compare_collections', nargs='+',
                              type=check_list_length, required=False,
-                             help='Name of the met collection(s).', )
+                             choices=('hltPFMET', 'hltPFPuppiMET', 'hltPFPuppiMETTypeOne'),
+                             help='Name of the met collection(s) to compare, in the same file.', )
+
+    mutual_excl2 = parser.add_mutually_exclusive_group(required=True)
+    mutual_excl2.add_argument('-f', '--file', help='Paths to the DQM ROOT file.')
+    mutual_excl2.add_argument('-x', '--compare_files', nargs='+', type=check_list_length,
+                              help='Compare the same collection in different DQM files.', )
+    parser.add_argument('-y', '--compare_files_labels', nargs='+',
+                        action=DependencyAction, required=False,
+                        help='Compare the same collection in different DQM files.',)
     
     args = parser.parse_args()
 
     createDir(args.odir)
-    for metType in args.met:
-        outdir = createDir(os.path.join(args.odir, metType))
+    if args.met:
+        for metType in args.met:
+            outdir = createDir(os.path.join(args.odir, metType))
     
-    file = ROOT.TFile.Open(args.file)
     fontsize = 16
     tprofile_rebinning = {'B': (30, 40, 50, 80, 100, 120, 140, 160, 200, 250, 300, 350, 400, 500, 600), #barrel
                           'E': (30, 40, 50, 80, 100, 120, 140, 160, 200, 250, 300, 350, 400, 500, 600), # endcap
@@ -229,13 +294,13 @@ if __name__ == '__main__':
         'MEx'                     : ('MET x', nEventsLabel, 4),
         'MEy'                     : ('MET y', nEventsLabel, 4),
         'METPhi'                  : (r'MET $\phi$', nEventsLabel, 2),
-        'METDeltaPhi_GenMETCalo'  : (r'Calo MET $\Delta\phi$', nEventsLabel, 2),
-        'METDeltaPhi_GenMETTrue'  : (r'True MET $\Delta\phi$', nEventsLabel, 2),
+        'METDeltaPhi_GenMETCalo'  : (r'MET$_{Calo}$ $\Delta\phi$', nEventsLabel, 2),
+        'METDeltaPhi_GenMETTrue'  : (r'MET $\Delta\phi$', nEventsLabel, 2),
         'METDiff_GenMETCalo'      : (r'MET - gen MET$_{Calo}$', nEventsLabel, 10),
-        'METDiff_GenMETTrue'      : (r'MET - gen MET$_{True}$', nEventsLabel, 10),
-        'METSignPseudo'           : ('MET Significance (Event-by-event)', nEventsLabel, None), # Et / std: (: (sqrt(sumEt)
+        'METDiff_GenMETTrue'      : ('MET - gen MET', nEventsLabel, 10),
+        'METSignPseudo'           : (r'MET / $\sqrt{\sum E_T}$ "Significance" (event-by-event)', nEventsLabel, None), # Et / std: (: (sqrt(sumEt)
         'METSignReal'             : ('MET Significance (Likelihood)', nEventsLabel, None), # covariance matrix missing
-        'MET_Nvtx'                : ('Number of vertices (MET-weighted)', nEventsLabel, 6),
+        'MET_Nvtx'                : ('Number of vertices (MET-weighted)', nEventsLabel, 10),
         'Nvertex'                 : ('Number of vertices', nEventsLabel, 6),
         'SumET'                   : (r'$\sum E_T$', nEventsLabel, 4),
         'chargedHadronEt'         : (r'Charged Hadron $E_T$', nEventsLabel, 2),
@@ -255,28 +320,41 @@ if __name__ == '__main__':
         'METResolAggr_Phi': (r'$\phi$', 'MET Resolution', None),
         'METRespAggr_MET': ('MET', 'MET Response', None),
         'METRespAggr_Phi': (r'$\phi$', 'MET Response', None),
-        'METSignAggr_MET': ('MET', 'MET Significance', None),
-        'METSignAggr_Phi': (r'$\phi$', 'MET Significance', None)
+        'METSignAggr_MET': ('MET', 'MET Mean / MET RMS (Significance)', None),
+        'METSignAggr_Phi': (r'$\phi$', 'MET Mean / MET RMS (Significance)', None)
     }
 
-    
-    dqm_dir = f"DQMData/Run 1/HLT/Run summary/JetMET/METValidation"
-    if args.comparison is None:
+    if args.compare_collections is not None:
+        afile = ROOT.TFile.Open(args.file)
+        dqm_dir = f"DQMData/Run 1/HLT/Run summary/JetMET/METValidation"
+        checkRootDir(afile, dqm_dir)
+        plot1DCollectionComparison(afile, dqm_dir, vars1D, outdir=args.odir,
+                                   metTypes=args.compare_collections)
+
+    elif args.compare_files is not None:
+        dqm_dir = f"DQMData/Run 1/HLT/Run summary/JetMET/METValidation"
+        for afile, alabel in zip(args.compare_files, args.compare_files_labels):
+            afile = ROOT.TFile.Open(afile)
+            checkRootDir(afile, dqm_dir)
+        plot1DFilesComparison(dqm_dir, vars1D, outdir=args.odir, metType=args.met[0],
+                              files=args.compare_files,
+                              files_labels=args.compare_files_labels)
+
+    else:
+        afile = ROOT.TFile.Open(args.file)
+        dqm_dir = f"DQMData/Run 1/HLT/Run summary/JetMET/METValidation"
+
         # Plot 1D MET variables
         for metType in args.met:
             dqm_dir_met = os.path.join(dqm_dir, metType)
-            checkRootDir(file, dqm_dir_met)
-            plot1Dvars(dqm_dir_met, vars1D, outdir=os.path.join(args.odir, metType),
+            checkRootDir(afile, dqm_dir_met)
+            plot1Dvars(afile, dqm_dir_met, vars1D, outdir=os.path.join(args.odir, metType),
                        metType=METType[metType])
 
         # Plot MET turn-on curves
         trigger = 'HLT_PFPuppiMETTypeOne140_PFPuppiMHT140'
         turnon_dir = f"DQMData/Run 1/HLT/Run summary/JetMET/TurnOnValidation/{trigger}"
-        checkRootDir(file, turnon_dir)
+        checkRootDir(afile, turnon_dir)
         vars1Dtrigger = ('TurnOngMET', 'TurnOngMETLow', 'TurnOnhMET', 'TurnOnhMETLow')
         outdir = createDir(os.path.join(args.odir, trigger))
-        plot1Dtrigger(turnon_dir, vars1Dtrigger, outdir=outdir, metType=METType[metType])
-    else:
-        checkRootDir(file, dqm_dir)
-        plot1Dcomparison(dqm_dir, vars1D, outdir=args.odir, metTypes=args.comparison)
-        
+        plot1Dtrigger(afile, turnon_dir, vars1Dtrigger, outdir=outdir, metType=METType[metType])
