@@ -8,7 +8,7 @@ hltPhase2PixelTracks = cms.EDProducer("PixelTrackProducerFromSoAAlpakaPhase2",
     trackSrc = cms.InputTag("hltPhase2PixelTracksSoA"),
     outerTrackerRecHitSrc = cms.InputTag(""),
     useOTExtension = cms.bool(False),
-    requireQuadsFromConsecutiveLayers = cms.bool(False)
+    requireQuadsFromConsecutiveLayers = cms.bool(True)
 )
 
 from Configuration.ProcessModifiers.phase2CAExtension_cff import phase2CAExtension
