@@ -4,7 +4,7 @@
   <use name="FWCore/ParameterSet"/>
 </bin>
 
-<library file="HGCalMappingESSourceTester.cc">
+<library file="HGCalMapping*.cc" name="GeometryHGCalMappingTesters">
   <use name="CondFormats/DataRecord"/>
   <use name="CondFormats/HGCalObjects"/>
   <use name="Geometry/HGCalMapping"/>
