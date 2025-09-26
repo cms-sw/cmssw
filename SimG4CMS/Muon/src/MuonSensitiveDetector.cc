@@ -249,7 +249,8 @@ void MuonSensitiveDetector::createHit(const G4Step* aStep) {
   if (thePabs > ePersistentCutGeV_ || (thePID == 13 && allMuonsPersistent_)) {
     TrackInformation* info = cmsTrackInformation(theTrack);
     info->setStoreTrack();
-    info->setIdLastStoredAncestor(theTrack->GetTrackID());
+    if (info->idLastStoredAncestor() == theTrack->GetParentID())
+      info->setIdLastStoredAncestor(theTrack->GetTrackID());
   }
 
 #ifdef EDM_ML_DEBUG
