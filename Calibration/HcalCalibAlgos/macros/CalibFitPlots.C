@@ -2699,6 +2699,7 @@ void PlotHistCorrFactors(char* infile1,
                          bool isRealData = false,
                          const char* year = "2024",
                          int iformat = 0,
+                         int range = 1,
                          int save = 0) {
   std::map<int, cfactors> cfacs[5];
   std::vector<std::string> texts;
@@ -2746,6 +2747,17 @@ void PlotHistCorrFactors(char* infile1,
     gStyle->SetPadColor(kWhite);
     gStyle->SetFillColor(kWhite);
     gStyle->SetOptTitle(0);
+    double ylow, yhigh;
+    if (range == 0) {
+      ylow = 0.8;
+      yhigh = 1.2;
+    } else if (range == 1) {
+      ylow = 0.5;
+      yhigh = 1.5;
+    } else {
+      ylow = 0.0;
+      yhigh = 2.0;
+    }
     if ((!ratio) && drawStatBox) {
       gStyle->SetOptStat(10);
       gStyle->SetOptFit(10);
@@ -2808,7 +2820,7 @@ void PlotHistCorrFactors(char* infile1,
           h->GetYaxis()->SetLabelOffset(0.005);
           h->GetYaxis()->SetTitleSize(0.036);
           h->GetYaxis()->SetTitleOffset(1.20);
-          h->GetYaxis()->SetRangeUser(0.50, 1.50);
+          h->GetYaxis()->SetRangeUser(ylow, yhigh);
           hists.push_back(h);
           fitr.push_back(fit);
           htype.push_back(ih);
@@ -2859,7 +2871,7 @@ void PlotHistCorrFactors(char* infile1,
           h->GetYaxis()->SetTitle("Correction Factor");
           h->GetYaxis()->SetLabelOffset(0.005);
           h->GetYaxis()->SetTitleOffset(1.20);
-          h->GetYaxis()->SetRangeUser(0.5, 1.5);
+          h->GetYaxis()->SetRangeUser(ylow, yhigh);
           hists.push_back(h);
           entries.push_back(nent);
           if (drawStatBox)
@@ -2954,6 +2966,7 @@ void PlotHistCorr2Factors(char* infile1,
                           bool isRealData = true,
                           const char* year = "2024",
                           int iformat = 0,
+                          int range = 1,
                           int save = 0) {
   std::map<int, cfactors> cfacs[5];
   std::vector<std::string> texts;
@@ -2980,6 +2993,17 @@ void PlotHistCorr2Factors(char* infile1,
     gStyle->SetPadColor(kWhite);
     gStyle->SetFillColor(kWhite);
     gStyle->SetOptTitle(0);
+    double ylow, yhigh;
+    if (range == 0) {
+      ylow = 0.8;
+      yhigh = 1.2;
+    } else if (range == 1) {
+      ylow = 0.5;
+      yhigh = 1.5;
+    } else {
+      ylow = 0.0;
+      yhigh = 2.0;
+    }
     if ((!ratio) && drawStatBox) {
       gStyle->SetOptStat(10);
       gStyle->SetOptFit(10);
@@ -3036,7 +3060,7 @@ void PlotHistCorr2Factors(char* infile1,
         h->GetYaxis()->SetLabelOffset(0.005);
         h->GetYaxis()->SetTitleSize(0.036);
         h->GetYaxis()->SetTitleOffset(1.20);
-        h->GetYaxis()->SetRangeUser(0.80, 1.20);
+        h->GetYaxis()->SetRangeUser(ylow, yhigh);
         hists.push_back(h);
         fitr.push_back(fit);
         htype.push_back(ih);
@@ -3081,7 +3105,7 @@ void PlotHistCorr2Factors(char* infile1,
         h->GetYaxis()->SetTitle("Correction Factor");
         h->GetYaxis()->SetLabelOffset(0.005);
         h->GetYaxis()->SetTitleOffset(1.20);
-        h->GetYaxis()->SetRangeUser(0.8, 1.2);
+        h->GetYaxis()->SetRangeUser(ylow, yhigh);
         hists.push_back(h);
         entries.push_back(nent);
         if (drawStatBox)
@@ -3176,6 +3200,7 @@ void PlotHistCorrDFactors(char* infile1,
                           bool isRealData = true,
                           const char* year = "2024",
                           int iformat = 0,
+                          int range = 0,
                           int save = 0) {
   std::map<int, cfactors> cfacs[5];
   std::vector<std::string> texts;
@@ -3223,6 +3248,17 @@ void PlotHistCorrDFactors(char* infile1,
     gStyle->SetPadColor(kWhite);
     gStyle->SetFillColor(kWhite);
     gStyle->SetOptTitle(0);
+    double ylow, yhigh;
+    if (range == 0) {
+      ylow = 0.8;
+      yhigh = 1.2;
+    } else if (range == 1) {
+      ylow = 0.5;
+      yhigh = 1.5;
+    } else {
+      ylow = 0.0;
+      yhigh = 2.0;
+    }
     if ((!ratio) && drawStatBox) {
       gStyle->SetOptStat(10);
       gStyle->SetOptFit(10);
@@ -3283,7 +3319,7 @@ void PlotHistCorrDFactors(char* infile1,
         h->GetYaxis()->SetLabelOffset(0.005);
         h->GetYaxis()->SetTitleSize(0.036);
         h->GetYaxis()->SetTitleOffset(1.20);
-        h->GetYaxis()->SetRangeUser(0.80, 1.20);
+        h->GetYaxis()->SetRangeUser(ylow, yhigh);
         hists.push_back(h);
         fitr.push_back(fit);
         htype.push_back(ih);
@@ -3328,7 +3364,7 @@ void PlotHistCorrDFactors(char* infile1,
         h->GetYaxis()->SetTitle("Correction Factor");
         h->GetYaxis()->SetLabelOffset(0.005);
         h->GetYaxis()->SetTitleOffset(1.20);
-        h->GetYaxis()->SetRangeUser(0.8, 1.2);
+        h->GetYaxis()->SetRangeUser(ylow, yhigh);
         hists.push_back(h);
         entries.push_back(nent);
         if (drawStatBox)
