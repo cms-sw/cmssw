@@ -90,8 +90,9 @@ private:
   const edm::EDGetTokenT<std::vector<CaloParticle>> caloparticles_token_;
   const edm::EDGetTokenT<MtdSimTracksterCollection> MTDSimTrackstersToken_;
 
-  const edm::EDGetTokenT<ticl::SimToRecoCollectionWithSimClusters> associatorMapSimClusterToReco_token_;
-  const edm::EDGetTokenT<ticl::SimToRecoCollection> associatorMapCaloParticleToReco_token_;
+  const edm::EDGetTokenT<ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>>
+      associatorMapSimClusterToReco_token_;
+  const edm::EDGetTokenT<ticl::SimToRecoCollectionT<reco::CaloClusterCollection>> associatorMapCaloParticleToReco_token_;
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geom_token_;
   hgcal::RecHitTools rhtools_;
   const float fractionCut_;

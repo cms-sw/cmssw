@@ -1,11 +1,6 @@
 #ifndef BarrelValidator_h
 #define BarrelValidator_h
 
-/** \class BarrelValidator
- *  Class that produces histograms to validate HGCal Reconstruction performances
- *
- *  \author HGCal
- */
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -92,10 +87,12 @@ protected:
   edm::EDGetTokenT<std::vector<SimVertex>> simVertices_;
   std::vector<edm::EDGetTokenT<std::vector<float>>> clustersMaskTokens_;
   edm::EDGetTokenT<std::unordered_map<DetId, const unsigned int>> barrelHitMap_;
-  std::vector<edm::EDGetTokenT<ticl::RecoToSimCollection>> associatorMapRtS;
-  std::vector<edm::EDGetTokenT<ticl::SimToRecoCollection>> associatorMapStR;
-  std::vector<edm::EDGetTokenT<ticl::SimToRecoCollectionWithSimClusters>> associatorMapSimtR;
-  std::vector<edm::EDGetTokenT<ticl::RecoToSimCollectionWithSimClusters>> associatorMapRtSim;
+  std::vector<edm::EDGetTokenT<ticl::RecoToSimCollectionT<reco::CaloClusterCollection>>> associatorMapRtS;
+  std::vector<edm::EDGetTokenT<ticl::SimToRecoCollectionT<reco::CaloClusterCollection>>> associatorMapStR;
+  std::vector<edm::EDGetTokenT<ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>>>
+      associatorMapSimtR;
+  std::vector<edm::EDGetTokenT<ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection>>>
+      associatorMapRtSim;
   std::unique_ptr<BarrelVHistoProducerAlgo> histoProducerAlgo_;
   std::vector<edm::InputTag> barrel_hits_label_;
   std::vector<edm::EDGetTokenT<std::vector<reco::PFRecHit>>> barrel_hits_tokens_;

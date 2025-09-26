@@ -31,9 +31,9 @@ namespace ticl {
         const edm::Handle<reco::CaloClusterCollection> &cCCH,
         const edm::Handle<ticl::TracksterCollection> &stCH,
         const edm::Handle<CaloParticleCollection> &cPCH,
-        const ticl::RecoToSimCollection &lCToCPs,
+        const ticl::RecoToSimCollectionT<reco::CaloClusterCollection> &lCToCPs,
         const edm::Handle<SimClusterCollection> &sCCH,
-        const ticl::RecoToSimCollectionWithSimClusters &lCToSCs) const {
+        const ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection> &lCToSCs) const {
       return m_impl->associateRecoToSim(cCCH, stCH, cPCH, lCToCPs, sCCH, lCToSCs);
     };
 
@@ -42,9 +42,9 @@ namespace ticl {
         const edm::Handle<reco::CaloClusterCollection> &cCCH,
         const edm::Handle<ticl::TracksterCollection> &sTCH,
         const edm::Handle<CaloParticleCollection> &cPCH,
-        const ticl::SimToRecoCollection &cpToLCs,
+        const ticl::SimToRecoCollectionT<reco::CaloClusterCollection> &cpToLCs,
         const edm::Handle<SimClusterCollection> &sCCH,
-        const ticl::SimToRecoCollectionWithSimClusters &sCToLCs) const {
+        const ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection> &sCToLCs) const {
       return m_impl->associateSimToReco(cCCH, sTCH, cPCH, cpToLCs, sCCH, sCToLCs);
     }
 
