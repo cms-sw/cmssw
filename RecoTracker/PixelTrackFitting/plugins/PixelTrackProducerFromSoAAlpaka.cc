@@ -1,6 +1,5 @@
 #include <algorithm>
 #include <cmath>
-#include <cstddef>
 #include <iostream>
 #include <memory>
 #include <numeric>
@@ -24,7 +23,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
-// #include "FWCore/Framework/interface/RunCache.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -86,7 +84,6 @@ private:
   // Event Setup tokens
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> idealMagneticFieldToken_;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyToken_;
-  // const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryTokenRun_;
 
   int32_t const minNumberOfHits_;
@@ -103,7 +100,6 @@ PixelTrackProducerFromSoAAlpaka::PixelTrackProducerFromSoAAlpaka(const edm::Para
       pixelHMSToken_(consumes<HMSstorage>(iConfig.getParameter<edm::InputTag>("pixelRecHitLegacySrc"))),
       idealMagneticFieldToken_(esConsumes()),
       trackerTopologyToken_(esConsumes()),
-      // trackerGeometryToken_(esConsumes()),
       trackerGeometryTokenRun_(esConsumes<edm::Transition::BeginRun>()),
       minNumberOfHits_(iConfig.getParameter<int>("minNumberOfHits")),
       minQuality_(pixelTrack::qualityByName(iConfig.getParameter<std::string>("minQuality"))),
@@ -178,7 +174,11 @@ void PixelTrackProducerFromSoAAlpaka::fillDescriptions(edm::ConfigurationDescrip
   desc.add<int>("minNumberOfHits", 0);
   desc.add<std::string>("minQuality", "loose");
   desc.add<bool>("useOTExtension", false);
+
+  // this option for removing tracks with exactly 4 hits is a temporary solution to reduce the fake rate in Phase-2
+  // and is to be replaced by a smarter inclusive track selection in the CA directly
   desc.add<bool>("requireQuadsFromConsecutiveLayers", false);
+
   descriptions.addWithDefaultLabel(desc);
 }
 
@@ -253,7 +253,6 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
     auto const idx = pixelHitsModuleStart[detI] + clus.pixelCluster().originalId();
 
     assert(nullptr == hitmap[idx]);
-    // std::cout << "Filling hitmap at position " << idx << " with a pixel hit." << std::endl;
     hitmap[idx] = &pixelHit;
   }
 
@@ -280,7 +279,6 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
         // loop over the RecHits of the module and fill the hitmap
         for (int idx = otHitsModuleStart[otModuleId]; auto const &recHit : detSet) {
           assert(nullptr == hitmap[idx]);
-          // std::cout << "Filling hitmap at position " << idx << " with an OT hit." << std::endl;
           hitmap[idx] = &recHit;
           idx++;
         }
@@ -314,7 +312,9 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
     return layerId;
   };
 
-  // function that returns the skipped layers for a given layer pair (i, o)
+  // stupid function that returns the skipped layers for a given layer pair (i, o)
+  // It works only for Phase-2 at the moment, but is meant as a temporary solution 
+  // (needed for layer-skipping quadruplet rejection)
   auto getNskippedLayers = [&](const int i, const int o) {
     if (i == o)
       return 0;
@@ -362,7 +362,7 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
 
   int32_t nt = 0;
 
-  //sort index by pt
+  // sort index by pt
   std::vector<int32_t> sortIdxs(nTracks);
   std::iota(sortIdxs.begin(), sortIdxs.end(), 0);
   // sort good-quality tracks by pt, keep bad-quality tracks at the bottom
@@ -389,7 +389,7 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
     if (nHits < minNumberOfHits_)  //move to nLayers?
       continue;
 
-    //store the index of the SoA:
+    // store the index of the SoA:
     // indToEdm[index_SoAtrack] -> index_edmTrack (if it exists)
     indToEdm[it] = nt;
     ++nt;
@@ -428,8 +428,7 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
         continue;
     }
 
-//#ifdef CA_DEBUG
-#if 0
+#ifdef CA_DEBUG
     std::cout << "track soa : " << it << " with hits: ";
     for (auto iHit = start; iHit < end; ++iHit)
       std::cout << hitIdxs[iHit] << " - ";
