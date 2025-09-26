@@ -53,6 +53,7 @@
 
 #include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/AbstractServices/interface/RootHandlers.h"
+#include "FWCore/AbstractServices/interface/TimingServiceBase.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -109,6 +110,18 @@ namespace {
   private:
     edm::SerialTaskQueue& queue_;
   };
+
+  template <typename T>
+    requires std::is_invocable_v<T>
+  struct Guard {
+    Guard(T&& signal) : final_(std::forward<T>(signal)) {}
+    ~Guard() { final_(); }
+    T final_;
+  };
+  template <typename T>
+  Guard<T> makeGuard(T&& signal) {
+    return Guard{std::forward<T>(signal)};
+  }
 }  // namespace
 
 namespace edm {
@@ -423,9 +436,11 @@ namespace edm {
     ScheduleItems items;
 
     //initialize the services
+    edm::TimingServiceBase::servicesStarting();
     auto& serviceSets = processDesc->getServicesPSets();
     ServiceToken token = items.initServices(serviceSets, *parameterSet, iToken, iLegacy);
     serviceToken_ = items.addTNS(*parameterSet, token);
+    items.actReg_->postServicesConstructionSignal_();
 
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
@@ -440,9 +455,13 @@ namespace edm {
       std::shared_ptr<CommonParams> common(items.initMisc(*parameterSet));
 
       // intialize the event setup provider
-      ParameterSet const& eventSetupPset(optionsPset.getUntrackedParameterSet("eventSetup"));
-      esp_ = espController_->makeProvider(
-          *parameterSet, items.actReg_.get(), &eventSetupPset, maxConcurrentIOVs, dumpOptions);
+      items.actReg_->preEventSetupModulesConstructionSignal_();
+      {
+        auto guard = makeGuard([&items]() { items.actReg_->postEventSetupModulesConstructionSignal_(); });
+        ParameterSet const& eventSetupPset(optionsPset.getUntrackedParameterSet("eventSetup"));
+        esp_ = espController_->makeProvider(
+            *parameterSet, items.actReg_.get(), &eventSetupPset, maxConcurrentIOVs, dumpOptions);
+      }
 
       // initialize the looper, if any
       if (!loopers.empty()) {
@@ -497,6 +516,8 @@ namespace edm {
         group.wait();
         items.preg()->addFromInput(input_->productRegistry());
         {
+          items.actReg_->preFinishScheduleSignal_();
+          auto guard = makeGuard([&items]() { items.actReg_->postFinishScheduleSignal_(); });
           auto const& tns = ServiceRegistry::instance().get<service::TriggerNamesService>();
           schedule_ = items.finishSchedule(
               std::move(*madeModules), *parameterSet, tns, preallocations_, &processContext_, *processBlockHelper_);
@@ -524,44 +545,48 @@ namespace edm {
 
       FDEBUG(2) << parameterSet << std::endl;
 
-      principalCache_.setNumberOfConcurrentPrincipals(preallocations_);
-      for (unsigned int index = 0; index < preallocations_.numberOfStreams(); ++index) {
-        // Reusable event principal
-        auto ep = std::make_shared<EventPrincipal>(preg(),
+      {
+        actReg_->prePrincipalsCreationSignal_();
+        auto guard = makeGuard([this]() { actReg_->postPrincipalsCreationSignal_(); });
+        principalCache_.setNumberOfConcurrentPrincipals(preallocations_);
+        for (unsigned int index = 0; index < preallocations_.numberOfStreams(); ++index) {
+          // Reusable event principal
+          auto ep = std::make_shared<EventPrincipal>(preg(),
+                                                     productResolversFactory::makePrimary,
+                                                     branchIDListHelper(),
+                                                     thinnedAssociationsHelper(),
+                                                     *processConfiguration_,
+                                                     historyAppender_.get(),
+                                                     index,
+                                                     &*processBlockHelper_);
+          principalCache_.insert(std::move(ep));
+        }
+
+        for (unsigned int index = 0; index < preallocations_.numberOfRuns(); ++index) {
+          auto rp = std::make_unique<RunPrincipal>(preg(),
                                                    productResolversFactory::makePrimary,
-                                                   branchIDListHelper(),
-                                                   thinnedAssociationsHelper(),
                                                    *processConfiguration_,
                                                    historyAppender_.get(),
                                                    index,
-                                                   &*processBlockHelper_);
-        principalCache_.insert(std::move(ep));
-      }
+                                                   &mergeableRunProductProcesses_);
+          principalCache_.insert(std::move(rp));
+        }
 
-      for (unsigned int index = 0; index < preallocations_.numberOfRuns(); ++index) {
-        auto rp = std::make_unique<RunPrincipal>(preg(),
-                                                 productResolversFactory::makePrimary,
-                                                 *processConfiguration_,
-                                                 historyAppender_.get(),
-                                                 index,
-                                                 &mergeableRunProductProcesses_);
-        principalCache_.insert(std::move(rp));
-      }
+        for (unsigned int index = 0; index < preallocations_.numberOfLuminosityBlocks(); ++index) {
+          auto lp = std::make_unique<LuminosityBlockPrincipal>(
+              preg(), productResolversFactory::makePrimary, *processConfiguration_, historyAppender_.get(), index);
+          principalCache_.insert(std::move(lp));
+        }
 
-      for (unsigned int index = 0; index < preallocations_.numberOfLuminosityBlocks(); ++index) {
-        auto lp = std::make_unique<LuminosityBlockPrincipal>(
-            preg(), productResolversFactory::makePrimary, *processConfiguration_, historyAppender_.get(), index);
-        principalCache_.insert(std::move(lp));
-      }
+        {
+          auto pb = std::make_unique<ProcessBlockPrincipal>(
+              preg(), productResolversFactory::makePrimary, *processConfiguration_);
+          principalCache_.insert(std::move(pb));
 
-      {
-        auto pb = std::make_unique<ProcessBlockPrincipal>(
-            preg(), productResolversFactory::makePrimary, *processConfiguration_);
-        principalCache_.insert(std::move(pb));
-
-        auto pbForInput = std::make_unique<ProcessBlockPrincipal>(
-            preg(), productResolversFactory::makePrimary, *processConfiguration_);
-        principalCache_.insertForInput(std::move(pbForInput));
+          auto pbForInput = std::make_unique<ProcessBlockPrincipal>(
+              preg(), productResolversFactory::makePrimary, *processConfiguration_);
+          principalCache_.insertForInput(std::move(pbForInput));
+        }
       }
     } catch (...) {
       //in case of an exception, make sure Services are available
@@ -617,43 +642,47 @@ namespace edm {
     schedule_->convertCurrentProcessAlias(processConfiguration_->processName());
 
     PathsAndConsumesOfModules pathsAndConsumesOfModules;
-    pathsAndConsumesOfModules.initialize(schedule_.get(), preg());
+    {
+      actReg_->preScheduleConsistencyCheckSignal_();
+      auto guard = makeGuard([this]() { actReg_->postScheduleConsistencyCheckSignal_(); });
+      pathsAndConsumesOfModules.initialize(schedule_.get(), preg());
 
-    // Note: all these may throw
-    checkForModuleDependencyCorrectness(pathsAndConsumesOfModules, printDependencies_);
-    if (deleteNonConsumedUnscheduledModules_) {
-      if (auto const unusedModules = nonConsumedUnscheduledModules(pathsAndConsumesOfModules);
-          not unusedModules.empty()) {
-        pathsAndConsumesOfModules.removeModules(unusedModules);
+      // Note: all these may throw
+      checkForModuleDependencyCorrectness(pathsAndConsumesOfModules, printDependencies_);
+      if (deleteNonConsumedUnscheduledModules_) {
+        if (auto const unusedModules = nonConsumedUnscheduledModules(pathsAndConsumesOfModules);
+            not unusedModules.empty()) {
+          pathsAndConsumesOfModules.removeModules(unusedModules);
 
-        edm::LogInfo("DeleteModules").log([&unusedModules](auto& l) {
-          l << "The following modules are not in any Path or EndPath, nor is their output consumed by any other "
-               "module, "
-               "and therefore they are deleted before the beginJob transition.";
+          edm::LogInfo("DeleteModules").log([&unusedModules](auto& l) {
+            l << "The following modules are not in any Path or EndPath, nor is their output consumed by any other "
+                 "module, "
+                 "and therefore they are deleted before the beginJob transition.";
+            for (auto const& description : unusedModules) {
+              l << "\n " << description->moduleLabel();
+            }
+          });
           for (auto const& description : unusedModules) {
-            l << "\n " << description->moduleLabel();
+            schedule_->deleteModule(description->moduleLabel(), actReg_.get());
           }
-        });
-        for (auto const& description : unusedModules) {
-          schedule_->deleteModule(description->moduleLabel(), actReg_.get());
         }
       }
-    }
-    // Initialize after the deletion of non-consumed unscheduled
-    // modules to avoid non-consumed non-run modules to keep the
-    // products unnecessarily alive
-    if (not branchesToDeleteEarly_.empty()) {
-      auto modulesToSkip = std::move(modulesToIgnoreForDeleteEarly_);
-      auto branchesToDeleteEarly = std::move(branchesToDeleteEarly_);
-      auto referencesToBranches = std::move(referencesToBranches_);
-      schedule_->initializeEarlyDelete(branchesToDeleteEarly, referencesToBranches, modulesToSkip, *preg_);
-    }
+      // Initialize after the deletion of non-consumed unscheduled
+      // modules to avoid non-consumed non-run modules to keep the
+      // products unnecessarily alive
+      if (not branchesToDeleteEarly_.empty()) {
+        auto modulesToSkip = std::move(modulesToIgnoreForDeleteEarly_);
+        auto branchesToDeleteEarly = std::move(branchesToDeleteEarly_);
+        auto referencesToBranches = std::move(referencesToBranches_);
+        schedule_->initializeEarlyDelete(branchesToDeleteEarly, referencesToBranches, modulesToSkip, *preg_);
+      }
 
-    if (preallocations_.numberOfLuminosityBlocks() > 1) {
-      throwAboutModulesRequiringLuminosityBlockSynchronization();
-    }
-    if (preallocations_.numberOfRuns() > 1) {
-      warnAboutModulesRequiringRunSynchronization();
+      if (preallocations_.numberOfLuminosityBlocks() > 1) {
+        throwAboutModulesRequiringLuminosityBlockSynchronization();
+      }
+      if (preallocations_.numberOfRuns() > 1) {
+        warnAboutModulesRequiringRunSynchronization();
+      }
     }
 
     //NOTE:  This implementation assumes 'Job' means one call
@@ -670,8 +699,11 @@ namespace edm {
     //if(looper_) {
     //   looper_->beginOfJob(es);
     //}
-    espController_->finishConfiguration();
-
+    {
+      actReg_->preEventSetupConfigurationFinalizedSignal_();
+      auto guard = makeGuard([this]() { actReg_->postEventSetupConfigurationFinalizedSignal_(); });
+      espController_->finishConfiguration();
+    }
     eventsetup::ESRecordsToProductResolverIndices esRecordsToProductResolverIndices = esp_->recordsToResolverIndices();
 
     actReg_->eventSetupConfigurationSignal_(esRecordsToProductResolverIndices, processContext_);

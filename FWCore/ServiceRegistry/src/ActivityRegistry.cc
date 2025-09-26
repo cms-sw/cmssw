@@ -54,8 +54,21 @@ namespace edm {
   }  // namespace signalslot
 
   void ActivityRegistry::connect(ActivityRegistry& iOther) {
+    postServicesConstructionSignal_.connect(std::cref(iOther.postServicesConstructionSignal_));
+    preEventSetupModulesConstructionSignal_.connect(std::cref(iOther.preEventSetupModulesConstructionSignal_));
+    postEventSetupModulesConstructionSignal_.connect(std::cref(iOther.postEventSetupModulesConstructionSignal_));
+    preFinishScheduleSignal_.connect(std::cref(iOther.preFinishScheduleSignal_));
+    postFinishScheduleSignal_.connect(std::cref(iOther.postFinishScheduleSignal_));
+    prePrincipalsCreationSignal_.connect(std::cref(iOther.prePrincipalsCreationSignal_));
+    postPrincipalsCreationSignal_.connect(std::cref(iOther.postPrincipalsCreationSignal_));
+    preScheduleConsistencyCheckSignal_.connect(std::cref(iOther.preScheduleConsistencyCheckSignal_));
+    postScheduleConsistencyCheckSignal_.connect(std::cref(iOther.postScheduleConsistencyCheckSignal_));
     preallocateSignal_.connect(std::cref(iOther.preallocateSignal_));
+    preEventSetupConfigurationFinalizedSignal_.connect(std::cref(iOther.preEventSetupConfigurationFinalizedSignal_));
+    postEventSetupConfigurationFinalizedSignal_.connect(std::cref(iOther.postEventSetupConfigurationFinalizedSignal_));
     eventSetupConfigurationSignal_.connect(std::cref(iOther.eventSetupConfigurationSignal_));
+    preModulesInitializationFinalizedSignal_.connect(std::cref(iOther.preModulesInitializationFinalizedSignal_));
+    postModulesInitializationFinalizedSignal_.connect(std::cref(iOther.postModulesInitializationFinalizedSignal_));
     beginProcessingSignal_.connect(std::cref(iOther.beginProcessingSignal_));
     endProcessingSignal_.connect(std::cref(iOther.endProcessingSignal_));
     postBeginJobSignal_.connect(std::cref(iOther.postBeginJobSignal_));
@@ -259,8 +272,22 @@ namespace edm {
   }
 
   void ActivityRegistry::copySlotsFrom(ActivityRegistry& iOther) {
+    copySlotsToFrom(postServicesConstructionSignal_, iOther.postServicesConstructionSignal_);
+    copySlotsToFrom(preEventSetupModulesConstructionSignal_, iOther.preEventSetupModulesConstructionSignal_);
+    copySlotsToFromReverse(postEventSetupModulesConstructionSignal_, iOther.postEventSetupModulesConstructionSignal_);
+    copySlotsToFrom(preFinishScheduleSignal_, iOther.preFinishScheduleSignal_);
+    copySlotsToFromReverse(postFinishScheduleSignal_, iOther.postFinishScheduleSignal_);
+    copySlotsToFrom(prePrincipalsCreationSignal_, iOther.prePrincipalsCreationSignal_);
+    copySlotsToFromReverse(postPrincipalsCreationSignal_, iOther.postPrincipalsCreationSignal_);
+    copySlotsToFrom(preScheduleConsistencyCheckSignal_, iOther.preScheduleConsistencyCheckSignal_);
+    copySlotsToFromReverse(postScheduleConsistencyCheckSignal_, iOther.postScheduleConsistencyCheckSignal_);
     copySlotsToFrom(preallocateSignal_, iOther.preallocateSignal_);
+    copySlotsToFrom(preEventSetupConfigurationFinalizedSignal_, iOther.preEventSetupConfigurationFinalizedSignal_);
+    copySlotsToFromReverse(postEventSetupConfigurationFinalizedSignal_,
+                           iOther.postEventSetupConfigurationFinalizedSignal_);
     copySlotsToFrom(eventSetupConfigurationSignal_, iOther.eventSetupConfigurationSignal_);
+    copySlotsToFrom(preModulesInitializationFinalizedSignal_, iOther.preModulesInitializationFinalizedSignal_);
+    copySlotsToFromReverse(postModulesInitializationFinalizedSignal_, iOther.postModulesInitializationFinalizedSignal_);
     copySlotsToFrom(beginProcessingSignal_, iOther.beginProcessingSignal_);
     copySlotsToFrom(endProcessingSignal_, iOther.endProcessingSignal_);
     copySlotsToFrom(preBeginJobSignal_, iOther.preBeginJobSignal_);
