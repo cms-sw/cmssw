@@ -1,0 +1,5 @@
+<lcgdict>
+  <class name="sistrip::SiStripDigiSoALayout<128,false>"/>
+  <class name="sistrip::SiStripDigiHost"/>
+  <class name="edm::Wrapper<sistrip::SiStripDigiHost>" splitLevel="0"/>
+</lcgdict>
