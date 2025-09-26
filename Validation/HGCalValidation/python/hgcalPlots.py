@@ -1642,7 +1642,7 @@ for val in simDict:
     for ver in score_versions_recoToSim:
       _score_trackster_to_simtrackster[-1].append(Plot("Score"+ver+"_trackster2"+val, **_common_score))
       print("appending plot ", "Score"+ver+"_trackster2"+val)
-    
+
 
     _energyscore_to_trackster.append(PlotGroup("Energy_vs_Score_"+val+"ToTracksters", [], ncols=len(en_vs_score)))
     _energyscore_trackster_to.append(PlotGroup("Energy_vs_Score_TrackstersTo"+val, [], ncols=len(en_vs_score)))
@@ -1877,8 +1877,10 @@ for ct in cand_type:
     _all_cand_TkTsAss_plots.append(cand_ass_plots)
 
 _allCandidatesPlots = [[],[],[],[],[],[]]
+# loop over the 3 charged chandidates (charged_hadrons, electrons, muons: indices 0,1,2 in cand_type respectively)
 for i in range(3):
     _allCandidatesPlots[i].extend([PlotGroup(cand_type[i]+"_type", _all_cand_type_plots[i], ncols=2), PlotGroup(cand_type[i]+"_kin", _all_cand_ene_plots[i], ncols=3), PlotGroup(cand_type[i]+"_eff", _all_cand_eff_plots[i], ncols=3), PlotGroup(cand_type[i]+"_effMultiplicity", _all_cand_effNum_plots[i], ncols=3), PlotGroup(cand_type[i]+"_fake", _all_cand_fake_plots[i], ncols=4), PlotGroup(cand_type[i]+"_fakeMultiplicity", _all_cand_fakeNum_plots[i], ncols=4), PlotGroup(cand_type[i]+"_NoTrackTracksterAssoc", _all_cand_TkTsAss_plots[i], ncols=3)])
+# loop over the 3 neutral chandidates (neutral_hadrons, neutral_pions, photons: indices 3,4,5 in cand_type respectively)
 for i in range(3,6):
     _allCandidatesPlots[i].extend([PlotGroup(cand_type[i]+"_type", _all_cand_type_plots[i], ncols=2), PlotGroup(cand_type[i]+"_kin", _all_cand_ene_plots[i], ncols=3), PlotGroup(cand_type[i]+"_eff", _all_cand_eff_plots[i], ncols=2), PlotGroup(cand_type[i]+"_effMultiplicity", _all_cand_effNum_plots[i], ncols=2), PlotGroup(cand_type[i]+"_fake", _all_cand_fake_plots[i], ncols=3), PlotGroup(cand_type[i]+"_fakeMultiplicity", _all_cand_fakeNum_plots[i], ncols=3), PlotGroup(cand_type[i]+"_NoTrackTracksterAssoc", _all_cand_TkTsAss_plots[i], ncols=1)])
 
@@ -2647,7 +2649,7 @@ def append_hgcalTrackstersPlots(collection = 'ticlTrackstersMerge', name_collect
               ,page="Trackster to SimTracksters from CP Associated by Hits"
               ,section=name_collection)
               )
-  
+
   hgcalTrackstersPlotter.append(collection, [
               _hgcalFolders(collection + "/" + TSbyLCs)
               ], PlotFolder(
@@ -2657,7 +2659,7 @@ def append_hgcalTrackstersPlots(collection = 'ticlTrackstersMerge', name_collect
               ,page="Trackster to SimTracksters Associated by LCs"
               ,section=name_collection)
               )
-  
+
   hgcalTrackstersPlotter.append(collection, [
               _hgcalFolders(collection + "/" + TSbyLCs_CP)
               ], PlotFolder(
@@ -2667,7 +2669,7 @@ def append_hgcalTrackstersPlots(collection = 'ticlTrackstersMerge', name_collect
               ,page="Trackster to SimTracksters from CP Associated by LCs"
               ,section=name_collection)
               )
-  
+
   hgcalTrackstersPlotter.append(collection, [
               _hgcalFolders(collection + "/" + TSbyHits)
               ], PlotFolder(
@@ -2677,8 +2679,8 @@ def append_hgcalTrackstersPlots(collection = 'ticlTrackstersMerge', name_collect
               ,page="Trackster to SimTracksters Associated by Hits"
               ,section=name_collection)
               )
-  
-  
+
+
 
 #=================================================================================================
 _common_Calo = {"stat": False, "drawStyle": "hist", "staty": 0.65, "ymin": 0.0, "ylog": False, "xtitle": "Default", "ytitle": "Default"}
