@@ -1,0 +1,74 @@
+#ifndef DataFormats_SiStripCluster_SiStripApproximateCluster_v1_h
+#define DataFormats_SiStripCluster_SiStripApproximateCluster_v1_h
+
+#include "FWCore/Utilities/interface/typedefs.h"
+#include "assert.h"
+
+class SiStripCluster;
+class SiStripApproximateCluster_v1 {
+public:
+  SiStripApproximateCluster_v1() {}
+
+  explicit SiStripApproximateCluster_v1(cms_uint16_t compBarycenter,
+                                     cms_uint8_t width,
+                                     cms_uint8_t compavgCharge,
+				     bool filter,
+                                     bool isSaturated,
+                                     bool peakFilter = false
+                                    )
+      : compBarycenter_(compBarycenter),
+        width_(width),
+        compavgCharge_(compavgCharge)
+        {}
+
+  explicit SiStripApproximateCluster_v1(const SiStripCluster& cluster,
+                                     unsigned int maxNSat,
+                                     float hitPredPos,
+                                     float& previous_cluster,
+                                     unsigned int& module_length,
+                                     unsigned int& previous_module_length,
+                                     bool peakFilter);
+
+  const cms_uint16_t compBarycenter() const {
+    return compBarycenter_;
+  }
+
+  float barycenter(float previous_barycenter=0,
+                   unsigned int module_length=0, unsigned int previous_module_length=0) const {
+    float _barycenter;
+    cms_uint16_t compBarycenter = (compBarycenter_&0x7FFF);
+    if (  previous_barycenter == -999 )
+      _barycenter = compBarycenter * maxBarycenter_/maxRange_;
+    else {
+      _barycenter = ((compBarycenter * maxBarycenter_/maxRange_) - (module_length-previous_module_length)) + previous_barycenter;
+    }
+    assert(_barycenter <= maxBarycenter_ && "Returning barycenter > maxBarycenter");
+    return _barycenter; }
+  cms_uint8_t width() const {return width_; }
+  float avgCharge() const {
+     cms_uint8_t compavgCharge = (compavgCharge_ & 0x3F); 
+     float avgCharge_ = compavgCharge * maxavgCharge_/maxavgChargeRange_ ;
+    assert(avgCharge_ <= maxavgCharge_ && "Returning avgCharge > maxavgCharge");
+     return avgCharge_; }
+  bool filter() const { return (compavgCharge_& (1<<kfilterMask)); }
+  bool isSaturated() const { return (compavgCharge_& (1<<kSaturatedMask)); }
+  bool peakFilter() const { return (compBarycenter_ & (1<<kpeakFilterMask)); }
+
+private:
+  cms_uint16_t compBarycenter_ = 0;
+  cms_uint8_t width_ = 0;
+  cms_uint8_t compavgCharge_ = 0;
+  static constexpr double maxRange_ = 32767; //32767;
+  static constexpr double maxBarycenter_ = 1536.;
+  static constexpr double maxavgChargeRange_ = 63; //63;
+  static constexpr double maxavgCharge_ = 255.;
+  static constexpr double trimMaxADC_ = 30.;
+  static constexpr double trimMaxFracTotal_ = .15;
+  static constexpr double trimMaxFracNeigh_ = .25;
+  static constexpr double maxTrimmedSizeDiffNeg_ = .7;
+  static constexpr double maxTrimmedSizeDiffPos_ = 1.;
+  static constexpr int kfilterMask = 6;
+  static constexpr int kpeakFilterMask = 7;
+  static constexpr int kSaturatedMask = 15;
+};
+#endif  // DataFormats_SiStripCluster_SiStripApproximateCluster_v1_h
