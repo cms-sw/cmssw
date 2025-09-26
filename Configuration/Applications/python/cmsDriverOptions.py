@@ -10,6 +10,7 @@ import Configuration.Applications
 from Configuration.Applications.ConfigBuilder import ConfigBuilder, defaultOptions
 import traceback
 from functools import reduce
+import shlex
 
 def checkModifier(era):
     from FWCore.ParameterSet.Config import Modifier, ModifierChain
@@ -35,7 +36,7 @@ def OptionsFromCommandLine():
     import sys
     options=OptionsFromItems(sys.argv[1:])
     # memorize the command line arguments
-    options.arguments = reduce(lambda x, y: x+' '+y, sys.argv[1:])
+    options.arguments = " ".join(shlex.quote(arg) for arg in sys.argv[1:])
     return options
 
 def OptionsFromItems(items):
