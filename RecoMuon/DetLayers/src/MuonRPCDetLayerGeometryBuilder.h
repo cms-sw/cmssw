@@ -31,6 +31,8 @@ public:
   /// Builds the barrel layers. Result vector is sorted inside-out
   static std::vector<DetLayer*> buildBarrelLayers(const RPCGeometry& geo);
 
+  inline static bool useUpdatedRPCIsFront = false;
+
 private:
   static void makeBarrelLayers(std::vector<const GeomDet*>& geomDets, std::vector<MuRodBarrelLayer*>& result);
   static void makeBarrelRods(std::vector<const GeomDet*>& geomDets, std::vector<const DetRod*>& result);
