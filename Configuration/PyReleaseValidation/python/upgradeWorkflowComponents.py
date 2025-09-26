@@ -36,6 +36,8 @@ upgradeKeys[2017] = [
     '2022HIRP', #RawPrime
     '2023HI',
     '2023HIRP', #RawPrime
+    '2024FS',
+    '2024FSPU',
 ]
 
 upgradeKeys[2026] = [
@@ -93,6 +95,7 @@ numWFStart={
 numWFSkip=200
 # temporary measure to keep other WF numbers the same
 numWFConflict = [[14400,14800], #2022ReReco, 2022ReRecoPU (in 12_4)
+                 [15600,16400], #20242024HLTOnDigi, 2024HLTOnDigiPU, 2024GenOnly, 2024SimOnGen (no backport)
                  [20400,20800], #D87
                  [21200,22000], #D89-D90
                  [50000,51000]]
@@ -3008,7 +3011,15 @@ upgradeProperties[2017] = {
         'Era':'Run3_pp_on_PbPb_approxSiStripClusters',
         'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
-    }
+    },
+    '2024FS' : {
+        'Geom' : 'DB:Extended',
+        'GT' : 'auto:phase1_2024_realistic',
+        'HLTmenu': '@relval2024',
+        'Era' : 'Run3_2024_FastSim',
+        'BeamSpot': 'DBrealistic',
+        'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
+    },
 }
 
 # standard PU sequences
