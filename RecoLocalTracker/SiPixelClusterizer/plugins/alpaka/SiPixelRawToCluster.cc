@@ -308,7 +308,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           *(regions_->modulesToUnpack()), cabling_.get(), fedIds_, iEvent.queue());
       modulesToUnpack = modulesToUnpackRegional->data();
     } else {
-      modulesToUnpack = hMap->modToUnpDefault();
+      modulesToUnpack = hMap->modToUnpDefault().data();
     }
 
     const auto& buffers = iEvent.get(rawGetToken_);

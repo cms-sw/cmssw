@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <span>
 #include <vector>
 
 namespace legacy {
@@ -17,12 +18,15 @@ namespace legacy {
   class SiPixelDigisSoA {
   public:
     SiPixelDigisSoA() = default;
-    explicit SiPixelDigisSoA(
-        size_t nDigis, const uint32_t* pdigi, const uint32_t* rawIdArr, const uint16_t* adc, const int32_t* clus)
-        : pdigi_(pdigi, pdigi + nDigis),
-          rawIdArr_(rawIdArr, rawIdArr + nDigis),
-          adc_(adc, adc + nDigis),
-          clus_(clus, clus + nDigis) {}
+    explicit SiPixelDigisSoA(size_t nDigis,
+                             std::span<const uint32_t> pdigi,
+                             std::span<const uint32_t> rawIdArr,
+                             std::span<const uint16_t> adc,
+                             std::span<const int32_t> clus)
+        : pdigi_(pdigi.data(), pdigi.data() + nDigis),
+          rawIdArr_(rawIdArr.data(), rawIdArr.data() + nDigis),
+          adc_(adc.data(), adc.data() + nDigis),
+          clus_(clus.data(), clus.data() + nDigis) {}
 
     ~SiPixelDigisSoA() = default;
 

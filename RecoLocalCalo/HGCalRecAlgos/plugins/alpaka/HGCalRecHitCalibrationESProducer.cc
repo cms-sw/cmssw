@@ -191,7 +191,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               << "layer=" << layer << ", celltype=" << celltype << ", isSiPM=" << isSiPM << ", dEdx=" << dEdx
               << ", sf=" << sf << std::endl;
           dEdx *= sf * 1e3;  // apply correction and convert from MeV to GeV
-          fill_SoA_column_single<float>(product.view().EM_scale(), dEdx, offset, nrows);
+          fill_SoA_column_single<float>(product.view().EM_scale().data(), dEdx, offset, nrows);
 
         }  // end of loop over modules
 
