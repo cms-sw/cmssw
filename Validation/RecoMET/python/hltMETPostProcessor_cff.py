@@ -3,5 +3,5 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 hltMETPostProcessor = DQMEDHarvester(
     'METTesterPostProcessor',
-    isHLT = cms.untracked.bool(True)
+    runDir = cms.untracked.string("HLT/JetMET/METValidation/")
 )

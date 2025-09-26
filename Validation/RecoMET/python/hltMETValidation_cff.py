@@ -7,12 +7,12 @@ hltMetPreValidSeq = cms.Sequence()
 
 from Validation.RecoMET.metTesterPostProcessor_cfi import metTesterPostProcessor as _metTesterPostProcessor
 hltMetPostProcessor = _metTesterPostProcessor.clone(
-    isHLT = True,
+    runDir = cms.untracked.string("HLT/JetMET/METValidation/"),
 )
 
 from Validation.RecoMET.metTester_cfi import metTester as _metTester
 _hltMetTester = _metTester.clone(
-    isHLT = True,
+    runDir = "HLT/JetMET/METValidation/",
     primaryVertices = 'hltPhase2PixelVertices',
     genMetTrue = 'genMetTrue',
     genMetCalo = 'genMetCalo',

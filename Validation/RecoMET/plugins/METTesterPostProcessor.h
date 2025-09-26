@@ -58,7 +58,7 @@ private:
   ElemMap mMETResolAggr;
   ElemMap mMETSignAggr;
 
-  bool isHLT;
+  std::string runDir;
 };
 
 #endif

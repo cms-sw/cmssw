@@ -162,7 +162,7 @@ private:
   bool isPFMET;
   bool isGenMET;
   bool isMiniAODMET;
-  bool isHLT;
+  std::string runDir;
 };
 
 #endif  // METTESTER_H

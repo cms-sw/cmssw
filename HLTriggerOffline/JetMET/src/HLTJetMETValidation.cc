@@ -165,7 +165,7 @@ void HLTJetMETValidation::bookHistograms(DQMStore::IBooker &iBooker,
     _meGenJetEtaTrgLow.push_back(
         iBooker.book1D("GenJetEtaTrgLow", "Single Generated Jet Eta - HLT Triggered Low", 100, -10, 10));
 
-    _meGenJetPhi.push_back(iBooker.book1D("_meGenJetPhi", "Single Generated Jet Phi", 100, -4., 4.));
+    _meGenJetPhi.push_back(iBooker.book1D("GenJetPhi", "Single Generated Jet Phi", 100, -4., 4.));
     _meGenJetPhiTrgMC.push_back(
         iBooker.book1D("GenJetPhiTrgMC", "Single Generated Jet Phi - HLT Triggered", 100, -4., 4.));
     _meGenJetPhiTrg.push_back(iBooker.book1D("GenJetPhiTrg", "Single Generated Jet Phi - HLT Triggered", 100, -4., 4.));

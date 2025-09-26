@@ -6,7 +6,7 @@ using namespace edm;
 
 METTester::METTester(const edm::ParameterSet &iConfig) {
   inputMETLabel_ = iConfig.getParameter<edm::InputTag>("inputMETLabel");
-  isHLT = iConfig.getUntrackedParameter<bool>("isHLT", false);
+  runDir = iConfig.getUntrackedParameter<std::string>("runDir");
 
   METType_ = iConfig.getUntrackedParameter<std::string>("METType");
   isCaloMET = std::string("calo") == METType_;
@@ -105,10 +105,7 @@ std::string METTester::binStr(float left, float right, bool roundInt) {
 }
 
 void METTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun, edm::EventSetup const & /* iSetup */) {
-  if (isHLT)
-    ibooker.setCurrentFolder("HLT/JetMET/METValidation/" + inputMETLabel_.label());
-  else
-    ibooker.setCurrentFolder("JetMET/METValidation/" + inputMETLabel_.label());
+  ibooker.setCurrentFolder(runDir + inputMETLabel_.label());
 
   mNvertex = ibooker.book1D("Nvertex", "Nvertex", 450, 0, 450);
   mMEx = ibooker.book1D("MEx", "MEx", 160, -800, 800);
@@ -463,7 +460,7 @@ void METTester::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
 void METTester::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   // Default MET validation offline
-  desc.addUntracked<bool>("isHLT", false);
+  desc.addUntracked<std::string>("runDir", "JetMET/METValidation/");
   desc.add<edm::InputTag>("primaryVertices", edm::InputTag("PixelVertices"));
   desc.add<edm::InputTag>("inputMETLabel", edm::InputTag("pfMet"));
   desc.addUntracked<std::string>("METType", "pf");
