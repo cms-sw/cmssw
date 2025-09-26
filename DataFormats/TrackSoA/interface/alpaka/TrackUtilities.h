@@ -85,7 +85,7 @@ namespace pixelTrack {
     using TrackSoAConstView = reco::TrackSoAConstView;
 
     float maxChi2;
-    float maxChi2Quadruplets;
+    float maxChi2TripletsOrQuadruplets;
     float maxChi2Quintuplets;
     float minPt;
     float maxTip;
@@ -97,7 +97,7 @@ namespace pixelTrack {
     }
     ALPAKA_FN_ACC ALPAKA_FN_INLINE bool strictCut(const TrackSoAConstView &tracks, int nHits, int it) const {
       if (nHits <= 4) {
-        return tracks.chi2(it) >= maxChi2Quadruplets;
+        return tracks.chi2(it) >= maxChi2TripletsOrQuadruplets;
       }
       if (nHits == 5) {
         return tracks.chi2(it) >= maxChi2Quintuplets;
