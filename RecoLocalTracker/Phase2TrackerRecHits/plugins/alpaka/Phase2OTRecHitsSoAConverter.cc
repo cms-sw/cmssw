@@ -1,35 +1,28 @@
-#include <cstdint>
-#include <memory>
-#include <vector>
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/Math/interface/approx_atan2.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
 #include "DataFormats/TrackingRecHitSoA/interface/alpaka/TrackingRecHitsSoACollection.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
-#include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
-#include "DataFormats/Math/interface/approx_atan2.h"
-
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/EDProducer.h"
-
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include <cstdint>
+#include <vector>
 
 //#define HITS_DEBUG
 
@@ -104,7 +97,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       return (subId == PixelSubdetector::PixelBarrel || subId == PixelSubdetector::PixelEndcap);
     };
 
-    auto const& detUnits = trackerGeometry->detUnits();
+    const auto& detUnits = trackerGeometry->detUnits();
 
     for (auto& detUnit : detUnits) {
       DetId detId(detUnit->geographicalId());
@@ -121,15 +114,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
   }
 
-  //https://github.com/cms-sw/cmssw/blob/3f06ef32d66bd2a7fa04e411fa4db4845193bd3c/RecoTracker/MkFit/plugins/convertHits.h
-
   void Phase2OTRecHitsSoAConverter::produce(device::Event& iEvent, device::EventSetup const& iSetup) {
     auto queue = iEvent.queue();
     auto& bs = iEvent.get(beamSpotToken_);
     const auto& trackerGeometry = &iSetup.getData(geomToken_);
-    auto const& stripHits = iEvent.get(recHitToken_);
+    const auto& stripHits = iEvent.get(recHitToken_);
 
-    auto const& pixelHitsHost = iEvent.get(pixelHitsSoA_);
+    const auto& pixelHitsHost = iEvent.get(pixelHitsSoA_);
     int nPixelHits = pixelHitsHost.view().metadata().size();
 
     // Count strip hits and active strip modules
@@ -164,9 +155,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       int offset = 0;
       if (detIdIsP_[detId]) {
         offset = moduleIndexToOffset_[index];
-        for ([[maybe_unused]] const auto& recHit : detSet) {
-          counterOfHitsPerModule[offset]++;
-        }
+        counterOfHitsPerModule[offset] = detSet.size();
       }
     }
 #ifdef HITS_DEBUG
@@ -250,8 +239,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 #endif
 
-    auto moduleStartView = cms::alpakatools::make_host_view<uint32_t>(stripHitsModuleView.moduleStart(),
-                                                                      stripHitsModuleView.metadata().size());
     HMSstorage moduleStartVec(stripHitsModuleView.metadata().size());
 
     // Put in the event the hit module start vector.
@@ -259,7 +246,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // consumed by the downstream module (converters to legacy formats).
     // But this is the common practice at the moment
     // also for legacy data formats.
-    alpaka::memcpy(queue, moduleStartVec, moduleStartView);
+    std::memcpy(moduleStartVec.data(),
+                stripHitsModuleView.moduleStart(),
+                sizeof(uint32_t) * stripHitsModuleView.metadata().size());
     iEvent.emplace(hitModuleStart_, std::move(moduleStartVec));
 
     Hits stripHitsDevice(queue, stripHitsHost.view().metadata().size(), stripHitsHost.nModules());
