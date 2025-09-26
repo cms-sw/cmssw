@@ -29,6 +29,7 @@ private:
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> muonToken;
   std::string monitorDir;
   bool verbose;
+  bool isRun3;
 
   MonitorElement* emtfErrors;
   MonitorElement* mpcLinkErrors;
