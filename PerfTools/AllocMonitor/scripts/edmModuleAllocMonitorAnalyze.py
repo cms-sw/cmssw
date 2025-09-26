@@ -620,9 +620,9 @@ class PostSourceTransitionParser(SourceTransitionParser):
         start = temp.findTime("source", self.transition, self.index)
         #we do not know the sync yet so have to wait until the framework transition
         if self.transition in [ Phase.construction, Phase.getNextTransition, Phase.destruction, Phase.openFile]:
-            data.insert( "source" , "sourceType", start, self.time, self.transition, self.index, (0,) , Activity.process, self.allocInfo)
+            data.insert( "source" , "PoolSource", start, self.time, self.transition, self.index, (0,) , Activity.process, self.allocInfo)
         else:
-            data.insert( "source" , "sourceType", start, self.time, self.transition, self.index, self.index , Activity.process, self.allocInfo)
+            data.insert( "source" , "PoolSource", start, self.time, self.transition, self.index, self.index , Activity.process, self.allocInfo)
     def jsonVisInfo(self,  data):
         index = self.index
         if self.transition == Phase.Event:
@@ -812,7 +812,7 @@ class PostEventReadFromSourceParser(EDModuleTransitionParser):
         return self._postJsonVis(data, self.allocInfo)
     def jsonInfo(self, syncs, temp, data):
         start = temp.findTime(self.moduleInfo._name+'source', self.transition, self.index)
-        data.insert( "source" , "sourceType", start, self.time, self.transition, self.index, syncs.get(self.transition, self.index) , Activity.delayedGet, self.allocInfo)
+        data.insert( "source" , "PoolSource", start, self.time, self.transition, self.index, syncs.get(self.transition, self.index) , Activity.delayedGet, self.allocInfo)
 
 class ESModuleTransitionParser(object):
     def __init__(self, payload, moduleInfos, esModuleInfos, recordNames):
