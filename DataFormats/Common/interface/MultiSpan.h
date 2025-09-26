@@ -21,6 +21,7 @@ namespace edm {
 * or merging them into a single container.
 *
 * To find a span that corresponds to a global index, a binary search is used, making the access time logarithmic in the number of spans.
+* This means when iterating over the elements the binary search over spans is repeated for every element.
 *
 */
   template <typename T>
