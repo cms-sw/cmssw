@@ -17,15 +17,6 @@ pixDigiMon = digiMon.clone(
         xmax = 2000.,
         switch = True
     ),
-    ChargeXYMapH = digiMon.ChargeXYMapH.clone(
-        Nxbins = 450,
-        xmin = 0.5,
-        xmax = 450.5,
-        Nybins = 1350,
-        ymin = 0.5,
-        ymax = 1350.5,
-        switch = False
-    ),
     PositionOfDigisPH = digiMon.PositionOfDigisPH.clone(
         Nxbins = 1344,
         xmin = 0.5,
@@ -84,15 +75,6 @@ otDigiMon = digiMon.clone(
         Nybins = 250,
         ymin = 0.,
         ymax = 1250.,
-        switch = True
-    ),
-    PositionOfDigisSH = digiMon.PositionOfDigisSH.clone(
-        Nxbins = 508,
-        xmin = 0.5,
-        xmax = 1016.5,
-        Nybins = 2,
-        ymin = 0.5,
-        ymax = 2.5,
         switch = True
     )
 )

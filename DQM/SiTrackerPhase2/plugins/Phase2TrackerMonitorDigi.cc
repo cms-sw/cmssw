@@ -1,11 +1,14 @@
+
 // -*- C++ -*-
 //
 // Package:    Phase2TrackerMonitorDigi
 // Class:      Phase2TrackerMonitorDigi
 //
-/**\class Phase2TrackerMonitorDigi Phase2TrackerMonitorDigi.cc 
+/**\class Phase2TrackerMonitorDigi Phase2TrackerMonitorDigi.cc
 
- Description: It generates various histograms of digi properties. Manual switching is enabled for each histogram. Seperate Histograms are there for P type and S type sensors of the outer Tracker   
+ Description: It generates various histograms of digi properties. Manual
+ switching is enabled for each histogram. Seperate Histograms are there for P
+ type and S type sensors of the outer Tracker
 
 */
 //
@@ -493,7 +496,8 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
     std::string top_folder = config_.getParameter<std::string>("TopFolderName");
     std::stringstream folder_name;
 
-    //For endCap: P-type sensors are present only upto ring 10 for discs 1&2 (TEDD-1) and upto ring 7 for discs 3,4&5 (TEDD-2)
+    // For endCap: P-type sensors are present only upto ring 10 for discs 1&2
+    // (TEDD-1) and upto ring 7 for discs 3,4&5 (TEDD-2)
     bool isPStypeModForTEDD_1 =
         (!pixelFlag_ && layer > 100 && tTopo_->tidWheel(det_id) < 3 && tTopo_->tidRing(det_id) <= 10) ? true : false;
     bool isPStypeModForTEDD_2 =
@@ -605,7 +609,12 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
                                                           Parameters.getParameter<double>("xmax"),
                                                           "");
 
-      Parameters = config_.getParameter<edm::ParameterSet>("PositionOfDigisSH");
+      // choose the correct PSet by module type
+      if (isPtypeSensor) {
+        Parameters = config_.getParameter<edm::ParameterSet>("PositionOfDigisSHPS");
+      } else {
+        Parameters = config_.getParameter<edm::ParameterSet>("PositionOfDigisSH2S");
+      }
       HistoName.str("");
       HistoName << "PositionOfDigisS";
       if (Parameters.getParameter<bool>("switch"))
@@ -620,7 +629,13 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
 
       // For standalone clusteriser
       if (clsFlag_) {
-        Parameters = config_.getParameter<edm::ParameterSet>("ClusterPositionSH");
+        // Choose the correct PSet by module type
+        if (isPtypeSensor) {
+          Parameters = config_.getParameter<edm::ParameterSet>("ClusterPositionSHPS");
+        } else {
+          Parameters = config_.getParameter<edm::ParameterSet>("ClusterPositionSH2S");
+        }
+
         HistoName.str("");
         HistoName << "ClusterPositionS";
         if (Parameters.getParameter<bool>("switch"))
@@ -634,7 +649,8 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
                                                       Parameters.getParameter<double>("ymax"));
       }
       // Only for the S-type sensor of PS module
-      // FracOfOverThresholdBits is only available for S-type sensor of PS module
+      // FracOfOverThresholdBits is only available for S-type sensor of PS
+      // module
       if (isPStypeModForTEDD_1 || isPStypeModForTEDD_2) {
         HistoName.str("");
         HistoName << "FractionOfOverThresholdDigis";
@@ -719,7 +735,6 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
                                                           Parameters.getParameter<int32_t>("Nbins"),
                                                           Parameters.getParameter<double>("xmin"),
                                                           Parameters.getParameter<double>("xmax"));
-
       Parameters = config_.getParameter<edm::ParameterSet>("ClusterWidthH");
       HistoName.str("");
       HistoName << "ClusterWidth";
@@ -757,5 +772,5 @@ void Phase2TrackerMonitorDigi::fillDigiClusters(DigiMEs& mes, std::vector<Ph2Dig
       mes.ClusterPositionS->Fill(iclus.position, iclus.column + 1);
   }
 }
-//define this as a plug-in
+// define this as a plug-in
 DEFINE_FWK_MODULE(Phase2TrackerMonitorDigi);
