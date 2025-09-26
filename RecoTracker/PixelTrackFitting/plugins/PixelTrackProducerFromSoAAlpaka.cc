@@ -313,7 +313,7 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
   };
 
   // stupid function that returns the skipped layers for a given layer pair (i, o)
-  // It works only for Phase-2 at the moment, but is meant as a temporary solution 
+  // It works only for Phase-2 at the moment, but is meant as a temporary solution
   // (needed for layer-skipping quadruplet rejection)
   auto getNskippedLayers = [&](const int i, const int o) {
     if (i == o)
