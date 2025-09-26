@@ -388,7 +388,7 @@ if __name__ == '__main__':
     parser.add_argument('-f', '--file', type=str, required=True,                                   help='Paths to the DQM ROOT file.')
     parser.add_argument('-j', '--jet',  type=str, default='hltAK4PFPuppiJets',                     help='Name of the jet collection')
     parser.add_argument('-o', '--odir', type=str, default="HLTJetValidationPlots", required=False, help='Path to the output directory.')
-    parser.add_argument('-l', '--sample_label', type=str, default="QCD (200 PU)", required=False,  help='Path to the output directory.')
+    parser.add_argument('-l', '--sample_label', type=str, default="QCD (200 PU)", required=False,  help='Sample label for plotting.')
     args = parser.parse_args()
 
     if not os.path.exists(args.odir):
@@ -406,11 +406,10 @@ if __name__ == '__main__':
                           'E': (30, 40, 50, 80, 100, 120, 140, 160, 200, 250, 300, 350, 400, 500, 600), # endcap
                           'F': (30, 40, 50, 80, 120, 240, 600)} # forward
 
-    if args.jet == 'hltAK4PFPuppiJets': JetType = "AK4 PF Puppi Jets"
-    elif args.jet == 'hltAK4PFClusterJets': JetType = "AK4 PF Cluster Jets"
-    elif args.jet == 'hltAK4PFJets': JetType = "AK4 PF Jets"
-    elif args.jet == 'hltAK4PFCHSJets': JetType = "AK4 PF CHS Jets"
-    else: JetType = args.jet
+    METType = {'hltAK4PFPuppiJets'   : "AK4 PF Puppi Jets",
+               'hltAK4PFClusterJets' : "AK4 PF Cluster Jets",
+               'hltAK4PFJets'        : "AK4 PF Jets",
+               'hltAK4PFCHSJets'     : "AK4 PF CHS Jets"}.get(args.jet, args.jet)
 
     colors = hep.style.CMS['axes.prop_cycle'].by_key()['color']
     markers = ('o', 's', 'd')
@@ -437,9 +436,9 @@ if __name__ == '__main__':
         nbins, bin_edges, bin_centers, bin_widths = define_bins(root_hist)
         values, errors = histo_values_errors(root_hist)
 
-        plt.errorbar(bin_centers, values, xerr=None, yerr=errors,
+        plotter.ax.errorbar(bin_centers, values, xerr=None, yerr=errors,
                      fmt='s', color='black', label=Label, **errorbar_kwargs)
-        plt.step(bin_edges[:-1], values, where="post", color='black')
+        plotter.ax.step(bin_edges[:-1], values, where="post", color='black')
         plotter.ax.text(0.03, 0.97, f"{JetType}", transform=plotter.ax.transAxes, fontsize=fontsize,
                         verticalalignment='top', horizontalalignment='left')
 
@@ -737,9 +736,9 @@ if __name__ == '__main__':
             nbins, bin_edges, bin_centers, bin_widths = define_bins(root_hist)
             values, errors = histo_values_errors(root_hist)
 
-            plt.errorbar(bin_centers, values, xerr=None, yerr=errors,
-                         label=Label, color=colors[i_var], fmt=markers[i_var], **errorbar_kwargs)
-            plt.step(bin_edges[:-1], values, where="post", color=colors[i_var], linewidth=2)
+            plotter.ax.errorbar(bin_centers, values, xerr=None, yerr=errors,
+                                label=Label, color=colors[i_var], fmt=markers[i_var], **errorbar_kwargs)
+            plotter.ax.step(bin_edges[:-1], values, where="post", color=colors[i_var], linewidth=2)
 
         plotter.labels(x=GroupedVarList[GroupedVar].xlabel, y='# Jets' if 'Multiplicity' in GroupedVar else '# Jets', legend_title='')
         plotter.save( os.path.join(args.odir, GroupedVar) )
@@ -871,10 +870,10 @@ if __name__ == '__main__':
                         for s, ds, m, dm in zip(sigmas, sigma_errors, means, mean_errors)]
                     ylabel = myResolLabel.ytitle(resol=True)
                 
-                plt.errorbar(bin_centers, y, xerr=None, yerr=y_errors,
-                             fmt=EtaInfo.marker(etareg), color=EtaInfo.color(etareg), label=EtaInfo.label(etareg),
-                             elinewidth=0.8, linewidth=2)
-                plt.stairs(y, bin_edges, color=EtaInfo.color(etareg))
+                plotter.ax.errorbar(bin_centers, y, xerr=None, yerr=y_errors,
+                                    fmt=EtaInfo.marker(etareg), color=EtaInfo.color(etareg), label=EtaInfo.label(etareg),
+                                    elinewidth=0.8, linewidth=2)
+                plotter.ax.stairs(y, bin_edges, color=EtaInfo.color(etareg))
 
             xlabel = HLabels.pt_label('gen') if 'Gen' in resol_type else HLabels.pt_label('reco')
             plotter.labels(x=xlabel, y=ylabel, legend_title='')
